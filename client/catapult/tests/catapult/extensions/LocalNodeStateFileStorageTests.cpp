@@ -23,8 +23,8 @@
 #include "catapult/cache/SupplementalData.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/cache_core/AccountStateCacheSubCachePlugin.h"
-#include "catapult/cache_core/BlockDifficultyCache.h"
-#include "catapult/cache_core/BlockDifficultyCacheSubCachePlugin.h"
+#include "catapult/cache_core/BlockStatisticCache.h"
+#include "catapult/cache_core/BlockStatisticCacheSubCachePlugin.h"
 #include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/consumers/BlockChainSyncHandlers.h"
 #include "catapult/extensions/LocalNodeChainScore.h"
@@ -33,6 +33,7 @@
 #include "catapult/model/BlockChainConfiguration.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/AccountStateTestUtils.h"
+#include "tests/test/core/StateTestUtils.h"
 #include "tests/test/local/LocalNodeTestState.h"
 #include "tests/test/local/LocalTestUtils.h"
 #include "tests/test/nemesis/NemesisCompatibleConfiguration.h"
@@ -71,30 +72,34 @@ namespace catapult { namespace extensions {
 			}
 		}
 
-		void PopulateBlockDifficultyCache(cache::BlockDifficultyCacheDelta& cacheDelta) {
-			for (auto i = 0u; i < Block_Cache_Size; ++i)
-				cacheDelta.insert(Height(i), Timestamp(2 * i + 1), Difficulty(3 * i + 1));
+		void PopulateBlockStatisticCache(cache::BlockStatisticCacheDelta& cacheDelta) {
+			for (auto i = 0u; i < Block_Cache_Size; ++i) {
+				auto seed = i + 1;
+				cacheDelta.insert({ Height(seed), Timestamp(2 * seed), Difficulty(3 * seed), BlockFeeMultiplier(4 * seed) });
+			}
 		}
 
-		void RandomSeedCache(cache::CatapultCache& catapultCache) {
+		void RandomSeedCache(cache::CatapultCache& catapultCache, const state::CatapultState& state) {
 			// Arrange: seed the cache with random data
 			{
 				auto delta = catapultCache.createDelta();
 				PopulateAccountStateCache(delta.sub<cache::AccountStateCache>());
-				PopulateBlockDifficultyCache(delta.sub<cache::BlockDifficultyCache>());
+				PopulateBlockStatisticCache(delta.sub<cache::BlockStatisticCache>());
+				delta.dependentState() = state;
 				catapultCache.commit(Height(54321));
 			}
 
 			// Sanity: data was seeded
 			auto view = catapultCache.createView();
 			EXPECT_EQ(Account_Cache_Size, view.sub<cache::AccountStateCache>().size());
-			EXPECT_EQ(Block_Cache_Size, view.sub<cache::BlockDifficultyCache>().size());
+			EXPECT_EQ(Block_Cache_Size, view.sub<cache::BlockStatisticCache>().size());
 		}
 
 		cache::SupplementalData CreateDeterministicSupplementalData() {
 			cache::SupplementalData supplementalData;
 			supplementalData.ChainScore = model::ChainScore(0x1234567890ABCDEF, 0xFEDCBA0987654321);
 			supplementalData.State.LastRecalculationHeight = model::ImportanceHeight(12345);
+			supplementalData.State.DynamicFeeMultiplier = BlockFeeMultiplier(334455);
 			supplementalData.State.NumTotalTransactions = 7654321;
 			return supplementalData;
 		}
@@ -102,20 +107,20 @@ namespace catapult { namespace extensions {
 		void PrepareAndSaveCompleteState(const config::CatapultDirectory& directory, cache::CatapultCache& cache) {
 			// Arrange:
 			auto supplementalData = CreateDeterministicSupplementalData();
-			RandomSeedCache(cache);
+			RandomSeedCache(cache, supplementalData.State);
 
 			LocalNodeStateSerializer serializer(directory);
-			serializer.save(cache, supplementalData.State, supplementalData.ChainScore);
+			serializer.save(cache, supplementalData.ChainScore);
 		}
 
 		void PrepareAndSaveSummaryState(const config::CatapultDirectory& directory, cache::CatapultCache& cache) {
 			// Arrange:
 			auto supplementalData = CreateDeterministicSupplementalData();
-			RandomSeedCache(cache);
+			RandomSeedCache(cache, supplementalData.State);
 
 			auto storages = const_cast<const cache::CatapultCache&>(cache).storages();
 			LocalNodeStateSerializer serializer(directory);
-			serializer.save(cache.createDelta(), storages, supplementalData.State, supplementalData.ChainScore, Height(54321));
+			serializer.save(cache.createDelta(), storages, supplementalData.ChainScore, Height(54321));
 		}
 
 		void AssertPreparedData(const StateHeights& heights, const LocalNodeStateRef& stateRef) {
@@ -125,9 +130,10 @@ namespace catapult { namespace extensions {
 
 			// - check supplemental data
 			EXPECT_EQ(model::ChainScore(0x1234567890ABCDEF, 0xFEDCBA0987654321), stateRef.Score.get());
-			EXPECT_EQ(model::ImportanceHeight(12345), stateRef.State.LastRecalculationHeight);
-			EXPECT_EQ(7654321u, stateRef.State.NumTotalTransactions);
-			EXPECT_EQ(Height(54321), stateRef.Cache.createView().height());
+
+			auto cacheView = stateRef.Cache.createView();
+			test::AssertEqual(CreateDeterministicSupplementalData().State, cacheView.dependentState());
+			EXPECT_EQ(Height(54321), cacheView.height());
 		}
 
 		// endregion
@@ -190,8 +196,14 @@ namespace catapult { namespace extensions {
 		EXPECT_EQ(Height(1), heights.Storage);
 
 		EXPECT_EQ(model::ChainScore(1), loadedState.ref().Score.get());
-		EXPECT_EQ(model::ImportanceHeight(1), loadedState.ref().State.LastRecalculationHeight);
-		EXPECT_EQ(Height(1), loadedState.ref().Cache.createView().height());
+
+		auto cacheView = loadedState.ref().Cache.createView();
+		auto expectedState = state::CatapultState();
+		expectedState.LastRecalculationHeight = model::ImportanceHeight(1);
+		expectedState.DynamicFeeMultiplier = BlockFeeMultiplier(1);
+		expectedState.NumTotalTransactions = 31;
+		test::AssertEqual(expectedState, cacheView.dependentState());
+		EXPECT_EQ(Height(1), cacheView.height());
 	}
 
 	// endregion
@@ -256,10 +268,10 @@ namespace catapult { namespace extensions {
 			auto expectedView = originalCache.createView();
 			auto actualView = loadedState.ref().Cache.createView();
 			EXPECT_EQ(expectedView.sub<cache::AccountStateCache>().size(), actualView.sub<cache::AccountStateCache>().size());
-			EXPECT_EQ(expectedView.sub<cache::BlockDifficultyCache>().size(), actualView.sub<cache::BlockDifficultyCache>().size());
+			EXPECT_EQ(expectedView.sub<cache::BlockStatisticCache>().size(), actualView.sub<cache::BlockStatisticCache>().size());
 
 			EXPECT_EQ(3u, test::CountFilesAndDirectories(stateDirectory.path()));
-			for (const auto* supplementalFilename : { "supplemental.dat", "AccountStateCache.dat", "BlockDifficultyCache.dat" })
+			for (const auto* supplementalFilename : { "supplemental.dat", "AccountStateCache.dat", "BlockStatisticCache.dat" })
 				EXPECT_TRUE(boost::filesystem::exists(stateDirectory.file(supplementalFilename))) << supplementalFilename;
 		}
 	}
@@ -287,7 +299,7 @@ namespace catapult { namespace extensions {
 
 			std::vector<std::unique_ptr<cache::SubCachePlugin>> subCaches;
 			subCaches.push_back(std::make_unique<cache::AccountStateCacheSubCachePlugin>(cacheConfig, options));
-			subCaches.push_back(std::make_unique<cache::BlockDifficultyCacheSubCachePlugin>(111));
+			subCaches.push_back(std::make_unique<cache::BlockStatisticCacheSubCachePlugin>(111));
 			return cache::CatapultCache(std::move(subCaches));
 		}
 
@@ -322,10 +334,10 @@ namespace catapult { namespace extensions {
 			EXPECT_EQ(0u, actualAccountStateCache.size());
 			EXPECT_FALSE(actualAccountStateCache.highValueAddresses().empty());
 			EXPECT_EQ(expectedView.sub<cache::AccountStateCache>().highValueAddresses(), actualAccountStateCache.highValueAddresses());
-			EXPECT_EQ(expectedView.sub<cache::BlockDifficultyCache>().size(), actualView.sub<cache::BlockDifficultyCache>().size());
+			EXPECT_EQ(expectedView.sub<cache::BlockStatisticCache>().size(), actualView.sub<cache::BlockStatisticCache>().size());
 
 			EXPECT_EQ(3u, test::CountFilesAndDirectories(stateDirectory.path()));
-			for (const auto* supplementalFilename : { "supplemental.dat", "AccountStateCache_summary.dat", "BlockDifficultyCache.dat" })
+			for (const auto* supplementalFilename : { "supplemental.dat", "AccountStateCache_summary.dat", "BlockStatisticCache.dat" })
 				EXPECT_TRUE(boost::filesystem::exists(stateDirectory.file(supplementalFilename))) << supplementalFilename;
 		}
 	}
@@ -394,20 +406,17 @@ namespace catapult { namespace extensions {
 		test::TempDirectoryGuard tempDir;
 		auto dataDirectory = config::CatapultDataDirectory(tempDir.name());
 		auto nodeConfig = config::NodeConfiguration::Uninitialized();
-		nodeConfig.ShouldUseCacheDatabaseStorage = true;
+		nodeConfig.EnableCacheDatabaseStorage = true;
 
 		// - seed the cache state with rocks disabled
 		auto blockChainConfig = model::BlockChainConfiguration::Uninitialized();
 		auto catapultCache = test::CoreSystemCacheFactory::Create(blockChainConfig);
-		RandomSeedCache(catapultCache);
-
 		auto supplementalData = CreateDeterministicSupplementalData();
+		RandomSeedCache(catapultCache, supplementalData.State);
 
 		// Act: save the state
 		constexpr auto SaveState = SaveStateToDirectoryWithCheckpointing;
-		EXPECT_THROW(
-				SaveState(dataDirectory, nodeConfig, catapultCache, supplementalData.State, supplementalData.ChainScore),
-				catapult_invalid_argument);
+		EXPECT_THROW(SaveState(dataDirectory, nodeConfig, catapultCache, supplementalData.ChainScore), catapult_invalid_argument);
 
 		// Assert:
 		EXPECT_EQ(consumers::CommitOperationStep::Blocks_Written, ReadCommitStep(dataDirectory));
@@ -418,14 +427,13 @@ namespace catapult { namespace extensions {
 		test::TempDirectoryGuard tempDir;
 		auto dataDirectory = config::CatapultDataDirectory(tempDir.name());
 		auto nodeConfig = config::NodeConfiguration::Uninitialized();
-		nodeConfig.ShouldUseCacheDatabaseStorage = false;
+		nodeConfig.EnableCacheDatabaseStorage = false;
 
 		// - seed the cache state with rocks disabled
 		auto blockChainConfig = model::BlockChainConfiguration::Uninitialized();
 		auto catapultCache = test::CoreSystemCacheFactory::Create(blockChainConfig);
-		RandomSeedCache(catapultCache);
-
 		auto supplementalData = CreateDeterministicSupplementalData();
+		RandomSeedCache(catapultCache, supplementalData.State);
 
 		// - trigger a moveTo failure
 		io::IndexFile(dataDirectory.rootDir().file("state")).set(0);
@@ -433,7 +441,7 @@ namespace catapult { namespace extensions {
 		// Act: save the state
 		constexpr auto SaveState = SaveStateToDirectoryWithCheckpointing;
 		EXPECT_THROW(
-				SaveState(dataDirectory, nodeConfig, catapultCache, supplementalData.State, supplementalData.ChainScore),
+				SaveState(dataDirectory, nodeConfig, catapultCache, supplementalData.ChainScore),
 				boost::filesystem::filesystem_error);
 
 		// Assert:
@@ -445,18 +453,17 @@ namespace catapult { namespace extensions {
 		test::TempDirectoryGuard tempDir;
 		auto dataDirectory = config::CatapultDataDirectory(tempDir.name());
 		auto nodeConfig = config::NodeConfiguration::Uninitialized();
-		nodeConfig.ShouldUseCacheDatabaseStorage = false;
+		nodeConfig.EnableCacheDatabaseStorage = false;
 
 		// - seed the cache state with rocks disabled
 		auto blockChainConfig = model::BlockChainConfiguration::Uninitialized();
 		auto catapultCache = test::CoreSystemCacheFactory::Create(blockChainConfig);
-		RandomSeedCache(catapultCache);
-
 		auto supplementalData = CreateDeterministicSupplementalData();
+		RandomSeedCache(catapultCache, supplementalData.State);
 
 		// Act: save the state
 		constexpr auto SaveState = SaveStateToDirectoryWithCheckpointing;
-		SaveState(dataDirectory, nodeConfig, catapultCache, supplementalData.State, supplementalData.ChainScore);
+		SaveState(dataDirectory, nodeConfig, catapultCache, supplementalData.ChainScore);
 
 		// Assert:
 		EXPECT_EQ(consumers::CommitOperationStep::All_Updated, ReadCommitStep(dataDirectory));
@@ -467,17 +474,16 @@ namespace catapult { namespace extensions {
 		test::TempDirectoryGuard tempDir;
 		auto dataDirectory = config::CatapultDataDirectory(tempDir.name());
 		auto nodeConfig = config::NodeConfiguration::Uninitialized();
-		nodeConfig.ShouldUseCacheDatabaseStorage = true;
+		nodeConfig.EnableCacheDatabaseStorage = true;
 
 		// - seed the cache state with rocks enabled
 		auto catapultCache = CreateCacheWithRealCoreSystemPlugins(tempDir.name() + "/db");
-		RandomSeedCache(catapultCache);
-
 		auto supplementalData = CreateDeterministicSupplementalData();
+		RandomSeedCache(catapultCache, supplementalData.State);
 
 		// Act: save the state
 		constexpr auto SaveState = SaveStateToDirectoryWithCheckpointing;
-		SaveState(dataDirectory, nodeConfig, catapultCache, supplementalData.State, supplementalData.ChainScore);
+		SaveState(dataDirectory, nodeConfig, catapultCache, supplementalData.ChainScore);
 
 		// Assert:
 		EXPECT_EQ(consumers::CommitOperationStep::All_Updated, ReadCommitStep(dataDirectory));

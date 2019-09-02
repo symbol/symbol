@@ -42,7 +42,7 @@ namespace catapult { namespace builders {
 		/// Sets the identifier of the mosaic providing the restriction key to \a referenceMosaicId.
 		void setReferenceMosaicId(UnresolvedMosaicId referenceMosaicId);
 
-		/// Sets the restriction key relative to the reference mosaic id to \a restrictionKey.
+		/// Sets the restriction key relative to the reference mosaic identifier to \a restrictionKey.
 		void setRestrictionKey(uint64_t restrictionKey);
 
 		/// Sets the previous restriction value to \a previousRestrictionValue.

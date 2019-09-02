@@ -29,14 +29,13 @@ namespace catapult { namespace observers {
 
 	namespace {
 		template<typename TAction>
-		void RunTestWithStateAndCache(TAction action) {
+		void RunTestWithCache(TAction action) {
 			// Arrange:
 			cache::CatapultCache cache({});
 			auto cacheDelta = cache.createDelta();
-			state::CatapultState state;
 
 			// Act:
-			action(cacheDelta, state);
+			action(cacheDelta);
 		}
 	}
 
@@ -44,25 +43,23 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, CanCreateObserverState) {
 		// Act:
-		RunTestWithStateAndCache([](auto& cacheDelta, auto& state) {
-			ObserverState observerState(cacheDelta, state);
+		RunTestWithCache([](auto& cacheDelta) {
+			ObserverState observerState(cacheDelta);
 
 			// Assert:
 			EXPECT_EQ(&cacheDelta, &observerState.Cache);
-			EXPECT_EQ(&state, &observerState.State);
 			EXPECT_FALSE(!!observerState.pBlockStatementBuilder);
 		});
 	}
 
 	TEST(TEST_CLASS, CanCreateObserverStateWithBlockStatementBuilder) {
 		// Act:
-		RunTestWithStateAndCache([](auto& cacheDelta, auto& state) {
+		RunTestWithCache([](auto& cacheDelta) {
 			model::BlockStatementBuilder blockStatementBuilder;
-			ObserverState observerState(cacheDelta, state, blockStatementBuilder);
+			ObserverState observerState(cacheDelta, blockStatementBuilder);
 
 			// Assert:
 			EXPECT_EQ(&cacheDelta, &observerState.Cache);
-			EXPECT_EQ(&state, &observerState.State);
 			EXPECT_EQ(&blockStatementBuilder, observerState.pBlockStatementBuilder);
 		});
 	}
@@ -87,14 +84,9 @@ namespace catapult { namespace observers {
 			statementBuilder.addReceipt(receipt);
 		}
 
-		void AssertContext(
-				const ObserverContext& context,
-				const cache::CatapultCacheDelta& cacheDelta,
-				const state::CatapultState& state,
-				NotifyMode mode) {
+		void AssertContext(const ObserverContext& context, const cache::CatapultCacheDelta& cacheDelta, NotifyMode mode) {
 			// Assert:
 			EXPECT_EQ(&cacheDelta, &context.Cache);
-			EXPECT_EQ(&state, &context.State);
 			EXPECT_EQ(Default_Height, context.Height);
 			EXPECT_EQ(mode, context.Mode);
 
@@ -109,25 +101,25 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, CanCreateCommitObserverContextWithoutBlockStatementBuilder) {
 		// Act:
-		RunTestWithStateAndCache([](auto& cacheDelta, auto& state) {
-			ObserverContext context(ObserverState(cacheDelta, state), Default_Height, NotifyMode::Commit, CreateResolverContext());
+		RunTestWithCache([](auto& cacheDelta) {
+			ObserverContext context(ObserverState(cacheDelta), Default_Height, NotifyMode::Commit, CreateResolverContext());
 			AddRandomReceipt(context.StatementBuilder());
 
 			// Assert:
-			AssertContext(context, cacheDelta, state, NotifyMode::Commit);
+			AssertContext(context, cacheDelta, NotifyMode::Commit);
 		});
 	}
 
 	TEST(TEST_CLASS, CanCreateCommitObserverContextWithBlockStatementBuilder) {
 		// Act:
-		RunTestWithStateAndCache([](auto& cacheDelta, auto& state) {
+		RunTestWithCache([](auto& cacheDelta) {
 			model::BlockStatementBuilder blockStatementBuilder;
-			auto observerState = ObserverState(cacheDelta, state, blockStatementBuilder);
+			auto observerState = ObserverState(cacheDelta, blockStatementBuilder);
 			ObserverContext context(observerState, Default_Height, NotifyMode::Commit, CreateResolverContext());
 			AddRandomReceipt(context.StatementBuilder());
 
 			// Assert:
-			AssertContext(context, cacheDelta, state, NotifyMode::Commit);
+			AssertContext(context, cacheDelta, NotifyMode::Commit);
 
 			auto pStatement = blockStatementBuilder.build();
 			EXPECT_EQ(1u, pStatement->TransactionStatements.size()); // AddRandomReceipt
@@ -138,25 +130,25 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, CanCreateRollbackObserverContextWithoutBlockStatementBuilder) {
 		// Act:
-		RunTestWithStateAndCache([](auto& cacheDelta, auto& state) {
-			ObserverContext context(ObserverState(cacheDelta, state), Default_Height, NotifyMode::Rollback, CreateResolverContext());
+		RunTestWithCache([](auto& cacheDelta) {
+			ObserverContext context(ObserverState(cacheDelta), Default_Height, NotifyMode::Rollback, CreateResolverContext());
 			AddRandomReceipt(context.StatementBuilder());
 
 			// Assert:
-			AssertContext(context, cacheDelta, state, NotifyMode::Rollback);
+			AssertContext(context, cacheDelta, NotifyMode::Rollback);
 		});
 	}
 
 	TEST(TEST_CLASS, CanCreateRollbackObserverContextWithBlockStatementBuilder) {
 		// Act: (this test is added for completeness because receipts are never generated during rollback)
-		RunTestWithStateAndCache([](auto& cacheDelta, auto& state) {
+		RunTestWithCache([](auto& cacheDelta) {
 			model::BlockStatementBuilder blockStatementBuilder;
-			auto observerState = ObserverState(cacheDelta, state, blockStatementBuilder);
+			auto observerState = ObserverState(cacheDelta, blockStatementBuilder);
 			ObserverContext context(observerState, Default_Height, NotifyMode::Rollback, CreateResolverContext());
 			AddRandomReceipt(context.StatementBuilder());
 
 			// Assert:
-			AssertContext(context, cacheDelta, state, NotifyMode::Rollback);
+			AssertContext(context, cacheDelta, NotifyMode::Rollback);
 
 			auto pStatement = blockStatementBuilder.build();
 			EXPECT_EQ(1u, pStatement->TransactionStatements.size()); // AddRandomReceipt

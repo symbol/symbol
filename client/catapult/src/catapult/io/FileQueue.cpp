@@ -111,7 +111,7 @@ namespace catapult { namespace io {
 		return readerIndexValue > writerIndexValue ? 0 : writerIndexValue - readerIndexValue;
 	}
 
-	bool FileQueueReader::tryReadNextMessage(const consumer<std::vector<uint8_t>>& consumer) {
+	bool FileQueueReader::tryReadNextMessage(const consumer<const std::vector<uint8_t>&>& consumer) {
 		return process([consumer](const auto& nextMessageFilename) {
 			auto buffer = ReadAllContents(nextMessageFilename);
 			consumer(buffer);

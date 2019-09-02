@@ -54,7 +54,7 @@ NAMESPACES_FALSEPOSITIVES = (
     re.compile(r'tests.bench.nodeps.BenchMain.cpp'),
 
     # mongo plugins (only entry point)
-    re.compile(r'extensions.mongo.plugins.*.src.Mongo.*Plugin.cpp'),
+    re.compile(r'extensions.mongo.plugins.*.src.Mongo.*Plugin.cpp')
 )
 
 EMPTYLINES_FALSEPOSITIVES = (
@@ -82,11 +82,12 @@ SPECIAL_INCLUDES = (
     re.compile(r'<sys/resource.h>'),
     re.compile(r'<sys/time.h>'),
     re.compile(r'<unistd.h>'),
-    re.compile(r'<windows.h>'),
+    re.compile(r'<windows.h>')
 )
 
 CORE_FIRSTINCLUDES = {
     # src
+    'src/catapult/consumers/BatchSignatureConsumer.cpp': 'BlockConsumers.h',
     'src/catapult/consumers/BlockChainCheckConsumer.cpp': 'BlockConsumers.h',
     'src/catapult/consumers/BlockChainSyncCleanupConsumer.cpp': 'BlockConsumers.h',
     'src/catapult/consumers/BlockChainSyncConsumer.cpp': 'BlockConsumers.h',
@@ -106,6 +107,7 @@ CORE_FIRSTINCLUDES = {
     # tests
     'tests/test/nodeps/TestMain.cpp': 'catapult/utils/ConfigurationValueParsers.h',
 
+    'tests/catapult/consumers/BatchSignatureConsumerTests.cpp': 'catapult/consumers/BlockConsumers.h',
     'tests/catapult/consumers/BlockChainCheckConsumerTests.cpp': 'catapult/consumers/BlockConsumers.h',
     'tests/catapult/consumers/BlockChainSyncCleanupConsumerTests.cpp': 'catapult/consumers/BlockConsumers.h',
     'tests/catapult/consumers/BlockChainSyncConsumerTests.cpp': 'catapult/consumers/BlockConsumers.h',
@@ -155,7 +157,7 @@ TOOLS_FIRSTINCLUDES = {
 EXTENSION_FIRSTINCLUDES = {
     'extensions/mongo/plugins/metadata/src/MongoMetadataPlugin.cpp': 'AccountMetadataMapper.h',
     'extensions/mongo/plugins/mosaic/src/MongoMosaicPlugin.cpp': 'MosaicDefinitionMapper.h',
-    'extensions/mongo/plugins/multisig/src/MongoMultisigPlugin.cpp': 'ModifyMultisigAccountMapper.h',
+    'extensions/mongo/plugins/multisig/src/MongoMultisigPlugin.cpp': 'MultisigAccountModificationMapper.h',
     'extensions/mongo/plugins/namespace/src/MongoNamespacePlugin.cpp': 'AddressAliasMapper.h',
     'extensions/mongo/plugins/restriction_mosaic/src/MongoMosaicRestrictionPlugin.cpp': 'MosaicAddressRestrictionMapper.h'
 }
@@ -163,7 +165,7 @@ EXTENSION_FIRSTINCLUDES = {
 SKIP_FORWARDS = (
     re.compile(r'src.catapult.validators.ValidatorTypes.h'),
     re.compile(r'src.catapult.utils.ClampedBaseValue.h'),
-    re.compile(r'.*\.cpp$'),
+    re.compile(r'.*\.cpp$')
 )
 
 FILTER_NAMESPACES = (

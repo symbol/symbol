@@ -167,14 +167,14 @@ namespace catapult { namespace validators {
 		EXPECT_EQ("Failure_Consumer_Remote_Chain_Improper_Link", test::ToString(static_cast<ValidationResult>(0x80FE0005)));
 		EXPECT_EQ("Failure_Core_Insufficient_Balance", test::ToString(static_cast<ValidationResult>(0x80430003)));
 		EXPECT_EQ("Failure_Extension_Partial_Transaction_Cache_Prune", test::ToString(static_cast<ValidationResult>(0x80450001)));
-		EXPECT_EQ("Failure_Hash_Exists", test::ToString(static_cast<ValidationResult>(0x81490001)));
+		EXPECT_EQ("Failure_Hash_Already_Exists", test::ToString(static_cast<ValidationResult>(0x81490001)));
 		EXPECT_EQ("Failure_LockHash_Invalid_Mosaic_Amount", test::ToString(static_cast<ValidationResult>(0x80480002)));
 		EXPECT_EQ("Failure_LockSecret_Invalid_Hash_Algorithm", test::ToString(static_cast<ValidationResult>(0x80520001)));
 		EXPECT_EQ("Failure_Metadata_Value_Too_Large", test::ToString(static_cast<ValidationResult>(0x80440002)));
 		EXPECT_EQ("Failure_Mosaic_Invalid_Name", test::ToString(static_cast<ValidationResult>(0x804D0002)));
-		EXPECT_EQ("Failure_Multisig_Modify_Redundant_Modifications", test::ToString(static_cast<ValidationResult>(0x80550003)));
+		EXPECT_EQ("Failure_Multisig_Redundant_Modifications", test::ToString(static_cast<ValidationResult>(0x80550003)));
 		EXPECT_EQ("Failure_Namespace_Invalid_Name", test::ToString(static_cast<ValidationResult>(0x804E0002)));
-		EXPECT_EQ("Failure_RestrictionAccount_Modification_Address_Invalid", test::ToString(static_cast<ValidationResult>(0x80500003)));
+		EXPECT_EQ("Failure_RestrictionAccount_Invalid_Modification_Address", test::ToString(static_cast<ValidationResult>(0x80500003)));
 		EXPECT_EQ("Failure_RestrictionMosaic_Max_Restrictions_Exceeded", test::ToString(static_cast<ValidationResult>(0x80510004)));
 		EXPECT_EQ("Failure_Signature_Not_Verifiable", test::ToString(static_cast<ValidationResult>(0x80530001)));
 		EXPECT_EQ("Failure_Transfer_Message_Too_Large", test::ToString(static_cast<ValidationResult>(0x80540001)));

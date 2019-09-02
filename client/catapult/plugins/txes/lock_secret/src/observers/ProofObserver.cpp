@@ -39,7 +39,7 @@ namespace catapult { namespace observers {
 			}
 
 			static auto DestinationAccount(const state::SecretLockInfo& lockInfo) {
-				return lockInfo.Recipient;
+				return lockInfo.RecipientAddress;
 			}
 		};
 	}

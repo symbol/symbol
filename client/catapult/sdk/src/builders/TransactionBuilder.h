@@ -30,16 +30,16 @@ namespace catapult { namespace builders {
 	/// Base transaction builder.
 	class TransactionBuilder {
 	public:
-		/// Creates a transaction builder with \a networkIdentifier and \a signer.
-		TransactionBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
+		/// Creates a transaction builder with \a networkIdentifier and \a signerPublicKey.
+		TransactionBuilder(model::NetworkIdentifier networkIdentifier, const Key& signerPublicKey)
 				: m_networkIdentifier(networkIdentifier)
-				, m_signer(signer)
+				, m_signerPublicKey(signerPublicKey)
 		{}
 
 	public:
-		/// Returns signer.
-		const Key& signer() const {
-			return m_signer;
+		/// Returns signer public key.
+		const Key& signerPublicKey() const {
+			return m_signerPublicKey;
 		}
 
 	public:
@@ -72,7 +72,7 @@ namespace catapult { namespace builders {
 			pTransaction->Size = utils::checked_cast<size_t, uint32_t>(size);
 			pTransaction->Type = TTransaction::Entity_Type;
 			pTransaction->Version = MakeVersion(m_networkIdentifier, TTransaction::Current_Version);
-			pTransaction->Signer = m_signer;
+			pTransaction->SignerPublicKey = m_signerPublicKey;
 
 			// transaction data
 			setAdditionalFields(*pTransaction);
@@ -90,7 +90,7 @@ namespace catapult { namespace builders {
 
 	private:
 		const model::NetworkIdentifier m_networkIdentifier;
-		const Key& m_signer;
+		const Key& m_signerPublicKey;
 
 		Timestamp m_deadline;
 		Amount m_maxFee;

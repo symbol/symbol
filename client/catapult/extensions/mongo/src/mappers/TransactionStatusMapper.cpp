@@ -27,9 +27,11 @@ namespace catapult { namespace mongo { namespace mappers {
 	bsoncxx::document::value ToDbModel(const model::TransactionStatus& status) {
 		bson_stream::document builder;
 		return builder
-				<< "hash" << ToBinary(status.Hash)
-				<< "status" << static_cast<int32_t>(status.Status)
-				<< "deadline" << ToInt64(status.Deadline)
+				<< "status" << bson_stream::open_document
+					<< "hash" << ToBinary(status.Hash)
+					<< "code" << static_cast<int32_t>(status.Status)
+					<< "deadline" << ToInt64(status.Deadline)
+				<< bson_stream::close_document
 				<< bson_stream::finalize;
 	}
 }}}

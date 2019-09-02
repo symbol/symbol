@@ -143,7 +143,7 @@ namespace catapult { namespace sync {
 			AddSupplementalDataResiliencyTestContext()
 					: m_dataDirectory(m_tempDir.name())
 					, m_cache({}) {
-				m_syncHandlers.PreStateWritten = [&counters = m_counters](const auto&, const auto&, auto) {
+				m_syncHandlers.PreStateWritten = [&counters = m_counters](const auto&, auto) {
 					++counters.NumPreStateWrittenCalls;
 				};
 				m_syncHandlers.CommitStep = [&counters = m_counters](auto) {
@@ -169,7 +169,7 @@ namespace catapult { namespace sync {
 		public:
 			void runPreStateWrittenTest() {
 				// Act:
-				m_syncHandlers.PreStateWritten(m_cache.createDelta(), state::CatapultState(), Height());
+				m_syncHandlers.PreStateWritten(m_cache.createDelta(), Height());
 
 				// Assert:
 				EXPECT_EQ(1u, m_counters.NumPreStateWrittenCalls);

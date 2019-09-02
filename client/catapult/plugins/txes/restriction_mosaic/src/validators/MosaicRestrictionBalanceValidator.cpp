@@ -46,7 +46,7 @@ namespace catapult { namespace validators {
 				return ValidationResult::Success;
 
 			if (cache::MosaicGlobalRestrictionRuleResolutionResult::Invalid_Rule == result)
-				return Failure_RestrictionMosaic_Global_Restriction_Invalid;
+				return Failure_RestrictionMosaic_Invalid_Global_Restriction;
 
 			return addressRulesEvaluator(cache, mosaicRules)
 					? ValidationResult::Success

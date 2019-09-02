@@ -65,12 +65,12 @@ namespace catapult { namespace cache {
 
 	public:
 		bool add(const Key& signer, const Signature& signature) {
-			if (weakCosignedTransactionInfo().hasCosigner(signer))
+			if (weakCosignedTransactionInfo().hasCosignatory(signer))
 				return false;
 
 			// insert cosignature into sorted vector
 			auto iter = m_cosignatures.begin();
-			while (m_cosignatures.end() != iter && iter->Signer < signer)
+			while (m_cosignatures.end() != iter && iter->SignerPublicKey < signer)
 				++iter;
 
 			m_cosignatures.insert(iter, { signer, signature });

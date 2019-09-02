@@ -35,7 +35,7 @@ namespace catapult { namespace model {
 			auto expectedSize =
 					baseSize // base
 					+ sizeof(UnresolvedMosaicId) // mosaic id
-					+ sizeof(uint8_t) // direction
+					+ sizeof(uint8_t) // action
 					+ sizeof(Amount); // delta
 
 			// Assert:
@@ -55,6 +55,8 @@ namespace catapult { namespace model {
 
 	// endregion
 
+	// region CalculateRealSize
+
 	TEST(TEST_CLASS, CanCalculateRealSizeWithReasonableValues) {
 		// Arrange:
 		MosaicSupplyChangeTransaction transaction;
@@ -66,4 +68,6 @@ namespace catapult { namespace model {
 		// Assert:
 		EXPECT_EQ(sizeof(MosaicSupplyChangeTransaction), realSize);
 	}
+
+	// endregion
 }}

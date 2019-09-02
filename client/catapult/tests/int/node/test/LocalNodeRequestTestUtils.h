@@ -31,6 +31,7 @@
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/local/LocalTestUtils.h"
+#include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/nodeps/MijinConstants.h"
 #include "tests/test/other/RemoteApiFactory.h"
 

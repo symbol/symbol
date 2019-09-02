@@ -24,7 +24,7 @@
 #include <vector>
 
 namespace catapult {
-	namespace cache { class BlockDifficultyCache; }
+	namespace cache { class BlockStatisticCache; }
 	namespace model { struct BlockChainConfiguration; }
 }
 
@@ -37,7 +37,7 @@ namespace catapult { namespace chain {
 	/// for the block chain described by \a config. If there is an inconsistency, the index of the first
 	/// difference is returned. Otherwise, the size of \a blocks is returned.
 	size_t CheckDifficulties(
-			const cache::BlockDifficultyCache& cache,
+			const cache::BlockStatisticCache& cache,
 			const std::vector<const model::Block*>& blocks,
 			const model::BlockChainConfiguration& config);
 

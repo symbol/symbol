@@ -86,6 +86,8 @@ namespace catapult { namespace tools { namespace nemgen {
 				// 3. update block with result of execution
 				CATAPULT_LOG(info) << "*** Nemesis Summary ***" << std::endl << executionHashesDescriptor.Summary;
 				blockElement.EntityHash = UpdateNemesisBlock(nemesisConfig, *pBlock, executionHashesDescriptor);
+				if (config.BlockChain.EnableVerifiableReceipts)
+					blockElement.OptionalStatement = std::move(executionHashesDescriptor.pBlockStatement);
 
 				// 4. save the nemesis block element
 				SaveNemesisBlockElement(blockElement, nemesisConfig);

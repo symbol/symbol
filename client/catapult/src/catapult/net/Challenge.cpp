@@ -24,14 +24,15 @@
 #include "catapult/utils/Casting.h"
 #include "catapult/utils/HexFormatter.h"
 #include "catapult/utils/Logging.h"
+#include "catapult/utils/RandomGenerator.h"
 #include <random>
 
 namespace catapult { namespace net {
 
 	namespace {
 		void GenerateRandomChallenge(Challenge& challenge) {
-			std::random_device generator;
-			std::generate_n(challenge.begin(), challenge.size(), [&generator]() { return static_cast<uint8_t>(generator()); });
+			utils::LowEntropyRandomGenerator generator;
+			generator.fill(challenge.data(), challenge.size());
 		}
 
 		RawBuffer ToRawBuffer(const ionet::ConnectionSecurityMode& securityMode) {
@@ -44,7 +45,7 @@ namespace catapult { namespace net {
 			CATAPULT_LOG(trace) << "signature: " << computedSignature;
 		}
 
-		bool VerifyChallenge(const Key& publicKey, std::initializer_list<const RawBuffer> buffers, const Signature& signature) {
+		bool VerifyChallenge(const Key& publicKey, const std::vector<RawBuffer>& buffers, const Signature& signature) {
 			CATAPULT_LOG(trace) << "verify signature: " << signature;
 			auto isVerified = crypto::Verify(publicKey, buffers, signature);
 			CATAPULT_LOG(debug) << "verify signature result: " << isVerified;

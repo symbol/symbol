@@ -90,7 +90,7 @@ namespace catapult { namespace local {
 
 			// 3. give each node its own key
 			auto& userConfig = const_cast<config::UserConfiguration&>(config.User);
-			userConfig.BootKey = test::Mijin_Test_Private_Keys[id];
+			userConfig.BootPrivateKey = test::Mijin_Test_Private_Keys[id];
 
 			// 4. ensure configuration is valid
 			ValidateConfiguration(config);
@@ -238,7 +238,7 @@ namespace catapult { namespace local {
 
 				model::BlockStatementBuilder blockStatementBuilder;
 				auto currencyMosaicId = test::Default_Currency_Mosaic_Id;
-				model::BalanceChangeReceipt receipt(model::Receipt_Type_Harvest_Fee, block.Signer, currencyMosaicId, totalFee);
+				model::BalanceChangeReceipt receipt(model::Receipt_Type_Harvest_Fee, block.SignerPublicKey, currencyMosaicId, totalFee);
 				blockStatementBuilder.addReceipt(receipt);
 
 				auto pStatement = blockStatementBuilder.build();

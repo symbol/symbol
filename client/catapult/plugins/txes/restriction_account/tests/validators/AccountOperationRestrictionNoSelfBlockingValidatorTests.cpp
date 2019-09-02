@@ -33,11 +33,11 @@ namespace catapult { namespace validators {
 	namespace {
 		using Notification = model::ModifyAccountOperationRestrictionValueNotification;
 
-		constexpr auto Add = model::AccountRestrictionModificationType::Add;
-		constexpr auto Del = model::AccountRestrictionModificationType::Del;
+		constexpr auto Add = model::AccountRestrictionModificationAction::Add;
+		constexpr auto Del = model::AccountRestrictionModificationAction::Del;
 		constexpr auto Relevant_Entity_Type = model::AccountOperationRestrictionTransaction::Entity_Type;
 		constexpr auto Restriction_Type = model::AccountRestrictionType::TransactionType | model::AccountRestrictionType::Outgoing;
-		constexpr auto Failure_Result = Failure_RestrictionAccount_Modification_Not_Allowed;
+		constexpr auto Failure_Result = Failure_RestrictionAccount_Invalid_Modification;
 
 		struct AccountOperationRestrictionTraits : public test::BaseAccountOperationRestrictionTraits {
 			using NotificationType = model::ModifyAccountOperationRestrictionValueNotification;

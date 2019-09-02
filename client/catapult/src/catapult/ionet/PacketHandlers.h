@@ -24,6 +24,7 @@
 #include "catapult/utils/NonCopyable.h"
 #include "catapult/functions.h"
 #include "catapult/types.h"
+#include <unordered_set>
 #include <vector>
 
 namespace catapult { namespace ionet {
@@ -89,14 +90,24 @@ namespace catapult { namespace ionet {
 		bool process(const Packet& packet, ContextType& context) const;
 
 	public:
-		/// Registers a \a handler for the specified packet \a type.
+		/// Sets \a hosts that are allowed to access subsequently registered handlers.
+		void setAllowedHosts(const std::unordered_set<std::string>& hosts);
+
+		/// Registers \a handler for the specified packet \a type.
 		void registerHandler(PacketType type, const PacketHandler& handler);
 
 	private:
-		const PacketHandler* findHandler(const Packet& packet) const;
+		struct PacketHandlerDescriptor {
+			PacketHandler Handler;
+			std::unordered_set<std::string> AllowedHosts;
+		};
+
+	private:
+		const PacketHandlerDescriptor* findDescriptor(const Packet& packet) const;
 
 	private:
 		uint32_t m_maxPacketDataSize;
-		std::vector<PacketHandler> m_handlers;
+		std::vector<PacketHandlerDescriptor> m_descriptors;
+		std::unordered_set<std::string> m_activeAllowedHosts;
 	};
 }}

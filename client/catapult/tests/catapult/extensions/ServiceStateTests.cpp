@@ -43,7 +43,6 @@ namespace catapult { namespace extensions {
 
 		ionet::NodeContainer nodes;
 		auto catapultCache = cache::CatapultCache({});
-		state::CatapultState catapultState;
 		io::BlockStorageCache storage(
 				std::make_unique<mocks::MockMemoryBlockStorage>(),
 				std::make_unique<mocks::MockMemoryBlockStorage>());
@@ -69,7 +68,6 @@ namespace catapult { namespace extensions {
 				config,
 				nodes,
 				catapultCache,
-				catapultState,
 				storage,
 				score,
 				*pUtCache,
@@ -86,7 +84,6 @@ namespace catapult { namespace extensions {
 		EXPECT_EQ(&config, &state.config());
 		EXPECT_EQ(&nodes, &state.nodes());
 		EXPECT_EQ(&catapultCache, &state.cache());
-		EXPECT_EQ(&catapultState, &state.state());
 		EXPECT_EQ(&storage, &state.storage());
 		EXPECT_EQ(&score, &state.score());
 		EXPECT_EQ(pUtCache.get(), &state.utCache());

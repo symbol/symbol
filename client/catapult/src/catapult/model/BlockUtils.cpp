@@ -65,7 +65,7 @@ namespace catapult { namespace model {
 	}
 
 	bool VerifyBlockHeaderSignature(const Block& block) {
-		return crypto::Verify(block.Signer, BlockDataBuffer(block), block.Signature);
+		return crypto::Verify(block.SignerPublicKey, BlockDataBuffer(block), block.Signature);
 	}
 
 	// endregion
@@ -120,7 +120,9 @@ namespace catapult { namespace model {
 			std::memset(static_cast<void*>(pBlock.get()), 0, sizeof(BlockHeader));
 			pBlock->Size = static_cast<uint32_t>(size);
 
-			pBlock->Signer = signerPublicKey;
+			pBlock->SignerPublicKey = signerPublicKey;
+			pBlock->BeneficiaryPublicKey = signerPublicKey;
+
 			pBlock->Version = MakeVersion(networkIdentifier, 3);
 			pBlock->Type = Entity_Type_Block;
 

@@ -20,10 +20,11 @@
 
 #include "harvesting/src/ScheduledHarvesterTask.h"
 #include "harvesting/src/Harvester.h"
-#include "catapult/cache_core/BlockDifficultyCache.h"
+#include "catapult/cache_core/BlockStatisticCache.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/KeyPairTestUtils.h"
+#include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/nodeps/TestConstants.h"
 #include "tests/TestHarness.h"
 
@@ -75,7 +76,7 @@ namespace catapult { namespace harvesting {
 					++NumRangeConsumerCalls;
 					const auto& block = *range.cbegin();
 					BlockHeight = block.Height;
-					BlockSigner = block.Signer;
+					BlockSigner = block.SignerPublicKey;
 					CompletionFunction = processingComplete;
 				};
 				pLastBlock->Size = sizeof(model::BlockHeader);
@@ -93,11 +94,11 @@ namespace catapult { namespace harvesting {
 			disruptor::ProcessingCompleteFunc CompletionFunction;
 		};
 
-		void AddDifficultyInfo(cache::CatapultCache& cache, const model::Block& block) {
+		void AddStatistic(cache::CatapultCache& cache, const model::Block& block) {
 			auto delta = cache.createDelta();
-			auto& difficultyCache = delta.sub<cache::BlockDifficultyCache>();
-			state::BlockDifficultyInfo info(block.Height, block.Timestamp, block.Difficulty);
-			difficultyCache.insert(info);
+			auto& statisticCache = delta.sub<cache::BlockStatisticCache>();
+			state::BlockStatistic statistic(block);
+			statisticCache.insert(statistic);
 			cache.commit(Height());
 		}
 
@@ -121,8 +122,8 @@ namespace catapult { namespace harvesting {
 			HarvesterContext(const model::Block& lastBlock)
 					: Config(CreateConfiguration())
 					, Cache(test::CreateEmptyCatapultCache(Config))
-					, Accounts(1) {
-				AddDifficultyInfo(Cache, lastBlock);
+					, Accounts(1, [](const auto&) { return 0; }) {
+				AddStatistic(Cache, lastBlock);
 			}
 
 			model::BlockChainConfiguration Config;

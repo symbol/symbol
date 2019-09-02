@@ -42,7 +42,7 @@ namespace catapult { namespace test {
 				plugins.emplace("catapult.plugins.restrictionaccount", utils::ConfigurationBag({{
 					"",
 					{
-						{ "maxAccountRestrictionValues", "10" },
+						{ "maxAccountRestrictionValues", "10" }
 					}
 				}}));
 			}

@@ -25,18 +25,16 @@
 
 namespace catapult { namespace validators {
 
-	/// A weakly typed entity validator.
-	/// \note This is intended to be used only for stateless validation.
-	template<typename... TArgs>
-	class EntityValidatorT {
+	/// A weakly typed stateless entity validator.
+	class StatelessEntityValidator {
 	public:
-		virtual ~EntityValidatorT() = default;
+		virtual ~StatelessEntityValidator() = default;
 
 	public:
 		/// Gets the validator name.
 		virtual const std::string& name() const = 0;
 
 		/// Validates a single \a entityInfo with contextual information \a args.
-		virtual ValidationResult validate(const model::WeakEntityInfo& entityInfo, TArgs&&... args) const = 0;
+		virtual ValidationResult validate(const model::WeakEntityInfo& entityInfo) const = 0;
 	};
 }}

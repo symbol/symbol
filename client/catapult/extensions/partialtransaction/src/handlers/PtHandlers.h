@@ -26,7 +26,7 @@
 namespace catapult { namespace handlers {
 
 	/// Registers a push partial transactions handler in \a handlers that forwards transactions to \a transactionRangeHandler
-	/// given a \a registry composed of known transactions.
+	/// given a transaction \a registry composed of known transactions.
 	void RegisterPushPartialTransactionsHandler(
 			ionet::ServerPacketHandlers& handlers,
 			const model::TransactionRegistry& registry,

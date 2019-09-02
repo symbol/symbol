@@ -22,6 +22,7 @@
 #include "src/cache/MosaicCache.h"
 #include "catapult/model/BlockChainConfiguration.h"
 #include "tests/test/MosaicCacheTestUtils.h"
+#include "tests/test/MosaicTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -34,8 +35,7 @@ namespace catapult { namespace validators {
 	namespace {
 		constexpr MosaicId Default_Mosaic_Id = MosaicId(0x1234);
 
-		model::MosaicDefinitionNotification CreateNotification(const Key& signer, BlockDuration duration) {
-			auto properties = model::MosaicProperties::FromValues({ { 1, 2, duration.unwrap() } });
+		model::MosaicDefinitionNotification CreateNotification(const Key& signer, const model::MosaicProperties& properties) {
 			return model::MosaicDefinitionNotification(signer, Default_Mosaic_Id, properties);
 		}
 
@@ -67,29 +67,66 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	// region failure
+	// region no duration change
 
-	TEST(TEST_CLASS, FailureWhenChangingDurationFromEternalToNonEternal) {
+	TEST(TEST_CLASS, SuccessWhenNonEternalMosaicIsKnownAndDeltaIsZero) {
 		// Arrange:
 		auto signer = test::GenerateRandomByteArray<Key>();
-		auto notification = CreateNotification(signer, BlockDuration(123));
+		auto properties = test::CreateMosaicPropertiesFromValues(0, 0, 0);
+		auto notification = CreateNotification(signer, properties);
+
+		// - seed the cache
+		auto cache = test::MosaicCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
+		AddMosaic(cache, signer, BlockDuration(123));
+
+		// Assert:
+		AssertValidationResult(ValidationResult::Success, cache, notification);
+	}
+
+	TEST(TEST_CLASS, SuccessWhenEternalMosaicIsKnownAndDeltaIsZero) {
+		// Arrange:
+		auto signer = test::GenerateRandomByteArray<Key>();
+		auto properties = test::CreateMosaicPropertiesFromValues(0, 0, 0);
+		auto notification = CreateNotification(signer, properties);
 
 		// - seed the cache
 		auto cache = test::MosaicCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
 		AddEternalMosaic(cache, signer);
 
 		// Assert:
-		AssertValidationResult(Failure_Mosaic_Invalid_Duration, cache, notification);
+		AssertValidationResult(ValidationResult::Success, cache, notification);
 	}
 
-	TEST(TEST_CLASS, FailureWhenChangingDurationFromNonEternalToEternal) {
-		// Arrange:
+	// endregion
+
+	// region unknown mosaic
+
+	TEST(TEST_CLASS, SuccessWhenMosaicIsUnknown) {
+		// Arrange: although max duration is 123, it still should pass (MosaicPropertiesValidator checks for max duration)
 		auto signer = test::GenerateRandomByteArray<Key>();
-		auto notification = CreateNotification(signer, BlockDuration());
+		auto properties = test::CreateMosaicPropertiesFromValues(0, 0, 124);
+		auto notification = CreateNotification(signer, properties);
 
 		// - seed the cache
 		auto cache = test::MosaicCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
-		AddMosaic(cache, signer, BlockDuration(123));
+
+		// Assert:
+		AssertValidationResult(ValidationResult::Success, cache, notification);
+	}
+
+	// endregion
+
+	// region known mosaic
+
+	TEST(TEST_CLASS, FailureWhenChangingDurationFromEternalToNonEternal) {
+		// Arrange:
+		auto signer = test::GenerateRandomByteArray<Key>();
+		auto properties = test::CreateMosaicPropertiesFromValues(0, 0, 123);
+		auto notification = CreateNotification(signer, properties);
+
+		// - seed the cache
+		auto cache = test::MosaicCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
+		AddEternalMosaic(cache, signer);
 
 		// Assert:
 		AssertValidationResult(Failure_Mosaic_Invalid_Duration, cache, notification);
@@ -104,15 +141,17 @@ namespace catapult { namespace validators {
 		AddMosaic(cache, signer, BlockDuration(100));
 
 		// Assert: max duration is 123
-		AssertValidationResult(Failure_Mosaic_Invalid_Duration, cache, CreateNotification(signer, BlockDuration(24)));
-		AssertValidationResult(Failure_Mosaic_Invalid_Duration, cache, CreateNotification(signer, BlockDuration(25)));
-		AssertValidationResult(Failure_Mosaic_Invalid_Duration, cache, CreateNotification(signer, BlockDuration(999)));
+		for (auto duration : { 24u, 25u, 999u }) {
+			auto properties = test::CreateMosaicPropertiesFromValues(0, 0, duration);
+			AssertValidationResult(Failure_Mosaic_Invalid_Duration, cache, CreateNotification(signer, properties));
+		}
 	}
 
-	TEST(TEST_CLASS, FailureWhenOverflowHappens) {
+	TEST(TEST_CLASS, FailureWhenDurationOverflowHappens) {
 		// Arrange:
 		auto signer = test::GenerateRandomByteArray<Key>();
-		auto notification = CreateNotification(signer, BlockDuration(std::numeric_limits<uint64_t>::max() - 90));
+		auto properties = test::CreateMosaicPropertiesFromValues(0, 0, std::numeric_limits<uint64_t>::max() - 90);
+		auto notification = CreateNotification(signer, properties);
 
 		// - seed the cache
 		auto cache = test::MosaicCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
@@ -120,22 +159,6 @@ namespace catapult { namespace validators {
 
 		// Assert:
 		AssertValidationResult(Failure_Mosaic_Invalid_Duration, cache, notification);
-	}
-
-	// endregion
-
-	// region success
-
-	TEST(TEST_CLASS, SuccessWhenMosaicIsUnknown) {
-		// Arrange: although max duration is 123, it still should pass (MosaicPropertiesValidator checks for max duration)
-		auto signer = test::GenerateRandomByteArray<Key>();
-		auto notification = CreateNotification(signer, BlockDuration(124));
-
-		// - seed the cache
-		auto cache = test::MosaicCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
-
-		// Assert:
-		AssertValidationResult(ValidationResult::Success, cache, notification);
 	}
 
 	TEST(TEST_CLASS, SuccessWhenMosaicIsKnownAndNewDurationIsAcceptable_NonEternal) {
@@ -147,21 +170,10 @@ namespace catapult { namespace validators {
 		AddMosaic(cache, signer, BlockDuration(100));
 
 		// Assert:
-		AssertValidationResult(ValidationResult::Success, cache, CreateNotification(signer, BlockDuration(1)));
-		AssertValidationResult(ValidationResult::Success, cache, CreateNotification(signer, BlockDuration(22)));
-		AssertValidationResult(ValidationResult::Success, cache, CreateNotification(signer, BlockDuration(23)));
-	}
-
-	TEST(TEST_CLASS, SuccessWhenMosaicIsKnownAndNewDurationIsAcceptable_Eternal) {
-		// Arrange:
-		auto signer = test::GenerateRandomByteArray<Key>();
-
-		// - seed the cache
-		auto cache = test::MosaicCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
-		AddEternalMosaic(cache, signer);
-
-		// Assert:
-		AssertValidationResult(ValidationResult::Success, cache, CreateNotification(signer, BlockDuration(0)));
+		for (auto duration : { 1u, 22u, 23u }) {
+			auto properties = test::CreateMosaicPropertiesFromValues(0, 0, duration);
+			AssertValidationResult(ValidationResult::Success, cache, CreateNotification(signer, properties));
+		}
 	}
 
 	// endregion

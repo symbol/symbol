@@ -70,14 +70,14 @@ namespace catapult { namespace mocks {
 
 	std::unique_ptr<MockTransaction> CreateMockTransactionWithSignerAndRecipient(const Key& signer, const Key& recipient) {
 		auto pTransaction = CreateMockTransactionT<MockTransaction>(0);
-		pTransaction->Signer = signer;
-		pTransaction->Recipient = recipient;
+		pTransaction->SignerPublicKey = signer;
+		pTransaction->RecipientPublicKey = recipient;
 		pTransaction->Version = MakeVersion(NetworkIdentifier::Mijin_Test, 1);
 		return pTransaction;
 	}
 
-	utils::KeySet ExtractAdditionalRequiredCosigners(const EmbeddedMockTransaction& transaction) {
-		return { Key{ { 1 } }, transaction.Recipient, Key{ { 2 } } };
+	utils::KeySet ExtractAdditionalRequiredCosignatories(const EmbeddedMockTransaction& transaction) {
+		return { Key{ { 1 } }, transaction.RecipientPublicKey, Key{ { 2 } } };
 	}
 
 	bool IsPluginOptionFlagSet(PluginOptionFlags options, PluginOptionFlags flag) {
@@ -87,7 +87,7 @@ namespace catapult { namespace mocks {
 	namespace {
 		template<typename TTransaction>
 		void Publish(const TTransaction& mockTransaction, PluginOptionFlags options, NotificationSubscriber& sub) {
-			sub.notify(AccountPublicKeyNotification(mockTransaction.Recipient));
+			sub.notify(AccountPublicKeyNotification(mockTransaction.RecipientPublicKey));
 
 			if (IsPluginOptionFlagSet(options, PluginOptionFlags::Publish_Custom_Notifications)) {
 				sub.notify(test::CreateNotification(Mock_Observer_1_Notification));
@@ -103,11 +103,11 @@ namespace catapult { namespace mocks {
 
 			auto pMosaics = reinterpret_cast<const UnresolvedMosaic*>(mockTransaction.DataPtr());
 			for (auto i = 0u; i < mockTransaction.Data.Size / sizeof(UnresolvedMosaic); ++i) {
-				const auto& sender = mockTransaction.Signer;
+				const auto& sender = mockTransaction.SignerPublicKey;
 
 				// forcibly XOR recipient even though PublicKeyToAddress always returns resolved address
 				// in order to force tests to use XOR resolver context with Publish_Transfers
-				auto recipient = PublicKeyToAddress(mockTransaction.Recipient, NetworkIdentifier::Mijin_Test);
+				auto recipient = PublicKeyToAddress(mockTransaction.RecipientPublicKey, NetworkIdentifier::Mijin_Test);
 				sub.notify(BalanceTransferNotification(sender, test::UnresolveXor(recipient), pMosaics[i].MosaicId, pMosaics[i].Amount));
 			}
 		}
@@ -147,7 +147,7 @@ namespace catapult { namespace mocks {
 			{}
 
 		public:
-			utils::KeySet additionalRequiredCosigners(const EmbeddedTransaction&) const override {
+			utils::KeySet additionalRequiredCosignatories(const EmbeddedTransaction&) const override {
 				return utils::KeySet();
 			}
 

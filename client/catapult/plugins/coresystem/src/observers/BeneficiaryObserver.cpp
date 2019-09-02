@@ -36,16 +36,9 @@ namespace catapult { namespace observers {
 					[](auto& bucket) { --bucket.BeneficiaryCount; });
 			});
 		}
-
-		bool IsOwnBlock(const Key& signer, const Key& harvesterBeneficiary) {
-			return Key() == harvesterBeneficiary || signer == harvesterBeneficiary;
-		}
 	}
 
 	DEFINE_OBSERVER(Beneficiary, model::BlockNotification, ([](const model::BlockNotification& notification, ObserverContext& context) {
-		if (IsOwnBlock(notification.Signer, notification.Beneficiary))
-			return;
-
 		UpdateBeneficiaryActivity(notification.Beneficiary, context);
 	}));
 }}

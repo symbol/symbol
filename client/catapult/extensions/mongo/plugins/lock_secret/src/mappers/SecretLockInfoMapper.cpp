@@ -35,13 +35,13 @@ namespace catapult { namespace mongo { namespace plugins {
 				builder
 						<< "hashAlgorithm" << utils::to_underlying_type(secretLockInfo.HashAlgorithm)
 						<< "secret" << ToBinary(secretLockInfo.Secret)
-						<< "recipient" << ToBinary(secretLockInfo.Recipient)
+						<< "recipientAddress" << ToBinary(secretLockInfo.RecipientAddress)
 						<< "compositeHash" << ToBinary(secretLockInfo.CompositeHash);
 			}
 		};
 	}
 
-	bsoncxx::document::value ToDbModel(const state::SecretLockInfo& secretLockInfo, const Address& accountAddress) {
-		return LockInfoMapper<SecretLockInfoMapperTraits>::ToDbModel(secretLockInfo, accountAddress);
+	bsoncxx::document::value ToDbModel(const state::SecretLockInfo& secretLockInfo, const Address& senderAddress) {
+		return LockInfoMapper<SecretLockInfoMapperTraits>::ToDbModel(secretLockInfo, senderAddress);
 	}
 }}}

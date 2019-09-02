@@ -95,7 +95,7 @@ namespace catapult { namespace model {
 			{}
 
 		public:
-			utils::KeySet additionalRequiredCosigners(const EmbeddedTransaction& transaction) const override {
+			utils::KeySet additionalRequiredCosignatories(const EmbeddedTransaction& transaction) const override {
 				if constexpr (TransactionPluginFactoryOptions::Default == Options) {
 #ifdef _MSC_VER
 					// suppress warning that transaction is unreferenced formal parameter
@@ -103,7 +103,7 @@ namespace catapult { namespace model {
 #endif
 					return utils::KeySet();
 				} else {
-					return ExtractAdditionalRequiredCosigners(static_cast<const TEmbeddedTransaction&>(transaction));
+					return ExtractAdditionalRequiredCosignatories(static_cast<const TEmbeddedTransaction&>(transaction));
 				}
 			}
 

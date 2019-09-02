@@ -39,15 +39,15 @@ namespace catapult { namespace model {
 	/// Binary layout for a balance transfer receipt.
 	struct BalanceTransferReceipt : public Receipt {
 	public:
-		/// Creates a receipt around \a receiptType, \a sender, \a recipient, \a mosaicId and \a amount.
+		/// Creates a receipt around \a receiptType, \a senderPublicKey, \a recipientAddress, \a mosaicId and \a amount.
 		BalanceTransferReceipt(
 				ReceiptType receiptType,
-				const Key& sender,
-				const Address& recipient,
+				const Key& senderPublicKey,
+				const Address& recipientAddress,
 				catapult::MosaicId mosaicId,
 				catapult::Amount amount)
-				: Sender(sender)
-				, Recipient(recipient)
+				: SenderPublicKey(senderPublicKey)
+				, RecipientAddress(recipientAddress)
 				, MosaicId(mosaicId)
 				, Amount(amount) {
 			Size = sizeof(BalanceTransferReceipt);
@@ -57,10 +57,10 @@ namespace catapult { namespace model {
 
 	public:
 		/// Mosaic sender public key.
-		Key Sender;
+		Key SenderPublicKey;
 
 		/// Mosaic recipient address.
-		Address Recipient;
+		Address RecipientAddress;
 
 		/// Mosaic id.
 		catapult::MosaicId MosaicId;
@@ -72,9 +72,9 @@ namespace catapult { namespace model {
 	/// Binary layout for a balance change receipt.
 	struct BalanceChangeReceipt : public Receipt {
 	public:
-		/// Creates a receipt around \a receiptType, \a account, \a mosaicId and \a amount.
-		BalanceChangeReceipt(ReceiptType receiptType, const Key& account, catapult::MosaicId mosaicId, catapult::Amount amount)
-				: Account(account)
+		/// Creates a receipt around \a receiptType, \a targetPublicKey, \a mosaicId and \a amount.
+		BalanceChangeReceipt(ReceiptType receiptType, const Key& targetPublicKey, catapult::MosaicId mosaicId, catapult::Amount amount)
+				: TargetPublicKey(targetPublicKey)
 				, MosaicId(mosaicId)
 				, Amount(amount) {
 			Size = sizeof(BalanceChangeReceipt);
@@ -84,7 +84,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Account public key.
-		Key Account;
+		Key TargetPublicKey;
 
 		/// Mosaic id.
 		catapult::MosaicId MosaicId;

@@ -28,7 +28,7 @@ namespace catapult { namespace builders {
 			, m_duration()
 			, m_hashAlgorithm()
 			, m_secret()
-			, m_recipient()
+			, m_recipientAddress()
 	{}
 
 	void SecretLockBuilder::setMosaic(const model::UnresolvedMosaic& mosaic) {
@@ -47,8 +47,8 @@ namespace catapult { namespace builders {
 		m_secret = secret;
 	}
 
-	void SecretLockBuilder::setRecipient(const UnresolvedAddress& recipient) {
-		m_recipient = recipient;
+	void SecretLockBuilder::setRecipientAddress(const UnresolvedAddress& recipientAddress) {
+		m_recipientAddress = recipientAddress;
 	}
 
 	size_t SecretLockBuilder::size() const {
@@ -80,7 +80,7 @@ namespace catapult { namespace builders {
 		pTransaction->Duration = m_duration;
 		pTransaction->HashAlgorithm = m_hashAlgorithm;
 		pTransaction->Secret = m_secret;
-		pTransaction->Recipient = m_recipient;
+		pTransaction->RecipientAddress = m_recipientAddress;
 
 		return pTransaction;
 	}

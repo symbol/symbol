@@ -37,8 +37,8 @@ namespace catapult { namespace model {
 		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Transfer, 1)
 
 	public:
-		/// Transaction recipient.
-		UnresolvedAddress Recipient;
+		/// Recipient address.
+		UnresolvedAddress RecipientAddress;
 
 		/// Message size in bytes.
 		uint16_t MessageSize;

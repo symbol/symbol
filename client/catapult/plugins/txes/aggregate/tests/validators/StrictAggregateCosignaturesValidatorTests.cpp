@@ -31,23 +31,23 @@ namespace catapult { namespace validators {
 	namespace {
 		using Keys = std::vector<Key>;
 
-		void AssertValidationResult(ValidationResult expectedResult, const Key& signer, const Keys& cosigners, const Keys& txSigners) {
+		void AssertValidationResult(ValidationResult expectedResult, const Key& signer, const Keys& cosignatories, const Keys& txSigners) {
 			// Arrange:
 			// - setup transactions
 			std::vector<uint8_t> txBuffer(sizeof(model::EmbeddedTransaction) * txSigners.size());
 			auto* pTransactions = reinterpret_cast<model::EmbeddedTransaction*>(txBuffer.data());
 			for (auto i = 0u; i < txSigners.size(); ++i) {
-				pTransactions[i].Signer = txSigners[i];
+				pTransactions[i].SignerPublicKey = txSigners[i];
 				pTransactions[i].Size = sizeof(model::EmbeddedTransaction);
 			}
 
 			// - setup cosignatures
-			auto cosignatures = test::GenerateRandomDataVector<model::Cosignature>(cosigners.size());
-			for (auto i = 0u; i < cosigners.size(); ++i)
-				cosignatures[i].Signer = cosigners[i];
+			auto cosignatures = test::GenerateRandomDataVector<model::Cosignature>(cosignatories.size());
+			for (auto i = 0u; i < cosignatories.size(); ++i)
+				cosignatures[i].SignerPublicKey = cosignatories[i];
 
 			using Notification = model::AggregateCosignaturesNotification;
-			Notification notification(signer, txSigners.size(), pTransactions, cosigners.size(), cosignatures.data());
+			Notification notification(signer, txSigners.size(), pTransactions, cosignatories.size(), cosignatures.data());
 			auto pValidator = CreateStrictAggregateCosignaturesValidator();
 
 			// Act:
@@ -60,24 +60,24 @@ namespace catapult { namespace validators {
 
 	// region success
 
-	TEST(TEST_CLASS, SuccessWhenTransactionSignersExactlyMatchCosigners) {
+	TEST(TEST_CLASS, SuccessWhenTransactionSignersExactlyMatchCosignatories) {
 		// Arrange:
 		auto signer = test::GenerateRandomByteArray<Key>();
-		auto cosigners = test::GenerateRandomDataVector<Key>(3);
-		auto txSigners = Keys{ signer, cosigners[0], cosigners[1], cosigners[2] };
+		auto cosignatories = test::GenerateRandomDataVector<Key>(3);
+		auto txSigners = Keys{ signer, cosignatories[0], cosignatories[1], cosignatories[2] };
 
 		// Assert:
-		AssertValidationResult(ValidationResult::Success, signer, cosigners, txSigners);
+		AssertValidationResult(ValidationResult::Success, signer, cosignatories, txSigners);
 	}
 
-	TEST(TEST_CLASS, SuccessWhenTransactionSignersExactlyMatchCosignersOutOfOrder) {
+	TEST(TEST_CLASS, SuccessWhenTransactionSignersExactlyMatchCosignatoriesOutOfOrder) {
 		// Arrange:
 		auto signer = test::GenerateRandomByteArray<Key>();
-		auto cosigners = test::GenerateRandomDataVector<Key>(3);
-		auto txSigners = Keys{ cosigners[2], cosigners[0], signer, cosigners[1] };
+		auto cosignatories = test::GenerateRandomDataVector<Key>(3);
+		auto txSigners = Keys{ cosignatories[2], cosignatories[0], signer, cosignatories[1] };
 
 		// Assert:
-		AssertValidationResult(ValidationResult::Success, signer, cosigners, txSigners);
+		AssertValidationResult(ValidationResult::Success, signer, cosignatories, txSigners);
 	}
 
 	TEST(TEST_CLASS, SuccessWhenAllTransactionsHaveSameSignerAsAggregate) {
@@ -93,34 +93,34 @@ namespace catapult { namespace validators {
 
 	// region failure
 
-	TEST(TEST_CLASS, FailureWhenTransactionSignerIsNotMachedByCosigner) {
+	TEST(TEST_CLASS, FailureWhenTransactionSignerIsNotMachedByCosignatory) {
 		// Arrange: there is an extra tx signer with no match
 		auto signer = test::GenerateRandomByteArray<Key>();
-		auto cosigners = test::GenerateRandomDataVector<Key>(3);
-		auto txSigners = Keys{ signer, cosigners[0], cosigners[1], cosigners[2], test::GenerateRandomByteArray<Key>() };
+		auto cosignatories = test::GenerateRandomDataVector<Key>(3);
+		auto txSigners = Keys{ signer, cosignatories[0], cosignatories[1], cosignatories[2], test::GenerateRandomByteArray<Key>() };
 
 		// Assert:
-		AssertValidationResult(Failure_Aggregate_Missing_Cosigners, signer, cosigners, txSigners);
+		AssertValidationResult(Failure_Aggregate_Missing_Cosignatures, signer, cosignatories, txSigners);
 	}
 
-	TEST(TEST_CLASS, FailureWhenCosignerIsNotTransactionSigner) {
-		// Arrange: there is a cosigner that doesn't match any tx
+	TEST(TEST_CLASS, FailureWhenCosignatoryIsNotTransactionSigner) {
+		// Arrange: there is a cosignatory that doesn't match any tx
 		auto signer = test::GenerateRandomByteArray<Key>();
-		auto cosigners = test::GenerateRandomDataVector<Key>(3);
-		auto txSigners = Keys{ signer, cosigners[0], cosigners[2] };
+		auto cosignatories = test::GenerateRandomDataVector<Key>(3);
+		auto txSigners = Keys{ signer, cosignatories[0], cosignatories[2] };
 
 		// Assert:
-		AssertValidationResult(Failure_Aggregate_Ineligible_Cosigners, signer, cosigners, txSigners);
+		AssertValidationResult(Failure_Aggregate_Ineligible_Cosignatories, signer, cosignatories, txSigners);
 	}
 
 	TEST(TEST_CLASS, FailureIneligibleDominatesFailureMissing) {
-		// Arrange: there is an extra tx signer with no match and there is a cosigner that doesn't match any tx
+		// Arrange: there is an extra tx signer with no match and there is a cosignatory that doesn't match any tx
 		auto signer = test::GenerateRandomByteArray<Key>();
-		auto cosigners = test::GenerateRandomDataVector<Key>(3);
-		auto txSigners = Keys{ signer, cosigners[0], cosigners[2], test::GenerateRandomByteArray<Key>() };
+		auto cosignatories = test::GenerateRandomDataVector<Key>(3);
+		auto txSigners = Keys{ signer, cosignatories[0], cosignatories[2], test::GenerateRandomByteArray<Key>() };
 
 		// Assert:
-		AssertValidationResult(Failure_Aggregate_Ineligible_Cosigners, signer, cosigners, txSigners);
+		AssertValidationResult(Failure_Aggregate_Ineligible_Cosignatories, signer, cosignatories, txSigners);
 	}
 
 	// endregion

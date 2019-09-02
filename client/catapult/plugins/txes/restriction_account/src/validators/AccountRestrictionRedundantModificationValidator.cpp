@@ -39,7 +39,7 @@ namespace catapult { namespace validators {
 			std::unordered_set<TRestrictionValue, THasher> set;
 			for (auto i = 0u; i < modificationsCount; ++i) {
 				set.insert(pModifications[i].Value);
-				if (model::AccountRestrictionModificationType::Del == pModifications[i].ModificationType)
+				if (model::AccountRestrictionModificationAction::Del == pModifications[i].ModificationAction)
 					modificationsInfo.HasDeleteModification = true;
 			}
 
@@ -57,7 +57,7 @@ namespace catapult { namespace validators {
 			auto address = model::PublicKeyToAddress(notification.Key, context.Network.Identifier);
 			const auto& cache = context.Cache.sub<cache::AccountRestrictionCache>();
 			return modificationsInfo.HasDeleteModification && !cache.contains(address)
-					? Failure_RestrictionAccount_Modification_Not_Allowed
+					? Failure_RestrictionAccount_Invalid_Modification
 					: ValidationResult::Success;
 		}
 	}

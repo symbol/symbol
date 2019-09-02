@@ -52,7 +52,7 @@ namespace catapult { namespace state {
 			auto numValues = io::Read64(input);
 			for (auto j = 0u; j < numValues; ++j) {
 				input.read(value);
-				model::RawAccountRestrictionModification modification{ model::AccountRestrictionModificationType::Add, value };
+				model::RawAccountRestrictionModification modification{ model::AccountRestrictionModificationAction::Add, value };
 				if (AccountRestrictionOperationType::Allow == restrictionDescriptor.operationType())
 					restriction.allow(modification);
 				else

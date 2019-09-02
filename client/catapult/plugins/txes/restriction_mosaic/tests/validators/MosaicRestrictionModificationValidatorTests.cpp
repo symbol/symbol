@@ -179,11 +179,11 @@ namespace catapult { namespace validators {
 	}
 
 	RESTRICTION_TYPE_BASED_TEST(FailureWhenCacheEntryContainsEntryAndRuleAndNotificationIsUnset) {
-		RunCacheModificationTest<TTraits>(Failure_RestrictionMosaic_Previous_Does_Not_Match, InitializationScheme::Unset);
+		RunCacheModificationTest<TTraits>(Failure_RestrictionMosaic_Previous_Value_Mismatch, InitializationScheme::Unset);
 	}
 
 	RESTRICTION_TYPE_BASED_TEST(FailureWhenCacheEntryContainsEntryAndRuleAndNotificationIsOther) {
-		RunCacheModificationTest<TTraits>(Failure_RestrictionMosaic_Previous_Does_Not_Match, InitializationScheme::Other);
+		RunCacheModificationTest<TTraits>(Failure_RestrictionMosaic_Previous_Value_Mismatch, InitializationScheme::Other);
 	}
 
 	// endregion

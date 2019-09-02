@@ -33,7 +33,7 @@ namespace catapult { namespace model {
 	struct EntityBody : public THeader {
 	public:
 		/// Entity signer's public key.
-		Key Signer;
+		Key SignerPublicKey;
 
 		/// Entity version.
 		uint16_t Version;

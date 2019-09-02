@@ -22,7 +22,6 @@
 #include "catapult/consumers/InputUtils.h"
 #include "catapult/consumers/TransactionConsumers.h"
 #include "catapult/model/TransactionStatus.h"
-#include "catapult/validators/AggregateEntityValidator.h"
 #include "tests/catapult/consumers/test/ConsumerTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/nodeps/ParamsCapture.h"
@@ -40,21 +39,20 @@ namespace catapult { namespace consumers {
 
 		struct DispatchParams {
 		public:
-			DispatchParams(const model::WeakEntityInfos& entityInfos, const ValidationFunctions& validationFunctions)
-					: EntityInfos(entityInfos)
-					, NumValidationFunctions(validationFunctions.size()) {
+			explicit DispatchParams(const model::WeakEntityInfos& entityInfos) : EntityInfos(entityInfos){
 				for (const auto& entityInfo : EntityInfos)
 					HashCopies.push_back(entityInfo.hash());
 			}
 
 		public:
 			model::WeakEntityInfos EntityInfos;
-			size_t NumValidationFunctions;
 			std::vector<Hash256> HashCopies;
 		};
 
 		template<typename TResultType>
-		class BasicMockParallelValidationPolicy : public test::ParamsCapture<DispatchParams>, public ParallelValidationPolicy {
+		class BasicMockParallelValidationPolicy
+				: public test::ParamsCapture<DispatchParams>
+				, public ParallelValidationPolicy {
 		protected:
 			using ResultType = TResultType;
 
@@ -72,32 +70,20 @@ namespace catapult { namespace consumers {
 
 		public:
 			[[noreturn]]
-			thread::future<ValidationResult> validateShortCircuit(
-					const model::WeakEntityInfos&,
-					const ValidationFunctions&) const override {
+			thread::future<ValidationResult> validateShortCircuit(const model::WeakEntityInfos&) const override {
 				CATAPULT_THROW_RUNTIME_ERROR("validateShortCircuit not implemented");
 			}
 
 			[[noreturn]]
-			thread::future<std::vector<ValidationResult>> validateAll(
-					const model::WeakEntityInfos&,
-					const ValidationFunctions&) const override {
+			thread::future<std::vector<ValidationResult>> validateAll(const model::WeakEntityInfos&) const override {
 				CATAPULT_THROW_RUNTIME_ERROR("validateAll not implemented");
 			}
 
 		protected:
-			thread::future<ResultType> validateImpl(
-					const model::WeakEntityInfos& entityInfos,
-					const ValidationFunctions& validationFunctions,
-					const ResultType& defaultResult) const {
-				const_cast<BasicMockParallelValidationPolicy*>(this)->push(entityInfos, validationFunctions);
+			thread::future<ResultType> validateImpl(const model::WeakEntityInfos& entityInfos, const ResultType& defaultResult) const {
+				const_cast<BasicMockParallelValidationPolicy*>(this)->push(entityInfos);
 
-				// - invoke all sub validators once but ignore their results
-				//   (this emulates the real dispatcher delegating to the validationFunctions)
-				for (const auto& validationFunction : validationFunctions)
-					validationFunction(entityInfos.front());
-
-				// - determine the result based on the call count
+				// determine the result based on the call count
 				auto result = ++m_numValidateCalls < m_validateTrigger ? defaultResult : m_result;
 				return toResult(result);
 			}
@@ -117,19 +103,15 @@ namespace catapult { namespace consumers {
 
 		class MockParallelShortCircuitValidationPolicy : public BasicMockParallelValidationPolicy<ValidationResult> {
 		public:
-			thread::future<ResultType> validateShortCircuit(
-					const model::WeakEntityInfos& entityInfos,
-					const ValidationFunctions& validationFunctions) const override {
-				return validateImpl(entityInfos, validationFunctions, ValidationResult::Success);
+			thread::future<ResultType> validateShortCircuit(const model::WeakEntityInfos& entityInfos) const override {
+				return validateImpl(entityInfos, ValidationResult::Success);
 			}
 		};
 
 		class MockParallelAllValidationPolicy : public BasicMockParallelValidationPolicy<std::vector<ValidationResult>> {
 		public:
-			thread::future<ResultType> validateAll(
-					const model::WeakEntityInfos& entityInfos,
-					const ValidationFunctions& validationFunctions) const override {
-				return validateImpl(entityInfos, validationFunctions, ResultType(entityInfos.size(), ValidationResult::Success));
+			thread::future<ResultType> validateAll(const model::WeakEntityInfos& entityInfos) const override {
+				return validateImpl(entityInfos, ResultType(entityInfos.size(), ValidationResult::Success));
 			}
 		};
 
@@ -146,13 +128,11 @@ namespace catapult { namespace consumers {
 		struct BlockTestContext {
 		public:
 			explicit BlockTestContext(const RequiresValidationPredicate& requiresValidationPredicate = RequiresAllPredicate)
-					: pValidator(std::make_shared<stateless::AggregateEntityValidator>(ValidatorVectorT<>()))
-					, pPolicy(std::make_shared<MockParallelShortCircuitValidationPolicy>())
-					, Consumer(CreateBlockStatelessValidationConsumer(pValidator, pPolicy, requiresValidationPredicate))
+					: pPolicy(std::make_shared<MockParallelShortCircuitValidationPolicy>())
+					, Consumer(CreateBlockStatelessValidationConsumer(pPolicy, requiresValidationPredicate))
 			{}
 
 		public:
-			std::shared_ptr<stateless::AggregateEntityValidator> pValidator;
 			std::shared_ptr<MockParallelShortCircuitValidationPolicy> pPolicy;
 			disruptor::ConstBlockConsumer Consumer;
 		};
@@ -299,9 +279,8 @@ namespace catapult { namespace consumers {
 		struct TransactionTestContext {
 		public:
 			TransactionTestContext()
-					: pValidator(std::make_shared<stateless::AggregateEntityValidator>(ValidatorVectorT<>()))
-					, pPolicy(std::make_shared<MockParallelAllValidationPolicy>())
-					, Consumer(CreateTransactionStatelessValidationConsumer(pValidator, pPolicy, [this](
+					: pPolicy(std::make_shared<MockParallelAllValidationPolicy>())
+					, Consumer(CreateTransactionStatelessValidationConsumer(pPolicy, [this](
 							const auto& transaction,
 							const auto& hash,
 							auto result) {
@@ -311,7 +290,6 @@ namespace catapult { namespace consumers {
 			{}
 
 		public:
-			std::shared_ptr<stateless::AggregateEntityValidator> pValidator;
 			std::shared_ptr<MockParallelAllValidationPolicy> pPolicy;
 			std::vector<model::TransactionStatus> FailedTransactionStatuses;
 			disruptor::TransactionConsumer Consumer;

@@ -155,7 +155,7 @@ namespace catapult { namespace chain {
 			const model::Block& parentBlock,
 			const model::Block& block,
 			const GenerationHash& generationHash) const {
-		auto importance = m_importanceLookup(block.Signer, block.Height);
+		auto importance = m_importanceLookup(block.SignerPublicKey, block.Height);
 		auto hit = CalculateHit(generationHash);
 		auto target = CalculateTarget(parentBlock, block, importance, m_config);
 		return hit < target;

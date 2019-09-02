@@ -38,13 +38,13 @@ namespace catapult { namespace model {
 		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Mosaic_Supply_Change, 1)
 
 	public:
-		/// Id of the affected mosaic.
+		/// Affected mosaic identifier.
 		UnresolvedMosaicId MosaicId;
 
-		/// Supply change direction.
-		MosaicSupplyChangeDirection Direction;
+		/// Supply change action.
+		MosaicSupplyChangeAction Action;
 
-		/// Amount of the change.
+		/// Change amount.
 		Amount Delta;
 
 	public:

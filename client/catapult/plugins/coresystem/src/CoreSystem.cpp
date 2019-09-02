@@ -25,8 +25,8 @@
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/cache_core/AccountStateCacheStorage.h"
 #include "catapult/cache_core/AccountStateCacheSubCachePlugin.h"
-#include "catapult/cache_core/BlockDifficultyCacheStorage.h"
-#include "catapult/cache_core/BlockDifficultyCacheSubCachePlugin.h"
+#include "catapult/cache_core/BlockStatisticCacheStorage.h"
+#include "catapult/cache_core/BlockStatisticCacheSubCachePlugin.h"
 #include "catapult/model/BlockChainConfiguration.h"
 #include "catapult/observers/ObserverUtils.h"
 #include "catapult/plugins/CacheHandlers.h"
@@ -65,14 +65,14 @@ namespace catapult { namespace plugins {
 			});
 		}
 
-		void AddBlockDifficultyCache(PluginManager& manager, const model::BlockChainConfiguration& config) {
+		void AddBlockStatisticCache(PluginManager& manager, const model::BlockChainConfiguration& config) {
 			using namespace catapult::cache;
 
-			manager.addCacheSupport(std::make_unique<BlockDifficultyCacheSubCachePlugin>(CalculateDifficultyHistorySize(config)));
+			manager.addCacheSupport(std::make_unique<BlockStatisticCacheSubCachePlugin>(CalculateDifficultyHistorySize(config)));
 
 			manager.addDiagnosticCounterHook([](auto& counters, const CatapultCache& cache) {
 				counters.emplace_back(utils::DiagnosticCounterId("BLKDIF C"), [&cache]() {
-					return cache.sub<BlockDifficultyCache>().createView()->size();
+					return cache.sub<BlockStatisticCache>().createView()->size();
 				});
 			});
 		}
@@ -82,10 +82,12 @@ namespace catapult { namespace plugins {
 		const auto& config = manager.config();
 
 		AddAccountStateCache(manager, config);
-		AddBlockDifficultyCache(manager, config);
+		AddBlockStatisticCache(manager, config);
 
 		manager.addStatelessValidatorHook([&config](auto& builder) {
 			builder
+				.add(validators::CreateZeroAddressValidator(config.Network.Identifier))
+				.add(validators::CreateZeroPublicKeyValidator())
 				.add(validators::CreateMaxTransactionsValidator(config.MaxTransactionsPerBlock))
 				.add(validators::CreateNetworkValidator(config.Network.Identifier))
 				.add(validators::CreateEntityVersionValidator())
@@ -122,11 +124,16 @@ namespace catapult { namespace plugins {
 					importance::CreateRestoreImportanceCalculator());
 			builder
 				.add(std::move(pRecalculateImportancesObserver))
-				.add(observers::CreateBlockDifficultyObserver())
-				.add(observers::CreateCacheBlockPruningObserver<cache::BlockDifficultyCache>(
-						"BlockDifficulty",
+				.add(observers::CreateBlockStatisticObserver(config.MaxDifficultyBlocks, config.DefaultDynamicFeeMultiplier))
+				.add(observers::CreateCacheBlockPruningObserver<cache::BlockStatisticCache>(
+						"BlockStatistic",
 						config.BlockPruneInterval,
 						BlockDuration()));
 		});
 	}
 }}
+
+extern "C" PLUGIN_API
+void RegisterSubsystem(catapult::plugins::PluginManager& manager) {
+	catapult::plugins::RegisterCoreSystem(manager);
+}

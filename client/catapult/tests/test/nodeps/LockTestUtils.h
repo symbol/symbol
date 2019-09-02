@@ -224,7 +224,7 @@ namespace catapult { namespace test {
 		EXPECT_EQ(1, flag);
 	}
 
-	/// Asserts that a \a provider view blocks a modifier.
+	/// Asserts that \a provider view blocks a modifier.
 	template<typename TProvider>
 	void AssertModifierIsBlockedByView(TProvider&& provider) {
 		// Assert:
@@ -233,7 +233,7 @@ namespace catapult { namespace test {
 			[&provider]() { return provider.modifier(); });
 	}
 
-	/// Asserts that a \a provider modifier blocks a view.
+	/// Asserts that \a provider modifier blocks a view.
 	template<typename TProvider>
 	void AssertViewIsBlockedByModifier(TProvider&& provider) {
 		// Assert:
@@ -242,7 +242,7 @@ namespace catapult { namespace test {
 			[&provider]() { return provider.view(); });
 	}
 
-	/// Asserts that a \a provider modifier blocks a modifier.
+	/// Asserts that \a provider modifier blocks a modifier.
 	template<typename TProvider>
 	void AssertModifierIsBlockedByModifier(TProvider&& provider) {
 		// Assert:

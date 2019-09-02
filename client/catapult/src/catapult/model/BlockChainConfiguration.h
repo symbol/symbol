@@ -36,10 +36,10 @@ namespace catapult { namespace model {
 		NetworkInfo Network;
 
 		/// \c true if block chain should calculate state hashes so that state is fully verifiable at each block.
-		bool ShouldEnableVerifiableState;
+		bool EnableVerifiableState;
 
 		/// \c true if block chain should calculate receipts so that state changes are fully verifiable at each block.
-		bool ShouldEnableVerifiableReceipts;
+		bool EnableVerifiableReceipts;
 
 		/// Mosaic id used as primary chain currency.
 		MosaicId CurrencyMosaicId;
@@ -68,6 +68,9 @@ namespace catapult { namespace model {
 
 		/// Maximum number of blocks to use in a difficulty calculation.
 		uint32_t MaxDifficultyBlocks;
+
+		/// Default multiplier to use for dynamic fees.
+		BlockFeeMultiplier DefaultDynamicFeeMultiplier;
 
 		/// Maximum lifetime a transaction can have before it expires.
 		utils::TimeSpan MaxTransactionLifetime;

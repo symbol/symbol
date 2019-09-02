@@ -64,7 +64,7 @@ namespace catapult { namespace validators {
 	// region MosaicSupplyChangeTransaction
 
 	/// Validator that applies to mosaic supply change notifications and validates that:
-	/// - direction has a valid value
+	/// - action has a valid value
 	/// - delta amount is non-zero
 	DECLARE_STATELESS_VALIDATOR(MosaicSupplyChange, model::MosaicSupplyChangeNotification)();
 

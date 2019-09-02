@@ -31,7 +31,7 @@ namespace catapult { namespace validators {
 	namespace {
 		void AssertValidationResult(ValidationResult expectedResult, uint16_t messageSize, uint16_t maxMessageSize) {
 			// Arrange:
-			auto notification = model::TransferMessageNotification(messageSize);
+			auto notification = model::TransferMessageNotification(Key(), UnresolvedAddress(), messageSize, nullptr);
 			auto pValidator = CreateTransferMessageValidator(maxMessageSize);
 
 			// Act:

@@ -41,6 +41,9 @@ namespace catapult { namespace extensions {
 	}
 
 	bool TransactionExtensions::verify(const model::Transaction& transaction) const {
-		return crypto::Verify(transaction.Signer, { m_generationHash, TransactionDataBuffer(transaction) }, transaction.Signature);
+		return crypto::Verify(
+				transaction.SignerPublicKey,
+				{ m_generationHash, TransactionDataBuffer(transaction) },
+				transaction.Signature);
 	}
 }}

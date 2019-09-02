@@ -46,13 +46,13 @@ namespace catapult { namespace model {
 				const auto& transaction = entityInfo.cast<mocks::MockTransaction>().entity();
 
 				if (Mode::Address == m_mode) {
-					auto senderAddress = PublicKeyToAddress(transaction.Signer, Network_Identifier);
-					auto recipientAddress = PublicKeyToAddress(transaction.Recipient, Network_Identifier);
+					auto senderAddress = PublicKeyToAddress(transaction.SignerPublicKey, Network_Identifier);
+					auto recipientAddress = PublicKeyToAddress(transaction.RecipientPublicKey, Network_Identifier);
 					sub.notify(AccountAddressNotification(extensions::CopyToUnresolvedAddress(senderAddress)));
 					sub.notify(AccountAddressNotification(extensions::CopyToUnresolvedAddress(recipientAddress)));
 				} else if (Mode::Public_Key == m_mode) {
-					sub.notify(AccountPublicKeyNotification(transaction.Signer));
-					sub.notify(AccountPublicKeyNotification(transaction.Recipient));
+					sub.notify(AccountPublicKeyNotification(transaction.SignerPublicKey));
+					sub.notify(AccountPublicKeyNotification(transaction.RecipientPublicKey));
 				} else {
 					sub.notify(EntityNotification(transaction.Network(), transaction.EntityVersion(), 0, 0));
 				}
@@ -67,8 +67,12 @@ namespace catapult { namespace model {
 			auto pTransaction = mocks::CreateMockTransactionWithSignerAndRecipient(
 					test::GenerateRandomByteArray<Key>(),
 					test::GenerateRandomByteArray<Key>());
-			auto senderAddress = extensions::CopyToUnresolvedAddress(PublicKeyToAddress(pTransaction->Signer, Network_Identifier));
-			auto recipientAddress = extensions::CopyToUnresolvedAddress(PublicKeyToAddress(pTransaction->Recipient, Network_Identifier));
+			auto senderAddress = extensions::CopyToUnresolvedAddress(PublicKeyToAddress(
+					pTransaction->SignerPublicKey,
+					Network_Identifier));
+			auto recipientAddress = extensions::CopyToUnresolvedAddress(PublicKeyToAddress(
+					pTransaction->RecipientPublicKey,
+					Network_Identifier));
 
 			MockNotificationPublisher notificationPublisher(mode);
 

@@ -26,7 +26,7 @@ namespace catapult { namespace builders {
 			: TransactionBuilder(networkIdentifier, signer)
 			, m_targetPublicKey()
 			, m_scopedMetadataKey()
-			, m_targetId()
+			, m_targetNamespaceId()
 			, m_valueSizeDelta()
 			, m_value()
 	{}
@@ -39,8 +39,8 @@ namespace catapult { namespace builders {
 		m_scopedMetadataKey = scopedMetadataKey;
 	}
 
-	void NamespaceMetadataBuilder::setTargetId(NamespaceId targetId) {
-		m_targetId = targetId;
+	void NamespaceMetadataBuilder::setTargetNamespaceId(NamespaceId targetNamespaceId) {
+		m_targetNamespaceId = targetNamespaceId;
 	}
 
 	void NamespaceMetadataBuilder::setValueSizeDelta(int16_t valueSizeDelta) {
@@ -86,7 +86,7 @@ namespace catapult { namespace builders {
 		// 2. set fixed transaction fields
 		pTransaction->TargetPublicKey = m_targetPublicKey;
 		pTransaction->ScopedMetadataKey = m_scopedMetadataKey;
-		pTransaction->TargetId = m_targetId;
+		pTransaction->TargetNamespaceId = m_targetNamespaceId;
 		pTransaction->ValueSizeDelta = m_valueSizeDelta;
 		pTransaction->ValueSize = utils::checked_cast<size_t, uint16_t>(m_value.size());
 

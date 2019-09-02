@@ -21,6 +21,7 @@
 #include "Validators.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/model/Address.h"
+#include "catapult/state/CatapultState.h"
 #include "catapult/validators/ValidatorContext.h"
 
 namespace catapult { namespace validators {
@@ -29,6 +30,23 @@ namespace catapult { namespace validators {
 	using BalanceDebitNotification = model::BalanceDebitNotification;
 
 	namespace {
+		bool TryGetEffectiveAmount(
+				const BalanceTransferNotification& notification,
+				BlockFeeMultiplier feeMultiplier,
+				Amount& effectiveAmount) {
+			effectiveAmount = notification.Amount;
+			if (BalanceTransferNotification::AmountType::Static == notification.TransferAmountType)
+				return true;
+
+			effectiveAmount = Amount(notification.Amount.unwrap() * feeMultiplier.unwrap());
+			return std::numeric_limits<Amount::ValueType>::max() / feeMultiplier.unwrap() >= notification.Amount.unwrap();
+		}
+
+		bool TryGetEffectiveAmount(const BalanceDebitNotification& notification, BlockFeeMultiplier, Amount& effectiveAmount) {
+			effectiveAmount = notification.Amount;
+			return true;
+		}
+
 		bool FindAccountBalance(const cache::ReadOnlyAccountStateCache& cache, const Key& publicKey, MosaicId mosaicId, Amount& amount) {
 			auto accountStateKeyIter = cache.find(publicKey);
 			if (accountStateKeyIter.tryGet()) {
@@ -52,9 +70,14 @@ namespace catapult { namespace validators {
 
 			Amount amount;
 			auto mosaicId = context.Resolvers.resolve(notification.MosaicId);
-			return FindAccountBalance(cache, notification.Sender, mosaicId, amount) && amount >= notification.Amount
-					? ValidationResult::Success
-					: Failure_Core_Insufficient_Balance;
+			if (FindAccountBalance(cache, notification.Sender, mosaicId, amount)) {
+				Amount effectiveAmount;
+				auto dynamicFeeMultiplier = context.Cache.dependentState().DynamicFeeMultiplier;
+				if (TryGetEffectiveAmount(notification, dynamicFeeMultiplier, effectiveAmount) && amount >= effectiveAmount)
+					return ValidationResult::Success;
+			}
+
+			return Failure_Core_Insufficient_Balance;
 		}
 	}
 

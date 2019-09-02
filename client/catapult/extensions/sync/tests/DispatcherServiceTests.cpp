@@ -21,7 +21,7 @@
 #include "sync/src/DispatcherService.h"
 #include "sdk/src/extensions/TransactionExtensions.h"
 #include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/cache_core/BlockDifficultyCache.h"
+#include "catapult/cache_core/BlockStatisticCache.h"
 #include "catapult/disruptor/ConsumerDispatcher.h"
 #include "catapult/io/IndexFile.h"
 #include "catapult/model/BlockUtils.h"
@@ -33,6 +33,7 @@
 #include "tests/test/local/ServiceLocatorTestContext.h"
 #include "tests/test/local/ServiceTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
+#include "tests/test/nodeps/Nemesis.h"
 #include "tests/test/other/mocks/MockNotificationValidator.h"
 #include "tests/TestHarness.h"
 #include <boost/filesystem.hpp>
@@ -82,7 +83,7 @@ namespace catapult { namespace sync {
 			auto delta = cache.createDelta();
 
 			// set a difficulty for the nemesis block
-			delta.sub<cache::BlockDifficultyCache>().insert(Height(1), Timestamp(0), Difficulty());
+			delta.sub<cache::BlockStatisticCache>().insert(state::BlockStatistic(Height(1)));
 
 			// add a balance and importance for the signer
 			auto& accountStateCache = delta.sub<cache::AccountStateCache>();
@@ -103,6 +104,8 @@ namespace catapult { namespace sync {
 			model::PreviousBlockContext context(*pNemesisBlockElement);
 			auto pBlock = model::CreateBlock(context, Network_Identifier, signer.publicKey(), model::Transactions());
 			pBlock->Timestamp = context.Timestamp + Timestamp(60000);
+			model::SignBlockHeader(signer, *pBlock);
+
 			return std::move(pBlock);
 		}
 
@@ -328,20 +331,20 @@ namespace catapult { namespace sync {
 		// - block dispatcher should be initialized
 		auto blockDispatcherStatus = GetBlockDispatcherStatus(context.locator());
 		EXPECT_EQ("block dispatcher", blockDispatcherStatus.Name);
-		EXPECT_EQ(6u, blockDispatcherStatus.Size);
+		EXPECT_EQ(7u, blockDispatcherStatus.Size);
 		EXPECT_TRUE(blockDispatcherStatus.IsRunning);
 
 		// - transaction dispatcher should be initialized
 		auto transactionDispatcherStatus = GetTransactionDispatcherStatus(context.locator());
 		EXPECT_EQ("transaction dispatcher", transactionDispatcherStatus.Name);
-		EXPECT_EQ(4u, transactionDispatcherStatus.Size);
+		EXPECT_EQ(5u, transactionDispatcherStatus.Size);
 		EXPECT_TRUE(transactionDispatcherStatus.IsRunning);
 	}
 
 	TEST(TEST_CLASS, CanBootServiceWithAuditingEnabled) {
 		// Arrange: enable auditing
 		TestContext context;
-		const_cast<bool&>(context.testState().config().Node.ShouldAuditDispatcherInputs) = true;
+		const_cast<bool&>(context.testState().config().Node.EnableDispatcherInputAuditing) = true;
 
 		// Act:
 		context.boot();
@@ -351,8 +354,8 @@ namespace catapult { namespace sync {
 		EXPECT_EQ(Num_Expected_Counters, context.locator().counters().size());
 		EXPECT_EQ(Num_Expected_Tasks, context.testState().state().tasks().size());
 
-		EXPECT_EQ(7u, GetBlockDispatcherStatus(context.locator()).Size);
-		EXPECT_EQ(5u, GetTransactionDispatcherStatus(context.locator()).Size);
+		EXPECT_EQ(8u, GetBlockDispatcherStatus(context.locator()).Size);
+		EXPECT_EQ(6u, GetTransactionDispatcherStatus(context.locator()).Size);
 
 		// - auditing directories were created
 		auto auditDirectory = context.tempPath() / "audit";
@@ -363,7 +366,7 @@ namespace catapult { namespace sync {
 	TEST(TEST_CLASS, CanBootServiceWithAutoSyncCleanupEnabled) {
 		// Arrange: enable cleanup
 		TestContext context;
-		const_cast<bool&>(context.testState().config().Node.ShouldEnableAutoSyncCleanup) = true;
+		const_cast<bool&>(context.testState().config().Node.EnableAutoSyncCleanup) = true;
 
 		// Act:
 		context.boot();
@@ -373,8 +376,8 @@ namespace catapult { namespace sync {
 		EXPECT_EQ(Num_Expected_Counters, context.locator().counters().size());
 		EXPECT_EQ(Num_Expected_Tasks, context.testState().state().tasks().size());
 
-		EXPECT_EQ(7u, GetBlockDispatcherStatus(context.locator()).Size);
-		EXPECT_EQ(4u, GetTransactionDispatcherStatus(context.locator()).Size);
+		EXPECT_EQ(8u, GetBlockDispatcherStatus(context.locator()).Size);
+		EXPECT_EQ(5u, GetTransactionDispatcherStatus(context.locator()).Size);
 	}
 
 	TEST(TEST_CLASS, CanShutdownService) {
@@ -414,11 +417,11 @@ namespace catapult { namespace sync {
 
 	namespace {
 		template<typename THandler>
-		void AssertCanConsumeBlockRange(bool shouldEnableVerifiableReceipts, model::AnnotatedBlockRange&& range, THandler handler) {
+		void AssertCanConsumeBlockRange(bool enableVerifiableReceipts, model::AnnotatedBlockRange&& range, THandler handler) {
 			// Arrange:
 			TestContext context;
 			const auto& blockChainConfig = context.testState().config().BlockChain;
-			const_cast<model::BlockChainConfiguration&>(blockChainConfig).ShouldEnableVerifiableReceipts = shouldEnableVerifiableReceipts;
+			const_cast<model::BlockChainConfiguration&>(blockChainConfig).EnableVerifiableReceipts = enableVerifiableReceipts;
 
 			context.boot();
 			auto factory = context.testState().state().hooks().blockRangeConsumerFactory()(disruptor::InputSource::Local);
@@ -461,8 +464,26 @@ namespace catapult { namespace sync {
 		}
 	}
 
-	TEST(TEST_CLASS, CanConsumeBlockRange_InvalidElement) {
-		AssertCanConsumeBlockRange(test::CreateBlockEntityRange(1), AssertBlockRangeInvalidElement);
+	TEST(TEST_CLASS, CanConsumeBlockRange_InvalidElement_Unsigned) {
+		// Arrange:
+		auto pNextBlock = CreateValidBlockForDispatcherTests(GetBlockSignerKeyPair());
+		pNextBlock->Signature[0] ^= 0xFF;
+		auto range = test::CreateEntityRange({ pNextBlock.get() });
+
+		// Act + Assert:
+		AssertCanConsumeBlockRange(std::move(range), AssertBlockRangeInvalidElement);
+	}
+
+	TEST(TEST_CLASS, CanConsumeBlockRange_InvalidElement_Signed) {
+		// Arrange:
+		auto keyPair = test::GenerateKeyPair();
+		auto pNextBlock = test::GenerateEmptyRandomBlock();
+		pNextBlock->SignerPublicKey = keyPair.publicKey();
+		model::SignBlockHeader(keyPair, *pNextBlock);
+		auto range = test::CreateEntityRange({ pNextBlock.get() });
+
+		// Act + Assert:
+		AssertCanConsumeBlockRange(std::move(range), AssertBlockRangeInvalidElement);
 	}
 
 	TEST(TEST_CLASS, CanConsumeBlockRange_ValidElement) {
@@ -500,7 +521,7 @@ namespace catapult { namespace sync {
 			receipt.Type = static_cast<model::ReceiptType>(block.Timestamp.unwrap());
 			model::BlockStatementBuilder blockStatementBuilder;
 			blockStatementBuilder.addReceipt(receipt);
-			block.BlockReceiptsHash = model::CalculateMerkleHash(*blockStatementBuilder.build());
+			block.ReceiptsHash = model::CalculateMerkleHash(*blockStatementBuilder.build());
 		}
 	}
 
@@ -509,6 +530,7 @@ namespace catapult { namespace sync {
 		auto signer = GetBlockSignerKeyPair();
 		auto pNextBlock = CreateValidBlockForDispatcherTests(signer);
 		SetBlockReceiptsHash(*pNextBlock);
+		model::SignBlockHeader(signer, *pNextBlock);
 		auto range = test::CreateEntityRange({ pNextBlock.get() });
 
 		// Assert:
@@ -575,7 +597,7 @@ namespace catapult { namespace sync {
 	}
 
 	TEST(TEST_CLASS, CanConsumeBlockRangeCompletionAware_InvalidElement) {
-		// Assert: BlockTransactionsHash mismatch
+		// Assert: TransactionsHash mismatch
 		AssertCanConsumeBlockRangeCompletionAware(
 				ValidationResults(),
 				test::CreateBlockEntityRange(1),
@@ -644,6 +666,7 @@ namespace catapult { namespace sync {
 		// Act: create a better block to cause a rollback
 		auto pBetterBlock = CreateValidBlockForDispatcherTests(keyPair);
 		pBetterBlock->Timestamp = pBetterBlock->Timestamp - Timestamp(1000);
+		model::SignBlockHeader(keyPair, *pBetterBlock);
 
 		factory(test::CreateEntityRange({ pBetterBlock.get() }));
 		WAIT_FOR_ONE_EXPR(context.counter(Rollback_Elements_Committed_All));
@@ -673,6 +696,8 @@ namespace catapult { namespace sync {
 		// Act: create a better block to cause a rollback and fail validation
 		auto pBetterBlock = CreateValidBlockForDispatcherTests(keyPair);
 		pBetterBlock->Timestamp = pBetterBlock->Timestamp - Timestamp(1000);
+		model::SignBlockHeader(keyPair, *pBetterBlock);
+
 		context.setStatefulBlockValidationResult(ValidationResult::Failure);
 
 		factory(test::CreateEntityRange({ pBetterBlock.get() }));
@@ -680,6 +705,8 @@ namespace catapult { namespace sync {
 
 		// - failure is unknown until next rollback, alter timestamp not to hit recency cache
 		pBetterBlock->Timestamp = pBetterBlock->Timestamp - Timestamp(2000);
+		model::SignBlockHeader(keyPair, *pBetterBlock);
+
 		context.setStatefulBlockValidationResult(ValidationResult::Success);
 
 		factory(test::CreateEntityRange({ pBetterBlock.get() }));
@@ -765,6 +792,17 @@ namespace catapult { namespace sync {
 	// region consume - transaction range
 
 	namespace {
+		model::TransactionRange CreateSignedTransactionEntityRange(size_t numTransactions) {
+			auto range = test::CreateTransactionEntityRange(numTransactions);
+			for (auto& transaction : range) {
+				auto keyPair = test::GenerateKeyPair();
+				transaction.SignerPublicKey = keyPair.publicKey();
+				extensions::TransactionExtensions(test::GetNemesisGenerationHash()).sign(keyPair, transaction);
+			}
+
+			return range;
+		}
+
 		template<typename THandler>
 		void AssertCanConsumeTransactionRange(
 				const ValidationResults& transactionValidationResults,
@@ -791,7 +829,7 @@ namespace catapult { namespace sync {
 		}
 	}
 
-	TEST(TEST_CLASS, CanConsumeTransactionRange_InvalidElement_Stateless) {
+	TEST(TEST_CLASS, CanConsumeTransactionRange_InvalidElement_Unsigned) {
 		// Arrange:
 		ValidationResults transactionValidationResults;
 		transactionValidationResults.Stateless = ValidationResult::Failure;
@@ -805,11 +843,25 @@ namespace catapult { namespace sync {
 		});
 	}
 
+	TEST(TEST_CLASS, CanConsumeTransactionRange_InvalidElement_Stateless) {
+		// Arrange:
+		ValidationResults transactionValidationResults;
+		transactionValidationResults.Stateless = ValidationResult::Failure;
+		AssertCanConsumeTransactionRange(transactionValidationResults, CreateSignedTransactionEntityRange(1), [](const auto& context) {
+			WAIT_FOR_ONE_EXPR(context.numTransactionStatuses());
+
+			// Assert: the transaction was not forwarded to the sink
+			EXPECT_EQ(0u, context.numNewBlockSinkCalls());
+			EXPECT_EQ(0u, context.numNewTransactionsSinkCalls());
+			EXPECT_EQ(1u, context.numTransactionStatuses());
+		});
+	}
+
 	TEST(TEST_CLASS, CanConsumeTransactionRange_InvalidElement_Stateful) {
 		// Arrange:
 		ValidationResults transactionValidationResults;
 		transactionValidationResults.Stateful = ValidationResult::Failure;
-		AssertCanConsumeTransactionRange(transactionValidationResults, test::CreateTransactionEntityRange(1), [](const auto& context) {
+		AssertCanConsumeTransactionRange(transactionValidationResults, CreateSignedTransactionEntityRange(1), [](const auto& context) {
 			WAIT_FOR_ONE_EXPR(context.numNewTransactionsSinkCalls());
 			WAIT_FOR_ONE_EXPR(context.numTransactionStatuses());
 
@@ -824,8 +876,9 @@ namespace catapult { namespace sync {
 		// Arrange: ensure deadline is in range
 		auto signer = test::GenerateKeyPair();
 		auto pValidTransaction = test::GenerateRandomTransaction();
-		pValidTransaction->Signer = signer.publicKey();
+		pValidTransaction->SignerPublicKey = signer.publicKey();
 		pValidTransaction->Deadline = utils::NetworkTime() + Timestamp(60'000);
+		extensions::TransactionExtensions(test::GetNemesisGenerationHash()).sign(signer, *pValidTransaction);
 
 		auto range = test::CreateEntityRange({ pValidTransaction.get() });
 
@@ -880,7 +933,7 @@ namespace catapult { namespace sync {
 			// - configure spam filter
 			const auto& config = context.testState().config();
 			auto& nodeConfig = const_cast<config::NodeConfiguration&>(config.Node);
-			nodeConfig.ShouldEnableTransactionSpamThrottling = enableFiltering;
+			nodeConfig.EnableTransactionSpamThrottling = enableFiltering;
 			nodeConfig.TransactionSpamThrottlingMaxBoostFee = Amount(10'000'000);
 			nodeConfig.UnconfirmedTransactionsCacheMaxSize = maxCacheSize;
 			const_cast<uint32_t&>(config.BlockChain.MaxTransactionsPerBlock) = maxCacheSize / 2;
@@ -890,7 +943,7 @@ namespace catapult { namespace sync {
 			auto factory = context.testState().state().hooks().transactionRangeConsumerFactory()(disruptor::InputSource::Local);
 
 			// Act: try to fill the ut cache with transactions
-			factory(test::CreateTransactionEntityRange(maxCacheSize));
+			factory(CreateSignedTransactionEntityRange(maxCacheSize));
 			context.testState().state().tasks()[0].Callback(); // forward all batched transactions to the dispatcher
 
 			// - wait for the transactions to flow through the consumers

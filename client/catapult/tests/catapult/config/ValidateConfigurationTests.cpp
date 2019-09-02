@@ -46,7 +46,7 @@ namespace catapult { namespace config {
 			inflationConfig.InflationCalculator.add(Height(100), Amount());
 
 			auto& userConfig = config.User;
-			userConfig.BootKey = Valid_Private_Key;
+			userConfig.BootPrivateKey = Valid_Private_Key;
 
 			return config;
 		}
@@ -55,19 +55,19 @@ namespace catapult { namespace config {
 	// region boot key validation
 
 	namespace {
-		void AssertInvalidBootKey(const std::string& bootKey) {
+		void AssertInvalidBootPrivateKey(const std::string& bootPrivateKey) {
 			// Arrange:
 			auto mutableConfig = CreateMutableCatapultConfiguration();
-			mutableConfig.User.BootKey = bootKey;
+			mutableConfig.User.BootPrivateKey = bootPrivateKey;
 
 			// Act + Assert:
 			EXPECT_THROW(ValidateConfiguration(mutableConfig.ToConst()), utils::property_malformed_error);
 		}
 	}
 
-	TEST(TEST_CLASS, ValidationFailsWhenBootKeyIsInvalid) {
-		AssertInvalidBootKey(Invalid_Private_Key);
-		AssertInvalidBootKey("");
+	TEST(TEST_CLASS, ValidationFailsWhenBootPrivateKeyIsInvalid) {
+		AssertInvalidBootPrivateKey(Invalid_Private_Key);
+		AssertInvalidBootPrivateKey("");
 	}
 
 	// endregion

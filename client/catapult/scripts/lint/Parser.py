@@ -174,7 +174,7 @@ class NamespacesParser:
             'OPEN_PAREN': self._parseNormalOpenParen,
             'OPEN_BRACE': self._parseNormalBrace,
             'SEMI_COLON': self._parseNormalSemiColon,
-            'EQUALS': self._parseNormalEquals,
+            'EQUALS': self._parseNormalEquals
         }
 
         if tok.type in dispatch:
@@ -409,7 +409,7 @@ class NamespacesParser:
                 Mode.InsideClassOrEnum: self.findClassEnd,
                 Mode.FindSemiColon: self.findSemiColon,
                 Mode.FindClosingParen: self.findCloseParen,
-                Mode.FindClosingBrace: self.findCloseBrace,
+                Mode.FindClosingBrace: self.findCloseBrace
             }
             dispatch[self.mode](self.tok)
 

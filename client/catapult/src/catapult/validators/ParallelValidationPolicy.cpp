@@ -36,18 +36,16 @@ namespace catapult { namespace validators {
 		public:
 			using ResultType = ValidationResult;
 
-			static constexpr bool IsEntityShortCircuitAllowed = true;
-
 		public:
 			explicit ShortCircuitTraits(size_t) : m_aggregateResult(ValidationResult::Success)
 			{}
 
 		public:
-			bool validateEntity(const model::WeakEntityInfo& entityInfo, const ValidationFunction& validationFunction, size_t) {
+			bool validateEntity(const StatelessEntityValidator& validator, const model::WeakEntityInfo& entityInfo, size_t) {
 				if (IsValidationResultFailure(m_aggregateResult))
 					return false;
 
-				auto result = validationFunction(entityInfo);
+				auto result = validator.validate(entityInfo);
 				AggregateValidationResult(m_aggregateResult, result);
 				return true;
 			}
@@ -68,17 +66,15 @@ namespace catapult { namespace validators {
 		public:
 			using ResultType = std::vector<ValidationResult>;
 
-			static constexpr bool IsEntityShortCircuitAllowed = false;
-
 		public:
 			explicit AllTraits(size_t numEntities) : m_results(numEntities, ValidationResult::Success)
 			{}
 
 		public:
-			bool validateEntity(const model::WeakEntityInfo& entityInfo, const ValidationFunction& validationFunction, size_t index) {
-				auto result = validationFunction(entityInfo);
+			bool validateEntity(const StatelessEntityValidator& validator, const model::WeakEntityInfo& entityInfo, size_t index) {
+				auto result = validator.validate(entityInfo);
 				AggregateValidationResult(m_results[index], result);
-				return !IsValidationResultFailure(m_results[index]);
+				return true;
 			}
 
 			std::vector<ValidationResult> result() {
@@ -94,12 +90,8 @@ namespace catapult { namespace validators {
 		template<typename TTraits>
 		class ValidationWork {
 		public:
-			ValidationWork(
-					const std::shared_ptr<const void>& pOwner,
-					const ValidationFunctions& validationFunctions,
-					const model::WeakEntityInfos& entityInfos)
-					: m_pOwner(pOwner) // extend the owner lifetime to the lifetime of this context
-					, m_validationFunctions(validationFunctions)
+			ValidationWork(const std::shared_ptr<const StatelessEntityValidator>& pValidator, const model::WeakEntityInfos& entityInfos)
+					: m_pValidator(pValidator)
 					, m_entityInfos(entityInfos)
 					, m_impl(m_entityInfos.size())
 			{}
@@ -119,75 +111,64 @@ namespace catapult { namespace validators {
 			}
 
 			bool validateEntity(const model::WeakEntityInfo& entityInfo, size_t index) {
-				for (const auto& validationFunction : m_validationFunctions) {
-					if (m_impl.validateEntity(entityInfo, validationFunction, index))
-						continue;
-
-					// if allowed by policy, bypass processing of subsequent entities after failure
-					if (TTraits::IsEntityShortCircuitAllowed)
-						return false;
-
-					// subsequent validators can always be bypassed after failure
-					break;
-				}
-
-				return true;
+				return m_impl.validateEntity(*m_pValidator, entityInfo, index);
 			}
 
 		private:
-			std::shared_ptr<const void> m_pOwner;
-			ValidationFunctions m_validationFunctions;
+			std::shared_ptr<const StatelessEntityValidator> m_pValidator;
 			model::WeakEntityInfos m_entityInfos;
 			thread::promise<typename TTraits::ResultType> m_promise;
 			TTraits m_impl;
 		};
 
-		class DefaultParallelValidationPolicy final
-				: public ParallelValidationPolicy
-				, public std::enable_shared_from_this<DefaultParallelValidationPolicy> {
+		class DefaultParallelValidationPolicy final : public ParallelValidationPolicy {
 		public:
-			explicit DefaultParallelValidationPolicy(const std::shared_ptr<thread::IoThreadPool>& pPool)
+			DefaultParallelValidationPolicy(
+					const std::shared_ptr<thread::IoThreadPool>& pPool,
+					const std::shared_ptr<const StatelessEntityValidator>& pValidator)
 					: m_pPool(pPool)
+					, m_pValidator(pValidator)
 					, m_ioContext(pPool->ioContext()) {
 				CATAPULT_LOG(trace) << "DefaultParallelValidationPolicy created with " << pPool->numWorkerThreads() << " worker threads";
 			}
 
 		private:
 			template<typename TTraits>
-			auto validateT(const model::WeakEntityInfos& entityInfos, const ValidationFunctions& validationFunctions) const {
-				auto pWork = std::make_shared<ValidationWork<TTraits>>(shared_from_this(), validationFunctions, entityInfos);
+			auto validateT(const model::WeakEntityInfos& entityInfos) const {
+				auto pWork = std::make_shared<ValidationWork<TTraits>>(m_pValidator, entityInfos);
+
+				auto workProcessItemCallback = [pWork](const auto& entityInfo, auto index) {
+					return pWork->validateEntity(entityInfo, index);
+				};
+				auto workCompleteCallback = [pWork, pPool = m_pPool](const auto&) {
+					pWork->complete();
+					return pWork->future();
+				};
+
 				return thread::compose(
-						thread::ParallelFor(m_ioContext, pWork->entityInfos(), m_pPool->numWorkerThreads(), [pWork](
-								const auto& entityInfo,
-								auto index) {
-							return pWork->validateEntity(entityInfo, index);
-						}),
-						[pWork](const auto&) {
-							pWork->complete();
-							return pWork->future();
-						});
+						thread::ParallelFor(m_ioContext, pWork->entityInfos(), m_pPool->numWorkerThreads(), workProcessItemCallback),
+						workCompleteCallback);
 			}
 
 		public:
-			thread::future<ValidationResult> validateShortCircuit(
-					const model::WeakEntityInfos& entityInfos,
-					const ValidationFunctions& validationFunctions) const override {
-				return validateT<ShortCircuitTraits>(entityInfos, validationFunctions);
+			thread::future<ValidationResult> validateShortCircuit(const model::WeakEntityInfos& entityInfos) const override {
+				return validateT<ShortCircuitTraits>(entityInfos);
 			}
 
-			thread::future<std::vector<ValidationResult>> validateAll(
-					const model::WeakEntityInfos& entityInfos,
-					const ValidationFunctions& validationFunctions) const override {
-				return validateT<AllTraits>(entityInfos, validationFunctions);
+			thread::future<std::vector<ValidationResult>> validateAll(const model::WeakEntityInfos& entityInfos) const override {
+				return validateT<AllTraits>(entityInfos);
 			}
 
 		private:
 			std::shared_ptr<const thread::IoThreadPool> m_pPool;
+			std::shared_ptr<const StatelessEntityValidator> m_pValidator;
 			boost::asio::io_context& m_ioContext;
 		};
 	}
 
-	std::shared_ptr<const ParallelValidationPolicy> CreateParallelValidationPolicy(const std::shared_ptr<thread::IoThreadPool>& pPool) {
-		return std::make_shared<const DefaultParallelValidationPolicy>(pPool);
+	std::shared_ptr<const ParallelValidationPolicy> CreateParallelValidationPolicy(
+			const std::shared_ptr<thread::IoThreadPool>& pPool,
+			const std::shared_ptr<const StatelessEntityValidator>& pValidator) {
+		return std::make_shared<const DefaultParallelValidationPolicy>(pPool, pValidator);
 	}
 }}

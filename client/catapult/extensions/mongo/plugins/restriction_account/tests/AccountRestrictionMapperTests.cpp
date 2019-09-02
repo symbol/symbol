@@ -76,8 +76,8 @@ namespace catapult { namespace mongo { namespace plugins {
 			for (auto i = 0u; i < transaction.ModificationsCount; ++i) {
 				auto view = iter->get_document().view();
 				EXPECT_EQ(
-						pModification->ModificationType,
-						static_cast<model::AccountRestrictionModificationType>(test::GetUint8(view, "restrictionType")));
+						pModification->ModificationAction,
+						static_cast<model::AccountRestrictionModificationAction>(test::GetUint8(view, "modificationAction")));
 
 				RawBuffer buffer(view["value"].get_binary().bytes, view["value"].get_binary().size);
 				EXPECT_EQ(pModification->Value, TRestrictionValueTraits::FromBuffer(buffer));

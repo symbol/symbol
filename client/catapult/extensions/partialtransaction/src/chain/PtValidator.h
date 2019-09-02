@@ -34,15 +34,15 @@ namespace catapult {
 
 namespace catapult { namespace chain {
 
-	/// Result of a partial transaction cosigners validation.
-	enum class CosignersValidationResult {
-		/// At least one cosigner is missing.
+	/// Result of a partial transaction cosignatories validation.
+	enum class CosignatoriesValidationResult {
+		/// At least one cosignatory is missing.
 		Missing,
 
-		/// At least one cosigner is ineligible.
+		/// At least one cosignatory is ineligible.
 		Ineligible,
 
-		/// All cosigners are eligible and sufficient.
+		/// All cosignatories are eligible and sufficient.
 		Success,
 
 		/// Transaction failed validation and should be rejected.
@@ -67,11 +67,12 @@ namespace catapult { namespace chain {
 		};
 
 	public:
-		/// Validates a partial transaction (\a transactionInfo) excluding ineligible and missing cosigners checks.
+		/// Validates a partial transaction (\a transactionInfo) excluding ineligible cosignatories and missing cosignatures checks.
 		virtual Result<bool> validatePartial(const model::WeakEntityInfoT<model::Transaction>& transactionInfo) const = 0;
 
-		/// Validates the cosigners of a partial transaction (\a transactionInfo).
-		virtual Result<CosignersValidationResult> validateCosigners(const model::WeakCosignedTransactionInfo& transactionInfo) const = 0;
+		/// Validates the cosignatories of a partial transaction (\a transactionInfo).
+		virtual Result<CosignatoriesValidationResult> validateCosignatories(
+				const model::WeakCosignedTransactionInfo& transactionInfo) const = 0;
 	};
 
 	/// Creates a default partial transaction validator around \a cache, current time supplier (\a timeSupplier) and \a pluginManager.

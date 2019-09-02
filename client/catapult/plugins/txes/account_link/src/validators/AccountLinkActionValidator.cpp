@@ -26,6 +26,6 @@ namespace catapult { namespace validators {
 	using Notification = model::RemoteAccountLinkNotification;
 
 	DEFINE_STATELESS_VALIDATOR(AccountLinkAction, [](const Notification& notification) {
-		return ValidateLessThanOrEqual(notification.LinkAction, model::AccountLinkAction::Unlink, Failure_AccountLink_Invalid_Action);
+		return ValidateLessThanOrEqual(notification.LinkAction, model::AccountLinkAction::Link, Failure_AccountLink_Invalid_Action);
 	});
 }}

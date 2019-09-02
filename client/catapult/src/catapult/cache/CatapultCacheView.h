@@ -28,6 +28,7 @@ namespace catapult {
 		class CacheHeightView;
 		class ReadOnlyCatapultCache;
 	}
+	namespace state { struct CatapultState; }
 }
 
 namespace catapult { namespace cache {
@@ -35,8 +36,11 @@ namespace catapult { namespace cache {
 	/// Locked view on top of the catapult cache.
 	class CatapultCacheView {
 	public:
-		/// Creates a locked catapult cache view from a cache height view (\a cacheHeightView) and \a subViews.
-		CatapultCacheView(CacheHeightView&& cacheHeightView, std::vector<std::unique_ptr<const SubCacheView>>&& subViews);
+		/// Creates a locked catapult cache view from a cache height view (\a cacheHeightView), \a dependentState and \a subViews.
+		CatapultCacheView(
+				CacheHeightView&& cacheHeightView,
+				const state::CatapultState& dependentState,
+				std::vector<std::unique_ptr<const SubCacheView>>&& subViews);
 
 		/// Releases the read lock.
 		~CatapultCacheView();
@@ -54,11 +58,14 @@ namespace catapult { namespace cache {
 		}
 
 	public:
-		/// Calculates the cache state hash.
-		StateHashInfo calculateStateHash() const;
-
 		/// Gets the cache height associated with the read lock.
 		Height height() const;
+
+		/// Gets (const) dependent catapult state.
+		const state::CatapultState& dependentState() const;
+
+		/// Calculates the cache state hash.
+		StateHashInfo calculateStateHash() const;
 
 	public:
 		/// Creates a read-only view of this view.
@@ -66,6 +73,7 @@ namespace catapult { namespace cache {
 
 	private:
 		std::unique_ptr<CacheHeightView> m_pCacheHeight; // use a unique_ptr to allow fwd declare
+		const state::CatapultState* m_pDependentState; // use a pointer to allow move assignment
 		std::vector<std::unique_ptr<const SubCacheView>> m_subViews;
 	};
 }}

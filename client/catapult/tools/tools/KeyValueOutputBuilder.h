@@ -29,13 +29,13 @@ namespace catapult { namespace tools {
 	/// \note Empty values will be ignored and not output.
 	class KeyValueOutputBuilder {
 	public:
-		/// Adds a \a key with a string \a value.
+		/// Adds \a key with a string \a value.
 		void add(const std::string& key, const std::string& value);
 
-		/// Adds a \a key with multiple \a values that should be joined with \a separator.
+		/// Adds \a key with multiple \a values that should be joined with \a separator.
 		void add(const std::string& key, const std::vector<std::string>& values, const std::string& separator);
 
-		/// Adds a \a key with a hex-formatted array \a value.
+		/// Adds \a key with a hex-formatted array \a value.
 		template<size_t N>
 		void add(const std::string& key, const std::array<uint8_t, N>& value) {
 			std::ostringstream out;
@@ -43,7 +43,7 @@ namespace catapult { namespace tools {
 			add(key, out.str());
 		}
 
-		/// Adds a \a key with a default formatted \a value.
+		/// Adds \a key with a default formatted \a value.
 		template<typename T>
 		void add(const std::string& key, const T& value) {
 			std::ostringstream out;

@@ -37,10 +37,10 @@ namespace catapult { namespace builders {
 		TransferBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
 
 	public:
-		/// Sets the transaction recipient to \a recipient.
-		void setRecipient(const UnresolvedAddress& recipient);
+		/// Sets the recipient address to \a recipientAddress.
+		void setRecipientAddress(const UnresolvedAddress& recipientAddress);
 
-		/// Sets the transaction message to \a message.
+		/// Sets the attached message to \a message.
 		void setMessage(const RawBuffer& message);
 
 		/// Adds \a mosaic to attached mosaics.
@@ -65,7 +65,7 @@ namespace catapult { namespace builders {
 		std::unique_ptr<TTransaction> buildImpl() const;
 
 	private:
-		UnresolvedAddress m_recipient;
+		UnresolvedAddress m_recipientAddress;
 		std::vector<uint8_t> m_message;
 		std::vector<model::UnresolvedMosaic> m_mosaics;
 	};

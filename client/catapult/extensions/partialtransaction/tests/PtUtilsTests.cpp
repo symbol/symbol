@@ -118,7 +118,7 @@ namespace catapult { namespace partialtransaction {
 					auto cosignature = GenerateRandomCosignature();
 					transactionInfo.Cosignatures.push_back(cosignature);
 					m_cosignatures.push_back(
-							model::DetachedCosignature(cosignature.Signer, cosignature.Signature, transactionInfo.EntityHash));
+							model::DetachedCosignature(cosignature.SignerPublicKey, cosignature.Signature, transactionInfo.EntityHash));
 				}
 
 				transactionInfos.push_back(transactionInfo);
@@ -129,7 +129,7 @@ namespace catapult { namespace partialtransaction {
 
 				for (auto i = 0u; i < m_cosignatures.size(); ++i) {
 					auto message = "cosignature at " + std::to_string(i);
-					EXPECT_EQ(m_cosignatures[i].Signer, cosignatures[i].Signer) << message;
+					EXPECT_EQ(m_cosignatures[i].SignerPublicKey, cosignatures[i].SignerPublicKey) << message;
 					EXPECT_EQ(m_cosignatures[i].Signature, cosignatures[i].Signature) << message;
 					EXPECT_EQ(m_cosignatures[i].ParentHash, cosignatures[i].ParentHash) << message;
 				}

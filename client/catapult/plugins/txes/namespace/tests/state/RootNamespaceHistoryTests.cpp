@@ -61,7 +61,7 @@ namespace catapult { namespace state {
 		std::vector<Key> GetOwners(const RootNamespaceHistory& history) {
 			std::vector<Key> owners;
 			for (const auto& root : history)
-				owners.push_back(root.owner());
+				owners.push_back(root.ownerPublicKey());
 
 			return owners;
 		}

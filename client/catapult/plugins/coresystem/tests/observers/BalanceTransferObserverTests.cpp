@@ -31,10 +31,13 @@ namespace catapult { namespace observers {
 	DEFINE_COMMON_OBSERVER_TESTS(BalanceTransfer,)
 
 	namespace {
+		constexpr auto Dynamic_Fee_Multiplier = BlockFeeMultiplier(117);
+
 		template<typename TTraits>
 		void AssertCommitObservation() {
 			// Arrange:
 			test::AccountObserverTestContext context(NotifyMode::Commit);
+			context.state().DynamicFeeMultiplier = Dynamic_Fee_Multiplier;
 			auto pObserver = CreateBalanceTransferObserver();
 
 			auto sender = test::GenerateRandomByteArray<Key>();
@@ -56,6 +59,7 @@ namespace catapult { namespace observers {
 		void AssertRollbackObservation() {
 			// Arrange:
 			test::AccountObserverTestContext context(NotifyMode::Rollback);
+			context.state().DynamicFeeMultiplier = Dynamic_Fee_Multiplier;
 			auto pObserver = CreateBalanceTransferObserver();
 
 			auto sender = test::GenerateRandomByteArray<Key>();
@@ -83,7 +87,7 @@ namespace catapult { namespace observers {
 	namespace {
 		constexpr auto Currency_Mosaic_Id = MosaicId(1234);
 
-		struct SingleMosaicTraits {
+		struct SingleMosaicStaticTraits {
 			static auto CreateNotification(const Key& sender, const UnresolvedAddress& recipient) {
 				return model::BalanceTransferNotification(sender, recipient, test::UnresolveXor(Currency_Mosaic_Id), Amount(234));
 			}
@@ -104,16 +108,28 @@ namespace catapult { namespace observers {
 				return { { Currency_Mosaic_Id, Amount(750 + 234) } };
 			}
 		};
+
+		struct SingleMosaicDynamicTraits : public SingleMosaicStaticTraits {
+			static auto CreateNotification(const Key& sender, const UnresolvedAddress& recipient) {
+				return model::BalanceTransferNotification(
+						sender,
+						recipient,
+						test::UnresolveXor(Currency_Mosaic_Id),
+						Amount(234 / Dynamic_Fee_Multiplier.unwrap()),
+						model::BalanceTransferNotification::AmountType::Dynamic);
+			}
+		};
 	}
 
-	DEFINE_BALANCE_OBSERVATION_TESTS(SingleMosaic)
+	DEFINE_BALANCE_OBSERVATION_TESTS(SingleMosaicStatic)
+	DEFINE_BALANCE_OBSERVATION_TESTS(SingleMosaicDynamic)
 
 	// endregion
 
 	// region multiple mosaics
 
 	namespace {
-		struct MultipleMosaicTraits {
+		struct MultipleMosaicStaticTraits {
 			static auto CreateNotification(const Key& sender, const UnresolvedAddress& recipient) {
 				return model::BalanceTransferNotification(sender, recipient, test::UnresolveXor(MosaicId(12)), Amount(234));
 			}
@@ -136,7 +152,19 @@ namespace catapult { namespace observers {
 		};
 	}
 
-	DEFINE_BALANCE_OBSERVATION_TESTS(MultipleMosaic)
+	struct MultipleMosaicDynamicTraits : public MultipleMosaicStaticTraits {
+		static auto CreateNotification(const Key& sender, const UnresolvedAddress& recipient) {
+			return model::BalanceTransferNotification(
+					sender,
+					recipient,
+					test::UnresolveXor(MosaicId(12)),
+					Amount(234 / Dynamic_Fee_Multiplier.unwrap()),
+					model::BalanceTransferNotification::AmountType::Dynamic);
+		}
+	};
+
+	DEFINE_BALANCE_OBSERVATION_TESTS(MultipleMosaicStatic)
+	DEFINE_BALANCE_OBSERVATION_TESTS(MultipleMosaicDynamic)
 
 	// endregion
 }}

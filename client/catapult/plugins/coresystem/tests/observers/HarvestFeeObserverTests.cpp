@@ -91,7 +91,7 @@ namespace catapult { namespace observers {
 			ASSERT_EQ(sizeof(model::BalanceChangeReceipt), receipt.Size) << message;
 			EXPECT_EQ(1u, receipt.Version) << message;
 			EXPECT_EQ(model::Receipt_Type_Harvest_Fee, receipt.Type) << message;
-			EXPECT_EQ(expectedKey, receipt.Account) << message;
+			EXPECT_EQ(expectedKey, receipt.TargetPublicKey) << message;
 			EXPECT_EQ(Currency_Mosaic_Id, receipt.MosaicId) << message;
 			EXPECT_EQ(expectedAmount, receipt.Amount) << message;
 		}
@@ -290,16 +290,6 @@ namespace catapult { namespace observers {
 		AssertHarvesterSharesFees(signer, beneficiary, 0, Amount(205), finalBalances, { { signer, Amount(205) } });
 	}
 
-	TEST(TEST_CLASS, HarvesterDoesNotShareFeesWhenBeneficiaryKeyIsZeroKey) {
-		// Arrange:
-		auto signer = test::GenerateRandomByteArray<Key>();
-		auto beneficiary = Key();
-		BalancesInfo finalBalances{ Amount(987 + 205), Amount(234) };
-
-		// Act + Assert:
-		AssertHarvesterSharesFees(signer, beneficiary, 20, Amount(205), finalBalances, { { signer, Amount(205) } });
-	}
-
 	TEST(TEST_CLASS, HarvesterDoesNotShareFeesWhenBeneficiaryKeyIsEqualToSignerKey) {
 		// Arrange: signer account (= beneficiary account) is initially credited 987 + 234
 		auto signer = test::GenerateRandomByteArray<Key>();
@@ -426,28 +416,6 @@ namespace catapult { namespace observers {
 			calculator.add(Height(567), Amount(300));
 			return calculator;
 		}
-	}
-
-	TEST(TEST_CLASS, HarvesterDoesNotShareInflationWhenBeneficiaryIsZeroKey_Commit) {
-		// Arrange: initial balances are 987 for signer and 234 for beneficiary, context height is 444
-		auto signer = test::GenerateRandomByteArray<Key>();
-		auto calculator = CreateCustomCalculator();
-		BalancesInfo finalBalances{ Amount(987 + 700), Amount(234) };
-
-		// Act + Assert: last receipt is the expected inflation receipt
-		AssertHarvesterSharesFees(NotifyMode::Commit, signer, Key(), 20, Amount(500), calculator, finalBalances, {
-			{ signer, Amount(700) }, { Key(), Amount(200) }
-		});
-	}
-
-	TEST(TEST_CLASS, HarvesterDoesNotShareInflationWhenBeneficiaryIsZeroKey_Rollback) {
-		// Arrange: initial balances are 987 for signer and 234 for beneficiary, context height is 444
-		auto signer = test::GenerateRandomByteArray<Key>();
-		auto calculator = CreateCustomCalculator();
-		BalancesInfo finalBalances{ Amount(987 - 700), Amount(234) };
-
-		// Act + Assert:
-		AssertHarvesterSharesFees(NotifyMode::Rollback, signer, Key(), 20, Amount(500), calculator, finalBalances, {});
 	}
 
 	TEST(TEST_CLASS, HarvesterSharesInflationAccordingToGivenPercentage_Commit) {

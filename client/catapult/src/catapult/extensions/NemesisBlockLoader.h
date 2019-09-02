@@ -32,7 +32,6 @@ namespace catapult {
 		class NotificationPublisher;
 	}
 	namespace plugins { class PluginManager; }
-	namespace state { struct CatapultState; }
 }
 
 namespace catapult { namespace extensions {
@@ -76,7 +75,6 @@ namespace catapult { namespace extensions {
 		void execute(
 				const model::BlockChainConfiguration& config,
 				const model::BlockElement& nemesisBlockElement,
-				state::CatapultState& catapultState,
 				StateHashVerification stateHashVerification,
 				Verbosity verbosity);
 

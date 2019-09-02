@@ -40,6 +40,6 @@ namespace catapult { namespace validators {
 	DEFINE_STATEFUL_VALIDATOR(MosaicRestrictionRequired, ([](const Notification& notification, const ValidatorContext& context) {
 		return GlobalRestrictionExists(notification, context)
 				? ValidationResult::Success
-				: Failure_RestrictionMosaic_Global_Restriction_Does_Not_Exist;
+				: Failure_RestrictionMosaic_Unknown_Global_Restriction;
 	}));
 }}

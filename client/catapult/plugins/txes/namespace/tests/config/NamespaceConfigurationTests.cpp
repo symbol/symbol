@@ -47,7 +47,7 @@ namespace catapult { namespace config {
 
 							{ "namespaceRentalFeeSinkPublicKey", Namespace_Rental_Fee_Sink_Public_Key },
 							{ "rootNamespaceRentalFeePerBlock", "78" },
-							{ "childNamespaceRentalFee", "11223322" },
+							{ "childNamespaceRentalFee", "11223322" }
 						}
 					}
 				};

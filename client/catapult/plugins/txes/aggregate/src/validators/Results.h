@@ -40,11 +40,11 @@ namespace catapult { namespace validators {
 	/// Validation failed because redundant cosignatures are present.
 	DEFINE_AGGREGATE_RESULT(Redundant_Cosignatures, 4);
 
-	/// Validation failed because at least one cosigner is ineligible.
-	DEFINE_AGGREGATE_RESULT(Ineligible_Cosigners, 5);
+	/// Validation failed because at least one cosignatory is ineligible.
+	DEFINE_AGGREGATE_RESULT(Ineligible_Cosignatories, 5);
 
-	/// Validation failed because at least one required cosigner is missing.
-	DEFINE_AGGREGATE_RESULT(Missing_Cosigners, 6);
+	/// Validation failed because at least one required cosignature is missing.
+	DEFINE_AGGREGATE_RESULT(Missing_Cosignatures, 6);
 
 #ifndef CUSTOM_RESULT_DEFINITION
 }}

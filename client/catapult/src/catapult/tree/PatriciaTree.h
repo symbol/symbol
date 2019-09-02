@@ -31,7 +31,7 @@ namespace catapult { namespace tree {
 		using ValueType = typename TEncoder::ValueType;
 
 	public:
-		/// Creates a tree around a \a dataSource.
+		/// Creates a tree around \a dataSource.
 		explicit PatriciaTree(TDataSource& dataSource) : m_dataSource(dataSource)
 		{}
 

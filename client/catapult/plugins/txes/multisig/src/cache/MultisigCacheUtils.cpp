@@ -26,13 +26,13 @@ namespace catapult { namespace cache {
 	namespace {
 		struct AncestorTraits {
 			static const auto& GetKeySet(const state::MultisigEntry& multisigEntry) {
-				return multisigEntry.multisigAccounts();
+				return multisigEntry.multisigPublicKeys();
 			}
 		};
 
 		struct DescendantTraits {
 			static const auto& GetKeySet(const state::MultisigEntry& multisigEntry) {
-				return multisigEntry.cosignatories();
+				return multisigEntry.cosignatoryPublicKeys();
 			}
 		};
 

@@ -1,7 +1,5 @@
-ref10 - public domain, implementation from supercop
-http://bench.cr.yp.to/supercop/supercop-20190110.tar.xz
-crypo_sign\ed25519\ref10
-
+donna 64 - public domain, implementation by Adam Langley <agl@imperialviolet.org> & Andrew M. <liquidsun@gmail.com>
+https://github.com/floodyberry/ed25519-donna
 
 sha3 - public domain CC0,
 Common\brg_endian.h - is copyrighted by Brian Gladman and comes with a BSD 3-clause license

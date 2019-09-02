@@ -23,8 +23,8 @@
 
 namespace catapult { namespace model {
 
-	/// Supply change directions.
-	enum class MosaicSupplyChangeDirection : uint8_t {
+	/// Mosaic supply change actions.
+	enum class MosaicSupplyChangeAction : uint8_t {
 		/// Decreases the supply.
 		Decrease,
 

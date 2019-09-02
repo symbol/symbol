@@ -157,7 +157,7 @@ namespace catapult { namespace test {
 			pDelta->remove(TTraits::CreateKey("TestElement", 2));
 			auto expectedElements = typename TTraits::ElementVector{
 				TTraits::CreateElement("TestElement", 1),
-				TTraits::CreateElement("MyTestElement", 123),
+				TTraits::CreateElement("MyTestElement", 123)
 			};
 
 			// Act:
@@ -193,7 +193,7 @@ namespace catapult { namespace test {
 			pDelta->remove(TTraits::CreateKey("TestElement", 2));
 			auto expectedElements = typename TTraits::ElementVector{
 				TTraits::CreateElement("TestElement", 1),
-				TTraits::CreateElement("MyTestElement", 123),
+				TTraits::CreateElement("MyTestElement", 123)
 			};
 
 			// Act:

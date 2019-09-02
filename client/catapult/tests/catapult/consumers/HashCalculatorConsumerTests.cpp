@@ -227,7 +227,7 @@ namespace catapult { namespace consumers {
 			auto registry = mocks::CreateDefaultTransactionRegistry();
 			auto input = CreateBlockConsumerInput(numBlocks, numTransactionsPerBlock);
 			auto& blockElements = input.blocks();
-			const_cast<model::Block&>(blockElements[mismatchedIndex].Block).BlockTransactionsHash[0] ^= 0xFF;
+			const_cast<model::Block&>(blockElements[mismatchedIndex].Block).TransactionsHash[0] ^= 0xFF;
 
 			// Act:
 			auto result = CreateBlockHashCalculatorConsumer(GetNetworkGenerationHash(), registry)(blockElements);
@@ -326,8 +326,8 @@ namespace catapult { namespace consumers {
 				}
 
 				static void UpdateWithExpectedMerkleHash(ConsumerInput& input, const Hash256& merkleHash) {
-					// set BlockTransactionsHash so that the consumer completes successfully
-					const_cast<Hash256&>(input.blocks()[0].Block.BlockTransactionsHash) = merkleHash;
+					// set TransactionsHash so that the consumer completes successfully
+					const_cast<Hash256&>(input.blocks()[0].Block.TransactionsHash) = merkleHash;
 				}
 
 				static auto Consume(const model::TransactionRegistry& registry, ConsumerInput& input) {

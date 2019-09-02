@@ -469,8 +469,8 @@ namespace catapult { namespace importance {
 
 		// Assert:
 		std::array<Importance, 4> importances;
-		for (uint8_t i = 1u; i <= 4; ++i)
-			importances[i] = holder.get(Key{ { i } }).ImportanceSnapshots.current();
+		for (uint8_t i = 1u; i <= importances.size(); ++i)
+			importances[i - 1] = holder.get(Key{ { i } }).ImportanceSnapshots.current();
 
 		auto activityImportance1 = importances[1] - importances[0];
 		auto activityImportance2 = importances[3] - importances[2];

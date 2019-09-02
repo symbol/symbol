@@ -32,7 +32,7 @@ namespace catapult { namespace harvesting {
 			// copy and update block header
 			model::BlockHeader blockHeader;
 			std::memcpy(static_cast<void*>(&blockHeader), &originalBlockHeader, sizeof(model::BlockHeader));
-			blockHeader.BlockTransactionsHash = transactionsInfo.TransactionsHash;
+			blockHeader.TransactionsHash = transactionsInfo.TransactionsHash;
 			blockHeader.FeeMultiplier = transactionsInfo.FeeMultiplier;
 
 			// generate the block

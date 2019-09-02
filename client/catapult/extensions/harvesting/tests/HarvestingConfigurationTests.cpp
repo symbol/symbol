@@ -35,10 +35,11 @@ namespace catapult { namespace harvesting {
 					{
 						"harvesting",
 						{
-							{ "harvestKey", "harvest-key" },
-							{ "isAutoHarvestingEnabled", "true" },
+							{ "harvesterPrivateKey", "harvester-key" },
+							{ "enableAutoHarvesting", "true" },
 							{ "maxUnlockedAccounts", "2" },
-							{ "beneficiary", "beneficiary-key" }
+							{ "delegatePrioritizationPolicy", "Importance" },
+							{ "beneficiaryPublicKey", "beneficiary-key" }
 						}
 					}
 				};
@@ -50,18 +51,20 @@ namespace catapult { namespace harvesting {
 
 			static void AssertZero(const HarvestingConfiguration& config) {
 				// Assert:
-				EXPECT_EQ("", config.HarvestKey);
-				EXPECT_FALSE(config.IsAutoHarvestingEnabled);
+				EXPECT_EQ("", config.HarvesterPrivateKey);
+				EXPECT_FALSE(config.EnableAutoHarvesting);
 				EXPECT_EQ(0u, config.MaxUnlockedAccounts);
-				EXPECT_EQ("", config.Beneficiary);
+				EXPECT_EQ(DelegatePrioritizationPolicy::Age, config.DelegatePrioritizationPolicy);
+				EXPECT_EQ("", config.BeneficiaryPublicKey);
 			}
 
 			static void AssertCustom(const HarvestingConfiguration& config) {
 				// Assert:
-				EXPECT_EQ("harvest-key", config.HarvestKey);
-				EXPECT_TRUE(config.IsAutoHarvestingEnabled);
+				EXPECT_EQ("harvester-key", config.HarvesterPrivateKey);
+				EXPECT_TRUE(config.EnableAutoHarvesting);
 				EXPECT_EQ(2u, config.MaxUnlockedAccounts);
-				EXPECT_EQ("beneficiary-key", config.Beneficiary);
+				EXPECT_EQ(DelegatePrioritizationPolicy::Importance, config.DelegatePrioritizationPolicy);
+				EXPECT_EQ("beneficiary-key", config.BeneficiaryPublicKey);
 			}
 		};
 	}
@@ -80,10 +83,11 @@ namespace catapult { namespace harvesting {
 		auto config = HarvestingConfiguration::LoadFromPath("../resources");
 
 		// Assert:
-		EXPECT_EQ("", config.HarvestKey);
-		EXPECT_FALSE(config.IsAutoHarvestingEnabled);
+		EXPECT_EQ("", config.HarvesterPrivateKey);
+		EXPECT_FALSE(config.EnableAutoHarvesting);
 		EXPECT_EQ(5u, config.MaxUnlockedAccounts);
-		EXPECT_EQ("0000000000000000000000000000000000000000000000000000000000000000", config.Beneficiary);
+		EXPECT_EQ(DelegatePrioritizationPolicy::Importance, config.DelegatePrioritizationPolicy);
+		EXPECT_EQ("0000000000000000000000000000000000000000000000000000000000000000", config.BeneficiaryPublicKey);
 	}
 
 	// endregion

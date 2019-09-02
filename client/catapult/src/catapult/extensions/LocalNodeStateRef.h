@@ -25,7 +25,6 @@ namespace catapult {
 	namespace config { class CatapultConfiguration; }
 	namespace extensions { class LocalNodeChainScore; }
 	namespace io { class BlockStorageCache; }
-	namespace state { struct CatapultState; }
 }
 
 namespace catapult { namespace extensions {
@@ -34,15 +33,13 @@ namespace catapult { namespace extensions {
 	struct LocalNodeStateRef {
 	public:
 		/// Creates a local node state ref referencing state composed of
-		/// \a config, \a state, \a cache, \a storage and \a score.
+		/// \a config, \a cache, \a storage and \a score.
 		LocalNodeStateRef(
 				const config::CatapultConfiguration& config,
-				state::CatapultState& state,
 				cache::CatapultCache& cache,
 				io::BlockStorageCache& storage,
 				LocalNodeChainScore& score)
 				: Config(config)
-				, State(state)
 				, Cache(cache)
 				, Storage(storage)
 				, Score(score)
@@ -51,9 +48,6 @@ namespace catapult { namespace extensions {
 	public:
 		/// Catapult configuration.
 		const config::CatapultConfiguration& Config;
-
-		/// Local node state.
-		state::CatapultState& State;
 
 		/// Local node cache.
 		cache::CatapultCache& Cache;

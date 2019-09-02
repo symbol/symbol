@@ -38,12 +38,11 @@ namespace catapult { namespace test {
 
 	public:
 		extensions::LocalNodeStateRef ref() {
-			return extensions::LocalNodeStateRef(m_config, m_state, m_cache, m_storage, m_score);
+			return extensions::LocalNodeStateRef(m_config, m_cache, m_storage, m_score);
 		}
 
 	private:
 		config::CatapultConfiguration m_config;
-		state::CatapultState m_state;
 		cache::CatapultCache m_cache;
 		io::BlockStorageCache m_storage;
 		extensions::LocalNodeChainScore m_score;

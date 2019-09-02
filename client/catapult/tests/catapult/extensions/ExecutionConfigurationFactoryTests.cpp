@@ -28,7 +28,8 @@ namespace catapult { namespace extensions {
 
 	TEST(TEST_CLASS, CanCreateExecutionConfiguration) {
 		// Act:
-		auto config = CreateExecutionConfiguration(*test::CreateDefaultPluginManagerWithRealPlugins());
+		auto pPluginManager = test::CreateDefaultPluginManagerWithRealPlugins();
+		auto config = CreateExecutionConfiguration(*pPluginManager);
 
 		// Assert:
 		EXPECT_EQ(model::NetworkIdentifier::Mijin_Test, config.Network.Identifier);
@@ -49,8 +50,8 @@ namespace catapult { namespace extensions {
 			"HarvestFeeObserver",
 			"TotalTransactionsObserver",
 			"RecalculateImportancesObserver",
-			"BlockDifficultyObserver",
-			"BlockDifficultyPruningObserver"
+			"BlockStatisticObserver",
+			"BlockStatisticPruningObserver"
 		};
 		EXPECT_EQ(expectedObserverNames, config.pObserver->names());
 

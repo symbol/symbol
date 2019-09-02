@@ -48,7 +48,7 @@ namespace catapult { namespace harvesting {
 			catapult::Difficulty Difficulty;
 
 		public:
-			bool tryCalculateDifficulty(const cache::BlockDifficultyCache& cache, const model::BlockChainConfiguration& config) {
+			bool tryCalculateDifficulty(const cache::BlockStatisticCache& cache, const model::BlockChainConfiguration& config) {
 				return chain::TryCalculateDifficulty(cache, ParentBlock.Height, config, Difficulty);
 			}
 		};
@@ -61,7 +61,7 @@ namespace catapult { namespace harvesting {
 			auto pBlock = model::CreateBlock(context.ParentContext, networkIdentifier, signer, {});
 			pBlock->Difficulty = context.Difficulty;
 			pBlock->Timestamp = context.Timestamp;
-			pBlock->Beneficiary = beneficiary;
+			pBlock->BeneficiaryPublicKey = Key() == beneficiary ? signer : beneficiary;
 			return pBlock;
 		}
 	}
@@ -81,7 +81,7 @@ namespace catapult { namespace harvesting {
 
 	std::unique_ptr<model::Block> Harvester::harvest(const model::BlockElement& lastBlockElement, Timestamp timestamp) {
 		NextBlockContext context(lastBlockElement, timestamp);
-		if (!context.tryCalculateDifficulty(m_cache.sub<cache::BlockDifficultyCache>(), m_config)) {
+		if (!context.tryCalculateDifficulty(m_cache.sub<cache::BlockStatisticCache>(), m_config)) {
 			CATAPULT_LOG(debug) << "skipping harvest attempt due to error calculating difficulty";
 			return nullptr;
 		}
@@ -101,15 +101,17 @@ namespace catapult { namespace harvesting {
 
 		auto unlockedAccountsView = m_unlockedAccounts.view();
 		const crypto::KeyPair* pHarvesterKeyPair = nullptr;
-		for (const auto& keyPair : unlockedAccountsView) {
+		unlockedAccountsView.forEach([&context, &hitContext, &hitPredicate, &pHarvesterKeyPair](const auto& keyPair) {
 			hitContext.Signer = keyPair.publicKey();
 			hitContext.GenerationHash = model::CalculateGenerationHash(context.ParentContext.GenerationHash, hitContext.Signer);
 
 			if (hitPredicate(hitContext)) {
 				pHarvesterKeyPair = &keyPair;
-				break;
+				return false;
 			}
-		}
+
+			return true;
+		});
 
 		if (!pHarvesterKeyPair)
 			return nullptr;

@@ -100,8 +100,8 @@ namespace catapult { namespace mongo {
 		auto view = dbReceipt.view();
 		EXPECT_EQ(4u, test::GetFieldCount(view));
 
-		EXPECT_EQ(receipt.Sender, test::GetKeyValue(view, "sender"));
-		EXPECT_EQ(receipt.Recipient, test::GetAddressValue(view, "recipient"));
+		EXPECT_EQ(receipt.SenderPublicKey, test::GetKeyValue(view, "senderPublicKey"));
+		EXPECT_EQ(receipt.RecipientAddress, test::GetAddressValue(view, "recipientAddress"));
 		EXPECT_EQ(receipt.MosaicId, MosaicId(test::GetUint64(view, "mosaicId")));
 		EXPECT_EQ(receipt.Amount, Amount(test::GetUint64(view, "amount")));
 	}
@@ -133,7 +133,7 @@ namespace catapult { namespace mongo {
 		auto view = dbReceipt.view();
 		EXPECT_EQ(3u, test::GetFieldCount(view));
 
-		EXPECT_EQ(receipt.Account, test::GetKeyValue(view, "account"));
+		EXPECT_EQ(receipt.TargetPublicKey, test::GetKeyValue(view, "targetPublicKey"));
 		EXPECT_EQ(receipt.MosaicId, MosaicId(test::GetUint64(view, "mosaicId")));
 		EXPECT_EQ(receipt.Amount, Amount(test::GetUint64(view, "amount")));
 	}

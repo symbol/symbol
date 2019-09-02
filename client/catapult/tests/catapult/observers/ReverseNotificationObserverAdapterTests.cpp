@@ -69,24 +69,29 @@ namespace catapult { namespace observers {
 
 			// Assert: the mock transaction plugin sends one additional public key notification and 6 custom notifications
 			//         (notice that only 4/6 are raised on observer channel)
-			ASSERT_EQ(5u + 1 + 4, observer.notificationTypes().size());
-			EXPECT_EQ(model::Core_Source_Change_Notification, observer.notificationTypes()[9]);
-			EXPECT_EQ(model::Core_Register_Account_Public_Key_Notification, observer.notificationTypes()[8]);
-			EXPECT_EQ(model::Core_Transaction_Notification, observer.notificationTypes()[7]);
-			EXPECT_EQ(model::Core_Transaction_Fee_Notification, observer.notificationTypes()[6]);
-			EXPECT_EQ(model::Core_Balance_Debit_Notification, observer.notificationTypes()[5]);
+			EXPECT_EQ(5u + 1 + 4, observer.notificationTypes().size());
 
-			// - mock transaction notifications
-			EXPECT_EQ(model::Core_Register_Account_Public_Key_Notification, observer.notificationTypes()[4]);
-			EXPECT_EQ(mocks::Mock_Observer_1_Notification, observer.notificationTypes()[3]);
-			EXPECT_EQ(mocks::Mock_All_1_Notification, observer.notificationTypes()[2]);
-			EXPECT_EQ(mocks::Mock_Observer_2_Notification, observer.notificationTypes()[1]);
-			EXPECT_EQ(mocks::Mock_All_2_Notification, observer.notificationTypes()[0]);
+			std::vector<model::NotificationType> expectedNotificationTypes{
+				model::Core_Source_Change_Notification,
+				model::Core_Register_Account_Public_Key_Notification,
+				model::Core_Transaction_Notification,
+				model::Core_Transaction_Fee_Notification,
+				model::Core_Balance_Debit_Notification,
+
+				// mock transaction notifications
+				model::Core_Register_Account_Public_Key_Notification,
+				mocks::Mock_Observer_1_Notification,
+				mocks::Mock_All_1_Notification,
+				mocks::Mock_Observer_2_Notification,
+				mocks::Mock_All_2_Notification
+			};
+			std::reverse(expectedNotificationTypes.begin(), expectedNotificationTypes.end());
+			EXPECT_EQ(expectedNotificationTypes, observer.notificationTypes());
 
 			// - spot check the account keys as a proxy for verifying data integrity
 			ASSERT_EQ(2u, observer.accountKeys().size());
-			EXPECT_EQ(pTransaction->Signer, observer.accountKeys()[1]);
-			EXPECT_EQ(pTransaction->Recipient, observer.accountKeys()[0]);
+			EXPECT_EQ(pTransaction->SignerPublicKey, observer.accountKeys()[1]);
+			EXPECT_EQ(pTransaction->RecipientPublicKey, observer.accountKeys()[0]);
 		});
 	}
 

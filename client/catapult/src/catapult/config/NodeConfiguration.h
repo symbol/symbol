@@ -24,6 +24,7 @@
 #include "catapult/model/TransactionSelectionStrategy.h"
 #include "catapult/utils/FileSize.h"
 #include "catapult/utils/TimeSpan.h"
+#include <unordered_set>
 
 namespace catapult { namespace utils { class ConfigurationBag; } }
 
@@ -39,20 +40,20 @@ namespace catapult { namespace config {
 		unsigned short ApiPort;
 
 		/// \c true if the server should reuse ports already in use.
-		bool ShouldAllowAddressReuse;
+		bool EnableAddressReuse;
 
 		/// \c true if a single thread pool should be used, \c false if multiple thread pools should be used.
-		bool ShouldUseSingleThreadPool;
+		bool EnableSingleThreadPool;
 
 		/// \c true if cache data should be saved in a database.
-		bool ShouldUseCacheDatabaseStorage;
+		bool EnableCacheDatabaseStorage;
 
 		/// \c true if temporary sync files should be automatically cleaned up.
 		/// \note This should be \c false if broker process is running.
-		bool ShouldEnableAutoSyncCleanup;
+		bool EnableAutoSyncCleanup;
 
 		/// \c true if transaction spam throttling should be enabled.
-		bool ShouldEnableTransactionSpamThrottling;
+		bool EnableTransactionSpamThrottling;
 
 		/// Maximum fee that will boost a transaction through the spam throttle when spam throttling is enabled.
 		Amount TransactionSpamThrottlingMaxBoostFee;
@@ -116,10 +117,10 @@ namespace catapult { namespace config {
 		uint32_t TransactionElementTraceInterval;
 
 		/// \c true if the process should terminate when any dispatcher is full.
-		bool ShouldAbortWhenDispatcherIsFull;
+		bool EnableDispatcherAbortWhenFull;
 
 		/// \c true if all dispatcher inputs should be audited.
-		bool ShouldAuditDispatcherInputs;
+		bool EnableDispatcherInputAuditing;
 
 		/// Security mode of outgoing connections initiated by this node.
 		ionet::ConnectionSecurityMode OutgoingSecurityMode;
@@ -132,6 +133,9 @@ namespace catapult { namespace config {
 
 		/// Maximum number of nodes to track in memory.
 		uint32_t MaxTrackedNodes;
+
+		/// Trusted hosts that are allowed to execute protected API calls on this node.
+		std::unordered_set<std::string> TrustedHosts;
 
 	public:
 		/// Local node configuration.

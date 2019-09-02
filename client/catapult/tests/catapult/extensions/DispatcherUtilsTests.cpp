@@ -27,6 +27,7 @@
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/nodeps/Atomics.h"
+#include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/other/mocks/MockTransactionStatusSubscriber.h"
 #include "tests/TestHarness.h"
 

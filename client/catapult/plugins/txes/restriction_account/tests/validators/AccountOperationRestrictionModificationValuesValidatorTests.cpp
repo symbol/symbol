@@ -34,7 +34,7 @@ namespace catapult { namespace validators {
 		std::vector<model::AccountRestrictionModification<model::EntityType>> CreateModifications(const std::vector<uint16_t>& rawValues) {
 			std::vector<model::AccountRestrictionModification<model::EntityType>> modifications;
 			for (auto rawValue : rawValues)
-				modifications.push_back({ model::AccountRestrictionModificationType::Add, static_cast<model::EntityType>(rawValue) });
+				modifications.push_back({ model::AccountRestrictionModificationAction::Add, static_cast<model::EntityType>(rawValue) });
 
 			return modifications;
 		}
@@ -60,15 +60,15 @@ namespace catapult { namespace validators {
 	// region failure
 
 	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithSingleInvalidAccountRestrictionModificationValue) {
-		AssertValidationResult(Failure_RestrictionAccount_Value_Invalid, { 0x8000 });
-		AssertValidationResult(Failure_RestrictionAccount_Value_Invalid, { 0x2001 });
-		AssertValidationResult(Failure_RestrictionAccount_Value_Invalid, { 0x0049 });
+		AssertValidationResult(Failure_RestrictionAccount_Invalid_Value, { 0x8000 });
+		AssertValidationResult(Failure_RestrictionAccount_Invalid_Value, { 0x2001 });
+		AssertValidationResult(Failure_RestrictionAccount_Invalid_Value, { 0x0049 });
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithValidAndInvalidAccountRestrictionModificationValue) {
-		AssertValidationResult(Failure_RestrictionAccount_Value_Invalid, { 0x4000, 0x8000, 0x4149 });
-		AssertValidationResult(Failure_RestrictionAccount_Value_Invalid, { 0x2001, 0x4149, 0x4123 });
-		AssertValidationResult(Failure_RestrictionAccount_Value_Invalid, { 0x4149, 0x0000, 0x4100 });
+		AssertValidationResult(Failure_RestrictionAccount_Invalid_Value, { 0x4000, 0x8000, 0x4149 });
+		AssertValidationResult(Failure_RestrictionAccount_Invalid_Value, { 0x2001, 0x4149, 0x4123 });
+		AssertValidationResult(Failure_RestrictionAccount_Invalid_Value, { 0x4149, 0x0000, 0x4100 });
 	}
 
 	// endregion

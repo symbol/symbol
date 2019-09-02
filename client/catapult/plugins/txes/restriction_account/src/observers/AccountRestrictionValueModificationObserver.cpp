@@ -26,10 +26,11 @@
 namespace catapult { namespace observers {
 
 	namespace {
-		model::AccountRestrictionModificationType InvertModificationType(model::AccountRestrictionModificationType modificationType) {
-			return model::AccountRestrictionModificationType::Add == modificationType
-					? model::AccountRestrictionModificationType::Del
-					: model::AccountRestrictionModificationType::Add;
+		model::AccountRestrictionModificationAction InvertModificationAction(
+				model::AccountRestrictionModificationAction modificationAction) {
+			return model::AccountRestrictionModificationAction::Add == modificationAction
+					? model::AccountRestrictionModificationAction::Del
+					: model::AccountRestrictionModificationAction::Add;
 		}
 
 		template<typename TUnresolved>
@@ -55,11 +56,11 @@ namespace catapult { namespace observers {
 			auto& restrictions = restrictionsIter.get();
 			auto& restriction = restrictions.restriction(notification.AccountRestrictionDescriptor.directionalRestrictionType());
 			const auto& modification = notification.Modification;
-			auto modificationType = NotifyMode::Commit == context.Mode
-					? modification.ModificationType
-					: InvertModificationType(modification.ModificationType);
+			auto modificationAction = NotifyMode::Commit == context.Mode
+					? modification.ModificationAction
+					: InvertModificationAction(modification.ModificationAction);
 			auto resolvedRawValue = state::ToVector(Resolve(context.Resolvers, modification.Value));
-			model::RawAccountRestrictionModification rawModification{ modificationType, resolvedRawValue };
+			model::RawAccountRestrictionModification rawModification{ modificationAction, resolvedRawValue };
 
 			if (state::AccountRestrictionOperationType::Allow == notification.AccountRestrictionDescriptor.operationType())
 				restriction.allow(rawModification);

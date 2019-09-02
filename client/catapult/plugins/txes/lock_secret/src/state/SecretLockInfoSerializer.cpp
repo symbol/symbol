@@ -26,13 +26,13 @@ namespace catapult { namespace state {
 	void SecretLockInfoExtendedDataSerializer::Save(const SecretLockInfo& lockInfo, io::OutputStream& output) {
 		io::Write8(output, utils::to_underlying_type(lockInfo.HashAlgorithm));
 		output.write(lockInfo.Secret);
-		output.write(lockInfo.Recipient);
+		output.write(lockInfo.RecipientAddress);
 	}
 
 	void SecretLockInfoExtendedDataSerializer::Load(io::InputStream& input, SecretLockInfo& lockInfo) {
 		lockInfo.HashAlgorithm = static_cast<model::LockHashAlgorithm>(io::Read8(input));
 		input.read(lockInfo.Secret);
-		input.read(lockInfo.Recipient);
-		lockInfo.CompositeHash = model::CalculateSecretLockInfoHash(lockInfo.Secret, lockInfo.Recipient);
+		input.read(lockInfo.RecipientAddress);
+		lockInfo.CompositeHash = model::CalculateSecretLockInfoHash(lockInfo.Secret, lockInfo.RecipientAddress);
 	}
 }}

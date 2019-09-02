@@ -33,7 +33,7 @@ namespace catapult { namespace io {
 		Read_Write,
 
 		/// Open file for both reading and writing.
-		Read_Append,
+		Read_Append
 	};
 
 	/// Defines locking mode for the file.

@@ -69,7 +69,7 @@ namespace catapult { namespace ionet {
 		NodeContainerModifier(NodeContainerData& nodeContainerData, utils::SpinReaderWriterLock::ReaderLockGuard&& readLock);
 
 	public:
-		/// Adds a \a node to the collection with \a source.
+		/// Adds \a node to the collection with \a source.
 		/// \note Node sources can be promoted but never demoted.
 		bool add(const Node& node, NodeSource source);
 

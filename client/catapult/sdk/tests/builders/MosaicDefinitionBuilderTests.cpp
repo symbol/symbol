@@ -41,33 +41,24 @@ namespace catapult { namespace builders {
 		public:
 			model::MosaicFlags Flags;
 			uint8_t Divisibility;
+			BlockDuration Duration;
 			catapult::MosaicNonce MosaicNonce;
-			std::vector<uint64_t> OptionalValues;
 		};
 
 		template<typename TTransaction>
 		void AssertMosaicDefinitionName(const TTransaction& transaction, MosaicNonce nonce) {
 			// Assert: id matches
-			auto expectedMosaicId = model::GenerateMosaicId(transaction.Signer, nonce);
-			EXPECT_EQ(expectedMosaicId, transaction.MosaicId);
+			auto expectedId = model::GenerateMosaicId(transaction.SignerPublicKey, nonce);
+			EXPECT_EQ(expectedId, transaction.Id);
 		}
 
 		template<typename TTransaction>
 		void AssertTransactionProperties(const TransactionProperties& expectedProperties, const TTransaction& transaction) {
-			EXPECT_EQ(expectedProperties.Flags, transaction.PropertiesHeader.Flags);
-			EXPECT_EQ(expectedProperties.Divisibility, transaction.PropertiesHeader.Divisibility);
+			EXPECT_EQ(expectedProperties.Flags, transaction.Flags);
+			EXPECT_EQ(expectedProperties.Divisibility, transaction.Divisibility);
+			EXPECT_EQ(expectedProperties.Duration, transaction.Duration);
+
 			AssertMosaicDefinitionName(transaction, expectedProperties.MosaicNonce);
-
-			// - optional values
-			EXPECT_EQ(expectedProperties.OptionalValues.size(), transaction.PropertiesHeader.Count);
-
-			auto expectedPropertyId = model::First_Optional_Property;
-			for (auto optionalValue : expectedProperties.OptionalValues) {
-				const auto& property = *transaction.PropertiesPtr();
-				EXPECT_EQ(property.Id, static_cast<model::MosaicPropertyId>(expectedPropertyId));
-				EXPECT_EQ(property.Value, optionalValue);
-				++expectedPropertyId;
-			}
 		}
 
 		template<typename TTraits>
@@ -87,7 +78,7 @@ namespace catapult { namespace builders {
 			// Assert:
 			TTraits::CheckBuilderSize(propertiesSize, builder);
 			TTraits::CheckFields(propertiesSize, *pTransaction);
-			EXPECT_EQ(signer, pTransaction->Signer);
+			EXPECT_EQ(signer, pTransaction->SignerPublicKey);
 			EXPECT_EQ(0x6201, pTransaction->Version);
 			EXPECT_EQ(model::Entity_Type_Mosaic_Definition, pTransaction->Type);
 
@@ -109,7 +100,7 @@ namespace catapult { namespace builders {
 
 	// endregion
 
-	// region required properties
+	// region properties
 
 	namespace {
 		template<typename TTraits>
@@ -146,18 +137,14 @@ namespace catapult { namespace builders {
 		});
 	}
 
-	// endregion
-
-	// region optional properties
-
-	TRAITS_BASED_TEST(CanSetOptionalProperty_Duration) {
+	TRAITS_BASED_TEST(CanSetDuration) {
 		// Arrange:
 		auto expectedProperties = TransactionProperties();
-		expectedProperties.OptionalValues = { 12345678 };
+		expectedProperties.Duration = BlockDuration(1234);
 
 		// Assert:
-		AssertCanBuildTransaction<TTraits>(sizeof(model::MosaicProperty), expectedProperties, [](auto& builder) {
-			builder.addProperty({ model::MosaicPropertyId::Duration, 12345678 });
+		AssertCanBuildTransaction<TTraits>(0, expectedProperties, [](auto& builder) {
+			builder.setDuration(BlockDuration(1234));
 		});
 	}
 
@@ -172,7 +159,7 @@ namespace catapult { namespace builders {
 
 		// Assert:
 		AssertCanBuildTransaction<TTraits>(0, expectedProperties, [nonce = expectedProperties.MosaicNonce](auto& builder) {
-			builder.setMosaicNonce(nonce);
+			builder.setNonce(nonce);
 		});
 	}
 

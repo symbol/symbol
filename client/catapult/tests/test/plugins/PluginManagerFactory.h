@@ -20,16 +20,27 @@
 
 #pragma once
 #include "catapult/plugins/PluginManager.h"
+#include "tests/test/nodeps/Conversions.h"
 
 namespace catapult { namespace test {
 
-	/// Creates a plugin manager around \a config.
-	inline plugins::PluginManager CreatePluginManager(const model::BlockChainConfiguration& config) {
+	/// Creates a plugin manager around \a config and \a userConfig.
+	inline plugins::PluginManager CreatePluginManager(
+			const model::BlockChainConfiguration& config,
+			const config::UserConfiguration& userConfig) {
 		return plugins::PluginManager(
 				config,
 				plugins::StorageConfiguration(),
-				config::UserConfiguration::Uninitialized(),
+				userConfig,
 				config::InflationConfiguration::Uninitialized());
+	}
+
+	/// Creates a plugin manager around \a config.
+	inline plugins::PluginManager CreatePluginManager(const model::BlockChainConfiguration& config) {
+		auto userConfig = config::UserConfiguration::Uninitialized();
+		userConfig.BootPrivateKey = ToString(Key());
+
+		return CreatePluginManager(config, userConfig);
 	}
 
 	/// Creates a default plugin manager.

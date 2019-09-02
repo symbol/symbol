@@ -74,7 +74,7 @@ namespace catapult { namespace process {
 		// endregion
 
 		void Run(config::CatapultConfiguration&& config, ProcessOptions processOptions, const CreateProcessHost& createProcessHost) {
-			auto keyPair = crypto::KeyPair::FromString(config.User.BootKey);
+			auto keyPair = crypto::KeyPair::FromString(config.User.BootPrivateKey);
 
 			CATAPULT_LOG(info) << "booting process with public key " << crypto::FormatKey(keyPair.publicKey());
 			auto pProcessHost = createProcessHost(std::move(config), keyPair);

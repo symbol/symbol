@@ -45,7 +45,7 @@ namespace catapult { namespace test {
 		ObserverTestContextT(observers::NotifyMode mode, Height height, const model::BlockChainConfiguration& config)
 				: m_cache(TCacheFactory::Create(config))
 				, m_cacheDelta(m_cache.createDelta())
-				, m_context({ m_cacheDelta, m_state, m_blockStatementBuilder }, height, mode, CreateResolverContextXor())
+				, m_context(observers::ObserverState(m_cacheDelta, m_blockStatementBuilder), height, mode, CreateResolverContextXor())
 		{}
 
 	public:
@@ -66,12 +66,12 @@ namespace catapult { namespace test {
 
 		/// Gets the catapult state.
 		const state::CatapultState& state() const {
-			return m_state;
+			return m_cacheDelta.dependentState();
 		}
 
 		/// Gets the catapult state.
 		state::CatapultState& state() {
-			return m_state;
+			return m_cacheDelta.dependentState();
 		}
 
 		/// Gets the block statement builder.
@@ -88,7 +88,6 @@ namespace catapult { namespace test {
 	private:
 		cache::CatapultCache m_cache;
 		cache::CatapultCacheDelta m_cacheDelta;
-		state::CatapultState m_state;
 		model::BlockStatementBuilder m_blockStatementBuilder;
 
 		observers::ObserverContext m_context;

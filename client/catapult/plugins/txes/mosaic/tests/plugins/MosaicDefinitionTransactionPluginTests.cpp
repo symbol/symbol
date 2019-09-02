@@ -71,18 +71,20 @@ namespace catapult { namespace plugins {
 				EXPECT_EQ(config.SinkPublicKey, notification.PublicKey);
 			});
 			builder.template addExpectation<MosaicNonceNotification>([&transaction](const auto& notification) {
-				EXPECT_EQ(transaction.Signer, notification.Signer);
-				EXPECT_EQ(transaction.MosaicNonce, notification.MosaicNonce);
-				EXPECT_EQ(transaction.MosaicId, notification.MosaicId);
+				EXPECT_EQ(transaction.SignerPublicKey, notification.Signer);
+				EXPECT_EQ(transaction.Nonce, notification.MosaicNonce);
+				EXPECT_EQ(transaction.Id, notification.MosaicId);
 			});
 			builder.template addExpectation<MosaicPropertiesNotification>([&transaction](const auto& notification) {
-				EXPECT_EQ(&transaction.PropertiesHeader, &notification.PropertiesHeader);
-				EXPECT_EQ(transaction.PropertiesPtr(), notification.PropertiesPtr);
+				auto expectedProperties = model::MosaicProperties(transaction.Flags, transaction.Divisibility, transaction.Duration);
+				EXPECT_EQ(expectedProperties, notification.Properties);
 			});
 			builder.template addExpectation<MosaicDefinitionNotification>([&transaction](const auto& notification) {
-				EXPECT_EQ(transaction.Signer, notification.Signer);
-				EXPECT_EQ(transaction.MosaicId, notification.MosaicId);
-				EXPECT_EQ(ExtractAllProperties(transaction.PropertiesHeader, transaction.PropertiesPtr()), notification.Properties);
+				EXPECT_EQ(transaction.SignerPublicKey, notification.Signer);
+				EXPECT_EQ(transaction.Id, notification.MosaicId);
+
+				auto expectedProperties = model::MosaicProperties(transaction.Flags, transaction.Divisibility, transaction.Duration);
+				EXPECT_EQ(expectedProperties, notification.Properties);
 			});
 		}
 	}
@@ -93,8 +95,7 @@ namespace catapult { namespace plugins {
 
 		typename TTraits::TransactionType transaction;
 		test::FillWithRandomData(transaction);
-		transaction.Signer = config.NemesisPublicKey;
-		transaction.PropertiesHeader.Count = 0;
+		transaction.SignerPublicKey = config.NemesisPublicKey;
 
 		// Act + Assert:
 		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
@@ -111,8 +112,7 @@ namespace catapult { namespace plugins {
 
 		typename TTraits::TransactionType transaction;
 		test::FillWithRandomData(transaction);
-		transaction.Signer = config.NemesisPublicKey;
-		transaction.PropertiesHeader.Count = 0;
+		transaction.SignerPublicKey = config.NemesisPublicKey;
 
 		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
 		AddCommonExpectations<TTraits>(builder, config, transaction);
@@ -131,7 +131,6 @@ namespace catapult { namespace plugins {
 
 		typename TTraits::TransactionType transaction;
 		test::FillWithRandomData(transaction);
-		transaction.PropertiesHeader.Count = 0;
 
 		// Act + Assert:
 		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
@@ -150,18 +149,18 @@ namespace catapult { namespace plugins {
 
 		typename TTraits::TransactionType transaction;
 		test::FillWithRandomData(transaction);
-		transaction.PropertiesHeader.Count = 0;
 
 		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
 		AddCommonExpectations<TTraits>(builder, config, transaction);
 		builder.template addExpectation<BalanceTransferNotification>([&config, &transaction](const auto& notification) {
-			EXPECT_EQ(transaction.Signer, notification.Sender);
+			EXPECT_EQ(transaction.SignerPublicKey, notification.Sender);
 			EXPECT_EQ(config.SinkAddress, notification.Recipient);
 			EXPECT_EQ(config.CurrencyMosaicId, notification.MosaicId);
 			EXPECT_EQ(config.Fee, notification.Amount);
+			EXPECT_EQ(BalanceTransferNotification::AmountType::Dynamic, notification.TransferAmountType);
 		});
 		builder.template addExpectation<MosaicRentalFeeNotification>([&config, &transaction](const auto& notification) {
-			EXPECT_EQ(transaction.Signer, notification.Sender);
+			EXPECT_EQ(transaction.SignerPublicKey, notification.Sender);
 			EXPECT_EQ(config.SinkAddress, notification.Recipient);
 			EXPECT_EQ(config.CurrencyMosaicId, notification.MosaicId);
 			EXPECT_EQ(config.Fee, notification.Amount);

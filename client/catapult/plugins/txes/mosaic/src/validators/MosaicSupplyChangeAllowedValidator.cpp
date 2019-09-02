@@ -46,7 +46,7 @@ namespace catapult { namespace validators {
 			if (!properties.is(model::MosaicFlags::Supply_Mutable) && ownerAmount != entry.supply())
 				return Failure_Mosaic_Supply_Immutable;
 
-			if (model::MosaicSupplyChangeDirection::Decrease == notification.Direction)
+			if (model::MosaicSupplyChangeAction::Decrease == notification.Action)
 				return ownerAmount < notification.Delta ? Failure_Mosaic_Supply_Negative : ValidationResult::Success;
 
 			// check that new supply does not overflow and is not too large

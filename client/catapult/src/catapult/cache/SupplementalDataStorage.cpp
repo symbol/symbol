@@ -31,6 +31,7 @@ namespace catapult { namespace cache {
 			CATAPULT_LOG(debug)
 					<< prefix
 					<< " last recalculation height " << supplementalData.State.LastRecalculationHeight
+					<< " dynamic fee multiplier " << supplementalData.State.DynamicFeeMultiplier
 					<< " total transactions " << supplementalData.State.NumTotalTransactions
 					<< " (score = [" << scoreArray[0] << ", " << scoreArray[1] << "]"
 					<< ", height = " << chainHeight << ")";
@@ -38,28 +39,30 @@ namespace catapult { namespace cache {
 	}
 
 	void SaveSupplementalData(const SupplementalData& supplementalData, Height chainHeight, io::OutputStream& output) {
-		io::Write(output, supplementalData.State.LastRecalculationHeight);
-		io::Write64(output, supplementalData.State.NumTotalTransactions);
+		io::Write(output, chainHeight);
 
 		auto scoreArray = supplementalData.ChainScore.toArray();
 		io::Write64(output, scoreArray[0]);
 		io::Write64(output, scoreArray[1]);
 
-		io::Write(output, chainHeight);
+		io::Write(output, supplementalData.State.LastRecalculationHeight);
+		io::Write64(output, supplementalData.State.NumTotalTransactions);
+		io::Write(output, supplementalData.State.DynamicFeeMultiplier); // write last for alignment
 
 		LogSupplementalData("wrote", supplementalData, chainHeight);
 		output.flush();
 	}
 
 	void LoadSupplementalData(io::InputStream& input, SupplementalData& supplementalData, Height& chainHeight) {
-		io::Read(input, supplementalData.State.LastRecalculationHeight);
-		supplementalData.State.NumTotalTransactions = io::Read64(input);
+		io::Read(input, chainHeight);
 
 		auto scoreHigh = io::Read64(input);
 		auto scoreLow = io::Read64(input);
 		supplementalData.ChainScore = model::ChainScore(scoreHigh, scoreLow);
 
-		io::Read(input, chainHeight);
+		io::Read(input, supplementalData.State.LastRecalculationHeight);
+		supplementalData.State.NumTotalTransactions = io::Read64(input);
+		io::Read(input, supplementalData.State.DynamicFeeMultiplier);
 
 		LogSupplementalData("read", supplementalData, chainHeight);
 	}

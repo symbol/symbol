@@ -28,7 +28,7 @@ namespace catapult { namespace test {
 
 	// region CreateValidatorContext
 
-	/// Creates a validator context around a \a height, \a network and \a cache.
+	/// Creates a validator context around \a height, \a network and \a cache.
 	inline validators::ValidatorContext CreateValidatorContext(
 			Height height,
 			const model::NetworkInfo& network,
@@ -36,7 +36,7 @@ namespace catapult { namespace test {
 		return validators::ValidatorContext(height, Timestamp(0), network, CreateResolverContextXor(), cache);
 	}
 
-	/// Creates a validator context around a \a height and \a cache.
+	/// Creates a validator context around \a height and \a cache.
 	inline validators::ValidatorContext CreateValidatorContext(Height height, const cache::ReadOnlyCatapultCache& cache) {
 		return CreateValidatorContext(height, model::NetworkInfo(), cache);
 	}

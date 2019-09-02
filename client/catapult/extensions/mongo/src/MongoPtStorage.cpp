@@ -42,17 +42,14 @@ namespace catapult { namespace mongo {
 		auto CreateAppendDocument(const std::vector<model::Cosignature>& cosignatures) {
 			document doc{};
 			auto array = doc
-					<< "$push"
-						<< open_document
-							<< "transaction.cosignatures"
-							<< open_document
-								<< "$each"
-								<< open_array;
+					<< "$push" << open_document
+						<< "transaction.cosignatures" << open_document
+							<< "$each" << open_array;
 
 			for (const model::Cosignature& cosignature : cosignatures) {
 				array
 						<< open_document
-							<< "signer" << mappers::ToBinary(cosignature.Signer)
+							<< "signerPublicKey" << mappers::ToBinary(cosignature.SignerPublicKey)
 							<< "signature" << mappers::ToBinary(cosignature.Signature)
 						<< close_document;
 			}

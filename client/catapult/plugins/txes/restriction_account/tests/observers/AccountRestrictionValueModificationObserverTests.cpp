@@ -35,8 +35,8 @@ namespace catapult { namespace observers {
 	DEFINE_COMMON_OBSERVER_TESTS(AccountOperationRestrictionValueModification,)
 
 	namespace {
-		constexpr auto Add = model::AccountRestrictionModificationType::Add;
-		constexpr auto Del = model::AccountRestrictionModificationType::Del;
+		constexpr auto Add = model::AccountRestrictionModificationAction::Add;
+		constexpr auto Del = model::AccountRestrictionModificationAction::Del;
 		constexpr auto Num_Default_Entries = 5u;
 
 		struct AccountAddressRestrictionTraits : public test::BaseAccountAddressRestrictionTraits {
@@ -57,10 +57,10 @@ namespace catapult { namespace observers {
 			using NotificationType = model::ModifyAccountOperationRestrictionValueNotification;
 		};
 
-		bool IsInsert(NotifyMode notifyMode, model::AccountRestrictionModificationType modificationType) {
+		bool IsInsert(NotifyMode notifyMode, model::AccountRestrictionModificationAction modificationAction) {
 			return
-					(NotifyMode::Commit == notifyMode && Add == modificationType) ||
-					(NotifyMode::Rollback == notifyMode && Del == modificationType);
+					(NotifyMode::Commit == notifyMode && Add == modificationAction) ||
+					(NotifyMode::Rollback == notifyMode && Del == modificationAction);
 		}
 
 		template<typename TRestrictionValueTraits>
@@ -83,7 +83,7 @@ namespace catapult { namespace observers {
 
 			const auto& restrictions = iter.get();
 			auto typedRestriction = restrictions.template restriction<ValueType>(TRestrictionValueTraits::Restriction_Type);
-			if (IsInsert(notifyMode, modification.ModificationType))
+			if (IsInsert(notifyMode, modification.ModificationAction))
 				EXPECT_TRUE(typedRestriction.contains(modification.Value));
 			else
 				EXPECT_FALSE(typedRestriction.contains(modification.Value));
@@ -108,7 +108,7 @@ namespace catapult { namespace observers {
 
 			auto modification = modificationFactory(values);
 			auto unresolvedModification = model::AccountRestrictionModification<typename TRestrictionValueTraits::UnresolvedValueType>{
-				modification.ModificationType,
+				modification.ModificationAction,
 				TRestrictionValueTraits::Unresolve(modification.Value)
 			};
 
@@ -153,8 +153,8 @@ namespace catapult { namespace observers {
 						test::GenerateRandomVector(sizeof(MosaicId)));
 			}
 
-			auto modificationType = NotifyMode::Commit == notifyMode ? Del : Add;
-			auto modification = model::AccountRestrictionModification<UnresolvedAddress>{ modificationType, unresolvedFilteredAddress };
+			auto modificationAction = NotifyMode::Commit == notifyMode ? Del : Add;
+			auto modification = model::AccountRestrictionModification<UnresolvedAddress>{ modificationAction, unresolvedFilteredAddress };
 			auto completeType = TOperationTraits::CompleteAccountRestrictionType(model::AccountRestrictionType::Address);
 			model::ModifyAccountAddressRestrictionValueNotification notification{ key, completeType, modification };
 			auto pObserver = CreateAccountAddressRestrictionValueModificationObserver();
@@ -177,8 +177,8 @@ namespace catapult { namespace observers {
 			// Act:
 			RunTest<TOperationTraits, TRestrictionValueTraits>(1, notifyMode, 0, true, [notifyMode](const auto&) {
 				using AccountRestrictionModification = model::AccountRestrictionModification<typename TRestrictionValueTraits::ValueType>;
-				auto modificationType = NotifyMode::Commit == notifyMode ? Add : Del;
-				return AccountRestrictionModification{ modificationType, TRestrictionValueTraits::RandomValue() };
+				auto modificationAction = NotifyMode::Commit == notifyMode ? Add : Del;
+				return AccountRestrictionModification{ modificationAction, TRestrictionValueTraits::RandomValue() };
 			});
 		}
 
@@ -187,8 +187,8 @@ namespace catapult { namespace observers {
 			// Act:
 			RunTest<TOperationTraits, TRestrictionValueTraits>(0, notifyMode, 1, false, [notifyMode](const auto& values) {
 				using AccountRestrictionModification = model::AccountRestrictionModification<typename TRestrictionValueTraits::ValueType>;
-				auto modificationType = NotifyMode::Commit == notifyMode ? Del : Add;
-				return AccountRestrictionModification{ modificationType, values[0] };
+				auto modificationAction = NotifyMode::Commit == notifyMode ? Del : Add;
+				return AccountRestrictionModification{ modificationAction, values[0] };
 			});
 		}
 
@@ -197,8 +197,8 @@ namespace catapult { namespace observers {
 			// Act:
 			RunTest<TOperationTraits, TRestrictionValueTraits>(Num_Default_Entries + 1, notifyMode, [notifyMode](const auto& values) {
 				using AccountRestrictionModification = model::AccountRestrictionModification<typename TRestrictionValueTraits::ValueType>;
-				auto modificationType = NotifyMode::Commit == notifyMode ? Add : Del;
-				return AccountRestrictionModification{ modificationType, test::CreateRandomUniqueValue(values) };
+				auto modificationAction = NotifyMode::Commit == notifyMode ? Add : Del;
+				return AccountRestrictionModification{ modificationAction, test::CreateRandomUniqueValue(values) };
 			});
 		}
 
@@ -207,8 +207,8 @@ namespace catapult { namespace observers {
 			// Act:
 			RunTest<TOperationTraits, TRestrictionValueTraits>(Num_Default_Entries - 1, notifyMode, [notifyMode](const auto& values) {
 				using AccountRestrictionModification = model::AccountRestrictionModification<typename TRestrictionValueTraits::ValueType>;
-				auto modificationType = NotifyMode::Commit == notifyMode ? Del : Add;
-				return AccountRestrictionModification{ modificationType, values[2] };
+				auto modificationAction = NotifyMode::Commit == notifyMode ? Del : Add;
+				return AccountRestrictionModification{ modificationAction, values[2] };
 			});
 		}
 	}

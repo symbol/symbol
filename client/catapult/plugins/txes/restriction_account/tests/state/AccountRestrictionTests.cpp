@@ -27,7 +27,7 @@ namespace catapult { namespace state {
 #define TEST_CLASS AccountRestrictionTests
 
 	namespace {
-		constexpr auto Add = model::AccountRestrictionModificationType::Add;
+		constexpr auto Add = model::AccountRestrictionModificationAction::Add;
 		constexpr size_t Custom_Value_Size = 53;
 		constexpr auto Custom_RestrictionAccount_Type = static_cast<model::AccountRestrictionType>(0x78);
 
@@ -40,9 +40,9 @@ namespace catapult { namespace state {
 
 		struct TestContext {
 		public:
-			explicit TestContext(const std::vector<model::AccountRestrictionModificationType>& modificationTypes) {
-				for (auto modificationType : modificationTypes) {
-					Modifications.push_back({ modificationType, test::GenerateRandomArray<Custom_Value_Size>() });
+			explicit TestContext(const std::vector<model::AccountRestrictionModificationAction>& modificationActions) {
+				for (auto modificationAction : modificationActions) {
+					Modifications.push_back({ modificationAction, test::GenerateRandomArray<Custom_Value_Size>() });
 					Values.push_back(Modifications.back().Value);
 				}
 			}
@@ -69,9 +69,9 @@ namespace catapult { namespace state {
 			AccountRestriction restriction(restrictionType, Custom_Value_Size);
 			for (const auto& modification : modifications) {
 				if (OperationType::Allow == operationType)
-					restriction.allow({ modification.ModificationType, ToVector(modification.Value) });
+					restriction.allow({ modification.ModificationAction, ToVector(modification.Value) });
 				else
-					restriction.block({ modification.ModificationType, ToVector(modification.Value) });
+					restriction.block({ modification.ModificationAction, ToVector(modification.Value) });
 			}
 
 			return restriction;
@@ -97,19 +97,19 @@ namespace catapult { namespace state {
 			}
 
 			static bool CanAdd(const AccountRestriction& restriction, const RawAccountRestrictionValue& value) {
-				return restriction.canAllow({ model::AccountRestrictionModificationType::Add, value });
+				return restriction.canAllow({ model::AccountRestrictionModificationAction::Add, value });
 			}
 
 			static bool CanRemove(const AccountRestriction& restriction, const RawAccountRestrictionValue& value) {
-				return restriction.canAllow({ model::AccountRestrictionModificationType::Del, value });
+				return restriction.canAllow({ model::AccountRestrictionModificationAction::Del, value });
 			}
 
 			static void Add(AccountRestriction& restriction, const RawAccountRestrictionValue& value) {
-				restriction.allow({ model::AccountRestrictionModificationType::Add, value });
+				restriction.allow({ model::AccountRestrictionModificationAction::Add, value });
 			}
 
 			static void Remove(AccountRestriction& restriction, const RawAccountRestrictionValue& value) {
-				restriction.allow({ model::AccountRestrictionModificationType::Del, value });
+				restriction.allow({ model::AccountRestrictionModificationAction::Del, value });
 			}
 		};
 
@@ -131,19 +131,19 @@ namespace catapult { namespace state {
 			}
 
 			static bool CanAdd(const AccountRestriction& restriction, const RawAccountRestrictionValue& value) {
-				return restriction.canBlock({ model::AccountRestrictionModificationType::Add, value });
+				return restriction.canBlock({ model::AccountRestrictionModificationAction::Add, value });
 			}
 
 			static bool CanRemove(const AccountRestriction& restriction, const RawAccountRestrictionValue& value) {
-				return restriction.canBlock({ model::AccountRestrictionModificationType::Del, value });
+				return restriction.canBlock({ model::AccountRestrictionModificationAction::Del, value });
 			}
 
 			static void Add(AccountRestriction& restriction, const RawAccountRestrictionValue& value) {
-				restriction.block({ model::AccountRestrictionModificationType::Add, value });
+				restriction.block({ model::AccountRestrictionModificationAction::Add, value });
 			}
 
 			static void Remove(AccountRestriction& restriction, const RawAccountRestrictionValue& value) {
-				restriction.block({ model::AccountRestrictionModificationType::Del, value });
+				restriction.block({ model::AccountRestrictionModificationAction::Del, value });
 			}
 		};
 

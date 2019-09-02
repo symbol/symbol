@@ -20,7 +20,7 @@
 
 #include "AddressAliasMapper.h"
 #include "MosaicAliasMapper.h"
-#include "RegisterNamespaceMapper.h"
+#include "NamespaceRegistrationMapper.h"
 #include "storages/MongoNamespaceCacheStorage.h"
 #include "mongo/src/MongoPluginManager.h"
 #include "mongo/src/MongoReceiptPluginFactory.h"
@@ -34,7 +34,7 @@ void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager) {
 	// transaction support
 	manager.addTransactionSupport(mongo::plugins::CreateAddressAliasTransactionMongoPlugin());
 	manager.addTransactionSupport(mongo::plugins::CreateMosaicAliasTransactionMongoPlugin());
-	manager.addTransactionSupport(mongo::plugins::CreateRegisterNamespaceTransactionMongoPlugin());
+	manager.addTransactionSupport(mongo::plugins::CreateNamespaceRegistrationTransactionMongoPlugin());
 
 	// cache storage support
 	manager.addStorageSupport(mongo::plugins::CreateMongoNamespaceCacheStorage(manager.mongoContext(), manager.networkIdentifier()));

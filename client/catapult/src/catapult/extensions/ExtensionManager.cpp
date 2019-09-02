@@ -26,9 +26,8 @@
 namespace catapult { namespace extensions {
 
 	ExtensionManager::ExtensionManager() {
-		std::string prefix = "catapult.";
-		for (const auto& name : { "coresystem", "plugins.signature" })
-			m_systemPluginNames.push_back(prefix + name);
+		for (const auto& pluginName : { "catapult.plugins.coresystem", "catapult.plugins.signature" })
+			m_systemPluginNames.push_back(pluginName);
 	}
 
 	void ExtensionManager::registerSystemPlugin(const std::string& name) {

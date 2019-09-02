@@ -27,14 +27,15 @@ namespace catapult { namespace state {
 	struct CatapultState {
 	public:
 		/// Creates a start state.
-		CatapultState()
-				: LastRecalculationHeight(0)
-				, NumTotalTransactions(0)
+		CatapultState() : NumTotalTransactions(0)
 		{}
 
 	public:
 		/// Height at which importances were last recalculated.
 		model::ImportanceHeight LastRecalculationHeight;
+
+		/// Current dynamic fee multiplier.
+		BlockFeeMultiplier DynamicFeeMultiplier;
 
 		/// Total number of confirmed transactions in chain.
 		uint64_t NumTotalTransactions;

@@ -28,10 +28,6 @@ namespace catapult { namespace mongo { namespace mappers {
 	// region ToDbModel
 
 	namespace {
-		void StreamAccountMetadata(bson_stream::document& builder) {
-			builder << "meta" << bson_stream::open_document << bson_stream::close_document;
-		}
-
 		auto& StreamAccountImportanceSnapshots(bson_stream::document& builder, const state::AccountImportanceSnapshots& snapshots) {
 			auto importancesArray = builder << "importances" << bson_stream::open_array;
 			for (const auto& snapshot : snapshots) {
@@ -79,14 +75,9 @@ namespace catapult { namespace mongo { namespace mappers {
 	}
 
 	bsoncxx::document::value ToDbModel(const state::AccountState& accountState) {
-		// account metadata
 		bson_stream::document builder;
-		StreamAccountMetadata(builder);
-
-		// account data
 		builder
-				<< "account"
-				<< bson_stream::open_document
+				<< "account" << bson_stream::open_document
 					<< "address" << ToBinary(accountState.Address)
 					<< "addressHeight" << ToInt64(accountState.AddressHeight)
 					<< "publicKey" << ToBinary(accountState.PublicKey)

@@ -61,7 +61,7 @@ namespace catapult { namespace local {
 		void ResignBlock(model::Block& block) {
 			for (const auto* pPrivateKeyString : test::Mijin_Test_Private_Keys) {
 				auto keyPair = crypto::KeyPair::FromString(pPrivateKeyString);
-				if (keyPair.publicKey() == block.Signer) {
+				if (keyPair.publicKey() == block.SignerPublicKey) {
 					extensions::BlockExtensions(test::GetNemesisGenerationHash()).signFullBlock(keyPair, block);
 					return;
 				}

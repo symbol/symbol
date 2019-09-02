@@ -33,8 +33,8 @@ namespace catapult { namespace validators {
 	DEFINE_COMMON_VALIDATOR_TESTS(AccountOperationRestrictionValueModification,)
 
 	namespace {
-		constexpr auto Add = model::AccountRestrictionModificationType::Add;
-		constexpr auto Del = model::AccountRestrictionModificationType::Del;
+		constexpr auto Add = model::AccountRestrictionModificationAction::Add;
+		constexpr auto Del = model::AccountRestrictionModificationAction::Del;
 
 		struct AccountAddressRestrictionTraits : public test::BaseAccountAddressRestrictionTraits {
 			static constexpr auto CreateValidator = CreateAccountAddressRestrictionValueModificationValidator;
@@ -150,7 +150,7 @@ namespace catapult { namespace validators {
 
 	TRAITS_BASED_TEST(FailureWhenAccountRestrictionAlreadyContainsValue_Add) {
 		auto createNotification = CreateNotification<TRestrictionValueTraits, TOperationTraits>;
-		constexpr auto Failure = Failure_RestrictionAccount_Modification_Not_Allowed;
+		constexpr auto Failure = Failure_RestrictionAccount_Invalid_Modification;
 		AssertValidationResult<TRestrictionValueTraits, TOperationTraits>(Failure, 3, createNotification, [](const auto& values) {
 			using UnresolvedValue = typename TRestrictionValueTraits::UnresolvedValueType;
 			using AccountRestrictionModification = model::AccountRestrictionModification<UnresolvedValue>;
@@ -172,7 +172,7 @@ namespace catapult { namespace validators {
 
 	TRAITS_BASED_TEST(FailureWhenAccountRestrictionDoesNotContainValue_Del) {
 		auto createNotification = CreateNotification<TRestrictionValueTraits, TOperationTraits>;
-		constexpr auto Failure = Failure_RestrictionAccount_Modification_Not_Allowed;
+		constexpr auto Failure = Failure_RestrictionAccount_Invalid_Modification;
 		AssertValidationResult<TRestrictionValueTraits, TOperationTraits>(Failure, 3, createNotification, [](const auto& values) {
 			using UnresolvedValue = typename TRestrictionValueTraits::UnresolvedValueType;
 			using AccountRestrictionModification = model::AccountRestrictionModification<UnresolvedValue>;
@@ -195,7 +195,7 @@ namespace catapult { namespace validators {
 	TRAITS_BASED_TEST(FailureWhenOperationConflictsExistingAccountRestrictionAndValuesAreNotEmpty_Add) {
 		// Act + Assert: restriction is configured as "Allow" / "Block" but notification operation type is "Block" / "Allow"
 		auto createNotification = test::CreateNotificationWithOppositeOperation<TRestrictionValueTraits, TOperationTraits>;
-		constexpr auto Failure = Failure_RestrictionAccount_Modification_Not_Allowed;
+		constexpr auto Failure = Failure_RestrictionAccount_Invalid_Modification;
 		AssertValidationResult<TRestrictionValueTraits, TOperationTraits>(Failure, 3, createNotification, [](const auto&) {
 			using UnresolvedValue = typename TRestrictionValueTraits::UnresolvedValueType;
 			using AccountRestrictionModification = model::AccountRestrictionModification<UnresolvedValue>;
@@ -207,7 +207,7 @@ namespace catapult { namespace validators {
 	TRAITS_BASED_TEST(FailureWhenOperationConflictsExistingAccountRestrictionAndValuesAreNotEmpty_Del) {
 		// Act + Assert: restriction is configured as "Allow" / "Block" but notification operation type is "Block" / "Allow"
 		auto createNotification = test::CreateNotificationWithOppositeOperation<TRestrictionValueTraits, TOperationTraits>;
-		constexpr auto Failure = Failure_RestrictionAccount_Modification_Not_Allowed;
+		constexpr auto Failure = Failure_RestrictionAccount_Invalid_Modification;
 		AssertValidationResult<TRestrictionValueTraits, TOperationTraits>(Failure, 3, createNotification, [](const auto& values) {
 			using UnresolvedValue = typename TRestrictionValueTraits::UnresolvedValueType;
 			using AccountRestrictionModification = model::AccountRestrictionModification<UnresolvedValue>;

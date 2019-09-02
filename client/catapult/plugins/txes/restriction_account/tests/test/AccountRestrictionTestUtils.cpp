@@ -29,7 +29,7 @@ namespace catapult { namespace test {
 				state::AccountRestriction& restriction,
 				state::AccountRestrictionOperationType operationType,
 				size_t count) {
-			constexpr auto Add = model::AccountRestrictionModificationType::Add;
+			constexpr auto Add = model::AccountRestrictionModificationAction::Add;
 			while (restriction.values().size() < count) {
 				model::RawAccountRestrictionModification modification{ Add, test::GenerateRandomVector(restriction.valueSize()) };
 				if (state::AccountRestrictionOperationType::Allow == operationType)

@@ -34,8 +34,8 @@ namespace catapult { namespace config {
 						"",
 						{
 							{ "maxMultisigDepth", "159" },
-							{ "maxCosignersPerAccount", "23" },
-							{ "maxCosignedAccountsPerAccount", "77" },
+							{ "maxCosignatoriesPerAccount", "23" },
+							{ "maxCosignedAccountsPerAccount", "77" }
 						}
 					}
 				};
@@ -48,14 +48,14 @@ namespace catapult { namespace config {
 			static void AssertZero(const MultisigConfiguration& config) {
 				// Assert:
 				EXPECT_EQ(0u, config.MaxMultisigDepth);
-				EXPECT_EQ(0u, config.MaxCosignersPerAccount);
+				EXPECT_EQ(0u, config.MaxCosignatoriesPerAccount);
 				EXPECT_EQ(0u, config.MaxCosignedAccountsPerAccount);
 			}
 
 			static void AssertCustom(const MultisigConfiguration& config) {
 				// Assert:
 				EXPECT_EQ(159u, config.MaxMultisigDepth);
-				EXPECT_EQ(23u, config.MaxCosignersPerAccount);
+				EXPECT_EQ(23u, config.MaxCosignatoriesPerAccount);
 				EXPECT_EQ(77u, config.MaxCosignedAccountsPerAccount);
 			}
 		};

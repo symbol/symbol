@@ -46,7 +46,7 @@ namespace catapult { namespace test {
 		None = 0,
 
 		/// Local node should harvest upon startup.
-		Should_Auto_Harvest = 2,
+		Should_Auto_Harvest = 2
 	};
 
 	/// Returns server key pair.

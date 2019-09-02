@@ -71,7 +71,7 @@ namespace catapult { namespace sync {
 				if (m_isBonded(*transactionInfo.pEntity) || TransactionSource::Reverted == context.TransactionSource)
 					return false;
 
-				const auto& signer = transactionInfo.pEntity->Signer;
+				const auto& signer = transactionInfo.pEntity->SignerPublicKey;
 				auto readOnlyAccountStateCache = context.UnconfirmedCatapultCache.sub<cache::AccountStateCache>();
 				cache::ImportanceView importanceView(readOnlyAccountStateCache);
 				auto importance = importanceView.getAccountImportanceOrDefault(signer, context.CacheHeight);

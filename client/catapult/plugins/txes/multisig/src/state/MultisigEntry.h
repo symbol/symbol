@@ -34,18 +34,18 @@ namespace catapult { namespace state {
 
 	public:
 		/// Gets cosignatory account keys.
-		const utils::SortedKeySet& cosignatories() const {
-			return m_cosignatories;
+		const utils::SortedKeySet& cosignatoryPublicKeys() const {
+			return m_cosignatoryPublicKeys;
 		}
 
 		/// Gets cosignatory account keys.
-		utils::SortedKeySet& cosignatories() {
-			return m_cosignatories;
+		utils::SortedKeySet& cosignatoryPublicKeys() {
+			return m_cosignatoryPublicKeys;
 		}
 
 		/// Returns \c true if \a key is a cosignatory.
 		bool hasCosignatory(const Key& key) const {
-			return m_cosignatories.end() != m_cosignatories.find(key);
+			return m_cosignatoryPublicKeys.end() != m_cosignatoryPublicKeys.find(key);
 		}
 
 		/// Gets the number of cosignatories required when approving (any) transaction.
@@ -69,7 +69,7 @@ namespace catapult { namespace state {
 		}
 
 	private:
-		utils::SortedKeySet m_cosignatories;
+		utils::SortedKeySet m_cosignatoryPublicKeys;
 		uint8_t m_minApproval;
 		uint8_t m_minRemoval;
 	};
@@ -78,17 +78,17 @@ namespace catapult { namespace state {
 	class MultisigCosignatoryOfMixin {
 	public:
 		/// Gets multisig account keys.
-		const utils::SortedKeySet& multisigAccounts() const {
-			return m_multisigAccounts;
+		const utils::SortedKeySet& multisigPublicKeys() const {
+			return m_multisigPublicKeys;
 		}
 
 		/// Gets multisig account keys.
-		utils::SortedKeySet& multisigAccounts() {
-			return m_multisigAccounts;
+		utils::SortedKeySet& multisigPublicKeys() {
+			return m_multisigPublicKeys;
 		}
 
 	private:
-		utils::SortedKeySet m_multisigAccounts;
+		utils::SortedKeySet m_multisigPublicKeys;
 	};
 
 	/// Multisig entry.

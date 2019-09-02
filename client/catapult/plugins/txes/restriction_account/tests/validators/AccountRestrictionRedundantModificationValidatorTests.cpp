@@ -33,8 +33,8 @@ namespace catapult { namespace validators {
 	DEFINE_COMMON_VALIDATOR_TESTS(AccountOperationRestrictionRedundantModification,)
 
 	namespace {
-		constexpr auto Add = model::AccountRestrictionModificationType::Add;
-		constexpr auto Del = model::AccountRestrictionModificationType::Del;
+		constexpr auto Add = model::AccountRestrictionModificationAction::Add;
+		constexpr auto Del = model::AccountRestrictionModificationAction::Del;
 
 		enum class CacheSeed { No, Yes};
 
@@ -134,7 +134,7 @@ namespace catapult { namespace validators {
 
 	TRAITS_BASED_TEST(FailureWhenValidatingNotificationWithUnknownAddressAndDelete) {
 		// Assert: account restrictions is not found in cache, so Del operation triggers failure
-		AssertValidationResult<TTraits>(Failure_RestrictionAccount_Modification_Not_Allowed, [](const auto& values) {
+		AssertValidationResult<TTraits>(Failure_RestrictionAccount_Invalid_Modification, [](const auto& values) {
 			return std::vector<model::AccountRestrictionModification<typename TTraits::UnresolvedValueType>>{
 				{ Add, values[2] },
 				{ Del, test::CreateRandomUniqueValue(values) },

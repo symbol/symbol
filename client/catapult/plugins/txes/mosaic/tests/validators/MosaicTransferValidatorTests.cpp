@@ -40,9 +40,7 @@ namespace catapult { namespace validators {
 		}
 
 		model::MosaicProperties CreateMosaicProperties(model::MosaicFlags flags) {
-			model::MosaicProperties::PropertyValuesContainer values{};
-			values[utils::to_underlying_type(model::MosaicPropertyId::Flags)] = utils::to_underlying_type(flags);
-			return model::MosaicProperties::FromValues(values);
+			return model::MosaicProperties(flags, 0, BlockDuration());
 		}
 
 		state::MosaicDefinition CreateMosaicDefinition(Height height, const Key& owner, model::MosaicFlags flags) {
@@ -96,7 +94,7 @@ namespace catapult { namespace validators {
 			SeedCacheWithMosaic(cache, validMosaicEntry);
 
 			auto cacheDelta = cache.createDelta();
-			test::AddMosaicOwner(cacheDelta, Valid_Mosaic_Id, validMosaicEntry.definition().owner(), Amount());
+			test::AddMosaicOwner(cacheDelta, Valid_Mosaic_Id, validMosaicEntry.definition().ownerPublicKey(), Amount());
 			cache.commit(Height());
 
 			return cache;

@@ -35,7 +35,7 @@ namespace catapult { namespace plugins {
 		void Publish(const TTransaction& transaction, NotificationSubscriber& sub) {
 			sub.notify(MosaicRestrictionTypeNotification(transaction.NewRestrictionType));
 
-			sub.notify(MosaicRequiredNotification(transaction.Signer, transaction.MosaicId, Mosaic_Flags_Restrictable));
+			sub.notify(MosaicRequiredNotification(transaction.SignerPublicKey, transaction.MosaicId, Mosaic_Flags_Restrictable));
 
 			if (UnresolvedMosaicId() != transaction.ReferenceMosaicId)
 				sub.notify(MosaicRestrictionRequiredNotification(transaction.ReferenceMosaicId, transaction.RestrictionKey));

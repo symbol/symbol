@@ -71,7 +71,7 @@ namespace catapult { namespace mongo { namespace mappers {
 		template<typename TEntity>
 		bson_stream::document& StreamBasicEntity(bson_stream::document& builder, const TEntity& entity) {
 			builder
-					<< "signer" << ToBinary(entity.Signer)
+					<< "signerPublicKey" << ToBinary(entity.SignerPublicKey)
 					<< "version" << entity.Version
 					<< "type" << utils::to_underlying_type(entity.Type);
 			return builder;

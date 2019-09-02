@@ -140,28 +140,28 @@ namespace catapult { namespace chain {
 		public:
 			ExpectedValidatorCalls() = default;
 
-			ExpectedValidatorCalls(size_t numValidatePartialCalls, size_t numValidateCosignersCalls, size_t numLastCosigners)
+			ExpectedValidatorCalls(size_t numValidatePartialCalls, size_t numValidateCosignatoriesCalls, size_t numLastCosignatories)
 					: NumValidatePartialCalls(numValidatePartialCalls)
-					, NumValidateCosignersCalls(numValidateCosignersCalls)
-					, NumLastCosigners(numLastCosigners)
+					, NumValidateCosignatoriesCalls(numValidateCosignatoriesCalls)
+					, NumLastCosignatories(numLastCosignatories)
 			{}
 
 		public:
 			AnyMatchPredicate NumValidatePartialCalls;
-			AnyMatchPredicate NumValidateCosignersCalls;
-			AnyMatchPredicate NumLastCosigners;
+			AnyMatchPredicate NumValidateCosignatoriesCalls;
+			AnyMatchPredicate NumLastCosignatories;
 		};
 
 		// endregion
 
-		// region ValidateCosignersResultTrigger
+		// region ValidateCosignatoriesResultTrigger
 
-		class ValidateCosignersResultTrigger {
+		class ValidateCosignatoriesResultTrigger {
 		public:
-			ValidateCosignersResultTrigger(size_t id) : m_idMatch(id)
+			ValidateCosignatoriesResultTrigger(size_t id) : m_idMatch(id)
 			{}
 
-			ValidateCosignersResultTrigger(Key signer)
+			ValidateCosignatoriesResultTrigger(Key signer)
 					: m_idMatch(0) // notice that calls are 1-based, so this will never match
 					, m_signer(signer)
 			{}
@@ -181,16 +181,16 @@ namespace catapult { namespace chain {
 		// region MockPtValidator
 
 		constexpr auto Validate_Partial_Raw_Result = test::MakeValidationResult(validators::ResultSeverity::Failure, 12);
-		constexpr auto Validate_Cosigners_Raw_Result = test::MakeValidationResult(validators::ResultSeverity::Failure, 24);
+		constexpr auto Validate_Cosignatories_Raw_Result = test::MakeValidationResult(validators::ResultSeverity::Failure, 24);
 
 		class MockPtValidator : public PtValidator {
 		public:
 			MockPtValidator()
 					: m_validatePartialResult(true)
-					, m_shouldSleepInValidateCosigners(false)
+					, m_shouldSleepInValidateCosignatories(false)
 					, m_numValidatePartialCalls(0)
-					, m_numValidateCosignersCalls(0)
-					, m_numLastCosigners(0)
+					, m_numValidateCosignatoriesCalls(0)
+					, m_numLastCosignatories(0)
 			{}
 
 		public:
@@ -198,12 +198,12 @@ namespace catapult { namespace chain {
 				m_validatePartialResult = false;
 			}
 
-			void setValidateCosignersResult(CosignersValidationResult result, const ValidateCosignersResultTrigger& trigger) {
-				m_validateCosignersResultTriggers.emplace_back(trigger, result);
+			void setValidateCosignatoriesResult(CosignatoriesValidationResult result, const ValidateCosignatoriesResultTrigger& trigger) {
+				m_validateCosignatoriesResultTriggers.emplace_back(trigger, result);
 			}
 
-			void sleepInValidateCosigners() {
-				m_shouldSleepInValidateCosigners = true;
+			void sleepInValidateCosignatories() {
+				m_shouldSleepInValidateCosignatories = true;
 			}
 
 		public:
@@ -215,43 +215,44 @@ namespace catapult { namespace chain {
 				return { Validate_Partial_Raw_Result, m_validatePartialResult };
 			}
 
-			Result<CosignersValidationResult> validateCosigners(const model::WeakCosignedTransactionInfo& transactionInfo) const override {
+			Result<CosignatoriesValidationResult> validateCosignatories(
+					const model::WeakCosignedTransactionInfo& transactionInfo) const override {
 				test::CosignaturesMap cosignaturesMap;
 				{
 					utils::SpinLockGuard guard(m_lock);
-					++m_numValidateCosignersCalls;
+					++m_numValidateCosignatoriesCalls;
 					m_transactions.push_back(test::CopyEntity(transactionInfo.transaction()));
 
-					// there shouldn't be any duplicate cosigners
-					m_numLastCosigners = transactionInfo.cosignatures().size();
+					// there shouldn't be any duplicate cosignatories
+					m_numLastCosignatories = transactionInfo.cosignatures().size();
 					cosignaturesMap = test::ToMap(transactionInfo.cosignatures());
 				}
 
-				if (m_shouldSleepInValidateCosigners) {
+				if (m_shouldSleepInValidateCosignatories) {
 					// sleep for a random amount of time to exploit potential race conditions
 					auto sleepMs = test::RandomByte() / 2;
 					CATAPULT_LOG(debug) << "sleeping for " << static_cast<int>(sleepMs) << "ms";
 					test::Sleep(sleepMs);
 				}
 
-				return { Validate_Cosigners_Raw_Result, getCosignersValidationResult(cosignaturesMap) };
+				return { Validate_Cosignatories_Raw_Result, getCosignatoriesValidationResult(cosignaturesMap) };
 			}
 
 		private:
-			CosignersValidationResult getCosignersValidationResult(const test::CosignaturesMap& cosignaturesMap) const {
-				for (const auto& pair : m_validateCosignersResultTriggers) {
-					if (pair.first(cosignaturesMap, m_numValidateCosignersCalls))
+			CosignatoriesValidationResult getCosignatoriesValidationResult(const test::CosignaturesMap& cosignaturesMap) const {
+				for (const auto& pair : m_validateCosignatoriesResultTriggers) {
+					if (pair.first(cosignaturesMap, m_numValidateCosignatoriesCalls))
 						return pair.second;
 				}
 
-				return CosignersValidationResult::Missing;
+				return CosignatoriesValidationResult::Missing;
 			}
 
 		public:
 			void reset() {
 				m_numValidatePartialCalls = 0;
-				m_numValidateCosignersCalls = 0;
-				m_numLastCosigners = 0;
+				m_numValidateCosignatoriesCalls = 0;
+				m_numLastCosignatories = 0;
 				m_transactions.clear();
 				m_transactionHashes.clear();
 			}
@@ -284,11 +285,11 @@ namespace catapult { namespace chain {
 				// Assert: check calls
 				CATAPULT_LOG(debug)
 						<< "NumValidatePartialCalls = " << m_numValidatePartialCalls
-						<< ", NumValidateCosignersCalls = " << m_numValidateCosignersCalls
-						<< ", NumLastCosigners = " << m_numLastCosigners;
+						<< ", NumValidateCosignatoriesCalls = " << m_numValidateCosignatoriesCalls
+						<< ", NumLastCosignatories = " << m_numLastCosignatories;
 				CheckPredicate(expected.NumValidatePartialCalls, m_numValidatePartialCalls, "NumValidatePartialCalls");
-				CheckPredicate(expected.NumValidateCosignersCalls, m_numValidateCosignersCalls, "NumValidateCosignersCalls");
-				CheckPredicate(expected.NumLastCosigners, m_numLastCosigners, "NumLastCosigners");
+				CheckPredicate(expected.NumValidateCosignatoriesCalls, m_numValidateCosignatoriesCalls, "NumValidateCosignatoriesCalls");
+				CheckPredicate(expected.NumLastCosignatories, m_numLastCosignatories, "NumLastCosignatories");
 
 				// - check forwarded transactions
 				auto pTransactionWithoutCosignatures = test::StripCosignatures(aggregateTransaction);
@@ -301,14 +302,19 @@ namespace catapult { namespace chain {
 			}
 
 		private:
+			using ValidateCosignatoriesResultTriggers = std::vector<std::pair<
+				ValidateCosignatoriesResultTrigger,
+				CosignatoriesValidationResult>>;
+
+		private:
 			bool m_validatePartialResult;
-			bool m_shouldSleepInValidateCosigners;
-			std::vector<std::pair<ValidateCosignersResultTrigger, CosignersValidationResult>> m_validateCosignersResultTriggers;
+			bool m_shouldSleepInValidateCosignatories;
+			ValidateCosignatoriesResultTriggers m_validateCosignatoriesResultTriggers;
 
 			mutable utils::SpinLock m_lock;
 			mutable size_t m_numValidatePartialCalls;
-			mutable size_t m_numValidateCosignersCalls;
-			mutable size_t m_numLastCosigners;
+			mutable size_t m_numValidateCosignatoriesCalls;
+			mutable size_t m_numLastCosignatories;
 			mutable std::vector<std::unique_ptr<model::Transaction>> m_transactions;
 			mutable std::vector<Hash256> m_transactionHashes;
 		};
@@ -398,11 +404,11 @@ namespace catapult { namespace chain {
 
 				auto expectedCosignaturesMap = test::ToMap(cosignatures);
 				for (const auto& cosignature : transactionInfoFromCache.cosignatures()) {
-					auto message = "cosigner " + test::ToString(cosignature.Signer);
+					auto message = "cosignatory " + test::ToString(cosignature.SignerPublicKey);
 
-					auto iter = expectedCosignaturesMap.find(cosignature.Signer);
+					auto iter = expectedCosignaturesMap.find(cosignature.SignerPublicKey);
 					ASSERT_NE(expectedCosignaturesMap.cend(), iter) << message;
-					EXPECT_EQ(iter->first, cosignature.Signer) << message;
+					EXPECT_EQ(iter->first, cosignature.SignerPublicKey) << message;
 					EXPECT_EQ(iter->second, cosignature.Signature) << message;
 					expectedCosignaturesMap.erase(iter);
 				}
@@ -563,7 +569,7 @@ namespace catapult { namespace chain {
 		auto transactionInfo = CreateRandomTransactionInfo(pTransaction);
 
 		// - mark the transaction as complete
-		context.validator().setValidateCosignersResult(CosignersValidationResult::Success, 1);
+		context.validator().setValidateCosignatoriesResult(CosignatoriesValidationResult::Success, 1);
 
 		// Act:
 		auto result = context.updater().update(transactionInfo).get();
@@ -587,7 +593,7 @@ namespace catapult { namespace chain {
 		test::FixCosignatures(transactionInfo.EntityHash, *pTransaction);
 
 		// - mark the transaction as complete
-		context.validator().setValidateCosignersResult(CosignersValidationResult::Success, 6);
+		context.validator().setValidateCosignatoriesResult(CosignatoriesValidationResult::Success, 6);
 
 		// Act:
 		auto result = context.updater().update(transactionInfo).get();
@@ -677,7 +683,7 @@ namespace catapult { namespace chain {
 		// Arrange:
 		RunTestWithTransactionInCache(3, [](auto& context, const auto& transactionInfo1, const auto& transaction1) {
 			// - mark the transaction as complete
-			context.validator().setValidateCosignersResult(CosignersValidationResult::Success, 4);
+			context.validator().setValidateCosignatoriesResult(CosignatoriesValidationResult::Success, 4);
 
 			// Act: add a second transaction with same hash
 			auto pTransaction2 = CreateRandomAggregateTransaction(2);
@@ -709,7 +715,7 @@ namespace catapult { namespace chain {
 	namespace {
 		template<typename TCorruptCosignature>
 		void RunTransactionWithInvalidCosignatureTest(
-				size_t numIneligibleCosigners,
+				size_t numIneligibleCosignatories,
 				bool isRejectedInCheckEligibility,
 				TCorruptCosignature corruptCosignature) {
 			// Arrange:
@@ -718,7 +724,7 @@ namespace catapult { namespace chain {
 			auto transactionInfo = CreateRandomTransactionInfo(pTransaction);
 			test::FixCosignatures(transactionInfo.EntityHash, *pTransaction);
 
-			// - mark a cosigner as invalid
+			// - mark a cosignatory as invalid
 			corruptCosignature(context, pTransaction->CosignaturesPtr()[1]);
 
 			// Act:
@@ -736,17 +742,19 @@ namespace catapult { namespace chain {
 
 			ExpectedValidatorCalls expectedValidatorCalls;
 			expectedValidatorCalls.NumValidatePartialCalls.setExactMatch(1); // 1 (transaction isValid)
-			// * 1 x 3 (cosig checkEligibility) + 1 x numIneligibleCosigners (ineligible-cosig checkEligibility)
+			// * 1 x 3 (cosig checkEligibility) + 1 x numIneligibleCosignatories (ineligible-cosig checkEligibility)
 			// * 1 x 2 (valid-cosig isComplete)
-			expectedValidatorCalls.NumValidateCosignersCalls.setExactMatch(5 + numIneligibleCosigners);
+			expectedValidatorCalls.NumValidateCosignatoriesCalls.setExactMatch(5 + numIneligibleCosignatories);
 
 			// * 1: { Valid, Valid, Invalid } - last call only with ineligible cosignature
 			// * 2: { Valid, Invalid, Valid }, { Invalid, Valid, Valid } - invalid cosignature is excluded from subsequent calls
 			// - above is for !!isRejectedInCheckEligibility
-			//   when !isRejectedInCheckEligibility, cosignatures are rejected after validateCosigners call,
-			//   which captures NumLastCosigners, so add one
-			auto numLastCosignersDelta = isRejectedInCheckEligibility ? 0u : 1u;
-			expectedValidatorCalls.NumLastCosigners.setInclusiveRangeMatch(1 + numLastCosignersDelta, 2 + numLastCosignersDelta);
+			//   when !isRejectedInCheckEligibility, cosignatures are rejected after validateCosignatories call,
+			//   which captures NumLastCosignatories, so add one
+			auto numLastCosignatoriesDelta = isRejectedInCheckEligibility ? 0u : 1u;
+			expectedValidatorCalls.NumLastCosignatories.setInclusiveRangeMatch(
+					1 + numLastCosignatoriesDelta,
+					2 + numLastCosignatoriesDelta);
 			context.validator().assertCalls(*pTransaction, transactionInfo.EntityHash, expectedValidatorCalls);
 		}
 	}
@@ -754,14 +762,14 @@ namespace catapult { namespace chain {
 	TEST(TEST_CLASS, AddingAggregateWithCosignaturesIgnoresIneligibleCosignatures) {
 		// Arrange:
 		RunTransactionWithInvalidCosignatureTest(1, true, [](auto& context, const auto& cosignature) {
-			// - mark a cosigner as ineligible
-			context.validator().setValidateCosignersResult(CosignersValidationResult::Ineligible, cosignature.Signer);
+			// - mark a cosignatory as ineligible
+			context.validator().setValidateCosignatoriesResult(CosignatoriesValidationResult::Ineligible, cosignature.SignerPublicKey);
 		});
 	}
 
 	TEST(TEST_CLASS, AddingAggregateWithCosignaturesIgnoresUnverifiableCosignatures) {
 		// Arrange:
-		// - validateCosigners is called before signature check, so corrupt cosignature will always be passed to validateCosigners
+		// - validateCosignatories is called before signature check, so corrupt cosignature will always be passed to validateCosignatories
 		//   where it is captured
 		RunTransactionWithInvalidCosignatureTest(0, false, [](const auto&, auto& cosignature) {
 			// - corrupt a signature
@@ -853,7 +861,7 @@ namespace catapult { namespace chain {
 			auto cosignature = test::GenerateValidCosignature(transactionInfo.EntityHash);
 
 			// - mark the transaction as complete
-			context.validator().setValidateCosignersResult(CosignersValidationResult::Success, 2);
+			context.validator().setValidateCosignatoriesResult(CosignatoriesValidationResult::Success, 2);
 
 			// Act:
 			auto result = context.updater().update(cosignature).get();
@@ -885,7 +893,7 @@ namespace catapult { namespace chain {
 			auto cosignature = test::GenerateValidCosignature(transactionInfo.EntityHash);
 
 			// - mark the transaction as failed
-			context.validator().setValidateCosignersResult(CosignersValidationResult::Failure, 1);
+			context.validator().setValidateCosignatoriesResult(CosignatoriesValidationResult::Failure, 1);
 
 			// Act:
 			auto result = context.updater().update(cosignature).get();
@@ -897,7 +905,7 @@ namespace catapult { namespace chain {
 			EXPECT_EQ(0u, context.transactionsCache().view().size());
 
 			EXPECT_TRUE(context.completedTransactions().empty());
-			context.assertSingleFailedTransaction(transactionInfo, Validate_Cosigners_Raw_Result);
+			context.assertSingleFailedTransaction(transactionInfo, Validate_Cosignatories_Raw_Result);
 			context.validator().assertCalls(transaction, { 0, 1, 3 + 1 });
 		});
 	}
@@ -924,7 +932,7 @@ namespace catapult { namespace chain {
 
 				const auto* pCosignatures = transaction.CosignaturesPtr();
 				context.assertSingleTransactionInCache(transactionInfo.EntityHash, transaction, {
-					pCosignatures[0], pCosignatures[1], pCosignatures[2],
+					pCosignatures[0], pCosignatures[1], pCosignatures[2]
 				});
 				context.assertTransactionInCacheHasCorrectExtendedProperties(transactionInfo);
 
@@ -938,21 +946,21 @@ namespace catapult { namespace chain {
 	TEST(TEST_CLASS, AddingIneligibleCosignatureWithMatchingTransactionIsIgnored) {
 		// Arrange:
 		ExpectedValidatorCalls expectedValidatorCalls;
-		expectedValidatorCalls.NumValidateCosignersCalls.setExactMatch(2); // 1 (new cosig) + 1 (ineligible cosig)
-		expectedValidatorCalls.NumLastCosigners.setExactMatch(1); // ineligible cosig only
+		expectedValidatorCalls.NumValidateCosignatoriesCalls.setExactMatch(2); // 1 (new cosig) + 1 (ineligible cosig)
+		expectedValidatorCalls.NumLastCosignatories.setExactMatch(1); // ineligible cosig only
 		RunAddingInvalidCosignatureTest(CosignatureUpdateResult::Ineligible, expectedValidatorCalls, [](
 				auto& context,
 				const auto& cosignature) {
 			// - mark the cosignature as ineligible
-			context.validator().setValidateCosignersResult(CosignersValidationResult::Ineligible, cosignature.Signer);
+			context.validator().setValidateCosignatoriesResult(CosignatoriesValidationResult::Ineligible, cosignature.SignerPublicKey);
 		});
 	}
 
 	TEST(TEST_CLASS, AddingUnverifiableCosignatureWithMatchingTransactionIsIgnored) {
 		// Arrange:
 		ExpectedValidatorCalls expectedValidatorCalls;
-		expectedValidatorCalls.NumValidateCosignersCalls.setExactMatch(1); // 1 (new cosig)
-		expectedValidatorCalls.NumLastCosigners.setExactMatch(4); // 3 (existing cosigs) + 1 (new cosig)
+		expectedValidatorCalls.NumValidateCosignatoriesCalls.setExactMatch(1); // 1 (new cosig)
+		expectedValidatorCalls.NumLastCosignatories.setExactMatch(4); // 3 (existing cosigs) + 1 (new cosig)
 		RunAddingInvalidCosignatureTest(CosignatureUpdateResult::Unverifiable, expectedValidatorCalls, [](const auto&, auto& cosignature) {
 			// - make the cosignature unverifiable
 			cosignature.Signature[0] ^= 0xFF;
@@ -965,7 +973,7 @@ namespace catapult { namespace chain {
 			// Act: add an existing cosignature
 			const auto& existingCosignature = transaction.CosignaturesPtr()[1];
 			auto result = context.updater().update({
-				existingCosignature.Signer,
+				existingCosignature.SignerPublicKey,
 				existingCosignature.Signature,
 				transactionInfo.EntityHash
 			}).get();
@@ -997,7 +1005,9 @@ namespace catapult { namespace chain {
 
 			// - change an already accepted and valid cosignature to be ineligible
 			//   this simulates edge case where: (1) account C1 cosigns, (2) account C1 is converted to multisig and thus invalid
-			context.validator().setValidateCosignersResult(CosignersValidationResult::Ineligible, transaction.CosignaturesPtr()[1].Signer);
+			context.validator().setValidateCosignatoriesResult(
+					CosignatoriesValidationResult::Ineligible,
+					transaction.CosignaturesPtr()[1].SignerPublicKey);
 
 			// Act:
 			auto result = context.updater().update(cosignature).get();
@@ -1017,8 +1027,8 @@ namespace catapult { namespace chain {
 
 			ExpectedValidatorCalls expectedValidatorCalls;
 			// * 1 (new cosig) + 1 (ineligible) + 3 (existing cosig) + 1 (isComplete)
-			expectedValidatorCalls.NumValidateCosignersCalls.setExactMatch(6);
-			expectedValidatorCalls.NumLastCosigners.setExactMatch(3); // 1 (new cosig) + 2 (existing valid cosig)
+			expectedValidatorCalls.NumValidateCosignatoriesCalls.setExactMatch(6);
+			expectedValidatorCalls.NumLastCosignatories.setExactMatch(3); // 1 (new cosig) + 2 (existing valid cosig)
 			context.validator().assertCalls(transaction, expectedValidatorCalls);
 		});
 	}
@@ -1031,8 +1041,12 @@ namespace catapult { namespace chain {
 
 			// - change two already accepted and valid cosignatures to be ineligible
 			//   this simulates edge case where: (1) account C1 cosigns, (2) account C1 is converted to multisig and thus invalid
-			context.validator().setValidateCosignersResult(CosignersValidationResult::Ineligible, transaction.CosignaturesPtr()[0].Signer);
-			context.validator().setValidateCosignersResult(CosignersValidationResult::Ineligible, transaction.CosignaturesPtr()[2].Signer);
+			context.validator().setValidateCosignatoriesResult(
+					CosignatoriesValidationResult::Ineligible,
+					transaction.CosignaturesPtr()[0].SignerPublicKey);
+			context.validator().setValidateCosignatoriesResult(
+					CosignatoriesValidationResult::Ineligible,
+					transaction.CosignaturesPtr()[2].SignerPublicKey);
 
 			// Act:
 			auto result = context.updater().update(cosignature).get();
@@ -1052,8 +1066,8 @@ namespace catapult { namespace chain {
 
 			ExpectedValidatorCalls expectedValidatorCalls;
 			// * 1 (new cosig) + 1 (ineligible) + 3 (existing cosig) + 1 (isComplete)
-			expectedValidatorCalls.NumValidateCosignersCalls.setExactMatch(6);
-			expectedValidatorCalls.NumLastCosigners.setExactMatch(2); // 1 (new cosig) + 1 (existing valid cosig)
+			expectedValidatorCalls.NumValidateCosignatoriesCalls.setExactMatch(6);
+			expectedValidatorCalls.NumLastCosignatories.setExactMatch(2); // 1 (new cosig) + 1 (existing valid cosig)
 			context.validator().assertCalls(transaction, expectedValidatorCalls);
 		});
 	}
@@ -1067,7 +1081,9 @@ namespace catapult { namespace chain {
 
 			// - change an already accepted and valid cosignature to be ineligible
 			//   this simulates edge case where: (1) account C1 cosigns, (2) account C1 is converted to multisig and thus invalid
-			context.validator().setValidateCosignersResult(CosignersValidationResult::Ineligible, transaction.CosignaturesPtr()[1].Signer);
+			context.validator().setValidateCosignatoriesResult(
+					CosignatoriesValidationResult::Ineligible,
+					transaction.CosignaturesPtr()[1].SignerPublicKey);
 
 			// Act:
 			auto result = context.updater().update(cosignature).get();
@@ -1087,8 +1103,8 @@ namespace catapult { namespace chain {
 			ExpectedValidatorCalls expectedValidatorCalls;
 			// * 1 (new cosig) + 1 (ineligible) + 3 (existing cosig)
 			// * 0 (isComplete) bypassed because the new cosignature is rejected (after stale cosignature pruning)
-			expectedValidatorCalls.NumValidateCosignersCalls.setExactMatch(5);
-			expectedValidatorCalls.NumLastCosigners.setExactMatch(1); // 1 (existing cosig)
+			expectedValidatorCalls.NumValidateCosignatoriesCalls.setExactMatch(5);
+			expectedValidatorCalls.NumLastCosignatories.setExactMatch(1); // 1 (existing cosig)
 			context.validator().assertCalls(transaction, expectedValidatorCalls);
 		});
 	}
@@ -1098,11 +1114,13 @@ namespace catapult { namespace chain {
 		RunTestWithTransactionInCache(3, [](auto& context, const auto& transactionInfo, const auto& transaction) {
 			// - create an ineligible cosignature
 			auto cosignature = test::GenerateValidCosignature(transactionInfo.EntityHash);
-			context.validator().setValidateCosignersResult(CosignersValidationResult::Ineligible, cosignature.Signer);
+			context.validator().setValidateCosignatoriesResult(CosignatoriesValidationResult::Ineligible, cosignature.SignerPublicKey);
 
 			// - change an already accepted and valid cosignature to be ineligible
 			//   this simulates edge case where: (1) account C1 cosigns, (2) account C1 is converted to multisig and thus invalid
-			context.validator().setValidateCosignersResult(CosignersValidationResult::Ineligible, transaction.CosignaturesPtr()[1].Signer);
+			context.validator().setValidateCosignatoriesResult(
+					CosignatoriesValidationResult::Ineligible,
+					transaction.CosignaturesPtr()[1].SignerPublicKey);
 
 			// Act:
 			auto result = context.updater().update(cosignature).get();
@@ -1121,8 +1139,8 @@ namespace catapult { namespace chain {
 
 			// - isComplete is bypassed because the new cosignature is rejected (after stale cosignature pruning)
 			ExpectedValidatorCalls expectedValidatorCalls;
-			expectedValidatorCalls.NumValidateCosignersCalls.setExactMatch(2); // 1 (new cosig) + 1 (ineligible)
-			expectedValidatorCalls.NumLastCosigners.setExactMatch(1); // 1 (new cosig)
+			expectedValidatorCalls.NumValidateCosignatoriesCalls.setExactMatch(2); // 1 (new cosig) + 1 (ineligible)
+			expectedValidatorCalls.NumLastCosignatories.setExactMatch(1); // 1 (new cosig)
 			context.validator().assertCalls(transaction, expectedValidatorCalls);
 		});
 	}
@@ -1135,10 +1153,12 @@ namespace catapult { namespace chain {
 
 			// - change an already accepted and valid cosignature to be ineligible (notice that triggers are registered in priority order)
 			//   this simulates edge case where: (1) account C1 cosigns, (2) account C1 is converted to multisig and thus invalid
-			context.validator().setValidateCosignersResult(CosignersValidationResult::Ineligible, transaction.CosignaturesPtr()[1].Signer);
+			context.validator().setValidateCosignatoriesResult(
+					CosignatoriesValidationResult::Ineligible,
+					transaction.CosignaturesPtr()[1].SignerPublicKey);
 
 			// - mark the transaction as complete
-			context.validator().setValidateCosignersResult(CosignersValidationResult::Success, cosignature.Signer);
+			context.validator().setValidateCosignatoriesResult(CosignatoriesValidationResult::Success, cosignature.SignerPublicKey);
 
 			// Act:
 			auto result = context.updater().update(cosignature).get();
@@ -1158,8 +1178,8 @@ namespace catapult { namespace chain {
 
 			ExpectedValidatorCalls expectedValidatorCalls;
 			// * 1 (new cosig) + 1 (ineligible) + 3 (existing cosig) + 1 (isComplete)
-			expectedValidatorCalls.NumValidateCosignersCalls.setExactMatch(6);
-			expectedValidatorCalls.NumLastCosigners.setExactMatch(3); // 1 (new cosig) + 2 (existing valid cosig)
+			expectedValidatorCalls.NumValidateCosignatoriesCalls.setExactMatch(6);
+			expectedValidatorCalls.NumLastCosignatories.setExactMatch(3); // 1 (new cosig) + 2 (existing valid cosig)
 			context.validator().assertCalls(transaction, expectedValidatorCalls);
 		});
 	}
@@ -1219,8 +1239,8 @@ namespace catapult { namespace chain {
 			// * max is numAddAttempts + 1:
 			//   - all cosignatures eligible check (numAddAttempts)
 			//   - one cosignature completed check (1)
-			expectedValidatorCalls.NumValidateCosignersCalls.setInclusiveRangeMatch(2, numAddAttempts + 1);
-			expectedValidatorCalls.NumLastCosigners.setExactMatch(3 + 1);
+			expectedValidatorCalls.NumValidateCosignatoriesCalls.setInclusiveRangeMatch(2, numAddAttempts + 1);
+			expectedValidatorCalls.NumLastCosignatories.setExactMatch(3 + 1);
 			context.validator().assertCalls(transaction, expectedValidatorCalls);
 		});
 	}
@@ -1228,10 +1248,10 @@ namespace catapult { namespace chain {
 	TEST(TEST_CLASS, AddingManyValidCompletingCosignaturesOnlyCompletesTransactionOnce) {
 		// Arrange:
 		RunTestWithTransactionInCache(3, [](auto& context, const auto& transactionInfo, const auto& transaction) {
-			// - always mark the transaction as complete and randomly sleep in validateCosigners
+			// - always mark the transaction as complete and randomly sleep in validateCosignatories
 			const auto* pCosignatures = transaction.CosignaturesPtr();
-			context.validator().setValidateCosignersResult(CosignersValidationResult::Success, pCosignatures[0].Signer);
-			context.validator().sleepInValidateCosigners();
+			context.validator().setValidateCosignatoriesResult(CosignatoriesValidationResult::Success, pCosignatures[0].SignerPublicKey);
+			context.validator().sleepInValidateCosignatories();
 
 			// Act: add many different completing cosignatures (make sure there are more adds than threads to queue some)
 			auto numAddAttempts = 2 * context.numWorkerThreads();
@@ -1273,14 +1293,14 @@ namespace catapult { namespace chain {
 			// * max is 2 * numAddAttempts:
 			//   - all cosignatures eligible check (numAddAttempts)
 			//   - all cosignatures completed check (numAddAttempts)
-			expectedValidatorCalls.NumValidateCosignersCalls.setInclusiveRangeMatch(2, 2 * numAddAttempts);
+			expectedValidatorCalls.NumValidateCosignatoriesCalls.setInclusiveRangeMatch(2, 2 * numAddAttempts);
 			// * min is 4:
 			//   - original cosignatures (3)
 			//   - one new cosignature (1)
 			// * max is 3 + numAddAttempts:
 			//   - original cosignatures (3)
 			//   - all new cosignatures (numAddAttempts)
-			expectedValidatorCalls.NumLastCosigners.setInclusiveRangeMatch(4, 3 + numAddAttempts);
+			expectedValidatorCalls.NumLastCosignatories.setInclusiveRangeMatch(4, 3 + numAddAttempts);
 			context.validator().assertCalls(transaction, expectedValidatorCalls);
 		});
 	}

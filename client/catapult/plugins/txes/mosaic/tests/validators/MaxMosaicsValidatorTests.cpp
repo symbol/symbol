@@ -99,13 +99,13 @@ namespace catapult { namespace validators {
 				ValidationResult expectedResult,
 				uint16_t maxMosaics,
 				UnresolvedMosaicId mosaicId,
-				model::MosaicSupplyChangeDirection direction) {
+				model::MosaicSupplyChangeAction action) {
 			// Arrange:
 			auto owner = test::GenerateRandomByteArray<Key>();
 			auto cache = CreateAndSeedCache(owner);
 
 			auto pValidator = CreateMaxMosaicsSupplyChangeValidator(maxMosaics);
-			auto notification = model::MosaicSupplyChangeNotification(owner, mosaicId, direction, Amount(100));
+			auto notification = model::MosaicSupplyChangeNotification(owner, mosaicId, action, Amount(100));
 
 			// Act:
 			auto result = test::ValidateNotification(*pValidator, notification, cache);
@@ -114,35 +114,35 @@ namespace catapult { namespace validators {
 			EXPECT_EQ(expectedResult, result)
 					<< "maxMosaics " << maxMosaics
 					<< ", mosaicId " << mosaicId
-					<< ", direction " << utils::to_underlying_type(direction);
+					<< ", action " << utils::to_underlying_type(action);
 		}
 	}
 
 	TEST(SUPPLY_CHANGE_TEST_CLASS, FailureWhenMaximumIsExceeded) {
 		// Act: account in test already owns 5 mosaics with ids 1 to 5
-		auto direction = model::MosaicSupplyChangeDirection::Increase;
-		RunMosaicSupplyTest(Failure_Mosaic_Max_Mosaics_Exceeded, 1, test::UnresolveXor(MosaicId(6)), direction);
-		RunMosaicSupplyTest(Failure_Mosaic_Max_Mosaics_Exceeded, 4, test::UnresolveXor(MosaicId(6)), direction);
-		RunMosaicSupplyTest(Failure_Mosaic_Max_Mosaics_Exceeded, 5, test::UnresolveXor(MosaicId(6)), direction);
+		auto action = model::MosaicSupplyChangeAction::Increase;
+		RunMosaicSupplyTest(Failure_Mosaic_Max_Mosaics_Exceeded, 1, test::UnresolveXor(MosaicId(6)), action);
+		RunMosaicSupplyTest(Failure_Mosaic_Max_Mosaics_Exceeded, 4, test::UnresolveXor(MosaicId(6)), action);
+		RunMosaicSupplyTest(Failure_Mosaic_Max_Mosaics_Exceeded, 5, test::UnresolveXor(MosaicId(6)), action);
 	}
 
 	TEST(SUPPLY_CHANGE_TEST_CLASS, SuccessWhenSupplyIsDecreased) {
 		// Act: account in test already owns 5 mosaics with ids 1 to 5
-		auto direction = model::MosaicSupplyChangeDirection::Decrease;
-		RunMosaicSupplyTest(ValidationResult::Success, 5, test::UnresolveXor(MosaicId(6)), direction);
+		auto action = model::MosaicSupplyChangeAction::Decrease;
+		RunMosaicSupplyTest(ValidationResult::Success, 5, test::UnresolveXor(MosaicId(6)), action);
 	}
 
 	TEST(SUPPLY_CHANGE_TEST_CLASS, SuccessWhenAccountAlreadyOwnsThatMosaic) {
 		// Act: account in test already owns 5 mosaics with ids 1 to 5
-		auto direction = model::MosaicSupplyChangeDirection::Increase;
-		RunMosaicSupplyTest(ValidationResult::Success, 5, test::UnresolveXor(MosaicId(3)), direction);
+		auto action = model::MosaicSupplyChangeAction::Increase;
+		RunMosaicSupplyTest(ValidationResult::Success, 5, test::UnresolveXor(MosaicId(3)), action);
 	}
 
 	TEST(SUPPLY_CHANGE_TEST_CLASS, SuccessWhenMaximumIsNotExceeded) {
 		// Act: account in test already owns 5 mosaics with ids 1 to 5
-		auto direction = model::MosaicSupplyChangeDirection::Increase;
-		RunMosaicSupplyTest(ValidationResult::Success, 6, test::UnresolveXor(MosaicId(6)), direction);
-		RunMosaicSupplyTest(ValidationResult::Success, 10, test::UnresolveXor(MosaicId(6)), direction);
-		RunMosaicSupplyTest(ValidationResult::Success, 123, test::UnresolveXor(MosaicId(6)), direction);
+		auto action = model::MosaicSupplyChangeAction::Increase;
+		RunMosaicSupplyTest(ValidationResult::Success, 6, test::UnresolveXor(MosaicId(6)), action);
+		RunMosaicSupplyTest(ValidationResult::Success, 10, test::UnresolveXor(MosaicId(6)), action);
+		RunMosaicSupplyTest(ValidationResult::Success, 123, test::UnresolveXor(MosaicId(6)), action);
 	}
 }}

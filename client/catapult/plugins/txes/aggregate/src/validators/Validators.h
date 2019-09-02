@@ -28,12 +28,12 @@ namespace catapult { namespace validators {
 	/// Validator that applies to aggregate cosignatures notifications and validates that:
 	/// - the number of transactions does not exceed \a maxTransactions
 	/// - the number of implicit and explicit cosignatures does not exceed \a maxCosignatures
-	/// - there are no redundant cosigners
+	/// - there are no redundant cosignatories
 	DECLARE_STATELESS_VALIDATOR(BasicAggregateCosignatures, model::AggregateCosignaturesNotification)(
 			uint32_t maxTransactions,
 			uint8_t maxCosignatures);
 
 	/// Validator that applies to aggregate cosignatures notifications and validates that:
-	/// - the set of component signers is equal to the set of cosigners
+	/// - the set of component signers is equal to the set of cosignatories
 	DECLARE_STATELESS_VALIDATOR(StrictAggregateCosignatures, model::AggregateCosignaturesNotification)();
 }}

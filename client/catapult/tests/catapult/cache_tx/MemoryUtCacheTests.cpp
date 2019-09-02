@@ -360,7 +360,7 @@ namespace catapult { namespace cache {
 		auto modifier = cache.modifier();
 		EXPECT_EQ(5u, modifier.count(key));
 		for (const auto& transactionInfo : transactionInfos)
-			EXPECT_EQ(1u, modifier.count(transactionInfo.pEntity->Signer));
+			EXPECT_EQ(1u, modifier.count(transactionInfo.pEntity->SignerPublicKey));
 	}
 
 	TEST(TEST_CLASS, RemoveUpdatesCounters) {
@@ -383,7 +383,7 @@ namespace catapult { namespace cache {
 		auto modifier = cache.modifier();
 		EXPECT_EQ(3u, modifier.count(initializationResult.SameSigner));
 		for (const auto& transactionInfo : initializationResult.TransactionInfos)
-			EXPECT_EQ(1u, modifier.count(transactionInfo.pEntity->Signer));
+			EXPECT_EQ(1u, modifier.count(transactionInfo.pEntity->SignerPublicKey));
 	}
 
 	TEST(TEST_CLASS, RemoveAllUpdatesCounters) {
@@ -395,7 +395,7 @@ namespace catapult { namespace cache {
 		// Sanity:
 		EXPECT_EQ(5u, modifier.count(initializationResult.SameSigner));
 		for (const auto& transactionsInfo : initializationResult.TransactionInfos)
-			EXPECT_EQ(1u, modifier.count(transactionsInfo.pEntity->Signer));
+			EXPECT_EQ(1u, modifier.count(transactionsInfo.pEntity->SignerPublicKey));
 
 		// Act:
 		modifier.removeAll();
@@ -403,7 +403,7 @@ namespace catapult { namespace cache {
 		// Assert:
 		EXPECT_EQ(0u, modifier.count(initializationResult.SameSigner));
 		for (const auto& transactionsInfo : initializationResult.TransactionInfos)
-			EXPECT_EQ(0u, modifier.count(transactionsInfo.pEntity->Signer));
+			EXPECT_EQ(0u, modifier.count(transactionsInfo.pEntity->SignerPublicKey));
 	}
 
 	// endregion

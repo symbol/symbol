@@ -24,12 +24,18 @@
 namespace catapult { namespace state {
 
 	namespace {
+		void SaveProperties(io::OutputStream& output, const model::MosaicProperties& properties) {
+			io::Write8(output, utils::to_underlying_type(properties.flags()));
+			io::Write8(output, properties.divisibility());
+			io::Write(output, properties.duration());
+		}
+
 		void SaveDefinition(io::OutputStream& output, const MosaicDefinition& definition) {
-			io::Write(output, definition.height());
-			output.write(definition.owner());
+			io::Write(output, definition.startHeight());
+			output.write(definition.ownerPublicKey());
 			io::Write32(output, definition.revision());
-			for (const auto& property : definition.properties())
-				io::Write64(output, property.Value);
+
+			SaveProperties(output, definition.properties());
 		}
 	}
 
@@ -40,17 +46,21 @@ namespace catapult { namespace state {
 	}
 
 	namespace {
+		model::MosaicProperties LoadProperties(io::InputStream& input) {
+			auto flags = static_cast<model::MosaicFlags>(io::Read8(input));
+			auto divisibility = io::Read8(input);
+			auto duration = io::Read<BlockDuration>(input);
+			return model::MosaicProperties(flags, divisibility, duration);
+		}
+
 		MosaicDefinition LoadDefinition(io::InputStream& input) {
 			Key owner;
 			auto height = io::Read<Height>(input);
 			input.read(owner);
 			auto revision = io::Read32(input);
 
-			model::MosaicProperties::PropertyValuesContainer values{};
-			for (auto& value : values)
-				value = io::Read64(input);
-
-			return MosaicDefinition(height, owner, revision, model::MosaicProperties::FromValues(values));
+			auto properties = LoadProperties(input);
+			return MosaicDefinition(height, owner, revision, properties);
 		}
 	}
 

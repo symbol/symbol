@@ -22,6 +22,7 @@
 #include "catapult/cache/CatapultCache.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/model/Address.h"
+#include "catapult/state/CatapultState.h"
 #include "tests/test/cache/BalanceTransferTestUtils.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
@@ -34,13 +35,14 @@ namespace catapult { namespace validators {
 	DEFINE_COMMON_VALIDATOR_TESTS(BalanceDebit,)
 
 #define TEST_CLASS BalanceValidatorTests // used to generate unique function names in macros
-#define TRANSFER_TEST_CLASS TransferBalanceValidatorTests
-#define RESERVE_TEST_CLASS DebitBalanceValidatorTests
+#define TRANSFER_TEST_CLASS BalanceTransferValidatorTests
+#define DEBIT_TEST_CLASS BalanceDebitValidatorTests
 
 	namespace {
 		constexpr auto Currency_Mosaic_Id = MosaicId(1234);
+		constexpr auto Default_Dynamic_Fee_Multiplier = BlockFeeMultiplier(117);
 
-		// region traits
+		// region adjustment traits
 
 		struct BalanceGreaterTraits {
 			static constexpr auto Expected_Result = ValidationResult::Success;
@@ -66,71 +68,102 @@ namespace catapult { namespace validators {
 			}
 		};
 
+		// endregion
+
+		// region transfer / debit traits
+
+		struct TransferStaticTraits {
+			static ValidationResult Validate(const model::BalanceTransferNotification& notification, const ValidatorContext& context) {
+				auto pValidator = CreateBalanceTransferValidator();
+				return test::ValidateNotification(*pValidator, notification, context);
+			}
+		};
+
+		struct TransferDynamicTraits {
+			static ValidationResult Validate(const model::BalanceTransferNotification& notification, const ValidatorContext& context) {
+				auto dynamicNotification = model::BalanceTransferNotification(
+						notification.Sender,
+						notification.Recipient,
+						notification.MosaicId,
+						Amount(notification.Amount.unwrap() / context.Cache.dependentState().DynamicFeeMultiplier.unwrap()),
+						model::BalanceTransferNotification::AmountType::Dynamic);
+
+				auto pValidator = CreateBalanceTransferValidator();
+				return test::ValidateNotification(*pValidator, dynamicNotification, context);
+			}
+		};
+
+		struct DebitTraits {
+			static ValidationResult Validate(const model::BalanceTransferNotification& notification, const ValidatorContext& context) {
+				auto pValidator = CreateBalanceDebitValidator();
+
+				// map transfer notification to a debit notification
+				auto debitNotification = model::BalanceDebitNotification(notification.Sender, notification.MosaicId, notification.Amount);
+
+				return test::ValidateNotification(*pValidator, debitNotification, context);
+			}
+		};
+
+		// endregion
+
+		void SetDynamicFeeMultiplier(cache::CatapultCache& cache, BlockFeeMultiplier dynamicFeeMultiplier) {
+			auto cacheDelta = cache.createDelta();
+			cacheDelta.dependentState().DynamicFeeMultiplier = dynamicFeeMultiplier;
+			cache.commit(Height());
+		}
+
 		template<typename TTraits>
 		void AssertValidationResult(
 				ValidationResult expectedResult,
-				const cache::CatapultCache& cache,
+				cache::CatapultCache& cache,
 				const model::BalanceTransferNotification& notification) {
+			// Arrange:
+			SetDynamicFeeMultiplier(cache, Default_Dynamic_Fee_Multiplier);
+
+			auto cacheView = cache.createView();
+			auto readOnlyCache = cacheView.toReadOnly();
+			auto context = test::CreateValidatorContext(Height(1), readOnlyCache);
+
 			// Act:
-			auto result = TTraits::Validate(notification, cache);
+			auto result = TTraits::Validate(notification, context);
 
 			// Assert:
 			EXPECT_EQ(expectedResult, result);
 		}
+	}
 
-		struct TransferTraits {
-			static ValidationResult Validate(const model::BalanceTransferNotification& notification, const cache::CatapultCache& cache) {
-				auto pValidator = CreateBalanceTransferValidator();
-				return test::ValidateNotification(*pValidator, notification, cache);
-			}
-		};
+	// region traits
 
-		struct ReserveTraits {
-			static ValidationResult Validate(const model::BalanceTransferNotification& notification, const cache::CatapultCache& cache) {
-				auto pValidator = CreateBalanceDebitValidator();
-
-				// - map transfer notification to a reserve notification
-				auto reserveNotification = model::BalanceDebitNotification(
-						notification.Sender,
-						notification.MosaicId,
-						notification.Amount);
-
-				return test::ValidateNotification(*pValidator, reserveNotification, cache);
-			}
-		};
-
-#define TRANSFER_OR_RESERVE_TEST(TEST_NAME) \
+#define TRANSFER_OR_DEBIT_TEST(TEST_NAME) \
 	template<typename TValidatorTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TRANSFER_TEST_CLASS, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransferTraits>(); } \
-	TEST(RESERVE_TEST_CLASS, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ReserveTraits>(); } \
+	TEST(TRANSFER_TEST_CLASS, TEST_NAME##_Static) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransferStaticTraits>(); } \
+	TEST(TRANSFER_TEST_CLASS, TEST_NAME##_Dynamic) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransferDynamicTraits>(); } \
+	TEST(DEBIT_TEST_CLASS, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DebitTraits>(); } \
 	template<typename TValidatorTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+#define VARIABLE_BALANCE_TEST_GROUP(GROUP_TEST_CLASS, TEST_NAME, TEST_POSTFIX, TRAITS_NAME) \
+	TEST(GROUP_TEST_CLASS, SuccessWhenBalanceIsGreater_##TEST_NAME##TEST_POSTFIX) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TRAITS_NAME, BalanceGreaterTraits>(); \
+	} \
+	TEST(GROUP_TEST_CLASS, SuccessWhenBalanceIsExact_##TEST_NAME##TEST_POSTFIX) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TRAITS_NAME, BalanceEqualTraits>(); \
+	} \
+	TEST(GROUP_TEST_CLASS, FailureWhenBalanceIsTooSmall_##TEST_NAME##TEST_POSTFIX) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TRAITS_NAME, BalanceLessTraits>(); \
+	}
 
 #define VARIABLE_BALANCE_TEST(TEST_NAME) \
 	template<typename TValidatorTraits, typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TRANSFER_TEST_CLASS, SuccessWhenBalanceIsGreater_##TEST_NAME) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransferTraits, BalanceGreaterTraits>(); \
-	} \
-	TEST(TRANSFER_TEST_CLASS, SuccessWhenBalanceIsExact_##TEST_NAME) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransferTraits, BalanceEqualTraits>(); \
-	} \
-	TEST(TRANSFER_TEST_CLASS, FailureWhenBalanceIsTooSmall_##TEST_NAME) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransferTraits, BalanceLessTraits>(); \
-	} \
-	TEST(RESERVE_TEST_CLASS, SuccessWhenBalanceIsGreater_##TEST_NAME) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ReserveTraits, BalanceGreaterTraits>(); \
-	} \
-	TEST(RESERVE_TEST_CLASS, SuccessWhenBalanceIsExact_##TEST_NAME) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ReserveTraits, BalanceEqualTraits>(); \
-	} \
-	TEST(RESERVE_TEST_CLASS, FailureWhenBalanceIsTooSmall_##TEST_NAME) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ReserveTraits, BalanceLessTraits>(); \
-	} \
+	VARIABLE_BALANCE_TEST_GROUP(TRANSFER_TEST_CLASS, TEST_NAME, _Static, TransferStaticTraits) \
+	VARIABLE_BALANCE_TEST_GROUP(TRANSFER_TEST_CLASS, TEST_NAME, _Dynamic, TransferDynamicTraits) \
+	VARIABLE_BALANCE_TEST_GROUP(DEBIT_TEST_CLASS, TEST_NAME, , DebitTraits) \
 	template<typename TValidatorTraits, typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-		// endregion
-	}
+	// endregion
 
-	TRANSFER_OR_RESERVE_TEST(FailureWhenTransactionSignerIsUnknown) {
+	// region edge case tests
+
+	TRANSFER_OR_DEBIT_TEST(FailureWhenTransactionSignerIsUnknown) {
 		// Arrange: do not register the signer with the cache
 		auto sender = test::GenerateRandomByteArray<Key>();
 		auto recipient = test::GenerateRandomUnresolvedAddress();
@@ -140,6 +173,40 @@ namespace catapult { namespace validators {
 		// Assert:
 		AssertValidationResult<TValidatorTraits>(Failure_Core_Insufficient_Balance, cache, notification);
 	}
+
+	TEST(TRANSFER_TEST_CLASS, FailureWhenEffectiveBalanceOverflows_Dynamic) {
+		// Arrange:
+		auto sender = test::GenerateRandomByteArray<Key>();
+		auto recipient = test::GenerateRandomUnresolvedAddress();
+		auto notification = model::BalanceTransferNotification(
+				sender,
+				recipient,
+				test::UnresolveXor(Currency_Mosaic_Id),
+				Amount(0x8000'0000'0000'0000),
+				model::BalanceTransferNotification::AmountType::Dynamic);
+
+		auto cache = test::CreateCache(sender, { { Currency_Mosaic_Id, Amount(234) } });
+		SetDynamicFeeMultiplier(cache, BlockFeeMultiplier(2));
+
+		auto cacheView = cache.createView();
+		auto readOnlyCache = cacheView.toReadOnly();
+		auto context = test::CreateValidatorContext(Height(1), readOnlyCache);
+
+		auto pValidator = CreateBalanceTransferValidator();
+
+		// Sanity:
+		EXPECT_EQ(0u, notification.Amount.unwrap() * context.Cache.dependentState().DynamicFeeMultiplier.unwrap());
+
+		// Act:
+		auto result = test::ValidateNotification(*pValidator, notification, context);
+
+		// Assert:
+		EXPECT_EQ(Failure_Core_Insufficient_Balance, result);
+	}
+
+	// endregion
+
+	// region variable balance tests
 
 	VARIABLE_BALANCE_TEST(Currency) {
 		// Arrange:
@@ -181,4 +248,6 @@ namespace catapult { namespace validators {
 		// Assert:
 		AssertValidationResult<TValidatorTraits>(TTraits::Expected_Result, cache, notification);
 	}
+
+	// endregion
 }}

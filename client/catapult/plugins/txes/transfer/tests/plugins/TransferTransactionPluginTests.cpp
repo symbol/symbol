@@ -46,8 +46,8 @@ namespace catapult { namespace plugins {
 			pTransaction->Size = entitySize;
 			pTransaction->MessageSize = messageSize;
 			pTransaction->MosaicsCount = numMosaics;
-			test::FillWithRandomData(pTransaction->Signer);
-			test::FillWithRandomData(pTransaction->Recipient);
+			test::FillWithRandomData(pTransaction->SignerPublicKey);
+			test::FillWithRandomData(pTransaction->RecipientAddress);
 			return pTransaction;
 		}
 	}
@@ -64,12 +64,12 @@ namespace catapult { namespace plugins {
 				typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder& builder,
 				const typename TTraits::TransactionType& transaction) {
 			builder.template addExpectation<AccountAddressNotification>([&transaction](const auto& notification) {
-				EXPECT_EQ(transaction.Recipient, notification.Address);
+				EXPECT_EQ(transaction.RecipientAddress, notification.Address);
 			});
 			builder.template addExpectation<AddressInteractionNotification>([&transaction](const auto& notification) {
-				EXPECT_EQ(transaction.Signer, notification.Source);
+				EXPECT_EQ(transaction.SignerPublicKey, notification.Source);
 				EXPECT_EQ(transaction.Type, notification.TransactionType);
-				EXPECT_EQ(model::UnresolvedAddressSet{ transaction.Recipient }, notification.ParticipantsByAddress);
+				EXPECT_EQ(model::UnresolvedAddressSet{ transaction.RecipientAddress }, notification.ParticipantsByAddress);
 				EXPECT_EQ(utils::KeySet(), notification.ParticipantsByKey);
 			});
 		}
@@ -135,14 +135,18 @@ namespace catapult { namespace plugins {
 		auto pTransaction = CreateTransactionWithMosaics<TTraits>(0, 17);
 		PrepareMessageOnlyTransaction(*pTransaction);
 
+		const auto& transaction = *pTransaction;
 		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
-		AddCommonExpectations<TTraits>(builder, *pTransaction);
-		builder.template addExpectation<TransferMessageNotification>([](const auto& notification) {
+		AddCommonExpectations<TTraits>(builder, transaction);
+		builder.template addExpectation<TransferMessageNotification>([&transaction](const auto& notification) {
+			EXPECT_EQ(transaction.SignerPublicKey, notification.Sender);
+			EXPECT_EQ(transaction.RecipientAddress, notification.Recipient);
 			EXPECT_EQ(17u, notification.MessageSize);
+			EXPECT_EQ(transaction.MessagePtr(), notification.MessagePtr);
 		});
 
 		// Act + Assert:
-		builder.runTest(*pTransaction);
+		builder.runTest(transaction);
 	}
 
 	// endregion
@@ -184,10 +188,11 @@ namespace catapult { namespace plugins {
 		AddCommonExpectations<TTraits>(builder, transaction);
 		for (auto i = 0u; i < 2u; ++i) {
 			builder.template addExpectation<BalanceTransferNotification>(i, [&transaction, i](const auto& notification) {
-				EXPECT_EQ(transaction.Signer, notification.Sender);
+				EXPECT_EQ(transaction.SignerPublicKey, notification.Sender);
 				EXPECT_EQ(transaction.MosaicsPtr()[i].MosaicId, notification.MosaicId);
 				EXPECT_EQ(transaction.MosaicsPtr()[i].Amount, notification.Amount);
-				EXPECT_EQ(transaction.Recipient, notification.Recipient);
+				EXPECT_EQ(transaction.RecipientAddress, notification.Recipient);
+				EXPECT_EQ(BalanceTransferNotification::AmountType::Static, notification.TransferAmountType);
 			});
 		}
 
@@ -241,15 +246,19 @@ namespace catapult { namespace plugins {
 		AddCommonExpectations<TTraits>(builder, transaction);
 		for (auto i = 0u; i < 3u; ++i) {
 			builder.template addExpectation<BalanceTransferNotification>(i, [&transaction, i](const auto& notification) {
-				EXPECT_EQ(transaction.Signer, notification.Sender);
+				EXPECT_EQ(transaction.SignerPublicKey, notification.Sender);
 				EXPECT_EQ(transaction.MosaicsPtr()[i].MosaicId, notification.MosaicId);
 				EXPECT_EQ(transaction.MosaicsPtr()[i].Amount, notification.Amount);
-				EXPECT_EQ(transaction.Recipient, notification.Recipient);
+				EXPECT_EQ(transaction.RecipientAddress, notification.Recipient);
+				EXPECT_EQ(BalanceTransferNotification::AmountType::Static, notification.TransferAmountType);
 			});
 		}
 
-		builder.template addExpectation<TransferMessageNotification>([](const auto& notification) {
+		builder.template addExpectation<TransferMessageNotification>([&transaction](const auto& notification) {
+			EXPECT_EQ(transaction.SignerPublicKey, notification.Sender);
+			EXPECT_EQ(transaction.RecipientAddress, notification.Recipient);
 			EXPECT_EQ(17u, notification.MessageSize);
+			EXPECT_EQ(transaction.MessagePtr(), notification.MessagePtr);
 		});
 		builder.template addExpectation<TransferMosaicsNotification>([&transaction](const auto& notification) {
 			EXPECT_EQ(transaction.MosaicsCount, notification.MosaicsCount);

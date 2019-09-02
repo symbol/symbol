@@ -47,7 +47,7 @@ namespace catapult { namespace test {
 
 	void AddEternalMosaic(cache::CatapultCacheDelta& cache, MosaicId id, Height height, const Key& owner) {
 		auto& mosaicCacheDelta = cache.sub<cache::MosaicCache>();
-		auto definition = state::MosaicDefinition(height, owner, 1, model::MosaicProperties::FromValues({}));
+		auto definition = state::MosaicDefinition(height, owner, 1, model::MosaicProperties());
 		mosaicCacheDelta.insert(state::MosaicEntry(id, definition));
 	}
 

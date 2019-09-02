@@ -44,7 +44,7 @@ namespace catapult { namespace validators {
 			typename TNotificationFacade::RuleType rule;
 			if (entryIter.tryGet() && notificationFacade.tryGet(entryIter.get(), rule)) {
 				if (!notificationFacade.isMatch(rule))
-					return Failure_RestrictionMosaic_Previous_Does_Not_Match;
+					return Failure_RestrictionMosaic_Previous_Value_Mismatch;
 			} else {
 				if (!notificationFacade.isUnset())
 					return Failure_RestrictionMosaic_Previous_Value_Must_Be_Zero;

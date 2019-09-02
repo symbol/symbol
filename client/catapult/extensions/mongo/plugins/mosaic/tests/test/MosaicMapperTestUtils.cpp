@@ -29,30 +29,27 @@ namespace catapult { namespace test {
 
 	namespace {
 		void AssertMosaicProperties(const model::MosaicProperties& properties, const bsoncxx::document::view& dbProperties) {
-			ASSERT_EQ(properties.size(), test::GetFieldCount(dbProperties));
-			auto dbIter = dbProperties.cbegin();
-			for (const auto& property : properties) {
-				EXPECT_EQ(property.Id, static_cast<model::MosaicPropertyId>(GetUint8(*dbIter, "id")));
-				EXPECT_EQ(property.Value, GetUint64(*dbIter, "value"));
-				++dbIter;
-			}
+			ASSERT_EQ(3u, test::GetFieldCount(dbProperties));
+
+			EXPECT_EQ(properties.flags(), static_cast<model::MosaicFlags>(GetUint8(dbProperties, "flags")));
+			EXPECT_EQ(properties.divisibility(), GetUint8(dbProperties, "divisibility"));
+			EXPECT_EQ(properties.duration(), BlockDuration(GetUint64(dbProperties, "duration")));
 		}
 	}
 
-	void AssertEqualMosaicData(const state::MosaicEntry& mosaicEntry, const bsoncxx::document::view& dbMosaicEntry) {
-		EXPECT_EQ(mosaicEntry.mosaicId(), MosaicId(GetUint64(dbMosaicEntry, "mosaicId")));
+	void AssertEqualMosaicData(
+			const state::MosaicEntry& mosaicEntry,
+			const Address& ownerAddress,
+			const bsoncxx::document::view& dbMosaicEntry) {
+		EXPECT_EQ(mosaicEntry.mosaicId(), MosaicId(GetUint64(dbMosaicEntry, "id")));
 		EXPECT_EQ(mosaicEntry.supply(), Amount(GetUint64(dbMosaicEntry, "supply")));
 
 		const auto& definition = mosaicEntry.definition();
-		EXPECT_EQ(definition.height(), Height(GetUint64(dbMosaicEntry, "height")));
-		EXPECT_EQ(definition.owner(), GetKeyValue(dbMosaicEntry, "owner"));
+		EXPECT_EQ(definition.startHeight(), Height(GetUint64(dbMosaicEntry, "startHeight")));
+		EXPECT_EQ(definition.ownerPublicKey(), GetKeyValue(dbMosaicEntry, "ownerPublicKey"));
+		EXPECT_EQ(ownerAddress, GetAddressValue(dbMosaicEntry, "ownerAddress"));
 		EXPECT_EQ(definition.revision(), GetUint32(dbMosaicEntry, "revision"));
 
-		auto dbProperties = dbMosaicEntry["properties"].get_array().value;
-		const auto& properties = definition.properties();
-
-		// two required and one optional property
-		EXPECT_EQ(3u, test::GetFieldCount(dbProperties));
-		AssertMosaicProperties(properties, dbProperties);
+		AssertMosaicProperties(definition.properties(), dbMosaicEntry["properties"].get_document().view());
 	}
 }}

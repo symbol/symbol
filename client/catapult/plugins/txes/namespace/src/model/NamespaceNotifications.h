@@ -93,21 +93,21 @@ namespace catapult { namespace model {
 	// region NamespaceNotification
 
 	/// Notification of a namespace registration.
-	struct NamespaceNotification : public Notification {
+	struct NamespaceRegistrationNotification : public Notification {
 	public:
 		/// Matching notification type.
 		static constexpr auto Notification_Type = Namespace_Registration_Notification;
 
 	public:
-		/// Creates a notification around \a namespaceType.
-		explicit NamespaceNotification(model::NamespaceType namespaceType)
-				: Notification(Notification_Type, sizeof(NamespaceNotification))
-				, NamespaceType(namespaceType)
+		/// Creates a notification around \a registrationType.
+		explicit NamespaceRegistrationNotification(NamespaceRegistrationType registrationType)
+				: Notification(Notification_Type, sizeof(NamespaceRegistrationNotification))
+				, RegistrationType(registrationType)
 		{}
 
 	public:
 		/// Type of the registered namespace.
-		model::NamespaceType NamespaceType;
+		NamespaceRegistrationType RegistrationType;
 	};
 
 	// endregion

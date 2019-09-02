@@ -36,7 +36,7 @@ namespace catapult { namespace extensions {
 
 	namespace {
 		std::vector<std::string> GetDefaultSystemPluginNames() {
-			return { "catapult.coresystem", "catapult.plugins.signature" };
+			return { "catapult.plugins.coresystem", "catapult.plugins.signature" };
 		}
 	}
 

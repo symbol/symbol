@@ -73,7 +73,7 @@ namespace catapult { namespace validators {
 
 		// Act:
 		AssertValidationResult<test::AllowTraits>(
-				Failure_RestrictionAccount_Mosaic_Transfer_Not_Allowed,
+				Failure_RestrictionAccount_Mosaic_Transfer_Prohibited,
 				accountAddress,
 				test::GenerateRandomDataVector<MosaicId>(3),
 				test::UnresolveXor(accountAddress),
@@ -87,7 +87,7 @@ namespace catapult { namespace validators {
 
 		// Act:
 		AssertValidationResult<test::BlockTraits>(
-				Failure_RestrictionAccount_Mosaic_Transfer_Not_Allowed,
+				Failure_RestrictionAccount_Mosaic_Transfer_Prohibited,
 				accountAddress,
 				values,
 				test::UnresolveXor(accountAddress),

@@ -47,7 +47,7 @@ namespace catapult { namespace test {
 		/// Prepares the builder using \a lockInfo.
 		void prepare(const state::SecretLockInfo& lockInfo) {
 			m_secret = lockInfo.Secret;
-			m_recipient = test::UnresolveXor(lockInfo.Recipient);
+			m_recipient = test::UnresolveXor(lockInfo.RecipientAddress);
 		}
 
 	private:
@@ -95,7 +95,7 @@ namespace catapult { namespace test {
 		/// Prepares the builder using \a lockInfo.
 		void prepare(const state::SecretLockInfo& lockInfo) {
 			m_secret = lockInfo.Secret;
-			m_recipient = test::UnresolveXor(lockInfo.Recipient);
+			m_recipient = test::UnresolveXor(lockInfo.RecipientAddress);
 		}
 
 		/// Returns notification height.

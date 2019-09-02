@@ -32,42 +32,39 @@ namespace catapult { namespace validators {
 	/// Validation failed because the account restriction type is invalid.
 	DEFINE_RESTRICTION_ACCOUNT_RESULT(Invalid_Restriction_Type, 1);
 
-	/// Validation failed because a modification type is invalid.
-	DEFINE_RESTRICTION_ACCOUNT_RESULT(Modification_Type_Invalid, 2);
+	/// Validation failed because a modification action is invalid.
+	DEFINE_RESTRICTION_ACCOUNT_RESULT(Invalid_Modification_Action, 2);
 
 	/// Validation failed because a modification address is invalid.
-	DEFINE_RESTRICTION_ACCOUNT_RESULT(Modification_Address_Invalid, 3);
+	DEFINE_RESTRICTION_ACCOUNT_RESULT(Invalid_Modification_Address, 3);
 
 	/// Validation failed because the operation type is incompatible.
 	/// \note This indicates that the existing restrictions have a different operation type than that specified in the notification.
 	DEFINE_RESTRICTION_ACCOUNT_RESULT(Modification_Operation_Type_Incompatible, 4);
 
-	/// Validation failed because the modification type is unsupported.
-	DEFINE_RESTRICTION_ACCOUNT_RESULT(Modify_Unsupported_Modification_Type, 5);
-
 	/// Validation failed because a modification is redundant.
-	DEFINE_RESTRICTION_ACCOUNT_RESULT(Modification_Redundant, 6);
+	DEFINE_RESTRICTION_ACCOUNT_RESULT(Modification_Redundant, 5);
 
 	/// Validation failed because a value is not in the container.
-	DEFINE_RESTRICTION_ACCOUNT_RESULT(Modification_Not_Allowed, 7);
+	DEFINE_RESTRICTION_ACCOUNT_RESULT(Invalid_Modification, 6);
 
 	/// Validation failed because the transaction has too many modifications.
-	DEFINE_RESTRICTION_ACCOUNT_RESULT(Modification_Count_Exceeded, 8);
+	DEFINE_RESTRICTION_ACCOUNT_RESULT(Modification_Count_Exceeded, 7);
 
 	/// Validation failed because the resulting account restriction has too many values.
-	DEFINE_RESTRICTION_ACCOUNT_RESULT(Values_Count_Exceeded, 9);
+	DEFINE_RESTRICTION_ACCOUNT_RESULT(Values_Count_Exceeded, 8);
 
 	/// Validation failed because the account restriction value is invalid.
-	DEFINE_RESTRICTION_ACCOUNT_RESULT(Value_Invalid, 10);
+	DEFINE_RESTRICTION_ACCOUNT_RESULT(Invalid_Value, 9);
 
 	/// Validation failed because the addresses involved in the transaction are not allowed to interact.
-	DEFINE_RESTRICTION_ACCOUNT_RESULT(Address_Interaction_Not_Allowed, 11);
+	DEFINE_RESTRICTION_ACCOUNT_RESULT(Address_Interaction_Prohibited, 10);
 
 	/// Validation failed because the mosaic transfer is prohibited by the recipient.
-	DEFINE_RESTRICTION_ACCOUNT_RESULT(Mosaic_Transfer_Not_Allowed, 12);
+	DEFINE_RESTRICTION_ACCOUNT_RESULT(Mosaic_Transfer_Prohibited, 11);
 
-	/// Validation failed because the transaction type is not allowed to be initiated by the signer.
-	DEFINE_RESTRICTION_ACCOUNT_RESULT(Transaction_Type_Not_Allowed, 13);
+	/// Validation failed because the operation type is not allowed to be initiated by the signer.
+	DEFINE_RESTRICTION_ACCOUNT_RESULT(Operation_Type_Prohibited, 12);
 
 #ifndef CUSTOM_RESULT_DEFINITION
 }}

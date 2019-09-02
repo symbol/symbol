@@ -88,7 +88,7 @@ namespace catapult { namespace validators {
 		// Arrange:
 		auto accountKey = test::GenerateRandomByteArray<Key>();
 		auto accountAddress = test::UnresolveXor(model::PublicKeyToAddress(accountKey, model::NetworkIdentifier::Zero));
-		constexpr auto Failure = Failure_AccountLink_Remote_Account_Participant_Not_Allowed;
+		constexpr auto Failure = Failure_AccountLink_Remote_Account_Participant_Prohibited;
 
 		// Assert:
 		AssertValidation(Failure, accountKey, state::AccountType::Remote, static_cast<model::EntityType>(0x4123), { accountAddress }, {});
@@ -97,7 +97,7 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, FailureWhenAccountIsRemoteAndContainedInParticipantsByKey_SingleParticipant) {
 		// Arrange:
 		auto accountKey = test::GenerateRandomByteArray<Key>();
-		constexpr auto Failure = Failure_AccountLink_Remote_Account_Participant_Not_Allowed;
+		constexpr auto Failure = Failure_AccountLink_Remote_Account_Participant_Prohibited;
 
 		// Assert:
 		AssertValidation(Failure, accountKey, state::AccountType::Remote, static_cast<model::EntityType>(0x4123), {}, { accountKey });
@@ -108,7 +108,7 @@ namespace catapult { namespace validators {
 		auto accountKey = test::GenerateRandomByteArray<Key>();
 		auto accountAddress = test::UnresolveXor(model::PublicKeyToAddress(accountKey, model::NetworkIdentifier::Zero));
 		auto additionalParticipants = test::GenerateRandomDataVector<Address>(2);
-		constexpr auto Failure = Failure_AccountLink_Remote_Account_Participant_Not_Allowed;
+		constexpr auto Failure = Failure_AccountLink_Remote_Account_Participant_Prohibited;
 
 		// Assert:
 		AssertValidation(
@@ -125,7 +125,7 @@ namespace catapult { namespace validators {
 		// Arrange:
 		auto accountKey = test::GenerateRandomByteArray<Key>();
 		auto additionalParticipants = test::GenerateRandomDataVector<Key>(2);
-		constexpr auto Failure = Failure_AccountLink_Remote_Account_Participant_Not_Allowed;
+		constexpr auto Failure = Failure_AccountLink_Remote_Account_Participant_Prohibited;
 
 		// Assert:
 		AssertValidation(

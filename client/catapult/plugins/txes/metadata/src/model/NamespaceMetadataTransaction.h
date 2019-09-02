@@ -28,19 +28,26 @@ namespace catapult { namespace model {
 
 #pragma pack(push, 1)
 
+	/// Metadata transaction header with namespace id target.
+	template<typename THeader>
+	struct NamespaceMetadataTransactionHeader : public MetadataTransactionHeader<THeader> {
+		/// Target namespace identifier.
+		NamespaceId TargetNamespaceId;
+	};
+
 	/// Binary layout for a namespace metadata transaction body.
 	template<typename THeader>
-	using NamespaceMetadataTransactionBody = BasicMetadataTransactionBody<
-		MetadataTransactionHeaderT<THeader, NamespaceId>,
-		Entity_Type_Namespace_Metadata>;
+	struct NamespaceMetadataTransactionBody
+			: public BasicMetadataTransactionBody<NamespaceMetadataTransactionHeader<THeader>, Entity_Type_Namespace_Metadata>
+	{};
 
 	DEFINE_EMBEDDABLE_TRANSACTION(NamespaceMetadata)
 
 #pragma pack(pop)
 
 	/// Extracts public keys of additional accounts that must approve \a transaction.
-	inline utils::KeySet ExtractAdditionalRequiredCosigners(const EmbeddedNamespaceMetadataTransaction& transaction) {
-		return transaction.Signer == transaction.TargetPublicKey ? utils::KeySet() : utils::KeySet{ transaction.TargetPublicKey };
+	inline utils::KeySet ExtractAdditionalRequiredCosignatories(const EmbeddedNamespaceMetadataTransaction& transaction) {
+		return transaction.SignerPublicKey == transaction.TargetPublicKey ? utils::KeySet() : utils::KeySet{ transaction.TargetPublicKey };
 	}
 }}
 

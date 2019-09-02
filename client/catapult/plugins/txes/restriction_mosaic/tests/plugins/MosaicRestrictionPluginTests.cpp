@@ -36,7 +36,7 @@ namespace catapult { namespace plugins {
 				config.Plugins.emplace("catapult.plugins.restrictionmosaic", utils::ConfigurationBag({{
 					"",
 					{
-						{ "maxMosaicRestrictionValues", "10" },
+						{ "maxMosaicRestrictionValues", "10" }
 					}
 				}}));
 

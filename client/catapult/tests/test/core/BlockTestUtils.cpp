@@ -24,6 +24,7 @@
 #include "sdk/src/extensions/BlockExtensions.h"
 #include "catapult/model/BlockUtils.h"
 #include "catapult/utils/HexParser.h"
+#include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/nodeps/TestConstants.h"
 #include "tests/TestHarness.h"
 
@@ -61,10 +62,10 @@ namespace catapult { namespace test {
 			block.Difficulty = Difficulty::Min() + Difficulty::Unclamped(difficultyAdjustment);
 			block.FeeMultiplier = GenerateRandomValue<BlockFeeMultiplier>();
 			FillWithRandomData(block.PreviousBlockHash);
-			FillWithRandomData(block.BlockTransactionsHash);
-			FillWithRandomData(block.BlockReceiptsHash);
+			FillWithRandomData(block.TransactionsHash);
+			FillWithRandomData(block.ReceiptsHash);
 			FillWithRandomData(block.StateHash);
-			FillWithRandomData(block.Beneficiary);
+			FillWithRandomData(block.BeneficiaryPublicKey);
 		}
 
 		struct TestBlockOptions {
@@ -128,15 +129,15 @@ namespace catapult { namespace test {
 		ConstTransactions transactions;
 		transactions.push_back(GenerateDeterministicTransaction());
 		auto pBlock = GenerateBlockWithTransactions(keyPair, transactions);
-		pBlock->Signer = keyPair.publicKey();
+		pBlock->SignerPublicKey = keyPair.publicKey();
 		pBlock->Height = Height(12345);
 		pBlock->Timestamp = Timestamp(54321);
 		pBlock->Difficulty = Difficulty(123'456'789'123'456);
 		pBlock->FeeMultiplier = BlockFeeMultiplier(8462);
 		pBlock->PreviousBlockHash = { { 123 } };
-		pBlock->BlockReceiptsHash = { { 55 } };
+		pBlock->ReceiptsHash = { { 55 } };
 		pBlock->StateHash = { { 242, 111 } };
-		pBlock->Beneficiary = { { 77, 99, 88 } };
+		pBlock->BeneficiaryPublicKey = { { 77, 99, 88 } };
 
 		auto generationHash = utils::ParseByteArray<GenerationHash>(test::Deterministic_Network_Generation_Hash_String);
 		extensions::BlockExtensions(generationHash).signFullBlock(keyPair, *pBlock);

@@ -35,7 +35,7 @@ namespace catapult { namespace extensions {
 		// Arrange:
 		auto config = test::CreateUninitializedCatapultConfiguration();
 		const_cast<uint32_t&>(config.BlockChain.BlockPruneInterval) = 15;
-		const_cast<bool&>(config.Node.ShouldUseCacheDatabaseStorage) = true;
+		const_cast<bool&>(config.Node.EnableCacheDatabaseStorage) = true;
 		const_cast<std::string&>(config.User.DataDirectory) = "base_data_dir";
 
 		// Act:

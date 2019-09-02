@@ -34,32 +34,32 @@ namespace catapult { namespace validators {
 	}
 
 	DEFINE_STATELESS_VALIDATOR(StrictAggregateCosignatures, [](const Notification& notification) {
-		// collect all cosigners (initially set used flag to false)
-		utils::ArrayPointerFlagMap<Key> cosigners;
-		cosigners.emplace(&notification.Signer, false);
+		// collect all cosignatories (initially set used flag to false)
+		utils::ArrayPointerFlagMap<Key> cosignatories;
+		cosignatories.emplace(&notification.Signer, false);
 		const auto* pCosignature = notification.CosignaturesPtr;
 		for (auto i = 0u; i < notification.CosignaturesCount; ++i) {
-			cosigners.emplace(&pCosignature->Signer, false);
+			cosignatories.emplace(&pCosignature->SignerPublicKey, false);
 			++pCosignature;
 		}
 
-		// check all transaction signers and mark cosigners as used
-		// notice that ineligible cosigners must dominate missing cosigners in order for cosigner aggregation to work
-		auto hasMissingCosigners = false;
+		// check all transaction signers and mark cosignatories as used
+		// notice that ineligible cosignatories must dominate missing cosignatures in order for cosignatory aggregation to work
+		auto hasMissingCosignatures = false;
 		const auto* pTransaction = notification.TransactionsPtr;
 		for (auto i = 0u; i < notification.TransactionsCount; ++i) {
-			auto iter = cosigners.find(&pTransaction->Signer);
-			if (cosigners.cend() == iter)
-				hasMissingCosigners = true;
+			auto iter = cosignatories.find(&pTransaction->SignerPublicKey);
+			if (cosignatories.cend() == iter)
+				hasMissingCosignatures = true;
 			else
 				iter->second = true;
 
 			pTransaction = AdvanceNext(pTransaction);
 		}
 
-		// only return success if all cosigners are used
-		return std::all_of(cosigners.cbegin(), cosigners.cend(), [](const auto& pair) { return pair.second; })
-				? hasMissingCosigners ? Failure_Aggregate_Missing_Cosigners : ValidationResult::Success
-				: Failure_Aggregate_Ineligible_Cosigners;
+		// only return success if all cosignatories are used
+		return std::all_of(cosignatories.cbegin(), cosignatories.cend(), [](const auto& pair) { return pair.second; })
+				? hasMissingCosignatures ? Failure_Aggregate_Missing_Cosignatures : ValidationResult::Success
+				: Failure_Aggregate_Ineligible_Cosignatories;
 	});
 }}

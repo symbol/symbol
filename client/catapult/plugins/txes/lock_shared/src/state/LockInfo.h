@@ -42,18 +42,18 @@ namespace catapult { namespace state {
 		LockInfo()
 		{}
 
-		/// Creates a lock info around \a account, \a mosaicId, \a amount and \a height.
-		LockInfo(const Key& account, catapult::MosaicId mosaicId, catapult::Amount amount, catapult::Height height)
-				: Account(account)
+		/// Creates a lock info around \a senderPublicKey, \a mosaicId, \a amount and \a endHeight.
+		LockInfo(const Key& senderPublicKey, catapult::MosaicId mosaicId, catapult::Amount amount, Height endHeight)
+				: SenderPublicKey(senderPublicKey)
 				, MosaicId(mosaicId)
 				, Amount(amount)
-				, Height(height)
+				, EndHeight(endHeight)
 				, Status(LockStatus::Unused)
 		{}
 
 	public:
-		/// Account.
-		Key Account;
+		/// Sender public key.
+		Key SenderPublicKey;
 
 		/// Mosaic id.
 		catapult::MosaicId MosaicId;
@@ -62,15 +62,15 @@ namespace catapult { namespace state {
 		catapult::Amount Amount;
 
 		/// Height at which the lock expires.
-		catapult::Height Height;
+		Height EndHeight;
 
 		/// Flag indicating whether or not the lock was already used.
 		LockStatus Status;
 
 	public:
 		/// Returns \c true if lock info is active at \a height.
-		constexpr bool isActive(catapult::Height height) const {
-			return height < Height && LockStatus::Unused == Status;
+		constexpr bool isActive(Height height) const {
+			return height < EndHeight && LockStatus::Unused == Status;
 		}
 	};
 }}

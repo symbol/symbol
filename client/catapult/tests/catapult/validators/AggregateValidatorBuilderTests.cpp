@@ -146,7 +146,7 @@ namespace catapult { namespace validators {
 			0x0201, 0x0202, 0x0203,
 			0x0701, 0x0702, 0x0703,
 			0x0501, 0x0502, 0x0503,
-			0x0101, 0x0102, 0x0103,
+			0x0101, 0x0102, 0x0103
 		};
 		EXPECT_EQ(12u, pContext->Breadcrumbs.size());
 		EXPECT_EQ(expectedBreadcrumbs, pContext->Breadcrumbs);

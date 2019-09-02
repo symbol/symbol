@@ -25,7 +25,7 @@
 
 namespace catapult { namespace cache {
 
-	/// Adds an \a identifier with with grouping \a key to \a groupedSet.
+	/// Adds \a identifier with grouping \a key to \a groupedSet.
 	template<typename TGroupedSet, typename TGroupingKey, typename TIdentifier>
 	void AddIdentifierWithGroup(TGroupedSet& groupedSet, const TGroupingKey& key, const TIdentifier& identifier) {
 		if (!groupedSet.contains(key))
@@ -52,7 +52,7 @@ namespace catapult { namespace cache {
 		}
 	}
 
-	/// Removes an \a identifier with grouping \a key from \a groupedSet.
+	/// Removes \a identifier with grouping \a key from \a groupedSet.
 	template<typename TGroupedSet, typename TGroupingKey, typename TIdentifier>
 	void RemoveIdentifierWithGroup(TGroupedSet& groupedSet, const TGroupingKey& key, const TIdentifier& identifier) {
 		auto groupIter = groupedSet.find(key);

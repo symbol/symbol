@@ -58,8 +58,10 @@ namespace catapult { namespace observers {
 	/// Observes block beneficiary.
 	DECLARE_OBSERVER(Beneficiary, model::BlockNotification)();
 
-	/// Observes block difficulties.
-	DECLARE_OBSERVER(BlockDifficulty, model::BlockNotification)();
+	/// Observes block statistics and updates dynamic fee multiplier given \a maxDifficultyBlocks and \a defaultDynamicFeeMultiplier.
+	DECLARE_OBSERVER(BlockStatistic, model::BlockNotification)(
+			uint32_t maxDifficultyBlocks,
+			BlockFeeMultiplier defaultDynamicFeeMultiplier);
 
 	/// Observes block notifications and counts transactions.
 	DECLARE_OBSERVER(TotalTransactions, model::BlockNotification)();

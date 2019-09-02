@@ -45,7 +45,7 @@ namespace catapult { namespace model {
 		EXPECT_EQ(&cosignatures, &transactionInfo.cosignatures());
 	}
 
-	TEST(TEST_CLASS, HasCosignerReturnsTrueWhenSignerIsCosigner) {
+	TEST(TEST_CLASS, HasCosignatoryReturnsTrueWhenSignerIsCosignatory) {
 		// Arrange:
 		Transaction transaction;
 		auto cosignatures = test::GenerateRandomDataVector<Cosignature>(3);
@@ -53,18 +53,18 @@ namespace catapult { namespace model {
 
 		// Act + Assert:
 		for (const auto& cosignature : cosignatures)
-			EXPECT_TRUE(transactionInfo.hasCosigner(cosignature.Signer));
+			EXPECT_TRUE(transactionInfo.hasCosignatory(cosignature.SignerPublicKey));
 	}
 
-	TEST(TEST_CLASS, HasCosignerReturnsFalseWhenSignerIsNotCosigner) {
+	TEST(TEST_CLASS, HasCosignatoryReturnsFalseWhenSignerIsNotCosignatory) {
 		// Arrange:
 		Transaction transaction;
-		transaction.Signer = test::GenerateRandomByteArray<Key>();
+		transaction.SignerPublicKey = test::GenerateRandomByteArray<Key>();
 		auto cosignatures = test::GenerateRandomDataVector<Cosignature>(3);
 		WeakCosignedTransactionInfo transactionInfo(&transaction, &cosignatures);
 
 		// Act + Assert:
-		EXPECT_FALSE(transactionInfo.hasCosigner(transaction.Signer));
-		EXPECT_FALSE(transactionInfo.hasCosigner(test::GenerateRandomByteArray<Key>()));
+		EXPECT_FALSE(transactionInfo.hasCosignatory(transaction.SignerPublicKey));
+		EXPECT_FALSE(transactionInfo.hasCosignatory(test::GenerateRandomByteArray<Key>()));
 	}
 }}

@@ -24,10 +24,10 @@
 #include "catapult/ionet/PacketSocket.h"
 #include "catapult/net/Challenge.h"
 #include "catapult/thread/IoThreadPool.h"
-#include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/core/mocks/MockPacketIo.h"
 #include "tests/test/net/SocketTestUtils.h"
+#include "tests/test/nodeps/KeyTestUtils.h"
 #include <queue>
 
 using catapult::mocks::MockPacketIo;

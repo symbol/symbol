@@ -41,7 +41,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		// Arrange:
 		typename TTraits::TransactionType transaction;
 		transaction.MosaicId = UnresolvedMosaicId(753);
-		transaction.Direction = model::MosaicSupplyChangeDirection::Increase;
+		transaction.Action = model::MosaicSupplyChangeAction::Increase;
 		transaction.Delta = Amount(12349876);
 
 		auto pPlugin = TTraits::CreatePlugin();
@@ -55,8 +55,8 @@ namespace catapult { namespace mongo { namespace plugins {
 		EXPECT_EQ(3u, test::GetFieldCount(view));
 		EXPECT_EQ(753u, test::GetUint64(view, "mosaicId"));
 		EXPECT_EQ(
-				model::MosaicSupplyChangeDirection::Increase,
-				static_cast<model::MosaicSupplyChangeDirection>(test::GetUint32(view, "direction")));
+				model::MosaicSupplyChangeAction::Increase,
+				static_cast<model::MosaicSupplyChangeAction>(test::GetUint32(view, "action")));
 		EXPECT_EQ(12349876u, test::GetUint64(view, "delta"));
 	}
 

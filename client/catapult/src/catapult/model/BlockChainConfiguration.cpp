@@ -50,8 +50,8 @@ namespace catapult { namespace model {
 
 #define LOAD_CHAIN_PROPERTY(NAME) utils::LoadIniProperty(bag, "chain", #NAME, config.NAME)
 
-		LOAD_CHAIN_PROPERTY(ShouldEnableVerifiableState);
-		LOAD_CHAIN_PROPERTY(ShouldEnableVerifiableReceipts);
+		LOAD_CHAIN_PROPERTY(EnableVerifiableState);
+		LOAD_CHAIN_PROPERTY(EnableVerifiableReceipts);
 
 		LOAD_CHAIN_PROPERTY(CurrencyMosaicId);
 		LOAD_CHAIN_PROPERTY(HarvestingMosaicId);
@@ -63,6 +63,7 @@ namespace catapult { namespace model {
 		LOAD_CHAIN_PROPERTY(ImportanceActivityPercentage);
 		LOAD_CHAIN_PROPERTY(MaxRollbackBlocks);
 		LOAD_CHAIN_PROPERTY(MaxDifficultyBlocks);
+		LOAD_CHAIN_PROPERTY(DefaultDynamicFeeMultiplier);
 
 		LOAD_CHAIN_PROPERTY(MaxTransactionLifetime);
 		LOAD_CHAIN_PROPERTY(MaxBlockFutureTime);
@@ -94,7 +95,7 @@ namespace catapult { namespace model {
 			numPluginProperties += iter->second.size();
 		}
 
-		utils::VerifyBagSizeLte(bag, 22 + numPluginProperties);
+		utils::VerifyBagSizeLte(bag, 23 + numPluginProperties);
 		return config;
 	}
 

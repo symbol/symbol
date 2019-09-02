@@ -26,7 +26,7 @@ namespace catapult { namespace test {
 
 	// region common
 
-	/// Asserts that an \a operation raises a single message with \a marker that is checked by \a assertMessage.
+	/// Asserts that \a operation raises a single message with \a marker that is checked by \a assertMessage.
 	template<typename TMqSubscriberContext, typename TOperation, typename TAssertMessage>
 	void AssertRaiseSingleMessage(zeromq::TransactionMarker marker, TOperation operation, TAssertMessage assertMessage) {
 		// Arrange:
@@ -47,7 +47,7 @@ namespace catapult { namespace test {
 		AssertNoPendingMessages(context.zmqSocket());
 	}
 
-	/// Asserts that an \a operation raises \a numTransactions messages with \a marker that are checked individually by \a assertMessage.
+	/// Asserts that \a operation raises \a numTransactions messages with \a marker that are checked individually by \a assertMessage.
 	template<typename TMqSubscriberContext, typename TOperation, typename TAssertMessage>
 	void AssertRaiseMultipleMessages(
 			zeromq::TransactionMarker marker,

@@ -48,8 +48,8 @@ namespace catapult { namespace observers {
 				auto resolver = test::CreateResolverContextXor();
 				auto lockInfo = test::BasicSecretLockInfoTestTraits::CreateLockInfo();
 				lockInfo.Secret = notification.Secret;
-				lockInfo.Recipient = resolver.resolve(notification.Recipient);
-				lockInfo.CompositeHash = model::CalculateSecretLockInfoHash(lockInfo.Secret, lockInfo.Recipient);
+				lockInfo.RecipientAddress = resolver.resolve(notification.Recipient);
+				lockInfo.CompositeHash = model::CalculateSecretLockInfoHash(lockInfo.Secret, lockInfo.RecipientAddress);
 				return lockInfo;
 			}
 
@@ -62,7 +62,7 @@ namespace catapult { namespace observers {
 				// Assert:
 				EXPECT_EQ(notification.HashAlgorithm, lockInfo.HashAlgorithm);
 				EXPECT_EQ(notification.Secret, lockInfo.Secret);
-				EXPECT_EQ(notification.Recipient, test::UnresolveXor(lockInfo.Recipient));
+				EXPECT_EQ(notification.Recipient, test::UnresolveXor(lockInfo.RecipientAddress));
 			}
 		};
 	}

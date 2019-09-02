@@ -26,26 +26,26 @@ namespace catapult { namespace validators {
 
 #endif
 
-/// Defines a hash lock validation result with \a DESCRIPTION and \a CODE.
-#define DEFINE_HASH_LOCK_RESULT(DESCRIPTION, CODE) DEFINE_VALIDATION_RESULT(Failure, LockHash, DESCRIPTION, CODE, None)
+/// Defines a lock hash validation result with \a DESCRIPTION and \a CODE.
+#define DEFINE_LOCK_HASH_RESULT(DESCRIPTION, CODE) DEFINE_VALIDATION_RESULT(Failure, LockHash, DESCRIPTION, CODE, None)
 
 	/// Validation failed because lock does not allow the specified mosaic.
-	DEFINE_HASH_LOCK_RESULT(Invalid_Mosaic_Id, 1);
+	DEFINE_LOCK_HASH_RESULT(Invalid_Mosaic_Id, 1);
 
 	/// Validation failed because lock does not allow the specified amount.
-	DEFINE_HASH_LOCK_RESULT(Invalid_Mosaic_Amount, 2);
+	DEFINE_LOCK_HASH_RESULT(Invalid_Mosaic_Amount, 2);
 
 	/// Validation failed because hash is already present in cache.
-	DEFINE_HASH_LOCK_RESULT(Hash_Exists, 3);
+	DEFINE_LOCK_HASH_RESULT(Hash_Already_Exists, 3);
 
 	/// Validation failed because hash is not present in cache.
-	DEFINE_HASH_LOCK_RESULT(Hash_Does_Not_Exist, 4);
+	DEFINE_LOCK_HASH_RESULT(Unknown_Hash, 4);
 
 	/// Validation failed because hash is inactive.
-	DEFINE_HASH_LOCK_RESULT(Inactive_Hash, 5);
+	DEFINE_LOCK_HASH_RESULT(Inactive_Hash, 5);
 
 	/// Validation failed because duration is too long.
-	DEFINE_HASH_LOCK_RESULT(Invalid_Duration, 6);
+	DEFINE_LOCK_HASH_RESULT(Invalid_Duration, 6);
 
 #ifndef CUSTOM_RESULT_DEFINITION
 }}

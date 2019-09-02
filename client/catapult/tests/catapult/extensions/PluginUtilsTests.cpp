@@ -19,9 +19,11 @@
 **/
 
 #include "catapult/extensions/PluginUtils.h"
+#include "plugins/coresystem/src/validators/Results.h"
 #include "catapult/config/CatapultConfiguration.h"
-#include "catapult/validators/AggregateEntityValidator.h"
+#include "catapult/model/Transaction.h"
 #include "tests/test/local/LocalTestUtils.h"
+#include "tests/test/local/RealTransactionFactory.h"
 #include "tests/test/other/MutableCatapultConfiguration.h"
 
 namespace catapult { namespace extensions {
@@ -31,7 +33,7 @@ namespace catapult { namespace extensions {
 	TEST(TEST_CLASS, CanCreateStorageConfiguration) {
 		// Arrange:
 		test::MutableCatapultConfiguration config;
-		config.Node.ShouldUseCacheDatabaseStorage = true;
+		config.Node.EnableCacheDatabaseStorage = true;
 		config.Node.MaxCacheDatabaseWriteBatchSize = utils::FileSize::FromKilobytes(123);
 		config.User.DataDirectory = "foo_bar";
 
@@ -44,20 +46,42 @@ namespace catapult { namespace extensions {
 		EXPECT_EQ(utils::FileSize::FromKilobytes(123), storageConfig.MaxCacheDatabaseWriteBatchSize);
 	}
 
-	TEST(TEST_CLASS, CanCreateStatelessValidator) {
-		// Arrange:
-		auto pPluginManager = test::CreateDefaultPluginManagerWithRealPlugins();
+	namespace {
+		template<typename TFactory>
+		void AssertCanCreateStatelessEntityValidator(validators::ValidationResult expectedValidationResult, TFactory factory) {
+			// Arrange:
+			auto config = model::BlockChainConfiguration::Uninitialized();
+			config.Plugins.emplace("catapult.plugins.transfer", utils::ConfigurationBag({{ "", { { "maxMessageSize", "0" } } }}));
+			auto pPluginManager = test::CreatePluginManagerWithRealPlugins(config);
 
-		// Act:
-		auto pEntityValidator = CreateStatelessValidator(*pPluginManager);
+			// Act:
+			auto pEntityValidator = factory(*pPluginManager);
 
-		// Assert:
-		ASSERT_TRUE(!!pEntityValidator);
+			// Assert:
+			ASSERT_TRUE(!!pEntityValidator);
+			EXPECT_EQ(pPluginManager->createStatelessValidator()->name(), pEntityValidator->name());
 
-		// - notice that, as an implementation detail, the returned validator is an aggregate of one
-		//   (the entity -> notification adapter)
-		ASSERT_EQ(1u, pEntityValidator->names().size());
-		EXPECT_EQ(pPluginManager->createStatelessValidator()->name(), pEntityValidator->names()[0]);
+			// - validate a real transaction as a proxy for testing notification type filtering
+			auto pTransaction = test::CreateUnsignedTransferTransaction(
+					test::GenerateRandomByteArray<Key>(),
+					test::GenerateRandomByteArray<UnresolvedAddress>(),
+					Amount(0));
+			auto result = pEntityValidator->validate(*pTransaction);
+			EXPECT_EQ(expectedValidationResult, result);
+		}
+	}
+
+	TEST(TEST_CLASS, CanCreateStatelessEntityValidator) {
+		AssertCanCreateStatelessEntityValidator(validators::Failure_Core_Wrong_Network, [](const auto& pluginManager) {
+			return CreateStatelessEntityValidator(pluginManager);
+		});
+	}
+
+	TEST(TEST_CLASS, CanCreateStatelessEntityValidatorWithNotificationTypeFilter) {
+		AssertCanCreateStatelessEntityValidator(validators::Failure_Core_Invalid_Transaction_Fee, [](const auto& pluginManager) {
+			// Act: suppress EntityNotification, which raises Failure_Core_Wrong_Network
+			return CreateStatelessEntityValidator(pluginManager, model::EntityNotification::Notification_Type);
+		});
 	}
 
 	TEST(TEST_CLASS, CanCreateUndoEntityObserver) {

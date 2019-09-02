@@ -150,31 +150,31 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region ExtractAdditionalRequiredCosigners
+	// region ExtractAdditionalRequiredCosignatories
 
-	METADATA_TYPE_BASED_TEST(ExtractAdditionalRequiredCosigners_ExtractsNothingWhenTargetPublicKeyIsEqualToSigner) {
+	METADATA_TYPE_BASED_TEST(ExtractAdditionalRequiredCosignatories_ExtractsNothingWhenTargetPublicKeyIsEqualToSigner) {
 		// Arrange:
 		typename TTraits::EmbeddedTransactionType transaction;
 		test::FillWithRandomData(transaction);
-		transaction.TargetPublicKey = transaction.Signer;
+		transaction.TargetPublicKey = transaction.SignerPublicKey;
 
 		// Act:
-		auto additionalCosigners = ExtractAdditionalRequiredCosigners(transaction);
+		auto additionalCosignatories = ExtractAdditionalRequiredCosignatories(transaction);
 
 		// Assert:
-		EXPECT_EQ(utils::KeySet(), additionalCosigners);
+		EXPECT_EQ(utils::KeySet(), additionalCosignatories);
 	}
 
-	METADATA_TYPE_BASED_TEST(ExtractAdditionalRequiredCosigners_ExtractsTargetPublicKeyWhenNotEqualToSigner) {
+	METADATA_TYPE_BASED_TEST(ExtractAdditionalRequiredCosignatories_ExtractsTargetPublicKeyWhenNotEqualToSigner) {
 		// Arrange:
 		typename TTraits::EmbeddedTransactionType transaction;
 		test::FillWithRandomData(transaction);
 
 		// Act:
-		auto additionalCosigners = ExtractAdditionalRequiredCosigners(transaction);
+		auto additionalCosignatories = ExtractAdditionalRequiredCosignatories(transaction);
 
 		// Assert:
-		EXPECT_EQ(utils::KeySet{ transaction.TargetPublicKey }, additionalCosigners);
+		EXPECT_EQ(utils::KeySet{ transaction.TargetPublicKey }, additionalCosignatories);
 	}
 
 	// endregion

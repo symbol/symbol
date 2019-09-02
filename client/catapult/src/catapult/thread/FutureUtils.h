@@ -124,9 +124,11 @@ namespace catapult { namespace thread {
 	template<typename T>
 	std::vector<T> get_all_ignore_exceptional(std::vector<future<T>>&& futures) {
 		std::vector<T> results;
+		results.reserve(futures.size());
+
 		for (auto& future : futures) {
 			try {
-				results.push_back(future.get());
+				results.emplace_back(future.get());
 			} catch (...) {
 				// suppress
 			}
@@ -140,8 +142,10 @@ namespace catapult { namespace thread {
 	template<typename T>
 	std::vector<T> get_all(std::vector<future<T>>&& futures) {
 		std::vector<T> results;
+		results.reserve(futures.size());
+
 		for (auto& future : futures)
-			results.push_back(future.get());
+			results.emplace_back(future.get());
 
 		return results;
 	}

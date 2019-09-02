@@ -50,9 +50,10 @@ namespace catapult { namespace mongo { namespace mappers {
 		template<typename TTraits>
 		bsoncxx::document::value StreamResolution(Height height, const typename TTraits::StatementType& statement) {
 			bson_stream::document builder;
-			builder
-					<< "height" << ToInt64(height)
-					<< "unresolved" << TTraits::ToDbValue(statement.unresolved());
+			auto doc = builder
+					<< "statement" << bson_stream::open_document
+						<< "height" << ToInt64(height)
+						<< "unresolved" << TTraits::ToDbValue(statement.unresolved());
 
 			auto resolutionsArray = builder << "resolutionEntries" << bson_stream::open_array;
 			for (auto i = 0u; i < statement.size(); ++i) {
@@ -68,6 +69,7 @@ namespace catapult { namespace mongo { namespace mappers {
 			}
 
 			resolutionsArray << bson_stream::close_array;
+			doc << bson_stream::close_document;
 			return builder << bson_stream::finalize;
 		}
 	}

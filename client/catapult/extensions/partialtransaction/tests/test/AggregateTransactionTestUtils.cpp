@@ -21,8 +21,8 @@
 #include "AggregateTransactionTestUtils.h"
 #include "catapult/crypto/Signer.h"
 #include "catapult/utils/MemoryUtils.h"
-#include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/core/EntityTestUtils.h"
+#include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {
@@ -42,9 +42,9 @@ namespace catapult { namespace test {
 	model::DetachedCosignature GenerateValidCosignature(const Hash256& aggregateHash) {
 		model::Cosignature cosignature;
 		auto keyPair = GenerateKeyPair();
-		cosignature.Signer = keyPair.publicKey();
+		cosignature.SignerPublicKey = keyPair.publicKey();
 		crypto::Sign(keyPair, aggregateHash, cosignature.Signature);
-		return { cosignature.Signer, cosignature.Signature, aggregateHash };
+		return { cosignature.SignerPublicKey, cosignature.Signature, aggregateHash };
 	}
 
 	void FixCosignatures(const Hash256& aggregateHash, model::AggregateTransaction& aggregateTransaction) {
@@ -62,7 +62,7 @@ namespace catapult { namespace test {
 		pTransaction->Size = entitySize;
 		pTransaction->Type = model::Entity_Type_Aggregate_Bonded;
 		pTransaction->PayloadSize = numTransactions * sizeof(mocks::EmbeddedMockTransaction);
-		FillWithRandomData(pTransaction->Signer);
+		FillWithRandomData(pTransaction->SignerPublicKey);
 		FillWithRandomData(pTransaction->Signature);
 
 		auto* pSubTransaction = static_cast<mocks::EmbeddedMockTransaction*>(pTransaction->TransactionsPtr());
@@ -70,8 +70,8 @@ namespace catapult { namespace test {
 			pSubTransaction->Size = sizeof(mocks::EmbeddedMockTransaction);
 			pSubTransaction->Data.Size = 0;
 			pSubTransaction->Type = mocks::EmbeddedMockTransaction::Entity_Type;
-			FillWithRandomData(pSubTransaction->Signer);
-			FillWithRandomData(pSubTransaction->Recipient);
+			FillWithRandomData(pSubTransaction->SignerPublicKey);
+			FillWithRandomData(pSubTransaction->RecipientPublicKey);
 
 			wrapper.SubTransactions.push_back(pSubTransaction);
 			++pSubTransaction;
@@ -91,7 +91,7 @@ namespace catapult { namespace test {
 	CosignaturesMap ToMap(const std::vector<model::Cosignature>& cosignatures) {
 		CosignaturesMap cosignaturesMap;
 		for (const auto& cosignature : cosignatures)
-			cosignaturesMap.emplace(cosignature.Signer, cosignature.Signature);
+			cosignaturesMap.emplace(cosignature.SignerPublicKey, cosignature.Signature);
 
 		return cosignaturesMap;
 	}
@@ -119,11 +119,11 @@ namespace catapult { namespace test {
 		auto numUnknownCosignatures = 0u;
 		const auto* pCosignature = aggregateStitchedTransaction.CosignaturesPtr();
 		for (auto i = 0u; i < aggregateStitchedTransaction.CosignaturesCount(); ++i) {
-			auto message = "cosigner " + ToString(pCosignature->Signer);
+			auto message = "cosignatory " + ToString(pCosignature->SignerPublicKey);
 
-			auto iter = expectedCosignaturesMap.find(pCosignature->Signer);
+			auto iter = expectedCosignaturesMap.find(pCosignature->SignerPublicKey);
 			if (expectedCosignaturesMap.cend() != iter) {
-				EXPECT_EQ(iter->first, pCosignature->Signer) << message;
+				EXPECT_EQ(iter->first, pCosignature->SignerPublicKey) << message;
 				EXPECT_EQ(iter->second, pCosignature->Signature) << message;
 				expectedCosignaturesMap.erase(iter);
 			} else {

@@ -23,7 +23,7 @@
 #include "catapult/cache/SubCachePluginAdapter.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/cache_core/AccountStateCacheStorage.h"
-#include "catapult/cache_core/BlockDifficultyCacheStorage.h"
+#include "catapult/cache_core/BlockStatisticCacheStorage.h"
 #include "catapult/model/BlockChainConfiguration.h"
 #include "tests/test/nodeps/Random.h"
 
@@ -69,7 +69,7 @@ namespace catapult { namespace test {
 				cacheConfig,
 				CreateAccountStateCacheOptions(config));
 
-		subCaches[BlockDifficultyCache::Id] = MakeConfigurationFreeSubCachePlugin<BlockDifficultyCache, BlockDifficultyCacheStorage>(
+		subCaches[BlockStatisticCache::Id] = MakeConfigurationFreeSubCachePlugin<BlockStatisticCache, BlockStatisticCacheStorage>(
 				CalculateDifficultyHistorySize(config));
 	}
 

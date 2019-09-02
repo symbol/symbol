@@ -48,7 +48,7 @@ namespace catapult { namespace chain {
 			ValidationResult process(Height height, Timestamp timestamp, const model::WeakEntityInfos& entityInfos) {
 				auto cache = test::CreateCatapultCacheWithMarkerAccount();
 				auto delta = cache.createDelta();
-				auto observerState = observers::ObserverState(delta, m_state);
+				auto observerState = observers::ObserverState(delta);
 				return m_processor(height, timestamp, entityInfos, observerState);
 			}
 
@@ -76,9 +76,9 @@ namespace catapult { namespace chain {
 					EXPECT_EQ(test::Mock_Execution_Configuration_Network_Identifier, params.Context.Network.Identifier) << message;
 					EXPECT_EQ(MosaicId(22), params.Context.Resolvers.resolve(UnresolvedMosaicId(11))) << message;
 
-					// - cache contents + sequence (NumDifficultyInfos is incremented by each observer call)
+					// - cache contents + sequence (NumStatistics is incremented by each observer call)
 					EXPECT_TRUE(params.IsPassedMarkedCache) << message;
-					EXPECT_EQ(i, params.NumDifficultyInfos) << message;
+					EXPECT_EQ(i, params.NumStatistics) << message;
 					++i;
 				}
 			}
@@ -91,12 +91,11 @@ namespace catapult { namespace chain {
 					// - context (use resolver call to implicitly test creation of ResolverContext)
 					EXPECT_EQ(height, params.Context.Height) << message;
 					EXPECT_EQ(observers::NotifyMode::Commit, params.Context.Mode) << message;
-					EXPECT_EQ(&m_state, &params.Context.State) << message;
 					EXPECT_EQ(MosaicId(22), params.Context.Resolvers.resolve(UnresolvedMosaicId(11))) << message;
 
-					// - cache contents + sequence (NumDifficultyInfos is incremented by each observer call)
+					// - cache contents + sequence (NumStatistics is incremented by each observer call)
 					EXPECT_TRUE(params.IsPassedMarkedCache) << message;
-					EXPECT_EQ(i, params.NumDifficultyInfos) << message;
+					EXPECT_EQ(i, params.NumStatistics) << message;
 					++i;
 				}
 			}
@@ -151,7 +150,6 @@ namespace catapult { namespace chain {
 
 		private:
 			test::MockExecutionConfiguration m_executionConfig;
-			state::CatapultState m_state;
 			BatchEntityProcessor m_processor;
 		};
 

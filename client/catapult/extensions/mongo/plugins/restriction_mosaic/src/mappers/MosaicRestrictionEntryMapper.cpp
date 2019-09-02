@@ -32,7 +32,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		void StreamAddressRestriction(bson_stream::document& builder, const state::MosaicAddressRestriction& addressRestriction) {
 			builder
 					<< "mosaicId" << ToInt64(addressRestriction.mosaicId())
-					<< "address" << ToBinary(addressRestriction.address());
+					<< "targetAddress" << ToBinary(addressRestriction.address());
 
 			auto restrictionArray = builder << "restrictions" << bson_stream::open_array;
 			for (auto key : addressRestriction.keys()) {
@@ -56,7 +56,7 @@ namespace catapult { namespace mongo { namespace plugins {
 				restrictionArray
 						<< bson_stream::open_document
 							<< "key" << static_cast<int64_t>(key)
-							<< "rule" << bson_stream::open_document
+							<< "restriction" << bson_stream::open_document
 								<< "referenceMosaicId" << ToInt64(rule.ReferenceMosaicId)
 								<< "restrictionValue" << static_cast<int64_t>(rule.RestrictionValue)
 								<< "restrictionType" << utils::to_underlying_type(rule.RestrictionType)
@@ -72,8 +72,8 @@ namespace catapult { namespace mongo { namespace plugins {
 		bson_stream::document builder;
 		auto doc = builder
 				<< "mosaicRestrictionEntry" << bson_stream::open_document
-				<< "compositeHash" << ToBinary(restrictionEntry.uniqueKey())
-				<< "entryType" << utils::to_underlying_type(restrictionEntry.entryType());
+					<< "compositeHash" << ToBinary(restrictionEntry.uniqueKey())
+					<< "entryType" << utils::to_underlying_type(restrictionEntry.entryType());
 
 		if (state::MosaicRestrictionEntry::EntryType::Address == restrictionEntry.entryType())
 			StreamAddressRestriction(builder, restrictionEntry.asAddressRestriction());

@@ -136,7 +136,7 @@ namespace catapult { namespace validators {
 	}
 
 	MAKE_ALIAS_AVAILABILITY_TEST(FailureWhenActionUnlinkAndLinkDoesNotExist) {
-		RunTest<TTraits>(Failure_Namespace_Alias_Does_Not_Exist, AliasAction::Unlink, LinkState::Unset);
+		RunTest<TTraits>(Failure_Namespace_Unknown_Alias, AliasAction::Unlink, LinkState::Unset);
 	}
 
 	// endregion

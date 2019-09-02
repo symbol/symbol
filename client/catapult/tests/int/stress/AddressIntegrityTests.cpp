@@ -19,10 +19,10 @@
 **/
 
 #include "catapult/crypto/KeyGenerator.h"
-#include "catapult/crypto/KeyPair.h"
 #include "catapult/model/Address.h"
 #include "catapult/model/NetworkInfo.h"
 #include "catapult/utils/HexFormatter.h"
+#include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/nodeps/MijinConstants.h"
 #include "tests/TestHarness.h"
 
@@ -33,8 +33,7 @@ namespace catapult {
 	TEST(TEST_CLASS, CanFindAddressStartingWithMA) {
 		// Arrange:
 		for (auto i = 0u; i < 1000; ++i) {
-			auto sk = crypto::PrivateKey::Generate(test::RandomByte);
-			auto kp = crypto::KeyPair::FromPrivate(std::move(sk));
+			auto kp = test::GenerateKeyPair();
 			auto rawAddress = model::PublicKeyToAddress(kp.publicKey(), model::NetworkIdentifier::Mijin);
 			auto address = model::AddressToString(rawAddress);
 			if (address[0] == 'M' && address[1] == 'A')
@@ -49,7 +48,7 @@ namespace catapult {
 			static constexpr auto Network_Identifier = model::NetworkIdentifier::Mijin_Test;
 			static constexpr auto Nemesis_Private_Key = test::Mijin_Test_Nemesis_Private_Key;
 #ifdef SIGNATURE_SCHEME_NIS1
-			static constexpr auto Expected_Nemesis_Address = "SDXZPM4GUCEYAMMJH6QRPTRMEZ4JIXUU5W276BYK";
+			static constexpr auto Expected_Nemesis_Address = "SAPO6C4QJBWWFZAZAKH55IDCIDEQX6AVRFV5M7Q3";
 #else
 			static constexpr auto Expected_Nemesis_Address = "SARNASAS2BIAB6LMFA3FPMGBPGIJGK6IJETM3ZSP";
 #endif
@@ -61,17 +60,17 @@ namespace catapult {
 			static std::vector<std::string> ExpectedAddresses() {
 				return {
 #ifdef SIGNATURE_SCHEME_NIS1
-					"SCA6I5AP4X4B3U4GTO2FU7SJD4UDX37I6SEVR3GP",
-					"SCHC72JZZSO3OKXIB6TSOVA4BTT6A2CRXMVKOJAV",
-					"SBJMEHK43TA4GYFDK6WZDYZEIDNTI7UVFLA4ISCQ",
-					"SCTMMUHWPBQSVQGHWOZBOHWM3QRNU6KZRAPS3TDP",
-					"SAZGBECYA55CDZV5S2Q32CKABW7ZCVNIXCJWQVQC",
-					"SDMZAQJZJ7WCFUCOJIKXAAXVEMDBLXFLSW2HVX2F",
-					"SBTZ7EHSKCXDIO2TUEMD4JGSZ3SBAPLNV5ZMO25O",
-					"SCPLDDFMD4KKNHRBTA774MYW63XCP5QZIKIY2LKJ",
-					"SAGCA236SGPMW2HWU2EBJSHQ74SDZ6OB7W35SMVN",
-					"SDLCP3E4V6S3DXV3C4AKNQOZITH5NLXK7QGNAFTT",
-					"SAOFFTLCERCRXWMQ6B3253D7QNYVK33PGPYQBAI4"
+					"SCKPJHW4DQEQE6ALBRPUXL7CCOEYC6KRSTM27AXP",
+					"SDOFLGBMIJDJSIGSPDIXDMHUGL32RYCRSBQOHPP4",
+					"SBFLOD5YUZPAU7TVWKCHHOBGNX7C7IXJY37I3R6M",
+					"SBTSWV7IMBFZPR4ZHIKVVE7NTIJGGVZNX36J2VD2",
+					"SBDN4JD3NKFYNMJ6TLZYHSZNMQMOJI6556CIQ3QO",
+					"SD75TQ4OEKUVSJYSMH4JO3PJFIZNOZAVJHY3FFD5",
+					"SBGPI2WK76YU5IUXH6BIYGNRVQR25FYQRZ42QRUD",
+					"SDOGWQZAZH6QTPNKOU562HJRAOPJ3PBYQ65NY2BM",
+					"SDPRTL47A7Z55KIBJMLV7UK2BPA66UJTCYRCKW3J",
+					"SBKII3BJITHFOSZWZA6EKSSINLPW7SI6OF5FFZKE",
+					"SCR3NI7J3FNPY3KFUTXMDFL23DNF23BGTMTZLWCI"
 #else
 					"SAAA244WMCB2JXGNQTQHQOS45TGBFF4V2MJBVOUI",
 					"SAAA34PEDKJHKIHGVXV3BSKBSQPPQDDMO2ATWMY3",

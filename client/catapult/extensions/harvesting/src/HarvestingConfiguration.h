@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "DelegatePrioritizationPolicy.h"
 #include <boost/filesystem/path.hpp>
 #include <string>
 
@@ -29,17 +30,20 @@ namespace catapult { namespace harvesting {
 	/// Harvesting configuration settings.
 	struct HarvestingConfiguration {
 	public:
-		/// Harvest key.
-		std::string HarvestKey;
+		/// Harvester private key.
+		std::string HarvesterPrivateKey;
 
 		/// \c true if auto harvesting is enabled.
-		bool IsAutoHarvestingEnabled;
+		bool EnableAutoHarvesting;
 
 		/// Maximum number of unlocked accounts.
 		uint32_t MaxUnlockedAccounts;
 
+		/// Delegate harvester prioritization policy.
+		harvesting::DelegatePrioritizationPolicy DelegatePrioritizationPolicy;
+
 		/// Public key of the account receiving part of the harvested fee.
-		std::string Beneficiary;
+		std::string BeneficiaryPublicKey;
 
 	private:
 		HarvestingConfiguration() = default;

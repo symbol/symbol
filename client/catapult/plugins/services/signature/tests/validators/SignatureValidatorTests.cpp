@@ -20,7 +20,7 @@
 
 #include "src/validators/Validators.h"
 #include "catapult/crypto/Signer.h"
-#include "tests/test/core/AddressTestUtils.h"
+#include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
 

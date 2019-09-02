@@ -35,7 +35,7 @@ namespace catapult { namespace observers {
 		/// Gets the observer name.
 		virtual const std::string& name() const = 0;
 
-		/// Notifies the observer with an \a entityInfo to process and an observer \a context.
+		/// Notifies the observer with \a entityInfo to process and contextual observer information (\a context).
 		virtual void notify(const model::WeakEntityInfo& entityInfo, ObserverContext& context) const = 0;
 	};
 }}

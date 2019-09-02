@@ -23,7 +23,7 @@
 
 namespace catapult { namespace test {
 
-	/// Asserts that \a op returns expected results for all combinations of values from a \a container
+	/// Asserts that \a op returns expected results for all combinations of values from \a container
 	/// with increasing values using a custom \a formatter.
 	template<typename TContainer, typename TOperator, typename TFormatter>
 	void AssertOperatorBehaviorForIncreasingValues(const TContainer& container, TOperator op, TFormatter formatter) {
@@ -39,11 +39,10 @@ namespace catapult { namespace test {
 		}
 	}
 
-	/// Asserts that \a op returns expected results for all combinations of values from a \a container
+	/// Asserts that \a op returns expected results for all combinations of values from \a container
 	/// with increasing values using a default formatter.
 	template<typename TContainer, typename TOperator>
 	void AssertOperatorBehaviorForIncreasingValues(const TContainer& container, TOperator op) {
-		// Assert:
 		AssertOperatorBehaviorForIncreasingValues(container, op, [](const auto& value) { return test::ToString(value); });
 	}
 

@@ -36,7 +36,7 @@ namespace catapult { namespace mongo { namespace plugins {
 			for (auto i = 0u; i < numCosignatures; ++i) {
 				cosignaturesArray
 						<< bson_stream::open_document
-							<< "signer" << ToBinary(pCosignature->Signer)
+							<< "signerPublicKey" << ToBinary(pCosignature->SignerPublicKey)
 							<< "signature" << ToBinary(pCosignature->Signature)
 						<< bson_stream::close_document;
 				++pCosignature;
@@ -75,8 +75,7 @@ namespace catapult { namespace mongo { namespace plugins {
 					// transaction metadata
 					bson_stream::document builder;
 					builder
-							<< "meta"
-							<< bson_stream::open_document
+							<< "meta" << bson_stream::open_document
 								<< "height" << ToInt64(metadata.Height)
 								<< "aggregateHash" << ToBinary(metadata.EntityHash)
 								<< "aggregateId" << metadata.ObjectId

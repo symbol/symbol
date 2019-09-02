@@ -27,6 +27,7 @@
 namespace catapult { namespace plugins {
 
 	namespace {
+		template<bool EnableAutoDetection>
 		struct TransferPluginTraits : public test::EmptyPluginTraits {
 		public:
 			template<typename TAction>
@@ -34,7 +35,12 @@ namespace catapult { namespace plugins {
 				// Arrange:
 				auto config = model::BlockChainConfiguration::Uninitialized();
 				config.Plugins.emplace("catapult.plugins.transfer", utils::ConfigurationBag({{ "", { { "maxMessageSize", "0" } } }}));
-				auto manager = test::CreatePluginManager(config);
+
+				auto userConfig = config::UserConfiguration::Uninitialized();
+				userConfig.BootPrivateKey = test::ToString(test::GenerateRandomByteArray<Key>());
+				userConfig.ShouldAutoDetectDelegatedHarvesters = EnableAutoDetection;
+
+				auto manager = test::CreatePluginManager(config, userConfig);
 				RegisterTransferSubsystem(manager);
 
 				// Act:
@@ -50,7 +56,21 @@ namespace catapult { namespace plugins {
 				return { "TransferMessageValidator", "TransferMosaicsValidator" };
 			}
 		};
+
+		struct TransferPluginWithoutMessageProcessingTraits : public TransferPluginTraits<false> {};
+
+		struct TransferPluginWithMessageProcessingTraits : public TransferPluginTraits<true> {
+		public:
+			static std::vector<std::string> GetObserverNames() {
+				return { "TransferMessageObserver" };
+			}
+
+			static std::vector<std::string> GetPermanentObserverNames() {
+				return GetObserverNames();
+			}
+		};
 	}
 
-	DEFINE_PLUGIN_TESTS(TransferPluginTests, TransferPluginTraits)
+	DEFINE_PLUGIN_TESTS(TransferPluginWithoutMessageProcessingTests, TransferPluginWithoutMessageProcessingTraits)
+	DEFINE_PLUGIN_TESTS(TransferPluginWithMessageProcessingTests, TransferPluginWithMessageProcessingTraits)
 }}

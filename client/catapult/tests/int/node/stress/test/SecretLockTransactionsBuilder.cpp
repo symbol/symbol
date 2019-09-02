@@ -98,7 +98,7 @@ namespace catapult { namespace test {
 		builder.setDuration(descriptor.Duration);
 		builder.setHashAlgorithm(model::LockHashAlgorithm::Op_Sha3_256);
 		builder.setSecret(descriptor.Secret);
-		builder.setRecipient(recipientAddress);
+		builder.setRecipientAddress(recipientAddress);
 		auto pTransaction = builder.build();
 
 		return SignWithDeadline(std::move(pTransaction), senderKeyPair, deadline);
@@ -116,7 +116,7 @@ namespace catapult { namespace test {
 		builders::SecretProofBuilder builder(Network_Identifier, senderKeyPair.publicKey());
 		builder.setHashAlgorithm(model::LockHashAlgorithm::Op_Sha3_256);
 		builder.setSecret(secret);
-		builder.setRecipient(recipientAddress);
+		builder.setRecipientAddress(recipientAddress);
 		builder.setProof(descriptor.Proof);
 		auto pTransaction = builder.build();
 

@@ -28,7 +28,7 @@ namespace catapult { namespace model {
 	/// Creates an address from an encoded address (\a encoded).
 	Address StringToAddress(const std::string& encoded);
 
-	/// Creates an encoded address from an \a address.
+	/// Creates an encoded address from \a address.
 	std::string AddressToString(const Address& address);
 
 	/// Creates an address from a public key (\a publicKey) for the network identified by \a networkIdentifier.

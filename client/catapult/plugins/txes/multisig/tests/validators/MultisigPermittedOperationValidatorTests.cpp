@@ -81,6 +81,6 @@ namespace catapult { namespace validators {
 		auto cache = CreateCacheWithSingleLevelMultisig(multisigAccountKey, { cosignatoryAccountKey });
 
 		// Assert:
-		AssertValidationResult(Failure_Multisig_Operation_Not_Permitted_By_Account, cache, multisigAccountKey);
+		AssertValidationResult(Failure_Multisig_Operation_Prohibited_By_Account, cache, multisigAccountKey);
 	}
 }}

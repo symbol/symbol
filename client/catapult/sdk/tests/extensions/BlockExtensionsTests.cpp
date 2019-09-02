@@ -26,6 +26,7 @@
 #include "catapult/utils/HexParser.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/mocks/MockTransactionPluginWithCustomBuffers.h"
+#include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/nodeps/TestConstants.h"
 #include "tests/TestHarness.h"
 
@@ -163,7 +164,7 @@ namespace catapult { namespace extensions {
 		void AssertBlockTransactionsHashCalculation(THashCalculator blockTransactionsHashCalculator) {
 			// Arrange: generate a random block and calculate the expected block transactions hash
 			auto pBlock = GenerateBlockWithTransactions();
-			pBlock->BlockTransactionsHash = Hash256();
+			pBlock->TransactionsHash = Hash256();
 			auto expectedBlockTransactionsHash = TTraits::CalculateExpectedBlockTransactionsHash(*pBlock);
 
 			// Act: calculate the actual block transactions hash
@@ -182,7 +183,7 @@ namespace catapult { namespace extensions {
 			AssertBlockTransactionsHashCalculation<TTraits>([&extensions](auto& block) {
 				// Act:
 				extensions.updateBlockTransactionsHash(block);
-				return block.BlockTransactionsHash;
+				return block.TransactionsHash;
 			});
 		});
 	}
@@ -197,7 +198,7 @@ namespace catapult { namespace extensions {
 				extensions.calculateBlockTransactionsHash(block, blockTransactionsHash);
 
 				// Sanity: the block wasn't modified
-				EXPECT_EQ(Hash256(), block.BlockTransactionsHash);
+				EXPECT_EQ(Hash256(), block.TransactionsHash);
 				return blockTransactionsHash;
 			});
 		});
@@ -214,7 +215,7 @@ namespace catapult { namespace extensions {
 			auto signer = test::GenerateKeyPair();
 			auto pBlock = CreateValidBlock<TTraits>(signer);
 			pBlock->Signature = {};
-			pBlock->BlockTransactionsHash = {};
+			pBlock->TransactionsHash = {};
 
 			// Sanity: the block does not verify
 			EXPECT_NE(VerifyFullBlockResult::Success, extensions.verifyFullBlock(*pBlock));
@@ -225,7 +226,7 @@ namespace catapult { namespace extensions {
 
 			// Assert: fields have been updated and it is verifiable
 			EXPECT_NE(Signature(), pBlock->Signature);
-			EXPECT_NE(Hash256(), pBlock->BlockTransactionsHash);
+			EXPECT_NE(Hash256(), pBlock->TransactionsHash);
 			EXPECT_EQ(VerifyFullBlockResult::Success, result);
 		});
 	}
@@ -285,7 +286,7 @@ namespace catapult { namespace extensions {
 		TTraits::RunExtensionsTest([](const auto& extensions) {
 			auto signer = test::GenerateKeyPair();
 			auto pBlock = CreateValidBlock<TTraits>(signer);
-			pBlock->BlockTransactionsHash[0] ^= 0xFF;
+			pBlock->TransactionsHash[0] ^= 0xFF;
 			model::SignBlockHeader(signer, *pBlock); // fix block signature
 
 			// Act:

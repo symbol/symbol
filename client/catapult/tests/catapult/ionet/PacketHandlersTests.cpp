@@ -36,8 +36,7 @@ namespace catapult { namespace ionet {
 
 		// marker is split up so that each nibble corresponds to a registered handler (the rightmost marker nibble
 		// corresponds to the last handler)
-		// if a handler is called, its corresponding nibble is set to the 1-based call index (so call order can be
-		// verified too)
+		// if a handler is called, its corresponding nibble is set to the 1-based call index (so call order can be verified too)
 		void RegisterHandlers(PacketHandlers& handlers, const std::vector<uint32_t>& types, uint32_t& marker) {
 			if (types.size() > sizeof(marker) * 2)
 				CATAPULT_THROW_RUNTIME_ERROR_1("marker is too small for requested number of handlers", marker);
@@ -55,17 +54,17 @@ namespace catapult { namespace ionet {
 			}
 		}
 
-		ServerPacketHandlerContext CreateDefaultContext() {
-			return ServerPacketHandlerContext({}, "");
+		ServerPacketHandlerContext CreateDefaultContext(const std::string& host = "") {
+			return ServerPacketHandlerContext({}, host);
 		}
 
-		size_t ProcessPacket(PacketHandlers& handlers, uint32_t type) {
+		bool ProcessPacket(const PacketHandlers& handlers, uint32_t type, const std::string& host = "") {
 			// Arrange:
 			Packet packet;
 			packet.Type = static_cast<PacketType>(type);
 
 			// Act:
-			auto context = CreateDefaultContext();
+			auto context = CreateDefaultContext(host);
 			return handlers.process(packet, context);
 		}
 	}
@@ -169,6 +168,17 @@ namespace catapult { namespace ionet {
 		EXPECT_EQ(45'987u, handlers.maxPacketDataSize());
 	}
 
+	TEST(TEST_CLASS, PacketHandlerForZeroTypeIsNotInitiallyRegistered) {
+		// Act:
+		Packet packet;
+		packet.Type = static_cast<PacketType>(0);
+		PacketHandlers handlers;
+
+		// Assert:
+		EXPECT_EQ(0u, handlers.size());
+		EXPECT_FALSE(handlers.canProcess(packet));
+	}
+
 	// endregion
 
 	// region registerHandler
@@ -200,6 +210,20 @@ namespace catapult { namespace ionet {
 
 		// Act + Assert:
 		EXPECT_THROW(RegisterHandler(handlers, 1), catapult_runtime_error);
+	}
+
+	TEST(TEST_CLASS, CanAddHandlerForZeroType) {
+		// Arrange:
+		Packet packet;
+		packet.Type = static_cast<PacketType>(0);
+		PacketHandlers handlers;
+
+		// Act:
+		RegisterHandler(handlers, 0);
+
+		// Assert:
+		EXPECT_EQ(1u, handlers.size());
+		EXPECT_TRUE(handlers.canProcess(packet));
 	}
 
 	// endregion
@@ -272,30 +296,7 @@ namespace catapult { namespace ionet {
 
 	// endregion
 
-	TEST(TEST_CLASS, PacketHandlerForZeroTypeIsNotInitiallyRegistered) {
-		// Act:
-		Packet packet;
-		packet.Type = static_cast<PacketType>(0);
-		PacketHandlers handlers;
-
-		// Assert:
-		EXPECT_EQ(0u, handlers.size());
-		EXPECT_FALSE(handlers.canProcess(packet));
-	}
-
-	TEST(TEST_CLASS, CanAddHandlerForZeroType) {
-		// Arrange:
-		Packet packet;
-		packet.Type = static_cast<PacketType>(0);
-		PacketHandlers handlers;
-
-		// Act:
-		RegisterHandler(handlers, 0);
-
-		// Assert:
-		EXPECT_EQ(1u, handlers.size());
-		EXPECT_TRUE(handlers.canProcess(packet));
-	}
+	// region process
 
 	namespace {
 		void AssertNoMatchingHandlers(uint32_t type) {
@@ -379,4 +380,74 @@ namespace catapult { namespace ionet {
 		EXPECT_EQ(1u, numCallbackCalls);
 		EXPECT_EQ(static_cast<PacketType>(0xFB), handlerContext.response().header().Type);
 	}
+
+	// endregion
+
+	// region process + setAllowedHosts
+
+	namespace {
+		void AssertNoHostFiltering(const PacketHandlers& handlers, uint32_t type) {
+			// Sanity:
+			EXPECT_TRUE(handlers.canProcess(static_cast<PacketType>(type))) << type;
+
+			// Act + Assert:
+			for (auto host : { "", "nem", "nem.ninja", "FOO.BAR", "PREnem.ninja", "nem.ninjaPOST", "PREnem.ninjaPOST" })
+				EXPECT_TRUE(ProcessPacket(handlers, type, host)) << "type = " << type << ", host = " << host;
+		}
+
+		void AssertHostFiltering(const PacketHandlers& handlers, uint32_t type) {
+			// Sanity:
+			EXPECT_TRUE(handlers.canProcess(static_cast<PacketType>(type))) << type;
+
+			// Act + Assert:
+			for (auto host : { "nem.ninja", "FOO.BAR" })
+				EXPECT_TRUE(ProcessPacket(handlers, type, host)) << "type = " << type << ", host = " << host;
+
+			for (auto host : { "", "nem", "PREnem.ninja", "nem.ninjaPOST", "PREnem.ninjaPOST" })
+				EXPECT_FALSE(ProcessPacket(handlers, type, host)) << "type = " << type << ", host = " << host;
+		}
+	}
+
+	TEST(TEST_CLASS, HostFiltering_InitiallyAllHostsAreAllowed) {
+		// Arrange:
+		auto marker = 0u;
+		PacketHandlers handlers;
+		RegisterHandlers(handlers, { 1, 3, 5 }, marker);
+
+		// Act + Assert:
+		for (auto type : { 1u, 3u, 5u })
+			AssertNoHostFiltering(handlers, type);
+	}
+
+	TEST(TEST_CLASS, HostFiltering_CanBeSetToArbitraryHosts) {
+		// Arrange:
+		auto marker = 0u;
+		PacketHandlers handlers;
+		handlers.setAllowedHosts({ "nem.ninja", "FOO.BAR" });
+		RegisterHandlers(handlers, { 1, 3, 5 }, marker);
+
+		// Act + Assert:
+		for (auto type : { 1u, 3u, 5u })
+			AssertHostFiltering(handlers, type);
+	}
+
+	TEST(TEST_CLASS, HostFiltering_CanBeCleared) {
+		// Arrange:
+		auto marker = 0u;
+		PacketHandlers handlers;
+		handlers.setAllowedHosts({ "nem.ninja", "FOO.BAR" });
+		RegisterHandlers(handlers, { 1, 3, 5 }, marker);
+
+		handlers.setAllowedHosts({});
+		RegisterHandlers(handlers, { 2, 4, 6 }, marker);
+
+		// Act + Assert:
+		for (auto type : { 1u, 3u, 5u })
+			AssertHostFiltering(handlers, type);
+
+		for (auto type : { 2u, 4u, 6u })
+			AssertNoHostFiltering(handlers, type);
+	}
+
+	// endregion
 }}

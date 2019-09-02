@@ -20,6 +20,7 @@
 
 #include "src/storages/MongoMosaicCacheStorage.h"
 #include "mongo/src/mappers/MapperUtils.h"
+#include "catapult/model/Address.h"
 #include "mongo/tests/test/MongoFlatCacheStorageTests.h"
 #include "mongo/tests/test/MongoTestUtils.h"
 #include "plugins/txes/mosaic/tests/test/MosaicCacheTestUtils.h"
@@ -72,11 +73,12 @@ namespace catapult { namespace mongo { namespace plugins {
 			}
 
 			static auto GetFindFilter(const ModelType& mosaicEntry) {
-				return document() << "mosaic.mosaicId" << mappers::ToInt64(mosaicEntry.mosaicId()) << finalize;
+				return document() << "mosaic.id" << mappers::ToInt64(mosaicEntry.mosaicId()) << finalize;
 			}
 
 			static void AssertEqual(const ModelType& mosaicEntry, const bsoncxx::document::view& view) {
-				test::AssertEqualMosaicData(mosaicEntry, view["mosaic"].get_document().view());
+				auto ownerAddress = model::PublicKeyToAddress(mosaicEntry.definition().ownerPublicKey(), Network_Id);
+				test::AssertEqualMosaicData(mosaicEntry, ownerAddress, view["mosaic"].get_document().view());
 			}
 		};
 	}

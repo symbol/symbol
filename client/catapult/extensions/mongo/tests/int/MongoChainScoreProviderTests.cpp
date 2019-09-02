@@ -20,7 +20,7 @@
 
 #include "mongo/src/MongoChainScoreProvider.h"
 #include "mongo/src/MongoBulkWriter.h"
-#include "mongo/src/MongoChainInfoUtils.h"
+#include "mongo/src/MongoChainStatisticUtils.h"
 #include "catapult/model/ChainScore.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/MongoTestUtils.h"
@@ -61,13 +61,14 @@ namespace catapult { namespace mongo {
 			auto connection = test::CreateDbConnection();
 			auto database = connection[test::DatabaseName()];
 
-			auto cursor = database["chainInfo"].find({});
+			auto cursor = database["chainStatistic"].find({});
 			ASSERT_EQ(1, std::distance(cursor.begin(), cursor.end()));
 
-			auto matchedDocument = database["chainInfo"].find_one({}).get();
+			auto matchedDocument = database["chainStatistic"].find_one({}).get();
+			auto currentView = matchedDocument.view()["current"].get_document().view();
 
-			auto scoreLow = test::GetUint64(matchedDocument.view(), "scoreLow");
-			auto scoreHigh = test::GetUint64(matchedDocument.view(), "scoreHigh");
+			auto scoreLow = test::GetUint64(currentView, "scoreLow");
+			auto scoreHigh = test::GetUint64(currentView, "scoreHigh");
 			EXPECT_EQ(expectedScore, model::ChainScore(scoreHigh, scoreLow));
 		}
 	}
@@ -117,15 +118,20 @@ namespace catapult { namespace mongo {
 		// - set the height
 		auto connection = test::CreateDbConnection();
 		auto database = connection[test::DatabaseName()];
-		auto heightDocument = document() << "$set" << open_document << "height" << static_cast<int64_t>(123) << close_document << finalize;
-		TrySetChainInfoDocument(database, heightDocument.view());
+		auto heightDocument = document()
+				<< "$set" << open_document
+					<< "current.height" << static_cast<int64_t>(123)
+				<< close_document
+				<< finalize;
+		TrySetChainStatisticDocument(database, heightDocument.view());
 
 		// Act:
 		context.chainScoreProvider().saveScore(score);
 
 		// Assert: the height is unchanged
-		auto chainInfoDocument = GetChainInfoDocument(database);
-		EXPECT_EQ(4u, test::GetFieldCount(chainInfoDocument.view()));
-		EXPECT_EQ(123u, test::GetUint64(chainInfoDocument.view(), "height"));
+		auto chainStatisticDocument = GetChainStatisticDocument(database);
+		auto currentView = chainStatisticDocument.view()["current"].get_document().view();
+		EXPECT_EQ(3u, test::GetFieldCount(currentView));
+		EXPECT_EQ(123u, test::GetUint64(currentView, "height"));
 	}
 }}

@@ -19,6 +19,7 @@
 **/
 
 #include "src/observers/Observers.h"
+#include "tests/test/core/NotificationTestUtils.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -32,7 +33,7 @@ namespace catapult { namespace observers {
 		constexpr size_t Current_Height = 10;
 
 		model::BlockNotification CreateBlockNotification(uint32_t numTransactions) {
-			auto notification = model::BlockNotification(Key(), Key(), Timestamp(), Difficulty());
+			auto notification = test::CreateBlockNotification();
 			notification.NumTransactions = numTransactions;
 			return notification;
 		}

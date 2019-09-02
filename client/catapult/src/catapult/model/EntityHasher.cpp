@@ -39,7 +39,7 @@ namespace catapult { namespace model {
 			sha3.update({ entity.Signature.data(), Signature::Size / 2 });
 
 			// public key is added here to match Sign/Verify behavior, which explicitly hashes it
-			sha3.update(entity.Signer);
+			sha3.update(entity.SignerPublicKey);
 
 			if (pGenerationHash)
 				sha3.update(*pGenerationHash);

@@ -37,7 +37,7 @@ namespace catapult { namespace extensions {
 		Invalid_Block_Transactions_Hash,
 
 		/// A transaction signature is invalid.
-		Invalid_Transaction_Signature,
+		Invalid_Transaction_Signature
 	};
 
 	/// Extensions for working with blocks.

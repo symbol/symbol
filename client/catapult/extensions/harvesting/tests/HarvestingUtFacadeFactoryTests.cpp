@@ -35,6 +35,7 @@ namespace catapult { namespace harvesting {
 
 		constexpr auto Default_Height = Height(17);
 		constexpr auto Default_Time = Timestamp(987);
+		constexpr auto Default_Last_Recalculation_Height = model::ImportanceHeight(1234);
 
 		constexpr auto Currency_Mosaic_Id = MosaicId(1234);
 		constexpr auto Harvesting_Mosaic_Id = MosaicId(9876);
@@ -52,8 +53,8 @@ namespace catapult { namespace harvesting {
 		auto CreateBlockChainConfiguration(StateVerifyOptions verifyOptions = StateVerifyOptions::None) {
 			auto config = model::BlockChainConfiguration::Uninitialized();
 			config.Network.Identifier = model::NetworkIdentifier::Mijin_Test;
-			config.ShouldEnableVerifiableState = HasFlag(StateVerifyOptions::State, verifyOptions);
-			config.ShouldEnableVerifiableReceipts = HasFlag(StateVerifyOptions::Receipts, verifyOptions);
+			config.EnableVerifiableState = HasFlag(StateVerifyOptions::State, verifyOptions);
+			config.EnableVerifiableReceipts = HasFlag(StateVerifyOptions::Receipts, verifyOptions);
 			config.CurrencyMosaicId = Currency_Mosaic_Id;
 			config.HarvestingMosaicId = Harvesting_Mosaic_Id;
 			config.ImportanceGrouping = 4;
@@ -67,10 +68,18 @@ namespace catapult { namespace harvesting {
 
 		// region RunUtFacadeTest / AssertEmpty
 
+		void SetDependentState(cache::CatapultCache& catapultCache) {
+			auto delta = catapultCache.createDelta();
+			delta.dependentState().LastRecalculationHeight = Default_Last_Recalculation_Height;
+			catapultCache.commit(Default_Height);
+		}
+
 		template<typename TAction>
 		void RunUtFacadeTest(TAction action) {
 			// Arrange: create factory and facade
 			auto catapultCache = test::CreateCatapultCacheWithMarkerAccount(Default_Height);
+			SetDependentState(catapultCache);
+
 			test::MockExecutionConfiguration executionConfig;
 			HarvestingUtFacadeFactory factory(catapultCache, CreateBlockChainConfiguration(), executionConfig.Config);
 
@@ -92,6 +101,8 @@ namespace catapult { namespace harvesting {
 
 			// - create factory and facade
 			auto catapultCache = test::CreateCatapultCacheWithMarkerAccount(Default_Height);
+			SetDependentState(catapultCache);
+
 			test::MockExecutionConfiguration executionConfig;
 			HarvestingUtFacadeFactory factory(catapultCache, CreateBlockChainConfiguration(), executionConfig.Config);
 
@@ -131,11 +142,11 @@ namespace catapult { namespace harvesting {
 
 		void AssertValidatorContexts(
 				const test::MockExecutionConfiguration& executionConfig,
-				const std::vector<size_t>& expectedNumDifficultyInfos) {
+				const std::vector<size_t>& expectedNumStatistics) {
 			// Assert:
 			test::MockExecutionConfiguration::AssertValidatorContexts(
 					*executionConfig.pValidator,
-					expectedNumDifficultyInfos,
+					expectedNumStatistics,
 					Default_Height + Height(1),
 					Default_Time);
 		}
@@ -150,7 +161,7 @@ namespace catapult { namespace harvesting {
 					*executionConfig.pObserver,
 					0,
 					Default_Height + Height(1),
-					model::ImportanceHeight(16),
+					Default_Last_Recalculation_Height,
 					[&rollbackIndexes](auto i) { return rollbackIndexes.cend() != rollbackIndexes.find(i); });
 		}
 
@@ -379,7 +390,7 @@ namespace catapult { namespace harvesting {
 			pBlockHeader->Size = sizeof(model::BlockHeader);
 			pBlockHeader->Height = height;
 			pBlockHeader->FeeMultiplier = BlockFeeMultiplier();
-			pBlockHeader->BlockReceiptsHash = Hash256();
+			pBlockHeader->ReceiptsHash = Hash256();
 			pBlockHeader->StateHash = Hash256();
 			return pBlockHeader;
 		}
@@ -555,7 +566,7 @@ namespace catapult { namespace harvesting {
 
 			void prepareTransactionSignerAccounts(const std::vector<model::TransactionInfo>& transactionInfos) {
 				for (const auto& transactionInfo : transactionInfos)
-					prepareSignerAccount(transactionInfo.pEntity->Signer);
+					prepareSignerAccount(transactionInfo.pEntity->SignerPublicKey);
 			}
 
 			void setCacheHeight(Height height) {
@@ -629,7 +640,8 @@ namespace catapult { namespace harvesting {
 
 		Hash256 CalculateEnabledTestStateHash(
 				const cache::CatapultCache& cache,
-				const std::vector<model::TransactionInfo>& transactionInfos) {
+				const std::vector<model::TransactionInfo>& transactionInfos,
+				const std::vector<size_t>& indexToMultiplierMap = {}) {
 			auto cacheDetachableDelta = cache.createDetachableDelta();
 			auto cacheDetachedDelta = cacheDetachableDelta.detach();
 			auto pCacheDelta = cacheDetachedDelta.tryLock();
@@ -637,11 +649,12 @@ namespace catapult { namespace harvesting {
 			auto i = 1u;
 			for (auto& transactionInfo : transactionInfos) {
 				auto& accountStateCacheDelta = pCacheDelta->sub<cache::AccountStateCache>();
-				auto accountStateIter = accountStateCacheDelta.find(transactionInfo.pEntity->Signer);
+				auto accountStateIter = accountStateCacheDelta.find(transactionInfo.pEntity->SignerPublicKey);
 				auto& accountState = accountStateIter.get();
 
 				// apply fee surplus to balance and fees paid
-				auto surplus = Amount(i * transactionInfo.pEntity->Size);
+				auto multiplier = indexToMultiplierMap.empty() ? i : indexToMultiplierMap[i - 1];
+				auto surplus = Amount(multiplier * transactionInfo.pEntity->Size);
 				accountState.Balances.credit(Currency_Mosaic_Id, surplus);
 				accountState.ActivityBuckets.tryUpdate(accountState.ImportanceSnapshots.height(), [surplus](auto& bucket) {
 					bucket.TotalFeesPaid = bucket.TotalFeesPaid - surplus;
@@ -662,7 +675,7 @@ namespace catapult { namespace harvesting {
 
 			auto pBlockHeader = CreateBlockHeaderWithHeight(Default_Height + Height(1));
 			pBlockHeader->FeeMultiplier = BlockFeeMultiplier(1);
-			context.prepareSignerAccount(pBlockHeader->Signer);
+			context.prepareSignerAccount(pBlockHeader->SignerPublicKey);
 
 			auto transactionInfos = CreateTransactionInfosWithIncreasingMultipliers(numTransactions);
 			context.prepareTransactionSignerAccounts(transactionInfos);
@@ -683,7 +696,7 @@ namespace catapult { namespace harvesting {
 		// Act:
 		RunEnabledTest(StateVerifyOptions::None, 3, [](const auto&, const auto&, const auto& block) {
 			// Assert:
-			EXPECT_EQ(Hash256(), block.BlockReceiptsHash);
+			EXPECT_EQ(Hash256(), block.ReceiptsHash);
 			EXPECT_EQ(Hash256(), block.StateHash);
 		});
 	}
@@ -695,7 +708,7 @@ namespace catapult { namespace harvesting {
 			EXPECT_NE(Hash256(), expectedReceiptsHash);
 
 			// Assert:
-			EXPECT_EQ(expectedReceiptsHash, block.BlockReceiptsHash);
+			EXPECT_EQ(expectedReceiptsHash, block.ReceiptsHash);
 			EXPECT_EQ(Hash256(), block.StateHash);
 		});
 	}
@@ -707,7 +720,7 @@ namespace catapult { namespace harvesting {
 			EXPECT_NE(Hash256(), expectedStateHash);
 
 			// Assert:
-			EXPECT_EQ(Hash256(), block.BlockReceiptsHash);
+			EXPECT_EQ(Hash256(), block.ReceiptsHash);
 			EXPECT_EQ(expectedStateHash, block.StateHash);
 		});
 	}
@@ -720,7 +733,7 @@ namespace catapult { namespace harvesting {
 			EXPECT_NE(Hash256(), expectedStateHash);
 
 			// Assert:
-			EXPECT_EQ(expectedReceiptsHash, block.BlockReceiptsHash);
+			EXPECT_EQ(expectedReceiptsHash, block.ReceiptsHash);
 			EXPECT_EQ(expectedStateHash, block.StateHash);
 		});
 	}
@@ -741,7 +754,7 @@ namespace catapult { namespace harvesting {
 
 		auto pBlockHeader = CreateBlockHeaderWithHeight(Default_Height + Height(1));
 		pBlockHeader->FeeMultiplier = BlockFeeMultiplier(1);
-		context.prepareSignerAccount(pBlockHeader->Signer);
+		context.prepareSignerAccount(pBlockHeader->SignerPublicKey);
 
 		auto transactionInfos = CreateTransactionInfosWithIncreasingMultipliers(5);
 		context.prepareTransactionSignerAccounts(transactionInfos);
@@ -759,7 +772,49 @@ namespace catapult { namespace harvesting {
 		auto expectedReceiptsHash = CalculateEnabledTestReceiptsHash(2 * (3 + 1));
 		auto expectedStateHash = CalculateEnabledTestStateHash(context.cache(), expectedTransactionInfos);
 
-		EXPECT_EQ(expectedReceiptsHash, pBlock->BlockReceiptsHash);
+		EXPECT_EQ(expectedReceiptsHash, pBlock->ReceiptsHash);
+		EXPECT_EQ(expectedStateHash, pBlock->StateHash);
+	}
+
+	TEST(TEST_CLASS, NonzeroHashesAreReturnedWhenVerifiableReceiptsAndStateAreEnabledAfterApplyOperationWithSomeFailures) {
+		// Arrange: prepare context
+		test::MockExecutionConfiguration executionConfig;
+		executionConfig.pObserver->enableReceiptGeneration();
+		executionConfig.pObserver->enableRollbackEmulation();
+		FacadeTestContext context(
+				CreateBlockChainConfiguration(StateVerifyOptions::All),
+				executionConfig.Config,
+				Default_Height + Height(1));
+
+		auto pBlockHeader = CreateBlockHeaderWithHeight(Default_Height + Height(1));
+		pBlockHeader->FeeMultiplier = BlockFeeMultiplier(1);
+		context.prepareSignerAccount(pBlockHeader->SignerPublicKey);
+
+		auto transactionInfos = CreateTransactionInfosWithIncreasingMultipliers(5);
+		context.prepareTransactionSignerAccounts(transactionInfos);
+
+		// - mark two failures (triggers are intentionally different to maximize coverage)
+		executionConfig.pValidator->setResult(validators::ValidationResult::Failure, transactionInfos[1].EntityHash, 2);
+		executionConfig.pValidator->setResult(validators::ValidationResult::Failure, transactionInfos[3].EntityHash, 1);
+
+		// Act: apply 5 transactions with two failures (but no undos)
+		auto pBlock = context.generate(*pBlockHeader, transactionInfos, 0);
+
+		// Assert: check the block execution dependent hashes
+		ASSERT_TRUE(!!pBlock);
+
+		std::vector<model::TransactionInfo> expectedTransactionInfos;
+		for (auto i : { 0u, 2u, 4u })
+			expectedTransactionInfos.push_back(transactionInfos[i].copy());
+
+		auto expectedReceiptsHash = CalculateEnabledTestReceiptsHash(2 * (3 + 1));
+		auto expectedStateHash = CalculateEnabledTestStateHash(context.cache(), expectedTransactionInfos, {
+			// multipliers are configured as `index + 1`, but there are gaps because transactions at indexes 1 and 3 were dropped
+			// remaining transactions have initial indexes of { 0, 2, 4 }, which implies multipliers of { 1, 3, 5 }
+			1, 3, 5
+		});
+
+		EXPECT_EQ(expectedReceiptsHash, pBlock->ReceiptsHash);
 		EXPECT_EQ(expectedStateHash, pBlock->StateHash);
 	}
 

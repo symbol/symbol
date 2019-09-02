@@ -118,7 +118,6 @@ namespace catapult { namespace chain {
 			// Assert:
 			for (const auto& context : contexts) {
 				EXPECT_EQ(&state.Cache, &context.Cache);
-				EXPECT_EQ(&state.State, &context.State);
 				EXPECT_EQ(height, context.Height);
 				EXPECT_EQ(mode, context.Mode);
 
@@ -142,8 +141,7 @@ namespace catapult { namespace chain {
 		auto pBlock = test::GenerateBlockWithTransactions(0, Height(10));
 		SetVersions(*pBlock, 22);
 
-		state::CatapultState catapultState;
-		observers::ObserverState state(delta, catapultState);
+		observers::ObserverState state(delta);
 
 		// Act:
 		TTraits::ProcessBlock(*pBlock, observer, state);
@@ -164,8 +162,7 @@ namespace catapult { namespace chain {
 		auto pBlock = test::GenerateBlockWithTransactions(7, Height(10));
 		SetVersions(*pBlock, 22);
 
-		state::CatapultState catapultState;
-		observers::ObserverState state(delta, catapultState);
+		observers::ObserverState state(delta);
 
 		// Act:
 		TTraits::ProcessBlock(*pBlock, observer, state);
@@ -185,8 +182,7 @@ namespace catapult { namespace chain {
 		mocks::MockEntityObserver observer;
 		auto pBlock = test::GenerateBlockWithTransactions(7, Height(10));
 
-		state::CatapultState catapultState;
-		observers::ObserverState state(delta, catapultState);
+		observers::ObserverState state(delta);
 
 		// Act:
 		TTraits::ProcessBlock(*pBlock, observer, state);
@@ -207,8 +203,7 @@ namespace catapult { namespace chain {
 		SetVersions(*pBlock1, 22);
 		SetVersions(*pBlock2, 79);
 
-		state::CatapultState catapultState;
-		observers::ObserverState state(delta, catapultState);
+		observers::ObserverState state(delta);
 
 		// Act:
 		TTraits::ProcessBlock(*pBlock1, observer, state);
@@ -237,8 +232,7 @@ namespace catapult { namespace chain {
 
 		{
 			auto delta = cache.createDelta();
-			state::CatapultState catapultState;
-			observers::ObserverState state(delta, catapultState);
+			observers::ObserverState state(delta);
 
 			// - add three accounts and queue a removal
 			Address address{ { 2 } };

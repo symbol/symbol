@@ -66,11 +66,11 @@ namespace catapult { namespace plugins {
 				const auto& aggregate = CastToDerivedType(transactionInfo.entity());
 
 				// publish aggregate notifications
-				// (notice that this must be raised before embedded transaction notifications in order for cosigner aggregation to work)
+				// (notice that this must be raised before embedded transaction notifications in order for cosignatory aggregation to work)
 				auto numCosignatures = aggregate.CosignaturesCount();
 				auto numTransactions = std::distance(aggregate.Transactions().cbegin(), aggregate.Transactions().cend());
 				sub.notify(AggregateCosignaturesNotification(
-						aggregate.Signer,
+						aggregate.SignerPublicKey,
 						static_cast<uint32_t>(numTransactions),
 						aggregate.TransactionsPtr(),
 						numCosignatures,
@@ -95,7 +95,7 @@ namespace catapult { namespace plugins {
 
 					// - generic sub-transaction notification
 					sub.notify(AggregateEmbeddedTransactionNotification(
-							aggregate.Signer,
+							aggregate.SignerPublicKey,
 							subTransaction,
 							numCosignatures,
 							aggregate.CosignaturesPtr()));
@@ -105,13 +105,13 @@ namespace catapult { namespace plugins {
 					plugin.publish(subTransaction, sub);
 				}
 
-				// publish all cosigner information (as an optimization these are published with the source of the last sub-transaction)
+				// publish all cosignatory information (as an optimization these are published with the source of the last sub-transaction)
 				const auto* pCosignature = aggregate.CosignaturesPtr();
 				for (auto i = 0u; i < numCosignatures; ++i) {
-					// - notice that all valid cosigners must have been observed previously as part of either
+					// - notice that all valid cosignatories must have been observed previously as part of either
 					//   (1) sub-transaction execution or (2) composite account setup
-					// - require the cosigners to sign the aggregate indirectly via the hash of its data
-					sub.notify(SignatureNotification(pCosignature->Signer, pCosignature->Signature, transactionInfo.hash()));
+					// - require the cosignatories to sign the aggregate indirectly via the hash of its data
+					sub.notify(SignatureNotification(pCosignature->SignerPublicKey, pCosignature->Signature, transactionInfo.hash()));
 					++pCosignature;
 				}
 			}
@@ -133,7 +133,7 @@ namespace catapult { namespace plugins {
 				auto numCosignatures = aggregate.CosignaturesCount();
 				const auto* pCosignature = aggregate.CosignaturesPtr();
 				for (auto i = 0u; i < numCosignatures; ++i) {
-					buffers.push_back(pCosignature->Signer);
+					buffers.push_back(pCosignature->SignerPublicKey);
 					++pCosignature;
 				}
 

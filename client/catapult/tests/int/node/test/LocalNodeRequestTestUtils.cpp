@@ -23,7 +23,7 @@
 #include "plugins/txes/mosaic/src/plugins/MosaicDefinitionTransactionPlugin.h"
 #include "plugins/txes/mosaic/src/plugins/MosaicSupplyChangeTransactionPlugin.h"
 #include "plugins/txes/namespace/src/plugins/MosaicAliasTransactionPlugin.h"
-#include "plugins/txes/namespace/src/plugins/RegisterNamespaceTransactionPlugin.h"
+#include "plugins/txes/namespace/src/plugins/NamespaceRegistrationTransactionPlugin.h"
 #include "plugins/txes/transfer/src/plugins/TransferTransactionPlugin.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/local/RealTransactionFactory.h"
@@ -37,7 +37,7 @@ namespace catapult { namespace test {
 		registry.registerPlugin(plugins::CreateMosaicDefinitionTransactionPlugin(plugins::MosaicRentalFeeConfiguration()));
 		registry.registerPlugin(plugins::CreateMosaicSupplyChangeTransactionPlugin());
 		registry.registerPlugin(plugins::CreateMosaicAliasTransactionPlugin());
-		registry.registerPlugin(plugins::CreateRegisterNamespaceTransactionPlugin(plugins::NamespaceRentalFeeConfiguration()));
+		registry.registerPlugin(plugins::CreateNamespaceRegistrationTransactionPlugin(plugins::NamespaceRentalFeeConfiguration()));
 		registry.registerPlugin(plugins::CreateTransferTransactionPlugin());
 		return registry;
 	}

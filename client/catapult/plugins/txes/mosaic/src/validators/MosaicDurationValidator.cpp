@@ -30,21 +30,25 @@ namespace catapult { namespace validators {
 		return MAKE_STATEFUL_VALIDATOR(MosaicDuration, [maxMosaicDuration](
 				const Notification& notification,
 				const ValidatorContext& context) {
-			const auto& cache = context.Cache.sub<cache::MosaicCache>();
+			// skip this validator is there is no duration change
+			if (BlockDuration() == notification.Properties.duration())
+				return ValidationResult::Success;
 
 			// always allow a new mosaic (MosaicPropertiesValidator checks for valid duration in this case)
+			const auto& cache = context.Cache.sub<cache::MosaicCache>();
 			auto mosaicIter = cache.find(notification.MosaicId);
 			if (!mosaicIter.tryGet())
 				return ValidationResult::Success;
 
 			const auto& entry = mosaicIter.get();
 			auto currentDuration = entry.definition().properties().duration();
-			auto delta = notification.Properties.duration();
-			auto resultingDuration = currentDuration + delta;
-			auto isIncompatibleChange =
-					(BlockDuration() == currentDuration && BlockDuration() != delta) ||
-					(BlockDuration() != currentDuration && BlockDuration() == delta);
-			return isIncompatibleChange || maxMosaicDuration < resultingDuration || resultingDuration < currentDuration
+
+			// cannot change eternal durations
+			if (BlockDuration() == currentDuration)
+				return Failure_Mosaic_Invalid_Duration;
+
+			auto resultingDuration = currentDuration + notification.Properties.duration();
+			return maxMosaicDuration < resultingDuration || resultingDuration < currentDuration
 					? Failure_Mosaic_Invalid_Duration
 					: ValidationResult::Success;
 		});

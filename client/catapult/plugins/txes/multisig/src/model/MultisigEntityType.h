@@ -26,8 +26,8 @@ namespace catapult { namespace model {
 
 #endif
 
-	/// Modify multisig account transaction.
-	DEFINE_TRANSACTION_TYPE(Multisig, Modify_Multisig_Account, 0x1);
+	/// Multisig account modification transaction.
+	DEFINE_TRANSACTION_TYPE(Multisig, Multisig_Account_Modification, 0x1);
 
 #ifndef CUSTOM_ENTITY_TYPE_DEFINITION
 }}

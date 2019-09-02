@@ -58,11 +58,15 @@ namespace catapult { namespace state {
 		using OrderedChildPaths = std::set<Namespace::Path, PathsComparator>;
 
 	public:
-		/// Creates a root namespace around \a id, \a owner and \a liftime.
-		RootNamespace(NamespaceId id, const Key& owner, const NamespaceLifetime& lifetime);
+		/// Creates a root namespace around \a id, \a ownerPublicKey and \a liftime.
+		RootNamespace(NamespaceId id, const Key& ownerPublicKey, const NamespaceLifetime& lifetime);
 
-		/// Creates a root namespace around \a id, \a owner, \a liftime and \a pChildren.
-		RootNamespace(NamespaceId id, const Key& owner, const NamespaceLifetime& lifetime, const std::shared_ptr<Children>& pChildren);
+		/// Creates a root namespace around \a id, \a ownerPublicKey, \a liftime and \a pChildren.
+		RootNamespace(
+				NamespaceId id,
+				const Key& ownerPublicKey,
+				const NamespaceLifetime& lifetime,
+				const std::shared_ptr<Children>& pChildren);
 
 	public:
 		/// Gets the namespace id.
@@ -72,7 +76,7 @@ namespace catapult { namespace state {
 		const Children& children() const;
 
 		/// Gets a const reference to the owner of this namespace.
-		const Key& owner() const;
+		const Key& ownerPublicKey() const;
 
 		/// Gets a const reference to the lifetime of this namespace.
 		const NamespaceLifetime& lifetime() const;
@@ -99,7 +103,7 @@ namespace catapult { namespace state {
 		/// \note This method throws if the id is unknown.
 		void remove(NamespaceId id);
 
-		/// Sets an \a alias for root or child namespace \a id.
+		/// Sets \a alias for root or child namespace \a id.
 		void setAlias(NamespaceId id, const NamespaceAlias& alias);
 
 	public:
@@ -121,7 +125,7 @@ namespace catapult { namespace state {
 	private:
 		NamespaceId m_id;
 		NamespaceAlias m_alias; // root namespace alias
-		Key m_owner;
+		Key m_ownerPublicKey;
 		NamespaceLifetime m_lifetime;
 		std::shared_ptr<Children> m_pChildren;
 	};

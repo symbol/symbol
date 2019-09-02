@@ -36,11 +36,11 @@ namespace catapult { namespace local {
 			return extensions::ProcessBootstrapper(config, "", extensions::ProcessDisposition::Production, "bootstrapper");
 		}
 
-		auto CreateCatapultConfiguration(const std::string& bootKey, const std::string& host, const std::string& name) {
+		auto CreateCatapultConfiguration(const std::string& bootPrivateKey, const std::string& host, const std::string& name) {
 			test::MutableCatapultConfiguration config;
 			config.Node.Local.Host = host;
 			config.Node.Local.FriendlyName = name;
-			config.User.BootKey = bootKey;
+			config.User.BootPrivateKey = bootPrivateKey;
 			return config.ToConst();
 		}
 	}

@@ -28,9 +28,9 @@
 #include "catapult/ionet/NodeContainer.h"
 #include "catapult/thread/MultiServicePool.h"
 #include "catapult/utils/NetworkTime.h"
-#include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/core/SchedulerTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
+#include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/other/mocks/MockNodeSubscriber.h"
 #include "tests/test/other/mocks/MockStateChangeSubscriber.h"
 #include "tests/test/other/mocks/MockTransactionStatusSubscriber.h"
@@ -60,7 +60,6 @@ namespace catapult { namespace test {
 						m_config,
 						m_nodes,
 						m_catapultCache,
-						m_catapultState,
 						m_storage,
 						m_score,
 						*m_pUtCache,
@@ -114,7 +113,6 @@ namespace catapult { namespace test {
 		config::CatapultConfiguration m_config;
 		ionet::NodeContainer m_nodes;
 		cache::CatapultCache m_catapultCache;
-		state::CatapultState m_catapultState;
 		io::BlockStorageCache m_storage;
 		extensions::LocalNodeChainScore m_score;
 		std::unique_ptr<cache::MemoryUtCacheProxy> m_pUtCache;

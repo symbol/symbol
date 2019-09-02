@@ -37,7 +37,7 @@ namespace catapult { namespace plugins {
 			// don't raise AddressInteractionNotification between Signer and TargetAddress because mosaic owner always needs to
 			// be able to restrict or allow mosaic usage by *any* account
 
-			sub.notify(MosaicRequiredNotification(transaction.Signer, transaction.MosaicId, Mosaic_Flags_Restrictable));
+			sub.notify(MosaicRequiredNotification(transaction.SignerPublicKey, transaction.MosaicId, Mosaic_Flags_Restrictable));
 			sub.notify(MosaicRestrictionRequiredNotification(transaction.MosaicId, transaction.RestrictionKey));
 			sub.notify(MosaicAddressRestrictionModificationPreviousValueNotification(
 					transaction.MosaicId,

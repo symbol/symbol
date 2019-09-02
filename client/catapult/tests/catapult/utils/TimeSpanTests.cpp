@@ -116,7 +116,7 @@ namespace catapult { namespace utils {
 				{ "123001 ms", TimeSpan::FromMilliseconds(123001) },
 				{ "123000 s", TimeSpan::FromSeconds(123000) },
 				{ "123 m", TimeSpan::FromMinutes(123) },
-				{ "123 h", TimeSpan::FromHours(123) },
+				{ "123 h", TimeSpan::FromHours(123) }
 			};
 		}
 	}

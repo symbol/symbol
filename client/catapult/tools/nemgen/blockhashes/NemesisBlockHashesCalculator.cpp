@@ -43,9 +43,8 @@ namespace catapult { namespace tools { namespace nemgen {
 		auto cacheDetachableDelta = cache.createDetachableDelta();
 		auto cacheDetachedDelta = cacheDetachableDelta.detach();
 		auto pCacheDelta = cacheDetachedDelta.tryLock();
-		auto catapultState = state::CatapultState();
 		auto blockStatementBuilder = model::BlockStatementBuilder();
-		auto observerState = observers::ObserverState(*pCacheDelta, catapultState, blockStatementBuilder);
+		auto observerState = observers::ObserverState(*pCacheDelta, blockStatementBuilder);
 
 		// 4. prepare resolvers
 		auto readOnlyCache = pCacheDelta->toReadOnly();
@@ -53,11 +52,12 @@ namespace catapult { namespace tools { namespace nemgen {
 
 		// 5. execute block
 		chain::ExecuteBlock(blockElement, { entityObserver, resolverContext, observerState });
+		auto pBlockStatement = blockStatementBuilder.build();
 		auto cacheStateHashInfo = pCacheDelta->calculateStateHash(blockElement.Block.Height);
-		auto blockReceiptsHash = config.BlockChain.ShouldEnableVerifiableReceipts
-				? model::CalculateMerkleHash(*blockStatementBuilder.build())
+		auto blockReceiptsHash = config.BlockChain.EnableVerifiableReceipts
+				? model::CalculateMerkleHash(*pBlockStatement)
 				: Hash256();
 
-		return { blockReceiptsHash, cacheStateHashInfo.StateHash, cacheStateHashInfo.SubCacheMerkleRoots };
+		return { blockReceiptsHash, cacheStateHashInfo.StateHash, cacheStateHashInfo.SubCacheMerkleRoots, std::move(pBlockStatement) };
 	}
 }}}

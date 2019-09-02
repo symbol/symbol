@@ -56,7 +56,7 @@ namespace catapult { namespace utils {
 		Min = Trace,
 
 		/// Maximum log level.
-		Max = Fatal,
+		Max = Fatal
 	};
 
 	// endregion

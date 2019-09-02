@@ -34,7 +34,7 @@ namespace catapult { namespace model {
 		template<typename TTransaction>
 		void Publish(const TTransaction& transaction, NotificationSubscriber& sub) {
 			// raise a notification dependent on the transaction data
-			sub.notify(test::CreateBlockNotification(transaction.Signer));
+			sub.notify(test::CreateBlockNotification(transaction.SignerPublicKey));
 		}
 
 		template<TransactionPluginFactoryOptions Options>
@@ -86,10 +86,10 @@ namespace catapult { namespace model {
 		// Assert:
 		EXPECT_EQ(1u, sub.numNotifications());
 		ASSERT_EQ(1u, sub.numMatchingNotifications());
-		EXPECT_EQ(transaction.Signer, sub.matchingNotifications()[0].Signer);
+		EXPECT_EQ(transaction.SignerPublicKey, sub.matchingNotifications()[0].Signer);
 	}
 
-	TEST(TEST_CLASS, PluginExposesCustomAdditionalRequiredCosigners_OnlyEmbeddable) {
+	TEST(TEST_CLASS, PluginExposesCustomAdditionalRequiredCosignatories_OnlyEmbeddable) {
 		// Arrange:
 		auto pPlugin = OnlyEmbeddableEmbeddedTraits::CreatePlugin();
 
@@ -97,10 +97,10 @@ namespace catapult { namespace model {
 		test::FillWithRandomData(transaction);
 
 		// Act:
-		auto additionalCosigners = pPlugin->additionalRequiredCosigners(transaction);
+		auto additionalCosignatories = pPlugin->additionalRequiredCosignatories(transaction);
 
 		// Assert:
-		utils::KeySet expectedAdditionalCosigners{ Key{ { 1 } }, Key{ { 2 } }, transaction.Recipient };
-		EXPECT_EQ(expectedAdditionalCosigners, additionalCosigners);
+		utils::KeySet expectedAdditionalCosignatories{ Key{ { 1 } }, Key{ { 2 } }, transaction.RecipientPublicKey };
+		EXPECT_EQ(expectedAdditionalCosignatories, additionalCosignatories);
 	}
 }}

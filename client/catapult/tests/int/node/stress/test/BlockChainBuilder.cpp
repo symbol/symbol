@@ -102,7 +102,7 @@ namespace catapult { namespace test {
 		auto builder = BlockChainBuilder(*m_pAccounts, stateHashCalculator, m_config, "", true);
 		builder.m_pTailBlockElement = m_pTailBlockElement;
 		builder.m_pParentBlockElement = m_pTailBlockElement;
-		builder.m_difficulties = m_difficulties;
+		builder.m_statistics = m_statistics;
 		return builder;
 	}
 
@@ -111,7 +111,7 @@ namespace catapult { namespace test {
 		auto builder = BlockChainBuilder(*m_pAccounts, stateHashCalculator, m_config, "", true);
 		builder.m_pTailBlockElement = ToSharedBlockElement(m_pTailBlockElement->GenerationHash, block);
 		builder.m_pParentBlockElement = builder.m_pTailBlockElement;
-		builder.m_difficulties = m_difficulties;
+		builder.m_statistics = m_statistics;
 		return builder;
 	}
 
@@ -147,24 +147,25 @@ namespace catapult { namespace test {
 	}
 
 	void BlockChainBuilder::pushDifficulty(const model::Block& block) {
-		m_difficulties.insert(state::BlockDifficultyInfo(block.Height, block.Timestamp, block.Difficulty));
+		m_statistics.insert(state::BlockStatistic(block));
 
-		if (m_difficulties.size() > m_config.MaxDifficultyBlocks)
-			m_difficulties.erase(m_difficulties.cbegin());
+		if (m_statistics.size() > m_config.MaxDifficultyBlocks)
+			m_statistics.erase(m_statistics.cbegin());
 	}
 
 	std::unique_ptr<model::Block> BlockChainBuilder::createBlock(
 			const model::PreviousBlockContext& context,
 			Timestamp timestamp,
 			const model::Transactions& transactions) {
-		auto difficulty = chain::CalculateDifficulty(cache::DifficultyInfoRange(m_difficulties.cbegin(), m_difficulties.cend()), m_config);
+		auto difficulty = chain::CalculateDifficulty(cache::BlockStatisticRange(m_statistics.cbegin(), m_statistics.cend()), m_config);
 
 		auto signer = findBlockSigner(context, timestamp, difficulty);
 		auto pBlock = model::CreateBlock(context, Network_Identifier, signer.publicKey(), transactions);
 		pBlock->Timestamp = timestamp;
 		pBlock->Difficulty = difficulty;
+		pBlock->BeneficiaryPublicKey = Key{ { 1 } }; // burn beneficiary allotment so that it doesn't cause state changes
 
-		pBlock->BlockReceiptsHash = m_blockReceiptsHashCalculator(*pBlock);
+		pBlock->ReceiptsHash = m_blockReceiptsHashCalculator(*pBlock);
 		m_pStateHashCalculator->updateStateHash(*pBlock);
 		extensions::BlockExtensions(GetNemesisGenerationHash()).signFullBlock(signer, *pBlock);
 		return pBlock;
@@ -205,7 +206,7 @@ namespace catapult { namespace test {
 			const GenerationHash& parentGenerationHash,
 			const model::Block& block) {
 		auto pBlockElement = std::make_shared<model::BlockElement>(BlockToBlockElement(block, GetNemesisGenerationHash()));
-		pBlockElement->GenerationHash = model::CalculateGenerationHash(parentGenerationHash, block.Signer);
+		pBlockElement->GenerationHash = model::CalculateGenerationHash(parentGenerationHash, block.SignerPublicKey);
 		return std::move(pBlockElement);
 	}
 }}

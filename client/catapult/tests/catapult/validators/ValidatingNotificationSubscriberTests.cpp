@@ -104,4 +104,26 @@ namespace catapult { namespace validators {
 		EXPECT_EQ(MakeNotificationType(2), validator.notificationTypes()[1]);
 		EXPECT_EQ(MakeNotificationType(3), validator.notificationTypes()[2]);
 	}
+
+	TEST(TEST_CLASS, SubscriberRespectsNotificationTypeExclusionFilter) {
+		// Arrange:
+		MockNotificationValidator validator;
+		ValidatingNotificationSubscriber subscriber(validator);
+		subscriber.setExclusionFilter([](auto notificationType) {
+			return MakeNotificationType(2) == notificationType || MakeNotificationType(3) == notificationType;
+		});
+
+		// Act:
+		for (uint16_t i = 1; i <= 5; ++i)
+			subscriber.notify(test::CreateNotification(MakeNotificationType(i)));
+
+		auto result = subscriber.result();
+
+		// Assert:
+		EXPECT_EQ(ValidationResult::Success, result);
+		ASSERT_EQ(3u, validator.notificationTypes().size());
+		EXPECT_EQ(MakeNotificationType(1), validator.notificationTypes()[0]);
+		EXPECT_EQ(MakeNotificationType(4), validator.notificationTypes()[1]);
+		EXPECT_EQ(MakeNotificationType(5), validator.notificationTypes()[2]);
+	}
 }}

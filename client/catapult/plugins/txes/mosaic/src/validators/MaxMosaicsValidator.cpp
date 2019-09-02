@@ -61,7 +61,7 @@ namespace catapult { namespace validators {
 		return std::make_unique<ValidatorType>(name, [maxMosaics](
 				const model::MosaicSupplyChangeNotification& notification,
 				const ValidatorContext& context) {
-			if (model::MosaicSupplyChangeDirection::Decrease == notification.Direction)
+			if (model::MosaicSupplyChangeAction::Decrease == notification.Action)
 				return ValidationResult::Success;
 
 			return CheckAccount(maxMosaics, context.Resolvers.resolve(notification.MosaicId), notification.Signer, context);

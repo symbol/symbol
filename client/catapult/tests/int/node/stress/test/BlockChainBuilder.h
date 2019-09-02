@@ -23,7 +23,7 @@
 #include "StateHashCalculator.h"
 #include "TransactionsGenerator.h"
 #include "catapult/model/BlockUtils.h"
-#include "catapult/state/BlockDifficultyInfo.h"
+#include "catapult/state/BlockStatistic.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
 #include <set>
 
@@ -107,7 +107,7 @@ namespace catapult { namespace test {
 		std::shared_ptr<const model::BlockElement> m_pParentBlockElement;
 		std::shared_ptr<const model::BlockElement> m_pTailBlockElement;
 		std::shared_ptr<const model::Block> m_pNemesisBlock; // only used to extend block lifetime
-		std::set<state::BlockDifficultyInfo> m_difficulties;
+		std::set<state::BlockStatistic> m_statistics;
 
 		utils::TimeSpan m_blockTimeInterval;
 		BlockReceiptsHashCalculator m_blockReceiptsHashCalculator;

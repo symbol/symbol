@@ -28,7 +28,7 @@ namespace catapult { namespace state {
 #define TEST_CLASS AccountRestrictionsTests
 
 	namespace {
-		constexpr auto Add = model::AccountRestrictionModificationType::Add;
+		constexpr auto Add = model::AccountRestrictionModificationAction::Add;
 
 		struct AccountAddressRestrictionTraits {
 			using ValueType = Address;

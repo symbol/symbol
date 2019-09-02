@@ -37,8 +37,8 @@ namespace catapult { namespace state {
 		io::Write8(output, entry.minRemoval());
 		output.write(entry.key());
 
-		SaveKeySet(output, entry.cosignatories());
-		SaveKeySet(output, entry.multisigAccounts());
+		SaveKeySet(output, entry.cosignatoryPublicKeys());
+		SaveKeySet(output, entry.multisigPublicKeys());
 	}
 
 	namespace {
@@ -62,8 +62,8 @@ namespace catapult { namespace state {
 		entry.setMinApproval(minApproval);
 		entry.setMinRemoval(minRemoval);
 
-		LoadKeySet(input, entry.cosignatories());
-		LoadKeySet(input, entry.multisigAccounts());
+		LoadKeySet(input, entry.cosignatoryPublicKeys());
+		LoadKeySet(input, entry.multisigPublicKeys());
 		return entry;
 	}
 }}

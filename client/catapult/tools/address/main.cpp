@@ -19,44 +19,18 @@
 **/
 
 #include "tools/ToolMain.h"
-#include "tools/Random.h"
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/crypto/KeyUtils.h"
 #include "catapult/model/Address.h"
 #include "catapult/utils/Logging.h"
+#include "catapult/utils/RandomGenerator.h"
 #include "catapult/exceptions.h"
 #include <iostream>
-#include <random>
 #include <string>
 
 namespace catapult { namespace tools { namespace address {
 
 	namespace {
-		// region entropy sources
-
-		class LowEntropySource {
-		public:
-			uint8_t operator()() {
-				return RandomByte();
-			}
-		};
-
-		class HighEntropySource {
-		public:
-			HighEntropySource() : m_pRd(std::make_shared<std::random_device>())
-			{}
-
-		public:
-			uint8_t operator()() {
-				return static_cast<uint8_t>((*m_pRd)());
-			}
-
-		private:
-			std::shared_ptr<std::random_device> m_pRd; // shared_ptr because entropy source needs to be copyable
-		};
-
-		// endregion
-
 		class AddressTool : public Tool {
 		public:
 			std::string name() const override {
@@ -97,10 +71,11 @@ namespace catapult { namespace tools { namespace address {
 					return 0;
 				}
 
-				auto generator = options["useHighEntropySource"].as<bool>()
-						? supplier<uint8_t>(HighEntropySource())
-						: supplier<uint8_t>(LowEntropySource());
-				generateKeys(networkId, generator);
+				if (options["useHighEntropySource"].as<bool>())
+					generateKeys(networkId, utils::HighEntropyRandomGenerator());
+				else
+					generateKeys(networkId, utils::LowEntropyRandomGenerator());
+
 				return 0;
 			}
 
@@ -118,11 +93,14 @@ namespace catapult { namespace tools { namespace address {
 								<< model::AddressToString(model::PublicKeyToAddress(publicKey, networkId)) << std::endl;
 			}
 
-			void generateKeys(model::NetworkIdentifier networkId, const supplier<uint8_t>& generator) {
+			template<typename TGenerator>
+			void generateKeys(model::NetworkIdentifier networkId, TGenerator&& generator) {
 				std::cout << "--- generating " << m_numRandomKeys << " keys ---" << std::endl;
 
 				for (auto i = 0u; i < m_numRandomKeys; ++i) {
-					output(networkId, crypto::KeyPair::FromPrivate(crypto::PrivateKey::Generate(generator)));
+					output(networkId, crypto::KeyPair::FromPrivate(crypto::PrivateKey::Generate([&generator]() {
+						return static_cast<uint8_t>(generator());
+					})));
 					std::cout << std::endl;
 				}
 			}

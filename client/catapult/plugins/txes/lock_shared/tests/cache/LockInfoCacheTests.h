@@ -70,7 +70,7 @@ namespace catapult { namespace cache {
 
 		static ValueType CreateWithIdAndExpiration(uint8_t id, Height height, state::LockStatus status = state::LockStatus::Unused) {
 			auto lockInfo = CreateWithId(id);
-			lockInfo.Height = height;
+			lockInfo.EndHeight = height;
 			lockInfo.Status = status;
 			return lockInfo;
 		}
@@ -139,7 +139,7 @@ namespace catapult { namespace cache {
 			EXPECT_FALSE(cache.createView()->contains(TLockInfoTraits::ToKey(lockInfos[1])));
 
 			// - reinsert lock at height 25
-			lockInfos[1].Height = Height(25);
+			lockInfos[1].EndHeight = Height(25);
 			auto delta = cache.createDelta();
 			delta->insert(lockInfos[1]);
 			cache.commit();

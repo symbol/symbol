@@ -36,19 +36,19 @@ namespace catapult { namespace builders {
 		public:
 			explicit TransactionProperties(UnresolvedMosaicId mosaicId)
 					: MosaicId(mosaicId)
-					, Direction(model::MosaicSupplyChangeDirection::Decrease)
+					, Action(model::MosaicSupplyChangeAction::Decrease)
 			{}
 
 		public:
 			UnresolvedMosaicId MosaicId;
-			model::MosaicSupplyChangeDirection Direction;
+			model::MosaicSupplyChangeAction Action;
 			Amount Delta;
 		};
 
 		template<typename TTransaction>
 		void AssertTransactionProperties(const TransactionProperties& expectedProperties, const TTransaction& transaction) {
 			EXPECT_EQ(expectedProperties.MosaicId, transaction.MosaicId);
-			EXPECT_EQ(expectedProperties.Direction, transaction.Direction);
+			EXPECT_EQ(expectedProperties.Action, transaction.Action);
 			EXPECT_EQ(expectedProperties.Delta, transaction.Delta);
 		}
 
@@ -68,7 +68,7 @@ namespace catapult { namespace builders {
 			// Assert:
 			TTraits::CheckBuilderSize(0, builder);
 			TTraits::CheckFields(0, *pTransaction);
-			EXPECT_EQ(signer, pTransaction->Signer);
+			EXPECT_EQ(signer, pTransaction->SignerPublicKey);
 			EXPECT_EQ(0x6201, pTransaction->Version);
 			EXPECT_EQ(model::Entity_Type_Mosaic_Supply_Change, pTransaction->Type);
 
@@ -100,17 +100,17 @@ namespace catapult { namespace builders {
 
 	// region settings
 
-	TRAITS_BASED_TEST(CanSetDirection) {
+	TRAITS_BASED_TEST(CanSetAction) {
 		// Arrange:
 		auto mosaicId = test::GenerateRandomValue<UnresolvedMosaicId>();
 
 		auto expectedProperties = TransactionProperties(mosaicId);
-		expectedProperties.Direction = model::MosaicSupplyChangeDirection::Increase;
+		expectedProperties.Action = model::MosaicSupplyChangeAction::Increase;
 
 		// Assert:
 		AssertCanBuildTransaction<TTraits>(expectedProperties, [mosaicId](auto& builder) {
 			builder.setMosaicId(mosaicId);
-			builder.setDirection(model::MosaicSupplyChangeDirection::Increase);
+			builder.setAction(model::MosaicSupplyChangeAction::Increase);
 		});
 	}
 
@@ -128,18 +128,18 @@ namespace catapult { namespace builders {
 		});
 	}
 
-	TRAITS_BASED_TEST(CanSetDirectonAndDelta) {
+	TRAITS_BASED_TEST(CanSetActionAndDelta) {
 		// Arrange:
 		auto mosaicId = test::GenerateRandomValue<UnresolvedMosaicId>();
 
 		auto expectedProperties = TransactionProperties(mosaicId);
-		expectedProperties.Direction = model::MosaicSupplyChangeDirection::Increase;
+		expectedProperties.Action = model::MosaicSupplyChangeAction::Increase;
 		expectedProperties.Delta = Amount(12345678);
 
 		// Assert:
 		AssertCanBuildTransaction<TTraits>(expectedProperties, [mosaicId](auto& builder) {
 			builder.setMosaicId(mosaicId);
-			builder.setDirection(model::MosaicSupplyChangeDirection::Increase);
+			builder.setAction(model::MosaicSupplyChangeAction::Increase);
 			builder.setDelta(Amount(12345678));
 		});
 	}

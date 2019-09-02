@@ -19,6 +19,7 @@
 **/
 
 #include "BatchEntityProcessor.h"
+#include "ProcessContextsBuilder.h"
 #include "ProcessingNotificationSubscriber.h"
 #include "catapult/cache/CatapultCache.h"
 
@@ -41,10 +42,10 @@ namespace catapult { namespace chain {
 				if (entityInfos.empty())
 					return ValidationResult::Neutral;
 
-				auto readOnlyCache = state.Cache.toReadOnly();
-				auto resolverContext = m_config.ResolverContextFactory(readOnlyCache);
-				auto validatorContext = ValidatorContext(height, timestamp, m_config.Network, resolverContext, readOnlyCache);
-				auto observerContext = observers::ObserverContext(state, height, observers::NotifyMode::Commit, resolverContext);
+				ProcessContextsBuilder contextBuilder(height, timestamp, m_config);
+				contextBuilder.setObserverState(state); // this uses contents of ObserverState to initialize the builder
+				auto validatorContext = contextBuilder.buildValidatorContext();
+				auto observerContext = contextBuilder.buildObserverContext();
 
 				ProcessingNotificationSubscriber sub(*m_config.pValidator, validatorContext, *m_config.pObserver, observerContext);
 				for (const auto& entityInfo : entityInfos) {

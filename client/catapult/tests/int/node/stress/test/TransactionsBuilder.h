@@ -54,7 +54,7 @@ namespace catapult { namespace test {
 		void addNamespace(size_t ownerId, const std::string& name, BlockDuration duration, size_t aliasId = 0);
 
 	private:
-		std::unique_ptr<model::Transaction> createRegisterNamespace(const NamespaceDescriptor& descriptor, Timestamp deadline) const;
+		std::unique_ptr<model::Transaction> createNamespaceRegistration(const NamespaceDescriptor& descriptor, Timestamp deadline) const;
 
 		std::unique_ptr<model::Transaction> createAddressAlias(const NamespaceDescriptor& descriptor, Timestamp deadline) const;
 

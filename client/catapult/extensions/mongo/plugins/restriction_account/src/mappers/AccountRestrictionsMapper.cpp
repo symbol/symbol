@@ -47,7 +47,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		bson_stream::document builder;
 		auto doc = builder
 				<< "accountRestrictions" << bson_stream::open_document
-				<< "address" << ToBinary(restrictions.address());
+					<< "address" << ToBinary(restrictions.address());
 
 		auto restrictionArray = builder << "restrictions" << bson_stream::open_array;
 		for (const auto& pair : restrictions)

@@ -31,7 +31,7 @@ namespace catapult { namespace validators {
 		const auto& cache = context.Cache.sub<cache::AccountStateCache>();
 		auto accountStateIter = cache.find(notification.Signer);
 		return accountStateIter.tryGet() && state::IsRemote(accountStateIter.get().AccountType)
-				? Failure_AccountLink_Remote_Account_Signer_Not_Allowed
+				? Failure_AccountLink_Remote_Account_Signer_Prohibited
 				: ValidationResult::Success;
 	});
 }}

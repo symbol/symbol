@@ -34,7 +34,7 @@ namespace catapult { namespace mongo { namespace plugins {
 			using CacheType = cache::HashLockInfoCache;
 			using ModelType = state::HashLockInfo;
 
-			static constexpr auto Collection_Name = "hashLockInfos";
+			static constexpr auto Collection_Name = "hashLocks";
 			static constexpr auto Id_Property_Name = "lock.hash";
 
 			static constexpr auto CreateCacheStorage = CreateMongoHashLockInfoCacheStorage;

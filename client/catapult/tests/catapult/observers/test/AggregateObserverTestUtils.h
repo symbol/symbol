@@ -45,10 +45,9 @@ namespace catapult { namespace test {
 	template<typename TBuilder, typename TAddObserver>
 	void AssertNotificationsAreForwardedToChildObservers(TBuilder&& builder, TAddObserver addObserver) {
 		// Arrange:
-		state::CatapultState state;
 		cache::CatapultCache cache({});
 		auto cacheDelta = cache.createDelta();
-		auto context = test::CreateObserverContext(cacheDelta, state, Height(123), observers::NotifyMode::Commit);
+		auto context = test::CreateObserverContext(cacheDelta, Height(123), observers::NotifyMode::Commit);
 
 		// - create an aggregate with five observers
 		auto observers = AddSubObservers(builder, addObserver, 5);
@@ -80,10 +79,9 @@ namespace catapult { namespace test {
 	template<typename TBuilder, typename TAddObserver>
 	void AssertContextsAreForwardedToChildObservers(TBuilder&& builder, TAddObserver addObserver) {
 		// Arrange:
-		state::CatapultState state;
 		cache::CatapultCache cache({});
 		auto cacheDelta = cache.createDelta();
-		auto context = test::CreateObserverContext(cacheDelta, state, Height(123), observers::NotifyMode::Commit);
+		auto context = test::CreateObserverContext(cacheDelta, Height(123), observers::NotifyMode::Commit);
 
 		// - create an aggregate with five observers
 		auto observers = AddSubObservers(builder, addObserver, 5);

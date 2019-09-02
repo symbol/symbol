@@ -492,7 +492,7 @@ namespace catapult { namespace chain {
 
 		std::unique_ptr<model::Block> CreateBlock(Height height, uint32_t timestampSeconds, uint32_t difficultyTrillions) {
 			auto pBlock = std::make_unique<model::Block>();
-			pBlock->Signer = test::GenerateRandomByteArray<Key>();
+			pBlock->SignerPublicKey = test::GenerateRandomByteArray<Key>();
 			pBlock->Height = height;
 			SetTimestampSeconds(*pBlock, timestampSeconds);
 			SetDifficultyTrillions(*pBlock, difficultyTrillions);
@@ -517,7 +517,7 @@ namespace catapult { namespace chain {
 		EXPECT_TRUE(isHit);
 
 		ASSERT_EQ(1u, context.ImportanceLookupParams.size());
-		EXPECT_EQ(pCurrent->Signer, context.ImportanceLookupParams[0].first);
+		EXPECT_EQ(pCurrent->SignerPublicKey, context.ImportanceLookupParams[0].first);
 		EXPECT_EQ(pCurrent->Height, context.ImportanceLookupParams[0].second);
 	}
 
@@ -569,7 +569,7 @@ namespace catapult { namespace chain {
 		EXPECT_FALSE(isHit);
 
 		ASSERT_EQ(1u, context.ImportanceLookupParams.size());
-		EXPECT_EQ(pCurrent->Signer, context.ImportanceLookupParams[0].first);
+		EXPECT_EQ(pCurrent->SignerPublicKey, context.ImportanceLookupParams[0].first);
 		EXPECT_EQ(pCurrent->Height, context.ImportanceLookupParams[0].second);
 	}
 
@@ -621,7 +621,7 @@ namespace catapult { namespace chain {
 		EXPECT_FALSE(isHit);
 
 		ASSERT_EQ(1u, context.ImportanceLookupParams.size());
-		EXPECT_EQ(pCurrent->Signer, context.ImportanceLookupParams[0].first);
+		EXPECT_EQ(pCurrent->SignerPublicKey, context.ImportanceLookupParams[0].first);
 		EXPECT_EQ(pCurrent->Height, context.ImportanceLookupParams[0].second);
 	}
 

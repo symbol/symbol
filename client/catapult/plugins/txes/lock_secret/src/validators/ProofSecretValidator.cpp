@@ -38,7 +38,7 @@ namespace catapult { namespace validators {
 	DECLARE_STATELESS_VALIDATOR(ProofSecret, Notification)(uint16_t minProofSize, uint16_t maxProofSize) {
 		return MAKE_STATELESS_VALIDATOR(ProofSecret, ([minProofSize, maxProofSize](const Notification& notification) {
 			if (!SupportedHash(notification.HashAlgorithm))
-				return Failure_LockSecret_Hash_Not_Implemented;
+				return Failure_LockSecret_Invalid_Hash_Algorithm;
 
 			if (notification.Proof.Size < minProofSize || notification.Proof.Size > maxProofSize)
 				return Failure_LockSecret_Proof_Size_Out_Of_Bounds;

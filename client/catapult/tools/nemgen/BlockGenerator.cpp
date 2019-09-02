@@ -25,7 +25,7 @@
 #include "catapult/builders/MosaicAliasBuilder.h"
 #include "catapult/builders/MosaicDefinitionBuilder.h"
 #include "catapult/builders/MosaicSupplyChangeBuilder.h"
-#include "catapult/builders/RegisterNamespaceBuilder.h"
+#include "catapult/builders/NamespaceRegistrationBuilder.h"
 #include "catapult/builders/TransferBuilder.h"
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/crypto/KeyUtils.h"
@@ -55,17 +55,6 @@ namespace catapult { namespace tools { namespace nemgen {
 			return namespaceName.substr(namespaceName.rfind('.') + 1);
 		}
 
-		model::MosaicFlags GetFlags(const model::MosaicProperties& properties) {
-			auto flags = model::MosaicFlags::None;
-			for (auto i = 1u; i < utils::to_underlying_type(model::MosaicFlags::All); i <<= 1) {
-				auto flag = static_cast<model::MosaicFlags>(i);
-				if (properties.is(flag))
-					flags |= flag;
-			}
-
-			return flags;
-		}
-
 		class NemesisTransactions {
 		public:
 			NemesisTransactions(
@@ -78,15 +67,15 @@ namespace catapult { namespace tools { namespace nemgen {
 			{}
 
 		public:
-			void addRegisterNamespace(const std::string& namespaceName, BlockDuration duration) {
-				builders::RegisterNamespaceBuilder builder(m_networkIdentifier, m_signer.publicKey());
+			void addNamespaceRegistration(const std::string& namespaceName, BlockDuration duration) {
+				builders::NamespaceRegistrationBuilder builder(m_networkIdentifier, m_signer.publicKey());
 				builder.setName({ reinterpret_cast<const uint8_t*>(namespaceName.data()), namespaceName.size() });
 				builder.setDuration(duration);
 				signAndAdd(builder.build());
 			}
 
-			void addRegisterNamespace(const std::string& namespaceName, NamespaceId parentId) {
-				builders::RegisterNamespaceBuilder builder(m_networkIdentifier, m_signer.publicKey());
+			void addNamespaceRegistration(const std::string& namespaceName, NamespaceId parentId) {
+				builders::NamespaceRegistrationBuilder builder(m_networkIdentifier, m_signer.publicKey());
 				builder.setName({ reinterpret_cast<const uint8_t*>(namespaceName.data()), namespaceName.size() });
 				builder.setParentId(parentId);
 				signAndAdd(builder.build());
@@ -94,14 +83,13 @@ namespace catapult { namespace tools { namespace nemgen {
 
 			MosaicId addMosaicDefinition(MosaicNonce nonce, const model::MosaicProperties& properties) {
 				builders::MosaicDefinitionBuilder builder(m_networkIdentifier, m_signer.publicKey());
-				builder.setMosaicNonce(nonce);
-				builder.setFlags(GetFlags(properties));
+				builder.setNonce(nonce);
+				builder.setFlags(properties.flags());
 				builder.setDivisibility(properties.divisibility());
-				if (Eternal_Artifact_Duration != properties.duration())
-					builder.addProperty({ model::MosaicPropertyId::Duration, properties.duration().unwrap() });
+				builder.setDuration(properties.duration());
 
 				auto pTransaction = builder.build();
-				auto id = pTransaction->MosaicId;
+				auto id = pTransaction->Id;
 				signAndAdd(std::move(pTransaction));
 				return id;
 			}
@@ -113,6 +101,7 @@ namespace catapult { namespace tools { namespace nemgen {
 				builders::MosaicAliasBuilder builder(m_networkIdentifier, m_signer.publicKey());
 				builder.setNamespaceId(namespaceId);
 				builder.setMosaicId(mosaicId);
+				builder.setAliasAction(model::AliasAction::Link);
 				auto pTransaction = builder.build();
 				signAndAdd(std::move(pTransaction));
 
@@ -125,7 +114,7 @@ namespace catapult { namespace tools { namespace nemgen {
 			void addMosaicSupplyChange(UnresolvedMosaicId mosaicId, Amount delta) {
 				builders::MosaicSupplyChangeBuilder builder(m_networkIdentifier, m_signer.publicKey());
 				builder.setMosaicId(mosaicId);
-				builder.setDirection(model::MosaicSupplyChangeDirection::Increase);
+				builder.setAction(model::MosaicSupplyChangeAction::Increase);
 				builder.setDelta(delta);
 				auto pTransaction = builder.build();
 				signAndAdd(std::move(pTransaction));
@@ -137,7 +126,7 @@ namespace catapult { namespace tools { namespace nemgen {
 					const std::vector<MosaicSeed>& seeds) {
 				auto recipientUnresolvedAddress = extensions::CopyToUnresolvedAddress(recipientAddress);
 				builders::TransferBuilder builder(m_networkIdentifier, m_signer.publicKey());
-				builder.setRecipient(recipientUnresolvedAddress);
+				builder.setRecipientAddress(recipientUnresolvedAddress);
 				for (const auto& seed : seeds) {
 					auto mosaicId = mosaicNameToMosaicIdMap.at(seed.Name);
 					builder.addMosaic({ mosaicId, seed.Amount });
@@ -178,7 +167,7 @@ namespace catapult { namespace tools { namespace nemgen {
 			auto duration = std::numeric_limits<BlockDuration::ValueType>::max() == root.lifetime().End.unwrap()
 					? Eternal_Artifact_Duration
 					: BlockDuration((root.lifetime().End - root.lifetime().Start).unwrap());
-			transactions.addRegisterNamespace(rootName, duration);
+			transactions.addNamespaceRegistration(rootName, duration);
 
 			// - children
 			std::map<size_t, std::vector<state::Namespace::Path>> paths;
@@ -191,7 +180,7 @@ namespace catapult { namespace tools { namespace nemgen {
 				for (const auto& path : pair.second) {
 					const auto& child = state::Namespace(path);
 					auto subName = GetChildName(config.NamespaceNames.at(child.id()));
-					transactions.addRegisterNamespace(subName, child.parentId());
+					transactions.addNamespaceRegistration(subName, child.parentId());
 				}
 			}
 		}
@@ -232,7 +221,7 @@ namespace catapult { namespace tools { namespace nemgen {
 			const NemesisConfiguration& config,
 			model::Block& block,
 			NemesisExecutionHashesDescriptor& executionHashesDescriptor) {
-		block.BlockReceiptsHash = executionHashesDescriptor.ReceiptsHash;
+		block.ReceiptsHash = executionHashesDescriptor.ReceiptsHash;
 		block.StateHash = executionHashesDescriptor.StateHash;
 
 		auto signer = crypto::KeyPair::FromString(config.NemesisSignerPrivateKey);

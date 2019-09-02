@@ -131,12 +131,12 @@ namespace catapult { namespace observers {
 			auto beneficiaryAccountStateIter = context.addAccount(beneficiaryPublicKey);
 			SeedAccount(beneficiaryAccountStateIter.get());
 
+			auto notification = test::CreateBlockNotification(signerPublicKey, beneficiaryPublicKey);
+			notification.TotalFee = Amount(123);
+
 			// Sanity:
 			AssertActivityUnset(signerAccountStateIter.get());
 			AssertActivitySet(beneficiaryAccountStateIter.get(), Default_Beneficiary_Count);
-
-			auto notification = test::CreateBlockNotification(signerPublicKey, beneficiaryPublicKey);
-			notification.TotalFee = Amount(123);
 
 			// Act:
 			test::ObserveNotification(observer, notification, context);
@@ -156,16 +156,15 @@ namespace catapult { namespace observers {
 			auto signerAccountStateIter = context.addAccount(signerPublicKey);
 			auto beneficiaryAccountStateIter = context.addAccount(beneficiaryPublicKey);
 			auto beneficiaryRemoteStateIter = context.setupRemote(beneficiaryPublicKey, beneficiaryRemoteKey);
-
 			SeedAccount(beneficiaryAccountStateIter.get());
+
+			auto notification = test::CreateBlockNotification(signerPublicKey, beneficiaryRemoteKey);
+			notification.TotalFee = Amount(123);
 
 			// Sanity:
 			AssertActivityUnset(signerAccountStateIter.get());
 			AssertActivitySet(beneficiaryAccountStateIter.get(), Default_Beneficiary_Count);
 			AssertActivityUnset(beneficiaryRemoteStateIter.get());
-
-			auto notification = test::CreateBlockNotification(signerPublicKey, beneficiaryRemoteKey);
-			notification.TotalFee = Amount(123);
 
 			// Act:
 			test::ObserveNotification(observer, notification, context);
@@ -181,37 +180,25 @@ namespace catapult { namespace observers {
 
 	// region self-beneficiary
 
-	namespace {
-		template<typename TTraits>
-		void AssertNoAccountIsUpdated(const Key& signerPublicKey, const Key& beneficiaryPublicKey) {
-			// Arrange:
-			RunBeneficiaryObserverTest(TTraits::Notify_Mode, [&signerPublicKey, &beneficiaryPublicKey](auto& context, auto& observer) {
-				auto signerAccountStateIter = context.addAccount(signerPublicKey);
-				SeedAccount(signerAccountStateIter.get());
+	BENEFICIARY_OBSERVER_TRAITS_BASED_TEST(BeneficiaryAccountIsUpdatedWhenSameAsSigner) {
+		// Arrange:
+		RunBeneficiaryObserverTest(TTraits::Notify_Mode, [](auto& context, auto& observer) {
+			auto signerPublicKey = test::GenerateRandomByteArray<Key>();
+			auto signerAccountStateIter = context.addAccount(signerPublicKey);
+			SeedAccount(signerAccountStateIter.get());
 
-				// Sanity:
-				AssertActivitySet(signerAccountStateIter.get(), Default_Beneficiary_Count);
+			auto notification = test::CreateBlockNotification(signerPublicKey, signerPublicKey);
+			notification.TotalFee = Amount(123);
 
-				auto notification = test::CreateBlockNotification(signerPublicKey, beneficiaryPublicKey);
-				notification.TotalFee = Amount(123);
+			// Sanity:
+			AssertActivitySet(signerAccountStateIter.get(), Default_Beneficiary_Count);
 
-				// Act: this would throw if unknown account is accessed
-				test::ObserveNotification(observer, notification, context);
+			// Act:
+			test::ObserveNotification(observer, notification, context);
 
-				// Assert:
-				AssertActivitySet(signerAccountStateIter.get(), Default_Beneficiary_Count);
-			});
-		}
-	}
-
-	BENEFICIARY_OBSERVER_TRAITS_BASED_TEST(NoAccountIsUpdatedWhenBeneficiaryIsEmpty) {
-		auto signerPublicKey = test::GenerateRandomByteArray<Key>();
-		AssertNoAccountIsUpdated<TTraits>(signerPublicKey, Key());
-	}
-
-	BENEFICIARY_OBSERVER_TRAITS_BASED_TEST(BeneficiaryAccountIsNotUpdatedWhenSameAsSigner) {
-		auto signerPublicKey = test::GenerateRandomByteArray<Key>();
-		AssertNoAccountIsUpdated<TTraits>(signerPublicKey, signerPublicKey);
+			// Assert:
+			AssertActivitySet(signerAccountStateIter.get(), TTraits::Expected_Count);
+		});
 	}
 
 	// endregion

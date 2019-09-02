@@ -1,3 +1,3 @@
 cmake_minimum_required(VERSION 3.2)
 
-catapult_test_executable_target(tests.catapult.coresystem cache importance observers validators)
+catapult_test_executable_target(tests.catapult.plugins.coresystem cache importance observers validators)

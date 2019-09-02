@@ -84,6 +84,8 @@ namespace catapult { namespace cache {
 
 	private:
 		std::unique_ptr<CacheHeight> m_pCacheHeight; // use a unique_ptr to allow fwd declare
+		std::unique_ptr<state::CatapultState> m_pDependentState; // use a unique_ptr to allow fwd declare
+		std::unique_ptr<state::CatapultState> m_pDependentStateDelta; // backing for (single) outstanding delta
 		std::vector<std::unique_ptr<SubCachePlugin>> m_subCaches;
 	};
 }}

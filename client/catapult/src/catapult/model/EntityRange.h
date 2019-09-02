@@ -282,7 +282,7 @@ namespace catapult { namespace model {
 			return range;
 		}
 
-		/// Creates an entity range around the data pointed to by \a pData with size \a dataSize and an \a offsets
+		/// Creates an entity range around the data pointed to by \a pData with size \a dataSize and \a offsets
 		/// container that contains values indicating the starting position of all entities in the data.
 		static EntityRange CopyVariable(const uint8_t* pData, size_t dataSize, const std::vector<size_t>& offsets) {
 			return EntityRange(SingleBufferRange(pData, dataSize, offsets));
@@ -465,7 +465,7 @@ namespace catapult { namespace model {
 			return rhs.copySubRange();
 		}
 
-		/// Extracts a vector of entities from a \a range such that each entity will extend the
+		/// Extracts a vector of entities from \a range such that each entity will extend the
 		/// lifetime of the owning range.
 		static std::vector<std::shared_ptr<TEntity>> ExtractEntitiesFromRange(EntityRange&& range) {
 			return range.detachSubRangeEntities();

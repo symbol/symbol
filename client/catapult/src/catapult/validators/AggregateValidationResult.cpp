@@ -30,8 +30,8 @@ namespace catapult { namespace validators {
 				return aggregate.load();
 			}
 
-			static void CompareExchange(AggregateType& aggregate, ValidationResult current, ValidationResult value) {
-				aggregate.compare_exchange_strong(current, value);
+			static bool CompareExchange(AggregateType& aggregate, ValidationResult current, ValidationResult value) {
+				return aggregate.compare_exchange_strong(current, value);
 			}
 		};
 
@@ -42,20 +42,24 @@ namespace catapult { namespace validators {
 				return aggregate;
 			}
 
-			static void CompareExchange(AggregateType& aggregate, ValidationResult current, ValidationResult value) {
-				if (aggregate == current)
-					aggregate = value;
+			static bool CompareExchange(AggregateType& aggregate, ValidationResult, ValidationResult value) {
+				// policy is only supported for single threaded environment, so always exchange
+				aggregate = value;
+				return true;
 			}
 		};
 
 		template<typename TAssignPolicy>
 		void AggregateResult(typename TAssignPolicy::AggregateType& aggregate, ValidationResult value) {
-			// only change aggregate value if new value increases severity
-			auto current = TAssignPolicy::Unwrap(aggregate);
-			if (GetSeverity(current) >= GetSeverity(value))
-				return;
+			for (;;) {
+				// only change aggregate value if new value increases severity
+				auto current = TAssignPolicy::Unwrap(aggregate);
+				if (GetSeverity(current) >= GetSeverity(value))
+					return;
 
-			TAssignPolicy::CompareExchange(aggregate, current, value);
+				if (TAssignPolicy::CompareExchange(aggregate, current, value))
+					return;
+			}
 		}
 	}
 

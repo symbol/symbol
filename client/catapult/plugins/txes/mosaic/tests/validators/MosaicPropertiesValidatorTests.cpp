@@ -40,9 +40,8 @@ namespace catapult { namespace validators {
 		void AssertFlagsResult(ValidationResult expectedResult, model::MosaicFlags flags) {
 			// Arrange:
 			auto pValidator = CreateMosaicPropertiesValidator(Max_Divisibility, Max_Duration);
-			model::MosaicPropertiesHeader header{};
-			header.Flags = flags;
-			auto notification = model::MosaicPropertiesNotification(header, nullptr);
+			model::MosaicProperties properties(flags, 0, BlockDuration());
+			auto notification = model::MosaicPropertiesNotification(properties);
 
 			// Act:
 			auto result = test::ValidateNotification(*pValidator, notification);
@@ -70,9 +69,8 @@ namespace catapult { namespace validators {
 		void AssertDivisibilityValidationResult(ValidationResult expectedResult, uint8_t divisibility, uint8_t maxDivisibility) {
 			// Arrange:
 			auto pValidator = CreateMosaicPropertiesValidator(maxDivisibility, Max_Duration);
-			model::MosaicPropertiesHeader header{};
-			header.Divisibility = divisibility;
-			auto notification = model::MosaicPropertiesNotification(header, nullptr);
+			model::MosaicProperties properties(model::MosaicFlags::None, divisibility, BlockDuration());
+			auto notification = model::MosaicPropertiesNotification(properties);
 
 			// Act:
 			auto result = test::ValidateNotification(*pValidator, notification);
@@ -105,10 +103,8 @@ namespace catapult { namespace validators {
 		void AssertDurationValidationResult(ValidationResult expectedResult, uint16_t duration, uint16_t maxDuration) {
 			// Arrange:
 			auto pValidator = CreateMosaicPropertiesValidator(Max_Divisibility, BlockDuration(maxDuration));
-			model::MosaicPropertiesHeader header{};
-			header.Count = 1;
-			auto properties = std::vector<model::MosaicProperty>{ { model::MosaicPropertyId::Duration, duration } };
-			auto notification = model::MosaicPropertiesNotification(header, properties.data());
+			model::MosaicProperties properties(model::MosaicFlags::None, 0, BlockDuration(duration));
+			auto notification = model::MosaicPropertiesNotification(properties);
 
 			// Act:
 			auto result = test::ValidateNotification(*pValidator, notification);
@@ -119,6 +115,7 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingDurationLessThanMax) {
+		AssertDurationValidationResult(ValidationResult::Success, 0, 12345);
 		AssertDurationValidationResult(ValidationResult::Success, 12312, 12345);
 	}
 
@@ -129,100 +126,6 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, FailureWhenValidatingDurationGreaterThanMax) {
 		AssertDurationValidationResult(Failure_Mosaic_Invalid_Duration, 12346, 12345);
 		AssertDurationValidationResult(Failure_Mosaic_Invalid_Duration, 65432, 12345);
-	}
-
-	TEST(TEST_CLASS, FailuresWhenValidatingZeroDuration) {
-		// Assert: eternal duration is allowed but cannot be specified explicitly
-		AssertDurationValidationResult(Failure_Mosaic_Invalid_Duration, 0, 12345);
-	}
-
-	// endregion
-
-	// region optional properties
-
-	TEST(TEST_CLASS, SuccessWhenValidatingMosaicWithNoOptionalProperties) {
-		// Arrange:
-		auto pValidator = CreateMosaicPropertiesValidator(Max_Divisibility, Max_Duration);
-		model::MosaicPropertiesHeader header{};
-		header.Count = 0;
-		auto notification = model::MosaicPropertiesNotification(header, nullptr);
-
-		// Act:
-		auto result = test::ValidateNotification(*pValidator, notification);
-
-		// Assert:
-		EXPECT_EQ(ValidationResult::Success, result);
-	}
-
-	TEST(TEST_CLASS, SuccessWhenValidatingMosaicWithDurationOptionalProperty) {
-		// Arrange:
-		auto pValidator = CreateMosaicPropertiesValidator(Max_Divisibility, Max_Duration);
-		model::MosaicPropertiesHeader header{};
-		header.Count = 1;
-		auto properties = std::vector<model::MosaicProperty>{ { model::MosaicPropertyId::Duration, 123 } };
-		auto notification = model::MosaicPropertiesNotification(header, properties.data());
-
-		// Act:
-		auto result = test::ValidateNotification(*pValidator, notification);
-
-		// Assert:
-		EXPECT_EQ(ValidationResult::Success, result);
-	}
-
-	namespace {
-		void AssertInvalidOptionalProperty(
-				const model::MosaicProperty& property,
-				ValidationResult expectedResult = Failure_Mosaic_Invalid_Property) {
-			// Arrange: create a transaction with a single property
-			auto pValidator = CreateMosaicPropertiesValidator(Max_Divisibility, Max_Duration);
-			model::MosaicPropertiesHeader header{};
-			header.Count = 1;
-			auto notification = model::MosaicPropertiesNotification(header, &property);
-
-			// Act:
-			auto result = test::ValidateNotification(*pValidator, notification);
-
-			// Assert:
-			EXPECT_EQ(expectedResult, result)
-					<< "property id " << static_cast<uint16_t>(property.Id)
-					<< ", property value " << property.Value;
-		}
-	}
-
-	TEST(TEST_CLASS, FailureWhenValidatingMosaicWithInvalidOptionalProperty) {
-		AssertInvalidOptionalProperty({ model::MosaicPropertyId::Divisibility, 123 });
-	}
-
-	TEST(TEST_CLASS, FailureWhenValidatingMosaicWithUnkownOptionalProperty) {
-		AssertInvalidOptionalProperty({ model::MosaicPropertyId::Sentinel_Property_Id, 123 });
-	}
-
-	TEST(TEST_CLASS, FailureWhenValidatingMosaicWithKnownOptionalPropertyWithDefaultValue) {
-		AssertInvalidOptionalProperty(
-				{ model::MosaicPropertyId::Duration, Eternal_Artifact_Duration.unwrap() },
-				Failure_Mosaic_Invalid_Duration);
-	}
-
-	namespace {
-		void AssertInvalidOptionalPropertyCount(uint8_t count) {
-			// Arrange: indicate the transaction contains extra properties
-			//          (validator will reject the transaction before dereferencing the extra properties)
-			auto pValidator = CreateMosaicPropertiesValidator(Max_Divisibility, Max_Duration);
-			model::MosaicPropertiesHeader header{};
-			header.Count = count;
-			auto notification = model::MosaicPropertiesNotification(header, nullptr);
-
-			// Act:
-			auto result = test::ValidateNotification(*pValidator, notification);
-
-			// Assert:
-			EXPECT_EQ(Failure_Mosaic_Invalid_Property, result);
-		}
-	}
-
-	TEST(TEST_CLASS, FailureWhenValidatingMosaicWithTooManyOptionalProperties) {
-		AssertInvalidOptionalPropertyCount(2);
-		AssertInvalidOptionalPropertyCount(100);
 	}
 
 	// endregion

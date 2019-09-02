@@ -42,11 +42,11 @@ namespace catapult { namespace timesync {
 			WeightedCandidatesInfo candidatesInfo;
 			nodeContainerView.forEach([&candidatesInfo, isCandidate](const auto& node, const auto& nodeInfo) {
 				auto pair = isCandidate(node, nodeInfo);
-				if (!pair.first)
+				if (!pair.second)
 					return;
 
-				candidatesInfo.WeightedCandidates.emplace_back(node, pair.second.unwrap());
-				candidatesInfo.CumulativeImportance = candidatesInfo.CumulativeImportance + pair.second;
+				candidatesInfo.WeightedCandidates.emplace_back(node, pair.first.unwrap());
+				candidatesInfo.CumulativeImportance = candidatesInfo.CumulativeImportance + pair.first;
 			});
 			return candidatesInfo;
 		}
@@ -81,7 +81,7 @@ namespace catapult { namespace timesync {
 		return m_selector(candidatesInfo.WeightedCandidates, candidatesInfo.CumulativeImportance.unwrap(), m_maxNodes);
 	}
 
-	std::pair<bool, Importance> ImportanceAwareNodeSelector::isCandidate(
+	std::pair<Importance, bool> ImportanceAwareNodeSelector::isCandidate(
 			const cache::ImportanceView& importanceView,
 			const ionet::Node& node,
 			const ionet::NodeInfo& nodeInfo,
@@ -90,6 +90,6 @@ namespace catapult { namespace timesync {
 		auto isCandidate = importance >= m_minImportance
 				&& !!nodeInfo.getConnectionState(m_serviceId)
 				&& ionet::NodeSource::Local != nodeInfo.source();
-		return std::make_pair(isCandidate, importance);
+		return std::make_pair(importance, isCandidate);
 	}
 }}

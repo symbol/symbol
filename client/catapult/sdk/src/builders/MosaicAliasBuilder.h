@@ -39,10 +39,10 @@ namespace catapult { namespace builders {
 		/// Sets the alias action to \a aliasAction.
 		void setAliasAction(model::AliasAction aliasAction);
 
-		/// Sets the id of a namespace that will become an alias to \a namespaceId.
+		/// Sets the identifier of the namespace that will become an alias to \a namespaceId.
 		void setNamespaceId(NamespaceId namespaceId);
 
-		/// Sets the aliased mosaic id to \a mosaicId.
+		/// Sets the aliased mosaic identifier to \a mosaicId.
 		void setMosaicId(MosaicId mosaicId);
 
 	public:

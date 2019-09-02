@@ -107,16 +107,16 @@ namespace catapult { namespace test {
 
 	void PrepareCatapultConfiguration(config::CatapultConfiguration& config, NodeFlag nodeFlag) {
 		if (HasFlag(NodeFlag::Cache_Database_Storage, nodeFlag))
-			const_cast<config::NodeConfiguration&>(config.Node).ShouldUseCacheDatabaseStorage = true;
+			const_cast<config::NodeConfiguration&>(config.Node).EnableCacheDatabaseStorage = true;
 
 		if (HasFlag(NodeFlag::Verify_Receipts, nodeFlag))
-			const_cast<model::BlockChainConfiguration&>(config.BlockChain).ShouldEnableVerifiableReceipts = true;
+			const_cast<model::BlockChainConfiguration&>(config.BlockChain).EnableVerifiableReceipts = true;
 
 		if (HasFlag(NodeFlag::Verify_State, nodeFlag))
-			const_cast<model::BlockChainConfiguration&>(config.BlockChain).ShouldEnableVerifiableState = true;
+			const_cast<model::BlockChainConfiguration&>(config.BlockChain).EnableVerifiableState = true;
 
 		if (HasFlag(NodeFlag::Auto_Sync_Cleanup, nodeFlag))
-			const_cast<config::NodeConfiguration&>(config.Node).ShouldEnableAutoSyncCleanup = true;
+			const_cast<config::NodeConfiguration&>(config.Node).EnableAutoSyncCleanup = true;
 	}
 
 	// endregion

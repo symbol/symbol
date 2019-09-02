@@ -38,7 +38,7 @@ namespace catapult { namespace mongo {
 		/// Gets the receipt type.
 		virtual model::ReceiptType type() const = 0;
 
-		/// Streams a \a receipt to \a builder.
+		/// Streams \a receipt to \a builder.
 		virtual void streamReceipt(bsoncxx::builder::stream::document& builder, const model::Receipt& receipt) const = 0;
 	};
 

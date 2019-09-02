@@ -34,11 +34,11 @@ namespace catapult { namespace mongo { namespace plugins {
 #define TEST_CLASS MongoAccountRestrictionCacheStorageTests
 
 	namespace {
-		constexpr auto Modification_Type_Add = model::AccountRestrictionModificationType::Add;
+		constexpr auto Action_Add = model::AccountRestrictionModificationAction::Add;
 
 		void InsertRandom(state::AccountRestriction& restriction, size_t count) {
 			for (auto i = 0u; i < count; ++i)
-				restriction.allow({ Modification_Type_Add, test::GenerateRandomVector(Address::Size) });
+				restriction.allow({ Action_Add, test::GenerateRandomVector(Address::Size) });
 		}
 
 		struct AccountRestrictionCacheTraits {
@@ -78,13 +78,13 @@ namespace catapult { namespace mongo { namespace plugins {
 				// update expected
 				auto value = test::GenerateRandomVector(Address::Size);
 				auto& restriction = restrictions.restriction(model::AccountRestrictionType::Address);
-				restriction.allow({ Modification_Type_Add, value });
+				restriction.allow({ Action_Add, value });
 
 				// update cache
 				auto& restrictionCacheDelta = delta.sub<cache::AccountRestrictionCache>();
 				auto& restrictionsFromCache = restrictionCacheDelta.find(restrictions.address()).get();
 				auto& restrictionFromCache = restrictionsFromCache.restriction(model::AccountRestrictionType::Address);
-				restrictionFromCache.allow({ Modification_Type_Add, value });
+				restrictionFromCache.allow({ Action_Add, value });
 			}
 
 			static auto GetFindFilter(const ModelType& restrictions) {

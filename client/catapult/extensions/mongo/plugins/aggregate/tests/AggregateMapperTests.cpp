@@ -171,7 +171,7 @@ namespace catapult { namespace mongo { namespace plugins {
 				auto subTransactionView = view["transaction"].get_document().view();
 				EXPECT_EQ(4u, test::GetFieldCount(subTransactionView));
 				test::AssertEqualEmbeddedTransactionData(subTransaction, subTransactionView);
-				EXPECT_EQ(subTransaction.Recipient, test::GetKeyValue(subTransactionView, "recipient"));
+				EXPECT_EQ(subTransaction.RecipientPublicKey, test::GetKeyValue(subTransactionView, "recipientPublicKey"));
 			}
 		}
 	}

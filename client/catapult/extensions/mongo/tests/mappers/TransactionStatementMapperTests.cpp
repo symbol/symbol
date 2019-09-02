@@ -48,9 +48,13 @@ namespace catapult { namespace mongo { namespace mappers {
 
 			// Act:
 			auto document = ToDbModel(Height(567), statement, registry);
+			auto documentView = document.view();
 
 			// Assert:
-			test::AssertEqualTransactionStatement(statement, Height(567), document.view(), 3, 0);
+			EXPECT_EQ(1u, test::GetFieldCount(documentView));
+
+			auto statementView = documentView["statement"].get_document().view();
+			test::AssertEqualTransactionStatement(statement, Height(567), statementView, 3, 0);
 		}
 	}
 

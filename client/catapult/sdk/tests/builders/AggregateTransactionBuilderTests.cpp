@@ -22,9 +22,9 @@
 #include "catapult/crypto/Signer.h"
 #include "catapult/model/EntityHasher.h"
 #include "sdk/tests/builders/test/BuilderTestUtils.h"
-#include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"
+#include "tests/test/nodeps/KeyTestUtils.h"
 
 namespace catapult { namespace builders {
 
@@ -62,7 +62,7 @@ namespace catapult { namespace builders {
 
 				additionalSize += numCosignatures * sizeof(model::Cosignature);
 				RegularTraits::CheckFields(additionalSize, transaction);
-				EXPECT_EQ(m_signer, transaction.Signer);
+				EXPECT_EQ(m_signer, transaction.SignerPublicKey);
 				EXPECT_EQ(0x6201, transaction.Version);
 				EXPECT_EQ(type, transaction.Type);
 
@@ -112,21 +112,21 @@ namespace catapult { namespace builders {
 			TestContext context(3);
 			auto generationHash = test::GenerateRandomByteArray<GenerationHash>();
 			AggregateCosignatureAppender builder(generationHash, context.buildTransaction());
-			auto cosigners = GenerateKeys(numCosignatures);
+			auto cosignatories = GenerateKeys(numCosignatures);
 
 			// Act:
-			for (const auto& cosigner : cosigners)
-				builder.cosign(cosigner);
+			for (const auto& cosignatory : cosignatories)
+				builder.cosign(cosignatory);
 
 			auto pTransaction = builder.build();
 
 			// Assert:
-			context.assertTransaction(*pTransaction, cosigners.size(), model::Entity_Type_Aggregate_Complete);
+			context.assertTransaction(*pTransaction, cosignatories.size(), model::Entity_Type_Aggregate_Complete);
 			auto hash = model::CalculateHash(*pTransaction, generationHash, TransactionDataBuffer(*pTransaction));
 			const auto* pCosignature = pTransaction->CosignaturesPtr();
-			for (const auto& cosigner : cosigners) {
-				EXPECT_EQ(cosigner.publicKey(), pCosignature->Signer) << "invalid signer";
-				EXPECT_TRUE(crypto::Verify(pCosignature->Signer, hash, pCosignature->Signature))
+			for (const auto& cosignatory : cosignatories) {
+				EXPECT_EQ(cosignatory.publicKey(), pCosignature->SignerPublicKey) << "invalid signer";
+				EXPECT_TRUE(crypto::Verify(pCosignature->SignerPublicKey, hash, pCosignature->Signature))
 						<< "invalid cosignature " << pCosignature->Signature;
 				++pCosignature;
 			}

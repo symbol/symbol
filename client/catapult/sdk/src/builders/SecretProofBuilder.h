@@ -42,8 +42,8 @@ namespace catapult { namespace builders {
 		/// Sets the secret to \a secret.
 		void setSecret(const Hash256& secret);
 
-		/// Sets the recipient to \a recipient.
-		void setRecipient(const UnresolvedAddress& recipient);
+		/// Sets the locked mosaic recipient address to \a recipientAddress.
+		void setRecipientAddress(const UnresolvedAddress& recipientAddress);
 
 		/// Sets the proof data to \a proof.
 		void setProof(const RawBuffer& proof);
@@ -69,7 +69,7 @@ namespace catapult { namespace builders {
 	private:
 		model::LockHashAlgorithm m_hashAlgorithm;
 		Hash256 m_secret;
-		UnresolvedAddress m_recipient;
+		UnresolvedAddress m_recipientAddress;
 		std::vector<uint8_t> m_proof;
 	};
 }}

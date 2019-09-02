@@ -154,13 +154,11 @@ namespace catapult { namespace extensions {
 			return addCandidates;
 		}
 
-		std::mt19937 generator((std::random_device()()));
-		auto generatorRange = generator.max() - generator.min();
+		utils::LowEntropyRandomGenerator generator;
+		std::uniform_int_distribution<uint64_t> distr(0, totalCandidateWeight);
 		std::vector<bool> usedNodeFlags(candidates.size(), false);
 		for (auto i = 0u; i < maxCandidates; ++i) {
-			// cast value to uint64_t to prevent multiplcation overflow below
-			auto randomValue = static_cast<uint64_t>(generator());
-			auto randomWeight = static_cast<uint32_t>(randomValue * totalCandidateWeight / generatorRange);
+			auto randomWeight = distr(generator);
 			auto index = FindCandidateIndex(candidates, usedNodeFlags, randomWeight);
 			auto& candidate = candidates[index];
 

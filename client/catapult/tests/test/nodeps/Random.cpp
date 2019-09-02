@@ -19,14 +19,14 @@
 **/
 
 #include "Random.h"
-#include <random>
+#include "catapult/utils/RandomGenerator.h"
 
 namespace catapult { namespace test {
 
 	namespace {
 		template<typename T>
 		void RandomFill(T& container) {
-			std::generate_n(container.begin(), container.size(), []() { return static_cast<typename T::value_type>(Random()); });
+			std::generate_n(container.begin(), container.size(), RandomByte);
 		}
 
 		template<typename T>
@@ -36,32 +36,10 @@ namespace catapult { namespace test {
 			RandomFill(container);
 			return container;
 		}
-
-		class RandomGenerator {
-		public:
-			RandomGenerator() {
-				std::random_device rd;
-				auto seed = (static_cast<uint64_t>(rd()) << 32) | rd();
-				m_gen.seed(seed);
-			}
-
-		public:
-			static RandomGenerator& instance() {
-				static RandomGenerator generator;
-				return generator;
-			}
-
-			uint64_t operator()() {
-				return m_gen();
-			}
-
-		private:
-			std::mt19937_64 m_gen;
-		};
 	}
 
 	uint64_t Random() {
-		return RandomGenerator::instance()();
+		return utils::LowEntropyRandomGenerator()();
 	}
 
 	uint8_t RandomByte() {

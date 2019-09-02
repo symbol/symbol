@@ -37,12 +37,12 @@ namespace catapult { namespace config {
 
 		LOAD_NODE_PROPERTY(Port);
 		LOAD_NODE_PROPERTY(ApiPort);
-		LOAD_NODE_PROPERTY(ShouldAllowAddressReuse);
-		LOAD_NODE_PROPERTY(ShouldUseSingleThreadPool);
-		LOAD_NODE_PROPERTY(ShouldUseCacheDatabaseStorage);
-		LOAD_NODE_PROPERTY(ShouldEnableAutoSyncCleanup);
+		LOAD_NODE_PROPERTY(EnableAddressReuse);
+		LOAD_NODE_PROPERTY(EnableSingleThreadPool);
+		LOAD_NODE_PROPERTY(EnableCacheDatabaseStorage);
+		LOAD_NODE_PROPERTY(EnableAutoSyncCleanup);
 
-		LOAD_NODE_PROPERTY(ShouldEnableTransactionSpamThrottling);
+		LOAD_NODE_PROPERTY(EnableTransactionSpamThrottling);
 		LOAD_NODE_PROPERTY(TransactionSpamThrottlingMaxBoostFee);
 
 		LOAD_NODE_PROPERTY(MaxBlocksPerSyncAttempt);
@@ -70,14 +70,16 @@ namespace catapult { namespace config {
 		LOAD_NODE_PROPERTY(TransactionDisruptorSize);
 		LOAD_NODE_PROPERTY(TransactionElementTraceInterval);
 
-		LOAD_NODE_PROPERTY(ShouldAbortWhenDispatcherIsFull);
-		LOAD_NODE_PROPERTY(ShouldAuditDispatcherInputs);
+		LOAD_NODE_PROPERTY(EnableDispatcherAbortWhenFull);
+		LOAD_NODE_PROPERTY(EnableDispatcherInputAuditing);
 
 		LOAD_NODE_PROPERTY(OutgoingSecurityMode);
 		LOAD_NODE_PROPERTY(IncomingSecurityModes);
 
 		LOAD_NODE_PROPERTY(MaxCacheDatabaseWriteBatchSize);
 		LOAD_NODE_PROPERTY(MaxTrackedNodes);
+
+		LOAD_NODE_PROPERTY(TrustedHosts);
 
 #undef LOAD_NODE_PROPERTY
 
@@ -109,7 +111,7 @@ namespace catapult { namespace config {
 
 #undef LOAD_IN_CONNECTIONS_PROPERTY
 
-		utils::VerifyBagSizeLte(bag, 33 + 4 + 4 + 5);
+		utils::VerifyBagSizeLte(bag, 34 + 4 + 4 + 5);
 		return config;
 	}
 

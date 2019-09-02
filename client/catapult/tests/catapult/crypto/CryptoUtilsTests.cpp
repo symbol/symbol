@@ -28,13 +28,12 @@ namespace catapult { namespace crypto {
 #define TEST_CLASS CryptoUtilsTests
 
 	// the purpose of this test is to verify that:
-	// a) in case of !SIGNATURE_SCHEME_NIS1:
-	//    result of HashPrivateKey, matches 512-bit sha3 hash (tested in sha3_512 tests)
-	// b) in case of SIGNATURE_SCHEME_NIS1
-	//    result of HashPrivateKey, matches 512-bit keccak hash of REVERSED data
+	// a) in case of !SIGNATURE_SCHEME_NIS1: result of HashPrivateKey matches 512-bit sha3 hash
+	// b) in case of  SIGNATURE_SCHEME_NIS1: result of HashPrivateKey matches 512-bit keccak hash
 	TEST(TEST_CLASS, PassesShaVector) {
 		// Arrange:
-		auto privateKey = PrivateKey::FromString("9F2FCC7C90DE090D6B87CD7E9718C1EA6CB21118FC2D5DE9F97E5DB6AC1E9C10");
+		auto privateKeyString = std::string("9F2FCC7C90DE090D6B87CD7E9718C1EA6CB21118FC2D5DE9F97E5DB6AC1E9C10");
+		auto privateKey = PrivateKey::FromString(privateKeyString);
 
 		// Act:
 		Hash512 hash;
@@ -43,12 +42,9 @@ namespace catapult { namespace crypto {
 		// Assert:
 		Hash512 expectedHash;
 #ifdef SIGNATURE_SCHEME_NIS1
-		// pass reversed key
-		auto shaVector = test::ToVector("109C1EACB65D7EF9E95D2DFC1811B26CEAC118977ECD876B0D09DE907CCC2F9F");
-		Keccak_512(shaVector, expectedHash);
+		Keccak_512(test::ToVector(privateKeyString), expectedHash);
 #else
-		auto shaVector = test::ToVector("9F2FCC7C90DE090D6B87CD7E9718C1EA6CB21118FC2D5DE9F97E5DB6AC1E9C10");
-		Sha3_512(shaVector, expectedHash);
+		Sha3_512(test::ToVector(privateKeyString), expectedHash);
 #endif
 
 		EXPECT_EQ(expectedHash, hash);

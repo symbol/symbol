@@ -117,12 +117,11 @@ namespace catapult { namespace observers {
 
 			auto key = TTraits::CreateKey();
 
-			state::CatapultState state;
 			auto cache = test::CreateEmptyCatapultCache();
 			auto cacheDelta = cache.createDelta();
 
 			// - commit
-			auto commitContext = test::CreateObserverContext(cacheDelta, state, commitHeight, NotifyMode::Commit);
+			auto commitContext = test::CreateObserverContext(cacheDelta, commitHeight, NotifyMode::Commit);
 			test::ObserveNotification(*pObserver, TTraits::CreateNotification(key), commitContext);
 
 			// Sanity: the account was added
@@ -130,7 +129,7 @@ namespace catapult { namespace observers {
 			EXPECT_EQ(1u, accountStateCache.size());
 
 			// Act: rollback
-			auto rollbackContext = test::CreateObserverContext(cacheDelta, state, rollbackHeight, NotifyMode::Rollback);
+			auto rollbackContext = test::CreateObserverContext(cacheDelta, rollbackHeight, NotifyMode::Rollback);
 			test::ObserveNotification(*pObserver, TTraits::CreateNotification(key), rollbackContext);
 
 			// Sanity: nothing changed so far

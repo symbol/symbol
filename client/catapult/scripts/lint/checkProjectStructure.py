@@ -81,8 +81,8 @@ class CheckResult(Enum):
 
 
 def checkExternalInclude(incA, incB):
-    extA = incA.startswith('<ref10') or incA.startswith('<ripemd160') or incA.startswith('<sha3')
-    extB = incB.startswith('<ref10') or incB.startswith('<ripemd160') or incB.startswith('<sha3')
+    extA = incA.startswith('<donna') or incA.startswith('<ripemd160') or incA.startswith('<sha3')
+    extB = incB.startswith('<donna') or incB.startswith('<ripemd160') or incB.startswith('<sha3')
 
     if extA and not extB:
         return True

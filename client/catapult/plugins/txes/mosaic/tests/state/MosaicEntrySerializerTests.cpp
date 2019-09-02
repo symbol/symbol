@@ -39,7 +39,9 @@ namespace catapult { namespace state {
 			catapult::Height Height;
 			Key Owner;
 			uint32_t Revision;
-			std::array<uint64_t, model::Num_Mosaic_Properties> PropertyValues;
+			model::MosaicFlags Flags;
+			uint8_t Divisibility;
+			BlockDuration Duration;
 		};
 	}
 
@@ -51,15 +53,7 @@ namespace catapult { namespace state {
 
 	namespace {
 		model::MosaicProperties CreateMosaicProperties(uint64_t seed) {
-			auto values = model::MosaicProperties::PropertyValuesContainer();
-
-			uint8_t i = 0;
-			for (auto& value : values) {
-				value = i * i + seed;
-				++i;
-			}
-
-			return model::MosaicProperties::FromValues(values);
+			return model::MosaicProperties(static_cast<model::MosaicFlags>(seed), static_cast<uint8_t>(seed + 1), BlockDuration(seed + 4));
 		}
 
 		void AssertEntryHeader(
@@ -81,8 +75,11 @@ namespace catapult { namespace state {
 			EXPECT_EQ(height, entryHeader.Height) << message;
 			EXPECT_EQ(owner, entryHeader.Owner) << message;
 			EXPECT_EQ(revision, entryHeader.Revision) << message;
-			for (auto i = 0u; i < model::Num_Mosaic_Properties; ++i)
-				EXPECT_EQ(i * i + propertiesSeed, entryHeader.PropertyValues[i]) << message << " property " << i;
+
+			// - properties
+			EXPECT_EQ(static_cast<model::MosaicFlags>(propertiesSeed), entryHeader.Flags);
+			EXPECT_EQ(static_cast<uint8_t>(propertiesSeed + 1), entryHeader.Divisibility);
+			EXPECT_EQ(BlockDuration(propertiesSeed + 4), entryHeader.Duration);
 		}
 	}
 
@@ -100,7 +97,7 @@ namespace catapult { namespace state {
 
 		// Assert:
 		ASSERT_EQ(sizeof(MosaicEntryHeader), buffer.size());
-		AssertEntryHeader(buffer, MosaicId(123), Amount(111), Height(888), definition.owner(), 5, 17);
+		AssertEntryHeader(buffer, MosaicId(123), Amount(111), Height(888), definition.ownerPublicKey(), 5, 17);
 	}
 
 	// endregion

@@ -35,10 +35,9 @@ namespace catapult { namespace observers {
 
 		public:
 			void notify(uint8_t notificationId, NotifyMode mode) {
-				state::CatapultState state;
 				cache::CatapultCache cache({});
 				auto cacheDelta = cache.createDelta();
-				auto context = test::CreateObserverContext(cacheDelta, state, Height(123), mode);
+				auto context = test::CreateObserverContext(cacheDelta, Height(123), mode);
 				test::ObserveNotification<model::Notification>(*pDemuxObserver, test::TaggedNotification(notificationId), context);
 			}
 		};
@@ -207,10 +206,9 @@ namespace catapult { namespace observers {
 			Breadcrumbs breadcrumbs;
 			DemuxObserverBuilder builder;
 
-			state::CatapultState state;
 			cache::CatapultCache cache({});
 			auto cacheDelta = cache.createDelta();
-			auto context = test::CreateObserverContext(cacheDelta, state, Height(123), NotifyMode::Commit);
+			auto context = test::CreateObserverContext(cacheDelta, Height(123), NotifyMode::Commit);
 
 			builder
 				.add(CreateBreadcrumbObserver<model::AccountPublicKeyNotification>(breadcrumbs, "alpha"))

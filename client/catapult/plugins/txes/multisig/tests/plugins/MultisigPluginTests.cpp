@@ -37,7 +37,7 @@ namespace catapult { namespace plugins {
 					"",
 					{
 						{ "maxMultisigDepth", "0" },
-						{ "maxCosignersPerAccount", "0" },
+						{ "maxCosignatoriesPerAccount", "0" },
 						{ "maxCosignedAccountsPerAccount", "0" }
 					}
 				}}));
@@ -51,7 +51,7 @@ namespace catapult { namespace plugins {
 
 		public:
 			static std::vector<model::EntityType> GetTransactionTypes() {
-				return { model::Entity_Type_Modify_Multisig_Account };
+				return { model::Entity_Type_Multisig_Account_Modification };
 			}
 
 			static std::vector<std::string> GetCacheNames() {
@@ -71,28 +71,28 @@ namespace catapult { namespace plugins {
 			}
 
 			static std::vector<std::string> GetStatelessValidatorNames() {
-				return { "ModifyMultisigCosignersValidator" };
+				return { "MultisigCosignatoriesValidator" };
 			}
 
 			static std::vector<std::string> GetStatefulValidatorNames() {
 				return {
 					"MultisigPermittedOperationValidator",
-					"ModifyMultisigMaxCosignedAccountsValidator",
-					"ModifyMultisigMaxCosignersValidator",
-					"ModifyMultisigInvalidCosignersValidator",
-					"ModifyMultisigInvalidSettingsValidator",
-					"ModifyMultisigLoopAndLevelValidator",
-					"MultisigAggregateEligibleCosignersValidator",
-					"MultisigAggregateSufficientCosignersValidator"
+					"MultisigMaxCosignedAccountsValidator",
+					"MultisigMaxCosignatoriesValidator",
+					"MultisigInvalidCosignatoriesValidator",
+					"MultisigInvalidSettingsValidator",
+					"MultisigLoopAndLevelValidator",
+					"MultisigAggregateEligibleCosignatoriesValidator",
+					"MultisigAggregateSufficientCosignatoriesValidator"
 				};
 			}
 
 			static std::vector<std::string> GetObserverNames() {
-				return { "ModifyMultisigCosignersObserver", "ModifyMultisigSettingsObserver" };
+				return { "MultisigCosignatoriesObserver", "MultisigSettingsObserver" };
 			}
 
 			static std::vector<std::string> GetPermanentObserverNames() {
-				return { "ModifyMultisigCosignersObserver", "ModifyMultisigSettingsObserver" };
+				return GetObserverNames();
 			}
 		};
 	}

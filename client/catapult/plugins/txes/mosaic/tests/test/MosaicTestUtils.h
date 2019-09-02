@@ -23,6 +23,9 @@
 
 namespace catapult { namespace test {
 
+	/// Creates mosaic properties from values: \a flags, \a divisibility, \a duration.
+	model::MosaicProperties CreateMosaicPropertiesFromValues(uint8_t flags, uint8_t divisibility, uint64_t duration);
+
 	/// Creates mosaic properties with a custom \a duration.
 	model::MosaicProperties CreateMosaicPropertiesWithDuration(BlockDuration duration);
 

@@ -112,7 +112,6 @@ namespace catapult { namespace local {
 						m_config,
 						m_nodes,
 						m_catapultCache,
-						m_catapultState,
 						m_storage,
 						m_score,
 						*m_pUtCache,
@@ -138,8 +137,9 @@ namespace catapult { namespace local {
 		private:
 			void registerCounters() {
 				AddMemoryCounters(m_counters);
-				m_counters.emplace_back(utils::DiagnosticCounterId("TOT CONF TXES"), [&state = m_catapultState]() {
-					return state.NumTotalTransactions;
+				const auto& catapultCache = m_catapultCache;
+				m_counters.emplace_back(utils::DiagnosticCounterId("TOT CONF TXES"), [&catapultCache]() {
+					return catapultCache.createView().dependentState().NumTotalTransactions;
 				});
 
 				m_pluginManager.addDiagnosticCounters(m_counters, m_catapultCache); // add cache counters
@@ -161,7 +161,7 @@ namespace catapult { namespace local {
 				notifier.raise(*m_pStateChangeSubscriber);
 
 				// skip next *two* messages because subscriber creates two files during raise (score change and state change)
-				if (m_config.Node.ShouldEnableAutoSyncCleanup)
+				if (m_config.Node.EnableAutoSyncCleanup)
 					io::FileQueueReader(m_dataDirectory.spoolDir("state_change").str(), "index_server_r.dat", "index_server.dat").skip(2);
 
 				return true;
@@ -195,7 +195,7 @@ namespace catapult { namespace local {
 					return;
 
 				constexpr auto SaveStateToDirectoryWithCheckpointing = extensions::SaveStateToDirectoryWithCheckpointing;
-				SaveStateToDirectoryWithCheckpointing(m_dataDirectory, m_config.Node, m_catapultCache, m_catapultState, m_score.get());
+				SaveStateToDirectoryWithCheckpointing(m_dataDirectory, m_config.Node, m_catapultCache, m_score.get());
 			}
 
 		public:
@@ -222,7 +222,7 @@ namespace catapult { namespace local {
 
 		private:
 			extensions::LocalNodeStateRef stateRef() {
-				return extensions::LocalNodeStateRef(m_config, m_catapultState, m_catapultCache, m_storage, m_score);
+				return extensions::LocalNodeStateRef(m_config, m_catapultCache, m_storage, m_score);
 			}
 
 		private:
@@ -237,7 +237,6 @@ namespace catapult { namespace local {
 			ionet::NodeContainer m_nodes;
 
 			cache::CatapultCache m_catapultCache;
-			state::CatapultState m_catapultState;
 			io::BlockStorageCache m_storage;
 			extensions::LocalNodeChainScore m_score;
 			std::unique_ptr<cache::MemoryUtCacheProxy> m_pUtCache;

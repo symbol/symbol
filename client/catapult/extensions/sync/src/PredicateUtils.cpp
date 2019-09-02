@@ -51,7 +51,7 @@ namespace catapult { namespace sync {
 				config.Node.UnconfirmedTransactionsCacheMaxSize,
 				config.BlockChain.MaxTransactionsPerBlock);
 
-		return config.Node.ShouldEnableTransactionSpamThrottling
+		return config.Node.EnableTransactionSpamThrottling
 				? CreateTransactionSpamThrottle(throttleConfig, IsBondedTransaction)
 				: CreateDefaultUtUpdaterThrottle(throttleConfig.MaxCacheSize);
 	}

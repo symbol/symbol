@@ -23,8 +23,10 @@
 #include "catapult/cache/CatapultCacheBuilder.h"
 #include "catapult/cache/ReadOnlyCatapultCache.h"
 #include "catapult/crypto/Hashes.h"
+#include "catapult/state/CatapultState.h"
 #include "tests/test/cache/CacheBasicTests.h"
 #include "tests/test/cache/SimpleCache.h"
+#include "tests/test/core/StateTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/TestHarness.h"
 
@@ -270,7 +272,7 @@ namespace catapult { namespace cache {
 	TEST(TEST_CLASS, CommitOfSubCacheInvalidatesDetachedDelta) {
 		// Arrange:
 		auto cache = CreateSimpleCatapultCache();
-		CatapultCacheDetachedDelta cacheDetachedDelta({});
+		CatapultCacheDetachedDelta cacheDetachedDelta(state::CatapultState(), {});
 		{
 			// - create a detachable delta and release it (to release read lock it holds)
 			auto cacheDetachableDelta = cache.createDetachableDelta();
@@ -370,6 +372,82 @@ namespace catapult { namespace cache {
 
 	// endregion
 
+	// region dependent state
+
+	namespace {
+		template<typename TAssertState>
+		void AssertDependentState(cache::CatapultCache& cache, TAssertState assertState) {
+			assertState(cache.createView().dependentState(), "view");
+			assertState(cache.createDelta().dependentState(), "delta");
+			assertState(const_cast<const CatapultCacheDelta&&>(cache.createDelta()).dependentState(), "delta (const)");
+
+			auto cacheDetachableDelta = cache.createDetachableDelta();
+			assertState(cacheDetachableDelta.detach().tryLock()->dependentState(), "detachable delta");
+		}
+	}
+
+	TEST(TEST_CLASS, DependentStateIsInitiallyZero) {
+		// Arrange:
+		auto cache = CreateSimpleCatapultCache();
+
+		// Assert:
+		AssertDependentState(cache, [](const auto& state, const auto& message) {
+			test::AssertEqual(state::CatapultState(), state, message);
+		});
+	}
+
+	TEST(TEST_CLASS, DependentStateChangesAreDiscardedWhenDeltaIsNotCommitted) {
+		// Arrange:
+		auto cache = CreateSimpleCatapultCache();
+
+		// Act: modify dependent state but throw it away
+		{
+			auto cacheDelta = cache.createDelta();
+			cacheDelta.dependentState().NumTotalTransactions = 100;
+		}
+
+		// Assert:
+		AssertDependentState(cache, [](const auto& state, const auto& message) {
+			test::AssertEqual(state::CatapultState(), state, message);
+		});
+	}
+
+	TEST(TEST_CLASS, DependentStateChangesAreCommittedWhenDeltaIsCommitted) {
+		// Arrange:
+		auto cache = CreateSimpleCatapultCache();
+
+		// Act: modify and commit dependent state
+		{
+			auto cacheDelta = cache.createDelta();
+			cacheDelta.dependentState().NumTotalTransactions = 100;
+			cache.commit(Height(2));
+		}
+
+		// Assert:
+		AssertDependentState(cache, [](const auto& state, const auto& message) {
+			auto expectedState = state::CatapultState();
+			expectedState.NumTotalTransactions = 100;
+			test::AssertEqual(expectedState, state, message);
+		});
+	}
+
+	TEST(TEST_CLASS, DependentStateChangesAreReflectedInDeltaAfterCommit) {
+		// Arrange:
+		auto cache = CreateSimpleCatapultCache();
+
+		// Act: modify and commit dependent state
+		auto cacheDelta = cache.createDelta();
+		cacheDelta.dependentState().NumTotalTransactions = 100;
+		cache.commit(Height(2));
+
+		// Assert:
+		auto expectedState = state::CatapultState();
+		expectedState.NumTotalTransactions = 100;
+		test::AssertEqual(expectedState, cacheDelta.dependentState());
+	}
+
+	// endregion
+
 	// region toReadOnly
 
 	TEST(TEST_CLASS, CanAcquireReadOnlyViewOfView) {
@@ -387,6 +465,7 @@ namespace catapult { namespace cache {
 		auto readOnlyView = view.toReadOnly();
 
 		// Assert: only committed changes are present
+		EXPECT_EQ(&view.dependentState(), &readOnlyView.dependentState());
 		AssertSubCacheSizes(readOnlyView, 1);
 	}
 
@@ -402,6 +481,7 @@ namespace catapult { namespace cache {
 		auto readOnlyView = delta.toReadOnly();
 
 		// Assert: both committed and uncommitted changes are present
+		EXPECT_EQ(&delta.dependentState(), &readOnlyView.dependentState());
 		AssertSubCacheSizes(readOnlyView, 2);
 	}
 
@@ -591,7 +671,7 @@ namespace catapult { namespace cache {
 			class ViewProxy {
 			public:
 				ViewProxy()
-						: m_view({})
+						: m_view(m_dependentState, {})
 						, m_isValid(false)
 				{}
 
@@ -614,6 +694,7 @@ namespace catapult { namespace cache {
 				}
 
 			private:
+				state::CatapultState m_dependentState;
 				TView m_view;
 				bool m_isValid;
 			};

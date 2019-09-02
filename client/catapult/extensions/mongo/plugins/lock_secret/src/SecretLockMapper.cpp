@@ -36,7 +36,7 @@ namespace catapult { namespace mongo { namespace plugins {
 					<< "amount" << ToInt64(transaction.Mosaic.Amount)
 					<< "hashAlgorithm" << utils::to_underlying_type(transaction.HashAlgorithm)
 					<< "secret" << ToBinary(transaction.Secret)
-					<< "recipient" << ToBinary(transaction.Recipient);
+					<< "recipientAddress" << ToBinary(transaction.RecipientAddress);
 		}
 	}
 

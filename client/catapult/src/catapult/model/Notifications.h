@@ -119,23 +119,33 @@ namespace catapult { namespace model {
 	/// Notifies a balance transfer from sender to recipient.
 	struct BalanceTransferNotification : public BasicBalanceNotification<BalanceTransferNotification> {
 	public:
+		/// Balance transfer amount types.
+		enum class AmountType { Static, Dynamic };
+
+	public:
 		/// Matching notification type.
 		static constexpr auto Notification_Type = Core_Balance_Transfer_Notification;
 
 	public:
-		/// Creates a notification around \a sender, \a recipient, \a mosaicId and \a amount.
+		/// Creates a notification around \a sender, \a recipient, \a mosaicId and \a amount
+		/// with optional amount type (\a transferAmountType) indicating interpretation of transfer amount.
 		BalanceTransferNotification(
 				const Key& sender,
 				const UnresolvedAddress& recipient,
 				UnresolvedMosaicId mosaicId,
-				catapult::Amount amount)
+				catapult::Amount amount,
+				AmountType transferAmountType = AmountType::Static)
 				: BasicBalanceNotification(sender, mosaicId, amount)
 				, Recipient(recipient)
+				, TransferAmountType(transferAmountType)
 		{}
 
 	public:
 		/// Recipient.
 		UnresolvedAddress Recipient;
+
+		/// Amount type indicating interpretation of transfer amount.
+		AmountType TransferAmountType;
 	};
 
 	/// Notifies a balance debit by sender.
@@ -193,13 +203,19 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = Core_Block_Notification;
 
 	public:
-		/// Creates a block notification around \a signer, \a beneficiary, \a timestamp and \a difficulty.
-		BlockNotification(const Key& signer, const Key& beneficiary, Timestamp timestamp, Difficulty difficulty)
+		/// Creates a block notification around \a signer, \a beneficiary, \a timestamp, \a difficulty and \a feeMultiplier.
+		BlockNotification(
+				const Key& signer,
+				const Key& beneficiary,
+				Timestamp timestamp,
+				Difficulty difficulty,
+				BlockFeeMultiplier feeMultiplier)
 				: Notification(Notification_Type, sizeof(BlockNotification))
 				, Signer(signer)
 				, Beneficiary(beneficiary)
 				, Timestamp(timestamp)
 				, Difficulty(difficulty)
+				, FeeMultiplier(feeMultiplier)
 				, NumTransactions(0)
 		{}
 
@@ -207,7 +223,7 @@ namespace catapult { namespace model {
 		/// Block signer.
 		const Key& Signer;
 
-		/// Beneficiary.
+		/// Block beneficiary.
 		const Key& Beneficiary;
 
 		/// Block timestamp.
@@ -215,6 +231,9 @@ namespace catapult { namespace model {
 
 		/// Block difficulty.
 		catapult::Difficulty Difficulty;
+
+		/// Block fee multiplier.
+		BlockFeeMultiplier FeeMultiplier;
 
 		/// Total block fee.
 		Amount TotalFee;

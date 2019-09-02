@@ -32,7 +32,7 @@ namespace catapult { namespace mongo { namespace plugins {
 			static std::vector<model::EntityType> GetTransactionTypes() {
 				return {
 					model::Entity_Type_Mosaic_Address_Restriction,
-					model::Entity_Type_Mosaic_Global_Restriction,
+					model::Entity_Type_Mosaic_Global_Restriction
 				};
 			}
 

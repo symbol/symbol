@@ -31,10 +31,10 @@ namespace catapult { namespace model {
 	template<typename THeader>
 	struct SharedAliasBody : public THeader {
 	public:
-		// Alias transaction action.
+		// Alias action.
 		model::AliasAction AliasAction;
 
-		/// Id of a namespace that will become an alias.
+		/// Identifier of the namespace that will become an alias.
 		catapult::NamespaceId NamespaceId;
 	};
 

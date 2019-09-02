@@ -25,15 +25,15 @@ namespace catapult { namespace builders {
 
 	MosaicDefinitionBuilder::MosaicDefinitionBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
 			: TransactionBuilder(networkIdentifier, signer)
-			, m_mosaicNonce()
-			, m_mosaicId()
+			, m_nonce()
+			, m_id()
 			, m_flags()
 			, m_divisibility()
-			, m_properties()
+			, m_duration()
 	{}
 
-	void MosaicDefinitionBuilder::setMosaicNonce(MosaicNonce mosaicNonce) {
-		m_mosaicNonce = mosaicNonce;
+	void MosaicDefinitionBuilder::setNonce(MosaicNonce nonce) {
+		m_nonce = nonce;
 	}
 
 	void MosaicDefinitionBuilder::setFlags(model::MosaicFlags flags) {
@@ -44,10 +44,8 @@ namespace catapult { namespace builders {
 		m_divisibility = divisibility;
 	}
 
-	void MosaicDefinitionBuilder::addProperty(const model::MosaicProperty& property) {
-		InsertSorted(m_properties, property, [](const auto& lhs, const auto& rhs) {
-			return lhs.Id < rhs.Id;
-		});
+	void MosaicDefinitionBuilder::setDuration(BlockDuration duration) {
+		m_duration = duration;
 	}
 
 	size_t MosaicDefinitionBuilder::size() const {
@@ -66,7 +64,6 @@ namespace catapult { namespace builders {
 	size_t MosaicDefinitionBuilder::sizeImpl() const {
 		// calculate transaction size
 		auto size = sizeof(TransactionType);
-		size += m_properties.size() * sizeof(model::MosaicProperty);
 		return size;
 	}
 
@@ -76,14 +73,11 @@ namespace catapult { namespace builders {
 		auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
 
 		// 2. set fixed transaction fields
-		pTransaction->MosaicNonce = m_mosaicNonce;
-		pTransaction->MosaicId = model::GenerateMosaicId(signer(), m_mosaicNonce);
-		pTransaction->PropertiesHeader.Count = utils::checked_cast<size_t, uint8_t>(m_properties.size());
-		pTransaction->PropertiesHeader.Flags = m_flags;
-		pTransaction->PropertiesHeader.Divisibility = m_divisibility;
-
-		// 3. set transaction attachments
-		std::copy(m_properties.cbegin(), m_properties.cend(), pTransaction->PropertiesPtr());
+		pTransaction->Nonce = m_nonce;
+		pTransaction->Id = model::GenerateMosaicId(signerPublicKey(), m_nonce);
+		pTransaction->Flags = m_flags;
+		pTransaction->Divisibility = m_divisibility;
+		pTransaction->Duration = m_duration;
 
 		return pTransaction;
 	}

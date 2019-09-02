@@ -38,6 +38,7 @@ namespace catapult { namespace chain {
 	namespace {
 		constexpr auto Default_Height = Height(17);
 		constexpr auto Default_Time = Timestamp(987);
+		constexpr auto Default_Last_Recalculation_Height = model::ImportanceHeight(1234);
 
 		ValidationResult Modify(ValidationResult result) {
 			// used to modify a ValidationResult while preserving its severity
@@ -52,7 +53,11 @@ namespace catapult { namespace chain {
 		}
 
 		auto CreateCacheWithDefaultHeight() {
-			return test::CreateCatapultCacheWithMarkerAccount(Default_Height);
+			auto cache = test::CreateCatapultCacheWithMarkerAccount(Default_Height);
+			auto cacheDelta = cache.createDelta();
+			cacheDelta.dependentState().LastRecalculationHeight = Default_Last_Recalculation_Height;
+			cache.commit(Default_Height);
+			return cache;
 		}
 
 		// region functional helpers
@@ -164,11 +169,11 @@ namespace catapult { namespace chain {
 			}
 
 		public:
-			void seedDifficultyInfos(size_t count) {
+			void seedStatistics(size_t count) {
 				auto delta = m_cache.createDelta();
-				auto& blockDifficultyCache = delta.sub<cache::BlockDifficultyCache>();
+				auto& blockStatisticCache = delta.sub<cache::BlockStatisticCache>();
 				for (auto i = 0u; i < count; ++i)
-					blockDifficultyCache.insert(state::BlockDifficultyInfo(Height(blockDifficultyCache.size() + 1)));
+					blockStatisticCache.insert(state::BlockStatistic(Height(blockStatisticCache.size() + 1)));
 
 				m_cache.commit(Default_Height);
 			}
@@ -200,64 +205,64 @@ namespace catapult { namespace chain {
 				}
 			}
 
-			void assertValidatorContexts(const std::vector<size_t>& expectedNumDifficultyInfos) const {
+			void assertValidatorContexts(const std::vector<size_t>& expectedNumStatistics) const {
 				// Assert:
 				CATAPULT_LOG(debug) << "checking validator contexts passed to validator";
 				test::MockExecutionConfiguration::AssertValidatorContexts(
 						*m_executionConfig.pValidator,
-						expectedNumDifficultyInfos,
+						expectedNumStatistics,
 						Default_Height + Height(1),
 						Default_Time);
 			}
 
-			void assertObserverContexts(size_t numInitialCacheDifficultyInfos) const {
+			void assertObserverContexts(size_t numInitialCacheStatistics) const {
 				// Assert:
 				CATAPULT_LOG(debug) << "checking observer contexts passed to observer";
 				test::MockExecutionConfiguration::AssertObserverContexts(
 						*m_executionConfig.pObserver,
-						numInitialCacheDifficultyInfos,
+						numInitialCacheStatistics,
 						Default_Height + Height(1),
-						model::ImportanceHeight(0), // a dummy state is passed by the updater because only block observers modify it
+						Default_Last_Recalculation_Height,
 						[this](auto i) { return this->isRollbackExecution(i); });
 			}
 
-			std::vector<size_t> getExpectedNumDifficultyInfos(size_t numInitialCacheDifficultyInfos) const {
-				std::vector<size_t> expectedNumDifficultyInfos;
+			std::vector<size_t> getExpectedNumStatistics(size_t numInitialCacheStatistics) const {
+				std::vector<size_t> expectedNumStatistics;
 				for (auto i = 0u; i < m_executionConfig.pObserver->params().size(); ++i)
-					expectedNumDifficultyInfos.push_back(numInitialCacheDifficultyInfos + i);
+					expectedNumStatistics.push_back(numInitialCacheStatistics + i);
 
-				return expectedNumDifficultyInfos;
+				return expectedNumStatistics;
 			}
 
 		public:
 			void assertContexts(
 					const std::vector<UtUpdater::TransactionSource>& expectedTransactionSources,
-					const std::vector<size_t>& expectedNumDifficultyInfos) const {
+					const std::vector<size_t>& expectedNumStatistics) const {
 				// Assert:
 				assertThrottleContexts(expectedTransactionSources);
-				assertValidatorContexts(expectedNumDifficultyInfos);
+				assertValidatorContexts(expectedNumStatistics);
 				assertObserverContexts(0);
 			}
 
 			void assertContexts(
 					UtUpdater::TransactionSource expectedTransactionSource,
-					const std::vector<size_t>& expectedNumDifficultyInfos) const {
+					const std::vector<size_t>& expectedNumStatistics) const {
 				// Assert:
-				assertContexts({ m_throttleParams.size(), expectedTransactionSource }, expectedNumDifficultyInfos);
+				assertContexts({ m_throttleParams.size(), expectedTransactionSource }, expectedNumStatistics);
 			}
 
 			void assertContexts(UtUpdater::TransactionSource expectedTransactionSource) const {
 				// Assert:
-				assertContexts(expectedTransactionSource, getExpectedNumDifficultyInfos(0));
+				assertContexts(expectedTransactionSource, getExpectedNumStatistics(0));
 			}
 
 			void assertContexts(
 					const std::vector<UtUpdater::TransactionSource>& expectedTransactionSources,
-					size_t numInitialCacheDifficultyInfos = 0) const {
+					size_t numInitialCacheStatistics = 0) const {
 				// Assert:
 				assertThrottleContexts(expectedTransactionSources);
-				assertValidatorContexts(getExpectedNumDifficultyInfos(numInitialCacheDifficultyInfos));
-				assertObserverContexts(numInitialCacheDifficultyInfos);
+				assertValidatorContexts(getExpectedNumStatistics(numInitialCacheStatistics));
+				assertObserverContexts(numInitialCacheStatistics);
 			}
 
 			// endregion
@@ -776,7 +781,7 @@ namespace catapult { namespace chain {
 		test::AddAll(context.transactionsCache(), originalTransactionData.UtInfos);
 
 		// - modify the catapult cache after creating the updater
-		context.seedDifficultyInfos(7);
+		context.seedStatistics(7);
 
 		// - prepare 4 new transactions
 		auto transactionData = CreateTransactionData(4);
@@ -808,7 +813,7 @@ namespace catapult { namespace chain {
 		test::AddAll(context.transactionsCache(), originalTransactionData.UtInfos);
 
 		// - modify the catapult cache after creating the updater
-		context.seedDifficultyInfos(7);
+		context.seedStatistics(7);
 
 		// - prepare 4 new transactions
 		auto transactionData = CreateTransactionData(4);
@@ -826,7 +831,7 @@ namespace catapult { namespace chain {
 
 		// - both new and original entities were executed relative to the updated cache
 		//   (the rebase is implicitly checked by asserting that the first validator and observer were passed
-		//    a cache with 7 - instead of 0 - block difficulty infos)
+		//    a cache with 7 - instead of 0 - block statistics)
 		context.assertContexts(CreateRevertedAndExistingSources(4, 3), 7);
 		context.assertEntityInfos(ConcatContainers(transactionData.EntityInfos, originalTransactionData.EntityInfos));
 	}

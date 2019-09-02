@@ -24,13 +24,13 @@ namespace catapult { namespace builders {
 
 	TransferBuilder::TransferBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
 			: TransactionBuilder(networkIdentifier, signer)
-			, m_recipient()
+			, m_recipientAddress()
 			, m_message()
 			, m_mosaics()
 	{}
 
-	void TransferBuilder::setRecipient(const UnresolvedAddress& recipient) {
-		m_recipient = recipient;
+	void TransferBuilder::setRecipientAddress(const UnresolvedAddress& recipientAddress) {
+		m_recipientAddress = recipientAddress;
 	}
 
 	void TransferBuilder::setMessage(const RawBuffer& message) {
@@ -77,7 +77,7 @@ namespace catapult { namespace builders {
 		auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
 
 		// 2. set fixed transaction fields
-		pTransaction->Recipient = m_recipient;
+		pTransaction->RecipientAddress = m_recipientAddress;
 		pTransaction->MessageSize = utils::checked_cast<size_t, uint16_t>(m_message.size());
 		pTransaction->MosaicsCount = utils::checked_cast<size_t, uint8_t>(m_mosaics.size());
 

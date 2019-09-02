@@ -59,6 +59,6 @@ namespace catapult { namespace model {
 	}
 
 	void PublishNotifications(const EmbeddedTransaction& transaction, NotificationSubscriber& sub) {
-		sub.notify(AccountPublicKeyNotification(transaction.Signer));
+		sub.notify(AccountPublicKeyNotification(transaction.SignerPublicKey));
 	}
 }}

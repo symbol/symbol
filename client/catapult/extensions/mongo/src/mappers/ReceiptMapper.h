@@ -27,12 +27,12 @@ namespace catapult { namespace mongo { class MongoReceiptRegistry; } }
 
 namespace catapult { namespace mongo { namespace mappers {
 
-	/// Streams \a receipt into \a builder.
+	/// Streams \a receipt to \a builder.
 	template<typename TArtifactId>
 	void StreamReceipt(bson_stream::document& builder, const model::ArtifactExpiryReceipt<TArtifactId>& receipt) {
 		builder << "artifactId" << ToInt64(receipt.ArtifactId);
 	}
 
-	/// Streams a \a receipt into \a builder using \a receiptRegistry for mapping derived receipt types.
+	/// Streams \a receipt to \a builder using \a receiptRegistry for mapping derived receipt types.
 	void StreamReceipt(bson_stream::document& builder, const model::Receipt& receipt, const MongoReceiptRegistry& receiptRegistry);
 }}}

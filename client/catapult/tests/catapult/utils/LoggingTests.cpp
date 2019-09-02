@@ -352,7 +352,7 @@ namespace catapult { namespace utils {
 			test::AssertMessages(secondaryRecords, {
 				"<trace> (foo::LoggingTests.cpp@58) alice trace message",
 				"<info> (foo::LoggingTests.cpp@59) foo info",
-				"<error> (foo::LoggingTests.cpp@60) baz error",
+				"<error> (foo::LoggingTests.cpp@60) baz error"
 			});
 		}
 	}

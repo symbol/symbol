@@ -35,18 +35,13 @@ namespace catapult { namespace observers {
 
 	// region ObserverState
 
-	ObserverState::ObserverState(cache::CatapultCacheDelta& cache, state::CatapultState& state)
+	ObserverState::ObserverState(cache::CatapultCacheDelta& cache)
 			: Cache(cache)
-			, State(state)
 			, pBlockStatementBuilder(nullptr)
 	{}
 
-	ObserverState::ObserverState(
-			cache::CatapultCacheDelta& cache,
-			state::CatapultState& state,
-			model::BlockStatementBuilder& blockStatementBuilder)
+	ObserverState::ObserverState(cache::CatapultCacheDelta& cache, model::BlockStatementBuilder& blockStatementBuilder)
 			: Cache(cache)
-			, State(state)
 			, pBlockStatementBuilder(&blockStatementBuilder)
 	{}
 
@@ -72,7 +67,6 @@ namespace catapult { namespace observers {
 			NotifyMode mode,
 			const model::ResolverContext& resolvers)
 			: Cache(state.Cache)
-			, State(state.State)
 			, Height(height)
 			, Mode(mode)
 			, Resolvers(BindConditional(resolvers, state.pBlockStatementBuilder))

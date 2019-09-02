@@ -64,6 +64,9 @@ namespace catapult { namespace consumers {
 	/// Validation failed because the remote chain timestamp is too far in the future.
 	DEFINE_CONSUMER_RESULT(Remote_Chain_Too_Far_In_Future, 11);
 
+	/// Validation failed because the verification of the signature failed during a batch operation.
+	DEFINE_CONSUMER_RESULT(Batch_Signature_Not_Verifiable, 12);
+
 #ifndef CUSTOM_RESULT_DEFINITION
 }}
 #endif

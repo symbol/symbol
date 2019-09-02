@@ -27,19 +27,26 @@ namespace catapult { namespace model {
 
 #pragma pack(push, 1)
 
+	/// Metadata transaction header with mosaic id target.
+	template<typename THeader>
+	struct MosaicMetadataTransactionHeader : public MetadataTransactionHeader<THeader> {
+		/// Target mosaic identifier.
+		UnresolvedMosaicId TargetMosaicId;
+	};
+
 	/// Binary layout for a mosaic metadata transaction body.
 	template<typename THeader>
-	using MosaicMetadataTransactionBody = BasicMetadataTransactionBody<
-		MetadataTransactionHeaderT<THeader, UnresolvedMosaicId>,
-		Entity_Type_Mosaic_Metadata>;
+	struct MosaicMetadataTransactionBody
+			: public BasicMetadataTransactionBody<MosaicMetadataTransactionHeader<THeader>, Entity_Type_Mosaic_Metadata>
+	{};
 
 	DEFINE_EMBEDDABLE_TRANSACTION(MosaicMetadata)
 
 #pragma pack(pop)
 
 	/// Extracts public keys of additional accounts that must approve \a transaction.
-	inline utils::KeySet ExtractAdditionalRequiredCosigners(const EmbeddedMosaicMetadataTransaction& transaction) {
-		return transaction.Signer == transaction.TargetPublicKey ? utils::KeySet() : utils::KeySet{ transaction.TargetPublicKey };
+	inline utils::KeySet ExtractAdditionalRequiredCosignatories(const EmbeddedMosaicMetadataTransaction& transaction) {
+		return transaction.SignerPublicKey == transaction.TargetPublicKey ? utils::KeySet() : utils::KeySet{ transaction.TargetPublicKey };
 	}
 }}
 

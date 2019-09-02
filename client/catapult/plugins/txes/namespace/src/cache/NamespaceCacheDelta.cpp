@@ -70,20 +70,20 @@ namespace catapult { namespace cache {
 		if (pHistory) {
 			// if the owner changed, remove all of the current root's children
 			const auto& activeChildren = pHistory->back().children();
-			if (pHistory->back().owner() != ns.owner()) {
+			if (pHistory->back().ownerPublicKey() != ns.ownerPublicKey()) {
 				RemoveAll(*m_pNamespaceById, activeChildren);
 				decrementActiveSize(activeChildren.size());
 			} else {
 				incrementDeepSize(activeChildren.size());
 			}
 
-			pHistory->push_back(ns.owner(), ns.lifetime());
+			pHistory->push_back(ns.ownerPublicKey(), ns.lifetime());
 			incrementDeepSize();
 			return;
 		}
 
 		state::RootNamespaceHistory history(ns.id());
-		history.push_back(ns.owner(), ns.lifetime());
+		history.push_back(ns.ownerPublicKey(), ns.lifetime());
 		m_pHistoryById->insert(std::move(history));
 		incrementActiveSize();
 		incrementDeepSize();
@@ -156,7 +156,7 @@ namespace catapult { namespace cache {
 		const auto& currentRoot = pHistory->back();
 		auto numRemovedChildren = removedRoot.children().size();
 		auto numRemovedChildrenAndRoot = 1 + numRemovedChildren;
-		if (removedRoot.owner() != currentRoot.owner()) {
+		if (removedRoot.ownerPublicKey() != currentRoot.ownerPublicKey()) {
 			RemoveAll(*m_pNamespaceById, removedRoot.children());
 			decrementActiveSize(numRemovedChildren);
 

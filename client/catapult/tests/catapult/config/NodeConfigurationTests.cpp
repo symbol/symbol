@@ -35,12 +35,12 @@ namespace catapult { namespace config {
 						{
 							{ "port", "1234" },
 							{ "apiPort", "8888" },
-							{ "shouldAllowAddressReuse", "true" },
-							{ "shouldUseSingleThreadPool", "true" },
-							{ "shouldUseCacheDatabaseStorage", "true" },
-							{ "shouldEnableAutoSyncCleanup", "true" },
+							{ "enableAddressReuse", "true" },
+							{ "enableSingleThreadPool", "true" },
+							{ "enableCacheDatabaseStorage", "true" },
+							{ "enableAutoSyncCleanup", "true" },
 
-							{ "shouldEnableTransactionSpamThrottling", "true" },
+							{ "enableTransactionSpamThrottling", "true" },
 							{ "transactionSpamThrottlingMaxBoostFee", "54'123" },
 
 							{ "maxBlocksPerSyncAttempt", "50" },
@@ -68,14 +68,16 @@ namespace catapult { namespace config {
 							{ "transactionDisruptorSize", "9876" },
 							{ "transactionElementTraceInterval", "98" },
 
-							{ "shouldAbortWhenDispatcherIsFull", "true" },
-							{ "shouldAuditDispatcherInputs", "true" },
+							{ "enableDispatcherAbortWhenFull", "true" },
+							{ "enableDispatcherInputAuditing", "true" },
 
 							{ "outgoingSecurityMode", "Signed" },
 							{ "incomingSecurityModes", "None, Signed" },
 
 							{ "maxCacheDatabaseWriteBatchSize", "17KB" },
-							{ "maxTrackedNodes", "222" }
+							{ "maxTrackedNodes", "222" },
+
+							{ "trustedHosts", "foo,BAR" }
 						}
 					},
 					{
@@ -117,12 +119,12 @@ namespace catapult { namespace config {
 				// Assert:
 				EXPECT_EQ(0u, config.Port);
 				EXPECT_EQ(0u, config.ApiPort);
-				EXPECT_FALSE(config.ShouldAllowAddressReuse);
-				EXPECT_FALSE(config.ShouldUseSingleThreadPool);
-				EXPECT_FALSE(config.ShouldUseCacheDatabaseStorage);
-				EXPECT_FALSE(config.ShouldEnableAutoSyncCleanup);
+				EXPECT_FALSE(config.EnableAddressReuse);
+				EXPECT_FALSE(config.EnableSingleThreadPool);
+				EXPECT_FALSE(config.EnableCacheDatabaseStorage);
+				EXPECT_FALSE(config.EnableAutoSyncCleanup);
 
-				EXPECT_FALSE(config.ShouldEnableTransactionSpamThrottling);
+				EXPECT_FALSE(config.EnableTransactionSpamThrottling);
 				EXPECT_EQ(Amount(), config.TransactionSpamThrottlingMaxBoostFee);
 
 				EXPECT_EQ(0u, config.MaxBlocksPerSyncAttempt);
@@ -150,14 +152,16 @@ namespace catapult { namespace config {
 				EXPECT_EQ(0u, config.TransactionDisruptorSize);
 				EXPECT_EQ(0u, config.TransactionElementTraceInterval);
 
-				EXPECT_FALSE(config.ShouldAbortWhenDispatcherIsFull);
-				EXPECT_FALSE(config.ShouldAuditDispatcherInputs);
+				EXPECT_FALSE(config.EnableDispatcherAbortWhenFull);
+				EXPECT_FALSE(config.EnableDispatcherInputAuditing);
 
 				EXPECT_EQ(static_cast<ionet::ConnectionSecurityMode>(0), config.OutgoingSecurityMode);
 				EXPECT_EQ(static_cast<ionet::ConnectionSecurityMode>(0), config.IncomingSecurityModes);
 
 				EXPECT_EQ(utils::FileSize::FromMegabytes(0), config.MaxCacheDatabaseWriteBatchSize);
 				EXPECT_EQ(0u, config.MaxTrackedNodes);
+
+				EXPECT_TRUE(config.TrustedHosts.empty());
 
 				EXPECT_EQ("", config.Local.Host);
 				EXPECT_EQ("", config.Local.FriendlyName);
@@ -180,12 +184,12 @@ namespace catapult { namespace config {
 				// Assert:
 				EXPECT_EQ(1234u, config.Port);
 				EXPECT_EQ(8888u, config.ApiPort);
-				EXPECT_TRUE(config.ShouldAllowAddressReuse);
-				EXPECT_TRUE(config.ShouldUseSingleThreadPool);
-				EXPECT_TRUE(config.ShouldUseCacheDatabaseStorage);
-				EXPECT_TRUE(config.ShouldEnableAutoSyncCleanup);
+				EXPECT_TRUE(config.EnableAddressReuse);
+				EXPECT_TRUE(config.EnableSingleThreadPool);
+				EXPECT_TRUE(config.EnableCacheDatabaseStorage);
+				EXPECT_TRUE(config.EnableAutoSyncCleanup);
 
-				EXPECT_TRUE(config.ShouldEnableTransactionSpamThrottling);
+				EXPECT_TRUE(config.EnableTransactionSpamThrottling);
 				EXPECT_EQ(Amount(54'123), config.TransactionSpamThrottlingMaxBoostFee);
 
 				EXPECT_EQ(50u, config.MaxBlocksPerSyncAttempt);
@@ -213,14 +217,16 @@ namespace catapult { namespace config {
 				EXPECT_EQ(9876u, config.TransactionDisruptorSize);
 				EXPECT_EQ(98u, config.TransactionElementTraceInterval);
 
-				EXPECT_TRUE(config.ShouldAbortWhenDispatcherIsFull);
-				EXPECT_TRUE(config.ShouldAuditDispatcherInputs);
+				EXPECT_TRUE(config.EnableDispatcherAbortWhenFull);
+				EXPECT_TRUE(config.EnableDispatcherInputAuditing);
 
 				EXPECT_EQ(ionet::ConnectionSecurityMode::Signed, config.OutgoingSecurityMode);
 				EXPECT_EQ(ionet::ConnectionSecurityMode::None | ionet::ConnectionSecurityMode::Signed, config.IncomingSecurityModes);
 
 				EXPECT_EQ(utils::FileSize::FromKilobytes(17), config.MaxCacheDatabaseWriteBatchSize);
 				EXPECT_EQ(222u, config.MaxTrackedNodes);
+
+				EXPECT_EQ(std::unordered_set<std::string>({ "foo", "BAR" }), config.TrustedHosts);
 
 				EXPECT_EQ("alice.com", config.Local.Host);
 				EXPECT_EQ("a GREAT node", config.Local.FriendlyName);

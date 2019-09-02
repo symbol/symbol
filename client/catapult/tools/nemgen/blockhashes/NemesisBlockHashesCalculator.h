@@ -24,7 +24,10 @@
 
 namespace catapult {
 	namespace config { class CatapultConfiguration; }
-	namespace model { struct BlockElement; }
+	namespace model {
+		struct BlockElement;
+		struct BlockStatement;
+	}
 }
 
 namespace catapult { namespace tools { namespace nemgen {
@@ -39,6 +42,9 @@ namespace catapult { namespace tools { namespace nemgen {
 
 		/// Block component sub cache merkle roots.
 		std::vector<Hash256> SubCacheMerkleRoots;
+
+		/// Block statement.
+		std::unique_ptr<model::BlockStatement> pBlockStatement;
 	};
 
 	/// Calculates the block execution dependent hashes after executing nemesis \a blockElement for network configured with \a config.

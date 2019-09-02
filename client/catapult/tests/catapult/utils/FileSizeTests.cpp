@@ -127,7 +127,7 @@ namespace catapult { namespace utils {
 				{ "10239 B", FileSize::FromBytes(10239) },
 				{ "10241 B", FileSize::FromBytes(10241) },
 				{ "10240 KB", FileSize::FromKilobytes(10240) },
-				{ "10 MB", FileSize::FromMegabytes(10) },
+				{ "10 MB", FileSize::FromMegabytes(10) }
 			};
 		}
 	}

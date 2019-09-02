@@ -332,7 +332,7 @@ namespace catapult { namespace deltaset {
 		// Arrange: create an underlying map with two elements
 		MapTraits::DiffUnderlying::ContainerType::StorageSetType underlyingContainer{
 			std::make_pair(std::make_pair("alpha", 5), test::MutableTestElement("alpha", 5)),
-			std::make_pair(std::make_pair("gamma", 7), test::MutableTestElement("gamma", 7)),
+			std::make_pair(std::make_pair("gamma", 7), test::MutableTestElement("gamma", 7))
 		};
 
 		// Act: create a container around it
@@ -348,7 +348,7 @@ namespace catapult { namespace deltaset {
 		// Arrange: create an underlying map with two elements
 		MapTraits::DiffUnderlying::ContainerType::StorageSetType underlyingContainer{
 			std::make_pair(std::make_pair("alpha", 5), test::MutableTestElement("alpha", 5)),
-			std::make_pair(std::make_pair("gamma", 7), test::MutableTestElement("gamma", 7)),
+			std::make_pair(std::make_pair("gamma", 7), test::MutableTestElement("gamma", 7))
 		};
 
 		// Act: create a container around it

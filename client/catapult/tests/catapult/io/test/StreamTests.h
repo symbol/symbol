@@ -90,6 +90,36 @@ namespace catapult { namespace test {
 			EXPECT_TRUE(pInput->eof());
 		}
 
+		static void AssertReadSmallerThanBufferSizeDoesNotMoveToEof() {
+			// Arrange:
+			constexpr auto Data_Size = Default_Test_Buffer_Size - 13;
+			TContext context("test.dat");
+			{
+				auto pOutput = context.outputStream();
+				pOutput->write(test::GenerateRandomVector(Data_Size));
+				pOutput->flush();
+			}
+
+			auto pInput = context.inputStream();
+
+			// Sanity:
+			EXPECT_FALSE(pInput->eof());
+
+			// Act + Assert:
+			ByteBuffer buffer(Chunk_Size);
+			constexpr auto Num_Reads = Data_Size / Chunk_Size;
+			for (auto i = 0u; i < Num_Reads; ++i) {
+				pInput->read(buffer);
+				EXPECT_FALSE(pInput->eof()) << " at iteration " << i;
+			}
+
+			// - read last chunk and assert
+			constexpr auto Leftover_Size = Data_Size - Chunk_Size * Num_Reads;
+			buffer.resize(Leftover_Size);
+			pInput->read(buffer);
+			EXPECT_TRUE(pInput->eof());
+		}
+
 		// endregion
 
 	public:
@@ -197,6 +227,7 @@ namespace catapult { namespace test {
 	MAKE_STREAM_TEST(TRAITS_NAME, EmptyStreamIsInitiallyAtEof) \
 	MAKE_STREAM_TEST(TRAITS_NAME, StreamWithDataIsInitiallyNotAtEof) \
 	MAKE_STREAM_TEST(TRAITS_NAME, StreamWithDataCanAdvanceToEof) \
+	MAKE_STREAM_TEST(TRAITS_NAME, ReadSmallerThanBufferSizeDoesNotMoveToEof) \
 	\
 	MAKE_STREAM_ROUNDTRIP_TEST(TRAITS_NAME, SingleWritePolicy, SingleReadPolicy) \
 	MAKE_STREAM_ROUNDTRIP_TEST(TRAITS_NAME, SingleWritePolicy, ChunkedReadPolicy) \

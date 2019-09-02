@@ -37,7 +37,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		void AssertSecretLockTransaction(const TTransaction& transaction, const bsoncxx::document::view& dbTransaction) {
 			EXPECT_EQ(utils::to_underlying_type(transaction.HashAlgorithm), test::GetUint32(dbTransaction, "hashAlgorithm"));
 			EXPECT_EQ(transaction.Secret, test::GetBinaryArray<Hash256::Size>(dbTransaction, "secret"));
-			EXPECT_EQ(transaction.Recipient, test::GetUnresolvedAddressValue(dbTransaction, "recipient"));
+			EXPECT_EQ(transaction.RecipientAddress, test::GetUnresolvedAddressValue(dbTransaction, "recipientAddress"));
 		}
 	}
 

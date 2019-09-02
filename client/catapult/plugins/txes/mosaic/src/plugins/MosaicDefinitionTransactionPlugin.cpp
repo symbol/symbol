@@ -37,18 +37,25 @@ namespace catapult { namespace plugins {
 
 				// 2. rental fee charge
 				// a. exempt the nemesis account
-				if (config.NemesisPublicKey != transaction.Signer) {
-					sub.notify(BalanceTransferNotification(transaction.Signer, config.SinkAddress, config.CurrencyMosaicId, config.Fee));
-					sub.notify(MosaicRentalFeeNotification(transaction.Signer, config.SinkAddress, config.CurrencyMosaicId, config.Fee));
+				if (config.NemesisPublicKey != transaction.SignerPublicKey) {
+					sub.notify(BalanceTransferNotification(
+							transaction.SignerPublicKey,
+							config.SinkAddress,
+							config.CurrencyMosaicId,
+							config.Fee,
+							BalanceTransferNotification::AmountType::Dynamic));
+					sub.notify(MosaicRentalFeeNotification(
+							transaction.SignerPublicKey,
+							config.SinkAddress,
+							config.CurrencyMosaicId,
+							config.Fee));
 				}
 
 				// 3. registration
-				sub.notify(MosaicNonceNotification(transaction.Signer, transaction.MosaicNonce, transaction.MosaicId));
-				sub.notify(MosaicPropertiesNotification(transaction.PropertiesHeader, transaction.PropertiesPtr()));
-				sub.notify(MosaicDefinitionNotification(
-						transaction.Signer,
-						transaction.MosaicId,
-						ExtractAllProperties(transaction.PropertiesHeader, transaction.PropertiesPtr())));
+				auto properties = model::MosaicProperties(transaction.Flags, transaction.Divisibility, transaction.Duration);
+				sub.notify(MosaicNonceNotification(transaction.SignerPublicKey, transaction.Nonce, transaction.Id));
+				sub.notify(MosaicPropertiesNotification(properties));
+				sub.notify(MosaicDefinitionNotification(transaction.SignerPublicKey, transaction.Id, properties));
 			};
 		}
 	}

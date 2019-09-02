@@ -19,30 +19,13 @@
 **/
 
 #include "Random.h"
+#include "catapult/utils/RandomGenerator.h"
 #include <algorithm>
 
 namespace catapult { namespace tools {
 
-	// region random generator
-
-	RandomGenerator::RandomGenerator() {
-		std::random_device rd;
-		auto seed = (static_cast<uint64_t>(rd()) << 32) | rd();
-		m_gen.seed(seed);
-	}
-
-	RandomGenerator::RandomGenerator(uint64_t seed) : m_gen(seed)
-	{}
-
-	uint64_t RandomGenerator::operator()() {
-		return m_gen();
-	}
-
-	// endregion
-
 	uint64_t Random() {
-		static RandomGenerator generator;
-		return generator();
+		return utils::LowEntropyRandomGenerator()();
 	}
 
 	uint8_t RandomByte() {
@@ -52,7 +35,7 @@ namespace catapult { namespace tools {
 	std::vector<uint8_t> GenerateRandomVector(size_t size) {
 		std::vector<uint8_t> container;
 		container.resize(size);
-		std::generate_n(container.begin(), container.size(), []() { return RandomByte(); });
+		std::generate_n(container.begin(), container.size(), RandomByte);
 		return container;
 	}
 }}

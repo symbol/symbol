@@ -102,8 +102,9 @@ namespace catapult { namespace builders {
 			auto i = 0u;
 			const auto* pModification = transaction.ModificationsPtr();
 			for (const auto& modification : expectedProperties.Modifications) {
-				auto rawType = static_cast<uint16_t>(modification.ModificationType);
-				EXPECT_EQ(modification.ModificationType, pModification->ModificationType) << "type " << rawType << " at index " << i;
+				auto rawAction = static_cast<uint16_t>(modification.ModificationAction);
+				EXPECT_EQ(modification.ModificationAction, pModification->ModificationAction)
+						<< "action " << rawAction << " at index " << i;
 				EXPECT_EQ(modification.Value, pModification->Value) << "at index " << i;
 				++pModification;
 			}
@@ -126,7 +127,7 @@ namespace catapult { namespace builders {
 			// Assert:
 			TTraits::CheckBuilderSize(additionalSize, builder);
 			TTraits::CheckFields(additionalSize, *pTransaction);
-			EXPECT_EQ(signer, pTransaction->Signer);
+			EXPECT_EQ(signer, pTransaction->SignerPublicKey);
 			EXPECT_EQ(0x6201, pTransaction->Version);
 			EXPECT_EQ(TRestrictionTraits::TransactionType(), pTransaction->Type);
 
@@ -187,8 +188,10 @@ namespace catapult { namespace builders {
 		auto CreateModifications(uint8_t count) {
 			typename TRestrictionTraits::Modifications modifications;
 			for (auto i = 0u; i < count; ++i) {
-				auto type = 0 == i % 2 ? model::AccountRestrictionModificationType::Add : model::AccountRestrictionModificationType::Del;
-				modifications.push_back({ type, TRestrictionTraits::RandomUnresolvedValue() });
+				auto action = 0 == i % 2
+						? model::AccountRestrictionModificationAction::Add
+						: model::AccountRestrictionModificationAction::Del;
+				modifications.push_back({ action, TRestrictionTraits::RandomUnresolvedValue() });
 			}
 
 			return modifications;

@@ -29,7 +29,7 @@ namespace catapult {
 
 namespace catapult { namespace mongo { namespace mappers {
 
-	/// Maps a \a statement at \a height to the corresponding db model value using \a receiptRegistry for mapping derived receipt types.
+	/// Maps \a statement at \a height to the corresponding db model value using \a receiptRegistry for mapping derived receipt types.
 	bsoncxx::document::value ToDbModel(
 			Height height,
 			const model::TransactionStatement& statement,

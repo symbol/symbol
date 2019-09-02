@@ -164,10 +164,9 @@ namespace catapult { namespace observers {
 		template<typename TTraits>
 		void AssertNoRecalculation(NotifyMode mode, Height height1, Height height2) {
 			// Arrange:
-			state::CatapultState state;
 			auto cache = CreateEmptyCatapultCache();
 			auto delta = cache.createDelta();
-			ObserverState observerState(delta, state);
+			ObserverState observerState(delta);
 
 			auto pCalculator = CreateCalculator();
 			const auto& capturedParams = pCalculator->params();
@@ -187,16 +186,15 @@ namespace catapult { namespace observers {
 			ASSERT_EQ(1u, capturedParams.size());
 			EXPECT_EQ(ConvertToImportanceHeight(height1, mode), capturedParams[0].ImportanceHeight);
 
-			EXPECT_EQ(ConvertToImportanceHeight(height1, mode), state.LastRecalculationHeight);
+			EXPECT_EQ(ConvertToImportanceHeight(height1, mode), delta.dependentState().LastRecalculationHeight);
 		}
 
 		template<typename TTraits>
 		void AssertRecalculation(NotifyMode mode, Height height1, Height height2) {
 			// Arrange:
-			state::CatapultState state;
 			auto cache = CreateEmptyCatapultCache();
 			auto delta = cache.createDelta();
-			ObserverState observerState(delta, state);
+			ObserverState observerState(delta);
 
 			auto pCalculator = CreateCalculator();
 			const auto& capturedParams = pCalculator->params();
@@ -217,7 +215,7 @@ namespace catapult { namespace observers {
 			EXPECT_EQ(ConvertToImportanceHeight(height1, mode), capturedParams[0].ImportanceHeight);
 			EXPECT_EQ(ConvertToImportanceHeight(height2, mode), capturedParams[1].ImportanceHeight);
 
-			EXPECT_EQ(ConvertToImportanceHeight(height2, mode), state.LastRecalculationHeight);
+			EXPECT_EQ(ConvertToImportanceHeight(height2, mode), delta.dependentState().LastRecalculationHeight);
 		}
 	}
 

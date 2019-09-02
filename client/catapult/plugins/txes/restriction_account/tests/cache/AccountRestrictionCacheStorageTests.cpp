@@ -41,12 +41,12 @@ namespace catapult { namespace cache {
 			}
 
 			static auto CreateValue(const Address& address) {
-				using ModificationType = model::AccountRestrictionModificationType;
+				using ModificationAction = model::AccountRestrictionModificationAction;
 
 				state::AccountRestrictions restrictions(address);
 				auto& restriction = restrictions.restriction(model::AccountRestrictionType::Address);
 				for (auto i = 0u; i < 3; ++i)
-					restriction.allow({ ModificationType::Add, test::GenerateRandomVector(Address::Size) });
+					restriction.allow({ ModificationAction::Add, test::GenerateRandomVector(Address::Size) });
 
 				return restrictions;
 			}

@@ -102,11 +102,11 @@ namespace catapult { namespace model {
 		});
 	}
 
-	TEST(TEST_CLASS, CanRaiseBlockAccountNotifications_NonzeroBeneficiary) {
+	TEST(TEST_CLASS, CanRaiseBlockAccountNotifications_WithBeneficiary) {
 		// Arrange:
 		auto pBlock = test::GenerateEmptyRandomBlock();
-		test::FillWithRandomData(pBlock->Signer);
-		test::FillWithRandomData(pBlock->Beneficiary);
+		test::FillWithRandomData(pBlock->SignerPublicKey);
+		test::FillWithRandomData(pBlock->BeneficiaryPublicKey);
 
 		// Act:
 		PublishAll(*pBlock, [&block = *pBlock](const auto& sub) {
@@ -115,16 +115,16 @@ namespace catapult { namespace model {
 			EXPECT_EQ(0u, sub.numAddresses());
 			EXPECT_EQ(2u, sub.numKeys());
 
-			EXPECT_TRUE(sub.contains(block.Signer));
-			EXPECT_TRUE(sub.contains(block.Beneficiary));
+			EXPECT_TRUE(sub.contains(block.SignerPublicKey));
+			EXPECT_TRUE(sub.contains(block.BeneficiaryPublicKey));
 		});
 	}
 
-	TEST(TEST_CLASS, CanRaiseBlockAccountNotifications_ZeroBeneficiary) {
+	TEST(TEST_CLASS, CanRaiseBlockAccountNotifications_WithoutBeneficiary) {
 		// Arrange:
 		auto pBlock = test::GenerateEmptyRandomBlock();
-		test::FillWithRandomData(pBlock->Signer);
-		pBlock->Beneficiary = Key();
+		test::FillWithRandomData(pBlock->SignerPublicKey);
+		pBlock->BeneficiaryPublicKey = pBlock->SignerPublicKey;
 
 		// Act:
 		PublishAll(*pBlock, [&block = *pBlock](const auto& sub) {
@@ -133,8 +133,7 @@ namespace catapult { namespace model {
 			EXPECT_EQ(0u, sub.numAddresses());
 			EXPECT_EQ(1u, sub.numKeys());
 
-			EXPECT_TRUE(sub.contains(block.Signer));
-			EXPECT_FALSE(sub.contains(block.Beneficiary));
+			EXPECT_TRUE(sub.contains(block.SignerPublicKey));
 		});
 	}
 
@@ -157,13 +156,13 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CanRaiseBlockSignatureNotifications) {
 		// Arrange:
 		auto pBlock = test::GenerateEmptyRandomBlock();
-		test::FillWithRandomData(pBlock->Signer);
+		test::FillWithRandomData(pBlock->SignerPublicKey);
 		test::FillWithRandomData(pBlock->Signature);
 
 		// Act:
 		PublishOne<SignatureNotification>(*pBlock, [&block = *pBlock](const auto& notification) {
 			// Assert:
-			EXPECT_EQ(block.Signer, notification.Signer);
+			EXPECT_EQ(block.SignerPublicKey, notification.Signer);
 			EXPECT_EQ(block.Signature, notification.Signature);
 			EXPECT_EQ(test::AsVoidPointer(&block.Version), test::AsVoidPointer(notification.Data.pData));
 			EXPECT_EQ(sizeof(BlockHeader) - VerifiableEntity::Header_Size, notification.Data.Size);
@@ -181,7 +180,7 @@ namespace catapult { namespace model {
 			}
 
 			auto pBlock = test::GenerateBlockWithTransactions(transactions);
-			test::FillWithRandomData(pBlock->Signer);
+			test::FillWithRandomData(pBlock->SignerPublicKey);
 			return pBlock;
 		}
 	}
@@ -196,10 +195,11 @@ namespace catapult { namespace model {
 		// Act:
 		PublishOne<BlockNotification>(*pBlock, [&block = *pBlock](const auto& notification) {
 			// Assert:
-			EXPECT_EQ(block.Signer, notification.Signer);
-			EXPECT_EQ(block.Beneficiary, notification.Beneficiary);
+			EXPECT_EQ(block.SignerPublicKey, notification.Signer);
+			EXPECT_EQ(block.BeneficiaryPublicKey, notification.Beneficiary);
 			EXPECT_EQ(Timestamp(123), notification.Timestamp);
 			EXPECT_EQ(Difficulty(575), notification.Difficulty);
+			EXPECT_EQ(BlockFeeMultiplier(3), notification.FeeMultiplier);
 			EXPECT_EQ(Amount(0), notification.TotalFee);
 			EXPECT_EQ(0u, notification.NumTransactions);
 		});
@@ -215,10 +215,11 @@ namespace catapult { namespace model {
 		// Act:
 		PublishOne<BlockNotification>(*pBlock, [&block = *pBlock](const auto& notification) {
 			// Assert:
-			EXPECT_EQ(block.Signer, notification.Signer);
-			EXPECT_EQ(block.Beneficiary, notification.Beneficiary);
+			EXPECT_EQ(block.SignerPublicKey, notification.Signer);
+			EXPECT_EQ(block.BeneficiaryPublicKey, notification.Beneficiary);
 			EXPECT_EQ(Timestamp(432), notification.Timestamp);
 			EXPECT_EQ(Difficulty(575), notification.Difficulty);
+			EXPECT_EQ(BlockFeeMultiplier(3), notification.FeeMultiplier);
 			EXPECT_EQ(Amount(3 * 653), notification.TotalFee);
 			EXPECT_EQ(3u, notification.NumTransactions);
 		});
@@ -273,8 +274,8 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CanRaiseTransactionAccountNotifications) {
 		// Arrange:
 		auto pTransaction = mocks::CreateMockTransaction(0);
-		test::FillWithRandomData(pTransaction->Signer);
-		test::FillWithRandomData(pTransaction->Recipient);
+		test::FillWithRandomData(pTransaction->SignerPublicKey);
+		test::FillWithRandomData(pTransaction->RecipientPublicKey);
 
 		// Act:
 		PublishAll(*pTransaction, [&transaction = *pTransaction](const auto& sub) {
@@ -282,8 +283,8 @@ namespace catapult { namespace model {
 			EXPECT_EQ(0u, sub.numAddresses());
 			EXPECT_EQ(2u, sub.numKeys());
 
-			EXPECT_TRUE(sub.contains(transaction.Signer));
-			EXPECT_TRUE(sub.contains(transaction.Recipient));
+			EXPECT_TRUE(sub.contains(transaction.SignerPublicKey));
+			EXPECT_TRUE(sub.contains(transaction.RecipientPublicKey));
 		});
 	}
 
@@ -305,13 +306,13 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CanRaiseTransactionSignatureNotifications) {
 		// Arrange:
 		auto pTransaction = mocks::CreateMockTransaction(12);
-		test::FillWithRandomData(pTransaction->Signer);
+		test::FillWithRandomData(pTransaction->SignerPublicKey);
 		test::FillWithRandomData(pTransaction->Signature);
 
 		// Act:
 		PublishOne<SignatureNotification>(*pTransaction, [&transaction = *pTransaction](const auto& notification) {
 			// Assert:
-			EXPECT_EQ(transaction.Signer, notification.Signer);
+			EXPECT_EQ(transaction.SignerPublicKey, notification.Signer);
 			EXPECT_EQ(transaction.Signature, notification.Signature);
 
 			// - notice that mock plugin is configured with PluginOptionFlags::Custom_Buffers so dataBuffer() contains only data payload
@@ -325,11 +326,12 @@ namespace catapult { namespace model {
 		// Arrange:
 		auto hash = test::GenerateRandomByteArray<Hash256>();
 		auto pTransaction = mocks::CreateMockTransaction(12);
-		test::FillWithRandomData(pTransaction->Signer);
+		test::FillWithRandomData(pTransaction->SignerPublicKey);
 		pTransaction->Deadline = Timestamp(454);
 
 		// Act:
-		PublishOne<TransactionNotification>(*pTransaction, hash, [&signer = pTransaction->Signer, &hash](const auto& notification) {
+		PublishOne<TransactionNotification>(*pTransaction, hash, [&signer = pTransaction->SignerPublicKey, &hash](
+				const auto& notification) {
 			// Assert:
 			EXPECT_EQ(signer, notification.Signer);
 			EXPECT_EQ(hash, notification.TransactionHash);
@@ -359,7 +361,7 @@ namespace catapult { namespace model {
 		// Act:
 		PublishOne<TransactionFeeNotification>(*pTransaction, [&transaction = *pTransaction](const auto& notification) {
 			// Assert: max fee is used when there is no associated block
-			EXPECT_EQ(transaction.Signer, notification.Signer);
+			EXPECT_EQ(transaction.SignerPublicKey, notification.Signer);
 			EXPECT_EQ(transaction.Size, notification.TransactionSize);
 			EXPECT_EQ(Amount(765), notification.Fee);
 			EXPECT_EQ(Amount(765), notification.MaxFee);
@@ -380,7 +382,7 @@ namespace catapult { namespace model {
 		// Act:
 		PublishOne<TransactionFeeNotification>(weakEntityInfo, [&transaction = *pTransaction](const auto& notification) {
 			// Assert: calculated fee is used when there is associated block
-			EXPECT_EQ(transaction.Signer, notification.Signer);
+			EXPECT_EQ(transaction.SignerPublicKey, notification.Signer);
 			EXPECT_EQ(transaction.Size, notification.TransactionSize);
 			EXPECT_EQ(Amount(4 * 234), notification.Fee);
 			EXPECT_EQ(Amount(765), notification.MaxFee);
@@ -390,11 +392,11 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CanRaiseTransactionFeeDebitNotifications) {
 		// Arrange:
 		auto pTransaction = mocks::CreateMockTransaction(12);
-		test::FillWithRandomData(pTransaction->Signer);
+		test::FillWithRandomData(pTransaction->SignerPublicKey);
 		pTransaction->MaxFee = Amount(765);
 
 		// Act:
-		PublishOne<BalanceDebitNotification>(*pTransaction, [&signer = pTransaction->Signer](const auto& notification) {
+		PublishOne<BalanceDebitNotification>(*pTransaction, [&signer = pTransaction->SignerPublicKey](const auto& notification) {
 			// Assert:
 			EXPECT_EQ(signer, notification.Sender);
 			EXPECT_EQ(Currency_Mosaic_Id, notification.MosaicId);

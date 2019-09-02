@@ -55,9 +55,13 @@ namespace catapult { namespace test {
 	}
 
 	model::UnresolvedAddressSet ExtractAddresses(const mocks::MockTransaction& transaction) {
-		auto networkIdentifier = model::NetworkIdentifier(transaction.Network());
-		auto signerAddress = extensions::CopyToUnresolvedAddress(model::PublicKeyToAddress(transaction.Signer, networkIdentifier));
-		auto recipientAddress = extensions::CopyToUnresolvedAddress(model::PublicKeyToAddress(transaction.Recipient, networkIdentifier));
+		auto networkIdentifier = transaction.Network();
+		auto signerAddress = extensions::CopyToUnresolvedAddress(model::PublicKeyToAddress(
+				transaction.SignerPublicKey,
+				networkIdentifier));
+		auto recipientAddress = extensions::CopyToUnresolvedAddress(model::PublicKeyToAddress(
+				transaction.RecipientPublicKey,
+				networkIdentifier));
 		return { signerAddress, recipientAddress };
 	}
 

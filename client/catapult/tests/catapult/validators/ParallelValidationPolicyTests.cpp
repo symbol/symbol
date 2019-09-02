@@ -32,9 +32,11 @@ namespace catapult { namespace validators {
 
 		class PoolValidationPolicyPair {
 		public:
-			explicit PoolValidationPolicyPair(const std::shared_ptr<thread::IoThreadPool>& pPool)
+			PoolValidationPolicyPair(
+					const std::shared_ptr<thread::IoThreadPool>& pPool,
+					const std::shared_ptr<const StatelessEntityValidator>& pValidator)
 					: m_pPool(pPool)
-					, m_pValidationPolicy(CreateParallelValidationPolicy(m_pPool))
+					, m_pValidationPolicy(CreateParallelValidationPolicy(m_pPool, pValidator))
 					, m_isReleased(false)
 			{}
 
@@ -73,43 +75,100 @@ namespace catapult { namespace validators {
 
 		// endregion
 
-		// region traits
+		// region MockStatelessEntityValidator
 
+		struct MultiThreadedValidatorStateValidatorTraits {
+			using ItemType = model::VerifiableEntity;
+
+			static uint64_t GetValue(const model::VerifiableEntity& entity) {
+				// Deadline is set in GenerateBlockWithTransactions and used as a unique entity id
+				return static_cast<const model::Transaction&>(entity).Deadline.unwrap();
+			}
+		};
+
+		class MultiThreadedValidatorState : public test::BasicMultiThreadedState<MultiThreadedValidatorStateValidatorTraits> {
+		public:
+			void increment(const model::VerifiableEntity& entity) {
+				process(entity);
+			}
+		};
+
+		class MockStatelessEntityValidator : public StatelessEntityValidator {
+		public:
+			MockStatelessEntityValidator(const std::vector<ValidationResult>& results, std::atomic_bool* pWait)
+					: m_results(results)
+					, m_pWait(pWait)
+					, m_name("MockStatelessEntityValidator")
+					, m_counter(0)
+			{}
+
+		public:
+			size_t numValidateCalls() const {
+				return m_counter;
+			}
+
+			const auto& state() const {
+				return m_state;
+			}
+
+		public:
+			const std::string& name() const override {
+				return m_name;
+			}
+
+			ValidationResult validate(const model::WeakEntityInfo& entityInfo) const override {
+				// increment counter prior to wait in order for ValidateMany tests to work
+				auto index = m_counter++;
+				m_state.increment(entityInfo.entity());
+
+				if (m_pWait)
+					WAIT_FOR_EXPR(!*m_pWait);
+
+				return m_results[std::min(index, m_results.size() - 1)];
+			}
+
+		private:
+			std::vector<ValidationResult> m_results;
+			std::atomic_bool* m_pWait;
+			std::string m_name;
+			mutable std::atomic<size_t> m_counter;
+			mutable MultiThreadedValidatorState m_state;
+		};
+
+		// endregion
+
+		auto CreateValidator(const std::vector<ValidationResult>& results, std::atomic_bool* pWait = nullptr) {
+			return std::make_shared<MockStatelessEntityValidator>(results, pWait);
+		}
+
+		auto CreatePolicy(const std::shared_ptr<const StatelessEntityValidator>& pValidator, uint32_t numThreads = 0) {
+			auto pPool = numThreads > 0 ? test::CreateStartedIoThreadPool(numThreads) : test::CreateStartedIoThreadPool();
+			return PoolValidationPolicyPair(std::move(pPool), pValidator);
+		}
+	}
+
+	// region traits
+
+	namespace {
 		struct ShortCircuitTraits {
-			static auto Validate(
-					const ParallelValidationPolicy& policy,
-					const model::WeakEntityInfos& entityInfos,
-					const ValidationFunctions& validationFunctions) {
-				return policy.validateShortCircuit(entityInfos, validationFunctions);
+			static auto Validate(const ParallelValidationPolicy& policy, const model::WeakEntityInfos& entityInfos) {
+				return policy.validateShortCircuit(entityInfos);
 			}
 
 			static bool IsSuccess(ValidationResult result) {
 				return IsValidationResultSuccess(result);
 			}
-
-			static ValidationResult GetFirstResult(ValidationResult result) {
-				return result;
-			}
 		};
 
 		struct AllTraits {
-			static auto Validate(
-					const ParallelValidationPolicy& policy,
-					const model::WeakEntityInfos& entityInfos,
-					const ValidationFunctions& validationFunctions) {
-				return policy.validateAll(entityInfos, validationFunctions);
+			static auto Validate(const ParallelValidationPolicy& policy, const model::WeakEntityInfos& entityInfos) {
+				return policy.validateAll(entityInfos);
 			}
 
 			static bool IsSuccess(const std::vector<ValidationResult>& results) {
 				return std::all_of(results.cbegin(), results.cend(), [](auto result) { return IsValidationResultSuccess(result); });
 			}
-
-			static ValidationResult GetFirstResult(const std::vector<ValidationResult>& results) {
-				return results[0];
-			}
 		};
-
-		// endregion
 	}
 
 #define PARALLEL_POLICY_TEST(TEST_NAME) \
@@ -117,157 +176,66 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, TEST_NAME##_ShortCircuit) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ShortCircuitTraits>(); } \
 	TEST(TEST_CLASS, TEST_NAME##_All) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AllTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
-}}
 
-namespace catapult { namespace validators {
-
-	namespace {
-		struct Counters {
-		public:
-			void resize(size_t count) {
-				for (auto i = m_counters.size(); i < count; ++i)
-					m_counters.push_back(std::make_unique<std::atomic<size_t>>(0));
-			}
-
-		public:
-			std::atomic<size_t>& operator[](size_t index) {
-				return *m_counters[index];
-			}
-
-		public:
-			std::vector<size_t> toVector() const {
-				std::vector<size_t> values;
-				for (const auto& pCounter : m_counters)
-					values.push_back(*pCounter);
-
-				return values;
-			}
-
-		private:
-			std::vector<std::unique_ptr<std::atomic<size_t>>> m_counters;
-		};
-
-		auto CreatePolicy(uint32_t numThreads = 0) {
-			auto pPool = numThreads > 0 ? test::CreateStartedIoThreadPool(numThreads) : test::CreateStartedIoThreadPool();
-			return PoolValidationPolicyPair(std::move(pPool));
-		}
-
-		ValidationFunctions CreateValidationFuncs(const std::vector<ValidationResult>& results, Counters& counters) {
-			counters.resize(results.size());
-
-			ValidationFunctions funcs;
-			for (auto i = 0u; i < results.size(); ++i) {
-				funcs.push_back([result = results[i], &counter = counters[i]](const auto&) {
-					++counter;
-					return result;
-				});
-			}
-
-			return funcs;
-		}
-
-		ValidationFunctions CreateValidationFuncs(
-				const std::vector<ValidationResult>& results,
-				Counters& counters,
-				std::atomic_bool& wait) {
-			counters.resize(results.size());
-
-			ValidationFunctions funcs;
-			for (auto i = 0u; i < results.size(); ++i) {
-				funcs.push_back([result = results[i], &counter = counters[i], &wait](const auto& entityInfo) {
-					// the thread that handles the first entity signals other threads when to continue
-					if (0 == entityInfo.hash()[0]) {
-						if (IsValidationResultFailure(result))
-							wait = false;
-					} else {
-						WAIT_FOR_EXPR(!wait);
-						test::Sleep(1); // give the first thread a chance to update the aggregate result
-					}
-
-					++counter;
-					return result;
-				});
-			}
-
-			return funcs;
-		}
-	}
+	// endregion
 
 	// region basic
 
-	PARALLEL_POLICY_TEST(ValidateInvokesValidateOnEachContainedValidator) {
-		// Arrange:
-		auto counters = Counters();
-		auto funcs = CreateValidationFuncs({ ValidationResult::Success, ValidationResult::Neutral }, counters);
-		auto pPolicy = CreatePolicy();
-
-		// Act:
-		auto entityInfos = test::CreateEntityInfos(1);
-		TTraits::Validate(*pPolicy, entityInfos.toVector(), funcs).get();
-
-		// Assert:
-		EXPECT_EQ(std::vector<size_t>({ 1, 1 }), counters.toVector());
-	}
-
 	PARALLEL_POLICY_TEST(ValidateInvokesValidateOnEachEntity) {
 		// Arrange:
-		auto counters = Counters();
-		auto funcs = CreateValidationFuncs({ ValidationResult::Success }, counters);
-		auto pPolicy = CreatePolicy();
+		auto pValidator = CreateValidator({ ValidationResult::Success });
+		auto pPolicy = CreatePolicy(pValidator);
 
 		// Act:
 		auto entityInfos = test::CreateEntityInfos(3);
-		TTraits::Validate(*pPolicy, entityInfos.toVector(), funcs).get();
+		TTraits::Validate(*pPolicy, entityInfos.toVector()).get();
 
 		// Assert:
-		EXPECT_EQ(std::vector<size_t>({ 3 }), counters.toVector());
+		EXPECT_EQ(3u, pValidator->numValidateCalls());
 	}
 
 	PARALLEL_POLICY_TEST(CanCallValidateMultipleTimesConsecutively) {
 		// Arrange:
-		auto counters = Counters();
-		auto funcs = CreateValidationFuncs({ ValidationResult::Success, ValidationResult::Neutral }, counters);
-		auto pPolicy = CreatePolicy();
+		auto pValidator = CreateValidator({ ValidationResult::Success });
+		auto pPolicy = CreatePolicy(pValidator);
 
 		// Act:
 		for (const auto& entityInfos : { test::CreateEntityInfos(1), test::CreateEntityInfos(2), test::CreateEntityInfos(4) })
-			TTraits::Validate(*pPolicy, entityInfos.toVector(), funcs).get();
+			TTraits::Validate(*pPolicy, entityInfos.toVector()).get();
 
 		// Assert:
-		EXPECT_EQ(std::vector<size_t>({ 7, 7 }), counters.toVector());
+		EXPECT_EQ(7u, pValidator->numValidateCalls());
 	}
 
 	// endregion
 
 	// region result precedence
 
-	PARALLEL_POLICY_TEST(NeutralResultDominatesSuccessResult) {
+	TEST(TEST_CLASS, NeutralResultDominatesSuccessResult_ShortCircuit) {
 		// Arrange:
-		auto counters = Counters();
-		auto funcs = CreateValidationFuncs({ ValidationResult::Success, ValidationResult::Neutral, ValidationResult::Success }, counters);
-		auto pPolicy = CreatePolicy();
+		auto pValidator = CreateValidator({ ValidationResult::Success, ValidationResult::Neutral, ValidationResult::Success });
+		auto pPolicy = CreatePolicy(pValidator);
 
 		// Act:
-		auto entityInfos = test::CreateEntityInfos(1);
-		auto result = TTraits::GetFirstResult(TTraits::Validate(*pPolicy, entityInfos.toVector(), funcs).get());
+		auto entityInfos = test::CreateEntityInfos(3);
+		auto result = ShortCircuitTraits::Validate(*pPolicy, entityInfos.toVector()).get();
 
 		// Assert:
-		EXPECT_EQ(std::vector<size_t>({ 1, 1, 1 }), counters.toVector());
+		EXPECT_EQ(3u, pValidator->numValidateCalls());
 		EXPECT_EQ(ValidationResult::Neutral, result);
 	}
 
-	PARALLEL_POLICY_TEST(FailureResultDominatesOtherResults) {
+	TEST(TEST_CLASS, FailureResultDominatesOtherResults_ShortCircuit) {
 		// Arrange:
-		auto counters = Counters();
-		auto funcs = CreateValidationFuncs({ ValidationResult::Success, ValidationResult::Neutral, ValidationResult::Failure }, counters);
-		auto pPolicy = CreatePolicy();
+		auto pValidator = CreateValidator({ ValidationResult::Success, ValidationResult::Neutral, ValidationResult::Failure });
+		auto pPolicy = CreatePolicy(pValidator);
 
 		// Act:
-		auto entityInfos = test::CreateEntityInfos(1);
-		auto result = TTraits::GetFirstResult(TTraits::Validate(*pPolicy, entityInfos.toVector(), funcs).get());
+		auto entityInfos = test::CreateEntityInfos(3);
+		auto result = ShortCircuitTraits::Validate(*pPolicy, entityInfos.toVector()).get();
 
 		// Assert:
-		EXPECT_EQ(std::vector<size_t>({ 1, 1, 1 }), counters.toVector());
+		EXPECT_EQ(3u, pValidator->numValidateCalls());
 		EXPECT_EQ(ValidationResult::Failure, result);
 	}
 
@@ -275,72 +243,44 @@ namespace catapult { namespace validators {
 
 	// region short-circuiting
 
-	PARALLEL_POLICY_TEST(FailureShortCircuitsSubsequentValidationsForSameEntity) {
-		// Arrange:
-		auto counters = Counters();
-		auto funcs = CreateValidationFuncs({ ValidationResult::Failure, ValidationResult::Success, ValidationResult::Neutral }, counters);
-		auto pPolicy = CreatePolicy();
-
-		// Act:
-		auto entityInfos = test::CreateEntityInfos(1);
-		auto result = TTraits::GetFirstResult(TTraits::Validate(*pPolicy, entityInfos.toVector(), funcs).get());
-
-		// Assert:
-		EXPECT_EQ(std::vector<size_t>({ 1, 0, 0 }), counters.toVector());
-		EXPECT_EQ(ValidationResult::Failure, result);
+	namespace {
+		std::vector<ValidationResult> CreateAlternatingResults() {
+			return {
+				ValidationResult::Success,
+				ValidationResult::Failure,
+				ValidationResult::Neutral,
+				ValidationResult::Failure,
+				ValidationResult::Success
+			};
+		}
 	}
 
 	TEST(TEST_CLASS, FailureShortCircuitsSubsequentValidationsForSubsequentEntities_ShortCircuit) {
 		// Arrange:
-		auto counters = Counters();
-		std::atomic_bool wait(true);
-		auto funcs = CreateValidationFuncs(
-				{ ValidationResult::Success, ValidationResult::Failure, ValidationResult::Neutral },
-				counters,
-				wait);
-		auto pPolicy = CreatePolicy();
+		auto pValidator = CreateValidator(CreateAlternatingResults());
+		auto pPolicy = CreatePolicy(pValidator, 1);
 
 		// Act:
 		auto entityInfos = test::CreateEntityInfos(5);
-		auto result = ShortCircuitTraits::Validate(*pPolicy, entityInfos.toVector(), funcs).get();
+		auto result = ShortCircuitTraits::Validate(*pPolicy, entityInfos.toVector()).get();
 
 		// Assert: notice that the first entity that fails validation short circuits validation of all subsequent entities
-		// - note also that we cannot have an exact assert on the first counter since all threads might already have called
-		//   the first validation function before the validation result is set to failure
-		EXPECT_LE(1u, counters[0]);
-		EXPECT_EQ(1u, counters[1]);
-		EXPECT_EQ(0u, counters[2]);
+		EXPECT_EQ(2u, pValidator->numValidateCalls());
 		EXPECT_EQ(ValidationResult::Failure, result);
 	}
 
-	TEST(TEST_CLASS, FailureDoesNotShortCircuitSubsequentValidationsForSubsequentEntitiesOnePerThread_All) {
+	TEST(TEST_CLASS, FailureDoesNotShortCircuitSubsequentValidationsForSubsequentEntities_All) {
 		// Arrange:
-		auto counters = Counters();
-		auto funcs = CreateValidationFuncs({ ValidationResult::Success, ValidationResult::Failure, ValidationResult::Neutral }, counters);
-		auto pPolicy = CreatePolicy();
+		auto pValidator = CreateValidator(CreateAlternatingResults());
+		auto pPolicy = CreatePolicy(pValidator, 1);
 
 		// Act:
 		auto entityInfos = test::CreateEntityInfos(5);
-		auto results = AllTraits::Validate(*pPolicy, entityInfos.toVector(), funcs).get();
+		auto results = AllTraits::Validate(*pPolicy, entityInfos.toVector()).get();
 
 		// Assert: notice that an independent result for each entity is returned
-		EXPECT_EQ(std::vector<size_t>({ 5, 5, 0 }), counters.toVector());
-		EXPECT_EQ(std::vector<ValidationResult>(5, ValidationResult::Failure), results);
-	}
-
-	TEST(TEST_CLASS, FailureDoesNotShortCircuitSubsequentValidationsForSubsequentEntitiesMultiplePerThread_All) {
-		// Arrange: force the policy to use two threads, which will cause multiple entities to be processed by each thread
-		auto counters = Counters();
-		auto funcs = CreateValidationFuncs({ ValidationResult::Success, ValidationResult::Failure, ValidationResult::Neutral }, counters);
-		auto pPolicy = CreatePolicy(2);
-
-		// Act:
-		auto entityInfos = test::CreateEntityInfos(5);
-		auto results = AllTraits::Validate(*pPolicy, entityInfos.toVector(), funcs).get();
-
-		// Assert: notice that an independent result for each entity is returned
-		EXPECT_EQ(std::vector<size_t>({ 5, 5, 0 }), counters.toVector());
-		EXPECT_EQ(std::vector<ValidationResult>(5, ValidationResult::Failure), results);
+		EXPECT_EQ(5u, pValidator->numValidateCalls());
+		EXPECT_EQ(CreateAlternatingResults(), results);
 	}
 
 	// endregion
@@ -348,12 +288,17 @@ namespace catapult { namespace validators {
 	// region forwarding to validators
 
 	namespace {
-		class MockPassThroughValidator : public stateless::EntityValidator {
+		class MockEntityCapturingStatelessEntityValidator : public StatelessEntityValidator {
 		public:
-			MockPassThroughValidator(size_t numEntities, const std::string& name)
+			explicit MockEntityCapturingStatelessEntityValidator(size_t numEntities)
 					: m_entityInfos(numEntities)
-					, m_name(name)
+					, m_name("MockEntityCapturingStatelessEntityValidator")
 			{}
+
+		public:
+			const auto& entityInfos() const {
+				return m_entityInfos;
+			}
 
 		public:
 			const std::string& name() const override {
@@ -367,58 +312,26 @@ namespace catapult { namespace validators {
 				return ValidationResult::Success;
 			}
 
-		public:
-			const auto& entityInfos() const {
-				return m_entityInfos;
-			}
-
 		private:
 			mutable std::vector<model::WeakEntityInfo> m_entityInfos;
 			std::string m_name;
 		};
-
-		std::vector<const MockPassThroughValidator*> AddSubValidators(
-				ValidationFunctions& funcs,
-				size_t numValidators,
-				size_t numEntities) {
-			std::vector<const MockPassThroughValidator*> validators;
-			for (auto i = 0u; i < numValidators; ++i) {
-				auto pMockValidator = std::make_shared<MockPassThroughValidator>(numEntities, std::to_string(i));
-
-				funcs.push_back([pMockValidator](const auto& entityInfo) {
-					return pMockValidator->validate(entityInfo);
-				});
-
-				validators.push_back(pMockValidator.get());
-			}
-
-			return validators;
-		}
 	}
 
-	PARALLEL_POLICY_TEST(AssertEntityInfosAreForwardedToChildValidators) {
-		// Arrange: create entity infos
-		constexpr auto Num_Entities = 8u;
-		auto sourceEntityInfos = test::CreateEntityInfos(Num_Entities);
+	PARALLEL_POLICY_TEST(EntityInfosAreForwardedToValidator) {
+		// Arrange:
+		auto pValidator = std::make_shared<MockEntityCapturingStatelessEntityValidator>(8);
+		auto pPolicy = CreatePolicy(pValidator);
 
-		// - create five validators and a policy
-		ValidationFunctions funcs;
-		auto validators = AddSubValidators(funcs, 5, Num_Entities);
-		auto pPolicy = CreatePolicy();
+		auto sourceEntityInfos = test::CreateEntityInfos(8);
 
 		// Act:
-		TTraits::Validate(*pPolicy, sourceEntityInfos.toVector(), funcs).get();
+		TTraits::Validate(*pPolicy, sourceEntityInfos.toVector()).get();
 
 		// Assert:
-		auto i = 0u;
-		for (const auto& pValidator : validators) {
-			const auto& entityInfos = pValidator->entityInfos();
-			const auto message = "validator at " + std::to_string(i);
-
-			EXPECT_EQ(Num_Entities, entityInfos.size()) << message;
-			EXPECT_EQ(sourceEntityInfos.toVector(), entityInfos) << message;
-			++i;
-		}
+		const auto& entityInfos = pValidator->entityInfos();
+		EXPECT_EQ(8u, entityInfos.size());
+		EXPECT_EQ(sourceEntityInfos.toVector(), entityInfos);
 	}
 
 	// endregion
@@ -427,19 +340,13 @@ namespace catapult { namespace validators {
 
 	PARALLEL_POLICY_TEST(FutureIsFulfilledEvenWhenValidatorIsDestroyed) {
 		// Arrange:
-		auto counters = Counters();
-		auto funcs = CreateValidationFuncs({ ValidationResult::Success, ValidationResult::Neutral }, counters);
-		auto pPolicy = CreatePolicy();
-
 		std::atomic_bool shouldBlock(true);
-		funcs.push_back([&shouldBlock](const auto&) {
-			WAIT_FOR_EXPR(!shouldBlock);
-			return ValidationResult::Success;
-		});
+		auto pValidator = CreateValidator({ ValidationResult::Success }, &shouldBlock);
+		auto pPolicy = CreatePolicy(pValidator);
 
 		// Act: start a validate operation and then destroy the validator
 		auto entityInfos = test::CreateEntityInfos(5);
-		auto future = TTraits::Validate(*pPolicy, entityInfos.toVector(), funcs);
+		auto future = TTraits::Validate(*pPolicy, entityInfos.toVector());
 		pPolicy.releaseValidationPolicy();
 
 		// Assert: the validation should still complete successfully
@@ -448,25 +355,27 @@ namespace catapult { namespace validators {
 
 		// - wait for the future to complete
 		future.get();
-		EXPECT_EQ(std::vector<size_t>({ 5, 5 }), counters.toVector());
+		EXPECT_EQ(5u, pValidator->numValidateCalls());
 	}
 
 	PARALLEL_POLICY_TEST(CanCallValidateMultipleTimesConcurrently) {
 		// Arrange:
-		auto counters = Counters();
-		auto funcs = CreateValidationFuncs({ ValidationResult::Success, ValidationResult::Neutral }, counters);
-		auto pPolicy = CreatePolicy();
+		auto pValidator = CreateValidator({ ValidationResult::Success });
+		auto pPolicy = CreatePolicy(pValidator);
 
 		// Act: compose futures to bool so that they are the same type in all template instantiations
 		std::vector<thread::future<bool>> futures;
-		for (const auto& entityInfos : { test::CreateEntityInfos(1), test::CreateEntityInfos(2), test::CreateEntityInfos(4) })
-			futures.push_back(TTraits::Validate(*pPolicy, entityInfos.toVector(), funcs).then([](const auto&) { return true; }));
+		std::vector<test::EntityInfoContainerWrapper> entityInfoGroups{
+			test::CreateEntityInfos(1), test::CreateEntityInfos(2), test::CreateEntityInfos(4)
+		};
+		for (const auto& entityInfos : entityInfoGroups)
+			futures.push_back(TTraits::Validate(*pPolicy, entityInfos.toVector()).then([](const auto&) { return true; }));
 
 		// - wait for all futures
 		std::for_each(futures.rbegin(), futures.rend(), [](auto& future) { future.get(); });
 
 		// Assert:
-		EXPECT_EQ(std::vector<size_t>({ 7, 7 }), counters.toVector());
+		EXPECT_EQ(7u, pValidator->numValidateCalls());
 	}
 
 	// endregion
@@ -476,124 +385,82 @@ namespace catapult { namespace validators {
 	namespace {
 		const auto Num_Default_Threads = test::GetNumDefaultPoolThreads();
 
-		struct ValidatorTraits {
-			using ItemType = model::VerifiableEntity;
-
-			static uint64_t GetValue(const model::VerifiableEntity& entity) {
-				// Deadline is set in GenerateBlockWithTransactions and used as a unique entity id
-				return static_cast<const model::Transaction&>(entity).Deadline.unwrap();
-			}
-		};
-
-		class MultiThreadedValidatorState : public test::BasicMultiThreadedState<ValidatorTraits> {
-		public:
-			void increment(const model::VerifiableEntity& entity) {
-				process(entity);
-			}
-		};
-
-		using MultiThreadedValidatorStates = std::vector<std::unique_ptr<MultiThreadedValidatorState>>;
-
-		template<typename TTraits>
-		void ValidateMany(MultiThreadedValidatorStates& states, size_t numValidators, size_t numEntities) {
+		template<typename TTraits, typename TAssertState>
+		void ValidateMany(size_t numEntities, TAssertState assertState) {
 			// Arrange:
 			if (0 == numEntities) {
-				// (Num_Default_Threads is 2 * cores, so Num_Default_Threads / 4 is nonzero when there are
-				// at least two cores)
+				// (Num_Default_Threads is 2 * cores, so Num_Default_Threads / 4 is nonzero when there are at least two cores)
 				CATAPULT_LOG(fatal) << "Skipping test on single core system";
 				return;
 			}
 
-			CATAPULT_LOG(debug) << "Running test with " << numValidators << " validators and " << numEntities << " entities";
+			CATAPULT_LOG(debug) << "Running test with " << numEntities << " entities";
 
-			// - create an aggregate of MockStatefulBlockingValidator
-			std::atomic<size_t> counter(0);
-			auto funcs = ValidationFunctions();
-			for (auto i = 0u; i < numValidators; ++i) {
-				funcs.push_back([&state = *states[i], &counter](const auto& entityInfo) {
-					// - increment the counter and wait until every expected thread has incremented it once
-					++counter;
-					WAIT_FOR_EXPR(counter >= Num_Default_Threads);
-					state.increment(entityInfo.entity());
-					return ValidationResult::Success;
-				});
-			}
-
-			auto pPolicy = CreatePolicy();
+			// - create a validator
+			std::atomic_bool shouldBlock(true);
+			auto pValidator = CreateValidator({ ValidationResult::Success }, &shouldBlock);
+			auto pPolicy = CreatePolicy(pValidator);
 
 			// Act:
 			auto entityInfos = test::CreateEntityInfos(numEntities);
-			auto result = TTraits::Validate(*pPolicy, entityInfos.toVector(), funcs).get();
+			auto resultFuture = TTraits::Validate(*pPolicy, entityInfos.toVector());
+
+			// - wait until every expected thread has incremented the counter once
+			WAIT_FOR_EXPR(Num_Default_Threads <= pValidator->numValidateCalls());
+			shouldBlock = false;
+
+			auto result = resultFuture.get();
 
 			// Assert:
 			EXPECT_TRUE(TTraits::IsSuccess(result));
-		}
-
-		MultiThreadedValidatorStates CreateMultithreadedStates(size_t count) {
-			MultiThreadedValidatorStates states;
-			for (auto i = 0u; i < count; ++i)
-				states.push_back(std::make_unique<MultiThreadedValidatorState>());
-
-			return states;
+			assertState(pValidator->state());
 		}
 
 		template<typename TTraits>
-		void AssertCanHandleManyValidatorsAndEntities(size_t numValidators, size_t numEntities) {
-			// Arrange:
-			auto states = CreateMultithreadedStates(numValidators);
-
+		void AssertCanHandleManyValidatorsAndEntities(size_t numEntities) {
 			// Act:
-			ValidateMany<TTraits>(states, numValidators, numEntities);
-
-			// Assert: each validator was called numEntities times (with a unique entity)
-			for (auto i = 0u; i < numValidators; ++i) {
-				const auto& state = *states[i];
-				EXPECT_EQ(numEntities, state.counter()) << "validator " << i;
-				EXPECT_EQ(numEntities, state.numUniqueItems()) << "validator " << i;
-			}
+			ValidateMany<TTraits>(numEntities, [numEntities](const auto& state) {
+				// Assert: validator was called numEntities times (with a unique entity)
+				EXPECT_EQ(numEntities, state.counter());
+				EXPECT_EQ(numEntities, state.numUniqueItems());
+			});
 		}
 
 		template<typename TTraits>
-		void AssertCanDistributeWorkEvenly(size_t numValidators, size_t numEntities) {
-			// Arrange:
-			auto states = CreateMultithreadedStates(numValidators);
-
+		void AssertCanDistributeWorkEvenly(size_t numEntities) {
 			// Act:
-			ValidateMany<TTraits>(states, numValidators, numEntities);
-
-			// Assert: each validator was called numEntities times (with a unique entity)
-			auto minWorkPerThread = numEntities / Num_Default_Threads;
-			for (auto i = 0u; i < numValidators; ++i) {
-				const auto& state = *states[i];
-				EXPECT_EQ(numEntities, state.counter()) << "validator " << i;
-				EXPECT_EQ(numEntities, state.numUniqueItems()) << "validator " << i;
+			ValidateMany<TTraits>(numEntities, [numEntities](const auto& state) {
+				// Assert: validator was called numEntities times (with a unique entity)
+				auto minWorkPerThread = numEntities / Num_Default_Threads;
+				EXPECT_EQ(numEntities, state.counter());
+				EXPECT_EQ(numEntities, state.numUniqueItems());
 
 				// - the work was distributed evenly across threads
 				//   (a thread can do more than the min amount of work if the number of entities is not divisible by
 				//    the number of threads)
 				for (auto counter : state.threadCounters())
-					EXPECT_LE(minWorkPerThread, counter) << "validator " << i;
+					EXPECT_LE(minWorkPerThread, counter);
 
 				EXPECT_EQ(Num_Default_Threads, state.threadCounters().size());
 				EXPECT_EQ(Num_Default_Threads, state.sortedAndReducedThreadIds().size());
-			}
+			});
 		}
 	}
 
 	PARALLEL_POLICY_TEST(CanHandleManyValidatorsAndEntitiesWhenEntitiesAreMultipleOfThreads) {
-		AssertCanHandleManyValidatorsAndEntities<TTraits>(100, Num_Default_Threads * 20);
+		AssertCanHandleManyValidatorsAndEntities<TTraits>(Num_Default_Threads * 20);
 	}
 
 	PARALLEL_POLICY_TEST(CanHandleManyValidatorsAndEntitiesWhenEntitiesAreNotMultipleOfThreads) {
-		AssertCanHandleManyValidatorsAndEntities<TTraits>(100, Num_Default_Threads / 4 * 81);
+		AssertCanHandleManyValidatorsAndEntities<TTraits>(Num_Default_Threads / 4 * 81);
 	}
 
 	PARALLEL_POLICY_TEST(CanDistributeWorkEvenlyWhenEntitiesAreMultipleOfThreads) {
-		AssertCanDistributeWorkEvenly<TTraits>(100, Num_Default_Threads * 20);
+		AssertCanDistributeWorkEvenly<TTraits>(Num_Default_Threads * 20);
 	}
 
 	PARALLEL_POLICY_TEST(CanDistributeWorkEvenlyWhenEntitiesAreNotMultipleOfThreads) {
-		AssertCanDistributeWorkEvenly<TTraits>(100, Num_Default_Threads / 4 * 81);
+		AssertCanDistributeWorkEvenly<TTraits>(Num_Default_Threads / 4 * 81);
 	}
 
 	// endregion

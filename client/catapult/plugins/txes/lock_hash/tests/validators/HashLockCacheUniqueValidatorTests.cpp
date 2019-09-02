@@ -36,7 +36,7 @@ namespace catapult { namespace validators {
 			using NotificationBuilder = test::HashLockNotificationBuilder;
 			using CacheFactory = test::HashLockInfoCacheFactory;
 
-			static constexpr auto Failure = Failure_LockHash_Hash_Exists;
+			static constexpr auto Failure = Failure_LockHash_Hash_Already_Exists;
 
 			static auto CreateValidator() {
 				return CreateHashLockCacheUniqueValidator();

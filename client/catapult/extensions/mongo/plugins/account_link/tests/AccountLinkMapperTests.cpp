@@ -41,7 +41,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		// Arrange:
 		typename TTraits::TransactionType transaction;
 		transaction.LinkAction = model::AccountLinkAction::Unlink;
-		test::FillWithRandomData(transaction.RemoteAccountKey);
+		test::FillWithRandomData(transaction.RemotePublicKey);
 
 		auto pPlugin = TTraits::CreatePlugin();
 
@@ -53,7 +53,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		// Assert:
 		EXPECT_EQ(2u, test::GetFieldCount(view));
 		EXPECT_EQ(model::AccountLinkAction::Unlink, static_cast<model::AccountLinkAction>(test::GetUint32(view, "linkAction")));
-		EXPECT_EQ(transaction.RemoteAccountKey, test::GetKeyValue(view, "remoteAccountKey"));
+		EXPECT_EQ(transaction.RemotePublicKey, test::GetKeyValue(view, "remotePublicKey"));
 	}
 
 	// endregion

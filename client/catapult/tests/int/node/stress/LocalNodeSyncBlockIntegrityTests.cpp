@@ -75,7 +75,7 @@ namespace catapult { namespace local {
 
 			// Assert: the cache has expected balances (from the signed block)
 			test::AssertCurrencyBalances(accounts, context.localNode().cache(), {
-				{ 2, Amount(550'000) },
+				{ 2, Amount(550'000) }
 			});
 
 			return stateHashes;

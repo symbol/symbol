@@ -34,7 +34,7 @@ namespace catapult { namespace mongo { namespace plugins {
 				return {
 					model::Entity_Type_Alias_Address,
 					model::Entity_Type_Alias_Mosaic,
-					model::Entity_Type_Register_Namespace
+					model::Entity_Type_Namespace_Registration
 				};
 			}
 

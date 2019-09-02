@@ -61,7 +61,6 @@ namespace catapult { namespace consumers {
 			// Assert:
 			for (const auto& context : contexts) {
 				EXPECT_EQ(&state.Cache, &context.Cache);
-				EXPECT_EQ(&state.State, &context.State);
 				EXPECT_EQ(height, context.Height);
 				EXPECT_EQ(mode, context.Mode);
 
@@ -83,8 +82,7 @@ namespace catapult { namespace consumers {
 			auto pBlock = test::GenerateBlockWithTransactions(7, Height(10));
 			SetVersions(*pBlock, 22);
 
-			state::CatapultState catapultState;
-			observers::ObserverState state(delta, catapultState);
+			observers::ObserverState state(delta);
 
 			auto blockElement = test::BlockToBlockElement(*pBlock);
 
@@ -138,8 +136,7 @@ namespace catapult { namespace consumers {
 			auto pBlock = test::GenerateBlockWithTransactions(7, Height(10));
 			SetVersions(*pBlock, 22);
 
-			state::CatapultState catapultState;
-			observers::ObserverState state(delta, catapultState);
+			observers::ObserverState state(delta);
 
 			auto blockElement = test::BlockToBlockElement(*pBlock);
 			blockElement.SubCacheMerkleRoots = { Hash256() }; // trigger clear of account state cache

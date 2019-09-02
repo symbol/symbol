@@ -32,7 +32,7 @@ namespace catapult { namespace extensions {
 		Explicit,
 
 		/// Implicitly funded (e.g. balance transfers).
-		Implicit,
+		Implicit
 	};
 
 	/// State used by the nemesis funding observer.

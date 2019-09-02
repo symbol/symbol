@@ -119,6 +119,6 @@ namespace catapult { namespace validators {
 
 		// Assert:
 		for (const auto& notificationTimestampedHash : timestampedHashes)
-			AssertValidationResult(Failure_Hash_Exists, cache, notificationTimestampedHash);
+			AssertValidationResult(Failure_Hash_Already_Exists, cache, notificationTimestampedHash);
 	}
 }}

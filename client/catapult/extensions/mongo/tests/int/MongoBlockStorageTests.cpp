@@ -20,7 +20,7 @@
 
 #include "mongo/src/MongoBlockStorage.h"
 #include "mongo/src/MongoBulkWriter.h"
-#include "mongo/src/MongoChainInfoUtils.h"
+#include "mongo/src/MongoChainStatisticUtils.h"
 #include "mongo/src/MongoReceiptPlugin.h"
 #include "mongo/src/MongoTransactionMetadata.h"
 #include "catapult/model/BlockUtils.h"
@@ -137,7 +137,8 @@ namespace catapult { namespace mongo {
 			auto index = 0u;
 
 			for (const auto& pair : expectedStatements) {
-				test::AssertEqualTransactionStatement(pair.second, height, *iter, 4, index);
+				auto statementView = (*iter)["statement"].get_document().view();
+				test::AssertEqualTransactionStatement(pair.second, height, statementView, 3, index);
 				++iter;
 				++index;
 			}
@@ -154,7 +155,8 @@ namespace catapult { namespace mongo {
 			auto index = 0u;
 
 			for (const auto& pair : expectedStatements) {
-				TTraits::AssertResolutionStatement(pair.second, height, *iter, 4, index);
+				auto statementView = (*iter)["statement"].get_document().view();
+				TTraits::AssertResolutionStatement(pair.second, height, statementView, 3, index);
 				++iter;
 				++index;
 			}
@@ -167,15 +169,15 @@ namespace catapult { namespace mongo {
 			// we need to sort them upon retrieval because the assert below expects the same order as in the block statement
 
 			// transaction statements
-			auto filter = document() << "height" << static_cast<int64_t>(height.unwrap()) << finalize;
+			auto filter = document() << "statement.height" << static_cast<int64_t>(height.unwrap()) << finalize;
 			mongocxx::options::find options1;
-			options1.sort(document() << "source.primaryId" << 1 << finalize);
+			options1.sort(document() << "statement.source.primaryId" << 1 << finalize);
 			auto cursor1 = database["transactionStatements"].find(filter.view(), options1);
 			AssertTransactionStatements(height, blockStatement.TransactionStatements, cursor1);
 
 			// address resolution statements
 			mongocxx::options::find options2;
-			options2.sort(document() << "unresolved" << 1 << finalize);
+			options2.sort(document() << "statement.unresolved" << 1 << finalize);
 			auto cursor2 = database["addressResolutionStatements"].find(filter.view(), options2);
 			AssertResolutionStatements<test::AddressResolutionTraits>(height, blockStatement.AddressResolutionStatements, cursor2);
 
@@ -531,21 +533,21 @@ namespace catapult { namespace mongo {
 		auto connection = test::CreateDbConnection();
 		auto database = connection[test::DatabaseName()];
 		auto scoreDocument = document()
-				<< "$set"
-				<< open_document
-					<< "scoreHigh" << static_cast<int64_t>(12)
-					<< "scoreLow" << static_cast<int64_t>(98)
+				<< "$set" << open_document
+					<< "current.scoreHigh" << static_cast<int64_t>(12)
+					<< "current.scoreLow" << static_cast<int64_t>(98)
 				<< close_document << finalize;
-		TrySetChainInfoDocument(database, scoreDocument.view());
+		TrySetChainStatisticDocument(database, scoreDocument.view());
 
 		// Act:
 		context.saveBlocks();
 
 		// Assert: the score is unchanged
-		auto chainInfoDocument = GetChainInfoDocument(database);
-		EXPECT_EQ(4u, test::GetFieldCount(chainInfoDocument.view()));
-		EXPECT_EQ(12u, test::GetUint64(chainInfoDocument.view(), "scoreHigh"));
-		EXPECT_EQ(98u, test::GetUint64(chainInfoDocument.view(), "scoreLow"));
+		auto chainStatisticDocument = GetChainStatisticDocument(database);
+		auto currentView = chainStatisticDocument.view()["current"].get_document().view();
+		EXPECT_EQ(3u, test::GetFieldCount(currentView));
+		EXPECT_EQ(12u, test::GetUint64(currentView, "scoreHigh"));
+		EXPECT_EQ(98u, test::GetUint64(currentView, "scoreLow"));
 	}
 
 	TEST(TEST_CLASS, CannotSaveSameBlockTwiceWhenErrorModeIsStrict) {

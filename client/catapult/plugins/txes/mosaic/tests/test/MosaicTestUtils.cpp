@@ -23,14 +23,16 @@
 
 namespace catapult { namespace test {
 
+	model::MosaicProperties CreateMosaicPropertiesFromValues(uint8_t flags, uint8_t divisibility, uint64_t duration) {
+		return model::MosaicProperties(static_cast<model::MosaicFlags>(flags), divisibility, BlockDuration(duration));
+	}
+
 	model::MosaicProperties CreateMosaicPropertiesWithDuration(BlockDuration duration) {
-		model::MosaicProperties::PropertyValuesContainer values{};
-		values[utils::to_underlying_type(model::MosaicPropertyId::Duration)] = duration.unwrap();
-		return model::MosaicProperties::FromValues(values);
+		return CreateMosaicPropertiesFromValues(0, 0, duration.unwrap());
 	}
 
 	state::MosaicDefinition CreateMosaicDefinition(Height height) {
-		return state::MosaicDefinition(height, test::GenerateRandomByteArray<Key>(), 3, model::MosaicProperties::FromValues({}));
+		return state::MosaicDefinition(height, test::GenerateRandomByteArray<Key>(), 3, model::MosaicProperties());
 	}
 
 	state::MosaicEntry CreateMosaicEntry(MosaicId id, Amount supply) {
@@ -73,8 +75,8 @@ namespace catapult { namespace test {
 
 	namespace {
 		void AssertEqual(const state::MosaicDefinition& expected, const state::MosaicDefinition& actual) {
-			EXPECT_EQ(expected.height(), actual.height());
-			EXPECT_EQ(expected.owner(), actual.owner());
+			EXPECT_EQ(expected.startHeight(), actual.startHeight());
+			EXPECT_EQ(expected.ownerPublicKey(), actual.ownerPublicKey());
 			AssertMosaicDefinitionProperties(expected.properties(), actual.properties());
 		}
 	}

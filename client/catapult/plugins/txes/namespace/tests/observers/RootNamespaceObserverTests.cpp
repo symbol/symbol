@@ -115,7 +115,7 @@ namespace catapult { namespace observers {
 			const auto& entry = namespaceIter.get();
 			EXPECT_EQ(Namespace_Base_Id, entry.ns().parentId());
 
-			EXPECT_EQ(signer, entry.root().owner());
+			EXPECT_EQ(signer, entry.root().ownerPublicKey());
 			EXPECT_EQ(lifetimeStart, entry.root().lifetime().Start);
 			EXPECT_EQ(lifetimeEnd, entry.root().lifetime().End);
 			EXPECT_TRUE(entry.root().empty());
@@ -165,7 +165,7 @@ namespace catapult { namespace observers {
 			const auto& entry = namespaceIter.get();
 			EXPECT_EQ(Namespace_Base_Id, entry.ns().parentId());
 
-			EXPECT_EQ(signer, entry.root().owner());
+			EXPECT_EQ(signer, entry.root().ownerPublicKey());
 			EXPECT_EQ(lifetimeStart, entry.root().lifetime().Start);
 			EXPECT_EQ(lifetimeEnd, entry.root().lifetime().End);
 			EXPECT_EQ(1u, entry.root().size());
@@ -222,7 +222,7 @@ namespace catapult { namespace observers {
 			const auto& entry = namespaceIter.get();
 			EXPECT_EQ(Namespace_Base_Id, entry.ns().parentId());
 
-			EXPECT_EQ(signer, entry.root().owner());
+			EXPECT_EQ(signer, entry.root().ownerPublicKey());
 			EXPECT_EQ(lifetimeStart, entry.root().lifetime().Start);
 			EXPECT_EQ(lifetimeEnd, entry.root().lifetime().End);
 			EXPECT_TRUE(entry.root().empty());

@@ -65,7 +65,7 @@ namespace catapult { namespace test {
 	/// Subscribes \a socket to topics created from \a marker and \a addresses.
 	void SubscribeForAddresses(zmq::socket_t& socket, zeromq::TransactionMarker marker, const model::UnresolvedAddressSet& addresses);
 
-	/// Attempts to receive a \a message using \a socket.
+	/// Attempts to receive a single \a message using \a socket.
 	void ZmqReceive(zmq::multipart_t& message, zmq::socket_t& socket);
 
 	/// Asserts that the given \a message and \a blockElement have matching block header data.

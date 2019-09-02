@@ -25,16 +25,16 @@ namespace catapult { namespace model {
 
 #pragma pack(push, 1)
 
-	/// A cosignature.
+	/// Cosignature attached to an aggregate transaction.
 	struct Cosignature {
-		/// Cosigner public key.
-		Key Signer;
+		/// Cosignatory public key.
+		Key SignerPublicKey;
 
-		/// Cosigner signature.
+		/// Cosignatory signature.
 		catapult::Signature Signature;
 	};
 
-	/// A detached cosignature.
+	/// Cosignature detached from an aggregate transaction.
 	struct DetachedCosignature : public Cosignature {
 	public:
 		/// Creates a detached cosignature around \a signer, \a signature and \a parentHash.
@@ -44,7 +44,7 @@ namespace catapult { namespace model {
 		{}
 
 	public:
-		/// Hash of the corresponding parent.
+		/// Hash of the aggregate transaction that is signed by this cosignature.
 		Hash256 ParentHash;
 	};
 

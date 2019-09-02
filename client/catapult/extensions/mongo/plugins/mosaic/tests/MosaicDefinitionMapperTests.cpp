@@ -24,6 +24,7 @@
 #include "catapult/constants.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/MongoTransactionPluginTests.h"
+#include "plugins/txes/mosaic/tests/test/MosaicTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -34,63 +35,36 @@ namespace catapult { namespace mongo { namespace plugins {
 	namespace {
 		DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS(MosaicDefinition)
 
-		using PropertyValuesContainer = model::MosaicProperties::PropertyValuesContainer;
-
-		model::MosaicFlags GetFlags(const model::MosaicProperties& properties) {
-			auto flags = model::MosaicFlags::None;
-			for (auto i = 1u; i < utils::to_underlying_type(model::MosaicFlags::All); i <<= 1) {
-				auto flag = static_cast<model::MosaicFlags>(i);
-				if (properties.is(flag))
-					flags |= flag;
-			}
-
-			return flags;
-		}
-
-		auto CreateMosaicDefinitionTransactionBuilder(
-				const Key& signer,
-				MosaicNonce mosaicNonce,
-				const model::MosaicProperties& properties) {
+		auto CreateMosaicDefinitionTransactionBuilder(const Key& signer, MosaicNonce nonce, const model::MosaicProperties& properties) {
 			auto networkId = model::NetworkIdentifier::Mijin_Test;
 			builders::MosaicDefinitionBuilder builder(networkId, signer);
-			builder.setMosaicNonce(mosaicNonce);
-			builder.setFlags(GetFlags(properties));
+			builder.setNonce(nonce);
+			builder.setFlags(properties.flags());
 			builder.setDivisibility(properties.divisibility());
-			if (Eternal_Artifact_Duration != properties.duration())
-				builder.addProperty({ model::MosaicPropertyId::Duration, properties.duration().unwrap() });
-
+			builder.setDuration(properties.duration());
 			return builder;
 		}
 
 		void AssertMosaicDefinitionData(
 				MosaicId id,
-				MosaicNonce mosaicNonce,
-				const PropertyValuesContainer& propertyValues,
-				size_t numExpectedProperties,
+				MosaicNonce nonce,
+				const model::MosaicProperties& properties,
 				const bsoncxx::document::view& dbTransaction) {
 			// Assert:
-			EXPECT_EQ(id, MosaicId(test::GetUint64(dbTransaction, "mosaicId")));
-			EXPECT_EQ(mosaicNonce, MosaicNonce(test::GetUint32(dbTransaction, "mosaicNonce")));
-
-			auto dbProperties = dbTransaction["properties"].get_array().value;
-			ASSERT_EQ(numExpectedProperties, test::GetFieldCount(dbProperties));
-			auto iter = dbProperties.cbegin();
-			for (auto i = 0u; i < numExpectedProperties; ++i, ++iter) {
-				auto propertyId = utils::checked_cast<uint32_t, uint8_t>(test::GetUint32(iter->get_document().view(), "id"));
-				EXPECT_EQ(i, propertyId) << "id at " << static_cast<uint32_t>(propertyId);
-				EXPECT_EQ(propertyValues[propertyId], test::GetUint64(iter->get_document().view(), "value"))
-						<< "value at " << static_cast<uint32_t>(propertyId);
-			}
+			EXPECT_EQ(id, MosaicId(test::GetUint64(dbTransaction, "id")));
+			EXPECT_EQ(nonce, MosaicNonce(test::GetUint32(dbTransaction, "nonce")));
+			EXPECT_EQ(properties.flags(), static_cast<model::MosaicFlags>(test::GetUint8(dbTransaction, "flags")));
+			EXPECT_EQ(properties.divisibility(), test::GetUint8(dbTransaction, "divisibility"));
+			EXPECT_EQ(properties.duration(), BlockDuration(test::GetUint64(dbTransaction, "duration")));
 		}
 
 		template<typename TTraits>
-		void AssertCanMapTransaction(BlockDuration duration, size_t numExpectedProperties) {
-			PropertyValuesContainer propertyValues{ { 4, 5, duration.unwrap() } };
-			auto properties = model::MosaicProperties::FromValues(propertyValues);
+		void AssertCanMapTransaction(BlockDuration duration) {
+			auto properties = test::CreateMosaicPropertiesFromValues(4, 5, duration.unwrap());
 			auto signer = test::GenerateRandomByteArray<Key>();
 			auto mosaicNonce = test::GenerateRandomValue<MosaicNonce>();
 			auto pTransaction = TTraits::Adapt(CreateMosaicDefinitionTransactionBuilder(signer, mosaicNonce, properties));
-			auto mosaicId = pTransaction->MosaicId;
+			auto mosaicId = pTransaction->Id;
 			auto pPlugin = TTraits::CreatePlugin();
 
 			// Act:
@@ -99,8 +73,8 @@ namespace catapult { namespace mongo { namespace plugins {
 			auto view = builder.view();
 
 			// Assert:
-			EXPECT_EQ(3u, test::GetFieldCount(view));
-			AssertMosaicDefinitionData(mosaicId, mosaicNonce, propertyValues, numExpectedProperties, view);
+			EXPECT_EQ(5u, test::GetFieldCount(view));
+			AssertMosaicDefinitionData(mosaicId, mosaicNonce, properties, view);
 		}
 	}
 
@@ -109,11 +83,11 @@ namespace catapult { namespace mongo { namespace plugins {
 	// region streamTransaction
 
 	PLUGIN_TEST(CanMapMosaicDefinitionTransaction_DefaultDuration) {
-		AssertCanMapTransaction<TTraits>(Eternal_Artifact_Duration, 2);
+		AssertCanMapTransaction<TTraits>(Eternal_Artifact_Duration);
 	}
 
 	PLUGIN_TEST(CanMapMosaicDefinitionTransaction_CustomDuration) {
-		AssertCanMapTransaction<TTraits>(BlockDuration(321), 3);
+		AssertCanMapTransaction<TTraits>(BlockDuration(321));
 	}
 
 	// endregion

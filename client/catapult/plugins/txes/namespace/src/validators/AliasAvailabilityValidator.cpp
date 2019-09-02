@@ -37,7 +37,7 @@ namespace catapult { namespace validators {
 		if (model::AliasAction::Link == notification.AliasAction && state::AliasType::None != aliasType)
 			return Failure_Namespace_Alias_Already_Exists;
 		else if (model::AliasAction::Unlink == notification.AliasAction && state::AliasType::None == aliasType)
-			return Failure_Namespace_Alias_Does_Not_Exist;
+			return Failure_Namespace_Unknown_Alias;
 
 		return ValidationResult::Success;
 	});

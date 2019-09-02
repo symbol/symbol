@@ -79,7 +79,7 @@ namespace catapult { namespace cache {
 		/// Inserts \a value into the cache.
 		void insert(const typename TDescriptor::ValueType& value) {
 			LockInfoCacheDeltaMixins<TDescriptor, TCacheTypes>::BasicInsertRemove::insert(value);
-			AddIdentifierWithGroup(*m_pHeightGroupingDelta, value.Height, TDescriptor::GetKeyFromValue(value));
+			AddIdentifierWithGroup(*m_pHeightGroupingDelta, value.EndHeight, TDescriptor::GetKeyFromValue(value));
 		}
 
 		/// Removes the value identified by \a key from the cache.
@@ -87,7 +87,7 @@ namespace catapult { namespace cache {
 			auto iter = m_pDelta->find(key);
 			const auto* pLockInfo = iter.get();
 			if (!!pLockInfo)
-				RemoveIdentifierWithGroup(*m_pHeightGroupingDelta, pLockInfo->Height, key);
+				RemoveIdentifierWithGroup(*m_pHeightGroupingDelta, pLockInfo->EndHeight, key);
 
 			LockInfoCacheDeltaMixins<TDescriptor, TCacheTypes>::BasicInsertRemove::remove(key);
 		}

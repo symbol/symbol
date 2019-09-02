@@ -32,8 +32,8 @@ namespace catapult { namespace validators {
 			return ValidationResult::Success;
 
 		auto multisigIter = multisigCache.find(notification.Signer);
-		return multisigIter.get().cosignatories().empty()
+		return multisigIter.get().cosignatoryPublicKeys().empty()
 				? ValidationResult::Success
-				: Failure_Multisig_Operation_Not_Permitted_By_Account;
+				: Failure_Multisig_Operation_Prohibited_By_Account;
 	});
 }}

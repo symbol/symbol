@@ -51,12 +51,12 @@ namespace catapult { namespace state {
 	public:
 		/// Returns \c true if \a modification can be applied to the underlying restriction.
 		bool canAllow(const model::AccountRestrictionModification<TRestrictionValue>& modification) const {
-			return m_restriction.canAllow({ modification.ModificationType, ToVector(modification.Value) });
+			return m_restriction.canAllow({ modification.ModificationAction, ToVector(modification.Value) });
 		}
 
 		/// Returns \c true if \a modification can be applied to the underlying restriction.
 		bool canBlock(const model::AccountRestrictionModification<TRestrictionValue>& modification) const {
-			return m_restriction.canBlock({ modification.ModificationType, ToVector(modification.Value) });
+			return m_restriction.canBlock({ modification.ModificationAction, ToVector(modification.Value) });
 		}
 
 	private:

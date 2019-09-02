@@ -26,10 +26,10 @@
 #include "catapult/model/EntityHasher.h"
 #include "catapult/model/TransactionPlugin.h"
 #include "tests/test/cache/CacheTestUtils.h"
-#include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/core/KeyPairTestUtils.h"
+#include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/nodeps/TestConstants.h"
 #include "tests/test/nodeps/Waits.h"
 #include "tests/TestHarness.h"
@@ -73,7 +73,7 @@ namespace catapult { namespace harvesting {
 		}
 
 		std::unique_ptr<model::Block> CreateBlock() {
-			// the created block needs to have height 1 to be able to add it to the block difficulty cache
+			// the created block needs to have height 1 to be able to add it to the block statistic cache
 			auto pBlock = test::GenerateEmptyRandomBlock();
 			pBlock->Height = Height(1);
 			pBlock->Timestamp = Timestamp();
@@ -103,15 +103,15 @@ namespace catapult { namespace harvesting {
 					, KeyPairs(CreateKeyPairs(Num_Accounts))
 					, Beneficiary(test::GenerateRandomByteArray<Key>())
 					, Importances(CreateImportances(Num_Accounts))
-					, pUnlockedAccounts(std::make_unique<UnlockedAccounts>(Num_Accounts))
+					, pUnlockedAccounts(std::make_unique<UnlockedAccounts>(Num_Accounts, [](const auto&) { return 0; }))
 					, pLastBlock(CreateBlock())
 					, LastBlockElement(test::BlockToBlockElement(*pLastBlock)) {
 				auto delta = Cache.createDelta();
 				CreateAccounts(delta.sub<cache::AccountStateCache>(), KeyPairs, Importances);
 
-				auto& difficultyCache = delta.sub<cache::BlockDifficultyCache>();
-				state::BlockDifficultyInfo info(pLastBlock->Height, pLastBlock->Timestamp, pLastBlock->Difficulty);
-				difficultyCache.insert(info);
+				auto& statisticCache = delta.sub<cache::BlockStatisticCache>();
+				state::BlockStatistic statistic(*pLastBlock);
+				statisticCache.insert(statistic);
 				Cache.commit(Height(1));
 				UnlockAllAccounts(*pUnlockedAccounts, KeyPairs);
 
@@ -176,7 +176,7 @@ namespace catapult { namespace harvesting {
 		Timestamp CalculateBlockGenerationTime(const HarvesterContext& context, const Key& publicKey) {
 			auto pLastBlock = context.pLastBlock;
 			auto config = CreateConfiguration();
-			auto difficulty = chain::CalculateDifficulty(context.Cache.sub<cache::BlockDifficultyCache>(), pLastBlock->Height, config);
+			auto difficulty = chain::CalculateDifficulty(context.Cache.sub<cache::BlockStatisticCache>(), pLastBlock->Height, config);
 			const auto& accountStateCache = context.Cache.sub<cache::AccountStateCache>();
 			auto view = accountStateCache.createView();
 			const auto& accountState = view->find(publicKey).get();
@@ -228,31 +228,31 @@ namespace catapult { namespace harvesting {
 		EXPECT_TRUE(!!pBlock);
 	}
 
-	TEST(TEST_CLASS, HarvestReturnsNullptrWhenDifficultyCacheDoesNotContainInfoAtLastBlockHeight) {
+	TEST(TEST_CLASS, HarvestReturnsNullptrWhenStatisticCacheDoesNotContainInfoAtLastBlockHeight) {
 		// Arrange:
 		HarvesterContext context;
 		auto pHarvester = context.CreateHarvester();
 		auto numBlocks = CreateConfiguration().MaxDifficultyBlocks + 10;
 
-		// - seed the block difficulty cache (it already has an entry for height 1)
+		// - seed the block statistic cache (it already has an entry for height 1)
 		{
 			auto delta = context.Cache.createDelta();
-			auto& blockDifficultyCache = delta.sub<cache::BlockDifficultyCache>();
+			auto& blockStatisticCache = delta.sub<cache::BlockStatisticCache>();
 			for (auto i = 2u; i <= numBlocks; ++i)
-				blockDifficultyCache.insert(state::BlockDifficultyInfo(Height(i), Timestamp(i * 1'000), Difficulty()));
+				blockStatisticCache.insert(state::BlockStatistic(Height(i), Timestamp(i * 1'000), Difficulty(), BlockFeeMultiplier()));
 
 			context.Cache.commit(Height(numBlocks));
 		}
 
-		// Act: set the last block to the max difficulty info in the cache and harvest
+		// Act: set the last block to the max difficulty in the cache and harvest
 		context.pLastBlock->Height = Height(numBlocks);
 		auto pBlock1 = pHarvester->harvest(context.LastBlockElement, Max_Time);
 
-		// - set the last block to one past the max difficulty info in the cache and harvest
+		// - set the last block to one past the max difficulty in the cache and harvest
 		context.pLastBlock->Height = Height(numBlocks + 1);
 		auto pBlock2 = pHarvester->harvest(context.LastBlockElement, Max_Time);
 
-		// Assert: only the first block could be harvested (there is insufficient difficulty info for the second one)
+		// Assert: only the first block could be harvested (there is insufficient difficulty for the second one)
 		EXPECT_TRUE(!!pBlock1);
 		EXPECT_FALSE(!!pBlock2);
 	}
@@ -273,13 +273,13 @@ namespace catapult { namespace harvesting {
 
 			// Act: harvester should succeed at earliest possible time
 			auto pBlock2 = pHarvester->harvest(context.LastBlockElement, timestamp);
-			if (!pBlock2 || bestKey != pBlock2->Signer)
+			if (!pBlock2 || bestKey != pBlock2->SignerPublicKey)
 				return false;
 
 			// Assert:
 			EXPECT_FALSE(!!pBlock1);
 			EXPECT_TRUE(!!pBlock2);
-			EXPECT_EQ(bestKey, pBlock2->Signer);
+			EXPECT_EQ(bestKey, pBlock2->SignerPublicKey);
 			return true;
 		});
 	}
@@ -355,48 +355,67 @@ namespace catapult { namespace harvesting {
 		// Arrange:
 		HarvesterContext context;
 		auto pHarvester = context.CreateHarvester();
-		auto firstPublicKey = context.pUnlockedAccounts->view().begin()->publicKey();
+		Key firstPublicKey;
+		context.pUnlockedAccounts->view().forEach([&firstPublicKey](const auto& keyPair) {
+			firstPublicKey = keyPair.publicKey();
+			return false;
+		});
 
 		// Act:
 		auto pBlock = pHarvester->harvest(context.LastBlockElement, Max_Time);
 
 		// Assert:
 		ASSERT_TRUE(!!pBlock);
-		EXPECT_EQ(firstPublicKey, pBlock->Signer);
+		EXPECT_EQ(firstPublicKey, pBlock->SignerPublicKey);
 	}
 
-	TEST(TEST_CLASS, HarvestedBlockHasExpectedProperties) {
-		// Arrange:
-		// - the harvester accepts the first account that has a hit. That means that subsequent accounts might have
-		// - a better (lower) hit but still won't be the signer of the block.
-		test::RunNonDeterministicTest("harvested block has expected properties", []() {
-			HarvesterContext context;
-			auto pLastBlock = context.pLastBlock;
-			auto bestKey = BestHarvesterKey(context.LastBlockElement, context.KeyPairs);
-			auto timestamp = CalculateBlockGenerationTime(context, bestKey);
-			auto pHarvester = context.CreateHarvester();
-			const auto& difficultyCache = context.Cache.sub<cache::BlockDifficultyCache>();
-			auto config = CreateConfiguration();
+	namespace {
+		void AssertHarvestedBlockHasExpectedProperties(
+				Key beneficiary,
+				const std::function<Key (const Key&)>& expectedBeneficiaryAccessor) {
+			// Arrange:
+			// - the harvester accepts the first account that has a hit. That means that subsequent accounts might have
+			// - a better (lower) hit but still won't be the signer of the block.
+			test::RunNonDeterministicTest("harvested block has expected properties", [&beneficiary, &expectedBeneficiaryAccessor]() {
+				HarvesterContext context;
+				context.Beneficiary = beneficiary;
 
-			// Act:
-			auto pBlock = pHarvester->harvest(context.LastBlockElement, timestamp);
-			if (!pBlock || bestKey != pBlock->Signer)
-				return false;
+				auto pLastBlock = context.pLastBlock;
+				auto bestKey = BestHarvesterKey(context.LastBlockElement, context.KeyPairs);
+				auto timestamp = CalculateBlockGenerationTime(context, bestKey);
+				auto pHarvester = context.CreateHarvester();
+				const auto& statisticCache = context.Cache.sub<cache::BlockStatisticCache>();
+				auto config = CreateConfiguration();
 
-			// Assert:
-			EXPECT_TRUE(!!pBlock);
-			EXPECT_EQ(bestKey, pBlock->Signer);
-			EXPECT_EQ(model::MakeVersion(Network_Identifier, 3), pBlock->Version);
-			EXPECT_EQ(model::Entity_Type_Block, pBlock->Type);
-			EXPECT_EQ(Height(2), pBlock->Height);
-			EXPECT_EQ(timestamp, pBlock->Timestamp);
-			EXPECT_EQ(chain::CalculateDifficulty(difficultyCache, pLastBlock->Height, config), pBlock->Difficulty);
-			EXPECT_EQ(model::CalculateHash(*context.pLastBlock), pBlock->PreviousBlockHash);
-			EXPECT_EQ(context.Beneficiary, pBlock->Beneficiary);
-			EXPECT_TRUE(model::VerifyBlockHeaderSignature(*pBlock));
-			EXPECT_TRUE(model::IsSizeValid(*pBlock, model::TransactionRegistry()));
-			return true;
-		});
+				// Act:
+				auto pBlock = pHarvester->harvest(context.LastBlockElement, timestamp);
+				if (!pBlock || bestKey != pBlock->SignerPublicKey)
+					return false;
+
+				// Assert:
+				EXPECT_TRUE(!!pBlock);
+				EXPECT_EQ(bestKey, pBlock->SignerPublicKey);
+				EXPECT_EQ(model::MakeVersion(Network_Identifier, 3), pBlock->Version);
+				EXPECT_EQ(model::Entity_Type_Block, pBlock->Type);
+				EXPECT_EQ(Height(2), pBlock->Height);
+				EXPECT_EQ(timestamp, pBlock->Timestamp);
+				EXPECT_EQ(chain::CalculateDifficulty(statisticCache, pLastBlock->Height, config), pBlock->Difficulty);
+				EXPECT_EQ(model::CalculateHash(*context.pLastBlock), pBlock->PreviousBlockHash);
+				EXPECT_EQ(expectedBeneficiaryAccessor(bestKey), pBlock->BeneficiaryPublicKey);
+				EXPECT_TRUE(model::VerifyBlockHeaderSignature(*pBlock));
+				EXPECT_TRUE(model::IsSizeValid(*pBlock, model::TransactionRegistry()));
+				return true;
+			});
+		}
+	}
+
+	TEST(TEST_CLASS, HarvestedBlockHasExpectedProperties_WithBeneficiary) {
+		auto beneficiary = test::GenerateRandomByteArray<Key>();
+		AssertHarvestedBlockHasExpectedProperties(beneficiary, [&beneficiary](const auto&) { return beneficiary; });
+	}
+
+	TEST(TEST_CLASS, HarvestedBlockHasExpectedProperties_WithoutBeneficiary) {
+		AssertHarvestedBlockHasExpectedProperties(Key(), [](const auto& signer) { return signer; });
 	}
 
 	TEST(TEST_CLASS, HarvesterRespectsCustomBlockChainConfiguration) {
@@ -449,9 +468,9 @@ namespace catapult { namespace harvesting {
 		config.MaxTransactionsPerBlock = 123;
 		std::vector<std::pair<Key, uint32_t>> capturedParams;
 		auto pHarvester = context.CreateHarvester(config, [&capturedParams](const auto& blockHeader, auto maxTransactionsPerBlock) {
-			capturedParams.emplace_back(blockHeader.Signer, maxTransactionsPerBlock);
+			capturedParams.emplace_back(blockHeader.SignerPublicKey, maxTransactionsPerBlock);
 			auto pBlock = test::GenerateEmptyRandomBlock();
-			pBlock->Signer = blockHeader.Signer;
+			pBlock->SignerPublicKey = blockHeader.SignerPublicKey;
 			return pBlock;
 		});
 
@@ -468,7 +487,7 @@ namespace catapult { namespace harvesting {
 		EXPECT_EQ(123u, capturedParams[0].second);
 
 		// - block signer was passed to generator
-		EXPECT_EQ(capturedParams[0].first, pHarvestedBlock->Signer);
+		EXPECT_EQ(capturedParams[0].first, pHarvestedBlock->SignerPublicKey);
 	}
 
 	TEST(TEST_CLASS, HarvestReturnsNullptrWhenBlockGeneratorFails) {
@@ -478,7 +497,7 @@ namespace catapult { namespace harvesting {
 		config.MaxTransactionsPerBlock = 123;
 		std::vector<std::pair<Key, uint32_t>> capturedParams;
 		auto pHarvester = context.CreateHarvester(config, [&capturedParams](const auto& blockHeader, auto maxTransactionsPerBlock) {
-			capturedParams.emplace_back(blockHeader.Signer, maxTransactionsPerBlock);
+			capturedParams.emplace_back(blockHeader.SignerPublicKey, maxTransactionsPerBlock);
 			return nullptr;
 		});
 

@@ -51,7 +51,7 @@ namespace catapult { namespace test {
 		/// Asserts additional data using \a transaction and \a view.
 		template<typename TTransaction>
 		static void AssertAdditionalData(const TTransaction& transaction, const bsoncxx::document::view& view) {
-			EXPECT_EQ(transaction.TargetId, UnresolvedMosaicId(GetUint64(view, "targetId")));
+			EXPECT_EQ(transaction.TargetMosaicId, UnresolvedMosaicId(GetUint64(view, "targetMosaicId")));
 		}
 	};
 
@@ -63,7 +63,7 @@ namespace catapult { namespace test {
 		/// Asserts additional data using \a transaction and \a view.
 		template<typename TTransaction>
 		static void AssertAdditionalData(const TTransaction& transaction, const bsoncxx::document::view& view) {
-			EXPECT_EQ(transaction.TargetId, NamespaceId(GetUint64(view, "targetId")));
+			EXPECT_EQ(transaction.TargetNamespaceId, NamespaceId(GetUint64(view, "targetNamespaceId")));
 		}
 	};
 

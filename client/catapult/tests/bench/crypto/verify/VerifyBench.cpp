@@ -19,27 +19,68 @@
 **/
 
 #include "catapult/crypto/Signer.h"
+#include "catapult/utils/Logging.h"
 #include "tests/bench/nodeps/Random.h"
 #include <benchmark/benchmark.h>
 
 namespace catapult { namespace crypto {
 
 	namespace {
+		constexpr auto Data_Size = 279;
+
+		auto CreateRandomKeyPair() {
+			return KeyPair::FromPrivate(PrivateKey::Generate(bench::RandomByte));
+		}
+
 		void BenchmarkVerify(benchmark::State& state) {
-			Key key;
-			std::vector<uint8_t> buffer(279);
+			auto numFailures = 0u;
+			std::vector<uint8_t> buffer(Data_Size);
 			Signature signature;
+
 			for (auto _ : state) {
 				state.PauseTiming();
-				bench::FillWithRandomData(key);
+				auto keyPair = CreateRandomKeyPair();
 				bench::FillWithRandomData(buffer);
-				bench::FillWithRandomData(signature);
+				crypto::Sign(keyPair, buffer, signature);
 				state.ResumeTiming();
 
-				crypto::Verify(key, buffer, signature);
+				if (!crypto::Verify(keyPair.publicKey(), buffer, signature))
+					++numFailures;
 			}
 
-			state.SetBytesProcessed(static_cast<int64_t>(buffer.size() * state.iterations()));
+			state.SetBytesProcessed(static_cast<int64_t>(Data_Size * state.iterations()));
+			if (0 != numFailures)
+				CATAPULT_LOG(warning) << numFailures << " calls to Verify failed";
+		}
+
+		void BenchmarkVerifyMulti(benchmark::State& state) {
+			auto numFailures = 0u;
+			constexpr auto Batch_Size = 100;
+			std::vector<Signature> signatures(Batch_Size);
+			std::vector<std::vector<uint8_t>> buffers(Batch_Size);
+
+			for (auto _ : state) {
+				state.PauseTiming();
+				std::vector<KeyPair> keyPairs;
+				std::vector<SignatureInput> signatureInputs;
+				keyPairs.reserve(Batch_Size);
+				for (auto i = 0u; i < Batch_Size; ++i) {
+					keyPairs.push_back(CreateRandomKeyPair());
+					buffers[i].resize(Data_Size);
+					bench::FillWithRandomData(buffers[i]);
+					crypto::Sign(keyPairs[i], buffers[i], signatures[i]);
+					signatureInputs.push_back(SignatureInput({ keyPairs[i].publicKey(), { buffers[i] }, signatures[i] }));
+				}
+
+				state.ResumeTiming();
+
+				if (!crypto::VerifyMulti(signatureInputs.data(), signatureInputs.size()).second)
+					++numFailures;
+			}
+
+			state.SetBytesProcessed(static_cast<int64_t>(Data_Size * Batch_Size * state.iterations()));
+			if (0 != numFailures)
+				CATAPULT_LOG(warning) << numFailures << " calls to VerifyMulti failed";
 		}
 	}
 }}
@@ -47,6 +88,13 @@ namespace catapult { namespace crypto {
 void RegisterTests();
 void RegisterTests() {
 	benchmark::RegisterBenchmark("BenchmarkVerify", catapult::crypto::BenchmarkVerify)
+			->UseRealTime()
+			->Threads(1)
+			->Threads(2)
+			->Threads(4)
+			->Threads(8);
+
+	benchmark::RegisterBenchmark("BenchmarkVerifyMulti", catapult::crypto::BenchmarkVerifyMulti)
 			->UseRealTime()
 			->Threads(1)
 			->Threads(2)

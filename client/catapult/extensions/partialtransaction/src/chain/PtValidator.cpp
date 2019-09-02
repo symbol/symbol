@@ -19,7 +19,7 @@
 **/
 
 #include "PtValidator.h"
-#include "AggregateCosignersNotificationPublisher.h"
+#include "AggregateCosignatoriesNotificationPublisher.h"
 #include "JointValidator.h"
 #include "plugins/txes/aggregate/src/validators/Results.h"
 #include "catapult/model/WeakCosignedTransactionInfo.h"
@@ -32,20 +32,20 @@ using namespace catapult::validators;
 namespace catapult { namespace chain {
 
 	namespace {
-		constexpr bool IsMissingCosignersResult(ValidationResult result) {
-			return Failure_Aggregate_Missing_Cosigners == result;
+		constexpr bool IsMissingCosignaturesResult(ValidationResult result) {
+			return Failure_Aggregate_Missing_Cosignatures == result;
 		}
 
-		constexpr CosignersValidationResult MapToCosignersValidationResult(ValidationResult result) {
+		constexpr CosignatoriesValidationResult MapToCosignatoriesValidationResult(ValidationResult result) {
 			if (IsValidationResultSuccess(result))
-				return CosignersValidationResult::Success;
+				return CosignatoriesValidationResult::Success;
 
 			// map failures (not using switch statement to workaround gcc warning)
-			return Failure_Aggregate_Ineligible_Cosigners == result
-					? CosignersValidationResult::Ineligible
-					: Failure_Aggregate_Missing_Cosigners == result
-							? CosignersValidationResult::Missing
-							: CosignersValidationResult::Failure;
+			return Failure_Aggregate_Ineligible_Cosignatories == result
+					? CosignatoriesValidationResult::Ineligible
+					: Failure_Aggregate_Missing_Cosignatures == result
+							? CosignatoriesValidationResult::Missing
+							: CosignatoriesValidationResult::Failure;
 		}
 
 		class DefaultPtValidator : public PtValidator {
@@ -55,18 +55,18 @@ namespace catapult { namespace chain {
 					const TimeSupplier& timeSupplier,
 					const plugins::PluginManager& pluginManager)
 					: m_transactionValidator(
-							CreateJointValidator(cache, timeSupplier, pluginManager, IsMissingCosignersResult),
+							CreateJointValidator(cache, timeSupplier, pluginManager, IsMissingCosignaturesResult),
 							pluginManager.createNotificationPublisher(model::PublicationMode::Basic))
 					, m_statelessTransactionValidator(
 							pluginManager.createStatelessValidator(),
 							pluginManager.createNotificationPublisher(model::PublicationMode::Custom))
-					, m_pCosignersValidator(CreateJointValidator(cache, timeSupplier, pluginManager, [](auto) { return false; }))
+					, m_pCosignatoriesValidator(CreateJointValidator(cache, timeSupplier, pluginManager, [](auto) { return false; }))
 			{}
 
 		public:
 			Result<bool> validatePartial(const model::WeakEntityInfoT<model::Transaction>& transactionInfo) const override {
 				// notice that partial validation has two differences relative to "normal" validation
-				// 1. missing cosigners failures are ignored
+				// 1. missing cosignatures failures are ignored
 				// 2. custom stateful validators are ignored
 				auto weakEntityInfo = transactionInfo.cast<model::VerifiableEntity>();
 				auto result = m_transactionValidator.validate(weakEntityInfo);
@@ -81,17 +81,18 @@ namespace catapult { namespace chain {
 				return { result, false };
 			}
 
-			Result<CosignersValidationResult> validateCosigners(const model::WeakCosignedTransactionInfo& transactionInfo) const override {
-				validators::ValidatingNotificationSubscriber sub(*m_pCosignersValidator);
+			Result<CosignatoriesValidationResult> validateCosignatories(
+					const model::WeakCosignedTransactionInfo& transactionInfo) const override {
+				validators::ValidatingNotificationSubscriber sub(*m_pCosignatoriesValidator);
 				m_aggregatePublisher.publish(transactionInfo, sub);
-				return { sub.result(), MapToCosignersValidationResult(sub.result()) };
+				return { sub.result(), MapToCosignatoriesValidationResult(sub.result()) };
 			}
 
 		private:
 			NotificationValidatorAdapter m_transactionValidator;
 			NotificationValidatorAdapter m_statelessTransactionValidator;
-			AggregateCosignersNotificationPublisher m_aggregatePublisher;
-			std::unique_ptr<const stateless::NotificationValidator> m_pCosignersValidator;
+			AggregateCosignatoriesNotificationPublisher m_aggregatePublisher;
+			std::unique_ptr<const stateless::NotificationValidator> m_pCosignatoriesValidator;
 		};
 	}
 

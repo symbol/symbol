@@ -33,8 +33,10 @@ namespace catapult { namespace extensions {
 	/// Creates plugin storage configuration from \a config.
 	plugins::StorageConfiguration CreateStorageConfiguration(const config::CatapultConfiguration& config);
 
-	/// Creates an entity stateless validator using \a pluginManager.
-	std::unique_ptr<const validators::stateless::AggregateEntityValidator> CreateStatelessValidator(const plugins::PluginManager& manager);
+	/// Creates a stateless entity validator using \a pluginManager that filters out notifications of \a excludedNotificationType.
+	std::unique_ptr<const validators::StatelessEntityValidator> CreateStatelessEntityValidator(
+			const plugins::PluginManager& manager,
+			model::NotificationType excludedNotificationType = static_cast<model::NotificationType>(0));
 
 	/// Creates an undo entity observer using \a pluginManager.
 	std::unique_ptr<const observers::EntityObserver> CreateUndoEntityObserver(const plugins::PluginManager& manager);

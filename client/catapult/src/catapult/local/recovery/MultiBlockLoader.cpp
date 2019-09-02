@@ -152,7 +152,7 @@ namespace catapult { namespace local {
 	private:
 		Hash256 execute(const model::BlockElement& blockElement) const {
 			auto cacheDelta = m_stateRef.Cache.createDelta();
-			auto observerState = observers::ObserverState(cacheDelta, m_stateRef.State);
+			auto observerState = observers::ObserverState(cacheDelta);
 
 			auto readOnlyCache = cacheDelta.toReadOnly();
 			auto resolverContext = m_pluginManager.createResolverContext(readOnlyCache);

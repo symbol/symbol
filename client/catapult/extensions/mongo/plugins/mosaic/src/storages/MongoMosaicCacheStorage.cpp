@@ -22,6 +22,7 @@
 #include "src/mappers/MosaicEntryMapper.h"
 #include "mongo/src/storages/MongoCacheStorage.h"
 #include "plugins/txes/mosaic/src/cache/MosaicCache.h"
+#include "catapult/model/Address.h"
 
 using namespace bsoncxx::builder::stream;
 
@@ -30,14 +31,15 @@ namespace catapult { namespace mongo { namespace plugins {
 	namespace {
 		struct MosaicCacheTraits : public storages::BasicMongoCacheStorageTraits<cache::MosaicCacheDescriptor> {
 			static constexpr auto Collection_Name = "mosaics";
-			static constexpr auto Id_Property_Name = "mosaic.mosaicId";
+			static constexpr auto Id_Property_Name = "mosaic.id";
 
 			static auto MapToMongoId(const KeyType& key) {
 				return mappers::ToInt64(key);
 			}
 
-			static auto MapToMongoDocument(const ModelType& mosaicEntry, model::NetworkIdentifier) {
-				return plugins::ToDbModel(mosaicEntry);
+			static auto MapToMongoDocument(const ModelType& mosaicEntry, model::NetworkIdentifier networkIdentifier) {
+				auto ownerAddress = model::PublicKeyToAddress(mosaicEntry.definition().ownerPublicKey(), networkIdentifier);
+				return plugins::ToDbModel(mosaicEntry, ownerAddress);
 			}
 		};
 	}

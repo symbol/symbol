@@ -31,10 +31,10 @@ namespace catapult { namespace state {
 	public:
 		/// Saves \a lockInfo to \a output.
 		static void Save(const TLockInfo& lockInfo, io::OutputStream& output){
-			output.write(lockInfo.Account);
+			output.write(lockInfo.SenderPublicKey);
 			io::Write(output, lockInfo.MosaicId);
 			io::Write(output, lockInfo.Amount);
-			io::Write(output, lockInfo.Height);
+			io::Write(output, lockInfo.EndHeight);
 			io::Write8(output, utils::to_underlying_type(lockInfo.Status));
 			TLockInfoSerializer::Save(lockInfo, output);
 		}
@@ -42,10 +42,10 @@ namespace catapult { namespace state {
 		/// Loads a single value from \a input.
 		static TLockInfo Load(io::InputStream& input){
 			TLockInfo lockInfo;
-			input.read(lockInfo.Account);
+			input.read(lockInfo.SenderPublicKey);
 			io::Read(input, lockInfo.MosaicId);
 			io::Read(input, lockInfo.Amount);
-			io::Read(input, lockInfo.Height);
+			io::Read(input, lockInfo.EndHeight);
 			lockInfo.Status = static_cast<LockStatus>(io::Read8(input));
 			TLockInfoSerializer::Load(input, lockInfo);
 			return lockInfo;

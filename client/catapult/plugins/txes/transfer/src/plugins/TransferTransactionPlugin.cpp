@@ -31,21 +31,25 @@ namespace catapult { namespace plugins {
 	namespace {
 		template<typename TTransaction>
 		void Publish(const TTransaction& transaction, NotificationSubscriber& sub) {
-			sub.notify(AccountAddressNotification(transaction.Recipient));
-			sub.notify(AddressInteractionNotification(transaction.Signer, transaction.Type, { transaction.Recipient }));
+			sub.notify(AccountAddressNotification(transaction.RecipientAddress));
+			sub.notify(AddressInteractionNotification(transaction.SignerPublicKey, transaction.Type, { transaction.RecipientAddress }));
 
 			const auto* pMosaics = transaction.MosaicsPtr();
 			for (auto i = 0u; i < transaction.MosaicsCount; ++i) {
-				auto notification = BalanceTransferNotification(
-						transaction.Signer,
-						transaction.Recipient,
+				sub.notify(BalanceTransferNotification(
+						transaction.SignerPublicKey,
+						transaction.RecipientAddress,
 						pMosaics[i].MosaicId,
-						pMosaics[i].Amount);
-				sub.notify(notification);
+						pMosaics[i].Amount));
 			}
 
-			if (transaction.MessageSize)
-				sub.notify(TransferMessageNotification(transaction.MessageSize));
+			if (transaction.MessageSize) {
+				sub.notify(TransferMessageNotification(
+						transaction.SignerPublicKey,
+						transaction.RecipientAddress,
+						transaction.MessageSize,
+						transaction.MessagePtr()));
+			}
 
 			if (transaction.MosaicsCount)
 				sub.notify(TransferMosaicsNotification(transaction.MosaicsCount, pMosaics));

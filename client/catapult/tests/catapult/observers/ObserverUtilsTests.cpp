@@ -35,8 +35,7 @@ namespace catapult { namespace observers {
 			// Arrange:
 			auto cache = test::CreateEmptyCatapultCache();
 			auto cacheDelta = cache.createDelta();
-			state::CatapultState state;
-			ObserverContext context({ cacheDelta, state }, height, mode, model::ResolverContext());
+			ObserverContext context(ObserverState(cacheDelta), height, mode, model::ResolverContext());
 
 			// Act:
 			auto result = ShouldPrune(context, pruneInterval);
@@ -216,7 +215,7 @@ namespace catapult { namespace observers {
 		using PruningObserver = NotificationObserverT<model::BlockNotification>;
 
 		void NotifyBlock(const PruningObserver& observer, ObserverContext& context, Timestamp timestamp) {
-			observer.notify(model::BlockNotification(Key(), Key(), timestamp, Difficulty()), context);
+			observer.notify(model::BlockNotification(Key(), Key(), timestamp, Difficulty(), BlockFeeMultiplier()), context);
 		}
 
 		void NotifyBlock(const PruningObserver& observer, ObserverContext& context) {
@@ -227,8 +226,7 @@ namespace catapult { namespace observers {
 			// Arrange:
 			auto cache = CreateSimpleCatapultCache();
 			auto cacheDelta = cache.createDelta();
-			state::CatapultState state;
-			ObserverContext context({ cacheDelta, state }, height, mode, model::ResolverContext());
+			ObserverContext context(ObserverState(cacheDelta), height, mode, model::ResolverContext());
 
 			// Act:
 			NotifyBlock(observer, context);
@@ -245,8 +243,7 @@ namespace catapult { namespace observers {
 			// Arrange:
 			auto cache = CreateSimpleCatapultCache();
 			auto cacheDelta = cache.createDelta();
-			state::CatapultState state;
-			ObserverContext context({ cacheDelta, state }, height, mode, model::ResolverContext());
+			ObserverContext context(ObserverState(cacheDelta), height, mode, model::ResolverContext());
 
 			// Act:
 			NotifyBlock(observer, context);
@@ -263,8 +260,7 @@ namespace catapult { namespace observers {
 			// Arrange:
 			auto cache = CreateSimpleCatapultCache();
 			auto cacheDelta = cache.createDelta();
-			state::CatapultState state;
-			ObserverContext context({ cacheDelta, state }, height, mode, model::ResolverContext());
+			ObserverContext context(ObserverState(cacheDelta), height, mode, model::ResolverContext());
 
 			// Act:
 			NotifyBlock(observer, context, timestamp);
@@ -409,9 +405,8 @@ namespace catapult { namespace observers {
 			// Arrange:
 			auto cache = CreateSimpleCatapultCache();
 			auto cacheDelta = cache.createDelta();
-			state::CatapultState state;
 			model::BlockStatementBuilder statementBuilder;
-			ObserverContext context({ cacheDelta, state, statementBuilder }, observerHeight, mode, model::ResolverContext());
+			ObserverContext context(ObserverState(cacheDelta, statementBuilder), observerHeight, mode, model::ResolverContext());
 
 			// Act:
 			NotifyBlock(observer, context);
@@ -437,9 +432,8 @@ namespace catapult { namespace observers {
 			// Arrange:
 			auto cache = CreateSimpleCatapultCache();
 			auto cacheDelta = cache.createDelta();
-			state::CatapultState state;
 			model::BlockStatementBuilder statementBuilder;
-			ObserverContext context({ cacheDelta, state, statementBuilder }, observerHeight, mode, model::ResolverContext());
+			ObserverContext context(ObserverState(cacheDelta, statementBuilder), observerHeight, mode, model::ResolverContext());
 
 			// Act:
 			NotifyBlock(observer, context);

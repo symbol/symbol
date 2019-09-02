@@ -424,7 +424,7 @@ namespace catapult { namespace state {
 			{ MosaicId(102), Amount(4) },
 			{ MosaicId(3), Amount(9) },
 			{ MosaicId(104), Amount(16) },
-			{ MosaicId(5), Amount(25) },
+			{ MosaicId(5), Amount(25) }
 		});
 	}
 
@@ -441,7 +441,7 @@ namespace catapult { namespace state {
 			{ MosaicId(1), Amount(1) },
 			{ MosaicId(102), Amount(4) },
 			{ MosaicId(104), Amount(16) },
-			{ MosaicId(5), Amount(25) },
+			{ MosaicId(5), Amount(25) }
 		});
 	}
 
@@ -479,7 +479,7 @@ namespace catapult { namespace state {
 			{ MosaicId(3), Amount(9) },
 			{ MosaicId(5), Amount(25) },
 			{ MosaicId(7), Amount(49) },
-			{ MosaicId(9), Amount(81) },
+			{ MosaicId(9), Amount(81) }
 		});
 	}
 
@@ -523,7 +523,7 @@ namespace catapult { namespace state {
 			{ MosaicId(102), Amount(4) },
 			{ MosaicId(3), Amount(9) },
 			{ MosaicId(104), Amount(16) },
-			{ MosaicId(5), Amount(25) },
+			{ MosaicId(5), Amount(25) }
 		});
 	}
 

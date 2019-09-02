@@ -30,8 +30,8 @@ namespace catapult { namespace config {
 
 	namespace {
 		void ValidateConfiguration(const UserConfiguration& config) {
-			if (!crypto::IsValidKeyString(config.BootKey))
-				CATAPULT_THROW_VALIDATION_ERROR("BootKey must be a valid private key");
+			if (!crypto::IsValidKeyString(config.BootPrivateKey))
+				CATAPULT_THROW_VALIDATION_ERROR("BootPrivateKey must be a valid private key");
 		}
 
 		void ValidateConfiguration(const model::BlockChainConfiguration& config) {

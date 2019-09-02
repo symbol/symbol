@@ -70,7 +70,7 @@ namespace catapult { namespace validators {
 		auto accountKey = test::GenerateRandomByteArray<Key>();
 
 		// Assert:
-		AssertValidation(Failure_AccountLink_Remote_Account_Signer_Not_Allowed, accountKey, state::AccountType::Remote, accountKey);
+		AssertValidation(Failure_AccountLink_Remote_Account_Signer_Prohibited, accountKey, state::AccountType::Remote, accountKey);
 	}
 
 	TEST(TEST_CLASS, SuccessWhenSignerIsUnknown) {

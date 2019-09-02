@@ -26,8 +26,8 @@ namespace catapult { namespace state {
 #define TEST_CLASS TypedAccountRestrictionTests
 
 	namespace {
-		constexpr auto Add = model::AccountRestrictionModificationType::Add;
-		constexpr auto Del = model::AccountRestrictionModificationType::Del;
+		constexpr auto Add = model::AccountRestrictionModificationAction::Add;
+		constexpr auto Del = model::AccountRestrictionModificationAction::Del;
 
 		constexpr size_t Custom_Value_Size = 53;
 		constexpr auto Custom_Restriction_Type = static_cast<model::AccountRestrictionType>(0x78);
@@ -38,9 +38,9 @@ namespace catapult { namespace state {
 
 		struct TestContext {
 		public:
-			explicit TestContext(const std::vector<model::AccountRestrictionModificationType>& modificationTypes) {
-				for (auto modificationType : modificationTypes)
-					Modifications.push_back({ modificationType, test::GenerateRandomArray<Custom_Value_Size>() });
+			explicit TestContext(const std::vector<model::AccountRestrictionModificationAction>& modificationActions) {
+				for (auto modificationAction : modificationActions)
+					Modifications.push_back({ modificationAction, test::GenerateRandomArray<Custom_Value_Size>() });
 			}
 
 		public:
@@ -53,9 +53,9 @@ namespace catapult { namespace state {
 				const CustomAccountRestrictionModifications& modifications) {
 			for (const auto& modification : modifications) {
 				if (AccountRestrictionOperationType::Allow == operationType)
-					restriction.allow({ modification.ModificationType, ToVector(modification.Value) });
+					restriction.allow({ modification.ModificationAction, ToVector(modification.Value) });
 				else
-					restriction.block({ modification.ModificationType, ToVector(modification.Value) });
+					restriction.block({ modification.ModificationAction, ToVector(modification.Value) });
 			}
 
 			return TypedAccountRestriction<CustomAccountRestriction>(restriction);

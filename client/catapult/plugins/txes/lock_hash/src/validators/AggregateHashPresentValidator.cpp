@@ -33,7 +33,7 @@ namespace catapult { namespace validators {
 
 		const auto& cache = context.Cache.sub<cache::HashLockInfoCache>();
 		if (!cache.contains(notification.TransactionHash))
-			return Failure_LockHash_Hash_Does_Not_Exist;
+			return Failure_LockHash_Unknown_Hash;
 
 		if (!cache.isActive(notification.TransactionHash, context.Height))
 			return Failure_LockHash_Inactive_Hash;

@@ -33,7 +33,6 @@ namespace catapult {
 	namespace extensions { struct LocalNodeStateRef; }
 	namespace model { class ChainScore; }
 	namespace plugins { class PluginManager; }
-	namespace state { struct CatapultState; }
 }
 
 namespace catapult { namespace extensions {
@@ -63,14 +62,13 @@ namespace catapult { namespace extensions {
 		explicit LocalNodeStateSerializer(const config::CatapultDirectory& directory);
 
 	public:
-		/// Saves state composed of \a cache, \a state and \a score.
-		void save(const cache::CatapultCache& cache, const state::CatapultState& state, const model::ChainScore& score) const;
+		/// Saves state composed of \a cache and \a score.
+		void save(const cache::CatapultCache& cache, const model::ChainScore& score) const;
 
-		/// Saves state composed of \a cacheDelta, \a state, \a score and \a height using \a cacheStorages.
+		/// Saves state composed of \a cacheDelta, \a score and \a height using \a cacheStorages.
 		void save(
 				const cache::CatapultCacheDelta& cacheDelta,
 				const std::vector<std::unique_ptr<const cache::CacheStorage>>& cacheStorages,
-				const state::CatapultState& state,
 				const model::ChainScore& score,
 				Height height) const;
 
@@ -81,11 +79,10 @@ namespace catapult { namespace extensions {
 		config::CatapultDirectory m_directory;
 	};
 
-	/// Serializes state composed of \a cache, \a state and \a score with checkpointing to \a dataDirectory given \a nodeConfig.
+	/// Serializes state composed of \a cache and \a score with checkpointing to \a dataDirectory given \a nodeConfig.
 	void SaveStateToDirectoryWithCheckpointing(
 			const config::CatapultDataDirectory& dataDirectory,
 			const config::NodeConfiguration& nodeConfig,
 			const cache::CatapultCache& cache,
-			const state::CatapultState& state,
 			const model::ChainScore& score);
 }}

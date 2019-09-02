@@ -50,12 +50,20 @@ namespace catapult { namespace tools { namespace nemgen {
 			auto pCurrent = reinterpret_cast<const uint8_t*>(&block);
 			auto pEnd = pCurrent + block.Size;
 			std::stringstream buffer;
-			while (pCurrent != pEnd) {
+			while (pEnd != pCurrent) {
 				buffer << "\t\t";
 
-				auto lineEnd = std::min(pCurrent + 16, pEnd);
-				for (; pCurrent != lineEnd; ++pCurrent)
-					buffer << "0x" << utils::HexFormat(*pCurrent) << ((pCurrent + 1 == lineEnd) ? "," : ", ");
+				auto pLineEnd = std::min(pCurrent + 16, pEnd);
+				for (; pLineEnd != pCurrent; ++pCurrent) {
+					buffer << "0x" << utils::HexFormat(*pCurrent);
+
+					if (pCurrent + 1 != pEnd) {
+						buffer << ",";
+
+						if (pCurrent + 1 != pLineEnd)
+							buffer << " ";
+					}
+				}
 
 				buffer << "\n";
 			}

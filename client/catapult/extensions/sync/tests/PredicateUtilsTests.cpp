@@ -91,7 +91,7 @@ namespace catapult { namespace sync {
 		constexpr auto Aggregate_Bonded_Transaction_Type = MakeTransactionType(model::FacilityCode::Aggregate, 2);
 
 		struct ThrottleTestSettings {
-			bool ShouldEnableTransactionSpamThrottling;
+			bool EnableTransactionSpamThrottling;
 			uint32_t MaxCacheSize;
 			uint32_t MaxBlockSize;
 		};
@@ -102,7 +102,7 @@ namespace catapult { namespace sync {
 			config.BlockChain.MaxTransactionsPerBlock = settings.MaxBlockSize;
 			config.BlockChain.ImportanceGrouping = 1;
 
-			config.Node.ShouldEnableTransactionSpamThrottling = settings.ShouldEnableTransactionSpamThrottling;
+			config.Node.EnableTransactionSpamThrottling = settings.EnableTransactionSpamThrottling;
 			config.Node.TransactionSpamThrottlingMaxBoostFee = Amount(10'000'000);
 			config.Node.UnconfirmedTransactionsCacheMaxSize = settings.MaxCacheSize;
 			return config.ToConst();

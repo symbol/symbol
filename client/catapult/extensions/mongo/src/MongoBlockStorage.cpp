@@ -20,7 +20,7 @@
 
 #include "MongoBlockStorage.h"
 #include "MongoBulkWriter.h"
-#include "MongoChainInfoUtils.h"
+#include "MongoChainStatisticUtils.h"
 #include "MongoReceiptPlugin.h"
 #include "MongoTransactionMetadata.h"
 #include "mappers/BlockMapper.h"
@@ -37,8 +37,7 @@ namespace catapult { namespace mongo {
 		model::HashRange LoadHashes(const mongocxx::database& database, Height height, size_t numHashes) {
 			auto blocks = database["blocks"];
 			auto filter = document()
-					<< "block.height"
-					<< open_document
+					<< "block.height" << open_document
 						<< "$gte" << static_cast<int64_t>(height.unwrap())
 						<< "$lt" << static_cast<int64_t>(height.unwrap() + numHashes)
 					<< close_document
@@ -163,11 +162,12 @@ namespace catapult { namespace mongo {
 			// region LightBlockStorage
 
 			Height chainHeight() const override {
-				auto chainInfoDocument = GetChainInfoDocument(m_database);
-				if (mappers::IsEmptyDocument(chainInfoDocument))
+				auto chainStatisticDocument = GetChainStatisticDocument(m_database);
+				if (mappers::IsEmptyDocument(chainStatisticDocument))
 					return Height();
 
-				auto heightValue = mappers::GetUint64OrDefault(chainInfoDocument.view(), "height", 0);
+				auto currentView = chainStatisticDocument.view()["current"].get_document().view();
+				auto heightValue = mappers::GetUint64OrDefault(currentView, "height", 0);
 				return Height(heightValue);
 			}
 
@@ -219,20 +219,21 @@ namespace catapult { namespace mongo {
 		private:
 			void setHeight(Height height) {
 				auto journalHeight = document()
-						<< "$set"
-						<< open_document << "height" << static_cast<int64_t>(height.unwrap()) << close_document
+						<< "$set" << open_document
+							<< "current.height" << static_cast<int64_t>(height.unwrap())
+						<< close_document
 						<< finalize;
 
-				auto result = TrySetChainInfoDocument(m_database, journalHeight.view());
+				auto result = TrySetChainStatisticDocument(m_database, journalHeight.view());
 				m_errorPolicy.checkUpserted(1, result, "height");
 			}
 
 			void dropAll(Height height) {
 				DropDocuments(m_database, "blocks", "block.height", height);
 				DropDocuments(m_database, "transactions", "meta.height", height);
-				DropDocuments(m_database, "transactionStatements", "height", height);
-				DropDocuments(m_database, "addressResolutionStatements", "height", height);
-				DropDocuments(m_database, "mosaicResolutionStatements", "height", height);
+				DropDocuments(m_database, "transactionStatements", "statement.height", height);
+				DropDocuments(m_database, "addressResolutionStatements", "statement.height", height);
+				DropDocuments(m_database, "mosaicResolutionStatements", "statement.height", height);
 			}
 
 		private:

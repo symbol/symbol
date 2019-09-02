@@ -40,7 +40,7 @@ namespace catapult { namespace sync {
 						"",
 						{
 							{ "startDelay", "1m" },
-							{ "repeatDelay", "37s" },
+							{ "repeatDelay", "37s" }
 						}
 					}
 				};
@@ -83,7 +83,7 @@ namespace catapult { namespace sync {
 							{ "minDelay", "42s" },
 							{ "maxDelay", "14s" },
 							{ "numPhaseOneRounds", "17" },
-							{ "numTransitionRounds", "103" },
+							{ "numTransitionRounds", "103" }
 						}
 					}
 				};
@@ -194,7 +194,7 @@ namespace catapult { namespace sync {
 					{ "startDelay", "27m" }, { "minDelay", "34m" }, { "maxDelay", "35m" },
 					{ "numPhaseOneRounds", "65" }, { "numTransitionRounds", "11" }
 				}
-			},
+			}
 		});
 
 		// Act:

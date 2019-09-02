@@ -43,10 +43,14 @@ namespace catapult { namespace diagnostics {
 
 		void AddDiagnosticHandlers(const std::vector<utils::DiagnosticCounter>& counters, extensions::ServiceState& state) {
 			auto& handlers = state.packetHandlers();
+			handlers.setAllowedHosts(state.config().Node.TrustedHosts);
+
 			handlers::RegisterDiagnosticCountersHandler(handlers, counters);
 			handlers::RegisterDiagnosticNodesHandler(handlers, state.nodes());
 			handlers::RegisterDiagnosticBlockStatementHandler(handlers, state.storage());
 			state.pluginManager().addDiagnosticHandlers(handlers, state.cache());
+
+			handlers.setAllowedHosts({});
 		}
 
 		class DiagnosticsServiceRegistrar : public extensions::ServiceRegistrar {

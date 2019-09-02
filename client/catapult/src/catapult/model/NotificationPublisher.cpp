@@ -33,6 +33,10 @@ namespace catapult { namespace model {
 				CATAPULT_THROW_RUNTIME_ERROR_1("NotificationPublisher only supports Block and Transaction entities", entityType);
 		}
 
+		BlockNotification CreateBlockNotification(const Block& block) {
+			return { block.SignerPublicKey, block.BeneficiaryPublicKey, block.Timestamp, block.Difficulty, block.FeeMultiplier };
+		}
+
 		class BasicNotificationPublisher : public NotificationPublisher {
 		public:
 			BasicNotificationPublisher(const TransactionRegistry& transactionRegistry, UnresolvedMosaicId feeMosaicId)
@@ -51,7 +55,7 @@ namespace catapult { namespace model {
 				publishSourceChange(basicEntityType, sub);
 
 				// 2. publish common notifications
-				sub.notify(AccountPublicKeyNotification(entity.Signer));
+				sub.notify(AccountPublicKeyNotification(entity.SignerPublicKey));
 
 				// 3. publish entity specific notifications
 				const auto* pBlockHeader = entityInfo.isAssociatedBlockHeaderSet() ? &entityInfo.associatedBlockHeader() : nullptr;
@@ -89,15 +93,15 @@ namespace catapult { namespace model {
 
 			void publish(const Block& block, NotificationSubscriber& sub) const {
 				// raise an account public key notification
-				if (Key() != block.Beneficiary)
-					sub.notify(AccountPublicKeyNotification(block.Beneficiary));
+				if (block.SignerPublicKey != block.BeneficiaryPublicKey)
+					sub.notify(AccountPublicKeyNotification(block.BeneficiaryPublicKey));
 
 				// raise an entity notification
 				sub.notify(EntityNotification(block.Network(), block.EntityVersion(), Block::Current_Version, Block::Current_Version));
 
 				// raise a block notification
 				auto blockTransactionsInfo = CalculateBlockTransactionsInfo(block);
-				BlockNotification blockNotification(block.Signer, block.Beneficiary, block.Timestamp, block.Difficulty);
+				auto blockNotification = CreateBlockNotification(block);
 				blockNotification.NumTransactions = blockTransactionsInfo.Count;
 				blockNotification.TotalFee = blockTransactionsInfo.TotalFee;
 
@@ -106,7 +110,7 @@ namespace catapult { namespace model {
 				// raise a signature notification
 				auto headerSize = VerifiableEntity::Header_Size;
 				auto blockData = RawBuffer{ reinterpret_cast<const uint8_t*>(&block) + headerSize, sizeof(BlockHeader) - headerSize };
-				sub.notify(SignatureNotification(block.Signer, block.Signature, blockData));
+				sub.notify(SignatureNotification(block.SignerPublicKey, block.Signature, blockData));
 			}
 
 			void publish(
@@ -135,14 +139,14 @@ namespace catapult { namespace model {
 						<< "+   transaction.Size: " << transaction.Size << std::endl
 						<< "+   transaction.Type: " << transaction.Type;
 
-				sub.notify(TransactionNotification(transaction.Signer, hash, transaction.Type, transaction.Deadline));
+				sub.notify(TransactionNotification(transaction.SignerPublicKey, hash, transaction.Type, transaction.Deadline));
 				sub.notify(TransactionDeadlineNotification(transaction.Deadline, attributes.MaxLifetime));
-				sub.notify(TransactionFeeNotification(transaction.Signer, transaction.Size, fee, transaction.MaxFee));
-				sub.notify(BalanceDebitNotification(transaction.Signer, m_feeMosaicId, fee));
+				sub.notify(TransactionFeeNotification(transaction.SignerPublicKey, transaction.Size, fee, transaction.MaxFee));
+				sub.notify(BalanceDebitNotification(transaction.SignerPublicKey, m_feeMosaicId, fee));
 
 				// raise a signature notification
 				sub.notify(SignatureNotification(
-						transaction.Signer,
+						transaction.SignerPublicKey,
 						transaction.Signature,
 						plugin.dataBuffer(transaction),
 						SignatureNotification::ReplayProtectionMode::Enabled));

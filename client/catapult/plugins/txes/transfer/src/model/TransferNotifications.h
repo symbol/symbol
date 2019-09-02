@@ -30,7 +30,7 @@ namespace catapult { namespace model {
 #define DEFINE_TRANSFER_NOTIFICATION(DESCRIPTION, CODE, CHANNEL) DEFINE_NOTIFICATION_TYPE(CHANNEL, Transfer, DESCRIPTION, CODE)
 
 	/// Transfer was received with a message.
-	DEFINE_TRANSFER_NOTIFICATION(Message, 0x0001, Validator);
+	DEFINE_TRANSFER_NOTIFICATION(Message, 0x0001, All);
 
 	/// Transfer was received with at least one mosaic.
 	DEFINE_TRANSFER_NOTIFICATION(Mosaics, 0x0002, Validator);
@@ -48,15 +48,27 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = Transfer_Message_Notification;
 
 	public:
-		/// Creates a notification around \a messageSize.
-		explicit TransferMessageNotification(uint16_t messageSize)
+		/// Creates a notification around \a sender, \a recipient, \a messageSize and \a pMessage.
+		TransferMessageNotification(const Key& sender, const UnresolvedAddress& recipient, uint16_t messageSize, const uint8_t* pMessage)
 				: Notification(Notification_Type, sizeof(TransferMessageNotification))
+				, Sender(sender)
+				, Recipient(recipient)
 				, MessageSize(messageSize)
+				, MessagePtr(pMessage)
 		{}
 
 	public:
+		/// Message sender.
+		const Key& Sender;
+
+		/// Message recipient.
+		const UnresolvedAddress& Recipient;
+
 		/// Message size in bytes.
 		uint16_t MessageSize;
+
+		/// Const pointer to the message data.
+		const uint8_t* MessagePtr;
 	};
 
 	// endregion

@@ -29,8 +29,10 @@ namespace catapult { namespace cache {
 	/// Detached delta of the catapult cache.
 	class CatapultCacheDetachedDelta {
 	public:
-		/// Creates a detached cache delta from \a detachedSubViews.
-		explicit CatapultCacheDetachedDelta(std::vector<std::unique_ptr<DetachedSubCacheView>>&& detachedSubViews);
+		/// Creates a detached cache delta from \a dependentState and \a detachedSubViews.
+		CatapultCacheDetachedDelta(
+				const state::CatapultState& dependentState,
+				std::vector<std::unique_ptr<DetachedSubCacheView>>&& detachedSubViews);
 
 		/// Destroys the delta.
 		~CatapultCacheDetachedDelta();
@@ -46,6 +48,7 @@ namespace catapult { namespace cache {
 		std::unique_ptr<CatapultCacheDelta> tryLock();
 
 	private:
+		std::unique_ptr<state::CatapultState> m_pDependentState;
 		std::vector<std::unique_ptr<DetachedSubCacheView>> m_detachedSubViews;
 	};
 }}

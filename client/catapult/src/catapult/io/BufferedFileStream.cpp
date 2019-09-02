@@ -77,7 +77,7 @@ namespace catapult { namespace io {
 	{}
 
 	bool BufferedInputFileStream::eof() const {
-		return m_rawFile.position() == m_rawFile.size();
+		return m_rawFile.position() == m_rawFile.size() && m_bufferPosition == m_numBytesInBuffer;
 	}
 
 	namespace {

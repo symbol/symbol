@@ -43,8 +43,8 @@ namespace catapult { namespace model {
 		/// Secret.
 		Hash256 Secret;
 
-		/// Recipient of the locked mosaic.
-		UnresolvedAddress Recipient;
+		/// Locked mosaic recipient address.
+		UnresolvedAddress RecipientAddress;
 
 		/// Proof size in bytes.
 		uint16_t ProofSize;

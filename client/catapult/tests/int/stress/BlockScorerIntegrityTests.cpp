@@ -128,21 +128,21 @@ namespace catapult { namespace chain {
 				ImportanceGroups& importances,
 				const model::Block& parent,
 				const GenerationHash& parentGenerationHash,
-				model::Block& current) {
+				model::Block& currentBlock) {
 			Timestamp bestTime = Max_Time;
 			GenerationHash bestGenerationHash{};
 			ImportanceGroup* pBestGroup = nullptr;
 			for (const auto& pGroup : importances) {
 				// - set the signer and generation hash
-				current.Signer = pGroup->Signer;
+				currentBlock.SignerPublicKey = pGroup->Signer;
 				GenerationHash nextGenerationHash;
 
 				crypto::GenerationHash_Builder hasher;
 				hasher.update(parentGenerationHash);
-				hasher.update(current.Signer);
+				hasher.update(currentBlock.SignerPublicKey);
 				hasher.final(nextGenerationHash);
 
-				auto time = GetBlockTime(parent, current, nextGenerationHash, predicate);
+				auto time = GetBlockTime(parent, currentBlock, nextGenerationHash, predicate);
 				if (time >= bestTime)
 					continue;
 

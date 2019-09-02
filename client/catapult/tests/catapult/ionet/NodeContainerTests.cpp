@@ -294,7 +294,7 @@ namespace catapult { namespace ionet {
 		auto expectedContents = BasicNodeDataContainer{
 			{ keys[1], "alice", NodeSource::Dynamic },
 			{ keys[2], "charlie", NodeSource::Dynamic },
-			{ keys[3], "doris", NodeSource::Dynamic },
+			{ keys[3], "doris", NodeSource::Dynamic }
 		};
 		EXPECT_EQ(expectedContents, test::CollectAll(view));
 	}

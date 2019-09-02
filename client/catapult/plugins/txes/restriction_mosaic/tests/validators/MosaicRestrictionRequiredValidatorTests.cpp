@@ -72,7 +72,7 @@ namespace catapult { namespace validators {
 		auto result = test::ValidateNotification(*pValidator, notification, cache);
 
 		// Assert:
-		EXPECT_EQ(Failure_RestrictionMosaic_Global_Restriction_Does_Not_Exist, result);
+		EXPECT_EQ(Failure_RestrictionMosaic_Unknown_Global_Restriction, result);
 	}
 
 	namespace {
@@ -98,7 +98,7 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, FailureWhenCacheContainsEntryButNotRule) {
-		RunCacheEntryTest(Failure_RestrictionMosaic_Global_Restriction_Does_Not_Exist, 123, 124);
+		RunCacheEntryTest(Failure_RestrictionMosaic_Unknown_Global_Restriction, 123, 124);
 	}
 
 	TEST(TEST_CLASS, SuccessWhenCacheContainsEntryAndRule) {

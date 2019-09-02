@@ -24,6 +24,8 @@
 #include "catapult/cache/ReadOnlyCatapultCache.h"
 #include "catapult/chain/ChainResults.h"
 #include "catapult/chain/ChainUtils.h"
+#include "catapult/io/BlockStatementSerializer.h"
+#include "catapult/io/Stream.h"
 #include "catapult/model/BlockUtils.h"
 
 using namespace catapult::validators;
@@ -41,16 +43,51 @@ namespace catapult { namespace consumers {
 			return chain::IsChainLink(parentBlockInfo.entity(), parentBlockInfo.hash(), elements[0].Block);
 		}
 
-		void LogCacheStateHashInformation(Height height, const cache::StateHashInfo& stateHashInfo) {
-			std::ostringstream formattedSubCacheMerkleRoots;
-			for (const auto& subCacheMerkleRoot : stateHashInfo.SubCacheMerkleRoots)
-				formattedSubCacheMerkleRoots << std::endl << " + " << subCacheMerkleRoot;
+		// region log formatters
 
-			CATAPULT_LOG(debug)
+		class BufferedOutputStream : public io::OutputStream {
+		public:
+			explicit BufferedOutputStream(std::vector<uint8_t>& buffer) : m_buffer(buffer)
+			{}
+
+		public:
+			void write(const RawBuffer& buffer) override {
+				m_buffer.insert(m_buffer.end(), buffer.pData, buffer.pData + buffer.Size);
+			}
+
+			void flush() override
+			{}
+
+		private:
+			std::vector<uint8_t>& m_buffer;
+		};
+
+		std::string FormatCacheStateLog(Height height, const cache::StateHashInfo& stateHashInfo) {
+			std::ostringstream out;
+			out
 					<< "cache state hash (" << stateHashInfo.SubCacheMerkleRoots.size() << " components) at height " << height
-					<< std::endl << stateHashInfo.StateHash
-					<< formattedSubCacheMerkleRoots.str();
+					<< std::endl << stateHashInfo.StateHash;
+
+			for (const auto& subCacheMerkleRoot : stateHashInfo.SubCacheMerkleRoots)
+				out << std::endl << " + " << subCacheMerkleRoot;
+
+			auto log = out.str();
+			CATAPULT_LOG(trace) << log;
+			return log;
 		}
+
+		std::string FormatBlockStatementLog(const model::BlockStatement& blockStatement) {
+			std::ostringstream out;
+
+			std::vector<uint8_t> buffer;
+			BufferedOutputStream outputStream(buffer);
+			io::WriteBlockStatement(blockStatement, outputStream);
+
+			out << utils::HexFormat(buffer);
+			return out.str();
+		}
+
+		// endregion
 
 		class DefaultBlockChainProcessor {
 		public:
@@ -81,7 +118,8 @@ namespace catapult { namespace consumers {
 				const auto* pParentGenerationHash = &parentBlockInfo.generationHash();
 
 				// initial cache state will be either last cache state or unwound cache state
-				LogCacheStateHashInformation(pParent->Height, state.Cache.calculateStateHash(pParent->Height));
+				std::vector<std::string> cacheStateLogs;
+				cacheStateLogs.push_back(FormatCacheStateLog(pParent->Height, state.Cache.calculateStateHash(pParent->Height)));
 
 				for (auto& element : elements) {
 					// 1. check generation hash
@@ -100,7 +138,7 @@ namespace catapult { namespace consumers {
 					}
 
 					// 3. check state hash
-					if (!CheckStateHash(element, state.Cache))
+					if (!CheckStateHash(element, state.Cache, cacheStateLogs))
 						return chain::Failure_Chain_Block_Inconsistent_State_Hash;
 
 					// 4. check receipts hash
@@ -121,7 +159,7 @@ namespace catapult { namespace consumers {
 					model::BlockStatementBuilder& blockStatementBuilder) const {
 				return ReceiptValidationMode::Disabled == m_receiptValidationMode
 						? state
-						: observers::ObserverState(state.Cache, state.State, blockStatementBuilder);
+						: observers::ObserverState(state.Cache, blockStatementBuilder);
 			}
 
 		private:
@@ -131,7 +169,7 @@ namespace catapult { namespace consumers {
 					const GenerationHash& parentGenerationHash,
 					const BlockHitPredicate& blockHitPredicate) {
 				const auto& block = element.Block;
-				element.GenerationHash = model::CalculateGenerationHash(parentGenerationHash, block.Signer);
+				element.GenerationHash = model::CalculateGenerationHash(parentGenerationHash, block.SignerPublicKey);
 				if (!blockHitPredicate(parentBlock, block, element.GenerationHash)) {
 					CATAPULT_LOG(warning) << "block " << block.Height << " failed hit";
 					return false;
@@ -140,16 +178,23 @@ namespace catapult { namespace consumers {
 				return true;
 			}
 
-			static bool CheckStateHash(model::BlockElement& element, cache::CatapultCacheDelta& cacheDelta) {
+			static bool CheckStateHash(
+					model::BlockElement& element,
+					cache::CatapultCacheDelta& cacheDelta,
+					std::vector<std::string>& cacheStateLogs) {
 				const auto& block = element.Block;
 				auto cacheStateHashInfo = cacheDelta.calculateStateHash(block.Height);
-				LogCacheStateHashInformation(block.Height, cacheStateHashInfo);
+				cacheStateLogs.push_back(FormatCacheStateLog(block.Height, cacheStateHashInfo));
 
 				if (block.StateHash != cacheStateHashInfo.StateHash) {
 					CATAPULT_LOG(warning)
 							<< "block state hash (" << block.StateHash << ") does not match "
 							<< "cache state hash (" << cacheStateHashInfo.StateHash << ") "
 							<< "at height " << block.Height;
+
+					for (const auto& log : cacheStateLogs)
+						CATAPULT_LOG(info) << log;
+
 					return false;
 				}
 
@@ -162,18 +207,22 @@ namespace catapult { namespace consumers {
 					model::BlockStatementBuilder& blockStatementBuilder,
 					ReceiptValidationMode receiptValidationMode) {
 				const auto& block = element.Block;
-				Hash256 blockReceiptsHash{};
+				auto calculatedReceiptsHash = Hash256();
 				if (ReceiptValidationMode::Enabled == receiptValidationMode) {
 					auto pBlockStatement = blockStatementBuilder.build();
-					blockReceiptsHash = CalculateMerkleHash(*pBlockStatement);
+					calculatedReceiptsHash = CalculateMerkleHash(*pBlockStatement);
 					element.OptionalStatement = std::move(pBlockStatement);
 				}
 
-				if (block.BlockReceiptsHash != blockReceiptsHash) {
+				if (block.ReceiptsHash != calculatedReceiptsHash) {
 					CATAPULT_LOG(warning)
-							<< "block receipts hash (" << block.BlockReceiptsHash << ") does not match "
-							<< "calculated receipts hash (" << blockReceiptsHash << ") "
+							<< "block receipts hash (" << block.ReceiptsHash << ") does not match "
+							<< "calculated receipts hash (" << calculatedReceiptsHash << ") "
 							<< "at height " << block.Height;
+
+					if (element.OptionalStatement)
+						CATAPULT_LOG(info) << FormatBlockStatementLog(*element.OptionalStatement);
+
 					return false;
 				}
 

@@ -23,12 +23,12 @@
 
 namespace catapult { namespace model {
 
-	/// Account link transaction action.
+	/// Account link action.
 	enum class AccountLinkAction : uint8_t {
-		/// Link account.
-		Link,
-
 		/// Unlink account.
-		Unlink
+		Unlink,
+
+		/// Link account.
+		Link
 	};
 }}

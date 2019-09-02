@@ -26,23 +26,21 @@ namespace catapult { namespace thread { class IoThreadPool; } }
 
 namespace catapult { namespace validators {
 
-	/// A parallel validation policy that performs parallel validations on multiple threads.
+	/// A parallel validation policy that performs parallel (stateless) validations on multiple threads.
 	class ParallelValidationPolicy {
 	public:
 		virtual ~ParallelValidationPolicy() = default;
 
 	public:
-		/// Validates all \a entityInfos using \a validationFunctions and short circuits on first failure.
-		virtual thread::future<ValidationResult> validateShortCircuit(
-				const model::WeakEntityInfos& entityInfos,
-				const ValidationFunctions& validationFunctions) const = 0;
+		/// Validates all \a entityInfos and short circuits on first failure.
+		virtual thread::future<ValidationResult> validateShortCircuit(const model::WeakEntityInfos& entityInfos) const = 0;
 
-		/// Validates all \a entityInfos using \a validationFunctions and does \em NOT short circuit on failures.
-		virtual thread::future<std::vector<ValidationResult>> validateAll(
-				const model::WeakEntityInfos& entityInfos,
-				const ValidationFunctions& validationFunctions) const = 0;
+		/// Validates all \a entityInfos and does \em NOT short circuit on failures.
+		virtual thread::future<std::vector<ValidationResult>> validateAll(const model::WeakEntityInfos& entityInfos) const = 0;
 	};
 
-	/// Creates a parallel validation policy using \a pPool for parallelization.
-	std::shared_ptr<const ParallelValidationPolicy> CreateParallelValidationPolicy(const std::shared_ptr<thread::IoThreadPool>& pPool);
+	/// Creates a parallel validation policy using \a pPool for parallelization and \a pValidator for validation.
+	std::shared_ptr<const ParallelValidationPolicy> CreateParallelValidationPolicy(
+			const std::shared_ptr<thread::IoThreadPool>& pPool,
+			const std::shared_ptr<const StatelessEntityValidator>& pValidator);
 }}

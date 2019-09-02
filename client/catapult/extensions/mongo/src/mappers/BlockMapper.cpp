@@ -64,7 +64,7 @@ namespace catapult { namespace mongo { namespace mappers {
 
 		builder << "meta" << bson_stream::open_document;
 		StreamBlockBasicMetadata(builder, blockElement, blockTransactionsInfo.TotalFee);
-		StreamHashArray(builder, "subCacheMerkleRoots", blockElement.SubCacheMerkleRoots);
+		StreamHashArray(builder, "stateHashSubCacheMerkleRoots", blockElement.SubCacheMerkleRoots);
 		StreamBlockMerkleTree(builder, "numTransactions", blockTransactionsInfo.Count, "transactionMerkleTree", transactionMerkleTree);
 
 		if (blockElement.OptionalStatement) {
@@ -84,10 +84,10 @@ namespace catapult { namespace mongo { namespace mappers {
 				<< "difficulty" << ToInt64(block.Difficulty)
 				<< "feeMultiplier" << ToInt32(block.FeeMultiplier)
 				<< "previousBlockHash" << ToBinary(block.PreviousBlockHash)
-				<< "blockTransactionsHash" << ToBinary(block.BlockTransactionsHash)
-				<< "blockReceiptsHash" << ToBinary(block.BlockReceiptsHash)
+				<< "transactionsHash" << ToBinary(block.TransactionsHash)
+				<< "receiptsHash" << ToBinary(block.ReceiptsHash)
 				<< "stateHash" << ToBinary(block.StateHash)
-				<< "beneficiary" << ToBinary(block.Beneficiary);
+				<< "beneficiaryPublicKey" << ToBinary(block.BeneficiaryPublicKey);
 		builder << bson_stream::close_document;
 		return builder << bson_stream::finalize;
 	}

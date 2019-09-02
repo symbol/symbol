@@ -33,8 +33,8 @@ namespace catapult { namespace plugins {
 		void Publish(const TTransaction& transaction, NotificationSubscriber& sub) {
 			sub.notify(HashLockDurationNotification(transaction.Duration));
 			sub.notify(HashLockMosaicNotification(transaction.Mosaic));
-			sub.notify(BalanceDebitNotification(transaction.Signer, transaction.Mosaic.MosaicId, transaction.Mosaic.Amount));
-			sub.notify(HashLockNotification(transaction.Signer, transaction.Mosaic, transaction.Duration, transaction.Hash));
+			sub.notify(BalanceDebitNotification(transaction.SignerPublicKey, transaction.Mosaic.MosaicId, transaction.Mosaic.Amount));
+			sub.notify(HashLockNotification(transaction.SignerPublicKey, transaction.Mosaic, transaction.Duration, transaction.Hash));
 		}
 	}
 

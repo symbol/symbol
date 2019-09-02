@@ -49,14 +49,14 @@ namespace catapult { namespace plugins {
 				typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder& builder,
 				const typename TTraits::TransactionType& transaction) {
 			builder.template addExpectation<AddressInteractionNotification>([&transaction](const auto& notification) {
-				EXPECT_EQ(transaction.Signer, notification.Source);
+				EXPECT_EQ(transaction.SignerPublicKey, notification.Source);
 				EXPECT_EQ(transaction.Type, notification.TransactionType);
 				EXPECT_EQ(UnresolvedAddressSet(), notification.ParticipantsByAddress);
-				EXPECT_EQ(utils::KeySet{ transaction.RemoteAccountKey }, notification.ParticipantsByKey);
+				EXPECT_EQ(utils::KeySet{ transaction.RemotePublicKey }, notification.ParticipantsByKey);
 			});
 			builder.template addExpectation<RemoteAccountLinkNotification>([&transaction](const auto& notification) {
-				EXPECT_EQ(transaction.Signer, notification.MainAccountKey);
-				EXPECT_EQ(transaction.RemoteAccountKey, notification.RemoteAccountKey);
+				EXPECT_EQ(transaction.SignerPublicKey, notification.MainAccountKey);
+				EXPECT_EQ(transaction.RemotePublicKey, notification.RemoteAccountKey);
 				EXPECT_EQ(transaction.LinkAction, notification.LinkAction);
 			});
 		}
@@ -86,10 +86,10 @@ namespace catapult { namespace plugins {
 		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
 		AddCommonExpectations<TTraits>(builder, transaction);
 		builder.template addExpectation<AccountPublicKeyNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(transaction.RemoteAccountKey, notification.PublicKey);
+			EXPECT_EQ(transaction.RemotePublicKey, notification.PublicKey);
 		});
 		builder.template addExpectation<NewRemoteAccountNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(transaction.RemoteAccountKey, notification.RemoteAccountKey);
+			EXPECT_EQ(transaction.RemotePublicKey, notification.RemoteAccountKey);
 		});
 
 		// Act + Assert:

@@ -202,16 +202,23 @@ namespace catapult { namespace chain {
 			RunValidatePartialTest(validationResultOptions, expectedResult.IsValid, [&expectedResult](const auto& notificationTypes) {
 				// Assert:
 				if (!expectedResult.IsShortCircuited) {
-					ASSERT_EQ(6u, notificationTypes.size());
-					EXPECT_EQ(model::Core_Entity_Notification, notificationTypes[0]);
-					EXPECT_EQ(model::Core_Transaction_Notification, notificationTypes[1]);
-					EXPECT_EQ(model::Core_Transaction_Deadline_Notification, notificationTypes[2]);
-					EXPECT_EQ(model::Core_Transaction_Fee_Notification, notificationTypes[3]);
-					EXPECT_EQ(model::Core_Balance_Debit_Notification, notificationTypes[4]);
-					EXPECT_EQ(model::Core_Signature_Notification, notificationTypes[5]);
+					EXPECT_EQ(7u, notificationTypes.size());
+
+					std::vector<model::NotificationType> expectedNotificationTypes{
+						model::Core_Register_Account_Public_Key_Notification,
+						model::Core_Entity_Notification,
+						model::Core_Transaction_Notification,
+						model::Core_Transaction_Deadline_Notification,
+						model::Core_Transaction_Fee_Notification,
+						model::Core_Balance_Debit_Notification,
+						model::Core_Signature_Notification
+					};
+					EXPECT_EQ(expectedNotificationTypes, notificationTypes);
 				} else {
-					ASSERT_EQ(1u, notificationTypes.size());
-					EXPECT_EQ(model::Core_Entity_Notification, notificationTypes[0]);
+					EXPECT_EQ(1u, notificationTypes.size());
+
+					std::vector<model::NotificationType> expectedNotificationTypes{ model::Core_Register_Account_Public_Key_Notification };
+					EXPECT_EQ(expectedNotificationTypes, notificationTypes);
 				}
 			});
 		}
@@ -229,12 +236,12 @@ namespace catapult { namespace chain {
 		RunValidatePartialTest(ValidationResult::Failure, { false, true });
 	}
 
-	TEST(TEST_CLASS, ValidatePartialMapsFailureAggregateIneligibleCosignersToFalse) {
-		RunValidatePartialTest(Failure_Aggregate_Ineligible_Cosigners, { false, true });
+	TEST(TEST_CLASS, ValidatePartialMapsFailureAggregateIneligibleCosignatoriesToFalse) {
+		RunValidatePartialTest(Failure_Aggregate_Ineligible_Cosignatories, { false, true });
 	}
 
-	TEST(TEST_CLASS, ValidatePartialMapsFailureAggregateMissingCosignersToTrue) {
-		RunValidatePartialTest(Failure_Aggregate_Missing_Cosigners, { true, false });
+	TEST(TEST_CLASS, ValidatePartialMapsFailureAggregateMissingCosignaturesToTrue) {
+		RunValidatePartialTest(Failure_Aggregate_Missing_Cosignatures, { true, false });
 	}
 
 	TEST(TEST_CLASS, ValidatePartialMapsBasicStatefulFailureToFalse) {
@@ -242,9 +249,14 @@ namespace catapult { namespace chain {
 		auto options = ValidationResultOptions{ ValidatorType::Stateful, model::Core_Transaction_Notification };
 		RunValidatePartialTest(options, false, [](const auto& notificationTypes) {
 			// Assert:
-			ASSERT_EQ(2u, notificationTypes.size());
-			EXPECT_EQ(model::Core_Entity_Notification, notificationTypes[0]);
-			EXPECT_EQ(model::Core_Transaction_Notification, notificationTypes[1]);
+			EXPECT_EQ(3u, notificationTypes.size());
+
+			std::vector<model::NotificationType> expectedNotificationTypes{
+				model::Core_Register_Account_Public_Key_Notification,
+				model::Core_Entity_Notification,
+				model::Core_Transaction_Notification
+			};
+			EXPECT_EQ(expectedNotificationTypes, notificationTypes);
 		});
 	}
 
@@ -289,9 +301,14 @@ namespace catapult { namespace chain {
 		// Arrange:
 		RunInvalidStatelessValidatePartialTest(model::Core_Transaction_Notification, [](const auto& notificationTypes) {
 			// Assert:
-			ASSERT_EQ(2u, notificationTypes.size());
-			EXPECT_EQ(model::Core_Entity_Notification, notificationTypes[0]);
-			EXPECT_EQ(model::Core_Transaction_Notification, notificationTypes[1]);
+			EXPECT_EQ(3u, notificationTypes.size());
+
+			std::vector<model::NotificationType> expectedNotificationTypes{
+				model::Core_Register_Account_Public_Key_Notification,
+				model::Core_Entity_Notification,
+				model::Core_Transaction_Notification
+			};
+			EXPECT_EQ(expectedNotificationTypes, notificationTypes);
 		});
 	}
 
@@ -299,24 +316,30 @@ namespace catapult { namespace chain {
 		// Arrange:
 		RunInvalidStatelessValidatePartialTest(mocks::Mock_Validator_1_Notification, [](const auto& notificationTypes) {
 			// Assert:
-			ASSERT_EQ(7u, notificationTypes.size());
-			EXPECT_EQ(model::Core_Entity_Notification, notificationTypes[0]);
-			EXPECT_EQ(model::Core_Transaction_Notification, notificationTypes[1]);
-			EXPECT_EQ(model::Core_Transaction_Deadline_Notification, notificationTypes[2]);
-			EXPECT_EQ(model::Core_Transaction_Fee_Notification, notificationTypes[3]);
-			EXPECT_EQ(model::Core_Balance_Debit_Notification, notificationTypes[4]);
-			EXPECT_EQ(model::Core_Signature_Notification, notificationTypes[5]);
-			EXPECT_EQ(mocks::Mock_Validator_1_Notification, notificationTypes[6]);
+			EXPECT_EQ(9u, notificationTypes.size());
+
+			std::vector<model::NotificationType> expectedNotificationTypes{
+				model::Core_Register_Account_Public_Key_Notification,
+				model::Core_Entity_Notification,
+				model::Core_Transaction_Notification,
+				model::Core_Transaction_Deadline_Notification,
+				model::Core_Transaction_Fee_Notification,
+				model::Core_Balance_Debit_Notification,
+				model::Core_Signature_Notification,
+				model::Core_Register_Account_Public_Key_Notification,
+				mocks::Mock_Validator_1_Notification
+			};
+			EXPECT_EQ(expectedNotificationTypes, notificationTypes);
 		});
 	}
 
 	// endregion
 
-	// region validateCosigners
+	// region validateCosignatories
 
 	namespace {
-		struct ValidateCosignersResult {
-			CosignersValidationResult Result;
+		struct ValidateCosignatoriesResult {
+			CosignatoriesValidationResult Result;
 			bool IsShortCircuited;
 		};
 
@@ -324,16 +347,16 @@ namespace catapult { namespace chain {
 			return test::CreateAggregateTransaction(numTransactions).pTransaction;
 		}
 
-		void RunValidateCosignersTest(ValidationResult validationResult, const ValidateCosignersResult& expectedResult) {
+		void RunValidateCosignatoriesTest(ValidationResult validationResult, const ValidateCosignatoriesResult& expectedResult) {
 			// Arrange:
 			TestContext context(validationResult);
 			const auto& validator = context.validator();
-			const auto& notificationValidator = context.subValidatorAt(1); // cosigners
+			const auto& notificationValidator = context.subValidatorAt(1); // cosignatories
 
 			// Act:
 			auto pTransaction = CreateAggregateTransaction(2);
 			auto cosignatures = test::GenerateRandomDataVector<model::Cosignature>(3);
-			auto result = validator.validateCosigners({ pTransaction.get(), &cosignatures });
+			auto result = validator.validateCosignatories({ pTransaction.get(), &cosignatures });
 
 			// Assert:
 			EXPECT_EQ(expectedResult.Result, result.Normalized);
@@ -342,13 +365,19 @@ namespace catapult { namespace chain {
 			// - short circuiting on failure
 			const auto& notificationTypes = notificationValidator.notificationTypes();
 			if (!expectedResult.IsShortCircuited) {
-				ASSERT_EQ(3u, notificationTypes.size());
-				EXPECT_EQ(model::Aggregate_Cosignatures_Notification, notificationTypes[0]);
-				EXPECT_EQ(model::Aggregate_EmbeddedTransaction_Notification, notificationTypes[1]);
-				EXPECT_EQ(model::Aggregate_EmbeddedTransaction_Notification, notificationTypes[2]);
+				EXPECT_EQ(3u, notificationTypes.size());
+
+				std::vector<model::NotificationType> expectedNotificationTypes{
+					model::Aggregate_Cosignatures_Notification,
+					model::Aggregate_EmbeddedTransaction_Notification,
+					model::Aggregate_EmbeddedTransaction_Notification
+				};
+				EXPECT_EQ(expectedNotificationTypes, notificationTypes);
 			} else {
-				ASSERT_EQ(1u, notificationTypes.size());
-				EXPECT_EQ(model::Aggregate_Cosignatures_Notification, notificationTypes[0]);
+				EXPECT_EQ(1u, notificationTypes.size());
+
+				std::vector<model::NotificationType> expectedNotificationTypes{ model::Aggregate_Cosignatures_Notification };
+				EXPECT_EQ(expectedNotificationTypes, notificationTypes);
 			}
 
 			// - correct timestamp was passed to validator
@@ -357,24 +386,24 @@ namespace catapult { namespace chain {
 		}
 	}
 
-	TEST(TEST_CLASS, ValidateCosignersMapsSuccessToSuccess) {
-		RunValidateCosignersTest(ValidationResult::Success, { CosignersValidationResult::Success, false });
+	TEST(TEST_CLASS, ValidateCosignatoriesMapsSuccessToSuccess) {
+		RunValidateCosignatoriesTest(ValidationResult::Success, { CosignatoriesValidationResult::Success, false });
 	}
 
-	TEST(TEST_CLASS, ValidateCosignersMapsNeutralToFailure) {
-		RunValidateCosignersTest(ValidationResult::Neutral, { CosignersValidationResult::Failure, false });
+	TEST(TEST_CLASS, ValidateCosignatoriesMapsNeutralToFailure) {
+		RunValidateCosignatoriesTest(ValidationResult::Neutral, { CosignatoriesValidationResult::Failure, false });
 	}
 
-	TEST(TEST_CLASS, ValidateCosignersMapsGenericFailureToFailure) {
-		RunValidateCosignersTest(ValidationResult::Failure, { CosignersValidationResult::Failure, true });
+	TEST(TEST_CLASS, ValidateCosignatoriesMapsGenericFailureToFailure) {
+		RunValidateCosignatoriesTest(ValidationResult::Failure, { CosignatoriesValidationResult::Failure, true });
 	}
 
-	TEST(TEST_CLASS, ValidateCosignersMapsFailureAggregateIneligibleCosignersToIneligible) {
-		RunValidateCosignersTest(Failure_Aggregate_Ineligible_Cosigners, { CosignersValidationResult::Ineligible, true });
+	TEST(TEST_CLASS, ValidateCosignatoriesMapsFailureAggregateIneligibleCosignatoriesToIneligible) {
+		RunValidateCosignatoriesTest(Failure_Aggregate_Ineligible_Cosignatories, { CosignatoriesValidationResult::Ineligible, true });
 	}
 
-	TEST(TEST_CLASS, ValidateCosignersMapsFailureAggregateMissingCosignersToMissing) {
-		RunValidateCosignersTest(Failure_Aggregate_Missing_Cosigners, { CosignersValidationResult::Missing, true });
+	TEST(TEST_CLASS, ValidateCosignatoriesMapsFailureAggregateMissingCosignaturesToMissing) {
+		RunValidateCosignatoriesTest(Failure_Aggregate_Missing_Cosignatures, { CosignatoriesValidationResult::Missing, true });
 	}
 
 	// endregion

@@ -59,8 +59,8 @@ namespace catapult { namespace mongo { namespace plugins {
 				entry.setMinApproval(12);
 				entry.setMinRemoval(23);
 
-				InsertRandom(entry.cosignatories(), std::max<size_t>(1, test::RandomByte() & 0x0F));
-				InsertRandom(entry.multisigAccounts(), std::max<size_t>(1, test::RandomByte() & 0x0F));
+				InsertRandom(entry.cosignatoryPublicKeys(), std::max<size_t>(1, test::RandomByte() & 0x0F));
+				InsertRandom(entry.multisigPublicKeys(), std::max<size_t>(1, test::RandomByte() & 0x0F));
 				return entry;
 			}
 
@@ -85,7 +85,7 @@ namespace catapult { namespace mongo { namespace plugins {
 			}
 
 			static auto GetFindFilter(const ModelType& entry) {
-				return document() << "multisig.account" << mappers::ToBinary(entry.key()) << finalize;
+				return document() << "multisig.accountPublicKey" << mappers::ToBinary(entry.key()) << finalize;
 			}
 
 			static void AssertEqual(const ModelType& entry, const bsoncxx::document::view& view) {

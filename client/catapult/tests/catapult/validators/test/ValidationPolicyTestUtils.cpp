@@ -19,7 +19,6 @@
 **/
 
 #include "ValidationPolicyTestUtils.h"
-#include "catapult/validators/AggregateEntityValidator.h"
 #include "tests/test/core/BlockTestUtils.h"
 
 namespace catapult { namespace test {

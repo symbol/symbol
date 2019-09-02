@@ -28,17 +28,16 @@ namespace catapult { namespace test {
 	// region CreateObserverContext
 
 	/// Creates an observer context around \a state at \a height with specified \a mode.
-	inline observers::ObserverContext CreateObserverContext(observers::ObserverState& state, Height height, observers::NotifyMode mode) {
+	inline observers::ObserverContext CreateObserverContext(
+			const observers::ObserverState& state,
+			Height height,
+			observers::NotifyMode mode) {
 		return observers::ObserverContext(state, height, mode, CreateResolverContextXor());
 	}
 
-	/// Creates an observer context around \a cache and \a state at \a height with specified \a mode.
-	inline observers::ObserverContext CreateObserverContext(
-			cache::CatapultCacheDelta& cache,
-			state::CatapultState& state,
-			Height height,
-			observers::NotifyMode mode) {
-		return observers::ObserverContext({ cache, state }, height, mode, CreateResolverContextXor());
+	/// Creates an observer context around \a cache at \a height with specified \a mode.
+	inline observers::ObserverContext CreateObserverContext(cache::CatapultCacheDelta& cache, Height height, observers::NotifyMode mode) {
+		return CreateObserverContext(observers::ObserverState(cache), height, mode);
 	}
 
 	// endregion

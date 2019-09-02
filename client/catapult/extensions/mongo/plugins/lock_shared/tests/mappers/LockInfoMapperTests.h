@@ -44,10 +44,7 @@ namespace catapult { namespace mongo { namespace plugins {
 			auto view = document.view();
 
 			// Assert:
-			EXPECT_EQ(2u, test::GetFieldCount(view));
-
-			auto metaView = view["meta"].get_document().view();
-			AssertEqualLockMetadata(metaView);
+			EXPECT_EQ(1u, test::GetFieldCount(view));
 
 			auto lockInfoView = view["lock"].get_document().view();
 			EXPECT_EQ(6u + TLockInfoTraits::Num_Additional_Fields, test::GetFieldCount(lockInfoView));

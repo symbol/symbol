@@ -23,6 +23,7 @@
 #include "catapult/crypto/Hashes.h"
 #include "catapult/crypto/MerkleHashBuilder.h"
 #include "tests/test/core/BlockTestUtils.h"
+#include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace model {
@@ -249,7 +250,7 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CannotVerifyBlockWithAlteredBlockTransactionsHash) {
 		// Arrange:
 		auto pBlock = CreateSignedBlock(3);
-		pBlock->BlockTransactionsHash[0] ^= 0xFF;
+		pBlock->TransactionsHash[0] ^= 0xFF;
 
 		// Act:
 		auto isVerified = VerifyBlockHeaderSignature(*pBlock);
@@ -416,7 +417,7 @@ namespace catapult { namespace model {
 			ASSERT_EQ(sizeof(BlockHeader) + SumTransactionSizes(transactions), pBlock->Size);
 			EXPECT_EQ(Signature(), pBlock->Signature);
 
-			EXPECT_EQ(signer.publicKey(), pBlock->Signer);
+			EXPECT_EQ(signer.publicKey(), pBlock->SignerPublicKey);
 			EXPECT_EQ(static_cast<NetworkIdentifier>(0x17), pBlock->Network());
 			EXPECT_EQ(Block::Current_Version, pBlock->EntityVersion());
 			EXPECT_EQ(Entity_Type_Block, pBlock->Type);
@@ -426,10 +427,10 @@ namespace catapult { namespace model {
 			EXPECT_EQ(Difficulty(), pBlock->Difficulty);
 			EXPECT_EQ(BlockFeeMultiplier(), pBlock->FeeMultiplier);
 			EXPECT_EQ(context.BlockHash, pBlock->PreviousBlockHash);
-			EXPECT_EQ(Hash256(), pBlock->BlockTransactionsHash);
-			EXPECT_EQ(Hash256(), pBlock->BlockReceiptsHash);
+			EXPECT_EQ(Hash256(), pBlock->TransactionsHash);
+			EXPECT_EQ(Hash256(), pBlock->ReceiptsHash);
 			EXPECT_EQ(Hash256(), pBlock->StateHash);
-			EXPECT_EQ(Key(), pBlock->Beneficiary);
+			EXPECT_EQ(signer.publicKey(), pBlock->BeneficiaryPublicKey);
 
 			AssertTransactionsInBlock(*pBlock, transactions);
 		}

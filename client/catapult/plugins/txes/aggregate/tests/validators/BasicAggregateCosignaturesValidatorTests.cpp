@@ -92,7 +92,7 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithZeroExplicitCosignatures) {
-		// Assert: notice that there is always one implicit cosigner (the tx signer)
+		// Assert: notice that there is always one implicit cosignatory (the tx signer)
 		AssertMaxCosignaturesValidationResult(ValidationResult::Success, 0, 100);
 	}
 
@@ -112,10 +112,10 @@ namespace catapult { namespace validators {
 
 	// endregion
 
-	// region cosigner uniqueness
+	// region cosignatory uniqueness
 
 	namespace {
-		void AssertCosignerUniquenessValidationResult(
+		void AssertCosignatoryUniquenessValidationResult(
 				ValidationResult expectedResult,
 				const Key& signer,
 				const std::vector<model::Cosignature>& cosignatures) {
@@ -133,33 +133,33 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithAllCosignersBeingUnique) {
+	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithAllCosignatoriesBeingUnique) {
 		// Arrange: no conflicts
 		auto signer = test::GenerateRandomByteArray<Key>();
 		auto cosignatures = GenerateRandomCosignatures(5);
 
 		// Assert:
-		AssertCosignerUniquenessValidationResult(ValidationResult::Success, signer, cosignatures);
+		AssertCosignatoryUniquenessValidationResult(ValidationResult::Success, signer, cosignatures);
 	}
 
-	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithRedundantExplicitAndImplicitCosigner) {
+	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithRedundantExplicitAndImplicitCosignatory) {
 		// Arrange:
 		auto signer = test::GenerateRandomByteArray<Key>();
 		auto cosignatures = GenerateRandomCosignatures(5);
-		cosignatures[2].Signer = signer;
+		cosignatures[2].SignerPublicKey = signer;
 
 		// Assert:
-		AssertCosignerUniquenessValidationResult(Failure_Aggregate_Redundant_Cosignatures, signer, cosignatures);
+		AssertCosignatoryUniquenessValidationResult(Failure_Aggregate_Redundant_Cosignatures, signer, cosignatures);
 	}
 
-	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithRedundantImplicitCosigners) {
+	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithRedundantImplicitCosignatories) {
 		// Arrange:
 		auto signer = test::GenerateRandomByteArray<Key>();
 		auto cosignatures = GenerateRandomCosignatures(5);
-		cosignatures[0].Signer = cosignatures[4].Signer;
+		cosignatures[0].SignerPublicKey = cosignatures[4].SignerPublicKey;
 
 		// Assert:
-		AssertCosignerUniquenessValidationResult(Failure_Aggregate_Redundant_Cosignatures, signer, cosignatures);
+		AssertCosignatoryUniquenessValidationResult(Failure_Aggregate_Redundant_Cosignatures, signer, cosignatures);
 	}
 
 	// endregion

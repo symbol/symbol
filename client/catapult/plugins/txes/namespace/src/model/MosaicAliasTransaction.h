@@ -36,7 +36,7 @@ namespace catapult { namespace model {
 		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Alias_Mosaic, 1)
 
 	public:
-		/// Aliased mosaic id.
+		/// Aliased mosaic identifier.
 		catapult::MosaicId MosaicId;
 
 	public:

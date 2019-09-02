@@ -51,8 +51,8 @@ namespace catapult { namespace model {
 					{
 						"chain",
 						{
-							{ "shouldEnableVerifiableState", "true" },
-							{ "shouldEnableVerifiableReceipts", "true" },
+							{ "enableVerifiableState", "true" },
+							{ "enableVerifiableReceipts", "true" },
 
 							{ "currencyMosaicId", "0x1234'AAAA" },
 							{ "harvestingMosaicId", "0x9876'BBBB" },
@@ -64,6 +64,7 @@ namespace catapult { namespace model {
 							{ "importanceActivityPercentage", "15" },
 							{ "maxRollbackBlocks", "720" },
 							{ "maxDifficultyBlocks", "15" },
+							{ "defaultDynamicFeeMultiplier", "9876" },
 
 							{ "maxTransactionLifetime", "30m" },
 							{ "maxBlockFutureTime", "21m" },
@@ -105,8 +106,8 @@ namespace catapult { namespace model {
 				EXPECT_EQ(Key(), config.Network.PublicKey);
 				EXPECT_EQ(GenerationHash(), config.Network.GenerationHash);
 
-				EXPECT_FALSE(config.ShouldEnableVerifiableState);
-				EXPECT_FALSE(config.ShouldEnableVerifiableReceipts);
+				EXPECT_FALSE(config.EnableVerifiableState);
+				EXPECT_FALSE(config.EnableVerifiableReceipts);
 
 				EXPECT_EQ(MosaicId(), config.CurrencyMosaicId);
 				EXPECT_EQ(MosaicId(), config.HarvestingMosaicId);
@@ -118,6 +119,7 @@ namespace catapult { namespace model {
 				EXPECT_EQ(0u, config.ImportanceActivityPercentage);
 				EXPECT_EQ(0u, config.MaxRollbackBlocks);
 				EXPECT_EQ(0u, config.MaxDifficultyBlocks);
+				EXPECT_EQ(BlockFeeMultiplier(0), config.DefaultDynamicFeeMultiplier);
 
 				EXPECT_EQ(utils::TimeSpan::FromMinutes(0), config.MaxTransactionLifetime);
 				EXPECT_EQ(utils::TimeSpan::FromMinutes(0), config.MaxBlockFutureTime);
@@ -141,8 +143,8 @@ namespace catapult { namespace model {
 				EXPECT_EQ(crypto::ParseKey(Nemesis_Public_Key), config.Network.PublicKey);
 				EXPECT_EQ(utils::ParseByteArray<GenerationHash>(Nemesis_Generation_Hash), config.Network.GenerationHash);
 
-				EXPECT_TRUE(config.ShouldEnableVerifiableState);
-				EXPECT_TRUE(config.ShouldEnableVerifiableReceipts);
+				EXPECT_TRUE(config.EnableVerifiableState);
+				EXPECT_TRUE(config.EnableVerifiableReceipts);
 
 				EXPECT_EQ(MosaicId(0x1234'AAAA), config.CurrencyMosaicId);
 				EXPECT_EQ(MosaicId(0x9876'BBBB), config.HarvestingMosaicId);
@@ -154,6 +156,7 @@ namespace catapult { namespace model {
 				EXPECT_EQ(15u, config.ImportanceActivityPercentage);
 				EXPECT_EQ(720u, config.MaxRollbackBlocks);
 				EXPECT_EQ(15u, config.MaxDifficultyBlocks);
+				EXPECT_EQ(BlockFeeMultiplier(9876), config.DefaultDynamicFeeMultiplier);
 
 				EXPECT_EQ(utils::TimeSpan::FromMinutes(30), config.MaxTransactionLifetime);
 				EXPECT_EQ(utils::TimeSpan::FromMinutes(21), config.MaxBlockFutureTime);

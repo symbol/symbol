@@ -31,31 +31,25 @@ namespace catapult { namespace mongo { namespace plugins {
 
 	namespace {
 		void StreamProperties(bson_stream::document& builder, const model::MosaicProperties& properties) {
-			auto propertiesArray = builder << "properties" << bson_stream::open_array;
-			for (const auto& property : properties)
-				propertiesArray
-						<< bson_stream::open_document
-							<< "id" << utils::to_underlying_type(property.Id)
-							<< "value" << static_cast<int64_t>(property.Value)
-						<< bson_stream::close_document;
-			propertiesArray << bson_stream::close_array;
-		}
-
-		void StreamMosaicEntryMetadata(bson_stream::document& builder) {
-			builder << "meta" << bson_stream::open_document << bson_stream::close_document;
+			builder
+					<< "properties" << bson_stream::open_document
+						<< "flags" << utils::to_underlying_type(properties.flags())
+						<< "divisibility" << properties.divisibility()
+						<< "duration" << ToInt64(properties.duration())
+					<< bson_stream::close_document;
 		}
 	}
 
-	bsoncxx::document::value ToDbModel(const state::MosaicEntry& mosaicEntry) {
+	bsoncxx::document::value ToDbModel(const state::MosaicEntry& mosaicEntry, const Address& ownerAddress) {
 		const auto& definition = mosaicEntry.definition();
 		bson_stream::document builder;
-		StreamMosaicEntryMetadata(builder);
 		auto doc = builder
 				<< "mosaic" << bson_stream::open_document
-					<< "mosaicId" << ToInt64(mosaicEntry.mosaicId())
+					<< "id" << ToInt64(mosaicEntry.mosaicId())
 					<< "supply" << ToInt64(mosaicEntry.supply())
-					<< "height" << ToInt64(definition.height())
-					<< "owner" << ToBinary(definition.owner())
+					<< "startHeight" << ToInt64(definition.startHeight())
+					<< "ownerPublicKey" << ToBinary(definition.ownerPublicKey())
+					<< "ownerAddress" << ToBinary(ownerAddress)
 					<< "revision" << static_cast<int32_t>(definition.revision());
 
 		StreamProperties(builder, definition.properties());

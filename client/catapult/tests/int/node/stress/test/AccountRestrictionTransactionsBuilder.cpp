@@ -73,7 +73,7 @@ namespace catapult { namespace test {
 		builders::AccountAddressRestrictionBuilder builder(Network_Identifier, senderKeyPair.publicKey());
 		builder.setRestrictionType(model::AccountRestrictionType::Block | model::AccountRestrictionType::Address);
 		builder.addModification({
-			descriptor.IsAdd ? model::AccountRestrictionModificationType::Add : model::AccountRestrictionModificationType::Del,
+			descriptor.IsAdd ? model::AccountRestrictionModificationAction::Add : model::AccountRestrictionModificationAction::Del,
 			partnerAddress
 		});
 		auto pTransaction = builder.build();

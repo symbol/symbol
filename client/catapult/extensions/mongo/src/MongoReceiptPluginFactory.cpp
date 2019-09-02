@@ -26,15 +26,15 @@ namespace catapult { namespace mongo {
 	namespace {
 		void StreamBalanceTransferReceipt(bsoncxx::builder::stream::document& builder, const model::BalanceTransferReceipt& receipt) {
 			builder
-					<< "sender" << mappers::ToBinary(receipt.Sender)
-					<< "recipient" << mappers::ToBinary(receipt.Recipient)
+					<< "senderPublicKey" << mappers::ToBinary(receipt.SenderPublicKey)
+					<< "recipientAddress" << mappers::ToBinary(receipt.RecipientAddress)
 					<< "mosaicId" << mappers::ToInt64(receipt.MosaicId)
 					<< "amount" << mappers::ToInt64(receipt.Amount);
 		}
 
 		void StreamBalanceChangeReceipt(bsoncxx::builder::stream::document& builder, const model::BalanceChangeReceipt& receipt) {
 			builder
-					<< "account" << mappers::ToBinary(receipt.Account)
+					<< "targetPublicKey" << mappers::ToBinary(receipt.TargetPublicKey)
 					<< "mosaicId" << mappers::ToInt64(receipt.MosaicId)
 					<< "amount" << mappers::ToInt64(receipt.Amount);
 		}

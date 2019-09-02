@@ -36,7 +36,7 @@ namespace catapult { namespace test {
 
 	namespace {
 		void EntityDump(const TransferTransaction& tx) {
-			CATAPULT_LOG(debug) << "  Recipient: " << AddressToString(extensions::CopyToAddress(tx.Recipient));
+			CATAPULT_LOG(debug) << "  Recipient: " << AddressToString(extensions::CopyToAddress(tx.RecipientAddress));
 			CATAPULT_LOG(debug) << "    Message: " << "size:" << VALANDHEX(tx.MessageSize);
 			if (tx.MessageSize)
 				CATAPULT_LOG(debug) << "  Message D: " << utils::HexFormat(tx.MessagePtr(), tx.MessagePtr() + tx.MessageSize);
@@ -55,7 +55,7 @@ namespace catapult { namespace test {
 		CATAPULT_LOG(debug) << "       Size: " << VALANDHEX(tx.Size);
 		CATAPULT_LOG(debug) << "    Version: " << VALANDHEX(tx.Version);
 		CATAPULT_LOG(debug) << "       Type: " << VALANDHEX(tx.Type);
-		CATAPULT_LOG(debug) << "     Signer: " << tx.Signer;
+		CATAPULT_LOG(debug) << "     Signer: " << tx.SignerPublicKey;
 		CATAPULT_LOG(debug) << "  Signature:\n" << tx.Signature;
 		CATAPULT_LOG(debug) << "    Max Fee: " << VALANDHEX(tx.MaxFee);
 		CATAPULT_LOG(debug) << "   Deadline: " << VALANDHEX(tx.Deadline);
@@ -68,7 +68,7 @@ namespace catapult { namespace test {
 		CATAPULT_LOG(debug) << "        Size: " << VALANDHEX(block.Size);
 		CATAPULT_LOG(debug) << "     Version: " << VALANDHEX(block.Version);
 		CATAPULT_LOG(debug) << "        Type: " << VALANDHEX(block.Type);
-		CATAPULT_LOG(debug) << "      Signer: " << block.Signer;
+		CATAPULT_LOG(debug) << "      Signer: " << block.SignerPublicKey;
 		CATAPULT_LOG(debug) << "   Timestamp: " << VALANDHEX(block.Timestamp);
 		CATAPULT_LOG(debug) << "   Signature:\n" << block.Signature;
 		CATAPULT_LOG(debug) << "      Height: " << VALANDHEX(block.Height);

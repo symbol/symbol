@@ -89,8 +89,8 @@ namespace catapult { namespace extensions {
 					auto pTransaction = mocks::CreateTransactionWithFeeAndTransfers(Amount(), {
 						{ test::UnresolveXor(Harvesting_Mosaic_Id), Amount(multiplier * baseUnit * 1'000'000) }
 					});
-					pTransaction->Signer = m_specialAccountKey;
-					pTransaction->Recipient = Key{ { i } };
+					pTransaction->SignerPublicKey = m_specialAccountKey;
+					pTransaction->RecipientPublicKey = Key{ { i } };
 					transactions.push_back(std::move(pTransaction));
 				}
 			}
@@ -105,8 +105,8 @@ namespace catapult { namespace extensions {
 					auto pTransaction = mocks::CreateTransactionWithFeeAndTransfers(Amount(), {
 						{ test::UnresolveXor(Harvesting_Mosaic_Id), accountState.Balances.get(Harvesting_Mosaic_Id) }
 					});
-					pTransaction->Signer = Key{ { i } };
-					pTransaction->Recipient = m_specialAccountKey;
+					pTransaction->SignerPublicKey = Key{ { i } };
+					pTransaction->RecipientPublicKey = m_specialAccountKey;
 					transactions.push_back(std::move(pTransaction));
 				}
 			}
@@ -120,8 +120,8 @@ namespace catapult { namespace extensions {
 				auto pTransaction = mocks::CreateTransactionWithFeeAndTransfers(Amount(), {
 					{ test::UnresolveXor(Harvesting_Mosaic_Id), accountState1.Balances.get(Harvesting_Mosaic_Id) }
 				});
-				pTransaction->Signer = accountState1.PublicKey;
-				pTransaction->Recipient = Key{ { accountId2 } };
+				pTransaction->SignerPublicKey = accountState1.PublicKey;
+				pTransaction->RecipientPublicKey = Key{ { accountId2 } };
 				transactions.push_back(std::move(pTransaction));
 			}
 
@@ -138,7 +138,7 @@ namespace catapult { namespace extensions {
 				auto resolverContext = test::CreateResolverContextXor();
 
 				auto delta = m_cache.createDelta();
-				auto observerState = observers::ObserverState(delta, m_state);
+				auto observerState = observers::ObserverState(delta);
 				auto blockExecutionContext = chain::BlockExecutionContext(rootObserver, resolverContext, observerState);
 
 				// Act: use BlockExecutor to execute all transactions and blocks
@@ -221,14 +221,14 @@ namespace catapult { namespace extensions {
 						: test::GenerateBlockWithTransactions(transactionsIter->second);
 				pBlock->Height = height;
 				pBlock->FeeMultiplier = BlockFeeMultiplier(0);
-				pBlock->Beneficiary = Key();
+				pBlock->BeneficiaryPublicKey = Key();
 
 				// in order to emulate correctly, block must have same signer when executed and reverted
 				auto signerIter = m_heightToBlockSigner.find(height);
 				if (m_heightToBlockSigner.cend() == signerIter)
-					m_heightToBlockSigner.emplace(height, pBlock->Signer); // save signer used during commit
+					m_heightToBlockSigner.emplace(height, pBlock->SignerPublicKey); // save signer used during commit
 				else
-					pBlock->Signer = signerIter->second;
+					pBlock->SignerPublicKey = signerIter->second;
 
 				return pBlock;
 			}
@@ -243,7 +243,6 @@ namespace catapult { namespace extensions {
 		private:
 			std::shared_ptr<plugins::PluginManager> m_pPluginManager;
 			cache::CatapultCache m_cache;
-			state::CatapultState m_state;
 
 			Key m_specialAccountKey;
 

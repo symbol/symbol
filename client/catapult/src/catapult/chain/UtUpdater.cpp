@@ -20,6 +20,7 @@
 
 #include "UtUpdater.h"
 #include "ChainResults.h"
+#include "ProcessContextsBuilder.h"
 #include "ProcessingNotificationSubscriber.h"
 #include "catapult/cache/CatapultCache.h"
 #include "catapult/cache/ReadOnlyCatapultCache.h"
@@ -112,24 +113,14 @@ namespace catapult { namespace chain {
 				const std::vector<model::TransactionInfo>& utInfos,
 				TransactionSource transactionSource,
 				const predicate<const model::TransactionInfo&>& filter) {
-			using validators::ValidatorContext;
-			using observers::ObserverContext;
-
-			auto currentTime = m_timeSupplier();
-
-			auto readOnlyCache = applyState.UnconfirmedCatapultCache.toReadOnly();
-
 			// note that the validator and observer context height is one larger than the chain height
 			// since the validation and observation has to be for the *next* block
 			auto effectiveHeight = m_detachedCatapultCache.height() + Height(1);
-			const auto& network = m_executionConfig.Network;
-			auto resolverContext = m_executionConfig.ResolverContextFactory(readOnlyCache);
-			auto validatorContext = ValidatorContext(effectiveHeight, currentTime, network, resolverContext, readOnlyCache);
+			ProcessContextsBuilder contextBuilder(effectiveHeight, m_timeSupplier(), m_executionConfig);
+			contextBuilder.setCache(applyState.UnconfirmedCatapultCache);
+			auto validatorContext = contextBuilder.buildValidatorContext();
+			auto observerContext = contextBuilder.buildObserverContext();
 
-			// note that the "real" state is currently only required by block observers, so a dummy state can be used
-			auto& cache = applyState.UnconfirmedCatapultCache;
-			state::CatapultState dummyState;
-			auto observerContext = ObserverContext({ cache, dummyState }, effectiveHeight, observers::NotifyMode::Commit, resolverContext);
 			for (const auto& utInfo : utInfos) {
 				const auto& entity = *utInfo.pEntity;
 				const auto& entityHash = utInfo.EntityHash;
@@ -149,7 +140,7 @@ namespace catapult { namespace chain {
 					continue;
 				}
 
-				if (throttle(utInfo, transactionSource, applyState, readOnlyCache)) {
+				if (throttle(utInfo, transactionSource, applyState, validatorContext.Cache)) {
 					CATAPULT_LOG(warning) << "dropping transaction " << entityHash << " due to throttle";
 					m_failedTransactionSink(entity, entityHash, Failure_Chain_Unconfirmed_Cache_Too_Full);
 					continue;
@@ -184,7 +175,7 @@ namespace catapult { namespace chain {
 				const model::TransactionInfo& utInfo,
 				TransactionSource transactionSource,
 				const ApplyState& applyState,
-				cache::ReadOnlyCatapultCache& cache) const {
+				const cache::ReadOnlyCatapultCache& cache) const {
 			return m_throttle(utInfo, { transactionSource, m_detachedCatapultCache.height(), cache, applyState.Modifier });
 		}
 

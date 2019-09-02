@@ -151,7 +151,7 @@ namespace catapult { namespace cache {
 		auto cosignature = model::Cosignature{ test::GenerateRandomByteArray<Key>(), test::GenerateRandomByteArray<Signature>() };
 
 		// Act: add via modifier, which flushes when destroyed
-		auto transactionInfoFromAdd = context.aggregate().modifier().add(parentHash, cosignature.Signer, cosignature.Signature);
+		auto transactionInfoFromAdd = context.aggregate().modifier().add(parentHash, cosignature.SignerPublicKey, cosignature.Signature);
 
 		// Assert:
 		test::AssertEqual(transactionInfo, transactionInfoFromAdd, "info from add");
@@ -159,14 +159,14 @@ namespace catapult { namespace cache {
 		// - check pt cache modifier was called as expected
 		ASSERT_EQ(1u, cosignatureInfos.size());
 		EXPECT_EQ(parentHash, cosignatureInfos[0].first);
-		EXPECT_EQ(cosignature.Signer, cosignatureInfos[0].second.Signer);
+		EXPECT_EQ(cosignature.SignerPublicKey, cosignatureInfos[0].second.SignerPublicKey);
 		EXPECT_EQ(cosignature.Signature, cosignatureInfos[0].second.Signature);
 
 		// - check subscriber
 		ASSERT_EQ(1u, context.subscriber().addedCosignatureInfos().size());
 		const auto& addedCosignatureInfo = context.subscriber().addedCosignatureInfos()[0];
 		test::AssertEqual(StripMerkle(transactionInfo), *addedCosignatureInfo.first, "info from subscriber");
-		EXPECT_EQ(cosignature.Signer, addedCosignatureInfo.second.Signer);
+		EXPECT_EQ(cosignature.SignerPublicKey, addedCosignatureInfo.second.SignerPublicKey);
 		EXPECT_EQ(cosignature.Signature, addedCosignatureInfo.second.Signature);
 
 		ASSERT_EQ(1u, context.subscriber().flushInfos().size());
@@ -182,7 +182,7 @@ namespace catapult { namespace cache {
 		auto cosignature = model::Cosignature{ test::GenerateRandomByteArray<Key>(), test::GenerateRandomByteArray<Signature>() };
 
 		// Act: add via modifier, which flushes when destroyed
-		auto transactionInfoFromAdd = context.aggregate().modifier().add(parentHash, cosignature.Signer, cosignature.Signature);
+		auto transactionInfoFromAdd = context.aggregate().modifier().add(parentHash, cosignature.SignerPublicKey, cosignature.Signature);
 
 		// Assert:
 		EXPECT_FALSE(!!transactionInfoFromAdd);
@@ -190,7 +190,7 @@ namespace catapult { namespace cache {
 		// - check pt cache modifier was called as expected
 		ASSERT_EQ(1u, cosignatureInfos.size());
 		EXPECT_EQ(parentHash, cosignatureInfos[0].first);
-		EXPECT_EQ(cosignature.Signer, cosignatureInfos[0].second.Signer);
+		EXPECT_EQ(cosignature.SignerPublicKey, cosignatureInfos[0].second.SignerPublicKey);
 		EXPECT_EQ(cosignature.Signature, cosignatureInfos[0].second.Signature);
 
 		// - check subscriber

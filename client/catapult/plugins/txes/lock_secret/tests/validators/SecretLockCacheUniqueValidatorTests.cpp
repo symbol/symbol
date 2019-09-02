@@ -36,7 +36,7 @@ namespace catapult { namespace validators {
 			using NotificationBuilder = test::SecretLockNotificationBuilder;
 			using CacheFactory = test::SecretLockInfoCacheFactory;
 
-			static constexpr auto Failure = Failure_LockSecret_Hash_Exists;
+			static constexpr auto Failure = Failure_LockSecret_Hash_Already_Exists;
 
 			static auto CreateValidator() {
 				return CreateSecretLockCacheUniqueValidator();

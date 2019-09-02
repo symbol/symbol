@@ -23,21 +23,21 @@
 
 namespace catapult { namespace model {
 
-	/// Namespace types.
-	enum class NamespaceType : uint8_t {
-		/// A root namespace.
+	/// Namespace registration types.
+	enum class NamespaceRegistrationType : uint8_t {
+		/// Root namespace.
 		Root,
 
-		/// A child namespace.
+		/// Child namespace.
 		Child
 	};
 
-	/// Alias transaction action.
+	/// Alias actions.
 	enum class AliasAction : uint8_t {
-		/// Link alias.
-		Link,
-
 		/// Unlink alias.
-		Unlink
+		Unlink,
+
+		/// Link alias.
+		Link
 	};
 }}

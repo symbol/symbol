@@ -51,7 +51,7 @@ namespace catapult { namespace extensions {
 	{}
 
 	void BlockExtensions::updateBlockTransactionsHash(model::Block& block) const {
-		calculateBlockTransactionsHash(block, block.BlockTransactionsHash);
+		calculateBlockTransactionsHash(block, block.TransactionsHash);
 	}
 
 	void BlockExtensions::calculateBlockTransactionsHash(const model::Block& block, Hash256& blockTransactionsHash) const {
@@ -81,7 +81,7 @@ namespace catapult { namespace extensions {
 		// check block transactions hash
 		Hash256 expectedBlockTransactionsHash;
 		calculateBlockTransactionsHash(block, expectedBlockTransactionsHash);
-		if (expectedBlockTransactionsHash != block.BlockTransactionsHash)
+		if (expectedBlockTransactionsHash != block.TransactionsHash)
 			return VerifyFullBlockResult::Invalid_Block_Transactions_Hash;
 
 		// check transaction signatures

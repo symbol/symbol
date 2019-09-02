@@ -23,17 +23,17 @@
 
 namespace catapult { namespace state {
 
-	RootNamespace::RootNamespace(NamespaceId id, const Key& owner, const NamespaceLifetime& lifetime)
-			: RootNamespace(id, owner, lifetime, std::make_shared<Children>())
+	RootNamespace::RootNamespace(NamespaceId id, const Key& ownerPublicKey, const NamespaceLifetime& lifetime)
+			: RootNamespace(id, ownerPublicKey, lifetime, std::make_shared<Children>())
 	{}
 
 	RootNamespace::RootNamespace(
 			NamespaceId id,
-			const Key& owner,
+			const Key& ownerPublicKey,
 			const NamespaceLifetime& lifetime,
 			const std::shared_ptr<Children>& pChildren)
 			: m_id(id)
-			, m_owner(owner)
+			, m_ownerPublicKey(ownerPublicKey)
 			, m_lifetime(lifetime)
 			, m_pChildren(pChildren)
 	{}
@@ -46,8 +46,8 @@ namespace catapult { namespace state {
 		return *m_pChildren;
 	}
 
-	const Key& RootNamespace::owner() const {
-		return m_owner;
+	const Key& RootNamespace::ownerPublicKey() const {
+		return m_ownerPublicKey;
 	}
 
 	const NamespaceLifetime& RootNamespace::lifetime() const {
@@ -139,7 +139,7 @@ namespace catapult { namespace state {
 	}
 
 	bool RootNamespace::operator==(const RootNamespace& rhs) const {
-		return m_id == rhs.m_id && m_owner == rhs.m_owner;
+		return m_id == rhs.m_id && m_ownerPublicKey == rhs.m_ownerPublicKey;
 	}
 
 	bool RootNamespace::operator!=(const RootNamespace& rhs) const {
@@ -147,7 +147,7 @@ namespace catapult { namespace state {
 	}
 
 	RootNamespace RootNamespace::renew(const NamespaceLifetime& newLifetime) const {
-		return RootNamespace(m_id, m_owner, newLifetime, m_pChildren);
+		return RootNamespace(m_id, m_ownerPublicKey, newLifetime, m_pChildren);
 	}
 
 	RootNamespace::OrderedChildPaths RootNamespace::sortedChildPaths() const {

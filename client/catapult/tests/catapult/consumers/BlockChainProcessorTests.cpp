@@ -21,7 +21,7 @@
 #include "catapult/consumers/BlockChainProcessor.h"
 #include "catapult/cache/ReadOnlyCatapultCache.h"
 #include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/cache_core/BlockDifficultyCache.h"
+#include "catapult/cache_core/BlockStatisticCache.h"
 #include "catapult/chain/ChainResults.h"
 #include "catapult/consumers/InputUtils.h"
 #include "catapult/model/BlockUtils.h"
@@ -40,6 +40,8 @@ namespace catapult { namespace consumers {
 
 	namespace {
 		// region MockBlockHitPredicate
+
+		constexpr auto Default_Last_Recalculation_Height = model::ImportanceHeight(1234);
 
 		struct BlockHitPredicateParams {
 		public:
@@ -87,12 +89,12 @@ namespace catapult { namespace consumers {
 		public:
 			BlockHitPredicateFactoryParams(const cache::ReadOnlyCatapultCache& cache)
 					: IsPassedMarkedCache(test::IsMarkedCache(cache))
-					, NumDifficultyInfos(cache.sub<cache::BlockDifficultyCache>().size())
+					, NumStatistics(cache.sub<cache::BlockStatisticCache>().size())
 			{}
 
 		public:
 			const bool IsPassedMarkedCache;
-			const size_t NumDifficultyInfos;
+			const size_t NumStatistics;
 		};
 
 		class MockBlockHitPredicateFactory : public test::ParamsCapture<BlockHitPredicateFactoryParams> {
@@ -129,18 +131,18 @@ namespace catapult { namespace consumers {
 					: Height(height)
 					, Timestamp(timestamp)
 					, EntityInfos(entityInfos)
-					, pState(&state.State)
+					, State(state.Cache.dependentState())
 					, IsPassedMarkedCache(test::IsMarkedCache(state.Cache))
-					, NumDifficultyInfos(state.Cache.sub<cache::BlockDifficultyCache>().size())
+					, NumStatistics(state.Cache.sub<cache::BlockStatisticCache>().size())
 			{}
 
 		public:
 			const catapult::Height Height;
 			const catapult::Timestamp Timestamp;
 			const model::WeakEntityInfos EntityInfos;
-			const state::CatapultState* pState;
+			const state::CatapultState State;
 			const bool IsPassedMarkedCache;
-			const size_t NumDifficultyInfos;
+			const size_t NumStatistics;
 		};
 
 		void AddHeightReceipt(model::BlockStatementBuilder& blockStatementBuilder, Height height) {
@@ -164,9 +166,9 @@ namespace catapult { namespace consumers {
 					observers::ObserverState& state) const {
 				const_cast<MockBatchEntityProcessor*>(this)->push(height, timestamp, entityInfos, state);
 
-				// - add a block difficulty info to the cache as a marker
-				auto& blockDifficultyCache = state.Cache.sub<cache::BlockDifficultyCache>();
-				blockDifficultyCache.insert(state::BlockDifficultyInfo(Height(blockDifficultyCache.size() + 1)));
+				// - add a block statistic to the cache as a marker
+				auto& blockStatisticCache = state.Cache.sub<cache::BlockStatisticCache>();
+				blockStatisticCache.insert(state::BlockStatistic(Height(blockStatisticCache.size() + 1)));
 
 				// - add a receipt as a marker
 				if (state.pBlockStatementBuilder)
@@ -212,8 +214,6 @@ namespace catapult { namespace consumers {
 			}
 
 		public:
-			state::CatapultState State;
-
 			MockBlockHitPredicate BlockHitPredicate;
 			MockBlockHitPredicateFactory BlockHitPredicateFactory;
 			MockBatchEntityProcessor BatchEntityProcessor;
@@ -223,7 +223,8 @@ namespace catapult { namespace consumers {
 			ValidationResult Process(const model::BlockElement& parentBlockElement, BlockElements& elements) {
 				auto cache = test::CreateCatapultCacheWithMarkerAccount();
 				auto delta = cache.createDelta();
-				auto observerState = observers::ObserverState(delta, State);
+				delta.dependentState().LastRecalculationHeight = Default_Last_Recalculation_Height;
+				auto observerState = observers::ObserverState(delta);
 
 				return Processor(WeakBlockInfo(parentBlockElement), elements, observerState);
 			}
@@ -244,7 +245,7 @@ namespace catapult { namespace consumers {
 					for (auto params : allParams) {
 						auto message = "hit predicate factory at " + std::to_string(i);
 						EXPECT_TRUE(params.IsPassedMarkedCache) << message;
-						EXPECT_EQ(i, params.NumDifficultyInfos) << message;
+						EXPECT_EQ(i, params.NumStatistics) << message;
 						++i;
 					}
 				}
@@ -282,9 +283,10 @@ namespace catapult { namespace consumers {
 					EXPECT_EQ(blockElement.Block.Height, params.Height) << message;
 					EXPECT_EQ(blockElement.Block.Timestamp, params.Timestamp) << message;
 					EXPECT_EQ(expectedEntityInfos, params.EntityInfos) << message;
-					EXPECT_EQ(&State, params.pState) << message;
+
+					EXPECT_EQ(Default_Last_Recalculation_Height, params.State.LastRecalculationHeight) << message;
 					EXPECT_TRUE(params.IsPassedMarkedCache) << message;
-					EXPECT_EQ(i, params.NumDifficultyInfos) << message;
+					EXPECT_EQ(i, params.NumStatistics) << message;
 					++i;
 				}
 			}
@@ -305,7 +307,7 @@ namespace catapult { namespace consumers {
 
 		void ClearReceiptsHashes(BlockElements& elements) {
 			for (auto& blockElement : elements)
-				const_cast<model::Block&>(blockElement.Block).BlockReceiptsHash = Hash256();
+				const_cast<model::Block&>(blockElement.Block).ReceiptsHash = Hash256();
 		}
 
 		void PrepareChain(Height height, model::Block& parentBlock, BlockElements& elements) {
@@ -356,7 +358,7 @@ namespace catapult { namespace consumers {
 			static void PrepareReceiptsHashes(BlockElements& elements) {
 				// Arrange: one "height" receipt is added per block
 				for (auto& blockElement : elements)
-					const_cast<model::Block&>(blockElement.Block).BlockReceiptsHash = GetExpectedHash(blockElement.Block.Height);
+					const_cast<model::Block&>(blockElement.Block).ReceiptsHash = GetExpectedHash(blockElement.Block.Height);
 			}
 		};
 
@@ -554,7 +556,7 @@ namespace catapult { namespace consumers {
 		ReceiptValidationEnabledTraits::PrepareReceiptsHashes(elements);
 
 		// - invalidate the second block receipts hash
-		test::FillWithRandomData(const_cast<model::Block&>(elements[1].Block).BlockReceiptsHash);
+		test::FillWithRandomData(const_cast<model::Block&>(elements[1].Block).ReceiptsHash);
 
 		// Act:
 		auto result = context.Process(*pParentBlock, elements);
@@ -598,7 +600,7 @@ namespace catapult { namespace consumers {
 			auto i = 0u;
 			auto previousGenerationHash = parentBlockElement.GenerationHash;
 			for (const auto& blockElement : elements) {
-				auto expectedGenerationHash = model::CalculateGenerationHash(previousGenerationHash, blockElement.Block.Signer);
+				auto expectedGenerationHash = model::CalculateGenerationHash(previousGenerationHash, blockElement.Block.SignerPublicKey);
 				EXPECT_EQ(expectedGenerationHash, blockElement.GenerationHash) << "generation hash at " << i;
 				previousGenerationHash = expectedGenerationHash;
 				++i;

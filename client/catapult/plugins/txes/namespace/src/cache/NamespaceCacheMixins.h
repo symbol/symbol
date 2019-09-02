@@ -36,7 +36,6 @@ namespace catapult { namespace cache {
 	};
 
 	/// A mixin for calculating the deep size of namespaces.
-	template<typename TSet>
 	class NamespaceDeepSizeMixin {
 	public:
 		/// Creates a mixin around \a sizes.

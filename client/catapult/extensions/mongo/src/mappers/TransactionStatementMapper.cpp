@@ -46,14 +46,16 @@ namespace catapult { namespace mongo { namespace mappers {
 			const model::TransactionStatement& statement,
 			const MongoReceiptRegistry& receiptRegistry) {
 		bson_stream::document builder;
-		builder
-				<< "height" << ToInt64(height)
-				<< "source" << bson_stream::open_document
-					<< "primaryId" << static_cast<int32_t>(statement.source().PrimaryId)
-					<< "secondaryId" << static_cast<int32_t>(statement.source().SecondaryId)
-				<< bson_stream::close_document;
+		auto doc = builder
+				<< "statement" << bson_stream::open_document
+					<< "height" << ToInt64(height)
+					<< "source" << bson_stream::open_document
+						<< "primaryId" << static_cast<int32_t>(statement.source().PrimaryId)
+						<< "secondaryId" << static_cast<int32_t>(statement.source().SecondaryId)
+					<< bson_stream::close_document;
 
 		StreamReceipts(builder, statement, receiptRegistry);
+		doc << bson_stream::close_document;
 		return builder << bson_stream::finalize;
 	}
 }}}

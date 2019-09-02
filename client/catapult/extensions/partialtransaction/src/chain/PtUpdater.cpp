@@ -54,13 +54,15 @@ namespace catapult { namespace chain {
 				const model::AggregateTransaction& aggregateTransaction,
 				const Hash256& aggregateHash,
 				const model::WeakCosignedTransactionInfo& transactionInfoFromCache) {
-			utils::KeySet cosigners;
+			utils::KeySet cosignatories;
 			DetachedCosignatures cosignatures;
 			const auto* pCosignature = aggregateTransaction.CosignaturesPtr();
 			for (auto i = 0u; i < aggregateTransaction.CosignaturesCount(); ++i) {
-				const auto& cosigner = pCosignature->Signer;
-				if (cosigners.emplace(cosigner).second && (!transactionInfoFromCache || !transactionInfoFromCache.hasCosigner(cosigner)))
-					cosignatures.emplace_back(pCosignature->Signer, pCosignature->Signature, aggregateHash);
+				const auto& cosignatory = pCosignature->SignerPublicKey;
+				auto isNewCosignatory = cosignatories.emplace(cosignatory).second
+						&& (!transactionInfoFromCache || !transactionInfoFromCache.hasCosignatory(cosignatory));
+				if (isNewCosignatory)
+					cosignatures.emplace_back(pCosignature->SignerPublicKey, pCosignature->Signature, aggregateHash);
 
 				++pCosignature;
 			}
@@ -78,25 +80,26 @@ namespace catapult { namespace chain {
 	public:
 		explicit CheckEligibilityResult(CosignatureUpdateResult updateResult)
 				: m_updateResult(updateResult)
-				, m_validationResult(CosignersValidationResult::Ineligible)
+				, m_validationResult(CosignatoriesValidationResult::Ineligible)
 		{}
 
-		explicit CheckEligibilityResult(CosignersValidationResult validationResult)
+		explicit CheckEligibilityResult(CosignatoriesValidationResult validationResult)
 				: m_updateResult(CosignatureUpdateResult::Ineligible)
 				, m_validationResult(validationResult)
 		{}
 
 	public:
 		CosignatureUpdateResult updateResult() const {
-			return CosignersValidationResult::Failure == m_validationResult ? CosignatureUpdateResult::Error : m_updateResult;
+			return CosignatoriesValidationResult::Failure == m_validationResult ? CosignatureUpdateResult::Error : m_updateResult;
 		}
 
 		bool isEligibile() const {
-			return CosignersValidationResult::Missing == m_validationResult || CosignersValidationResult::Success == m_validationResult;
+			return CosignatoriesValidationResult::Missing == m_validationResult
+					|| CosignatoriesValidationResult::Success == m_validationResult;
 		}
 
 		bool isPurgeRequired() const {
-			return CosignersValidationResult::Failure == m_validationResult;
+			return CosignatoriesValidationResult::Failure == m_validationResult;
 		}
 
 		bool isCacheStale() const {
@@ -114,7 +117,7 @@ namespace catapult { namespace chain {
 
 	private:
 		CosignatureUpdateResult m_updateResult;
-		CosignersValidationResult m_validationResult;
+		CosignatoriesValidationResult m_validationResult;
 		std::unique_ptr<StaleTransactionInfo> m_pStaleTransactionInfo; // unique_ptr used as optional
 	};
 
@@ -223,9 +226,9 @@ namespace catapult { namespace chain {
 				return eligiblityResult.updateResult();
 			}
 
-			if (!crypto::Verify(cosignature.Signer, cosignature.ParentHash, cosignature.Signature)) {
+			if (!crypto::Verify(cosignature.SignerPublicKey, cosignature.ParentHash, cosignature.Signature)) {
 				CATAPULT_LOG(debug)
-						<< "ignoring unverifiable cosignature (signer = " << cosignature.Signer
+						<< "ignoring unverifiable cosignature (signer = " << cosignature.SignerPublicKey
 						<< ", parentHash = " << cosignature.ParentHash << ")";
 				return CosignatureUpdateResult::Unverifiable;
 			}
@@ -257,7 +260,7 @@ namespace catapult { namespace chain {
 		CosignatureUpdateResult addCosignature(const model::DetachedCosignature& cosignature) {
 			{
 				auto modifier = m_transactionsCache.modifier();
-				if (!modifier.add(cosignature.ParentHash, cosignature.Signer, cosignature.Signature))
+				if (!modifier.add(cosignature.ParentHash, cosignature.SignerPublicKey, cosignature.Signature))
 					return CosignatureUpdateResult::Redundant;
 			}
 
@@ -305,18 +308,18 @@ namespace catapult { namespace chain {
 			if (!transactionInfoFromCache)
 				return CheckEligibilityResult(CosignatureUpdateResult::Ineligible);
 
-			if (transactionInfoFromCache.hasCosigner(cosignature.Signer))
+			if (transactionInfoFromCache.hasCosignatory(cosignature.SignerPublicKey))
 				return CheckEligibilityResult(CosignatureUpdateResult::Redundant);
 
 			// optimize for the most likely case that the new cosignature is valid and no existing cosignatures are stale
 			auto cosignatures = transactionInfoFromCache.cosignatures();
-			cosignatures.push_back({ cosignature.Signer, cosignature.Signature });
-			auto validateAllResult = validateCosigners(transactionInfoFromCache, cosignatures);
+			cosignatures.push_back({ cosignature.SignerPublicKey, cosignature.Signature });
+			auto validateAllResult = validateCosignatories(transactionInfoFromCache, cosignatures);
 
-			if (CosignersValidationResult::Ineligible != validateAllResult.Normalized) {
+			if (CosignatoriesValidationResult::Ineligible != validateAllResult.Normalized) {
 				// if there was an unexpected error, purge the entire transaction
-				// failures are independent of cosignatures, so subsequent validateCosigners calls should never result in failures
-				if (CosignersValidationResult::Failure == validateAllResult.Normalized)
+				// failures are independent of cosignatures, so subsequent validateCosignatories calls should never result in failures
+				if (CosignatoriesValidationResult::Failure == validateAllResult.Normalized)
 					m_failedTransactionSink(transactionInfoFromCache.transaction(), cosignature.ParentHash, validateAllResult.Raw);
 
 				return CheckEligibilityResult(validateAllResult.Normalized);
@@ -325,9 +328,9 @@ namespace catapult { namespace chain {
 			// at this point, either the new cosignature or an existing cosignature is ineligible
 			// 1. check the new cosignature and exit in the more likely case it is ineligible
 			std::vector<model::Cosignature> singleElementCosignatures{ cosignature };
-			auto validateNewResult = validateCosigners(transactionInfoFromCache, singleElementCosignatures);
+			auto validateNewResult = validateCosignatories(transactionInfoFromCache, singleElementCosignatures);
 			CheckEligibilityResult newCosignatureEligiblityResult(validateNewResult.Normalized);
-			if (CosignersValidationResult::Ineligible == validateNewResult.Normalized)
+			if (CosignatoriesValidationResult::Ineligible == validateNewResult.Normalized)
 				return newCosignatureEligiblityResult;
 
 			// 2. a state change caused one of the previously accepted cosignatures to be invalid, so reprocess all of them
@@ -339,10 +342,10 @@ namespace catapult { namespace chain {
 			cosignatures.pop_back(); // only process original cosignatures
 			for (const auto& existingCosignature : cosignatures) {
 				singleElementCosignatures[0] = existingCosignature;
-				auto validateSingleResult = validateCosigners(transactionInfoFromCache, singleElementCosignatures);
-				if (CosignersValidationResult::Ineligible == validateSingleResult.Normalized) {
+				auto validateSingleResult = validateCosignatories(transactionInfoFromCache, singleElementCosignatures);
+				if (CosignatoriesValidationResult::Ineligible == validateSingleResult.Normalized) {
 					CATAPULT_LOG(debug)
-							<< "detected stale cosignature with signer " << cosignature.Signer
+							<< "detected stale cosignature with signer " << cosignature.SignerPublicKey
 							<< " for transaction " << cosignature.ParentHash;
 				} else {
 					// cosignature is still valid
@@ -363,17 +366,17 @@ namespace catapult { namespace chain {
 
 			modifier.add(removedInfo);
 			for (const auto& cosignature : staleTransactionInfo.EligibleCosignatures)
-				modifier.add(staleTransactionInfo.AggregateHash, cosignature.Signer, cosignature.Signature);
+				modifier.add(staleTransactionInfo.AggregateHash, cosignature.SignerPublicKey, cosignature.Signature);
 		}
 
-		PtValidator::Result<CosignersValidationResult> validateCosigners(
+		PtValidator::Result<CosignatoriesValidationResult> validateCosignatories(
 				const model::WeakCosignedTransactionInfo& transactionInfo,
 				const std::vector<model::Cosignature>& cosignatures) const {
-			return m_pValidator->validateCosigners({ &transactionInfo.transaction(), &cosignatures });
+			return m_pValidator->validateCosignatories({ &transactionInfo.transaction(), &cosignatures });
 		}
 
 		bool isComplete(const model::WeakCosignedTransactionInfo& transactionInfo) const {
-			return CosignersValidationResult::Success == m_pValidator->validateCosigners(transactionInfo).Normalized;
+			return CosignatoriesValidationResult::Success == m_pValidator->validateCosignatories(transactionInfo).Normalized;
 		}
 
 		void handleComplete(const model::WeakCosignedTransactionInfo& transactionInfo) {

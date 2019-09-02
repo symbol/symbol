@@ -49,7 +49,7 @@ namespace catapult { namespace validators {
 			auto operationType = notification.AccountRestrictionDescriptor.operationType();
 
 			auto modification = model::AccountRestrictionModification<TRestrictionValue>{
-				notification.Modification.ModificationType,
+				notification.Modification.ModificationAction,
 				Resolve(context.Resolvers, notification.Modification.Value)
 			};
 
@@ -57,7 +57,7 @@ namespace catapult { namespace validators {
 			auto isAllowAndForbidden = OperationType::Allow == operationType && !typedRestriction.canAllow(modification);
 			auto isBlockAndForbidden = OperationType::Block == operationType && !typedRestriction.canBlock(modification);
 			return isAllowAndForbidden || isBlockAndForbidden
-					? Failure_RestrictionAccount_Modification_Not_Allowed
+					? Failure_RestrictionAccount_Invalid_Modification
 					: ValidationResult::Success;
 		}
 	}

@@ -28,127 +28,34 @@ namespace catapult { namespace model {
 
 #define TEST_CLASS MosaicPropertiesTests
 
-	namespace {
-		void SetTestPropertyValues(MosaicProperties::PropertyValuesContainer& values) {
-			// Arrange:
-			values[0] = utils::to_underlying_type(MosaicFlags::Supply_Mutable | MosaicFlags::Restrictable);
-			values[1] = 5u;
-			values[2] = 234u;
-		}
-
-		MosaicProperties CreateProperties(
-				MosaicFlags flags,
-				uint8_t divisibility,
-				std::initializer_list<MosaicProperty> optionalProperties) {
-			MosaicProperties::PropertyValuesContainer values;
-			for (auto i = 0u; i < values.size(); ++i)
-				values[i] = 0xDEADBEAF;
-
-			values[0] = utils::to_underlying_type(flags);
-			values[1] = divisibility;
-
-			for (const auto& property : optionalProperties)
-				values[utils::to_underlying_type(property.Id)] = property.Value;
-
-			return MosaicProperties::FromValues(values);
-		}
-	}
-
 	// region ctor
 
-	TEST(TEST_CLASS, CanCreateMosaicProperties) {
-		// Arrange:
-		MosaicProperties::PropertyValuesContainer values;
-		SetTestPropertyValues(values);
-
+	TEST(TEST_CLASS, CanCreateDefaultMosaicProperties) {
 		// Act:
-		auto properties = MosaicProperties::FromValues(values);
+		MosaicProperties properties;
 
 		// Assert:
-		EXPECT_EQ(3u, properties.size());
+		EXPECT_EQ(MosaicFlags::None, properties.flags());
+		EXPECT_EQ(0u, properties.divisibility());
+		EXPECT_EQ(BlockDuration(), properties.duration());
 
-		EXPECT_TRUE(properties.is(MosaicFlags::Supply_Mutable));
-		EXPECT_FALSE(properties.is(MosaicFlags::Transferable));
-		EXPECT_TRUE(properties.is(MosaicFlags::Restrictable));
+		for (auto flag = 1u; flag < utils::to_underlying_type(MosaicFlags::All); flag <<= 1)
+			EXPECT_FALSE(properties.is(static_cast<MosaicFlags>(flag))) << "flag " << flag;
+	}
 
+	TEST(TEST_CLASS, CanCreateMosaicPropertiesAroundValues) {
+		// Act:
+		MosaicProperties properties(MosaicFlags::Supply_Mutable | MosaicFlags::Restrictable, 5, BlockDuration(234));
+
+		// Assert:
+		EXPECT_EQ(MosaicFlags::Supply_Mutable | MosaicFlags::Restrictable, properties.flags());
 		EXPECT_EQ(5u, properties.divisibility());
 		EXPECT_EQ(BlockDuration(234), properties.duration());
-	}
 
-	// endregion
-
-	// region extract properties
-
-	TEST(TEST_CLASS, ExtractPropertiesCanExtractRequiredProperties) {
-		// Arrange:
-		auto flags = MosaicFlags::All;
-		auto header = MosaicPropertiesHeader{ 0, flags, 123 };
-
-		// Act:
-		auto properties = ExtractAllProperties(header, nullptr);
-
-		// Assert:
-		auto expected = CreateProperties(flags, 123, { { MosaicPropertyId::Duration, 0 } });
-		test::AssertMosaicDefinitionProperties(expected, properties);
-	}
-
-	TEST(TEST_CLASS, ExtractPropertiesCanExtractOptionalProperties) {
-		// Arrange:
-		auto flags = MosaicFlags::All;
-		auto optionalProperties = std::vector<MosaicProperty>{ { MosaicPropertyId::Duration, 12345678u } };
-		auto header = MosaicPropertiesHeader{ static_cast<uint8_t>(optionalProperties.size()), flags, 123 };
-
-		// Act:
-		auto properties = ExtractAllProperties(header, optionalProperties.data());
-
-		// Assert:
-		auto expected = CreateProperties(flags, 123, { { MosaicPropertyId::Duration, 12345678u } });
-		test::AssertMosaicDefinitionProperties(expected, properties);
-	}
-
-	TEST(TEST_CLASS, ExtractPropertiesIgnoresOutOfRangeProperties) {
-		// Arrange:
-		auto flags = MosaicFlags::All;
-		auto optionalProperties = std::vector<MosaicProperty>{
-			{ static_cast<MosaicPropertyId>(0), 0xDEAD }, // reserved (required)
-			{ MosaicPropertyId::Duration, 12345678u }, // valid
-			{ static_cast<MosaicPropertyId>(3), 0xDEAD }, // id too large
-			{ static_cast<MosaicPropertyId>(0xFF), 0xDEAD } // id too large
-		};
-		auto header = MosaicPropertiesHeader{ static_cast<uint8_t>(optionalProperties.size()), flags, 123 };
-
-		// Act:
-		auto properties = ExtractAllProperties(header, optionalProperties.data());
-
-		// Assert:
-		auto expected = CreateProperties(flags, 123, { { MosaicPropertyId::Duration, 12345678u } });
-		test::AssertMosaicDefinitionProperties(expected, properties);
-	}
-
-	// endregion
-
-	// region iteration
-
-	TEST(TEST_CLASS, CanIterateOverAllProperties) {
-		// Arrange:
-		MosaicProperties::PropertyValuesContainer seedValues;
-		SetTestPropertyValues(seedValues);
-		auto properties = MosaicProperties::FromValues(seedValues);
-
-		// Act:
-		std::array<MosaicProperty, Num_Mosaic_Properties> extractedProperties;
-		std::vector<uint8_t> ids;
-		for (const auto& property : properties) {
-			auto id = utils::to_underlying_type(property.Id);
-			ids.push_back(id);
-			extractedProperties[id] = property;
-		}
-
-		// Assert:
-		EXPECT_EQ(std::vector<uint8_t> ({ 0, 1, 2 }), ids);
-		for (auto i = 0u; i < seedValues.size(); ++i) {
-			EXPECT_EQ(i, utils::to_underlying_type(extractedProperties[i].Id)) << "property at " << i;
-			EXPECT_EQ(seedValues[i], extractedProperties[i].Value) << "property at " << i;
+		for (auto flag = 1u; flag < utils::to_underlying_type(MosaicFlags::All); flag <<= 1) {
+			EXPECT_EQ(
+					MosaicFlags::Transferable != static_cast<MosaicFlags>(flag),
+					properties.is(static_cast<MosaicFlags>(flag))) << "flag " << flag;
 		}
 	}
 
@@ -163,14 +70,14 @@ namespace catapult { namespace model {
 
 		std::unordered_map<std::string, MosaicProperties> GenerateEqualityInstanceMap() {
 			return {
-				{ "default", MosaicProperties::FromValues({ { 2, 7, 5 } }) },
-				{ "copy", MosaicProperties::FromValues({ { 2, 7, 5 } }) },
+				{ "default", test::CreateMosaicPropertiesFromValues(2, 7, 5) },
+				{ "copy", test::CreateMosaicPropertiesFromValues(2, 7, 5) },
 
-				{ "diff[0]", MosaicProperties::FromValues({ { 1, 7, 5 } }) },
-				{ "diff[1]", MosaicProperties::FromValues({ { 2, 9, 5 } }) },
-				{ "diff[2]", MosaicProperties::FromValues({ { 2, 7, 6 } }) },
-				{ "reverse", MosaicProperties::FromValues({ { 5, 7, 2 } }) },
-				{ "diff-all", MosaicProperties::FromValues({ { 1, 8, 6 } }) }
+				{ "diff[0]", test::CreateMosaicPropertiesFromValues(1, 7, 5) },
+				{ "diff[1]", test::CreateMosaicPropertiesFromValues(2, 9, 5) },
+				{ "diff[2]", test::CreateMosaicPropertiesFromValues(2, 7, 6) },
+				{ "reverse", test::CreateMosaicPropertiesFromValues(5, 7, 2) },
+				{ "diff-all", test::CreateMosaicPropertiesFromValues(1, 8, 6) }
 			};
 		}
 	}

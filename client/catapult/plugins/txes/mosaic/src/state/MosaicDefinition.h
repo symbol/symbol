@@ -27,10 +27,10 @@ namespace catapult { namespace state {
 	/// Represents a mosaic definition.
 	class MosaicDefinition {
 	public:
-		/// Creates a mosaic definition around \a height, \a owner, mosaic \a revision and mosaic \a properties.
-		MosaicDefinition(Height height, const Key& owner, uint32_t revision, const model::MosaicProperties& properties)
-				: m_height(height)
-				, m_owner(owner)
+		/// Creates a mosaic definition around \a startHeight, \a ownerPublicKey, mosaic \a revision and mosaic \a properties.
+		MosaicDefinition(Height startHeight, const Key& ownerPublicKey, uint32_t revision, const model::MosaicProperties& properties)
+				: m_startHeight(startHeight)
+				, m_ownerPublicKey(ownerPublicKey)
 				, m_revision(revision)
 				, m_properties(properties)
 		{}
@@ -45,14 +45,14 @@ namespace catapult { namespace state {
 		/// Returns \c true if the mosaic definition is expired at \a height.
 		bool isExpired(Height height) const;
 
-		/// Gets the height.
-		Height height() const {
-			return m_height;
+		/// Gets the start height.
+		Height startHeight() const {
+			return m_startHeight;
 		}
 
 		/// Gets the owner's public key.
-		const Key& owner() const {
-			return m_owner;
+		const Key& ownerPublicKey() const {
+			return m_ownerPublicKey;
 		}
 
 		/// Gets the revision.
@@ -66,8 +66,8 @@ namespace catapult { namespace state {
 		}
 
 	private:
-		Height m_height;
-		Key m_owner;
+		Height m_startHeight;
+		Key m_ownerPublicKey;
 		uint32_t m_revision;
 		model::MosaicProperties m_properties;
 	};

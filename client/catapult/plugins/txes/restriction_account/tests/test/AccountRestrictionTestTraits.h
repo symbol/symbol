@@ -120,7 +120,7 @@ namespace catapult { namespace test {
 
 		/// Adds \a value to \a restriction for operation type 'Allow'.
 		static void Add(state::AccountRestriction& restriction, const state::AccountRestriction::RawValue& value) {
-			restriction.allow({ model::AccountRestrictionModificationType::Add, value });
+			restriction.allow({ model::AccountRestrictionModificationAction::Add, value });
 		}
 	};
 
@@ -138,7 +138,7 @@ namespace catapult { namespace test {
 
 		/// Adds \a value to \a restriction for operation type 'Block'.
 		static void Add(state::AccountRestriction& restriction, const state::AccountRestriction::RawValue& value) {
-			restriction.block({ model::AccountRestrictionModificationType::Add, value });
+			restriction.block({ model::AccountRestrictionModificationAction::Add, value });
 		}
 	};
 

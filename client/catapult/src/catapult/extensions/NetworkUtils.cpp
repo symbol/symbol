@@ -37,7 +37,7 @@ namespace catapult { namespace extensions {
 
 	void UpdateAsyncTcpServerSettings(net::AsyncTcpServerSettings& settings, const config::CatapultConfiguration& config) {
 		settings.PacketSocketOptions = GetConnectionSettings(config).toSocketOptions();
-		settings.AllowAddressReuse = config.Node.ShouldAllowAddressReuse;
+		settings.AllowAddressReuse = config.Node.EnableAddressReuse;
 
 		const auto& connectionsConfig = config.Node.IncomingConnections;
 		settings.MaxActiveConnections = connectionsConfig.MaxConnections;

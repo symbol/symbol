@@ -33,7 +33,7 @@ namespace catapult { namespace test {
 
 	/// Hash string of the deterministic transaction.
 #ifdef SIGNATURE_SCHEME_NIS1
-	constexpr auto Deterministic_Transaction_Hash_String = "6EA6D56912DF29CDE28A182F091DC952CE4B74BFA1A4E11D1F606C79F4A57549";
+	constexpr auto Deterministic_Transaction_Hash_String = "05DDD42BB6D2A47E6861FDA4AE31CFF57B72E1053A9CECF04B639EA735A74CDB";
 #else
 	constexpr auto Deterministic_Transaction_Hash_String = "928C1370941AAACE99C91D31D6C6B4FA511F83387C4DA99536F8F0B62545D755";
 #endif

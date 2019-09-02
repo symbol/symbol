@@ -41,7 +41,7 @@ namespace catapult { namespace extensions {
 
 			config.Node.IncomingConnections.MaxConnections = 17;
 			config.Node.IncomingConnections.BacklogSize = 83;
-			config.Node.ShouldAllowAddressReuse = true;
+			config.Node.EnableAddressReuse = true;
 			config.Node.OutgoingSecurityMode = static_cast<ionet::ConnectionSecurityMode>(8);
 			config.Node.IncomingSecurityModes = static_cast<ionet::ConnectionSecurityMode>(21);
 			return config.ToConst();

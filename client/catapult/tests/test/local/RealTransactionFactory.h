@@ -51,8 +51,8 @@ namespace catapult { namespace test {
 			const Key& recipientPublicKey,
 			Amount amount);
 
-	/// Creates signed root register namespace transaction with \a signer, \a name and \a duration.
-	std::unique_ptr<model::Transaction> CreateRegisterRootNamespaceTransaction(
+	/// Creates signed root namespace registration transaction with \a signer, \a name and \a duration.
+	std::unique_ptr<model::Transaction> CreateRootNamespaceRegistrationTransaction(
 			const crypto::KeyPair& signer,
 			const std::string& name,
 			BlockDuration duration);

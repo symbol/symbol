@@ -80,7 +80,7 @@ namespace catapult { namespace validators {
 
 		// Act:
 		AssertValidationResult<test::AllowTraits>(
-				Failure_RestrictionAccount_Transaction_Type_Not_Allowed,
+				Failure_RestrictionAccount_Operation_Type_Prohibited,
 				signerAddress,
 				DefaultRawTransactionTypes(),
 				signer,
@@ -95,7 +95,7 @@ namespace catapult { namespace validators {
 
 		// Act:
 		AssertValidationResult<test::BlockTraits>(
-				Failure_RestrictionAccount_Transaction_Type_Not_Allowed,
+				Failure_RestrictionAccount_Operation_Type_Prohibited,
 				signerAddress,
 				values,
 				signer,

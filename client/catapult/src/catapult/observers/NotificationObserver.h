@@ -38,7 +38,7 @@ namespace catapult { namespace observers {
 		/// Gets the observer name.
 		virtual const std::string& name() const = 0;
 
-		/// Notifies the observer with a \a notification to process and an observer \a context.
+		/// Notifies the observer with \a notification and observer \a context.
 		virtual void notify(const TNotification& notification, ObserverContext& context) const = 0;
 	};
 }}

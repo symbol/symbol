@@ -36,7 +36,7 @@ namespace catapult { namespace plugins {
 				config.Plugins.emplace("catapult.plugins.restrictionaccount", utils::ConfigurationBag({{
 					"",
 					{
-						{ "maxAccountRestrictionValues", "10" },
+						{ "maxAccountRestrictionValues", "10" }
 					}
 				}}));
 
@@ -76,11 +76,11 @@ namespace catapult { namespace plugins {
 				return {
 					"AccountRestrictionTypeValidator",
 
-					"AccountAddressRestrictionModificationTypesValidator",
+					"AccountAddressRestrictionModificationActionsValidator",
 					"AccountAddressRestrictionNoSelfModificationValidator",
 
-					"AccountMosaicRestrictionModificationTypesValidator",
-					"AccountOperationRestrictionModificationTypesValidator",
+					"AccountMosaicRestrictionModificationActionsValidator",
+					"AccountOperationRestrictionModificationActionsValidator",
 					"AccountOperationRestrictionModificationValuesValidator"
 				};
 			}

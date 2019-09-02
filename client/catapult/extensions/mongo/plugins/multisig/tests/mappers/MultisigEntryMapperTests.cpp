@@ -41,8 +41,8 @@ namespace catapult { namespace mongo { namespace plugins {
 			entry.setMinApproval(12);
 			entry.setMinRemoval(23);
 
-			InsertRandom(entry.cosignatories(), numCosignatories);
-			InsertRandom(entry.multisigAccounts(), numMultisigAccounts);
+			InsertRandom(entry.cosignatoryPublicKeys(), numCosignatories);
+			InsertRandom(entry.multisigPublicKeys(), numMultisigAccounts);
 
 			return entry;
 		}

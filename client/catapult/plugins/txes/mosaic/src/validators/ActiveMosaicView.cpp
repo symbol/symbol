@@ -41,6 +41,6 @@ namespace catapult { namespace validators {
 		if (!IsValidationResultSuccess(result))
 			return result;
 
-		return iter.get().definition().owner() != owner ? Failure_Mosaic_Owner_Conflict : ValidationResult::Success;
+		return iter.get().definition().ownerPublicKey() != owner ? Failure_Mosaic_Owner_Conflict : ValidationResult::Success;
 	}
 }}

@@ -126,7 +126,7 @@ namespace catapult { namespace model {
 		// Arrange:
 		EmbeddedTransaction transaction;
 		transaction.Size = sizeof(EmbeddedTransaction);
-		test::FillWithRandomData(transaction.Signer);
+		test::FillWithRandomData(transaction.SignerPublicKey);
 		mocks::MockNotificationSubscriber sub;
 
 		// Act:
@@ -137,7 +137,7 @@ namespace catapult { namespace model {
 		EXPECT_EQ(0u, sub.numAddresses());
 		EXPECT_EQ(1u, sub.numKeys());
 
-		EXPECT_TRUE(sub.contains(transaction.Signer));
+		EXPECT_TRUE(sub.contains(transaction.SignerPublicKey));
 	}
 
 	// endregion

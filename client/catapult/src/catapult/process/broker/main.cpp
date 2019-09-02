@@ -27,9 +27,9 @@ namespace {
 
 	void OptimizeConfigurationForBroker(catapult::config::CatapultConfiguration& config) {
 		// fixup config for broker-specific optimizations
-		const_cast<bool&>(config.BlockChain.ShouldEnableVerifiableState) = false;
+		const_cast<bool&>(config.BlockChain.EnableVerifiableState) = false;
 
-		const_cast<bool&>(config.Node.ShouldUseCacheDatabaseStorage) = false;
+		const_cast<bool&>(config.Node.EnableCacheDatabaseStorage) = false;
 	}
 }
 

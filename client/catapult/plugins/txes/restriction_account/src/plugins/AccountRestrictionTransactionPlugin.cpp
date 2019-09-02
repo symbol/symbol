@@ -64,10 +64,10 @@ namespace catapult { namespace plugins {
 				const auto* pModifications = transaction.ModificationsPtr();
 				for (auto i = 0u; i < transaction.ModificationsCount; ++i) {
 					AccountRestrictionModification<typename TTraits::UnresolvedValueType> modification{
-						pModifications[i].ModificationType,
+						pModifications[i].ModificationAction,
 						pModifications[i].Value
 					};
-					sub.notify(ValueNotification(transaction.Signer, transaction.RestrictionType, modification));
+					sub.notify(ValueNotification(transaction.SignerPublicKey, transaction.RestrictionType, modification));
 				}
 			}
 
@@ -75,7 +75,7 @@ namespace catapult { namespace plugins {
 			template<typename TTransaction>
 			static auto CreateAccountRestrictionModificationsNotification(const TTransaction& transaction) {
 				return typename TTraits::ModifyAccountRestrictionNotification(
-						transaction.Signer,
+						transaction.SignerPublicKey,
 						transaction.RestrictionType,
 						transaction.ModificationsCount,
 						transaction.ModificationsPtr());

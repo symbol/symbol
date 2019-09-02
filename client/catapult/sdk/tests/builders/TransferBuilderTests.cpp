@@ -49,7 +49,7 @@ namespace catapult { namespace builders {
 
 		template<typename TTransaction>
 		void AssertTransactionProperties(const TransactionProperties& expectedProperties, const TTransaction& transaction) {
-			EXPECT_EQ(expectedProperties.Recipient, transaction.Recipient);
+			EXPECT_EQ(expectedProperties.Recipient, transaction.RecipientAddress);
 
 			ASSERT_EQ(expectedProperties.Message.size(), transaction.MessageSize);
 			EXPECT_EQ_MEMORY(expectedProperties.Message.data(), transaction.MessagePtr(), expectedProperties.Message.size());
@@ -74,14 +74,14 @@ namespace catapult { namespace builders {
 
 			// Act:
 			TransferBuilder builder(networkId, signer);
-			builder.setRecipient(expectedProperties.Recipient);
+			builder.setRecipientAddress(expectedProperties.Recipient);
 			buildTransaction(builder);
 			auto pTransaction = TTraits::InvokeBuilder(builder);
 
 			// Assert:
 			TTraits::CheckBuilderSize(additionalSize, builder);
 			TTraits::CheckFields(additionalSize, *pTransaction);
-			EXPECT_EQ(signer, pTransaction->Signer);
+			EXPECT_EQ(signer, pTransaction->SignerPublicKey);
 			EXPECT_EQ(0x6201, pTransaction->Version);
 			EXPECT_EQ(model::Entity_Type_Transfer, pTransaction->Type);
 
@@ -91,7 +91,7 @@ namespace catapult { namespace builders {
 		void RunBuilderTest(const consumer<TransferBuilder&>& buildTransaction) {
 			// Arrange:
 			TransferBuilder builder(static_cast<model::NetworkIdentifier>(0x62), test::GenerateRandomByteArray<Key>());
-			builder.setRecipient(extensions::CopyToUnresolvedAddress(test::GenerateRandomByteArray<Address>()));
+			builder.setRecipientAddress(extensions::CopyToUnresolvedAddress(test::GenerateRandomByteArray<Address>()));
 
 			// Act:
 			buildTransaction(builder);

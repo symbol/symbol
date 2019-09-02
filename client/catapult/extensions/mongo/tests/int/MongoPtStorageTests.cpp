@@ -80,7 +80,7 @@ namespace catapult { namespace mongo {
 
 			void saveCosignatures(const model::TransactionInfo& transactionInfo, const std::vector<model::Cosignature>& cosignatures) {
 				for (const auto& cosignature : cosignatures)
-					saveCosignature(transactionInfo, cosignature.Signer, cosignature.Signature);
+					saveCosignature(transactionInfo, cosignature.SignerPublicKey, cosignature.Signature);
 			}
 
 			void removeTransaction(const model::TransactionInfo& transactionInfo) {
@@ -155,7 +155,7 @@ namespace catapult { namespace mongo {
 		auto transactionInfo = test::CreateRandomTransactionInfo();
 		context.saveTransaction(transactionInfo);
 		auto cosignature = test::CreateRandomCosignature();
-		context.saveCosignature(transactionInfo, cosignature.Signer, cosignature.Signature);
+		context.saveCosignature(transactionInfo, cosignature.SignerPublicKey, cosignature.Signature);
 		context.flush();
 
 		// Sanity:
@@ -182,7 +182,7 @@ namespace catapult { namespace mongo {
 		auto cosignature = test::CreateRandomCosignature();
 
 		// Act:
-		context.saveCosignature(transactionInfo, cosignature.Signer, cosignature.Signature);
+		context.saveCosignature(transactionInfo, cosignature.SignerPublicKey, cosignature.Signature);
 		context.flush();
 
 		// Assert:
@@ -243,7 +243,7 @@ namespace catapult { namespace mongo {
 		auto cosignature = test::CreateRandomCosignature();
 
 		// Act:
-		context.saveCosignature(transactionInfo, cosignature.Signer, cosignature.Signature);
+		context.saveCosignature(transactionInfo, cosignature.SignerPublicKey, cosignature.Signature);
 		context.flush();
 
 		// Assert:
@@ -259,7 +259,7 @@ namespace catapult { namespace mongo {
 		auto cosignature = test::CreateRandomCosignature();
 
 		// Act:
-		context.saveCosignature(transactionInfo, cosignature.Signer, cosignature.Signature);
+		context.saveCosignature(transactionInfo, cosignature.SignerPublicKey, cosignature.Signature);
 		context.removeTransaction(transactionInfo);
 		context.flush();
 

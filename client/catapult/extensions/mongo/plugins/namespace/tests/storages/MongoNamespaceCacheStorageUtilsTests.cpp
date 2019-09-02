@@ -94,7 +94,7 @@ namespace catapult { namespace mongo { namespace plugins {
 				const state::RootNamespace& root,
 				const DescriptorMap& descriptorMap) {
 			const auto& descriptor = descriptorMap.at(PathIndexPair(path, rootIndex));
-			auto ownerAddress = model::PublicKeyToAddress(root.owner(), Default_Network_Id);
+			auto ownerAddress = model::PublicKeyToAddress(root.ownerPublicKey(), Default_Network_Id);
 			EXPECT_EQ(path, descriptor.Path);
 			EXPECT_EQ(&root, descriptor.pRoot.get());
 			EXPECT_EQ(ownerAddress, descriptor.OwnerAddress);

@@ -53,8 +53,8 @@ namespace catapult { namespace config {
 					utils::ParseByteArray<GenerationHash>("57F7DA205008026C776CB6AED843393F04CD458E0AA2D9F1D5F31A402072B2D6"),
 					config.Network.GenerationHash);
 
-			EXPECT_TRUE(config.ShouldEnableVerifiableState);
-			EXPECT_TRUE(config.ShouldEnableVerifiableReceipts);
+			EXPECT_TRUE(config.EnableVerifiableState);
+			EXPECT_TRUE(config.EnableVerifiableReceipts);
 
 			// - raw values are used instead of test::Default_*_Mosaic_Ids because
 			// config files contain mosaic ids when SIGNATURE_SCHEME_NIS1 is disabled
@@ -68,6 +68,7 @@ namespace catapult { namespace config {
 			EXPECT_EQ(5u, config.ImportanceActivityPercentage);
 			EXPECT_EQ(40u, config.MaxRollbackBlocks);
 			EXPECT_EQ(60u, config.MaxDifficultyBlocks);
+			EXPECT_EQ(BlockFeeMultiplier(10'000), config.DefaultDynamicFeeMultiplier);
 
 			EXPECT_EQ(utils::TimeSpan::FromHours(24), config.MaxTransactionLifetime);
 			EXPECT_EQ(utils::TimeSpan::FromSeconds(10), config.MaxBlockFutureTime);
@@ -89,12 +90,12 @@ namespace catapult { namespace config {
 			// Assert:
 			EXPECT_EQ(7900u, config.Port);
 			EXPECT_EQ(7901u, config.ApiPort);
-			EXPECT_FALSE(config.ShouldAllowAddressReuse);
-			EXPECT_FALSE(config.ShouldUseSingleThreadPool);
-			EXPECT_TRUE(config.ShouldUseCacheDatabaseStorage);
-			EXPECT_TRUE(config.ShouldEnableAutoSyncCleanup);
+			EXPECT_FALSE(config.EnableAddressReuse);
+			EXPECT_FALSE(config.EnableSingleThreadPool);
+			EXPECT_TRUE(config.EnableCacheDatabaseStorage);
+			EXPECT_TRUE(config.EnableAutoSyncCleanup);
 
-			EXPECT_TRUE(config.ShouldEnableTransactionSpamThrottling);
+			EXPECT_TRUE(config.EnableTransactionSpamThrottling);
 			EXPECT_EQ(Amount(10'000'000), config.TransactionSpamThrottlingMaxBoostFee);
 
 			EXPECT_EQ(400u, config.MaxBlocksPerSyncAttempt);
@@ -122,14 +123,16 @@ namespace catapult { namespace config {
 			EXPECT_EQ(16384u, config.TransactionDisruptorSize);
 			EXPECT_EQ(10u, config.TransactionElementTraceInterval);
 
-			EXPECT_TRUE(config.ShouldAbortWhenDispatcherIsFull);
-			EXPECT_TRUE(config.ShouldAuditDispatcherInputs);
+			EXPECT_TRUE(config.EnableDispatcherAbortWhenFull);
+			EXPECT_TRUE(config.EnableDispatcherInputAuditing);
 
 			EXPECT_EQ(ionet::ConnectionSecurityMode::None, config.OutgoingSecurityMode);
 			EXPECT_EQ(ionet::ConnectionSecurityMode::None, config.IncomingSecurityModes);
 
 			EXPECT_EQ(utils::FileSize::FromMegabytes(5), config.MaxCacheDatabaseWriteBatchSize);
 			EXPECT_EQ(5'000u, config.MaxTrackedNodes);
+
+			EXPECT_TRUE(config.TrustedHosts.empty());
 
 			EXPECT_EQ("", config.Local.Host);
 			EXPECT_EQ("", config.Local.FriendlyName);
@@ -176,7 +179,8 @@ namespace catapult { namespace config {
 
 		void AssertDefaultUserConfiguration(const UserConfiguration& config) {
 			// Assert:
-			EXPECT_EQ("0000000000000000000000000000000000000000000000000000000000000000", config.BootKey);
+			EXPECT_EQ("0000000000000000000000000000000000000000000000000000000000000000", config.BootPrivateKey);
+			EXPECT_TRUE(config.ShouldAutoDetectDelegatedHarvesters);
 
 			EXPECT_EQ("../data", config.DataDirectory);
 			EXPECT_EQ(".", config.PluginsDirectory);
@@ -301,7 +305,7 @@ namespace catapult { namespace config {
 			config.Node.Local.Version = 123;
 			config.Node.Local.Roles = ionet::NodeRoles::Api;
 
-			config.User.BootKey = privateKeyString;
+			config.User.BootPrivateKey = privateKeyString;
 			return config.ToConst();
 		}
 	}

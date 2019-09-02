@@ -53,26 +53,21 @@ namespace catapult { namespace model {
 	// region MosaicPropertiesNotification
 
 	/// Notification of mosaic properties.
-	/// \note This is required due to potentially lossy conversion from raw properties to MosaicProperties.
 	struct MosaicPropertiesNotification : public Notification {
 	public:
 		/// Matching notification type.
 		static constexpr auto Notification_Type = Mosaic_Properties_Notification;
 
 	public:
-		/// Creates a notification around \a propertiesHeader and \a pProperties.
-		MosaicPropertiesNotification(const MosaicPropertiesHeader& propertiesHeader, const MosaicProperty* pProperties)
+		/// Creates a notification around \a properties.
+		explicit MosaicPropertiesNotification(const MosaicProperties& properties)
 				: Notification(Notification_Type, sizeof(MosaicPropertiesNotification))
-				, PropertiesHeader(propertiesHeader)
-				, PropertiesPtr(pProperties)
+				, Properties(properties)
 		{}
 
 	public:
-		/// Mosaic properties header.
-		const MosaicPropertiesHeader& PropertiesHeader;
-
-		/// Const pointer to the optional properties.
-		const MosaicProperty* PropertiesPtr;
+		/// Mosaic properties.
+		MosaicProperties Properties;
 	};
 
 	// endregion
@@ -146,12 +141,12 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = Mosaic_Supply_Change_Notification;
 
 	public:
-		/// Creates a notification around \a signer, \a mosaicId, \a direction and \a delta.
-		MosaicSupplyChangeNotification(const Key& signer, UnresolvedMosaicId mosaicId, MosaicSupplyChangeDirection direction, Amount delta)
+		/// Creates a notification around \a signer, \a mosaicId, \a action and \a delta.
+		MosaicSupplyChangeNotification(const Key& signer, UnresolvedMosaicId mosaicId, MosaicSupplyChangeAction action, Amount delta)
 				: Notification(Notification_Type, sizeof(MosaicSupplyChangeNotification))
 				, Signer(signer)
 				, MosaicId(mosaicId)
-				, Direction(direction)
+				, Action(action)
 				, Delta(delta)
 		{}
 
@@ -162,8 +157,8 @@ namespace catapult { namespace model {
 		/// Id of the affected mosaic.
 		UnresolvedMosaicId MosaicId;
 
-		/// Supply change direction.
-		MosaicSupplyChangeDirection Direction;
+		/// Supply change action.
+		MosaicSupplyChangeAction Action;
 
 		/// Amount of the change.
 		Amount Delta;

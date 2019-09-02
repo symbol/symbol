@@ -1,4 +1,4 @@
 cmake_minimum_required(VERSION 3.2)
 
 catapult_test_executable_target(tests.catapult.extensions local)
-target_link_libraries(tests.catapult.extensions tests.catapult.test.nemesis)
+target_link_libraries(tests.catapult.extensions catapult.plugins.coresystem.deps tests.catapult.test.nemesis)

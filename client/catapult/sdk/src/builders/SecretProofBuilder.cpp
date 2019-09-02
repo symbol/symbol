@@ -26,7 +26,7 @@ namespace catapult { namespace builders {
 			: TransactionBuilder(networkIdentifier, signer)
 			, m_hashAlgorithm()
 			, m_secret()
-			, m_recipient()
+			, m_recipientAddress()
 			, m_proof()
 	{}
 
@@ -38,8 +38,8 @@ namespace catapult { namespace builders {
 		m_secret = secret;
 	}
 
-	void SecretProofBuilder::setRecipient(const UnresolvedAddress& recipient) {
-		m_recipient = recipient;
+	void SecretProofBuilder::setRecipientAddress(const UnresolvedAddress& recipientAddress) {
+		m_recipientAddress = recipientAddress;
 	}
 
 	void SecretProofBuilder::setProof(const RawBuffer& proof) {
@@ -81,7 +81,7 @@ namespace catapult { namespace builders {
 		// 2. set fixed transaction fields
 		pTransaction->HashAlgorithm = m_hashAlgorithm;
 		pTransaction->Secret = m_secret;
-		pTransaction->Recipient = m_recipient;
+		pTransaction->RecipientAddress = m_recipientAddress;
 		pTransaction->ProofSize = utils::checked_cast<size_t, uint16_t>(m_proof.size());
 
 		// 3. set transaction attachments

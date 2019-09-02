@@ -69,17 +69,17 @@ namespace catapult { namespace state {
 		}
 
 		const Key& SaveRootNamespace(io::OutputStream& output, const RootNamespace& root, const Key* pLastOwner) {
-			output.write(root.owner());
+			output.write(root.ownerPublicKey());
 			io::Write(output, root.lifetime().Start);
 			io::Write(output, root.lifetime().End);
 			SaveAlias(output, root.alias(root.id()));
 
-			if (pLastOwner && *pLastOwner == root.owner())
+			if (pLastOwner && *pLastOwner == root.ownerPublicKey())
 				io::Write64(output, 0); // shared owner, don't rewrite children
 			else
 				SaveChildren(output, root);
 
-			return root.owner();
+			return root.ownerPublicKey();
 		}
 	}
 

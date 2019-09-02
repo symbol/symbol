@@ -133,10 +133,8 @@ namespace catapult { namespace test {
 
 				for (auto i = 0; i < 3; ++i) {
 					auto dependentDocument = document()
-							<< "meta"
-							<< open_document << "aggregateHash" << mongo::mappers::ToBinary(hash) << close_document
-							<< "transaction"
-							<< open_document << "i" << i << close_document
+							<< "meta" << open_document << "aggregateHash" << mongo::mappers::ToBinary(hash) << close_document
+							<< "transaction" << open_document << "i" << i << close_document
 							<< finalize;
 
 					collection.insert_one(dependentDocument.view()).get();

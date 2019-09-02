@@ -58,7 +58,7 @@ namespace catapult { namespace utils {
 			{ std::make_pair("one", 1) },
 			{ std::make_pair("two", 4) },
 			{ std::make_pair("three", 9) },
-			{ std::make_pair("four", 16) },
+			{ std::make_pair("four", 16) }
 		}};
 	}
 

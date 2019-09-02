@@ -33,7 +33,7 @@ namespace catapult { namespace mongo { namespace plugins {
 			builder
 					<< "targetPublicKey" << ToBinary(transaction.TargetPublicKey)
 					<< "scopedMetadataKey" << static_cast<int64_t>(transaction.ScopedMetadataKey)
-					<< "targetId" << ToInt64(transaction.TargetId)
+					<< "targetMosaicId" << ToInt64(transaction.TargetMosaicId)
 					<< "valueSizeDelta" << transaction.ValueSizeDelta
 					<< "valueSize" << transaction.ValueSize;
 

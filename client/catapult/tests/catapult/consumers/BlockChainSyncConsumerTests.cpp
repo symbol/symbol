@@ -20,7 +20,7 @@
 
 #include "catapult/consumers/BlockConsumers.h"
 #include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/cache_core/BlockDifficultyCache.h"
+#include "catapult/cache_core/BlockStatisticCache.h"
 #include "catapult/io/BlockStorageCache.h"
 #include "catapult/model/ChainScore.h"
 #include "tests/catapult/consumers/test/ConsumerInputFactory.h"
@@ -119,9 +119,9 @@ namespace catapult { namespace consumers {
 			UndoBlockParams(const model::BlockElement& blockElement, observers::ObserverState& state, UndoBlockType undoBlockType)
 					: pBlock(test::CopyEntity(blockElement.Block))
 					, UndoBlockType(undoBlockType)
-					, LastRecalculationHeight(state.State.LastRecalculationHeight)
+					, LastRecalculationHeight(state.Cache.dependentState().LastRecalculationHeight)
 					, IsPassedMarkedCache(test::IsMarkedCache(state.Cache))
-					, NumDifficultyInfos(state.Cache.sub<cache::BlockDifficultyCache>().size())
+					, NumStatistics(state.Cache.sub<cache::BlockStatisticCache>().size())
 			{}
 
 		public:
@@ -129,7 +129,7 @@ namespace catapult { namespace consumers {
 			consumers::UndoBlockType UndoBlockType;
 			const model::ImportanceHeight LastRecalculationHeight;
 			const bool IsPassedMarkedCache;
-			const size_t NumDifficultyInfos;
+			const size_t NumStatistics;
 		};
 
 		class MockUndoBlock : public test::ParamsCapture<UndoBlockParams> {
@@ -142,10 +142,10 @@ namespace catapult { namespace consumers {
 				if (UndoBlockType::Common == undoBlockType)
 					return;
 
-				auto& blockDifficultyCache = state.Cache.sub<cache::BlockDifficultyCache>();
-				blockDifficultyCache.insert(state::BlockDifficultyInfo(Height(blockDifficultyCache.size() + 1)));
+				auto& blockStatisticCache = state.Cache.sub<cache::BlockStatisticCache>();
+				blockStatisticCache.insert(state::BlockStatistic(Height(blockStatisticCache.size() + 1)));
 
-				auto& height = state.State.LastRecalculationHeight;
+				auto& height = state.Cache.dependentState().LastRecalculationHeight;
 				height = AddImportanceHeight(height, 1);
 			}
 		};
@@ -160,9 +160,9 @@ namespace catapult { namespace consumers {
 					: pParentBlock(test::CopyEntity(parentBlockInfo.entity()))
 					, ParentHash(parentBlockInfo.hash())
 					, pElements(&elements)
-					, LastRecalculationHeight(state.State.LastRecalculationHeight)
+					, LastRecalculationHeight(state.Cache.dependentState().LastRecalculationHeight)
 					, IsPassedMarkedCache(test::IsMarkedCache(state.Cache))
-					, NumDifficultyInfos(state.Cache.sub<cache::BlockDifficultyCache>().size())
+					, NumStatistics(state.Cache.sub<cache::BlockStatisticCache>().size())
 			{}
 
 		public:
@@ -171,7 +171,7 @@ namespace catapult { namespace consumers {
 			const BlockElements* pElements;
 			const model::ImportanceHeight LastRecalculationHeight;
 			const bool IsPassedMarkedCache;
-			const size_t NumDifficultyInfos;
+			const size_t NumStatistics;
 		};
 
 		class MockProcessor : public test::ParamsCapture<ProcessorParams> {
@@ -188,7 +188,7 @@ namespace catapult { namespace consumers {
 
 				// mark the state by modifying it
 				state.Cache.sub<cache::AccountStateCache>().addAccount(Sentinel_Processor_Public_Key, Height(1));
-				state.State.LastRecalculationHeight = Modified_Last_Recalculation_Height;
+				state.Cache.dependentState().LastRecalculationHeight = Modified_Last_Recalculation_Height;
 
 				// modify all the elements
 				for (auto& element : elements)
@@ -248,25 +248,25 @@ namespace catapult { namespace consumers {
 
 		struct PreStateWrittenParams {
 		public:
-			PreStateWrittenParams(const cache::CatapultCacheDelta& cacheDelta, const state::CatapultState& catapultState, Height height)
+			PreStateWrittenParams(const cache::CatapultCacheDelta& cacheDelta, Height height)
 					// all processing should have occurred before the pre state written notification,
 					// so the sentinel account should have been added
 					: IsPassedProcessedCache(cacheDelta.sub<cache::AccountStateCache>().contains(Sentinel_Processor_Public_Key))
-					, CatapultState(catapultState)
+					, LastRecalculationHeight(cacheDelta.dependentState().LastRecalculationHeight)
 					, Height(height)
 			{}
 
 		public:
 			bool IsPassedProcessedCache;
-			state::CatapultState CatapultState;
+			model::ImportanceHeight LastRecalculationHeight;
 			catapult::Height Height;
 		};
 
 		class MockPreStateWritten : public test::ParamsCapture<PreStateWrittenParams>, public RaisableErrorSource {
 		public:
-			void operator()(const cache::CatapultCacheDelta& cacheDelta, const state::CatapultState& catapultState, Height height) const {
+			void operator()(const cache::CatapultCacheDelta& cacheDelta, Height height) const {
 				raise("MockPreStateWritten");
-				const_cast<MockPreStateWritten*>(this)->push(cacheDelta, catapultState, height);
+				const_cast<MockPreStateWritten*>(this)->push(cacheDelta, height);
 			}
 		};
 
@@ -368,7 +368,11 @@ namespace catapult { namespace consumers {
 			ConsumerTestContext(std::unique_ptr<io::BlockStorage>&& pStorage, std::unique_ptr<io::PrunableBlockStorage>&& pStagingStorage)
 					: Cache(test::CreateCatapultCacheWithMarkerAccount())
 					, Storage(std::move(pStorage), std::move(pStagingStorage)) {
-				State.LastRecalculationHeight = Initial_Last_Recalculation_Height;
+				{
+					auto cacheDelta = Cache.createDelta();
+					cacheDelta.dependentState().LastRecalculationHeight = Initial_Last_Recalculation_Height;
+					Cache.commit(Height(1));
+				}
 
 				BlockChainSyncHandlers handlers;
 				handlers.DifficultyChecker = [this](const auto& blocks, const auto& cache) {
@@ -383,8 +387,8 @@ namespace catapult { namespace consumers {
 				handlers.StateChange = [this](const auto& changeInfo) {
 					return StateChange(changeInfo);
 				};
-				handlers.PreStateWritten = [this](const auto& cacheDelta, const auto& catapultState, auto height) {
-					return PreStateWritten(cacheDelta, catapultState, height);
+				handlers.PreStateWritten = [this](const auto& cacheDelta, auto height) {
+					return PreStateWritten(cacheDelta, height);
 				};
 				handlers.TransactionsChange = [this](const auto& changeInfo) {
 					return TransactionsChange(changeInfo);
@@ -393,12 +397,11 @@ namespace catapult { namespace consumers {
 					return CommitStep(step);
 				};
 
-				Consumer = CreateBlockChainSyncConsumer(Cache, State, Storage, Max_Rollback_Blocks, handlers);
+				Consumer = CreateBlockChainSyncConsumer(Cache, Storage, Max_Rollback_Blocks, handlers);
 			}
 
 		public:
 			cache::CatapultCache Cache;
-			state::CatapultState State;
 			io::BlockStorageCache Storage;
 			std::vector<std::shared_ptr<model::Block>> OriginalBlocks; // original stored blocks (excluding nemesis)
 
@@ -463,7 +466,7 @@ namespace catapult { namespace consumers {
 					EXPECT_EQ(expectedUndoType, undoBlockParams.UndoBlockType) << message;
 					EXPECT_EQ(expectedHeight, undoBlockParams.LastRecalculationHeight) << message;
 					EXPECT_TRUE(undoBlockParams.IsPassedMarkedCache) << message;
-					EXPECT_EQ(i, undoBlockParams.NumDifficultyInfos) << message;
+					EXPECT_EQ(i, undoBlockParams.NumStatistics) << message;
 					++i;
 				}
 			}
@@ -480,7 +483,7 @@ namespace catapult { namespace consumers {
 				EXPECT_EQ(&input.blocks(), processorParams.pElements);
 				EXPECT_EQ(expectedHeight, processorParams.LastRecalculationHeight);
 				EXPECT_TRUE(processorParams.IsPassedMarkedCache);
-				EXPECT_EQ(numUnwoundBlocks, processorParams.NumDifficultyInfos);
+				EXPECT_EQ(numUnwoundBlocks, processorParams.NumStatistics);
 			}
 
 			void assertNoStorageChanges() {
@@ -494,14 +497,14 @@ namespace catapult { namespace consumers {
 
 				// - the cache was not committed
 				EXPECT_FALSE(Cache.sub<cache::AccountStateCache>().createView()->contains(Sentinel_Processor_Public_Key));
-				EXPECT_EQ(0u, Cache.sub<cache::BlockDifficultyCache>().createView()->size());
+				EXPECT_EQ(0u, Cache.sub<cache::BlockStatisticCache>().createView()->size());
 
 				// - no state changes were announced
 				EXPECT_EQ(0u, StateChange.params().size());
 				EXPECT_EQ(0u, PreStateWritten.params().size());
 
 				// - the state was not changed
-				EXPECT_EQ(Initial_Last_Recalculation_Height, State.LastRecalculationHeight);
+				EXPECT_EQ(Initial_Last_Recalculation_Height, Cache.createView().dependentState().LastRecalculationHeight);
 
 				// - no transaction changes were announced
 				EXPECT_EQ(0u, TransactionsChange.params().size());
@@ -531,7 +534,7 @@ namespace catapult { namespace consumers {
 				EXPECT_TRUE(Cache.sub<cache::AccountStateCache>().createView()->contains(Sentinel_Processor_Public_Key));
 				EXPECT_EQ(
 						OriginalBlocks.size() + 1 - inputHeight.unwrap() + 1,
-						Cache.sub<cache::BlockDifficultyCache>().createView()->size());
+						Cache.sub<cache::BlockStatisticCache>().createView()->size());
 				EXPECT_EQ(chainHeight, Cache.createView().height());
 
 				// - state changes were announced
@@ -545,11 +548,11 @@ namespace catapult { namespace consumers {
 				ASSERT_EQ(1u, PreStateWritten.params().size());
 				const auto& preStateWrittenParams = PreStateWritten.params()[0];
 				EXPECT_TRUE(preStateWrittenParams.IsPassedProcessedCache);
-				EXPECT_EQ(Modified_Last_Recalculation_Height, preStateWrittenParams.CatapultState.LastRecalculationHeight);
+				EXPECT_EQ(Modified_Last_Recalculation_Height, preStateWrittenParams.LastRecalculationHeight);
 				EXPECT_EQ(chainHeight, preStateWrittenParams.Height);
 
 				// - the state was actually changed
-				EXPECT_EQ(Modified_Last_Recalculation_Height, State.LastRecalculationHeight);
+				EXPECT_EQ(Modified_Last_Recalculation_Height, Cache.createView().dependentState().LastRecalculationHeight);
 
 				// - transaction changes were announced
 				EXPECT_EQ(1u, TransactionsChange.params().size());

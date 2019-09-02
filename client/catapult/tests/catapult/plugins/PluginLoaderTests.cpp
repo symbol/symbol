@@ -56,11 +56,6 @@ namespace catapult { namespace plugins {
 			}
 		}
 
-		void AssertCanLoadKnownStaticallyLinkedPlugins(const std::string& directory) {
-			// Assert:
-			AssertCanLoadPlugins(directory, model::BlockChainConfiguration::Uninitialized(), false, { "catapult.coresystem" });
-		}
-
 		void AssertCanLoadKnownDynamicallyLinkedPlugins(const std::string& directory) {
 			// Arrange:
 			auto config = model::BlockChainConfiguration::Uninitialized();
@@ -78,14 +73,6 @@ namespace catapult { namespace plugins {
 			// Act + Assert:
 			EXPECT_THROW(LoadPluginByName(manager, modules, directory, "catapult.plugins.awesome"), catapult_invalid_argument);
 		}
-	}
-
-	TEST(TEST_CLASS, CanLoadKnownStaticallyLinkedPlugins_ExplicitDirectory) {
-		AssertCanLoadKnownStaticallyLinkedPlugins(test::GetExplicitPluginsDirectory());
-	}
-
-	TEST(TEST_CLASS, CanLoadKnownStaticallyLinkedPlugins_ImplicitDirectory) {
-		AssertCanLoadKnownStaticallyLinkedPlugins("");
 	}
 
 	TEST(TEST_CLASS, CanLoadKnownDynamicallyLinkedPlugins_ExplicitDirectory) {

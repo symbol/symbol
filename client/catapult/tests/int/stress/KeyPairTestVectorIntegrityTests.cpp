@@ -34,6 +34,16 @@ namespace catapult {
 #define TEST_CLASS KeyPairTestVectorIntegrityTests
 
 	namespace {
+		crypto::PrivateKey ParsePrivateKey(const std::string& privateKeyString) {
+#ifdef SIGNATURE_SCHEME_NIS1
+			auto privateKeyBuffer = test::ToVector(privateKeyString);
+			std::reverse(privateKeyBuffer.begin(), privateKeyBuffer.end());
+			return crypto::PrivateKey::FromString(test::ToHexString(privateKeyBuffer));
+#else
+			return crypto::PrivateKey::FromString(privateKeyString);
+#endif
+		}
+
 		template<typename TLineParser, typename TAction>
 		void RunTest(const std::string& sourceFilename, TLineParser lineParser, TAction action) {
 #ifdef SIGNATURE_SCHEME_NIS1
@@ -63,7 +73,7 @@ namespace catapult {
 				return std::make_pair(KeyTestData(), false);
 
 			KeyTestData data;
-			data.PrivateKey = crypto::PrivateKey::FromString(parts[Private_Key]);
+			data.PrivateKey = ParsePrivateKey(parts[Private_Key]);
 			data.PublicKey = crypto::ParseKey(parts[Public_Key]);
 			data.Address = model::StringToAddress(parts[Address]);
 			return std::make_pair(std::move(data), true);
@@ -107,7 +117,7 @@ namespace catapult {
 			if (Max != parts.size())
 				return std::make_pair(SignTestData(crypto::PrivateKey()), false);
 
-			SignTestData data(crypto::PrivateKey::FromString(parts[Private_Key]));
+			SignTestData data(ParsePrivateKey(parts[Private_Key]));
 			utils::ParseHexStringIntoContainer(parts[Signature].c_str(), parts[Signature].size(), data.Signature);
 
 			auto numDataBytes = static_cast<size_t>(std::atoi(parts[Data_Length].c_str()));

@@ -29,7 +29,7 @@ namespace catapult { namespace io { class BlockStorageCache; } }
 namespace catapult { namespace handlers {
 
 	/// Registers a push block handler in \a handlers that validates a block and, if valid, forwards it to
-	/// \a blockRangeHandler given a \a registry composed of known transactions.
+	/// \a blockRangeHandler given a transaction \a registry composed of known transactions.
 	void RegisterPushBlockHandler(
 			ionet::ServerPacketHandlers& handlers,
 			const model::TransactionRegistry& registry,

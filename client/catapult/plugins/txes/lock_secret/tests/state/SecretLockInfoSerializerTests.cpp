@@ -38,13 +38,13 @@ namespace catapult { namespace state {
 					: PackedLockInfo(secretLockInfo)
 					, HashAlgorithm(secretLockInfo.HashAlgorithm)
 					, Secret(secretLockInfo.Secret)
-					, Recipient(secretLockInfo.Recipient)
+					, RecipientAddress(secretLockInfo.RecipientAddress)
 			{}
 
 		public:
 			model::LockHashAlgorithm HashAlgorithm;
 			Hash256 Secret;
-			catapult::Address Recipient;
+			Address RecipientAddress;
 		};
 
 #pragma pack(pop)
@@ -72,7 +72,7 @@ namespace catapult { namespace state {
 		auto lockInfo = SecretLockInfoSerializer::Load(inputStream);
 
 		// Assert: the random composite hash was not saved but recalculated during load
-		auto expectedCompositeHash = model::CalculateSecretLockInfoHash(originalLockInfo.Secret, originalLockInfo.Recipient);
+		auto expectedCompositeHash = model::CalculateSecretLockInfoHash(originalLockInfo.Secret, originalLockInfo.RecipientAddress);
 		EXPECT_EQ(expectedCompositeHash, lockInfo.CompositeHash);
 	}
 }}

@@ -53,14 +53,14 @@ namespace catapult { namespace state {
 	TEST(TEST_CLASS, CanCreateMosaicDefinition_DefaultProperties) {
 		// Arrange:
 		auto owner = test::GenerateRandomByteArray<Key>();
-		auto properties = model::MosaicProperties::FromValues({});
+		auto properties = model::MosaicProperties();
 
 		// Act:
 		MosaicDefinition definition(Height(877), owner, 3, properties);
 
 		// Assert:
-		EXPECT_EQ(Height(877), definition.height());
-		EXPECT_EQ(owner, definition.owner());
+		EXPECT_EQ(Height(877), definition.startHeight());
+		EXPECT_EQ(owner, definition.ownerPublicKey());
 		EXPECT_EQ(3u, definition.revision());
 		AssertDefaultRequiredProperties(definition.properties());
 		AssertCustomOptionalProperties(properties, definition.properties());
@@ -75,8 +75,8 @@ namespace catapult { namespace state {
 		MosaicDefinition definition(Height(877), owner, 3, properties);
 
 		// Assert:
-		EXPECT_EQ(Height(877), definition.height());
-		EXPECT_EQ(owner, definition.owner());
+		EXPECT_EQ(Height(877), definition.startHeight());
+		EXPECT_EQ(owner, definition.ownerPublicKey());
 		EXPECT_EQ(3u, definition.revision());
 		AssertDefaultRequiredProperties(definition.properties());
 		AssertCustomOptionalProperties(properties, definition.properties());

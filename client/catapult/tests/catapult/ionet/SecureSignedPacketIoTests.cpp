@@ -22,11 +22,11 @@
 #include "catapult/crypto/Hashes.h"
 #include "catapult/crypto/Signer.h"
 #include "catapult/ionet/PacketPayloadFactory.h"
-#include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/core/PacketIoTestUtils.h"
 #include "tests/test/core/PacketTestUtils.h"
 #include "tests/test/core/mocks/MockPacketIo.h"
+#include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace ionet {
@@ -124,7 +124,7 @@ namespace catapult { namespace ionet {
 		auto entities = std::vector<std::shared_ptr<model::VerifiableEntity>>{
 			test::CreateRandomEntityWithSize<>(126),
 			test::CreateRandomEntityWithSize<>(212),
-			test::CreateRandomEntityWithSize<>(134),
+			test::CreateRandomEntityWithSize<>(134)
 		};
 
 		// Act:

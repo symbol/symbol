@@ -23,24 +23,24 @@
 
 namespace catapult { namespace chain {
 
-	Difficulty CalculateDifficulty(const cache::DifficultyInfoRange& difficultyInfos, const model::BlockChainConfiguration& config) {
-		// note that difficultyInfos is sorted by both heights and timestamps, so the first info has the smallest
+	Difficulty CalculateDifficulty(const cache::BlockStatisticRange& statistics, const model::BlockChainConfiguration& config) {
+		// note that statistics is sorted by both heights and timestamps, so the first info has the smallest
 		// height and earliest timestamp and the last info has the largest height and latest timestamp
 		size_t historySize = 0;
 		Difficulty::ValueType averageDifficulty = 0;
-		for (const auto& difficultyInfo : difficultyInfos) {
+		for (const auto& statistic : statistics) {
 			++historySize;
-			averageDifficulty += difficultyInfo.BlockDifficulty.unwrap();
+			averageDifficulty += statistic.Difficulty.unwrap();
 		}
 
 		if (historySize < 2)
 			return Difficulty();
 
-		auto firstTimestamp = difficultyInfos.begin()->BlockTimestamp;
+		auto firstTimestamp = statistics.begin()->Timestamp;
 
-		const auto& lastInfo = *(--difficultyInfos.end());
-		auto lastTimestamp = lastInfo.BlockTimestamp;
-		auto lastDifficulty = lastInfo.BlockDifficulty.unwrap();
+		const auto& lastStatistic = *(--statistics.end());
+		auto lastTimestamp = lastStatistic.Timestamp;
+		auto lastDifficulty = lastStatistic.Difficulty.unwrap();
 
 		auto timeDiff = (lastTimestamp - firstTimestamp).unwrap();
 		averageDifficulty /= historySize;
@@ -62,26 +62,26 @@ namespace catapult { namespace chain {
 
 	namespace {
 		Difficulty CalculateDifficulty(
-				const cache::BlockDifficultyCacheView& view,
+				const cache::BlockStatisticCacheView& view,
 				Height height,
 				const model::BlockChainConfiguration& config) {
-			auto infos = view.difficultyInfos(height, config.MaxDifficultyBlocks);
-			return chain::CalculateDifficulty(infos, config);
+			auto statistics = view.statistics(height, config.MaxDifficultyBlocks);
+			return chain::CalculateDifficulty(statistics, config);
 		}
 	}
 
-	Difficulty CalculateDifficulty(const cache::BlockDifficultyCache& cache, Height height, const model::BlockChainConfiguration& config) {
+	Difficulty CalculateDifficulty(const cache::BlockStatisticCache& cache, Height height, const model::BlockChainConfiguration& config) {
 		auto view = cache.createView();
 		return CalculateDifficulty(*view, height, config);
 	}
 
 	bool TryCalculateDifficulty(
-			const cache::BlockDifficultyCache& cache,
+			const cache::BlockStatisticCache& cache,
 			Height height,
 			const model::BlockChainConfiguration& config,
 			Difficulty& difficulty) {
 		auto view = cache.createView();
-		if (!view->contains(state::BlockDifficultyInfo(height)))
+		if (!view->contains(state::BlockStatistic(height)))
 			return false;
 
 		difficulty = CalculateDifficulty(*view, height, config);

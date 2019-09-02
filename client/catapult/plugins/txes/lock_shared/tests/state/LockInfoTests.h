@@ -31,7 +31,7 @@ namespace catapult { namespace state {
 			// Arrange:
 			TLockInfo lockInfo;
 			lockInfo.Status = LockStatus::Unused;
-			lockInfo.Height = Height(123);
+			lockInfo.EndHeight = Height(123);
 
 			// Act + Assert:
 			EXPECT_TRUE(lockInfo.isActive(Height(122)));
@@ -47,7 +47,7 @@ namespace catapult { namespace state {
 			// Arrange:
 			TLockInfo lockInfo;
 			lockInfo.Status = LockStatus::Used;
-			lockInfo.Height = Height(123);
+			lockInfo.EndHeight = Height(123);
 
 			// Act + Assert:
 			EXPECT_FALSE(lockInfo.isActive(Height(122)));
@@ -64,7 +64,7 @@ namespace catapult { namespace state {
 			// Arrange:
 			TLockInfo lockInfo;
 			lockInfo.Status = status;
-			lockInfo.Height = Height(123);
+			lockInfo.EndHeight = Height(123);
 
 			// Act + Assert:
 			EXPECT_FALSE(lockInfo.isActive(Height(123)));

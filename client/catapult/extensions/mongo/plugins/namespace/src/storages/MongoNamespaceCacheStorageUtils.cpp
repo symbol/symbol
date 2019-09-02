@@ -34,7 +34,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		path.push_back(history.id());
 		for (const auto& rootNamespace : history) {
 			auto isActive = index == history.historyDepth() - 1;
-			auto address = model::PublicKeyToAddress(rootNamespace.owner(), networkIdentifier);
+			auto address = model::PublicKeyToAddress(rootNamespace.ownerPublicKey(), networkIdentifier);
 			auto pRoot = std::shared_ptr<const state::RootNamespace>(&rootNamespace, [](auto) {});
 			auto rootAlias = rootNamespace.alias(rootNamespace.id());
 			descriptors.emplace_back(path, rootAlias, pRoot, address, index, isActive);

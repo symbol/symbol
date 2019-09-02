@@ -19,14 +19,16 @@
 **/
 
 #include "harvesting/src/UnlockedAccounts.h"
-#include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/core/KeyPairTestUtils.h"
+#include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/nodeps/LockTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace harvesting {
 
 #define TEST_CLASS UnlockedAccountsTests
+
+	// region test utils
 
 	namespace {
 		struct KeyPairWrapper {
@@ -45,13 +47,29 @@ namespace catapult { namespace harvesting {
 
 		struct TestContext {
 		public:
-			explicit TestContext(size_t maxSize) : Accounts(maxSize)
+			explicit TestContext(size_t maxSize) : Accounts(maxSize, [this](const auto& publicKey) {
+				auto iter = CustomPrioritizationMap.find(publicKey);
+				return CustomPrioritizationMap.cend() != iter ? iter->second : 0;
+			})
 			{}
 
 		public:
 			UnlockedAccounts Accounts;
+			std::unordered_map<Key, size_t, utils::ArrayHasher<Key>> CustomPrioritizationMap;
 		};
+
+		UnlockedAccountsAddResult AddAccount(TestContext& context, crypto::KeyPair&& keyPair) {
+			return context.Accounts.modifier().add(std::move(keyPair));
+		}
+
+		UnlockedAccountsAddResult AddRandomAccount(TestContext& context) {
+			return AddAccount(context, test::GenerateKeyPair());
+		}
 	}
+
+	// endregion
+
+	// region basic ctor, add, remove
 
 	TEST(TEST_CLASS, InitiallyContainerIsEmpty) {
 		// Arrange:
@@ -73,7 +91,7 @@ namespace catapult { namespace harvesting {
 
 		// Assert:
 		auto view = accounts.view();
-		EXPECT_EQ(UnlockedAccountsAddResult::Success, result);
+		EXPECT_EQ(UnlockedAccountsAddResult::Success_New, result);
 		EXPECT_EQ(1u, view.size());
 		EXPECT_TRUE(view.contains(keyPairWrapper.PublicKey));
 	}
@@ -94,8 +112,8 @@ namespace catapult { namespace harvesting {
 
 		// Assert:
 		auto view = accounts.view();
-		EXPECT_EQ(UnlockedAccountsAddResult::Success, result1);
-		EXPECT_EQ(UnlockedAccountsAddResult::Success, result2);
+		EXPECT_EQ(UnlockedAccountsAddResult::Success_New, result1);
+		EXPECT_EQ(UnlockedAccountsAddResult::Success_Redundant, result2);
 		EXPECT_EQ(1u, view.size());
 		EXPECT_TRUE(view.contains(publicKey));
 	}
@@ -159,14 +177,37 @@ namespace catapult { namespace harvesting {
 
 		// Assert:
 		auto view = accounts.view();
-		EXPECT_EQ(UnlockedAccountsAddResult::Success, result);
+		EXPECT_EQ(UnlockedAccountsAddResult::Success_New, result);
 		EXPECT_EQ(1u, view.size());
 		EXPECT_TRUE(view.contains(keyPairWrapper.PublicKey));
 	}
 
+	// endregion
+
+	// region forEach iteration
+
 	namespace {
-		UnlockedAccountsAddResult AddAccount(TestContext& context, crypto::KeyPair&& keyPair) {
-			return context.Accounts.modifier().add(std::move(keyPair));
+		std::vector<Key> AddAccounts(TestContext& context, size_t numAccounts) {
+			std::vector<Key> publicKeys;
+			for (auto i = 0u; i < numAccounts; ++i) {
+				auto keyPair = test::GenerateKeyPair();
+				publicKeys.push_back(keyPair.publicKey());
+				AddAccount(context, std::move(keyPair));
+			}
+
+			return publicKeys;
+		}
+
+		std::vector<Key> ExtractAllPublicKeysOrdered(
+				const UnlockedAccountsView& view,
+				size_t maxPublicKeys = std::numeric_limits<size_t>::max()) {
+			std::vector<Key> publicKeys;
+			view.forEach([maxPublicKeys, &publicKeys](const auto& keyPair) {
+				publicKeys.push_back(keyPair.publicKey());
+				return publicKeys.size() < maxPublicKeys;
+			});
+
+			return publicKeys;
 		}
 	}
 
@@ -174,23 +215,65 @@ namespace catapult { namespace harvesting {
 		// Arrange:
 		TestContext context(8);
 		const auto& accounts = context.Accounts;
+		auto expectedPublicKeys = AddAccounts(context, 4);
 
-		std::set<Key> expectedPublicKeys;
-		for (auto i = 0u; i < 4; ++i) {
+		// Act:
+		auto view = accounts.view();
+		auto actualPublicKeys = ExtractAllPublicKeysOrdered(view);
+
+		// Assert:
+		EXPECT_EQ(4u, view.size());
+		EXPECT_EQ(expectedPublicKeys, actualPublicKeys);
+	}
+
+	TEST(TEST_CLASS, CanShortCircuitIterateOverAllAccounts) {
+		// Arrange:
+		TestContext context(8);
+		const auto& accounts = context.Accounts;
+
+		auto expectedPublicKeys = AddAccounts(context, 4);
+		expectedPublicKeys.pop_back();
+		expectedPublicKeys.pop_back();
+
+		// Act:
+		auto view = accounts.view();
+		auto actualPublicKeys = ExtractAllPublicKeysOrdered(view, 2);
+
+		// Assert:
+		EXPECT_EQ(4u, view.size());
+		EXPECT_EQ(2u, actualPublicKeys.size());
+		EXPECT_EQ(expectedPublicKeys, actualPublicKeys);
+	}
+
+	TEST(TEST_CLASS, ForEachReturnsAccountsInStableDecreasingOrderOfPriority) {
+		// Arrange:
+		constexpr auto Num_Accounts = 12u;
+		TestContext context(15);
+		const auto& accounts = context.Accounts;
+
+		// -     priorities: 2 1 0 2 1 0 2 1 0 2 1 0
+		// - sorted indexes: 0 4 8 1 5 9 2 6 A 3 7 B
+		std::vector<Key> expectedPublicKeys;
+		for (auto i = 0u; i < Num_Accounts; ++i) {
 			auto keyPair = test::GenerateKeyPair();
-			expectedPublicKeys.insert(keyPair.publicKey());
+			expectedPublicKeys.push_back(keyPair.publicKey());
+			context.CustomPrioritizationMap.emplace(keyPair.publicKey(), 2 - (i % 3));
 			AddAccount(context, std::move(keyPair));
 		}
 
 		// Act:
 		auto view = accounts.view();
-		std::set<Key> actualPublicKeys;
-		for (const auto& keyPair : view)
-			actualPublicKeys.insert(keyPair.publicKey());
+		auto actualPublicKeys = ExtractAllPublicKeysOrdered(view);
 
 		// Assert:
-		EXPECT_EQ(4u, view.size());
-		EXPECT_EQ(expectedPublicKeys, actualPublicKeys);
+		EXPECT_EQ(Num_Accounts, view.size());
+		EXPECT_EQ(Num_Accounts, actualPublicKeys.size());
+		for (auto i = 0u; i < Num_Accounts; ++i) {
+			auto expectedIndex = (i / 4) + 3 * (i % 4);
+			EXPECT_EQ(expectedPublicKeys[expectedIndex], actualPublicKeys[i])
+					<< "expected index = " << expectedIndex
+					<< ", actual index = " << i;
+		}
 	}
 
 	TEST(TEST_CLASS, RemovedAccountsAreNotIterated) {
@@ -198,13 +281,7 @@ namespace catapult { namespace harvesting {
 		TestContext context(8);
 		auto& accounts = context.Accounts;
 
-		std::set<Key> expectedPublicKeys;
-		for (auto i = 0u; i < 4; ++i) {
-			auto keyPair = test::GenerateKeyPair();
-			expectedPublicKeys.insert(keyPair.publicKey());
-			AddAccount(context, std::move(keyPair));
-		}
-
+		auto expectedPublicKeys = AddAccounts(context, 4);
 		{
 			auto modifier = accounts.modifier();
 			modifier.remove(*++expectedPublicKeys.cbegin());
@@ -216,20 +293,16 @@ namespace catapult { namespace harvesting {
 
 		// Act:
 		auto view = accounts.view();
-		std::set<Key> actualPublicKeys;
-		for (const auto& keyPair : view)
-			actualPublicKeys.insert(keyPair.publicKey());
+		auto actualPublicKeys = ExtractAllPublicKeysOrdered(view);
 
 		// Assert:
 		EXPECT_EQ(2u, view.size());
 		EXPECT_EQ(expectedPublicKeys, actualPublicKeys);
 	}
 
-	namespace {
-		UnlockedAccountsAddResult AddRandomAccount(TestContext& context) {
-			return AddAccount(context, test::GenerateKeyPair());
-		}
-	}
+	// endregion
+
+	// region max accounts
 
 	TEST(TEST_CLASS, CanAddMaxAccounts) {
 		// Arrange:
@@ -244,20 +317,82 @@ namespace catapult { namespace harvesting {
 		EXPECT_EQ(8u, accounts.view().size());
 	}
 
-	TEST(TEST_CLASS, CannotAddMoreThanMaxAccounts) {
+	namespace {
+		void AssertCannotAddMoreThanMaxAccounts(const std::function<size_t (size_t)>& indexToPriorityMap) {
+			// Arrange:
+			TestContext context(8);
+			const auto& accounts = context.Accounts;
+
+			std::vector<Key> expectedPublicKeys;
+			for (auto i = 0u; i < 8; ++i) {
+				auto keyPair = test::GenerateKeyPair();
+				expectedPublicKeys.push_back(keyPair.publicKey());
+				context.CustomPrioritizationMap.emplace(keyPair.publicKey(), indexToPriorityMap(i));
+				AddAccount(context, std::move(keyPair));
+			}
+
+			// Act:
+			auto keyPair = test::GenerateKeyPair();
+			context.CustomPrioritizationMap.emplace(keyPair.publicKey(), indexToPriorityMap(8));
+			auto result = AddAccount(context, std::move(keyPair));
+
+			auto view = accounts.view();
+			auto actualPublicKeys = ExtractAllPublicKeysOrdered(view);
+
+			// Assert:
+			EXPECT_EQ(UnlockedAccountsAddResult::Failure_Server_Limit, result);
+			EXPECT_EQ(8u, view.size());
+			EXPECT_EQ(expectedPublicKeys, actualPublicKeys);
+		}
+	}
+
+	TEST(TEST_CLASS, CannotAddMoreThanMaxAccounts_EqualPriority) {
+		AssertCannotAddMoreThanMaxAccounts([](auto) { return 7; });
+	}
+
+	TEST(TEST_CLASS, CannotAddMoreThanMaxAccounts_PriorityLessThan) {
+		AssertCannotAddMoreThanMaxAccounts([](auto i) { return 8 - i; });
+	}
+
+	TEST(TEST_CLASS, CannotAddMoreThanMaxAccounts_PriorityGreaterThan) {
 		// Arrange:
-		TestContext context(8);
+		constexpr auto Num_Accounts = 8u;
+		TestContext context(Num_Accounts);
 		const auto& accounts = context.Accounts;
 
-		for (auto i = 0u; i < 8; ++i)
-			AddRandomAccount(context);
+		// -     priorities: 4 3 2 1 0 4 3 2
+		// - sorted indexes: 0 2 4 6 7 1 3 5
+		std::vector<Key> expectedPublicKeys;
+		for (auto i = 0u; i < Num_Accounts; ++i) {
+			auto keyPair = test::GenerateKeyPair();
+			expectedPublicKeys.push_back(keyPair.publicKey());
+			context.CustomPrioritizationMap.emplace(keyPair.publicKey(), 4 - (i % 5));
+			AddAccount(context, std::move(keyPair));
+		}
 
 		// Act:
-		auto result = AddRandomAccount(context);
+		auto keyPair = test::GenerateKeyPair();
+		context.CustomPrioritizationMap.emplace(keyPair.publicKey(), 2);
+
+		expectedPublicKeys[4] = expectedPublicKeys[3]; // lowest is popped
+		expectedPublicKeys[3] = keyPair.publicKey(); // new key pair is second lowest
+
+		auto result = AddAccount(context, std::move(keyPair));
+
+		auto view = accounts.view();
+		auto actualPublicKeys = ExtractAllPublicKeysOrdered(view);
 
 		// Assert:
-		EXPECT_EQ(UnlockedAccountsAddResult::Failure_Server_Limit, result);
-		EXPECT_EQ(8u, accounts.view().size());
+		EXPECT_EQ(UnlockedAccountsAddResult::Success_New, result);
+		EXPECT_EQ(Num_Accounts, view.size());
+
+		auto expectedIndexes = std::vector<size_t>{ 0, 5, 1, 6, 2, 7, 3, 4 };
+		for (auto i = 0u; i < Num_Accounts; ++i) {
+			auto expectedIndex = expectedIndexes[i];
+			EXPECT_EQ(expectedPublicKeys[expectedIndex], actualPublicKeys[i])
+					<< "expected index = " << expectedIndex
+					<< ", actual index = " << i;
+		}
 	}
 
 	TEST(TEST_CLASS, RemovedAccountsDoNotCountTowardsLimit) {
@@ -280,9 +415,11 @@ namespace catapult { namespace harvesting {
 		result = AddRandomAccount(context);
 
 		// Assert:
-		EXPECT_EQ(UnlockedAccountsAddResult::Success, result);
+		EXPECT_EQ(UnlockedAccountsAddResult::Success_New, result);
 		EXPECT_EQ(8u, accounts.view().size());
 	}
+
+	// endregion
 
 	// region removeIf
 
@@ -355,7 +492,7 @@ namespace catapult { namespace harvesting {
 
 	namespace {
 		auto CreateLockProvider() {
-			return std::make_unique<UnlockedAccounts>(7);
+			return std::make_unique<UnlockedAccounts>(7, [](const auto&) { return 0; });
 		}
 	}
 

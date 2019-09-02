@@ -42,7 +42,7 @@ namespace catapult { namespace observers {
 					notification.HashAlgorithm,
 					notification.Secret,
 					resolvers.resolve(notification.Recipient));
-			lockInfo.CompositeHash = model::CalculateSecretLockInfoHash(lockInfo.Secret, lockInfo.Recipient);
+			lockInfo.CompositeHash = model::CalculateSecretLockInfoHash(lockInfo.Secret, lockInfo.RecipientAddress);
 			return lockInfo;
 		}
 	}

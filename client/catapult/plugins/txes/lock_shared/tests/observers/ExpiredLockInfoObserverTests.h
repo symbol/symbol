@@ -96,12 +96,12 @@ namespace catapult { namespace observers {
 				for (auto i = 0u; i < numLockInfos; ++i) {
 					// - lock info cache
 					auto lockInfo = CreateLockInfoWithAmount(Lock_Amount, heightGenerator(i));
-					keys.insert(lockInfo.Account);
+					keys.insert(lockInfo.SenderPublicKey);
 					lockInfoCacheDelta.insert(lockInfo);
 
 					// - account state cache
-					accountStateCache.addAccount(lockInfo.Account, Height(1));
-					credit(accountStateCache.find(lockInfo.Account).get());
+					accountStateCache.addAccount(lockInfo.SenderPublicKey, Height(1));
+					credit(accountStateCache.find(lockInfo.SenderPublicKey).get());
 				}
 
 				return keys;

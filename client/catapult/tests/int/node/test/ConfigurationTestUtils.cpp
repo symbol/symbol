@@ -40,8 +40,8 @@ namespace catapult { namespace test {
 		void SetAutoHarvesting(const std::string& configFilePath) {
 			pt::ptree properties;
 			pt::read_ini(configFilePath, properties);
-			properties.put("harvesting.isAutoHarvestingEnabled", true);
-			properties.put("harvesting.harvestKey", "3485D98EFD7EB07ADAFCFD1A157D89DE2796A95E780813C0258AF3F5F84ED8CB");
+			properties.put("harvesting.enableAutoHarvesting", true);
+			properties.put("harvesting.harvesterPrivateKey", "3485D98EFD7EB07ADAFCFD1A157D89DE2796A95E780813C0258AF3F5F84ED8CB");
 			pt::write_ini(configFilePath, properties);
 		}
 	}

@@ -37,7 +37,7 @@ namespace catapult { namespace disruptor {
 		explicit Disruptor(size_t disruptorSize, size_t elementTraceInterval = 1);
 
 	public:
-		/// Adds an \a input to the underlying container and returns the assigned disruptor element id.
+		/// Adds \a input to the underlying container and returns the assigned disruptor element id.
 		/// Once the processing of the input is complete, \a processingComplete will be called.
 		DisruptorElementId add(ConsumerInput&& input, const ProcessingCompleteFunc& processingComplete);
 

@@ -48,7 +48,7 @@ namespace catapult { namespace mongo { namespace mappers {
 			auto pTransaction = std::make_unique<ArbitraryTransaction>();
 			pTransaction->Size = sizeof(ArbitraryTransaction);
 			pTransaction->Type = Arbitrary_Transaction_Type;
-			test::FillWithRandomData(pTransaction->Signer);
+			test::FillWithRandomData(pTransaction->SignerPublicKey);
 			test::FillWithRandomData(pTransaction->Signature);
 			return pTransaction;
 		}
@@ -91,7 +91,7 @@ namespace catapult { namespace mongo { namespace mappers {
 				return {
 					CreateSingleValueDocument("sum", arbitraryTransaction.Alpha + arbitraryTransaction.Zeta),
 					CreateSingleValueDocument("diff", arbitraryTransaction.Zeta - arbitraryTransaction.Alpha),
-					CreateSingleValueDocument("prod", arbitraryTransaction.Alpha * arbitraryTransaction.Zeta),
+					CreateSingleValueDocument("prod", arbitraryTransaction.Alpha * arbitraryTransaction.Zeta)
 				};
 			}
 

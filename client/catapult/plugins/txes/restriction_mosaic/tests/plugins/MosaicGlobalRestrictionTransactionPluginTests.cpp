@@ -53,7 +53,7 @@ namespace catapult { namespace plugins {
 				EXPECT_EQ(transaction.NewRestrictionType, notification.RestrictionType);
 			});
 			builder.template addExpectation<MosaicRequiredNotification>([&transaction](const auto& notification) {
-				EXPECT_EQ(transaction.Signer, notification.Signer);
+				EXPECT_EQ(transaction.SignerPublicKey, notification.Signer);
 				EXPECT_EQ(MosaicId(), notification.MosaicId);
 				EXPECT_EQ(transaction.MosaicId, notification.UnresolvedMosaicId);
 				EXPECT_EQ(0x04u, notification.PropertyFlagMask);
@@ -90,7 +90,7 @@ namespace catapult { namespace plugins {
 			MosaicRequiredNotification::Notification_Type,
 			MosaicRestrictionRequiredNotification::Notification_Type,
 			MosaicGlobalRestrictionModificationPreviousValueNotification::Notification_Type,
-			MosaicGlobalRestrictionModificationNewValueNotification::Notification_Type,
+			MosaicGlobalRestrictionModificationNewValueNotification::Notification_Type
 		});
 	}
 
@@ -126,7 +126,7 @@ namespace catapult { namespace plugins {
 			MosaicRestrictionTypeNotification::Notification_Type,
 			MosaicRequiredNotification::Notification_Type,
 			MosaicGlobalRestrictionModificationPreviousValueNotification::Notification_Type,
-			MosaicGlobalRestrictionModificationNewValueNotification::Notification_Type,
+			MosaicGlobalRestrictionModificationNewValueNotification::Notification_Type
 		});
 	}
 

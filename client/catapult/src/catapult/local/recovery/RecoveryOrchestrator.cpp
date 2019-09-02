@@ -140,7 +140,7 @@ namespace catapult { namespace local {
 				if (heights.Cache > heights.Storage)
 					CATAPULT_THROW_RUNTIME_ERROR_2("cache height is larger than storage height", heights.Cache, heights.Storage);
 
-				if (!stateRef().Config.Node.ShouldUseCacheDatabaseStorage)
+				if (!stateRef().Config.Node.EnableCacheDatabaseStorage)
 					repairStateFromStorage(heights);
 
 				CATAPULT_LOG(info) << "loaded block chain (height = " << heights.Storage << ", score = " << m_score.get() << ")";
@@ -173,7 +173,7 @@ namespace catapult { namespace local {
 					return;
 
 				// disable load optimizations (loading from the saved state is optimization enough) in order to prevent
-				// discontinuities in block analysis (e.g. difficulty cache expects consecutive blocks)
+				// discontinuities in block analysis (e.g. statistic cache expects consecutive blocks)
 				CATAPULT_LOG(info) << "loading state - block loading required";
 				auto observerFactory = [&pluginManager = m_pluginManager](const auto&) { return pluginManager.createObserver(); };
 				auto partialScore = LoadBlockChain(observerFactory, m_pluginManager, stateRef(), heights.Cache + Height(1));
@@ -184,14 +184,14 @@ namespace catapult { namespace local {
 				// RepairState always needs to be called in order to recover broker messages
 				std::unique_ptr<subscribers::StateChangeSubscriber> pStateChangeRepairSubscriber;
 				std::unique_ptr<subscribers::StateChangeSubscriber> pDualStateChangeSubscriber;
-				if (stateRef().Config.Node.ShouldUseCacheDatabaseStorage) {
+				if (stateRef().Config.Node.EnableCacheDatabaseStorage) {
 					pStateChangeRepairSubscriber = CreateStateChangeRepairingSubscriber(stateRef().Cache, stateRef().Score);
 					pDualStateChangeSubscriber = std::make_unique<DualStateChangeSubscriber>(
 							*pStateChangeRepairSubscriber,
 							*m_pStateChangeSubscriber);
 				}
 
-				auto& repairSubscriber = stateRef().Config.Node.ShouldUseCacheDatabaseStorage
+				auto& repairSubscriber = stateRef().Config.Node.EnableCacheDatabaseStorage
 						? *pDualStateChangeSubscriber
 						: *m_pStateChangeSubscriber;
 				RepairState(m_dataDirectory.spoolDir("state_change"), stateRef().Cache, *m_pStateChangeSubscriber, repairSubscriber);
@@ -218,7 +218,7 @@ namespace catapult { namespace local {
 		private:
 			void saveStateToDisk() {
 				constexpr auto SaveStateToDirectoryWithCheckpointing = extensions::SaveStateToDirectoryWithCheckpointing;
-				SaveStateToDirectoryWithCheckpointing(m_dataDirectory, m_config.Node, m_catapultCache, m_catapultState, m_score.get());
+				SaveStateToDirectoryWithCheckpointing(m_dataDirectory, m_config.Node, m_catapultCache, m_score.get());
 			}
 
 		public:
@@ -228,7 +228,7 @@ namespace catapult { namespace local {
 
 		private:
 			extensions::LocalNodeStateRef stateRef() {
-				return extensions::LocalNodeStateRef(m_config, m_catapultState, m_catapultCache, m_storage, m_score);
+				return extensions::LocalNodeStateRef(m_config, m_catapultCache, m_storage, m_score);
 			}
 
 		private:
@@ -241,7 +241,6 @@ namespace catapult { namespace local {
 			config::CatapultDataDirectory m_dataDirectory;
 
 			cache::CatapultCache m_catapultCache;
-			state::CatapultState m_catapultState;
 			std::unique_ptr<io::BlockStorage> m_pBlockStorage;
 			io::BlockStorageCache m_storage;
 			extensions::LocalNodeChainScore m_score;

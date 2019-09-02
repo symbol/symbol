@@ -24,7 +24,7 @@
 #include "plugins/services/hashcache/src/cache/HashCacheStorage.h"
 #include "plugins/services/hashcache/src/plugins/MemoryHashCacheSystem.h"
 #include "catapult/cache/ReadOnlyCatapultCache.h"
-#include "catapult/cache_core/BlockDifficultyCache.h"
+#include "catapult/cache_core/BlockStatisticCache.h"
 #include "catapult/cache_tx/MemoryUtCache.h"
 #include "catapult/extensions/ExecutionConfigurationFactory.h"
 #include "catapult/model/EntityHasher.h"
@@ -34,6 +34,7 @@
 #include "tests/test/local/LocalTestUtils.h"
 #include "tests/test/local/RealTransactionFactory.h"
 #include "tests/test/nodeps/Filesystem.h"
+#include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/nodeps/Nemesis.h"
 #include "tests/test/nodeps/TestConstants.h"
 #include "tests/TestHarness.h"
@@ -61,7 +62,7 @@ namespace catapult { namespace harvesting {
 
 		auto CreateConfiguration() {
 			auto config = test::CreatePrototypicalBlockChainConfiguration();
-			config.ShouldEnableVerifiableState = true;
+			config.EnableVerifiableState = true;
 			return config;
 		}
 
@@ -88,7 +89,7 @@ namespace catapult { namespace harvesting {
 					, m_config(test::CreatePrototypicalCatapultConfiguration(CreateConfiguration(), ""))
 					, m_transactionsCache(cache::MemoryCacheOptions(1024, GetNumIterations() * 2))
 					, m_cache(CreateCatapultCache(m_dbDirGuard.name()))
-					, m_unlockedAccounts(100) {
+					, m_unlockedAccounts(100, [](const auto&) { return 0; }) {
 				// create the harvester
 				auto executionConfig = extensions::CreateExecutionConfiguration(*m_pPluginManager);
 				HarvestingUtFacadeFactory utFacadeFactory(m_cache, CreateConfiguration(), executionConfig);
@@ -119,9 +120,9 @@ namespace catapult { namespace harvesting {
 				pLastBlock->Timestamp = Timestamp(1);
 
 				auto cacheDelta = m_cache.createDelta();
-				auto& difficultyCache = cacheDelta.sub<cache::BlockDifficultyCache>();
-				state::BlockDifficultyInfo difficultyInfo(pLastBlock->Height, pLastBlock->Timestamp, pLastBlock->Difficulty);
-				difficultyCache.insert(difficultyInfo);
+				auto& statisticCache = cacheDelta.sub<cache::BlockStatisticCache>();
+				state::BlockStatistic statistic(*pLastBlock);
+				statisticCache.insert(statistic);
 				m_cache.commit(Height(1));
 				return pLastBlock;
 			}
@@ -162,8 +163,7 @@ namespace catapult { namespace harvesting {
 
 			void execute(const model::TransactionInfo& transactionInfo) {
 				auto cacheDelta = m_cache.createDelta();
-				auto catapultState = state::CatapultState();
-				auto observerState = observers::ObserverState(cacheDelta, catapultState);
+				auto observerState = observers::ObserverState(cacheDelta);
 
 				// 4. prepare resolvers
 				auto readOnlyCache = cacheDelta.toReadOnly();
@@ -256,7 +256,7 @@ namespace catapult { namespace harvesting {
 		EXPECT_EQ(GetNumIterations(), cacheView.sub<cache::HashCache>().size());
 	}
 
-	NO_STRESS_TEST(TEST_CLASS, HarvestIsThreadSafeWhenBlockDifficultyCacheIsChanging) {
+	NO_STRESS_TEST(TEST_CLASS, HarvestIsThreadSafeWhenBlockStatisticCacheIsChanging) {
 		// Arrange:
 		HarvesterTestContext context;
 		auto pLastBlock = context.createLastBlock();
@@ -269,23 +269,23 @@ namespace catapult { namespace harvesting {
 		boost::thread_group threads;
 		threads.create_thread([&context] {
 			for (auto i = 0u; i < GetNumIterations(); ++i) {
-				// 1. add block difficulty info and commit cache at height 2
+				// 1. add block statistic and commit cache at height 2
 				{
 					auto cacheDelta = context.cache().createDelta();
-					auto& difficultyCache = cacheDelta.sub<cache::BlockDifficultyCache>();
-					state::BlockDifficultyInfo difficultyInfo(Height(2), Timestamp(i), Difficulty());
-					difficultyCache.insert(difficultyInfo);
+					auto& statisticCache = cacheDelta.sub<cache::BlockStatisticCache>();
+					state::BlockStatistic statistic(Height(2), Timestamp(i), Difficulty(), BlockFeeMultiplier());
+					statisticCache.insert(statistic);
 					context.cache().commit(Height(2));
 				}
 
 				// 2. wait a bit
 				test::Sleep(1);
 
-				// 3. remove block difficulty info and commit cache at height 1
+				// 3. remove block statistic and commit cache at height 1
 				{
 					auto cacheDelta = context.cache().createDelta();
-					auto& difficultyCache = cacheDelta.sub<cache::BlockDifficultyCache>();
-					difficultyCache.remove(Height(2));
+					auto& statisticCache = cacheDelta.sub<cache::BlockStatisticCache>();
+					statisticCache.remove(Height(2));
 					context.cache().commit(Height(1));
 				}
 
@@ -317,7 +317,7 @@ namespace catapult { namespace harvesting {
 		auto cacheView = context.cache().createView();
 		EXPECT_LT(0u, numHarvests);
 		EXPECT_GT(GetNumIterations(), numHarvests);
-		EXPECT_EQ(1u, cacheView.sub<cache::BlockDifficultyCache>().size());
+		EXPECT_EQ(1u, cacheView.sub<cache::BlockStatisticCache>().size());
 		EXPECT_EQ(0u, cacheView.sub<cache::HashCache>().size());
 	}
 }}

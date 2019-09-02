@@ -53,12 +53,12 @@ namespace catapult { namespace plugins {
 			builder
 				.add(validators::CreateAccountRestrictionTypeValidator())
 
-				.add(validators::CreateAccountAddressRestrictionModificationTypesValidator())
+				.add(validators::CreateAccountAddressRestrictionModificationActionsValidator())
 				.add(validators::CreateAccountAddressRestrictionNoSelfModificationValidator(networkIdentifier))
 
-				.add(validators::CreateAccountMosaicRestrictionModificationTypesValidator())
+				.add(validators::CreateAccountMosaicRestrictionModificationActionsValidator())
 
-				.add(validators::CreateAccountOperationRestrictionModificationTypesValidator())
+				.add(validators::CreateAccountOperationRestrictionModificationActionsValidator())
 				.add(validators::CreateAccountOperationRestrictionModificationValuesValidator());
 		});
 

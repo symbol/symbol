@@ -70,7 +70,7 @@ namespace catapult { namespace plugins {
 		public:
 			static std::vector<model::EntityType> GetTransactionTypes() {
 				return {
-					model::Entity_Type_Register_Namespace,
+					model::Entity_Type_Namespace_Registration,
 					model::Entity_Type_Alias_Address,
 					model::Entity_Type_Alias_Mosaic
 				};
@@ -94,7 +94,7 @@ namespace catapult { namespace plugins {
 
 			static std::vector<std::string> GetStatelessValidatorNames() {
 				return {
-					"NamespaceTypeValidator",
+					"NamespaceRegistrationTypeValidator",
 					"NamespaceNameValidator",
 					"RootNamespaceValidator",
 					"AliasActionValidator"

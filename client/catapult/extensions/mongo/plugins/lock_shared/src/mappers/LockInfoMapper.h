@@ -35,34 +35,26 @@ namespace catapult { namespace mongo { namespace plugins {
 		// region ToDbModel
 
 	private:
-		static void StreamLockMetadata(mappers::bson_stream::document& builder) {
-			builder << "meta" << mappers::bson_stream::open_document << mappers::bson_stream::close_document;
-		}
-
 		static void StreamLockInfo(
 				mappers::bson_stream::document& builder,
 				const state::LockInfo& lockInfo,
-				const Address& accountAddress) {
+				const Address& senderAddress) {
 			using namespace catapult::mongo::mappers;
 
 			builder
-					<< "account" << ToBinary(lockInfo.Account)
-					<< "accountAddress" << ToBinary(accountAddress)
+					<< "senderPublicKey" << ToBinary(lockInfo.SenderPublicKey)
+					<< "senderAddress" << ToBinary(senderAddress)
 					<< "mosaicId" << ToInt64(lockInfo.MosaicId)
 					<< "amount" << ToInt64(lockInfo.Amount)
-					<< "height" << ToInt64(lockInfo.Height)
+					<< "endHeight" << ToInt64(lockInfo.EndHeight)
 					<< "status" << utils::to_underlying_type(lockInfo.Status);
 		}
 
 	public:
-		static bsoncxx::document::value ToDbModel(const LockInfoType& lockInfo, const Address& accountAddress) {
-			// lock metadata
+		static bsoncxx::document::value ToDbModel(const LockInfoType& lockInfo, const Address& senderAddress) {
 			mappers::bson_stream::document builder;
-			StreamLockMetadata(builder);
-
-			// lock data
 			auto doc = builder << "lock" << mappers::bson_stream::open_document;
-			StreamLockInfo(builder, lockInfo, accountAddress);
+			StreamLockInfo(builder, lockInfo, senderAddress);
 			TTraits::StreamLockInfo(builder, lockInfo);
 			return doc
 					<< mappers::bson_stream::close_document

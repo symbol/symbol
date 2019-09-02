@@ -66,7 +66,7 @@ namespace catapult { namespace validators {
 				return ValidationResult::Success;
 
 			// 3. if it's NOT transferable then owner must be either sender or recipient
-			if (!IsMosaicOwnerParticipant(context.Cache, entry.definition().owner(), notification, context.Resolvers))
+			if (!IsMosaicOwnerParticipant(context.Cache, entry.definition().ownerPublicKey(), notification, context.Resolvers))
 				return Failure_Mosaic_Non_Transferable;
 
 			return ValidationResult::Success;

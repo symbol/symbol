@@ -32,7 +32,7 @@ namespace catapult { namespace test {
 				static_cast<model::LockHashAlgorithm>(RandomByte()),
 				GenerateRandomByteArray<Hash256>(),
 				GenerateRandomByteArray<Address>());
-		lockInfo.CompositeHash = model::CalculateSecretLockInfoHash(lockInfo.Secret, lockInfo.Recipient);
+		lockInfo.CompositeHash = model::CalculateSecretLockInfoHash(lockInfo.Secret, lockInfo.RecipientAddress);
 		return lockInfo;
 	}
 
@@ -48,7 +48,7 @@ namespace catapult { namespace test {
 		test::AssertEqualLockInfo(lhs, rhs);
 		EXPECT_EQ(lhs.HashAlgorithm, rhs.HashAlgorithm);
 		EXPECT_EQ(lhs.Secret, rhs.Secret);
-		EXPECT_EQ(lhs.Recipient, rhs.Recipient);
+		EXPECT_EQ(lhs.RecipientAddress, rhs.RecipientAddress);
 		EXPECT_EQ(lhs.CompositeHash, rhs.CompositeHash);
 	}
 }}

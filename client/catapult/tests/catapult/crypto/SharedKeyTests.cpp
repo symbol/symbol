@@ -21,6 +21,7 @@
 #include "catapult/crypto/SharedKey.h"
 #include "catapult/crypto/KeyUtils.h"
 #include "catapult/utils/HexParser.h"
+#include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace crypto {
@@ -30,12 +31,12 @@ namespace catapult { namespace crypto {
 	TEST(TEST_CLASS, PassesTestVector) {
 		// Arrange: private key used is the one from KeyPairTests
 #ifdef SIGNATURE_SCHEME_NIS1
-		auto rawKeyString = std::string("575DBB3062267EFF57C970A336EBBC8FBCFE12C5BD3ED7BC11EB0481D7704CED");
 		auto expectedSharedKey = utils::ParseByteArray<SharedKey>("E9BF812E9E29B1D4C8D01E3DA11EAB3715A582CD2AA66EABBDAFEA7DFB9B2422");
 #else
-		auto rawKeyString = std::string("ED4C70D78104EB11BCD73EBDC512FEBC8FBCEB36A370C957FF7E266230BB5D57");
 		auto expectedSharedKey = utils::ParseByteArray<SharedKey>("3B3524D2E92F89423456E43A3FD25C52C71CA4C680C32F022C23506BB23BDB0C");
 #endif
+
+		auto rawKeyString = std::string("ED4C70D78104EB11BCD73EBDC512FEBC8FBCEB36A370C957FF7E266230BB5D57");
 		auto keyPair = KeyPair::FromString(rawKeyString);
 		auto otherPublicKey = ParseKey("0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF");
 		auto salt = utils::ParseByteArray<Salt>("C06B2CC5D7B66900B2493CF68BE10B7AA8690D973B7F0B65D0DAE4F7AA464716");
@@ -59,9 +60,9 @@ namespace catapult { namespace crypto {
 		void AssertDeriveSharedKey(
 				const consumer<Key&, Key&, Salt&>& mutate,
 				const consumer<const SharedKey&, const SharedKey&>& assertKeys) {
-			// Arrange:
+			// Arrange: the public key needs to be valid, else unpacking will fail
 			auto privateKey1 = test::GenerateRandomByteArray<Key>();
-			auto otherPublicKey1 = test::GenerateRandomByteArray<Key>();
+			auto otherPublicKey1 = test::GenerateKeyPair().publicKey();
 			auto salt1 = test::GenerateRandomByteArray<Salt>();
 
 			auto privateKey2 = privateKey1;
@@ -131,5 +132,20 @@ namespace catapult { namespace crypto {
 
 		// Assert:
 		EXPECT_EQ(sharedKey2, sharedKey1);
+	}
+
+	TEST(TEST_CLASS, PublicKeyNotOnTheCurveResultsInZeroSharedKey) {
+		// Arrange:
+		auto keyPair = test::GenerateKeyPair();
+		Key publicKey{};
+		publicKey[Key::Size - 1] = 1; // not on the curve
+
+		auto salt = test::GenerateRandomByteArray<Salt>();
+
+		// Act:
+		auto sharedKey = DeriveSharedKey(keyPair, publicKey, salt);
+
+		// Assert:
+		EXPECT_EQ(SharedKey(), sharedKey);
 	}
 }}

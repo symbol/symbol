@@ -24,7 +24,10 @@
 
 namespace catapult {
 	namespace config { class CatapultConfiguration; }
-	namespace model { struct BlockElement; }
+	namespace model {
+		struct BlockElement;
+		struct BlockStatement;
+	}
 }
 
 namespace catapult { namespace tools { namespace nemgen {
@@ -48,6 +51,9 @@ namespace catapult { namespace tools { namespace nemgen {
 
 		/// Textual summary including sub cache hashes.
 		std::string Summary;
+
+		/// Block statement.
+		std::unique_ptr<model::BlockStatement> pBlockStatement;
 	};
 
 	/// Calculates and logs the nemesis block execution dependent hashes after executing nemesis \a blockElement

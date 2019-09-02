@@ -37,7 +37,7 @@ namespace catapult { namespace validators {
 		} else {
 			// only main accounts can unlink (not remotes)
 			if (state::AccountType::Main != accountState.AccountType)
-				return Failure_AccountLink_Link_Does_Not_Exist;
+				return Failure_AccountLink_Unknown_Link;
 
 			if (notification.RemoteAccountKey != accountState.LinkedAccountKey)
 				return Failure_AccountLink_Unlink_Data_Inconsistency;

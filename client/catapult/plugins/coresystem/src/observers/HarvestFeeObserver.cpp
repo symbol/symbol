@@ -55,7 +55,7 @@ namespace catapult { namespace observers {
 		}
 
 		bool ShouldShareFees(const Key& signer, const Key& harvesterBeneficiary, uint8_t harvestBeneficiaryPercentage) {
-			return 0u < harvestBeneficiaryPercentage && Key() != harvesterBeneficiary && signer != harvesterBeneficiary;
+			return 0u < harvestBeneficiaryPercentage && signer != harvesterBeneficiary;
 		}
 	}
 

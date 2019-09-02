@@ -27,8 +27,7 @@ namespace catapult { namespace model { class TransactionRegistry; } }
 namespace catapult { namespace validators {
 
 	/// A stateless notification validator to entity validator adapter.
-	/// \note This adapter intentionally only supports stateless validators.
-	class NotificationValidatorAdapter : public stateless::EntityValidator {
+	class NotificationValidatorAdapter : public StatelessEntityValidator {
 	private:
 		using NotificationValidatorPointer = std::unique_ptr<const stateless::NotificationValidator>;
 		using NotificationPublisherPointer = std::unique_ptr<const model::NotificationPublisher>;
@@ -38,6 +37,10 @@ namespace catapult { namespace validators {
 		NotificationValidatorAdapter(NotificationValidatorPointer&& pValidator, NotificationPublisherPointer&& pPublisher);
 
 	public:
+		/// Sets a notification type exclusion \a filter.
+		void setExclusionFilter(const predicate<model::NotificationType>& filter);
+
+	public:
 		const std::string& name() const override;
 
 		ValidationResult validate(const model::WeakEntityInfo& entityInfo) const override;
@@ -45,5 +48,6 @@ namespace catapult { namespace validators {
 	private:
 		NotificationValidatorPointer m_pValidator;
 		NotificationPublisherPointer m_pPublisher;
+		predicate<model::NotificationType> m_exclusionFilter;
 	};
 }}

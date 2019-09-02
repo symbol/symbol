@@ -36,7 +36,7 @@ namespace catapult { namespace partialtransaction {
 						"partialtransactions",
 						{
 							{ "cacheMaxResponseSize", "234KB" },
-							{ "cacheMaxSize", "98'763" },
+							{ "cacheMaxSize", "98'763" }
 						}
 					}
 				};

@@ -19,19 +19,11 @@
 **/
 
 #pragma once
-#include "catapult/crypto/KeyPair.h"
-#include "catapult/crypto/PrivateKey.h"
 #include "catapult/model/ContainerTypes.h"
 #include "catapult/model/NetworkInfo.h"
 #include <memory>
 
 namespace catapult { namespace test {
-
-	/// Generates a random private key.
-	crypto::PrivateKey GenerateRandomPrivateKey();
-
-	/// Generates a random key pair.
-	crypto::KeyPair GenerateKeyPair();
 
 	/// Generates a random address.
 	Address GenerateRandomAddress();

@@ -29,7 +29,7 @@ namespace catapult { namespace validators {
 #define TEST_CLASS NotificationValidatorAdapterTests
 
 	namespace {
-		ValidationResult ValidateEntity(const stateless::EntityValidator& validator, const model::VerifiableEntity& entity) {
+		ValidationResult ValidateEntity(const StatelessEntityValidator& validator, const model::VerifiableEntity& entity) {
 			Hash256 hash;
 			return validator.validate(model::WeakEntityInfo(entity, hash));
 		}
@@ -110,23 +110,69 @@ namespace catapult { namespace validators {
 
 			// Assert: the mock transaction plugin sends additional public key notification and 6 custom notifications
 			//         (notice that only 4/6 are raised on validator channel)
-			ASSERT_EQ(6u + 4u, validator.notificationTypes().size());
-			EXPECT_EQ(model::Core_Entity_Notification, validator.notificationTypes()[0]);
-			EXPECT_EQ(model::Core_Transaction_Notification, validator.notificationTypes()[1]);
-			EXPECT_EQ(model::Core_Transaction_Deadline_Notification, validator.notificationTypes()[2]);
-			EXPECT_EQ(model::Core_Transaction_Fee_Notification, validator.notificationTypes()[3]);
-			EXPECT_EQ(model::Core_Balance_Debit_Notification, validator.notificationTypes()[4]);
-			EXPECT_EQ(model::Core_Signature_Notification, validator.notificationTypes()[5]);
+			EXPECT_EQ(8u + 4u, validator.notificationTypes().size());
 
-			// - mock transaction notifications
-			EXPECT_EQ(mocks::Mock_Validator_1_Notification, validator.notificationTypes()[6]);
-			EXPECT_EQ(mocks::Mock_All_1_Notification, validator.notificationTypes()[7]);
-			EXPECT_EQ(mocks::Mock_Validator_2_Notification, validator.notificationTypes()[8]);
-			EXPECT_EQ(mocks::Mock_All_2_Notification, validator.notificationTypes()[9]);
+			std::vector<model::NotificationType> expectedNotificationTypes{
+				model::Core_Register_Account_Public_Key_Notification,
+				model::Core_Entity_Notification,
+				model::Core_Transaction_Notification,
+				model::Core_Transaction_Deadline_Notification,
+				model::Core_Transaction_Fee_Notification,
+				model::Core_Balance_Debit_Notification,
+				model::Core_Signature_Notification,
+
+				// mock transaction notifications
+				model::Core_Register_Account_Public_Key_Notification,
+				mocks::Mock_Validator_1_Notification,
+				mocks::Mock_All_1_Notification,
+				mocks::Mock_Validator_2_Notification,
+				mocks::Mock_All_2_Notification
+			};
+			EXPECT_EQ(expectedNotificationTypes, validator.notificationTypes());
 
 			// - spot check the signer keys as a proxy for verifying data integrity
 			ASSERT_EQ(1u, validator.signerKeys().size());
-			EXPECT_EQ(pTransaction->Signer, validator.signerKeys()[0]);
+			EXPECT_EQ(pTransaction->SignerPublicKey, validator.signerKeys()[0]);
+		});
+	}
+
+	TEST(TEST_CLASS, ExtractsAndForwardsNotificationsFromEntityRespectingNotificationTypeExclusionFilter) {
+		// Arrange: ignore 7 validation notifications
+		RunTest(ValidationResult::Success, [](auto& adapter, const auto& validator) {
+			std::unordered_set<model::NotificationType> excludedNotificationTypes{
+				model::Core_Register_Account_Public_Key_Notification,
+				model::Core_Entity_Notification,
+				model::Core_Transaction_Notification,
+				model::Core_Transaction_Deadline_Notification,
+				model::Core_Transaction_Fee_Notification,
+				mocks::Mock_Validator_2_Notification,
+				mocks::Mock_All_2_Notification
+			};
+
+			adapter.setExclusionFilter([&excludedNotificationTypes](auto notificationType) {
+				return excludedNotificationTypes.cend() != excludedNotificationTypes.find(notificationType);
+			});
+
+			// Act:
+			auto pTransaction = mocks::CreateMockTransaction(0);
+			ValidateEntity(adapter, *pTransaction);
+
+			// Assert:
+			EXPECT_EQ(12u - 8u, validator.notificationTypes().size());
+
+			std::vector<model::NotificationType> expectedNotificationTypes{
+				model::Core_Balance_Debit_Notification,
+				model::Core_Signature_Notification,
+
+				// mock transaction notifications
+				mocks::Mock_Validator_1_Notification,
+				mocks::Mock_All_1_Notification
+			};
+			EXPECT_EQ(expectedNotificationTypes, validator.notificationTypes());
+
+			// - spot check the signer keys as a proxy for verifying data integrity
+			ASSERT_EQ(1u, validator.signerKeys().size());
+			EXPECT_EQ(pTransaction->SignerPublicKey, validator.signerKeys()[0]);
 		});
 	}
 
@@ -147,12 +193,12 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, DelegatesWhenTypeMatches_Success) {
 		// Assert: all notifications should be processed
-		AssertMockTransactionValidation(ValidationResult::Success, 10);
+		AssertMockTransactionValidation(ValidationResult::Success, 12);
 	}
 
 	TEST(TEST_CLASS, DelegatesWhenTypeMatches_Neutral) {
 		// Assert: all notifications should be processed
-		AssertMockTransactionValidation(ValidationResult::Neutral, 10);
+		AssertMockTransactionValidation(ValidationResult::Neutral, 12);
 	}
 
 	TEST(TEST_CLASS, DelegatesWhenTypeMatches_Failure) {

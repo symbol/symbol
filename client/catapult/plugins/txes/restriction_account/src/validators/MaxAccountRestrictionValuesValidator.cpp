@@ -37,7 +37,7 @@ namespace catapult { namespace validators {
 				size_t modificationsCount) {
 			ModificationCounters modificationCounters;
 			for (auto i = 0u; i < modificationsCount; ++i) {
-				if (model::AccountRestrictionModificationType::Add == pModifications[i].ModificationType)
+				if (model::AccountRestrictionModificationAction::Add == pModifications[i].ModificationAction)
 					++modificationCounters.NumAdds;
 				else
 					++modificationCounters.NumDeletes;

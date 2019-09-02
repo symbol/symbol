@@ -37,7 +37,7 @@ namespace catapult { namespace observers {
 		constexpr MosaicId Default_Mosaic_Id(345);
 
 		void AssertSupplyChange(
-				model::MosaicSupplyChangeDirection direction,
+				model::MosaicSupplyChangeAction action,
 				NotifyMode mode,
 				Amount initialSupply,
 				Amount initialOwnerSupply,
@@ -48,7 +48,7 @@ namespace catapult { namespace observers {
 			auto pObserver = CreateMosaicSupplyChangeObserver();
 
 			auto signer = test::GenerateRandomByteArray<Key>();
-			model::MosaicSupplyChangeNotification notification(signer, test::UnresolveXor(Default_Mosaic_Id), direction, delta);
+			model::MosaicSupplyChangeNotification notification(signer, test::UnresolveXor(Default_Mosaic_Id), action, delta);
 
 			// - initialize cache with a mosaic supply
 			ObserverTestContext context(mode, Height(888));
@@ -67,30 +67,30 @@ namespace catapult { namespace observers {
 			EXPECT_EQ(finalOwnerSupply, accountStateCacheDelta.find(signerAddress).get().Balances.get(Default_Mosaic_Id));
 		}
 
-		void AssertSupplyIncrease(model::MosaicSupplyChangeDirection direction, NotifyMode mode) {
+		void AssertSupplyIncrease(model::MosaicSupplyChangeAction action, NotifyMode mode) {
 			// Assert:
-			AssertSupplyChange(direction, mode, Amount(500), Amount(222), Amount(123), Amount(500 + 123), Amount(222 + 123));
+			AssertSupplyChange(action, mode, Amount(500), Amount(222), Amount(123), Amount(500 + 123), Amount(222 + 123));
 		}
 
-		void AssertSupplyDecrease(model::MosaicSupplyChangeDirection direction, NotifyMode mode) {
+		void AssertSupplyDecrease(model::MosaicSupplyChangeAction action, NotifyMode mode) {
 			// Assert:
-			AssertSupplyChange(direction, mode, Amount(500), Amount(222), Amount(123), Amount(500 - 123), Amount(222 - 123));
+			AssertSupplyChange(action, mode, Amount(500), Amount(222), Amount(123), Amount(500 - 123), Amount(222 - 123));
 		}
 	}
 
 	TEST(TEST_CLASS, IncreaseCommitIncreasesSupply) {
-		AssertSupplyIncrease(model::MosaicSupplyChangeDirection::Increase, NotifyMode::Commit);
+		AssertSupplyIncrease(model::MosaicSupplyChangeAction::Increase, NotifyMode::Commit);
 	}
 
 	TEST(TEST_CLASS, DecreaseCommitDecreasesSupply) {
-		AssertSupplyDecrease(model::MosaicSupplyChangeDirection::Decrease, NotifyMode::Commit);
+		AssertSupplyDecrease(model::MosaicSupplyChangeAction::Decrease, NotifyMode::Commit);
 	}
 
 	TEST(TEST_CLASS, IncreaseRollbackDecreasesSupply) {
-		AssertSupplyDecrease(model::MosaicSupplyChangeDirection::Increase, NotifyMode::Rollback);
+		AssertSupplyDecrease(model::MosaicSupplyChangeAction::Increase, NotifyMode::Rollback);
 	}
 
 	TEST(TEST_CLASS, DecreaseRollbackIncreasesSupply) {
-		AssertSupplyIncrease(model::MosaicSupplyChangeDirection::Decrease, NotifyMode::Rollback);
+		AssertSupplyIncrease(model::MosaicSupplyChangeAction::Decrease, NotifyMode::Rollback);
 	}
 }}

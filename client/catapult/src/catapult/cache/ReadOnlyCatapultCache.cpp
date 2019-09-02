@@ -23,6 +23,12 @@
 
 namespace catapult { namespace cache {
 
-	ReadOnlyCatapultCache::ReadOnlyCatapultCache(const std::vector<const void*>& readOnlyViews) : m_readOnlyViews(readOnlyViews)
+	ReadOnlyCatapultCache::ReadOnlyCatapultCache(const state::CatapultState& dependentState, const std::vector<const void*>& readOnlyViews)
+			: m_dependentState(dependentState)
+			, m_readOnlyViews(readOnlyViews)
 	{}
+
+	const state::CatapultState& ReadOnlyCatapultCache::dependentState() const {
+		return m_dependentState;
+	}
 }}

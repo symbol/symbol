@@ -39,13 +39,13 @@ namespace catapult { namespace state {
 		SecretLockInfo lockInfo(account, MosaicId(123), Amount(234), Height(345), algorithm, secret, recipient);
 
 		// Assert:
-		EXPECT_EQ(account, lockInfo.Account);
+		EXPECT_EQ(account, lockInfo.SenderPublicKey);
 		EXPECT_EQ(MosaicId(123), lockInfo.MosaicId);
 		EXPECT_EQ(Amount(234), lockInfo.Amount);
-		EXPECT_EQ(Height(345), lockInfo.Height);
+		EXPECT_EQ(Height(345), lockInfo.EndHeight);
 		EXPECT_EQ(model::LockHashAlgorithm::Op_Hash_160, lockInfo.HashAlgorithm);
 		EXPECT_EQ(secret, lockInfo.Secret);
-		EXPECT_EQ(recipient, lockInfo.Recipient);
+		EXPECT_EQ(recipient, lockInfo.RecipientAddress);
 		EXPECT_EQ(Hash256(), lockInfo.CompositeHash);
 	}
 }}

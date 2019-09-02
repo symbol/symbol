@@ -148,7 +148,7 @@ namespace catapult { namespace validators {
 
 		// Act:
 		AssertValidationResult<test::AllowTraits>(
-				Failure_RestrictionAccount_Address_Interaction_Not_Allowed,
+				Failure_RestrictionAccount_Address_Interaction_Prohibited,
 				cacheContents,
 				TDirectionTraits::Restriction_Type,
 				pair.first,
@@ -165,7 +165,7 @@ namespace catapult { namespace validators {
 
 		// Act:
 		AssertValidationResult<test::BlockTraits>(
-				Failure_RestrictionAccount_Address_Interaction_Not_Allowed,
+				Failure_RestrictionAccount_Address_Interaction_Prohibited,
 				cacheContents,
 				TDirectionTraits::Restriction_Type,
 				pair.first,

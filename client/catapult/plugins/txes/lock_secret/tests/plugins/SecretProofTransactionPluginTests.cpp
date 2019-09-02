@@ -72,10 +72,10 @@ namespace catapult { namespace plugins {
 			EXPECT_EQ_MEMORY(transaction.ProofPtr(), notification.Proof.pData, notification.Proof.Size);
 		});
 		builder.template addExpectation<ProofPublicationNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(transaction.Signer, notification.Signer);
+			EXPECT_EQ(transaction.SignerPublicKey, notification.Signer);
 			EXPECT_EQ(transaction.HashAlgorithm, notification.HashAlgorithm);
 			EXPECT_EQ(transaction.Secret, notification.Secret);
-			EXPECT_EQ(transaction.Recipient, notification.Recipient);
+			EXPECT_EQ(transaction.RecipientAddress, notification.Recipient);
 		});
 
 		// Act + Assert:

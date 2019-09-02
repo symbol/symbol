@@ -44,11 +44,17 @@ namespace catapult { namespace consumers {
 			const HashCheckOptions& options,
 			const chain::KnownHashPredicate& knownHashPredicate);
 
-	/// Creates a consumer that runs stateless validation using \a pValidator and the specified policy
-	/// (\a pValidationPolicy) and calls \a failedTransactionSink for each failure.
+	/// Creates a consumer that runs stateless validation using \a pValidationPolicy and calls \a failedTransactionSink for each failure.
 	disruptor::TransactionConsumer CreateTransactionStatelessValidationConsumer(
-			const std::shared_ptr<const validators::stateless::AggregateEntityValidator>& pValidator,
 			const std::shared_ptr<const validators::ParallelValidationPolicy>& pValidationPolicy,
+			const chain::FailedTransactionSink& failedTransactionSink);
+
+	/// Creates a consumer that runs batch signature validation using \a pPublisher and \a pPool for the network with the specified
+	/// generation hash (\a generationHash) and calls \a failedTransactionSink for each failure.
+	disruptor::TransactionConsumer CreateTransactionBatchSignatureConsumer(
+			const GenerationHash& generationHash,
+			const std::shared_ptr<model::NotificationPublisher>& pPublisher,
+			const std::shared_ptr<thread::IoThreadPool>& pPool,
 			const chain::FailedTransactionSink& failedTransactionSink);
 
 	/// Prototype for a function that is called with new transactions.

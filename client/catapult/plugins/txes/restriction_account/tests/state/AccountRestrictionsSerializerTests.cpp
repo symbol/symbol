@@ -120,7 +120,7 @@ namespace catapult { namespace state {
 			static void AddKeys(AccountRestrictions& restrictions, const std::vector<Address>& addresses) {
 				auto& restriction = restrictions.restriction(model::AccountRestrictionType::Address);
 				for (const auto& address : addresses)
-					restriction.allow({ model::AccountRestrictionModificationType::Add, ToVector(address) });
+					restriction.allow({ model::AccountRestrictionModificationAction::Add, ToVector(address) });
 			}
 
 			static constexpr size_t GetKeyStartBufferOffset() {
@@ -171,7 +171,7 @@ namespace catapult { namespace state {
 		void AssertOrderedRestrictions() {
 			// Arrange: make address restriction Block and mosaic restriction Allow
 			// - empty restrictions always have Block flag set
-			constexpr auto Add = model::AccountRestrictionModificationType::Add;
+			constexpr auto Add = model::AccountRestrictionModificationAction::Add;
 			AccountRestrictions restrictions(test::GenerateRandomByteArray<Address>());
 			model::RawAccountRestrictionModification modification{ Add, test::GenerateRandomVector(sizeof(MosaicId)) };
 			restrictions.restriction(model::AccountRestrictionType::MosaicId).allow(modification);

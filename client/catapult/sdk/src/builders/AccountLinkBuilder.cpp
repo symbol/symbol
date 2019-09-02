@@ -24,12 +24,12 @@ namespace catapult { namespace builders {
 
 	AccountLinkBuilder::AccountLinkBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
 			: TransactionBuilder(networkIdentifier, signer)
-			, m_remoteAccountKey()
+			, m_remotePublicKey()
 			, m_linkAction()
 	{}
 
-	void AccountLinkBuilder::setRemoteAccountKey(const Key& remoteAccountKey) {
-		m_remoteAccountKey = remoteAccountKey;
+	void AccountLinkBuilder::setRemotePublicKey(const Key& remotePublicKey) {
+		m_remotePublicKey = remotePublicKey;
 	}
 
 	void AccountLinkBuilder::setLinkAction(model::AccountLinkAction linkAction) {
@@ -61,7 +61,7 @@ namespace catapult { namespace builders {
 		auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
 
 		// 2. set fixed transaction fields
-		pTransaction->RemoteAccountKey = m_remoteAccountKey;
+		pTransaction->RemotePublicKey = m_remotePublicKey;
 		pTransaction->LinkAction = m_linkAction;
 
 		return pTransaction;

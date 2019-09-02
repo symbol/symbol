@@ -40,7 +40,7 @@ namespace catapult { namespace cache {
 		using Iteration = PrimaryMixins::Iteration;
 		using PatriciaTreeView = PrimaryMixins::PatriciaTreeView;
 
-		using NamespaceDeepSize = NamespaceDeepSizeMixin<NamespaceCacheTypes::PrimaryTypes::BaseSetType>;
+		using NamespaceDeepSize = NamespaceDeepSizeMixin;
 		using NamespaceLookup = NamespaceLookupMixin<
 			NamespaceCacheTypes::PrimaryTypes::BaseSetType,
 			NamespaceCacheTypes::FlatMapTypes::BaseSetType>;

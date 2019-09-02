@@ -101,7 +101,7 @@ namespace catapult { namespace model {
 		catapult::Timestamp Timestamp;
 	};
 
-	/// Creates an unsigned Block given a \a context, signer public key (\a signerPublicKey) and \a transactions
+	/// Creates an unsigned Block given \a context, signer public key (\a signerPublicKey) and \a transactions
 	/// for a network with identifier \a networkIdentifier.
 	std::unique_ptr<Block> CreateBlock(
 			const PreviousBlockContext& context,

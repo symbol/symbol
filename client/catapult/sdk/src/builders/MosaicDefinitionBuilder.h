@@ -21,7 +21,6 @@
 #pragma once
 #include "TransactionBuilder.h"
 #include "plugins/txes/mosaic/src/model/MosaicDefinitionTransaction.h"
-#include <vector>
 
 namespace catapult { namespace builders {
 
@@ -37,8 +36,8 @@ namespace catapult { namespace builders {
 		MosaicDefinitionBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
 
 	public:
-		/// Sets the mosaic nonce to \a mosaicNonce.
-		void setMosaicNonce(MosaicNonce mosaicNonce);
+		/// Sets the mosaic nonce to \a nonce.
+		void setNonce(MosaicNonce nonce);
 
 		/// Sets the mosaic flags to \a flags.
 		void setFlags(model::MosaicFlags flags);
@@ -46,8 +45,8 @@ namespace catapult { namespace builders {
 		/// Sets the mosaic divisibility to \a divisibility.
 		void setDivisibility(uint8_t divisibility);
 
-		/// Adds \a property to optional properties.
-		void addProperty(const model::MosaicProperty& property);
+		/// Sets the mosaic duration to \a duration.
+		void setDuration(BlockDuration duration);
 
 	public:
 		/// Returns size of mosaic definition transaction.
@@ -68,10 +67,10 @@ namespace catapult { namespace builders {
 		std::unique_ptr<TTransaction> buildImpl() const;
 
 	private:
-		MosaicNonce m_mosaicNonce;
-		MosaicId m_mosaicId;
+		MosaicNonce m_nonce;
+		MosaicId m_id;
 		model::MosaicFlags m_flags;
 		uint8_t m_divisibility;
-		std::vector<model::MosaicProperty> m_properties;
+		BlockDuration m_duration;
 	};
 }}

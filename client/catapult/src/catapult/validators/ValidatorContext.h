@@ -31,7 +31,7 @@ namespace catapult { namespace validators {
 	/// Contextual information passed to stateful validators.
 	struct ValidatorContext {
 	public:
-		/// Creates a validator context around a \a height, \a blockTime, \a network, \a resolvers and \a cache.
+		/// Creates a validator context around \a height, \a blockTime, \a network, \a resolvers and \a cache.
 		ValidatorContext(
 				catapult::Height height,
 				Timestamp blockTime,

@@ -19,7 +19,7 @@
 **/
 
 #include "MongoChainScoreProvider.h"
-#include "MongoChainInfoUtils.h"
+#include "MongoChainStatisticUtils.h"
 #include "mappers/MapperUtils.h"
 #include "catapult/model/ChainScore.h"
 
@@ -32,21 +32,20 @@ namespace catapult { namespace mongo {
 		public:
 			explicit MongoChainScoreProvider(MongoStorageContext& context)
 					: m_database(context.createDatabaseConnection())
-					, m_errorPolicy(context.createCollectionErrorPolicy("chainInfo"))
+					, m_errorPolicy(context.createCollectionErrorPolicy("chainStatistic"))
 			{}
 
 		public:
 			void saveScore(const model::ChainScore& chainScore) override {
 				auto scoreArray = chainScore.toArray();
 				auto scoreValue = document()
-						<< "$set"
-						<< open_document
-							<< "scoreHigh" << static_cast<int64_t>(scoreArray[0])
-							<< "scoreLow" << static_cast<int64_t>(scoreArray[1])
+						<< "$set" << open_document
+							<< "current.scoreHigh" << static_cast<int64_t>(scoreArray[0])
+							<< "current.scoreLow" << static_cast<int64_t>(scoreArray[1])
 						<< close_document
 						<< finalize;
 
-				auto result = TrySetChainInfoDocument(m_database, scoreValue.view());
+				auto result = TrySetChainStatisticDocument(m_database, scoreValue.view());
 				m_errorPolicy.checkUpserted(1, result, "chain score");
 			}
 

@@ -40,10 +40,14 @@ namespace catapult { namespace observers {
 		auto& senderState = senderIter.get();
 		auto& recipientState = recipientIter.get();
 
+		auto effectiveAmount = notification.Amount;
+		if (model::BalanceTransferNotification::AmountType::Dynamic == notification.TransferAmountType)
+			effectiveAmount = Amount(notification.Amount.unwrap() * context.Cache.dependentState().DynamicFeeMultiplier.unwrap());
+
 		auto mosaicId = context.Resolvers.resolve(notification.MosaicId);
 		if (NotifyMode::Commit == context.Mode)
-			Transfer(senderState, recipientState, mosaicId, notification.Amount);
+			Transfer(senderState, recipientState, mosaicId, effectiveAmount);
 		else
-			Transfer(recipientState, senderState, mosaicId, notification.Amount);
+			Transfer(recipientState, senderState, mosaicId, effectiveAmount);
 	});
 }}

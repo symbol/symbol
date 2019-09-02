@@ -33,11 +33,11 @@ namespace catapult { namespace state {
 		}
 
 		void AssertCosignatories(const std::vector<Key>& expectedCosignatories, const MultisigEntry& entry) {
-			test::AssertContents(expectedCosignatories, entry.cosignatories());
+			test::AssertContents(expectedCosignatories, entry.cosignatoryPublicKeys());
 		}
 
 		void AssertMultisigAccounts(const std::vector<Key>& expectedMultisigAccounts, const MultisigEntry& entry) {
-			test::AssertContents(expectedMultisigAccounts, entry.multisigAccounts());
+			test::AssertContents(expectedMultisigAccounts, entry.multisigPublicKeys());
 		}
 	}
 
@@ -81,20 +81,20 @@ namespace catapult { namespace state {
 
 		decltype(accountKeys) expectedCosignatories;
 		for (auto i = 0u; i < 10; ++i)
-			entry.cosignatories().insert(accountKeys[i]);
+			entry.cosignatoryPublicKeys().insert(accountKeys[i]);
 
 		for (auto i = 0u; i < 10; i += 2)
-			entry.cosignatories().erase(accountKeys[i]);
+			entry.cosignatoryPublicKeys().erase(accountKeys[i]);
 
 		for (auto i = 1u; i < 10; i += 2)
 			expectedCosignatories.push_back(accountKeys[i]);
 
 		decltype(accountKeys) expectedMultisigAccounts;
 		for (auto i = 0u; i < 10; ++i)
-			entry.multisigAccounts().insert(accountKeys[i]);
+			entry.multisigPublicKeys().insert(accountKeys[i]);
 
 		for (auto i = 1u; i < 10; i += 2)
-			entry.multisigAccounts().erase(accountKeys[i]);
+			entry.multisigPublicKeys().erase(accountKeys[i]);
 
 		for (auto i = 0u; i < 10; i += 2)
 			expectedMultisigAccounts.push_back(accountKeys[i]);
@@ -112,7 +112,7 @@ namespace catapult { namespace state {
 		auto entry = MultisigEntry(key);
 
 		for (auto i = 0u; i < 10; ++i)
-			entry.cosignatories().insert(accountKeys[i]);
+			entry.cosignatoryPublicKeys().insert(accountKeys[i]);
 
 		// Act + Assert:
 		auto i = 0u;
@@ -129,7 +129,7 @@ namespace catapult { namespace state {
 		auto entry = MultisigEntry(key);
 
 		for (auto i = 0u; i < 10; ++i)
-			entry.multisigAccounts().insert(accountKeys[i]);
+			entry.multisigPublicKeys().insert(accountKeys[i]);
 
 		// Act + Assert:
 		auto i = 0u;

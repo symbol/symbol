@@ -68,12 +68,12 @@ namespace catapult { namespace builders {
 			static constexpr auto Entity_Type = model::Entity_Type_Mosaic_Metadata;
 
 			static void SetTargetId(BuilderType& builder, uint64_t rawTargetId) {
-				builder.setTargetId(UnresolvedMosaicId(rawTargetId));
+				builder.setTargetMosaicId(UnresolvedMosaicId(rawTargetId));
 			}
 
 			template<typename TTransaction>
 			static void AssertAdditionalProperties(const TransactionProperties& expectedProperties, const TTransaction& transaction) {
-				EXPECT_EQ(UnresolvedMosaicId(expectedProperties.RawTargetId), transaction.TargetId);
+				EXPECT_EQ(UnresolvedMosaicId(expectedProperties.RawTargetId), transaction.TargetMosaicId);
 			}
 		};
 
@@ -85,12 +85,12 @@ namespace catapult { namespace builders {
 			static constexpr auto Entity_Type = model::Entity_Type_Namespace_Metadata;
 
 			static void SetTargetId(BuilderType& builder, uint64_t rawTargetId) {
-				builder.setTargetId(NamespaceId(rawTargetId));
+				builder.setTargetNamespaceId(NamespaceId(rawTargetId));
 			}
 
 			template<typename TTransaction>
 			static void AssertAdditionalProperties(const TransactionProperties& expectedProperties, const TTransaction& transaction) {
-				EXPECT_EQ(NamespaceId(expectedProperties.RawTargetId), transaction.TargetId);
+				EXPECT_EQ(NamespaceId(expectedProperties.RawTargetId), transaction.TargetNamespaceId);
 			}
 		};
 
@@ -127,7 +127,7 @@ namespace catapult { namespace builders {
 			// Assert:
 			TTraits::TransactionTraits::CheckBuilderSize(expectedProperties.Value.size(), builder);
 			TTraits::TransactionTraits::CheckFields(expectedProperties.Value.size(), *pTransaction);
-			EXPECT_EQ(signer, pTransaction->Signer);
+			EXPECT_EQ(signer, pTransaction->SignerPublicKey);
 			EXPECT_EQ(0x6201, pTransaction->Version);
 			EXPECT_EQ(TTraits::Entity_Type, pTransaction->Type);
 

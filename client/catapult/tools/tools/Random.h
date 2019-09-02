@@ -19,27 +19,10 @@
 **/
 
 #pragma once
-#include <random>
+#include <vector>
 #include <stdint.h>
 
 namespace catapult { namespace tools {
-
-	/// Random generator.
-	class RandomGenerator {
-	public:
-		/// Creates random generator using random system seed.
-		RandomGenerator();
-
-		/// Creates random generator using \a seed.
-		explicit RandomGenerator(uint64_t seed);
-
-	public:
-		/// Generates next random number.
-		uint64_t operator()();
-
-	private:
-		std::mt19937_64 m_gen;
-	};
 
 	/// Generates a uint64_t random number.
 	uint64_t Random();

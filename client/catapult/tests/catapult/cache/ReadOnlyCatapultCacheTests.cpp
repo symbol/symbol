@@ -19,6 +19,7 @@
 **/
 
 #include "catapult/cache/ReadOnlyCatapultCache.h"
+#include "catapult/state/CatapultState.h"
 #include "tests/test/cache/SimpleCache.h"
 #include "tests/TestHarness.h"
 
@@ -28,6 +29,8 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanCreateAroundArbitraryCaches) {
 		// Arrange:
+		state::CatapultState dependentState;
+
 		test::SimpleCacheT<0> cache0;
 		test::SimpleCacheT<2> cache2;
 		std::vector<const void*> subViews{
@@ -37,9 +40,12 @@ namespace catapult { namespace cache {
 		};
 
 		// Act:
-		ReadOnlyCatapultCache readOnlyCache(subViews);
+		ReadOnlyCatapultCache readOnlyCache(dependentState, subViews);
 
 		// Assert:
+		// - dependent state is held by reference
+		EXPECT_EQ(&dependentState, &readOnlyCache.dependentState());
+
 		// - sub caches match input
 		EXPECT_EQ(subViews[0], &readOnlyCache.sub<test::SimpleCacheT<0>>());
 		EXPECT_EQ(subViews[2], &readOnlyCache.sub<test::SimpleCacheT<2>>());

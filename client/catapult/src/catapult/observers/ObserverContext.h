@@ -53,18 +53,15 @@ namespace catapult { namespace observers {
 	/// Block independent mutable state passed to all observers.
 	struct ObserverState {
 	public:
-		/// Creates an observer state around \a cache and \a state.
-		ObserverState(cache::CatapultCacheDelta& cache, state::CatapultState& state);
+		/// Creates an observer state around \a cache.
+		explicit ObserverState(cache::CatapultCacheDelta& cache);
 
-		/// Creates an observer state around \a cache, \a state and \a blockStatementBuilder.
-		ObserverState(cache::CatapultCacheDelta& cache, state::CatapultState& state, model::BlockStatementBuilder& blockStatementBuilder);
+		/// Creates an observer state around \a cache and \a blockStatementBuilder.
+		ObserverState(cache::CatapultCacheDelta& cache, model::BlockStatementBuilder& blockStatementBuilder);
 
 	public:
 		/// Catapult cache.
 		cache::CatapultCacheDelta& Cache;
-
-		/// Catapult state.
-		state::CatapultState& State;
 
 		/// Optional block statement builder.
 		model::BlockStatementBuilder* pBlockStatementBuilder;
@@ -84,9 +81,6 @@ namespace catapult { namespace observers {
 	public:
 		/// Catapult cache.
 		cache::CatapultCacheDelta& Cache;
-
-		/// Catapult state.
-		state::CatapultState& State;
 
 		/// Current height.
 		const catapult::Height Height;

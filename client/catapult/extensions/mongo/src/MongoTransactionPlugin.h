@@ -44,7 +44,7 @@ namespace catapult { namespace mongo {
 		/// Gets the transaction entity type.
 		virtual model::EntityType type() const = 0;
 
-		/// Streams a \a transaction to \a builder.
+		/// Streams \a transaction to \a builder.
 		virtual void streamTransaction(bsoncxx::builder::stream::document& builder, const TTransaction& transaction) const = 0;
 	};
 

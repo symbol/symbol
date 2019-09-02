@@ -37,8 +37,8 @@ namespace catapult { namespace model {
 		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Account_Link, 1)
 
 	public:
-		/// Remote account key.
-		Key RemoteAccountKey;
+		/// Remote public key.
+		Key RemotePublicKey;
 
 		/// Account link action.
 		AccountLinkAction LinkAction;

@@ -22,7 +22,7 @@
 #include "catapult/ionet/Node.h"
 #include "catapult/ionet/NodeInfo.h"
 #include "catapult/utils/ArraySet.h"
-#include <random>
+#include "catapult/utils/RandomGenerator.h"
 
 namespace catapult { namespace ionet { class NodeContainer; } }
 
@@ -108,9 +108,7 @@ namespace catapult { namespace extensions {
 	class WeightPolicyGenerator {
 	public:
 		/// Creates a default weight policy generator.
-		WeightPolicyGenerator()
-				: m_generator(std::random_device()())
-				, m_distr(1, 4)
+		WeightPolicyGenerator() : m_distr(1, 4)
 		{}
 
 	public:
@@ -120,7 +118,7 @@ namespace catapult { namespace extensions {
 		}
 
 	private:
-		std::mt19937 m_generator;
+		utils::LowEntropyRandomGenerator m_generator;
 		std::uniform_int_distribution<> m_distr;
 	};
 

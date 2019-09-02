@@ -20,6 +20,7 @@
 
 #include "HarvestingUtFacadeFactory.h"
 #include "catapult/cache_core/AccountStateCache.h"
+#include "catapult/chain/ProcessContextsBuilder.h"
 #include "catapult/chain/ProcessingNotificationSubscriber.h"
 #include "catapult/model/BlockChainConfiguration.h"
 #include "catapult/model/BlockUtils.h"
@@ -51,7 +52,16 @@ namespace catapult { namespace harvesting {
 
 	public:
 		bool apply(const model::TransactionInfo& transactionInfo) {
-			return apply(model::WeakEntityInfo(*transactionInfo.pEntity, transactionInfo.EntityHash));
+			auto originalSource = m_blockStatementBuilder.source();
+
+			if (apply(model::WeakEntityInfo(*transactionInfo.pEntity, transactionInfo.EntityHash)))
+				return true;
+
+			auto finalSource = m_blockStatementBuilder.source();
+			if (originalSource.PrimaryId != finalSource.PrimaryId)
+				m_blockStatementBuilder.popSource();
+
+			return false;
 		}
 
 		void unapply(const model::TransactionInfo& transactionInfo) {
@@ -69,7 +79,7 @@ namespace catapult { namespace harvesting {
 			for (const auto& transaction : pBlock->Transactions()) {
 				auto surplus = transaction.MaxFee - model::CalculateTransactionFee(blockHeader.FeeMultiplier, transaction);
 				if (Amount(0) != surplus) {
-					auto accountStateIter = accountStateCache.find(transaction.Signer);
+					auto accountStateIter = accountStateCache.find(transaction.SignerPublicKey);
 					state::ApplyFeeSurplus(accountStateIter.get(), { m_blockChainConfig.CurrencyMosaicId, surplus }, importanceHeight);
 				}
 			}
@@ -79,11 +89,11 @@ namespace catapult { namespace harvesting {
 				return nullptr;
 
 			// 4. update block fields
-			pBlock->StateHash = m_blockChainConfig.ShouldEnableVerifiableState
+			pBlock->StateHash = m_blockChainConfig.EnableVerifiableState
 					? m_pCacheDelta->calculateStateHash(height()).StateHash
 					: Hash256();
 
-			pBlock->BlockReceiptsHash = m_blockChainConfig.ShouldEnableVerifiableReceipts
+			pBlock->ReceiptsHash = m_blockChainConfig.EnableVerifiableReceipts
 					? model::CalculateMerkleHash(*m_blockStatementBuilder.build())
 					: Hash256();
 
@@ -98,21 +108,14 @@ namespace catapult { namespace harvesting {
 			observers::ObserverContext&>;
 
 		bool process(const Processor& processor) {
-			// 1. prepare state
-			auto catapultState = state::CatapultState();
-			catapultState.LastRecalculationHeight = model::ConvertToImportanceHeight(height(), m_blockChainConfig.ImportanceGrouping);
-			auto observerState = m_blockChainConfig.ShouldEnableVerifiableReceipts
-					? observers::ObserverState(*m_pCacheDelta, catapultState, m_blockStatementBuilder)
-					: observers::ObserverState(*m_pCacheDelta, catapultState);
+			// prepare state and contexts
+			chain::ProcessContextsBuilder contextBuilder(height(), m_blockTime, m_executionConfig);
+			contextBuilder.setCache(*m_pCacheDelta);
+			if (m_blockChainConfig.EnableVerifiableReceipts)
+				contextBuilder.setBlockStatementBuilder(m_blockStatementBuilder);
 
-			// 2. prepare contexts
-			auto network = m_executionConfig.Network;
-			auto readOnlyCache = m_pCacheDelta->toReadOnly();
-			auto notifyMode = observers::NotifyMode::Commit;
-
-			auto resolverContext = m_executionConfig.ResolverContextFactory(readOnlyCache);
-			auto validatorContext = validators::ValidatorContext(height(), m_blockTime, network, resolverContext, readOnlyCache);
-			auto observerContext = observers::ObserverContext(observerState, height(), notifyMode, resolverContext);
+			auto validatorContext = contextBuilder.buildValidatorContext();
+			auto observerContext = contextBuilder.buildObserverContext();
 
 			const auto& validator = *m_executionConfig.pValidator;
 			const auto& observer = *m_executionConfig.pObserver;

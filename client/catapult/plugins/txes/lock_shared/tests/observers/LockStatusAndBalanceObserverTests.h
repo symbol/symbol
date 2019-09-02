@@ -59,7 +59,7 @@ namespace catapult { namespace observers {
 						ASSERT_EQ(sizeof(model::BalanceChangeReceipt), receipt.Size);
 						EXPECT_EQ(1u, receipt.Version);
 						EXPECT_EQ(TTraits::Receipt_Type, receipt.Type);
-						EXPECT_EQ(accountState.PublicKey, receipt.Account);
+						EXPECT_EQ(accountState.PublicKey, receipt.TargetPublicKey);
 						EXPECT_EQ(lockInfo.MosaicId, receipt.MosaicId);
 						EXPECT_EQ(lockInfo.Amount, receipt.Amount);
 					});

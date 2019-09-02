@@ -30,8 +30,8 @@ namespace catapult { namespace validators {
 	// region namespace validators
 
 	/// Validator that applies to namespace notifications and validates that:
-	/// - namespace type is valid
-	DECLARE_STATELESS_VALIDATOR(NamespaceType, model::NamespaceNotification)();
+	/// - namespace registration type is valid
+	DECLARE_STATELESS_VALIDATOR(NamespaceRegistrationType, model::NamespaceRegistrationNotification)();
 
 	/// Validator that applies to namespace name notifications and validates that:
 	/// - namespace name has a maximum size of \a maxNameSize

@@ -57,12 +57,12 @@ namespace catapult { namespace state {
 
 				// add cosignatories
 				for (auto i = mainAccountId; i < mainAccountId + numCosignatories; ++i)
-					entry.cosignatories().insert(m_accountKeys[i]);
+					entry.cosignatoryPublicKeys().insert(m_accountKeys[i]);
 
 				// add multisig accounts
 				auto firstMultisigId = mainAccountId + numCosignatories;
 				for (auto i = firstMultisigId; i < firstMultisigId + numMultisigAccounts; ++i)
-					entry.multisigAccounts().insert(m_accountKeys[i]);
+					entry.multisigPublicKeys().insert(m_accountKeys[i]);
 
 				return entry;
 			}
@@ -109,11 +109,11 @@ namespace catapult { namespace state {
 			EXPECT_EQ(entry.key(), accountKey);
 			pData += Key::Size;
 
-			AssertAccountKeys(entry.cosignatories(), pData);
-			pData += sizeof(uint64_t) + entry.cosignatories().size() * Key::Size;
+			AssertAccountKeys(entry.cosignatoryPublicKeys(), pData);
+			pData += sizeof(uint64_t) + entry.cosignatoryPublicKeys().size() * Key::Size;
 
-			AssertAccountKeys(entry.multisigAccounts(), pData);
-			pData += sizeof(uint64_t) + entry.multisigAccounts().size() * Key::Size;
+			AssertAccountKeys(entry.multisigPublicKeys(), pData);
+			pData += sizeof(uint64_t) + entry.multisigPublicKeys().size() * Key::Size;
 
 			EXPECT_EQ(pExpectedEnd, pData);
 		}
@@ -123,7 +123,7 @@ namespace catapult { namespace state {
 
 	// region Save
 
-	TEST(TEST_CLASS, CanSaveSingleEntryWithNeitherCosignersNorMultisigAccounts) {
+	TEST(TEST_CLASS, CanSaveSingleEntryWithNeitherCosignatoriesNorMultisigAccounts) {
 		// Arrange:
 		TestContext context;
 		auto entry = context.createEntry(0, 0, 0);
@@ -137,7 +137,7 @@ namespace catapult { namespace state {
 		AssertEntryBuffer(entry, context.buffer().data(), expectedSize);
 	}
 
-	TEST(TEST_CLASS, CanSaveSingleEntryWithBothCosignersAndMultisigAccounts) {
+	TEST(TEST_CLASS, CanSaveSingleEntryWithBothCosignatoriesAndMultisigAccounts) {
 		// Arrange:
 		TestContext context;
 		auto entry = context.createEntry(0, 3, 4);
@@ -170,7 +170,7 @@ namespace catapult { namespace state {
 		public:
 			static void AddKeys(MultisigEntry& entry, const std::vector<Key>& keys) {
 				for (const auto& key : keys)
-					entry.cosignatories().insert(key);
+					entry.cosignatoryPublicKeys().insert(key);
 			}
 
 			static constexpr size_t GetKeyStartBufferOffset() {
@@ -182,7 +182,7 @@ namespace catapult { namespace state {
 		public:
 			static void AddKeys(MultisigEntry& entry, const std::vector<Key>& keys) {
 				for (const auto& key : keys)
-					entry.multisigAccounts().insert(key);
+					entry.multisigPublicKeys().insert(key);
 			}
 
 			static constexpr size_t GetKeyStartBufferOffset() {

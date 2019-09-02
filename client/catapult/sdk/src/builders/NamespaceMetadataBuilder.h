@@ -36,19 +36,21 @@ namespace catapult { namespace builders {
 		NamespaceMetadataBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
 
 	public:
-		/// Sets the public key of the metadata target to \a targetPublicKey.
+		/// Sets the metadata target public key to \a targetPublicKey.
 		void setTargetPublicKey(const Key& targetPublicKey);
 
 		/// Sets the metadata key scoped to source, target and type to \a scopedMetadataKey.
 		void setScopedMetadataKey(uint64_t scopedMetadataKey);
 
-		/// Sets the metadata target identifier to \a targetId.
-		void setTargetId(NamespaceId targetId);
+		/// Sets the target namespace identifier to \a targetNamespaceId.
+		void setTargetNamespaceId(NamespaceId targetNamespaceId);
 
 		/// Sets the change in value size in bytes to \a valueSizeDelta.
 		void setValueSizeDelta(int16_t valueSizeDelta);
 
-		/// Sets the value data to \a value.
+		/// Sets the difference between existing value and new value to \a value.
+		/// \note When there is no existing value, new value is same this value.
+		/// \note When there is an existing value, new value is calculated as xor(previous-value, value).
 		void setValue(const RawBuffer& value);
 
 	public:
@@ -72,7 +74,7 @@ namespace catapult { namespace builders {
 	private:
 		Key m_targetPublicKey;
 		uint64_t m_scopedMetadataKey;
-		NamespaceId m_targetId;
+		NamespaceId m_targetNamespaceId;
 		int16_t m_valueSizeDelta;
 		std::vector<uint8_t> m_value;
 	};

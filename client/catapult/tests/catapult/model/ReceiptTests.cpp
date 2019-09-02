@@ -48,7 +48,7 @@ namespace catapult { namespace model {
 		auto expectedSize =
 				sizeof(Receipt) // base
 				+ Key::Size // sender
-				+ Address::Size // receipient
+				+ Address::Size // recipient
 				+ sizeof(MosaicId) // mosaic id
 				+ sizeof(Amount); // amount
 
@@ -69,8 +69,8 @@ namespace catapult { namespace model {
 		ASSERT_EQ(sizeof(BalanceTransferReceipt), receipt.Size);
 		EXPECT_EQ(1u, receipt.Version);
 		EXPECT_EQ(static_cast<ReceiptType>(123), receipt.Type);
-		EXPECT_EQ(sender, receipt.Sender);
-		EXPECT_EQ(recipient, receipt.Recipient);
+		EXPECT_EQ(sender, receipt.SenderPublicKey);
+		EXPECT_EQ(recipient, receipt.RecipientAddress);
 		EXPECT_EQ(MosaicId(88), receipt.MosaicId);
 		EXPECT_EQ(Amount(452), receipt.Amount);
 	}
@@ -83,7 +83,7 @@ namespace catapult { namespace model {
 		// Arrange:
 		auto expectedSize =
 				sizeof(Receipt) // base
-				+ Key::Size // account
+				+ Key::Size // target
 				+ sizeof(MosaicId) // mosaic id
 				+ sizeof(Amount); // amount
 
@@ -94,16 +94,16 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCreateBalanceChangeReceipt) {
 		// Arrange:
-		auto account = test::GenerateRandomByteArray<Key>();
+		auto target = test::GenerateRandomByteArray<Key>();
 
 		// Act:
-		BalanceChangeReceipt receipt(static_cast<ReceiptType>(124), account, MosaicId(88), Amount(452));
+		BalanceChangeReceipt receipt(static_cast<ReceiptType>(124), target, MosaicId(88), Amount(452));
 
 		// Assert:
 		ASSERT_EQ(sizeof(BalanceChangeReceipt), receipt.Size);
 		EXPECT_EQ(1u, receipt.Version);
 		EXPECT_EQ(static_cast<ReceiptType>(124), receipt.Type);
-		EXPECT_EQ(account, receipt.Account);
+		EXPECT_EQ(target, receipt.TargetPublicKey);
 		EXPECT_EQ(MosaicId(88), receipt.MosaicId);
 		EXPECT_EQ(Amount(452), receipt.Amount);
 	}

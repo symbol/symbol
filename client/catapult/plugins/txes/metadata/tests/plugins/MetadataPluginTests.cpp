@@ -36,7 +36,7 @@ namespace catapult { namespace plugins {
 				config.Plugins.emplace("catapult.plugins.metadata", utils::ConfigurationBag({{
 					"",
 					{
-						{ "maxValueSize", "10" },
+						{ "maxValueSize", "10" }
 					}
 				}}));
 

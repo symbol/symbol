@@ -53,10 +53,10 @@ namespace catapult { namespace observers {
 						ASSERT_TRUE(lockInfoCacheDelta.contains(key));
 
 						const auto& lockInfo = lockInfoCacheDelta.find(key).get();
-						EXPECT_EQ(notification.Signer, lockInfo.Account);
+						EXPECT_EQ(notification.Signer, lockInfo.SenderPublicKey);
 						EXPECT_EQ(notification.Mosaic.MosaicId, test::UnresolveXor(lockInfo.MosaicId));
 						EXPECT_EQ(notification.Mosaic.Amount, lockInfo.Amount);
-						EXPECT_EQ(DefaultHeight() + Height(notification.Duration.unwrap()), lockInfo.Height);
+						EXPECT_EQ(DefaultHeight() + Height(notification.Duration.unwrap()), lockInfo.EndHeight);
 
 						TTraits::AssertAddedLockInfo(lockInfo, notification);
 
@@ -69,7 +69,7 @@ namespace catapult { namespace observers {
 						ASSERT_EQ(sizeof(model::BalanceChangeReceipt), receipt.Size);
 						EXPECT_EQ(1u, receipt.Version);
 						EXPECT_EQ(TTraits::Debit_Receipt_Type, receipt.Type);
-						EXPECT_EQ(notification.Signer, receipt.Account);
+						EXPECT_EQ(notification.Signer, receipt.TargetPublicKey);
 						EXPECT_EQ(notification.Mosaic.MosaicId, test::UnresolveXor(receipt.MosaicId));
 						EXPECT_EQ(notification.Mosaic.Amount, receipt.Amount);
 					});

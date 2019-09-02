@@ -39,8 +39,8 @@ namespace catapult { namespace harvesting {
 
 		auto CreateBlockChainConfiguration() {
 			auto config = model::BlockChainConfiguration::Uninitialized();
-			config.ShouldEnableVerifiableState = true;
-			config.ShouldEnableVerifiableReceipts = true;
+			config.EnableVerifiableState = true;
+			config.EnableVerifiableReceipts = true;
 			config.CurrencyMosaicId = MosaicId(123);
 			config.ImportanceGrouping = 1;
 			return config;
@@ -64,7 +64,7 @@ namespace catapult { namespace harvesting {
 				auto cacheDelta = m_catapultCache.createDelta();
 				auto& accountStateCache = cacheDelta.sub<cache::AccountStateCache>();
 				for (const auto& transactionInfo : m_transactionInfos)
-					accountStateCache.addAccount(transactionInfo.pEntity->Signer, Cache_Height);
+					accountStateCache.addAccount(transactionInfo.pEntity->SignerPublicKey, Cache_Height);
 
 				// force state hash recalculation and commit
 				m_initialStateHash = cacheDelta.calculateStateHash(Cache_Height).StateHash;
@@ -87,7 +87,7 @@ namespace catapult { namespace harvesting {
 
 				for (auto i = 0u; i < transactionSignerBalances.size(); ++i) {
 					auto balance = transactionSignerBalances[i];
-					const auto& signer = m_transactionInfos[i].pEntity->Signer;
+					const auto& signer = m_transactionInfos[i].pEntity->SignerPublicKey;
 					accountStateCacheDelta.find(signer).get().Balances.credit(m_config.CurrencyMosaicId, balance);
 				}
 
@@ -168,12 +168,12 @@ namespace catapult { namespace harvesting {
 		EXPECT_EQ(0u, model::CalculateBlockTransactionsInfo(*pBlock).Count);
 
 		// - zeroed because no transactions
-		EXPECT_EQ(Hash256(), pBlock->BlockTransactionsHash);
+		EXPECT_EQ(Hash256(), pBlock->TransactionsHash);
 		EXPECT_EQ(BlockFeeMultiplier(0), pBlock->FeeMultiplier);
 
 		// - no state changes and no receipts generated
 		EXPECT_EQ(context.initialStateHash(), pBlock->StateHash);
-		EXPECT_EQ(Hash256(), pBlock->BlockReceiptsHash);
+		EXPECT_EQ(Hash256(), pBlock->ReceiptsHash);
 	}
 
 	TEST(TEST_CLASS, CanGenerateBlockWithTransactions) {
@@ -195,12 +195,12 @@ namespace catapult { namespace harvesting {
 		}
 
 		// - nonzero because transactions present
-		EXPECT_NE(Hash256(), pBlock->BlockTransactionsHash);
+		EXPECT_NE(Hash256(), pBlock->TransactionsHash);
 		EXPECT_EQ(BlockFeeMultiplier(10), pBlock->FeeMultiplier);
 
 		// - state changes but no receipts generated
 		EXPECT_NE(context.initialStateHash(), pBlock->StateHash);
-		EXPECT_EQ(Hash256(), pBlock->BlockReceiptsHash);
+		EXPECT_EQ(Hash256(), pBlock->ReceiptsHash);
 
 		// - first 4 transactions are included in generated block and, of those, even transactions have surpluses
 		//   that should be explicitly be credited

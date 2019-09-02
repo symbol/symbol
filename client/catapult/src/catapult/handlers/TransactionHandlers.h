@@ -32,7 +32,7 @@ namespace catapult { namespace handlers {
 	using UnconfirmedTransactions = std::vector<std::shared_ptr<const model::Transaction>>;
 
 	/// Registers a push transactions handler in \a handlers that forwards transactions to \a transactionRangeHandler
-	/// given a \a registry composed of known transactions.
+	/// given a transaction \a registry composed of known transactions.
 	void RegisterPushTransactionsHandler(
 			ionet::ServerPacketHandlers& handlers,
 			const model::TransactionRegistry& registry,

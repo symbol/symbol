@@ -83,13 +83,13 @@ namespace catapult { namespace partialtransaction {
 				if (notification.Type == model::Aggregate_Cosignatures_Notification) {
 					return HasAllCosignatures(static_cast<const model::AggregateCosignaturesNotification&>(notification))
 							? ValidationResult::Success
-							: validators::Failure_Aggregate_Missing_Cosigners;
+							: validators::Failure_Aggregate_Missing_Cosignatures;
 				}
 
 				if (notification.Type == model::Aggregate_EmbeddedTransaction_Notification) {
 					return HasAllCosignatures(static_cast<const model::AggregateEmbeddedTransactionNotification&>(notification))
 							? ValidationResult::Success
-							: validators::Failure_Aggregate_Ineligible_Cosigners;
+							: validators::Failure_Aggregate_Ineligible_Cosignatories;
 				}
 
 				return m_result;
@@ -530,10 +530,10 @@ namespace catapult { namespace partialtransaction {
 
 			// - prepare a cosignature range
 			auto cosignatureRange = model::EntityRange<model::DetachedCosignature>::PrepareFixed(3);
-			std::vector<Key> cosigners;
+			std::vector<Key> cosignatories;
 			for (auto& cosignature : cosignatureRange) {
 				cosignature = test::GenerateValidCosignature(transactionInfo.EntityHash);
-				cosigners.push_back(cosignature.Signer);
+				cosignatories.push_back(cosignature.SignerPublicKey);
 			}
 
 			auto expectedPayload = ExtractCosignaturePayload(cosignatureRange);
@@ -552,8 +552,8 @@ namespace catapult { namespace partialtransaction {
 			auto i = 0u;
 			auto transactionInfoFromCache = view.find(transactionInfo.EntityHash);
 			ASSERT_TRUE(!!transactionInfoFromCache);
-			for (const auto& cosigner : cosigners) {
-				EXPECT_TRUE(transactionInfoFromCache.hasCosigner(cosigner)) << "cosigner at " << std::to_string(i);
+			for (const auto& cosignatory : cosignatories) {
+				EXPECT_TRUE(transactionInfoFromCache.hasCosignatory(cosignatory)) << "cosignatory at " << std::to_string(i);
 				++i;
 			}
 

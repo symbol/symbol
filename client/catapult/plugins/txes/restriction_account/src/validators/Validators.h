@@ -26,26 +26,26 @@
 namespace catapult { namespace validators {
 
 #define DECLARE_SHARED_VALIDATORS(VALUE_NAME) \
-	/* Validator that applies to modify account restriction notifications and validates that: */ \
-	/* - all account restriction modification types are valid */ \
+	/* Validator that applies to account restriction notifications and validates that: */ \
+	/* - all account restriction modification actions are valid */ \
 	DECLARE_STATELESS_VALIDATOR( \
-			Account##VALUE_NAME##RestrictionModificationTypes, \
+			Account##VALUE_NAME##RestrictionModificationActions, \
 			model::ModifyAccount##VALUE_NAME##RestrictionNotification)(); \
 	\
-	/* Validator that applies to modify account restriction notifications and validates that: */ \
+	/* Validator that applies to account restriction notifications and validates that: */ \
 	/* - there is no redundant restriction modification */ \
 	DECLARE_STATEFUL_VALIDATOR( \
 			Account##VALUE_NAME##RestrictionRedundantModification, \
 			model::ModifyAccount##VALUE_NAME##RestrictionNotification)(); \
 	\
-	/* Validator that applies to modify account restriction value notifications and validates that: */ \
+	/* Validator that applies to account restriction value notifications and validates that: */ \
 	/* - add modification does not add a known value */ \
 	/* - delete modification does not delete an unknown value */ \
 	DECLARE_STATEFUL_VALIDATOR( \
 			Account##VALUE_NAME##RestrictionValueModification, \
 			model::ModifyAccount##VALUE_NAME##RestrictionValueNotification)(); \
 	\
-	/* Validator that applies to modify account restriction notifications and validates that: */ \
+	/* Validator that applies to account restriction notifications and validates that: */ \
 	/* - the maximum number of modifications (\a maxAccountRestrictionValues) is not exceeded */ \
 	/* - the maximum number of account restriction values (\a maxAccountRestrictionValues) is not exeeded */ \
 	DECLARE_STATEFUL_VALIDATOR(MaxAccount##VALUE_NAME##RestrictionValues, model::ModifyAccount##VALUE_NAME##RestrictionNotification)( \
@@ -59,7 +59,7 @@ namespace catapult { namespace validators {
 	/// - restriction type is known
 	DECLARE_STATELESS_VALIDATOR(AccountRestrictionType, model::AccountRestrictionTypeNotification)();
 
-	/// Validator that applies to modify account address restriction value notifications and validates that:
+	/// Validator that applies to account address restriction value notifications and validates that:
 	/// - modification value for network with id \a networkIdentifier is valid
 	DECLARE_STATELESS_VALIDATOR(AccountAddressRestrictionNoSelfModification, model::ModifyAccountAddressRestrictionValueNotification)(
 			model::NetworkIdentifier networkIdentifier);
@@ -72,7 +72,7 @@ namespace catapult { namespace validators {
 	/// - the mosaic is allowed to be transferred to the recipient
 	DECLARE_STATEFUL_VALIDATOR(MosaicRecipient, model::BalanceTransferNotification)();
 
-	/// Validator that applies to modify account transaction restriction notifications and validates that:
+	/// Validator that applies to account transaction restriction notifications and validates that:
 	/// - all transaction modification values are valid
 	DECLARE_STATELESS_VALIDATOR(AccountOperationRestrictionModificationValues, model::ModifyAccountOperationRestrictionNotification)();
 
@@ -80,7 +80,7 @@ namespace catapult { namespace validators {
 	/// - the signer is allowed to initiate a transaction of the specified transaction type
 	DECLARE_STATEFUL_VALIDATOR(OperationRestriction, model::TransactionNotification)();
 
-	/// Validator that applies to modify account transaction restriction notifications and validates that:
+	/// Validator that applies to account transaction restriction notifications and validates that:
 	/// - account operation restriction transactions are not blocked
 	DECLARE_STATEFUL_VALIDATOR(AccountOperationRestrictionNoSelfBlocking, model::ModifyAccountOperationRestrictionValueNotification)();
 }}

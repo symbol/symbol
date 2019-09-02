@@ -50,9 +50,9 @@ namespace catapult { namespace model {
 		}
 
 		/// Returns \c true if a cosignature from \a signer is present.
-		bool hasCosigner(const Key& signer) const {
+		bool hasCosignatory(const Key& signer) const {
 			return std::any_of(m_pCosignatures->cbegin(), m_pCosignatures->cend(), [&signer](const auto& cosignature) {
-				return signer == cosignature.Signer;
+				return signer == cosignature.SignerPublicKey;
 			});
 		}
 

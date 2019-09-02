@@ -101,7 +101,7 @@ namespace catapult { namespace config {
 				// Arrange:
 				ComponentLevelsMap expectedConsoleComponentLevels = {
 					{ "net", utils::LogLevel::Trace },
-					{ "random", utils::LogLevel::Fatal },
+					{ "random", utils::LogLevel::Fatal }
 				};
 
 				ComponentLevelsMap expectedFileComponentLevels = {

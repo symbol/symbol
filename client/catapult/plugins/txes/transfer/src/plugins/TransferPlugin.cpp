@@ -21,7 +21,11 @@
 #include "TransferPlugin.h"
 #include "TransferTransactionPlugin.h"
 #include "src/config/TransferConfiguration.h"
+#include "src/observers/Observers.h"
 #include "src/validators/Validators.h"
+#include "catapult/config/CatapultDataDirectory.h"
+#include "catapult/crypto/KeyPair.h"
+#include "catapult/model/Address.h"
 #include "catapult/plugins/PluginManager.h"
 
 namespace catapult { namespace plugins {
@@ -33,6 +37,16 @@ namespace catapult { namespace plugins {
 		manager.addStatelessValidatorHook([config](auto& builder) {
 			builder.add(validators::CreateTransferMessageValidator(config.MaxMessageSize));
 			builder.add(validators::CreateTransferMosaicsValidator());
+		});
+
+		if (!manager.userConfig().ShouldAutoDetectDelegatedHarvesters)
+			return;
+
+		auto bootKeyPair = crypto::KeyPair::FromString(manager.userConfig().BootPrivateKey);
+		auto recipient = model::PublicKeyToAddress(bootKeyPair.publicKey(), manager.config().Network.Identifier);
+		auto dataDirectory = config::CatapultDataDirectory(manager.userConfig().DataDirectory);
+		manager.addObserverHook([recipient, dataDirectory](auto& builder) {
+			builder.add(observers::CreateTransferMessageObserver(0x98E5BF64C771CCFE, recipient, dataDirectory.dir("transfer_message")));
 		});
 	}
 }}

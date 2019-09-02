@@ -28,12 +28,16 @@ namespace catapult { namespace chain {
 #define TEST_CLASS BlockDifficultyScorerTests
 
 	namespace {
-		using DifficultySet = cache::BlockDifficultyCacheTypes::PrimaryTypes::BaseSetType::SetType::MemorySetType;
+		using StatisticSet = cache::BlockStatisticCacheTypes::PrimaryTypes::BaseSetType::SetType::MemorySetType;
 
 		constexpr Difficulty Base_Difficulty = Difficulty(100'000'000'000'000);
 
-		cache::DifficultyInfoRange ToRange(const DifficultySet& set) {
-			return cache::DifficultyInfoRange(set.cbegin(), set.cend());
+		state::BlockStatistic CreateStatistic(Height height, Timestamp timestamp, Difficulty difficulty) {
+			return state::BlockStatistic(height, timestamp, difficulty, BlockFeeMultiplier());
+		}
+
+		cache::BlockStatisticRange ToRange(const StatisticSet& set) {
+			return cache::BlockStatisticRange(set.cbegin(), set.cend());
 		}
 
 		model::BlockChainConfiguration CreateConfiguration() {
@@ -45,7 +49,7 @@ namespace catapult { namespace chain {
 	}
 
 	namespace {
-		void AssertCalculatedDifficultyIsBaseDifficulty(const DifficultySet& set) {
+		void AssertCalculatedDifficultyIsBaseDifficulty(const StatisticSet& set) {
 			// Act:
 			auto difficulty = CalculateDifficulty(ToRange(set), CreateConfiguration());
 
@@ -56,7 +60,7 @@ namespace catapult { namespace chain {
 
 	TEST(TEST_CLASS, CalculatingDifficultyOnEmptyRangeYieldsBaseDifficulty) {
 		// Arrange:
-		DifficultySet set;
+		StatisticSet set;
 
 		// Assert:
 		AssertCalculatedDifficultyIsBaseDifficulty(set);
@@ -64,8 +68,8 @@ namespace catapult { namespace chain {
 
 	TEST(TEST_CLASS, CalculatingDifficultyOnSingleSampleYieldsBaseDifficulty) {
 		// Arrange:
-		DifficultySet set;
-		set.emplace(Height(100), Timestamp(10), Difficulty(75'000'000'000'000));
+		StatisticSet set;
+		set.insert(CreateStatistic(Height(100), Timestamp(10), Difficulty(75'000'000'000'000)));
 
 		// Assert:
 		AssertCalculatedDifficultyIsBaseDifficulty(set);
@@ -74,9 +78,9 @@ namespace catapult { namespace chain {
 	namespace {
 		Difficulty GetBlockDifficultyWithConstantTimeSpacing(uint32_t targetSpacing, uint32_t actualSpacing) {
 			// Arrange:
-			DifficultySet set;
+			StatisticSet set;
 			for (auto i = 0u; i < 10; ++i)
-				set.emplace(Height(100 + i), Timestamp(12345 + i * actualSpacing), Base_Difficulty);
+				set.insert(CreateStatistic(Height(100 + i), Timestamp(12345 + i * actualSpacing), Base_Difficulty));
 
 			auto config = CreateConfiguration();
 			config.BlockGenerationTargetTime = utils::TimeSpan::FromMilliseconds(targetSpacing);
@@ -115,9 +119,9 @@ namespace catapult { namespace chain {
 			// Arrange:
 			// - initial block difficulties: BASE_DIFF, BASE_DIFF
 			// - initial timestamps: t, t + TIME_DIFF
-			DifficultySet set;
-			set.emplace(Height(100), Timestamp(100), Base_Difficulty);
-			set.emplace(Height(101), Timestamp(100 + generationTime), Base_Difficulty);
+			StatisticSet set;
+			set.insert(CreateStatistic(Height(100), Timestamp(100), Base_Difficulty));
+			set.insert(CreateStatistic(Height(101), Timestamp(100 + generationTime), Base_Difficulty));
 
 			auto config = CreateConfiguration();
 			config.BlockGenerationTargetTime = utils::TimeSpan::FromMilliseconds(targetSpacing);
@@ -131,7 +135,7 @@ namespace catapult { namespace chain {
 				EXPECT_COMPARE(compareResult, previousDifficulty, difficulty);
 
 				// Arrange: add new entry to difficulty set and update previous
-				set.emplace(Height(100 + i), Timestamp(100 + generationTime * i), difficulty);
+				set.insert(CreateStatistic(Height(100 + i), Timestamp(100 + generationTime * i), difficulty));
 				previousDifficulty = difficulty;
 			}
 		}
@@ -154,9 +158,9 @@ namespace catapult { namespace chain {
 			// Arrange:
 			// - initial block difficulties: BASE_DIFF, BASE_DIFF
 			// - initial timestamps: t, t + TIME_DIFF
-			DifficultySet set;
-			set.emplace(Height(100), Timestamp(100), Base_Difficulty);
-			set.emplace(Height(101), Timestamp(100 + generationTime), Base_Difficulty);
+			StatisticSet set;
+			set.insert(CreateStatistic(Height(100), Timestamp(100), Base_Difficulty));
+			set.insert(CreateStatistic(Height(101), Timestamp(100 + generationTime), Base_Difficulty));
 
 			auto config = CreateConfiguration();
 			config.BlockGenerationTargetTime = utils::TimeSpan::FromMilliseconds(targetSpacing);
@@ -180,7 +184,7 @@ namespace catapult { namespace chain {
 				EXPECT_EQ(expectedChange, percentageChange);
 
 				// Arrange: add new entry to difficulty set and update previous
-				set.emplace(Height(100 + i), Timestamp(100 + generationTime * i), difficulty);
+				set.insert(CreateStatistic(Height(100 + i), Timestamp(100 + generationTime * i), difficulty));
 				previousDifficulty = difficulty;
 			}
 		}
@@ -199,9 +203,9 @@ namespace catapult { namespace chain {
 		// Arrange:
 		// - initial block difficulties: MAX_DIFF, MAX_DIFF
 		// - initial timestamps: t, t + 2s
-		DifficultySet set;
-		set.emplace(Height(100), Timestamp(100), Difficulty::Max());
-		set.emplace(Height(101), Timestamp(2'100), Difficulty::Max());
+		StatisticSet set;
+		set.insert(CreateStatistic(Height(100), Timestamp(100), Difficulty::Max()));
+		set.insert(CreateStatistic(Height(101), Timestamp(2'100), Difficulty::Max()));
 
 		auto config = CreateConfiguration();
 		config.BlockGenerationTargetTime = utils::TimeSpan::FromSeconds(60);
@@ -214,7 +218,7 @@ namespace catapult { namespace chain {
 			EXPECT_EQ(Difficulty::Max(), difficulty);
 
 			// Arrange: add new entry to difficulty set
-			set.emplace(Height(100 + i), Timestamp(100 + 2'000 * i), difficulty);
+			set.insert(CreateStatistic(Height(100 + i), Timestamp(100 + 2'000 * i), difficulty));
 		}
 	}
 
@@ -222,9 +226,9 @@ namespace catapult { namespace chain {
 		// Arrange:
 		// - initial block difficulties: MIN_DIFF, MIN_DIFF
 		// - initial timestamps: t, t + 120s
-		DifficultySet set;
-		set.emplace(Height(100), Timestamp(100), Difficulty::Min());
-		set.emplace(Height(101), Timestamp(120'100), Difficulty::Min());
+		StatisticSet set;
+		set.insert(CreateStatistic(Height(100), Timestamp(100), Difficulty::Min()));
+		set.insert(CreateStatistic(Height(101), Timestamp(120'100), Difficulty::Min()));
 
 		auto config = CreateConfiguration();
 		config.BlockGenerationTargetTime = utils::TimeSpan::FromSeconds(60);
@@ -237,30 +241,30 @@ namespace catapult { namespace chain {
 			EXPECT_EQ(Difficulty::Min(), difficulty);
 
 			// Arrange: add new entry to difficulty set
-			set.emplace(Height(100 + i), Timestamp(100 + 120'000 * i), difficulty);
+			set.insert(CreateStatistic(Height(100 + i), Timestamp(100 + 120'000 * i), difficulty));
 		}
 	}
 
 	namespace {
-		void PrepareCache(cache::BlockDifficultyCache& cache, size_t numInfos) {
+		void PrepareCache(cache::BlockStatisticCache& cache, size_t numInfos) {
 			auto minDifficulty = Difficulty::Min().unwrap();
 			auto delta = cache.createDelta();
 			for (auto i = 0u; i < numInfos; ++i)
-				delta->insert(Height(i + 1), Timestamp(60'000 * i), Difficulty(minDifficulty + 1000 * i));
+				delta->insert(CreateStatistic(Height(i + 1), Timestamp(60'000 * i), Difficulty(minDifficulty + 1000 * i)));
 
 			cache.commit();
 		}
 
 		struct CacheTraits {
 			static Difficulty CalculateDifficulty(
-					const cache::BlockDifficultyCache& cache,
+					const cache::BlockStatisticCache& cache,
 					Height height,
 					const model::BlockChainConfiguration& config) {
 				return chain::CalculateDifficulty(cache, height, config);
 			}
 
 			static void AssertDifficultyCalculationFailure(
-					const cache::BlockDifficultyCache& cache,
+					const cache::BlockStatisticCache& cache,
 					Height height,
 					const model::BlockChainConfiguration& config) {
 				// Act + Assert:
@@ -270,7 +274,7 @@ namespace catapult { namespace chain {
 
 		struct TryCacheTraits {
 			static Difficulty CalculateDifficulty(
-					const cache::BlockDifficultyCache& cache,
+					const cache::BlockStatisticCache& cache,
 					Height height,
 					const model::BlockChainConfiguration& config) {
 				Difficulty difficulty;
@@ -279,7 +283,7 @@ namespace catapult { namespace chain {
 			}
 
 			static void AssertDifficultyCalculationFailure(
-					const cache::BlockDifficultyCache& cache,
+					const cache::BlockStatisticCache& cache,
 					Height height,
 					const model::BlockChainConfiguration& config) {
 				Difficulty difficulty;
@@ -297,7 +301,7 @@ namespace catapult { namespace chain {
 	CACHE_OVERLOAD_TRAITS_BASED_TEST(DifferentOverloadsYieldSameResult) {
 		// Arrange:
 		auto count = 10u;
-		cache::BlockDifficultyCache cache(count);
+		cache::BlockStatisticCache cache(count);
 		PrepareCache(cache, count);
 		auto config = CreateConfiguration();
 
@@ -305,7 +309,7 @@ namespace catapult { namespace chain {
 		auto difficulty1 = TTraits::CalculateDifficulty(cache, Height(count), config);
 
 		auto view = cache.createView();
-		auto difficulty2 = CalculateDifficulty(view->difficultyInfos(Height(count), count), config);
+		auto difficulty2 = CalculateDifficulty(view->statistics(Height(count), count), config);
 
 		// Assert:
 		EXPECT_EQ(difficulty1, difficulty2);
@@ -314,7 +318,7 @@ namespace catapult { namespace chain {
 	CACHE_OVERLOAD_TRAITS_BASED_TEST(MaxDifficultyBlocksInConfigIsRespected) {
 		// Arrange:
 		auto count = 10u;
-		cache::BlockDifficultyCache cache(count);
+		cache::BlockStatisticCache cache(count);
 		PrepareCache(cache, count);
 		auto config = CreateConfiguration();
 		config.MaxDifficultyBlocks = 5;
@@ -330,7 +334,7 @@ namespace catapult { namespace chain {
 	CACHE_OVERLOAD_TRAITS_BASED_TEST(CannotCalculateDifficultyWhenStartingHeightIsNotInCache) {
 		// Arrange:
 		auto count = 10u;
-		cache::BlockDifficultyCache cache(count);
+		cache::BlockStatisticCache cache(count);
 		PrepareCache(cache, count);
 		auto config = CreateConfiguration();
 

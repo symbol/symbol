@@ -19,7 +19,7 @@
 **/
 
 #include "catapult/extensions/ServiceLocator.h"
-#include "tests/test/core/AddressTestUtils.h"
+#include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace extensions {

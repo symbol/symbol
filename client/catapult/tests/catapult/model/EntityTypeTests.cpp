@@ -129,12 +129,12 @@ namespace catapult { namespace model {
 		EXPECT_EQ("Hash_Lock", test::ToString(ToEntityType(0x4148)));
 		EXPECT_EQ("Account_Link", test::ToString(ToEntityType(0x414C)));
 		EXPECT_EQ("Mosaic_Supply_Change", test::ToString(ToEntityType(0x424D)));
-		EXPECT_EQ("Register_Namespace", test::ToString(ToEntityType(0x414E)));
+		EXPECT_EQ("Namespace_Registration", test::ToString(ToEntityType(0x414E)));
 		EXPECT_EQ("Account_Mosaic_Restriction", test::ToString(ToEntityType(0x4250)));
 		EXPECT_EQ("Mosaic_Global_Restriction", test::ToString(ToEntityType(0x4151)));
 		EXPECT_EQ("Secret_Lock", test::ToString(ToEntityType(0x4152)));
 		EXPECT_EQ("Transfer", test::ToString(ToEntityType(0x4154)));
-		EXPECT_EQ("Modify_Multisig_Account", test::ToString(ToEntityType(0x4155)));
+		EXPECT_EQ("Multisig_Account_Modification", test::ToString(ToEntityType(0x4155)));
 	}
 
 	TEST(TEST_CLASS, CanOutputUnknownEnumValues) {

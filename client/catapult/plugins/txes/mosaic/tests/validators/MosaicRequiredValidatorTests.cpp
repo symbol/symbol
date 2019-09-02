@@ -137,11 +137,8 @@ namespace catapult { namespace validators {
 				// need to set custom property flags, so can't use regular helpers (e.g. test::AddMosaic)
 				auto& mosaicCacheDelta = delta.sub<cache::MosaicCache>();
 
-				model::MosaicProperties::PropertyValuesContainer propertyValues{};
-				propertyValues[utils::to_underlying_type(model::MosaicPropertyId::Flags)] = mosaicPropertyFlagMask;
-				propertyValues[utils::to_underlying_type(model::MosaicPropertyId::Duration)] = 100;
-
-				auto definition = state::MosaicDefinition(height, signer, 1, model::MosaicProperties::FromValues(propertyValues));
+				model::MosaicProperties properties(static_cast<model::MosaicFlags>(mosaicPropertyFlagMask), 0, BlockDuration(100));
+				auto definition = state::MosaicDefinition(height, signer, 1, properties);
 				mosaicCacheDelta.insert(state::MosaicEntry(ResolvedMosaicTraits::Default_Id, definition));
 			}
 

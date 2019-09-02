@@ -21,7 +21,7 @@
 #include "NamespacePlugin.h"
 #include "AddressAliasTransactionPlugin.h"
 #include "MosaicAliasTransactionPlugin.h"
-#include "RegisterNamespaceTransactionPlugin.h"
+#include "NamespaceRegistrationTransactionPlugin.h"
 #include "src/cache/NamespaceCache.h"
 #include "src/cache/NamespaceCacheStorage.h"
 #include "src/cache/NamespaceCacheSubCachePlugin.h"
@@ -150,7 +150,7 @@ namespace catapult { namespace plugins {
 		void RegisterNamespaceSubsystem(PluginManager& manager, const config::NamespaceConfiguration& config) {
 			auto currencyMosaicId = model::GetUnresolvedCurrencyMosaicId(manager.config());
 			auto rentalFeeConfig = ToNamespaceRentalFeeConfiguration(manager.config().Network, currencyMosaicId, config);
-			manager.addTransactionSupport(CreateRegisterNamespaceTransactionPlugin(rentalFeeConfig));
+			manager.addTransactionSupport(CreateNamespaceRegistrationTransactionPlugin(rentalFeeConfig));
 
 			auto minDuration = config.MinNamespaceDuration.blocks(manager.config().BlockGenerationTargetTime);
 			auto maxDuration = config.MaxNamespaceDuration.blocks(manager.config().BlockGenerationTargetTime);
@@ -174,7 +174,7 @@ namespace catapult { namespace plugins {
 			manager.addStatelessValidatorHook([config, minDuration, maxDuration](auto& builder) {
 				const auto& reservedNames = config.ReservedRootNamespaceNames;
 				builder
-					.add(validators::CreateNamespaceTypeValidator())
+					.add(validators::CreateNamespaceRegistrationTypeValidator())
 					.add(validators::CreateNamespaceNameValidator(config.MaxNameSize, reservedNames))
 					.add(validators::CreateRootNamespaceValidator(minDuration, maxDuration));
 			});

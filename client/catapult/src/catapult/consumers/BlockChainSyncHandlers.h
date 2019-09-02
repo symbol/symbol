@@ -84,7 +84,7 @@ namespace catapult { namespace consumers {
 		using StateChangeFunc = consumer<const subscribers::StateChangeInfo&>;
 
 		/// Prototype for pre state written notification.
-		using PreStateWrittenFunc = consumer<const cache::CatapultCacheDelta&, const state::CatapultState&, Height>;
+		using PreStateWrittenFunc = consumer<const cache::CatapultCacheDelta&, Height>;
 
 		/// Prototype for transaction change notification.
 		using TransactionsChangeFunc = consumer<const TransactionsChangeInfo&>;

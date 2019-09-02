@@ -34,7 +34,7 @@ namespace catapult { namespace plugins {
 	namespace {
 		template<typename TTransaction>
 		PartialMetadataKey ExtractPartialMetadataKey(const TTransaction& transaction) {
-			return { transaction.Signer, transaction.TargetPublicKey, transaction.ScopedMetadataKey };
+			return { transaction.SignerPublicKey, transaction.TargetPublicKey, transaction.ScopedMetadataKey };
 		}
 
 		struct AccountTraits {
@@ -51,24 +51,24 @@ namespace catapult { namespace plugins {
 		struct MosaicTraits {
 			template<typename TTransaction>
 			static MetadataTarget ExtractMetadataTarget(const TTransaction& transaction) {
-				return { MetadataType::Mosaic, transaction.TargetId.unwrap() };
+				return { MetadataType::Mosaic, transaction.TargetMosaicId.unwrap() };
 			}
 
 			template<typename TTransaction>
 			static void RaiseCustomNotifications(const TTransaction& transaction, NotificationSubscriber& sub) {
-				sub.notify(MosaicRequiredNotification(transaction.TargetPublicKey, transaction.TargetId));
+				sub.notify(MosaicRequiredNotification(transaction.TargetPublicKey, transaction.TargetMosaicId));
 			}
 		};
 
 		struct NamespaceTraits {
 			template<typename TTransaction>
 			static MetadataTarget ExtractMetadataTarget(const TTransaction& transaction) {
-				return { MetadataType::Namespace, transaction.TargetId.unwrap() };
+				return { MetadataType::Namespace, transaction.TargetNamespaceId.unwrap() };
 			}
 
 			template<typename TTransaction>
 			static void RaiseCustomNotifications(const TTransaction& transaction, NotificationSubscriber& sub) {
-				sub.notify(NamespaceRequiredNotification(transaction.TargetPublicKey, transaction.TargetId));
+				sub.notify(NamespaceRequiredNotification(transaction.TargetPublicKey, transaction.TargetNamespaceId));
 			}
 		};
 

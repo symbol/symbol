@@ -75,11 +75,10 @@ namespace catapult { namespace mongo {
 			void commitDeletes(const TransactionInfos& removedTransactionInfos) {
 				auto createFilter = [](const auto& info) {
 					return document()
-							<< "$or"
-								<< open_array
-									<< open_document << "meta.hash" << mappers::ToBinary(info.EntityHash) << close_document
-									<< open_document << "meta.aggregateHash" << mappers::ToBinary(info.EntityHash) << close_document
-								<< close_array
+							<< "$or" << open_array
+								<< open_document << "meta.hash" << mappers::ToBinary(info.EntityHash) << close_document
+								<< open_document << "meta.aggregateHash" << mappers::ToBinary(info.EntityHash) << close_document
+							<< close_array
 							<< finalize;
 				};
 				auto results = m_context.bulkWriter().bulkDelete(m_collectionName, removedTransactionInfos, createFilter).get();

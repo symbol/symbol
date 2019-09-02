@@ -106,11 +106,11 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, UnlinkFailsWhenExistingAccountHasRemoteLink) {
-		AssertUnlinkValidationForAccountWithType(Failure_AccountLink_Link_Does_Not_Exist, state::AccountType::Remote);
+		AssertUnlinkValidationForAccountWithType(Failure_AccountLink_Unknown_Link, state::AccountType::Remote);
 	}
 
 	TEST(TEST_CLASS, UnlinkFailsWhenExistingAccountHasNoLink) {
-		AssertUnlinkValidationForAccountWithType(Failure_AccountLink_Link_Does_Not_Exist, state::AccountType::Unlinked);
+		AssertUnlinkValidationForAccountWithType(Failure_AccountLink_Unknown_Link, state::AccountType::Unlinked);
 	}
 
 	// endregion

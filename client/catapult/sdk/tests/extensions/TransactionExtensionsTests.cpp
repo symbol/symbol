@@ -21,6 +21,7 @@
 #include "src/extensions/TransactionExtensions.h"
 #include "catapult/utils/HexParser.h"
 #include "tests/test/core/TransactionTestUtils.h"
+#include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/nodeps/TestConstants.h"
 #include "tests/TestHarness.h"
 
@@ -56,7 +57,7 @@ namespace catapult { namespace extensions {
 			TransactionExtensions extensions(test::GenerateRandomByteArray<GenerationHash>());
 			auto pEntity = test::GenerateRandomTransactionWithSize(TTraits::Entity_Size);
 			auto signer = test::GenerateKeyPair();
-			pEntity->Signer = signer.publicKey();
+			pEntity->SignerPublicKey = signer.publicKey();
 			extensions.sign(signer, *pEntity);
 
 			// - modify the transaction
@@ -111,7 +112,7 @@ namespace catapult { namespace extensions {
 		TransactionExtensions extensions2(test::GenerateRandomByteArray<GenerationHash>());
 		auto pEntity = test::GenerateRandomTransactionWithSize(TTraits::Entity_Size);
 		auto signer = test::GenerateKeyPair();
-		pEntity->Signer = signer.publicKey();
+		pEntity->SignerPublicKey = signer.publicKey();
 		extensions1.sign(signer, *pEntity);
 
 		// Sanity:

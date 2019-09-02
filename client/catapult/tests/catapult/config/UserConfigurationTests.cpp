@@ -33,7 +33,8 @@ namespace catapult { namespace config {
 					{
 						"account",
 						{
-							{ "bootKey", "boot-key" }
+							{ "bootPrivateKey", "boot-key" },
+							{ "shouldAutoDetectDelegatedHarvesters", "true" }
 						}
 					},
 					{
@@ -52,7 +53,8 @@ namespace catapult { namespace config {
 
 			static void AssertZero(const UserConfiguration& config) {
 				// Assert:
-				EXPECT_EQ("", config.BootKey);
+				EXPECT_EQ("", config.BootPrivateKey);
+				EXPECT_FALSE(config.ShouldAutoDetectDelegatedHarvesters);
 
 				EXPECT_EQ("", config.DataDirectory);
 				EXPECT_EQ("", config.PluginsDirectory);
@@ -60,7 +62,8 @@ namespace catapult { namespace config {
 
 			static void AssertCustom(const UserConfiguration& config) {
 				// Assert:
-				EXPECT_EQ("boot-key", config.BootKey);
+				EXPECT_EQ("boot-key", config.BootPrivateKey);
+				EXPECT_TRUE(config.ShouldAutoDetectDelegatedHarvesters);
 
 				EXPECT_EQ("./db", config.DataDirectory);
 				EXPECT_EQ("./ext", config.PluginsDirectory);

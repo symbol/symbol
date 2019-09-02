@@ -32,7 +32,7 @@ namespace catapult {
 
 namespace catapult { namespace mongo { namespace mappers {
 
-	/// Maps a \a transaction with \a metadata to representative db documents using \a transactionRegistry for mapping
+	/// Maps \a transaction with \a metadata to representative db documents using \a transactionRegistry for mapping
 	/// derived transaction types.
 	std::vector<bsoncxx::document::value> ToDbDocuments(
 			const model::Transaction& transaction,

@@ -30,8 +30,8 @@
 namespace catapult { namespace test {
 
 	namespace {
-		constexpr auto Root_Type = utils::to_underlying_type(model::NamespaceType::Root);
-		constexpr auto Child_Type = utils::to_underlying_type(model::NamespaceType::Child);
+		constexpr auto Root_Type = utils::to_underlying_type(model::NamespaceRegistrationType::Root);
+		constexpr auto Child_Type = utils::to_underlying_type(model::NamespaceRegistrationType::Child);
 	}
 
 	void AssertEqualNamespaceMetadata(const mongo::plugins::NamespaceDescriptor& descriptor, const bsoncxx::document::view& dbMetadata) {
@@ -42,7 +42,7 @@ namespace catapult { namespace test {
 	void AssertEqualNamespaceData(const mongo::plugins::NamespaceDescriptor& descriptor, const bsoncxx::document::view& dbNamespace) {
 		auto depth = descriptor.Path.size();
 		auto isRoot = 1 == depth;
-		EXPECT_EQ(isRoot ? Root_Type : Child_Type, GetUint32(dbNamespace, "type"));
+		EXPECT_EQ(isRoot ? Root_Type : Child_Type, GetUint32(dbNamespace, "registrationType"));
 		EXPECT_EQ(depth, GetUint32(dbNamespace, "depth"));
 
 		for (auto level = 0u; level < depth; ++level)
@@ -50,7 +50,7 @@ namespace catapult { namespace test {
 
 		EXPECT_EQ(isRoot ? Namespace_Base_Id : descriptor.Path[depth - 2], NamespaceId(GetUint64(dbNamespace, "parentId")));
 		EXPECT_EQ(descriptor.OwnerAddress, GetAddressValue(dbNamespace, "ownerAddress"));
-		EXPECT_EQ(descriptor.pRoot->owner(), GetKeyValue(dbNamespace, "owner"));
+		EXPECT_EQ(descriptor.pRoot->ownerPublicKey(), GetKeyValue(dbNamespace, "ownerPublicKey"));
 		EXPECT_EQ(descriptor.pRoot->lifetime().Start, Height(GetUint64(dbNamespace, "startHeight")));
 		EXPECT_EQ(descriptor.pRoot->lifetime().End, Height(GetUint64(dbNamespace, "endHeight")));
 

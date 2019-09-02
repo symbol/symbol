@@ -56,7 +56,7 @@ namespace catapult { namespace validators {
 			return IsRemote(cache, GetResolvedKey(key, context.Resolvers));
 		};
 		return std::any_of(addresses.cbegin(), addresses.cend(), predicate) || std::any_of(keys.cbegin(), keys.cend(), predicate)
-				? Failure_AccountLink_Remote_Account_Participant_Not_Allowed
+				? Failure_AccountLink_Remote_Account_Participant_Prohibited
 				: ValidationResult::Success;
 	}));
 }}

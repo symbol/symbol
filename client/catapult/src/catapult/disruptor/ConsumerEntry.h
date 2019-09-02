@@ -26,7 +26,7 @@ namespace catapult { namespace disruptor {
 	/// Holds information about a consumer.
 	class ConsumerEntry {
 	public:
-		/// Creates an entry with a \a level and \a position.
+		/// Creates an entry with \a level and \a position.
 		explicit ConsumerEntry(size_t level)
 				: m_level(level)
 				, m_position(0)

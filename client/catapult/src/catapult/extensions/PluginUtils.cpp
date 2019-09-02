@@ -22,14 +22,13 @@
 #include "catapult/config/CatapultConfiguration.h"
 #include "catapult/observers/NotificationObserverAdapter.h"
 #include "catapult/observers/ReverseNotificationObserverAdapter.h"
-#include "catapult/validators/AggregateEntityValidator.h"
 #include "catapult/validators/NotificationValidatorAdapter.h"
 
 namespace catapult { namespace extensions {
 
 	plugins::StorageConfiguration CreateStorageConfiguration(const config::CatapultConfiguration& config) {
 		plugins::StorageConfiguration storageConfig;
-		storageConfig.PreferCacheDatabase = config.Node.ShouldUseCacheDatabaseStorage;
+		storageConfig.PreferCacheDatabase = config.Node.EnableCacheDatabaseStorage;
 		storageConfig.CacheDatabaseDirectory = (boost::filesystem::path(config.User.DataDirectory) / "statedb").generic_string();
 		storageConfig.MaxCacheDatabaseWriteBatchSize = config.Node.MaxCacheDatabaseWriteBatchSize;
 		return storageConfig;
@@ -42,12 +41,14 @@ namespace catapult { namespace extensions {
 		}
 	}
 
-	std::unique_ptr<const validators::stateless::AggregateEntityValidator> CreateStatelessValidator(
-			const plugins::PluginManager& manager) {
-		// create an aggregate entity validator of one
-		auto validators = validators::ValidatorVectorT<>();
-		validators.push_back(MakeAdapter<validators::NotificationValidatorAdapter>(manager, manager.createStatelessValidator()));
-		return std::make_unique<validators::stateless::AggregateEntityValidator>(std::move(validators));
+	std::unique_ptr<const validators::StatelessEntityValidator> CreateStatelessEntityValidator(
+			const plugins::PluginManager& manager,
+			model::NotificationType excludedNotificationType) {
+		auto pAdapter = MakeAdapter<validators::NotificationValidatorAdapter>(manager, manager.createStatelessValidator());
+		pAdapter->setExclusionFilter([excludedNotificationType](auto notificationType) {
+			return excludedNotificationType == notificationType;
+		});
+		return std::move(pAdapter);
 	}
 
 	std::unique_ptr<const observers::EntityObserver> CreateUndoEntityObserver(const plugins::PluginManager& manager) {

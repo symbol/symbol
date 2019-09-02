@@ -31,9 +31,10 @@ namespace catapult { namespace cache {
 	///       when the delta is destroyed.
 	class CatapultCacheDetachableDelta {
 	public:
-		/// Creates a detachable cache delta from a cache height view (\a cacheHeightView) and \a detachedSubViews.
+		/// Creates a detachable cache delta from a cache height view (\a cacheHeightView), \a dependentState and \a detachedSubViews.
 		CatapultCacheDetachableDelta(
 				CacheHeightView&& cacheHeightView,
+				const state::CatapultState& dependentState,
 				std::vector<std::unique_ptr<DetachedSubCacheView>>&& detachedSubViews);
 
 		/// Destroys the detachable cache delta.

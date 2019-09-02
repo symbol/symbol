@@ -29,13 +29,15 @@ namespace catapult { namespace validators {
 	using Notification = model::MosaicDefinitionNotification;
 
 	namespace {
-		bool ContainsRequiredPropertyChange(const model::MosaicProperties& properties) {
-			for (auto i = 0u; i < model::First_Optional_Property; ++i) {
-				if (0 != (properties.begin() + i)->Value)
-					return true;
-			}
+		bool ContainsAnyPropertyChange(const state::MosaicDefinition& definition, const model::MosaicProperties& properties) {
+			// if any property modified by XOR is nonzero, there is a property change
+			auto xorPropertyChanged = model::MosaicFlags::None != properties.flags() || 0 != properties.divisibility();
+			if (xorPropertyChanged)
+				return true;
 
-			return false;
+			// duration deltas only affect mosaics that are not eternal
+			// (if any change is made to an eternal duration, it will get rejected by the MosaicDurationValidator)
+			return !definition.isEternal() && BlockDuration() != properties.duration();
 		}
 	}
 
@@ -51,12 +53,8 @@ namespace catapult { namespace validators {
 			return mosaicIter.tryGet() ? result : ValidationResult::Success;
 
 		// disallow a noop modification
-		// 1) if any required property changed then it is not a noop modification
-		// 2) if mosaic is eternal and duration property is non-zero, it is a change to non-eternal that the duration validator rejects,
-		//    so only need to check current definition and reject if it is eternal
 		const auto& entry = mosaicIter.get();
-		auto requiredPropertyChanged = ContainsRequiredPropertyChange(notification.Properties);
-		if (!requiredPropertyChanged && entry.definition().isEternal())
+		if (!ContainsAnyPropertyChange(entry.definition(), notification.Properties))
 			return Failure_Mosaic_Modification_No_Changes;
 
 		// require mosaic supply to be zero because else, when rolling back, the definition observer does not know

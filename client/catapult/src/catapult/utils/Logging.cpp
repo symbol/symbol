@@ -141,7 +141,7 @@ namespace catapult { namespace utils {
 		}
 
 		template<typename T>
-		bool ShouldLog(T&& severity, LogLevel level) {
+		bool ShouldLog(const T& severity, LogLevel level) {
 			return severity >= static_cast<boost::log::trivial::severity_level>(level);
 		}
 

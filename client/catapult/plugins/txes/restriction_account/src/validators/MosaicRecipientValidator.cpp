@@ -35,6 +35,6 @@ namespace catapult { namespace validators {
 
 		auto mosaicId = context.Resolvers.resolve(notification.MosaicId);
 		auto isTransferAllowed = view.isAllowed(model::AccountRestrictionType::MosaicId, mosaicId);
-		return isTransferAllowed ? ValidationResult::Success : Failure_RestrictionAccount_Mosaic_Transfer_Not_Allowed;
+		return isTransferAllowed ? ValidationResult::Success : Failure_RestrictionAccount_Mosaic_Transfer_Prohibited;
 	});
 }}

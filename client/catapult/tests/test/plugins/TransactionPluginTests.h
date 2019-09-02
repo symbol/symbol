@@ -169,9 +169,9 @@ namespace catapult { namespace test {
 			EXPECT_FALSE(pPlugin->supportsTopLevel());
 		}
 
-		/// Asserts that additional required cosigners are empty for a transaction plugin.
+		/// Asserts that additional required cosignatories are empty for a transaction plugin.
 		template<typename... TArgs>
-		static void AssertAdditionalRequiredCosignersAreEmpty(model::EntityType, TArgs&& ...args) {
+		static void AssertAdditionalRequiredCosignatoriesAreEmpty(model::EntityType, TArgs&& ...args) {
 			// Arrange:
 			auto pPlugin = TTraits::CreatePlugin(std::forward<TArgs>(args)...);
 
@@ -179,10 +179,10 @@ namespace catapult { namespace test {
 			test::FillWithRandomData(transaction);
 
 			// Act:
-			auto additionalCosigners = pPlugin->additionalRequiredCosigners(transaction);
+			auto additionalCosignatories = pPlugin->additionalRequiredCosignatories(transaction);
 
 			// Assert:
-			EXPECT_TRUE(additionalCosigners.empty());
+			EXPECT_TRUE(additionalCosignatories.empty());
 		}
 	};
 
@@ -213,7 +213,7 @@ namespace catapult { namespace test {
 /// Coverage:
 /// - regular and embedded: { type, calculateRealSize, attributes }
 /// - regular: { supportsEmbedding, embeddedPlugin, dataBuffer, merkleSupplementaryBuffers, supportsTopLevel }
-/// - embedded: { additionalRequiredCosigners }
+/// - embedded: { additionalRequiredCosignatories }
 /// - uncovered (regular and embedded): { publish }
 #define DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, TRAITS_PREFIX, TEST_POSTFIX, ...) \
 	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS_ALL(TEST_CLASS, TRAITS_PREFIX, TEST_POSTFIX, __VA_ARGS__) \
@@ -221,8 +221,8 @@ namespace catapult { namespace test {
 	TEST(TEST_CLASS, PluginSupportsTopLevel##TEST_POSTFIX) { \
 		test::TransactionPluginTests<TRAITS_PREFIX##RegularTraits>::AssertPluginSupportsTopLevel(__VA_ARGS__); \
 	} \
-	TEST(TEST_CLASS, AdditionalRequiredCosignersAreEmpty##TEST_POSTFIX) { \
-		test::TransactionPluginTests<TRAITS_PREFIX##EmbeddedTraits>::AssertAdditionalRequiredCosignersAreEmpty(__VA_ARGS__); \
+	TEST(TEST_CLASS, AdditionalRequiredCosignatoriesAreEmpty##TEST_POSTFIX) { \
+		test::TransactionPluginTests<TRAITS_PREFIX##EmbeddedTraits>::AssertAdditionalRequiredCosignatoriesAreEmpty(__VA_ARGS__); \
 	}
 
 /// Defines basic tests for a transaction plugin with \a TYPE in \a TEST_CLASS using traits prefixed by \a TRAITS_PREFIX
@@ -234,7 +234,7 @@ namespace catapult { namespace test {
 /// - regular and embedded: { type, calculateRealSize, attributes }
 /// - regular: { supportsEmbedding, embeddedPlugin, dataBuffer, merkleSupplementaryBuffers, supportsTopLevel }
 /// - uncovered (regular and embedded): { publish }
-/// - uncovered (embedded): { additionalRequiredCosigners }
+/// - uncovered (embedded): { additionalRequiredCosignatories }
 #define DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS_ONLY_EMBEDDABLE(TEST_CLASS, TRAITS_PREFIX, TEST_POSTFIX, ...) \
 	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS_ALL(TEST_CLASS, TRAITS_PREFIX, TEST_POSTFIX, __VA_ARGS__) \
 	\

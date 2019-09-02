@@ -149,7 +149,7 @@ namespace catapult { namespace cache {
 				m_idLookup.emplace(transactionInfo.EntityHash, ++m_idSequence);
 				m_transactionDataContainer.emplace(transactionInfo, m_idSequence);
 
-				m_counters.increment(transactionInfo.pEntity->Signer);
+				m_counters.increment(transactionInfo.pEntity->SignerPublicKey);
 
 				LogSizes("unconfirmed transactions", m_transactionDataContainer.size(), m_maxCacheSize);
 				return true;
@@ -163,7 +163,7 @@ namespace catapult { namespace cache {
 				auto dataIter = m_transactionDataContainer.find(TransactionData(iter->second));
 				auto erasedInfo = dataIter->copy();
 
-				m_counters.decrement(dataIter->pEntity->Signer);
+				m_counters.decrement(dataIter->pEntity->SignerPublicKey);
 
 				m_transactionDataContainer.erase(dataIter);
 				m_idLookup.erase(iter);

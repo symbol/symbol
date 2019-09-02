@@ -4,8 +4,6 @@
 	db.namespaces.createIndex({ 'meta.active': -1, 'meta.index': 1, 'namespace.level0': 1, 'namespace.depth': 1 });
 	db.namespaces.createIndex({ 'meta.active': -1, 'namespace.level1': 1, 'namespace.depth': 1 });
 	db.namespaces.createIndex({ 'meta.active': -1, 'namespace.level2': 1, 'namespace.depth': 1 });
-	db.namespaces.createIndex({ 'meta.active': -1, 'namespace.owner': 1 });
+	db.namespaces.createIndex({ 'meta.active': -1, 'namespace.ownerPublicKey': 1 });
 	db.namespaces.createIndex({ 'meta.active': -1, 'namespace.ownerAddress': 1 });
-
-	db.namespaces.getIndexes();
 })();

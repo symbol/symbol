@@ -24,6 +24,6 @@
 
 namespace catapult { namespace mongo { namespace plugins {
 
-	/// Maps a \a hashLockInfo and \a accountAddress to the corresponding db model value.
-	bsoncxx::document::value ToDbModel(const state::HashLockInfo& hashLockInfo, const Address& accountAddress);
+	/// Maps \a hashLockInfo and \a senderAddress to the corresponding db model value.
+	bsoncxx::document::value ToDbModel(const state::HashLockInfo& hashLockInfo, const Address& senderAddress);
 }}}

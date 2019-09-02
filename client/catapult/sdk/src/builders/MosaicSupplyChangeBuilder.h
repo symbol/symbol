@@ -36,13 +36,13 @@ namespace catapult { namespace builders {
 		MosaicSupplyChangeBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
 
 	public:
-		/// Sets the id of the affected mosaic to \a mosaicId.
+		/// Sets the affected mosaic identifier to \a mosaicId.
 		void setMosaicId(UnresolvedMosaicId mosaicId);
 
-		/// Sets the supply change direction to \a direction.
-		void setDirection(model::MosaicSupplyChangeDirection direction);
+		/// Sets the supply change action to \a action.
+		void setAction(model::MosaicSupplyChangeAction action);
 
-		/// Sets the amount of the change to \a delta.
+		/// Sets the change amount to \a delta.
 		void setDelta(Amount delta);
 
 	public:
@@ -65,7 +65,7 @@ namespace catapult { namespace builders {
 
 	private:
 		UnresolvedMosaicId m_mosaicId;
-		model::MosaicSupplyChangeDirection m_direction;
+		model::MosaicSupplyChangeAction m_action;
 		Amount m_delta;
 	};
 }}

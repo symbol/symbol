@@ -19,6 +19,7 @@
 **/
 
 #include "catapult/crypto/Signer.h"
+#include "catapult/crypto/KeyUtils.h"
 #include "tests/TestHarness.h"
 #include <numeric>
 
@@ -26,21 +27,24 @@ namespace catapult { namespace crypto {
 
 #define TEST_CLASS SignerTests
 
-	namespace {
-		template<typename TArray>
-		Signature SignPayload(const KeyPair& keyPair, const TArray& payload) {
-			Signature signature{};
-			EXPECT_NO_THROW(Sign(keyPair, payload, signature));
-			return signature;
-		}
+	// region Sign
 
+	namespace {
 		const char* Default_Key_String = "CBD84EF8F5F38A25C01308785EA99627DE897D151AFDFCDA7AB07EFD8ED98534";
+
 		KeyPair GetDefaultKeyPair() {
 			return KeyPair::FromString(Default_Key_String);
 		}
 
 		KeyPair GetAlteredKeyPair() {
 			return KeyPair::FromString("CBD84EF8F5F38A25C01308785EA99627DE897D151AFDFCDA7AB07EFD8ED98535");
+		}
+
+		template<typename TArray>
+		Signature SignPayload(const KeyPair& keyPair, const TArray& payload) {
+			Signature signature{};
+			EXPECT_NO_THROW(Sign(keyPair, payload, signature));
+			return signature;
 		}
 	}
 
@@ -66,7 +70,6 @@ namespace catapult { namespace crypto {
 		auto payload = test::GenerateRandomArray<100>();
 
 		// Act:
-
 		auto signature1 = SignPayload(keyPair1, payload);
 		auto signature2 = SignPayload(keyPair2, payload);
 
@@ -85,6 +88,10 @@ namespace catapult { namespace crypto {
 		// Assert:
 		EXPECT_NE(signature1, signature2);
 	}
+
+	// endregion
+
+	// region Verify
 
 	TEST(TEST_CLASS, SignedDataCanBeVerified) {
 		// Arrange:
@@ -226,8 +233,8 @@ namespace catapult { namespace crypto {
 	}
 
 	TEST(TEST_CLASS, CannotVerifyNonCanonicalSignature) {
-		// Arrange:
-		std::array<uint8_t, 10> payload{ { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 } };
+		// Arrange: the value 30 in the payload ensures that the encodedS part of the signature is < 2 ^ 253 after adding the group order
+		std::array<uint8_t, 10> payload{ { 1, 2, 3, 4, 5, 6, 7, 8, 9, 30 } };
 
 		auto keyPair = GetDefaultKeyPair();
 		auto canonicalSignature = SignPayload(keyPair, payload);
@@ -244,6 +251,181 @@ namespace catapult { namespace crypto {
 		EXPECT_FALSE(isNonCanonicalVerified);
 	}
 
+	// endregion
+
+	// region VerifyMulti
+
+	namespace {
+		constexpr auto Default_Signature_Count = 100u;
+		const Key Valid_Public_Key = ParseKey("53C659B47C176A70EB228DE5C0A0FF391282C96640C2A42CD5BBD0982176AB1B");
+
+		struct DataHolder {
+			std::vector<Key> PublicKeys;
+			std::vector<std::vector<uint8_t>> Buffers;
+			std::vector<Signature> Signatures;
+		};
+
+		std::vector<SignatureInput> CreateSignatureInputs(size_t count, DataHolder& dataHolder) {
+			std::vector<KeyPair> keyPairs;
+			std::vector<SignatureInput> signatureInputs;
+			dataHolder.PublicKeys.reserve(count);
+			dataHolder.Signatures.reserve(count);
+
+			for (auto i = 0u; i < count; ++i) {
+				keyPairs.push_back(KeyPair::FromPrivate(PrivateKey::Generate(test::RandomByte)));
+				auto& buffers = dataHolder.Buffers;
+				auto& signatures = dataHolder.Signatures;
+				dataHolder.PublicKeys.push_back(keyPairs.back().publicKey());
+				buffers.push_back(test::GenerateRandomVector(50));
+				buffers.push_back(test::GenerateRandomVector(70));
+				signatures.push_back(Signature());
+				Sign(keyPairs[i], { buffers[2 * i], buffers[2 * i + 1] }, signatures[i]);
+				signatureInputs.push_back({ dataHolder.PublicKeys[i], { buffers[2 * i], buffers[2 * i + 1] }, signatures[i] });
+			}
+
+			return signatureInputs;
+		}
+
+		template<typename TTraits>
+		void AssertSignedPayloadsCanBeVerifiedAsBatches(size_t count) {
+			// Arrange:
+			DataHolder dataHolder;
+			auto signatureInputs = CreateSignatureInputs(count, dataHolder);
+
+			// Act:
+			auto result = TTraits::Verify(signatureInputs);
+
+			// Assert:
+			auto failedIndexes = std::unordered_set<size_t>();
+			TTraits::AssertVerifyResult(result, true, failedIndexes);
+		}
+
+		template<typename TTraits, typename TMutator>
+		void AssertSignedPayloadsCannotBeVerifiedAsBatches(TMutator mutator) {
+			// Arrange:
+			DataHolder dataHolder;
+			auto signatureInputs = CreateSignatureInputs(Default_Signature_Count, dataHolder);
+			std::unordered_set<size_t> failedIndexes{ 1, 17, 58 };
+			for (auto index : failedIndexes)
+				mutator(signatureInputs, index);
+
+			// Act:
+			auto result = TTraits::Verify(signatureInputs);
+
+			// Assert:
+			TTraits::AssertVerifyResult(result, false, failedIndexes);
+		}
+
+		struct VerifyMultiTraits {
+			static std::pair<std::vector<bool>, bool> Verify(const std::vector<SignatureInput>& signatureInputs) {
+				return VerifyMulti(signatureInputs.data(), signatureInputs.size());
+			}
+
+			static void AssertVerifyResult(
+					const std::pair<std::vector<bool>, bool>& result,
+					bool expectedAggregateResult,
+					std::unordered_set<size_t>& failedIndexes) {
+				// Assert:
+				EXPECT_EQ(expectedAggregateResult, result.second);
+
+				for (auto i = 0u; i < result.first.size(); ++i) {
+					if (failedIndexes.cend() != failedIndexes.find(i)) {
+						EXPECT_FALSE(result.first[i]) << "at index " << i;
+						failedIndexes.erase(i);
+					} else {
+						EXPECT_TRUE(result.first[i]) << "at index " << i;
+					}
+				}
+
+				EXPECT_TRUE(failedIndexes.empty());
+			}
+		};
+
+		struct VerifyMultiShortCircuitTraits {
+			static bool Verify(const std::vector<SignatureInput>& signatureInputs) {
+				return VerifyMultiShortCircuit(signatureInputs.data(), signatureInputs.size());
+			}
+
+			static void AssertVerifyResult(bool result, bool expectedAggregateResult, std::unordered_set<size_t>&) {
+				EXPECT_EQ(expectedAggregateResult, result);
+			}
+		};
+	}
+
+#define VERIFY_MULTI_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_All) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VerifyMultiTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_ShortCircuit) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VerifyMultiShortCircuitTraits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+	VERIFY_MULTI_TEST(SignedPayloadsCanBeVerifiedAsBatches_LessThanBatchSize) {
+		AssertSignedPayloadsCanBeVerifiedAsBatches<TTraits>(0);
+		AssertSignedPayloadsCanBeVerifiedAsBatches<TTraits>(1);
+		AssertSignedPayloadsCanBeVerifiedAsBatches<TTraits>(63);
+	}
+
+	VERIFY_MULTI_TEST(SignedPayloadsCanBeVerifiedAsBatches_EqualToBatchSize) {
+		AssertSignedPayloadsCanBeVerifiedAsBatches<TTraits>(64);
+	}
+
+	VERIFY_MULTI_TEST(SignedPayloadsCanBeVerifiedAsBatches_GreaterThanBatchSize) {
+		AssertSignedPayloadsCanBeVerifiedAsBatches<TTraits>(65); // last signature is not batch verified
+		AssertSignedPayloadsCanBeVerifiedAsBatches<TTraits>(100); // 2 batches
+	}
+
+	VERIFY_MULTI_TEST(SignedPayloadsCannotBeVerifiedAsBatches_DifferentKey) {
+		AssertSignedPayloadsCannotBeVerifiedAsBatches<TTraits>([](auto& signatureInputs, auto index) {
+			const_cast<Key&>(signatureInputs[index].PublicKey) = Valid_Public_Key;
+		});
+	}
+
+	VERIFY_MULTI_TEST(SignedPayloadsCannotBeVerifiedAsBatches_DifferentRPart) {
+		AssertSignedPayloadsCannotBeVerifiedAsBatches<TTraits>([](auto& signatureInputs, auto index) {
+			const_cast<Signature&>(signatureInputs[index].Signature)[5] ^= 0xFF;
+		});
+	}
+
+	VERIFY_MULTI_TEST(SignedPayloadsCannotBeVerifiedAsBatches_DifferentSPart) {
+		AssertSignedPayloadsCannotBeVerifiedAsBatches<TTraits>([](auto& signatureInputs, auto index) {
+			const_cast<Signature&>(signatureInputs[index].Signature)[47] ^= 0xFF;
+		});
+	}
+
+	VERIFY_MULTI_TEST(SignedPayloadsCannotBeVerifiedAsBatches_DifferentPayload) {
+		AssertSignedPayloadsCannotBeVerifiedAsBatches<TTraits>([](auto& signatureInputs, auto index) {
+			const_cast<uint8_t*>(signatureInputs[index].Buffers[0].pData)[13] ^= 0xFF;
+		});
+	}
+
+	VERIFY_MULTI_TEST(SignedPayloadsCannotBeVerifiedAsBatches_PublicKeyNotOnCurve) {
+		AssertSignedPayloadsCannotBeVerifiedAsBatches<TTraits>([](auto& signatureInputs, auto index) {
+			auto& publicKey = const_cast<Key&>(signatureInputs[index].PublicKey);
+			std::fill(publicKey.begin(), publicKey.end(), static_cast<uint8_t>(0));
+			publicKey[publicKey.size() - 1] = 0x01;
+		});
+	}
+
+	VERIFY_MULTI_TEST(SignedPayloadsCannotBeVerifiedAsBatches_ZeroPublicKey) {
+		AssertSignedPayloadsCannotBeVerifiedAsBatches<TTraits>([](auto& signatureInputs, auto index) {
+			const_cast<Key&>(signatureInputs[index].PublicKey) = Key();
+		});
+	}
+
+	VERIFY_MULTI_TEST(SignedPayloadsCannotBeVerifiedAsBatches_NonCanonicalSignature) {
+		AssertSignedPayloadsCannotBeVerifiedAsBatches<TTraits>([](auto& signatureInputs, auto index) {
+			std::array<uint8_t, 10> payload{ { 1, 2, 3, 4, 5, 6, 7, 8, 9, 30 } };
+			auto keyPair = GetDefaultKeyPair();
+			auto nonCanonicalSignature = SignPayload(keyPair, payload);
+			// this is signature with group order added to 'encodedS' part of signature
+			ScalarAddGroupOrder(nonCanonicalSignature.data() + Signature::Size / 2);
+			const_cast<Signature&>(signatureInputs[index].Signature) = nonCanonicalSignature;
+		});
+	}
+
+	// endregion
+
+	// region test vectors
+
 	namespace {
 		struct TestVectorsInput {
 			std::vector<std::string> InputData;
@@ -259,24 +441,24 @@ namespace catapult { namespace crypto {
 				"E4A92208A6FC52282B620699191EE6FB9CF04DAF48B48FD542C5E43DAA9897763A199AAA4B6F10546109F47AC3564FADE0",
 				"13ED795344C4448A3B256F23665336645A853C5C44DBFF6DB1B9224B5303B6447FBF8240A2249C55",
 				"A2704638434E9F7340F22D08019C4C8E3DBEE0DF8DD4454A1D70844DE11694F4C8CA67FDCB08FED0CEC9ABB2112B5E5F89",
-				"D2488E854DBCDFDB2C9D16C8C0B2FDBC0ABB6BAC991BFE2B14D359A6BC99D66C00FD60D731AE06D0",
+				"D2488E854DBCDFDB2C9D16C8C0B2FDBC0ABB6BAC991BFE2B14D359A6BC99D66C00FD60D731AE06D0"
 			};
 
 #ifdef SIGNATURE_SCHEME_NIS1
 			// reversed private keys
 			input.PrivateKeys = {
-				"ABF4CF55A2B3F742D7543D9CC17F50447B969E6E06F5EA9195D428AB12B7318D",
-				"6AA6DAD25D3ACB3385D5643293133936CDDDD7F7E11818771DB1FF2F9D3F9215",
-				"8E32BC030A4C53DE782EC75BA7D5E25E64A2A072A56E5170B77A4924EF3C32A9",
-				"C83CE30FCB5B81A51BA58FF827CCBC0142D61C13E2ED39E78E876605DA16D8D7",
-				"2DA2A0AAE0F37235957B51D15843EDDE348A559692D8FA87B94848459899FC27"
+				"8D31B712AB28D49591EAF5066E9E967B44507FC19C3D54D742F7B3A255CFF4AB",
+				"15923F9D2FFFB11D771818E1F7D7DDCD363913933264D58533CB3A5DD2DAA66A",
+				"A9323CEF24497AB770516EA572A0A2645EE2D5A75BC72E78DE534C0A03BC328E",
+				"D7D816DA0566878EE739EDE2131CD64201BCCC27F88FA51BA5815BCB0FE33CC8",
+				"27FC9998454848B987FAD89296558A34DEED4358D1517B953572F3E0AAA0A22D"
 			};
 			input.ExpectedPublicKeys = {
 				"8A558C728C21C126181E5E654B404A45B4F0137CE88177435A69978CC6BEC1F4",
 				"BBC8CBB43DDA3ECF70A555981A351A064493F09658FFFE884C6FAB2A69C845C6",
 				"72D0E65F1EDE79C4AF0BA7EC14204E10F0F7EA09F2BC43259CD60EA8C3A087E2",
 				"3EC8923F9EA5EA14F8AAA7E7C2784653ED8C7DE44E352EF9FC1DEE81FC3FA1A3",
-				"D73D0B14A9754EEC825FCB25EF1CFA9AE3B1370074EDA53FC64C22334A26C254",
+				"D73D0B14A9754EEC825FCB25EF1CFA9AE3B1370074EDA53FC64C22334A26C254"
 			};
 			input.ExpectedSignatures = {
 				"D9CEC0CC0E3465FAB229F8E1D6DB68AB9CC99A18CB0435F70DEB6100948576CD5C0AA1FEB550BDD8693EF81EB10A556A622DB1F9301986827B96716A7134230C",
@@ -334,7 +516,7 @@ namespace catapult { namespace crypto {
 		}
 	}
 
-	TEST(TEST_CLASS, VerifyPassesTestVectors) {
+	TEST(TEST_CLASS, VerifyPassesTestVectors_Verify) {
 		// Arrange:
 		auto input = GetTestVectorsInput();
 
@@ -351,6 +533,38 @@ namespace catapult { namespace crypto {
 			EXPECT_TRUE(isVerified) << message;
 		}
 	}
+
+	TEST(TEST_CLASS, VerifyPassesTestVectors_VerifyMulti) {
+		// Arrange:
+		auto input = GetTestVectorsInput();
+		DataHolder dataHolder;
+		dataHolder.PublicKeys.reserve(input.InputData.size());
+		dataHolder.Signatures.reserve(input.InputData.size());
+		std::vector<SignatureInput> signatureInputs;
+
+		for (auto i = 0u; i < input.InputData.size(); ++i) {
+			auto keyPair = KeyPair::FromString(input.PrivateKeys[i]);
+			dataHolder.PublicKeys.push_back(keyPair.publicKey());
+			dataHolder.Buffers.push_back(test::ToVector(input.InputData[i]));
+			dataHolder.Signatures.push_back(SignPayload(keyPair, dataHolder.Buffers.back()));
+			signatureInputs.push_back({ dataHolder.PublicKeys.back(), { dataHolder.Buffers.back() }, dataHolder.Signatures.back() });
+		}
+
+		// Act:
+		auto pair = VerifyMulti(signatureInputs.data(), signatureInputs.size());
+
+		// Assert:
+		EXPECT_TRUE(pair.second);
+
+		for (auto i = 0u; i < input.InputData.size(); ++i) {
+			auto message = "test vector at " + std::to_string(i);
+			EXPECT_TRUE(pair.first[i]) << message;
+		}
+	}
+
+	// endregion
+
+	// region sign chunked data
 
 	TEST(TEST_CLASS, SignatureForConsecutiveDataMatchesSignatureForChunkedData) {
 		// Arrange:
@@ -391,4 +605,6 @@ namespace catapult { namespace crypto {
 			EXPECT_EQ(properSignature, result);
 		}
 	}
+
+	// endregion
 }}

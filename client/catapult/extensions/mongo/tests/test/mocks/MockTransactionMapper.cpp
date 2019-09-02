@@ -43,7 +43,7 @@ namespace catapult { namespace mocks {
 
 			void streamTransaction(bson_stream::document& builder, const TTransaction& transaction) const override {
 				const auto& mockTransaction = static_cast<const TDerivedTransaction&>(transaction);
-				builder << "recipient" << ToBinary(mockTransaction.Recipient);
+				builder << "recipientPublicKey" << ToBinary(mockTransaction.RecipientPublicKey);
 
 				if (mockTransaction.Data.Size)
 					builder << "data" << ToBinary(mockTransaction.DataPtr(), mockTransaction.Data.Size);
@@ -77,7 +77,7 @@ namespace catapult { namespace mocks {
 				for (auto i = 0u; i < m_numDependentDocuments; ++i) {
 					auto document = bson_stream::document()
 							<< "dd_counter" << static_cast<int32_t>(i)
-							<< "aggregate_signer" << ToBinary(transaction.Signer)
+							<< "aggregate_signer" << ToBinary(transaction.SignerPublicKey)
 							<< bson_stream::finalize;
 					documents.push_back(document);
 				}

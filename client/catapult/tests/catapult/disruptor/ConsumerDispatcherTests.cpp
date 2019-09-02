@@ -411,7 +411,7 @@ namespace catapult { namespace disruptor {
 				{
 					CreateConsumer(collectedHeights[0]),
 					CreateConsumer(collectedHeights[1]),
-					CreateConsumer(collectedHeights[2]),
+					CreateConsumer(collectedHeights[2])
 				},
 				CreateCollectingInspector(inspectedHeights, inspectedStatuses));
 
@@ -457,12 +457,10 @@ namespace catapult { namespace disruptor {
 		});
 
 		// Act:
-		ConsumerDispatcher dispatcher(
-				Test_Dispatcher_Options,
-				{
-					CreateSkipIfFirstBlockIsEvenConsumer(),
-					CreateConsumer(collectedHeights),
-				});
+		ConsumerDispatcher dispatcher(Test_Dispatcher_Options, {
+			CreateSkipIfFirstBlockIsEvenConsumer(),
+			CreateConsumer(collectedHeights)
+		});
 
 		// push multiple elements
 		ProcessAll(dispatcher, std::move(ranges));

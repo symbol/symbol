@@ -53,14 +53,11 @@ namespace catapult { namespace sync {
 
 		// can't create any views (or storages) in PreStateWritten handler because cache lock is held by calling code
 		auto pStorages = std::make_shared<decltype(cache.storages())>(cache.storages());
-		syncHandlers.PreStateWritten = [preStateWrittenHandler, pStorages, dataDirectory, &score](
-				const auto& cacheDelta,
-				const auto& catapultState,
-				auto height) {
+		syncHandlers.PreStateWritten = [preStateWrittenHandler, pStorages, dataDirectory, &score](const auto& cacheDelta, auto height) {
 			extensions::LocalNodeStateSerializer serializer(dataDirectory.dir("state.tmp"));
-			serializer.save(cacheDelta, *pStorages, catapultState, score.get(), height);
+			serializer.save(cacheDelta, *pStorages, score.get(), height);
 
-			preStateWrittenHandler(cacheDelta, catapultState, height);
+			preStateWrittenHandler(cacheDelta, height);
 		};
 
 		auto commitStepHandler = syncHandlers.CommitStep;

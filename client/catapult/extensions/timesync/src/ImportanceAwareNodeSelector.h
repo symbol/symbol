@@ -56,7 +56,7 @@ namespace catapult { namespace timesync {
 				Height height) const;
 
 	private:
-		std::pair<bool, Importance> isCandidate(
+		std::pair<Importance, bool> isCandidate(
 				const cache::ImportanceView& importanceView,
 				const ionet::Node& node,
 				const ionet::NodeInfo& nodeInfo,

@@ -88,7 +88,7 @@ namespace catapult { namespace model {
 	DEFINE_CORE_NOTIFICATION(Register_Account_Address, 0x0001, All);
 
 	/// Account was used with specified public key.
-	DEFINE_CORE_NOTIFICATION(Register_Account_Public_Key, 0x0002, Observer);
+	DEFINE_CORE_NOTIFICATION(Register_Account_Public_Key, 0x0002, All);
 
 	/// Mosaic was transferred between two accounts.
 	DEFINE_CORE_NOTIFICATION(Balance_Transfer, 0x0003, All);

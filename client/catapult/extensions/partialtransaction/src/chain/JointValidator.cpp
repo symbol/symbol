@@ -20,6 +20,7 @@
 
 #include "JointValidator.h"
 #include "catapult/cache/ReadOnlyCatapultCache.h"
+#include "catapult/chain/ProcessContextsBuilder.h"
 #include "catapult/plugins/PluginManager.h"
 #include "catapult/validators/ValidatorContext.h"
 
@@ -74,9 +75,11 @@ namespace catapult { namespace chain {
 
 			ValidationResult validateStateful(const model::Notification& notification) const {
 				auto cacheView = m_cache.createView();
-				auto readOnlyCache = cacheView.toReadOnly();
-				auto resolverContext = m_resolverContextFactory(readOnlyCache);
-				auto validatorContext = ValidatorContext(cacheView.height(), m_timeSupplier(), m_network, resolverContext, readOnlyCache);
+				auto executionContextConfig = chain::ExecutionContextConfiguration{ m_network, m_resolverContextFactory };
+				chain::ProcessContextsBuilder contextBuilder(cacheView.height(), m_timeSupplier(), executionContextConfig);
+				contextBuilder.setCache(cacheView);
+
+				auto validatorContext = contextBuilder.buildValidatorContext();
 				return m_pStatefulValidator->validate(notification, validatorContext);
 			}
 

@@ -39,7 +39,7 @@ namespace catapult { namespace validators {
 			auto isAllow = state::AccountRestrictionOperationType::Allow == notification.AccountRestrictionDescriptor.operationType();
 
 			// cannot delete relevant entity type for operation type Allow
-			if (model::AccountRestrictionModificationType::Del == notification.Modification.ModificationType)
+			if (model::AccountRestrictionModificationAction::Del == notification.Modification.ModificationAction)
 				return !(isAllow && isRelevantEntityType);
 
 			size_t numTypedRestrictions = 0;
@@ -60,6 +60,6 @@ namespace catapult { namespace validators {
 	DEFINE_STATEFUL_VALIDATOR(AccountOperationRestrictionNoSelfBlocking, [](
 			const Notification& notification,
 			const ValidatorContext& context) {
-		return Validate(notification, context) ? ValidationResult::Success : Failure_RestrictionAccount_Modification_Not_Allowed;
+		return Validate(notification, context) ? ValidationResult::Success : Failure_RestrictionAccount_Invalid_Modification;
 	});
 }}

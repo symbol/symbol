@@ -95,7 +95,7 @@ namespace catapult { namespace validators {
 		auto result = RunValidator(cache, test::GenerateRandomByteArray<Hash256>(), model::Entity_Type_Aggregate_Bonded, Height());
 
 		// Assert:
-		EXPECT_EQ(Failure_LockHash_Hash_Does_Not_Exist, result);
+		EXPECT_EQ(Failure_LockHash_Unknown_Hash, result);
 	}
 
 	TEST(TEST_CLASS, FailureWhenLockInfoIsExpired_AtExpirationHeight) {

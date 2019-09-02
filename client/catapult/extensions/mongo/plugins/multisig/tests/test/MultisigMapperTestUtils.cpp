@@ -42,12 +42,12 @@ namespace catapult { namespace test {
 	void AssertEqualMultisigData(const state::MultisigEntry& entry, const Address& address, const bsoncxx::document::view& dbMultisig) {
 		EXPECT_EQ(address, test::GetAddressValue(dbMultisig, "accountAddress"));
 
-		EXPECT_EQ(entry.key(), GetKeyValue(dbMultisig, "account"));
+		EXPECT_EQ(entry.key(), GetKeyValue(dbMultisig, "accountPublicKey"));
 		EXPECT_EQ(entry.minApproval(), GetUint32(dbMultisig, "minApproval"));
 		EXPECT_EQ(entry.minRemoval(), GetUint32(dbMultisig, "minRemoval"));
 
-		AssertKeySet(entry.cosignatories(), dbMultisig["cosignatories"].get_array().value);
-		AssertKeySet(entry.multisigAccounts(), dbMultisig["multisigAccounts"].get_array().value);
+		AssertKeySet(entry.cosignatoryPublicKeys(), dbMultisig["cosignatoryPublicKeys"].get_array().value);
+		AssertKeySet(entry.multisigPublicKeys(), dbMultisig["multisigPublicKeys"].get_array().value);
 	}
 
 	// endregion

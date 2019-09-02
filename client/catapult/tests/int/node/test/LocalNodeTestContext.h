@@ -127,7 +127,6 @@ namespace catapult { namespace test {
 		Height loadSavedStateChainHeight() const {
 			auto path = boost::filesystem::path(m_tempDir.name()) / "state" / "supplemental.dat";
 			io::RawFile file(path.generic_string(), io::OpenMode::Read_Only);
-			file.seek(file.size() - sizeof(Height));
 			return io::Read<Height>(file);
 		}
 
@@ -207,7 +206,7 @@ namespace catapult { namespace test {
 			// can pass empty string to CreateCatapultConfiguration because this config is only being used to get boot key
 			auto config = CreatePrototypicalCatapultConfiguration("");
 			m_configTransform(config);
-			return crypto::KeyPair::FromString(config.User.BootKey);
+			return crypto::KeyPair::FromString(config.User.BootPrivateKey);
 		}
 
 	public:

@@ -26,8 +26,8 @@ namespace catapult { namespace model {
 
 #endif
 
-	/// Register namespace transaction.
-	DEFINE_TRANSACTION_TYPE(Namespace, Register_Namespace, 0x1);
+	/// Namespace registration transaction.
+	DEFINE_TRANSACTION_TYPE(Namespace, Namespace_Registration, 0x1);
 
 	/// Address alias transaction.
 	DEFINE_TRANSACTION_TYPE(Namespace, Alias_Address, 0x2);

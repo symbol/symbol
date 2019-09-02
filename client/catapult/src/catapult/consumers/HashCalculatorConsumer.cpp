@@ -54,7 +54,7 @@ namespace catapult { namespace consumers {
 
 					Hash256 transactionsHash;
 					transactionsHashBuilder.final(transactionsHash);
-					if (element.Block.BlockTransactionsHash != transactionsHash)
+					if (element.Block.TransactionsHash != transactionsHash)
 						return Abort(Failure_Consumer_Block_Transactions_Hash_Mismatch);
 
 					element.EntityHash = model::CalculateHash(element.Block);

@@ -42,12 +42,12 @@ namespace catapult { namespace state {
 		std::shared_ptr<RootNamespace::Children> pChildren;
 		auto owner = Key();
 		for (const auto& root : history) {
-			if (owner != root.owner()) {
+			if (owner != root.ownerPublicKey()) {
 				pChildren = std::make_shared<RootNamespace::Children>(root.children());
-				owner = root.owner();
+				owner = root.ownerPublicKey();
 			}
 
-			m_rootHistory.emplace_back(root.id(), root.owner(), root.lifetime(), pChildren);
+			m_rootHistory.emplace_back(root.id(), root.ownerPublicKey(), root.lifetime(), pChildren);
 			m_rootHistory.back().setAlias(root.id(), root.alias(root.id()));
 		}
 	}
@@ -69,9 +69,9 @@ namespace catapult { namespace state {
 			return 0;
 
 		auto historyDepth = 0u;
-		const auto& activeOwner = m_rootHistory.back().owner();
+		const auto& activeOwner = m_rootHistory.back().ownerPublicKey();
 		for (auto iter = m_rootHistory.crbegin(); m_rootHistory.crend() != iter; ++iter) {
-			if (activeOwner != iter->owner())
+			if (activeOwner != iter->ownerPublicKey())
 				break;
 
 			++historyDepth;
@@ -91,7 +91,7 @@ namespace catapult { namespace state {
 	void RootNamespaceHistory::push_back(const Key& owner, const NamespaceLifetime& lifetime) {
 		if (!m_rootHistory.empty()) {
 			const auto& previousNamespace = back();
-			if (previousNamespace.owner() == owner) {
+			if (previousNamespace.ownerPublicKey() == owner) {
 				// inherit all children since it is the same owner
 				m_rootHistory.push_back(previousNamespace.renew(lifetime));
 				return;

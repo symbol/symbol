@@ -49,7 +49,7 @@ namespace catapult { namespace validators {
 			auto& restriction = restrictions.restriction(model::AccountRestrictionType::MosaicId);
 			for (auto i = 0u; i < options.NumRestrictions; ++i) {
 				auto modification = model::RawAccountRestrictionModification{
-					model::AccountRestrictionModificationType::Add,
+					model::AccountRestrictionModificationAction::Add,
 					state::ToVector(MosaicId(i))
 				};
 				if (options.ShouldBlock)

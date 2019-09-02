@@ -121,7 +121,7 @@ namespace catapult { namespace subscribers {
 		ASSERT_EQ(1u, subscriber.addedCosignatureInfos().size());
 
 		const auto& cosignatureInfo = subscriber.addedCosignatureInfos()[0];
-		EXPECT_EQ(signer, cosignatureInfo.second.Signer);
+		EXPECT_EQ(signer, cosignatureInfo.second.SignerPublicKey);
 		EXPECT_EQ(signature, cosignatureInfo.second.Signature);
 		test::AssertEqual(*transactionInfos.cbegin(), *cosignatureInfo.first);
 

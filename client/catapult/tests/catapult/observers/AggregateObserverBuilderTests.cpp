@@ -38,8 +38,7 @@ namespace catapult { namespace observers {
 			void notify(uint8_t notificationId, NotifyMode mode) {
 				auto cache = test::CreateEmptyCatapultCache();
 				auto cacheDelta = cache.createDelta();
-				state::CatapultState state;
-				auto context = test::CreateObserverContext(cacheDelta, state, Height(123), mode);
+				auto context = test::CreateObserverContext(cacheDelta, Height(123), mode);
 				test::ObserveNotification(*pAggregateObserver, test::TaggedNotification(notificationId), context);
 			}
 		};
@@ -139,7 +138,7 @@ namespace catapult { namespace observers {
 			0x0201, 0x0202, 0x0203,
 			0x0703, 0x0702, 0x0701,
 			0x0503, 0x0502, 0x0501,
-			0x0101, 0x0102, 0x0103,
+			0x0101, 0x0102, 0x0103
 		};
 		EXPECT_EQ(12u, pContext->Breadcrumbs.size());
 		EXPECT_EQ(expectedBreadcrumbs, pContext->Breadcrumbs);

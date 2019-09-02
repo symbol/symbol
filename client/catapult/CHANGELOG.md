@@ -3,6 +3,28 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+
+## [0.7.0.1] - 02-September-2019
+
+### Added
+ - T1003 - TrustedHosts filter for diagnostic packet handlers
+ - prohibition of zero-based keys and derived addresses
+ - delegated harvester unlocking (via special encrypted message directed to node owner)
+ - dynamic rental fees
+
+### Changed
+ - naming review changes:
+   - T1002 - catbuffer (models, validators, etc)
+   - T1007 - mongo naming review changes
+   - T1008 - config variable naming
+ - use donna ed25519 implementation, use batched signature verification
+ - T1013 - use non-reversed private keys in `SIGNATURE_SCHEME_NIS1` - this change will require private keys used in catapult to be un-reversed, when switching from NIS1
+ - generate nemesis block statement
+ - turn coresystem into plugin
+
+### Fixed
+ - bug in harvesting ut facade factory
+
 ## [0.6.0.1] - 26-July-2019
 
 ### Added
@@ -50,7 +72,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ### Changed
 - Prevent transactions from being replayed on different networks by prepending the network generation hash to transaction data prior to signing and verifying.
-- Cosigners must opt-in before being added to a multisig account.
+- Cosignatories must opt-in before being added to a multisig account.
 - Allow use of same secret with different recipients by adding Recipient to SecretLockTransaction.
 - HashLockTransaction Mosaic supports aliases to to the currency mosaic.
 - Allow aggregate bonded transaction lifetime to be configured independently of other transactions.
@@ -108,6 +130,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Added
 - Initial code release.
 
+[0.7.0.1]: https://github.com/nemtech/catapult-server/compare/v0.6.0.1...v0.7.0.1
 [0.6.0.1]: https://github.com/nemtech/catapult-server/compare/v0.5.0.1...v0.6.0.1
 [0.5.0.1]: https://github.com/nemtech/catapult-server/compare/v0.4.0.1...v0.5.0.1
 [0.4.0.1]: https://github.com/nemtech/catapult-server/compare/v0.3.0.2...v0.4.0.1

@@ -113,7 +113,7 @@ namespace catapult { namespace builders {
 			// Assert:
 			TTraits::CheckBuilderSize(0, builder);
 			TTraits::CheckFields(0, *pTransaction);
-			EXPECT_EQ(signer, pTransaction->Signer);
+			EXPECT_EQ(signer, pTransaction->SignerPublicKey);
 			EXPECT_EQ(0x6201, pTransaction->Version);
 			EXPECT_EQ(TAliasTraits::Transaction_Type, pTransaction->Type);
 
@@ -142,7 +142,7 @@ namespace catapult { namespace builders {
 	TRAITS_BASED_TEST(CanCreateTransaction) {
 		// Arrange:
 		auto namespaceId = test::GenerateRandomValue<NamespaceId>();
-		auto expectedProperties = typename TAliasTraits::TransactionProperties(namespaceId, model::AliasAction::Link);
+		auto expectedProperties = typename TAliasTraits::TransactionProperties(namespaceId, model::AliasAction::Unlink);
 
 		// Assert:
 		AssertCanBuildTransaction<TAliasTraits, TTraits>(expectedProperties, [namespaceId](auto& builder) {
@@ -157,7 +157,7 @@ namespace catapult { namespace builders {
 	TRAITS_BASED_TEST(CanSetAlias) {
 		// Arrange:
 		auto namespaceId = test::GenerateRandomValue<NamespaceId>();
-		auto expectedProperties = typename TAliasTraits::TransactionProperties(namespaceId, model::AliasAction::Link);
+		auto expectedProperties = typename TAliasTraits::TransactionProperties(namespaceId, model::AliasAction::Unlink);
 		test::FillWithRandomData(expectedProperties.Aliased);
 		const auto& aliased = expectedProperties.Aliased;
 

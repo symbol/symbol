@@ -36,7 +36,7 @@ namespace catapult { namespace extensions {
 		// region test utils
 
 		// Num_Nemesis_Transactions - nemesis block has:
-		// 1) Num_Nemesis_Namespaces register namespace transactions
+		// 1) Num_Nemesis_Namespaces namespace registration transactions
 		// 2) for each mosaic - (a) mosaic definition transaction, (b) mosaic supply change transaction, (c) mosaic alias transaction
 		// 3) Num_Nemesis_Accounts transfer transactions
 
@@ -105,7 +105,7 @@ namespace catapult { namespace extensions {
 		// Act:
 		RunNemesisBlockTest([](const auto& stateRef) {
 			// Assert:
-			EXPECT_EQ(model::ImportanceHeight(1), stateRef.State.LastRecalculationHeight);
+			EXPECT_EQ(model::ImportanceHeight(1), stateRef.Cache.createView().dependentState().LastRecalculationHeight);
 		});
 	}
 
@@ -113,7 +113,7 @@ namespace catapult { namespace extensions {
 		// Act:
 		RunNemesisBlockTest([](const auto& stateRef) {
 			// Assert:
-			EXPECT_EQ(Num_Nemesis_Transactions, stateRef.State.NumTotalTransactions);
+			EXPECT_EQ(Num_Nemesis_Transactions, stateRef.Cache.createView().dependentState().NumTotalTransactions);
 		});
 	}
 

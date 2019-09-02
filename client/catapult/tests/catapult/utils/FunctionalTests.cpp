@@ -61,7 +61,7 @@ namespace catapult { namespace utils {
 			{ 8, 13 },
 			{ 13, 21 },
 			{ 21, 34 },
-			{ 34, 55 },
+			{ 34, 55 }
 		};
 		EXPECT_EQ(result, 55);
 		EXPECT_EQ(expected, collected);

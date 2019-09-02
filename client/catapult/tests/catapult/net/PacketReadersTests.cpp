@@ -24,11 +24,11 @@
 #include "catapult/ionet/SocketReader.h"
 #include "catapult/net/VerifyPeer.h"
 #include "catapult/thread/IoThreadPool.h"
-#include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/core/KeyPairTestUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/net/NodeTestUtils.h"
 #include "tests/test/net/SocketTestUtils.h"
+#include "tests/test/nodeps/KeyTestUtils.h"
 #include <unordered_map>
 
 namespace catapult { namespace net {

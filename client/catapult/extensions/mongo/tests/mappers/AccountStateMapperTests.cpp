@@ -33,10 +33,6 @@ namespace catapult { namespace mongo { namespace mappers {
 	// region ToDbModel
 
 	namespace {
-		void AssertEqualAccountStateMetadata(const bsoncxx::document::view& dbMetadata) {
-			EXPECT_EQ(0u, test::GetFieldCount(dbMetadata));
-		}
-
 		auto CreateAccountState(Height publicKeyHeight, std::initializer_list<model::Mosaic> mosaics) {
 			state::AccountState accountState(test::GenerateRandomAddress(), Height(123));
 			if (Height(0) != publicKeyHeight) {
@@ -75,14 +71,11 @@ namespace catapult { namespace mongo { namespace mappers {
 
 			// Assert:
 			auto view = dbAccount.view();
-			EXPECT_EQ(2u, test::GetFieldCount(view));
+			EXPECT_EQ(1u, test::GetFieldCount(view));
 
-			auto metaView = view["meta"].get_document().view();
-			AssertEqualAccountStateMetadata(metaView);
-
-			auto account = view["account"].get_document().view();
-			EXPECT_EQ(9u, test::GetFieldCount(account));
-			test::AssertEqualAccountState(accountState, account);
+			auto accountView = view["account"].get_document().view();
+			EXPECT_EQ(9u, test::GetFieldCount(accountView));
+			test::AssertEqualAccountState(accountState, accountView);
 		}
 	}
 

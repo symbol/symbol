@@ -25,9 +25,9 @@
 
 namespace catapult { namespace mongo { namespace mappers {
 
-	/// Maps a \a statement at \a height to the corresponding db model value.
+	/// Maps \a statement at \a height to the corresponding db model value.
 	bsoncxx::document::value ToDbModel(Height height, const model::AddressResolutionStatement& statement);
 
-	/// Maps a \a statement at \a height to the corresponding db model value.
+	/// Maps \a statement at \a height to the corresponding db model value.
 	bsoncxx::document::value ToDbModel(Height height, const model::MosaicResolutionStatement& statement);
 }}}

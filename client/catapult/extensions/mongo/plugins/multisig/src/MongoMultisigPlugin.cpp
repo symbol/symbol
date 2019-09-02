@@ -18,14 +18,14 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "ModifyMultisigAccountMapper.h"
+#include "MultisigAccountModificationMapper.h"
 #include "storages/MongoMultisigCacheStorage.h"
 #include "mongo/src/MongoPluginManager.h"
 
 extern "C" PLUGIN_API
 void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager) {
 	// transaction support
-	manager.addTransactionSupport(catapult::mongo::plugins::CreateModifyMultisigAccountTransactionMongoPlugin());
+	manager.addTransactionSupport(catapult::mongo::plugins::CreateMultisigAccountModificationTransactionMongoPlugin());
 
 	// cache storage support
 	manager.addStorageSupport(catapult::mongo::plugins::CreateMongoMultisigCacheStorage(

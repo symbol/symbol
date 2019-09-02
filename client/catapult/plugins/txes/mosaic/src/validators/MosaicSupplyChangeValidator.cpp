@@ -25,14 +25,14 @@ namespace catapult { namespace validators {
 	using Notification = model::MosaicSupplyChangeNotification;
 
 	namespace {
-		constexpr bool IsValidDirection(model::MosaicSupplyChangeDirection direction) {
-			return direction <= model::MosaicSupplyChangeDirection::Increase;
+		constexpr bool IsValidAction(model::MosaicSupplyChangeAction action) {
+			return action <= model::MosaicSupplyChangeAction::Increase;
 		}
 	}
 
 	DEFINE_STATELESS_VALIDATOR(MosaicSupplyChange, [](const Notification& notification) {
-		if (!IsValidDirection(notification.Direction))
-			return Failure_Mosaic_Invalid_Supply_Change_Direction;
+		if (!IsValidAction(notification.Action))
+			return Failure_Mosaic_Invalid_Supply_Change_Action;
 
 		return Amount() == notification.Delta
 				? Failure_Mosaic_Invalid_Supply_Change_Amount

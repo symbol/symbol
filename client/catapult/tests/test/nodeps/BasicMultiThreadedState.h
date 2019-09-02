@@ -89,7 +89,7 @@ namespace catapult { namespace test {
 		}
 
 	public:
-		/// Processes an \a item.
+		/// Processes \a item.
 		void process(const typename TTraits::ItemType& item) {
 			LockGuard guard(m_mutex);
 			auto id = std::this_thread::get_id();

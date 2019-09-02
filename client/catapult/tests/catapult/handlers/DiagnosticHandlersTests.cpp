@@ -118,7 +118,7 @@ namespace catapult { namespace handlers {
 		auto counters = CountersVector{
 			utils::DiagnosticCounter(utils::DiagnosticCounterId(123), []() { return 7; }),
 			utils::DiagnosticCounter(utils::DiagnosticCounterId(777), []() { return 88; }),
-			utils::DiagnosticCounter(utils::DiagnosticCounterId(225), []() { return 222; }),
+			utils::DiagnosticCounter(utils::DiagnosticCounterId(225), []() { return 222; })
 		};
 
 		// Asssert:

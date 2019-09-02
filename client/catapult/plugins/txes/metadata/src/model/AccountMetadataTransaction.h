@@ -29,17 +29,17 @@ namespace catapult { namespace model {
 
 	/// Binary layout for an account metadata transaction body.
 	template<typename THeader>
-	using AccountMetadataTransactionBody = BasicMetadataTransactionBody<
-		MetadataTransactionHeader<THeader>,
-		Entity_Type_Account_Metadata>;
+	struct AccountMetadataTransactionBody
+			: public BasicMetadataTransactionBody<MetadataTransactionHeader<THeader>, Entity_Type_Account_Metadata>
+	{};
 
 	DEFINE_EMBEDDABLE_TRANSACTION(AccountMetadata)
 
 #pragma pack(pop)
 
 	/// Extracts public keys of additional accounts that must approve \a transaction.
-	inline utils::KeySet ExtractAdditionalRequiredCosigners(const EmbeddedAccountMetadataTransaction& transaction) {
-		return transaction.Signer == transaction.TargetPublicKey ? utils::KeySet() : utils::KeySet{ transaction.TargetPublicKey };
+	inline utils::KeySet ExtractAdditionalRequiredCosignatories(const EmbeddedAccountMetadataTransaction& transaction) {
+		return transaction.SignerPublicKey == transaction.TargetPublicKey ? utils::KeySet() : utils::KeySet{ transaction.TargetPublicKey };
 	}
 }}
 

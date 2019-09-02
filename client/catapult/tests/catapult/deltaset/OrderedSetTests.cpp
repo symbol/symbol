@@ -97,7 +97,7 @@ DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(OrderedSetImmutable);
 		// Assert:
 		TTraits::AssertContents(*pSet, {
 			TTraits::CreateElement("TestElement", 1),
-			TTraits::CreateElement("MyTestElement", 123),
+			TTraits::CreateElement("MyTestElement", 123)
 		});
 	}
 
@@ -114,7 +114,7 @@ DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(OrderedSetImmutable);
 		// Assert:
 		TTraits::AssertContents(*pSet, {
 			TTraits::CreateElement("TestElement", 3),
-			TTraits::CreateElement("TestElement", 4),
+			TTraits::CreateElement("TestElement", 4)
 		});
 	}
 
@@ -139,7 +139,7 @@ DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(OrderedSetImmutable);
 		TTraits::AssertContents(*pSet, {
 			TTraits::CreateElement("TestElement", 2),
 			TTraits::CreateElement("TestElement", 3),
-			TTraits::CreateElement("TestElement", 4),
+			TTraits::CreateElement("TestElement", 4)
 		});
 	}
 
@@ -164,7 +164,7 @@ DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(OrderedSetImmutable);
 		TTraits::AssertContents(*pSet, {
 			TTraits::CreateElement("TestElement", 2),
 			TTraits::CreateElement("TestElement", 3),
-			TTraits::CreateElement("TestElement", 4),
+			TTraits::CreateElement("TestElement", 4)
 		});
 	}
 
@@ -186,7 +186,7 @@ DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(OrderedSetImmutable);
 		// Assert:
 		TTraits::AssertContents(*pSet, {
 			TTraits::CreateElement("TestElement", 3),
-			TTraits::CreateElement("TestElement", 4),
+			TTraits::CreateElement("TestElement", 4)
 		});
 	}
 

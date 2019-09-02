@@ -74,7 +74,7 @@ namespace catapult { namespace test {
 		// indexes for the transactions collection
 		auto transactions = database["transactions"];
 		auto deadlineIndex = document() << "transaction.deadline" << -1 << finalize;
-		auto signerIndex = document() << "transaction.signer" << 1 << "_id" << -1 << finalize;
+		auto signerIndex = document() << "transaction.signerPublicKey" << 1 << "_id" << -1 << finalize;
 		auto recipientIndex = document() << "transaction.recipient" << 1 << "_id" << -1 << finalize;
 		auto heightIndex = document() << "meta.height" << -1 << finalize;
 		transactions.create_index(deadlineIndex.view(), mongocxx::options::index());
@@ -90,8 +90,7 @@ namespace catapult { namespace test {
 
 	bsoncxx::document::value CreateFilter(const std::shared_ptr<state::AccountState>& pAccountState) {
 		auto filter = document()
-				<< "account.address"
-				<< open_document
+				<< "account.address" << open_document
 					<< "$eq" << mongo::mappers::ToBinary(pAccountState->Address)
 				<< close_document
 				<< finalize;
@@ -174,7 +173,7 @@ namespace catapult { namespace test {
 			AssertEqualTransactionMetadata(expectedMetadata, transactionMeta);
 
 			// - check dependent documents
-			AssertDependentDocuments(collection, expectedTransactionInfo.pEntity->Signer, expectedNumDependentDocuments);
+			AssertDependentDocuments(collection, expectedTransactionInfo.pEntity->SignerPublicKey, expectedNumDependentDocuments);
 			++iter;
 		}
 	}

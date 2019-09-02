@@ -64,7 +64,7 @@ namespace catapult { namespace ionet {
 
 #pragma pack(pop)
 
-	/// Packs a \a node model into a network node.
+	/// Packs \a node model into a network node.
 	std::unique_ptr<NetworkNode> PackNode(const Node& node);
 
 	/// Unpacks a network node (\a networkNode) into a node model.

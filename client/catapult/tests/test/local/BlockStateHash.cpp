@@ -48,14 +48,7 @@ namespace catapult { namespace test {
 		observers::NotificationObserverAdapter entityObserver(pluginManager.createObserver(), pluginManager.createNotificationPublisher());
 
 		// 2. prepare observer state
-		const auto& accountStateCache = cache.sub<cache::AccountStateCache>();
-		auto importanceHeight = block.Height > Height(1)
-				? model::ConvertToImportanceHeight(block.Height, accountStateCache.importanceGrouping())
-				: model::ImportanceHeight();
-
-		auto catapultState = state::CatapultState();
-		catapultState.LastRecalculationHeight = importanceHeight;
-		auto observerState = observers::ObserverState(cache, catapultState);
+		auto observerState = observers::ObserverState(cache);
 
 		// 3. prepare resolvers
 		auto readOnlyCache = cache.toReadOnly();

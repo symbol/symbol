@@ -33,8 +33,7 @@ namespace catapult { namespace mongo { namespace plugins {
 				return;
 
 			builder
-					<< "message"
-					<< bson_stream::open_document
+					<< "message" << bson_stream::open_document
 						<< "type" << pMessage[0]
 						// cannot pass nullptr when 1 == messageSize because libbson asserts that data pointer is not null
 						// however, pointer can be garbage because library does a memcpy with size 0
@@ -55,7 +54,7 @@ namespace catapult { namespace mongo { namespace plugins {
 
 		template<typename TTransaction>
 		void StreamTransaction(bson_stream::document& builder, const TTransaction& transaction) {
-			builder << "recipient" << ToBinary(transaction.Recipient);
+			builder << "recipientAddress" << ToBinary(transaction.RecipientAddress);
 			StreamMessage(builder, transaction.MessagePtr(), transaction.MessageSize);
 			StreamMosaics(builder, transaction.MosaicsPtr(), transaction.MosaicsCount);
 		}

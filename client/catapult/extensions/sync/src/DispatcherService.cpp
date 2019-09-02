@@ -24,7 +24,7 @@
 #include "RollbackInfo.h"
 #include "catapult/cache/ReadOnlyCatapultCache.h"
 #include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/cache_core/BlockDifficultyCache.h"
+#include "catapult/cache_core/BlockStatisticCache.h"
 #include "catapult/cache_core/ImportanceView.h"
 #include "catapult/cache_tx/MemoryUtCache.h"
 #include "catapult/chain/BlockExecutor.h"
@@ -53,7 +53,6 @@
 #include "catapult/subscribers/StateChangeSubscriber.h"
 #include "catapult/subscribers/TransactionStatusSubscriber.h"
 #include "catapult/thread/MultiServicePool.h"
-#include "catapult/validators/AggregateEntityValidator.h"
 #include <boost/filesystem.hpp>
 
 using namespace catapult::consumers;
@@ -64,17 +63,25 @@ namespace catapult { namespace sync {
 	namespace {
 		// region utils
 
+		std::shared_ptr<const validators::ParallelValidationPolicy> CreateParallelValidationPolicy(
+				const std::shared_ptr<thread::IoThreadPool>& pValidatorPool,
+				const plugins::PluginManager& pluginManager) {
+			return validators::CreateParallelValidationPolicy(
+					pValidatorPool,
+					extensions::CreateStatelessEntityValidator(pluginManager, model::SignatureNotification::Notification_Type));
+		}
+
 		ConsumerDispatcherOptions CreateBlockConsumerDispatcherOptions(const config::NodeConfiguration& config) {
 			auto options = ConsumerDispatcherOptions("block dispatcher", config.BlockDisruptorSize);
 			options.ElementTraceInterval = config.BlockElementTraceInterval;
-			options.ShouldThrowWhenFull = config.ShouldAbortWhenDispatcherIsFull;
+			options.ShouldThrowWhenFull = config.EnableDispatcherAbortWhenFull;
 			return options;
 		}
 
 		ConsumerDispatcherOptions CreateTransactionConsumerDispatcherOptions(const config::NodeConfiguration& config) {
 			auto options = ConsumerDispatcherOptions("transaction dispatcher", config.TransactionDisruptorSize);
 			options.ElementTraceInterval = config.TransactionElementTraceInterval;
-			options.ShouldThrowWhenFull = config.ShouldAbortWhenDispatcherIsFull;
+			options.ShouldThrowWhenFull = config.EnableDispatcherAbortWhenFull;
 			return options;
 		}
 
@@ -95,7 +102,7 @@ namespace catapult { namespace sync {
 
 			// if enabled, add an audit consumer before all other consumers
 			const auto& config = state.config();
-			if (config.Node.ShouldAuditDispatcherInputs) {
+			if (config.Node.EnableDispatcherInputAuditing) {
 				auto auditPath = boost::filesystem::path(config.User.DataDirectory) / "audit" / std::string(options.DispatcherName);
 				auditPath /= std::to_string(state.timeSupplier()().unwrap());
 				CATAPULT_LOG(debug) << "enabling auditing to " << auditPath;
@@ -112,7 +119,7 @@ namespace catapult { namespace sync {
 		// region block
 
 		ReceiptValidationMode GetReceiptValidationMode(const model::BlockChainConfiguration& blockChainConfig) {
-			return blockChainConfig.ShouldEnableVerifiableReceipts ? ReceiptValidationMode::Enabled : ReceiptValidationMode::Disabled;
+			return blockChainConfig.EnableVerifiableReceipts ? ReceiptValidationMode::Enabled : ReceiptValidationMode::Disabled;
 		}
 
 		BlockChainProcessor CreateSyncProcessor(
@@ -136,7 +143,7 @@ namespace catapult { namespace sync {
 
 			BlockChainSyncHandlers syncHandlers;
 			syncHandlers.DifficultyChecker = [&rollbackInfo, blockChainConfig](const auto& blocks, const cache::CatapultCache& cache) {
-				auto result = chain::CheckDifficulties(cache.sub<cache::BlockDifficultyCache>(), blocks, blockChainConfig);
+				auto result = chain::CheckDifficulties(cache.sub<cache::BlockStatisticCache>(), blocks, blockChainConfig);
 				rollbackInfo.reset();
 				return blocks.size() == result;
 			};
@@ -165,11 +172,11 @@ namespace catapult { namespace sync {
 			};
 
 			auto dataDirectory = config::CatapultDataDirectory(state.config().User.DataDirectory);
-			syncHandlers.PreStateWritten = [](const auto&, const auto&, auto) {};
+			syncHandlers.PreStateWritten = [](const auto&, auto) {};
 			syncHandlers.TransactionsChange = state.hooks().transactionsChangeHandler();
 			syncHandlers.CommitStep = CreateCommitStepHandler(dataDirectory);
 
-			if (state.config().Node.ShouldUseCacheDatabaseStorage)
+			if (state.config().Node.EnableCacheDatabaseStorage)
 				AddSupplementalDataResiliency(syncHandlers, dataDirectory, state.cache(), state.score());
 
 			return syncHandlers;
@@ -195,24 +202,28 @@ namespace catapult { namespace sync {
 			std::shared_ptr<ConsumerDispatcher> build(
 					const std::shared_ptr<thread::IoThreadPool>& pValidatorPool,
 					RollbackInfo& rollbackInfo) {
+				auto requiresValidationPredicate = ToRequiresValidationPredicate(m_state.hooks().knownHashPredicate(m_state.utCache()));
 				m_consumers.push_back(CreateBlockChainCheckConsumer(
 						m_nodeConfig.MaxBlocksPerSyncAttempt,
 						m_state.config().BlockChain.MaxBlockFutureTime,
 						m_state.timeSupplier()));
 				m_consumers.push_back(CreateBlockStatelessValidationConsumer(
-						extensions::CreateStatelessValidator(m_state.pluginManager()),
-						validators::CreateParallelValidationPolicy(pValidatorPool),
-						ToRequiresValidationPredicate(m_state.hooks().knownHashPredicate(m_state.utCache()))));
+						CreateParallelValidationPolicy(pValidatorPool, m_state.pluginManager()),
+						requiresValidationPredicate));
+				m_consumers.push_back(CreateBlockBatchSignatureConsumer(
+						m_state.config().BlockChain.Network.GenerationHash,
+						m_state.pluginManager().createNotificationPublisher(),
+						pValidatorPool,
+						requiresValidationPredicate));
 
 				auto disruptorConsumers = DisruptorConsumersFromBlockConsumers(m_consumers);
 				disruptorConsumers.push_back(CreateBlockChainSyncConsumer(
 						m_state.cache(),
-						m_state.state(),
 						m_state.storage(),
 						m_state.config().BlockChain.MaxRollbackBlocks,
 						CreateBlockChainSyncHandlers(m_state, rollbackInfo)));
 
-				if (m_state.config().Node.ShouldEnableAutoSyncCleanup)
+				if (m_state.config().Node.EnableAutoSyncCleanup)
 					disruptorConsumers.push_back(CreateBlockChainSyncCleanupConsumer(m_state.config().User.DataDirectory));
 
 				disruptorConsumers.push_back(CreateNewBlockConsumer(m_state.hooks().newBlockSink(), InputSource::Local));
@@ -274,10 +285,15 @@ namespace catapult { namespace sync {
 			std::shared_ptr<ConsumerDispatcher> build(
 					const std::shared_ptr<thread::IoThreadPool>& pValidatorPool,
 					chain::UtUpdater& utUpdater) {
+				auto failedTransactionSink = extensions::SubscriberToSink(m_state.transactionStatusSubscriber());
 				m_consumers.push_back(CreateTransactionStatelessValidationConsumer(
-						extensions::CreateStatelessValidator(m_state.pluginManager()),
-						validators::CreateParallelValidationPolicy(pValidatorPool),
-						extensions::SubscriberToSink(m_state.transactionStatusSubscriber())));
+						CreateParallelValidationPolicy(pValidatorPool, m_state.pluginManager()),
+						failedTransactionSink));
+				m_consumers.push_back(CreateTransactionBatchSignatureConsumer(
+						m_state.config().BlockChain.Network.GenerationHash,
+						m_state.pluginManager().createNotificationPublisher(),
+						pValidatorPool,
+						failedTransactionSink));
 
 				auto disruptorConsumers = DisruptorConsumersFromTransactionConsumers(m_consumers);
 				disruptorConsumers.push_back(CreateNewTransactionsConsumer(

@@ -33,7 +33,7 @@ tokens = [  # pylint: disable=invalid-name
     'CHAR_LITERAL',
     'STRING_LITERAL',
     'NEWLINE',
-    'SQUOTE',
+    'SQUOTE'
 ]
 
 

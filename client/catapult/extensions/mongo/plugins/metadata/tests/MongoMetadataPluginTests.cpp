@@ -33,7 +33,7 @@ namespace catapult { namespace mongo { namespace plugins {
 				return {
 					model::Entity_Type_Account_Metadata,
 					model::Entity_Type_Mosaic_Metadata,
-					model::Entity_Type_Namespace_Metadata,
+					model::Entity_Type_Namespace_Metadata
 				};
 			}
 

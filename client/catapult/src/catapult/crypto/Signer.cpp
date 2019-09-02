@@ -21,14 +21,45 @@
 #include "Signer.h"
 #include "CryptoUtils.h"
 #include "Hashes.h"
+#include "catapult/utils/RandomGenerator.h"
 #include "catapult/exceptions.h"
 #include <cstring>
-#include <ref10/crypto_verify_32.h>
+#include <random>
+
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wold-style-cast"
+#pragma clang diagnostic ignored "-Wcast-align"
+#pragma clang diagnostic ignored "-Wcast-qual"
+#pragma clang diagnostic ignored "-Wimplicit-fallthrough"
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wunused-function"
+#pragma clang diagnostic ignored "-Wreserved-id-macro"
+#pragma clang diagnostic ignored "-Wdocumentation"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic ignored "-Wunused-function"
+#pragma GCC diagnostic ignored "-Wstrict-aliasing"
+#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
+#elif defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable : 4324) /* ed25519 structs use __declspec(align()) */
+#pragma warning(disable : 4388) /* signed/unsigned mismatch */
+#pragma warning(disable : 4505) /* unreferenced local function has been removed */
+#endif
 
 extern "C" {
-#include <ref10/ge.h>
-#include <ref10/sc.h>
+#include <donna/ed25519-donna-batchverify.h>
+#include <donna/modm-donna-64bit.h>
+#include <sha3/KeccakHash.h>
 }
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
+#elif defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 
 #ifdef _MSC_VER
 #define RESTRICT __restrict
@@ -48,6 +79,13 @@ namespace catapult { namespace crypto {
 		// indicates that the encoded S part of the signature is zero
 		constexpr int Is_Zero = 2;
 
+		void Reduce(uint8_t* out, const uint8_t* encodedS) {
+			bignum256modm temp;
+			expand_raw256_modm(temp, encodedS);
+			reduce256_modm(temp);
+			contract256_modm(out, temp);
+		}
+
 		int ValidateEncodedSPart(const uint8_t* encodedS) {
 			uint8_t encodedBuf[Signature::Size];
 			uint8_t *RESTRICT encodedTempR = encodedBuf;
@@ -57,8 +95,7 @@ namespace catapult { namespace crypto {
 			if (0 == std::memcmp(encodedS, encodedZero, Encoded_Size))
 				return Is_Zero | Is_Reduced;
 
-			std::memcpy(encodedTempR, encodedS, Encoded_Size);
-			sc_reduce(encodedBuf);
+			Reduce(encodedTempR, encodedS);
 
 			return std::memcmp(encodedTempR, encodedS, Encoded_Size) ? 0 : Is_Reduced;
 		}
@@ -79,6 +116,8 @@ namespace catapult { namespace crypto {
 #endif
 	}
 
+	// region Sign
+
 	void Sign(const KeyPair& keyPair, const RawBuffer& dataBuffer, Signature& computedSignature) {
 		Sign(keyPair, { dataBuffer }, computedSignature);
 	}
@@ -94,37 +133,43 @@ namespace catapult { namespace crypto {
 		// r = H(privHash[256:512] || data)
 		// "EdDSA avoids these issues by generating r = H(h_b, ..., h_2b?1, M), so that
 		//  different messages will lead to different, hard-to-predict values of r."
-		Hash512 r;
+		Hash512 hash_r;
 		HashBuilder hasher_r;
 		hasher_r.update({ privHash.data() + Hash512::Size / 2, Hash512::Size / 2 });
 		hasher_r.update(buffersList);
-		hasher_r.final(r);
+		hasher_r.final(hash_r);
 
-		// reduce size of r since we are calculating mod group order anyway
-		sc_reduce(r.data());
+		bignum256modm r;
+		expand256_modm(r, hash_r.data(), 64);
 
 		// R = rModQ * base point
-		ge_p3 rMulBase;
-		ge_scalarmult_base(&rMulBase, r.data());
-		ge_p3_tobytes(encodedR, &rMulBase);
+		ge25519 ALIGN(16) R;
+		ge25519_scalarmult_base_niels(&R, ge25519_niels_base_multiples, r);
+		ge25519_pack(encodedR, &R);
 
 		// h = H(encodedR || public || data)
-		Hash512 h;
+		Hash512 hash_h;
 		HashBuilder hasher_h;
 		hasher_h.update({ { encodedR, Encoded_Size }, keyPair.publicKey() });
 		hasher_h.update(buffersList);
-		hasher_h.final(h);
+		hasher_h.final(hash_h);
 
-		// h = h mod group order
-		sc_reduce(h.data());
+		bignum256modm h;
+		expand256_modm(h, hash_h.data(), 64);
 
 		// a = fieldElement(privHash[0:256])
 		privHash[0] &= 0xF8;
 		privHash[31] &= 0x7F;
 		privHash[31] |= 0x40;
 
+		bignum256modm a;
+		expand256_modm(a, privHash.data(), 32);
+
 		// S = (r + h * a) mod group order
-		sc_muladd(encodedS, h.data(), privHash.data(), r.data());
+		bignum256modm S;
+		mul256_modm(S, h, a);
+		add256_modm(S, S, r);
+		contract256_modm(encodedS, S);
 
 		// signature is (encodedR, encodedS)
 
@@ -133,11 +178,15 @@ namespace catapult { namespace crypto {
 		CheckEncodedS(encodedS);
 	}
 
+	// endregion
+
+	// region Verify
+
 	bool Verify(const Key& publicKey, const RawBuffer& dataBuffer, const Signature& signature) {
-		return Verify(publicKey, { dataBuffer }, signature);
+		return Verify(publicKey, std::vector<RawBuffer>{ dataBuffer }, signature);
 	}
 
-	bool Verify(const Key& publicKey, std::initializer_list<const RawBuffer> buffersList, const Signature& signature) {
+	bool Verify(const Key& publicKey, const std::vector<RawBuffer>& buffers, const Signature& signature) {
 		const uint8_t *RESTRICT encodedR = signature.data();
 		const uint8_t *RESTRICT encodedS = signature.data() + Encoded_Size;
 
@@ -150,27 +199,156 @@ namespace catapult { namespace crypto {
 			return false;
 
 		// h = H(encodedR || public || data)
-		Hash512 h;
+		Hash512 hash_h;
 		HashBuilder hasher_h;
 		hasher_h.update({ { encodedR, Encoded_Size }, publicKey });
-		hasher_h.update(buffersList);
-		hasher_h.final(h);
+		for (const auto& buffer : buffers)
+			hasher_h.update(buffer);
 
-		// h = h mod group order
-		sc_reduce(h.data());
+		hasher_h.final(hash_h);
+
+		bignum256modm h;
+		expand256_modm(h, hash_h.data(), 64);
 
 		// A = -pub
-		ge_p3 A;
-		if (0 != ge_frombytes_negate_vartime(&A, publicKey.data()))
+		ge25519 ALIGN(16) A;
+		if (!ge25519_unpack_negative_vartime(&A, publicKey.data()))
 			return false;
 
+		bignum256modm S;
+		expand256_modm(S, encodedS, 32);
+
 		// R = encodedS * B - h * A
-		ge_p2 R;
-		ge_double_scalarmult_vartime(&R, h.data(), &A, encodedS);
+		ge25519 ALIGN(16) R;
+		ge25519_double_scalarmult_vartime(&R, &A, h, S);
 
 		// compare calculated R to given R
 		uint8_t checkr[Encoded_Size];
-		ge_tobytes(checkr, &R);
-		return 0 == crypto_verify_32(checkr, encodedR);
+		ge25519_pack(checkr, &R);
+		return 1 == ed25519_verify(encodedR, checkr, 32);
 	}
+
+	// endregion
+
+	// region VerifyMulti
+
+	namespace {
+		void RandomBytes(uint8_t* pOut, size_t count) {
+			utils::LowEntropyRandomGenerator generator;
+			generator.fill(pOut, count);
+		}
+
+		std::pair<std::vector<bool>, bool> CheckForCanonicalFormAndNonzeroKeys(const SignatureInput* pSignatureInputs, size_t count) {
+			// reject if not canonical or public key is zero
+			auto aggregateResult = true;
+			std::vector<bool> valid(count, true);
+			for (auto i = 0u; i < count; ++i) {
+				if (!IsCanonicalS(pSignatureInputs[i].Signature.data() + Encoded_Size) || Key() == pSignatureInputs[i].PublicKey) {
+					aggregateResult = false;
+					valid[i] = false;
+				}
+			}
+
+			return std::make_pair(valid, aggregateResult);
+		}
+
+		bool VerifySingle(const SignatureInput* pSignatureInputs, size_t offset, size_t count, std::vector<bool>& valid) {
+			bool aggregateResult = true;
+			for (auto i = 0u; i < count; ++i) {
+				valid[offset + i] = Verify(pSignatureInputs[i].PublicKey, pSignatureInputs[i].Buffers, pSignatureInputs[i].Signature);
+				aggregateResult &= valid[offset + i];
+			}
+
+			return aggregateResult;
+		}
+
+		bool VerifyBatches(
+				const SignatureInput* pSignatureInputs,
+				size_t count,
+				std::pair<std::vector<bool>, bool>& result,
+				const predicate<size_t, size_t>& fallback) {
+			size_t offset = 0;
+			batch_heap ALIGN(16) batch;
+			ge25519 ALIGN(16) p;
+			bignum256modm* r_scalars;
+			size_t batchSize;
+			auto& aggregateResult = result.second;
+
+			// because batch verification has some overhead like computing scalars, it is only faster when verifying more than 3 signatures
+			while (count > 3) {
+				batchSize = (count > max_batch_size) ? max_batch_size : count;
+
+				// generate r (scalars[batchSize+1]..scalars[2*batchSize]
+				// compute scalars[0] = ((r1s1 + r2s2 + ...))
+				RandomBytes(reinterpret_cast<uint8_t*>(batch.r), batchSize * 16);
+				r_scalars = &batch.scalars[batchSize + 1];
+				for (auto i = 0u; i < batchSize; ++i) {
+					expand256_modm(r_scalars[i], batch.r[i], 16);
+					expand256_modm(batch.scalars[i], pSignatureInputs[offset + i].Signature.data() + 32, 32);
+					mul256_modm(batch.scalars[i], batch.scalars[i], r_scalars[i]);
+					if (0u < i)
+						add256_modm(batch.scalars[0], batch.scalars[0], batch.scalars[i]);
+				}
+
+				// compute scalars[1]..scalars[batchSize] as r[i]*H(R[i],A[i],m[i])
+				for (auto i = 0u; i < batchSize; ++i) {
+					Hash512 hash_h;
+					HashBuilder hasher_h;
+					const auto& signatureInput = pSignatureInputs[offset + i];
+					hasher_h.update({ { signatureInput.Signature.data(), Encoded_Size }, signatureInput.PublicKey });
+					for (const auto& buffer : signatureInput.Buffers)
+						hasher_h.update(buffer);
+
+					hasher_h.final(hash_h);
+
+					expand256_modm(batch.scalars[i + 1], hash_h.data(), 64);
+					mul256_modm(batch.scalars[i + 1], batch.scalars[i + 1], r_scalars[i]);
+				}
+
+				// compute points
+				batch.points[0] = ge25519_basepoint;
+				bool success = true;
+				for (auto i = 0u; i < batchSize; ++i) {
+					const auto& signatureInput = pSignatureInputs[offset + i];
+					success &= 1 == ge25519_unpack_negative_vartime(&batch.points[i + 1], signatureInput.PublicKey.data());
+					success &= 1 == ge25519_unpack_negative_vartime(&batch.points[batchSize + i + 1], signatureInput.Signature.data());
+					if (!success)
+						break;
+				}
+
+				if (success) {
+					ge25519_multi_scalarmult_vartime(&p, &batch, (batchSize * 2) + 1);
+					success = ge25519_is_neutral_vartime(&p);
+				}
+
+				// fallback if batch verification failed
+				if (!success && !fallback(offset, batchSize))
+					return false;
+
+				count -= batchSize;
+				offset += batchSize;
+			}
+
+			aggregateResult &= VerifySingle(pSignatureInputs, offset, count, result.first);
+			return aggregateResult;
+		}
+	}
+
+	std::pair<std::vector<bool>, bool> VerifyMulti(const SignatureInput* pSignatureInputs, size_t count) {
+		auto result = CheckForCanonicalFormAndNonzeroKeys(pSignatureInputs, count);
+		VerifyBatches(pSignatureInputs, count, result, [&pSignatureInputs, &result](auto offset, auto batchSize) {
+			result.second &= VerifySingle(pSignatureInputs, offset, batchSize, result.first);
+			return true;
+		});
+		return result;
+	}
+
+	bool VerifyMultiShortCircuit(const SignatureInput* pSignatureInputs, size_t count) {
+		auto result = CheckForCanonicalFormAndNonzeroKeys(pSignatureInputs, count);
+		return result.second && VerifyBatches(pSignatureInputs, count, result, [](auto, auto) {
+			return false;
+		});
+	}
+
+	// endregion
 }}

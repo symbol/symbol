@@ -73,7 +73,7 @@ namespace catapult { namespace tools { namespace nemgen {
 		}
 
 		auto ToMosaicEntry(const state::MosaicDefinition& definition, MosaicNonce mosaicNonce, Amount supply) {
-			auto entry = state::MosaicEntry(model::GenerateMosaicId(definition.owner(), mosaicNonce), definition);
+			auto entry = state::MosaicEntry(model::GenerateMosaicId(definition.ownerPublicKey(), mosaicNonce), definition);
 			entry.increaseSupply(supply);
 			return entry;
 		}
@@ -89,11 +89,10 @@ namespace catapult { namespace tools { namespace nemgen {
 			};
 
 			auto supply = Amount(bag.get<uint64_t>(makeKey("supply")));
-			model::MosaicProperties::PropertyValuesContainer values{};
-			values[utils::to_underlying_type(model::MosaicPropertyId::Divisibility)] = bag.get<uint8_t>(makeKey("divisibility"));
-			values[utils::to_underlying_type(model::MosaicPropertyId::Duration)] = bag.get<uint64_t>(makeKey("duration"));
+			auto divisibility = bag.get<uint8_t>(makeKey("divisibility"));
+			auto duration = BlockDuration(bag.get<uint64_t>(makeKey("duration")));
 
-			model::MosaicFlags flags(model::MosaicFlags::None);
+			auto flags = model::MosaicFlags::None;
 			if (bag.get<bool>(makeKey("isTransferable")))
 				flags |= model::MosaicFlags::Transferable;
 
@@ -103,8 +102,7 @@ namespace catapult { namespace tools { namespace nemgen {
 			if (bag.get<bool>(makeKey("isRestrictable")))
 				flags |= model::MosaicFlags::Restrictable;
 
-			values[utils::to_underlying_type(model::MosaicPropertyId::Flags)] = utils::to_underlying_type(flags);
-			state::MosaicDefinition definition(Height(1), owner, 1, model::MosaicProperties::FromValues(values));
+			state::MosaicDefinition definition(Height(1), owner, 1, model::MosaicProperties(flags, divisibility, duration));
 			return ToMosaicEntry(definition, mosaicNonce, supply);
 		}
 

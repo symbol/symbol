@@ -23,15 +23,18 @@
 #include "SubCachePlugin.h"
 #include <memory>
 
-namespace catapult { namespace cache { class ReadOnlyCatapultCache; } }
+namespace catapult {
+	namespace cache { class ReadOnlyCatapultCache; }
+	namespace state { struct CatapultState; }
+}
 
 namespace catapult { namespace cache {
 
 	/// Delta on top of a catapult cache.
 	class CatapultCacheDelta {
 	public:
-		/// Creates a locked catapult cache delta from \a subViews.
-		explicit CatapultCacheDelta(std::vector<std::unique_ptr<SubCacheView>>&& subViews);
+		/// Creates a locked catapult cache delta from \a dependentState and \a subViews.
+		CatapultCacheDelta(state::CatapultState& dependentState, std::vector<std::unique_ptr<SubCacheView>>&& subViews);
 
 		/// Destroys the delta.
 		~CatapultCacheDelta();
@@ -55,6 +58,12 @@ namespace catapult { namespace cache {
 		}
 
 	public:
+		/// Gets (const) dependent catapult state.
+		const state::CatapultState& dependentState() const;
+
+		/// Gets dependent catapult state.
+		state::CatapultState& dependentState();
+
 		/// Calculates the cache state hash given \a height.
 		StateHashInfo calculateStateHash(Height height) const;
 
@@ -66,6 +75,7 @@ namespace catapult { namespace cache {
 		ReadOnlyCatapultCache toReadOnly() const;
 
 	private:
+		state::CatapultState* m_pDependentState; // use a pointer to allow move assignment
 		std::vector<std::unique_ptr<SubCacheView>> m_subViews;
 	};
 }}

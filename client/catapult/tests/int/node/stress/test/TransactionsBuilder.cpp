@@ -38,7 +38,7 @@ namespace catapult { namespace test {
 			Timestamp deadline) const {
 		switch (static_cast<DescriptorType>(descriptorType)) {
 		case DescriptorType::Namespace:
-			return createRegisterNamespace(CastToDescriptor<NamespaceDescriptor>(pDescriptor), deadline);
+			return createNamespaceRegistration(CastToDescriptor<NamespaceDescriptor>(pDescriptor), deadline);
 
 		case DescriptorType::Alias:
 			return createAddressAlias(CastToDescriptor<NamespaceDescriptor>(pDescriptor), deadline);
@@ -59,12 +59,12 @@ namespace catapult { namespace test {
 			add(DescriptorType::Alias, descriptor);
 	}
 
-	std::unique_ptr<model::Transaction> TransactionsBuilder::createRegisterNamespace(
+	std::unique_ptr<model::Transaction> TransactionsBuilder::createNamespaceRegistration(
 			const NamespaceDescriptor& descriptor,
 			Timestamp deadline) const {
 		const auto& ownerKeyPair = accounts().getKeyPair(descriptor.OwnerId);
 
-		auto pTransaction = CreateRegisterRootNamespaceTransaction(ownerKeyPair, descriptor.Name, descriptor.Duration);
+		auto pTransaction = CreateRootNamespaceRegistrationTransaction(ownerKeyPair, descriptor.Name, descriptor.Duration);
 		return SignWithDeadline(std::move(pTransaction), ownerKeyPair, deadline);
 	}
 

@@ -20,7 +20,7 @@
 
 #include "catapult/local/recovery/RecoveryOrchestrator.h"
 #include "catapult/cache/SupplementalData.h"
-#include "catapult/cache_core/BlockDifficultyCache.h"
+#include "catapult/cache_core/BlockStatisticCache.h"
 #include "catapult/chain/BlockScorer.h"
 #include "catapult/consumers/BlockChainSyncHandlers.h"
 #include "catapult/extensions/LocalNodeStateFileStorage.h"
@@ -89,14 +89,15 @@ namespace catapult { namespace local {
 			cache::SupplementalData supplementalData;
 			supplementalData.ChainScore = model::ChainScore(0x1234567890ABCDEF, 0xFEDCBA0987654321);
 			supplementalData.State.LastRecalculationHeight = model::ImportanceHeight(12345);
+			supplementalData.State.DynamicFeeMultiplier = BlockFeeMultiplier(334455);
 			supplementalData.State.NumTotalTransactions = 7654321;
 			return supplementalData;
 		}
 
-		void PopulateBlockDifficultyCache(cache::BlockDifficultyCacheDelta& cacheDelta, Height startHeight, Height endHeight) {
+		void PopulateBlockStatisticCache(cache::BlockStatisticCacheDelta& cacheDelta, Height startHeight, Height endHeight) {
 			for (auto height = startHeight; height <= endHeight; height = height + Height(1)) {
-				auto i = height.unwrap();
-				cacheDelta.insert(height, Timestamp(2 * i + 1), Difficulty(3 * i + 1));
+				auto seed = static_cast<uint32_t>(height.unwrap() + 1);
+				cacheDelta.insert({ height, Timestamp(2 * seed), Difficulty(3 * seed), BlockFeeMultiplier(4 * seed) });
 			}
 		}
 
@@ -106,17 +107,18 @@ namespace catapult { namespace local {
 			loader.executeAndCommit(stateRef, extensions::StateHashVerification::Enabled);
 		}
 
-		void RandomSeedCache(cache::CatapultCache& catapultCache, Height cacheHeight) {
+		void RandomSeedCache(cache::CatapultCache& catapultCache, Height cacheHeight, const state::CatapultState& state) {
 			// Arrange: seed the cache with random data
 			{
 				auto delta = catapultCache.createDelta();
-				PopulateBlockDifficultyCache(delta.sub<cache::BlockDifficultyCache>(), Height(2), cacheHeight);
+				PopulateBlockStatisticCache(delta.sub<cache::BlockStatisticCache>(), Height(2), cacheHeight);
+				delta.dependentState() = state;
 				catapultCache.commit(cacheHeight);
 			}
 
 			// Sanity: data was seeded
 			auto view = catapultCache.createView();
-			EXPECT_EQ(cacheHeight.unwrap(), view.sub<cache::BlockDifficultyCache>().size());
+			EXPECT_EQ(cacheHeight.unwrap(), view.sub<cache::BlockStatisticCache>().size());
 		}
 
 		void PrepareAndSaveState(
@@ -133,16 +135,16 @@ namespace catapult { namespace local {
 			// - seed with nemesis block, so that nemesis accounts have proper balances
 			test::LocalNodeTestState state(pluginManager.createCache());
 			SeedCacheWithNemesis(state.ref(), pluginManager);
-			RandomSeedCache(state.ref().Cache, cacheHeight);
+			RandomSeedCache(state.ref().Cache, cacheHeight, supplementalData.State);
 
 			// - save state
 			extensions::LocalNodeStateSerializer serializer(config::CatapultDirectory(directory.str()));
 			if (shouldUseCacheDatabase) {
 				auto storages = const_cast<const cache::CatapultCache&>(state.ref().Cache).storages();
 				auto cacheDelta = state.ref().Cache.createDelta();
-				serializer.save(cacheDelta, storages, supplementalData.State, supplementalData.ChainScore, cacheHeight);
+				serializer.save(cacheDelta, storages, supplementalData.ChainScore, cacheHeight);
 			} else {
-				serializer.save(state.ref().Cache, supplementalData.State, supplementalData.ChainScore);
+				serializer.save(state.ref().Cache, supplementalData.ChainScore);
 			}
 		}
 
@@ -228,7 +230,7 @@ namespace catapult { namespace local {
 		public:
 			void boot() {
 				auto config = test::CreateCatapultConfigurationWithNemesisPluginExtensions(dataDirectory().rootDir().str());
-				const_cast<config::NodeConfiguration&>(config.Node).ShouldUseCacheDatabaseStorage = m_useCacheDatabaseStorage;
+				const_cast<config::NodeConfiguration&>(config.Node).EnableCacheDatabaseStorage = m_useCacheDatabaseStorage;
 
 				// seed the data directory at most once
 				if (!boost::filesystem::exists(dataDirectory().rootDir().path() / "00000"))

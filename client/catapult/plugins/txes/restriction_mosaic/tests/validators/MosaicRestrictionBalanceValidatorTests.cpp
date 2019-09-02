@@ -149,7 +149,7 @@ namespace catapult { namespace validators {
 	}
 
 	ACCOUNT_BASED_TEST(FailureWhenInvalidMosaicRulesAreConfigured) {
-		auto expectedResult = Failure_RestrictionMosaic_Global_Restriction_Invalid;
+		auto expectedResult = Failure_RestrictionMosaic_Invalid_Global_Restriction;
 		RunTest<TTraits>(expectedResult, Mosaic_Id_Invalid_Rule, [](auto& cache, const auto& publicKey1, const auto& publicKey2) {
 			SeedCacheForTests(cache, { publicKey1, publicKey2 }, {});
 		});

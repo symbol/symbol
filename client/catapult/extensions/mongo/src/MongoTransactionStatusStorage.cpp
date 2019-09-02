@@ -74,7 +74,7 @@ namespace catapult { namespace mongo {
 						Collection_Name,
 						transactionStatuses,
 						[](const auto& status, auto) { return mappers::ToDbModel(status); },
-						CreateFilter("hash")).get();
+						CreateFilter("status.hash")).get();
 				auto aggregateUpsert = BulkWriteResult::Aggregate(thread::get_all(std::move(results)));
 				m_errorPolicy.checkUpserted(transactionStatuses.size(), aggregateUpsert, "transaction statuses");
 			}

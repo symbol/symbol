@@ -31,8 +31,8 @@ namespace catapult { namespace validators {
 	DEFINE_COMMON_VALIDATOR_TESTS(AccountAddressRestrictionNoSelfModification, model::NetworkIdentifier::Zero)
 
 	namespace {
-		constexpr auto Add = model::AccountRestrictionModificationType::Add;
-		constexpr auto Del = model::AccountRestrictionModificationType::Del;
+		constexpr auto Add = model::AccountRestrictionModificationAction::Add;
+		constexpr auto Del = model::AccountRestrictionModificationAction::Del;
 
 		void AssertValidationResult(
 				ValidationResult expectedResult,
@@ -56,7 +56,7 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, FailureWhenSignerIsValueInModification_Add) {
 		auto key = test::GenerateRandomByteArray<Key>();
 		auto address = model::PublicKeyToAddress(key, model::NetworkIdentifier::Zero);
-		AssertValidationResult(Failure_RestrictionAccount_Modification_Address_Invalid, key, {
+		AssertValidationResult(Failure_RestrictionAccount_Invalid_Modification_Address, key, {
 			Add,
 			extensions::CopyToUnresolvedAddress(address)
 		});
@@ -65,7 +65,7 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, FailureWhenSignerIsValueInModification_Del) {
 		auto key = test::GenerateRandomByteArray<Key>();
 		auto address = model::PublicKeyToAddress(key, model::NetworkIdentifier::Zero);
-		AssertValidationResult(Failure_RestrictionAccount_Modification_Address_Invalid, key, {
+		AssertValidationResult(Failure_RestrictionAccount_Invalid_Modification_Address, key, {
 			Del,
 			extensions::CopyToUnresolvedAddress(address)
 		});

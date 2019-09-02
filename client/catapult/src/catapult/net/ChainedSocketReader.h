@@ -52,14 +52,14 @@ namespace catapult { namespace net {
 	};
 
 	/// Creates a chained socket reader around \a pPacketSocket and \a serverHandlers with a default completion
-	/// handler given an \a identity.
+	/// handler given reader \a identity.
 	std::shared_ptr<ChainedSocketReader> CreateChainedSocketReader(
 			const std::shared_ptr<ionet::PacketSocket>& pPacketSocket,
 			const ionet::ServerPacketHandlers& serverHandlers,
 			const ionet::ReaderIdentity& identity);
 
 	/// Creates a chained socket reader around \a pPacketSocket and \a serverHandlers with a custom completion
-	/// handler (\a completionHandler) given an \a identity.
+	/// handler (\a completionHandler) given reader \a identity.
 	std::shared_ptr<ChainedSocketReader> CreateChainedSocketReader(
 			const std::shared_ptr<ionet::PacketSocket>& pPacketSocket,
 			const ionet::ServerPacketHandlers& serverHandlers,

@@ -29,10 +29,10 @@ namespace catapult { namespace test {
 
 #ifdef SIGNATURE_SCHEME_NIS1
 	/// Default (well known) currency mosaic id used in tests (`currency`).
-	constexpr MosaicId Default_Currency_Mosaic_Id(0x44F8'F7EA'C9C6'9CEC);
+	constexpr MosaicId Default_Currency_Mosaic_Id(0x7C3C'F4E0'9BC8'82EF);
 
 	/// Default (well known) harvesting mosaic id used in tests (`harvest`).
-	constexpr MosaicId Default_Harvesting_Mosaic_Id(0x3E4B'2DB8'CB6F'95A1);
+	constexpr MosaicId Default_Harvesting_Mosaic_Id(0x3AEC'39EE'3ECF'5CE7);
 #else
 	/// Default (well known) currency mosaic id used in tests (`currency`).
 	constexpr MosaicId Default_Currency_Mosaic_Id(0x0DC6'7FBE'1CAD'29E3);

@@ -26,8 +26,8 @@
 #include "catapult/net/NodeRequestResult.h"
 #include "catapult/net/VerifyPeer.h"
 #include "catapult/utils/TimeSpan.h"
-#include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
+#include "tests/test/nodeps/KeyTestUtils.h"
 
 namespace catapult { namespace test {
 

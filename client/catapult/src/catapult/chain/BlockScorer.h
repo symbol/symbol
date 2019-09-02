@@ -30,14 +30,14 @@ namespace catapult { namespace chain {
 
 	using BlockTarget = boost::multiprecision::uint256_t;
 
-	/// Calculates the hit for a \a generationHash.
+	/// Calculates the hit for \a generationHash.
 	uint64_t CalculateHit(const GenerationHash& generationHash);
 
 	/// Calculates the score of \a currentBlock with parent \a parentBlock.
 	uint64_t CalculateScore(const model::Block& parentBlock, const model::Block& currentBlock);
 
-	/// Calculates the target from a time span (\a timeSpan), a \a difficulty and an effective signer importance
-	/// of \a signerImportance for the block chain described by \a config.
+	/// Calculates the target from specified time span (\a timeSpan), \a difficulty and effective signer importance
+	/// (\a signerImportance) for the block chain described by \a config.
 	BlockTarget CalculateTarget(
 			const utils::TimeSpan& timeSpan,
 			Difficulty difficulty,

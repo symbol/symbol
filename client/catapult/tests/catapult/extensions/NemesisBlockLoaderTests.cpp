@@ -35,6 +35,7 @@
 #include "tests/test/local/LocalNodeTestState.h"
 #include "tests/test/local/LocalTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
+#include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/plugins/PluginManagerFactory.h"
 
 namespace catapult { namespace extensions {
@@ -74,11 +75,11 @@ namespace catapult { namespace extensions {
 					unresolvedTransfers.push_back({ test::UnresolveXor(transfer.MosaicId), transfer.Amount });
 
 				auto pTransaction = mocks::CreateTransactionWithFeeAndTransfers(Amount(), unresolvedTransfers);
-				pTransaction->Signer = nemesisPublicKey;
+				pTransaction->SignerPublicKey = nemesisPublicKey;
 				transactions.push_back(std::move(pTransaction));
 			}
 
-			blockSignerPair.pBlock = CreateBlock(model::PreviousBlockContext(), Network_Identifier, nemesisPublicKey, transactions);
+			blockSignerPair.pBlock = model::CreateBlock(model::PreviousBlockContext(), Network_Identifier, nemesisPublicKey, transactions);
 			return blockSignerPair;
 		}
 
@@ -98,9 +99,9 @@ namespace catapult { namespace extensions {
 
 			// 1. modify the block signer if requested
 			if (NemesisBlockModification::Public_Key == modification)
-				test::FillWithRandomData(pModifiedBlock->Signer);
+				test::FillWithRandomData(pModifiedBlock->SignerPublicKey);
 			else
-				pModifiedBlock->Signer = network.PublicKey;
+				pModifiedBlock->SignerPublicKey = network.PublicKey;
 
 			// 2. modify the generation hash if requested
 			auto modifiedNemesisBlockElement = test::BlockToBlockElement(*pModifiedBlock);
@@ -138,7 +139,7 @@ namespace catapult { namespace extensions {
 		model::BlockChainConfiguration CreateDefaultConfiguration(const model::Block& nemesisBlock, const NemesisOptions& nemesisOptions) {
 			auto config = model::BlockChainConfiguration::Uninitialized();
 			config.Network.Identifier = Network_Identifier;
-			config.Network.PublicKey = nemesisBlock.Signer;
+			config.Network.PublicKey = nemesisBlock.SignerPublicKey;
 			test::FillWithRandomData(config.Network.GenerationHash);
 			config.CurrencyMosaicId = Currency_Mosaic_Id;
 			config.HarvestingMosaicId = Harvesting_Mosaic_Id;
@@ -185,7 +186,7 @@ namespace catapult { namespace extensions {
 			auto transactions = block.Transactions();
 			auto iter = transactions.cbegin();
 			for (auto i = 0u; i < index; ++i, ++iter);
-			return static_cast<const mocks::MockTransaction&>(*iter).Recipient;
+			return static_cast<const mocks::MockTransaction&>(*iter).RecipientPublicKey;
 		}
 
 		// endregion
@@ -241,7 +242,7 @@ namespace catapult { namespace extensions {
 
 			// - create the state
 			auto config = CreateDefaultConfiguration(*nemesisBlockSignerPair.pBlock, nemesisOptions);
-			config.ShouldEnableVerifiableReceipts = NemesisBlockVerifyOptions::Receipts == verifyOptions;
+			config.EnableVerifiableReceipts = NemesisBlockVerifyOptions::Receipts == verifyOptions;
 
 			auto cacheConfig = cache::CacheConfiguration();
 			test::TempDirectoryGuard dbDirGuard;
@@ -387,7 +388,7 @@ namespace catapult { namespace extensions {
 				// Assert:
 				EXPECT_EQ(2u, accountStateCache.size());
 				const auto& recipient = GetTransactionRecipient(nemesisBlock, 0);
-				test::AssertBalances(accountStateCache, nemesisBlock.Signer, {});
+				test::AssertBalances(accountStateCache, nemesisBlock.SignerPublicKey, {});
 				test::AssertBalances(accountStateCache, recipient, { MakeHarvestingMosaic(totalChainBalance) });
 			});
 		}
@@ -411,7 +412,7 @@ namespace catapult { namespace extensions {
 		RunLoadNemesisBlockTest<TTraits>(nemesisBlockSignerPair, totalChainImportance, [&nemesisBlock](const auto& accountStateCache) {
 			// Assert:
 			EXPECT_EQ(4u, accountStateCache.size());
-			test::AssertBalances(accountStateCache, nemesisBlock.Signer, {});
+			test::AssertBalances(accountStateCache, nemesisBlock.SignerPublicKey, {});
 			test::AssertBalances(accountStateCache, GetTransactionRecipient(nemesisBlock, 0), { MakeHarvestingMosaic(1234) });
 			test::AssertBalances(accountStateCache, GetTransactionRecipient(nemesisBlock, 1), { MakeHarvestingMosaic(123 + 213) });
 			test::AssertBalances(accountStateCache, GetTransactionRecipient(nemesisBlock, 2), { MakeHarvestingMosaic(987) });
@@ -432,7 +433,7 @@ namespace catapult { namespace extensions {
 		RunLoadNemesisBlockTest<TTraits>(nemesisBlockSignerPair, nemesisOptions, [&nemesisBlock](const auto& accountStateCache) {
 			// Assert:
 			EXPECT_EQ(4u, accountStateCache.size());
-			test::AssertBalances(accountStateCache, nemesisBlock.Signer, {});
+			test::AssertBalances(accountStateCache, nemesisBlock.SignerPublicKey, {});
 			test::AssertBalances(accountStateCache, GetTransactionRecipient(nemesisBlock, 0), {
 				MakeHarvestingMosaic(1234),
 				{ MosaicId(123), Amount(111) },
@@ -468,7 +469,7 @@ namespace catapult { namespace extensions {
 		RunLoadNemesisBlockTest<TTraits>(nemesisBlockSignerPair, nemesisOptions, [&nemesisBlock](const auto& accountStateCache) {
 			// Assert:
 			EXPECT_EQ(2u, accountStateCache.size());
-			test::AssertBalances(accountStateCache, nemesisBlock.Signer, {});
+			test::AssertBalances(accountStateCache, nemesisBlock.SignerPublicKey, {});
 			test::AssertBalances(accountStateCache, GetTransactionRecipient(nemesisBlock, 0), { MakeHarvestingMosaic(1234) });
 		});
 	}
@@ -490,7 +491,7 @@ namespace catapult { namespace extensions {
 			auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
 
 			auto recipient = GetTransactionRecipient(nemesisBlock, 0);
-			accountStateCacheDelta.addAccount(nemesisBlock.Signer, Height(1));
+			accountStateCacheDelta.addAccount(nemesisBlock.SignerPublicKey, Height(1));
 			accountStateCacheDelta.addAccount(recipient, Height(1));
 			accountStateCacheDelta.find(recipient).get().Balances.credit(Harvesting_Mosaic_Id, Amount(1234));
 
@@ -516,7 +517,7 @@ namespace catapult { namespace extensions {
 		TTraits::Assert(cacheDelta, [&nemesisBlock](const auto& accountStateCache) {
 			// Assert:
 			EXPECT_EQ(2u, accountStateCache.size());
-			test::AssertBalances(accountStateCache, nemesisBlock.Signer, {});
+			test::AssertBalances(accountStateCache, nemesisBlock.SignerPublicKey, {});
 			test::AssertBalances(accountStateCache, GetTransactionRecipient(nemesisBlock, 0), { MakeHarvestingMosaic(1234) });
 		});
 	}
@@ -533,7 +534,7 @@ namespace catapult { namespace extensions {
 		// - create the state (with verifiable receipts enabled)
 		NemesisOptions nemesisOptions{ Importance(1234), Amount() };
 		auto config = CreateDefaultConfiguration(nemesisBlock, nemesisOptions);
-		config.ShouldEnableVerifiableReceipts = true;
+		config.EnableVerifiableReceipts = true;
 		auto cache = test::CreateEmptyCatapultCache(config);
 		{
 			// - calculate the expected receipts hash
@@ -542,17 +543,21 @@ namespace catapult { namespace extensions {
 			// - harvest receipt added by HarvestFeeObserver
 			auto receiptType = model::Receipt_Type_Harvest_Fee;
 			auto receiptMosaicId = Harvesting_Mosaic_Id;
-			blockStatementBuilder.addReceipt(model::BalanceChangeReceipt(receiptType, nemesisBlock.Signer, receiptMosaicId, Amount()));
+			blockStatementBuilder.addReceipt(model::BalanceChangeReceipt(
+					receiptType,
+					nemesisBlock.SignerPublicKey,
+					receiptMosaicId,
+					Amount()));
 
 			// - resolution receipts due to use of CreateResolverContextXor and interaction with MockTransaction
 			auto recipient = PublicKeyToAddress(GetTransactionRecipient(nemesisBlock, 0), model::NetworkIdentifier::Mijin_Test);
 			blockStatementBuilder.addResolution(test::UnresolveXor(recipient), recipient);
 			blockStatementBuilder.addResolution(test::UnresolveXor(receiptMosaicId), receiptMosaicId);
 
-			nemesisBlock.BlockReceiptsHash = model::CalculateMerkleHash(*blockStatementBuilder.build());
+			nemesisBlock.ReceiptsHash = model::CalculateMerkleHash(*blockStatementBuilder.build());
 
 			// Sanity:
-			EXPECT_NE(Hash256(), nemesisBlock.BlockReceiptsHash);
+			EXPECT_NE(Hash256(), nemesisBlock.ReceiptsHash);
 		}
 
 		test::LocalNodeTestState state(config, "", std::move(cache));
@@ -571,7 +576,7 @@ namespace catapult { namespace extensions {
 		TTraits::Assert(cacheDelta, [&nemesisBlock](const auto& accountStateCache) {
 			// Assert:
 			EXPECT_EQ(2u, accountStateCache.size());
-			test::AssertBalances(accountStateCache, nemesisBlock.Signer, {});
+			test::AssertBalances(accountStateCache, nemesisBlock.SignerPublicKey, {});
 			test::AssertBalances(accountStateCache, GetTransactionRecipient(nemesisBlock, 0), { MakeHarvestingMosaic(1234) });
 		});
 	}
@@ -587,7 +592,7 @@ namespace catapult { namespace extensions {
 
 		// Act:
 		RunLoadNemesisBlockTest<TTraits>(nemesisBlockSignerPair, Importance(1234), [&nemesisBlock](const auto& accountStateCache) {
-			const auto& publicKey = nemesisBlock.Signer;
+			const auto& publicKey = nemesisBlock.SignerPublicKey;
 			auto address = model::PublicKeyToAddress(publicKey, Network_Identifier);
 			const auto& accountState = accountStateCache.find(address).get();
 
@@ -783,7 +788,7 @@ namespace catapult { namespace extensions {
 		auto nemesisBlockSignerPair = CreateNemesisBlock({ { MakeHarvestingMosaic(1234) } });
 
 		// - use the wrong receipts hash
-		test::FillWithRandomData(nemesisBlockSignerPair.pBlock->BlockReceiptsHash);
+		test::FillWithRandomData(nemesisBlockSignerPair.pBlock->ReceiptsHash);
 
 		// Act:
 		AssertLoadNemesisBlockFailure<TTraits, catapult_runtime_error>(nemesisBlockSignerPair, Importance(1234));
@@ -794,7 +799,7 @@ namespace catapult { namespace extensions {
 		auto nemesisBlockSignerPair = CreateNemesisBlock({ { MakeHarvestingMosaic(1234) } });
 
 		// - use the wrong receipts hash
-		nemesisBlockSignerPair.pBlock->BlockReceiptsHash = Hash256();
+		nemesisBlockSignerPair.pBlock->ReceiptsHash = Hash256();
 
 		// Act:
 		auto modification = NemesisBlockModification::None;

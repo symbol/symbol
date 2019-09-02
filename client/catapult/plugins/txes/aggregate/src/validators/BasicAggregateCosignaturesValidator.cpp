@@ -36,11 +36,11 @@ namespace catapult { namespace validators {
 			if (maxCosignatures < notification.CosignaturesCount + 1)
 				return Failure_Aggregate_Too_Many_Cosignatures;
 
-			utils::KeyPointerSet cosigners;
-			cosigners.insert(&notification.Signer);
+			utils::KeyPointerSet cosignatories;
+			cosignatories.insert(&notification.Signer);
 			const auto* pCosignature = notification.CosignaturesPtr;
 			for (auto i = 0u; i < notification.CosignaturesCount; ++i) {
-				if (!cosigners.insert(&pCosignature->Signer).second)
+				if (!cosignatories.insert(&pCosignature->SignerPublicKey).second)
 					return Failure_Aggregate_Redundant_Cosignatures;
 
 				++pCosignature;

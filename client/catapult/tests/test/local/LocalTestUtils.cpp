@@ -46,7 +46,7 @@ namespace catapult { namespace test {
 			auto config = config::NodeConfiguration::Uninitialized();
 			config.Port = GetLocalHostPort();
 			config.ApiPort = GetLocalHostPort() + 1;
-			config.ShouldAllowAddressReuse = true;
+			config.EnableAddressReuse = true;
 
 			config.MaxBlocksPerSyncAttempt = 4 * 100;
 			config.MaxChainBytesPerSyncAttempt = utils::FileSize::FromKilobytes(8 * 512);
@@ -106,6 +106,7 @@ namespace catapult { namespace test {
 		config.ImportanceGrouping = 1;
 		config.MaxRollbackBlocks = 10;
 		config.MaxDifficultyBlocks = 60;
+		config.DefaultDynamicFeeMultiplier = BlockFeeMultiplier(1);
 
 		config.InitialCurrencyAtomicUnits = Amount(8'999'999'998'000'000);
 		config.MaxMosaicAtomicUnits = Amount(9'000'000'000'000'000);
@@ -122,7 +123,7 @@ namespace catapult { namespace test {
 		MutableCatapultConfiguration config;
 		config.BlockChain.ImportanceGrouping = 1;
 		config.BlockChain.MaxRollbackBlocks = 0;
-		config.User.BootKey = Local_Node_Private_Key;
+		config.User.BootPrivateKey = Local_Node_Private_Key;
 		return config.ToConst();
 	}
 
@@ -141,7 +142,7 @@ namespace catapult { namespace test {
 		config.BlockChain = std::move(blockChainConfig);
 		config.Node = CreateNodeConfiguration();
 
-		config.User.BootKey = Local_Node_Private_Key;
+		config.User.BootPrivateKey = Local_Node_Private_Key;
 		config.User.DataDirectory = dataDirectory;
 		return config.ToConst();
 	}
@@ -170,10 +171,12 @@ namespace catapult { namespace test {
 				const model::BlockChainConfiguration& config,
 				const plugins::StorageConfiguration& storageConfig,
 				const config::InflationConfiguration& inflationConfig) {
-			std::vector<plugins::PluginModule> modules;
 			auto userConfig = config::UserConfiguration::Uninitialized();
+			userConfig.BootPrivateKey = ToString(Key());
+
+			std::vector<plugins::PluginModule> modules;
 			auto pPluginManager = std::make_shared<plugins::PluginManager>(config, storageConfig, userConfig, inflationConfig);
-			LoadPluginByName(*pPluginManager, modules, "", "catapult.coresystem");
+			LoadPluginByName(*pPluginManager, modules, "", "catapult.plugins.coresystem");
 
 			for (const auto& pair : config.Plugins)
 				LoadPluginByName(*pPluginManager, modules, "", pair.first);

@@ -35,19 +35,17 @@ namespace catapult { namespace model {
 		template<typename T>
 		void AssertEntityHasExpectedSize(size_t baseSize) {
 			// Arrange:
-			auto expectedPropertiesHeaderSize =
-					sizeof(uint8_t) // count
-					+ sizeof(uint8_t) // flags
-					+ sizeof(uint8_t); // divisibility
 			auto expectedSize =
 					baseSize // base
 					+ sizeof(uint32_t) // nonce
 					+ sizeof(MosaicId) // id
-					+ expectedPropertiesHeaderSize;
+					+ sizeof(uint8_t) // flags
+					+ sizeof(uint8_t) // divisibility
+					+ sizeof(BlockDuration); // duration
 
 			// Assert:
 			EXPECT_EQ(expectedSize, sizeof(T));
-			EXPECT_EQ(baseSize + 15u, sizeof(T));
+			EXPECT_EQ(baseSize + 22u, sizeof(T));
 		}
 
 		template<typename T>
@@ -62,58 +60,18 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region data pointers
-
-	namespace {
-		struct MosaicDefinitionTransactionTraits {
-			static auto GenerateEntityWithAttachments(uint8_t propertiesCount) {
-				uint32_t entitySize = sizeof(MosaicDefinitionTransaction) + propertiesCount * sizeof(MosaicProperty);
-				auto pTransaction = utils::MakeUniqueWithSize<MosaicDefinitionTransaction>(entitySize);
-				pTransaction->Size = entitySize;
-				pTransaction->PropertiesHeader.Count = propertiesCount;
-				return pTransaction;
-			}
-
-			template<typename TEntity>
-			static auto GetAttachmentPointer(TEntity& entity) {
-				return entity.PropertiesPtr();
-			}
-		};
-	}
-
-	DEFINE_ATTACHMENT_POINTER_TESTS(TEST_CLASS, MosaicDefinitionTransactionTraits)
-
-	// endregion
-
 	// region CalculateRealSize
 
 	TEST(TEST_CLASS, CanCalculateRealSizeWithReasonableValues) {
 		// Arrange:
 		MosaicDefinitionTransaction transaction;
 		transaction.Size = 0;
-		transaction.PropertiesHeader.Count = 33;
 
 		// Act:
 		auto realSize = MosaicDefinitionTransaction::CalculateRealSize(transaction);
 
 		// Assert:
-		EXPECT_EQ(9u, sizeof(MosaicProperty));
-		EXPECT_EQ(sizeof(MosaicDefinitionTransaction) + 33 * sizeof(MosaicProperty), realSize);
-	}
-
-	TEST(TEST_CLASS, CalculateRealSizeDoesNotOverflowWithMaxValues) {
-		// Arrange:
-		MosaicDefinitionTransaction transaction;
-		test::SetMaxValue(transaction.Size);
-		test::SetMaxValue(transaction.PropertiesHeader.Count);
-
-		// Act:
-		auto realSize = MosaicDefinitionTransaction::CalculateRealSize(transaction);
-
-		// Assert:
-		ASSERT_EQ(0xFFFFFFFF, transaction.Size);
-		EXPECT_EQ(sizeof(MosaicDefinitionTransaction) + 0xFF * sizeof(MosaicProperty), realSize);
-		EXPECT_GT(0xFFFFFFFF, realSize);
+		EXPECT_EQ(sizeof(MosaicDefinitionTransaction), realSize);
 	}
 
 	// endregion

@@ -52,7 +52,7 @@ namespace catapult { namespace builders {
 			EXPECT_EQ(expectedProperties.Duration, transaction.Duration);
 			EXPECT_EQ(expectedProperties.HashAlgorithm, transaction.HashAlgorithm);
 			EXPECT_EQ(expectedProperties.Secret, transaction.Secret);
-			EXPECT_EQ(expectedProperties.Recipient, transaction.Recipient);
+			EXPECT_EQ(expectedProperties.Recipient, transaction.RecipientAddress);
 		}
 
 		template<typename TTraits>
@@ -71,7 +71,7 @@ namespace catapult { namespace builders {
 			// Assert:
 			TTraits::CheckBuilderSize(0, builder);
 			TTraits::CheckFields(0, *pTransaction);
-			EXPECT_EQ(signer, pTransaction->Signer);
+			EXPECT_EQ(signer, pTransaction->SignerPublicKey);
 			EXPECT_EQ(0x6201, pTransaction->Version);
 			EXPECT_EQ(model::Entity_Type_Secret_Lock, pTransaction->Type);
 
@@ -146,7 +146,7 @@ namespace catapult { namespace builders {
 
 		// Assert:
 		AssertCanBuildTransaction<TTraits>(expectedProperties, [&recipient = expectedProperties.Recipient](auto& builder) {
-			builder.setRecipient(recipient);
+			builder.setRecipientAddress(recipient);
 		});
 	}
 

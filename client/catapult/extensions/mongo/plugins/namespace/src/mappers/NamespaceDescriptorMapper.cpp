@@ -29,15 +29,14 @@ using namespace catapult::mongo::mappers;
 namespace catapult { namespace mongo { namespace plugins {
 
 	namespace {
-		constexpr auto Root_Type = utils::to_underlying_type(model::NamespaceType::Root);
-		constexpr auto Child_Type = utils::to_underlying_type(model::NamespaceType::Child);
+		constexpr auto Root_Type = utils::to_underlying_type(model::NamespaceRegistrationType::Root);
+		constexpr auto Child_Type = utils::to_underlying_type(model::NamespaceRegistrationType::Child);
 
 		using Path = state::Namespace::Path;
 
 		void StreamDescriptorMetadata(bson_stream::document& builder, const NamespaceDescriptor& descriptor) {
 			builder
-					<< "meta"
-					<< bson_stream::open_document
+					<< "meta" << bson_stream::open_document
 						<< "active" << descriptor.IsActive
 						<< "index" << static_cast<int32_t>(descriptor.Index)
 					<< bson_stream::close_document;
@@ -45,8 +44,7 @@ namespace catapult { namespace mongo { namespace plugins {
 
 		void StreamAlias(bson_stream::document& builder, const state::NamespaceAlias& alias) {
 			builder
-					<< "alias"
-					<< bson_stream::open_document
+					<< "alias" << bson_stream::open_document
 						<< "type" << utils::to_underlying_type(alias.type());
 
 			switch (alias.type()) {
@@ -76,7 +74,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		StreamDescriptorMetadata(builder, descriptor);
 		builder
 				<< "namespace" << bson_stream::open_document
-					<< "type" << (descriptor.IsRoot() ? Root_Type : Child_Type)
+					<< "registrationType" << (descriptor.IsRoot() ? Root_Type : Child_Type)
 					<< "depth" << static_cast<int32_t>(path.size());
 
 		for (auto i = 0u; i < depth; ++i)
@@ -86,7 +84,7 @@ namespace catapult { namespace mongo { namespace plugins {
 
 		builder
 					<< "parentId" << ToInt64(descriptor.IsRoot() ? Namespace_Base_Id : path[path.size() - 2])
-					<< "owner" << ToBinary(root.owner())
+					<< "ownerPublicKey" << ToBinary(root.ownerPublicKey())
 					<< "ownerAddress" << ToBinary(descriptor.OwnerAddress)
 					<< "startHeight" << ToInt64(root.lifetime().Start)
 					<< "endHeight" << ToInt64(root.lifetime().End)

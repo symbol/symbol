@@ -34,7 +34,7 @@ namespace catapult { namespace builders {
 		AggregateTransactionBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
 
 	public:
-		/// Adds a \a transaction.
+		/// Adds embedded transaction (\a pTransaction).
 		void addTransaction(EmbeddedTransactionPointer&& pTransaction);
 
 	public:
@@ -58,8 +58,8 @@ namespace catapult { namespace builders {
 				std::unique_ptr<model::AggregateTransaction>&& pAggregateTransaction);
 
 	public:
-		/// Cosigns an aggregate \a transaction using \a cosigner key pair.
-		void cosign(const crypto::KeyPair& cosigner);
+		/// Cosigns an aggregate \a transaction using \a cosignatory key pair.
+		void cosign(const crypto::KeyPair& cosignatory);
 
 		/// Builds an aggregate transaction with cosigatures appended.
 		std::unique_ptr<model::AggregateTransaction> build() const;

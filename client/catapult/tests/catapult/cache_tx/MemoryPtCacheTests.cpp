@@ -47,7 +47,7 @@ namespace catapult { namespace cache {
 				const std::vector<model::Cosignature>& cosignatures) {
 			auto modifier = cache.modifier();
 			for (const auto& cosignature : cosignatures)
-				modifier.add(transactionInfo.EntityHash, cosignature.Signer, cosignature.Signature);
+				modifier.add(transactionInfo.EntityHash, cosignature.SignerPublicKey, cosignature.Signature);
 		}
 
 		void AssertCacheSize(MemoryPtCache& cache, size_t expectedSize) {
@@ -76,7 +76,9 @@ namespace catapult { namespace cache {
 		}
 
 		auto& Sort(std::vector<model::Cosignature>& cosignatures) {
-			std::sort(cosignatures.begin(), cosignatures.end(), [](const auto& lhs, const auto& rhs) { return lhs.Signer < rhs.Signer; });
+			std::sort(cosignatures.begin(), cosignatures.end(), [](const auto& lhs, const auto& rhs) {
+				return lhs.SignerPublicKey < rhs.SignerPublicKey;
+			});
 			return cosignatures;
 		}
 
@@ -94,7 +96,7 @@ namespace catapult { namespace cache {
 				auto cosignatureMessage = message + ", cosignature at " + std::to_string(i);
 				const auto& expected = expectedCosignatures[i];
 				const auto& actual = actualCosignatures[i];
-				EXPECT_EQ(expected.Signer, actual.Signer) << cosignatureMessage;
+				EXPECT_EQ(expected.SignerPublicKey, actual.SignerPublicKey) << cosignatureMessage;
 				EXPECT_EQ(expected.Signature, actual.Signature) << cosignatureMessage;
 			}
 		}
@@ -242,7 +244,10 @@ namespace catapult { namespace cache {
 
 		// Act:
 		auto cosignature = GenerateRandomCosignature();
-		auto transactionInfoFromAdd = cache.modifier().add(originalInfos[3].EntityHash, cosignature.Signer, cosignature.Signature);
+		auto transactionInfoFromAdd = cache.modifier().add(
+				originalInfos[3].EntityHash,
+				cosignature.SignerPublicKey,
+				cosignature.Signature);
 
 		// Assert: added transaction is correct
 		ASSERT_TRUE(!!transactionInfoFromAdd);
@@ -267,7 +272,10 @@ namespace catapult { namespace cache {
 		std::vector<model::Cosignature> transactionsFromAdd;
 		for (auto i = 0u; i < 20; ++i) {
 			auto cosignature = GenerateRandomCosignature();
-			auto transactionInfoFromAdd = cache.modifier().add(originalInfos[3].EntityHash, cosignature.Signer, cosignature.Signature);
+			auto transactionInfoFromAdd = cache.modifier().add(
+					originalInfos[3].EntityHash,
+					cosignature.SignerPublicKey,
+					cosignature.Signature);
 			cosignatures.push_back(cosignature);
 
 			// Assert: notice that same transaction (without cosignatures) is returned by each add
@@ -288,15 +296,15 @@ namespace catapult { namespace cache {
 
 		// - add a cosignature
 		auto cosignature = GenerateRandomCosignature();
-		EXPECT_TRUE(!!cache.modifier().add(originalInfos[3].EntityHash, cosignature.Signer, cosignature.Signature));
+		EXPECT_TRUE(!!cache.modifier().add(originalInfos[3].EntityHash, cosignature.SignerPublicKey, cosignature.Signature));
 
 		// Sanity:
 		AssertCacheSize(cache, 5);
 
 		// Act: add another cosignature with the same signer
 		auto cosignature2 = GenerateRandomCosignature();
-		cosignature2.Signer = cosignature.Signer;
-		EXPECT_FALSE(!!cache.modifier().add(originalInfos[3].EntityHash, cosignature.Signer, cosignature.Signature));
+		cosignature2.SignerPublicKey = cosignature.SignerPublicKey;
+		EXPECT_FALSE(!!cache.modifier().add(originalInfos[3].EntityHash, cosignature.SignerPublicKey, cosignature.Signature));
 
 		// Assert:
 		auto transactionInfoFromCache = cache.view().find(originalInfos[3].EntityHash);
@@ -313,7 +321,7 @@ namespace catapult { namespace cache {
 
 		// Act + Assert: no transaction in the cache should match the random hash
 		auto cosignature = GenerateRandomCosignature();
-		EXPECT_FALSE(!!cache.modifier().add(test::GenerateRandomByteArray<Hash256>(), cosignature.Signer, cosignature.Signature));
+		EXPECT_FALSE(!!cache.modifier().add(test::GenerateRandomByteArray<Hash256>(), cosignature.SignerPublicKey, cosignature.Signature));
 	}
 
 	// endregion
@@ -665,7 +673,7 @@ namespace catapult { namespace cache {
 		for (auto i = 0u; i < cosignatures.size(); ++i) {
 			for (auto j = 0u; j < transactionInfos.size(); ++j) {
 				const auto& cosignature = cosignatures[(i + j) % cosignatures.size()];
-				cache.modifier().add(transactionInfos[j].EntityHash, cosignature.Signer, cosignature.Signature);
+				cache.modifier().add(transactionInfos[j].EntityHash, cosignature.SignerPublicKey, cosignature.Signature);
 			}
 		}
 

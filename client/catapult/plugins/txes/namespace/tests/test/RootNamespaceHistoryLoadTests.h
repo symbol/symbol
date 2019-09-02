@@ -103,7 +103,7 @@ namespace catapult { namespace test {
 			uint64_t numChildren,
 			const state::NamespaceAlias& alias = state::NamespaceAlias()) {
 		auto message = "root " + std::to_string(root.id().unwrap());
-		EXPECT_EQ(owner, root.owner()) << message;
+		EXPECT_EQ(owner, root.ownerPublicKey()) << message;
 		EXPECT_EQ(lifetimeStart, root.lifetime().Start) << message;
 		EXPECT_EQ(lifetimeEnd, root.lifetime().End) << message;
 		EXPECT_EQ(numChildren, root.size()) << message;
@@ -348,7 +348,7 @@ namespace catapult { namespace test {
 				state::NamespaceAlias(MosaicId(555)),
 				state::NamespaceAlias(test::GenerateRandomByteArray<Address>()),
 				state::NamespaceAlias(MosaicId(888)),
-				state::NamespaceAlias(test::GenerateRandomByteArray<Address>()),
+				state::NamespaceAlias(test::GenerateRandomByteArray<Address>())
 			});
 		}
 
@@ -403,7 +403,7 @@ namespace catapult { namespace test {
 				state::NamespaceAlias(MosaicId(555)),
 				state::NamespaceAlias(test::GenerateRandomByteArray<Address>()),
 				state::NamespaceAlias(MosaicId(888)),
-				state::NamespaceAlias(test::GenerateRandomByteArray<Address>()),
+				state::NamespaceAlias(test::GenerateRandomByteArray<Address>())
 			});
 		}
 

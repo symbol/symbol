@@ -101,8 +101,8 @@ namespace catapult { namespace mocks {
 		};
 
 	public:
-		/// Transaction recipient.
-		Key Recipient;
+		/// Recipient public key.
+		Key RecipientPublicKey;
 
 		/// Variable data header.
 		VariableDataHeader Data;
@@ -145,7 +145,7 @@ namespace catapult { namespace mocks {
 	/// Creates an embedded mock transaction with variable data composed of \a dataSize random bytes.
 	std::unique_ptr<EmbeddedMockTransaction> CreateEmbeddedMockTransaction(uint16_t dataSize);
 
-	/// Creates a mock transaction with a \a fee and \a transfers.
+	/// Creates a mock transaction with \a fee and \a transfers.
 	std::unique_ptr<MockTransaction> CreateTransactionWithFeeAndTransfers(
 			Amount fee,
 			const std::vector<model::UnresolvedMosaic>& transfers);
@@ -154,7 +154,7 @@ namespace catapult { namespace mocks {
 	std::unique_ptr<MockTransaction> CreateMockTransactionWithSignerAndRecipient(const Key& signer, const Key& recipient);
 
 	/// Extracts public keys of additional accounts that must approve \a transaction.
-	utils::KeySet ExtractAdditionalRequiredCosigners(const EmbeddedMockTransaction& transaction);
+	utils::KeySet ExtractAdditionalRequiredCosignatories(const EmbeddedMockTransaction& transaction);
 
 	/// Mock transaction plugin options.
 	enum class PluginOptionFlags : uint8_t {

@@ -64,8 +64,8 @@ namespace catapult { namespace validators {
 	/// Validation failed because the mosaic divisibility is invalid.
 	DEFINE_MOSAIC_RESULT(Invalid_Divisibility, 103);
 
-	/// Validation failed because the mosaic supply change direction is invalid.
-	DEFINE_MOSAIC_RESULT(Invalid_Supply_Change_Direction, 104);
+	/// Validation failed because the mosaic supply change action is invalid.
+	DEFINE_MOSAIC_RESULT(Invalid_Supply_Change_Action, 104);
 
 	/// Validation failed because the mosaic supply change amount is invalid.
 	DEFINE_MOSAIC_RESULT(Invalid_Supply_Change_Amount, 105);

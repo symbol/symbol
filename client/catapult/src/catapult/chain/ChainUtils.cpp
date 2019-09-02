@@ -21,7 +21,7 @@
 #include "ChainUtils.h"
 #include "BlockDifficultyScorer.h"
 #include "BlockScorer.h"
-#include "catapult/cache_core/BlockDifficultyCache.h"
+#include "catapult/cache_core/BlockStatisticCache.h"
 #include "catapult/model/BlockChainConfiguration.h"
 #include "catapult/model/BlockUtils.h"
 
@@ -35,27 +35,27 @@ namespace catapult { namespace chain {
 	}
 
 	namespace {
-		using DifficultySet = cache::BlockDifficultyCacheTypes::PrimaryTypes::BaseSetType::SetType::MemorySetType;
+		using StatisticSet = cache::BlockStatisticCacheTypes::PrimaryTypes::BaseSetType::SetType::MemorySetType;
 
-		DifficultySet LoadDifficulties(
-				const cache::BlockDifficultyCache& cache,
+		StatisticSet LoadDifficulties(
+				const cache::BlockStatisticCache& cache,
 				Height height,
 				const model::BlockChainConfiguration& config) {
 			auto view = cache.createView();
-			auto range = view->difficultyInfos(height, config.MaxDifficultyBlocks);
+			auto range = view->statistics(height, config.MaxDifficultyBlocks);
 
-			DifficultySet set;
+			StatisticSet set;
 			set.insert(range.begin(), range.end());
 			return set;
 		}
 
-		Difficulty CalculateDifficulty(const DifficultySet& difficulties, const model::BlockChainConfiguration& config) {
-			return chain::CalculateDifficulty(cache::DifficultyInfoRange(difficulties.cbegin(), difficulties.cend()), config);
+		Difficulty CalculateDifficulty(const StatisticSet& statistics, const model::BlockChainConfiguration& config) {
+			return chain::CalculateDifficulty(cache::BlockStatisticRange(statistics.cbegin(), statistics.cend()), config);
 		}
 	}
 
 	size_t CheckDifficulties(
-			const cache::BlockDifficultyCache& cache,
+			const cache::BlockStatisticCache& cache,
 			const std::vector<const model::Block*>& blocks,
 			const model::BlockChainConfiguration& config) {
 		if (blocks.empty())
@@ -69,7 +69,7 @@ namespace catapult { namespace chain {
 			if (difficulty != pBlock->Difficulty)
 				break;
 
-			difficulties.insert(state::BlockDifficultyInfo(pBlock->Height, pBlock->Timestamp, difficulty));
+			difficulties.insert(state::BlockStatistic(*pBlock));
 
 			if (difficulties.size() > config.MaxDifficultyBlocks)
 				difficulties.erase(difficulties.cbegin());

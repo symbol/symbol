@@ -19,19 +19,19 @@
 **/
 
 #include "AesCbcDecrypt.h"
+#include "catapult/exceptions.h"
 #include <tiny-aes-c/aes.hpp>
 #include <cstring>
-#include <vector>
 
 namespace catapult { namespace crypto {
 
 	namespace {
 		bool DropPadding(std::vector<uint8_t>& result) {
-			if (result.empty())
+			if (result.size() < AES_BLOCKLEN)
 				return false;
 
 			auto padByte = result.back();
-			if (0 == padByte || padByte > 16)
+			if (0 == padByte || padByte > AES_BLOCKLEN)
 				return false;
 
 			// check padding
@@ -48,9 +48,11 @@ namespace catapult { namespace crypto {
 		if (input.Size < initializationVector.size())
 			return false;
 
-		std::memcpy(initializationVector.data(), input.pData, initializationVector.size());
-
 		output.resize(input.Size - initializationVector.size());
+		if (0 != output.size() % AES_BLOCKLEN)
+			return false;
+
+		std::memcpy(initializationVector.data(), input.pData, initializationVector.size());
 		std::memcpy(output.data(), input.pData + initializationVector.size(), output.size());
 
 		AES_ctx ctx;
@@ -62,5 +64,27 @@ namespace catapult { namespace crypto {
 			return false;
 
 		return true;
+	}
+
+	namespace {
+		RawBuffer SubView(const RawBuffer& rawBuffer, size_t offset) {
+			return { rawBuffer.pData + offset, rawBuffer.Size - offset };
+		}
+	}
+
+	bool TryDecryptEd25199BlockCipher(
+			const RawBuffer& saltedEncrypted,
+			const KeyPair& keyPair,
+			const Key& publicKey,
+			std::vector<uint8_t>& decrypted) {
+		if (Salt::Size > saltedEncrypted.Size)
+			CATAPULT_THROW_INVALID_ARGUMENT("encrypted data is not salted");
+
+		Salt salt;
+		std::memcpy(salt.data(), saltedEncrypted.pData, Salt::Size);
+
+		auto sharedKey = DeriveSharedKey(keyPair, publicKey, salt);
+		auto encryptedData = SubView(saltedEncrypted, Salt::Size);
+		return TryAesCbcDecrypt(sharedKey, encryptedData, decrypted);
 	}
 }}

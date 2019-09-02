@@ -31,8 +31,6 @@ namespace catapult { namespace observers {
 
 		constexpr auto Mock_Notification = static_cast<model::NotificationType>(0xFFFF'FFFF);
 		constexpr auto Default_Receipt_Type = static_cast<model::ReceiptType>(0x1234);
-		constexpr auto Default_Mosaic_Id = MosaicId(345);
-		constexpr auto Default_Amount = Amount(123);
 
 		struct MockRentalFeeNotification : public model::BalanceTransferNotification {
 		public:
@@ -57,13 +55,10 @@ namespace catapult { namespace observers {
 			auto pObserver = CreateMockRentalFeeObserver();
 			auto signer = test::GenerateRandomByteArray<Key>();
 			auto recipient = test::GenerateRandomByteArray<Address>();
-			MockRentalFeeNotification notification(
-					signer,
-					test::UnresolveXor(recipient),
-					test::UnresolveXor(Default_Mosaic_Id),
-					Default_Amount);
+			MockRentalFeeNotification notification(signer, test::UnresolveXor(recipient), test::UnresolveXor(MosaicId(345)), Amount(123));
 
 			ObserverTestContext context(mode, Height(888));
+			context.state().DynamicFeeMultiplier = BlockFeeMultiplier(999);
 
 			// Act:
 			test::ObserveNotification(*pObserver, notification, context);
@@ -93,10 +88,10 @@ namespace catapult { namespace observers {
 			ASSERT_EQ(sizeof(model::BalanceTransferReceipt), receipt.Size);
 			EXPECT_EQ(1u, receipt.Version);
 			EXPECT_EQ(Default_Receipt_Type, receipt.Type);
-			EXPECT_EQ(signer, receipt.Sender);
-			EXPECT_EQ(recipient, receipt.Recipient);
-			EXPECT_EQ(Default_Mosaic_Id, receipt.MosaicId);
-			EXPECT_EQ(Default_Amount, receipt.Amount);
+			EXPECT_EQ(signer, receipt.SenderPublicKey);
+			EXPECT_EQ(recipient, receipt.RecipientAddress);
+			EXPECT_EQ(MosaicId(345), receipt.MosaicId);
+			EXPECT_EQ(Amount(123 * 999), receipt.Amount);
 		});
 	}
 

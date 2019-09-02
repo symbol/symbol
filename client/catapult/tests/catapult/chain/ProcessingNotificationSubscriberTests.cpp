@@ -53,7 +53,7 @@ namespace catapult { namespace chain {
 					: m_cache({})
 					, m_cacheDelta(m_cache.createDelta())
 					, m_validatorContext(test::CreateValidatorContext(Height(123), m_cacheDelta.toReadOnly()))
-					, m_observerContext({ m_cacheDelta, m_state }, Height(123), executeMode, CreateResolverContext())
+					, m_observerContext(observers::ObserverState(m_cacheDelta), Height(123), executeMode, CreateResolverContext())
 					, m_sub(m_validator, m_validatorContext, m_observer, m_observerContext) {
 				CATAPULT_LOG(debug) << "preparing test context with execute mode " << executeMode;
 			}
@@ -92,10 +92,9 @@ namespace catapult { namespace chain {
 						// - unmodified context should be used for execution
 						EXPECT_EQ(&m_observerContext, m_observer.contextPointers()[i]) << message;
 					} else {
-						// - cache and state should refer to same objects
+						// - cache should refer to same object
 						const auto& observerContext = m_observer.contexts()[i];
 						EXPECT_EQ(&m_observerContext.Cache, &observerContext.Cache) << message;
-						EXPECT_EQ(&m_observerContext.State, &observerContext.State) << message;
 
 						// - height should be the same but mode should be reversed
 						EXPECT_EQ(m_observerContext.Height, observerContext.Height) << message;
@@ -124,7 +123,6 @@ namespace catapult { namespace chain {
 
 			cache::CatapultCache m_cache;
 			cache::CatapultCacheDelta m_cacheDelta;
-			state::CatapultState m_state;
 
 			validators::ValidatorContext m_validatorContext;
 			observers::ObserverContext m_observerContext;
@@ -447,7 +445,8 @@ namespace catapult { namespace chain {
 		context.sub().enableUndo();
 		auto signer = test::GenerateRandomByteArray<Key>();
 		auto hash = test::GenerateRandomByteArray<Hash256>();
-		auto notification1 = model::AccountPublicKeyNotification(signer);
+		auto sourceChangeType = model::SourceChangeNotification::SourceChangeType::Absolute;
+		auto notification1 = model::SourceChangeNotification(sourceChangeType, 1, sourceChangeType, 1);
 		auto notification2 = test::CreateNotification(Notification_Type_All);
 		auto notification3 = model::EntityNotification(model::NetworkIdentifier::Mijin_Test, 0, 0, 0);
 		auto notification4 = model::TransactionNotification(signer, hash, static_cast<model::EntityType>(22), Timestamp(11));
@@ -468,8 +467,8 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(ValidationResult::Success, context.sub().result());
 		context.assertValidatorCalls({ Notification_Type_All, model::Core_Entity_Notification, model::Core_Transaction_Notification });
 		context.assertObserverCalls({
-			model::Core_Register_Account_Public_Key_Notification, Notification_Type_All, model::Core_Transaction_Notification,
-			model::Core_Transaction_Notification, Notification_Type_All, model::Core_Register_Account_Public_Key_Notification
+			model::Core_Source_Change_Notification, Notification_Type_All, model::Core_Transaction_Notification,
+			model::Core_Transaction_Notification, Notification_Type_All, model::Core_Source_Change_Notification
 		}, 3);
 
 		// - check data integrity

@@ -62,7 +62,7 @@ namespace catapult { namespace cache {
 			static void Modify(MultisigCacheDelta& delta, const state::MultisigEntry& entry) {
 				auto multisigIter = delta.find(entry.key());
 				auto& entryFromCache = multisigIter.get();
-				entryFromCache.cosignatories().insert(test::GenerateRandomByteArray<Key>());
+				entryFromCache.cosignatoryPublicKeys().insert(test::GenerateRandomByteArray<Key>());
 			}
 		};
 	}
@@ -108,8 +108,8 @@ namespace catapult { namespace cache {
 			auto delta = cache.createDelta();
 			auto multisigIter = delta->find(keys[0]);
 			auto& entry = multisigIter.get();
-			entry.cosignatories().insert(keys[1]);
-			entry.multisigAccounts().insert(keys[2]);
+			entry.cosignatoryPublicKeys().insert(keys[1]);
+			entry.multisigPublicKeys().insert(keys[2]);
 			cache.commit();
 		}
 
@@ -117,8 +117,8 @@ namespace catapult { namespace cache {
 		auto view = cache.createView();
 		auto multisigIter = view->find(keys[0]);
 		const auto& entry = multisigIter.get();
-		EXPECT_EQ(utils::SortedKeySet({ keys[1] }), entry.cosignatories());
-		EXPECT_EQ(utils::SortedKeySet({ keys[2] }), entry.multisigAccounts());
+		EXPECT_EQ(utils::SortedKeySet({ keys[1] }), entry.cosignatoryPublicKeys());
+		EXPECT_EQ(utils::SortedKeySet({ keys[2] }), entry.multisigPublicKeys());
 	}
 
 	// endregion

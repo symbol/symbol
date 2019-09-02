@@ -34,11 +34,11 @@ namespace catapult { namespace mongo { namespace plugins {
 	namespace {
 		void StreamModification(
 				bson_stream::array_context& context,
-				model::AccountRestrictionModificationType type,
+				model::AccountRestrictionModificationAction action,
 				const std::vector<uint8_t>& value) {
 			context
 					<< bson_stream::open_document
-						<< "restrictionType" << utils::to_underlying_type(type)
+						<< "modificationAction" << utils::to_underlying_type(action)
 						<< "value" << ToBinary(value.data(), value.size())
 					<< bson_stream::close_document;
 		}
@@ -50,7 +50,7 @@ namespace catapult { namespace mongo { namespace plugins {
 				size_t numModifications) {
 			auto modificationsArray = builder << "modifications" << bson_stream::open_array;
 			for (auto i = 0u; i < numModifications; ++i)
-				StreamModification(modificationsArray, pModifications[i].ModificationType, state::ToVector(pModifications[i].Value));
+				StreamModification(modificationsArray, pModifications[i].ModificationAction, state::ToVector(pModifications[i].Value));
 
 			modificationsArray << bson_stream::close_array;
 		}

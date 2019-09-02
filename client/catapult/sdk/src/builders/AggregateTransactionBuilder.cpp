@@ -74,7 +74,7 @@ namespace catapult { namespace builders {
 			, m_pAggregateTransaction(std::move(pAggregateTransaction))
 	{}
 
-	void AggregateCosignatureAppender::cosign(const crypto::KeyPair& cosigner) {
+	void AggregateCosignatureAppender::cosign(const crypto::KeyPair& cosignatory) {
 		if (m_cosignatures.empty()) {
 			m_pAggregateTransaction->Type = model::Entity_Type_Aggregate_Complete;
 			m_transactionHash = model::CalculateHash(
@@ -83,8 +83,8 @@ namespace catapult { namespace builders {
 					TransactionDataBuffer(*m_pAggregateTransaction));
 		}
 
-		model::Cosignature cosignature{ cosigner.publicKey(), {} };
-		crypto::Sign(cosigner, m_transactionHash, cosignature.Signature);
+		model::Cosignature cosignature{ cosignatory.publicKey(), {} };
+		crypto::Sign(cosignatory, m_transactionHash, cosignature.Signature);
 		m_cosignatures.push_back(cosignature);
 	}
 

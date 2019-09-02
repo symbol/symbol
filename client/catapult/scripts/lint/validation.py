@@ -379,7 +379,11 @@ class TypoChecker(SimpleValidator):
             re.compile(r'^\s+} }|{ {$'): 'remove space between braces',
             re.compile(r'_tag::'): 'use ByteArray instead of _tag',
             re.compile(r'Observes.*including'): 'use and instead of including',
-            re.compile(r'/// (Arrange|Act|Assert):'): 'use //'
+            re.compile(r'/// (Arrange|Act|Assert):'): 'use //',
+            re.compile(r'pair<bool'): 'use pair with bool as second',
+            re.compile(r'\ba \\a'): 'just use \\a',
+            re.compile(r'\binto \\a builder'): 'into => to',
+            re.compile(r'cosigner'): 'cosigner(s) => cosignatory(ies)'
         }
 
     def check(self, lineNumber, line):
@@ -400,7 +404,7 @@ class BasicFunctionAliasValidator(SimpleValidator):
             re.compile(r'std::function<.*\(\)>'): 'use supplier alias',
             re.compile(r'std::function<void'): 'use action or consumer alias',
             re.compile(r'consumer<>'): 'use action alias',
-            re.compile(r'std::function<bool'): 'use predicate alias',
+            re.compile(r'std::function<bool'): 'use predicate alias'
         }
 
     def check(self, lineNumber, line):
@@ -454,7 +458,7 @@ class SpaceBraceValidator(SimpleValidator):
             re.compile(r'enum : (uint|size_t)'),
 
             # special for src/catapult/utils/Logging.h
-            re.compile(r'custom_info_tagger<SubcomponentTraits>>>'),
+            re.compile(r'custom_info_tagger<SubcomponentTraits>>>')
         ]
 
     def check(self, lineNumber, line):
@@ -502,7 +506,7 @@ class ReturnOnNewLineValidator(SimpleValidator):
             re.compile(r'static constexpr .* return'),
 
             # skip comments
-            re.compile(r'^\s*//'),
+            re.compile(r'^\s*//')
         ]
 
     def check(self, lineNumber, line):
@@ -931,6 +935,26 @@ class EnumValueBlankLineValidator(SimpleValidator):
         self.previousLine = strippedLine
 
 
+class TrailingCommaValidator(SimpleValidator):
+    """Validator for ensuring that there are no trailing commas."""
+
+    SUITE_NAME = 'TrailingCommaChecker'
+    NAME = 'trailingCommaChecker'
+
+    def __init__(self):
+        super().__init__()
+        self.previousLine = ''
+
+    def check(self, lineNumber, line):
+        strippedLine = line.strip('\n\r\t')  # strip tabs too
+
+        if self.previousLine and ',' == self.previousLine[-1]:
+            if strippedLine and strippedLine[0] in [')', ']', '}']:
+                self.errorReporter(self.NAME, Line(self.path, self.previousLine, lineNumber - 1, 'delete trailing comma'))
+
+        self.previousLine = strippedLine
+
+
 class ClosingBraceVerticalSpacingValidator(SimpleValidator):
     """Validator for ensuring that closing braces are properly followed by whitespace."""
 
@@ -1148,9 +1172,13 @@ class InsertionOperatorFormattingValidator(SimpleValidator):
         self.previousStrippedLine = ''
 
     def check(self, lineNumber, line):
-        strippedLine = line.strip('\n\r\t')  # also strip tabs
+        strippedLine = line.strip('\n\r\t;')  # also strip tabs and semicolons
 
         if strippedLine.startswith('<<'):
+            if (any(strippedLine.endswith(postfix) for postfix in ['open_array', 'open_document'])
+                    and self.previousStrippedLine.endswith('"')):
+                self.reportError(lineNumber, self.strippedLine, '<< should be on previous line')
+
             if self.previousStrippedLine.startswith('<<'):
                 return
 
@@ -1273,6 +1301,7 @@ def createValidators():
         RegionValidator,
         MacroSemicolonValidator,
         EnumValueBlankLineValidator,
+        TrailingCommaValidator,
         ClosingBraceVerticalSpacingValidator,
         NamespaceOpeningBraceVerticalSpacingValidator,
         CopyrightCommentValidator,

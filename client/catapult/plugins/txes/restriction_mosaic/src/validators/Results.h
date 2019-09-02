@@ -33,7 +33,7 @@ namespace catapult { namespace validators {
 	DEFINE_RESTRICTION_MOSAIC_RESULT(Invalid_Restriction_Type, 1);
 
 	/// Validation failed because specified previous value does not match current value.
-	DEFINE_RESTRICTION_MOSAIC_RESULT(Previous_Does_Not_Match, 2);
+	DEFINE_RESTRICTION_MOSAIC_RESULT(Previous_Value_Mismatch, 2);
 
 	/// Validation failed because specified previous value is nonzero.
 	DEFINE_RESTRICTION_MOSAIC_RESULT(Previous_Value_Must_Be_Zero, 3);
@@ -45,12 +45,12 @@ namespace catapult { namespace validators {
 	DEFINE_RESTRICTION_MOSAIC_RESULT(Cannot_Delete_Nonexistent_Restriction, 5);
 
 	/// Validation failed because required global restriction does not exist.
-	DEFINE_RESTRICTION_MOSAIC_RESULT(Global_Restriction_Does_Not_Exist, 6);
+	DEFINE_RESTRICTION_MOSAIC_RESULT(Unknown_Global_Restriction, 6);
 
 	/// Validation failed because mosaic has invalid global restriction.
-	DEFINE_RESTRICTION_MOSAIC_RESULT(Global_Restriction_Invalid, 7);
+	DEFINE_RESTRICTION_MOSAIC_RESULT(Invalid_Global_Restriction, 7);
 
-	/// Validation failed because account is unauthorized to move mosaic.
+	/// Validation failed because account lacks proper permissions to move mosaic.
 	DEFINE_RESTRICTION_MOSAIC_RESULT(Account_Unauthorized, 8);
 
 #ifndef CUSTOM_RESULT_DEFINITION

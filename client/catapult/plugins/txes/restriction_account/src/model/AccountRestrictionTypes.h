@@ -29,42 +29,42 @@ namespace catapult { namespace model {
 
 	/// Account restriction types.
 	enum class AccountRestrictionType : uint8_t {
-		/// Account restriction type is an address.
+		/// Restriction type is an address.
 		Address = 0x01,
 
-		/// Account restriction type is a mosaic id.
+		/// Restriction type is a mosaic identifier.
 		MosaicId = 0x02,
 
-		/// Account restriction type is a transaction type.
+		/// Restriction type is a transaction type.
 		TransactionType = 0x04,
 
-		/// Account restriction type sentinel.
+		/// Restriction type sentinel.
 		Sentinel = 0x05,
 
-		/// Account restriction is interpreted as outgoing restriction.
+		/// Restriction is interpreted as outgoing.
 		Outgoing = 0x40,
 
-		/// Account restriction is interpreted as blocking operation.
+		/// Restriction is interpreted as blocking operation.
 		Block = 0x80
 	};
 
 	MAKE_BITWISE_ENUM(AccountRestrictionType)
 
-	/// Account restriction modification type.
-	enum class AccountRestrictionModificationType : uint8_t {
-		/// Add restriction value.
-		Add,
-
+	/// Account restriction modification action.
+	enum class AccountRestrictionModificationAction : uint8_t {
 		/// Remove restriction value.
-		Del
+		Del,
+
+		/// Add restriction value.
+		Add
 	};
 
 	/// Binary layout for an account restriction modification.
 	template<typename TRestrictionValue>
 	struct AccountRestrictionModification {
 	public:
-		/// Modification type.
-		AccountRestrictionModificationType ModificationType;
+		/// Modification action.
+		AccountRestrictionModificationAction ModificationAction;
 
 		/// Restriction value.
 		TRestrictionValue Value;
@@ -75,8 +75,8 @@ namespace catapult { namespace model {
 	/// Raw account restriction modification.
 	struct RawAccountRestrictionModification {
 	public:
-		/// Modification type.
-		AccountRestrictionModificationType ModificationType;
+		/// Modification action.
+		AccountRestrictionModificationAction ModificationAction;
 
 		/// Restriction value.
 		std::vector<uint8_t> Value;

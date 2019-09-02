@@ -47,8 +47,8 @@ namespace catapult { namespace test {
 
 	config::CatapultConfiguration CreateStateHashEnabledCatapultConfiguration(const std::string& dataDirectory) {
 		auto config = CreateFileChainCatapultConfiguration(0, dataDirectory);
-		const_cast<config::NodeConfiguration&>(config.Node).ShouldUseCacheDatabaseStorage = true;
-		const_cast<model::BlockChainConfiguration&>(config.BlockChain).ShouldEnableVerifiableState = true;
+		const_cast<config::NodeConfiguration&>(config.Node).EnableCacheDatabaseStorage = true;
+		const_cast<model::BlockChainConfiguration&>(config.BlockChain).EnableVerifiableState = true;
 		return config;
 	}
 

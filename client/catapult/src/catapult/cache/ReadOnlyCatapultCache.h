@@ -21,13 +21,15 @@
 #pragma once
 #include <vector>
 
+namespace catapult { namespace state { struct CatapultState; } }
+
 namespace catapult { namespace cache {
 
 	/// A read-only overlay on top of a catapult cache.
 	class ReadOnlyCatapultCache {
 	public:
-		/// Creates a read-only overlay on top of \a readOnlyViews.
-		explicit ReadOnlyCatapultCache(const std::vector<const void*>& readOnlyViews);
+		/// Creates a read-only overlay on top of \a dependentState and \a readOnlyViews.
+		ReadOnlyCatapultCache(const state::CatapultState& dependentState, const std::vector<const void*>& readOnlyViews);
 
 	public:
 		/// Gets a specific sub cache read-only view.
@@ -36,7 +38,12 @@ namespace catapult { namespace cache {
 			return *static_cast<const typename TCache::CacheReadOnlyType*>(m_readOnlyViews[TCache::Id]);
 		}
 
+	public:
+		/// Gets (const) dependent catapult state.
+		const state::CatapultState& dependentState() const;
+
 	private:
+		const state::CatapultState& m_dependentState;
 		std::vector<const void*> m_readOnlyViews;
 	};
 }}

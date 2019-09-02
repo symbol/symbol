@@ -37,7 +37,7 @@ namespace catapult { namespace state {
 
 		// Assert:
 		EXPECT_EQ(MosaicId(225), entry.mosaicId());
-		EXPECT_EQ(Height(123), entry.definition().height());
+		EXPECT_EQ(Height(123), entry.definition().startHeight());
 		EXPECT_EQ(Amount(), entry.supply());
 	}
 

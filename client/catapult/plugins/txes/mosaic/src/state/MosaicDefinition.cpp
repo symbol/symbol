@@ -29,10 +29,10 @@ namespace catapult { namespace state {
 	}
 
 	bool MosaicDefinition::isActive(Height height) const {
-		return isEternal() || (height < Height(m_height.unwrap() + m_properties.duration().unwrap()) && height >= m_height);
+		return isEternal() || (height < Height(m_startHeight.unwrap() + m_properties.duration().unwrap()) && height >= m_startHeight);
 	}
 
 	bool MosaicDefinition::isExpired(Height height) const {
-		return !isEternal() && m_height + Height(m_properties.duration().unwrap()) <= height;
+		return !isEternal() && m_startHeight + Height(m_properties.duration().unwrap()) <= height;
 	}
 }}

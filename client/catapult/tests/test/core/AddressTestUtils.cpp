@@ -25,14 +25,6 @@
 
 namespace catapult { namespace test {
 
-	crypto::PrivateKey GenerateRandomPrivateKey() {
-		return crypto::PrivateKey::Generate(RandomByte);
-	}
-
-	crypto::KeyPair GenerateKeyPair() {
-		return crypto::KeyPair::FromPrivate(GenerateRandomPrivateKey());
-	}
-
 	Address GenerateRandomAddress() {
 		return GenerateRandomAddress(model::NetworkIdentifier::Mijin_Test);
 	}

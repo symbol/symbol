@@ -108,7 +108,7 @@ namespace catapult { namespace plugins {
 			});
 			builder.template addExpectation<typename TTraits::ModifyAccountRestrictionNotification>([&transaction](
 					const auto& notification) {
-				EXPECT_EQ(transaction.Signer, notification.Key);
+				EXPECT_EQ(transaction.SignerPublicKey, notification.Key);
 				EXPECT_EQ(transaction.RestrictionType, notification.AccountRestrictionDescriptor.raw());
 				EXPECT_EQ(transaction.ModificationsCount, notification.ModificationsCount);
 				EXPECT_EQ(transaction.ModificationsPtr(), notification.ModificationsPtr);
@@ -150,8 +150,8 @@ namespace catapult { namespace plugins {
 			// Arrange:
 			auto pTransaction = CreateTransactionWithModifications(4);
 			for (auto i = 0u; i < 4; ++i) {
-				auto modificationType = 0 == i % 2 ? AccountRestrictionModificationType::Add : AccountRestrictionModificationType::Del;
-				pTransaction->ModificationsPtr()[i].ModificationType = modificationType;
+				auto action = 0 == i % 2 ? AccountRestrictionModificationAction::Add : AccountRestrictionModificationAction::Del;
+				pTransaction->ModificationsPtr()[i].ModificationAction = action;
 			}
 
 			// Act + Assert:
@@ -169,8 +169,8 @@ namespace catapult { namespace plugins {
 			// Arrange:
 			auto pTransaction = CreateTransactionWithModifications(4);
 			for (auto i = 0u; i < 4; ++i) {
-				auto modificationType = 0 == i % 2 ? AccountRestrictionModificationType::Add : AccountRestrictionModificationType::Del;
-				pTransaction->ModificationsPtr()[i].ModificationType = modificationType;
+				auto action = 0 == i % 2 ? AccountRestrictionModificationAction::Add : AccountRestrictionModificationAction::Del;
+				pTransaction->ModificationsPtr()[i].ModificationAction = action;
 			}
 
 			const auto& transaction = *pTransaction;
@@ -179,9 +179,9 @@ namespace catapult { namespace plugins {
 			for (auto i = 0u; i < 4; ++i) {
 				builder.template addExpectation<typename TTraits::ModifyAccountRestrictionValueNotification>(i, [&transaction, i](
 						const auto& notification) {
-					EXPECT_EQ(transaction.Signer, notification.Key);
+					EXPECT_EQ(transaction.SignerPublicKey, notification.Key);
 					EXPECT_EQ(transaction.RestrictionType, notification.AccountRestrictionDescriptor.raw());
-					EXPECT_EQ(transaction.ModificationsPtr()[i].ModificationType, notification.Modification.ModificationType);
+					EXPECT_EQ(transaction.ModificationsPtr()[i].ModificationAction, notification.Modification.ModificationAction);
 					EXPECT_EQ(transaction.ModificationsPtr()[i].Value, notification.Modification.Value);
 				});
 			}

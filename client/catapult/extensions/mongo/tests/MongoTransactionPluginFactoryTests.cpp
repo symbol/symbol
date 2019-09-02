@@ -33,7 +33,7 @@ namespace catapult { namespace mongo {
 
 		template<typename TTransaction>
 		void Stream(bsoncxx::builder::stream::document& builder, const TTransaction& transaction) {
-			builder << "signer0" << transaction.Signer[0];
+			builder << "signerPublicKey0" << transaction.SignerPublicKey[0];
 		}
 
 		struct RegularTraits {
@@ -100,7 +100,7 @@ namespace catapult { namespace mongo {
 		bsoncxx::builder::stream::document builder;
 
 		typename TTraits::TransactionType transaction;
-		transaction.Signer[0] = 0x57;
+		transaction.SignerPublicKey[0] = 0x57;
 
 		// Act:
 		pPlugin->streamTransaction(builder, transaction);
@@ -109,6 +109,6 @@ namespace catapult { namespace mongo {
 		// Assert:
 		auto view = dbTransaction.view();
 		EXPECT_EQ(1u, test::GetFieldCount(view));
-		EXPECT_EQ(0x57u, test::GetUint32(view, "signer0"));
+		EXPECT_EQ(0x57u, test::GetUint32(view, "signerPublicKey0"));
 	}
 }}

@@ -53,16 +53,16 @@ namespace catapult { namespace model {
 		Hash256 PreviousBlockHash;
 
 		/// Aggregate hash of a block's transactions.
-		Hash256 BlockTransactionsHash;
+		Hash256 TransactionsHash;
 
 		/// Aggregate hash of a block's receipts.
-		Hash256 BlockReceiptsHash;
+		Hash256 ReceiptsHash;
 
 		/// Hash of the global chain state at this block.
 		Hash256 StateHash;
 
 		/// Public key of optional beneficiary designated by harvester.
-		Key Beneficiary;
+		Key BeneficiaryPublicKey;
 	};
 
 	/// Binary layout for a block.

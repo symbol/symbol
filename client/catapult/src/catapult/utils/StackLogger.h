@@ -28,7 +28,7 @@ namespace catapult { namespace utils {
 	/// Simple RAII class that logs scope messages.
 	class StackLogger {
 	public:
-		/// Constructs a logger with a \a message and log \a level.
+		/// Constructs a logger with \a message and log \a level.
 		StackLogger(const char* message, LogLevel level)
 				: m_message(message)
 				, m_level(level) {
@@ -50,7 +50,7 @@ namespace catapult { namespace utils {
 	/// Simple RAII class that logs slow operation messages.
 	class SlowOperationLogger {
 	public:
-		/// Constructs a logger with a \a message and log \a level for messages longer than \a threshold.
+		/// Constructs a logger with \a message and log \a level for messages longer than \a threshold.
 		SlowOperationLogger(const char* message, LogLevel level, const TimeSpan& threshold = TimeSpan::FromSeconds(1))
 				: m_message(message)
 				, m_level(level)

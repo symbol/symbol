@@ -27,10 +27,10 @@ namespace catapult { namespace observers {
 	using Notification = model::MosaicSupplyChangeNotification;
 
 	namespace {
-		constexpr bool ShouldIncrease(NotifyMode mode, model::MosaicSupplyChangeDirection direction) {
+		constexpr bool ShouldIncrease(NotifyMode mode, model::MosaicSupplyChangeAction action) {
 			return
-					(NotifyMode::Commit == mode && model::MosaicSupplyChangeDirection::Increase == direction) ||
-					(NotifyMode::Rollback == mode && model::MosaicSupplyChangeDirection::Decrease == direction);
+					(NotifyMode::Commit == mode && model::MosaicSupplyChangeAction::Increase == action) ||
+					(NotifyMode::Rollback == mode && model::MosaicSupplyChangeAction::Decrease == action);
 		}
 	}
 
@@ -44,7 +44,7 @@ namespace catapult { namespace observers {
 
 		auto mosaicIter = cache.find(mosaicId);
 		auto& entry = mosaicIter.get();
-		if (ShouldIncrease(context.Mode, notification.Direction)) {
+		if (ShouldIncrease(context.Mode, notification.Action)) {
 			accountState.Balances.credit(mosaicId, notification.Delta);
 			entry.increaseSupply(notification.Delta);
 		} else {

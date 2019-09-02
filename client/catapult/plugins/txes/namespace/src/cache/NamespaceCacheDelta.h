@@ -43,7 +43,7 @@ namespace catapult { namespace cache {
 			typename NamespaceCacheTypes::HeightGroupingTypes::BaseSetDeltaType>;
 		using DeltaElements = PrimaryMixins::DeltaElements;
 
-		using NamespaceDeepSize = NamespaceDeepSizeMixin<NamespaceCacheTypes::PrimaryTypes::BaseSetDeltaType>;
+		using NamespaceDeepSize = NamespaceDeepSizeMixin;
 		using NamespaceLookup = NamespaceLookupMixin<
 			NamespaceCacheTypes::PrimaryTypes::BaseSetDeltaType,
 			NamespaceCacheTypes::FlatMapTypes::BaseSetDeltaType>;
@@ -81,7 +81,7 @@ namespace catapult { namespace cache {
 		/// Inserts the namespace \a ns into the cache.
 		void insert(const state::Namespace& ns);
 
-		/// Sets an \a alias for namespace \a id.
+		/// Sets \a alias for namespace \a id.
 		void setAlias(NamespaceId id, const state::NamespaceAlias& alias);
 
 		/// Removes the namespace specified by its \a id from the cache.

@@ -63,7 +63,7 @@ namespace catapult { namespace io {
 
 	public:
 		/// Tries to read the next message and forwards it to \a consumer if successful.
-		bool tryReadNextMessage(const consumer<std::vector<uint8_t>>& consumer);
+		bool tryReadNextMessage(const consumer<const std::vector<uint8_t>&>& consumer);
 
 		/// Skips at most the next \a count messages.
 		void skip(uint32_t count);

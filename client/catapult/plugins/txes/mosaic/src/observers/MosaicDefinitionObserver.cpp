@@ -24,24 +24,20 @@
 namespace catapult { namespace observers {
 
 	namespace {
-		uint64_t GetPropertyValue(const model::MosaicProperties& properties, size_t index) {
-			return (properties.begin() + index)->Value;
+		model::MosaicFlags Xor(model::MosaicFlags lhs, model::MosaicFlags rhs) {
+			return static_cast<model::MosaicFlags>(utils::to_underlying_type(lhs) ^ utils::to_underlying_type(rhs));
 		}
 
 		model::MosaicProperties MergeProperties(
 				const model::MosaicProperties& currentProperties,
 				const model::MosaicProperties& notificationProperties,
 				NotifyMode mode) {
-			model::MosaicProperties::PropertyValuesContainer propertyValues;
-			for (auto i = 0u; i < model::First_Optional_Property; ++i)
-				propertyValues[i] = GetPropertyValue(currentProperties, i) ^ GetPropertyValue(notificationProperties, i);
-
-			auto durationIndex = model::First_Optional_Property;
-			propertyValues[durationIndex] = NotifyMode::Commit == mode
-					? GetPropertyValue(currentProperties, durationIndex) + GetPropertyValue(notificationProperties, durationIndex)
-					: GetPropertyValue(currentProperties, durationIndex) - GetPropertyValue(notificationProperties, durationIndex);
-
-			return model::MosaicProperties::FromValues(propertyValues);
+			auto flags = Xor(currentProperties.flags(), notificationProperties.flags());
+			auto divisibility = static_cast<uint8_t>(currentProperties.divisibility() ^ notificationProperties.divisibility());
+			auto duration = NotifyMode::Commit == mode
+					? currentProperties.duration() + notificationProperties.duration()
+					: currentProperties.duration() - notificationProperties.duration();
+			return model::MosaicProperties(flags, divisibility, duration);
 		}
 
 		auto ApplyNotification(
@@ -51,7 +47,7 @@ namespace catapult { namespace observers {
 			const auto& currentDefinition = currentEntry.definition();
 			auto newProperties = MergeProperties(currentDefinition.properties(), notification.Properties, mode);
 			auto revision = NotifyMode::Commit == mode ? currentDefinition.revision() + 1 : currentDefinition.revision() - 1;
-			auto definition = state::MosaicDefinition(currentDefinition.height(), notification.Signer, revision, newProperties);
+			auto definition = state::MosaicDefinition(currentDefinition.startHeight(), notification.Signer, revision, newProperties);
 			return state::MosaicEntry(notification.MosaicId, definition);
 		}
 	}

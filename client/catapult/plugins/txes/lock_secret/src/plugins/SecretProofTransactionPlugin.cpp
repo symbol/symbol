@@ -37,10 +37,10 @@ namespace catapult { namespace plugins {
 					transaction.Secret,
 					{ transaction.ProofPtr(), transaction.ProofSize }));
 			sub.notify(ProofPublicationNotification(
-					transaction.Signer,
+					transaction.SignerPublicKey,
 					transaction.HashAlgorithm,
 					transaction.Secret,
-					transaction.Recipient));
+					transaction.RecipientAddress));
 		}
 	}
 

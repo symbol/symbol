@@ -19,100 +19,52 @@
 **/
 
 #pragma once
-#include "MosaicProperty.h"
-#include "catapult/utils/Casting.h"
+#include "MosaicFlags.h"
 #include "catapult/types.h"
-#include <array>
 
 namespace catapult { namespace model {
 
-#pragma pack(push, 1)
-
-	/// Mosaic properties header.
-	struct MosaicPropertiesHeader {
-		/// Number of elements in optional properties array.
-		uint8_t Count;
-
-		/// Mosaic flags.
-		MosaicFlags Flags;
-
-		/// Mosaic divisibility.
-		uint8_t Divisibility;
-	};
-
-#pragma pack(pop)
-
 	/// Container for mosaic properties.
 	class MosaicProperties {
-	private:
-		using PropertiesContainer = std::array<MosaicProperty, Num_Mosaic_Properties>;
+	public:
+		/// Creates zeroed mosaic properties.
+		MosaicProperties() : MosaicProperties(MosaicFlags::None, 0, BlockDuration())
+		{}
+
+		/// Creates mosaic properties around \a flags, \a divisibility and \a duration.
+		MosaicProperties(MosaicFlags flags, uint8_t divisibility, BlockDuration duration)
+				: m_flags(flags)
+				, m_divisibility(divisibility)
+				, m_duration(duration)
+		{}
 
 	public:
-		/// Type of values container.
-		using PropertyValuesContainer = std::array<uint64_t, Num_Mosaic_Properties>;
-
-	private:
-		explicit MosaicProperties(const PropertyValuesContainer& values) {
-			uint8_t i = 0;
-			for (auto value : values) {
-				m_properties[i] = { static_cast<MosaicPropertyId>(i), value };
-				++i;
-			}
-		}
-
-	public:
-		/// Creates mosaic properties from \a values.
-		static MosaicProperties FromValues(const PropertyValuesContainer& values) {
-			return MosaicProperties(values);
-		}
-
-	public:
-		/// Gets the number of properties.
-		size_t size() const {
-			return Num_Mosaic_Properties;
-		}
-
-		/// Returns a const iterator to the first property.
-		auto begin() const {
-			return m_properties.cbegin();
-		}
-
-		/// Returns a const iterator to the element following the last property.
-		auto end() const {
-			return m_properties.cend();
-		}
-
-	private:
-		template<typename T>
-		T property(MosaicPropertyId id) const {
-			return T(m_properties[utils::to_underlying_type(id)].Value);
-		}
-
-	public:
-		/// Returns \c true if mosaic flags contain \a testedFlag.
-		bool is(MosaicFlags testedFlag) const {
-			return HasFlag(testedFlag, property<MosaicFlags>(MosaicPropertyId::Flags));
+		/// Gets mosaic flags.
+		MosaicFlags flags() const {
+			return m_flags;
 		}
 
 		/// Gets mosaic divisibility.
 		uint8_t divisibility() const {
-			return property<uint8_t>(MosaicPropertyId::Divisibility);
+			return m_divisibility;
 		}
 
 		/// Gets mosaic duration.
 		BlockDuration duration() const {
-			return property<BlockDuration>(MosaicPropertyId::Duration);
+			return m_duration;
+		}
+
+		/// Returns \c true if mosaic flags contain \a testedFlag.
+		bool is(MosaicFlags testedFlag) const {
+			return HasFlag(testedFlag, m_flags);
 		}
 
 	public:
 		/// Returns \c true if this properties bag is equal to \a rhs.
 		bool operator==(const MosaicProperties& rhs) const {
-			for (auto i = 0u; i < Num_Mosaic_Properties; ++i) {
-				if (m_properties[i].Value != rhs.m_properties[i].Value)
-					return false;
-			}
-
-			return true;
+			return m_flags == rhs.m_flags
+					&& m_divisibility == rhs.m_divisibility
+					&& m_duration == rhs.m_duration;
 		}
 
 		/// Returns \c true if this properties bag is not equal to \a rhs.
@@ -121,9 +73,8 @@ namespace catapult { namespace model {
 		}
 
 	private:
-		std::array<MosaicProperty, Num_Mosaic_Properties> m_properties;
+		MosaicFlags m_flags;
+		uint8_t m_divisibility;
+		BlockDuration m_duration;
 	};
-
-	/// Extracts all properties from \a header and \a pProperties.
-	MosaicProperties ExtractAllProperties(const MosaicPropertiesHeader& header, const MosaicProperty* pProperties);
 }}

@@ -30,7 +30,7 @@ namespace catapult { namespace cache {
 		using HeightBasedMosaicIdsMap = MosaicCacheTypes::HeightGroupingTypes::BaseSetDeltaType;
 
 		Height GetExpiryHeight(const state::MosaicDefinition& definition) {
-			return Height(definition.height().unwrap() + definition.properties().duration().unwrap());
+			return Height(definition.startHeight().unwrap() + definition.properties().duration().unwrap());
 		}
 
 		void UpdateExpiryMap(HeightBasedMosaicIdsMap& mosaicIdsByExpiryHeight, const state::MosaicEntry& entry) {

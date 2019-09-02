@@ -48,7 +48,7 @@ namespace catapult { namespace test {
 		auto dbEntryType = static_cast<state::MosaicRestrictionEntry::EntryType>(GetUint8(dbRestrictionEntry, "entryType"));
 		EXPECT_EQ(state::MosaicRestrictionEntry::EntryType::Address, dbEntryType);
 		EXPECT_EQ(restriction.mosaicId(), MosaicId(GetUint64(dbRestrictionEntry, "mosaicId")));
-		EXPECT_EQ(restriction.address(), GetAddressValue(dbRestrictionEntry, "address"));
+		EXPECT_EQ(restriction.address(), GetAddressValue(dbRestrictionEntry, "targetAddress"));
 
 		auto dbRestrictions = dbRestrictionEntry["restrictions"].get_array().value;
 		auto keys = restriction.keys();
@@ -99,7 +99,7 @@ namespace catapult { namespace test {
 			auto dbKey = GetUint64(dbRestrictionView, "key");
 			EXPECT_CONTAINS(keys, dbKey);
 
-			auto dbRuleView = dbRestrictionView["rule"].get_document().view();
+			auto dbRuleView = dbRestrictionView["restriction"].get_document().view();
 			state::MosaicGlobalRestriction::RestrictionRule rule;
 			bool isSet = restriction.tryGet(dbKey, rule);
 			ASSERT_TRUE(isSet);

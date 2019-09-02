@@ -47,7 +47,7 @@ namespace catapult { namespace chain {
 			explicit TestContext(observers::NotifyMode executeMode = observers::NotifyMode::Commit)
 					: m_cache({})
 					, m_cacheDelta(m_cache.createDelta())
-					, m_observerContext({ m_cacheDelta, m_state }, Height(123), executeMode, CreateResolverContext())
+					, m_observerContext(observers::ObserverState(m_cacheDelta), Height(123), executeMode, CreateResolverContext())
 					, m_sub(m_observer, m_observerContext) {
 				CATAPULT_LOG(debug) << "preparing test context with execute mode " << executeMode;
 			}
@@ -66,10 +66,9 @@ namespace catapult { namespace chain {
 					auto message = "observer notification at " + std::to_string(i);
 					EXPECT_EQ(expectedTypes[i], m_observer.notificationTypes()[i]) << message;
 
-					// - cache and state should refer to same objects
+					// - cache should refer to same object
 					const auto& observerContext = m_observer.contexts()[i];
 					EXPECT_EQ(&m_observerContext.Cache, &observerContext.Cache) << message;
-					EXPECT_EQ(&m_observerContext.State, &observerContext.State) << message;
 
 					// - height should be the same but mode should be reversed
 					EXPECT_EQ(m_observerContext.Height, observerContext.Height) << message;
@@ -96,7 +95,6 @@ namespace catapult { namespace chain {
 
 			cache::CatapultCache m_cache;
 			cache::CatapultCacheDelta m_cacheDelta;
-			state::CatapultState m_state;
 
 			observers::ObserverContext m_observerContext;
 
