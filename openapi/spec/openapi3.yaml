@@ -865,7 +865,7 @@ paths:
                 type: array
                 description: Array of account metadata.
                 items:
-                  $ref: "#/components/schemas/KeyMetadataDTO"
+                  $ref: "#/components/schemas/KeyMetadataEntryDTO"
         "404":
           description: resource not found
         "409":
@@ -1260,6 +1260,19 @@ components:
         * 0 - Add cosignatory.
         * 1 - Remove cosignatory.
       example: 0
+    # Enumerations - Metadata
+    MetadataTypeEnum:
+      type: integer
+      format: int32
+      enum:
+        - 0
+        - 1
+        - 2
+      description: |
+        Metadata type:
+        * 0 - Account.
+        * 1 - Mosaic.
+        * 2 - Namespace.
     # Enumerations - Namespace
     AliasActionEnum:
       type: integer
@@ -2832,7 +2845,7 @@ components:
         - $ref: "#/components/schemas/TransferTransactionBodyDTO"
 
     # Schemas - Metadata
-    KeyMetadataDTO:
+    KeyMetadataEntryDTO:
       type: object
       required:
       - key
@@ -2842,10 +2855,10 @@ components:
           $ref: "#/components/schemas/UInt64"
         metadata:
           type: array
-          description: Array of metadata objects.
+          description: Array of metadata entry objects.
           items:
-            $ref: "#/components/schemas/MetadataDTO"
-    MetadataDTO:
+            $ref: "#/components/schemas/MetadataEntryDTO"
+    MetadataEntryDTO:
       type: object
       required:
         - compositeHash
@@ -2865,12 +2878,14 @@ components:
         scopedMetadataKey:
           $ref: "#/components/schemas/UInt64"
         targetId:
-          $ref: "#/components/schemas/UInt64"
+          anyOf:
+            - $ref: "#/components/schemas/Address"
+            - $ref: "#/components/schemas/MosaicId"
+            - $ref: "#/components/schemas/NamespaceId"
         metadataType:
           $ref: "#/components/schemas/MetadataTypeEnum"
         value:
           type: string
-
     # Request bodies
     accountIds:
       type: object
