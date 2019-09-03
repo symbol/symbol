@@ -8,7 +8,7 @@ struct AggregateTransactionBody
 	payloadSize = uint32
 
 	# sub-transaction data (transactions are variable sized and payload size is in bytes)
-	transactions = array(Transaction, size=payloadSize)
+	transactions = array(EmbeddedTransaction, size=payloadSize)
 
 	# cosignatures data (fills remaining body space after transactions)
 	cosignatures = array(Cosignature, __FILL__)
