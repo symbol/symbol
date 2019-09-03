@@ -21,7 +21,7 @@
 const catapult = require('catapult-sdk');
 
 const { ModelType, status } = catapult.model;
-const { convert } = catapult.utils;
+const { convert, uint64 } = catapult.utils;
 
 module.exports = {
 	[ModelType.none]: value => value,
@@ -29,5 +29,6 @@ module.exports = {
 	[ModelType.statusCode]: status.toString,
 	[ModelType.string]: value => value.toString(),
 	[ModelType.uint16]: value => value,
-	[ModelType.uint64]: value => value
+	[ModelType.uint64]: value => value,
+	[ModelType.uint64String]: value => uint64.toString(value)
 };

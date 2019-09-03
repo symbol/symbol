@@ -139,4 +139,29 @@ describe('db formatting rules', () => {
 		// Assert:
 		expect(result).to.deep.equal([0x00ABCDEF, 0x000FDFFF]);
 	});
+
+	it('can format uint64String type from Long', () => {
+		// Arrange:
+		const object = convertToLong([1, 2]);
+
+		// Act:
+		const result = formattingRules[ModelType.uint64String](object);
+
+		// Assert:
+		expect(result).to.deep.equal('8589934593');
+	});
+
+	it('can format uint64String type from Binary', () => {
+		// Arrange:
+		const buffer = Buffer.alloc(8, 0);
+		buffer.writeUInt32LE(0x00ABCDEF, 0);
+		buffer.writeUInt32LE(0x000FDFFF, 4);
+		const object = new Binary(buffer);
+
+		// Act:
+		const result = formattingRules[ModelType.uint64String](object);
+
+		// Assert:
+		expect(result).to.deep.equal('4468410971573743');
+	});
 });

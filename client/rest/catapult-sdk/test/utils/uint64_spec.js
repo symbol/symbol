@@ -230,4 +230,13 @@ describe('uint64', () => {
 			});
 		});
 	});
+
+	describe('toString', () => {
+		it('parses uint64 values correctly', () => {
+			expect(uint64.toString([0, 0])).to.equal('0');	// min value
+			expect(uint64.toString([4294967295, 4294967295])).to.equal('18446744073709551615');	// max value
+			expect(uint64.toString([65436453, 45])).to.equal('193338964773');
+			expect(uint64.toString([3127188303, 2974383967])).to.equal('12774881867138931535');
+		});
+	});
 });

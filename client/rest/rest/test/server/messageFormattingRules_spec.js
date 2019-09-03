@@ -96,4 +96,15 @@ describe('message formatting rules', () => {
 		// Assert:
 		expect(result).to.deep.equal([1, 2]);
 	});
+
+	it('can format uint64String type', () => {
+		// Arrange:
+		const object = [1, 2];
+
+		// Act:
+		const result = formattingRules[ModelType.uint64String](object);
+
+		// Assert:
+		expect(result).to.deep.equal('8589934593');
+	});
 });
