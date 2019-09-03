@@ -2862,7 +2862,7 @@ components:
       type: object
       required:
         - compositeHash
-        - sourcePublicKey
+        - senderPublicKey
         - targetPublicKey
         - scopedMetadataKey
         - targetId
@@ -2871,7 +2871,7 @@ components:
       properties:
         compositeHash:
           $ref: "#/components/schemas/Hash256"
-        sourcePublicKey:
+        senderPublicKey:
           $ref: "#/components/schemas/PublicKey"
         targetPublicKey:
           $ref: "#/components/schemas/PublicKey"
