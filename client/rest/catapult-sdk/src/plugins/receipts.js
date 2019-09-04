@@ -38,24 +38,28 @@ const getBasicReceiptType = type => ReceiptType[(type & 0xF000) >> 12] || 'recei
 const receiptsPlugin = {
 	registerSchema: builder => {
 		builder.addSchema('receipts', {
-			transactionStatements: { type: ModelType.array, schemaName: 'receipts.transactionStatement' },
 			addressResolutionStatements: { type: ModelType.array, schemaName: 'receipts.addressResolutionStatement' },
-			mosaicResolutionStatements: { type: ModelType.array, schemaName: 'receipts.mosaicResolutionStatement' }
+			mosaicResolutionStatements: { type: ModelType.array, schemaName: 'receipts.mosaicResolutionStatement' },
+			transactionStatements: { type: ModelType.array, schemaName: 'receipts.transactionStatement' }
 		});
-
-		builder.addSchema('receipts.addressResolutionStatement', {
+		const addStatementSchema = (statementType, schema) => {
+			const schemaName = `receipts.${statementType}Statement`;
+			builder.addSchema(schemaName, {
+				statement: { type: ModelType.object, schemaName: `${schemaName}.statement` }
+			});
+			builder.addSchema(`${schemaName}.statement`, schema);
+		};
+		addStatementSchema('addressResolution', {
 			height: ModelType.uint64,
 			unresolved: ModelType.binary,
 			resolutionEntries: { type: ModelType.array, schemaName: 'receipts.entry.address' }
 		});
-
-		builder.addSchema('receipts.mosaicResolutionStatement', {
+		addStatementSchema('mosaicResolution', {
 			height: ModelType.uint64,
 			unresolved: ModelType.uint64,
 			resolutionEntries: { type: ModelType.array, schemaName: 'receipts.entry.mosaic' }
 		});
-
-		builder.addSchema('receipts.transactionStatement', {
+		addStatementSchema('transaction', {
 			height: ModelType.uint64,
 			receipts: { type: ModelType.array, schemaName: entity => getBasicReceiptType(entity.type) }
 		});

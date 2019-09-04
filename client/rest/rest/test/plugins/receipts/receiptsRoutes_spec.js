@@ -36,9 +36,9 @@ describe('receipts routes', () => {
 		const mosaicResolutionStatementData = ['dummyStatement'];
 		const statementsFake = sinon.stub();
 		const orderedStatementsCollections = ['transactionStatements', 'addressResolutionStatements', 'mosaicResolutionStatements'];
-		statementsFake.withArgs(correctQueriedHeight, orderedStatementsCollections[0]).returns(transactionStatementData);
 		statementsFake.withArgs(correctQueriedHeight, orderedStatementsCollections[1]).returns(addressResolutionStatementData);
 		statementsFake.withArgs(correctQueriedHeight, orderedStatementsCollections[2]).returns(mosaicResolutionStatementData);
+		statementsFake.withArgs(correctQueriedHeight, orderedStatementsCollections[0]).returns(transactionStatementData);
 
 		const mockServer = new MockServer();
 
@@ -68,9 +68,9 @@ describe('receipts routes', () => {
 
 				expect(mockServer.send.firstCall.args[0]).to.deep.equal({
 					payload: {
-						transactionStatements: transactionStatementData,
 						addressResolutionStatements: addressResolutionStatementData,
-						mosaicResolutionStatements: mosaicResolutionStatementData
+						mosaicResolutionStatements: mosaicResolutionStatementData,
+						transactionStatements: transactionStatementData
 					},
 					type: 'receipts'
 				});

@@ -26,71 +26,77 @@ const MongoDb = require('mongodb');
 const { Binary, Long } = MongoDb;
 
 const createTransactionStatement = height => ({
-	height: Long.fromNumber(height),
-	source: {
-		primaryId: 0,
-		secondaryId: 0
-	},
-	receipts: [
-		// balance change
-		{
-			version: 1,
-			type: 8515,
-			account: new Binary(test.random.publicKey()),
-			mosaicId: Long.fromNumber(2345),
-			amount: Long.fromNumber(6789)
+	statement: {
+		height: Long.fromNumber(height),
+		source: {
+			primaryId: 0,
+			secondaryId: 0
 		},
-		// balance transfer
-		{
-			version: 1,
-			type: 8516,
-			senderPublicKey: new Binary(test.random.publicKey()),
-			recipientAddress: new Binary(test.random.publicKey()),
-			mosaicId: Long.fromNumber(9212),
-			amount: Long.fromNumber(1314)
-		},
-		// artifact expiry
-		{
-			version: 1,
-			type: 8517,
-			artifactId: Long.fromNumber(1234)
-		},
-		// inflation
-		{
-			version: 1,
-			type: 8518,
-			mosaicId: Long.fromNumber(4532),
-			amount: Long.fromNumber(200)
-		}
-	]
+		receipts: [
+			// balance change
+			{
+				version: 1,
+				type: 8515,
+				account: new Binary(test.random.publicKey()),
+				mosaicId: Long.fromNumber(2345),
+				amount: Long.fromNumber(6789)
+			},
+			// balance transfer
+			{
+				version: 1,
+				type: 8516,
+				senderPublicKey: new Binary(test.random.publicKey()),
+				recipientAddress: new Binary(test.random.publicKey()),
+				mosaicId: Long.fromNumber(9212),
+				amount: Long.fromNumber(1314)
+			},
+			// artifact expiry
+			{
+				version: 1,
+				type: 8517,
+				artifactId: Long.fromNumber(1234)
+			},
+			// inflation
+			{
+				version: 1,
+				type: 8518,
+				mosaicId: Long.fromNumber(4532),
+				amount: Long.fromNumber(200)
+			}
+		]
+	}
 });
 
 const createAddressResolutionStatement = height => ({
-	height: Long.fromNumber(height),
-	unresolved: new Binary(test.random.address()),
-	resolutionEntries: [
-		{
-			source: {
-				primaryId: 23,
-				secondaryId: 34
-			},
-			resolved: new Binary(test.random.address())
-		}
-	]
+	statement: {
+		height: Long.fromNumber(height),
+		unresolved: new Binary(test.random.address()),
+		resolutionEntries: [
+			{
+				source: {
+					primaryId: 23,
+					secondaryId: 34
+				},
+				resolved: new Binary(test.random.address())
+			}
+		]
+	}
 });
 
 const createMosaicResolutionStatement = height => ({
-	height: Long.fromNumber(height),
-	unresolved: Long.fromNumber(5432),
-	resolutionEntries: [
-		{
-			source: {
-				primaryId: 23,
-				secondaryId: 34
-			},
-			resolved: Long.fromNumber(6789)
-		}
-	]
+	statement: {
+		height: Long.fromNumber(height),
+		unresolved: Long.fromNumber(5432),
+		resolutionEntries: [
+			{
+				source: {
+					primaryId: 23,
+					secondaryId: 34
+				},
+				resolved: Long.fromNumber(6789)
+			}
+		]
+	}
 });
 
 const receiptsDbTestUtils = {

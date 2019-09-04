@@ -34,14 +34,14 @@ module.exports = {
 			const height = parseHeight(req.params);
 
 			return Promise.all([
-				getStatementsPromise(db, height, 'transactionStatements'),
 				getStatementsPromise(db, height, 'addressResolutionStatements'),
-				getStatementsPromise(db, height, 'mosaicResolutionStatements')
+				getStatementsPromise(db, height, 'mosaicResolutionStatements'),
+				getStatementsPromise(db, height, 'transactionStatements')
 			]).then(results => {
 				const [
-					transactionStatementsInfo,
 					addressResolutionStatementsInfo,
-					mosaicResolutionStatementsInfo
+					mosaicResolutionStatementsInfo,
+					transactionStatementsInfo
 				] = results;
 
 				if (results.some(result => !result.isRequestValid)) {
@@ -50,9 +50,9 @@ module.exports = {
 				}
 
 				const result = {
-					transactionStatements: transactionStatementsInfo.payload,
 					addressResolutionStatements: addressResolutionStatementsInfo.payload,
-					mosaicResolutionStatements: mosaicResolutionStatementsInfo.payload
+					mosaicResolutionStatements: mosaicResolutionStatementsInfo.payload,
+					transactionStatements: transactionStatementsInfo.payload
 				};
 
 				res.send({

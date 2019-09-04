@@ -36,7 +36,7 @@ class ReceiptsDb {
 	* @returns {Promise.<array>} Statements from a collection in a block.
 	*/
 	statementsAtHeight(height, statementsCollection) {
-		return this.catapultDb.queryDocuments(statementsCollection, { height: convertToLong(height) });
+		return this.catapultDb.queryDocuments(statementsCollection, { 'statement.height': convertToLong(height) });
 	}
 }
 
