@@ -25,7 +25,7 @@ const { expect } = require('chai');
 const sinon = require('sinon');
 
 describe('block routes', () => {
-	const addChainStatisticToDb = db => { db.chainStatistic = () => Promise.resolve({ height: 10 }); };
+	const addChainStatisticToDb = db => { db.chainStatisticCurrent = () => Promise.resolve({ height: 10 }); };
 	const routeConfig = { pageSize: { min: 30, max: 80, step: 12 } };
 
 	describe('block', () => {
@@ -112,7 +112,7 @@ describe('block routes', () => {
 							queriedIdentifiers.push({ height, pageId, pageSize });
 							return Promise.resolve(transactions);
 						},
-						chainStatistic: () => Promise.resolve({ height: 10 })
+						chainStatisticCurrent: () => Promise.resolve({ height: 10 })
 					}),
 					config: routeConfig
 				},

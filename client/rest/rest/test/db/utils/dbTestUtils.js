@@ -190,9 +190,11 @@ const createDbTransactions = (numRounds, signerPublicKey, recipientAddress) => {
 };
 
 const createChainStatistic = (height, scorelow, scoreHigh) => ({
-	height: Long.fromNumber(height),
-	scoreLow: Long.fromNumber(scorelow),
-	scoreHigh: Long.fromNumber(scoreHigh)
+	current: {
+		height: Long.fromNumber(height),
+		scoreLow: Long.fromNumber(scorelow),
+		scoreHigh: Long.fromNumber(scoreHigh)
+	}
 });
 
 const collectionUtils = {

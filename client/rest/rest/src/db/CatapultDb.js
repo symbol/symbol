@@ -183,6 +183,11 @@ class CatapultDb {
 		return this.queryDocument('chainStatistic', {}, { _id: 0 });
 	}
 
+	chainStatisticCurrent() {
+		return this.queryDocument('chainStatistic', {}, { _id: 0 })
+			.then(chainStatistic => chainStatistic.current);
+	}
+
 	blockAtHeight(height) {
 		return this.queryDocument(
 			'blocks',
@@ -204,7 +209,7 @@ class CatapultDb {
 		if (0 === numBlocks)
 			return Promise.resolve([]);
 
-		return this.chainStatistic().then(chainStatistic => {
+		return this.chainStatisticCurrent().then(chainStatistic => {
 			const blockCollection = this.database.collection('blocks');
 			const options = buildBlocksFromOptions(convertToLong(height), convertToLong(numBlocks), chainStatistic.height);
 

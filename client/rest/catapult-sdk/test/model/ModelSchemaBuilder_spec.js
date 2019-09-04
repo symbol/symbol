@@ -87,6 +87,7 @@ describe('model schema builder', () => {
 				'accountWithMetadata',
 
 				'chainStatistic',
+				'chainStatisticCurrent',
 				'nodeInfo',
 				'communicationTimestamps',
 				'nodeTime',
@@ -149,6 +150,8 @@ describe('model schema builder', () => {
 
 				'accountWithMetadata.meta',
 				'accountWithMetadata.account',
+
+				'chainStatistic.current',
 
 				'nodeTime.communicationTimestamps'
 			]);
@@ -231,9 +234,9 @@ describe('model schema builder', () => {
 				'mosaic.id',
 				'mosaic.amount',
 
-				'chainStatistic.height',
-				'chainStatistic.scoreLow',
-				'chainStatistic.scoreHigh',
+				'chainStatisticCurrent.height',
+				'chainStatisticCurrent.scoreLow',
+				'chainStatisticCurrent.scoreHigh',
 
 				'communicationTimestamps.receiveTimestamp',
 				'communicationTimestamps.sendTimestamp'

@@ -482,7 +482,7 @@ describe('route utils', () => {
 		blockInfoMockData.meta[blockMetaTreeField] = merkleTree;
 
 		const db = {
-			chainStatistic: () => Promise.resolve({ height: highestHeight }),
+			chainStatisticCurrent: () => Promise.resolve({ height: highestHeight }),
 			blockWithMerkleTreeAtHeight: () => Promise.resolve(blockInfoMockData)
 		};
 

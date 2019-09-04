@@ -29,16 +29,16 @@ const curryStripProperties = (properties, next) => chainStatistic => {
 };
 
 const currySend = (db, res, next) => chainStatistic => {
-	res.send({ payload: chainStatistic, type: routeResultTypes.chainStatistic });
+	res.send({ payload: chainStatistic, type: routeResultTypes.chainStatisticCurrent });
 	next();
 };
 
 module.exports = {
 	register: (server, db) => {
 		server.get('/chain/height', (req, res, next) =>
-			db.chainStatistic().then(curryStripProperties(['scoreLow', 'scoreHigh'], currySend(db, res, next))));
+			db.chainStatisticCurrent().then(curryStripProperties(['scoreLow', 'scoreHigh'], currySend(db, res, next))));
 
 		server.get('/chain/score', (req, res, next) =>
-			db.chainStatistic().then(curryStripProperties(['height'], currySend(db, res, next))));
+			db.chainStatisticCurrent().then(curryStripProperties(['height'], currySend(db, res, next))));
 	}
 };

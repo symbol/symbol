@@ -48,6 +48,7 @@ describe('model formatter builder', () => {
 				'transactionWithMetadata',
 
 				'chainStatistic',
+				'chainStatisticCurrent',
 				'merkleProofInfo',
 				'nodeInfo',
 				'nodeTime',
@@ -202,16 +203,20 @@ describe('model formatter builder', () => {
 
 			// Act:
 			const result = formatter.chainStatistic.format({
-				height: 0,
-				scoreLow: 0,
-				scoreHigh: 0
+				current: {
+					height: 0,
+					scoreLow: 0,
+					scoreHigh: 0
+				}
 			});
 
 			// Assert:
 			expect(result).to.deep.equal({
-				height: 'uint64',
-				scoreLow: 'uint64',
-				scoreHigh: 'uint64'
+				current: {
+					height: 'uint64',
+					scoreLow: 'uint64',
+					scoreHigh: 'uint64'
+				}
 			});
 		});
 

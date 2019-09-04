@@ -134,6 +134,9 @@ class ModelSchemaBuilder {
 			// region other
 
 			chainStatistic: {
+				current: { type: ModelType.object, schemaName: 'chainStatisticCurrent' }
+			},
+			chainStatisticCurrent: {
 				height: ModelType.uint64,
 				scoreLow: ModelType.uint64,
 				scoreHigh: ModelType.uint64

@@ -22,20 +22,25 @@ const formatters = require('../../src/server/formatters');
 const { expect } = require('chai');
 
 describe('formatters', () => {
-	const createFormatters = name => {
-		const formatUint64 = uint64 => (uint64 ? [uint64[0], uint64[1] * 2] : undefined);
-		return formatters.create({
-			[name]: {
-				chainStatistic: {
-					format: chainStatistic => ({
-						height: formatUint64(chainStatistic.height),
-						scoreLow: formatUint64(chainStatistic.scoreLow),
-						scoreHigh: formatUint64(chainStatistic.scoreHigh)
-					})
+	const createFormatters = name => formatters.create({
+		[name]: {
+			chainStatistic: {
+				format: chainStatistic => {
+					const formatUint64 = uint64 => (uint64 ? [uint64[0], uint64[1] * 2] : undefined);
+					const formatChainStatisticCurrent = chainStatisticCurrent => ({
+						height: formatUint64(chainStatisticCurrent.height),
+						scoreLow: formatUint64(chainStatisticCurrent.scoreLow),
+						scoreHigh: formatUint64(chainStatisticCurrent.scoreHigh)
+					});
+
+					return {
+						id: chainStatistic.id,
+						current: formatChainStatisticCurrent(chainStatistic.current)
+					};
 				}
 			}
-		});
-	};
+		}
+	});
 
 	const addBasicObjectFormattingTests = assertJsonFormat => {
 		// region non-error
@@ -60,29 +65,31 @@ describe('formatters', () => {
 			// Arrange:
 			const object = {
 				payload: {
-					height: [1, 2],
-					scoreLow: [112233, 8899],
-					scoreHigh: [4, 3]
+					current: {
+						height: [1, 2],
+						scoreLow: [112233, 8899],
+						scoreHigh: [4, 3]
+					}
 				},
 				type: 'chainStatistic'
 			};
 
 			// Assert: formatter doubles high part
-			assertJsonFormat(object, '{"height":[1,4],"scoreLow":[112233,17798],"scoreHigh":[4,6]}', undefined);
+			assertJsonFormat(object, '{"current":{"height":[1,4],"scoreLow":[112233,17798],"scoreHigh":[4,6]}}', undefined);
 		});
 
 		it('can format catapult object array', () => {
 			// Arrange:
 			const object = {
 				payload: [
-					{ height: [1, 2] },
-					{ height: [8, 7] }
+					{ current: { height: [1, 2] } },
+					{ current: { height: [8, 7] } }
 				],
 				type: 'chainStatistic'
 			};
 
 			// Assert: formatter doubles high part
-			assertJsonFormat(object, '[{"height":[1,4]},{"height":[8,14]}]', undefined);
+			assertJsonFormat(object, '[{"current":{"height":[1,4]}},{"current":{"height":[8,14]}}]', undefined);
 		});
 
 		// endregion

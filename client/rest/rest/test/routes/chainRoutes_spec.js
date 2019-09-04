@@ -28,7 +28,7 @@ describe('chain routes', () => {
 
 	describe('get', () => {
 		const createMockChainStatisticDb = (height, scoreLow, scoreHigh) => ({
-			chainStatistic: () => Promise.resolve({ height, scoreLow, scoreHigh })
+			chainStatisticCurrent: () => Promise.resolve({ height, scoreLow, scoreHigh })
 		});
 
 		it('can retrieve height', () => {
@@ -38,7 +38,7 @@ describe('chain routes', () => {
 			// Act:
 			return executeRoute('/chain/height', db, response => {
 				// Assert:
-				expect(response).to.deep.equal({ payload: { height: 2 }, type: 'chainStatistic' });
+				expect(response).to.deep.equal({ payload: { height: 2 }, type: 'chainStatisticCurrent' });
 			});
 		});
 
@@ -49,7 +49,7 @@ describe('chain routes', () => {
 			// Act:
 			return executeRoute('/chain/score', db, response => {
 				// Assert:
-				expect(response).to.deep.equal({ payload: { scoreLow: 64, scoreHigh: 9 }, type: 'chainStatistic' });
+				expect(response).to.deep.equal({ payload: { scoreLow: 64, scoreHigh: 9 }, type: 'chainStatisticCurrent' });
 			});
 		});
 	});

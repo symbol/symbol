@@ -48,9 +48,11 @@ const dummyIds = {
 // note that custom formatting will strip high part
 const createChainStatistic = (height, scoreLow, scoreHigh) => ({
 	id: 123,
-	height: [height, height],
-	scoreLow: [scoreLow, scoreLow],
-	scoreHigh: [scoreHigh, scoreHigh]
+	current: {
+		height: [height, height],
+		scoreLow: [scoreLow, scoreLow],
+		scoreHigh: [scoreHigh, scoreHigh]
+	}
 });
 
 const addRestRoutes = server => {
@@ -83,7 +85,7 @@ const addRestRoutes = server => {
 				return undefined; // don't call next below because it is called by res.redirect
 
 			case dummyIds.asyncValid:
-				return Promise.resolve({ height: [11, 11] })
+				return Promise.resolve({ current: { height: [11, 11] } })
 					.then(chainStatistic => {
 						res.send({ payload: chainStatistic, type: 'chainStatistic' });
 						next();
@@ -114,11 +116,15 @@ const createServer = options => {
 				// real formatting is not actually being tested, so just drop high part
 				format: chainStatistic => {
 					const formatUint64 = uint64 => (uint64 ? [uint64[0], 0] : undefined);
+					const formatChainStatisticCurrent = chainStatisticCurrent => ({
+						height: formatUint64(chainStatisticCurrent.height),
+						scoreLow: formatUint64(chainStatisticCurrent.scoreLow),
+						scoreHigh: formatUint64(chainStatisticCurrent.scoreHigh)
+					});
+
 					return {
 						id: chainStatistic.id,
-						height: formatUint64(chainStatistic.height),
-						scoreLow: formatUint64(chainStatistic.scoreLow),
-						scoreHigh: formatUint64(chainStatistic.scoreHigh)
+						current: formatChainStatisticCurrent(chainStatistic.current)
 					};
 				}
 			},
@@ -228,9 +234,10 @@ describe('server (bootstrapper)', () => {
 					.expectStatus(200)
 					.end((headers, body) => {
 						// Assert:
-						assertPayloadHeaders(headers, 63, methodOptions);
+						assertPayloadHeaders(headers, 75, methodOptions);
 						expect(body).to.deep.equal({
-							id: 123, height: [10, 0], scoreLow: [16, 0], scoreHigh: [11, 0]
+							id: 123,
+							current: { height: [10, 0], scoreLow: [16, 0], scoreHigh: [11, 0] }
 						});
 						done();
 					});
@@ -241,9 +248,10 @@ describe('server (bootstrapper)', () => {
 					.expectStatus(200)
 					.end((headers, body) => {
 						// Assert:
-						assertPayloadHeaders(headers, 63, methodOptions);
+						assertPayloadHeaders(headers, 75, methodOptions);
 						expect(body).to.deep.equal({
-							id: 123, height: [25, 0], scoreLow: [25, 0], scoreHigh: [25, 0]
+							id: 123,
+							current: { height: [25, 0], scoreLow: [25, 0], scoreHigh: [25, 0] }
 						});
 						done();
 					});
@@ -280,8 +288,8 @@ describe('server (bootstrapper)', () => {
 					.expectStatus(200)
 					.end((headers, body) => {
 						// Assert:
-						assertPayloadHeaders(headers, 17, methodOptions);
-						expect(body).to.deep.equal({ height: [11, 0] });
+						assertPayloadHeaders(headers, 29, methodOptions);
+						expect(body).to.deep.equal({ current: { height: [11, 0] } });
 						done();
 					});
 			});
@@ -333,9 +341,10 @@ describe('server (bootstrapper)', () => {
 					.expectStatus(200)
 					.end((headers, body) => {
 						// Assert:
-						assertPayloadHeaders(headers, 63, { allowMethods: undefined });
+						assertPayloadHeaders(headers, 75, { allowMethods: undefined });
 						expect(body).to.deep.equal({
-							id: 123, height: [10, 0], scoreLow: [16, 0], scoreHigh: [11, 0]
+							id: 123,
+							current: { height: [10, 0], scoreLow: [16, 0], scoreHigh: [11, 0] }
 						});
 						done();
 					});
@@ -346,9 +355,10 @@ describe('server (bootstrapper)', () => {
 					.expectStatus(200)
 					.end((headers, body) => {
 						// Assert:
-						assertPayloadHeaders(headers, 63, { allowMethods: `FOO,${method.toUpperCase()},BAR` });
+						assertPayloadHeaders(headers, 75, { allowMethods: `FOO,${method.toUpperCase()},BAR` });
 						expect(body).to.deep.equal({
-							id: 123, height: [10, 0], scoreLow: [16, 0], scoreHigh: [11, 0]
+							id: 123,
+							current: { height: [10, 0], scoreLow: [16, 0], scoreHigh: [11, 0] }
 						});
 						done();
 					});
@@ -416,9 +426,10 @@ describe('server (bootstrapper)', () => {
 					.expectStatus(200)
 					.end((headers, body) => {
 						// Assert:
-						assertPayloadHeaders(headers, 63, {});
+						assertPayloadHeaders(headers, 75, {});
 						expect(body).to.deep.equal({
-							id: 123, height: [25, 0], scoreLow: [25, 0], scoreHigh: [25, 0]
+							id: 123,
+							current: { height: [25, 0], scoreLow: [25, 0], scoreHigh: [25, 0] }
 						});
 						done();
 					});

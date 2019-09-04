@@ -38,7 +38,7 @@ module.exports = {
 	runHeightDependentOperation: (db, height, operation) => {
 		// notice that both the chain height and height-dependent operation are started at the same time in order to
 		// optimize the common case when the request height is valid
-		const chainStatisticPromise = db.chainStatistic();
+		const chainStatisticPromise = db.chainStatisticCurrent();
 		const operationPromise = operation();
 
 		return Promise.all([chainStatisticPromise, operationPromise]).then(results => {
