@@ -44,9 +44,9 @@ const multisigPlugin = {
 		});
 		builder.addSchema('multisigEntry.multisig', {
 			accountPublicKey: ModelType.binary,
-			address: ModelType.binary,
-			multisigAccounts: { type: ModelType.array, schemaName: ModelType.binary },
-			cosignatories: { type: ModelType.array, schemaName: ModelType.binary }
+			accountAddress: ModelType.binary,
+			multisigPublicKeys: { type: ModelType.array, schemaName: ModelType.binary },
+			cosignatoryPublicKeys: { type: ModelType.array, schemaName: ModelType.binary }
 		});
 		builder.addSchema('multisigGraph', {
 			multisigEntries: { type: ModelType.array, schemaName: 'multisigEntry' }
