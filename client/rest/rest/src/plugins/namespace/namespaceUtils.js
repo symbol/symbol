@@ -45,9 +45,9 @@ const namespaceUtils = {
 				return rhs.meta.height.greaterThan(lhs.meta.height) ? 1 : -1;
 			});
 			transactions.forEach(t => {
-				if (!uniqueTransactions.some(ut => ut.namespaceId.equals(t.transaction.namespaceId))) {
+				if (!uniqueTransactions.some(ut => ut.namespaceId.equals(t.transaction.id))) {
 					uniqueTransactions.push({
-						namespaceId: t.transaction.namespaceId,
+						namespaceId: t.transaction.id,
 						name: t.transaction.name.value()
 					});
 				}
@@ -57,7 +57,7 @@ const namespaceUtils = {
 
 		const getOnlyNamespacesWithRegisterTransaction = (namespaces, transactions) =>
 			namespaces.filter(n => transactions
-				.some(t => t.transaction.namespaceId.equals(n.namespace[`level${n.namespace.depth - 1}`])));
+				.some(t => t.transaction.id.equals(n.namespace[`level${n.namespace.depth - 1}`])));
 
 		const ids = getParams(req);
 

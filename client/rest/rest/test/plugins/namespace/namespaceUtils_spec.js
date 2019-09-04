@@ -53,7 +53,7 @@ describe('namespace utils', () => {
 			},
 			transaction: {
 				type: catapult.model.EntityType.registerNamespace,
-				namespaceId: convertToLong(namespaceId),
+				id: convertToLong(namespaceId),
 				name: { value: () => name }
 			}
 		});
