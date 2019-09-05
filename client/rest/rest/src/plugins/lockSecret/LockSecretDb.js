@@ -44,7 +44,7 @@ class LockSecretDb {
 		const buffers = accountIds.map(accountId => Buffer.from(accountId));
 		const fieldName = (AccountType.publicKey === type) ? 'lock.senderPublicKey' : 'lock.senderAddress';
 		const conditions = { $and: [{ [fieldName]: { $in: buffers } }] };
-		return this.catapultDb.queryPagedDocuments('secretLockInfos', conditions, id, pageSize, options)
+		return this.catapultDb.queryPagedDocuments('secretLocks', conditions, id, pageSize, options)
 			.then(this.catapultDb.sanitizer.copyAndDeleteIds);
 	}
 
@@ -54,7 +54,7 @@ class LockSecretDb {
 	 * @returns {Promise.<object>} Secret lock info for a secret.
 	 */
 	secretLockBySecret(secret) {
-		return this.catapultDb.queryDocument('secretLockInfos', { 'lock.secret': Buffer.from(secret) })
+		return this.catapultDb.queryDocument('secretLocks', { 'lock.secret': Buffer.from(secret) })
 			.then(this.catapultDb.sanitizer.copyAndDeleteId);
 	}
 

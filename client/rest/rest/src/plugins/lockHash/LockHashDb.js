@@ -44,7 +44,7 @@ class LockHashDb {
 		const buffers = accountIds.map(accountId => Buffer.from(accountId));
 		const fieldName = (AccountType.publicKey === type) ? 'lock.senderPublicKey' : 'lock.senderAddress';
 		const conditions = { $and: [{ [fieldName]: { $in: buffers } }] };
-		return this.catapultDb.queryPagedDocuments('hashLockInfos', conditions, id, pageSize, options)
+		return this.catapultDb.queryPagedDocuments('hashLocks', conditions, id, pageSize, options)
 			.then(this.catapultDb.sanitizer.copyAndDeleteIds);
 	}
 
@@ -54,7 +54,7 @@ class LockHashDb {
 	 * @returns {Promise.<object>} Hash lock info for a hash.
 	 */
 	hashLockByHash(hash) {
-		return this.catapultDb.queryDocument('hashLockInfos', { 'lock.hash': Buffer.from(hash) })
+		return this.catapultDb.queryDocument('hashLocks', { 'lock.hash': Buffer.from(hash) })
 			.then(this.catapultDb.sanitizer.copyAndDeleteId);
 	}
 

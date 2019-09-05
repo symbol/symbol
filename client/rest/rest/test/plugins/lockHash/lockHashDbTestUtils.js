@@ -25,7 +25,7 @@ const MongoDb = require('mongodb');
 
 const { Binary } = MongoDb;
 
-const createLockHashInfo = (id, owner, hashPropertyName, value) => ({
+const createLockHash = (id, owner, hashPropertyName, value) => ({
 	_id: dbTestUtils.db.createObjectId(id),
 	meta: {},
 	lock: {
@@ -35,21 +35,21 @@ const createLockHashInfo = (id, owner, hashPropertyName, value) => ({
 	}
 });
 
-const createLockHashInfos = ((numRounds, owner, hashPropertyName, startdId = 0) => {
+const createLockHashes = ((numRounds, owner, hashPropertyName, startdId = 0) => {
 	const lockInfos = [];
 
 	for (let i = 0; i < numRounds; ++i)
-		lockInfos.push(createLockHashInfo(startdId + i, owner, hashPropertyName, test.random.hash()));
+		lockInfos.push(createLockHash(startdId + i, owner, hashPropertyName, test.random.hash()));
 
 	return lockInfos;
 });
 
 const lockHashDbTestUtils = {
 	db: {
-		createHashLockInfo: (id, owner, value) => createLockHashInfo(id, owner, 'hash', value),
-		createHashLockInfos: (numRounds, owner, startdId = 0) => createLockHashInfos(numRounds, owner, 'hash', startdId),
+		createHashLock: (id, owner, value) => createLockHash(id, owner, 'hash', value),
+		createHashLocks: (numRounds, owner, startdId = 0) => createLockHashes(numRounds, owner, 'hash', startdId),
 		runDbTest: (lockName, dbEntities, issueDbCommand, assertDbCommandResult) =>
-			dbTestUtils.db.runDbTest(dbEntities, `${lockName}LockInfos`, db => new LockHashDb(db), issueDbCommand, assertDbCommandResult)
+			dbTestUtils.db.runDbTest(dbEntities, `${lockName}Locks`, db => new LockHashDb(db), issueDbCommand, assertDbCommandResult)
 	}
 };
 Object.assign(lockHashDbTestUtils, test);

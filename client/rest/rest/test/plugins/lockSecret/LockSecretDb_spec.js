@@ -49,7 +49,7 @@ describe('lock secret db', () => {
 			const createRandomLocks = (startId, count) => {
 				const locks = [];
 				for (let id = startId; id < startId + count; ++id)
-					locks.push(traits.createLockSecretInfo(id, createOwner(), traits.createRandomHash()));
+					locks.push(traits.createLockSecret(id, createOwner(), traits.createRandomHash()));
 				return locks;
 			};
 
@@ -57,7 +57,7 @@ describe('lock secret db', () => {
 
 			it('returns empty array for account with no locks secret', () => {
 				// Arrange: create 3 locks
-				const allLocks = traits.createLockSecretInfos(3, createOwner());
+				const allLocks = traits.createLockSecrets(3, createOwner());
 
 				// Assert:
 				return assertLocks([traits.type, ownerToDbApiIds(createOwner())], {
@@ -69,7 +69,7 @@ describe('lock secret db', () => {
 			it('returns all locks for single account with locks secret', () => {
 				// Arrange: create 10 locks
 				const owner = createOwner();
-				const seedLocks = traits.createLockSecretInfos(10, owner);
+				const seedLocks = traits.createLockSecrets(10, owner);
 
 				// - create additional 5 locks with random owner
 				const additionalLocks = createRandomLocks(20, 5);
@@ -85,7 +85,7 @@ describe('lock secret db', () => {
 				it('query respects supplied document id', () => {
 					// Arrange: create 10 locks
 					const owner = createOwner();
-					const seedLocks = traits.createLockSecretInfos(10, owner).reverse();
+					const seedLocks = traits.createLockSecrets(10, owner).reverse();
 					const expectedLocks = seedLocks.slice(8);
 
 					// Assert:
@@ -98,7 +98,7 @@ describe('lock secret db', () => {
 				const assertPageSize = (pageSize, expectedSize) => {
 					// Arrange: create 200 locks
 					const owner = createOwner();
-					const seedLocks = traits.createLockSecretInfos(200, owner);
+					const seedLocks = traits.createLockSecrets(200, owner);
 					const expectedLocks = seedLocks.slice(0, 200).reverse().slice(0, expectedSize);
 
 					// Assert:
@@ -121,8 +121,8 @@ describe('lock secret db', () => {
 				collectionName: 'secret',
 				dbMethodName: 'secretLocksByAccounts',
 				createRandomHash: testUtils.random.secret,
-				createLockSecretInfo: test.db.createSecretLockInfo,
-				createLockSecretInfos: test.db.createSecretLockInfos,
+				createLockSecret: test.db.createSecretLock,
+				createLockSecrets: test.db.createSecretLocks,
 				type: AccountType.publicKey,
 				toDbApiId: owner => owner.publicKey
 			}));
@@ -131,8 +131,8 @@ describe('lock secret db', () => {
 				collectionName: 'secret',
 				dbMethodName: 'secretLocksByAccounts',
 				createRandomHash: testUtils.random.secret,
-				createLockSecretInfo: test.db.createSecretLockInfo,
-				createLockSecretInfos: test.db.createSecretLockInfos,
+				createLockSecret: test.db.createSecretLock,
+				createLockSecrets: test.db.createSecretLocks,
 				type: AccountType.address,
 				toDbApiId: owner => owner.address
 			}));
@@ -144,7 +144,7 @@ describe('lock secret db', () => {
 			it('returns undefined', () => {
 				// Arrange: create lock secret info
 				const hash = traits.createRandomHash();
-				const lockInfo = traits.createLockSecretInfo(0, createOwner(), hash);
+				const lockInfo = traits.createLockSecret(0, createOwner(), hash);
 
 				// Assert:
 				return test.db.runDbTest(
@@ -158,7 +158,7 @@ describe('lock secret db', () => {
 			it('returns an entity', () => {
 				// Arrange: create lock secret info
 				const hash = traits.createRandomHash();
-				const lockInfo = traits.createLockSecretInfo(0, createOwner(), hash);
+				const lockInfo = traits.createLockSecret(0, createOwner(), hash);
 
 				// Assert:
 				return test.db.runDbTest(
@@ -174,7 +174,7 @@ describe('lock secret db', () => {
 
 		describe('secret lock by secret', () => addTests({
 			createRandomHash: testUtils.random.secret,
-			createLockSecretInfo: test.db.createSecretLockInfo,
+			createLockSecret: test.db.createSecretLock,
 			type: 'secret',
 			dbFunctionName: 'secretLockBySecret'
 		}));

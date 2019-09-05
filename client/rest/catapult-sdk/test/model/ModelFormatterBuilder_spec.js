@@ -110,7 +110,7 @@ describe('model formatter builder', () => {
 					generationHash: 0,
 					totalFee: 0,
 					numTransactions: 0,
-					subCacheMerkleRoots: [0]
+					stateHashSubCacheMerkleRoots: [0]
 				},
 				block: {
 					signature: 0,
@@ -136,7 +136,7 @@ describe('model formatter builder', () => {
 					generationHash: 'binary',
 					totalFee: 'uint64',
 					numTransactions: 'none',
-					subCacheMerkleRoots: ['binary']
+					stateHashSubCacheMerkleRoots: ['binary']
 				},
 				block: {
 					signature: 'binary',

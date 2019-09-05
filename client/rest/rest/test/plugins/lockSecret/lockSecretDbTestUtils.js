@@ -25,7 +25,7 @@ const MongoDb = require('mongodb');
 
 const { Binary } = MongoDb;
 
-const createLockSecretInfo = (id, owner, hashPropertyName, value) => ({
+const createLockSecret = (id, owner, hashPropertyName, value) => ({
 	_id: dbTestUtils.db.createObjectId(id),
 	meta: {},
 	lock: {
@@ -35,21 +35,21 @@ const createLockSecretInfo = (id, owner, hashPropertyName, value) => ({
 	}
 });
 
-const createLockSecretInfos = ((numRounds, owner, hashPropertyName, startdId = 0) => {
+const createLockSecrets = ((numRounds, owner, hashPropertyName, startdId = 0) => {
 	const lockInfos = [];
 
 	for (let i = 0; i < numRounds; ++i)
-		lockInfos.push(createLockSecretInfo(startdId + i, owner, hashPropertyName, test.random.hash()));
+		lockInfos.push(createLockSecret(startdId + i, owner, hashPropertyName, test.random.hash()));
 
 	return lockInfos;
 });
 
 const lockSecretDbTestUtils = {
 	db: {
-		createSecretLockInfo: (id, owner, value) => createLockSecretInfo(id, owner, 'secret', value),
-		createSecretLockInfos: (numRounds, owner, startdId = 0) => createLockSecretInfos(numRounds, owner, 'secret', startdId),
+		createSecretLock: (id, owner, value) => createLockSecret(id, owner, 'secret', value),
+		createSecretLocks: (numRounds, owner, startdId = 0) => createLockSecrets(numRounds, owner, 'secret', startdId),
 		runDbTest: (lockName, dbEntities, issueDbCommand, assertDbCommandResult) =>
-			dbTestUtils.db.runDbTest(dbEntities, `${lockName}LockInfos`, db => new LockSecretDb(db), issueDbCommand, assertDbCommandResult)
+			dbTestUtils.db.runDbTest(dbEntities, `${lockName}Locks`, db => new LockSecretDb(db), issueDbCommand, assertDbCommandResult)
 	}
 };
 Object.assign(lockSecretDbTestUtils, test);

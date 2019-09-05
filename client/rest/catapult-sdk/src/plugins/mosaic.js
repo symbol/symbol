@@ -64,7 +64,7 @@ const mosaicPlugin = {
 			deserialize: parser => {
 				const transaction = {};
 				transaction.nonce = parser.uint32();
-				transaction.mosaicId = parser.uint64();
+				transaction.id = parser.uint64();
 				transaction.flags = parser.uint8();
 				transaction.divisibility = parser.uint8();
 				transaction.duration = parser.uint64();
@@ -73,7 +73,7 @@ const mosaicPlugin = {
 
 			serialize: (transaction, serializer) => {
 				serializer.writeUint32(transaction.nonce);
-				serializer.writeUint64(transaction.mosaicId);
+				serializer.writeUint64(transaction.id);
 				serializer.writeUint8(transaction.flags);
 				serializer.writeUint8(transaction.divisibility);
 				serializer.writeUint64(transaction.duration);

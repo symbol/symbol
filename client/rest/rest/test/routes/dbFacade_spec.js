@@ -76,8 +76,8 @@ describe('db facade', () => {
 			});
 		};
 
-		const createFailed = value => ({ f: value });
-		const createFailedStatus = value => ({ group: 'failed', f: value });
+		const createFailed = value => ({ status: { f: value } });
+		const createUnwrappedFailedStatus = value => ({ group: 'failed', f: value });
 		const createTransaction = (hash, deadline, height) => ({ meta: { hash, height }, transaction: { deadline } });
 		const createUnconfirmedStatus = (hash, deadline) => ({
 			group: 'unconfirmed', status: 0, hash, deadline, height: 0
@@ -85,7 +85,7 @@ describe('db facade', () => {
 		const createConfirmedStatus = (hash, deadline, height) => ({
 			group: 'confirmed', status: 0, hash, deadline, height
 		});
-		const createCustomStatus = (hash, deadline, height) => ({
+		const createUnwrappedCustomStatus = (hash, deadline, height) => ({
 			group: 'custom', status: 0, hash, deadline, height
 		});
 
@@ -97,7 +97,7 @@ describe('db facade', () => {
 		it('failed transactions have type appended', () =>
 			addTransactionStatusesByHashesTest({
 				failed: [createFailed(123), createFailed(456)],
-				expected: [createFailedStatus(123), createFailedStatus(456)]
+				expected: [createUnwrappedFailedStatus(123), createUnwrappedFailedStatus(456)]
 			}));
 
 		it('unconfirmed transactions are properly mapped', () =>
@@ -115,19 +115,19 @@ describe('db facade', () => {
 		it('custom transactions are properly mapped', () =>
 			addTransactionStatusesByHashesTest({
 				custom: [createTransaction(87, 98, 43), createTransaction(34, 89, 22)],
-				expected: [createCustomStatus(87, 98, 43), createCustomStatus(34, 89, 22)]
+				expected: [createUnwrappedCustomStatus(87, 98, 43), createUnwrappedCustomStatus(34, 89, 22)]
 			}));
 
 		it('mixed elements are properly mapped', () =>
 			addTransactionStatusesByHashesTest({
-				failed: [createFailedStatus(123), createFailedStatus(456)],
+				failed: [createFailed(123), createFailed(456)],
 				unconfirmed: [createTransaction(111, 222, 0), createTransaction(333, 444, 0)],
 				confirmed: [createTransaction(55, 66, 77), createTransaction(88, 99, 11)],
 				custom: [createTransaction(87, 98, 43)],
 				expected: [
-					createFailedStatus(123), createFailedStatus(456),
+					createUnwrappedFailedStatus(123), createUnwrappedFailedStatus(456),
 					createUnconfirmedStatus(111, 222), createUnconfirmedStatus(333, 444),
-					createCustomStatus(87, 98, 43),
+					createUnwrappedCustomStatus(87, 98, 43),
 					createConfirmedStatus(55, 66, 77), createConfirmedStatus(88, 99, 11)
 				]
 			}));

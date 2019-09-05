@@ -26,7 +26,7 @@ const extractFromMetadata = (group, transaction) => ({
 	height: transaction.meta.height
 });
 
-module.exports = {
+const dbFacade = {
 
 	/**
 	 * Runs a database operation that is dependent on current chain height.
@@ -66,7 +66,9 @@ module.exports = {
 		);
 
 		const promises = [];
-		promises.push(db.transactionsByHashesFailed(hashes).then(objs => objs.map(status => Object.assign(status, { group: 'failed' }))));
+		promises.push(db.transactionsByHashesFailed(hashes)
+			.then(objs => objs.map(status => status.status))	// removes wrapping property
+			.then(objs => objs.map(status => Object.assign(status, { group: 'failed' }))));
 		transactionStates.forEach(state => {
 			const dbPromise = db[`transactionsByHashes${state.dbPostfix}`](hashes);
 			promises.push(dbPromise.then(objs => objs.map(transaction => extractFromMetadata(state.friendlyName, transaction))));
@@ -75,3 +77,5 @@ module.exports = {
 		return Promise.all(promises).then(tuple => [].concat(...tuple));
 	}
 };
+
+module.exports = dbFacade;

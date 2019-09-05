@@ -18,48 +18,98 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { test } = require('./utils/routeTestUtils');
 const transactionStatusRoutes = require('../../src/routes/transactionStatusRoutes');
+const routeResultTypes = require('../../src/routes/routeResultTypes');
+const routeUtils = require('../../src/routes/routeUtils');
+const dbFacade = require('../../src/routes/dbFacade');
+const { MockServer } = require('../../test/routes/utils/routeTestUtils');
+const sinon = require('sinon');
 const catapult = require('catapult-sdk');
+const { expect } = require('chai');
 
 const { convert } = catapult.utils;
 
 describe('transaction status routes', () => {
-	const hashes = [
-		'11223344556677889900AABBCCDDEEFF11223344556677889900AABBCCDDEEFF',
-		'ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789'
-	];
-	const binaryHashes = hashes.map(hash => convert.hexToUint8(hash));
-	const errorMessage = 'has an invalid format';
+	describe('calls addGetPostDocumentRoutes once with correct params', () => {
+		// Arrange:
+		const mockServer = new MockServer();
+		const db = {
+			transactionsByHashesFailed: () => Promise.resolve([]),
+			transactionsByHashesUnconfirmed: () => Promise.resolve([]),
+			transactionsByHashes: () => Promise.resolve([])
+		};
+		const services = { config: { transactionStates: [] } };
 
-	test.route.document.addGetPostDocumentRouteTests(transactionStatusRoutes.register, {
-		routes: { singular: '/transaction/:hash/status', plural: '/transaction/statuses' },
-		inputs: {
-			valid: { object: { hash: hashes[0] }, parsed: [binaryHashes[0]], printable: hashes[0] },
-			validMultiple: { object: { hashes }, parsed: binaryHashes },
-			invalid: { object: { hash: '12345' }, error: `hash ${errorMessage}` },
-			invalidMultiple: { object: { hashes: [hashes[0], '12345', hashes[1]] }, error: `element in array hashes ${errorMessage}` }
-		},
-		dbApiName: 'transactionsByHashesFailed',
-		type: 'transactionStatus',
-		config: { transactionStates: [{ dbPostfix: 'Custom', friendlyName: 'custom' }] },
-		extendDb: db => {
-			// in case of GET: modify the default db function, which returns scalars, to return an array so Array.map works
-			(originalTransactionsByHashesFailed => {
-				db.transactionsByHashesFailed = (...args) => originalTransactionsByHashesFailed(...args).then(result => {
-					// POST:
-					if (Array.isArray(result))
-						return result;
+		const routeInfo = {
+			base: '/transaction',
+			singular: 'hash',
+			plural: 'hashes',
+			postfixes: {
+				singular: 'status',
+				plural: 'statuses'
+			}
+		};
 
-					// GET:
-					return result ? [result] : [];
-				});
-			})(db.transactionsByHashesFailed);
+		let addGetPostDocumentRoutesSpy = null;
+		let routeUtilsCreateSenderSpy = null;
+		let transactionStatusesByHashesSpy = null;
 
-			db.transactionsByHashesUnconfirmed = () => Promise.resolve([]);
-			db.transactionsByHashesCustom = () => Promise.resolve([]);
-			db.transactionsByHashes = () => Promise.resolve([]);
-		},
-		payloadTemplate: { group: 'failed' }
+		before(() => {
+			addGetPostDocumentRoutesSpy = sinon.spy(routeUtils, 'addGetPostDocumentRoutes');
+			routeUtilsCreateSenderSpy = sinon.spy(routeUtils, 'createSender');
+			transactionStatusesByHashesSpy = sinon.spy(dbFacade, 'transactionStatusesByHashes');
+
+			// Act:
+			transactionStatusRoutes.register(mockServer.server, db, services);
+		});
+
+		// Assert:
+		it('calls addGetPostDocumentRoutes once', () => {
+			expect(addGetPostDocumentRoutesSpy.calledOnce).to.equal(true);
+		});
+
+		it('calls addGetPostDocumentRoutes with correct server', () => {
+			expect(addGetPostDocumentRoutesSpy.firstCall.args[0]).to.deep.equal(mockServer.server);
+		});
+
+		it('calls addGetPostDocumentRoutes with correct sender', () => {
+			expect(routeUtilsCreateSenderSpy.calledOnce).to.equal(true);
+			expect(routeUtilsCreateSenderSpy.firstCall.args[0]).to.deep.equal(routeResultTypes.transactionStatus);
+			expect(addGetPostDocumentRoutesSpy.firstCall.args[1]).to.deep.equal(routeUtilsCreateSenderSpy.firstCall.returnValue);
+		});
+
+		it('calls addGetPostDocumentRoutes with correct route info', () => {
+			expect(addGetPostDocumentRoutesSpy.firstCall.args[2]).to.deep.equal(routeInfo);
+		});
+
+		it('calls addGetPostDocumentRoutes with correct document retriever', () => {
+			const calledDocumentRetriever = addGetPostDocumentRoutesSpy.firstCall.args[3];
+			const paramHashes = ['6E9D130BBBB1C3190B02AF751CBEE32BEF6D6AE045E7618E4CE4D0BD582B6A27'];
+
+			return calledDocumentRetriever(paramHashes).then(() => {
+				expect(transactionStatusesByHashesSpy.calledOnce).to.equal(true);
+				expect(transactionStatusesByHashesSpy.firstCall.args[0]).to.deep.equal(db);
+				expect(transactionStatusesByHashesSpy.firstCall.args[1]).to.deep.equal(paramHashes);
+				expect(transactionStatusesByHashesSpy.firstCall.args[2]).to.deep.equal(services.config.transactionStates);
+			});
+		});
+
+		it('calls addGetPostDocumentRoutes with correct parser', () => {
+			const calledParser = addGetPostDocumentRoutesSpy.firstCall.args[4];
+
+			// - invalid length of hash
+			expect(() => { calledParser('abcd'); }).to.throw('invalid length of hash \'4\'');
+
+			// - valid length of hash
+			const hexValue = '6BAD46BDBEF2B84D03BA9668E635EF14FA66099258FE669DADCF8C23324C5DF1';
+			const parsedValue = convert.hexToUint8(hexValue);
+			expect(calledParser(hexValue)).to.deep.equal(parsedValue);
+		});
+
+		after(() => {
+			addGetPostDocumentRoutesSpy.restore();
+			routeUtilsCreateSenderSpy.restore();
+			transactionStatusesByHashesSpy.restore();
+		});
 	});
 });

@@ -32,7 +32,7 @@ const constants = { sizes };
 const accountLinkPlugin = {
 	registerSchema: builder => {
 		builder.addTransactionSupport(EntityType.accountLink, {
-			remotePublicKey: ModelType.binary
+			linkedAccountKey: ModelType.binary
 		});
 	},
 
@@ -40,13 +40,13 @@ const accountLinkPlugin = {
 		codecBuilder.addTransactionSupport(EntityType.accountLink, {
 			deserialize: parser => {
 				const transaction = {};
-				transaction.remotePublicKey = parser.buffer(constants.sizes.signerPublicKey);
+				transaction.linkedAccountKey = parser.buffer(constants.sizes.signerPublicKey);
 				transaction.linkAction = parser.uint8();
 				return transaction;
 			},
 
 			serialize: (transaction, serializer) => {
-				serializer.writeBuffer(transaction.remotePublicKey);
+				serializer.writeBuffer(transaction.linkedAccountKey);
 				serializer.writeUint8(transaction.linkAction);
 			}
 		});

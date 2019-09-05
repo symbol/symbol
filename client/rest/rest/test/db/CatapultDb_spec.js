@@ -1359,7 +1359,7 @@ describe('catapult db', () => {
 			const hashes = Array.from(Array(numSeeds), () => test.random.hash());
 			const failedTransactionResults = [];
 			for (let i = 0; i < numSeeds; ++i)
-				failedTransactionResults.push({ hash: new Binary(hashes[i]), validationResult: i });
+				failedTransactionResults.push({ status: { hash: new Binary(hashes[i]), validationResult: i } });
 
 			// Assert:
 			return runTest(failedTransactionResults, hashes);

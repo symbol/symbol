@@ -398,7 +398,7 @@ class CatapultDb {
 	 */
 	transactionsByHashesFailed(hashes) {
 		const buffers = hashes.map(hash => Buffer.from(hash));
-		return this.queryDocuments('transactionStatuses', { hash: { $in: buffers } });
+		return this.queryDocuments('transactionStatuses', { 'status.hash': { $in: buffers } });
 	}
 
 	// endregion
