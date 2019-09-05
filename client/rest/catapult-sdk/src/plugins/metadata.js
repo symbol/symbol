@@ -45,14 +45,14 @@ const metadataPlugin = {
 		builder.addTransactionSupport(EntityType.mosaicMetadata, {
 			targetPublicKey: ModelType.binary,
 			scopedMetadataKey: ModelType.uint64,
-			targetMosaicId: ModelType.uint64,
+			targetMosaicId: ModelType.uint64HexIdentifier,
 			value: ModelType.binary
 		});
 
 		builder.addTransactionSupport(EntityType.namespaceMetadata, {
 			targetPublicKey: ModelType.binary,
 			scopedMetadataKey: ModelType.uint64,
-			targetNamespaceId: ModelType.uint64,
+			targetNamespaceId: ModelType.uint64HexIdentifier,
 			value: ModelType.binary
 		});
 	},

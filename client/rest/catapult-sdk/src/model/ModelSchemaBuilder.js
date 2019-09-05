@@ -126,7 +126,7 @@ class ModelSchemaBuilder {
 				rawScore: ModelType.uint64
 			},
 			mosaic: {
-				id: ModelType.uint64,
+				id: ModelType.uint64HexIdentifier,
 				amount: ModelType.uint64
 			},
 			accountMeta: {

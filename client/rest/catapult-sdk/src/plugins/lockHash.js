@@ -37,14 +37,14 @@ const lockHashPlugin = {
 		builder.addSchema('hashLockInfo.lock', {
 			senderPublicKey: ModelType.binary,
 			senderAddress: ModelType.binary,
-			mosaicId: ModelType.uint64,
+			mosaicId: ModelType.uint64HexIdentifier,
 			amount: ModelType.uint64,
 			endHeight: ModelType.uint64,
 			hash: ModelType.binary
 		});
 
 		builder.addTransactionSupport(EntityType.hashLock, {
-			mosaicId: ModelType.uint64,
+			mosaicId: ModelType.uint64HexIdentifier,
 			amount: ModelType.uint64,
 			duration: ModelType.uint64,
 			hash: ModelType.binary

@@ -131,6 +131,7 @@ describe('namespace plugin', () => {
 					[ModelType.none]: () => 'none',
 					[ModelType.binary]: () => 'binary',
 					[ModelType.uint64]: () => 'uint64',
+					[ModelType.uint64HexIdentifier]: () => 'uint64HexIdentifier',
 					[ModelType.objectId]: () => 'objectId',
 					[ModelType.string]: () => 'string'
 				};
@@ -182,7 +183,7 @@ describe('namespace plugin', () => {
 				expect(formattedAlias).to.contain.all.keys(['type', 'mosaicId']);
 				expect(formattedAlias).deep.equal({
 					type: 'none',
-					mosaicId: 'uint64'
+					mosaicId: 'uint64HexIdentifier'
 				});
 			});
 

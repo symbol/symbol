@@ -37,7 +37,7 @@ const lockSecretPlugin = {
 		builder.addSchema('secretLockInfo.lock', {
 			senderPublicKey: ModelType.binary,
 			senderAddress: ModelType.binary,
-			mosaicId: ModelType.uint64,
+			mosaicId: ModelType.uint64HexIdentifier,
 			amount: ModelType.uint64,
 			endHeight: ModelType.uint64,
 			secret: ModelType.binary,
@@ -46,7 +46,7 @@ const lockSecretPlugin = {
 		});
 
 		builder.addTransactionSupport(EntityType.secretLock, {
-			mosaicId: ModelType.uint64,
+			mosaicId: ModelType.uint64HexIdentifier,
 			amount: ModelType.uint64,
 			duration: ModelType.uint64,
 			secret: ModelType.binary,

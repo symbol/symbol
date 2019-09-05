@@ -56,7 +56,7 @@ const receiptsPlugin = {
 		});
 		addStatementSchema('mosaicResolution', {
 			height: ModelType.uint64,
-			unresolved: ModelType.uint64,
+			unresolved: ModelType.uint64HexIdentifier,
 			resolutionEntries: { type: ModelType.array, schemaName: 'receipts.entry.mosaic' }
 		});
 		addStatementSchema('transaction', {
@@ -69,28 +69,28 @@ const receiptsPlugin = {
 		});
 
 		builder.addSchema('receipts.entry.mosaic', {
-			resolved: ModelType.uint64
+			resolved: ModelType.uint64HexIdentifier
 		});
 
 		builder.addSchema('receipts.balanceChange', {
 			targetPublicKey: ModelType.binary,
-			mosaicId: ModelType.uint64,
+			mosaicId: ModelType.uint64HexIdentifier,
 			amount: ModelType.uint64
 		});
 
 		builder.addSchema('receipts.balanceTransfer', {
 			senderPublicKey: ModelType.binary,
 			recipientAddress: ModelType.binary,
-			mosaicId: ModelType.uint64,
+			mosaicId: ModelType.uint64HexIdentifier,
 			amount: ModelType.uint64
 		});
 
 		builder.addSchema('receipts.artifactExpiry', {
-			artifactId: ModelType.uint64
+			artifactId: ModelType.uint64HexIdentifier
 		});
 
 		builder.addSchema('receipts.inflation', {
-			mosaicId: ModelType.uint64,
+			mosaicId: ModelType.uint64HexIdentifier,
 			amount: ModelType.uint64
 		});
 

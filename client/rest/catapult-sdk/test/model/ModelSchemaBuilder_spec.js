@@ -237,7 +237,6 @@ describe('model schema builder', () => {
 				'activityBucket.startHeight',
 				'activityBucket.totalFeesPaid',
 				'activityBucket.rawScore',
-				'mosaic.id',
 				'mosaic.amount',
 
 				'chainStatisticCurrent.height',
@@ -246,6 +245,16 @@ describe('model schema builder', () => {
 
 				'communicationTimestamps.receiveTimestamp',
 				'communicationTimestamps.sendTimestamp'
+			]);
+		});
+
+		it('exposes correct uint64HexIdentifier properties', () => {
+			// Act:
+			const matchingProperties = extractSchemaPropertiesWithType('uint64HexIdentifier');
+
+			// Assert:
+			expect(matchingProperties).to.deep.equal([
+				'mosaic.id'
 			]);
 		});
 

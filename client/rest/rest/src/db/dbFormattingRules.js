@@ -35,6 +35,6 @@ module.exports = {
 	[ModelType.statusCode]: value => status.toString(value >>> 0),
 	[ModelType.string]: value => value.toString(),
 	[ModelType.uint16]: value => (value instanceof Binary ? Buffer.from(value.buffer).readInt16LE(0) : value),
-	[ModelType.uint64]: value => rawUint64ToUint64(value),
-	[ModelType.uint64String]: value => uint64.toString(rawUint64ToUint64(value))
+	[ModelType.uint64]: value => uint64.toString(rawUint64ToUint64(value)),
+	[ModelType.uint64HexIdentifier]: value => uint64.toHex(rawUint64ToUint64(value))
 };

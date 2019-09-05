@@ -94,17 +94,17 @@ describe('message formatting rules', () => {
 		const result = formattingRules[ModelType.uint64](object);
 
 		// Assert:
-		expect(result).to.deep.equal([1, 2]);
+		expect(result).to.equal('8589934593');
 	});
 
-	it('can format uint64String type', () => {
+	it('can format uint64HexIdentifier type', () => {
 		// Arrange:
 		const object = [1, 2];
 
 		// Act:
-		const result = formattingRules[ModelType.uint64String](object);
+		const result = formattingRules[ModelType.uint64HexIdentifier](object);
 
 		// Assert:
-		expect(result).to.deep.equal('8589934593');
+		expect(result).to.equal('0000000200000001');
 	});
 });

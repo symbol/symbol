@@ -123,7 +123,7 @@ describe('db formatting rules', () => {
 		const result = formattingRules[ModelType.uint64](object);
 
 		// Assert:
-		expect(result).to.deep.equal([1, 2]);
+		expect(result).to.equal('8589934593');
 	});
 
 	it('can format uint64 type from Binary', () => {
@@ -137,21 +137,21 @@ describe('db formatting rules', () => {
 		const result = formattingRules[ModelType.uint64](object);
 
 		// Assert:
-		expect(result).to.deep.equal([0x00ABCDEF, 0x000FDFFF]);
+		expect(result).to.equal('4468410971573743');
 	});
 
-	it('can format uint64String type from Long', () => {
+	it('can format uint64HexIdentifier type from Long', () => {
 		// Arrange:
 		const object = convertToLong([1, 2]);
 
 		// Act:
-		const result = formattingRules[ModelType.uint64String](object);
+		const result = formattingRules[ModelType.uint64HexIdentifier](object);
 
 		// Assert:
-		expect(result).to.deep.equal('8589934593');
+		expect(result).to.equal('0000000200000001');
 	});
 
-	it('can format uint64String type from Binary', () => {
+	it('can format uint64HexIdentifier type from Binary', () => {
 		// Arrange:
 		const buffer = Buffer.alloc(8, 0);
 		buffer.writeUInt32LE(0x00ABCDEF, 0);
@@ -159,9 +159,9 @@ describe('db formatting rules', () => {
 		const object = new Binary(buffer);
 
 		// Act:
-		const result = formattingRules[ModelType.uint64String](object);
+		const result = formattingRules[ModelType.uint64HexIdentifier](object);
 
 		// Assert:
-		expect(result).to.deep.equal('4468410971573743');
+		expect(result).to.equal('000FDFFF00ABCDEF');
 	});
 });

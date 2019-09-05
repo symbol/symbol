@@ -66,7 +66,7 @@ const accountRestrictionTypeDescriptors = [
 	{
 		entityType: EntityType.accountRestrictionMosaic,
 		schemaPrefix: 'mosaic',
-		valueType: ModelType.uint64,
+		valueType: ModelType.uint64HexIdentifier,
 		flag: AccountRestrictionTypeFlags.mosaic
 	},
 	{

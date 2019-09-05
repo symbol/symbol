@@ -33,7 +33,7 @@ const mosaicRestrictionsPlugin = {
 
 	registerSchema: builder => {
 		builder.addTransactionSupport(EntityType.mosaicRestrictionAddress, {
-			mosaicId: ModelType.uint64,
+			mosaicId: ModelType.uint64HexIdentifier,
 			restrictionKey: ModelType.uint64,
 			targetAddress: ModelType.binary,
 			previousRestrictionValue: ModelType.uint64,
@@ -41,8 +41,8 @@ const mosaicRestrictionsPlugin = {
 		});
 
 		builder.addTransactionSupport(EntityType.mosaicRestrictionGlobal, {
-			mosaicId: ModelType.uint64,
-			referenceMosaicId: ModelType.uint64,
+			mosaicId: ModelType.uint64HexIdentifier,
+			referenceMosaicId: ModelType.uint64HexIdentifier,
 			restrictionKey: ModelType.uint64,
 			previousRestrictionValue: ModelType.uint64,
 			newRestrictionValue: ModelType.uint64

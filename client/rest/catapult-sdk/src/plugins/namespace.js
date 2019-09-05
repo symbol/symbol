@@ -45,18 +45,18 @@ const getAliasBasicType = type => AliasType[type] || 'namespaceDescriptor.alias.
 const namespacePlugin = {
 	registerSchema: builder => {
 		builder.addTransactionSupport(EntityType.aliasAddress, {
-			namespaceId: ModelType.uint64,
+			namespaceId: ModelType.uint64HexIdentifier,
 			address: ModelType.binary
 		});
 
 		builder.addTransactionSupport(EntityType.aliasMosaic, {
-			namespaceId: ModelType.uint64,
-			mosaicId: ModelType.uint64
+			namespaceId: ModelType.uint64HexIdentifier,
+			mosaicId: ModelType.uint64HexIdentifier
 		});
 
 		builder.addTransactionSupport(EntityType.registerNamespace, {
-			id: ModelType.uint64,
-			parentId: ModelType.uint64,
+			id: ModelType.uint64HexIdentifier,
+			parentId: ModelType.uint64HexIdentifier,
 			duration: ModelType.uint64,
 			name: ModelType.string
 		});
@@ -66,13 +66,13 @@ const namespacePlugin = {
 			namespace: { type: ModelType.object, schemaName: 'namespaceDescriptor.namespace' }
 		});
 		builder.addSchema('namespaceDescriptor.namespace', {
-			level0: ModelType.uint64,
-			level1: ModelType.uint64,
-			level2: ModelType.uint64,
+			level0: ModelType.uint64HexIdentifier,
+			level1: ModelType.uint64HexIdentifier,
+			level2: ModelType.uint64HexIdentifier,
 
 			alias: { type: ModelType.object, schemaName: entity => getAliasBasicType(entity.type) },
 
-			parentId: ModelType.uint64,
+			parentId: ModelType.uint64HexIdentifier,
 			ownerPublicKey: ModelType.binary,
 			ownerAddress: ModelType.binary,
 
@@ -81,7 +81,7 @@ const namespacePlugin = {
 		});
 
 		builder.addSchema('namespaceDescriptor.alias.mosaic', {
-			mosaicId: ModelType.uint64
+			mosaicId: ModelType.uint64HexIdentifier
 		});
 
 		builder.addSchema('namespaceDescriptor.alias.address', {
@@ -91,9 +91,9 @@ const namespacePlugin = {
 		builder.addSchema('namespaceDescriptor.alias.empty', {});
 
 		builder.addSchema('namespaceNameTuple', {
-			namespaceId: ModelType.uint64,
+			namespaceId: ModelType.uint64HexIdentifier,
 			name: ModelType.string,
-			parentId: ModelType.uint64
+			parentId: ModelType.uint64HexIdentifier
 		});
 
 		builder.addSchema('mosaicNamesTuples', {
@@ -101,7 +101,7 @@ const namespacePlugin = {
 		});
 
 		builder.addSchema('mosaicNamesTuple', {
-			mosaicId: ModelType.uint64,
+			mosaicId: ModelType.uint64HexIdentifier,
 			names: { type: ModelType.array, schemaName: ModelType.string }
 		});
 

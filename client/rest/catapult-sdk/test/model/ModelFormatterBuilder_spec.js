@@ -28,6 +28,7 @@ const formattingRules = {
 	[ModelType.none]: () => 'none',
 	[ModelType.binary]: () => 'binary',
 	[ModelType.uint64]: () => 'uint64',
+	[ModelType.uint64HexIdentifier]: () => 'uint64HexIdentifier',
 	[ModelType.objectId]: () => 'objectId',
 	[ModelType.string]: () => 'string'
 };
@@ -190,8 +191,8 @@ describe('model formatter builder', () => {
 					importance: 'uint64',
 					importanceHeight: 'uint64',
 					mosaics: [
-						{ id: 'uint64', amount: 'uint64' },
-						{ id: 'uint64', amount: 'uint64' }
+						{ id: 'uint64HexIdentifier', amount: 'uint64' },
+						{ id: 'uint64HexIdentifier', amount: 'uint64' }
 					]
 				}
 			});
@@ -251,7 +252,7 @@ describe('model formatter builder', () => {
 			const subFormatterTypes = formatter.mosaic.format({ id: 0, amount: 0 });
 
 			// Assert:
-			expect(subFormatterTypes).to.deep.equal({ id: 'uint64', amount: 'uint64' });
+			expect(subFormatterTypes).to.deep.equal({ id: 'uint64HexIdentifier', amount: 'uint64' });
 		});
 
 		it('cannot add arbitrary formatter multiple times', () => {
