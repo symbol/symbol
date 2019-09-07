@@ -30,7 +30,7 @@ const createMultisigEntry = (id, owner) => ({
 	_id: dbTestUtils.db.createObjectId(id),
 	multisig: {
 		accountPublicKey: new Binary(owner.publicKey),
-		address: new Binary(owner.address),
+		accountAddress: new Binary(owner.address),
 		cosignatories: [new Binary(test.random.publicKey()), new Binary(test.random.publicKey())],
 		multisigAccounts: [new Binary(test.random.publicKey())]
 	}
