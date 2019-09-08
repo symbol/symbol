@@ -65,7 +65,7 @@ module.exports = {
 
 		const collectNames = (namespaceNameTuples, namespaceIds) => {
 			const type = catapult.model.EntityType.registerNamespace;
-			return db.catapultDb.findNamesByIds(namespaceIds, type, { id: 'namespaceId', name: 'name', parentId: 'parentId' })
+			return db.catapultDb.findNamesByIds(namespaceIds, type, { id: 'id', name: 'name', parentId: 'parentId' })
 				.then(nameTuples => {
 					nameTuples.forEach(nameTuple => {
 						// db returns null instead of undefined when parentId is not present

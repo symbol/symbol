@@ -186,7 +186,7 @@ describe('namespace routes', () => {
 			// 1. in db, parentId is only stored for child namespaces
 			// 2. db returns null instead of undefined when a document property is not present
 			parentId: undefined === parentId ? null : createParentId(parentId),
-			namespaceId: [0, namespaceId]
+			id: [0, namespaceId]
 		});
 
 		const Valid_Hex_String_Namespace_Ids = ['1234567890ABCDEF', 'ABCDEF0123456789'];
@@ -222,7 +222,7 @@ describe('namespace routes', () => {
 					dbParamTuples.forEach(dbParamTuple => {
 						expect(dbParamTuple.ids).to.deep.equal(options.queryIdsGroupedByLevel[level++]);
 						expect(dbParamTuple.transactionType).to.deep.equal(catapult.model.EntityType.registerNamespace);
-						expect(dbParamTuple.fieldsDescriptor).to.deep.equal({ id: 'namespaceId', name: 'name', parentId: 'parentId' });
+						expect(dbParamTuple.fieldsDescriptor).to.deep.equal({ id: 'id', name: 'name', parentId: 'parentId' });
 					});
 
 					// check response
