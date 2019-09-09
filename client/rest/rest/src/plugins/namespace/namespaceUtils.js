@@ -89,7 +89,8 @@ const namespaceUtils = {
 					return { [aliasFieldName]: id, names };
 				});
 
-				res.send({ payload: { accountNames: namesTuples }, type: schemaName });
+				res.send({ payload: { [schemaName]: namesTuples }, type: schemaName });
+
 				return next();
 			});
 		});

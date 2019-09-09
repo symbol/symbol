@@ -65,6 +65,7 @@ const namespacePlugin = {
 			meta: { type: ModelType.object, schemaName: 'transactionMetadata' },
 			namespace: { type: ModelType.object, schemaName: 'namespaceDescriptor.namespace' }
 		});
+
 		builder.addSchema('namespaceDescriptor.namespace', {
 			level0: ModelType.uint64HexIdentifier,
 			level1: ModelType.uint64HexIdentifier,
@@ -96,7 +97,7 @@ const namespacePlugin = {
 			parentId: ModelType.uint64HexIdentifier
 		});
 
-		builder.addSchema('mosaicNamesTuples', {
+		builder.addSchema('mosaicNames', {
 			mosaicNames: { type: ModelType.array, schemaName: 'mosaicNamesTuple' }
 		});
 
@@ -105,7 +106,7 @@ const namespacePlugin = {
 			names: { type: ModelType.array, schemaName: ModelType.string }
 		});
 
-		builder.addSchema('accountNamesTuples', {
+		builder.addSchema('accountNames', {
 			accountNames: { type: ModelType.array, schemaName: 'accountNamesTuple' }
 		});
 

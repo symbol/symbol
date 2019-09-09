@@ -301,7 +301,7 @@ describe('namespace routes', () => {
 				expect(aliasNamesRoutesProcessorSpy.calledTwice).to.equal(true);
 				expect(aliasNamesRoutesProcessorSpy.firstCall.args[1]).to.equal(catapult.model.namespace.aliasType.mosaic);
 				expect(aliasNamesRoutesProcessorSpy.firstCall.args[4]).to.equal('mosaicId');
-				expect(aliasNamesRoutesProcessorSpy.firstCall.args[5]).to.equal('mosaicNamesTuples');
+				expect(aliasNamesRoutesProcessorSpy.firstCall.args[5]).to.equal('mosaicNames');
 
 				aliasNamesRoutesProcessorSpy.restore();
 			});
@@ -321,9 +321,10 @@ describe('namespace routes', () => {
 				it('parses mosaic ids correctly', () => {
 					// Arrange:
 					const req = { params: { mosaicIds: ['78A4895CB6653DE4', '56AB67FF45468988'] } };
+					const parsedValues = [[0xB6653DE4, 0x78A4895C], [0x45468988, 0x56AB67FF]].map(convertToLong);
 
 					// Act + Assert:
-					expect(getParams(req)).to.deep.equal([[0xB6653DE4, 0x78A4895C], [0x45468988, 0x56AB67FF]]);
+					expect(getParams(req)).to.deep.equal(parsedValues);
 				});
 
 				it('parses empty mosaic ids list correctly', () => {
@@ -398,7 +399,7 @@ describe('namespace routes', () => {
 				expect(aliasNamesRoutesProcessorSpy.calledTwice).to.equal(true);
 				expect(aliasNamesRoutesProcessorSpy.secondCall.args[1]).to.equal(catapult.model.namespace.aliasType.address);
 				expect(aliasNamesRoutesProcessorSpy.secondCall.args[4]).to.equal('address');
-				expect(aliasNamesRoutesProcessorSpy.secondCall.args[5]).to.equal('accountNamesTuples');
+				expect(aliasNamesRoutesProcessorSpy.secondCall.args[5]).to.equal('accountNames');
 
 				aliasNamesRoutesProcessorSpy.restore();
 			});

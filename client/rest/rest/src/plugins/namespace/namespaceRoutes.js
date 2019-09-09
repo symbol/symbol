@@ -102,10 +102,10 @@ module.exports = {
 		server.post('/mosaic/names', namespaceUtils.aliasNamesRoutesProcessor(
 			db,
 			catapult.model.namespace.aliasType.mosaic,
-			req => routeUtils.parseArgumentAsArray(req.params, 'mosaicIds', uint64.fromHex),
-			(namespace, id) => namespace.namespace.alias.mosaicId.equals(convertToLong(id)),
+			req => routeUtils.parseArgumentAsArray(req.params, 'mosaicIds', uint64.fromHex).map(convertToLong),
+			(namespace, id) => namespace.namespace.alias.mosaicId.equals(id),
 			'mosaicId',
-			'mosaicNamesTuples'
+			'mosaicNames'
 		));
 
 		const accountIdToAddress = (type, accountId) => ((AccountType.publicKey === type)
@@ -132,7 +132,7 @@ module.exports = {
 			(namespace, id) => Buffer.from(namespace.namespace.alias.address.value())
 				.equals(Buffer.from(new Binary(Buffer.from(id)).value())),
 			'address',
-			'accountNamesTuples',
+			'accountNames',
 		));
 	}
 };
