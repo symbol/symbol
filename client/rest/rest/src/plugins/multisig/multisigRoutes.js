@@ -59,7 +59,7 @@ module.exports = {
 					if (undefined === multisigEntry)
 						return Promise.resolve(undefined);
 
-					const handleUpstream = (level, multisigEntries) => getMultisigEntries(multisigEntries, 'multisigAccounts')
+					const handleUpstream = (level, multisigEntries) => getMultisigEntries(multisigEntries, 'multisigPublicKeys')
 						.then(entries => {
 							if (0 === entries.length)
 								return Promise.resolve();
@@ -68,7 +68,7 @@ module.exports = {
 							return handleUpstream(level - 1, entries);
 						});
 
-					const handleDownstream = (level, multisigEntries) => getMultisigEntries(multisigEntries, 'cosignatories')
+					const handleDownstream = (level, multisigEntries) => getMultisigEntries(multisigEntries, 'cosignatoryPublicKeys')
 						.then(entries => {
 							if (0 === entries.length)
 								return Promise.resolve();

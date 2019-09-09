@@ -31,8 +31,8 @@ const createMultisigEntry = (id, owner) => ({
 	multisig: {
 		accountPublicKey: new Binary(owner.publicKey),
 		accountAddress: new Binary(owner.address),
-		cosignatories: [new Binary(test.random.publicKey()), new Binary(test.random.publicKey())],
-		multisigAccounts: [new Binary(test.random.publicKey())]
+		cosignatoryPublicKeys: [new Binary(test.random.publicKey()), new Binary(test.random.publicKey())],
+		multisigPublicKeys: [new Binary(test.random.publicKey())]
 	}
 });
 

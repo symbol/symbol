@@ -79,8 +79,8 @@ describe('multisig routes', () => {
 			return {
 				multisig: {
 					accountPublicKey: { buffer: test.random.publicKey() },
-					multisigAccounts: upstreamArray,
-					cosignatories: downstreamArray
+					multisigPublicKeys: upstreamArray,
+					cosignatoryPublicKeys: downstreamArray
 				}
 			};
 		};
@@ -160,9 +160,9 @@ describe('multisig routes', () => {
 			const publicKey = createPublicKeyWithMarker(2);
 			const expectedParams = [
 				[publicKey],
-				extractPublicKeys(multisigEntriesArray[2], 'multisigAccounts'),
-				extractPublicKeys(multisigEntriesArray[1], 'multisigAccounts'),
-				extractPublicKeys(multisigEntriesArray[0], 'multisigAccounts'),
+				extractPublicKeys(multisigEntriesArray[2], 'multisigPublicKeys'),
+				extractPublicKeys(multisigEntriesArray[1], 'multisigPublicKeys'),
+				extractPublicKeys(multisigEntriesArray[0], 'multisigPublicKeys'),
 				[]];
 
 			// Act + Assert:
@@ -183,9 +183,9 @@ describe('multisig routes', () => {
 			const expectedParams = [
 				[publicKey],
 				[],
-				extractPublicKeys(multisigEntriesArray[0], 'cosignatories'),
-				extractPublicKeys(multisigEntriesArray[1], 'cosignatories'),
-				extractPublicKeys(multisigEntriesArray[2], 'cosignatories')];
+				extractPublicKeys(multisigEntriesArray[0], 'cosignatoryPublicKeys'),
+				extractPublicKeys(multisigEntriesArray[1], 'cosignatoryPublicKeys'),
+				extractPublicKeys(multisigEntriesArray[2], 'cosignatoryPublicKeys')];
 
 			// Act + Assert:
 			return runTest(publicKey, multisigEntriesArray, expectedParams);
@@ -205,10 +205,10 @@ describe('multisig routes', () => {
 			const publicKey = createPublicKeyWithMarker(2);
 			const expectedParams = [
 				[publicKey],
-				extractPublicKeys(multisigEntriesArray[2], 'multisigAccounts'),
-				extractPublicKeys(multisigEntriesArray[1], 'multisigAccounts'),
+				extractPublicKeys(multisigEntriesArray[2], 'multisigPublicKeys'),
+				extractPublicKeys(multisigEntriesArray[1], 'multisigPublicKeys'),
 				[],
-				extractPublicKeys(multisigEntriesArray[2], 'cosignatories'),
+				extractPublicKeys(multisigEntriesArray[2], 'cosignatoryPublicKeys'),
 				[]];
 
 			// Act + Assert:
