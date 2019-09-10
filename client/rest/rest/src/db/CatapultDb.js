@@ -402,6 +402,21 @@ class CatapultDb {
 	}
 
 	// endregion
+
+	// region utils
+
+	/**
+	 * Retrieves account publickey projection for the given address.
+	 * @param {Uint8Array} accountAddress Account address.
+	 * @returns {Promise<Buffer>} Promise that resolves to the account public key.
+	 */
+	addressToPublicKey(accountAddress) {
+		const conditions = { 'account.address': Buffer.from(accountAddress) };
+		const projection = { 'account.publicKey': 1 };
+		return this.queryDocument('accounts', conditions, projection);
+	}
+
+	// endregion
 }
 
 module.exports = CatapultDb;

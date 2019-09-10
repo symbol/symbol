@@ -42,10 +42,10 @@ describe('all routes', () => {
 		// Assert:
 		test.assert.assertRoutes(routes, [
 			'/account/:accountId',
-			'/account/:publicKey/transactions',
-			'/account/:publicKey/transactions/incoming',
-			'/account/:publicKey/transactions/outgoing',
-			'/account/:publicKey/transactions/unconfirmed',
+			'/account/:accountId/transactions',
+			'/account/:accountId/transactions/incoming',
+			'/account/:accountId/transactions/outgoing',
+			'/account/:accountId/transactions/unconfirmed',
 			// no custom account transactions routes are registered
 
 			'/block/:height',

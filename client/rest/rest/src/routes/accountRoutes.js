@@ -22,9 +22,6 @@ const routeResultTypes = require('./routeResultTypes');
 const routeUtils = require('./routeUtils');
 const AccountType = require('../plugins/AccountType');
 const errors = require('../server/errors');
-const catapult = require('catapult-sdk');
-
-const { convert } = catapult.utils;
 
 module.exports = {
 	register: (server, db, services) => {
@@ -59,13 +56,22 @@ module.exports = {
 			{ dbPostfix: 'Unconfirmed', routePostfix: '/unconfirmed' }
 		];
 
+		const accountIdToPublicKey = (type, accountId) => {
+			if (AccountType.publicKey === type)
+				return Promise.resolve(accountId);
+
+			return routeUtils.addressToPublicKey(db, accountId);
+		};
+
 		transactionStates.concat(services.config.transactionStates).forEach(state => {
-			server.get(`/account/:publicKey/transactions${state.routePostfix}`, (req, res, next) => {
-				const publicKey = routeUtils.parseArgument(req.params, 'publicKey', convert.hexToUint8);
+			server.get(`/account/:accountId/transactions${state.routePostfix}`, (req, res, next) => {
+				const [type, accountId] = routeUtils.parseArgument(req.params, 'accountId', 'accountId');
 				const pagingOptions = routeUtils.parsePagingArguments(req.params);
 				const ordering = routeUtils.parseArgument(req.params, 'ordering', input => ('id' === input ? 1 : -1));
-				return db[`accountTransactions${state.dbPostfix}`](publicKey, pagingOptions.id, pagingOptions.pageSize, ordering)
-					.then(transactionSender.sendArray('publicKey', res, next));
+
+				return accountIdToPublicKey(type, accountId).then(publicKey =>
+					db[`accountTransactions${state.dbPostfix}`](publicKey, pagingOptions.id, pagingOptions.pageSize, ordering)
+						.then(transactionSender.sendArray('accountId', res, next)));
 			});
 		});
 	}

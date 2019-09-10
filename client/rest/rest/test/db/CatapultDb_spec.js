@@ -1399,4 +1399,42 @@ describe('catapult db', () => {
 	});
 
 	// endregion
+
+	// region utils
+
+	describe('utils', () => {
+		it('can retrieve account public key from account address', () => {
+			// Arrange:
+			const accountPublicKeyOne = test.random.publicKey();
+			const accountAddressOne = keyToAddress(accountPublicKeyOne);
+			const accountPublicKeyTwo = test.random.publicKey();
+			const accountAddressTwo = keyToAddress(accountPublicKeyTwo);
+
+			const accountDbEntities = [
+				{
+					meta: {},
+					account: {
+						address: new Binary(accountAddressOne),
+						publicKey: new Binary(accountPublicKeyOne)
+					}
+				},
+				{
+					meta: {},
+					account: {
+						address: new Binary(accountAddressTwo),
+						publicKey: new Binary(accountPublicKeyTwo)
+					}
+				}
+			];
+
+			// Act + Assert:
+			return runDbTest(
+				{ accounts: accountDbEntities },
+				db => db.addressToPublicKey(accountAddressOne),
+				accountDbEntity => { expect(accountDbEntity.account.publicKey.buffer.equals(accountPublicKeyOne)).to.be.equal(true); }
+			);
+		});
+	});
+
+	// endregion
 });
