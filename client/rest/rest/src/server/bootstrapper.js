@@ -78,9 +78,10 @@ module.exports = {
 	 * Creates a REST api server.
 	 * @param {array} crossDomainHttpMethods HTTP methods that are allowed to be accessed cross-domain.
 	 * @param {object} formatters Formatters to use for formatting responses.
+	 * @param {object} throttlingConfig Throttling configuration parameters, if not provided throttling won't be enabled.
 	 * @returns {object} Server.
 	 */
-	createServer: (crossDomainHttpMethods, formatters) => {
+	createServer: (crossDomainHttpMethods, formatters, throttlingConfig) => {
 		// create the server using a custom formatter
 		const server = restify.createServer({
 			name: '', // disable server header in response
@@ -97,6 +98,18 @@ module.exports = {
 		server.use(restify.plugins.acceptParser('application/json'));
 		server.use(restify.plugins.queryParser({ mapParams: true }));
 		server.use(restify.plugins.jsonBodyParser({ mapParams: true }));
+
+		if (throttlingConfig) {
+			if (throttlingConfig.burst && throttlingConfig.rate) {
+				server.use(restify.plugins.throttle({
+					burst: throttlingConfig.burst,
+					rate: throttlingConfig.rate,
+					ip: true
+				}));
+			} else {
+				winston.warn('throttling was not enabled - configuration is invalid or incomplete');
+			}
+		}
 
 		// make the server promise aware (only a subset of HTTP methods are supported)
 		const routeDescriptors = [];

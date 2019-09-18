@@ -50,6 +50,11 @@
     "allowOptionalAddress": true
   },
 
+  "throttling": {
+    "burst": 20,
+    "rate": 5
+  },
+
   "logging": {
     "console": {
       "formats": ["colorize", "simple"],
