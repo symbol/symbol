@@ -1820,8 +1820,8 @@ components:
             - $ref: "#/components/schemas/AccountAddressRestrictionTransactionDTO"
             - $ref: "#/components/schemas/AccountMosaicRestrictionTransactionDTO"
             - $ref: "#/components/schemas/AccountOperationRestrictionTransactionDTO"
-            - $ref: "#/components/schemas/GlobalMosaicRestrictionTransactionDTO"
-            - $ref: "#/components/schemas/AddressMosaicRestrictionTransactionDTO"
+            - $ref: "#/components/schemas/MosaicGlobalRestrictionTransactionDTO"
+            - $ref: "#/components/schemas/MosaicAddressRestrictionTransactionDTO"
             - $ref: "#/components/schemas/TransferTransactionDTO"
     EmbeddedTransactionMetaDTO:
       type: object
@@ -1866,8 +1866,8 @@ components:
             - $ref: "#/components/schemas/EmbeddedAccountAddressRestrictionTransactionDTO"
             - $ref: "#/components/schemas/EmbeddedAccountMosaicRestrictionTransactionDTO"
             - $ref: "#/components/schemas/EmbeddedAccountOperationRestrictionTransactionDTO"
-            - $ref: "#/components/schemas/EmbeddedGlobalMosaicRestrictionTransactionDTO"
-            - $ref: "#/components/schemas/EmbeddedAddressMosaicRestrictionTransactionDTO"
+            - $ref: "#/components/schemas/EmbeddedMosaicGlobalRestrictionTransactionDTO"
+            - $ref: "#/components/schemas/EmbeddedMosaicAddressRestrictionTransactionDTO"
             - $ref: "#/components/schemas/EmbeddedTransferTransactionDTO"
     TransactionBodyDTO:
       type: object
@@ -2856,7 +2856,7 @@ components:
         - $ref: "#/components/schemas/EmbeddedTransactionDTO"
         - $ref: "#/components/schemas/AccountOperationRestrictionTransactionBodyDTO"
     # Schemas - RestrictionMosaic
-    AddressMosaicRestrictionTransactionBodyDTO:
+    MosaicAddressRestrictionTransactionBodyDTO:
       type: object
       required:
         - mosaicId
@@ -2878,18 +2878,18 @@ components:
         newRestrictionValue:
           type: string
           description: New restriction value.
-    AddressMosaicRestrictionTransactionDTO:
+    MosaicAddressRestrictionTransactionDTO:
       type: object
       description: Transaction to set a restriction rule to an address.
       allOf:
         - $ref: "#/components/schemas/TransactionDTO"
-        - $ref: "#/components/schemas/AddressMosaicRestrictionTransactionBodyDTO"
-    EmbeddedAddressMosaicRestrictionTransactionDTO:
+        - $ref: "#/components/schemas/MosaicAddressRestrictionTransactionBodyDTO"
+    EmbeddedMosaicAddressRestrictionTransactionDTO:
       type: object
       allOf:
         - $ref: "#/components/schemas/EmbeddedTransactionDTO"
-        - $ref: "#/components/schemas/AddressMosaicRestrictionTransactionBodyDTO"
-    GlobalMosaicRestrictionTransactionBodyDTO:
+        - $ref: "#/components/schemas/MosaicAddressRestrictionTransactionBodyDTO"
+    MosaicGlobalRestrictionTransactionBodyDTO:
       type: object
       required:
         - mosaicId
@@ -2917,17 +2917,17 @@ components:
           description: New restriction value.
         newRestrictionType:
           $ref: "#/components/schemas/MosaicRestrictionTypeEnum"
-    GlobalMosaicRestrictionTransactionDTO:
+    MosaicGlobalRestrictionTransactionDTO:
       type: object
       description: Transaction to set a network-wide restriction rule to a mosaic.
       allOf:
         - $ref: "#/components/schemas/TransactionDTO"
-        - $ref: "#/components/schemas/GlobalMosaicRestrictionTransactionBodyDTO"
-    EmbeddedGlobalMosaicRestrictionTransactionDTO:
+        - $ref: "#/components/schemas/MosaicGlobalRestrictionTransactionBodyDTO"
+    EmbeddedMosaicGlobalRestrictionTransactionDTO:
       type: object
       allOf:
         - $ref: "#/components/schemas/EmbeddedTransactionDTO"
-        - $ref: "#/components/schemas/GlobalMosaicRestrictionTransactionBodyDTO"
+        - $ref: "#/components/schemas/MosaicGlobalRestrictionTransactionBodyDTO"
     # Schemas - Transfer
     MessageDTO:
       type: object
