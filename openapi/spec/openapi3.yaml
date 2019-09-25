@@ -1285,7 +1285,7 @@ components:
         - 16718
         - 16974
         - 20803
-        - 57652
+        - 57667
         - 61763
         - 62019
       description: |
@@ -1303,7 +1303,7 @@ components:
         * 0x414E (16718 decimal) - Namespace_Expired.
         * 0x424E (16974 decimal) - Namespace_Deleted.
         * 0x5143 (20803 decimal) - Inflation.
-        * 0xE134 (57652 decimal) - Transaction_Group.
+        * 0xE143 (57667 decimal) - Transaction_Group.
         * 0xF143 (61763 decimal) - Address_Alias_Resolution.
         * 0xF243 (62019 decimal) - Mosaic_Alias_Resolution.
     BalanceTransferReceiptDTO:
