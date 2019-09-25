@@ -1147,7 +1147,7 @@ components:
       description: Account public key
       required: true
       schema:
-        type: string
+        $ref: "#/components/schemas/PublicKey"
     receiptHash:
       name: hash
       in: path
@@ -3050,20 +3050,6 @@ components:
           type: array
           description: Array of account metadata.
           items:
-            $ref: "#/components/schemas/KeyMetadataEntryDTO"
-    KeyMetadataEntryDTO:
-      type: object
-      required:
-      - key
-      - metadata
-      properties:
-        key:
-          type: integer
-          format: int64
-        metadata:
-          type: array
-          description: Array of metadata entry objects.
-          items:
             $ref: "#/components/schemas/MetadataDTO"
     MetadataDTO:
       type: object
@@ -3089,7 +3075,6 @@ components:
         - senderPublicKey
         - targetPublicKey
         - scopedMetadataKey
-        - targetId
         - metadataType
         - valueSize
         - value
@@ -3101,11 +3086,10 @@ components:
         targetPublicKey:
           $ref: "#/components/schemas/PublicKey"
         scopedMetadataKey:
-          type: integer
-          format: int64
+          type: string
+          format: hex
         targetId:
           anyOf:
-            - $ref: "#/components/schemas/Address"
             - $ref: "#/components/schemas/MosaicId"
             - $ref: "#/components/schemas/NamespaceId"
         metadataType:
