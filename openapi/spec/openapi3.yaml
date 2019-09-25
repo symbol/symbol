@@ -979,7 +979,7 @@ paths:
           description: resource not found
         "409":
           description: invalid argument
-  "/account/{accountId}/metadata/{key}/signer/{publicKey}":
+  "/account/{accountId}/metadata/{key}/sender/{publicKey}":
     get:
       tags:
       - Metadata routes
@@ -1001,7 +1001,7 @@ paths:
           description: resource not found
         "409":
           description: invalid argument
-  "/mosaic/{mosaicId}/metadata/{key}/signer/{publicKey}":
+  "/mosaic/{mosaicId}/metadata/{key}/sender/{publicKey}":
     get:
       tags:
       - Metadata routes
@@ -1023,7 +1023,7 @@ paths:
           description: resource not found
         "409":
           description: invalid argument
-  "/namespace/{namespaceId}/metadata/{key}/signer/{publicKey}":
+  "/namespace/{namespaceId}/metadata/{key}/sender/{publicKey}":
     get:
       tags:
       - Metadata routes
