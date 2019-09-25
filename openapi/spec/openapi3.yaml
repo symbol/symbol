@@ -984,8 +984,8 @@ paths:
       tags:
       - Metadata routes
       summary: Get account metadata
-      description: Returns the account metadata given an account id, a key, and a signer
-      operationId: getAccountMetadataByKeyAndSigner
+      description: Returns the account metadata given an account id, a key, and a sender
+      operationId: getAccountMetadataByKeyAndSender
       parameters:
         - $ref: "#/components/parameters/accountId"
         - $ref: "#/components/parameters/metadataKey"
@@ -1006,8 +1006,8 @@ paths:
       tags:
       - Metadata routes
       summary: Get mosaic metadata
-      description: Returns the mosaic metadata given a mosaic id, a key, and a signer
-      operationId: getMosaicMetadataByKeyAndSigner
+      description: Returns the mosaic metadata given a mosaic id, a key, and a sender
+      operationId: getMosaicMetadataByKeyAndSender
       parameters:
         - $ref: "#/components/parameters/mosaicId"
         - $ref: "#/components/parameters/metadataKey"
@@ -1028,8 +1028,8 @@ paths:
       tags:
       - Metadata routes
       summary: Get namespace metadata
-      description: Returns the namespace metadata given a namespace id, a key, and a signer
-      operationId: getNamespaceMetadataByKeyAndSigner
+      description: Returns the namespace metadata given a namespace id, a key, and a sender
+      operationId: getNamespaceMetadataByKeyAndSender
       parameters:
         - $ref: "#/components/parameters/namespaceId"
         - $ref: "#/components/parameters/metadataKey"
