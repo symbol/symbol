@@ -3058,7 +3058,8 @@ components:
       - metadata
       properties:
         key:
-          $ref: "#/components/schemas/UInt64"
+          type: integer
+          format: int64
         metadata:
           type: array
           description: Array of metadata entry objects.
@@ -3100,7 +3101,8 @@ components:
         targetPublicKey:
           $ref: "#/components/schemas/PublicKey"
         scopedMetadataKey:
-          $ref: "#/components/schemas/UInt64"
+          type: integer
+          format: int64
         targetId:
           anyOf:
             - $ref: "#/components/schemas/Address"
