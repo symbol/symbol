@@ -857,7 +857,7 @@ paths:
       parameters:
         - $ref: "#/components/parameters/accountId"
         - $ref: "#/components/parameters/pageSize"
-        - $ref: "#/components/parameters/accountIdLimit"
+        - $ref: "#/components/parameters/metadataIdLimit"
         - $ref: "#/components/parameters/ordering"
       responses:
         "200":
@@ -880,7 +880,7 @@ paths:
       parameters:
         - $ref: "#/components/parameters/mosaicId"
         - $ref: "#/components/parameters/pageSize"
-        - $ref: "#/components/parameters/mosaicIdLimit"
+        - $ref: "#/components/parameters/metadataIdLimit"
         - $ref: "#/components/parameters/ordering"
       responses:
         "200":
@@ -903,7 +903,7 @@ paths:
       parameters:
         - $ref: "#/components/parameters/namespaceId"
         - $ref: "#/components/parameters/pageSize"
-        - $ref: "#/components/parameters/namespaceIdLimit"
+        - $ref: "#/components/parameters/metadataIdLimit"
         - $ref: "#/components/parameters/ordering"
       responses:
         "200":
@@ -1160,6 +1160,12 @@ components:
       in: path
       description: Transaction identifier or hash.
       required: true
+      schema:
+        type: string
+    metadataIdLimit:
+      name: id
+      in: query
+      description: Metadata identifier up to which metadata are returned.
       schema:
         type: string
     transactionIdLimit:
