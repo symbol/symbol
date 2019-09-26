@@ -47,6 +47,42 @@ const mosaicRestrictionsPlugin = {
 			previousRestrictionValue: ModelType.uint64,
 			newRestrictionValue: ModelType.uint64
 		});
+
+		builder.addSchema('mosaicRestriction.mosaicGlobalRestriction', {
+			mosaicRestrictionEntry: { type: ModelType.object, schemaName: 'mosaicGlobalRestriction.entry' }
+		});
+
+		builder.addSchema('mosaicGlobalRestriction.entry', {
+			compositeHash: ModelType.binary,
+			mosaicId: ModelType.uint64HexIdentifier,
+			restrictions: { type: ModelType.array, schemaName: 'mosaicGlobalRestriction.entry.restriction' }
+		});
+
+		builder.addSchema('mosaicGlobalRestriction.entry.restriction', {
+			key: ModelType.uint64,
+			restriction: { type: ModelType.object, schemaName: 'mosaicGlobalRestriction.entry.restriction.restriction' }
+		});
+
+		builder.addSchema('mosaicGlobalRestriction.entry.restriction.restriction', {
+			referenceMosaicId: ModelType.uint64HexIdentifier,
+			restrictionValue: ModelType.uint64
+		});
+
+		builder.addSchema('mosaicRestriction.mosaicAddressRestriction', {
+			mosaicRestrictionEntry: { type: ModelType.object, schemaName: 'mosaicAddressRestriction.entry' }
+		});
+
+		builder.addSchema('mosaicAddressRestriction.entry', {
+			compositeHash: ModelType.binary,
+			mosaicId: ModelType.uint64HexIdentifier,
+			targetAddress: ModelType.binary,
+			restrictions: { type: ModelType.array, schemaName: 'mosaicAddressRestriction.entry.restriction' }
+		});
+
+		builder.addSchema('mosaicAddressRestriction.entry.restriction', {
+			key: ModelType.uint64,
+			value: ModelType.uint64
+		});
 	},
 
 	registerCodecs: codecBuilder => {
