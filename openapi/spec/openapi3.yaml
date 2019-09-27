@@ -188,7 +188,7 @@ paths:
                   $ref: "#/components/schemas/TransactionInfoDTO"
         "409":
           $ref : "#/components/responses/InvalidArgument"
-  "/account/{accountId}/restrictions":
+  "/restrictions/account/{accountId}":
     get:
       tags:
         - Account routes
@@ -209,7 +209,7 @@ paths:
           $ref: "#/components/responses/ResourceNotFound"
         "409":
           $ref : "#/components/responses/InvalidArgument"
-  /account/restrictions:
+  /restrictions/account:
     post:
       tags:
         - Account routes
