@@ -54,7 +54,7 @@ describe('diagnostic routes', () => {
 			diagnosticRoutes.register(mockServer.server, {});
 
 			// Act:
-			const route = mockServer.routes[endpointUnderTest];
+			const route = mockServer.getRoute(endpointUnderTest).get();
 			mockServer.callRoute(route, {});
 
 			// Assert:

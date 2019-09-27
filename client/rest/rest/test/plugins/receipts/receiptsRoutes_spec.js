@@ -57,7 +57,7 @@ describe('receipts routes', () => {
 			const req = { params: { height: correctQueriedHeight.toString() } };
 
 			// Act:
-			const route = mockServer.routes[endpointUnderTest];
+			const route = mockServer.getRoute(endpointUnderTest).get();
 			return mockServer.callRoute(route, req).then(() => {
 				// Assert:
 				expect(statementsFake.calledThrice).to.equal(true);
@@ -83,7 +83,7 @@ describe('receipts routes', () => {
 			const req = { params: { height: queriedHeight.toString() } };
 
 			// Act:
-			const route = mockServer.routes[endpointUnderTest];
+			const route = mockServer.getRoute(endpointUnderTest).get();
 			return mockServer.callRoute(route, req).then(() => {
 				// Assert:
 				expect(statementsFake.calledThrice).to.equal(true);
@@ -97,7 +97,7 @@ describe('receipts routes', () => {
 			const req = { params: { height: '10A' } };
 
 			// Act:
-			const route = mockServer.routes[endpointUnderTest];
+			const route = mockServer.getRoute(endpointUnderTest).get();
 			const apiResponse = expect(() => mockServer.callRoute(route, req).then(() => {})).to;
 
 			// Assert:
