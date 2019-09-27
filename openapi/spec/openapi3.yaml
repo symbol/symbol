@@ -3054,20 +3054,13 @@ components:
     MetadataDTO:
       type: object
       required:
-        - meta
-        - metadataEntry
-      properties:
-        meta:
-          $ref: "#/components/schemas/MetadataMetaDTO"
-        metadataEntry:
-          $ref: "#/components/schemas/MetadataEntryDTO"
-    MetadataMetaDTO:
-      type: object
-      required:
         - id
+        - metadataEntry
       properties:
         id:
           type: string
+        metadataEntry:
+          $ref: "#/components/schemas/MetadataEntryDTO"
     MetadataEntryDTO:
       type: object
       required:
