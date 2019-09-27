@@ -36,8 +36,15 @@ describe('metadata plugin', () => {
 			const modelSchema = builder.build();
 
 			// Assert:
-			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 3);
-			expect(modelSchema).to.contain.all.keys(['accountMetadata', 'mosaicMetadata', 'namespaceMetadata']);
+			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 6);
+			expect(modelSchema).to.contain.all.keys([
+				'accountMetadata',
+				'mosaicMetadata',
+				'namespaceMetadata',
+				'metadata',
+				'metadata.entry',
+				'metadata.entry.element'
+			]);
 
 			// - accountMetadata
 			expect(Object.keys(modelSchema.accountMetadata).length).to.equal(Object.keys(modelSchema.transaction).length + 3);
@@ -53,6 +60,24 @@ describe('metadata plugin', () => {
 				'targetPublicKey',
 				'scopedMetadataKey',
 				'targetNamespaceId',
+				'value'
+			]);
+
+			// - metadata
+			expect(Object.keys(modelSchema.metadata).length).to.equal(1);
+			expect(modelSchema.metadata).to.contain.all.keys(['metadataEntries']);
+
+			// - metadata.entry
+			expect(Object.keys(modelSchema['metadata.entry']).length).to.equal(2);
+			expect(modelSchema['metadata.entry']).to.contain.all.keys(['metadataEntry', 'id']);
+
+			// - metadata.entry.element
+			expect(Object.keys(modelSchema['metadata.entry.element']).length).to.equal(5);
+			expect(modelSchema['metadata.entry.element']).to.contain.all.keys([
+				'compositeHash',
+				'senderPublicKey',
+				'targetPublicKey',
+				'scopedMetadataKey',
 				'value'
 			]);
 		});
@@ -129,7 +154,7 @@ describe('metadata plugin', () => {
 			}));
 		});
 
-		describe('supports mosaic metadata', () => {
+		describe('supports namespace metadata', () => {
 			const targetPublicKey = test.random.bytes(test.constants.sizes.signerPublicKey); // 32
 
 			test.binary.test.addAll(getCodec(EntityType.namespaceMetadata), 68, () => ({

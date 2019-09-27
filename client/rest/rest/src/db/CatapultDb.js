@@ -142,6 +142,10 @@ class CatapultDb {
 			.then(this.sanitizer.deleteIds);
 	}
 
+	queryRawDocuments(collectionName, conditions) {
+		return this.database.collection(collectionName).find(conditions).toArray();
+	}
+
 	queryDocumentsAndCopyIds(collectionName, conditions, options = {}) {
 		const collection = this.database.collection(collectionName);
 		return collection.find(conditions)
