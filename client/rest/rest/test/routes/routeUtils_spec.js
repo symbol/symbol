@@ -594,24 +594,36 @@ describe('route utils', () => {
 	});
 
 	describe('addressToPublicKey', () => {
-		// Arrange:
 		const { addresses, publicKeys } = test.sets;
 		const accountAddress = catapult.model.address.stringToAddress(addresses.valid[0]);
 		const accountPublicKey = convert.hexToUint8(publicKeys.valid[0]);
 
-		const dbAddressToPublicKeyFake = sinon.fake.resolves({
-			_id: undefined,
-			account: { publicKey: new Binary(Buffer.from(accountPublicKey)) }
-		});
-
-		const db = { addressToPublicKey: dbAddressToPublicKeyFake };
-
-		it('return correct public key from account address ', () =>
+		it('return correct public key from account address ', () => {
+			// Arrange:
+			const dbAddressToPublicKeyFake = sinon.fake.resolves({
+				_id: undefined,
+				account: { publicKey: new Binary(Buffer.from(accountPublicKey)) }
+			});
+			const db = { addressToPublicKey: dbAddressToPublicKeyFake };
 			// Act:
-			routeUtils.addressToPublicKey(db, accountAddress).then(result => {
+			return routeUtils.addressToPublicKey(db, accountAddress).then(result => {
 				// Assert:
 				expect(dbAddressToPublicKeyFake.calledOnceWith(accountAddress)).to.equal(true);
 				expect(result.equals(accountPublicKey)).to.be.equal(true);
-			}));
+			});
+		});
+
+		it('rejects with error when account id is not found', () => {
+			// Arrange:
+			const dbAddressToPublicKeyFake = sinon.fake.resolves(undefined);
+			const db = { addressToPublicKey: dbAddressToPublicKeyFake };
+			// Act:
+			return routeUtils.addressToPublicKey(db, accountAddress)
+				// Assert:
+				.then(() => expect.fail())
+				.catch(err => {
+					expect(err.toString()).to.include('account not found');
+				});
+		});
 	});
 });

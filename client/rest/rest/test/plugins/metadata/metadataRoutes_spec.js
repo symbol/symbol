@@ -34,8 +34,12 @@ const { metadata } = catapult.model;
 describe('metadata routes', () => {
 	const testPublicKey = '7DE16AEDF57EB9561D3E6EFA4AE66F27ABDA8AEC8BC020B6277360E31619DCE7';
 	const uint8TestPublicKey = convert.hexToUint8(testPublicKey);
+
 	const testAddress = 'SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXWV';
 	const uint8TestAddress = address.stringToAddress(testAddress);
+
+	const nonExistingTestAddress = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+	const uint8NonExistingTestAddress = address.stringToAddress(nonExistingTestAddress);
 
 	const scopedMetadataKey = '0DC67FBE1CAD29E3';
 	const uInt64ScopedMetadataKey = [0x1CAD29E3, 0x0DC67FBE];
@@ -65,7 +69,14 @@ describe('metadata routes', () => {
 
 	const mockServer = new MockServer();
 	const db = {
-		addressToPublicKey: () => Promise.resolve({ account: { publicKey: new Binary(Buffer.from(uint8TestPublicKey)) } }),
+		catapultDb: {
+			addressToPublicKey: searchedAddress => {
+				if (Buffer.from(searchedAddress).equals(Buffer.from(uint8NonExistingTestAddress)))
+					return Promise.reject(Error('account not found'));
+
+				return Promise.resolve({ account: { publicKey: new Binary(Buffer.from(uint8TestPublicKey)) } });
+			}
+		},
 		getMetadataWithPagination: dbGetMetadataWithPaginationFake,
 		getMetadataByKey: dbGetMetadataByKeyFake,
 		getMetadataByKeyAndSender: dbGetMetadataByKeyAndSenderFake
@@ -104,6 +115,21 @@ describe('metadata routes', () => {
 				});
 			});
 
+			it('returns resource not found if address doesn\'t exist, getting metadata', () => {
+				// Arrange:
+				const req = { params: { accountId: nonExistingTestAddress } };
+				const route = mockServer.getRoute('/account/:accountId/metadata').get();
+
+				// Act:
+				return mockServer.callRoute(route, req).then(() => {
+					// Assert:
+					expect(mockServer.send.firstCall.args[0].body).to.deep.equal(
+						{ code: 'ResourceNotFound', message: `no resource exists with id '${nonExistingTestAddress}'` }
+					);
+					expect(mockServer.next.calledOnce).to.equal(true);
+				});
+			});
+
 			it('can get publicKey from address, getting metadata by key', () => {
 				// Arrange:
 				const accountFilter = { 'metadataEntry.targetPublicKey': uint8TestPublicKey };
@@ -121,6 +147,21 @@ describe('metadata routes', () => {
 				});
 			});
 
+			it('returns resource not found if address doesn\'t exist, getting metadata by key', () => {
+				// Arrange:
+				const req = { params: { accountId: nonExistingTestAddress, key: scopedMetadataKey } };
+				const route = mockServer.getRoute('/account/:accountId/metadata/:key').get();
+
+				// Act:
+				return mockServer.callRoute(route, req).then(() => {
+					// Assert:
+					expect(mockServer.send.firstCall.args[0].body).to.deep.equal(
+						{ code: 'ResourceNotFound', message: `no resource exists with id '${nonExistingTestAddress}'` }
+					);
+					expect(mockServer.next.calledOnce).to.equal(true);
+				});
+			});
+
 			it('can get publicKey from address, getting metadata by key and sender', () => {
 				// Arrange:
 				const accountFilter = { 'metadataEntry.targetPublicKey': uint8TestPublicKey };
@@ -135,6 +176,21 @@ describe('metadata routes', () => {
 
 					expect(dbGetMetadataByKeyAndSenderFake.calledOnce).to.equal(true);
 					expect(dbGetMetadataByKeyAndSenderFake.firstCall.args[1]).to.deep.equal(accountFilter);
+				});
+			});
+
+			it('returns resource not found if address doesn\'t exist, getting metadata by key and sender', () => {
+				// Arrange:
+				const req = { params: { accountId: nonExistingTestAddress, key: scopedMetadataKey, publicKey: senderPublicKey } };
+				const route = mockServer.getRoute('/account/:accountId/metadata/:key/sender/:publicKey').get();
+
+				// Act:
+				return mockServer.callRoute(route, req).then(() => {
+					// Assert:
+					expect(mockServer.send.firstCall.args[0].body).to.deep.equal(
+						{ code: 'ResourceNotFound', message: `no resource exists with id '${nonExistingTestAddress}'` }
+					);
+					expect(mockServer.next.calledOnce).to.equal(true);
 				});
 			});
 		});

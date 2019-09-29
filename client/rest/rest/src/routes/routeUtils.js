@@ -322,7 +322,12 @@ const routeUtils = {
 	 * @returns {Promise<Uint8Array>} Account public key.
 	 */
 	addressToPublicKey: (db, accountAddress) => db.addressToPublicKey(accountAddress)
-		.then(result => result.account.publicKey.buffer)
+		.then(result => {
+			if (!result)
+				return Promise.reject(Error('account not found'));
+
+			return result.account.publicKey.buffer;
+		})
 };
 
 module.exports = routeUtils;
