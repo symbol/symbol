@@ -27,6 +27,7 @@ const EntityType = require('./model/EntityType');
 const idReducer = require('./model/idReducer');
 const metadata = require('./model/metadata');
 const ModelType = require('./model/ModelType');
+const mosaicRestriction = require('./model/mosaicRestriction');
 const namespace = require('./model/namespace');
 const networkInfo = require('./model/networkInfo');
 const status = require('./model/status');
@@ -68,6 +69,7 @@ const catapultSdk = {
 		idReducer,
 		metadata,
 		ModelType,
+		mosaicRestriction,
 		namespace,
 		networkInfo,
 		status

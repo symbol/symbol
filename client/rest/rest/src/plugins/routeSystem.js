@@ -25,6 +25,7 @@ const lockHash = require('./lockHash/lockHash');
 const lockSecret = require('./lockSecret/lockSecret');
 const metadata = require('./metadata/metadata');
 const mosaic = require('./mosaic/mosaic');
+const mosaicRestrictions = require('./mosaicRestrictions/mosaicRestrictions');
 const multisig = require('./multisig/multisig');
 const namespace = require('./namespace/namespace');
 const receipts = require('./receipts/receipts');
@@ -38,7 +39,7 @@ const plugins = {
 	lockSecret,
 	metadata,
 	mosaic,
-	mosaicRestrictions: empty,
+	mosaicRestrictions,
 	multisig,
 	namespace,
 	receipts,
