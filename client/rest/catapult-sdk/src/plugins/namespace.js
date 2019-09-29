@@ -92,7 +92,7 @@ const namespacePlugin = {
 		builder.addSchema('namespaceDescriptor.alias.empty', {});
 
 		builder.addSchema('namespaceNameTuple', {
-			namespaceId: ModelType.uint64HexIdentifier,
+			id: ModelType.uint64HexIdentifier,
 			name: ModelType.string,
 			parentId: ModelType.uint64HexIdentifier
 		});

@@ -99,7 +99,7 @@ describe('namespace plugin', () => {
 
 			// - namespaceNameTuple
 			expect(Object.keys(modelSchema.namespaceNameTuple).length).to.equal(3);
-			expect(modelSchema.namespaceNameTuple).to.contain.all.keys(['namespaceId', 'name', 'parentId']);
+			expect(modelSchema.namespaceNameTuple).to.contain.all.keys(['id', 'name', 'parentId']);
 
 			// - register namespace
 			expect(Object.keys(modelSchema.registerNamespace).length).to.equal(Object.keys(modelSchema.transaction).length + 4);
