@@ -10,12 +10,13 @@ tags:
   - name: Block routes
   - name: Chain routes
   - name: Diagnostic routes
+  - name: Metadata routes
   - name: Mosaic routes
   - name: Namespace routes
-  - name: Transaction routes
   - name: Network routes
   - name: Node routes
-  - name: Metadata routes
+  - name: Restriction routes
+  - name: Transaction routes
 paths:
   "/account/{accountId}":
     get:
@@ -192,7 +193,7 @@ paths:
   "/account/{accountId}/restrictions/":
     get:
       tags:
-        - Account routes
+        - Restriction routes
       summary: Get the account restrictions
       description: |
         Returns the account restrictions for a given account.
@@ -213,7 +214,7 @@ paths:
   /account/restrictions:
     post:
       tags:
-        - Account routes
+        - Restriction routes
       summary: Get account restrictions for given array of addresses
       description: Returns the account restrictions for a given array of addresses.
       operationId: getAccountRestrictionsFromAccounts
