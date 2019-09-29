@@ -39,7 +39,7 @@ describe('account restrictions plugin', () => {
 
 			// Assert:
 			test.assert.assertRoutes(routes, [
-				'/account/:accountId/restrictions'
+				'/restrictions/account/:accountId'
 			]);
 		});
 
@@ -53,7 +53,7 @@ describe('account restrictions plugin', () => {
 
 			// Assert:
 			test.assert.assertRoutes(routes, [
-				'/account/restrictions'
+				'/restrictions/account'
 			]);
 		});
 	});

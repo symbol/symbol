@@ -33,7 +33,7 @@ describe('account restrictions routes', () => {
 
 	describe('get by address', () => {
 		test.route.document.addGetPostDocumentRouteTests(accountRestrictionsRoutes.register, {
-			routes: { singular: '/account/:accountId/restrictions', plural: '/account/restrictions' },
+			routes: { singular: '/restrictions/account/:accountId', plural: '/restrictions/account' },
 			inputs: {
 				valid: {
 					object: { accountId: addresses.valid[0] },
@@ -61,7 +61,7 @@ describe('account restrictions routes', () => {
 
 	describe('get by public key', () => {
 		test.route.document.addGetPostDocumentRouteTests(accountRestrictionsRoutes.register, {
-			routes: { singular: '/account/:accountId/restrictions', plural: '/account/restrictions' },
+			routes: { singular: '/restrictions/account/:accountId', plural: '/restrictions/account' },
 			inputs: {
 				valid: {
 					object: { accountId: publicKeys.valid[0] },
@@ -98,7 +98,7 @@ describe('account restrictions routes', () => {
 		const errorMessage = 'publicKeys and addresses cannot both be provided';
 		return test.route.executeThrows(
 			registerRoutes,
-			'/account/restrictions',
+			'/restrictions/account',
 			'post',
 			{ addresses: addresses.valid, publicKeys: publicKeys.valid },
 			db,

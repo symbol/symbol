@@ -33,13 +33,13 @@ module.exports = {
 
 		const accountRestrictionsSender = routeUtils.createSender('accountRestrictions');
 
-		server.get('/account/:accountId/restrictions', (req, res, next) => {
+		server.get('/restrictions/account/:accountId', (req, res, next) => {
 			const [type, accountId] = routeUtils.parseArgument(req.params, 'accountId', 'accountId');
 			return db.accountRestrictionsByAddresses([accountIdToAddress(type, accountId)])
 				.then(accountRestrictionsSender.sendOne(req.params.accountId, res, next));
 		});
 
-		server.post('/account/restrictions', (req, res, next) => {
+		server.post('/restrictions/account', (req, res, next) => {
 			if (req.params.publicKeys && req.params.addresses)
 				throw errors.createInvalidArgumentError('publicKeys and addresses cannot both be provided');
 
