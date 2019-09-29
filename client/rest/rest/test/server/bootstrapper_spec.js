@@ -144,7 +144,7 @@ const createFormatters = options => formatters.create({
 });
 
 const createServer = options => {
-	const server = bootstrapper.createServer((options || {}).crossDomainHttpMethods, createFormatters(options));
+	const server = bootstrapper.createServer((options || {}).crossDomain, createFormatters(options));
 	servers.push(server);
 	return server;
 };
@@ -172,7 +172,7 @@ describe('server (bootstrapper)', () => {
 			const spy = sinon.spy(restify.plugins, 'throttle');
 
 			// Act:
-			bootstrapper.createServer([], createFormatters(), throttlingConfig);
+			bootstrapper.createServer({}, createFormatters(), throttlingConfig);
 
 			// Assert:
 			expect(spy.calledOnceWith({
@@ -190,7 +190,7 @@ describe('server (bootstrapper)', () => {
 			const spy = sinon.spy(restify.plugins, 'throttle');
 
 			// Act:
-			bootstrapper.createServer([], createFormatters());
+			bootstrapper.createServer({}, createFormatters());
 
 			// Assert:
 			expect(spy.notCalled).to.equal(true);
@@ -206,14 +206,14 @@ describe('server (bootstrapper)', () => {
 				const logSpy = sinon.spy(winston, 'warn');
 
 				// Act:
-				bootstrapper.createServer([], createFormatters(), { burst: 20 });
+				bootstrapper.createServer({}, createFormatters(), { burst: 20 });
+				spy.restore();
+				logSpy.restore();
 
 				// Assert:
 				expect(spy.notCalled).to.equal(true);
-				expect(logSpy.calledOnceWith('throttling was not enabled - configuration is invalid or incomplete')).to.equal(true);
+				expect(logSpy.calledWith('throttling was not enabled - configuration is invalid or incomplete')).to.equal(true);
 
-				spy.restore();
-				logSpy.restore();
 				done();
 			});
 
@@ -223,14 +223,14 @@ describe('server (bootstrapper)', () => {
 				const logSpy = sinon.spy(winston, 'warn');
 
 				// Act:
-				bootstrapper.createServer([], createFormatters(), { rate: 20 });
+				bootstrapper.createServer({}, createFormatters(), { rate: 20 });
+				spy.restore();
+				logSpy.restore();
 
 				// Assert:
 				expect(spy.notCalled).to.equal(true);
-				expect(logSpy.calledOnceWith('throttling was not enabled - configuration is invalid or incomplete')).to.equal(true);
+				expect(logSpy.calledWith('throttling was not enabled - configuration is invalid or incomplete')).to.equal(true);
 
-				spy.restore();
-				logSpy.restore();
 				done();
 			});
 		});
@@ -275,7 +275,7 @@ describe('server (bootstrapper)', () => {
 		};
 
 		const assertPayloadHeaders = (headers, expectedContentLength, options = {}) => {
-			const shouldAllowCrossDomain = !!options.allowMethods;
+			const shouldAllowCrossDomain = !!options.allowedMethods;
 			const shouldHaveContent = undefined !== expectedContentLength;
 
 			const message = `received headers: ${JSON.stringify(headers)}`;
@@ -298,7 +298,7 @@ describe('server (bootstrapper)', () => {
 			// these headers should be stamped when cross domain is allowed
 			if (shouldAllowCrossDomain) {
 				expect(headers['access-control-allow-origin']).to.equal('*');
-				expect(headers['access-control-allow-methods']).to.equal(options.allowMethods);
+				expect(headers['access-control-allow-methods']).to.equal(options.allowedMethods);
 				expect(headers['access-control-allow-headers']).to.equal('Content-Type');
 			}
 		};
@@ -415,32 +415,147 @@ describe('server (bootstrapper)', () => {
 
 			// region cross domain
 
-			it('does not add cross domain headers when not in configured cross domain http methods ', done => {
-				makeJsonHippie(`/dummy/${dummyIds.valid}`, method, { crossDomainHttpMethods: ['FOO', 'BAR'] })
-					.expectStatus(200)
-					.end((headers, body) => {
-						// Assert:
-						assertPayloadHeaders(headers, 75, { allowMethods: undefined });
-						expect(body).to.deep.equal({
-							id: 123,
-							current: { height: [10, 0], scoreLow: [16, 0], scoreHigh: [11, 0] }
-						});
-						done();
-					});
+			it('logs a warning if CORS configuration not provided', done => {
+				// Arrange:
+				const spy = sinon.spy(winston, 'warn');
+
+				// Act:
+				bootstrapper.createServer(undefined, createFormatters());
+				spy.restore();
+
+				// Assert:
+				expect(spy.calledWith('CORS was not enabled - configuration incomplete')).to.equal(true);
+
+				done();
 			});
 
-			it('adds cross domain headers when in configured cross domain http methods ', done => {
-				makeJsonHippie(`/dummy/${dummyIds.valid}`, method, { crossDomainHttpMethods: ['FOO', method.toUpperCase(), 'BAR'] })
-					.expectStatus(200)
-					.end((headers, body) => {
-						// Assert:
-						assertPayloadHeaders(headers, 75, { allowMethods: `FOO,${method.toUpperCase()},BAR` });
-						expect(body).to.deep.equal({
-							id: 123,
-							current: { height: [10, 0], scoreLow: [16, 0], scoreHigh: [11, 0] }
-						});
-						done();
-					});
+			it('omits CORS response if no config provided', done => {
+				// Arrange:
+				const crossDomainAdder = bootstrapper.createCrossDomainHeaderAdder();
+				const request = {
+					method: 'GET',
+					headers: { origin: 'http://nem.example' }
+				};
+				const response = { header: sinon.spy() };
+
+				// Act:
+				crossDomainAdder(request, response);
+
+				// Assert:
+				expect(response.header.notCalled).to.equal(true);
+
+				done();
+			});
+
+			it('builds CORS response with wildcard as set in the config', done => {
+				// Arrange:
+				const crossDomainAdder = bootstrapper.createCrossDomainHeaderAdder({ allowedMethods: ['GET'], allowedHosts: ['*'] });
+				const request = {
+					method: 'GET',
+					headers: { origin: 'http://nem.example' }
+				};
+				const response = { header: sinon.spy() };
+
+				// Act:
+				crossDomainAdder(request, response);
+
+				// Assert:
+				expect(response.header.calledThrice).to.equal(true);
+				expect(response.header.calledWith('Access-Control-Allow-Origin', '*')).to.equal(true);
+				expect(response.header.calledWith('Access-Control-Allow-Methods', 'GET')).to.equal(true);
+				expect(response.header.calledWith('Access-Control-Allow-Headers', 'Content-Type')).to.equal(true);
+
+				done();
+			});
+
+			it('builds CORS response with matching origin in the provided config', done => {
+				// Arrange:
+				const crossDomainAdder = bootstrapper.createCrossDomainHeaderAdder({
+					allowedMethods: ['GET'], allowedHosts: ['http://nem.example']
+				});
+				const request = {
+					method: 'GET',
+					headers: { origin: 'http://nem.example' }
+				};
+				const response = { header: sinon.spy() };
+
+				// Act:
+				crossDomainAdder(request, response);
+
+				// Assert:
+				expect(response.header.callCount).to.equal(4);
+				expect(response.header.calledWith('Access-Control-Allow-Origin', 'http://nem.example')).to.equal(true);
+				expect(response.header.calledWith('Vary', 'Origin')).to.equal(true);
+				expect(response.header.calledWith('Access-Control-Allow-Methods', 'GET')).to.equal(true);
+				expect(response.header.calledWith('Access-Control-Allow-Headers', 'Content-Type')).to.equal(true);
+
+				done();
+			});
+
+			it('omits CORS response if provided operation not allowed', done => {
+				// Arrange:
+				const crossDomainAdder = bootstrapper.createCrossDomainHeaderAdder({
+					allowedMethods: ['GET'], allowedHosts: ['http://nem.example']
+				});
+				const request = {
+					method: 'POST',
+					headers: { origin: 'http://nem.example' }
+				};
+				const response = { header: sinon.spy() };
+
+				// Act:
+				crossDomainAdder(request, response);
+
+				// Assert:
+				expect(response.header.notCalled).to.equal(true);
+
+				done();
+			});
+
+			it('omits CORS response if origin does not match provided config', done => {
+				// Arrange:
+				const crossDomainAdder = bootstrapper.createCrossDomainHeaderAdder({
+					allowedMethods: ['GET'], allowedHosts: ['http://nem.example']
+				});
+				const request = {
+					method: 'GET',
+					headers: { origin: 'http://bad.example' }
+				};
+				const response = { header: sinon.spy() };
+
+				// Act:
+				crossDomainAdder(request, response);
+
+				// Assert:
+				expect(response.header.notCalled).to.equal(true);
+
+				done();
+			});
+
+			it('omits CORS response if origin not provided in the request', done => {
+				// Arrange:
+				const crossDomainAdder = bootstrapper.createCrossDomainHeaderAdder({
+					allowedMethods: ['GET', 'OPTIONS'], allowedHosts: ['*']
+				});
+				const crossDomainAdder2 = bootstrapper.createCrossDomainHeaderAdder({
+					allowedMethods: ['GET'], allowedHosts: ['http://nem.example']
+				});
+				const request = {
+					method: 'GET',
+					headers: {}
+				};
+				const response = { header: sinon.spy() };
+				const response2 = { header: sinon.spy() };
+
+				// Act:
+				crossDomainAdder(request, response);
+				crossDomainAdder2(request, response2);
+
+				// Assert:
+				expect(response.header.notCalled).to.equal(true);
+				expect(response2.header.notCalled).to.equal(true);
+
+				done();
 			});
 
 			// endregion
@@ -531,7 +646,7 @@ describe('server (bootstrapper)', () => {
 
 		describe('OPTIONS', () => {
 			const makeJsonHippieForOptions = route => {
-				const server = createServer({ crossDomainHttpMethods: ['FOO', 'OPTIONS', 'BAR'] });
+				const server = createServer({ crossDomain: { allowedMethods: ['FOO', 'OPTIONS', 'BAR'], allowedHosts: ['*'] } });
 				const routeHandler = (req, res, next) => {
 					res.send(200);
 					next();
@@ -541,7 +656,10 @@ describe('server (bootstrapper)', () => {
 				server.post('/dummy/names', routeHandler);
 				server.post('/dummy', routeHandler);
 
-				return hippie(server).url(route).method('OPTIONS')
+				return hippie(server)
+					.header('Origin', 'http://nem.example')
+					.url(route)
+					.method('OPTIONS')
 					.json()
 					.form();
 			};
@@ -552,7 +670,7 @@ describe('server (bootstrapper)', () => {
 					.expectHeader('allow', expectedMethod)
 					.end(wrapHippieEndHandler((headers, body) => {
 						// Assert: there should be no body
-						assertPayloadHeaders(headers, undefined, { allowMethods: 'FOO,OPTIONS,BAR', numAdditionalHeaders: 1 });
+						assertPayloadHeaders(headers, undefined, { allowedMethods: 'FOO,OPTIONS,BAR', numAdditionalHeaders: 1 });
 						expect(body).to.equal(null);
 						done();
 					}));

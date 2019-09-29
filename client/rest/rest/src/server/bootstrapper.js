@@ -35,20 +35,34 @@ const toRestError = err => {
 	return restError;
 };
 
-const createCrossDomainHeaderAdder = crossDomainHttpMethods => {
-	const allowMethods = crossDomainHttpMethods.join(',');
-	return (requestMethod, res) => {
-		if (crossDomainHttpMethods.some(method => method === requestMethod)) {
-			res.header('Access-Control-Allow-Origin', '*');
-			res.header('Access-Control-Allow-Methods', allowMethods);
-			res.header('Access-Control-Allow-Headers', 'Content-Type');
-		}
-	};
+const createCrossDomainHeaderAdder = crossDomainConfig => (req, res) => {
+	if (!req.headers.origin || !crossDomainConfig)
+		return;
+
+	const crossDomainResponseHeaders = {};
+	if (crossDomainConfig.allowedMethods.includes(req.method))
+		crossDomainResponseHeaders['Access-Control-Allow-Methods'] = crossDomainConfig.allowedMethods.join(',');
+
+	if (!crossDomainConfig.allowedHosts.includes('*')) {
+		if (crossDomainConfig.allowedHosts.includes(req.headers.origin))
+			crossDomainResponseHeaders['Access-Control-Allow-Origin'] = req.headers.origin;
+	} else {
+		crossDomainResponseHeaders['Access-Control-Allow-Origin'] = '*';
+	}
+
+	crossDomainResponseHeaders['Access-Control-Allow-Headers'] = 'Content-Type';
+
+	if (3 <= Object.keys(crossDomainResponseHeaders).length) {
+		if ('*' !== crossDomainResponseHeaders['Access-Control-Allow-Origin'])
+			crossDomainResponseHeaders.Vary = 'Origin';
+
+		Object.keys(crossDomainResponseHeaders).forEach(header => res.header(header, crossDomainResponseHeaders[header]));
+	}
 };
 
 const catapultRestifyPlugins = {
 	crossDomain: addCrossDomainHeaders => (req, res, next) => {
-		addCrossDomainHeaders(req.method, res);
+		addCrossDomainHeaders(req, res);
 		next();
 	},
 	body: () => (req, res, next) => {
@@ -74,14 +88,16 @@ const catapultRestifyPlugins = {
 };
 
 module.exports = {
+	createCrossDomainHeaderAdder,
+
 	/**
 	 * Creates a REST api server.
-	 * @param {array} crossDomainHttpMethods HTTP methods that are allowed to be accessed cross-domain.
+	 * @param {array} crossDomainConfig Configuration related to access control, contains allowed host and HTTP methods.
 	 * @param {object} formatters Formatters to use for formatting responses.
 	 * @param {object} throttlingConfig Throttling configuration parameters, if not provided throttling won't be enabled.
 	 * @returns {object} Server.
 	 */
-	createServer: (crossDomainHttpMethods, formatters, throttlingConfig) => {
+	createServer: (crossDomainConfig, formatters, throttlingConfig) => {
 		// create the server using a custom formatter
 		const server = restify.createServer({
 			name: '', // disable server header in response
@@ -91,13 +107,16 @@ module.exports = {
 		});
 
 		// only allow application/json
-		const addCrossDomainHeaders = createCrossDomainHeaderAdder(crossDomainHttpMethods || []);
 		server.pre(catapultRestifyPlugins.body());
 
+		const addCrossDomainHeaders = createCrossDomainHeaderAdder(crossDomainConfig || {});
 		server.use(catapultRestifyPlugins.crossDomain(addCrossDomainHeaders));
 		server.use(restify.plugins.acceptParser('application/json'));
 		server.use(restify.plugins.queryParser({ mapParams: true }));
 		server.use(restify.plugins.jsonBodyParser({ mapParams: true }));
+
+		if (!crossDomainConfig)
+			winston.warn('CORS was not enabled - configuration incomplete');
 
 		if (throttlingConfig) {
 			if (throttlingConfig.burst && throttlingConfig.rate) {
@@ -154,7 +173,7 @@ module.exports = {
 		server.on('MethodNotAllowed', (req, res) => {
 			if ('OPTIONS' === req.method) {
 				// notice that headers need to be added explicitly because catapultRestifyPlugins.crossDomain is not called after errors
-				addCrossDomainHeaders(req.method, res);
+				addCrossDomainHeaders(req, res);
 				return res.send(204);
 			}
 
