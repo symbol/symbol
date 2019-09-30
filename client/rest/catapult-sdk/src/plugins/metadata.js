@@ -70,6 +70,7 @@ const metadataPlugin = {
 			senderPublicKey: ModelType.binary,
 			targetPublicKey: ModelType.binary,
 			scopedMetadataKey: ModelType.uint64HexIdentifier,
+			targetId: ModelType.uint64HexIdentifier,
 			value: ModelType.binary
 		});
 	},
