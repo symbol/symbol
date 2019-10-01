@@ -38,20 +38,20 @@ const metadataPlugin = {
 	registerSchema: builder => {
 		builder.addTransactionSupport(EntityType.accountMetadata, {
 			targetPublicKey: ModelType.binary,
-			scopedMetadataKey: ModelType.uint64,
+			scopedMetadataKey: ModelType.uint64HexIdentifier,
 			value: ModelType.string
 		});
 
 		builder.addTransactionSupport(EntityType.mosaicMetadata, {
 			targetPublicKey: ModelType.binary,
-			scopedMetadataKey: ModelType.uint64,
+			scopedMetadataKey: ModelType.uint64HexIdentifier,
 			targetMosaicId: ModelType.uint64HexIdentifier,
 			value: ModelType.string
 		});
 
 		builder.addTransactionSupport(EntityType.namespaceMetadata, {
 			targetPublicKey: ModelType.binary,
-			scopedMetadataKey: ModelType.uint64,
+			scopedMetadataKey: ModelType.uint64HexIdentifier,
 			targetNamespaceId: ModelType.uint64HexIdentifier,
 			value: ModelType.string
 		});
