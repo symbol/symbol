@@ -848,7 +848,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/NodeTimeDTO"
-  "/account/{accountId}/metadata":
+  "/metadata/account/{accountId}":
     get:
       tags:
       - Metadata routes
@@ -871,7 +871,7 @@ paths:
           description: resource not found
         "409":
           description: invalid argument
-  "/mosaic/{mosaicId}/metadata":
+  "/metadata/mosaic/{mosaicId}":
     get:
       tags:
       - Metadata routes
@@ -894,7 +894,7 @@ paths:
           description: resource not found
         "409":
           description: invalid argument
-  "/namespace/{namespaceId}/metadata":
+  "/metadata/namespace/{namespaceId}":
     get:
       tags:
       - Metadata routes
@@ -917,7 +917,7 @@ paths:
           description: resource not found
         "409":
           description: invalid argument
-  "/account/{accountId}/metadata/{key}":
+  "/metadata/account/{accountId}/key/{key}":
     get:
       tags:
       - Metadata routes
@@ -938,7 +938,7 @@ paths:
           description: resource not found
         "409":
           description: invalid argument
-  "/mosaic/{mosaicId}/metadata/{key}":
+  "/metadata/mosaic/{mosaicId}/key/{key}":
     get:
       tags:
       - Metadata routes
@@ -959,7 +959,7 @@ paths:
           description: resource not found
         "409":
           description: invalid argument
-  "/namespace/{namespaceId}/metadata/{key}":
+  "/metadata/namespace/{namespaceId}/key/{key}":
     get:
       tags:
       - Metadata routes
@@ -980,7 +980,7 @@ paths:
           description: resource not found
         "409":
           description: invalid argument
-  "/account/{accountId}/metadata/{key}/sender/{publicKey}":
+  "/metadata/account/{accountId}/key/{key}/sender/{publicKey}":
     get:
       tags:
       - Metadata routes
@@ -1002,7 +1002,7 @@ paths:
           description: resource not found
         "409":
           description: invalid argument
-  "/mosaic/{mosaicId}/metadata/{key}/sender/{publicKey}":
+  "/metadata/mosaic/{mosaicId}/key/{key}/sender/{publicKey}":
     get:
       tags:
       - Metadata routes
@@ -1024,7 +1024,7 @@ paths:
           description: resource not found
         "409":
           description: invalid argument
-  "/namespace/{namespaceId}/metadata/{key}/sender/{publicKey}":
+  "/metadata/namespace/{namespaceId}/key/{key}/sender/{publicKey}":
     get:
       tags:
       - Metadata routes
