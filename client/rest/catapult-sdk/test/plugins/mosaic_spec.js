@@ -20,7 +20,6 @@
 
 const EntityType = require('../../src/model/EntityType');
 const ModelSchemaBuilder = require('../../src/model/ModelSchemaBuilder');
-const ModelType = require('../../src/model/ModelType');
 const mosaic = require('../../src/plugins/mosaic');
 const test = require('../binaryTestUtils');
 const { expect } = require('chai');
@@ -44,36 +43,31 @@ describe('mosaic plugin', () => {
 			const modelSchema = builder.build();
 
 			// Assert:
-			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 5);
+			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 4);
 			expect(modelSchema).to.contain.all.keys(
 				'mosaicDefinition',
-				'mosaicDefinition.mosaicProperties',
+				'mosaicSupplyChange',
 				'mosaicDescriptor',
-				'mosaicDescriptor.mosaic',
-				'mosaicSupplyChange'
+				'mosaicDescriptor.mosaic'
 			);
 
 			// - mosaic definition
 			expect(Object.keys(modelSchema.mosaicDefinition).length).to.equal(Object.keys(modelSchema.transaction).length + 2);
 			expect(modelSchema.mosaicDefinition).to.contain.all.keys(['id', 'duration']);
 
-			// - mosaic property
-			expect(modelSchema['mosaicDefinition.mosaicProperties']).to.deep.equal({
-				duration: ModelType.uint64
-			});
+			// - mosaic supply change
+			expect(Object.keys(modelSchema.mosaicSupplyChange).length).to.equal(Object.keys(modelSchema.transaction).length + 2);
+			expect(modelSchema.mosaicSupplyChange).to.contain.all.keys(['mosaicId', 'delta']);
 
 			// - mosaic descriptor
 			expect(Object.keys(modelSchema.mosaicDescriptor).length).to.equal(2);
 			expect(modelSchema.mosaicDescriptor).to.contain.all.keys(['meta', 'mosaic']);
 
-			expect(Object.keys(modelSchema['mosaicDescriptor.mosaic']).length).to.equal(7);
+			// - mosaic descriptor mosaic
+			expect(Object.keys(modelSchema['mosaicDescriptor.mosaic']).length).to.equal(6);
 			expect(modelSchema['mosaicDescriptor.mosaic']).to.contain.all.keys([
-				'id', 'supply', 'startHeight', 'ownerPublicKey', 'ownerAddress', 'revision', 'properties'
+				'id', 'supply', 'startHeight', 'ownerPublicKey', 'ownerAddress', 'duration'
 			]);
-
-			// - mosaic supply change
-			expect(Object.keys(modelSchema.mosaicSupplyChange).length).to.equal(Object.keys(modelSchema.transaction).length + 2);
-			expect(modelSchema.mosaicSupplyChange).to.contain.all.keys(['mosaicId', 'delta']);
 		});
 	});
 

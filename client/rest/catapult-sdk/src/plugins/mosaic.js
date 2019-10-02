@@ -46,15 +46,9 @@ const mosaicPlugin = {
 		builder.addSchema('mosaicDescriptor.mosaic', {
 			id: ModelType.uint64HexIdentifier,
 			supply: ModelType.uint64,
-
 			startHeight: ModelType.uint64,
 			ownerPublicKey: ModelType.binary,
 			ownerAddress: ModelType.binary,
-			revision: 'number',
-			properties: { type: ModelType.object, schemaName: 'mosaicDefinition.mosaicProperties' }
-		});
-
-		builder.addSchema('mosaicDefinition.mosaicProperties', {
 			duration: ModelType.uint64
 		});
 	},
