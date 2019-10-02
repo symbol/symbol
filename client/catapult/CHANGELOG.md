@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [0.8.0.1] - 02-October-2019
+## [0.8.0.2] - 02-October-2019
 
 ### Added
  - Ability for network to identify servers by resolved IP instead of public key
@@ -152,7 +152,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Added
 - Initial code release.
 
-[0.8.0.1]: https://github.com/nemtech/catapult-server/compare/v0.7.0.1...v0.8.0.1
+[0.8.0.2]: https://github.com/nemtech/catapult-server/compare/v0.7.0.1...v0.8.0.2
 [0.7.0.1]: https://github.com/nemtech/catapult-server/compare/v0.6.0.1...v0.7.0.1
 [0.6.0.1]: https://github.com/nemtech/catapult-server/compare/v0.5.0.1...v0.6.0.1
 [0.5.0.1]: https://github.com/nemtech/catapult-server/compare/v0.4.0.1...v0.5.0.1
