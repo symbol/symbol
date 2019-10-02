@@ -102,7 +102,7 @@ describe('metadata routes', () => {
 				// Arrange:
 				const accountFilter = { 'metadataEntry.targetPublicKey': uint8TestPublicKey };
 				const req = { params: { accountId: testAddress } };
-				const route = mockServer.getRoute('/account/:accountId/metadata').get();
+				const route = mockServer.getRoute('/metadata/account/:accountId').get();
 
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
@@ -118,7 +118,7 @@ describe('metadata routes', () => {
 			it('returns resource not found if address doesn\'t exist, getting metadata', () => {
 				// Arrange:
 				const req = { params: { accountId: nonExistingTestAddress } };
-				const route = mockServer.getRoute('/account/:accountId/metadata').get();
+				const route = mockServer.getRoute('/metadata/account/:accountId').get();
 
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
@@ -134,7 +134,7 @@ describe('metadata routes', () => {
 				// Arrange:
 				const accountFilter = { 'metadataEntry.targetPublicKey': uint8TestPublicKey };
 				const req = { params: { accountId: testAddress, key: scopedMetadataKey } };
-				const route = mockServer.getRoute('/account/:accountId/metadata/:key').get();
+				const route = mockServer.getRoute('/metadata/account/:accountId/key/:key').get();
 
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
@@ -150,7 +150,7 @@ describe('metadata routes', () => {
 			it('returns resource not found if address doesn\'t exist, getting metadata by key', () => {
 				// Arrange:
 				const req = { params: { accountId: nonExistingTestAddress, key: scopedMetadataKey } };
-				const route = mockServer.getRoute('/account/:accountId/metadata/:key').get();
+				const route = mockServer.getRoute('/metadata/account/:accountId/key/:key').get();
 
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
@@ -166,7 +166,7 @@ describe('metadata routes', () => {
 				// Arrange:
 				const accountFilter = { 'metadataEntry.targetPublicKey': uint8TestPublicKey };
 				const req = { params: { accountId: testAddress, key: scopedMetadataKey, publicKey: senderPublicKey } };
-				const route = mockServer.getRoute('/account/:accountId/metadata/:key/sender/:publicKey').get();
+				const route = mockServer.getRoute('/metadata/account/:accountId/key/:key/sender/:publicKey').get();
 
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
@@ -182,7 +182,7 @@ describe('metadata routes', () => {
 			it('returns resource not found if address doesn\'t exist, getting metadata by key and sender', () => {
 				// Arrange:
 				const req = { params: { accountId: nonExistingTestAddress, key: scopedMetadataKey, publicKey: senderPublicKey } };
-				const route = mockServer.getRoute('/account/:accountId/metadata/:key/sender/:publicKey').get();
+				const route = mockServer.getRoute('/metadata/account/:accountId/key/:key/sender/:publicKey').get();
 
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
@@ -200,7 +200,7 @@ describe('metadata routes', () => {
 				// Arrange:
 				const accountFilter = { 'metadataEntry.targetPublicKey': uint8TestPublicKey };
 				const req = { params: { accountId: testPublicKey } };
-				const route = mockServer.getRoute('/account/:accountId/metadata').get();
+				const route = mockServer.getRoute('/metadata/account/:accountId').get();
 
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
@@ -226,7 +226,7 @@ describe('metadata routes', () => {
 						ordering: 'id'
 					}
 				};
-				const route = mockServer.getRoute('/account/:accountId/metadata').get();
+				const route = mockServer.getRoute('/metadata/account/:accountId').get();
 
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
@@ -249,7 +249,7 @@ describe('metadata routes', () => {
 				// Arrange:
 				const accountFilter = { 'metadataEntry.targetPublicKey': uint8TestPublicKey };
 				const req = { params: { accountId: testPublicKey, key: scopedMetadataKey } };
-				const route = mockServer.getRoute('/account/:accountId/metadata/:key').get();
+				const route = mockServer.getRoute('/metadata/account/:accountId/key/:key').get();
 
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
@@ -269,7 +269,7 @@ describe('metadata routes', () => {
 				// Arrange:
 				const accountFilter = { 'metadataEntry.targetPublicKey': uint8TestPublicKey };
 				const req = { params: { accountId: testPublicKey, key: scopedMetadataKey, publicKey: senderPublicKey } };
-				const route = mockServer.getRoute('/account/:accountId/metadata/:key/sender/:publicKey').get();
+				const route = mockServer.getRoute('/metadata/account/:accountId/key/:key/sender/:publicKey').get();
 
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
@@ -295,7 +295,7 @@ describe('metadata routes', () => {
 				// Arrange:
 				const mosaicFilter = { 'metadataEntry.targetId': longTypeMosaicId };
 				const req = { params: { mosaicId } };
-				const route = mockServer.getRoute('/mosaic/:mosaicId/metadata').get();
+				const route = mockServer.getRoute('/metadata/mosaic/:mosaicId').get();
 
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
@@ -321,7 +321,7 @@ describe('metadata routes', () => {
 						ordering: 'id'
 					}
 				};
-				const route = mockServer.getRoute('/mosaic/:mosaicId/metadata').get();
+				const route = mockServer.getRoute('/metadata/mosaic/:mosaicId').get();
 
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
@@ -344,7 +344,7 @@ describe('metadata routes', () => {
 				// Arrange:
 				const mosaicFilter = { 'metadataEntry.targetId': longTypeMosaicId };
 				const req = { params: { mosaicId, key: scopedMetadataKey } };
-				const route = mockServer.getRoute('/mosaic/:mosaicId/metadata/:key').get();
+				const route = mockServer.getRoute('/metadata/mosaic/:mosaicId/key/:key').get();
 
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
@@ -364,7 +364,7 @@ describe('metadata routes', () => {
 				// Arrange:
 				const mosaicFilter = { 'metadataEntry.targetId': longTypeMosaicId };
 				const req = { params: { mosaicId, key: scopedMetadataKey, publicKey: senderPublicKey } };
-				const route = mockServer.getRoute('/mosaic/:mosaicId/metadata/:key/sender/:publicKey').get();
+				const route = mockServer.getRoute('/metadata/mosaic/:mosaicId/key/:key/sender/:publicKey').get();
 
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
@@ -390,7 +390,7 @@ describe('metadata routes', () => {
 				// Arrange:
 				const namespaceFilterFilter = { 'metadataEntry.targetId': longTypeNamespaceId };
 				const req = { params: { namespaceId } };
-				const route = mockServer.getRoute('/namespace/:namespaceId/metadata').get();
+				const route = mockServer.getRoute('/metadata/namespace/:namespaceId').get();
 
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
@@ -416,7 +416,7 @@ describe('metadata routes', () => {
 						ordering: 'id'
 					}
 				};
-				const route = mockServer.getRoute('/namespace/:namespaceId/metadata').get();
+				const route = mockServer.getRoute('/metadata/namespace/:namespaceId').get();
 
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
@@ -439,7 +439,7 @@ describe('metadata routes', () => {
 				// Arrange:
 				const namespaceFilter = { 'metadataEntry.targetId': longTypeNamespaceId };
 				const req = { params: { namespaceId, key: scopedMetadataKey } };
-				const route = mockServer.getRoute('/namespace/:namespaceId/metadata/:key').get();
+				const route = mockServer.getRoute('/metadata/namespace/:namespaceId/key/:key').get();
 
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
@@ -459,7 +459,7 @@ describe('metadata routes', () => {
 				// Arrange:
 				const namespaceFilter = { 'metadataEntry.targetId': longTypeNamespaceId };
 				const req = { params: { namespaceId, key: scopedMetadataKey, publicKey: senderPublicKey } };
-				const route = mockServer.getRoute('/namespace/:namespaceId/metadata/:key/sender/:publicKey').get();
+				const route = mockServer.getRoute('/metadata/namespace/:namespaceId/key/:key/sender/:publicKey').get();
 
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
