@@ -32,7 +32,8 @@ namespace catapult { namespace test {
 /// with size \a SEND_BUFFER_SIZE is equal to \a RECEIVED_BUFFER.
 #define EXPECT_EQUAL_BUFFERS(SEND_BUFFER, SEND_BUFFER_OFFSET, SEND_BUFFER_SIZE, RECEIVED_BUFFER) \
 	EXPECT_EQ(SEND_BUFFER_SIZE, RECEIVED_BUFFER.size()); \
-	EXPECT_EQ(test::ToHexString(&SEND_BUFFER[SEND_BUFFER_OFFSET], SEND_BUFFER_SIZE), test::ToHexString(RECEIVED_BUFFER));
+	if (SEND_BUFFER_SIZE == RECEIVED_BUFFER.size()) \
+		EXPECT_EQ_MEMORY(&SEND_BUFFER[SEND_BUFFER_OFFSET], &RECEIVED_BUFFER[0], SEND_BUFFER_SIZE)
 
 	/// Default packet type used in tests. This type is guaranteed to not conflict any with known packet types.
 	constexpr ionet::PacketType Default_Packet_Type = ionet::PacketType::Undefined;

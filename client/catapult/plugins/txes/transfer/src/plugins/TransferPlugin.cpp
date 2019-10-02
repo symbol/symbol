@@ -39,7 +39,7 @@ namespace catapult { namespace plugins {
 			builder.add(validators::CreateTransferMosaicsValidator());
 		});
 
-		if (!manager.userConfig().ShouldAutoDetectDelegatedHarvesters)
+		if (!manager.userConfig().EnableDelegatedHarvestersAutoDetection)
 			return;
 
 		auto bootKeyPair = crypto::KeyPair::FromString(manager.userConfig().BootPrivateKey);

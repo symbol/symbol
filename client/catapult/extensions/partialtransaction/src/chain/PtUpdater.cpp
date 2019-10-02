@@ -29,6 +29,7 @@
 #include "catapult/utils/ArraySet.h"
 #include "catapult/utils/HexFormatter.h"
 #include "catapult/utils/MemoryUtils.h"
+#include "catapult/preprocessor.h"
 #include <boost/asio.hpp>
 
 namespace catapult { namespace chain {
@@ -47,7 +48,7 @@ namespace catapult { namespace chain {
 			auto pTransactionWithoutCosignatures = utils::MakeSharedWithSize<model::AggregateTransaction>(truncatedSize);
 			std::memcpy(static_cast<void*>(pTransactionWithoutCosignatures.get()), pAggregateTransaction.get(), truncatedSize);
 			pTransactionWithoutCosignatures->Size = truncatedSize;
-			return std::move(pTransactionWithoutCosignatures);
+			return PORTABLE_MOVE(pTransactionWithoutCosignatures);
 		}
 
 		DetachedCosignatures ExtractCosignatures(

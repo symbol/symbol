@@ -20,6 +20,7 @@
 
 #include "harvesting/src/UnlockedAccountsUpdater.h"
 #include "harvesting/src/UnlockedAccounts.h"
+#include "harvesting/src/UnlockedFileQueueConsumer.h"
 #include "catapult/io/FileQueue.h"
 #include "catapult/model/BlockChainConfiguration.h"
 #include "harvesting/tests/test/UnlockedTestEntry.h"
@@ -70,13 +71,21 @@ namespace catapult { namespace harvesting {
 			}
 
 		public:
-			auto queueMessageWithHarvester(const std::vector<uint8_t>& harvesterPrivateKeyBuffer) {
+			auto queueAddMessageWithHarvester(const std::vector<uint8_t>& harvesterPrivateKeyBuffer) {
 				io::FileQueueWriter writer(m_dataDirectory.dir("transfer_message").str());
 				auto testEntry = test::PrepareUnlockedTestEntry(m_keyPair, harvesterPrivateKeyBuffer);
+				io::Write8(writer, utils::to_underlying_type(UnlockedEntryDirection::Add));
 				writer.write({ reinterpret_cast<const uint8_t*>(&testEntry), sizeof(testEntry) });
 				writer.flush();
 
 				return testEntry;
+			}
+
+			void queueRemoveMessage(const test::UnlockedTestEntry& testEntry) {
+				io::FileQueueWriter writer(m_dataDirectory.dir("transfer_message").str());
+				io::Write8(writer, utils::to_underlying_type(UnlockedEntryDirection::Remove));
+				writer.write({ reinterpret_cast<const uint8_t*>(&testEntry), sizeof(testEntry) });
+				writer.flush();
 			}
 
 			void appendHarvesterDirectlyToHarvestersFile(const std::vector<uint8_t>& harvesterPrivateKey) {
@@ -178,7 +187,7 @@ namespace catapult { namespace harvesting {
 		// Arrange: add non eligible account to queue
 		TestContext context;
 		auto randomPrivateBuffer = test::GenerateRandomVector(Key::Size);
-		context.queueMessageWithHarvester(randomPrivateBuffer);
+		context.queueAddMessageWithHarvester(randomPrivateBuffer);
 
 		// Sanity:
 		EXPECT_EQ(1u, context.numUnlockedAccounts());
@@ -195,7 +204,7 @@ namespace catapult { namespace harvesting {
 		// Arrange:
 		TestContext context;
 		auto randomPrivateBuffer = test::GenerateRandomVector(Key::Size);
-		auto entry = context.queueMessageWithHarvester(randomPrivateBuffer);
+		auto entry = context.queueAddMessageWithHarvester(randomPrivateBuffer);
 
 		// - add account to cache
 		context.addEnabledAccount(randomPrivateBuffer);
@@ -211,12 +220,35 @@ namespace catapult { namespace harvesting {
 		context.assertHarvesterFileEntries({ entry });
 	}
 
+	TEST(TEST_CLASS, UpdateSavesWithoutRemovedAccounts) {
+		// Arrange:
+		TestContext context;
+		auto randomPrivateBuffer = test::GenerateRandomVector(Key::Size);
+		auto entry = context.queueAddMessageWithHarvester(randomPrivateBuffer);
+
+		// - add account to cache
+		context.addEnabledAccount(randomPrivateBuffer);
+		context.update();
+
+		// Sanity:
+		EXPECT_EQ(2u, context.numUnlockedAccounts());
+
+		context.queueRemoveMessage(entry);
+
+		// Act:
+		context.update();
+
+		// Assert: entry was consumed, removed from unlocked accounts and removed unlocked harvesters file
+		EXPECT_EQ(1u, context.numUnlockedAccounts());
+		context.assertNoHarvesterFile();
+	}
+
 	TEST(TEST_CLASS, UpdateDeduplicatesAddedHarvesters) {
 		// Arrange:
 		TestContext context;
 		auto randomPrivateBuffer = test::GenerateRandomVector(Key::Size);
-		auto entry = context.queueMessageWithHarvester(randomPrivateBuffer);
-		context.queueMessageWithHarvester(randomPrivateBuffer);
+		auto entry = context.queueAddMessageWithHarvester(randomPrivateBuffer);
+		context.queueAddMessageWithHarvester(randomPrivateBuffer);
 
 		// - add account to cache
 		context.addEnabledAccount(randomPrivateBuffer);
@@ -243,7 +275,7 @@ namespace catapult { namespace harvesting {
 		test::UnlockedTestEntries expectedEntries;
 		for (auto i = 0u; i < 15; ++i) {
 			auto randomPrivateBuffer = test::GenerateRandomVector(Key::Size);
-			auto entry = context.queueMessageWithHarvester(randomPrivateBuffer);
+			auto entry = context.queueAddMessageWithHarvester(randomPrivateBuffer);
 			context.addEnabledAccount(randomPrivateBuffer);
 
 			// - max unlocked accounts is 10 and initially there was one account, so only first 9 will be added
@@ -264,9 +296,9 @@ namespace catapult { namespace harvesting {
 		auto randomPrivateBuffer1 = test::GenerateRandomVector(Key::Size);
 		auto randomPrivateBuffer2 = test::GenerateRandomVector(Key::Size);
 		auto randomPrivateBuffer3 = test::GenerateRandomVector(Key::Size);
-		auto entry1 = context.queueMessageWithHarvester(randomPrivateBuffer1);
-		context.queueMessageWithHarvester(randomPrivateBuffer2);
-		auto entry3 = context.queueMessageWithHarvester(randomPrivateBuffer3);
+		auto entry1 = context.queueAddMessageWithHarvester(randomPrivateBuffer1);
+		context.queueAddMessageWithHarvester(randomPrivateBuffer2);
+		auto entry3 = context.queueAddMessageWithHarvester(randomPrivateBuffer3);
 
 		// - add accounts 1 and 3 to cache
 		context.addEnabledAccount(randomPrivateBuffer1);

@@ -23,18 +23,18 @@
 
 namespace catapult {
 
-	/// An action function.
+	/// Action function.
 	using action = std::function<void ()>;
 
-	/// A predicate function.
+	/// Predicate function.
 	template<typename... TArgs>
 	using predicate = std::function<bool (TArgs...)>;
 
-	/// A consumer function.
+	/// Consumer function.
 	template<typename... TArgs>
 	using consumer = std::function<void (TArgs...)>;
 
-	/// A (stateless) supplier function.
+	/// Parameterless supplier function.
 	template<typename T>
 	using supplier = std::function<T ()>;
 }

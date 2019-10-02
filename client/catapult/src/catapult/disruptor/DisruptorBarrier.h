@@ -42,12 +42,12 @@ namespace catapult { namespace disruptor {
 			++m_position;
 		}
 
-		/// Returns level of the barrier.
+		/// Gets the level of the barrier.
 		inline size_t level() const {
 			return m_level;
 		}
 
-		/// Returns position of the barrier.
+		/// Gets the position of the barrier.
 		inline PositionType position() const {
 			return m_position;
 		}

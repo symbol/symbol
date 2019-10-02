@@ -26,7 +26,7 @@
 
 namespace catapult { namespace cache {
 
-	/// A cache types adapter for a cache composed of a single set.
+	/// Cache types adapter for a cache composed of a single set.
 	template<typename TPrimaryTypes, typename IsOrderedFlag = std::false_type>
 	struct SingleSetCacheTypesAdapter : public CacheDatabaseMixin {
 	public:
@@ -58,12 +58,12 @@ namespace catapult { namespace cache {
 			typename TPrimaryTypes::BaseSetType Primary;
 
 		public:
-			/// Returns a delta based on the same original elements as this set.
+			/// Gets a delta based on the same original elements as this set.
 			BaseSetDeltaPointers rebase() {
 				return { Primary.rebase() };
 			}
 
-			/// Returns a delta based on the same original elements as this set
+			/// Gets a delta based on the same original elements as this set
 			/// but without the ability to commit any changes to the original set.
 			BaseSetDeltaPointers rebaseDetached() const {
 				return { Primary.rebaseDetached() };
@@ -79,7 +79,7 @@ namespace catapult { namespace cache {
 		};
 	};
 
-	/// A cache types adapter for a cache composed of a single set and a patricia tree.
+	/// Cache types adapter for a cache composed of a single set and a patricia tree.
 	template<typename TPrimaryTypes, typename TPatriciaTree>
 	struct SingleSetAndPatriciaTreeCacheTypesAdapter : public CacheDatabaseMixin {
 	public:
@@ -109,7 +109,7 @@ namespace catapult { namespace cache {
 			CachePatriciaTree<TPatriciaTree> PatriciaTree;
 
 		public:
-			/// Returns a delta based on the same original elements as this set.
+			/// Gets a delta based on the same original elements as this set.
 			TBaseSetDeltaPointers rebase() {
 				TBaseSetDeltaPointers deltaPointers;
 				deltaPointers.pPrimary = Primary.rebase();
@@ -117,7 +117,7 @@ namespace catapult { namespace cache {
 				return deltaPointers;
 			}
 
-			/// Returns a delta based on the same original elements as this set
+			/// Gets a delta based on the same original elements as this set
 			/// but without the ability to commit any changes to the original set.
 			TBaseSetDeltaPointers rebaseDetached() const {
 				TBaseSetDeltaPointers deltaPointers;

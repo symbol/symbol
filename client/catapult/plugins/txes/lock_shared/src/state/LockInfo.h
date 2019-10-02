@@ -23,7 +23,7 @@
 
 namespace catapult { namespace state {
 
-	/// A lock status.
+	/// Lock status.
 	enum class LockStatus : uint8_t {
 		/// Lock is unused.
 		Unused,
@@ -32,7 +32,7 @@ namespace catapult { namespace state {
 		Used
 	};
 
-	/// A lock info.
+	/// Lock info.
 	struct LockInfo {
 	public:
 		static constexpr auto Is_Deactivation_Destructive = true;

@@ -37,7 +37,7 @@ namespace catapult { namespace ionet {
 		~AppendContext();
 
 	public:
-		/// An asio buffer that can be written to in place.
+		/// Asio buffer that can be written to in place.
 		boost::asio::mutable_buffers_1 buffer();
 
 		/// Commits the write to the underlying buffer.

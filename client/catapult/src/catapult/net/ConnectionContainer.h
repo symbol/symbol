@@ -19,12 +19,21 @@
 **/
 
 #pragma once
-#include "catapult/utils/ArraySet.h"
+#include "catapult/model/NodeIdentity.h"
+#include "catapult/functions.h"
+
+namespace catapult {
+	namespace ionet { class PacketSocketInfo; }
+	namespace net { struct PeerConnectResult; }
+}
 
 namespace catapult { namespace net {
 
 	/// Manages a collection of connections.
 	class ConnectionContainer {
+	public:
+		using AcceptCallback = consumer<const PeerConnectResult&>;
+
 	public:
 		virtual ~ConnectionContainer() = default;
 
@@ -33,10 +42,13 @@ namespace catapult { namespace net {
 		virtual size_t numActiveConnections() const = 0;
 
 		/// Gets the identities of active connections.
-		virtual utils::KeySet identities() const = 0;
+		virtual model::NodeIdentitySet identities() const = 0;
 
 	public:
-		/// Closes any active connections to the node identified by \a identityKey.
-		virtual bool closeOne(const Key& identityKey) = 0;
+		/// Accepts a connection represented by \a socketInfo and calls \a callback on completion.
+		virtual void accept(const ionet::PacketSocketInfo& socketInfo, const AcceptCallback& callback) = 0;
+
+		/// Closes any active connections to the node identified by \a identity.
+		virtual bool closeOne(const model::NodeIdentity& identity) = 0;
 	};
 }}

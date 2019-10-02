@@ -52,7 +52,7 @@ namespace catapult { namespace builders {
 		void setNewRestrictionValue(uint64_t newRestrictionValue);
 
 	public:
-		/// Returns size of mosaic address restriction transaction.
+		/// Gets the size of mosaic address restriction transaction.
 		/// \note This returns size of a normal transaction not embedded transaction.
 		size_t size() const;
 

@@ -26,7 +26,7 @@ namespace catapult { namespace utils { class TimeSpan; } }
 
 namespace catapult { namespace net {
 
-	/// An interface for picking packet io pairs.
+	/// Interface for picking packet io pairs.
 	class PacketIoPicker {
 	public:
 		virtual ~PacketIoPicker() = default;

@@ -25,29 +25,29 @@
 
 namespace catapult { namespace test {
 
-	/// Creates a remote api around \a io with public key (\a remotePublicKey) using \a apiFactory such that the returned api
+	/// Creates a remote api around \a io with specified \a remoteIdentity using \a apiFactory such that the returned api
 	/// extends the lifetime of \a registry.
 	template<typename TRemoteApiFactory>
 	auto CreateLifetimeExtendedApi(
 			TRemoteApiFactory apiFactory,
 			ionet::PacketIo& io,
-			const Key& remotePublicKey,
+			const model::NodeIdentity& remoteIdentity,
 			model::TransactionRegistry&& registry) {
 		auto pRegistry = std::make_shared<model::TransactionRegistry>(std::move(registry));
-		auto pRemoteApi = utils::UniqueToShared(apiFactory(io, remotePublicKey, *pRegistry));
+		auto pRemoteApi = utils::UniqueToShared(apiFactory(io, remoteIdentity, *pRegistry));
 		return decltype(pRemoteApi)(pRemoteApi.get(), [pRegistry, pRemoteApi](const auto*) {});
 	}
 
-	/// Creates a remote api around \a pIo with public key (\a remotePublicKey) using \a apiFactory such that the returned api
+	/// Creates a remote api around \a pIo with specified \a remoteIdentity using \a apiFactory such that the returned api
 	/// extends the lifetime of both \a pIo and \a registry.
 	template<typename TRemoteApiFactory>
 	auto CreateLifetimeExtendedApi(
 			TRemoteApiFactory apiFactory,
 			const std::shared_ptr<ionet::PacketIo>& pIo,
-			const Key& remotePublicKey,
+			const model::NodeIdentity& remoteIdentity,
 			model::TransactionRegistry&& registry) {
 		auto pRegistry = std::make_shared<model::TransactionRegistry>(std::move(registry));
-		auto pRemoteApi = utils::UniqueToShared(apiFactory(*pIo, remotePublicKey, *pRegistry));
+		auto pRemoteApi = utils::UniqueToShared(apiFactory(*pIo, remoteIdentity, *pRegistry));
 		return decltype(pRemoteApi)(pRemoteApi.get(), [pIo, pRegistry, pRemoteApi](const auto*) {});
 	}
 }}

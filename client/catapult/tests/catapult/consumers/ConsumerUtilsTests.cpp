@@ -32,19 +32,20 @@ namespace catapult { namespace consumers {
 	namespace {
 		void AssertNodeInteractionResult(ionet::NodeInteractionResultCode expectedCode, validators::ValidationResult validationResult) {
 			// Arrange:
-			auto key = test::GenerateRandomByteArray<Key>();
+			auto identityKey = test::GenerateRandomByteArray<Key>();
 			model::AnnotatedTransactionRange range;
-			range.SourcePublicKey = key;
+			range.SourceIdentity = { identityKey, "11.22.33.44" };
 			disruptor::ConsumerInput input(std::move(range));
 
 			disruptor::ConsumerCompletionResult consumerResult;
 			consumerResult.CompletionCode = utils::to_underlying_type(validationResult);
 
 			// Act:
-			auto result = ToNodeInteractionResult(input.sourcePublicKey(), consumerResult);
+			auto result = ToNodeInteractionResult(input.sourceIdentity(), consumerResult);
 
 			// Assert:
-			EXPECT_EQ(key, result.IdentityKey);
+			EXPECT_EQ(identityKey, result.Identity.PublicKey);
+			EXPECT_EQ("11.22.33.44", result.Identity.Host);
 			EXPECT_EQ(expectedCode, result.Code) << "for validation result " << validationResult;
 		}
 	}

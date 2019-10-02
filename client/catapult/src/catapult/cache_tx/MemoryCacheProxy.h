@@ -24,7 +24,7 @@
 
 namespace catapult { namespace cache {
 
-	/// A delegating proxy around a memory-based cache.
+	/// Delegating proxy around a memory-based cache.
 	template<typename TMemoryCache, typename TCache, typename TCacheModifierProxy>
 	class MemoryCacheProxy : public TCache {
 	public:

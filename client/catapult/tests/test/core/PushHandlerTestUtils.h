@@ -62,24 +62,27 @@ namespace catapult { namespace test {
 			ionet::ServerPacketHandlers handlers;
 			auto registry = TTraits::CreateRegistry();
 
-			Key capturedSourcePublicKey;
+			model::NodeIdentity capturedSourceIdentity;
 			std::vector<size_t> counters;
-			registerHandler(handlers, registry, [&capturedSourcePublicKey, &counters](const auto& range) {
-				capturedSourcePublicKey = range.SourcePublicKey;
+			registerHandler(handlers, registry, [&capturedSourceIdentity, &counters](const auto& range) {
+				capturedSourceIdentity = range.SourceIdentity;
 				counters.push_back(range.Range.size());
 			});
 
 			// Act:
 			auto sourcePublicKey = test::GenerateRandomByteArray<Key>();
-			ionet::ServerPacketHandlerContext context(sourcePublicKey, "");
-			EXPECT_TRUE(handlers.process(packet, context));
+			auto sourceHost = std::string("11.22.33.44");
+			ionet::ServerPacketHandlerContext handlerContext(sourcePublicKey, sourceHost);
+			EXPECT_TRUE(handlers.process(packet, handlerContext));
 
 			// Assert:
 			action(counters);
 
 			// - if the callback was called, context should have been forwarded along with the range
-			if (!counters.empty())
-				EXPECT_EQ(sourcePublicKey, capturedSourcePublicKey);
+			if (!counters.empty()) {
+				EXPECT_EQ(sourcePublicKey, capturedSourceIdentity.PublicKey);
+				EXPECT_EQ("11.22.33.44", capturedSourceIdentity.Host);
+			}
 		}
 
 		static void AssertMalformedPacketIsRejected() {

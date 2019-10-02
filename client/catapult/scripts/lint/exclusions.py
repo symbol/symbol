@@ -25,6 +25,7 @@ NAMESPACES_FALSEPOSITIVES = (
     # no types (only includes and/or fwd declares and/or defines)
     re.compile(r'src.catapult.constants.h'),
     re.compile(r'src.catapult.plugins.h'),
+    re.compile(r'src.catapult.preprocessor.h'),
     re.compile(r'src.catapult.cache_db.RocksInclude.h'),
     re.compile(r'src.catapult.crypto.KeccakHash.h'),
     re.compile(r'src.catapult.utils.BitwiseEnum.h'),

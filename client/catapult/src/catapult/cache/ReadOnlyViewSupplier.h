@@ -42,7 +42,7 @@ namespace catapult { namespace cache {
 		{}
 
 	public:
-		/// Returns a read-only view of this view.
+		/// Gets a read-only view of this view.
 		const typename TView::ReadOnlyView& asReadOnly() const {
 			return m_readOnlyView;
 		}

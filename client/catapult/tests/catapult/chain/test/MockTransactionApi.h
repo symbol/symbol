@@ -24,7 +24,7 @@
 
 namespace catapult { namespace mocks {
 
-	/// A mock transaction api that can be configured to return predefined data for requests, capture function parameters
+	/// Mock transaction api that can be configured to return predefined data for requests, capture function parameters
 	/// and throw exceptions at specified entry points.
 	class MockTransactionApi : public api::RemoteTransactionApi {
 	public:
@@ -36,7 +36,7 @@ namespace catapult { namespace mocks {
 	public:
 		/// Creates a transaction api around a range of \a transactions.
 		explicit MockTransactionApi(const model::TransactionRange& transactions)
-				: api::RemoteTransactionApi(test::GenerateRandomByteArray<Key>())
+				: api::RemoteTransactionApi({ test::GenerateRandomByteArray<Key>(), "fake-host-from-mock-transaction-api" })
 				, m_transactions(model::TransactionRange::CopyRange(transactions))
 				, m_errorEntryPoint(EntryPoint::None)
 		{}
@@ -47,13 +47,13 @@ namespace catapult { namespace mocks {
 			m_errorEntryPoint = entryPoint;
 		}
 
-		/// Returns a vector of parameters that were passed to the unconfirmed transactions requests.
+		/// Gets a vector of parameters that were passed to the unconfirmed transactions requests.
 		const auto& utRequests() const {
 			return m_utRequests;
 		}
 
 	public:
-		/// Returns the configured unconfirmed transactions and throws if the error entry point is set to Unconfirmed_Transactions.
+		/// Gets the configured unconfirmed transactions and throws if the error entry point is set to Unconfirmed_Transactions.
 		/// \note The \a minFeeMultiplier and \a knownShortHashes parameters are captured.
 		thread::future<model::TransactionRange> unconfirmedTransactions(
 				BlockFeeMultiplier minFeeMultiplier,

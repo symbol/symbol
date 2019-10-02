@@ -32,7 +32,7 @@
 namespace catapult { namespace net {
 
 	namespace detail {
-		/// A default compatibility checker that indicates all responses are compatible.
+		/// Default compatibility checker that indicates all responses are compatible.
 		class AlwaysCompatibleResponseCompatibilityChecker {
 		public:
 			template<typename T>
@@ -138,7 +138,7 @@ namespace catapult { namespace net {
 				: m_pPool(pPool)
 				, m_responseCompatibilityChecker(responseCompatibilityChecker)
 				, m_requestTimeout(settings.Timeout)
-				, m_pConnector(CreateServerConnector(pPool, keyPair, settings))
+				, m_pConnector(CreateServerConnector(pPool, keyPair, settings, TRequestPolicy::Friendly_Name))
 				, m_numTotalRequests(0)
 				, m_numSuccessfulRequests(0)
 		{}
@@ -171,13 +171,14 @@ namespace catapult { namespace net {
 			};
 
 			auto pRequest = std::make_shared<NodeRequest>(node, m_pPool, m_responseCompatibilityChecker, wrappedCallback);
-			m_pConnector->connect(node, [pRequest, requestTimeout = m_requestTimeout](auto connectCode, const auto& pSocket) {
+			m_pConnector->connect(node, [pRequest, requestTimeout = m_requestTimeout](auto connectCode, const auto& socketInfo) {
+				auto pSocket = socketInfo.socket();
 				pRequest->setTimeout(requestTimeout, pSocket);
 
 				if (PeerConnectCode::Accepted != connectCode)
 					return pRequest->complete(connectCode);
 
-				TRequestPolicy::CreateFuture(*pSocket).then([pSocket, pRequest](auto&& responseFuture) {
+				TRequestPolicy::CreateFuture(*pSocket, socketInfo.host()).then([pSocket, pRequest](auto&& responseFuture) {
 					pRequest->complete(std::move(responseFuture));
 				});
 			});

@@ -25,7 +25,7 @@
 
 namespace catapult { namespace mocks {
 
-	/// A mock PacketIoPicker that can be prepared with MockPacketIos.
+	/// Mock PacketIoPicker that can be prepared with MockPacketIos.
 	/// \note Returned node names are deterministic in the range [1..N].
 	class MockPacketIoPicker : public net::PacketIoPicker {
 	public:
@@ -36,7 +36,7 @@ namespace catapult { namespace mocks {
 		}
 
 	public:
-		/// Returns the durations that were captured.
+		/// Gets the durations that were captured.
 		const std::vector<utils::TimeSpan>& durations() const {
 			return m_durations;
 		}

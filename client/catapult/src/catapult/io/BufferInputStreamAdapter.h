@@ -20,6 +20,7 @@
 
 #pragma once
 #include "Stream.h"
+#include "catapult/utils/MemoryUtils.h"
 #include "catapult/exceptions.h"
 #include <sstream>
 
@@ -36,7 +37,7 @@ namespace catapult { namespace io {
 		{}
 
 	public:
-		/// Returns read position.
+		/// Gets the read position.
 		size_t position() const {
 			return m_position;
 		}
@@ -58,7 +59,7 @@ namespace catapult { namespace io {
 				CATAPULT_THROW_FILE_IO_ERROR(out.str().c_str());
 			}
 
-			std::memcpy(buffer.pData, input.pData + m_position, buffer.Size);
+			utils::memcpy_cond(buffer.pData, input.pData + m_position, buffer.Size);
 			m_position += buffer.Size;
 		}
 

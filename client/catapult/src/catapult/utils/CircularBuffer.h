@@ -24,7 +24,7 @@
 
 namespace catapult { namespace utils {
 
-	/// A fixed size circular buffer.
+	/// Fixed size circular buffer.
 	template<typename T>
 	class CircularBuffer {
 	public:

@@ -78,7 +78,7 @@ namespace catapult { namespace state {
 					&& rule.RestrictionType == notificationRule.RestrictionType;
 		}
 
-		/// Returns rule described by the notification.
+		/// Gets the rule described by the notification.
 		RuleType toRule() const {
 			return {
 				m_resolvers.resolve(m_notification.ReferenceMosaicId),
@@ -87,7 +87,7 @@ namespace catapult { namespace state {
 			};
 		}
 
-		/// Returns restriction described by the notification.
+		/// Gets the restriction described by the notification.
 		MosaicGlobalRestriction toRestriction() const {
 			return MosaicGlobalRestriction(m_resolvers.resolve(m_notification.MosaicId));
 		}

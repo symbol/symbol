@@ -47,7 +47,7 @@ namespace catapult { namespace builders {
 		void addMosaic(const model::UnresolvedMosaic& mosaic);
 
 	public:
-		/// Returns size of transfer transaction.
+		/// Gets the size of transfer transaction.
 		/// \note This returns size of a normal transaction not embedded transaction.
 		size_t size() const;
 

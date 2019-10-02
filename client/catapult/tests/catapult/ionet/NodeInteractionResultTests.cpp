@@ -30,17 +30,19 @@ namespace catapult { namespace ionet {
 		NodeInteractionResult result;
 
 		// Assert:
-		EXPECT_EQ(Key(), result.IdentityKey);
+		EXPECT_EQ(Key(), result.Identity.PublicKey);
+		EXPECT_EQ("", result.Identity.Host);
 		EXPECT_EQ(NodeInteractionResultCode::None, result.Code);
 	}
 
 	TEST(TEST_CLASS, CanCreateCustomNodeInteractionResult) {
 		// Act:
 		auto identityKey = test::GenerateRandomByteArray<Key>();
-		NodeInteractionResult result(identityKey, NodeInteractionResultCode::Failure);
+		NodeInteractionResult result({ identityKey, "11.22.33.44" }, NodeInteractionResultCode::Failure);
 
 		// Assert:
-		EXPECT_EQ(identityKey, result.IdentityKey);
+		EXPECT_EQ(identityKey, result.Identity.PublicKey);
+		EXPECT_EQ("11.22.33.44", result.Identity.Host);
 		EXPECT_EQ(NodeInteractionResultCode::Failure, result.Code);
 	}
 }}

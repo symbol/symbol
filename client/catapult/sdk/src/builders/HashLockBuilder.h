@@ -46,7 +46,7 @@ namespace catapult { namespace builders {
 		void setHash(const Hash256& hash);
 
 	public:
-		/// Returns size of hash lock transaction.
+		/// Gets the size of hash lock transaction.
 		/// \note This returns size of a normal transaction not embedded transaction.
 		size_t size() const;
 

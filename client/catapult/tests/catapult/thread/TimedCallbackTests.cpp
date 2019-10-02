@@ -49,7 +49,7 @@ namespace catapult { namespace thread {
 #undef ENUM_LIST
 
 		struct TimedCallbackResult {
-			TimedCallbackResultCode Code;
+			std::atomic<TimedCallbackResultCode> Code;
 			std::atomic<uint32_t> NumCallbackCalls;
 			std::atomic<uint32_t> NumTimeoutHandlerCalls;
 

@@ -61,25 +61,25 @@ namespace catapult { namespace model {
 		}
 
 	public:
-		/// Returns a const pointer to the first cosignature contained in this transaction.
+		/// Gets a const pointer to the first cosignature contained in this transaction.
 		/// \note The returned pointer is undefined if the aggregate has an invalid size.
 		const Cosignature* CosignaturesPtr() const {
 			return reinterpret_cast<const Cosignature*>(CosignaturesPtrT(*this));
 		}
 
-		/// Returns a pointer to the first cosignature contained in this transaction.
+		/// Gets a pointer to the first cosignature contained in this transaction.
 		/// \note The returned pointer is undefined if the aggregate has an invalid size.
 		Cosignature* CosignaturesPtr() {
 			return reinterpret_cast<Cosignature*>(CosignaturesPtrT(*this));
 		}
 
-		/// Returns the number of cosignatures attached to this transaction.
+		/// Gets the number of cosignatures attached to this transaction.
 		/// \note The returned value is undefined if the aggregate has an invalid size.
 		size_t CosignaturesCount() const {
 			return CosignaturesCountT(*this);
 		}
 
-		/// Returns the number of cosignatures attached to this transaction.
+		/// Gets the number of cosignatures attached to this transaction.
 		/// \note The returned value is undefined if the aggregate has an invalid size.
 		size_t CosignaturesCount() {
 			return CosignaturesCountT(*this);

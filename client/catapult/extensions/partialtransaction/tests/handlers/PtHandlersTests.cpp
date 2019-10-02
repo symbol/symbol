@@ -203,16 +203,16 @@ namespace catapult { namespace handlers {
 			});
 
 			// Act:
-			ionet::ServerPacketHandlerContext context({}, "");
-			EXPECT_TRUE(handlers.process(*pPacket, context));
+			ionet::ServerPacketHandlerContext handlerContext;
+			EXPECT_TRUE(handlers.process(*pPacket, handlerContext));
 
 			// Assert: the requested hash pairs were passed to the supplier
 			EXPECT_EQ(extractedRequestHashPairs, actualRequestHashPairs);
 
 			// - the handler was called and has the correct header
 			EXPECT_EQ(1u, counter);
-			ASSERT_TRUE(context.hasResponse());
-			auto payload = context.response();
+			ASSERT_TRUE(handlerContext.hasResponse());
+			auto payload = handlerContext.response();
 			test::AssertPacketHeader(payload, sizeof(ionet::PacketHeader) + responseContext.responseSize(), packetType);
 
 			// - let the traits assert the returned payload (may be one or more buffers)

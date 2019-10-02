@@ -33,7 +33,7 @@ namespace catapult { namespace test {
 	/// Creates a state hash enabled catapult configuration around \a dataDirectory.
 	config::CatapultConfiguration CreateStateHashEnabledCatapultConfiguration(const std::string& dataDirectory);
 
-	/// Returns test nemesis block key pairs.
+	/// Gets the test nemesis block key pairs.
 	std::vector<crypto::KeyPair> GetNemesisKeyPairs();
 
 	/// Block with additional metadata.

@@ -20,104 +20,162 @@
 
 #pragma once
 #include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/utils/ArraySet.h"
 #include "tests/test/core/NotificationTestUtils.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace observers {
 
+	/// Provides scaffolding for expired lock info observer tests.
 	template<typename TTraits>
-	struct ExpiredLockInfoObserverTests {
+	class ExpiredLockInfoObserverTests {
 	public:
-		static constexpr auto Initial_Balance = Amount(500);
-		static constexpr auto Lock_Mosaic_Id = MosaicId(1234);
-		static constexpr auto Lock_Amount = Amount(100);
+		struct SeedTuple {
+			Key PublicKey;
+			catapult::MosaicId MosaicId;
+			Amount InitialBalance;
+			Amount LockAmount;
+		};
 
-		using HeightGenerator = std::function<Height (uint32_t)>;
+	public:
+		// region RunBalanceTest / RunReceiptTest
 
-		// region no operation
+		static void RunBalanceTest(
+				NotifyMode mode,
+				const Key& blockSigner,
+				const std::vector<SeedTuple>& expiringSeeds,
+				const std::vector<SeedTuple>& expectedPostObserveBalances) {
+			// Arrange:
+			TestContext context(Height(55), mode);
+			context.addBlockSigner(blockSigner, MosaicId(500), Amount(200));
 
-		static void AssertObserverDoesNothingWhenNoLockInfoExpired_OnCommit() {
-			// Assert:
-			AssertObserverDoesNothingWhenNoLockInfoExpired(NotifyMode::Commit);
+			// - add placeholder accounts that expire at other heights: 10, 20, ..., 100
+			auto seeds = GenerateSeeds(10);
+			context.addLockInfos(seeds, [](auto i) { return Height((i + 1) * 10); });
+
+			// - add expiring accounts
+			context.addLockInfos(expiringSeeds, [](auto) { return Height(55); });
+
+			// Act:
+			context.observe(blockSigner);
+
+			// Assert: each expiring lock info was touched
+			context.assertLockInfoTouches(expiringSeeds.size());
+
+			// - unaffected accounts have unchanged balances
+			context.assertBalances(seeds, "unaffected accounts");
+
+			// - potentially affected accounts have expected balances
+			context.assertBalances(expectedPostObserveBalances, "potentially affected accounts");
 		}
 
-		static void AssertObserverDoesNothingWhenNoLockInfoExpired_OnRollback() {
+		static void RunReceiptTest(
+				NotifyMode mode,
+				const Key& blockSigner,
+				const std::vector<SeedTuple>& expiringSeeds,
+				const std::vector<SeedTuple>& expectedReceipts) {
+			// Arrange:
+			TestContext context(Height(55), mode);
+			context.addBlockSigner(blockSigner, MosaicId(500), Amount(200));
+
+			// - add placeholder accounts that expire at other heights: 10, 20, ..., 100
+			auto seeds = GenerateSeeds(10);
+			context.addLockInfos(seeds, [](auto i) { return Height((i + 1) * 10); });
+
+			// - add expiring accounts
+			context.addLockInfos(expiringSeeds, [](auto) { return Height(55); });
+
+			// Act:
+			auto pStatement = context.observe(blockSigner);
+
 			// Assert:
-			AssertObserverDoesNothingWhenNoLockInfoExpired(NotifyMode::Rollback);
-		}
+			if (expectedReceipts.empty()) {
+				EXPECT_EQ(0u, pStatement->TransactionStatements.size());
+				return;
+			}
 
-		// endregion
+			ASSERT_EQ(1u, pStatement->TransactionStatements.size());
 
-		// region expiration
+			const auto& receiptPair = *pStatement->TransactionStatements.find(model::ReceiptSource());
+			ASSERT_EQ(expectedReceipts.size(), receiptPair.second.size());
 
-		static void AssertObserverCreditsAccountsOnCommit_Single() {
-			// Assert:
-			AssertObserverTransfersMosaics(NotifyMode::Commit, 1);
-		}
+			auto i = 0u;
+			for (const auto& expectedReceipt : expectedReceipts) {
+				auto message = "receipt at " + std::to_string(i);
+				const auto& receipt = static_cast<const model::BalanceChangeReceipt&>(receiptPair.second.receiptAt(i));
 
-		static void AssertObserverCreditsAccountsOnCommit_Multiple() {
-			// Assert:
-			AssertObserverTransfersMosaics(NotifyMode::Commit, 3);
-		}
-
-		static void AssertObserverCreditsAccountsOnRollback_Single() {
-			// Assert:
-			AssertObserverTransfersMosaics(NotifyMode::Rollback, 1);
-		}
-
-		static void AssertObserverCreditsAccountsOnRollback_Multiple() {
-			// Assert:
-			AssertObserverTransfersMosaics(NotifyMode::Rollback, 3);
+				ASSERT_EQ(sizeof(model::BalanceChangeReceipt), receipt.Size) << message;
+				EXPECT_EQ(1u, receipt.Version) << message;
+				EXPECT_EQ(TTraits::Receipt_Type, receipt.Type) << message;
+				EXPECT_EQ(expectedReceipt.PublicKey, receipt.TargetPublicKey) << message;
+				EXPECT_EQ(expectedReceipt.MosaicId, receipt.MosaicId) << message;
+				EXPECT_EQ(expectedReceipt.LockAmount, receipt.Amount) << message;
+				++i;
+			}
 		}
 
 		// endregion
 
 	private:
+		// region test utils
+
+		static std::vector<SeedTuple> GenerateSeeds(size_t count) {
+			std::vector<SeedTuple> seeds;
+			for (auto i = 0u; i < count; ++i)
+				seeds.push_back({ test::GenerateRandomByteArray<Key>(), MosaicId(2 * (i + 1)), Amount(100 + i), Amount(i) });
+
+			return seeds;
+		}
+
+		// endregion
+
+	private:
+		// region TestContext
+
 		class TestContext {
 		private:
 			using ObserverTestContext = typename TTraits::ObserverTestContext;
+			using HeightGenerator = std::function<Height (uint32_t)>;
 
 		public:
-			TestContext(Height height, NotifyMode mode, const model::Mosaic& seedMosaic)
+			TestContext(Height height, NotifyMode mode)
 					: m_height(height)
 					, m_mode(mode)
-					, m_seedMosaic(seedMosaic)
 					, m_observerContext(m_mode, m_height)
 			{}
 
 		public:
-			utils::KeySet addLockInfos(size_t numLockInfos, const HeightGenerator& heightGenerator) {
-				// Arrange: seed caches
-				utils::KeySet keys;
-				auto& lockInfoCacheDelta = TTraits::SubCache(m_observerContext.cache());
-				auto& accountStateCache = this->accountStateCache();
-				for (auto i = 0u; i < numLockInfos; ++i) {
-					// - lock info cache
-					auto lockInfo = CreateLockInfoWithAmount(Lock_Amount, heightGenerator(i));
-					keys.insert(lockInfo.SenderPublicKey);
-					lockInfoCacheDelta.insert(lockInfo);
-
-					// - account state cache
-					accountStateCache.addAccount(lockInfo.SenderPublicKey, Height(1));
-					credit(accountStateCache.find(lockInfo.SenderPublicKey).get());
-				}
-
-				return keys;
+			void addLockInfos(const std::vector<SeedTuple>& seeds, const HeightGenerator& heightGenerator) {
+				for (auto i = 0u; i < seeds.size(); ++i)
+					addLockInfo(seeds[i], heightGenerator(i));
 			}
 
-			Key addBlockSigner() {
-				// Arrange: add block signer to account state cache
+			Key addBlockSigner(const Key& signer, MosaicId mosaicId, Amount amount) {
 				auto& accountStateCache = this->accountStateCache();
-				auto signer = test::GenerateRandomByteArray<Key>();
 				accountStateCache.addAccount(signer, Height(1));
-				credit(accountStateCache.find(signer).get());
+				accountStateCache.find(signer).get().Balances.credit(mosaicId, amount);
 				return signer;
 			}
 
+			void addLockInfo(const SeedTuple& seed, Height height) {
+				// lock info cache
+				auto& lockInfoCacheDelta = TTraits::SubCache(m_observerContext.cache());
+				auto lockInfo = TTraits::CreateLockInfo(height);
+				lockInfo.SenderPublicKey = seed.PublicKey;
+				lockInfo.MosaicId = seed.MosaicId;
+				lockInfo.Amount = seed.LockAmount;
+				lockInfoCacheDelta.insert(lockInfo);
+
+				// account state cache
+				auto& accountStateCache = this->accountStateCache();
+				if (!accountStateCache.contains(seed.PublicKey)) {
+					accountStateCache.addAccount(seed.PublicKey, Height(1));
+					accountStateCache.find(seed.PublicKey).get().Balances.credit(seed.MosaicId, seed.InitialBalance);
+				}
+			}
+
 		public:
-			cache::CatapultCacheDelta& observe(const Key& blockSigner) {
+			auto observe(const Key& blockSigner) {
 				// Arrange:
 				auto pObserver = TTraits::CreateObserver();
 				auto notification = test::CreateBlockNotification(blockSigner);
@@ -127,23 +185,25 @@ namespace catapult { namespace observers {
 
 				// Act:
 				test::ObserveNotification(*pObserver, notification, m_observerContext);
-				return m_observerContext.cache();
+				return m_observerContext.statementBuilder().build();
 			}
 
 		public:
-			void assertNoLockInfoChanges() {
+			void assertLockInfoTouches(size_t numExpiringLockInfos) {
 				auto& lockInfoCacheDelta = TTraits::SubCache(m_observerContext.cache());
 				EXPECT_TRUE(lockInfoCacheDelta.addedElements().empty());
-				EXPECT_TRUE(lockInfoCacheDelta.modifiedElements().empty());
+				EXPECT_EQ(numExpiringLockInfos, lockInfoCacheDelta.modifiedElements().size());
 				EXPECT_TRUE(lockInfoCacheDelta.removedElements().empty());
 			}
 
-			void assertBalances(const utils::KeySet& accountIds, const model::Mosaic& expectedMosaic, const std::string& message) {
+			void assertBalances(const std::vector<SeedTuple>& seeds, const std::string& message) {
+				auto i = 0u;
 				auto& accountStateCache = this->accountStateCache();
-				for (const auto& accountId : accountIds) {
-					const auto& balances = accountStateCache.find(accountId).get().Balances;
-					EXPECT_EQ(1u, balances.size()) << message;
-					EXPECT_EQ(expectedMosaic.Amount, balances.get(expectedMosaic.MosaicId)) << message;
+				for (const auto& seed : seeds) {
+					const auto& balances = accountStateCache.find(seed.PublicKey).get().Balances;
+					EXPECT_EQ(1u, balances.size()) << message << " at " << i;
+					EXPECT_EQ(seed.InitialBalance, balances.get(seed.MosaicId)) << message << " at " << i;
+					++i;
 				}
 			}
 
@@ -152,93 +212,12 @@ namespace catapult { namespace observers {
 				return m_observerContext.cache().template sub<cache::AccountStateCache>();
 			}
 
-			void credit(state::AccountState& accountState) {
-				accountState.Balances.credit(m_seedMosaic.MosaicId, m_seedMosaic.Amount);
-			}
-
-		private:
-			static typename TTraits::ValueType CreateLockInfoWithAmount(Amount amount, Height height) {
-				auto lockInfo = TTraits::CreateLockInfo(height);
-				lockInfo.MosaicId = Lock_Mosaic_Id;
-				lockInfo.Amount = amount;
-				return lockInfo;
-			}
-
 		private:
 			Height m_height;
 			NotifyMode m_mode;
-			model::Mosaic m_seedMosaic;
 			ObserverTestContext m_observerContext;
 		};
 
-	private:
-		static void AssertObserverDoesNothingWhenNoLockInfoExpired(NotifyMode mode) {
-			// Arrange:
-			auto seedMosaic = model::Mosaic{ Lock_Mosaic_Id, Initial_Balance };
-			TestContext context(Height(55), mode, seedMosaic);
-			auto blockSigner = context.addBlockSigner();
-
-			// - expiry heights are 10, 20, ..., 100
-			auto lockInfoKeys = context.addLockInfos(10, [](auto i) { return Height((i + 1) * 10); });
-
-			// Act:
-			context.observe(blockSigner);
-
-			// Assert: lock info cache didn't change
-			context.assertNoLockInfoChanges();
-
-			// - owner accounts of lock infos were not credited / debited mosaics
-			context.assertBalances(lockInfoKeys, seedMosaic, "lockInfoKeys");
-
-			// - block signer was not credited / debited mosaics
-			context.assertBalances({ blockSigner }, seedMosaic, "blockSigner");
-		}
-
-		static void AssertObserverTransfersMosaics(NotifyMode mode, size_t numExpiringLockInfos) {
-			// Arrange:
-			auto seedMosaic = model::Mosaic{ Lock_Mosaic_Id, Initial_Balance };
-			TestContext context(Height(55), mode, seedMosaic);
-			auto blockSigner = context.addBlockSigner();
-
-			// - expiry heights are 10, 20, ..., 100
-			auto lockInfoKeys = context.addLockInfos(10, [](auto i) { return Height((i + 1) * 10); });
-
-			// - expiry heights at 55
-			auto expiringLockInfoKeys = context.addLockInfos(numExpiringLockInfos, [](auto) { return Height(55); });
-
-			// Act:
-			context.observe(blockSigner);
-
-			// Assert: lock info cache didn't change
-			context.assertNoLockInfoChanges();
-
-			// - owner accounts of lock infos not expiring at height were not credited / debited mosaics
-			context.assertBalances(lockInfoKeys, seedMosaic, "lockInfoKeys");
-
-			// - owner accounts of lock infos expiring at height might have been credited / debited mosaics
-			auto expectedExpiringMosaic = model::Mosaic{
-				seedMosaic.MosaicId,
-				TTraits::GetExpectedExpiringLockOwnerBalance(mode, Initial_Balance, Lock_Amount)
-			};
-			context.assertBalances(expiringLockInfoKeys, expectedExpiringMosaic, "expiringLockInfoKeys");
-
-			// - block signer might have been credited / debited mosaics
-			auto expectedSignerMosaic = model::Mosaic{
-				seedMosaic.MosaicId,
-				TTraits::GetExpectedBlockSignerBalance(mode, Initial_Balance, Lock_Amount, numExpiringLockInfos)
-			};
-			context.assertBalances({ blockSigner }, expectedSignerMosaic, "blockSigner");
-		}
+		// endregion
 	};
-
-#define MAKE_EXPIRED_LOCK_INFO_OBSERVER_TEST(TRAITS_NAME, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME) { ExpiredLockInfoObserverTests<TRAITS_NAME>::Assert##TEST_NAME(); }
-
-#define DEFINE_EXPIRED_LOCK_INFO_OBSERVER_TESTS(TRAITS_NAME) \
-	MAKE_EXPIRED_LOCK_INFO_OBSERVER_TEST(TRAITS_NAME, ObserverDoesNothingWhenNoLockInfoExpired_OnCommit) \
-	MAKE_EXPIRED_LOCK_INFO_OBSERVER_TEST(TRAITS_NAME, ObserverDoesNothingWhenNoLockInfoExpired_OnRollback) \
-	MAKE_EXPIRED_LOCK_INFO_OBSERVER_TEST(TRAITS_NAME, ObserverCreditsAccountsOnCommit_Single) \
-	MAKE_EXPIRED_LOCK_INFO_OBSERVER_TEST(TRAITS_NAME, ObserverCreditsAccountsOnCommit_Multiple) \
-	MAKE_EXPIRED_LOCK_INFO_OBSERVER_TEST(TRAITS_NAME, ObserverCreditsAccountsOnRollback_Single) \
-	MAKE_EXPIRED_LOCK_INFO_OBSERVER_TEST(TRAITS_NAME, ObserverCreditsAccountsOnRollback_Multiple)
 }}

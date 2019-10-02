@@ -30,10 +30,10 @@ namespace catapult { namespace state {
 		/// Returns \c true if the value empty.
 		bool empty() const;
 
-		/// Returns the size of the value.
+		/// Gets the size of the value.
 		size_t size() const;
 
-		/// Returns a pointer to the value data.
+		/// Gets a pointer to the value data.
 		const uint8_t* data() const;
 
 	public:

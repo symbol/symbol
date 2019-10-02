@@ -48,10 +48,10 @@ namespace catapult { namespace state {
 		std::set<uint64_t> keys() const;
 
 	public:
-		/// Gets value associated with \a key.
+		/// Gets the value associated with \a key.
 		uint64_t get(uint64_t key) const;
 
-		/// Sets \a key to \a value.
+		/// Sets the \a value associated with \a key.
 		void set(uint64_t key, uint64_t value);
 
 	public:

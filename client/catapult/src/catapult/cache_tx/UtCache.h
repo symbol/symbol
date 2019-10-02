@@ -24,7 +24,7 @@
 
 namespace catapult { namespace cache {
 
-	/// An interface for modifying an unconfirmed transactions cache.
+	/// Interface for modifying an unconfirmed transactions cache.
 	class UtCacheModifier : public BasicTransactionsCacheModifier<model::TransactionInfo> {
 	public:
 		/// Gets the number of transactions an account with public \a key has placed into the cache.
@@ -34,7 +34,7 @@ namespace catapult { namespace cache {
 		virtual std::vector<model::TransactionInfo> removeAll() = 0;
 	};
 
-	/// A delegating proxy around a UtCacheModifier.
+	/// Delegating proxy around a UtCacheModifier.
 	/// \note This is returned by value by UtCache::modifier in order to allow it to be consistent with other modifier functions.
 	class UtCacheModifierProxy final : public BasicTransactionsCacheModifierProxy<model::TransactionInfo, UtCacheModifier> {
 	private:
@@ -52,6 +52,6 @@ namespace catapult { namespace cache {
 		}
 	};
 
-	/// An interface for caching unconfirmed transactions.
+	/// Interface for caching unconfirmed transactions.
 	class UtCache : public BasicTransactionsCache<UtCacheModifierProxy> {};
 }}

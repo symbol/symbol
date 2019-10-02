@@ -34,51 +34,52 @@ namespace catapult { namespace disruptor {
 	private:
 		using EntityRange = decltype(TAnnotatedEntityRange::Range);
 
+		// region RangeGroupKey
+
 		struct RangeGroupKey {
-		public:
-			Key SourcePublicKey;
+			model::NodeIdentity SourceIdentity;
 			InputSource Source;
+		};
+
+		class RangeGroupKeyEquality {
+		public:
+			explicit RangeGroupKeyEquality(model::NodeIdentityEqualityStrategy strategy) : m_equality(strategy)
+			{}
 
 		public:
-			friend bool operator==(const RangeGroupKey& lhs, const RangeGroupKey& rhs) {
-				return lhs.SourcePublicKey == rhs.SourcePublicKey && lhs.Source == rhs.Source;
+			bool operator()(const RangeGroupKey& lhs, const RangeGroupKey& rhs) const {
+				return m_equality(lhs.SourceIdentity, rhs.SourceIdentity) && lhs.Source == rhs.Source;
 			}
+
+		private:
+			model::NodeIdentityEquality m_equality;
 		};
 
-		struct RangeGroupKeyHasher {
+		class RangeGroupKeyHasher {
+		public:
+			explicit RangeGroupKeyHasher(model::NodeIdentityEqualityStrategy strategy) : m_hasher(strategy)
+			{}
+
+		public:
 			size_t operator()(const RangeGroupKey& key) const {
-				return utils::ArrayHasher<Key>()(key.SourcePublicKey);
+				return m_hasher(key.SourceIdentity);
 			}
+
+		private:
+			model::NodeIdentityHasher m_hasher;
 		};
 
-		using GroupedRangesMap = std::unordered_map<RangeGroupKey, std::vector<EntityRange>, RangeGroupKeyHasher>;
+		// endregion
+
+		using GroupedRangesMap = std::unordered_map<RangeGroupKey, std::vector<EntityRange>, RangeGroupKeyHasher, RangeGroupKeyEquality>;
 
 	public:
-		/// Creates a batch range dispatcher around \a dispatcher.
-		explicit BatchRangeDispatcher(ConsumerDispatcher& dispatcher) : m_dispatcher(dispatcher)
+		/// Creates a batch range dispatcher around \a dispatcher with specified \a equalityStrategy.
+		BatchRangeDispatcher(ConsumerDispatcher& dispatcher, model::NodeIdentityEqualityStrategy equalityStrategy)
+				: m_dispatcher(dispatcher)
+				, m_equalityStrategy(equalityStrategy)
+				, m_rangesMap(CreateGroupedRangesMap(m_equalityStrategy))
 		{}
-
-	public:
-		/// Queues processing of \a range from \a source.
-		void queue(TAnnotatedEntityRange&& range, InputSource source) {
-			utils::SpinLockGuard guard(m_lock);
-			m_rangesMap[{ range.SourcePublicKey, source }].push_back(std::move(range.Range));
-		}
-
-		/// Dispatches all queued elements to the underlying dispatcher.
-		void dispatch() {
-			GroupedRangesMap rangesMap;
-
-			{
-				utils::SpinLockGuard guard(m_lock);
-				rangesMap = std::move(m_rangesMap);
-			}
-
-			for (auto& pair : rangesMap) {
-				auto mergedRange = EntityRange::MergeRanges(std::move(pair.second));
-				m_dispatcher.processElement(ConsumerInput({ std::move(mergedRange), pair.first.SourcePublicKey }, pair.first.Source));
-			}
-		}
 
 	public:
 		/// Returns \c true if no ranges are currently queued.
@@ -87,8 +88,36 @@ namespace catapult { namespace disruptor {
 			return m_rangesMap.empty();
 		}
 
+	public:
+		/// Queues processing of \a range from \a source.
+		void queue(TAnnotatedEntityRange&& range, InputSource source) {
+			utils::SpinLockGuard guard(m_lock);
+			m_rangesMap[{ range.SourceIdentity, source }].push_back(std::move(range.Range));
+		}
+
+		/// Dispatches all queued elements to the underlying dispatcher.
+		void dispatch() {
+			auto rangesMap = CreateGroupedRangesMap(m_equalityStrategy);
+
+			{
+				utils::SpinLockGuard guard(m_lock);
+				rangesMap = std::move(m_rangesMap);
+			}
+
+			for (auto& pair : rangesMap) {
+				auto mergedRange = EntityRange::MergeRanges(std::move(pair.second));
+				m_dispatcher.processElement(ConsumerInput({ std::move(mergedRange), pair.first.SourceIdentity }, pair.first.Source));
+			}
+		}
+
+	private:
+		static GroupedRangesMap CreateGroupedRangesMap(model::NodeIdentityEqualityStrategy equalityStrategy) {
+			return GroupedRangesMap(0, RangeGroupKeyHasher(equalityStrategy), RangeGroupKeyEquality(equalityStrategy));
+		}
+
 	private:
 		ConsumerDispatcher& m_dispatcher;
+		model::NodeIdentityEqualityStrategy m_equalityStrategy;
 		GroupedRangesMap m_rangesMap;
 		mutable utils::SpinLock m_lock;
 	};

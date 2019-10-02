@@ -56,10 +56,10 @@ namespace catapult { namespace test {
 		void addTransfer(size_t senderId, const std::string& recipientAlias, Amount transferAmount);
 
 	protected:
-		/// Gets accounts.
+		/// Gets the accounts.
 		const Accounts& accounts() const;
 
-		/// Gets transaction descriptor pair at \ index.
+		/// Gets the transaction descriptor pair at \ index.
 		const std::pair<uint32_t, std::shared_ptr<const void>>& getAt(size_t index) const;
 
 		/// Adds transaction described by \a descriptor with descriptor type (\a descriptorType).

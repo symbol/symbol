@@ -299,7 +299,7 @@ static void ShiftRows(state_t* state)
 
 static uint8_t xtime(uint8_t x)
 {
-  return ((x<<1) ^ (((x>>7) & 1) * 0x1b));
+  return (uint8_t)((x<<1) ^ (((x>>7) & 1) * 0x1b));
 }
 
 // MixColumns function mixes the columns of the state matrix

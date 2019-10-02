@@ -57,7 +57,7 @@ namespace catapult { namespace test {
 		}
 	};
 
-	/// A container of height request handler tests.
+	/// Container of height request handler tests.
 	template<typename TTraits>
 	struct HeightRequestHandlerTests {
 	private:
@@ -76,12 +76,12 @@ namespace catapult { namespace test {
 			pPacket->Height = requestHeight;
 
 			// Act:
-			ionet::ServerPacketHandlerContext context({}, "");
-			EXPECT_TRUE(handlers.process(*pPacket, context));
+			ionet::ServerPacketHandlerContext handlerContext;
+			EXPECT_TRUE(handlers.process(*pPacket, handlerContext));
 
 			// Assert: only a payload header is written
-			test::AssertPacketHeader(context, sizeof(ionet::PacketHeader), TTraits::ResponsePacketType());
-			EXPECT_TRUE(context.response().buffers().empty());
+			test::AssertPacketHeader(handlerContext, sizeof(ionet::PacketHeader), TTraits::ResponsePacketType());
+			EXPECT_TRUE(handlerContext.response().buffers().empty());
 		}
 
 	public:
@@ -97,11 +97,11 @@ namespace catapult { namespace test {
 			++pPacket->Size;
 
 			// Act:
-			ionet::ServerPacketHandlerContext context({}, "");
-			EXPECT_TRUE(handlers.process(*pPacket, context));
+			ionet::ServerPacketHandlerContext handlerContext;
+			EXPECT_TRUE(handlers.process(*pPacket, handlerContext));
 
 			// Assert: no response was written because the request was malformed
-			test::AssertNoResponse(context);
+			test::AssertNoResponse(handlerContext);
 		}
 
 		static void AssertWritesEmptyResponseWhenRequestHeightIsLargerThanLocalHeight() {

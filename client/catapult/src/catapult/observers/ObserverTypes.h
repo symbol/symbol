@@ -26,17 +26,17 @@
 
 namespace catapult { namespace observers {
 
-	/// A notification observer for processing a generic Notification.
+	/// Notification observer for processing a generic Notification.
 	using NotificationObserver = NotificationObserverT<model::Notification>;
 
-	/// A notification observer (unique) pointer.
+	/// Notification observer (unique) pointer.
 	template<typename TNotification>
 	using NotificationObserverPointerT = std::unique_ptr<const NotificationObserverT<TNotification>>;
 
-	/// An aggregate notification observer for processing a generic Notification.
+	/// Aggregate notification observer for processing a generic Notification.
 	using AggregateNotificationObserver = AggregateNotificationObserverT<model::Notification>;
 
-	/// An aggregate notification observer (unique) pointer.
+	/// Aggregate notification observer (unique) pointer.
 	template<typename TNotification>
 	using AggregateNotificationObserverPointerT = std::unique_ptr<const AggregateNotificationObserverT<TNotification>>;
 
@@ -45,7 +45,7 @@ namespace catapult { namespace observers {
 
 /// Makes a functional observer with \a NAME for notifications of type \a NOTIFICATION_TYPE around \a HANDLER.
 #define MAKE_OBSERVER(NAME, NOTIFICATION_TYPE, HANDLER) \
-	std::make_unique<observers::FunctionalNotificationObserverT<NOTIFICATION_TYPE>>(#NAME "Observer", HANDLER);
+	std::make_unique<observers::FunctionalNotificationObserverT<NOTIFICATION_TYPE>>(#NAME "Observer", HANDLER)
 
 /// Defines a functional observer with \a NAME for notifications of type \a NOTIFICATION_TYPE around \a HANDLER.
 #define DEFINE_OBSERVER(NAME, NOTIFICATION_TYPE, HANDLER) \

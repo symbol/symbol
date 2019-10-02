@@ -24,7 +24,7 @@
 
 namespace catapult { namespace chain {
 
-	/// A notification subscriber that captures notifications and allows them to be undone.
+	/// Notification subscriber that captures notifications and allows them to be undone.
 	class ProcessingUndoNotificationSubscriber : public model::NotificationSubscriber {
 	public:
 		/// Creates a subscriber around \a observer and \a observerContext.

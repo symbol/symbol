@@ -32,7 +32,7 @@ namespace catapult { namespace model {
 	/// Multisig account cosignatories were modified.
 	DEFINE_MULTISIG_NOTIFICATION(Cosignatories, 0x0001, All);
 
-	/// A cosignatory was added to a multisig account.
+	/// Cosignatory was added to a multisig account.
 	DEFINE_MULTISIG_NOTIFICATION(New_Cosignatory, 0x0002, Validator);
 
 	/// Multisig account settings were modified.

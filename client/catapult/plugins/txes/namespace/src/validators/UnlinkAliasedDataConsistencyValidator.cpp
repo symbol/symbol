@@ -40,10 +40,10 @@ namespace catapult { namespace validators {
 			const auto& entry = namespaceIter.get();
 			auto aliasType = entry.root().alias(notification.NamespaceId).type();
 			if (TValidatorTraits::AliasedType != aliasType)
-				return Failure_Namespace_Alias_Unlink_Type_Inconsistency;
+				return Failure_Namespace_Alias_Inconsistent_Unlink_Type;
 
 			return TValidatorTraits::GetAliased(entry.root().alias(notification.NamespaceId)) != notification.AliasedData
-					? Failure_Namespace_Alias_Unlink_Data_Inconsistency
+					? Failure_Namespace_Alias_Inconsistent_Unlink_Data
 					: ValidationResult::Success;
 		}
 	}

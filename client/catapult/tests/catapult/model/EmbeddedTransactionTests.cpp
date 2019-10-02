@@ -19,6 +19,7 @@
 **/
 
 #include "catapult/model/EmbeddedTransaction.h"
+#include "catapult/preprocessor.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/TestHarness.h"
@@ -82,7 +83,7 @@ namespace catapult { namespace model {
 		std::unique_ptr<EmbeddedTransaction> CreateMockEmbeddedTransaction(uint32_t delta) {
 			auto pTransaction = mocks::CreateEmbeddedMockTransaction(7);
 			pTransaction->Size += delta;
-			return std::move(pTransaction);
+			return PORTABLE_MOVE(pTransaction);
 		}
 	}
 

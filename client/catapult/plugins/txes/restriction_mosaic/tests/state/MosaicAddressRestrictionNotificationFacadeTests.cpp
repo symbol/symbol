@@ -48,7 +48,7 @@ namespace catapult { namespace state {
 		auto unresolvedAddress = test::UnresolveXor(address);
 		auto notification = CreateNotification(mosaicId, unresolvedAddress, 111, 222);
 		auto resolvers = test::CreateResolverContextXor();
-		auto facade = MosaicAddressRestrictionNotificationFacade(notification, resolvers);
+		auto facade = FacadeType(notification, resolvers);
 
 		// Act:
 		auto uniqueKey = facade.uniqueKey();
@@ -74,7 +74,7 @@ namespace catapult { namespace state {
 			auto unresolvedAddress = test::GenerateRandomByteArray<UnresolvedAddress>();
 			auto notification = CreateNotification(mosaicId, unresolvedAddress, 111, value);
 			auto resolvers = test::CreateResolverContextXor();
-			auto facade = MosaicAddressRestrictionNotificationFacade(notification, resolvers);
+			auto facade = FacadeType(notification, resolvers);
 
 			// Act:
 			return facade.isDeleteAction();
@@ -102,7 +102,7 @@ namespace catapult { namespace state {
 		auto unresolvedAddress = test::UnresolveXor(address);
 		auto notification = CreateNotification(mosaicId, unresolvedAddress, 111, 222);
 		auto resolvers = test::CreateResolverContextXor();
-		auto facade = MosaicAddressRestrictionNotificationFacade(notification, resolvers);
+		auto facade = FacadeType(notification, resolvers);
 
 		auto restriction = MosaicAddressRestriction(mosaicId, address);
 		restriction.set(112, 444);
@@ -123,7 +123,7 @@ namespace catapult { namespace state {
 		auto unresolvedAddress = test::UnresolveXor(address);
 		auto notification = CreateNotification(mosaicId, unresolvedAddress, 111, 222);
 		auto resolvers = test::CreateResolverContextXor();
-		auto facade = MosaicAddressRestrictionNotificationFacade(notification, resolvers);
+		auto facade = FacadeType(notification, resolvers);
 
 		auto restriction = MosaicAddressRestriction(mosaicId, address);
 		restriction.set(111, 444);
@@ -149,7 +149,7 @@ namespace catapult { namespace state {
 		auto unresolvedAddress = test::UnresolveXor(address);
 		auto notification = CreateNotification(mosaicId, unresolvedAddress, 111, 222);
 		auto resolvers = test::CreateResolverContextXor();
-		auto facade = MosaicAddressRestrictionNotificationFacade(notification, resolvers);
+		auto facade = FacadeType(notification, resolvers);
 
 		auto restriction = MosaicAddressRestriction(mosaicId, address);
 		restriction.set(112, 444);
@@ -179,7 +179,7 @@ namespace catapult { namespace state {
 		auto unresolvedAddress = test::GenerateRandomByteArray<UnresolvedAddress>();
 		auto notification = CreateNotification(mosaicId, unresolvedAddress, 111, MosaicAddressRestriction::Sentinel_Removal_Value);
 		auto resolvers = test::CreateResolverContextXor();
-		auto facade = MosaicAddressRestrictionNotificationFacade(notification, resolvers);
+		auto facade = FacadeType(notification, resolvers);
 
 		// Act:
 		auto isUnset = facade.isUnset();
@@ -194,7 +194,7 @@ namespace catapult { namespace state {
 		auto unresolvedAddress = test::GenerateRandomByteArray<UnresolvedAddress>();
 		auto notification = CreateNotification(mosaicId, unresolvedAddress, 111, 222);
 		auto resolvers = test::CreateResolverContextXor();
-		auto facade = MosaicAddressRestrictionNotificationFacade(notification, resolvers);
+		auto facade = FacadeType(notification, resolvers);
 
 		// Act:
 		auto isUnset = facade.isUnset();
@@ -213,7 +213,7 @@ namespace catapult { namespace state {
 		auto unresolvedAddress = test::GenerateRandomByteArray<UnresolvedAddress>();
 		auto notification = CreateNotification(mosaicId, unresolvedAddress, 111, 222);
 		auto resolvers = test::CreateResolverContextXor();
-		auto facade = MosaicAddressRestrictionNotificationFacade(notification, resolvers);
+		auto facade = FacadeType(notification, resolvers);
 
 		// Act:
 		auto isMatch = facade.isMatch(222);
@@ -228,7 +228,7 @@ namespace catapult { namespace state {
 		auto unresolvedAddress = test::GenerateRandomByteArray<UnresolvedAddress>();
 		auto notification = CreateNotification(mosaicId, unresolvedAddress, 111, 222);
 		auto resolvers = test::CreateResolverContextXor();
-		auto facade = MosaicAddressRestrictionNotificationFacade(notification, resolvers);
+		auto facade = FacadeType(notification, resolvers);
 
 		// Act:
 		auto isMatch = facade.isMatch(223);
@@ -247,7 +247,7 @@ namespace catapult { namespace state {
 		auto unresolvedAddress = test::GenerateRandomByteArray<UnresolvedAddress>();
 		auto notification = CreateNotification(mosaicId, unresolvedAddress, 111, 222);
 		auto resolvers = test::CreateResolverContextXor();
-		auto facade = MosaicAddressRestrictionNotificationFacade(notification, resolvers);
+		auto facade = FacadeType(notification, resolvers);
 
 		// Act:
 		auto rule = facade.toRule();
@@ -267,7 +267,7 @@ namespace catapult { namespace state {
 		auto unresolvedAddress = test::UnresolveXor(address);
 		auto notification = CreateNotification(mosaicId, unresolvedAddress, 111, 222);
 		auto resolvers = test::CreateResolverContextXor();
-		auto facade = MosaicAddressRestrictionNotificationFacade(notification, resolvers);
+		auto facade = FacadeType(notification, resolvers);
 
 		// Act:
 		auto restriction = facade.toRestriction();

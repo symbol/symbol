@@ -25,14 +25,14 @@
 
 namespace catapult { namespace cache {
 
-	/// An interface for modifying a transactions cache.
+	/// Interface for modifying a transactions cache.
 	template<typename TTransactionInfo>
 	class BasicTransactionsCacheModifier {
 	public:
 		virtual ~BasicTransactionsCacheModifier() noexcept(false) {}
 
 	public:
-		/// Returns the number of transactions in the cache.
+		/// Gets the number of transactions in the cache.
 		virtual size_t size() const = 0;
 
 		/// Adds the transaction info (\a transactionInfo) to the cache.
@@ -43,7 +43,7 @@ namespace catapult { namespace cache {
 		virtual TTransactionInfo remove(const Hash256& hash) = 0;
 	};
 
-	/// A delegating proxy around a transactions cache modifier.
+	/// Delegating proxy around a transactions cache modifier.
 	/// \note This is returned by value by BasicTransactionsCache::modifier in order to allow it to be consistent with other
 	///       modifier functions.
 	template<typename TTransactionInfo, typename TTransactionsCacheModifier>
@@ -55,7 +55,7 @@ namespace catapult { namespace cache {
 		{}
 
 	public:
-		/// Returns the number of transactions in the cache.
+		/// Gets the number of transactions in the cache.
 		size_t size() const {
 			return m_pModifier->size();
 		}
@@ -86,7 +86,7 @@ namespace catapult { namespace cache {
 		std::unique_ptr<TTransactionsCacheModifier> m_pModifier;
 	};
 
-	/// An interface for caching transactions.
+	/// Interface for caching transactions.
 	template<typename TTransactionsCacheModifierProxy>
 	class BasicTransactionsCache : public utils::NonCopyable {
 	public:

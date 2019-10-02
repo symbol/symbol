@@ -53,7 +53,7 @@ namespace catapult { namespace test {
 
 	// endregion
 
-	/// An unsupported pt change subscriber.
+	/// Unsupported pt change subscriber.
 	template<UnsupportedFlushBehavior FlushBehavior>
 	class UnsupportedPtChangeSubscriber : public cache::PtChangeSubscriber {
 	public:
@@ -74,7 +74,7 @@ namespace catapult { namespace test {
 		}
 	};
 
-	/// An unsupported ut change subscriber
+	/// Unsupported ut change subscriber
 	template<UnsupportedFlushBehavior FlushBehavior>
 	class UnsupportedUtChangeSubscriber : public cache::UtChangeSubscriber {
 	public:

@@ -35,8 +35,8 @@ namespace catapult { namespace crypto {
 		}
 
 		auto Concatenate(const std::string& initializationVectorStr, const std::string& cipherText) {
-			auto initializationVector = test::ToVector(initializationVectorStr);
-			auto encrypted = test::ToVector(cipherText);
+			auto initializationVector = test::HexStringToVector(initializationVectorStr);
+			auto encrypted = test::HexStringToVector(cipherText);
 
 			initializationVector.insert(initializationVector.end(), encrypted.cbegin(), encrypted.cend());
 			return initializationVector;
@@ -50,7 +50,7 @@ namespace catapult { namespace crypto {
 			// Arrange:
 			auto key = ParseSharedKey(keyStr);
 			auto encrypted = Concatenate(initializationVectorStr, cipherText);
-			auto expected = test::ToVector(clearText);
+			auto expected = test::HexStringToVector(clearText);
 
 			// Act:
 			std::vector<uint8_t> decrypted;

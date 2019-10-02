@@ -141,7 +141,7 @@ namespace catapult { namespace consumers {
 		auto result = context.Consumer(input);
 
 		// Assert: the consumer detached the input
-		test::AssertAborted(result, validators::ValidationResult::Failure);
+		test::AssertAborted(result, validators::ValidationResult::Failure, disruptor::ConsumerResultSeverity::Failure);
 		EXPECT_TRUE(input.empty());
 
 		// - the new transactions handler was called once (with zero entities)
@@ -163,7 +163,7 @@ namespace catapult { namespace consumers {
 		auto result = context.Consumer(input);
 
 		// Assert: the consumer detached the input
-		test::AssertAborted(result, validators::ValidationResult::Failure);
+		test::AssertAborted(result, validators::ValidationResult::Failure, disruptor::ConsumerResultSeverity::Failure);
 		EXPECT_TRUE(input.empty());
 
 		// - the new transactions handler was called once (with two entities)
@@ -193,7 +193,7 @@ namespace catapult { namespace consumers {
 			if (validators::ResultSeverity::Failure != validators::GetSeverity(expectedAggregateResult))
 				test::AssertConsumed(result, expectedAggregateResult);
 			else
-				test::AssertAborted(result, expectedAggregateResult);
+				test::AssertAborted(result, expectedAggregateResult, disruptor::ConsumerResultSeverity::Failure);
 		}
 	}
 

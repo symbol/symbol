@@ -193,7 +193,7 @@ namespace catapult { namespace local {
 		template<typename TTestContext>
 		AccountRestrictionStateHashes RunRemoveAccountRestrictionTest(TTestContext& context) {
 			// Arrange: create a restriction
-			TestFacade facade(context);
+			TestFacade<TTestContext> facade(context);
 			facade.pushAccountRestriction();
 
 			// - prepare block that will remove the restriction

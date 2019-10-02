@@ -34,15 +34,7 @@ namespace catapult { namespace disruptor {
 		// Assert:
 		EXPECT_EQ(CompletionStatus::Normal, result.CompletionStatus);
 		EXPECT_EQ(0u, result.CompletionCode);
-	}
-
-	TEST(TEST_CLASS, CanCreateContinueConsumerResult) {
-		// Act:
-		auto result = ConsumerResult::Continue();
-
-		// Assert:
-		EXPECT_EQ(CompletionStatus::Normal, result.CompletionStatus);
-		EXPECT_EQ(0u, result.CompletionCode);
+		EXPECT_EQ(ConsumerResultSeverity::Success, result.ResultSeverity);
 	}
 
 	TEST(TEST_CLASS, CanCreateAbortConsumerResult) {
@@ -52,24 +44,37 @@ namespace catapult { namespace disruptor {
 		// Assert:
 		EXPECT_EQ(CompletionStatus::Aborted, result.CompletionStatus);
 		EXPECT_EQ(0u, result.CompletionCode);
+		EXPECT_EQ(ConsumerResultSeverity::Failure, result.ResultSeverity);
 	}
 
 	TEST(TEST_CLASS, CanCreateAbortConsumerResultWithCustomCompletionCode) {
 		// Act:
-		auto result = ConsumerResult::Abort(456);
+		auto result = ConsumerResult::Abort(456, ConsumerResultSeverity::Fatal);
 
 		// Assert:
 		EXPECT_EQ(CompletionStatus::Aborted, result.CompletionStatus);
 		EXPECT_EQ(456u, result.CompletionCode);
+		EXPECT_EQ(ConsumerResultSeverity::Fatal, result.ResultSeverity);
+	}
+
+	TEST(TEST_CLASS, CanCreateContinueConsumerResult) {
+		// Act:
+		auto result = ConsumerResult::Continue();
+
+		// Assert:
+		EXPECT_EQ(CompletionStatus::Normal, result.CompletionStatus);
+		EXPECT_EQ(0u, result.CompletionCode);
+		EXPECT_EQ(ConsumerResultSeverity::Success, result.ResultSeverity);
 	}
 
 	TEST(TEST_CLASS, CanCreateCompleteConsumerResultWithCustomCompletionCode) {
 		// Act:
-		auto result = ConsumerResult::Complete(456);
+		auto result = ConsumerResult::Complete(456, ConsumerResultSeverity::Failure);
 
 		// Assert:
 		EXPECT_EQ(CompletionStatus::Consumed, result.CompletionStatus);
 		EXPECT_EQ(456u, result.CompletionCode);
+		EXPECT_EQ(ConsumerResultSeverity::Failure, result.ResultSeverity);
 	}
 
 	// endregion
@@ -83,6 +88,7 @@ namespace catapult { namespace disruptor {
 		// Assert:
 		EXPECT_EQ(CompletionStatus::Normal, result.CompletionStatus);
 		EXPECT_EQ(0u, result.CompletionCode);
+		EXPECT_EQ(ConsumerResultSeverity::Success, result.ResultSeverity);
 		EXPECT_EQ(std::numeric_limits<uint64_t>::max(), result.FinalConsumerPosition);
 	}
 

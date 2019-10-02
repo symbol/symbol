@@ -55,6 +55,11 @@ namespace catapult { namespace harvesting {
 
 			return false;
 		}
+
+		void RemoveFromUnlocked(UnlockedAccounts& unlockedAccounts, const Key& publicKey) {
+			unlockedAccounts.modifier().remove(publicKey);
+			CATAPULT_LOG(info) << "removed account " << publicKey;
+		}
 	}
 
 	UnlockedAccountsUpdater::UnlockedAccountsUpdater(
@@ -81,20 +86,26 @@ namespace catapult { namespace harvesting {
 		// 1. process queued accounts
 		auto& unlockedAccounts = m_unlockedAccounts;
 		auto& storage = m_unlockedAccountsStorage;
-		UnlockedFileQueueConsumer(m_dataDirectory.dir("transfer_message"), m_bootKeyPair, [&unlockedAccounts, &storage](
-				const auto& announcerPublicKey,
-				const auto& verifiedEntry,
+		bool hasAnyRemoval = false;
+		UnlockedFileQueueConsumer(m_dataDirectory.dir("transfer_message"), m_bootKeyPair, [&unlockedAccounts, &storage, &hasAnyRemoval](
+				const auto& unlockedEntryMessage,
 				auto&& keyPair) {
 			auto harvesterPublicKey = keyPair.publicKey();
-			if (AddToUnlocked(unlockedAccounts, std::move(keyPair)))
-				storage.add(announcerPublicKey, verifiedEntry, harvesterPublicKey);
+			if (UnlockedEntryDirection::Add == unlockedEntryMessage.Direction) {
+				if (AddToUnlocked(unlockedAccounts, std::move(keyPair)))
+					storage.add(unlockedEntryMessage.AnnouncerPublicKey, unlockedEntryMessage.EncryptedEntry, harvesterPublicKey);
+			} else {
+				RemoveFromUnlocked(unlockedAccounts, keyPair.publicKey());
+				storage.remove(unlockedEntryMessage.AnnouncerPublicKey);
+				hasAnyRemoval = true;
+			}
 		});
 
 		// 2. prune accounts that are not eligible to harvest the next block
 		auto numPrunedAccounts = PruneUnlockedAccounts(m_unlockedAccounts, m_cache);
 
 		// 3. save accounts
-		if (numPrunedAccounts > 0) {
+		if (numPrunedAccounts > 0 || hasAnyRemoval) {
 			auto view = m_unlockedAccounts.view();
 			m_unlockedAccountsStorage.save([&view](const auto& harvesterPublicKey) {
 				return view.contains(harvesterPublicKey);

@@ -38,7 +38,7 @@ namespace catapult { namespace validators {
 	DEFINE_ACCOUNT_LINK_RESULT(Unknown_Link, 3);
 
 	/// Validation failed because unlink data is not consistent with existing account link.
-	DEFINE_ACCOUNT_LINK_RESULT(Unlink_Data_Inconsistency, 4);
+	DEFINE_ACCOUNT_LINK_RESULT(Inconsistent_Unlink_Data, 4);
 
 	/// Validation failed because link is attempting to convert ineligible account to remote.
 	DEFINE_ACCOUNT_LINK_RESULT(Remote_Account_Ineligible, 5);

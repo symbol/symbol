@@ -144,7 +144,7 @@ namespace catapult { namespace model {
 		auto hash = CalculateHash(*pBlock);
 
 		// Assert:
-		EXPECT_EQ(test::Deterministic_Block_Hash_String, test::ToString(hash));
+		EXPECT_EQ(utils::ParseByteArray<Hash256>(test::Deterministic_Block_Hash_String), hash);
 	}
 
 	TEST(TEST_CLASS, BlockHashDoesNotChangeWhenBlockTransactionDataChanges) {
@@ -175,7 +175,7 @@ namespace catapult { namespace model {
 		auto hash = CalculateHash(*pTransaction, generationHash);
 
 		// Assert:
-		EXPECT_EQ(test::Deterministic_Transaction_Hash_String, test::ToString(hash));
+		EXPECT_EQ(utils::ParseByteArray<Hash256>(test::Deterministic_Transaction_Hash_String), hash);
 	}
 
 	TEST(TEST_CLASS, TransactionHashChangesWhenGenerationHashChanges) {

@@ -43,7 +43,7 @@ namespace catapult { namespace builders {
 		void setLinkAction(model::AccountLinkAction linkAction);
 
 	public:
-		/// Returns size of account link transaction.
+		/// Gets the size of account link transaction.
 		/// \note This returns size of a normal transaction not embedded transaction.
 		size_t size() const;
 

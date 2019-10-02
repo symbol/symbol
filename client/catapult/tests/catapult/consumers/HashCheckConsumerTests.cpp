@@ -23,23 +23,14 @@
 #include "tests/catapult/consumers/test/ConsumerTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/nodeps/ParamsCapture.h"
+#include "tests/test/nodeps/TimeSupplier.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace consumers {
 
 	namespace {
 		constexpr auto Default_Options = HashCheckOptions(600'000, 60'000, 1'000);
-
-		chain::TimeSupplier CreateTimeSupplier(const std::vector<Timestamp::ValueType>& times) {
-			size_t index = 0;
-			return [times, index]() mutable {
-				auto timestamp = Timestamp(times[index] * 1000);
-				if (index + 1 < times.size())
-					++index;
-
-				return timestamp;
-			};
-		}
+		constexpr auto CreateTimeSupplier = test::CreateTimeSupplierFromSeconds;
 
 		struct BlockTraits {
 			static auto CreateSingleEntityElements() {
@@ -56,7 +47,7 @@ namespace catapult { namespace consumers {
 			}
 
 			static void AssertSkipped(ConsumerResult result, const disruptor::BlockElements& elements) {
-				test::AssertAborted(result, Neutral_Consumer_Hash_In_Recency_Cache);
+				test::AssertAborted(result, Neutral_Consumer_Hash_In_Recency_Cache, disruptor::ConsumerResultSeverity::Neutral);
 				EXPECT_EQ(1u, elements.size());
 			}
 		};
@@ -77,7 +68,7 @@ namespace catapult { namespace consumers {
 			}
 
 			static void AssertSkipped(ConsumerResult result, const disruptor::TransactionElements& elements) {
-				test::AssertAborted(result, Neutral_Consumer_Hash_In_Recency_Cache);
+				test::AssertAborted(result, Neutral_Consumer_Hash_In_Recency_Cache, disruptor::ConsumerResultSeverity::Neutral);
 				ASSERT_EQ(1u, elements.size());
 				EXPECT_EQ(disruptor::ConsumerResultSeverity::Neutral, elements[0].ResultSeverity);
 			}
@@ -258,10 +249,10 @@ namespace catapult { namespace consumers {
 
 		// Assert:
 		test::AssertContinued(consumer(elements1));
-		test::AssertAborted(consumer(elements2), Neutral_Consumer_Hash_In_Recency_Cache);
+		test::AssertAborted(consumer(elements2), Neutral_Consumer_Hash_In_Recency_Cache, disruptor::ConsumerResultSeverity::Neutral);
 		test::AssertContinued(consumer(elements3));
-		test::AssertAborted(consumer(elements4), Neutral_Consumer_Hash_In_Recency_Cache);
-		test::AssertAborted(consumer(elements5), Neutral_Consumer_Hash_In_Recency_Cache);
+		test::AssertAborted(consumer(elements4), Neutral_Consumer_Hash_In_Recency_Cache, disruptor::ConsumerResultSeverity::Neutral);
+		test::AssertAborted(consumer(elements5), Neutral_Consumer_Hash_In_Recency_Cache, disruptor::ConsumerResultSeverity::Neutral);
 	}
 
 	namespace {
@@ -507,7 +498,7 @@ namespace catapult { namespace consumers {
 
 		// Assert: all elements were skipped
 		auto i = 0u;
-		test::AssertAborted(result, Neutral_Consumer_Hash_In_Recency_Cache);
+		test::AssertAborted(result, Neutral_Consumer_Hash_In_Recency_Cache, disruptor::ConsumerResultSeverity::Neutral);
 		for (const auto& element : elements)
 			EXPECT_EQ(disruptor::ConsumerResultSeverity::Neutral, element.ResultSeverity) << "element at " << i++;
 	}

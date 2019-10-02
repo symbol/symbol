@@ -25,7 +25,7 @@ namespace catapult { namespace state { struct CatapultState; } }
 
 namespace catapult { namespace cache {
 
-	/// A read-only overlay on top of a catapult cache.
+	/// Read-only overlay on top of a catapult cache.
 	class ReadOnlyCatapultCache {
 	public:
 		/// Creates a read-only overlay on top of \a dependentState and \a readOnlyViews.
@@ -39,7 +39,7 @@ namespace catapult { namespace cache {
 		}
 
 	public:
-		/// Gets (const) dependent catapult state.
+		/// Gets the (const) dependent catapult state.
 		const state::CatapultState& dependentState() const;
 
 	private:

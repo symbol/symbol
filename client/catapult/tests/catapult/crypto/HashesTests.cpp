@@ -19,6 +19,7 @@
 **/
 
 #include "catapult/crypto/Hashes.h"
+#include "catapult/utils/HexParser.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace crypto {
@@ -27,7 +28,11 @@ namespace catapult { namespace crypto {
 
 	namespace {
 		std::string AsciiToHexString(const std::string& str) {
-			return test::ToHexString(reinterpret_cast<const uint8_t*>(str.data()), str.size());
+			const auto* pAsciiData = reinterpret_cast<const uint8_t*>(str.data());
+
+			std::stringstream out;
+			out << utils::HexFormat(pAsciiData, pAsciiData + str.size());
+			return out.str();
 		}
 
 		// region traits
@@ -327,14 +332,15 @@ namespace catapult { namespace crypto {
 		template<typename TTraits>
 		void AssertEmptyStringHasExpectedHash() {
 			// Arrange:
-			auto buffer = test::ToVector("");
+			auto buffer = test::HexStringToVector("");
+			auto expectedHash = utils::ParseByteArray<typename TTraits::HashType>(TTraits::EmptyStringHash());
 
 			// Act:
 			typename TTraits::HashType hash;
 			TTraits::HashFunc(buffer, hash);
 
 			// Assert:
-			EXPECT_EQ(TTraits::EmptyStringHash(), test::ToString(hash));
+			EXPECT_EQ(expectedHash, hash);
 		}
 
 		template<typename TTraits>
@@ -348,14 +354,14 @@ namespace catapult { namespace crypto {
 
 			auto i = 0u;
 			for (const auto& dataHexStr : dataSet) {
-				auto buffer = test::ToVector(dataHexStr);
+				auto buffer = test::HexStringToVector(dataHexStr);
 
 				// Act:
 				typename TTraits::HashType hash;
 				TTraits::HashFunc(buffer, hash);
 
 				// Assert:
-				EXPECT_EQ(expectedHashes[i], test::ToString(hash));
+				EXPECT_EQ(utils::ParseByteArray<typename TTraits::HashType>(expectedHashes[i]), hash);
 				++i;
 			}
 		}
@@ -364,25 +370,25 @@ namespace catapult { namespace crypto {
 		void AssertMillionTimesAHasExpectedHash() {
 			// Arrange:
 			std::vector<uint8_t> buffer(1'000'000, 'a');
-			std::string expectedHash = TTraits::MillionTimesATestVector();
+			auto expectedHash = utils::ParseByteArray<typename TTraits::HashType>(TTraits::MillionTimesATestVector());
 
 			// Act:
 			typename TTraits::HashType hash;
 			TTraits::HashFunc(buffer, hash);
 
 			// Assert:
-			EXPECT_EQ(expectedHash, test::ToString(hash));
+			EXPECT_EQ(expectedHash, hash);
 		}
 
 		template<typename TTraits>
 		void AssertCatapultStringHasExpectedHash() {
 			// Arrange:
 			std::vector<std::string> dataSet{
-				u8"The quick brown fox jumps over the lazy dog",
-				u8"Kitten Kaboodle",
-				u8"Lorem ipsum dolor sit amet",
-				u8"GimreJaguar0625BloodyRookie",
-				u8"The ripe taste of cheese improves with age"
+				"The quick brown fox jumps over the lazy dog",
+				"Kitten Kaboodle",
+				"Lorem ipsum dolor sit amet",
+				"GimreJaguar0625BloodyRookie",
+				"The ripe taste of cheese improves with age"
 			};
 			auto expectedHashes = TTraits::CatapultStringTestVectors();
 
@@ -392,15 +398,15 @@ namespace catapult { namespace crypto {
 			auto i = 0u;
 			for (const auto& dataStr : dataSet) {
 				// Arrange:
-				auto hex = test::ToHexString(reinterpret_cast<const uint8_t*>(dataStr.c_str()), dataStr.size());
-				auto buffer = test::ToVector(hex);
+				auto hex = AsciiToHexString(dataStr);
+				auto buffer = test::HexStringToVector(hex);
 
 				// Act:
 				typename TTraits::HashType hash;
 				TTraits::HashFunc(buffer, hash);
 
 				// Assert:
-				EXPECT_EQ(expectedHashes[i], test::ToString(hash));
+				EXPECT_EQ(utils::ParseByteArray<typename TTraits::HashType>(expectedHashes[i]), hash);
 				++i;
 			}
 		}
@@ -483,7 +489,7 @@ namespace catapult { namespace crypto {
 			// Arrange:
 			for (const auto& dataStr : Data_Sets_Long) {
 				OutputHashType expected;
-				auto buffer = test::ToVector(dataStr);
+				auto buffer = test::HexStringToVector(dataStr);
 				calculateHashSingle(buffer, expected);
 
 				// Act:
@@ -533,7 +539,7 @@ namespace catapult { namespace crypto {
 			// Arrange:
 			for (const auto& dataStr : Data_Sets_Long) {
 				OutputHashType expected;
-				auto buffer = test::ToVector(dataStr);
+				auto buffer = test::HexStringToVector(dataStr);
 				calculateHashSingle(buffer, expected);
 
 				// Act:

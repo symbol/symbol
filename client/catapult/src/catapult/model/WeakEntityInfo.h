@@ -140,6 +140,6 @@ namespace catapult { namespace model {
 		return out;
 	}
 
-	/// A container of weak entity infos.
+	/// Container of weak entity infos.
 	using WeakEntityInfos = std::vector<WeakEntityInfo>;
 }}

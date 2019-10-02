@@ -34,6 +34,8 @@ namespace catapult { namespace timesync {
 
 #define TEST_CLASS ImportanceAwareNodeSelectorTests
 
+	// region test utils
+
 	namespace {
 		constexpr ionet::ServiceIdentifier Default_Service_Identifier(123);
 		constexpr model::ImportanceHeight Default_Importance_Height(234);
@@ -73,6 +75,10 @@ namespace catapult { namespace timesync {
 			ionet::NodeSource NodeSource;
 		};
 
+		model::NodeIdentity ToIdentity(const Key& identityKey) {
+			return { identityKey, "11.22.33.44" };
+		}
+
 		void SeedNodeContainer(
 				ionet::NodeContainer& nodeContainer,
 				const std::vector<Key>& keys,
@@ -82,12 +88,15 @@ namespace catapult { namespace timesync {
 			for (const auto& key : keys) {
 				auto nodeName = "Node" + std::to_string(++i);
 
-				modifier.add(test::CreateNamedNode(key, nodeName, ionet::NodeRoles::Peer), options.NodeSource);
+				auto identity = ToIdentity(key);
+				modifier.add(test::CreateNamedNode(identity, nodeName, ionet::NodeRoles::Peer), options.NodeSource);
 				if (options.IsActive)
-					modifier.provisionConnectionState(Default_Service_Identifier, key).Age = 5;
+					modifier.provisionConnectionState(Default_Service_Identifier, identity).Age = 5;
 			}
 		}
 	}
+
+	// endregion
 
 	// region no nodes selected
 
@@ -200,10 +209,12 @@ namespace catapult { namespace timesync {
 		utils::KeySet expectedKeys{ allKeys[0], allKeys[2], allKeys[3] };
 
 		// Act:
-		AssertSelectedNodes(allKeys, importances, [&expectedKeys](const auto& keys) {
+		AssertSelectedNodes(allKeys, importances, [&expectedKeys](const auto& identities) {
 			// Assert:
-			EXPECT_EQ(3u, keys.size());
-			EXPECT_EQ(expectedKeys, keys);
+			EXPECT_EQ(3u, identities.size());
+
+			for (const auto& expectedKey : expectedKeys)
+				EXPECT_CONTAINS(identities, ToIdentity(expectedKey));
 		});
 	}
 
@@ -251,7 +262,7 @@ namespace catapult { namespace timesync {
 		EXPECT_EQ(nodeContainer.view().size(), capture.WeightedCandidates.size());
 		std::unordered_set<Key, utils::ArrayHasher<Key>> keySet(keys.cbegin(), keys.cend());
 		for (const auto& candidate : capture.WeightedCandidates)
-			EXPECT_CONTAINS(keySet, candidate.Node.identityKey());
+			EXPECT_CONTAINS(keySet, candidate.Node.identity().PublicKey);
 
 		EXPECT_EQ(5000u, capture.TotalWeight);
 		EXPECT_EQ(3u, capture.MaxCandidates);
@@ -280,7 +291,7 @@ namespace catapult { namespace timesync {
 
 				std::vector<Key> keys;
 				for (const auto& node : nodes)
-					keys.push_back(node.identityKey());
+					keys.push_back(node.identity().PublicKey);
 
 				auto pCache = CreateAccountStateCache();
 				SeedAccountStateCache(*pCache, keys, importances, model::ImportanceHeight(1));
@@ -296,7 +307,7 @@ namespace catapult { namespace timesync {
 					if (1u != selectedNodes.size())
 						CATAPULT_THROW_RUNTIME_ERROR_1("unexpected number of nodes were selected", selectedNodes.size());
 
-					++keyStatistics[selectedNodes.cbegin()->identityKey()];
+					++keyStatistics[selectedNodes.cbegin()->identity().PublicKey];
 				}
 
 				return keyStatistics;

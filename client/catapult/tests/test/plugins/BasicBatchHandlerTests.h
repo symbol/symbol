@@ -61,7 +61,7 @@ namespace catapult { namespace test {
 		}
 	};
 
-	/// A container of basic batch handler tests.
+	/// Container of basic batch handler tests.
 	template<typename TTraits, typename THandlerTraits = FunctionalHandlerTraits<TTraits>>
 	struct BasicBatchHandlerTests {
 	public:
@@ -104,16 +104,16 @@ namespace catapult { namespace test {
 		static void AssertPacketIsRejected(const ionet::Packet& packet, bool expectedCanProcessPacketType = true) {
 			// Arrange:
 			ionet::ServerPacketHandlers handlers;
-			typename THandlerTraits::HandlerContext handlerContext;
-			THandlerTraits::RegisterHandler(handlers, handlerContext);
+			typename THandlerTraits::HandlerContext registerHandlerContext;
+			THandlerTraits::RegisterHandler(handlers, registerHandlerContext);
 
 			// Act:
-			ionet::ServerPacketHandlerContext context({}, "");
-			EXPECT_EQ(expectedCanProcessPacketType, handlers.process(packet, context));
+			ionet::ServerPacketHandlerContext handlerContext;
+			EXPECT_EQ(expectedCanProcessPacketType, handlers.process(packet, handlerContext));
 
 			// Assert:
-			handlerContext.assertRejected();
-			test::AssertNoResponse(context);
+			registerHandlerContext.assertRejected();
+			test::AssertNoResponse(handlerContext);
 		}
 
 	protected:
@@ -128,21 +128,21 @@ namespace catapult { namespace test {
 		static void AssertValidPacketWithElementsIsAccepted(uint32_t numElements, uint32_t dataHeaderSize = 0) {
 			// Arrange:
 			ionet::ServerPacketHandlers handlers;
-			typename THandlerTraits::HandlerContext handlerContext;
-			THandlerTraits::RegisterHandler(handlers, handlerContext);
+			typename THandlerTraits::HandlerContext registerHandlerContext;
+			THandlerTraits::RegisterHandler(handlers, registerHandlerContext);
 
 			uint32_t dataSize = dataHeaderSize + numElements * TTraits::Valid_Request_Payload_Size;
 			auto pPacket = test::CreateRandomPacket(dataSize, TTraits::Packet_Type);
 
 			// Act:
-			ionet::ServerPacketHandlerContext context({}, "");
-			EXPECT_TRUE(handlers.process(*pPacket, context));
+			ionet::ServerPacketHandlerContext handlerContext;
+			EXPECT_TRUE(handlers.process(*pPacket, handlerContext));
 
 			// Assert:
-			handlerContext.assertAccepted();
-			ASSERT_TRUE(context.hasResponse());
-			test::AssertPacketHeader(context, sizeof(ionet::PacketHeader), TTraits::Packet_Type);
-			EXPECT_TRUE(context.response().buffers().empty());
+			registerHandlerContext.assertAccepted();
+			ASSERT_TRUE(handlerContext.hasResponse());
+			test::AssertPacketHeader(handlerContext, sizeof(ionet::PacketHeader), TTraits::Packet_Type);
+			EXPECT_TRUE(handlerContext.response().buffers().empty());
 		}
 	};
 }}

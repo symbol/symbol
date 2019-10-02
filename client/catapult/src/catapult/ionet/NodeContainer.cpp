@@ -19,6 +19,7 @@
 **/
 
 #include "NodeContainer.h"
+#include "NodeDataContainer.h"
 #include "NodeInteractionResult.h"
 #include "catapult/utils/HexFormatter.h"
 
@@ -26,35 +27,22 @@ namespace catapult { namespace ionet { struct NodeData; } }
 
 namespace catapult { namespace ionet {
 
-	// region NodeData / NodeContainerData
-
-	struct NodeData {
-	public:
-		NodeData(const Node& node, NodeSource source, size_t nodeId)
-				: Node(node)
-				, Info(source)
-				, NodeId(nodeId)
-		{}
-
-	public:
-		ionet::Node Node;
-		NodeInfo Info;
-		size_t NodeId;
-	};
+	// region NodeContainerData
 
 	struct NodeContainerData {
 	public:
-		NodeContainerData(size_t maxNodes, const supplier<Timestamp>& timeSupplier)
+		NodeContainerData(size_t maxNodes, model::NodeIdentityEqualityStrategy equalityStrategy, const supplier<Timestamp>& timeSupplier)
 				: MaxNodes(maxNodes)
 				, TimeSupplier(timeSupplier)
 				, NextNodeId(1)
+				, NodeDataContainer(equalityStrategy)
 		{}
 
 	public:
 		const size_t MaxNodes;
 		const supplier<Timestamp> TimeSupplier;
 		size_t NextNodeId;
-		std::unordered_map<Key, NodeData, utils::ArrayHasher<Key>> NodeDataContainer;
+		ionet::NodeDataContainer NodeDataContainer;
 		std::vector<std::pair<ServiceIdentifier, ionet::NodeRoles>> ServiceRolesMap;
 	};
 
@@ -64,8 +52,10 @@ namespace catapult { namespace ionet {
 
 	NodeContainerView::NodeContainerView(
 			const NodeContainerData& nodeContainerData,
+			const BannedNodes& bannedNodes,
 			utils::SpinReaderWriterLock::ReaderLockGuard&& readLock)
 			: m_nodeContainerData(nodeContainerData)
+			, m_bannedNodes(bannedNodes)
 			, m_readLock(std::move(readLock))
 	{}
 
@@ -73,25 +63,39 @@ namespace catapult { namespace ionet {
 		return m_nodeContainerData.NodeDataContainer.size();
 	}
 
+	size_t NodeContainerView::bannedNodesSize() const {
+		return m_bannedNodes.size();
+	}
+
+	size_t NodeContainerView::bannedNodesDeepSize() const {
+		return m_bannedNodes.deepSize();
+	}
+
 	Timestamp NodeContainerView::time() const {
 		return m_nodeContainerData.TimeSupplier();
 	}
 
-	bool NodeContainerView::contains(const Key& identityKey) const {
-		return m_nodeContainerData.NodeDataContainer.cend() != m_nodeContainerData.NodeDataContainer.find(identityKey);
+	bool NodeContainerView::contains(const model::NodeIdentity& identity) const {
+		return !!m_nodeContainerData.NodeDataContainer.tryGet(identity);
 	}
 
-	const NodeInfo& NodeContainerView::getNodeInfo(const Key& identityKey) const {
-		auto iter = m_nodeContainerData.NodeDataContainer.find(identityKey);
-		if (m_nodeContainerData.NodeDataContainer.cend() == iter)
-			CATAPULT_THROW_INVALID_ARGUMENT_1("cannot get node info for unknown node", identityKey);
+	const NodeInfo& NodeContainerView::getNodeInfo(const model::NodeIdentity& identity) const {
+		const auto* pNodeData = m_nodeContainerData.NodeDataContainer.tryGet(identity);
+		if (!pNodeData)
+			CATAPULT_THROW_INVALID_ARGUMENT_1("cannot get node info for unknown identity", identity);
 
-		return iter->second.Info;
+		return pNodeData->NodeInfo;
+	}
+
+	bool NodeContainerView::isBanned(const model::NodeIdentity& identity) const {
+		return m_bannedNodes.isBanned(identity);
 	}
 
 	void NodeContainerView::forEach(const consumer<const Node&, const NodeInfo&>& consumer) const {
-		for (const auto& pair : m_nodeContainerData.NodeDataContainer)
-			consumer(pair.second.Node, pair.second.Info);
+		m_nodeContainerData.NodeDataContainer.forEach([&bannedNodes = m_bannedNodes, consumer](const auto& node, const auto& nodeInfo) {
+			if (!bannedNodes.isBanned(node.identity()))
+				consumer(node, nodeInfo);
+		});
 	}
 
 	// endregion
@@ -100,90 +104,114 @@ namespace catapult { namespace ionet {
 
 	NodeContainerModifier::NodeContainerModifier(
 			NodeContainerData& nodeContainerData,
-			utils::SpinReaderWriterLock::ReaderLockGuard&& readLock)
+			BannedNodes& bannedNodes,
+			utils::SpinReaderWriterLock::WriterLockGuard&& writeLock)
 			: m_nodeContainerData(nodeContainerData)
-			, m_readLock(std::move(readLock))
-			, m_writeLock(m_readLock.promoteToWriter())
+			, m_bannedNodes(bannedNodes)
+			, m_writeLock(std::move(writeLock))
 	{}
 
 	bool NodeContainerModifier::add(const Node& node, NodeSource source) {
-		auto iter = m_nodeContainerData.NodeDataContainer.find(node.identityKey());
-		if (m_nodeContainerData.NodeDataContainer.end() == iter) {
+		auto& nodeContainer = m_nodeContainerData.NodeDataContainer;
+
+		if (m_bannedNodes.isBanned(node.identity()))
+			return false;
+
+		auto prepareInsertResultPair = nodeContainer.prepareInsert(node.identity(), source);
+		auto* pNodeData = prepareInsertResultPair.first;
+		if (NodeDataContainer::PrepareInsertCode::Allowed != prepareInsertResultPair.second)
+			return NodeDataContainer::PrepareInsertCode::Conflict != prepareInsertResultPair.second;
+
+		if (!pNodeData) {
 			if (!ensureAtLeastOneEmptySlot()) {
 				CATAPULT_LOG(warning)
 						<< "node container is full and no nodes are eligible for pruning"
-						<< " (size = " << m_nodeContainerData.NodeDataContainer.size()
+						<< " (size = " << nodeContainer.size()
 						<< ", max = " << m_nodeContainerData.MaxNodes << ")";
 				return false;
 			}
 
-			auto emplaceResult = m_nodeContainerData.NodeDataContainer.emplace(
-					node.identityKey(),
-					NodeData(node, source, m_nodeContainerData.NextNodeId++));
-			autoProvisionConnectionStates(emplaceResult.first->second);
+			pNodeData = nodeContainer.insert(NodeData(node, source, m_nodeContainerData.NextNodeId++));
+			autoProvisionConnectionStates(*pNodeData);
 			return true;
 		}
 
-		// if the source is no worse, update the node information
-		auto& nodeData = iter->second;
-		if (nodeData.Info.source() > source)
-			return true;
+		if (!model::NodeIdentityEquality(model::NodeIdentityEqualityStrategy::Key_And_Host)(pNodeData->Node.identity(), node.identity())) {
+			auto nodeDataCopy = *pNodeData;
+			nodeContainer.erase(pNodeData->Node.identity());
 
-		nodeData.Node = node;
-		nodeData.Info.source(source);
-		autoProvisionConnectionStates(nodeData);
+			// need to set Node before inserting so that nodeContainer maps are correct
+			nodeDataCopy.Node = node;
+			pNodeData = nodeContainer.insert(nodeDataCopy);
+		} else {
+			// safe update because identity is strictly equal
+			pNodeData->Node = node;
+		}
+
+		pNodeData->NodeInfo.source(source);
+		autoProvisionConnectionStates(*pNodeData);
 		return true;
 	}
 
 	namespace {
 		void ProvisionIfMatch(NodeData& nodeData, ServiceIdentifier serviceId, ionet::NodeRoles role) {
 			if (HasFlag(role, nodeData.Node.metadata().Roles))
-				nodeData.Info.provisionConnectionState(serviceId);
+				nodeData.NodeInfo.provisionConnectionState(serviceId);
 		}
 	}
 
 	void NodeContainerModifier::addConnectionStates(ServiceIdentifier serviceId, ionet::NodeRoles role) {
-		for (auto& pair : m_nodeContainerData.NodeDataContainer)
-			ProvisionIfMatch(pair.second, serviceId, role);
+		m_nodeContainerData.NodeDataContainer.forEach([serviceId, role](auto& nodeData) {
+			ProvisionIfMatch(nodeData, serviceId, role);
+		});
 
 		// save mapping to automatically provision connection states for added nodes
 		m_nodeContainerData.ServiceRolesMap.emplace_back(serviceId, role);
 	}
 
-	ConnectionState& NodeContainerModifier::provisionConnectionState(ServiceIdentifier serviceId, const Key& identityKey) {
-		auto iter = m_nodeContainerData.NodeDataContainer.find(identityKey);
-		if (m_nodeContainerData.NodeDataContainer.end() == iter)
-			CATAPULT_THROW_INVALID_ARGUMENT_1("cannot provision connection state for unknown node", identityKey);
+	ConnectionState& NodeContainerModifier::provisionConnectionState(ServiceIdentifier serviceId, const model::NodeIdentity& identity) {
+		auto* pNodeData = m_nodeContainerData.NodeDataContainer.tryGet(identity);
+		if (!pNodeData)
+			CATAPULT_THROW_INVALID_ARGUMENT_1("cannot provision connection state for unknown node", identity);
 
-		return iter->second.Info.provisionConnectionState(serviceId);
+		return pNodeData->NodeInfo.provisionConnectionState(serviceId);
 	}
 
-	void NodeContainerModifier::ageConnections(ServiceIdentifier serviceId, const utils::KeySet& identities) {
-		for (auto& pair : m_nodeContainerData.NodeDataContainer) {
-			auto& nodeInfo = pair.second.Info;
-			if (identities.cend() != identities.find(pair.first))
-				++nodeInfo.provisionConnectionState(serviceId).Age;
+	void NodeContainerModifier::ageConnections(ServiceIdentifier serviceId, const model::NodeIdentitySet& identities) {
+		m_nodeContainerData.NodeDataContainer.forEach([serviceId, &identities](auto& nodeData) {
+			if (identities.cend() != identities.find(nodeData.Node.identity()))
+				++nodeData.NodeInfo.provisionConnectionState(serviceId).Age;
 			else
-				nodeInfo.clearAge(serviceId);
-		}
+				nodeData.NodeInfo.clearAge(serviceId);
+		});
 	}
 
 	void NodeContainerModifier::ageConnectionBans(
 			ServiceIdentifier serviceId,
 			uint32_t maxConnectionBanAge,
 			uint32_t numConsecutiveFailuresBeforeBanning) {
-		for (auto& pair : m_nodeContainerData.NodeDataContainer)
-			pair.second.Info.updateBan(serviceId, maxConnectionBanAge, numConsecutiveFailuresBeforeBanning);
+		m_nodeContainerData.NodeDataContainer.forEach([serviceId, maxConnectionBanAge, numConsecutiveFailuresBeforeBanning](
+				auto& nodeData) {
+			nodeData.NodeInfo.updateBan(serviceId, maxConnectionBanAge, numConsecutiveFailuresBeforeBanning);
+		});
 	}
 
-	void NodeContainerModifier::incrementSuccesses(const Key& identityKey) {
+	void NodeContainerModifier::incrementSuccesses(const model::NodeIdentity& identity) {
 		auto timestamp = m_nodeContainerData.TimeSupplier();
-		incrementInteraction(identityKey, [timestamp](auto& info) { info.incrementSuccesses(timestamp); });
+		incrementInteraction(identity, [timestamp](auto& nodeInfo) { nodeInfo.incrementSuccesses(timestamp); });
 	}
 
-	void NodeContainerModifier::incrementFailures(const Key& identityKey) {
+	void NodeContainerModifier::incrementFailures(const model::NodeIdentity& identity) {
 		auto timestamp = m_nodeContainerData.TimeSupplier();
-		incrementInteraction(identityKey, [timestamp](auto& info) { info.incrementFailures(timestamp); });
+		incrementInteraction(identity, [timestamp](auto& nodeInfo) { nodeInfo.incrementFailures(timestamp); });
+	}
+
+	void NodeContainerModifier::ban(const model::NodeIdentity& identity, uint32_t reason) {
+		m_bannedNodes.add(identity, reason);
+	}
+
+	void NodeContainerModifier::pruneBannedNodes() {
+		m_bannedNodes.prune();
 	}
 
 	void NodeContainerModifier::autoProvisionConnectionStates(NodeData& nodeData) {
@@ -196,64 +224,54 @@ namespace catapult { namespace ionet {
 		if (nodeContainer.size() < m_nodeContainerData.MaxNodes)
 			return true;
 
-		const NodeData* pMatchingNodeData = nullptr;
-		for (const auto& pair : nodeContainer) {
-			// only prune dynamic nodes that are inactive
-			const auto& nodeInfo = pair.second.Info;
-			if (nodeInfo.source() > NodeSource::Dynamic || nodeInfo.hasActiveConnection())
-				continue;
-
-			if (pMatchingNodeData) {
-				// select the worst node; first tiebreaker is source, second is age (NodeId)
-				auto isPreviouslyMatchingNodeBetter =
-					pMatchingNodeData->Info.source() < nodeInfo.source()
-					|| (pMatchingNodeData->Info.source() == nodeInfo.source() && pMatchingNodeData->NodeId < pair.second.NodeId);
-
-				// if pMatchingNodeData is worse than the current node, don't update it
-				if (isPreviouslyMatchingNodeBetter)
-					continue;
-			}
-
-			pMatchingNodeData = &pair.second;
-		}
-
-		if (pMatchingNodeData) {
-			nodeContainer.erase(pMatchingNodeData->Node.identityKey());
+		const auto* pWorstNodeData = nodeContainer.tryFindWorst();
+		if (pWorstNodeData) {
+			nodeContainer.erase(pWorstNodeData->Node.identity());
 			return true;
 		}
 
 		return false;
 	}
 
-	void NodeContainerModifier::incrementInteraction(const Key& identityKey, const consumer<NodeInfo&>& incrementer) {
-		auto iter = m_nodeContainerData.NodeDataContainer.find(identityKey);
-		if (m_nodeContainerData.NodeDataContainer.cend() == iter)
+	void NodeContainerModifier::incrementInteraction(const model::NodeIdentity& identity, const consumer<NodeInfo&>& incrementer) {
+		auto* pNodeData = m_nodeContainerData.NodeDataContainer.tryGet(identity);
+		if (!pNodeData)
 			return;
 
-		incrementer(iter->second.Info);
+		incrementer(pNodeData->NodeInfo);
 	}
 
 	// endregion
 
 	// region NodeContainer
 
-	NodeContainer::NodeContainer() : NodeContainer(std::numeric_limits<size_t>::max(), []() { return Timestamp(0); })
+	NodeContainer::NodeContainer()
+			: NodeContainer(
+					std::numeric_limits<size_t>::max(),
+					model::NodeIdentityEqualityStrategy::Key_And_Host,
+					BanSettings(),
+					[]() { return Timestamp(0); })
 	{}
 
-	NodeContainer::NodeContainer(size_t maxNodes, const supplier<Timestamp>& timeSupplier)
-			: m_pImpl(std::make_unique<NodeContainerData>(maxNodes, timeSupplier))
+	NodeContainer::NodeContainer(
+			size_t maxNodes,
+			model::NodeIdentityEqualityStrategy equalityStrategy,
+			const BanSettings& banSettings,
+			const supplier<Timestamp>& timeSupplier)
+			: m_pImpl(std::make_unique<NodeContainerData>(maxNodes, equalityStrategy, timeSupplier))
+			, m_bannedNodes(banSettings, timeSupplier, equalityStrategy)
 	{}
 
 	NodeContainer::~NodeContainer() = default;
 
 	NodeContainerView NodeContainer::view() const {
 		auto readLock = m_lock.acquireReader();
-		return NodeContainerView(*m_pImpl, std::move(readLock));
+		return NodeContainerView(*m_pImpl, m_bannedNodes, std::move(readLock));
 	}
 
 	NodeContainerModifier NodeContainer::modifier() {
-		auto readLock = m_lock.acquireReader();
-		return NodeContainerModifier(*m_pImpl, std::move(readLock));
+		auto writeLock = m_lock.acquireWriter();
+		return NodeContainerModifier(*m_pImpl, m_bannedNodes, std::move(writeLock));
 	}
 
 	// endregion
@@ -261,9 +279,13 @@ namespace catapult { namespace ionet {
 	// region utils
 
 	NodeSet FindAllActiveNodes(const NodeContainerView& view) {
+		return FindAllActiveNodes(view, [](auto) { return true; });
+	}
+
+	NodeSet FindAllActiveNodes(const NodeContainerView& view, const predicate<NodeSource>& includePredicate) {
 		NodeSet activeNodes;
-		view.forEach([&activeNodes](const auto& node, const auto& nodeInfo) {
-			if (nodeInfo.hasActiveConnection())
+		view.forEach([includePredicate, &activeNodes](const auto& node, const auto& nodeInfo) {
+			if (nodeInfo.hasActiveConnection() && includePredicate(nodeInfo.source()))
 				activeNodes.emplace(node);
 		});
 

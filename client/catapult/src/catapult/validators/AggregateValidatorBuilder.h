@@ -26,7 +26,7 @@
 
 namespace catapult { namespace validators {
 
-	/// A strongly typed aggregate notification validator builder.
+	/// Strongly typed aggregate notification validator builder.
 	template<typename TNotification, typename... TArgs>
 	class AggregateValidatorBuilder {
 	private:

@@ -123,7 +123,7 @@ namespace catapult { namespace extensions {
 	TEST(TEST_CLASS, CanCreateBatchTransactionTask) {
 		// Arrange:
 		auto pDispatcher = CreateDispatcher();
-		TransactionBatchRangeDispatcher batchRangeDispatcher(*pDispatcher);
+		TransactionBatchRangeDispatcher batchRangeDispatcher(*pDispatcher, model::NodeIdentityEqualityStrategy::Key_And_Host);
 
 		// Act:
 		auto task = CreateBatchTransactionTask(batchRangeDispatcher, "foo");
@@ -135,7 +135,7 @@ namespace catapult { namespace extensions {
 	TEST(TEST_CLASS, BatchTransactionTaskDispatchesAllQueuedTransactions) {
 		// Arrange:
 		auto pDispatcher = CreateDispatcher();
-		TransactionBatchRangeDispatcher batchRangeDispatcher(*pDispatcher);
+		TransactionBatchRangeDispatcher batchRangeDispatcher(*pDispatcher, model::NodeIdentityEqualityStrategy::Key_And_Host);
 		auto task = CreateBatchTransactionTask(batchRangeDispatcher, "foo");
 
 		// - queue some transactions

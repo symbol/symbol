@@ -34,8 +34,11 @@ namespace catapult { namespace io {
 		output.write(buffer);
 
 		// Assert:
+		std::string expected;
+		for (auto byte : buffer)
+			expected.push_back(static_cast<char>(byte));
+
 		EXPECT_EQ(25u, output.str().size());
-		std::string expected(buffer.cbegin(), buffer.cend());
 		EXPECT_EQ(expected, output.str());
 	}
 

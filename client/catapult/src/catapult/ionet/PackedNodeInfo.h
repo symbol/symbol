@@ -87,12 +87,12 @@ namespace catapult { namespace ionet {
 		// followed by connection states if ConnectionStatesCount != 0
 
 	public:
-		/// Returns a const pointer to the first connection state contained in this node info.
+		/// Gets a const pointer to the first connection state contained in this node info.
 		const PackedConnectionState* ConnectionStatesPtr() const {
 			return ConnectionStatesCount ? ToTypedPointer(PayloadStart(*this)) : nullptr;
 		}
 
-		/// Returns a pointer to the first connection state contained in this node info.
+		/// Gets a pointer to the first connection state contained in this node info.
 		PackedConnectionState* ConnectionStatesPtr() {
 			return ConnectionStatesCount ? ToTypedPointer(PayloadStart(*this)) : nullptr;
 		}

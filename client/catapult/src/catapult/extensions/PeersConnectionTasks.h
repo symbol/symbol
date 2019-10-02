@@ -37,8 +37,8 @@ namespace catapult { namespace extensions {
 
 	// region NodeAger
 
-	// A node ager.
-	using NodeAger = consumer<const utils::KeySet&>;
+	/// Node ager.
+	using NodeAger = consumer<const model::NodeIdentitySet&>;
 
 	/// Creates and prepares a node ager that ages all \a serviceId connections in \a nodes given \a config.
 	NodeAger CreateNodeAger(
@@ -91,7 +91,7 @@ namespace catapult { namespace extensions {
 
 	// region NodeSelector / ConnectPeersTask
 
-	/// A node selector.
+	/// Node selector.
 	using NodeSelector = supplier<NodeSelectionResult>;
 
 	/// Creates and prepares a node selector given \a settings.
@@ -111,8 +111,8 @@ namespace catapult { namespace extensions {
 
 	// region RemoveOnlyNodeSelector / AgePeersTask
 
-	/// A remove-only node selector.
-	using RemoveOnlyNodeSelector = supplier<utils::KeySet>;
+	/// Remove-only node selector.
+	using RemoveOnlyNodeSelector = supplier<model::NodeIdentitySet>;
 
 	/// Creates and prepares a remove-only node selector given \a settings.
 	/// \note The selector is intended to be used in conjunction with CreateAgePeersTask for managing incoming connections.

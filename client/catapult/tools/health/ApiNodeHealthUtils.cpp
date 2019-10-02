@@ -255,21 +255,17 @@ namespace catapult { namespace tools { namespace health {
 
 		private:
 			static std::pair<std::string, uint64_t> ParseJsonUint64Value(const std::string& jsonPart) {
-				// match: "height":[12,0]
-				std::regex uint64ValueRegex("\"(\\w+)\":\\[(\\d+),(\\d+)\\]");
+				// match: "height":"12"
+				std::regex uint64ValueRegex("\"(\\w+)\":\"(\\d+)\"");
 				std::smatch uint64ValueMatch;
 				std::regex_match(jsonPart, uint64ValueMatch, uint64ValueRegex);
 
 				// first part is the name (height)
 				auto name = uint64ValueMatch[1];
 
-				// next parts are the values low (12) and high (0)
+				// second part is the value
 				uint64_t value = 0;
-				uint64_t parsedValue = 0;
-				utils::TryParseValue(uint64ValueMatch[2], parsedValue);
-				value = parsedValue;
-				utils::TryParseValue(uint64ValueMatch[3], parsedValue);
-				value |= (parsedValue << 32);
+				utils::TryParseValue(uint64ValueMatch[2], value);
 
 				return std::make_pair(name, value);
 			}
@@ -281,17 +277,16 @@ namespace catapult { namespace tools { namespace health {
 				auto closingBraceIndex = response.find_first_of('}', openingBraceIndex);
 				auto jsonBodyWithoutBraces = response.substr(openingBraceIndex + 1, closingBraceIndex - openingBraceIndex - 1);
 
-				// all uint64 values end with ']', so separator is effectively "],"
 				std::vector<std::string> jsonParts;
 				for (;;) {
-					auto closingBracketIndex = jsonBodyWithoutBraces.find_first_of(']');
-					jsonParts.push_back(jsonBodyWithoutBraces.substr(0, closingBracketIndex + 1));
-
-					auto nextStartIndex = closingBracketIndex + 2; // skip "],"
-					if (nextStartIndex >= jsonBodyWithoutBraces.size())
+					auto commaIndex = jsonBodyWithoutBraces.find_first_of(',');
+					if (std::string::npos == commaIndex) {
+						jsonParts.push_back(jsonBodyWithoutBraces);
 						break;
+					}
 
-					jsonBodyWithoutBraces = jsonBodyWithoutBraces.substr(nextStartIndex);
+					jsonParts.push_back(jsonBodyWithoutBraces.substr(0, commaIndex));
+					jsonBodyWithoutBraces = jsonBodyWithoutBraces.substr(commaIndex + 1);
 				}
 
 				for (const auto& jsonPart : jsonParts)

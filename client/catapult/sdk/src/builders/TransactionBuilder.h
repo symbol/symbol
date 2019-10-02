@@ -37,18 +37,18 @@ namespace catapult { namespace builders {
 		{}
 
 	public:
-		/// Returns signer public key.
+		/// Gets the signer public key.
 		const Key& signerPublicKey() const {
 			return m_signerPublicKey;
 		}
 
 	public:
-		/// Sets transaction \a deadline.
+		/// Sets the transaction \a deadline.
 		void setDeadline(catapult::Timestamp deadline) {
 			m_deadline = deadline;
 		}
 
-		/// Sets maximum transaction \a fee.
+		/// Sets the maximum transaction \a fee.
 		void setMaxFee(catapult::Amount fee) {
 			m_maxFee = fee;
 		}

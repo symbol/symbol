@@ -52,7 +52,7 @@ namespace catapult { namespace builders {
 		void setRecipientAddress(const UnresolvedAddress& recipientAddress);
 
 	public:
-		/// Returns size of secret lock transaction.
+		/// Gets the size of secret lock transaction.
 		/// \note This returns size of a normal transaction not embedded transaction.
 		size_t size() const;
 

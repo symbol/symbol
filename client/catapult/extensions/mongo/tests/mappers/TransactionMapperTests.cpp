@@ -176,7 +176,8 @@ namespace catapult { namespace mongo { namespace mappers {
 
 		// Assert:
 		AssertCanMapTransaction(registry, 1, [](const auto& dbTransaction) {
-			EXPECT_EQ("1200000065000000", test::ToHexString(test::GetBinary(dbTransaction, "bin"), 8));
+			auto expectedBinHeader = test::HexStringToVector("1200000065000000");
+			EXPECT_EQ_MEMORY(&expectedBinHeader[0], test::GetBinary(dbTransaction, "bin"), 8);
 		});
 	}
 

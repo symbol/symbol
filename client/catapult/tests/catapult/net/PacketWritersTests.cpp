@@ -26,7 +26,7 @@
 #include "catapult/net/VerifyPeer.h"
 #include "catapult/thread/IoThreadPool.h"
 #include "catapult/utils/TimeSpan.h"
-#include "tests/test/core/KeyPairTestUtils.h"
+#include "tests/catapult/net/test/ConnectionContainerTestUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/net/NodeTestUtils.h"
 #include "tests/test/net/SocketTestUtils.h"
@@ -36,14 +36,15 @@ namespace catapult { namespace net {
 
 #define TEST_CLASS PacketWritersTests
 
-	// region basic test utils
-
 	namespace {
-		const auto Default_Timeout = []() { return utils::TimeSpan::FromMinutes(1); }();
+		// region basic test utils / aliases
 
-		auto CreateDefaultPacketWriters() {
-			return CreatePacketWriters(test::CreateStartedIoThreadPool(), test::GenerateKeyPair(), ConnectionSettings());
-		}
+		static constexpr auto ToIdentity = test::ConnectionContainerTestUtils::ToIdentity;
+		static constexpr auto ToIdentitySet = test::ConnectionContainerTestUtils::KeyPairsToIdentitySet;
+		static constexpr auto PickIdentities = test::ConnectionContainerTestUtils::PickIdentities;
+		static constexpr auto AssertEqualIdentities = test::AssertEqualIdentities;
+
+		const auto Default_Timeout = []() { return utils::TimeSpan::FromMinutes(1); }();
 
 		void EmptyReadCallback(ionet::SocketOperationCode, const ionet::Packet*)
 		{}
@@ -51,15 +52,21 @@ namespace catapult { namespace net {
 		void EmptyWriteCallback(ionet::SocketOperationCode)
 		{}
 
+		// endregion
+
+		// region PacketWritersTestContext
+
 		struct PacketWritersTestContext {
 		public:
-			PacketWritersTestContext(size_t numClientKeyPairs = 1)
+			PacketWritersTestContext(size_t numClientKeyPairs = 1, const ConnectionSettings& connectionSettings = ConnectionSettings())
 					: ServerKeyPair(test::GenerateKeyPair())
 					, pPool(test::CreateStartedIoThreadPool())
 					, IoContext(pPool->ioContext())
-					, pWriters(CreatePacketWriters(pPool, ServerKeyPair, ConnectionSettings())) {
-				for (auto i = 0u; i < numClientKeyPairs; ++i)
+					, pWriters(CreatePacketWriters(pPool, ServerKeyPair, connectionSettings)) {
+				for (auto i = 0u; i < numClientKeyPairs; ++i) {
 					ClientKeyPairs.push_back(test::GenerateKeyPair());
+					Hosts.push_back(std::to_string(i));
+				}
 			}
 
 			~PacketWritersTestContext() {
@@ -75,13 +82,15 @@ namespace catapult { namespace net {
 		public:
 			crypto::KeyPair ServerKeyPair; // the server hosting the PacketWriters instance
 			std::vector<crypto::KeyPair> ClientKeyPairs; // accepted clients forwarded to the server AND/OR connections initiated by server
+			std::vector<std::string> Hosts;
 			std::shared_ptr<thread::IoThreadPool> pPool;
 			boost::asio::io_context& IoContext;
 			std::shared_ptr<PacketWriters> pWriters;
 
 		public:
 			ionet::Node serverNode() const {
-				return test::CreateLocalHostNode(ServerKeyPair.publicKey());
+				// use a client key pair to prevent a self connection error
+				return test::CreateLocalHostNode(ClientKeyPairs[0].publicKey());
 			}
 
 			void waitForConnections(size_t numConnections) const {
@@ -97,10 +106,27 @@ namespace catapult { namespace net {
 			}
 		};
 
+		void UseSharedPublicKey(PacketWritersTestContext& context) {
+			for (auto& keyPair : context.ClientKeyPairs)
+				keyPair = test::CopyKeyPair(context.ClientKeyPairs[0]);
+		}
+
+		void UseSharedHost(PacketWritersTestContext& context) {
+			for (auto& host : context.Hosts)
+				host = context.Hosts[0];
+		}
+
+		// endregion
+
+		// region MultiConnectionState
+
 		struct MultiConnectionState {
 			std::vector<PeerConnectResult> Results;
 			std::vector<std::shared_ptr<ionet::PacketSocket>> ServerSockets;
 			std::vector<std::shared_ptr<ionet::PacketSocket>> ClientSockets;
+
+			// ClientSockets are only captured for accept (not connect) tests
+			// in connect tests, PacketWriters initiates connect internally and client socket is never accessible outside of the class
 		};
 
 		class MultiConnectionStateGuard {
@@ -149,13 +175,13 @@ namespace catapult { namespace net {
 			auto numConnections = context.ClientKeyPairs.size();
 			for (auto i = 0u; i < numConnections; ++i) {
 				// - connect to nodes with different identities
-				const auto& peerKeyPair = context.ClientKeyPairs[i];
-				ionet::Node node(peerKeyPair.publicKey(), context.serverNode().endpoint(), ionet::NodeMetadata());
+				auto peerIdentity = model::NodeIdentity{ context.ClientKeyPairs[i].publicKey(), context.Hosts[i] };
+				ionet::Node node(peerIdentity, context.serverNode().endpoint(), ionet::NodeMetadata());
 
 				std::atomic<size_t> numCallbacks(0);
-				test::SpawnPacketServerWork(acceptor, [&](const auto& pSocket) {
+				test::SpawnPacketServerWork(acceptor, [&, i](const auto& pSocket) {
 					state.ServerSockets.push_back(pSocket);
-					VerifyClient(pSocket, peerKeyPair, ionet::ConnectionSecurityMode::None, [&](auto, const auto&) {
+					VerifyClient(pSocket, context.ClientKeyPairs[i], ionet::ConnectionSecurityMode::None, [&](auto, const auto&) {
 						++numCallbacks;
 					});
 				});
@@ -181,9 +207,9 @@ namespace catapult { namespace net {
 			auto numConnections = context.ClientKeyPairs.size();
 			for (auto i = 0u; i < numConnections; ++i) {
 				std::atomic<size_t> numCallbacks(0);
-				test::SpawnPacketServerWork(acceptor, [&](const auto& pSocket) {
+				test::SpawnPacketServerWork(acceptor, [&, host = context.Hosts[i]](const auto& pSocket) {
 					state.ServerSockets.push_back(pSocket);
-					context.pWriters->accept(pSocket, [&](auto acceptResult) {
+					context.pWriters->accept(ionet::PacketSocketInfo(host, pSocket), [&](auto acceptResult) {
 						state.Results.push_back(acceptResult);
 						++numCallbacks;
 					});
@@ -207,29 +233,45 @@ namespace catapult { namespace net {
 			context.waitForWriters(0 == numExpectedWriters ? numConnections : numExpectedWriters);
 			return state;
 		}
+
+		// endregion
 	}
 
+	// region custom test macros
+
 #define EXPECT_NUM_PENDING_WRITERS(EXPECTED_NUM_WRITERS, WRITERS) \
-	EXPECT_EQ(EXPECTED_NUM_WRITERS, (WRITERS).numActiveConnections()); \
-	EXPECT_EQ(0u, (WRITERS).numActiveWriters()); \
-	EXPECT_EQ(0u, (WRITERS).identities().size()); \
-	EXPECT_EQ(0u, (WRITERS).numAvailableWriters());
+	do { \
+		EXPECT_EQ(EXPECTED_NUM_WRITERS, (WRITERS).numActiveConnections()); \
+		EXPECT_EQ(0u, (WRITERS).numActiveWriters()); \
+		EXPECT_EQ(0u, (WRITERS).identities().size()); \
+		EXPECT_EQ(0u, (WRITERS).numAvailableWriters()); \
+	} while (false)
 
 #define EXPECT_NUM_ACTIVE_WRITERS(EXPECTED_NUM_WRITERS, WRITERS) \
-	EXPECT_EQ(EXPECTED_NUM_WRITERS, (WRITERS).numActiveConnections()); \
-	EXPECT_EQ(EXPECTED_NUM_WRITERS, (WRITERS).numActiveWriters()); \
-	EXPECT_EQ(EXPECTED_NUM_WRITERS, (WRITERS).identities().size()); \
-	EXPECT_EQ(EXPECTED_NUM_WRITERS, (WRITERS).numAvailableWriters());
+	do { \
+		EXPECT_EQ(EXPECTED_NUM_WRITERS, (WRITERS).numActiveConnections()); \
+		EXPECT_EQ(EXPECTED_NUM_WRITERS, (WRITERS).numActiveWriters()); \
+		EXPECT_EQ(EXPECTED_NUM_WRITERS, (WRITERS).identities().size()); \
+		EXPECT_EQ(EXPECTED_NUM_WRITERS, (WRITERS).numAvailableWriters()); \
+	} while (false)
 
 #define EXPECT_NUM_ACTIVE_AVAILABLE_WRITERS(EXPECTED_NUM_WRITERS, EXPECTED_NUM_AVAILABLE_WRITERS, WRITERS) \
-	EXPECT_EQ(EXPECTED_NUM_WRITERS, (WRITERS).numActiveConnections()); \
-	EXPECT_EQ(EXPECTED_NUM_WRITERS, (WRITERS).numActiveWriters()); \
-	EXPECT_EQ(EXPECTED_NUM_WRITERS, (WRITERS).identities().size()); \
-	EXPECT_EQ(EXPECTED_NUM_AVAILABLE_WRITERS, (WRITERS).numAvailableWriters());
+	do { \
+		EXPECT_EQ(EXPECTED_NUM_WRITERS, (WRITERS).numActiveConnections()); \
+		EXPECT_EQ(EXPECTED_NUM_WRITERS, (WRITERS).numActiveWriters()); \
+		EXPECT_EQ(EXPECTED_NUM_WRITERS, (WRITERS).identities().size()); \
+		EXPECT_EQ(EXPECTED_NUM_AVAILABLE_WRITERS, (WRITERS).numAvailableWriters()); \
+	} while (false)
 
 	// endregion
 
 	// region connect / accept failure
+
+	namespace {
+		auto CreateDefaultPacketWriters() {
+			return CreatePacketWriters(test::CreateStartedIoThreadPool(), test::GenerateKeyPair(), ConnectionSettings());
+		}
+	}
 
 	TEST(TEST_CLASS, InitiallyNoConnectionsAreActive) {
 		// Act:
@@ -263,7 +305,7 @@ namespace catapult { namespace net {
 
 		// Act: on an accept error, the server will pass nullptr
 		PeerConnectResult result;
-		context.pWriters->accept(nullptr, [&](auto acceptResult) { result = acceptResult; });
+		context.pWriters->accept(ionet::PacketSocketInfo(), [&](auto acceptResult) { result = acceptResult; });
 
 		// Assert:
 		EXPECT_EQ(PeerConnectCode::Socket_Error, result.Code);
@@ -305,7 +347,7 @@ namespace catapult { namespace net {
 		// Act: start a server and client verify operation
 		PeerConnectResult result;
 		test::SpawnPacketServerWork(context.IoContext, [&](const auto& pSocket) {
-			context.pWriters->accept(pSocket, [&](auto acceptResult) {
+			context.pWriters->accept(ionet::PacketSocketInfo("", pSocket), [&](auto acceptResult) {
 				result = acceptResult;
 				++numCallbacks;
 			});
@@ -323,7 +365,7 @@ namespace catapult { namespace net {
 
 		// Assert: the verification should have failed and all connections should have been destroyed
 		EXPECT_EQ(PeerConnectCode::Verify_Error, result.Code);
-		EXPECT_NUM_ACTIVE_WRITERS(0u, *context.pWriters)
+		EXPECT_NUM_ACTIVE_WRITERS(0u, *context.pWriters);
 	}
 
 	// endregion
@@ -356,9 +398,10 @@ namespace catapult { namespace net {
 		RunConnectedSocketTest(context, [&](const auto& connectResult, const auto&) {
 			// Assert: the verification should have succeeded and the connection should be active
 			EXPECT_EQ(PeerConnectCode::Accepted, connectResult.Code);
-			EXPECT_EQ(context.ClientKeyPairs[0].publicKey(), connectResult.IdentityKey);
+			EXPECT_EQ(context.ClientKeyPairs[0].publicKey(), connectResult.Identity.PublicKey);
+			EXPECT_EQ("0", connectResult.Identity.Host);
 			EXPECT_NUM_ACTIVE_WRITERS(1u, *context.pWriters);
-			EXPECT_EQ(test::ToKeySet(context.ClientKeyPairs), context.pWriters->identities());
+			AssertEqualIdentities(ToIdentitySet(context.ClientKeyPairs), context.pWriters->identities());
 		});
 	}
 
@@ -368,9 +411,45 @@ namespace catapult { namespace net {
 		RunAcceptedSocketTest(context, [&](const auto& connectResult, const auto&) {
 			// Assert: the verification should have succeeded and the connection should be active
 			EXPECT_EQ(PeerConnectCode::Accepted, connectResult.Code);
-			EXPECT_EQ(context.ClientKeyPairs[0].publicKey(), connectResult.IdentityKey);
+			EXPECT_EQ(context.ClientKeyPairs[0].publicKey(), connectResult.Identity.PublicKey);
+			EXPECT_EQ("0", connectResult.Identity.Host);
 			EXPECT_NUM_ACTIVE_WRITERS(1u, *context.pWriters);
-			EXPECT_EQ(test::ToKeySet(context.ClientKeyPairs), context.pWriters->identities());
+			AssertEqualIdentities(ToIdentitySet(context.ClientKeyPairs), context.pWriters->identities());
+		});
+	}
+
+	namespace {
+		template<typename TSetupContext>
+		void AssertCanManageMultipleConnections(TSetupContext setupContext) {
+			// Act: establish multiple connections
+			constexpr auto Num_Connections = 5u;
+			PacketWritersTestContext context(Num_Connections);
+			auto state = setupContext(context);
+
+			// Assert: all connections are active
+			auto i = 0u;
+			EXPECT_EQ(Num_Connections, state.Results.size());
+			for (const auto& result : state.Results) {
+				EXPECT_EQ(PeerConnectCode::Accepted, result.Code);
+				EXPECT_EQ(context.ClientKeyPairs[i].publicKey(), result.Identity.PublicKey);
+				EXPECT_EQ(std::to_string(i), result.Identity.Host);
+				++i;
+			}
+
+			EXPECT_NUM_ACTIVE_WRITERS(Num_Connections, *context.pWriters);
+			AssertEqualIdentities(ToIdentitySet(context.ClientKeyPairs), context.pWriters->identities());
+		}
+	}
+
+	TEST(TEST_CLASS, CanManageMultipleConnectionsViaConnect) {
+		AssertCanManageMultipleConnections([](auto& context) {
+			return SetupMultiConnectionTest(context);
+		});
+	}
+
+	TEST(TEST_CLASS, CanManageMultipleConnectionsViaAccept) {
+		AssertCanManageMultipleConnections([](auto& context) {
+			return SetupMultiConnectionAcceptTest(context);
 		});
 	}
 
@@ -400,95 +479,47 @@ namespace catapult { namespace net {
 		});
 	}
 
-	TEST(TEST_CLASS, CanManageMultipleConnections) {
-		// Act: establish multiple connections
-		constexpr auto Num_Connections = 5u;
-		PacketWritersTestContext context(Num_Connections);
-		auto state = SetupMultiConnectionTest(context);
+	// endregion
 
-		// Assert: all connections are active
-		auto i = 0u;
-		EXPECT_EQ(Num_Connections, state.Results.size());
-		for (const auto& result : state.Results) {
-			EXPECT_EQ(PeerConnectCode::Accepted, result.Code);
-			EXPECT_EQ(context.ClientKeyPairs[i].publicKey(), result.IdentityKey);
-			++i;
+	// region unexpected data handling
+
+	namespace {
+		template<typename TAction>
+		void AssertUnexpectedDataClosesSocket(TAction action) {
+			// Arrange: establish a single connection
+			PacketWritersTestContext context;
+			auto state = SetupMultiConnectionAcceptTest(context);
+
+			action(context);
+
+			// Sanity:
+			EXPECT_TRUE(test::IsSocketOpen(*state.ServerSockets.back()));
+
+			// Act:
+			std::atomic<size_t> numCallbacks(0);
+
+			auto buffer = test::GenerateRandomPacketBuffer(95);
+			state.ClientSockets.back()->write(test::BufferToPacketPayload(buffer), [&numCallbacks](auto) { ++numCallbacks; });
+			WAIT_FOR_ONE(numCallbacks);
+			WAIT_FOR_EXPR(!test::IsSocketOpen(*state.ServerSockets.back()));
+
+			// Assert:
+			EXPECT_FALSE(test::IsSocketOpen(*state.ServerSockets.back()));
 		}
-
-		EXPECT_NUM_ACTIVE_WRITERS(Num_Connections, *context.pWriters);
-		EXPECT_EQ(test::ToKeySet(context.ClientKeyPairs), context.pWriters->identities());
 	}
 
-	// the connected tests equivalent to OnlyOneConnectionIsAllowedPerAcceptedIdentity
-	// are CannotConnectTo(Already)ConnectedPeer
-
-	TEST(TEST_CLASS, OnlyOneConnectionIsAllowedPerAcceptedIdentity) {
-		// Act: establish multiple connections with the same identity
-		constexpr auto Num_Connections = 5u;
-		PacketWritersTestContext context(Num_Connections);
-		for (auto& keyPair : context.ClientKeyPairs)
-			keyPair = test::CopyKeyPair(context.ClientKeyPairs[0]);
-
-		auto state = SetupMultiConnectionAcceptTest(context, 1);
-
-		// Assert: all connections succeeded but only a single one is active
-		EXPECT_EQ(Num_Connections, state.Results.size());
-		EXPECT_EQ(PeerConnectCode::Accepted, state.Results[0].Code);
-		for (auto i = 1u; i < state.Results.size(); ++i)
-			EXPECT_EQ(PeerConnectCode::Already_Connected, state.Results[i].Code) << "result at " << i;
-
-		EXPECT_EQ(Num_Connections, context.pWriters->numActiveConnections());
-		EXPECT_EQ(1u, context.pWriters->numActiveWriters());
-		EXPECT_EQ(test::ToKeySet(context.ClientKeyPairs), context.pWriters->identities());
-
-		// Sanity: closing the corresponding server sockets removes the pending connections
-		state.ServerSockets.clear();
-		context.waitForConnections(1);
-		EXPECT_NUM_ACTIVE_WRITERS(1u, *context.pWriters);
+	TEST(TEST_CLASS, UnexpectedDataClosesSocket) {
+		AssertUnexpectedDataClosesSocket([](const auto&) {});
 	}
 
-	TEST(TEST_CLASS, AcceptIsRejectedWhenIdentityIsAlreadyConnected) {
-		// Arrange: establish a single connection (via connect)
-		PacketWritersTestContext context(1);
-		auto state1 = SetupMultiConnectionTest(context);
+	TEST(TEST_CLASS, UnexpectedDataAfterPickOneClosesSocket) {
+		AssertUnexpectedDataClosesSocket([](const auto& context) {
+			// Arrange: get and release the packet io
+			auto packetIoPair = context.pWriters->pickOne(Default_Timeout);
 
-		// Sanity: a single connection is active
-		EXPECT_NUM_ACTIVE_WRITERS(1u, *context.pWriters);
-
-		// Act: attempt to connect via accept
-		auto state2 = SetupMultiConnectionAcceptTest(context);
-
-		// Assert: only a single writer remains
-		EXPECT_EQ(PeerConnectCode::Accepted, state1.Results[0].Code);
-		EXPECT_EQ(PeerConnectCode::Already_Connected, state2.Results[0].Code);
-
-		EXPECT_EQ(1u, context.pWriters->numActiveWriters());
-		EXPECT_EQ(test::ToKeySet(context.ClientKeyPairs), context.pWriters->identities());
-
-		// Sanity: closing the corresponding server socket removes the pending connection too
-		state2.ServerSockets[0].reset();
-		context.waitForConnections(1);
-		EXPECT_NUM_ACTIVE_WRITERS(1u, *context.pWriters);
-		EXPECT_EQ(test::ToKeySet(context.ClientKeyPairs), context.pWriters->identities());
-	}
-
-	TEST(TEST_CLASS, ConnectIsRejectedWhenIdentityIsAlreadyAccepted) {
-		// Arrange: establish a single connection (via accept)
-		PacketWritersTestContext context(1);
-		auto state1 = SetupMultiConnectionAcceptTest(context);
-
-		// Sanity: a single connection is active
-		EXPECT_NUM_ACTIVE_WRITERS(1u, *context.pWriters);
-
-		// Act: try to connect to the same node again
-		auto state2 = SetupMultiConnectionTest(context);
-
-		// Assert: only a single connection succeded
-		EXPECT_EQ(PeerConnectCode::Accepted, state1.Results[0].Code);
-		EXPECT_EQ(PeerConnectCode::Already_Connected, state2.Results[0].Code);
-
-		EXPECT_NUM_ACTIVE_WRITERS(1u, *context.pWriters);
-		EXPECT_EQ(test::ToKeySet(context.ClientKeyPairs), context.pWriters->identities());
+			// Sanity:
+			EXPECT_EQ(context.ClientKeyPairs[0].publicKey(), packetIoPair.node().identity().PublicKey);
+		});
 	}
 
 	// endregion
@@ -509,8 +540,7 @@ namespace catapult { namespace net {
 			// - (use a result shared_ptr so that the connect callback is valid even after this function returns)
 			auto pResult = std::make_shared<PeerConnectResult>(static_cast<PeerConnectCode>(-1));
 			context.pWriters->connect(context.serverNode(), [&, pResult](const auto& connectResult) {
-				// note that this is not expected to get called until shutdown because the client doesn't read
-				// or write any data
+				// note that this is not expected to get called until shutdown because the client doesn't read or write any data
 				*pResult = connectResult;
 			});
 
@@ -534,9 +564,8 @@ namespace catapult { namespace net {
 			std::shared_ptr<ionet::PacketSocket> pServerSocket;
 			test::SpawnPacketServerWork(context.IoContext, [&, pResult](const auto& pSocket) {
 				pServerSocket = pSocket;
-				context.pWriters->accept(pSocket, [&, pResult](const auto& acceptResult) {
-					// note that this is not expected to get called until shutdown because the client doesn't read
-					// or write any data
+				context.pWriters->accept(ionet::PacketSocketInfo("", pSocket), [&, pResult](const auto& acceptResult) {
+					// note that this is not expected to get called until shutdown because the client doesn't read or write any data
 					*pResult = acceptResult;
 				});
 				++numCallbacks;
@@ -649,7 +678,8 @@ namespace catapult { namespace net {
 							<< " (expected " << static_cast<int>(buffer[Sentinel_Index]) << ")";
 
 					EXPECT_EQ(buffer[Sentinel_Index], pPacketData[Sentinel_Index]);
-					EXPECT_EQ(test::ToHexString(buffer), test::ToHexString(pPacketData, pPacket->Size));
+					ASSERT_EQ(buffer.size(), pPacket->Size);
+					EXPECT_EQ_MEMORY(&buffer[0], pPacketData, pPacket->Size);
 				} else {
 					EXPECT_EQ(ionet::SocketOperationCode::Closed, code);
 					EXPECT_FALSE(!!pPacket);
@@ -1031,35 +1061,8 @@ namespace catapult { namespace net {
 			WAIT_FOR_VALUE(numConnections, numPacketsRead);
 
 			// Assert: the handler was called once for each socket with the same buffer
-			auto broadcastBufferHex = test::ToHexString(broadcastBuffer);
-			for (auto i = 0u; i < numConnections; ++i) {
-				auto receiveBufferHex = test::ToHexString(receiveBuffers[i]);
-				EXPECT_EQ(broadcastBufferHex, receiveBufferHex) << "tagged packet " << i;
-			}
-		}
-
-		void RunVerifyReadDataTest(const consumer<PacketWriters&, const consumer<const ionet::Packet&>&>& receive) {
-			// Arrange: connect to a single node
-			std::atomic<size_t> numPacketsRead(0);
-			PacketWritersTestContext context;
-			auto state = SetupMultiConnectionAcceptTest(context);
-
-			// - write a packet to the socket
-			auto sendBuffer = test::GenerateRandomPacketBuffer(50);
-			state.ClientSockets[0]->write(test::BufferToPacketPayload(sendBuffer), EmptyWriteCallback);
-
-			// Act: read the packet using the supplied function
-			ionet::ByteBuffer receiveBuffer;
-			receive(*context.pWriters, [&](const auto& packet) {
-				receiveBuffer = test::CopyPacketToBuffer(packet);
-				++numPacketsRead;
-			});
-
-			// - wait for the packet to be read
-			WAIT_FOR_ONE(numPacketsRead);
-
-			// Assert: the expected packet was read
-			EXPECT_EQ(test::ToHexString(sendBuffer), test::ToHexString(receiveBuffer));
+			for (auto i = 0u; i < numConnections; ++i)
+				EXPECT_EQ(broadcastBuffer, receiveBuffers[i]) << "tagged packet " << i;
 		}
 	}
 
@@ -1087,21 +1090,77 @@ namespace catapult { namespace net {
 	}
 
 	TEST(TEST_CLASS, PickOneWrapperReadsDataCorrectly) {
-		RunVerifyReadDataTest([](auto& writers, const auto& callback) {
-			writers.pickOne(Default_Timeout).io()->read([callback](auto, const auto* pPacket) { callback(*pPacket); });
+		// Arrange: connect to a single node
+		std::atomic<size_t> numPacketsRead(0);
+		PacketWritersTestContext context;
+		auto state = SetupMultiConnectionAcceptTest(context);
+
+		// - check out the io
+		auto pIo = context.pWriters->pickOne(Default_Timeout).io();
+		ASSERT_TRUE(!!pIo);
+
+		// - write a packet to the socket (this has to be AFTER pickOne so that the socket is allowed to receive data)
+		auto sendBuffer = test::GenerateRandomPacketBuffer(50);
+		state.ClientSockets[0]->write(test::BufferToPacketPayload(sendBuffer), EmptyWriteCallback);
+
+		// Act: read the packet using the supplied function
+		ionet::ByteBuffer receiveBuffer;
+		pIo->read([&receiveBuffer, &numPacketsRead](auto code, const auto* pPacket) {
+			if (!pPacket) {
+				// test will fail because numPacketsRead is not incremented in this case
+				CATAPULT_LOG(warning) << "read failed with " << code;
+				return;
+			}
+
+			receiveBuffer = test::CopyPacketToBuffer(*pPacket);
+			++numPacketsRead;
 		});
+
+		// - wait for the packet to be read
+		WAIT_FOR_ONE(numPacketsRead);
+
+		// Assert: the expected packet was read
+		EXPECT_EQ(sendBuffer, receiveBuffer);
 	}
 
-	TEST(TEST_CLASS, PickOneWrapperReadsDataCorrectlyWithDestroyedWrapper) {
-		RunVerifyReadDataTest([](auto& writers, const auto& callback) {
-			auto pIo = writers.pickOne(Default_Timeout).io();
-			pIo->read([callback](auto, const auto* pPacket) {
-				CATAPULT_LOG(debug) << "read completed";
-				callback(*pPacket);
-			});
-			pIo.reset();
-			CATAPULT_LOG(debug) << "destroyed wrapper";
+	TEST(TEST_CLASS, PickOneWrapperDestroyedDuringReadDoesNotCauseCrash) {
+		// Arrange: connect to a single node
+		std::atomic<size_t> numPacketsRead(0);
+		PacketWritersTestContext context;
+		auto state = SetupMultiConnectionAcceptTest(context);
+
+		// - check out the io
+		auto pIo = context.pWriters->pickOne(Default_Timeout).io();
+		ASSERT_TRUE(!!pIo);
+
+		// - write a packet to the socket (this has to be AFTER pickOne so that the socket is allowed to receive data)
+		auto sendBuffer = test::GenerateRandomPacketBuffer(50);
+		state.ClientSockets[0]->write(test::BufferToPacketPayload(sendBuffer), EmptyWriteCallback);
+
+		// Act: read the packet using the supplied function
+		ionet::ByteBuffer receiveBuffer;
+		pIo->read([&receiveBuffer, &numPacketsRead](auto code, const auto* pPacket) {
+			if (!pPacket) {
+				CATAPULT_LOG(warning) << "read failed with " << code;
+				++numPacketsRead;
+				return;
+			}
+
+			CATAPULT_LOG(debug) << "read completed";
+			receiveBuffer = test::CopyPacketToBuffer(*pPacket);
+			++numPacketsRead;
 		});
+
+		// - destroy the wrapper
+		pIo.reset();
+		CATAPULT_LOG(debug) << "destroyed wrapper";
+
+		// - wait for the packet to be read
+		WAIT_FOR_ONE(numPacketsRead);
+
+		// Assert: check the packet only if it was read
+		if (!receiveBuffer.empty())
+			EXPECT_EQ(sendBuffer, receiveBuffer);
 	}
 
 	// endregion
@@ -1298,7 +1357,8 @@ namespace catapult { namespace net {
 			// Assert: full node information (including endpoint) is available
 			ASSERT_TRUE(!!packetIoPair);
 			EXPECT_TRUE(!!packetIoPair.io());
-			EXPECT_EQ(context.ClientKeyPairs[0].publicKey(), packetIoPair.node().identityKey());
+			EXPECT_EQ(context.ClientKeyPairs[0].publicKey(), packetIoPair.node().identity().PublicKey);
+			EXPECT_EQ("0", packetIoPair.node().identity().Host);
 			EXPECT_EQ(test::CreateLocalHostNodeEndpoint().Host, packetIoPair.node().endpoint().Host);
 		});
 	}
@@ -1313,8 +1373,103 @@ namespace catapult { namespace net {
 			// Assert: partial node information (excluding endpoint) is available
 			ASSERT_TRUE(!!packetIoPair);
 			EXPECT_TRUE(!!packetIoPair.io());
-			EXPECT_EQ(context.ClientKeyPairs[0].publicKey(), packetIoPair.node().identityKey());
+			EXPECT_EQ(context.ClientKeyPairs[0].publicKey(), packetIoPair.node().identity().PublicKey);
+			EXPECT_EQ("0", packetIoPair.node().identity().Host);
 			EXPECT_TRUE(packetIoPair.node().endpoint().Host.empty());
+		});
+	}
+
+	// endregion
+
+	// region accept / connect identity uniqueness
+
+	TEST(TEST_CLASS, AcceptIsRejectedWhenIdentityIsAlreadyConnected) {
+		// Arrange: establish a single connection (via connect)
+		PacketWritersTestContext context(1);
+		auto state1 = SetupMultiConnectionTest(context);
+
+		// Sanity: a single connection is active
+		EXPECT_NUM_ACTIVE_WRITERS(1u, *context.pWriters);
+
+		// Act: attempt to connect via accept
+		auto state2 = SetupMultiConnectionAcceptTest(context);
+
+		// Assert: only a single writer remains
+		EXPECT_EQ(PeerConnectCode::Accepted, state1.Results[0].Code);
+		EXPECT_EQ(PeerConnectCode::Already_Connected, state2.Results[0].Code);
+
+		EXPECT_EQ(1u, context.pWriters->numActiveWriters());
+		AssertEqualIdentities(ToIdentitySet(context.ClientKeyPairs), context.pWriters->identities());
+
+		// Sanity: closing the corresponding server socket removes the pending connection too
+		state2.ServerSockets[0].reset();
+		context.waitForConnections(1);
+		EXPECT_NUM_ACTIVE_WRITERS(1u, *context.pWriters);
+		AssertEqualIdentities(ToIdentitySet(context.ClientKeyPairs), context.pWriters->identities());
+	}
+
+	TEST(TEST_CLASS, ConnectIsRejectedWhenIdentityIsAlreadyAccepted) {
+		// Arrange: establish a single connection (via accept)
+		PacketWritersTestContext context(1);
+		auto state1 = SetupMultiConnectionAcceptTest(context);
+
+		// Sanity: a single connection is active
+		EXPECT_NUM_ACTIVE_WRITERS(1u, *context.pWriters);
+
+		// Act: try to connect to the same node again
+		auto state2 = SetupMultiConnectionTest(context);
+
+		// Assert: only a single connection succeded
+		EXPECT_EQ(PeerConnectCode::Accepted, state1.Results[0].Code);
+		EXPECT_EQ(PeerConnectCode::Already_Connected, state2.Results[0].Code);
+
+		EXPECT_NUM_ACTIVE_WRITERS(1u, *context.pWriters);
+		AssertEqualIdentities(ToIdentitySet(context.ClientKeyPairs), context.pWriters->identities());
+	}
+
+	// the connected tests equivalent to OnlyOneConnectionIsAllowedPerIdentity are CannotConnectTo(Already)ConnectedPeer
+
+	namespace {
+		void AssertSingleConnection(
+				model::NodeIdentityEqualityStrategy equalityStrategy,
+				const consumer<PacketWritersTestContext&>& prepare,
+				const std::function<model::NodeIdentitySet (const PacketWritersTestContext&)>& extractExpectedIdentities) {
+			// Act: establish multiple connections with the same identity
+			constexpr auto Num_Connections = 5u;
+			auto settings = ConnectionSettings();
+			settings.NodeIdentityEqualityStrategy = equalityStrategy;
+
+			PacketWritersTestContext context(Num_Connections, settings);
+			prepare(context);
+
+			auto state = SetupMultiConnectionAcceptTest(context, 1);
+
+			// Assert: all connections succeeded but only a single one is active
+			EXPECT_EQ(Num_Connections, state.Results.size());
+			EXPECT_EQ(PeerConnectCode::Accepted, state.Results[0].Code);
+			for (auto i = 1u; i < state.Results.size(); ++i)
+				EXPECT_EQ(PeerConnectCode::Already_Connected, state.Results[i].Code) << "result at " << i;
+
+			EXPECT_EQ(Num_Connections, context.pWriters->numActiveConnections());
+			EXPECT_EQ(1u, context.pWriters->numActiveWriters());
+			AssertEqualIdentities(extractExpectedIdentities(context), context.pWriters->identities());
+
+			// Sanity: closing the corresponding server sockets removes the pending connections
+			state.ServerSockets.clear();
+			context.waitForConnections(1);
+			EXPECT_NUM_ACTIVE_WRITERS(1u, *context.pWriters);
+		}
+	}
+
+	TEST(TEST_CLASS, OnlyOneConnectionIsAllowedPerIdentity_KeyPrimacy) {
+		AssertSingleConnection(model::NodeIdentityEqualityStrategy::Key, UseSharedPublicKey, [](const auto& context) {
+			return ToIdentitySet(context.ClientKeyPairs);
+		});
+	}
+
+	TEST(TEST_CLASS, OnlyOneConnectionIsAllowedPerIdentity_HostPrimacy) {
+		AssertSingleConnection(model::NodeIdentityEqualityStrategy::Host, UseSharedHost, [](const auto& context) {
+			return test::ConnectionContainerTestUtils::HostsToIdentitySet(context.Hosts, context.ClientKeyPairs[0].publicKey());
 		});
 	}
 
@@ -1322,43 +1477,86 @@ namespace catapult { namespace net {
 
 	// region reconnect
 
-	TEST(TEST_CLASS, CannotConnectToAlreadyConnectedPeer) {
-		// Act:
-		PacketWritersTestContext context;
-		RunConnectedSocketTest(context, [&](auto, const auto&) {
-			// Sanity: the connection is active
-			EXPECT_NUM_ACTIVE_WRITERS(1u, *context.pWriters);
+	namespace {
+		void AssertCannotConnectToAlreadyConnectedPeer(
+				model::NodeIdentityEqualityStrategy equalityStrategy,
+				const std::function<ionet::Node (const PacketWritersTestContext&)>& createNode,
+				const std::function<model::NodeIdentitySet (const PacketWritersTestContext&)>& extractExpectedIdentities) {
+			// Arrange:
+			auto settings = ConnectionSettings();
+			settings.NodeIdentityEqualityStrategy = equalityStrategy;
 
-			// Act: try to connect to the same node again
-			PeerConnectResult result;
-			auto node = test::CreateLocalHostNode(context.ClientKeyPairs[0].publicKey());
-			context.pWriters->connect(node, [&result](const auto& connectResult) {
-				result = connectResult;
+			PacketWritersTestContext context(1, settings);
+			context.Hosts[0] = "127.0.0.1";
+
+			// Act:
+			RunConnectedSocketTest(context, [&](auto, const auto&) {
+				// Sanity: the connection is active
+				EXPECT_NUM_ACTIVE_WRITERS(1u, *context.pWriters);
+
+				// Act: try to connect to the same node again
+				PeerConnectResult result;
+				auto node = createNode(context);
+				context.pWriters->connect(node, [&result](const auto& connectResult) {
+					result = connectResult;
+				});
+
+				// Assert: the connection failed
+				EXPECT_EQ(PeerConnectCode::Already_Connected, result.Code);
+				AssertEqualIdentities(extractExpectedIdentities(context), context.pWriters->identities());
 			});
+		}
 
-			// Assert: the connection failed
-			EXPECT_EQ(PeerConnectCode::Already_Connected, result.Code);
-			EXPECT_EQ(test::ToKeySet(context.ClientKeyPairs), context.pWriters->identities());
+		void AssertCannotConnectToAlreadyConnectingPeer(
+				model::NodeIdentityEqualityStrategy equalityStrategy,
+				const std::function<ionet::Node (const PacketWritersTestContext&)>& createNode) {
+			// Arrange:
+			auto settings = ConnectionSettings();
+			settings.NodeIdentityEqualityStrategy = equalityStrategy;
+
+			PacketWritersTestContext context(1, settings);
+			context.Hosts[0] = "127.0.0.1";
+
+			// Act:
+			RunConnectingSocketTest(context, [&](auto, const auto&) {
+				// Sanity: the verifying connection is active
+				EXPECT_NUM_PENDING_WRITERS(1u, *context.pWriters);
+
+				// Act: try to connect to the server node again
+				PeerConnectResult result;
+				context.pWriters->connect(createNode(context), [&result](const auto& connectResult) {
+					result = connectResult;
+				});
+
+				// Assert: the connection failed
+				EXPECT_EQ(PeerConnectCode::Already_Connected, result.Code);
+				EXPECT_NUM_PENDING_WRITERS(1u, *context.pWriters);
+			});
+		}
+	}
+
+	TEST(TEST_CLASS, CannotConnectToAlreadyConnectedPeer_KeyPrimacy) {
+		auto createNode = [](const auto& context) { return test::CreateLocalHostNode(context.ClientKeyPairs[0].publicKey()); };
+		AssertCannotConnectToAlreadyConnectedPeer(model::NodeIdentityEqualityStrategy::Key, createNode, [](const auto& context) {
+			return ToIdentitySet(context.ClientKeyPairs);
 		});
 	}
 
-	TEST(TEST_CLASS, CannotConnectToAlreadyConnectingPeer) {
-		// Act:
-		PacketWritersTestContext context;
-		RunConnectingSocketTest(context, [&](auto, const auto&) {
-			// Sanity: the verifying connection is active
-			EXPECT_NUM_PENDING_WRITERS(1u, *context.pWriters);
-
-			// Act: try to connect to the server node again
-			PeerConnectResult result;
-			context.pWriters->connect(context.serverNode(), [&result](const auto& connectResult) {
-				result = connectResult;
-			});
-
-			// Assert: the connection failed
-			EXPECT_EQ(PeerConnectCode::Already_Connected, result.Code);
-			EXPECT_NUM_PENDING_WRITERS(1u, *context.pWriters);
+	TEST(TEST_CLASS, CannotConnectToAlreadyConnectedPeer_HostPrimacy) {
+		auto createNode = [](const auto&) { return test::CreateLocalHostNode(test::GenerateRandomByteArray<Key>()); };
+		AssertCannotConnectToAlreadyConnectedPeer(model::NodeIdentityEqualityStrategy::Host, createNode, [](const auto& context) {
+			return test::ConnectionContainerTestUtils::HostsToIdentitySet(context.Hosts, context.ClientKeyPairs[0].publicKey());
 		});
+	}
+
+	TEST(TEST_CLASS, CannotConnectToAlreadyConnectingPeer_KeyPrimacy) {
+		auto createNode = [](const auto& context) { return context.serverNode(); };
+		AssertCannotConnectToAlreadyConnectingPeer(model::NodeIdentityEqualityStrategy::Key, createNode);
+	}
+
+	TEST(TEST_CLASS, CannotConnectToAlreadyConnectingPeer_HostPrimacy) {
+		auto createNode = [](const auto&) { return test::CreateLocalHostNode(test::GenerateRandomByteArray<Key>()); };
+		AssertCannotConnectToAlreadyConnectingPeer(model::NodeIdentityEqualityStrategy::Host, createNode);
 	}
 
 	TEST(TEST_CLASS, CanReconnectToNodeWithInitialConnectFailure) {
@@ -1375,9 +1573,10 @@ namespace catapult { namespace net {
 		RunConnectedSocketTest(context, [&](const auto& connectResult, const auto&) {
 			// Assert: the (second) connection attempt succeeded and is active
 			EXPECT_EQ(PeerConnectCode::Accepted, connectResult.Code);
-			EXPECT_EQ(context.ClientKeyPairs[0].publicKey(), connectResult.IdentityKey);
+			EXPECT_EQ(context.ClientKeyPairs[0].publicKey(), connectResult.Identity.PublicKey);
+			EXPECT_EQ("0", connectResult.Identity.Host);
 			EXPECT_NUM_ACTIVE_WRITERS(1u, *context.pWriters);
-			EXPECT_EQ(test::ToKeySet(context.ClientKeyPairs), context.pWriters->identities());
+			AssertEqualIdentities(ToIdentitySet(context.ClientKeyPairs), context.pWriters->identities());
 		});
 	}
 
@@ -1402,9 +1601,10 @@ namespace catapult { namespace net {
 		RunConnectedSocketTest(context, [&](const auto& connectResult, const auto&) {
 			// Assert: the (second) connection attempt succeeded and is active
 			EXPECT_EQ(PeerConnectCode::Accepted, connectResult.Code);
-			EXPECT_EQ(context.ClientKeyPairs[0].publicKey(), connectResult.IdentityKey);
+			EXPECT_EQ(context.ClientKeyPairs[0].publicKey(), connectResult.Identity.PublicKey);
+			EXPECT_EQ("0", connectResult.Identity.Host);
 			EXPECT_NUM_ACTIVE_WRITERS(1u, *context.pWriters);
-			EXPECT_EQ(test::ToKeySet(context.ClientKeyPairs), context.pWriters->identities());
+			AssertEqualIdentities(ToIdentitySet(context.ClientKeyPairs), context.pWriters->identities());
 		});
 	}
 
@@ -1427,9 +1627,10 @@ namespace catapult { namespace net {
 		RunConnectedSocketTest(context, [&](const auto& connectResult, const auto&) {
 			// Assert: the (second) connection attempt succeeded and is active
 			EXPECT_EQ(PeerConnectCode::Accepted, connectResult.Code);
-			EXPECT_EQ(context.ClientKeyPairs[0].publicKey(), connectResult.IdentityKey);
+			EXPECT_EQ(context.ClientKeyPairs[0].publicKey(), connectResult.Identity.PublicKey);
+			EXPECT_EQ("0", connectResult.Identity.Host);
 			EXPECT_NUM_ACTIVE_WRITERS(1u, *context.pWriters);
-			EXPECT_EQ(test::ToKeySet(context.ClientKeyPairs), context.pWriters->identities());
+			AssertEqualIdentities(ToIdentitySet(context.ClientKeyPairs), context.pWriters->identities());
 		});
 	}
 
@@ -1447,12 +1648,12 @@ namespace catapult { namespace net {
 		EXPECT_NUM_ACTIVE_WRITERS(2u, writers);
 
 		// Act: close one connection
-		auto isClosed = writers.closeOne(context.ClientKeyPairs[0].publicKey());
+		auto isClosed = writers.closeOne(ToIdentity(context.ClientKeyPairs[0].publicKey()));
 
 		// Assert:
 		EXPECT_TRUE(isClosed);
 		EXPECT_NUM_ACTIVE_WRITERS(1u, writers);
-		EXPECT_EQ(utils::KeySet({ context.ClientKeyPairs[1].publicKey() }), writers.identities());
+		AssertEqualIdentities(PickIdentities(context.ClientKeyPairs, { 1 }), writers.identities());
 	}
 
 	TEST(TEST_CLASS, CloseOneCanCloseAcceptedSocket) {
@@ -1465,12 +1666,12 @@ namespace catapult { namespace net {
 		EXPECT_NUM_ACTIVE_WRITERS(2u, writers);
 
 		// Act: close one connection
-		auto isClosed = writers.closeOne(context.ClientKeyPairs[0].publicKey());
+		auto isClosed = writers.closeOne(ToIdentity(context.ClientKeyPairs[0].publicKey()));
 
 		// Assert: one writer was destroyed
 		EXPECT_TRUE(isClosed);
 		EXPECT_EQ(1u, writers.numActiveWriters());
-		EXPECT_EQ(utils::KeySet({ context.ClientKeyPairs[1].publicKey() }), writers.identities());
+		AssertEqualIdentities(PickIdentities(context.ClientKeyPairs, { 1 }), writers.identities());
 
 		// Sanity: closing the corresponding server socket removes the pending connection too
 		state.ServerSockets[0].reset();
@@ -1488,12 +1689,12 @@ namespace catapult { namespace net {
 		EXPECT_NUM_ACTIVE_WRITERS(2u, writers);
 
 		// Act: close one connection
-		auto isClosed = writers.closeOne(test::GenerateRandomByteArray<Key>());
+		auto isClosed = writers.closeOne(ToIdentity(test::GenerateRandomByteArray<Key>()));
 
 		// Assert:
 		EXPECT_FALSE(isClosed);
 		EXPECT_NUM_ACTIVE_WRITERS(2u, writers);
-		EXPECT_EQ(test::ToKeySet(context.ClientKeyPairs), writers.identities());
+		AssertEqualIdentities(ToIdentitySet(context.ClientKeyPairs), writers.identities());
 	}
 
 	// endregion

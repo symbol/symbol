@@ -39,17 +39,17 @@ namespace catapult { namespace model {
 		{}
 
 	public:
-		/// Gets mosaic flags.
+		/// Gets the mosaic flags.
 		MosaicFlags flags() const {
 			return m_flags;
 		}
 
-		/// Gets mosaic divisibility.
+		/// Gets the mosaic divisibility.
 		uint8_t divisibility() const {
 			return m_divisibility;
 		}
 
-		/// Gets mosaic duration.
+		/// Gets the mosaic duration.
 		BlockDuration duration() const {
 			return m_duration;
 		}

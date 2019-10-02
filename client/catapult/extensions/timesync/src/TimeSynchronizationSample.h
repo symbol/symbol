@@ -32,17 +32,17 @@ namespace catapult { namespace timesync {
 		/// Creates a default time synchronization sample.
 		TimeSynchronizationSample();
 
-		/// Creates a time synchronization sample around \a node, \a localTimestamps and \a remoteTimestamps.
+		/// Creates a time synchronization sample around \a identityKey, \a localTimestamps and \a remoteTimestamps.
 		/// \a localTimestamps (\a remoteTimestamps) are the timestamps at which the local (remote) node sent and received
 		/// a request and a response.
 		TimeSynchronizationSample(
-				const ionet::Node& node,
+				const Key& identityKey,
 				const CommunicationTimestamps& localTimestamps,
 				const CommunicationTimestamps& remoteTimestamps);
 
 	public:
-		/// Gets the node.
-		const ionet::Node& node() const;
+		/// Gets the identity key.
+		const Key& identityKey() const;
 
 		/// Gets the local timestamps.
 		const CommunicationTimestamps& localTimestamps() const;
@@ -74,11 +74,11 @@ namespace catapult { namespace timesync {
 		bool operator!=(const TimeSynchronizationSample& rhs) const;
 
 	private:
-		ionet::Node m_node;
+		Key m_identityKey;
 		CommunicationTimestamps m_localTimestamps;
 		CommunicationTimestamps m_remoteTimestamps;
 	};
 
-	/// A set of time synchronization samples.
+	/// Ordered set of time synchronization samples.
 	using TimeSynchronizationSamples = std::set<TimeSynchronizationSample>;
 }}

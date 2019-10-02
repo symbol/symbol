@@ -29,7 +29,7 @@ namespace catapult { namespace tools {
 		virtual ~CommandParser() = default;
 
 	public:
-		/// Returns name of the command.
+		/// Gets the name of the command.
 		virtual std::string name() const = 0;
 
 		/// Prepare named (\a optionsBuilder) and \a positional options of the tool.

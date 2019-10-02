@@ -41,6 +41,38 @@ if(CATAPULT_DOCKER_TESTS)
 	add_definitions(-DCATAPULT_DOCKER_TESTS)
 endif()
 
+### set architecture
+if(ARCHITECTURE_NAME)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=${ARCHITECTURE_NAME}")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=${ARCHITECTURE_NAME}")
+endif()
+
+### set code coverage
+if(ENABLE_CODE_COVERAGE)
+	if("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage -fprofile-arcs -ftest-coverage")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage -fprofile-arcs -ftest-coverage")
+	elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fprofile-instr-generate -fcoverage-mapping")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-instr-generate -fcoverage-mapping")
+	else()
+		message(FATAL_ERROR "code coverage is unsupported for ${CMAKE_CXX_COMPILER_ID}")
+	endif()
+endif()
+
+### set sanitization
+if(USE_SANITIZER)
+	set(SANITIZER_BLACKLIST "${PROJECT_SOURCE_DIR}/sanitizer_blacklist.txt")
+	set(SANITIZATION_FLAGS "-fno-omit-frame-pointer -fsanitize-blacklist=${SANITIZER_BLACKLIST} -fsanitize=${USE_SANITIZER}")
+
+	if(USE_SANITIZER MATCHES "undefined")
+		set(SANITIZATION_FLAGS "${SANITIZATION_FLAGS} -fsanitize=implicit-conversion,nullability -fno-sanitize=vptr,alignment")
+	endif()
+
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SANITIZATION_FLAGS}")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${SANITIZATION_FLAGS}")
+endif()
+
 ### set compiler settings
 if(MSVC)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /WX /EHsc")
@@ -84,7 +116,7 @@ elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
 	# - Wno-disabled-macro-expansion: expansion of recursive macro is required for boost logging macros
 	# - Wno-padded: allow compiler to automatically pad data types for alignment
 	# - Wno-switch-enum: do not require enum switch statements to list every value (this setting is also incompatible with GCC warnings)
-	# - Wno-weak-vtables: vtables are emitted in all translsation units for virtual classes with no out-of-line virtual method definitions
+	# - Wno-weak-vtables: vtables are emitted in all translation units for virtual classes with no out-of-line virtual method definitions
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
 		-stdlib=libc++ \
 		-Weverything \
@@ -118,19 +150,6 @@ if(("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU") OR ("${CMAKE_CXX_COMPILER_ID}" MAT
 	# use newer runpath for shared libs
 	set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--enable-new-dtags")
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--disable-new-dtags")
-endif()
-
-if(USE_SANITATION)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-omit-frame-pointer -fsanitize=address")
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-omit-frame-pointer -fsanitize=address")
-
-	set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fno-omit-frame-pointer -fsanitize=address")
-	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fno-omit-frame-pointer -fsanitize=address")
-endif()
-
-if(ARCHITECTURE_NAME)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=${ARCHITECTURE_NAME}")
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=${ARCHITECTURE_NAME}")
 endif()
 
 ### define gtest helper functions
@@ -220,7 +239,7 @@ function(catapult_target TARGET_NAME)
 		elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
 			# copy into ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/boost
 			set(BOOSTDLLNAME ${Boost_${BOOST_COMPONENT}_LIBRARY_RELEASE})
-			set(BOOSTVERSION "${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION}.${Boost_SUBMINOR_VERSION}")
+			set(BOOSTVERSION "${Boost_VERSION_MAJOR}.${Boost_VERSION_MINOR}.${Boost_VERSION_PATCH}")
 			get_filename_component(BOOSTFILENAME ${BOOSTDLLNAME} NAME)
 			add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
 				COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -240,7 +259,7 @@ endfunction()
 
 # finds all files comprising a target
 function(catapult_find_all_target_files TARGET_TYPE TARGET_NAME)
-	if (CMAKE_VERBOSE_MAKEFILE)
+	if(CMAKE_VERBOSE_MAKEFILE)
 		message("processing ${TARGET_TYPE} '${TARGET_NAME}'")
 	endif()
 
@@ -254,7 +273,7 @@ function(catapult_find_all_target_files TARGET_TYPE TARGET_NAME)
 	# add any (optional) subdirectories
 	foreach(arg ${ARGN})
 		set(SUBDIR ${arg})
-		if (CMAKE_VERBOSE_MAKEFILE)
+		if(CMAKE_VERBOSE_MAKEFILE)
 			message("+ processing subdirectory '${arg}'")
 		endif()
 
@@ -328,7 +347,7 @@ function(catapult_header_only_target TARGET_NAME)
 	if(MSVC)
 		catapult_find_all_target_files("hdr" ${TARGET_NAME} ${ARGN})
 
-		if (CMAKE_VERBOSE_MAKEFILE)
+		if(CMAKE_VERBOSE_MAKEFILE)
 			foreach(arg ${ARGN})
 				message("adding subdirectory '${arg}'")
 			endforeach()
@@ -349,12 +368,6 @@ function(catapult_test_executable TARGET_NAME)
 	add_test(NAME ${TARGET_NAME} WORKING_DIRECTORY ${CMAKE_BINARY_DIR} COMMAND ${TARGET_NAME})
 
 	target_link_libraries(${TARGET_NAME} ${GTEST_LIBRARIES})
-
-	if (ENABLE_CODE_COVERAGE)
-		message(STATUS "Enabling code coverage for ${TARGET_NAME}")
-		set_target_properties(${TARGET_NAME} PROPERTIES COMPILE_FLAGS "-fprofile-arcs -ftest-coverage")
-		target_link_libraries(${TARGET_NAME} gcov)
-	endif()
 endfunction()
 
 # used to define a catapult test executable for a catapult library by combining catapult_test_executable and

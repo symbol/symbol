@@ -31,7 +31,7 @@ namespace catapult { namespace test {
 		explicit EntityInfoContainerWrapper(size_t count);
 
 	public:
-		/// Returns a vector containing all entity infos.
+		/// Gets a vector containing all entity infos.
 		model::WeakEntityInfos toVector() const;
 
 	private:

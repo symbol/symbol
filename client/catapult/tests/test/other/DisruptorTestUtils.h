@@ -30,13 +30,18 @@ namespace catapult { namespace test {
 	inline void AssertContinued(const disruptor::ConsumerResult& result) {
 		EXPECT_EQ(disruptor::CompletionStatus::Normal, result.CompletionStatus);
 		EXPECT_EQ(0u, result.CompletionCode);
+		EXPECT_EQ(disruptor::ConsumerResultSeverity::Success, result.ResultSeverity);
 	}
 
-	/// Asserts that \a result is aborted with \a code.
-	inline void AssertAborted(const disruptor::ConsumerResult& result, disruptor::CompletionCode code) {
+	/// Asserts that \a result is aborted with \a code and \a resultSeverity.
+	inline void AssertAborted(
+			const disruptor::ConsumerResult& result,
+			disruptor::CompletionCode code,
+			disruptor::ConsumerResultSeverity resultSeverity) {
 		auto message = "expected consumer code " + std::to_string(code);
 		EXPECT_EQ(disruptor::CompletionStatus::Aborted, result.CompletionStatus) << message;
 		EXPECT_EQ(code, result.CompletionCode) << message;
+		EXPECT_EQ(resultSeverity, result.ResultSeverity) << message;
 	}
 
 	// endregion
@@ -47,17 +52,20 @@ namespace catapult { namespace test {
 	inline void AssertContinued(const disruptor::ConsumerCompletionResult& result) {
 		EXPECT_EQ(disruptor::CompletionStatus::Normal, result.CompletionStatus);
 		EXPECT_EQ(0u, result.CompletionCode);
+		EXPECT_EQ(disruptor::ConsumerResultSeverity::Success, result.ResultSeverity);
 		EXPECT_EQ(std::numeric_limits<disruptor::PositionType>::max(), result.FinalConsumerPosition);
 	}
 
-	/// Asserts that \a result is aborted at consumer \a position with \a code.
+	/// Asserts that \a result is aborted at consumer \a position with \a code and \a severity.
 	inline void AssertAborted(
 			const disruptor::ConsumerCompletionResult& result,
 			disruptor::CompletionCode code,
+			disruptor::ConsumerResultSeverity severity,
 			disruptor::PositionType position) {
 		auto message = "expected consumer at " + std::to_string(position);
 		EXPECT_EQ(disruptor::CompletionStatus::Aborted, result.CompletionStatus) << message;
 		EXPECT_EQ(code, result.CompletionCode) << message;
+		EXPECT_EQ(severity, result.ResultSeverity) << message;
 		EXPECT_EQ(position, result.FinalConsumerPosition) << message;
 	}
 
@@ -66,6 +74,7 @@ namespace catapult { namespace test {
 		auto message = "expected consumer at " + std::to_string(expected.FinalConsumerPosition);
 		EXPECT_EQ(expected.CompletionStatus, actual.CompletionStatus) << message;
 		EXPECT_EQ(expected.CompletionCode, actual.CompletionCode) << message;
+		EXPECT_EQ(expected.ResultSeverity, actual.ResultSeverity) << message;
 		EXPECT_EQ(expected.FinalConsumerPosition, actual.FinalConsumerPosition) << message;
 	}
 

@@ -44,6 +44,7 @@ namespace catapult { namespace model {
 						"network",
 						{
 							{ "identifier", "public-test" },
+							{ "nodeEqualityStrategy", "host" },
 							{ "publicKey", Nemesis_Public_Key },
 							{ "generationHash", Nemesis_Generation_Hash }
 						}
@@ -103,6 +104,7 @@ namespace catapult { namespace model {
 			static void AssertZero(const BlockChainConfiguration& config) {
 				// Assert:
 				EXPECT_EQ(NetworkIdentifier::Zero, config.Network.Identifier);
+				EXPECT_EQ(static_cast<NodeIdentityEqualityStrategy>(0), config.Network.NodeEqualityStrategy);
 				EXPECT_EQ(Key(), config.Network.PublicKey);
 				EXPECT_EQ(GenerationHash(), config.Network.GenerationHash);
 
@@ -140,6 +142,7 @@ namespace catapult { namespace model {
 			static void AssertCustom(const BlockChainConfiguration& config) {
 				// Assert: notice that ParseKey also works for Hash256 because it is the same type as Key
 				EXPECT_EQ(NetworkIdentifier::Public_Test, config.Network.Identifier);
+				EXPECT_EQ(NodeIdentityEqualityStrategy::Host, config.Network.NodeEqualityStrategy);
 				EXPECT_EQ(crypto::ParseKey(Nemesis_Public_Key), config.Network.PublicKey);
 				EXPECT_EQ(utils::ParseByteArray<GenerationHash>(Nemesis_Generation_Hash), config.Network.GenerationHash);
 

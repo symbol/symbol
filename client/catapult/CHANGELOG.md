@@ -3,27 +3,49 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.8.0.1] - 02-October-2019
+
+### Added
+ - Ability for network to identify servers by resolved IP instead of public key
+   - require single public key to map to single host at one time
+ - Basic DoS protection
+   - ban nodes that send transactions that fail stateless validation
+   - ban nodes that exceed data threshold
+   - close connections that send data unexpectedly
+ - Monitoring of static nodes for IP changes
+
+### Changed
+ - Add support for clang 9 and gcc 9
+ - Update all dependencies to latest versions
+ - Final set of naming review changes (mongo, config, results)
+ - Fix some UBSAN and TSAN warnings
+
+### Fixed
+ - Bug in delegated harvester unlocking message processing
+ - Namespace and lock expiry receipt generation
+ - Notify cosignatories' public keys in order to allow added cosignatories to get aggregate notifications
+ - Potential deadlock in SpinReaderWriterLock
 
 ## [0.7.0.1] - 02-September-2019
 
 ### Added
- - T1003 - TrustedHosts filter for diagnostic packet handlers
- - prohibition of zero-based keys and derived addresses
- - delegated harvester unlocking (via special encrypted message directed to node owner)
- - dynamic rental fees
+ - TrustedHosts filter for diagnostic packet handlers
+ - Prohibition of zero-based keys and derived addresses
+ - Delegated harvester unlocking (via special encrypted message directed to node owner)
+ - Dynamic rental fees
 
 ### Changed
- - naming review changes:
-   - T1002 - catbuffer (models, validators, etc)
-   - T1007 - mongo naming review changes
-   - T1008 - config variable naming
- - use donna ed25519 implementation, use batched signature verification
- - T1013 - use non-reversed private keys in `SIGNATURE_SCHEME_NIS1` - this change will require private keys used in catapult to be un-reversed, when switching from NIS1
- - generate nemesis block statement
- - turn coresystem into plugin
+ - Naming review changes:
+   - catbuffer (models, validators, etc)
+   - mongo naming review changes
+   - config variable naming
+ - Use donna ed25519 implementation, use batched signature verification
+ - Use non-reversed private keys in `SIGNATURE_SCHEME_NIS1` - this change will require private keys used in catapult to be un-reversed, when switching from NIS1
+ - Generate nemesis block statement
+ - Turn coresystem into plugin
 
 ### Fixed
- - bug in harvesting ut facade factory
+ - Bug in harvesting ut facade factory
 
 ## [0.6.0.1] - 26-July-2019
 
@@ -130,6 +152,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Added
 - Initial code release.
 
+[0.8.0.1]: https://github.com/nemtech/catapult-server/compare/v0.7.0.1...v0.8.0.1
 [0.7.0.1]: https://github.com/nemtech/catapult-server/compare/v0.6.0.1...v0.7.0.1
 [0.6.0.1]: https://github.com/nemtech/catapult-server/compare/v0.5.0.1...v0.6.0.1
 [0.5.0.1]: https://github.com/nemtech/catapult-server/compare/v0.4.0.1...v0.5.0.1

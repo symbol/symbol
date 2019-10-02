@@ -47,7 +47,7 @@ namespace catapult { namespace model {
 		explicit ResolutionStatement(const TUnresolved& unresolved);
 
 	public:
-		/// Gets unresolved value.
+		/// Gets the unresolved value.
 		const TUnresolved& unresolved() const;
 
 		/// Gets the number of attached resolution entries.

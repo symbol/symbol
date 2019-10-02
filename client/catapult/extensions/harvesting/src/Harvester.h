@@ -30,7 +30,7 @@ namespace catapult { namespace harvesting { struct BlockExecutionHashes; } }
 
 namespace catapult { namespace harvesting {
 
-	/// A class that creates new blocks.
+	/// Harvests new blocks.
 	class Harvester {
 	public:
 		/// Creates a harvester around catapult \a cache, block chain \a config, \a beneficiary,

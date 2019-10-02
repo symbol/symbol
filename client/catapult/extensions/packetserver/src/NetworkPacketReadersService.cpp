@@ -63,13 +63,15 @@ namespace catapult { namespace packetserver {
 						state.packetHandlers(),
 						locator.keyPair(),
 						extensions::GetConnectionSettings(config),
-						extensions::GetMaxIncomingConnectionsPerIdentity(config.Node.Local.Roles));
-				auto& acceptor = *pReaders;
-				extensions::BootServer(*pServiceGroup, config.Node.Port, Service_Id, config, state.nodeSubscriber(), [&acceptor](
-						const auto& socketInfo,
-						const auto& callback) {
-					acceptor.accept(socketInfo, callback);
-				});
+						config.Node.MaxIncomingConnectionsPerIdentity);
+				extensions::BootServer(
+						*pServiceGroup,
+						config.Node.Port,
+						Service_Id,
+						config,
+						state.timeSupplier(),
+						state.nodeSubscriber(),
+						*pReaders);
 
 				locator.registerService(Service_Name, pReaders);
 

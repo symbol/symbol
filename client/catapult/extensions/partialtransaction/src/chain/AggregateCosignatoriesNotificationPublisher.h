@@ -29,7 +29,7 @@ namespace catapult {
 
 namespace catapult { namespace chain {
 
-	/// An aggregate notification publisher that only publishes cosignatory-related notifications.
+	/// Aggregate notification publisher that only publishes cosignatory-related notifications.
 	class AggregateCosignatoriesNotificationPublisher {
 	public:
 		/// Sends all notifications from an aggregate \a transactionInfo to \a sub.

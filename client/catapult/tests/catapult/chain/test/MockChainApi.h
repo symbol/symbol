@@ -29,7 +29,7 @@
 
 namespace catapult { namespace mocks {
 
-	/// A mock chain api that can be configured to return predefined data for requests, capture function parameters
+	/// Mock chain api that can be configured to return predefined data for requests, capture function parameters
 	/// and throw exceptions at specified entry points.
 	class MockChainApi : public api::RemoteChainApi {
 	public:
@@ -45,7 +45,7 @@ namespace catapult { namespace mocks {
 	public:
 		/// Creates a mock chain api around a chain \a score, a last block (\a pLastBlock) and a range of \a hashes.
 		MockChainApi(const model::ChainScore& score, std::shared_ptr<model::Block>&& pLastBlock, const model::HashRange& hashes)
-				: api::RemoteChainApi(test::GenerateRandomByteArray<Key>())
+				: api::RemoteChainApi({ test::GenerateRandomByteArray<Key>(), "fake-host-from-mock-chain-api" })
 				, m_score(score)
 				, m_errorEntryPoint(EntryPoint::None)
 				, m_hashes(model::HashRange::CopyRange(hashes))
@@ -87,17 +87,17 @@ namespace catapult { namespace mocks {
 			m_blocks.emplace(height, std::move(pBlock));
 		}
 
-		/// Returns the vector of heights that were passed to the block-at requests.
+		/// Gets the vector of heights that were passed to the block-at requests.
 		const std::vector<Height>& blockAtRequests() const {
 			return m_blockAtRequests;
 		}
 
-		/// Returns the vector of height/maxHashes pairs that were passed to the hashes-from requests.
+		/// Gets the vector of height/maxHashes pairs that were passed to the hashes-from requests.
 		const std::vector<std::pair<Height, uint32_t>>& hashesFromRequests() const {
 			return m_hashesFromRequests;
 		}
 
-		/// Returns the vector of height/blocks-from-options pairs that were passed to the blocks-from requests.
+		/// Gets the vector of height/blocks-from-options pairs that were passed to the blocks-from requests.
 		const std::vector<std::pair<Height, const api::BlocksFromOptions>>& blocksFromRequests() const {
 			return m_blocksFromRequests;
 		}
@@ -113,7 +113,7 @@ namespace catapult { namespace mocks {
 		}
 
 	public:
-		/// Returns the configured chain info and throws if the error entry point is set to Chain_Info.
+		/// Gets the configured chain info and throws if the error entry point is set to Chain_Info.
 		thread::future<api::ChainInfo> chainInfo() const override {
 			if (shouldRaiseException(EntryPoint::Chain_Info))
 				return CreateFutureException<api::ChainInfo>("chain info error has been set");
@@ -124,7 +124,7 @@ namespace catapult { namespace mocks {
 			return CreateFutureResponse(std::move(info));
 		}
 
-		/// Returns the configured hashes from \a height and throws if the error entry point is set to Hashes_From.
+		/// Gets the configured hashes from \a height and throws if the error entry point is set to Hashes_From.
 		/// \note The \a height and the \a maxHashes parameters are captured.
 		thread::future<model::HashRange> hashesFrom(Height height, uint32_t maxHashes) const override {
 			m_hashesFromRequests.emplace_back(height, maxHashes);
@@ -134,7 +134,7 @@ namespace catapult { namespace mocks {
 			return CreateFutureResponse(model::HashRange::CopyRange(m_hashes));
 		}
 
-		/// Returns the configured last block and throws if the error entry point is set to Last_Block.
+		/// Gets the configured last block and throws if the error entry point is set to Last_Block.
 		thread::future<std::shared_ptr<const model::Block>> blockLast() const override {
 			if (shouldRaiseException(EntryPoint::Last_Block))
 				return CreateFutureException<std::shared_ptr<const model::Block>>("last block error has been set");
@@ -142,7 +142,7 @@ namespace catapult { namespace mocks {
 			return blockAt(Height(0));
 		}
 
-		/// Returns the configured block at \a height and throws if the error entry point is set to Block_At.
+		/// Gets the configured block at \a height and throws if the error entry point is set to Block_At.
 		/// \note The \a height parameter is captured.
 		thread::future<std::shared_ptr<const model::Block>> blockAt(Height height) const override {
 			m_blockAtRequests.push_back(height);
@@ -153,7 +153,7 @@ namespace catapult { namespace mocks {
 			return CreateFutureResponse(std::shared_ptr<const model::Block>(test::CopyEntity(*iter->second)));
 		}
 
-		/// Returns a range of the configured blocks and throws if the error entry point is set to Blocks_From.
+		/// Gets a range of the configured blocks and throws if the error entry point is set to Blocks_From.
 		/// \note The \a height and the blocks-from-options (\a options) parameters are captured.
 		thread::future<model::BlockRange> blocksFrom (Height height, const api::BlocksFromOptions& options) const override {
 			m_blocksFromRequests.push_back(std::make_pair(height, options));

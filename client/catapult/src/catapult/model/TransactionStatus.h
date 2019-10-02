@@ -25,7 +25,7 @@ namespace catapult { namespace model {
 
 #pragma pack(push, 1)
 
-	/// A transaction status.
+	/// Transaction status.
 	struct TransactionStatus {
 	public:
 		/// Creates a TransactionStatus around \a hash, \a status and \a deadline.

@@ -32,6 +32,8 @@
 #include "catapult/extensions/ServiceLocator.h"
 #include "catapult/extensions/ServiceState.h"
 #include "catapult/io/BlockStorageCache.h"
+#include "catapult/ionet/PacketPayloadFactory.h"
+#include "catapult/model/EntityRange.h"
 #include "catapult/plugins/PluginManager.h"
 
 namespace catapult { namespace harvesting {
@@ -61,6 +63,8 @@ namespace catapult { namespace harvesting {
 
 			return pUnlockedAccounts;
 		}
+
+		// region harvesting task
 
 		ScheduledHarvesterTaskOptions CreateHarvesterTaskOptions(extensions::ServiceState& state) {
 			ScheduledHarvesterTaskOptions options;
@@ -107,6 +111,41 @@ namespace catapult { namespace harvesting {
 			});
 		}
 
+		// endregion
+
+		// region diagnostic handler
+
+		bool IsDiagnosticExtensionEnabled(const config::ExtensionsConfiguration& extensionsConfiguration) {
+			const auto& names = extensionsConfiguration.Names;
+			return names.cend() != std::find(names.cbegin(), names.cend(), "extension.diagnostics");
+		}
+
+		void RegisterDiagnosticUnlockedAccountsHandler(extensions::ServiceState& state, const UnlockedAccounts& unlockedAccounts) {
+			auto& handlers = state.packetHandlers();
+			handlers.setAllowedHosts(state.config().Node.TrustedHosts);
+
+			handlers.registerHandler(ionet::PacketType::Unlocked_Accounts, [&unlockedAccounts](const auto& packet, auto& context) {
+				if (!ionet::IsPacketValid(packet, ionet::PacketType::Unlocked_Accounts))
+					return;
+
+				auto view = unlockedAccounts.view();
+				std::vector<Key> harvesterPublicKeys;
+				view.forEach([&harvesterPublicKeys](const auto& keyPair) {
+					harvesterPublicKeys.push_back(keyPair.publicKey());
+					return true;
+				});
+
+				const auto* pHarvesterPublicKeys = reinterpret_cast<const uint8_t*>(harvesterPublicKeys.data());
+				context.response(ionet::PacketPayloadFactory::FromFixedSizeRange(
+						ionet::PacketType::Unlocked_Accounts,
+						model::EntityRange<Key>::CopyFixed(pHarvesterPublicKeys, harvesterPublicKeys.size())));
+			});
+
+			handlers.setAllowedHosts({});
+		}
+
+		// endregion
+
 		class HarvestingServiceRegistrar : public extensions::ServiceRegistrar {
 		public:
 			explicit HarvestingServiceRegistrar(const HarvestingConfiguration& config) : m_config(config)
@@ -129,6 +168,9 @@ namespace catapult { namespace harvesting {
 				// add tasks
 				auto beneficiaryPublicKey = crypto::ParseKey(m_config.BeneficiaryPublicKey);
 				state.tasks().push_back(CreateHarvestingTask(state, *pUnlockedAccounts, locator.keyPair(), beneficiaryPublicKey));
+
+				if (IsDiagnosticExtensionEnabled(state.config().Extensions))
+					RegisterDiagnosticUnlockedAccountsHandler(state, *pUnlockedAccounts);
 			}
 
 		private:

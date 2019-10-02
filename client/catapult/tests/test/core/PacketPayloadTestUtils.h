@@ -33,14 +33,14 @@ namespace catapult { namespace test {
 	/// Asserts that \a payload has a header with size (\a expectedSize) and type (\a expectedType).
 	void AssertPacketHeader(const ionet::PacketPayload& payload, size_t expectedSize, ionet::PacketType expectedType);
 
-	/// Asserts that \a context does not have a response.
-	void AssertNoResponse(const ionet::ServerPacketHandlerContext& context);
+	/// Asserts that \a handlerContext does not have a response.
+	void AssertNoResponse(const ionet::ServerPacketHandlerContext& handlerContext);
 
-	/// Asserts that \a context has a response payload header with size (\a expectedSize) and type (\a expectedType).
-	void AssertPacketHeader(const ionet::ServerPacketHandlerContext& context, size_t expectedSize, ionet::PacketType expectedType);
+	/// Asserts that \a handlerContext has a response payload header with size (\a expectedSize) and type (\a expectedType).
+	void AssertPacketHeader(const ionet::ServerPacketHandlerContext& handlerContext, size_t expectedSize, ionet::PacketType expectedType);
 
-	/// Asserts that \a context has a response with a single buffer and returns the buffer.
-	const uint8_t* GetSingleBufferData(const ionet::ServerPacketHandlerContext& context);
+	/// Asserts that \a handlerContext has a response with a single buffer and returns the buffer.
+	const uint8_t* GetSingleBufferData(const ionet::ServerPacketHandlerContext& handlerContext);
 
 	/// Asserts that \a expectedPayload is equal to \a payload.
 	void AssertEqualPayload(const ionet::PacketPayload& expectedPayload, const ionet::PacketPayload& payload);

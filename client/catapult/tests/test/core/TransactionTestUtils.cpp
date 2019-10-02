@@ -26,6 +26,7 @@
 #include "catapult/crypto/Signer.h"
 #include "catapult/model/VerifiableEntity.h"
 #include "catapult/utils/HexParser.h"
+#include "catapult/preprocessor.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/nodeps/TestConstants.h"
 #include <memory>
@@ -51,7 +52,7 @@ namespace catapult { namespace test {
 		auto pTransaction = mocks::CreateMockTransaction(12);
 		pTransaction->SignerPublicKey = signer;
 		pTransaction->Version = model::MakeVersion(model::NetworkIdentifier::Mijin_Test, 1);
-		return std::move(pTransaction);
+		return PORTABLE_MOVE(pTransaction);
 	}
 
 	MutableTransactions GenerateRandomTransactions(size_t count) {
@@ -97,7 +98,7 @@ namespace catapult { namespace test {
 
 		auto generationHash = utils::ParseByteArray<GenerationHash>(test::Deterministic_Network_Generation_Hash_String);
 		extensions::TransactionExtensions(generationHash).sign(keyPair, *pTransaction);
-		return std::move(pTransaction);
+		return PORTABLE_MOVE(pTransaction);
 	}
 
 	namespace {

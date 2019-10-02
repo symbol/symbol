@@ -77,7 +77,7 @@ namespace catapult { namespace ionet {
 		static utils::TimeSpan InteractionDuration();
 
 	public:
-		/// Gets the node interactions at \a timestamp..
+		/// Gets the node interactions at \a timestamp.
 		NodeInteractions interactions(Timestamp timestamp) const;
 
 	public:

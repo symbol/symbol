@@ -99,7 +99,7 @@ namespace catapult {
 	using utils::RawString;
 	using utils::MutableRawString;
 
-	/// Returns the size of the specified array.
+	/// Gets the size of the specified array.
 	template<typename T, size_t N>
 	constexpr size_t CountOf(T const (&)[N]) noexcept {
 		return N;

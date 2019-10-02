@@ -27,6 +27,7 @@
 #include "catapult/model/BlockUtils.h"
 #include "catapult/plugins/PluginLoader.h"
 #include "catapult/utils/NetworkTime.h"
+#include "catapult/preprocessor.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"
@@ -34,6 +35,7 @@
 #include "tests/test/local/ServiceTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/nodeps/Nemesis.h"
+#include "tests/test/nodeps/TimeSupplier.h"
 #include "tests/test/other/mocks/MockNotificationValidator.h"
 #include "tests/TestHarness.h"
 #include <boost/filesystem.hpp>
@@ -106,7 +108,7 @@ namespace catapult { namespace sync {
 			pBlock->Timestamp = context.Timestamp + Timestamp(60000);
 			model::SignBlockHeader(signer, *pBlock);
 
-			return std::move(pBlock);
+			return PORTABLE_MOVE(pBlock);
 		}
 
 		// endregion
@@ -162,8 +164,11 @@ namespace catapult { namespace sync {
 			using BaseType = test::ServiceLocatorTestContext<DispatcherServiceTraits>;
 
 		public:
-			TestContext()
-					: BaseType(CreateCatapultCacheForDispatcherTests())
+			TestContext() : TestContext(utils::NetworkTime)
+			{}
+
+			explicit TestContext(const supplier<Timestamp>& timeSupplier)
+					: BaseType(CreateCatapultCacheForDispatcherTests(), timeSupplier)
 					, m_numNewBlockSinkCalls(0)
 					, m_numNewTransactionsSinkCalls(0)
 					, m_pStatefulBlockValidator(nullptr) {
@@ -239,7 +244,7 @@ namespace catapult { namespace sync {
 			}
 
 			size_t numStatefulBlockValidatorCalls() const {
-				return m_pStatefulBlockValidator->notificationTypes().size();
+				return m_pStatefulBlockValidator->numNotificationTypes();
 			}
 
 		public:
@@ -253,6 +258,15 @@ namespace catapult { namespace sync {
 
 			void setStatefulBlockValidationResult(ValidationResult result) {
 				m_pStatefulBlockValidator->setResult(result);
+			}
+
+		public:
+			size_t bannedNodesSize() {
+				return testState().state().nodes().view().bannedNodesSize();
+			}
+
+			size_t bannedNodesDeepSize() {
+				return testState().state().nodes().view().bannedNodesDeepSize();
 			}
 
 		private:
@@ -734,14 +748,14 @@ namespace catapult { namespace sync {
 			context.setBlockValidationResults(ValidationResults(validationResult, ValidationResult::Success));
 			context.boot();
 
-			auto nodeIdentity = test::GenerateRandomByteArray<Key>();
+			auto nodeIdentity = model::NodeIdentity{ test::GenerateRandomByteArray<Key>(), "11.22.33.44" };
 			auto pNextBlock = CreateValidBlockForDispatcherTests(GetBlockSignerKeyPair());
 			auto range = test::CreateEntityRange({ pNextBlock.get() });
 			auto annotatedRange = model::AnnotatedBlockRange(std::move(range), nodeIdentity);
 
 			{
 				auto nodesModifier = context.testState().state().nodes().modifier();
-				nodesModifier.add(ionet::Node(nodeIdentity, ionet::NodeEndpoint(), ionet::NodeMetadata()), ionet::NodeSource::Dynamic);
+				nodesModifier.add(ionet::Node(nodeIdentity), ionet::NodeSource::Dynamic);
 			}
 
 			auto factory = context.testState().state().hooks().completionAwareBlockRangeConsumerFactory()(disruptor::InputSource::Local);
@@ -789,6 +803,215 @@ namespace catapult { namespace sync {
 
 	// endregion
 
+	// region banning - block range consumer
+
+	namespace {
+		struct CompletionAwareTraits {
+			static auto CreateFactory(TestContext& context, disruptor::InputSource inputSource) {
+				return context.testState().state().hooks().completionAwareBlockRangeConsumerFactory()(inputSource);
+			}
+
+			static auto ConsumeRange(
+					const chain::CompletionAwareBlockRangeConsumerFunc& factory,
+					model::AnnotatedBlockRange&& annotatedRange) {
+				return factory(std::move(annotatedRange), [](auto, auto) {});
+			}
+		};
+
+		struct CompletionUnawareTraits {
+			static auto CreateFactory(TestContext& context, disruptor::InputSource inputSource) {
+				return context.testState().state().hooks().blockRangeConsumerFactory()(inputSource);
+			}
+
+			static auto ConsumeRange(const extensions::BlockRangeConsumerFunc& factory, model::AnnotatedBlockRange&& annotatedRange) {
+				factory(std::move(annotatedRange));
+				return 0u;
+			}
+		};
+	}
+
+#define CONSUMER_FACTORY_TRAITS_BASED_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_CompletionAware) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CompletionAwareTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_CompletionUnaware) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CompletionUnawareTraits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+	namespace {
+		supplier<Timestamp> CreateTimeSupplier(const std::vector<uint32_t>& rawTimestamps) {
+			return test::CreateTimeSupplierFromMilliseconds(rawTimestamps, 1000 * 60 * 60);
+		}
+
+		template<typename TTraits>
+		void AssertBlockRangeConsumeHandlesBanning(validators::ValidationResult validationResult, size_t numExpectedBannedAccounts) {
+			// Arrange:
+			TestContext context;
+			context.setBlockValidationResults(ValidationResults(validationResult, ValidationResult::Success));
+			context.boot();
+
+			auto nodeIdentity = model::NodeIdentity{ test::GenerateRandomByteArray<Key>(), "11.22.33.44" };
+			auto pNextBlock = CreateValidBlockForDispatcherTests(GetBlockSignerKeyPair());
+			auto annotatedRange = model::AnnotatedBlockRange(test::CreateEntityRange({ pNextBlock.get() }), nodeIdentity);
+
+			auto factory = TTraits::CreateFactory(context, disruptor::InputSource::Local);
+
+			// Act:
+			TTraits::ConsumeRange(factory, std::move(annotatedRange));
+
+			WAIT_FOR_ONE_EXPR(context.counter(Block_Elements_Counter_Name));
+			WAIT_FOR_ZERO_EXPR(context.counter(Block_Elements_Active_Counter_Name));
+
+			// - wait a bit to give the service time to consume more if there is a bug in the implementation
+			test::Pause();
+
+			// Assert:
+			EXPECT_EQ(1u, context.counter(Block_Elements_Counter_Name));
+			EXPECT_EQ(0u, context.counter(Transaction_Elements_Counter_Name));
+			EXPECT_EQ(numExpectedBannedAccounts, context.bannedNodesSize());
+			EXPECT_EQ(numExpectedBannedAccounts, context.bannedNodesDeepSize());
+		}
+
+		template<typename TTraits>
+		void AssertBlockDispatcherHandlesBannedNode(
+				disruptor::InputSource inputSource,
+				size_t numExpectedCompletions,
+				size_t numExpectedBannedAccounts) {
+			// Arrange:
+			TestContext context;
+			context.setBlockValidationResults(ValidationResults(validators::ValidationResult::Failure, ValidationResult::Success));
+			context.boot();
+
+			auto nodeIdentity = model::NodeIdentity{ test::GenerateRandomByteArray<Key>(), "11.22.33.44" };
+			auto pNextBlock1 = CreateValidBlockForDispatcherTests(GetBlockSignerKeyPair());
+			auto annotatedRange1 = model::AnnotatedBlockRange(test::CreateEntityRange({ pNextBlock1.get() }), nodeIdentity);
+
+			auto factory = TTraits::CreateFactory(context, inputSource);
+			TTraits::ConsumeRange(factory, std::move(annotatedRange1));
+
+			WAIT_FOR_ONE_EXPR(context.counter(Block_Elements_Counter_Name));
+			WAIT_FOR_ZERO_EXPR(context.counter(Block_Elements_Active_Counter_Name));
+
+			// Sanity:
+			EXPECT_EQ(1u, context.counter(Block_Elements_Counter_Name));
+			EXPECT_EQ(0u, context.counter(Transaction_Elements_Counter_Name));
+			EXPECT_EQ(1u, context.bannedNodesSize());
+			EXPECT_EQ(1u, context.bannedNodesDeepSize());
+
+			// Act: feed another range
+			auto pNextBlock2 = CreateValidBlockForDispatcherTests(GetBlockSignerKeyPair());
+			auto annotatedRange2 = model::AnnotatedBlockRange(test::CreateEntityRange({ pNextBlock2.get() }), nodeIdentity);
+
+			auto id = TTraits::ConsumeRange(factory, std::move(annotatedRange2));
+
+			WAIT_FOR_VALUE_EXPR(numExpectedCompletions, context.counter(Block_Elements_Counter_Name));
+			WAIT_FOR_ZERO_EXPR(context.counter(Block_Elements_Active_Counter_Name));
+
+			// - wait a bit to give the service time to consume more if there is a bug in the implementation
+			test::Pause();
+
+			if (disruptor::InputSource::Local == inputSource)
+				EXPECT_NE(0u, id);
+			else
+				EXPECT_EQ(0u, id);
+
+			EXPECT_EQ(numExpectedCompletions, context.counter(Block_Elements_Counter_Name));
+			EXPECT_EQ(0u, context.counter(Transaction_Elements_Counter_Name));
+			EXPECT_EQ(numExpectedBannedAccounts, context.bannedNodesSize());
+			EXPECT_EQ(numExpectedBannedAccounts, context.bannedNodesDeepSize());
+		}
+	}
+
+	CONSUMER_FACTORY_TRAITS_BASED_TEST(Dispatcher_NodeIsNotBannedWhenStatelessValidationIsSuccess_BlockRange) {
+		AssertBlockRangeConsumeHandlesBanning<TTraits>(validators::ValidationResult::Success, 0);
+	}
+
+	CONSUMER_FACTORY_TRAITS_BASED_TEST(Dispatcher_NodeIsBannedWhenStatelessValidationIsNeutral_BlockRange) {
+		// note that this will not happen in a real scenario because there is no neutral result for stateless validation
+		AssertBlockRangeConsumeHandlesBanning<TTraits>(validators::ValidationResult::Neutral, 1);
+	}
+
+	CONSUMER_FACTORY_TRAITS_BASED_TEST(Dispatcher_NodeIsBannedWhenStatelessValidationIsFailure_BlockRange) {
+		AssertBlockRangeConsumeHandlesBanning<TTraits>(validators::ValidationResult::Failure, 1);
+	}
+
+	CONSUMER_FACTORY_TRAITS_BASED_TEST(Dispatcher_BlockRangeFromBannedRemoteNodeIsIgnored) {
+		AssertBlockDispatcherHandlesBannedNode<TTraits>(disruptor::InputSource::Remote_Push, 1, 1);
+	}
+
+	TEST(TEST_CLASS, Dispatcher_BlockRangeFromBannedLocalNodeIsProcessed) {
+		AssertBlockDispatcherHandlesBannedNode<CompletionAwareTraits>(disruptor::InputSource::Local, 2, 1);
+	}
+
+	CONSUMER_FACTORY_TRAITS_BASED_TEST(Dispatcher_NodeIsNotBannedWhenStatefulValidationIsFailure_BlockRange) {
+		// Arrange:
+		TestContext context;
+		context.setBlockValidationResults(ValidationResults(ValidationResult::Success, ValidationResult::Failure));
+		context.boot();
+
+		auto nodeIdentity = model::NodeIdentity{ test::GenerateRandomByteArray<Key>(), "11.22.33.44" };
+		auto pNextBlock = CreateValidBlockForDispatcherTests(GetBlockSignerKeyPair());
+		auto annotatedRange = model::AnnotatedBlockRange(test::CreateEntityRange({ pNextBlock.get() }), nodeIdentity);
+
+		auto factory = TTraits::CreateFactory(context, disruptor::InputSource::Local);
+
+		// Act:
+		TTraits::ConsumeRange(factory, std::move(annotatedRange));
+
+		// - wait a bit to give the service time to consume more if there is a bug in the implementation
+		test::Pause();
+
+		// Assert:
+		EXPECT_EQ(1u, context.counter(Block_Elements_Counter_Name));
+		EXPECT_EQ(0u, context.counter(Transaction_Elements_Counter_Name));
+		EXPECT_EQ(0u, context.bannedNodesSize());
+		EXPECT_EQ(0u, context.bannedNodesDeepSize());
+	}
+
+	CONSUMER_FACTORY_TRAITS_BASED_TEST(Dispatcher_BannedNodesArePruned) {
+		// Arrange:
+		TestContext context(CreateTimeSupplier({ 1, 1, 1, 5 }));
+		context.setBlockValidationResults(ValidationResults(ValidationResult::Failure, ValidationResult::Success));
+		context.boot();
+
+		auto nodeIdentity = model::NodeIdentity{ test::GenerateRandomByteArray<Key>(), "11.22.33.44" };
+		auto pNextBlock1 = CreateValidBlockForDispatcherTests(GetBlockSignerKeyPair());
+		auto annotatedRange1 = model::AnnotatedBlockRange(test::CreateEntityRange({ pNextBlock1.get() }), nodeIdentity);
+
+		auto factory = TTraits::CreateFactory(context, disruptor::InputSource::Local);
+
+		// Act:
+		TTraits::ConsumeRange(factory, std::move(annotatedRange1));
+
+		WAIT_FOR_ONE_EXPR(context.counter(Block_Elements_Counter_Name));
+		WAIT_FOR_ZERO_EXPR(context.counter(Block_Elements_Active_Counter_Name));
+
+		// - wait a bit to give the service time to consume more if there is a bug in the implementation
+		test::Pause();
+
+		// Sanity: identity is banned at 1h
+		EXPECT_EQ(1u, context.counter(Block_Elements_Counter_Name));
+		EXPECT_EQ(0u, context.counter(Transaction_Elements_Counter_Name));
+		EXPECT_EQ(1u, context.bannedNodesSize());
+		EXPECT_EQ(1u, context.bannedNodesDeepSize());
+
+		// Act: feed another range to invoke prune at 5h
+		auto pNextBlock2 = CreateValidBlockForDispatcherTests(GetBlockSignerKeyPair());
+		auto annotatedRange2 = model::AnnotatedBlockRange(test::CreateEntityRange({ pNextBlock2.get() }), nodeIdentity);
+
+		TTraits::ConsumeRange(factory, std::move(annotatedRange2));
+
+		WAIT_FOR_VALUE_EXPR(2u, context.counter(Block_Elements_Counter_Name));
+		WAIT_FOR_ZERO_EXPR(context.counter(Block_Elements_Active_Counter_Name));
+
+		// - wait a bit to give the service time to consume more if there is a bug in the implementation
+		test::Pause();
+
+		// Assert: node was pruned
+		EXPECT_EQ(0u, context.bannedNodesSize());
+		EXPECT_EQ(0u, context.bannedNodesDeepSize());
+	}
+
+	// endregion
+
 	// region consume - transaction range
 
 	namespace {
@@ -797,6 +1020,7 @@ namespace catapult { namespace sync {
 			for (auto& transaction : range) {
 				auto keyPair = test::GenerateKeyPair();
 				transaction.SignerPublicKey = keyPair.publicKey();
+				transaction.Deadline = utils::NetworkTime() + Timestamp(60'000);
 				extensions::TransactionExtensions(test::GetNemesisGenerationHash()).sign(keyPair, transaction);
 			}
 
@@ -826,6 +1050,32 @@ namespace catapult { namespace sync {
 			EXPECT_EQ(0u, context.counter(Block_Elements_Counter_Name));
 			EXPECT_EQ(1u, context.counter(Transaction_Elements_Counter_Name));
 			handler(context);
+		}
+
+		void AssertTransactionRangeConsumeHandlesBanning(
+				const ValidationResults& transactionValidationResults,
+				model::AnnotatedTransactionRange&& range,
+				size_t numExpectedBannedAccounts) {
+			// Arrange:
+			TestContext context;
+			context.setTransactionValidationResults(transactionValidationResults);
+			context.boot();
+			auto factory = context.testState().state().hooks().transactionRangeConsumerFactory()(disruptor::InputSource::Local);
+
+			// Act:
+			factory(std::move(range));
+			context.testState().state().tasks()[0].Callback(); // forward all batched transactions to the dispatcher
+			WAIT_FOR_ONE_EXPR(context.counter(Transaction_Elements_Counter_Name));
+			WAIT_FOR_ZERO_EXPR(context.counter(Transaction_Elements_Active_Counter_Name));
+
+			// - wait a bit to give the service time to consume more if there is a bug in the implementation
+			test::Pause();
+
+			// Assert:
+			EXPECT_EQ(0u, context.counter(Block_Elements_Counter_Name));
+			EXPECT_EQ(1u, context.counter(Transaction_Elements_Counter_Name));
+			EXPECT_EQ(numExpectedBannedAccounts, context.bannedNodesSize());
+			EXPECT_EQ(numExpectedBannedAccounts, context.bannedNodesDeepSize());
 		}
 	}
 
@@ -891,6 +1141,81 @@ namespace catapult { namespace sync {
 			EXPECT_EQ(1u, context.numNewTransactionsSinkCalls());
 			EXPECT_EQ(0u, context.numTransactionStatuses());
 		});
+	}
+
+	// endregion
+
+	// region banning - transaction range consumer
+
+	TEST(TEST_CLASS, Dispatcher_NodeIsNotBannedWhenStatelessValidationIsSuccess_TransactionRange) {
+		AssertTransactionRangeConsumeHandlesBanning(ValidationResults(), CreateSignedTransactionEntityRange(1), 0);
+	}
+
+	TEST(TEST_CLASS, Dispatcher_NodeIsBannedWhenStatelessValidationIsNeutral_TransactionRange) {
+		ValidationResults transactionValidationResults;
+		transactionValidationResults.Stateless = ValidationResult::Neutral;
+		auto range = CreateSignedTransactionEntityRange(1);
+		AssertTransactionRangeConsumeHandlesBanning(transactionValidationResults, std::move(range), 1);
+	}
+
+	TEST(TEST_CLASS, Dispatcher_NodeIsBannedWhenStatelessValidationIsFailure_TransactionRange) {
+		ValidationResults transactionValidationResults;
+		transactionValidationResults.Stateless = ValidationResult::Failure;
+		auto range = test::CreateTransactionEntityRange(1);
+		AssertTransactionRangeConsumeHandlesBanning(transactionValidationResults, std::move(range), 1);
+	}
+
+	TEST(TEST_CLASS, Dispatcher_NodeIsNotBannedWhenStatefulValidationIsFailure_TransactionRange) {
+		ValidationResults transactionValidationResults;
+		transactionValidationResults.Stateful = ValidationResult::Failure;
+		AssertTransactionRangeConsumeHandlesBanning(transactionValidationResults, CreateSignedTransactionEntityRange(1), 0);
+	}
+
+	TEST(TEST_CLASS, Dispatcher_TransactionRangeFromBannedNodeIsIgnored) {
+		// Arrange:
+		auto signer = test::GenerateKeyPair();
+		auto pTransaction = test::GenerateRandomTransaction();
+		pTransaction->SignerPublicKey = signer.publicKey();
+
+		auto nodeIdentity = model::NodeIdentity{ pTransaction->SignerPublicKey, "11.22.33.44" };
+		auto range = model::AnnotatedTransactionRange(test::CreateEntityRange({ pTransaction.get() }), nodeIdentity);
+
+		TestContext context;
+		context.setTransactionValidationResults(ValidationResults());
+		context.boot();
+		auto factory = context.testState().state().hooks().transactionRangeConsumerFactory()(disruptor::InputSource::Local);
+
+		factory(std::move(range));
+		context.testState().state().tasks()[0].Callback(); // forward all batched transactions to the dispatcher
+		WAIT_FOR_ONE_EXPR(context.counter(Transaction_Elements_Counter_Name));
+		WAIT_FOR_ZERO_EXPR(context.counter(Transaction_Elements_Active_Counter_Name));
+
+		// - wait a bit to give the service time to consume more if there is a bug in the implementation
+		test::Pause();
+
+		// Sanity:
+		EXPECT_EQ(0u, context.counter(Block_Elements_Counter_Name));
+		EXPECT_EQ(1u, context.counter(Transaction_Elements_Counter_Name));
+		EXPECT_EQ(1u, context.bannedNodesSize());
+		EXPECT_EQ(1u, context.bannedNodesDeepSize());
+
+		// Act: valid transaction range is not processed
+		pTransaction->Deadline = utils::NetworkTime() + Timestamp(60'000);
+		extensions::TransactionExtensions(test::GetNemesisGenerationHash()).sign(signer, *pTransaction);
+
+		auto range2 = model::AnnotatedTransactionRange(test::CreateEntityRange({ pTransaction.get() }), nodeIdentity);
+
+		factory(std::move(range2));
+		context.testState().state().tasks()[0].Callback(); // forward all batched transactions to the dispatcher
+
+		// - wait a bit to give the service time to consume more if there is a bug in the implementation
+		test::Pause();
+
+		// Assert: transaction element was not consumed
+		EXPECT_EQ(0u, context.counter(Block_Elements_Counter_Name));
+		EXPECT_EQ(1u, context.counter(Transaction_Elements_Counter_Name));
+		EXPECT_EQ(1u, context.bannedNodesSize());
+		EXPECT_EQ(1u, context.bannedNodesDeepSize());
 	}
 
 	// endregion
@@ -964,6 +1289,53 @@ namespace catapult { namespace sync {
 	TEST(TEST_CLASS, CanEnableSpamThrottling) {
 		// Assert: the entire cache should not be filled because unimportant accounts are used
 		AssertTransactionSpamThrottleBehavior(true, 50, 40);
+	}
+
+	// endregion
+
+	// region ban counters
+
+	TEST(TEST_CLASS, Dispatcher_BanCountersHaveExpectedValues) {
+		// Arrange:
+		ValidationResults transactionValidationResults;
+		transactionValidationResults.Stateless = ValidationResult::Failure;
+		TestContext context(CreateTimeSupplier({ 1, 1, 1, 4 }));
+		context.setTransactionValidationResults(transactionValidationResults);
+		context.boot();
+
+		auto nodeIdentity1 = model::NodeIdentity{ test::GenerateRandomByteArray<Key>(), "11.22.33.44" };
+		auto annotatedRange1 = model::AnnotatedTransactionRange(test::CreateTransactionEntityRange(1), nodeIdentity1);
+		auto factory = context.testState().state().hooks().transactionRangeConsumerFactory()(disruptor::InputSource::Local);
+
+		// Act: ban first node
+		factory(std::move(annotatedRange1));
+		context.testState().state().tasks()[0].Callback(); // forward all batched transactions to the dispatcher
+		WAIT_FOR_ONE_EXPR(context.counter(Transaction_Elements_Counter_Name));
+		WAIT_FOR_ZERO_EXPR(context.counter(Transaction_Elements_Active_Counter_Name));
+
+		// - wait a bit to give the service time to consume more if there is a bug in the implementation
+		test::Pause();
+
+		// Sanity:
+		EXPECT_EQ(0u, context.counter(Block_Elements_Counter_Name));
+		EXPECT_EQ(1u, context.counter(Transaction_Elements_Counter_Name));
+		EXPECT_EQ(1u, context.bannedNodesSize());
+		EXPECT_EQ(1u, context.bannedNodesDeepSize());
+
+		auto nodeIdentity2 = model::NodeIdentity{ test::GenerateRandomByteArray<Key>(), "11.22.33.44" };
+		auto annotatedRange2 = model::AnnotatedTransactionRange(test::CreateTransactionEntityRange(1), nodeIdentity2);
+
+		// Act: ban a second node
+		factory(std::move(annotatedRange2));
+		context.testState().state().tasks()[0].Callback(); // forward all batched transactions to the dispatcher
+		WAIT_FOR_VALUE_EXPR(2u, context.counter(Transaction_Elements_Counter_Name));
+		WAIT_FOR_ZERO_EXPR(context.counter(Transaction_Elements_Active_Counter_Name));
+
+		// Assert: first node was banned at 1h, ban expires at 2h, not eligible for pruning at 4h
+		EXPECT_EQ(0u, context.counter(Block_Elements_Counter_Name));
+		EXPECT_EQ(2u, context.counter(Transaction_Elements_Counter_Name));
+		EXPECT_EQ(1u, context.bannedNodesSize());
+		EXPECT_EQ(2u, context.bannedNodesDeepSize());
 	}
 
 	// endregion

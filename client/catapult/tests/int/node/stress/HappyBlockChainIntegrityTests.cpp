@@ -59,7 +59,7 @@ namespace catapult { namespace local {
 			auto metadata = ionet::NodeMetadata(model::NetworkIdentifier::Mijin_Test, "NODE " + std::to_string(id));
 			metadata.Roles = ionet::NodeRoles::Peer;
 			return ionet::Node(
-					crypto::KeyPair::FromString(test::Mijin_Test_Private_Keys[id]).publicKey(),
+					{ crypto::KeyPair::FromString(test::Mijin_Test_Private_Keys[id]).publicKey(), std::to_string(id) },
 					test::CreateLocalHostNodeEndpoint(GetPortForNode(id)),
 					metadata);
 		}
@@ -105,6 +105,8 @@ namespace catapult { namespace local {
 			pt::read_ini(configFilePath, properties);
 
 			// 1. reconnect more rapidly so nodes have a better chance to find each other
+			properties.put("static node refresh task.startDelay", "5ms");
+			properties.put("static node refresh task.minDelay", "500ms");
 			properties.put("connect peers task for service Sync.startDelay", "1s");
 			properties.put("connect peers task for service Sync.repeatDelay", "500ms");
 

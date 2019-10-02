@@ -27,7 +27,7 @@
 
 namespace catapult { namespace cache {
 
-	/// A SubCachePlugin implementation that wraps a SynchronizedCache.
+	/// SubCachePlugin implementation that wraps a SynchronizedCache.
 	template<typename TCache, typename TStorageTraits>
 	class SubCachePluginAdapter : public SubCachePlugin {
 	public:

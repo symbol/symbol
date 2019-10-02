@@ -23,7 +23,7 @@
 
 namespace catapult { namespace ionet {
 
-	/// A factory for creating common packet payloads.
+	/// Factory for creating common packet payloads.
 	class PacketPayloadFactory {
 	public:
 		/// Creates a packet payload with the specified packet \a type around a single entity (\a pEntity).

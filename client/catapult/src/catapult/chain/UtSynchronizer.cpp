@@ -21,6 +21,7 @@
 #include "UtSynchronizer.h"
 #include "EntitiesSynchronizer.h"
 #include "catapult/api/RemoteTransactionApi.h"
+#include "catapult/model/NodeIdentity.h"
 
 namespace catapult { namespace chain {
 
@@ -45,8 +46,8 @@ namespace catapult { namespace chain {
 				return api.unconfirmedTransactions(m_minFeeMultiplier, m_shortHashesSupplier());
 			}
 
-			void consume(model::TransactionRange&& range, const Key& sourcePublicKey) const {
-				m_transactionRangeConsumer(model::AnnotatedTransactionRange(std::move(range), sourcePublicKey));
+			void consume(model::TransactionRange&& range, const model::NodeIdentity& sourceIdentity) const {
+				m_transactionRangeConsumer(model::AnnotatedTransactionRange(std::move(range), sourceIdentity));
 			}
 
 		private:

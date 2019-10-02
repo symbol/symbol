@@ -85,7 +85,7 @@ namespace catapult { namespace chain {
 					pThis->remove(id, result.CompletionStatus);
 				});
 
-				// if the disruptor is full, abort processing
+				// if the disruptor did not accept data, abort processing
 				if (0 == newId)
 					return false;
 
@@ -138,9 +138,9 @@ namespace catapult { namespace chain {
 
 		class RangeAggregator {
 		public:
-			explicit RangeAggregator(const Key& sourcePublicKey)
+			explicit RangeAggregator(const model::NodeIdentity& sourceIdentity)
 					: m_numBlocks(0)
-					, m_sourcePublicKey(sourcePublicKey)
+					, m_sourceIdentity(sourceIdentity)
 			{}
 
 		public:
@@ -150,7 +150,7 @@ namespace catapult { namespace chain {
 			}
 
 			auto merge() {
-				return model::AnnotatedBlockRange(model::BlockRange::MergeRanges(std::move(m_ranges)), m_sourcePublicKey);
+				return model::AnnotatedBlockRange(model::BlockRange::MergeRanges(std::move(m_ranges)), m_sourceIdentity);
 			}
 
 			auto empty() {
@@ -163,7 +163,7 @@ namespace catapult { namespace chain {
 
 		private:
 			size_t m_numBlocks;
-			Key m_sourcePublicKey;
+			model::NodeIdentity m_sourceIdentity;
 			std::vector<model::BlockRange> m_ranges;
 		};
 
@@ -294,7 +294,7 @@ namespace catapult { namespace chain {
 						CreateFutureSupplier(remoteChainApi, m_blocksFromOptions),
 						compareResult.CommonBlockHeight + Height(1),
 						compareResult.ForkDepth,
-						std::make_shared<RangeAggregator>(remoteChainApi.remotePublicKey()),
+						std::make_shared<RangeAggregator>(remoteChainApi.remoteIdentity()),
 						*m_pUnprocessedElements);
 			}
 

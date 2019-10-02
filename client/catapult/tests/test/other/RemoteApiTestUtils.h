@@ -37,10 +37,11 @@ namespace catapult { namespace test {
 			auto pPacketIo = std::make_shared<mocks::MockPacketIo>();
 			auto remotePublicKey = test::GenerateRandomByteArray<Key>();
 
-			auto pApi = TApiTraits::Create(*pPacketIo, remotePublicKey);
+			auto pApi = TApiTraits::Create(*pPacketIo, { remotePublicKey, "11.22.33.44" });
 
 			// Act + Assert:
-			EXPECT_EQ(remotePublicKey, pApi->remotePublicKey());
+			EXPECT_EQ(remotePublicKey, pApi->remoteIdentity().PublicKey);
+			EXPECT_EQ("11.22.33.44", pApi->remoteIdentity().Host);
 		}
 	};
 

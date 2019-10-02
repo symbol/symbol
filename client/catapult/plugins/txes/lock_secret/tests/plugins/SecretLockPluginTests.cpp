@@ -84,7 +84,6 @@ namespace catapult { namespace plugins {
 					"SecretLockObserver",
 					"ExpiredSecretLockInfoObserver",
 					"ProofObserver",
-					"SecretLockInfoTouchObserver",
 					"SecretLockInfoPruningObserver"
 				};
 			}

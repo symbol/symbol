@@ -57,7 +57,7 @@ namespace catapult { namespace test {
 		auto pBlock = storage.loadBlock(Height(1));
 		auto expectedHash = model::CalculateHash(*pBlock);
 
-		// checks ONLY first returned hash...
+		// checks ONLY first returned hash
 		ASSERT_EQ(1u, hashes.size());
 		EXPECT_EQ(expectedHash, *hashes.cbegin());
 	}

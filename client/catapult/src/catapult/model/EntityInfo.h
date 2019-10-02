@@ -72,7 +72,7 @@ namespace catapult { namespace model {
 		}
 	};
 
-	/// A transaction and its (partial) associated metadata.
+	/// Transaction and its (partial) associated metadata.
 	/// \note This info does not contain `MerkleComponentHash` because it is detached from a block.
 	struct DetachedTransactionInfo : EntityInfo<const Transaction> {
 	public:
@@ -100,7 +100,7 @@ namespace catapult { namespace model {
 		std::shared_ptr<const UnresolvedAddressSet> OptionalExtractedAddresses;
 	};
 
-	/// A transaction and its associated metadata.
+	/// Transaction and its associated metadata.
 	struct TransactionInfo : DetachedTransactionInfo {
 	public:
 		/// Creates a transaction info.

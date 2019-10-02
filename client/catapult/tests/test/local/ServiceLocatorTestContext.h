@@ -51,6 +51,11 @@ namespace catapult { namespace test {
 		/// Creates the test state around \a cache and \a timeSupplier.
 		ServiceTestState(cache::CatapultCache&& cache, const supplier<Timestamp>& timeSupplier)
 				: m_config(CreatePrototypicalCatapultConfiguration())
+				, m_nodes(
+						std::numeric_limits<size_t>::max(),
+						model::NodeIdentityEqualityStrategy::Key_And_Host,
+						GetBanSettings(m_config),
+						timeSupplier)
 				, m_catapultCache(std::move(cache))
 				, m_storage(std::make_unique<mocks::MockMemoryBlockStorage>(), std::make_unique<mocks::MockMemoryBlockStorage>())
 				, m_pUtCache(CreateUtCacheProxy())
@@ -110,6 +115,17 @@ namespace catapult { namespace test {
 		}
 
 	private:
+		static ionet::BanSettings GetBanSettings(const config::CatapultConfiguration& config) {
+			const auto& banConfig = config.Node.Banning;
+			ionet::BanSettings banSettings;
+			banSettings.DefaultBanDuration = banConfig.DefaultBanDuration;
+			banSettings.MaxBanDuration = banConfig.MaxBanDuration;
+			banSettings.KeepAliveDuration = banConfig.KeepAliveDuration;
+			banSettings.MaxBannedNodes = banConfig.MaxBannedNodes;
+			return banSettings;
+		}
+
+	private:
 		config::CatapultConfiguration m_config;
 		ionet::NodeContainer m_nodes;
 		cache::CatapultCache m_catapultCache;
@@ -128,7 +144,7 @@ namespace catapult { namespace test {
 		extensions::ServiceState m_state;
 	};
 
-	/// A test context for extension service tests.
+	/// Test context for extension service tests.
 	template<typename TTraits>
 	class ServiceLocatorTestContext {
 	public:

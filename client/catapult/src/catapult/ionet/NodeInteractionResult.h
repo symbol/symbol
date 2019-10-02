@@ -20,7 +20,7 @@
 
 #pragma once
 #include "NodeInteractionResultCode.h"
-#include "catapult/types.h"
+#include "catapult/model/NodeIdentity.h"
 
 namespace catapult { namespace ionet {
 
@@ -28,18 +28,18 @@ namespace catapult { namespace ionet {
 	struct NodeInteractionResult {
 	public:
 		/// Creates a default node interaction result.
-		NodeInteractionResult() : NodeInteractionResult(Key(), NodeInteractionResultCode::None)
+		NodeInteractionResult() : NodeInteractionResult(model::NodeIdentity(), NodeInteractionResultCode::None)
 		{}
 
-		/// Creates a node interaction result around \a identityKey and \a code.
-		NodeInteractionResult(const Key& identityKey, NodeInteractionResultCode code)
-				: IdentityKey(identityKey)
+		/// Creates a node interaction result around \a identity and \a code.
+		NodeInteractionResult(const model::NodeIdentity& identity, NodeInteractionResultCode code)
+				: Identity(identity)
 				, Code(code)
 		{}
 
 	public:
-		/// Identity key of the remote node.
-		Key IdentityKey;
+		/// Identity of the remote node.
+		model::NodeIdentity Identity;
 
 		/// Interaction result code.
 		NodeInteractionResultCode Code;

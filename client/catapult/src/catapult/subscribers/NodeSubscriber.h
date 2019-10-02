@@ -20,9 +20,13 @@
 
 #pragma once
 #include "catapult/ionet/NodeInfo.h"
+#include "catapult/validators/ValidationResult.h"
 #include "catapult/types.h"
 
-namespace catapult { namespace ionet { class Node; } }
+namespace catapult {
+	namespace ionet { class Node; }
+	namespace model { struct NodeIdentity; }
+}
 
 namespace catapult { namespace subscribers {
 
@@ -35,7 +39,10 @@ namespace catapult { namespace subscribers {
 		/// Indicates a new \a node was found.
 		virtual void notifyNode(const ionet::Node& node) = 0;
 
-		/// Indicates a new incoming connection for node with \a identityKey connected to \a serviceId.
-		virtual void notifyIncomingNode(const Key& identityKey, ionet::ServiceIdentifier serviceId) = 0;
+		/// Indicates a new incoming connection for node with \a identity connected to \a serviceId.
+		virtual bool notifyIncomingNode(const model::NodeIdentity& identity, ionet::ServiceIdentifier serviceId) = 0;
+
+		/// Indicates node with \a identity is banned due to \a reason.
+		virtual void notifyBan(const model::NodeIdentity& identity, validators::ValidationResult reason) = 0;
 	};
 }}

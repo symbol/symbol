@@ -50,7 +50,10 @@ namespace catapult { namespace crypto {
 	namespace {
 		void Sha256(crypto_hash_sha256_state& state, const RawBuffer& dataBuffer, Hash256& hash) {
 			crypto_hash_sha256_init(&state);
-			crypto_hash_sha256_update(&state, dataBuffer.pData, dataBuffer.Size);
+
+			if (0 < dataBuffer.Size)
+				crypto_hash_sha256_update(&state, dataBuffer.pData, dataBuffer.Size);
+
 			crypto_hash_sha256_final(&state, hash.data());
 		}
 	}

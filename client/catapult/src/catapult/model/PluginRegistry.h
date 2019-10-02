@@ -25,7 +25,7 @@
 
 namespace catapult { namespace model {
 
-	/// A registry of plugins.
+	/// Registry of plugins.
 	template<typename TPlugin, typename TPluginKey>
 	class PluginRegistry {
 	public:

@@ -71,7 +71,7 @@ namespace catapult { namespace crypto {
 			auto ub = static_cast<uint8_t>(b);
 			auto uc = static_cast<uint8_t>(c);
 			auto x = static_cast<uint8_t>(ub ^ uc);
-			x -= 1;
+			--x;
 			x >>= 7;
 			return x;
 		}
@@ -113,7 +113,7 @@ namespace catapult { namespace crypto {
 		// f = flag ? g : f
 		// prerequisite: flag must be 0 or 1
 		void ConditionalMove(bignum25519 f, const bignum25519 g, uint8_t flag) {
-			uint64_t nb = flag - 1;
+			uint64_t nb = static_cast<uint64_t>(flag - 1);
 			uint64_t b = ~nb;
 			f[0] = (f[0] & nb) | (g[0] & b);
 			f[1] = (f[1] & nb) | (g[1] & b);

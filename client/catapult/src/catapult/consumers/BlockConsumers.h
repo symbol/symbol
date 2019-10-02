@@ -47,7 +47,7 @@ namespace catapult { namespace consumers {
 	disruptor::ConstBlockConsumer CreateBlockHashCheckConsumer(const chain::TimeSupplier& timeSupplier, const HashCheckOptions& options);
 
 	/// Creates a consumer that checks a block chain for internal integrity.
-	/// A valid chain must have no more than \a maxChainSize blocks and end no more than \a maxBlockFutureTime past the current time
+	/// Valid chain must have no more than \a maxChainSize blocks and end no more than \a maxBlockFutureTime past the current time
 	/// supplied by \a timeSupplier.
 	disruptor::ConstBlockConsumer CreateBlockChainCheckConsumer(
 			uint32_t maxChainSize,

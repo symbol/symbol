@@ -34,7 +34,7 @@
 		volatile uint8_t* p = PTR; \
 		size_t n = SIZE; \
 		while (n--) *p++ = 0; \
-	} while(0)
+	} while (false)
 #endif
 
 namespace catapult { namespace crypto {

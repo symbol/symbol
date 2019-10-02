@@ -32,7 +32,7 @@ namespace catapult { namespace utils {
 		{}
 
 	public:
-		/// Returns the name.
+		/// Gets the name.
 		const std::string& name() const {
 			return m_name;
 		}

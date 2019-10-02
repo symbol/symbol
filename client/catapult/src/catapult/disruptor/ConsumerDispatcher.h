@@ -54,7 +54,7 @@ namespace catapult { namespace disruptor {
 		/// Returns \c true if dispatcher is running, \c false otherwise.
 		bool isRunning() const;
 
-		/// Returns the number of registered consumers.
+		/// Gets the number of registered consumers.
 		size_t size() const;
 
 		/// Pushes the \a input into underlying disruptor and returns the assigned element id.
@@ -64,10 +64,10 @@ namespace catapult { namespace disruptor {
 		/// Pushes the \a input into underlying disruptor and returns the assigned element id.
 		DisruptorElementId processElement(ConsumerInput&& input);
 
-		/// Returns the total number of elements added to the disruptor.
+		/// Gets the total number of elements added to the disruptor.
 		size_t numAddedElements() const;
 
-		/// Returns the number of elements currently in the disruptor.
+		/// Gets the number of elements currently in the disruptor.
 		size_t numActiveElements() const;
 
 	private:

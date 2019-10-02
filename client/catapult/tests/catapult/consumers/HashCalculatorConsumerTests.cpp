@@ -198,7 +198,7 @@ namespace catapult { namespace consumers {
 		// Assert:
 		test::AssertContinued(result);
 		ASSERT_EQ(1u, blockElements.size());
-		EXPECT_EQ(test::Deterministic_Block_Hash_String, test::ToString(blockElements[0].EntityHash));
+		EXPECT_EQ(utils::ParseByteArray<Hash256>(test::Deterministic_Block_Hash_String), blockElements[0].EntityHash);
 	}
 
 	TEST(BLOCK_TEST_CLASS, ExceptionIsPropagatedWhenMalformedTransactionIsProcessed) {
@@ -233,7 +233,7 @@ namespace catapult { namespace consumers {
 			auto result = CreateBlockHashCalculatorConsumer(GetNetworkGenerationHash(), registry)(blockElements);
 
 			// Assert: the elements were skipped because a block transactions hash didn't match
-			test::AssertAborted(result, Failure_Consumer_Block_Transactions_Hash_Mismatch);
+			test::AssertAborted(result, Failure_Consumer_Block_Transactions_Hash_Mismatch, disruptor::ConsumerResultSeverity::Failure);
 		}
 	}
 
@@ -312,7 +312,7 @@ namespace catapult { namespace consumers {
 		// Assert:
 		test::AssertContinued(result);
 		ASSERT_EQ(1u, transactionElements.size());
-		EXPECT_EQ(test::Deterministic_Transaction_Hash_String, test::ToString(transactionElements[0].EntityHash));
+		EXPECT_EQ(utils::ParseByteArray<Hash256>(test::Deterministic_Transaction_Hash_String), transactionElements[0].EntityHash);
 	}
 
 	// endregion

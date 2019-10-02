@@ -49,7 +49,7 @@ namespace catapult { namespace handlers {
 			auto payloadSize = utils::checked_cast<size_t, uint32_t>(serializedPath.size());
 			auto pResponsePacket = ionet::CreateSharedPacket<ionet::Packet>(payloadSize);
 			pResponsePacket->Type = TPacket::Packet_Type;
-			std::memcpy(pResponsePacket->Data(), serializedPath.data(), serializedPath.size());
+			utils::memcpy_cond(pResponsePacket->Data(), serializedPath.data(), serializedPath.size());
 			context.response(ionet::PacketPayload(pResponsePacket));
 		});
 	}

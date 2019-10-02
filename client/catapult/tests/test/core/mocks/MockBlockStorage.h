@@ -25,7 +25,7 @@ namespace catapult { namespace mocks {
 
 	// region UnsupportedBlockStorage
 
-	/// An unsupported block storage.
+	/// Unsupported block storage.
 	class UnsupportedBlockStorage : public io::BlockStorage {
 	public:
 		Height chainHeight() const override {
@@ -61,7 +61,7 @@ namespace catapult { namespace mocks {
 
 	// region MockHeightOnlyBlockStorage
 
-	/// A mock block storage that only supports chain height accesses.
+	/// Mock block storage that only supports chain height accesses.
 	class MockHeightOnlyBlockStorage : public UnsupportedBlockStorage {
 	public:
 		/// Creates the storage with height \a chainHeight.
@@ -81,7 +81,7 @@ namespace catapult { namespace mocks {
 
 	// region MockSavingBlockStorage
 
-	/// A mock block storage that captures saved blocks.
+	/// Mock block storage that captures saved blocks.
 	class MockSavingBlockStorage : public MockHeightOnlyBlockStorage {
 	public:
 		using MockHeightOnlyBlockStorage::MockHeightOnlyBlockStorage;

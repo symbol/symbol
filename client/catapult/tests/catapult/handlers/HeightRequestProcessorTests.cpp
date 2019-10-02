@@ -45,14 +45,14 @@ namespace catapult { namespace handlers {
 		++pPacket->Size;
 
 		// Act:
-		ionet::ServerPacketHandlerContext context({}, "");
-		auto heightRequestInfo = Processor::Process(pStorage->view(), *pPacket, context, false);
+		ionet::ServerPacketHandlerContext handlerContext;
+		auto heightRequestInfo = Processor::Process(pStorage->view(), *pPacket, handlerContext, false);
 
 		// Assert: empty info was returned
 		EXPECT_FALSE(!!heightRequestInfo.pRequest);
 
 		// - no response was written because the request was malformed
-		test::AssertNoResponse(context);
+		test::AssertNoResponse(handlerContext);
 	}
 
 	namespace {
@@ -65,15 +65,15 @@ namespace catapult { namespace handlers {
 			pPacket->Height = requestHeight;
 
 			// Act:
-			ionet::ServerPacketHandlerContext context({}, "");
-			auto heightRequestInfo = Processor::Process(pStorage->view(), *pPacket, context, shouldAllowZeroHeight);
+			ionet::ServerPacketHandlerContext handlerContext;
+			auto heightRequestInfo = Processor::Process(pStorage->view(), *pPacket, handlerContext, shouldAllowZeroHeight);
 
 			// Assert: empty info was returned
 			EXPECT_FALSE(!!heightRequestInfo.pRequest);
 
 			// Assert: only a payload header is written
-			test::AssertPacketHeader(context, sizeof(ionet::PacketHeader), HeightRequestPacket::Packet_Type);
-			EXPECT_TRUE(context.response().buffers().empty());
+			test::AssertPacketHeader(handlerContext, sizeof(ionet::PacketHeader), HeightRequestPacket::Packet_Type);
+			EXPECT_TRUE(handlerContext.response().buffers().empty());
 		}
 	}
 
@@ -101,11 +101,11 @@ namespace catapult { namespace handlers {
 			pPacket->Height = requestHeight;
 
 			// Act:
-			ionet::ServerPacketHandlerContext context({}, "");
-			auto heightRequestInfo = Processor::Process(pStorage->view(), *pPacket, context, shouldAllowZeroHeight);
+			ionet::ServerPacketHandlerContext handlerContext;
+			auto heightRequestInfo = Processor::Process(pStorage->view(), *pPacket, handlerContext, shouldAllowZeroHeight);
 
 			// Assert: no response was written because the request processing is incomplete
-			test::AssertNoResponse(context);
+			test::AssertNoResponse(handlerContext);
 			assertInfo(heightRequestInfo);
 		}
 	}

@@ -19,27 +19,28 @@
 **/
 
 #pragma once
+#include "catapult/model/NodeIdentity.h"
 #include "catapult/types.h"
 
 namespace catapult { namespace api {
 
-	/// An api for retrieving information from a remote node.
+	/// Api for retrieving information from a remote node.
 	class RemoteApi {
 	protected:
-		/// Creates a remote api for the node with specified public key (\a remotePublicKey).
-		explicit RemoteApi(const Key& remotePublicKey) : m_remotePublicKey(remotePublicKey)
+		/// Creates a remote api for the node with specified \a remoteIdentity.
+		explicit RemoteApi(const model::NodeIdentity& remoteIdentity) : m_remoteIdentity(remoteIdentity)
 		{}
 
 	public:
 		virtual ~RemoteApi() = default;
 
 	public:
-		/// Gets the remote node public key.
-		const Key& remotePublicKey() const {
-			return m_remotePublicKey;
+		/// Gets the remote identity.
+		const model::NodeIdentity& remoteIdentity() const {
+			return m_remoteIdentity;
 		}
 
 	private:
-		Key m_remotePublicKey;
+		model::NodeIdentity m_remoteIdentity;
 	};
 }}

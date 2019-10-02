@@ -36,7 +36,7 @@ namespace catapult { namespace io {
 		/// Gets the number of blocks.
 		virtual Height chainHeight() const = 0;
 
-		/// Returns a range of at most \a maxHashes hashes starting at \a height.
+		/// Gets a range of at most \a maxHashes hashes starting at \a height.
 		virtual model::HashRange loadHashesFrom(Height height, size_t maxHashes) const = 0;
 
 		/// Saves \a blockElement.
@@ -49,13 +49,13 @@ namespace catapult { namespace io {
 	/// Interface for saving and loading blocks.
 	class BlockStorage : public LightBlockStorage {
 	public:
-		/// Returns the block at \a height.
+		/// Gets the block at \a height.
 		virtual std::shared_ptr<const model::Block> loadBlock(Height height) const = 0;
 
-		/// Returns the block element (owning a block) at \a height.
+		/// Gets the block element (owning a block) at \a height.
 		virtual std::shared_ptr<const model::BlockElement> loadBlockElement(Height height) const = 0;
 
-		/// Returns the optional block statement data at \a height.
+		/// Gets the optional block statement data at \a height.
 		virtual std::pair<std::vector<uint8_t>, bool> loadBlockStatementData(Height height) const = 0;
 	};
 

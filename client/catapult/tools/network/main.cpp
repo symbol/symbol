@@ -35,13 +35,17 @@ namespace catapult { namespace tools { namespace network {
 
 		struct NodeInfo {
 		public:
-			explicit NodeInfo(const ionet::Node& localNode) : Local(localNode)
+			explicit NodeInfo(const ionet::Node& localNode)
+					: Local(localNode)
+					// always correlate partners by key because even in host based network it is guaranteed to be unique
+					// also `peersInfo` api doesn't fill in NodeIdentity::Host
+					, Partners(model::CreateNodeIdentityMap<ionet::Node>(model::NodeIdentityEqualityStrategy::Key))
 			{}
 
 		public:
 			ionet::Node Local;
 			ionet::Node Remote;
-			ionet::NodeSet Partners;
+			model::NodeIdentityMap<ionet::Node> Partners;
 			model::EntityRange<ionet::PackedNodeInfo> PartnerNodeInfos;
 		};
 
@@ -51,7 +55,7 @@ namespace catapult { namespace tools { namespace network {
 
 		// region formatting
 
-		using IdentityNameMap = std::unordered_map<Key, std::string, utils::ArrayHasher<Key>>;
+		using IdentityNameMap = model::NodeIdentityMap<std::string>;
 
 		std::vector<std::string> GetComponentStrings(ionet::NodeRoles roles) {
 			std::vector<std::string> parts;
@@ -86,7 +90,8 @@ namespace catapult { namespace tools { namespace network {
 
 		std::string Summarize(const ionet::Node& node) {
 			SummaryBuilder builder;
-			builder.add("IdentityKey", node.identityKey());
+			builder.add("IdentityKey", node.identity().PublicKey);
+			builder.add("Host (Resolved)", node.identity().Host);
 			builder.add("Host", node.endpoint().Host);
 			builder.add("Port", node.endpoint().Port);
 			builder.add("Network", node.metadata().NetworkIdentifier);
@@ -97,17 +102,17 @@ namespace catapult { namespace tools { namespace network {
 		}
 
 		std::string GetName(const IdentityNameMap& identityNameMap, const ionet::Node& node) {
-			auto iter = identityNameMap.find(node.identityKey());
+			auto iter = identityNameMap.find(node.identity());
 			return identityNameMap.cend() != iter
 					? iter->second
 					: !node.metadata().Name.empty() ? node.metadata().Name : "?";
 		}
 
 		const ionet::PackedNodeInfo* TryFindPartnerNodeInfo(
-				const Key& partnerIdentityKey,
+				const model::NodeIdentity& partnerIdentity,
 				const model::EntityRange<ionet::PackedNodeInfo>& partnerNodeInfos) {
-			auto iter = std::find_if(partnerNodeInfos.cbegin(), partnerNodeInfos.cend(), [&partnerIdentityKey](const auto& nodeInfo) {
-				return partnerIdentityKey == nodeInfo.IdentityKey;
+			auto iter = std::find_if(partnerNodeInfos.cbegin(), partnerNodeInfos.cend(), [&partnerIdentity](const auto& nodeInfo) {
+				return partnerIdentity.PublicKey == nodeInfo.IdentityKey;
 			});
 
 			return partnerNodeInfos.cend() == iter ? nullptr : &*iter;
@@ -155,7 +160,10 @@ namespace catapult { namespace tools { namespace network {
 
 		std::string SummarizePartners(const NodeInfo& nodeInfo, const IdentityNameMap& identityNameMap) {
 			// sort nodes by role and host
-			auto nodes = std::vector<ionet::Node>(nodeInfo.Partners.cbegin(), nodeInfo.Partners.cend());
+			std::vector<ionet::Node> nodes;
+			for (const auto& pair : nodeInfo.Partners)
+				nodes.push_back(pair.second);
+
 			std::sort(nodes.begin(), nodes.end(), [](const auto& lhs, const auto& rhs) {
 				if (lhs.metadata().Roles != rhs.metadata().Roles)
 					return lhs.metadata().Roles < rhs.metadata().Roles;
@@ -174,7 +182,7 @@ namespace catapult { namespace tools { namespace network {
 				builder.add(keyOut.str(), partnerNode.metadata().Roles);
 
 				// get detailed partner information
-				const auto* pPartnerNodeInfo = TryFindPartnerNodeInfo(partnerNode.identityKey(), nodeInfo.PartnerNodeInfos);
+				const auto* pPartnerNodeInfo = TryFindPartnerNodeInfo(partnerNode.identity(), nodeInfo.PartnerNodeInfos);
 				if (!pPartnerNodeInfo)
 					continue;
 
@@ -232,8 +240,8 @@ namespace catapult { namespace tools { namespace network {
 			void printRow(const NodeInfo& rowNodeInfo) {
 				printCellValue(toHeaderString(rowNodeInfo));
 				for (const auto& pNodeInfo : m_nodeInfos) {
-					auto iter = rowNodeInfo.Partners.find(pNodeInfo->Local);
-					printCellValue(pNodeInfo->Partners.cend() != iter ? toValueString(rowNodeInfo, *iter) : "");
+					auto partnerIter = rowNodeInfo.Partners.find(pNodeInfo->Local.identity());
+					printCellValue(pNodeInfo->Partners.cend() != partnerIter ? toValueString(rowNodeInfo, partnerIter->second) : "");
 				}
 			}
 
@@ -246,7 +254,7 @@ namespace catapult { namespace tools { namespace network {
 			}
 
 			std::string toValueString(const NodeInfo& rowNodeInfo, const ionet::Node& columnNode) {
-				const auto* pPartnerNodeInfo = TryFindPartnerNodeInfo(columnNode.identityKey(), rowNodeInfo.PartnerNodeInfos);
+				const auto* pPartnerNodeInfo = TryFindPartnerNodeInfo(columnNode.identity(), rowNodeInfo.PartnerNodeInfos);
 				if (!pPartnerNodeInfo)
 					return "ERROR";
 
@@ -275,11 +283,12 @@ namespace catapult { namespace tools { namespace network {
 
 		void PrettyPrint(const std::vector<NodeInfoPointer>& nodeInfos) {
 			// 0. create an identity to name map based on local information (static nodes might not broadcast their names)
+			IdentityNameMap identityNameMap(model::CreateNodeIdentityMap<std::string>(model::NodeIdentityEqualityStrategy::Key_And_Host));
+
 			size_t maxNameSize = 0;
-			IdentityNameMap identityNameMap;
 			for (const auto& pNodeInfo : nodeInfos) {
 				const auto& node = pNodeInfo->Local;
-				identityNameMap.emplace(node.identityKey(), node.metadata().Name);
+				identityNameMap.emplace(node.identity(), node.metadata().Name);
 				maxNameSize = std::max(maxNameSize, node.metadata().Name.size());
 			}
 
@@ -319,7 +328,8 @@ namespace catapult { namespace tools { namespace network {
 				}));
 				infoFutures.emplace_back(pApi->peersInfo().then([&nodeInfo](auto&& peersFuture) {
 					return UnwrapFutureAndSuppressErrors("querying peers info", std::move(peersFuture), [&nodeInfo](const auto& nodes) {
-						nodeInfo.Partners = nodes;
+						for (const auto& node : nodes)
+							nodeInfo.Partners.emplace(node.identity(), node);
 					});
 				}));
 				infoFutures.emplace_back(pDiagnosticApi->activeNodeInfos().then([&nodeInfo](auto&& nodeInfosFuture) {
@@ -336,12 +346,9 @@ namespace catapult { namespace tools { namespace network {
 				PrettyPrint(nodeInfos);
 
 				return utils::Sum(nodeInfos, [](const auto& pNodeInfo) {
-					return ionet::Node() == pNodeInfo->Remote ? 1u : 0;
+					return Key() == pNodeInfo->Remote.identity().PublicKey ? 1u : 0;
 				});
 			}
-
-		private:
-			std::string m_resourcesPath;
 		};
 	}
 }}}

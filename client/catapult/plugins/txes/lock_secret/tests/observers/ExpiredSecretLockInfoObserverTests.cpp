@@ -19,6 +19,7 @@
 **/
 
 #include "src/observers/Observers.h"
+#include "src/model/SecretLockReceiptType.h"
 #include "plugins/txes/lock_shared/tests/observers/ExpiredLockInfoObserverTests.h"
 #include "tests/test/SecretLockInfoCacheTestUtils.h"
 
@@ -33,6 +34,8 @@ namespace catapult { namespace observers {
 		public:
 			using ObserverTestContext = test::ObserverTestContextT<test::SecretLockInfoCacheFactory>;
 
+			static constexpr auto Receipt_Type = model::Receipt_Type_LockSecret_Expired;
+
 		public:
 			static auto CreateObserver() {
 				return CreateExpiredSecretLockInfoObserver();
@@ -41,17 +44,150 @@ namespace catapult { namespace observers {
 			static auto& SubCache(cache::CatapultCacheDelta& cache) {
 				return cache.sub<cache::SecretLockInfoCache>();
 			}
-
-			static Amount GetExpectedExpiringLockOwnerBalance(observers::NotifyMode mode, Amount initialBalance, Amount delta) {
-				// expiring secret lock is paid to lock creator
-				return observers::NotifyMode::Commit == mode ? initialBalance + delta : initialBalance - delta;
-			}
-
-			static Amount GetExpectedBlockSignerBalance(observers::NotifyMode, Amount initialBalance, Amount, size_t) {
-				return initialBalance;
-			}
 		};
+
+		using ObserverTests = ExpiredLockInfoObserverTests<ExpiredSecretLockInfoTraits>;
+		using SeedTuple = ObserverTests::SeedTuple;
 	}
 
-	DEFINE_EXPIRED_LOCK_INFO_OBSERVER_TESTS(ExpiredSecretLockInfoTraits)
+	// region no operation
+
+	TEST(TEST_CLASS, ObserverDoesNothingWhenNoLockInfoExpires_Commit) {
+		// Arrange:
+		auto blockSigner = test::GenerateRandomByteArray<Key>();
+		std::vector<SeedTuple> expiringSeeds;
+
+		// Act + Assert:
+		ObserverTests::RunBalanceTest(NotifyMode::Commit, blockSigner, expiringSeeds, {
+			{ blockSigner, MosaicId(500), Amount(200), Amount() }
+		});
+	}
+
+	TEST(TEST_CLASS, ObserverDoesNothingWhenNoLockInfoExpires_Rollback) {
+		// Arrange:
+		auto blockSigner = test::GenerateRandomByteArray<Key>();
+		std::vector<SeedTuple> expiringSeeds;
+
+		// Act + Assert:
+		ObserverTests::RunBalanceTest(NotifyMode::Rollback, blockSigner, expiringSeeds, {
+			{ blockSigner, MosaicId(500), Amount(200), Amount() }
+		});
+	}
+
+	// endregion
+
+	// region expiration (single)
+
+	TEST(TEST_CLASS, ObserverCreditsAccountsOnCommit_Single) {
+		// Arrange:
+		auto blockSigner = test::GenerateRandomByteArray<Key>();
+		auto key = test::GenerateRandomByteArray<Key>();
+		std::vector<SeedTuple> expiringSeeds{
+			{ key, MosaicId(111), Amount(333), Amount(33) }
+		};
+
+		// Act + Assert:
+		ObserverTests::RunBalanceTest(NotifyMode::Commit, blockSigner, expiringSeeds, {
+			{ key, MosaicId(111), Amount(333 + 33), Amount() },
+			{ blockSigner, MosaicId(500), Amount(200), Amount() }
+		});
+	}
+
+	TEST(TEST_CLASS, ObserverCreditsAccountsOnRollback_Single) {
+		// Arrange:
+		auto blockSigner = test::GenerateRandomByteArray<Key>();
+		auto key = test::GenerateRandomByteArray<Key>();
+		std::vector<SeedTuple> expiringSeeds{
+			{ key, MosaicId(111), Amount(333), Amount(33) }
+		};
+
+		// Act + Assert:
+		ObserverTests::RunBalanceTest(NotifyMode::Rollback, blockSigner, expiringSeeds, {
+			{ key, MosaicId(111), Amount(333 - 33), Amount() },
+			{ blockSigner, MosaicId(500), Amount(200), Amount() }
+		});
+	}
+
+	// endregion
+
+	// region expiration (multiple)
+
+	TEST(TEST_CLASS, ObserverCreditsAccountsOnCommit_Multiple) {
+		// Arrange:
+		auto blockSigner = test::GenerateRandomByteArray<Key>();
+		auto keys = test::GenerateRandomDataVector<Key>(3);
+		std::vector<SeedTuple> expiringSeeds{
+			{ keys[0], MosaicId(111), Amount(333), Amount(33) },
+			{ keys[1], MosaicId(222), Amount(222), Amount(88) },
+			{ keys[2], MosaicId(111), Amount(444), Amount(44) },
+			{ keys[1], MosaicId(222), Amount(), Amount(22) }
+		};
+
+		// Act + Assert:
+		ObserverTests::RunBalanceTest(NotifyMode::Commit, blockSigner, expiringSeeds, {
+			{ keys[0], MosaicId(111), Amount(333 + 33), Amount() },
+			{ keys[1], MosaicId(222), Amount(222 + 88 + 22), Amount() },
+			{ keys[2], MosaicId(111), Amount(444 + 44), Amount() },
+			{ blockSigner, MosaicId(500), Amount(200), Amount() }
+		});
+	}
+
+	TEST(TEST_CLASS, ObserverCreditsAccountsOnRollback_Multiple) {
+		// Arrange:
+		auto blockSigner = test::GenerateRandomByteArray<Key>();
+		auto keys = test::GenerateRandomDataVector<Key>(3);
+		std::vector<SeedTuple> expiringSeeds{
+			{ keys[0], MosaicId(111), Amount(333), Amount(33) },
+			{ keys[1], MosaicId(222), Amount(222), Amount(88) },
+			{ keys[2], MosaicId(111), Amount(444), Amount(44) },
+			{ keys[1], MosaicId(222), Amount(), Amount(22) }
+		};
+
+		// Act + Assert:
+		ObserverTests::RunBalanceTest(NotifyMode::Rollback, blockSigner, expiringSeeds, {
+			{ keys[0], MosaicId(111), Amount(333 - 33), Amount() },
+			{ keys[1], MosaicId(222), Amount(222 - 88 - 22), Amount() },
+			{ keys[2], MosaicId(111), Amount(444 - 44), Amount() },
+			{ blockSigner, MosaicId(500), Amount(200), Amount() }
+		});
+	}
+
+	// endregion
+
+	// region receipts (multiple)
+
+	TEST(TEST_CLASS, ObserverCreatesReceiptsOnCommit) {
+		// Arrange:
+		auto blockSigner = test::GenerateRandomByteArray<Key>();
+		std::vector<SeedTuple> expiringSeeds{
+			{ Key{ { 9 } }, MosaicId(111), Amount(333), Amount(33) },
+			{ Key{ { 1 } }, MosaicId(222), Amount(222), Amount(88) },
+			{ Key{ { 4 } }, MosaicId(111), Amount(444), Amount(44) },
+			{ Key{ { 1 } }, MosaicId(222), Amount(), Amount(22) }
+		};
+
+		// Act + Assert: notice that receipts are deterministically ordered
+		ObserverTests::RunReceiptTest(NotifyMode::Commit, blockSigner, expiringSeeds, {
+			{ Key{ { 1 } }, MosaicId(222), Amount(), Amount(22) },
+			{ Key{ { 1 } }, MosaicId(222), Amount(), Amount(88) },
+			{ Key{ { 4 } }, MosaicId(111), Amount(), Amount(44) },
+			{ Key{ { 9 } }, MosaicId(111), Amount(), Amount(33) }
+		});
+	}
+
+	TEST(TEST_CLASS, ObserverDoesNotCreateReceiptsOnRollback) {
+		// Arrange:
+		auto blockSigner = test::GenerateRandomByteArray<Key>();
+		std::vector<SeedTuple> expiringSeeds{
+			{ Key{ { 9 } }, MosaicId(111), Amount(333), Amount(33) },
+			{ Key{ { 1 } }, MosaicId(222), Amount(222), Amount(88) },
+			{ Key{ { 4 } }, MosaicId(111), Amount(444), Amount(44) },
+			{ Key{ { 1 } }, MosaicId(222), Amount(), Amount(22) }
+		};
+
+		// Act + Assert:
+		ObserverTests::RunReceiptTest(NotifyMode::Rollback, blockSigner, expiringSeeds, {});
+	}
+
+	// endregion
 }}

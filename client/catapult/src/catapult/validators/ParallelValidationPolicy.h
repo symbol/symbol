@@ -26,7 +26,7 @@ namespace catapult { namespace thread { class IoThreadPool; } }
 
 namespace catapult { namespace validators {
 
-	/// A parallel validation policy that performs parallel (stateless) validations on multiple threads.
+	/// Parallel validation policy that performs parallel (stateless) validations on multiple threads.
 	class ParallelValidationPolicy {
 	public:
 		virtual ~ParallelValidationPolicy() = default;

@@ -26,7 +26,7 @@ namespace catapult { namespace cache { class CatapultCache; } }
 
 namespace catapult { namespace cache {
 
-	/// A relockable detached catapult cache.
+	/// Relockable detached catapult cache.
 	class RelockableDetachedCatapultCache {
 	public:
 		/// Creates a relockable detached catapult cache around \a catapultCache.
@@ -39,7 +39,7 @@ namespace catapult { namespace cache {
 		/// Gets the current cache height.
 		Height height() const;
 
-		/// Gets and locks the last (detached) catapult cache delta.
+		/// Gets the last (detached) catapult cache delta and locks it.
 		/// \note If locking fails, \c nullptr is returned.
 		std::unique_ptr<CatapultCacheDelta> getAndTryLock();
 

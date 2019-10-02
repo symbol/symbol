@@ -81,7 +81,7 @@ namespace catapult { namespace ionet {
 	/// Information about a node and its interactions.
 	struct NodeInfo {
 	public:
-		/// A container of service identifiers.
+		/// Container of service identifiers.
 		using ServiceIdentifiers = std::unordered_set<ServiceIdentifier, utils::BaseValueHasher<ServiceIdentifier>>;
 
 	public:
@@ -101,10 +101,10 @@ namespace catapult { namespace ionet {
 		/// Gets the associated service ids.
 		ServiceIdentifiers services() const;
 
-		/// Returns true if at least one connection is active.
+		/// Returns \c true if at least one connection is active.
 		bool hasActiveConnection() const;
 
-		/// Gets connection state for the service identified by \a serviceId or \c nullptr if no state exists.
+		/// Gets the connection state for the service identified by \a serviceId or \c nullptr if no state exists.
 		const ConnectionState* getConnectionState(ServiceIdentifier serviceId) const;
 
 	public:
@@ -117,7 +117,7 @@ namespace catapult { namespace ionet {
 		/// Increments the number of failed interactions at \a timestamp.
 		void incrementFailures(Timestamp timestamp);
 
-		/// Gets connection state for the service identified by \a serviceId and creates zeroed state if no state exists.
+		/// Gets the connection state for the service identified by \a serviceId and creates zeroed state if no state exists.
 		ConnectionState& provisionConnectionState(ServiceIdentifier serviceId);
 
 		/// Clears the age of the connection for the service identified by \a serviceId.

@@ -25,6 +25,8 @@
 
 namespace catapult { namespace test {
 
+	// region NodeEndpoint / Node factories
+
 	/// Creates a node endpoint referencing the local host with the default port.
 	ionet::NodeEndpoint CreateLocalHostNodeEndpoint();
 
@@ -40,15 +42,15 @@ namespace catapult { namespace test {
 	/// Creates a node with \a identityKey, \a name and \a roles.
 	ionet::Node CreateNamedNode(const Key& identityKey, const std::string& name, ionet::NodeRoles roles = ionet::NodeRoles::None);
 
-	/// Extracts all node identities from \a nodes.
-	template<typename TNodeContainer>
-	utils::KeySet ExtractNodeIdentities(const TNodeContainer& nodes) {
-		utils::KeySet identities;
-		for (const auto& node : nodes)
-			identities.emplace(node.identityKey());
+	/// Creates a node with \a identity, \a name and \a roles.
+	ionet::Node CreateNamedNode(
+			const model::NodeIdentity& identity,
+			const std::string& name,
+			ionet::NodeRoles roles = ionet::NodeRoles::None);
 
-		return identities;
-	}
+	// endregion
+
+	// region BasicNodeData
 
 	/// Basic node data used to spot check the contents of a NodeContainer.
 	struct BasicNodeData {
@@ -80,14 +82,42 @@ namespace catapult { namespace test {
 		}
 	};
 
-	/// A set of basic node data elements.
+	/// Unordered set of basic node data elements.
 	using BasicNodeDataContainer = std::unordered_set<BasicNodeData, BasicNodeDataHasher>;
 
 	/// Collects all basic node data information from \a view.
 	BasicNodeDataContainer CollectAll(const ionet::NodeContainerView& view);
 
-	/// Adds interactions (\a numSuccesses and \a numFailures) to the node identified by \a identityKey contained in \a modifier.
-	void AddNodeInteractions(ionet::NodeContainerModifier& modifier, const Key& identityKey, size_t numSuccesses, size_t numFailures);
+	// endregion
+
+	// region general utils
+
+	/// Extracts all node identities from \a nodes.
+	template<typename TNodeContainer>
+	model::NodeIdentitySet ExtractNodeIdentities(const TNodeContainer& nodes) {
+		auto identities = model::CreateNodeIdentitySet(model::NodeIdentityEqualityStrategy::Key_And_Host);
+		for (const auto& node : nodes)
+			identities.emplace(node.identity());
+
+		return identities;
+	}
+
+	/// Adds interactions (\a numSuccesses and \a numFailures) to the node identified by \a identity contained in \a modifier.
+	void AddNodeInteractions(
+			ionet::NodeContainerModifier& modifier,
+			const model::NodeIdentity& identity,
+			size_t numSuccesses,
+			size_t numFailures);
+
+	/// Converts \a seedIdentities to a node identity set.
+	model::NodeIdentitySet ToIdentitiesSet(const std::vector<model::NodeIdentity>& seedIdentities);
+
+	/// Converts \a identityKeys to a node identity set with specified \a host.
+	model::NodeIdentitySet ToIdentitiesSet(const std::vector<Key>& identityKeys, const std::string& host);
+
+	// endregion
+
+	// region custom asserts
 
 	/// Asserts that \a connectionState is zeroed.
 	void AssertZeroed(const ionet::ConnectionState& connectionState);
@@ -99,4 +129,14 @@ namespace catapult { namespace test {
 			uint32_t expectedNumFailures,
 			const ionet::NodeInteractions& interactions,
 			const std::string& message = "");
+
+	/// Asserts that \a expected and \a actual are equal.
+	// \node This helper is needed because NodeIdentity doesn't have an equality operator.
+	void AssertEqualIdentities(const model::NodeIdentitySet& expected, const model::NodeIdentitySet& actual);
+
+	/// Asserts that \a expected and \a actual are equal.
+	// \node This helper is needed because Node doesn't have an equality operator.
+	void AssertEqualNodes(const ionet::NodeSet& expected, const ionet::NodeSet& actual);
+
+	// endregion
 }}

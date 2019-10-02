@@ -33,7 +33,7 @@ namespace catapult { namespace test {
 
 	// region RequestorTestContext
 
-	/// A test context around a brief server requestor.
+	/// Test context around a brief server requestor.
 	template<typename TRequestor>
 	struct BriefServerRequestorTestContext {
 	public:
@@ -71,7 +71,7 @@ namespace catapult { namespace test {
 
 	// endregion
 
-	/// A policy for calling request on the requestor.
+	/// Policy for calling request on the requestor.
 	struct BriefServerRequestorMemberBeginRequestPolicy {
 		template<typename TRequestor, typename TCallback = typename TRequestor::CallbackType>
 		static void BeginRequest(TRequestor& requestor, const ionet::Node& requestNode, const TCallback& callback) {
@@ -144,7 +144,7 @@ namespace catapult { namespace test {
 
 	// region RemotePullServer
 
-	/// A remote pull server.
+	/// Remote pull server.
 	class RemotePullServer {
 	public:
 		/// Creates a remote pull server.
@@ -156,19 +156,17 @@ namespace catapult { namespace test {
 	public:
 		/// Returns \c true if the server is connected.
 		bool hasConnection() const {
-			return !!m_pServerSocket;
+			return !!serverSocket();
 		}
 
 	protected:
 		void prepareValidResponse(const crypto::KeyPair& partnerKeyPair, const std::shared_ptr<ionet::Packet>& pResponsePacket) {
-			std::shared_ptr<ionet::PacketSocket> pServerSocket;
-			test::SpawnPacketServerWork(m_acceptor, [&partnerKeyPair, pResponsePacket, &pServerSocket = m_pServerSocket](
-					const auto& pSocket) {
-				pServerSocket = pSocket;
-				net::VerifyClient(pSocket, partnerKeyPair, ionet::ConnectionSecurityMode::None, [pResponsePacket, pSocket](
-						auto,
-						const auto&) {
-					// - write the packet
+			test::SpawnPacketServerWork(m_acceptor, [this, &partnerKeyPair, pResponsePacket](const auto& pSocket) {
+				this->setServerSocket(pSocket);
+
+				auto securityMode = ionet::ConnectionSecurityMode::None;
+				net::VerifyClient(pSocket, partnerKeyPair, securityMode, [pResponsePacket, pSocket](auto, const auto&) {
+					// write the packet
 					pSocket->write(ionet::PacketPayload(pResponsePacket), [](auto) {});
 				});
 			});
@@ -177,14 +175,23 @@ namespace catapult { namespace test {
 	public:
 		/// Spawns server work but does not respond to any request.
 		void prepareNoResponse() {
-			test::SpawnPacketServerWork(m_acceptor, [&pServerSocket = m_pServerSocket](const auto& pSocket) {
-				pServerSocket = pSocket;
+			test::SpawnPacketServerWork(m_acceptor, [this](const auto& pSocket) {
+				this->setServerSocket(pSocket);
 			});
 		}
 
 		/// Closes the socket.
 		void close() {
-			m_pServerSocket->close();
+			serverSocket()->close();
+		}
+
+	private:
+		std::shared_ptr<ionet::PacketSocket> serverSocket() const {
+			return std::atomic_load(&m_pServerSocket);
+		}
+
+		void setServerSocket(const std::shared_ptr<ionet::PacketSocket>& pServerSocket) {
+			std::atomic_store(&m_pServerSocket, pServerSocket);
 		}
 
 	private:

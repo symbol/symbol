@@ -57,10 +57,10 @@ namespace catapult { namespace state {
 		void pop();
 
 	public:
-		/// Returns a const iterator to the first element of the underlying container.
+		/// Gets a const iterator to the first element of the underlying container.
 		SnapshotStack::const_iterator begin() const;
 
-		/// Returns a const iterator to the element following the last element of the underlying container.
+		/// Gets a const iterator to the element following the last element of the underlying container.
 		SnapshotStack::const_iterator end() const;
 
 	private:

@@ -47,12 +47,12 @@ namespace catapult { namespace model {
 		// followed by data if DataSize > 0
 
 	public:
-		/// Returns a const pointer to the first data byte in this cache entry info.
+		/// Gets a const pointer to the first data byte in this cache entry info.
 		const uint8_t* DataPtr() const {
 			return DataSize ? ToTypedPointer(PayloadStart(*this)) : nullptr;
 		}
 
-		/// Returns a pointer to the first data byte in this cache entry info.
+		/// Gets a pointer to the first data byte in this cache entry info.
 		uint8_t* DataPtr() {
 			return DataSize ? ToTypedPointer(PayloadStart(*this)) : nullptr;
 		}

@@ -79,7 +79,7 @@ namespace catapult { namespace disruptor {
 		EXPECT_EQ(20u, disruptor.added());
 		EXPECT_EQ(16u, disruptor.capacity());
 
-		// probably not the best test, as it actually tests the underlying circular buffer...
+		// probably not the best test, as it actually tests the underlying circular buffer
 		std::vector<Height::ValueType> collectedHeights;
 		for (auto i = 0u; i < 16; ++i)
 			collectedHeights.push_back(disruptor.elementAt(i).input().blocks()[0].Block.Height.unwrap());
@@ -116,6 +116,13 @@ namespace catapult { namespace disruptor {
 	}
 
 	namespace {
+		ConsumerResult CreateConsumerResult(uint32_t code, uint8_t resultSeverity) {
+			ConsumerResult result;
+			result.CompletionCode = code;
+			result.ResultSeverity = static_cast<ConsumerResultSeverity>(resultSeverity);
+			return result;
+		}
+
 		template<typename TMarkElementAction, typename TValidateResultAction>
 		void AssertAddCreatesElementWithExpectedIdAndCompletionHandler(
 				TMarkElementAction markElement,
@@ -171,12 +178,12 @@ namespace catapult { namespace disruptor {
 		AssertAddCreatesElementWithExpectedIdAndCompletionHandler(
 				[](auto& element) {
 					// Act:
-					element.markSkipped(20, 22);
+					element.markSkipped(20, CreateConsumerResult(22, 17));
 					element.markProcessingComplete();
 				},
 				[](auto& result) {
 					// Assert:
-					test::AssertAborted(result, 22, 20);
+					test::AssertAborted(result, 22, static_cast<disruptor::ConsumerResultSeverity>(17), 20);
 				});
 	}
 
@@ -187,7 +194,7 @@ namespace catapult { namespace disruptor {
 
 		// Act:
 		for (auto i = 0u; i < 16; i += 2)
-			disruptor.markSkipped(i, 0);
+			disruptor.markSkipped(i, CreateConsumerResult(0, 1));
 
 		// Assert:
 		EXPECT_EQ(16u, disruptor.size());

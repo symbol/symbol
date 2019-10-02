@@ -48,6 +48,7 @@ namespace catapult { namespace config {
 		void AssertDefaultBlockChainConfiguration(const model::BlockChainConfiguration& config) {
 			// Assert:
 			EXPECT_EQ(model::NetworkIdentifier::Mijin_Test, config.Network.Identifier);
+			EXPECT_EQ(model::NodeIdentityEqualityStrategy::Host, config.Network.NodeEqualityStrategy);
 			EXPECT_EQ(crypto::ParseKey("B4F12E7C9F6946091E2CB8B6D3A12B50D17CCBBF646386EA27CE2946A7423DCF"), config.Network.PublicKey);
 			EXPECT_EQ(
 					utils::ParseByteArray<GenerationHash>("57F7DA205008026C776CB6AED843393F04CD458E0AA2D9F1D5F31A402072B2D6"),
@@ -71,7 +72,7 @@ namespace catapult { namespace config {
 			EXPECT_EQ(BlockFeeMultiplier(10'000), config.DefaultDynamicFeeMultiplier);
 
 			EXPECT_EQ(utils::TimeSpan::FromHours(24), config.MaxTransactionLifetime);
-			EXPECT_EQ(utils::TimeSpan::FromSeconds(10), config.MaxBlockFutureTime);
+			EXPECT_EQ(utils::TimeSpan::FromMilliseconds(500), config.MaxBlockFutureTime);
 
 			EXPECT_EQ(Amount(8'998'999'998'000'000), config.InitialCurrencyAtomicUnits);
 			EXPECT_EQ(Amount(9'000'000'000'000'000), config.MaxMosaicAtomicUnits);
@@ -90,6 +91,8 @@ namespace catapult { namespace config {
 			// Assert:
 			EXPECT_EQ(7900u, config.Port);
 			EXPECT_EQ(7901u, config.ApiPort);
+			EXPECT_EQ(3u, config.MaxIncomingConnectionsPerIdentity);
+
 			EXPECT_FALSE(config.EnableAddressReuse);
 			EXPECT_FALSE(config.EnableSingleThreadPool);
 			EXPECT_TRUE(config.EnableCacheDatabaseStorage);
@@ -133,6 +136,7 @@ namespace catapult { namespace config {
 			EXPECT_EQ(5'000u, config.MaxTrackedNodes);
 
 			EXPECT_TRUE(config.TrustedHosts.empty());
+			EXPECT_EQ(std::unordered_set<std::string>({ "127.0.0.1" }), config.LocalNetworks);
 
 			EXPECT_EQ("", config.Local.Host);
 			EXPECT_EQ("", config.Local.FriendlyName);
@@ -140,15 +144,24 @@ namespace catapult { namespace config {
 			EXPECT_EQ(ionet::NodeRoles::Peer, config.Local.Roles);
 
 			EXPECT_EQ(10u, config.OutgoingConnections.MaxConnections);
-			EXPECT_EQ(5u, config.OutgoingConnections.MaxConnectionAge);
+			EXPECT_EQ(200u, config.OutgoingConnections.MaxConnectionAge);
 			EXPECT_EQ(20u, config.OutgoingConnections.MaxConnectionBanAge);
 			EXPECT_EQ(3u, config.OutgoingConnections.NumConsecutiveFailuresBeforeBanning);
 
 			EXPECT_EQ(512u, config.IncomingConnections.MaxConnections);
-			EXPECT_EQ(10u, config.IncomingConnections.MaxConnectionAge);
+			EXPECT_EQ(200u, config.IncomingConnections.MaxConnectionAge);
 			EXPECT_EQ(20u, config.IncomingConnections.MaxConnectionBanAge);
 			EXPECT_EQ(3u, config.IncomingConnections.NumConsecutiveFailuresBeforeBanning);
 			EXPECT_EQ(512u, config.IncomingConnections.BacklogSize);
+
+			EXPECT_EQ(utils::TimeSpan::FromHours(12), config.Banning.DefaultBanDuration);
+			EXPECT_EQ(utils::TimeSpan::FromHours(72), config.Banning.MaxBanDuration);
+			EXPECT_EQ(utils::TimeSpan::FromHours(48), config.Banning.KeepAliveDuration);
+			EXPECT_EQ(5'000u, config.Banning.MaxBannedNodes);
+
+			EXPECT_EQ(4u, config.Banning.NumReadRateMonitoringBuckets);
+			EXPECT_EQ(utils::TimeSpan::FromSeconds(15), config.Banning.ReadRateMonitoringBucketDuration);
+			EXPECT_EQ(utils::FileSize::FromMegabytes(100), config.Banning.MaxReadRateMonitoringTotalSize);
 		}
 
 		void AssertDefaultLoggingConfiguration(
@@ -180,7 +193,7 @@ namespace catapult { namespace config {
 		void AssertDefaultUserConfiguration(const UserConfiguration& config) {
 			// Assert:
 			EXPECT_EQ("0000000000000000000000000000000000000000000000000000000000000000", config.BootPrivateKey);
-			EXPECT_TRUE(config.ShouldAutoDetectDelegatedHarvesters);
+			EXPECT_TRUE(config.EnableDelegatedHarvestersAutoDetection);
 
 			EXPECT_EQ("../data", config.DataDirectory);
 			EXPECT_EQ(".", config.PluginsDirectory);
@@ -320,7 +333,9 @@ namespace catapult { namespace config {
 		auto node = ToLocalNode(config);
 
 		// Assert:
-		EXPECT_EQ(keyPair.publicKey(), node.identityKey());
+		const auto& identity = node.identity();
+		EXPECT_EQ(keyPair.publicKey(), identity.PublicKey);
+		EXPECT_EQ("127.0.0.1", identity.Host);
 
 		const auto& endpoint = node.endpoint();
 		EXPECT_EQ("alice.com", endpoint.Host);

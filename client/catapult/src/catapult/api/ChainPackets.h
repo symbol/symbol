@@ -26,7 +26,7 @@ namespace catapult { namespace api {
 
 #pragma pack(push, 1)
 
-	/// A chain info response.
+	/// Chain info response.
 	struct ChainInfoResponse : public ionet::Packet {
 		static constexpr ionet::PacketType Packet_Type = ionet::PacketType::Chain_Info;
 
@@ -40,7 +40,7 @@ namespace catapult { namespace api {
 		uint64_t ScoreLow;
 	};
 
-	/// A packet containing header information and a height.
+	/// Packet containing header information and a height.
 	template<ionet::PacketType PacketType>
 	struct HeightPacket : public ionet::Packet {
 		static constexpr ionet::PacketType Packet_Type = PacketType;
@@ -49,16 +49,16 @@ namespace catapult { namespace api {
 		catapult::Height Height;
 	};
 
-	/// A pull block request.
+	/// Pull block request.
 	using PullBlockRequest = HeightPacket<ionet::PacketType::Pull_Block>;
 
-	/// A block hashes request.
+	/// Block hashes request.
 	struct BlockHashesRequest : public HeightPacket<ionet::PacketType::Block_Hashes> {
 		/// Requested number of hashes.
 		uint32_t NumHashes;
 	};
 
-	/// A pull blocks request.
+	/// Pull blocks request.
 	struct PullBlocksRequest : public HeightPacket<ionet::PacketType::Pull_Blocks> {
 		/// Requested number of blocks.
 		uint32_t NumBlocks;

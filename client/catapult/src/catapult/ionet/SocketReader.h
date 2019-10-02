@@ -20,8 +20,8 @@
 
 #pragma once
 #include "PacketHandlers.h"
-#include "ReaderIdentity.h"
 #include "SocketOperationCode.h"
+#include "catapult/model/NodeIdentity.h"
 #include <memory>
 
 namespace catapult {
@@ -51,5 +51,5 @@ namespace catapult { namespace ionet {
 			const std::shared_ptr<BatchPacketReader>& pReader,
 			const std::shared_ptr<PacketIo>& pWriter,
 			const ServerPacketHandlers& handlers,
-			const ReaderIdentity& identity);
+			const model::NodeIdentity& identity);
 }}

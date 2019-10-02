@@ -26,7 +26,7 @@ namespace catapult { namespace api {
 
 #pragma pack(push, 1)
 
-	/// A network time response.
+	/// Network time response.
 	struct NetworkTimePacket : public ionet::Packet {
 	public:
 		static constexpr ionet::PacketType Packet_Type = ionet::PacketType::Time_Sync_Network_Time;

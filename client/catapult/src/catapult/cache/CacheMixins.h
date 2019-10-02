@@ -31,7 +31,7 @@
 
 namespace catapult { namespace cache {
 
-	/// A mixin for adding size support to a cache.
+	/// Mixin for adding size support to a cache.
 	template<typename TSet>
 	class SizeMixin {
 	public:
@@ -49,7 +49,7 @@ namespace catapult { namespace cache {
 		const TSet& m_set;
 	};
 
-	/// A mixin for adding contains support to a cache.
+	/// Mixin for adding contains support to a cache.
 	template<typename TSet, typename TCacheDescriptor>
 	class ContainsMixin {
 	private:
@@ -70,11 +70,11 @@ namespace catapult { namespace cache {
 		const TSet& m_set;
 	};
 
-	/// A mixin for adding iteration support to a cache.
+	/// Mixin for adding iteration support to a cache.
 	template<typename TSet>
 	class IterationMixin {
 	public:
-		/// An iterable view of the cache.
+		/// Iterable view of the cache.
 		struct IterableView {
 		public:
 			/// Creates a view around \a set.
@@ -82,12 +82,12 @@ namespace catapult { namespace cache {
 			{}
 
 		public:
-			/// Returns a const iterator to the first element of the underlying set.
+			/// Gets a const iterator to the first element of the underlying set.
 			auto begin() const {
 				return MakeIterableView(m_set).begin();
 			}
 
-			/// Returns a const iterator to the element following the last element of the underlying set.
+			/// Gets a const iterator to the element following the last element of the underlying set.
 			auto end() const {
 				return MakeIterableView(m_set).end();
 			}
@@ -137,7 +137,7 @@ namespace catapult { namespace cache {
 			}
 		};
 
-		/// An iterator that is returned by cache find functions.
+		/// Iterator that is returned by cache find functions.
 		template<typename TCacheDescriptor, typename TValueAdapter, typename TBaseSetIterator, typename TValue>
 		class CacheFindIterator {
 		private:
@@ -182,7 +182,7 @@ namespace catapult { namespace cache {
 		};
 	}
 
-	/// A mixin for adding const access support to a cache.
+	/// Mixin for adding const access support to a cache.
 	template<
 		typename TSet,
 		typename TCacheDescriptor,
@@ -213,7 +213,7 @@ namespace catapult { namespace cache {
 		const TSet& m_set;
 	};
 
-	/// A mixin for adding non-const access support to a cache.
+	/// Mixin for adding non-const access support to a cache.
 	/// \note This is not simply a specialization of ConstAccessorMixin due to differences in function constness.
 	template<
 		typename TSet,
@@ -245,7 +245,7 @@ namespace catapult { namespace cache {
 		TSet& m_set;
 	};
 
-	/// A mixin for adding active querying support to a cache.
+	/// Mixin for adding active querying support to a cache.
 	template<typename TSet, typename TCacheDescriptor>
 	class ActivePredicateMixin {
 	private:
@@ -268,7 +268,7 @@ namespace catapult { namespace cache {
 		const TSet& m_set;
 	};
 
-	/// A mixin for adding basic insert and remove support to a cache.
+	/// Mixin for adding basic insert and remove support to a cache.
 	template<typename TSet, typename TCacheDescriptor>
 	class BasicInsertRemoveMixin {
 	private:
@@ -305,7 +305,7 @@ namespace catapult { namespace cache {
 		TSet& m_set;
 	};
 
-	/// A mixin for height-based touching.
+	/// Mixin for height-based touching.
 	template<typename TSet, typename THeightGroupedSet>
 	class HeightBasedTouchMixin {
 	public:
@@ -330,7 +330,7 @@ namespace catapult { namespace cache {
 		THeightGroupedSet& m_heightGroupedSet;
 	};
 
-	/// A mixin for height-based pruning.
+	/// Mixin for height-based pruning.
 	template<typename TSet, typename THeightGroupedSet>
 	class HeightBasedPruningMixin {
 	public:

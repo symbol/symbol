@@ -23,23 +23,41 @@
 
 namespace catapult { namespace observers {
 
-	/// On commit, credits the expiration account of expired locks.
-	/// On rollback, debits the expiration account of expired locks.
+	/// On commit, credits the expiration account(s) of expired locks and creates receipts of \a receiptType.
+	/// On rollback, debits the expiration account(s) of expired locks.
 	/// Uses the observer \a context to determine notification direction and access caches.
 	/// Uses \a ownerAccountIdSupplier to retrieve the lock owner's account identifier.
 	template<typename TLockInfoCache, typename TAccountIdSupplier>
-	void ExpiredLockInfoObserver(const ObserverContext& context, TAccountIdSupplier ownerAccountIdSupplier) {
+	void ExpiredLockInfoObserver(ObserverContext& context, model::ReceiptType receiptType, TAccountIdSupplier ownerAccountIdSupplier) {
 		auto& accountStateCache = context.Cache.sub<cache::AccountStateCache>();
-		auto& lockInfoCache = context.Cache.template sub<TLockInfoCache>();
+		auto accountStateSupplier = [&accountStateCache, ownerAccountIdSupplier](const auto& lockInfo) {
+			return accountStateCache.find(ownerAccountIdSupplier(lockInfo));
+		};
 
-		lockInfoCache.processUnusedExpiredLocks(context.Height, [&context, &accountStateCache, ownerAccountIdSupplier](
-				const auto& lockInfo) {
-			auto accountStateIter = accountStateCache.find(ownerAccountIdSupplier(lockInfo));
+		std::vector<std::unique_ptr<model::BalanceChangeReceipt>> receipts;
+		auto receiptAppender = [&receipts, receiptType](const auto& publicKey, auto mosaicId, auto amount) {
+			receipts.push_back(std::make_unique<model::BalanceChangeReceipt>(receiptType, publicKey, mosaicId, amount));
+		};
+
+		auto& lockInfoCache = context.Cache.template sub<TLockInfoCache>();
+		lockInfoCache.processUnusedExpiredLocks(context.Height, [&context, accountStateSupplier, receiptAppender](const auto& lockInfo) {
+			auto accountStateIter = accountStateSupplier(lockInfo);
 			auto& accountState = accountStateIter.get();
-			if (NotifyMode::Commit == context.Mode)
-				accountState.Balances.credit(lockInfo.MosaicId, lockInfo.Amount);
-			else
+			if (NotifyMode::Rollback == context.Mode) {
 				accountState.Balances.debit(lockInfo.MosaicId, lockInfo.Amount);
+				return;
+			}
+
+			accountState.Balances.credit(lockInfo.MosaicId, lockInfo.Amount);
+			receiptAppender(accountState.PublicKey, lockInfo.MosaicId, lockInfo.Amount);
 		});
+
+		// sort receipts in order to fulfill deterministic ordering requirement
+		std::sort(receipts.begin(), receipts.end(), [](const auto& pLhs, const auto& pRhs) {
+			return std::memcmp(pLhs.get(), pRhs.get(), sizeof(model::BalanceChangeReceipt)) < 0;
+		});
+
+		for (const auto& pReceipt : receipts)
+			context.StatementBuilder().addReceipt(*pReceipt);
 	}
 }}

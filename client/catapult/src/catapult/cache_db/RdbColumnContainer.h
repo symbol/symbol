@@ -39,10 +39,10 @@ namespace catapult { namespace cache {
 		RdbColumnContainer(RocksDatabase& database, size_t columnId);
 
 	public:
-		/// Returns size of the column.
+		/// Gets the size of the column.
 		size_t size() const;
 
-		/// Sets size of the column to \a newSize.
+		/// Sets the size of the column to \a newSize.
 		void setSize(size_t newSize);
 
 		/// Returns \c false if property value of a column (\a propertyName) is not found,
@@ -61,7 +61,7 @@ namespace catapult { namespace cache {
 			return result;
 		}
 
-		/// Sets property value of a column (\a propertyName) to \a value.
+		/// Sets the property value of a column (\a propertyName) to \a value.
 		template<typename TValue>
 		void setProp(const std::string& propertyName, const TValue& value) {
 			std::string strValue(sizeof(TValue), 0);
@@ -69,7 +69,7 @@ namespace catapult { namespace cache {
 			save(propertyName, strValue);
 		}
 
-		/// Returns underlying database.
+		/// Gets the underlying database.
 		RocksDatabase& database() {
 			return m_database;
 		}

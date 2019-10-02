@@ -19,8 +19,8 @@
 **/
 
 #pragma once
-#include "catapult/ionet/Node.h"
 #include "catapult/ionet/NodeInteractionResult.h"
+#include "catapult/ionet/NodeSet.h"
 #include "catapult/net/PacketIoPickerContainer.h"
 #include "catapult/thread/Future.h"
 

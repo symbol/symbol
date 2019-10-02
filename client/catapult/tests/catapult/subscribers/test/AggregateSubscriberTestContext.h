@@ -26,7 +26,7 @@
 
 namespace catapult { namespace test {
 
-	/// A test context for an aggregate subscriber.
+	/// Test context for an aggregate subscriber.
 	template<typename TSubscriber, typename TAggregate>
 	class AggregateSubscriberTestContext {
 	public:
@@ -38,8 +38,13 @@ namespace catapult { namespace test {
 		{}
 
 	public:
+		/// Gets the (const) subscribers.
+		const auto& subscribers() const {
+			return m_rawSubscribers;
+		}
+
 		/// Gets the subscribers.
-		auto& subscribers() const {
+		auto& subscribers() {
 			return m_rawSubscribers;
 		}
 

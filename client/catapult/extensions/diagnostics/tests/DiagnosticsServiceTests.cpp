@@ -20,6 +20,7 @@
 
 #include "diagnostics/src/DiagnosticsService.h"
 #include "catapult/model/DiagnosticCounterValue.h"
+#include "tests/test/core/HandlersTrustedHostTests.h"
 #include "tests/test/core/PacketPayloadTestUtils.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"
 #include "tests/test/local/ServiceTestUtils.h"
@@ -79,49 +80,7 @@ namespace catapult { namespace diagnostics {
 		EXPECT_EQ(&context.testState().state().cache(), capture.pCache);
 	}
 
-	namespace {
-		bool CanProcess(const ionet::ServerPacketHandlers& packetHandlers, ionet::PacketType packetType, const std::string& host) {
-			// prepare a packet
-			auto pPacket = ionet::CreateSharedPacket<ionet::Packet>();
-			pPacket->Type = packetType;
-
-			// attempt to process
-			ionet::ServerPacketHandlerContext handlerContext({}, host);
-			return packetHandlers.process(*pPacket, handlerContext);
-		}
-	}
-
-	TEST(TEST_CLASS, HandlersAreOnlyAccessibleToTrustedHosts) {
-		// Arrange:
-		TestContext context;
-		const_cast<config::NodeConfiguration&>(context.testState().state().config().Node).TrustedHosts = { "foo.bar" };
-
-		// Act:
-		context.boot();
-		const auto& packetHandlers = context.testState().state().packetHandlers();
-
-		// Assert: service-registered handler has custom host filtering
-		EXPECT_TRUE(CanProcess(packetHandlers, ionet::PacketType::Diagnostic_Counters, "foo.bar"));
-		EXPECT_FALSE(CanProcess(packetHandlers, ionet::PacketType::Diagnostic_Counters, "foo.baz"));
-	}
-
-	TEST(TEST_CLASS, HandlersTrustedHostsFilterIsClearedAfterAllHandlersAreRegistered) {
-		// Arrange:
-		TestContext context;
-		const_cast<config::NodeConfiguration&>(context.testState().state().config().Node).TrustedHosts = { "foo.bar" };
-
-		// Act:
-		context.boot();
-		const auto& packetHandlers = context.testState().state().packetHandlers();
-
-		// - register a new handler after the service was booted
-		constexpr auto Packet_Type = static_cast<ionet::PacketType>(0);
-		const_cast<ionet::ServerPacketHandlers&>(packetHandlers).registerHandler(Packet_Type, [](const auto&, const auto&) {});
-
-		// Assert: external-registered handler has no custom host filtering
-		EXPECT_TRUE(CanProcess(packetHandlers, Packet_Type, "foo.bar"));
-		EXPECT_TRUE(CanProcess(packetHandlers, Packet_Type, "foo.baz"));
-	}
+	ADD_HANDLERS_TRUSTED_HOSTS_TESTS(TestContext, ionet::PacketType::Diagnostic_Counters)
 
 	TEST(TEST_CLASS, CountersAreSourcedFromLocatorAndState) {
 		// Arrange: add counters to different sources
@@ -137,7 +96,7 @@ namespace catapult { namespace diagnostics {
 		// - process a counters request
 		auto pPacket = ionet::CreateSharedPacket<ionet::Packet>();
 		pPacket->Type = ionet::PacketType::Diagnostic_Counters;
-		ionet::ServerPacketHandlerContext handlerContext({}, "");
+		ionet::ServerPacketHandlerContext handlerContext;
 		EXPECT_TRUE(packetHandlers.process(*pPacket, handlerContext));
 
 		// Assert: header is correct and contains the expected number of counters

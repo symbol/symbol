@@ -39,7 +39,7 @@ function(catapult_mongo_plugin_tests_with_header_only_deps TARGET_NAME)
 	target_link_libraries(${TARGET_NAME} catapult.plugins.${PLUGIN_NAME}.deps)
 	target_link_libraries(${TARGET_NAME} catapult.mongo.plugins.${PLUGIN_NAME}.deps)
 
-	if (TARGET "tests.catapult.test.plugins.${PLUGIN_NAME}")
+	if(TARGET "tests.catapult.test.plugins.${PLUGIN_NAME}")
 		target_link_libraries(${TARGET_NAME} tests.catapult.test.plugins.${PLUGIN_NAME})
 	endif()
 

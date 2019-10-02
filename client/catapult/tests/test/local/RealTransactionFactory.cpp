@@ -29,6 +29,7 @@
 #include "catapult/crypto/Signer.h"
 #include "catapult/model/Address.h"
 #include "catapult/model/NetworkInfo.h"
+#include "catapult/preprocessor.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/nodeps/Nemesis.h"
@@ -62,7 +63,7 @@ namespace catapult { namespace test {
 			auto pTransfer = builder.build();
 			pTransfer->MaxFee = GenerateRandomValue<Amount>();
 			pTransfer->Deadline = GenerateRandomValue<Timestamp>();
-			return std::move(pTransfer);
+			return PORTABLE_MOVE(pTransfer);
 		}
 	}
 
@@ -105,7 +106,7 @@ namespace catapult { namespace test {
 		auto pTransaction = builder.build();
 
 		extensions::TransactionExtensions(GetNemesisGenerationHash()).sign(signer, *pTransaction);
-		return std::move(pTransaction);
+		return PORTABLE_MOVE(pTransaction);
 	}
 
 	std::unique_ptr<model::Transaction> CreateRootAddressAliasTransaction(
@@ -120,7 +121,7 @@ namespace catapult { namespace test {
 		auto pTransaction = builder.build();
 
 		extensions::TransactionExtensions(GetNemesisGenerationHash()).sign(signer, *pTransaction);
-		return std::move(pTransaction);
+		return PORTABLE_MOVE(pTransaction);
 	}
 
 	// endregion

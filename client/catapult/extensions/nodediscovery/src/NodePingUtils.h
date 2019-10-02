@@ -19,7 +19,7 @@
 **/
 
 #pragma once
-#include "catapult/ionet/Node.h"
+#include "catapult/ionet/NodeSet.h"
 
 namespace catapult {
 	namespace ionet {

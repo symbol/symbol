@@ -120,7 +120,7 @@ namespace catapult { namespace test {
 		context.boot();
 
 		// Assert:
-		WAIT_FOR_VALUE_EXPR(0u, context.countMessageFiles(TTraits::Queue_Directory_Name));
+		WAIT_FOR_ZERO_EXPR(context.countMessageFiles(TTraits::Queue_Directory_Name));
 		EXPECT_EQ(numExpectedIndexFiles, context.countIndexFiles(TTraits::Queue_Directory_Name));
 		EXPECT_EQ(startIndex + numMessages, context.readIndexReaderFile(TTraits::Queue_Directory_Name));
 	}

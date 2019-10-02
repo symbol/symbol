@@ -35,7 +35,7 @@ namespace catapult { namespace net {
 	/// Accepts connections that are initiated by external nodes to this (local) node.
 	class ClientConnector {
 	public:
-		/// A callback that is passed the accept result as well as the client socket and public key (on success).
+		/// Callback that is passed the accept result as well as the client socket and public key (on success).
 		using AcceptCallback = consumer<PeerConnectCode, const std::shared_ptr<ionet::PacketSocket>&, const Key&>;
 
 	public:
@@ -44,6 +44,9 @@ namespace catapult { namespace net {
 	public:
 		/// Gets the number of active connections.
 		virtual size_t numActiveConnections() const = 0;
+
+		/// Gets the friendly name of this connector.
+		virtual const std::string& name() const = 0;
 
 	public:
 		/// Accepts a connection represented by \a pAcceptedSocket and calls \a callback on completion.
@@ -54,8 +57,10 @@ namespace catapult { namespace net {
 	};
 
 	/// Creates a client connector for a server with a key pair of \a keyPair using \a pPool and configured with \a settings.
+	/// Optional friendly \a name can be provided to tag logs.
 	std::shared_ptr<ClientConnector> CreateClientConnector(
 			const std::shared_ptr<thread::IoThreadPool>& pPool,
 			const crypto::KeyPair& keyPair,
-			const ConnectionSettings& settings);
+			const ConnectionSettings& settings,
+			const char* name = nullptr);
 }}

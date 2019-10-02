@@ -62,7 +62,7 @@ namespace catapult { namespace validators {
 	DEFINE_NAMESPACE_RESULT(Too_Deep, 102);
 
 	/// Validation failed because the namespace parent is unknown.
-	DEFINE_NAMESPACE_RESULT(Parent_Unknown, 103);
+	DEFINE_NAMESPACE_RESULT(Unknown_Parent, 103);
 
 	/// Validation failed because the namespace already exists.
 	DEFINE_NAMESPACE_RESULT(Already_Exists, 104);
@@ -89,10 +89,10 @@ namespace catapult { namespace validators {
 	DEFINE_NAMESPACE_RESULT(Unknown_Alias, 111);
 
 	/// Validation failed because unlink type is not consistent with existing alias.
-	DEFINE_NAMESPACE_RESULT(Alias_Unlink_Type_Inconsistency, 112);
+	DEFINE_NAMESPACE_RESULT(Alias_Inconsistent_Unlink_Type, 112);
 
 	/// Validation failed because unlink data is not consistent with existing alias.
-	DEFINE_NAMESPACE_RESULT(Alias_Unlink_Data_Inconsistency, 113);
+	DEFINE_NAMESPACE_RESULT(Alias_Inconsistent_Unlink_Data, 113);
 
 	/// Validation failed because aliased address is invalid.
 	DEFINE_NAMESPACE_RESULT(Alias_Invalid_Address, 114);

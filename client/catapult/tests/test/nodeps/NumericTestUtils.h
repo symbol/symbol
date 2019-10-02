@@ -24,7 +24,7 @@
 
 namespace catapult { namespace test {
 
-	/// Sets \a value to a maximum value allowed by its type.
+	/// Sets the specified \a value to the maximum value allowed by its type.
 	template<typename T>
 	void SetMaxValue(T& value) {
 		value = std::numeric_limits<T>::max();

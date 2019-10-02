@@ -60,7 +60,7 @@ namespace catapult { namespace harvesting {
 	/// Container used by unlocked accounts to store key pairs.
 	using UnlockedAccountsKeyPairContainer = std::vector<std::pair<crypto::KeyPair, size_t>>;
 
-	/// A read only view on top of unlocked accounts.
+	/// Read only view on top of unlocked accounts.
 	class UnlockedAccountsView : utils::MoveOnly {
 	public:
 		/// Creates a view around \a prioritizedKeyPairs with lock context \a readLock.
@@ -69,7 +69,7 @@ namespace catapult { namespace harvesting {
 				utils::SpinReaderWriterLock::ReaderLockGuard&& readLock);
 
 	public:
-		/// Returns the number of unlocked accounts.
+		/// Gets the number of unlocked accounts.
 		size_t size() const;
 
 		/// Returns \c true if the public key belongs to an unlocked account, \c false otherwise.
@@ -83,18 +83,18 @@ namespace catapult { namespace harvesting {
 		utils::SpinReaderWriterLock::ReaderLockGuard m_readLock;
 	};
 
-	/// A write only view on top of unlocked accounts.
+	/// Write only view on top of unlocked accounts.
 	class UnlockedAccountsModifier : utils::MoveOnly {
 	private:
 		using KeyPredicate = predicate<const Key&>;
 
 	public:
-		/// Creates a view around \a maxUnlockedAccounts, \a prioritizer and \a prioritizedKeyPairs with lock context \a readLock.
+		/// Creates a view around \a maxUnlockedAccounts, \a prioritizer and \a prioritizedKeyPairs with lock context \a writeLock.
 		UnlockedAccountsModifier(
 				size_t maxUnlockedAccounts,
 				const DelegatePrioritizer& prioritizer,
 				UnlockedAccountsKeyPairContainer& prioritizedKeyPairs,
-				utils::SpinReaderWriterLock::ReaderLockGuard&& readLock);
+				utils::SpinReaderWriterLock::WriterLockGuard&& writeLock);
 
 	public:
 		/// Adds (unlocks) the account identified by key pair (\a keyPair).
@@ -110,7 +110,6 @@ namespace catapult { namespace harvesting {
 		size_t m_maxUnlockedAccounts;
 		DelegatePrioritizer m_prioritizer;
 		UnlockedAccountsKeyPairContainer& m_prioritizedKeyPairs;
-		utils::SpinReaderWriterLock::ReaderLockGuard m_readLock;
 		utils::SpinReaderWriterLock::WriterLockGuard m_writeLock;
 	};
 

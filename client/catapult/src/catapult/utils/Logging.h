@@ -65,10 +65,10 @@ namespace catapult { namespace utils {
 
 	/// Catapult log sink types.
 	enum class LogSinkType {
-		/// A synchronous sink.
+		/// Synchronous sink.
 		Sync,
 
-		/// An asynchronous sink.
+		/// Asynchronous sink.
 		Async
 	};
 
@@ -212,7 +212,7 @@ namespace catapult { namespace utils {
 			IteratorType& m_iter;
 		};
 
-		/// A custom logging feature that allows tagging a log record with custom information.
+		/// Custom logging feature that allows tagging a log record with custom information.
 		template<typename TBase, typename TTraits>
 		class custom_info_tagger_feature : public TBase {
 		public:

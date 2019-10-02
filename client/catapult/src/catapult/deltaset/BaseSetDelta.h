@@ -32,16 +32,16 @@ namespace catapult { namespace deltaset {
 
 	/// Possible results of an insert into a base set delta.
 	enum class InsertResult {
-		/// An element pending removal was reverted.
+		/// Element pending removal was reverted.
 		Unremoved,
 
-		/// An existing element was updated (mutable elements only).
+		/// Existing element was updated (mutable elements only).
 		Updated,
 
 		/// Insert failed because the element already exists (immutable elements only).
 		Redundant,
 
-		/// A new element was inserted.
+		/// New element was inserted.
 		Inserted
 	};
 
@@ -50,23 +50,23 @@ namespace catapult { namespace deltaset {
 		/// No matching element was found.
 		None,
 
-		/// An element pending modification was reverted and removed (mutable elements only).
+		/// Element pending modification was reverted and removed (mutable elements only).
 		Unmodified_And_Removed,
 
-		/// An element pending insert was reverted.
+		/// Element pending insert was reverted.
 		Uninserted,
 
 		/// Remove failed because the element already was removed.
 		Redundant,
 
-		/// An existing element was removed.
+		/// Existing element was removed.
 		Removed
 	};
 
 	template<typename TSetTraits>
 	class BaseSetDeltaIterationView;
 
-	/// A delta on top of a base set that offers methods to insert/remove/update elements.
+	/// Delta on top of a base set that offers methods to insert/remove/update elements.
 	/// \tparam TElementTraits Traits describing the type of element.
 	/// \tparam TSetTraits Traits describing the underlying set.
 	///
@@ -111,13 +111,13 @@ namespace catapult { namespace deltaset {
 
 	public:
 		/// Searches for \a key in this set.
-		/// Returns a pointer to the matching element if it is found or \c nullptr if it is not found.
+		/// Gets a pointer to the matching element if it is found or \c nullptr if it is not found.
 		FindConstIterator find(const KeyType& key) const {
 			return Find<FindConstIterator>(*this, key);
 		}
 
 		/// Searches for \a key in this set.
-		/// Returns a pointer to the matching element if it is found or \c nullptr if it is not found.
+		/// Gets a pointer to the matching element if it is found or \c nullptr if it is not found.
 		FindIterator find(const KeyType& key) {
 			auto iter = Find<FindIterator>(*this, key);
 			if (!!iter.get())
@@ -300,7 +300,7 @@ namespace catapult { namespace deltaset {
 		}
 
 	public:
-		/// Gets const references to the pending modifications.
+		/// Gets a structure containing const references to the pending modifications.
 		DeltaElements<MemorySetType> deltas() const {
 			return DeltaElements<MemorySetType>(m_addedElements, m_removedElements, m_copiedElements);
 		}

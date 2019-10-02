@@ -54,27 +54,27 @@ namespace catapult { namespace mocks {
 		}
 
 	public:
-		/// Returns collected notification hashes.
+		/// Gets the collected notification hashes.
 		const auto& notificationHashes() const {
 			return m_notificationHashes;
 		}
 
-		/// Returns collected notification types.
+		/// Gets the collected notification types.
 		const auto& notificationTypes() const {
 			return m_notificationTypes;
 		}
 
-		/// Returns collected account keys.
+		/// Gets the collected account keys.
 		const auto& accountKeys() const {
 			return m_accountKeys;
 		}
 
-		/// Returns collected contexts.
+		/// Gets the collected contexts.
 		const auto& contexts() const {
 			return m_contexts;
 		}
 
-		/// Returns collected context pointers.
+		/// Gets the collected context pointers.
 		const auto& contextPointers() const {
 			return m_contextPointers;
 		}

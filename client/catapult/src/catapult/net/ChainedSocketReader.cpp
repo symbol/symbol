@@ -27,6 +27,10 @@
 namespace catapult { namespace net {
 
 	namespace {
+		constexpr utils::LogLevel MapToLogLevel(ionet::SocketOperationCode code) {
+			return ionet::SocketOperationCode::Closed == code ? utils::LogLevel::Debug : utils::LogLevel::Warning;
+		}
+
 		class DefaultChainedSocketReader
 				: public ChainedSocketReader
 				, public std::enable_shared_from_this<DefaultChainedSocketReader> {
@@ -34,7 +38,7 @@ namespace catapult { namespace net {
 			DefaultChainedSocketReader(
 					const std::shared_ptr<ionet::PacketSocket>& pPacketSocket,
 					const ionet::ServerPacketHandlers& serverHandlers,
-					const ionet::ReaderIdentity& identity,
+					const model::NodeIdentity& identity,
 					const ChainedSocketReader::CompletionHandler& completionHandler)
 					: m_pPacketSocket(pPacketSocket)
 					, m_identity(identity)
@@ -63,14 +67,14 @@ namespace catapult { namespace net {
 					return start();
 
 				default:
-					CATAPULT_LOG(warning) << m_identity << " read completed with error: " << code;
+					CATAPULT_LOG_LEVEL(MapToLogLevel(code)) << m_identity << " read completed with error: " << code;
 					return m_completionHandler(code);
 				}
 			}
 
 		private:
 			std::shared_ptr<ionet::PacketSocket> m_pPacketSocket;
-			ionet::ReaderIdentity m_identity;
+			model::NodeIdentity m_identity;
 			ChainedSocketReader::CompletionHandler m_completionHandler;
 			std::unique_ptr<ionet::SocketReader> m_pReader;
 		};
@@ -79,14 +83,14 @@ namespace catapult { namespace net {
 	std::shared_ptr<ChainedSocketReader> CreateChainedSocketReader(
 			const std::shared_ptr<ionet::PacketSocket>& pPacketSocket,
 			const ionet::ServerPacketHandlers& serverHandlers,
-			const ionet::ReaderIdentity& identity) {
+			const model::NodeIdentity& identity) {
 		return CreateChainedSocketReader(pPacketSocket, serverHandlers, identity, [](auto) {});
 	}
 
 	std::shared_ptr<ChainedSocketReader> CreateChainedSocketReader(
 			const std::shared_ptr<ionet::PacketSocket>& pPacketSocket,
 			const ionet::ServerPacketHandlers& serverHandlers,
-			const ionet::ReaderIdentity& identity,
+			const model::NodeIdentity& identity,
 			const ChainedSocketReader::CompletionHandler& completionHandler) {
 		return std::make_shared<DefaultChainedSocketReader>(pPacketSocket, serverHandlers, identity, completionHandler);
 	}

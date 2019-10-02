@@ -49,7 +49,7 @@ namespace catapult { namespace builders {
 		void setDuration(BlockDuration duration);
 
 	public:
-		/// Returns size of mosaic definition transaction.
+		/// Gets the size of mosaic definition transaction.
 		/// \note This returns size of a normal transaction not embedded transaction.
 		size_t size() const;
 

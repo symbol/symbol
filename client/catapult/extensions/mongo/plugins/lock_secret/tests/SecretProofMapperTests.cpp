@@ -55,7 +55,7 @@ namespace catapult { namespace mongo { namespace plugins {
 
 		const auto* pProof = pTransaction->ProofPtr();
 		const auto* pDbProof = test::GetBinary(view, "proof");
-		EXPECT_EQ(test::ToHexString(pProof, pTransaction->ProofSize), test::ToHexString(pDbProof, pTransaction->ProofSize));
+		EXPECT_EQ_MEMORY(pProof, pDbProof, pTransaction->ProofSize);
 	}
 
 	// endregion

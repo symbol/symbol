@@ -20,6 +20,7 @@
 
 #include "catapult/thread/MultiServicePool.h"
 #include "catapult/utils/MemoryUtils.h"
+#include "catapult/utils/SpinLock.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/TestHarness.h"
 #include <mutex>
@@ -51,15 +52,15 @@ namespace catapult { namespace thread {
 		// the only requirement for a compatible service is to have a shutdown function
 		class FooService {
 		public:
-			FooService(const std::string& threadPoolTag, size_t id, ShutdownIds& shutdownIds)
-					: m_threadPoolTag(threadPoolTag)
+			FooService(const std::string& threadPoolName, size_t id, ShutdownIds& shutdownIds)
+					: m_threadPoolName(threadPoolName)
 					, m_id(id)
 					, m_shutdownIds(shutdownIds)
 			{}
 
 		public:
-			std::string threadPoolTag() const {
-				return m_threadPoolTag;
+			std::string threadPoolName() const {
+				return m_threadPoolName;
 			}
 
 			size_t id() const {
@@ -68,6 +69,9 @@ namespace catapult { namespace thread {
 
 		public:
 			void shutdown() {
+				// synchronize shutdown because all calls (possibly from different threads) need to add breadcrumbs
+				utils::SpinLockGuard guard(m_lock);
+
 				// since clearing dependencies unblocks shutdown of pool, first push shutdown id into vector
 				m_shutdownIds.push_back(m_id);
 				m_dependencies.clear();
@@ -78,24 +82,25 @@ namespace catapult { namespace thread {
 			}
 
 		private:
-			std::string m_threadPoolTag;
+			std::string m_threadPoolName;
 			size_t m_id;
 			ShutdownIds& m_shutdownIds;
 			std::vector<std::shared_ptr<void>> m_dependencies;
+			utils::SpinLock m_lock;
 		};
 
 		static std::shared_ptr<FooService> CreateFooService(
 				const std::shared_ptr<IoThreadPool>& pPool,
 				size_t id,
 				ShutdownIds& shutdownIds) {
-			return std::make_shared<FooService>(pPool->tag(), id, shutdownIds);
+			return std::make_shared<FooService>(pPool->name(), id, shutdownIds);
 		}
 
-		void AssertService(const FooService& service, const std::string& expectedThreadPoolTag, size_t expectedId) {
+		void AssertService(const FooService& service, const std::string& expectedThreadPoolName, size_t expectedId) {
 			// Assert:
 			std::ostringstream message;
-			message << "expected id - " << expectedId << ", expected tag - " << expectedThreadPoolTag;
-			EXPECT_EQ(expectedThreadPoolTag, service.threadPoolTag()) << message.str();
+			message << "expected id - " << expectedId << ", expected name - " << expectedThreadPoolName;
+			EXPECT_EQ(expectedThreadPoolName, service.threadPoolName()) << message.str();
 			EXPECT_EQ(expectedId, service.id()) << message.str();
 		}
 	}
@@ -142,7 +147,7 @@ namespace catapult { namespace thread {
 		EXPECT_EQ(1u, pool.numServiceGroups());
 		EXPECT_EQ(1u, pool.numServices());
 
-		AssertService(*pService, "IoThreadPool", 7);
+		AssertService(*pService, "", 7);
 	}
 
 	TEST(TEST_CLASS, CanPushSingleService) {
@@ -158,7 +163,7 @@ namespace catapult { namespace thread {
 		EXPECT_EQ(1u, pool.numServiceGroups());
 		EXPECT_EQ(1u, pool.numServices());
 
-		AssertService(*pService, "foo IoThreadPool", 7);
+		AssertService(*pService, "foo", 7);
 	}
 
 	TEST(TEST_CLASS, CanPushSingleServiceGroupWithMultipleServices) {
@@ -177,8 +182,8 @@ namespace catapult { namespace thread {
 		EXPECT_EQ(2u, pool.numServices());
 		EXPECT_EQ(2u, pGroup->numServices());
 
-		AssertService(*pService1, "foo IoThreadPool", 7);
-		AssertService(*pService2, "foo IoThreadPool", 10);
+		AssertService(*pService1, "foo", 7);
+		AssertService(*pService2, "foo", 10);
 	}
 
 	// endregion
@@ -201,7 +206,7 @@ namespace catapult { namespace thread {
 			EXPECT_EQ(1u, pool.numServices());
 
 			EXPECT_EQ(expectedNumWorkerThreads, pPool->numWorkerThreads());
-			EXPECT_EQ("pool IoThreadPool", pPool->tag());
+			EXPECT_EQ("pool", pPool->name());
 		}
 
 		void AssertCanAddSingleIsolatedPoolWithExplicitThreads(size_t numWorkerThreads, size_t expectedNumWorkerThreads) {
@@ -245,7 +250,7 @@ namespace catapult { namespace thread {
 
 			// - the returned pool is actually the main pool
 			EXPECT_EQ(3u, pPool->numWorkerThreads());
-			EXPECT_EQ("foo IoThreadPool", pPool->tag());
+			EXPECT_EQ("foo", pPool->name());
 		}
 	}
 
@@ -295,13 +300,13 @@ namespace catapult { namespace thread {
 		EXPECT_EQ(4u, pGroup1->numServices());
 		EXPECT_EQ(3u, pGroup2->numServices());
 
-		AssertService(*pService1, "foo IoThreadPool", 7);
-		AssertService(*pService2, "IoThreadPool", 9);
-		AssertService(*pService3, "foo IoThreadPool", 11);
-		AssertService(*pService4, "foo IoThreadPool", 77);
-		AssertService(*pService5, "foo IoThreadPool", 82);
-		AssertService(*pService6, "foo IoThreadPool", 22);
-		AssertService(*pService7, "IoThreadPool", 99);
+		AssertService(*pService1, "foo", 7);
+		AssertService(*pService2, "", 9);
+		AssertService(*pService3, "foo", 11);
+		AssertService(*pService4, "foo", 77);
+		AssertService(*pService5, "foo", 82);
+		AssertService(*pService6, "foo", 22);
+		AssertService(*pService7, "", 99);
 	}
 
 	// endregion

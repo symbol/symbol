@@ -43,7 +43,7 @@ namespace catapult { namespace sync {
 		RollbackStats();
 
 	public:
-		/// Returns statistics for a type (\a rollbackCounterType).
+		/// Gets the statistics value for the specified counter type (\a rollbackCounterType).
 		uint64_t total(RollbackCounterType rollbackCounterType) const;
 
 		/// Adds info about \a rollbackSize at \a timestamp to current statistics.

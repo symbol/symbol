@@ -54,42 +54,51 @@ namespace catapult { namespace ionet {
 			}
 		}
 
-		ServerPacketHandlerContext CreateDefaultContext(const std::string& host = "") {
-			return ServerPacketHandlerContext({}, host);
-		}
-
 		bool ProcessPacket(const PacketHandlers& handlers, uint32_t type, const std::string& host = "") {
 			// Arrange:
 			Packet packet;
 			packet.Type = static_cast<PacketType>(type);
 
+			Key key;
+			ServerPacketHandlerContext handlerContext(key, host);
+
 			// Act:
-			auto context = CreateDefaultContext(host);
-			return handlers.process(packet, context);
+			return handlers.process(packet, handlerContext);
 		}
 	}
 
 	// region ServerPacketHandlerContext
 
-	TEST(TEST_CLASS, ServerPacketHandlerContextInitiallyHasNoResponse) {
+	TEST(TEST_CLASS, ServerPacketHandlerContextCanBeCreatedEmpty) {
+		// Act:
+		ServerPacketHandlerContext handlerContext;
+
+		// Assert:
+		EXPECT_FALSE(handlerContext.hasResponse());
+
+		EXPECT_EQ(Key(), handlerContext.key());
+		EXPECT_EQ("", handlerContext.host());
+	}
+
+	TEST(TEST_CLASS, ServerPacketHandlerContextCanBeCreatedAroundKeyAndHost) {
 		// Act:
 		auto key = test::GenerateRandomByteArray<Key>();
 		auto host = std::string("alice.com");
-		ServerPacketHandlerContext context(key, host);
+		ServerPacketHandlerContext handlerContext(key, host);
 
 		// Assert:
-		EXPECT_FALSE(context.hasResponse());
+		EXPECT_FALSE(handlerContext.hasResponse());
 
-		EXPECT_EQ(key, context.key());
-		EXPECT_EQ("alice.com", context.host());
+		EXPECT_EQ(key, handlerContext.key());
+		EXPECT_EQ("alice.com", handlerContext.host());
 	}
 
 	TEST(TEST_CLASS, ServerPacketHandlerCannotAccessUnsetResponse) {
 		// Arrange:
-		auto context = CreateDefaultContext();
+		ServerPacketHandlerContext handlerContext;
 
 		// Act + Assert:
-		EXPECT_THROW(context.response(), catapult_runtime_error);
+		EXPECT_THROW(handlerContext.response(), catapult_runtime_error);
 	}
 
 	TEST(TEST_CLASS, ServerPacketHandlerContextCanHaveResponseSet) {
@@ -97,53 +106,53 @@ namespace catapult { namespace ionet {
 		auto pPacket = CreateSharedPacket<Packet>(25);
 		auto key = test::GenerateRandomByteArray<Key>();
 		auto host = std::string("alice.com");
-		ServerPacketHandlerContext context(key, host);
+		ServerPacketHandlerContext handlerContext(key, host);
 
 		// Act:
-		context.response(PacketPayload(pPacket));
+		handlerContext.response(PacketPayload(pPacket));
 
 		// Assert:
-		EXPECT_TRUE(context.hasResponse());
-		test::AssertPacketPayload(*pPacket, context.response());
+		EXPECT_TRUE(handlerContext.hasResponse());
+		test::AssertPacketPayload(*pPacket, handlerContext.response());
 
-		EXPECT_EQ(key, context.key());
-		EXPECT_EQ("alice.com", context.host());
+		EXPECT_EQ(key, handlerContext.key());
+		EXPECT_EQ("alice.com", handlerContext.host());
 	}
 
 	TEST(TEST_CLASS, ServerPacketHandlerContextCannotChangeExplicitlySetResponse) {
 		// Arrange:
 		auto pPacket = CreateSharedPacket<Packet>(25);
-		auto context = CreateDefaultContext();
-		context.response(PacketPayload(pPacket));
+		ServerPacketHandlerContext handlerContext;
+		handlerContext.response(PacketPayload(pPacket));
 
 		// Act + Assert:
-		EXPECT_THROW(context.response(PacketPayload(pPacket)), catapult_runtime_error);
+		EXPECT_THROW(handlerContext.response(PacketPayload(pPacket)), catapult_runtime_error);
 	}
 
 	TEST(TEST_CLASS, ServerPacketHandlerContextHasResponseWhenExplicitlyUnset) {
 		// Arrange:
 		auto key = test::GenerateRandomByteArray<Key>();
 		auto host = std::string("alice.com");
-		ServerPacketHandlerContext context(key, host);
+		ServerPacketHandlerContext handlerContext(key, host);
 
 		// Act:
-		context.response(PacketPayload());
+		handlerContext.response(PacketPayload());
 
 		// Assert:
-		EXPECT_TRUE(context.hasResponse());
-		test::AssertPacketPayloadUnset(context.response());
+		EXPECT_TRUE(handlerContext.hasResponse());
+		test::AssertPacketPayloadUnset(handlerContext.response());
 
-		EXPECT_EQ(key, context.key());
-		EXPECT_EQ("alice.com", context.host());
+		EXPECT_EQ(key, handlerContext.key());
+		EXPECT_EQ("alice.com", handlerContext.host());
 	}
 
 	TEST(TEST_CLASS, ServerPacketHandlerContextCannotChangeExplicitlyUnsetResponse) {
 		// Arrange:
-		auto context = CreateDefaultContext();
-		context.response(PacketPayload());
+		ServerPacketHandlerContext handlerContext;
+		handlerContext.response(PacketPayload());
 
 		// Act + Assert:
-		EXPECT_THROW(context.response(PacketPayload()), catapult_runtime_error);
+		EXPECT_THROW(handlerContext.response(PacketPayload()), catapult_runtime_error);
 	}
 
 	// endregion
@@ -347,7 +356,7 @@ namespace catapult { namespace ionet {
 		auto pPacket = reinterpret_cast<Packet*>(&packetBuffer[0]);
 		pPacket->Size = Packet_Size;
 		pPacket->Type = static_cast<PacketType>(1);
-		auto handlerContext = CreateDefaultContext();
+		ServerPacketHandlerContext handlerContext;
 		handlers.process(*pPacket, handlerContext);
 
 		// Assert:
@@ -361,10 +370,10 @@ namespace catapult { namespace ionet {
 		PacketHandlers handlers;
 		auto numCallbackCalls = 0u;
 		for (auto i = 0u; i < Num_Handlers; ++i) {
-			handlers.registerHandler(static_cast<PacketType>(i), [i, &numCallbackCalls](const auto&, auto& context) {
+			handlers.registerHandler(static_cast<PacketType>(i), [i, &numCallbackCalls](const auto&, auto& handlerContext) {
 				auto pResponsePacket = CreateSharedPacket<Packet>();
 				pResponsePacket->Type = static_cast<PacketType>(0xFF ^ (1 << i));
-				context.response(PacketPayload(pResponsePacket));
+				handlerContext.response(PacketPayload(pResponsePacket));
 				++numCallbackCalls;
 			});
 		}
@@ -373,7 +382,7 @@ namespace catapult { namespace ionet {
 		Packet packet;
 		packet.Size = sizeof(Packet);
 		packet.Type = static_cast<PacketType>(2);
-		auto handlerContext = CreateDefaultContext();
+		ServerPacketHandlerContext handlerContext;
 		handlers.process(packet, handlerContext);
 
 		// Assert:

@@ -33,7 +33,7 @@ namespace catapult { namespace mocks {
 		void flush() override;
 
 	public:
-		/// Returns number of times flush was invoked.
+		/// Gets the number of times flush was invoked.
 		size_t numFlushes() const;
 
 	private:

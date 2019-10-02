@@ -29,22 +29,22 @@ namespace catapult { namespace timesync {
 	}
 
 	TimeSynchronizationSample::TimeSynchronizationSample()
-			: m_node()
+			: m_identityKey()
 			, m_localTimestamps()
 			, m_remoteTimestamps()
 	{}
 
 	TimeSynchronizationSample::TimeSynchronizationSample(
-			const ionet::Node& node,
+			const Key& identityKey,
 			const CommunicationTimestamps& localTimestamps,
 			const CommunicationTimestamps& remoteTimestamps)
-			: m_node(node)
+			: m_identityKey(identityKey)
 			, m_localTimestamps(localTimestamps)
 			, m_remoteTimestamps(remoteTimestamps)
 	{}
 
-	const ionet::Node& TimeSynchronizationSample::node() const {
-		return m_node;
+	const Key& TimeSynchronizationSample::identityKey() const {
+		return m_identityKey;
 	}
 
 	const CommunicationTimestamps& TimeSynchronizationSample::localTimestamps() const {
@@ -85,13 +85,15 @@ namespace catapult { namespace timesync {
 		// since different remotes can report the same time offset and we are collecting the samples in a set,
 		// we need to distinguish between nodes using the public key
 		if (lhsTimeOffsetToRemote == rhsTimeOffsetToRemote)
-			return m_node.identityKey() < rhs.m_node.identityKey();
+			return m_identityKey < rhs.m_identityKey;
 
 		return lhsTimeOffsetToRemote < rhsTimeOffsetToRemote;
 	}
 
 	bool TimeSynchronizationSample::operator==(const TimeSynchronizationSample& rhs) const {
-		return m_node == rhs.m_node && m_localTimestamps == rhs.m_localTimestamps && m_remoteTimestamps == rhs.m_remoteTimestamps;
+		return m_identityKey == rhs.m_identityKey
+				&& m_localTimestamps == rhs.m_localTimestamps
+				&& m_remoteTimestamps == rhs.m_remoteTimestamps;
 	}
 
 	bool TimeSynchronizationSample::operator!=(const TimeSynchronizationSample& rhs) const {

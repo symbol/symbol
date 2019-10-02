@@ -31,17 +31,7 @@
 
 namespace catapult { namespace test {
 
-	boost::asio::ip::tcp::endpoint CreateLocalHostEndpoint() {
-		return CreateLocalHostEndpoint(GetLocalHostPort());
-	}
-
-	boost::asio::ip::tcp::endpoint CreateLocalHostEndpoint(unsigned short port) {
-		return boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string("127.0.0.1"), port);
-	}
-
-	ionet::PacketSocketOptions CreatePacketSocketOptions() {
-		return net::ConnectionSettings().toSocketOptions();
-	}
+	// region TcpAcceptor
 
 	namespace {
 		void EnableAddressReuse(boost::asio::ip::tcp::acceptor& acceptor) {
@@ -60,17 +50,17 @@ namespace catapult { namespace test {
 		}
 	}
 
-	// region TcpAcceptor
-
 	class TcpAcceptor::Impl {
 	public:
-		explicit Impl(boost::asio::io_context& ioContext)
-				: m_acceptorStrand(ioContext)
-				, m_timer(ioContext)
+		Impl(boost::asio::io_context& ioContext, unsigned short port)
+				: m_ioContext(ioContext)
+				, m_port(port)
+				, m_acceptorStrand(m_ioContext)
+				, m_timer(m_ioContext)
 				, m_isClosed(false)
-				, m_pAcceptor(CreateLocalHostAcceptor(ioContext)) {
+				, m_pAcceptor(CreateLocalHostAcceptor(m_ioContext, m_port)) {
 			// setup the timer
-			m_timer.expires_from_now(std::chrono::seconds(2 * test::detail::Default_Wait_Timeout));
+			m_timer.expires_from_now(std::chrono::seconds(2 * detail::Default_Wait_Timeout));
 			m_timer.async_wait([this](const auto& ec) {
 				if (boost::asio::error::operation_aborted == ec)
 					return;
@@ -81,6 +71,24 @@ namespace catapult { namespace test {
 		}
 
 		~Impl() {
+			destroy();
+		}
+
+	public:
+		auto& ioContext() {
+			return m_ioContext;
+		}
+
+		auto& acceptor() {
+			return *m_pAcceptor;
+		}
+
+		auto& strand() {
+			return m_acceptorStrand;
+		}
+
+	private:
+		void destroy() {
 			// cancel the timer
 			m_timer.cancel();
 
@@ -93,40 +101,38 @@ namespace catapult { namespace test {
 			WAIT_FOR(m_isClosed);
 		}
 
-	public:
-		auto& acceptor() {
-			return *m_pAcceptor;
-		}
-
-		auto& strand() {
-			return m_acceptorStrand;
-		}
-
-	private:
 		void closeAcceptor() {
 			CATAPULT_LOG(debug) << "dispatching close of socket acceptor";
-			boost::asio::dispatch(m_acceptorStrand, [&acceptor = *m_pAcceptor, &isClosed = m_isClosed]() {
-				Close(acceptor, isClosed);
+			boost::asio::dispatch(m_acceptorStrand, [&acceptor = *m_pAcceptor, &isClosed = m_isClosed, port = m_port]() {
+				Close(acceptor, isClosed, port);
 			});
 		}
 
 	private:
-		static std::unique_ptr<boost::asio::ip::tcp::acceptor> CreateLocalHostAcceptor(boost::asio::io_context& ioContext) {
-			if (Has_Outstanding_Acceptor)
-				CATAPULT_THROW_INVALID_ARGUMENT("detected creation of multiple localhost acceptors - probably a bug");
+		static std::unique_ptr<boost::asio::ip::tcp::acceptor> CreateLocalHostAcceptor(
+				boost::asio::io_context& ioContext,
+				unsigned short port) {
+			if (GetLocalHostPort() == port) {
+				if (Has_Outstanding_Acceptor)
+					CATAPULT_THROW_INVALID_ARGUMENT("detected creation of multiple localhost acceptors - probably a bug");
 
-			Has_Outstanding_Acceptor = true;
+				Has_Outstanding_Acceptor = true;
+			}
+
 			auto pAcceptor = std::make_unique<boost::asio::ip::tcp::acceptor>(ioContext);
-			BindAcceptor(*pAcceptor, CreateLocalHostEndpoint());
+			BindAcceptor(*pAcceptor, CreateLocalHostEndpoint(port));
 			pAcceptor->listen();
 			return pAcceptor;
 		}
 
-		static void Close(boost::asio::ip::tcp::acceptor& acceptor, std::atomic_bool& isClosed) {
+		static void Close(boost::asio::ip::tcp::acceptor& acceptor, std::atomic_bool& isClosed, unsigned short port) {
 			CATAPULT_LOG(debug) << "closing socket acceptor";
 
 			acceptor.close();
-			Has_Outstanding_Acceptor = false;
+
+			if (GetLocalHostPort() == port)
+				Has_Outstanding_Acceptor = false;
+
 			isClosed = true;
 
 			CATAPULT_LOG(debug) << "socket acceptor closed";
@@ -135,6 +141,8 @@ namespace catapult { namespace test {
 	private:
 		// on MacOS, there is a potential race condition when kevent (triggered by async_await) and close are called concurrently
 		// this is now *properly* mitigated by wrapping acceptor operations in a strand
+		boost::asio::io_context& m_ioContext;
+		unsigned short m_port;
 		boost::asio::io_context::strand m_acceptorStrand;
 		boost::asio::steady_timer m_timer;
 		std::atomic_bool m_isClosed;
@@ -147,7 +155,10 @@ namespace catapult { namespace test {
 
 	bool TcpAcceptor::Impl::Has_Outstanding_Acceptor = false;
 
-	TcpAcceptor::TcpAcceptor(boost::asio::io_context& ioContext) : m_pImpl(std::make_unique<Impl>(ioContext))
+	TcpAcceptor::TcpAcceptor(boost::asio::io_context& ioContext) : TcpAcceptor(ioContext, GetLocalHostPort())
+	{}
+
+	TcpAcceptor::TcpAcceptor(boost::asio::io_context& ioContext, unsigned short port) : m_pImpl(std::make_unique<Impl>(ioContext, port))
 	{}
 
 	TcpAcceptor::~TcpAcceptor() = default;
@@ -162,12 +173,30 @@ namespace catapult { namespace test {
 
 	// endregion
 
+	// region factories
+
+	boost::asio::ip::tcp::endpoint CreateLocalHostEndpoint() {
+		return CreateLocalHostEndpoint(GetLocalHostPort());
+	}
+
+	boost::asio::ip::tcp::endpoint CreateLocalHostEndpoint(unsigned short port) {
+		return boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string("127.0.0.1"), port);
+	}
+
+	ionet::PacketSocketOptions CreatePacketSocketOptions() {
+		return net::ConnectionSettings().toSocketOptions();
+	}
+
 	std::shared_ptr<boost::asio::ip::tcp::acceptor> CreateImplicitlyClosedLocalHostAcceptor(boost::asio::io_context& ioContext) {
 		auto pAcceptor = std::make_shared<boost::asio::ip::tcp::acceptor>(ioContext);
 		BindAcceptor(*pAcceptor, CreateLocalHostEndpoint());
 		pAcceptor->listen();
 		return pAcceptor;
 	}
+
+	// endregion
+
+	// region spawn work helpers
 
 	void SpawnPacketServerWork(boost::asio::io_context& ioContext, const PacketSocketWork& serverWork) {
 		SpawnPacketServerWork(ioContext, CreatePacketSocketOptions(), serverWork);
@@ -198,13 +227,21 @@ namespace catapult { namespace test {
 			const ionet::PacketSocketOptions& options,
 			const PacketSocketWork& serverWork) {
 		// Arrange: post the work to the thread pool
-		boost::asio::post(acceptor.strand(), [options, serverWork, &acceptor]() {
+		std::weak_ptr<TcpAcceptor::Impl> pAcceptorImplWeak = acceptor.m_pImpl;
+		boost::asio::post(acceptor.strand(), [options, serverWork, pAcceptorImplWeak]() {
+			auto pAcceptorImpl = pAcceptorImplWeak.lock();
+			if (!pAcceptorImpl) {
+				CATAPULT_LOG(warning) << "acceptor destroyed before accept initiated";
+				return;
+			}
+
 			// - accept a connection
-			ionet::Accept(acceptor.get(), options, [serverWork](const auto& socketInfo) {
+			ionet::Accept(pAcceptorImpl->ioContext(), pAcceptorImpl->acceptor(), options, [serverWork](const auto& socketInfo) {
 				CATAPULT_LOG(debug) << "server socket accepted: " << socketInfo.socket().get();
 
 				// Act: perform the server work
-				serverWork(socketInfo.socket());
+				if (socketInfo)
+					serverWork(socketInfo.socket());
 			});
 		});
 	}
@@ -212,12 +249,17 @@ namespace catapult { namespace test {
 	void SpawnPacketClientWork(boost::asio::io_context& ioContext, const PacketSocketWork& clientWork) {
 		boost::asio::post(ioContext, [&ioContext, clientWork]() {
 			auto endpoint = CreateLocalHostNodeEndpoint();
-			ionet::Connect(ioContext, CreatePacketSocketOptions(), endpoint, [clientWork](auto result, const auto& pSocket) {
+			ionet::Connect(ioContext, CreatePacketSocketOptions(), endpoint, [clientWork](auto result, const auto& socketInfo) {
 				CATAPULT_LOG(debug) << "client socket connected " << result;
-				clientWork(pSocket);
+				if (socketInfo)
+					clientWork(socketInfo.socket());
 			});
 		});
 	}
+
+	// endregion
+
+	// region packet socket utils
 
 	bool IsSocketOpen(ionet::PacketSocket& socket) {
 		ionet::PacketSocket::Stats stats;
@@ -231,7 +273,9 @@ namespace catapult { namespace test {
 		return stats.IsOpen;
 	}
 
-	// *** write ***
+	// endregion
+
+	// region write tests
 
 	namespace {
 		const size_t Large_Buffer_Size = 100 * 1024;
@@ -317,7 +361,15 @@ namespace catapult { namespace test {
 		EXPECT_TRUE(payload2.isBufferEqualTo(pReceiveBuffer1End, receiveBuffer.cend()));
 	}
 
-	/** read **/
+	void AssertSocketClosedDuringWrite(ionet::SocketOperationCode writeCode) {
+		// Assert: the socket was closed
+		//         the underlying socket can return operation cancelled (Write_Error)
+		EXPECT_EQ(ionet::SocketOperationCode::Write_Error, writeCode);
+	}
+
+	// endregion
+
+	// region read tests
 
 	namespace {
 		struct LargeReadPayload {
@@ -419,9 +471,5 @@ namespace catapult { namespace test {
 		EXPECT_CONTAINS(possibleValues, readCode);
 	}
 
-	void AssertSocketClosedDuringWrite(ionet::SocketOperationCode writeCode) {
-		// Assert: the socket was closed
-		//         the underlying socket can return operation cancelled (Write_Error)
-		EXPECT_EQ(ionet::SocketOperationCode::Write_Error, writeCode);
-	}
+	// endregion
 }}

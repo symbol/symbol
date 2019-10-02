@@ -34,7 +34,7 @@ namespace catapult { namespace config { class CatapultConfiguration; } }
 
 namespace catapult { namespace subscribers {
 
-	/// A manager for subscribing to notifications.
+	/// Manager for subscribing to notifications.
 	class SubscriptionManager {
 	public:
 		/// Creates a new subscription manager around \a config.

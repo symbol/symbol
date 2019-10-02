@@ -40,7 +40,7 @@ namespace catapult { namespace io {
 		{}
 
 	public:
-		/// Returns underlying string.
+		/// Gets the underlying string.
 		const std::string& str() const {
 			return m_output;
 		}

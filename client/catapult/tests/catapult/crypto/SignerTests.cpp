@@ -20,6 +20,7 @@
 
 #include "catapult/crypto/Signer.h"
 #include "catapult/crypto/KeyUtils.h"
+#include "catapult/utils/HexParser.h"
 #include "tests/TestHarness.h"
 #include <numeric>
 
@@ -222,11 +223,11 @@ namespace catapult { namespace crypto {
 	namespace {
 		void ScalarAddGroupOrder(uint8_t* scalar) {
 			// 2^252 + 27742317777372353535851937790883648493, little endian.
-			const auto Group_Order = test::ToArray<Signature::Size / 2>("EDD3F55C1A631258D69CF7A2DEF9DE1400000000000000000000000000000010");
+			auto groupOrder = test::HexStringToVector("EDD3F55C1A631258D69CF7A2DEF9DE1400000000000000000000000000000010");
 			uint8_t r = 0;
-			for (auto i = 0u; i < Signature::Size / 2; ++i) {
-				auto t = static_cast<uint16_t>(scalar[i]) + static_cast<uint16_t>(Group_Order[i]);
-				scalar[i] += Group_Order[i] + r;
+			for (auto i = 0u; i < groupOrder.size(); ++i) {
+				auto t = static_cast<uint16_t>(scalar[i]) + static_cast<uint16_t>(groupOrder[i]);
+				scalar[i] = static_cast<uint8_t>(scalar[i] + groupOrder[i] + r);
 				r = static_cast<uint8_t>(t >> 8);
 			}
 		}
@@ -507,12 +508,12 @@ namespace catapult { namespace crypto {
 		for (auto i = 0u; i < input.InputData.size(); ++i) {
 			// Act:
 			auto keyPair = KeyPair::FromString(input.PrivateKeys[i]);
-			auto signature = SignPayload(keyPair, test::ToVector(input.InputData[i]));
+			auto signature = SignPayload(keyPair, test::HexStringToVector(input.InputData[i]));
 
 			// Assert:
 			auto message = "test vector at " + std::to_string(i);
-			EXPECT_EQ(input.ExpectedPublicKeys[i], test::ToString(keyPair.publicKey())) << message;
-			EXPECT_EQ(input.ExpectedSignatures[i], test::ToString(signature)) << message;
+			EXPECT_EQ(utils::ParseByteArray<Key>(input.ExpectedPublicKeys[i]), keyPair.publicKey()) << message;
+			EXPECT_EQ(utils::ParseByteArray<Signature>(input.ExpectedSignatures[i]), signature) << message;
 		}
 	}
 
@@ -524,7 +525,7 @@ namespace catapult { namespace crypto {
 		for (auto i = 0u; i < input.InputData.size(); ++i) {
 			// Act:
 			auto keyPair = KeyPair::FromString(input.PrivateKeys[i]);
-			auto payload = test::ToVector(input.InputData[i]);
+			auto payload = test::HexStringToVector(input.InputData[i]);
 			auto signature = SignPayload(keyPair, payload);
 			auto isVerified = Verify(keyPair.publicKey(), payload, signature);
 
@@ -545,7 +546,7 @@ namespace catapult { namespace crypto {
 		for (auto i = 0u; i < input.InputData.size(); ++i) {
 			auto keyPair = KeyPair::FromString(input.PrivateKeys[i]);
 			dataHolder.PublicKeys.push_back(keyPair.publicKey());
-			dataHolder.Buffers.push_back(test::ToVector(input.InputData[i]));
+			dataHolder.Buffers.push_back(test::HexStringToVector(input.InputData[i]));
 			dataHolder.Signatures.push_back(SignPayload(keyPair, dataHolder.Buffers.back()));
 			signatureInputs.push_back({ dataHolder.PublicKeys.back(), { dataHolder.Buffers.back() }, dataHolder.Signatures.back() });
 		}

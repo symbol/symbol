@@ -25,6 +25,7 @@
 #include "FilesystemUtils.h"
 #include "PodIoUtils.h"
 #include "catapult/utils/MemoryUtils.h"
+#include "catapult/preprocessor.h"
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem.hpp>
 #include <inttypes.h>
@@ -294,7 +295,7 @@ namespace catapult { namespace io {
 		if (pBlockFile->position() != pBlockFile->size())
 			CATAPULT_THROW_RUNTIME_ERROR_1("additional data after block at height", height);
 
-		return std::move(pBlockElement);
+		return PORTABLE_MOVE(pBlockElement);
 	}
 
 	std::pair<std::vector<uint8_t>, bool> FileBlockStorage::loadBlockStatementData(Height height) const {

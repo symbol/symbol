@@ -44,7 +44,7 @@ namespace catapult { namespace builders {
 		void addModification(const model::AccountOperationRestrictionModification& modification);
 
 	public:
-		/// Returns size of account operation restriction transaction.
+		/// Gets the size of account operation restriction transaction.
 		/// \note This returns size of a normal transaction not embedded transaction.
 		size_t size() const;
 

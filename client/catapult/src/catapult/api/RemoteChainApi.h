@@ -49,11 +49,11 @@ namespace catapult { namespace api {
 		uint32_t NumBytes;
 	};
 
-	/// An api for retrieving chain information from a remote node.
+	/// Api for retrieving chain information from a remote node.
 	class RemoteChainApi : public RemoteApi, public ChainApi {
 	protected:
-		/// Creates a remote api for the node with specified public key (\a remotePublicKey).
-		explicit RemoteChainApi(const Key& remotePublicKey) : RemoteApi(remotePublicKey)
+		/// Creates a remote api for the node with specified \a remoteIdentity.
+		explicit RemoteChainApi(const model::NodeIdentity& remoteIdentity) : RemoteApi(remoteIdentity)
 		{}
 
 	public:
@@ -71,10 +71,10 @@ namespace catapult { namespace api {
 	/// Creates a chain api for interacting with a remote node with the specified \a io.
 	std::unique_ptr<ChainApi> CreateRemoteChainApiWithoutRegistry(ionet::PacketIo& io);
 
-	/// Creates a chain api for interacting with a remote node with the specified \a io with public key (\a remotePublicKey)
-	/// and transaction \a registry composed of supported transactions.
+	/// Creates a chain api for interacting with a remote node with the specified \a io and \a remoteIdentity
+	/// given transaction \a registry composed of supported transactions.
 	std::unique_ptr<RemoteChainApi> CreateRemoteChainApi(
 			ionet::PacketIo& io,
-			const Key& remotePublicKey,
+			const model::NodeIdentity& remoteIdentity,
 			const model::TransactionRegistry& registry);
 }}

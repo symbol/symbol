@@ -27,7 +27,7 @@ namespace catapult { namespace extensions {
 
 	struct BasicUnitAmount_tag {};
 
-	/// A non-fractional amount of a mosaic.
+	/// Non-fractional amount of a mosaic.
 	using BasicUnitAmount = utils::BaseValue<uint64_t, BasicUnitAmount_tag>;
 
 	/// Represents units of a mosaic.

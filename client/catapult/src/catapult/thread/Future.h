@@ -46,7 +46,7 @@ namespace catapult { namespace thread {
 			return m_pState->is_ready();
 		}
 
-		/// Returns the result of this future and blocks until the result is available.
+		/// Gets the result of this future and blocks until the result is available.
 		T get() {
 			return m_pState->get();
 		}
@@ -97,7 +97,7 @@ namespace catapult { namespace thread {
 			return !!m_pState;
 		}
 
-		/// Returns a future associated with this promise.
+		/// Gets a future associated with this promise.
 		future<T> get_future() {
 			if (m_pIsFutureCreated->test_and_set(std::memory_order_acquire))
 				throw std::future_error(std::future_errc::future_already_retrieved);

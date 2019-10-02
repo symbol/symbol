@@ -91,6 +91,19 @@ namespace catapult { namespace consumers {
 
 			return pSub;
 		}
+
+		std::vector<validators::ValidationResult> MapNotificationResultsToEntityResults(
+				size_t numEntities,
+				const std::vector<size_t>& notificationToEntityIndexMap,
+				const std::vector<validators::ValidationResult>& notificationResults) {
+			std::vector<validators::ValidationResult> entityResults(numEntities, validators::ValidationResult::Success);
+			for (auto i = 0u; i < notificationResults.size(); ++i) {
+				if (IsValidationResultFailure(notificationResults[i]))
+					entityResults[notificationToEntityIndexMap[i]] = notificationResults[i];
+			}
+
+			return entityResults;
+		}
 	}
 
 	disruptor::ConstBlockConsumer CreateBlockBatchSignatureConsumer(
@@ -124,8 +137,10 @@ namespace catapult { namespace consumers {
 			auto pSub = ExtractAllSignatureNotifications(generationHash, *pPublisher, entityInfos);
 
 			// process signatures in batches
-			std::vector<validators::ValidationResult> results(entityInfos.size(), validators::ValidationResult::Success);
-			auto partitionCallback = [&pSub, &results](auto itBegin, auto itEnd, auto startIndex, auto) {
+			// note: store notification (not entity) results because it's possible for an entity to be split across partitions,
+			//       which would lead to a write data race (of same data) from multiple threads
+			std::vector<validators::ValidationResult> notificationResults(pSub->inputs().size(), validators::ValidationResult::Success);
+			auto partitionCallback = [&notificationResults](auto itBegin, auto itEnd, auto startIndex, auto) {
 				auto partitionResultsPair = VerifyMulti(&*itBegin, static_cast<size_t>(std::distance(itBegin, itEnd)));
 				if (partitionResultsPair.second)
 					return;
@@ -133,14 +148,15 @@ namespace catapult { namespace consumers {
 				auto index = startIndex;
 				for (auto result : partitionResultsPair.first) {
 					if (!result)
-						results[pSub->notificationToEntityIndexMap()[index]] = Failure_Consumer_Batch_Signature_Not_Verifiable;
+						notificationResults[index] = Failure_Consumer_Batch_Signature_Not_Verifiable;
 
 					++index;
 				}
 			};
 
 			thread::ParallelForPartition(pPool->ioContext(), pSub->inputs(), pPool->numWorkerThreads(), partitionCallback).get();
-			return results;
+
+			return MapNotificationResultsToEntityResults(entityInfos.size(), pSub->notificationToEntityIndexMap(), notificationResults);
 		});
 	}
 }}

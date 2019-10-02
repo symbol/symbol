@@ -26,7 +26,7 @@
 
 namespace catapult { namespace test {
 
-	/// A container of batch handler tests.
+	/// Container of batch handler tests.
 	template<typename TTraits>
 	struct BatchHandlerTests : public BasicBatchHandlerTests<TTraits> {
 	private:
@@ -88,19 +88,22 @@ namespace catapult { namespace test {
 			});
 
 			// Act:
-			ionet::ServerPacketHandlerContext context({}, "");
-			EXPECT_TRUE(handlers.process(*pPacket, context));
+			ionet::ServerPacketHandlerContext handlerContext;
+			EXPECT_TRUE(handlers.process(*pPacket, handlerContext));
 
 			// Assert: the requested structures were passed to the supplier
 			AssertExpectedRequest(extractedRequestStructures, requestStructureRange);
 
 			// - the handler was called and has the correct header
 			EXPECT_EQ(1u, counter);
-			ASSERT_TRUE(context.hasResponse());
-			test::AssertPacketHeader(context, sizeof(ionet::PacketHeader) + TTraits::TotalSize(expectedResponse), TTraits::Packet_Type);
+			ASSERT_TRUE(handlerContext.hasResponse());
+			test::AssertPacketHeader(
+					handlerContext,
+					sizeof(ionet::PacketHeader) + TTraits::TotalSize(expectedResponse),
+					TTraits::Packet_Type);
 
 			// - the entities returned by the results supplier were copied into the response packet as a single buffer
-			TTraits::AssertExpectedResponse(context.response(), expectedResponse);
+			TTraits::AssertExpectedResponse(handlerContext.response(), expectedResponse);
 		}
 	};
 

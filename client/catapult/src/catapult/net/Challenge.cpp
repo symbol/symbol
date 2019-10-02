@@ -40,7 +40,7 @@ namespace catapult { namespace net {
 		}
 
 		void SignChallenge(const crypto::KeyPair& keyPair, std::initializer_list<const RawBuffer> buffers, Signature& computedSignature) {
-			CATAPULT_LOG(debug) << "preparing challenge response";
+			CATAPULT_LOG(trace) << "preparing challenge response";
 			crypto::Sign(keyPair, buffers, computedSignature);
 			CATAPULT_LOG(trace) << "signature: " << computedSignature;
 		}
@@ -48,7 +48,7 @@ namespace catapult { namespace net {
 		bool VerifyChallenge(const Key& publicKey, const std::vector<RawBuffer>& buffers, const Signature& signature) {
 			CATAPULT_LOG(trace) << "verify signature: " << signature;
 			auto isVerified = crypto::Verify(publicKey, buffers, signature);
-			CATAPULT_LOG(debug) << "verify signature result: " << isVerified;
+			CATAPULT_LOG(trace) << "verify signature result: " << isVerified;
 			return isVerified;
 		}
 	}

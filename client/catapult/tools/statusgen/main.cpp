@@ -35,7 +35,7 @@ using namespace catapult::validators;
 #define DEFINE_VALIDATION_RESULT(SEVERITY, FACILITY, DESCRIPTION, CODE, FLAGS) \
 		Output( \
 				MakeValidationResult((ResultSeverity::SEVERITY), (FacilityCode::FACILITY), CODE, (ResultFlags::FLAGS)), \
-				STR(SEVERITY##_##FACILITY##_##DESCRIPTION));
+				STR(SEVERITY##_##FACILITY##_##DESCRIPTION))
 
 namespace catapult { namespace tools { namespace statusgen {
 

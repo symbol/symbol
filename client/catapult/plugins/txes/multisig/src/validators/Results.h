@@ -35,8 +35,8 @@ namespace catapult { namespace validators {
 	/// Validation failed because multiple removals are present.
 	DEFINE_MULTISIG_RESULT(Multiple_Deletes, 2);
 
-	/// Validation failed because redundant modifications are present.
-	DEFINE_MULTISIG_RESULT(Redundant_Modifications, 3);
+	/// Validation failed because a modification is redundant.
+	DEFINE_MULTISIG_RESULT(Redundant_Modification, 3);
 
 	/// Validation failed because account is not in multisig cache.
 	DEFINE_MULTISIG_RESULT(Unknown_Multisig_Account, 4);

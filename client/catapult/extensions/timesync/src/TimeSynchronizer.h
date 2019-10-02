@@ -32,7 +32,7 @@ namespace catapult {
 
 namespace catapult { namespace timesync {
 
-	/// A time synchronizer that synchronizes local time with the network.
+	/// Time synchronizer that synchronizes local time with the network.
 	class TimeSynchronizer {
 	public:
 		/// Creates a time synchronizer around \a filter, \a totalChainImportance and \a warningThresholdMillis.

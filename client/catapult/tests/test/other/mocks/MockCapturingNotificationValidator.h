@@ -67,7 +67,7 @@ namespace catapult { namespace mocks {
 		CapturedTransactionNotificationInfo TransactionNotificationInfo;
 	};
 
-	/// A mock stateless notification validator that captures parameters passed to validate.
+	/// Mock stateless notification validator that captures parameters passed to validate.
 	class MockCapturingStatelessNotificationValidator
 			: public mocks::MockStatelessNotificationValidatorT<model::Notification>
 			, public test::ParamsCapture<StatelessNotificationValidatorParams> {
@@ -121,7 +121,7 @@ namespace catapult { namespace mocks {
 		MosaicId ResolvedMosaicIdOne;
 	};
 
-	/// A mock stateful notification validator that captures parameters passed to validate.
+	/// Mock stateful notification validator that captures parameters passed to validate.
 	class MockCapturingStatefulNotificationValidator
 			: public mocks::MockNotificationValidatorT<model::Notification>
 			, public test::ParamsCapture<StatefulNotificationValidatorParams> {

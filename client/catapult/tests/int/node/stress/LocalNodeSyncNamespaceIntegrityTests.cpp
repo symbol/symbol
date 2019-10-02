@@ -208,7 +208,7 @@ namespace catapult { namespace local {
 		template<typename TTestContext>
 		NamespaceStateHashes RunNamespaceStateChangeTest(TTestContext& context, size_t numAliveBlocks, size_t numExpectedNamespaces) {
 			// Arrange: create namespace registration block followed by specified number of empty blocks
-			TestFacade facade(context);
+			TestFacade<TTestContext> facade(context);
 			facade.pushNamespacesAndTransferBlocks(numAliveBlocks);
 
 			// - prepare a block that triggers a state change
@@ -327,7 +327,7 @@ namespace catapult { namespace local {
 				size_t numAliveBlocks,
 				size_t numExpectedNamespaces) {
 			// Arrange: create namespace registration block followed by specified number of empty blocks
-			TestFacade facade(context);
+			TestFacade<TTestContext> facade(context);
 			facade.pushNamespacesAndTransferBlocks(numAliveBlocks);
 
 			// - prepare two sets of blocks one of which will cause state change (better block time will yield better chain)

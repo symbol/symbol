@@ -49,7 +49,7 @@ namespace catapult { namespace test {
 		Should_Auto_Harvest = 2
 	};
 
-	/// Returns server key pair.
+	/// Gets the server key pair.
 	crypto::KeyPair LoadServerKeyPair();
 
 	/// Creates a prototypical block chain configuration that is safe to use in local tests.

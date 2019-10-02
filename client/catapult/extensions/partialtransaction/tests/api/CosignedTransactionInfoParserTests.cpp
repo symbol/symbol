@@ -37,11 +37,13 @@ namespace catapult { namespace api {
 	}
 
 #define ASSERT_EQ_COSIGNATURES(EXPECTED, ACTUAL) \
-	ASSERT_EQ(EXPECTED.size(), ACTUAL.size()); \
-	for (auto i = 0u; i < EXPECTED.size(); ++i) { \
-		EXPECT_EQ(EXPECTED[i].SignerPublicKey, ACTUAL[i].SignerPublicKey) << "cosignature at " << i; \
-		EXPECT_EQ(EXPECTED[i].Signature, ACTUAL[i].Signature) << "cosignature at " << i; \
-	}
+	do { \
+		ASSERT_EQ(EXPECTED.size(), ACTUAL.size()); \
+		for (auto i = 0u; i < EXPECTED.size(); ++i) { \
+			EXPECT_EQ(EXPECTED[i].SignerPublicKey, ACTUAL[i].SignerPublicKey) << "cosignature at " << i; \
+			EXPECT_EQ(EXPECTED[i].Signature, ACTUAL[i].Signature) << "cosignature at " << i; \
+		} \
+	} while (false)
 
 	namespace {
 		template<typename TValue>

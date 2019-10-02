@@ -28,21 +28,21 @@ namespace catapult { namespace ionet {
 #define FACILITY_BASED_CODE(BASE_VALUE, FACILITY_CODE) (BASE_VALUE + static_cast<uint8_t>(model::FacilityCode::FACILITY_CODE))
 
 #define PACKET_TYPE_LIST \
-	/* An undefined packet type. */ \
+	/* Undefined packet type. */ \
 	ENUM_VALUE(Undefined, 0) \
 	\
 	/* p2p packets have types [1, 500) */ \
 	\
-	/* A challenge from a server to a client. */ \
+	/* Challenge from a server to a client. */ \
 	ENUM_VALUE(Server_Challenge, 1) \
 	\
-	/* A challenge from a client to a server. */ \
+	/* Challenge from a client to a server. */ \
 	ENUM_VALUE(Client_Challenge, 2) \
 	\
 	/* Blocks have been pushed by a peer. */ \
 	ENUM_VALUE(Push_Block, 3) \
 	\
-	/* A block has been requested by a peer. */ \
+	/* Block has been requested by a peer. */ \
 	ENUM_VALUE(Pull_Block, 4) \
 	\
 	/* Chain information has been requested by a peer. */ \
@@ -60,7 +60,7 @@ namespace catapult { namespace ionet {
 	/* Unconfirmed transactions have been requested by a peer. */ \
 	ENUM_VALUE(Pull_Transactions, 10) \
 	\
-	/* A secure packet with a signature. */ \
+	/* Secure packet with a signature. */ \
 	ENUM_VALUE(Secure_Signed, 11) \
 	\
 	/* Sub cache merkle roots have been requested. */ \
@@ -139,6 +139,9 @@ namespace catapult { namespace ionet {
 	/* Block statement has been requested by a client. */ \
 	ENUM_VALUE(Block_Statement, 1103) \
 	\
+	/* Unlocked accounts have been requested by a client. */ \
+	ENUM_VALUE(Unlocked_Accounts, 1104) \
+	\
 	/* Account infos have been requested by a client. */ \
 	ENUM_VALUE(Account_Infos, FACILITY_BASED_CODE(1200, Core)) \
 	\
@@ -167,7 +170,7 @@ namespace catapult { namespace ionet {
 	ENUM_VALUE(Mosaic_Restrictions_Infos, FACILITY_BASED_CODE(1200, RestrictionMosaic))
 
 #define ENUM_VALUE(LABEL, VALUE) LABEL = VALUE,
-	/// An enumeration of known packet types.
+	/// Enumeration of known packet types.
 	enum class PacketType : uint32_t {
 		PACKET_TYPE_LIST
 	};

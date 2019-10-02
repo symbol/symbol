@@ -32,13 +32,13 @@ namespace catapult {
 namespace catapult { namespace net {
 
 #define VERIFY_RESULT_LIST \
-	/* An i/o error occurred while processing a server challenge request. */ \
+	/* I/o error occurred while processing a server challenge request. */ \
 	ENUM_VALUE(Io_Error_ServerChallengeRequest) \
 	\
-	/* An i/o error occurred while processing a server challenge response. */ \
+	/* I/o error occurred while processing a server challenge response. */ \
 	ENUM_VALUE(Io_Error_ServerChallengeResponse) \
 	\
-	/* An i/o error occurred while processing a client challenge response. */ \
+	/* I/o error occurred while processing a client challenge response. */ \
 	ENUM_VALUE(Io_Error_ClientChallengeResponse) \
 	\
 	/* Peer sent malformed data. */ \

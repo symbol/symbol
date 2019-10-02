@@ -33,10 +33,10 @@ namespace catapult {
 
 namespace catapult { namespace test {
 
-	/// Returns the database name for tests.
+	/// Gets the database name for tests.
 	std::string DatabaseName();
 
-	/// Returns the default db uri for tests.
+	/// Gets the default db uri for tests.
 	mongocxx::uri DefaultDbUri();
 
 	/// Creates a mongo database connection.

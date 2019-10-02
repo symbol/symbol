@@ -81,7 +81,7 @@ namespace catapult { namespace observers {
 			if (context.Height.unwrap() <= gracePeriod.unwrap())
 				return;
 
-			auto touchHeight = Height(context.Height.unwrap() - gracePeriod.unwrap());
+			auto touchHeight = Height(context.Height.unwrap() + gracePeriod.unwrap());
 			auto& cache = context.Cache.template sub<TCache>();
 			auto expiryIds = cache.touch(touchHeight);
 

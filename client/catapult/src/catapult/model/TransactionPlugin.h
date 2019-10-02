@@ -48,7 +48,7 @@ namespace catapult { namespace model {
 		utils::TimeSpan MaxLifetime;
 	};
 
-	/// A typed transaction plugin.
+	/// Typed transaction plugin.
 	template<typename TTransaction>
 	class TransactionPluginT {
 	public:
@@ -58,14 +58,14 @@ namespace catapult { namespace model {
 		/// Gets the transaction entity type.
 		virtual EntityType type() const = 0;
 
-		/// Gets transaction dependent attributes.
+		/// Gets the transaction dependent attributes.
 		virtual TransactionAttributes attributes() const = 0;
 
 		/// Calculates the real size of \a transaction.
 		virtual uint64_t calculateRealSize(const TTransaction& transaction) const = 0;
 	};
 
-	/// An embedded transaction plugin.
+	/// Embedded transaction plugin.
 	class EmbeddedTransactionPlugin : public TransactionPluginT<EmbeddedTransaction> {
 	public:
 		/// Extracts public keys of additional accounts that must approve \a transaction.
@@ -75,7 +75,7 @@ namespace catapult { namespace model {
 		virtual void publish(const EmbeddedTransaction& transaction, NotificationSubscriber& sub) const = 0;
 	};
 
-	/// A transaction plugin.
+	/// Transaction plugin.
 	class TransactionPlugin : public TransactionPluginT<Transaction> {
 	public:
 		/// Sends all notifications from \a transactionInfo to \a sub.
@@ -98,6 +98,6 @@ namespace catapult { namespace model {
 		virtual const EmbeddedTransactionPlugin& embeddedPlugin() const = 0;
 	};
 
-	/// A registry of transaction plugins.
+	/// Registry of transaction plugins.
 	class TransactionRegistry : public TransactionRegistryT<TransactionPlugin> {};
 }}

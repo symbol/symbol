@@ -35,7 +35,7 @@ namespace catapult { namespace cache {
 		size_t Deep;
 	};
 
-	/// A mixin for calculating the deep size of namespaces.
+	/// Mixin for calculating the deep size of namespaces.
 	class NamespaceDeepSizeMixin {
 	public:
 		/// Creates a mixin around \a sizes.
@@ -78,12 +78,12 @@ namespace catapult { namespace cache {
 		NamespaceSizes m_sizes;
 	};
 
-	/// A mixin for looking up namespaces.
+	/// Mixin for looking up namespaces.
 	/// \note Due to double lookups, this cannot be replaced with typical ActivePredicateMixin and ConstPredicateMixin.
 	template<typename TPrimarySet, typename TFlatMap>
 	class NamespaceLookupMixin {
 	public:
-		/// An iterator that is returned by namespace cache find functions.
+		/// Iterator that is returned by namespace cache find functions.
 		class const_iterator {
 		public:
 			/// Creates an uninitialized iterator.

@@ -25,7 +25,7 @@
 
 namespace catapult { namespace ionet {
 
-	/// A packet payload that can be written.
+	/// Packet payload that can be written.
 	class PacketPayload {
 	public:
 		/// Creates a default (empty) packet payload.

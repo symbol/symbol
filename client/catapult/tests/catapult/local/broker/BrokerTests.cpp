@@ -165,7 +165,7 @@ namespace catapult { namespace local {
 		test::WriteMessages<TTraits>(context, 5);
 
 		// Assert:
-		WAIT_FOR_VALUE_EXPR(0u, context.countMessageFiles(TTraits::Queue_Directory_Name));
+		WAIT_FOR_ZERO_EXPR(context.countMessageFiles(TTraits::Queue_Directory_Name));
 		EXPECT_EQ(8u, context.readIndexReaderFile(TTraits::Queue_Directory_Name));
 	}
 
@@ -192,11 +192,11 @@ namespace catapult { namespace local {
 
 			// Act: wait for them to be processed
 			context.boot();
-			WAIT_FOR_VALUE_EXPR(0u, context.countMessageFiles(TTraits::Queue_Directory_Name));
+			WAIT_FOR_ZERO_EXPR(context.countMessageFiles(TTraits::Queue_Directory_Name));
 		}, "");
 
 		// Assert: only poison message remains
-		WAIT_FOR_VALUE_EXPR(1u, context.countMessageFiles(TTraits::Queue_Directory_Name));
+		WAIT_FOR_ONE_EXPR(context.countMessageFiles(TTraits::Queue_Directory_Name));
 		EXPECT_EQ(3u, context.readIndexReaderFile(TTraits::Queue_Directory_Name));
 	}
 

@@ -46,7 +46,7 @@ namespace catapult { namespace builders {
 		void setAddress(const Address& address);
 
 	public:
-		/// Returns size of address alias transaction.
+		/// Gets the size of address alias transaction.
 		/// \note This returns size of a normal transaction not embedded transaction.
 		size_t size() const;
 

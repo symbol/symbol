@@ -52,22 +52,22 @@ namespace catapult { namespace mocks {
 		}
 
 	public:
-		/// Returns collected block heights.
+		/// Gets the collected block heights.
 		const auto& blockHeights() const {
 			return m_blockHeights;
 		}
 
-		/// Returns collected versions.
+		/// Gets the collected versions.
 		const auto& versions() const {
 			return m_versions;
 		}
 
-		/// Returns collected entity hashes.
+		/// Gets the collected entity hashes.
 		const auto& entityHashes() const {
 			return m_entityHashes;
 		}
 
-		/// Returns collected contexts.
+		/// Gets the collected contexts.
 		const auto& contexts() const {
 			return m_contexts;
 		}

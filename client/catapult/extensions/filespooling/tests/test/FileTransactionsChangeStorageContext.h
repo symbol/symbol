@@ -43,7 +43,7 @@ namespace catapult { namespace test {
 		{}
 
 	public:
-		/// Returns subscriber.
+		/// Gets the subscriber.
 		SubscriberType& subscriber() {
 			return *m_pSubscriber;
 		}
@@ -55,7 +55,7 @@ namespace catapult { namespace test {
 
 		/// Asserts content of file storage matches \a expected transaction infos.
 		void assertFileContents(const std::vector<std::pair<OperationType, TransactionInfosReference>>& expected) {
-			io::BufferInputStreamAdapter inputStream(m_buffer);
+			auto inputStream = createInputStream();
 
 			for (const auto& operationInfosPair : expected) {
 				auto operationType = static_cast<OperationType>(io::Read8(inputStream));
@@ -74,7 +74,7 @@ namespace catapult { namespace test {
 	protected:
 		/// Creates input stream around internal storage.
 		auto createInputStream() {
-			return io::BufferInputStreamAdapter(m_buffer);
+			return io::BufferInputStreamAdapter<std::vector<uint8_t>>(m_buffer);
 		}
 
 	private:

@@ -28,7 +28,7 @@ namespace catapult { namespace test {
 
 	// region BasicElementsInputFacade
 
-	/// A basic wrapper that extends the lifetime of a consumer input and implicitly casts it to typed elements.
+	/// Basic wrapper that extends the lifetime of a consumer input and implicitly casts it to typed elements.
 	template<typename TElements>
 	struct BasicElementsInputFacade {
 	protected:
@@ -56,12 +56,12 @@ namespace catapult { namespace test {
 			return m_elements.size();
 		}
 
-		/// Returns a const iterator that represents the first element.
+		/// Gets a const iterator that represents the first element.
 		auto begin() const {
 			return m_elements.begin();
 		}
 
-		/// Returns a const iterator that represents one past the last element.
+		/// Gets a const iterator that represents one past the last element.
 		auto end() const {
 			return m_elements.end();
 		}
@@ -75,7 +75,7 @@ namespace catapult { namespace test {
 
 	// region CreateBlockElements
 
-	/// A wrapper that extends the lifetime of a consumer input and implicitly casts it to block elements.
+	/// Wrapper that extends the lifetime of a consumer input and implicitly casts it to block elements.
 	struct BlockElementsInputFacade : public BasicElementsInputFacade<disruptor::BlockElements> {
 	private:
 		using BaseType = BasicElementsInputFacade<disruptor::BlockElements>;
@@ -99,7 +99,7 @@ namespace catapult { namespace test {
 
 	// region CreateTransactionElements
 
-	/// A wrapper that extends the lifetime of a consumer input and implicitly casts it to transaction elements.
+	/// Wrapper that extends the lifetime of a consumer input and implicitly casts it to transaction elements.
 	struct TransactionElementsInputFacade : public BasicElementsInputFacade<disruptor::TransactionElements> {
 	private:
 		using BaseType = BasicElementsInputFacade<disruptor::TransactionElements>;
@@ -136,8 +136,11 @@ namespace catapult { namespace test {
 	/// Asserts that \a result is completed with \a validationResult.
 	void AssertConsumed(const disruptor::ConsumerResult& result, validators::ValidationResult validationResult);
 
-	/// Asserts that \a result is aborted with \a validationResult.
-	void AssertAborted(const disruptor::ConsumerResult& result, validators::ValidationResult validationResult);
+	/// Asserts that \a result is aborted with \a validationResult and \a severity.
+	void AssertAborted(
+			const disruptor::ConsumerResult& result,
+			validators::ValidationResult validationResult,
+			disruptor::ConsumerResultSeverity severity);
 
 	// endregion
 

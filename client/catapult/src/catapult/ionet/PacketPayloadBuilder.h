@@ -25,7 +25,7 @@
 
 namespace catapult { namespace ionet {
 
-	/// A packet payload builder for creating payloads composed of heterogeneous data.
+	/// Packet payload builder for creating payloads composed of heterogeneous data.
 	class PacketPayloadBuilder {
 	public:
 		/// Creates builder for a packet with the specified \a type.

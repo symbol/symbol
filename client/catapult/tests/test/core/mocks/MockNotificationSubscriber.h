@@ -27,7 +27,7 @@ namespace catapult { namespace mocks {
 
 	// region MockNotificationSubscriber
 
-	/// A mock NotificationSubscriber implementation that stores account and balance transfer notifications.
+	/// Mock NotificationSubscriber implementation that stores account and balance transfer notifications.
 	class MockNotificationSubscriber : public model::NotificationSubscriber {
 	public:
 		void notify(const model::Notification& notification) override {
@@ -48,7 +48,7 @@ namespace catapult { namespace mocks {
 			return m_notificationTypes.size();
 		}
 
-		/// Returns collected notification types.
+		/// Gets the collected notification types.
 		const auto& notificationTypes() const {
 			return m_notificationTypes;
 		}
@@ -129,7 +129,7 @@ namespace catapult { namespace mocks {
 
 	// region MockTypedNotificationSubscriber
 
-	/// A mock NotificationSubscriber implementation that stores notifications of a specific type.
+	/// Mock NotificationSubscriber implementation that stores notifications of a specific type.
 	template<typename TNotification>
 	class MockTypedNotificationSubscriber : public model::NotificationSubscriber {
 	public:

@@ -38,38 +38,38 @@ namespace catapult { namespace zeromq {
 
 	/// Markers for publishing block related messages.
 	enum class BlockMarker : uint64_t {
-		/// A block.
+		/// Block.
 		Block_Marker = 0x9FF2D8E480CA6A49,
 
-		/// A dropped block.
+		/// Dropped block.
 		Drop_Blocks_Marker = 0x5C20D68AEE25B0B0
 	};
 
 	/// Markers for publishing transaction related messages.
 	enum class TransactionMarker : uint8_t {
-		/// A confirmed transaction.
+		/// Confirmed transaction.
 		Transaction_Marker = 0x61, // 'a'
 
-		/// An added unconfirmed transaction.
+		/// Added unconfirmed transaction.
 		Unconfirmed_Transaction_Add_Marker = 0x75, // 'u'
 
-		/// A removed unconfirmed transaction.
+		/// Removed unconfirmed transaction.
 		Unconfirmed_Transaction_Remove_Marker = 0x72, // 'r'
 
-		/// A transaction status.
+		/// Transaction status.
 		Transaction_Status_Marker = 0x73, // 's'
 
-		/// An added partial transaction.
+		/// Added partial transaction.
 		Partial_Transaction_Add_Marker = 0x70, // 'p'
 
-		/// A removed partial transaction.
+		/// Removed partial transaction.
 		Partial_Transaction_Remove_Marker = 0x71, // 'q'
 
-		/// A detached cosignature.
+		/// Detached cosignature.
 		Cosignature_Marker = 0x63 // 'c'
 	};
 
-	/// A zeromq entity publisher.
+	/// Zeromq entity publisher.
 	class ZeroMqEntityPublisher {
 	public:
 		/// Creates a zeromq entity publisher around \a port and \a pNotificationPublisher.

@@ -24,7 +24,7 @@
 
 namespace catapult { namespace extensions {
 
-	/// Sets \a dest to \a source if and only if \a dest is unset.
+	/// Sets the function \a dest to \a source if and only if \a dest is unset.
 	template<typename TFunc>
 	void SetOnce(TFunc& dest, const TFunc& source) {
 		if (dest)
@@ -33,7 +33,7 @@ namespace catapult { namespace extensions {
 		dest = source;
 	}
 
-	/// Returns \a func if and only if it is set.
+	/// Gets the function \a func if and only if it is set.
 	template<typename TFunc>
 	const TFunc& Require(const TFunc& func) {
 		if (!func)

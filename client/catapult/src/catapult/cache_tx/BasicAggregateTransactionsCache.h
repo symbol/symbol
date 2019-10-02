@@ -24,7 +24,7 @@
 
 namespace catapult { namespace cache {
 
-	/// A basic aggregate transactions cache modifier that supports adding and removing of transaction infos.
+	/// Basic aggregate transactions cache modifier that supports adding and removing of transaction infos.
 	/// \note Subscribers are only notified of \em net changes.
 	template<typename TCacheTraits, typename TChangeSubscriberTraits>
 	class BasicAggregateTransactionsCacheModifier : public TCacheTraits::CacheModifierType {
@@ -110,7 +110,7 @@ namespace catapult { namespace cache {
 		model::TransactionChangeTracker m_transactionChangeTracker;
 	};
 
-	/// A basic aggregate transactions cache that delegates to a wrapped cache and raises notifications on a subscriber.
+	/// Basic aggregate transactions cache that delegates to a wrapped cache and raises notifications on a subscriber.
 	template<typename TCacheTraits, typename TAggregateCacheModifier>
 	class BasicAggregateTransactionsCache : public TCacheTraits::CacheType {
 	private:

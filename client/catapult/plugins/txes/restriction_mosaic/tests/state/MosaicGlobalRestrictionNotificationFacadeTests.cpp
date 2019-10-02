@@ -57,7 +57,7 @@ namespace catapult { namespace state {
 		auto referenceMosaicId = test::GenerateRandomValue<MosaicId>();
 		auto notification = CreateNotification(mosaicId, referenceMosaicId, 111, 222);
 		auto resolvers = test::CreateResolverContextXor();
-		auto facade = MosaicGlobalRestrictionNotificationFacade(notification, resolvers);
+		auto facade = FacadeType(notification, resolvers);
 
 		// Act:
 		auto uniqueKey = facade.uniqueKey();
@@ -83,7 +83,7 @@ namespace catapult { namespace state {
 			auto referenceMosaicId = test::GenerateRandomValue<MosaicId>();
 			auto notification = CreateNotification(mosaicId, referenceMosaicId, 111, 222, restrictionType);
 			auto resolvers = test::CreateResolverContextXor();
-			auto facade = MosaicGlobalRestrictionNotificationFacade(notification, resolvers);
+			auto facade = FacadeType(notification, resolvers);
 
 			// Act:
 			return facade.isDeleteAction();
@@ -109,7 +109,7 @@ namespace catapult { namespace state {
 		auto referenceMosaicId = test::GenerateRandomValue<MosaicId>();
 		auto notification = CreateNotification(mosaicId, referenceMosaicId, 111, 222);
 		auto resolvers = test::CreateResolverContextXor();
-		auto facade = MosaicGlobalRestrictionNotificationFacade(notification, resolvers);
+		auto facade = FacadeType(notification, resolvers);
 
 		auto restriction = MosaicGlobalRestriction(mosaicId);
 		restriction.set(112, { MosaicId(987), 444, model::MosaicRestrictionType::LT });
@@ -129,7 +129,7 @@ namespace catapult { namespace state {
 		auto referenceMosaicId = test::GenerateRandomValue<MosaicId>();
 		auto notification = CreateNotification(mosaicId, referenceMosaicId, 111, 222);
 		auto resolvers = test::CreateResolverContextXor();
-		auto facade = MosaicGlobalRestrictionNotificationFacade(notification, resolvers);
+		auto facade = FacadeType(notification, resolvers);
 
 		auto restriction = MosaicGlobalRestriction(mosaicId);
 		restriction.set(111, { MosaicId(987), 444, model::MosaicRestrictionType::LT });
@@ -156,7 +156,7 @@ namespace catapult { namespace state {
 		auto referenceMosaicId = test::GenerateRandomValue<MosaicId>();
 		auto notification = CreateNotification(mosaicId, referenceMosaicId, 111, 222, model::MosaicRestrictionType::GT);
 		auto resolvers = test::CreateResolverContextXor();
-		auto facade = MosaicGlobalRestrictionNotificationFacade(notification, resolvers);
+		auto facade = FacadeType(notification, resolvers);
 
 		auto restriction = MosaicGlobalRestriction(mosaicId);
 		restriction.set(112, { MosaicId(987), 444, model::MosaicRestrictionType::LT });
@@ -188,7 +188,7 @@ namespace catapult { namespace state {
 		auto mosaicId = test::GenerateRandomValue<MosaicId>();
 		auto notification = CreateNotification(mosaicId, MosaicId(), 111, 0);
 		auto resolvers = test::CreateResolverContextXor();
-		auto facade = MosaicGlobalRestrictionNotificationFacade(notification, resolvers);
+		auto facade = FacadeType(notification, resolvers);
 
 		// Act:
 		auto isUnset = facade.isUnset();
@@ -203,7 +203,7 @@ namespace catapult { namespace state {
 		auto referenceMosaicId = test::GenerateRandomValue<MosaicId>();
 		auto notification = CreateNotification(mosaicId, referenceMosaicId, 111, 0);
 		auto resolvers = test::CreateResolverContextXor();
-		auto facade = MosaicGlobalRestrictionNotificationFacade(notification, resolvers);
+		auto facade = FacadeType(notification, resolvers);
 
 		// Act:
 		auto isUnset = facade.isUnset();
@@ -217,7 +217,7 @@ namespace catapult { namespace state {
 		auto mosaicId = test::GenerateRandomValue<MosaicId>();
 		auto notification = CreateNotification(mosaicId, MosaicId(), 111, 222);
 		auto resolvers = test::CreateResolverContextXor();
-		auto facade = MosaicGlobalRestrictionNotificationFacade(notification, resolvers);
+		auto facade = FacadeType(notification, resolvers);
 
 		// Act:
 		auto isUnset = facade.isUnset();
@@ -231,7 +231,7 @@ namespace catapult { namespace state {
 		auto mosaicId = test::GenerateRandomValue<MosaicId>();
 		auto notification = CreateNotification(mosaicId, MosaicId(), 111, 0, model::MosaicRestrictionType::EQ);
 		auto resolvers = test::CreateResolverContextXor();
-		auto facade = MosaicGlobalRestrictionNotificationFacade(notification, resolvers);
+		auto facade = FacadeType(notification, resolvers);
 
 		// Act:
 		auto isUnset = facade.isUnset();
@@ -250,7 +250,7 @@ namespace catapult { namespace state {
 		auto referenceMosaicId = test::GenerateRandomValue<MosaicId>();
 		auto notification = CreateNotification(mosaicId, referenceMosaicId, 111, 222, model::MosaicRestrictionType::LT);
 		auto resolvers = test::CreateResolverContextXor();
-		auto facade = MosaicGlobalRestrictionNotificationFacade(notification, resolvers);
+		auto facade = FacadeType(notification, resolvers);
 
 		// Act:
 		auto isMatch = facade.isMatch({ referenceMosaicId, 222, model::MosaicRestrictionType::LT });
@@ -265,7 +265,7 @@ namespace catapult { namespace state {
 		auto referenceMosaicId = test::GenerateRandomValue<MosaicId>();
 		auto notification = CreateNotification(mosaicId, referenceMosaicId, 111, 222, model::MosaicRestrictionType::LT);
 		auto resolvers = test::CreateResolverContextXor();
-		auto facade = MosaicGlobalRestrictionNotificationFacade(notification, resolvers);
+		auto facade = FacadeType(notification, resolvers);
 
 		// Act:
 		auto isMatch = facade.isMatch({ test::GenerateRandomValue<MosaicId>(), 222, model::MosaicRestrictionType::LT });
@@ -280,7 +280,7 @@ namespace catapult { namespace state {
 		auto referenceMosaicId = test::GenerateRandomValue<MosaicId>();
 		auto notification = CreateNotification(mosaicId, referenceMosaicId, 111, 222, model::MosaicRestrictionType::LT);
 		auto resolvers = test::CreateResolverContextXor();
-		auto facade = MosaicGlobalRestrictionNotificationFacade(notification, resolvers);
+		auto facade = FacadeType(notification, resolvers);
 
 		// Act:
 		auto isMatch = facade.isMatch({ referenceMosaicId, 223, model::MosaicRestrictionType::LT });
@@ -295,7 +295,7 @@ namespace catapult { namespace state {
 		auto referenceMosaicId = test::GenerateRandomValue<MosaicId>();
 		auto notification = CreateNotification(mosaicId, referenceMosaicId, 111, 222, model::MosaicRestrictionType::LT);
 		auto resolvers = test::CreateResolverContextXor();
-		auto facade = MosaicGlobalRestrictionNotificationFacade(notification, resolvers);
+		auto facade = FacadeType(notification, resolvers);
 
 		// Act:
 		auto isMatch = facade.isMatch({ referenceMosaicId, 222, model::MosaicRestrictionType::LE });
@@ -314,7 +314,7 @@ namespace catapult { namespace state {
 		auto referenceMosaicId = test::GenerateRandomValue<MosaicId>();
 		auto notification = CreateNotification(mosaicId, referenceMosaicId, 111, 222, model::MosaicRestrictionType::LT);
 		auto resolvers = test::CreateResolverContextXor();
-		auto facade = MosaicGlobalRestrictionNotificationFacade(notification, resolvers);
+		auto facade = FacadeType(notification, resolvers);
 
 		// Act:
 		auto rule = facade.toRule();
@@ -335,7 +335,7 @@ namespace catapult { namespace state {
 		auto referenceMosaicId = test::GenerateRandomValue<MosaicId>();
 		auto notification = CreateNotification(mosaicId, referenceMosaicId, 111, 222);
 		auto resolvers = test::CreateResolverContextXor();
-		auto facade = MosaicGlobalRestrictionNotificationFacade(notification, resolvers);
+		auto facade = FacadeType(notification, resolvers);
 
 		// Act:
 		auto restriction = facade.toRestriction();

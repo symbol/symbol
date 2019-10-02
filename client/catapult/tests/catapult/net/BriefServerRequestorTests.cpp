@@ -21,6 +21,7 @@
 #include "catapult/net/BriefServerRequestor.h"
 #include "catapult/api/ChainPackets.h"
 #include "catapult/api/RemoteChainApi.h"
+#include "catapult/preprocessor.h"
 #include "tests/test/net/BriefServerRequestorTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -37,7 +38,11 @@ namespace catapult { namespace net {
 
 			static constexpr auto Friendly_Name = "chain info";
 
-			static thread::future<ResponseType> CreateFuture(ionet::PacketIo& packetIo) {
+			static thread::future<ResponseType> CreateFuture(ionet::PacketIo& packetIo, const std::string& host) {
+				// Sanity:
+				EXPECT_EQ("127.0.0.1", host);
+
+				// Act: create future
 				return api::CreateRemoteChainApiWithoutRegistry(packetIo)->chainInfo();
 			}
 		};
@@ -71,7 +76,7 @@ namespace catapult { namespace net {
 			std::shared_ptr<ionet::Packet> createResponsePacket(Height height) const {
 				auto pPacket = ionet::CreateSharedPacket<api::ChainInfoResponse>();
 				pPacket->Height = height;
-				return std::move(pPacket);
+				return PORTABLE_MOVE(pPacket);
 			}
 		};
 

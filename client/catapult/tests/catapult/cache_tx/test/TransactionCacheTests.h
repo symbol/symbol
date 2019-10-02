@@ -25,7 +25,7 @@
 
 namespace catapult { namespace test {
 
-	/// A container of basic unknown transactions cache tests.
+	/// Container of basic unknown transactions cache tests.
 	template<typename TTraits>
 	struct BasicUnknownTransactionsTests {
 	private:

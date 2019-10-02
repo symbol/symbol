@@ -26,7 +26,7 @@
 
 namespace catapult { namespace cache {
 
-	/// A CacheStorage implementation that wraps a cache and associated storage traits.
+	/// CacheStorage implementation that wraps a cache and associated storage traits.
 	template<typename TCache, typename TStorageTraits>
 	class CacheStorageAdapter : public CacheStorage {
 	public:

@@ -81,10 +81,8 @@ namespace catapult { namespace mongo { namespace plugins {
 
 			// - create and copy cosignatures
 			auto cosignatures = test::GenerateRandomDataVector<model::Cosignature>(numCosignatures);
-			std::memcpy(
-					static_cast<void*>(pTransaction->CosignaturesPtr()),
-					cosignatures.data(),
-					numCosignatures * sizeof(model::Cosignature));
+			auto* pCosignaturesVoid = static_cast<void*>(pTransaction->CosignaturesPtr());
+			utils::memcpy_cond(pCosignaturesVoid, cosignatures.data(), numCosignatures * sizeof(model::Cosignature));
 
 			// - create the plugin
 			MongoTransactionRegistry registry;
@@ -135,7 +133,7 @@ namespace catapult { namespace mongo { namespace plugins {
 			}
 
 			auto transactionsSize = numTransactions * sizeof(EmbeddedTransactionType);
-			std::memcpy(static_cast<void*>(pTransaction->TransactionsPtr()), subTransactions.data(), transactionsSize);
+			utils::memcpy_cond(static_cast<void*>(pTransaction->TransactionsPtr()), subTransactions.data(), transactionsSize);
 
 			// - create the plugin
 			MongoTransactionRegistry registry;

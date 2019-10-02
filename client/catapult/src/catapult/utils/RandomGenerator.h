@@ -31,12 +31,12 @@ namespace catapult { namespace utils {
 		using result_type = uint64_t;
 
 	public:
-		/// Gets mininmum generated value.
+		/// Gets the mininmum generated value.
 		static constexpr result_type min() {
 			return std::random_device::min();
 		}
 
-		/// Gets maximum generated value.
+		/// Gets the maximum generated value.
 		static constexpr result_type max() {
 			return (static_cast<uint64_t>(std::random_device::max()) << 32) | std::random_device::max();
 		}
@@ -66,12 +66,12 @@ namespace catapult { namespace utils {
 		LowEntropyRandomGenerator();
 
 	public:
-		/// Gets mininmum generated value.
+		/// Gets the mininmum generated value.
 		static constexpr result_type min() {
 			return std::mt19937_64::min();
 		}
 
-		/// Gets maximum generated value.
+		/// Gets the maximum generated value.
 		static constexpr result_type max() {
 			return std::mt19937_64::max();
 		}

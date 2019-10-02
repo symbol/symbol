@@ -49,7 +49,8 @@ namespace catapult { namespace net {
 			}
 
 			~PoolServerPair() {
-				if (m_pPool) stopAll();
+				if (m_pPool)
+					stopAll();
 			}
 
 		public:
@@ -68,9 +69,9 @@ namespace catapult { namespace net {
 		private:
 			void logState(const char* message) {
 				CATAPULT_LOG(debug)
-					<< message
-					<< "(numWorkerThreads: " << m_pPool->numWorkerThreads()
-					<< ", numPendingAccepts: " << m_pServer->numPendingAccepts() << ")";
+						<< message
+						<< "(numWorkerThreads: " << m_pPool->numWorkerThreads()
+						<< ", numPendingAccepts: " << m_pServer->numPendingAccepts() << ")";
 			}
 
 		public:
@@ -132,9 +133,9 @@ namespace catapult { namespace net {
 
 			void shutdown() {
 				CATAPULT_LOG(debug)
-					<< "Shutting down ClientService: "
-					<< "connects " << m_numConnects
-					<< ", failures " << m_numConnectFailures;
+						<< "Shutting down ClientService: "
+						<< "connects " << m_numConnects
+						<< ", failures " << m_numConnectFailures;
 				m_ioContext.stop();
 				m_threads.join_all();
 				CATAPULT_LOG(debug) << "ClientService shut down";
@@ -414,9 +415,9 @@ namespace catapult { namespace net {
 
 		// Assert: the entire strand was allowed to complete and was not aborted
 		CATAPULT_LOG(debug)
-			<< "preShutdownWaits " << preShutdownWaits
-			<< " numWaits " << numWaits
-			<< " maxWaits " << maxWaits;
+				<< "preShutdownWaits " << preShutdownWaits
+				<< " numWaits " << numWaits
+				<< " maxWaits " << maxWaits;
 		EXPECT_LE(10u, maxWaits - preShutdownWaits);
 		EXPECT_EQ(maxWaits, numWaits);
 	}
@@ -425,7 +426,7 @@ namespace catapult { namespace net {
 
 	TEST(TEST_CLASS, ServerForwardsAppropriateAcceptedSocketInfoOnSuccess) {
 		// Arrange: set up a multithreaded server
-		ionet::AcceptedPacketSocketInfo* pAcceptedSocketInfoRaw;
+		ionet::PacketSocketInfo* pAcceptedSocketInfoRaw;
 		std::atomic_bool isAccepted(false);
 		auto acceptHandler = [&pAcceptedSocketInfoRaw, &isAccepted](const auto& acceptedSocketInfo) {
 			*pAcceptedSocketInfoRaw = acceptedSocketInfo;
@@ -434,7 +435,7 @@ namespace catapult { namespace net {
 		auto pServer = CreateLocalHostAsyncTcpServer(CreateSettings(acceptHandler));
 
 		// - for correct shutdown, the captured accepted socket needs to be destroyed before pServer
-		auto pAcceptedSocketInfo = std::make_unique<ionet::AcceptedPacketSocketInfo>();
+		auto pAcceptedSocketInfo = std::make_unique<ionet::PacketSocketInfo>();
 		pAcceptedSocketInfoRaw = pAcceptedSocketInfo.get();
 
 		// Act: connect to the server

@@ -24,7 +24,7 @@
 
 namespace catapult { namespace test {
 
-	/// A container of discrete integer validator tests.
+	/// Container of discrete integer validator tests.
 	template<typename TTraits>
 	struct DiscreteIntegerValidatorTests {
 	private:

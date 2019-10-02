@@ -25,7 +25,7 @@
 namespace catapult { namespace thread {
 
 	/// Uses \a ioContext to process \a items in \a numPartitions batches and calls \a callback for each partition.
-	/// A future is returned that is resolved when all items have been processed.
+	/// Future is returned that is resolved when all items have been processed.
 	template<typename TItems, typename TWorkCallback>
 	thread::future<bool> ParallelForPartition(
 			boost::asio::io_context& ioContext,
@@ -113,7 +113,7 @@ namespace catapult { namespace thread {
 	}
 
 	/// Uses \a ioContext to process \a items in \a numPartitions batches and calls \a callback for each item.
-	/// A future is returned that is resolved when all items have been processed.
+	/// Future is returned that is resolved when all items have been processed.
 	template<typename TItems, typename TWorkCallback>
 	thread::future<bool> ParallelFor(boost::asio::io_context& ioContext, TItems& items, size_t numPartitions, TWorkCallback callback) {
 		return ParallelForPartition(ioContext, items, numPartitions, [callback](auto itBegin, auto itEnd, auto startIndex, auto) {

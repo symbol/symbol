@@ -34,9 +34,7 @@ namespace catapult { namespace deltaset {
 
 	namespace detail {
 		template<typename T>
-		using OrderedSetType = std::set<
-			std::remove_const_t<typename T::ElementType>,
-			std::less<typename T::ElementType>>;
+		using OrderedSetType = std::set<std::remove_const_t<typename T::ElementType>, std::less<typename T::ElementType>>;
 
 		/// Policy for committing changes to an ordered set.
 		template<typename TSetTraits>
@@ -54,7 +52,7 @@ namespace catapult { namespace deltaset {
 		};
 	}
 
-	/// A base set with ordered keys.
+	/// Base set with ordered keys.
 	template<typename TElementTraits, typename TStorageTraits = SetStorageTraits<detail::OrderedSetType<TElementTraits>>>
 	class OrderedSet : public BaseSet<TElementTraits, TStorageTraits, detail::OrderedSetCommitPolicy<TStorageTraits>> {
 	private:
@@ -64,7 +62,7 @@ namespace catapult { namespace deltaset {
 		using BaseType::BaseType;
 	};
 
-	/// A delta on top of a base set with ordered keys.
+	/// Delta on top of a base set with ordered keys.
 	template<typename TElementTraits, typename TStorageTraits = SetStorageTraits<detail::OrderedSetType<TElementTraits>>>
 	using OrderedSetDelta = BaseSetDelta<TElementTraits, TStorageTraits>;
 }}

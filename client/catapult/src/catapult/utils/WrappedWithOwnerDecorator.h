@@ -42,7 +42,7 @@ namespace catapult { namespace utils {
 			return m_handler(std::forward<TArgs>(args)...);
 		}
 
-		/// A reference to the owning pointer.
+		/// Reference to the owning pointer.
 		const std::shared_ptr<const void>& owner() const {
 			return m_pOwner;
 		}

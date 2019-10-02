@@ -25,7 +25,7 @@
 
 namespace catapult { namespace test {
 
-	/// A vector of verifiable entities.
+	/// Vector of verifiable entities.
 	using EntitiesVector = std::vector<const model::VerifiableEntity*>;
 
 	/// Asserts that \a input is empty.

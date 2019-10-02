@@ -36,7 +36,7 @@ namespace catapult { namespace thread {
 		virtual uint32_t numWorkerThreads() const = 0;
 
 		/// Gets the friendly name of this thread pool.
-		virtual const std::string& tag() const = 0;
+		virtual const std::string& name() const = 0;
 
 		/// Gets the underlying io_context.
 		virtual boost::asio::io_context& ioContext() = 0;
@@ -50,7 +50,7 @@ namespace catapult { namespace thread {
 		virtual void join() = 0;
 	};
 
-	/// Creates an io thread pool with the specified number of threads (\a numWorkerThreads) and the
-	/// optional friendly \a name used in logging.
+	/// Creates an io thread pool with the specified number of threads (\a numWorkerThreads).
+	/// Optional friendly \a name can be provided to tag logs.
 	std::unique_ptr<IoThreadPool> CreateIoThreadPool(size_t numWorkerThreads, const char* name = nullptr);
 }}

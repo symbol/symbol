@@ -25,18 +25,18 @@
 
 namespace catapult { namespace model {
 
-	/// An entity range composed of blocks.
+	/// Entity range composed of blocks.
 	using BlockRange = EntityRange<Block>;
 
-	/// An entity range composed of transactions.
+	/// Entity range composed of transactions.
 	using TransactionRange = EntityRange<Transaction>;
 
-	/// An entity range composed of hashes.
+	/// Entity range composed of hashes.
 	using HashRange = EntityRange<Hash256>;
 
-	/// An entity range composed of short hashes.
+	/// Entity range composed of short hashes.
 	using ShortHashRange = EntityRange<utils::ShortHash>;
 
-	/// An entity range composed of addresses.
+	/// Entity range composed of addresses.
 	using AddressRange = EntityRange<Address>;
 }}

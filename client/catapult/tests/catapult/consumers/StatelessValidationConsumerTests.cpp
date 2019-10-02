@@ -213,7 +213,7 @@ namespace catapult { namespace consumers {
 	}
 
 	namespace {
-		void AssertBlockSkipResult(ValidationResult validationResult) {
+		void AssertBlockAbortResult(ValidationResult validationResult) {
 			// Arrange:
 			BlockTraits::TestContextType context;
 			auto elements = BlockTraits::CreateSingleEntityElements();
@@ -224,17 +224,17 @@ namespace catapult { namespace consumers {
 			auto result = context.Consumer(elements);
 
 			// Assert:
-			test::AssertAborted(result, validationResult);
+			test::AssertAborted(result, validationResult, disruptor::ConsumerResultSeverity::Fatal);
 			BlockTraits::AssertEntities(elements, context.pPolicy->params(), BlockTraits::Num_Sub_Entities_Single);
 		}
 	}
 
-	TEST(BLOCK_TEST_CLASS, NeutralValidationResultIsMappedToSkipConsumerResult) {
-		AssertBlockSkipResult(ValidationResult::Neutral);
+	TEST(BLOCK_TEST_CLASS, NeutralValidationResultIsMappedToAbortConsumerResult) {
+		AssertBlockAbortResult(ValidationResult::Neutral);
 	}
 
-	TEST(BLOCK_TEST_CLASS, FailureValidationResultIsMappedToSkipConsumerResult) {
-		AssertBlockSkipResult(ValidationResult::Failure);
+	TEST(BLOCK_TEST_CLASS, FailureValidationResultIsMappedToAbortConsumerResult) {
+		AssertBlockAbortResult(ValidationResult::Failure);
 	}
 
 	TEST(BLOCK_TEST_CLASS, CanValidateEmptyBlock) {
@@ -398,7 +398,7 @@ namespace catapult { namespace consumers {
 
 	// region transaction - neutral results
 
-	TEST(TRANSACTION_TEST_CLASS, NeutralValidationResultIsMappedToSkipConsumerResult) {
+	TEST(TRANSACTION_TEST_CLASS, NeutralValidationResultIsMappedToAbortConsumerResult) {
 		// Arrange:
 		TransactionTraits::TestContextType context;
 		auto elements = TransactionTraits::CreateSingleEntityElements();
@@ -409,13 +409,13 @@ namespace catapult { namespace consumers {
 		auto result = context.Consumer(elements);
 
 		// Assert:
-		test::AssertAborted(result, ValidationResult::Neutral);
+		test::AssertAborted(result, ValidationResult::Neutral, disruptor::ConsumerResultSeverity::Fatal);
 		TransactionTraits::AssertEntities(FilterEntityInfos(elements, { 0 }), context.pPolicy->params());
 		AssertSkipped(elements, { 0 }, { disruptor::ConsumerResultSeverity::Neutral });
 		EXPECT_TRUE(context.FailedTransactionStatuses.empty());
 	}
 
-	TEST(TRANSACTION_TEST_CLASS, PartialNeutralValidationResultIsMappedToContinueConsumerResult) {
+	TEST(TRANSACTION_TEST_CLASS, PartialNeutralValidationResultIsMappedToAbortConsumerResult) {
 		// Arrange:
 		TransactionTraits::TestContextType context;
 		auto elements = TransactionTraits::CreateMultipleEntityElements();
@@ -428,7 +428,7 @@ namespace catapult { namespace consumers {
 		auto result = context.Consumer(elements);
 
 		// Assert:
-		test::AssertContinued(result);
+		test::AssertAborted(result, ValidationResult::Neutral, disruptor::ConsumerResultSeverity::Fatal);
 		TransactionTraits::AssertEntities(FilterEntityInfos(elements, { 0, 1, 2, 3 }), context.pPolicy->params());
 		AssertSkipped(elements, { 1, 2 }, { disruptor::ConsumerResultSeverity::Neutral, disruptor::ConsumerResultSeverity::Neutral });
 		EXPECT_TRUE(context.FailedTransactionStatuses.empty());
@@ -439,11 +439,13 @@ namespace catapult { namespace consumers {
 	// region transaction - failure results
 
 #define EXPECT_EQ_STATUS(EXPECTED_ELEMENT, EXPECTED_RESULT, STATUS) \
-	EXPECT_EQ(EXPECTED_ELEMENT.EntityHash, STATUS.Hash); \
-	EXPECT_EQ(utils::to_underlying_type(EXPECTED_RESULT), STATUS.Status); \
-	EXPECT_EQ(EXPECTED_ELEMENT.Transaction.Deadline, STATUS.Deadline);
+	do { \
+		EXPECT_EQ(EXPECTED_ELEMENT.EntityHash, STATUS.Hash); \
+		EXPECT_EQ(utils::to_underlying_type(EXPECTED_RESULT), STATUS.Status); \
+		EXPECT_EQ(EXPECTED_ELEMENT.Transaction.Deadline, STATUS.Deadline); \
+	} while (false)
 
-	TEST(TRANSACTION_TEST_CLASS, FailureValidationResultIsMappedToSkipConsumerResult) {
+	TEST(TRANSACTION_TEST_CLASS, FailureValidationResultIsMappedToAbortConsumerResult) {
 		// Arrange:
 		TransactionTraits::TestContextType context;
 		auto elements = TransactionTraits::CreateSingleEntityElements();
@@ -454,7 +456,7 @@ namespace catapult { namespace consumers {
 		auto result = context.Consumer(elements);
 
 		// Assert:
-		test::AssertAborted(result, ValidationResult::Failure);
+		test::AssertAborted(result, ValidationResult::Failure, disruptor::ConsumerResultSeverity::Fatal);
 		TransactionTraits::AssertEntities(FilterEntityInfos(elements, { 0 }), context.pPolicy->params());
 		AssertSkipped(elements, { 0 }, { disruptor::ConsumerResultSeverity::Failure });
 
@@ -462,7 +464,7 @@ namespace catapult { namespace consumers {
 		EXPECT_EQ_STATUS(elements[0], ValidationResult::Failure, context.FailedTransactionStatuses[0]);
 	}
 
-	TEST(TRANSACTION_TEST_CLASS, PartialFailureValidationResultIsMappedToContinueConsumerResult) {
+	TEST(TRANSACTION_TEST_CLASS, PartialFailureValidationResultIsMappedToAbortConsumerResult) {
 		// Arrange:
 		TransactionTraits::TestContextType context;
 		auto elements = TransactionTraits::CreateMultipleEntityElements();
@@ -475,7 +477,7 @@ namespace catapult { namespace consumers {
 		auto result = context.Consumer(elements);
 
 		// Assert:
-		test::AssertContinued(result);
+		test::AssertAborted(result, ValidationResult::Failure, disruptor::ConsumerResultSeverity::Fatal);
 		TransactionTraits::AssertEntities(FilterEntityInfos(elements, { 0, 1, 2, 3 }), context.pPolicy->params());
 		AssertSkipped(elements, { 1, 2 }, { disruptor::ConsumerResultSeverity::Failure, disruptor::ConsumerResultSeverity::Failure });
 
@@ -484,7 +486,7 @@ namespace catapult { namespace consumers {
 		EXPECT_EQ_STATUS(elements[2], Failure_Result2, context.FailedTransactionStatuses[1]);
 	}
 
-	TEST(TRANSACTION_TEST_CLASS, AllNonSuccessValidationResultIsMappedToSkipConsumerResult) {
+	TEST(TRANSACTION_TEST_CLASS, AllNonSuccessValidationResultIsMappedToAbortConsumerResult) {
 		// Arrange:
 		TransactionTraits::TestContextType context;
 		auto elements = TransactionTraits::CreateMultipleEntityElements();
@@ -497,7 +499,7 @@ namespace catapult { namespace consumers {
 		auto result = context.Consumer(elements);
 
 		// Assert: notice that the first failure result is used (basic ValidationResult aggregation)
-		test::AssertAborted(result, Failure_Result1);
+		test::AssertAborted(result, Failure_Result1, disruptor::ConsumerResultSeverity::Fatal);
 		TransactionTraits::AssertEntities(FilterEntityInfos(elements, { 0, 1, 2, 3 }), context.pPolicy->params());
 		AssertSkipped(elements, { 0, 1, 2, 3 }, {
 			disruptor::ConsumerResultSeverity::Neutral,
@@ -542,7 +544,7 @@ namespace catapult { namespace consumers {
 		auto result = context.Consumer(elements);
 
 		// Assert:
-		test::AssertContinued(result);
+		test::AssertAborted(result, ValidationResult::Failure, disruptor::ConsumerResultSeverity::Fatal);
 		TransactionTraits::AssertEntities(FilterEntityInfos(elements, { 0, 2, 3 }), context.pPolicy->params());
 		AssertSkipped(elements, { 1, 2 }, { disruptor::ConsumerResultSeverity::Neutral, disruptor::ConsumerResultSeverity::Failure });
 

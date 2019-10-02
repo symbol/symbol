@@ -44,17 +44,17 @@ namespace catapult { namespace cache {
 		~RocksPruningFilter();
 
 	public:
-		/// Returns underlying compaction filter.
+		/// Gets the underlying compaction filter.
 		rocksdb::CompactionFilter* compactionFilter();
 
-		/// Returns pruning boundary.
+		/// Gets the pruning boundary.
 		uint64_t pruningBoundary() const;
 
-		/// Returns number of pruned entries since last prune.
+		/// Gets the number of pruned entries since last prune.
 		size_t numRemoved() const;
 
 	public:
-		/// Sets pruning boundary.
+		/// Sets the pruning boundary.
 		void setPruningBoundary(uint64_t pruningBoundary);
 
 	private:

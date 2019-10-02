@@ -120,13 +120,13 @@ namespace catapult { namespace api {
 		};
 
 		struct RemotePtApiTraits {
-			static auto Create(ionet::PacketIo& packetIo, const Key& remotePublicKey) {
+			static auto Create(ionet::PacketIo& packetIo, const model::NodeIdentity& remoteIdentity) {
 				auto registry = mocks::CreateDefaultTransactionRegistry();
-				return test::CreateLifetimeExtendedApi(CreateRemotePtApi, packetIo, remotePublicKey, std::move(registry));
+				return test::CreateLifetimeExtendedApi(CreateRemotePtApi, packetIo, remoteIdentity, std::move(registry));
 			}
 
 			static auto Create(ionet::PacketIo& packetIo) {
-				return Create(packetIo, Key());
+				return Create(packetIo, model::NodeIdentity());
 			}
 		};
 	}

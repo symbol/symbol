@@ -25,15 +25,13 @@
 #include <memory>
 
 namespace catapult {
-	namespace ionet {
-		class PacketSocket;
-		struct ReaderIdentity;
-	}
+	namespace ionet { class PacketSocket; }
+	namespace model { struct NodeIdentity; }
 }
 
 namespace catapult { namespace net {
 
-	/// A reader that chains reads from a socket (it initiates the next read upon the successful completion
+	/// Reader that chains reads from a socket (it initiates the next read upon the successful completion
 	/// of the current read).
 	class ChainedSocketReader {
 	public:
@@ -56,13 +54,13 @@ namespace catapult { namespace net {
 	std::shared_ptr<ChainedSocketReader> CreateChainedSocketReader(
 			const std::shared_ptr<ionet::PacketSocket>& pPacketSocket,
 			const ionet::ServerPacketHandlers& serverHandlers,
-			const ionet::ReaderIdentity& identity);
+			const model::NodeIdentity& identity);
 
 	/// Creates a chained socket reader around \a pPacketSocket and \a serverHandlers with a custom completion
 	/// handler (\a completionHandler) given reader \a identity.
 	std::shared_ptr<ChainedSocketReader> CreateChainedSocketReader(
 			const std::shared_ptr<ionet::PacketSocket>& pPacketSocket,
 			const ionet::ServerPacketHandlers& serverHandlers,
-			const ionet::ReaderIdentity& identity,
+			const model::NodeIdentity& identity,
 			const ChainedSocketReader::CompletionHandler& completionHandler);
 }}

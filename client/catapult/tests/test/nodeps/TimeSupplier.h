@@ -18,22 +18,17 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "KeyPairTestUtils.h"
-
-using namespace catapult::crypto;
+#pragma once
+#include "catapult/functions.h"
+#include "catapult/types.h"
+#include <vector>
 
 namespace catapult { namespace test {
 
-	KeyPair CopyKeyPair(const KeyPair& keyPair) {
-		auto iter = keyPair.privateKey().begin();
-		return KeyPair::FromPrivate(PrivateKey::Generate([&iter]() { return *iter++; }));
-	}
+	/// Creates a time supplier that returns all values specified in \a rawTimestamps multiplied by \a multiplier
+	/// and terminally repeats the last value.
+	supplier<Timestamp> CreateTimeSupplierFromMilliseconds(const std::vector<uint32_t>& rawTimestamps, uint32_t multiplier = 1);
 
-	utils::KeySet ToKeySet(const std::vector<crypto::KeyPair>& keyPairs) {
-		utils::KeySet publicKeys;
-		for (const auto& keyPair : keyPairs)
-			publicKeys.emplace(keyPair.publicKey());
-
-		return publicKeys;
-	}
+	/// Creates a time supplier that returns all values specified in \a rawTimestampsInSeconds and terminally repeats the last value.
+	supplier<Timestamp> CreateTimeSupplierFromSeconds(const std::vector<uint32_t>& rawTimestampsInSeconds);
 }}

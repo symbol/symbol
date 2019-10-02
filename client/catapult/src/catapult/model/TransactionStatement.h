@@ -31,7 +31,7 @@ namespace catapult { namespace model {
 		explicit TransactionStatement(const ReceiptSource& source);
 
 	public:
-		/// Gets statement source.
+		/// Gets the statement source.
 		const ReceiptSource& source() const;
 
 		/// Gets the number of attached receipts.

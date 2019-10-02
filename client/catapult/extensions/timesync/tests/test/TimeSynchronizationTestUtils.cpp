@@ -27,10 +27,6 @@ namespace catapult { namespace test {
 
 	namespace {
 		constexpr auto Default_Start_Time = static_cast<int64_t>(utils::TimeSpan::FromMinutes(240).millis());
-
-		ionet::Node CreateNode(const Key& key) {
-			return ionet::Node(key, { "alice.com", 1234 }, { model::NetworkIdentifier::Mijin_Test, "alice" });
-		}
 	}
 
 	timesync::CommunicationTimestamps CreateCommunicationTimestamps(int64_t sendTime, int64_t receiveTime) {
@@ -46,7 +42,7 @@ namespace catapult { namespace test {
 			int64_t remoteSendTime,
 			int64_t remoteReceiveTime) {
 		return timesync::TimeSynchronizationSample(
-				node,
+				node.identity().PublicKey,
 				CreateCommunicationTimestamps(localSendTime, localReceiveTime),
 				CreateCommunicationTimestamps(remoteSendTime, remoteReceiveTime));
 	}
@@ -62,7 +58,7 @@ namespace catapult { namespace test {
 
 	timesync::TimeSynchronizationSample CreateTimeSyncSampleWithDuration(int64_t duration) {
 		return timesync::TimeSynchronizationSample(
-				CreateNode(test::GenerateRandomByteArray<Key>()),
+				test::GenerateRandomByteArray<Key>(),
 				CreateCommunicationTimestamps(0, duration),
 				CreateCommunicationTimestamps(duration / 2, duration / 2));
 	}
@@ -70,7 +66,7 @@ namespace catapult { namespace test {
 	timesync::TimeSynchronizationSample CreateTimeSyncSampleWithTimeOffset(int64_t timeOffset) {
 		// remote timestamps have 0 duration to make it more readable
 		return timesync::TimeSynchronizationSample(
-				CreateNode(test::GenerateRandomByteArray<Key>()),
+				test::GenerateRandomByteArray<Key>(),
 				CreateCommunicationTimestamps(0, 2 * Default_Start_Time + 100),
 				CreateCommunicationTimestamps(Default_Start_Time + 50 + timeOffset, Default_Start_Time + 50 + timeOffset));
 	}

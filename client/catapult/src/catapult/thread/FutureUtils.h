@@ -26,7 +26,7 @@
 
 namespace catapult { namespace thread {
 
-	/// Returns a future that is signaled when all futures in \a allFutures complete.
+	/// Gets a future that is signaled when all futures in \a allFutures complete.
 	template<typename T>
 	future<std::vector<future<T>>> when_all(std::vector<future<T>>&& allFutures) {
 // workaround gcc bug by explicitly specifying inner struct visibility when inner struct contains lambda
@@ -81,7 +81,7 @@ namespace catapult { namespace thread {
 #undef INNER_STRUCT_VISIBILILTY
 	}
 
-	/// Returns a future that is signaled when both \a future1 and \a future2 complete.
+	/// Gets a future that is signaled when both \a future1 and \a future2 complete.
 	template<typename T>
 	future<std::vector<future<T>>> when_all(future<T>&& future1, future<T>&& future2) {
 		std::vector<future<T>> futures;

@@ -32,7 +32,7 @@ namespace catapult { namespace config {
 		std::string BootPrivateKey;
 
 		/// \c true if potential delegated harvesters should be automatically detected.
-		bool ShouldAutoDetectDelegatedHarvesters;
+		bool EnableDelegatedHarvestersAutoDetection;
 
 		/// Data directory.
 		std::string DataDirectory;

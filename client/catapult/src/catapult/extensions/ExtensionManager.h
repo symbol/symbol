@@ -29,7 +29,7 @@ namespace catapult { namespace cache { class CatapultCache; } }
 
 namespace catapult { namespace extensions {
 
-	/// A manager for registering extensions.
+	/// Manager for registering extensions.
 	class ExtensionManager {
 	public:
 		/// Supplier that returns the network time.

@@ -47,17 +47,17 @@ namespace catapult { namespace state {
 		AccountBalances& operator=(AccountBalances&& accountBalances);
 
 	public:
-		/// Returns the number of mosaics owned.
+		/// Gets the number of mosaics owned.
 		size_t size() const {
 			return m_balances.size();
 		}
 
-		/// Returns a const iterator to the first element of the underlying set.
+		/// Gets a const iterator to the first element of the underlying set.
 		auto begin() const {
 			return m_balances.begin();
 		}
 
-		/// Returns a const iterator to the element following the last element of the underlying set.
+		/// Gets a const iterator to the element following the last element of the underlying set.
 		auto end() const {
 			return m_balances.end();
 		}
@@ -65,7 +65,7 @@ namespace catapult { namespace state {
 		/// Gets the optimized mosaic id.
 		MosaicId optimizedMosaicId() const;
 
-		/// Returns amount of funds of a given mosaic (\a mosaicId).
+		/// Gets the balance of the given mosaic (\a mosaicId).
 		Amount get(MosaicId mosaicId) const;
 
 	public:

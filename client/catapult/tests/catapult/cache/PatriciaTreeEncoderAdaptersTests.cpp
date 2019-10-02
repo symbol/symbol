@@ -33,7 +33,11 @@ namespace catapult { namespace cache {
 
 		public:
 			static std::string SerializeValue(const ValueType& value) {
-				return std::string(value.cbegin(), value.cend());
+				std::string str;
+				for (auto byte : value)
+					str.push_back(static_cast<char>(byte));
+
+				return str;
 			}
 		};
 

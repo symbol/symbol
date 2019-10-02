@@ -21,20 +21,21 @@
 #pragma once
 #include "Tool.h"
 #include "ToolConfigurationUtils.h"
+#include "ToolKeys.h"
 #include "ToolNetworkUtils.h"
 #include "catapult/ionet/Node.h"
 #include "catapult/thread/FutureUtils.h"
 
 namespace catapult { namespace tools {
 
-	/// A base class for a tool that performs a network census by communicating with all nodes.
+	/// Base class for a tool that performs a network census by communicating with all nodes.
 	template<typename TNodeInfo>
 	class NetworkCensusTool : public Tool {
 	public:
-		/// A node info shared pointer.
+		/// Node info shared pointer.
 		using NodeInfoPointer = std::shared_ptr<TNodeInfo>;
 
-		/// A node info shared pointer future.
+		/// Node info shared pointer future.
 		using NodeInfoFuture = thread::future<NodeInfoPointer>;
 
 	public:
@@ -51,6 +52,9 @@ namespace catapult { namespace tools {
 			optionsBuilder("resources,r",
 					OptionsValue<std::string>(m_resourcesPath)->default_value(".."),
 					"the path to the resources directory");
+			optionsBuilder("clientPrivateKey",
+					OptionsValue<std::string>(m_clientPrivateKey)->default_value(""),
+					"client private key to use when connecting to the network");
 			positional.add("resources", -1);
 		}
 
@@ -59,7 +63,7 @@ namespace catapult { namespace tools {
 			auto p2pNodes = LoadPeers(m_resourcesPath, config.BlockChain.Network.Identifier);
 			auto apiNodes = LoadOptionalApiPeers(m_resourcesPath, config.BlockChain.Network.Identifier);
 
-			MultiNodeConnector connector;
+			MultiNodeConnector connector(ExtractKeyPair(m_clientPrivateKey));
 			std::vector<NodeInfoFuture> nodeInfoFutures;
 			auto addNodeInfoFutures = [this, &connector, &nodeInfoFutures](const auto& nodes) {
 				for (const auto& node : nodes) {
@@ -116,5 +120,6 @@ namespace catapult { namespace tools {
 	private:
 		std::string m_censusName;
 		std::string m_resourcesPath;
+		std::string m_clientPrivateKey;
 	};
 }}

@@ -27,7 +27,7 @@ namespace catapult { namespace io {
 
 	void MoveBlockFiles(PrunableBlockStorage& sourceStorage, BlockStorage& destinationStorage, Height startHeight) {
 		if (startHeight < Height(1))
-			CATAPULT_THROW_INVALID_ARGUMENT_1("invalid height passed", startHeight)
+			CATAPULT_THROW_INVALID_ARGUMENT_1("invalid height passed", startHeight);
 
 		if (startHeight <= destinationStorage.chainHeight())
 			destinationStorage.dropBlocksAfter(startHeight - Height(1));
@@ -39,7 +39,7 @@ namespace catapult { namespace io {
 
 			if (blockStatementPair.second) {
 				auto pBlockStatement = std::make_shared<model::BlockStatement>();
-				BufferInputStreamAdapter blockStatementStream(blockStatementPair.first);
+				BufferInputStreamAdapter<std::vector<uint8_t>> blockStatementStream(blockStatementPair.first);
 				ReadBlockStatement(blockStatementStream, *pBlockStatement);
 				const_cast<model::BlockElement&>(*pBlockElement).OptionalStatement = std::move(pBlockStatement);
 			}

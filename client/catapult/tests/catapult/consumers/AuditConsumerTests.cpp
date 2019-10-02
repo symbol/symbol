@@ -78,6 +78,12 @@ namespace catapult { namespace consumers {
 			io::RawFile m_file;
 		};
 
+		template<typename TRange>
+		auto MakeConsumerInput(TRange&& range, const Key& identityKey, InputSource inputSource) {
+			using AnnotatedEntityRange = model::AnnotatedEntityRange<typename TRange::value_type>;
+			return ConsumerInput(AnnotatedEntityRange(std::move(range), { identityKey, "fake-host-from-audit-consumer" }), inputSource);
+		}
+
 		void AssertFileContents(
 				const boost::filesystem::path& filename,
 				InputSource expectedSource,
@@ -100,8 +106,7 @@ namespace catapult { namespace consumers {
 				auto key = test::GenerateRandomByteArray<Key>();
 
 				// Act:
-				using AnnotatedEntityRange = model::AnnotatedEntityRange<typename decltype(range)::value_type>;
-				auto result = consumer(ConsumerInput(AnnotatedEntityRange(std::move(range), key), InputSource::Remote_Pull));
+				auto result = consumer(MakeConsumerInput(std::move(range), key, InputSource::Remote_Pull));
 
 				// Assert:
 				test::AssertContinued(result);
@@ -159,10 +164,10 @@ namespace catapult { namespace consumers {
 			auto rangeCopy4 = decltype(range4)::CopyRange(range4);
 
 			// Act:
-			auto result1 = consumer(ConsumerInput(model::AnnotatedTransactionRange(std::move(range1), keys[0]), InputSource::Remote_Pull));
-			auto result2 = consumer(ConsumerInput(model::AnnotatedBlockRange(std::move(range2), keys[1]), InputSource::Remote_Push));
-			auto result3 = consumer(ConsumerInput(model::AnnotatedTransactionRange(std::move(range3), keys[2]), InputSource::Local));
-			auto result4 = consumer(ConsumerInput(model::AnnotatedBlockRange(std::move(range4), keys[3]), InputSource::Remote_Pull));
+			auto result1 = consumer(MakeConsumerInput(std::move(range1), keys[0], InputSource::Remote_Pull));
+			auto result2 = consumer(MakeConsumerInput(std::move(range2), keys[1], InputSource::Remote_Push));
+			auto result3 = consumer(MakeConsumerInput(std::move(range3), keys[2], InputSource::Local));
+			auto result4 = consumer(MakeConsumerInput(std::move(range4), keys[3], InputSource::Remote_Pull));
 
 			// Assert:
 			test::AssertContinued(result1);

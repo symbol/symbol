@@ -52,7 +52,7 @@ namespace catapult { namespace cache {
 		model::MosaicRestrictionType RestrictionType;
 	};
 
-	/// Gets and resolves global restriction rules for the mosaic identified by \a mosaicId using \a restrictionCache
+	/// Gets the (resolved) global restriction rules for the mosaic identified by \a mosaicId using \a restrictionCache
 	/// and inserts resolved rules into \a resolvedRules.
 	MosaicGlobalRestrictionRuleResolutionResult GetMosaicGlobalRestrictionResolvedRules(
 			const MosaicRestrictionCacheTypes::CacheReadOnlyType& restrictionCache,

@@ -85,7 +85,10 @@ namespace catapult { namespace ionet {
 	namespace {
 		Node CreateNodeForPackTests(const std::string& host, const std::string& name) {
 			auto key = test::GenerateRandomByteArray<Key>();
-			return Node(key, { host, 1234 }, { model::NetworkIdentifier::Mijin_Test, name, NodeVersion(7), NodeRoles::Peer });
+			return Node(
+					{ key, "11.22.33.44" },
+					{ host, 1234 },
+					{ model::NetworkIdentifier::Mijin_Test, name, NodeVersion(7), NodeRoles::Peer });
 		}
 
 		void AssertPackedNode(
@@ -121,7 +124,7 @@ namespace catapult { namespace ionet {
 		auto pNetworkNode = PackNode(node);
 
 		// Assert:
-		AssertPackedNode(*pNetworkNode, node.identityKey(), "", "");
+		AssertPackedNode(*pNetworkNode, node.identity().PublicKey, "", "");
 	}
 
 	TEST(TEST_CLASS, CanPackNodeWithHostButNotName) {
@@ -132,7 +135,7 @@ namespace catapult { namespace ionet {
 		auto pNetworkNode = PackNode(node);
 
 		// Assert:
-		AssertPackedNode(*pNetworkNode, node.identityKey(), "bob.com", "");
+		AssertPackedNode(*pNetworkNode, node.identity().PublicKey, "bob.com", "");
 	}
 
 	TEST(TEST_CLASS, CanPackNodeWithNameButNotHost) {
@@ -143,7 +146,7 @@ namespace catapult { namespace ionet {
 		auto pNetworkNode = PackNode(node);
 
 		// Assert:
-		AssertPackedNode(*pNetworkNode, node.identityKey(), "", "supernode");
+		AssertPackedNode(*pNetworkNode, node.identity().PublicKey, "", "supernode");
 	}
 
 	TEST(TEST_CLASS, CanPackNodeWithHostAndName) {
@@ -154,7 +157,7 @@ namespace catapult { namespace ionet {
 		auto pNetworkNode = PackNode(node);
 
 		// Assert:
-		AssertPackedNode(*pNetworkNode, node.identityKey(), "bob.com", "supernode");
+		AssertPackedNode(*pNetworkNode, node.identity().PublicKey, "bob.com", "supernode");
 	}
 
 	TEST(TEST_CLASS, CanPackNodeWithTruncatedHostAndName) {
@@ -165,7 +168,7 @@ namespace catapult { namespace ionet {
 		auto pNetworkNode = PackNode(node);
 
 		// Assert: the strings should have been truncated during packing
-		AssertPackedNode(*pNetworkNode, node.identityKey(), std::string(0xFF, 'h'), std::string(0xFF, 'n'));
+		AssertPackedNode(*pNetworkNode, node.identity().PublicKey, std::string(0xFF, 'h'), std::string(0xFF, 'n'));
 	}
 
 	// endregion
@@ -179,11 +182,12 @@ namespace catapult { namespace ionet {
 
 		void AssertUnpackedNode(
 				const Node& node,
-				const Key& expectedKey,
+				const Key& expectedIdentityKey,
 				const std::string& expectedHost,
 				const std::string& expectedName) {
 			// Assert:
-			EXPECT_EQ(expectedKey, node.identityKey());
+			EXPECT_EQ(expectedIdentityKey, node.identity().PublicKey);
+			EXPECT_EQ("", node.identity().Host);
 
 			EXPECT_EQ(expectedHost, node.endpoint().Host);
 			EXPECT_EQ(1234u, node.endpoint().Port);

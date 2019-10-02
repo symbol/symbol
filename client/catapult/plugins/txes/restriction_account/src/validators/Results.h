@@ -43,7 +43,7 @@ namespace catapult { namespace validators {
 	DEFINE_RESTRICTION_ACCOUNT_RESULT(Modification_Operation_Type_Incompatible, 4);
 
 	/// Validation failed because a modification is redundant.
-	DEFINE_RESTRICTION_ACCOUNT_RESULT(Modification_Redundant, 5);
+	DEFINE_RESTRICTION_ACCOUNT_RESULT(Redundant_Modification, 5);
 
 	/// Validation failed because a value is not in the container.
 	DEFINE_RESTRICTION_ACCOUNT_RESULT(Invalid_Modification, 6);

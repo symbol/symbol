@@ -1,0 +1,8 @@
+[function]
+# call to function through pointer to incorrect function type
+src:**/boost/log/utility/type_dispatch/**
+src:**/boost/asio/detail/scheduler_operation.hpp
+
+[thread]
+# false positive data race (const data set in constructor read by other thread)
+src:**/boost/asio/detail/conditionally_enabled_mutex.hpp

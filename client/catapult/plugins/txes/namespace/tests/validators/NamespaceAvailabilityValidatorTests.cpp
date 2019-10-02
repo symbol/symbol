@@ -269,7 +269,7 @@ namespace catapult { namespace validators {
 			auto signer = test::GenerateRandomByteArray<Key>();
 			auto notification = model::ChildNamespaceNotification(signer, NamespaceId(36), NamespaceId(25));
 			RunChildTest(Failure_Namespace_Already_Exists, notification, height, SeedCacheWithRoot25TreeSigner(signer));
-		};
+		}
 	}
 
 	// endregion
@@ -280,7 +280,7 @@ namespace catapult { namespace validators {
 		// Act: try to create a child with an unknown (root) parent
 		auto signer = test::GenerateRandomByteArray<Key>();
 		auto notification = model::ChildNamespaceNotification(signer, NamespaceId(38), NamespaceId(26));
-		RunChildTest(Failure_Namespace_Parent_Unknown, notification, Height(15), SeedCacheWithRoot25TreeSigner(signer));
+		RunChildTest(Failure_Namespace_Unknown_Parent, notification, Height(15), SeedCacheWithRoot25TreeSigner(signer));
 	}
 
 	TEST(CHILD_TEST_CLASS, CannotAddChildNamespaceToParentWithMaxNamespaceDepth) {

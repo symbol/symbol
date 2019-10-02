@@ -19,6 +19,7 @@
 **/
 
 #include "catapult/model/VerifiableEntityPredicate.h"
+#include "catapult/preprocessor.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace model {
@@ -29,7 +30,7 @@ namespace catapult { namespace model {
 		std::unique_ptr<const VerifiableEntity> CreateVerifiableEntity(EntityType type) {
 			auto pEntity = std::make_unique<VerifiableEntity>();
 			pEntity->Type = type;
-			return std::move(pEntity);
+			return PORTABLE_MOVE(pEntity);
 		}
 
 		constexpr auto Dummy_Transaction = MakeEntityType(BasicEntityType::Transaction, FacilityCode::Multisig, 0xA);

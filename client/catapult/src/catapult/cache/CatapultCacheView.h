@@ -61,7 +61,7 @@ namespace catapult { namespace cache {
 		/// Gets the cache height associated with the read lock.
 		Height height() const;
 
-		/// Gets (const) dependent catapult state.
+		/// Gets the (const) dependent catapult state.
 		const state::CatapultState& dependentState() const;
 
 		/// Calculates the cache state hash.

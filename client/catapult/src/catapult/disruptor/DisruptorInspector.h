@@ -24,6 +24,6 @@
 
 namespace catapult { namespace disruptor {
 
-	/// A disruptor inspector function.
+	/// Disruptor inspector function.
 	using DisruptorInspector = consumer<ConsumerInput&, const ConsumerCompletionResult&>;
 }}

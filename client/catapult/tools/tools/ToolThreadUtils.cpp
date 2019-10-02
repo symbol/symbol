@@ -20,12 +20,13 @@
 
 #include "ToolThreadUtils.h"
 #include "catapult/thread/IoThreadPool.h"
+#include "catapult/preprocessor.h"
 
 namespace catapult { namespace tools {
 
 	std::shared_ptr<thread::IoThreadPool> CreateStartedThreadPool(uint32_t numThreads) {
 		auto pPool = thread::CreateIoThreadPool(numThreads);
 		pPool->start();
-		return std::move(pPool);
+		return PORTABLE_MOVE(pPool);
 	}
 }}

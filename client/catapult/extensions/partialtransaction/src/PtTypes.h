@@ -26,7 +26,7 @@
 
 namespace catapult { namespace partialtransaction {
 
-	/// A vector of cosigned (partial) transaction infos.
+	/// Vector of cosigned (partial) transaction infos.
 	using CosignedTransactionInfos = std::vector<model::CosignedTransactionInfo>;
 
 	/// Prototype for a function that retrieves partial transaction infos given a set of short hash pairs.

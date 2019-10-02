@@ -23,14 +23,12 @@
 #include "catapult/ionet/PacketSocket.h"
 #include "catapult/thread/IoThreadPool.h"
 #include "catapult/utils/Logging.h"
+#include "catapult/preprocessor.h"
 #include <atomic>
 
 namespace catapult { namespace net {
 
 	namespace {
-		// allow at most one pending accept at a time
-		const uint32_t Max_Pending_Accepts = 1;
-
 		void EnableAddressReuse(boost::asio::ip::tcp::acceptor& acceptor) {
 			acceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
 
@@ -67,7 +65,7 @@ namespace catapult { namespace net {
 					, m_acceptor(pPool->ioContext())
 					, m_settings(settings)
 					, m_isStopped(false)
-					, m_numPendingAccepts(0)
+					, m_hasPendingAccept(false)
 					, m_numCurrentConnections(0)
 					, m_numLifetimeConnections(0) {
 				BindAcceptor(m_acceptor, endpoint, m_settings.AllowAddressReuse);
@@ -80,7 +78,7 @@ namespace catapult { namespace net {
 
 		public:
 			uint32_t numPendingAccepts() const override {
-				return m_numPendingAccepts;
+				return m_hasPendingAccept ? 1 : 0;
 			}
 
 			uint32_t numCurrentConnections() const override {
@@ -97,8 +95,8 @@ namespace catapult { namespace net {
 				tryStartAccept();
 
 				CATAPULT_LOG(trace) << "AsyncTcpServer waiting for threads to enter pending accept state";
-				while (m_numPendingAccepts < Max_Pending_Accepts) {}
-				CATAPULT_LOG(info) << "AsyncTcpServer spawned " << m_numPendingAccepts << " pending accepts";
+				while (!m_hasPendingAccept) {}
+				CATAPULT_LOG(info) << "AsyncTcpServer spawned pending accept";
 			}
 
 			void shutdown() override {
@@ -112,7 +110,7 @@ namespace catapult { namespace net {
 					pThis->closeAcceptor();
 				});
 
-				while (0 != m_numPendingAccepts) {}
+				while (m_hasPendingAccept) {}
 				CATAPULT_LOG(info) << "AsyncTcpServer stopped";
 			}
 
@@ -122,17 +120,16 @@ namespace catapult { namespace net {
 				m_acceptor.close(ignored_ec);
 			}
 
-			void handleAccept(const ionet::AcceptedPacketSocketInfo& socketInfo) {
+			void handleAccept(const ionet::PacketSocketInfo& socketInfo) {
 				// add a destruction hook to the socket and post additional handling to the strand
-				ionet::AcceptedPacketSocketInfo decoratedSocketInfo(socketInfo.host(), addDestructionHook(socketInfo.socket()));
+				ionet::PacketSocketInfo decoratedSocketInfo(socketInfo.host(), addDestructionHook(socketInfo.socket()));
 				boost::asio::post(m_acceptorStrand, [pThis = shared_from_this(), decoratedSocketInfo]() {
 					pThis->handleAcceptOnStrand(decoratedSocketInfo);
 				});
 			}
 
-			void handleAcceptOnStrand(const ionet::AcceptedPacketSocketInfo& socketInfo) {
-				// decrement the number of pending accepts
-				--m_numPendingAccepts;
+			void handleAcceptOnStrand(const ionet::PacketSocketInfo& socketInfo) {
+				m_hasPendingAccept = false;
 
 				// if accept had an error, try to start an accept and exit
 				if (!socketInfo) {
@@ -178,21 +175,24 @@ namespace catapult { namespace net {
 					return;
 				}
 
-				uint32_t numActiveConnections = m_numPendingAccepts + m_numCurrentConnections;
+				uint32_t numActiveConnections = numPendingAccepts() + m_numCurrentConnections;
 				uint32_t numOpenConnectionSlots = m_settings.MaxActiveConnections - numActiveConnections;
-				if (m_numPendingAccepts >= Max_Pending_Accepts || numOpenConnectionSlots <= 0) {
-					CATAPULT_LOG(debug)
-							<< "bypassing Accept due to limit (numPendingAccepts="
-							<< m_numPendingAccepts << ", numOpenConnectionSlots=" << numOpenConnectionSlots << ")";
+				if (numOpenConnectionSlots <= 0) {
+					CATAPULT_LOG(debug) << "bypassing Accept due to limit (numOpenConnectionSlots=" << numOpenConnectionSlots << ")";
+					return;
+				}
+
+				if (m_hasPendingAccept) {
+					CATAPULT_LOG(trace) << "bypassing Accept due to current outstanding accept";
 					return;
 				}
 
 				// start a new accept
-				++m_numPendingAccepts;
-				ionet::Accept(m_acceptor, m_settings.PacketSocketOptions, m_settings.ConfigureSocket, [pThis = shared_from_this()](
-						const auto& socketInfo) {
+				m_hasPendingAccept = true;
+				auto acceptHandler = [pThis = shared_from_this()](const auto& socketInfo) {
 					pThis->handleAccept(socketInfo);
-				});
+				};
+				ionet::Accept(m_pPool->ioContext(), m_acceptor, m_settings.PacketSocketOptions, m_settings.ConfigureSocket, acceptHandler);
 			}
 
 		private:
@@ -202,7 +202,7 @@ namespace catapult { namespace net {
 
 			const AsyncTcpServerSettings m_settings;
 			std::atomic_bool m_isStopped;
-			std::atomic<uint32_t> m_numPendingAccepts;
+			std::atomic_bool m_hasPendingAccept;
 			std::atomic<uint32_t> m_numCurrentConnections;
 			std::atomic<uint32_t> m_numLifetimeConnections;
 		};
@@ -220,6 +220,6 @@ namespace catapult { namespace net {
 			const AsyncTcpServerSettings& settings) {
 		auto pServer = std::make_shared<DefaultAsyncTcpServer>(pPool, endpoint, settings);
 		pServer->start();
-		return std::move(pServer);
+		return PORTABLE_MOVE(pServer);
 	}
 }}

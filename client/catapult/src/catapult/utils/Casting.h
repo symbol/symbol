@@ -40,7 +40,7 @@ namespace catapult { namespace utils {
 
 	/// Converts \a value from one integral type (\a TSource) to another (\a TDest).
 	/// This cast can only be used when data truncation is possible.
-	/// An exception is thrown if data truncation is detected.
+	/// \note Exception is thrown when data truncation is detected.
 	template<typename TSource, typename TDest>
 	TDest checked_cast(TSource value) {
 		using dest_limits = std::numeric_limits<TDest>;

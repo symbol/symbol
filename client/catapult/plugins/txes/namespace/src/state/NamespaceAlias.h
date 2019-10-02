@@ -35,7 +35,7 @@ namespace catapult { namespace state {
 		Address
 	};
 
-	/// A namespace alias.
+	/// Namespace alias.
 	class NamespaceAlias {
 	public:
 		/// Creates an unset namespace alias.

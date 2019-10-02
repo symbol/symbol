@@ -110,7 +110,9 @@ namespace catapult { namespace plugins {
 
 		// Act + Assert:
 		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(*pTransaction, {
+			AccountPublicKeyNotification::Notification_Type,
 			MultisigNewCosignatoryNotification::Notification_Type,
+			AccountPublicKeyNotification::Notification_Type,
 			MultisigNewCosignatoryNotification::Notification_Type,
 			MultisigCosignatoriesNotification::Notification_Type,
 			AddressInteractionNotification::Notification_Type,
@@ -126,6 +128,10 @@ namespace catapult { namespace plugins {
 		const auto& transaction = *pTransaction;
 		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
 		for (auto i = 0u; i < 2; ++i) {
+			builder.template addExpectation<AccountPublicKeyNotification>(i, [&transaction, i](const auto& notification) {
+				EXPECT_EQ(transaction.ModificationsPtr()[i].CosignatoryPublicKey, notification.PublicKey);
+			});
+
 			builder.template addExpectation<MultisigNewCosignatoryNotification>(i, [&transaction, i](const auto& notification) {
 				EXPECT_EQ(transaction.SignerPublicKey, notification.MultisigAccountKey);
 				EXPECT_EQ(transaction.ModificationsPtr()[i].CosignatoryPublicKey, notification.CosignatoryKey);
@@ -207,7 +213,9 @@ namespace catapult { namespace plugins {
 
 		// Act + Assert:
 		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(*pTransaction, {
+			AccountPublicKeyNotification::Notification_Type,
 			MultisigNewCosignatoryNotification::Notification_Type,
+			AccountPublicKeyNotification::Notification_Type,
 			MultisigNewCosignatoryNotification::Notification_Type,
 			MultisigCosignatoriesNotification::Notification_Type,
 			AddressInteractionNotification::Notification_Type,
@@ -223,6 +231,10 @@ namespace catapult { namespace plugins {
 		const auto& transaction = *pTransaction;
 		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
 		for (auto i = 0u; i < 2; ++i) {
+			builder.template addExpectation<AccountPublicKeyNotification>(i, [&transaction, i](const auto& notification) {
+				EXPECT_EQ(transaction.ModificationsPtr()[i * 2].CosignatoryPublicKey, notification.PublicKey);
+			});
+
 			builder.template addExpectation<MultisigNewCosignatoryNotification>(i, [&transaction, i](const auto& notification) {
 				EXPECT_EQ(transaction.SignerPublicKey, notification.MultisigAccountKey);
 				EXPECT_EQ(transaction.ModificationsPtr()[i * 2].CosignatoryPublicKey, notification.CosignatoryKey);

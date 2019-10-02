@@ -34,7 +34,7 @@ namespace catapult { namespace ionet {
 				, m_numRemainingBytes(packet.Size)
 				, m_hasError(false) {
 			require(sizeof(PacketHeader), "constructor");
-			m_numRemainingBytes -= sizeof(PacketHeader);
+			m_numRemainingBytes -= static_cast<uint32_t>(sizeof(PacketHeader));
 		}
 
 	public:

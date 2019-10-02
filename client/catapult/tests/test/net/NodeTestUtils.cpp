@@ -25,6 +25,8 @@
 
 namespace catapult { namespace test {
 
+	// region NodeEndpoint / Node factories
+
 	ionet::NodeEndpoint CreateLocalHostNodeEndpoint() {
 		return CreateLocalHostNodeEndpoint(GetLocalHostPort());
 	}
@@ -38,14 +40,22 @@ namespace catapult { namespace test {
 	}
 
 	ionet::Node CreateLocalHostNode(const Key& publicKey, unsigned short port) {
-		return { publicKey, CreateLocalHostNodeEndpoint(port), ionet::NodeMetadata() };
+		return { { publicKey, "127.0.0.1" }, CreateLocalHostNodeEndpoint(port), ionet::NodeMetadata() };
 	}
 
 	ionet::Node CreateNamedNode(const Key& identityKey, const std::string& name, ionet::NodeRoles roles) {
+		return CreateNamedNode({ identityKey, "fake-host-from-create-named-node" }, name, roles);
+	}
+
+	ionet::Node CreateNamedNode(const model::NodeIdentity& identity, const std::string& name, ionet::NodeRoles roles) {
 		auto metadata = ionet::NodeMetadata(model::NetworkIdentifier::Zero, name);
 		metadata.Roles = roles;
-		return ionet::Node(identityKey, ionet::NodeEndpoint(), metadata);
+		return ionet::Node(identity, ionet::NodeEndpoint(), metadata);
 	}
+
+	// endregion
+
+	// region BasicNodeData
 
 	std::ostream& operator<<(std::ostream& out, const BasicNodeData& data) {
 		out << data.Name << " (source " << data.Source << ") " << data.IdentityKey;
@@ -55,19 +65,49 @@ namespace catapult { namespace test {
 	BasicNodeDataContainer CollectAll(const ionet::NodeContainerView& view) {
 		BasicNodeDataContainer basicDataContainer;
 		view.forEach([&basicDataContainer](const auto& node, const auto& nodeInfo) {
-			basicDataContainer.insert({ node.identityKey(), node.metadata().Name, nodeInfo.source() });
+			basicDataContainer.insert({ node.identity().PublicKey, node.metadata().Name, nodeInfo.source() });
 		});
 
 		return basicDataContainer;
 	}
 
-	void AddNodeInteractions(ionet::NodeContainerModifier& modifier, const Key& identityKey, size_t numSuccesses, size_t numFailures) {
+	// endregion
+
+	// region general utils
+
+	void AddNodeInteractions(
+			ionet::NodeContainerModifier& modifier,
+			const model::NodeIdentity& identity,
+			size_t numSuccesses,
+			size_t numFailures) {
 		for (auto i = 0u; i < numSuccesses; ++i)
-			modifier.incrementSuccesses(identityKey);
+			modifier.incrementSuccesses(identity);
 
 		for (auto i = 0u; i < numFailures; ++i)
-			modifier.incrementFailures(identityKey);
+			modifier.incrementFailures(identity);
 	}
+
+	model::NodeIdentitySet ToIdentitiesSet(const std::vector<model::NodeIdentity>& seedIdentities) {
+		auto identities = model::CreateNodeIdentitySet(model::NodeIdentityEqualityStrategy::Key_And_Host);
+
+		for (const auto& identity : seedIdentities)
+			identities.insert(identity);
+
+		return identities;
+	}
+
+	model::NodeIdentitySet ToIdentitiesSet(const std::vector<Key>& identityKeys, const std::string& host) {
+		std::vector<model::NodeIdentity> identities;
+
+		for (const auto& identityKey : identityKeys)
+			identities.push_back({ identityKey, host });
+
+		return ToIdentitiesSet(identities);
+	}
+
+	// endregion
+
+	// region custom asserts
 
 	void AssertZeroed(const ionet::ConnectionState& connectionState) {
 		// Assert:
@@ -85,4 +125,39 @@ namespace catapult { namespace test {
 		EXPECT_EQ(expectedNumSuccesses, interactions.NumSuccesses) << message;
 		EXPECT_EQ(expectedNumFailures, interactions.NumFailures) << message;
 	}
+
+	namespace {
+		template<typename TSet>
+		void AssertEqualSets(const TSet& expected, const TSet& actual) {
+			EXPECT_EQ(expected.size(), actual.size());
+
+			auto areEqual = true;
+			for (const auto& expectedValue : expected)
+				areEqual = areEqual && actual.cend() != actual.find(expectedValue);
+
+			if (areEqual)
+				return;
+
+			std::ostringstream out;
+			out << "[expected]" << std::endl;
+			for (const auto& identity : expected)
+				out << " * " << identity << std::endl;
+
+			out << "[actual]" << std::endl;
+			for (const auto& identity : actual)
+				out << " * " << identity << std::endl;
+
+			EXPECT_TRUE(areEqual) << out.str();
+		}
+	}
+
+	void AssertEqualIdentities(const model::NodeIdentitySet& expected, const model::NodeIdentitySet& actual) {
+		AssertEqualSets(expected, actual);
+	}
+
+	void AssertEqualNodes(const ionet::NodeSet& expected, const ionet::NodeSet& actual) {
+		AssertEqualSets(expected, actual);
+	}
+
+	// endregion
 }}

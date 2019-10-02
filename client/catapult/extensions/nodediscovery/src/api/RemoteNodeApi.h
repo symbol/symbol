@@ -19,14 +19,14 @@
 **/
 
 #pragma once
-#include "catapult/ionet/Node.h"
+#include "catapult/ionet/NodeSet.h"
 #include "catapult/thread/Future.h"
 
 namespace catapult { namespace ionet { class PacketIo; } }
 
 namespace catapult { namespace api {
 
-	/// An api for retrieving node information from a remote node.
+	/// Api for retrieving node information from a remote node.
 	class RemoteNodeApi {
 	public:
 		virtual ~RemoteNodeApi() = default;

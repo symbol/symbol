@@ -24,7 +24,7 @@
 
 namespace catapult { namespace mocks {
 
-	/// A mock partial transaction api that can be configured to return predefined data for requests, capture function parameters
+	/// Mock partial transaction api that can be configured to return predefined data for requests, capture function parameters
 	/// and throw exceptions at specified entry points.
 	class MockPtApi : public api::RemotePtApi {
 	public:
@@ -36,7 +36,7 @@ namespace catapult { namespace mocks {
 	public:
 		/// Creates a partial transaction api around cosigned transaction infos (\a transactionInfos).
 		explicit MockPtApi(const partialtransaction::CosignedTransactionInfos& transactionInfos)
-				: api::RemotePtApi(test::GenerateRandomByteArray<Key>())
+				: api::RemotePtApi({ test::GenerateRandomByteArray<Key>(), "fake-host-from-mock-pt-api" })
 				, m_transactionInfos(transactionInfos)
 				, m_errorEntryPoint(EntryPoint::None)
 		{}
@@ -47,13 +47,13 @@ namespace catapult { namespace mocks {
 			m_errorEntryPoint = entryPoint;
 		}
 
-		/// Returns the vector of short hash pair ranges that were passed to the partial transaction infos requests.
+		/// Gets the vector of short hash pair ranges that were passed to the partial transaction infos requests.
 		const std::vector<cache::ShortHashPairRange>& transactionInfosRequests() const {
 			return m_transactionInfosRequests;
 		}
 
 	public:
-		/// Returns the configured partial transaction infos and throws if the error entry point is set to Partial_Transaction_Infos.
+		/// Gets the configured partial transaction infos and throws if the error entry point is set to Partial_Transaction_Infos.
 		/// \note The \a knownShortHashPairs parameter is captured.
 		thread::future<partialtransaction::CosignedTransactionInfos> transactionInfos(
 				cache::ShortHashPairRange&& knownShortHashPairs) const override {

@@ -121,13 +121,15 @@ namespace catapult { namespace utils {
 	}
 
 #define EXPECT_IS_BASE_OF_IGNORE_REFERENCE_RESULT(EXPECTED, TLEFT, TRIGHT) \
-	EXPECT_EQ(EXPECTED, (traits::is_base_of_ignore_reference<TLEFT, TRIGHT>::value)); \
-	EXPECT_EQ(EXPECTED, (traits::is_base_of_ignore_reference<TLEFT, TRIGHT&>::value)); \
-	EXPECT_EQ(EXPECTED, (traits::is_base_of_ignore_reference<TLEFT, TRIGHT&&>::value)); \
-	\
-	EXPECT_EQ(EXPECTED, (traits::is_base_of_ignore_reference_v<TLEFT, TRIGHT>)); \
-	EXPECT_EQ(EXPECTED, (traits::is_base_of_ignore_reference_v<TLEFT, TRIGHT&>)); \
-	EXPECT_EQ(EXPECTED, (traits::is_base_of_ignore_reference_v<TLEFT, TRIGHT&&>));
+	do { \
+		EXPECT_EQ(EXPECTED, (traits::is_base_of_ignore_reference<TLEFT, TRIGHT>::value)); \
+		EXPECT_EQ(EXPECTED, (traits::is_base_of_ignore_reference<TLEFT, TRIGHT&>::value)); \
+		EXPECT_EQ(EXPECTED, (traits::is_base_of_ignore_reference<TLEFT, TRIGHT&&>::value)); \
+		\
+		EXPECT_EQ(EXPECTED, (traits::is_base_of_ignore_reference_v<TLEFT, TRIGHT>)); \
+		EXPECT_EQ(EXPECTED, (traits::is_base_of_ignore_reference_v<TLEFT, TRIGHT&>)); \
+		EXPECT_EQ(EXPECTED, (traits::is_base_of_ignore_reference_v<TLEFT, TRIGHT&&>)); \
+	} while (false)
 
 	TEST(TEST_CLASS, IsBaseOfIgnoreReferenceReturnsTrueWhenLeftStrippedOfReferenceIsDerivedFromBase) {
 		// Assert: (Base, Base) with any reference qualifiers is true

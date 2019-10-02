@@ -50,7 +50,7 @@ namespace catapult { namespace mocks {
 		using CosignatureInfo = std::pair<std::unique_ptr<const model::TransactionInfo>, model::Cosignature>;
 
 	public:
-		/// Returns added cosignatures.
+		/// Gets the added cosignatures.
 		const std::vector<CosignatureInfo>& addedCosignatureInfos() const {
 			return m_addedCosignatureInfos;
 		}

@@ -167,7 +167,7 @@ namespace catapult { namespace disruptor {
 			consumerCallCounts[i] = 0;
 			typedConsumers.push_back([&consumerCallCounts, i](const auto&) {
 				++consumerCallCounts[i];
-				return 0 == i % 2 ? ConsumerResult::Continue() : ConsumerResult::Abort(i * 2);
+				return 0 == i % 2 ? ConsumerResult::Continue() : ConsumerResult::Abort(i * 2, ConsumerResultSeverity::Failure);
 			});
 		}
 
@@ -185,7 +185,7 @@ namespace catapult { namespace disruptor {
 			if (0 == i % 2)
 				test::AssertContinued(result);
 			else
-				test::AssertAborted(result, i * 2);
+				test::AssertAborted(result, i * 2, ConsumerResultSeverity::Failure);
 
 			EXPECT_EQ(1u, consumerCallCounts[i]);
 			++i;

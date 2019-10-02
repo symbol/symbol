@@ -99,13 +99,14 @@ namespace catapult { namespace disruptor {
 	ENTITY_TRAITS_BASED_TEST(CanCreateConsumerInputWithCustomContext) {
 		// Arrange:
 		test::EntitiesVector entities;
-		auto key = test::GenerateRandomByteArray<Key>();
+		auto identityKey = test::GenerateRandomByteArray<Key>();
 		auto range = TTraits::CreateRange(3, entities);
-		auto input = ConsumerInput({ std::move(range), key }, InputSource::Local);
+		auto input = ConsumerInput({ std::move(range), { identityKey, "11.22.33.44" } }, InputSource::Local);
 
 		// Assert:
 		TTraits::AssertInput(input, 3, entities, InputSource::Local);
-		EXPECT_EQ(key, input.sourcePublicKey());
+		EXPECT_EQ(identityKey, input.sourceIdentity().PublicKey);
+		EXPECT_EQ("11.22.33.44", input.sourceIdentity().Host);
 	}
 
 	ENTITY_TRAITS_BASED_TEST(CanCreateConsumerInputAroundSingleEntity) {

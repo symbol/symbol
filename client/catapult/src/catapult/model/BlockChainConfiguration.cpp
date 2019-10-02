@@ -43,6 +43,7 @@ namespace catapult { namespace model {
 #define LOAD_NETWORK_PROPERTY(NAME) utils::LoadIniProperty(bag, "network", #NAME, config.Network.NAME)
 
 		LOAD_NETWORK_PROPERTY(Identifier);
+		LOAD_NETWORK_PROPERTY(NodeEqualityStrategy);
 		LOAD_NETWORK_PROPERTY(PublicKey);
 		LOAD_NETWORK_PROPERTY(GenerationHash);
 
@@ -95,7 +96,7 @@ namespace catapult { namespace model {
 			numPluginProperties += iter->second.size();
 		}
 
-		utils::VerifyBagSizeLte(bag, 23 + numPluginProperties);
+		utils::VerifyBagSizeLte(bag, 4 + 20 + numPluginProperties);
 		return config;
 	}
 

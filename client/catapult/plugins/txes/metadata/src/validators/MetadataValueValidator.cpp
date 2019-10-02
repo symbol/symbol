@@ -48,7 +48,7 @@ namespace catapult { namespace validators {
 		if (notification.ValueSizeDelta >= 0)
 			return ValidationResult::Success;
 
-		uint16_t requiredTrimCount = -static_cast<uint16_t>(notification.ValueSizeDelta);
+		auto requiredTrimCount = static_cast<uint16_t>(-notification.ValueSizeDelta);
 		return metadataValue.canTrim({ notification.ValuePtr, notification.ValueSize }, requiredTrimCount)
 				? ValidationResult::Success
 				: Failure_Metadata_Value_Change_Irreversible;

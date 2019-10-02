@@ -161,7 +161,7 @@ namespace catapult { namespace consumers {
 				// 3. check difficulties against difficulties in cache
 				auto blocks = ExtractBlocks(elements);
 				if (!m_handlers.DifficultyChecker(blocks, m_cache))
-					return Abort(Failure_Consumer_Remote_Chain_Mismatched_Difficulties);
+					return Abort(Failure_Consumer_Remote_Chain_Difficulties_Mismatch);
 
 				// 4. unwind to the common block height and calculate the local chain score
 				syncState = SyncState(m_cache);

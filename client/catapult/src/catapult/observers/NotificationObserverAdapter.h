@@ -26,7 +26,7 @@ namespace catapult { namespace model { class TransactionRegistry; } }
 
 namespace catapult { namespace observers {
 
-	/// A notification observer to entity observer adapter.
+	/// Notification observer to entity observer adapter.
 	class NotificationObserverAdapter : public EntityObserver {
 	private:
 		using NotificationObserverPointer = NotificationObserverPointerT<model::Notification>;

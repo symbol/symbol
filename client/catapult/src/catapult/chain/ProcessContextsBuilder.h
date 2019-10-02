@@ -49,7 +49,7 @@ namespace catapult { namespace chain {
 		/// Sets a catapult cache \a delta.
 		void setCache(cache::CatapultCacheDelta& delta);
 
-		/// Sets block statement builder (\a blockStatementBuilder) to use.
+		/// Sets a block statement builder (\a blockStatementBuilder) to use.
 		void setBlockStatementBuilder(model::BlockStatementBuilder& blockStatementBuilder);
 
 		/// Sets a catapult observer \a state.

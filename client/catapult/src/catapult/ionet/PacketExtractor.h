@@ -26,13 +26,13 @@
 namespace catapult { namespace ionet {
 
 #define PACKET_EXTRACT_RESULT_LIST \
-	/* A packet was succesfully extracted. */ \
+	/* Packet was succesfully extracted. */ \
 	ENUM_VALUE(Success) \
 	\
-	/* A packet was not extracted due to insufficient data. */ \
+	/* Packet was not extracted due to insufficient data. */ \
 	ENUM_VALUE(Insufficient_Data) \
 	\
-	/* A packet was not extracted due to a packet error. */ \
+	/* Packet was not extracted due to a packet error. */ \
 	ENUM_VALUE(Packet_Error)
 
 #define ENUM_VALUE(LABEL) LABEL,

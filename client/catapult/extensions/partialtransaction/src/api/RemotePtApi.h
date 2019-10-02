@@ -28,11 +28,11 @@ namespace catapult { namespace ionet { class PacketIo; } }
 
 namespace catapult { namespace api {
 
-	/// An api for retrieving partial transaction information from a remote node.
+	/// Api for retrieving partial transaction information from a remote node.
 	class RemotePtApi : public RemoteApi {
 	protected:
-		/// Creates a remote api for the node with specified public key (\a remotePublicKey).
-		explicit RemotePtApi(const Key& remotePublicKey) : RemoteApi(remotePublicKey)
+		/// Creates a remote api for the node with specified \a remoteIdentity.
+		explicit RemotePtApi(const model::NodeIdentity& remoteIdentity) : RemoteApi(remoteIdentity)
 		{}
 
 	public:
@@ -41,10 +41,10 @@ namespace catapult { namespace api {
 				cache::ShortHashPairRange&& knownShortHashPairs) const = 0;
 	};
 
-	/// Creates a partial transaction api for interacting with a remote node with the specified \a io  with public key (\a remotePublicKey)
-	/// and transaction \a registry composed of supported transactions.
+	/// Creates a partial transaction api for interacting with a remote node with the specified \a io and \a remoteIdentity
+	/// given transaction \a registry composed of supported transactions.
 	std::unique_ptr<RemotePtApi> CreateRemotePtApi(
 			ionet::PacketIo& io,
-			const Key& remotePublicKey,
+			const model::NodeIdentity& remoteIdentity,
 			const model::TransactionRegistry& registry);
 }}

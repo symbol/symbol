@@ -58,7 +58,7 @@ namespace catapult { namespace test {
 	std::vector<Key> ExtractKeys(const TSamplesContainer& samples) {
 		std::vector<Key> keys;
 		for (const auto& sample : samples)
-			keys.push_back(sample.node().identityKey());
+			keys.push_back(sample.identityKey());
 
 		return keys;
 	}

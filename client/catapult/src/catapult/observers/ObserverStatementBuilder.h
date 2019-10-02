@@ -34,10 +34,10 @@ namespace catapult { namespace observers {
 		ObserverStatementBuilder(model::BlockStatementBuilder& statementBuilder);
 
 	public:
-		/// Gets active source.
+		/// Gets the active source.
 		model::ReceiptSource source() const;
 
-		/// Sets active \a source.
+		/// Sets the active \a source.
 		void setSource(const model::ReceiptSource& source);
 
 	public:

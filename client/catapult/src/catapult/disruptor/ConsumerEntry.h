@@ -38,12 +38,12 @@ namespace catapult { namespace disruptor {
 		}
 
 	public:
-		/// Returns current position (in the circular buffer).
+		/// Gets the current position (in the circular buffer).
 		PositionType position() const {
 			return m_position;
 		}
 
-		/// Returns consumer level.
+		/// Gets the consumer level.
 		size_t level() const {
 			return m_level;
 		}

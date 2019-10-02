@@ -24,26 +24,26 @@
 
 namespace catapult { namespace disruptor {
 
-	/// A typed disruptor consumer function.
+	/// Typed disruptor consumer function.
 	template<typename TInput>
 	using DisruptorConsumerT = std::function<ConsumerResult (TInput&)>;
 
-	/// A disruptor consumer function.
+	/// Disruptor consumer function.
 	using DisruptorConsumer = DisruptorConsumerT<ConsumerInput>;
 
-	/// A const disruptor consumer function.
+	/// Const disruptor consumer function.
 	using ConstDisruptorConsumer = DisruptorConsumerT<const ConsumerInput>;
 
-	/// A block disruptor consumer function.
+	/// Block disruptor consumer function.
 	using BlockConsumer = DisruptorConsumerT<BlockElements>;
 
-	/// A const block disruptor consumer function.
+	/// Const block disruptor consumer function.
 	using ConstBlockConsumer = DisruptorConsumerT<const BlockElements>;
 
-	/// A transaction disruptor consumer function.
+	/// Transaction disruptor consumer function.
 	using TransactionConsumer = DisruptorConsumerT<TransactionElements>;
 
-	/// A const transaction disruptor consumer function.
+	/// Const transaction disruptor consumer function.
 	using ConstTransactionConsumer = DisruptorConsumerT<const TransactionElements>;
 
 	/// Maps \a blockConsumers to disruptor consumers so that they can be used to create a ConsumerDispatcher.

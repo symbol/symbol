@@ -171,11 +171,15 @@ namespace catapult { namespace extensions {
 		// Assert:
 		ASSERT_EQ(5u, bootstrapperNodes.size());
 
-		for (auto i = 0u; i < nodes1.size(); ++i)
-			EXPECT_EQ(bootstrapperNodes[i], nodes1[i]) << "nodes1 at " << i;
+		for (auto i = 0u; i < nodes1.size(); ++i) {
+			EXPECT_EQ(bootstrapperNodes[i].identity().PublicKey, nodes1[i].identity().PublicKey) << "nodes1 at " << i;
+			EXPECT_EQ("127.0.0.1", nodes1[i].identity().Host) << "nodes1 at " << i;
+		}
 
-		for (auto i = 0u; i < nodes2.size(); ++i)
-			EXPECT_EQ(bootstrapperNodes[nodes1.size() + i], nodes2[i]) << "nodes2 at " << i;
+		for (auto i = 0u; i < nodes2.size(); ++i) {
+			EXPECT_EQ(bootstrapperNodes[nodes1.size() + i].identity().PublicKey, nodes2[i].identity().PublicKey) << "nodes2 at " << i;
+			EXPECT_EQ("127.0.0.1", nodes2[i].identity().Host) << "nodes2 at " << i;
+		}
 	}
 
 	TEST(TEST_CLASS, CanAddStaticNodesFromPath) {

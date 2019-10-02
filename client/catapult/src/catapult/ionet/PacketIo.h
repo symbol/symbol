@@ -27,7 +27,7 @@
 
 namespace catapult { namespace ionet {
 
-	/// An interface for reading and writing packets.
+	/// Interface for reading and writing packets.
 	class PacketIo {
 	public:
 		using ReadCallback = consumer<SocketOperationCode, const Packet*>;
@@ -37,11 +37,11 @@ namespace catapult { namespace ionet {
 		virtual ~PacketIo() = default;
 
 	public:
+		/// Writes \a payload and calls \a callback on completion.
+		virtual void write(const PacketPayload& payload, const WriteCallback& callback) = 0;
+
 		/// Reads and consumes the next packet and calls \a callback on completion.
 		/// On success, the read packet is passed to \a callback.
 		virtual void read(const ReadCallback& callback) = 0;
-
-		/// Writes \a payload and calls \a callback on completion.
-		virtual void write(const PacketPayload& payload, const WriteCallback& callback) = 0;
 	};
 }}

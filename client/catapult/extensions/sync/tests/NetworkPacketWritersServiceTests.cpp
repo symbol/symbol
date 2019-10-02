@@ -137,7 +137,10 @@ namespace catapult { namespace sync {
 			for (auto i = 0u; i < numConnections; ++i) {
 				// - connect to nodes with different identities
 				auto peerKeyPair = test::GenerateKeyPair();
-				ionet::Node node(peerKeyPair.publicKey(), test::CreateLocalHostNodeEndpoint(), ionet::NodeMetadata());
+				ionet::Node node(
+						{ peerKeyPair.publicKey(), std::to_string(i) },
+						test::CreateLocalHostNodeEndpoint(),
+						ionet::NodeMetadata());
 
 				std::atomic<size_t> numCallbacks(0);
 				test::SpawnPacketServerWork(acceptor, [&](const auto& pSocket) {
@@ -172,7 +175,11 @@ namespace catapult { namespace sync {
 			EstablishConnections(numConnections, pPool->ioContext(), context, serverSockets);
 			CATAPULT_LOG(debug) << "established " << numConnections << " connection(s)";
 
+			// Act: pick connections to height peers
+			auto heightsFuture = retriever(numHeightPeers);
+
 			// - write the heights to the server sockets
+			//   (this must be after the connections are picked in order to prevent unexpected data errors)
 			auto i = 1u;
 			for (const auto& pSocket : serverSockets) {
 				auto pPacket = ionet::CreateSharedPacket<api::ChainInfoResponse>();
@@ -181,8 +188,8 @@ namespace catapult { namespace sync {
 				++i;
 			}
 
-			// Act:
-			auto heights = retriever(numHeightPeers).get();
+			// - wait for the heights
+			auto heights = heightsFuture.get();
 
 			// Assert:
 			EXPECT_EQ(expectedHeights, heights) << "numHeightPeers " << numHeightPeers << ", numConnections " << numConnections;

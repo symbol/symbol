@@ -19,15 +19,17 @@
 **/
 
 #pragma once
-#include "catapult/crypto/KeyPair.h"
-#include "catapult/utils/ArraySet.h"
-#include <vector>
 
-namespace catapult { namespace test {
+#if defined(__APPLE__)
+#define ATTRIBUTE_CALLS_PLUGIN_API __attribute__ ((no_sanitize("function")))
+#else
+#define ATTRIBUTE_CALLS_PLUGIN_API
+#endif
 
-	/// Copies a given \a keyPair.
-	crypto::KeyPair CopyKeyPair(const crypto::KeyPair& keyPair);
-
-	/// Extracts the public keys of \a keyPairs into a key set.
-	utils::KeySet ToKeySet(const std::vector<crypto::KeyPair>& keyPairs);
-}}
+#if defined(__GNUC__) && !defined(__clang__)
+// gcc raises `redundant-move` when explicit std::move is present
+#define PORTABLE_MOVE(X) X
+#else
+// clang requires explicit std::move to avoid `return-std-move-in-c++11`
+#define PORTABLE_MOVE(X) std::move(X)
+#endif

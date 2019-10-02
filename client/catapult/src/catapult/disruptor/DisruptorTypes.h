@@ -56,20 +56,24 @@ namespace catapult { namespace disruptor {
 		Success,
 
 		/// Failure result.
-		Failure
+		Failure,
+
+		/// Fatal result.
+		Fatal
 	};
 
 	/// Result of a consumer operation.
 	struct ConsumerResult {
 	public:
 		/// Creates a default result.
-		constexpr ConsumerResult() : ConsumerResult(disruptor::CompletionStatus::Normal, 0)
+		constexpr ConsumerResult() : ConsumerResult(disruptor::CompletionStatus::Normal, 0, ConsumerResultSeverity::Success)
 		{}
 
 	private:
-		constexpr ConsumerResult(disruptor::CompletionStatus status, disruptor::CompletionCode code)
+		constexpr ConsumerResult(disruptor::CompletionStatus status, disruptor::CompletionCode code, ConsumerResultSeverity severity)
 				: CompletionStatus(status)
 				, CompletionCode(code)
+				, ResultSeverity(severity)
 		{}
 
 	public:
@@ -79,15 +83,18 @@ namespace catapult { namespace disruptor {
 		/// Optional code that can provide additional consumer completion information.
 		disruptor::CompletionCode CompletionCode;
 
+		/// Consumer result severity.
+		ConsumerResultSeverity ResultSeverity;
+
 	public:
 		/// Creates a consumer result indicating that processing should be aborted.
 		static constexpr ConsumerResult Abort() {
-			return Abort(0);
+			return Abort(0, ConsumerResultSeverity::Failure);
 		}
 
-		/// Creates a consumer result indicating that processing should be aborted with the specified \a code.
-		static constexpr ConsumerResult Abort(disruptor::CompletionCode code) {
-			return ConsumerResult(CompletionStatus::Aborted, code);
+		/// Creates a consumer result indicating that processing should be aborted with the specified \a code and \a severity.
+		static constexpr ConsumerResult Abort(disruptor::CompletionCode code, ConsumerResultSeverity severity) {
+			return ConsumerResult(CompletionStatus::Aborted, code, severity);
 		}
 
 		/// Creates a consumer result indicating that processing should continue.
@@ -95,9 +102,9 @@ namespace catapult { namespace disruptor {
 			return {};
 		}
 
-		/// Creates a consumer result indicating that processing has completed with the specified \a code.
-		static constexpr ConsumerResult Complete(disruptor::CompletionCode code) {
-			return ConsumerResult(CompletionStatus::Consumed, code);
+		/// Creates a consumer result indicating that processing has completed with the specified \a code and \a severity.
+		static constexpr ConsumerResult Complete(disruptor::CompletionCode code, ConsumerResultSeverity severity) {
+			return ConsumerResult(CompletionStatus::Consumed, code, severity);
 		}
 	};
 
@@ -128,9 +135,9 @@ namespace catapult { namespace disruptor {
 		ConsumerResultSeverity ResultSeverity;
 	};
 
-	/// A container of BlockElement.
+	/// Container of BlockElement.
 	using BlockElements = std::vector<model::BlockElement>;
 
-	/// A container of FreeTransactionElement.
+	/// Container of FreeTransactionElement.
 	using TransactionElements = std::vector<FreeTransactionElement>;
 }}

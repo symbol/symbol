@@ -19,6 +19,7 @@
 **/
 
 #include "catapult/model/Transaction.h"
+#include "catapult/preprocessor.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/TestHarness.h"
@@ -68,7 +69,7 @@ namespace catapult { namespace model {
 		std::unique_ptr<Transaction> CreateMockTransaction(uint32_t delta) {
 			auto pTransaction = mocks::CreateMockTransaction(7);
 			pTransaction->Size += delta;
-			return std::move(pTransaction);
+			return PORTABLE_MOVE(pTransaction);
 		}
 	}
 

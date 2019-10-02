@@ -55,7 +55,8 @@ namespace catapult { namespace nodediscovery {
 		void AssertFailedConnection(const NodePingRequestor& requestor, const ionet::Node& responseNode) {
 			// Assert:
 			test::AssertBriefServerRequestorFailedConnection(requestor);
-			EXPECT_EQ(Key(), responseNode.identityKey());
+			EXPECT_EQ(Key(), responseNode.identity().PublicKey);
+			EXPECT_EQ("", responseNode.identity().Host);
 		}
 	}
 
@@ -98,7 +99,8 @@ namespace catapult { namespace nodediscovery {
 			// Assert:
 			EXPECT_EQ(net::NodeRequestResult::Success, result);
 
-			EXPECT_EQ(expectedIdentityKey, responseNode.identityKey());
+			EXPECT_EQ(expectedIdentityKey, responseNode.identity().PublicKey);
+			EXPECT_EQ("127.0.0.1", responseNode.identity().Host);
 			EXPECT_EQ("127.0.0.1", responseNode.endpoint().Host);
 			EXPECT_EQ(ionet::NodeVersion(1234), responseNode.metadata().Version);
 			EXPECT_EQ("a", responseNode.metadata().Name);

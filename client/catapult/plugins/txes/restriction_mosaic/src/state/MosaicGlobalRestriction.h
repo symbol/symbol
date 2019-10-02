@@ -55,10 +55,10 @@ namespace catapult { namespace state {
 		std::set<uint64_t> keys() const;
 
 	public:
-		/// Tries to get \a rule associated with \a key.
+		/// Tries to get the \a rule associated with \a key.
 		bool tryGet(uint64_t key, RestrictionRule& rule) const;
 
-		/// Sets \a rule for specified \a key.
+		/// Sets the \a rule associated with \a key.
 		void set(uint64_t key, const RestrictionRule rule);
 
 	public:

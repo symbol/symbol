@@ -25,6 +25,7 @@
 #include "catapult/utils/Logging.h"
 #include "catapult/utils/WeakContainer.h"
 #include "catapult/exceptions.h"
+#include "catapult/preprocessor.h"
 #include <boost/asio/steady_timer.hpp>
 #include <boost/asio.hpp>
 
@@ -211,6 +212,6 @@ namespace catapult { namespace thread {
 
 	std::shared_ptr<Scheduler> CreateScheduler(const std::shared_ptr<IoThreadPool>& pPool) {
 		auto pScheduler = std::make_shared<DefaultScheduler>(pPool);
-		return std::move(pScheduler);
+		return PORTABLE_MOVE(pScheduler);
 	}
 }}

@@ -23,7 +23,7 @@
 
 namespace catapult { namespace test {
 
-	/// Returns the number of transactions in \a transactions.
+	/// Gets the number of transactions in \a transactions.
 	template<typename TContainer>
 	size_t CountTransactions(TContainer transactions) {
 		size_t count = 0;

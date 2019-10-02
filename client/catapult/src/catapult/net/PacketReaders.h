@@ -29,9 +29,9 @@
 namespace catapult {
 	namespace crypto { class KeyPair; }
 	namespace ionet {
-		class AcceptedPacketSocketInfo;
 		class PacketIo;
 		class PacketSocket;
+		class PacketSocketInfo;
 	}
 	namespace thread { class IoThreadPool; }
 }
@@ -41,16 +41,10 @@ namespace catapult { namespace net {
 	/// Manages a collection of connections that receive data from external nodes.
 	class PacketReaders : public ConnectionContainer {
 	public:
-		using AcceptCallback = consumer<const PeerConnectResult&>;
-
-	public:
 		/// Gets the number of active readers.
 		virtual size_t numActiveReaders() const = 0;
 
 	public:
-		/// Accepts a connection represented by \a socketInfo and calls \a callback on completion.
-		virtual void accept(const ionet::AcceptedPacketSocketInfo& socketInfo, const AcceptCallback& callback) = 0;
-
 		/// Shuts down all connections.
 		virtual void shutdown() = 0;
 	};

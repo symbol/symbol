@@ -53,7 +53,9 @@ namespace catapult { namespace chain {
 #endif
 
 		uint32_t ExtractFromHashAtPosition(const GenerationHash& hash, size_t index) {
-			return BSWAP(*reinterpret_cast<const uint32_t*>(hash.data() + index));
+			uint32_t value;
+			std::memcpy(&value, hash.data() + index, sizeof(uint32_t));
+			return BSWAP(value);
 		}
 
 		GenerationHashInfo ExtractGenerationHashInfo(const GenerationHash& generationHash) {

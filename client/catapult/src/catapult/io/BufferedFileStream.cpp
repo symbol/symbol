@@ -20,6 +20,7 @@
 
 #include "BufferedFileStream.h"
 #include "catapult/utils/Logging.h"
+#include "catapult/utils/MemoryUtils.h"
 #include "catapult/exceptions.h"
 
 namespace catapult { namespace io {
@@ -44,7 +45,7 @@ namespace catapult { namespace io {
 		auto bytesToCopy = std::min(buffer.Size, bytesLeft);
 
 		// copy chunk to internal buffer
-		std::memcpy(m_buffer.data() + m_bufferPosition, buffer.pData, bytesToCopy);
+		utils::memcpy_cond(m_buffer.data() + m_bufferPosition, buffer.pData, bytesToCopy);
 		m_bufferPosition += bytesToCopy;
 
 		// write out if full

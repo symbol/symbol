@@ -26,7 +26,7 @@
 
 namespace catapult { namespace observers {
 
-	/// A demultiplexing observer builder.
+	/// Demultiplexing observer builder.
 	class DemuxObserverBuilder {
 	private:
 		using NotificationObserverPredicate = predicate<const model::Notification&>;

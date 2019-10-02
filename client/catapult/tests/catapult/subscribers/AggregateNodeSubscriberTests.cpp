@@ -54,7 +54,52 @@ namespace catapult { namespace subscribers {
 		}
 	}
 
-	TEST(TEST_CLASS, NotifyIncomingNodeForwardsToAllSubscribers) {
+	namespace {
+		template<typename TPrepare>
+		void AssertNotifyIncomingNodeForwardsToSubscribers(bool expectedResult, size_t maxSubscriberForwardIndex, TPrepare prepare) {
+			// Arrange:
+			TestContext<mocks::MockNodeSubscriber> context;
+			prepare(context.subscribers());
+			auto key = test::GenerateRandomByteArray<Key>();
+
+			// Sanity:
+			EXPECT_EQ(3u, context.subscribers().size());
+
+			// Act:
+			auto result = context.aggregate().notifyIncomingNode({ key, "11.22.33.44" }, ionet::ServiceIdentifier(212));
+
+			// Assert:
+			EXPECT_EQ(expectedResult, result);
+
+			auto i = 0u;
+			for (const auto* pSubscriber : context.subscribers()) {
+				auto message = "subscriber at " + std::to_string(i);
+				const auto& capturedParams = pSubscriber->incomingNodeParams().params();
+				if (i <= maxSubscriberForwardIndex) {
+					ASSERT_EQ(1u, capturedParams.size()) << message;
+					EXPECT_EQ(key, capturedParams[0].Identity.PublicKey) << message;
+					EXPECT_EQ("11.22.33.44", capturedParams[0].Identity.Host) << message;
+					EXPECT_EQ(ionet::ServiceIdentifier(212), capturedParams[0].ServiceId) << message;
+				} else {
+					EXPECT_EQ(0u, capturedParams.size()) << message;
+				}
+
+				++i;
+			}
+		}
+	}
+
+	TEST(TEST_CLASS, NotifyIncomingNodeForwardsToAllSubscribers_TrueResult) {
+		AssertNotifyIncomingNodeForwardsToSubscribers(true, 2, [](const auto&) {});
+	}
+
+	TEST(TEST_CLASS, NotifyIncomingNodeForwardsToShortCircuitSubscribers_FalseResult) {
+		AssertNotifyIncomingNodeForwardsToSubscribers(false, 1, [](auto& subscribers) {
+			subscribers[1]->setNotifyIncomingNodeResult(false);
+		});
+	}
+
+	TEST(TEST_CLASS, NotifyBanForwardsToAllSubscribers) {
 		// Arrange:
 		TestContext<mocks::MockNodeSubscriber> context;
 		auto key = test::GenerateRandomByteArray<Key>();
@@ -63,16 +108,17 @@ namespace catapult { namespace subscribers {
 		EXPECT_EQ(3u, context.subscribers().size());
 
 		// Act:
-		context.aggregate().notifyIncomingNode(key, ionet::ServiceIdentifier(212));
+		context.aggregate().notifyBan({ key, "11.22.33.44" }, static_cast<validators::ValidationResult>(123));
 
 		// Assert:
 		auto i = 0u;
 		for (const auto* pSubscriber : context.subscribers()) {
 			auto message = "subscriber at " + std::to_string(i++);
-			const auto& capturedParams = pSubscriber->incomingNodeParams().params();
+			const auto& capturedParams = pSubscriber->banParams().params();
 			ASSERT_EQ(1u, capturedParams.size()) << message;
-			EXPECT_EQ(key, capturedParams[0].IdentityKey) << message;
-			EXPECT_EQ(ionet::ServiceIdentifier(212), capturedParams[0].ServiceId) << message;
+			EXPECT_EQ(key, capturedParams[0].Identity.PublicKey) << message;
+			EXPECT_EQ("11.22.33.44", capturedParams[0].Identity.Host) << message;
+			EXPECT_EQ(static_cast<validators::ValidationResult>(123), capturedParams[0].Reason) << message;
 		}
 	}
 }}

@@ -84,7 +84,7 @@ namespace catapult { namespace test {
 		context.waitForHeight(height);
 		auto chainHeight = context.height();
 		WAIT_FOR_VALUE_EXPR(numTerminalReaders, context.stats().NumActiveReaders);
-		WAIT_FOR_VALUE_EXPR(0u, context.stats().NumActiveBlockElements);
+		WAIT_FOR_ZERO_EXPR(context.stats().NumActiveBlockElements);
 
 		// Assert: the chain height is correct
 		EXPECT_EQ(height, chainHeight);

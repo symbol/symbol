@@ -24,7 +24,7 @@
 
 namespace catapult { namespace cache {
 
-	/// A read-only overlay on top of a cache that provides support for contains, get and isActive.
+	/// Read-only overlay on top of a cache that provides support for contains, get and isActive.
 	template<typename TCache, typename TCacheDelta, typename TKey, typename TValue>
 	class ReadOnlyArtifactCache : public ReadOnlySimpleCache<TCache, TCacheDelta, TKey> {
 	public:

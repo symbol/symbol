@@ -34,6 +34,9 @@ namespace catapult { namespace extensions {
 	/// Validation failed because the partial transaction was pruned from the temporal cache due to its dependency being removed.
 	DEFINE_EXTENSION_RESULT(Partial_Transaction_Dependency_Removed, 2);
 
+	/// Validation failed because socket read rate limit was exceeded.
+	DEFINE_EXTENSION_RESULT(Read_Rate_Limit_Exceeded, 3);
+
 #ifndef CUSTOM_RESULT_DEFINITION
 }}
 #endif

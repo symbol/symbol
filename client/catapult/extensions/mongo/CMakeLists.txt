@@ -5,13 +5,6 @@ find_package(LIBMONGOCXX REQUIRED)
 find_package(LIBBSONCXX REQUIRED)
 
 message("mongocxx  ver: ${LIBMONGOCXX_PACKAGE_VERSION}")
-
-if(LIBMONGOCXX_PACKAGE_VERSION LESS 3.3)
-	find_library(MONGOCXX_LIB ${LIBMONGOCXX_LIBRARIES} ${LIBMONGOCXX_LIBRARY_DIRS})
-	find_library(BSONCXX_LIB ${LIBBSONCXX_LIBRARIES} ${LIBBSONCXX_LIBRARY_DIRS})
-	set(LIBMONGOCXX_LIBRARIES ${MONGOCXX_LIB} ${BSONCXX_LIB})
-endif()
-
 find_library(MONGOC_LIB mongoc-1.0 ${LIBMONGOCXX_LIBRARY_DIRS})
 find_library(BSONC_LIB bson-1.0 ${LIBMONGOCXX_LIBRARY_DIRS})
 
@@ -29,7 +22,7 @@ message("bsonc     lib: ${BSONC_LIB}")
 ### find and set mongo includes and libraries
 function(catapult_add_mongo_dependencies TARGET_NAME)
 	include_directories(SYSTEM ${LIBMONGOCXX_INCLUDE_DIRS} ${LIBBSONCXX_INCLUDE_DIRS})
-	target_link_libraries(${TARGET_NAME} ${LIBMONGOCXX_LIBRARIES} ${MONGOC_LIB} ${BSONC_LIB} ${MONGO_ADDITIONAL_LIBS})
+	target_link_libraries(${TARGET_NAME} ${LIBMONGOCXX_LIBRARIES} ${MONGO_ADDITIONAL_LIBS})
 endfunction()
 
 # used to define a catapult mongo int test executable by combining catapult_test_executable and catapult_target

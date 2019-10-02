@@ -19,19 +19,25 @@
 **/
 
 #pragma once
-#include "catapult/subscribers/NodeSubscriber.h"
-#include <memory>
+#include "catapult/config/NodeConfiguration.h"
 
 namespace catapult {
-	namespace extensions { class ProcessBootstrapper; }
-	namespace ionet { class NodeContainer; }
+	namespace config { class CatapultConfiguration; }
+	namespace ionet {
+		struct BanSettings;
+		class Node;
+		class NodeContainer;
+	}
 }
 
 namespace catapult { namespace local {
 
-	/// Seeds \a nodes with node information from \a bootstrapper.
-	void SeedNodeContainer(ionet::NodeContainer& nodes, const extensions::ProcessBootstrapper& bootstrapper);
+	/// Validates all \a nodes.
+	void ValidateNodes(const std::vector<ionet::Node>& nodes);
 
-	/// Adapts \a nodes to a node subscriber.
-	std::unique_ptr<subscribers::NodeSubscriber> CreateNodeContainerSubscriberAdapter(ionet::NodeContainer& nodes);
+	/// Adds local node specified in \a config to \a nodes.
+	void AddLocalNode(ionet::NodeContainer& nodes, const config::CatapultConfiguration& config);
+
+	/// Gets the ban settings from \a banConfig.
+	ionet::BanSettings GetBanSettings(const config::NodeConfiguration::BanningSubConfiguration& banConfig);
 }}

@@ -19,8 +19,13 @@
 **/
 
 #include "catapult/extensions/NetworkUtils.h"
+#include "catapult/extensions/Results.h"
+#include "catapult/net/ConnectionContainer.h"
+#include "catapult/net/PeerConnectResult.h"
+#include "tests/test/core/PacketTestUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/net/ClientSocket.h"
+#include "tests/test/nodeps/TimeSupplier.h"
 #include "tests/test/other/MutableCatapultConfiguration.h"
 #include "tests/test/other/mocks/MockNodeSubscriber.h"
 #include "tests/TestHarness.h"
@@ -29,10 +34,13 @@ namespace catapult { namespace extensions {
 
 #define TEST_CLASS NetworkUtilsTests
 
+	// region test utils (CreateCatapultConfiguration)
+
 	namespace {
-		auto CreateCatapultConfiguration() {
+		auto CreateCatapultConfiguration(bool enableReadRateMonitoring = false) {
 			test::MutableCatapultConfiguration config;
 			config.BlockChain.Network.Identifier = static_cast<model::NetworkIdentifier>(7);
+			config.BlockChain.Network.NodeEqualityStrategy = static_cast<model::NodeIdentityEqualityStrategy>(11);
 
 			config.Node.ConnectTimeout = utils::TimeSpan::FromSeconds(11);
 			config.Node.SocketWorkingBufferSize = utils::FileSize::FromBytes(512);
@@ -44,9 +52,39 @@ namespace catapult { namespace extensions {
 			config.Node.EnableAddressReuse = true;
 			config.Node.OutgoingSecurityMode = static_cast<ionet::ConnectionSecurityMode>(8);
 			config.Node.IncomingSecurityModes = static_cast<ionet::ConnectionSecurityMode>(21);
+
+			config.Node.Banning.DefaultBanDuration = utils::TimeSpan::FromHours(1);
+			config.Node.Banning.MaxBannedNodes = 50;
+
+			config.Node.Banning.NumReadRateMonitoringBuckets = enableReadRateMonitoring ? 4 : 0;
+			config.Node.Banning.ReadRateMonitoringBucketDuration = utils::TimeSpan::FromSeconds(15);
+			config.Node.Banning.MaxReadRateMonitoringTotalSize = utils::FileSize::FromBytes(1024);
+
 			return config.ToConst();
 		}
 	}
+
+	// endregion
+
+	// region GetRateMonitorSettings
+
+	TEST(TEST_CLASS, CanGetRateMonitorSettingsFromBanningSubConfiguration) {
+		// Arrange:
+		config::NodeConfiguration::BanningSubConfiguration banConfig;
+		banConfig.NumReadRateMonitoringBuckets = 12;
+		banConfig.ReadRateMonitoringBucketDuration = utils::TimeSpan::FromMinutes(23);
+		banConfig.MaxReadRateMonitoringTotalSize = utils::FileSize::FromKilobytes(34);
+
+		// Act:
+		auto rateMonitorSettings = GetRateMonitorSettings(banConfig);
+
+		// Assert:
+		EXPECT_EQ(12u, rateMonitorSettings.NumBuckets);
+		EXPECT_EQ(utils::TimeSpan::FromMinutes(23), rateMonitorSettings.BucketDuration);
+		EXPECT_EQ(utils::FileSize::FromKilobytes(34), rateMonitorSettings.MaxTotalSize);
+	}
+
+	// endregion
 
 	// region GetConnectionSettings / UpdateAsyncTcpServerSettings
 
@@ -59,6 +97,8 @@ namespace catapult { namespace extensions {
 
 		// Assert:
 		EXPECT_EQ(static_cast<model::NetworkIdentifier>(7), settings.NetworkIdentifier);
+		EXPECT_EQ(static_cast<model::NodeIdentityEqualityStrategy>(11), settings.NodeIdentityEqualityStrategy);
+
 		EXPECT_EQ(utils::TimeSpan::FromSeconds(11), settings.Timeout);
 		EXPECT_EQ(utils::FileSize::FromBytes(512), settings.SocketWorkingBufferSize);
 		EXPECT_EQ(987u, settings.SocketWorkingBufferSensitivity);
@@ -66,6 +106,9 @@ namespace catapult { namespace extensions {
 
 		EXPECT_EQ(static_cast<ionet::ConnectionSecurityMode>(8), settings.OutgoingSecurityMode);
 		EXPECT_EQ(static_cast<ionet::ConnectionSecurityMode>(21), settings.IncomingSecurityModes);
+
+		EXPECT_TRUE(settings.AllowIncomingSelfConnections);
+		EXPECT_FALSE(settings.AllowOutgoingSelfConnections);
 	}
 
 	TEST(TEST_CLASS, CanUpdateAsyncTcpServerSettingsFromCatapultConfiguration) {
@@ -88,27 +131,16 @@ namespace catapult { namespace extensions {
 
 	// endregion
 
-	// region GetMaxIncomingConnectionsPerIdentity
-
-	TEST(TEST_CLASS, GetMaxIncomingConnectionsPerIdentityReturnsCorrectValueBasedOnRoles) {
-		EXPECT_EQ(1u, GetMaxIncomingConnectionsPerIdentity(ionet::NodeRoles::None));
-		EXPECT_EQ(2u, GetMaxIncomingConnectionsPerIdentity(ionet::NodeRoles::Peer));
-		EXPECT_EQ(2u, GetMaxIncomingConnectionsPerIdentity(ionet::NodeRoles::Api));
-		EXPECT_EQ(3u, GetMaxIncomingConnectionsPerIdentity(ionet::NodeRoles::Peer | ionet::NodeRoles::Api));
-		EXPECT_EQ(3u, GetMaxIncomingConnectionsPerIdentity(static_cast<ionet::NodeRoles>(0xFFFFFFFF)));
-	}
-
-	// endregion
-
 	// region BootServer
 
 	namespace {
-		class MockAcceptor {
+		class MockAcceptor : public net::ConnectionContainer {
 		public:
-			MockAcceptor(net::PeerConnectCode connectCode, const Key& identityKey)
+			MockAcceptor(net::PeerConnectCode connectCode, const model::NodeIdentity& identity)
 					: m_connectCode(connectCode)
-					, m_identityKey(identityKey)
+					, m_identity(identity)
 					, m_numAccepts(0)
+					, m_numCloses(0)
 			{}
 
 		public:
@@ -116,28 +148,69 @@ namespace catapult { namespace extensions {
 				return m_numAccepts;
 			}
 
+			size_t numCloses() const {
+				return m_numCloses;
+			}
+
+			const auto& socketInfos() const {
+				return m_socketInfos;
+			}
+
+			const auto& closedIdentities() const {
+				return m_closedIdentities;
+			}
+
 		public:
-			void accept(const ionet::AcceptedPacketSocketInfo&, const consumer<net::PeerConnectResult>& consumer) {
-				consumer({ m_connectCode, m_identityKey });
+			void release() {
+				m_socketInfos.clear();
+			}
+
+		public:
+			size_t numActiveConnections() const override {
+				CATAPULT_THROW_RUNTIME_ERROR("numActiveConnections - not supported in mock");
+			}
+
+			model::NodeIdentitySet identities() const override {
+				CATAPULT_THROW_RUNTIME_ERROR("identities - not supported in mock");
+			}
+
+		public:
+			void accept(const ionet::PacketSocketInfo& socketInfo, const AcceptCallback& callback) override {
+				m_socketInfos.push_back(socketInfo);
+				callback(net::PeerConnectResult(m_connectCode, m_identity));
 				++m_numAccepts;
+			}
+
+			bool closeOne(const model::NodeIdentity& identity) override {
+				m_closedIdentities.push_back(identity);
+				++m_numCloses;
+				return true;
 			}
 
 		private:
 			net::PeerConnectCode m_connectCode;
-			Key m_identityKey;
+			model::NodeIdentity m_identity;
 			std::atomic<size_t> m_numAccepts;
+			std::atomic<size_t> m_numCloses;
+			std::vector<ionet::PacketSocketInfo> m_socketInfos;
+			std::vector<model::NodeIdentity> m_closedIdentities;
 		};
 
 		struct BootServerContext {
 		public:
 			BootServerContext(net::PeerConnectCode connectCode, const Key& identityKey)
-					: m_acceptor(connectCode, identityKey)
+					: m_acceptor(connectCode, { identityKey, "11.22.33.44" })
 					, m_pool("network utils", 1)
 			{}
 
+			~BootServerContext() {
+				// captured PacketSocketInfos need to be released before m_pool can be destroyed
+				m_acceptor.release();
+			}
+
 		public:
-			size_t numAccepts() const {
-				return m_acceptor.numAccepts();
+			const auto& acceptor() const {
+				return m_acceptor;
 			}
 
 			const auto& nodeSubscriber() const {
@@ -145,17 +218,18 @@ namespace catapult { namespace extensions {
 			}
 
 		public:
-			auto boot() {
+			void setNodeSubscriberFailure() {
+				m_nodeSubscriber.setNotifyIncomingNodeResult(false);
+			}
+
+		public:
+			auto boot(bool enableReadRateMonitoring = false) {
 				// Act:
 				auto& serviceGroup = *m_pool.pushServiceGroup("server");
-				auto config = CreateCatapultConfiguration();
+				auto config = CreateCatapultConfiguration(enableReadRateMonitoring);
 				auto serviceId = ionet::ServiceIdentifier(123);
-				auto& acceptor = m_acceptor;
-				return BootServer(serviceGroup, test::GetLocalHostPort(), serviceId, config, m_nodeSubscriber, [&acceptor](
-						const auto& socketInfo,
-						const auto& callback) {
-					acceptor.accept(socketInfo, callback);
-				});
+				auto timeSupplier = test::CreateTimeSupplierFromMilliseconds({ 1 });
+				return BootServer(serviceGroup, test::GetLocalHostPort(), serviceId, config, timeSupplier, m_nodeSubscriber, m_acceptor);
 			}
 
 		private:
@@ -163,9 +237,29 @@ namespace catapult { namespace extensions {
 			thread::MultiServicePool m_pool;
 			mocks::MockNodeSubscriber m_nodeSubscriber;
 		};
+
+		void AssertAcceptedConnection(
+				const BootServerContext& context,
+				const Key& key,
+				const net::AsyncTcpServer& server,
+				bool isClosed = false,
+				bool isBanned = false) {
+			EXPECT_EQ(1u, server.numLifetimeConnections());
+			EXPECT_EQ(1u, context.acceptor().numAccepts());
+			EXPECT_EQ(isClosed ? 1u : 0u, context.acceptor().closedIdentities().size());
+
+			const auto& params = context.nodeSubscriber().incomingNodeParams().params();
+			ASSERT_EQ(1u, params.size());
+			EXPECT_EQ(key, params[0].Identity.PublicKey);
+			EXPECT_EQ("11.22.33.44", params[0].Identity.Host);
+			EXPECT_EQ(ionet::ServiceIdentifier(123), params[0].ServiceId); // from BootServerContext::boot
+
+			const auto& banParams = context.nodeSubscriber().banParams().params();
+			EXPECT_EQ(isBanned ? 1u : 0u, banParams.size());
+		}
 	}
 
-	TEST(TEST_CLASS, CanBootServer) {
+	TEST(TEST_CLASS, BootServer_CanCreateServer) {
 		// Arrange:
 		auto key = test::GenerateRandomByteArray<Key>();
 		BootServerContext context(net::PeerConnectCode::Accepted, key);
@@ -175,13 +269,17 @@ namespace catapult { namespace extensions {
 
 		// Assert:
 		EXPECT_EQ(0u, pServer->numLifetimeConnections());
-		EXPECT_EQ(0u, context.numAccepts());
+		EXPECT_EQ(0u, context.acceptor().numAccepts());
+		EXPECT_EQ(0u, context.acceptor().closedIdentities().size());
 
 		const auto& params = context.nodeSubscriber().incomingNodeParams().params();
 		EXPECT_EQ(0u, params.size());
+
+		const auto& banParams = context.nodeSubscriber().banParams().params();
+		EXPECT_EQ(0u, banParams.size());
 	}
 
-	TEST(TEST_CLASS, CanConnectToBootedServer_AcceptFails) {
+	TEST(TEST_CLASS, BootServer_ConnectionRejectedWhenAcceptFails) {
 		// Arrange: boot the server
 		auto key = test::GenerateRandomByteArray<Key>();
 		BootServerContext context(net::PeerConnectCode::Socket_Error, key);
@@ -190,17 +288,21 @@ namespace catapult { namespace extensions {
 		// Act: connect to the server
 		auto pClientThreadPool = test::CreateStartedIoThreadPool(1);
 		test::CreateClientSocket(pClientThreadPool->ioContext())->connect().get();
-		WAIT_FOR_ONE_EXPR(context.numAccepts());
+		WAIT_FOR_ONE_EXPR(context.acceptor().numAccepts());
 
 		// Assert:
 		EXPECT_EQ(1u, pServer->numLifetimeConnections());
-		EXPECT_EQ(1u, context.numAccepts());
+		EXPECT_EQ(1u, context.acceptor().numAccepts());
+		EXPECT_EQ(0u, context.acceptor().closedIdentities().size());
 
 		const auto& params = context.nodeSubscriber().incomingNodeParams().params();
 		EXPECT_EQ(0u, params.size());
+
+		const auto& banParams = context.nodeSubscriber().banParams().params();
+		EXPECT_EQ(0u, banParams.size());
 	}
 
-	TEST(TEST_CLASS, CanConnectToBootedServer_AcceptSucceeds) {
+	TEST(TEST_CLASS, BootServer_ConnectionAcceptedWhenAcceptSucceedsWithNotifySuccess) {
 		// Arrange: boot the server
 		auto key = test::GenerateRandomByteArray<Key>();
 		BootServerContext context(net::PeerConnectCode::Accepted, key);
@@ -209,16 +311,83 @@ namespace catapult { namespace extensions {
 		// Act: connect to the server
 		auto pClientThreadPool = test::CreateStartedIoThreadPool(1);
 		test::CreateClientSocket(pClientThreadPool->ioContext())->connect().get();
-		WAIT_FOR_ONE_EXPR(context.numAccepts());
+		WAIT_FOR_ONE_EXPR(context.acceptor().numAccepts());
 
 		// Assert:
-		EXPECT_EQ(1u, pServer->numLifetimeConnections());
-		EXPECT_EQ(1u, context.numAccepts());
+		AssertAcceptedConnection(context, key, *pServer);
+	}
 
-		const auto& params = context.nodeSubscriber().incomingNodeParams().params();
-		ASSERT_EQ(1u, params.size());
-		EXPECT_EQ(key, params[0].IdentityKey);
-		EXPECT_EQ(ionet::ServiceIdentifier(123), params[0].ServiceId); // from BootServerContext::boot
+	TEST(TEST_CLASS, BootServer_ConnectionRejectedWhenAcceptSucceedsWithNotifyFailure) {
+		// Arrange: boot the server
+		auto key = test::GenerateRandomByteArray<Key>();
+		BootServerContext context(net::PeerConnectCode::Accepted, key);
+		context.setNodeSubscriberFailure();
+		auto pServer = context.boot();
+
+		// Act: connect to the server
+		auto pClientThreadPool = test::CreateStartedIoThreadPool(1);
+		test::CreateClientSocket(pClientThreadPool->ioContext())->connect().get();
+		WAIT_FOR_ONE_EXPR(context.acceptor().numAccepts());
+
+		// Assert:
+		AssertAcceptedConnection(context, key, *pServer, true);
+	}
+
+	// endregion
+
+	// region BootServer - rate limiting
+
+	namespace {
+		template<typename TAction>
+		void RunRateLimitingTest(bool enableReadRateMonitoring, uint32_t bufferSize, TAction action) {
+			// Arrange: boot the server
+			auto key = test::GenerateRandomByteArray<Key>();
+			BootServerContext context(net::PeerConnectCode::Accepted, key);
+			auto pServer = context.boot(enableReadRateMonitoring);
+
+			// Act: connect to the server and send a packet
+			auto writeBuffer = test::GenerateRandomPacketBuffer(bufferSize);
+			auto pClientThreadPool = test::CreateStartedIoThreadPool(1);
+			test::CreateClientSocket(pClientThreadPool->ioContext())->connect().get()->write(writeBuffer).get();
+			WAIT_FOR_ONE_EXPR(context.acceptor().numAccepts());
+
+			ASSERT_EQ(1u, context.acceptor().socketInfos().size());
+			context.acceptor().socketInfos()[0].socket()->read([](auto code, const auto* pPacket) {
+				CATAPULT_LOG(debug) << "read completed with code " << code << " (size = " << (pPacket ? pPacket->Size : 0) << ")";
+			});
+
+			// Assert:
+			action(context, key, *pServer);
+		}
+	}
+
+	TEST(TEST_CLASS, BootServer_AcceptedConnectionIsNotClosedWhenRateLimitIsExceededAndRateLimiterIsDisabled) {
+		// Assert: connect to the server and send too much data (limit is 1024)
+		RunRateLimitingTest(false, 1025, [](const auto& context, const auto& key, const auto& server) {
+			AssertAcceptedConnection(context, key, server);
+		});
+	}
+
+	TEST(TEST_CLASS, BootServer_AcceptedConnectionIsNotClosedWhenRateLimitIsNotExceededAndRateLimiterIsEnabled) {
+		// Assert: connect to the server and send maximal data (limit is 1024)
+		RunRateLimitingTest(true, 1024, [](const auto& context, const auto& key, const auto& server) {
+			AssertAcceptedConnection(context, key, server);
+		});
+	}
+
+	TEST(TEST_CLASS, BootServer_AcceptedConnectionIsClosedWhenRateLimitIsExceededAndRateLimiterIsEnabled) {
+		// Assert: connect to the server and send too much data (limit is 1024)
+		RunRateLimitingTest(true, 1025, [](const auto& context, const auto& key, const auto& server) {
+			WAIT_FOR_ONE_EXPR(context.acceptor().numCloses());
+
+			AssertAcceptedConnection(context, key, server, true, true);
+
+			const auto& banParams = context.nodeSubscriber().banParams().params();
+			ASSERT_EQ(1u, banParams.size());
+			EXPECT_EQ(key, banParams[0].Identity.PublicKey);
+			EXPECT_EQ("11.22.33.44", banParams[0].Identity.Host);
+			EXPECT_EQ(Failure_Extension_Read_Rate_Limit_Exceeded, banParams[0].Reason);
+		});
 	}
 
 	// endregion

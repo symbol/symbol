@@ -48,7 +48,7 @@ namespace catapult { namespace deltaset {
 		Memory
 	};
 
-	/// A conditional container that delegates to either a storage or a memory backed container.
+	/// Conditional container that delegates to either a storage or a memory backed container.
 	template<typename TKeyTraits, typename TStorageSet, typename TMemorySet>
 	class ConditionalContainer : public detail::StlContainerTraits<TMemorySet> {
 	public:
@@ -63,7 +63,7 @@ namespace catapult { namespace deltaset {
 		using MemoryFlag = std::integral_constant<ConditionalContainerMode, ConditionalContainerMode::Memory>;
 
 	public:
-		/// A const iterator.
+		/// Const iterator.
 		class ConditionalIterator {
 		public:
 			/// Creates an uninitialized iterator.
@@ -93,12 +93,12 @@ namespace catapult { namespace deltaset {
 			}
 
 		public:
-			/// Returns a const pointer to the current element.
+			/// Gets a const pointer to the current element.
 			const auto* operator->() const {
 				return &operator*();
 			}
 
-			/// Returns a const reference to the current element.
+			/// Gets a const reference to the current element.
 			const auto& operator*() const {
 				return ConditionalContainerMode::Storage == m_mode ? *m_storageIter : *m_memoryIter;
 			}
@@ -140,7 +140,7 @@ namespace catapult { namespace deltaset {
 		}
 
 	public:
-		/// Returns a const iterator to the element following the last element of the underlying set.
+		/// Gets a const iterator to the element following the last element of the underlying set.
 		ConditionalIterator cend() const {
 			return m_pContainer1
 					? ConditionalIterator(m_pContainer1->cend(), StorageFlag())

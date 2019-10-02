@@ -39,12 +39,12 @@ namespace catapult { namespace handlers {
 		template<typename TResultsProducerFactory>
 		static void RegisterZero(ionet::ServerPacketHandlers& handlers, TResultsProducerFactory resultsProducerFactory) {
 			auto maxPacketDataSize = handlers.maxPacketDataSize();
-			handlers.registerHandler(Packet_Type, [resultsProducerFactory, maxPacketDataSize](const auto& packet, auto& context) {
+			handlers.registerHandler(Packet_Type, [resultsProducerFactory, maxPacketDataSize](const auto& packet, auto& handlerContext) {
 				if (!IsPacketValid(packet, Packet_Type))
 					return;
 
 				// always send a response (even if empty) in order to always acknowledge the request
-				SetResponse(context, maxPacketDataSize, resultsProducerFactory());
+				SetResponse(handlerContext, maxPacketDataSize, resultsProducerFactory());
 			});
 		}
 
@@ -53,22 +53,22 @@ namespace catapult { namespace handlers {
 		template<typename TResultsProducerFactory>
 		static void RegisterOne(ionet::ServerPacketHandlers& handlers, TResultsProducerFactory resultsProducerFactory) {
 			auto maxPacketDataSize = handlers.maxPacketDataSize();
-			handlers.registerHandler(Packet_Type, [resultsProducerFactory, maxPacketDataSize](const auto& packet, auto& context) {
+			handlers.registerHandler(Packet_Type, [resultsProducerFactory, maxPacketDataSize](const auto& packet, auto& handlerContext) {
 				auto info = BatchHandlerFactory::ProcessRequest(packet);
 				if (!info.IsValid)
 					return;
 
 				// always send a response (even if empty) in order to always acknowledge the request
-				SetResponse(context, maxPacketDataSize, resultsProducerFactory(info.Range));
+				SetResponse(handlerContext, maxPacketDataSize, resultsProducerFactory(info.Range));
 			});
 		}
 
 	private:
 		template<typename TProducer>
-		static void SetResponse(ionet::ServerPacketHandlerContext& context, uint32_t maxPacketDataSize, TProducer&& producer) {
+		static void SetResponse(ionet::ServerPacketHandlerContext& handlerContext, uint32_t maxPacketDataSize, TProducer&& producer) {
 			auto builder = ionet::PacketPayloadBuilder(Packet_Type, maxPacketDataSize);
 			Append(AppendAccessor<TRequestTraits>(), builder, producer);
-			context.response(builder.build());
+			handlerContext.response(builder.build());
 		}
 
 	private:

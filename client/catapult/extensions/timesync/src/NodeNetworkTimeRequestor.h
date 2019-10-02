@@ -31,12 +31,12 @@ namespace catapult { namespace timesync {
 
 		static constexpr auto Friendly_Name = "network time";
 
-		static thread::future<ResponseType> CreateFuture(ionet::PacketIo& packetIo) {
+		static thread::future<ResponseType> CreateFuture(ionet::PacketIo& packetIo, const std::string&) {
 			return api::CreateRemoteTimeSyncApi(packetIo)->networkTime();
 		}
 	};
 
-	/// A brief server requestor for requesting node network time information.
+	/// Brief server requestor for requesting node network time information.
 	using NodeNetworkTimeRequestor = net::BriefServerRequestor<NodeNetworkTimeRequestPolicy>;
 
 	/// Creates a node network time requestor for a server with a key pair of \a keyPair using \a pPool and configured with \a settings.

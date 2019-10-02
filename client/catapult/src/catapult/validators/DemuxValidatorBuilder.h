@@ -26,7 +26,7 @@
 
 namespace catapult { namespace validators {
 
-	/// A demultiplexing validator builder.
+	/// Demultiplexing validator builder.
 	template<typename... TArgs>
 	class DemuxValidatorBuilderT {
 	private:

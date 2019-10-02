@@ -22,6 +22,7 @@
 #include "PluginUtils.h"
 #include "catapult/plugins/PluginExceptions.h"
 #include "catapult/utils/Logging.h"
+#include "catapult/preprocessor.h"
 #include <boost/exception_ptr.hpp>
 
 namespace catapult { namespace extensions {
@@ -79,6 +80,7 @@ namespace catapult { namespace extensions {
 	namespace {
 		using RegisterExtensionFunc = void (*)(ProcessBootstrapper&);
 
+		ATTRIBUTE_CALLS_PLUGIN_API
 		void LoadExtension(const plugins::PluginModule& module, ProcessBootstrapper& bootstrapper) {
 			auto registerExtension = module.symbol<RegisterExtensionFunc>("RegisterExtension");
 

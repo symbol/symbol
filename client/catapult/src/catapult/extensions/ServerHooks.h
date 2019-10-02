@@ -34,13 +34,13 @@ namespace catapult { namespace extensions {
 
 	// region function aliases
 
-	/// A new block sink prototype.
+	/// New block sink prototype.
 	using NewBlockSink = consumers::NewBlockSink;
 
-	/// A new transactions sink prototype that does not take ownership of new infos.
+	/// New transactions sink prototype that does not take ownership of new infos.
 	using SharedNewTransactionsSink = consumer<const consumers::TransactionInfos&>;
 
-	/// A packet payload sink.
+	/// Packet payload sink.
 	using PacketPayloadSink = consumer<const ionet::PacketPayload&>;
 
 	/// Handler that is called when the confirmed state of transactions changes.
@@ -62,7 +62,7 @@ namespace catapult { namespace extensions {
 	/// Factory for creating a TransactionRangeConsumerFunc bound to an input source.
 	using TransactionRangeConsumerFactoryFunc = std::function<TransactionRangeConsumerFunc (disruptor::InputSource)>;
 
-	/// A retriever that returns the network chain heights for a number of peers.
+	/// Retriever that returns the network chain heights for a number of peers.
 	using RemoteChainHeightsRetriever = std::function<thread::future<std::vector<Height>> (size_t)>;
 
 	/// Predicate for determining if a chain is synced.

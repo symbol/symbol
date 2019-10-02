@@ -27,7 +27,7 @@
 
 namespace catapult { namespace state {
 
-	/// A mosaic (ordered) map that is optimized for storage of a small number of elements.
+	/// Mosaic (ordered) map that is optimized for storage of a small number of elements.
 	/// \note This map assumes that MosaicId(0) is not a valid mosaic.
 	//        This is acceptable for mosaics stored in AccountBalances but not for a general purpose map.
 	class CompactMosaicMap : utils::MoveOnly {
@@ -166,7 +166,7 @@ namespace catapult { namespace state {
 			MosaicMap::iterator m_mapIterator;
 		};
 
-		/// A basic typed iterator that adds support for dereferencing.
+		/// Basic typed iterator that adds support for dereferencing.
 		template<typename T>
 		class basic_iterator_t : public basic_iterator {
 		public:
@@ -178,12 +178,12 @@ namespace catapult { namespace state {
 			using basic_iterator::basic_iterator;
 
 		public:
-			/// Returns a reference to the current value.
+			/// Gets a reference to the current value.
 			reference operator*() const {
 				return current();
 			}
 
-			/// Returns a pointer to the current value.
+			/// Gets a pointer to the current value.
 			pointer operator->() const {
 				return &current();
 			}
@@ -197,16 +197,16 @@ namespace catapult { namespace state {
 		using iterator = basic_iterator_t<Mosaic>;
 
 	public:
-		/// Returns a const iterator to the first element of the underlying container.
+		/// Gets a const iterator to the first element of the underlying container.
 		const_iterator begin() const;
 
-		/// Returns a const iterator to the element following the last element of the underlying container.
+		/// Gets a const iterator to the element following the last element of the underlying container.
 		const_iterator end() const;
 
-		/// Returns an iterator to the first element of the underlying container.
+		/// Gets an iterator to the first element of the underlying container.
 		iterator begin();
 
-		/// Returns an iterator to the element following the last element of the underlying container.
+		/// Gets an iterator to the element following the last element of the underlying container.
 		iterator end();
 
 	public:

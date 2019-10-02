@@ -21,22 +21,22 @@
 #pragma once
 #include "mongo/src/MongoPluginManager.h"
 #include "mongo/src/MongoStorageContext.h"
+#include "catapult/preprocessor.h"
 #include "mongo/tests/test/MongoTestUtils.h"
 #include "tests/TestHarness.h"
 #include <mongocxx/instance.hpp>
 
 namespace catapult { namespace test {
 
-	using RegisterMongoSubsystem = consumer<mongo::MongoPluginManager&>;
-
 	template<typename TAction>
-	void RunTestAfterRegistration(const RegisterMongoSubsystem& registerSubsystem, TAction action) {
+	ATTRIBUTE_CALLS_PLUGIN_API
+	void RunTestAfterRegistration(void (*registerSubsystem)(mongo::MongoPluginManager&), TAction action) {
 		// Arrange:
 		// - windows requires the caller to explicitly create a mongocxx instance before certain operations
 		//   like creating a mongocxx::pool (via MongoStorageContext)
 		mongocxx::instance::current();
-		mongo::MongoStorageContext mongoContext(test::DefaultDbUri(), "", nullptr, mongo::MongoErrorPolicy::Mode::Strict);
-		mongo::MongoPluginManager manager(mongoContext, model::NetworkIdentifier::Zero);
+		auto pMongoContext = CreateDefaultMongoStorageContext(DatabaseName());
+		mongo::MongoPluginManager manager(*pMongoContext, model::NetworkIdentifier::Zero);
 		registerSubsystem(manager);
 
 		// Act:

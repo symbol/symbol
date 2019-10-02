@@ -38,19 +38,26 @@ namespace catapult { namespace nodediscovery {
 			using OperationCallback = consumer<net::NodeRequestResult, const ionet::Node&>;
 
 		public:
-			utils::KeySet pingedIdentities() const {
+			explicit MockNodePingRequestInitiator(
+					model::NodeIdentityEqualityStrategy equalityStrategy = model::NodeIdentityEqualityStrategy::Key_And_Host)
+					: m_pingedIdentities(model::CreateNodeIdentitySet(equalityStrategy))
+					, m_pingResponses(model::CreateNodeIdentityMap<ionet::Node>(equalityStrategy))
+			{}
+
+		public:
+			const auto& pingedIdentities() const {
 				return m_pingedIdentities;
 			}
 
-			void setResponseNode(const Key& identityKey, const ionet::Node& responseNode) {
-				m_pingResponses.emplace(identityKey, responseNode);
+			void setResponseNode(const model::NodeIdentity& identity, const ionet::Node& responseNode) {
+				m_pingResponses.emplace(identity, responseNode);
 			}
 
 		public:
 			void operator()(const ionet::Node& node, const OperationCallback& callback) {
-				m_pingedIdentities.insert(node.identityKey());
+				m_pingedIdentities.insert(node.identity());
 
-				auto iter = m_pingResponses.find(node.identityKey());
+				auto iter = m_pingResponses.find(node.identity());
 				if (m_pingResponses.cend() == iter)
 					callback(net::NodeRequestResult::Failure_Timeout, ionet::Node());
 				else
@@ -65,8 +72,8 @@ namespace catapult { namespace nodediscovery {
 			}
 
 		private:
-			utils::KeySet m_pingedIdentities;
-			std::unordered_map<Key, ionet::Node, utils::ArrayHasher<Key>> m_pingResponses;
+			model::NodeIdentitySet m_pingedIdentities;
+			model::NodeIdentityMap<ionet::Node> m_pingResponses;
 		};
 
 		// endregion
@@ -79,10 +86,13 @@ namespace catapult { namespace nodediscovery {
 
 		struct TestContext {
 		public:
-			TestContext() : Processor(NodeContainer, PingRequestInitiator.ref(), Network_Identifier, CaptureNode(ResponseNodes))
+			TestContext()
+					: ServerPublicKey(test::GenerateRandomByteArray<Key>())
+					, Processor(ServerPublicKey, NodeContainer, PingRequestInitiator.ref(), Network_Identifier, CaptureNode(ResponseNodes))
 			{}
 
 		public:
+			Key ServerPublicKey;
 			ionet::NodeContainer NodeContainer;
 			MockNodePingRequestInitiator PingRequestInitiator;
 			std::vector<ionet::Node> ResponseNodes;
@@ -93,11 +103,11 @@ namespace catapult { namespace nodediscovery {
 			return ionet::NodeMetadata(Network_Identifier, name);
 		}
 
-		std::vector<ionet::Node> ToNodes(const std::vector<Key>& keys) {
+		std::vector<ionet::Node> ToNodes(const std::vector<model::NodeIdentity>& identities) {
 			std::vector<ionet::Node> nodes;
 			auto i = 0u;
-			for (const auto& key : keys)
-				nodes.emplace_back(key, ionet::NodeEndpoint(), CreateNamedMetadata(std::to_string(++i)));
+			for (const auto& identity : identities)
+				nodes.emplace_back(identity, ionet::NodeEndpoint(), CreateNamedMetadata(std::to_string(++i)));
 
 			return nodes;
 		}
@@ -120,8 +130,12 @@ namespace catapult { namespace nodediscovery {
 		TestContext context;
 
 		// - add nodes to the node container
-		auto keys = test::GenerateRandomDataVector<Key>(3);
-		auto nodes = ToNodes(keys);
+		auto identities = std::vector<model::NodeIdentity>{
+			{ test::GenerateRandomByteArray<Key>(), "11.22.33.44" },
+			{ test::GenerateRandomByteArray<Key>(), "22.33.44.55" },
+			{ test::GenerateRandomByteArray<Key>(), "33.44.55.66" }
+		};
+		auto nodes = ToNodes(identities);
 		for (const auto& node : nodes)
 			context.NodeContainer.modifier().add(node, ionet::NodeSource::Dynamic);
 
@@ -133,18 +147,39 @@ namespace catapult { namespace nodediscovery {
 		EXPECT_TRUE(context.ResponseNodes.empty());
 	}
 
+	TEST(TEST_CLASS, NoPingRequestWhenCandidateNodeAndServerSharePublicKey) {
+		// Arrange:
+		TestContext context;
+
+		auto identities = std::vector<model::NodeIdentity>{
+			{ context.ServerPublicKey, "22.33.44.55" }
+		};
+		auto nodes = ToNodes(identities);
+
+		// Act: process local node
+		context.Processor.process(ionet::NodeSet(nodes.cbegin(), nodes.cend()));
+
+		// Assert: no pings and no responses
+		EXPECT_TRUE(context.PingRequestInitiator.pingedIdentities().empty());
+		EXPECT_TRUE(context.ResponseNodes.empty());
+	}
+
 	TEST(TEST_CLASS, NoResponseNodesWhenPingFails) {
 		// Arrange:
 		TestContext context;
 
-		auto keys = test::GenerateRandomDataVector<Key>(3);
-		auto nodes = ToNodes(keys);
+		auto identities = std::vector<model::NodeIdentity>{
+			{ test::GenerateRandomByteArray<Key>(), "11.22.33.44" },
+			{ test::GenerateRandomByteArray<Key>(), "22.33.44.55" },
+			{ test::GenerateRandomByteArray<Key>(), "33.44.55.66" }
+		};
+		auto nodes = ToNodes(identities);
 
 		// Act: process unknown nodes (ping requestor returns failure for unconfigured nodes)
 		context.Processor.process(ionet::NodeSet(nodes.cbegin(), nodes.cend()));
 
 		// Assert: ping attempts but no successful responses
-		EXPECT_EQ(utils::KeySet({ keys[0], keys[1], keys[2] }), context.PingRequestInitiator.pingedIdentities());
+		test::AssertEqualIdentities(test::ToIdentitiesSet(identities), context.PingRequestInitiator.pingedIdentities());
 		EXPECT_TRUE(context.ResponseNodes.empty());
 	}
 
@@ -152,17 +187,17 @@ namespace catapult { namespace nodediscovery {
 		// Arrange:
 		TestContext context;
 
-		auto key = test::GenerateRandomByteArray<Key>();
-		auto candidateNode = test::CreateNamedNode(key, "candidate");
+		auto identity = model::NodeIdentity{ test::GenerateRandomByteArray<Key>(), "11.22.33.44" };
+		auto candidateNode = test::CreateNamedNode(identity, "candidate");
 
 		// - configure the ping response node to have a different key
-		context.PingRequestInitiator.setResponseNode(key, test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "response"));
+		context.PingRequestInitiator.setResponseNode(identity, test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "response"));
 
 		// Act: process candidate node
 		context.Processor.process(ionet::NodeSet{ candidateNode });
 
 		// Assert: ping attempt but no successful response
-		EXPECT_EQ(utils::KeySet({ key }), context.PingRequestInitiator.pingedIdentities());
+		test::AssertEqualIdentities(test::ToIdentitiesSet({ identity }), context.PingRequestInitiator.pingedIdentities());
 		EXPECT_TRUE(context.ResponseNodes.empty());
 	}
 
@@ -170,17 +205,17 @@ namespace catapult { namespace nodediscovery {
 		// Arrange:
 		TestContext context;
 
-		auto key = test::GenerateRandomByteArray<Key>();
-		auto candidateNode = test::CreateNamedNode(key, "candidate");
+		auto identity = model::NodeIdentity{ test::GenerateRandomByteArray<Key>(), "11.22.33.44" };
+		auto candidateNode = test::CreateNamedNode(identity, "candidate");
 
 		// - configure the ping response node to have a different network (processor is configured with Mijin_Test)
-		context.PingRequestInitiator.setResponseNode(key, ionet::Node(key, candidateNode.endpoint(), ionet::NodeMetadata()));
+		context.PingRequestInitiator.setResponseNode(identity, ionet::Node(identity, candidateNode.endpoint(), ionet::NodeMetadata()));
 
 		// Act: process candidate node
 		context.Processor.process(ionet::NodeSet{ candidateNode });
 
 		// Assert: ping attempt but no successful response
-		EXPECT_EQ(utils::KeySet({ key }), context.PingRequestInitiator.pingedIdentities());
+		test::AssertEqualIdentities(test::ToIdentitiesSet({ identity }), context.PingRequestInitiator.pingedIdentities());
 		EXPECT_TRUE(context.ResponseNodes.empty());
 	}
 
@@ -188,21 +223,22 @@ namespace catapult { namespace nodediscovery {
 		// Arrange:
 		TestContext context;
 
-		auto key = test::GenerateRandomByteArray<Key>();
-		auto candidateNode = ionet::Node(key, { "alice.com", 987 }, CreateNamedMetadata("candidate"));
+		auto identity = model::NodeIdentity{ test::GenerateRandomByteArray<Key>(), "11.22.33.44" };
+		auto candidateNode = ionet::Node(identity, { "alice.com", 987 }, CreateNamedMetadata("candidate"));
 
 		// - create a different (but compatible response node)
-		context.PingRequestInitiator.setResponseNode(key, ionet::Node(key, { "bob.com", 123 }, CreateNamedMetadata("bobby")));
+		context.PingRequestInitiator.setResponseNode(identity, ionet::Node(identity, { "bob.com", 123 }, CreateNamedMetadata("bobby")));
 
 		// Act: process candidate node
 		context.Processor.process(ionet::NodeSet{ candidateNode });
 
 		// Assert: ping attempt and successful response
-		EXPECT_EQ(utils::KeySet({ key }), context.PingRequestInitiator.pingedIdentities());
+		test::AssertEqualIdentities(test::ToIdentitiesSet({ identity }), context.PingRequestInitiator.pingedIdentities());
 		ASSERT_EQ(1u, context.ResponseNodes.size());
 
 		const auto& responseNode = context.ResponseNodes[0];
-		EXPECT_EQ(key, responseNode.identityKey()); // from both
+		EXPECT_EQ(identity.PublicKey, responseNode.identity().PublicKey); // from both
+		EXPECT_EQ("11.22.33.44", responseNode.identity().Host); // from candidate
 		EXPECT_EQ("bob.com", responseNode.endpoint().Host); // from response
 		EXPECT_EQ(123u, responseNode.endpoint().Port); // from response
 		EXPECT_EQ("bobby", context.ResponseNodes[0].metadata().Name); // from response
@@ -212,21 +248,22 @@ namespace catapult { namespace nodediscovery {
 		// Arrange:
 		TestContext context;
 
-		auto key = test::GenerateRandomByteArray<Key>();
-		auto candidateNode = ionet::Node(key, { "alice.com", 987 }, CreateNamedMetadata("candidate"));
+		auto identity = model::NodeIdentity{ test::GenerateRandomByteArray<Key>(), "11.22.33.44" };
+		auto candidateNode = ionet::Node(identity, { "alice.com", 987 }, CreateNamedMetadata("candidate"));
 
 		// - create a different (but compatible response node)
-		context.PingRequestInitiator.setResponseNode(key, ionet::Node(key, { "", 123 }, CreateNamedMetadata("bobby")));
+		context.PingRequestInitiator.setResponseNode(identity, ionet::Node(identity, { "", 123 }, CreateNamedMetadata("bobby")));
 
 		// Act: process candidate node
 		context.Processor.process(ionet::NodeSet{ candidateNode });
 
 		// Assert: ping attempt and successful response
-		EXPECT_EQ(utils::KeySet({ key }), context.PingRequestInitiator.pingedIdentities());
+		test::AssertEqualIdentities(test::ToIdentitiesSet({ identity }), context.PingRequestInitiator.pingedIdentities());
 		ASSERT_EQ(1u, context.ResponseNodes.size());
 
 		const auto& responseNode = context.ResponseNodes[0];
-		EXPECT_EQ(key, responseNode.identityKey()); // from both
+		EXPECT_EQ(identity.PublicKey, responseNode.identity().PublicKey); // from both
+		EXPECT_EQ("11.22.33.44", responseNode.identity().Host); // from candidate
 		EXPECT_EQ("alice.com", responseNode.endpoint().Host); // from candidate
 		EXPECT_EQ(987u, responseNode.endpoint().Port); // from candidate
 		EXPECT_EQ("bobby", context.ResponseNodes[0].metadata().Name); // from response
@@ -237,24 +274,35 @@ namespace catapult { namespace nodediscovery {
 		TestContext context;
 
 		// - add 2/5 nodes to the node container
-		auto keys = test::GenerateRandomDataVector<Key>(5);
-		auto nodes = ToNodes(keys);
+		auto identities = std::vector<model::NodeIdentity>{
+			{ test::GenerateRandomByteArray<Key>(), "11.22.33.44" },
+			{ test::GenerateRandomByteArray<Key>(), "22.33.44.55" },
+			{ test::GenerateRandomByteArray<Key>(), "33.44.55.66" },
+			{ context.ServerPublicKey, "44.55.66.77" },
+			{ test::GenerateRandomByteArray<Key>(), "55.66.77.88" },
+			{ test::GenerateRandomByteArray<Key>(), "66.77.88.99" }
+		};
+		auto nodes = ToNodes(identities);
 		context.NodeContainer.modifier().add(nodes[2], ionet::NodeSource::Dynamic);
-		context.NodeContainer.modifier().add(nodes[4], ionet::NodeSource::Dynamic);
+		context.NodeContainer.modifier().add(nodes[5], ionet::NodeSource::Dynamic);
 
 		// - mark 3/5 nodes as successful (2/3 unknown and 1/2 known)
-		context.PingRequestInitiator.setResponseNode(keys[0], nodes[0]);
-		context.PingRequestInitiator.setResponseNode(keys[2], nodes[2]);
-		context.PingRequestInitiator.setResponseNode(keys[3], nodes[3]);
+		context.PingRequestInitiator.setResponseNode(identities[0], nodes[0]);
+		context.PingRequestInitiator.setResponseNode(identities[2], nodes[2]);
+		context.PingRequestInitiator.setResponseNode(identities[4], nodes[4]);
 
 		// Act:
 		context.Processor.process(ionet::NodeSet(nodes.cbegin(), nodes.cend()));
 
 		// Assert: three pings (2/5 in node container were filtered out)
-		EXPECT_EQ(utils::KeySet({ keys[0], keys[1], keys[3] }), context.PingRequestInitiator.pingedIdentities());
+		test::AssertEqualIdentities(
+				test::ToIdentitiesSet({ identities[0], identities[1], identities[4] }),
+				context.PingRequestInitiator.pingedIdentities());
 
 		// - two successful nodes (only 2/3 new nodes are configured to ping successfully)
 		ASSERT_EQ(2u, context.ResponseNodes.size());
-		EXPECT_EQ(utils::KeySet({ keys[0], keys[3] }), test::ExtractNodeIdentities(context.ResponseNodes));
+		test::AssertEqualIdentities(
+				test::ToIdentitiesSet({ identities[0], identities[4] }),
+				test::ExtractNodeIdentities(context.ResponseNodes));
 	}
 }}

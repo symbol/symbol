@@ -37,17 +37,17 @@ namespace catapult { namespace test {
 		{}
 
 	public:
-		/// Returns pointer to data.
+		/// Gets a pointer to data.
 		auto data() const {
 			return m_data.data();
 		}
 
-		/// Returns size of data.
+		/// Gets the size of data.
 		auto size() const {
 			return m_data.size();
 		}
 
-		/// Returns data.
+		/// Gets the data.
 		const auto& str() const {
 			return m_data;
 		}

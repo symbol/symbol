@@ -81,6 +81,23 @@ namespace catapult { namespace extensions {
 			}
 		};
 
+		struct UnlockedAccountsTraits {
+		public:
+			using ResultType = model::EntityRange<Key>;
+			static constexpr auto Packet_Type = ionet::PacketType::Unlocked_Accounts;
+			static constexpr auto Friendly_Name = "unlocked accounts";
+
+			static auto CreateRequestPacketPayload() {
+				return ionet::PacketPayload(Packet_Type);
+			}
+
+		public:
+			bool tryParseResult(const ionet::Packet& packet, ResultType& result) const {
+				result = ionet::ExtractFixedSizeStructuresFromPacket<Key>(packet);
+				return !result.empty();
+			}
+		};
+
 		template<typename TIdentifier, ionet::PacketType PacketType>
 		struct InfosTraits {
 		public:
@@ -143,6 +160,10 @@ namespace catapult { namespace extensions {
 
 			FutureType<ActiveNodeInfosTraits> activeNodeInfos() const override {
 				return m_impl.dispatch(ActiveNodeInfosTraits());
+			}
+
+			FutureType<UnlockedAccountsTraits> unlockedAccounts() const override {
+				return m_impl.dispatch(UnlockedAccountsTraits());
 			}
 
 			FutureType<AccountInfosTraits> accountInfos(model::AddressRange&& addresses) const override {

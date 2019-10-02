@@ -19,7 +19,7 @@ include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 
 ### setup rocksdb
 message("--- locating rocksdb dependencies ---")
-if (WIN32)
+if(WIN32)
 	find_package(RocksDB REQUIRED)
 else()
 	find_path(ROCKSDB_ROOT_DIR NAMES include/rocksdb/db.h)
@@ -32,7 +32,7 @@ endif()
 
 # used to add rocksdb dependencies to a target
 function(catapult_add_rocksdb_dependencies TARGET_NAME)
-	if (WIN32)
+	if(WIN32)
 		target_link_libraries(${TARGET_NAME} RocksDB::rocksdb)
 	else()
 		include_directories(SYSTEM ${ROCKSDB_INCLUDE_DIR})
@@ -61,7 +61,7 @@ add_subdirectory(extensions)
 
 add_subdirectory(resources)
 
-if (EXISTS "${CMAKE_SOURCE_DIR}/internal/CMakeLists.txt")
+if(EXISTS "${CMAKE_SOURCE_DIR}/internal/CMakeLists.txt")
 	message("--- adding internal directory ---")
 	add_subdirectory(internal)
 endif()

@@ -20,13 +20,21 @@
 
 #pragma once
 #include "catapult/config/CatapultConfiguration.h"
+#include "catapult/ionet/NodeInfo.h"
+#include "catapult/ionet/RateMonitor.h"
 #include "catapult/net/AsyncTcpServer.h"
 #include "catapult/net/ConnectionSettings.h"
-#include "catapult/net/PeerConnectResult.h"
-#include "catapult/subscribers/NodeSubscriber.h"
 #include "catapult/thread/MultiServicePool.h"
 
+namespace catapult {
+	namespace net { class ConnectionContainer; }
+	namespace subscribers { class NodeSubscriber; }
+}
+
 namespace catapult { namespace extensions {
+
+	/// Gets the rate monitor settings from \a banConfig.
+	ionet::RateMonitorSettings GetRateMonitorSettings(const config::NodeConfiguration::BanningSubConfiguration& banConfig);
 
 	/// Extracts connection settings from \a config.
 	net::ConnectionSettings GetConnectionSettings(const config::CatapultConfiguration& config);
@@ -34,29 +42,14 @@ namespace catapult { namespace extensions {
 	/// Updates \a settings with values in \a config.
 	void UpdateAsyncTcpServerSettings(net::AsyncTcpServerSettings& settings, const config::CatapultConfiguration& config);
 
-	/// Gets the maximum number of incoming connections per identity as specified by \a roles.
-	uint32_t GetMaxIncomingConnectionsPerIdentity(ionet::NodeRoles roles);
-
-	/// Boots a tcp server with \a serviceGroup on localhost \a port with connection \a config and \a acceptor.
+	/// Boots a tcp server with \a serviceGroup on localhost \a port with connection \a config and \a acceptor given \a timeSupplier.
 	/// Incoming connections are assumed to be associated with \a serviceId and are added to \a nodeSubscriber.
-	template<typename TAcceptor>
 	std::shared_ptr<net::AsyncTcpServer> BootServer(
 			thread::MultiServicePool::ServiceGroup& serviceGroup,
 			unsigned short port,
 			ionet::ServiceIdentifier serviceId,
 			const config::CatapultConfiguration& config,
+			const supplier<Timestamp>& timeSupplier,
 			subscribers::NodeSubscriber& nodeSubscriber,
-			TAcceptor acceptor) {
-		auto endpoint = boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port);
-		auto settings = net::AsyncTcpServerSettings([acceptor, port, serviceId, &nodeSubscriber](const auto& socketInfo) {
-			acceptor(socketInfo, [port, serviceId, &nodeSubscriber](const auto& connectResult) {
-				CATAPULT_LOG(info) << "accept result to local node port " << port << ": " << connectResult.Code;
-				if (net::PeerConnectCode::Accepted == connectResult.Code)
-					nodeSubscriber.notifyIncomingNode(connectResult.IdentityKey, serviceId);
-			});
-		});
-
-		UpdateAsyncTcpServerSettings(settings, config);
-		return serviceGroup.pushService(net::CreateAsyncTcpServer, endpoint, settings);
-	}
+			net::ConnectionContainer& acceptor);
 }}

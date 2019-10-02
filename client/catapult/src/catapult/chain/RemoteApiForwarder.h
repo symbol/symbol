@@ -20,6 +20,7 @@
 
 #pragma once
 #include "catapult/ionet/NodeInteractionResult.h"
+#include "catapult/model/NodeIdentity.h"
 #include "catapult/model/TransactionPlugin.h"
 #include "catapult/net/PacketIoPicker.h"
 #include "catapult/thread/Future.h"
@@ -56,7 +57,7 @@ namespace catapult { namespace chain {
 			}
 
 			// pass in a non-owning pointer to the registry
-			auto pRemoteApiUnique = apiFactory(*packetIoPair.io(), packetIoPair.node().identityKey(), m_transactionRegistry);
+			auto pRemoteApiUnique = apiFactory(*packetIoPair.io(), packetIoPair.node().identity(), m_transactionRegistry);
 			auto pRemoteApi = utils::UniqueToShared(std::move(pRemoteApiUnique));
 
 			// extend the lifetimes of pRemoteApi and packetIoPair until the completion of the action
@@ -65,7 +66,7 @@ namespace catapult { namespace chain {
 				auto result = resultFuture.get();
 				CATAPULT_LOG_LEVEL(ionet::NodeInteractionResultCode::Neutral == result ? utils::LogLevel::Trace : utils::LogLevel::Info)
 						<< "completed '" << operationName << "' (" << packetIoPair.node() << ") with result " << result;
-				return ionet::NodeInteractionResult(packetIoPair.node().identityKey(), result);
+				return ionet::NodeInteractionResult(packetIoPair.node().identity(), result);
 			});
 		}
 

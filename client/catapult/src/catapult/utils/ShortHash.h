@@ -35,7 +35,7 @@ namespace catapult { namespace utils {
 		}
 	};
 
-	// An unordered set of short hashes.
+	/// Unordered set of short hashes.
 	using ShortHashesSet = std::unordered_set<ShortHash, ShortHashHasher>;
 
 	/// Gets the short hash corresponding to \a hash.

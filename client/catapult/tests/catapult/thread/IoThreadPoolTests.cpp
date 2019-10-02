@@ -44,7 +44,7 @@ namespace catapult { namespace thread {
 		auto pPool = CreateDefaultIoThreadPool();
 
 		// Assert:
-		EXPECT_EQ("IoThreadPool", pPool->tag());
+		EXPECT_EQ("", pPool->name());
 	}
 
 	TEST(TEST_CLASS, CanCreateThreadPoolWithCustomName) {
@@ -52,7 +52,7 @@ namespace catapult { namespace thread {
 		auto pPool = CreateIoThreadPool(Num_Default_Threads, "Crazy Amazing");
 
 		// Assert:
-		EXPECT_EQ("Crazy Amazing IoThreadPool", pPool->tag());
+		EXPECT_EQ("Crazy Amazing", pPool->name());
 	}
 
 	TEST(TEST_CLASS, ConstructorDoesNotCreateAnyThreads) {

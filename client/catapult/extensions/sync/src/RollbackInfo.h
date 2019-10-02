@@ -21,9 +21,12 @@
 #pragma once
 #include "RollbackStats.h"
 #include "catapult/chain/ChainFunctions.h"
+#include "catapult/utils/SpinReaderWriterLock.h"
 #include "catapult/utils/TimeSpan.h"
 #include "catapult/types.h"
 #include <vector>
+
+namespace catapult { namespace sync { struct RollbackInfoState; } }
 
 namespace catapult { namespace sync {
 
@@ -36,15 +39,34 @@ namespace catapult { namespace sync {
 		Ignored
 	};
 
-	/// Container for both committed and ignored rollback statistics.
-	class RollbackInfo {
+	/// Read only view on top of rollback info.
+	class RollbackInfoView : utils::MoveOnly {
 	public:
-		/// Creates a container around \a timeSupplier with recent stats span (\a recentStatsTimeSpan).
-		RollbackInfo(const chain::TimeSupplier& timeSupplier, const utils::TimeSpan& recentStatsTimeSpan);
+		/// Creates a view around \a committed and \a ignored with lock context \a readLock.
+		RollbackInfoView(
+				const RollbackStats& committed,
+				const RollbackStats& ignored,
+				utils::SpinReaderWriterLock::ReaderLockGuard&& readLock);
 
 	public:
-		/// Returns rollback counter for result (\a rollbackResult) and counter type (\a rollbackCounterType).
+		/// Gets the rollback counter for result (\a rollbackResult) and counter type (\a rollbackCounterType).
 		size_t counter(RollbackResult rollbackResult, RollbackCounterType rollbackCounterType) const;
+
+	private:
+		const RollbackStats& m_committed;
+		const RollbackStats& m_ignored;
+		utils::SpinReaderWriterLock::ReaderLockGuard m_readLock;
+	};
+
+	/// Write only view on top of rollback info.
+	class RollbackInfoModifier : utils::MoveOnly {
+	public:
+		/// Creates a view around \a committed, \a ignored and \a state with lock context \a writeLock.
+		RollbackInfoModifier(
+				RollbackStats& committed,
+				RollbackStats& ignored,
+				RollbackInfoState& state,
+				utils::SpinReaderWriterLock::WriterLockGuard&& writeLock);
 
 	public:
 		/// Increments counter.
@@ -57,14 +79,39 @@ namespace catapult { namespace sync {
 		void save();
 
 	private:
+		void add(RollbackStats& target);
+
 		void prune();
 
 	private:
-		chain::TimeSupplier m_timeSupplier;
-		const utils::TimeSpan m_recentStatsTimeSpan;
-		size_t m_currentRollbackSize;
+		RollbackStats& m_committed;
+		RollbackStats& m_ignored;
+		RollbackInfoState& m_state;
+		utils::SpinReaderWriterLock::WriterLockGuard m_writeLock;
+	};
+
+	/// Container for both committed and ignored rollback statistics.
+	class RollbackInfo {
+	public:
+		/// Creates a container around \a timeSupplier with recent stats span (\a recentStatsTimeSpan).
+		RollbackInfo(const chain::TimeSupplier& timeSupplier, const utils::TimeSpan& recentStatsTimeSpan);
+
+		/// Destroys the container.
+		~RollbackInfo();
+
+	public:
+		/// Gets a read only view of the rollback info.
+		RollbackInfoView view() const;
+
+		/// Gets a write only view of the rollback info.
+		RollbackInfoModifier modifier();
+
+	private:
+		std::unique_ptr<RollbackInfoState> m_pState;
 
 		RollbackStats m_committed;
 		RollbackStats m_ignored;
+		mutable utils::SpinReaderWriterLock m_lock;
 	};
+
 }}

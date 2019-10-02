@@ -32,7 +32,7 @@ namespace catapult {
 
 namespace catapult { namespace cache {
 
-	/// A read-only overlay on top of an account cache.
+	/// Read-only overlay on top of an account cache.
 	class ReadOnlyAccountStateCache
 			: public ReadOnlyArtifactCache<BasicAccountStateCacheView, BasicAccountStateCacheDelta, Address, state::AccountState>
 			, public ReadOnlyArtifactCache<BasicAccountStateCacheView, BasicAccountStateCacheDelta, Key, state::AccountState> {

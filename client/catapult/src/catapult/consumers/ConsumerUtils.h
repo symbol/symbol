@@ -30,6 +30,8 @@ namespace catapult {
 
 namespace catapult { namespace consumers {
 
-	/// Converts a consumer completion \a result to a node interaction result with public key \a sourcePublicKey.
-	ionet::NodeInteractionResult ToNodeInteractionResult(const Key& sourcePublicKey, const disruptor::ConsumerCompletionResult& result);
+	/// Converts a consumer completion \a result to a node interaction result with \a sourceIdentity.
+	ionet::NodeInteractionResult ToNodeInteractionResult(
+			const model::NodeIdentity& sourceIdentity,
+			const disruptor::ConsumerCompletionResult& result);
 }}

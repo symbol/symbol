@@ -21,6 +21,7 @@
 #include "PtUtils.h"
 #include "plugins/txes/aggregate/src/model/AggregateTransaction.h"
 #include "catapult/utils/MemoryUtils.h"
+#include "catapult/preprocessor.h"
 
 namespace catapult { namespace partialtransaction {
 
@@ -39,7 +40,7 @@ namespace catapult { namespace partialtransaction {
 		for (const auto& cosignature : transactionInfo.cosignatures())
 			*pCosignature++ = cosignature;
 
-		return std::move(pTransactionWithCosignatures);
+		return PORTABLE_MOVE(pTransactionWithCosignatures);
 	}
 
 	namespace {

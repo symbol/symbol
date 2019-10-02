@@ -23,6 +23,7 @@
 #include "catapult/observers/NotificationObserverAdapter.h"
 #include "catapult/observers/ReverseNotificationObserverAdapter.h"
 #include "catapult/validators/NotificationValidatorAdapter.h"
+#include "catapult/preprocessor.h"
 
 namespace catapult { namespace extensions {
 
@@ -48,7 +49,7 @@ namespace catapult { namespace extensions {
 		pAdapter->setExclusionFilter([excludedNotificationType](auto notificationType) {
 			return excludedNotificationType == notificationType;
 		});
-		return std::move(pAdapter);
+		return PORTABLE_MOVE(pAdapter);
 	}
 
 	std::unique_ptr<const observers::EntityObserver> CreateUndoEntityObserver(const plugins::PluginManager& manager) {

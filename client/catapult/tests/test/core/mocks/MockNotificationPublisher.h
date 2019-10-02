@@ -23,7 +23,7 @@
 
 namespace catapult { namespace mocks {
 
-	/// A mock notification publisher that counts the number of publish calls.
+	/// Mock notification publisher that counts the number of publish calls.
 	class MockNotificationPublisher : public model::NotificationPublisher {
 	public:
 		/// Creates a mock notification publisher.

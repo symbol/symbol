@@ -25,7 +25,7 @@
 
 namespace catapult { namespace state {
 
-	/// A secret lock info.
+	/// Secret lock info.
 	struct SecretLockInfo : public LockInfo {
 	public:
 		/// Creates a default secret lock info.

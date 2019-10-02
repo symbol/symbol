@@ -163,8 +163,8 @@ namespace catapult { namespace handlers {
 		struct CacheHandlerTraits {
 			using HandlerContext = typename TTraits::TestContext;
 
-			static void RegisterHandler(ionet::ServerPacketHandlers& handlers, const HandlerContext& context) {
-				TTraits::RegisterHandler(handlers, context.getCache());
+			static void RegisterHandler(ionet::ServerPacketHandlers& handlers, const HandlerContext& registerHandlerContext) {
+				TTraits::RegisterHandler(handlers, registerHandlerContext.getCache());
 			}
 		};
 
@@ -186,12 +186,12 @@ namespace catapult { namespace handlers {
 			arrange(testContext);
 
 			// Act:
-			ionet::ServerPacketHandlerContext context({}, "");
-			EXPECT_TRUE(handlers.process(*pPacket, context));
+			ionet::ServerPacketHandlerContext handlerContext;
+			EXPECT_TRUE(handlers.process(*pPacket, handlerContext));
 
 			// Assert: the handler was called and has the correct header
-			ASSERT_TRUE(context.hasResponse());
-			assertResponse(context);
+			ASSERT_TRUE(handlerContext.hasResponse());
+			assertResponse(handlerContext);
 		}
 
 		void AssertReturnedValue(const std::vector<uint8_t>& expectedResult, const ionet::PacketPayload& payload) {
@@ -216,8 +216,8 @@ namespace catapult { namespace handlers {
 		// Assert: no element in cache, so response packet only contains header
 		AssertPacketIsAccepted(
 				[](const auto&) {},
-				[](const auto& context) {
-					test::AssertPacketHeader(context, sizeof(ionet::PacketHeader), Mock_Packet_Type);
+				[](const auto& handlerContext) {
+					test::AssertPacketHeader(handlerContext, sizeof(ionet::PacketHeader), Mock_Packet_Type);
 				});
 	}
 
@@ -230,10 +230,10 @@ namespace catapult { namespace handlers {
 					// - make tryLookup return negative proof
 					expectedResponse = testContext.getCache().setLookupResult(false, 5);
 				},
-				[&expectedResponse](const auto& context) {
+				[&expectedResponse](const auto& handlerContext) {
 					// Assert: response packet contains serialized path
-					test::AssertPacketHeader(context, sizeof(ionet::PacketHeader) + expectedResponse.size(), Mock_Packet_Type);
-					AssertReturnedValue(expectedResponse, context.response());
+					test::AssertPacketHeader(handlerContext, sizeof(ionet::PacketHeader) + expectedResponse.size(), Mock_Packet_Type);
+					AssertReturnedValue(expectedResponse, handlerContext.response());
 				});
 	}
 
@@ -246,10 +246,10 @@ namespace catapult { namespace handlers {
 					// - make tryLookup return positive proof
 					expectedResponse = testContext.getCache().setLookupResult(true, 10);
 				},
-				[&expectedResponse](const auto& context) {
+				[&expectedResponse](const auto& handlerContext) {
 					// Assert: response packet contains serialized path
-					test::AssertPacketHeader(context, sizeof(ionet::PacketHeader) + expectedResponse.size(), Mock_Packet_Type);
-					AssertReturnedValue(expectedResponse, context.response());
+					test::AssertPacketHeader(handlerContext, sizeof(ionet::PacketHeader) + expectedResponse.size(), Mock_Packet_Type);
+					AssertReturnedValue(expectedResponse, handlerContext.response());
 				});
 	}
 }}

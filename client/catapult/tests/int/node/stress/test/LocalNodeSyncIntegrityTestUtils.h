@@ -95,7 +95,7 @@ namespace catapult { namespace test {
 
 	// region state asserts
 
-	/// An expected balance.
+	/// Expected balance.
 	struct ExpectedBalance {
 		/// Account identifier.
 		size_t AccountId;

@@ -50,7 +50,7 @@ namespace catapult { namespace test {
 		explicit ExternalSourceConnection(const ionet::Node& node)
 				: m_pPool(CreateStartedIoThreadPool(1))
 				, m_clientKeyPair(crypto::KeyPair::FromPrivate(GenerateRandomPrivateKey()))
-				, m_pConnector(net::CreateServerConnector(m_pPool, m_clientKeyPair, net::ConnectionSettings()))
+				, m_pConnector(net::CreateServerConnector(m_pPool, m_clientKeyPair, net::ConnectionSettings(), "external source"))
 				, m_localNode(node)
 		{}
 
@@ -62,18 +62,22 @@ namespace catapult { namespace test {
 	public:
 		/// Connects to the local node and calls \a onConnect on completion.
 		void connect(const consumer<const std::shared_ptr<ionet::PacketSocket>&>& onConnect) {
-			m_pConnector->connect(m_localNode, [&pIo = m_pIo, onConnect](auto connectCode, const auto& pPacketSocket) {
+			m_pConnector->connect(m_localNode, [&pIo = m_pIo, onConnect](auto connectCode, const auto& socketInfo) {
 				// save pIo in a member to tie the lifetime of the connection to the lifetime of the owning ExternalSourceConnection
-				pIo = pPacketSocket;
+				pIo = socketInfo.socket();
 				if (net::PeerConnectCode::Accepted == connectCode)
-					onConnect(pPacketSocket);
+					onConnect(socketInfo.socket());
 			});
 		}
 
 		/// Connects to the local node and calls \a onConnect on completion.
 		void apiCall(const consumer<const std::shared_ptr<api::RemoteChainApi>&>& onConnect) {
 			connect([onConnect](const auto& pPacketIo) {
-				auto pRemoteApi = CreateLifetimeExtendedApi(api::CreateRemoteChainApi, pPacketIo, Key(), CreateTransactionRegistry());
+				auto pRemoteApi = CreateLifetimeExtendedApi(
+						api::CreateRemoteChainApi,
+						pPacketIo,
+						model::NodeIdentity(),
+						CreateTransactionRegistry());
 				onConnect(pRemoteApi);
 			});
 		}

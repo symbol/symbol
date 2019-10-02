@@ -41,8 +41,8 @@
 			uint64_t lo, hi;
 		} uint128_t;
 		#define mul64x64_128(out,a,b) out.lo = _umul128(a,b,&out.hi);
-		#define shr128_pair(out,hi,lo,shift) out = __shiftright128(lo, hi, shift);
-		#define shl128_pair(out,hi,lo,shift) out = __shiftleft128(lo, hi, shift);
+		#define shr128_pair(out,hi,lo,shift) out = __shiftright128(lo, hi, shift)
+		#define shl128_pair(out,hi,lo,shift) out = __shiftleft128(lo, hi, shift)
 		#define shr128(out,in,shift) shr128_pair(out, in.hi, in.lo, shift)
 		#define shl128(out,in,shift) shl128_pair(out, in.hi, in.lo, shift)
 		#define add128(a,b) { uint64_t p = a.lo; a.lo += b.lo; a.hi += b.hi + (a.lo < p); }
@@ -62,8 +62,8 @@
 				uint64_t lo, hi;
 			} uint128_t;
 			#define mul64x64_128(out,a,b) __asm__ ("mulq %3" : "=a" (out.lo), "=d" (out.hi) : "a" (a), "rm" (b));
-			#define shr128_pair(out,hi,lo,shift) __asm__ ("shrdq %2,%1,%0" : "+r" (lo) : "r" (hi), "J" (shift)); out = lo;
-			#define shl128_pair(out,hi,lo,shift) __asm__ ("shldq %2,%1,%0" : "+r" (hi) : "r" (lo), "J" (shift)); out = hi;
+			#define shr128_pair(out,hi,lo,shift) __asm__ ("shrdq %2,%1,%0" : "+r" (lo) : "r" (hi), "J" (shift)); out = lo
+			#define shl128_pair(out,hi,lo,shift) __asm__ ("shldq %2,%1,%0" : "+r" (hi) : "r" (lo), "J" (shift)); out = hi
 			#define shr128(out,in,shift) shr128_pair(out,in.hi, in.lo, shift)
 			#define shl128(out,in,shift) shl128_pair(out,in.hi, in.lo, shift)
 			#define add128(a,b) __asm__ ("addq %4,%2; adcq %5,%3" : "=r" (a.hi), "=r" (a.lo) : "1" (a.lo), "0" (a.hi), "rm" (b.lo), "rm" (b.hi) : "cc");
@@ -76,10 +76,10 @@
 	#if defined(HAVE_NATIVE_UINT128)
 		#define HAVE_UINT128
 		#define mul64x64_128(out,a,b) out = (uint128_t)a * b;
-		#define shr128_pair(out,hi,lo,shift) out = (uint64_t)((((uint128_t)hi << 64) | lo) >> (shift));
-		#define shl128_pair(out,hi,lo,shift) out = (uint64_t)(((((uint128_t)hi << 64) | lo) << (shift)) >> 64);
-		#define shr128(out,in,shift) out = (uint64_t)(in >> (shift));
-		#define shl128(out,in,shift) out = (uint64_t)((in << shift) >> 64);
+		#define shr128_pair(out,hi,lo,shift) out = (uint64_t)((((uint128_t)hi << 64) | lo) >> (shift))
+		#define shl128_pair(out,hi,lo,shift) out = (uint64_t)(((((uint128_t)hi << 64) | lo) << (shift)) >> 64)
+		#define shr128(out,in,shift) out = (uint64_t)(in >> (shift))
+		#define shl128(out,in,shift) out = (uint64_t)((in << shift) >> 64)
 		#define add128(a,b) a += b;
 		#define add128_64(a,b) a += (uint64_t)b;
 		#define lo128(a) ((uint64_t)a)

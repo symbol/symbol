@@ -23,7 +23,7 @@
 
 namespace catapult { namespace state {
 
-	/// A hash lock info.
+	/// Hash lock info.
 	struct HashLockInfo : public LockInfo {
 	public:
 		/// Creates a default hash lock info.

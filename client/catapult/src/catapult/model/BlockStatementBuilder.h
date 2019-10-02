@@ -30,10 +30,10 @@ namespace catapult { namespace model {
 		BlockStatementBuilder();
 
 	public:
-		/// Gets active source.
+		/// Gets the active source.
 		const ReceiptSource& source() const;
 
-		/// Sets active \a source.
+		/// Sets the active \a source.
 		void setSource(const ReceiptSource& source);
 
 		/// Decrements the current primary source and removes all receipts associated with it.

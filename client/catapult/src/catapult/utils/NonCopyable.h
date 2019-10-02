@@ -22,7 +22,7 @@
 
 namespace catapult { namespace utils {
 
-	/// A class that can neither be copied nor moved.
+	/// Class that can neither be copied nor moved.
 	class NonCopyable {
 	public:
 		/// Default constructor.
@@ -39,7 +39,7 @@ namespace catapult { namespace utils {
 		NonCopyable& operator=(const NonCopyable&) = delete;
 	};
 
-	/// A class that can be moved but not copied.
+	/// Class that can be moved but not copied.
 	class MoveOnly {
 	public:
 		/// Default constructor.

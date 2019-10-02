@@ -93,4 +93,31 @@ namespace catapult { namespace utils {
 	}
 
 	// endregion
+
+	// region memcpy_cond
+
+	TEST(TEST_CLASS, ConditionalMemcpyBypassesZeroSizeOperation) {
+		// Arrange:
+		std::array<uint8_t, 4> buffer;
+
+		// Act + Assert:
+		EXPECT_NO_THROW(memcpy_cond(nullptr, nullptr, 0));
+		EXPECT_NO_THROW(memcpy_cond(nullptr, &buffer[0], 0));
+		EXPECT_NO_THROW(memcpy_cond(&buffer[0], nullptr, 0));
+	}
+
+	TEST(TEST_CLASS, ConditionalMemcpyProcessesNonzeroSizeOperation) {
+		// Arrange:
+		std::array<uint8_t, 4> src{ { 9, 5, 7, 6 } };
+		std::array<uint8_t, 4> dest{ { 1, 2, 3, 4 } };
+
+		// Act:
+		memcpy_cond(&dest[0], &src[0], 2);
+
+		// Assert:
+		std::array<uint8_t, 4> expected{ { 9, 5, 3, 4 } };
+		EXPECT_EQ(expected, dest);
+	}
+
+	// endregion
 }}

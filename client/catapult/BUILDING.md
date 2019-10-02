@@ -16,16 +16,16 @@ Boost
 ---
 
 ```sh
-curl -o boost_1_69_0.tar.gz -SL \
-    https://dl.bintray.com/boostorg/release/1.69.0/source/boost_1_69_0.tar.gz
-tar -xzf boost_1_69_0.tar.gz
+curl -o boost_1_71_0.tar.gz -SL \
+    https://dl.bintray.com/boostorg/release/1.71.0/source/boost_1_71_0.tar.gz
+tar -xzf boost_1_71_0.tar.gz
 
 ## WARNING: below use $HOME rather than ~ - boost scripts might treat it literally
-mkdir boost-build-1.69.0
-cd boost_1_69_0
-./bootstrap.sh --prefix=${HOME}/boost-build-1.69.0
-./b2 --prefix=${HOME}/boost-build-1.69.0 -j 4 stage release
-./b2 install --prefix=${HOME}/boost-build-1.69.0
+mkdir boost-build-1.71.0
+cd boost_1_71_0
+./bootstrap.sh --prefix=${HOME}/boost-build-1.71.0
+./b2 --prefix=${HOME}/boost-build-1.71.0 -j 4 stage release
+./b2 install --prefix=${HOME}/boost-build-1.71.0
 ```
 
 Gtest
@@ -34,7 +34,7 @@ Gtest
 ```sh
 git clone https://github.com/google/googletest.git googletest.git
 cd googletest.git
-git checkout release-1.8.0
+git checkout release-1.8.1
 
 mkdir _build && cd _build
 cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=ON ..
@@ -48,7 +48,7 @@ Google benchmark
 ```sh
 git clone https://github.com/google/benchmark.git google.benchmark.git
 cd google.benchmark.git
-git checkout v1.4.1
+git checkout v1.5.0
 
 mkdir _build && cd _build
 cmake -DCMAKE_BUILD_TYPE=Release -DBENCHMARK_ENABLE_GTEST_TESTS=OFF ..
@@ -64,7 +64,7 @@ mongo-c
 ```sh
 git clone https://github.com/mongodb/mongo-c-driver.git mongo-c-driver.git
 cd mongo-c-driver.git
-git checkout 1.13.0
+git checkout 1.15.1
 
 mkdir _build && cd _build
 cmake -DENABLE_AUTOMATIC_INIT_AND_CLEANUP=OFF -DCMAKE_BUILD_TYPE=Release \
@@ -84,7 +84,7 @@ sed -i 's/kvp("maxAwaitTimeMS", count)/kvp("maxAwaitTimeMS", static_cast<int64_t
     src/mongocxx/options/change_stream.cpp
 
 mkdir _build && cd _build
-cmake -DLIBBSON_DIR=/usr/local -DBOOST_ROOT=~/boost-build-1.69.0 \
+cmake -DLIBBSON_DIR=/usr/local -DBOOST_ROOT=~/boost-build-1.71.0 \
     -DLIBMONGOC_DIR=/usr/local -DBSONCXX_POLY_USE_BOOST=1 \
     -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local ..
 make
@@ -94,13 +94,11 @@ sudo make install
 ZMQ
 ---
 
-NOTE: we're currently NOT coupled to any specific ZMQ version, this might change in future
-
 libzmq
 ```sh
 git clone git://github.com/zeromq/libzmq.git libzmq.git
 cd libzmq.git
-# on master already
+git checkout v4.3.2
 
 mkdir _build && cd _build
 cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local ..
@@ -112,7 +110,7 @@ cppzmq
 ```sh
 git clone https://github.com/zeromq/cppzmq.git cppzmq.git
 cd cppzmq.git
-# on master already
+git checkout v4.4.1
 
 mkdir _build && cd _build
 cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local ..
@@ -129,7 +127,7 @@ rocks
 ```sh
 git clone https://github.com/facebook/rocksdb.git rocksdb.git
 cd rocksdb.git
-git checkout -B "5.18.fb" "origin/5.18.fb"
+git checkout v6.2.4
 
 mkdir _build && cd _build
 cmake -DCMAKE_BUILD_TYPE=Release -DWITH_TESTS=OFF -DCMAKE_INSTALL_PREFIX=/usr/local ..
@@ -145,7 +143,7 @@ git clone https://github.com/nemtech/catapult-server.git
 cd catapult-server
 
 mkdir _build && cd _build
-cmake -DBOOST_ROOT=~/boost-build-1.69.0 -DCMAKE_BUILD_TYPE=Release -G Ninja ..
+cmake -DBOOST_ROOT=~/boost-build-1.71.0 -DCMAKE_BUILD_TYPE=Release -G Ninja ..
 ninja publish
 ninja -j4
 ```
@@ -198,7 +196,7 @@ Google benchmark
 ```bat
 git clone https://github.com/google/benchmark.git google.benchmark.git
 cd google.benchmark.git
-git checkout v1.4.1
+git checkout v1.5.0
 
 mkdir _build && cd _build
 cmake -G "Visual Studio 15 2017 Win64" \
@@ -217,7 +215,7 @@ mongo-c
 ```bat
 git clone https://github.com/mongodb/mongo-c-driver.git mongo-c-driver.git
 cd mongo-c-driver.git
-git checkout 1.13.0
+git checkout 1.15.1
 
 mkdir _build && cd _build
 cmake -G "Visual Studio 15 2017 Win64" -DENABLE_EXTRA_ALIGNMENT=OFF \
@@ -246,13 +244,11 @@ msbuild /p:Configuration=RelWithDebInfo /p:Platform=x64 INSTALL.vcxproj
 ZMQ
 ---
 
-NOTE: we're currently NOT coupled to any specific ZMQ version, this might change in future
-
 libzmq
 ```bat
 git clone git://github.com/zeromq/libzmq.git libzmq.git
 cd libzmq.git
-# on master already
+git checkout v4.3.2
 
 mkdir _build && cd _build
 cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_INSTALL_PREFIX=X:\devlibs\2017\libzmq ..
@@ -266,7 +262,7 @@ cppzmq
 ```bat
 git clone https://github.com/zeromq/cppzmq.git cppzmq.git
 cd cppzmq.git
-# on master already
+git checkout v4.4.1
 
 mkdir _build && cd _build
 cmake -G "Visual Studio 15 2017 Win64" \
@@ -308,7 +304,7 @@ rocks
 ```bat
 git clone https://github.com/facebook/rocksdb.git rocksdb.git
 cd rocksdb.git
-git checkout -B "5.18.fb" "origin/5.18.fb"
+git checkout v6.2.4
 ```
 
 edit `thirdparty.inc`

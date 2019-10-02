@@ -20,12 +20,15 @@
 
 #include "Observers.h"
 #include "src/cache/SecretLockInfoCache.h"
+#include "src/model/SecretLockReceiptType.h"
 #include "plugins/txes/lock_shared/src/observers/ExpiredLockInfoObserver.h"
 #include "catapult/observers/ObserverUtils.h"
 
 namespace catapult { namespace observers {
 
 	DEFINE_OBSERVER(ExpiredSecretLockInfo, model::BlockNotification, [](const auto&, ObserverContext& context) {
-		ExpiredLockInfoObserver<cache::SecretLockInfoCache>(context, [](const auto& lockInfo) { return lockInfo.SenderPublicKey; });
+		ExpiredLockInfoObserver<cache::SecretLockInfoCache>(context, model::Receipt_Type_LockSecret_Expired, [](const auto& lockInfo) {
+			return lockInfo.SenderPublicKey;
+		});
 	});
 }}

@@ -23,7 +23,7 @@
 
 namespace catapult { namespace model {
 
-	/// A notification subscriber.
+	/// Notification subscriber.
 	class NotificationSubscriber {
 	public:
 		virtual ~NotificationSubscriber() = default;

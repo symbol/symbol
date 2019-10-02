@@ -45,20 +45,23 @@ namespace catapult { namespace ionet {
 		}
 	}
 
-	Node::Node() : Node(Key(), NodeEndpoint(), NodeMetadata())
+	Node::Node() : Node(model::NodeIdentity())
 	{}
 
-	Node::Node(const Key& identityKey, const NodeEndpoint& endpoint, const NodeMetadata& metadata)
-			: m_identityKey(identityKey)
+	Node::Node(const model::NodeIdentity& identity) : Node(identity, NodeEndpoint(), NodeMetadata())
+	{}
+
+	Node::Node(const model::NodeIdentity& identity, const NodeEndpoint& endpoint, const NodeMetadata& metadata)
+			: m_identity(identity)
 			, m_endpoint(endpoint)
 			, m_metadata(metadata) {
 		MakePrintable(m_metadata.Name);
 		MakePrintable(m_endpoint.Host);
-		m_printableName = GetPrintableName(m_identityKey, m_endpoint, m_metadata);
+		m_printableName = GetPrintableName(m_identity.PublicKey, m_endpoint, m_metadata);
 	}
 
-	const Key& Node::identityKey() const {
-		return m_identityKey;
+	const model::NodeIdentity& Node::identity() const {
+		return m_identity;
 	}
 
 	const NodeEndpoint& Node::endpoint() const {
@@ -67,14 +70,6 @@ namespace catapult { namespace ionet {
 
 	const NodeMetadata& Node::metadata() const {
 		return m_metadata;
-	}
-
-	bool Node::operator==(const Node& rhs) const {
-		return m_identityKey == rhs.m_identityKey && m_metadata.NetworkIdentifier == rhs.m_metadata.NetworkIdentifier;
-	}
-
-	bool Node::operator!=(const Node& rhs) const {
-		return !(*this == rhs);
 	}
 
 	std::ostream& operator<<(std::ostream& out, const Node& node) {

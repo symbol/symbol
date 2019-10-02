@@ -38,20 +38,22 @@ namespace catapult {
 
 namespace catapult { namespace test {
 
-	/// Creates a local host endpoint with a default port.
-	boost::asio::ip::tcp::endpoint CreateLocalHostEndpoint();
+	/// Function representing transforming a PacketIo into a different implementation.
+	using PacketIoTransform = std::function<std::shared_ptr<ionet::PacketIo> (const std::shared_ptr<ionet::PacketSocket>&)>;
 
-	/// Creates a local host endpoint with the specified \a port.
-	boost::asio::ip::tcp::endpoint CreateLocalHostEndpoint(unsigned short port);
+	/// Function representing custom work that a socket should perform using a packet aware socket.
+	using PacketSocketWork = consumer<const std::shared_ptr<ionet::PacketSocket>&>;
 
-	/// Creates a default PacketSocketOptions.
-	ionet::PacketSocketOptions CreatePacketSocketOptions();
+	// region TcpAcceptor
 
-	/// A local host tcp acceptor facade with timeout.
-	class TcpAcceptor {
+	/// Local host tcp acceptor facade with timeout.
+	class TcpAcceptor : public utils::MoveOnly {
 	public:
 		/// Creates an acceptor around \a ioContext.
 		explicit TcpAcceptor(boost::asio::io_context& ioContext);
+
+		/// Creates an acceptor around \a ioContext and \a port.
+		TcpAcceptor(boost::asio::io_context& ioContext, unsigned short port);
 
 		/// Destroys the acceptor.
 		~TcpAcceptor();
@@ -65,15 +67,35 @@ namespace catapult { namespace test {
 
 	private:
 		class Impl;
-		std::unique_ptr<Impl> m_pImpl;
+		std::shared_ptr<Impl> m_pImpl;
+
+	private:
+		friend void SpawnPacketServerWork(
+				const TcpAcceptor& acceptor,
+				const ionet::PacketSocketOptions& options,
+				const PacketSocketWork& serverWork);
 	};
+
+	// endregion
+
+	// region factories
+
+	/// Creates a local host endpoint with a default port.
+	boost::asio::ip::tcp::endpoint CreateLocalHostEndpoint();
+
+	/// Creates a local host endpoint with the specified \a port.
+	boost::asio::ip::tcp::endpoint CreateLocalHostEndpoint(unsigned short port);
+
+	/// Creates a default PacketSocketOptions.
+	ionet::PacketSocketOptions CreatePacketSocketOptions();
 
 	/// Creates an implicitly closed local host acceptor around \a service.
 	/// \note This acceptor can only be used in tests where it is implicitly closed by stopping \a ioContext.
 	std::shared_ptr<boost::asio::ip::tcp::acceptor> CreateImplicitlyClosedLocalHostAcceptor(boost::asio::io_context& ioContext);
 
-	/// Function representing custom work that a socket should perform using a packet aware socket.
-	using PacketSocketWork = consumer<const std::shared_ptr<ionet::PacketSocket>&>;
+	// endregion
+
+	// region spawn work helpers
 
 	/// Spawns custom server work on \a ioContext by passing an accepted socket to \a serverWork.
 	void SpawnPacketServerWork(boost::asio::io_context& ioContext, const PacketSocketWork& serverWork);
@@ -93,17 +115,29 @@ namespace catapult { namespace test {
 	/// Spawns custom client work on \a ioContext by passing an accepted socket to \a clientWork.
 	void SpawnPacketClientWork(boost::asio::io_context& ioContext, const PacketSocketWork& clientWork);
 
+	// endregion
+
+	// region packet socket utils
+
 	/// Gets a value indicating whether or not \a socket is open.
 	bool IsSocketOpen(ionet::PacketSocket& socket);
 
-	/// Function representing transforming a PacketIo into a different implementation.
-	using PacketIoTransform = std::function<std::shared_ptr<ionet::PacketIo> (const std::shared_ptr<ionet::PacketSocket>&)>;
+	// endregion
+
+	// region write tests
 
 	/// Asserts that the PacketIo returned by \a transform can write multiple consecutive payloads.
 	void AssertWriteCanWriteMultipleConsecutivePayloads(const PacketIoTransform& transform);
 
 	/// Asserts that the PacketIo returned by \a transform can write multiple simultaneous payloads.
 	void AssertWriteCanWriteMultipleSimultaneousPayloadsWithoutInterleaving(const PacketIoTransform& transform);
+
+	/// Asserts that \a writeCode indicates the socket was closed during write.
+	void AssertSocketClosedDuringWrite(ionet::SocketOperationCode writeCode);
+
+	// endregion
+
+	// region read tests
 
 	/// Asserts that the PacketIo returned by \a transform can read multiple consecutive payloads.
 	void AssertReadCanReadMultipleConsecutivePayloads(const PacketIoTransform& transform);
@@ -114,6 +148,5 @@ namespace catapult { namespace test {
 	/// Asserts that \a readCode indicates the socket was closed during read.
 	void AssertSocketClosedDuringRead(ionet::SocketOperationCode readCode);
 
-	/// Asserts that \a writeCode indicates the socket was closed during write.
-	void AssertSocketClosedDuringWrite(ionet::SocketOperationCode writeCode);
+	// endregion
 }}

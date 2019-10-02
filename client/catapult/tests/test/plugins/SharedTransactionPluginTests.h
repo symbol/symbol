@@ -38,12 +38,6 @@ namespace catapult { namespace test {
 				[pPlugin = std::shared_ptr<TTransactionPlugin>(std::move(pPlugin))](auto*) {});
 	}
 
-	/// Publishes \a transaction notifications to \a sub using \a plugin.
-	template<typename TTransactionPlugin, typename TTransaction>
-	void PublishTransaction(const TTransactionPlugin& plugin, const TTransaction& transaction, model::NotificationSubscriber& sub) {
-		plugin.publish(transaction, sub);
-	}
-
 	// endregion
 
 	// region PLUGIN_TEST

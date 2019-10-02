@@ -29,6 +29,7 @@
 #include "catapult/utils/ExceptionLogging.h"
 #include "catapult/utils/Logging.h"
 #include "catapult/version/version.h"
+#include "catapult/preprocessor.h"
 #include <iostream>
 
 namespace catapult { namespace process {
@@ -54,7 +55,7 @@ namespace catapult { namespace process {
 			auto pBootstrapper = std::make_shared<utils::LoggingBootstrapper>();
 			pBootstrapper->addConsoleLogger(config::GetConsoleLoggerOptions(config.Console), *CreateLogFilter(config.Console));
 			pBootstrapper->addFileLogger(config::GetFileLoggerOptions(config.File), *CreateLogFilter(config.File));
-			return std::move(pBootstrapper);
+			return PORTABLE_MOVE(pBootstrapper);
 		}
 
 		[[noreturn]]

@@ -24,7 +24,7 @@
 
 namespace catapult { namespace chain {
 
-	/// An entities synchronizer.
+	/// Entities synchronizer.
 	template<typename TSynchronizerTraits>
 	class EntitiesSynchronizer {
 	public:
@@ -41,14 +41,14 @@ namespace catapult { namespace chain {
 	public:
 		/// Pulls entities from a remote node using \a api.
 		NodeInteractionFuture operator()(const RemoteApiType& api) {
-			return m_traits.apiCall(api).then([&traits = m_traits, sourcePublicKey = api.remotePublicKey()](auto&& rangeFuture) {
+			return m_traits.apiCall(api).then([&traits = m_traits, sourceIdentity = api.remoteIdentity()](auto&& rangeFuture) {
 				try {
 					auto range = rangeFuture.get();
 					if (range.empty())
 						return ionet::NodeInteractionResultCode::Neutral;
 
 					CATAPULT_LOG(debug) << "peer returned " << range.size() << " " << TSynchronizerTraits::Name;
-					traits.consume(std::move(range), sourcePublicKey);
+					traits.consume(std::move(range), sourceIdentity);
 					return ionet::NodeInteractionResultCode::Success;
 				} catch (const catapult_runtime_error& e) {
 					CATAPULT_LOG(warning) << "exception thrown while requesting " << TSynchronizerTraits::Name << ": " << e.what();

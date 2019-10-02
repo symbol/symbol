@@ -23,7 +23,7 @@
 
 namespace catapult { namespace utils {
 
-	/// A diagnostic counter id.
+	/// Diagnostic counter id.
 	class DiagnosticCounterId {
 	public:
 		/// Maximum counter name size.

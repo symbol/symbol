@@ -215,12 +215,12 @@ namespace catapult { namespace api {
 		};
 
 		struct RemoteChainApiTraits {
-			static auto Create(ionet::PacketIo& packetIo, const Key& remotePublicKey) {
-				return test::CreateLifetimeExtendedApi(CreateRemoteChainApi, packetIo, remotePublicKey, model::TransactionRegistry());
+			static auto Create(ionet::PacketIo& packetIo, const model::NodeIdentity& remoteIdentity) {
+				return test::CreateLifetimeExtendedApi(CreateRemoteChainApi, packetIo, remoteIdentity, model::TransactionRegistry());
 			}
 
 			static auto Create(ionet::PacketIo& packetIo) {
-				return Create(packetIo, Key());
+				return Create(packetIo, model::NodeIdentity());
 			}
 		};
 	}

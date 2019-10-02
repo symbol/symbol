@@ -41,8 +41,8 @@ namespace catapult { namespace test {
 
 		/// Waits for the specified function (\a func) to return the desired value (\a desired)
 		/// with a configurable timeout (\a timeoutSeconds).
-		template<typename TFunc>
-		bool TryWaitFor(TFunc func, decltype(func()) desired, size_t timeoutSeconds) {
+		template<typename T1, typename T2>
+		bool TryWaitFor(const supplier<T1>& func, T2 desired, size_t timeoutSeconds) {
 			auto begin = std::chrono::high_resolution_clock::now();
 
 			while (desired != func()) {
@@ -71,21 +71,16 @@ namespace catapult { namespace test {
 /// Waits for the specified atomic value or function (\a SUPPLIER) to return the desired value (\a DESIRED) for \a TIMEOUT_SECONDS seconds.
 #define WAIT_FOR_VALUE_SECONDS(DESIRED, SUPPLIER, TIMEOUT_SECONDS) \
 	do { \
-		if (!test::detail::TryWaitFor(test::detail::MakeFunction(SUPPLIER), DESIRED, TIMEOUT_SECONDS)) { \
-			auto func = test::detail::MakeFunction(SUPPLIER); \
+		auto func = test::detail::MakeFunction(SUPPLIER); \
+		if (!test::detail::TryWaitFor(func, DESIRED, TIMEOUT_SECONDS)) { \
 			EXPECT_EQ(DESIRED, func()) << "timeout " << TIMEOUT_SECONDS; \
-			CATAPULT_THROW_RUNTIME_ERROR_2("WAIT_FOR_VALUE timed out waiting (desired, actual)", DESIRED, func()); \
+			CATAPULT_THROW_RUNTIME_ERROR_2("WAIT_FOR_VALUE_SECONDS timed out waiting (desired, actual)", DESIRED, func()); \
 		} \
-	} while(false)
+	} while (false)
 
 /// Waits for the specified \a EXPRESSION to return the desired value (\a DESIRED) for \a TIMEOUT_SECONDS seconds.
 #define WAIT_FOR_VALUE_EXPR_SECONDS(DESIRED, EXPRESSION, TIMEOUT_SECONDS) \
-	do { \
-		if (!test::detail::TryWaitFor([&]() { return EXPRESSION; }, DESIRED, TIMEOUT_SECONDS)) { \
-			EXPECT_EQ(DESIRED, EXPRESSION) << "timeout " << TIMEOUT_SECONDS; \
-			CATAPULT_THROW_RUNTIME_ERROR_2("WAIT_FOR_VALUE_EXPR timed out waiting (desired, actual)", DESIRED, EXPRESSION); \
-		} \
-	} while(false)
+	WAIT_FOR_VALUE_SECONDS(DESIRED, supplier<decltype(EXPRESSION)>([&]() { return EXPRESSION; }), TIMEOUT_SECONDS)
 
 /// Waits for the specified atomic value or function (\a SUPPLIER) to return the desired value (\a DESIRED).
 #define WAIT_FOR_VALUE(DESIRED, SUPPLIER) WAIT_FOR_VALUE_SECONDS(DESIRED, SUPPLIER, test::detail::Default_Wait_Timeout)

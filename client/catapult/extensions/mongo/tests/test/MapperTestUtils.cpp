@@ -201,9 +201,7 @@ namespace catapult { namespace test {
 	void AssertEqualMockTransactionData(const mocks::MockTransaction& transaction, const bsoncxx::document::view& dbTransaction) {
 		AssertEqualTransactionData(transaction, dbTransaction);
 		EXPECT_EQ(transaction.RecipientPublicKey, GetKeyValue(dbTransaction, "recipientPublicKey"));
-		EXPECT_EQ(
-				ToHexString(transaction.DataPtr(), transaction.Data.Size),
-				ToHexString(GetBinary(dbTransaction, "data"), transaction.Data.Size));
+		EXPECT_EQ_MEMORY(transaction.DataPtr(), GetBinary(dbTransaction, "data"), transaction.Data.Size);
 	}
 
 	void AssertEqualCosignatures(const std::vector<model::Cosignature>& expectedCosignatures, const bsoncxx::array::view& dbCosignatures) {

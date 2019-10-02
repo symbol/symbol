@@ -31,7 +31,29 @@ namespace catapult {
 
 namespace catapult { namespace harvesting {
 
-	/// Returns size of encrypted entry.
+	/// Unlocked entry direction.
+	enum class UnlockedEntryDirection : uint8_t {
+		/// Add unlocked entry.
+		Add,
+
+		/// Remove unlocked entry.
+		Remove
+	};
+
+	/// Unlocked entry message.
+	struct UnlockedEntryMessage {
+	public:
+		/// Unlocked entry direction.
+		UnlockedEntryDirection Direction;
+
+		/// Announcer public key.
+		Key AnnouncerPublicKey;
+
+		/// Encrypted entry.
+		RawBuffer EncryptedEntry;
+	};
+
+	/// Gets the size of encrypted entry.
 	size_t EncryptedUnlockedEntrySize();
 
 	/// Decrypts \a saltedEncrypted using \a bootKeyPair and \a publicKey.
@@ -44,5 +66,5 @@ namespace catapult { namespace harvesting {
 	void UnlockedFileQueueConsumer(
 			const config::CatapultDirectory& directory,
 			const crypto::KeyPair& bootKeyPair,
-			const consumer<const Key&, const RawBuffer&, crypto::KeyPair&&>& processEntryKeyPair);
+			const consumer<const UnlockedEntryMessage&, crypto::KeyPair&&>& processEntryKeyPair);
 }}

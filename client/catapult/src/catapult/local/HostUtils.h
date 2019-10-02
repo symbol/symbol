@@ -43,7 +43,7 @@ namespace catapult { namespace local {
 			CATAPULT_THROW_RUNTIME_ERROR(ex.what());
 		}
 
-		return std::move(pHost);
+		return pHost;
 	}
 
 	/// Loads all plugins using \a bootstrapper.

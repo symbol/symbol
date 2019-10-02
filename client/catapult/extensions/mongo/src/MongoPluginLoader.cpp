@@ -21,6 +21,7 @@
 #include "MongoPluginLoader.h"
 #include "catapult/plugins/PluginExceptions.h"
 #include "catapult/utils/Logging.h"
+#include "catapult/preprocessor.h"
 #include <boost/exception_ptr.hpp>
 
 namespace catapult { namespace mongo {
@@ -29,6 +30,7 @@ namespace catapult { namespace mongo {
 		using RegisterMongoSubsystemFunc = void (*)(MongoPluginManager&);
 	}
 
+	ATTRIBUTE_CALLS_PLUGIN_API
 	void LoadPluginByName(MongoPluginManager& manager, PluginModules& modules, const std::string& directory, const std::string& name) {
 		modules.emplace_back(directory, name);
 		auto registerMongoSubsystem = modules.back().symbol<RegisterMongoSubsystemFunc>("RegisterMongoSubsystem");

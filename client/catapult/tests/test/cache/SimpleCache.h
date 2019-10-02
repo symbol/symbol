@@ -113,7 +113,7 @@ namespace catapult { namespace test {
 
 	// region view extensions
 
-	/// A view extension that does not support merkle roots.
+	/// View extension that does not support merkle roots.
 	class SimpleCacheDisabledMerkleRootViewExtension {
 	public:
 		/// Creates a view extension.
@@ -121,7 +121,7 @@ namespace catapult { namespace test {
 		{}
 	};
 
-	/// A view extension that represents a default cache that supports merkle roots.
+	/// View extension that represents a default cache that supports merkle roots.
 	class SimpleCacheDefaultViewExtension {
 	public:
 		/// Creates a view extension around \a mode and \a state.
@@ -157,7 +157,7 @@ namespace catapult { namespace test {
 		const Hash256& m_merkleRoot;
 	};
 
-	/// A delta extension that represents a default cache that supports merkle roots.
+	/// Delta extension that represents a default cache that supports merkle roots.
 	class SimpleCacheDefaultDeltaExtension : public SimpleCacheDefaultViewExtension {
 	public:
 		/// Creates a delta extension around \a mode and \a state.
@@ -250,12 +250,12 @@ namespace catapult { namespace test {
 		}
 
 	public:
-		/// Returns a const iterator to the first cache element.
+		/// Gets a const iterator to the first cache element.
 		auto begin() const {
 			return m_ids.cbegin();
 		}
 
-		/// Returns a const iterator to the element following the last cache element.
+		/// Gets a const iterator to the element following the last cache element.
 		auto end() const {
 			return m_ids.cend();
 		}
@@ -353,23 +353,23 @@ namespace catapult { namespace test {
 		}
 
 	public:
-		/// Sets \a elements returned by delta element accessors (addedElements, modifiedElements, removedElements).
+		/// Sets the \a elements returned by delta element accessors (addedElements, modifiedElements, removedElements).
 		void setElements(const std::array<uint64_t, 4>& elements) {
 			m_elements = elements;
 		}
 
 	public:
-		/// Gets pointers to all added elements.
+		/// Gets the pointers to all added elements.
 		std::unordered_set<const uint64_t*> addedElements() const {
 			return { &m_elements[0] };
 		}
 
-		/// Gets pointers to all modified elements.
+		/// Gets the pointers to all modified elements.
 		std::unordered_set<const uint64_t*> modifiedElements() const {
 			return { &m_elements[2] };
 		}
 
-		/// Gets pointers to all removed elements.
+		/// Gets the pointers to all removed elements.
 		std::unordered_set<const uint64_t*> removedElements() const {
 			return { &m_elements[1], &m_elements[3] };
 		}
@@ -415,17 +415,17 @@ namespace catapult { namespace test {
 		{}
 
 	public:
-		/// Returns a locked view based on this cache.
+		/// Gets a locked view based on this cache.
 		CacheViewType createView() const {
 			return CacheViewType(m_mode, m_state);
 		}
 
-		/// Returns a locked cache delta based on this cache.
+		/// Gets a locked cache delta based on this cache.
 		CacheDeltaType createDelta() {
 			return CacheDeltaType(m_mode, m_state);
 		}
 
-		/// Returns a lockable cache delta based on this cache but without the ability
+		/// Gets a lockable cache delta based on this cache but without the ability
 		/// to commit any changes to the original cache.
 		CacheDeltaType createDetachedDelta() const {
 			return CacheDeltaType(m_mode, m_state);

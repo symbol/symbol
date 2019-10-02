@@ -25,7 +25,7 @@
 
 namespace catapult { namespace cache {
 
-	/// A mixin for adding patricia tree support to a cache.
+	/// Mixin for adding patricia tree support to a cache.
 	template<typename TTree>
 	class PatriciaTreeMixin {
 	public:
@@ -57,7 +57,7 @@ namespace catapult { namespace cache {
 		const TTree* m_pTree;
 	};
 
-	/// A mixin for adding patricia tree support to a delta cache.
+	/// Mixin for adding patricia tree support to a delta cache.
 	template<typename TSet, typename TTree>
 	class PatriciaTreeDeltaMixin {
 	public:

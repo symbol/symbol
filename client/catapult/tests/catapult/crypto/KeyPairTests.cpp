@@ -19,6 +19,7 @@
 **/
 
 #include "catapult/crypto/KeyPair.h"
+#include "catapult/utils/HexParser.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace crypto {
@@ -47,17 +48,19 @@ namespace catapult { namespace crypto {
 		// Arrange:
 #ifdef SIGNATURE_SCHEME_NIS1
 		auto rawKeyString = std::string("CBD84EF8F5F38A25C01308785EA99627DE897D151AFDFCDA7AB07EFD8ED98534");
-		auto expectedKey = std::string("C54D6E33ED1446EEDD7F7A80A588DD01857F723687A09200C1917D5524752F8B");
+		auto expectedKey = utils::ParseByteArray<Key>("C54D6E33ED1446EEDD7F7A80A588DD01857F723687A09200C1917D5524752F8B");
 #else
 		auto rawKeyString = std::string("CBD84EF8F5F38A25C01308785EA99627DE897D151AFDFCDA7AB07EFD8ED98534");
-		auto expectedKey = std::string("A6DC1C33C26BC67B21AC4B3F4D1E88901E23AD208260F40AF3CB0A6CE9557852");
+		auto expectedKey = utils::ParseByteArray<Key>("A6DC1C33C26BC67B21AC4B3F4D1E88901E23AD208260F40AF3CB0A6CE9557852");
 #endif
+		auto rawKeyVector = test::HexStringToVector(rawKeyString);
+
 		// Act:
 		auto keyPair = KeyPair::FromString(rawKeyString);
 
 		// Assert:
-		EXPECT_EQ(expectedKey, test::ToString(keyPair.publicKey()));
-		EXPECT_EQ(rawKeyString, test::ToHexString(keyPair.privateKey().data(), keyPair.privateKey().size()));
+		EXPECT_EQ(expectedKey, keyPair.publicKey());
+		EXPECT_EQ_MEMORY(&rawKeyVector[0], keyPair.privateKey().data(), keyPair.privateKey().size());
 	}
 
 	TEST(TEST_CLASS, CanCreateKeyPairFromPrivateKey) {
@@ -129,7 +132,7 @@ namespace catapult { namespace crypto {
 			auto keyPair = KeyPair::FromString(dataSet[i]);
 
 			// Assert:
-			EXPECT_EQ(expectedSet[i], test::ToString(keyPair.publicKey()));
+			EXPECT_EQ(utils::ParseByteArray<Key>(expectedSet[i]), keyPair.publicKey());
 		}
 	}
 }}

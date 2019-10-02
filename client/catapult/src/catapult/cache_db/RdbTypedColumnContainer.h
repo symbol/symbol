@@ -55,7 +55,7 @@ namespace catapult { namespace cache {
 			}
 
 		public:
-			/// Returns reference to current element.
+			/// Gets a reference to current element.
 			const StorageType& operator*() const {
 				if (RdbDataIterator::End() == m_iterator)
 					CATAPULT_THROW_INVALID_ARGUMENT("dereference on empty iterator");
@@ -68,18 +68,18 @@ namespace catapult { namespace cache {
 				return *m_pStorage;
 			}
 
-			/// Returns pointer to current element.
+			/// Gets a pointer to current element.
 			const StorageType* operator->() const {
 				return &operator*();
 			}
 
 		public:
-			/// Returns const reference to underlying db iterator.
+			/// Gets a const reference to underlying db iterator.
 			const RdbDataIterator& dbIterator() const {
 				return m_iterator;
 			}
 
-			/// Returns reference to underlying db iterator.
+			/// Gets a reference to underlying db iterator.
 			RdbDataIterator& dbIterator() {
 				return m_iterator;
 			}
@@ -136,7 +136,7 @@ namespace catapult { namespace cache {
 			TContainer::remove(SerializeKey(key));
 		}
 
-		/// Returns iterator that represents non-existing element.
+		/// Gets an iterator that represents non-existing element.
 		const_iterator cend() const {
 			return const_iterator();
 		}

@@ -50,7 +50,7 @@ namespace catapult { namespace state {
 		using ActivityBucketStack = CompactArrayStack<ActivityBucket, Activity_Bucket_History_Size>;
 
 	public:
-		/// Gets activity bucket at \a height.
+		/// Gets the activity bucket at \a height.
 		ActivityBucket get(model::ImportanceHeight height) const;
 
 	public:
@@ -66,10 +66,10 @@ namespace catapult { namespace state {
 		void pop();
 
 	public:
-		/// Returns a const iterator to the first element of the underlying container.
+		/// Gets a const iterator to the first element of the underlying container.
 		ActivityBucketStack::const_iterator begin() const;
 
-		/// Returns a const iterator to the element following the last element of the underlying container.
+		/// Gets a const iterator to the element following the last element of the underlying container.
 		ActivityBucketStack::const_iterator end() const;
 
 	private:

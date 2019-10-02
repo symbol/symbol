@@ -43,7 +43,7 @@ namespace catapult { namespace extensions {
 		ionet::Node CreateNamedNode(const Key& identityKey, const std::string& name, ionet::NodeRoles roles) {
 			auto metadata = ionet::NodeMetadata(model::NetworkIdentifier::Zero, name);
 			metadata.Roles = roles;
-			return ionet::Node(identityKey, ionet::NodeEndpoint(), metadata);
+			return ionet::Node({ identityKey, "11.22.33.44" }, ionet::NodeEndpoint(), metadata);
 		}
 
 		std::vector<ionet::Node> SeedNodes(
@@ -57,7 +57,7 @@ namespace catapult { namespace extensions {
 				auto identityKey = test::GenerateRandomByteArray<Key>();
 				auto node = CreateNamedNode(identityKey, "node " + std::to_string(i), roles);
 				modifier.add(node, source);
-				modifier.provisionConnectionState(Default_Service_Id, identityKey);
+				modifier.provisionConnectionState(Default_Service_Id, node.identity());
 				nodes.push_back(node);
 			}
 
@@ -67,13 +67,13 @@ namespace catapult { namespace extensions {
 		void SetAge(ionet::NodeContainer& container, const std::vector<ionet::Node>& nodes, uint32_t age) {
 			auto modifier = container.modifier();
 			for (const auto& node : nodes)
-				modifier.provisionConnectionState(Default_Service_Id, node.identityKey()).Age = age;
+				modifier.provisionConnectionState(Default_Service_Id, node.identity()).Age = age;
 		}
 
 		void SetBanAge(ionet::NodeContainer& container, const std::vector<ionet::Node>& nodes, uint32_t age) {
 			auto modifier = container.modifier();
 			for (const auto& node : nodes)
-				modifier.provisionConnectionState(Default_Service_Id, node.identityKey()).BanAge = age;
+				modifier.provisionConnectionState(Default_Service_Id, node.identity()).BanAge = age;
 		}
 
 		NodeSelectionConfiguration CreateConfiguration(uint32_t maxConnections, uint32_t maxConnectionAge) {
@@ -89,12 +89,12 @@ namespace catapult { namespace extensions {
 			AssertSubset(ionet::NodeSet(set.cbegin(), set.cend()), subset);
 		}
 
-		void AssertSubset(const utils::KeySet& set, const utils::KeySet& subset) {
-			for (const auto& key : subset)
-				EXPECT_CONTAINS(set, key);
+		void AssertSubset(const model::NodeIdentitySet& set, const model::NodeIdentitySet& subset) {
+			for (const auto& identity : subset)
+				EXPECT_CONTAINS(set, identity);
 		}
 
-		void AssertSubset(const std::vector<ionet::Node>& set, const utils::KeySet& subset) {
+		void AssertSubset(const std::vector<ionet::Node>& set, const model::NodeIdentitySet& subset) {
 			AssertSubset(test::ExtractNodeIdentities(set), subset);
 		}
 	}
@@ -236,7 +236,7 @@ namespace catapult { namespace extensions {
 
 			// Assert:
 			EXPECT_EQ(numCandidates, nodes.size());
-			EXPECT_EQ(expectedNodes, nodes);
+			test::AssertEqualNodes(expectedNodes, nodes);
 		}
 	}
 
@@ -263,12 +263,12 @@ namespace catapult { namespace extensions {
 
 		// Act:
 		auto nodes = SelectCandidatesBasedOnWeight(candidates, 500u, 3);
-		auto allKeys = test::ExtractNodeIdentities(allNodes);
+		auto allIdentities = test::ExtractNodeIdentities(allNodes);
 
 		// Assert:
 		EXPECT_EQ(3u, nodes.size());
 		for (const auto& node : nodes)
-			EXPECT_CONTAINS(allKeys, node.identityKey());
+			EXPECT_CONTAINS(allIdentities, node.identity());
 	}
 
 	// endregion
@@ -299,7 +299,7 @@ namespace catapult { namespace extensions {
 					if (1u != selectedNodes.size())
 						CATAPULT_THROW_RUNTIME_ERROR_1("unexpected number of nodes were selected", selectedNodes.size());
 
-					++keyStatistics[selectedNodes.cbegin()->identityKey()];
+					++keyStatistics[selectedNodes.cbegin()->identity().PublicKey];
 				}
 
 				return keyStatistics;
@@ -326,7 +326,7 @@ namespace catapult { namespace extensions {
 					if (1u != selectedNodes.size())
 						CATAPULT_THROW_RUNTIME_ERROR_1("unexpected number of nodes were selected", selectedNodes.size());
 
-					++keyStatistics[selectedNodes.cbegin()->identityKey()];
+					++keyStatistics[selectedNodes.cbegin()->identity().PublicKey];
 				}
 
 				return keyStatistics;
@@ -340,9 +340,9 @@ namespace catapult { namespace extensions {
 				auto modifier = container.modifier();
 				for (auto i = 0u; i < nodes.size(); ++i) {
 					modifier.add(nodes[i], ionet::NodeSource::Dynamic);
-					modifier.provisionConnectionState(Default_Service_Id, nodes[i].identityKey());
+					modifier.provisionConnectionState(Default_Service_Id, nodes[i].identity());
 					auto& interactions = interactionsSeeds[i];
-					test::AddNodeInteractions(modifier, nodes[i].identityKey(), interactions.NumSuccesses, interactions.NumFailures);
+					test::AddNodeInteractions(modifier, nodes[i].identity(), interactions.NumSuccesses, interactions.NumFailures);
 				}
 			}
 
@@ -376,7 +376,7 @@ namespace catapult { namespace extensions {
 				std::map<Key, ImportanceDescriptor> map;
 				for (auto i = 0u; i < nodes.size(); ++i) {
 					auto rawImportance = totalWeight * rawWeights[i] / (3'000 * maxWeight);
-					map.emplace(nodes[i].identityKey(), ImportanceDescriptor({ Importance(rawImportance), Importance(totalWeight) }));
+					map.emplace(nodes[i].identity().PublicKey, ImportanceDescriptor{ Importance(rawImportance), Importance(totalWeight) });
 				}
 
 				return [map](const Key& key) {
@@ -507,7 +507,7 @@ namespace catapult { namespace extensions {
 
 	namespace {
 		void AgeAndErase(ionet::NodeContainer& container, std::vector<ionet::Node>& nodes, size_t index, uint32_t age) {
-			container.modifier().provisionConnectionState(Default_Service_Id, nodes[index].identityKey()).Age = age;
+			container.modifier().provisionConnectionState(Default_Service_Id, nodes[index].identity()).Age = age;
 			nodes.erase(nodes.begin() + static_cast<long>(index));
 		}
 
@@ -584,6 +584,35 @@ namespace catapult { namespace extensions {
 
 	// endregion
 
+	// region SelectNodes: banned nodes filtering
+
+	TEST(TEST_CLASS, BannedNodesAreNotSelected) {
+		// Arrange:
+		ionet::BanSettings banSettings;
+		banSettings.DefaultBanDuration = utils::TimeSpan::FromHours(1);
+		banSettings.MaxBanDuration = utils::TimeSpan::FromHours(2);
+		banSettings.KeepAliveDuration = utils::TimeSpan::FromHours(3);
+		banSettings.MaxBannedNodes = 100;
+		ionet::NodeContainer container(100, model::NodeIdentityEqualityStrategy::Key, banSettings, []() { return Timestamp(1); });
+		auto nodes = SeedNodes(container, 10, ionet::NodeSource::Dynamic);
+
+		{
+			auto modifier = container.modifier();
+			for (auto i = 1u; i < nodes.size(); ++i)
+				modifier.ban(nodes[i].identity(), 0x123);
+		}
+
+		// Act:
+		auto result = SelectNodes(container, CreateConfiguration(5, 8), UniformImportanceRetriever);
+
+		// Assert: only the unbanned node was selected
+		ASSERT_EQ(1u, result.AddCandidates.size());
+		EXPECT_EQ(nodes[0].identity().PublicKey, result.AddCandidates.cbegin()->identity().PublicKey);
+		EXPECT_TRUE(result.RemoveCandidates.empty());
+	}
+
+	// endregion
+
 	// region SelectNodes: relative weighting
 
 	namespace {
@@ -612,12 +641,12 @@ namespace catapult { namespace extensions {
 			auto node2 = SeedNodes(container, 1, nodeInfos.Source2)[0];
 			{
 				auto modifier = container.modifier();
-				modifier.provisionConnectionState(Default_Service_Id, node1.identityKey()) = nodeInfos.ConnectionState1;
-				modifier.provisionConnectionState(Default_Service_Id, node2.identityKey()) = nodeInfos.ConnectionState2;
+				modifier.provisionConnectionState(Default_Service_Id, node1.identity()) = nodeInfos.ConnectionState1;
+				modifier.provisionConnectionState(Default_Service_Id, node2.identity()) = nodeInfos.ConnectionState2;
 				auto& interactions1 = nodeInfos.Interactions1;
-				test::AddNodeInteractions(modifier, node1.identityKey(), interactions1.NumSuccesses, interactions1.NumFailures);
+				test::AddNodeInteractions(modifier, node1.identity(), interactions1.NumSuccesses, interactions1.NumFailures);
 				auto& interactions2 = nodeInfos.Interactions2;
-				test::AddNodeInteractions(modifier, node2.identityKey(), interactions2.NumSuccesses, interactions2.NumFailures);
+				test::AddNodeInteractions(modifier, node2.identity(), interactions2.NumSuccesses, interactions2.NumFailures);
 			}
 
 			// Act: run a lot of selections
@@ -627,7 +656,7 @@ namespace catapult { namespace extensions {
 				if (1 != result.AddCandidates.size())
 					CATAPULT_THROW_RUNTIME_ERROR("unexpected number of candidate nodes returned");
 
-				if (node1 == *result.AddCandidates.cbegin())
+				if (node1.identity().PublicKey == result.AddCandidates.cbegin()->identity().PublicKey)
 					++counts.first;
 				else
 					++counts.second;
@@ -773,7 +802,7 @@ namespace catapult { namespace extensions {
 			auto nodes = SeedNodes(container, numActiveNodes);
 			auto i = 0u;
 			for (const auto& node : nodes)
-				container.modifier().provisionConnectionState(Default_Service_Id, node.identityKey()).Age = 8 + i++;
+				container.modifier().provisionConnectionState(Default_Service_Id, node.identity()).Age = 8 + i++;
 
 			// Act:
 			auto result = SelectNodes(container, CreateConfiguration(maxConnections, 8), UniformImportanceRetriever);
@@ -813,7 +842,7 @@ namespace catapult { namespace extensions {
 			auto activeNodes = SeedNodes(container, numActiveNodes);
 			auto i = 0u;
 			for (const auto& node : activeNodes)
-				container.modifier().provisionConnectionState(Default_Service_Id, node.identityKey()).Age = 8 + i++;
+				container.modifier().provisionConnectionState(Default_Service_Id, node.identity()).Age = 8 + i++;
 
 			// Act:
 			auto result = SelectNodes(container, CreateConfiguration(maxConnections, 8), UniformImportanceRetriever);
@@ -932,7 +961,7 @@ namespace catapult { namespace extensions {
 			auto nodes = SeedNodes(container, numActiveNodes);
 			auto i = 0u;
 			for (const auto& node : nodes)
-				container.modifier().provisionConnectionState(Default_Service_Id, node.identityKey()).Age = 8 + i++;
+				container.modifier().provisionConnectionState(Default_Service_Id, node.identity()).Age = 8 + i++;
 
 			// Act:
 			auto agingConfig = CreateAgingConfiguration(maxConnections, 8);

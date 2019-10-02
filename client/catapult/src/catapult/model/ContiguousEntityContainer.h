@@ -131,12 +131,12 @@ namespace catapult { namespace model {
 			}
 
 		public:
-			/// Returns a reference to the current entity.
+			/// Gets a reference to the current entity.
 			reference operator*() const {
 				return *(this->operator->());
 			}
 
-			/// Returns a pointer to the current entity.
+			/// Gets a pointer to the current entity.
 			pointer operator->() const {
 				if (isEnd(m_pCurrent))
 					CATAPULT_THROW_OUT_OF_RANGE("cannot dereference at end");
@@ -177,22 +177,22 @@ namespace catapult { namespace model {
 		};
 
 	public:
-		/// Returns a const iterator that represents the first entity.
+		/// Gets a const iterator that represents the first entity.
 		auto cbegin() const {
 			return iterator<const TEntity>(m_pStart, m_pStart, m_state);
 		}
 
-		/// Returns a const iterator that represents one past the last entity.
+		/// Gets a const iterator that represents one past the last entity.
 		auto cend() const {
 			return iterator<const TEntity>(m_pStart, nullptr, m_state);
 		}
 
-		/// Returns an iterator that represents the first entity.
+		/// Gets an iterator that represents the first entity.
 		auto begin() const {
 			return iterator<TEntity>(m_pStart, m_pStart, m_state);
 		}
 
-		/// Returns an iterator that represents one past the last entity.
+		/// Gets an iterator that represents one past the last entity.
 		auto end() const {
 			return iterator<TEntity>(m_pStart, nullptr, m_state);
 		}

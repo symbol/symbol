@@ -26,34 +26,34 @@
 
 namespace catapult { namespace ionet {
 
-	/// A buffer for storing working data.
+	/// Buffer for storing working data.
 	class WorkingBuffer {
 	public:
 		/// Creates an empty working buffer around \a options.
 		explicit WorkingBuffer(const PacketSocketOptions& options);
 
 	public:
-		/// Returns a const iterator to the beginning of the buffer
+		/// Gets a const iterator to the beginning of the buffer
 		inline auto begin() const {
 			return m_data.cbegin();
 		}
 
-		/// Returns a const iterator to the end of the buffer.
+		/// Gets a const iterator to the end of the buffer.
 		inline auto end() const {
 			return m_data.cend();
 		}
 
-		/// Returns the size of the buffer.
+		/// Gets the size of the buffer.
 		inline auto size() const {
 			return m_data.size();
 		}
 
-		/// Returns a const pointer to the raw buffer.
+		/// Gets a const pointer to the raw buffer.
 		inline auto data() const {
 			return m_data.data();
 		}
 
-		/// Returns the capacity of the raw buffer.
+		/// Gets the capacity of the raw buffer.
 		inline auto capacity() const {
 			return m_data.capacity();
 		}

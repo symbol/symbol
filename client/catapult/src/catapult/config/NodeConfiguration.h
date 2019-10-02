@@ -39,6 +39,9 @@ namespace catapult { namespace config {
 		/// Server api port.
 		unsigned short ApiPort;
 
+		/// Maximum number of incoming connections per identity over primary port.
+		uint32_t MaxIncomingConnectionsPerIdentity;
+
 		/// \c true if the server should reuse ports already in use.
 		bool EnableAddressReuse;
 
@@ -137,6 +140,9 @@ namespace catapult { namespace config {
 		/// Trusted hosts that are allowed to execute protected API calls on this node.
 		std::unordered_set<std::string> TrustedHosts;
 
+		/// Networks that should be treated as local.
+		std::unordered_set<std::string> LocalNetworks;
+
 	public:
 		/// Local node configuration.
 		struct LocalSubConfiguration {
@@ -185,6 +191,35 @@ namespace catapult { namespace config {
 
 		/// Incoming connections configuration.
 		IncomingConnectionsSubConfiguration IncomingConnections;
+
+	public:
+		/// Banning configuration.
+		struct BanningSubConfiguration {
+			/// Default duration for banning.
+			utils::TimeSpan DefaultBanDuration;
+
+			/// Maximum duration for banning.
+			utils::TimeSpan MaxBanDuration;
+
+			/// Duration to keep account in container after the ban expired.
+			utils::TimeSpan KeepAliveDuration;
+
+			/// Maximum number of banned nodes.
+			uint32_t MaxBannedNodes;
+
+			/// Number of read rate monitoring buckets (\c 0 to disable read rate monitoring).
+			uint16_t NumReadRateMonitoringBuckets;
+
+			/// Duration of each read rate monitoring bucket.
+			utils::TimeSpan ReadRateMonitoringBucketDuration;
+
+			/// Maximum size allowed during full read rate monitoring period.
+			utils::FileSize MaxReadRateMonitoringTotalSize;
+		};
+
+	public:
+		/// Bannning configuration
+		BanningSubConfiguration Banning;
 
 	private:
 		NodeConfiguration() = default;

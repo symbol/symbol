@@ -76,7 +76,7 @@ namespace catapult { namespace disruptor {
 
 					auto result = consumer(pDisruptorElement->input());
 					if (CompletionStatus::Aborted == result.CompletionStatus)
-						pThis->m_disruptor.markSkipped(consumerEntry.position(), result.CompletionCode);
+						pThis->m_disruptor.markSkipped(consumerEntry.position(), result);
 
 					pThis->advance(consumerEntry);
 				}

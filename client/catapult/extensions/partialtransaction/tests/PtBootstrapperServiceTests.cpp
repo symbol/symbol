@@ -248,7 +248,7 @@ namespace catapult { namespace partialtransaction {
 
 			// - compare a copy of the hash because the original (pruned) info is destroyed
 			EXPECT_EQ(*info.pEntity, status.Transaction) << message;
-			EXPECT_EQ(test::ToString(info.EntityHash), test::ToString(status.HashCopy)) << message;
+			EXPECT_EQ(info.EntityHash, status.HashCopy) << message;
 			EXPECT_EQ(utils::to_underlying_type(extensions::Failure_Extension_Partial_Transaction_Cache_Prune), status.Status) << message;
 		}
 	}
@@ -336,7 +336,7 @@ namespace catapult { namespace partialtransaction {
 
 			// - compare a copy of the hash because the original (removed) info is destroyed
 			EXPECT_EQ(*info.pEntity, status.Transaction) << message;
-			EXPECT_EQ(test::ToString(info.EntityHash), test::ToString(status.HashCopy)) << message;
+			EXPECT_EQ(info.EntityHash, status.HashCopy) << message;
 			EXPECT_EQ(expectedStatus, status.Status) << message;
 		}
 	}

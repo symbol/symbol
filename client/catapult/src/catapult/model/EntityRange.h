@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "catapult/utils/MemoryUtils.h"
 #include "catapult/utils/NonCopyable.h"
 #include "catapult/exceptions.h"
 #include <memory>
@@ -107,7 +108,7 @@ namespace catapult { namespace model {
 
 			SingleBufferRange(const uint8_t* pData, size_t dataSize, const std::vector<size_t>& offsets)
 					: SingleBufferRange(dataSize, offsets) {
-				std::memcpy(m_buffer.data(), pData, dataSize);
+				utils::memcpy_cond(m_buffer.data(), pData, dataSize);
 			}
 
 		public:
@@ -278,7 +279,7 @@ namespace catapult { namespace model {
 		static EntityRange CopyFixed(const uint8_t* pData, size_t numElements) {
 			uint8_t* pRangeData;
 			auto range = PrepareFixed(numElements, &pRangeData);
-			std::memcpy(pRangeData, pData, range.totalSize());
+			utils::memcpy_cond(pRangeData, pData, range.totalSize());
 			return range;
 		}
 
@@ -370,22 +371,22 @@ namespace catapult { namespace model {
 			}
 
 		public:
-			/// Returns a reference to the current entity.
+			/// Gets a reference to the current entity.
 			reference operator*() const {
 				return *this->operator->();
 			}
 
-			/// Returns a pointer to the current entity.
+			/// Gets a pointer to the current entity.
 			pointer operator->() const {
 				return *m_current;
 			}
 
-			/// Returns a reference to the current entity.
+			/// Gets a reference to the current entity.
 			reference operator*() {
 				return *this->operator->();
 			}
 
-			/// Returns a pointer to the current entity.
+			/// Gets a pointer to the current entity.
 			pointer operator->() {
 				return *m_current;
 			}
@@ -406,32 +407,32 @@ namespace catapult { namespace model {
 		}
 
 	public:
-		/// Returns a const iterator that represents the first entity.
+		/// Gets a const iterator that represents the first entity.
 		auto cbegin() const {
 			return make_const_iterator(subRange().entities().cbegin());
 		}
 
-		/// Returns a const iterator that represents one past the last entity.
+		/// Gets a const iterator that represents one past the last entity.
 		auto cend() const {
 			return make_const_iterator(subRange().entities().cend());
 		}
 
-		/// Returns a const iterator that represents the first entity.
+		/// Gets a const iterator that represents the first entity.
 		auto begin() const {
 			return cbegin();
 		}
 
-		/// Returns a const iterator that represents one past the last entity.
+		/// Gets a const iterator that represents one past the last entity.
 		auto end() const {
 			return cend();
 		}
 
-		/// Returns an iterator that represents the first entity.
+		/// Gets an iterator that represents the first entity.
 		auto begin() {
 			return make_iterator(subRange().entities().begin());
 		}
 
-		/// Returns an iterator that represents one past the last entity.
+		/// Gets an iterator that represents one past the last entity.
 		auto end() {
 			return make_iterator(subRange().entities().end());
 		}

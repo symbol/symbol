@@ -32,10 +32,16 @@ namespace catapult { namespace mocks {
 		BasicMockNotificationValidator()
 				: m_result(validators::ValidationResult::Success)
 				, m_triggerOnSpecificType(false)
+				, m_numNotificationTypes(0)
 		{}
 
 	public:
-		/// Returns collected notification types.
+		/// Gets the number of collected notification types (in a threadsafe manner).
+		size_t numNotificationTypes() const {
+			return m_numNotificationTypes;
+		}
+
+		/// Gets the collected notification types.
 		const auto& notificationTypes() const {
 			return m_notificationTypes;
 		}
@@ -44,9 +50,11 @@ namespace catapult { namespace mocks {
 		/// Gets the result for a notification with the specified type (\a notificationType).
 		validators::ValidationResult getResultForType(model::NotificationType notificationType) const {
 			m_notificationTypes.push_back(notificationType);
+			++m_numNotificationTypes;
+
 			return m_triggerOnSpecificType && m_triggerType != notificationType
 					? validators::ValidationResult::Success
-					: m_result;
+					: m_result.load();
 		}
 
 	public:
@@ -63,10 +71,11 @@ namespace catapult { namespace mocks {
 		}
 
 	private:
-		validators::ValidationResult m_result;
+		std::atomic<validators::ValidationResult> m_result;
 		bool m_triggerOnSpecificType;
 		model::NotificationType m_triggerType;
 		mutable std::vector<model::NotificationType> m_notificationTypes;
+		mutable std::atomic<size_t> m_numNotificationTypes;
 	};
 
 	/// Mock stateless notification validator that captures information about observed notifications.
@@ -126,7 +135,7 @@ namespace catapult { namespace mocks {
 		}
 
 	public:
-		/// Returns collected context pointers.
+		/// Gets the collected context pointers.
 		const auto& contextPointers() const {
 			return m_contextPointers;
 		}

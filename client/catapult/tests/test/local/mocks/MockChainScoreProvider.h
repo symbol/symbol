@@ -24,7 +24,7 @@
 
 namespace catapult { namespace mocks {
 
-	/// A mock chain score provider.
+	/// Mock chain score provider.
 	class MockChainScoreProvider : public mongo::ChainScoreProvider {
 	public:
 		void saveScore(const model::ChainScore&) override {

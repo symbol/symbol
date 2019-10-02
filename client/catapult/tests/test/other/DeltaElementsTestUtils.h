@@ -61,7 +61,7 @@ namespace catapult { namespace test {
 			SetType Copied;
 
 		public:
-			/// Returns a delta elements around the sub sets.
+			/// Gets a delta elements around the sub sets.
 			auto deltas() const {
 				return deltaset::DeltaElements<SetType>(Added, Removed, Copied);
 			}

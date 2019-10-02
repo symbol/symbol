@@ -24,7 +24,7 @@
 
 namespace catapult { namespace utils {
 
-	/// A diagnostic counter.
+	/// Diagnostic counter.
 	class DiagnosticCounter {
 	public:
 		/// Creates a counter around \a id and \a supplier.

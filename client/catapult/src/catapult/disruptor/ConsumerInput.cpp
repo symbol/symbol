@@ -32,7 +32,7 @@ namespace catapult { namespace disruptor {
 	ConsumerInput::ConsumerInput(model::AnnotatedBlockRange&& range, InputSource source)
 			: m_blockRange(std::move(range.Range))
 			, m_source(source)
-			, m_sourcePublicKey(range.SourcePublicKey) {
+			, m_sourceIdentity(range.SourceIdentity) {
 		m_blockElements.reserve(m_blockRange.size());
 		for (const auto& block : m_blockRange)
 			m_blockElements.push_back(model::BlockElement(block));
@@ -46,7 +46,7 @@ namespace catapult { namespace disruptor {
 	ConsumerInput::ConsumerInput(model::AnnotatedTransactionRange&& range, InputSource source)
 			: m_transactionRange(std::move(range.Range))
 			, m_source(source)
-			, m_sourcePublicKey(range.SourcePublicKey) {
+			, m_sourceIdentity(range.SourceIdentity) {
 		m_transactionElements.reserve(m_transactionRange.size());
 		for (const auto& transaction : m_transactionRange)
 			m_transactionElements.push_back(FreeTransactionElement(transaction));
@@ -98,8 +98,8 @@ namespace catapult { namespace disruptor {
 		return m_source;
 	}
 
-	const Key& ConsumerInput::sourcePublicKey() const {
-		return m_sourcePublicKey;
+	const model::NodeIdentity& ConsumerInput::sourceIdentity() const {
+		return m_sourceIdentity;
 	}
 
 	// endregion

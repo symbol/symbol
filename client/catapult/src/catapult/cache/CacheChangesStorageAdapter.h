@@ -21,6 +21,7 @@
 #pragma once
 #include "CacheChangesSerializer.h"
 #include "CacheChangesStorage.h"
+#include "catapult/preprocessor.h"
 
 namespace catapult { namespace cache {
 
@@ -40,7 +41,7 @@ namespace catapult { namespace cache {
 		std::unique_ptr<const MemoryCacheChanges> loadAll(io::InputStream& input) const override {
 			auto pMemoryCacheChanges = std::make_unique<MemoryCacheChangesT<typename TCache::CacheValueType>>();
 			ReadCacheChanges<TStorageTraits>(input, *pMemoryCacheChanges);
-			return std::move(pMemoryCacheChanges);
+			return PORTABLE_MOVE(pMemoryCacheChanges);
 		}
 
 		void apply(const CacheChanges& changes) const override {

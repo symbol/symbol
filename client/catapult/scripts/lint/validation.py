@@ -348,7 +348,7 @@ class TypoChecker(SimpleValidator):
             re.compile(r'(\d|0x[0-9a-fA-F]+)u\)'): 'no need for explicit unsigned qualifier',
             re.compile(r';;$'): 'no double semicolons',
             re.compile(r'[a-zA-Z>\*]>[^&\n]*= {'): 'prefer container initialization to container assign',
-            re.compile(r'(/\*+|///) The '): 'documentation should not start with \'The\'',
+            re.compile(r'(/\*+|///?) (The|An?) [^=]'): 'documentation should not start with \'The\' or `A(n)`',
             re.compile(r'::(En|Dis)able[^d]'): 'enum values should be named Enable*d/Disable*d',
             re.compile(r', and'): 'rephrase to avoid \', and\'',
             re.compile(r'// #include'): 'don\'t comment out includes!',
@@ -366,7 +366,7 @@ class TypoChecker(SimpleValidator):
             re.compile(r'constexpr auto \w+\(\) {'): 'cpp17 shouldn\'t need suspect function',
             re.compile(r'^\s*(inline|constexpr)\s*$'): 'combine with following line',
             re.compile(r'(inline|constexpr) static'): 'static first',
-            re.compile(r'acquireReader\(\)\);'): 'for safety, acquire read lock outside of view constructor',
+            re.compile(r'acquire(Reader|Writer)\(\)(\);|,)'): 'for safety, acquire read lock outside of view constructor',
             re.compile(r'(reader|writer)Lock'): 'prefer readLock/writeLock',
             re.compile(r'createDetachableDelta\(\).detach\(\)'): 'warning: releasing read lock at end of scope, might lead to crash',
             re.compile(r'sizeof\((model::)?Block\)'): 'use sizeof(BlockHeader)',
@@ -383,7 +383,18 @@ class TypoChecker(SimpleValidator):
             re.compile(r'pair<bool'): 'use pair with bool as second',
             re.compile(r'\ba \\a'): 'just use \\a',
             re.compile(r'\binto \\a builder'): 'into => to',
-            re.compile(r'cosigner'): 'cosigner(s) => cosignatory(ies)'
+            re.compile(r'cosigner'): 'cosigner(s) => cosignatory(ies)',
+            re.compile(r'^\t*WAIT_FOR_VALUE(_EXPR)?\([01]u,'): 'use _ZERO or _ONE',
+            re.compile(r'(EXPECT|ASSERT)_.*(ToHexString|Hex\b)'): 'compare buffers directly',
+            re.compile(r'(EXPECT|ASSERT)_.*[^"],[^<]*(ToString)'): 'compare buffers directly (rule 2)',
+            re.compile(r'while\('): 'missing space after while',
+            re.compile(r'while ?\(0\)'): 'use while (false)',
+            re.compile(r'\) do {'): 'start `do` on own line',
+            re.compile(r'/// (Return|Set|Get)\b'): 'prefer plural',
+            re.compile(r'/// Returns [^\\]'): 'prefer /// Gets for non boolean values',
+            re.compile(r'/// Gets \\c (true|false)'): 'prefer /// Returns for boolean values',
+            re.compile(r'\\[^c] (true|false)'): 'use \\c for booleans',
+            re.compile(r'/// Gets the (const )?(pointer|reference)\b'): 'use a instead of the'
         }
 
     def check(self, lineNumber, line):
@@ -578,6 +589,9 @@ class MultiConditionChecker(SimpleValidator):
 
         self.patternAutoContextParam = re.compile(r'auto& (context|notification)')
 
+        self.patternGetsSetsDoc = re.compile(r'/// (Gets|Sets) ')
+        self.patternGetsSetsDocWithArticle = re.compile(r'/// (Gets|Sets) (a|an|the|all|information)\b')
+
         self.errors = {
             self.checkTestLine: 'TEST should use TEST_CLASS',
             self.checkExplicitOperatorBool: 'Missing explicit before operator bool',
@@ -593,7 +607,8 @@ class MultiConditionChecker(SimpleValidator):
             self.checkSingleLineFunction: 'reformat info multiple lines',
             self.checkTestNameIf: 'use When instead of If',
             self.checkCppDoxygenComment: '/// unexpected in cpp file',
-            self.checkAutoContextParam: 'use type name instead of auto'
+            self.checkAutoContextParam: 'use type name instead of auto',
+            self.checkGetsSetsDocumentation: 'add an article to documentation'
         }
 
     def reset(self, path, errorReporter):
@@ -716,6 +731,9 @@ class MultiConditionChecker(SimpleValidator):
     def checkAutoContextParam(self, line, _):
         # rule only applies to observer and validator implementations
         return self.path.endswith(('Observer.cpp', 'Validator.cpp')) and self.patternAutoContextParam.search(line)
+
+    def checkGetsSetsDocumentation(self, _, rawLine):
+        return self.patternGetsSetsDoc.search(rawLine) and not self.patternGetsSetsDocWithArticle.search(rawLine)
 
     def check(self, lineNumber, line):
         strippedLine = stripCommentsAndStrings(line)
@@ -1177,7 +1195,7 @@ class InsertionOperatorFormattingValidator(SimpleValidator):
         if strippedLine.startswith('<<'):
             if (any(strippedLine.endswith(postfix) for postfix in ['open_array', 'open_document'])
                     and self.previousStrippedLine.endswith('"')):
-                self.reportError(lineNumber, self.strippedLine, '<< should be on previous line')
+                self.reportError(lineNumber, strippedLine, '<< should be on previous line')
 
             if self.previousStrippedLine.startswith('<<'):
                 return

@@ -27,7 +27,7 @@
 
 namespace catapult { namespace consumers {
 
-	/// A hash cache that holds recently seen hashes.
+	/// Hash cache that holds recently seen hashes.
 	class RecentHashCache {
 	public:
 		/// Creates a recent hash cache around \a timeSupplier and \a options.

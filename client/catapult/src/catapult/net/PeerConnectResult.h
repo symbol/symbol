@@ -20,7 +20,7 @@
 
 #pragma once
 #include "PeerConnectCode.h"
-#include "catapult/types.h"
+#include "catapult/model/NodeIdentity.h"
 
 namespace catapult { namespace net {
 
@@ -32,13 +32,13 @@ namespace catapult { namespace net {
 		{}
 
 		/// Creates a result around \a code.
-		PeerConnectResult(PeerConnectCode code) : PeerConnectResult(code, Key())
+		PeerConnectResult(PeerConnectCode code) : PeerConnectResult(code, model::NodeIdentity())
 		{}
 
-		/// Creates a result around \a code and \a identityKey.
-		PeerConnectResult(PeerConnectCode code, const Key& identityKey)
+		/// Creates a result around \a code and \a identity.
+		PeerConnectResult(PeerConnectCode code, const model::NodeIdentity& identity)
 				: Code(code)
-				, IdentityKey(PeerConnectCode::Accepted == code ? identityKey : Key())
+				, Identity(PeerConnectCode::Accepted == code ? identity : model::NodeIdentity())
 		{}
 
 	public:
@@ -47,6 +47,6 @@ namespace catapult { namespace net {
 
 		/// Connection identity.
 		/// \note This is only valid if Code is PeerConnectCode::Accepted.
-		Key IdentityKey;
+		model::NodeIdentity Identity;
 	};
 }}

@@ -33,7 +33,7 @@ namespace catapult { namespace test {
 
 #pragma pack(push, 1)
 
-	/// A test entry used for cache serialization tests.
+	/// Test entry used for cache serialization tests.
 	struct CacheSerializationTestEntry {
 	public:
 		uint64_t Alpha;

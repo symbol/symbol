@@ -230,7 +230,7 @@ namespace catapult { namespace io {
 		WriteTransactionInfos(expectedTransactionInfos, outputStream);
 
 		// Assert: all expected transaction infos are in outputBuffer
-		BufferInputStreamAdapter inputStream(outputBuffer);
+		BufferInputStreamAdapter<std::vector<uint8_t>> inputStream(outputBuffer);
 
 		auto numTransactionInfos = Read32(inputStream);
 		ASSERT_EQ(expectedTransactionInfos.size(), numTransactionInfos);
@@ -262,7 +262,7 @@ namespace catapult { namespace io {
 	TEST(TEST_CLASS, CanReadEmptyTransactionInfos) {
 		// Arrange: prepare input stream
 		std::vector<uint8_t> buffer(sizeof(uint32_t), 0);
-		BufferInputStreamAdapter inputStream(buffer);
+		BufferInputStreamAdapter<std::vector<uint8_t>> inputStream(buffer);
 
 		// Act:
 		model::TransactionInfosSet transactionInfos;
@@ -283,7 +283,7 @@ namespace catapult { namespace io {
 		for (const auto& transactionInfo : expectedTransactionInfos)
 			outputStream.write(SerializeTransactionInfo(transactionInfo));
 
-		BufferInputStreamAdapter inputStream(buffer);
+		BufferInputStreamAdapter<std::vector<uint8_t>> inputStream(buffer);
 
 		// Act:
 		model::TransactionInfosSet transactionInfos;

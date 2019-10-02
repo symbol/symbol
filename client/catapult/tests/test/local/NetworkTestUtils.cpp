@@ -40,9 +40,9 @@ namespace catapult { namespace test {
 		auto endpoint = CreateLocalHostNodeEndpoint(port);
 		auto clientKeyPair = GenerateKeyPair();
 		std::shared_ptr<ionet::PacketSocket> pIo;
-		ionet::Connect(ioContext, options, endpoint, [&](auto connectCode, const auto& pConnectedSocket) {
+		ionet::Connect(ioContext, options, endpoint, [&](auto connectCode, const auto& connectedSocketInfo) {
 			CATAPULT_LOG(debug) << "node is connected with code " << connectCode;
-			pIo = pConnectedSocket;
+			pIo = connectedSocketInfo.socket();
 			if (!pIo)
 				return;
 

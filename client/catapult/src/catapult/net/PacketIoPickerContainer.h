@@ -24,7 +24,7 @@
 
 namespace catapult { namespace net {
 
-	/// A collection of packet io pickers.
+	/// Collection of packet io pickers.
 	class PacketIoPickerContainer {
 	public:
 		/// Inserts \a picker, which is compatible with the specified \a roles, into this container.

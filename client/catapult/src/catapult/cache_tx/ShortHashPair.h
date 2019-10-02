@@ -27,7 +27,7 @@ namespace catapult { namespace cache {
 
 #pragma pack(push, 1)
 
-	/// A unique identifier for a partial transaction.
+	/// Unique identifier for a partial transaction.
 	struct ShortHashPair {
 	public:
 		/// Transaction short hash.
@@ -50,9 +50,9 @@ namespace catapult { namespace cache {
 
 #pragma pack(pop)
 
-	/// An entity range composed of short hash pairs.
+	/// Entity range composed of short hash pairs.
 	using ShortHashPairRange = model::EntityRange<ShortHashPair>;
 
-	/// A map composed of short hash pairs where the key is the transaction short hash and the value is the cosignatures short hash.
+	/// Map composed of short hash pairs where the key is the transaction short hash and the value is the cosignatures short hash.
 	using ShortHashPairMap = std::unordered_map<utils::ShortHash, utils::ShortHash, utils::ShortHashHasher>;
 }}

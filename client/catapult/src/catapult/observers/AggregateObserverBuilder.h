@@ -25,7 +25,7 @@
 
 namespace catapult { namespace observers {
 
-	/// A strongly typed aggregate notification observer builder.
+	/// Strongly typed aggregate notification observer builder.
 	template<typename TNotification>
 	class AggregateObserverBuilder {
 	private:

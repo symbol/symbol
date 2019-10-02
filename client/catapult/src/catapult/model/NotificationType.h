@@ -74,7 +74,7 @@ namespace catapult { namespace model {
 				(0x00FFFFFFu & utils::to_underlying_type(type)));
 	}
 
-	/// Returns true if \a lhs and \a rhs have the same source (facility and code).
+	/// Returns \c true if \a lhs and \a rhs have the same source (facility and code).
 	constexpr bool AreEqualExcludingChannel(NotificationType lhs, NotificationType rhs) {
 		return (0x00FFFFFFu & utils::to_underlying_type(lhs)) == (0x00FFFFFFu & utils::to_underlying_type(rhs));
 	}

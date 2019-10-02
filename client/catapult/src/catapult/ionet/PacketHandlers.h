@@ -32,6 +32,9 @@ namespace catapult { namespace ionet {
 	/// Context passed to a server packet handler function.
 	struct ServerPacketHandlerContext : utils::MoveOnly {
 	public:
+		/// Creates an empty context.
+		ServerPacketHandlerContext();
+
 		/// Creates a context around \a key and \ host.
 		ServerPacketHandlerContext(const Key& key, const std::string& host);
 
@@ -49,17 +52,20 @@ namespace catapult { namespace ionet {
 		const PacketPayload& response() const;
 
 	public:
-		/// Sets \a payload as the response associated with this context.
+		/// Sets the response associated with this context to \a payload.
 		void response(PacketPayload&& payload);
 
 	private:
-		const Key& m_key;
-		const std::string& m_host;
+		const Key* m_pKey;
+		const std::string* m_pHost;
 		bool m_hasResponse;
 		PacketPayload m_payload;
+
+		Key m_defaultKey;
+		std::string m_defaultHost;
 	};
 
-	/// A collection of packet handlers where there is at most one handler per packet type.
+	/// Collection of packet handlers where there is at most one handler per packet type.
 	class ServerPacketHandlers {
 	public:
 		/// Handler context type.
@@ -90,7 +96,7 @@ namespace catapult { namespace ionet {
 		bool process(const Packet& packet, ContextType& context) const;
 
 	public:
-		/// Sets \a hosts that are allowed to access subsequently registered handlers.
+		/// Sets the \a hosts that are allowed to access subsequently registered handlers.
 		void setAllowedHosts(const std::unordered_set<std::string>& hosts);
 
 		/// Registers \a handler for the specified packet \a type.

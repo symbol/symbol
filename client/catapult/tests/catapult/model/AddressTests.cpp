@@ -57,14 +57,14 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CanCreateAddressFromValidEncodedAddress) {
 		// Arrange:
 		auto encoded = Encoded_Address;
-		auto expectedHex = Decoded_Address;
+		auto expectedDecoded = utils::ParseByteArray<Address>(Decoded_Address);
 
 		// Act:
 		auto decoded = StringToAddress(encoded);
 
 		// Assert:
 		EXPECT_TRUE(IsValidAddress(decoded, Network_Identifier));
-		EXPECT_EQ(expectedHex, test::ToString(decoded));
+		EXPECT_EQ(expectedDecoded, decoded);
 	}
 
 	TEST(TEST_CLASS, CannotCreateAddressFromEncodedStringWithWrongLength) {
@@ -92,7 +92,7 @@ namespace catapult { namespace model {
 		auto expected = Encoded_Address;
 
 		// Act:
-		auto encoded = AddressToString(test::ToArray<Address::Size>(decodedHex));
+		auto encoded = AddressToString(utils::ParseByteArray<Address>(decodedHex));
 
 		// Assert:
 		EXPECT_TRUE(IsValidEncodedAddress(encoded, Network_Identifier));
@@ -106,9 +106,9 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CanCreateAddressFromPublicKeyForWellKnownNetwork) {
 		// Arrange:
 #ifdef SIGNATURE_SCHEME_NIS1
-		auto expected = "60E4DF097CBFD7E1E216C0E84BD4F524E28DA80D5C35EC4431";
+		auto expected = utils::ParseByteArray<Address>("60E4DF097CBFD7E1E216C0E84BD4F524E28DA80D5C35EC4431");
 #else
-		auto expected = "60000D73966083A4DCCD84E0783A5CECCC129795D32534F0A7";
+		auto expected = utils::ParseByteArray<Address>("60000D73966083A4DCCD84E0783A5CECCC129795D32534F0A7");
 #endif
 		auto publicKey = ParseKey(Public_Key);
 		auto networkId = NetworkIdentifier::Mijin;
@@ -119,15 +119,15 @@ namespace catapult { namespace model {
 		// Assert:
 		EXPECT_TRUE(IsValidAddress(decoded, NetworkIdentifier::Mijin));
 		EXPECT_EQ(decoded[0], utils::to_underlying_type(networkId));
-		EXPECT_EQ(expected, test::ToString(decoded));
+		EXPECT_EQ(expected, decoded);
 	}
 
 	TEST(TEST_CLASS, CanCreateAddressFromPublicKeyForCustomNetwork) {
 		// Arrange:
 #ifdef SIGNATURE_SCHEME_NIS1
-		auto expected = "7BE4DF097CBFD7E1E216C0E84BD4F524E28DA80D5CB68B8A77";
+		auto expected = utils::ParseByteArray<Address>("7BE4DF097CBFD7E1E216C0E84BD4F524E28DA80D5CB68B8A77");
 #else
-		auto expected = "7B000D73966083A4DCCD84E0783A5CECCC129795D3D6A7CE45";
+		auto expected = utils::ParseByteArray<Address>("7B000D73966083A4DCCD84E0783A5CECCC129795D3D6A7CE45");
 #endif
 		auto publicKey = ParseKey(Public_Key);
 		auto networkId = static_cast<NetworkIdentifier>(123);
@@ -138,7 +138,7 @@ namespace catapult { namespace model {
 		// Assert:
 		EXPECT_TRUE(IsValidAddress(decoded, networkId));
 		EXPECT_EQ(decoded[0], utils::to_underlying_type(networkId));
-		EXPECT_EQ(expected, test::ToString(decoded));
+		EXPECT_EQ(expected, decoded);
 	}
 
 	TEST(TEST_CLASS, AddressCalculationIsDeterministic) {
@@ -189,7 +189,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, IsValidAddressReturnsTrueForValidAddress) {
 		// Arrange:
-		auto decoded = test::ToArray<Address::Size>(Decoded_Address);
+		auto decoded = utils::ParseByteArray<Address>(Decoded_Address);
 
 		// Assert:
 		EXPECT_TRUE(IsValidAddress(decoded, Network_Identifier));
@@ -197,7 +197,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, IsValidAddressReturnsFalseForWrongNetworkAddress) {
 		// Arrange:
-		auto decoded = test::ToArray<Address::Size>(Decoded_Address);
+		auto decoded = utils::ParseByteArray<Address>(Decoded_Address);
 
 		// Assert:
 		EXPECT_FALSE(IsValidAddress(decoded, static_cast<NetworkIdentifier>(123)));
@@ -205,7 +205,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, IsValidAddressReturnsFalseForAddressWithInvalidChecksum) {
 		// Arrange:
-		auto decoded = test::ToArray<Address::Size>(Decoded_Address);
+		auto decoded = utils::ParseByteArray<Address>(Decoded_Address);
 		decoded[Address::Size - 1] ^= 0xFF; // ruin checksum
 
 		// Assert:
@@ -214,7 +214,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, IsValidAddressReturnsFalseForAddressWithInvalidHash) {
 		// Arrange:
-		auto decoded = test::ToArray<Address::Size>(Decoded_Address);
+		auto decoded = utils::ParseByteArray<Address>(Decoded_Address);
 		decoded[5] ^= 0xFF; // ruin ripemd160 hash
 
 		// Assert:

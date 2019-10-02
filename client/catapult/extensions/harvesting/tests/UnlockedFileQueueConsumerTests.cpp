@@ -85,10 +85,11 @@ namespace catapult { namespace harvesting {
 			return randomPrivateKeys;
 		}
 
-		auto Concat(const Key& key, const RawBuffer& entry) {
-			std::vector<uint8_t> announcerEntryPair(Key::Size + entry.Size);
-			std::memcpy(announcerEntryPair.data(), key.data(), key.size());
-			std::memcpy(announcerEntryPair.data() + Key::Size, entry.pData, entry.Size);
+		auto SerializeUnlockedEntryMessage(const UnlockedEntryMessage& message) {
+			std::vector<uint8_t> announcerEntryPair(1 + Key::Size + message.EncryptedEntry.Size);
+			announcerEntryPair[0] = static_cast<uint8_t>(message.Direction);
+			std::memcpy(announcerEntryPair.data() + 1, message.AnnouncerPublicKey.data(), message.AnnouncerPublicKey.size());
+			std::memcpy(announcerEntryPair.data() + 1 + Key::Size, message.EncryptedEntry.pData, message.EncryptedEntry.Size);
 			return announcerEntryPair;
 		}
 
@@ -119,10 +120,9 @@ namespace catapult { namespace harvesting {
 				std::vector<std::vector<uint8_t>> collectedMessages;
 				std::vector<crypto::KeyPair> collectedKeyPairs;
 				UnlockedFileQueueConsumer(directory, m_keyPair, [&collectedMessages, &collectedKeyPairs](
-						const auto& announcerPublicKey,
-						const auto& entry,
+						const auto& message,
 						auto&& harvesterKeyPair) {
-					collectedMessages.emplace_back(Concat(announcerPublicKey, entry));
+					collectedMessages.emplace_back(SerializeUnlockedEntryMessage(message));
 					collectedKeyPairs.emplace_back(std::move(harvesterKeyPair));
 				});
 
@@ -137,7 +137,7 @@ namespace catapult { namespace harvesting {
 
 			auto prepareMessage(const Key& randomPrivate, test::EncryptionMutationFlag encryptionMutationFlag) {
 				auto entry = test::PrepareUnlockedTestEntry(m_keyPair, randomPrivate, encryptionMutationFlag);
-				return test::ConvertUnlockedTestEntryToBuffer(entry);
+				return entryToMessage(entry);
 			}
 
 			auto prepareMessages(const std::vector<Key>& privateKeys, std::initializer_list<Sizes> messageDeltas) {
@@ -167,10 +167,18 @@ namespace catapult { namespace harvesting {
 				std::vector<uint8_t> randomPrivateBuffer(randomPrivate.cbegin(), randomPrivate.cend());
 				randomPrivateBuffer.resize(randomPrivateBuffer.size() + 1);
 				auto entry = test::PrepareUnlockedTestEntry(m_keyPair, randomPrivateBuffer, test::EncryptionMutationFlag::None);
-				return test::ConvertUnlockedTestEntryToBuffer(entry);
+				return entryToMessage(entry);
 			}
 
 		private:
+			std::vector<uint8_t> entryToMessage(const test::UnlockedTestEntry& entry) {
+				std::vector<uint8_t> buffer;
+				buffer.push_back(test::RandomByte() % 2);
+				auto entryBuffer = test::ConvertUnlockedTestEntryToBuffer(entry);
+				buffer.insert(buffer.end(), entryBuffer.cbegin(), entryBuffer.cend());
+				return buffer;
+			}
+
 			void assertForwardedMessages(
 					const std::vector<std::vector<uint8_t>>& collectedMessages,
 					const std::vector<std::vector<uint8_t>>& messages,

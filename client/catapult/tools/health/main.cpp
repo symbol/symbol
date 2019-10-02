@@ -204,9 +204,6 @@ namespace catapult { namespace tools { namespace health {
 					return Height() == pNodeInfo->ChainHeight ? 1u : 0;
 				});
 			}
-
-		private:
-			std::string m_resourcesPath;
 		};
 	}
 }}}

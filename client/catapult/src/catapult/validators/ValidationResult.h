@@ -86,12 +86,12 @@ namespace catapult { namespace validators {
 		return utils::to_underlying_type(flags) == (utils::to_underlying_type(flags) & (utils::to_underlying_type(result) >> 24 & 0x3F));
 	}
 
-	/// Returns a value indicating whether the validation \a result is a success.
+	/// Gets a value indicating whether the validation \a result is a success.
 	constexpr bool IsValidationResultSuccess(ValidationResult result) {
 		return ResultSeverity::Success == GetSeverity(result);
 	}
 
-	/// Returns a value indicating whether the validation \a result is a failure.
+	/// Gets a value indicating whether the validation \a result is a failure.
 	constexpr bool IsValidationResultFailure(ValidationResult result) {
 		return ResultSeverity::Failure == GetSeverity(result);
 	}

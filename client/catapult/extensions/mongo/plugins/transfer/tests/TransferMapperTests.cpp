@@ -63,9 +63,7 @@ namespace catapult { namespace mongo { namespace plugins {
 				size_t payloadSize = transaction.MessageSize - 1;
 
 				EXPECT_EQ(static_cast<int8_t>(pMessage[0]), test::GetInt8(dbMessage, "type"));
-				EXPECT_EQ(
-						test::ToHexString(pMessage + 1, payloadSize),
-						test::ToHexString(test::GetBinary(dbMessage, "payload"), payloadSize));
+				EXPECT_EQ_MEMORY(pMessage + 1, test::GetBinary(dbMessage, "payload"), payloadSize);
 			} else {
 				EXPECT_FALSE(!!dbTransaction["message"].raw());
 			}

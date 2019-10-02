@@ -57,7 +57,7 @@ namespace catapult { namespace validators {
 			return Failure_Multisig_Multiple_Deletes;
 
 		if (notification.ModificationsCount != addedAccounts.size() + removedAccounts.size())
-			return Failure_Multisig_Redundant_Modifications;
+			return Failure_Multisig_Redundant_Modification;
 
 		return ValidationResult::Success;
 	});

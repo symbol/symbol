@@ -66,7 +66,8 @@ namespace catapult { namespace extensions {
 					test::GenerateRandomByteArray<Key>(),
 					test::GenerateRandomByteArray<UnresolvedAddress>(),
 					Amount(0));
-			auto result = pEntityValidator->validate(*pTransaction);
+			Hash256 transactionHash;
+			auto result = pEntityValidator->validate({ *pTransaction, transactionHash });
 			EXPECT_EQ(expectedValidationResult, result);
 		}
 	}

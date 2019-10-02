@@ -28,17 +28,18 @@ namespace catapult { namespace api {
 	namespace {
 		class CustomRemoteApi : public RemoteApi {
 		public:
-			explicit CustomRemoteApi(const Key& remotePublicKey) : RemoteApi(remotePublicKey)
+			explicit CustomRemoteApi(const model::NodeIdentity& remoteIdentity) : RemoteApi(remoteIdentity)
 			{}
 		};
 	}
 
-	TEST(TEST_CLASS, CanCreateApiWithRemotePublicKey) {
+	TEST(TEST_CLASS, CanCreateApiWithRemoteIdentity) {
 		// Arrange:
-		auto key = test::GenerateRandomByteArray<Key>();
-		CustomRemoteApi remoteApi(key);
+		auto identityKey = test::GenerateRandomByteArray<Key>();
+		CustomRemoteApi remoteApi({ identityKey, "11.22.33.44" });
 
 		// Act + Assert:
-		EXPECT_EQ(key, remoteApi.remotePublicKey());
+		EXPECT_EQ(identityKey, remoteApi.remoteIdentity().PublicKey);
+		EXPECT_EQ("11.22.33.44", remoteApi.remoteIdentity().Host);
 	}
 }}

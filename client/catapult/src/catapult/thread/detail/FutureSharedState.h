@@ -50,7 +50,7 @@ namespace catapult { namespace thread { namespace detail {
 			return future_status::pending != m_status;
 		}
 
-		/// Returns the result of this shared state and blocks until the result is available.
+		/// Gets the result of this shared state and blocks until the result is available.
 		T get() {
 			if (m_status == future_status::pending) {
 				std::unique_lock<std::mutex> lock(m_mutex);

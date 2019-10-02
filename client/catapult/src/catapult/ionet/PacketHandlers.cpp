@@ -25,18 +25,25 @@ namespace catapult { namespace ionet {
 
 	// region ServerPacketHandlerContext
 
+	ServerPacketHandlerContext::ServerPacketHandlerContext()
+			: m_pKey(nullptr)
+			, m_pHost(nullptr)
+			, m_hasResponse(false)
+			, m_defaultKey()
+	{}
+
 	ServerPacketHandlerContext::ServerPacketHandlerContext(const Key& key, const std::string& host)
-			: m_key(key)
-			, m_host(host)
+			: m_pKey(&key)
+			, m_pHost(&host)
 			, m_hasResponse(false)
 	{}
 
 	const Key& ServerPacketHandlerContext::key() const {
-		return m_key;
+		return !m_pKey ? m_defaultKey : *m_pKey;
 	}
 
 	const std::string& ServerPacketHandlerContext::host() const {
-		return m_host;
+		return !m_pHost ? m_defaultHost : *m_pHost;
 	}
 
 	bool ServerPacketHandlerContext::hasResponse() const {

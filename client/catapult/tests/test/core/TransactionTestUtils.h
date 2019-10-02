@@ -38,7 +38,7 @@ namespace catapult { namespace test {
 	constexpr auto Deterministic_Transaction_Hash_String = "928C1370941AAACE99C91D31D6C6B4FA511F83387C4DA99536F8F0B62545D755";
 #endif
 
-	/// Gets default generation hash used in tests.
+	/// Gets the default generation hash used in tests.
 	GenerationHash GetDefaultGenerationHash();
 
 	/// Generates a transaction with random data.
@@ -53,7 +53,7 @@ namespace catapult { namespace test {
 	/// Generates \a count transactions with random data.
 	MutableTransactions GenerateRandomTransactions(size_t count);
 
-	/// Returns const transactions container composed of all the mutable transactions in \a transactions.
+	/// Gets a const transactions container composed of all the mutable transactions in \a transactions.
 	ConstTransactions MakeConst(const MutableTransactions& transactions);
 
 	/// Generates a random transaction with size \a entitySize.

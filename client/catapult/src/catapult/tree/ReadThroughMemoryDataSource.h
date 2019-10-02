@@ -23,7 +23,7 @@
 
 namespace catapult { namespace tree {
 
-	/// A patricia tree memory data source that reads through but does not write through.
+	/// Patricia tree memory data source that reads through but does not write through.
 	template<typename TBackingDataSource>
 	class ReadThroughMemoryDataSource {
 	public:

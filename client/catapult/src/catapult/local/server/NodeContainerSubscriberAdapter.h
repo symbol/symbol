@@ -19,20 +19,15 @@
 **/
 
 #pragma once
-#include "catapult/types.h"
-#include <string>
+#include "catapult/subscribers/NodeSubscriber.h"
+#include <memory>
 
-namespace catapult { namespace ionet {
+namespace catapult { namespace ionet { class NodeContainer; } }
 
-	/// Identifying information about a reader.
-	struct ReaderIdentity {
-		/// Reader's uniquely identifying public key.
-		Key PublicKey;
+namespace catapult { namespace local {
 
-		/// Reader's network host.
-		std::string Host;
-	};
-
-	/// Insertion operator for outputting \a identity to \a out.
-	std::ostream& operator<<(std::ostream& out, const ReaderIdentity& identity);
+	/// Adapts \a nodes to a node subscriber given \a localNetworks.
+	std::unique_ptr<subscribers::NodeSubscriber> CreateNodeContainerSubscriberAdapter(
+			ionet::NodeContainer& nodes,
+			const std::unordered_set<std::string>& localNetworks);
 }}

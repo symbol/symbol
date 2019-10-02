@@ -38,12 +38,12 @@ namespace catapult { namespace test {
 		{}
 
 	public:
-		/// Returns a pointer to the underlying delta.
+		/// Gets a pointer to the underlying delta.
 		auto operator->() const {
 			return m_pContainerDelta.get();
 		}
 
-		/// Returns a reference to the underlying delta.
+		/// Gets a reference to the underlying delta.
 		auto& operator*() const {
 			return *m_pContainerDelta;
 		}

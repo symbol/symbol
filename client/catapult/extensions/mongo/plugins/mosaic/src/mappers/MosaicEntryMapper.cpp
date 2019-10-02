@@ -32,11 +32,9 @@ namespace catapult { namespace mongo { namespace plugins {
 	namespace {
 		void StreamProperties(bson_stream::document& builder, const model::MosaicProperties& properties) {
 			builder
-					<< "properties" << bson_stream::open_document
-						<< "flags" << utils::to_underlying_type(properties.flags())
-						<< "divisibility" << properties.divisibility()
-						<< "duration" << ToInt64(properties.duration())
-					<< bson_stream::close_document;
+					<< "flags" << utils::to_underlying_type(properties.flags())
+					<< "divisibility" << properties.divisibility()
+					<< "duration" << ToInt64(properties.duration());
 		}
 	}
 

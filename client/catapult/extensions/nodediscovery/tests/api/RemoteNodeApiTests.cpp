@@ -50,7 +50,8 @@ namespace catapult { namespace api {
 			}
 
 			static void ValidateResponse(const ionet::Packet&, const ionet::Node& node) {
-				EXPECT_EQ(Key{ { 12 } }, node.identityKey());
+				EXPECT_EQ(Key{ { 12 } }, node.identity().PublicKey);
+				EXPECT_EQ("", node.identity().Host);
 				EXPECT_EQ("alice.com", node.endpoint().Host);
 				EXPECT_EQ(ionet::NodeVersion(1234), node.metadata().Version);
 				EXPECT_EQ("xyz", node.metadata().Name);
@@ -88,17 +89,20 @@ namespace catapult { namespace api {
 
 				auto sortedNodes = std::vector<ionet::Node>(nodes.cbegin(), nodes.cend());
 				std::sort(sortedNodes.begin(), sortedNodes.end(), [](const auto& lhs, const auto& rhs) {
-					return lhs.identityKey()[0] < rhs.identityKey()[0];
+					return lhs.identity().PublicKey[0] < rhs.identity().PublicKey[0];
 				});
 
 				EXPECT_EQ("alice", sortedNodes[0].metadata().Name);
-				EXPECT_EQ(Key{ { 12 } }, sortedNodes[0].identityKey());
+				EXPECT_EQ(Key{ { 12 } }, sortedNodes[0].identity().PublicKey);
+				EXPECT_EQ("", sortedNodes[0].identity().Host);
 
 				EXPECT_EQ("bob", sortedNodes[1].metadata().Name);
-				EXPECT_EQ(Key{ { 25 } }, sortedNodes[1].identityKey());
+				EXPECT_EQ(Key{ { 25 } }, sortedNodes[1].identity().PublicKey);
+				EXPECT_EQ("", sortedNodes[1].identity().Host);
 
 				EXPECT_EQ("charlie", sortedNodes[2].metadata().Name);
-				EXPECT_EQ(Key{ { 37 } }, sortedNodes[2].identityKey());
+				EXPECT_EQ(Key{ { 37 } }, sortedNodes[2].identity().PublicKey);
+				EXPECT_EQ("", sortedNodes[2].identity().Host);
 			}
 		};
 

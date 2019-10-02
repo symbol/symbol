@@ -33,10 +33,10 @@ namespace catapult { namespace model {
 		uint32_t Size;
 
 	protected:
-		/// Returns byte-based const pointer to this entity.
+		/// Gets a byte-based const pointer to this entity.
 		const uint8_t* ToBytePointer() const;
 
-		/// Returns byte-based pointer to this entity.
+		/// Gets a byte-based pointer to this entity.
 		uint8_t* ToBytePointer();
 
 		/// Gets the start of the variable data part of \a entity.

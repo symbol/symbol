@@ -35,8 +35,16 @@ namespace catapult { namespace subscribers {
 			this->forEach([&node](auto& subscriber) { subscriber.notifyNode(node); });
 		}
 
-		void notifyIncomingNode(const Key& identityKey, ionet::ServiceIdentifier serviceId) override {
-			this->forEach([&identityKey, serviceId](auto& subscriber) { subscriber.notifyIncomingNode(identityKey, serviceId); });
+		bool notifyIncomingNode(const model::NodeIdentity& identity, ionet::ServiceIdentifier serviceId) override {
+			bool result = true;
+			this->forEach([&result, &identity, serviceId](auto& subscriber) {
+				result = result && subscriber.notifyIncomingNode(identity, serviceId);
+			});
+			return result;
+		}
+
+		void notifyBan(const model::NodeIdentity& identity, validators::ValidationResult reason) override {
+			this->forEach([&identity, reason](auto& subscriber) { subscriber.notifyBan(identity, reason); });
 		}
 	};
 }}

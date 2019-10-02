@@ -20,6 +20,7 @@
 
 #include "CacheSerializationTestUtils.h"
 #include "catapult/io/Stream.h"
+#include "catapult/utils/MemoryUtils.h"
 #include "tests/test/nodeps/Random.h"
 #include <cstring>
 
@@ -48,7 +49,7 @@ namespace catapult { namespace test {
 		uint64_t numBytes = numHeaderBytes + entries.size() * sizeof(CacheSerializationTestEntry);
 		std::vector<uint8_t> buffer(numBytes);
 		reinterpret_cast<uint64_t&>(buffer[0]) = entries.size();
-		std::memcpy(buffer.data() + numHeaderBytes, entries.data(), numBytes - numHeaderBytes);
+		utils::memcpy_cond(buffer.data() + numHeaderBytes, entries.data(), numBytes - numHeaderBytes);
 		return buffer;
 	}
 }}

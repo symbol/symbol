@@ -60,7 +60,7 @@ namespace catapult { namespace consumers {
 			if (disruptor::CompletionStatus::Normal == expectedStatus)
 				test::AssertContinued(result);
 			else
-				test::AssertAborted(result, Failure_Consumer_Remote_Chain_Too_Many_Blocks);
+				test::AssertAborted(result, Failure_Consumer_Remote_Chain_Too_Many_Blocks, disruptor::ConsumerResultSeverity::Failure);
 		}
 	}
 
@@ -104,7 +104,7 @@ namespace catapult { namespace consumers {
 			if (disruptor::CompletionStatus::Normal == expectedStatus)
 				test::AssertContinued(result);
 			else
-				test::AssertAborted(result, Failure_Consumer_Remote_Chain_Too_Far_In_Future);
+				test::AssertAborted(result, Failure_Consumer_Remote_Chain_Too_Far_In_Future, disruptor::ConsumerResultSeverity::Failure);
 		}
 	}
 
@@ -152,7 +152,7 @@ namespace catapult { namespace consumers {
 		auto result = consumer(elements);
 
 		// Assert:
-		test::AssertAborted(result, Failure_Consumer_Remote_Chain_Duplicate_Transactions);
+		test::AssertAborted(result, Failure_Consumer_Remote_Chain_Duplicate_Transactions, disruptor::ConsumerResultSeverity::Failure);
 	}
 
 	TEST(TEST_CLASS, ChainIsInvalidWhenTwoBlocksContainTheSameTransaction) {
@@ -168,7 +168,7 @@ namespace catapult { namespace consumers {
 		auto result = consumer(elements);
 
 		// Assert:
-		test::AssertAborted(result, Failure_Consumer_Remote_Chain_Duplicate_Transactions);
+		test::AssertAborted(result, Failure_Consumer_Remote_Chain_Duplicate_Transactions, disruptor::ConsumerResultSeverity::Failure);
 	}
 
 	TEST(TEST_CLASS, ChainIsValidWhenAllTransactionsAreUnique) {
@@ -203,7 +203,7 @@ namespace catapult { namespace consumers {
 			auto result = consumer(elements);
 
 			// Assert:
-			test::AssertAborted(result, Failure_Consumer_Remote_Chain_Improper_Link);
+			test::AssertAborted(result, Failure_Consumer_Remote_Chain_Improper_Link, disruptor::ConsumerResultSeverity::Failure);
 		}
 	}
 
@@ -227,7 +227,7 @@ namespace catapult { namespace consumers {
 		auto result = consumer(elements);
 
 		// Assert:
-		test::AssertAborted(result, Failure_Consumer_Remote_Chain_Improper_Link);
+		test::AssertAborted(result, Failure_Consumer_Remote_Chain_Improper_Link, disruptor::ConsumerResultSeverity::Failure);
 	}
 
 	// endregion

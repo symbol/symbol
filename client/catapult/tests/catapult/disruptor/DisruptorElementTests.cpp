@@ -31,6 +31,13 @@ namespace catapult { namespace disruptor {
 		void EmptyProcessingCompleteFunc(DisruptorElementId, ConsumerResult)
 		{}
 
+		ConsumerResult CreateConsumerResult(uint32_t code, uint8_t severity) {
+			ConsumerResult result;
+			result.CompletionCode = code;
+			result.ResultSeverity = static_cast<ConsumerResultSeverity>(severity);
+			return result;
+		}
+
 		struct BlockTraits : public test::BlockTraits {
 		public:
 			static void AssertDisruptorElementCreation(size_t numBlocks) {
@@ -91,11 +98,11 @@ namespace catapult { namespace disruptor {
 		EXPECT_FALSE(element.isSkipped());
 
 		// Act:
-		element.markSkipped(7, 9);
+		element.markSkipped(7, CreateConsumerResult(9, 8));
 
 		// Assert:
 		EXPECT_TRUE(element.isSkipped());
-		test::AssertAborted(element.completionResult(), 9, 7);
+		test::AssertAborted(element.completionResult(), 9, static_cast<ConsumerResultSeverity>(8), 7);
 	}
 
 	TEST(TEST_CLASS, CanOutputDisruptorElement) {
@@ -146,11 +153,12 @@ namespace catapult { namespace disruptor {
 		auto expectedResult = ConsumerCompletionResult();
 		expectedResult.CompletionStatus = CompletionStatus::Aborted;
 		expectedResult.CompletionCode = 22;
+		expectedResult.ResultSeverity = static_cast<ConsumerResultSeverity>(8);
 		expectedResult.FinalConsumerPosition = 123;
 
 		// Assert:
 		AssertProcessingCompleteDelegatesToCompletionHandler(
-				[](auto& element) { element.markSkipped(123, 22); },
+				[](auto& element) { element.markSkipped(123, CreateConsumerResult(22, 8)); },
 				expectedResult);
 	}
 

@@ -52,7 +52,7 @@ namespace catapult { namespace test {
 		TempDirectoryGuard m_directoryGuard;
 	};
 
-	/// A parsed log record.
+	/// Parsed log record.
 	struct SimpleLogRecord {
 		/// Log timestamp.
 		boost::posix_time::ptime Timestamp;

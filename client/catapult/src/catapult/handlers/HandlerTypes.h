@@ -24,7 +24,7 @@
 
 namespace catapult { namespace handlers {
 
-	/// A handler for processing an annotated entity range.
+	/// Handler for processing an annotated entity range.
 	template<typename TEntity>
 	using RangeHandler = consumer<model::AnnotatedEntityRange<TEntity>&&>;
 

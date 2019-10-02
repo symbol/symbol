@@ -34,7 +34,7 @@ namespace catapult {
 
 namespace catapult { namespace mongo {
 
-	/// A typed mongo transaction plugin.
+	/// Typed mongo transaction plugin.
 	template<typename TTransaction>
 	class MongoTransactionPluginT {
 	public:
@@ -48,10 +48,10 @@ namespace catapult { namespace mongo {
 		virtual void streamTransaction(bsoncxx::builder::stream::document& builder, const TTransaction& transaction) const = 0;
 	};
 
-	/// An embedded mongo transaction plugin.
+	/// Embedded mongo transaction plugin.
 	class EmbeddedMongoTransactionPlugin : public MongoTransactionPluginT<model::EmbeddedTransaction> {};
 
-	/// A mongo transaction plugin.
+	/// Mongo transaction plugin.
 	class MongoTransactionPlugin : public MongoTransactionPluginT<model::Transaction> {
 	public:
 		/// Extracts dependent documents from \a transaction given the associated \a metadata.
@@ -67,6 +67,6 @@ namespace catapult { namespace mongo {
 		virtual const EmbeddedMongoTransactionPlugin& embeddedPlugin() const = 0;
 	};
 
-	/// A registry of mongo transaction plugins.
+	/// Registry of mongo transaction plugins.
 	class MongoTransactionRegistry : public model::TransactionRegistryT<MongoTransactionPlugin> {};
 }}

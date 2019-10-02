@@ -29,7 +29,7 @@ namespace catapult { namespace state {
 
 #pragma pack(push, 1)
 
-	/// A packed lock info.
+	/// Packed lock info.
 	struct PackedLockInfo {
 	public:
 		/// Creates a lock info from \a lockInfo.

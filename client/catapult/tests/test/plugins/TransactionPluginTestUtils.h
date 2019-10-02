@@ -85,7 +85,7 @@ namespace catapult { namespace test {
 				auto pPlugin = TTraits::CreatePlugin(std::forward<TArgs>(args)...);
 
 				for (const auto& pSubscriber : m_subscribers)
-					PublishTransaction(*pPlugin, transaction, *pSubscriber);
+					TransactionPluginTestUtils<TTraits>::PublishTransaction(*pPlugin, transaction, *pSubscriber);
 
 				for (const auto& expectation : m_expectations)
 					expectation();
@@ -95,5 +95,27 @@ namespace catapult { namespace test {
 			std::vector<std::unique_ptr<model::NotificationSubscriber>> m_subscribers;
 			std::vector<action> m_expectations;
 		};
+
+	private:
+		static void PublishTransaction(
+				const model::TransactionPlugin& plugin,
+				const TransactionType& transaction,
+				model::NotificationSubscriber& sub) {
+			plugin.publish({ transaction, Hash256() }, sub);
+		}
+
+		static void PublishTransaction(
+				const model::TransactionPlugin& plugin,
+				const model::WeakEntityInfoT<model::Transaction>& transactionInfo,
+				model::NotificationSubscriber& sub) {
+			plugin.publish(transactionInfo, sub);
+		}
+
+		static void PublishTransaction(
+				const model::EmbeddedTransactionPlugin& plugin,
+				const TransactionType& transaction,
+				model::NotificationSubscriber& sub) {
+			plugin.publish(transaction, sub);
+		}
 	};
 }}

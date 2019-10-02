@@ -80,6 +80,6 @@ namespace catapult { namespace state {
 	/// Insertion operator for outputting \a timestampedHash to \a out.
 	std::ostream& operator<<(std::ostream& out, const TimestampedHash& timestampedHash);
 
-	/// An entity range composed of timestamped hashes.
+	/// Entity range composed of timestamped hashes.
 	using TimestampedHashRange = model::EntityRange<TimestampedHash>;
 }}

@@ -24,7 +24,7 @@
 
 namespace catapult { namespace test {
 
-	/// A boolean flag that is automatically set on destruction.
+	/// Boolean flag that is automatically set on destruction.
 	class AutoSetFlag : public utils::MoveOnly {
 	public:
 		/// State of an auto set boolean flag.
@@ -44,7 +44,7 @@ namespace catapult { namespace test {
 				m_flag = true;
 			}
 
-			/// Returns a value indicating whether the flag is set or not.
+			/// Gets a value indicating whether the flag is set or not.
 			bool isSet() const {
 				return m_flag;
 			}

@@ -25,7 +25,7 @@
 
 namespace catapult { namespace validators {
 
-	/// A weakly typed stateless entity validator.
+	/// Weakly typed stateless entity validator.
 	class StatelessEntityValidator {
 	public:
 		virtual ~StatelessEntityValidator() = default;

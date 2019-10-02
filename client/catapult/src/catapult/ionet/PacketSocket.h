@@ -33,7 +33,9 @@ namespace catapult {
 
 namespace catapult { namespace ionet {
 
-	/// An asio socket wrapper that natively supports packets.
+	// region PacketSocket
+
+	/// Asio socket wrapper that natively supports packets.
 	/// This wrapper is threadsafe but does not prevent interleaving reads or writes.
 	class PacketSocket : public PacketIo, public BatchPacketReader {
 	public:
@@ -55,6 +57,9 @@ namespace catapult { namespace ionet {
 		/// Retrieves statistics about this socket and passes them to \a callback.
 		virtual void stats(const StatsCallback& callback) = 0;
 
+		/// Calls \a callback when data is available for reading.
+		virtual void waitForData(const action& callback) = 0;
+
 		/// Closes the socket.
 		virtual void close() = 0;
 
@@ -62,17 +67,19 @@ namespace catapult { namespace ionet {
 		virtual std::shared_ptr<PacketIo> buffered() = 0;
 	};
 
-	// region Accept
+	// endregion
 
-	/// Result of a packet socket accept operation.
-	class AcceptedPacketSocketInfo {
+	// region PacketSocketInfo
+
+	/// Pair composed of packet socket and (resolved) host.
+	class PacketSocketInfo {
 	public:
 		/// Creates an empty info.
-		AcceptedPacketSocketInfo()
+		PacketSocketInfo()
 		{}
 
 		/// Creates an info around \a host and \a pPacketSocket.
-		AcceptedPacketSocketInfo(const std::string& host, const std::shared_ptr<PacketSocket>& pPacketSocket)
+		PacketSocketInfo(const std::string& host, const std::shared_ptr<PacketSocket>& pPacketSocket)
 				: m_host(host)
 				, m_pPacketSocket(pPacketSocket)
 		{}
@@ -99,19 +106,28 @@ namespace catapult { namespace ionet {
 		std::shared_ptr<PacketSocket> m_pPacketSocket;
 	};
 
+	// endregion
+
+	// region Accept
+
 	/// Callback for configuring a socket before initiating an accept.
 	using ConfigureSocketCallback = consumer<socket&>;
 
 	/// Callback for an accepted socket.
-	using AcceptCallback = consumer<const AcceptedPacketSocketInfo&>;
+	using AcceptCallback = consumer<const PacketSocketInfo&>;
 
-	/// Accepts a connection using \a acceptor and calls \a accept on completion configuring the socket with \a options.
-	void Accept(boost::asio::ip::tcp::acceptor& acceptor, const PacketSocketOptions& options, const AcceptCallback& accept);
+	/// Accepts a connection using \a ioContext and \a acceptor and calls \a accept on completion configuring the socket with \a options.
+	void Accept(
+			boost::asio::io_context& ioContext,
+			boost::asio::ip::tcp::acceptor& acceptor,
+			const PacketSocketOptions& options,
+			const AcceptCallback& accept);
 
-	/// Accepts a connection using \a acceptor and calls \a accept on completion configuring the socket with \a options.
+	/// Accepts a connection using \a ioContext and \a acceptor and calls \a accept on completion configuring the socket with \a options.
 	/// \a configureSocket is called before starting the accept to allow custom configuration of asio sockets.
 	/// \note User callbacks passed to the accepted socket are serialized.
 	void Accept(
+			boost::asio::io_context& ioContext,
 			boost::asio::ip::tcp::acceptor& acceptor,
 			const PacketSocketOptions& options,
 			const ConfigureSocketCallback& configureSocket,
@@ -122,7 +138,7 @@ namespace catapult { namespace ionet {
 	// region Connect
 
 	/// Callback for a connected socket.
-	using ConnectCallback = consumer<ConnectResult, const std::shared_ptr<PacketSocket>&>;
+	using ConnectCallback = consumer<ConnectResult, const PacketSocketInfo&>;
 
 	/// Attempts to connect a socket to the specified \a endpoint using \a ioContext and calls \a callback on
 	/// completion configuring the socket with \a options. The returned function can be used to cancel the connect.

@@ -20,6 +20,7 @@
 
 #pragma once
 #include "catapult/crypto/KeyPair.h"
+#include "catapult/net/ConnectionSettings.h"
 #include "catapult/thread/Future.h"
 #include "catapult/types.h"
 
@@ -49,11 +50,14 @@ namespace catapult { namespace tools {
 			const ionet::Node& node,
 			const std::shared_ptr<thread::IoThreadPool>& pPool);
 
+	/// Creates tool connection settings.
+	net::ConnectionSettings CreateToolConnectionSettings();
+
 	/// Helper class for connecting to multiple nodes.
 	class MultiNodeConnector {
 	public:
-		/// Creates a connector.
-		MultiNodeConnector();
+		/// Creates a connector around \a clientKeyPair.
+		explicit MultiNodeConnector(crypto::KeyPair&& clientKeyPair);
 
 		/// Destroys the connector.
 		~MultiNodeConnector();

@@ -32,10 +32,10 @@ namespace catapult { namespace utils {
 		using catapult_runtime_error::catapult_runtime_error;
 	};
 
-	/// A reentrancy check reader notification policy.
+	/// Reentrancy check reader notification policy.
 	class ReentrancyCheckReaderNotificationPolicy {
 	public:
-		/// A reader was acquried by the current thread.
+		/// Reader was acquried by the current thread.
 		void readerAcquired() {
 			executeSynchronized([this](auto id) {
 				if (m_threadIds.cend() != m_threadIds.find(id))
@@ -45,7 +45,7 @@ namespace catapult { namespace utils {
 			});
 		}
 
-		/// A reader was released by the current thread.
+		/// Reader was released by the current thread.
 		void readerReleased() {
 			executeSynchronized([this](auto id) {
 				m_threadIds.erase(id);

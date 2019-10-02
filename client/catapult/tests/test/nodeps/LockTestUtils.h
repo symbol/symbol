@@ -54,7 +54,7 @@ namespace catapult { namespace test {
 			CATAPULT_LOG(trace) << "exiting lock " << id;
 		}
 
-		/// Sets \a value to \a desired and waits for ShouldBlock to be set to \c false.
+		/// Sets the specified \a value to \a desired and waits for ShouldBlock to be set to \c false.
 		template<typename TValue>
 		void setValueAndBlock(TValue& value, TValue desired) {
 			CATAPULT_LOG(trace) << "entered lock " << desired;
@@ -198,7 +198,7 @@ namespace catapult { namespace test {
 	template<typename TAcquireFirstLockFunc, typename TAcquireSecondLockFunc>
 	void AssertExclusiveLocks(TAcquireFirstLockFunc acquireFirstLock, TAcquireSecondLockFunc acquireSecondLock) {
 		// Arrange: get the first lock
-		int flag = 0;
+		std::atomic<size_t> flag(0);
 		{
 			auto lock1 = acquireFirstLock();
 
@@ -212,16 +212,16 @@ namespace catapult { namespace test {
 			Sleep(15);
 
 			// Sanity: the flag should have its original value
-			EXPECT_EQ(0, flag);
+			EXPECT_EQ(0u, flag);
 
 			// Act: release the first lock
 		}
 
 		// - wait for the flag value to change
-		WAIT_FOR_EXPR(0 != flag);
+		WAIT_FOR_EXPR(0u != flag);
 
 		// Assert: the other thread acquired the (second) lock
-		EXPECT_EQ(1, flag);
+		EXPECT_EQ(1u, flag);
 	}
 
 	/// Asserts that \a provider view blocks a modifier.

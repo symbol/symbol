@@ -153,32 +153,6 @@ namespace catapult { namespace cache {
 		}
 
 	public:
-		static void AssertOnlyUnusedValuesAreTouched() {
-			// Arrange:
-			typename CacheTraits::CacheType cache;
-			auto delta = cache.createDelta();
-			delta->insert(CacheTraits::CreateWithIdAndExpiration(11, Height(100)));
-			delta->insert(CacheTraits::CreateWithIdAndExpiration(22, Height(200)));
-			delta->insert(CacheTraits::CreateWithIdAndExpiration(33, Height(100)));
-			delta->insert(CacheTraits::CreateWithIdAndExpiration(44, Height(200), state::LockStatus::Used));
-			delta->insert(CacheTraits::CreateWithIdAndExpiration(55, Height(400)));
-			delta->insert(CacheTraits::CreateWithIdAndExpiration(66, Height(200)));
-			cache.commit();
-
-			// Act: touch at a height with known identifiers
-			auto expiryIds = delta->touch(Height(200));
-
-			// Assert: three touched elements
-			EXPECT_EQ(3u, delta->modifiedElements().size());
-			EXPECT_EQ(std::unordered_set<uint8_t>({ 22, 44, 66 }), GetModifiedIds(*delta));
-
-			// - 44 is not returned because it is already used
-			EXPECT_EQ(2u, expiryIds.size());
-			EXPECT_CONTAINS(expiryIds, CacheTraits::MakeId(22));
-			EXPECT_CONTAINS(expiryIds, CacheTraits::MakeId(66));
-		}
-
-	public:
 		static void AssertProcessUnusedExpiredLocksForwardsEmptyVectorWhenNoLockExpired() {
 			// Arrange:
 			typename CacheTraits::CacheType cache;
@@ -332,14 +306,11 @@ namespace catapult { namespace cache {
 	DEFINE_ACTIVE_PREDICATE_TESTS(TRAITS, ViewAccessor, _View##SUFFIX) \
 	DEFINE_ACTIVE_PREDICATE_TESTS(TRAITS, DeltaAccessor, _Delta##SUFFIX) \
 	\
-	DEFINE_CACHE_TOUCH_TESTS(TRAITS, _Delta##SUFFIX) \
-	\
 	DEFINE_DELTA_ELEMENTS_MIXIN_CUSTOM_TESTS(TRAITS, MODIFICATION_TRAITS, _Delta##SUFFIX) \
 	\
 	DEFINE_CACHE_BASIC_TESTS(TRAITS, SUFFIX) \
 	\
 	MAKE_LOCK_INFO_CACHE_TEST(TRAITS::LockInfoTraits, RemoveRemovesLockFromHeightBasedMap) \
-	MAKE_LOCK_INFO_CACHE_TEST(TRAITS::LockInfoTraits, OnlyUnusedValuesAreTouched) \
 	MAKE_LOCK_INFO_CACHE_TEST(TRAITS::LockInfoTraits, ProcessUnusedExpiredLocksForwardsEmptyVectorWhenNoLockExpired) \
 	MAKE_LOCK_INFO_CACHE_TEST(TRAITS::LockInfoTraits, ProcessUnusedExpiredLocksForwardsEmptyVectorWhenOnlyUsedLocksExpired) \
 	MAKE_LOCK_INFO_CACHE_TEST(TRAITS::LockInfoTraits, ProcessUnusedExpiredLocksForwardsUnusedExpiredLocks_SingleLock) \

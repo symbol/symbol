@@ -42,7 +42,7 @@ namespace catapult { namespace model {
 		All
 	};
 
-	/// A notification publisher.
+	/// Notification publisher.
 	class NotificationPublisher {
 	public:
 		virtual ~NotificationPublisher() = default;

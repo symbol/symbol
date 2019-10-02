@@ -21,6 +21,7 @@
 #pragma once
 #include "Block.h"
 #include "EntityRange.h"
+#include "NodeIdentity.h"
 #include "Transaction.h"
 
 namespace catapult { namespace model {
@@ -33,26 +34,26 @@ namespace catapult { namespace model {
 		AnnotatedEntityRange() = default;
 
 		/// Creates an annotated entity range around \a range without context.
-		AnnotatedEntityRange(EntityRange<TEntity>&& range) : AnnotatedEntityRange(std::move(range), {})
+		AnnotatedEntityRange(EntityRange<TEntity>&& range) : AnnotatedEntityRange(std::move(range), NodeIdentity())
 		{}
 
-		/// Creates an annotated entity range around \a range and a source public key (\a sourcePublicKey).
-		AnnotatedEntityRange(EntityRange<TEntity>&& range, const Key& sourcePublicKey)
+		/// Creates an annotated entity range around \a range and a source identity (\a sourceIdentity).
+		AnnotatedEntityRange(EntityRange<TEntity>&& range, const NodeIdentity& sourceIdentity)
 				: Range(std::move(range))
-				, SourcePublicKey(sourcePublicKey)
+				, SourceIdentity(sourceIdentity)
 		{}
 
 	public:
 		/// Entity range.
 		EntityRange<TEntity> Range;
 
-		/// Source public key (optional).
-		Key SourcePublicKey;
+		/// Source identity (optional).
+		NodeIdentity SourceIdentity;
 	};
 
-	/// An annotated entity range composed of blocks.
+	/// Annotated entity range composed of blocks.
 	using AnnotatedBlockRange = AnnotatedEntityRange<Block>;
 
-	/// An annotated entity range composed of transactions.
+	/// Annotated entity range composed of transactions.
 	using AnnotatedTransactionRange = AnnotatedEntityRange<Transaction>;
 }}

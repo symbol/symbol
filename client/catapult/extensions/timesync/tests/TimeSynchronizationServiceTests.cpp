@@ -76,7 +76,9 @@ namespace catapult { namespace timesync {
 			}
 
 			static auto CreateRegistrar(const std::shared_ptr<TimeSynchronizationState>& pTimeSyncState) {
-				return CreateRegistrar(TimeSynchronizationConfiguration{ 5 }, pTimeSyncState);
+				auto config = TimeSynchronizationConfiguration::Uninitialized();
+				config.MaxNodes = 5;
+				return CreateRegistrar(config, pTimeSyncState);
 			}
 
 			static auto CreateRegistrar() {

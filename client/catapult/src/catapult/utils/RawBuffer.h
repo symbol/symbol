@@ -58,13 +58,13 @@ namespace catapult { namespace utils {
 		size_t Size;
 	};
 
-	/// A const binary buffer.
+	/// Const binary buffer.
 	using RawBuffer = BasicRawBuffer<const uint8_t>;
 
-	/// A mutable binary buffer.
+	/// Mutable binary buffer.
 	using MutableRawBuffer = BasicRawBuffer<uint8_t>;
 
-	/// A const string buffer.
+	/// Const string buffer.
 	class RawString : public BasicRawBuffer<const char> {
 	public:
 		using BasicRawBuffer<const char>::BasicRawBuffer;
@@ -78,7 +78,7 @@ namespace catapult { namespace utils {
 		RawString(const char* str);
 	};
 
-	/// A mutable string buffer.
+	/// Mutable string buffer.
 	class MutableRawString : public BasicRawBuffer<char> {
 	public:
 		using BasicRawBuffer<char>::BasicRawBuffer;

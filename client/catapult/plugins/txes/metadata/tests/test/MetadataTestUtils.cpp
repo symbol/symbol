@@ -67,7 +67,7 @@ namespace catapult { namespace test {
 
 		case model::MetadataType::Namespace:
 			return state::MetadataKey(partialKey, NamespaceId(targetId));
-		};
+		}
 
 		CATAPULT_THROW_INVALID_ARGUMENT_1("cannot create MetadataKey with unexpected type", static_cast<uint16_t>(metadataType));
 	}

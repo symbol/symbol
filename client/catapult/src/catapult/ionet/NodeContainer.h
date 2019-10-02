@@ -19,8 +19,9 @@
 **/
 
 #pragma once
-#include "Node.h"
+#include "BannedNodes.h"
 #include "NodeInfo.h"
+#include "NodeSet.h"
 #include "catapult/utils/ArraySet.h"
 #include "catapult/utils/SpinReaderWriterLock.h"
 #include <unordered_map>
@@ -35,38 +36,54 @@ namespace catapult {
 
 namespace catapult { namespace ionet {
 
-	/// A read only view on top of node container.
+	/// Read only view on top of node container.
 	class NodeContainerView : utils::MoveOnly {
 	public:
-		/// Creates a view around \a nodeContainerData with lock context \a readLock.
-		NodeContainerView(const NodeContainerData& nodeContainerData, utils::SpinReaderWriterLock::ReaderLockGuard&& readLock);
+		/// Creates a view around \a nodeContainerData and \a bannedNodes with lock context \a readLock.
+		NodeContainerView(
+				const NodeContainerData& nodeContainerData,
+				const BannedNodes& bannedNodes,
+				utils::SpinReaderWriterLock::ReaderLockGuard&& readLock);
 
 	public:
-		/// Returns the number of nodes.
+		/// Number of nodes.
 		size_t size() const;
 
-		/// Gets current container time.
+		/// Number of actively banned nodes.
+		size_t bannedNodesSize() const;
+
+		/// Number of total nodes in ban container.
+		size_t bannedNodesDeepSize() const;
+
+		/// Gets the current container time.
 		Timestamp time() const;
 
-		/// Returns \c true if the node with \a identityKey is in the container, \c false otherwise.
-		bool contains(const Key& identityKey) const;
+		/// Returns \c true if the node with \a identity is in the container, \c false otherwise.
+		bool contains(const model::NodeIdentity& identity) const;
 
-		/// Gets node info for the node with \a identityKey.
-		const NodeInfo& getNodeInfo(const Key& identityKey) const;
+		/// Gets the node info for the node with \a identity.
+		const NodeInfo& getNodeInfo(const model::NodeIdentity& identity) const;
 
-		/// Iterates over all nodes and passes them to \a consumer.
+		/// Returns \c true if \a identity is banned.
+		bool isBanned(const model::NodeIdentity& identity) const;
+
+		/// Iterates over all nodes and passes unbanned nodes to \a consumer.
 		void forEach(const consumer<const Node&, const NodeInfo&>& consumer) const;
 
 	private:
 		const NodeContainerData& m_nodeContainerData;
+		const BannedNodes& m_bannedNodes;
 		utils::SpinReaderWriterLock::ReaderLockGuard m_readLock;
 	};
 
-	/// A write only view on top of node container.
+	/// Write only view on top of node container.
 	class NodeContainerModifier : utils::MoveOnly {
 	public:
-		/// Creates a view around \a nodeContainerData with lock context \a readLock.
-		NodeContainerModifier(NodeContainerData& nodeContainerData, utils::SpinReaderWriterLock::ReaderLockGuard&& readLock);
+		/// Creates a view around \a nodeContainerData and \a bannedNodes with lock context \a writeLock.
+		NodeContainerModifier(
+				NodeContainerData& nodeContainerData,
+				BannedNodes& bannedNodes,
+				utils::SpinReaderWriterLock::WriterLockGuard&& writeLock);
 
 	public:
 		/// Adds \a node to the collection with \a source.
@@ -76,43 +93,54 @@ namespace catapult { namespace ionet {
 		/// Adds connection states for the service identified by \a serviceId to all nodes with \a role.
 		void addConnectionStates(ServiceIdentifier serviceId, ionet::NodeRoles role);
 
-		/// Gets connection state for the service identified by \a serviceId and the node with \a identityKey.
-		ConnectionState& provisionConnectionState(ServiceIdentifier serviceId, const Key& identityKey);
+		/// Gets the connection state for the service identified by \a serviceId and the node with \a identity.
+		ConnectionState& provisionConnectionState(ServiceIdentifier serviceId, const model::NodeIdentity& identity);
 
 		/// Ages all connections for the service identified by \a serviceId for nodes with \a identities.
-		void ageConnections(ServiceIdentifier serviceId, const utils::KeySet& identities);
+		void ageConnections(ServiceIdentifier serviceId, const model::NodeIdentitySet& identities);
 
 		/// Ages all connection bans for the service identified by \a serviceId given \a maxConnectionBanAge and
 		/// \a numConsecutiveFailuresBeforeBanning.
 		void ageConnectionBans(ServiceIdentifier serviceId, uint32_t maxConnectionBanAge, uint32_t numConsecutiveFailuresBeforeBanning);
 
-		/// Increments the number of successful interactions for the node identified by \a identityKey.
-		void incrementSuccesses(const Key& identityKey);
+		/// Increments the number of successful interactions for the node identified by \a identity.
+		void incrementSuccesses(const model::NodeIdentity& identity);
 
-		/// Increments the number of failed interactions for the node identified by \a identityKey.
-		void incrementFailures(const Key& identityKey);
+		/// Increments the number of failed interactions for the node identified by \a identity.
+		void incrementFailures(const model::NodeIdentity& identity);
+
+		/// Bans \a identity due to \a reason.
+		void ban(const model::NodeIdentity& identity, uint32_t reason);
+
+		/// Prunes banned nodes.
+		void pruneBannedNodes();
 
 	private:
 		void autoProvisionConnectionStates(NodeData& nodeData);
 
 		bool ensureAtLeastOneEmptySlot();
 
-		void incrementInteraction(const Key& identityKey, const consumer<NodeInfo&>& incrementer);
+		void incrementInteraction(const model::NodeIdentity& identity, const consumer<NodeInfo&>& incrementer);
 
 	private:
 		NodeContainerData& m_nodeContainerData;
-		utils::SpinReaderWriterLock::ReaderLockGuard m_readLock;
+		BannedNodes& m_bannedNodes;
 		utils::SpinReaderWriterLock::WriterLockGuard m_writeLock;
 	};
 
-	/// A collection of nodes.
+	/// Container of nodes.
 	class NodeContainer {
 	public:
 		/// Creates a node container.
 		NodeContainer();
 
-		/// Creates a node container that can contain at most \a maxNodes nodes around a custom time supplier (\a timeSupplier).
-		NodeContainer(size_t maxNodes, const supplier<Timestamp>& timeSupplier);
+		/// Creates a node container that can contain at most \a maxNodes nodes with specified equality strategy (\a equalityStrategy)
+		/// around a custom time supplier (\a timeSupplier). The container also supports banning nodes configured by \a banSettings.
+		NodeContainer(
+				size_t maxNodes,
+				model::NodeIdentityEqualityStrategy equalityStrategy,
+				const BanSettings& banSettings,
+				const supplier<Timestamp>& timeSupplier);
 
 		/// Destroys a node container.
 		~NodeContainer();
@@ -126,9 +154,13 @@ namespace catapult { namespace ionet {
 
 	private:
 		std::unique_ptr<NodeContainerData> m_pImpl;
+		BannedNodes m_bannedNodes;
 		mutable utils::SpinReaderWriterLock m_lock;
 	};
 
 	/// Finds all active nodes in \a view.
 	NodeSet FindAllActiveNodes(const NodeContainerView& view);
+
+	/// Finds all active nodes in \a view that pass \a includePredicate.
+	NodeSet FindAllActiveNodes(const NodeContainerView& view, const predicate<NodeSource>& includePredicate);
 }}

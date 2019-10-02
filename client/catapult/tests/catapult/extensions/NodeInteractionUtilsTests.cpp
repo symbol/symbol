@@ -32,18 +32,18 @@ namespace catapult { namespace extensions {
 		template<typename TAssert>
 		void AssertIncrement(ionet::NodeInteractionResultCode code, TAssert assertFunc) {
 			// Arrange:
-			auto identityKey = test::GenerateRandomByteArray<Key>();
+			auto identity = model::NodeIdentity{ test::GenerateRandomByteArray<Key>(), "11.22.33.44" };
 			ionet::NodeContainer container;
-			container.modifier().add(test::CreateNamedNode(identityKey, "Alice"), ionet::NodeSource::Static);
+			container.modifier().add(test::CreateNamedNode(identity, "Alice"), ionet::NodeSource::Static);
 
 			// Sanity:
-			EXPECT_TRUE(container.view().contains(identityKey));
+			EXPECT_TRUE(container.view().contains(identity));
 
 			// Act:
-			IncrementNodeInteraction(container, ionet::NodeInteractionResult(identityKey, code));
+			IncrementNodeInteraction(container, ionet::NodeInteractionResult(identity, code));
 
 			// Assert:
-			auto interactions = container.view().getNodeInfo(identityKey).interactions(Timestamp());
+			auto interactions = container.view().getNodeInfo(identity).interactions(Timestamp());
 			assertFunc(interactions);
 		}
 	}

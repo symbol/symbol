@@ -36,7 +36,7 @@ namespace catapult {
 	namespace {
 		crypto::PrivateKey ParsePrivateKey(const std::string& privateKeyString) {
 #ifdef SIGNATURE_SCHEME_NIS1
-			auto privateKeyBuffer = test::ToVector(privateKeyString);
+			auto privateKeyBuffer = test::HexStringToVector(privateKeyString);
 			std::reverse(privateKeyBuffer.begin(), privateKeyBuffer.end());
 			return crypto::PrivateKey::FromString(test::ToHexString(privateKeyBuffer));
 #else

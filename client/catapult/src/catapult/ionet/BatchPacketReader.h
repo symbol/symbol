@@ -23,7 +23,7 @@
 
 namespace catapult { namespace ionet {
 
-	/// An read-optimized interface for reading packets.
+	/// Read-optimized interface for reading packets.
 	class BatchPacketReader {
 	public:
 		virtual ~BatchPacketReader() = default;

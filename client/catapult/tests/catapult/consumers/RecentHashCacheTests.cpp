@@ -19,6 +19,7 @@
 **/
 
 #include "catapult/consumers/RecentHashCache.h"
+#include "tests/test/nodeps/TimeSupplier.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace consumers {
@@ -27,17 +28,7 @@ namespace catapult { namespace consumers {
 
 	namespace {
 		constexpr auto Default_Options = HashCheckOptions(600'000, 60'000, 1'000);
-
-		chain::TimeSupplier CreateTimeSupplier(const std::vector<Timestamp::ValueType>& times) {
-			size_t index = 0;
-			return [times, index]() mutable {
-				auto timestamp = Timestamp(times[index] * 1000);
-				if (index + 1 < times.size())
-					++index;
-
-				return timestamp;
-			};
-		}
+		constexpr auto CreateTimeSupplier = test::CreateTimeSupplierFromSeconds;
 
 		chain::TimeSupplier DefaultTimeSupplier() {
 			return []() { return Timestamp(1); };

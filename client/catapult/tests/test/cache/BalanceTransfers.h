@@ -32,7 +32,7 @@ namespace catapult {
 
 namespace catapult { namespace test {
 
-	/// A vector of balance transfers.
+	/// Vector of balance transfers.
 	using BalanceTransfers = std::vector<model::Mosaic>;
 
 	/// Asserts that \a cache contains an account with \a publicKey that has all balances in \a expectedBalances.

@@ -34,7 +34,7 @@ namespace catapult { namespace chain {
 		struct ProcessSyncParamsCapture {
 			size_t NumFactoryCalls = 0;
 			const ionet::PacketIo* pFactoryPacketIo = nullptr;
-			Key RemotePublicKey;
+			model::NodeIdentity RemoteIdentity;
 			const model::TransactionRegistry* pFactoryTransactionRegistry = nullptr;
 
 			size_t NumActionCalls = 0;
@@ -48,10 +48,10 @@ namespace catapult { namespace chain {
 					capture.ActionApiId = apiId;
 					return thread::make_ready_future(ionet::NodeInteractionResultCode::Success);
 				},
-				[&capture](const auto& packetIo, const auto& remotePublicKey, const auto& registry) {
+				[&capture](const auto& packetIo, const auto& remoteIdentity, const auto& registry) {
 					++capture.NumFactoryCalls;
 					capture.pFactoryPacketIo = &packetIo;
-					capture.RemotePublicKey = remotePublicKey;
+					capture.RemoteIdentity = remoteIdentity;
 					capture.pFactoryTransactionRegistry = &registry;
 					return std::make_unique<int>(Default_Action_Api_Id);
 				});
@@ -61,7 +61,7 @@ namespace catapult { namespace chain {
 	TEST(TEST_CLASS, ActionIsSkippedWhenNoPeerIsAvailable) {
 		// Arrange: create an empty writers
 		mocks::PickOneAwareMockPacketWriters writers;
-		writers.setNodeIdentity(test::GenerateRandomByteArray<Key>());
+		writers.setNodeIdentity({ test::GenerateRandomByteArray<Key>(), "11.22.33.44" });
 
 		// - create the forwarder
 		model::TransactionRegistry registry;
@@ -72,7 +72,8 @@ namespace catapult { namespace chain {
 		auto result = ProcessSyncAndCapture(forwarder, capture).get();
 
 		// Assert:
-		EXPECT_EQ(Key(), result.IdentityKey);
+		EXPECT_EQ(Key(), result.Identity.PublicKey);
+		EXPECT_EQ("", result.Identity.Host);
 		EXPECT_EQ(ionet::NodeInteractionResultCode::None, result.Code);
 
 		// - pick one was called
@@ -90,7 +91,7 @@ namespace catapult { namespace chain {
 		auto identityKey = test::GenerateRandomByteArray<Key>();
 		mocks::PickOneAwareMockPacketWriters writers;
 		writers.setPacketIo(pPacketIo);
-		writers.setNodeIdentity(identityKey);
+		writers.setNodeIdentity({ identityKey, "11.22.33.44" });
 
 		// - create the forwarder
 		model::TransactionRegistry registry;
@@ -101,7 +102,8 @@ namespace catapult { namespace chain {
 		auto result = ProcessSyncAndCapture(forwarder, capture).get();
 
 		// Assert:
-		EXPECT_EQ(identityKey, result.IdentityKey);
+		EXPECT_EQ(identityKey, result.Identity.PublicKey);
+		EXPECT_EQ("11.22.33.44", result.Identity.Host);
 		EXPECT_EQ(ionet::NodeInteractionResultCode::Success, result.Code);
 
 		// - pick one was called
@@ -111,7 +113,8 @@ namespace catapult { namespace chain {
 		// - factory was called (node identity should be propagated down)
 		EXPECT_EQ(1u, capture.NumFactoryCalls);
 		EXPECT_EQ(pPacketIo.get(), capture.pFactoryPacketIo);
-		EXPECT_EQ(identityKey, capture.RemotePublicKey);
+		EXPECT_EQ(identityKey, capture.RemoteIdentity.PublicKey);
+		EXPECT_EQ("11.22.33.44", capture.RemoteIdentity.Host);
 		EXPECT_EQ(&registry, capture.pFactoryTransactionRegistry);
 
 		// - action was called

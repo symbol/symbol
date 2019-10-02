@@ -46,7 +46,7 @@ namespace catapult { namespace builders {
 		void setMosaicId(MosaicId mosaicId);
 
 	public:
-		/// Returns size of mosaic alias transaction.
+		/// Gets the size of mosaic alias transaction.
 		/// \note This returns size of a normal transaction not embedded transaction.
 		size_t size() const;
 

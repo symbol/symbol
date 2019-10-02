@@ -37,7 +37,7 @@ namespace catapult { namespace extensions {
 
 			size_t NumFactoryCalls = 0;
 			const ionet::PacketIo* pFactoryPacketIo = nullptr;
-			Key FactoryRemotePublicKey;
+			model::NodeIdentity FactoryRemoteIdentity;
 			const model::TransactionRegistry* pFactoryTransactionRegistry = nullptr;
 
 			size_t NumActionCalls = 0;
@@ -63,10 +63,10 @@ namespace catapult { namespace extensions {
 				capture.ActionApiId = apiId;
 				return thread::make_ready_future(std::move(static_cast<ionet::NodeInteractionResultCode>(code)));
 			});
-			auto remoteApiFactory = [&capture](const auto& packetIo, const auto& remotePublicKey, const auto& registry) {
+			auto remoteApiFactory = [&capture](const auto& packetIo, const auto& remoteIdentity, const auto& registry) {
 				++capture.NumFactoryCalls;
 				capture.pFactoryPacketIo = &packetIo;
-				capture.FactoryRemotePublicKey = remotePublicKey;
+				capture.FactoryRemoteIdentity = remoteIdentity;
 				capture.pFactoryTransactionRegistry = &registry;
 				return std::make_unique<int>(Default_Action_Api_Id);
 			};
@@ -124,7 +124,7 @@ namespace catapult { namespace extensions {
 			auto identityKey = test::GenerateRandomByteArray<Key>();
 			mocks::PickOneAwareMockPacketWriters writers;
 			writers.setPacketIo(pPacketIo);
-			writers.setNodeIdentity(identityKey);
+			writers.setNodeIdentity({ identityKey, "11.22.33.44" });
 
 			// Act:
 			TaskCallbackParamsCapture capture;
@@ -143,7 +143,8 @@ namespace catapult { namespace extensions {
 			// - factory was called
 			EXPECT_EQ(1u, capture.NumFactoryCalls);
 			EXPECT_EQ(pPacketIo.get(), capture.pFactoryPacketIo);
-			EXPECT_EQ(identityKey, capture.FactoryRemotePublicKey);
+			EXPECT_EQ(identityKey, capture.FactoryRemoteIdentity.PublicKey);
+			EXPECT_EQ("11.22.33.44", capture.FactoryRemoteIdentity.Host);
 			EXPECT_EQ(&testState.state().pluginManager().transactionRegistry(), capture.pFactoryTransactionRegistry);
 
 			// - action was called
@@ -202,7 +203,7 @@ namespace catapult { namespace extensions {
 		void AssertNodeInteractionResultIsInspected(ionet::NodeInteractionResultCode code, TAssert assertFunc) {
 			// Arrange:
 			test::ServiceTestState testState;
-			auto nodeIdentity = test::GenerateRandomByteArray<Key>();
+			auto nodeIdentity = model::NodeIdentity{ test::GenerateRandomByteArray<Key>(), "11.22.33.44" };
 			auto pPacketIo = std::make_shared<mocks::MockPacketIo>();
 			mocks::PickOneAwareMockPacketWriters writers;
 			writers.setPacketIo(pPacketIo);
@@ -210,7 +211,7 @@ namespace catapult { namespace extensions {
 
 			{
 				auto nodesModifier = testState.state().nodes().modifier();
-				nodesModifier.add(ionet::Node(nodeIdentity, ionet::NodeEndpoint(), ionet::NodeMetadata()), ionet::NodeSource::Dynamic);
+				nodesModifier.add(ionet::Node(nodeIdentity), ionet::NodeSource::Dynamic);
 			}
 
 			// Act:

@@ -64,11 +64,9 @@ namespace catapult { namespace plugins {
 
 		auto maxRollbackBlocks = BlockDuration(manager.config().MaxRollbackBlocks);
 		manager.addObserverHook([maxRollbackBlocks](auto& builder) {
-			auto expiryReceiptType = model::Receipt_Type_LockHash_Expired;
 			builder
 				.add(observers::CreateHashLockObserver())
 				.add(observers::CreateExpiredHashLockInfoObserver())
-				.add(observers::CreateCacheBlockTouchObserver<cache::HashLockInfoCache>("HashLockInfo", expiryReceiptType))
 				.add(observers::CreateCacheBlockPruningObserver<cache::HashLockInfoCache>("HashLockInfo", 1, maxRollbackBlocks))
 				.add(observers::CreateCompletedAggregateObserver());
 		});

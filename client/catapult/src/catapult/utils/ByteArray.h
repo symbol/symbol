@@ -51,58 +51,58 @@ namespace catapult { namespace utils {
 		}
 
 	public:
-		/// Returns the array size.
+		/// Gets the array size.
 		constexpr size_t size() const {
 			return m_array.size();
 		}
 
-		/// Returns a const reference to the byte at \a index.
+		/// Gets a const reference to the byte at \a index.
 		constexpr const uint8_t& operator[](size_t index) const {
 			return m_array[index];
 		}
 
-		/// Returns a reference to the byte at \a index.
+		/// Gets a reference to the byte at \a index.
 		constexpr uint8_t& operator[](size_t index) {
 			return m_array[index];
 		}
 
-		/// Returns a const pointer to the underlying array.
+		/// Gets a const pointer to the underlying array.
 		constexpr const uint8_t* data() const noexcept {
 			return m_array.data();
 		}
 
-		/// Returns a pointer to the underlying array.
+		/// Gets a pointer to the underlying array.
 		constexpr uint8_t* data() noexcept {
 			return m_array.data();
 		}
 
 	public:
-		/// Returns a const iterator to the first byte.
+		/// Gets a const iterator to the first byte.
 		constexpr auto cbegin() const noexcept {
 			return m_array.cbegin();
 		}
 
-		/// Returns a const iterator to one past the last byte.
+		/// Gets a const iterator to one past the last byte.
 		constexpr auto cend() const noexcept {
 			return m_array.cend();
 		}
 
-		/// Returns a const iterator to the first byte.
+		/// Gets a const iterator to the first byte.
 		constexpr auto begin() const noexcept {
 			return m_array.begin();
 		}
 
-		/// Returns a const iterator to one past the last byte.
+		/// Gets a const iterator to one past the last byte.
 		constexpr auto end() const noexcept {
 			return m_array.end();
 		}
 
-		/// Returns an iterator to the first byte.
+		/// Gets an iterator to the first byte.
 		constexpr auto begin() noexcept {
 			return m_array.begin();
 		}
 
-		/// Returns an iterator to one past the last byte.
+		/// Gets an iterator to one past the last byte.
 		constexpr auto end() noexcept {
 			return m_array.end();
 		}

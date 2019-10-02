@@ -35,10 +35,12 @@ namespace catapult { namespace plugins {
 			// 1. cosig changes
 			utils::KeySet addedCosignatoryKeys;
 			if (0 < transaction.ModificationsCount) {
-				// raise new cosignatory notifications first because they are used for multisig loop detection
+				// - raise new cosignatory notifications first because they are used for multisig loop detection
+				// - notify cosignatories' public keys in order to allow added cosignatories to get aggregate notifications
 				const auto* pModifications = transaction.ModificationsPtr();
 				for (auto i = 0u; i < transaction.ModificationsCount; ++i) {
 					if (model::CosignatoryModificationAction::Add == pModifications[i].ModificationAction) {
+						sub.notify(AccountPublicKeyNotification(pModifications[i].CosignatoryPublicKey));
 						sub.notify(MultisigNewCosignatoryNotification(
 								transaction.SignerPublicKey,
 								pModifications[i].CosignatoryPublicKey));

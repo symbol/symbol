@@ -26,6 +26,23 @@
 
 namespace catapult { namespace test {
 
+	ionet::PacketIo::ReadCallback CreateReadCaptureCallback(PacketIoReadCallbackParams& capture) {
+		return [&capture](auto code, const auto* pReadPacket) {
+			capture.ReadCode = code;
+			capture.IsPacketValid = !!pReadPacket;
+			if (capture.IsPacketValid)
+				capture.ReadPacketBytes = CopyPacketToBuffer(*pReadPacket);
+		};
+	}
+
+	ionet::PacketIo::ReadCallback CreateReadCaptureCallback(std::vector<PacketIoReadCallbackParams>& captures) {
+		return [&captures](auto code, const auto* pReadPacket) {
+			PacketIoReadCallbackParams capture;
+			CreateReadCaptureCallback(capture)(code, pReadPacket);
+			captures.push_back(capture);
+		};
+	}
+
 	namespace {
 		template<typename TTraits>
 		void AssertCanRoundtripPackets(mocks::MockPacketIo& mockIo, TTraits ioTraits) {
@@ -82,12 +99,12 @@ namespace catapult { namespace test {
 			{}
 
 		public:
-			void read(const ionet::PacketIo::ReadCallback& callback) {
-				m_io.read(callback);
-			}
-
 			void write(const ionet::PacketPayload& payload, const ionet::PacketIo::WriteCallback& callback) {
 				m_io.write(payload, callback);
+			}
+
+			void read(const ionet::PacketIo::ReadCallback& callback) {
+				m_io.read(callback);
 			}
 
 		private:

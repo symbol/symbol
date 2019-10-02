@@ -26,7 +26,7 @@ namespace catapult { namespace model { class TransactionRegistry; } }
 
 namespace catapult { namespace observers {
 
-	/// A notification observer to entity observer adapter that reverses the order of raised notifications.
+	/// Notification observer to entity observer adapter that reverses the order of raised notifications.
 	class ReverseNotificationObserverAdapter : public EntityObserver {
 	private:
 		using NotificationObserverPointer = NotificationObserverPointerT<model::Notification>;

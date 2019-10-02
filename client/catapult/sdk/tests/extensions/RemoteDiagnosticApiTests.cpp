@@ -195,6 +195,60 @@ namespace catapult { namespace extensions {
 
 		// endregion
 
+		// region UnlockedAccountsTraits
+
+		struct UnlockedAccountsTraits {
+			static constexpr auto Packet_Type = ionet::PacketType::Unlocked_Accounts;
+			static constexpr auto Num_Unlocked_Accounts = 3u;
+
+			static auto Invoke(const RemoteDiagnosticApi& api) {
+				return api.unlockedAccounts();
+			}
+
+			static auto CreateValidResponsePacket() {
+				uint32_t payloadSize = Num_Unlocked_Accounts * sizeof(Key);
+				auto pResponsePacket = ionet::CreateSharedPacket<ionet::Packet>(payloadSize);
+				pResponsePacket->Type = Packet_Type;
+
+				auto* pKeys = reinterpret_cast<Key*>(pResponsePacket->Data());
+				pKeys[0] = { { 0x11 } };
+				pKeys[1] = { { 0x22 } };
+				pKeys[2] = { { 0x33 } };
+
+				return pResponsePacket;
+			}
+
+			static auto CreateMalformedResponsePacket() {
+				// just change the size because no responses are intrinsically invalid
+				auto pResponsePacket = CreateValidResponsePacket();
+				--pResponsePacket->Size;
+				return pResponsePacket;
+			}
+
+			static void ValidateRequest(const ionet::Packet& packet) {
+				EXPECT_TRUE(ionet::IsPacketValid(packet, Packet_Type));
+			}
+
+			static void ValidateResponse(const ionet::Packet&, const model::EntityRange<Key>& unlockedAccountKeys) {
+				ASSERT_EQ(static_cast<uint32_t>(Num_Unlocked_Accounts), unlockedAccountKeys.size());
+
+				auto iter = unlockedAccountKeys.cbegin();
+				AssertKey(0x11, *iter);
+
+				++iter;
+				AssertKey(0x22, *iter);
+
+				++iter;
+				AssertKey(0x33, *iter);
+			}
+
+			static void AssertKey(uint8_t expectedByte, const Key& key) {
+				EXPECT_EQ(Key{ { expectedByte } }, key);
+			}
+		};
+
+		// endregion
+
 		template<typename TIdentifier, ionet::PacketType PacketType>
 		struct InfosTraits {
 		public:
@@ -375,6 +429,7 @@ namespace catapult { namespace extensions {
 
 	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteDiagnosticApi, DiagnosticCounters)
 	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteDiagnosticApi, ActiveNodeInfos)
+	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteDiagnosticApi, UnlockedAccounts)
 
 	using DiagnosticAccountInfosTraits = DiagnosticApiTraits<AccountInfosTraits>;
 	using DiagnosticAccountRestrictionsInfosTraits = DiagnosticApiTraits<AccountRestrictionsInfosTraits>;

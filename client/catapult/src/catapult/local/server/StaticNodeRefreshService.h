@@ -18,21 +18,15 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/ionet/ReaderIdentity.h"
-#include "catapult/crypto/KeyUtils.h"
-#include "tests/TestHarness.h"
+#pragma once
+#include "catapult/extensions/ServiceRegistrar.h"
+#include <vector>
 
-namespace catapult { namespace ionet {
+namespace catapult { namespace ionet { class Node; } }
 
-	TEST(TEST_CLASS, CanOutputReaderIdentity) {
-		// Arrange:
-		auto key = crypto::ParseKey("1B664F8BDA2DBF33CB6BE21C8EB3ECA9D9D5BF144C08E9577ED0D1E5E5608751");
-		auto identity = ReaderIdentity{ key, "bob.com" };
+namespace catapult { namespace local {
 
-		// Act:
-		auto str = test::ToString(identity);
-
-		// Assert:
-		EXPECT_EQ("reader (1B664F8BDA2DBF33CB6BE21C8EB3ECA9D9D5BF144C08E9577ED0D1E5E5608751 @ bob.com)", str);
-	}
+	/// Creates a registrar for a static node refresh service for \a staticNodes.
+	/// \note This service is responsible for (re)connecting to static nodes.
+	DECLARE_SERVICE_REGISTRAR(StaticNodeRefresh)(const std::vector<ionet::Node>& staticNodes);
 }}

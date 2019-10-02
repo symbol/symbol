@@ -278,7 +278,7 @@ namespace catapult { namespace state {
 		case MosaicSource::Map:
 			m_storage.map().erase(id);
 			break;
-		};
+		}
 
 		compact();
 	}

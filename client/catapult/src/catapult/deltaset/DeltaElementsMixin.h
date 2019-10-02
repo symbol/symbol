@@ -63,17 +63,17 @@ namespace catapult { namespace deltaset {
 		{}
 
 	public:
-		/// Gets pointers to all added elements.
+		/// Gets the pointers to all added elements.
 		PointerContainer addedElements() const {
 			return CollectAllPointers(m_setDelta.deltas().Added);
 		}
 
-		/// Gets pointers to all modified elements.
+		/// Gets the pointers to all modified elements.
 		PointerContainer modifiedElements() const {
 			return CollectAllPointers(m_setDelta.deltas().Copied);
 		}
 
-		/// Gets pointers to all removed elements.
+		/// Gets the pointers to all removed elements.
 		PointerContainer removedElements() const {
 			return CollectAllPointers(m_setDelta.deltas().Removed);
 		}

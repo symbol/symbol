@@ -37,7 +37,7 @@ namespace catapult { namespace cache {
 		NamespaceId,
 		state::NamespaceEntry>;
 
-	/// A read-only overlay on top of a namespace cache.
+	/// Read-only overlay on top of a namespace cache.
 	class ReadOnlyNamespaceCache : public ReadOnlyNamespaceArtifactCache {
 	public:
 		/// Creates a read-only overlay on top of \a cache.

@@ -19,13 +19,13 @@
 **/
 
 #pragma once
-#include "catapult/types.h"
+#include "NodeIdentity.h"
 
 namespace catapult { namespace model {
 
 /// \note The lower 3 bits must be cleared because they are used for different purposes, e.g. resolvers.
 #define NETWORK_IDENTIFIER_LIST \
-	/* A default (zero) identifier that does not identify any known network. */ \
+	/* Default (zero) identifier that does not identify any known network. */ \
 	ENUM_VALUE(Zero, 0) \
 	\
 	/* Mijin network identifier. */ \
@@ -54,13 +54,19 @@ namespace catapult { namespace model {
 	struct NetworkInfo {
 	public:
 		/// Creates a default, uninitialized network info.
-		constexpr NetworkInfo() : NetworkInfo(NetworkIdentifier::Zero, {}, {})
+		constexpr NetworkInfo()
+				: NetworkInfo(NetworkIdentifier::Zero, NodeIdentityEqualityStrategy::Key, Key(), catapult::GenerationHash())
 		{}
 
-		/// Creates a network info around a network \a identifier, a nemesis public key (\a publicKey)
-		/// and a nemesis generation hash (\a generationHash).
-		constexpr NetworkInfo(NetworkIdentifier identifier, const Key& publicKey, const catapult::GenerationHash& generationHash)
+		/// Creates a network info around network \a identifier, node equality strategy (\a nodeEqualityStrategy),
+		/// nemesis public key (\a publicKey) and nemesis generation hash (\a generationHash).
+		constexpr NetworkInfo(
+				NetworkIdentifier identifier,
+				NodeIdentityEqualityStrategy nodeEqualityStrategy,
+				const Key& publicKey,
+				const catapult::GenerationHash& generationHash)
 				: Identifier(identifier)
+				, NodeEqualityStrategy(nodeEqualityStrategy)
 				, PublicKey(publicKey)
 				, GenerationHash(generationHash)
 		{}
@@ -68,6 +74,9 @@ namespace catapult { namespace model {
 	public:
 		/// Network identifier.
 		NetworkIdentifier Identifier;
+
+		/// Node equality strategy.
+		NodeIdentityEqualityStrategy NodeEqualityStrategy;
 
 		/// Nemesis public key.
 		Key PublicKey;

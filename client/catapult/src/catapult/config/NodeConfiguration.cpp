@@ -37,6 +37,8 @@ namespace catapult { namespace config {
 
 		LOAD_NODE_PROPERTY(Port);
 		LOAD_NODE_PROPERTY(ApiPort);
+		LOAD_NODE_PROPERTY(MaxIncomingConnectionsPerIdentity);
+
 		LOAD_NODE_PROPERTY(EnableAddressReuse);
 		LOAD_NODE_PROPERTY(EnableSingleThreadPool);
 		LOAD_NODE_PROPERTY(EnableCacheDatabaseStorage);
@@ -80,6 +82,7 @@ namespace catapult { namespace config {
 		LOAD_NODE_PROPERTY(MaxTrackedNodes);
 
 		LOAD_NODE_PROPERTY(TrustedHosts);
+		LOAD_NODE_PROPERTY(LocalNetworks);
 
 #undef LOAD_NODE_PROPERTY
 
@@ -111,7 +114,20 @@ namespace catapult { namespace config {
 
 #undef LOAD_IN_CONNECTIONS_PROPERTY
 
-		utils::VerifyBagSizeLte(bag, 34 + 4 + 4 + 5);
+#define LOAD_BANNING_PROPERTY(NAME) utils::LoadIniProperty(bag, "banning", #NAME, config.Banning.NAME)
+
+		LOAD_BANNING_PROPERTY(DefaultBanDuration);
+		LOAD_BANNING_PROPERTY(MaxBanDuration);
+		LOAD_BANNING_PROPERTY(KeepAliveDuration);
+		LOAD_BANNING_PROPERTY(MaxBannedNodes);
+
+		LOAD_BANNING_PROPERTY(NumReadRateMonitoringBuckets);
+		LOAD_BANNING_PROPERTY(ReadRateMonitoringBucketDuration);
+		LOAD_BANNING_PROPERTY(MaxReadRateMonitoringTotalSize);
+
+#undef LOAD_BANNING_PROPERTY
+
+		utils::VerifyBagSizeLte(bag, 36 + 4 + 4 + 5 + 7);
 		return config;
 	}
 

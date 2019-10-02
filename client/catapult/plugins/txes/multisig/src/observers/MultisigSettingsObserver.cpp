@@ -26,8 +26,8 @@ namespace catapult { namespace observers {
 	using Notification = model::MultisigSettingsNotification;
 
 	namespace {
-		constexpr uint8_t AddDelta(uint8_t value, int8_t delta) {
-			return value + static_cast<uint8_t>(delta);
+		constexpr uint8_t AddDelta(uint8_t value, int8_t direction, int8_t delta) {
+			return static_cast<uint8_t>(value + direction * delta);
 		}
 	}
 
@@ -45,8 +45,8 @@ namespace catapult { namespace observers {
 		auto multisigIter = multisigCache.find(notification.Signer);
 		auto& multisigEntry = multisigIter.get();
 
-		int8_t direction = NotifyMode::Commit == context.Mode ? 1 : -1;
-		multisigEntry.setMinApproval(AddDelta(multisigEntry.minApproval(), direction * notification.MinApprovalDelta));
-		multisigEntry.setMinRemoval(AddDelta(multisigEntry.minRemoval(), direction * notification.MinRemovalDelta));
+		auto direction = static_cast<int8_t>(NotifyMode::Commit == context.Mode ? 1 : -1);
+		multisigEntry.setMinApproval(AddDelta(multisigEntry.minApproval(), direction, notification.MinApprovalDelta));
+		multisigEntry.setMinRemoval(AddDelta(multisigEntry.minRemoval(), direction, notification.MinRemovalDelta));
 	});
 }}

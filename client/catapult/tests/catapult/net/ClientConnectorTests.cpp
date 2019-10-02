@@ -32,6 +32,8 @@ namespace catapult { namespace net {
 #define TEST_CLASS ClientConnectorTests
 
 	namespace {
+		// region ConnectorTestContext
+
 		struct ConnectorTestContext {
 		public:
 			explicit ConnectorTestContext(const ConnectionSettings& settings = ConnectionSettings())
@@ -55,6 +57,51 @@ namespace catapult { namespace net {
 			boost::asio::io_context& IoContext;
 			std::shared_ptr<ClientConnector> pConnector;
 		};
+
+		// endregion
+
+		// region MultiConnectionState
+
+		struct MultiConnectionState {
+			std::vector<PeerConnectCode> Codes;
+			std::vector<Key> ClientKeys;
+			std::vector<std::shared_ptr<ionet::PacketSocket>> ServerSockets;
+			std::vector<std::shared_ptr<ionet::PacketSocket>> ClientSockets;
+		};
+
+		MultiConnectionState SetupMultiConnectionTest(const ConnectorTestContext& context, size_t numConnections) {
+			// Act: start multiple server and client verify operations
+			MultiConnectionState state;
+			test::TcpAcceptor acceptor(context.IoContext);
+			for (auto i = 0u; i < numConnections; ++i) {
+				std::atomic<size_t> numCallbacks(0);
+				test::SpawnPacketServerWork(acceptor, [&](const auto& pSocket) {
+					state.ServerSockets.push_back(pSocket);
+					context.pConnector->accept(pSocket, [&](auto result, const auto&, const auto& key) {
+						state.Codes.push_back(result);
+						state.ClientKeys.push_back(key);
+						++numCallbacks;
+					});
+				});
+
+				test::SpawnPacketClientWork(context.IoContext, [&](const auto& pSocket) {
+					state.ClientSockets.push_back(pSocket);
+					auto serverPeerInfo = VerifiedPeerInfo{ context.ServerKeyPair.publicKey(), ionet::ConnectionSecurityMode::None };
+					VerifyServer(pSocket, serverPeerInfo, context.ClientKeyPair, [&](auto, const auto&) {
+						++numCallbacks;
+					});
+				});
+
+				// - wait for both verifications to complete
+				WAIT_FOR_VALUE(2u, numCallbacks);
+			}
+
+			return state;
+		}
+
+		// endregion
+
+		// region AcceptCallbackParams
 
 		struct AcceptCallbackParams {
 		public:
@@ -80,20 +127,44 @@ namespace catapult { namespace net {
 			});
 		}
 
+		// endregion
+
+		// region asserts
+
 		void AssertFailed(PeerConnectCode expectedCode, const AcceptCallbackParams& capture) {
 			EXPECT_EQ(expectedCode, capture.Code);
 			EXPECT_FALSE(!!capture.pClientSocket);
 			EXPECT_EQ(Key(), capture.ClientKey);
 		}
+
+		// endregion
 	}
 
-	TEST(TEST_CLASS, InitiallyNoConnectionsAreActive) {
+	// region constructor
+
+	TEST(TEST_CLASS, CanCreateConnectorWithDefaultName) {
 		// Act:
-		ConnectorTestContext context;
+		auto pPool = test::CreateStartedIoThreadPool();
+		auto pConnector = CreateClientConnector(std::move(pPool), test::GenerateKeyPair(), ConnectionSettings());
 
 		// Assert:
-		EXPECT_EQ(0u, context.pConnector->numActiveConnections());
+		EXPECT_EQ(0u, pConnector->numActiveConnections());
+		EXPECT_EQ("", pConnector->name());
 	}
+
+	TEST(TEST_CLASS, CanCreateConnectorWithCustomName) {
+		// Act:
+		auto pPool = test::CreateStartedIoThreadPool();
+		auto pConnector = CreateClientConnector(std::move(pPool), test::GenerateKeyPair(), ConnectionSettings(), "Crazy Amazing");
+
+		// Assert:
+		EXPECT_EQ(0u, pConnector->numActiveConnections());
+		EXPECT_EQ("Crazy Amazing", pConnector->name());
+	}
+
+	// endregion
+
+	// region errors
 
 	TEST(TEST_CLASS, AcceptFailsOnAcceptError) {
 		// Arrange:
@@ -133,44 +204,43 @@ namespace catapult { namespace net {
 		EXPECT_EQ(0u, context.pConnector->numActiveConnections());
 	}
 
+	// endregion
+
+	// region self connections
+
+	TEST(TEST_CLASS, AcceptFailsOnSelfConnection_WhenSelfConnectionsDisallowed) {
+		// Arrange: prohibit self connections
+		ConnectionSettings settings;
+		settings.AllowIncomingSelfConnections = false;
+
+		// Act: establish a single (self) connection
+		ConnectorTestContext context(settings);
+		context.ServerKeyPair = test::CopyKeyPair(context.ClientKeyPair);
+		auto state = SetupMultiConnectionTest(context, 1);
+
+		// Assert: the accept should have failed but the connection should still be active (kept alive by `state`)
+		EXPECT_EQ(PeerConnectCode::Self_Connection_Error, state.Codes.back());
+		EXPECT_EQ(Key(), state.ClientKeys.back());
+		EXPECT_EQ(1u, context.pConnector->numActiveConnections());
+	}
+
+	TEST(TEST_CLASS, AcceptSucceedsOnSelfConnection_WhenSelfConnectionsAllowed) {
+		// Act: establish a single (self) connection
+		ConnectorTestContext context;
+		context.ServerKeyPair = test::CopyKeyPair(context.ClientKeyPair);
+		auto state = SetupMultiConnectionTest(context, 1);
+
+		// Assert: the accept should have succeeded and the connection should still be active
+		EXPECT_EQ(PeerConnectCode::Accepted, state.Codes.back());
+		EXPECT_EQ(context.ClientKeyPair.publicKey(), state.ClientKeys.back());
+		EXPECT_EQ(1u, context.pConnector->numActiveConnections());
+	}
+
+	// endregion
+
+	// region connected socket
+
 	namespace {
-		struct MultiConnectionState {
-			std::vector<PeerConnectCode> Codes;
-			std::vector<Key> ClientKeys;
-			std::vector<std::shared_ptr<ionet::PacketSocket>> ServerSockets;
-			std::vector<std::shared_ptr<ionet::PacketSocket>> ClientSockets;
-		};
-
-		MultiConnectionState SetupMultiConnectionTest(const ConnectorTestContext& context, size_t numConnections) {
-			// Act: start multiple server and client verify operations
-			MultiConnectionState state;
-			test::TcpAcceptor acceptor(context.IoContext);
-			for (auto i = 0u; i < numConnections; ++i) {
-				std::atomic<size_t> numCallbacks(0);
-				test::SpawnPacketServerWork(acceptor, [&](const auto& pSocket) {
-					state.ServerSockets.push_back(pSocket);
-					context.pConnector->accept(pSocket, [&](auto result, const auto&, const auto& key) {
-						state.Codes.push_back(result);
-						state.ClientKeys.push_back(key);
-						++numCallbacks;
-					});
-				});
-
-				test::SpawnPacketClientWork(context.IoContext, [&](const auto& pSocket) {
-					state.ClientSockets.push_back(pSocket);
-					auto serverPeerInfo = VerifiedPeerInfo{ context.ServerKeyPair.publicKey(), ionet::ConnectionSecurityMode::None };
-					VerifyServer(pSocket, serverPeerInfo, context.ClientKeyPair, [&](auto, const auto&) {
-						++numCallbacks;
-					});
-				});
-
-				// - wait for both verifications to complete
-				WAIT_FOR_VALUE(2u, numCallbacks);
-			}
-
-			return state;
-		}
-
 		using ConnectedSocketHandler = consumer<
 				PeerConnectCode,
 				const Key&,
@@ -225,6 +295,10 @@ namespace catapult { namespace net {
 
 		EXPECT_EQ(Num_Connections, context.pConnector->numActiveConnections());
 	}
+
+	// endregion
+
+	// region connecting socket
 
 	namespace {
 		using ConnectingSocketHandler = consumer<std::shared_ptr<ionet::PacketSocket>&>;
@@ -283,6 +357,8 @@ namespace catapult { namespace net {
 			EXPECT_EQ(0u, context.pConnector->numActiveConnections());
 		});
 	}
+
+	// endregion
 
 	// region timeout
 

@@ -45,11 +45,11 @@ namespace catapult { namespace handlers {
 			++pPacket->Size;
 
 			// Act:
-			ionet::ServerPacketHandlerContext context({}, "");
-			EXPECT_TRUE(handlers.process(*pPacket, context));
+			ionet::ServerPacketHandlerContext handlerContext;
+			EXPECT_TRUE(handlers.process(*pPacket, handlerContext));
 
 			// Assert: malformed packet is ignored
-			test::AssertNoResponse(context);
+			test::AssertNoResponse(handlerContext);
 		}
 	}
 
@@ -79,15 +79,15 @@ namespace catapult { namespace handlers {
 			pPacket->Type = ionet::PacketType::Diagnostic_Counters;
 
 			// Act:
-			ionet::ServerPacketHandlerContext context({}, "");
-			EXPECT_TRUE(handlers.process(*pPacket, context));
+			ionet::ServerPacketHandlerContext handlerContext;
+			EXPECT_TRUE(handlers.process(*pPacket, handlerContext));
 
 			// Assert: header is correct
 			auto expectedPacketSize = sizeof(ionet::PacketHeader) + counters.size() * sizeof(model::DiagnosticCounterValue);
-			test::AssertPacketHeader(context, expectedPacketSize, ionet::PacketType::Diagnostic_Counters);
+			test::AssertPacketHeader(handlerContext, expectedPacketSize, ionet::PacketType::Diagnostic_Counters);
 
 			// - counters are written
-			assertHandlerContext(context);
+			assertHandlerContext(handlerContext);
 		}
 	}
 
@@ -96,8 +96,8 @@ namespace catapult { namespace handlers {
 		auto counters = CountersVector();
 
 		// Assert:
-		AssertDiagnosticCountersHandlerWritesCountsInResponseToValidRequest(counters, [](const auto& context) {
-			EXPECT_TRUE(context.response().buffers().empty());
+		AssertDiagnosticCountersHandlerWritesCountsInResponseToValidRequest(counters, [](const auto& handlerContext) {
+			EXPECT_TRUE(handlerContext.response().buffers().empty());
 		});
 	}
 
@@ -106,8 +106,8 @@ namespace catapult { namespace handlers {
 		auto counters = CountersVector{ utils::DiagnosticCounter(utils::DiagnosticCounterId(123), []() { return 7; }) };
 
 		// Assert:
-		AssertDiagnosticCountersHandlerWritesCountsInResponseToValidRequest(counters, [](const auto& context) {
-			const auto* pCounterValue = reinterpret_cast<const model::DiagnosticCounterValue*>(test::GetSingleBufferData(context));
+		AssertDiagnosticCountersHandlerWritesCountsInResponseToValidRequest(counters, [](const auto& handlerContext) {
+			const auto* pCounterValue = reinterpret_cast<const model::DiagnosticCounterValue*>(test::GetSingleBufferData(handlerContext));
 			EXPECT_EQ(123u, pCounterValue->Id);
 			EXPECT_EQ(7u, pCounterValue->Value);
 		});
@@ -122,8 +122,8 @@ namespace catapult { namespace handlers {
 		};
 
 		// Asssert:
-		AssertDiagnosticCountersHandlerWritesCountsInResponseToValidRequest(counters, [](const auto& context) {
-			const auto* pCounterValue = reinterpret_cast<const model::DiagnosticCounterValue*>(test::GetSingleBufferData(context));
+		AssertDiagnosticCountersHandlerWritesCountsInResponseToValidRequest(counters, [](const auto& handlerContext) {
+			const auto* pCounterValue = reinterpret_cast<const model::DiagnosticCounterValue*>(test::GetSingleBufferData(handlerContext));
 			EXPECT_EQ(123u, pCounterValue->Id);
 			EXPECT_EQ(7u, pCounterValue->Value);
 
@@ -152,6 +152,14 @@ namespace catapult { namespace handlers {
 	}
 
 	namespace {
+		model::NodeIdentity ToIdentity(const Key& identityKey) {
+			return { identityKey, "11.22.33.44" };
+		}
+
+		ionet::Node CreateNamedNode(const Key& identityKey, const std::string& name) {
+			return test::CreateNamedNode({ identityKey, "11.22.33.44" }, name);
+		}
+
 		template<typename TAssertHandlerContext>
 		void AssertDiagnosticNodesHandlerWritesCountsInResponseToValidRequest(
 				const ionet::NodeContainer& nodeContainer,
@@ -166,14 +174,17 @@ namespace catapult { namespace handlers {
 			pPacket->Type = ionet::PacketType::Active_Node_Infos;
 
 			// Act:
-			ionet::ServerPacketHandlerContext context({}, "");
-			EXPECT_TRUE(handlers.process(*pPacket, context));
+			ionet::ServerPacketHandlerContext handlerContext;
+			EXPECT_TRUE(handlers.process(*pPacket, handlerContext));
 
 			// Assert: header is correct
-			test::AssertPacketHeader(context, sizeof(ionet::PacketHeader) + expectedPayloadSize, ionet::PacketType::Active_Node_Infos);
+			test::AssertPacketHeader(
+					handlerContext,
+					sizeof(ionet::PacketHeader) + expectedPayloadSize,
+					ionet::PacketType::Active_Node_Infos);
 
 			// - counters are written
-			assertHandlerContext(context);
+			assertHandlerContext(handlerContext);
 		}
 
 		ionet::ConnectionState CreateConnectionState(uint32_t age, uint32_t numConsecutiveFailures, uint32_t banAge) {
@@ -217,8 +228,8 @@ namespace catapult { namespace handlers {
 		ionet::NodeContainer nodeContainer;
 
 		// Assert:
-		AssertDiagnosticNodesHandlerWritesCountsInResponseToValidRequest(nodeContainer, 0, [](const auto& context) {
-			EXPECT_TRUE(context.response().buffers().empty());
+		AssertDiagnosticNodesHandlerWritesCountsInResponseToValidRequest(nodeContainer, 0, [](const auto& handlerContext) {
+			EXPECT_TRUE(handlerContext.response().buffers().empty());
 		});
 	}
 
@@ -228,14 +239,14 @@ namespace catapult { namespace handlers {
 		ionet::NodeContainer nodeContainer;
 		{
 			auto modifier = nodeContainer.modifier();
-			modifier.add(test::CreateNamedNode(keys[0], "a"), ionet::NodeSource::Static);
-			modifier.add(test::CreateNamedNode(keys[1], "b"), ionet::NodeSource::Dynamic);
-			modifier.add(test::CreateNamedNode(keys[2], "c"), ionet::NodeSource::Local);
+			modifier.add(CreateNamedNode(keys[0], "a"), ionet::NodeSource::Static);
+			modifier.add(CreateNamedNode(keys[1], "b"), ionet::NodeSource::Dynamic);
+			modifier.add(CreateNamedNode(keys[2], "c"), ionet::NodeSource::Local);
 		}
 
 		// Assert:
-		AssertDiagnosticNodesHandlerWritesCountsInResponseToValidRequest(nodeContainer, 0, [](const auto& context) {
-			EXPECT_TRUE(context.response().buffers().empty());
+		AssertDiagnosticNodesHandlerWritesCountsInResponseToValidRequest(nodeContainer, 0, [](const auto& handlerContext) {
+			EXPECT_TRUE(handlerContext.response().buffers().empty());
 		});
 	}
 
@@ -245,26 +256,27 @@ namespace catapult { namespace handlers {
 		ionet::NodeContainer nodeContainer;
 		{
 			auto modifier = nodeContainer.modifier();
-			modifier.add(test::CreateNamedNode(keys[0], "a"), ionet::NodeSource::Static);
-			modifier.add(test::CreateNamedNode(keys[1], "b"), ionet::NodeSource::Dynamic);
-			modifier.add(test::CreateNamedNode(keys[2], "c"), ionet::NodeSource::Local);
+			modifier.add(CreateNamedNode(keys[0], "a"), ionet::NodeSource::Static);
+			modifier.add(CreateNamedNode(keys[1], "b"), ionet::NodeSource::Dynamic);
+			modifier.add(CreateNamedNode(keys[2], "c"), ionet::NodeSource::Local);
 
 			// - add some node interaction results
-			modifier.incrementSuccesses(keys[1]);
-			modifier.incrementSuccesses(keys[1]);
-			modifier.incrementFailures(keys[1]);
+			modifier.incrementSuccesses(ToIdentity(keys[1]));
+			modifier.incrementSuccesses(ToIdentity(keys[1]));
+			modifier.incrementFailures(ToIdentity(keys[1]));
 
 			// - provision two services (notice that only one is active but both should be serialized)
-			modifier.provisionConnectionState(ionet::ServiceIdentifier(123), keys[1]) = CreateConnectionState(0, 5, 6);
-			modifier.provisionConnectionState(ionet::ServiceIdentifier(987), keys[1]) = CreateConnectionState(49, 16, 9);
+			modifier.provisionConnectionState(ionet::ServiceIdentifier(123), ToIdentity(keys[1])) = CreateConnectionState(0, 5, 6);
+			modifier.provisionConnectionState(ionet::ServiceIdentifier(987), ToIdentity(keys[1])) = CreateConnectionState(49, 16, 9);
 		}
 
 		// Assert:
 		auto expectedPacketSize = sizeof(ionet::PackedNodeInfo) + 2 * sizeof(ionet::PackedConnectionState);
-		AssertDiagnosticNodesHandlerWritesCountsInResponseToValidRequest(nodeContainer, expectedPacketSize, [&keys](const auto& context) {
-			ASSERT_EQ(1u, context.response().buffers().size());
+		AssertDiagnosticNodesHandlerWritesCountsInResponseToValidRequest(nodeContainer, expectedPacketSize, [&keys](
+				const auto& handlerContext) {
+			ASSERT_EQ(1u, handlerContext.response().buffers().size());
 
-			const auto& nodeInfo = reinterpret_cast<const ionet::PackedNodeInfo&>(*context.response().buffers()[0].pData);
+			const auto& nodeInfo = reinterpret_cast<const ionet::PackedNodeInfo&>(*handlerContext.response().buffers()[0].pData);
 			EXPECT_EQ(keys[1], nodeInfo.IdentityKey);
 			EXPECT_EQ(ionet::NodeSource::Dynamic, nodeInfo.Source);
 			EXPECT_EQ(2u, nodeInfo.Interactions.NumSuccesses);
@@ -294,32 +306,33 @@ namespace catapult { namespace handlers {
 		ionet::NodeContainer nodeContainer;
 		{
 			auto modifier = nodeContainer.modifier();
-			modifier.add(test::CreateNamedNode(keys[0], "a"), ionet::NodeSource::Static);
-			modifier.add(test::CreateNamedNode(keys[1], "b"), ionet::NodeSource::Dynamic);
-			modifier.add(test::CreateNamedNode(keys[2], "c"), ionet::NodeSource::Local);
+			modifier.add(CreateNamedNode(keys[0], "a"), ionet::NodeSource::Static);
+			modifier.add(CreateNamedNode(keys[1], "b"), ionet::NodeSource::Dynamic);
+			modifier.add(CreateNamedNode(keys[2], "c"), ionet::NodeSource::Local);
 
 			// - add some node interaction results
-			modifier.incrementSuccesses(keys[0]);
-			modifier.incrementSuccesses(keys[1]);
-			modifier.incrementFailures(keys[1]);
-			modifier.incrementFailures(keys[2]);
+			modifier.incrementSuccesses(ToIdentity(keys[0]));
+			modifier.incrementSuccesses(ToIdentity(keys[1]));
+			modifier.incrementFailures(ToIdentity(keys[1]));
+			modifier.incrementFailures(ToIdentity(keys[2]));
 
 			// - provision six services
-			modifier.provisionConnectionState(ionet::ServiceIdentifier(123), keys[0]) = CreateConnectionState(7, 3, 2);
-			modifier.provisionConnectionState(ionet::ServiceIdentifier(888), keys[0]) = CreateConnectionState(0, 2, 1);
-			modifier.provisionConnectionState(ionet::ServiceIdentifier(222), keys[0]) = CreateConnectionState(5, 1, 0);
+			modifier.provisionConnectionState(ionet::ServiceIdentifier(123), ToIdentity(keys[0])) = CreateConnectionState(7, 3, 2);
+			modifier.provisionConnectionState(ionet::ServiceIdentifier(888), ToIdentity(keys[0])) = CreateConnectionState(0, 2, 1);
+			modifier.provisionConnectionState(ionet::ServiceIdentifier(222), ToIdentity(keys[0])) = CreateConnectionState(5, 1, 0);
 
-			modifier.provisionConnectionState(ionet::ServiceIdentifier(123), keys[1]) = CreateConnectionState(1, 5, 6);
-			modifier.provisionConnectionState(ionet::ServiceIdentifier(987), keys[1]) = CreateConnectionState(49, 16, 9);
+			modifier.provisionConnectionState(ionet::ServiceIdentifier(123), ToIdentity(keys[1])) = CreateConnectionState(1, 5, 6);
+			modifier.provisionConnectionState(ionet::ServiceIdentifier(987), ToIdentity(keys[1])) = CreateConnectionState(49, 16, 9);
 
-			modifier.provisionConnectionState(ionet::ServiceIdentifier(111), keys[2]) = CreateConnectionState(9, 5, 4);
+			modifier.provisionConnectionState(ionet::ServiceIdentifier(111), ToIdentity(keys[2])) = CreateConnectionState(9, 5, 4);
 		}
 
 		// Assert:
 		auto expectedPacketSize = 3 * sizeof(ionet::PackedNodeInfo) + 6 * sizeof(ionet::PackedConnectionState);
-		AssertDiagnosticNodesHandlerWritesCountsInResponseToValidRequest(nodeContainer, expectedPacketSize, [&keys](const auto& context) {
+		AssertDiagnosticNodesHandlerWritesCountsInResponseToValidRequest(nodeContainer, expectedPacketSize, [&keys](
+				const auto& handlerContext) {
 			// - there are three buffers
-			const auto& buffers = context.response().buffers();
+			const auto& buffers = handlerContext.response().buffers();
 			ASSERT_EQ(3u, buffers.size());
 
 			std::vector<const ionet::PackedNodeInfo*> nodeInfos;
@@ -391,14 +404,14 @@ namespace catapult { namespace handlers {
 			pPacket->Height = Height(2);
 
 			// Act:
-			ionet::ServerPacketHandlerContext context({}, "");
-			EXPECT_TRUE(handlers.process(*pPacket, context));
+			ionet::ServerPacketHandlerContext handlerContext;
+			EXPECT_TRUE(handlers.process(*pPacket, handlerContext));
 
 			// Assert: header is correct
 			auto expectedPacketSize = sizeof(ionet::PacketHeader) + blockStatementDataSize;
-			test::AssertPacketHeader(context, expectedPacketSize, ionet::PacketType::Block_Statement);
+			test::AssertPacketHeader(handlerContext, expectedPacketSize, ionet::PacketType::Block_Statement);
 
-			const auto& buffers = context.response().buffers();
+			const auto& buffers = handlerContext.response().buffers();
 			ASSERT_EQ(1u, buffers.size());
 
 			// - block statement is written
@@ -449,11 +462,11 @@ namespace catapult { namespace handlers {
 		pPacket->Height = Height(2);
 
 		// Act:
-		ionet::ServerPacketHandlerContext context({}, "");
-		EXPECT_TRUE(handlers.process(*pPacket, context));
+		ionet::ServerPacketHandlerContext handlerContext;
+		EXPECT_TRUE(handlers.process(*pPacket, handlerContext));
 
 		// Assert:
-		EXPECT_FALSE(context.hasResponse());
+		EXPECT_FALSE(handlerContext.hasResponse());
 	}
 
 	TEST(TEST_CLASS, DiagnosticBlockStatementHandler_WritesBlockStatementDataInResponseToValidRequest_EmptyBlockStatement) {

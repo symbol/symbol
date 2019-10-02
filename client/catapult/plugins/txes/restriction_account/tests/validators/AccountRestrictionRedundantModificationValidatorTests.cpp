@@ -100,7 +100,7 @@ namespace catapult { namespace validators {
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	TRAITS_BASED_TEST(FailureWhenValidatingNotificationWithRedundantAdds) {
-		AssertValidationResult<TTraits>(Failure_RestrictionAccount_Modification_Redundant, [](const auto& values) {
+		AssertValidationResult<TTraits>(Failure_RestrictionAccount_Redundant_Modification, [](const auto& values) {
 			return std::vector<model::AccountRestrictionModification<typename TTraits::UnresolvedValueType>>{
 				{ Add, values[2] },
 				{ Add, test::CreateRandomUniqueValue(values) },
@@ -111,7 +111,7 @@ namespace catapult { namespace validators {
 	}
 
 	TRAITS_BASED_TEST(FailureWhenValidatingNotificationWithRedundantDels) {
-		AssertValidationResult<TTraits>(Failure_RestrictionAccount_Modification_Redundant, [](const auto& values) {
+		AssertValidationResult<TTraits>(Failure_RestrictionAccount_Redundant_Modification, [](const auto& values) {
 			return std::vector<model::AccountRestrictionModification<typename TTraits::UnresolvedValueType>>{
 				{ Del, values[2] },
 				{ Add, test::CreateRandomUniqueValue(values) },
@@ -122,7 +122,7 @@ namespace catapult { namespace validators {
 	}
 
 	TRAITS_BASED_TEST(FailureWhenValidatingNotificationWithRedundantAddAndDelete) {
-		AssertValidationResult<TTraits>(Failure_RestrictionAccount_Modification_Redundant, [](const auto& values) {
+		AssertValidationResult<TTraits>(Failure_RestrictionAccount_Redundant_Modification, [](const auto& values) {
 			return std::vector<model::AccountRestrictionModification<typename TTraits::UnresolvedValueType>>{
 				{ Add, values[2] },
 				{ Add, test::CreateRandomUniqueValue(values) },

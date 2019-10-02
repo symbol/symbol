@@ -37,23 +37,26 @@ namespace catapult { namespace handlers {
 		void AssertCreatePushEntityHandlerForwarding(const ionet::Packet& packet, size_t numExpectedForwards) {
 			// Arrange:
 			model::TransactionRegistry registry;
-			Key capturedSourcePublicKey;
+			model::NodeIdentity capturedSourceIdentity;
 			auto counter = 0u;
-			auto handler = CreatePushEntityHandler<model::Block>(registry, [&capturedSourcePublicKey, &counter](const auto& range) {
-				capturedSourcePublicKey = range.SourcePublicKey;
+			auto handler = CreatePushEntityHandler<model::Block>(registry, [&capturedSourceIdentity, &counter](const auto& range) {
+				capturedSourceIdentity = range.SourceIdentity;
 				++counter;
 			});
 
 			// Act:
 			auto sourcePublicKey = test::GenerateRandomByteArray<Key>();
-			handler(packet, ionet::ServerPacketHandlerContext(sourcePublicKey, ""));
+			auto sourceHost = std::string("11.22.33.44");
+			handler(packet, ionet::ServerPacketHandlerContext(sourcePublicKey, sourceHost));
 
 			// Assert:
 			EXPECT_EQ(numExpectedForwards, counter);
 
 			// - if the callback was called, context should have been forwarded along with the range
-			if (numExpectedForwards > 0)
-				EXPECT_EQ(sourcePublicKey, capturedSourcePublicKey);
+			if (numExpectedForwards > 0) {
+				EXPECT_EQ(sourcePublicKey, capturedSourceIdentity.PublicKey);
+				EXPECT_EQ("11.22.33.44", capturedSourceIdentity.Host);
+			}
 		}
 	}
 

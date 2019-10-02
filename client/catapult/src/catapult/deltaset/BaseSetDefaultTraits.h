@@ -66,7 +66,7 @@ namespace catapult { namespace deltaset {
 		using ValueType = typename KeyTraits::ValueType;
 		using StorageType = typename KeyTraits::StorageType;
 
-		/// Set values cannot be modified because they are hashed in native container.
+		/// Values contained in set cannot be modified because they are hashed in native container.
 		static constexpr bool AllowsNativeValueModification = false;
 
 		/// Converts a storage type (\a element) to a key.

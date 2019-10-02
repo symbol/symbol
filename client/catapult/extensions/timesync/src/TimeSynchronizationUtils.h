@@ -22,7 +22,7 @@
 #include "CommunicationTimestamps.h"
 #include "TimeSynchronizationSample.h"
 #include "catapult/extensions/ExtensionManager.h"
-#include "catapult/ionet/Node.h"
+#include "catapult/ionet/NodeSet.h"
 #include "catapult/net/NodeRequestResult.h"
 #include "catapult/thread/Task.h"
 
@@ -43,7 +43,7 @@ namespace catapult { namespace timesync {
 	/// Prototype for a time synchronization result supplier.
 	using TimeSyncResultSupplier = std::function<thread::future<TimeSyncRequestResultPair> (const ionet::Node&)>;
 
-	/// Returns time synchronization samples derived from communication timestamps retrieved from \a nodes using \a resultSupplier
+	/// Gets the time synchronization samples derived from communication timestamps retrieved from \a nodes using \a resultSupplier
 	/// and \a networkTimeSupplier.
 	thread::future<TimeSynchronizationSamples> RetrieveSamples(
 			const ionet::NodeSet& nodes,

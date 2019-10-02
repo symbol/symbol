@@ -86,7 +86,7 @@ namespace catapult { namespace timesync {
 			const ionet::Node& node,
 			const ionet::NodeInfo& nodeInfo,
 			Height height) const {
-		auto importance = importanceView.getAccountImportanceOrDefault(node.identityKey(), height);
+		auto importance = importanceView.getAccountImportanceOrDefault(node.identity().PublicKey, height);
 		auto isCandidate = importance >= m_minImportance
 				&& !!nodeInfo.getConnectionState(m_serviceId)
 				&& ionet::NodeSource::Local != nodeInfo.source();

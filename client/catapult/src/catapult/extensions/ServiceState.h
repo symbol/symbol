@@ -149,7 +149,7 @@ namespace catapult { namespace extensions {
 		}
 
 		/// Gets the tasks.
-		auto& tasks() {;
+		auto& tasks() {
 			return m_tasks;
 		}
 

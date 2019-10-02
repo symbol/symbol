@@ -28,7 +28,7 @@
 
 namespace catapult { namespace state {
 
-	/// A root namespace.
+	/// Root namespace.
 	class RootNamespace {
 	private:
 		struct PathsComparator {
@@ -103,7 +103,7 @@ namespace catapult { namespace state {
 		/// \note This method throws if the id is unknown.
 		void remove(NamespaceId id);
 
-		/// Sets \a alias for root or child namespace \a id.
+		/// Sets the \a alias associated with root or child namespace \a id.
 		void setAlias(NamespaceId id, const NamespaceAlias& alias);
 
 	public:

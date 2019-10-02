@@ -113,7 +113,7 @@ namespace catapult { namespace model {
 		static BlockChainConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
 	};
 
-	/// Gets unresolved currency mosaic id from \a config.
+	/// Gets the unresolved currency mosaic id from \a config.
 	UnresolvedMosaicId GetUnresolvedCurrencyMosaicId(const BlockChainConfiguration& config);
 
 	/// Calculates the duration of a full rollback for the block chain described by \a config.

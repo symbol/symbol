@@ -22,7 +22,7 @@
 
 namespace catapult { namespace handlers {
 
-	/// A base class for producers.
+	/// Base class for producers.
 	template<typename TContainer>
 	class BasicProducer {
 	public:

@@ -45,13 +45,13 @@ namespace catapult { namespace test {
 
 	// region accessors
 
-	/// Returns binary data \a name from a document (\a doc).
+	/// Gets the binary data \a name from a document (\a doc).
 	template<typename TDocument>
 	auto GetBinary(const TDocument& doc, const std::string& name) {
 		return doc[name].get_binary().bytes;
 	}
 
-	/// Returns binary data \a name from a document (\a doc) as an array.
+	/// Gets the binary data \a name from a document (\a doc) as an array.
 	template<size_t N, typename TDocument>
 	std::array<uint8_t, N> GetBinaryArray(const TDocument& doc, const std::string& name) {
 		std::array<uint8_t, N> value;
@@ -59,43 +59,43 @@ namespace catapult { namespace test {
 		return value;
 	}
 
-	/// Returns value \a name from a document (\a doc) as an signed 8 bit value.
+	/// Gets the value \a name from a document (\a doc) as an signed 8 bit value.
 	template<typename TDocument>
 	auto GetInt8(const TDocument& doc, const std::string& name) {
 		return utils::checked_cast<int32_t, int8_t>(doc[name].get_int32().value);
 	}
 
-	/// Returns value \a name from a document (\a doc) as an signed 32 bit value.
+	/// Gets the value \a name from a document (\a doc) as an signed 32 bit value.
 	template<typename TDocument>
 	auto GetInt32(const TDocument& doc, const std::string& name) {
 		return doc[name].get_int32().value;
 	}
 
-	/// Returns value \a name from a document (\a doc) as an signed 64 bit value.
+	/// Gets the value \a name from a document (\a doc) as an signed 64 bit value.
 	template<typename TDocument>
 	auto GetInt64(const TDocument& doc, const std::string& name) {
 		return doc[name].get_int64().value;
 	}
 
-	/// Returns value \a name from a document (\a doc) as an unsigned 8 bit value.
+	/// Gets the value \a name from a document (\a doc) as an unsigned 8 bit value.
 	template<typename TDocument>
 	auto GetUint8(const TDocument& doc, const std::string& name) {
 		return utils::checked_cast<int32_t, uint8_t>(doc[name].get_int32().value);
 	}
 
-	/// Returns value \a name from a document (\a doc) as an unsigned 32 bit value.
+	/// Gets the value \a name from a document (\a doc) as an unsigned 32 bit value.
 	template<typename TDocument>
 	auto GetUint32(const TDocument& doc, const std::string& name) {
 		return static_cast<uint32_t>(doc[name].get_int32().value);
 	}
 
-	/// Returns value \a name from a document (\a doc) as an unsigned 64 bit value.
+	/// Gets the value \a name from a document (\a doc) as an unsigned 64 bit value.
 	template<typename TDocument>
 	auto GetUint64(const TDocument& doc, const std::string& name) {
 		return static_cast<uint64_t>(doc[name].get_int64().value);
 	}
 
-	/// Returns number of fields in a document \a view.
+	/// Gets the number of fields in a document \a view.
 	template<typename TDocumentView>
 	size_t GetFieldCount(const TDocumentView& view) {
 		return static_cast<size_t>(std::distance(view.cbegin(), view.cend()));

@@ -26,7 +26,7 @@ namespace catapult { namespace model { class TransactionRegistry; } }
 
 namespace catapult { namespace validators {
 
-	/// A stateless notification validator to entity validator adapter.
+	/// Stateless notification validator to entity validator adapter.
 	class NotificationValidatorAdapter : public StatelessEntityValidator {
 	private:
 		using NotificationValidatorPointer = std::unique_ptr<const stateless::NotificationValidator>;

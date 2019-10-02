@@ -90,7 +90,7 @@ namespace catapult { namespace mongo { namespace storages {
 		static constexpr auto GetId = TDescriptor::GetKeyFromValue;
 	};
 
-	/// A mongo cache storage that persists historical cache data using delete and insert.
+	/// Mongo cache storage that persists historical cache data using delete and insert.
 	template<typename TCacheTraits>
 	class MongoHistoricalCacheStorage : public ExternalCacheStorageT<typename TCacheTraits::CacheType> {
 	private:
@@ -196,7 +196,7 @@ namespace catapult { namespace mongo { namespace storages {
 		model::NetworkIdentifier m_networkIdentifier;
 	};
 
-	/// A mongo cache storage that persists flat cache data using delete and upsert.
+	/// Mongo cache storage that persists flat cache data using delete and upsert.
 	template<typename TCacheTraits>
 	class MongoFlatCacheStorage : public ExternalCacheStorageT<typename TCacheTraits::CacheType> {
 	private:

@@ -153,7 +153,8 @@ namespace catapult { namespace model {
 
 		// Act:
 		std::stringstream out;
-		out << std::hex << score;
+		out.flags(std::ios::hex | std::ios::uppercase);
+		out << score;
 
 		// Assert:
 		EXPECT_EQ("8FDE42679C23D678006B3481023543B6", out.str());

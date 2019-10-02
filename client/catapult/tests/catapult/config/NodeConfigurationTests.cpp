@@ -35,6 +35,8 @@ namespace catapult { namespace config {
 						{
 							{ "port", "1234" },
 							{ "apiPort", "8888" },
+							{ "maxIncomingConnectionsPerIdentity", "7" },
+
 							{ "enableAddressReuse", "true" },
 							{ "enableSingleThreadPool", "true" },
 							{ "enableCacheDatabaseStorage", "true" },
@@ -77,7 +79,8 @@ namespace catapult { namespace config {
 							{ "maxCacheDatabaseWriteBatchSize", "17KB" },
 							{ "maxTrackedNodes", "222" },
 
-							{ "trustedHosts", "foo,BAR" }
+							{ "trustedHosts", "foo,BAR" },
+							{ "localNetworks", "1.2.3.4,9.8.7.6" }
 						}
 					},
 					{
@@ -107,6 +110,19 @@ namespace catapult { namespace config {
 							{ "numConsecutiveFailuresBeforeBanning", "19" },
 							{ "backlogSize", "21" }
 						}
+					},
+					{
+						"banning",
+						{
+							{ "defaultBanDuration", "5h" },
+							{ "maxBanDuration", "58h" },
+							{ "keepAliveDuration", "589h" },
+							{ "maxBannedNodes", "1928" },
+
+							{ "numReadRateMonitoringBuckets", "7" },
+							{ "readRateMonitoringBucketDuration", "9m" },
+							{ "maxReadRateMonitoringTotalSize", "11KB" }
+						}
 					}
 				};
 			}
@@ -119,6 +135,8 @@ namespace catapult { namespace config {
 				// Assert:
 				EXPECT_EQ(0u, config.Port);
 				EXPECT_EQ(0u, config.ApiPort);
+				EXPECT_EQ(0u, config.MaxIncomingConnectionsPerIdentity);
+
 				EXPECT_FALSE(config.EnableAddressReuse);
 				EXPECT_FALSE(config.EnableSingleThreadPool);
 				EXPECT_FALSE(config.EnableCacheDatabaseStorage);
@@ -162,6 +180,7 @@ namespace catapult { namespace config {
 				EXPECT_EQ(0u, config.MaxTrackedNodes);
 
 				EXPECT_TRUE(config.TrustedHosts.empty());
+				EXPECT_TRUE(config.LocalNetworks.empty());
 
 				EXPECT_EQ("", config.Local.Host);
 				EXPECT_EQ("", config.Local.FriendlyName);
@@ -178,12 +197,23 @@ namespace catapult { namespace config {
 				EXPECT_EQ(0u, config.IncomingConnections.MaxConnectionBanAge);
 				EXPECT_EQ(0u, config.IncomingConnections.NumConsecutiveFailuresBeforeBanning);
 				EXPECT_EQ(0u, config.IncomingConnections.BacklogSize);
+
+				EXPECT_EQ(utils::TimeSpan(), config.Banning.DefaultBanDuration);
+				EXPECT_EQ(utils::TimeSpan(), config.Banning.MaxBanDuration);
+				EXPECT_EQ(utils::TimeSpan(), config.Banning.KeepAliveDuration);
+				EXPECT_EQ(0u, config.Banning.MaxBannedNodes);
+
+				EXPECT_EQ(0u, config.Banning.NumReadRateMonitoringBuckets);
+				EXPECT_EQ(utils::TimeSpan(), config.Banning.ReadRateMonitoringBucketDuration);
+				EXPECT_EQ(utils::FileSize(), config.Banning.MaxReadRateMonitoringTotalSize);
 			}
 
 			static void AssertCustom(const NodeConfiguration& config) {
 				// Assert:
 				EXPECT_EQ(1234u, config.Port);
 				EXPECT_EQ(8888u, config.ApiPort);
+				EXPECT_EQ(7u, config.MaxIncomingConnectionsPerIdentity);
+
 				EXPECT_TRUE(config.EnableAddressReuse);
 				EXPECT_TRUE(config.EnableSingleThreadPool);
 				EXPECT_TRUE(config.EnableCacheDatabaseStorage);
@@ -227,6 +257,7 @@ namespace catapult { namespace config {
 				EXPECT_EQ(222u, config.MaxTrackedNodes);
 
 				EXPECT_EQ(std::unordered_set<std::string>({ "foo", "BAR" }), config.TrustedHosts);
+				EXPECT_EQ(std::unordered_set<std::string>({ "1.2.3.4", "9.8.7.6" }), config.LocalNetworks);
 
 				EXPECT_EQ("alice.com", config.Local.Host);
 				EXPECT_EQ("a GREAT node", config.Local.FriendlyName);
@@ -243,6 +274,15 @@ namespace catapult { namespace config {
 				EXPECT_EQ(16u, config.IncomingConnections.MaxConnectionBanAge);
 				EXPECT_EQ(19u, config.IncomingConnections.NumConsecutiveFailuresBeforeBanning);
 				EXPECT_EQ(21u, config.IncomingConnections.BacklogSize);
+
+				EXPECT_EQ(utils::TimeSpan::FromHours(5), config.Banning.DefaultBanDuration);
+				EXPECT_EQ(utils::TimeSpan::FromHours(58), config.Banning.MaxBanDuration);
+				EXPECT_EQ(utils::TimeSpan::FromHours(589), config.Banning.KeepAliveDuration);
+				EXPECT_EQ(1928u, config.Banning.MaxBannedNodes);
+
+				EXPECT_EQ(7u, config.Banning.NumReadRateMonitoringBuckets);
+				EXPECT_EQ(utils::TimeSpan::FromMinutes(9), config.Banning.ReadRateMonitoringBucketDuration);
+				EXPECT_EQ(utils::FileSize::FromKilobytes(11), config.Banning.MaxReadRateMonitoringTotalSize);
 			}
 		};
 	}

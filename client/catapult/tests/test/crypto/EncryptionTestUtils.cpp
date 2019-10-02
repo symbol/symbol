@@ -19,6 +19,7 @@
 **/
 
 #include "EncryptionTestUtils.h"
+#include "catapult/utils/MemoryUtils.h"
 #include "tests/test/nodeps/Random.h"
 #include <tiny-aes-c/aes.hpp>
 #include <cstring>
@@ -59,7 +60,7 @@ namespace catapult { namespace test {
 		auto encryptedDataSize = output.size();
 
 		Prepend(output, initializationVector);
-		std::memcpy(output.data() + initializationVector.size(), input.pData, input.Size);
+		utils::memcpy_cond(output.data() + initializationVector.size(), input.pData, input.Size);
 
 		AES_ctx ctx;
 		AES_init_ctx_iv(&ctx, encryptionKey.data(), initializationVector.data());

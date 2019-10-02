@@ -56,7 +56,8 @@ namespace catapult { namespace nodediscovery {
 
 		// Assert:
 		EXPECT_TRUE(result);
-		EXPECT_EQ(identityKey, node.identityKey());
+		EXPECT_EQ(identityKey, node.identity().PublicKey);
+		EXPECT_EQ("", node.identity().Host);
 		EXPECT_EQ("alice.com", node.endpoint().Host);
 		EXPECT_EQ(ionet::NodeVersion(1234), node.metadata().Version);
 		EXPECT_EQ("xyz", node.metadata().Name);
@@ -65,6 +66,12 @@ namespace catapult { namespace nodediscovery {
 	// endregion
 
 	// region TryParseNodesPacket
+
+	namespace {
+		model::NodeIdentity GenerateRandomNodeIdentity() {
+			return { test::GenerateRandomByteArray<Key>(), "" };
+		}
+	}
 
 	TEST(TEST_CLASS, TryParseNodesPacketFailsWhenPacketPayloadIsMalformed) {
 		// Arrange:
@@ -97,7 +104,7 @@ namespace catapult { namespace nodediscovery {
 
 	TEST(TEST_CLASS, TryParseNodesPacketSucceedsWhenPacketPayloadContainsSingleNode) {
 		// Arrange:
-		std::vector<ionet::Node> nodes{ test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "a") };
+		std::vector<ionet::Node> nodes{ test::CreateNamedNode(GenerateRandomNodeIdentity(), "a") };
 		auto pPacket = test::CreateNodePushPeersPacket(nodes);
 
 		// Act:
@@ -107,15 +114,15 @@ namespace catapult { namespace nodediscovery {
 		// Assert:
 		EXPECT_TRUE(result);
 		EXPECT_EQ(1u, parsedNodes.size());
-		EXPECT_EQ(ionet::NodeSet(nodes.cbegin(), nodes.cend()), parsedNodes);
+		test::AssertEqualNodes(ionet::NodeSet(nodes.cbegin(), nodes.cend()), parsedNodes);
 	}
 
 	TEST(TEST_CLASS, TryParseNodesPacketSucceedsWhenPacketPayloadContainsMultipleUniqueNodes) {
 		// Arrange:
 		std::vector<ionet::Node> nodes{
-			test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "a"),
-			test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "bc"),
-			test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "def")
+			test::CreateNamedNode(GenerateRandomNodeIdentity(), "a"),
+			test::CreateNamedNode(GenerateRandomNodeIdentity(), "bc"),
+			test::CreateNamedNode(GenerateRandomNodeIdentity(), "def")
 		};
 		auto pPacket = test::CreateNodePushPeersPacket(nodes);
 
@@ -126,15 +133,15 @@ namespace catapult { namespace nodediscovery {
 		// Assert:
 		EXPECT_TRUE(result);
 		EXPECT_EQ(3u, parsedNodes.size());
-		EXPECT_EQ(ionet::NodeSet(nodes.cbegin(), nodes.cend()), parsedNodes);
+		test::AssertEqualNodes(ionet::NodeSet(nodes.cbegin(), nodes.cend()), parsedNodes);
 	}
 
 	TEST(TEST_CLASS, TryParseNodesPacketSucceedsWhenPacketPayloadContainsMultipleNodesWithDuplicates) {
 		// Arrange: create a payload with 3 unique nodes and 2 duplicates
 		std::vector<ionet::Node> nodes{
-			test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "a"),
-			test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "bc"),
-			test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "def")
+			test::CreateNamedNode(GenerateRandomNodeIdentity(), "a"),
+			test::CreateNamedNode(GenerateRandomNodeIdentity(), "bc"),
+			test::CreateNamedNode(GenerateRandomNodeIdentity(), "def")
 		};
 		nodes.push_back(nodes[2]);
 		nodes.push_back(nodes[0]);
@@ -150,7 +157,7 @@ namespace catapult { namespace nodediscovery {
 		// Assert:
 		EXPECT_TRUE(result);
 		EXPECT_EQ(3u, parsedNodes.size());
-		EXPECT_EQ(ionet::NodeSet(nodes.cbegin(), nodes.cend()), parsedNodes);
+		test::AssertEqualNodes(ionet::NodeSet(nodes.cbegin(), nodes.cend()), parsedNodes);
 	}
 
 	// endregion
@@ -159,15 +166,15 @@ namespace catapult { namespace nodediscovery {
 
 	TEST(TEST_CLASS, IsNodeCompatibleReturnsFalseWhenNetworkDoesNotMatch) {
 		// Arrange:
-		ionet::Node node(test::GenerateRandomByteArray<Key>(), ionet::NodeEndpoint(), ionet::NodeMetadata());
+		ionet::Node node({ test::GenerateRandomByteArray<Key>(), "11.22.33.44" });
 
 		// Act + Assert:
-		EXPECT_FALSE(IsNodeCompatible(node, model::NetworkIdentifier::Mijin_Test, node.identityKey()));
+		EXPECT_FALSE(IsNodeCompatible(node, model::NetworkIdentifier::Mijin_Test, node.identity().PublicKey));
 	}
 
 	TEST(TEST_CLASS, IsNodeCompatibleReturnsFalseWhenIdentityDoesNotMatch) {
 		// Arrange:
-		ionet::Node node(test::GenerateRandomByteArray<Key>(), ionet::NodeEndpoint(), ionet::NodeMetadata());
+		ionet::Node node({ test::GenerateRandomByteArray<Key>(), "11.22.33.44" });
 
 		// Act + Assert:
 		EXPECT_FALSE(IsNodeCompatible(node, node.metadata().NetworkIdentifier, test::GenerateRandomByteArray<Key>()));
@@ -175,10 +182,10 @@ namespace catapult { namespace nodediscovery {
 
 	TEST(TEST_CLASS, IsNodeCompatibleReturnsTrueWhenAllChecksPass) {
 		// Arrange:
-		ionet::Node node(test::GenerateRandomByteArray<Key>(), ionet::NodeEndpoint(), ionet::NodeMetadata());
+		ionet::Node node({ test::GenerateRandomByteArray<Key>(), "11.22.33.44" });
 
 		// Act + Assert:
-		EXPECT_TRUE(IsNodeCompatible(node, node.metadata().NetworkIdentifier, node.identityKey()));
+		EXPECT_TRUE(IsNodeCompatible(node, node.metadata().NetworkIdentifier, node.identity().PublicKey));
 	}
 
 	// endregion
@@ -233,7 +240,7 @@ namespace catapult { namespace nodediscovery {
 
 		// Assert:
 		EXPECT_EQ(2u, unknownNodes.size());
-		EXPECT_EQ(ionet::NodeSet({ GetNodeAt(inputNodes, 1), GetNodeAt(inputNodes, 3) }), unknownNodes);
+		test::AssertEqualNodes(ionet::NodeSet({ GetNodeAt(inputNodes, 1), GetNodeAt(inputNodes, 3) }), unknownNodes);
 	}
 
 	TEST(TEST_CLASS, SelectUnknownNodesReturnsInputSetWhenAllNodesAreUnknown) {
@@ -247,7 +254,7 @@ namespace catapult { namespace nodediscovery {
 
 		// Assert:
 		EXPECT_EQ(5u, unknownNodes.size());
-		EXPECT_EQ(inputNodes, unknownNodes);
+		test::AssertEqualNodes(inputNodes, unknownNodes);
 	}
 
 	// endregion

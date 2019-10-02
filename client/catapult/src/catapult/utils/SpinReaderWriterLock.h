@@ -53,6 +53,8 @@ namespace catapult { namespace utils {
 #pragma pop_macro("Yield")
 
 	private:
+		// region LockGuard
+
 		/// Base class for RAII lock guards.
 		class LockGuard {
 		protected:
@@ -78,11 +80,24 @@ namespace catapult { namespace utils {
 			bool m_isMoved;
 		};
 
+		// endregion
+
 	public:
-		/// A writer lock guard.
-		struct WriterLockGuard : public LockGuard {
+		// region WriterLockGuard
+
+		/// RAII writer lock guard.
+		class WriterLockGuard : public LockGuard {
 		public:
+			/// Creates a guard around \a value.
+			explicit WriterLockGuard(std::atomic<uint16_t>& value)
+					: LockGuard([&value]() {
+						// unset the active writer flag
+						value.fetch_sub(Active_Writer_Flag + Pending_Writer_Increment);
+					})
+			{}
+
 			/// Creates a guard around \a value and \a isActive.
+			/// \note This constructor is used when writer is created by promotion.
 			WriterLockGuard(std::atomic<uint16_t>& value, bool& isActive)
 					: LockGuard([&value, &isActive]() {
 						// unset the active writer flag and change the writer to a reader
@@ -95,8 +110,12 @@ namespace catapult { namespace utils {
 			WriterLockGuard(WriterLockGuard&&) = default;
 		};
 
-		/// A reader lock guard.
-		struct ReaderLockGuard : public LockGuard {
+		// endregion
+
+		// region ReaderLockGuard
+
+		/// RAII reader lock guard.
+		class ReaderLockGuard : public LockGuard {
 		public:
 			/// Creates a guard around \a value and \a notificationPolicy.
 			ReaderLockGuard(std::atomic<uint16_t>& value, TReaderNotificationPolicy& notificationPolicy)
@@ -114,19 +133,17 @@ namespace catapult { namespace utils {
 			ReaderLockGuard(ReaderLockGuard&&) = default;
 
 		public:
+			/// Promotes this reader lock to a writer lock.
+			/// \note Deadlock is possible when promoteToWriter is called concurrently by multiple threads for the same lock.
+			///       Each of the concurrent threads holds a reader lock, so a writer lock cannot be acquired by any thread.
 			WriterLockGuard promoteToWriter() {
 				markActiveWriter();
 
 				// mark a pending write by changing the reader to a writer
 				m_value.fetch_add(Pending_Writer_Increment - Active_Reader_Increment);
 
-				// wait for exclusive access (when there is no active writer and no readers)
-				uint16_t expected = m_value & Pending_Writer_Mask;
-				while (!m_value.compare_exchange_strong(expected, expected | Active_Writer_Flag)) {
-					Yield();
-					expected = m_value & Pending_Writer_Mask;
-				}
-
+				// wait for exclusive access
+				AcquireWriter(m_value);
 				return WriterLockGuard(m_value, m_isWriterActive);
 			}
 
@@ -143,10 +160,33 @@ namespace catapult { namespace utils {
 			bool m_isWriterActive;
 		};
 
+		// endregion
+
 	public:
 		/// Creates an unlocked lock.
 		BasicSpinReaderWriterLock() : m_value(0)
 		{}
+
+	public:
+		/// Returns \c true if there is a pending (or active) writer.
+		inline bool isWriterPending() const {
+			return isSet(Pending_Writer_Mask);
+		}
+
+		/// Returns \c true if there is an active writer.
+		inline bool isWriterActive() const {
+			return isSet(Active_Writer_Flag);
+		}
+
+		/// Returns \c true if there is an active reader.
+		inline bool isReaderActive() const {
+			return isSet(Reader_Mask);
+		}
+
+	private:
+		inline bool isSet(uint16_t mask) const {
+			return 0 != (m_value & mask);
+		}
 
 	public:
 		/// Blocks until a reader lock can be acquired.
@@ -171,38 +211,37 @@ namespace catapult { namespace utils {
 			return ReaderLockGuard(m_value, *this);
 		}
 
-	public:
-		/// Returns \c true if there is a pending (or active) writer.
-		inline bool isWriterPending() const {
-			return isSet(Pending_Writer_Mask);
-		}
+		/// Blocks until a writer lock can be acquired.
+		inline WriterLockGuard acquireWriter() {
+			// mark a pending write
+			m_value.fetch_add(Pending_Writer_Increment);
 
-		/// Returns \c true if there is an active writer.
-		inline bool isWriterActive() const {
-			return isSet(Active_Writer_Flag);
-		}
-
-		/// Returns \c true if there is an active reader.
-		inline bool isReaderActive() const {
-			return isSet(Reader_Mask);
+			// wait for exclusive access
+			AcquireWriter(m_value);
+			return WriterLockGuard(m_value);
 		}
 
 	private:
-		inline bool isSet(uint16_t mask) const {
-			return 0 != (m_value & mask);
+		static void AcquireWriter(std::atomic<uint16_t>& value) {
+			// wait for exclusive access (when there is no active writer and no readers)
+			uint16_t expected = value & Pending_Writer_Mask;
+			while (!value.compare_exchange_strong(expected, expected | Active_Writer_Flag)) {
+				Yield();
+				expected = value & Pending_Writer_Mask;
+			}
 		}
 
 	private:
 		std::atomic<uint16_t> m_value;
 	};
 
-	/// A no-op reader notification policy.
+	/// No-op reader notification policy.
 	struct NoOpReaderNotificationPolicy {
-		/// A reader was acquried by the current thread.
+		/// Reader was acquried by the current thread.
 		constexpr void readerAcquired()
 		{}
 
-		/// A reader was released by the current thread.
+		/// Reader was released by the current thread.
 		constexpr void readerReleased()
 		{}
 	};
@@ -220,6 +259,6 @@ namespace catapult { namespace utils {
 	using DefaultReaderNotificationPolicy = NoOpReaderNotificationPolicy;
 #endif
 
-	/// A default reader writer lock.
+	/// Default reader writer lock.
 	using SpinReaderWriterLock = BasicSpinReaderWriterLock<DefaultReaderNotificationPolicy>;
 }}

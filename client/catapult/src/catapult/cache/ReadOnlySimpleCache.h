@@ -23,7 +23,7 @@
 
 namespace catapult { namespace cache {
 
-	/// A read-only overlay on top of a cache that provides support for contains.
+	/// Read-only overlay on top of a cache that provides support for contains.
 	template<typename TCache, typename TCacheDelta, typename TKey>
 	class ReadOnlySimpleCache {
 	public:
@@ -40,7 +40,7 @@ namespace catapult { namespace cache {
 		{}
 
 	public:
-		/// Returns the number of elements in the cache.
+		/// Gets the number of elements in the cache.
 		size_t size() const {
 			return m_pCache ? m_pCache->size() : m_pCacheDelta->size();
 		}

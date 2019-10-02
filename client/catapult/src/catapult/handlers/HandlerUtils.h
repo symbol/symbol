@@ -41,7 +41,7 @@ namespace catapult { namespace handlers {
 			}
 
 			CATAPULT_LOG(trace) << "received valid " << packet;
-			rangeHandler({ std::move(range), context.key() });
+			rangeHandler({ std::move(range), { context.key(), context.host() } });
 		};
 	}
 }}

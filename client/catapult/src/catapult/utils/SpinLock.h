@@ -56,6 +56,6 @@ namespace catapult { namespace utils {
 		std::atomic_flag m_isLocked;
 	};
 
-	/// A spin lock guard.
+	/// Spin lock guard.
 	using SpinLockGuard = std::lock_guard<SpinLock>;
 }}

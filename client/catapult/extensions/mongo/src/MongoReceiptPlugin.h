@@ -29,7 +29,7 @@ namespace catapult { namespace model { struct Receipt; } }
 
 namespace catapult { namespace mongo {
 
-	/// A mongo receipt plugin.
+	/// Mongo receipt plugin.
 	class MongoReceiptPlugin {
 	public:
 		virtual ~MongoReceiptPlugin() = default;
@@ -42,6 +42,6 @@ namespace catapult { namespace mongo {
 		virtual void streamReceipt(bsoncxx::builder::stream::document& builder, const model::Receipt& receipt) const = 0;
 	};
 
-	/// A registry of mongo receipt plugins.
+	/// Registry of mongo receipt plugins.
 	class MongoReceiptRegistry : public model::PluginRegistry<MongoReceiptPlugin, model::ReceiptType> {};
 }}

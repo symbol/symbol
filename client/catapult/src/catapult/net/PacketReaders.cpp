@@ -25,6 +25,7 @@
 #include "catapult/ionet/SocketReader.h"
 #include "catapult/utils/HexFormatter.h"
 #include "catapult/utils/SpinLock.h"
+#include <unordered_map>
 
 namespace catapult { namespace net {
 
@@ -33,7 +34,7 @@ namespace catapult { namespace net {
 
 		struct ReaderState {
 		public:
-			Key PublicKey;
+			model::NodeIdentity Identity;
 			std::shared_ptr<ionet::PacketIo> pBufferedIo;
 			std::weak_ptr<ChainedSocketReader> pReader;
 		};
@@ -43,7 +44,10 @@ namespace catapult { namespace net {
 			using ChainedSocketReaderFactory = std::function<std::shared_ptr<ChainedSocketReader> (const PacketSocketPointer&, uint32_t)>;
 
 		public:
-			explicit ReaderContainer(uint32_t maxConnectionsPerIdentity) : m_maxConnectionsPerIdentity(maxConnectionsPerIdentity)
+			ReaderContainer(uint32_t maxConnectionsPerIdentity, model::NodeIdentityEqualityStrategy equalityStrategy)
+					: m_maxConnectionsPerIdentity(maxConnectionsPerIdentity)
+					, m_equalityStrategy(equalityStrategy)
+					, m_readers(0, IdentityIdPairHasher(equalityStrategy), IdentityIdPairEquality(equalityStrategy))
 			{}
 
 		public:
@@ -52,25 +56,29 @@ namespace catapult { namespace net {
 				return m_readers.size();
 			}
 
-			utils::KeySet identities() const {
+			model::NodeIdentitySet identities() const {
+				auto activeIdentities = model::CreateNodeIdentitySet(m_equalityStrategy);
+
 				utils::SpinLockGuard guard(m_lock);
-				utils::KeySet activeIdentities;
 				for (const auto& pair : m_readers)
-					activeIdentities.emplace(pair.second.PublicKey);
+					activeIdentities.emplace(pair.second.Identity);
 
 				return activeIdentities;
 			}
 
-			bool insert(const Key& identityKey, const PacketSocketPointer& pSocket, const ChainedSocketReaderFactory& readerFactory) {
+			bool insert(
+					const model::NodeIdentity& identity,
+					const PacketSocketPointer& pSocket,
+					const ChainedSocketReaderFactory& readerFactory) {
 				ReaderState state;
-				state.PublicKey = identityKey;
+				state.Identity = identity;
 				state.pBufferedIo = pSocket->buffered();
 
 				utils::SpinLockGuard guard(m_lock);
 
 				auto insertedReaderIter = m_readers.end();
 				for (auto i = 0u; i < m_maxConnectionsPerIdentity; ++i) {
-					auto emplaceResult = m_readers.emplace(std::make_pair(state.PublicKey, i), state);
+					auto emplaceResult = m_readers.emplace(std::make_pair(state.Identity, i), state);
 					if (emplaceResult.second) {
 						insertedReaderIter = emplaceResult.first;
 						break;
@@ -79,6 +87,7 @@ namespace catapult { namespace net {
 
 				if (m_readers.end() == insertedReaderIter) {
 					// all available connections for the current identity are used up
+					CATAPULT_LOG(warning) << "rejecting incoming connection from " << identity << " (max connections in use)";
 					pSocket->close();
 					return false;
 				}
@@ -90,19 +99,19 @@ namespace catapult { namespace net {
 				return true;
 			}
 
-			bool close(const Key& identityKey) {
+			bool close(const model::NodeIdentity& identity) {
 				utils::SpinLockGuard guard(m_lock);
 
 				bool anyClosed = false;
 				for (auto i = 0u; i < m_maxConnectionsPerIdentity; ++i)
-					anyClosed = closeSingle(identityKey, i) || anyClosed;
+					anyClosed = closeSingle(identity, i) || anyClosed;
 
 				return anyClosed;
 			}
 
-			bool close(const Key& identityKey, uint32_t id) {
+			bool close(const model::NodeIdentity& identity, uint32_t id) {
 				utils::SpinLockGuard guard(m_lock);
-				return closeSingle(identityKey, id);
+				return closeSingle(identity, id);
 			}
 
 			void clear() {
@@ -122,12 +131,12 @@ namespace catapult { namespace net {
 				pReader->stop();
 			}
 
-			bool closeSingle(const Key& identityKey, uint32_t id) {
-				auto iter = m_readers.find(std::make_pair(identityKey, id));
+			bool closeSingle(const model::NodeIdentity& identity, uint32_t id) {
+				auto iter = m_readers.find(std::make_pair(identity, id));
 				if (m_readers.end() == iter)
 					return false;
 
-				CATAPULT_LOG(debug) << "closing connection to " << identityKey << " - " << id;
+				CATAPULT_LOG(debug) << "closing connection to " << identity << " - " << id;
 				auto state = iter->second;
 				m_readers.erase(iter);
 				stop(state);
@@ -135,16 +144,41 @@ namespace catapult { namespace net {
 			}
 
 		private:
-			struct KeyIdPairHasher {
-				size_t operator()(const std::pair<Key, uint32_t>& value) const {
-					return utils::ArrayHasher<Key>()(value.first);
+			using IdentityIdPair = std::pair<model::NodeIdentity, uint32_t>;
+
+			class IdentityIdPairEquality {
+			public:
+				explicit IdentityIdPairEquality(model::NodeIdentityEqualityStrategy strategy) : m_equality(strategy)
+				{}
+
+			public:
+				bool operator()(const IdentityIdPair& lhs, const IdentityIdPair& rhs) const {
+					return m_equality(lhs.first, rhs.first) && lhs.second == rhs.second;
 				}
+
+			private:
+				model::NodeIdentityEquality m_equality;
 			};
 
-			using Readers = std::unordered_map<std::pair<Key, uint32_t>, ReaderState, KeyIdPairHasher>;
+			class IdentityIdPairHasher {
+			public:
+				explicit IdentityIdPairHasher(model::NodeIdentityEqualityStrategy strategy) : m_hasher(strategy)
+				{}
+
+			public:
+				size_t operator()(const IdentityIdPair& pair) const {
+					return m_hasher(pair.first);
+				}
+
+			private:
+				model::NodeIdentityHasher m_hasher;
+			};
+
+			using Readers = std::unordered_map<IdentityIdPair, ReaderState, IdentityIdPairHasher, IdentityIdPairEquality>;
 
 		private:
 			uint32_t m_maxConnectionsPerIdentity;
+			model::NodeIdentityEqualityStrategy m_equalityStrategy;
 			Readers m_readers;
 			mutable utils::SpinLock m_lock;
 		};
@@ -158,8 +192,8 @@ namespace catapult { namespace net {
 					const ConnectionSettings& settings,
 					uint32_t maxConnectionsPerIdentity)
 					: m_handlers(handlers)
-					, m_pClientConnector(CreateClientConnector(pPool, keyPair, settings))
-					, m_readers(maxConnectionsPerIdentity)
+					, m_pClientConnector(CreateClientConnector(pPool, keyPair, settings, "readers"))
+					, m_readers(maxConnectionsPerIdentity, settings.NodeIdentityEqualityStrategy)
 			{}
 
 		public:
@@ -171,17 +205,17 @@ namespace catapult { namespace net {
 				return m_readers.size();
 			}
 
-			utils::KeySet identities() const override {
+			model::NodeIdentitySet identities() const override {
 				return m_readers.identities();
 			}
 
 		public:
-			void accept(const ionet::AcceptedPacketSocketInfo& socketInfo, const AcceptCallback& callback) override {
+			void accept(const ionet::PacketSocketInfo& socketInfo, const AcceptCallback& callback) override {
 				m_pClientConnector->accept(socketInfo.socket(), [pThis = shared_from_this(), host = socketInfo.host(), callback](
 						auto connectCode,
 						const auto& pVerifiedSocket,
 						const auto& identityKey) {
-					ionet::AcceptedPacketSocketInfo verifiedSocketInfo(host, pVerifiedSocket);
+					ionet::PacketSocketInfo verifiedSocketInfo(host, pVerifiedSocket);
 					if (PeerConnectCode::Accepted == connectCode) {
 						if (!pThis->addReader(identityKey, verifiedSocketInfo))
 							connectCode = PeerConnectCode::Already_Connected;
@@ -189,12 +223,13 @@ namespace catapult { namespace net {
 							CATAPULT_LOG(debug) << "accepted connection from '" << verifiedSocketInfo.host() << "' as " << identityKey;
 					}
 
-					return callback({ connectCode, identityKey });
+					return callback({ connectCode, { identityKey, host } });
 				});
 			}
 
-			bool closeOne(const Key& identityKey) override {
-				return m_readers.close(identityKey);
+			bool closeOne(const model::NodeIdentity& identity) override {
+				CATAPULT_LOG(debug) << "closing all connections from " << identity;
+				return m_readers.close(identity);
 			}
 
 			void shutdown() override {
@@ -204,25 +239,24 @@ namespace catapult { namespace net {
 			}
 
 		private:
-			bool addReader(const Key& identityKey, const ionet::AcceptedPacketSocketInfo& socketInfo) {
-				auto identity = ionet::ReaderIdentity{ identityKey, socketInfo.host() };
-				return m_readers.insert(identityKey, socketInfo.socket(), [this, &identity](const auto& pSocket, auto id) {
+			bool addReader(const Key& identityKey, const ionet::PacketSocketInfo& socketInfo) {
+				auto identity = model::NodeIdentity{ identityKey, socketInfo.host() };
+				return m_readers.insert(identity, socketInfo.socket(), [this, &identity](const auto& pSocket, auto id) {
 					return this->createReader(pSocket, identity, id);
 				});
 			}
 
 			std::shared_ptr<ChainedSocketReader> createReader(
 					const PacketSocketPointer& pSocket,
-					const ionet::ReaderIdentity& identity,
+					const model::NodeIdentity& identity,
 					uint32_t id) {
-				const auto& identityKey = identity.PublicKey;
-				return CreateChainedSocketReader(pSocket, m_handlers, identity, [pThis = shared_from_this(), identityKey, id](auto code) {
+				return CreateChainedSocketReader(pSocket, m_handlers, identity, [pThis = shared_from_this(), identity, id](auto code) {
 					// if the socket is closed cleanly, just remove the closed socket
 					// if the socket errored, remove all sockets with the same identity
 					if (ionet::SocketOperationCode::Closed == code)
-						pThis->m_readers.close(identityKey, id);
+						pThis->m_readers.close(identity, id);
 					else
-						pThis->m_readers.close(identityKey);
+						pThis->m_readers.close(identity);
 				});
 			}
 

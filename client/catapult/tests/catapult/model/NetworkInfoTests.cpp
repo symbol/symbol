@@ -31,12 +31,13 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCreateDefaultNetwork) {
 		// Act:
-		NetworkInfo info;
+		NetworkInfo networkInfo;
 
 		// Assert:
-		EXPECT_EQ(0x00u, utils::to_underlying_type(info.Identifier));
-		EXPECT_EQ(Key(), info.PublicKey);
-		EXPECT_EQ(GenerationHash(), info.GenerationHash);
+		EXPECT_EQ(NetworkIdentifier::Zero, networkInfo.Identifier);
+		EXPECT_EQ(NodeIdentityEqualityStrategy::Key, networkInfo.NodeEqualityStrategy);
+		EXPECT_EQ(Key(), networkInfo.PublicKey);
+		EXPECT_EQ(GenerationHash(), networkInfo.GenerationHash);
 	}
 
 	TEST(TEST_CLASS, CanCreateCustomNetwork) {
@@ -45,12 +46,17 @@ namespace catapult { namespace model {
 		auto generationHash = test::GenerateRandomByteArray<GenerationHash>();
 
 		// Act:
-		NetworkInfo info(static_cast<NetworkIdentifier>(0xB9), publicKey, generationHash);
+		NetworkInfo networkInfo(
+				static_cast<NetworkIdentifier>(0xB9),
+				static_cast<NodeIdentityEqualityStrategy>(0xA7),
+				publicKey,
+				generationHash);
 
 		// Assert:
-		EXPECT_EQ(0xB9u, utils::to_underlying_type(info.Identifier));
-		EXPECT_EQ(publicKey, info.PublicKey);
-		EXPECT_EQ(generationHash, info.GenerationHash);
+		EXPECT_EQ(static_cast<NetworkIdentifier>(0xB9), networkInfo.Identifier);
+		EXPECT_EQ(static_cast<NodeIdentityEqualityStrategy>(0xA7), networkInfo.NodeEqualityStrategy);
+		EXPECT_EQ(publicKey, networkInfo.PublicKey);
+		EXPECT_EQ(generationHash, networkInfo.GenerationHash);
 	}
 
 	// endregion

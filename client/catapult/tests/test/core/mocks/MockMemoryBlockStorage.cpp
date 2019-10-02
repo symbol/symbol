@@ -19,6 +19,7 @@
 **/
 
 #include "MockMemoryBlockStorage.h"
+#include "catapult/preprocessor.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/nodeps/Nemesis.h"
 
@@ -50,7 +51,7 @@ namespace catapult { namespace mocks {
 			pStorage->saveBlock(test::BlockToBlockElement(block));
 		}
 
-		return std::move(pStorage);
+		return PORTABLE_MOVE(pStorage);
 	}
 
 	std::unique_ptr<io::BlockStorageCache> CreateMemoryBlockStorageCache(uint32_t numBlocks) {

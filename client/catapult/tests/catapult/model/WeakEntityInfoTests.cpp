@@ -20,6 +20,7 @@
 
 #include "catapult/model/WeakEntityInfo.h"
 #include "catapult/model/Block.h"
+#include "catapult/utils/HexParser.h"
 #include "tests/test/nodeps/Equality.h"
 #include "tests/TestHarness.h"
 
@@ -264,7 +265,7 @@ namespace catapult { namespace model {
 		entity.Type = Entity_Type_Nemesis_Block;
 		entity.Version = MakeVersion(NetworkIdentifier::Zero, 2);
 
-		Hash256 hash = test::ToArray<Hash256::Size>("C5D2460186F7233C927E7DB2DCC703C0E500B653CA82273B7BFAD8045D85A470");
+		Hash256 hash = utils::ParseByteArray<Hash256>("C5D2460186F7233C927E7DB2DCC703C0E500B653CA82273B7BFAD8045D85A470");
 		WeakEntityInfo info(entity, hash);
 
 		// Act:

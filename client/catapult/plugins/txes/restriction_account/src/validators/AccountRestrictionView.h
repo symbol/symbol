@@ -27,7 +27,7 @@ namespace catapult { namespace cache { class ReadOnlyCatapultCache; } }
 
 namespace catapult { namespace validators {
 
-	/// A view on top of a catapult cache cache for retrieving a typed account restriction.
+	/// View on top of a catapult cache cache for retrieving a typed account restriction.
 	class AccountRestrictionView {
 	public:
 		/// Creates a view around \a cache.

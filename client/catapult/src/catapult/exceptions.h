@@ -139,58 +139,53 @@ namespace catapult {
 }
 
 /// Macro used to throw a catapult exception.
-#define CATAPULT_THROW_EXCEPTION(EXCEPTION) \
-	BOOST_THROW_EXCEPTION(EXCEPTION)
+#define CATAPULT_THROW_EXCEPTION(EXCEPTION) BOOST_THROW_EXCEPTION(EXCEPTION)
 
 /// Macro used to throw a catapult exception with zero parameters.
-#define CATAPULT_THROW_AND_LOG_0(TYPE, MESSAGE) { \
-	CATAPULT_LOG(error) << "Throwing exception: " << MESSAGE; \
-	CATAPULT_THROW_EXCEPTION(TYPE(MESSAGE)); \
-}
+#define CATAPULT_THROW_AND_LOG_0(TYPE, MESSAGE) \
+	do { \
+		CATAPULT_LOG(error) << "Throwing exception: " << MESSAGE; \
+		CATAPULT_THROW_EXCEPTION(TYPE(MESSAGE)); \
+	} while (false)
 
 /// Macro used to throw a catapult exception with one parameter.
-#define CATAPULT_THROW_AND_LOG_1(TYPE, MESSAGE, PARAM1) { \
-	auto detail1 = exception_detail::Make<ErrorParam1>::From(PARAM1); \
-	CATAPULT_LOG(error) << "Throwing exception: " << MESSAGE << " (" << detail1.value() << ")"; \
-	CATAPULT_THROW_EXCEPTION(TYPE(MESSAGE) << detail1); \
-}
+#define CATAPULT_THROW_AND_LOG_1(TYPE, MESSAGE, PARAM1) \
+	do { \
+		auto detail1 = exception_detail::Make<ErrorParam1>::From(PARAM1); \
+		CATAPULT_LOG(error) << "Throwing exception: " << MESSAGE << " (" << detail1.value() << ")"; \
+		CATAPULT_THROW_EXCEPTION(TYPE(MESSAGE) << detail1); \
+	} while (false)
 
 /// Macro used to throw a catapult exception with two parameters.
-#define CATAPULT_THROW_AND_LOG_2(TYPE, MESSAGE, PARAM1, PARAM2) { \
-	auto detail1 = exception_detail::Make<ErrorParam1>::From(PARAM1); \
-	auto detail2 = exception_detail::Make<ErrorParam2>::From(PARAM2); \
-	CATAPULT_LOG(error) << "Throwing exception: " << MESSAGE << " (" << detail1.value() << ", " << detail2.value() << ")"; \
-	CATAPULT_THROW_EXCEPTION(TYPE(MESSAGE) << detail1 << detail2); \
-}
+#define CATAPULT_THROW_AND_LOG_2(TYPE, MESSAGE, PARAM1, PARAM2) \
+	do { \
+		auto detail1 = exception_detail::Make<ErrorParam1>::From(PARAM1); \
+		auto detail2 = exception_detail::Make<ErrorParam2>::From(PARAM2); \
+		CATAPULT_LOG(error) << "Throwing exception: " << MESSAGE << " (" << detail1.value() << ", " << detail2.value() << ")"; \
+		CATAPULT_THROW_EXCEPTION(TYPE(MESSAGE) << detail1 << detail2); \
+	} while (false)
 
 /// Macro used to throw a catapult runtime error.
-#define CATAPULT_THROW_RUNTIME_ERROR(MESSAGE) \
-	CATAPULT_THROW_AND_LOG_0(catapult_runtime_error, MESSAGE)
+#define CATAPULT_THROW_RUNTIME_ERROR(MESSAGE) CATAPULT_THROW_AND_LOG_0(catapult_runtime_error, MESSAGE)
 
 /// Macro used to throw a catapult runtime error with a single parameter.
-#define CATAPULT_THROW_RUNTIME_ERROR_1(MESSAGE, PARAM1) \
-	CATAPULT_THROW_AND_LOG_1(catapult_runtime_error, MESSAGE, PARAM1)
+#define CATAPULT_THROW_RUNTIME_ERROR_1(MESSAGE, PARAM1) CATAPULT_THROW_AND_LOG_1(catapult_runtime_error, MESSAGE, PARAM1)
 
 /// Macro used to throw a catapult runtime error with two parameters.
-#define CATAPULT_THROW_RUNTIME_ERROR_2(MESSAGE, PARAM1, PARAM2) \
-	CATAPULT_THROW_AND_LOG_2(catapult_runtime_error, MESSAGE, PARAM1, PARAM2)
+#define CATAPULT_THROW_RUNTIME_ERROR_2(MESSAGE, PARAM1, PARAM2) CATAPULT_THROW_AND_LOG_2(catapult_runtime_error, MESSAGE, PARAM1, PARAM2)
 
 /// Macro used to throw a catapult invalid argument.
-#define CATAPULT_THROW_INVALID_ARGUMENT(MESSAGE) \
-	CATAPULT_THROW_AND_LOG_0(catapult_invalid_argument, MESSAGE)
+#define CATAPULT_THROW_INVALID_ARGUMENT(MESSAGE) CATAPULT_THROW_AND_LOG_0(catapult_invalid_argument, MESSAGE)
 
 /// Macro used to throw a catapult invalid argument with a single parameter.
-#define CATAPULT_THROW_INVALID_ARGUMENT_1(MESSAGE, PARAM1) \
-	CATAPULT_THROW_AND_LOG_1(catapult_invalid_argument, MESSAGE, PARAM1)
+#define CATAPULT_THROW_INVALID_ARGUMENT_1(MESSAGE, PARAM1) CATAPULT_THROW_AND_LOG_1(catapult_invalid_argument, MESSAGE, PARAM1)
 
 /// Macro used to throw a catapult invalid argument with two parameters.
 #define CATAPULT_THROW_INVALID_ARGUMENT_2(MESSAGE, PARAM1, PARAM2) \
 	CATAPULT_THROW_AND_LOG_2(catapult_invalid_argument, MESSAGE, PARAM1, PARAM2)
 
 /// Macro used to throw a catapult out of range.
-#define CATAPULT_THROW_OUT_OF_RANGE(MESSAGE) \
-	CATAPULT_THROW_AND_LOG_0(catapult_out_of_range, MESSAGE)
+#define CATAPULT_THROW_OUT_OF_RANGE(MESSAGE) CATAPULT_THROW_AND_LOG_0(catapult_out_of_range, MESSAGE)
 
 /// Macro used to throw a catapult file io error.
-#define CATAPULT_THROW_FILE_IO_ERROR(MESSAGE) \
-	CATAPULT_THROW_AND_LOG_0(catapult_file_io_error, MESSAGE)
+#define CATAPULT_THROW_FILE_IO_ERROR(MESSAGE) CATAPULT_THROW_AND_LOG_0(catapult_file_io_error, MESSAGE)

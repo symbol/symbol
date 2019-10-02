@@ -48,7 +48,7 @@ namespace catapult { namespace state {
 
 			default:
 				break;
-			};
+			}
 
 			isValidRule = false;
 			return false;

@@ -34,9 +34,9 @@ namespace catapult { namespace nodediscovery {
 		{}
 
 	public:
-		/// Returns \a true if \a requestNode and \a responseNode are compatible nodes.
+		/// Returns \c true if \a requestNode and \a responseNode are compatible nodes.
 		bool isResponseCompatible(const ionet::Node& requestNode, const ionet::Node& responseNode) const {
-			if (IsNodeCompatible(responseNode, m_networkIdentifier, requestNode.identityKey()))
+			if (IsNodeCompatible(responseNode, m_networkIdentifier, requestNode.identity().PublicKey))
 				return true;
 
 			CATAPULT_LOG(warning) << "rejecting incompatible partner node '" << responseNode << "'";
@@ -53,12 +53,15 @@ namespace catapult { namespace nodediscovery {
 
 		static constexpr auto Friendly_Name = "ping";
 
-		static thread::future<ResponseType> CreateFuture(ionet::PacketIo& packetIo) {
-			return api::CreateRemoteNodeApi(packetIo)->nodeInfo();
+		static thread::future<ResponseType> CreateFuture(ionet::PacketIo& packetIo, const std::string& host) {
+			return api::CreateRemoteNodeApi(packetIo)->nodeInfo().then([host](auto&& nodeFuture) {
+				const auto& node = nodeFuture.get();
+				return ionet::Node({ node.identity().PublicKey, host }, node.endpoint(), node.metadata());
+			});
 		}
 	};
 
-	/// A brief server requestor for requesting node ping information.
+	/// Brief server requestor for requesting node ping information.
 	using NodePingRequestor = net::BriefServerRequestor<NodePingRequestPolicy, NodePingResponseCompatibilityChecker>;
 
 	/// Creates a node ping requestor for a server with a key pair of \a keyPair and a network identified by \a networkIdentifier

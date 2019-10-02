@@ -49,7 +49,7 @@ namespace catapult { namespace test {
 		~LocalNodeTestState();
 
 	public:
-		/// Returns a state ref.
+		/// Gets a state ref.
 		extensions::LocalNodeStateRef ref();
 
 	private:

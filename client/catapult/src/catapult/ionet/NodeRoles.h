@@ -24,15 +24,15 @@
 
 namespace catapult { namespace ionet {
 
-	/// A node's role.
+	/// Node's role.
 	enum class NodeRoles : uint32_t {
 		/// No roles.
 		None,
 
-		/// A peer node.
+		/// Peer node.
 		Peer = 0x01,
 
-		/// An api node.
+		/// Api node.
 		Api = 0x02
 	};
 

@@ -52,22 +52,22 @@ namespace catapult { namespace utils {
 		}
 
 	public:
-		/// Returns the number of minutes.
+		/// Gets the number of minutes.
 		constexpr uint64_t minutes() const {
 			return m_minutes;
 		}
 
-		/// Returns the number of hours.
+		/// Gets the number of hours.
 		constexpr uint64_t hours() const {
 			return m_minutes / 60;
 		}
 
-		/// Returns the number of days.
+		/// Gets the number of days.
 		constexpr uint64_t days() const {
 			return hours() / 24;
 		}
 
-		/// Returns the approximate number of blocks given the generation target time (\a generationTargetTime).
+		/// Gets the approximate number of blocks given the generation target time (\a generationTargetTime).
 		BlockDuration blocks(const TimeSpan& generationTargetTime) const {
 			auto millisPerMinute = TimeSpan::FromMinutes(1).millis();
 			if (m_minutes > std::numeric_limits<uint64_t>::max() / millisPerMinute)

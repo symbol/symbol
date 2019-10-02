@@ -46,7 +46,7 @@ namespace catapult { namespace builders {
 		void setName(const RawBuffer& name);
 
 	public:
-		/// Returns size of namespace registration transaction.
+		/// Gets the size of namespace registration transaction.
 		/// \note This returns size of a normal transaction not embedded transaction.
 		size_t size() const;
 

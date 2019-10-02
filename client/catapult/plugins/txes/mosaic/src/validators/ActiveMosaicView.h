@@ -30,7 +30,7 @@ namespace catapult {
 
 namespace catapult { namespace validators {
 
-	/// A view on top of a catapult cache cache for retrieving active mosaics.
+	/// View on top of a catapult cache cache for retrieving active mosaics.
 	class ActiveMosaicView {
 	public:
 		/// Creates a view around \a cache.

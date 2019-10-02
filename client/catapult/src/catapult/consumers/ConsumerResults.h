@@ -53,7 +53,7 @@ namespace catapult { namespace consumers {
 	DEFINE_CONSUMER_RESULT(Remote_Chain_Unlinked, 7);
 
 	/// Validation failed because the remote chain difficulties do not match the calculated difficulties.
-	DEFINE_CONSUMER_RESULT(Remote_Chain_Mismatched_Difficulties, 8);
+	DEFINE_CONSUMER_RESULT(Remote_Chain_Difficulties_Mismatch, 8);
 
 	/// Validation failed because the remote chain score is not better.
 	DEFINE_CONSUMER_RESULT(Remote_Chain_Score_Not_Better, 9);

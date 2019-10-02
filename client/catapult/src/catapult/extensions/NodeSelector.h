@@ -19,8 +19,8 @@
 **/
 
 #pragma once
-#include "catapult/ionet/Node.h"
 #include "catapult/ionet/NodeInfo.h"
+#include "catapult/ionet/NodeSet.h"
 #include "catapult/utils/ArraySet.h"
 #include "catapult/utils/RandomGenerator.h"
 
@@ -40,7 +40,7 @@ namespace catapult { namespace extensions {
 	/// Retrieves an importance descriptor given a specified public key.
 	using ImportanceRetriever = std::function<ImportanceDescriptor (const Key&)>;
 
-	/// A weighted candidate.
+	/// Weighted candidate.
 	struct WeightedCandidate {
 	public:
 		/// Creates a weighted candidate around \a node and \a weight.
@@ -61,11 +61,17 @@ namespace catapult { namespace extensions {
 
 	/// Result of a node selection.
 	struct NodeSelectionResult {
+	public:
+		/// Creates a result.
+		NodeSelectionResult() : RemoveCandidates(model::CreateNodeIdentitySet(model::NodeIdentityEqualityStrategy::Key_And_Host))
+		{}
+
+	public:
 		/// Nodes that should be activatated.
 		ionet::NodeSet AddCandidates;
 
 		/// Identities of the nodes that should be deactivated.
-		utils::KeySet RemoveCandidates;
+		model::NodeIdentitySet RemoveCandidates;
 	};
 
 	/// Node aging configuration.
@@ -144,7 +150,7 @@ namespace catapult { namespace extensions {
 
 	/// Selects the subset of \a nodes to deactivate according to \a config and \a importanceRetriever.
 	/// \note This function is intended for management of incoming connections.
-	utils::KeySet SelectNodesForRemoval(
+	model::NodeIdentitySet SelectNodesForRemoval(
 			const ionet::NodeContainer& nodes,
 			const NodeAgingConfiguration& config,
 			const ImportanceRetriever& importanceRetriever);

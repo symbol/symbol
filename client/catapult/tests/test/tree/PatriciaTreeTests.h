@@ -1433,7 +1433,7 @@ namespace catapult { namespace test {
 				// Assert:
 				EXPECT_EQ(expectedHash, context.tree().root()) << "permutation " << i;
 				++i;
-			};
+			}
 
 			// Sanity: 4!
 			EXPECT_EQ(24u, i);
@@ -1476,7 +1476,7 @@ namespace catapult { namespace test {
 				}
 
 				++i;
-			};
+			}
 
 			// Sanity: 4!
 			EXPECT_EQ(24u, i);

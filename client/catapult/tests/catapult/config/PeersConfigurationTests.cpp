@@ -30,6 +30,11 @@ namespace catapult { namespace config {
 	namespace {
 		const auto Network_Identifier = static_cast<model::NetworkIdentifier>(0x25);
 
+		void AssertIdentity(const model::NodeIdentity& identity, const Key& identityKey, const std::string& host) {
+			EXPECT_EQ(identityKey, identity.PublicKey);
+			EXPECT_EQ(host, identity.Host);
+		}
+
 		void AssertEndpoint(const ionet::NodeEndpoint& endpoint, const std::string& host, int port) {
 			EXPECT_EQ(host, endpoint.Host);
 			EXPECT_EQ(port, endpoint.Port);
@@ -166,7 +171,7 @@ namespace catapult { namespace config {
 		auto expectedKey = utils::ParseByteArray<Key>("1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF");
 
 		const auto& node = *nodes.cbegin();
-		EXPECT_EQ(expectedKey, node.identityKey());
+		AssertIdentity(node.identity(), expectedKey, "bob.nem.ninja");
 		AssertEndpoint(node.endpoint(), "bob.nem.ninja", 12345);
 		AssertMetadata(node.metadata(), "bob", ionet::NodeRoles::Api);
 		EXPECT_EQ("bob @ bob.nem.ninja:12345", test::ToString(node));
@@ -193,7 +198,7 @@ namespace catapult { namespace config {
 		auto expectedKey = utils::ParseByteArray<Key>("1B664F8BDA2DBF33CB6BE21C8EB3ECA9D9D5BF144C08E9577ED0D1E5E5608751");
 
 		const auto& node = *nodes.cbegin();
-		EXPECT_EQ(expectedKey, node.identityKey());
+		AssertIdentity(node.identity(), expectedKey, "bob.nem.ninja");
 		AssertEndpoint(node.endpoint(), "bob.nem.ninja", 12345);
 		AssertMetadata(node.metadata(), "", ionet::NodeRoles::Peer);
 
@@ -233,7 +238,7 @@ namespace catapult { namespace config {
 			const auto& node = *iter++;
 			auto expectedKey = utils::ParseByteArray<Key>("1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF");
 
-			EXPECT_EQ(expectedKey, node.identityKey());
+			AssertIdentity(node.identity(), expectedKey, "bob.nem.ninja");
 			AssertEndpoint(node.endpoint(), "bob.nem.ninja", 12345);
 			AssertMetadata(node.metadata(), "bob", ionet::NodeRoles::Peer);
 			EXPECT_EQ("bob @ bob.nem.ninja:12345", test::ToString(node));
@@ -243,7 +248,7 @@ namespace catapult { namespace config {
 			const auto& node = *iter++;
 			auto expectedKey = utils::ParseByteArray<Key>("FEDCBA0987654321FEDCBA0987654321FEDCBA0987654321FEDCBA0987654321");
 
-			EXPECT_EQ(expectedKey, node.identityKey());
+			AssertIdentity(node.identity(), expectedKey, "123.456.789.1011");
 			AssertEndpoint(node.endpoint(), "123.456.789.1011", 5432);
 			AssertMetadata(node.metadata(), "foobar", ionet::NodeRoles::Api);
 			EXPECT_EQ("foobar @ 123.456.789.1011:5432", test::ToString(node));

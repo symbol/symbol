@@ -25,11 +25,21 @@
 
 namespace catapult { namespace tools {
 
-	/// Returns server key pair used by tools.
+	/// Gets the server key pair used by tools.
 	crypto::KeyPair LoadServerKeyPair();
 
-	/// Returns random key pair.
+	/// Generates a random key pair.
 	crypto::KeyPair GenerateRandomKeyPair();
+
+	/// Gets the deterministic key pair derived from \a baseKey and \a keyId.
+	crypto::KeyPair GetDeterministicKeyPair(const Key& baseKey, uint64_t keyId);
+
+	/// Copies a given \a keyPair.
+	crypto::KeyPair CopyKeyPair(const crypto::KeyPair& keyPair);
+
+	/// Extracts a key pair from \a privateKey.
+	/// \note Random key pair is returned when \a privateKey is empty.
+	crypto::KeyPair ExtractKeyPair(const std::string& privateKey);
 
 	/// Generate \a count deterministic addresses.
 	std::vector<Address> PrepareAddresses(size_t count);

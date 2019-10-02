@@ -22,7 +22,7 @@
 #include "VerifyPeer.h"
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/ionet/PacketSocket.h"
-#include "catapult/ionet/SecurePacketSocketDecorator.h"
+#include "catapult/ionet/SecureSignedPacketSocketDecorator.h"
 #include "catapult/thread/IoThreadPool.h"
 #include "catapult/thread/TimedCallback.h"
 #include "catapult/utils/Logging.h"
@@ -42,10 +42,13 @@ namespace catapult { namespace net {
 			DefaultClientConnector(
 					const std::shared_ptr<thread::IoThreadPool>& pPool,
 					const crypto::KeyPair& keyPair,
-					const ConnectionSettings& settings)
+					const ConnectionSettings& settings,
+					const std::string& name)
 					: m_pPool(pPool)
 					, m_keyPair(keyPair)
 					, m_settings(settings)
+					, m_name(name)
+					, m_tag(m_name.empty() ? std::string() : " (" + m_name + ")")
 					, m_sockets([](auto& socket) { socket.close(); })
 			{}
 
@@ -54,6 +57,11 @@ namespace catapult { namespace net {
 				return m_sockets.size();
 			}
 
+			const std::string& name() const override {
+				return m_name;
+			}
+
+		public:
 			void accept(const PacketSocketPointer& pAcceptedSocket, const AcceptCallback& callback) override {
 				if (!pAcceptedSocket)
 					return callback(PeerConnectCode::Socket_Error, nullptr, Empty_Key);
@@ -74,8 +82,13 @@ namespace catapult { namespace net {
 						auto verifyResult,
 						const auto& verifiedPeerInfo) {
 					if (VerifyResult::Success != verifyResult) {
-						CATAPULT_LOG(warning) << "VerifyClient failed with " << verifyResult;
+						CATAPULT_LOG(warning) << "VerifyClient failed with " << verifyResult << pThis->m_tag;
 						return pRequest->callback(PeerConnectCode::Verify_Error, nullptr, Empty_Key);
+					}
+
+					if (!pThis->m_settings.AllowIncomingSelfConnections && pThis->m_keyPair.publicKey() == verifiedPeerInfo.PublicKey) {
+						CATAPULT_LOG(warning) << "self accept detected and aborted" << pThis->m_tag;
+						return pRequest->callback(PeerConnectCode::Self_Connection_Error, nullptr, Empty_Key);
 					}
 
 					auto pSecuredSocket = pThis->secure(pAcceptedSocket, verifiedPeerInfo);
@@ -84,19 +97,23 @@ namespace catapult { namespace net {
 			}
 
 			void shutdown() override {
-				CATAPULT_LOG(info) << "closing all connections in ClientConnector";
+				CATAPULT_LOG(info) << "closing all connections in ClientConnector" << m_tag;
 				m_sockets.clear();
 			}
 
 		private:
 			PacketSocketPointer secure(const PacketSocketPointer& pSocket, const VerifiedPeerInfo& peerInfo) {
-				return Secure(pSocket, peerInfo.SecurityMode, m_keyPair, peerInfo.PublicKey, m_settings.MaxPacketDataSize);
+				return AddSecureSigned(pSocket, peerInfo.SecurityMode, m_keyPair, peerInfo.PublicKey, m_settings.MaxPacketDataSize);
 			}
 
 		private:
 			std::shared_ptr<thread::IoThreadPool> m_pPool;
 			const crypto::KeyPair& m_keyPair;
 			ConnectionSettings m_settings;
+
+			std::string m_name;
+			std::string m_tag;
+
 			utils::WeakContainer<ionet::PacketSocket> m_sockets;
 		};
 	}
@@ -104,7 +121,8 @@ namespace catapult { namespace net {
 	std::shared_ptr<ClientConnector> CreateClientConnector(
 			const std::shared_ptr<thread::IoThreadPool>& pPool,
 			const crypto::KeyPair& keyPair,
-			const ConnectionSettings& settings) {
-		return std::make_shared<DefaultClientConnector>(pPool, keyPair, settings);
+			const ConnectionSettings& settings,
+			const char* name) {
+		return std::make_shared<DefaultClientConnector>(pPool, keyPair, settings, name ? std::string(name) : std::string());
 	}
 }}

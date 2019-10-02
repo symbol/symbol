@@ -26,7 +26,7 @@ namespace catapult { namespace io { struct CachedData; } }
 
 namespace catapult { namespace io {
 
-	/// A read only view on top of block storage.
+	/// Read only view on top of block storage.
 	class BlockStorageView : utils::MoveOnly {
 	public:
 		/// Creates a view around \a storage and cache data (\a cachedData) with lock context \a readLock.
@@ -39,16 +39,16 @@ namespace catapult { namespace io {
 		/// Gets the number of blocks.
 		Height chainHeight() const;
 
-		/// Returns a range of at most \a maxHashes hashes starting at \a height.
+		/// Gets a range of at most \a maxHashes hashes starting at \a height.
 		model::HashRange loadHashesFrom(Height height, size_t maxHashes) const;
 
-		/// Returns the block at \a height.
+		/// Gets the block at \a height.
 		std::shared_ptr<const model::Block> loadBlock(Height height) const;
 
-		/// Returns the block element (owning a block) at \a height.
+		/// Gets the block element (owning a block) at \a height.
 		std::shared_ptr<const model::BlockElement> loadBlockElement(Height height) const;
 
-		/// Returns the optional block statement data at \a height.
+		/// Gets the optional block statement data at \a height.
 		std::pair<std::vector<uint8_t>, bool> loadBlockStatementData(Height height) const;
 
 	private:
@@ -60,14 +60,14 @@ namespace catapult { namespace io {
 		const CachedData& m_cachedData;
 	};
 
-	/// A write only view on top of block storage.
+	/// Write only view on top of block storage.
 	class BlockStorageModifier : utils::MoveOnly {
 	public:
-		/// Creates a view around \a storage, \a stagingStorage and cache data (\a cachedData) with lock context \a readLock.
+		/// Creates a view around \a storage, \a stagingStorage and cache data (\a cachedData) with lock context \a writeLock.
 		BlockStorageModifier(
 				BlockStorage& storage,
 				PrunableBlockStorage& stagingStorage,
-				utils::SpinReaderWriterLock::ReaderLockGuard&& readLock,
+				utils::SpinReaderWriterLock::WriterLockGuard&& writeLock,
 				CachedData& cachedData);
 
 	public:
@@ -86,13 +86,12 @@ namespace catapult { namespace io {
 	private:
 		BlockStorage& m_storage;
 		PrunableBlockStorage& m_stagingStorage;
-		utils::SpinReaderWriterLock::ReaderLockGuard m_readLock;
 		utils::SpinReaderWriterLock::WriterLockGuard m_writeLock;
 		CachedData& m_cachedData;
 		Height m_saveStartHeight;
 	};
 
-	/// A cache around a BlockStorage.
+	/// Cache around a BlockStorage.
 	/// \note Currently this "cache" provides synchronization and support for two-phase commit.
 	class BlockStorageCache {
 	public:

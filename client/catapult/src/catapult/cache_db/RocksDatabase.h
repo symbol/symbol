@@ -69,13 +69,13 @@ namespace catapult { namespace cache {
 		bool operator!=(const RdbDataIterator& rhs) const;
 
 	public:
-		/// Returns storage associated with iterator.
+		/// Gets the storage associated with iterator.
 		rocksdb::PinnableSlice& storage() const;
 
-		/// Sets flag to \a found indicating that iterator contains data.
+		/// Sets the \a found flag indicating whether or not this iterator contains data.
 		void setFound(bool found);
 
-		/// Returns storage as raw buffer.
+		/// Gets the storage as a raw buffer.
 		RawBuffer buffer() const;
 
 	private:
@@ -132,13 +132,13 @@ namespace catapult { namespace cache {
 		bool canPrune() const;
 
 	public:
-		/// Gets \a key from \a columnId returning data in \a result.
+		/// Gets the value associated with \a key from \a columnId and sets \a result.
 		void get(size_t columnId, const rocksdb::Slice& key, RdbDataIterator& result);
 
-		/// Puts \a value with \a key in \a columnId.
+		/// Puts the \a value associated with \a key in \a columnId.
 		void put(size_t columnId, const rocksdb::Slice& key, const std::string& value);
 
-		/// Deletes \a key from \a columnId.
+		/// Deletes the value associated with \a key from \a columnId.
 		void del(size_t columnId, const rocksdb::Slice& key);
 
 		/// Prunes elements from \a columnId below \a boundary. Returns number of pruned elements.

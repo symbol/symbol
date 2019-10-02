@@ -24,7 +24,7 @@
 
 namespace catapult { namespace mocks {
 
-	/// An unsupported mock transaction plugin.
+	/// Unsupported mock transaction plugin.
 	class MockTransactionPluginUnsupported : public model::TransactionPlugin {
 	public:
 		model::EntityType type() const override {

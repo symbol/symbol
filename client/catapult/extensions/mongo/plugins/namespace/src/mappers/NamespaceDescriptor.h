@@ -23,7 +23,7 @@
 
 namespace catapult { namespace mongo { namespace plugins {
 
-	/// A namespace descriptor.
+	/// Namespace descriptor.
 	struct NamespaceDescriptor {
 	public:
 		/// Creates a namespace descriptor around \a path, \a alias, \a pRootNamespace, \a ownerAddress, \a index and \a isActive.

@@ -23,6 +23,7 @@
 #include "catapult/chain/BlockDifficultyScorer.h"
 #include "catapult/chain/BlockScorer.h"
 #include "catapult/io/FileBlockStorage.h"
+#include "catapult/preprocessor.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/local/LocalTestUtils.h"
 #include "tests/test/nodeps/MijinConstants.h"
@@ -207,6 +208,6 @@ namespace catapult { namespace test {
 			const model::Block& block) {
 		auto pBlockElement = std::make_shared<model::BlockElement>(BlockToBlockElement(block, GetNemesisGenerationHash()));
 		pBlockElement->GenerationHash = model::CalculateGenerationHash(parentGenerationHash, block.SignerPublicKey);
-		return std::move(pBlockElement);
+		return PORTABLE_MOVE(pBlockElement);
 	}
 }}

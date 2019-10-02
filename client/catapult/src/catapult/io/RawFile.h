@@ -71,10 +71,10 @@ namespace catapult { namespace io {
 		/// Throws catapult_file_io_error exception if requested amount of data could not be read.
 		void read(const MutableRawBuffer& dataBuffer);
 
-		/// Returns size of the file.
+		/// Gets the size of the file.
 		uint64_t size() const;
 
-		/// Returns position in the file.
+		/// Gets the position in the file.
 		uint64_t position() const;
 
 	private:

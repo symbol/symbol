@@ -38,7 +38,7 @@ namespace catapult { namespace plugins {
 
 				auto userConfig = config::UserConfiguration::Uninitialized();
 				userConfig.BootPrivateKey = test::ToString(test::GenerateRandomByteArray<Key>());
-				userConfig.ShouldAutoDetectDelegatedHarvesters = EnableAutoDetection;
+				userConfig.EnableDelegatedHarvestersAutoDetection = EnableAutoDetection;
 
 				auto manager = test::CreatePluginManager(config, userConfig);
 				RegisterTransferSubsystem(manager);

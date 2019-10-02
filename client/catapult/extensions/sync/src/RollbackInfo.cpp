@@ -23,40 +23,101 @@
 
 namespace catapult { namespace sync {
 
-	RollbackInfo::RollbackInfo(const chain::TimeSupplier& timeSupplier, const utils::TimeSpan& recentStatsTimeSpan)
-			: m_timeSupplier(timeSupplier)
-			, m_recentStatsTimeSpan(recentStatsTimeSpan)
-			, m_currentRollbackSize(0)
+	// region RollbackInfoState
+
+	struct RollbackInfoState {
+	public:
+		RollbackInfoState(const chain::TimeSupplier& timeSupplier, const utils::TimeSpan& recentStatsTimeSpan)
+				: TimeSupplier(timeSupplier)
+				, RecentStatsTimeSpan(recentStatsTimeSpan)
+				, CurrentRollbackSize(0)
+		{}
+
+	public:
+		chain::TimeSupplier TimeSupplier;
+		const utils::TimeSpan RecentStatsTimeSpan;
+		size_t CurrentRollbackSize;
+	};
+
+	// endregion
+
+	// region RollbackInfoView
+
+	RollbackInfoView::RollbackInfoView(
+			const RollbackStats& committed,
+			const RollbackStats& ignored,
+			utils::SpinReaderWriterLock::ReaderLockGuard&& readLock)
+			: m_committed(committed)
+			, m_ignored(ignored)
+			, m_readLock(std::move(readLock))
 	{}
 
-	size_t RollbackInfo::counter(RollbackResult rollbackResult, RollbackCounterType rollbackCounterType) const {
+	size_t RollbackInfoView::counter(RollbackResult rollbackResult, RollbackCounterType rollbackCounterType) const {
 		return RollbackResult::Committed == rollbackResult
 				? m_committed.total(rollbackCounterType)
 				: m_ignored.total(rollbackCounterType);
 	}
 
-	void RollbackInfo::increment() {
-		++m_currentRollbackSize;
+	// endregion
+
+	// region RollbackInfoModifier
+
+	RollbackInfoModifier::RollbackInfoModifier(
+			RollbackStats& committed,
+			RollbackStats& ignored,
+			RollbackInfoState& state,
+			utils::SpinReaderWriterLock::WriterLockGuard&& writeLock)
+			: m_committed(committed)
+			, m_ignored(ignored)
+			, m_state(state)
+			, m_writeLock(std::move(writeLock))
+	{}
+
+	void RollbackInfoModifier::increment() {
+		++m_state.CurrentRollbackSize;
 	}
 
-	void RollbackInfo::reset() {
-		m_ignored.add(m_timeSupplier(), m_currentRollbackSize);
-		m_currentRollbackSize = 0;
+	void RollbackInfoModifier::reset() {
+		add(m_ignored);
+	}
+
+	void RollbackInfoModifier::save() {
+		add(m_committed);
+	}
+
+	void RollbackInfoModifier::add(RollbackStats& target) {
+		target.add(m_state.TimeSupplier(), m_state.CurrentRollbackSize);
+		m_state.CurrentRollbackSize = 0;
 
 		prune();
 	}
 
-	void RollbackInfo::save() {
-		m_committed.add(m_timeSupplier(), m_currentRollbackSize);
-		m_currentRollbackSize = 0;
-
-		prune();
-	}
-
-	void RollbackInfo::prune() {
-		auto threshold = utils::SubtractNonNegative(m_timeSupplier(), m_recentStatsTimeSpan);
+	void RollbackInfoModifier::prune() {
+		auto threshold = utils::SubtractNonNegative(m_state.TimeSupplier(), m_state.RecentStatsTimeSpan);
 
 		m_committed.prune(threshold);
 		m_ignored.prune(threshold);
 	}
+
+	// endregion
+
+	// region RollbackInfo
+
+	RollbackInfo::RollbackInfo(const chain::TimeSupplier& timeSupplier, const utils::TimeSpan& recentStatsTimeSpan)
+			: m_pState(std::make_unique<RollbackInfoState>(timeSupplier, recentStatsTimeSpan))
+	{}
+
+	RollbackInfo::~RollbackInfo() = default;
+
+	RollbackInfoView RollbackInfo::view() const {
+		auto readLock = m_lock.acquireReader();
+		return RollbackInfoView(m_committed, m_ignored, std::move(readLock));
+	}
+
+	RollbackInfoModifier RollbackInfo::modifier() {
+		auto writeLock = m_lock.acquireWriter();
+		return RollbackInfoModifier(m_committed, m_ignored, *m_pState, std::move(writeLock));
+	}
+
+	// endregion
 }}

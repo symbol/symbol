@@ -40,7 +40,7 @@ namespace catapult { namespace harvesting {
 		~HarvestingUtFacade();
 
 	public:
-		/// Gets locked height.
+		/// Gets the locked height.
 		Height height() const;
 
 		/// Gets the number of successfully applied transactions.

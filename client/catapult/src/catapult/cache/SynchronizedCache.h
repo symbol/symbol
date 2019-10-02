@@ -28,7 +28,7 @@ namespace catapult { namespace cache {
 	namespace detail {
 		// region CacheViewReadLockPair
 
-		/// A cache-view, read-lock pair.
+		/// Cache-view, read-lock pair.
 		/// \note The cache-view template argument can be either a view or a delta.
 		template<typename TCacheView>
 		struct CacheViewReadLockPair {
@@ -51,7 +51,7 @@ namespace catapult { namespace cache {
 
 		// region CacheViewAccessor
 
-		/// A cache view accessor.
+		/// Cache view accessor.
 		template<typename TCacheView>
 		class CacheViewAccessor {
 		public:
@@ -95,7 +95,7 @@ namespace catapult { namespace cache {
 
 	// region LockedCacheView
 
-	/// A cache-view, read-lock pair.
+	/// Cache-view, read-lock pair.
 	/// \note This is similar to but provides a better interface than detail::CacheViewReadLockPair.
 	template<typename TCacheView>
 	class LockedCacheView : public detail::CacheViewAccessor<TCacheView> {
@@ -124,7 +124,7 @@ namespace catapult { namespace cache {
 
 	// region LockedCacheDelta
 
-	/// A cache-delta, read-lock pair.
+	/// Cache-delta, read-lock pair.
 	template<typename TCacheView>
 	class LockedCacheDelta : public detail::CacheViewAccessor<TCacheView> {
 	public:
@@ -142,7 +142,7 @@ namespace catapult { namespace cache {
 
 	// region OptionalLockedCacheDelta
 
-	/// An optional cache-delta, read-lock pair.
+	/// Optional cache-delta, read-lock pair.
 	template<typename TCacheView>
 	class OptionalLockedCacheDelta : public detail::CacheViewAccessor<TCacheView> {
 	public:
@@ -214,13 +214,13 @@ namespace catapult { namespace cache {
 		{}
 
 	public:
-		/// Returns a locked cache view based on this cache.
+		/// Gets a locked cache view based on this cache.
 		LockedCacheView<CacheViewType> createView() const {
 			auto readLock = m_lock.acquireReader();
 			return LockedCacheView<CacheViewType>(m_cache.createView(), std::move(readLock));
 		}
 
-		/// Returns a locked cache delta based on this cache.
+		/// Gets a locked cache delta based on this cache.
 		/// \note Changes to an attached delta can be committed by calling commit.
 		LockedCacheDelta<CacheDeltaType> createDelta() {
 			auto readLock = m_lock.acquireReader();
@@ -236,7 +236,7 @@ namespace catapult { namespace cache {
 			return LockedCacheDelta<CacheDeltaType>(pPair);
 		}
 
-		/// Returns a lockable cache delta based on this cache but without the ability
+		/// Gets a lockable cache delta based on this cache but without the ability
 		/// to commit any changes to the original cache.
 		LockableCacheDelta<CacheDeltaType> createDetachedDelta() const {
 			auto readLock = m_lock.acquireReader();

@@ -24,7 +24,7 @@
 
 namespace catapult { namespace validators {
 
-	/// A strongly typed aggregate notification validator.
+	/// Strongly typed aggregate notification validator.
 	template<typename TNotification, typename... TArgs>
 	class AggregateNotificationValidatorT : public NotificationValidatorT<TNotification, TArgs...> {
 	public:

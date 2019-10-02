@@ -41,7 +41,7 @@ namespace catapult { namespace handlers {
 
 		std::pair<ionet::Node, size_t> RegisterAndExecutePushPingHandler(
 				const ionet::Packet& packet,
-				ionet::ServerPacketHandlerContext& context) {
+				ionet::ServerPacketHandlerContext& handlerContext) {
 			ionet::ServerPacketHandlers handlers;
 			ionet::Node capturedNode;
 			auto numConsumerCalls = 0u;
@@ -51,10 +51,10 @@ namespace catapult { namespace handlers {
 			});
 
 			// Act:
-			EXPECT_TRUE(handlers.process(packet, context));
+			EXPECT_TRUE(handlers.process(packet, handlerContext));
 
 			// Assert:
-			test::AssertNoResponse(context);
+			test::AssertNoResponse(handlerContext);
 			return std::make_pair(capturedNode, numConsumerCalls);
 		}
 	}
@@ -66,10 +66,10 @@ namespace catapult { namespace handlers {
 		--(reinterpret_cast<ionet::NetworkNode&>(*pPacket->Data())).Size;
 
 		std::string host = "alice.com";
-		ionet::ServerPacketHandlerContext context(identityKey, host);
+		ionet::ServerPacketHandlerContext handlerContext(identityKey, host);
 
 		// Act:
-		auto result = RegisterAndExecutePushPingHandler(*pPacket, context);
+		auto result = RegisterAndExecutePushPingHandler(*pPacket, handlerContext);
 
 		// Assert:
 		EXPECT_EQ(0u, result.second);
@@ -81,10 +81,10 @@ namespace catapult { namespace handlers {
 		auto pPacket = CreateNodePushPingPacket(test::GenerateRandomByteArray<Key>(), "");
 
 		std::string host = "alice.com";
-		ionet::ServerPacketHandlerContext context(identityKey, host);
+		ionet::ServerPacketHandlerContext handlerContext(identityKey, host);
 
 		// Act:
-		auto result = RegisterAndExecutePushPingHandler(*pPacket, context);
+		auto result = RegisterAndExecutePushPingHandler(*pPacket, handlerContext);
 
 		// Assert:
 		EXPECT_EQ(0u, result.second);
@@ -97,10 +97,10 @@ namespace catapult { namespace handlers {
 		reinterpret_cast<ionet::NetworkNode&>(*pPacket->Data()).NetworkIdentifier = static_cast<model::NetworkIdentifier>(123);
 
 		std::string host = "alice.com";
-		ionet::ServerPacketHandlerContext context(identityKey, host);
+		ionet::ServerPacketHandlerContext handlerContext(identityKey, host);
 
 		// Act:
-		auto result = RegisterAndExecutePushPingHandler(*pPacket, context);
+		auto result = RegisterAndExecutePushPingHandler(*pPacket, handlerContext);
 
 		// Assert:
 		EXPECT_EQ(0u, result.second);
@@ -111,18 +111,19 @@ namespace catapult { namespace handlers {
 		auto identityKey = test::GenerateRandomByteArray<Key>();
 		auto pPacket = CreateNodePushPingPacket(identityKey, "bob.org");
 
-		std::string host = "alice.com";
-		ionet::ServerPacketHandlerContext context(identityKey, host);
+		std::string host = "11.22.33.44";
+		ionet::ServerPacketHandlerContext handlerContext(identityKey, host);
 
 		// Act:
-		auto result = RegisterAndExecutePushPingHandler(*pPacket, context);
+		auto result = RegisterAndExecutePushPingHandler(*pPacket, handlerContext);
 
 		// Assert:
 		EXPECT_EQ(1u, result.second);
 
 		// - explicitly provided host should be used
 		const auto& node = result.first;
-		EXPECT_EQ(identityKey, node.identityKey());
+		EXPECT_EQ(identityKey, node.identity().PublicKey);
+		EXPECT_EQ("11.22.33.44", node.identity().Host);
 		EXPECT_EQ("bob.org", node.endpoint().Host);
 		EXPECT_EQ(ionet::NodeVersion(1234), node.metadata().Version);
 	}
@@ -132,19 +133,20 @@ namespace catapult { namespace handlers {
 		auto identityKey = test::GenerateRandomByteArray<Key>();
 		auto pPacket = CreateNodePushPingPacket(identityKey, "");
 
-		std::string host = "alice.com";
-		ionet::ServerPacketHandlerContext context(identityKey, host);
+		std::string host = "11.22.33.44";
+		ionet::ServerPacketHandlerContext handlerContext(identityKey, host);
 
 		// Act:
-		auto result = RegisterAndExecutePushPingHandler(*pPacket, context);
+		auto result = RegisterAndExecutePushPingHandler(*pPacket, handlerContext);
 
 		// Assert:
 		EXPECT_EQ(1u, result.second);
 
-		// - host from context should be used
+		// - host from handlerContext should be used
 		const auto& node = result.first;
-		EXPECT_EQ(identityKey, node.identityKey());
-		EXPECT_EQ("alice.com", node.endpoint().Host);
+		EXPECT_EQ(identityKey, node.identity().PublicKey);
+		EXPECT_EQ("11.22.33.44", node.identity().Host);
+		EXPECT_EQ("11.22.33.44", node.endpoint().Host);
 		EXPECT_EQ(ionet::NodeVersion(1234), node.metadata().Version);
 	}
 
@@ -166,29 +168,32 @@ namespace catapult { namespace handlers {
 			pPacket->Size += packetExtraSize;
 
 			// Act:
-			ionet::ServerPacketHandlerContext context({}, "");
-			EXPECT_TRUE(handlers.process(*pPacket, context));
+			ionet::ServerPacketHandlerContext handlerContext;
+			EXPECT_TRUE(handlers.process(*pPacket, handlerContext));
 
 			// Assert:
-			assertFunc(*pNetworkNode, context);
+			assertFunc(*pNetworkNode, handlerContext);
 		}
 	}
 
 	TEST(TEST_CLASS, PullPingHandler_DoesNotRespondToMalformedRequest) {
 		// Arrange:
-		RunPullPingHandlerTest(1, [](const auto&, const auto& context) {
+		RunPullPingHandlerTest(1, [](const auto&, const auto& handlerContext) {
 			// Assert: malformed packet is ignored
-			test::AssertNoResponse(context);
+			test::AssertNoResponse(handlerContext);
 		});
 	}
 
 	TEST(TEST_CLASS, PullPingHandler_WritesLocalNodeInformationInResponseToValidRequest) {
 		// Arrange:
-		RunPullPingHandlerTest(0, [](const auto& networkNode, const auto& context) {
+		RunPullPingHandlerTest(0, [](const auto& networkNode, const auto& handlerContext) {
 			// Assert: network node is written
-			test::AssertPacketHeader(context, sizeof(ionet::Packet) + networkNode.Size, ionet::PacketType::Node_Discovery_Pull_Ping);
+			test::AssertPacketHeader(
+					handlerContext,
+					sizeof(ionet::Packet) + networkNode.Size,
+					ionet::PacketType::Node_Discovery_Pull_Ping);
 
-			const auto* pResponse = test::GetSingleBufferData(context);
+			const auto* pResponse = test::GetSingleBufferData(handlerContext);
 			EXPECT_EQ_MEMORY(pResponse, &networkNode, networkNode.Size);
 		});
 	}
@@ -214,11 +219,11 @@ namespace catapult { namespace handlers {
 			pPacket->Size += packetExtraSize;
 
 			// Act:
-			ionet::ServerPacketHandlerContext context({}, "");
-			EXPECT_TRUE(handlers.process(*pPacket, context));
+			ionet::ServerPacketHandlerContext handlerContext;
+			EXPECT_TRUE(handlers.process(*pPacket, handlerContext));
 
 			// Assert:
-			test::AssertNoResponse(context);
+			test::AssertNoResponse(handlerContext);
 			return std::make_pair(capturedNodes, numConsumerCalls);
 		}
 	}
@@ -247,7 +252,7 @@ namespace catapult { namespace handlers {
 
 	TEST(TEST_CLASS, PushPeersHandler_ForwardsSingleEntityPayloadToConsumer) {
 		// Arrange:
-		std::vector<ionet::Node> nodes{ test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "a") };
+		std::vector<ionet::Node> nodes{ test::CreateNamedNode({ test::GenerateRandomByteArray<Key>(), "" }, "a") };
 
 		// Act:
 		auto result = RegisterAndExecutePushPeersHandler(nodes);
@@ -255,15 +260,15 @@ namespace catapult { namespace handlers {
 		// Assert:
 		EXPECT_EQ(1u, result.second);
 		EXPECT_EQ(1u, result.first.size());
-		EXPECT_EQ(nodes, result.first);
+		test::AssertEqualIdentities(test::ExtractNodeIdentities(nodes), test::ExtractNodeIdentities(result.first));
 	}
 
 	TEST(TEST_CLASS, PushPeersHandler_ForwardsMultipleEntityPayloadToConsumer) {
 		// Arrange:
 		std::vector<ionet::Node> nodes{
-			test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "a"),
-			test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "bc"),
-			test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "def")
+			test::CreateNamedNode({ test::GenerateRandomByteArray<Key>(), "" }, "a"),
+			test::CreateNamedNode({ test::GenerateRandomByteArray<Key>(), "" }, "bc"),
+			test::CreateNamedNode({ test::GenerateRandomByteArray<Key>(), "" }, "def")
 		};
 
 		// Act:
@@ -272,7 +277,7 @@ namespace catapult { namespace handlers {
 		// Assert:
 		EXPECT_EQ(1u, result.second);
 		EXPECT_EQ(3u, result.first.size());
-		EXPECT_EQ(test::ExtractNodeIdentities(nodes), test::ExtractNodeIdentities(result.first));
+		test::AssertEqualIdentities(test::ExtractNodeIdentities(nodes), test::ExtractNodeIdentities(result.first));
 	}
 
 	// endregion
@@ -292,11 +297,11 @@ namespace catapult { namespace handlers {
 			pPacket->Size += packetExtraSize;
 
 			// Act:
-			ionet::ServerPacketHandlerContext context({}, "");
-			EXPECT_TRUE(handlers.process(*pPacket, context));
+			ionet::ServerPacketHandlerContext handlerContext;
+			EXPECT_TRUE(handlers.process(*pPacket, handlerContext));
 
 			// Assert:
-			assertFunc(context);
+			assertFunc(handlerContext);
 		}
 	}
 
@@ -305,18 +310,18 @@ namespace catapult { namespace handlers {
 		ionet::NodeSet nodes{ test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "a") };
 
 		// Act:
-		RunPullPeersHandlerTest(nodes, 1, [](const auto& context) {
+		RunPullPeersHandlerTest(nodes, 1, [](const auto& handlerContext) {
 			// Assert: malformed packet is ignored
-			test::AssertNoResponse(context);
+			test::AssertNoResponse(handlerContext);
 		});
 	}
 
 	TEST(TEST_CLASS, PullPeersHandler_RespondsWhenNoNodesAreAvailable) {
 		// Act:
-		RunPullPeersHandlerTest(ionet::NodeSet(), 0, [](const auto& context) {
+		RunPullPeersHandlerTest(ionet::NodeSet(), 0, [](const auto& handlerContext) {
 			// Assert: response with no nodes
-			test::AssertPacketHeader(context, sizeof(ionet::Packet), ionet::PacketType::Node_Discovery_Pull_Peers);
-			EXPECT_TRUE(context.response().buffers().empty());
+			test::AssertPacketHeader(handlerContext, sizeof(ionet::Packet), ionet::PacketType::Node_Discovery_Pull_Peers);
+			EXPECT_TRUE(handlerContext.response().buffers().empty());
 		});
 	}
 
@@ -326,11 +331,14 @@ namespace catapult { namespace handlers {
 		auto networkNodes = test::PackAllNodes(nodes);
 
 		// Act:
-		RunPullPeersHandlerTest(nodes, 0, [&networkNodes](const auto& context) {
+		RunPullPeersHandlerTest(nodes, 0, [&networkNodes](const auto& handlerContext) {
 			// Assert: response with single node
-			test::AssertPacketHeader(context, sizeof(ionet::Packet) + networkNodes[0]->Size, ionet::PacketType::Node_Discovery_Pull_Peers);
+			test::AssertPacketHeader(
+					handlerContext,
+					sizeof(ionet::Packet) + networkNodes[0]->Size,
+					ionet::PacketType::Node_Discovery_Pull_Peers);
 
-			const auto* pResponse = test::GetSingleBufferData(context);
+			const auto* pResponse = test::GetSingleBufferData(handlerContext);
 			EXPECT_EQ_MEMORY(pResponse, networkNodes[0].get(), networkNodes[0]->Size);
 		});
 	}
@@ -345,13 +353,13 @@ namespace catapult { namespace handlers {
 		auto networkNodes = test::PackAllNodes(nodes);
 
 		// Act:
-		RunPullPeersHandlerTest(nodes, 0, [&networkNodes](const auto& context) mutable {
+		RunPullPeersHandlerTest(nodes, 0, [&networkNodes](const auto& handlerContext) mutable {
 			// Assert: response with three nodes
 			auto payloadSize = utils::Sum(networkNodes, [](const auto& pNetworkNode) { return pNetworkNode->Size; });
-			test::AssertPacketHeader(context, sizeof(ionet::Packet) + payloadSize, ionet::PacketType::Node_Discovery_Pull_Peers);
+			test::AssertPacketHeader(handlerContext, sizeof(ionet::Packet) + payloadSize, ionet::PacketType::Node_Discovery_Pull_Peers);
 
 			// - one buffer per node
-			const auto& buffers = context.response().buffers();
+			const auto& buffers = handlerContext.response().buffers();
 			ASSERT_EQ(3u, buffers.size());
 
 			// - each node in the (unordered) response corresponds to an original node

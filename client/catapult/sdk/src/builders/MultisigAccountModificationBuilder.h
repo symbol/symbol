@@ -47,7 +47,7 @@ namespace catapult { namespace builders {
 		void addModification(const model::CosignatoryModification& modification);
 
 	public:
-		/// Returns size of multisig account modification transaction.
+		/// Gets the size of multisig account modification transaction.
 		/// \note This returns size of a normal transaction not embedded transaction.
 		size_t size() const;
 

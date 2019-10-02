@@ -45,7 +45,11 @@ namespace catapult { namespace validators {
 			auto cache = test::CreateEmptyCatapultCache();
 			auto cacheView = cache.createView();
 			auto readOnlyCache = cacheView.toReadOnly();
-			model::NetworkInfo networkInfo(model::NetworkIdentifier::Zero, GetNemesisAccount().publicKey(), {});
+			model::NetworkInfo networkInfo(
+					model::NetworkIdentifier::Zero,
+					model::NodeIdentityEqualityStrategy::Key_And_Host,
+					GetNemesisAccount().publicKey(),
+					GenerationHash());
 			auto pValidator = CreateNemesisSinkValidator();
 			auto context = test::CreateValidatorContext(Height(height), networkInfo, readOnlyCache);
 

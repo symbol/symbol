@@ -81,7 +81,7 @@ namespace catapult { namespace cache {
 		/// Inserts the namespace \a ns into the cache.
 		void insert(const state::Namespace& ns);
 
-		/// Sets \a alias for namespace \a id.
+		/// Sets the \a alias associated with namespace \a id.
 		void setAlias(NamespaceId id, const state::NamespaceAlias& alias);
 
 		/// Removes the namespace specified by its \a id from the cache.

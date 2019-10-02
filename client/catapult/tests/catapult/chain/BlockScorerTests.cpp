@@ -135,7 +135,7 @@ namespace catapult { namespace chain {
 				EXPECT_LT(0.999999, ratio) << message;
 				EXPECT_GT(1.000001, ratio) << message;
 
-				value += 0x10;
+				value = static_cast<uint8_t>(value + 0x10);
 			}
 		}
 	}

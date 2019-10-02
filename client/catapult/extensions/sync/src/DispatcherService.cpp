@@ -95,8 +95,14 @@ namespace catapult { namespace sync {
 					auto& input,
 					const auto& completionResult) {
 				statusSubscriber.flush();
-				auto interactionResult = consumers::ToNodeInteractionResult(input.sourcePublicKey(), completionResult);
+				auto interactionResult = consumers::ToNodeInteractionResult(input.sourceIdentity(), completionResult);
 				extensions::IncrementNodeInteraction(nodes, interactionResult);
+
+				auto nodesModifier = nodes.modifier();
+				nodesModifier.pruneBannedNodes();
+				if (ConsumerResultSeverity::Fatal == completionResult.ResultSeverity)
+					nodesModifier.ban(input.sourceIdentity(), completionResult.CompletionCode);
+
 				reclaimMemoryInspector(input, completionResult);
 			};
 
@@ -144,7 +150,7 @@ namespace catapult { namespace sync {
 			BlockChainSyncHandlers syncHandlers;
 			syncHandlers.DifficultyChecker = [&rollbackInfo, blockChainConfig](const auto& blocks, const cache::CatapultCache& cache) {
 				auto result = chain::CheckDifficulties(cache.sub<cache::BlockStatisticCache>(), blocks, blockChainConfig);
-				rollbackInfo.reset();
+				rollbackInfo.modifier().reset();
 				return blocks.size() == result;
 			};
 
@@ -153,7 +159,7 @@ namespace catapult { namespace sync {
 					const auto& blockElement,
 					auto& observerState,
 					auto undoBlockType) {
-				rollbackInfo.increment();
+				rollbackInfo.modifier().increment();
 				auto readOnlyCache = observerState.Cache.toReadOnly();
 				auto resolverContext = pluginManager.createResolverContext(readOnlyCache);
 				UndoBlock(blockElement, { *pUndoObserver, resolverContext, observerState }, undoBlockType);
@@ -168,7 +174,7 @@ namespace catapult { namespace sync {
 				subscriber.notifyScoreChange(localScore.get());
 				subscriber.notifyStateChange(changeInfo);
 
-				rollbackInfo.save();
+				rollbackInfo.modifier().save();
 			};
 
 			auto dataDirectory = config::CatapultDataDirectory(state.config().User.DataDirectory);
@@ -247,15 +253,18 @@ namespace catapult { namespace sync {
 			serviceGroup.registerService(pDispatcher);
 			locator.registerService("dispatcher.block", pDispatcher);
 
-			state.hooks().setBlockRangeConsumerFactory([&dispatcher = *pDispatcher](auto source) {
-				return [&dispatcher, source](auto&& range) {
-					dispatcher.processElement(ConsumerInput(std::move(range), source));
+			state.hooks().setBlockRangeConsumerFactory([&dispatcher = *pDispatcher, &nodes = state.nodes()](auto source) {
+				return [&dispatcher, &nodes, source](auto&& range) {
+					if (!nodes.view().isBanned(range.SourceIdentity))
+						dispatcher.processElement(ConsumerInput(std::move(range), source));
 				};
 			});
 
-			state.hooks().setCompletionAwareBlockRangeConsumerFactory([&dispatcher = *pDispatcher](auto source) {
-				return [&dispatcher, source](auto&& range, const auto& processingComplete) {
-					return dispatcher.processElement(ConsumerInput(std::move(range), source), processingComplete);
+			state.hooks().setCompletionAwareBlockRangeConsumerFactory([&dispatcher = *pDispatcher, &nodes = state.nodes()](auto source) {
+				return [&dispatcher, &nodes, source](auto&& range, const auto& processingComplete) {
+					return disruptor::InputSource::Local == source || !nodes.view().isBanned(range.SourceIdentity)
+							? dispatcher.processElement(ConsumerInput(std::move(range), source), processingComplete)
+							: 0;
 				};
 			});
 		}
@@ -326,12 +335,15 @@ namespace catapult { namespace sync {
 			serviceGroup.registerService(pDispatcher);
 			locator.registerService("dispatcher.transaction", pDispatcher);
 
-			auto pBatchRangeDispatcher = std::make_shared<extensions::TransactionBatchRangeDispatcher>(*pDispatcher);
+			auto pBatchRangeDispatcher = std::make_shared<extensions::TransactionBatchRangeDispatcher>(
+					*pDispatcher,
+					state.config().BlockChain.Network.NodeEqualityStrategy);
 			locator.registerRootedService("dispatcher.transaction.batch", pBatchRangeDispatcher);
 
-			state.hooks().setTransactionRangeConsumerFactory([&dispatcher = *pBatchRangeDispatcher](auto source) {
-				return [&dispatcher, source](auto&& range) {
-					dispatcher.queue(std::move(range), source);
+			state.hooks().setTransactionRangeConsumerFactory([&dispatcher = *pBatchRangeDispatcher, &nodes = state.nodes()](auto source) {
+				return [&dispatcher, &nodes, source](auto&& range) {
+					if (!nodes.view().isBanned(range.SourceIdentity))
+						dispatcher.queue(std::move(range), source);
 				};
 			});
 
@@ -377,7 +389,7 @@ namespace catapult { namespace sync {
 				RollbackCounterType rollbackCounterType) {
 			locator.registerServiceCounter<RollbackInfo>("rollbacks", counterName, [rollbackResult, rollbackCounterType](
 					const auto& rollbackInfo) {
-				return rollbackInfo.counter(rollbackResult, rollbackCounterType);
+				return rollbackInfo.view().counter(rollbackResult, rollbackCounterType);
 			});
 		}
 

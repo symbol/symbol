@@ -32,7 +32,8 @@ namespace catapult { namespace model {
 
 		// Assert:
 		EXPECT_TRUE(annotatedRange.Range.empty());
-		EXPECT_EQ(Key(), annotatedRange.SourcePublicKey);
+		EXPECT_EQ(Key(), annotatedRange.SourceIdentity.PublicKey);
+		EXPECT_EQ("", annotatedRange.SourceIdentity.Host);
 	}
 
 	TEST(TEST_CLASS, CanCreateAroundRange) {
@@ -45,7 +46,8 @@ namespace catapult { namespace model {
 
 		// Assert:
 		EXPECT_EQ(pRangeData, annotatedRange.Range.data());
-		EXPECT_EQ(Key(), annotatedRange.SourcePublicKey);
+		EXPECT_EQ(Key(), annotatedRange.SourceIdentity.PublicKey);
+		EXPECT_EQ("", annotatedRange.SourceIdentity.Host);
 	}
 
 	TEST(TEST_CLASS, CanCreateAroundRangeAndContext) {
@@ -55,10 +57,11 @@ namespace catapult { namespace model {
 		const auto* pRangeData = range.data();
 
 		// Act:
-		auto annotatedRange = AnnotatedEntityRange<Block>(std::move(range), sourcePublicKey);
+		auto annotatedRange = AnnotatedEntityRange<Block>(std::move(range), { sourcePublicKey, "11.22.33.44" });
 
 		// Assert:
 		EXPECT_EQ(pRangeData, annotatedRange.Range.data());
-		EXPECT_EQ(sourcePublicKey, annotatedRange.SourcePublicKey);
+		EXPECT_EQ(sourcePublicKey, annotatedRange.SourceIdentity.PublicKey);
+		EXPECT_EQ("11.22.33.44", annotatedRange.SourceIdentity.Host);
 	}
 }}

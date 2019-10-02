@@ -31,19 +31,24 @@ namespace catapult { namespace ionet {
 		NodePacketIoPair pair;
 
 		// Assert:
-		EXPECT_EQ(Node(), pair.node());
+		EXPECT_EQ(Key(), pair.node().identity().PublicKey);
+		EXPECT_EQ("", pair.node().identity().Host);
+
 		EXPECT_FALSE(!!pair.io());
 		EXPECT_FALSE(!!pair);
 	}
 
 	TEST(TEST_CLASS, CanCreatePairWithValues) {
 		// Act:
-		auto node = Node(test::GenerateRandomByteArray<Key>(), ionet::NodeEndpoint(), ionet::NodeMetadata());
+		auto identityKey = test::GenerateRandomByteArray<Key>();
+		auto node = Node({ identityKey, "11.22.33.44" });
 		auto pPacketIo = std::make_shared<mocks::MockPacketIo>();
 		NodePacketIoPair pair(node, pPacketIo);
 
 		// Assert:
-		EXPECT_EQ(node, pair.node());
+		EXPECT_EQ(identityKey, pair.node().identity().PublicKey);
+		EXPECT_EQ("11.22.33.44", pair.node().identity().Host);
+
 		EXPECT_EQ(pPacketIo, pair.io());
 		EXPECT_TRUE(!!pair);
 	}

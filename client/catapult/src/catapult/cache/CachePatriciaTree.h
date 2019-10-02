@@ -25,7 +25,7 @@
 
 namespace catapult { namespace cache {
 
-	/// A wrapper around a patricia tree used by caches.
+	/// Wrapper around a patricia tree used by caches.
 	template<typename TTree>
 	class CachePatriciaTree {
 	public:
@@ -41,12 +41,12 @@ namespace catapult { namespace cache {
 		}
 
 	public:
-		/// Returns a delta based on the same data source as this tree.
+		/// Gets a delta based on the same data source as this tree.
 		auto rebase() {
 			return m_pImpl ? m_pImpl->tree().rebase() : nullptr;
 		}
 
-		/// Returns a delta based on the same data source as this tree
+		/// Gets a delta based on the same data source as this tree
 		/// but without the ability to commit any changes to the original tree.
 		auto rebaseDetached() const {
 			return m_pImpl ? m_pImpl->tree().rebaseDetached() : nullptr;

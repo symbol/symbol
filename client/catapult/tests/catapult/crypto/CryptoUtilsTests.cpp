@@ -42,9 +42,9 @@ namespace catapult { namespace crypto {
 		// Assert:
 		Hash512 expectedHash;
 #ifdef SIGNATURE_SCHEME_NIS1
-		Keccak_512(test::ToVector(privateKeyString), expectedHash);
+		Keccak_512(test::HexStringToVector(privateKeyString), expectedHash);
 #else
-		Sha3_512(test::ToVector(privateKeyString), expectedHash);
+		Sha3_512(test::HexStringToVector(privateKeyString), expectedHash);
 #endif
 
 		EXPECT_EQ(expectedHash, hash);

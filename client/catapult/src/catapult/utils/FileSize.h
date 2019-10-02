@@ -53,22 +53,22 @@ namespace catapult { namespace utils {
 		}
 
 	public:
-		/// Returns the number of megabytes.
+		/// Gets the number of megabytes.
 		constexpr uint64_t megabytes() const {
 			return kilobytes() / 1024;
 		}
 
-		/// Returns the number of kilobytes.
+		/// Gets the number of kilobytes.
 		constexpr uint64_t kilobytes() const {
 			return bytes() / 1024;
 		}
 
-		/// Returns the number of bytes.
+		/// Gets the number of bytes.
 		constexpr uint64_t bytes() const {
 			return m_bytes;
 		}
 
-		/// Returns the number of bytes as a uint32_t.
+		/// Gets the number of bytes as a uint32_t.
 		uint32_t bytes32() const {
 			return checked_cast<uint64_t, uint32_t>(m_bytes);
 		}

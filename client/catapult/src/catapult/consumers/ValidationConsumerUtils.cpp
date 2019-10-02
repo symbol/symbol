@@ -36,7 +36,7 @@ namespace catapult { namespace consumers {
 					return Continue();
 
 				CATAPULT_LOG_LEVEL(validators::MapToLogLevel(result)) << "validation consumer failed: " << result;
-				return Abort(result);
+				return Abort(result, disruptor::ConsumerResultSeverity::Fatal);
 			};
 		}
 	}
@@ -83,8 +83,8 @@ namespace catapult { namespace consumers {
 				}
 			}
 
-			// only abort if all elements failed
-			if (results.size() != numSkippedElements)
+			// abort if an element failed
+			if (0 == numSkippedElements)
 				return validators::ValidationResult::Success;
 
 			CATAPULT_LOG(trace) << "all " << numSkippedElements << " transaction(s) skipped in Transaction validation consumer";

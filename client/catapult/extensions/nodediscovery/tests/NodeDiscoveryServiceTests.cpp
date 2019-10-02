@@ -186,10 +186,11 @@ namespace catapult { namespace nodediscovery {
 		context.boot();
 
 		auto identityKey = test::GenerateRandomByteArray<Key>();
+		auto host = std::string("11.22.33.44");
 		auto pPacket = CreateNodePushPingPacket(identityKey, "alice.com", "the GREAT");
 
 		// Act:
-		ionet::ServerPacketHandlerContext handlerContext(identityKey, std::string());
+		ionet::ServerPacketHandlerContext handlerContext(identityKey, host);
 		const auto& handlers = context.testState().state().packetHandlers();
 		handlers.process(*pPacket, handlerContext);
 
@@ -198,7 +199,8 @@ namespace catapult { namespace nodediscovery {
 		ASSERT_EQ(1u, subscriber.nodeParams().params().size());
 
 		const auto& subscriberNode = subscriber.nodeParams().params()[0].NodeCopy;
-		EXPECT_EQ(identityKey, subscriberNode.identityKey());
+		EXPECT_EQ(identityKey, subscriberNode.identity().PublicKey);
+		EXPECT_EQ("11.22.33.44", subscriberNode.identity().Host);
 		EXPECT_EQ("alice.com", subscriberNode.endpoint().Host);
 		EXPECT_EQ(ionet::NodeVersion(1234), subscriberNode.metadata().Version);
 
@@ -223,7 +225,7 @@ namespace catapult { namespace nodediscovery {
 		reinterpret_cast<ionet::NetworkNode&>(*pRequestPacket->Data()).Port = test::GetLocalHostPort();
 
 		// Act:
-		ionet::ServerPacketHandlerContext handlerContext(test::GenerateRandomByteArray<Key>(), std::string());
+		ionet::ServerPacketHandlerContext handlerContext;
 		const auto& handlers = context.testState().state().packetHandlers();
 		handlers.process(*pRequestPacket, handlerContext);
 
@@ -236,7 +238,8 @@ namespace catapult { namespace nodediscovery {
 		ASSERT_EQ(1u, subscriber.nodeParams().params().size());
 
 		const auto& subscriberNode = subscriber.nodeParams().params()[0].NodeCopy;
-		EXPECT_EQ(partnerKeyPair.publicKey(), subscriberNode.identityKey());
+		EXPECT_EQ(partnerKeyPair.publicKey(), subscriberNode.identity().PublicKey);
+		EXPECT_EQ("127.0.0.1", subscriberNode.identity().Host);
 		EXPECT_EQ("127.0.0.1", subscriberNode.endpoint().Host);
 		EXPECT_EQ("the Legend", subscriberNode.metadata().Name);
 
@@ -253,7 +256,7 @@ namespace catapult { namespace nodediscovery {
 		// - add the remote node to the node container
 		auto partnerKeyPair = test::GenerateKeyPair();
 		auto& nodes = context.testState().state().nodes();
-		nodes.modifier().add(test::CreateNamedNode(partnerKeyPair.publicKey(), "bob"), ionet::NodeSource::Static);
+		nodes.modifier().add(test::CreateNamedNode({ partnerKeyPair.publicKey(), "" }, "bob"), ionet::NodeSource::Static);
 
 		// - prepare a packet that simulates peers pushed from another node (and uses the local node as the forwarded peer enpoint)
 		auto pRequestPacket = CreateNodePullPingPacket(partnerKeyPair.publicKey(), "127.0.0.1", "the GREAT");
@@ -261,7 +264,7 @@ namespace catapult { namespace nodediscovery {
 		reinterpret_cast<ionet::NetworkNode&>(*pRequestPacket->Data()).Port = test::GetLocalHostPort();
 
 		// Act:
-		ionet::ServerPacketHandlerContext handlerContext(test::GenerateRandomByteArray<Key>(), std::string());
+		ionet::ServerPacketHandlerContext handlerContext;
 		const auto& handlers = context.testState().state().packetHandlers();
 		handlers.process(*pRequestPacket, handlerContext);
 
@@ -296,7 +299,7 @@ namespace catapult { namespace nodediscovery {
 		reinterpret_cast<ionet::NetworkNode&>(*pRequestPacket->Data()).Port = test::GetLocalHostPort();
 
 		// Act:
-		ionet::ServerPacketHandlerContext handlerContext(test::GenerateRandomByteArray<Key>(), std::string());
+		ionet::ServerPacketHandlerContext handlerContext;
 		const auto& handlers = context.testState().state().packetHandlers();
 		handlers.process(*pRequestPacket, handlerContext);
 
@@ -371,7 +374,7 @@ namespace catapult { namespace nodediscovery {
 			pPacketIo->queueRead(readCode, [&partnerKey](const auto*) {
 				// - push ping and pull peers packets are compatible, so create the former and change the type
 				auto pPacket = CreateNodePushPingPacket(partnerKey, "127.0.0.1", "alice");
-			reinterpret_cast<ionet::NetworkNode&>(*pPacket->Data()).Port = test::GetLocalHostPort();
+				reinterpret_cast<ionet::NetworkNode&>(*pPacket->Data()).Port = test::GetLocalHostPort();
 				pPacket->Type = ionet::PacketType::Node_Discovery_Pull_Peers;
 				return pPacket;
 			});
@@ -385,7 +388,7 @@ namespace catapult { namespace nodediscovery {
 			// - ensure the packet lifetime is extended by the task callback by
 			//  (1) simulating its removal from writers after being returned by pickOne
 			//  (2) delaying all io operations
-			auto nodeIdentity = test::GenerateRandomByteArray<Key>();
+			auto nodeIdentity = model::NodeIdentity{ test::GenerateRandomByteArray<Key>(), "11.22.33.44" };
 			mocks::PickOneAwareMockPacketWriters picker(mocks::PickOneAwareMockPacketWriters::SetPacketIoBehavior::Use_Once);
 			pPacketIo->setDelay(utils::TimeSpan::FromMilliseconds(50));
 			picker.setPacketIo(std::move(pPacketIo));
@@ -440,12 +443,13 @@ namespace catapult { namespace nodediscovery {
 		AssertPeersTaskApiAction(code, prepareNodes, [](auto& context, const auto& partnerKey, const auto&) {
 			// - wait for success (task completes when pings are started but not yet completed)
 			const auto& subscriber = context.testState().nodeSubscriber();
-			WAIT_FOR_ONE_EXPR(subscriber.nodeParams().params().size());
+			WAIT_FOR_ONE_EXPR(subscriber.numNodesNotified());
 			ASSERT_EQ(1u, subscriber.nodeParams().params().size());
 
 			// Assert: subscriber was called and the name from the response node (the Legend) was used
 			const auto& subscriberNode = subscriber.nodeParams().params()[0].NodeCopy;
-			EXPECT_EQ(partnerKey, subscriberNode.identityKey());
+			EXPECT_EQ(partnerKey, subscriberNode.identity().PublicKey);
+			EXPECT_EQ("127.0.0.1", subscriberNode.identity().Host);
 			EXPECT_EQ("the Legend", subscriberNode.metadata().Name);
 		});
 	}
@@ -455,12 +459,12 @@ namespace catapult { namespace nodediscovery {
 		auto code = ionet::SocketOperationCode::Success;
 		auto prepareNodes = [](auto& nodes, const auto& nodeIdentity) {
 			auto nodesModifier = nodes.modifier();
-			nodesModifier.add(ionet::Node(nodeIdentity, ionet::NodeEndpoint(), ionet::NodeMetadata()), ionet::NodeSource::Dynamic);
+			nodesModifier.add(ionet::Node(nodeIdentity), ionet::NodeSource::Dynamic);
 		};
 		AssertPeersTaskApiAction(code, prepareNodes, [](auto& context, const auto&, const auto& nodeIdentity) {
 			// - wait for success (task completes when pings are started but not yet completed)
 			const auto& subscriber = context.testState().nodeSubscriber();
-			WAIT_FOR_ONE_EXPR(subscriber.nodeParams().params().size());
+			WAIT_FOR_ONE_EXPR(subscriber.numNodesNotified());
 			ASSERT_EQ(1u, subscriber.nodeParams().params().size());
 
 			// Assert: interactions were updated
@@ -475,7 +479,7 @@ namespace catapult { namespace nodediscovery {
 		auto code = ionet::SocketOperationCode::Read_Error;
 		auto prepareNodes = [](auto& nodes, const auto& nodeIdentity) {
 			auto nodesModifier = nodes.modifier();
-			nodesModifier.add(ionet::Node(nodeIdentity, ionet::NodeEndpoint(), ionet::NodeMetadata()), ionet::NodeSource::Dynamic);
+			nodesModifier.add(ionet::Node(nodeIdentity), ionet::NodeSource::Dynamic);
 		};
 		AssertPeersTaskApiAction(code, prepareNodes, [](auto& context, const auto&, const auto& nodeIdentity) {
 			// since the node interaction fails with Read_Error there is no subsequent action triggered,

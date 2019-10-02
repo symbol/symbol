@@ -25,7 +25,7 @@
 
 namespace catapult { namespace observers {
 
-	/// A weakly typed entity observer.
+	/// Weakly typed entity observer.
 	/// \note This intended to be used only for execution-only situations (e.g. block loading and rollback).
 	class EntityObserver {
 	public:

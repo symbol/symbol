@@ -47,6 +47,35 @@ namespace catapult { namespace harvesting {
 			Append(tempFilename, announcerPublicKey, encryptedEntry);
 			boost::filesystem::rename(tempFilename, filename);
 		}
+
+		auto GetAnnouncerPublicKey(const std::string& filename) {
+			size_t entrySize = Key::Size + EncryptedUnlockedEntrySize();
+			Key announcerPublicKey;
+			io::RawFile input(filename, io::OpenMode::Read_Only);
+			input.seek(input.size() - entrySize);
+			input.read(announcerPublicKey);
+			return announcerPublicKey;
+		}
+
+		void RemoveLastEntry(const std::string& filename, const Key& expectedAnnouncerPublicKey) {
+			if (!boost::filesystem::exists(filename))
+				CATAPULT_THROW_RUNTIME_ERROR_1("file does not exist", filename);
+
+			auto fileSize = boost::filesystem::file_size(filename);
+			size_t entrySize = Key::Size + EncryptedUnlockedEntrySize();
+			if (fileSize < entrySize)
+				CATAPULT_THROW_RUNTIME_ERROR_1("file is invalid", filename);
+
+			auto announcerPublicKey = GetAnnouncerPublicKey(filename);
+			if (expectedAnnouncerPublicKey != announcerPublicKey) {
+				CATAPULT_THROW_RUNTIME_ERROR_2(
+						"unexpected entry in file (expected, actual)",
+						expectedAnnouncerPublicKey,
+						announcerPublicKey);
+			}
+
+			boost::filesystem::resize_file(filename, fileSize - entrySize);
+		}
 	}
 
 	UnlockedAccountsStorage::UnlockedAccountsStorage(const std::string& filename) : m_filename(filename)
@@ -60,6 +89,11 @@ namespace catapult { namespace harvesting {
 
 		std::vector<uint8_t> entry(encryptedEntry.pData, encryptedEntry.pData + encryptedEntry.Size);
 		addEntry(announcerPublicKey, entry, harvesterPublicKey);
+	}
+
+	void UnlockedAccountsStorage::remove(const Key& announcerPublicKey) {
+		RemoveLastEntry(m_filename, announcerPublicKey);
+		removeEntry(announcerPublicKey);
 	}
 
 	void UnlockedAccountsStorage::save(const predicate<const Key&>& filter) const {
@@ -118,5 +152,11 @@ namespace catapult { namespace harvesting {
 			const Key& harvesterPublicKey) {
 		auto iter = m_announcerToEntryMap.emplace(announcerPublicKey, entry).first;
 		m_entryToHarvesterMap.emplace(*iter, harvesterPublicKey);
+	}
+
+	void UnlockedAccountsStorage::removeEntry(const Key& announcerPublicKey) {
+		auto iter = m_announcerToEntryMap.find(announcerPublicKey);
+		m_entryToHarvesterMap.erase(*iter); // note, in this case *iter is a key for entryToHarvesterMap
+		m_announcerToEntryMap.erase(iter);
 	}
 }}

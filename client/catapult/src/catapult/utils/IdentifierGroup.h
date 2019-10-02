@@ -23,7 +23,7 @@
 
 namespace catapult { namespace utils {
 
-	/// A group of identifiers that share a common (external) attribute.
+	/// Group of identifiers that share a common (external) attribute.
 	template<typename TIdentifier, typename TGroupingKey, typename TIdentifierHasher>
 	class IdentifierGroup {
 	public:

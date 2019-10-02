@@ -42,7 +42,7 @@ namespace catapult { namespace model {
 
 	// region BasicAggregateNotification
 
-	/// A basic aggregate notification.
+	/// Basic aggregate notification.
 	template<typename TDerivedNotification>
 	struct BasicAggregateNotification : public Notification {
 	protected:

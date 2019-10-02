@@ -26,7 +26,7 @@ namespace catapult { namespace ionet {
 
 #pragma pack(push, 1)
 
-	/// A packet header that all transferable information is expected to have.
+	/// Packet header that all transferable information is expected to have.
 	struct PacketHeader {
 		/// Size of the packet.
 		uint32_t Size;

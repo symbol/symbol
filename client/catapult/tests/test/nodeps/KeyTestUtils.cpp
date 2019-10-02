@@ -30,4 +30,17 @@ namespace catapult { namespace test {
 	crypto::KeyPair GenerateKeyPair() {
 		return crypto::KeyPair::FromPrivate(GenerateRandomPrivateKey());
 	}
+
+	crypto::KeyPair CopyKeyPair(const crypto::KeyPair& keyPair) {
+		auto iter = keyPair.privateKey().begin();
+		return crypto::KeyPair::FromPrivate(crypto::PrivateKey::Generate([&iter]() { return *iter++; }));
+	}
+
+	utils::KeySet ToKeySet(const std::vector<crypto::KeyPair>& keyPairs) {
+		utils::KeySet publicKeys;
+		for (const auto& keyPair : keyPairs)
+			publicKeys.emplace(keyPair.publicKey());
+
+		return publicKeys;
+	}
 }}

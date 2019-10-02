@@ -78,12 +78,12 @@ namespace catapult { namespace state {
 			}
 
 		public:
-			/// Returns a reference to the current value.
+			/// Gets a reference to the current value.
 			reference operator*() const {
 				return *(this->operator->());
 			}
 
-			/// Returns a pointer to the current value.
+			/// Gets a pointer to the current value.
 			pointer operator->() const {
 				if (isEnd())
 					CATAPULT_THROW_OUT_OF_RANGE("cannot dereference at end");
@@ -140,24 +140,24 @@ namespace catapult { namespace state {
 		}
 
 	public:
-		/// Gets number of non-default values contained in the stack.
+		/// Gets the number of non-default values contained in the stack.
 		size_t size() const {
 			return m_size;
 		}
 
 	public:
-		/// Returns a const iterator to the first element of the underlying container.
+		/// Gets a const iterator to the first element of the underlying container.
 		const_iterator begin() const {
 			return const_iterator(m_pArray.get(), 0);
 		}
 
-		/// Returns a const iterator to the element following the last element of the underlying container.
+		/// Gets a const iterator to the element following the last element of the underlying container.
 		const_iterator end() const {
 			return const_iterator(m_pArray.get(), N);
 		}
 
 	public:
-		/// Returns a const reference to the element on the top of the stack.
+		/// Gets a const reference to the element on the top of the stack.
 		const T& peek() const {
 			if (0 == m_size)
 				CATAPULT_THROW_OUT_OF_RANGE("cannot peek when empty");
@@ -165,7 +165,7 @@ namespace catapult { namespace state {
 			return m_pArray->front();
 		}
 
-		/// Returns a reference to the element on the top of the stack.
+		/// Gets a reference to the element on the top of the stack.
 		T& peek() {
 			if (0 == m_size)
 				CATAPULT_THROW_OUT_OF_RANGE("cannot peek when empty");

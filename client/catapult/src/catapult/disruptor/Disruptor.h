@@ -21,6 +21,7 @@
 #pragma once
 #include "DisruptorBarriers.h"
 #include "DisruptorElement.h"
+#include "DisruptorTypes.h"
 #include "catapult/model/Block.h"
 #include "catapult/model/EntityRange.h"
 #include "catapult/utils/CircularBuffer.h"
@@ -41,13 +42,13 @@ namespace catapult { namespace disruptor {
 		/// Once the processing of the input is complete, \a processingComplete will be called.
 		DisruptorElementId add(ConsumerInput&& input, const ProcessingCompleteFunc& processingComplete);
 
-		/// Sets skip flag on the element at \a position with \a code.
-		void markSkipped(PositionType position, CompletionCode code);
+		/// Sets the skip flag on the element at \a position with \a result.
+		void markSkipped(PositionType position, const ConsumerResult& result);
 
-		/// Checks skip flag on the element at \a position.
+		/// Checks the skip flag on the element at \a position.
 		bool isSkipped(PositionType position) const;
 
-		/// Gets element at given position.
+		/// Gets the element at given \a position.
 		inline DisruptorElement& elementAt(PositionType position) {
 			return m_container[position];
 		}

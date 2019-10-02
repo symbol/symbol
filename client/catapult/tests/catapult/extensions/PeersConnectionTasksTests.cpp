@@ -34,12 +34,20 @@ namespace catapult { namespace extensions {
 	// region utils
 
 	namespace {
+		model::NodeIdentity ToIdentity(const Key& identityKey) {
+			return { identityKey, "11.22.33.44" };
+		}
+
+		model::NodeIdentitySet ToIdentitiesSet(const std::vector<Key>& identityKeys) {
+			return test::ToIdentitiesSet(identityKeys, "11.22.33.44");
+		}
+
 		config::NodeConfiguration::ConnectionsSubConfiguration CreateConfiguration() {
 			return { 5, 8, 250, 2 };
 		}
 
 		void Add(ionet::NodeContainer& container, const Key& identityKey, const std::string& nodeName, ionet::NodeRoles roles) {
-			container.modifier().add(test::CreateNamedNode(identityKey, nodeName, roles), ionet::NodeSource::Dynamic);
+			container.modifier().add(test::CreateNamedNode({ identityKey, "11.22.33.44" }, nodeName, roles), ionet::NodeSource::Dynamic);
 		}
 	}
 
@@ -57,20 +65,20 @@ namespace catapult { namespace extensions {
 		Add(container, keys[2], "charlie", ionet::NodeRoles::Peer);
 		{
 			auto modifier = container.modifier();
-			modifier.provisionConnectionState(serviceId, keys[0]).Age = 1;
-			modifier.provisionConnectionState(serviceId, keys[1]).Age = 2;
-			modifier.provisionConnectionState(serviceId, keys[2]).Age = 3;
+			modifier.provisionConnectionState(serviceId, ToIdentity(keys[0])).Age = 1;
+			modifier.provisionConnectionState(serviceId, ToIdentity(keys[1])).Age = 2;
+			modifier.provisionConnectionState(serviceId, ToIdentity(keys[2])).Age = 3;
 		}
 
 		// Act:
 		auto ager = CreateNodeAger(serviceId, CreateConfiguration(), container);
-		ager({ keys[0], keys[2] });
+		ager(ToIdentitiesSet({ keys[0], keys[2] }));
 
 		// Assert: nodes { 0, 2 } are aged, node { 1 } is cleared
 		auto view = container.view();
-		EXPECT_EQ(2u, view.getNodeInfo(keys[0]).getConnectionState(serviceId)->Age);
-		EXPECT_EQ(0u, view.getNodeInfo(keys[1]).getConnectionState(serviceId)->Age);
-		EXPECT_EQ(4u, view.getNodeInfo(keys[2]).getConnectionState(serviceId)->Age);
+		EXPECT_EQ(2u, view.getNodeInfo(ToIdentity(keys[0])).getConnectionState(serviceId)->Age);
+		EXPECT_EQ(0u, view.getNodeInfo(ToIdentity(keys[1])).getConnectionState(serviceId)->Age);
+		EXPECT_EQ(4u, view.getNodeInfo(ToIdentity(keys[2])).getConnectionState(serviceId)->Age);
 	}
 
 	TEST(TEST_CLASS, NodeAger_AgesMatchingConnectionBans) {
@@ -83,11 +91,11 @@ namespace catapult { namespace extensions {
 		Add(container, keys[2], "charlie", ionet::NodeRoles::Peer);
 		{
 			auto modifier = container.modifier();
-			modifier.provisionConnectionState(serviceId, keys[0]).NumConsecutiveFailures = 3;
-			modifier.provisionConnectionState(serviceId, keys[0]).BanAge = 11;
-			modifier.provisionConnectionState(serviceId, keys[1]).NumConsecutiveFailures = 3;
-			modifier.provisionConnectionState(serviceId, keys[1]).BanAge = 100;
-			modifier.provisionConnectionState(serviceId, keys[2]).NumConsecutiveFailures = 3;
+			modifier.provisionConnectionState(serviceId, ToIdentity(keys[0])).NumConsecutiveFailures = 3;
+			modifier.provisionConnectionState(serviceId, ToIdentity(keys[0])).BanAge = 11;
+			modifier.provisionConnectionState(serviceId, ToIdentity(keys[1])).NumConsecutiveFailures = 3;
+			modifier.provisionConnectionState(serviceId, ToIdentity(keys[1])).BanAge = 100;
+			modifier.provisionConnectionState(serviceId, ToIdentity(keys[2])).NumConsecutiveFailures = 3;
 		}
 
 		auto config = CreateConfiguration();
@@ -96,13 +104,13 @@ namespace catapult { namespace extensions {
 
 		// Act:
 		auto ager = CreateNodeAger(serviceId, config, container);
-		ager({});
+		ager(ToIdentitiesSet(std::vector<Key>()));
 
 		// Assert: all banned nodes with matching service are aged irrespective of identities passed to ager
 		auto view = container.view();
-		EXPECT_EQ(12u, view.getNodeInfo(keys[0]).getConnectionState(serviceId)->BanAge);
-		EXPECT_EQ(0u, view.getNodeInfo(keys[1]).getConnectionState(serviceId)->BanAge);
-		EXPECT_EQ(1u, view.getNodeInfo(keys[2]).getConnectionState(serviceId)->BanAge);
+		EXPECT_EQ(12u, view.getNodeInfo(ToIdentity(keys[0])).getConnectionState(serviceId)->BanAge);
+		EXPECT_EQ(0u, view.getNodeInfo(ToIdentity(keys[1])).getConnectionState(serviceId)->BanAge);
+		EXPECT_EQ(1u, view.getNodeInfo(ToIdentity(keys[2])).getConnectionState(serviceId)->BanAge);
 	}
 
 	// endregion
@@ -219,9 +227,9 @@ namespace catapult { namespace extensions {
 
 		// Assert:
 		const auto& view = container.view();
-		EXPECT_TRUE(!!view.getNodeInfo(keys[0]).getConnectionState(serviceId));
-		EXPECT_FALSE(!!view.getNodeInfo(keys[1]).getConnectionState(serviceId));
-		EXPECT_TRUE(!!view.getNodeInfo(keys[2]).getConnectionState(serviceId));
+		EXPECT_TRUE(!!view.getNodeInfo(ToIdentity(keys[0])).getConnectionState(serviceId));
+		EXPECT_FALSE(!!view.getNodeInfo(ToIdentity(keys[1])).getConnectionState(serviceId));
+		EXPECT_TRUE(!!view.getNodeInfo(ToIdentity(keys[2])).getConnectionState(serviceId));
 	}
 
 	// endregion
@@ -241,10 +249,10 @@ namespace catapult { namespace extensions {
 				auto node = test::CreateNamedNode(identityKey, "node " + std::to_string(i));
 				modifier.add(node, ionet::NodeSource::Dynamic);
 				nodes.push_back(node);
-				test::AddNodeInteractions(modifier, identityKey, 7, 3);
+				test::AddNodeInteractions(modifier, node.identity(), 7, 3);
 
 				auto serviceId = 0 == i % 2 ? evenServiceId : oddServiceId;
-				auto& connectionState = modifier.provisionConnectionState(serviceId, identityKey);
+				auto& connectionState = modifier.provisionConnectionState(serviceId, node.identity());
 				connectionState.Age = i + 1;
 				connectionState.NumConsecutiveFailures = 1;
 				connectionState.BanAge = 123;
@@ -302,7 +310,7 @@ namespace catapult { namespace extensions {
 			std::vector<uint32_t> expectedAges{ 3, 0, 7, 9, 0 }; // only for matching service 3
 			for (const auto& node : nodes) {
 				auto message = "node at " + std::to_string(i);
-				const auto& nodeInfo = view.getNodeInfo(node.identityKey());
+				const auto& nodeInfo = view.getNodeInfo(node.identity());
 				const auto* pConnectionState = nodeInfo.getConnectionState(serviceId);
 
 				if (0 == i % 2) {
@@ -340,16 +348,16 @@ namespace catapult { namespace extensions {
 			ConnectSyncAll(writers, { nodes[1], nodes[5], nodes[7] });
 
 			// Act: run selection that returns remove candidates
-			auto removeCandidates = utils::KeySet{ nodes[1].identityKey(), nodes[9].identityKey() };
+			auto removeCandidates = test::ToIdentitiesSet({ nodes[1].identity(), nodes[9].identity() });
 			runTask(container, writers, serviceId, removeCandidates);
 
 			// Assert: remove candidates were removed from writers
-			EXPECT_EQ(removeCandidates, writers.closedNodeIdentities());
+			test::AssertEqualIdentities(removeCandidates, writers.closedNodeIdentities());
 
 			// - removed nodes are still aged if they are active during selection (their ages will be zeroed on next iteration)
 			auto view = container.view();
-			EXPECT_EQ(3u, view.getNodeInfo(nodes[1].identityKey()).getConnectionState(serviceId)->Age);
-			EXPECT_EQ(0u, view.getNodeInfo(nodes[9].identityKey()).getConnectionState(serviceId)->Age);
+			EXPECT_EQ(3u, view.getNodeInfo(nodes[1].identity()).getConnectionState(serviceId)->Age);
+			EXPECT_EQ(0u, view.getNodeInfo(nodes[9].identity()).getConnectionState(serviceId)->Age);
 		}
 	}
 
@@ -371,25 +379,25 @@ namespace catapult { namespace extensions {
 		bool IsConnectedNode(const mocks::MockPacketWriters& writers, const ionet::Node& searchNode) {
 			const auto& nodes = writers.connectedNodes();
 			return std::any_of(nodes.cbegin(), nodes.cend(), [searchNode](const auto& node) {
-				return searchNode == node;
+				return ionet::NodeEquality()(searchNode, node);
 			});
 		}
 
 		void AssertInteractions(
 				const ionet::NodeContainerView& view,
-				const Key& identityKey,
+				const model::NodeIdentity& identity,
 				uint32_t expectedNumSuccesses,
 				uint32_t expectedNumFailures) {
-			auto interactions = view.getNodeInfo(identityKey).interactions(Timestamp());
+			auto interactions = view.getNodeInfo(identity).interactions(Timestamp());
 			test::AssertNodeInteractions(expectedNumSuccesses, expectedNumFailures, interactions);
 		}
 
 		void AssertConnectionState(
 				const ionet::NodeContainerView& view,
-				const Key& identityKey,
+				const model::NodeIdentity& identity,
 				ionet::ServiceIdentifier serviceId,
 				bool hasLastSuccess) {
-			const auto& nodeInfo = view.getNodeInfo(identityKey);
+			const auto& nodeInfo = view.getNodeInfo(identity);
 			const auto& connectionState = *nodeInfo.getConnectionState(serviceId);
 
 			if (hasLastSuccess) {
@@ -401,8 +409,11 @@ namespace catapult { namespace extensions {
 			}
 		}
 
-		void IncrementNumConsecutiveFailures(ionet::NodeContainer& container, ionet::ServiceIdentifier serviceId, const Key& identityKey) {
-			++container.modifier().provisionConnectionState(serviceId, identityKey).NumConsecutiveFailures;
+		void IncrementNumConsecutiveFailures(
+				ionet::NodeContainer& container,
+				ionet::ServiceIdentifier serviceId,
+				const model::NodeIdentity& identity) {
+			++container.modifier().provisionConnectionState(serviceId, identity).NumConsecutiveFailures;
 		}
 	}
 
@@ -429,14 +440,14 @@ namespace catapult { namespace extensions {
 
 		// - interactions have been updated appropriately from initial values (7S, 3F)
 		auto view = container.view();
-		AssertInteractions(view, nodes[3].identityKey(), 8, 3);
-		AssertInteractions(view, nodes[5].identityKey(), 8, 3);
-		AssertInteractions(view, nodes[9].identityKey(), 8, 3);
+		AssertInteractions(view, nodes[3].identity(), 8, 3);
+		AssertInteractions(view, nodes[5].identity(), 8, 3);
+		AssertInteractions(view, nodes[9].identity(), 8, 3);
 
 		// - connection states have correct number of consecutive failures and ban age
-		AssertConnectionState(view, nodes[3].identityKey(), serviceId, true);
-		AssertConnectionState(view, nodes[5].identityKey(), serviceId, true);
-		AssertConnectionState(view, nodes[9].identityKey(), serviceId, true);
+		AssertConnectionState(view, nodes[3].identity(), serviceId, true);
+		AssertConnectionState(view, nodes[5].identity(), serviceId, true);
+		AssertConnectionState(view, nodes[9].identity(), serviceId, true);
 	}
 
 	TEST(TEST_CLASS, ConnectPeersTask_AddCandidatesHaveConnectionsInitiatedAndInteractionsUpdated_SomeSucceed) {
@@ -445,13 +456,13 @@ namespace catapult { namespace extensions {
 		auto serviceId = ionet::ServiceIdentifier(3);
 		ionet::NodeContainer container;
 		auto nodes = SeedAlternatingServiceNodes(container, 12, ionet::ServiceIdentifier(9), serviceId);
-		IncrementNumConsecutiveFailures(container, serviceId, nodes[3].identityKey());
-		IncrementNumConsecutiveFailures(container, serviceId, nodes[9].identityKey());
+		IncrementNumConsecutiveFailures(container, serviceId, nodes[3].identity());
+		IncrementNumConsecutiveFailures(container, serviceId, nodes[9].identity());
 
 		// - trigger some nodes to fail during connection
 		mocks::MockPacketWriters writers;
-		writers.setConnectCode(nodes[3].identityKey(), net::PeerConnectCode::Socket_Error);
-		writers.setConnectCode(nodes[9].identityKey(), net::PeerConnectCode::Socket_Error);
+		writers.setConnectCode(nodes[3].identity(), net::PeerConnectCode::Socket_Error);
+		writers.setConnectCode(nodes[9].identity(), net::PeerConnectCode::Socket_Error);
 
 		// Act: run selection that returns add candidates
 		auto addCandidates = ionet::NodeSet{ nodes[3], nodes[5], nodes[9] };
@@ -468,14 +479,14 @@ namespace catapult { namespace extensions {
 
 		// - interactions have been updated appropriately from initial values (7S, 3F)
 		auto view = container.view();
-		AssertInteractions(view, nodes[3].identityKey(), 7, 4);
-		AssertInteractions(view, nodes[5].identityKey(), 8, 3);
-		AssertInteractions(view, nodes[9].identityKey(), 7, 4);
+		AssertInteractions(view, nodes[3].identity(), 7, 4);
+		AssertInteractions(view, nodes[5].identity(), 8, 3);
+		AssertInteractions(view, nodes[9].identity(), 7, 4);
 
 		// - connection states have correct number of consecutive failures and ban age
-		AssertConnectionState(view, nodes[3].identityKey(), serviceId, false);
-		AssertConnectionState(view, nodes[5].identityKey(), serviceId, true);
-		AssertConnectionState(view, nodes[9].identityKey(), serviceId, false);
+		AssertConnectionState(view, nodes[3].identity(), serviceId, false);
+		AssertConnectionState(view, nodes[5].identity(), serviceId, true);
+		AssertConnectionState(view, nodes[9].identity(), serviceId, false);
 	}
 
 	TEST(TEST_CLASS, ConnectPeersTask_AddCandidatesHaveConnectionsInitiatedAndInteractionsUpdated_NoneSucceed) {
@@ -484,15 +495,15 @@ namespace catapult { namespace extensions {
 		auto serviceId = ionet::ServiceIdentifier(3);
 		ionet::NodeContainer container;
 		auto nodes = SeedAlternatingServiceNodes(container, 12, ionet::ServiceIdentifier(9), serviceId);
-		IncrementNumConsecutiveFailures(container, serviceId, nodes[3].identityKey());
-		IncrementNumConsecutiveFailures(container, serviceId, nodes[5].identityKey());
-		IncrementNumConsecutiveFailures(container, serviceId, nodes[9].identityKey());
+		IncrementNumConsecutiveFailures(container, serviceId, nodes[3].identity());
+		IncrementNumConsecutiveFailures(container, serviceId, nodes[5].identity());
+		IncrementNumConsecutiveFailures(container, serviceId, nodes[9].identity());
 
 		// - trigger all nodes to fail during connection
 		mocks::MockPacketWriters writers;
-		writers.setConnectCode(nodes[3].identityKey(), net::PeerConnectCode::Socket_Error);
-		writers.setConnectCode(nodes[5].identityKey(), net::PeerConnectCode::Socket_Error);
-		writers.setConnectCode(nodes[9].identityKey(), net::PeerConnectCode::Socket_Error);
+		writers.setConnectCode(nodes[3].identity(), net::PeerConnectCode::Socket_Error);
+		writers.setConnectCode(nodes[5].identity(), net::PeerConnectCode::Socket_Error);
+		writers.setConnectCode(nodes[9].identity(), net::PeerConnectCode::Socket_Error);
 
 		// Act: run selection that returns add candidates
 		auto addCandidates = ionet::NodeSet{ nodes[3], nodes[5], nodes[9] };
@@ -509,14 +520,14 @@ namespace catapult { namespace extensions {
 
 		// - interactions have been updated appropriately from initial values (7S, 3F)
 		auto view = container.view();
-		AssertInteractions(view, nodes[3].identityKey(), 7, 4);
-		AssertInteractions(view, nodes[5].identityKey(), 7, 4);
-		AssertInteractions(view, nodes[9].identityKey(), 7, 4);
+		AssertInteractions(view, nodes[3].identity(), 7, 4);
+		AssertInteractions(view, nodes[5].identity(), 7, 4);
+		AssertInteractions(view, nodes[9].identity(), 7, 4);
 
 		// - connection states have correct number of consecutive failures and ban age
-		AssertConnectionState(view, nodes[3].identityKey(), serviceId, false);
-		AssertConnectionState(view, nodes[5].identityKey(), serviceId, false);
-		AssertConnectionState(view, nodes[9].identityKey(), serviceId, false);
+		AssertConnectionState(view, nodes[3].identity(), serviceId, false);
+		AssertConnectionState(view, nodes[5].identity(), serviceId, false);
+		AssertConnectionState(view, nodes[9].identity(), serviceId, false);
 	}
 
 	// endregion

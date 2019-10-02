@@ -23,7 +23,7 @@
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/ionet/Node.h"
 #include "catapult/ionet/PacketSocket.h"
-#include "catapult/ionet/SecurePacketSocketDecorator.h"
+#include "catapult/ionet/SecureSignedPacketSocketDecorator.h"
 #include "catapult/thread/IoThreadPool.h"
 #include "catapult/thread/TimedCallback.h"
 #include "catapult/utils/Logging.h"
@@ -41,10 +41,13 @@ namespace catapult { namespace net {
 			DefaultServerConnector(
 					const std::shared_ptr<thread::IoThreadPool>& pPool,
 					const crypto::KeyPair& keyPair,
-					const ConnectionSettings& settings)
+					const ConnectionSettings& settings,
+					const std::string& name)
 					: m_pPool(pPool)
 					, m_keyPair(keyPair)
 					, m_settings(settings)
+					, m_name(name)
+					, m_tag(m_name.empty() ? std::string() : " (" + m_name + ")")
 					, m_sockets([](auto& socket) { socket.close(); })
 			{}
 
@@ -53,58 +56,73 @@ namespace catapult { namespace net {
 				return m_sockets.size();
 			}
 
+			const std::string& name() const override {
+				return m_name;
+			}
+
 		public:
 			void connect(const ionet::Node& node, const ConnectCallback& callback) override {
+				if (!m_settings.AllowOutgoingSelfConnections && m_keyPair.publicKey() == node.identity().PublicKey) {
+					CATAPULT_LOG(warning) << "self connection detected and aborted" << m_tag;
+					callback(PeerConnectCode::Self_Connection_Error, ionet::PacketSocketInfo());
+					return;
+				}
+
 				auto& ioContext = m_pPool->ioContext();
-				auto pRequest = thread::MakeTimedCallback(ioContext, callback, PeerConnectCode::Timed_Out, PacketSocketPointer());
+				auto pRequest = thread::MakeTimedCallback(ioContext, callback, PeerConnectCode::Timed_Out, ionet::PacketSocketInfo());
 				pRequest->setTimeout(m_settings.Timeout);
-				auto cancel = ionet::Connect(
-						ioContext,
-						m_settings.toSocketOptions(),
-						node.endpoint(),
-						[pThis = shared_from_this(), node, pRequest](auto result, const auto& pConnectedSocket) {
-							if (ionet::ConnectResult::Connected != result)
-								return pRequest->callback(PeerConnectCode::Socket_Error, nullptr);
 
-							pThis->verify(node.identityKey(), pConnectedSocket, pRequest);
-						});
+				auto socketOptions = m_settings.toSocketOptions();
+				auto cancel = ionet::Connect(ioContext, socketOptions, node.endpoint(), [pThis = shared_from_this(), node, pRequest](
+						auto result,
+						const auto& connectedSocketInfo) {
+					if (ionet::ConnectResult::Connected != result)
+						return pRequest->callback(PeerConnectCode::Socket_Error, ionet::PacketSocketInfo());
 
-				pRequest->setTimeoutHandler([cancel]() {
+					pThis->verify(node.identity().PublicKey, connectedSocketInfo, pRequest);
+				});
+
+				pRequest->setTimeoutHandler([pThis = shared_from_this(), cancel]() {
 					cancel();
-					CATAPULT_LOG(debug) << "connect failed due to timeout";
+					CATAPULT_LOG(debug) << "connect failed due to timeout" << pThis->m_tag;
 				});
 			}
 
 		private:
 			template<typename TRequest>
-			void verify(const Key& publicKey, const PacketSocketPointer& pConnectedSocket, const std::shared_ptr<TRequest>& pRequest) {
+			void verify(
+					const Key& publicKey,
+					const ionet::PacketSocketInfo& connectedSocketInfo,
+					const std::shared_ptr<TRequest>& pRequest) {
+				auto host = connectedSocketInfo.host();
+				auto pConnectedSocket = connectedSocketInfo.socket();
 				m_sockets.insert(pConnectedSocket);
-				pRequest->setTimeoutHandler([pConnectedSocket]() {
+				pRequest->setTimeoutHandler([pThis = shared_from_this(), pConnectedSocket]() {
 					pConnectedSocket->close();
-					CATAPULT_LOG(debug) << "verify failed due to timeout";
+					CATAPULT_LOG(debug) << "verify failed due to timeout" << pThis->m_tag;
 				});
 
 				VerifiedPeerInfo serverPeerInfo{ publicKey, m_settings.OutgoingSecurityMode };
-				VerifyServer(pConnectedSocket, serverPeerInfo, m_keyPair, [pThis = shared_from_this(), pConnectedSocket, pRequest](
+				VerifyServer(pConnectedSocket, serverPeerInfo, m_keyPair, [pThis = shared_from_this(), host, pConnectedSocket, pRequest](
 						auto verifyResult,
 						const auto& verifiedPeerInfo) {
 					if (VerifyResult::Success != verifyResult) {
-						CATAPULT_LOG(warning) << "VerifyServer failed with " << verifyResult;
-						return pRequest->callback(PeerConnectCode::Verify_Error, nullptr);
+						CATAPULT_LOG(warning) << "VerifyServer failed with " << verifyResult << pThis->m_tag;
+						return pRequest->callback(PeerConnectCode::Verify_Error, ionet::PacketSocketInfo());
 					}
 
 					auto pSecuredSocket = pThis->secure(pConnectedSocket, verifiedPeerInfo);
-					return pRequest->callback(PeerConnectCode::Accepted, pSecuredSocket);
+					return pRequest->callback(PeerConnectCode::Accepted, ionet::PacketSocketInfo(host, pSecuredSocket));
 				});
 			}
 
 			PacketSocketPointer secure(const PacketSocketPointer& pSocket, const VerifiedPeerInfo& peerInfo) {
-				return Secure(pSocket, peerInfo.SecurityMode, m_keyPair, peerInfo.PublicKey, m_settings.MaxPacketDataSize);
+				return AddSecureSigned(pSocket, peerInfo.SecurityMode, m_keyPair, peerInfo.PublicKey, m_settings.MaxPacketDataSize);
 			}
 
 		public:
 			void shutdown() override {
-				CATAPULT_LOG(info) << "closing all connections in ServerConnector";
+				CATAPULT_LOG(info) << "closing all connections in ServerConnector" << m_tag;
 				m_sockets.clear();
 			}
 
@@ -112,6 +130,10 @@ namespace catapult { namespace net {
 			std::shared_ptr<thread::IoThreadPool> m_pPool;
 			const crypto::KeyPair& m_keyPair;
 			ConnectionSettings m_settings;
+
+			std::string m_name;
+			std::string m_tag;
+
 			utils::WeakContainer<ionet::PacketSocket> m_sockets;
 		};
 	}
@@ -119,7 +141,8 @@ namespace catapult { namespace net {
 	std::shared_ptr<ServerConnector> CreateServerConnector(
 			const std::shared_ptr<thread::IoThreadPool>& pPool,
 			const crypto::KeyPair& keyPair,
-			const ConnectionSettings& settings) {
-		return std::make_shared<DefaultServerConnector>(pPool, keyPair, settings);
+			const ConnectionSettings& settings,
+			const char* name) {
+		return std::make_shared<DefaultServerConnector>(pPool, keyPair, settings, name ? std::string(name) : std::string());
 	}
 }}

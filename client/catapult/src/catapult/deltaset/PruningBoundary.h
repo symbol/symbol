@@ -40,7 +40,7 @@ namespace catapult { namespace deltaset {
 			return m_isSet;
 		}
 
-		/// Returns the pruning boundary value.
+		/// Gets the pruning boundary value.
 		constexpr const T& value() const {
 			return m_value;
 		}

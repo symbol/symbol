@@ -49,23 +49,23 @@ namespace catapult { namespace disruptor {
 		bool hasTransactions() const;
 
 	public:
-		/// Returns the block elements associated with this input.
+		/// Gets the block elements associated with this input.
 		BlockElements& blocks();
 
-		/// Returns the const block elements associated with this input.
+		/// Gets the const block elements associated with this input.
 		const BlockElements& blocks() const;
 
-		/// Returns the (free) transaction elements associated with this input.
+		/// Gets the (free) transaction elements associated with this input.
 		TransactionElements& transactions();
 
-		/// Returns the const (free) transaction elements associated with this input.
+		/// Gets the const (free) transaction elements associated with this input.
 		const TransactionElements& transactions() const;
 
 		/// Gets the source of this input.
 		InputSource source() const;
 
-		/// Gets the (optional) source public key.
-		const Key& sourcePublicKey() const;
+		/// Gets the (optional) source identity.
+		const model::NodeIdentity& sourceIdentity() const;
 
 	public:
 		/// Detaches the block range associated with this input.
@@ -88,7 +88,7 @@ namespace catapult { namespace disruptor {
 		TransactionElements m_transactionElements;
 
 		InputSource m_source;
-		Key m_sourcePublicKey;
+		model::NodeIdentity m_sourceIdentity;
 
 		// used by formatting
 		Height m_startHeight;

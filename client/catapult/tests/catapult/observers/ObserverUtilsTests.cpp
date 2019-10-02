@@ -533,24 +533,24 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, NonzeroGracePeriod_CacheBlockTouchObserverTouchesWhenHeightIsGreaterThanGracePeriod_Commit) {
 		// Arrange:
-		auto pObserver = CreateCacheBlockTouchObserver<PrunableCache>("Foo", Receipt_Type_Marker, BlockDuration(100));
+		auto pObserver = CreateCacheBlockTouchObserver<PrunableCache>("Foo", Receipt_Type_Marker, BlockDuration(10));
 
 		// Act + Assert:
 		auto mode = NotifyMode::Commit;
-		AssertTouching(*pObserver, mode, Height(101), Height(1), {});
-		AssertTouching(*pObserver, mode, Height(111), Height(11), { 10 });
-		AssertTouching(*pObserver, mode, Height(150), Height(50), { 10, 20, 30, 40 });
+		AssertTouching(*pObserver, mode, Height(11), Height(21), { 10, 20 });
+		AssertTouching(*pObserver, mode, Height(43), Height(53), { 10, 20, 30, 40, 50 });
+		AssertTouching(*pObserver, mode, Height(90), Height(100), { 10, 20, 30, 40, 50, 60, 70, 80, 90 });
 	}
 
 	TEST(TEST_CLASS, NonzeroGracePeriod_CacheBlockTouchObserverTouchesWhenHeightIsGreaterThanGracePeriod_Rollback) {
 		// Arrange:
-		auto pObserver = CreateCacheBlockTouchObserver<PrunableCache>("Foo", Receipt_Type_Marker, BlockDuration(100));
+		auto pObserver = CreateCacheBlockTouchObserver<PrunableCache>("Foo", Receipt_Type_Marker, BlockDuration(10));
 
 		// Act + Assert:
 		auto mode = NotifyMode::Rollback;
-		AssertTouching(*pObserver, mode, Height(101), Height(1));
-		AssertTouching(*pObserver, mode, Height(111), Height(11));
-		AssertTouching(*pObserver, mode, Height(150), Height(50));
+		AssertTouching(*pObserver, mode, Height(11), Height(21));
+		AssertTouching(*pObserver, mode, Height(43), Height(53));
+		AssertTouching(*pObserver, mode, Height(90), Height(100));
 	}
 
 	// endregion

@@ -18,24 +18,22 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#pragma once
-#include "ConnectionSecurityMode.h"
-#include "catapult/types.h"
+#include "TimeSupplier.h"
 
-namespace catapult {
-	namespace crypto { class KeyPair; }
-	namespace ionet { class PacketSocket; }
-	namespace utils { class FileSize; }
-}
+namespace catapult { namespace test {
 
-namespace catapult { namespace ionet {
+	supplier<Timestamp> CreateTimeSupplierFromMilliseconds(const std::vector<uint32_t>& rawTimestamps, uint32_t multiplier) {
+		size_t index = 0;
+		return [rawTimestamps, multiplier, index]() mutable {
+			auto timestamp = Timestamp(rawTimestamps[index] * multiplier);
+			if (index + 1 < rawTimestamps.size())
+				++index;
 
-	/// Secures a packet socket (\a pSocket) to conform with \a securityMode for a connection from \a sourceKeyPair to \a remoteKey
-	/// allowing a specified max packet data size (\a maxPacketDataSize).
-	std::shared_ptr<PacketSocket> Secure(
-			const std::shared_ptr<PacketSocket>& pSocket,
-			ConnectionSecurityMode securityMode,
-			const crypto::KeyPair& sourceKeyPair,
-			const Key& remoteKey,
-			utils::FileSize maxPacketDataSize);
+			return timestamp;
+		};
+	}
+
+	supplier<Timestamp> CreateTimeSupplierFromSeconds(const std::vector<uint32_t>& rawTimestampsInSeconds) {
+		return CreateTimeSupplierFromMilliseconds(rawTimestampsInSeconds, 1000);
+	}
 }}

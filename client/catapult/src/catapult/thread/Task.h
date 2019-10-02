@@ -41,7 +41,7 @@ namespace catapult { namespace thread {
 	/// Supplier that generates delays.
 	using DelayGenerator = supplier<utils::TimeSpan>;
 
-	/// A task that can be dispatched to the scheduler.
+	/// Task that can be dispatched to a scheduler.
 	struct Task {
 		/// Delay until the first execution of the task.
 		utils::TimeSpan StartDelay;

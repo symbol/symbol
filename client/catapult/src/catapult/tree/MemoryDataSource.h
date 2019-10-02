@@ -27,7 +27,7 @@
 
 namespace catapult { namespace tree {
 
-	/// A patricia tree memory data source.
+	/// Patricia tree memory data source.
 	class MemoryDataSource {
 	public:
 		/// Creates a data source with specified \a verbosity.

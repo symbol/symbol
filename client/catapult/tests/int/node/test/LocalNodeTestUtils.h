@@ -31,12 +31,12 @@
 
 namespace catapult { namespace test {
 
-	/// Gets local node port.
+	/// Gets the local node port.
 	inline unsigned short GetLocalNodePort() {
 		return GetLocalHostPort();
 	}
 
-	/// Gets local node api port.
+	/// Gets the local node api port.
 	inline unsigned short GetLocalNodeApiPort() {
 		return GetLocalNodePort() + 1;
 	}
@@ -124,7 +124,7 @@ namespace catapult { namespace test {
 
 	// region partner nodes
 
-	/// Returns partner server key pair.
+	/// Gets the partner server key pair.
 	crypto::KeyPair LoadPartnerServerKeyPair();
 
 	/// Creates a local partner node.

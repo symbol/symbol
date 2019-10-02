@@ -22,7 +22,9 @@
 #include "FileStateChangeStorage.h"
 #include "MemoryCounters.h"
 #include "NemesisBlockNotifier.h"
+#include "NodeContainerSubscriberAdapter.h"
 #include "NodeUtils.h"
+#include "StaticNodeRefreshService.h"
 #include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/extensions/ConfigurationUtils.h"
 #include "catapult/extensions/LocalNodeChainScore.h"
@@ -58,9 +60,23 @@ namespace catapult { namespace local {
 
 		std::unique_ptr<subscribers::NodeSubscriber> CreateNodeSubscriber(
 				subscribers::SubscriptionManager& subscriptionManager,
-				ionet::NodeContainer& nodes) {
-			subscriptionManager.addNodeSubscriber(CreateNodeContainerSubscriberAdapter(nodes));
+				ionet::NodeContainer& nodes,
+				const std::unordered_set<std::string>& localNetworks) {
+			subscriptionManager.addNodeSubscriber(CreateNodeContainerSubscriberAdapter(nodes, localNetworks));
 			return subscriptionManager.createNodeSubscriber();
+		}
+
+		void AddNodeCounters(std::vector<utils::DiagnosticCounter>& counters, const ionet::NodeContainer& nodes) {
+			counters.emplace_back(utils::DiagnosticCounterId("NODES"), [&nodes]() {
+				return nodes.view().size();
+			});
+
+			counters.emplace_back(utils::DiagnosticCounterId("BAN ACT"), [&nodes]() {
+				return nodes.view().bannedNodesSize();
+			});
+			counters.emplace_back(utils::DiagnosticCounterId("BAN ALL"), [&nodes]() {
+				return nodes.view().bannedNodesDeepSize();
+			});
 		}
 
 		class DefaultLocalNode final : public LocalNode {
@@ -70,7 +86,11 @@ namespace catapult { namespace local {
 					, m_serviceLocator(keyPair)
 					, m_config(m_pBootstrapper->config())
 					, m_dataDirectory(config::CatapultDataDirectoryPreparer::Prepare(m_config.User.DataDirectory))
-					, m_nodes(m_config.Node.MaxTrackedNodes, m_pBootstrapper->extensionManager().networkTimeSupplier())
+					, m_nodes(
+							m_config.Node.MaxTrackedNodes,
+							m_config.BlockChain.Network.NodeEqualityStrategy,
+							GetBanSettings(m_config.Node.Banning),
+							m_pBootstrapper->extensionManager().networkTimeSupplier())
 					, m_catapultCache({}) // note that sub caches are added in boot
 					, m_storage(
 							m_pBootstrapper->subscriptionManager().createBlockStorage(m_pBlockChangeSubscriber),
@@ -81,10 +101,11 @@ namespace catapult { namespace local {
 							m_pBootstrapper->subscriptionManager(),
 							m_catapultCache,
 							m_dataDirectory))
-					, m_pNodeSubscriber(CreateNodeSubscriber(m_pBootstrapper->subscriptionManager(), m_nodes))
+					, m_pNodeSubscriber(CreateNodeSubscriber(m_pBootstrapper->subscriptionManager(), m_nodes, m_config.Node.LocalNetworks))
 					, m_pluginManager(m_pBootstrapper->pluginManager())
 					, m_isBooted(false) {
-				SeedNodeContainer(m_nodes, *m_pBootstrapper);
+				ValidateNodes(m_pBootstrapper->staticNodes());
+				AddLocalNode(m_nodes, m_pBootstrapper->config());
 			}
 
 			~DefaultLocalNode() override {
@@ -108,6 +129,7 @@ namespace catapult { namespace local {
 
 				CATAPULT_LOG(debug) << "booting extension services";
 				auto& extensionManager = m_pBootstrapper->extensionManager();
+				extensionManager.addServiceRegistrar(CreateStaticNodeRefreshServiceRegistrar(m_pBootstrapper->staticNodes()));
 				auto serviceState = extensions::ServiceState(
 						m_config,
 						m_nodes,
@@ -146,6 +168,8 @@ namespace catapult { namespace local {
 				m_counters.emplace_back(utils::DiagnosticCounterId("UT CACHE"), [&source = *m_pUtCache]() {
 					return source.view().size();
 				});
+
+				AddNodeCounters(m_counters, m_nodes);
 			}
 
 			bool executeAndNotifyNemesis() {

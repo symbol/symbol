@@ -25,7 +25,7 @@
 
 namespace catapult { namespace extensions {
 
-	/// A memory-based block storage that loads and saves blocks in memory.
+	/// Memory-based block storage that loads and saves blocks in memory.
 	class MemoryBlockStorage : public io::PrunableBlockStorage {
 	private:
 		using Blocks = std::map<Height, std::shared_ptr<model::Block>>;

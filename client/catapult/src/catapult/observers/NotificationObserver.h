@@ -24,7 +24,7 @@
 
 namespace catapult { namespace observers {
 
-	/// A strongly typed notification observer.
+	/// Strongly typed notification observer.
 	template<typename TNotification>
 	class NotificationObserverT {
 	public:

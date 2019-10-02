@@ -127,7 +127,7 @@ namespace catapult { namespace utils {
 				if (static_cast<T>(result * TTraits::Base + digit) < result)
 					return false;
 
-				result *= TTraits::Base;
+				result = static_cast<T>(result * TTraits::Base);
 				result += digit;
 			}
 

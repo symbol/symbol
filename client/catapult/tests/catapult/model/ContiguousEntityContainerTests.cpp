@@ -84,11 +84,13 @@ namespace catapult { namespace model {
 
 // if TContainerTraits::ThrowsOnError is set, then expect an exception; otherwise, do not
 #define EXPECT_ITERATION_ERROR(STATEMENT) \
-	if (TContainerTraits::ThrowsOnError) { \
-		EXPECT_THROW((STATEMENT), catapult_runtime_error); \
-	} else { \
-		(STATEMENT); \
-	}
+	do { \
+		if (TContainerTraits::ThrowsOnError) { \
+			EXPECT_THROW((STATEMENT), catapult_runtime_error); \
+		} else { \
+			(STATEMENT); \
+		} \
+	} while (false)
 
 	TRAITS_BASED_TEST(CanIterateOverZeroEntities) {
 		// Arrange:

@@ -52,7 +52,7 @@ namespace catapult { namespace state {
 		}
 
 	public:
-		/// Tries to get \a value associated with \a key.
+		/// Tries to get the \a value associated with \a key.
 		bool tryGet(uint64_t key, TValue& value) const {
 			auto iter = Find(m_keyValuePairs, key);
 			if (m_keyValuePairs.cend() == iter)
@@ -62,7 +62,7 @@ namespace catapult { namespace state {
 			return true;
 		}
 
-		/// Sets \a value for specified \a key.
+		/// Sets the \a value associated with \a key.
 		void set(uint64_t key, const TValue& value) {
 			auto iter = Find(m_keyValuePairs, key);
 			if (m_keyValuePairs.cend() != iter)
@@ -71,7 +71,7 @@ namespace catapult { namespace state {
 				m_keyValuePairs.emplace_back(key, value);
 		}
 
-		/// Removes value for specified \a key.
+		/// Removes the value associated with \a key.
 		void remove(uint64_t key) {
 			auto iter = Find(m_keyValuePairs, key);
 			if (m_keyValuePairs.cend() != iter)

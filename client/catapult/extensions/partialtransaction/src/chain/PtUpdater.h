@@ -42,13 +42,13 @@ namespace catapult { namespace chain {
 	struct TransactionUpdateResult {
 		/// Possible update types.
 		enum class UpdateType {
-			/// A new transaction.
+			/// New transaction.
 			New,
 
-			/// An existing transaction.
+			/// Existing transaction.
 			Existing,
 
-			/// An invalid transaction.
+			/// Invalid transaction.
 			Invalid
 		};
 

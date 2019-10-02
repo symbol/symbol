@@ -76,14 +76,14 @@ namespace catapult { namespace handlers {
 
 				auto operator()() {
 					return next([&view = m_view](const auto& node) {
-						const auto& nodeInfo = view.getNodeInfo(node.identityKey());
+						const auto& nodeInfo = view.getNodeInfo(node.identity());
 						const auto& serviceIds = nodeInfo.services();
 
 						uint32_t nodeInfoSize = sizeof(ionet::PackedNodeInfo);
 						nodeInfoSize += static_cast<uint32_t>(serviceIds.size() * sizeof(ionet::PackedConnectionState));
 						auto pNodeInfo = utils::MakeSharedWithSize<ionet::PackedNodeInfo>(nodeInfoSize);
 						pNodeInfo->Size = nodeInfoSize;
-						pNodeInfo->IdentityKey = node.identityKey();
+						pNodeInfo->IdentityKey = node.identity().PublicKey;
 						pNodeInfo->Source = nodeInfo.source();
 						pNodeInfo->Interactions.Update(nodeInfo.interactions(view.time()));
 						pNodeInfo->ConnectionStatesCount = utils::checked_cast<size_t, uint8_t>(serviceIds.size());

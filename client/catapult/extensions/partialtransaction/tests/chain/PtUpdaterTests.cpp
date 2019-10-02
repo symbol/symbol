@@ -40,8 +40,10 @@ namespace catapult { namespace chain {
 #define TEST_CLASS PtUpdaterTests
 
 #define EXPECT_EQ_TRANSACTION_UPDATE_RESULT(RESULT, UPDATE_TYPE, NUM_COSIGNATURES_ADDED) \
-	EXPECT_EQ(TransactionUpdateResult::UpdateType::UPDATE_TYPE, RESULT.Type); \
-	EXPECT_EQ(static_cast<size_t>(NUM_COSIGNATURES_ADDED), RESULT.NumCosignaturesAdded);
+	do { \
+		EXPECT_EQ(TransactionUpdateResult::UpdateType::UPDATE_TYPE, RESULT.Type); \
+		EXPECT_EQ(static_cast<size_t>(NUM_COSIGNATURES_ADDED), RESULT.NumCosignaturesAdded); \
+	} while (false)
 
 	namespace {
 		model::TransactionInfo CreateRandomTransactionInfo(const std::shared_ptr<const model::Transaction>& pTransaction) {
@@ -313,7 +315,7 @@ namespace catapult { namespace chain {
 
 			mutable utils::SpinLock m_lock;
 			mutable size_t m_numValidatePartialCalls;
-			mutable size_t m_numValidateCosignatoriesCalls;
+			mutable std::atomic<size_t> m_numValidateCosignatoriesCalls; // accessed outside of lock by getCosignatoriesValidationResult
 			mutable size_t m_numLastCosignatories;
 			mutable std::vector<std::unique_ptr<model::Transaction>> m_transactions;
 			mutable std::vector<Hash256> m_transactionHashes;

@@ -37,7 +37,7 @@ namespace catapult { namespace chain {
 		class MockHashApi : public api::RemoteApi {
 		public:
 			explicit MockHashApi(const model::HashRange& hashes)
-					: RemoteApi(test::GenerateRandomByteArray<Key>())
+					: RemoteApi({ test::GenerateRandomByteArray<Key>(), "fake-host-from-mock-hash-api" })
 					, m_hashes(model::HashRange::CopyRange(hashes))
 					, m_hasError(false)
 			{}
@@ -92,8 +92,8 @@ namespace catapult { namespace chain {
 				return api.hashes(m_hashesSupplier());
 			}
 
-			void consume(model::HashRange&& range, const Key& sourcePublicKey) const {
-				m_hashRangeConsumer(model::AnnotatedEntityRange<Hash256>(std::move(range), sourcePublicKey));
+			void consume(model::HashRange&& range, const model::NodeIdentity& sourceIdentity) const {
+				m_hashRangeConsumer(model::AnnotatedEntityRange<Hash256>(std::move(range), sourceIdentity));
 			}
 
 		private:

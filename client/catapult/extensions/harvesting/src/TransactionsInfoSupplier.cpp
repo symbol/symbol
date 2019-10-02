@@ -129,7 +129,7 @@ namespace catapult { namespace harvesting {
 
 			default:
 				return SupplyOldest(utCacheView, utFacade, count);
-			};
+			}
 		};
 	}
 }}

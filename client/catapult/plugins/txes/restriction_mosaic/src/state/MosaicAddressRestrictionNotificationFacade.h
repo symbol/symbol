@@ -75,12 +75,12 @@ namespace catapult { namespace state {
 			return rule == m_notification.RestrictionValue;
 		}
 
-		/// Returns rule described by the notification.
+		/// Gets the rule described by the notification.
 		RuleType toRule() const {
 			return m_notification.RestrictionValue;
 		}
 
-		/// Returns restriction described by the notification.
+		/// Gets the restriction described by the notification.
 		MosaicAddressRestriction toRestriction() const {
 			return MosaicAddressRestriction(
 					m_resolvers.resolve(m_notification.MosaicId),

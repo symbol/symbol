@@ -307,14 +307,16 @@ namespace catapult {
 	// region macro tests
 
 #define ASSERT_THROW_MACRO_0(CATAPULT_THROW, TRAITS) \
-	try { \
-		CATAPULT_THROW(#TRAITS); \
-	} catch (const TRAITS::ExceptionType& ex) { \
-		ExpectedDiagnostics<TRAITS> expected; \
-		expected.What = #TRAITS; \
-		expected.FunctionName = BOOST_CURRENT_FUNCTION; \
-		AssertExceptionInformation(ex, expected); \
-	}
+	do { \
+		try { \
+			CATAPULT_THROW(#TRAITS); \
+		} catch (const TRAITS::ExceptionType& ex) { \
+			ExpectedDiagnostics<TRAITS> expected; \
+			expected.What = #TRAITS; \
+			expected.FunctionName = BOOST_CURRENT_FUNCTION; \
+			AssertExceptionInformation(ex, expected); \
+		} \
+	} while (false)
 
 	TEST(TEST_CLASS, CanThrowCustomMessageUsingExceptionMacro) {
 		ASSERT_THROW_MACRO_0(CATAPULT_THROW_RUNTIME_ERROR, RuntimeErrorTraits);
@@ -324,15 +326,17 @@ namespace catapult {
 	}
 
 #define ASSERT_THROW_MACRO_1(CATAPULT_THROW, TRAITS) \
-	try { \
-		CATAPULT_THROW(#TRAITS, 12); \
-	} catch (const TRAITS::ExceptionType& ex) { \
-		ExpectedDiagnostics<TRAITS> expected; \
-		expected.What = #TRAITS; \
-		expected.FunctionName = BOOST_CURRENT_FUNCTION; \
-		expected.TagPairs.push_back(std::make_pair("catapult::ErrorParam1", "12")); \
-		AssertExceptionInformation(ex, expected); \
-	}
+	do { \
+		try { \
+			CATAPULT_THROW(#TRAITS, 12); \
+		} catch (const TRAITS::ExceptionType& ex) { \
+			ExpectedDiagnostics<TRAITS> expected; \
+			expected.What = #TRAITS; \
+			expected.FunctionName = BOOST_CURRENT_FUNCTION; \
+			expected.TagPairs.push_back(std::make_pair("catapult::ErrorParam1", "12")); \
+			AssertExceptionInformation(ex, expected); \
+		} \
+	} while (false)
 
 	TEST(TEST_CLASS, CanThrowCustomMessageWithOneParamterUsingExceptionMacro) {
 		ASSERT_THROW_MACRO_1(CATAPULT_THROW_RUNTIME_ERROR_1, RuntimeErrorTraits);
@@ -340,16 +344,18 @@ namespace catapult {
 	}
 
 #define ASSERT_THROW_MACRO_2(CATAPULT_THROW, TRAITS) \
-	try { \
-		CATAPULT_THROW(#TRAITS, 12, 27); \
-	} catch (const TRAITS::ExceptionType& ex) { \
-		ExpectedDiagnostics<TRAITS> expected; \
-		expected.What = #TRAITS; \
-		expected.FunctionName = BOOST_CURRENT_FUNCTION; \
-		expected.TagPairs.push_back(std::make_pair("catapult::ErrorParam1", "12")); \
-		expected.TagPairs.push_back(std::make_pair("catapult::ErrorParam2", "27")); \
-		AssertExceptionInformation(ex, expected); \
-	}
+	do { \
+		try { \
+			CATAPULT_THROW(#TRAITS, 12, 27); \
+		} catch (const TRAITS::ExceptionType& ex) { \
+			ExpectedDiagnostics<TRAITS> expected; \
+			expected.What = #TRAITS; \
+			expected.FunctionName = BOOST_CURRENT_FUNCTION; \
+			expected.TagPairs.push_back(std::make_pair("catapult::ErrorParam1", "12")); \
+			expected.TagPairs.push_back(std::make_pair("catapult::ErrorParam2", "27")); \
+			AssertExceptionInformation(ex, expected); \
+		} \
+	} while (false)
 
 	TEST(TEST_CLASS, CanThrowCustomMessageWithTwoParamtersUsingExceptionMacro) {
 		ASSERT_THROW_MACRO_2(CATAPULT_THROW_RUNTIME_ERROR_2, RuntimeErrorTraits);

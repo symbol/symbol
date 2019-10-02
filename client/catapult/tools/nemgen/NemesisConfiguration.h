@@ -31,7 +31,7 @@ namespace catapult { namespace utils { class ConfigurationBag; } }
 
 namespace catapult { namespace tools { namespace nemgen {
 
-	/// A mosaic seed.
+	/// Mosaic seed.
 	struct MosaicSeed {
 		/// Mosaic name.
 		std::string Name;

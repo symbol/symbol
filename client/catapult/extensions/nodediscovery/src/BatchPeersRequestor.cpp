@@ -41,16 +41,16 @@ namespace catapult { namespace nodediscovery {
 		std::vector<thread::future<ionet::NodeInteractionResult>> futures(packetIoPairs.size());
 		for (const auto& packetIoPair : packetIoPairs) {
 			auto peersInfoFuture = api::CreateRemoteNodeApi(*packetIoPair.io())->peersInfo();
-			const auto& identityKey = packetIoPair.node().identityKey();
-			futures[i++] = peersInfoFuture.then([nodesConsumer = m_nodesConsumer, packetIoPair, identityKey](auto&& nodesFuture) {
+			auto identity = packetIoPair.node().identity();
+			futures[i++] = peersInfoFuture.then([nodesConsumer = m_nodesConsumer, packetIoPair, identity](auto&& nodesFuture) {
 				try {
 					auto nodes = nodesFuture.get();
 					CATAPULT_LOG(debug) << "partner node " << packetIoPair.node() << " returned " << nodes.size() << " peers";
 					nodesConsumer(nodes);
-					return ionet::NodeInteractionResult(identityKey, ionet::NodeInteractionResultCode::Success);
+					return ionet::NodeInteractionResult(identity, ionet::NodeInteractionResultCode::Success);
 				} catch (const catapult_runtime_error& e) {
 					CATAPULT_LOG(warning) << "exception thrown while requesting peers: " << e.what();
-					return ionet::NodeInteractionResult(identityKey, ionet::NodeInteractionResultCode::Failure);
+					return ionet::NodeInteractionResult(identity, ionet::NodeInteractionResultCode::Failure);
 				}
 			});
 		}

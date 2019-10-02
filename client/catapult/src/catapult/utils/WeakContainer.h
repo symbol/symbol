@@ -26,7 +26,7 @@
 
 namespace catapult { namespace utils {
 
-	/// A container of weak_ptr<T> pointing to closable items.
+	/// Container of weak_ptr<T> pointing to closable items.
 	template<typename T>
 	class WeakContainer {
 	public:

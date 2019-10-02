@@ -28,10 +28,6 @@ namespace catapult { namespace utils {
 	namespace {
 		struct BufferTraits {
 			static constexpr auto GenerateRandomData = test::GenerateRandomVector;
-
-			static std::string ToString(const uint8_t* pData, size_t dataSize) {
-				return test::ToHexString(pData, dataSize);
-			}
 		};
 
 		struct RawBufferTraits : BufferTraits {
@@ -44,20 +40,14 @@ namespace catapult { namespace utils {
 			using ValueType = uint8_t;
 		};
 
-		struct StringTraits {
-			static std::string ToString(const char* str, size_t dataSize) {
-				return std::string(str, dataSize);
-			}
-		};
-
-		struct RawStringTraits : StringTraits{
+		struct RawStringTraits {
 			using Type = RawString;
 			using ValueType = const char;
 
 			static constexpr auto GenerateRandomData = test::GenerateRandomString;
 		};
 
-		struct MutableRawStringTraits : StringTraits {
+		struct MutableRawStringTraits {
 			using Type = MutableRawString;
 			using ValueType = char;
 
@@ -96,10 +86,9 @@ namespace catapult { namespace utils {
 		// Act:
 		typename TTraits::Type buffer(input);
 
-		// Assert:
+		// Assert: pointer comparison
 		ASSERT_EQ(25u, buffer.Size);
 		EXPECT_EQ(input.data(), buffer.pData);
-		EXPECT_EQ(TTraits::ToString(input.data(), input.size()), TTraits::ToString(buffer.pData, buffer.Size));
 	}
 
 	ALL_BUFFER_TRAITS_BASED_TEST(CanCreateRawBufferAroundEntireTemporaryContainer) {
@@ -110,7 +99,7 @@ namespace catapult { namespace utils {
 		[&input](const typename TTraits::Type& buffer) {
 			// Assert:
 			ASSERT_EQ(25u, buffer.Size);
-			EXPECT_EQ(TTraits::ToString(input.data(), input.size()), TTraits::ToString(buffer.pData, buffer.Size));
+			EXPECT_EQ_MEMORY(&input[0], buffer.pData, buffer.Size);
 		}(decltype(input)(input)); // call the lambda with a (temporary) copy of input
 	}
 
@@ -121,10 +110,9 @@ namespace catapult { namespace utils {
 		// Act:
 		typename TTraits::Type buffer(input.data() + 5, 6);
 
-		// Assert:
+		// Assert: pointer comparison
 		ASSERT_EQ(6u, buffer.Size);
 		EXPECT_EQ(input.data() + 5, buffer.pData);
-		EXPECT_EQ(TTraits::ToString(input.data() + 5, 6), TTraits::ToString(buffer.pData, buffer.Size));
 	}
 
 	ALL_BUFFER_TRAITS_BASED_TEST(CanCopyConstructRawBuffer) {
@@ -135,10 +123,9 @@ namespace catapult { namespace utils {
 		typename TTraits::Type originalBuffer(input.data() + 5, 6);
 		typename TTraits::Type buffer(originalBuffer);
 
-		// Assert:
+		// Assert: pointer comparison
 		ASSERT_EQ(6u, buffer.Size);
 		EXPECT_EQ(input.data() + 5, buffer.pData);
-		EXPECT_EQ(TTraits::ToString(input.data() + 5, 6), TTraits::ToString(buffer.pData, buffer.Size));
 	}
 
 	ALL_BUFFER_TRAITS_BASED_TEST(CanCopyRawBuffer) {
@@ -150,10 +137,9 @@ namespace catapult { namespace utils {
 		typename TTraits::Type buffer;
 		buffer = originalBuffer;
 
-		// Assert:
+		// Assert: pointer comparison
 		ASSERT_EQ(6u, buffer.Size);
 		EXPECT_EQ(input.data() + 5, buffer.pData);
-		EXPECT_EQ(TTraits::ToString(input.data() + 5, 6), TTraits::ToString(buffer.pData, buffer.Size));
 	}
 
 	namespace {
@@ -199,12 +185,11 @@ namespace catapult { namespace utils {
 
 		// Act:
 		typename TTraits::Type buffer(input);
-		buffer.pData[0] ^= 0xFF;
+		buffer.pData[0] = static_cast<decltype(originalByte)>(buffer.pData[0] ^ 0xFF);
 
-		// Assert:
+		// Assert: pointer comparison
 		ASSERT_EQ(25u, buffer.Size);
 		EXPECT_EQ(input.data(), buffer.pData);
-		EXPECT_EQ(TTraits::ToString(input.data(), input.size()), TTraits::ToString(buffer.pData, buffer.Size));
 		EXPECT_EQ(static_cast<decltype(originalByte)>(originalByte ^ 0xFF), input[0]);
 	}
 
@@ -215,12 +200,11 @@ namespace catapult { namespace utils {
 
 		// Act:
 		typename TTraits::Type buffer(input.data() + 5, 6);
-		buffer.pData[2] ^= 0xFF;
+		buffer.pData[2] = static_cast<decltype(originalByte)>(buffer.pData[2] ^ 0xFF);
 
-		// Assert:
+		// Assert: pointer comparison
 		ASSERT_EQ(6u, buffer.Size);
 		EXPECT_EQ(input.data() + 5, buffer.pData);
-		EXPECT_EQ(TTraits::ToString(input.data() + 5, 6), TTraits::ToString(buffer.pData, buffer.Size));
 		EXPECT_EQ(static_cast<decltype(originalByte)>(originalByte ^ 0xFF), input[7]);
 	}
 

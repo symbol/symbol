@@ -24,7 +24,7 @@
 
 namespace catapult { namespace cache {
 
-	/// A read only view on top of a cache height.
+	/// Read only view on top of a cache height.
 	class CacheHeightView : public utils::MoveOnly {
 	public:
 		/// Creates a cache height view around \a height with lock context \a readLock.
@@ -34,7 +34,7 @@ namespace catapult { namespace cache {
 		{}
 
 	public:
-		/// Returns the height.
+		/// Gets the height.
 		Height get() const {
 			return m_height;
 		}
@@ -44,14 +44,13 @@ namespace catapult { namespace cache {
 		utils::SpinReaderWriterLock::ReaderLockGuard m_readLock;
 	};
 
-	/// A write only view on top of a cache height.
+	/// Write only view on top of a cache height.
 	class CacheHeightModifier : public utils::MoveOnly {
 	public:
-		/// Creates a write only view around \a height with lock context \a readLock.
-		CacheHeightModifier(Height& height, utils::SpinReaderWriterLock::ReaderLockGuard&& readLock)
+		/// Creates a write only view around \a height with lock context \a writeLock.
+		CacheHeightModifier(Height& height, utils::SpinReaderWriterLock::WriterLockGuard&& writeLock)
 				: m_height(height)
-				, m_readLock(std::move(readLock))
-				, m_writeLock(m_readLock.promoteToWriter())
+				, m_writeLock(std::move(writeLock))
 		{}
 
 	public:
@@ -62,11 +61,10 @@ namespace catapult { namespace cache {
 
 	private:
 		Height& m_height;
-		utils::SpinReaderWriterLock::ReaderLockGuard m_readLock;
 		utils::SpinReaderWriterLock::WriterLockGuard m_writeLock;
 	};
 
-	/// A synchronized height associated with a catapult cache.
+	/// Synchronized height associated with a catapult cache.
 	class CacheHeight {
 	public:
 		/// Gets a read only view of the height.
@@ -77,8 +75,8 @@ namespace catapult { namespace cache {
 
 		/// Gets a write only view of the height.
 		CacheHeightModifier modifier() {
-			auto readLock = m_lock.acquireReader();
-			return CacheHeightModifier(m_height, std::move(readLock));
+			auto writeLock = m_lock.acquireWriter();
+			return CacheHeightModifier(m_height, std::move(writeLock));
 		}
 
 	private:

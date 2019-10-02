@@ -23,7 +23,7 @@
 
 namespace catapult { namespace cache {
 
-	/// A mixin for retreiving a range of statistics.
+	/// Mixin for retreiving a range of statistics.
 	template<typename TSet>
 	class BlockStatisticRangeMixin {
 	public:
@@ -73,7 +73,7 @@ namespace catapult { namespace cache {
 		auto statistics(Height height, size_t count) const {
 			if (m_set.empty()) {
 				// note: this should not happen since the nemesis block is available from the beginning
-				CATAPULT_THROW_RUNTIME_ERROR("block statistic cache is empty")
+				CATAPULT_THROW_RUNTIME_ERROR("block statistic cache is empty");
 			}
 
 			if (Height(0) == height || 0 == count)

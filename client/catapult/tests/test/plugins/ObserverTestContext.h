@@ -93,7 +93,7 @@ namespace catapult { namespace test {
 		observers::ObserverContext m_context;
 	};
 
-	/// A default observer test context that wraps a cache composed of core caches only.
+	/// Default observer test context that wraps a cache composed of core caches only.
 	class ObserverTestContext : public ObserverTestContextT<CoreSystemCacheFactory> {
 		using ObserverTestContextT::ObserverTestContextT;
 	};

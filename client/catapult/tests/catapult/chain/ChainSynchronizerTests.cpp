@@ -87,7 +87,7 @@ namespace catapult { namespace chain {
 			std::shared_ptr<MockPacketIo> pIo;
 			std::shared_ptr<MockChainApi> pChainApi;
 			size_t BlockRangeConsumerCalls;
-			std::vector<Key> BlockRangeSourcePublicKeys;
+			std::vector<model::NodeIdentity> BlockRangeSourceIdentities;
 			ChainSynchronizerConfiguration Config;
 			disruptor::ProcessingCompleteFunc ProcessingComplete;
 		};
@@ -104,7 +104,7 @@ namespace catapult { namespace chain {
 
 			auto blockRangeConsumer = [mode, &context](const auto& range, const auto& processingComplete) {
 				++context.BlockRangeConsumerCalls;
-				context.BlockRangeSourcePublicKeys.push_back(range.SourcePublicKey);
+				context.BlockRangeSourceIdentities.push_back(range.SourceIdentity);
 				context.ProcessingComplete = processingComplete;
 				return ConsumerMode::Normal == mode ? context.BlockRangeConsumerCalls : 0;
 			};
@@ -126,12 +126,15 @@ namespace catapult { namespace chain {
 
 		void AssertSync(const TestContext& context, size_t numBlockConsumerCalls) {
 			EXPECT_EQ(numBlockConsumerCalls, context.BlockRangeConsumerCalls);
-			EXPECT_EQ(numBlockConsumerCalls, context.BlockRangeSourcePublicKeys.size());
+			EXPECT_EQ(numBlockConsumerCalls, context.BlockRangeSourceIdentities.size());
 
 			auto i = 0u;
-			for (const auto& key : context.BlockRangeSourcePublicKeys) {
-				EXPECT_NE(Key(), key) << "key at " << i;
-				EXPECT_EQ(context.pChainApi->remotePublicKey(), key) << "key at " << i;
+			for (const auto& sourceIdentity : context.BlockRangeSourceIdentities) {
+				EXPECT_NE(Key(), sourceIdentity.PublicKey) << "key at " << i;
+				EXPECT_EQ(context.pChainApi->remoteIdentity().PublicKey, sourceIdentity.PublicKey) << "key at " << i;
+
+				EXPECT_EQ("fake-host-from-mock-chain-api", sourceIdentity.Host) << "host at " << i;
+				EXPECT_EQ(context.pChainApi->remoteIdentity().Host, sourceIdentity.Host) << "host at " << i;
 				++i;
 			}
 		}

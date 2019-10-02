@@ -61,12 +61,12 @@ namespace catapult { namespace handlers {
 		}
 
 	public:
-		/// Processes a height request (\a packet) using \a context and \a storage.
+		/// Processes a height request (\a packet) using \a handlerContext and \a storage.
 		/// Allows zero height requests if and only if \a shouldAllowZeroHeight is \c true.
 		static HeightRequestInfo<TRequest> Process(
 				const io::BlockStorageView& storage,
 				const ionet::Packet& packet,
-				ionet::ServerPacketHandlerContext& context,
+				ionet::ServerPacketHandlerContext& handlerContext,
 				bool shouldAllowZeroHeight) {
 			const auto* pRequest = ionet::CoercePacket<TRequest>(&packet);
 			if (!pRequest)
@@ -76,7 +76,7 @@ namespace catapult { namespace handlers {
 			info.ChainHeight = storage.chainHeight();
 			CATAPULT_LOG(trace) << "local height = " << info.ChainHeight << ", request height = " << pRequest->Height;
 			if (info.ChainHeight < pRequest->Height || (!shouldAllowZeroHeight && Height(0) == pRequest->Height)) {
-				context.response(ionet::PacketPayload(CreateResponsePacket(0)));
+				handlerContext.response(ionet::PacketPayload(CreateResponsePacket(0)));
 				return HeightRequestInfo<TRequest>();
 			}
 

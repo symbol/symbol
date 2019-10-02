@@ -49,14 +49,14 @@ namespace catapult { namespace chain {
 		Failure
 	};
 
-	/// A validator for validating parts of a partial transaction.
+	/// Validator for validating parts of a partial transaction.
 	/// \note Upon completion the full aggregate transaction will be revalidated.
 	class PtValidator {
 	public:
 		virtual ~PtValidator() = default;
 
 	public:
-		/// A validation result.
+		/// Validation result.
 		template<typename TNormalizedResult>
 		struct Result {
 			/// Raw validation result.

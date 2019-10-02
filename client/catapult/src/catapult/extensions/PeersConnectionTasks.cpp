@@ -96,7 +96,7 @@ namespace catapult { namespace extensions {
 
 		class AddCandidateProcessor {
 		private:
-			using ConnectResult = std::pair<Key, net::PeerConnectCode>;
+			using ConnectResult = std::pair<model::NodeIdentity, net::PeerConnectCode>;
 			using ConnectResultsFuture = thread::future<std::vector<thread::future<ConnectResult>>>;
 
 		public:
@@ -136,7 +136,7 @@ namespace catapult { namespace extensions {
 					m_state.PacketWriters.connect(node, [node, pPromise](const auto& connectResult) {
 						CATAPULT_LOG_LEVEL(MapToLogLevel(connectResult.Code))
 								<< "connection attempt to " << node << " completed with " << connectResult.Code;
-						pPromise->set_value(std::make_pair(node.identityKey(), connectResult.Code));
+						pPromise->set_value(std::make_pair(node.identity(), connectResult.Code));
 					});
 				}
 
@@ -202,8 +202,8 @@ namespace catapult { namespace extensions {
 			auto result = selector();
 
 			// 3. process remove candidates
-			for (const auto& key : result.RemoveCandidates)
-				packetWriters.closeOne(key);
+			for (const auto& identity : result.RemoveCandidates)
+				packetWriters.closeOne(identity);
 
 			// 4. process add candidates
 			AddCandidateProcessor processor({ nodes, packetWriters, serviceId });
@@ -246,8 +246,8 @@ namespace catapult { namespace extensions {
 			auto removeCandidates = selector();
 
 			// 3. process remove candidates
-			for (const auto& key : removeCandidates)
-				connectionContainer.closeOne(key);
+			for (const auto& identity : removeCandidates)
+				connectionContainer.closeOne(identity);
 
 			return thread::make_ready_future(thread::TaskResult::Continue);
 		});

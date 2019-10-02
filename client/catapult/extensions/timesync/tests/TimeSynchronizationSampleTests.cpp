@@ -36,7 +36,7 @@ namespace catapult { namespace timesync {
 		TimeSynchronizationSample sample;
 
 		// Assert:
-		EXPECT_EQ(ionet::Node(), sample.node());
+		EXPECT_EQ(Key(), sample.identityKey());
 		EXPECT_EQ(Timestamp(), sample.localTimestamps().SendTimestamp);
 		EXPECT_EQ(Timestamp(), sample.localTimestamps().ReceiveTimestamp);
 		EXPECT_EQ(Timestamp(), sample.remoteTimestamps().SendTimestamp);
@@ -45,11 +45,14 @@ namespace catapult { namespace timesync {
 
 	TEST(TEST_CLASS, CanCreateTimeSynchronizationSample) {
 		// Act:
-		auto node = test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "alice");
-		TimeSynchronizationSample sample(node, test::CreateCommunicationTimestamps(12, 23), test::CreateCommunicationTimestamps(34, 45));
+		auto identityKey = test::GenerateRandomByteArray<Key>();
+		TimeSynchronizationSample sample(
+				identityKey,
+				test::CreateCommunicationTimestamps(12, 23),
+				test::CreateCommunicationTimestamps(34, 45));
 
 		// Assert:
-		EXPECT_EQ(node, sample.node());
+		EXPECT_EQ(identityKey, sample.identityKey());
 		EXPECT_EQ(Timestamp(12), sample.localTimestamps().SendTimestamp);
 		EXPECT_EQ(Timestamp(23), sample.localTimestamps().ReceiveTimestamp);
 		EXPECT_EQ(Timestamp(34), sample.remoteTimestamps().SendTimestamp);

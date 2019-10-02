@@ -20,6 +20,7 @@
 
 #include "catapult/subscribers/StateChangeReader.h"
 #include "catapult/subscribers/SubscriberOperationTypes.h"
+#include "catapult/preprocessor.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/test/other/mocks/MockStateChangeSubscriber.h"
@@ -49,7 +50,7 @@ namespace catapult { namespace subscribers {
 			std::unique_ptr<const cache::MemoryCacheChanges> loadAll(io::InputStream& input) const override {
 				auto pMemoryCacheChanges = std::make_unique<cache::MemoryCacheChangesT<uint32_t>>();
 				pMemoryCacheChanges->Added.push_back(io::Read32(input));
-				return std::move(pMemoryCacheChanges);
+				return PORTABLE_MOVE(pMemoryCacheChanges);
 			}
 
 			void apply(const cache::CacheChanges&) const override {

@@ -598,7 +598,7 @@ namespace catapult { namespace consumers {
 			auto result = context.Consumer(input);
 
 			// Assert:
-			test::AssertAborted(result, expectedResult);
+			test::AssertAborted(result, expectedResult, disruptor::ConsumerResultSeverity::Failure);
 			EXPECT_EQ(0u, context.DifficultyChecker.params().size());
 			EXPECT_EQ(0u, context.UndoBlock.params().size());
 			EXPECT_EQ(0u, context.Processor.params().size());
@@ -708,7 +708,7 @@ namespace catapult { namespace consumers {
 		auto result = context.Consumer(input);
 
 		// Assert:
-		test::AssertAborted(result, Failure_Consumer_Remote_Chain_Mismatched_Difficulties);
+		test::AssertAborted(result, Failure_Consumer_Remote_Chain_Difficulties_Mismatch, disruptor::ConsumerResultSeverity::Failure);
 		EXPECT_EQ(0u, context.UndoBlock.params().size());
 		EXPECT_EQ(0u, context.Processor.params().size());
 		context.assertDifficultyCheckerInvocation(input);
@@ -730,7 +730,7 @@ namespace catapult { namespace consumers {
 		auto result = context.Consumer(input);
 
 		// Assert:
-		test::AssertAborted(result, Failure_Consumer_Remote_Chain_Score_Not_Better);
+		test::AssertAborted(result, Failure_Consumer_Remote_Chain_Score_Not_Better, disruptor::ConsumerResultSeverity::Failure);
 		EXPECT_EQ(4u, context.UndoBlock.params().size());
 		EXPECT_EQ(0u, context.Processor.params().size());
 		context.assertDifficultyCheckerInvocation(input);
@@ -749,7 +749,7 @@ namespace catapult { namespace consumers {
 		auto result = context.Consumer(input);
 
 		// Assert:
-		test::AssertAborted(result, Failure_Consumer_Remote_Chain_Score_Not_Better);
+		test::AssertAborted(result, Failure_Consumer_Remote_Chain_Score_Not_Better, disruptor::ConsumerResultSeverity::Failure);
 		EXPECT_EQ(3u, context.UndoBlock.params().size());
 		EXPECT_EQ(0u, context.Processor.params().size());
 		context.assertDifficultyCheckerInvocation(input);
@@ -762,7 +762,9 @@ namespace catapult { namespace consumers {
 	// region processor check
 
 	namespace {
-		void AssertRemoteChainWithNonSuccessProcessorResultIsRejected(ValidationResult processorResult) {
+		void AssertRemoteChainWithNonSuccessProcessorResultIsRejected(
+				ValidationResult processorResult,
+				disruptor::ConsumerResultSeverity expectedConsumerResultSeverity) {
 			// Arrange: configure the processor to return a non-success result
 			ConsumerTestContext context;
 			context.seedStorage(Height(3));
@@ -774,7 +776,7 @@ namespace catapult { namespace consumers {
 			auto result = context.Consumer(input);
 
 			// Assert:
-			test::AssertAborted(result, processorResult);
+			test::AssertAborted(result, processorResult, expectedConsumerResultSeverity);
 			EXPECT_EQ(0u, context.UndoBlock.params().size());
 			context.assertDifficultyCheckerInvocation(input);
 			context.assertProcessorInvocation(input);
@@ -783,11 +785,11 @@ namespace catapult { namespace consumers {
 	}
 
 	TEST(TEST_CLASS, RemoteChainWithProcessorFailureIsRejected_Neutral) {
-		AssertRemoteChainWithNonSuccessProcessorResultIsRejected(ValidationResult::Neutral);
+		AssertRemoteChainWithNonSuccessProcessorResultIsRejected(ValidationResult::Neutral, disruptor::ConsumerResultSeverity::Neutral);
 	}
 
 	TEST(TEST_CLASS, RemoteChainWithProcessorFailureIsRejected_Failure) {
-		AssertRemoteChainWithNonSuccessProcessorResultIsRejected(ValidationResult::Failure);
+		AssertRemoteChainWithNonSuccessProcessorResultIsRejected(ValidationResult::Failure, disruptor::ConsumerResultSeverity::Failure);
 	}
 
 	// endregion

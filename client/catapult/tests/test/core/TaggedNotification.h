@@ -23,7 +23,7 @@
 
 namespace catapult { namespace test {
 
-	/// A notification with a tag.
+	/// Notification with a tag.
 	template<uint32_t TaggedNotificationType>
 	struct TaggedNotificationT : model::Notification {
 	public:
@@ -42,9 +42,9 @@ namespace catapult { namespace test {
 		uint8_t Tag;
 	};
 
-	/// A tagged notification.
+	/// Tagged notification.
 	using TaggedNotification = TaggedNotificationT<0x0000FFFF>;
 
-	/// An alternative tagged notification.
+	/// Alternative tagged notification.
 	using TaggedNotification2 = TaggedNotificationT<0x0000FFFE>;
 }}

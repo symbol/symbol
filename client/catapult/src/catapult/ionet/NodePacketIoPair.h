@@ -25,7 +25,7 @@
 
 namespace catapult { namespace ionet {
 
-	/// A node and packet io pair.
+	/// Node and packet io pair.
 	class NodePacketIoPair {
 	public:
 		/// Creates an empty pair.

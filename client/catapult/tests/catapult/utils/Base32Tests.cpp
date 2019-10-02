@@ -19,6 +19,7 @@
 **/
 
 #include "catapult/utils/Base32.h"
+#include "catapult/utils/HexParser.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace utils {
@@ -67,7 +68,7 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, EncodeEmptyByteArrayReturnsEmptyString) {
 		// Act:
-		auto buffer = test::ToVector("");
+		auto buffer = test::HexStringToVector("");
 		auto encoded = Base32Encode(buffer);
 
 		// Assert:
@@ -77,7 +78,7 @@ namespace catapult { namespace utils {
 	TEST(TEST_CLASS, EncodeSampleTestVectors) {
 		EXPECT_EQ(CountOf(Decoded_Set), CountOf(Encoded_Set));
 		for (size_t i = 0; i < CountOf(Decoded_Set); ++i) {
-			auto buffer = test::ToVector(Decoded_Set[i]);
+			auto buffer = test::HexStringToVector(Decoded_Set[i]);
 
 			// Act:
 			auto actual = Base32Encode(buffer);
@@ -90,7 +91,7 @@ namespace catapult { namespace utils {
 	TEST(TEST_CLASS, EncodeThrowsWhenArraySizeIsNotAMultipleOfFive) {
 		for (auto i = 2u; i < 10; i += 2) {
 			// Arrange:
-			auto buffer = test::ToVector(std::string(i, '1'));
+			auto buffer = test::HexStringToVector(std::string(i, '1'));
 
 			// Act + Assert:
 			EXPECT_THROW(Base32Encode(buffer), catapult_runtime_error);
@@ -125,7 +126,7 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, EncodeCanEncodeInPlace) {
 		// Arrange:
-		auto input = test::ToVector(Decoded_Set[0]);
+		auto input = test::HexStringToVector(Decoded_Set[0]);
 		auto output = std::string(Encoded_String_Size, '0');
 
 		// Act:
@@ -137,7 +138,7 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, EncodeThrowsWhenOutputBufferIsTooSmall) {
 		// Arrange:
-		auto input = test::ToVector(Decoded_Set[0]);
+		auto input = test::HexStringToVector(Decoded_Set[0]);
 		auto output = std::string(Encoded_String_Size - 1, '0');
 
 		// Act + Assert:
@@ -146,7 +147,7 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, TryEncodeReturnsTrueWhenInputIsValid) {
 		// Arrange:
-		auto input = test::ToVector(Decoded_Set[0]);
+		auto input = test::HexStringToVector(Decoded_Set[0]);
 		auto output = std::string(Encoded_String_Size, '0');
 
 		// Act:
@@ -166,7 +167,7 @@ namespace catapult { namespace utils {
 		auto output = std::string(Encoded_String_Size, '0');
 		for (const auto& input : illegalStringSet) {
 			// Act:
-			auto inputData = test::ToVector(input);
+			auto inputData = test::HexStringToVector(input);
 			auto result = TryBase32Encode(inputData, output);
 
 			// Assert:
@@ -179,9 +180,8 @@ namespace catapult { namespace utils {
 	// region Base32Decode
 
 	namespace {
-		template<size_t N>
-		std::string ArrayToHexString(const std::array<uint8_t, N>& data) {
-			return test::ToHexString(data.data(), data.size());
+		auto HexStringToArray(const std::string& str) {
+			return utils::ParseByteArray<Address>(str);
 		}
 	}
 
@@ -209,7 +209,7 @@ namespace catapult { namespace utils {
 			auto decoded = Base32Decode(RawString(Encoded_Set[i], strlen(Encoded_Set[i])));
 
 			// Assert:
-			EXPECT_EQ(Decoded_Set[i], test::ToHexString(decoded));
+			EXPECT_EQ(test::HexStringToVector(Decoded_Set[i]), decoded);
 		}
 	}
 
@@ -231,7 +231,7 @@ namespace catapult { namespace utils {
 		auto decoded = Base32Decode(validString);
 
 		// Assert:
-		EXPECT_EQ("00443214C74254B635CF84653A56D7C675BE77DF", test::ToHexString(decoded));
+		EXPECT_EQ(test::HexStringToVector("00443214C74254B635CF84653A56D7C675BE77DF"), decoded);
 	}
 
 	TEST(TEST_CLASS, DecodeThrowsWhenStringContainsIllegalCharacter) {
@@ -260,7 +260,7 @@ namespace catapult { namespace utils {
 		Base32Decode(input, output);
 
 		// Assert:
-		EXPECT_EQ(Decoded_Set[0], ArrayToHexString(output));
+		EXPECT_EQ(HexStringToArray(Decoded_Set[0]), output);
 	}
 
 	TEST(TEST_CLASS, DecodeThrowsWhenOutputBufferIsTooSmall) {
@@ -280,7 +280,7 @@ namespace catapult { namespace utils {
 		auto output = Base32Decode<Decoded_String_Size>(input);
 
 		// Assert:
-		EXPECT_EQ(Decoded_Set[0], ArrayToHexString(output));
+		EXPECT_EQ(HexStringToArray(Decoded_Set[0]), output);
 	}
 
 	TEST(TEST_CLASS, TryDecodeReturnsTrueWhenInputIsValid) {
@@ -293,7 +293,7 @@ namespace catapult { namespace utils {
 
 		// Assert:
 		EXPECT_TRUE(result);
-		EXPECT_EQ(Decoded_Set[0], ArrayToHexString(output));
+		EXPECT_EQ(HexStringToArray(Decoded_Set[0]), output);
 	}
 
 	TEST(TEST_CLASS, TryDecodeReturnsFalseWhenInputIsBad) {
@@ -342,12 +342,12 @@ namespace catapult { namespace utils {
 
 		for (size_t i = 0; i < CountOf(decodedForRoundtrip); ++i) {
 			// Act:
-			auto buffer = test::ToVector(decodedForRoundtrip[i]);
+			auto buffer = test::HexStringToVector(decodedForRoundtrip[i]);
 			auto encoded = Base32Encode(buffer);
 			auto actual = Base32Decode(encoded);
 
 			// Assert:
-			EXPECT_EQ(decodedForRoundtrip[i], test::ToHexString(actual));
+			EXPECT_EQ(test::HexStringToVector(decodedForRoundtrip[i]), actual);
 		}
 	}
 

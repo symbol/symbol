@@ -21,6 +21,7 @@
 #include "AggregateTransactionTestUtils.h"
 #include "catapult/crypto/Signer.h"
 #include "catapult/utils/MemoryUtils.h"
+#include "catapult/preprocessor.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/TestHarness.h"
@@ -85,7 +86,7 @@ namespace catapult { namespace test {
 		auto pTransactionWithoutCosignatures = CopyEntity(aggregateTransaction);
 		uint32_t cosignaturesSize = static_cast<uint32_t>(aggregateTransaction.CosignaturesCount()) * sizeof(model::Cosignature);
 		pTransactionWithoutCosignatures->Size -= cosignaturesSize;
-		return std::move(pTransactionWithoutCosignatures);
+		return PORTABLE_MOVE(pTransactionWithoutCosignatures);
 	}
 
 	CosignaturesMap ToMap(const std::vector<model::Cosignature>& cosignatures) {

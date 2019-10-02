@@ -40,7 +40,7 @@ namespace catapult { namespace ionet {
 
 		pNetworkNode->Size = packedNodeSize;
 		pNetworkNode->Port = endpoint.Port;
-		pNetworkNode->IdentityKey = node.identityKey();
+		pNetworkNode->IdentityKey = node.identity().PublicKey;
 		pNetworkNode->NetworkIdentifier = metadata.NetworkIdentifier;
 		pNetworkNode->Version = metadata.Version;
 		pNetworkNode->Roles = metadata.Roles;
@@ -59,6 +59,9 @@ namespace catapult { namespace ionet {
 	Node UnpackNode(const NetworkNode& networkNode) {
 		const auto* pNetworkNodeData = reinterpret_cast<const char*>(&networkNode + 1);
 
+		auto identity = model::NodeIdentity();
+		identity.PublicKey = networkNode.IdentityKey;
+
 		auto endpoint = NodeEndpoint();
 		endpoint.Port = networkNode.Port;
 		endpoint.Host = std::string(pNetworkNodeData, networkNode.HostSize);
@@ -70,6 +73,6 @@ namespace catapult { namespace ionet {
 		metadata.Version = networkNode.Version;
 		metadata.Roles = networkNode.Roles;
 
-		return Node(networkNode.IdentityKey, endpoint, metadata);
+		return Node(identity, endpoint, metadata);
 	}
 }}

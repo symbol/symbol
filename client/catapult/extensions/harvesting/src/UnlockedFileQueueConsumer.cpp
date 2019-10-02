@@ -28,6 +28,16 @@ namespace catapult { namespace harvesting {
 
 	namespace {
 		constexpr auto Aes_Pkcs7_Padding_Size = 16;
+
+		UnlockedEntryMessage DeserializeUnlockedEntryMessage(const std::vector<uint8_t>& buffer) {
+			UnlockedEntryMessage message;
+			// note: value of direction comes from TransferMessageObserver, so it is trusted
+			message.Direction = static_cast<UnlockedEntryDirection>(buffer[0]);
+			std::memcpy(message.AnnouncerPublicKey.data(), &buffer[1], Key::Size);
+			message.EncryptedEntry = RawBuffer{ &buffer[1 + Key::Size], EncryptedUnlockedEntrySize() };
+
+			return message;
+		}
 	}
 
 	size_t EncryptedUnlockedEntrySize() {
@@ -51,22 +61,23 @@ namespace catapult { namespace harvesting {
 	void UnlockedFileQueueConsumer(
 			const config::CatapultDirectory& directory,
 			const crypto::KeyPair& bootKeyPair,
-			const consumer<const Key&, const RawBuffer&, crypto::KeyPair&&>& processEntryKeyPair) {
+			const consumer<const UnlockedEntryMessage&, crypto::KeyPair&&>& processEntryKeyPair) {
 		io::FileQueueReader reader(directory.str());
-		Key announcerPublicKey;
-		auto appendMessage = [&bootKeyPair, &processEntryKeyPair, &announcerPublicKey](const std::vector<uint8_t>& buffer) {
+		auto appendMessage = [&bootKeyPair, &processEntryKeyPair](const std::vector<uint8_t>& buffer) {
 			// filter out invalid messages
-			if (Key::Size + EncryptedUnlockedEntrySize() != buffer.size())
+			if (1 + Key::Size + EncryptedUnlockedEntrySize() != buffer.size())
 				return;
 
-			std::memcpy(announcerPublicKey.data(), buffer.data(), Key::Size);
-			RawBuffer encrypted{ buffer.data() + Key::Size, EncryptedUnlockedEntrySize() };
-			auto decryptedPair = TryDecryptUnlockedEntry(encrypted, bootKeyPair, announcerPublicKey);
+			auto unlockedEntryMessage = DeserializeUnlockedEntryMessage(buffer);
+			auto decryptedPair = TryDecryptUnlockedEntry(
+					unlockedEntryMessage.EncryptedEntry,
+					bootKeyPair,
+					unlockedEntryMessage.AnnouncerPublicKey);
 			if (!decryptedPair.second)
 				return;
 
 			auto keyPair = crypto::KeyPair::FromPrivate(std::move(decryptedPair.first));
-			processEntryKeyPair(announcerPublicKey, encrypted, std::move(keyPair));
+			processEntryKeyPair(unlockedEntryMessage, std::move(keyPair));
 		};
 
 		while (reader.tryReadNextMessage(appendMessage))

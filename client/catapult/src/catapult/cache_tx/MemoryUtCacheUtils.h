@@ -23,18 +23,18 @@
 
 namespace catapult { namespace cache {
 
-	/// Gets pointers to the first \a count transaction infos in \a utCacheView.
+	/// Gets the pointers to the first \a count transaction infos in \a utCacheView.
 	/// \note Pointers are only safe to access during the lifetime of \a utCacheView.
 	std::vector<const model::TransactionInfo*> GetFirstTransactionInfoPointers(const MemoryUtCacheView& utCacheView, uint32_t count);
 
-	/// Gets pointers to the first \a count transaction infos in \a utCacheView that pass \a filter.
+	/// Gets the pointers to the first \a count transaction infos in \a utCacheView that pass \a filter.
 	/// \note Pointers are only safe to access during the lifetime of \a utCacheView.
 	std::vector<const model::TransactionInfo*> GetFirstTransactionInfoPointers(
 			const MemoryUtCacheView& utCacheView,
 			uint32_t count,
 			const predicate<const model::TransactionInfo&>& filter);
 
-	/// Gets pointers to the first \a count transaction infos in \a utCacheView that pass \a filter after sorting by \a sortComparer.
+	/// Gets the pointers to the first \a count transaction infos in \a utCacheView that pass \a filter after sorting by \a sortComparer.
 	/// \note Pointers are only safe to access during the lifetime of \a utCacheView.
 	std::vector<const model::TransactionInfo*> GetFirstTransactionInfoPointers(
 			const MemoryUtCacheView& utCacheView,

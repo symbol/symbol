@@ -23,7 +23,7 @@
 
 namespace catapult { namespace deltaset {
 
-	/// A view that provides iteration support to a base set.
+	/// View that provides iteration support to a base set.
 	template<typename TSetTraits>
 	class BaseSetIterationView {
 	private:
@@ -36,18 +36,18 @@ namespace catapult { namespace deltaset {
 		{}
 
 	public:
-		/// Returns an iterator that points to the element with \a key if it is contained in this set, or end() otherwise.
+		/// Gets an iterator that points to the element with \a key if it is contained in this set, or end() otherwise.
 		auto findIterator(const KeyType& key) const {
 			return m_set.find(key);
 		}
 
 	public:
-		/// Returns a const iterator to the first element of the underlying set.
+		/// Gets a const iterator to the first element of the underlying set.
 		auto begin() const {
 			return m_set.cbegin();
 		}
 
-		/// Returns a const iterator to the element following the last element of the underlying set.
+		/// Gets a const iterator to the element following the last element of the underlying set.
 		auto end() const {
 			return m_set.cend();
 		}

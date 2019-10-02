@@ -121,7 +121,7 @@ namespace catapult { namespace state {
 
 		case model::MetadataType::Namespace:
 			return MetadataKey(partialKey, NamespaceId(target.Id));
-		};
+		}
 
 		CATAPULT_THROW_INVALID_ARGUMENT_1("cannot resolve metadata key with unsupported type", static_cast<uint16_t>(target.Type));
 	}

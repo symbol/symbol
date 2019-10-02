@@ -18,13 +18,23 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "ReaderIdentity.h"
-#include "catapult/utils/HexFormatter.h"
+#pragma once
+#include <algorithm>
+#include <vector>
 
-namespace catapult { namespace ionet {
+namespace catapult { namespace tools {
 
-	std::ostream& operator<<(std::ostream& out, const ReaderIdentity& identity) {
-		out << "reader (" << identity.PublicKey << " @ " << identity.Host << ")";
-		return out;
+	/// Applies \a fun to all elements in \a container in the direction specified by \a forward.
+	/// \see http://stackoverflow.com/questions/33379145/equivalent-of-python-map-function-using-lambda
+	template<typename Container, typename Function>
+	auto Apply(bool forward, const Container& container, Function fun) {
+		std::vector<std::invoke_result_t<Function, const typename Container::value_type&>> result;
+		for (const auto& element : container)
+			result.push_back(fun(element));
+
+		if (!forward)
+			std::reverse(result.begin(), result.end());
+
+		return result;
 	}
 }}

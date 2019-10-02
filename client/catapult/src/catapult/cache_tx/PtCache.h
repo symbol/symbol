@@ -25,7 +25,7 @@
 
 namespace catapult { namespace cache {
 
-	/// An interface for modifying a partial transactions cache.
+	/// Interface for modifying a partial transactions cache.
 	/// \note Cache assumes that added transactions are stripped of all cosignatures.
 	class PtCacheModifier : public BasicTransactionsCacheModifier<model::DetachedTransactionInfo> {
 	public:
@@ -42,7 +42,7 @@ namespace catapult { namespace cache {
 		virtual std::vector<model::DetachedTransactionInfo> prune(const predicate<const Hash256&>& hashPredicate) = 0;
 	};
 
-	/// A delegating proxy around a PtCacheModifier.
+	/// Delegating proxy around a PtCacheModifier.
 	/// \note This is returned by value by PtCache::modifier in order to allow it to be consistent with other modifier functions.
 	class PtCacheModifierProxy final : public BasicTransactionsCacheModifierProxy<model::DetachedTransactionInfo, PtCacheModifier> {
 	public:
@@ -67,6 +67,6 @@ namespace catapult { namespace cache {
 		}
 	};
 
-	/// An interface for caching partial transactions.
+	/// Interface for caching partial transactions.
 	class PtCache : public BasicTransactionsCache<PtCacheModifierProxy> {};
 }}

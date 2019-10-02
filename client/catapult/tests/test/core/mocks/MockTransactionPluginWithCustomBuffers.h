@@ -23,7 +23,7 @@
 
 namespace catapult { namespace mocks {
 
-	/// An offset buffer range.
+	/// Offset buffer range.
 	struct OffsetRange {
 		/// Start offset (inclusive).
 		size_t Start;

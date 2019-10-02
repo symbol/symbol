@@ -26,7 +26,7 @@ namespace catapult { namespace thread { class IoThreadPool; } }
 
 namespace catapult { namespace thread {
 
-	/// A scheduler.
+	/// Task scheduler.
 	class Scheduler {
 	public:
 		virtual ~Scheduler() = default;

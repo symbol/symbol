@@ -24,6 +24,7 @@
 #include "catapult/thread/ThreadInfo.h"
 #include "catapult/utils/ExceptionLogging.h"
 #include "catapult/version/version.h"
+#include "catapult/preprocessor.h"
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem.hpp>
 #include <iostream>
@@ -66,7 +67,7 @@ namespace catapult { namespace tools {
 		std::shared_ptr<void> SetupLogging(const config::LoggingConfiguration& config) {
 			auto pBootstrapper = std::make_shared<utils::LoggingBootstrapper>();
 			pBootstrapper->addConsoleLogger(config::GetConsoleLoggerOptions(config.Console), *CreateLogFilter(config.Console));
-			return std::move(pBootstrapper);
+			return PORTABLE_MOVE(pBootstrapper);
 		}
 
 		[[noreturn]]

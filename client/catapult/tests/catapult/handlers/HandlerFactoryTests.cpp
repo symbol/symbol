@@ -111,12 +111,12 @@ namespace catapult { namespace handlers {
 			EXPECT_TRUE(handlers.canProcess(Valid_Packet_Type));
 
 			// Act:
-			ionet::ServerPacketHandlerContext context({}, "");
-			handlers.process(*pPacket, context);
+			ionet::ServerPacketHandlerContext handlerContext;
+			handlers.process(*pPacket, handlerContext);
 
 			// Assert: the handler was not called
 			EXPECT_EQ(0u, numHandlerCalls);
-			EXPECT_FALSE(context.hasResponse());
+			EXPECT_FALSE(handlerContext.hasResponse());
 		}
 	}
 
@@ -162,22 +162,22 @@ namespace catapult { namespace handlers {
 			EXPECT_TRUE(handlers.canProcess(Valid_Packet_Type));
 
 			// Act:
-			ionet::ServerPacketHandlerContext context({}, "");
-			handlers.process(*pPacket, context);
+			ionet::ServerPacketHandlerContext handlerContext;
+			handlers.process(*pPacket, handlerContext);
 
 			// Assert: the handler was called
 			EXPECT_EQ(1u, numHandlerCalls);
-			action(context);
+			action(handlerContext);
 		}
 	}
 
 	TEST(TEST_CLASS, RegisterZero_EmptyRequestPacketIsAccepted) {
 		// Arrange:
-		RunZeroValidRequestTest<SimpleEntityTraits>(ionet::ServerPacketHandlers(), [](const auto& context) {
+		RunZeroValidRequestTest<SimpleEntityTraits>(ionet::ServerPacketHandlers(), [](const auto& handlerContext) {
 			// Assert:
-			test::AssertPacketHeader(context.response(), sizeof(ionet::Packet) + 3 * sizeof(SimpleEntity), Valid_Packet_Type);
+			test::AssertPacketHeader(handlerContext.response(), sizeof(ionet::Packet) + 3 * sizeof(SimpleEntity), Valid_Packet_Type);
 
-			const auto& buffers = context.response().buffers();
+			const auto& buffers = handlerContext.response().buffers();
 			ASSERT_EQ(3u, buffers.size());
 			for (auto i = 0u; i < buffers.size(); ++i) {
 				auto message = "buffer at " + std::to_string(i);
@@ -193,11 +193,11 @@ namespace catapult { namespace handlers {
 
 	TEST(TEST_CLASS, RegisterZero_EmptyRequestPacketIsAccepted_AsValues) {
 		// Arrange:
-		RunZeroValidRequestTest<SimpleEntityAsValuesTraits>(ionet::ServerPacketHandlers(), [](const auto& context) {
+		RunZeroValidRequestTest<SimpleEntityAsValuesTraits>(ionet::ServerPacketHandlers(), [](const auto& handlerContext) {
 			// Assert:
-			test::AssertPacketHeader(context.response(), sizeof(ionet::Packet) + 3 * sizeof(SimpleEntity), Valid_Packet_Type);
+			test::AssertPacketHeader(handlerContext.response(), sizeof(ionet::Packet) + 3 * sizeof(SimpleEntity), Valid_Packet_Type);
 
-			const auto& buffers = context.response().buffers();
+			const auto& buffers = handlerContext.response().buffers();
 			ASSERT_EQ(1u, buffers.size());
 			ASSERT_EQ(3u * sizeof(SimpleEntity), buffers[0].Size);
 
@@ -213,20 +213,21 @@ namespace catapult { namespace handlers {
 	TEST(TEST_CLASS, RegisterZero_MaxPacketDataSizeIsRespected) {
 		// Arrange:
 		uint32_t maxPacketDataSize = sizeof(SimpleEntity) * 3 / 2;
-		RunZeroValidRequestTest<SimpleEntityTraits>(ionet::ServerPacketHandlers(maxPacketDataSize), [](const auto& context) {
+		RunZeroValidRequestTest<SimpleEntityTraits>(ionet::ServerPacketHandlers(maxPacketDataSize), [](const auto& handlerContext) {
 			// Assert: response was aborted because it was too large
-			EXPECT_TRUE(context.hasResponse());
-			test::AssertPacketPayloadUnset(context.response());
+			EXPECT_TRUE(handlerContext.hasResponse());
+			test::AssertPacketPayloadUnset(handlerContext.response());
 		});
 	}
 
 	TEST(TEST_CLASS, RegisterZero_MaxPacketDataSizeIsRespected_AsValues) {
 		// Arrange:
 		uint32_t maxPacketDataSize = sizeof(SimpleEntity) * 3 / 2;
-		RunZeroValidRequestTest<SimpleEntityAsValuesTraits>(ionet::ServerPacketHandlers(maxPacketDataSize), [](const auto& context) {
+		RunZeroValidRequestTest<SimpleEntityAsValuesTraits>(ionet::ServerPacketHandlers(maxPacketDataSize), [](
+				const auto& handlerContext) {
 			// Assert: response was aborted because it was too large
-			EXPECT_TRUE(context.hasResponse());
-			test::AssertPacketPayloadUnset(context.response());
+			EXPECT_TRUE(handlerContext.hasResponse());
+			test::AssertPacketPayloadUnset(handlerContext.response());
 		});
 	}
 
@@ -287,40 +288,40 @@ namespace catapult { namespace handlers {
 			EXPECT_TRUE(handlers.canProcess(Valid_Packet_Type));
 
 			// Act:
-			ionet::ServerPacketHandlerContext context({}, "");
-			handlers.process(*pPacket, context);
+			ionet::ServerPacketHandlerContext handlerContext;
+			handlers.process(*pPacket, handlerContext);
 
 			// Assert: the handler was called
 			EXPECT_EQ(1u, numHandlerCalls);
-			action(context);
+			action(handlerContext);
 		}
 	}
 
 	TEST(TEST_CLASS, RegisterOne_ValidRequestPacketCanYieldEmptyResponse) {
 		// Arrange:
-		RunOneValidRequestTest<SimpleEntityTraits>(ionet::ServerPacketHandlers(), 0, [](const auto& context) {
+		RunOneValidRequestTest<SimpleEntityTraits>(ionet::ServerPacketHandlers(), 0, [](const auto& handlerContext) {
 			// Assert: response packet is header only
-			test::AssertPacketHeader(context.response(), sizeof(ionet::Packet), Valid_Packet_Type);
-			EXPECT_TRUE(context.response().buffers().empty());
+			test::AssertPacketHeader(handlerContext.response(), sizeof(ionet::Packet), Valid_Packet_Type);
+			EXPECT_TRUE(handlerContext.response().buffers().empty());
 		});
 	}
 
 	TEST(TEST_CLASS, RegisterOne_ValidRequestPacketCanYieldEmptyResponse_AsValues) {
 		// Arrange:
-		RunOneValidRequestTest<SimpleEntityAsValuesTraits>(ionet::ServerPacketHandlers(), 0, [](const auto& context) {
+		RunOneValidRequestTest<SimpleEntityAsValuesTraits>(ionet::ServerPacketHandlers(), 0, [](const auto& handlerContext) {
 			// Assert: response packet is header only
-			test::AssertPacketHeader(context.response(), sizeof(ionet::Packet), Valid_Packet_Type);
-			EXPECT_TRUE(context.response().buffers().empty());
+			test::AssertPacketHeader(handlerContext.response(), sizeof(ionet::Packet), Valid_Packet_Type);
+			EXPECT_TRUE(handlerContext.response().buffers().empty());
 		});
 	}
 
 	TEST(TEST_CLASS, RegisterOne_ValidRequestPacketCanYieldResponse) {
 		// Arrange:
-		RunOneValidRequestTest<SimpleEntityTraits>(ionet::ServerPacketHandlers(), 3, [](const auto& context) {
+		RunOneValidRequestTest<SimpleEntityTraits>(ionet::ServerPacketHandlers(), 3, [](const auto& handlerContext) {
 			// Assert:
-			test::AssertPacketHeader(context.response(), sizeof(ionet::Packet) + 3 * sizeof(SimpleEntity), Valid_Packet_Type);
+			test::AssertPacketHeader(handlerContext.response(), sizeof(ionet::Packet) + 3 * sizeof(SimpleEntity), Valid_Packet_Type);
 
-			const auto& buffers = context.response().buffers();
+			const auto& buffers = handlerContext.response().buffers();
 			ASSERT_EQ(3u, buffers.size());
 			for (auto i = 0u; i < buffers.size(); ++i) {
 				auto message = "buffer at " + std::to_string(i);
@@ -336,11 +337,11 @@ namespace catapult { namespace handlers {
 
 	TEST(TEST_CLASS, RegisterOne_ValidRequestPacketCanYieldResponse_AsValues) {
 		// Arrange:
-		RunOneValidRequestTest<SimpleEntityAsValuesTraits>(ionet::ServerPacketHandlers(), 3, [](const auto& context) {
+		RunOneValidRequestTest<SimpleEntityAsValuesTraits>(ionet::ServerPacketHandlers(), 3, [](const auto& handlerContext) {
 			// Assert:
-			test::AssertPacketHeader(context.response(), sizeof(ionet::Packet) + 3 * sizeof(SimpleEntity), Valid_Packet_Type);
+			test::AssertPacketHeader(handlerContext.response(), sizeof(ionet::Packet) + 3 * sizeof(SimpleEntity), Valid_Packet_Type);
 
-			const auto& buffers = context.response().buffers();
+			const auto& buffers = handlerContext.response().buffers();
 			ASSERT_EQ(1u, buffers.size());
 			ASSERT_EQ(3u * sizeof(SimpleEntity), buffers[0].Size);
 
@@ -356,20 +357,20 @@ namespace catapult { namespace handlers {
 	TEST(TEST_CLASS, RegisterOne_MaxPacketDataSizeIsRespected) {
 		// Arrange:
 		auto handlers = ionet::ServerPacketHandlers(sizeof(SimpleEntity) * 3 / 2);
-		RunOneValidRequestTest<SimpleEntityTraits>(std::move(handlers), 3, [](const auto& context) {
+		RunOneValidRequestTest<SimpleEntityTraits>(std::move(handlers), 3, [](const auto& handlerContext) {
 			// Assert: response was aborted because it was too large
-			EXPECT_TRUE(context.hasResponse());
-			test::AssertPacketPayloadUnset(context.response());
+			EXPECT_TRUE(handlerContext.hasResponse());
+			test::AssertPacketPayloadUnset(handlerContext.response());
 		});
 	}
 
 	TEST(TEST_CLASS, RegisterOne_MaxPacketDataSizeIsRespected_AsValues) {
 		// Arrange:
 		auto handlers = ionet::ServerPacketHandlers(sizeof(SimpleEntity) * 3 / 2);
-		RunOneValidRequestTest<SimpleEntityAsValuesTraits>(std::move(handlers), 3, [](const auto& context) {
+		RunOneValidRequestTest<SimpleEntityAsValuesTraits>(std::move(handlers), 3, [](const auto& handlerContext) {
 			// Assert: response was aborted because it was too large
-			EXPECT_TRUE(context.hasResponse());
-			test::AssertPacketPayloadUnset(context.response());
+			EXPECT_TRUE(handlerContext.hasResponse());
+			test::AssertPacketPayloadUnset(handlerContext.response());
 		});
 	}
 

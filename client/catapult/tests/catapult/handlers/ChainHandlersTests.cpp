@@ -57,24 +57,27 @@ namespace catapult { namespace handlers {
 
 				ionet::ServerPacketHandlers handlers;
 				auto registry = mocks::CreateDefaultTransactionRegistry();
-				Key capturedSourcePublicKey;
+				model::NodeIdentity capturedSourceIdentity;
 				std::vector<size_t> counters;
-				RegisterPushBlockHandler(handlers, registry, [&capturedSourcePublicKey, &counters](const auto& range) {
-					capturedSourcePublicKey = range.SourcePublicKey;
+				RegisterPushBlockHandler(handlers, registry, [&capturedSourceIdentity, &counters](const auto& range) {
+					capturedSourceIdentity = range.SourceIdentity;
 					counters.push_back(range.Range.size());
 				});
 
 				// Act:
 				auto sourcePublicKey = test::GenerateRandomByteArray<Key>();
-				ionet::ServerPacketHandlerContext context(sourcePublicKey, "");
-				EXPECT_TRUE(handlers.process(packet, context));
+				auto sourceHost = std::string("11.22.33.44");
+				ionet::ServerPacketHandlerContext handlerContext(sourcePublicKey, sourceHost);
+				EXPECT_TRUE(handlers.process(packet, handlerContext));
 
 				// Assert:
 				action(counters);
 
-				// - if the callback was called, context should have been forwarded along with the range
-				if (!counters.empty())
-					EXPECT_EQ(sourcePublicKey, capturedSourcePublicKey);
+				// - if the callback was called, handlerContext should have been forwarded along with the range
+				if (!counters.empty()) {
+					EXPECT_EQ(sourcePublicKey, capturedSourceIdentity.PublicKey);
+					EXPECT_EQ("11.22.33.44", capturedSourceIdentity.Host);
+				}
 			}
 		}
 	}
@@ -129,15 +132,15 @@ namespace catapult { namespace handlers {
 			pPacket->Height = requestHeight;
 
 			// Act:
-			ionet::ServerPacketHandlerContext context({}, "");
-			EXPECT_TRUE(handlers.process(*pPacket, context));
+			ionet::ServerPacketHandlerContext handlerContext;
+			EXPECT_TRUE(handlers.process(*pPacket, handlerContext));
 
 			// Assert:
 			auto expectedSize = sizeof(ionet::PacketHeader) + GetBlockSizeAtHeight(expectedHeight);
-			test::AssertPacketHeader(context, expectedSize, ionet::PacketType::Pull_Block);
+			test::AssertPacketHeader(handlerContext, expectedSize, ionet::PacketType::Pull_Block);
 
 			auto pBlockFromStorage = pStorage->view().loadBlock(expectedHeight);
-			EXPECT_EQ(*pBlockFromStorage, reinterpret_cast<const model::Block&>(*test::GetSingleBufferData(context)));
+			EXPECT_EQ(*pBlockFromStorage, reinterpret_cast<const model::Block&>(*test::GetSingleBufferData(handlerContext)));
 		}
 	}
 
@@ -172,11 +175,11 @@ namespace catapult { namespace handlers {
 		++pPacket->Size;
 
 		// Act:
-		ionet::ServerPacketHandlerContext context({}, "");
-		EXPECT_TRUE(handlers.process(*pPacket, context));
+		ionet::ServerPacketHandlerContext handlerContext;
+		EXPECT_TRUE(handlers.process(*pPacket, handlerContext));
 
 		// Assert: malformed packet is ignored
-		test::AssertNoResponse(context);
+		test::AssertNoResponse(handlerContext);
 	}
 
 	TEST(TEST_CLASS, ChainInfoHandler_WritesChainInfoResponseInResponseToValidRequest) {
@@ -193,13 +196,13 @@ namespace catapult { namespace handlers {
 		pPacket->Type = ionet::PacketType::Chain_Info;
 
 		// Act:
-		ionet::ServerPacketHandlerContext context({}, "");
-		EXPECT_TRUE(handlers.process(*pPacket, context));
+		ionet::ServerPacketHandlerContext handlerContext;
+		EXPECT_TRUE(handlers.process(*pPacket, handlerContext));
 
 		// Assert: chain score is written
-		test::AssertPacketHeader(context, sizeof(api::ChainInfoResponse), ionet::PacketType::Chain_Info);
+		test::AssertPacketHeader(handlerContext, sizeof(api::ChainInfoResponse), ionet::PacketType::Chain_Info);
 
-		const auto* pResponse = reinterpret_cast<const uint64_t*>(test::GetSingleBufferData(context));
+		const auto* pResponse = reinterpret_cast<const uint64_t*>(test::GetSingleBufferData(handlerContext));
 		EXPECT_EQ(12u, pResponse[0]); // height
 		EXPECT_EQ(0x7890ABCDEF012345u, pResponse[1]); // score high
 		EXPECT_EQ(0x7711BBCC00DD99AAu, pResponse[2]); // score low
@@ -239,14 +242,14 @@ namespace catapult { namespace handlers {
 			pPacket->NumHashes = maxRequestedHashes;
 
 			// Act:
-			ionet::ServerPacketHandlerContext context({}, "");
-			EXPECT_TRUE(handlers.process(*pPacket, context));
+			ionet::ServerPacketHandlerContext handlerContext;
+			EXPECT_TRUE(handlers.process(*pPacket, handlerContext));
 
 			// Assert:
 			auto expectedSize = sizeof(ionet::PacketHeader) + sizeof(Hash256) * expectedHeights.size();
-			test::AssertPacketHeader(context, expectedSize, ionet::PacketType::Block_Hashes);
+			test::AssertPacketHeader(handlerContext, expectedSize, ionet::PacketType::Block_Hashes);
 
-			auto pData = test::GetSingleBufferData(context);
+			auto pData = test::GetSingleBufferData(handlerContext);
 			auto storageView = pStorage->view();
 			for (auto i = 0u; i < expectedHeights.size(); ++i) {
 				// - calculate the expected hash
@@ -319,14 +322,14 @@ namespace catapult { namespace handlers {
 			RegisterPullBlocksHandler(handlers, *pStorage, config);
 
 			// Act:
-			ionet::ServerPacketHandlerContext context({}, "");
-			EXPECT_TRUE(handlers.process(request, context));
+			ionet::ServerPacketHandlerContext handlerContext;
+			EXPECT_TRUE(handlers.process(request, handlerContext));
 
 			// Assert:
 			auto expectedSize = sizeof(ionet::PacketHeader) + GetSumBlockSizesAtHeights(expectedHeights);
-			test::AssertPacketHeader(context, expectedSize, ionet::PacketType::Pull_Blocks);
+			test::AssertPacketHeader(handlerContext, expectedSize, ionet::PacketType::Pull_Blocks);
 
-			const auto& buffers = context.response().buffers();
+			const auto& buffers = handlerContext.response().buffers();
 			ASSERT_EQ(expectedHeights.size(), buffers.size());
 			auto storageView = pStorage->view();
 			for (auto i = 0u; i < expectedHeights.size(); ++i) {

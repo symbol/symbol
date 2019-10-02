@@ -58,7 +58,7 @@ namespace catapult { namespace builders {
 		void setNewRestrictionType(model::MosaicRestrictionType newRestrictionType);
 
 	public:
-		/// Returns size of mosaic global restriction transaction.
+		/// Gets the size of mosaic global restriction transaction.
 		/// \note This returns size of a normal transaction not embedded transaction.
 		size_t size() const;
 

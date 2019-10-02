@@ -224,7 +224,7 @@ namespace catapult { namespace consumers {
 				auto result = context.Consumer(elements);
 
 				// Assert:
-				test::AssertAborted(result, Failure_Consumer_Batch_Signature_Not_Verifiable);
+				test::AssertAborted(result, Failure_Consumer_Batch_Signature_Not_Verifiable, disruptor::ConsumerResultSeverity::Fatal);
 			}
 
 			static void AssertNoSignaturesVerify(std::vector<NotificationDescriptor>&& descriptors) {
@@ -238,7 +238,7 @@ namespace catapult { namespace consumers {
 				auto result = context.Consumer(elements);
 
 				// Assert:
-				test::AssertAborted(result, Failure_Consumer_Batch_Signature_Not_Verifiable);
+				test::AssertAborted(result, Failure_Consumer_Batch_Signature_Not_Verifiable, disruptor::ConsumerResultSeverity::Fatal);
 			}
 		};
 
@@ -341,7 +341,7 @@ namespace catapult { namespace consumers {
 				auto result = context.Consumer(elements);
 
 				// Assert:
-				test::AssertContinued(result);
+				test::AssertAborted(result, Failure_Consumer_Batch_Signature_Not_Verifiable, disruptor::ConsumerResultSeverity::Fatal);
 				AssertEntities(FilterEntityInfos(elements, { 0, 1, 2, 3 }), context.pPublisher->entityInfos(), 4);
 
 				// - two elements should have failed
@@ -364,7 +364,7 @@ namespace catapult { namespace consumers {
 				auto result = context.Consumer(elements);
 
 				// Assert:
-				test::AssertAborted(result, Failure_Consumer_Batch_Signature_Not_Verifiable);
+				test::AssertAborted(result, Failure_Consumer_Batch_Signature_Not_Verifiable, disruptor::ConsumerResultSeverity::Fatal);
 				AssertEntities(FilterEntityInfos(elements, { 0, 1, 2, 3 }), context.pPublisher->entityInfos(), 4);
 
 				// - all elements should have failed

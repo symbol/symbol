@@ -46,6 +46,8 @@ namespace catapult { namespace test {
 			auto config = config::NodeConfiguration::Uninitialized();
 			config.Port = GetLocalHostPort();
 			config.ApiPort = GetLocalHostPort() + 1;
+			config.MaxIncomingConnectionsPerIdentity = 2;
+
 			config.EnableAddressReuse = true;
 
 			config.MaxBlocksPerSyncAttempt = 4 * 100;
@@ -78,6 +80,11 @@ namespace catapult { namespace test {
 
 			SetConnectionsSubConfiguration(config.IncomingConnections);
 			config.IncomingConnections.BacklogSize = 100;
+
+			config.Banning.DefaultBanDuration = utils::TimeSpan::FromHours(1);
+			config.Banning.MaxBanDuration = utils::TimeSpan::FromHours(2);
+			config.Banning.KeepAliveDuration = utils::TimeSpan::FromHours(3);
+			config.Banning.MaxBannedNodes = 10;
 			return config;
 		}
 

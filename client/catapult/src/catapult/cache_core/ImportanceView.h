@@ -25,7 +25,7 @@ namespace catapult { namespace cache { class ReadOnlyAccountStateCache; } }
 
 namespace catapult { namespace cache {
 
-	/// A view on top of an account state cache for retrieving importances.
+	/// View on top of an account state cache for retrieving importances.
 	class ImportanceView {
 	public:
 		/// Creates a view around \a cache.

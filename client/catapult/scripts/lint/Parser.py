@@ -1,6 +1,7 @@
 from collections import defaultdict
 from enum import Enum
 import re
+import sys
 import traceback
 from xml.sax.saxutils import escape as xmlEscape
 
@@ -441,7 +442,7 @@ class NamespacesParser:
                 tok = lex.token()
                 if not tok:
                     break
-        quit()
+        sys.exit(1)
 
     def switchToNormal(self):
         self.mode = Mode.Normal

@@ -23,7 +23,7 @@
 
 namespace catapult { namespace test {
 
-	/// An RAII class for managing a global log filter.
+	/// RAII class for managing a global log filter.
 	/// \note This is useful for some stress tests that produce a lot of debug logs.
 	class GlobalLogFilter {
 	public:

@@ -23,7 +23,7 @@
 
 namespace catapult { namespace utils {
 
-	/// An array that checks for overflow.
+	/// Array that checks for overflow.
 	template<typename T, size_t N>
 	class CheckedArray {
 	public:
@@ -56,28 +56,28 @@ namespace catapult { namespace utils {
 		}
 
 	public:
-		/// Returns a const iterator that represents first element.
+		/// Gets a const iterator that represents first element.
 		const T* begin() const {
 			return &m_data[0];
 		}
 
-		/// Returns a const iterator that represents one past last element.
+		/// Gets a const iterator that represents one past last element.
 		const T* end() const {
 			return &m_data[m_size];
 		}
 
-		/// Returns a const iterator that represents first element.
+		/// Gets a const iterator that represents first element.
 		const T* cbegin() const {
 			return &m_data[0];
 		}
 
-		/// Returns a const iterator that represents one past last element.
+		/// Gets a const iterator that represents one past last element.
 		const T* cend() const {
 			return &m_data[m_size];
 		}
 
 	public:
-		/// Returns a reference to the element at \a index.
+		/// Gets a reference to the element at \a index.
 		/// \note This method throws if the index is out of range.
 		T& operator[](size_t index) {
 			if (index >= m_size)
@@ -86,7 +86,7 @@ namespace catapult { namespace utils {
 			return m_data[index];
 		}
 
-		/// Returns the element at \a index.
+		/// Gets the element at \a index.
 		/// \note This method throws if the index is out of range.
 		const T& operator[](size_t index) const {
 			if (index >= m_size)

@@ -162,7 +162,9 @@ namespace catapult { namespace partialtransaction {
 				extensions::ServiceState& state) {
 			locator.registerService(Service_Name, pDispatcher);
 
-			auto pBatchRangeDispatcher = std::make_shared<extensions::TransactionBatchRangeDispatcher>(*pDispatcher);
+			auto pBatchRangeDispatcher = std::make_shared<extensions::TransactionBatchRangeDispatcher>(
+					*pDispatcher,
+					state.config().BlockChain.Network.NodeEqualityStrategy);
 			locator.registerRootedService("pt.dispatcher.batch", pBatchRangeDispatcher);
 
 			// register hooks

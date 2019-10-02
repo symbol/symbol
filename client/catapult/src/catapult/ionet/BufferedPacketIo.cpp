@@ -26,6 +26,8 @@
 namespace catapult { namespace ionet {
 
 	namespace {
+		// region WriteRequest
+
 		class WriteRequest {
 		public:
 			WriteRequest(PacketIo& io, const PacketPayload& payload)
@@ -44,6 +46,10 @@ namespace catapult { namespace ionet {
 			PacketPayload m_payload;
 		};
 
+		// endregion
+
+		// region ReadRequest
+
 		class ReadRequest {
 		public:
 			explicit ReadRequest(PacketIo& io) : m_io(io)
@@ -58,6 +64,10 @@ namespace catapult { namespace ionet {
 		private:
 			PacketIo& m_io;
 		};
+
+		// endregion
+
+		// region RequestQueue
 
 		// simple queue implementation
 		template<typename TRequest, typename TCallback, typename TCallbackWrapper>
@@ -117,6 +127,10 @@ namespace catapult { namespace ionet {
 			std::deque<std::pair<TRequest, TCallback>> m_requests;
 		};
 
+		// endregion
+
+		// region QueuedOperation
+
 		// protects RequestQueue via a strand
 		template<typename TRequest, typename TCallback>
 		class QueuedOperation {
@@ -140,6 +154,10 @@ namespace catapult { namespace ionet {
 
 		using QueuedWriteOperation = QueuedOperation<WriteRequest, PacketIo::WriteCallback>;
 		using QueuedReadOperation = QueuedOperation<ReadRequest, PacketIo::ReadCallback>;
+
+		// endregion
+
+		// region BufferedPacketIo
 
 		class BufferedPacketIo
 				: public PacketIo
@@ -173,6 +191,8 @@ namespace catapult { namespace ionet {
 			std::unique_ptr<QueuedWriteOperation> m_pWriteOperation;
 			std::unique_ptr<QueuedReadOperation> m_pReadOperation;
 		};
+
+		// endregion
 	}
 
 	std::shared_ptr<PacketIo> CreateBufferedPacketIo(const std::shared_ptr<PacketIo>& pIo, boost::asio::io_context::strand& strand) {

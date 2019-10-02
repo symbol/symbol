@@ -91,10 +91,10 @@ namespace catapult { namespace sync {
 	public:
 		/// Supported task types.
 		enum class TaskType {
-			/// A task that is scheduled with constant intervals.
+			/// Task that is scheduled with constant intervals.
 			Uniform,
 
-			/// A task that is scheduled with increasing intervals.
+			/// Task that is scheduled with increasing intervals.
 			Decelerating
 		};
 
@@ -119,7 +119,7 @@ namespace catapult { namespace sync {
 		};
 
 	public:
-		/// A map of task names to task configurations.
+		/// Map of task names to task configurations.
 		std::unordered_map<std::string, TaskConfiguration> Tasks;
 
 	private:

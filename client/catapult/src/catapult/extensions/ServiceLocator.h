@@ -29,7 +29,7 @@ namespace catapult { namespace crypto { class KeyPair; } }
 
 namespace catapult { namespace extensions {
 
-	/// A service locator for local node services.
+	/// Service locator for local node services.
 	class ServiceLocator {
 	public:
 		/// Value that is returned when a statistics source is \c nullptr.

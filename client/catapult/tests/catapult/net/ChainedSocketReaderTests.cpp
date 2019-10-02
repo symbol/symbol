@@ -39,7 +39,7 @@ namespace catapult { namespace net {
 		std::shared_ptr<ChainedSocketReader> CreateChainedReader(
 				const std::shared_ptr<ionet::PacketSocket>& pSocket,
 				const ionet::ServerPacketHandlers& handlers,
-				const ionet::ReaderIdentity& identity,
+				const model::NodeIdentity& identity,
 				ChainedReaderCompletionCode& completionCode) {
 			return CreateChainedSocketReader(pSocket, handlers, identity, [&completionCode](auto code) {
 				completionCode = code;
@@ -100,7 +100,7 @@ namespace catapult { namespace net {
 			size_t m_numReadsToConfirm;
 		};
 
-		ionet::ReaderIdentity CreateDefaultClientIdentity() {
+		model::NodeIdentity CreateDefaultClientIdentity() {
 			return { test::GenerateRandomByteArray<Key>(), "alice.com" };
 		}
 
@@ -181,7 +181,7 @@ namespace catapult { namespace net {
 	TEST(TEST_CLASS, AppropriateHandlerContextIsForwardedToHandlers) {
 		// Arrange:
 		auto clientIdentity = CreateDefaultClientIdentity();
-		ionet::ReaderIdentity contextClientIdentity;
+		model::NodeIdentity contextClientIdentity;
 
 		ionet::ServerPacketHandlers handlers;
 		test::RegisterDefaultHandler(handlers, [&contextClientIdentity](const auto&, const auto& context) {

@@ -36,7 +36,7 @@ namespace catapult {
 
 namespace catapult { namespace deltaset {
 
-	/// A base set.
+	/// Base set.
 	/// \tparam TElementTraits Traits describing the type of element.
 	/// \tparam TSetTraits Traits describing the underlying set.
 	/// \tparam TCommitPolicy The policy for committing changes to a base set.
@@ -78,7 +78,7 @@ namespace catapult { namespace deltaset {
 		}
 
 		/// Searches for \a key in this set.
-		/// Returns a pointer to the matching element if it is found or \c nullptr if it is not found.
+		/// Gets a pointer to the matching element if it is found or \c nullptr if it is not found.
 		FindConstIterator find(const KeyType& key) const {
 			auto iter = m_elements.find(key);
 			return m_elements.cend() != iter ? FindConstIterator(std::move(iter)) : FindConstIterator();
@@ -91,7 +91,7 @@ namespace catapult { namespace deltaset {
 		}
 
 	public:
-		/// Returns a delta based on the same original elements as this set.
+		/// Gets a delta based on the same original elements as this set.
 		std::shared_ptr<DeltaType> rebase() {
 			if (m_pWeakDelta.lock())
 				CATAPULT_THROW_RUNTIME_ERROR("only a single attached delta is allowed at a time");
@@ -101,7 +101,7 @@ namespace catapult { namespace deltaset {
 			return pDelta;
 		}
 
-		/// Returns a delta based on the same original elements as this set
+		/// Gets a delta based on the same original elements as this set
 		/// but without the ability to commit any changes to the original set.
 		std::shared_ptr<DeltaType> rebaseDetached() const {
 			return std::make_shared<DeltaType>(m_elements);

@@ -73,12 +73,11 @@ namespace catapult { namespace harvesting {
 			size_t maxUnlockedAccounts,
 			const DelegatePrioritizer& prioritizer,
 			UnlockedAccountsKeyPairContainer& prioritizedKeyPairs,
-			utils::SpinReaderWriterLock::ReaderLockGuard&& readLock)
+			utils::SpinReaderWriterLock::WriterLockGuard&& writeLock)
 			: m_maxUnlockedAccounts(maxUnlockedAccounts)
 			, m_prioritizer(prioritizer)
 			, m_prioritizedKeyPairs(prioritizedKeyPairs)
-			, m_readLock(std::move(readLock))
-			, m_writeLock(m_readLock.promoteToWriter())
+			, m_writeLock(std::move(writeLock))
 	{}
 
 	UnlockedAccountsAddResult UnlockedAccountsModifier::add(crypto::KeyPair&& keyPair) {
@@ -136,8 +135,8 @@ namespace catapult { namespace harvesting {
 	}
 
 	UnlockedAccountsModifier UnlockedAccounts::modifier() {
-		auto readLock = m_lock.acquireReader();
-		return UnlockedAccountsModifier(m_maxUnlockedAccounts, m_prioritizer, m_prioritizedKeyPairs, std::move(readLock));
+		auto writeLock = m_lock.acquireWriter();
+		return UnlockedAccountsModifier(m_maxUnlockedAccounts, m_prioritizer, m_prioritizedKeyPairs, std::move(writeLock));
 	}
 
 	// endregion

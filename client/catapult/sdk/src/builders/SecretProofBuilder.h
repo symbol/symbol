@@ -49,7 +49,7 @@ namespace catapult { namespace builders {
 		void setProof(const RawBuffer& proof);
 
 	public:
-		/// Returns size of secret proof transaction.
+		/// Gets the size of secret proof transaction.
 		/// \note This returns size of a normal transaction not embedded transaction.
 		size_t size() const;
 

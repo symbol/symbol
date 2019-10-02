@@ -80,13 +80,21 @@ namespace catapult { namespace test {
 	// region ConsumerResult Assertions
 
 	void AssertConsumed(const disruptor::ConsumerResult& result, validators::ValidationResult validationResult) {
+		auto expectedSeverity = validators::ValidationResult::Success == validationResult
+				? disruptor::ConsumerResultSeverity::Success
+				: disruptor::ConsumerResultSeverity::Neutral;
 		EXPECT_EQ(disruptor::CompletionStatus::Consumed, result.CompletionStatus);
 		EXPECT_EQ(validationResult, static_cast<validators::ValidationResult>(result.CompletionCode));
+		EXPECT_EQ(expectedSeverity, result.ResultSeverity);
 	}
 
-	void AssertAborted(const disruptor::ConsumerResult& result, validators::ValidationResult validationResult) {
+	void AssertAborted(
+			const disruptor::ConsumerResult& result,
+			validators::ValidationResult validationResult,
+			disruptor::ConsumerResultSeverity severity) {
 		EXPECT_EQ(disruptor::CompletionStatus::Aborted, result.CompletionStatus);
 		EXPECT_EQ(validationResult, static_cast<validators::ValidationResult>(result.CompletionCode));
+		EXPECT_EQ(severity, result.ResultSeverity);
 	}
 
 	// endregion
@@ -103,7 +111,7 @@ namespace catapult { namespace test {
 			auto result = consumer(input);
 
 			// Assert:
-			test::AssertAborted(result, consumers::Failure_Consumer_Empty_Input);
+			test::AssertAborted(result, consumers::Failure_Consumer_Empty_Input, disruptor::ConsumerResultSeverity::Failure);
 			EXPECT_TRUE(input.empty());
 		}
 	}

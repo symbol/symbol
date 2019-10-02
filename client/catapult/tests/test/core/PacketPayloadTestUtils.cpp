@@ -55,20 +55,20 @@ namespace catapult { namespace test {
 		EXPECT_EQ(expectedType, header.Type);
 	}
 
-	void AssertNoResponse(const ionet::ServerPacketHandlerContext& context) {
-		// Assert: the context does not have a response
-		EXPECT_FALSE(context.hasResponse());
+	void AssertNoResponse(const ionet::ServerPacketHandlerContext& handlerContext) {
+		// Assert: handlerContext does not have a response
+		EXPECT_FALSE(handlerContext.hasResponse());
 	}
 
-	void AssertPacketHeader(const ionet::ServerPacketHandlerContext& context, size_t expectedSize, ionet::PacketType expectedType) {
-		// Assert: the context has a response with a header that has the expected size and type
-		ASSERT_TRUE(context.hasResponse());
-		AssertPacketHeader(context.response(), expectedSize, expectedType);
+	void AssertPacketHeader(const ionet::ServerPacketHandlerContext& handlerContext, size_t expectedSize, ionet::PacketType expectedType) {
+		// Assert: handlerContext has a response with a header that has the expected size and type
+		ASSERT_TRUE(handlerContext.hasResponse());
+		AssertPacketHeader(handlerContext.response(), expectedSize, expectedType);
 	}
 
-	const uint8_t* GetSingleBufferData(const ionet::ServerPacketHandlerContext& context) {
-		// Assert: context has a response with a single buffer
-		const auto& buffers = context.response().buffers();
+	const uint8_t* GetSingleBufferData(const ionet::ServerPacketHandlerContext& handlerContext) {
+		// Assert: handlerContext has a response with a single buffer
+		const auto& buffers = handlerContext.response().buffers();
 		if (1u != buffers.size())
 			CATAPULT_THROW_RUNTIME_ERROR_1("response has unexpected number of buffers", buffers.size());
 

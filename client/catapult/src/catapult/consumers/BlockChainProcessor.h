@@ -31,7 +31,7 @@ namespace catapult {
 
 namespace catapult { namespace consumers {
 
-	/// A tuple composed of a block, a hash and a generation hash.
+	/// Tuple composed of a block, a hash and a generation hash.
 	class WeakBlockInfo : public model::WeakEntityInfoT<model::Block> {
 	public:
 			/// Creates a block info.
@@ -61,10 +61,10 @@ namespace catapult { namespace consumers {
 			disruptor::BlockElements&,
 			observers::ObserverState&)>;
 
-	/// A predicate for determining whether or not two blocks form a hit.
+	/// Predicate for determining whether or not two blocks form a hit.
 	using BlockHitPredicate = predicate<const model::Block&, const model::Block&, const GenerationHash&>;
 
-	/// A factory for creating a predicate for determining whether or not two blocks form a hit.
+	/// Factory for creating a predicate for determining whether or not two blocks form a hit.
 	using BlockHitPredicateFactory = std::function<BlockHitPredicate (const cache::ReadOnlyCatapultCache&)>;
 
 	/// Possible receipt validation modes.

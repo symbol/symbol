@@ -24,7 +24,7 @@
 
 namespace catapult { namespace observers {
 
-	/// A notification observer implementation that wraps a function.
+	/// Notification observer implementation that wraps a function.
 	template<typename TNotification>
 	class FunctionalNotificationObserverT : public NotificationObserverT<TNotification> {
 	private:

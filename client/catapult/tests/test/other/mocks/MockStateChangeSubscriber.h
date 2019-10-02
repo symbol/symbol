@@ -55,7 +55,7 @@ namespace catapult { namespace mocks {
 		}
 
 	public:
-		/// Sets \a consumer that will be called with cache changes.
+		/// Sets the \a consumer that will be called with cache changes.
 		void setCacheChangesConsumer(const consumer<const cache::CacheChanges&>& consumer) {
 			m_cacheChangesConsumer = consumer;
 		}

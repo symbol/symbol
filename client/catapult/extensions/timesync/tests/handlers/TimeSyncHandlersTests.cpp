@@ -52,31 +52,31 @@ namespace catapult { namespace handlers {
 			pPacket->Size += packetExtraSize;
 
 			// Act:
-			ionet::ServerPacketHandlerContext context({}, "");
-			EXPECT_TRUE(handlers.process(*pPacket, context));
+			ionet::ServerPacketHandlerContext handlerContext;
+			EXPECT_TRUE(handlers.process(*pPacket, handlerContext));
 
 			// Assert:
-			assertFunc(communicationTimestamps, context);
+			assertFunc(communicationTimestamps, handlerContext);
 		}
 	}
 
 	TEST(TEST_CLASS, NetworkTimeHandler_DoesNotRespondToMalformedRequest) {
 		// Arrange:
 		timesync::CommunicationTimestamps communicationTimestamps(Timestamp(234), Timestamp(123));
-		RunNetworkTimeHandlerTest(1, { Timestamp(234), Timestamp(123) }, [](const auto&, const auto& context) {
+		RunNetworkTimeHandlerTest(1, { Timestamp(234), Timestamp(123) }, [](const auto&, const auto& handlerContext) {
 			// Assert: malformed packet is ignored
-			test::AssertNoResponse(context);
+			test::AssertNoResponse(handlerContext);
 		});
 	}
 
 	TEST(TEST_CLASS, NetworkTimeHandler_WritesCommunicationTimestampsInResponseToValidRequest) {
 		// Arrange:
-		RunNetworkTimeHandlerTest(0, { Timestamp(234), Timestamp(123) }, [](const auto&, const auto& context) {
+		RunNetworkTimeHandlerTest(0, { Timestamp(234), Timestamp(123) }, [](const auto&, const auto& handlerContext) {
 			// Assert: communication timestamps are written
 			auto dataSize = sizeof(timesync::CommunicationTimestamps);
-			test::AssertPacketHeader(context, sizeof(ionet::Packet) + dataSize, ionet::PacketType::Time_Sync_Network_Time);
+			test::AssertPacketHeader(handlerContext, sizeof(ionet::Packet) + dataSize, ionet::PacketType::Time_Sync_Network_Time);
 
-			const auto* pResponse = reinterpret_cast<const Timestamp::ValueType*>(test::GetSingleBufferData(context));
+			const auto* pResponse = reinterpret_cast<const Timestamp::ValueType*>(test::GetSingleBufferData(handlerContext));
 			EXPECT_EQ(234u, pResponse[0]);
 			EXPECT_EQ(123u, pResponse[1]);
 		});

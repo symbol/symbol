@@ -44,7 +44,7 @@ namespace catapult { namespace test {
 		static constexpr auto AddPluginExtensions = test::AddApiPluginExtensions;
 	};
 
-	/// A common test context for local node tests.
+	/// Common test context for local node tests.
 	template<typename TTraits>
 	class LocalNodeTestContext {
 	public:

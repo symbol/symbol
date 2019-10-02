@@ -24,7 +24,7 @@
 
 namespace catapult { namespace test {
 
-	/// A container of pull handler tests.
+	/// Container of pull handler tests.
 	/// \note Tests only test invalid and empty packets. Real response tests are suite-specific.
 	template<typename TTraits>
 	struct PullHandlerTests : public BasicBatchHandlerTests<TTraits> {

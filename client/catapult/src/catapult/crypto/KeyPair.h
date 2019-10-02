@@ -47,12 +47,12 @@ namespace catapult { namespace crypto {
 			return FromPrivate(PrivateKey::FromString(privateKey));
 		}
 
-		/// Returns a private key of a key pair.
+		/// Gets the private key of the key pair.
 		const auto& privateKey() const {
 			return m_privateKey;
 		}
 
-		/// Returns a public key of a key pair.
+		/// Gets the public key of the key pair.
 		const auto& publicKey() const {
 			return m_publicKey;
 		}

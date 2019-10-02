@@ -31,6 +31,7 @@ namespace catapult { namespace net {
 
 		// Assert:
 		EXPECT_EQ(model::NetworkIdentifier::Zero, settings.NetworkIdentifier);
+		EXPECT_EQ(model::NodeIdentityEqualityStrategy::Key, settings.NodeIdentityEqualityStrategy);
 		EXPECT_EQ(utils::TimeSpan::FromSeconds(10), settings.Timeout);
 		EXPECT_EQ(utils::FileSize::FromKilobytes(4), settings.SocketWorkingBufferSize);
 		EXPECT_EQ(0u, settings.SocketWorkingBufferSensitivity);
@@ -38,6 +39,9 @@ namespace catapult { namespace net {
 
 		EXPECT_EQ(ionet::ConnectionSecurityMode::None, settings.OutgoingSecurityMode);
 		EXPECT_EQ(ionet::ConnectionSecurityMode::None, settings.IncomingSecurityModes);
+
+		EXPECT_TRUE(settings.AllowIncomingSelfConnections);
+		EXPECT_FALSE(settings.AllowOutgoingSelfConnections);
 	}
 
 	TEST(TEST_CLASS, CanConvertToPacketSocketOptions) {

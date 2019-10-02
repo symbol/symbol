@@ -19,7 +19,7 @@
 **/
 
 #pragma once
-#include "catapult/ionet/Node.h"
+#include "catapult/ionet/NodeSet.h"
 #include "catapult/ionet/PacketHandlers.h"
 #include "catapult/model/NetworkInfo.h"
 

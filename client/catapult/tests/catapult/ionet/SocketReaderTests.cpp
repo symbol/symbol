@@ -141,13 +141,13 @@ namespace catapult { namespace ionet {
 			return std::make_pair(receivedBuffers, readResult);
 		}
 
-		// sets a response packet in \a context with payload \a responseBytes
-		void RespondWithBytes(ServerPacketHandlerContext& context, const std::vector<uint8_t>& responseBytes) {
+		// sets a response packet in \a handlerContext with payload \a responseBytes
+		void RespondWithBytes(ServerPacketHandlerContext& handlerContext, const std::vector<uint8_t>& responseBytes) {
 			auto numResponseBytes = static_cast<uint32_t>(responseBytes.size());
 			auto pResponsePacket = CreateSharedPacket<Packet>(numResponseBytes);
 			pResponsePacket->Size = sizeof(PacketHeader) + numResponseBytes;
-			std::memcpy(static_cast<void*>(pResponsePacket.get() + 1), responseBytes.data(), responseBytes.size());
-			context.response(PacketPayload(pResponsePacket));
+			utils::memcpy_cond(static_cast<void*>(pResponsePacket.get() + 1), responseBytes.data(), responseBytes.size());
+			handlerContext.response(PacketPayload(pResponsePacket));
 		}
 
 		void AssertSocketReadResult(
@@ -216,9 +216,9 @@ namespace catapult { namespace ionet {
 		AssertSocketReadSuccess(resultPair.second, 1, 25);
 		ASSERT_EQ(1u, receivedBuffers.size());
 		EXPECT_EQ(125u, receivedBuffers[0].size());
-		EXPECT_EQ(test::ToHexString(sendBuffers[0]), test::ToHexString(&receivedBuffers[0][0], 50));
-		EXPECT_EQ(test::ToHexString(sendBuffers[1]), test::ToHexString(&receivedBuffers[0][50], 50));
-		EXPECT_EQ(test::ToHexString(&sendBuffers[2][0], 25), test::ToHexString(&receivedBuffers[0][100], 25));
+		EXPECT_EQ_MEMORY(&sendBuffers[0][0], &receivedBuffers[0][0], 50);
+		EXPECT_EQ_MEMORY(&sendBuffers[1][0], &receivedBuffers[0][50], 50);
+		EXPECT_EQ_MEMORY(&sendBuffers[2][0], &receivedBuffers[0][100], 25);
 	}
 
 	TEST(TEST_CLASS, CanReadMultiplePacketsInSingleRead) {
@@ -292,7 +292,7 @@ namespace catapult { namespace ionet {
 			0x00, 0x00, 0x00, 0x00, // type
 			0x03, 0x14, 0x11, 0x32 // payload
 		};
-		EXPECT_EQ(test::ToHexString(expectedClientBytes), test::ToHexString(responseBytes));
+		EXPECT_EQ(expectedClientBytes, responseBytes);
 	}
 
 	TEST(TEST_CLASS, ReadFailsOnReadError) {
@@ -511,7 +511,7 @@ namespace catapult { namespace ionet {
 		// Arrange:
 		auto clientPublicKey = test::GenerateRandomByteArray<Key>();
 		auto clientHost = std::string("alice.com");
-		ReaderIdentity contextClientIdentity;
+		model::NodeIdentity contextClientIdentity;
 
 		ReaderFactory factory(clientPublicKey, clientHost);
 		ServerPacketHandlers handlers;

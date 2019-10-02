@@ -22,57 +22,67 @@
 #include "catapult/net/PacketWriters.h"
 #include "tests/test/nodeps/Waits.h"
 #include <thread>
+#include <unordered_map>
 
 namespace catapult { namespace mocks {
 
 	/// Mock packet writers that collects connecting nodes.
 	class MockPacketWriters : public net::PacketWriters {
 	public:
+		/// Creates mock packet writers.
+		MockPacketWriters()
+				: m_equalityStrategy(model::NodeIdentityEqualityStrategy::Key)
+				, m_closedNodeIdentities(CreateNodeIdentitySet(m_equalityStrategy))
+				, m_nodeConnectCodeMap(model::CreateNodeIdentityMap<net::PeerConnectCode>(m_equalityStrategy))
+		{}
+
+	public:
 		size_t numActiveWriters() const override {
 			return identities().size();
 		}
 
-		utils::KeySet identities() const override {
-			utils::KeySet identities;
+		model::NodeIdentitySet identities() const override {
+			auto identities = CreateNodeIdentitySet(m_equalityStrategy);
+
 			for (const auto& node : m_nodes) {
-				if (net::PeerConnectCode::Accepted == getResult(node.identityKey()).Code)
-					identities.insert(node.identityKey());
+				if (net::PeerConnectCode::Accepted == getResult(node.identity()).Code)
+					identities.insert(node.identity());
 			}
 
 			return identities;
 		}
 
-		void connect(const ionet::Node& node, const ConnectCallback& callback) override {
+		void connect(const ionet::Node& node, const AcceptCallback& callback) override {
 			m_nodes.push_back(node);
 
 			// call the callback from a separate thread after some delay
-			auto connectResult = getResult(node.identityKey());
+			auto connectResult = getResult(node.identity());
 			std::thread([callback, connectResult]() {
 				test::Pause();
 				callback(connectResult);
 			}).detach();
 		}
 
-		bool closeOne(const Key& identityKey) override {
-			m_closedNodeIdentities.insert(identityKey);
+		bool closeOne(const model::NodeIdentity& identity) override {
+			m_closedNodeIdentities.insert(identity);
 			return true;
 		}
 
 	public:
-		/// Gets connected nodes.
+		/// Gets the connected nodes.
 		const std::vector<ionet::Node>& connectedNodes() const {
 			return m_nodes;
 		}
 
-		/// Gets closed node identities.
-		const utils::KeySet& closedNodeIdentities() const {
+		/// Gets the closed node identities.
+		const model::NodeIdentitySet& closedNodeIdentities() const {
 			return m_closedNodeIdentities;
 		}
 
 	public:
-		/// Sets the connect code for the node with \a identityKey to \a connectCode.
-		void setConnectCode(const Key& identityKey, net::PeerConnectCode connectCode) {
-			m_nodeConnectCodeMap.emplace(identityKey, connectCode);
+		/// Sets the connect code for the node with \a identity to \a connectCode.
+		void setConnectCode(const model::NodeIdentity& identity, net::PeerConnectCode connectCode) {
+			m_nodeConnectCodeMap.emplace(identity, connectCode);
 		}
 
 		/// Immediately marks \a node as connected.
@@ -99,7 +109,7 @@ namespace catapult { namespace mocks {
 			CATAPULT_THROW_RUNTIME_ERROR("not implemented in mock");
 		}
 
-		void accept(const std::shared_ptr<ionet::PacketSocket>&, const ConnectCallback&) override {
+		void accept(const ionet::PacketSocketInfo&, const AcceptCallback&) override {
 			CATAPULT_THROW_RUNTIME_ERROR("not implemented in mock");
 		}
 
@@ -110,15 +120,16 @@ namespace catapult { namespace mocks {
 	// endregion
 
 	private:
-		net::PeerConnectResult getResult(const Key& identityKey) const {
-			auto resultIter = m_nodeConnectCodeMap.find(identityKey);
-			return { m_nodeConnectCodeMap.cend() == resultIter ? net::PeerConnectCode::Accepted : resultIter->second, identityKey };
+		net::PeerConnectResult getResult(const model::NodeIdentity& identity) const {
+			auto resultIter = m_nodeConnectCodeMap.find(identity);
+			return { m_nodeConnectCodeMap.cend() == resultIter ? net::PeerConnectCode::Accepted : resultIter->second, identity };
 		}
 
 	private:
+		model::NodeIdentityEqualityStrategy m_equalityStrategy;
 		std::vector<ionet::Node> m_nodes;
-		utils::KeySet m_closedNodeIdentities;
-		std::unordered_map<Key, net::PeerConnectCode, utils::ArrayHasher<Key>> m_nodeConnectCodeMap;
+		model::NodeIdentitySet m_closedNodeIdentities;
+		model::NodeIdentityMap<net::PeerConnectCode> m_nodeConnectCodeMap;
 	};
 
 	/// Mock packet writers that has a pickOne implementation.
@@ -126,10 +137,10 @@ namespace catapult { namespace mocks {
 	public:
 		/// Possible behaviors of setPacketIo.
 		enum class SetPacketIoBehavior {
-			/// Set packet is only returned once.
+			/// Configured packet is only returned once.
 			Use_Once,
 
-			/// Set packet is sticky and returned repeatedly.
+			/// Configured packet is sticky and returned repeatedly.
 			Use_Forever
 		};
 
@@ -146,9 +157,9 @@ namespace catapult { namespace mocks {
 			m_pPacketIo = pPacketIo;
 		}
 
-		/// Sets the node identity for the node returned by pickOne to \a nodeIdentity.
-		void setNodeIdentity(const Key& nodeIdentity) {
-			m_nodeIdentity = nodeIdentity;
+		/// Sets the node identity for the node returned by pickOne to \a identity.
+		void setNodeIdentity(const model::NodeIdentity& identity) {
+			m_nodeIdentity = identity;
 		}
 
 	public:
@@ -165,7 +176,7 @@ namespace catapult { namespace mocks {
 	public:
 		ionet::NodePacketIoPair pickOne(const utils::TimeSpan& ioDuration) override {
 			m_ioDurations.push_back(ioDuration);
-			auto pair = ionet::NodePacketIoPair(ionet::Node(m_nodeIdentity, ionet::NodeEndpoint(), ionet::NodeMetadata()), m_pPacketIo);
+			auto pair = ionet::NodePacketIoPair(ionet::Node(m_nodeIdentity), m_pPacketIo);
 
 			// if the io should only be used once, destroy the reference in writers before returning
 			if (SetPacketIoBehavior::Use_Once == m_setPacketIoBehavior)
@@ -178,7 +189,7 @@ namespace catapult { namespace mocks {
 		SetPacketIoBehavior m_setPacketIoBehavior;
 		std::vector<utils::TimeSpan> m_ioDurations;
 		std::shared_ptr<ionet::PacketIo> m_pPacketIo;
-		Key m_nodeIdentity;
+		model::NodeIdentity m_nodeIdentity;
 	};
 
 	/// Mock packet writers that has a broadcast implementation.

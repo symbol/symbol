@@ -42,16 +42,20 @@ namespace catapult { namespace handlers {
 			if (!nodediscovery::IsNodeCompatible(node, networkIdentifier, context.key())) {
 				CATAPULT_LOG(warning)
 						<< "ignoring ping packet for incompatible node (identity = "
-						<< node.identityKey() << ", network = " << node.metadata().NetworkIdentifier << ")";
+						<< node.identity() << ", network = " << node.metadata().NetworkIdentifier << ")";
 				return;
 			}
 
-			if (node.endpoint().Host.empty()) {
-				auto endpoint = ionet::NodeEndpoint{ context.host(), node.endpoint().Port };
-				CATAPULT_LOG(debug) << "auto detected host '" << endpoint.Host << "' for " << node.identityKey();
-				node = ionet::Node(node.identityKey(), endpoint, node.metadata());
+			auto identity = model::NodeIdentity{ node.identity().PublicKey, context.host() };
+			auto endpoint = node.endpoint();
+
+			if (endpoint.Host.empty()) {
+				endpoint.Host = identity.Host;
+				CATAPULT_LOG(debug) << "auto detected host '" << endpoint.Host << "' for " << identity;
 			}
 
+			node = ionet::Node(identity, endpoint, node.metadata());
+			CATAPULT_LOG(debug) << "processing ping from " << node;
 			nodeConsumer(node);
 		});
 	}

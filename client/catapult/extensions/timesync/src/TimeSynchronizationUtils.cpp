@@ -89,7 +89,7 @@ namespace catapult { namespace timesync {
 					auto& samples = pSamplesResult->Samples;
 					if (net::NodeRequestResult::Success == pair.first) {
 						auto index = (pSamplesResult->NumValidSamples)++;
-						samples[index] = TimeSynchronizationSample(node, *pLocalTimestamps, pair.second);
+						samples[index] = TimeSynchronizationSample(node.identity().PublicKey, *pLocalTimestamps, pair.second);
 						CATAPULT_LOG(info) << "'" << node << "': time offset is " << samples[index].timeOffsetToRemote();
 						return true;
 					}

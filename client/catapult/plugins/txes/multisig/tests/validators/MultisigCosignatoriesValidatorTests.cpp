@@ -140,13 +140,13 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, FailureWhenSameAccountIsAddedMultipleTimes) {
-		constexpr auto expectedResult = Failure_Multisig_Redundant_Modifications;
+		constexpr auto expectedResult = Failure_Multisig_Redundant_Modification;
 		AssertResultWhenSameAccountUsed(expectedResult, { Add, Add });
 		AssertResultWhenSameAccountUsed(expectedResult, { Add, Add, Add });
 	}
 
 	TEST(TEST_CLASS, FailureWhenSameAccountIsDeletedMultipleTimes) {
-		constexpr auto expectedResult = Failure_Multisig_Redundant_Modifications;
+		constexpr auto expectedResult = Failure_Multisig_Redundant_Modification;
 		AssertResultWhenSameAccountUsed(expectedResult, { Del, Del });
 		AssertResultWhenSameAccountUsed(expectedResult, { Del, Del, Del });
 	}

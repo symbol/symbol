@@ -642,13 +642,16 @@ namespace catapult { namespace plugins {
 			manager.addTransactionSupport(mocks::CreateMockTransactionPlugin());
 
 			auto pTransaction = mocks::CreateMockTransaction(0);
+			Hash256 transactionHash;
+			model::WeakEntityInfo transactionInfo(*pTransaction, transactionHash);
+
 			mocks::MockNotificationSubscriber subscriber;
 			mocks::MockTypedNotificationSubscriber<model::BalanceDebitNotification> feeSubscriber;
 
 			// Act: create a publisher and publish a transaction
 			auto pPublisher = publisherFactory(manager);
-			pPublisher->publish(*pTransaction, subscriber);
-			pPublisher->publish(*pTransaction, feeSubscriber);
+			pPublisher->publish(transactionInfo, subscriber);
+			pPublisher->publish(transactionInfo, feeSubscriber);
 
 			// Assert: all expected notifications were raised
 			EXPECT_EQ(expectedNumNotifications, subscriber.notificationTypes().size());

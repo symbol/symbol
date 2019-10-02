@@ -41,7 +41,7 @@ namespace catapult { namespace extensions {
 	/// Adds dispatcher counters with prefix \a counterPrefix to \a locator for a dispatcher named \a dispatcherName.
 	void AddDispatcherCounters(ServiceLocator& locator, const std::string& dispatcherName, const std::string& counterPrefix);
 
-	/// A transaction batch range dispatcher.
+	/// Transaction batch range dispatcher.
 	using TransactionBatchRangeDispatcher = disruptor::BatchRangeDispatcher<model::AnnotatedTransactionRange>;
 
 	/// Creates a task with \a name that dispatches all transactions batched in \a dispatcher.

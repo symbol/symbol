@@ -24,8 +24,9 @@
 
 namespace catapult { namespace deltaset {
 
-	/// A view that provides iteration support to a base set delta.
+	/// View that provides iteration support to a base set delta.
 	/// \note This is only supported for set types where SetType and MemorySetType are the same.
+	/// \note Iteration preserves natural order of unremoved original elements followed by added elements.
 	template<typename TSetTraits>
 	class BaseSetDeltaIterationView {
 	private:
@@ -57,8 +58,9 @@ namespace catapult { namespace deltaset {
 					, m_deltas(deltas)
 					, m_position(position)
 					, m_size(size)
-					, m_stage(IterationStage::Copied)
-					, m_iter(m_deltas.Copied.cbegin()) {
+					, m_stage(IterationStage::Original)
+					, m_iter(m_elements.cbegin())
+					, m_originalIter(m_iter) {
 				if (m_position == m_size)
 					m_iter = m_deltas.Added.cend();
 				else
@@ -85,7 +87,7 @@ namespace catapult { namespace deltaset {
 					CATAPULT_THROW_OUT_OF_RANGE("cannot advance iterator beyond end");
 
 				++m_position;
-				++m_iter;
+				incrementIterator();
 				moveToValidElement();
 				return *this;
 			}
@@ -98,16 +100,14 @@ namespace catapult { namespace deltaset {
 			}
 
 		private:
+			void incrementIterator() {
+				if (IterationStage::Original == m_stage)
+					++m_originalIter;
+				else
+					++m_iter;
+			}
+
 			void moveToValidElement() {
-				if (IterationStage::Copied == m_stage) {
-					if (handleCopiedStage())
-						return;
-
-					// all copied elements have been iterated, so advance to the next stage
-					m_stage = IterationStage::Original;
-					m_iter = m_elements.cbegin();
-				}
-
 				if (IterationStage::Original == m_stage) {
 					if (handleOriginalStage())
 						return;
@@ -121,16 +121,18 @@ namespace catapult { namespace deltaset {
 				handleAddedStage();
 			}
 
-			bool handleCopiedStage() {
-				return m_deltas.Copied.cend() != m_iter;
-			}
-
 			bool handleOriginalStage() {
-				// advance to the next original element that has neither been removed nor copied
-				for (; m_elements.cend() != m_iter; ++m_iter) {
-					const auto& key = TSetTraits::ToKey(*m_iter);
-					if (!Contains(m_deltas.Removed, key) && !Contains(m_deltas.Copied, key))
-						return true;
+				// advance to the next original element
+				for (; m_elements.cend() != m_originalIter; ++m_originalIter) {
+					// skip removed elements
+					const auto& key = TSetTraits::ToKey(*m_originalIter);
+					if (Contains(m_deltas.Removed, key))
+						continue;
+
+					// prioritize copied elements
+					auto copiedIter = m_deltas.Copied.find(key);
+					m_iter = m_deltas.Copied.cend() == copiedIter ? m_originalIter : copiedIter;
+					return true;
 				}
 
 				return false;
@@ -153,7 +155,7 @@ namespace catapult { namespace deltaset {
 			}
 
 		public:
-			/// Returns a pointer to the current element.
+			/// Gets a pointer to the current element.
 			value_type* operator->() const {
 				if (m_position == m_size)
 					CATAPULT_THROW_OUT_OF_RANGE("cannot dereference at end");
@@ -161,13 +163,13 @@ namespace catapult { namespace deltaset {
 				return &*m_iter;
 			}
 
-			/// Returns a reference to the current element.
+			/// Gets a reference to the current element.
 			value_type& operator*() const {
 				return *(this->operator->());
 			}
 
 		private:
-			enum class IterationStage { Copied, Original, Added };
+			enum class IterationStage { Original, Added };
 
 		private:
 			const SetType& m_elements;
@@ -176,14 +178,15 @@ namespace catapult { namespace deltaset {
 			size_t m_size;
 			IterationStage m_stage;
 			typename SetType::const_iterator m_iter;
+			typename SetType::const_iterator m_originalIter;
 		};
 
-		/// Returns a const iterator to the first element of the underlying set.
+		/// Gets a const iterator to the first element of the underlying set.
 		auto begin() const {
 			return iterator(m_originalElements, m_deltas, 0, m_size);
 		}
 
-		/// Returns a const iterator to the element following the last element of the underlying set.
+		/// Gets a const iterator to the element following the last element of the underlying set.
 		auto end() const {
 			return iterator(m_originalElements, m_deltas, m_size, m_size);
 		}

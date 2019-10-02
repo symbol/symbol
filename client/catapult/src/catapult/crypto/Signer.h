@@ -53,7 +53,7 @@ namespace catapult { namespace crypto {
 	bool Verify(const Key& publicKey, const std::vector<RawBuffer>& buffersList, const Signature& signature);
 
 	/// Verifies that all \a count signatures pointed to by \a pSignatureInputs are valid.
-	/// Returns a pair consisting of an aggregate result that is \c true when all signatures are valid
+	/// Gets a pair consisting of an aggregate result that is \c true when all signatures are valid
 	/// and a vector of bools that indicates the verification result for each signature.
 	std::pair<std::vector<bool>, bool> VerifyMulti(const SignatureInput* pSignatureInputs, size_t count);
 

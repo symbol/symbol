@@ -38,7 +38,7 @@ namespace catapult { namespace builders {
 		void addTransaction(EmbeddedTransactionPointer&& pTransaction);
 
 	public:
-		/// Returns size of aggregate transaction.
+		/// Gets the size of aggregate transaction.
 		size_t size() const;
 
 		/// Builds a new aggregate transaction.

@@ -41,12 +41,12 @@ namespace catapult { namespace model {
 		/// Entity type.
 		EntityType Type;
 
-		/// Returns network of an entity, as defined in NetworkInfoTraits.
+		/// Gets the network of an entity.
 		NetworkIdentifier Network() const {
 			return static_cast<NetworkIdentifier>(Version >> 8);
 		}
 
-		/// Returns version of an entity.
+		/// Gets the version of an entity.
 		uint8_t EntityVersion() const {
 			return static_cast<uint8_t>(Version & 0xFF);
 		}

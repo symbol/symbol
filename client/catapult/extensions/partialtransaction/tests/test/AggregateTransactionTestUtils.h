@@ -35,7 +35,7 @@ namespace catapult { namespace test {
 	/// Fix cosignatures of \a aggregateTransaction having \a aggregateHash.
 	void FixCosignatures(const Hash256& aggregateHash, model::AggregateTransaction& aggregateTransaction);
 
-	/// A map of cosignature components.
+	/// Map of cosignature components.
 	using CosignaturesMap = std::unordered_map<Key, Signature, utils::ArrayHasher<Key>>;
 
 	/// Wrapper around an aggregate transaction and its component information.

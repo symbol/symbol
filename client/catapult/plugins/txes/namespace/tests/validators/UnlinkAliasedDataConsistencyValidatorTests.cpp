@@ -93,7 +93,7 @@ namespace catapult { namespace validators {
 				auto notification = CreateNotification();
 
 				// Assert:
-				RunUnlinkValidatorTest(validators::Failure_Namespace_Alias_Unlink_Type_Inconsistency, notification, [](auto& cache) {
+				RunUnlinkValidatorTest(validators::Failure_Namespace_Alias_Inconsistent_Unlink_Type, notification, [](auto& cache) {
 					cache.insert(CreateDefaultRootNamespace());
 				});
 			}
@@ -103,7 +103,7 @@ namespace catapult { namespace validators {
 				auto notification = CreateNotification();
 
 				// Assert:
-				RunUnlinkValidatorTest(validators::Failure_Namespace_Alias_Unlink_Type_Inconsistency, notification, [](auto& cache) {
+				RunUnlinkValidatorTest(validators::Failure_Namespace_Alias_Inconsistent_Unlink_Type, notification, [](auto& cache) {
 					cache.insert(CreateDefaultRootNamespace());
 					test::SetRandomAlias<typename TTraits::InvalidAliasType>(cache, Default_Namespace_Id);
 				});
@@ -114,7 +114,7 @@ namespace catapult { namespace validators {
 				auto notification = CreateNotification();
 
 				// Assert:
-				RunUnlinkValidatorTest(validators::Failure_Namespace_Alias_Unlink_Data_Inconsistency, notification, [](auto& cache) {
+				RunUnlinkValidatorTest(validators::Failure_Namespace_Alias_Inconsistent_Unlink_Data, notification, [](auto& cache) {
 					cache.insert(CreateDefaultRootNamespace());
 					test::SetRandomAlias<typename TTraits::AliasType>(cache, Default_Namespace_Id);
 				});

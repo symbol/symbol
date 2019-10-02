@@ -30,6 +30,9 @@ namespace catapult { namespace net {
 	/* Peer failed verification. */ \
 	ENUM_VALUE(Verify_Error) \
 	\
+	/* Self connection was detected and bypassed. */ \
+	ENUM_VALUE(Self_Connection_Error) \
+	\
 	/* Verification timed out. */ \
 	ENUM_VALUE(Timed_Out) \
 	\

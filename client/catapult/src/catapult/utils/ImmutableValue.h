@@ -25,7 +25,7 @@ namespace catapult { namespace utils {
 
 #pragma pack(push, 1)
 
-	/// A move-only value wrapper.
+	/// Move-only value wrapper.
 	template<typename TValue>
 	class ImmutableValue : public utils::MoveOnly {
 	public:

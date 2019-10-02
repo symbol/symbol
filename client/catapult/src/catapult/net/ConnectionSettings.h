@@ -22,6 +22,7 @@
 #include "catapult/ionet/ConnectionSecurityMode.h"
 #include "catapult/ionet/PacketSocketOptions.h"
 #include "catapult/model/NetworkInfo.h"
+#include "catapult/model/NodeIdentity.h"
 #include "catapult/utils/FileSize.h"
 #include "catapult/utils/TimeSpan.h"
 
@@ -33,17 +34,23 @@ namespace catapult { namespace net {
 		/// Creates default settings.
 		ConnectionSettings()
 				: NetworkIdentifier(model::NetworkIdentifier::Zero)
+				, NodeIdentityEqualityStrategy(model::NodeIdentityEqualityStrategy::Key)
 				, Timeout(utils::TimeSpan::FromSeconds(10))
 				, SocketWorkingBufferSize(utils::FileSize::FromKilobytes(4))
 				, SocketWorkingBufferSensitivity(0) // memory reclamation disabled
 				, MaxPacketDataSize(utils::FileSize::FromMegabytes(100))
 				, OutgoingSecurityMode(ionet::ConnectionSecurityMode::None)
 				, IncomingSecurityModes(ionet::ConnectionSecurityMode::None)
+				, AllowIncomingSelfConnections(true)
+				, AllowOutgoingSelfConnections(false)
 		{}
 
 	public:
 		/// Network identifier.
 		model::NetworkIdentifier NetworkIdentifier;
+
+		/// Node identity equality strategy.
+		model::NodeIdentityEqualityStrategy NodeIdentityEqualityStrategy;
 
 		/// Connection timeout.
 		utils::TimeSpan Timeout;
@@ -62,6 +69,12 @@ namespace catapult { namespace net {
 
 		/// Accepted security modes of incoming connections initiated by other nodes.
 		ionet::ConnectionSecurityMode IncomingSecurityModes;
+
+		/// Allows incoming self connections when \c true.
+		bool AllowIncomingSelfConnections;
+
+		/// Allows outgoing self connections when \c true.
+		bool AllowOutgoingSelfConnections;
 
 	public:
 		/// Gets the packet socket options represented by the configured settings.

@@ -51,7 +51,7 @@ namespace catapult { namespace builders {
 		void setValue(const RawBuffer& value);
 
 	public:
-		/// Returns size of account metadata transaction.
+		/// Gets the size of account metadata transaction.
 		/// \note This returns size of a normal transaction not embedded transaction.
 		size_t size() const;
 

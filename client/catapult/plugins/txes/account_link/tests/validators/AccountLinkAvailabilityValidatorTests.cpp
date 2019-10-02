@@ -135,7 +135,7 @@ namespace catapult { namespace validators {
 		auto result = test::ValidateNotification(*pValidator, notification, cache);
 
 		// Assert:
-		EXPECT_EQ(Failure_AccountLink_Unlink_Data_Inconsistency, result);
+		EXPECT_EQ(Failure_AccountLink_Inconsistent_Unlink_Data, result);
 	}
 
 	// endregion

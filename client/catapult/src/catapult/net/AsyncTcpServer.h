@@ -25,7 +25,7 @@ namespace catapult { namespace thread { class IoThreadPool; } }
 
 namespace catapult { namespace net {
 
-	using AcceptHandler = consumer<const ionet::AcceptedPacketSocketInfo&>;
+	using AcceptHandler = consumer<const ionet::PacketSocketInfo&>;
 
 	using ConfigureSocketHandler = consumer<ionet::socket&>;
 
@@ -39,23 +39,23 @@ namespace catapult { namespace net {
 		/// Accept handler (must be set via constructor).
 		const AcceptHandler Accept;
 
-		// The configure socket handler.
+		/// Configure socket handler.
 		ConfigureSocketHandler ConfigureSocket;
 
 		/// Packet socket options.
 		ionet::PacketSocketOptions PacketSocketOptions;
 
-		// The maximum number of pending connections (backlog size).
+		/// Maximum number of pending connections (backlog size).
 		uint16_t MaxPendingConnections = 100;
 
-		// The maximum number of active connections.
+		/// Maximum number of active connections.
 		uint32_t MaxActiveConnections = 25;
 
 		/// \c true if the server should reuse ports already in use.
 		bool AllowAddressReuse = false;
 	};
 
-	/// An async TCP server.
+	/// Async TCP server.
 	class AsyncTcpServer {
 	public:
 		virtual ~AsyncTcpServer() = default;

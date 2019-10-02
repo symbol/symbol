@@ -29,7 +29,7 @@ namespace catapult { namespace config {
 	/// Namespace plugin configuration settings.
 	struct NamespaceConfiguration {
 	public:
-		/// Maximum namespace and mosaic name size.
+		/// Maximum namespace name size.
 		uint8_t MaxNameSize;
 
 		/// Maximum number of children for a root namespace.

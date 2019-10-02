@@ -19,12 +19,33 @@
 **/
 
 #include "NetworkUtils.h"
+#include "Results.h"
+#include "catapult/ionet/ReadRateMonitorSocketDecorator.h"
+#include "catapult/net/ConnectionContainer.h"
+#include "catapult/net/PeerConnectResult.h"
+#include "catapult/subscribers/NodeSubscriber.h"
 
 namespace catapult { namespace extensions {
+
+	// region GetRateMonitorSettings
+
+	ionet::RateMonitorSettings GetRateMonitorSettings(const config::NodeConfiguration::BanningSubConfiguration& banConfig) {
+		ionet::RateMonitorSettings rateMonitorSettings;
+		rateMonitorSettings.NumBuckets = banConfig.NumReadRateMonitoringBuckets;
+		rateMonitorSettings.BucketDuration = banConfig.ReadRateMonitoringBucketDuration;
+		rateMonitorSettings.MaxTotalSize = banConfig.MaxReadRateMonitoringTotalSize;
+		return rateMonitorSettings;
+	}
+
+	// endregion
+
+	// region GetConnectionSettings / UpdateAsyncTcpServerSettings
 
 	net::ConnectionSettings GetConnectionSettings(const config::CatapultConfiguration& config) {
 		net::ConnectionSettings settings;
 		settings.NetworkIdentifier = config.BlockChain.Network.Identifier;
+		settings.NodeIdentityEqualityStrategy = config.BlockChain.Network.NodeEqualityStrategy;
+
 		settings.Timeout = config.Node.ConnectTimeout;
 		settings.SocketWorkingBufferSize = config.Node.SocketWorkingBufferSize;
 		settings.SocketWorkingBufferSensitivity = config.Node.SocketWorkingBufferSensitivity;
@@ -44,14 +65,75 @@ namespace catapult { namespace extensions {
 		settings.MaxPendingConnections = connectionsConfig.BacklogSize;
 	}
 
-	uint32_t GetMaxIncomingConnectionsPerIdentity(ionet::NodeRoles roles) {
-		// always allow an additional connection per identity in order to not reject ephemeral connections from partners
-		auto count = 1u;
+	// endregion
 
-		// only count roles that require (separate) incoming connections, not all set roles
-		for (auto role : { ionet::NodeRoles::Peer, ionet::NodeRoles::Api })
-			count += HasFlag(role, roles) ? 1 : 0;
+	// region BootServer
 
-		return count;
+	namespace {
+		struct BootServerState {
+		public:
+			BootServerState(
+					unsigned short port,
+					ionet::ServiceIdentifier serviceId,
+					subscribers::NodeSubscriber& nodeSubscriber,
+					net::ConnectionContainer& acceptor)
+					: Port(port)
+					, ServiceId(serviceId)
+					, NodeSubscriber(nodeSubscriber)
+					, Acceptor(acceptor)
+			{}
+
+		public:
+			unsigned short Port;
+			ionet::ServiceIdentifier ServiceId;
+			subscribers::NodeSubscriber& NodeSubscriber;
+			net::ConnectionContainer& Acceptor;
+		};
 	}
+
+	std::shared_ptr<net::AsyncTcpServer> BootServer(
+			thread::MultiServicePool::ServiceGroup& serviceGroup,
+			unsigned short port,
+			ionet::ServiceIdentifier serviceId,
+			const config::CatapultConfiguration& config,
+			const supplier<Timestamp>& timeSupplier,
+			subscribers::NodeSubscriber& nodeSubscriber,
+			net::ConnectionContainer& acceptor) {
+		auto endpoint = boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port);
+
+		BootServerState bootServerState(port, serviceId, nodeSubscriber, acceptor);
+		auto rateMonitorSettings = GetRateMonitorSettings(config.Node.Banning);
+
+		auto serverSettings = net::AsyncTcpServerSettings([bootServerState, rateMonitorSettings, timeSupplier](const auto& socketInfo) {
+			auto pCurrentNodeIdentity = std::make_shared<model::NodeIdentity>();
+			pCurrentNodeIdentity->Host = socketInfo.host();
+
+			auto rateExceededHandler = [bootServerState, pCurrentNodeIdentity]() {
+				bootServerState.NodeSubscriber.notifyBan(*pCurrentNodeIdentity, Failure_Extension_Read_Rate_Limit_Exceeded);
+				bootServerState.Acceptor.closeOne(*pCurrentNodeIdentity);
+			};
+			ionet::PacketSocketInfo decoratedSocketInfo(
+					socketInfo.host(),
+					ionet::AddReadRateMonitor(socketInfo.socket(), rateMonitorSettings, timeSupplier, rateExceededHandler));
+
+			bootServerState.Acceptor.accept(decoratedSocketInfo, [bootServerState, pCurrentNodeIdentity](const auto& connectResult) {
+				// on accept failure, only host (not identity key) is known
+				CATAPULT_LOG(info)
+						<< "accept result to local node port " << bootServerState.Port
+						<< " from " << pCurrentNodeIdentity->Host << ": " << connectResult.Code;
+
+				if (net::PeerConnectCode::Accepted != connectResult.Code)
+					return;
+
+				*pCurrentNodeIdentity = connectResult.Identity;
+				if (!bootServerState.NodeSubscriber.notifyIncomingNode(connectResult.Identity, bootServerState.ServiceId))
+					bootServerState.Acceptor.closeOne(connectResult.Identity);
+			});
+		});
+
+		UpdateAsyncTcpServerSettings(serverSettings, config);
+		return serviceGroup.pushService(net::CreateAsyncTcpServer, endpoint, serverSettings);
+	}
+
+	// endregion
 }}

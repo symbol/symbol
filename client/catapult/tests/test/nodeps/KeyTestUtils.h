@@ -21,6 +21,7 @@
 #pragma once
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/crypto/PrivateKey.h"
+#include "catapult/utils/ArraySet.h"
 
 namespace catapult { namespace test {
 
@@ -29,6 +30,12 @@ namespace catapult { namespace test {
 
 	/// Generates a random key pair.
 	crypto::KeyPair GenerateKeyPair();
+
+	/// Copies a given \a keyPair.
+	crypto::KeyPair CopyKeyPair(const crypto::KeyPair& keyPair);
+
+	/// Extracts the public keys of \a keyPairs into a key set.
+	utils::KeySet ToKeySet(const std::vector<crypto::KeyPair>& keyPairs);
 
 	/// Creates key pair around private key \a buffer.
 	template<typename TContainer>

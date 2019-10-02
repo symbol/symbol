@@ -39,25 +39,31 @@ namespace catapult { namespace utils {
 		constexpr TimeSpan() : TimeSpan(std::chrono::milliseconds(0))
 		{}
 
+	private:
+		template<typename TDuration>
+		static constexpr TimeSpan FromRawDuration(uint64_t count) {
+			return TimeSpan(TDuration(static_cast<typename TDuration::rep>(count)));
+		}
+
 	public:
 		/// Creates a time span from the given number of \a hours.
 		static constexpr TimeSpan FromHours(uint64_t hours) {
-			return TimeSpan(std::chrono::hours(hours));
+			return FromRawDuration<std::chrono::hours>(hours);
 		}
 
 		/// Creates a time span from the given number of \a minutes.
 		static constexpr TimeSpan FromMinutes(uint64_t minutes) {
-			return TimeSpan(std::chrono::minutes(minutes));
+			return FromRawDuration<std::chrono::minutes>(minutes);
 		}
 
 		/// Creates a time span from the given number of \a seconds.
 		static constexpr TimeSpan FromSeconds(uint64_t seconds) {
-			return TimeSpan(std::chrono::seconds(seconds));
+			return FromRawDuration<std::chrono::seconds>(seconds);
 		}
 
 		/// Creates a time span from the given number of \a milliseconds.
 		static constexpr TimeSpan FromMilliseconds(uint64_t milliseconds) {
-			return TimeSpan(std::chrono::milliseconds(milliseconds));
+			return FromRawDuration<std::chrono::milliseconds>(milliseconds);
 		}
 
 		/// Creates a time span from the difference between \a start and \a end.
@@ -72,22 +78,22 @@ namespace catapult { namespace utils {
 		}
 
 	public:
-		/// Returns the number of hours.
+		/// Gets the number of hours.
 		constexpr uint64_t hours() const {
 			return ConvertToDuration<std::chrono::hours>(m_millis);
 		}
 
-		/// Returns the number of minutes.
+		/// Gets the number of minutes.
 		constexpr uint64_t minutes() const {
 			return ConvertToDuration<std::chrono::minutes>(m_millis);
 		}
 
-		/// Returns the number of seconds.
+		/// Gets the number of seconds.
 		constexpr uint64_t seconds() const {
 			return ConvertToDuration<std::chrono::seconds>(m_millis);
 		}
 
-		/// Returns the number of milliseconds.
+		/// Gets the number of milliseconds.
 		constexpr uint64_t millis() const {
 			return static_cast<uint64_t>(m_millis.count());
 		}

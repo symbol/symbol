@@ -42,6 +42,9 @@ namespace catapult { namespace harvesting {
 		/// Adds unlocked entry pair (\a announcerPublicKey, \a encryptedEntry) associated with \a harvesterPublicKey.
 		void add(const Key& announcerPublicKey, const RawBuffer& encryptedEntry, const Key& harvesterPublicKey);
 
+		/// Removes unlocked entry identified by announcerPublicKey.
+		void remove(const Key& announcerPublicKey);
+
 		/// Saves unlocked entries filtered using \a filter.
 		void save(const predicate<const Key&>& filter) const;
 
@@ -50,6 +53,8 @@ namespace catapult { namespace harvesting {
 
 	private:
 		void addEntry(const Key& announcerPublicKey, const std::vector<uint8_t>& encryptedEntry, const Key& harvesterPublicKey);
+
+		void removeEntry(const Key& announcerPublicKey);
 
 	private:
 		std::string m_filename;

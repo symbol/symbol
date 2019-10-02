@@ -27,7 +27,7 @@
 
 namespace catapult { namespace test {
 
-	/// An unsupported state change subscriber.
+	/// Unsupported state change subscriber.
 	class UnsupportedStateChangeSubscriber : public subscribers::StateChangeSubscriber {
 	public:
 		void notifyScoreChange(const model::ChainScore&) override {
@@ -39,7 +39,7 @@ namespace catapult { namespace test {
 		}
 	};
 
-	/// An unsupported transaction status subscriber.
+	/// Unsupported transaction status subscriber.
 	template<UnsupportedFlushBehavior FlushBehavior>
 	class UnsupportedTransactionStatusSubscriber : public subscribers::TransactionStatusSubscriber {
 	public:
@@ -52,7 +52,7 @@ namespace catapult { namespace test {
 		}
 	};
 
-	/// An unsupported block change subscriber.
+	/// Unsupported block change subscriber.
 	class UnsupportedBlockChangeSubscriber : public io::BlockChangeSubscriber {
 	public:
 		void notifyBlock(const model::BlockElement&) override {
@@ -64,15 +64,19 @@ namespace catapult { namespace test {
 		}
 	};
 
-	/// An unsupported node subscriber.
+	/// Unsupported node subscriber.
 	class UnsupportedNodeSubscriber : public subscribers::NodeSubscriber {
 	public:
 		void notifyNode(const ionet::Node&) override {
 			CATAPULT_THROW_RUNTIME_ERROR("notifyNode - not supported in mock");
 		}
 
-		void notifyIncomingNode(const Key&, ionet::ServiceIdentifier) override {
+		bool notifyIncomingNode(const model::NodeIdentity&, ionet::ServiceIdentifier) override {
 			CATAPULT_THROW_RUNTIME_ERROR("notifyIncomingNode - not supported in mock");
+		}
+
+		void notifyBan(const model::NodeIdentity&, validators::ValidationResult) override {
+			CATAPULT_THROW_RUNTIME_ERROR("notifyBan - not supported in mock");
 		}
 	};
 }}

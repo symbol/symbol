@@ -92,7 +92,7 @@ namespace catapult { namespace harvesting {
 
 	// endregion
 
-	// region save
+	// region remove
 
 	namespace {
 		void CreateFile(const std::string& filename, size_t size = 0) {
@@ -104,6 +104,103 @@ namespace catapult { namespace harvesting {
 			file.write(buffer);
 		}
 
+		void AssertFileSize(const std::string& filename, size_t expectedSize) {
+			io::RawFile file(filename, io::OpenMode::Read_Only);
+			EXPECT_EQ(expectedSize, file.size());
+		}
+	}
+
+	TEST(TEST_CLASS, RemoveThrowsWhenInputDoesNotExist) {
+		// Arrange:
+		test::TempFileGuard guard(Filename);
+		UnlockedAccountsStorage storage(guard.name());
+		Key announcerPublicKey;
+
+		// Act + Assert:
+		EXPECT_THROW(storage.remove(announcerPublicKey), catapult_runtime_error);
+	}
+
+	TEST(TEST_CLASS, RemoveThrowsWhenInputDoesNotHaveEnoughData) {
+		// Arrange:
+		test::TempFileGuard guard(Filename);
+		CreateFile(guard.name(), sizeof(test::UnlockedTestEntry) - 1);
+		UnlockedAccountsStorage storage(guard.name());
+		Key announcerPublicKey;
+
+		// Act + Assert:
+		EXPECT_THROW(storage.remove(announcerPublicKey), catapult_runtime_error);
+	}
+
+	TEST(TEST_CLASS, RemoveThrowsWhenRemovingNotMostRecentEntry) {
+		// Arrange:
+		test::TempFileGuard guard(Filename);
+		UnlockedAccountsStorage storage(guard.name());
+		Key harvesterKey;
+		auto entries = PrepareEntries(5);
+
+		for (const auto& entry : entries)
+			EXPECT_NO_THROW(storage.add(entry.Key, entry.Payload, harvesterKey));
+
+		// Sanity:
+		AssertFileSize(guard.name(), 5 * sizeof(test::UnlockedTestEntry));
+
+		// Act + Assert: try to remove 4th entry (out of order)
+		auto iter = entries.cbegin();
+		std::advance(iter, 3);
+		EXPECT_THROW(storage.remove(iter->Key), catapult_runtime_error);
+	}
+
+	TEST(TEST_CLASS, CanRemoveAllEntriesInReverseOrder) {
+		// Arrange:
+		test::TempFileGuard guard(Filename);
+		UnlockedAccountsStorage storage(guard.name());
+		Key harvesterKey;
+		auto entries = PrepareEntries(5);
+
+		for (const auto& entry : entries)
+			EXPECT_NO_THROW(storage.add(entry.Key, entry.Payload, harvesterKey));
+
+		// Sanity:
+		AssertFileSize(guard.name(), 5 * sizeof(test::UnlockedTestEntry));
+
+		// Act:
+		for (auto iter = entries.crbegin(); entries.crend() != iter; ++iter)
+			storage.remove(iter->Key);
+
+		// Assert:
+		test::AssertUnlockedEntriesFileContents(guard.name(), {});
+	}
+
+	TEST(TEST_CLASS, CanRemoveSomeEntriesInReverseOrder) {
+		// Arrange:
+		test::TempFileGuard guard(Filename);
+		UnlockedAccountsStorage storage(guard.name());
+		Key harvesterKey;
+		auto entries = PrepareEntries(3);
+		auto entriesNew = PrepareEntries(2);
+
+		for (const auto& entry : entries)
+			EXPECT_NO_THROW(storage.add(entry.Key, entry.Payload, harvesterKey));
+
+		for (const auto& entry : entriesNew)
+			EXPECT_NO_THROW(storage.add(entry.Key, entry.Payload, harvesterKey));
+
+		// Sanity:
+		AssertFileSize(guard.name(), 5 * sizeof(test::UnlockedTestEntry));
+
+		// Act:
+		for (auto iter = entriesNew.crbegin(); entriesNew.crend() != iter; ++iter)
+			storage.remove(iter->Key);
+
+		// Assert:
+		test::AssertUnlockedEntriesFileContents(guard.name(), entries);
+	}
+
+	// endregion
+
+	// region save
+
+	namespace {
 		bool NoFiltering(const Key&) {
 			return true;
 		}
@@ -233,6 +330,33 @@ namespace catapult { namespace harvesting {
 		// Assert: there was no load(), so originalEntries should be overwritten with entries
 		EXPECT_TRUE(boost::filesystem::exists(guard.name()));
 		test::AssertUnlockedEntriesFileContents(guard.name(), entries);
+	}
+
+	TEST(TEST_CLASS, SaveDoesNotSaveRemovedEntries) {
+		// Arrange:
+		test::TempFileGuard guard(Filename);
+		UnlockedAccountsStorage storage(guard.name());
+		auto originalEntries = PrepareEntries(5);
+		AddEntries(storage, originalEntries);
+
+		storage.save(NoFiltering);
+
+		// - remove two most recent entries
+		auto reverseIter = originalEntries.crbegin();
+		for (int i = 0; i < 2; ++i) {
+			storage.remove(reverseIter->Key);
+			++reverseIter;
+		}
+
+		// Act:
+		storage.save(NoFiltering);
+
+		// Assert: only first three entries should be present
+		auto iter = originalEntries.cbegin();
+		std::advance(iter, 3);
+		originalEntries.erase(iter, originalEntries.cend());
+
+		test::AssertUnlockedEntriesFileContents(guard.name(), originalEntries);
 	}
 
 	// endregion

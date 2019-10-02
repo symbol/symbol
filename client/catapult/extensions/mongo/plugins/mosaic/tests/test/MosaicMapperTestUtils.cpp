@@ -29,8 +29,6 @@ namespace catapult { namespace test {
 
 	namespace {
 		void AssertMosaicProperties(const model::MosaicProperties& properties, const bsoncxx::document::view& dbProperties) {
-			ASSERT_EQ(3u, test::GetFieldCount(dbProperties));
-
 			EXPECT_EQ(properties.flags(), static_cast<model::MosaicFlags>(GetUint8(dbProperties, "flags")));
 			EXPECT_EQ(properties.divisibility(), GetUint8(dbProperties, "divisibility"));
 			EXPECT_EQ(properties.duration(), BlockDuration(GetUint64(dbProperties, "duration")));
@@ -50,6 +48,6 @@ namespace catapult { namespace test {
 		EXPECT_EQ(ownerAddress, GetAddressValue(dbMosaicEntry, "ownerAddress"));
 		EXPECT_EQ(definition.revision(), GetUint32(dbMosaicEntry, "revision"));
 
-		AssertMosaicProperties(definition.properties(), dbMosaicEntry["properties"].get_document().view());
+		AssertMosaicProperties(definition.properties(), dbMosaicEntry);
 	}
 }}

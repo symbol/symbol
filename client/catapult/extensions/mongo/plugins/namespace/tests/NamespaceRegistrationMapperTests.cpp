@@ -59,9 +59,7 @@ namespace catapult { namespace mongo { namespace plugins {
 
 			auto dbName = dbTransaction["name"].get_binary();
 			EXPECT_EQ(name.size(), dbName.size);
-			EXPECT_EQ(
-					test::ToHexString(reinterpret_cast<const uint8_t*>(name.data()), name.size()),
-					test::ToHexString(dbName.bytes, dbName.size));
+			EXPECT_EQ_MEMORY(name.data(), dbName.bytes, name.size());
 		}
 	}
 

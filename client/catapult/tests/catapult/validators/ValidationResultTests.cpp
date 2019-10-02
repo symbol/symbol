@@ -172,7 +172,7 @@ namespace catapult { namespace validators {
 		EXPECT_EQ("Failure_LockSecret_Invalid_Hash_Algorithm", test::ToString(static_cast<ValidationResult>(0x80520001)));
 		EXPECT_EQ("Failure_Metadata_Value_Too_Large", test::ToString(static_cast<ValidationResult>(0x80440002)));
 		EXPECT_EQ("Failure_Mosaic_Invalid_Name", test::ToString(static_cast<ValidationResult>(0x804D0002)));
-		EXPECT_EQ("Failure_Multisig_Redundant_Modifications", test::ToString(static_cast<ValidationResult>(0x80550003)));
+		EXPECT_EQ("Failure_Multisig_Redundant_Modification", test::ToString(static_cast<ValidationResult>(0x80550003)));
 		EXPECT_EQ("Failure_Namespace_Invalid_Name", test::ToString(static_cast<ValidationResult>(0x804E0002)));
 		EXPECT_EQ("Failure_RestrictionAccount_Invalid_Modification_Address", test::ToString(static_cast<ValidationResult>(0x80500003)));
 		EXPECT_EQ("Failure_RestrictionMosaic_Max_Restrictions_Exceeded", test::ToString(static_cast<ValidationResult>(0x80510004)));

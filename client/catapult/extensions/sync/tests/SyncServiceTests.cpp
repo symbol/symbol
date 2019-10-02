@@ -41,7 +41,7 @@ namespace catapult { namespace sync {
 		public:
 			TestContext() {
 				// register dependent service
-				locator().registerService("writers", std::make_shared<mocks::MockPacketWriters>());
+				locator().registerRootedService("writers", std::make_shared<mocks::MockPacketWriters>());
 
 				// set up hooks
 				auto& hooks = testState().state().hooks();

@@ -29,7 +29,7 @@
 
 namespace catapult { namespace mocks {
 
-	/// A mock PacketIo that can be configured to pass specific values to read and write callbacks.
+	/// Mock PacketIo that can be configured to pass specific values to read and write callbacks.
 	class MockPacketIo : public ionet::PacketIo, public ionet::BatchPacketReader {
 	public:
 		/// Generates a read packet from the previously written packet or \c nullptr if no packets have been read.
@@ -43,15 +43,15 @@ namespace catapult { namespace mocks {
 		{}
 
 	public:
-		void read(const ReadCallback& callback) override {
-			runDelayedAction([this, callback]() {
-				this->readImpl(callback);
-			});
-		}
-
 		void write(const ionet::PacketPayload& payload, const WriteCallback& callback) override {
 			runDelayedAction([this, payload, callback]() {
 				this->writeImpl(payload, callback);
+			});
+		}
+
+		void read(const ReadCallback& callback) override {
+			runDelayedAction([this, callback]() {
+				this->readImpl(callback);
 			});
 		}
 
@@ -99,17 +99,17 @@ namespace catapult { namespace mocks {
 		}
 
 	public:
-		/// Returns the number of reads on this io.
+		/// Gets the number of reads on this io.
 		size_t numReads() const {
 			return m_numReads;
 		}
 
-		/// Returns the number of writes on this io.
+		/// Gets the number of writes on this io.
 		size_t numWrites() const {
 			return m_numWrites;
 		}
 
-		/// Returns a reference to the written packet at \a index.
+		/// Gets a reference to the written packet at \a index.
 		template<typename T>
 		const T& writtenPacketAt(size_t index) const {
 			return static_cast<const T&>(*m_writtenPackets[index]);

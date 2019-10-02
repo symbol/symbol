@@ -47,7 +47,7 @@ namespace catapult { namespace consumers {
 				auto filename = (m_auditDirectory / std::to_string(++m_id)).generic_string();
 				io::RawFile file(filename, io::OpenMode::Read_Write, io::LockMode::None);
 				io::Write32(file, utils::to_underlying_type(input.source()));
-				file.write(input.sourcePublicKey());
+				file.write(input.sourceIdentity().PublicKey);
 
 				if (input.hasBlocks()) {
 					for (const auto& element : input.blocks())

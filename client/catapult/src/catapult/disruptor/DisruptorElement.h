@@ -71,11 +71,12 @@ namespace catapult { namespace disruptor {
 		}
 
 	public:
-		/// Marks the element as skipped at \a position with \a code.
-		void markSkipped(PositionType position, CompletionCode code) {
+		/// Marks the element as skipped at \a position with \a result.
+		void markSkipped(PositionType position, const ConsumerResult& result) {
 			utils::SpinLockGuard guard(*m_pSpinLock);
 			m_result.CompletionStatus = CompletionStatus::Aborted;
-			m_result.CompletionCode = code;
+			m_result.CompletionCode = result.CompletionCode;
+			m_result.ResultSeverity = result.ResultSeverity;
 			m_result.FinalConsumerPosition = position;
 		}
 

@@ -90,7 +90,7 @@ namespace catapult { namespace config {
 				auto endpoint = ionet::NodeEndpoint{ Get<std::string>(endpointJson, "host"), Get<unsigned short>(endpointJson, "port") };
 				auto metadata = ionet::NodeMetadata(networkIdentifier, GetOptional<std::string>(metadataJson, "name"));
 				metadata.Roles = ParseRoles(Get<std::string>(metadataJson, "roles"));
-				peers.push_back({ identityKey, endpoint, metadata });
+				peers.push_back({ { identityKey, endpoint.Host }, endpoint, metadata });
 			}
 
 			return peers;

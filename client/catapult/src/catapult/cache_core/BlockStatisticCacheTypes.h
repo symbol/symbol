@@ -87,12 +87,12 @@ namespace catapult { namespace cache {
 		{}
 
 	public:
-		/// Returns an iterator that represents the first element.
+		/// Gets an iterator that represents the first element.
 		IteratorType begin() const {
 			return m_begin;
 		}
 
-		/// Returns an iterator that represents one past the last element.
+		/// Gets an iterator that represents one past the last element.
 		IteratorType end() const {
 			return m_end;
 		}

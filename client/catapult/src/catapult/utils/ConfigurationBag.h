@@ -40,7 +40,7 @@ namespace catapult { namespace utils {
 		using catapult_runtime_error::catapult_runtime_error;
 	};
 
-	/// A configuration key.
+	/// Configuration key.
 	struct ConfigurationKey {
 		/// Creates a configuration key for a key with \a name in \a section.
 		constexpr ConfigurationKey(const char* section, const char* name) : Section(section), Name(name)
@@ -53,14 +53,14 @@ namespace catapult { namespace utils {
 		const char* Name;
 	};
 
-	/// A simple bag of properties.
+	/// Simple bag of properties.
 	class ConfigurationBag {
 	public:
-		/// A strongly typed ordered key to value map.
+		/// Strongly typed ordered key to value map.
 		template<typename TValue>
 		using OrderedKeyValueMap = std::vector<std::pair<std::string, TValue>>;
 
-		/// A strongly typed unordered key to value map.
+		/// Strongly typed unordered key to value map.
 		template<typename TValue>
 		using UnorderedKeyValueMap = std::unordered_map<std::string, TValue>;
 
@@ -80,7 +80,7 @@ namespace catapult { namespace utils {
 		static ConfigurationBag FromPath(const std::string& path);
 
 	public:
-		/// Returns the number of properties in this bag.
+		/// Gets the number of properties in this bag.
 		size_t size() const {
 			size_t count = 0;
 			for (const auto& section : m_values)
@@ -89,7 +89,7 @@ namespace catapult { namespace utils {
 			return count;
 		}
 
-		/// Returns the number of \a section properties in this bag.
+		/// Gets the number of \a section properties in this bag.
 		size_t size(const char* section) const {
 			auto sectionIter = m_values.find(section);
 			return m_values.cend() == sectionIter ? 0 : sectionIter->second.size();

@@ -26,13 +26,13 @@ namespace catapult { namespace ionet { class PacketIo; } }
 
 namespace catapult { namespace api {
 
-	/// An api for retrieving communication timestamps from a remote node.
+	/// Api for retrieving communication timestamps from a remote node.
 	class RemoteTimeSyncApi {
 	public:
 		virtual ~RemoteTimeSyncApi() = default;
 
 	public:
-		/// Gets communication timestamps from a remote node.
+		/// Gets the communication timestamps from a remote node.
 		virtual thread::future<timesync::CommunicationTimestamps> networkTime() const = 0;
 	};
 

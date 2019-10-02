@@ -28,7 +28,7 @@
 
 namespace catapult { namespace mongo {
 
-	/// A manager for registering mongo plugins.
+	/// Manager for registering mongo plugins.
 	class MongoPluginManager {
 	public:
 		/// Creates a new plugin manager around \a mongoContext and \a networkIdentifier.

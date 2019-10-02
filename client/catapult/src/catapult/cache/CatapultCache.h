@@ -58,13 +58,13 @@ namespace catapult { namespace cache {
 		}
 
 	public:
-		/// Returns a locked cache view based on this cache.
+		/// Gets a locked cache view based on this cache.
 		CatapultCacheView createView() const;
 
-		/// Returns a locked cache delta based on this cache.
+		/// Gets a locked cache delta based on this cache.
 		CatapultCacheDelta createDelta();
 
-		/// Returns a detachable cache delta based on this cache but without the ability
+		/// Gets a detachable cache delta based on this cache but without the ability
 		/// to commit any changes to the original cache.
 		/// \note The detachable delta holds a cache reader lock.
 		CatapultCacheDetachableDelta createDetachableDelta() const;
@@ -73,13 +73,13 @@ namespace catapult { namespace cache {
 		void commit(Height height);
 
 	public:
-		/// Gets cache storages for all sub caches.
+		/// Gets the (const) cache storages for all sub caches.
 		std::vector<std::unique_ptr<const CacheStorage>> storages() const;
 
-		/// Gets cache storages for all sub caches.
+		/// Gets the cache storages for all sub caches.
 		std::vector<std::unique_ptr<CacheStorage>> storages();
 
-		/// Gets cache changes storages for all sub caches.
+		/// Gets the (const) cache changes storages for all sub caches.
 		std::vector<std::unique_ptr<const CacheChangesStorage>> changesStorages() const;
 
 	private:

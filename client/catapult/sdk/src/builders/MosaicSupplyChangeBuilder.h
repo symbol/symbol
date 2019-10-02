@@ -46,7 +46,7 @@ namespace catapult { namespace builders {
 		void setDelta(Amount delta);
 
 	public:
-		/// Returns size of mosaic supply change transaction.
+		/// Gets the size of mosaic supply change transaction.
 		/// \note This returns size of a normal transaction not embedded transaction.
 		size_t size() const;
 

@@ -83,6 +83,7 @@ namespace catapult { namespace test {
 
 			typename TTraits::TransactionType transaction;
 			model::TransactionElement transactionElement(transaction);
+			transactionElement.OptionalExtractedAddresses = std::make_shared<model::UnresolvedAddressSet>();
 			auto metadata = mongo::MongoTransactionMetadata(transactionElement);
 
 			// Act:

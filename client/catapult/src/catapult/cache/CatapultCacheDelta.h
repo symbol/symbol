@@ -58,10 +58,10 @@ namespace catapult { namespace cache {
 		}
 
 	public:
-		/// Gets (const) dependent catapult state.
+		/// Gets the (const) dependent catapult state.
 		const state::CatapultState& dependentState() const;
 
-		/// Gets dependent catapult state.
+		/// Gets the dependent catapult state.
 		state::CatapultState& dependentState();
 
 		/// Calculates the cache state hash given \a height.

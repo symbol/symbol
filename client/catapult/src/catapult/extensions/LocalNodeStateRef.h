@@ -29,7 +29,7 @@ namespace catapult {
 
 namespace catapult { namespace extensions {
 
-	/// A reference to a local node's basic state.
+	/// Reference to a local node's basic state.
 	struct LocalNodeStateRef {
 	public:
 		/// Creates a local node state ref referencing state composed of

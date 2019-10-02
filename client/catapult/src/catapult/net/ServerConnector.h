@@ -29,6 +29,7 @@ namespace catapult {
 	namespace ionet {
 		class Node;
 		class PacketSocket;
+		class PacketSocketInfo;
 	}
 	namespace thread { class IoThreadPool; }
 }
@@ -38,8 +39,8 @@ namespace catapult { namespace net {
 	/// Establishes connections with external nodes that this (local) node initiates.
 	class ServerConnector {
 	public:
-		/// A callback that is passed the connect result and the connected socket on success.
-		using ConnectCallback = consumer<PeerConnectCode, const std::shared_ptr<ionet::PacketSocket>&>;
+		/// Callback that is passed the connect result and the connected socket info on success.
+		using ConnectCallback = consumer<PeerConnectCode, const ionet::PacketSocketInfo&>;
 
 	public:
 		virtual ~ServerConnector() = default;
@@ -47,6 +48,9 @@ namespace catapult { namespace net {
 	public:
 		/// Gets the number of active connections.
 		virtual size_t numActiveConnections() const = 0;
+
+		/// Gets the friendly name of this connector.
+		virtual const std::string& name() const = 0;
 
 	public:
 		/// Attempts to connect to \a node and calls \a callback on completion.
@@ -57,8 +61,10 @@ namespace catapult { namespace net {
 	};
 
 	/// Creates a server connector for a server with a key pair of \a keyPair using \a pPool and configured with \a settings.
+	/// Optional friendly \a name can be provided to tag logs.
 	std::shared_ptr<ServerConnector> CreateServerConnector(
 			const std::shared_ptr<thread::IoThreadPool>& pPool,
 			const crypto::KeyPair& keyPair,
-			const ConnectionSettings& settings);
+			const ConnectionSettings& settings,
+			const char* name = nullptr);
 }}

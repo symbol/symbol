@@ -55,22 +55,22 @@ namespace catapult { namespace crypto {
 		static PrivateKey Generate(const supplier<uint8_t>& generator);
 
 	public:
-		/// Returns a const iterator to the beginning of the raw key.
+		/// Gets a const iterator to the beginning of the raw key.
 		inline auto begin() const {
 			return m_key.cbegin();
 		}
 
-		/// Returns a const iterator to the end of the raw key.
+		/// Gets a const iterator to the end of the raw key.
 		inline auto end() const {
 			return m_key.cend();
 		}
 
-		/// Returns the size of the key.
+		/// Gets the size of the key.
 		inline auto size() const {
 			return m_key.size();
 		}
 
-		/// Returns a const pointer to the raw key.
+		/// Gets a const pointer to the raw key.
 		inline auto data() const {
 			return m_key.data();
 		}

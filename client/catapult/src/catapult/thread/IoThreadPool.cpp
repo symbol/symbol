@@ -59,9 +59,10 @@ namespace catapult { namespace thread {
 
 		class DefaultIoThreadPool : public IoThreadPool {
 		public:
-			DefaultIoThreadPool(size_t numWorkerThreads, const std::string& tag)
+			DefaultIoThreadPool(size_t numWorkerThreads, const std::string& name)
 					: m_numConfiguredWorkerThreads(numWorkerThreads)
-					, m_tag(tag)
+					, m_name(name)
+					, m_tag(m_name.empty() ? std::string() : " (" + m_name + ")")
 					, m_numWorkerThreads(0)
 			{}
 
@@ -74,8 +75,8 @@ namespace catapult { namespace thread {
 				return m_numWorkerThreads;
 			}
 
-			const std::string& tag() const override {
-				return m_tag;
+			const std::string& name() const override {
+				return m_name;
 			}
 
 			boost::asio::io_context& ioContext() override {
@@ -88,62 +89,52 @@ namespace catapult { namespace thread {
 					CATAPULT_THROW_RUNTIME_ERROR_1("cannot restart running thread pool", m_numWorkerThreads);
 
 				// spawn the number of configured threads
-				CATAPULT_LOG(trace) << m_tag << " spawning threads";
+				CATAPULT_LOG(trace) << "spawning threads" << m_tag;
 				m_pContext = std::make_unique<ThreadPoolContext>(m_ioContext);
 				for (auto i = 0u; i < m_numConfiguredWorkerThreads; ++i) {
 					m_pContext->createThread([this, i]() {
-						thread::SetThreadName(std::to_string(i) + " " + this->tag() + " worker");
+						thread::SetThreadName(std::to_string(i) + this->m_tag + " worker");
 						ioWorkerFunction();
 					});
 				}
 
 				// wait for the threads to be spawned
-				CATAPULT_LOG(trace) << m_tag << " waiting for threads to be spawned";
+				CATAPULT_LOG(trace) << "waiting for threads to be spawned" << m_tag;
 				while (m_numWorkerThreads < m_numConfiguredWorkerThreads) {}
-				CATAPULT_LOG(info) << m_tag << " spawned " << m_pContext->numThreads() << " workers";
+				CATAPULT_LOG(info) << "spawned " << m_pContext->numThreads() << " workers" << m_tag;
 			}
 
 			void join() override {
 				if (!m_pContext)
 					return;
 
-				CATAPULT_LOG(debug) << m_tag << " waiting for " << m_numWorkerThreads << " thread pool threads to exit";
+				CATAPULT_LOG(debug) << "waiting for " << m_numWorkerThreads << " thread pool threads to exit" << m_tag;
 				m_pContext.reset();
-				CATAPULT_LOG(info) << m_tag << " all thread pool threads exited";
+				CATAPULT_LOG(info) << "all thread pool threads exited" << m_tag;
 			}
 
 		private:
 			void ioWorkerFunction() {
-				CATAPULT_LOG(trace) << m_tag << " worker thread started";
+				CATAPULT_LOG(trace) << "worker thread started" << m_tag;
 
 				auto incrementDecrementGuard = utils::MakeIncrementDecrementGuard(m_numWorkerThreads);
 				m_ioContext.run();
 
-				CATAPULT_LOG(trace) << m_tag << " worker thread finished";
+				CATAPULT_LOG(trace) << "worker thread finished" << m_tag;
 			}
 
 		private:
 			size_t m_numConfiguredWorkerThreads;
+			std::string m_name;
 			std::string m_tag;
 
 			boost::asio::io_context m_ioContext;
 			std::unique_ptr<ThreadPoolContext> m_pContext;
 			std::atomic<uint32_t> m_numWorkerThreads;
 		};
-
-		std::string CreateTagFromName(const char* name) {
-			std::string tag;
-			if (name) {
-				tag.append(name);
-				tag.push_back(' ');
-			}
-
-			tag.append("IoThreadPool");
-			return tag;
-		}
 	}
 
 	std::unique_ptr<IoThreadPool> CreateIoThreadPool(size_t numWorkerThreads, const char* name) {
-		return std::make_unique<DefaultIoThreadPool>(numWorkerThreads, CreateTagFromName(name));
+		return std::make_unique<DefaultIoThreadPool>(numWorkerThreads, name ? std::string(name) : std::string());
 	}
 }}

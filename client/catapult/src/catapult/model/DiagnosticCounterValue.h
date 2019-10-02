@@ -25,7 +25,7 @@ namespace catapult { namespace model {
 
 #pragma pack(push, 1)
 
-	/// A diagnostic counter value.
+	/// Diagnostic counter value.
 	struct DiagnosticCounterValue {
 		/// Counter id.
 		uint64_t Id;

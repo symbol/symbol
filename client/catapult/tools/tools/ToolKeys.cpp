@@ -34,6 +34,16 @@ namespace catapult { namespace tools {
 			crypto::Sha3_256(key, hash);
 			std::copy(hash.cbegin(), hash.cend(), key.begin());
 		}
+
+		auto GetDeterministicKey(const Key& baseKey, uint64_t keyId) {
+			auto privateKey = baseKey;
+			*reinterpret_cast<uint64_t*>(privateKey.data()) = keyId;
+
+			Hash256 hash;
+			crypto::Sha3_256(privateKey, hash);
+			std::copy(hash.cbegin(), hash.cend(), privateKey.begin());
+			return privateKey;
+		}
 	}
 
 	crypto::KeyPair LoadServerKeyPair() {
@@ -42,6 +52,20 @@ namespace catapult { namespace tools {
 
 	crypto::KeyPair GenerateRandomKeyPair() {
 		return crypto::KeyPair::FromPrivate(crypto::PrivateKey::Generate(RandomByte));
+	}
+
+	crypto::KeyPair GetDeterministicKeyPair(const Key& baseKey, uint64_t keyId) {
+		auto key = GetDeterministicKey(baseKey, keyId);
+		return crypto::KeyPair::FromPrivate(crypto::PrivateKey::Generate([iter = key.cbegin()]() mutable { return *iter++; }));
+	}
+
+	crypto::KeyPair CopyKeyPair(const crypto::KeyPair& keyPair) {
+		auto iter = keyPair.privateKey().begin();
+		return crypto::KeyPair::FromPrivate(crypto::PrivateKey::Generate([&iter]() { return *iter++; }));
+	}
+
+	crypto::KeyPair ExtractKeyPair(const std::string& privateKey) {
+		return privateKey.empty() ? GenerateRandomKeyPair() : crypto::KeyPair::FromString(privateKey);
 	}
 
 	std::vector<Address> PrepareAddresses(size_t count) {

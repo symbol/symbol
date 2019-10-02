@@ -34,7 +34,7 @@ namespace catapult { namespace extensions {
 
 			default:
 				return 0;
-			};
+			}
 		}
 
 		using NodeScorePairs = std::vector<std::pair<ionet::Node, uint32_t>>;
@@ -71,8 +71,8 @@ namespace catapult { namespace extensions {
 					nodesInfo.Actives.emplace_back(node, pConnectionState->Age);
 				} else {
 					auto interactions = nodeInfo.interactions(timestamp);
-					auto weight = CalculateWeight(interactions, generator(), [importanceRetriever, &publicKey = node.identityKey()]() {
-						return importanceRetriever(publicKey);
+					auto weight = CalculateWeight(interactions, generator(), [importanceRetriever, &node]() {
+						return importanceRetriever(node.identity().PublicKey);
 					});
 					nodesInfo.Candidates.emplace_back(node, weight * weightMultiplier);
 					nodesInfo.TotalCandidateWeight += nodesInfo.Candidates.back().Weight;
@@ -82,9 +82,9 @@ namespace catapult { namespace extensions {
 			return nodesInfo;
 		}
 
-		utils::KeySet FindRemoveCandidates(const NodeScorePairs& nodePairs, uint32_t maxConnections, uint32_t maxConnectionAge) {
+		model::NodeIdentitySet FindRemoveCandidates(const NodeScorePairs& nodePairs, uint32_t maxConnections, uint32_t maxConnectionAge) {
 			// never remove the last connection
-			utils::KeySet removeCandidates;
+			auto removeCandidates = model::CreateNodeIdentitySet(model::NodeIdentityEqualityStrategy::Key_And_Host);
 			if (nodePairs.size() <= 1)
 				return removeCandidates;
 
@@ -97,7 +97,7 @@ namespace catapult { namespace extensions {
 					break;
 
 				if (pair.second >= maxConnectionAge)
-					removeCandidates.emplace(pair.first.identityKey());
+					removeCandidates.emplace(pair.first.identity());
 			}
 
 			return removeCandidates;
@@ -193,7 +193,7 @@ namespace catapult { namespace extensions {
 		return result;
 	}
 
-	utils::KeySet SelectNodesForRemoval(
+	model::NodeIdentitySet SelectNodesForRemoval(
 			const ionet::NodeContainer& nodes,
 			const NodeAgingConfiguration& config,
 			const ImportanceRetriever& importanceRetriever) {

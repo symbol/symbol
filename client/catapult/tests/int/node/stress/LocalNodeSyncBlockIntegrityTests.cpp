@@ -64,10 +64,11 @@ namespace catapult { namespace local {
 				pSignedBlock = builder.asSingleBlock(transactionsBuilder);
 			}
 
-			// Act:
-			test::ExternalSourceConnection connection;
-			auto pIo1 = test::PushEntity(connection, ionet::PacketType::Push_Block, pUnsignedBlock);
-			auto pIo2 = test::PushEntity(connection, ionet::PacketType::Push_Block, pSignedBlock);
+			// Act: two different connections, each having its own identity, are needed because first identity will be banned
+			test::ExternalSourceConnection connection1;
+			test::ExternalSourceConnection connection2;
+			auto pIo1 = test::PushEntity(connection1, ionet::PacketType::Push_Block, pUnsignedBlock);
+			auto pIo2 = test::PushEntity(connection2, ionet::PacketType::Push_Block, pSignedBlock);
 
 			// - wait for the chain height to change and for all height readers to disconnect
 			test::WaitForHeightAndElements(context, Height(2), 2, 2);

@@ -25,6 +25,6 @@ namespace catapult { namespace io { class BlockStorage; } }
 
 namespace catapult { namespace local {
 
-	/// Returns starting height of \a storage.
+	/// Gets the starting height of \a storage.
 	Height FindStartHeight(const io::BlockStorage& storage);
 }}

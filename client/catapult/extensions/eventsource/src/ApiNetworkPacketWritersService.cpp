@@ -65,12 +65,14 @@ namespace catapult { namespace eventsource {
 				auto connectionSettings = extensions::GetConnectionSettings(config);
 				auto pServiceGroup = state.pool().pushServiceGroup("api");
 				auto pWriters = pServiceGroup->pushService(net::CreatePacketWriters, locator.keyPair(), connectionSettings);
-				auto& acceptor = *pWriters;
-				extensions::BootServer(*pServiceGroup, config.Node.ApiPort, Service_Id, config, state.nodeSubscriber(), [&acceptor](
-						const auto& socketInfo,
-						const auto& callback) {
-					acceptor.accept(socketInfo.socket(), callback);
-				});
+				extensions::BootServer(
+						*pServiceGroup,
+						config.Node.ApiPort,
+						Service_Id,
+						config,
+						state.timeSupplier(),
+						state.nodeSubscriber(),
+						*pWriters);
 
 				locator.registerService(Service_Name, pWriters);
 

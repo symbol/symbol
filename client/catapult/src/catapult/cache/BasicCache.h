@@ -44,17 +44,17 @@ namespace catapult { namespace cache {
 		{}
 
 	public:
-		/// Returns a locked view based on this cache.
+		/// Gets a locked view based on this cache.
 		CacheViewType createView() const {
 			return createSubView<CacheViewType>(m_set);
 		}
 
-		/// Returns a locked cache delta based on this cache.
+		/// Gets a locked cache delta based on this cache.
 		CacheDeltaType createDelta() {
 			return createSubView<CacheDeltaType>(m_set.rebase());
 		}
 
-		/// Returns a lockable cache delta based on this cache but without the ability
+		/// Gets a lockable cache delta based on this cache but without the ability
 		/// to commit any changes to the original cache.
 		CacheDeltaType createDetachedDelta() const {
 			return createSubView<CacheDeltaType>(m_set.rebaseDetached());

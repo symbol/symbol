@@ -22,6 +22,7 @@
 #include "catapult/model/EntityRange.h"
 #include "catapult/model/VerifiableEntity.h"
 #include "catapult/utils/MemoryUtils.h"
+#include "catapult/preprocessor.h"
 #include "tests/TestHarness.h"
 #include <memory>
 #include <vector>
@@ -37,7 +38,7 @@ namespace catapult { namespace test {
 
 		auto headerSize = model::VerifiableEntity::Header_Size;
 		test::FillWithRandomData({ reinterpret_cast<uint8_t*>(pEntity.get()) + headerSize, size - headerSize });
-		return std::move(pEntity);
+		return PORTABLE_MOVE(pEntity);
 	}
 
 	/// Creates a copy of a verifiable \a entity.

@@ -24,7 +24,7 @@
 
 namespace catapult { namespace plugins {
 
-	/// A plugin module.
+	/// Plugin module.
 	class PluginModule {
 	public:
 		/// Creates an unloaded module.

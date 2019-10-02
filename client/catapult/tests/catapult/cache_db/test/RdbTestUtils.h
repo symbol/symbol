@@ -69,7 +69,7 @@ namespace catapult { namespace test {
 		explicit RdbTestContext(const cache::RocksDatabaseSettings& settings, const DbSeeder& seeder = DbSeeder());
 
 	public:
-		/// Returns reference to database.
+		/// Gets a reference to the database.
 		cache::RocksDatabase& database();
 
 	private:

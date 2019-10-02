@@ -37,7 +37,7 @@ namespace catapult { namespace ionet {
 					const std::shared_ptr<BatchPacketReader>& pReader,
 					const std::shared_ptr<PacketIo>& pWriter,
 					const ServerPacketHandlers& handlers,
-					const ReaderIdentity& identity,
+					const model::NodeIdentity& identity,
 					const SocketReader::ReadCallback& callback)
 					: m_pReader(pReader)
 					, m_pWriter(pWriter)
@@ -117,20 +117,19 @@ namespace catapult { namespace ionet {
 				default:
 					m_state |= operation_state::Error_Raised;
 					break;
-				};
+				}
 			}
 
 		private:
 			std::shared_ptr<BatchPacketReader> m_pReader;
 			std::shared_ptr<PacketIo> m_pWriter;
 			const ServerPacketHandlers& m_handlers;
-			const ReaderIdentity& m_identity;
+			const model::NodeIdentity& m_identity;
 			SocketReader::ReadCallback m_callback;
 
-			// these will be synchronized because they are modified by callbacks that execute on the
-			// underlying socket's strand
-			size_t m_numOutstandingOperations;
-			size_t m_state;
+			// these need to be atomic because `isComplete` reads them outside of underlying socket's strand
+			std::atomic<size_t> m_numOutstandingOperations;
+			std::atomic<size_t> m_state;
 		};
 
 		class DefaultSocketReader : public SocketReader {
@@ -139,7 +138,7 @@ namespace catapult { namespace ionet {
 					const std::shared_ptr<BatchPacketReader>& pReader,
 					const std::shared_ptr<PacketIo>& pWriter,
 					const ServerPacketHandlers& handlers,
-					const ReaderIdentity& identity)
+					const model::NodeIdentity& identity)
 					: m_pReader(pReader)
 					, m_pWriter(pWriter)
 					, m_handlers(handlers)
@@ -172,7 +171,7 @@ namespace catapult { namespace ionet {
 			std::shared_ptr<PacketIo> m_pWriter;
 			std::weak_ptr<PacketReadWriteOperation> m_pOperation;
 			const ServerPacketHandlers& m_handlers; // handlers are unique per process and externally owned (by PacketReaders)
-			ReaderIdentity m_identity; // identity is copied because it is unique per socket
+			model::NodeIdentity m_identity; // identity is copied because it is unique per socket
 		};
 	}
 
@@ -180,7 +179,7 @@ namespace catapult { namespace ionet {
 			const std::shared_ptr<BatchPacketReader>& pReader,
 			const std::shared_ptr<PacketIo>& pWriter,
 			const ServerPacketHandlers& handlers,
-			const ReaderIdentity& identity) {
+			const model::NodeIdentity& identity) {
 		return std::make_unique<DefaultSocketReader>(pReader, pWriter, handlers, identity);
 	}
 }}

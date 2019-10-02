@@ -79,7 +79,7 @@ namespace catapult { namespace timesync {
 			Height height,
 			const TimeSynchronizationSamples& samples) {
 		return utils::Sum(samples, [&importanceView, height](const auto& sample) {
-			return importanceView.getAccountImportanceOrDefault(sample.node().identityKey(), height).unwrap();
+			return importanceView.getAccountImportanceOrDefault(sample.identityKey(), height).unwrap();
 		});
 	}
 
@@ -93,9 +93,9 @@ namespace catapult { namespace timesync {
 		return utils::Sum(samples, [&importanceView, height, scaling, totalChainImportance, warningThresholdMillis](const auto& sample) {
 			int64_t offset = sample.timeOffsetToRemote();
 			CATAPULT_LOG_LEVEL(MapToLogLevel(warningThresholdMillis, offset))
-					<< sample.node().metadata().Name << ": network time offset to local node is " << offset << "ms";
+					<< sample.identityKey() << ": network time offset to local node is " << offset << "ms";
 
-			auto importance = importanceView.getAccountImportanceOrDefault(sample.node().identityKey(), height);
+			auto importance = importanceView.getAccountImportanceOrDefault(sample.identityKey(), height);
 			return scaling * offset * importance.unwrap() / totalChainImportance;
 		});
 	}

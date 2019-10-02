@@ -40,7 +40,7 @@ namespace catapult { namespace validators {
 				return Failure_AccountLink_Unknown_Link;
 
 			if (notification.RemoteAccountKey != accountState.LinkedAccountKey)
-				return Failure_AccountLink_Unlink_Data_Inconsistency;
+				return Failure_AccountLink_Inconsistent_Unlink_Data;
 		}
 
 		return ValidationResult::Success;

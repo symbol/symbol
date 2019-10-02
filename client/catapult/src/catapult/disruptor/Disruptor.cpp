@@ -45,8 +45,8 @@ namespace catapult { namespace disruptor {
 		return element.id();
 	}
 
-	void Disruptor::markSkipped(PositionType position, CompletionCode code) {
-		m_container[position].markSkipped(position, code);
+	void Disruptor::markSkipped(PositionType position, const ConsumerResult& result) {
+		m_container[position].markSkipped(position, result);
 	}
 
 	bool Disruptor::isSkipped(PositionType position) const {

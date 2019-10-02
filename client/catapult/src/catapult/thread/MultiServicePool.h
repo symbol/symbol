@@ -22,6 +22,7 @@
 #include "IoThreadPool.h"
 #include "catapult/utils/Logging.h"
 #include "catapult/functions.h"
+#include "catapult/preprocessor.h"
 #include <memory>
 #include <thread>
 #include <vector>
@@ -41,7 +42,7 @@ namespace catapult { namespace thread {
 			Disabled
 		};
 
-		/// A default pool concurrency level based on the local hardware configuration.
+		/// Default pool concurrency level based on the local hardware configuration.
 		static constexpr size_t DefaultPoolConcurrency() {
 			return 0;
 		}
@@ -49,7 +50,7 @@ namespace catapult { namespace thread {
 	public:
 		// region ServiceGroup
 
-		/// A group of services that should be shutdown together and might be interdependent.
+		/// Group of services that should be shutdown together and might be interdependent.
 		/// \note AsyncTcpServer and accept handlers (PacketReaders, PacketWriters) have such a shutdown requirement
 		///       because AsyncTcpServer includes a shared_ptr to itself as part of its accepted PacketSocket,
 		///       which is then kept alive by the accept handlers until they are also shutdown.
@@ -238,7 +239,7 @@ namespace catapult { namespace thread {
 			numWorkerThreads = DefaultPoolConcurrency() == numWorkerThreads ? std::thread::hardware_concurrency() : numWorkerThreads;
 			auto pPool = thread::CreateIoThreadPool(numWorkerThreads, name.c_str());
 			pPool->start();
-			return std::move(pPool);
+			return PORTABLE_MOVE(pPool);
 		}
 
 		template<typename T>
@@ -251,8 +252,8 @@ namespace catapult { namespace thread {
 	private:
 		std::string m_name;
 		IsolatedPoolMode m_isolatedPoolMode;
-		size_t m_numTotalIsolatedPoolThreads;
-		size_t m_numServiceGroups;
+		std::atomic<size_t> m_numTotalIsolatedPoolThreads;
+		std::atomic<size_t> m_numServiceGroups;
 		std::shared_ptr<thread::IoThreadPool> m_pPool;
 		std::vector<std::shared_ptr<ServiceGroup>> m_serviceGroups;
 		std::vector<action> m_shutdownFunctions;

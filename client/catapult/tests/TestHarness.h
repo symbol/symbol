@@ -32,12 +32,22 @@
 
 namespace std {
 
-	// custom formatter for byte arrays
+	// custom formatter for byte std::array
 	template<size_t N>
 	void PrintTo(const array<uint8_t, N>& array, std::ostream* pOut) {
 		*pOut << catapult::utils::HexFormat(array);
 	}
 }
+
+namespace catapult { namespace utils {
+
+	// custom formatter for utils::ByteArray
+	// (gtest does not seem to find utils::ByteArray insertion operator)
+	template<typename TTag>
+	void PrintTo(const ByteArray<TTag>& byteArray, std::ostream* pOut) {
+		*pOut << byteArray;
+	}
+}}
 
 namespace catapult { namespace test {
 
@@ -73,8 +83,9 @@ namespace catapult { namespace test {
 
 /// Asserts that \a SIZE bytes starting at \a PEXPECTED and \a PACTUAL are equal.
 #define EXPECT_EQ_MEMORY(PEXPECTED, PACTUAL, SIZE) \
-	EXPECT_TRUE(0 == std::memcmp(PEXPECTED, PACTUAL, SIZE)) \
+	EXPECT_TRUE(0 == SIZE || 0 == std::memcmp(PEXPECTED, PACTUAL, SIZE)) \
 			<< "E: " << utils::HexFormat(reinterpret_cast<const uint8_t*>(PEXPECTED), reinterpret_cast<const uint8_t*>(PEXPECTED) + SIZE) \
+			<< std::endl \
 			<< "A: " << utils::HexFormat(reinterpret_cast<const uint8_t*>(PACTUAL), reinterpret_cast<const uint8_t*>(PACTUAL) + SIZE) \
 			<< " "
 

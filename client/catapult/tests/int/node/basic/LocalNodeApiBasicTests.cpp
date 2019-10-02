@@ -48,7 +48,7 @@ namespace catapult { namespace local {
 		struct BasicTestContext {
 			using LocalNodeTestContext = TestContext;
 
-			static constexpr auto Num_Tasks = 7u;
+			static constexpr auto Num_Tasks = 8u;
 
 			static void AssertBoot(const test::BasicLocalNodeStats&)
 			{}
@@ -73,6 +73,9 @@ namespace catapult { namespace local {
 		EXPECT_TRUE(test::HasCounter(counters, "UT CACHE")) << "local node counters";
 		EXPECT_TRUE(test::HasCounter(counters, "TOT CONF TXES")) << "local node counters";
 		EXPECT_TRUE(test::HasCounter(counters, "MEM CUR RSS")) << "memory counters";
+		EXPECT_TRUE(test::HasCounter(counters, "NODES")) << "node container counters";
+		EXPECT_TRUE(test::HasCounter(counters, "BAN ACT")) << "banned nodes container counters";
+		EXPECT_TRUE(test::HasCounter(counters, "BAN ALL")) << "banned nodes container counters";
 	}
 
 	// endregion

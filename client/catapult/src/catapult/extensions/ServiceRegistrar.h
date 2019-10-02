@@ -41,7 +41,7 @@ namespace catapult { namespace extensions {
 		ServiceRegistrarPhase Phase;
 	};
 
-	/// A registrar for registering a service.
+	/// Registrar for registering a service.
 	class ServiceRegistrar {
 	public:
 		virtual ~ServiceRegistrar() = default;

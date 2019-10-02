@@ -238,7 +238,7 @@ namespace catapult { namespace local {
 		template<typename TTestContext>
 		SecretLockStateHashes RunUnlockSecretLockTest(TTestContext& context) {
 			// Arrange: create a secret lock followed by empty blocks so that two more blocks will trigger expiry
-			TestFacade facade(context);
+			TestFacade<TTestContext> facade(context);
 			auto numEmptyBlocks = static_cast<uint32_t>(Lock_Duration.unwrap() - 2);
 			auto secretProof = facade.pushSecretLockAndTransferBlocks(numEmptyBlocks);
 
@@ -296,7 +296,7 @@ namespace catapult { namespace local {
 		template<typename TTestContext>
 		SecretLockStateHashes RunExpireSecretLockTest(TTestContext& context) {
 			// Arrange: create a secret lock followed by empty blocks so that the next block will trigger expiry
-			TestFacade facade(context);
+			TestFacade<TTestContext> facade(context);
 			auto numEmptyBlocks = static_cast<uint32_t>(Lock_Duration.unwrap() - 1);
 			facade.pushSecretLockAndTransferBlocks(numEmptyBlocks);
 
@@ -354,7 +354,7 @@ namespace catapult { namespace local {
 		template<typename TTestContext>
 		SecretLockStateHashes RunUnlockAndRollbackSecretLockTest(TTestContext& context) {
 			// Arrange: create a secret lock followed by empty blocks so that three more blocks will trigger expiry
-			TestFacade facade(context);
+			TestFacade<TTestContext> facade(context);
 			auto numEmptyBlocks = static_cast<uint32_t>(Lock_Duration.unwrap() - 3);
 			auto secretProof = facade.pushSecretLockAndTransferBlocks(numEmptyBlocks);
 
@@ -428,7 +428,7 @@ namespace catapult { namespace local {
 		template<typename TTestContext>
 		SecretLockStateHashes RunExpireAndRollbackSecretLockTest(TTestContext& context) {
 			// Arrange: create a secret lock followed by empty blocks so that the next block will trigger expiry
-			TestFacade facade(context);
+			TestFacade<TTestContext> facade(context);
 			auto numEmptyBlocks = static_cast<uint32_t>(Lock_Duration.unwrap() - 1);
 			facade.pushSecretLockAndTransferBlocks(numEmptyBlocks);
 

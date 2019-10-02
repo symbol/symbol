@@ -19,12 +19,12 @@
 **/
 
 #include "NodeUtils.h"
-#include "catapult/extensions/ProcessBootstrapper.h"
+#include "catapult/config/CatapultConfiguration.h"
 #include "catapult/ionet/NodeContainer.h"
 
 namespace catapult { namespace local {
 
-	// region SeedNodeContainer
+	// region ValidateNodes / AddLocalNode
 
 	namespace {
 		void CheckString(const std::string& str, const char* name) {
@@ -36,53 +36,34 @@ namespace catapult { namespace local {
 			CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
 		}
 
-		void ValidateAndAddNode(ionet::NodeContainerModifier& modifier, const ionet::Node& node, ionet::NodeSource source) {
+		void ValidateNode(const ionet::Node& node) {
 			CheckString(node.endpoint().Host, "host");
 			CheckString(node.metadata().Name, "name");
-			modifier.add(node, source);
 		}
 	}
 
-	void SeedNodeContainer(ionet::NodeContainer& nodes, const extensions::ProcessBootstrapper& bootstrapper) {
-		auto modifier = nodes.modifier();
-		for (const auto& node : bootstrapper.staticNodes())
-			ValidateAndAddNode(modifier, node, ionet::NodeSource::Static);
+	void ValidateNodes(const std::vector<ionet::Node>& nodes) {
+		for (const auto& node : nodes)
+			ValidateNode(node);
+	}
 
-		ValidateAndAddNode(modifier, config::ToLocalNode(bootstrapper.config()), ionet::NodeSource::Local);
+	void AddLocalNode(ionet::NodeContainer& nodes, const config::CatapultConfiguration& config) {
+		auto localNode = config::ToLocalNode(config);
+		ValidateNode(localNode);
+		nodes.modifier().add(localNode, ionet::NodeSource::Local);
 	}
 
 	// endregion
 
-	// region CreateNodeContainerSubscriberAdapter
+	// region GetBanSettings
 
-	namespace {
-		class NodeContainerSubscriberAdapter : public subscribers::NodeSubscriber {
-		public:
-			explicit NodeContainerSubscriberAdapter(ionet::NodeContainer& nodes) : m_nodes(nodes)
-			{}
-
-		public:
-			void notifyNode(const ionet::Node& node) {
-				m_nodes.modifier().add(node, ionet::NodeSource::Dynamic);
-			}
-
-			void notifyIncomingNode(const Key& identityKey, ionet::ServiceIdentifier serviceId) {
-				ionet::Node node(identityKey, ionet::NodeEndpoint(), ionet::NodeMetadata());
-
-				auto modifier = m_nodes.modifier();
-				if (modifier.add(node, ionet::NodeSource::Dynamic_Incoming))
-					++modifier.provisionConnectionState(serviceId, identityKey).Age;
-				else
-					CATAPULT_LOG(warning) << "could not add incoming node (" << identityKey << ") to node container";
-			}
-
-		private:
-			ionet::NodeContainer& m_nodes;
-		};
-	}
-
-	std::unique_ptr<subscribers::NodeSubscriber> CreateNodeContainerSubscriberAdapter(ionet::NodeContainer& nodes) {
-		return std::make_unique<NodeContainerSubscriberAdapter>(nodes);
+	ionet::BanSettings GetBanSettings(const config::NodeConfiguration::BanningSubConfiguration& banConfig) {
+		ionet::BanSettings banSettings;
+		banSettings.DefaultBanDuration = banConfig.DefaultBanDuration;
+		banSettings.MaxBanDuration = banConfig.MaxBanDuration;
+		banSettings.KeepAliveDuration = banConfig.KeepAliveDuration;
+		banSettings.MaxBannedNodes = banConfig.MaxBannedNodes;
+		return banSettings;
 	}
 
 	// endregion

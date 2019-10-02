@@ -59,10 +59,10 @@ namespace catapult { namespace state {
 		AccountRestriction& restriction(model::AccountRestrictionType restrictionType);
 
 	public:
-		/// Returns a const iterator to the first account restriction.
+		/// Gets a const iterator to the first account restriction.
 		const_iterator begin() const;
 
-		/// Returns a const iterator to the element following the last account restriction.
+		/// Gets a const iterator to the element following the last account restriction.
 		const_iterator end() const;
 
 	private:

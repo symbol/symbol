@@ -28,15 +28,15 @@ namespace catapult { namespace ionet {
 
 #pragma pack(push, 1)
 
-	/// A packet header with a data payload.
+	/// Packet header with a data payload.
 	struct Packet : public PacketHeader, public utils::NonCopyable {
 	public:
-		/// Returns a non-const pointer to data contained in this packet.
+		/// Gets a non-const pointer to data contained in this packet.
 		uint8_t* Data() {
 			return Size <= sizeof(Packet) ? nullptr : reinterpret_cast<uint8_t*>(this) + sizeof(Packet);
 		}
 
-		/// Returns a const pointer to data contained in this packet.
+		/// Gets a const pointer to data contained in this packet.
 		constexpr const uint8_t* Data() const {
 			return Size <= sizeof(Packet) ? nullptr : reinterpret_cast<const uint8_t*>(this) + sizeof(Packet);
 		}

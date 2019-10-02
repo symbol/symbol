@@ -33,12 +33,12 @@ namespace catapult { namespace state {
 		{}
 
 	public:
-		/// Gets cosignatory account keys.
+		/// Gets the (const) cosignatory account keys.
 		const utils::SortedKeySet& cosignatoryPublicKeys() const {
 			return m_cosignatoryPublicKeys;
 		}
 
-		/// Gets cosignatory account keys.
+		/// Gets the cosignatory account keys.
 		utils::SortedKeySet& cosignatoryPublicKeys() {
 			return m_cosignatoryPublicKeys;
 		}
@@ -77,12 +77,12 @@ namespace catapult { namespace state {
 	/// Mixin for storing information about accounts that current account can cosign.
 	class MultisigCosignatoryOfMixin {
 	public:
-		/// Gets multisig account keys.
+		/// Gets the (const) multisig account keys.
 		const utils::SortedKeySet& multisigPublicKeys() const {
 			return m_multisigPublicKeys;
 		}
 
-		/// Gets multisig account keys.
+		/// Gets the multisig account keys.
 		utils::SortedKeySet& multisigPublicKeys() {
 			return m_multisigPublicKeys;
 		}

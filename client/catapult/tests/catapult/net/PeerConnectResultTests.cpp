@@ -31,7 +31,8 @@ namespace catapult { namespace net {
 
 		// Assert:
 		EXPECT_EQ(static_cast<PeerConnectCode>(-1), result.Code);
-		EXPECT_EQ(Key(), result.IdentityKey);
+		EXPECT_EQ(Key(), result.Identity.PublicKey);
+		EXPECT_EQ("", result.Identity.Host);
 	}
 
 	TEST(TEST_CLASS, CanCreateDefaultResultFromCode) {
@@ -40,26 +41,29 @@ namespace catapult { namespace net {
 
 		// Assert:
 		EXPECT_EQ(PeerConnectCode::Accepted, result.Code);
-		EXPECT_EQ(Key(), result.IdentityKey);
+		EXPECT_EQ(Key(), result.Identity.PublicKey);
+		EXPECT_EQ("", result.Identity.Host);
 	}
 
 	TEST(TEST_CLASS, CanCreateDefaultResultFromCodeAndKey_Success) {
 		// Act:
 		auto key = test::GenerateRandomByteArray<Key>();
-		auto result = PeerConnectResult(PeerConnectCode::Accepted, key);
+		auto result = PeerConnectResult(PeerConnectCode::Accepted, { key, "11.22.33.44" });
 
 		// Assert:
 		EXPECT_EQ(PeerConnectCode::Accepted, result.Code);
-		EXPECT_EQ(key, result.IdentityKey);
+		EXPECT_EQ(key, result.Identity.PublicKey);
+		EXPECT_EQ("11.22.33.44", result.Identity.Host);
 	}
 
 	TEST(TEST_CLASS, CanCreateDefaultResultFromCodeAndKey_Error) {
 		// Act:
 		auto key = test::GenerateRandomByteArray<Key>();
-		auto result = PeerConnectResult(PeerConnectCode::Already_Connected, key);
+		auto result = PeerConnectResult(PeerConnectCode::Already_Connected, { key, "11.22.33.44" });
 
 		// Assert:
 		EXPECT_EQ(PeerConnectCode::Already_Connected, result.Code);
-		EXPECT_EQ(Key(), result.IdentityKey);
+		EXPECT_EQ(Key(), result.Identity.PublicKey);
+		EXPECT_EQ("", result.Identity.Host);
 	}
 }}

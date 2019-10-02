@@ -19,6 +19,7 @@
 **/
 
 #include "src/observers/Observers.h"
+#include "src/model/HashLockReceiptType.h"
 #include "plugins/txes/lock_shared/tests/observers/ExpiredLockInfoObserverTests.h"
 #include "tests/test/HashLockInfoCacheTestUtils.h"
 
@@ -33,6 +34,8 @@ namespace catapult { namespace observers {
 		public:
 			using ObserverTestContext = test::ObserverTestContextT<test::HashLockInfoCacheFactory>;
 
+			static constexpr auto Receipt_Type = model::Receipt_Type_LockHash_Expired;
+
 		public:
 			static auto CreateObserver() {
 				return CreateExpiredHashLockInfoObserver();
@@ -41,18 +44,150 @@ namespace catapult { namespace observers {
 			static auto& SubCache(cache::CatapultCacheDelta& cache) {
 				return cache.sub<cache::HashLockInfoCache>();
 			}
-
-			static Amount GetExpectedExpiringLockOwnerBalance(observers::NotifyMode, Amount initialBalance, Amount) {
-				return initialBalance;
-			}
-
-			static Amount GetExpectedBlockSignerBalance(observers::NotifyMode mode, Amount initialBalance, Amount delta, size_t count) {
-				// expiring hash lock is paid to block signer
-				auto adjustedDelta = Amount(count * delta.unwrap());
-				return observers::NotifyMode::Commit == mode ? initialBalance + adjustedDelta : initialBalance - adjustedDelta;
-			}
 		};
+
+		using ObserverTests = ExpiredLockInfoObserverTests<ExpiredHashLockInfoTraits>;
+		using SeedTuple = ObserverTests::SeedTuple;
 	}
 
-	DEFINE_EXPIRED_LOCK_INFO_OBSERVER_TESTS(ExpiredHashLockInfoTraits)
+	// region no operation
+
+	TEST(TEST_CLASS, ObserverDoesNothingWhenNoLockInfoExpires_Commit) {
+		// Arrange:
+		auto blockSigner = test::GenerateRandomByteArray<Key>();
+		std::vector<SeedTuple> expiringSeeds;
+
+		// Act + Assert:
+		ObserverTests::RunBalanceTest(NotifyMode::Commit, blockSigner, expiringSeeds, {
+			{ blockSigner, MosaicId(500), Amount(200), Amount() }
+		});
+	}
+
+	TEST(TEST_CLASS, ObserverDoesNothingWhenNoLockInfoExpires_Rollback) {
+		// Arrange:
+		auto blockSigner = test::GenerateRandomByteArray<Key>();
+		std::vector<SeedTuple> expiringSeeds;
+
+		// Act + Assert:
+		ObserverTests::RunBalanceTest(NotifyMode::Rollback, blockSigner, expiringSeeds, {
+			{ blockSigner, MosaicId(500), Amount(200), Amount() }
+		});
+	}
+
+	// endregion
+
+	// region expiration (single)
+
+	TEST(TEST_CLASS, ObserverCreditsAccountsOnCommit_Single) {
+		// Arrange:
+		auto blockSigner = test::GenerateRandomByteArray<Key>();
+		auto key = test::GenerateRandomByteArray<Key>();
+		std::vector<SeedTuple> expiringSeeds{
+			{ key, MosaicId(500), Amount(333), Amount(33) }
+		};
+
+		// Act + Assert:
+		ObserverTests::RunBalanceTest(NotifyMode::Commit, blockSigner, expiringSeeds, {
+			{ key, MosaicId(500), Amount(333), Amount() },
+			{ blockSigner, MosaicId(500), Amount(200 + 33), Amount() }
+		});
+	}
+
+	TEST(TEST_CLASS, ObserverCreditsAccountsOnRollback_Single) {
+		// Arrange:
+		auto blockSigner = test::GenerateRandomByteArray<Key>();
+		auto key = test::GenerateRandomByteArray<Key>();
+		std::vector<SeedTuple> expiringSeeds{
+			{ key, MosaicId(500), Amount(333), Amount(33) }
+		};
+
+		// Act + Assert:
+		ObserverTests::RunBalanceTest(NotifyMode::Rollback, blockSigner, expiringSeeds, {
+			{ key, MosaicId(500), Amount(333), Amount() },
+			{ blockSigner, MosaicId(500), Amount(200 - 33), Amount() }
+		});
+	}
+
+	// endregion
+
+	// region expiration (multiple)
+
+	TEST(TEST_CLASS, ObserverCreditsAccountsOnCommit_Multiple) {
+		// Arrange: using single mosaic id to emulate typical operation
+		auto blockSigner = test::GenerateRandomByteArray<Key>();
+		auto keys = test::GenerateRandomDataVector<Key>(3);
+		std::vector<SeedTuple> expiringSeeds{
+			{ keys[0], MosaicId(500), Amount(333), Amount(33) },
+			{ keys[1], MosaicId(500), Amount(222), Amount(88) },
+			{ keys[2], MosaicId(500), Amount(444), Amount(44) },
+			{ keys[1], MosaicId(500), Amount(), Amount(22) }
+		};
+
+		// Act + Assert:
+		ObserverTests::RunBalanceTest(NotifyMode::Commit, blockSigner, expiringSeeds, {
+			{ keys[0], MosaicId(500), Amount(333), Amount() },
+			{ keys[1], MosaicId(500), Amount(222), Amount() },
+			{ keys[2], MosaicId(500), Amount(444), Amount() },
+			{ blockSigner, MosaicId(500), Amount(200 + 33 + 88 + 44 + 22), Amount() }
+		});
+	}
+
+	TEST(TEST_CLASS, ObserverCreditsAccountsOnRollback_Multiple) {
+		// Arrange: using single mosaic id to emulate typical operation
+		auto blockSigner = test::GenerateRandomByteArray<Key>();
+		auto keys = test::GenerateRandomDataVector<Key>(3);
+		std::vector<SeedTuple> expiringSeeds{
+			{ keys[0], MosaicId(500), Amount(333), Amount(33) },
+			{ keys[1], MosaicId(500), Amount(222), Amount(88) },
+			{ keys[2], MosaicId(500), Amount(444), Amount(44) },
+			{ keys[1], MosaicId(500), Amount(), Amount(22) }
+		};
+
+		// Act + Assert:
+		ObserverTests::RunBalanceTest(NotifyMode::Rollback, blockSigner, expiringSeeds, {
+			{ keys[0], MosaicId(500), Amount(333), Amount() },
+			{ keys[1], MosaicId(500), Amount(222), Amount() },
+			{ keys[2], MosaicId(500), Amount(444), Amount() },
+			{ blockSigner, MosaicId(500), Amount(200 - 33 - 88 - 44 - 22), Amount() }
+		});
+	}
+
+	// endregion
+
+	// region receipts (multiple)
+
+	TEST(TEST_CLASS, ObserverCreatesReceiptsOnCommit) {
+		// Arrange: using single mosaic id to emulate typical operation
+		auto blockSigner = test::GenerateRandomByteArray<Key>();
+		std::vector<SeedTuple> expiringSeeds{
+			{ Key{ { 9 } }, MosaicId(500), Amount(333), Amount(33) },
+			{ Key{ { 1 } }, MosaicId(500), Amount(222), Amount(88) },
+			{ Key{ { 4 } }, MosaicId(500), Amount(444), Amount(44) },
+			{ Key{ { 1 } }, MosaicId(500), Amount(), Amount(22) }
+		};
+
+		// Act + Assert: notice that receipts are deterministically ordered
+		ObserverTests::RunReceiptTest(NotifyMode::Commit, blockSigner, expiringSeeds, {
+			{ blockSigner, MosaicId(500), Amount(), Amount(22) },
+			{ blockSigner, MosaicId(500), Amount(), Amount(33) },
+			{ blockSigner, MosaicId(500), Amount(), Amount(44) },
+			{ blockSigner, MosaicId(500), Amount(), Amount(88) }
+		});
+	}
+
+	TEST(TEST_CLASS, ObserverDoesNotCreateReceiptsOnRollback) {
+		// Arrange: using single mosaic id to emulate typical operation
+		auto blockSigner = test::GenerateRandomByteArray<Key>();
+		std::vector<SeedTuple> expiringSeeds{
+			{ Key{ { 9 } }, MosaicId(500), Amount(333), Amount(33) },
+			{ Key{ { 1 } }, MosaicId(500), Amount(222), Amount(88) },
+			{ Key{ { 4 } }, MosaicId(500), Amount(444), Amount(44) },
+			{ Key{ { 1 } }, MosaicId(500), Amount(), Amount(22) }
+		};
+
+		// Act + Assert:
+		ObserverTests::RunReceiptTest(NotifyMode::Rollback, blockSigner, expiringSeeds, {});
+	}
+
+	// endregion
 }}

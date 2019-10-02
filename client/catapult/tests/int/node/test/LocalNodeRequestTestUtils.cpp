@@ -25,6 +25,7 @@
 #include "plugins/txes/namespace/src/plugins/MosaicAliasTransactionPlugin.h"
 #include "plugins/txes/namespace/src/plugins/NamespaceRegistrationTransactionPlugin.h"
 #include "plugins/txes/transfer/src/plugins/TransferTransactionPlugin.h"
+#include "catapult/preprocessor.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/local/RealTransactionFactory.h"
 
@@ -78,7 +79,7 @@ namespace catapult { namespace test {
 			auto pBlock = model::CreateBlock(context, Network_Identifier, signer.publicKey(), model::Transactions());
 			pBlock->Timestamp = context.Timestamp + Timestamp(60000);
 			extensions::BlockExtensions(GetDefaultGenerationHash()).signFullBlock(signer, *pBlock);
-			return std::move(pBlock);
+			return PORTABLE_MOVE(pBlock);
 		}
 	}
 

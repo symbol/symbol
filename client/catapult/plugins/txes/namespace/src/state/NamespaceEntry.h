@@ -25,7 +25,7 @@
 
 namespace catapult { namespace state {
 
-	/// A pair composed of a namespace and its root.
+	/// Pair composed of a namespace and its root.
 	class NamespaceEntry {
 	public:
 		/// Creates an uninitialized entry.

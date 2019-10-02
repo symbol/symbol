@@ -34,10 +34,10 @@ namespace catapult {
 
 namespace catapult { namespace local {
 
-	/// A notification observer factory.
+	/// Notification observer factory.
 	using NotificationObserverFactory = supplier<std::unique_ptr<const observers::NotificationObserver>>;
 
-	/// A block dependent notification observer factory.
+	/// Block dependent notification observer factory.
 	using BlockDependentNotificationObserverFactory =
 		std::function<std::unique_ptr<const observers::NotificationObserver> (const model::Block&)>;
 

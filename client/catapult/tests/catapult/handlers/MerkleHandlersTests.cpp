@@ -64,18 +64,18 @@ namespace catapult { namespace handlers {
 			pPacket->Height = requestHeight;
 
 			// Act:
-			ionet::ServerPacketHandlerContext context({}, "");
-			EXPECT_TRUE(handlers.process(*pPacket, context));
+			ionet::ServerPacketHandlerContext handlerContext;
+			EXPECT_TRUE(handlers.process(*pPacket, handlerContext));
 
 			// Assert:
 			const auto Num_Expected_Hashes = 3u;
 			auto expectedSize = sizeof(ionet::PacketHeader) + Num_Expected_Hashes * Hash256::Size;
-			test::AssertPacketHeader(context, expectedSize, SubCacheMerkleRootsRequestPacket::Packet_Type);
+			test::AssertPacketHeader(handlerContext, expectedSize, SubCacheMerkleRootsRequestPacket::Packet_Type);
 
 			auto pBlockElementFromStorage = pStorage->view().loadBlockElement(requestHeight);
 			ASSERT_EQ(Num_Expected_Hashes, pBlockElementFromStorage->SubCacheMerkleRoots.size());
 
-			auto pHashesFromPacket = reinterpret_cast<const Hash256*>(test::GetSingleBufferData(context));
+			auto pHashesFromPacket = reinterpret_cast<const Hash256*>(test::GetSingleBufferData(handlerContext));
 			for (auto i = 0u; i < Num_Expected_Hashes; ++i)
 				EXPECT_EQ(pBlockElementFromStorage->SubCacheMerkleRoots[i], pHashesFromPacket[i]) << "hash at " << i;
 		}
@@ -103,12 +103,12 @@ namespace catapult { namespace handlers {
 		pPacket->Height = Height(7);
 
 		// Act:
-		ionet::ServerPacketHandlerContext context({}, "");
-		EXPECT_TRUE(handlers.process(*pPacket, context));
+		ionet::ServerPacketHandlerContext handlerContext;
+		EXPECT_TRUE(handlers.process(*pPacket, handlerContext));
 
 		// Assert: only a payload header is written
-		test::AssertPacketHeader(context, sizeof(ionet::PacketHeader), SubCacheMerkleRootsRequestPacket::Packet_Type);
-		EXPECT_TRUE(context.response().buffers().empty());
+		test::AssertPacketHeader(handlerContext, sizeof(ionet::PacketHeader), SubCacheMerkleRootsRequestPacket::Packet_Type);
+		EXPECT_TRUE(handlerContext.response().buffers().empty());
 	}
 
 	// endregion

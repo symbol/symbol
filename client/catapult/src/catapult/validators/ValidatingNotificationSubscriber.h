@@ -25,7 +25,7 @@
 
 namespace catapult { namespace validators {
 
-	/// A notification subscriber that validates notifications.
+	/// Notification subscriber that validates notifications.
 	class ValidatingNotificationSubscriber : public model::NotificationSubscriber {
 	public:
 		/// Creates a validating notification subscriber around \a validator.

@@ -22,6 +22,7 @@
 #include "sdk/src/extensions/BlockExtensions.h"
 #include "catapult/crypto/Hashes.h"
 #include "catapult/crypto/MerkleHashBuilder.h"
+#include "catapult/utils/HexParser.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/TestHarness.h"
@@ -131,11 +132,11 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CanCalculateBlockTransactionsHash_Deterministic) {
 		// Arrange:
 		auto seedHashes = {
-			test::ToArray<Hash256::Size>("36C8213162CDBC78767CF43D4E06DDBE0D3367B6CEAEAEB577A50E2052441BC8"),
-			test::ToArray<Hash256::Size>("8A316E48F35CDADD3F827663F7535E840289A16A43E7134B053A86773E474C28"),
-			test::ToArray<Hash256::Size>("6D80E71F00DFB73B358B772AD453AEB652AE347D3E098AE269005A88DA0B84A7"),
-			test::ToArray<Hash256::Size>("2AE2CA59B5BB29721BFB79FE113929B6E52891CAA29CBF562EBEDC46903FF681"),
-			test::ToArray<Hash256::Size>("421D6B68A6DF8BB1D5C9ACF7ED44515E77945D42A491BECE68DA009B551EE6CE")
+			utils::ParseByteArray<Hash256>("36C8213162CDBC78767CF43D4E06DDBE0D3367B6CEAEAEB577A50E2052441BC8"),
+			utils::ParseByteArray<Hash256>("8A316E48F35CDADD3F827663F7535E840289A16A43E7134B053A86773E474C28"),
+			utils::ParseByteArray<Hash256>("6D80E71F00DFB73B358B772AD453AEB652AE347D3E098AE269005A88DA0B84A7"),
+			utils::ParseByteArray<Hash256>("2AE2CA59B5BB29721BFB79FE113929B6E52891CAA29CBF562EBEDC46903FF681"),
+			utils::ParseByteArray<Hash256>("421D6B68A6DF8BB1D5C9ACF7ED44515E77945D42A491BECE68DA009B551EE6CE")
 		};
 
 		std::vector<TransactionInfo> transactionInfos;
@@ -153,8 +154,8 @@ namespace catapult { namespace model {
 		CalculateBlockTransactionsHash(transactionInfoPointers, actualBlockTransactionsHash);
 
 		// Assert:
-		auto expectedHash = "DEFB4BF7ACF2145500087A02C88F8D1FCF27B8DEF4E0FDABE09413D87A3F0D09";
-		EXPECT_EQ(expectedHash, test::ToString(actualBlockTransactionsHash));
+		auto expectedHash = utils::ParseByteArray<Hash256>("DEFB4BF7ACF2145500087A02C88F8D1FCF27B8DEF4E0FDABE09413D87A3F0D09");
+		EXPECT_EQ(expectedHash, actualBlockTransactionsHash);
 	}
 
 	// endregion
@@ -163,15 +164,16 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, GenerationHashIsCalculatedAsExpected) {
 		// Arrange:
-		auto previousGenerationHash = test::ToArray<Hash256::Size>("57F7DA205008026C776CB6AED843393F04CD458E0AA2D9F1D5F31A402072B2D6");
-		Key publicKey = test::ToArray<Key::Size>("6FB9C930C0AC6BEF09D6DFEBD091AE83C91B35F2C0305B05B4F6F7AF4B6FC1F0");
+		constexpr auto ParseGenerationHash = utils::ParseByteArray<GenerationHash>;
+		auto previousGenerationHash = ParseGenerationHash("57F7DA205008026C776CB6AED843393F04CD458E0AA2D9F1D5F31A402072B2D6");
+		auto publicKey = utils::ParseByteArray<Key>("6FB9C930C0AC6BEF09D6DFEBD091AE83C91B35F2C0305B05B4F6F7AF4B6FC1F0");
 
 		// Act:
 		auto hash = CalculateGenerationHash(previousGenerationHash, publicKey);
 
 		// Assert:
-		auto expectedHash = "575E4F520DC2C026F1C9021FD3773F236F0872A03B4AEFC22A9E0066FF204A23";
-		EXPECT_EQ(expectedHash, test::ToString(hash));
+		auto expectedHash = ParseGenerationHash("575E4F520DC2C026F1C9021FD3773F236F0872A03B4AEFC22A9E0066FF204A23");
+		EXPECT_EQ(expectedHash, hash);
 	}
 
 	// endregion

@@ -44,7 +44,7 @@ namespace catapult { namespace model {
 		// Arrange:
 		auto name = test::GenerateValidName(7);
 		for (auto& ch : name)
-			ch ^= 0xFF;
+			ch = static_cast<char>(ch ^ 0xFF);
 
 		// Assert:
 		EXPECT_FALSE(IsValidName(name));
@@ -53,7 +53,7 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, NameIsInvalidWhenSingleCharactersIsNotAlphaNumeric_Random) {
 		// Arrange:
 		auto name = test::GenerateValidName(7);
-		name[3] ^= 0xFF;
+		name[3] = static_cast<char>(name[3] ^ 0xFF);
 
 		// Assert:
 		EXPECT_FALSE(IsValidName(name));
