@@ -43,7 +43,7 @@ const toStringInternal = code => {
 	case 0x804C0001: return 'Failure_AccountLink_Invalid_Action';
 	case 0x804C0002: return 'Failure_AccountLink_Link_Already_Exists';
 	case 0x804C0003: return 'Failure_AccountLink_Unknown_Link';
-	case 0x804C0004: return 'Failure_AccountLink_Unlink_Data_Inconsistency';
+	case 0x804C0004: return 'Failure_AccountLink_Inconsistent_Unlink_Data';
 	case 0x804C0005: return 'Failure_AccountLink_Remote_Account_Ineligible';
 	case 0x804C0006: return 'Failure_AccountLink_Remote_Account_Signer_Prohibited';
 	case 0x804C0007: return 'Failure_AccountLink_Remote_Account_Participant_Prohibited';
@@ -95,7 +95,7 @@ const toStringInternal = code => {
 	case 0x804D0072: return 'Failure_Mosaic_Required_Property_Flag_Unset';
 	case 0x80550001: return 'Failure_Multisig_Account_In_Both_Sets';
 	case 0x80550002: return 'Failure_Multisig_Multiple_Deletes';
-	case 0x80550003: return 'Failure_Multisig_Redundant_Modifications';
+	case 0x80550003: return 'Failure_Multisig_Redundant_Modification';
 	case 0x80550004: return 'Failure_Multisig_Unknown_Multisig_Account';
 	case 0x80550005: return 'Failure_Multisig_Not_A_Cosignatory';
 	case 0x80550006: return 'Failure_Multisig_Already_A_Cosignatory';
@@ -116,7 +116,7 @@ const toStringInternal = code => {
 	case 0x804E0064: return 'Failure_Namespace_Invalid_Registration_Type';
 	case 0x804E0065: return 'Failure_Namespace_Root_Name_Reserved';
 	case 0x804E0066: return 'Failure_Namespace_Too_Deep';
-	case 0x804E0067: return 'Failure_Namespace_Parent_Unknown';
+	case 0x804E0067: return 'Failure_Namespace_Unknown_Parent';
 	case 0x804E0068: return 'Failure_Namespace_Already_Exists';
 	case 0x804E0069: return 'Failure_Namespace_Already_Active';
 	case 0x804E006A: return 'Failure_Namespace_Eternal_After_Nemesis_Block';
@@ -125,14 +125,14 @@ const toStringInternal = code => {
 	case 0x804E006D: return 'Failure_Namespace_Unknown';
 	case 0x804E006E: return 'Failure_Namespace_Alias_Already_Exists';
 	case 0x804E006F: return 'Failure_Namespace_Unknown_Alias';
-	case 0x804E0070: return 'Failure_Namespace_Alias_Unlink_Type_Inconsistency';
-	case 0x804E0071: return 'Failure_Namespace_Alias_Unlink_Data_Inconsistency';
+	case 0x804E0070: return 'Failure_Namespace_Alias_Inconsistent_Unlink_Type';
+	case 0x804E0071: return 'Failure_Namespace_Alias_Inconsistent_Unlink_Data';
 	case 0x804E0072: return 'Failure_Namespace_Alias_Invalid_Address';
 	case 0x80500001: return 'Failure_RestrictionAccount_Invalid_Restriction_Type';
 	case 0x80500002: return 'Failure_RestrictionAccount_Invalid_Modification_Action';
 	case 0x80500003: return 'Failure_RestrictionAccount_Invalid_Modification_Address';
 	case 0x80500004: return 'Failure_RestrictionAccount_Modification_Operation_Type_Incompatible';
-	case 0x80500005: return 'Failure_RestrictionAccount_Modification_Redundant';
+	case 0x80500005: return 'Failure_RestrictionAccount_Redundant_Modification';
 	case 0x80500006: return 'Failure_RestrictionAccount_Invalid_Modification';
 	case 0x80500007: return 'Failure_RestrictionAccount_Modification_Count_Exceeded';
 	case 0x80500008: return 'Failure_RestrictionAccount_Values_Count_Exceeded';
@@ -162,13 +162,14 @@ const toStringInternal = code => {
 	case 0x80FE0005: return 'Failure_Consumer_Remote_Chain_Improper_Link';
 	case 0x80FE0006: return 'Failure_Consumer_Remote_Chain_Duplicate_Transactions';
 	case 0x80FE0007: return 'Failure_Consumer_Remote_Chain_Unlinked';
-	case 0x80FE0008: return 'Failure_Consumer_Remote_Chain_Mismatched_Difficulties';
+	case 0x80FE0008: return 'Failure_Consumer_Remote_Chain_Difficulties_Mismatch';
 	case 0x80FE0009: return 'Failure_Consumer_Remote_Chain_Score_Not_Better';
 	case 0x80FE000A: return 'Failure_Consumer_Remote_Chain_Too_Far_Behind';
 	case 0x80FE000B: return 'Failure_Consumer_Remote_Chain_Too_Far_In_Future';
 	case 0x80FE000C: return 'Failure_Consumer_Batch_Signature_Not_Verifiable';
 	case 0x80450001: return 'Failure_Extension_Partial_Transaction_Cache_Prune';
 	case 0x80450002: return 'Failure_Extension_Partial_Transaction_Dependency_Removed';
+	case 0x80450003: return 'Failure_Extension_Read_Rate_Limit_Exceeded';
 	default: return undefined;
 	}
 };
