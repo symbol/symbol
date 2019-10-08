@@ -933,7 +933,7 @@ paths:
   "/metadata/account/{accountId}":
     get:
       tags:
-      - Metadata routes
+        - Metadata routes
       summary: Get account metadata
       description: Returns the account metadata given an account id.
       operationId: getAccountMetadata
@@ -948,7 +948,7 @@ paths:
           content:
             application/json:
               schema:
-                  $ref: "#/components/schemas/MetadataEntriesDTO"
+                $ref: "#/components/schemas/MetadataEntriesDTO"
         "404":
           description: resource not found
         "409":
@@ -956,7 +956,7 @@ paths:
   "/metadata/mosaic/{mosaicId}":
     get:
       tags:
-      - Metadata routes
+        - Metadata routes
       summary: Get mosaic metadata
       description: Returns the mosaic metadata given a mosaic id.
       operationId: getMosaicMetadata
@@ -971,7 +971,7 @@ paths:
           content:
             application/json:
               schema:
-                  $ref: "#/components/schemas/MetadataEntriesDTO"
+                $ref: "#/components/schemas/MetadataEntriesDTO"
         "404":
           description: resource not found
         "409":
@@ -979,7 +979,7 @@ paths:
   "/metadata/namespace/{namespaceId}":
     get:
       tags:
-      - Metadata routes
+        - Metadata routes
       summary: Get namespace metadata
       description: Returns the namespace metadata given a namespace id.
       operationId: getNamespaceMetadata
@@ -994,7 +994,7 @@ paths:
           content:
             application/json:
               schema:
-                  $ref: "#/components/schemas/MetadataEntriesDTO"
+                $ref: "#/components/schemas/MetadataEntriesDTO"
         "404":
           description: resource not found
         "409":
@@ -1002,7 +1002,7 @@ paths:
   "/metadata/account/{accountId}/key/{key}":
     get:
       tags:
-      - Metadata routes
+        - Metadata routes
       summary: Get account metadata
       description: Returns the account metadata given an account id and a key
       operationId: getAccountMetadataByKey
@@ -1015,7 +1015,7 @@ paths:
           content:
             application/json:
               schema:
-                  $ref: "#/components/schemas/MetadataEntriesDTO"
+                $ref: "#/components/schemas/MetadataEntriesDTO"
         "404":
           description: resource not found
         "409":
@@ -1023,7 +1023,7 @@ paths:
   "/metadata/mosaic/{mosaicId}/key/{key}":
     get:
       tags:
-      - Metadata routes
+        - Metadata routes
       summary: Get mosaic metadata
       description: Returns the mosaic metadata given a mosaic id and a key
       operationId: getMosaicMetadataByKey
@@ -1036,7 +1036,7 @@ paths:
           content:
             application/json:
               schema:
-                  $ref: "#/components/schemas/MetadataEntriesDTO"
+                $ref: "#/components/schemas/MetadataEntriesDTO"
         "404":
           description: resource not found
         "409":
@@ -1044,7 +1044,7 @@ paths:
   "/metadata/namespace/{namespaceId}/key/{key}":
     get:
       tags:
-      - Metadata routes
+        - Metadata routes
       summary: Get namespace metadata
       description: Returns the namespace metadata given a namespace id and a key
       operationId: getNamespaceMetadataByKey
@@ -1057,7 +1057,7 @@ paths:
           content:
             application/json:
               schema:
-                  $ref: "#/components/schemas/MetadataEntriesDTO"
+                $ref: "#/components/schemas/MetadataEntriesDTO"
         "404":
           description: resource not found
         "409":
@@ -1065,7 +1065,7 @@ paths:
   "/metadata/account/{accountId}/key/{key}/sender/{publicKey}":
     get:
       tags:
-      - Metadata routes
+        - Metadata routes
       summary: Get account metadata
       description: Returns the account metadata given an account id, a key, and a sender
       operationId: getAccountMetadataByKeyAndSender
@@ -1079,7 +1079,7 @@ paths:
           content:
             application/json:
               schema:
-                  $ref: "#/components/schemas/MetadataDTO"
+                $ref: "#/components/schemas/MetadataDTO"
         "404":
           description: resource not found
         "409":
@@ -1087,7 +1087,7 @@ paths:
   "/metadata/mosaic/{mosaicId}/key/{key}/sender/{publicKey}":
     get:
       tags:
-      - Metadata routes
+        - Metadata routes
       summary: Get mosaic metadata
       description: Returns the mosaic metadata given a mosaic id, a key, and a sender
       operationId: getMosaicMetadataByKeyAndSender
@@ -1101,7 +1101,7 @@ paths:
           content:
             application/json:
               schema:
-                  $ref: "#/components/schemas/MetadataDTO"
+                $ref: "#/components/schemas/MetadataDTO"
         "404":
           description: resource not found
         "409":
@@ -1109,7 +1109,7 @@ paths:
   "/metadata/namespace/{namespaceId}/key/{key}/sender/{publicKey}":
     get:
       tags:
-      - Metadata routes
+        - Metadata routes
       summary: Get namespace metadata
       description: Returns the namespace metadata given a namespace id, a key, and a sender
       operationId: getNamespaceMetadataByKeyAndSender
@@ -1123,7 +1123,7 @@ paths:
           content:
             application/json:
               schema:
-                  $ref: "#/components/schemas/MetadataDTO"
+                $ref: "#/components/schemas/MetadataDTO"
         "404":
           description: resource not found
         "409":
@@ -1329,14 +1329,6 @@ components:
       type: string
       description: Probability of an account to harvest the next block.
       example: 0
-    PublicKey:
-      type: string
-      example: AC1A6E1D8DE5B17D2C6B1293F1CAD3829EEACF38D09311BB3C8E5A880092DE26
-    MosaicId:
-      type: string
-      format: hex
-      description: Mosaic identifier.
-      example: 0DC67FBE1CAD29E3
     ModelError:
       type: object
       required:
@@ -1347,11 +1339,29 @@ components:
           type: string
         message:
           type: string
+    MetadataKey:
+      type: string
+      format: hex
+      description: Metadata key scoped to source, target and type.
+      example: 0DC67FBE1CAD29E3
+    MosaicId:
+      type: string
+      format: hex
+      description: Mosaic identifier.
+      example: 0DC67FBE1CAD29E3
+    MosaicRestrictionKey:
+      type: string
+      format: hex
+      description: Restriction key.
+      example: 0DC67FBE1CAD29E3
     NamespaceId:
       type: string
       format: hex
       description: Namespace identifier.
       example: 85BBEA6CC462B244
+    PublicKey:
+      type: string
+      example: AC1A6E1D8DE5B17D2C6B1293F1CAD3829EEACF38D09311BB3C8E5A880092DE26
     Score:
       type: string
       description: |
@@ -2149,6 +2159,9 @@ components:
             - $ref: "#/components/schemas/NamespaceRegistrationTransactionDTO"
             - $ref: "#/components/schemas/AddressAliasTransactionDTO"
             - $ref: "#/components/schemas/MosaicAliasTransactionDTO"
+            - $ref: "#/components/schemas/AccountMetadataTransactionDTO"
+            - $ref: "#/components/schemas/MosaicMetadataTransactionDTO"
+            - $ref: "#/components/schemas/NamespaceMetadataTransactionDTO"
             - $ref: "#/components/schemas/HashLockTransactionDTO"
             - $ref: "#/components/schemas/SecretLockTransactionDTO"
             - $ref: "#/components/schemas/SecretProofTransactionDTO"
@@ -2195,6 +2208,9 @@ components:
             - $ref: "#/components/schemas/EmbeddedNamespaceRegistrationTransactionDTO"
             - $ref: "#/components/schemas/EmbeddedAddressAliasTransactionDTO"
             - $ref: "#/components/schemas/EmbeddedMosaicAliasTransactionDTO"
+            - $ref: "#/components/schemas/EmbeddedAccountMetadataTransactionDTO"
+            - $ref: "#/components/schemas/EmbeddedMosaicMetadataTransactionDTO"
+            - $ref: "#/components/schemas/EmbeddedNamespaceMetadataTransactionDTO"
             - $ref: "#/components/schemas/EmbeddedHashLockTransactionDTO"
             - $ref: "#/components/schemas/EmbeddedSecretLockTransactionDTO"
             - $ref: "#/components/schemas/EmbeddedSecretProofTransactionDTO"
@@ -2607,8 +2623,7 @@ components:
           $ref: "#/components/schemas/PublicKey"
           description: Metadata target public key.
         scopedMetadataKey:
-          type: string
-          description: Metadata key scoped to source, target and type.
+          $ref: "#/components/schemas/MetadataKey"
         valueSizeDelta:
           type: integer
           format: int32
@@ -2627,7 +2642,7 @@ components:
       allOf:
         - $ref: "#/components/schemas/TransactionDTO"
         - $ref: "#/components/schemas/AccountMetadataTransactionBodyDTO"
-    EmbeddedAccountMetadataTransactionTransactionDTO:
+    EmbeddedAccountMetadataTransactionDTO:
       allOf:
         - $ref: "#/components/schemas/EmbeddedTransactionDTO"
         - $ref: "#/components/schemas/AccountMetadataTransactionBodyDTO"
@@ -2643,10 +2658,8 @@ components:
       properties:
         targetPublicKey:
           $ref: "#/components/schemas/PublicKey"
-          description: Metadata target public key.
         scopedMetadataKey:
-          type: string
-          description: Metadata key scoped to source, target and type.
+          $ref: "#/components/schemas/MetadataKey"
         targetMosaicId:
           $ref: "#/components/schemas/UnresolvedMosaicId"
         valueSizeDelta:
@@ -2667,7 +2680,7 @@ components:
       allOf:
         - $ref: "#/components/schemas/TransactionDTO"
         - $ref: "#/components/schemas/MosaicMetadataTransactionBodyDTO"
-    EmbeddedMosaicMetadataTransactionTransactionDTO:
+    EmbeddedMosaicMetadataTransactionDTO:
       allOf:
         - $ref: "#/components/schemas/EmbeddedTransactionDTO"
         - $ref: "#/components/schemas/MosaicMetadataTransactionBodyDTO"
@@ -2683,10 +2696,8 @@ components:
       properties:
         targetPublicKey:
           $ref: "#/components/schemas/PublicKey"
-          description: Metadata target public key.
         scopedMetadataKey:
-          type: string
-          description: Metadata key scoped to source, target and type.
+          $ref: "#/components/schemas/MetadataKey"
         targetNamespaceId:
           $ref: "#/components/schemas/NamespaceId"
         valueSizeDelta:
@@ -2707,7 +2718,7 @@ components:
       allOf:
         - $ref: "#/components/schemas/TransactionDTO"
         - $ref: "#/components/schemas/NamespaceMetadataTransactionBodyDTO"
-    EmbeddedNamespaceMetadataTransactionTransactionDTO:
+    EmbeddedNamespaceMetadataTransactionDTO:
       allOf:
         - $ref: "#/components/schemas/EmbeddedTransactionDTO"
         - $ref: "#/components/schemas/NamespaceMetadataTransactionBodyDTO"
@@ -3203,8 +3214,7 @@ components:
         mosaicId:
           $ref: "#/components/schemas/UnresolvedMosaicId"
         restrictionKey:
-          type: string
-          description: Restriction key relative to the reference mosaic identifier.
+          $ref: "#/components/schemas/MosaicRestrictionKey"
         targetAddress:
           $ref: "#/components/schemas/UnresolvedAddress"
         previousRestrictionValue:
@@ -3240,8 +3250,7 @@ components:
         referenceMosaicId:
           $ref: "#/components/schemas/UnresolvedMosaicId"
         restrictionKey:
-          type: string
-          description: Restriction key relative to the reference mosaic identifier.
+          $ref: "#/components/schemas/MosaicRestrictionKey"
         previousRestrictionValue:
           type: string
           description: Previous restriction value.
@@ -3263,11 +3272,6 @@ components:
       allOf:
         - $ref: "#/components/schemas/EmbeddedTransactionDTO"
         - $ref: "#/components/schemas/MosaicGlobalRestrictionTransactionBodyDTO"
-    MosaicRestrictionKey:
-      type: string
-      format: hex
-      description: Restriction key.
-      example: 0DC67FBE1CAD29E3
     MosaicGlobalRestrictionEntryRestrictionDTO:
       type: object
       required:
@@ -3438,8 +3442,7 @@ components:
         targetPublicKey:
           $ref: "#/components/schemas/PublicKey"
         scopedMetadataKey:
-          type: string
-          format: hex
+          $ref: "#/components/schemas/MetadataKey"
         targetId:
           anyOf:
             - $ref: "#/components/schemas/MosaicId"
