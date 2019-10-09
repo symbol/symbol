@@ -12,16 +12,15 @@
   "clientPrivateKey": "0000000000000000000000000000000000000000000000000000000000000000",
   "extensions": [
     "accountLink",
-    "accountRestrictions",
     "aggregate",
     "lockHash",
     "lockSecret",
     "mosaic",
-    "mosaicRestrictions",
     "metadata",
     "multisig",
     "namespace",
-    "receipts",
+	"receipts",
+	"restrictions",
     "transfer"
   ],
 

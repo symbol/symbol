@@ -18,42 +18,44 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const mosaicRestrictions = require('../../../src/plugins/mosaicRestrictions/mosaicRestrictions');
-const MosaicRestrictionsDb = require('../../../src/plugins/mosaicRestrictions/MosaicRestrictionsDb');
+const restrictions = require('../../../src/plugins/restrictions/restrictions');
+const RestrictionsDb = require('../../../src/plugins/restrictions/RestrictionsDb');
 const { test } = require('../../routes/utils/routeTestUtils');
 const pluginTest = require('../utils/pluginTestUtils');
 
-describe('account restrictions plugin', () => {
-	pluginTest.assertThat.pluginCreatesDb(mosaicRestrictions, MosaicRestrictionsDb);
-	pluginTest.assertThat.pluginDoesNotRegisterAdditionalTransactionStates(mosaicRestrictions);
-	pluginTest.assertThat.pluginDoesNotRegisterAdditionalMessageChannels(mosaicRestrictions);
+describe('restrictions plugin', () => {
+	pluginTest.assertThat.pluginCreatesDb(restrictions, RestrictionsDb);
+	pluginTest.assertThat.pluginDoesNotRegisterAdditionalTransactionStates(restrictions);
+	pluginTest.assertThat.pluginDoesNotRegisterAdditionalMessageChannels(restrictions);
 
 	describe('register routes', () => {
-		it('registers mosaic restrictions GET routes', () => {
+		it('registers restrictions GET routes', () => {
 			// Arrange:
 			const routes = [];
 			const server = test.setup.createCapturingMockServer('get', routes);
 
 			// Act:
-			mosaicRestrictions.registerRoutes(server, {}, { network: { name: 'mijinTest' } });
+			restrictions.registerRoutes(server, {}, { network: { name: 'mijinTest' } });
 
 			// Assert:
 			test.assert.assertRoutes(routes, [
+				'/restrictions/account/:accountId',
 				'/restrictions/mosaic/:mosaicId',
 				'/restrictions/mosaic/:mosaicId/address/:accountId'
 			]);
 		});
 
-		it('registers mosaic restrictions POST routes', () => {
+		it('registers restrictions POST routes', () => {
 			// Arrange:
 			const routes = [];
 			const server = test.setup.createCapturingMockServer('post', routes);
 
 			// Act:
-			mosaicRestrictions.registerRoutes(server, {}, { network: { name: 'mijinTest' } });
+			restrictions.registerRoutes(server, {}, { network: { name: 'mijinTest' } });
 
 			// Assert:
 			test.assert.assertRoutes(routes, [
+				'/restrictions/account',
 				'/restrictions/mosaic',
 				'/restrictions/mosaic/:mosaicId'
 			]);

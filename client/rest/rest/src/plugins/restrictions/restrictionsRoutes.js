@@ -32,8 +32,15 @@ module.exports = {
 			? address.publicKeyToAddress(accountId, networkInfo.networks[services.config.network.name].id)
 			: accountId);
 
+		const accountRestrictionsSender = routeUtils.createSender('accountRestrictions');
 		const mosaicGlobalRestrictionsSender = routeUtils.createSender('mosaicRestriction.mosaicGlobalRestriction');
 		const mosaicAddressRestrictionsSender = routeUtils.createSender('mosaicRestriction.mosaicAddressRestriction');
+
+		server.get('/restrictions/account/:accountId', (req, res, next) => {
+			const [type, accountId] = routeUtils.parseArgument(req.params, 'accountId', 'accountId');
+			return db.accountRestrictionsByAddresses([accountIdToAddress(type, accountId)])
+				.then(accountRestrictionsSender.sendOne(req.params.accountId, res, next));
+		});
 
 		server.get('/restrictions/mosaic/:mosaicId', (req, res, next) => {
 			const mosaicId = routeUtils.parseArgument(req.params, 'mosaicId', uint64.fromHex);
@@ -52,6 +59,20 @@ module.exports = {
 				mosaicId,
 				[accountIdToAddress(type, accountId)]
 			).then(mosaicAddressRestrictionsSender.sendOne(req.params.accountId, res, next));
+		});
+
+		server.post('/restrictions/account', (req, res, next) => {
+			if (req.params.publicKeys && req.params.addresses)
+				throw errors.createInvalidArgumentError('publicKeys and addresses cannot both be provided');
+
+			const idOptions = Array.isArray(req.params.publicKeys)
+				? { keyName: 'publicKeys', parserName: 'publicKey', type: AccountType.publicKey }
+				: { keyName: 'addresses', parserName: 'address', type: AccountType.address };
+
+			const accountIds = routeUtils.parseArgumentAsArray(req.params, idOptions.keyName, idOptions.parserName);
+
+			return db.accountRestrictionsByAddresses(accountIds.map(accountId => accountIdToAddress(idOptions.type, accountId)))
+				.then(accountRestrictionsSender.sendArray(idOptions.keyName, res, next));
 		});
 
 		server.post('/restrictions/mosaic', (req, res, next) => {

@@ -24,13 +24,24 @@ const MongoDb = require('mongodb');
 const { mosaicRestriction } = catapult.model;
 const { Long } = MongoDb;
 
-class MosaicRestrictionsDb {
+class RestrictionsDb {
 	/**
-	 * Creates MosaicRestrictionsDb around CatapultDb.
+	 * Creates RestrictionsDb around CatapultDb.
 	 * @param {module:db/CatapultDb} db Catapult db instance.
 	 */
 	constructor(db) {
 		this.catapultDb = db;
+	}
+
+	/**
+	 * Retrieves account restrictions of the given addresses.
+	 * @param {array<object>} addresses Given addresses.
+	 * @returns {Promise.<array>} Owned account restrictions.
+	 */
+	accountRestrictionsByAddresses(addresses) {
+		const buffers = addresses.map(address => Buffer.from(address));
+		const conditions = { 'accountRestrictions.address': { $in: buffers } };
+		return this.catapultDb.queryDocuments('accountRestrictions', conditions);
 	}
 
 	/**
@@ -71,4 +82,4 @@ class MosaicRestrictionsDb {
 	}
 }
 
-module.exports = MosaicRestrictionsDb;
+module.exports = RestrictionsDb;

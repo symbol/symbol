@@ -39,16 +39,15 @@ describe('route system', () => {
 		// Assert:
 		expect(supportedPluginNames).to.deep.equal([
 			'accountLink',
-			'accountRestrictions',
 			'aggregate',
 			'lockHash',
 			'lockSecret',
 			'metadata',
 			'mosaic',
-			'mosaicRestrictions',
 			'multisig',
 			'namespace',
 			'receipts',
+			'restrictions',
 			'transfer'
 		]);
 	});
