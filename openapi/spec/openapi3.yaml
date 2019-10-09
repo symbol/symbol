@@ -2284,12 +2284,15 @@ components:
     HashLockTransactionBodyDTO:
       type: object
       required:
-        - mosaic
+        - mosaicId
+        - amount
         - duration
         - hash
       properties:
-        mosaic:
-          $ref: "#/components/schemas/Mosaic"
+        mosaicId:
+          $ref: "#/components/schemas/UnresolvedMosaicId"
+        amount:
+          $ref: "#/components/schemas/Amount"
         duration:
           $ref: "#/components/schemas/BlockDuration"
         hash:
