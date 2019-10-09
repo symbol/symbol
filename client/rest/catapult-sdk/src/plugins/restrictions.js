@@ -18,7 +18,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @module plugins/accountRestrictions */
+/** @module plugins/restrictions */
 const EntityType = require('../model/EntityType');
 const ModelType = require('../model/ModelType');
 const sizes = require('../modelBinary/sizes');
@@ -78,10 +78,10 @@ const accountRestrictionTypeDescriptors = [
 ];
 
 /**
- * Creates an account restrictions plugin.
+ * Creates a restrictions plugin.
  * @type {module:plugins/CatapultPlugin}
  */
-const accountRestrictionsPlugin = {
+const restrictionsPlugin = {
 	AccountRestrictionType: Object.freeze({
 		addressAllow: AccountRestrictionTypeFlags.address,
 		addressBlock: AccountRestrictionTypeFlags.address + accountRestrictionTypeBlockOffset,
@@ -95,6 +95,8 @@ const accountRestrictionsPlugin = {
 		const modificationTypeSchema = modificationsSchemaName => ({
 			modifications: { type: ModelType.array, schemaName: modificationsSchemaName }
 		});
+
+		// account restrictions
 		accountRestrictionTypeDescriptors.forEach(restrictionTypeDescriptor => {
 			// transaction schemas
 			builder.addTransactionSupport(
@@ -118,6 +120,8 @@ const accountRestrictionsPlugin = {
 		builder.addSchema('accountRestrictions', {
 			accountRestrictions: { type: ModelType.object, schemaName: 'accountRestriction.restrictions' }
 		});
+
+		// account restriction restrictions
 		builder.addSchema('accountRestriction.restrictions', {
 			address: ModelType.binary,
 			restrictions: {
@@ -131,9 +135,64 @@ const accountRestrictionsPlugin = {
 				}
 			}
 		});
+
+		// mosaic restrictions address
+		builder.addTransactionSupport(EntityType.mosaicRestrictionAddress, {
+			mosaicId: ModelType.uint64HexIdentifier,
+			restrictionKey: ModelType.uint64,
+			targetAddress: ModelType.binary,
+			previousRestrictionValue: ModelType.uint64,
+			newRestrictionValue: ModelType.uint64
+		});
+
+		// mosaic restrictions global
+		builder.addTransactionSupport(EntityType.mosaicRestrictionGlobal, {
+			mosaicId: ModelType.uint64HexIdentifier,
+			referenceMosaicId: ModelType.uint64HexIdentifier,
+			restrictionKey: ModelType.uint64,
+			previousRestrictionValue: ModelType.uint64,
+			newRestrictionValue: ModelType.uint64
+		});
+
+		builder.addSchema('mosaicRestriction.mosaicGlobalRestriction', {
+			mosaicRestrictionEntry: { type: ModelType.object, schemaName: 'mosaicGlobalRestriction.entry' }
+		});
+
+		builder.addSchema('mosaicGlobalRestriction.entry', {
+			compositeHash: ModelType.binary,
+			mosaicId: ModelType.uint64HexIdentifier,
+			restrictions: { type: ModelType.array, schemaName: 'mosaicGlobalRestriction.entry.restriction' }
+		});
+
+		builder.addSchema('mosaicGlobalRestriction.entry.restriction', {
+			key: ModelType.uint64,
+			restriction: { type: ModelType.object, schemaName: 'mosaicGlobalRestriction.entry.restriction.restriction' }
+		});
+
+		builder.addSchema('mosaicGlobalRestriction.entry.restriction.restriction', {
+			referenceMosaicId: ModelType.uint64HexIdentifier,
+			restrictionValue: ModelType.uint64
+		});
+
+		builder.addSchema('mosaicRestriction.mosaicAddressRestriction', {
+			mosaicRestrictionEntry: { type: ModelType.object, schemaName: 'mosaicAddressRestriction.entry' }
+		});
+
+		builder.addSchema('mosaicAddressRestriction.entry', {
+			compositeHash: ModelType.binary,
+			mosaicId: ModelType.uint64HexIdentifier,
+			targetAddress: ModelType.binary,
+			restrictions: { type: ModelType.array, schemaName: 'mosaicAddressRestriction.entry.restriction' }
+		});
+
+		builder.addSchema('mosaicAddressRestriction.entry.restriction', {
+			key: ModelType.uint64,
+			value: ModelType.uint64
+		});
 	},
 
 	registerCodecs: codecBuilder => {
+		// account restrictions address
 		codecBuilder.addTransactionSupport(
 			EntityType.accountRestrictionAddress,
 			accountRestrictionsCreateBaseCodec({
@@ -142,6 +201,7 @@ const accountRestrictionsPlugin = {
 			})
 		);
 
+		// account restrictions mosaic
 		codecBuilder.addTransactionSupport(
 			EntityType.accountRestrictionMosaic,
 			accountRestrictionsCreateBaseCodec({
@@ -150,6 +210,7 @@ const accountRestrictionsPlugin = {
 			})
 		);
 
+		// account restrictions operation
 		codecBuilder.addTransactionSupport(
 			EntityType.accountRestrictionOperation,
 			accountRestrictionsCreateBaseCodec({
@@ -157,7 +218,53 @@ const accountRestrictionsPlugin = {
 				serializeValue: (serializer, value) => serializer.writeUint16(value)
 			})
 		);
+
+		// mosaic restrictions address
+		codecBuilder.addTransactionSupport(EntityType.mosaicRestrictionAddress, {
+			deserialize: parser => {
+				const transaction = {};
+				transaction.mosaicId = parser.uint64();
+				transaction.restrictionKey = parser.uint64();
+				transaction.targetAddress = parser.buffer(constants.sizes.addressDecoded);
+				transaction.previousRestrictionValue = parser.uint64();
+				transaction.newRestrictionValue = parser.uint64();
+				return transaction;
+			},
+
+			serialize: (transaction, serializer) => {
+				serializer.writeUint64(transaction.mosaicId);
+				serializer.writeUint64(transaction.restrictionKey);
+				serializer.writeBuffer(transaction.targetAddress);
+				serializer.writeUint64(transaction.previousRestrictionValue);
+				serializer.writeUint64(transaction.newRestrictionValue);
+			}
+		});
+
+		// mosaic restrictions global
+		codecBuilder.addTransactionSupport(EntityType.mosaicRestrictionGlobal, {
+			deserialize: parser => {
+				const transaction = {};
+				transaction.mosaicId = parser.uint64();
+				transaction.referenceMosaicId = parser.uint64();
+				transaction.restrictionKey = parser.uint64();
+				transaction.previousRestrictionValue = parser.uint64();
+				transaction.previousRestrictionType = parser.uint8();
+				transaction.newRestrictionValue = parser.uint64();
+				transaction.newRestrictionType = parser.uint8();
+				return transaction;
+			},
+
+			serialize: (transaction, serializer) => {
+				serializer.writeUint64(transaction.mosaicId);
+				serializer.writeUint64(transaction.referenceMosaicId);
+				serializer.writeUint64(transaction.restrictionKey);
+				serializer.writeUint64(transaction.previousRestrictionValue);
+				serializer.writeUint8(transaction.previousRestrictionType);
+				serializer.writeUint64(transaction.newRestrictionValue);
+				serializer.writeUint8(transaction.newRestrictionType);
+			}
+		});
 	}
 };
 
-module.exports = accountRestrictionsPlugin;
+module.exports = restrictionsPlugin;
