@@ -3435,7 +3435,6 @@ components:
         - targetPublicKey
         - scopedMetadataKey
         - metadataType
-        - valueSize
         - value
       properties:
         compositeHash:
@@ -3452,10 +3451,6 @@ components:
             - $ref: "#/components/schemas/NamespaceId"
         metadataType:
           $ref: "#/components/schemas/MetadataTypeEnum"
-        valueSize:
-          type: integer
-          format: int32
-          description: Size of value property.
         value:
           type: string
           format: hex
