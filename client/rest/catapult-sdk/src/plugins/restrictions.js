@@ -139,7 +139,7 @@ const restrictionsPlugin = {
 		// mosaic restrictions address
 		builder.addTransactionSupport(EntityType.mosaicRestrictionAddress, {
 			mosaicId: ModelType.uint64HexIdentifier,
-			restrictionKey: ModelType.uint64,
+			restrictionKey: ModelType.uint64HexIdentifier,
 			targetAddress: ModelType.binary,
 			previousRestrictionValue: ModelType.uint64,
 			newRestrictionValue: ModelType.uint64
@@ -149,7 +149,7 @@ const restrictionsPlugin = {
 		builder.addTransactionSupport(EntityType.mosaicRestrictionGlobal, {
 			mosaicId: ModelType.uint64HexIdentifier,
 			referenceMosaicId: ModelType.uint64HexIdentifier,
-			restrictionKey: ModelType.uint64,
+			restrictionKey: ModelType.uint64HexIdentifier,
 			previousRestrictionValue: ModelType.uint64,
 			newRestrictionValue: ModelType.uint64
 		});
