@@ -25,7 +25,7 @@ const catapult = require('catapult-sdk');
 const { expect } = require('chai');
 const sinon = require('sinon');
 
-const { address, networkInfo, mosaicRestriction } = catapult.model;
+const { address, networkInfo, restriction } = catapult.model;
 const { addresses, publicKeys } = test.sets;
 const { convert } = catapult.utils;
 
@@ -191,7 +191,9 @@ describe('restrictions routes', () => {
 					// Assert:
 					expect(dbMosaicRestrictionsByMosaicIdsFake.calledOnce).to.equal(true);
 					expect(dbMosaicRestrictionsByMosaicIdsFake.firstCall.args[0]).to.deep.equal([testMosaicIds.one.uInt64]);
-					expect(dbMosaicRestrictionsByMosaicIdsFake.firstCall.args[1]).to.deep.equal(mosaicRestriction.restrictionType.global);
+					expect(dbMosaicRestrictionsByMosaicIdsFake.firstCall.args[1]).to.deep.equal(
+						restriction.mosaicRestriction.restrictionType.global
+					);
 
 					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
 						payload: mosaicGlobalRestrictionEntrySample,
@@ -214,7 +216,9 @@ describe('restrictions routes', () => {
 						testMosaicIds.one.uInt64,
 						testMosaicIds.two.uInt64
 					]);
-					expect(dbMosaicRestrictionsByMosaicIdsFake.firstCall.args[1]).to.deep.equal(mosaicRestriction.restrictionType.global);
+					expect(dbMosaicRestrictionsByMosaicIdsFake.firstCall.args[1]).to.deep.equal(
+						restriction.mosaicRestriction.restrictionType.global
+					);
 
 					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
 						payload: [mosaicGlobalRestrictionEntrySample],

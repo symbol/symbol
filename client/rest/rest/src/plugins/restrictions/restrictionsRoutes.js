@@ -23,7 +23,7 @@ const errors = require('../../server/errors');
 const AccountType = require('../AccountType');
 const catapult = require('catapult-sdk');
 
-const { address, networkInfo, mosaicRestriction } = catapult.model;
+const { address, networkInfo, restriction } = catapult.model;
 const { uint64 } = catapult.utils;
 
 module.exports = {
@@ -47,7 +47,7 @@ module.exports = {
 
 			return db.mosaicRestrictionsByMosaicIds(
 				[mosaicId],
-				mosaicRestriction.restrictionType.global
+				restriction.mosaicRestriction.restrictionType.global
 			).then(mosaicGlobalRestrictionsSender.sendOne(req.params.mosaicId, res, next));
 		});
 
@@ -80,7 +80,7 @@ module.exports = {
 
 			return db.mosaicRestrictionsByMosaicIds(
 				mosaicIds,
-				mosaicRestriction.restrictionType.global
+				restriction.mosaicRestriction.restrictionType.global
 			).then(mosaicGlobalRestrictionsSender.sendArray('mosaicIds', res, next));
 		});
 

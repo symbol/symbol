@@ -21,7 +21,7 @@
 const catapult = require('catapult-sdk');
 const MongoDb = require('mongodb');
 
-const { mosaicRestriction } = catapult.model;
+const { restriction } = catapult.model;
 const { Long } = MongoDb;
 
 class RestrictionsDb {
@@ -73,7 +73,7 @@ class RestrictionsDb {
 		const conditions = {
 			$and: [
 				{ 'mosaicRestrictionEntry.mosaicId': new Long(mosaicId[0], mosaicId[1]) },
-				{ 'mosaicRestrictionEntry.entryType': mosaicRestriction.restrictionType.address },
+				{ 'mosaicRestrictionEntry.entryType': restriction.mosaicRestriction.restrictionType.address },
 				{ 'mosaicRestrictionEntry.targetAddress': { $in: addressesBuffers } }
 			]
 		};

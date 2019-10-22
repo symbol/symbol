@@ -24,7 +24,7 @@ const test = require('../../testUtils');
 const catapult = require('catapult-sdk');
 const MongoDb = require('mongodb');
 
-const { EntityType, mosaicRestriction } = catapult.model;
+const { EntityType, restriction } = catapult.model;
 const { Binary, ObjectId, Long } = MongoDb;
 
 const createRestrictions = restrictions => {
@@ -90,7 +90,7 @@ const restrictionsDbTestUtils = {
 			_id: createObjectId(Math.floor(Math.random() * 100000)),
 			mosaicRestrictionEntry: {
 				compositeHash: '',
-				entryType: mosaicRestriction.restrictionType.global,
+				entryType: restriction.mosaicRestriction.restrictionType.global,
 				mosaicId: new Long(mosaicId[0], mosaicId[1]),
 				restrictions: [{ key: '', restriction: { referenceMosaicId: '', restrictionValue: '', restrictionType: 0 } }]
 			}
@@ -100,7 +100,7 @@ const restrictionsDbTestUtils = {
 			_id: createObjectId(Math.floor(Math.random() * 100000)),
 			mosaicRestrictionEntry: {
 				compositeHash: '',
-				entryType: mosaicRestriction.restrictionType.address,
+				entryType: restriction.mosaicRestriction.restrictionType.address,
 				mosaicId: new Long(mosaicId[0], mosaicId[1]),
 				targetAddress: new Binary(Buffer.from(targetAddress)),
 				restrictions: [{ key: '', value: '' }]

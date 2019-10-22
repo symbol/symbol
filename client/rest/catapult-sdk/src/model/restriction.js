@@ -19,19 +19,21 @@
  */
 
 /**
- * Catapult model mosaicRestriction.
+ * Catapult model restriction.
  * @enum {numeric}
- * @exports model/mosaicRestriction
+ * @exports model/restriction
  */
-const mosaicRestriction = {
-	/** Mosaic restriction type. */
-	restrictionType: {
-		/** Address restriction. */
-		address: 0,
+const restriction = {
+	mosaicRestriction: {
+		/** Mosaic restriction type. */
+		restrictionType: {
+			/** Address restriction. */
+			address: 0,
 
-		/** Global restriction. */
-		global: 1
+			/** Global restriction. */
+			global: 1
+		}
 	}
 };
 
-module.exports = mosaicRestriction;
+module.exports = restriction;

@@ -18,28 +18,30 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const mosaicRestriction = require('../../src/model/mosaicRestriction');
+const restriction = require('../../src/model/restriction');
 const { expect } = require('chai');
 
-describe('mosaic restriction', () => {
-	describe('restriction type', () => {
-		it('exposes restriction type types', () => {
-			// Assert:
-			expect(mosaicRestriction.restrictionType).to.deep.equal({
-				address: 0,
-				global: 1
+describe('restriction', () => {
+	describe('mosaic restriction', () => {
+		describe('mosaic restriction type', () => {
+			it('exposes mosaic restriction type types', () => {
+				// Assert:
+				expect(restriction.mosaicRestriction.restrictionType).to.deep.equal({
+					address: 0,
+					global: 1
+				});
 			});
-		});
 
-		it('exposed values are unique', () => {
-			// Act:
-			const reverseMapping = Object.keys(mosaicRestriction.restrictionType).reduce((state, name) => {
-				state[mosaicRestriction.restrictionType[name]] = name;
-				return state;
-			}, {});
+			it('exposed values are unique', () => {
+				// Act:
+				const reverseMapping = Object.keys(restriction.mosaicRestriction.restrictionType).reduce((state, name) => {
+					state[restriction.mosaicRestriction.restrictionType[name]] = name;
+					return state;
+				}, {});
 
-			// Assert:
-			expect(Object.keys(mosaicRestriction.restrictionType).length).to.equal(Object.keys(reverseMapping).length);
+				// Assert:
+				expect(Object.keys(restriction.mosaicRestriction.restrictionType).length).to.equal(Object.keys(reverseMapping).length);
+			});
 		});
 	});
 });

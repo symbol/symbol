@@ -22,7 +22,7 @@ const test = require('./restrictionsDbTestUtils');
 const { expect } = require('chai');
 const catapult = require('catapult-sdk');
 
-const { mosaicRestriction } = catapult.model;
+const { restriction } = catapult.model;
 
 describe('restrictions db', () => {
 	describe('account restrictions', () => {
@@ -142,7 +142,10 @@ describe('restrictions db', () => {
 				// Act + Assert:
 				return test.mosaicDb.runDbTest(
 					[restriction1, restriction2],
-					db => db.mosaicRestrictionsByMosaicIds([[0xBBBBBBBB, 0xBBBBBBBB]], mosaicRestriction.restrictionType.global),
+					db => db.mosaicRestrictionsByMosaicIds(
+						[[0xBBBBBBBB, 0xBBBBBBBB]],
+						restriction.mosaicRestriction.restrictionType.global
+					),
 					entities => { expect(entities).to.deep.equal([]); }
 				);
 			});
@@ -155,7 +158,10 @@ describe('restrictions db', () => {
 				// Act + Assert:
 				return test.mosaicDb.runDbTest(
 					[restriction1, restriction2],
-					db => db.mosaicRestrictionsByMosaicIds([[0x32ABFE33, 0x876EEC50]], mosaicRestriction.restrictionType.global),
+					db => db.mosaicRestrictionsByMosaicIds(
+						[[0x32ABFE33, 0x876EEC50]],
+						restriction.mosaicRestriction.restrictionType.global
+					),
 					entities => { expect(entities).to.deep.equal([test.mosaicDb.sanitizeId(restriction1)]); }
 				);
 			});
@@ -172,7 +178,7 @@ describe('restrictions db', () => {
 					[restriction1, restriction2, restriction3, restriction4],
 					db => db.mosaicRestrictionsByMosaicIds(
 						[[0xFD7657CC, 0x5B64C36F], [0x6767FF54, 0x12AFF673]],
-						mosaicRestriction.restrictionType.global
+						restriction.mosaicRestriction.restrictionType.global
 					),
 					entities => {
 						expect(entities).to.deep.equal([test.mosaicDb.sanitizeId(restriction1), test.mosaicDb.sanitizeId(restriction3)]);
@@ -188,7 +194,10 @@ describe('restrictions db', () => {
 				// Act + Assert:
 				return test.mosaicDb.runDbTest(
 					[restriction1, restriction2],
-					db => db.mosaicRestrictionsByMosaicIds([[0xAAAAAAAA, 0xBBBBBBBB]], mosaicRestriction.restrictionType.address),
+					db => db.mosaicRestrictionsByMosaicIds(
+						[[0xAAAAAAAA, 0xBBBBBBBB]],
+						restriction.mosaicRestriction.restrictionType.address
+					),
 					entities => { expect(entities).to.deep.equal([test.mosaicDb.sanitizeId(restriction2)]); }
 				);
 			});
