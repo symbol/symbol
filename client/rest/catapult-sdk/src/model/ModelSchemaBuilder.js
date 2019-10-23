@@ -100,6 +100,7 @@ class ModelSchemaBuilder {
 
 			transactionStatus: {
 				hash: ModelType.binary,
+				address: ModelType.binary,
 				status: ModelType.statusCode,
 				deadline: ModelType.uint64,
 				height: ModelType.uint64

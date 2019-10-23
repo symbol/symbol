@@ -95,7 +95,12 @@ class MessageChannelBuilder {
 				const hash = parser.buffer(catapult.constants.sizes.hash256);
 				const status = parser.uint32();
 				const deadline = parser.uint64();
-				emit({ type: 'transactionStatus', payload: { hash, status, deadline } });
+				emit({
+					type: 'transactionStatus',
+					payload: {
+						hash, address: topic, status, deadline
+					}
+				});
 			}
 		};
 	}
