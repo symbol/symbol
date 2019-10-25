@@ -1483,6 +1483,15 @@ components:
         * 0x60 (MIJIN) - Private network.
         * 0x90 (MIJIN_TEST) - Private test network.
       example: 36867
+    NetworkTypeNameEnum:
+      type: string
+      description: Network name.
+      example: mijinTest
+      enum:
+        - mijin
+        - mijinTest
+        - public
+        - publicTest
     # Enumerations - Node
     RolesTypeEnum:
       type: integer
@@ -2019,9 +2028,7 @@ components:
         - description
       properties:
         name:
-          type: string
-          description: Network name.
-          example: mijinTest
+          $ref: "#/components/schemas/NetworkTypeNameEnum"
         description:
           type: string
           description: A short text describing the network.
