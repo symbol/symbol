@@ -3,17 +3,17 @@ import "transaction.cats"
 
 # binary layout for a secret proof transaction
 struct SecretProofTransactionBody
-	# hash algorithm
-	hashAlgorithm = LockHashAlgorithm
-
 	# secret
 	secret = Hash256
 
-	# locked mosaic recipient address
-	recipientAddress = UnresolvedAddress
-
 	# proof size in bytes
 	proofSize = uint16
+
+	# hash algorithm
+	hashAlgorithm = LockHashAlgorithm
+
+	# locked mosaic recipient address
+	recipientAddress = UnresolvedAddress
 
 	# proof data
 	proof = array(byte, proofSize)

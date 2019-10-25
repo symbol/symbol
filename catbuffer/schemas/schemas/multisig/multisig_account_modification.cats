@@ -1,4 +1,3 @@
-import "multisig/multisig_types.cats"
 import "transaction.cats"
 
 # binary layout for a multisig account modification transaction
@@ -9,11 +8,20 @@ struct MultisigAccountModificationTransactionBody
 	# relative change of the minimal number of cosignatories required when approving a transaction
 	minApprovalDelta = int8
 
-	# number of modifications
-	modificationsCount = uint8
+	# number of cosignatory public key additions
+	publicKeyAdditionsCount = uint8
 
-	# attached cosignatory modifications
-	modifications = array(CosignatoryModification, modificationsCount)
+	# number of cosignatory public key deletions
+	publicKeyDeletionsCount = uint8
+
+	# reserved padding to align publicKeyAdditions on 8-byte boundary
+	multisigAccountModificationTransactionBody_Reserved1 = uint32
+
+	# cosignatory public key additions
+	publicKeyAdditions = array(Key, publicKeyAdditionsCount)
+
+	# cosignatory public key deletions
+	publicKeyDeletions = array(Key, publicKeyDeletionsCount)
 
 # binary layout for a non-embedded multisig account modification transaction
 struct MultisigAccountModificationTransaction

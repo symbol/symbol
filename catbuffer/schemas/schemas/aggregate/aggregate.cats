@@ -3,9 +3,15 @@ import "transaction.cats"
 
 # binary layout for an aggregate transaction
 struct AggregateTransactionBody
+	# aggregate hash of an aggregate's transactions
+	transactionsHash = Hash256
+
 	# transaction payload size in bytes
 	# \note this is the total number of bytes occupied by all sub-transactions
 	payloadSize = uint32
+
+	# reserved padding to align end of AggregateTransactionHeader on 8-byte boundary
+	aggregateTransactionHeader_Reserved1 = uint32
 
 	# sub-transaction data (transactions are variable sized and payload size is in bytes)
 	transactions = array(EmbeddedTransaction, size=payloadSize)

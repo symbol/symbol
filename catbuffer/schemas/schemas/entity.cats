@@ -12,6 +12,9 @@ struct SizePrefixedEntity
 
 # binary layout for a verifiable entity
 struct VerifiableEntity
+	# reserved padding to align Signature on 8-byte boundary
+	verifiableEntityHeader_Reserved1 = uint32
+
 	# entity signature
 	signature = Signature
 
@@ -20,8 +23,14 @@ struct EntityBody
 	# entity signer's public key
 	signerPublicKey = Key
 
+	# reserved padding to align end of EntityBody on 8-byte boundary
+	entityBody_Reserved1 = uint32
+
 	# entity version
-	version = uint16
+	version = uint8
+
+	# entity network
+	network = uint8
 
 	# entity type
 	type = EntityType

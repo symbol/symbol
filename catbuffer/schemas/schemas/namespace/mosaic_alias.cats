@@ -3,14 +3,14 @@ import "transaction.cats"
 
 # binary layout for an mosaic alias transaction
 struct MosaicAliasTransactionBody
-	# alias action
-	aliasAction = AliasAction
-
 	# identifier of the namespace that will become an alias
 	namespaceId = NamespaceId
 
 	# aliased mosaic identifier
 	mosaicId = MosaicId
+
+	# alias action
+	aliasAction = AliasAction
 
 # binary layout for a non-embedded mosaic alias transaction
 struct MosaicAliasTransaction

@@ -3,6 +3,9 @@ import "transaction.cats"
 
 # binary layout for a secret lock transaction
 struct SecretLockTransactionBody
+	# secret
+	secret = Hash256
+
 	# locked mosaic
 	mosaic = UnresolvedMosaic
 
@@ -11,9 +14,6 @@ struct SecretLockTransactionBody
 
 	# hash algorithm
 	hashAlgorithm = LockHashAlgorithm
-
-	# secret
-	secret = Hash256
 
 	# locked mosaic recipient address
 	recipientAddress = UnresolvedAddress

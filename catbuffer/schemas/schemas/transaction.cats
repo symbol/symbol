@@ -16,3 +16,6 @@ struct Transaction
 struct EmbeddedTransaction
 	inline SizePrefixedEntity
 	inline EntityBody
+
+	# reserved padding to align end of EmbeddedTransactionHeader on 8-byte boundary
+	embeddedTransactionHeader_Reserved1 = uint32

@@ -3,20 +3,20 @@ import "transaction.cats"
 
 # binary layout for a mosaic definition transaction
 struct MosaicDefinitionTransactionBody
-	# mosaic nonce
-	nonce = MosaicNonce
-
 	# mosaic identifier
 	id = MosaicId
+
+	# mosaic duration
+	duration = BlockDuration
+
+	# mosaic nonce
+	nonce = MosaicNonce
 
 	# mosaic flags
 	flags = MosaicFlags
 
 	# mosaic divisibility
 	divisibility = uint8
-
-	# mosaic duration
-	duration = BlockDuration
 
 # binary layout for a non-embedded mosaic definition transaction
 struct MosaicDefinitionTransaction

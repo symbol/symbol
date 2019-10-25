@@ -6,11 +6,20 @@ struct AccountOperationRestrictionTransactionBody
 	# account restriction type
 	restrictionType = AccountRestrictionType
 
-	# number of modifications
-	modificationsCount = uint8
+	# number of account restriction additions
+	restrictionAdditionsCount = uint8
 
-	# account restriction modifications
-	modifications = array(AccountOperationRestrictionModification, modificationsCount)
+	# number of account restriction deletions
+	restrictionDeletionsCount = uint8
+
+	# reserved padding to align restrictionAdditions on 8-byte boundary
+	accountRestrictionTransactionBody_Reserved1 = uint32
+
+	# account restriction additions
+	restrictionAdditions = array(EntityType, restrictionAdditionsCount)
+
+	# account restriction deletions
+	restrictionDeletions = array(EntityType, restrictionDeletionsCount)
 
 # binary layout for a non-embedded account operation restriction transaction
 struct AccountOperationRestrictionTransaction

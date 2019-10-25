@@ -3,14 +3,14 @@ import "transaction.cats"
 
 # binary layout for an address alias transaction
 struct AddressAliasTransactionBody
-	# alias action
-	aliasAction = AliasAction
-
 	# identifier of the namespace that will become an alias
 	namespaceId = NamespaceId
 
 	# aliased address
 	address = Address
+
+	# alias action
+	aliasAction = AliasAction
 
 # binary layout for a non-embedded address alias transaction
 struct AddressAliasTransaction

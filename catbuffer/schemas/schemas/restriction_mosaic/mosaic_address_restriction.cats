@@ -8,14 +8,14 @@ struct MosaicAddressRestrictionTransactionBody
 	# restriction key
 	restrictionKey = uint64
 
-	# address being restricted
-	targetAddress = UnresolvedAddress
-
 	# previous restriction value
 	previousRestrictionValue = uint64
 
 	# new restriction value
 	newRestrictionValue = uint64
+
+	# address being restricted
+	targetAddress = UnresolvedAddress
 
 # binary layout for a non-embedded mosaic address restriction transaction
 struct MosaicAddressRestrictionTransaction

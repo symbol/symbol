@@ -5,17 +5,20 @@ struct TransferTransactionBody
 	# recipient address
 	recipientAddress = UnresolvedAddress
 
-	# size of attached message
-	messageSize = uint16
-
 	# number of attached mosaics
 	mosaicsCount = uint8
 
-	# attached message
-	message = array(byte, messageSize)
+	# size of attached message
+	messageSize = uint16
+
+	# reserved padding to align mosaics on 8-byte boundary
+	transferTransactionBody_Reserved1 = uint32
 
 	# attached mosaics
 	mosaics = array(UnresolvedMosaic, mosaicsCount, sort_key=mosaicId)
+
+	# attached message
+	message = array(byte, messageSize)
 
 # binary layout for a non-embedded transfer transaction
 struct TransferTransaction

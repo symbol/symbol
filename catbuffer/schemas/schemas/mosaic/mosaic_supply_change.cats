@@ -6,11 +6,11 @@ struct MosaicSupplyChangeTransactionBody
 	# affected mosaic identifier
 	mosaicId = UnresolvedMosaicId
 
-	# supply change action
-	action = MosaicSupplyChangeAction
-
 	# change amount
 	delta = Amount
+
+	# supply change action
+	action = MosaicSupplyChangeAction
 
 # binary layout for a non-embedded mosaic supply change transaction
 struct MosaicSupplyChangeTransaction

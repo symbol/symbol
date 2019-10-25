@@ -15,11 +15,11 @@ struct MosaicGlobalRestrictionTransactionBody
 	# previous restriction value
 	previousRestrictionValue = uint64
 
-	# previous restriction type
-	previousRestrictionType = MosaicRestrictionType
-
 	# new restriction value
 	newRestrictionValue = uint64
+
+	# previous restriction type
+	previousRestrictionType = MosaicRestrictionType
 
 	# new restriction type
 	newRestrictionType = MosaicRestrictionType
