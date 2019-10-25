@@ -39,7 +39,8 @@ describe('mosaic plugin', () => {
 
 			// Assert:
 			test.assert.assertRoutes(routes, [
-				'/mosaic/:mosaicId'
+				'/mosaic/:mosaicId',
+				'/account/:accountId/mosaics'
 			]);
 		});
 
@@ -53,7 +54,8 @@ describe('mosaic plugin', () => {
 
 			// Assert:
 			test.assert.assertRoutes(routes, [
-				'/mosaic'
+				'/mosaic',
+				'/account/mosaics'
 			]);
 		});
 	});
