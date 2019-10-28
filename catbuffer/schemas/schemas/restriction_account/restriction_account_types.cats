@@ -1,7 +1,7 @@
 import "entity.cats"
 
-# enumeration of account restriction types
-enum AccountRestrictionType : uint16
+# enumeration of account restriction flags
+enum AccountRestrictionFlags : uint16
 	# restriction type is an address
 	address = 0x0001
 

@@ -3,8 +3,8 @@ import "transaction.cats"
 
 # binary layout for an account address restriction transaction
 struct AccountAddressRestrictionTransactionBody
-	# account restriction type
-	restrictionType = AccountRestrictionType
+	# account restriction flags
+	restrictionFlags = AccountRestrictionFlags
 
 	# number of account restriction additions
 	restrictionAdditionsCount = uint8
