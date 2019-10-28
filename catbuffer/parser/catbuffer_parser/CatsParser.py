@@ -32,6 +32,10 @@ class CatsParser(ScopeManager):
         except Exception as ex:
             raise CatsParseException('\n'.join(self.scope()), ex)
 
+    def commit(self):
+        """Completes processing of current type"""
+        self._close_type()
+
     def _process_line(self, line):
         self.increment_line_number()
 
@@ -76,19 +80,6 @@ class CatsParser(ScopeManager):
                     # sort key processing will only occur if linked field type already exists
                     self._require_type_with_field(parse_result['type'], parse_result['sort_key'])
 
-                if 'condition' in parse_result:
-                    # when condition is being post processed here, it is known that the linked condition field is part of
-                    # the struct and the linked condition type already exists
-
-                    # look up condition type descriptor by searching active parser descriptor layout
-                    condition_field_name = parse_result['condition']
-                    condition_type_descriptor = next(
-                        descriptor for descriptor in self.active_parser.type_descriptor['layout']
-                        if descriptor['name'] == condition_field_name
-                    )
-
-                    self._require_enum_type_with_value(condition_type_descriptor['type'], parse_result['condition_value'])
-
             self.active_parser.append({**parse_result, **partial_descriptor})
         elif hasattr(parse_result, 'import_file'):
             self.import_resolver(parse_result.import_file)
@@ -100,6 +91,23 @@ class CatsParser(ScopeManager):
             return
 
         parsed_tuple = self.active_parser.commit()
+
+        if 'layout' in parsed_tuple[1]:
+            new_type_layout = parsed_tuple[1]['layout']
+            for property_type_descriptor in new_type_layout:
+                if 'condition' in property_type_descriptor:
+                    # when condition is being post processed here, it is known that the linked condition field is part of
+                    # the struct and the linked condition type already exists
+
+                    # look up condition type descriptor by searching active parser descriptor layout
+                    condition_field_name = property_type_descriptor['condition']
+                    condition_type_descriptor = next(
+                        descriptor for descriptor in new_type_layout
+                        if descriptor['name'] == condition_field_name
+                    )
+
+                    self._require_enum_type_with_value(condition_type_descriptor['type'], property_type_descriptor['condition_value'])
+
         self._set_type_descriptor(parsed_tuple[0], {**parsed_tuple[1], **self.active_parser.partial_descriptor})
         self.active_parser = None
 

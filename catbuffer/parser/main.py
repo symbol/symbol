@@ -39,6 +39,7 @@ class MultiFileParser:
             for line in lines:
                 self.cats_parser.process_line(line)
 
+        self.cats_parser.commit()
         self.cats_parser.pop_scope()
 
 
