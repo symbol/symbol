@@ -132,7 +132,7 @@ module.exports = {
 			(namespace, id) => Buffer.from(namespace.namespace.alias.address.value())
 				.equals(Buffer.from(new Binary(Buffer.from(id)).value())),
 			'address',
-			'accountNames',
+			'accountNames'
 		));
 	}
 };
