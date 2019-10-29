@@ -21,3 +21,7 @@ transaction_inputs=(
 	"restriction_mosaic/mosaic_address_restriction"
 	"restriction_mosaic/mosaic_global_restriction"
 	"transfer/transfer")
+
+receipt_inputs=(
+	"receipts"
+	"namespace/namespace_receipts")
