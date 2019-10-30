@@ -6,7 +6,7 @@ struct Transaction
 	inline VerifiableEntity
 	inline EntityBody
 
-	# transaction fee.
+	# transaction fee
 	fee = Amount
 
 	# transaction deadline
