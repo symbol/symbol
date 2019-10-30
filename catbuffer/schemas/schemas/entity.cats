@@ -5,6 +5,20 @@ enum EntityType : uint16
 	# reserved entity type
 	reserved = 0x0000
 
+# enumeration of network types
+enum NetworkType : uint8
+	# public network
+	public = 0x68
+
+	# public test network
+	publicTest = 0x98
+
+	# private network
+	mijin = 0x60
+
+	# private test network
+	mijinTest = 0x90
+
 # binary layout for a size-prefixed entity
 struct SizePrefixedEntity
 	# entity size
@@ -30,7 +44,7 @@ struct EntityBody
 	version = uint8
 
 	# entity network
-	network = uint8
+	network = NetworkType
 
 	# entity type
 	type = EntityType
