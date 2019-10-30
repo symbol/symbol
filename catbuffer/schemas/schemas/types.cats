@@ -1,5 +1,7 @@
 using Amount = uint64
 using BlockDuration = uint64
+using Difficulty = uint64
+using Height = uint64
 using UnresolvedMosaicId = uint64
 using MosaicId = uint64
 using Timestamp = uint64
