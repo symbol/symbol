@@ -121,12 +121,12 @@ describe('mosaic plugin', () => {
 			const generateTransaction = () => ({
 				buffer: Buffer.concat([
 					Buffer.of(0xF2, 0x26, 0x6C, 0x06, 0x40, 0x83, 0xB2, 0x92), // mosaic id
-					Buffer.of(0x01), // direction
+					Buffer.of(0x01), // action
 					Buffer.of(0xCA, 0xD0, 0x8E, 0x6E, 0xFF, 0x21, 0x2F, 0x49) // delta
 				]),
 
 				object: {
-					direction: 0x01,
+					action: 0x01,
 					mosaicId: [0x066C26F2, 0x92B28340],
 					delta: [0x6E8ED0CA, 0x492F21FF]
 				}

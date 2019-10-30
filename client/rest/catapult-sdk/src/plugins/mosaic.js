@@ -78,14 +78,14 @@ const mosaicPlugin = {
 			deserialize: parser => {
 				const transaction = {};
 				transaction.mosaicId = parser.uint64();
-				transaction.direction = parser.uint8();
+				transaction.action = parser.uint8();
 				transaction.delta = parser.uint64();
 				return transaction;
 			},
 
 			serialize: (transaction, serializer) => {
 				serializer.writeUint64(transaction.mosaicId);
-				serializer.writeUint8(transaction.direction);
+				serializer.writeUint8(transaction.action);
 				serializer.writeUint64(transaction.delta);
 			}
 		});
