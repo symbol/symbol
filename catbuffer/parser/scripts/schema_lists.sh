@@ -1,5 +1,12 @@
 #!/bin/bash
 
+block_inputs=(
+	"block")
+
+receipt_inputs=(
+	"receipts"
+	"namespace/namespace_receipts")
+
 transaction_inputs=(
 	"account_link/account_link"
 	"aggregate/aggregate"
@@ -21,7 +28,3 @@ transaction_inputs=(
 	"restriction_mosaic/mosaic_address_restriction"
 	"restriction_mosaic/mosaic_global_restriction"
 	"transfer/transfer")
-
-receipt_inputs=(
-	"receipts"
-	"namespace/namespace_receipts")
