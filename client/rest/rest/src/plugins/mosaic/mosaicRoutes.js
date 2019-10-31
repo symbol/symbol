@@ -37,13 +37,13 @@ module.exports = {
 			uint64.fromHex
 		);
 
-		const ownedMosaicsSender = routeUtils.createSender('mosaicDescriptor.mosaic');
+		const ownedMosaicsSender = routeUtils.createSender('ownedMosaics');
 
 		server.get('/account/:accountId/mosaics', (req, res, next) => {
 			const [type, accountId] = routeUtils.parseArgument(req.params, 'accountId', 'accountId');
 
 			return db.mosaicsByOwners(type, [accountId])
-				.then(ownedMosaicsSender.sendArray('accountId', res, next));
+				.then(mosaics => ownedMosaicsSender.sendOne('accountId', res, next)({ mosaics }));
 		});
 
 		server.post('/account/mosaics', (req, res, next) => {
@@ -56,7 +56,7 @@ module.exports = {
 
 			const accountIds = routeUtils.parseArgumentAsArray(req.params, idOptions.keyName, idOptions.parserName);
 			return db.mosaicsByOwners(idOptions.type, accountIds)
-				.then(ownedMosaicsSender.sendArray(idOptions.keyName, res, next));
+				.then(mosaics => ownedMosaicsSender.sendOne(idOptions.keyName, res, next)({ mosaics }));
 		});
 	}
 };

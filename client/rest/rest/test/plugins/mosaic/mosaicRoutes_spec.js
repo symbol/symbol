@@ -86,21 +86,22 @@ describe('mosaic routes', () => {
 		});
 
 		describe('GET', () => {
+			const route = mockServer.getRoute('/account/:accountId/mosaics').get();
+
 			it('returns empty if address not found', () => {
 				// Arrange:
 				const req = { params: { accountId: nonExistingTestAddress } };
-				const route = mockServer.getRoute('/account/:accountId/mosaics').get();
 
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbMosaicsByOwnersFake.calledOnce).to.equal(true);
-					expect(dbMosaicsByOwnersFake.firstCall.args[0]).to.deep.equal(AccountType.address);
+					expect(dbMosaicsByOwnersFake.firstCall.args[0]).to.equal(AccountType.address);
 					expect(dbMosaicsByOwnersFake.firstCall.args[1]).to.deep.equal([address.stringToAddress(nonExistingTestAddress)]);
 
 					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
-						payload: [],
-						type: 'mosaicDescriptor.mosaic'
+						payload: { mosaics: [] },
+						type: 'ownedMosaics'
 					});
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});
@@ -109,18 +110,17 @@ describe('mosaic routes', () => {
 			it('returns empty if publicKey not found', () => {
 				// Arrange:
 				const req = { params: { accountId: nonExistingPublicKey } };
-				const route = mockServer.getRoute('/account/:accountId/mosaics').get();
 
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbMosaicsByOwnersFake.calledOnce).to.equal(true);
-					expect(dbMosaicsByOwnersFake.firstCall.args[0]).to.deep.equal(AccountType.publicKey);
+					expect(dbMosaicsByOwnersFake.firstCall.args[0]).to.equal(AccountType.publicKey);
 					expect(dbMosaicsByOwnersFake.firstCall.args[1]).to.deep.equal([convert.hexToUint8(nonExistingPublicKey)]);
 
 					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
-						payload: [],
-						type: 'mosaicDescriptor.mosaic'
+						payload: { mosaics: [] },
+						type: 'ownedMosaics'
 					});
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});
@@ -129,18 +129,17 @@ describe('mosaic routes', () => {
 			it('returns owned mosaics by address', () => {
 				// Arrange:
 				const req = { params: { accountId: testAddress } };
-				const route = mockServer.getRoute('/account/:accountId/mosaics').get();
 
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbMosaicsByOwnersFake.calledOnce).to.equal(true);
-					expect(dbMosaicsByOwnersFake.firstCall.args[0]).to.deep.equal(AccountType.address);
+					expect(dbMosaicsByOwnersFake.firstCall.args[0]).to.equal(AccountType.address);
 					expect(dbMosaicsByOwnersFake.firstCall.args[1]).to.deep.equal([address.stringToAddress(testAddress)]);
 
 					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
-						payload: [ownedMosaicsSample],
-						type: 'mosaicDescriptor.mosaic'
+						payload: { mosaics: [ownedMosaicsSample] },
+						type: 'ownedMosaics'
 					});
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});
@@ -149,18 +148,17 @@ describe('mosaic routes', () => {
 			it('returns owned mosaics by publicKey', () => {
 				// Arrange:
 				const req = { params: { accountId: testPublicKey } };
-				const route = mockServer.getRoute('/account/:accountId/mosaics').get();
 
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbMosaicsByOwnersFake.calledOnce).to.equal(true);
-					expect(dbMosaicsByOwnersFake.firstCall.args[0]).to.deep.equal(AccountType.publicKey);
+					expect(dbMosaicsByOwnersFake.firstCall.args[0]).to.equal(AccountType.publicKey);
 					expect(dbMosaicsByOwnersFake.firstCall.args[1]).to.deep.equal([convert.hexToUint8(testPublicKey)]);
 
 					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
-						payload: [ownedMosaicsSample],
-						type: 'mosaicDescriptor.mosaic'
+						payload: { mosaics: [ownedMosaicsSample] },
+						type: 'ownedMosaics'
 					});
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});
@@ -169,7 +167,6 @@ describe('mosaic routes', () => {
 			it('throws error if accountId is invalid', () => {
 				// Arrange:
 				const req = { params: { accountId: 'AB12345' } };
-				const route = mockServer.getRoute('/account/:accountId/mosaics').get();
 
 				// Act + Assert:
 				expect(() => mockServer.callRoute(route, req)).to.throw('accountId has an invalid format');
@@ -177,21 +174,22 @@ describe('mosaic routes', () => {
 		});
 
 		describe('POST', () => {
+			const route = mockServer.getRoute('/account/mosaics').post();
+
 			it('returns empty if address not found', () => {
 				// Arrange:
 				const req = { params: { addresses: [nonExistingTestAddress] } };
-				const route = mockServer.getRoute('/account/mosaics').post();
 
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbMosaicsByOwnersFake.calledOnce).to.equal(true);
-					expect(dbMosaicsByOwnersFake.firstCall.args[0]).to.deep.equal(AccountType.address);
+					expect(dbMosaicsByOwnersFake.firstCall.args[0]).to.equal(AccountType.address);
 					expect(dbMosaicsByOwnersFake.firstCall.args[1]).to.deep.equal([address.stringToAddress(nonExistingTestAddress)]);
 
 					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
-						payload: [],
-						type: 'mosaicDescriptor.mosaic'
+						payload: { mosaics: [] },
+						type: 'ownedMosaics'
 					});
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});
@@ -200,18 +198,17 @@ describe('mosaic routes', () => {
 			it('returns empty if publicKey not found', () => {
 				// Arrange:
 				const req = { params: { publicKeys: [nonExistingPublicKey] } };
-				const route = mockServer.getRoute('/account/mosaics').post();
 
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbMosaicsByOwnersFake.calledOnce).to.equal(true);
-					expect(dbMosaicsByOwnersFake.firstCall.args[0]).to.deep.equal(AccountType.publicKey);
+					expect(dbMosaicsByOwnersFake.firstCall.args[0]).to.equal(AccountType.publicKey);
 					expect(dbMosaicsByOwnersFake.firstCall.args[1]).to.deep.equal([convert.hexToUint8(nonExistingPublicKey)]);
 
 					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
-						payload: [],
-						type: 'mosaicDescriptor.mosaic'
+						payload: { mosaics: [] },
+						type: 'ownedMosaics'
 					});
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});
@@ -220,18 +217,17 @@ describe('mosaic routes', () => {
 			it('returns owned mosaics by address', () => {
 				// Arrange:
 				const req = { params: { addresses: [testAddress] } };
-				const route = mockServer.getRoute('/account/mosaics').post();
 
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbMosaicsByOwnersFake.calledOnce).to.equal(true);
-					expect(dbMosaicsByOwnersFake.firstCall.args[0]).to.deep.equal(AccountType.address);
+					expect(dbMosaicsByOwnersFake.firstCall.args[0]).to.equal(AccountType.address);
 					expect(dbMosaicsByOwnersFake.firstCall.args[1]).to.deep.equal([address.stringToAddress(testAddress)]);
 
 					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
-						payload: [ownedMosaicsSample],
-						type: 'mosaicDescriptor.mosaic'
+						payload: { mosaics: [ownedMosaicsSample] },
+						type: 'ownedMosaics'
 					});
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});
@@ -240,18 +236,17 @@ describe('mosaic routes', () => {
 			it('returns owned mosaics by publicKey', () => {
 				// Arrange:
 				const req = { params: { publicKeys: [testPublicKey] } };
-				const route = mockServer.getRoute('/account/mosaics').post();
 
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbMosaicsByOwnersFake.calledOnce).to.equal(true);
-					expect(dbMosaicsByOwnersFake.firstCall.args[0]).to.deep.equal(AccountType.publicKey);
+					expect(dbMosaicsByOwnersFake.firstCall.args[0]).to.equal(AccountType.publicKey);
 					expect(dbMosaicsByOwnersFake.firstCall.args[1]).to.deep.equal([convert.hexToUint8(testPublicKey)]);
 
 					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
-						payload: [ownedMosaicsSample],
-						type: 'mosaicDescriptor.mosaic'
+						payload: { mosaics: [ownedMosaicsSample] },
+						type: 'ownedMosaics'
 					});
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});
@@ -260,7 +255,6 @@ describe('mosaic routes', () => {
 			it('does not support publicKeys and addresses provided at the same time', () => {
 				// Arrange:
 				const req = { params: { addresses: [''], publicKeys: [''] } };
-				const route = mockServer.getRoute('/account/mosaics').post();
 
 				// Act + Assert:
 				expect(() => mockServer.callRoute(route, req)).to.throw('publicKeys and addresses cannot both be provided');
@@ -269,7 +263,6 @@ describe('mosaic routes', () => {
 			it('throws error if addresses contains an invalid address', () => {
 				// Arrange:
 				const req = { params: { addresses: [testAddress, 'AAAAAAAAAA'] } };
-				const route = mockServer.getRoute('/account/mosaics').post();
 
 				// Act + Assert:
 				expect(() => mockServer.callRoute(route, req)).to.throw('element in array addresses has an invalid format');
@@ -278,7 +271,6 @@ describe('mosaic routes', () => {
 			it('throws error if publicKeys contains an invalid publicKey', () => {
 				// Arrange:
 				const req = { params: { publicKeys: [testPublicKey, 'AAAAAAAAAA'] } };
-				const route = mockServer.getRoute('/account/mosaics').post();
 
 				// Act + Assert:
 				expect(() => mockServer.callRoute(route, req)).to.throw('element in array publicKeys has an invalid format');
