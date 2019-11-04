@@ -609,6 +609,46 @@ paths:
           $ref : "#/components/responses/InvalidContent"
         "409":
           $ref : "#/components/responses/InvalidArgument"
+  "/account/{accountId}/mosaics":
+    get:
+      tags:
+        - Mosaic routes
+      summary: Get mosaics created by an account
+      description: Gets an array of mosaics created for a given account address.
+      operationId: getMosaicsFromAccount
+      parameters:
+        - $ref: "#/components/parameters/accountId"
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MosaicsInfoDTO"
+        "404":
+          $ref: "#/components/responses/ResourceNotFound"
+        "409":
+          $ref: "#/components/responses/InvalidArgument"
+  /account/mosaics:
+    post:
+      tags:
+        - Mosaic routes
+      summary: Get mosaics created for given array of addresses
+      description: Gets mosaics created for a given array of addresses.
+      operationId: getMosaicsFromAccounts
+      requestBody:
+        $ref: "#/components/requestBodies/accountIds"
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MosaicsInfoDTO"
+        "400":
+          $ref: "#/components/responses/InvalidContent"
+        "409":
+          $ref: "#/components/responses/InvalidArgument"
   /mosaic/names:
     post:
       tags:
@@ -653,7 +693,7 @@ paths:
     get:
       tags:
         - Namespace routes
-      summary: Get namespaces owned by an account
+      summary: Get namespaces created by an account
       description: Gets an array of namespaces for a given account address.
       operationId: getNamespacesFromAccount
       parameters:
@@ -666,10 +706,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                description: Array of namespaces information.
-                items:
-                  $ref: "#/components/schemas/NamespaceInfoDTO"
+                $ref: "#/components/schemas/NamespacesInfoDTO"
         "404":
           $ref: "#/components/responses/ResourceNotFound"
         "409":
@@ -689,10 +726,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                description: Array of namespaces information.
-                items:
-                  $ref: "#/components/schemas/NamespaceInfoDTO"
+                $ref: "#/components/schemas/NamespacesInfoDTO"
         "400":
           $ref : "#/components/responses/InvalidContent"
         "409":
@@ -2412,6 +2446,16 @@ components:
       properties:
         mosaic:
           $ref: "#/components/schemas/MosaicDTO"
+    MosaicsInfoDTO:
+      type: object
+      required:
+        - mosaics
+      properties:
+        mosaics:
+          type: array
+          description: Array of mosaics information.
+          items:
+            $ref: "#/components/schemas/MosaicDTO"
     MosaicDTO:
       type: object
       required:
@@ -2811,6 +2855,16 @@ components:
           $ref: "#/components/schemas/NamespaceMetaDTO"
         namespace:
           $ref: "#/components/schemas/NamespaceDTO"
+    NamespacesInfoDTO:
+      type: object
+      required:
+        - namespaces
+      properties:
+        namespaces:
+          type: array
+          description: Array of namespaces information.
+          items:
+            $ref: "#/components/schemas/NamespaceInfoDTO"
     NamespaceDTO:
       type: object
       required:
