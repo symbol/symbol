@@ -47,10 +47,11 @@ describe('namespace plugin', () => {
 			const modelSchema = builder.build();
 
 			// Assert:
-			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 13);
+			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 14);
 			expect(modelSchema).to.contain.all.keys(
 				'aliasAddress',
 				'aliasMosaic',
+				'namespaces',
 				'namespaceDescriptor',
 				'namespaceDescriptor.namespace',
 				'namespaceDescriptor.alias.mosaic',
@@ -71,6 +72,10 @@ describe('namespace plugin', () => {
 			// - alias mosaic
 			expect(Object.keys(modelSchema.aliasMosaic).length).to.equal(Object.keys(modelSchema.transaction).length + 2);
 			expect(modelSchema.aliasMosaic).to.contain.all.keys(['namespaceId', 'mosaicId']);
+
+			// - namespaces
+			expect(Object.keys(modelSchema.namespaces).length).to.equal(1);
+			expect(modelSchema.namespaces).to.contain.all.keys(['namespaces']);
 
 			// - namespaceDescriptor
 			expect(Object.keys(modelSchema.namespaceDescriptor).length).to.equal(2);

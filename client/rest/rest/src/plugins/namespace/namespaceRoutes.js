@@ -46,7 +46,7 @@ module.exports = {
 			const pagingOptions = routeUtils.parsePagingArguments(req.params);
 
 			return db.namespacesByOwners(type, [accountId], pagingOptions.id, pagingOptions.pageSize)
-				.then(namespaceSender.sendArray('accountId', res, next));
+				.then(namespaces => routeUtils.createSender('namespaces').sendOne('accountId', res, next)({ namespaces }));
 		});
 
 		server.post('/account/namespaces', (req, res, next) => {
@@ -60,7 +60,7 @@ module.exports = {
 			const accountIds = routeUtils.parseArgumentAsArray(req.params, idOptions.keyName, idOptions.parserName);
 			const pagingOptions = routeUtils.parsePagingArguments(req.params);
 			return db.namespacesByOwners(idOptions.type, accountIds, pagingOptions.id, pagingOptions.pageSize)
-				.then(namespaceSender.sendArray(idOptions.keyName, res, next));
+				.then(namespaces => routeUtils.createSender('namespaces').sendOne(idOptions.keyName, res, next)({ namespaces }));
 		});
 
 		const collectNames = (namespaceNameTuples, namespaceIds) => {

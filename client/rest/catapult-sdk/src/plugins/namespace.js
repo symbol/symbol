@@ -61,6 +61,10 @@ const namespacePlugin = {
 			name: ModelType.string
 		});
 
+		builder.addSchema('namespaces', {
+			namespaces: { type: ModelType.array, schemaName: 'namespaceDescriptor' }
+		});
+
 		builder.addSchema('namespaceDescriptor', {
 			meta: { type: ModelType.object, schemaName: 'transactionMetadata' },
 			namespace: { type: ModelType.object, schemaName: 'namespaceDescriptor.namespace' }
