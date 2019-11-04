@@ -346,9 +346,8 @@ class CatapultDb {
 		return this.queryTransactions(conditions, id, pageSize, { sortOrder: ordering });
 	}
 
-	accountTransactionsIncoming(publicKey, id, pageSize, ordering) {
-		const decoded = address.publicKeyToAddress(publicKey, this.networkId);
-		const bufferAddress = Buffer.from(decoded);
+	accountTransactionsIncoming(accountAddress, id, pageSize, ordering) {
+		const bufferAddress = Buffer.from(accountAddress);
 		return this.queryTransactions({ 'transaction.recipientAddress': bufferAddress }, id, pageSize, { sortOrder: ordering });
 	}
 

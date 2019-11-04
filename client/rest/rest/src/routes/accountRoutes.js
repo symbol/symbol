@@ -22,6 +22,9 @@ const routeResultTypes = require('./routeResultTypes');
 const routeUtils = require('./routeUtils');
 const AccountType = require('../plugins/AccountType');
 const errors = require('../server/errors');
+const catapult = require('catapult-sdk');
+
+const { address, networkInfo } = catapult.model;
 
 module.exports = {
 	register: (server, db, services) => {
@@ -49,9 +52,10 @@ module.exports = {
 				.then(sender.sendArray(idOptions.keyName, res, next));
 		});
 
+		// region account transactions
+
 		const transactionStates = [
 			{ dbPostfix: 'All', routePostfix: '' },
-			{ dbPostfix: 'Incoming', routePostfix: '/incoming' },
 			{ dbPostfix: 'Outgoing', routePostfix: '/outgoing' },
 			{ dbPostfix: 'Unconfirmed', routePostfix: '/unconfirmed' }
 		];
@@ -74,5 +78,20 @@ module.exports = {
 						.then(transactionSender.sendArray('accountId', res, next)));
 			});
 		});
+
+		server.get('/account/:accountId/transactions/incoming', (req, res, next) => {
+			const [type, accountId] = routeUtils.parseArgument(req.params, 'accountId', 'accountId');
+			const pagingOptions = routeUtils.parsePagingArguments(req.params);
+			const ordering = routeUtils.parseArgument(req.params, 'ordering', input => ('id' === input ? 1 : -1));
+
+			const accountAddress = (AccountType.publicKey === type)
+				? address.publicKeyToAddress(accountId, networkInfo.networks[services.config.network.name].id)
+				: accountId;
+
+			return db.accountTransactionsIncoming(accountAddress, pagingOptions.id, pagingOptions.pageSize, ordering)
+				.then(transactionSender.sendArray('accountId', res, next));
+		});
+
+		// endregion
 	}
 };

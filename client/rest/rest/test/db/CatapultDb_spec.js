@@ -782,7 +782,14 @@ describe('catapult db', () => {
 					return runDbTest(
 						{ [getCollectionName(traits)]: seedTransactions },
 						// Act: retrieve transactions for an account
-						db => db[traits.dbFunctionName](keySelector(keys), undefined, undefined, queryOrdering),
+						db => db[traits.dbFunctionName](
+							traits.dbFunctionName === dbTransactionTraits.incoming.dbFunctionName
+								? keyToAddress(keySelector(keys))
+								: keySelector(keys),
+							undefined,
+							undefined,
+							queryOrdering
+						),
 						transactions => {
 							// Assert: expected transactions are ordered
 							assertEqualDocuments(expectedTransactionIndexes.map(index => seedTransactions[index]), transactions);
@@ -817,9 +824,11 @@ describe('catapult db', () => {
 				});
 
 				['all', 'unconfirmed', 'partial'].forEach(key => {
-					addTests(Object.assign({
-						directional: { outgoing: [1, 0], incoming: [2, 0], incomingAndOutgoing: [3, 2, 1] }
-					}, dbTransactionTraits[key]));
+					describe(key, () => {
+						addTests(Object.assign({
+							directional: { outgoing: [1, 0], incoming: [2, 0], incomingAndOutgoing: [3, 2, 1] }
+						}, dbTransactionTraits[key]));
+					});
 				});
 			});
 
@@ -952,7 +961,11 @@ describe('catapult db', () => {
 					return runDbTest(
 						{ [getCollectionName(traits)]: seedTransactions },
 						// Act: retrieve transactions from the second account
-						db => db[traits.dbFunctionName](keys[1]),
+						db => db[traits.dbFunctionName](
+							traits.dbFunctionName === dbTransactionTraits.incoming.dbFunctionName
+								? keyToAddress(keys[1])
+								: keys[1]
+						),
 						transactions => {
 							// Assert: only the transactions matching the second account were returned
 							assertEqualDocuments(traits.getAccount2Transactions(seedTransactions), transactions);
@@ -967,7 +980,12 @@ describe('catapult db', () => {
 					return runDbTest(
 						{ [getCollectionName(traits)]: seedTransactions },
 						// Act: query passing a custom id
-						db => db[traits.dbFunctionName](keys[1], traits.startId),
+						db => db[traits.dbFunctionName](
+							traits.dbFunctionName === dbTransactionTraits.incoming.dbFunctionName
+								? keyToAddress(keys[1])
+								: keys[1],
+							traits.startId
+						),
 						transactions => {
 							// Assert: only the transactions after the passed id should be returned
 							assertEqualDocuments(traits.getAccount2FilteredTransactions(seedTransactions, [2]), transactions);
@@ -982,7 +1000,13 @@ describe('catapult db', () => {
 					return runDbTest(
 						{ [getCollectionName(traits)]: seedTransactions },
 						// Act: query with a custom page size
-						db => db[traits.dbFunctionName](key, undefined, pageSize),
+						db => db[traits.dbFunctionName](
+							traits.dbFunctionName === dbTransactionTraits.incoming.dbFunctionName
+								? keyToAddress(key)
+								: key,
+							undefined,
+							pageSize
+						),
 						transactions => {
 							// Assert: at most a single page was returned (subtract 1 because oids are 0-based)
 							const expectedIndexes = [];
@@ -1031,11 +1055,13 @@ describe('catapult db', () => {
 				});
 
 				['all', 'unconfirmed', 'partial'].forEach(key => {
-					addTests(Object.assign({
-						getAccount2Transactions: basicTraits.curryFromIndexes([7, 5, 4, 3, 1]),
-						getAccount2FilteredTransactions: basicTraits.curryFromIndexes([3, 1]),
-						createPagingSeedTransactions: createPagingSeedTransactionsFactory.curryAll()
-					}, basicTraits, dbTransactionTraits[key]));
+					describe(key, () => {
+						addTests(Object.assign({
+							getAccount2Transactions: basicTraits.curryFromIndexes([7, 5, 4, 3, 1]),
+							getAccount2FilteredTransactions: basicTraits.curryFromIndexes([3, 1]),
+							createPagingSeedTransactions: createPagingSeedTransactionsFactory.curryAll()
+						}, basicTraits, dbTransactionTraits[key]));
+					});
 				});
 
 				// endregion
@@ -1135,7 +1161,11 @@ describe('catapult db', () => {
 				return runDbTest(
 					{ [getCollectionName(traits)]: seedTransactions },
 					// Act: retrieve transactions for an account
-					db => db[traits.dbFunctionName](key),
+					db => db[traits.dbFunctionName](
+						traits.dbFunctionName === dbTransactionTraits.incoming.dbFunctionName
+							? keyToAddress(key)
+							: key
+					),
 					transactions => {
 						// Assert: expected transactions are available
 						assertEqualDocuments(expectedTransactionIndexes.map(index => seedTransactions[index]), transactions);
