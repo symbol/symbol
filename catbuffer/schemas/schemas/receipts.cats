@@ -19,11 +19,8 @@ struct Receipt
 struct BalanceTransferReceipt
 	inline Receipt
 
-	# mosaic id
-	mosaicId = MosaicId
-
-	# amount
-	amount = Amount
+	# mosaic
+	mosaic = Mosaic
 
 	# mosaic sender public key
 	senderPublicKey = Key
@@ -35,11 +32,8 @@ struct BalanceTransferReceipt
 struct BalanceChangeReceipt
 	inline Receipt
 
-	# mosaic id
-	mosaicId = MosaicId
-
-	# amount
-	amount = Amount
+	# mosaic
+	mosaic = Mosaic
 
 	# account public key
 	targetPublicKey = Key
@@ -48,11 +42,8 @@ struct BalanceChangeReceipt
 struct InflationReceipt
 	inline Receipt
 
-	# mosaic id
-	mosaicId = MosaicId
-
-	# amount
-	amount = Amount
+	# mosaic
+	mosaic = Mosaic
 
 # binary layout for a mosaic expiry receipt
 struct MosaicExpiryReceipt
