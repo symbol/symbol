@@ -1,0 +1,22 @@
+{
+  "name": "nem2-openapi",
+  "version": "0.7.19",
+  "description": "OpenAPI spec for Catapult",
+  "main": "index.js",
+  "scripts": {
+    "test": "swagger-cli validate spec/openapi3.yaml",
+    "postman": "openapi2postmanv2 -s spec/openapi3.yaml -o spec/postman.json -p"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nemtech/nem2-openapi.git"
+  },
+  "license": "Apache 2.0",
+  "bugs": {
+    "url": "https://github.com/nemtech/nem2-openapi/issues"
+  },
+  "homepage": "https://github.com/nemtech/nem2-openapi#readme",
+  "dependencies": {
+    "openapi-to-postmanv2": "^0.1.0"
+  }
+}
