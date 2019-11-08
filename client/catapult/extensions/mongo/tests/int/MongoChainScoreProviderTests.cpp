@@ -64,7 +64,7 @@ namespace catapult { namespace mongo {
 			auto cursor = database["chainStatistic"].find({});
 			ASSERT_EQ(1, std::distance(cursor.begin(), cursor.end()));
 
-			auto matchedDocument = database["chainStatistic"].find_one({}).get();
+			auto matchedDocument = database["chainStatistic"].find_one({}).value();
 			auto currentView = matchedDocument.view()["current"].get_document().view();
 
 			auto scoreLow = test::GetUint64(currentView, "scoreLow");

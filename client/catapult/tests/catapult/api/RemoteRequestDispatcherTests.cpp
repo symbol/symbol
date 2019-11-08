@@ -36,6 +36,7 @@ namespace catapult { namespace api {
 			static constexpr auto Packet_Type = Generic_Request_Packet_Type;
 
 			uint8_t Alpha;
+			uint8_t Reserved1[7];
 			uint64_t Beta;
 			uint16_t Gamma;
 		};

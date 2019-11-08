@@ -60,7 +60,7 @@ namespace catapult { namespace cache {
 		struct AccountRestrictionCacheDeltaModificationPolicy : public test:: DeltaInsertModificationPolicy {
 			static void Modify(AccountRestrictionCacheDelta& delta, const state::AccountRestrictions& restrictions) {
 				auto& restrictionsFromCache = delta.find(restrictions.address()).get();
-				auto& restriction = restrictionsFromCache.restriction(model::AccountRestrictionType::Address);
+				auto& restriction = restrictionsFromCache.restriction(model::AccountRestrictionFlags::Address);
 				restriction.allow({ model::AccountRestrictionModificationAction::Add, test::GenerateRandomVector(Address::Size) });
 			}
 		};

@@ -22,39 +22,37 @@
 #include "catapult/preprocessor.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"
+#include "tests/test/nodeps/Alignment.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace model {
 
 #define TEST_CLASS TransactionTests
 
-	// region structure + size
+	// region size + alignment
 
-#ifndef _MSC_VER // disable for both gcc and clang
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Winvalid-offsetof" // allow offsetof on non-standard layout Transaction type
-#endif
+#define TRANSACTION_FIELDS FIELD(MaxFee) FIELD(Deadline)
 
-	TEST(TEST_CLASS, StructureInheritancePreservesLayout) {
-		// Assert: the derived fields should start where the base fields end
-		ASSERT_EQ(sizeof(VerifiableEntity), offsetof(Transaction, MaxFee));
-	}
-
-#ifndef _MSC_VER
-#pragma GCC diagnostic pop
-#endif
-
-	TEST(TEST_CLASS, EntityHasExpectedSize) {
+	TEST(TEST_CLASS, TransactionHasExpectedSize) {
 		// Arrange:
-		auto expectedSize =
-				sizeof(VerifiableEntity) // base
-				+ sizeof(uint64_t) // max fee
-				+ sizeof(uint64_t); // deadline
+		auto expectedSize = sizeof(VerifiableEntity);
+
+#define FIELD(X) expectedSize += sizeof(Transaction::X);
+		TRANSACTION_FIELDS
+#undef FIELD
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(Transaction));
-		EXPECT_EQ(104u + 16u, sizeof(Transaction));
+		EXPECT_EQ(112u + 16, sizeof(Transaction));
 	}
+
+	TEST(TEST_CLASS, TransactionHasProperAlignment) {
+#define FIELD(X) EXPECT_ALIGNED(Transaction, X);
+		TRANSACTION_FIELDS
+#undef FIELD
+	}
+
+#undef TRANSACTION_FIELDS
 
 	// endregion
 

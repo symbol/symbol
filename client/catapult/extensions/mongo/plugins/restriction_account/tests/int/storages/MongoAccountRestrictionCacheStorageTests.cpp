@@ -59,7 +59,7 @@ namespace catapult { namespace mongo { namespace plugins {
 
 				state::AccountRestrictions restrictions(address);
 
-				auto& restriction = restrictions.restriction(model::AccountRestrictionType::Address);
+				auto& restriction = restrictions.restriction(model::AccountRestrictionFlags::Address);
 				InsertRandom(restriction, std::max<size_t>(1, test::RandomByte() & 0x0F));
 				return restrictions;
 			}
@@ -77,13 +77,13 @@ namespace catapult { namespace mongo { namespace plugins {
 			static void Mutate(cache::CatapultCacheDelta& delta, ModelType& restrictions) {
 				// update expected
 				auto value = test::GenerateRandomVector(Address::Size);
-				auto& restriction = restrictions.restriction(model::AccountRestrictionType::Address);
+				auto& restriction = restrictions.restriction(model::AccountRestrictionFlags::Address);
 				restriction.allow({ Action_Add, value });
 
 				// update cache
 				auto& restrictionCacheDelta = delta.sub<cache::AccountRestrictionCache>();
 				auto& restrictionsFromCache = restrictionCacheDelta.find(restrictions.address()).get();
-				auto& restrictionFromCache = restrictionsFromCache.restriction(model::AccountRestrictionType::Address);
+				auto& restrictionFromCache = restrictionsFromCache.restriction(model::AccountRestrictionFlags::Address);
 				restrictionFromCache.allow({ Action_Add, value });
 			}
 

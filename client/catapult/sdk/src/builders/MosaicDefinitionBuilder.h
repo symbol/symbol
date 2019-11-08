@@ -36,6 +36,9 @@ namespace catapult { namespace builders {
 		MosaicDefinitionBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
 
 	public:
+		/// Sets the mosaic duration to \a duration.
+		void setDuration(BlockDuration duration);
+
 		/// Sets the mosaic nonce to \a nonce.
 		void setNonce(MosaicNonce nonce);
 
@@ -44,9 +47,6 @@ namespace catapult { namespace builders {
 
 		/// Sets the mosaic divisibility to \a divisibility.
 		void setDivisibility(uint8_t divisibility);
-
-		/// Sets the mosaic duration to \a duration.
-		void setDuration(BlockDuration duration);
 
 	public:
 		/// Gets the size of mosaic definition transaction.
@@ -67,10 +67,10 @@ namespace catapult { namespace builders {
 		std::unique_ptr<TTransaction> buildImpl() const;
 
 	private:
-		MosaicNonce m_nonce;
 		MosaicId m_id;
+		BlockDuration m_duration;
+		MosaicNonce m_nonce;
 		model::MosaicFlags m_flags;
 		uint8_t m_divisibility;
-		BlockDuration m_duration;
 	};
 }}

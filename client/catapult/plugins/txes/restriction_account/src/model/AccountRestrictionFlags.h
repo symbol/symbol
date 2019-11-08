@@ -20,65 +20,30 @@
 
 #pragma once
 #include "catapult/utils/BitwiseEnum.h"
-#include <vector>
 #include <stdint.h>
 
 namespace catapult { namespace model {
 
-#pragma pack(push, 1)
-
-	/// Account restriction types.
-	enum class AccountRestrictionType : uint8_t {
+	/// Account restriction flags.
+	enum class AccountRestrictionFlags : uint16_t {
 		/// Restriction type is an address.
-		Address = 0x01,
+		Address = 0x0001,
 
 		/// Restriction type is a mosaic identifier.
-		MosaicId = 0x02,
+		MosaicId = 0x0002,
 
 		/// Restriction type is a transaction type.
-		TransactionType = 0x04,
+		TransactionType = 0x0004,
 
 		/// Restriction type sentinel.
-		Sentinel = 0x05,
+		Sentinel = 0x0008,
 
 		/// Restriction is interpreted as outgoing.
-		Outgoing = 0x40,
+		Outgoing = 0x4000,
 
 		/// Restriction is interpreted as blocking operation.
-		Block = 0x80
+		Block = 0x8000
 	};
 
-	MAKE_BITWISE_ENUM(AccountRestrictionType)
-
-	/// Account restriction modification action.
-	enum class AccountRestrictionModificationAction : uint8_t {
-		/// Remove restriction value.
-		Del,
-
-		/// Add restriction value.
-		Add
-	};
-
-	/// Binary layout for an account restriction modification.
-	template<typename TRestrictionValue>
-	struct AccountRestrictionModification {
-	public:
-		/// Modification action.
-		AccountRestrictionModificationAction ModificationAction;
-
-		/// Restriction value.
-		TRestrictionValue Value;
-	};
-
-#pragma pack(pop)
-
-	/// Raw account restriction modification.
-	struct RawAccountRestrictionModification {
-	public:
-		/// Modification action.
-		AccountRestrictionModificationAction ModificationAction;
-
-		/// Restriction value.
-		std::vector<uint8_t> Value;
-	};
+	MAKE_BITWISE_ENUM(AccountRestrictionFlags)
 }}

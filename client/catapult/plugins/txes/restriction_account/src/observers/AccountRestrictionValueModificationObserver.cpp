@@ -54,13 +54,12 @@ namespace catapult { namespace observers {
 			}
 
 			auto& restrictions = restrictionsIter.get();
-			auto& restriction = restrictions.restriction(notification.AccountRestrictionDescriptor.directionalRestrictionType());
-			const auto& modification = notification.Modification;
+			auto& restriction = restrictions.restriction(notification.AccountRestrictionDescriptor.directionalRestrictionFlags());
 			auto modificationAction = NotifyMode::Commit == context.Mode
-					? modification.ModificationAction
-					: InvertModificationAction(modification.ModificationAction);
-			auto resolvedRawValue = state::ToVector(Resolve(context.Resolvers, modification.Value));
-			model::RawAccountRestrictionModification rawModification{ modificationAction, resolvedRawValue };
+					? notification.Action
+					: InvertModificationAction(notification.Action);
+			auto resolvedRawValue = state::ToVector(Resolve(context.Resolvers, notification.RestrictionValue));
+			model::AccountRestrictionModification rawModification{ modificationAction, resolvedRawValue };
 
 			if (state::AccountRestrictionOperationType::Allow == notification.AccountRestrictionDescriptor.operationType())
 				restriction.allow(rawModification);

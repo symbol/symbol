@@ -19,8 +19,10 @@
 **/
 
 #pragma once
-#include "AliasSharedTransaction.h"
 #include "NamespaceEntityType.h"
+#include "NamespaceTypes.h"
+#include "plugins/txes/namespace/src/types.h"
+#include "catapult/model/Transaction.h"
 
 namespace catapult { namespace model {
 
@@ -28,7 +30,7 @@ namespace catapult { namespace model {
 
 	/// Binary layout for an address alias transaction body.
 	template<typename THeader>
-	struct AddressAliasTransactionBody : public SharedAliasBody<THeader> {
+	struct AddressAliasTransactionBody : public THeader {
 	private:
 		using TransactionType = AddressAliasTransactionBody<THeader>;
 
@@ -36,8 +38,14 @@ namespace catapult { namespace model {
 		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Alias_Address, 1)
 
 	public:
+		/// Identifier of the namespace that will become an alias.
+		catapult::NamespaceId NamespaceId;
+
 		/// Aliased address.
 		catapult::Address Address;
+
+		// Alias action.
+		model::AliasAction AliasAction;
 
 	public:
 		// Calculates the real size of address alias \a transaction.

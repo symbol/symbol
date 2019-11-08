@@ -38,6 +38,23 @@ namespace catapult { namespace model {
 		Timestamp Deadline;
 	};
 
+	// Transaction Layout:
+	// * SizePrefixedEntity
+	//   0x00:  (4) Size
+	// * VerifiableEntity
+	//   0x04:  (4) VerifiableEntityHeader_Reserved1
+	//   0x08: (64) Signature
+	// * EntityBody
+	//   0x48: (32) SignerPublicKey
+	//   0x68:  (4) EntityBody_Reserved1
+	//   0x6C:  (1) Version
+	//   0x6D:  (1) Network
+	//   0x6E:  (2) Type
+	// * Transaction
+	//   0x70:  (8) MaxFee
+	//   0x78:  (8) Deadline
+	//   0x80:  (*) Transaction Data
+
 #pragma pack(pop)
 
 	/// Checks the real size of \a transaction against its reported size and returns \c true if the sizes match.

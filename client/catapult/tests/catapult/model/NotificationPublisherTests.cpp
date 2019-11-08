@@ -33,8 +33,8 @@ namespace catapult { namespace model {
 		constexpr auto Currency_Mosaic_Id = UnresolvedMosaicId(1234);
 
 		constexpr auto Plugin_Option_Flags = static_cast<mocks::PluginOptionFlags>(
-				utils::to_underlying_type(mocks::PluginOptionFlags::Custom_Buffers) |
-				utils::to_underlying_type(mocks::PluginOptionFlags::Publish_Custom_Notifications));
+				utils::to_underlying_type(mocks::PluginOptionFlags::Custom_Buffers)
+				| utils::to_underlying_type(mocks::PluginOptionFlags::Publish_Custom_Notifications));
 
 		template<typename TEntity, typename TAssertSubFunc>
 		void PublishAll(const TEntity& entity, PublicationMode mode, TAssertSubFunc assertSub) {
@@ -140,7 +140,8 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CanRaiseBlockEntityNotifications) {
 		// Arrange:
 		auto pBlock = test::GenerateEmptyRandomBlock();
-		pBlock->Version = 0x115A;
+		pBlock->Version = 0x5A;
+		pBlock->Network = static_cast<NetworkIdentifier>(0x11);
 
 		// Act:
 		PublishOne<EntityNotification>(*pBlock, [](const auto& notification) {
@@ -165,7 +166,7 @@ namespace catapult { namespace model {
 			EXPECT_EQ(block.SignerPublicKey, notification.Signer);
 			EXPECT_EQ(block.Signature, notification.Signature);
 			EXPECT_EQ(test::AsVoidPointer(&block.Version), test::AsVoidPointer(notification.Data.pData));
-			EXPECT_EQ(sizeof(BlockHeader) - VerifiableEntity::Header_Size, notification.Data.Size);
+			EXPECT_EQ(sizeof(BlockHeader) - VerifiableEntity::Header_Size - Block::Footer_Size, notification.Data.Size);
 			EXPECT_EQ(SignatureNotification::ReplayProtectionMode::Disabled, notification.DataReplayProtectionMode);
 		});
 	}
@@ -291,7 +292,8 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CanRaiseTransactionEntityNotifications) {
 		// Arrange:
 		auto pTransaction = mocks::CreateMockTransaction(0);
-		pTransaction->Version = 0x115A;
+		pTransaction->Version = 0x5A;
+		pTransaction->Network = static_cast<NetworkIdentifier>(0x11);
 
 		// Act:
 		PublishOne<EntityNotification>(*pTransaction, [](const auto& notification) {

@@ -55,7 +55,7 @@ namespace catapult { namespace cache {
 			auto timestamp = reinterpret_cast<const Timestamp&>(result.front());
 			EXPECT_EQ(originalGroup.key(), timestamp);
 
-			auto size = *reinterpret_cast<const uint64_t*>(result.data() + sizeof(Timestamp));
+			auto size = reinterpret_cast<const uint64_t&>(result[sizeof(Timestamp)]);
 			EXPECT_EQ(originalGroup.size(), size);
 
 			const auto* pIdentifier = reinterpret_cast<const IdentifierType*>(result.data() + sizeof(Timestamp) + sizeof(uint64_t));

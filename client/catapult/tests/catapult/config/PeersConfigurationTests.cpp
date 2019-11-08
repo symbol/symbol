@@ -202,7 +202,7 @@ namespace catapult { namespace config {
 		AssertEndpoint(node.endpoint(), "bob.nem.ninja", 12345);
 		AssertMetadata(node.metadata(), "", ionet::NodeRoles::Peer);
 
-#ifdef SIGNATURE_SCHEME_NIS1
+#ifdef SIGNATURE_SCHEME_KECCAK
 		auto expectedAddress = "EUOJUDIG67LNG5WHL5MI4RAR5Y46RKTENKUJJCQV";
 #else
 		auto expectedAddress = "EWX7YGZ5D524BZVRCPJL3M34MV23QJKFRPLA5UKO";

@@ -221,11 +221,11 @@ namespace catapult { namespace ionet {
 		auto dataBuffer1 = test::GenerateRandomArray<Data1_Size>();
 		auto pPacket1 = CreatePacketPointerWithData(dataBuffer1);
 
-		constexpr auto Data2_Size = 126u + 212 + 111;
+		constexpr auto Data2_Size = 164u + 212 + 132;
 		auto entities = std::vector<std::shared_ptr<model::VerifiableEntity>>{
-			test::CreateRandomEntityWithSize<>(126),
+			test::CreateRandomEntityWithSize<>(164),
 			test::CreateRandomEntityWithSize<>(212),
-			test::CreateRandomEntityWithSize<>(111)
+			test::CreateRandomEntityWithSize<>(132)
 		};
 
 		// Act:

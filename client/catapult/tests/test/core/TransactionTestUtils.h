@@ -32,7 +32,7 @@ namespace catapult { namespace test {
 	using MutableTransactions = std::vector<std::shared_ptr<model::Transaction>>;
 
 	/// Hash string of the deterministic transaction.
-#ifdef SIGNATURE_SCHEME_NIS1
+#ifdef SIGNATURE_SCHEME_KECCAK
 	constexpr auto Deterministic_Transaction_Hash_String = "05DDD42BB6D2A47E6861FDA4AE31CFF57B72E1053A9CECF04B639EA735A74CDB";
 #else
 	constexpr auto Deterministic_Transaction_Hash_String = "928C1370941AAACE99C91D31D6C6B4FA511F83387C4DA99536F8F0B62545D755";
@@ -83,25 +83,36 @@ namespace catapult { namespace test {
 		AssertTransactionHasExpectedProperties<Embedded##NAME##Transaction>(__VA_ARGS__); \
 	}
 
+/// Adds basic transaction alignment tests for \a NAME transaction.
+#define ADD_BASIC_TRANSACTION_ALIGNMENT_TESTS(NAME) \
+	TEST(NAME##TransactionTests, TransactionHasProperAlignment) { \
+		AssertTransactionHasProperAlignment<NAME##Transaction>(); \
+	} \
+	TEST(NAME##TransactionTests, EmbeddedTransactionHasProperAlignment) { \
+		AssertTransactionHasProperAlignment<Embedded##NAME##Transaction>(); \
+	}
+
 /// Adds basic transaction size and property tests for \a NAME transaction with custom arguments.
 #define ADD_BASIC_TRANSACTION_SIZE_PROPERTY_TESTS_WITH_ARGS(NAME, ...) \
 	ADD_BASIC_TRANSACTION_PROPERTY_TESTS_WITH_ARGS(NAME, __VA_ARGS__) \
+	ADD_BASIC_TRANSACTION_ALIGNMENT_TESTS(NAME) \
 	\
-	TEST(NAME##TransactionTests, EntityHasExpectedSize) { \
-		AssertEntityHasExpectedSize<NAME##Transaction>(sizeof(Transaction), __VA_ARGS__); \
+	TEST(NAME##TransactionTests, TransactionHasExpectedSize) { \
+		AssertTransactionHasExpectedSize<NAME##Transaction>(sizeof(Transaction), __VA_ARGS__); \
 	} \
 	TEST(NAME##TransactionTests, EmbeddedTransactionHasExpectedSize) { \
-		AssertEntityHasExpectedSize<Embedded##NAME##Transaction>(sizeof(EmbeddedTransaction), __VA_ARGS__); \
+		AssertTransactionHasExpectedSize<Embedded##NAME##Transaction>(sizeof(EmbeddedTransaction), __VA_ARGS__); \
 	}
 
 /// Adds basic transaction size and property tests for \a NAME transaction.
 #define ADD_BASIC_TRANSACTION_SIZE_PROPERTY_TESTS(NAME) \
 	ADD_BASIC_TRANSACTION_PROPERTY_TESTS_WITH_ARGS(NAME,) \
+	ADD_BASIC_TRANSACTION_ALIGNMENT_TESTS(NAME) \
 	\
-	TEST(NAME##TransactionTests, EntityHasExpectedSize) { \
-		AssertEntityHasExpectedSize<NAME##Transaction>(sizeof(Transaction)); \
+	TEST(NAME##TransactionTests, TransactionHasExpectedSize) { \
+		AssertTransactionHasExpectedSize<NAME##Transaction>(sizeof(Transaction)); \
 	} \
 	TEST(NAME##TransactionTests, EmbeddedTransactionHasExpectedSize) { \
-		AssertEntityHasExpectedSize<Embedded##NAME##Transaction>(sizeof(EmbeddedTransaction)); \
+		AssertTransactionHasExpectedSize<Embedded##NAME##Transaction>(sizeof(EmbeddedTransaction)); \
 	}
 }}

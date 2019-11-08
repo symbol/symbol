@@ -295,7 +295,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCalculateBlockTransactionsInfoForBlockWithSingleTransaction) {
 		// Arrange:
-		auto pBlock = test::GenerateBlockWithTransactions(test::ConstTransactions{ test::GenerateRandomTransactionWithSize(123) });
+		auto pBlock = test::GenerateBlockWithTransactions(test::ConstTransactions{ test::GenerateRandomTransactionWithSize(132) });
 		pBlock->FeeMultiplier = BlockFeeMultiplier(3);
 
 		// Act:
@@ -303,13 +303,13 @@ namespace catapult { namespace model {
 
 		// Assert:
 		EXPECT_EQ(1u, blockTransactionsInfo.Count);
-		EXPECT_EQ(Amount(3 * 123), blockTransactionsInfo.TotalFee);
+		EXPECT_EQ(Amount(3 * 132), blockTransactionsInfo.TotalFee);
 	}
 
 	TEST(TEST_CLASS, CanCalculateBlockTransactionsInfoForBlockWithMultipleTransactions) {
 		// Arrange:
 		auto pBlock = test::GenerateBlockWithTransactions(test::ConstTransactions{
-			test::GenerateRandomTransactionWithSize(123),
+			test::GenerateRandomTransactionWithSize(132),
 			test::GenerateRandomTransactionWithSize(222),
 			test::GenerateRandomTransactionWithSize(552)
 		});
@@ -320,7 +320,7 @@ namespace catapult { namespace model {
 
 		// Assert:
 		EXPECT_EQ(3u, blockTransactionsInfo.Count);
-		EXPECT_EQ(Amount(3 * 897), blockTransactionsInfo.TotalFee);
+		EXPECT_EQ(Amount(3 * 906), blockTransactionsInfo.TotalFee);
 	}
 
 	// endregion
@@ -376,17 +376,26 @@ namespace catapult { namespace model {
 			}
 		};
 
-		size_t SumTransactionSizes(const Transactions& transactions) {
+		size_t SumTransactionSizes(const Transactions& transactions, bool includePadding = false) {
 			auto transactionsSize = 0u;
-			for (const auto& pTransaction : transactions)
+			auto lastPaddingSize = 0u;
+			for (const auto& pTransaction : transactions) {
 				transactionsSize += pTransaction->Size;
 
-			return transactionsSize;
+				if (includePadding) {
+					lastPaddingSize = utils::GetPaddingSize(pTransaction->Size, 8);
+					transactionsSize += lastPaddingSize;
+				}
+			}
+
+			return transactionsSize - lastPaddingSize;
 		}
 
 		void AssertTransactionsInBlock(const Block& block, const Transactions& expectedTransactions) {
 			auto transactionCount = 0u;
 			auto transactionsSize = 0u;
+
+			// 1. iterate over block transactions and compare against expected
 			auto expectedIter = expectedTransactions.cbegin();
 			for (const auto& blockTransaction : block.Transactions()) {
 				ASSERT_NE(expectedTransactions.cend(), expectedIter);
@@ -395,8 +404,26 @@ namespace catapult { namespace model {
 				++transactionCount;
 			}
 
+			// 2. check iterated size and count
 			EXPECT_EQ(expectedTransactions.size(), transactionCount);
 			EXPECT_EQ(SumTransactionSizes(expectedTransactions), transactionsSize);
+
+			// 3. check padding bytes
+			std::vector<uint8_t> transactionPaddingBytes;
+			const auto* pTransactionBytes = reinterpret_cast<const uint8_t*>(block.TransactionsPtr());
+			for (auto i = 0u; i < expectedTransactions.size(); ++i) {
+				const auto& pExpectedTransaction = expectedTransactions[i];
+				pTransactionBytes += pExpectedTransaction->Size;
+
+				if (i < expectedTransactions.size() - 1) {
+					auto paddingSize = utils::GetPaddingSize(pExpectedTransaction->Size, 8);
+					transactionPaddingBytes.insert(transactionPaddingBytes.end(), pTransactionBytes, pTransactionBytes + paddingSize);
+					pTransactionBytes += paddingSize;
+				}
+			}
+
+			EXPECT_EQ(SumTransactionSizes(expectedTransactions, true), transactionsSize + transactionPaddingBytes.size());
+			EXPECT_EQ(std::vector<uint8_t>(transactionPaddingBytes.size(), 0), transactionPaddingBytes);
 		}
 
 		template<typename TContainerTraits>
@@ -416,12 +443,12 @@ namespace catapult { namespace model {
 			auto pBlock = CreateBlock(context, static_cast<NetworkIdentifier>(0x17), signer.publicKey(), transactions);
 
 			// Assert:
-			ASSERT_EQ(sizeof(BlockHeader) + SumTransactionSizes(transactions), pBlock->Size);
+			ASSERT_EQ(sizeof(BlockHeader) + SumTransactionSizes(transactions, true), pBlock->Size);
 			EXPECT_EQ(Signature(), pBlock->Signature);
 
 			EXPECT_EQ(signer.publicKey(), pBlock->SignerPublicKey);
-			EXPECT_EQ(static_cast<NetworkIdentifier>(0x17), pBlock->Network());
-			EXPECT_EQ(Block::Current_Version, pBlock->EntityVersion());
+			EXPECT_EQ(Block::Current_Version, pBlock->Version);
+			EXPECT_EQ(static_cast<NetworkIdentifier>(0x17), pBlock->Network);
 			EXPECT_EQ(Entity_Type_Block, pBlock->Type);
 
 			EXPECT_EQ(Height(1235), pBlock->Height);
@@ -464,7 +491,7 @@ namespace catapult { namespace model {
 			auto pBlock = StitchBlock(blockHeader, transactions);
 
 			// Assert:
-			ASSERT_EQ(sizeof(BlockHeader) + SumTransactionSizes(transactions), pBlock->Size);
+			ASSERT_EQ(sizeof(BlockHeader) + SumTransactionSizes(transactions, true), pBlock->Size);
 
 			EXPECT_EQ_MEMORY(
 					reinterpret_cast<const uint8_t*>(&blockHeader) + sizeof(BlockHeader::Size),

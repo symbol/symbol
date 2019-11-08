@@ -27,7 +27,7 @@ namespace catapult { namespace test {
 	/// \note Cannot use type NamespaceId because it is defined in plugin.
 	constexpr uint64_t Default_Namespace_Id(0xB149'7F5F'BA65'1B4F);
 
-#ifdef SIGNATURE_SCHEME_NIS1
+#ifdef SIGNATURE_SCHEME_KECCAK
 	/// Default (well known) currency mosaic id used in tests (`currency`).
 	constexpr MosaicId Default_Currency_Mosaic_Id(0x7C3C'F4E0'9BC8'82EF);
 

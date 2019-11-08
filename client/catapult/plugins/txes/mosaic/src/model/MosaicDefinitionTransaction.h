@@ -38,21 +38,21 @@ namespace catapult { namespace model {
 		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Mosaic_Definition, 1)
 
 	public:
-		/// Mosaic nonce.
-		MosaicNonce Nonce;
-
 		/// Mosaic identifier.
 		/// \note This must match the generated id.
 		MosaicId Id;
+
+		/// Mosaic duration
+		BlockDuration Duration;
+
+		/// Mosaic nonce.
+		MosaicNonce Nonce;
 
 		/// Mosaic flags.
 		MosaicFlags Flags;
 
 		/// Mosaic divisibility.
 		uint8_t Divisibility;
-
-		/// Mosaic duration
-		BlockDuration Duration;
 
 	public:
 		/// Calculates the real size of mosaic definition \a transaction.

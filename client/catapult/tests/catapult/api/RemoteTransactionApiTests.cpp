@@ -87,16 +87,22 @@ namespace catapult { namespace api {
 			static void ValidateResponse(const ionet::Packet& response, const model::TransactionRange& transactions) {
 				ASSERT_EQ(3u, transactions.size());
 
-				auto pExpectedData = response.Data();
+				const auto* pExpectedData = response.Data();
 				auto parsedIter = transactions.cbegin();
-				for (auto i = 0u; i < transactions.size(); ++i) {
+				for (auto i = 0u; i < transactions.size(); ++i, ++parsedIter) {
 					std::string message = "comparing transactions at " + std::to_string(i);
-					const auto& expectedTransaction = reinterpret_cast<const TransactionType&>(*pExpectedData);
 					const auto& actualTransaction = *parsedIter;
+
+					// `response` is the (unprocessed) response Packet, which contains unaligned data
+					// `transactions` is the (processed) result, which is aligned
+					std::vector<uint8_t> expectedTransactionBuffer(actualTransaction.Size);
+					std::memcpy(&expectedTransactionBuffer[0], pExpectedData, actualTransaction.Size);
+					const auto& expectedTransaction = reinterpret_cast<const TransactionType&>(expectedTransactionBuffer[0]);
+
 					ASSERT_EQ(expectedTransaction.Size, actualTransaction.Size) << message;
 					EXPECT_EQ(Timestamp(5 * i), actualTransaction.Deadline) << message;
 					EXPECT_EQ(expectedTransaction, actualTransaction) << message;
-					++parsedIter;
+
 					pExpectedData += expectedTransaction.Size;
 				}
 			}

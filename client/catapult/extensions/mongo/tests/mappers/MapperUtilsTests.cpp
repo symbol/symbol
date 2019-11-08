@@ -335,7 +335,7 @@ namespace catapult { namespace mongo { namespace mappers {
 		auto view = builder.view();
 
 		// Assert:
-		EXPECT_EQ(3u, test::GetFieldCount(view));
+		EXPECT_EQ(4u, test::GetFieldCount(view));
 		test::AssertEqualEmbeddedTransactionData(transaction, view);
 	}
 
@@ -350,7 +350,7 @@ namespace catapult { namespace mongo { namespace mappers {
 		auto view = builder.view();
 
 		// Assert:
-		EXPECT_EQ(4u, test::GetFieldCount(view));
+		EXPECT_EQ(5u, test::GetFieldCount(view));
 		test::AssertEqualVerifiableEntityData(entity, view);
 	}
 

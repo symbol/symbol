@@ -25,12 +25,16 @@ namespace catapult { namespace builders {
 
 	MosaicDefinitionBuilder::MosaicDefinitionBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
 			: TransactionBuilder(networkIdentifier, signer)
-			, m_nonce()
 			, m_id()
+			, m_duration()
+			, m_nonce()
 			, m_flags()
 			, m_divisibility()
-			, m_duration()
 	{}
+
+	void MosaicDefinitionBuilder::setDuration(BlockDuration duration) {
+		m_duration = duration;
+	}
 
 	void MosaicDefinitionBuilder::setNonce(MosaicNonce nonce) {
 		m_nonce = nonce;
@@ -42,10 +46,6 @@ namespace catapult { namespace builders {
 
 	void MosaicDefinitionBuilder::setDivisibility(uint8_t divisibility) {
 		m_divisibility = divisibility;
-	}
-
-	void MosaicDefinitionBuilder::setDuration(BlockDuration duration) {
-		m_duration = duration;
 	}
 
 	size_t MosaicDefinitionBuilder::size() const {
@@ -73,11 +73,11 @@ namespace catapult { namespace builders {
 		auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
 
 		// 2. set fixed transaction fields
-		pTransaction->Nonce = m_nonce;
 		pTransaction->Id = model::GenerateMosaicId(signerPublicKey(), m_nonce);
+		pTransaction->Duration = m_duration;
+		pTransaction->Nonce = m_nonce;
 		pTransaction->Flags = m_flags;
 		pTransaction->Divisibility = m_divisibility;
-		pTransaction->Duration = m_duration;
 
 		return pTransaction;
 	}

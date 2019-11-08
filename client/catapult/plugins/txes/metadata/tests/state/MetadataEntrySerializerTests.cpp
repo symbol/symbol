@@ -124,7 +124,7 @@ namespace catapult { namespace state {
 		EXPECT_EQ(TTraits::Metadata_Type, header.MetadataType);
 		AssertEqual(header, entry.key());
 
-		EXPECT_EQ(0u, header.ValueSize);
+		EXPECT_EQ(0u, static_cast<uint16_t>(header.ValueSize)); // not aligned so cannot be passed by reference
 	}
 
 	METADATA_TRAITS_BASED_TEST(CanSaveEntryWithValue) {
@@ -145,7 +145,7 @@ namespace catapult { namespace state {
 		EXPECT_EQ(TTraits::Metadata_Type, header.MetadataType);
 		AssertEqual(header, entry.key());
 
-		ASSERT_EQ(11u, header.ValueSize);
+		ASSERT_EQ(11u, static_cast<uint16_t>(header.ValueSize)); // not aligned so cannot be passed by reference
 		EXPECT_EQ_MEMORY(valueBuffer.data(), &buffer[sizeof(MetadataEntryHeader)], valueBuffer.size());
 	}
 

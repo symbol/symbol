@@ -40,11 +40,11 @@ namespace catapult { namespace builders {
 		/// Sets the recipient address to \a recipientAddress.
 		void setRecipientAddress(const UnresolvedAddress& recipientAddress);
 
-		/// Sets the attached message to \a message.
-		void setMessage(const RawBuffer& message);
-
 		/// Adds \a mosaic to attached mosaics.
 		void addMosaic(const model::UnresolvedMosaic& mosaic);
+
+		/// Sets the attached message to \a message.
+		void setMessage(const RawBuffer& message);
 
 	public:
 		/// Gets the size of transfer transaction.
@@ -66,7 +66,7 @@ namespace catapult { namespace builders {
 
 	private:
 		UnresolvedAddress m_recipientAddress;
-		std::vector<uint8_t> m_message;
 		std::vector<model::UnresolvedMosaic> m_mosaics;
+		std::vector<uint8_t> m_message;
 	};
 }}

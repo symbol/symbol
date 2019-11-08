@@ -73,6 +73,7 @@ namespace catapult { namespace mongo { namespace mappers {
 			builder
 					<< "signerPublicKey" << ToBinary(entity.SignerPublicKey)
 					<< "version" << entity.Version
+					<< "network" << utils::to_underlying_type(entity.Network)
 					<< "type" << utils::to_underlying_type(entity.Type);
 			return builder;
 		}

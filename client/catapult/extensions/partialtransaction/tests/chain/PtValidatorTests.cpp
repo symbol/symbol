@@ -369,8 +369,8 @@ namespace catapult { namespace chain {
 
 				std::vector<model::NotificationType> expectedNotificationTypes{
 					model::Aggregate_Cosignatures_Notification,
-					model::Aggregate_EmbeddedTransaction_Notification,
-					model::Aggregate_EmbeddedTransaction_Notification
+					model::Aggregate_Embedded_Transaction_Notification,
+					model::Aggregate_Embedded_Transaction_Notification
 				};
 				EXPECT_EQ(expectedNotificationTypes, notificationTypes);
 			} else {

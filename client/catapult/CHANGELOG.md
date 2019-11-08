@@ -3,6 +3,22 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.9.0.1] - 08-November-2019
+
+### Added
+ - Support for `make install`
+
+### Changed
+ - Add hash variant name to binary descriptions
+ - Realign transaction binary layouts to maximize alignment of fields
+ - Add `AggregateTransaction::TransactionHash` that contains merkle hash of component transactions
+ - Store `Version` and `Network` directly in `EntityBody`
+
+### Fixed
+ - GitHub Issues: #45 #46 #47 #48 #49 #50
+ - Bug in harvester `StateHash` calculation when `transactionSelectionStrategy` is not `oldest`
+ - Fix remaining UBSAN and TSAN warnings
+
 ## [0.8.0.3] - 02-October-2019
 
 ### Added
@@ -152,6 +168,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Added
 - Initial code release.
 
+[0.9.0.1]: https://github.com/nemtech/catapult-server/compare/v0.8.0.3...v0.9.0.1
 [0.8.0.3]: https://github.com/nemtech/catapult-server/compare/v0.7.0.1...v0.8.0.3
 [0.7.0.1]: https://github.com/nemtech/catapult-server/compare/v0.6.0.1...v0.7.0.1
 [0.6.0.1]: https://github.com/nemtech/catapult-server/compare/v0.5.0.1...v0.6.0.1

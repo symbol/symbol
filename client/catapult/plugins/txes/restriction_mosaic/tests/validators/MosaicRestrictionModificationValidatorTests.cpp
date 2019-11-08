@@ -42,6 +42,11 @@ namespace catapult { namespace validators {
 		public:
 			using NotificationType = typename TTestTraits::NotificationType;
 
+		protected:
+			const TTestTraits& testTraits() const {
+				return m_traits;
+			}
+
 		public:
 			NotificationType createNotification(uint64_t key, uint64_t value, InitializationScheme scheme) {
 				if (InitializationScheme::Unset == scheme)
@@ -68,6 +73,19 @@ namespace catapult { namespace validators {
 			static constexpr auto CreateValidator = CreateMosaicGlobalRestrictionModificationValidator;
 		};
 
+		class GlobalTraitsNonzeroReference : public BasicTraits<GlobalTestTraits> {
+		public:
+			static constexpr auto CreateValidator = CreateMosaicGlobalRestrictionModificationValidator;
+
+		public:
+			NotificationType createNotification(uint64_t key, uint64_t value, InitializationScheme scheme) {
+				// set the reference mosaic id to a nonzero value
+				auto notification = BasicTraits<GlobalTestTraits>::createNotification(key, value, scheme);
+				notification.ReferenceMosaicId = testTraits().referenceMosaicId();
+				return notification;
+			}
+		};
+
 		class AddressTraits : public BasicTraits<AddressTestTraits> {
 		public:
 			static constexpr auto CreateValidator = CreateMosaicAddressRestrictionModificationValidator;
@@ -77,6 +95,9 @@ namespace catapult { namespace validators {
 #define RESTRICTION_TYPE_BASED_TEST(TEST_NAME) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	TEST(MosaicGlobalRestrictionModificationValidatorTests, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<GlobalTraits>(); } \
+	TEST(MosaicGlobalRestrictionModificationValidatorTests, TEST_NAME##_NonzeroReference) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<GlobalTraitsNonzeroReference>(); \
+	} \
 	TEST(MosaicAddressRestrictionModificationValidatorTests, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 

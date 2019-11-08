@@ -651,36 +651,6 @@ namespace catapult { namespace ionet {
 		EXPECT_EQUAL_BUFFERS(sendBuffers[0], 0, 100u, result.ReceivedBuffer);
 	}
 
-	TEST(TEST_CLASS, WaitForDataIsTriggeredWhenReadCallbackIsRegistered) {
-		// Arrange: send two buffers each containing a packet
-		SendBuffersResult result;
-		std::atomic<size_t> callbackMask(0);
-		std::vector<ByteBuffer> sendBuffers{ test::GenerateRandomPacketBuffer(100), test::GenerateRandomPacketBuffer(80) };
-
-		// Act: "server" - waits for data to become available and reads the data simultaneously
-		//      "client" - sends two buffers
-		auto pPool = test::CreateStartedIoThreadPool();
-		test::SpawnPacketServerWork(pPool->ioContext(), [&result, &callbackMask](const auto& pServerSocket) {
-			pServerSocket->read([pServerSocket, &result, &callbackMask](auto code, const auto* pPacket) {
-				FillResult(result, pServerSocket, code, pPacket);
-
-				pServerSocket->waitForData([&callbackMask]() {
-					callbackMask += (1 << 4);
-				});
-			});
-			pServerSocket->waitForData([&callbackMask]() {
-				callbackMask += (1 << 8);
-			});
-		});
-		test::AddClientWriteBuffersTask(pPool->ioContext(), sendBuffers);
-		pPool->join();
-
-		// Assert:
-		EXPECT_EQ(0x0110u, callbackMask);
-		AssertSendBuffersResult(result, SocketOperationCode::Success, 0);
-		EXPECT_EQUAL_BUFFERS(sendBuffers[0], 0, 100u, result.ReceivedBuffer);
-	}
-
 	// endregion
 
 	// region close

@@ -19,6 +19,8 @@
 **/
 
 #include "src/builders/AggregateTransactionBuilder.h"
+#include "catapult/crypto/Hashes.h"
+#include "catapult/crypto/MerkleHashBuilder.h"
 #include "catapult/crypto/Signer.h"
 #include "catapult/model/EntityHasher.h"
 #include "sdk/tests/builders/test/BuilderTestUtils.h"
@@ -33,6 +35,19 @@ namespace catapult { namespace builders {
 	namespace {
 		using RegularTraits = test::RegularTransactionTraits<model::AggregateTransaction>;
 
+		Hash256 CalculateAggregateTransactionsHash(const std::vector<std::unique_ptr<mocks::EmbeddedMockTransaction>>& transactions) {
+			crypto::MerkleHashBuilder transactionsHashBuilder(transactions.size());
+			for (const auto& pTransaction : transactions) {
+				Hash256 transactionHash;
+				crypto::Sha3_256({ reinterpret_cast<const uint8_t*>(pTransaction.get()), pTransaction->Size }, transactionHash);
+				transactionsHashBuilder.update(transactionHash);
+			}
+
+			Hash256 transactionsHash;
+			transactionsHashBuilder.final(transactionsHash);
+			return transactionsHash;
+		}
+
 		class TestContext {
 		public:
 			explicit TestContext(size_t numTransactions)
@@ -40,45 +55,66 @@ namespace catapult { namespace builders {
 					, m_signer(test::GenerateRandomByteArray<Key>())
 					, m_builder(m_networkId, m_signer) {
 				for (auto i = 0u; i < numTransactions; ++i)
-					m_pTransactions.push_back(mocks::CreateEmbeddedMockTransaction(static_cast<uint16_t>(31 + i)));
+					m_transactions.push_back(mocks::CreateEmbeddedMockTransaction(static_cast<uint16_t>(31 + i)));
 			}
 
 		public:
 			auto buildTransaction() {
-				for (const auto& pTransaction : m_pTransactions)
+				for (const auto& pTransaction : m_transactions)
 					m_builder.addTransaction(test::CopyEntity(*pTransaction));
 
 				return m_builder.build();
 			}
 
 			void assertTransaction(const model::AggregateTransaction& transaction, size_t numCosignatures, model::EntityType type) {
-				auto numTransactions = m_pTransactions.size();
-				size_t additionalSize = numTransactions * sizeof(mocks::EmbeddedMockTransaction);
+				auto numTransactions = m_transactions.size();
+				size_t payloadSize = numTransactions * sizeof(mocks::EmbeddedMockTransaction);
 				for (auto i = 0u; i < numTransactions; ++i)
-					additionalSize += 31 + i;
+					payloadSize += 31 + i + utils::GetPaddingSize(sizeof(mocks::EmbeddedMockTransaction) + 31 + i, 8);
 
 				// aggregate builder does not include cosignatures in size()
-				RegularTraits::CheckBuilderSize(additionalSize, m_builder);
+				RegularTraits::CheckBuilderSize(payloadSize, m_builder);
 
-				additionalSize += numCosignatures * sizeof(model::Cosignature);
+				auto additionalSize = payloadSize + numCosignatures * sizeof(model::Cosignature);
 				RegularTraits::CheckFields(additionalSize, transaction);
 				EXPECT_EQ(m_signer, transaction.SignerPublicKey);
-				EXPECT_EQ(0x6201, transaction.Version);
+				EXPECT_EQ(1u, transaction.Version);
+				EXPECT_EQ(static_cast<model::NetworkIdentifier>(0x62), transaction.Network);
 				EXPECT_EQ(type, transaction.Type);
+
+				EXPECT_EQ(CalculateAggregateTransactionsHash(m_transactions), transaction.TransactionsHash);
+				ASSERT_EQ(payloadSize, transaction.PayloadSize);
 
 				auto i = 0u;
 				for (const auto& embedded : transaction.Transactions()) {
-					ASSERT_EQ(m_pTransactions[i]->Size, embedded.Size) << "invalid size of transaction " << i;
-					EXPECT_EQ_MEMORY(m_pTransactions[i].get(), &embedded, embedded.Size) << "invalid transaction " << i;
+					ASSERT_EQ(m_transactions[i]->Size, embedded.Size) << "invalid size of transaction " << i;
+					EXPECT_EQ_MEMORY(m_transactions[i].get(), &embedded, embedded.Size) << "invalid transaction " << i;
 					++i;
 				}
+
+				// check padding bytes
+				i = 0;
+				auto transactionsSize = 0u;
+				std::vector<uint8_t> transactionPaddingBytes;
+				const auto* pTransactionBytes = reinterpret_cast<const uint8_t*>(transaction.TransactionsPtr());
+				for (const auto& embedded : transaction.Transactions()) {
+					pTransactionBytes += embedded.Size;
+					transactionsSize += embedded.Size;
+
+					auto paddingSize = utils::GetPaddingSize(embedded.Size, 8);
+					transactionPaddingBytes.insert(transactionPaddingBytes.end(), pTransactionBytes, pTransactionBytes + paddingSize);
+					pTransactionBytes += paddingSize;
+				}
+
+				EXPECT_EQ(payloadSize, transactionsSize + transactionPaddingBytes.size());
+				EXPECT_EQ(std::vector<uint8_t>(transactionPaddingBytes.size(), 0), transactionPaddingBytes);
 			}
 
 		private:
 			const model::NetworkIdentifier m_networkId;
 			const Key m_signer;
 			AggregateTransactionBuilder m_builder;
-			std::vector<std::unique_ptr<mocks::EmbeddedMockTransaction>> m_pTransactions;
+			std::vector<std::unique_ptr<mocks::EmbeddedMockTransaction>> m_transactions;
 		};
 
 		void AssertAggregateBuilderTransaction(size_t numTransactions) {
@@ -102,8 +138,8 @@ namespace catapult { namespace builders {
 
 		RawBuffer TransactionDataBuffer(const model::AggregateTransaction& transaction) {
 			return {
-				reinterpret_cast<const uint8_t*>(&transaction) + model::VerifiableEntity::Header_Size,
-				sizeof(model::AggregateTransaction) - model::VerifiableEntity::Header_Size + transaction.PayloadSize
+				reinterpret_cast<const uint8_t*>(&transaction) + model::Transaction::Header_Size,
+				sizeof(model::AggregateTransaction) - model::Transaction::Header_Size - model::AggregateTransaction::Footer_Size
 			};
 		}
 

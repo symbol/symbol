@@ -55,7 +55,8 @@ namespace catapult { namespace model {
 		hashBuilder.update({ reinterpret_cast<const uint8_t*>(&type), sizeof(ReceiptType) });
 		hashBuilder.update({ reinterpret_cast<const uint8_t*>(&m_unresolved), sizeof(TUnresolved) });
 
-		hashBuilder.update({ reinterpret_cast<const uint8_t*>(m_entries.data()), m_entries.size() * sizeof(ResolutionEntry) });
+		for (const auto& entry : m_entries)
+			hashBuilder.update({ reinterpret_cast<const uint8_t*>(&entry), sizeof(ResolutionEntry) });
 
 		Hash256 hash;
 		hashBuilder.final(hash);
@@ -80,7 +81,10 @@ namespace catapult { namespace model {
 				return;
 		}
 
-		m_entries.emplace_back(ResolutionEntry{ resolved, source });
+		PaddedResolutionEntry entry;
+		entry.Source = source;
+		entry.ResolvedValue = resolved;
+		m_entries.push_back(entry);
 	}
 
 #undef RESOLUTION_STATEMENT_T

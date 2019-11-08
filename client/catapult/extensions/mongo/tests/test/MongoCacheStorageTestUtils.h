@@ -73,9 +73,9 @@ namespace catapult { namespace test {
 		static void AssertDbContains(mongocxx::database& database, const ElementType& element) {
 			auto filter = TTraits::GetFindFilter(element);
 			auto matchedDocument = database[TTraits::Collection_Name].find_one(filter.view());
-			ASSERT_TRUE(matchedDocument.is_initialized());
+			ASSERT_TRUE(matchedDocument.has_value());
 
-			TTraits::AssertEqual(element, matchedDocument.get().view());
+			TTraits::AssertEqual(element, matchedDocument.value().view());
 		}
 	};
 }}

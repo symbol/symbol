@@ -30,7 +30,7 @@ namespace catapult { namespace validators {
 		return MAKE_STATELESS_VALIDATOR(AccountAddressRestrictionNoSelfModification, [networkIdentifier](
 				const Notification& notification) {
 			auto address = model::PublicKeyToAddress(notification.Key, networkIdentifier);
-			return address != model::ResolverContext().resolve(notification.Modification.Value)
+			return address != model::ResolverContext().resolve(notification.RestrictionValue)
 					? ValidationResult::Success
 					: Failure_RestrictionAccount_Invalid_Modification_Address;
 		});

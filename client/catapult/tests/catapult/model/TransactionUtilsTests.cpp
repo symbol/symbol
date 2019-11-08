@@ -54,7 +54,7 @@ namespace catapult { namespace model {
 					sub.notify(AccountPublicKeyNotification(transaction.SignerPublicKey));
 					sub.notify(AccountPublicKeyNotification(transaction.RecipientPublicKey));
 				} else {
-					sub.notify(EntityNotification(transaction.Network(), transaction.EntityVersion(), 0, 0));
+					sub.notify(EntityNotification(transaction.Network, transaction.Version, 0, 0));
 				}
 			}
 

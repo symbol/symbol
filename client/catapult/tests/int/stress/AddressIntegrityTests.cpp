@@ -47,7 +47,7 @@ namespace catapult {
 		struct MijinTestNetworkTraits {
 			static constexpr auto Network_Identifier = model::NetworkIdentifier::Mijin_Test;
 			static constexpr auto Nemesis_Private_Key = test::Mijin_Test_Nemesis_Private_Key;
-#ifdef SIGNATURE_SCHEME_NIS1
+#ifdef SIGNATURE_SCHEME_KECCAK
 			static constexpr auto Expected_Nemesis_Address = "SAPO6C4QJBWWFZAZAKH55IDCIDEQX6AVRFV5M7Q3";
 #else
 			static constexpr auto Expected_Nemesis_Address = "SARNASAS2BIAB6LMFA3FPMGBPGIJGK6IJETM3ZSP";
@@ -59,7 +59,7 @@ namespace catapult {
 
 			static std::vector<std::string> ExpectedAddresses() {
 				return {
-#ifdef SIGNATURE_SCHEME_NIS1
+#ifdef SIGNATURE_SCHEME_KECCAK
 					"SCKPJHW4DQEQE6ALBRPUXL7CCOEYC6KRSTM27AXP",
 					"SDOFLGBMIJDJSIGSPDIXDMHUGL32RYCRSBQOHPP4",
 					"SBFLOD5YUZPAU7TVWKCHHOBGNX7C7IXJY37I3R6M",

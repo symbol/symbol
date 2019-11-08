@@ -36,7 +36,7 @@ namespace catapult { namespace validators {
 		constexpr auto Add = model::AccountRestrictionModificationAction::Add;
 		constexpr auto Del = model::AccountRestrictionModificationAction::Del;
 		constexpr auto Relevant_Entity_Type = model::AccountOperationRestrictionTransaction::Entity_Type;
-		constexpr auto Restriction_Type = model::AccountRestrictionType::TransactionType | model::AccountRestrictionType::Outgoing;
+		constexpr auto Restriction_Flags = model::AccountRestrictionFlags::TransactionType | model::AccountRestrictionFlags::Outgoing;
 		constexpr auto Failure_Result = Failure_RestrictionAccount_Invalid_Modification;
 
 		struct AccountOperationRestrictionTraits : public test::BaseAccountOperationRestrictionTraits {
@@ -53,7 +53,7 @@ namespace catapult { namespace validators {
 			auto& restrictionCacheDelta = delta.sub<cache::AccountRestrictionCache>();
 			auto address = model::PublicKeyToAddress(key, model::NetworkIdentifier::Zero);
 			auto restrictions = state::AccountRestrictions(address);
-			auto& restriction = restrictions.restriction(Restriction_Type);
+			auto& restriction = restrictions.restriction(Restriction_Flags);
 			for (auto value : values)
 				TOperationTraits::Add(restriction, state::ToVector(value));
 
@@ -101,8 +101,14 @@ namespace catapult { namespace validators {
 		}
 
 		template<typename TOperationTraits>
-		auto CreateNotification(const Key& key, const model::AccountRestrictionModification<model::EntityType>& modification) {
-			return test::CreateNotification<AccountOperationRestrictionTraits, TOperationTraits>(key, modification);
+		auto CreateNotification(
+				const Key& key,
+				model::AccountRestrictionModificationAction action,
+				const model::EntityType& restrictionValue) {
+			return test::CreateAccountRestrictionValueNotification<AccountOperationRestrictionTraits, TOperationTraits>(
+					key,
+					restrictionValue,
+					action);
 		}
 	}
 
@@ -112,8 +118,8 @@ namespace catapult { namespace validators {
 		// Arrange:
 		auto seedKey = test::GenerateRandomByteArray<Key>();
 		auto notificationKey = test::GenerateRandomByteArray<Key>();
-		auto modification = model::AccountRestrictionModification<model::EntityType>{ Add, RandomValue() };
-		auto notification = CreateNotification<test::AllowTraits>(notificationKey, modification);
+		auto restrictionValue = RandomValue();
+		auto notification = CreateNotification<test::AllowTraits>(notificationKey, Add, restrictionValue);
 
 		// Act + Assert:
 		AssertValidationResult<test::AllowTraits>(Failure_Result, CacheSeed::No, seedKey, notification);
@@ -123,8 +129,7 @@ namespace catapult { namespace validators {
 		// Arrange:
 		auto seedKey = test::GenerateRandomByteArray<Key>();
 		auto notificationKey = test::GenerateRandomByteArray<Key>();
-		auto modification = model::AccountRestrictionModification<model::EntityType>{ Add, Relevant_Entity_Type };
-		auto notification = CreateNotification<test::BlockTraits>(notificationKey, modification);
+		auto notification = CreateNotification<test::BlockTraits>(notificationKey, Add, Relevant_Entity_Type);
 
 		// Act + Assert:
 		AssertValidationResult<test::BlockTraits>(Failure_Result, CacheSeed::No, seedKey, notification);
@@ -133,8 +138,7 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, FailureWhenAccountIsKnown_Allow_Del_RelevantType) {
 		// Arrange:
 		auto key = test::GenerateRandomByteArray<Key>();
-		auto modification = model::AccountRestrictionModification<model::EntityType>{ Del, Relevant_Entity_Type };
-		auto notification = CreateNotification<test::AllowTraits>(key, modification);
+		auto notification = CreateNotification<test::AllowTraits>(key, Del, Relevant_Entity_Type);
 
 		// Act + Assert:
 		AssertValidationResult<test::AllowTraits>(Failure_Result, CacheSeed::Empty_Restrictions, key, notification);
@@ -143,8 +147,8 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, FailureWhenAccountIsKnown_Allow_Add_NotRelevantType) {
 		// Arrange:
 		auto key = test::GenerateRandomByteArray<Key>();
-		auto modification = model::AccountRestrictionModification<model::EntityType>{ Add, RandomValue() };
-		auto notification = CreateNotification<test::AllowTraits>(key, modification);
+		auto restrictionValue = RandomValue();
+		auto notification = CreateNotification<test::AllowTraits>(key, Add, restrictionValue);
 
 		// Act + Assert:
 		AssertValidationResult<test::AllowTraits>(Failure_Result, CacheSeed::Empty_Restrictions, key, notification);
@@ -153,8 +157,7 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, FailureWhenAccountIsKnown_Block_Add_RelevantType) {
 		// Arrange:
 		auto key = test::GenerateRandomByteArray<Key>();
-		auto modification = model::AccountRestrictionModification<model::EntityType>{ Add, Relevant_Entity_Type };
-		auto notification = CreateNotification<test::BlockTraits>(key, modification);
+		auto notification = CreateNotification<test::BlockTraits>(key, Add, Relevant_Entity_Type);
 
 		// Act + Assert:
 		AssertValidationResult<test::BlockTraits>(Failure_Result, CacheSeed::Random_Value, key, notification);
@@ -168,8 +171,7 @@ namespace catapult { namespace validators {
 		// Arrange:
 		auto seedKey = test::GenerateRandomByteArray<Key>();
 		auto notificationKey = test::GenerateRandomByteArray<Key>();
-		auto modification = model::AccountRestrictionModification<model::EntityType>{ Add, Relevant_Entity_Type };
-		auto notification = CreateNotification<test::AllowTraits>(notificationKey, modification);
+		auto notification = CreateNotification<test::AllowTraits>(notificationKey, Add, Relevant_Entity_Type);
 
 		// Act + Assert:
 		AssertValidationResult<test::AllowTraits>(ValidationResult::Success, CacheSeed::No, seedKey, notification);
@@ -179,8 +181,8 @@ namespace catapult { namespace validators {
 		// Arrange:
 		auto seedKey = test::GenerateRandomByteArray<Key>();
 		auto notificationKey = test::GenerateRandomByteArray<Key>();
-		auto modification = model::AccountRestrictionModification<model::EntityType>{ Add, RandomValue() };
-		auto notification = CreateNotification<test::BlockTraits>(notificationKey, modification);
+		auto restrictionValue = RandomValue();
+		auto notification = CreateNotification<test::BlockTraits>(notificationKey, Add, restrictionValue);
 
 		// Act + Assert:
 		AssertValidationResult<test::BlockTraits>(ValidationResult::Success, CacheSeed::No, seedKey, notification);
@@ -189,8 +191,7 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, SuccessWhenAccountIsKnown_Allow_Add_RelevantType) {
 		// Arrange:
 		auto key = test::GenerateRandomByteArray<Key>();
-		auto modification = model::AccountRestrictionModification<model::EntityType>{ Add, Relevant_Entity_Type };
-		auto notification = CreateNotification<test::AllowTraits>(key, modification);
+		auto notification = CreateNotification<test::AllowTraits>(key, Add, Relevant_Entity_Type);
 
 		// Act + Assert:
 		AssertValidationResult<test::AllowTraits>(ValidationResult::Success, CacheSeed::Empty_Restrictions, key, notification);
@@ -199,8 +200,8 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, SuccessWhenAccountIsKnown_Allow_Add_NotRelevantType_SeededRelevantType) {
 		// Arrange:
 		auto key = test::GenerateRandomByteArray<Key>();
-		auto modification = model::AccountRestrictionModification<model::EntityType>{ Add, RandomValue() };
-		auto notification = CreateNotification<test::AllowTraits>(key, modification);
+		auto restrictionValue = RandomValue();
+		auto notification = CreateNotification<test::AllowTraits>(key, Add, restrictionValue);
 
 		// Act + Assert:
 		AssertValidationResult<test::AllowTraits>(ValidationResult::Success, CacheSeed::Relevant_Value, key, notification);
@@ -209,8 +210,8 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, SuccessWhenAccountIsKnown_Block_Add_NotRelevantType) {
 		// Arrange:
 		auto key = test::GenerateRandomByteArray<Key>();
-		auto modification = model::AccountRestrictionModification<model::EntityType>{ Add, RandomValue() };
-		auto notification = CreateNotification<test::BlockTraits>(key, modification);
+		auto restrictionValue = RandomValue();
+		auto notification = CreateNotification<test::BlockTraits>(key, Add, restrictionValue);
 
 		// Act + Assert:
 		AssertValidationResult<test::BlockTraits>(ValidationResult::Success, CacheSeed::Random_Value, key, notification);

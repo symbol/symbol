@@ -30,6 +30,7 @@ namespace catapult { namespace model {
 		constexpr bool IsPayloadSizeValid(const AggregateTransaction& aggregate) {
 			return
 					aggregate.Size >= sizeof(AggregateTransaction) &&
+					0 == aggregate.PayloadSize % 8 && // require 8-byte alignment of Cosignatures
 					aggregate.Size - sizeof(AggregateTransaction) >= aggregate.PayloadSize &&
 					0 == (aggregate.Size - sizeof(AggregateTransaction) - aggregate.PayloadSize) % sizeof(Cosignature);
 		}

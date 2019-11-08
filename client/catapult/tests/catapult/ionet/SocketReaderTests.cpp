@@ -249,7 +249,8 @@ namespace catapult { namespace ionet {
 		ServerPacketHandlers handlers;
 		std::vector<uint32_t> packetSizes;
 		test::RegisterDefaultHandler(handlers, [&packetSizes](const auto& packet, auto& context) {
-			packetSizes.push_back(packet.Size);
+			auto packetSize = static_cast<uint32_t>(packet.Size); // Size may be misaligned and cannot be bound to reference
+			packetSizes.push_back(packetSize);
 
 			std::vector<uint8_t> responseBytes{ static_cast<uint8_t>(packetSizes.size()) };
 			for (auto size : packetSizes)

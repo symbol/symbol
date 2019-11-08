@@ -97,7 +97,7 @@ namespace catapult { namespace model {
 					sub.notify(AccountPublicKeyNotification(block.BeneficiaryPublicKey));
 
 				// raise an entity notification
-				sub.notify(EntityNotification(block.Network(), block.EntityVersion(), Block::Current_Version, Block::Current_Version));
+				sub.notify(EntityNotification(block.Network, block.Version, Block::Current_Version, Block::Current_Version));
 
 				// raise a block notification
 				auto blockTransactionsInfo = CalculateBlockTransactionsInfo(block);
@@ -109,7 +109,10 @@ namespace catapult { namespace model {
 
 				// raise a signature notification
 				auto headerSize = VerifiableEntity::Header_Size;
-				auto blockData = RawBuffer{ reinterpret_cast<const uint8_t*>(&block) + headerSize, sizeof(BlockHeader) - headerSize };
+				auto blockData = RawBuffer{
+					reinterpret_cast<const uint8_t*>(&block) + headerSize,
+					sizeof(BlockHeader) - headerSize - Block::Footer_Size
+				};
 				sub.notify(SignatureNotification(block.SignerPublicKey, block.Signature, blockData));
 			}
 
@@ -122,11 +125,7 @@ namespace catapult { namespace model {
 				auto attributes = plugin.attributes();
 
 				// raise an entity notification
-				sub.notify(EntityNotification(
-						transaction.Network(),
-						transaction.EntityVersion(),
-						attributes.MinVersion,
-						attributes.MaxVersion));
+				sub.notify(EntityNotification(transaction.Network, transaction.Version, attributes.MinVersion, attributes.MaxVersion));
 
 				// raise transaction notifications
 				auto fee = pBlockHeader ? CalculateTransactionFee(pBlockHeader->FeeMultiplier, transaction) : transaction.MaxFee;

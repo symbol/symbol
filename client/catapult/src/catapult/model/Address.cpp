@@ -30,7 +30,7 @@ namespace catapult { namespace model {
 		constexpr uint8_t Checksum_Size = 4;
 		constexpr size_t Address_Encoded_Size = 40;
 
-#ifdef SIGNATURE_SCHEME_NIS1
+#ifdef SIGNATURE_SCHEME_KECCAK
 		constexpr auto CatapultHash = crypto::Keccak_256;
 #else
 		constexpr auto CatapultHash = crypto::Sha3_256;

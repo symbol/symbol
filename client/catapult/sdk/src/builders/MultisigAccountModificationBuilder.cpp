@@ -26,7 +26,8 @@ namespace catapult { namespace builders {
 			: TransactionBuilder(networkIdentifier, signer)
 			, m_minRemovalDelta()
 			, m_minApprovalDelta()
-			, m_modifications()
+			, m_publicKeyAdditions()
+			, m_publicKeyDeletions()
 	{}
 
 	void MultisigAccountModificationBuilder::setMinRemovalDelta(int8_t minRemovalDelta) {
@@ -37,8 +38,12 @@ namespace catapult { namespace builders {
 		m_minApprovalDelta = minApprovalDelta;
 	}
 
-	void MultisigAccountModificationBuilder::addModification(const model::CosignatoryModification& modification) {
-		m_modifications.push_back(modification);
+	void MultisigAccountModificationBuilder::addPublicKeyAddition(const Key& publicKeyAddition) {
+		m_publicKeyAdditions.push_back(publicKeyAddition);
+	}
+
+	void MultisigAccountModificationBuilder::addPublicKeyDeletion(const Key& publicKeyDeletion) {
+		m_publicKeyDeletions.push_back(publicKeyDeletion);
 	}
 
 	size_t MultisigAccountModificationBuilder::size() const {
@@ -57,7 +62,8 @@ namespace catapult { namespace builders {
 	size_t MultisigAccountModificationBuilder::sizeImpl() const {
 		// calculate transaction size
 		auto size = sizeof(TransactionType);
-		size += m_modifications.size() * sizeof(model::CosignatoryModification);
+		size += m_publicKeyAdditions.size() * sizeof(Key);
+		size += m_publicKeyDeletions.size() * sizeof(Key);
 		return size;
 	}
 
@@ -69,10 +75,13 @@ namespace catapult { namespace builders {
 		// 2. set fixed transaction fields
 		pTransaction->MinRemovalDelta = m_minRemovalDelta;
 		pTransaction->MinApprovalDelta = m_minApprovalDelta;
-		pTransaction->ModificationsCount = utils::checked_cast<size_t, uint8_t>(m_modifications.size());
+		pTransaction->PublicKeyAdditionsCount = utils::checked_cast<size_t, uint8_t>(m_publicKeyAdditions.size());
+		pTransaction->PublicKeyDeletionsCount = utils::checked_cast<size_t, uint8_t>(m_publicKeyDeletions.size());
+		pTransaction->MultisigAccountModificationTransactionBody_Reserved1 = 0;
 
 		// 3. set transaction attachments
-		std::copy(m_modifications.cbegin(), m_modifications.cend(), pTransaction->ModificationsPtr());
+		std::copy(m_publicKeyAdditions.cbegin(), m_publicKeyAdditions.cend(), pTransaction->PublicKeyAdditionsPtr());
+		std::copy(m_publicKeyDeletions.cbegin(), m_publicKeyDeletions.cend(), pTransaction->PublicKeyDeletionsPtr());
 
 		return pTransaction;
 	}

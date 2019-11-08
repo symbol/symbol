@@ -57,25 +57,29 @@ namespace catapult { namespace test {
 
 	AggregateTransactionWrapper CreateAggregateTransaction(uint8_t numTransactions) {
 		using TransactionType = model::AggregateTransaction;
-		uint32_t entitySize = sizeof(TransactionType) + numTransactions * sizeof(mocks::EmbeddedMockTransaction);
+
+		uint32_t transactionSize = sizeof(mocks::EmbeddedMockTransaction);
+		uint32_t entitySize = sizeof(TransactionType) + numTransactions * (transactionSize + utils::GetPaddingSize(transactionSize, 8));
+
 		AggregateTransactionWrapper wrapper;
 		auto pTransaction = utils::MakeUniqueWithSize<TransactionType>(entitySize);
 		pTransaction->Size = entitySize;
 		pTransaction->Type = model::Entity_Type_Aggregate_Bonded;
-		pTransaction->PayloadSize = numTransactions * sizeof(mocks::EmbeddedMockTransaction);
+		pTransaction->PayloadSize = entitySize - sizeof(TransactionType);
 		FillWithRandomData(pTransaction->SignerPublicKey);
 		FillWithRandomData(pTransaction->Signature);
 
-		auto* pSubTransaction = static_cast<mocks::EmbeddedMockTransaction*>(pTransaction->TransactionsPtr());
+		auto* pSubTransactionBytes = reinterpret_cast<uint8_t*>(pTransaction->TransactionsPtr());
 		for (auto i = 0u; i < numTransactions; ++i) {
-			pSubTransaction->Size = sizeof(mocks::EmbeddedMockTransaction);
+			auto* pSubTransaction = reinterpret_cast<mocks::EmbeddedMockTransaction*>(pSubTransactionBytes);
+			pSubTransaction->Size = transactionSize;
 			pSubTransaction->Data.Size = 0;
 			pSubTransaction->Type = mocks::EmbeddedMockTransaction::Entity_Type;
 			FillWithRandomData(pSubTransaction->SignerPublicKey);
 			FillWithRandomData(pSubTransaction->RecipientPublicKey);
 
 			wrapper.SubTransactions.push_back(pSubTransaction);
-			++pSubTransaction;
+			pSubTransactionBytes += transactionSize + utils::GetPaddingSize(transactionSize, 8);
 		}
 
 		wrapper.pTransaction = std::move(pTransaction);

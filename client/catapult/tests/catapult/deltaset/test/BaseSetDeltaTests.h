@@ -191,7 +191,7 @@ namespace catapult { namespace test {
 			// Assert:
 			AssertDeltaSizes(*pSet, *pDelta, 1, 0, 0, 1);
 
-			EXPECT_EQ(2u + 3u, pDelta->generationId(key));
+			EXPECT_EQ(2u + 3, pDelta->generationId(key));
 		}
 
 		static void AssertMutableBaseSetDeltaFindAlwaysUpdatesGenerationForAddedElement() {
@@ -219,7 +219,7 @@ namespace catapult { namespace test {
 			// Assert:
 			AssertDeltaSizes(*pSet, *pDelta, 0, 1, 0, 0);
 
-			EXPECT_EQ(2u + 3u, pDelta->generationId(key));
+			EXPECT_EQ(2u + 3, pDelta->generationId(key));
 		}
 
 	private:

@@ -37,11 +37,14 @@ namespace catapult { namespace builders {
 		AccountMosaicRestrictionBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
 
 	public:
-		/// Sets the account restriction type to \a restrictionType.
-		void setRestrictionType(model::AccountRestrictionType restrictionType);
+		/// Sets the account restriction flags to \a restrictionFlags.
+		void setRestrictionFlags(model::AccountRestrictionFlags restrictionFlags);
 
-		/// Adds \a modification to account restriction modifications.
-		void addModification(const model::AccountMosaicRestrictionModification& modification);
+		/// Adds \a restrictionAddition to account restriction additions.
+		void addRestrictionAddition(UnresolvedMosaicId restrictionAddition);
+
+		/// Adds \a restrictionDeletion to account restriction deletions.
+		void addRestrictionDeletion(UnresolvedMosaicId restrictionDeletion);
 
 	public:
 		/// Gets the size of account mosaic restriction transaction.
@@ -62,7 +65,8 @@ namespace catapult { namespace builders {
 		std::unique_ptr<TTransaction> buildImpl() const;
 
 	private:
-		model::AccountRestrictionType m_restrictionType;
-		std::vector<model::AccountMosaicRestrictionModification> m_modifications;
+		model::AccountRestrictionFlags m_restrictionFlags;
+		std::vector<UnresolvedMosaicId> m_restrictionAdditions;
+		std::vector<UnresolvedMosaicId> m_restrictionDeletions;
 	};
 }}

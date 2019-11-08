@@ -35,6 +35,12 @@ namespace catapult { namespace utils {
 		return true;
 	}
 
+	/// Gets the padding size that rounds up \a size to the next multiple of \a alignment.
+	template<typename T, typename X = std::enable_if_t<std::is_integral_v<T>>>
+	constexpr T GetPaddingSize(T size, uint8_t alignment) {
+		return 0 == size % alignment ? 0 : alignment - (size % alignment);
+	}
+
 	/// Gets the number of bits in the specified type.
 	template<typename T, typename X = std::enable_if_t<std::is_integral_v<T>>>
 	constexpr T GetNumBits() {

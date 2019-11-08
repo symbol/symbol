@@ -34,7 +34,7 @@ namespace catapult { namespace filespooling {
 		const auto& stream = *pStream;
 
 		// - create status data
-		auto pTransaction = test::GenerateRandomTransactionWithSize(123);
+		auto pTransaction = test::GenerateRandomTransactionWithSize(132);
 		auto hash = test::GenerateRandomByteArray<Hash256>();
 		auto status = static_cast<uint32_t>(test::Random());
 
@@ -46,7 +46,7 @@ namespace catapult { namespace filespooling {
 
 		// Assert:
 		EXPECT_EQ(0u, stream.numFlushes());
-		ASSERT_EQ(123u + Hash256::Size + sizeof(uint32_t), buffer.size());
+		ASSERT_EQ(132u + Hash256::Size + sizeof(uint32_t), buffer.size());
 
 		EXPECT_EQ(hash, reinterpret_cast<const Hash256&>(buffer[0]));
 		EXPECT_EQ(status, reinterpret_cast<const uint32_t&>(buffer[Hash256::Size]));

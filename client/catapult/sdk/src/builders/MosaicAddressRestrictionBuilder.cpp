@@ -26,9 +26,9 @@ namespace catapult { namespace builders {
 			: TransactionBuilder(networkIdentifier, signer)
 			, m_mosaicId()
 			, m_restrictionKey()
-			, m_targetAddress()
 			, m_previousRestrictionValue()
 			, m_newRestrictionValue()
+			, m_targetAddress()
 	{}
 
 	void MosaicAddressRestrictionBuilder::setMosaicId(UnresolvedMosaicId mosaicId) {
@@ -39,16 +39,16 @@ namespace catapult { namespace builders {
 		m_restrictionKey = restrictionKey;
 	}
 
-	void MosaicAddressRestrictionBuilder::setTargetAddress(const UnresolvedAddress& targetAddress) {
-		m_targetAddress = targetAddress;
-	}
-
 	void MosaicAddressRestrictionBuilder::setPreviousRestrictionValue(uint64_t previousRestrictionValue) {
 		m_previousRestrictionValue = previousRestrictionValue;
 	}
 
 	void MosaicAddressRestrictionBuilder::setNewRestrictionValue(uint64_t newRestrictionValue) {
 		m_newRestrictionValue = newRestrictionValue;
+	}
+
+	void MosaicAddressRestrictionBuilder::setTargetAddress(const UnresolvedAddress& targetAddress) {
+		m_targetAddress = targetAddress;
 	}
 
 	size_t MosaicAddressRestrictionBuilder::size() const {
@@ -78,9 +78,9 @@ namespace catapult { namespace builders {
 		// 2. set fixed transaction fields
 		pTransaction->MosaicId = m_mosaicId;
 		pTransaction->RestrictionKey = m_restrictionKey;
-		pTransaction->TargetAddress = m_targetAddress;
 		pTransaction->PreviousRestrictionValue = m_previousRestrictionValue;
 		pTransaction->NewRestrictionValue = m_newRestrictionValue;
+		pTransaction->TargetAddress = m_targetAddress;
 
 		return pTransaction;
 	}

@@ -74,13 +74,10 @@ namespace catapult { namespace plugins {
 
 			static std::vector<std::string> GetStatelessValidatorNames() {
 				return {
-					"AccountRestrictionTypeValidator",
+					"AccountRestrictionFlagsValidator",
 
-					"AccountAddressRestrictionModificationActionsValidator",
 					"AccountAddressRestrictionNoSelfModificationValidator",
 
-					"AccountMosaicRestrictionModificationActionsValidator",
-					"AccountOperationRestrictionModificationActionsValidator",
 					"AccountOperationRestrictionModificationValuesValidator"
 				};
 			}

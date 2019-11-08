@@ -391,18 +391,21 @@ namespace catapult { namespace ionet {
 		size_t offset = sizeof(Packet);
 		ASSERT_EQ(sizeof(model::BlockHeader), pBlock->Size);
 		EXPECT_EQ_MEMORY(&buffer[offset], pBlock, pBlock->Size);
+		EXPECT_EQ(0u, reinterpret_cast<uintptr_t>(pBlock) % 8);
 
 		// - block 2
 		pBlock = &*++iter;
 		offset += sizeof(model::BlockHeader);
 		ASSERT_EQ(Block_Transaction_Size, pBlock->Size);
 		EXPECT_EQ_MEMORY(&buffer[offset], pBlock, pBlock->Size);
+		EXPECT_EQ(0u, reinterpret_cast<uintptr_t>(pBlock) % 8);
 
 		// - block 3
 		pBlock = &*++iter;
 		offset += Block_Transaction_Size;
 		ASSERT_EQ(sizeof(model::BlockHeader), pBlock->Size);
 		EXPECT_EQ_MEMORY(&buffer[offset], pBlock, pBlock->Size);
+		EXPECT_EQ(0u, reinterpret_cast<uintptr_t>(pBlock) % 8);
 	}
 
 	TEST(TEST_CLASS, CannotExtractMultipleBlocks_ExtractEntity) {

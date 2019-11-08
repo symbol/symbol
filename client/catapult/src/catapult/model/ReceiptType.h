@@ -60,9 +60,9 @@ namespace catapult { namespace model {
 	/// Makes receipt type given \a basicReceiptType, \a facilityCode and \a code.
 	constexpr ReceiptType MakeReceiptType(BasicReceiptType basicReceiptType, FacilityCode facilityCode, uint8_t code) {
 		return static_cast<ReceiptType>(
-				((utils::to_underlying_type(basicReceiptType) & 0x0F) << 12) | // 01..04: basic type
-				((code & 0xF) << 8) | //                                          05..08: code
-				(static_cast<uint8_t>(facilityCode) & 0xFF)); //                  09..16: facility
+				((utils::to_underlying_type(basicReceiptType) & 0x0F) << 12) // 01..04: basic type
+				| ((code & 0xF) << 8) //                                        05..08: code
+				| (static_cast<uint8_t>(facilityCode) & 0xFF)); //              09..16: facility
 	}
 
 /// Defines receipt type given \a BASIC_TYPE, \a FACILITY, \a DESCRIPTION and \a CODE.

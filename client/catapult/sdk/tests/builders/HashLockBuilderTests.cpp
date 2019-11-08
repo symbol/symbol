@@ -65,7 +65,8 @@ namespace catapult { namespace builders {
 			TTraits::CheckBuilderSize(0, builder);
 			TTraits::CheckFields(0, *pTransaction);
 			EXPECT_EQ(signer, pTransaction->SignerPublicKey);
-			EXPECT_EQ(0x6201, pTransaction->Version);
+			EXPECT_EQ(1u, pTransaction->Version);
+			EXPECT_EQ(static_cast<model::NetworkIdentifier>(0x62), pTransaction->Network);
 			EXPECT_EQ(model::Entity_Type_Hash_Lock, pTransaction->Type);
 
 			AssertTransactionProperties(expectedProperties, *pTransaction);

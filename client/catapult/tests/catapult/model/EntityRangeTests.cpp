@@ -29,7 +29,7 @@ namespace catapult { namespace model {
 #define TEST_CLASS EntityRangeTests
 
 	namespace {
-		// region  Test Buffers
+		// region Test Buffers
 
 		constexpr std::array<uint8_t, 4> Single_Entity_Buffer{ { 0x00, 0x11, 0x22, 0x33 } };
 
@@ -49,6 +49,8 @@ namespace catapult { namespace model {
 
 		// endregion
 
+		// region helpers
+
 		template<typename TValue>
 		const auto& DerefValue(const TValue& value) {
 			return value;
@@ -57,6 +59,10 @@ namespace catapult { namespace model {
 		const auto& DerefValue(const std::unique_ptr<Block>& pBlock) {
 			return *pBlock;
 		}
+
+		// endregion
+
+		// region asserts
 
 		template<typename TIterator>
 		void AssertEmptyIteration(TIterator begin, TIterator end) {
@@ -136,6 +142,8 @@ namespace catapult { namespace model {
 			EXPECT_THROW(mutableRange.data(), catapult_runtime_error);
 			EXPECT_THROW(range.data(), catapult_runtime_error);
 		}
+
+		// endregion
 	}
 
 	// region empty (default)
@@ -244,14 +252,14 @@ namespace catapult { namespace model {
 	namespace {
 		struct FixedTraits {
 			template<typename TContainer>
-			static auto CreateRange(const TContainer& buffer, std::vector<size_t>&& offsets) {
+			static auto CreateRange(const TContainer& buffer, const std::vector<size_t>& offsets) {
 				return EntityRange<uint32_t>::CopyFixed(buffer.data(), offsets.size());
 			}
 		};
 
 		struct VariableTraits {
 			template<typename TContainer>
-			static auto CreateRange(const TContainer& buffer, std::vector<size_t>&& offsets) {
+			static auto CreateRange(const TContainer& buffer, const std::vector<size_t>& offsets) {
 				return EntityRange<uint32_t>::CopyVariable(buffer.data(), buffer.size(), offsets);
 			}
 		};
@@ -327,11 +335,12 @@ namespace catapult { namespace model {
 	// region overlay (variable) buffer
 
 	namespace {
-		constexpr std::array<uint8_t, 16> Multi_Entity_Overlay_Buffer{{
+		constexpr std::array<uint8_t, 17> Multi_Entity_Overlay_Buffer{{
 			0x00, 0x11, 0x22, 0x33,
 			0xFF, 0xDD, 0xBB, 0x99,
 			0x76, 0x98, 0x12, 0x34,
-			0xAA, 0xBB, 0xCC, 0xDD
+			0xAA, 0xBB, 0xCC, 0xDD,
+			0xEE
 		}};
 
 		std::vector<uint32_t> GetExpectedMultiEntityOverlayBufferValues() {
@@ -343,8 +352,10 @@ namespace catapult { namespace model {
 		// Act:
 		auto range = EntityRange<uint32_t>::CopyVariable(Multi_Entity_Overlay_Buffer.data(), Multi_Entity_Overlay_Buffer.size(), { 2, 6 });
 
-		// Assert: the range is 8 bytes larger than expected (only 2 uint32_t in a 16 byte buffer are used)
-		AssertRange(range, GetExpectedMultiEntityOverlayBufferValues(), 8);
+		// Assert: the range is 7 bytes larger than expected (alignment 1)
+		//         01 2345 6789 ABCDEF0 (head padding truncated, tail padding preserved)
+		//            ^    ^
+		AssertRange(range, GetExpectedMultiEntityOverlayBufferValues(), 7);
 	}
 
 	TEST(TEST_CLASS, CanCopyOverlayRangeAroundPartOfMultipleEntityBuffer) {
@@ -355,9 +366,11 @@ namespace catapult { namespace model {
 				{ 2, 6 });
 		auto range = EntityRange<uint32_t>::CopyRange(original);
 
-		// Assert: the range is 8 bytes larger than expected (only 2 uint32_t in a 16 byte buffer are used)
-		AssertRange(original, GetExpectedMultiEntityOverlayBufferValues(), 8);
-		AssertRange(range, GetExpectedMultiEntityOverlayBufferValues(), 8);
+		// Assert: the range is 7 bytes larger than expected (alignment 1)
+		//         01 2345 6789 ABCDEF0 (head padding truncated, tail padding preserved)
+		//            ^    ^
+		AssertRange(original, GetExpectedMultiEntityOverlayBufferValues(), 7);
+		AssertRange(range, GetExpectedMultiEntityOverlayBufferValues(), 7);
 		AssertDifferentBackingMemory(original, range);
 	}
 
@@ -371,6 +384,63 @@ namespace catapult { namespace model {
 
 		// Assert:
 		AssertEntities(GetExpectedMultiEntityOverlayBufferValues(), entities);
+	}
+
+	// endregion
+
+	// region single buffer, initialized, with padding
+
+	namespace {
+		EntityRange<uint32_t> CreateRangeAroundMultipleEntityBufferWithCustomAlignment() {
+			return EntityRange<uint32_t>::CopyVariable(
+				Multi_Entity_Overlay_Buffer.data(),
+				Multi_Entity_Overlay_Buffer.size(),
+				{ 1, 6, 12 },
+				8);
+		}
+
+		std::vector<uint32_t> GetExpectedMultiEntityCustomAlignmentBufferValues() {
+			return { 0xFF332211, 0x987699BB, 0xDDCCBBAA };
+		}
+	}
+
+	TEST(TEST_CLASS, CanCreateRangeAroundMultipleEntityBufferWithCustomAlignment) {
+		// Act:
+		auto range = CreateRangeAroundMultipleEntityBufferWithCustomAlignment();
+
+		// Assert: 0 1234 5 PPP 6789 AB PP CDEF 0 (3 partial + 5 padding + 1 trailing)
+		AssertRange(range, GetExpectedMultiEntityCustomAlignmentBufferValues(), 9);
+
+		// - partial data is copied over (padding bytes are uninitialized)
+		EXPECT_EQ(0x000000DDu, range.data()[1] & 0x000000FF);
+		EXPECT_EQ(0x00003412u, range.data()[3] & 0x0000FFFF);
+	}
+
+	TEST(TEST_CLASS, CanCopyRangeAroundMultipleEntityBufferWithCustomAlignment) {
+		// Act:
+		auto original = CreateRangeAroundMultipleEntityBufferWithCustomAlignment();
+		auto range = EntityRange<uint32_t>::CopyRange(original);
+
+		// Assert: 0 1234 5 PPP 6789 AB PP CDEF 0 (3 partial + 5 padding + 1 trailing)
+		AssertRange(original, GetExpectedMultiEntityCustomAlignmentBufferValues(), 9);
+		AssertRange(range, GetExpectedMultiEntityCustomAlignmentBufferValues(), 9);
+		AssertDifferentBackingMemory(original, range);
+
+		// - partial data is copied over (padding bytes are uninitialized)
+		EXPECT_EQ(0x000000DDu, range.data()[1] & 0x000000FF);
+		EXPECT_EQ(0x00003412u, range.data()[3] & 0x0000FFFF);
+	}
+
+	TEST(TEST_CLASS, CanExtractEntitiesFromMultipleEntityBufferRangeWithCustomAlignment) {
+		// Act:
+		auto range = CreateRangeAroundMultipleEntityBufferWithCustomAlignment();
+		auto entities = EntityRange<uint32_t>::ExtractEntitiesFromRange(std::move(range));
+
+		// Sanity:
+		AssertEmptyRange(range);
+
+		// Assert:
+		AssertEntities(GetExpectedMultiEntityCustomAlignmentBufferValues(), entities);
 	}
 
 	// endregion

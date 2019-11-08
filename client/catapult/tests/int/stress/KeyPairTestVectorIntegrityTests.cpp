@@ -35,7 +35,7 @@ namespace catapult {
 
 	namespace {
 		crypto::PrivateKey ParsePrivateKey(const std::string& privateKeyString) {
-#ifdef SIGNATURE_SCHEME_NIS1
+#ifdef SIGNATURE_SCHEME_KECCAK
 			auto privateKeyBuffer = test::HexStringToVector(privateKeyString);
 			std::reverse(privateKeyBuffer.begin(), privateKeyBuffer.end());
 			return crypto::PrivateKey::FromString(test::ToHexString(privateKeyBuffer));
@@ -46,7 +46,7 @@ namespace catapult {
 
 		template<typename TLineParser, typename TAction>
 		void RunTest(const std::string& sourceFilename, TLineParser lineParser, TAction action) {
-#ifdef SIGNATURE_SCHEME_NIS1
+#ifdef SIGNATURE_SCHEME_KECCAK
 			constexpr auto Source_Directory = "../tests/int/stress/resources/nis1/";
 #else
 			constexpr auto Source_Directory = "../tests/int/stress/resources/catapult/";

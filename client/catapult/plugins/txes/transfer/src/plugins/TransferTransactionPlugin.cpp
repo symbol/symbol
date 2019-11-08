@@ -31,6 +31,7 @@ namespace catapult { namespace plugins {
 	namespace {
 		template<typename TTransaction>
 		void Publish(const TTransaction& transaction, NotificationSubscriber& sub) {
+			sub.notify(InternalPaddingNotification(transaction.TransferTransactionBody_Reserved1));
 			sub.notify(AccountAddressNotification(transaction.RecipientAddress));
 			sub.notify(AddressInteractionNotification(transaction.SignerPublicKey, transaction.Type, { transaction.RecipientAddress }));
 

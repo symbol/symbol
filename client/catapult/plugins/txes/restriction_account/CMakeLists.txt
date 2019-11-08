@@ -5,4 +5,4 @@ set(PLUGIN_DEPS_FOLDERS cache config observers validators)
 
 include_directories(.)
 add_subdirectory(src)
-add_subdirectory(tests)
+catapult_add_tests_subdirectory(tests)

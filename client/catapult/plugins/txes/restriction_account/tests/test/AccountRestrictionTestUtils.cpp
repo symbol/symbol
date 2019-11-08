@@ -31,7 +31,7 @@ namespace catapult { namespace test {
 				size_t count) {
 			constexpr auto Add = model::AccountRestrictionModificationAction::Add;
 			while (restriction.values().size() < count) {
-				model::RawAccountRestrictionModification modification{ Add, test::GenerateRandomVector(restriction.valueSize()) };
+				model::AccountRestrictionModification modification{ Add, test::GenerateRandomVector(restriction.valueSize()) };
 				if (state::AccountRestrictionOperationType::Allow == operationType)
 					restriction.allow(modification);
 				else
@@ -40,13 +40,13 @@ namespace catapult { namespace test {
 		}
 	}
 
-	std::vector<model::AccountRestrictionType> CollectAccountRestrictionTypes() {
-		std::vector<model::AccountRestrictionType> restrictionTypes;
+	std::vector<model::AccountRestrictionFlags> CollectAccountRestrictionFlags() {
+		std::vector<model::AccountRestrictionFlags> restrictionFlagsContainer;
 		state::AccountRestrictions restrictions(test::GenerateRandomByteArray<Address>());
 		for (auto& pair : restrictions)
-			restrictionTypes.push_back(pair.first);
+			restrictionFlagsContainer.push_back(pair.first);
 
-		return restrictionTypes;
+		return restrictionFlagsContainer;
 	}
 
 	state::AccountRestrictions CreateAccountRestrictions(
@@ -57,16 +57,16 @@ namespace catapult { namespace test {
 			CATAPULT_THROW_INVALID_ARGUMENT_2("values size mismatch", valuesSizes.size(), restrictions.size());
 
 		auto i = 0u;
-		auto restrictionTypes = CollectAccountRestrictionTypes();
-		for (auto restrictionType : restrictionTypes) {
-			auto& restriction = restrictions.restriction(restrictionType);
+		auto restrictionFlagsContainer = CollectAccountRestrictionFlags();
+		for (auto restrictionFlags : restrictionFlagsContainer) {
+			auto& restriction = restrictions.restriction(restrictionFlags);
 			InsertRandomValues(restriction, operationType, valuesSizes[i++]);
 		}
 
 		// Sanity:
 		i = 0;
-		for (auto restrictionType : restrictionTypes) {
-			EXPECT_EQ(valuesSizes[i], restrictions.restriction(restrictionType).values().size());
+		for (auto restrictionFlags : restrictionFlagsContainer) {
+			EXPECT_EQ(valuesSizes[i], restrictions.restriction(restrictionFlags).values().size());
 			++i;
 		}
 
@@ -79,8 +79,8 @@ namespace catapult { namespace test {
 
 		for (const auto& pair : expected) {
 			const auto& expectedAccountRestriction = pair.second;
-			auto restrictionType = expectedAccountRestriction.descriptor().directionalRestrictionType();
-			const auto& restriction = actual.restriction(restrictionType);
+			auto restrictionFlags = expectedAccountRestriction.descriptor().directionalRestrictionFlags();
+			const auto& restriction = actual.restriction(restrictionFlags);
 
 			EXPECT_EQ(expectedAccountRestriction.descriptor().raw(), restriction.descriptor().raw());
 			EXPECT_EQ(expectedAccountRestriction.valueSize(), restriction.valueSize());

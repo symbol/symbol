@@ -682,7 +682,7 @@ namespace catapult { namespace extensions {
 		auto nemesisBlockSignerPair = CreateNemesisBlock({ { MakeHarvestingMosaic(1234) } });
 
 		// - use the wrong network
-		nemesisBlockSignerPair.pBlock->Version ^= 0xFF00;
+		nemesisBlockSignerPair.pBlock->Network = model::NetworkIdentifier::Zero;
 
 		// Act:
 		AssertLoadNemesisBlockFailure<TTraits>(nemesisBlockSignerPair, Importance(1234));

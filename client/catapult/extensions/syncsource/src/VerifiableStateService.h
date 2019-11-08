@@ -24,6 +24,6 @@
 namespace catapult { namespace syncsource {
 
 	/// Creates a registrar for a verifiable state service.
-	/// \note This service is responsible for exposing verifiable state functionality .
+	/// \note This service is responsible for exposing verifiable state functionality.
 	DECLARE_SERVICE_REGISTRAR(VerifiableState)();
 }}

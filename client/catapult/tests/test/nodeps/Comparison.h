@@ -46,7 +46,7 @@ namespace catapult { namespace test {
 		AssertOperatorBehaviorForIncreasingValues(container, op, [](const auto& value) { return test::ToString(value); });
 	}
 
-	/// Asserts correctness of the less than operator for equal values \a lhs and \a rhs .
+	/// Asserts correctness of the less than operator for equal values \a lhs and \a rhs.
 	template<typename TValue>
 	void AssertLessThanOperatorForEqualValues(const TValue& lhs, const TValue& rhs) {
 		EXPECT_FALSE(lhs < rhs);

@@ -31,20 +31,20 @@ namespace catapult { namespace ionet {
 		/// Size of the node.
 		uint32_t Size;
 
+		/// Version.
+		NodeVersion Version;
+
 		/// Unique node identifier (public key).
 		Key IdentityKey;
+
+		/// Role(s).
+		NodeRoles Roles;
 
 		/// Port.
 		uint16_t Port;
 
 		/// Network identifier.
 		model::NetworkIdentifier NetworkIdentifier;
-
-		/// Version.
-		NodeVersion Version;
-
-		/// Role(s).
-		NodeRoles Roles;
 
 		/// Size of the host in bytes.
 		uint8_t HostSize;

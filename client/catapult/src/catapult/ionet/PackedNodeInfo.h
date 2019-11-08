@@ -72,17 +72,20 @@ namespace catapult { namespace ionet {
 	/// Information about a node and its interactions.
 	struct PackedNodeInfo : public model::TrailingVariableDataLayout<PackedNodeInfo, PackedConnectionState> {
 	public:
-		/// Node unique identifier.
-		Key IdentityKey;
-
 		/// Node source.
 		NodeSource Source;
+
+		/// Node unique identifier.
+		Key IdentityKey;
 
 		/// Node interactions.
 		PackedNodeInteractions Interactions;
 
 		/// Number of connection states.
 		uint8_t ConnectionStatesCount;
+
+		/// Reserved padding to align end of PackedNodeInfo on 8-byte boundary.
+		uint8_t PackedNodeInfo_Reserved1[7];
 
 		// followed by connection states if ConnectionStatesCount != 0
 

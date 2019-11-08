@@ -36,14 +36,14 @@ namespace catapult { namespace builders {
 		AddressAliasBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
 
 	public:
-		/// Sets the alias action to \a aliasAction.
-		void setAliasAction(model::AliasAction aliasAction);
-
 		/// Sets the identifier of the namespace that will become an alias to \a namespaceId.
 		void setNamespaceId(NamespaceId namespaceId);
 
 		/// Sets the aliased address to \a address.
 		void setAddress(const Address& address);
+
+		/// Sets the alias action to \a aliasAction.
+		void setAliasAction(model::AliasAction aliasAction);
 
 	public:
 		/// Gets the size of address alias transaction.
@@ -64,8 +64,8 @@ namespace catapult { namespace builders {
 		std::unique_ptr<TTransaction> buildImpl() const;
 
 	private:
-		model::AliasAction m_aliasAction;
 		NamespaceId m_namespaceId;
 		Address m_address;
+		model::AliasAction m_aliasAction;
 	};
 }}

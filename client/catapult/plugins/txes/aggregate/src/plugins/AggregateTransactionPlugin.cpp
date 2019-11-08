@@ -33,6 +33,10 @@ namespace catapult { namespace plugins {
 			return static_cast<const AggregateTransaction&>(transaction);
 		}
 
+		uint32_t CountTransactions(const AggregateTransaction& aggregate) {
+			return static_cast<uint32_t>(std::distance(aggregate.Transactions().cbegin(), aggregate.Transactions().cend()));
+		}
+
 		class AggregateTransactionPlugin : public TransactionPlugin {
 		public:
 			AggregateTransactionPlugin(
@@ -68,13 +72,18 @@ namespace catapult { namespace plugins {
 				// publish aggregate notifications
 				// (notice that this must be raised before embedded transaction notifications in order for cosignatory aggregation to work)
 				auto numCosignatures = aggregate.CosignaturesCount();
-				auto numTransactions = std::distance(aggregate.Transactions().cbegin(), aggregate.Transactions().cend());
+				auto numTransactions = CountTransactions(aggregate);
 				sub.notify(AggregateCosignaturesNotification(
 						aggregate.SignerPublicKey,
-						static_cast<uint32_t>(numTransactions),
+						numTransactions,
 						aggregate.TransactionsPtr(),
 						numCosignatures,
 						aggregate.CosignaturesPtr()));
+
+				sub.notify(AggregateEmbeddedTransactionsNotification(
+						aggregate.TransactionsHash,
+						numTransactions,
+						aggregate.TransactionsPtr()));
 
 				// publish all sub-transaction information
 				for (const auto& subTransaction : aggregate.Transactions()) {
@@ -88,8 +97,8 @@ namespace catapult { namespace plugins {
 					auto subTransactionAttributes = plugin.attributes();
 
 					sub.notify(EntityNotification(
-							subTransaction.Network(),
-							subTransaction.EntityVersion(),
+							subTransaction.Network,
+							subTransaction.Version,
 							subTransactionAttributes.MinVersion,
 							subTransactionAttributes.MaxVersion));
 
@@ -122,7 +131,7 @@ namespace catapult { namespace plugins {
 				auto headerSize = VerifiableEntity::Header_Size;
 				return {
 					reinterpret_cast<const uint8_t*>(&aggregate) + headerSize,
-					sizeof(AggregateTransaction) - headerSize + aggregate.PayloadSize
+					sizeof(AggregateTransaction) - headerSize - AggregateTransaction::Footer_Size
 				};
 			}
 

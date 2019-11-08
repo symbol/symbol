@@ -32,23 +32,34 @@ namespace catapult { namespace api {
 		std::shared_ptr<ionet::Packet> CreatePacketWithTransactionInfos(uint16_t numTransactions) {
 			// Arrange: create transactions with variable (incrementing) sizes
 			//          (each info in this test has two parts: (1) tag, (2) transaction)
-			uint32_t variableDataSize = numTransactions * (numTransactions + 1) / 2;
-			uint32_t payloadSize = numTransactions * (sizeof(TransactionType) + sizeof(uint16_t)) + variableDataSize;
+			uint32_t payloadSize = numTransactions * sizeof(uint64_t);
+			for (uint16_t i = 0u; i < numTransactions; ++i) {
+				uint32_t transactionSize = sizeof(TransactionType) + i + 1;
+				payloadSize += transactionSize + utils::GetPaddingSize(transactionSize, 8);
+			}
+
 			auto pPacket = ionet::CreateSharedPacket<ionet::Packet>(payloadSize);
 			test::FillWithRandomData({ pPacket->Data(), payloadSize });
 
 			auto pData = pPacket->Data();
-			for (uint16_t i = 0u; i < numTransactions; ++i, pData += sizeof(TransactionType) + i) {
+			for (uint16_t i = 0u; i < numTransactions; ++i) {
 				// - tag (transaction and no cosignatures)
-				reinterpret_cast<uint16_t&>(*pData) = 0x8000;
-				pData += sizeof(uint16_t);
+				reinterpret_cast<uint64_t&>(*pData) = 0x8000;
+				pData += sizeof(uint64_t);
 
 				// - transaction
+				uint32_t transactionSize = sizeof(TransactionType) + i + 1;
 				auto& transaction = reinterpret_cast<TransactionType&>(*pData);
-				transaction.Size = sizeof(TransactionType) + i + 1;
+				transaction.Size = transactionSize;
 				transaction.Type = TransactionType::Entity_Type;
 				transaction.Deadline = Timestamp(5 * i);
 				transaction.Data.Size = i + 1;
+				pData += transactionSize;
+
+				// - padding
+				auto paddingSize = utils::GetPaddingSize(transactionSize, 8);
+				std::memset(pData, 0, paddingSize);
+				pData += paddingSize;
 			}
 
 			return pPacket;
@@ -100,7 +111,7 @@ namespace catapult { namespace api {
 					std::string message = "comparing info at " + std::to_string(i);
 
 					// - skip tag
-					pExpectedData += sizeof(uint16_t);
+					pExpectedData += sizeof(uint64_t);
 
 					// - transaction
 					const auto& expectedTransaction = reinterpret_cast<const TransactionType&>(*pExpectedData);
@@ -108,7 +119,7 @@ namespace catapult { namespace api {
 					ASSERT_EQ(expectedTransaction.Size, actualTransaction.Size) << message;
 					EXPECT_EQ(Timestamp(5 * i), actualTransaction.Deadline) << message;
 					EXPECT_EQ(expectedTransaction, actualTransaction) << message;
-					pExpectedData += expectedTransaction.Size;
+					pExpectedData += expectedTransaction.Size + utils::GetPaddingSize(expectedTransaction.Size, 8);
 
 					// - hash and cosignatures
 					EXPECT_EQ(Hash256(), parsedIter->EntityHash);

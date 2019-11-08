@@ -19,7 +19,8 @@
 **/
 
 #pragma once
-#include "src/model/AccountRestrictionTypes.h"
+#include "AccountRestrictionFlags.h"
+#include "AccountRestrictionModification.h"
 #include "src/state/AccountRestrictionDescriptor.h"
 #include "catapult/model/Notifications.h"
 
@@ -31,8 +32,8 @@ namespace catapult { namespace model {
 #define DEFINE_ACCOUNT_RESTRICTION_NOTIFICATION(DESCRIPTION, CODE, CHANNEL) \
 	DEFINE_NOTIFICATION_TYPE(CHANNEL, RestrictionAccount, DESCRIPTION, CODE)
 
-	/// Account restriction type.
-	DEFINE_ACCOUNT_RESTRICTION_NOTIFICATION(Type, 0x0001, Validator);
+	/// Account restriction modification.
+	DEFINE_ACCOUNT_RESTRICTION_NOTIFICATION(Modification, 0x0001, Validator);
 
 	/// Account address restriction modification.
 	DEFINE_ACCOUNT_RESTRICTION_NOTIFICATION(Address_Modification, 0x0002, All);
@@ -56,24 +57,35 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region AccountRestrictionTypeNotification
+	// region AccountRestrictionModificationNotification
 
-	/// Notification of an account restriction type.
-	struct AccountRestrictionTypeNotification : public Notification {
+	/// Notification of an account restriction modification.
+	struct AccountRestrictionModificationNotification : public Notification {
 	public:
 		/// Matching notification type.
-		static constexpr auto Notification_Type = RestrictionAccount_Type_Notification;
+		static constexpr auto Notification_Type = RestrictionAccount_Modification_Notification;
 
 	public:
-		/// Creates a notification around \a restrictionType.
-		explicit AccountRestrictionTypeNotification(model::AccountRestrictionType restrictionType)
-				: Notification(Notification_Type, sizeof(AccountRestrictionTypeNotification))
-				, RestrictionType(restrictionType)
+		/// Creates a notification around \a restrictionFlags, \a restrictionAdditionsCount and \a restrictionDeletionsCount.
+		AccountRestrictionModificationNotification(
+				model::AccountRestrictionFlags restrictionFlags,
+				uint8_t restrictionAdditionsCount,
+				uint8_t restrictionDeletionsCount)
+				: Notification(Notification_Type, sizeof(AccountRestrictionModificationNotification))
+				, RestrictionFlags(restrictionFlags)
+				, RestrictionAdditionsCount(restrictionAdditionsCount)
+				, RestrictionDeletionsCount(restrictionDeletionsCount)
 		{}
 
 	public:
-		/// Account restriction type.
-		AccountRestrictionType RestrictionType;
+		/// Account restriction flags.
+		AccountRestrictionFlags RestrictionFlags;
+
+		/// Number of account restriction additions.
+		uint8_t RestrictionAdditionsCount;
+
+		/// Number of account restriction deletions.
+		uint8_t RestrictionDeletionsCount;
 	};
 
 	// endregion
@@ -88,15 +100,17 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = RestrictionAccount_Notification_Type;
 
 	public:
-		/// Creates a notification around \a key, \a restrictionType and \a modification.
+		/// Creates a notification around \a key, \a restrictionFlags, \a restrictionValue and \a action.
 		ModifyAccountRestrictionValueNotification(
 				const Key& key,
-				AccountRestrictionType restrictionType,
-				const AccountRestrictionModification<TRestrictionValue>& modification)
+				AccountRestrictionFlags restrictionFlags,
+				const TRestrictionValue& restrictionValue,
+				AccountRestrictionModificationAction action)
 				: Notification(Notification_Type, sizeof(ModifyAccountRestrictionValueNotification))
 				, Key(key)
-				, AccountRestrictionDescriptor(restrictionType)
-				, Modification(modification)
+				, AccountRestrictionDescriptor(restrictionFlags)
+				, RestrictionValue(restrictionValue)
+				, Action(action)
 		{}
 
 	public:
@@ -106,8 +120,11 @@ namespace catapult { namespace model {
 		/// Account restriction descriptor.
 		state::AccountRestrictionDescriptor AccountRestrictionDescriptor;
 
-		/// Account restriction modification.
-		AccountRestrictionModification<TRestrictionValue> Modification;
+		/// Account restriction value.
+		const TRestrictionValue& RestrictionValue;
+
+		/// Account restriction modification action.
+		AccountRestrictionModificationAction Action;
 	};
 
 	using ModifyAccountAddressRestrictionValueNotification =
@@ -119,27 +136,32 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region ModifyAccountRestrictionNotification
+	// region ModifyAccountRestrictionsNotification
 
-	/// Notification of an account restriction modification.
+	/// Notification of an account restrictions modification.
 	template<typename TRestrictionValue, NotificationType RestrictionAccount_Notification_Type>
-	struct ModifyAccountRestrictionNotification : public Notification {
+	struct ModifyAccountRestrictionsNotification : public Notification {
 	public:
 		/// Matching notification type.
 		static constexpr auto Notification_Type = RestrictionAccount_Notification_Type;
 
 	public:
-		/// Creates a notification around \a key, \a restrictionType, \a modificationsCount and \a pModifications.
-		ModifyAccountRestrictionNotification(
+		/// Creates a notification around \a key, \a restrictionFlags, \a restrictionAdditionsCount, \a pRestrictionAdditions,
+		/// \a restrictionDeletionsCount and \a pRestrictionDeletions.
+		ModifyAccountRestrictionsNotification(
 				const Key& key,
-				AccountRestrictionType restrictionType,
-				uint8_t modificationsCount,
-				const AccountRestrictionModification<TRestrictionValue>* pModifications)
-				: Notification(Notification_Type, sizeof(ModifyAccountRestrictionNotification))
+				AccountRestrictionFlags restrictionFlags,
+				uint8_t restrictionAdditionsCount,
+				const TRestrictionValue* pRestrictionAdditions,
+				uint8_t restrictionDeletionsCount,
+				const TRestrictionValue* pRestrictionDeletions)
+				: Notification(Notification_Type, sizeof(ModifyAccountRestrictionsNotification))
 				, Key(key)
-				, AccountRestrictionDescriptor(restrictionType)
-				, ModificationsCount(modificationsCount)
-				, ModificationsPtr(pModifications)
+				, AccountRestrictionDescriptor(restrictionFlags)
+				, RestrictionAdditionsCount(restrictionAdditionsCount)
+				, RestrictionAdditionsPtr(pRestrictionAdditions)
+				, RestrictionDeletionsCount(restrictionDeletionsCount)
+				, RestrictionDeletionsPtr(pRestrictionDeletions)
 		{}
 
 	public:
@@ -149,20 +171,26 @@ namespace catapult { namespace model {
 		/// Account restriction descriptor.
 		state::AccountRestrictionDescriptor AccountRestrictionDescriptor;
 
-		/// Number of modifications.
-		uint8_t ModificationsCount;
+		/// Number of account restriction additions.
+		uint8_t RestrictionAdditionsCount;
 
-		/// Const pointer to the first modification.
-		const AccountRestrictionModification<TRestrictionValue>* ModificationsPtr;
+		/// Const pointer to the first account restriction to add as constraint.
+		const TRestrictionValue* RestrictionAdditionsPtr;
+
+		/// Number of account restriction deletions.
+		uint8_t RestrictionDeletionsCount;
+
+		/// Const pointer to the first account restriction to remove as constraint.
+		const TRestrictionValue* RestrictionDeletionsPtr;
 	};
 
-	using ModifyAccountAddressRestrictionNotification = ModifyAccountRestrictionNotification<
+	using ModifyAccountAddressRestrictionsNotification = ModifyAccountRestrictionsNotification<
 		UnresolvedAddress,
 		RestrictionAccount_Address_Modifications_Notification>;
-	using ModifyAccountMosaicRestrictionNotification = ModifyAccountRestrictionNotification<
+	using ModifyAccountMosaicRestrictionsNotification = ModifyAccountRestrictionsNotification<
 		UnresolvedMosaicId,
 		RestrictionAccount_Mosaic_Modifications_Notification>;
-	using ModifyAccountOperationRestrictionNotification = ModifyAccountRestrictionNotification<
+	using ModifyAccountOperationRestrictionsNotification = ModifyAccountRestrictionsNotification<
 		EntityType,
 		RestrictionAccount_Operation_Modifications_Notification>;
 

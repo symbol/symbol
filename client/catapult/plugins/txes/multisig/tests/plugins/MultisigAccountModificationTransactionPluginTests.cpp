@@ -40,30 +40,16 @@ namespace catapult { namespace plugins {
 		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(MultisigAccountModification, 1, 1,)
 
 		template<typename TTraits>
-		auto CreateTransactionWithModifications(uint8_t numModifications) {
+		auto CreateTransactionWithModifications(uint8_t numAdditions, uint8_t numDeletions) {
 			using TransactionType = typename TTraits::TransactionType;
-			uint32_t entitySize = sizeof(TransactionType) + numModifications * sizeof(CosignatoryModification);
+			uint32_t entitySize = sizeof(TransactionType) + (numAdditions + numDeletions) * Key::Size;
 			auto pTransaction = utils::MakeUniqueWithSize<TransactionType>(entitySize);
 			test::FillWithRandomData({ reinterpret_cast<uint8_t*>(pTransaction.get()), entitySize });
 
 			pTransaction->Size = entitySize;
-			pTransaction->ModificationsCount = numModifications;
+			pTransaction->PublicKeyAdditionsCount = numAdditions;
+			pTransaction->PublicKeyDeletionsCount = numDeletions;
 			return pTransaction;
-		}
-
-		template<typename TTransaction>
-		void SetAll(TTransaction& transaction, CosignatoryModificationAction modificationAction) {
-			for (auto i = 0u; i < transaction.ModificationsCount; ++i)
-				transaction.ModificationsPtr()[i].ModificationAction = modificationAction;
-		}
-
-		template<typename TTransaction>
-		void AlternateAll(
-				TTransaction& transaction,
-				CosignatoryModificationAction evenModificationAction,
-				CosignatoryModificationAction oddModificationAction) {
-			for (auto i = 0u; i < transaction.ModificationsCount; ++i)
-				transaction.ModificationsPtr()[i].ModificationAction = 0 == i % 2 ? evenModificationAction : oddModificationAction;
 		}
 	}
 
@@ -73,27 +59,40 @@ namespace catapult { namespace plugins {
 
 	// region publish - no modifications
 
+	namespace {
+		template<typename TTraits>
+		void AddCommonExpectations(
+				typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder& builder,
+				const typename TTraits::TransactionType& transaction) {
+			builder.template addExpectation<InternalPaddingNotification>([&transaction](const auto& notification) {
+				EXPECT_EQ(transaction.MultisigAccountModificationTransactionBody_Reserved1, notification.Padding);
+			});
+			builder.template addExpectation<MultisigSettingsNotification>([&transaction](const auto& notification) {
+				EXPECT_EQ(transaction.SignerPublicKey, notification.Signer);
+				EXPECT_EQ(transaction.MinRemovalDelta, notification.MinRemovalDelta);
+				EXPECT_EQ(transaction.MinApprovalDelta, notification.MinApprovalDelta);
+			});
+		}
+	}
+
 	PLUGIN_TEST(CanPublishAllNotificationsInCorrectOrderWhenNoModifications) {
 		// Arrange:
-		auto pTransaction = CreateTransactionWithModifications<TTraits>(0);
+		auto pTransaction = CreateTransactionWithModifications<TTraits>(0, 0);
 
 		// Act + Assert:
 		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(*pTransaction, {
+			InternalPaddingNotification::Notification_Type,
 			MultisigSettingsNotification::Notification_Type
 		});
 	}
 
 	PLUGIN_TEST(CanPublishAllNotificationsWhenNoModifications) {
 		// Arrange:
-		auto pTransaction = CreateTransactionWithModifications<TTraits>(0);
+		auto pTransaction = CreateTransactionWithModifications<TTraits>(0, 0);
 
 		const auto& transaction = *pTransaction;
 		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
-		builder.template addExpectation<MultisigSettingsNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(transaction.SignerPublicKey, notification.Signer);
-			EXPECT_EQ(transaction.MinRemovalDelta, notification.MinRemovalDelta);
-			EXPECT_EQ(transaction.MinApprovalDelta, notification.MinApprovalDelta);
-		});
+		AddCommonExpectations<TTraits>(builder, transaction);
 
 		// Act + Assert:
 		builder.runTest(transaction);
@@ -105,11 +104,11 @@ namespace catapult { namespace plugins {
 
 	PLUGIN_TEST(CanPublishAllNotificationsInCorrectOrderWhenAddModifications) {
 		// Arrange:
-		auto pTransaction = CreateTransactionWithModifications<TTraits>(2);
-		SetAll(*pTransaction, CosignatoryModificationAction::Add);
+		auto pTransaction = CreateTransactionWithModifications<TTraits>(2, 0);
 
 		// Act + Assert:
 		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(*pTransaction, {
+			InternalPaddingNotification::Notification_Type,
 			AccountPublicKeyNotification::Notification_Type,
 			MultisigNewCosignatoryNotification::Notification_Type,
 			AccountPublicKeyNotification::Notification_Type,
@@ -122,42 +121,37 @@ namespace catapult { namespace plugins {
 
 	PLUGIN_TEST(CanPublishAllNotificationsWhenAddModifications) {
 		// Arrange:
-		auto pTransaction = CreateTransactionWithModifications<TTraits>(2);
-		SetAll(*pTransaction, CosignatoryModificationAction::Add);
+		auto pTransaction = CreateTransactionWithModifications<TTraits>(2, 0);
 
 		const auto& transaction = *pTransaction;
 		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
+		AddCommonExpectations<TTraits>(builder, transaction);
+
 		for (auto i = 0u; i < 2; ++i) {
 			builder.template addExpectation<AccountPublicKeyNotification>(i, [&transaction, i](const auto& notification) {
-				EXPECT_EQ(transaction.ModificationsPtr()[i].CosignatoryPublicKey, notification.PublicKey);
+				EXPECT_EQ(transaction.PublicKeyAdditionsPtr()[i], notification.PublicKey);
 			});
 
 			builder.template addExpectation<MultisigNewCosignatoryNotification>(i, [&transaction, i](const auto& notification) {
 				EXPECT_EQ(transaction.SignerPublicKey, notification.MultisigAccountKey);
-				EXPECT_EQ(transaction.ModificationsPtr()[i].CosignatoryPublicKey, notification.CosignatoryKey);
+				EXPECT_EQ(transaction.PublicKeyAdditionsPtr()[i], notification.CosignatoryKey);
 			});
 		}
 
 		builder.template addExpectation<MultisigCosignatoriesNotification>([&transaction](const auto& notification) {
 			EXPECT_EQ(transaction.SignerPublicKey, notification.Signer);
-			EXPECT_EQ(transaction.ModificationsCount, notification.ModificationsCount);
-			EXPECT_EQ(transaction.ModificationsPtr(), notification.ModificationsPtr);
+			EXPECT_EQ(transaction.PublicKeyAdditionsCount, notification.PublicKeyAdditionsCount);
+			EXPECT_EQ(transaction.PublicKeyAdditionsPtr(), notification.PublicKeyAdditionsPtr);
+			EXPECT_EQ(transaction.PublicKeyDeletionsCount, notification.PublicKeyDeletionsCount);
+			EXPECT_EQ(transaction.PublicKeyDeletionsPtr(), notification.PublicKeyDeletionsPtr);
 		});
 		builder.template addExpectation<AddressInteractionNotification>([&transaction](const auto& notification) {
 			EXPECT_EQ(transaction.SignerPublicKey, notification.Source);
 			EXPECT_EQ(transaction.Type, notification.TransactionType);
 			EXPECT_EQ(model::UnresolvedAddressSet(), notification.ParticipantsByAddress);
 
-			utils::KeySet expectedParticipantsByKey{
-				transaction.ModificationsPtr()[0].CosignatoryPublicKey,
-				transaction.ModificationsPtr()[1].CosignatoryPublicKey
-			};
+			utils::KeySet expectedParticipantsByKey{ transaction.PublicKeyAdditionsPtr()[0], transaction.PublicKeyAdditionsPtr()[1] };
 			EXPECT_EQ(expectedParticipantsByKey, notification.ParticipantsByKey);
-		});
-		builder.template addExpectation<MultisigSettingsNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(transaction.SignerPublicKey, notification.Signer);
-			EXPECT_EQ(transaction.MinRemovalDelta, notification.MinRemovalDelta);
-			EXPECT_EQ(transaction.MinApprovalDelta, notification.MinApprovalDelta);
 		});
 
 		// Act + Assert:
@@ -170,11 +164,11 @@ namespace catapult { namespace plugins {
 
 	PLUGIN_TEST(CanPublishAllNotificationsInCorrectOrderWhenDelModifications) {
 		// Arrange:
-		auto pTransaction = CreateTransactionWithModifications<TTraits>(2);
-		SetAll(*pTransaction, CosignatoryModificationAction::Del);
+		auto pTransaction = CreateTransactionWithModifications<TTraits>(0, 2);
 
 		// Act + Assert:
 		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(*pTransaction, {
+			InternalPaddingNotification::Notification_Type,
 			MultisigCosignatoriesNotification::Notification_Type,
 			MultisigSettingsNotification::Notification_Type
 		});
@@ -182,20 +176,18 @@ namespace catapult { namespace plugins {
 
 	PLUGIN_TEST(CanPublishAllNotificationsWhenDelModifications) {
 		// Arrange:
-		auto pTransaction = CreateTransactionWithModifications<TTraits>(2);
-		SetAll(*pTransaction, CosignatoryModificationAction::Del);
+		auto pTransaction = CreateTransactionWithModifications<TTraits>(0, 2);
 
 		const auto& transaction = *pTransaction;
 		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
+		AddCommonExpectations<TTraits>(builder, transaction);
+
 		builder.template addExpectation<MultisigCosignatoriesNotification>([&transaction](const auto& notification) {
 			EXPECT_EQ(transaction.SignerPublicKey, notification.Signer);
-			EXPECT_EQ(transaction.ModificationsCount, notification.ModificationsCount);
-			EXPECT_EQ(transaction.ModificationsPtr(), notification.ModificationsPtr);
-		});
-		builder.template addExpectation<MultisigSettingsNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(transaction.SignerPublicKey, notification.Signer);
-			EXPECT_EQ(transaction.MinRemovalDelta, notification.MinRemovalDelta);
-			EXPECT_EQ(transaction.MinApprovalDelta, notification.MinApprovalDelta);
+			EXPECT_EQ(transaction.PublicKeyAdditionsCount, notification.PublicKeyAdditionsCount);
+			EXPECT_EQ(transaction.PublicKeyAdditionsPtr(), notification.PublicKeyAdditionsPtr);
+			EXPECT_EQ(transaction.PublicKeyDeletionsCount, notification.PublicKeyDeletionsCount);
+			EXPECT_EQ(transaction.PublicKeyDeletionsPtr(), notification.PublicKeyDeletionsPtr);
 		});
 
 		// Act + Assert:
@@ -208,11 +200,11 @@ namespace catapult { namespace plugins {
 
 	PLUGIN_TEST(CanPublishAllNotificationsInCorrectOrderWhenAddAndDelModifications) {
 		// Arrange:
-		auto pTransaction = CreateTransactionWithModifications<TTraits>(4);
-		AlternateAll(*pTransaction, CosignatoryModificationAction::Add, CosignatoryModificationAction::Del);
+		auto pTransaction = CreateTransactionWithModifications<TTraits>(2, 2);
 
 		// Act + Assert:
 		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(*pTransaction, {
+			InternalPaddingNotification::Notification_Type,
 			AccountPublicKeyNotification::Notification_Type,
 			MultisigNewCosignatoryNotification::Notification_Type,
 			AccountPublicKeyNotification::Notification_Type,
@@ -225,42 +217,37 @@ namespace catapult { namespace plugins {
 
 	PLUGIN_TEST(CanPublishAllNotificationsWhenAddAndDelModifications) {
 		// Arrange:
-		auto pTransaction = CreateTransactionWithModifications<TTraits>(4);
-		AlternateAll(*pTransaction, CosignatoryModificationAction::Add, CosignatoryModificationAction::Del);
+		auto pTransaction = CreateTransactionWithModifications<TTraits>(2, 2);
 
 		const auto& transaction = *pTransaction;
 		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
+		AddCommonExpectations<TTraits>(builder, transaction);
+
 		for (auto i = 0u; i < 2; ++i) {
 			builder.template addExpectation<AccountPublicKeyNotification>(i, [&transaction, i](const auto& notification) {
-				EXPECT_EQ(transaction.ModificationsPtr()[i * 2].CosignatoryPublicKey, notification.PublicKey);
+				EXPECT_EQ(transaction.PublicKeyAdditionsPtr()[i], notification.PublicKey);
 			});
 
 			builder.template addExpectation<MultisigNewCosignatoryNotification>(i, [&transaction, i](const auto& notification) {
 				EXPECT_EQ(transaction.SignerPublicKey, notification.MultisigAccountKey);
-				EXPECT_EQ(transaction.ModificationsPtr()[i * 2].CosignatoryPublicKey, notification.CosignatoryKey);
+				EXPECT_EQ(transaction.PublicKeyAdditionsPtr()[i], notification.CosignatoryKey);
 			});
 		}
 
 		builder.template addExpectation<MultisigCosignatoriesNotification>([&transaction](const auto& notification) {
 			EXPECT_EQ(transaction.SignerPublicKey, notification.Signer);
-			EXPECT_EQ(transaction.ModificationsCount, notification.ModificationsCount);
-			EXPECT_EQ(transaction.ModificationsPtr(), notification.ModificationsPtr);
+			EXPECT_EQ(transaction.PublicKeyAdditionsCount, notification.PublicKeyAdditionsCount);
+			EXPECT_EQ(transaction.PublicKeyAdditionsPtr(), notification.PublicKeyAdditionsPtr);
+			EXPECT_EQ(transaction.PublicKeyDeletionsCount, notification.PublicKeyDeletionsCount);
+			EXPECT_EQ(transaction.PublicKeyDeletionsPtr(), notification.PublicKeyDeletionsPtr);
 		});
 		builder.template addExpectation<AddressInteractionNotification>([&transaction](const auto& notification) {
 			EXPECT_EQ(transaction.SignerPublicKey, notification.Source);
 			EXPECT_EQ(transaction.Type, notification.TransactionType);
 			EXPECT_EQ(model::UnresolvedAddressSet(), notification.ParticipantsByAddress);
 
-			utils::KeySet expectedParticipantsByKey{
-				transaction.ModificationsPtr()[0].CosignatoryPublicKey,
-				transaction.ModificationsPtr()[2].CosignatoryPublicKey
-			};
+			utils::KeySet expectedParticipantsByKey{ transaction.PublicKeyAdditionsPtr()[0], transaction.PublicKeyAdditionsPtr()[1] };
 			EXPECT_EQ(expectedParticipantsByKey, notification.ParticipantsByKey);
-		});
-		builder.template addExpectation<MultisigSettingsNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(transaction.SignerPublicKey, notification.Signer);
-			EXPECT_EQ(transaction.MinRemovalDelta, notification.MinRemovalDelta);
-			EXPECT_EQ(transaction.MinApprovalDelta, notification.MinApprovalDelta);
 		});
 
 		// Act + Assert:
@@ -274,18 +261,14 @@ namespace catapult { namespace plugins {
 	TEST(TEST_CLASS, CanExtractAdditionalRequiredCosignatoriesFromEmbedded) {
 		// Arrange:
 		auto pPlugin = EmbeddedTraits::CreatePlugin();
-
-		auto pTransaction = CreateTransactionWithModifications<EmbeddedTraits>(4);
-		AlternateAll(*pTransaction, CosignatoryModificationAction::Add, CosignatoryModificationAction::Del);
+		auto pTransaction = CreateTransactionWithModifications<EmbeddedTraits>(2, 2);
 
 		// Act:
 		auto additionalCosignatories = pPlugin->additionalRequiredCosignatories(*pTransaction);
 
 		// Assert:
-		const auto* pModifications = pTransaction->ModificationsPtr();
-		EXPECT_EQ(
-				utils::KeySet({ pModifications[0].CosignatoryPublicKey, pModifications[2].CosignatoryPublicKey }),
-				additionalCosignatories);
+		const auto* pPublicKeyAdditions = pTransaction->PublicKeyAdditionsPtr();
+		EXPECT_EQ(utils::KeySet({ pPublicKeyAdditions[0], pPublicKeyAdditions[1] }), additionalCosignatories);
 	}
 
 	// endregion

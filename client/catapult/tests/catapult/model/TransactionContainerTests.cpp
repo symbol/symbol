@@ -19,6 +19,7 @@
 **/
 
 #include "catapult/model/TransactionContainer.h"
+#include "catapult/utils/IntegerMath.h"
 #include "catapult/utils/MemoryUtils.h"
 #include "tests/test/core/TransactionContainerTestUtils.h"
 #include "tests/TestHarness.h"
@@ -76,12 +77,22 @@ namespace catapult { namespace model {
 
 		// region CreateContainer
 
-		template<typename TContainer>
-		std::unique_ptr<TContainer> CreateContainer(uint32_t extraSize, std::initializer_list<uint32_t> attachmentExtraSizes) {
-			uint32_t size = sizeof(ContainerHeader) + extraSize;
-			for (auto attachmentExtraSize : attachmentExtraSizes)
-				size += sizeof(ContainerComponent) + attachmentExtraSize;
+		uint32_t CalculateContainerSize(std::initializer_list<uint32_t> attachmentExtraSizes) {
+			uint32_t size = sizeof(ContainerHeader);
+			uint32_t lastPaddingSize = 0;
+			for (auto attachmentExtraSize : attachmentExtraSizes) {
+				uint32_t attachmentSize = sizeof(ContainerComponent) + attachmentExtraSize;
+				lastPaddingSize = utils::GetPaddingSize(attachmentSize, 8);
 
+				size += attachmentSize + lastPaddingSize;
+			}
+
+			return size - lastPaddingSize; // last element shouldn't be padded
+		}
+
+		template<typename TContainer>
+		std::unique_ptr<TContainer> CreateContainer(std::initializer_list<uint32_t> attachmentExtraSizes) {
+			auto size = CalculateContainerSize(attachmentExtraSizes);
 			auto pContainer = utils::MakeUniqueWithSize<TContainer>(size);
 			pContainer->Size = size;
 
@@ -89,7 +100,7 @@ namespace catapult { namespace model {
 			for (auto attachmentExtraSize : attachmentExtraSizes) {
 				uint32_t attachmentSize = sizeof(ContainerComponent) + attachmentExtraSize;
 				reinterpret_cast<ContainerComponent*>(pData)->Size = attachmentSize;
-				pData += attachmentSize;
+				pData += attachmentSize + utils::GetPaddingSize(attachmentSize, 8);
 			}
 
 			return pContainer;
@@ -120,7 +131,7 @@ namespace catapult { namespace model {
 
 	IMPLICIT_DATA_POINTER_TEST(TransactionsAreInaccessibleWhenContainerHasNoTransactions_ImplicitSize) {
 		// Arrange:
-		auto pContainer = CreateContainer<Container>(0, {});
+		auto pContainer = CreateContainer<Container>({});
 		auto& accessor = TTraits::GetAccessor(*pContainer);
 
 		// Act + Assert:
@@ -130,7 +141,7 @@ namespace catapult { namespace model {
 
 	IMPLICIT_DATA_POINTER_TEST(TransactionsAreAccessibleWhenContainerHasTransactionsWithSizesEqualToPayloadSize_ImplicitSize) {
 		// Arrange:
-		auto pContainer = CreateContainer<Container>(0, { 100, 50, 75 });
+		auto pContainer = CreateContainer<Container>({ 100, 50, 75 });
 		const auto* pContainerEnd = test::AsVoidPointer(pContainer.get() + 1);
 		auto& accessor = TTraits::GetAccessor(*pContainer);
 
@@ -141,8 +152,8 @@ namespace catapult { namespace model {
 
 	IMPLICIT_DATA_POINTER_TEST(TransactionsAreInaccessibleWhenReportedSizeIsLessThanContainerHeaderSize_ImplicitSize) {
 		// Arrange:
-		auto pContainer = CreateContainer<Container>(0, {});
-		--pContainer->Size;
+		auto pContainer = CreateContainer<Container>({ 100, 50, 75 });
+		pContainer->Size = sizeof(Container) - 1;
 		auto& accessor = TTraits::GetAccessor(*pContainer);
 
 		// Act + Assert:
@@ -152,7 +163,7 @@ namespace catapult { namespace model {
 
 	IMPLICIT_DATA_POINTER_TEST(TransactionsArePartiallyAccessibleWhenContainerHasTransactionsWithSizesNotEqualToPayloadSize_ImplicitSize) {
 		// Arrange:
-		auto pContainer = CreateContainer<Container>(0, { 100, 50, 75 });
+		auto pContainer = CreateContainer<Container>({ 100, 50, 75 });
 		--pContainer->Size;
 		auto& accessor = TTraits::GetAccessor(*pContainer);
 
@@ -168,7 +179,7 @@ namespace catapult { namespace model {
 
 	EXPLICIT_DATA_POINTER_TEST(TransactionsAreInaccessibleWhenContainerHasNoTransactions_ExplicitSize) {
 		// Arrange:
-		auto pContainer = CreateContainer<ContainerWithPayloadSize>(0, { 100, 50, 75 });
+		auto pContainer = CreateContainer<ContainerWithPayloadSize>({ 100, 50, 75 });
 		pContainer->PayloadSize = 0;
 		auto& accessor = TTraits::GetAccessor(*pContainer);
 
@@ -181,9 +192,10 @@ namespace catapult { namespace model {
 	}
 
 	EXPLICIT_DATA_POINTER_TEST(TransactionsAreAccessibleWhenContainerHasTransactionsWithSizesEqualToPayloadSize_ExplicitSize) {
-		// Arrange:
-		auto pContainer = CreateContainer<ContainerWithPayloadSize>(0, { 100, 50, 75 });
-		pContainer->PayloadSize = 3 * sizeof(ContainerComponent) + 100 + 50 + 75;
+		// Arrange: padding is applied to 2-byte header and data size
+		auto pContainer = CreateContainer<ContainerWithPayloadSize>({ 100, 50, 75 });
+		pContainer->PayloadSize = 3 * sizeof(ContainerComponent) + 100 + 2 + 50 + 4 + 75;
+
 		const auto* pContainerEnd = test::AsVoidPointer(pContainer.get() + 1);
 		auto& accessor = TTraits::GetAccessor(*pContainer);
 
@@ -193,10 +205,10 @@ namespace catapult { namespace model {
 	}
 
 	EXPLICIT_DATA_POINTER_TEST(TransactionsAreInaccessibleWhenReportedSizeIsLessThanContainerHeaderSize_ExplicitSize) {
-		// Arrange:
-		auto pContainer = CreateContainer<ContainerWithPayloadSize>(0, { 100, 50, 75 });
-		pContainer->PayloadSize = 0;
-		--pContainer->Size;
+		// Arrange: padding is applied to 2-byte header and data size
+		auto pContainer = CreateContainer<ContainerWithPayloadSize>({ 100, 50, 75 });
+		pContainer->PayloadSize = 3 * sizeof(ContainerComponent) + 100 + 2 + 50 + 4 + 75;
+		pContainer->Size = sizeof(ContainerWithPayloadSize) - 1;
 		auto& accessor = TTraits::GetAccessor(*pContainer);
 
 		// Act + Assert:
@@ -205,9 +217,9 @@ namespace catapult { namespace model {
 	}
 
 	EXPLICIT_DATA_POINTER_TEST(TransactionsArePartiallyAccessibleWhenContainerHasTransactionsWithSizesNotEqualToPayloadSize_ExplicitSize) {
-		// Arrange:
-		auto pContainer = CreateContainer<ContainerWithPayloadSize>(0, { 100, 50, 75 });
-		pContainer->PayloadSize = 3 * sizeof(ContainerComponent) + 100 + 50 + 75;
+		// Arrange: padding is applied to 2-byte header and data size
+		auto pContainer = CreateContainer<ContainerWithPayloadSize>({ 100, 50, 75 });
+		pContainer->PayloadSize = 3 * sizeof(ContainerComponent) + 100 + 2 + 50 + 4 + 75;
 		--pContainer->PayloadSize;
 		auto& accessor = TTraits::GetAccessor(*pContainer);
 

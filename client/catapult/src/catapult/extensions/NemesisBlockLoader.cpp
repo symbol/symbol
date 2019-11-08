@@ -28,6 +28,7 @@
 #include "catapult/config/CatapultConfiguration.h"
 #include "catapult/crypto/Signer.h"
 #include "catapult/io/BlockStorageCache.h"
+#include "catapult/model/BlockUtils.h"
 #include "catapult/model/NotificationPublisher.h"
 #include "catapult/model/TransactionPlugin.h"
 #include "catapult/observers/NotificationObserverAdapter.h"
@@ -48,7 +49,7 @@ namespace catapult { namespace extensions {
 		}
 
 		void LogNemesisBlockInfo(const model::BlockElement& blockElement) {
-			auto networkId = blockElement.Block.Network();
+			auto networkId = blockElement.Block.Network;
 			const auto& publicKey = blockElement.Block.SignerPublicKey;
 			const auto& generationHash = blockElement.GenerationHash;
 			CATAPULT_LOG(info)
@@ -77,7 +78,7 @@ namespace catapult { namespace extensions {
 		}
 
 		void CheckNemesisBlockInfo(const model::BlockElement& blockElement, const model::NetworkInfo& expectedNetwork) {
-			auto networkId = blockElement.Block.Network();
+			auto networkId = blockElement.Block.Network;
 			const auto& publicKey = blockElement.Block.SignerPublicKey;
 			const auto& generationHash = blockElement.GenerationHash;
 
@@ -183,12 +184,8 @@ namespace catapult { namespace extensions {
 		}
 
 		void RequireValidSignature(const model::Block& block) {
-			auto headerSize = model::VerifiableEntity::Header_Size;
-			auto blockData = RawBuffer{ reinterpret_cast<const uint8_t*>(&block) + headerSize, sizeof(model::BlockHeader) - headerSize };
-			if (crypto::Verify(block.SignerPublicKey, blockData, block.Signature))
-				return;
-
-			CATAPULT_THROW_RUNTIME_ERROR("nemesis block has invalid signature");
+			if (!model::VerifyBlockHeaderSignature(block))
+				CATAPULT_THROW_RUNTIME_ERROR("nemesis block has invalid signature");
 		}
 	}
 

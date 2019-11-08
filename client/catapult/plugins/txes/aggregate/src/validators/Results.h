@@ -46,6 +46,9 @@ namespace catapult { namespace validators {
 	/// Validation failed because at least one required cosignature is missing.
 	DEFINE_AGGREGATE_RESULT(Missing_Cosignatures, 6);
 
+	/// Validation failed because the aggregate transactions hash does not match the calculated value.
+	DEFINE_AGGREGATE_RESULT(Transactions_Hash_Mismatch, 7);
+
 #ifndef CUSTOM_RESULT_DEFINITION
 }}
 #endif

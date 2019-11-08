@@ -23,6 +23,7 @@
 #include "src/model/AggregateNotifications.h"
 #include "src/model/AggregateTransaction.h"
 #include "catapult/model/Address.h"
+#include "catapult/utils/IntegerMath.h"
 #include "catapult/utils/MemoryUtils.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/core/mocks/MockTransaction.h"
@@ -52,30 +53,37 @@ namespace catapult { namespace plugins {
 
 		AggregateTransactionWrapper CreateAggregateTransaction(uint8_t numTransactions, uint8_t numCosignatures) {
 			using TransactionType = AggregateTransaction;
-			uint32_t entitySize = sizeof(TransactionType)
-					+ numTransactions * sizeof(mocks::EmbeddedMockTransaction)
-					+ numCosignatures * sizeof(Cosignature);
+
+			uint32_t transactionSize = sizeof(mocks::EmbeddedMockTransaction);
+			uint32_t txPaddingSize = utils::GetPaddingSize(transactionSize, 8);
+			uint32_t payloadSize = numTransactions * (transactionSize + txPaddingSize);
+			uint32_t entitySize = sizeof(TransactionType) + payloadSize + numCosignatures * sizeof(Cosignature);
 
 			AggregateTransactionWrapper wrapper;
 			auto pTransaction = utils::MakeUniqueWithSize<TransactionType>(entitySize);
 			pTransaction->Size = entitySize;
-			pTransaction->PayloadSize = numTransactions * sizeof(mocks::EmbeddedMockTransaction);
+			pTransaction->PayloadSize = payloadSize;
 			test::FillWithRandomData(pTransaction->SignerPublicKey);
 			test::FillWithRandomData(pTransaction->Signature);
+			test::FillWithRandomData(pTransaction->TransactionsHash);
 
-			auto* pSubTransaction = static_cast<mocks::EmbeddedMockTransaction*>(pTransaction->TransactionsPtr());
+			auto* pSubTransactionBytes = reinterpret_cast<uint8_t*>(pTransaction->TransactionsPtr());
 			for (uint8_t i = 0; i < numTransactions; ++i) {
-				pSubTransaction->Size = sizeof(mocks::EmbeddedMockTransaction);
+				auto* pSubTransaction = reinterpret_cast<mocks::EmbeddedMockTransaction*>(pSubTransactionBytes);
+
+				pSubTransaction->Size = transactionSize;
 				pSubTransaction->Data.Size = 0;
+				pSubTransaction->Version = (i + 1) * 2;
+				pSubTransaction->Network = static_cast<model::NetworkIdentifier>(100 + i);
 				pSubTransaction->Type = mocks::EmbeddedMockTransaction::Entity_Type;
-				pSubTransaction->Version = model::MakeVersion(static_cast<model::NetworkIdentifier>(100 + i), (i + 1) * 2);
 				test::FillWithRandomData(pSubTransaction->SignerPublicKey);
 				test::FillWithRandomData(pSubTransaction->RecipientPublicKey);
 
 				wrapper.SubTransactions.push_back(pSubTransaction);
 				wrapper.SubTransactionSigners.push_back(pSubTransaction->SignerPublicKey);
 				wrapper.SubTransactionRecipients.push_back(pSubTransaction->RecipientPublicKey);
-				++pSubTransaction;
+
+				pSubTransactionBytes += transactionSize + txPaddingSize;
 			}
 
 			auto* pCosignature = pTransaction->CosignaturesPtr();
@@ -174,7 +182,11 @@ namespace catapult { namespace plugins {
 		auto realSize = pPlugin->calculateRealSize(*wrapper.pTransaction);
 
 		// Assert:
-		EXPECT_EQ(sizeof(AggregateTransaction) + 3 * sizeof(mocks::EmbeddedMockTransaction) + 4 * sizeof(Cosignature), realSize);
+		uint32_t embeddedTransactionSize = sizeof(mocks::EmbeddedMockTransaction);
+		uint32_t expectedSize = sizeof(AggregateTransaction);
+		expectedSize += 3 * (embeddedTransactionSize + utils::GetPaddingSize(embeddedTransactionSize, 8));
+		expectedSize += 4 * sizeof(Cosignature);
+		EXPECT_EQ(expectedSize, realSize);
 	}
 
 	TEST(TEST_CLASS, CannotCalculateSizeWhenAnySubTransactionIsNotSupported) {
@@ -214,7 +226,8 @@ namespace catapult { namespace plugins {
 		// Act + Assert:
 		test::TransactionPluginTestUtils<AggregateTransactionTraits>::AssertNotificationTypes(*wrapper.pTransaction, {
 			// aggregate cosignatures notification must be the first raised notification
-			AggregateCosignaturesNotification::Notification_Type
+			AggregateCosignaturesNotification::Notification_Type,
+			AggregateEmbeddedTransactionsNotification::Notification_Type
 		}, registry);
 	}
 
@@ -231,6 +244,11 @@ namespace catapult { namespace plugins {
 			EXPECT_FALSE(!!notification.TransactionsPtr);
 			EXPECT_EQ(0u, notification.CosignaturesCount);
 			EXPECT_FALSE(!!notification.CosignaturesPtr);
+		});
+		builder.addExpectation<AggregateEmbeddedTransactionsNotification>([&transaction](const auto& notification) {
+			EXPECT_EQ(transaction.TransactionsHash, notification.TransactionsHash);
+			EXPECT_EQ(0u, notification.TransactionsCount);
+			EXPECT_FALSE(!!notification.TransactionsPtr);
 		});
 
 		// Act + Assert:
@@ -285,6 +303,7 @@ namespace catapult { namespace plugins {
 		test::TransactionPluginTestUtils<AggregateTransactionTraits>::AssertNotificationTypes(*wrapper.pTransaction, {
 			// aggregate cosignatures notification must be the first raised notification
 			AggregateCosignaturesNotification::Notification_Type,
+			AggregateEmbeddedTransactionsNotification::Notification_Type,
 
 			// source change notification must be the first raised sub-transaction notification
 			SourceChangeNotification::Notification_Type,
@@ -314,6 +333,11 @@ namespace catapult { namespace plugins {
 			EXPECT_EQ(transaction.TransactionsPtr(), notification.TransactionsPtr);
 			EXPECT_EQ(0u, notification.CosignaturesCount);
 			EXPECT_FALSE(!!notification.CosignaturesPtr);
+		});
+		builder.addExpectation<AggregateEmbeddedTransactionsNotification>([&transaction](const auto& notification) {
+			EXPECT_EQ(transaction.TransactionsHash, notification.TransactionsHash);
+			EXPECT_EQ(2u, notification.TransactionsCount);
+			EXPECT_EQ(transaction.TransactionsPtr(), notification.TransactionsPtr);
 		});
 
 		AddSubTransactionExpectations(builder, wrapper, 2);
@@ -358,6 +382,7 @@ namespace catapult { namespace plugins {
 		test::TransactionPluginTestUtils<AggregateTransactionTraits>::AssertNotificationTypes(*wrapper.pTransaction, {
 			// aggregate cosignatures notification must be the first raised notification
 			AggregateCosignaturesNotification::Notification_Type,
+			AggregateEmbeddedTransactionsNotification::Notification_Type,
 
 			// signature notifications are raised last (and with wrong source) for performance reasons
 			SignatureNotification::Notification_Type,
@@ -381,6 +406,11 @@ namespace catapult { namespace plugins {
 			EXPECT_EQ(3u, notification.CosignaturesCount);
 			EXPECT_EQ(transaction.CosignaturesPtr(), notification.CosignaturesPtr);
 		});
+		builder.addExpectation<AggregateEmbeddedTransactionsNotification>([&transaction](const auto& notification) {
+			EXPECT_EQ(transaction.TransactionsHash, notification.TransactionsHash);
+			EXPECT_EQ(0u, notification.TransactionsCount);
+			EXPECT_FALSE(!!notification.TransactionsPtr);
+		});
 
 		AddCosignatureExpectations(builder, wrapper, aggregateDataHash, 3);
 
@@ -401,6 +431,7 @@ namespace catapult { namespace plugins {
 		test::TransactionPluginTestUtils<AggregateTransactionTraits>::AssertNotificationTypes(*wrapper.pTransaction, {
 			// aggregate cosignatures notification must be the first raised notification
 			AggregateCosignaturesNotification::Notification_Type,
+			AggregateEmbeddedTransactionsNotification::Notification_Type,
 
 			// source change notification must be the first raised sub-transaction notification
 			SourceChangeNotification::Notification_Type,
@@ -437,6 +468,11 @@ namespace catapult { namespace plugins {
 			EXPECT_EQ(3u, notification.CosignaturesCount);
 			EXPECT_EQ(transaction.CosignaturesPtr(), notification.CosignaturesPtr);
 		});
+		builder.addExpectation<AggregateEmbeddedTransactionsNotification>([&transaction](const auto& notification) {
+			EXPECT_EQ(transaction.TransactionsHash, notification.TransactionsHash);
+			EXPECT_EQ(2u, notification.TransactionsCount);
+			EXPECT_EQ(transaction.TransactionsPtr(), notification.TransactionsPtr);
+		});
 
 		AddSubTransactionExpectations(builder, wrapper, 2);
 		AddCosignatureExpectations(builder, wrapper, aggregateDataHash, 3);
@@ -457,8 +493,7 @@ namespace catapult { namespace plugins {
 			auto wrapper = CreateAggregateTransaction(numTransactions, numCosignatures);
 
 			const auto* pAggregateDataStart = test::AsVoidPointer(&wrapper.pTransaction->Version);
-			auto aggregateDataSize = sizeof(AggregateTransaction) - VerifiableEntity::Header_Size;
-			aggregateDataSize += numTransactions * sizeof(mocks::EmbeddedMockTransaction);
+			auto aggregateDataSize = sizeof(AggregateTransaction) - VerifiableEntity::Header_Size - AggregateTransaction::Footer_Size;
 
 			// Act:
 			auto buffer = pPlugin->dataBuffer(*wrapper.pTransaction);

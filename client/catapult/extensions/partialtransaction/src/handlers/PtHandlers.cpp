@@ -70,15 +70,20 @@ namespace catapult { namespace handlers {
 			return info;
 		}
 
+		void AppendZeroBytes(ionet::PacketPayloadBuilder& builder, size_t count) {
+			builder.appendValues(std::vector<uint8_t>(count, 0));
+		}
+
 		void AppendTransactionInfo(ionet::PacketPayloadBuilder& builder, const model::CosignedTransactionInfo& transactionInfo) {
 			using CosignatureRange = model::EntityRange<model::Cosignature>;
 
 			auto numCosignatures = static_cast<uint16_t>(transactionInfo.Cosignatures.size());
 			if (transactionInfo.pTransaction) {
-				builder.appendValue<uint16_t>(0x8000 | numCosignatures);
+				builder.appendValue<uint64_t>(0x8000 | numCosignatures); // align transaction start (2 byte tag, 6 byte pad)
 				builder.appendEntity(transactionInfo.pTransaction);
+				AppendZeroBytes(builder, utils::GetPaddingSize(transactionInfo.pTransaction->Size, 8)); // align transaction end
 			} else {
-				builder.appendValue<uint16_t>(numCosignatures);
+				builder.appendValue<uint64_t>(numCosignatures); // align cosignatures start (2 byte tag, 6 byte pad)
 				builder.appendRange(model::HashRange::CopyFixed(transactionInfo.EntityHash.data(), 1));
 			}
 

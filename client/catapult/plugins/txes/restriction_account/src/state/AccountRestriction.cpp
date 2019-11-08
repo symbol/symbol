@@ -22,8 +22,8 @@
 
 namespace catapult { namespace state {
 
-	AccountRestriction::AccountRestriction(model::AccountRestrictionType restrictionType, size_t restrictionValueSize)
-			: m_restrictionDescriptor(restrictionType | model::AccountRestrictionType::Block)
+	AccountRestriction::AccountRestriction(model::AccountRestrictionFlags restrictionFlags, size_t restrictionValueSize)
+			: m_restrictionDescriptor(restrictionFlags | model::AccountRestrictionFlags::Block)
 			, m_restrictionValueSize(restrictionValueSize)
 	{}
 
@@ -43,29 +43,32 @@ namespace catapult { namespace state {
 		return m_values.cend() != m_values.find(value);
 	}
 
-	bool AccountRestriction::canAllow(const model::RawAccountRestrictionModification& modification) const {
+	bool AccountRestriction::canAllow(const model::AccountRestrictionModification& modification) const {
 		return isOperationAllowed(modification, AccountRestrictionOperationType::Allow);
 	}
 
-	bool AccountRestriction::canBlock(const model::RawAccountRestrictionModification& modification) const {
+	bool AccountRestriction::canBlock(const model::AccountRestrictionModification& modification) const {
 		return isOperationAllowed(modification, AccountRestrictionOperationType::Block);
 	}
 
-	void AccountRestriction::allow(const model::RawAccountRestrictionModification& modification) {
+	void AccountRestriction::allow(const model::AccountRestrictionModification& modification) {
 		update(modification);
-		m_restrictionDescriptor = m_values.empty()
-				? AccountRestrictionDescriptor(m_restrictionDescriptor.directionalRestrictionType() | model::AccountRestrictionType::Block)
-				: AccountRestrictionDescriptor(m_restrictionDescriptor.directionalRestrictionType());
+
+		auto restrictionFlags = m_restrictionDescriptor.directionalRestrictionFlags();
+		if (m_values.empty())
+			restrictionFlags |= model::AccountRestrictionFlags::Block;
+
+		m_restrictionDescriptor = AccountRestrictionDescriptor(restrictionFlags);
 	}
 
-	void AccountRestriction::block(const model::RawAccountRestrictionModification& modification) {
-		auto blockRestrictionType = m_restrictionDescriptor.directionalRestrictionType() | model::AccountRestrictionType::Block;
-		m_restrictionDescriptor = AccountRestrictionDescriptor(blockRestrictionType);
+	void AccountRestriction::block(const model::AccountRestrictionModification& modification) {
+		auto blockRestrictionFlags = m_restrictionDescriptor.directionalRestrictionFlags() | model::AccountRestrictionFlags::Block;
+		m_restrictionDescriptor = AccountRestrictionDescriptor(blockRestrictionFlags);
 		update(modification);
 	}
 
 	bool AccountRestriction::isOperationAllowed(
-			const model::RawAccountRestrictionModification& modification,
+			const model::AccountRestrictionModification& modification,
 			AccountRestrictionOperationType operationType) const {
 		if (m_restrictionValueSize != modification.Value.size())
 			CATAPULT_THROW_INVALID_ARGUMENT_2("invalid value size (expected / actual)", m_restrictionValueSize, modification.Value.size());
@@ -79,7 +82,7 @@ namespace catapult { namespace state {
 		return (m_values.empty() || validOperationType) && validContainment;
 	}
 
-	void AccountRestriction::update(const model::RawAccountRestrictionModification& modification) {
+	void AccountRestriction::update(const model::AccountRestrictionModification& modification) {
 		if (m_restrictionValueSize != modification.Value.size())
 			CATAPULT_THROW_INVALID_ARGUMENT_2("invalid value size (expected / actual)", m_restrictionValueSize, modification.Value.size());
 

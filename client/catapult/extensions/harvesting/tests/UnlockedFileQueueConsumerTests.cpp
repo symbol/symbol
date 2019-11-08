@@ -23,6 +23,7 @@
 #include "catapult/io/FileQueue.h"
 #include "harvesting/tests/test/UnlockedTestEntry.h"
 #include "tests/test/crypto/EncryptionTestUtils.h"
+#include "tests/test/nodeps/Alignment.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/TestHarness.h"
@@ -30,6 +31,15 @@
 namespace catapult { namespace harvesting {
 
 #define TEST_CLASS UnlockedFileQueueConsumerTests
+
+	// region alignment (UnlockedEntryMessage)
+
+	TEST(TEST_CLASS, UnlockedEntryMessageHasProperAlignment) {
+		// Assert: AnnouncerPublicKey needs to be 8-byte aligned, which is not guaranteed even though `UnlockedEntryMessage` is not packed
+		EXPECT_ALIGNED(UnlockedEntryMessage, AnnouncerPublicKey);
+	}
+
+	// endregion
 
 	// region decrypt unlocked entry
 

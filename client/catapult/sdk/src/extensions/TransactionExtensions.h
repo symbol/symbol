@@ -30,6 +30,9 @@ namespace catapult { namespace extensions {
 		explicit TransactionExtensions(const GenerationHash& generationHash);
 
 	public:
+		/// Hashes the \a transaction.
+		Hash256 hash(const model::Transaction& transaction) const;
+
 		/// Signs the \a transaction using \a signer private key.
 		void sign(const crypto::KeyPair& signer, model::Transaction& transaction) const;
 

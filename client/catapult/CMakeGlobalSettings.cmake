@@ -25,12 +25,12 @@ if(ENABLE_CATAPULT_DIAGNOSTICS)
 endif()
 
 ### detect signature scheme
-if(USE_KECCAK AND USE_REVERSED_PRIVATE_KEYS)
-	add_definitions(-DSIGNATURE_SCHEME_NIS1)
-elseif(NOT USE_KECCAK AND NOT USE_REVERSED_PRIVATE_KEYS)
-	add_definitions(-DSIGNATURE_SCHEME_CATAPULT)
+if(USE_KECCAK)
+	add_definitions(-DSIGNATURE_SCHEME_KECCAK)
+	set(HASH_VARIANT_NAME "keccak")
 else()
-	message(FATAL_ERROR "unsupported signature scheme specified - please check USE_KECCAK and USE_REVERSED_PRIVATE_KEYS options")
+	add_definitions(-DSIGNATURE_SCHEME_SHA3)
+	set(HASH_VARIANT_NAME "sha3")
 endif()
 
 ### forward docker build settings
@@ -66,7 +66,7 @@ if(USE_SANITIZER)
 	set(SANITIZATION_FLAGS "-fno-omit-frame-pointer -fsanitize-blacklist=${SANITIZER_BLACKLIST} -fsanitize=${USE_SANITIZER}")
 
 	if(USE_SANITIZER MATCHES "undefined")
-		set(SANITIZATION_FLAGS "${SANITIZATION_FLAGS} -fsanitize=implicit-conversion,nullability -fno-sanitize=vptr,alignment")
+		set(SANITIZATION_FLAGS "${SANITIZATION_FLAGS} -fsanitize=implicit-conversion,nullability")
 	endif()
 
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SANITIZATION_FLAGS}")
@@ -141,7 +141,7 @@ if(("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU") OR ("${CMAKE_CXX_COMPILER_ID}" MAT
 
 	# $origin - to load plugins when running the server
 	# $origin/boost - same, use our boost libs
-	set(CMAKE_INSTALL_RPATH "$ORIGIN:$ORIGIN/deps${CMAKE_INSTALL_RPATH}")
+	set(CMAKE_INSTALL_RPATH "$ORIGIN:$ORIGIN/../deps:$ORIGIN/../lib${CMAKE_INSTALL_RPATH}")
 	set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 	set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
@@ -158,6 +158,12 @@ endif()
 function(catapult_add_gtest_dependencies)
 	find_package(GTest REQUIRED)
 	include_directories(SYSTEM ${GTEST_INCLUDE_DIR})
+endfunction()
+
+function(catapult_add_tests_subdirectory DIRECTORY_NAME)
+	if(ENABLE_TESTS)
+		add_subdirectory(${DIRECTORY_NAME})
+	endif()	
 endfunction()
 
 # sets additional compiler options for test projects in order to quiet GTEST warnings while allowing source warning checks to be stricter
@@ -195,9 +201,9 @@ if(NOT CATAPULT_BUILD_DEVELOPMENT)
 		OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 	if(CATAPULT_BUILD_RELEASE)
-		set(CATAPULT_VERSION_DESCRIPTION "(public)")
+		set(CATAPULT_VERSION_DESCRIPTION "(public, ${HASH_VARIANT_NAME})")
 	else()
-		set(CATAPULT_VERSION_DESCRIPTION "${GIT_COMMIT_HASH} [${GIT_BRANCH}]")
+		set(CATAPULT_VERSION_DESCRIPTION "${GIT_COMMIT_HASH} [${GIT_BRANCH}] (${HASH_VARIANT_NAME})")
 	endif()
 endif()
 
@@ -325,6 +331,8 @@ endfunction()
 function(catapult_shared_library_target TARGET_NAME)
 	catapult_shared_library(${TARGET_NAME} ${ARGN})
 	catapult_target(${TARGET_NAME})
+
+	install(TARGETS ${TARGET_NAME})
 endfunction()
 
 # used to define a catapult executable, creating an appropriate source group and adding an executable
@@ -407,11 +415,13 @@ endfunction()
 
 # used to define a catapult tool executable
 function(catapult_define_tool TOOL_NAME)
-    set(TARGET_NAME catapult.tools.${TOOL_NAME})
+	set(TARGET_NAME catapult.tools.${TOOL_NAME})
 
-    catapult_executable(${TARGET_NAME})
-    target_link_libraries(${TARGET_NAME} catapult.tools)
-    catapult_target(${TARGET_NAME})
+	catapult_executable(${TARGET_NAME})
+	target_link_libraries(${TARGET_NAME} catapult.tools)
+	catapult_target(${TARGET_NAME})
 
-    add_dependencies(tools ${TARGET_NAME})
+	add_dependencies(tools ${TARGET_NAME})
+
+	install(TARGETS ${TARGET_NAME})
 endfunction()

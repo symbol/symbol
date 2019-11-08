@@ -34,51 +34,72 @@ namespace catapult { namespace plugins {
 		struct AddressTraits {
 			using UnresolvedValueType = UnresolvedAddress;
 			using ResolvedValueType = Address;
-			using ModifyAccountRestrictionNotification = ModifyAccountAddressRestrictionNotification;
+			using ModifyAccountRestrictionsNotification = ModifyAccountAddressRestrictionsNotification;
 			using ModifyAccountRestrictionValueNotification = ModifyAccountAddressRestrictionValueNotification;
 		};
 
 		struct MosaicTraits {
 			using UnresolvedValueType = UnresolvedMosaicId;
 			using ResolvedValueType = MosaicId;
-			using ModifyAccountRestrictionNotification = ModifyAccountMosaicRestrictionNotification;
+			using ModifyAccountRestrictionsNotification = ModifyAccountMosaicRestrictionsNotification;
 			using ModifyAccountRestrictionValueNotification = ModifyAccountMosaicRestrictionValueNotification;
 		};
 
 		struct OperationTraits {
 			using UnresolvedValueType = model::EntityType;
 			using ResolvedValueType = model::EntityType;
-			using ModifyAccountRestrictionNotification = ModifyAccountOperationRestrictionNotification;
+			using ModifyAccountRestrictionsNotification = ModifyAccountOperationRestrictionsNotification;
 			using ModifyAccountRestrictionValueNotification = ModifyAccountOperationRestrictionValueNotification;
 		};
+
+		template<typename TValueNotification, typename TTransaction, typename TResolvedValue>
+		void RaiseValueNotifications(
+				NotificationSubscriber& sub,
+				const TTransaction& transaction,
+				const TResolvedValue* pValues,
+				uint8_t numValues,
+				AccountRestrictionModificationAction action) {
+			for (auto i = 0u; i < numValues; ++i)
+				sub.notify(TValueNotification(transaction.SignerPublicKey, transaction.RestrictionFlags, pValues[i], action));
+		}
 
 		template<typename TTraits>
 		class Publisher {
 		public:
 			template<typename TTransaction>
 			static void Publish(const TTransaction& transaction, NotificationSubscriber& sub) {
-				sub.notify(AccountRestrictionTypeNotification(transaction.RestrictionType));
+				sub.notify(InternalPaddingNotification(transaction.AccountRestrictionTransactionBody_Reserved1));
+				sub.notify(AccountRestrictionModificationNotification(
+						transaction.RestrictionFlags,
+						transaction.RestrictionAdditionsCount,
+						transaction.RestrictionDeletionsCount));
 				sub.notify(CreateAccountRestrictionModificationsNotification<TTransaction>(transaction));
 
 				using ValueNotification = typename TTraits::ModifyAccountRestrictionValueNotification;
-				const auto* pModifications = transaction.ModificationsPtr();
-				for (auto i = 0u; i < transaction.ModificationsCount; ++i) {
-					AccountRestrictionModification<typename TTraits::UnresolvedValueType> modification{
-						pModifications[i].ModificationAction,
-						pModifications[i].Value
-					};
-					sub.notify(ValueNotification(transaction.SignerPublicKey, transaction.RestrictionType, modification));
-				}
+				RaiseValueNotifications<ValueNotification>(
+						sub,
+						transaction,
+						transaction.RestrictionAdditionsPtr(),
+						transaction.RestrictionAdditionsCount,
+						AccountRestrictionModificationAction::Add);
+				RaiseValueNotifications<ValueNotification>(
+						sub,
+						transaction,
+						transaction.RestrictionDeletionsPtr(),
+						transaction.RestrictionDeletionsCount,
+						AccountRestrictionModificationAction::Del);
 			}
 
 		private:
 			template<typename TTransaction>
 			static auto CreateAccountRestrictionModificationsNotification(const TTransaction& transaction) {
-				return typename TTraits::ModifyAccountRestrictionNotification(
+				return typename TTraits::ModifyAccountRestrictionsNotification(
 						transaction.SignerPublicKey,
-						transaction.RestrictionType,
-						transaction.ModificationsCount,
-						transaction.ModificationsPtr());
+						transaction.RestrictionFlags,
+						transaction.RestrictionAdditionsCount,
+						transaction.RestrictionAdditionsPtr(),
+						transaction.RestrictionDeletionsCount,
+						transaction.RestrictionDeletionsPtr());
 			}
 		};
 	}

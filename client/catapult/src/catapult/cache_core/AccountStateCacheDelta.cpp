@@ -167,6 +167,14 @@ namespace catapult { namespace cache {
 		m_queuedRemoveByPublicKey.emplace(height, publicKey);
 	}
 
+	void BasicAccountStateCacheDelta::clearRemove(const Address& address, Height height) {
+		m_queuedRemoveByAddress.erase(std::make_pair(height, address));
+	}
+
+	void BasicAccountStateCacheDelta::clearRemove(const Key& publicKey, Height height) {
+		m_queuedRemoveByPublicKey.erase(std::make_pair(height, publicKey));
+	}
+
 	void BasicAccountStateCacheDelta::commitRemovals() {
 		for (const auto& addressHeightPair : m_queuedRemoveByAddress)
 			remove(addressHeightPair.second, addressHeightPair.first);

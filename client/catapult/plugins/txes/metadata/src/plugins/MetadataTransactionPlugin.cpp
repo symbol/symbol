@@ -44,8 +44,9 @@ namespace catapult { namespace plugins {
 			}
 
 			template<typename TTransaction>
-			static void RaiseCustomNotifications(const TTransaction&, NotificationSubscriber&)
-			{}
+			static void RaiseCustomNotifications(const TTransaction& transaction, NotificationSubscriber& sub) {
+				sub.notify(AccountPublicKeyNotification(transaction.TargetPublicKey));
+			}
 		};
 
 		struct MosaicTraits {

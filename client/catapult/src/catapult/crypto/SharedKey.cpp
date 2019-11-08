@@ -279,7 +279,7 @@ namespace catapult { namespace crypto {
 			saltedResult[i] ^= salt[i];
 
 		Hash256 hash;
-#ifdef SIGNATURE_SCHEME_NIS1
+#ifdef SIGNATURE_SCHEME_KECCAK
 		Keccak_256(saltedResult, hash);
 #else
 		Sha3_256(saltedResult, hash);

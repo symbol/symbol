@@ -33,8 +33,6 @@ namespace catapult { namespace validators {
 	DEFINE_COMMON_VALIDATOR_TESTS(MultisigInvalidSettings,)
 
 	namespace {
-		using Modifications = std::vector<model::CosignatoryModification>;
-
 		auto CreateNotification(const Key& signer, int8_t minRemovalDelta, int8_t minApprovalDelta) {
 			return model::MultisigSettingsNotification(signer, minRemovalDelta, minApprovalDelta);
 		}

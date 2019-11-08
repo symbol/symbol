@@ -20,8 +20,8 @@
 
 #pragma once
 #include "AccountRestrictionDescriptor.h"
+#include "src/model/AccountRestrictionModification.h"
 #include <set>
-#include <vector>
 
 namespace catapult { namespace state {
 
@@ -32,8 +32,8 @@ namespace catapult { namespace state {
 		using RawValue = std::vector<uint8_t>;
 
 	public:
-		/// Creates an account restriction around \a restrictionType and \a restrictionValueSize.
-		AccountRestriction(model::AccountRestrictionType restrictionType, size_t restrictionValueSize);
+		/// Creates an account restriction around \a restrictionFlags and \a restrictionValueSize.
+		AccountRestriction(model::AccountRestrictionFlags restrictionFlags, size_t restrictionValueSize);
 
 	public:
 		/// Gets the restriction descriptor.
@@ -50,24 +50,24 @@ namespace catapult { namespace state {
 		bool contains(const std::vector<uint8_t>& value) const;
 
 		/// Returns \c true if \a modification can be applied to the allowed values.
-		bool canAllow(const model::RawAccountRestrictionModification& modification) const;
+		bool canAllow(const model::AccountRestrictionModification& modification) const;
 
 		/// Returns \c true if \a modification can be applied to the blocked values.
-		bool canBlock(const model::RawAccountRestrictionModification& modification) const;
+		bool canBlock(const model::AccountRestrictionModification& modification) const;
 
 	public:
 		/// Applies \a modification to the allowed values.
-		void allow(const model::RawAccountRestrictionModification& modification);
+		void allow(const model::AccountRestrictionModification& modification);
 
 		/// Applies \a modification to the the blocked values.
-		void block(const model::RawAccountRestrictionModification& modification);
+		void block(const model::AccountRestrictionModification& modification);
 
 	private:
 		bool isOperationAllowed(
-				const model::RawAccountRestrictionModification& modification,
+				const model::AccountRestrictionModification& modification,
 				AccountRestrictionOperationType operationType) const;
 
-		void update(const model::RawAccountRestrictionModification& modification);
+		void update(const model::AccountRestrictionModification& modification);
 
 	private:
 		AccountRestrictionDescriptor m_restrictionDescriptor;

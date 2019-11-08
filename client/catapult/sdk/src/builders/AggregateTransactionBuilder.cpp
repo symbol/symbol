@@ -19,25 +19,36 @@
 **/
 
 #include "AggregateTransactionBuilder.h"
+#include "catapult/crypto/Hashes.h"
+#include "catapult/crypto/MerkleHashBuilder.h"
 #include "catapult/crypto/Signer.h"
 #include "catapult/model/EntityHasher.h"
-#include "catapult/utils/Functional.h"
+#include "catapult/utils/IntegerMath.h"
 
 namespace catapult { namespace builders {
 
 	using TransactionType = model::AggregateTransaction;
+
+	namespace {
+		uint32_t CalculateAggregatePayloadSize(const std::vector<AggregateTransactionBuilder::EmbeddedTransactionPointer>& transactions) {
+			uint32_t size = 0;
+			for (const auto& pTransaction : transactions)
+				size += pTransaction->Size + utils::GetPaddingSize(pTransaction->Size, 8);
+
+			return size;
+		}
+	}
 
 	AggregateTransactionBuilder::AggregateTransactionBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
 			: TransactionBuilder(networkIdentifier, signer)
 	{}
 
 	void AggregateTransactionBuilder::addTransaction(AggregateTransactionBuilder::EmbeddedTransactionPointer&& pTransaction) {
-		m_pTransactions.push_back(std::move(pTransaction));
+		m_transactions.push_back(std::move(pTransaction));
 	}
 
 	size_t AggregateTransactionBuilder::size() const {
-		auto payloadSize = utils::Sum(m_pTransactions, [](const auto& pEmbeddedTransaction) { return pEmbeddedTransaction->Size; });
-		return sizeof(TransactionType) + payloadSize;
+		return sizeof(TransactionType) + CalculateAggregatePayloadSize(m_transactions);
 	}
 
 	std::unique_ptr<TransactionType> AggregateTransactionBuilder::build() const {
@@ -45,24 +56,36 @@ namespace catapult { namespace builders {
 		auto pTransaction = createTransaction<TransactionType>(size());
 
 		// 2. set transaction fields
-		auto payloadSize = utils::Sum(m_pTransactions, [](const auto& pEmbeddedTransaction) { return pEmbeddedTransaction->Size; });
+		auto payloadSize = CalculateAggregatePayloadSize(m_transactions);
 		pTransaction->Type = model::Entity_Type_Aggregate_Bonded;
 		pTransaction->PayloadSize = payloadSize;
 
+		crypto::MerkleHashBuilder transactionsHashBuilder(m_transactions.size());
+
 		auto* pData = reinterpret_cast<uint8_t*>(pTransaction->TransactionsPtr());
-		for (const auto& pEmbeddedTransaction : m_pTransactions) {
+		for (const auto& pEmbeddedTransaction : m_transactions) {
 			std::memcpy(pData, pEmbeddedTransaction.get(), pEmbeddedTransaction->Size);
+
+			Hash256 transactionHash;
+			crypto::Sha3_256({ pData, pEmbeddedTransaction->Size }, transactionHash);
+			transactionsHashBuilder.update(transactionHash);
+
 			pData += pEmbeddedTransaction->Size;
+
+			auto paddingSize = utils::GetPaddingSize(pEmbeddedTransaction->Size, 8);
+			std::memset(static_cast<void*>(pData), 0, paddingSize);
+			pData += paddingSize;
 		}
 
+		transactionsHashBuilder.final(pTransaction->TransactionsHash);
 		return pTransaction;
 	}
 
 	namespace {
 		RawBuffer TransactionDataBuffer(const TransactionType& transaction) {
 			return {
-				reinterpret_cast<const uint8_t*>(&transaction) + model::VerifiableEntity::Header_Size,
-				sizeof(TransactionType) - model::VerifiableEntity::Header_Size + transaction.PayloadSize
+				reinterpret_cast<const uint8_t*>(&transaction) + TransactionType::Header_Size,
+				sizeof(TransactionType) - TransactionType::Header_Size - TransactionType::Footer_Size
 			};
 		}
 	}

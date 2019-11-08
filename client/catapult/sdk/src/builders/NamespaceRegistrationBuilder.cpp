@@ -25,10 +25,10 @@ namespace catapult { namespace builders {
 
 	NamespaceRegistrationBuilder::NamespaceRegistrationBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
 			: TransactionBuilder(networkIdentifier, signer)
-			, m_registrationType()
 			, m_duration()
 			, m_parentId()
 			, m_id()
+			, m_registrationType()
 			, m_name()
 	{}
 
@@ -79,7 +79,6 @@ namespace catapult { namespace builders {
 		auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
 
 		// 2. set fixed transaction fields
-		pTransaction->RegistrationType = m_registrationType;
 		if (model::NamespaceRegistrationType::Root == m_registrationType)
 			pTransaction->Duration = m_duration;
 
@@ -87,6 +86,7 @@ namespace catapult { namespace builders {
 			pTransaction->ParentId = m_parentId;
 
 		pTransaction->Id = model::GenerateNamespaceId(m_parentId, { reinterpret_cast<const char*>(m_name.data()), m_name.size() });
+		pTransaction->RegistrationType = m_registrationType;
 		pTransaction->NameSize = utils::checked_cast<size_t, uint8_t>(m_name.size());
 
 		// 3. set transaction attachments

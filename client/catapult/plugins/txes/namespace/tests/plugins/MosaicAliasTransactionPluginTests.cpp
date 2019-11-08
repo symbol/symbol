@@ -43,10 +43,11 @@ namespace catapult { namespace plugins {
 
 	// region publish
 
-	PLUGIN_TEST(CanPublishAllNotificationsInCorrectOrder) {
+	PLUGIN_TEST(CanPublishAllNotificationsInCorrectOrder_Link) {
 		// Arrange:
 		typename TTraits::TransactionType transaction;
 		test::FillWithRandomData(transaction);
+		transaction.AliasAction = model::AliasAction::Link;
 
 		// Act + Assert:
 		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
@@ -57,10 +58,11 @@ namespace catapult { namespace plugins {
 		});
 	}
 
-	PLUGIN_TEST(CanPublishAllNotifications) {
+	PLUGIN_TEST(CanPublishAllNotifications_Link) {
 		// Arrange:
 		typename TTraits::TransactionType transaction;
 		test::FillWithRandomData(transaction);
+		transaction.AliasAction = model::AliasAction::Link;
 
 		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
 		builder.template addExpectation<NamespaceRequiredNotification>([&transaction](const auto& notification) {
@@ -82,6 +84,45 @@ namespace catapult { namespace plugins {
 			EXPECT_EQ(UnresolvedMosaicId(), notification.UnresolvedMosaicId);
 			EXPECT_EQ(0u, notification.PropertyFlagMask);
 			EXPECT_EQ(MosaicRequiredNotification::MosaicType::Resolved, notification.ProvidedMosaicType);
+		});
+
+		// Act + Assert:
+		builder.runTest(transaction);
+	}
+
+	PLUGIN_TEST(CanPublishAllNotificationsInCorrectOrder_Unlink) {
+		// Arrange:
+		typename TTraits::TransactionType transaction;
+		test::FillWithRandomData(transaction);
+		transaction.AliasAction = model::AliasAction::Unlink;
+
+		// Act + Assert:
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
+			NamespaceRequiredNotification::Notification_Type,
+			AliasLinkNotification::Notification_Type,
+			AliasedMosaicIdNotification::Notification_Type
+		});
+	}
+
+	PLUGIN_TEST(CanPublishAllNotifications_Unlink) {
+		// Arrange:
+		typename TTraits::TransactionType transaction;
+		test::FillWithRandomData(transaction);
+		transaction.AliasAction = model::AliasAction::Unlink;
+
+		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
+		builder.template addExpectation<NamespaceRequiredNotification>([&transaction](const auto& notification) {
+			EXPECT_EQ(transaction.SignerPublicKey, notification.Signer);
+			EXPECT_EQ(transaction.NamespaceId, notification.NamespaceId);
+		});
+		builder.template addExpectation<AliasLinkNotification>([&transaction](const auto& notification) {
+			EXPECT_EQ(transaction.NamespaceId, notification.NamespaceId);
+			EXPECT_EQ(transaction.AliasAction, notification.AliasAction);
+		});
+		builder.template addExpectation<AliasedMosaicIdNotification>([&transaction](const auto& notification) {
+			EXPECT_EQ(transaction.NamespaceId, notification.NamespaceId);
+			EXPECT_EQ(transaction.AliasAction, notification.AliasAction);
+			EXPECT_EQ(transaction.MosaicId, notification.AliasedData);
 		});
 
 		// Act + Assert:

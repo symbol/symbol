@@ -51,8 +51,8 @@ namespace catapult { namespace consumers {
 
 		InputSource GetRemoteMask() {
 			return static_cast<InputSource>(
-					utils::to_underlying_type(InputSource::Remote_Pull) |
-					utils::to_underlying_type(InputSource::Remote_Push));
+					utils::to_underlying_type(InputSource::Remote_Pull)
+					| utils::to_underlying_type(InputSource::Remote_Push));
 		}
 
 		struct ConsumerTestContext {

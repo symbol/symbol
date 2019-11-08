@@ -20,6 +20,7 @@
 
 #include "RocksPruningFilter.h"
 #include "RocksInclude.h"
+#include <cstring>
 
 namespace catapult { namespace cache {
 
@@ -36,7 +37,10 @@ namespace catapult { namespace cache {
 			if (key.size() < Special_Key_Max_Length)
 				return false;
 
-			auto value = *reinterpret_cast<const uint64_t*>(key.data());
+			// due to short std::string optimization, std::string data is not guaranteed to be aligned
+			uint64_t value;
+			std::memcpy(&value, key.data(), sizeof(uint64_t));
+
 			if (value < m_compactionBoundary) {
 				++m_numRemoved;
 				return true;

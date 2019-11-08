@@ -34,13 +34,10 @@ namespace catapult { namespace validators {
 	DEFINE_COMMON_VALIDATOR_TESTS(MaxAccountOperationRestrictionValues, 5)
 
 	namespace {
-		constexpr auto Add = model::AccountRestrictionModificationAction::Add;
-		constexpr auto Del = model::AccountRestrictionModificationAction::Del;
-
 		struct AccountAddressRestrictionTraits : public test::BaseAccountAddressRestrictionTraits {
 			static constexpr auto CreateValidator = CreateMaxAccountAddressRestrictionValuesValidator;
 
-			using NotificationType = model::ModifyAccountAddressRestrictionNotification;
+			using NotificationType = model::ModifyAccountAddressRestrictionsNotification;
 
 			static auto ToUnresolved(const ValueType& value) {
 				return extensions::CopyToUnresolvedAddress(value);
@@ -50,7 +47,7 @@ namespace catapult { namespace validators {
 		struct AccountMosaicRestrictionTraits : public test::BaseAccountMosaicRestrictionTraits {
 			static constexpr auto CreateValidator = CreateMaxAccountMosaicRestrictionValuesValidator;
 
-			using NotificationType = model::ModifyAccountMosaicRestrictionNotification;
+			using NotificationType = model::ModifyAccountMosaicRestrictionsNotification;
 
 			static auto ToUnresolved(const ValueType& value) {
 				return extensions::CastToUnresolvedMosaicId(value);
@@ -60,7 +57,7 @@ namespace catapult { namespace validators {
 		struct AccountOperationRestrictionTraits : public test::BaseAccountOperationRestrictionTraits {
 			static constexpr auto CreateValidator = CreateMaxAccountOperationRestrictionValuesValidator;
 
-			using NotificationType = model::ModifyAccountOperationRestrictionNotification;
+			using NotificationType = model::ModifyAccountOperationRestrictionsNotification;
 
 			static auto ToUnresolved(const ValueType& value) {
 				return value;
@@ -72,35 +69,36 @@ namespace catapult { namespace validators {
 				ValidationResult expectedResult,
 				uint16_t maxAccountRestrictionValues,
 				uint16_t numInitialValues,
-				uint16_t numAddModifications,
-				uint16_t numDelModifications) {
+				uint8_t numAdditions,
+				uint8_t numDeletions) {
 			// Sanity:
-			ASSERT_GE(numInitialValues, numDelModifications);
+			ASSERT_GE(numInitialValues, numDeletions);
 
 			// Arrange:
 			auto initialValues = test::GenerateUniqueRandomDataVector<typename TRestrictionValueTraits::ValueType>(numInitialValues);
 			auto cache = test::AccountRestrictionCacheFactory::Create();
 			auto key = test::GenerateRandomByteArray<Key>();
 			test::PopulateCache<TRestrictionValueTraits>(cache, key, initialValues);
-			std::vector<model::AccountRestrictionModification<typename TRestrictionValueTraits::UnresolvedValueType>> modifications;
-			for (auto i = 0u; i < std::max(numAddModifications, numDelModifications); ++i) {
-				if (i < numAddModifications)
-					modifications.push_back({ Add, TRestrictionValueTraits::RandomUnresolvedValue() });
 
-				if (i < numDelModifications)
-					modifications.push_back({ Del, TRestrictionValueTraits::ToUnresolved(initialValues[i]) });
-			}
+			std::vector<typename TRestrictionValueTraits::UnresolvedValueType> restrictionAdditions;
+			for (auto i = 0u; i < numAdditions; ++i)
+				restrictionAdditions.push_back(TRestrictionValueTraits::RandomUnresolvedValue());
+
+			std::vector<typename TRestrictionValueTraits::UnresolvedValueType> restrictionDeletions;
+			for (auto i = 0u; i < numDeletions; ++i)
+				restrictionDeletions.push_back(TRestrictionValueTraits::ToUnresolved(initialValues[i]));
 
 			auto pValidator = TRestrictionValueTraits::CreateValidator(maxAccountRestrictionValues);
-
-			using UnresolvedValueType = typename TRestrictionValueTraits::UnresolvedValueType;
-			auto notification = test::CreateNotification<TRestrictionValueTraits, UnresolvedValueType>(key, modifications);
+			auto notification = test::CreateAccountRestrictionsNotification<TRestrictionValueTraits>(
+					key,
+					restrictionAdditions,
+					restrictionDeletions);
 
 			// Act:
-			auto result = test::ValidateNotification<typename TRestrictionValueTraits::NotificationType>(*pValidator, notification, cache);
+			auto result = test::ValidateNotification(*pValidator, notification, cache);
 
 			// Assert:
-			EXPECT_EQ(expectedResult, result);
+			EXPECT_EQ(expectedResult, result) << "numAdditions " << numAdditions << ", numDeletions " << numDeletions;
 		}
 	}
 
@@ -113,6 +111,9 @@ namespace catapult { namespace validators {
 
 	TRAITS_BASED_TEST(FailureWhenMaxModificationsIsExceeded) {
 		AssertValidationResult<TTraits>(Failure_RestrictionAccount_Modification_Count_Exceeded, 10, 0, 11, 0);
+		AssertValidationResult<TTraits>(Failure_RestrictionAccount_Modification_Count_Exceeded, 10, 5, 6, 5);
+		AssertValidationResult<TTraits>(Failure_RestrictionAccount_Modification_Count_Exceeded, 10, 6, 5, 6);
+		AssertValidationResult<TTraits>(Failure_RestrictionAccount_Modification_Count_Exceeded, 10, 11, 0, 11);
 	}
 
 	TRAITS_BASED_TEST(FailureWhenResultingAccountRestrictionValuesExceedsMaximum) {

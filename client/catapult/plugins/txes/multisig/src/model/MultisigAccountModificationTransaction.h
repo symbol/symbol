@@ -27,25 +27,6 @@ namespace catapult { namespace model {
 
 #pragma pack(push, 1)
 
-	/// Cosignatory modification action.
-	enum class CosignatoryModificationAction : uint8_t {
-		/// Remove cosignatory.
-		Del,
-
-		/// Add cosignatory.
-		Add
-	};
-
-	/// Binary layout for cosignatory modification.
-	struct CosignatoryModification {
-	public:
-		/// Modification action.
-		CosignatoryModificationAction ModificationAction;
-
-		/// Cosignatory account public key.
-		Key CosignatoryPublicKey;
-	};
-
 	/// Binary layout for a multisig account modification transaction body.
 	template<typename THeader>
 	struct MultisigAccountModificationTransactionBody : public THeader {
@@ -62,22 +43,39 @@ namespace catapult { namespace model {
 		/// Relative change of the minimal number of cosignatories required when approving a transaction.
 		int8_t MinApprovalDelta;
 
-		/// Number of modifications.
-		uint8_t ModificationsCount;
+		/// Number of cosignatory public key additions.
+		uint8_t PublicKeyAdditionsCount;
 
-		// followed by modifications data if ModificationsCount != 0
-		DEFINE_TRANSACTION_VARIABLE_DATA_ACCESSORS(Modifications, CosignatoryModification)
+		/// Number of cosignatory public key deletions.
+		uint8_t PublicKeyDeletionsCount;
+
+		/// Reserved padding to align PublicKeyAdditions on 8-byte boundary.
+		uint32_t MultisigAccountModificationTransactionBody_Reserved1;
+
+		// followed by additions data if PublicKeyAdditionsCount != 0
+		DEFINE_TRANSACTION_VARIABLE_DATA_ACCESSORS(PublicKeyAdditions, Key)
+
+		// followed by deletions data if PublicKeyDeletionsCount != 0
+		DEFINE_TRANSACTION_VARIABLE_DATA_ACCESSORS(PublicKeyDeletions, Key)
 
 	private:
 		template<typename T>
-		static auto* ModificationsPtrT(T& transaction) {
-			return transaction.ModificationsCount ? THeader::PayloadStart(transaction) : nullptr;
+		static auto* PublicKeyAdditionsPtrT(T& transaction) {
+			return transaction.PublicKeyAdditionsCount ? THeader::PayloadStart(transaction) : nullptr;
+		}
+
+		template<typename T>
+		static auto* PublicKeyDeletionsPtrT(T& transaction) {
+			auto* pPayloadStart = THeader::PayloadStart(transaction);
+			return transaction.PublicKeyDeletionsCount && pPayloadStart
+					? pPayloadStart + transaction.PublicKeyAdditionsCount * Key::Size
+					: nullptr;
 		}
 
 	public:
 		// Calculates the real size of a multisig account modification \a transaction.
 		static constexpr uint64_t CalculateRealSize(const TransactionType& transaction) noexcept {
-			return sizeof(TransactionType) + transaction.ModificationsCount * sizeof(CosignatoryModification);
+			return sizeof(TransactionType) + (transaction.PublicKeyAdditionsCount + transaction.PublicKeyDeletionsCount) * Key::Size;
 		}
 	};
 
@@ -88,11 +86,9 @@ namespace catapult { namespace model {
 	/// Extracts public keys of additional accounts that must approve \a transaction.
 	inline utils::KeySet ExtractAdditionalRequiredCosignatories(const EmbeddedMultisigAccountModificationTransaction& transaction) {
 		utils::KeySet addedCosignatoryKeys;
-		const auto* pModifications = transaction.ModificationsPtr();
-		for (auto i = 0u; i < transaction.ModificationsCount; ++i) {
-			if (model::CosignatoryModificationAction::Add == pModifications[i].ModificationAction)
-				addedCosignatoryKeys.insert(pModifications[i].CosignatoryPublicKey);
-		}
+		const auto* pPublicKeyAdditions = transaction.PublicKeyAdditionsPtr();
+		for (auto i = 0u; i < transaction.PublicKeyAdditionsCount; ++i)
+			addedCosignatoryKeys.insert(pPublicKeyAdditions[i]);
 
 		return addedCosignatoryKeys;
 	}

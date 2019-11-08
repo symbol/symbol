@@ -44,9 +44,6 @@ namespace catapult { namespace model {
 		{}
 
 	public:
-		/// Namespace registration type.
-		NamespaceRegistrationType RegistrationType;
-
 		union {
 			/// Parent namespace identifier.
 			/// \note This field is only valid when RegistrationType is Child.
@@ -60,6 +57,9 @@ namespace catapult { namespace model {
 		/// Namespace identifier.
 		/// \note This must match the generated id.
 		NamespaceId Id;
+
+		/// Namespace registration type.
+		NamespaceRegistrationType RegistrationType;
 
 		/// Namespace name size.
 		uint8_t NameSize;

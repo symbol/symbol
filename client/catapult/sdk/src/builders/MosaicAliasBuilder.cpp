@@ -24,14 +24,10 @@ namespace catapult { namespace builders {
 
 	MosaicAliasBuilder::MosaicAliasBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
 			: TransactionBuilder(networkIdentifier, signer)
-			, m_aliasAction()
 			, m_namespaceId()
 			, m_mosaicId()
+			, m_aliasAction()
 	{}
-
-	void MosaicAliasBuilder::setAliasAction(model::AliasAction aliasAction) {
-		m_aliasAction = aliasAction;
-	}
 
 	void MosaicAliasBuilder::setNamespaceId(NamespaceId namespaceId) {
 		m_namespaceId = namespaceId;
@@ -39,6 +35,10 @@ namespace catapult { namespace builders {
 
 	void MosaicAliasBuilder::setMosaicId(MosaicId mosaicId) {
 		m_mosaicId = mosaicId;
+	}
+
+	void MosaicAliasBuilder::setAliasAction(model::AliasAction aliasAction) {
+		m_aliasAction = aliasAction;
 	}
 
 	size_t MosaicAliasBuilder::size() const {
@@ -66,9 +66,9 @@ namespace catapult { namespace builders {
 		auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
 
 		// 2. set fixed transaction fields
-		pTransaction->AliasAction = m_aliasAction;
 		pTransaction->NamespaceId = m_namespaceId;
 		pTransaction->MosaicId = m_mosaicId;
+		pTransaction->AliasAction = m_aliasAction;
 
 		return pTransaction;
 	}

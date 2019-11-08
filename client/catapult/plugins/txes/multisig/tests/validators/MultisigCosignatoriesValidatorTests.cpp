@@ -19,6 +19,7 @@
 **/
 
 #include "src/validators/Validators.h"
+#include "tests/test/MultisigTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -29,15 +30,13 @@ namespace catapult { namespace validators {
 	DEFINE_COMMON_VALIDATOR_TESTS(MultisigCosignatories,)
 
 	namespace {
-		constexpr auto Add = model::CosignatoryModificationAction::Add;
-		constexpr auto Del = model::CosignatoryModificationAction::Del;
-
-		void AssertValidationResult(ValidationResult expectedResult, const std::vector<model::CosignatoryModification>& modifications) {
+		void AssertValidationResult(
+				ValidationResult expectedResult,
+				const std::vector<Key>& publicKeyAdditions,
+				const std::vector<Key>& publicKeyDeletions) {
 			// Arrange:
 			auto signer = test::GenerateRandomByteArray<Key>();
-			model::MultisigCosignatoriesNotification notification(
-					signer,
-					static_cast<uint8_t>(modifications.size()), modifications.data());
+			auto notification = test::CreateMultisigCosignatoriesNotification(signer, publicKeyAdditions, publicKeyDeletions);
 			auto pValidator = CreateMultisigCosignatoriesValidator();
 
 			// Act:
@@ -49,7 +48,7 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, SuccessWhenZeroModificationsArePresent) {
-		AssertValidationResult(ValidationResult::Success, {});
+		AssertValidationResult(ValidationResult::Success, {}, {});
 	}
 
 	TEST(TEST_CLASS, SuccessWhenSingleAddModificationIsPresent) {
@@ -57,7 +56,7 @@ namespace catapult { namespace validators {
 		auto key = test::GenerateRandomByteArray<Key>();
 
 		// Assert:
-		AssertValidationResult(ValidationResult::Success, { { Add, key } });
+		AssertValidationResult(ValidationResult::Success, { key }, {});
 	}
 
 	TEST(TEST_CLASS, SuccessWhenSingleDelModificationIsPresent) {
@@ -65,89 +64,53 @@ namespace catapult { namespace validators {
 		auto key = test::GenerateRandomByteArray<Key>();
 
 		// Assert:
-		AssertValidationResult(ValidationResult::Success, { { Del, key } });
-	}
-
-	TEST(TEST_CLASS, FailureWhenSingleUnsupportedModificationIsPresent) {
-		// Arrange:
-		auto key = test::GenerateRandomByteArray<Key>();
-
-		// Assert:
-		constexpr auto expectedResult = Failure_Multisig_Invalid_Modification_Action;
-		for (auto action : { 2, 3, 0xFF }) {
-			CATAPULT_LOG(debug) << "validating modification with action " << action;
-			AssertValidationResult(expectedResult, { { static_cast<model::CosignatoryModificationAction>(action), key } });
-		}
+		AssertValidationResult(ValidationResult::Success, {}, { key });
 	}
 
 	namespace {
-		using ModificationActions = std::vector<model::CosignatoryModificationAction>;
-
-		void AssertResultWhenDifferentAccountsUsed(ValidationResult expectedResult, const ModificationActions& modificationActions) {
-			// Arrange:
-			std::vector<model::CosignatoryModification> modifications;
-
-			for (auto modificationAction : modificationActions) {
-				auto key = test::GenerateRandomByteArray<Key>();
-				modifications.push_back({ modificationAction, key });
-			}
-
-			// Assert:
-			AssertValidationResult(expectedResult, modifications);
+		void AssertResultWhenDifferentAccountsUsed(ValidationResult expectedResult, uint8_t numAdditions, uint8_t numDeletions) {
+			AssertValidationResult(
+					expectedResult,
+					test::GenerateRandomDataVector<Key>(numAdditions),
+					test::GenerateRandomDataVector<Key>(numDeletions));
 		}
 	}
 
 	TEST(TEST_CLASS, SuccessWhenMultipleDifferentAccountsAreAdded) {
-		AssertResultWhenDifferentAccountsUsed(ValidationResult::Success, { Add, Add, Add });
-		AssertResultWhenDifferentAccountsUsed(ValidationResult::Success, { Add, Add, Del });
-		AssertResultWhenDifferentAccountsUsed(ValidationResult::Success, { Add, Del, Add });
+		AssertResultWhenDifferentAccountsUsed(ValidationResult::Success, 3, 0);
+		AssertResultWhenDifferentAccountsUsed(ValidationResult::Success, 2, 1);
 	}
 
 	TEST(TEST_CLASS, FailureWhenMultipleDifferentAccountsAreDeleted) {
 		constexpr auto expectedResult = Failure_Multisig_Multiple_Deletes;
-		AssertResultWhenDifferentAccountsUsed(expectedResult, { Del, Del, Add });
-		AssertResultWhenDifferentAccountsUsed(expectedResult, { Del, Add, Del });
-		AssertResultWhenDifferentAccountsUsed(expectedResult, { Add, Del, Del });
-		AssertResultWhenDifferentAccountsUsed(expectedResult, { Del, Del, Del });
-	}
-
-	TEST(TEST_CLASS, FailureWhenAnyAccountHasUnsupportedModification) {
-		constexpr auto expectedResult = Failure_Multisig_Invalid_Modification_Action;
-		for (auto action : { 2, 3, 0xFF }) {
-			CATAPULT_LOG(debug) << "validating modification with action " << action;
-			AssertResultWhenDifferentAccountsUsed(expectedResult, { Add, static_cast<model::CosignatoryModificationAction>(action), Add });
-		}
+		AssertResultWhenDifferentAccountsUsed(expectedResult, 1, 2);
+		AssertResultWhenDifferentAccountsUsed(expectedResult, 0, 3);
 	}
 
 	namespace {
-		void AssertResultWhenSameAccountUsed(ValidationResult expectedResult, ModificationActions modificationActions) {
+		void AssertResultWhenSameAccountUsed(ValidationResult expectedResult, uint8_t numAdditions, uint8_t numDeletions) {
 			// Arrange:
 			auto key = test::GenerateRandomByteArray<Key>();
-			std::vector<model::CosignatoryModification> modifications;
-
-			for (auto modificationAction : modificationActions)
-				modifications.push_back({ modificationAction, key });
 
 			// Assert:
-			AssertValidationResult(expectedResult, modifications);
+			AssertValidationResult(expectedResult, std::vector<Key>(numAdditions, key), std::vector<Key>(numDeletions, key));
 		}
 	}
 
 	TEST(TEST_CLASS, FailureWhenSameAccountIsAddedAndDeleted) {
 		constexpr auto expectedResult = Failure_Multisig_Account_In_Both_Sets;
-		AssertResultWhenSameAccountUsed(expectedResult, { Add, Del });
-		AssertResultWhenSameAccountUsed(expectedResult, { Del, Add });
+		AssertResultWhenSameAccountUsed(expectedResult, 1, 1);
 	}
 
 	TEST(TEST_CLASS, FailureWhenSameAccountIsAddedMultipleTimes) {
 		constexpr auto expectedResult = Failure_Multisig_Redundant_Modification;
-		AssertResultWhenSameAccountUsed(expectedResult, { Add, Add });
-		AssertResultWhenSameAccountUsed(expectedResult, { Add, Add, Add });
+		AssertResultWhenSameAccountUsed(expectedResult, 2, 0);
+		AssertResultWhenSameAccountUsed(expectedResult, 3, 0);
 	}
 
 	TEST(TEST_CLASS, FailureWhenSameAccountIsDeletedMultipleTimes) {
-		constexpr auto expectedResult = Failure_Multisig_Redundant_Modification;
-		AssertResultWhenSameAccountUsed(expectedResult, { Del, Del });
-		AssertResultWhenSameAccountUsed(expectedResult, { Del, Del, Del });
+		constexpr auto expectedResult = Failure_Multisig_Multiple_Deletes;
+		AssertResultWhenSameAccountUsed(expectedResult, 0, 2);
+		AssertResultWhenSameAccountUsed(expectedResult, 0, 3);
 	}
 }}

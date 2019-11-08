@@ -38,11 +38,11 @@ namespace catapult { namespace model {
 		static constexpr uint32_t Max_Data_Size = 0x00FFFFFF;
 
 	public:
-		/// Cache entry's id.
-		TIdentifier Id;
-
 		/// Size of the entry data.
 		uint32_t DataSize;
+
+		/// Cache entry's id.
+		TIdentifier Id;
 
 		// followed by data if DataSize > 0
 

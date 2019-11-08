@@ -31,26 +31,26 @@ namespace catapult { namespace validators {
 			bool HasDeleteModification = false;
 		};
 
-		template<typename TRestrictionValue, typename THasher>
-		ModificationsInfo ExtractModificationsInfo(
-				const model::AccountRestrictionModification<TRestrictionValue>* pModifications,
-				size_t modificationsCount) {
-			ModificationsInfo modificationsInfo;
-			std::unordered_set<TRestrictionValue, THasher> set;
-			for (auto i = 0u; i < modificationsCount; ++i) {
-				set.insert(pModifications[i].Value);
-				if (model::AccountRestrictionModificationAction::Del == pModifications[i].ModificationAction)
-					modificationsInfo.HasDeleteModification = true;
-			}
+		template<typename TRestrictionValue, typename THasher, typename TNotification>
+		ModificationsInfo ExtractModificationsInfo(const TNotification& notification) {
+			auto numModifications = static_cast<size_t>(notification.RestrictionAdditionsCount + notification.RestrictionDeletionsCount);
 
-			modificationsInfo.HasRedundantModification = set.size() != modificationsCount;
+			std::unordered_set<TRestrictionValue, THasher> set;
+			for (auto i = 0u; i < notification.RestrictionAdditionsCount; ++i)
+				set.insert(notification.RestrictionAdditionsPtr[i]);
+
+			for (auto i = 0u; i < notification.RestrictionDeletionsCount; ++i)
+				set.insert(notification.RestrictionDeletionsPtr[i]);
+
+			ModificationsInfo modificationsInfo;
+			modificationsInfo.HasDeleteModification = 0 != notification.RestrictionDeletionsCount;
+			modificationsInfo.HasRedundantModification = set.size() != numModifications;
 			return modificationsInfo;
 		}
 
 		template<typename TRestrictionValue, typename TNotification, typename THasher>
 		ValidationResult Validate(const TNotification& notification, const ValidatorContext& context) {
-			const auto* pModifications = notification.ModificationsPtr;
-			auto modificationsInfo = ExtractModificationsInfo<TRestrictionValue, THasher>(pModifications, notification.ModificationsCount);
+			auto modificationsInfo = ExtractModificationsInfo<TRestrictionValue, THasher>(notification);
 			if (modificationsInfo.HasRedundantModification)
 				return Failure_RestrictionAccount_Redundant_Modification;
 
@@ -63,10 +63,10 @@ namespace catapult { namespace validators {
 	}
 
 #define DEFINE_ACCOUNT_RESTRICTION_REDUNDANT_MODIFICATION_VALIDATOR(RESTRICTION_NAME, RESTRICTION_VALUE_TYPE, HASHER_TYPE) \
-	DEFINE_STATEFUL_VALIDATOR_WITH_TYPE(RESTRICTION_NAME##RedundantModification, model::Modify##RESTRICTION_NAME##Notification, ([]( \
-			const model::Modify##RESTRICTION_NAME##Notification& notification, \
+	DEFINE_STATEFUL_VALIDATOR_WITH_TYPE(RESTRICTION_NAME##RedundantModification, model::Modify##RESTRICTION_NAME##sNotification, ([]( \
+			const model::Modify##RESTRICTION_NAME##sNotification& notification, \
 			const ValidatorContext& context) { \
-		return Validate<RESTRICTION_VALUE_TYPE, model::Modify##RESTRICTION_NAME##Notification, HASHER_TYPE>(notification, context); \
+		return Validate<RESTRICTION_VALUE_TYPE, model::Modify##RESTRICTION_NAME##sNotification, HASHER_TYPE>(notification, context); \
 	}));
 
 	DEFINE_ACCOUNT_RESTRICTION_REDUNDANT_MODIFICATION_VALIDATOR(

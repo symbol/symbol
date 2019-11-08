@@ -70,8 +70,9 @@ namespace catapult { namespace builders {
 
 			// verifiable entity data
 			pTransaction->Size = utils::checked_cast<size_t, uint32_t>(size);
+			pTransaction->Version = TTransaction::Current_Version;
+			pTransaction->Network = m_networkIdentifier;
 			pTransaction->Type = TTransaction::Entity_Type;
-			pTransaction->Version = MakeVersion(m_networkIdentifier, TTransaction::Current_Version);
 			pTransaction->SignerPublicKey = m_signerPublicKey;
 
 			// transaction data

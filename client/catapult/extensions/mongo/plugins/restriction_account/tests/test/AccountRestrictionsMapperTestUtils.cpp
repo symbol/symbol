@@ -48,9 +48,9 @@ namespace catapult { namespace test {
 
 		for (const auto& dbRestriction : dbRestrictions) {
 			auto dbRestrictionView = dbRestriction.get_document().view();
-			auto restrictionType = model::AccountRestrictionType(test::GetUint8(dbRestrictionView, "restrictionType"));
-			auto descriptor = state::AccountRestrictionDescriptor(restrictionType);
-			const auto& restriction = restrictions.restriction(restrictionType);
+			auto restrictionFlags = model::AccountRestrictionFlags(test::GetUint32(dbRestrictionView, "restrictionFlags"));
+			auto descriptor = state::AccountRestrictionDescriptor(restrictionFlags);
+			const auto& restriction = restrictions.restriction(restrictionFlags);
 			EXPECT_EQ(restriction.descriptor().raw(), descriptor.raw());
 
 			AssertRestrictionValues(restriction, dbRestrictionView["values"].get_array().value);

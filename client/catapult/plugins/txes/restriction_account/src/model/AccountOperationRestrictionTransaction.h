@@ -23,9 +23,6 @@
 
 namespace catapult { namespace model {
 
-	/// Modification type used with account operation restriction transaction.
-	using AccountOperationRestrictionModification = AccountRestrictionModification<EntityType>;
-
 #pragma pack(push, 1)
 
 	/// Binary layout for an account operation restriction transaction body.

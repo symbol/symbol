@@ -178,12 +178,12 @@ namespace catapult { namespace model {
 	}
 
 	TRAITS_BASED_TEST(CanIterateOverMultipleVariableSizedEntitiesWithPostfixOperator) {
-		// Arrange:
+		// Arrange: entities must be aligned on 8-byte boundaries
 		std::vector<uint8_t> buffer(100);
 		reinterpret_cast<EntityHeader&>(*&buffer[0]) = { 20, 17 };
-		reinterpret_cast<EntityHeader&>(*&buffer[20]) = { 30, 25 };
-		reinterpret_cast<EntityHeader&>(*&buffer[50]) = { 10, 14 };
-		auto container = TContainerTraits::MakeContainer(reinterpret_cast<EntityHeader*>(&buffer[0]), 3, 20 + 30 + 10);
+		reinterpret_cast<EntityHeader&>(*&buffer[24]) = { 30, 25 };
+		reinterpret_cast<EntityHeader&>(*&buffer[56]) = { 10, 14 };
+		auto container = TContainerTraits::MakeContainer(reinterpret_cast<EntityHeader*>(&buffer[0]), 3, 56 + 10);
 
 		// Act + Assert:
 		auto iter = TTraits::begin(container);
@@ -195,12 +195,12 @@ namespace catapult { namespace model {
 	}
 
 	TRAITS_BASED_TEST(CanIterateOverMultipleVariableSizedEntitiesWithPrefixOperator) {
-		// Arrange:
+		// Arrange: entities must be aligned on 8-byte boundaries
 		std::vector<uint8_t> buffer(100);
 		reinterpret_cast<EntityHeader&>(*&buffer[0]) = { 20, 17 };
-		reinterpret_cast<EntityHeader&>(*&buffer[20]) = { 30, 25 };
-		reinterpret_cast<EntityHeader&>(*&buffer[50]) = { 10, 14 };
-		auto container = TContainerTraits::MakeContainer(reinterpret_cast<EntityHeader*>(&buffer[0]), 3, 20 + 30 + 10);
+		reinterpret_cast<EntityHeader&>(*&buffer[24]) = { 30, 25 };
+		reinterpret_cast<EntityHeader&>(*&buffer[56]) = { 10, 14 };
+		auto container = TContainerTraits::MakeContainer(reinterpret_cast<EntityHeader*>(&buffer[0]), 3, 56 + 10);
 
 		// Act + Assert:
 		auto iter = TTraits::begin(container);
@@ -325,10 +325,10 @@ namespace catapult { namespace model {
 		// Arrange: buffer contains 3 entities, but container only wraps two of them
 		std::vector<uint8_t> buffer(100);
 		reinterpret_cast<EntityHeader&>(*&buffer[0]) = { 20, 17 };
-		reinterpret_cast<EntityHeader&>(*&buffer[20]) = { 30, 25 };
-		reinterpret_cast<EntityHeader&>(*&buffer[50]) = { 10, 14 };
+		reinterpret_cast<EntityHeader&>(*&buffer[24]) = { 30, 25 };
+		reinterpret_cast<EntityHeader&>(*&buffer[56]) = { 10, 14 };
 		auto pEntities = reinterpret_cast<EntityHeader*>(&buffer[0]);
-		auto container = TContainerTraits::MakeContainer(pEntities, 0, 20 + 30);
+		auto container = TContainerTraits::MakeContainer(pEntities, 0, 24 + 30);
 
 		// Act:
 		auto values = IterateValues(container);
@@ -343,8 +343,8 @@ namespace catapult { namespace model {
 			static std::vector<uint8_t> PrepareBuffer(uint32_t size) {
 				std::vector<uint8_t> buffer(100);
 				reinterpret_cast<EntityHeader&>(*&buffer[0]) = { size, 17 };
-				reinterpret_cast<EntityHeader&>(*&buffer[20]) = { 30, 25 };
-				reinterpret_cast<EntityHeader&>(*&buffer[50]) = { 10, 14 };
+				reinterpret_cast<EntityHeader&>(*&buffer[24]) = { 30, 25 };
+				reinterpret_cast<EntityHeader&>(*&buffer[56]) = { 10, 14 };
 				return buffer;
 			}
 
@@ -357,8 +357,8 @@ namespace catapult { namespace model {
 			static std::vector<uint8_t> PrepareBuffer(uint32_t size) {
 				std::vector<uint8_t> buffer(100);
 				reinterpret_cast<EntityHeader&>(*&buffer[0]) = { 20, 17 };
-				reinterpret_cast<EntityHeader&>(*&buffer[20]) = { size, 25 };
-				reinterpret_cast<EntityHeader&>(*&buffer[50]) = { 10, 14 };
+				reinterpret_cast<EntityHeader&>(*&buffer[24]) = { size, 25 };
+				reinterpret_cast<EntityHeader&>(*&buffer[56]) = { 10, 14 };
 				return buffer;
 			}
 
@@ -371,8 +371,8 @@ namespace catapult { namespace model {
 			static std::vector<uint8_t> PrepareBuffer(uint32_t size) {
 				std::vector<uint8_t> buffer(100);
 				reinterpret_cast<EntityHeader&>(*&buffer[0]) = { 20, 17 };
-				reinterpret_cast<EntityHeader&>(*&buffer[20]) = { 30, 25 };
-				reinterpret_cast<EntityHeader&>(*&buffer[50]) = { size, 14 };
+				reinterpret_cast<EntityHeader&>(*&buffer[24]) = { 30, 25 };
+				reinterpret_cast<EntityHeader&>(*&buffer[56]) = { size, 14 };
 				return buffer;
 			}
 

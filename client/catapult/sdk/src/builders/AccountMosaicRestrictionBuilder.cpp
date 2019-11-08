@@ -24,16 +24,21 @@ namespace catapult { namespace builders {
 
 	AccountMosaicRestrictionBuilder::AccountMosaicRestrictionBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
 			: TransactionBuilder(networkIdentifier, signer)
-			, m_restrictionType()
-			, m_modifications()
+			, m_restrictionFlags()
+			, m_restrictionAdditions()
+			, m_restrictionDeletions()
 	{}
 
-	void AccountMosaicRestrictionBuilder::setRestrictionType(model::AccountRestrictionType restrictionType) {
-		m_restrictionType = restrictionType;
+	void AccountMosaicRestrictionBuilder::setRestrictionFlags(model::AccountRestrictionFlags restrictionFlags) {
+		m_restrictionFlags = restrictionFlags;
 	}
 
-	void AccountMosaicRestrictionBuilder::addModification(const model::AccountMosaicRestrictionModification& modification) {
-		m_modifications.push_back(modification);
+	void AccountMosaicRestrictionBuilder::addRestrictionAddition(UnresolvedMosaicId restrictionAddition) {
+		m_restrictionAdditions.push_back(restrictionAddition);
+	}
+
+	void AccountMosaicRestrictionBuilder::addRestrictionDeletion(UnresolvedMosaicId restrictionDeletion) {
+		m_restrictionDeletions.push_back(restrictionDeletion);
 	}
 
 	size_t AccountMosaicRestrictionBuilder::size() const {
@@ -52,7 +57,8 @@ namespace catapult { namespace builders {
 	size_t AccountMosaicRestrictionBuilder::sizeImpl() const {
 		// calculate transaction size
 		auto size = sizeof(TransactionType);
-		size += m_modifications.size() * sizeof(model::AccountMosaicRestrictionModification);
+		size += m_restrictionAdditions.size() * sizeof(UnresolvedMosaicId);
+		size += m_restrictionDeletions.size() * sizeof(UnresolvedMosaicId);
 		return size;
 	}
 
@@ -62,11 +68,14 @@ namespace catapult { namespace builders {
 		auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
 
 		// 2. set fixed transaction fields
-		pTransaction->RestrictionType = m_restrictionType;
-		pTransaction->ModificationsCount = utils::checked_cast<size_t, uint8_t>(m_modifications.size());
+		pTransaction->RestrictionFlags = m_restrictionFlags;
+		pTransaction->RestrictionAdditionsCount = utils::checked_cast<size_t, uint8_t>(m_restrictionAdditions.size());
+		pTransaction->RestrictionDeletionsCount = utils::checked_cast<size_t, uint8_t>(m_restrictionDeletions.size());
+		pTransaction->AccountRestrictionTransactionBody_Reserved1 = 0;
 
 		// 3. set transaction attachments
-		std::copy(m_modifications.cbegin(), m_modifications.cend(), pTransaction->ModificationsPtr());
+		std::copy(m_restrictionAdditions.cbegin(), m_restrictionAdditions.cend(), pTransaction->RestrictionAdditionsPtr());
+		std::copy(m_restrictionDeletions.cbegin(), m_restrictionDeletions.cend(), pTransaction->RestrictionDeletionsPtr());
 
 		return pTransaction;
 	}

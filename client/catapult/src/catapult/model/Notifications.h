@@ -509,4 +509,26 @@ namespace catapult { namespace model {
 	};
 
 	// endregion
+
+	// region padding
+
+	/// Notification of internal padding.
+	struct InternalPaddingNotification : public Notification {
+	public:
+		/// Matching notification type.
+		static constexpr auto Notification_Type = Core_Internal_Padding_Notification;
+
+	public:
+		/// Creates a notification around \a padding.
+		explicit InternalPaddingNotification(uint64_t padding)
+				: Notification(Notification_Type, sizeof(InternalPaddingNotification))
+				, Padding(padding)
+		{}
+
+	public:
+		/// Padding data.
+		uint64_t Padding;
+	};
+
+	// endregion
 }}

@@ -29,8 +29,8 @@ namespace catapult { namespace validators {
 /// Defines a restriction account validation result with \a DESCRIPTION and \a CODE.
 #define DEFINE_RESTRICTION_ACCOUNT_RESULT(DESCRIPTION, CODE) DEFINE_VALIDATION_RESULT(Failure, RestrictionAccount, DESCRIPTION, CODE, None)
 
-	/// Validation failed because the account restriction type is invalid.
-	DEFINE_RESTRICTION_ACCOUNT_RESULT(Invalid_Restriction_Type, 1);
+	/// Validation failed because the account restriction flags are invalid.
+	DEFINE_RESTRICTION_ACCOUNT_RESULT(Invalid_Restriction_Flags, 1);
 
 	/// Validation failed because a modification action is invalid.
 	DEFINE_RESTRICTION_ACCOUNT_RESULT(Invalid_Modification_Action, 2);
@@ -51,20 +51,23 @@ namespace catapult { namespace validators {
 	/// Validation failed because the transaction has too many modifications.
 	DEFINE_RESTRICTION_ACCOUNT_RESULT(Modification_Count_Exceeded, 7);
 
+	/// Validation failed because the transaction has no modifications.
+	DEFINE_RESTRICTION_ACCOUNT_RESULT(No_Modifications, 8);
+
 	/// Validation failed because the resulting account restriction has too many values.
-	DEFINE_RESTRICTION_ACCOUNT_RESULT(Values_Count_Exceeded, 8);
+	DEFINE_RESTRICTION_ACCOUNT_RESULT(Values_Count_Exceeded, 9);
 
 	/// Validation failed because the account restriction value is invalid.
-	DEFINE_RESTRICTION_ACCOUNT_RESULT(Invalid_Value, 9);
+	DEFINE_RESTRICTION_ACCOUNT_RESULT(Invalid_Value, 10);
 
 	/// Validation failed because the addresses involved in the transaction are not allowed to interact.
-	DEFINE_RESTRICTION_ACCOUNT_RESULT(Address_Interaction_Prohibited, 10);
+	DEFINE_RESTRICTION_ACCOUNT_RESULT(Address_Interaction_Prohibited, 11);
 
 	/// Validation failed because the mosaic transfer is prohibited by the recipient.
-	DEFINE_RESTRICTION_ACCOUNT_RESULT(Mosaic_Transfer_Prohibited, 11);
+	DEFINE_RESTRICTION_ACCOUNT_RESULT(Mosaic_Transfer_Prohibited, 12);
 
 	/// Validation failed because the operation type is not allowed to be initiated by the signer.
-	DEFINE_RESTRICTION_ACCOUNT_RESULT(Operation_Type_Prohibited, 12);
+	DEFINE_RESTRICTION_ACCOUNT_RESULT(Operation_Type_Prohibited, 13);
 
 #ifndef CUSTOM_RESULT_DEFINITION
 }}

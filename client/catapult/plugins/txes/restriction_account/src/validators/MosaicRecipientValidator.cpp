@@ -34,7 +34,7 @@ namespace catapult { namespace validators {
 			return ValidationResult::Success;
 
 		auto mosaicId = context.Resolvers.resolve(notification.MosaicId);
-		auto isTransferAllowed = view.isAllowed(model::AccountRestrictionType::MosaicId, mosaicId);
+		auto isTransferAllowed = view.isAllowed(model::AccountRestrictionFlags::MosaicId, mosaicId);
 		return isTransferAllowed ? ValidationResult::Success : Failure_RestrictionAccount_Mosaic_Transfer_Prohibited;
 	});
 }}

@@ -42,12 +42,11 @@ namespace catapult { namespace harvesting {
 
 	/// Unlocked entry message.
 	struct UnlockedEntryMessage {
-	public:
-		/// Unlocked entry direction.
-		UnlockedEntryDirection Direction;
-
 		/// Announcer public key.
 		Key AnnouncerPublicKey;
+
+		/// Unlocked entry direction.
+		UnlockedEntryDirection Direction;
 
 		/// Encrypted entry.
 		RawBuffer EncryptedEntry;

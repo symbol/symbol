@@ -19,8 +19,10 @@
 **/
 
 #pragma once
-#include "AliasSharedTransaction.h"
 #include "NamespaceEntityType.h"
+#include "NamespaceTypes.h"
+#include "plugins/txes/namespace/src/types.h"
+#include "catapult/model/Transaction.h"
 
 namespace catapult { namespace model {
 
@@ -28,7 +30,7 @@ namespace catapult { namespace model {
 
 	/// Binary layout for a mosaic alias transaction body.
 	template<typename THeader>
-	struct MosaicAliasTransactionBody : public SharedAliasBody<THeader> {
+	struct MosaicAliasTransactionBody : public THeader {
 	private:
 		using TransactionType = MosaicAliasTransactionBody<THeader>;
 
@@ -36,8 +38,14 @@ namespace catapult { namespace model {
 		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Alias_Mosaic, 1)
 
 	public:
+		/// Identifier of the namespace that will become an alias.
+		catapult::NamespaceId NamespaceId;
+
 		/// Aliased mosaic identifier.
 		catapult::MosaicId MosaicId;
+
+		// Alias action.
+		model::AliasAction AliasAction;
 
 	public:
 		// Calculates the real size of mosaic alias \a transaction.

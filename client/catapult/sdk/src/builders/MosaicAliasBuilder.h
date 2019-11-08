@@ -36,14 +36,14 @@ namespace catapult { namespace builders {
 		MosaicAliasBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
 
 	public:
-		/// Sets the alias action to \a aliasAction.
-		void setAliasAction(model::AliasAction aliasAction);
-
 		/// Sets the identifier of the namespace that will become an alias to \a namespaceId.
 		void setNamespaceId(NamespaceId namespaceId);
 
 		/// Sets the aliased mosaic identifier to \a mosaicId.
 		void setMosaicId(MosaicId mosaicId);
+
+		/// Sets the alias action to \a aliasAction.
+		void setAliasAction(model::AliasAction aliasAction);
 
 	public:
 		/// Gets the size of mosaic alias transaction.
@@ -64,8 +64,8 @@ namespace catapult { namespace builders {
 		std::unique_ptr<TTransaction> buildImpl() const;
 
 	private:
-		model::AliasAction m_aliasAction;
 		NamespaceId m_namespaceId;
 		MosaicId m_mosaicId;
+		model::AliasAction m_aliasAction;
 	};
 }}

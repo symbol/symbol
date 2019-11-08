@@ -125,6 +125,24 @@ namespace catapult { namespace utils {
 
 	// endregion
 
+	// region GetPaddingSize
+
+	TEST(TEST_CLASS, GetPaddingSizeCalculatesPaddingSizeCorrectly) {
+		EXPECT_EQ(0u, GetPaddingSize(40u, 8));
+		EXPECT_EQ(7u, GetPaddingSize(49u, 8));
+		EXPECT_EQ(4u, GetPaddingSize(52u, 8));
+
+		EXPECT_EQ(2u, GetPaddingSize(40u, 7));
+		EXPECT_EQ(0u, GetPaddingSize(49u, 7));
+		EXPECT_EQ(4u, GetPaddingSize(52u, 7));
+
+		EXPECT_EQ(0u, GetPaddingSize(40u, 1));
+		EXPECT_EQ(0u, GetPaddingSize(49u, 1));
+		EXPECT_EQ(0u, GetPaddingSize(52u, 1));
+	}
+
+	// endregion
+
 	// region GetNumBits
 
 	TEST(TEST_CLASS, GetNumBitsReturnsCorrectNumberOfBits) {

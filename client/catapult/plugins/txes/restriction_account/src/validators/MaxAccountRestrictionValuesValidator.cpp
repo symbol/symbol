@@ -26,48 +26,26 @@
 namespace catapult { namespace validators {
 
 	namespace {
-		struct ModificationCounters {
-			size_t NumAdds = 0;
-			size_t NumDeletes = 0;
-		};
-
-		template<typename TRestrictionValue>
-		ModificationCounters ExtractModificationCounters(
-				const model::AccountRestrictionModification<TRestrictionValue>* pModifications,
-				size_t modificationsCount) {
-			ModificationCounters modificationCounters;
-			for (auto i = 0u; i < modificationsCount; ++i) {
-				if (model::AccountRestrictionModificationAction::Add == pModifications[i].ModificationAction)
-					++modificationCounters.NumAdds;
-				else
-					++modificationCounters.NumDeletes;
-			}
-
-			return modificationCounters;
-		}
-
 		template<typename TRestrictionValue, typename TNotification>
 		ValidationResult Validate(
 				uint16_t maxAccountRestrictionValues,
 				const TNotification& notification,
 				const ValidatorContext& context) {
-			if (maxAccountRestrictionValues < notification.ModificationsCount)
+			if (maxAccountRestrictionValues < notification.RestrictionAdditionsCount + notification.RestrictionDeletionsCount)
 				return Failure_RestrictionAccount_Modification_Count_Exceeded;
 
 			auto address = model::PublicKeyToAddress(notification.Key, context.Network.Identifier);
-			const auto* pModifications = notification.ModificationsPtr;
 			const auto& cache = context.Cache.sub<cache::AccountRestrictionCache>();
 			if (!cache.contains(address))
 				return ValidationResult::Success;
 
 			auto restrictionsIter = cache.find(address);
 			const auto& restrictions = restrictionsIter.get();
-			auto restrictionType = notification.AccountRestrictionDescriptor.directionalRestrictionType();
-			auto typedRestriction = restrictions.template restriction<TRestrictionValue>(restrictionType);
-			auto modificationCounters = ExtractModificationCounters<TRestrictionValue>(pModifications, notification.ModificationsCount);
+			auto restrictionFlags = notification.AccountRestrictionDescriptor.directionalRestrictionFlags();
+			const auto& restriction = restrictions.restriction(restrictionFlags);
 
 			// note that the AccountRestrictionModificationsValidator will detect underflows
-			auto numValues = typedRestriction.size() + modificationCounters.NumAdds - modificationCounters.NumDeletes;
+			auto numValues = restriction.values().size() + notification.RestrictionAdditionsCount - notification.RestrictionDeletionsCount;
 			return maxAccountRestrictionValues < numValues
 					? Failure_RestrictionAccount_Values_Count_Exceeded
 					: ValidationResult::Success;
@@ -85,13 +63,13 @@ namespace catapult { namespace validators {
 	}
 
 	DEFINE_ACCOUNT_RESTRICTION_MAX_VALUES_VALIDATOR(MaxAccountAddressRestrictionValues,
-			model::ModifyAccountAddressRestrictionNotification,
+			model::ModifyAccountAddressRestrictionsNotification,
 			UnresolvedAddress)
 	DEFINE_ACCOUNT_RESTRICTION_MAX_VALUES_VALIDATOR(MaxAccountMosaicRestrictionValues,
-			model::ModifyAccountMosaicRestrictionNotification,
+			model::ModifyAccountMosaicRestrictionsNotification,
 			UnresolvedMosaicId)
 	DEFINE_ACCOUNT_RESTRICTION_MAX_VALUES_VALIDATOR(
 			MaxAccountOperationRestrictionValues,
-			model::ModifyAccountOperationRestrictionNotification,
+			model::ModifyAccountOperationRestrictionsNotification,
 			model::EntityType)
 }}

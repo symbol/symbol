@@ -22,6 +22,7 @@
 #include "catapult/utils/MemoryUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/VariableSizedEntityTestUtils.h"
+#include "tests/test/nodeps/Alignment.h"
 #include "tests/test/nodeps/NumericTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -31,22 +32,30 @@ namespace catapult { namespace model {
 
 #define TEST_CLASS SecretProofTransactionTests
 
-	// region size + properties
+	// region size + alignment + properties
+
+#define TRANSACTION_FIELDS FIELD(Secret) FIELD(ProofSize) FIELD(HashAlgorithm) FIELD(RecipientAddress)
 
 	namespace {
 		template<typename T>
-		void AssertEntityHasExpectedSize(size_t baseSize) {
+		void AssertTransactionHasExpectedSize(size_t baseSize) {
 			// Arrange:
-			auto expectedSize =
-					baseSize // base
-					+ sizeof(uint8_t) // lock hash algorithm
-					+ Hash256::Size // secret
-					+ Address::Size // recipient
-					+ sizeof(uint16_t); // proof size
+			auto expectedSize = baseSize;
+
+#define FIELD(X) expectedSize += sizeof(T::X);
+			TRANSACTION_FIELDS
+#undef FIELD
 
 			// Assert:
 			EXPECT_EQ(expectedSize, sizeof(T));
 			EXPECT_EQ(baseSize + 60u, sizeof(T));
+		}
+
+		template<typename T>
+		void AssertTransactionHasProperAlignment() {
+#define FIELD(X) EXPECT_ALIGNED(T, X);
+			TRANSACTION_FIELDS
+#undef FIELD
 		}
 
 		template<typename T>
@@ -56,6 +65,8 @@ namespace catapult { namespace model {
 			EXPECT_EQ(1u, T::Current_Version);
 		}
 	}
+
+#undef TRANSACTION_FIELDS
 
 	ADD_BASIC_TRANSACTION_SIZE_PROPERTY_TESTS(SecretProof)
 

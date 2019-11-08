@@ -91,7 +91,8 @@ namespace catapult { namespace plugins {
 				.add(validators::CreateMaxTransactionsValidator(config.MaxTransactionsPerBlock))
 				.add(validators::CreateNetworkValidator(config.Network.Identifier))
 				.add(validators::CreateEntityVersionValidator())
-				.add(validators::CreateTransactionFeeValidator());
+				.add(validators::CreateTransactionFeeValidator())
+				.add(validators::CreateZeroInternalPaddingValidator());
 		});
 
 		manager.addStatefulValidatorHook([&config](auto& builder) {

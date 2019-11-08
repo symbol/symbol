@@ -32,7 +32,7 @@ namespace catapult { namespace test {
 		using UnresolvedValueType = UnresolvedAddress;
 		using ValueType = Address;
 
-		static constexpr auto Restriction_Type = model::AccountRestrictionType::Address;
+		static constexpr auto Restriction_Flags = model::AccountRestrictionFlags::Address;
 		static constexpr auto Restriction_Value_Size = Address::Size;
 
 		static auto RandomUnresolvedValue() {
@@ -58,7 +58,7 @@ namespace catapult { namespace test {
 		using UnresolvedValueType = UnresolvedMosaicId;
 		using ValueType = MosaicId;
 
-		static constexpr auto Restriction_Type = model::AccountRestrictionType::MosaicId;
+		static constexpr auto Restriction_Flags = model::AccountRestrictionFlags::MosaicId;
 		static constexpr auto Restriction_Value_Size = sizeof(ValueType);
 
 		static auto RandomUnresolvedValue() {
@@ -82,7 +82,8 @@ namespace catapult { namespace test {
 		using UnresolvedValueType = model::EntityType;
 		using ValueType = model::EntityType;
 
-		static constexpr auto Restriction_Type = model::AccountRestrictionType::TransactionType | model::AccountRestrictionType::Outgoing;
+		static constexpr auto Restriction_Flags = model::AccountRestrictionFlags::TransactionType
+				| model::AccountRestrictionFlags::Outgoing;
 		static constexpr auto Restriction_Value_Size = sizeof(ValueType);
 
 		static auto RandomUnresolvedValue() {
@@ -108,14 +109,14 @@ namespace catapult { namespace test {
 
 	/// Traits for operation type 'Allow'.
 	struct AllowTraits {
-		/// Given \a restrictionType gets the restriction type including the operation type.
-		static model::AccountRestrictionType CompleteAccountRestrictionType(model::AccountRestrictionType restrictionType) {
-			return restrictionType;
+		/// Given \a restrictionFlags gets the restriction flags including the operation type.
+		static model::AccountRestrictionFlags CompleteAccountRestrictionFlags(model::AccountRestrictionFlags restrictionFlags) {
+			return restrictionFlags;
 		}
 
-		/// Given \a restrictionType gets the restriction type including the opposite operation type.
-		static model::AccountRestrictionType OppositeCompleteAccountRestrictionType(model::AccountRestrictionType restrictionType) {
-			return restrictionType | model::AccountRestrictionType::Block;
+		/// Given \a restrictionFlags gets the restriction flags including the opposite operation type.
+		static model::AccountRestrictionFlags OppositeCompleteAccountRestrictionFlags(model::AccountRestrictionFlags restrictionFlags) {
+			return restrictionFlags | model::AccountRestrictionFlags::Block;
 		}
 
 		/// Adds \a value to \a restriction for operation type 'Allow'.
@@ -126,14 +127,14 @@ namespace catapult { namespace test {
 
 	/// Traits for operation type 'Block'.
 	struct BlockTraits {
-		/// Given \a restrictionType gets the restriction type including the operation type.
-		static model::AccountRestrictionType CompleteAccountRestrictionType(model::AccountRestrictionType restrictionType) {
-			return restrictionType | model::AccountRestrictionType::Block;
+		/// Given \a restrictionFlags gets the restriction flags including the operation type.
+		static model::AccountRestrictionFlags CompleteAccountRestrictionFlags(model::AccountRestrictionFlags restrictionFlags) {
+			return restrictionFlags | model::AccountRestrictionFlags::Block;
 		}
 
-		/// Given \a restrictionType gets the restriction type including the opposite operation type.
-		static model::AccountRestrictionType OppositeCompleteAccountRestrictionType(model::AccountRestrictionType restrictionType) {
-			return restrictionType;
+		/// Given \a restrictionFlags gets the restriction flags including the opposite operation type.
+		static model::AccountRestrictionFlags OppositeCompleteAccountRestrictionFlags(model::AccountRestrictionFlags restrictionFlags) {
+			return restrictionFlags;
 		}
 
 		/// Adds \a value to \a restriction for operation type 'Block'.
@@ -146,39 +147,32 @@ namespace catapult { namespace test {
 
 	// region CreateNotification
 
-	/// Creates a notification around \a key and \a modification.
+	/// Creates an account restriction value notification around \a key, \a restrictionValue and \a action.
 	template<typename TRestrictionValueTraits, typename TOperationTraits = AllowTraits>
-	auto CreateNotification(
+	auto CreateAccountRestrictionValueNotification(
 			const Key& key,
-			const model::AccountRestrictionModification<typename TRestrictionValueTraits::UnresolvedValueType>& modification) {
-		return typename TRestrictionValueTraits::NotificationType{
-			key,
-			TOperationTraits::CompleteAccountRestrictionType(TRestrictionValueTraits::Restriction_Type),
-			modification
-		};
+			const typename TRestrictionValueTraits::UnresolvedValueType& restrictionValue,
+			model::AccountRestrictionModificationAction action) {
+		return typename TRestrictionValueTraits::NotificationType(
+				key,
+				TOperationTraits::CompleteAccountRestrictionFlags(TRestrictionValueTraits::Restriction_Flags),
+				restrictionValue,
+				action);
 	}
 
-	/// Creates a notification with opposite operation type around \a key and \a modification.
-	template<typename TRestrictionValueTraits, typename TOperationTraits = AllowTraits>
-	auto CreateNotificationWithOppositeOperation(
-			const Key& key,
-			const model::AccountRestrictionModification<typename TRestrictionValueTraits::UnresolvedValueType>& modification) {
-		return typename TRestrictionValueTraits::NotificationType{
-			key,
-			TOperationTraits::OppositeCompleteAccountRestrictionType(TRestrictionValueTraits::Restriction_Type),
-			modification
-		};
-	}
-
-	/// Creates a notification around \a key and \a modifications.
+	/// Creates an account restrictions notification around \a key, \a restrictionAdditions and \a restrictionDeletions.
 	template<typename TRestrictionValueTraits, typename TValueType, typename TOperationTraits = AllowTraits>
-	auto CreateNotification(const Key& key, const std::vector<model::AccountRestrictionModification<TValueType>>& modifications) {
-		return typename TRestrictionValueTraits::NotificationType{
-			key,
-			TOperationTraits::CompleteAccountRestrictionType(TRestrictionValueTraits::Restriction_Type),
-			utils::checked_cast<size_t, uint8_t>(modifications.size()),
-			modifications.data()
-		};
+	auto CreateAccountRestrictionsNotification(
+			const Key& key,
+			const std::vector<TValueType>& restrictionAdditions,
+			const std::vector<TValueType>& restrictionDeletions) {
+		return typename TRestrictionValueTraits::NotificationType(
+				key,
+				TOperationTraits::CompleteAccountRestrictionFlags(TRestrictionValueTraits::Restriction_Flags),
+				utils::checked_cast<size_t, uint8_t>(restrictionAdditions.size()),
+				restrictionAdditions.data(),
+				utils::checked_cast<size_t, uint8_t>(restrictionDeletions.size()),
+				restrictionDeletions.data());
 	}
 
 	// endregion

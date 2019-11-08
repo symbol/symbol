@@ -139,17 +139,27 @@ namespace catapult { namespace handlers {
 			}
 
 			auto responseSize() const {
-				return utils::Sum(m_transactionInfos, [](const auto& transactionInfo){
-					return sizeof(uint16_t) // tag
-							+ (transactionInfo.pTransaction ? transactionInfo.pTransaction->Size : Hash256::Size)
-							+ transactionInfo.Cosignatures.size() * sizeof(model::Cosignature);
+				return utils::Sum(m_transactionInfos, [](const auto& transactionInfo) {
+					size_t size = sizeof(uint64_t);
+					size += transactionInfo.pTransaction
+							? transactionInfo.pTransaction->Size + utils::GetPaddingSize(transactionInfo.pTransaction->Size, 8)
+							: Hash256::Size;
+					size += transactionInfo.Cosignatures.size() * sizeof(model::Cosignature);
+					return size;
 				});
 			}
 
 			void assertPayload(const ionet::PacketPayload& payload) {
-				// note: there are either 2 or 3 buffers for each info (tag, transaction OR hash, optional cosignatures)
+				// number of buffers is dependent on transactionInfo
 				auto expectedNumBuffers = utils::Sum(m_transactionInfos, [](const auto& transactionInfo) {
-					return transactionInfo.Cosignatures.empty() ? 2u : 3u;
+					size_t numBuffers = 2;
+					if (transactionInfo.pTransaction && 0 != utils::GetPaddingSize(transactionInfo.pTransaction->Size, 8))
+						++numBuffers;
+
+					if (!transactionInfo.Cosignatures.empty())
+						++numBuffers;
+
+					return numBuffers;
 				});
 				ASSERT_EQ(expectedNumBuffers, payload.buffers().size());
 
@@ -158,26 +168,30 @@ namespace catapult { namespace handlers {
 					const auto& transactionInfo = m_transactionInfos[infoIndex];
 					auto failedMessage = " for info " + std::to_string(infoIndex);
 
-					auto tagValue = reinterpret_cast<const uint16_t&>(*payload.buffers()[i].pData);
-					uint16_t expectedTagValue = static_cast<uint16_t>(transactionInfo.Cosignatures.size())
-							| (transactionInfo.pTransaction ? 0x8000 : 0);
+					auto tagValue = reinterpret_cast<const uint64_t&>(*payload.buffers()[i++].pData);
+					uint64_t expectedTagValue = static_cast<uint16_t>(transactionInfo.Cosignatures.size());
+					expectedTagValue |= transactionInfo.pTransaction ? 0x8000 : 0;
 					EXPECT_EQ(expectedTagValue, tagValue) << failedMessage;
 
 					if (transactionInfo.pTransaction) {
-						const auto& transaction = reinterpret_cast<const mocks::MockTransaction&>(*payload.buffers()[i + 1].pData);
+						const auto& transaction = reinterpret_cast<const mocks::MockTransaction&>(*payload.buffers()[i++].pData);
 						EXPECT_EQ(*transactionInfo.pTransaction, transaction) << failedMessage;
+
+						auto paddingSize = utils::GetPaddingSize(transactionInfo.pTransaction->Size, 8);
+						if (0 != paddingSize) {
+							auto zeros = std::vector<uint8_t>(paddingSize, 0);
+							auto paddingBuffer = payload.buffers()[i++];
+							EXPECT_EQ_MEMORY(zeros.data(), paddingBuffer.pData, paddingBuffer.Size);
+						}
 					} else {
-						const auto& hash = reinterpret_cast<const Hash256&>(*payload.buffers()[i + 1].pData);
+						const auto& hash = reinterpret_cast<const Hash256&>(*payload.buffers()[i++].pData);
 						EXPECT_EQ(transactionInfo.EntityHash, hash) << failedMessage;
 					}
 
 					if (!transactionInfo.Cosignatures.empty()) {
-						const auto* pCosignatures = payload.buffers()[i + 2].pData;
+						const auto* pCosignatures = payload.buffers()[i++].pData;
 						auto expectedSize = transactionInfo.Cosignatures.size() * sizeof(model::Cosignature);
 						EXPECT_EQ_MEMORY(transactionInfo.Cosignatures.data(), pCosignatures, expectedSize) << failedMessage;
-						i += 3;
-					} else {
-						i += 2;
 					}
 				}
 			}

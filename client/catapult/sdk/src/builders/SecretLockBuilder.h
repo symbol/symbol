@@ -36,6 +36,9 @@ namespace catapult { namespace builders {
 		SecretLockBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
 
 	public:
+		/// Sets the secret to \a secret.
+		void setSecret(const Hash256& secret);
+
 		/// Sets the locked mosaic to \a mosaic.
 		void setMosaic(const model::UnresolvedMosaic& mosaic);
 
@@ -44,9 +47,6 @@ namespace catapult { namespace builders {
 
 		/// Sets the hash algorithm to \a hashAlgorithm.
 		void setHashAlgorithm(model::LockHashAlgorithm hashAlgorithm);
-
-		/// Sets the secret to \a secret.
-		void setSecret(const Hash256& secret);
 
 		/// Sets the locked mosaic recipient address to \a recipientAddress.
 		void setRecipientAddress(const UnresolvedAddress& recipientAddress);
@@ -70,10 +70,10 @@ namespace catapult { namespace builders {
 		std::unique_ptr<TTransaction> buildImpl() const;
 
 	private:
+		Hash256 m_secret;
 		model::UnresolvedMosaic m_mosaic;
 		BlockDuration m_duration;
 		model::LockHashAlgorithm m_hashAlgorithm;
-		Hash256 m_secret;
 		UnresolvedAddress m_recipientAddress;
 	};
 }}

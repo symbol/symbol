@@ -251,15 +251,6 @@ namespace catapult { namespace cache {
 			cache.commit();
 		}
 
-		template<typename TTraits>
-		auto AddRandomAccount(AccountStateCache& cache) {
-			auto delta = cache.createDelta();
-			auto accountId = TTraits::GenerateAccountId();
-			delta->addAccount(accountId, TTraits::Default_Height);
-			cache.commit();
-			return accountId;
-		}
-
 		template<typename TKeyTraits>
 		void AddAccountToCacheDelta(AccountStateCacheDelta& delta, const typename TKeyTraits::Type& key, Amount balance) {
 			delta.addAccount(key, TKeyTraits::Default_Height);
@@ -665,13 +656,14 @@ namespace catapult { namespace cache {
 
 	// endregion
 
-	// region queueRemove / commitRemovals
+	// region queueRemove / clearRemove / commitRemovals
 
-	ID_BASED_TEST(Remove_RemovesExistingAccountWhenHeightMatches) {
+	ID_BASED_TEST(Remove_QueueRemoveRemovesExistingAccountWhenHeightMatches) {
 		// Arrange:
 		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
-		auto accountId = AddRandomAccount<TTraits>(cache);
 		auto delta = cache.createDelta();
+		auto accountId = TTraits::GenerateAccountId();
+		delta->addAccount(accountId, TTraits::Default_Height);
 
 		// Sanity:
 		EXPECT_EQ(1u, delta->size());
@@ -685,7 +677,7 @@ namespace catapult { namespace cache {
 		EXPECT_FALSE(!!utils::as_const(delta)->find(accountId).tryGet());
 	}
 
-	ID_BASED_TEST(Remove_DoesNotRemovesExistingAccountWhenHeightDoesNotMatch) {
+	ID_BASED_TEST(Remove_QueueRemoveDoesNotRemoveExistingAccountWhenHeightDoesNotMatch) {
 		// Arrange:
 		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		auto delta = cache.createDelta();
@@ -705,7 +697,7 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(&expectedAccount, TTraits::Find(*delta, accountId).tryGet());
 	}
 
-	ID_BASED_TEST(Remove_CanBeCalledOnNonexistentAccount) {
+	ID_BASED_TEST(Remove_QueueRemoveCanBeCalledOnNonexistentAccount) {
 		// Arrange:
 		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		DefaultFillCache(cache, 10);
@@ -723,7 +715,7 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(10u, delta->size());
 	}
 
-	ID_BASED_TEST(Remove_QueuesRemovalButDoesNotRemoveImmediately) {
+	ID_BASED_TEST(Remove_QueueRemoveDoesNotRemoveImmediately) {
 		// Arrange:
 		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		auto delta = cache.createDelta();
@@ -742,7 +734,48 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(&expectedAccount, TTraits::Find(*delta, accountId).tryGet());
 	}
 
-	ID_BASED_TEST(CommitRemovals_DoesNothingWhenNoRemovalsHaveBeenQueued) {
+	ID_BASED_TEST(Remove_ClearRemovePreventsRemovalOfAccountQueuedForRemovalWhenHeightMatches) {
+		// Arrange:
+		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
+		auto delta = cache.createDelta();
+		auto accountId = TTraits::GenerateAccountId();
+		delta->addAccount(accountId, TTraits::Default_Height);
+		const auto& expectedAccount = delta->find(accountId).get();
+
+		// Sanity:
+		EXPECT_EQ(1u, delta->size());
+
+		// Act:
+		delta->queueRemove(accountId, TTraits::Default_Height);
+		delta->clearRemove(accountId, TTraits::Default_Height);
+		delta->commitRemovals();
+
+		// Assert:
+		EXPECT_EQ(1u, delta->size());
+		EXPECT_EQ(&expectedAccount, TTraits::Find(*delta, accountId).tryGet());
+	}
+
+	ID_BASED_TEST(Remove_ClearRemoveDoesNotPreventRemovalOfAccountQueuedForRemovalWhenHeightDoesNotMatch) {
+		// Arrange:
+		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
+		auto delta = cache.createDelta();
+		auto accountId = TTraits::GenerateAccountId();
+		delta->addAccount(accountId, TTraits::Default_Height);
+
+		// Sanity:
+		EXPECT_EQ(1u, delta->size());
+
+		// Act:
+		delta->queueRemove(accountId, TTraits::Default_Height);
+		delta->clearRemove(accountId, TTraits::Default_Height + Height(1));
+		delta->commitRemovals();
+
+		// Assert:
+		EXPECT_EQ(0u, delta->size());
+		EXPECT_FALSE(!!utils::as_const(delta)->find(accountId).tryGet());
+	}
+
+	ID_BASED_TEST(Remove_CommitRemovalsDoesNothingWhenNoRemovalsHaveBeenQueued) {
 		// Arrange:
 		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		auto delta = cache.createDelta();
@@ -755,7 +788,7 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(1u, delta->size());
 	}
 
-	ID_BASED_TEST(CommitRemovals_CanCommitQueuedRemovalsOfMultipleAccounts) {
+	ID_BASED_TEST(Remove_CommitRemovalsCanCommitQueuedRemovalsOfMultipleAccounts) {
 		// Arrange:
 		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		auto delta = cache.createDelta();

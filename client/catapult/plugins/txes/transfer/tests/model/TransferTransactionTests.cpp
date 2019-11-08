@@ -22,6 +22,7 @@
 #include "catapult/utils/MemoryUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/VariableSizedEntityTestUtils.h"
+#include "tests/test/nodeps/Alignment.h"
 #include "tests/test/nodeps/NumericTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -29,21 +30,32 @@ namespace catapult { namespace model {
 
 #define TEST_CLASS TransferTransactionTests
 
-	// region size + properties
+	// region size + alignment + properties
+
+#define TRANSACTION_FIELDS FIELD(RecipientAddress) FIELD(MosaicsCount) FIELD(MessageSize)
 
 	namespace {
 		template<typename T>
-		void AssertEntityHasExpectedSize(size_t baseSize) {
+		void AssertTransactionHasExpectedSize(size_t baseSize) {
 			// Arrange:
-			auto expectedSize =
-					baseSize // base
-					+ sizeof(UnresolvedAddress) // recipient
-					+ sizeof(uint16_t) // message size
-					+ sizeof(uint8_t); // mosaics count
+			auto expectedSize = baseSize + sizeof(uint32_t);
+
+#define FIELD(X) expectedSize += sizeof(T::X);
+			TRANSACTION_FIELDS
+#undef FIELD
 
 			// Assert:
 			EXPECT_EQ(expectedSize, sizeof(T));
-			EXPECT_EQ(baseSize + 28u, sizeof(T));
+			EXPECT_EQ(baseSize + 4 + 28u, sizeof(T));
+		}
+
+		template<typename T>
+		void AssertTransactionHasProperAlignment() {
+#define FIELD(X) EXPECT_ALIGNED(T, X);
+			TRANSACTION_FIELDS
+#undef FIELD
+
+			EXPECT_EQ(0u, sizeof(T) % 8);
 		}
 
 		template<typename T>
@@ -54,6 +66,8 @@ namespace catapult { namespace model {
 		}
 	}
 
+#undef TRANSACTION_FIELDS
+
 	ADD_BASIC_TRANSACTION_SIZE_PROPERTY_TESTS(Transfer)
 
 	// endregion
@@ -62,27 +76,27 @@ namespace catapult { namespace model {
 
 	namespace {
 		struct TransferTransactionTraits {
-			static auto GenerateEntityWithAttachments(uint16_t messageSize, uint8_t numMosaics) {
+			static auto GenerateEntityWithAttachments(uint8_t numMosaics, uint16_t messageSize) {
 				uint32_t entitySize = sizeof(TransferTransaction) + messageSize + numMosaics * sizeof(Mosaic);
 				auto pTransaction = utils::MakeUniqueWithSize<TransferTransaction>(entitySize);
 				pTransaction->Size = entitySize;
-				pTransaction->MessageSize = messageSize;
 				pTransaction->MosaicsCount = numMosaics;
+				pTransaction->MessageSize = messageSize;
 				return pTransaction;
 			}
 
-			static constexpr size_t GetAttachment1Size(uint16_t messageSize) {
-				return messageSize;
+			static constexpr size_t GetAttachment1Size(uint8_t numMosaics) {
+				return numMosaics * sizeof(UnresolvedMosaic);
 			}
 
 			template<typename TEntity>
 			static auto GetAttachmentPointer1(TEntity& entity) {
-				return entity.MessagePtr();
+				return entity.MosaicsPtr();
 			}
 
 			template<typename TEntity>
 			static auto GetAttachmentPointer2(TEntity& entity) {
-				return entity.MosaicsPtr();
+				return entity.MessagePtr();
 			}
 		};
 	}

@@ -40,28 +40,33 @@ namespace catapult { namespace model {
 		/// Recipient address.
 		UnresolvedAddress RecipientAddress;
 
-		/// Message size in bytes.
-		uint16_t MessageSize;
-
 		/// Number of mosaics.
 		uint8_t MosaicsCount;
 
-		// followed by message data if MessageSize != 0
-		DEFINE_TRANSACTION_VARIABLE_DATA_ACCESSORS(Message, uint8_t)
+		/// Message size in bytes.
+		uint16_t MessageSize;
+
+		/// Reserved padding to align Mosaics on 8-byte boundary.
+		uint32_t TransferTransactionBody_Reserved1;
 
 		// followed by mosaics data if MosaicsCount != 0
 		DEFINE_TRANSACTION_VARIABLE_DATA_ACCESSORS(Mosaics, UnresolvedMosaic)
 
+		// followed by message data if MessageSize != 0
+		DEFINE_TRANSACTION_VARIABLE_DATA_ACCESSORS(Message, uint8_t)
+
 	private:
 		template<typename T>
-		static auto* MessagePtrT(T& transaction) {
-			return transaction.MessageSize ? THeader::PayloadStart(transaction) : nullptr;
+		static auto* MosaicsPtrT(T& transaction) {
+			return transaction.MosaicsCount ? THeader::PayloadStart(transaction) : nullptr;
 		}
 
 		template<typename T>
-		static auto* MosaicsPtrT(T& transaction) {
+		static auto* MessagePtrT(T& transaction) {
 			auto* pPayloadStart = THeader::PayloadStart(transaction);
-			return transaction.MosaicsCount && pPayloadStart ? pPayloadStart + transaction.MessageSize : nullptr;
+			return transaction.MessageSize && pPayloadStart
+					? pPayloadStart + transaction.MosaicsCount * sizeof(UnresolvedMosaic)
+					: nullptr;
 		}
 
 	public:

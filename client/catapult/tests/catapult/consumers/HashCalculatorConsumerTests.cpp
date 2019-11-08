@@ -94,6 +94,10 @@ namespace catapult { namespace consumers {
 				uint32_t numBlocks,
 				uint32_t numTransactionsPerBlock) {
 			uint32_t numBytesPerBlock = sizeof(model::BlockHeader) + numTransactionsPerBlock * Transaction_Size;
+			auto txPaddingSize = utils::GetPaddingSize(Transaction_Size, 8);
+			if (0 < numTransactionsPerBlock)
+				numBytesPerBlock += (numTransactionsPerBlock - 1) * txPaddingSize;
+
 			std::vector<uint8_t> buffer(numBlocks * numBytesPerBlock);
 			test::FillWithRandomData(buffer);
 
@@ -105,7 +109,8 @@ namespace catapult { namespace consumers {
 				block.Type = model::Entity_Type_Block;
 
 				for (auto j = 0u; j < numTransactionsPerBlock; ++j) {
-					auto txOffset = offsets.back() + sizeof(model::BlockHeader) + j * Transaction_Size;
+					auto txOffset = offsets.back() + sizeof(model::BlockHeader);
+					txOffset += j * (Transaction_Size + txPaddingSize);
 					WriteTransactionAt(buffer, txOffset);
 				}
 
@@ -207,8 +212,7 @@ namespace catapult { namespace consumers {
 		auto input = CreateBlockConsumerInput(3, 4);
 		auto& blockElements = input.blocks();
 
-		const auto* pTransaction = static_cast<const mocks::MockTransaction*>(blockElements[1].Block.TransactionsPtr()) + 2;
-		const_cast<mocks::MockTransaction*>(pTransaction)->Size = 2 * sizeof(mocks::MockTransaction) + 1;
+		(++++const_cast<model::Block&>(blockElements[1].Block).Transactions().begin())->Size *= 2;
 
 		// Act + Assert: transaction iteration throws an exception
 		EXPECT_THROW(CreateBlockHashCalculatorConsumer(GetNetworkGenerationHash(), registry)(blockElements), catapult_runtime_error);

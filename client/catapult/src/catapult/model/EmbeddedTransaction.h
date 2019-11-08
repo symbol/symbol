@@ -34,8 +34,34 @@ namespace catapult { namespace model {
 
 #pragma pack(push, 1)
 
+	/// Binary layout for an embedded transaction header.
+	struct EmbeddedTransactionHeader : public SizePrefixedEntity {
+	public:
+		/// Size of the header that can be skipped when signing/verifying.
+		/// \note This skips EmbeddedTransactionHeader and beginning of EntityBody.
+		static constexpr size_t Header_Size = sizeof(SizePrefixedEntity) + 2 * sizeof(uint32_t) + Key::Size;
+
+	public:
+		/// Reserved padding to align end of EmbeddedTransactionHeader on 8-byte boundary.
+		uint32_t EmbeddedTransactionHeader_Reserved1;
+	};
+
 	/// Binary layout for an embedded transaction (non-verifiable).
-	struct EmbeddedTransaction : public EntityBody<SizePrefixedEntity> {};
+	struct EmbeddedTransaction : public EntityBody<EmbeddedTransactionHeader> {};
+
+	// EmbeddedTransaction Layout:
+	// * SizePrefixedEntity
+	//   0x00:  (4) Size
+	// * EmbeddedTransaction
+	//   0x04:  (4) EmbeddedTransactionHeader_Reserved1
+	// * EntityBody
+	//   0x08: (32) SignerPublicKey
+	//   0x28:  (4) EntityBody_Reserved1
+	//   0x2C:  (1) Version
+	//   0x2D:  (1) Network
+	//   0x2E:  (2) Type
+	// * EmbeddedTransaction
+	//   0x30:  (*) Transaction Data
 
 #pragma pack(pop)
 
@@ -48,4 +74,7 @@ namespace catapult { namespace model {
 
 	/// Sends all notifications from \a transaction to \a sub.
 	void PublishNotifications(const EmbeddedTransaction& transaction, NotificationSubscriber& sub);
+
+	/// Advances to the next embedded transaction following padded \a pTransaction.
+	const model::EmbeddedTransaction* AdvanceNext(const model::EmbeddedTransaction* pTransaction);
 }}

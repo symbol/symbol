@@ -573,29 +573,5 @@ namespace catapult { namespace crypto {
 		AssertBuilderBasedHashMatchesSingleCallVariant<typename TTraits::HashBuilder>(TTraits::HashFunc);
 	}
 
-	SHA3_TRAITS_BASED_TEST(AlignedAndUnalignedBuildersProduceSameResults) {
-		// Arrange:
-		auto buffer = test::GenerateRandomVector(1 * 1024 * 1024);
-
-		typename TTraits::HashBuilder::OutputType alignedResult;
-		typename TTraits::HashBuilder::OutputType unalignedResult;
-		{
-			typename TTraits::HashBuilder hashBuilder;
-			hashBuilder.update(buffer);
-			hashBuilder.final(alignedResult);
-		}
-
-		// Act:
-		{
-			uint8_t hashBuilderBackingMemory[512];
-			auto pHashBuilder = new (hashBuilderBackingMemory + 3) typename TTraits::HashBuilder();
-			pHashBuilder->update(buffer);
-			pHashBuilder->final(unalignedResult);
-		}
-
-		// Assert:
-		EXPECT_EQ(alignedResult, unalignedResult);
-	}
-
 	// endregion
 }}

@@ -19,8 +19,11 @@
 **/
 
 #include "src/extensions/TransactionExtensions.h"
+#include "plugins/txes/aggregate/src/model/AggregateTransaction.h"
 #include "catapult/utils/HexParser.h"
+#include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
+#include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/nodeps/TestConstants.h"
 #include "tests/TestHarness.h"
@@ -34,9 +37,23 @@ namespace catapult { namespace extensions {
 	namespace {
 		struct NormalTraits {
 			static constexpr size_t Entity_Size = sizeof(model::Transaction);
+			static constexpr auto Entity_Type = mocks::MockTransaction::Entity_Type;
+			static constexpr auto Is_Aggregate = false;
 		};
 		struct LargeTraits {
 			static constexpr size_t Entity_Size = sizeof(model::Transaction) + 123;
+			static constexpr auto Entity_Type = mocks::MockTransaction::Entity_Type;
+			static constexpr auto Is_Aggregate = false;
+		};
+		struct AggregateBondedTraits {
+			static constexpr size_t Entity_Size = sizeof(model::AggregateTransaction);
+			static constexpr auto Entity_Type = model::Entity_Type_Aggregate_Bonded;
+			static constexpr auto Is_Aggregate = true;
+		};
+		struct AggregateCompleteTraits {
+			static constexpr size_t Entity_Size = sizeof(model::AggregateTransaction) + 3 * sizeof(model::Cosignature);
+			static constexpr auto Entity_Type = model::Entity_Type_Aggregate_Complete;
+			static constexpr auto Is_Aggregate = true;
 		};
 	}
 
@@ -44,20 +61,82 @@ namespace catapult { namespace extensions {
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	TEST(TEST_CLASS, TEST_NAME##_Normal) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NormalTraits>(); } \
 	TEST(TEST_CLASS, TEST_NAME##_Large) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<LargeTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_AggregateBonded) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AggregateBondedTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_AggregateComplete) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AggregateCompleteTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 
-	// region basic sign / verify tests
+	// region hash tests
+
+	TRAITS_BASED_TEST(TransactionHashIsDependentOnGenerationHash) {
+		// Arrange:
+		TransactionExtensions extensions1(test::GenerateRandomByteArray<GenerationHash>());
+		TransactionExtensions extensions2(test::GenerateRandomByteArray<GenerationHash>());
+		auto pEntity = test::GenerateRandomTransactionWithSize(TTraits::Entity_Size);
+		pEntity->Type = TTraits::Entity_Type;
+
+		// Act:
+		auto hash1 = extensions1.hash(*pEntity);
+		auto hash2 = extensions2.hash(*pEntity);
+
+		// Assert:
+		EXPECT_NE(hash1, hash2);
+	}
+
+	TRAITS_BASED_TEST(TransactionHashIsDependentOnTransactionData) {
+		// Arrange:
+		TransactionExtensions extensions(test::GenerateRandomByteArray<GenerationHash>());
+		auto pEntity1 = test::GenerateRandomTransactionWithSize(TTraits::Entity_Size);
+		pEntity1->Type = TTraits::Entity_Type;
+
+		auto pEntity2 = test::GenerateRandomTransactionWithSize(TTraits::Entity_Size);
+		pEntity2->Type = TTraits::Entity_Type;
+
+		// Act:
+		auto hash1 = extensions.hash(*pEntity1);
+		auto hash2 = extensions.hash(*pEntity2);
+
+		// Assert:
+		EXPECT_NE(hash1, hash2);
+	}
+
+	TRAITS_BASED_TEST(TransactionHashIsCalculatedFromCorrectData) {
+		// Arrange:
+		TransactionExtensions extensions(test::GenerateRandomByteArray<GenerationHash>());
+		auto pEntity1 = test::GenerateRandomTransactionWithSize(TTraits::Entity_Size);
+		pEntity1->Type = TTraits::Entity_Type;
+
+		// - copy the entity and change the terminal byte
+		auto pEntity2 = test::CopyEntity(*pEntity1);
+		*(reinterpret_cast<uint8_t*>(pEntity2.get()) + TTraits::Entity_Size - 1) ^= 0xFF;
+
+		// Act:
+		auto hash1 = extensions.hash(*pEntity1);
+		auto hash2 = extensions.hash(*pEntity2);
+
+		// Assert: the terminal byte shouldn't influence an aggregate hash but should influence other hashes
+		if (TTraits::Is_Aggregate)
+			EXPECT_EQ(hash1, hash2);
+		else
+			EXPECT_NE(hash1, hash2);
+	}
+
+	// endregion
+
+	// region sign / verify tests
 
 	namespace {
 		template<typename TTraits>
 		bool RunSignVerifyAction(const consumer<model::Transaction&>& modifier) {
 			// Arrange: create a signed transaction
+			auto signer = test::GenerateKeyPair();
+
 			TransactionExtensions extensions(test::GenerateRandomByteArray<GenerationHash>());
 			auto pEntity = test::GenerateRandomTransactionWithSize(TTraits::Entity_Size);
-			auto signer = test::GenerateKeyPair();
+			pEntity->Type = TTraits::Entity_Type;
 			pEntity->SignerPublicKey = signer.publicKey();
+
 			extensions.sign(signer, *pEntity);
 
 			// - modify the transaction
@@ -108,11 +187,14 @@ namespace catapult { namespace extensions {
 
 	TRAITS_BASED_TEST(CannotValidateSignedTransactionWithAlteredGenerationHash) {
 		// Arrange:
+		auto signer = test::GenerateKeyPair();
+
 		TransactionExtensions extensions1(test::GenerateRandomByteArray<GenerationHash>());
 		TransactionExtensions extensions2(test::GenerateRandomByteArray<GenerationHash>());
 		auto pEntity = test::GenerateRandomTransactionWithSize(TTraits::Entity_Size);
-		auto signer = test::GenerateKeyPair();
+		pEntity->Type = TTraits::Entity_Type;
 		pEntity->SignerPublicKey = signer.publicKey();
+
 		extensions1.sign(signer, *pEntity);
 
 		// Sanity:

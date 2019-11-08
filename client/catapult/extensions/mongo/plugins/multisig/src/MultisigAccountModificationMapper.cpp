@@ -28,23 +28,12 @@ using namespace catapult::mongo::mappers;
 namespace catapult { namespace mongo { namespace plugins {
 
 	namespace {
-		void StreamModification(bson_stream::array_context& context, model::CosignatoryModificationAction action, const Key& key) {
-			context
-					<< bson_stream::open_document
-						<< "modificationAction" << utils::to_underlying_type(action)
-						<< "cosignatoryPublicKey" << ToBinary(key)
-					<< bson_stream::close_document;
-		}
+		void StreamKeys(bson_stream::document& builder, const std::string& name, const Key* pKeys, uint8_t numKeys) {
+			auto keysArray = builder << name << bson_stream::open_array;
+			for (auto i = 0u; i < numKeys; ++i)
+				keysArray << ToBinary(pKeys[i]);
 
-		void StreamModifications(
-				bson_stream::document& builder,
-				const model::CosignatoryModification* pModification,
-				size_t numModifications) {
-			auto modificationsArray = builder << "modifications" << bson_stream::open_array;
-			for (auto i = 0u; i < numModifications; ++i, ++pModification)
-				StreamModification(modificationsArray, pModification->ModificationAction, pModification->CosignatoryPublicKey);
-
-			modificationsArray << bson_stream::close_array;
+			keysArray << bson_stream::close_array;
 		}
 
 		template<typename TTransaction>
@@ -52,7 +41,8 @@ namespace catapult { namespace mongo { namespace plugins {
 			builder
 					<< "minRemovalDelta" << transaction.MinRemovalDelta
 					<< "minApprovalDelta" << transaction.MinApprovalDelta;
-			StreamModifications(builder, transaction.ModificationsPtr(), transaction.ModificationsCount);
+			StreamKeys(builder, "publicKeyAdditions", transaction.PublicKeyAdditionsPtr(), transaction.PublicKeyAdditionsCount);
+			StreamKeys(builder, "publicKeyDeletions", transaction.PublicKeyDeletionsPtr(), transaction.PublicKeyDeletionsCount);
 		}
 	}
 

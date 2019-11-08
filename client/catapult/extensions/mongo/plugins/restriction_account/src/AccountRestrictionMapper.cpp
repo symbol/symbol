@@ -24,7 +24,7 @@
 #include "plugins/txes/restriction_account/src/model/AccountAddressRestrictionTransaction.h"
 #include "plugins/txes/restriction_account/src/model/AccountMosaicRestrictionTransaction.h"
 #include "plugins/txes/restriction_account/src/model/AccountOperationRestrictionTransaction.h"
-#include "plugins/txes/restriction_account/src/model/AccountRestrictionTypes.h"
+#include "plugins/txes/restriction_account/src/model/AccountRestrictionFlags.h"
 #include "plugins/txes/restriction_account/src/state/AccountRestrictionUtils.h"
 
 using namespace catapult::mongo::mappers;
@@ -32,35 +32,32 @@ using namespace catapult::mongo::mappers;
 namespace catapult { namespace mongo { namespace plugins {
 
 	namespace {
-		void StreamModification(
-				bson_stream::array_context& context,
-				model::AccountRestrictionModificationAction action,
-				const std::vector<uint8_t>& value) {
-			context
-					<< bson_stream::open_document
-						<< "modificationAction" << utils::to_underlying_type(action)
-						<< "value" << ToBinary(value.data(), value.size())
-					<< bson_stream::close_document;
-		}
-
 		template<typename TRestrictionValue>
-		void StreamModifications(
-				bson_stream::document& builder,
-				const model::AccountRestrictionModification<TRestrictionValue>* pModifications,
-				size_t numModifications) {
-			auto modificationsArray = builder << "modifications" << bson_stream::open_array;
-			for (auto i = 0u; i < numModifications; ++i)
-				StreamModification(modificationsArray, pModifications[i].ModificationAction, state::ToVector(pModifications[i].Value));
+		void StreamValues(bson_stream::document& builder, const std::string& name, const TRestrictionValue* pValues, uint8_t numValues) {
+			auto valuesArray = builder << name << bson_stream::open_array;
+			for (auto i = 0u; i < numValues; ++i) {
+				auto valueBuffer = state::ToVector(pValues[i]);
+				valuesArray << ToBinary(valueBuffer.data(), valueBuffer.size());
+			}
 
-			modificationsArray << bson_stream::close_array;
+			valuesArray << bson_stream::close_array;
 		}
 
 		template<typename TRestrictionValue>
 		struct AccountRestrictionTransactionStreamer {
 			template<typename TTransaction>
 			static void Stream(bson_stream::document& builder, const TTransaction& transaction) {
-				builder << "restrictionType" << utils::to_underlying_type(transaction.RestrictionType);
-				StreamModifications(builder, transaction.ModificationsPtr(), transaction.ModificationsCount);
+				builder << "restrictionFlags" << static_cast<int32_t>(transaction.RestrictionFlags);
+				StreamValues(
+						builder,
+						"restrictionAdditions",
+						transaction.RestrictionAdditionsPtr(),
+						transaction.RestrictionAdditionsCount);
+				StreamValues(
+						builder,
+						"restrictionDeletions",
+						transaction.RestrictionDeletionsPtr(),
+						transaction.RestrictionDeletionsCount);
 			}
 		};
 	}

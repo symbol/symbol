@@ -20,6 +20,7 @@
 
 #include "src/cache/NamespaceCacheSerializers.h"
 #include "tests/test/NamespaceTestUtils.h"
+#include "tests/test/core/BufferReader.h"
 #include "tests/test/core/SerializerTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -43,10 +44,11 @@ namespace catapult { namespace cache {
 		// Assert:
 		ASSERT_EQ(sizeof(uint16_t) + sizeof(uint64_t) + sizeof(NamespaceId), result.size());
 
-		EXPECT_EQ(1, reinterpret_cast<const uint16_t&>(result.front()));
-		const auto* pValues = reinterpret_cast<const uint64_t*>(result.data() + sizeof(uint16_t));
-		EXPECT_EQ(1u, pValues[0]);
-		EXPECT_EQ(11u, pValues[1]);
+		test::BufferReader reader({ reinterpret_cast<const uint8_t*>(result.data()), result.size() });
+		EXPECT_EQ(1u, reader.read<uint16_t>());
+
+		EXPECT_EQ(1u, reader.read<uint64_t>());
+		EXPECT_EQ(11u, reader.read<uint64_t>());
 	}
 
 	TEST(TEST_CLASS, FlatMapTypesSerializer_CanSerializeFullValue) {
@@ -59,12 +61,13 @@ namespace catapult { namespace cache {
 		// Assert:
 		ASSERT_EQ(sizeof(uint16_t) + sizeof(uint64_t) + 3 * sizeof(NamespaceId), result.size());
 
-		EXPECT_EQ(1, reinterpret_cast<const uint16_t&>(result.front()));
-		const auto* pValues = reinterpret_cast<const uint64_t*>(result.data() + sizeof(uint16_t));
-		EXPECT_EQ(3u, pValues[0]);
-		EXPECT_EQ(11u, pValues[1]);
-		EXPECT_EQ(7u, pValues[2]);
-		EXPECT_EQ(21u, pValues[3]);
+		test::BufferReader reader({ reinterpret_cast<const uint8_t*>(result.data()), result.size() });
+		EXPECT_EQ(1u, reader.read<uint16_t>());
+
+		EXPECT_EQ(3u, reader.read<uint64_t>());
+		EXPECT_EQ(11u, reader.read<uint64_t>());
+		EXPECT_EQ(7u, reader.read<uint64_t>());
+		EXPECT_EQ(21u, reader.read<uint64_t>());
 	}
 
 	// endregion

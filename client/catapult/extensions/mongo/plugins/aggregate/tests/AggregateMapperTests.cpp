@@ -21,6 +21,7 @@
 #include "src/AggregateMapper.h"
 #include "mongo/src/mappers/MapperUtils.h"
 #include "plugins/txes/aggregate/src/model/AggregateTransaction.h"
+#include "catapult/utils/IntegerMath.h"
 #include "catapult/utils/MemoryUtils.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/MongoTransactionPluginTests.h"
@@ -39,12 +40,13 @@ namespace catapult { namespace mongo { namespace plugins {
 		constexpr auto Entity_Type = static_cast<model::EntityType>(9876);
 
 		auto AllocateAggregateTransaction(uint16_t numTransactions, uint16_t numCosignatures) {
-			uint32_t entitySize = sizeof(TransactionType)
-					+ numTransactions * sizeof(EmbeddedTransactionType)
-					+ numCosignatures * sizeof(model::Cosignature);
+			uint32_t transactionSize = sizeof(EmbeddedTransactionType);
+			uint32_t payloadSize = numTransactions * (transactionSize + utils::GetPaddingSize(transactionSize, 8));
+
+			uint32_t entitySize = sizeof(TransactionType) + payloadSize + numCosignatures * sizeof(model::Cosignature);
 			auto pTransaction = utils::MakeUniqueWithSize<TransactionType>(entitySize);
 			pTransaction->Size = entitySize;
-			pTransaction->PayloadSize = numTransactions * sizeof(EmbeddedTransactionType);
+			pTransaction->PayloadSize = payloadSize;
 			return pTransaction;
 		}
 	}
@@ -126,14 +128,15 @@ namespace catapult { namespace mongo { namespace plugins {
 
 			// - create and copy sub transactions
 			auto subTransactions = test::GenerateRandomDataVector<EmbeddedTransactionType>(numTransactions);
+			auto* pSubTransactionBytes = reinterpret_cast<uint8_t*>(pTransaction->TransactionsPtr());
 			for (auto& subTransaction : subTransactions) {
 				subTransaction.Size = sizeof(EmbeddedTransactionType);
 				subTransaction.Type = EmbeddedTransactionType::Entity_Type;
 				subTransaction.Data.Size = 0;
-			}
 
-			auto transactionsSize = numTransactions * sizeof(EmbeddedTransactionType);
-			utils::memcpy_cond(static_cast<void*>(pTransaction->TransactionsPtr()), subTransactions.data(), transactionsSize);
+				std::memcpy(static_cast<void*>(pSubTransactionBytes), &subTransaction, subTransaction.Size);
+				pSubTransactionBytes += subTransaction.Size + utils::GetPaddingSize(subTransaction.Size, 8);
+			}
 
 			// - create the plugin
 			MongoTransactionRegistry registry;
@@ -167,7 +170,7 @@ namespace catapult { namespace mongo { namespace plugins {
 
 				// - the mock mapper adds a recipient entry
 				auto subTransactionView = view["transaction"].get_document().view();
-				EXPECT_EQ(4u, test::GetFieldCount(subTransactionView));
+				EXPECT_EQ(5u, test::GetFieldCount(subTransactionView));
 				test::AssertEqualEmbeddedTransactionData(subTransaction, subTransactionView);
 				EXPECT_EQ(subTransaction.RecipientPublicKey, test::GetKeyValue(subTransactionView, "recipientPublicKey"));
 			}

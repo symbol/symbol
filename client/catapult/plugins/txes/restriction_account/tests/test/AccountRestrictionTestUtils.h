@@ -19,15 +19,15 @@
 **/
 
 #pragma once
-#include "src/model/AccountRestrictionTypes.h"
+#include "src/model/AccountRestrictionFlags.h"
 #include "src/state/AccountRestrictionDescriptor.h"
 
 namespace catapult { namespace state { class AccountRestrictions; } }
 
 namespace catapult { namespace test {
 
-	/// Collects all available account restriction types.
-	std::vector<model::AccountRestrictionType> CollectAccountRestrictionTypes();
+	/// Collects all available account restriction flags.
+	std::vector<model::AccountRestrictionFlags> CollectAccountRestrictionFlags();
 
 	/// Creates random account restrictions around \a operationType and \a valuesSizes.
 	state::AccountRestrictions CreateAccountRestrictions(

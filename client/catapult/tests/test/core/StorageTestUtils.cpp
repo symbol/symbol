@@ -33,7 +33,7 @@ namespace catapult { namespace test {
 	}
 
 	void PrepareStorage(const std::string& destination) {
-#ifdef SIGNATURE_SCHEME_NIS1
+#ifdef SIGNATURE_SCHEME_KECCAK
 		constexpr auto Source_Directory = "../seed/mijin-test.nis1";
 #else
 		constexpr auto Source_Directory = "../seed/mijin-test";

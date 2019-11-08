@@ -4,4 +4,4 @@ set(PLUGIN_DEPS_FOLDERS model observers validators)
 
 include_directories(.)
 add_subdirectory(src)
-add_subdirectory(tests)
+catapult_add_tests_subdirectory(tests)

@@ -37,17 +37,17 @@ namespace catapult { namespace model {
 		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Secret_Proof, 1)
 
 	public:
-		/// Hash algorithm.
-		LockHashAlgorithm HashAlgorithm;
-
 		/// Secret.
 		Hash256 Secret;
 
-		/// Locked mosaic recipient address.
-		UnresolvedAddress RecipientAddress;
-
 		/// Proof size in bytes.
 		uint16_t ProofSize;
+
+		/// Hash algorithm.
+		LockHashAlgorithm HashAlgorithm;
+
+		/// Locked mosaic recipient address.
+		UnresolvedAddress RecipientAddress;
 
 		// followed by proof data if ProofSize != 0
 		DEFINE_TRANSACTION_VARIABLE_DATA_ACCESSORS(Proof, uint8_t)

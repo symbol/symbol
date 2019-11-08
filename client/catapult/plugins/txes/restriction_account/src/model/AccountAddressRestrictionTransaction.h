@@ -23,9 +23,6 @@
 
 namespace catapult { namespace model {
 
-	/// Modification type used with account address restriction transaction.
-	using AccountAddressRestrictionModification = AccountRestrictionModification<UnresolvedAddress>;
-
 #pragma pack(push, 1)
 
 	/// Binary layout for an account address restriction transaction body.

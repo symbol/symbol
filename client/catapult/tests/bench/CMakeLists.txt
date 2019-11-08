@@ -18,6 +18,7 @@ function(catapult_bench_executable_target TARGET_NAME)
 	catapult_target(${TARGET_NAME})
 
 	add_dependencies(tools ${TARGET_NAME})
+	install(TARGETS ${TARGET_NAME})
 endfunction()
 
 add_subdirectory(crypto)

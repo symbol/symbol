@@ -75,21 +75,24 @@ namespace catapult { namespace observers {
 			cache::MultisigCacheDelta::iterator m_multisigIter;
 			state::MultisigEntry& m_multisigEntry;
 		};
+
+		void AddAll(MultisigAccountFacade& multisigAccountFacade, const Key* pKeys, uint8_t numKeys, bool shouldAdd) {
+			for (auto i = 0u; i < numKeys; ++i) {
+				const auto& cosignatoryPublicKey = pKeys[i];
+				if (shouldAdd)
+					multisigAccountFacade.addCosignatory(cosignatoryPublicKey);
+				else
+					multisigAccountFacade.removeCosignatory(cosignatoryPublicKey);
+			}
+		}
 	}
 
 	DEFINE_OBSERVER(MultisigCosignatories, Notification, [](const Notification& notification, const ObserverContext& context) {
 		auto& multisigCache = context.Cache.sub<cache::MultisigCache>();
-
 		MultisigAccountFacade multisigAccountFacade(multisigCache, notification.Signer);
-		const auto* pModifications = notification.ModificationsPtr;
-		for (auto i = 0u; i < notification.ModificationsCount; ++i) {
-			auto isNotificationAdd = model::CosignatoryModificationAction::Add == pModifications[i].ModificationAction;
-			auto isNotificationForward = NotifyMode::Commit == context.Mode;
 
-			if (isNotificationAdd == isNotificationForward)
-				multisigAccountFacade.addCosignatory(pModifications[i].CosignatoryPublicKey);
-			else
-				multisigAccountFacade.removeCosignatory(pModifications[i].CosignatoryPublicKey);
-		}
+		auto isCommitMode = NotifyMode::Commit == context.Mode;
+		AddAll(multisigAccountFacade, notification.PublicKeyAdditionsPtr, notification.PublicKeyAdditionsCount, isCommitMode);
+		AddAll(multisigAccountFacade, notification.PublicKeyDeletionsPtr, notification.PublicKeyDeletionsCount, !isCommitMode);
 	});
 }}

@@ -21,6 +21,7 @@
 #include "filespooling/src/FileBlockChangeStorage.h"
 #include "catapult/subscribers/SubscriberOperationTypes.h"
 #include "tests/test/core/BlockTestUtils.h"
+#include "tests/test/core/BufferReader.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/TestHarness.h"
 
@@ -84,19 +85,20 @@ namespace catapult { namespace filespooling {
 			EXPECT_EQ(1u, stream.numFlushes());
 			ASSERT_EQ(1u + Empty_Block_Element_Size + 1 + 3 * sizeof(uint32_t), buffer.size());
 
-			auto expectedOperationType = subscribers::BlockChangeOperationType::Block;
-			EXPECT_EQ(expectedOperationType, static_cast<subscribers::BlockChangeOperationType>(buffer[0]));
+			test::BufferReader reader(buffer);
+			EXPECT_EQ(subscribers::BlockChangeOperationType::Block, reader.read<subscribers::BlockChangeOperationType>());
 
 			// - spot check block part of element
-			EXPECT_EQ(*pBlock, reinterpret_cast<const model::Block&>(buffer[1]));
+			const auto* pBlockData = reader.data();
+			EXPECT_EQ(*pBlock, reinterpret_cast<const model::Block&>(*pBlockData));
+			reader.advance(Empty_Block_Element_Size);
 
 			// - empty block statement was written
-			EXPECT_EQ(0xFFu, buffer[1u + Empty_Block_Element_Size]);
+			EXPECT_EQ(0xFFu, reader.read<uint8_t>());
 
-			const auto* pStatementCounts = reinterpret_cast<const uint32_t*>(&buffer[1u + Empty_Block_Element_Size + 1]);
-			EXPECT_EQ(0u, pStatementCounts[0]);
-			EXPECT_EQ(0u, pStatementCounts[1]);
-			EXPECT_EQ(0u, pStatementCounts[2]);
+			EXPECT_EQ(0u, reader.read<uint32_t>());
+			EXPECT_EQ(0u, reader.read<uint32_t>());
+			EXPECT_EQ(0u, reader.read<uint32_t>());
 		});
 	}
 
@@ -110,10 +112,10 @@ namespace catapult { namespace filespooling {
 			EXPECT_EQ(1u, stream.numFlushes());
 			ASSERT_EQ(1u + sizeof(uint64_t), buffer.size());
 
-			auto expectedOperationType = subscribers::BlockChangeOperationType::Drop_Blocks_After;
-			EXPECT_EQ(expectedOperationType, static_cast<subscribers::BlockChangeOperationType>(buffer[0]));
+			test::BufferReader reader(buffer);
+			EXPECT_EQ(subscribers::BlockChangeOperationType::Drop_Blocks_After, reader.read<subscribers::BlockChangeOperationType>());
 
-			EXPECT_EQ(Height(246), reinterpret_cast<const Height&>(buffer[1]));
+			EXPECT_EQ(Height(246), reader.read<Height>());
 		});
 	}
 }}

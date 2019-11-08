@@ -19,6 +19,7 @@
 **/
 
 #include "catapult/ionet/NetworkNode.h"
+#include "tests/test/nodeps/Alignment.h"
 #include "tests/test/nodeps/NumericTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -26,24 +27,38 @@ namespace catapult { namespace ionet {
 
 #define TEST_CLASS NetworkNodeTests
 
-	// region basic
+	// region size + alignment
 
-	TEST(TEST_CLASS, EntityHasExpectedSize) {
+#define NODE_FIELDS \
+	FIELD(Size) \
+	FIELD(Version) \
+	FIELD(IdentityKey) \
+	FIELD(Roles) \
+	FIELD(Port) \
+	FIELD(NetworkIdentifier) \
+	FIELD(HostSize) \
+	FIELD(FriendlyNameSize)
+
+	TEST(TEST_CLASS, NodeHasExpectedSize) {
 		// Arrange:
-		auto expectedSize =
-				sizeof(uint32_t) // size of network node
-				+ sizeof(uint16_t) // port
-				+ Key::Size // identity key
-				+ sizeof(model::NetworkIdentifier) // network identifier
-				+ sizeof(NodeVersion) // version
-				+ sizeof(NodeRoles) // roles
-				+ sizeof(uint8_t) // host size
-				+ sizeof(uint8_t); // friendly name size
+		auto expectedSize = 0u;
+
+#define FIELD(X) expectedSize += sizeof(NetworkNode::X);
+		NODE_FIELDS
+#undef FIELD
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(NetworkNode));
 		EXPECT_EQ(49u, sizeof(NetworkNode));
 	}
+
+	TEST(TEST_CLASS, NodeHasProperAlignment) {
+#define FIELD(X) EXPECT_ALIGNED(NetworkNode, X);
+		NODE_FIELDS
+#undef FIELD
+	}
+
+#undef NODE_FIELDS
 
 	// endregion
 

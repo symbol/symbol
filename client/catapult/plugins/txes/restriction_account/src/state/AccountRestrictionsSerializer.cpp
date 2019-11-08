@@ -30,7 +30,7 @@ namespace catapult { namespace state {
 		io::Write64(output, restrictions.size());
 		for (const auto& pair : restrictions) {
 			const auto& restriction = pair.second;
-			io::Write8(output, utils::to_underlying_type(restriction.descriptor().raw()));
+			io::Write16(output, utils::to_underlying_type(restriction.descriptor().raw()));
 			io::Write64(output, restriction.values().size());
 			for (const auto& value : restriction.values())
 				output.write(value);
@@ -45,14 +45,15 @@ namespace catapult { namespace state {
 
 		auto numRestrictions = io::Read64(input);
 		for (auto i = 0u; i < numRestrictions; ++i) {
-			auto restrictionDescriptor = state::AccountRestrictionDescriptor(static_cast<model::AccountRestrictionType>(io::Read8(input)));
-			auto& restriction = restrictions.restriction(restrictionDescriptor.directionalRestrictionType());
+			auto restrictionFlags = static_cast<model::AccountRestrictionFlags>(io::Read16(input));
+			auto restrictionDescriptor = state::AccountRestrictionDescriptor(restrictionFlags);
+			auto& restriction = restrictions.restriction(restrictionDescriptor.directionalRestrictionFlags());
 
 			AccountRestriction::RawValue value(restriction.valueSize());
 			auto numValues = io::Read64(input);
 			for (auto j = 0u; j < numValues; ++j) {
 				input.read(value);
-				model::RawAccountRestrictionModification modification{ model::AccountRestrictionModificationAction::Add, value };
+				model::AccountRestrictionModification modification{ model::AccountRestrictionModificationAction::Add, value };
 				if (AccountRestrictionOperationType::Allow == restrictionDescriptor.operationType())
 					restriction.allow(modification);
 				else

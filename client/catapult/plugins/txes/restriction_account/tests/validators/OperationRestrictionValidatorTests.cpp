@@ -31,7 +31,7 @@ namespace catapult { namespace validators {
 	DEFINE_COMMON_VALIDATOR_TESTS(OperationRestriction,)
 
 	namespace {
-		constexpr auto Restriction_Type = model::AccountRestrictionType::TransactionType | model::AccountRestrictionType::Outgoing;
+		constexpr auto Restriction_Flags = model::AccountRestrictionFlags::TransactionType | model::AccountRestrictionFlags::Outgoing;
 
 		std::vector<uint16_t> DefaultRawTransactionTypes() {
 			return { 0x4000, 0x4123, 0x4149 };
@@ -43,7 +43,7 @@ namespace catapult { namespace validators {
 			auto& restrictionCacheDelta = delta.sub<cache::AccountRestrictionCache>();
 			restrictionCacheDelta.insert(state::AccountRestrictions(accountAddress));
 			auto& restrictions = restrictionCacheDelta.find(accountAddress).get();
-			auto& restriction = restrictions.restriction(Restriction_Type);
+			auto& restriction = restrictions.restriction(Restriction_Flags);
 			for (auto rawValue : rawValues)
 				TOperationTraits::Add(restriction, state::ToVector(rawValue));
 

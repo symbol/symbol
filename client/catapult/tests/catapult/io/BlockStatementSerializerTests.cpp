@@ -51,10 +51,10 @@ namespace catapult { namespace io {
 
 		template<typename TUnresolved, typename TResolved>
 		struct ResolutionStatementWithTwoEntries : public ResolutionStatementWithZeroEntries<TUnresolved> {
-			TResolved ResolvedValue1;
 			model::ReceiptSource ReceiptSource1;
-			TResolved ResolvedValue2;
+			TResolved ResolvedValue1;
 			model::ReceiptSource ReceiptSource2;
+			TResolved ResolvedValue2;
 		};
 
 #pragma pack(pop)
@@ -67,7 +67,7 @@ namespace catapult { namespace io {
 		void SetMarker(T& value, uint8_t byte) {
 			// set both high and low bytes so that ordering is enforced for both big and little endian types
 			auto* pLowByte = reinterpret_cast<uint8_t*>(&value);
-			auto* pHighByte = reinterpret_cast<uint8_t*>(&value) + sizeof(T) - 1;
+			auto* pHighByte = reinterpret_cast<uint8_t*>(&value + 1) - 1;
 
 			*pLowByte = byte;
 			*pHighByte = byte;
@@ -124,8 +124,10 @@ namespace catapult { namespace io {
 				uint8_t order = 0) {
 			statement.NumEntries = 2;
 			SetMarker(statement.Key, order);
-			SetMarker(statement.ReceiptSource1.PrimaryId, 1);
-			SetMarker(statement.ReceiptSource2.PrimaryId, 2);
+
+			// receipt sources are not aligned so cannot be passed by reference to SetMarker
+			*(reinterpret_cast<uint8_t*>(&statement.ReceiptSource1.PrimaryId + 1) - 1) = 1;
+			*(reinterpret_cast<uint8_t*>(&statement.ReceiptSource2.PrimaryId + 1) - 1) = 2;
 
 			auto& resolutionStatement = AddStatement(blockStatement, statement.Key);
 			resolutionStatement.addResolution(statement.ResolvedValue1, statement.ReceiptSource1);

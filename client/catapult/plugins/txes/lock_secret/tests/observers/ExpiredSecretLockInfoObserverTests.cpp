@@ -161,17 +161,17 @@ namespace catapult { namespace observers {
 		auto blockSigner = test::GenerateRandomByteArray<Key>();
 		std::vector<SeedTuple> expiringSeeds{
 			{ Key{ { 9 } }, MosaicId(111), Amount(333), Amount(33) },
-			{ Key{ { 1 } }, MosaicId(222), Amount(222), Amount(88) },
-			{ Key{ { 4 } }, MosaicId(111), Amount(444), Amount(44) },
-			{ Key{ { 1 } }, MosaicId(222), Amount(), Amount(22) }
+			{ Key{ { 4 } }, MosaicId(222), Amount(222), Amount(88) },
+			{ Key{ { 4 } }, MosaicId(111), Amount(444), Amount(33) },
+			{ Key{ { 9 } }, MosaicId(222), Amount(), Amount(22) }
 		};
 
 		// Act + Assert: notice that receipts are deterministically ordered
 		ObserverTests::RunReceiptTest(NotifyMode::Commit, blockSigner, expiringSeeds, {
-			{ Key{ { 1 } }, MosaicId(222), Amount(), Amount(22) },
-			{ Key{ { 1 } }, MosaicId(222), Amount(), Amount(88) },
-			{ Key{ { 4 } }, MosaicId(111), Amount(), Amount(44) },
-			{ Key{ { 9 } }, MosaicId(111), Amount(), Amount(33) }
+			{ Key{ { 4 } }, MosaicId(111), Amount(), Amount(33) },
+			{ Key{ { 9 } }, MosaicId(111), Amount(), Amount(33) },
+			{ Key{ { 9 } }, MosaicId(222), Amount(), Amount(22) },
+			{ Key{ { 4 } }, MosaicId(222), Amount(), Amount(88) }
 		});
 	}
 

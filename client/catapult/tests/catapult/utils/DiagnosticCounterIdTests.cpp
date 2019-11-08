@@ -74,11 +74,11 @@ namespace catapult { namespace utils {
 	// region known / max
 
 	TEST(TEST_CLASS, CanCreateAroundKnownString) {
-		AssertCanCreateIdFromString("Z CAT", 26u * 27 * 27 * 27 * 27 + 3u * 27 * 27 + 1u * 27 + 20);
+		AssertCanCreateIdFromString("Z CAT", 26u * 27 * 27 * 27 * 27 + 3 * 27 * 27 + 1 * 27 + 20);
 	}
 
 	TEST(TEST_CLASS, CanCreateAroundKnownValue) {
-		AssertCanCreateIdFromValue(26u * 27 * 27 * 27 * 27 + 3u * 27 * 27 + 1u * 27 + 20u, "Z CAT");
+		AssertCanCreateIdFromValue(26u * 27 * 27 * 27 * 27 + 3 * 27 * 27 + 1 * 27 + 20, "Z CAT");
 	}
 
 	TEST(TEST_CLASS, CanCreateAroundMaxString) {

@@ -24,14 +24,10 @@ namespace catapult { namespace builders {
 
 	AddressAliasBuilder::AddressAliasBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
 			: TransactionBuilder(networkIdentifier, signer)
-			, m_aliasAction()
 			, m_namespaceId()
 			, m_address()
+			, m_aliasAction()
 	{}
-
-	void AddressAliasBuilder::setAliasAction(model::AliasAction aliasAction) {
-		m_aliasAction = aliasAction;
-	}
 
 	void AddressAliasBuilder::setNamespaceId(NamespaceId namespaceId) {
 		m_namespaceId = namespaceId;
@@ -39,6 +35,10 @@ namespace catapult { namespace builders {
 
 	void AddressAliasBuilder::setAddress(const Address& address) {
 		m_address = address;
+	}
+
+	void AddressAliasBuilder::setAliasAction(model::AliasAction aliasAction) {
+		m_aliasAction = aliasAction;
 	}
 
 	size_t AddressAliasBuilder::size() const {
@@ -66,9 +66,9 @@ namespace catapult { namespace builders {
 		auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
 
 		// 2. set fixed transaction fields
-		pTransaction->AliasAction = m_aliasAction;
 		pTransaction->NamespaceId = m_namespaceId;
 		pTransaction->Address = m_address;
+		pTransaction->AliasAction = m_aliasAction;
 
 		return pTransaction;
 	}

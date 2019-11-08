@@ -20,6 +20,7 @@
 
 #pragma once
 #include "src/cache/AccountRestrictionCache.h"
+#include "src/state/AccountRestrictionUtils.h"
 #include "catapult/validators/ValidationResult.h"
 #include "catapult/types.h"
 
@@ -37,26 +38,25 @@ namespace catapult { namespace validators {
 		/// Tries to initialize the internal iterator for account restriction with \a address.
 		bool initialize(const Address& address);
 
-		/// Gets the typed account restriction specified by \a restrictionType.
+		/// Gets the typed account restriction specified by \a restrictionFlags.
 		/// \throws catapult_invalid_argument if the view does not point to a value.
-		template<typename TRestrictionValue>
-		state::TypedAccountRestriction<TRestrictionValue> get(model::AccountRestrictionType restrictionType) const {
+		const state::AccountRestriction& get(model::AccountRestrictionFlags restrictionFlags) const {
 			const auto& restrictions = m_iter.get();
-			return restrictions.template restriction<TRestrictionValue>(restrictionType);
+			return restrictions.restriction(restrictionFlags);
 		}
 
 		/// Returns \c true if \a value is allowed.
 		template<typename TRestrictionValue>
-		bool isAllowed(model::AccountRestrictionType restrictionType, const TRestrictionValue& value) {
-			auto typedRestriction = get<TRestrictionValue>(restrictionType);
-			if (0 == typedRestriction.size())
+		bool isAllowed(model::AccountRestrictionFlags restrictionFlags, const TRestrictionValue& value) {
+			const auto& restriction = get(restrictionFlags);
+			if (0 == restriction.values().size())
 				return true;
 
-			const auto& descriptor = typedRestriction.descriptor();
+			const auto& descriptor = restriction.descriptor();
 			if (state::AccountRestrictionOperationType::Allow == descriptor.operationType())
-				return typedRestriction.contains(value);
+				return restriction.contains(state::ToVector(value));
 			else
-				return !typedRestriction.contains(value);
+				return !restriction.contains(state::ToVector(value));
 		}
 
 	private:

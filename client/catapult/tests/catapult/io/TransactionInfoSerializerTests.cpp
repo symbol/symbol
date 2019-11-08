@@ -46,7 +46,7 @@ namespace catapult { namespace io {
 				uint64_t expectedAddressSize,
 				const std::shared_ptr<const model::UnresolvedAddressSet>& pAddresses) {
 			// Arrange:
-			auto transactionInfo = CreateTransactionInfoWithSize(123);
+			auto transactionInfo = CreateTransactionInfoWithSize(132);
 			transactionInfo.OptionalExtractedAddresses = pAddresses;
 
 			// Act:
@@ -55,7 +55,7 @@ namespace catapult { namespace io {
 			WriteTransactionInfo(transactionInfo, outputStream);
 
 			// Assert:
-			auto expectedSize = 2u * Hash256::Size + sizeof(uint64_t) + expectedAddressSize + 123;
+			auto expectedSize = 2u * Hash256::Size + sizeof(uint64_t) + expectedAddressSize + 132;
 			ASSERT_EQ(expectedSize, buffer.size());
 
 			auto offset = 0u;
@@ -168,7 +168,7 @@ namespace catapult { namespace io {
 	namespace {
 		void AssertCanRoundtripTransactionInfo(const std::shared_ptr<const model::UnresolvedAddressSet>& pAddresses) {
 			// Arrange:
-			auto originalTransactionInfo = CreateTransactionInfoWithSize(123);
+			auto originalTransactionInfo = CreateTransactionInfoWithSize(132);
 			originalTransactionInfo.OptionalExtractedAddresses = pAddresses;
 
 			// Act:

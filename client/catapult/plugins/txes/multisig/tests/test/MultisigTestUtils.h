@@ -20,6 +20,7 @@
 
 #pragma once
 #include "src/model/MultisigAccountModificationTransaction.h"
+#include "src/model/MultisigNotifications.h"
 #include "catapult/model/Cosignature.h"
 #include "catapult/utils/HexFormatter.h"
 #include "tests/TestHarness.h"
@@ -55,10 +56,17 @@ namespace catapult { namespace test {
 	/// Generates random cosignatures from \a cosignatories.
 	std::vector<model::Cosignature> GenerateCosignaturesFromCosignatories(const std::vector<Key>& cosignatories);
 
-	/// Creates a multisig account modification transaction from \a signer with \a modificationActions.
+	/// Creates a multisig account modification transaction from \a signer with \a numAdditions additions and \a numDeletions deletions.
 	std::unique_ptr<model::EmbeddedMultisigAccountModificationTransaction> CreateMultisigAccountModificationTransaction(
 			const Key& signer,
-			const std::vector<model::CosignatoryModificationAction>& modificationActions);
+			uint8_t numAdditions,
+			uint8_t numDeletions);
+
+	/// Creates a multisig cosignatories notification around \a signer, \a publicKeyAdditions and \a publicKeyDeletions.
+	model::MultisigCosignatoriesNotification CreateMultisigCosignatoriesNotification(
+			const Key& signer,
+			const std::vector<Key>& publicKeyAdditions,
+			const std::vector<Key>& publicKeyDeletions);
 
 	/// Makes \a multisigKey in \a cache a multisig account with \a cosignatoryKeys as cosignatories and required limits
 	/// \a minApproval and \a minRemoval.

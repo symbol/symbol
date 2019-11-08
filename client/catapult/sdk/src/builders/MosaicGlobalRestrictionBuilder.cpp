@@ -28,8 +28,8 @@ namespace catapult { namespace builders {
 			, m_referenceMosaicId()
 			, m_restrictionKey()
 			, m_previousRestrictionValue()
-			, m_previousRestrictionType()
 			, m_newRestrictionValue()
+			, m_previousRestrictionType()
 			, m_newRestrictionType()
 	{}
 
@@ -49,12 +49,12 @@ namespace catapult { namespace builders {
 		m_previousRestrictionValue = previousRestrictionValue;
 	}
 
-	void MosaicGlobalRestrictionBuilder::setPreviousRestrictionType(model::MosaicRestrictionType previousRestrictionType) {
-		m_previousRestrictionType = previousRestrictionType;
-	}
-
 	void MosaicGlobalRestrictionBuilder::setNewRestrictionValue(uint64_t newRestrictionValue) {
 		m_newRestrictionValue = newRestrictionValue;
+	}
+
+	void MosaicGlobalRestrictionBuilder::setPreviousRestrictionType(model::MosaicRestrictionType previousRestrictionType) {
+		m_previousRestrictionType = previousRestrictionType;
 	}
 
 	void MosaicGlobalRestrictionBuilder::setNewRestrictionType(model::MosaicRestrictionType newRestrictionType) {
@@ -90,8 +90,8 @@ namespace catapult { namespace builders {
 		pTransaction->ReferenceMosaicId = m_referenceMosaicId;
 		pTransaction->RestrictionKey = m_restrictionKey;
 		pTransaction->PreviousRestrictionValue = m_previousRestrictionValue;
-		pTransaction->PreviousRestrictionType = m_previousRestrictionType;
 		pTransaction->NewRestrictionValue = m_newRestrictionValue;
+		pTransaction->PreviousRestrictionType = m_previousRestrictionType;
 		pTransaction->NewRestrictionType = m_newRestrictionType;
 
 		return pTransaction;

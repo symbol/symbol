@@ -72,7 +72,8 @@ namespace catapult { namespace mocks {
 		auto pTransaction = CreateMockTransactionT<MockTransaction>(0);
 		pTransaction->SignerPublicKey = signer;
 		pTransaction->RecipientPublicKey = recipient;
-		pTransaction->Version = MakeVersion(NetworkIdentifier::Mijin_Test, 1);
+		pTransaction->Version = 1;
+		pTransaction->Network = NetworkIdentifier::Mijin_Test;
 		return pTransaction;
 	}
 

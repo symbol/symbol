@@ -44,7 +44,8 @@ namespace catapult { namespace test {
 			EXPECT_EQ(entity.SignerPublicKey, GetKeyValue(dbEntity, "signerPublicKey"));
 
 			EXPECT_EQ(entity.Version, GetInt32(dbEntity, "version"));
-			EXPECT_EQ(utils::to_underlying_type(entity.Type), GetInt32(dbEntity, "type"));
+			EXPECT_EQ(entity.Network, static_cast<model::NetworkIdentifier>(GetInt32(dbEntity, "network")));
+			EXPECT_EQ(entity.Type, static_cast<model::EntityType>(GetInt32(dbEntity, "type")));
 		}
 
 		void AssertEqualHashArray(const std::vector<Hash256>& hashes, const bsoncxx::document::view& dbHashes) {
@@ -94,8 +95,8 @@ namespace catapult { namespace test {
 	}
 
 	void AssertEqualBlockData(const model::Block& block, const bsoncxx::document::view& dbBlock) {
-		// - 4 fields from VerifiableEntity, 9 fields from Block
-		EXPECT_EQ(13u, GetFieldCount(dbBlock));
+		// - 5 fields from VerifiableEntity, 9 fields from Block
+		EXPECT_EQ(14u, GetFieldCount(dbBlock));
 		AssertEqualVerifiableEntityData(block, dbBlock);
 
 		EXPECT_EQ(block.Height, Height(GetUint64(dbBlock, "height")));

@@ -22,25 +22,41 @@
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"
+#include "tests/test/nodeps/Alignment.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace model {
 
 #define TEST_CLASS VerifiableEntityTests
 
+	// region size + alignment
+
+#define VERIFIABLE_ENTITY_FIELDS FIELD(Signature) FIELD(SignerPublicKey) FIELD(Version) FIELD(Network) FIELD(Type)
+
 	TEST(TEST_CLASS, EntityHasExpectedSize) {
 		// Arrange:
-		auto expectedSize =
-				sizeof(uint32_t) // size
-				+ sizeof(Signature) // signature
-				+ sizeof(uint16_t) // version
-				+ sizeof(uint16_t) // entity type
-				+ sizeof(Key); // signer
+		auto expectedSize = sizeof(SizePrefixedEntity) + 2 * sizeof(uint32_t);
+
+#define FIELD(X) expectedSize += sizeof(VerifiableEntity::X);
+		VERIFIABLE_ENTITY_FIELDS
+#undef FIELD
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(VerifiableEntity));
-		EXPECT_EQ(104u, sizeof(VerifiableEntity));
+		EXPECT_EQ(4u + 8 + 100, sizeof(VerifiableEntity));
 	}
+
+	TEST(TEST_CLASS, EntityHasProperAlignment) {
+#define FIELD(X) EXPECT_ALIGNED(VerifiableEntity, X);
+		VERIFIABLE_ENTITY_FIELDS
+#undef FIELD
+
+		EXPECT_EQ(0u, sizeof(VerifiableEntity) % 8);
+	}
+
+#undef VERIFIABLE_ENTITY_FIELDS
+
+	// endregion
 
 	// region insertion operator
 
@@ -48,8 +64,8 @@ namespace catapult { namespace model {
 		// Arrange:
 		VerifiableEntity entity;
 		entity.Size = 121;
+		entity.Version = 2;
 		entity.Type = Entity_Type_Nemesis_Block;
-		entity.Version = MakeVersion(NetworkIdentifier::Zero, 2);
 
 		// Act:
 		auto str = test::ToString(entity);

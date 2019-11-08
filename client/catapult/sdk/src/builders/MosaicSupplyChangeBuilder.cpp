@@ -25,20 +25,20 @@ namespace catapult { namespace builders {
 	MosaicSupplyChangeBuilder::MosaicSupplyChangeBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
 			: TransactionBuilder(networkIdentifier, signer)
 			, m_mosaicId()
-			, m_action()
 			, m_delta()
+			, m_action()
 	{}
 
 	void MosaicSupplyChangeBuilder::setMosaicId(UnresolvedMosaicId mosaicId) {
 		m_mosaicId = mosaicId;
 	}
 
-	void MosaicSupplyChangeBuilder::setAction(model::MosaicSupplyChangeAction action) {
-		m_action = action;
-	}
-
 	void MosaicSupplyChangeBuilder::setDelta(Amount delta) {
 		m_delta = delta;
+	}
+
+	void MosaicSupplyChangeBuilder::setAction(model::MosaicSupplyChangeAction action) {
+		m_action = action;
 	}
 
 	size_t MosaicSupplyChangeBuilder::size() const {
@@ -67,8 +67,8 @@ namespace catapult { namespace builders {
 
 		// 2. set fixed transaction fields
 		pTransaction->MosaicId = m_mosaicId;
-		pTransaction->Action = m_action;
 		pTransaction->Delta = m_delta;
+		pTransaction->Action = m_action;
 
 		return pTransaction;
 	}

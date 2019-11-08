@@ -69,9 +69,9 @@ namespace catapult { namespace observers {
 						ASSERT_EQ(sizeof(model::BalanceChangeReceipt), receipt.Size);
 						EXPECT_EQ(1u, receipt.Version);
 						EXPECT_EQ(TTraits::Debit_Receipt_Type, receipt.Type);
+						EXPECT_EQ(notification.Mosaic.MosaicId, test::UnresolveXor(receipt.Mosaic.MosaicId));
+						EXPECT_EQ(notification.Mosaic.Amount, receipt.Mosaic.Amount);
 						EXPECT_EQ(notification.Signer, receipt.TargetPublicKey);
-						EXPECT_EQ(notification.Mosaic.MosaicId, test::UnresolveXor(receipt.MosaicId));
-						EXPECT_EQ(notification.Mosaic.Amount, receipt.Amount);
 					});
 		}
 

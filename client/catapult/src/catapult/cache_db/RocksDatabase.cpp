@@ -161,7 +161,7 @@ namespace catapult { namespace cache {
 		if (status.ok())
 			return;
 
-		// note: this is intentional, in case of not found status will be set via .setFound() above
+		// note: this is intentional, in case of not found status will be set via `setFound` above
 		if (!status.IsNotFound())
 			CATAPULT_THROW_DB_KEY_ERROR("could not retrieve value");
 	}

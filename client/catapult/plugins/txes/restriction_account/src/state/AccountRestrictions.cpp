@@ -24,11 +24,11 @@
 namespace catapult { namespace state {
 
 	AccountRestrictions::AccountRestrictions(const Address& address) : m_address(address) {
-		addRestriction(model::AccountRestrictionType::Address, Address::Size);
-		addRestriction(model::AccountRestrictionType::Address | model::AccountRestrictionType::Outgoing, Address::Size);
-		addRestriction(model::AccountRestrictionType::MosaicId, sizeof(MosaicId));
+		addRestriction(model::AccountRestrictionFlags::Address, Address::Size);
+		addRestriction(model::AccountRestrictionFlags::Address | model::AccountRestrictionFlags::Outgoing, Address::Size);
+		addRestriction(model::AccountRestrictionFlags::MosaicId, sizeof(MosaicId));
 		addRestriction(
-				model::AccountRestrictionType::TransactionType | model::AccountRestrictionType::Outgoing,
+				model::AccountRestrictionFlags::TransactionType | model::AccountRestrictionFlags::Outgoing,
 				sizeof(model::EntityType));
 	}
 
@@ -46,12 +46,12 @@ namespace catapult { namespace state {
 		});
 	}
 
-	const AccountRestriction& AccountRestrictions::restriction(model::AccountRestrictionType restrictionType) const {
-		return restriction<const RestrictionsMap, const AccountRestriction>(m_restrictions, restrictionType);
+	const AccountRestriction& AccountRestrictions::restriction(model::AccountRestrictionFlags restrictionFlags) const {
+		return restriction<const RestrictionsMap, const AccountRestriction>(m_restrictions, restrictionFlags);
 	}
 
-	AccountRestriction& AccountRestrictions::restriction(model::AccountRestrictionType restrictionType) {
-		return restriction<RestrictionsMap, AccountRestriction>(m_restrictions, restrictionType);
+	AccountRestriction& AccountRestrictions::restriction(model::AccountRestrictionFlags restrictionFlags) {
+		return restriction<RestrictionsMap, AccountRestriction>(m_restrictions, restrictionFlags);
 	}
 
 	AccountRestrictions::const_iterator AccountRestrictions::begin() const {
@@ -62,7 +62,7 @@ namespace catapult { namespace state {
 		return m_restrictions.cend();
 	}
 
-	void AccountRestrictions::addRestriction(model::AccountRestrictionType restrictionType, size_t restrictionValueSize) {
-		m_restrictions.emplace(restrictionType, AccountRestriction(restrictionType, restrictionValueSize));
+	void AccountRestrictions::addRestriction(model::AccountRestrictionFlags restrictionFlags, size_t restrictionValueSize) {
+		m_restrictions.emplace(restrictionFlags, AccountRestriction(restrictionFlags, restrictionValueSize));
 	}
 }}

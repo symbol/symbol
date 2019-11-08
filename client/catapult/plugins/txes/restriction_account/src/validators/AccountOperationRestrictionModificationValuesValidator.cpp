@@ -22,20 +22,18 @@
 
 namespace catapult { namespace validators {
 
-	using Notification = model::ModifyAccountOperationRestrictionNotification;
+	using Notification = model::ModifyAccountOperationRestrictionsNotification;
 
 	namespace {
-		bool AreAllAccountRestrictionValuesValid(
-				const model::AccountRestrictionModification<model::EntityType>* pModifications,
-				size_t modificationsCount) {
-			return std::all_of(pModifications, pModifications + modificationsCount, [](const auto& modification) {
-				return model::BasicEntityType::Transaction == model::ToBasicEntityType(modification.Value);
+		bool AreAllAccountRestrictionValuesValid(const model::EntityType* pEntityTypes, size_t numEntityTypes) {
+			return std::all_of(pEntityTypes, pEntityTypes + numEntityTypes, [](auto entityType) {
+				return model::BasicEntityType::Transaction == model::ToBasicEntityType(entityType);
 			});
 		}
 	}
 
 	DEFINE_STATELESS_VALIDATOR(AccountOperationRestrictionModificationValues, [](const Notification& notification) {
-		return AreAllAccountRestrictionValuesValid(notification.ModificationsPtr, notification.ModificationsCount)
+		return AreAllAccountRestrictionValuesValid(notification.RestrictionAdditionsPtr, notification.RestrictionAdditionsCount)
 				? ValidationResult::Success
 				: Failure_RestrictionAccount_Invalid_Value;
 	});

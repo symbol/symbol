@@ -19,6 +19,7 @@
 **/
 
 #include "src/state/AccountRestrictionsSerializer.h"
+#include "src/state/AccountRestrictionUtils.h"
 #include "catapult/model/EntityType.h"
 #include "tests/test/AccountRestrictionTestUtils.h"
 #include "tests/test/core/SerializerOrderingTests.h"
@@ -33,7 +34,7 @@ namespace catapult { namespace state {
 		auto CalculateExpectedSize(const AccountRestrictions& restrictions) {
 			auto size = Address::Size + sizeof(uint64_t);
 			for (const auto& pair : restrictions)
-				size += sizeof(uint8_t) + sizeof(uint64_t) + pair.second.values().size() * pair.second.valueSize();
+				size += sizeof(model::AccountRestrictionFlags) + sizeof(uint64_t) + pair.second.values().size() * pair.second.valueSize();
 
 			return size;
 		}
@@ -45,29 +46,24 @@ namespace catapult { namespace state {
 		void AssertBuffer(const AccountRestrictions& restrictions, const std::vector<uint8_t>& buffer, size_t expectedSize) {
 			ASSERT_EQ(expectedSize, buffer.size());
 
-			const auto* pData = buffer.data();
-			EXPECT_EQ(restrictions.address(), reinterpret_cast<const Address&>(*pData));
-			pData += Address::Size;
-
-			EXPECT_EQ(restrictions.size(), reinterpret_cast<const uint64_t&>(*pData));
-			pData += sizeof(uint64_t);
+			test::BufferReader reader(buffer);
+			EXPECT_EQ(restrictions.address(), reader.read<Address>());
+			EXPECT_EQ(restrictions.size(), reader.read<uint64_t>());
 
 			auto i = 0u;
 			for (const auto& pair : restrictions) {
 				auto message = "restrictions, restriction at index " + std::to_string(i);
 				const auto& restriction = pair.second;
-				EXPECT_EQ(restriction.descriptor().raw(), static_cast<model::AccountRestrictionType>(*pData)) << message;
-				++pData;
+				EXPECT_EQ(restriction.descriptor().raw(), reader.read<model::AccountRestrictionFlags>()) << message;
 
 				const auto& values = restriction.values();
-				EXPECT_EQ(values.size(), *reinterpret_cast<const uint64_t*>(pData)) << message;
-				pData += sizeof(uint64_t);
+				EXPECT_EQ(values.size(), reader.read<uint64_t>()) << message;
 
 				auto j = 0u;
 				for (const auto& value : values) {
 					auto message2 = message + ", value at index " + std::to_string(j);
-					AssertEqualData(value, pData, message2);
-					pData += restriction.valueSize();
+					AssertEqualData(value, reader.data(), message2);
+					reader.advance(restriction.valueSize());
 					++j;
 				}
 
@@ -118,13 +114,13 @@ namespace catapult { namespace state {
 			}
 
 			static void AddKeys(AccountRestrictions& restrictions, const std::vector<Address>& addresses) {
-				auto& restriction = restrictions.restriction(model::AccountRestrictionType::Address);
+				auto& restriction = restrictions.restriction(model::AccountRestrictionFlags::Address);
 				for (const auto& address : addresses)
 					restriction.allow({ model::AccountRestrictionModificationAction::Add, ToVector(address) });
 			}
 
 			static constexpr size_t GetKeyStartBufferOffset() {
-				return Address::Size + sizeof(uint64_t) + sizeof(uint8_t);
+				return Address::Size + sizeof(uint64_t) + sizeof(model::AccountRestrictionFlags);
 			}
 		};
 	}
@@ -134,37 +130,37 @@ namespace catapult { namespace state {
 	}
 
 	namespace {
-		size_t GetValueSize(model::AccountRestrictionType restrictionType) {
-			auto strippedRestrictionType = AccountRestrictionDescriptor(restrictionType).restrictionType();
-			switch (strippedRestrictionType) {
-			case model::AccountRestrictionType::Address:
+		size_t GetValueSize(model::AccountRestrictionFlags restrictionFlags) {
+			auto strippedRestrictionFlags = AccountRestrictionDescriptor(restrictionFlags).restrictionFlags();
+			switch (strippedRestrictionFlags) {
+			case model::AccountRestrictionFlags::Address:
 				return Address::Size;
-			case model::AccountRestrictionType::MosaicId:
+			case model::AccountRestrictionFlags::MosaicId:
 				return sizeof(MosaicId);
-			case model::AccountRestrictionType::TransactionType:
+			case model::AccountRestrictionFlags::TransactionType:
 				return sizeof(model::EntityType);
 			default:
-				CATAPULT_THROW_INVALID_ARGUMENT_1("invalid restriction type", static_cast<uint16_t>(restrictionType));
+				CATAPULT_THROW_INVALID_ARGUMENT_1("invalid restriction flags", utils::to_underlying_type(restrictionFlags));
 			}
 		}
 
-		void AssertAccountRestrictionTypes(
-				const std::vector<model::AccountRestrictionType>& expectedAccountRestrictionTypes,
+		void AssertAccountRestrictionFlags(
+				const std::vector<model::AccountRestrictionFlags>& expectedAccountRestrictionFlagsContainer,
 				const RawBuffer& buffer,
 				size_t offset) {
-			ASSERT_LE(offset + sizeof(uint64_t) + expectedAccountRestrictionTypes.size() * sizeof(uint8_t), buffer.Size);
+			ASSERT_LE(offset + sizeof(uint64_t) + expectedAccountRestrictionFlagsContainer.size() * sizeof(uint8_t), buffer.Size);
 
-			const auto* pData = buffer.pData + offset;
-			ASSERT_EQ(expectedAccountRestrictionTypes.size(), *reinterpret_cast<const uint64_t*>(pData));
-			pData += sizeof(uint64_t);
-			for (auto i = 0u; i < expectedAccountRestrictionTypes.size(); ++i) {
-				auto restrictionType = reinterpret_cast<const model::AccountRestrictionType&>(*pData);
-				auto restrictionDescriptor = AccountRestrictionDescriptor(restrictionType);
-				EXPECT_EQ(expectedAccountRestrictionTypes[i], restrictionDescriptor.raw()) << "at index " << i;
-				++pData;
+			test::BufferReader reader(buffer);
+			reader.advance(offset);
+			ASSERT_EQ(expectedAccountRestrictionFlagsContainer.size(), reader.read<uint64_t>());
 
-				auto numValues = reinterpret_cast<const uint64_t&>(*pData);
-				pData += sizeof(uint64_t) + numValues * GetValueSize(restrictionDescriptor.directionalRestrictionType());
+			for (auto i = 0u; i < expectedAccountRestrictionFlagsContainer.size(); ++i) {
+				auto restrictionFlags = reader.read<model::AccountRestrictionFlags>();
+				auto restrictionDescriptor = AccountRestrictionDescriptor(restrictionFlags);
+				EXPECT_EQ(expectedAccountRestrictionFlagsContainer[i], restrictionDescriptor.raw()) << "at index " << i;
+
+				auto numValues = reader.read<uint64_t>();
+				reader.advance(numValues * GetValueSize(restrictionDescriptor.directionalRestrictionFlags()));
 			}
 		}
 
@@ -173,8 +169,8 @@ namespace catapult { namespace state {
 			// - empty restrictions always have Block flag set
 			constexpr auto Add = model::AccountRestrictionModificationAction::Add;
 			AccountRestrictions restrictions(test::GenerateRandomByteArray<Address>());
-			model::RawAccountRestrictionModification modification{ Add, test::GenerateRandomVector(sizeof(MosaicId)) };
-			restrictions.restriction(model::AccountRestrictionType::MosaicId).allow(modification);
+			model::AccountRestrictionModification modification{ Add, test::GenerateRandomVector(sizeof(MosaicId)) };
+			restrictions.restriction(model::AccountRestrictionFlags::MosaicId).allow(modification);
 
 			std::vector<uint8_t> buffer;
 			mocks::MockMemoryStream stream(buffer);
@@ -183,14 +179,14 @@ namespace catapult { namespace state {
 			AccountRestrictionsSerializer::Save(restrictions, stream);
 
 			// Assert:
-			constexpr auto Block = model::AccountRestrictionType::Block;
-			std::vector<model::AccountRestrictionType> orderedAccountRestrictionTypes{
-				model::AccountRestrictionType::Address | Block,
-				model::AccountRestrictionType::MosaicId,
-				model::AccountRestrictionType::Address | model::AccountRestrictionType::Outgoing | Block,
-				model::AccountRestrictionType::TransactionType | model::AccountRestrictionType::Outgoing | Block
+			constexpr auto Block = model::AccountRestrictionFlags::Block;
+			std::vector<model::AccountRestrictionFlags> orderedAccountRestrictionFlagsContainer{
+				model::AccountRestrictionFlags::Address | Block,
+				model::AccountRestrictionFlags::MosaicId,
+				model::AccountRestrictionFlags::Address | model::AccountRestrictionFlags::Outgoing | Block,
+				model::AccountRestrictionFlags::TransactionType | model::AccountRestrictionFlags::Outgoing | Block
 			};
-			AssertAccountRestrictionTypes(orderedAccountRestrictionTypes, buffer, Address::Size);
+			AssertAccountRestrictionFlags(orderedAccountRestrictionFlagsContainer, buffer, Address::Size);
 		}
 	}
 

@@ -20,7 +20,6 @@
 
 #include "src/observers/Observers.h"
 #include "catapult/cache_core/AccountStateCache.h"
-#include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/plugins/AccountObserverTestContext.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
 #include "tests/TestHarness.h"
@@ -29,6 +28,8 @@ namespace catapult { namespace observers {
 
 	DEFINE_COMMON_OBSERVER_TESTS(AccountAddress,)
 	DEFINE_COMMON_OBSERVER_TESTS(AccountPublicKey,)
+
+	// region traits
 
 	namespace {
 		struct AddressTraits {
@@ -62,9 +63,11 @@ namespace catapult { namespace observers {
 
 #define ACCOUNT_KEY_TEST(TEST_NAME) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(AccountAddressObserverTests, TEST_NAME##_Id) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressTraits>(); } \
-	TEST(AccountPublicKeyObserverTests, TEST_NAME##_Name) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PublicKeyTraits>(); } \
+	TEST(AccountAddressObserverTests, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressTraits>(); } \
+	TEST(AccountPublicKeyObserverTests, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PublicKeyTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+	// endregion
 
 	// region commit
 

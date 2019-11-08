@@ -38,6 +38,9 @@ namespace catapult { namespace model {
 		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Secret_Lock, 1)
 
 	public:
+		/// Secret.
+		Hash256 Secret;
+
 		/// Locked mosaic.
 		UnresolvedMosaic Mosaic;
 
@@ -46,9 +49,6 @@ namespace catapult { namespace model {
 
 		/// Hash algorithm.
 		LockHashAlgorithm HashAlgorithm;
-
-		/// Secret.
-		Hash256 Secret;
 
 		/// Locked mosaic recipient address.
 		UnresolvedAddress RecipientAddress;

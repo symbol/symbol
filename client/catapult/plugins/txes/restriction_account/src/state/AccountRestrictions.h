@@ -19,7 +19,7 @@
 **/
 
 #pragma once
-#include "TypedAccountRestriction.h"
+#include "AccountRestriction.h"
 #include "catapult/types.h"
 
 namespace catapult { namespace state {
@@ -27,7 +27,7 @@ namespace catapult { namespace state {
 	/// Account restrictions.
 	class AccountRestrictions {
 	private:
-		using RestrictionsMap = std::map<model::AccountRestrictionType, AccountRestriction>;
+		using RestrictionsMap = std::map<model::AccountRestrictionFlags, AccountRestriction>;
 		using const_iterator = RestrictionsMap::const_iterator;
 
 	public:
@@ -45,18 +45,11 @@ namespace catapult { namespace state {
 		bool isEmpty() const;
 
 	public:
-		/// Gets the const typed account restriction specified by \a restrictionType.
-		template<typename TRestrictionValue>
-		TypedAccountRestriction<TRestrictionValue> restriction(model::AccountRestrictionType restrictionType) const {
-			const auto& restriction = this->restriction<const RestrictionsMap, const AccountRestriction>(m_restrictions, restrictionType);
-			return TypedAccountRestriction<TRestrictionValue>(restriction);
-		}
+		/// Gets the const account restriction specified by \a restrictionFlags.
+		const AccountRestriction& restriction(model::AccountRestrictionFlags restrictionFlags) const;
 
-		/// Gets the const account restriction specified by \a restrictionType.
-		const AccountRestriction& restriction(model::AccountRestrictionType restrictionType) const;
-
-		/// Gets the account restriction specified by \a restrictionType.
-		AccountRestriction& restriction(model::AccountRestrictionType restrictionType);
+		/// Gets the account restriction specified by \a restrictionFlags.
+		AccountRestriction& restriction(model::AccountRestrictionFlags restrictionFlags);
 
 	public:
 		/// Gets a const iterator to the first account restriction.
@@ -66,14 +59,14 @@ namespace catapult { namespace state {
 		const_iterator end() const;
 
 	private:
-		void addRestriction(model::AccountRestrictionType restrictionType, size_t restrictionValueSize);
+		void addRestriction(model::AccountRestrictionFlags restrictionFlags, size_t restrictionValueSize);
 
 	private:
 		template<typename TRestrictionsMap, typename TAccountRestriction>
-		static TAccountRestriction& restriction(TRestrictionsMap& restrictionsMap, model::AccountRestrictionType restrictionType) {
-			auto iter = restrictionsMap.find(AccountRestrictionDescriptor(restrictionType).directionalRestrictionType());
+		static TAccountRestriction& restriction(TRestrictionsMap& restrictionsMap, model::AccountRestrictionFlags restrictionFlags) {
+			auto iter = restrictionsMap.find(AccountRestrictionDescriptor(restrictionFlags).directionalRestrictionFlags());
 			if (restrictionsMap.cend() == iter)
-				CATAPULT_THROW_INVALID_ARGUMENT_1("unknown account restriction type", static_cast<uint16_t>(restrictionType));
+				CATAPULT_THROW_INVALID_ARGUMENT_1("unknown account restriction flags", utils::to_underlying_type(restrictionFlags));
 
 			return iter->second;
 		}

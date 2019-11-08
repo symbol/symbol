@@ -51,7 +51,8 @@ namespace catapult { namespace test {
 	std::unique_ptr<model::Transaction> GenerateRandomTransaction(const Key& signer) {
 		auto pTransaction = mocks::CreateMockTransaction(12);
 		pTransaction->SignerPublicKey = signer;
-		pTransaction->Version = model::MakeVersion(model::NetworkIdentifier::Mijin_Test, 1);
+		pTransaction->Version = 1;
+		pTransaction->Network = model::NetworkIdentifier::Mijin_Test;
 		return PORTABLE_MOVE(pTransaction);
 	}
 
@@ -91,6 +92,7 @@ namespace catapult { namespace test {
 		auto pTransaction = mocks::CreateMockTransaction(sizeof(uint64_t));
 		pTransaction->SignerPublicKey = keyPair.publicKey();
 		pTransaction->Version = 1;
+		pTransaction->Network = model::NetworkIdentifier::Zero;
 		pTransaction->MaxFee = Amount(2468);
 		pTransaction->Deadline = Timestamp(45678);
 		pTransaction->RecipientPublicKey = crypto::ParseKey("72B69A64B20AF34C3815073647C8A2354800E8E83B718303909ABDC0F38E7ED7");

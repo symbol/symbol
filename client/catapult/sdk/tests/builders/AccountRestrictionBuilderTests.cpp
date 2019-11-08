@@ -29,26 +29,25 @@ namespace catapult { namespace builders {
 #define TEST_CLASS AccountRestrictionBuilderTests
 
 	namespace {
-		template<typename TModification>
+		template<typename TRestrictionValue>
 		struct TransactionPropertiesT {
 		public:
-			TransactionPropertiesT() : RestrictionType(model::AccountRestrictionType(0))
+			TransactionPropertiesT() : RestrictionFlags(model::AccountRestrictionFlags(0))
 			{}
 
 		public:
-			model::AccountRestrictionType RestrictionType;
-			std::vector<TModification> Modifications;
+			model::AccountRestrictionFlags RestrictionFlags;
+			std::vector<TRestrictionValue> RestrictionAdditions;
+			std::vector<TRestrictionValue> RestrictionDeletions;
 		};
 
 		// region traits
 
 		template<typename TRestrictionValue>
 		struct ModificationTraitsMixin {
-			using Modification = model::AccountRestrictionModification<TRestrictionValue>;
-			using Modifications = std::vector<Modification>;
-			using TransactionProperties = TransactionPropertiesT<Modification>;
+			using TransactionProperties = TransactionPropertiesT<TRestrictionValue>;
 
-			static constexpr size_t Restriction_Modification_Size = 1 + sizeof(TRestrictionValue);
+			static constexpr size_t Restriction_Size = sizeof(TRestrictionValue);
 		};
 
 		struct AddressTraits : public ModificationTraitsMixin<UnresolvedAddress> {
@@ -95,19 +94,29 @@ namespace catapult { namespace builders {
 
 		// endregion
 
-		template<typename TTransactionProperties, typename TTransaction>
-		void AssertTransactionProperties(const TTransactionProperties& expectedProperties, const TTransaction& transaction) {
-			EXPECT_EQ(expectedProperties.RestrictionType, transaction.RestrictionType);
+		template<typename TRestrictionValue>
+		void AssertValues(const std::vector<TRestrictionValue>& expectedValues, const TRestrictionValue* pValues, uint16_t numValues) {
+			ASSERT_EQ(expectedValues.size(), numValues);
 
 			auto i = 0u;
-			const auto* pModification = transaction.ModificationsPtr();
-			for (const auto& modification : expectedProperties.Modifications) {
-				auto rawAction = static_cast<uint16_t>(modification.ModificationAction);
-				EXPECT_EQ(modification.ModificationAction, pModification->ModificationAction)
-						<< "action " << rawAction << " at index " << i;
-				EXPECT_EQ(modification.Value, pModification->Value) << "at index " << i;
-				++pModification;
+			for (const auto& expectedValue : expectedValues) {
+				EXPECT_EQ(expectedValue, pValues[i]) << "value " << expectedValue << " at index " << i;
+				++i;
 			}
+		}
+
+		template<typename TTransactionProperties, typename TTransaction>
+		void AssertTransactionProperties(const TTransactionProperties& expectedProperties, const TTransaction& transaction) {
+			EXPECT_EQ(expectedProperties.RestrictionFlags, transaction.RestrictionFlags);
+
+			AssertValues(
+					expectedProperties.RestrictionAdditions,
+					transaction.RestrictionAdditionsPtr(),
+					transaction.RestrictionAdditionsCount);
+			AssertValues(
+					expectedProperties.RestrictionDeletions,
+					transaction.RestrictionDeletionsPtr(),
+					transaction.RestrictionDeletionsCount);
 		}
 
 		template<typename TTraits, typename TRestrictionTraits>
@@ -128,7 +137,8 @@ namespace catapult { namespace builders {
 			TTraits::CheckBuilderSize(additionalSize, builder);
 			TTraits::CheckFields(additionalSize, *pTransaction);
 			EXPECT_EQ(signer, pTransaction->SignerPublicKey);
-			EXPECT_EQ(0x6201, pTransaction->Version);
+			EXPECT_EQ(1u, pTransaction->Version);
+			EXPECT_EQ(static_cast<model::NetworkIdentifier>(0x62), pTransaction->Network);
 			EXPECT_EQ(TRestrictionTraits::TransactionType(), pTransaction->Type);
 
 			AssertTransactionProperties(expectedProperties, *pTransaction);
@@ -166,16 +176,16 @@ namespace catapult { namespace builders {
 
 	// endregion
 
-	// region Restriction type
+	// region restriction flags
 
-	TRAITS_BASED_TEST(CanSetRestrictionType) {
+	TRAITS_BASED_TEST(CanSetRestrictionFlags) {
 		// Arrange:
 		auto expectedProperties = typename TRestrictionTraits::TransactionProperties();
-		expectedProperties.RestrictionType = model::AccountRestrictionType(12);
+		expectedProperties.RestrictionFlags = model::AccountRestrictionFlags(12);
 
 		// Assert:
 		AssertCanBuildTransaction<TTraits, TRestrictionTraits>(0, expectedProperties, [](auto& builder) {
-			builder.setRestrictionType(model::AccountRestrictionType(12));
+			builder.setRestrictionFlags(model::AccountRestrictionFlags(12));
 		});
 	}
 
@@ -185,63 +195,62 @@ namespace catapult { namespace builders {
 
 	namespace {
 		template<typename TRestrictionTraits>
-		auto CreateModifications(uint8_t count) {
-			typename TRestrictionTraits::Modifications modifications;
-			for (auto i = 0u; i < count; ++i) {
-				auto action = 0 == i % 2
-						? model::AccountRestrictionModificationAction::Add
-						: model::AccountRestrictionModificationAction::Del;
-				modifications.push_back({ action, TRestrictionTraits::RandomUnresolvedValue() });
-			}
+		auto CreateRestrictionValues(uint8_t count) {
+			std::vector<decltype(TRestrictionTraits::RandomUnresolvedValue())> values;
+			for (auto i = 0u; i < count; ++i)
+				values.push_back(TRestrictionTraits::RandomUnresolvedValue());
 
-			return modifications;
-		}
-
-		template<typename TRestrictionTraits>
-		void AddAll(typename TRestrictionTraits::BuilderType& builder, const typename TRestrictionTraits::Modifications& modifications) {
-			for (const auto& modification : modifications)
-				builder.addModification(modification);
+			return values;
 		}
 	}
 
-	TRAITS_BASED_TEST(CanAddSingleModification) {
+	TRAITS_BASED_TEST(CanAddSingleValueAddition) {
 		// Arrange:
 		auto expectedProperties = typename TRestrictionTraits::TransactionProperties();
-		expectedProperties.Modifications = CreateModifications<TRestrictionTraits>(1);
-		const auto& modifications = expectedProperties.Modifications;
+		expectedProperties.RestrictionAdditions = CreateRestrictionValues<TRestrictionTraits>(1);
+		const auto& restrictionAdditions = expectedProperties.RestrictionAdditions;
 
 		// Assert:
-		auto totalCosignatorySize = TRestrictionTraits::Restriction_Modification_Size;
-		AssertCanBuildTransaction<TTraits, TRestrictionTraits>(totalCosignatorySize, expectedProperties, [&modifications](auto& builder) {
-			AddAll<TRestrictionTraits>(builder, modifications);
+		auto additionalSize = TRestrictionTraits::Restriction_Size;
+		AssertCanBuildTransaction<TTraits, TRestrictionTraits>(additionalSize, expectedProperties, [&restrictionAdditions](auto& builder) {
+			for (const auto& value : restrictionAdditions)
+				builder.addRestrictionAddition(value);
 		});
 	}
 
-	TRAITS_BASED_TEST(CanAddMultipleModifications) {
+	TRAITS_BASED_TEST(CanAddSingleValueDeletion) {
 		// Arrange:
 		auto expectedProperties = typename TRestrictionTraits::TransactionProperties();
-		expectedProperties.Modifications = CreateModifications<TRestrictionTraits>(5);
-		const auto& modifications = expectedProperties.Modifications;
+		expectedProperties.RestrictionDeletions = CreateRestrictionValues<TRestrictionTraits>(1);
+		const auto& restrictionDeletions = expectedProperties.RestrictionDeletions;
 
 		// Assert:
-		auto totalCosignatorySize = 5 * TRestrictionTraits::Restriction_Modification_Size;
-		AssertCanBuildTransaction<TTraits, TRestrictionTraits>(totalCosignatorySize, expectedProperties, [&modifications](auto& builder) {
-			AddAll<TRestrictionTraits>(builder, modifications);
+		auto additionalSize = TRestrictionTraits::Restriction_Size;
+		AssertCanBuildTransaction<TTraits, TRestrictionTraits>(additionalSize, expectedProperties, [&restrictionDeletions](auto& builder) {
+			for (const auto& value : restrictionDeletions)
+				builder.addRestrictionDeletion(value);
 		});
 	}
 
-	TRAITS_BASED_TEST(CanSetRestrictionTypeAndAddModifications) {
+	TRAITS_BASED_TEST(CanSetRestrictionFlagsAndAdditionsAndDeletions) {
 		// Arrange:
 		auto expectedProperties = typename TRestrictionTraits::TransactionProperties();
-		expectedProperties.RestrictionType = model::AccountRestrictionType(12);
-		expectedProperties.Modifications = CreateModifications<TRestrictionTraits>(4);
-		const auto& modifications = expectedProperties.Modifications;
+		expectedProperties.RestrictionFlags = model::AccountRestrictionFlags(12);
+		expectedProperties.RestrictionAdditions = CreateRestrictionValues<TRestrictionTraits>(4);
+		expectedProperties.RestrictionDeletions = CreateRestrictionValues<TRestrictionTraits>(2);
+		const auto& restrictionAdditions = expectedProperties.RestrictionAdditions;
+		const auto& restrictionDeletions = expectedProperties.RestrictionDeletions;
 
 		// Assert:
-		auto totalCosignatorySize = 4 * TRestrictionTraits::Restriction_Modification_Size;
-		AssertCanBuildTransaction<TTraits, TRestrictionTraits>(totalCosignatorySize, expectedProperties, [&modifications](auto& builder) {
-			builder.setRestrictionType(model::AccountRestrictionType(12));
-			AddAll<TRestrictionTraits>(builder, modifications);
+		auto additionalSize = 6 * TRestrictionTraits::Restriction_Size;
+		AssertCanBuildTransaction<TTraits, TRestrictionTraits>(additionalSize, expectedProperties, [&](auto& builder) {
+			builder.setRestrictionFlags(model::AccountRestrictionFlags(12));
+
+			for (const auto& value : restrictionAdditions)
+				builder.addRestrictionAddition(value);
+
+			for (const auto& value : restrictionDeletions)
+				builder.addRestrictionDeletion(value);
 		});
 	}
 

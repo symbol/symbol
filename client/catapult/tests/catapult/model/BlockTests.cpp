@@ -22,31 +22,52 @@
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/TransactionContainerTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"
+#include "tests/test/nodeps/Alignment.h"
 
 namespace catapult { namespace model {
 
 #define TEST_CLASS BlockTests
 
-	TEST(TEST_CLASS, EntityHasExpectedSize) {
+	// region size + alignment
+
+#define BLOCK_FIELDS \
+	FIELD(Height) \
+	FIELD(Timestamp) \
+	FIELD(Difficulty) \
+	FIELD(PreviousBlockHash) \
+	FIELD(TransactionsHash) \
+	FIELD(ReceiptsHash) \
+	FIELD(StateHash) \
+	FIELD(BeneficiaryPublicKey) \
+	FIELD(FeeMultiplier)
+
+	TEST(TEST_CLASS, BlockHasExpectedSize) {
 		// Arrange:
-		auto expectedSize =
-				sizeof(VerifiableEntity) // base
-				+ sizeof(uint64_t) // height
-				+ sizeof(uint64_t) // timestamp
-				+ sizeof(uint64_t) // difficulty
-				+ sizeof(uint32_t) // fee multiplier
-				+ Hash256::Size // previous block hash
-				+ Hash256::Size // block transactions hash
-				+ Hash256::Size // block receipts hash
-				+ Hash256::Size // state hash
-				+ Key::Size; // beneficiary
+		auto expectedSize = sizeof(VerifiableEntity) + Block::Footer_Size;
+
+#define FIELD(X) expectedSize += sizeof(Block::X);
+		BLOCK_FIELDS
+#undef FIELD
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(BlockHeader));
-		EXPECT_EQ(104u + 188u, sizeof(BlockHeader));
+		EXPECT_EQ(112u + 4 + 188, sizeof(BlockHeader));
 
-		EXPECT_EQ(sizeof(BlockHeader), sizeof(decltype(Block()))); // use decltype to bypass lint rule
+		using BlockAlias = Block; // use alias to bypass lint rule
+		EXPECT_EQ(sizeof(BlockHeader), sizeof(BlockAlias));
 	}
+
+	TEST(TEST_CLASS, BlockHasProperAlignment) {
+#define FIELD(X) EXPECT_ALIGNED(Block, X);
+		BLOCK_FIELDS
+#undef FIELD
+
+		EXPECT_EQ(0u, sizeof(BlockHeader) % 8);
+	}
+
+#undef BLOCK_FIELDS
+
+	// endregion
 
 	// region test utils
 
@@ -64,7 +85,9 @@ namespace catapult { namespace model {
 
 		mocks::MockTransaction& GetSecondTransaction(Block& block) {
 			uint8_t* pBytes = reinterpret_cast<uint8_t*>(block.TransactionsPtr());
-			return *reinterpret_cast<mocks::MockTransaction*>(pBytes + block.TransactionsPtr()->Size);
+			auto firstTransactionSize = block.TransactionsPtr()->Size;
+			auto paddingSize = utils::GetPaddingSize(firstTransactionSize, 8);
+			return *reinterpret_cast<mocks::MockTransaction*>(pBytes + firstTransactionSize + paddingSize);
 		}
 	}
 

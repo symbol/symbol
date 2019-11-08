@@ -29,33 +29,30 @@ namespace catapult { namespace state {
 	namespace {
 		constexpr auto Add = model::AccountRestrictionModificationAction::Add;
 		constexpr size_t Custom_Value_Size = 53;
-		constexpr auto Custom_RestrictionAccount_Type = static_cast<model::AccountRestrictionType>(0x78);
+		constexpr auto Custom_RestrictionAccount_Flags = static_cast<model::AccountRestrictionFlags>(0x78);
 
 		using CustomAccountRestriction = std::array<uint8_t, Custom_Value_Size>;
-		using CustomAccountRestrictionModifications = std::vector<model::AccountRestrictionModification<CustomAccountRestriction>>;
 		using RawAccountRestrictionValue = AccountRestriction::RawValue;
 		using RawAccountRestrictionValues = std::vector<RawAccountRestrictionValue>;
+		using CustomAccountRestrictionModifications = std::vector<model::AccountRestrictionModification>;
 
 		using OperationType = AccountRestrictionOperationType;
 
 		struct TestContext {
 		public:
 			explicit TestContext(const std::vector<model::AccountRestrictionModificationAction>& modificationActions) {
-				for (auto modificationAction : modificationActions) {
-					Modifications.push_back({ modificationAction, test::GenerateRandomArray<Custom_Value_Size>() });
-					Values.push_back(Modifications.back().Value);
-				}
+				for (auto modificationAction : modificationActions)
+					Modifications.push_back({ modificationAction, test::GenerateRandomVector(Custom_Value_Size) });
 			}
 
 		public:
 			CustomAccountRestrictionModifications Modifications;
-			std::vector<CustomAccountRestriction> Values;
 		};
 
 		RawAccountRestrictionValues ExtractRawAccountRestrictionValues(const CustomAccountRestrictionModifications& modifications) {
 			RawAccountRestrictionValues values;
 			for (const auto& modification : modifications)
-				values.push_back(ToVector(modification.Value));
+				values.push_back(modification.Value);
 
 			return values;
 		}
@@ -63,15 +60,15 @@ namespace catapult { namespace state {
 		AccountRestriction CreateWithOperationType(
 				OperationType operationType,
 				const CustomAccountRestrictionModifications& modifications) {
-			auto restrictionType = OperationType::Allow == operationType
-					? Custom_RestrictionAccount_Type
-					: Custom_RestrictionAccount_Type | model::AccountRestrictionType::Block;
-			AccountRestriction restriction(restrictionType, Custom_Value_Size);
+			auto restrictionFlags = OperationType::Allow == operationType
+					? Custom_RestrictionAccount_Flags
+					: Custom_RestrictionAccount_Flags | model::AccountRestrictionFlags::Block;
+			AccountRestriction restriction(restrictionFlags, Custom_Value_Size);
 			for (const auto& modification : modifications) {
 				if (OperationType::Allow == operationType)
-					restriction.allow({ modification.ModificationAction, ToVector(modification.Value) });
+					restriction.allow({ modification.ModificationAction, modification.Value });
 				else
-					restriction.block({ modification.ModificationAction, ToVector(modification.Value) });
+					restriction.block({ modification.ModificationAction, modification.Value });
 			}
 
 			return restriction;
@@ -175,20 +172,20 @@ namespace catapult { namespace state {
 
 	TEST(TEST_CLASS, CanCreateAccountRestriction) {
 		// Act:
-		AccountRestriction restriction(Custom_RestrictionAccount_Type, Custom_Value_Size);
+		AccountRestriction restriction(Custom_RestrictionAccount_Flags, Custom_Value_Size);
 
 		// Assert:
-		EXPECT_EQ(Custom_RestrictionAccount_Type, restriction.descriptor().directionalRestrictionType());
+		EXPECT_EQ(Custom_RestrictionAccount_Flags, restriction.descriptor().directionalRestrictionFlags());
 		EXPECT_EQ(OperationType::Block, restriction.descriptor().operationType());
 		EXPECT_EQ(
-				model::AccountRestrictionType(Custom_RestrictionAccount_Type | model::AccountRestrictionType::Block),
+				model::AccountRestrictionFlags(Custom_RestrictionAccount_Flags | model::AccountRestrictionFlags::Block),
 				restriction.descriptor().raw());
 		EXPECT_TRUE(restriction.values().empty());
 	}
 
 	TEST(TEST_CLASS, AccountRestrictionValueSizeReturnsExpectedSize) {
 		// Arrange:
-		AccountRestriction restriction(Custom_RestrictionAccount_Type, Custom_Value_Size);
+		AccountRestriction restriction(Custom_RestrictionAccount_Flags, Custom_Value_Size);
 
 		// Act + Assert:
 		EXPECT_EQ(Custom_Value_Size, restriction.valueSize());
@@ -240,10 +237,10 @@ namespace catapult { namespace state {
 		auto restriction = TTraits::Create(context.Modifications);
 
 		// Act + Assert:
-		EXPECT_FALSE(TTraits::CanAdd(restriction, ToVector(context.Values[1])));
+		EXPECT_FALSE(TTraits::CanAdd(restriction, context.Modifications[1].Value));
 	}
 
-	TRAITS_BASED_TEST(CanAddValueWhenOperationTypeConflictsAccountRestrictionTypeButValuesAreEmpty) {
+	TRAITS_BASED_TEST(CanAddValueWhenOperationTypeConflictsAccountRestrictionFlagsButValuesAreEmpty) {
 		// Arrange:
 		TestContext context({});
 		auto restriction = TTraits::CreateWithOppositeOperationType(context.Modifications);
@@ -252,7 +249,7 @@ namespace catapult { namespace state {
 		EXPECT_TRUE(TTraits::CanAdd(restriction, test::GenerateRandomVector(Custom_Value_Size)));
 	}
 
-	TRAITS_BASED_TEST(CannotAddValueWhenOperationTypeConflictsAccountRestrictionTypeAndValuesAreNotEmpty) {
+	TRAITS_BASED_TEST(CannotAddValueWhenOperationTypeConflictsAccountRestrictionFlagsAndValuesAreNotEmpty) {
 		// Arrange:
 		TestContext context({ Add, Add, Add });
 		auto restriction = TTraits::CreateWithOppositeOperationType(context.Modifications);
@@ -267,7 +264,7 @@ namespace catapult { namespace state {
 		auto restriction = TTraits::Create(context.Modifications);
 
 		// Act + Assert:
-		EXPECT_TRUE(TTraits::CanRemove(restriction, ToVector(context.Values[1])));
+		EXPECT_TRUE(TTraits::CanRemove(restriction, context.Modifications[1].Value));
 	}
 
 	TRAITS_BASED_TEST(CannotRemoveValueWhenValueSizeIsInvalid) {
@@ -289,13 +286,13 @@ namespace catapult { namespace state {
 		EXPECT_FALSE(TTraits::CanRemove(restriction, test::GenerateRandomVector(Custom_Value_Size)));
 	}
 
-	TRAITS_BASED_TEST(CannotRemoveValueWhenOperationTypeConflictsAccountRestrictionTypeAndValuesAreNotEmpty) {
+	TRAITS_BASED_TEST(CannotRemoveValueWhenOperationTypeConflictsAccountRestrictionFlagsAndValuesAreNotEmpty) {
 		// Arrange:
 		TestContext context({ Add, Add, Add });
 		auto restriction = TTraits::CreateWithOppositeOperationType(context.Modifications);
 
 		// Act + Assert:
-		EXPECT_FALSE(TTraits::CanRemove(restriction, ToVector(context.Values[1])));
+		EXPECT_FALSE(TTraits::CanRemove(restriction, context.Modifications[1].Value));
 	}
 
 	TRAITS_BASED_TEST(AddAddsValueToSet) {
@@ -317,7 +314,7 @@ namespace catapult { namespace state {
 		// Arrange:
 		TestContext context({ Add, Add, Add });
 		auto restriction = TTraits::Create(context.Modifications);
-		auto value = ToVector(context.Values[1]);
+		auto value = context.Modifications[1].Value;
 		TTraits::Remove(restriction, value);
 
 		// Sanity:
@@ -346,7 +343,7 @@ namespace catapult { namespace state {
 		// Arrange:
 		TestContext context({ Add, Add, Add });
 		auto restriction = TTraits::Create(context.Modifications);
-		auto value = ToVector(context.Values[1]);
+		auto value = context.Modifications[1].Value;
 
 		// Act:
 		TTraits::Remove(restriction, value);
@@ -386,7 +383,7 @@ namespace catapult { namespace state {
 		// Arrange:
 		TestContext context({ Add });
 		auto restriction = AllowTraits::Create(context.Modifications);
-		auto value = ToVector(context.Values[0]);
+		auto value = context.Modifications[0].Value;
 
 		// Sanity:
 		EXPECT_EQ(OperationType::Allow, restriction.descriptor().operationType());

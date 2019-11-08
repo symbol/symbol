@@ -20,15 +20,13 @@
 
 #include "Observers.h"
 #include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/model/EntityType.h"
-#include "catapult/model/TransactionPlugin.h"
 
 namespace catapult { namespace observers {
 
 	namespace {
-		class DefaultAccountVisitor {
+		class AccountStateCacheVisitor {
 		public:
-			explicit DefaultAccountVisitor(const ObserverContext& context) : m_context(context)
+			explicit AccountStateCacheVisitor(const ObserverContext& context) : m_context(context)
 			{}
 
 		public:
@@ -58,14 +56,14 @@ namespace catapult { namespace observers {
 	DEFINE_OBSERVER(AccountAddress, model::AccountAddressNotification, [](
 			const model::AccountAddressNotification& notification,
 			const ObserverContext& context) {
-		DefaultAccountVisitor visitor(context);
+		AccountStateCacheVisitor visitor(context);
 		visitor.visit(notification.Address);
 	});
 
 	DEFINE_OBSERVER(AccountPublicKey, model::AccountPublicKeyNotification, [](
 			const model::AccountPublicKeyNotification& notification,
 			const ObserverContext& context) {
-		DefaultAccountVisitor visitor(context);
+		AccountStateCacheVisitor visitor(context);
 		visitor.visit(notification.PublicKey);
 	});
 }}

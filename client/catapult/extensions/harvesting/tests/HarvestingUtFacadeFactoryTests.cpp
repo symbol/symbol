@@ -638,33 +638,51 @@ namespace catapult { namespace harvesting {
 			return model::CalculateMerkleHash(*statementBuilder.build());
 		}
 
-		Hash256 CalculateEnabledTestStateHash(
-				const cache::CatapultCache& cache,
-				const std::vector<model::TransactionInfo>& transactionInfos,
-				const std::vector<size_t>& indexToMultiplierMap = {}) {
-			auto cacheDetachableDelta = cache.createDetachableDelta();
-			auto cacheDetachedDelta = cacheDetachableDelta.detach();
-			auto pCacheDelta = cacheDetachedDelta.tryLock();
+		class TestStateHashCalculator {
+		public:
+			explicit TestStateHashCalculator(const cache::CatapultCache& cache)
+					: m_cacheDetachableDelta(cache.createDetachableDelta())
+					, m_cacheDetachedDelta(m_cacheDetachableDelta.detach())
+					, m_pCacheDelta(m_cacheDetachedDelta.tryLock())
+			{}
 
-			auto i = 1u;
-			for (auto& transactionInfo : transactionInfos) {
-				auto& accountStateCacheDelta = pCacheDelta->sub<cache::AccountStateCache>();
-				auto accountStateIter = accountStateCacheDelta.find(transactionInfo.pEntity->SignerPublicKey);
-				auto& accountState = accountStateIter.get();
+		public:
+			void creditSurpluses(
+					const std::vector<model::TransactionInfo>& transactionInfos,
+					const std::vector<size_t>& indexToMultiplierMap = {}) {
+				auto i = 1u;
+				auto& accountStateCacheDelta = m_pCacheDelta->sub<cache::AccountStateCache>();
+				for (auto& transactionInfo : transactionInfos) {
+					auto accountStateIter = accountStateCacheDelta.find(transactionInfo.pEntity->SignerPublicKey);
+					auto& accountState = accountStateIter.get();
 
-				// apply fee surplus to balance and fees paid
-				auto multiplier = indexToMultiplierMap.empty() ? i : indexToMultiplierMap[i - 1];
-				auto surplus = Amount(multiplier * transactionInfo.pEntity->Size);
-				accountState.Balances.credit(Currency_Mosaic_Id, surplus);
-				accountState.ActivityBuckets.tryUpdate(accountState.ImportanceSnapshots.height(), [surplus](auto& bucket) {
-					bucket.TotalFeesPaid = bucket.TotalFeesPaid - surplus;
-				});
+					// apply fee surplus to balance and fees paid
+					auto multiplier = indexToMultiplierMap.empty() ? i : indexToMultiplierMap[i - 1];
+					auto surplus = Amount(multiplier * transactionInfo.pEntity->Size);
+					accountState.Balances.credit(Currency_Mosaic_Id, surplus);
+					accountState.ActivityBuckets.tryUpdate(accountState.ImportanceSnapshots.height(), [surplus](auto& bucket) {
+						bucket.TotalFeesPaid = bucket.TotalFeesPaid - surplus;
+					});
 
-				++i;
+					++i;
+				}
 			}
 
-			return pCacheDelta->calculateStateHash(Default_Height + Height(1)).StateHash;
-		}
+			void addNewRecipientAccounts(const utils::KeySet& publicKeys, Height height) {
+				auto& accountStateCacheDelta = m_pCacheDelta->sub<cache::AccountStateCache>();
+				for (const auto& publicKey : publicKeys)
+					accountStateCacheDelta.addAccount(publicKey, height);
+			}
+
+			Hash256 calculate() {
+				return m_pCacheDelta->calculateStateHash(Default_Height + Height(1)).StateHash;
+			}
+
+		private:
+			cache::CatapultCacheDetachableDelta m_cacheDetachableDelta;
+			cache::CatapultCacheDetachedDelta m_cacheDetachedDelta;
+			std::unique_ptr<cache::CatapultCacheDelta> m_pCacheDelta;
+		};
 
 		template<typename TAssertHashes>
 		void RunEnabledTest(StateVerifyOptions verifyOptions, uint32_t numTransactions, TAssertHashes assertHashes) {
@@ -687,7 +705,11 @@ namespace catapult { namespace harvesting {
 			ASSERT_TRUE(!!pBlock);
 
 			auto expectedReceiptsHash = CalculateEnabledTestReceiptsHash(2 * (numTransactions + 1));
-			auto expectedStateHash = CalculateEnabledTestStateHash(context.cache(), transactionInfos);
+
+			TestStateHashCalculator calculator(context.cache());
+			calculator.creditSurpluses(transactionInfos);
+			auto expectedStateHash = calculator.calculate();
+
 			assertHashes(expectedReceiptsHash, expectedStateHash, *pBlock);
 		}
 	}
@@ -742,45 +764,77 @@ namespace catapult { namespace harvesting {
 
 	// region commit - verifiable state correct after undo
 
-	TEST(TEST_CLASS, NonzeroHashesAreReturnedWhenVerifiableReceiptsAndStateAreEnabledAfterUnapplyOperation) {
-		// Arrange: prepare context
-		test::MockExecutionConfiguration executionConfig;
-		executionConfig.pObserver->enableReceiptGeneration();
-		executionConfig.pObserver->enableRollbackEmulation();
-		FacadeTestContext context(
-				CreateBlockChainConfiguration(StateVerifyOptions::All),
-				executionConfig.Config,
-				Default_Height + Height(1));
+	namespace {
+		utils::KeySet ExtractDependentPublicKeys(const std::vector<model::TransactionInfo>& transactionInfos) {
+			utils::KeySet publicKeys;
+			for (const auto& transactionInfo : transactionInfos)
+				publicKeys.insert(reinterpret_cast<const Key&>(transactionInfo.EntityHash));
 
-		auto pBlockHeader = CreateBlockHeaderWithHeight(Default_Height + Height(1));
-		pBlockHeader->FeeMultiplier = BlockFeeMultiplier(1);
-		context.prepareSignerAccount(pBlockHeader->SignerPublicKey);
+			// add public key coerced from zero hash associated with block
+			publicKeys.insert(Key());
+			return publicKeys;
+		}
 
-		auto transactionInfos = CreateTransactionInfosWithIncreasingMultipliers(5);
-		context.prepareTransactionSignerAccounts(transactionInfos);
+		void AssertValidHashesAreReturnedAfterUnapplyOperation(const consumer<std::vector<model::TransactionInfo>&>& mutator) {
+			// Arrange: prepare context
+			test::MockExecutionConfiguration executionConfig;
+			executionConfig.pObserver->enableReceiptGeneration();
+			executionConfig.pObserver->enableRollbackEmulation();
+			executionConfig.pNotificationPublisher->emulatePublicKeyNotifications();
+			FacadeTestContext context(
+					CreateBlockChainConfiguration(StateVerifyOptions::All),
+					executionConfig.Config,
+					Default_Height + Height(1));
 
-		// Act: apply 5 transactions and unapply 2
-		auto pBlock = context.generate(*pBlockHeader, transactionInfos, 2);
+			auto pBlockHeader = CreateBlockHeaderWithHeight(Default_Height + Height(1));
+			pBlockHeader->FeeMultiplier = BlockFeeMultiplier(1);
+			context.prepareSignerAccount(pBlockHeader->SignerPublicKey);
 
-		// Assert: check the block execution dependent hashes
-		ASSERT_TRUE(!!pBlock);
+			auto transactionInfos = CreateTransactionInfosWithIncreasingMultipliers(5);
+			mutator(transactionInfos);
+			context.prepareTransactionSignerAccounts(transactionInfos);
 
-		std::vector<model::TransactionInfo> expectedTransactionInfos;
-		for (auto i = 0u; i < 3; ++i)
-			expectedTransactionInfos.push_back(transactionInfos[i].copy());
+			// Act: apply 5 transactions and unapply 2
+			auto pBlock = context.generate(*pBlockHeader, transactionInfos, 2);
 
-		auto expectedReceiptsHash = CalculateEnabledTestReceiptsHash(2 * (3 + 1));
-		auto expectedStateHash = CalculateEnabledTestStateHash(context.cache(), expectedTransactionInfos);
+			// Assert: check the block execution dependent hashes
+			ASSERT_TRUE(!!pBlock);
 
-		EXPECT_EQ(expectedReceiptsHash, pBlock->ReceiptsHash);
-		EXPECT_EQ(expectedStateHash, pBlock->StateHash);
+			std::vector<model::TransactionInfo> expectedTransactionInfos;
+			for (auto i = 0u; i < 3; ++i)
+				expectedTransactionInfos.push_back(transactionInfos[i].copy());
+
+			auto expectedReceiptsHash = CalculateEnabledTestReceiptsHash(2 * (3 + 1));
+
+			TestStateHashCalculator calculator(context.cache());
+			calculator.creditSurpluses(expectedTransactionInfos);
+			calculator.addNewRecipientAccounts(ExtractDependentPublicKeys(expectedTransactionInfos), Default_Height + Height(1));
+			auto expectedStateHash = calculator.calculate();
+
+			EXPECT_EQ(expectedReceiptsHash, pBlock->ReceiptsHash);
+			EXPECT_EQ(expectedStateHash, pBlock->StateHash);
+		}
 	}
 
-	TEST(TEST_CLASS, NonzeroHashesAreReturnedWhenVerifiableReceiptsAndStateAreEnabledAfterApplyOperationWithSomeFailures) {
+	TEST(TEST_CLASS, ValidHashesAreReturnedAfterUnapplyOperation) {
+		AssertValidHashesAreReturnedAfterUnapplyOperation([](const auto&) {});
+	}
+
+	TEST(TEST_CLASS, ValidHashesAreReturnedAfterUnapplyOperationThatAffectsAppliedAccounts) {
+		AssertValidHashesAreReturnedAfterUnapplyOperation([](auto& transactionInfos) {
+			// Arrange: use alternating entity hashes
+			auto i = 0u;
+			for (auto& transactionInfo : transactionInfos)
+				transactionInfo.EntityHash = transactionInfos[i++ % 2].EntityHash;
+		});
+	}
+
+	TEST(TEST_CLASS, ValidHashesAreReturnedAfterApplyOperationWithSomeFailures) {
 		// Arrange: prepare context
 		test::MockExecutionConfiguration executionConfig;
 		executionConfig.pObserver->enableReceiptGeneration();
 		executionConfig.pObserver->enableRollbackEmulation();
+		executionConfig.pNotificationPublisher->emulatePublicKeyNotifications();
 		FacadeTestContext context(
 				CreateBlockChainConfiguration(StateVerifyOptions::All),
 				executionConfig.Config,
@@ -808,11 +862,15 @@ namespace catapult { namespace harvesting {
 			expectedTransactionInfos.push_back(transactionInfos[i].copy());
 
 		auto expectedReceiptsHash = CalculateEnabledTestReceiptsHash(2 * (3 + 1));
-		auto expectedStateHash = CalculateEnabledTestStateHash(context.cache(), expectedTransactionInfos, {
+
+		TestStateHashCalculator calculator(context.cache());
+		calculator.creditSurpluses(expectedTransactionInfos, {
 			// multipliers are configured as `index + 1`, but there are gaps because transactions at indexes 1 and 3 were dropped
 			// remaining transactions have initial indexes of { 0, 2, 4 }, which implies multipliers of { 1, 3, 5 }
 			1, 3, 5
 		});
+		calculator.addNewRecipientAccounts(ExtractDependentPublicKeys(expectedTransactionInfos), Default_Height + Height(1));
+		auto expectedStateHash = calculator.calculate();
 
 		EXPECT_EQ(expectedReceiptsHash, pBlock->ReceiptsHash);
 		EXPECT_EQ(expectedStateHash, pBlock->StateHash);

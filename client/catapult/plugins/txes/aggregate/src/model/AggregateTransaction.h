@@ -34,10 +34,19 @@ namespace catapult { namespace model {
 	public:
 		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Aggregate_Complete, 1)
 
+		/// Size of the footer that can be skipped when signing/verifying.
+		static constexpr size_t Footer_Size = 2 * sizeof(uint32_t);
+
 	public:
+		/// Aggregate hash of an aggregate's transactions.
+		Hash256 TransactionsHash;
+
 		/// Transaction payload size in bytes.
 		/// \note This is the total number bytes occupied by all sub-transactions.
 		uint32_t PayloadSize;
+
+		/// Reserved padding to align end of AggregateTransactionHeader on 8-byte boundary.
+		uint32_t AggregateTransactionHeader_Reserved1;
 
 		// followed by sub-transaction data
 		// followed by cosignatures data

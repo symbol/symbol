@@ -107,9 +107,9 @@ namespace catapult { namespace observers {
 				ASSERT_EQ(sizeof(model::BalanceChangeReceipt), receipt.Size) << message;
 				EXPECT_EQ(1u, receipt.Version) << message;
 				EXPECT_EQ(TTraits::Receipt_Type, receipt.Type) << message;
+				EXPECT_EQ(expectedReceipt.MosaicId, receipt.Mosaic.MosaicId) << message;
+				EXPECT_EQ(expectedReceipt.LockAmount, receipt.Mosaic.Amount) << message;
 				EXPECT_EQ(expectedReceipt.PublicKey, receipt.TargetPublicKey) << message;
-				EXPECT_EQ(expectedReceipt.MosaicId, receipt.MosaicId) << message;
-				EXPECT_EQ(expectedReceipt.LockAmount, receipt.Amount) << message;
 				++i;
 			}
 		}

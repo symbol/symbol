@@ -20,6 +20,7 @@
 
 #include "Validators.h"
 #include "src/cache/AccountRestrictionCache.h"
+#include "src/state/AccountRestrictionUtils.h"
 #include "catapult/model/Address.h"
 #include "catapult/validators/ValidatorContext.h"
 
@@ -44,18 +45,18 @@ namespace catapult { namespace validators {
 
 			auto restrictionsIter = cache.find(address);
 			const auto& restrictions = restrictionsIter.get();
-			auto restrictionType = notification.AccountRestrictionDescriptor.directionalRestrictionType();
-			auto typedRestriction = restrictions.template restriction<TRestrictionValue>(restrictionType);
+			auto restrictionFlags = notification.AccountRestrictionDescriptor.directionalRestrictionFlags();
+			const auto& restriction = restrictions.restriction(restrictionFlags);
 			auto operationType = notification.AccountRestrictionDescriptor.operationType();
 
-			auto modification = model::AccountRestrictionModification<TRestrictionValue>{
-				notification.Modification.ModificationAction,
-				Resolve(context.Resolvers, notification.Modification.Value)
+			auto modification = model::AccountRestrictionModification{
+				notification.Action,
+				state::ToVector(Resolve(context.Resolvers, notification.RestrictionValue))
 			};
 
 			using OperationType = state::AccountRestrictionOperationType;
-			auto isAllowAndForbidden = OperationType::Allow == operationType && !typedRestriction.canAllow(modification);
-			auto isBlockAndForbidden = OperationType::Block == operationType && !typedRestriction.canBlock(modification);
+			auto isAllowAndForbidden = OperationType::Allow == operationType && !restriction.canAllow(modification);
+			auto isBlockAndForbidden = OperationType::Block == operationType && !restriction.canBlock(modification);
 			return isAllowAndForbidden || isBlockAndForbidden
 					? Failure_RestrictionAccount_Invalid_Modification
 					: ValidationResult::Success;

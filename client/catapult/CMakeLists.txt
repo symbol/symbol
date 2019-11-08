@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.2)
 project(catapult_server)
 include(CMakeGlobalSettings.cmake)
 option(ENABLE_CODE_COVERAGE "Enable code coverage" OFF)
+option(ENABLE_TESTS "Enable tests" ON)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
@@ -52,7 +53,7 @@ add_subdirectory(external)
 
 # run catapult tests first
 add_subdirectory(src)
-add_subdirectory(tests)
+catapult_add_tests_subdirectory(tests)
 
 # run other tests second
 add_subdirectory(sdk)

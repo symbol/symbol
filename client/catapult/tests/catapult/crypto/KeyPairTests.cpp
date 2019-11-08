@@ -46,7 +46,7 @@ namespace catapult { namespace crypto {
 
 	TEST(TEST_CLASS, CanCreateKeyPairFromValidString) {
 		// Arrange:
-#ifdef SIGNATURE_SCHEME_NIS1
+#ifdef SIGNATURE_SCHEME_KECCAK
 		auto rawKeyString = std::string("CBD84EF8F5F38A25C01308785EA99627DE897D151AFDFCDA7AB07EFD8ED98534");
 		auto expectedKey = utils::ParseByteArray<Key>("C54D6E33ED1446EEDD7F7A80A588DD01857F723687A09200C1917D5524752F8B");
 #else
@@ -93,7 +93,7 @@ namespace catapult { namespace crypto {
 
 	TEST(TEST_CLASS, PassesNemTestVectors) {
 		// Arrange:
-#ifdef SIGNATURE_SCHEME_NIS1
+#ifdef SIGNATURE_SCHEME_KECCAK
 		// from nem https://github.com/NewEconomyMovement/nem-test-vectors)
 		std::string dataSet[] {
 			"ED4C70D78104EB11BCD73EBDC512FEBC8FBCEB36A370C957FF7E266230BB5D57",

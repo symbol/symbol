@@ -19,11 +19,13 @@
 **/
 
 #include "src/model/AccountMetadataTransaction.h"
+#include "src/model/MetadataTypes.h"
 #include "src/model/MosaicMetadataTransaction.h"
 #include "src/model/NamespaceMetadataTransaction.h"
 #include "catapult/utils/MemoryUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/VariableSizedEntityTestUtils.h"
+#include "tests/test/nodeps/Alignment.h"
 #include "tests/test/nodeps/NumericTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -59,23 +61,57 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region size + properties
+	// region size + alignment + properties
+
+#define TRANSACTION_FIELDS FIELD(TargetPublicKey) FIELD(ScopedMetadataKey) FIELD(ValueSizeDelta) FIELD(ValueSize)
 
 	namespace {
 		template<typename T>
-		void AssertEntityHasExpectedSize(size_t baseSize, EntityType, size_t expectedTargetIdSize) {
+		void AssertTransactionHasExpectedSize(size_t baseSize, EntityType, size_t expectedTargetIdSize) {
 			// Arrange:
-			auto expectedSize =
-					baseSize // base
-					+ Key::Size // target public key
-					+ sizeof(uint64_t) // scoped metadata key
-					+ expectedTargetIdSize // target id
-					+ sizeof(uint16_t) // previous value size
-					+ sizeof(uint16_t); // value size
+			auto expectedSize = baseSize + expectedTargetIdSize;
+
+#define FIELD(X) expectedSize += sizeof(T::X);
+			TRANSACTION_FIELDS
+#undef FIELD
 
 			// Assert:
 			EXPECT_EQ(expectedSize, sizeof(T));
 			EXPECT_EQ(baseSize + expectedTargetIdSize + 44u, sizeof(T));
+		}
+
+		using AccountMetadataFlag = std::integral_constant<MetadataType, MetadataType::Account>;
+		using MosaicMetadataFlag = std::integral_constant<MetadataType, MetadataType::Mosaic>;
+		using NamespaceMetadataFlag = std::integral_constant<MetadataType, MetadataType::Namespace>;
+
+		template<typename T, typename = void>
+		struct MetadataTypeAccessor : public AccountMetadataFlag {};
+
+		template<typename T>
+		struct MetadataTypeAccessor<
+				T,
+				utils::traits::is_type_expression_t<decltype(reinterpret_cast<const T*>(0)->TargetMosaicId)>>
+				: public MosaicMetadataFlag
+		{};
+
+		template<typename T>
+		struct MetadataTypeAccessor<
+				T,
+				utils::traits::is_type_expression_t<decltype(reinterpret_cast<const T*>(0)->TargetNamespaceId)>>
+				: public NamespaceMetadataFlag
+		{};
+
+		template<typename T>
+		void AssertTransactionHasProperAlignment() {
+#define FIELD(X) EXPECT_ALIGNED(T, X);
+			TRANSACTION_FIELDS
+#undef FIELD
+
+			if constexpr (std::is_base_of_v<MosaicMetadataFlag, MetadataTypeAccessor<T>>)
+				EXPECT_ALIGNED(T, TargetMosaicId);
+
+			if constexpr (std::is_base_of_v<NamespaceMetadataFlag, MetadataTypeAccessor<T>>)
+				EXPECT_ALIGNED(T, TargetNamespaceId);
 		}
 
 		template<typename T>
@@ -85,6 +121,8 @@ namespace catapult { namespace model {
 			EXPECT_EQ(1u, T::Current_Version);
 		}
 	}
+
+#undef TRANSACTION_FIELDS
 
 	ADD_BASIC_TRANSACTION_SIZE_PROPERTY_TESTS_WITH_ARGS(AccountMetadata, Entity_Type_Account_Metadata, 0)
 	ADD_BASIC_TRANSACTION_SIZE_PROPERTY_TESTS_WITH_ARGS(MosaicMetadata, Entity_Type_Mosaic_Metadata, sizeof(uint64_t))

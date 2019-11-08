@@ -37,12 +37,14 @@ namespace catapult { namespace validators {
 		void AssertValidationResult(
 				ValidationResult expectedResult,
 				const Key& signer,
-				const model::AccountRestrictionModification<UnresolvedAddress>& modification) {
+				model::AccountRestrictionModificationAction action,
+				UnresolvedAddress& restrictionValue) {
 			// Arrange:
 			model::ModifyAccountAddressRestrictionValueNotification notification(
 					signer,
-					model::AccountRestrictionType::Address,
-					modification);
+					model::AccountRestrictionFlags::Address,
+					restrictionValue,
+					action);
 			auto pValidator = CreateAccountAddressRestrictionNoSelfModificationValidator(model::NetworkIdentifier::Zero);
 
 			// Act:
@@ -56,24 +58,21 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, FailureWhenSignerIsValueInModification_Add) {
 		auto key = test::GenerateRandomByteArray<Key>();
 		auto address = model::PublicKeyToAddress(key, model::NetworkIdentifier::Zero);
-		AssertValidationResult(Failure_RestrictionAccount_Invalid_Modification_Address, key, {
-			Add,
-			extensions::CopyToUnresolvedAddress(address)
-		});
+		auto unresolvedAddress = extensions::CopyToUnresolvedAddress(address);
+		AssertValidationResult(Failure_RestrictionAccount_Invalid_Modification_Address, key, Add, unresolvedAddress);
 	}
 
 	TEST(TEST_CLASS, FailureWhenSignerIsValueInModification_Del) {
 		auto key = test::GenerateRandomByteArray<Key>();
 		auto address = model::PublicKeyToAddress(key, model::NetworkIdentifier::Zero);
-		AssertValidationResult(Failure_RestrictionAccount_Invalid_Modification_Address, key, {
-			Del,
-			extensions::CopyToUnresolvedAddress(address)
-		});
+		auto unresolvedAddress = extensions::CopyToUnresolvedAddress(address);
+		AssertValidationResult(Failure_RestrictionAccount_Invalid_Modification_Address, key, Del, unresolvedAddress);
 	}
 
 	TEST(TEST_CLASS, SuccessWhenSignerIsNotValueInModification) {
 		auto key = test::GenerateRandomByteArray<Key>();
 		auto address = test::GenerateRandomByteArray<Address>();
-		AssertValidationResult(ValidationResult::Success, key, { Add, extensions::CopyToUnresolvedAddress(address) });
+		auto unresolvedAddress = extensions::CopyToUnresolvedAddress(address);
+		AssertValidationResult(ValidationResult::Success, key, Add, unresolvedAddress);
 	}
 }}

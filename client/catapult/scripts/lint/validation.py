@@ -394,7 +394,10 @@ class TypoChecker(SimpleValidator):
             re.compile(r'/// Returns [^\\]'): 'prefer /// Gets for non boolean values',
             re.compile(r'/// Gets \\c (true|false)'): 'prefer /// Returns for boolean values',
             re.compile(r'\\[^c] (true|false)'): 'use \\c for booleans',
-            re.compile(r'/// Gets the (const )?(pointer|reference)\b'): 'use a instead of the'
+            re.compile(r'/// Gets the (const )?(pointer|reference)\b'): 'use a instead of the',
+            re.compile(r'\d+u( [^:] \d+)*u'): 'only first `u` is needed',
+            re.compile(r' \.([^\.]|$)'): 'check spacing around \'.\'',
+            re.compile(r'Header::(Footer|Header)'): 'drop Header'
         }
 
     def check(self, lineNumber, line):
@@ -592,6 +595,8 @@ class MultiConditionChecker(SimpleValidator):
         self.patternGetsSetsDoc = re.compile(r'/// (Gets|Sets) ')
         self.patternGetsSetsDocWithArticle = re.compile(r'/// (Gets|Sets) (a|an|the|all|information)\b')
 
+        self.patternTrailingOperator = re.compile(r' (\+|-|\*|/|%|&|\||^|<<|>>)\s*$')
+
         self.errors = {
             self.checkTestLine: 'TEST should use TEST_CLASS',
             self.checkExplicitOperatorBool: 'Missing explicit before operator bool',
@@ -608,7 +613,8 @@ class MultiConditionChecker(SimpleValidator):
             self.checkTestNameIf: 'use When instead of If',
             self.checkCppDoxygenComment: '/// unexpected in cpp file',
             self.checkAutoContextParam: 'use type name instead of auto',
-            self.checkGetsSetsDocumentation: 'add an article to documentation'
+            self.checkGetsSetsDocumentation: 'add an article to documentation',
+            self.checkTrailingOperator: 'operators should start lines, not finish them'
         }
 
     def reset(self, path, errorReporter):
@@ -734,6 +740,10 @@ class MultiConditionChecker(SimpleValidator):
 
     def checkGetsSetsDocumentation(self, _, rawLine):
         return self.patternGetsSetsDoc.search(rawLine) and not self.patternGetsSetsDocWithArticle.search(rawLine)
+
+    def checkTrailingOperator(self, line, _):
+        # not part of SimpleValidator because comments and strings should be removed before applying rule
+        return self.patternTrailingOperator.search(line)
 
     def check(self, lineNumber, line):
         strippedLine = stripCommentsAndStrings(line)

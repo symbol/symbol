@@ -263,9 +263,6 @@ namespace catapult { namespace validators {
 	// region multisig account modification handling
 
 	namespace {
-		constexpr auto Add = model::CosignatoryModificationAction::Add;
-		constexpr auto Del = model::CosignatoryModificationAction::Del;
-
 		void AssertValidationResult(
 				ValidationResult expectedResult,
 				const cache::CatapultCache& cache,
@@ -291,13 +288,13 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, MultisigAccountModificationAddedAccountsGainEligibility) {
 		// Arrange:
 		auto signer = test::GenerateRandomByteArray<Key>();
-		auto pTransaction = test::CreateMultisigAccountModificationTransaction(signer, { Add, Del, Add, Del });
+		auto pTransaction = test::CreateMultisigAccountModificationTransaction(signer, 2, 2);
 		auto cache = test::MultisigCacheFactory::Create();
 
 		// Assert: added accounts are eligible cosignatories even though they aren't in the multisig cache
 		auto i = 0u;
-		const auto* pModifications = pTransaction->ModificationsPtr();
-		for (const auto& cosignatory : { signer, pModifications[0].CosignatoryPublicKey, pModifications[2].CosignatoryPublicKey }) {
+		const auto* pPublicKeyAdditions = pTransaction->PublicKeyAdditionsPtr();
+		for (const auto& cosignatory : { signer, pPublicKeyAdditions[0], pPublicKeyAdditions[1] }) {
 			CATAPULT_LOG(debug) << "cosigning with cosignatory " << i++;
 			AssertValidationResult(ValidationResult::Success, cache, signer, *pTransaction, { cosignatory });
 		}
@@ -306,13 +303,13 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, MultisigAccountModificationDeletedAccountsDoNotGainEligibility) {
 		// Arrange:
 		auto signer = test::GenerateRandomByteArray<Key>();
-		auto pTransaction = test::CreateMultisigAccountModificationTransaction(signer, { Add, Del, Add, Del });
+		auto pTransaction = test::CreateMultisigAccountModificationTransaction(signer, 2, 2);
 		auto cache = test::MultisigCacheFactory::Create();
 
 		// Assert: deleted accounts do not have any special eligibility privileges
 		auto i = 0u;
-		const auto* pModifications = pTransaction->ModificationsPtr();
-		for (const auto& cosignatory : { pModifications[1].CosignatoryPublicKey, pModifications[3].CosignatoryPublicKey }) {
+		const auto* pPublicKeyDeletions = pTransaction->PublicKeyDeletionsPtr();
+		for (const auto& cosignatory : { pPublicKeyDeletions[0], pPublicKeyDeletions[1] }) {
 			CATAPULT_LOG(debug) << "cosigning with cosignatory " << i++;
 			AssertValidationResult(Failure_Result, cache, signer, *pTransaction, { cosignatory });
 		}
@@ -321,8 +318,8 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, MultisigAccountDeletedAccountsRetainExistingEligibility) {
 		// Arrange: delete the (original eligible) embedded tx signer
 		auto signer = test::GenerateRandomByteArray<Key>();
-		auto pTransaction = test::CreateMultisigAccountModificationTransaction(signer, { Add, Del, Add, Del });
-		pTransaction->ModificationsPtr()[1].CosignatoryPublicKey = signer;
+		auto pTransaction = test::CreateMultisigAccountModificationTransaction(signer, 2, 2);
+		pTransaction->PublicKeyDeletionsPtr()[0] = signer;
 		auto cache = test::MultisigCacheFactory::Create();
 
 		// Assert: existing eligibility is retained

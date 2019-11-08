@@ -19,20 +19,28 @@
 **/
 
 #pragma once
+#include "catapult/utils/IntegerMath.h"
 #include "catapult/utils/MemoryUtils.h"
 #include "catapult/utils/NonCopyable.h"
 #include "catapult/exceptions.h"
 #include <memory>
 #include <vector>
 
+namespace catapult {
+	namespace model {
+		template<typename TEntity>
+		class EntityRange;
+
+		template<typename TEntity>
+		class EntityRangeFactoryMixin;
+	}
+}
+
 namespace catapult { namespace model {
 
-	/// Represents a range of entities.
+	/// Backing storage for a range of entities.
 	template<typename TEntity>
-	class EntityRange : public utils::MoveOnly {
-	public:
-		using value_type = TEntity;
-
+	class EntityRangeStorage : public utils::MoveOnly {
 	private:
 		// region SubRange
 
@@ -99,16 +107,25 @@ namespace catapult { namespace model {
 			SingleBufferRange() : SubRange()
 			{}
 
-			SingleBufferRange(size_t dataSize, const std::vector<size_t>& offsets)
-					: SubRange(dataSize)
-					, m_buffer(dataSize) {
-				for (auto offset : offsets)
-					SubRange::entities().push_back(reinterpret_cast<TEntity*>(&m_buffer[offset]));
-			}
+			SingleBufferRange(size_t dataSize, const std::vector<size_t>& offsets, uint8_t alignment)
+					: SingleBufferRange(nullptr, dataSize, offsets, alignment)
+			{}
 
-			SingleBufferRange(const uint8_t* pData, size_t dataSize, const std::vector<size_t>& offsets)
-					: SingleBufferRange(dataSize, offsets) {
-				utils::memcpy_cond(m_buffer.data(), pData, dataSize);
+			SingleBufferRange(const uint8_t* pData, size_t dataSize, const std::vector<size_t>& offsets, uint8_t alignment)
+					: SubRange(CalculateTotalSize(dataSize, offsets, alignment))
+					, m_buffer(SubRange::totalSize()) {
+				size_t totalPadding = 0;
+				for (auto i = 0u; i < offsets.size(); ++i) {
+					auto offset = offsets[i];
+					auto* pDest = &m_buffer[offset + totalPadding - offsets[0]];
+					SubRange::entities().push_back(reinterpret_cast<TEntity*>(pDest));
+
+					auto size = (i == offsets.size() - 1 ? dataSize : offsets[i + 1]) - offset;
+					if (pData)
+						std::memcpy(pDest, &pData[offset], size);
+
+					totalPadding += utils::GetPaddingSize(size, alignment);
+				}
 			}
 
 		public:
@@ -138,7 +155,7 @@ namespace catapult { namespace model {
 
 		public:
 			SingleBufferRange copy() const {
-				return SingleBufferRange(data(), SubRange::totalSize(), generateOffsets());
+				return SingleBufferRange(data(), SubRange::totalSize(), generateOffsets(), 1);
 			}
 
 		private:
@@ -149,6 +166,19 @@ namespace catapult { namespace model {
 					offsets[i++] = static_cast<size_t>(reinterpret_cast<const uint8_t*>(pEntity) - data());
 
 				return offsets;
+			}
+
+		private:
+			static size_t CalculateTotalSize(size_t dataSize, const std::vector<size_t>& offsets, uint8_t alignment) {
+				// this works because last entity is *not* padded
+				if (1 != alignment) {
+					for (auto i = 1u; i < offsets.size(); ++i) {
+						auto size = offsets[i] - offsets[i - 1];
+						dataSize += utils::GetPaddingSize(size, alignment);
+					}
+				}
+
+				return dataSize - (offsets.empty() ? 0 : offsets[0]);
 			}
 
 		private:
@@ -178,7 +208,7 @@ namespace catapult { namespace model {
 			}
 
 			SingleBufferRange copy() const {
-				return SingleBufferRange(reinterpret_cast<const uint8_t*>(m_pSingleEntity.get()), SubRange::totalSize(), { 0 });
+				return SingleBufferRange(reinterpret_cast<const uint8_t*>(m_pSingleEntity.get()), SubRange::totalSize(), { 0 }, 1);
 			}
 
 		private:
@@ -194,12 +224,13 @@ namespace catapult { namespace model {
 			MultiBufferRange() : SubRange()
 			{}
 
-			explicit MultiBufferRange(std::vector<EntityRange>&& ranges)
+			explicit MultiBufferRange(std::vector<EntityRangeStorage>&& ranges)
 					: SubRange(CalculateTotalSize(ranges))
 					, m_ranges(std::move(ranges)) {
-				for (auto& range : m_ranges)
-					for (auto& entity : range)
-						SubRange::entities().push_back(&entity);
+				for (auto& range : m_ranges) {
+					for (auto* pEntity : range.subRange().entities())
+						SubRange::entities().push_back(pEntity);
+				}
 			}
 
 		public:
@@ -220,7 +251,7 @@ namespace catapult { namespace model {
 
 		public:
 			MultiBufferRange copy() const {
-				std::vector<EntityRange> copyRanges;
+				std::vector<EntityRangeStorage> copyRanges;
 				for (const auto& range : m_ranges)
 					copyRanges.push_back(range.copySubRange());
 
@@ -228,55 +259,138 @@ namespace catapult { namespace model {
 			}
 
 		private:
-			static size_t CalculateTotalSize(const std::vector<EntityRange>& ranges) {
+			static size_t CalculateTotalSize(const std::vector<EntityRangeStorage>& ranges) {
 				size_t totalSize = 0;
 				for (const auto& range : ranges)
-					totalSize += range.totalSize();
+					totalSize += range.subRange().totalSize();
 
 				return totalSize;
 			}
 
 		private:
-			std::vector<EntityRange> m_ranges;
+			std::vector<EntityRangeStorage> m_ranges;
 		};
 
 		// endregion
 
 	public:
-		/// Creates an empty entity range.
-		EntityRange()
+		// region constructors
+
+		/// Creates empty storage.
+		EntityRangeStorage()
 		{}
+
+		/// Creates storage around \a subRange.
+		explicit EntityRangeStorage(SingleBufferRange&& subRange) : m_singleBufferRange(std::move(subRange))
+		{}
+
+		/// Creates storage around \a subRange.
+		explicit EntityRangeStorage(SingleEntityRange&& subRange) : m_singleEntityRange(std::move(subRange))
+		{}
+
+		/// Creates storage around \a subRange.
+		explicit EntityRangeStorage(MultiBufferRange&& subRange) : m_multiBufferRange(std::move(subRange))
+		{}
+
+		// endregion
+
+	public:
+		// region helpers
+
+		/// Throws if data is not contiguous.
+		void requireContiguousData() const {
+			if (!m_multiBufferRange.empty())
+				CATAPULT_THROW_RUNTIME_ERROR("data is not accessible when range is composed of non-contiguous data");
+		}
+
+		/// Copies the active sub range.
+		auto copySubRange() const {
+			return activeSubRangeAction([](const auto& subRange) { return EntityRangeStorage(subRange.copy()); });
+		}
+
+		/// Gets the active sub range.
+		const SubRange& subRange() const {
+			return const_cast<EntityRangeStorage&>(*this).subRange();
+		}
+
+		/// Gets the active sub range.
+		SubRange& subRange() {
+			SubRange* pSubRange;
+			activeSubRangeAction([&pSubRange](auto& subRange) { pSubRange = &subRange; });
+			return *pSubRange;
+		}
+
+		/// Detaches all entities from the active sub range.
+		auto detachSubRangeEntities() {
+			return activeSubRangeAction([](auto& subRange) {
+				auto entities = subRange.detachEntities();
+				subRange.reset();
+				return entities;
+			});
+		}
+
+		// endregion
 
 	private:
-		explicit EntityRange(SingleBufferRange&& subRange)
-				: m_singleBufferRange(std::move(subRange))
-		{}
+		// region activeSubRangeAction
 
-		explicit EntityRange(SingleEntityRange&& subRange)
-				: m_singleEntityRange(std::move(subRange))
-		{}
+		template<typename TFunc>
+		auto activeSubRangeAction(TFunc func) const {
+			return const_cast<EntityRangeStorage&>(*this).activeSubRangeAction(func);
+		}
 
-		explicit EntityRange(MultiBufferRange&& subRange)
-				: m_multiBufferRange(std::move(subRange))
-		{}
+		template<typename TFunc>
+		auto activeSubRangeAction(TFunc func) {
+			if (!m_singleEntityRange.empty())
+				return func(m_singleEntityRange);
+
+			if (!m_multiBufferRange.empty())
+				return func(m_multiBufferRange);
+
+			return func(m_singleBufferRange);
+		}
+
+		// endregion
+
+	private:
+		friend class EntityRangeFactoryMixin<TEntity>;
+
+	private:
+		SingleBufferRange m_singleBufferRange;
+		SingleEntityRange m_singleEntityRange;
+		MultiBufferRange m_multiBufferRange;
+	};
+
+	// region EntityRangeFactoryMixin
+
+	/// Mixin that adds EntityRange factory functions.
+	template<typename TEntity>
+	class EntityRangeFactoryMixin {
+	private:
+		using Range = EntityRange<TEntity>;
+		using RangeStorage = EntityRangeStorage<TEntity>;
+
+		using SingleBufferRange = typename RangeStorage::SingleBufferRange;
+		using SingleEntityRange = typename RangeStorage::SingleEntityRange;
+		using MultiBufferRange = typename RangeStorage::MultiBufferRange;
 
 	public:
 		/// Creates an uninitialized entity range of contiguous memory around \a numElements fixed size elements.
 		/// \a ppRangeData is set to point to the range memory.
-		static EntityRange PrepareFixed(size_t numElements, uint8_t** ppRangeData = nullptr) {
+		static Range PrepareFixed(size_t numElements, uint8_t** ppRangeData = nullptr) {
 			std::vector<size_t> offsets(numElements);
 			for (auto i = 0u; i < numElements; ++i)
 				offsets[i] = i * sizeof(TEntity);
 
-			auto range = EntityRange(SingleBufferRange(numElements * sizeof(TEntity), offsets));
+			auto range = Range(RangeStorage(SingleBufferRange(numElements * sizeof(TEntity), offsets, 1)));
 			if (ppRangeData)
-				*ppRangeData = range.m_singleBufferRange.data();
+				*ppRangeData = reinterpret_cast<uint8_t*>(range.data());
 
 			return range;
 		}
 
 		/// Creates an entity range around \a numElements fixed size elements pointed to by \a pData.
-		static EntityRange CopyFixed(const uint8_t* pData, size_t numElements) {
+		static Range CopyFixed(const uint8_t* pData, size_t numElements) {
 			uint8_t* pRangeData;
 			auto range = PrepareFixed(numElements, &pRangeData);
 			utils::memcpy_cond(pRangeData, pData, range.totalSize());
@@ -285,37 +399,36 @@ namespace catapult { namespace model {
 
 		/// Creates an entity range around the data pointed to by \a pData with size \a dataSize and \a offsets
 		/// container that contains values indicating the starting position of all entities in the data.
-		static EntityRange CopyVariable(const uint8_t* pData, size_t dataSize, const std::vector<size_t>& offsets) {
-			return EntityRange(SingleBufferRange(pData, dataSize, offsets));
+		/// Entities will be aligned to specified \a alignment relative to first offset.
+		static Range CopyVariable(const uint8_t* pData, size_t dataSize, const std::vector<size_t>& offsets, uint8_t alignment = 1) {
+			return Range(RangeStorage(SingleBufferRange(pData, dataSize, offsets, alignment)));
 		}
 
 		/// Creates an entity range around a single entity (\a pEntity).
-		static EntityRange FromEntity(std::unique_ptr<TEntity>&& pEntity) {
-			return EntityRange(SingleEntityRange(std::move(pEntity)));
+		static Range FromEntity(std::unique_ptr<TEntity>&& pEntity) {
+			return Range(RangeStorage(SingleEntityRange(std::move(pEntity))));
 		}
 
 		/// Merges all \a ranges into a single range.
-		static EntityRange MergeRanges(std::vector<EntityRange>&& ranges) {
-			return EntityRange(MultiBufferRange(std::move(ranges)));
-		}
+		static Range MergeRanges(std::vector<Range>&& ranges) {
+			std::vector<RangeStorage> storages;
+			storages.reserve(ranges.size());
+			for (auto& range : ranges)
+				storages.push_back(std::move(range.m_storage));
 
-	public:
-		/// Gets a value indicating whether or not this range is empty.
-		bool empty() const {
-			return subRange().empty();
+			return Range(RangeStorage(MultiBufferRange(std::move(storages))));
 		}
+	};
 
-		/// Gets the size of this range.
-		size_t size() const {
-			return subRange().size();
-		}
+	// endregion
 
-		/// Gets the total size of the range in bytes.
-		size_t totalSize() const {
-			return subRange().totalSize();
-		}
+	// region EntityRangeIteratorFactory
 
-	// region iterators
+	template<typename TEntity>
+	class EntityRangeIteratorFactory {
+	private:
+		using value_type = TEntity;
+
 	public:
 		/// Entity range iterator.
 		template<typename TIterator, typename TIteratorEntity>
@@ -395,26 +508,66 @@ namespace catapult { namespace model {
 			TIterator m_current;
 		};
 
-	private:
+	public:
+		/// Makes a const iterator initialized with \a current.
 		template<typename TIterator>
 		static auto make_const_iterator(TIterator current) {
 			return iterator<TIterator, const value_type>(current);
 		}
 
+		/// Makes an iterator initialized with \a current.
 		template<typename TIterator>
 		static auto make_iterator(TIterator current) {
 			return iterator<TIterator, value_type>(current);
+		}
+	};
+
+	// endregion
+
+	// region EntityRange
+
+	/// Represents a range of entities.
+	template<typename TEntity>
+	class EntityRange
+			: public EntityRangeFactoryMixin<TEntity>
+			, public utils::MoveOnly {
+	public:
+		using value_type = TEntity;
+
+	public:
+		/// Creates an empty entity range.
+		EntityRange()
+		{}
+
+	private:
+		explicit EntityRange(EntityRangeStorage<TEntity>&& storage) : m_storage(std::move(storage))
+		{}
+
+	public:
+		/// Gets a value indicating whether or not this range is empty.
+		bool empty() const {
+			return m_storage.subRange().empty();
+		}
+
+		/// Gets the size of this range.
+		size_t size() const {
+			return m_storage.subRange().size();
+		}
+
+		/// Gets the total size of the range in bytes.
+		size_t totalSize() const {
+			return m_storage.subRange().totalSize();
 		}
 
 	public:
 		/// Gets a const iterator that represents the first entity.
 		auto cbegin() const {
-			return make_const_iterator(subRange().entities().cbegin());
+			return EntityRangeIteratorFactory<TEntity>::make_const_iterator(m_storage.subRange().entities().cbegin());
 		}
 
 		/// Gets a const iterator that represents one past the last entity.
 		auto cend() const {
-			return make_const_iterator(subRange().entities().cend());
+			return EntityRangeIteratorFactory<TEntity>::make_const_iterator(m_storage.subRange().entities().cend());
 		}
 
 		/// Gets a const iterator that represents the first entity.
@@ -429,96 +582,51 @@ namespace catapult { namespace model {
 
 		/// Gets an iterator that represents the first entity.
 		auto begin() {
-			return make_iterator(subRange().entities().begin());
+			return EntityRangeIteratorFactory<TEntity>::make_iterator(m_storage.subRange().entities().begin());
 		}
 
 		/// Gets an iterator that represents one past the last entity.
 		auto end() {
-			return make_iterator(subRange().entities().end());
+			return EntityRangeIteratorFactory<TEntity>::make_iterator(m_storage.subRange().entities().end());
 		}
-
-	// endregion
 
 	public:
 		/// Gets a const pointer to the start of the data range.
 		/// \note This will throw if not supported.
 		const auto* data() const {
-			requireContiguousData();
+			m_storage.requireContiguousData();
 			return empty() ? nullptr : &*cbegin();
 		}
 
 		/// Gets a pointer to the start of the data range.
 		/// \note This will throw if not supported.
 		auto* data() {
-			requireContiguousData();
+			m_storage.requireContiguousData();
 			return empty() ? nullptr : &*begin();
-		}
-
-	private:
-		void requireContiguousData() const {
-			if (!m_multiBufferRange.empty())
-				CATAPULT_THROW_RUNTIME_ERROR("data is not accessible when range is composed of non-contiguous data");
 		}
 
 	public:
 		/// Creates an entity range by making a copy of an existing range \a rhs.
 		static EntityRange CopyRange(const EntityRange& rhs) {
-			return rhs.copySubRange();
+			return EntityRange(EntityRangeStorage<TEntity>(rhs.m_storage.copySubRange()));
 		}
 
 		/// Extracts a vector of entities from \a range such that each entity will extend the
 		/// lifetime of the owning range.
 		static std::vector<std::shared_ptr<TEntity>> ExtractEntitiesFromRange(EntityRange&& range) {
-			return range.detachSubRangeEntities();
+			return range.m_storage.detachSubRangeEntities();
 		}
 
 	private:
-		const SubRange& subRange() const {
-			return const_cast<EntityRange&>(*this).subRange();
-		}
-
-		SubRange& subRange() {
-			SubRange* pSubRange;
-			activeSubRangeAction([&pSubRange](auto& subRange) { pSubRange = &subRange; });
-			return *pSubRange;
-		}
-
-		auto copySubRange() const {
-			return activeSubRangeAction([](const auto& subRange) { return EntityRange(subRange.copy()); });
-		}
-
-		auto detachSubRangeEntities() {
-			return activeSubRangeAction([](auto& subRange) {
-				auto entities = subRange.detachEntities();
-				subRange.reset();
-				return entities;
-			});
-		}
-
-		template<typename TFunc>
-		auto activeSubRangeAction(TFunc func) const {
-			return const_cast<EntityRange&>(*this).activeSubRangeAction(func);
-		}
-
-		template<typename TFunc>
-		auto activeSubRangeAction(TFunc func) {
-			if (!m_singleEntityRange.empty())
-				return func(m_singleEntityRange);
-
-			if (!m_multiBufferRange.empty())
-				return func(m_multiBufferRange);
-
-			return func(m_singleBufferRange);
-		}
+		friend class EntityRangeFactoryMixin<TEntity>;
 
 	private:
-		friend class MultiBufferRange;
-
-	private:
-		SingleBufferRange m_singleBufferRange;
-		SingleEntityRange m_singleEntityRange;
-		MultiBufferRange m_multiBufferRange;
+		EntityRangeStorage<TEntity> m_storage;
 	};
+
+	// endregion
+
+	// region utils
 
 	/// Compares two entity ranges (\a lhs and \a rhs) and returns the index of the first non-equal element.
 	template<typename TEntity>
@@ -538,4 +646,6 @@ namespace catapult { namespace model {
 
 		return index;
 	}
+
+	// endregion
 }}

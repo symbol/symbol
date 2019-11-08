@@ -33,27 +33,27 @@ namespace catapult { namespace validators {
 	DEFINE_COMMON_VALIDATOR_TESTS(AccountOperationRestrictionRedundantModification,)
 
 	namespace {
-		constexpr auto Add = model::AccountRestrictionModificationAction::Add;
-		constexpr auto Del = model::AccountRestrictionModificationAction::Del;
-
 		enum class CacheSeed { No, Yes};
 
 		struct AccountAddressRestrictionTraits : public test::BaseAccountAddressRestrictionTraits {
 			static constexpr auto CreateValidator = CreateAccountAddressRestrictionRedundantModificationValidator;
 
-			using NotificationType = model::ModifyAccountAddressRestrictionNotification;
+			using NotificationType = model::ModifyAccountAddressRestrictionsNotification;
+			using VectorType = std::vector<UnresolvedValueType>;
 		};
 
 		struct AccountMosaicRestrictionTraits : public test::BaseAccountMosaicRestrictionTraits {
 			static constexpr auto CreateValidator = CreateAccountMosaicRestrictionRedundantModificationValidator;
 
-			using NotificationType = model::ModifyAccountMosaicRestrictionNotification;
+			using NotificationType = model::ModifyAccountMosaicRestrictionsNotification;
+			using VectorType = std::vector<UnresolvedValueType>;
 		};
 
 		struct AccountOperationRestrictionTraits : public test::BaseAccountOperationRestrictionTraits {
 			static constexpr auto CreateValidator = CreateAccountOperationRestrictionRedundantModificationValidator;
 
-			using NotificationType = model::ModifyAccountOperationRestrictionNotification;
+			using NotificationType = model::ModifyAccountOperationRestrictionsNotification;
+			using VectorType = std::vector<UnresolvedValueType>;
 		};
 
 		template<typename TRestrictionValueTraits, typename TModificationsFactory>
@@ -61,16 +61,18 @@ namespace catapult { namespace validators {
 			// Arrange:
 			auto values = test::GenerateUniqueRandomDataVector<typename TRestrictionValueTraits::UnresolvedValueType>(5);
 			auto modifications = modificationsFactory(values);
-			typename TRestrictionValueTraits::NotificationType notification(
+			auto notification = test::CreateAccountRestrictionsNotification<TRestrictionValueTraits>(
 					test::GenerateRandomByteArray<Key>(),
-					TRestrictionValueTraits::Restriction_Type,
-					static_cast<uint8_t>(modifications.size()),
-					modifications.data());
+					modifications.first,
+					modifications.second);
 			auto cache = test::AccountRestrictionCacheFactory::Create();
 			if (CacheSeed::Yes == cacheSeed) {
 				auto address = model::PublicKeyToAddress(notification.Key, model::NetworkIdentifier::Zero);
 				auto restrictions = state::AccountRestrictions(address);
-				restrictions.restriction(TRestrictionValueTraits::Restriction_Type).allow({ Add, state::ToVector(values[1]) });
+				restrictions.restriction(TRestrictionValueTraits::Restriction_Flags).allow({
+					model::AccountRestrictionModificationAction::Add,
+					state::ToVector(values[1])
+				});
 				auto delta = cache.createDelta();
 				auto& restrictionCacheDelta = delta.template sub<cache::AccountRestrictionCache>();
 				restrictionCacheDelta.insert(restrictions);
@@ -101,66 +103,50 @@ namespace catapult { namespace validators {
 
 	TRAITS_BASED_TEST(FailureWhenValidatingNotificationWithRedundantAdds) {
 		AssertValidationResult<TTraits>(Failure_RestrictionAccount_Redundant_Modification, [](const auto& values) {
-			return std::vector<model::AccountRestrictionModification<typename TTraits::UnresolvedValueType>>{
-				{ Add, values[2] },
-				{ Add, test::CreateRandomUniqueValue(values) },
-				{ Add, values[0] },
-				{ Add, values[2] }
-			};
+			return std::make_pair(
+					typename TTraits::VectorType{ values[2], test::CreateRandomUniqueValue(values), values[0], values[2] },
+					typename TTraits::VectorType());
 		});
 	}
 
 	TRAITS_BASED_TEST(FailureWhenValidatingNotificationWithRedundantDels) {
 		AssertValidationResult<TTraits>(Failure_RestrictionAccount_Redundant_Modification, [](const auto& values) {
-			return std::vector<model::AccountRestrictionModification<typename TTraits::UnresolvedValueType>>{
-				{ Del, values[2] },
-				{ Add, test::CreateRandomUniqueValue(values) },
-				{ Add, values[0] },
-				{ Del, values[2] }
-			};
+			return std::make_pair(
+					typename TTraits::VectorType{ test::CreateRandomUniqueValue(values), values[0] },
+					typename TTraits::VectorType{ values[2], values[2] });
 		});
 	}
 
 	TRAITS_BASED_TEST(FailureWhenValidatingNotificationWithRedundantAddAndDelete) {
 		AssertValidationResult<TTraits>(Failure_RestrictionAccount_Redundant_Modification, [](const auto& values) {
-			return std::vector<model::AccountRestrictionModification<typename TTraits::UnresolvedValueType>>{
-				{ Add, values[2] },
-				{ Add, test::CreateRandomUniqueValue(values) },
-				{ Add, values[0] },
-				{ Del, values[2] }
-			};
+			return std::make_pair(
+					typename TTraits::VectorType{ values[2], test::CreateRandomUniqueValue(values), values[0] },
+					typename TTraits::VectorType{ values[2] });
 		});
 	}
 
 	TRAITS_BASED_TEST(FailureWhenValidatingNotificationWithUnknownAddressAndDelete) {
 		// Assert: account restrictions is not found in cache, so Del operation triggers failure
 		AssertValidationResult<TTraits>(Failure_RestrictionAccount_Invalid_Modification, [](const auto& values) {
-			return std::vector<model::AccountRestrictionModification<typename TTraits::UnresolvedValueType>>{
-				{ Add, values[2] },
-				{ Del, test::CreateRandomUniqueValue(values) },
-				{ Add, values[0] }
-			};
+			return std::make_pair(
+					typename TTraits::VectorType{ values[2], values[0] },
+					typename TTraits::VectorType{ test::CreateRandomUniqueValue(values) });
 		});
 	}
 
 	TRAITS_BASED_TEST(SuccessWhenValidatingNotificationWithUnknownAddressAndNoRedundantOperationAndNoDelete) {
 		AssertValidationResult<TTraits>(ValidationResult::Success, [](const auto& values) {
-			return std::vector<model::AccountRestrictionModification<typename TTraits::UnresolvedValueType>>{
-				{ Add, values[2] },
-				{ Add, values[1] },
-				{ Add, values[0] }
-			};
+			return std::make_pair(
+					typename TTraits::VectorType{ values[2], values[1], values[0] },
+					typename TTraits::VectorType());
 		});
 	}
 
 	TRAITS_BASED_TEST(SuccessWhenValidatingNotificationWithKnownAddressAndNoRedundantOperationAndValidDelete) {
 		AssertValidationResult<TTraits>(ValidationResult::Success, CacheSeed::Yes, [](const auto& values) {
-			return std::vector<model::AccountRestrictionModification<typename TTraits::UnresolvedValueType>>{
-				{ Add, values[2] },
-				{ Add, test::CreateRandomUniqueValue(values) },
-				{ Del, values[1] },
-				{ Add, values[0] }
-			};
+			return std::make_pair(
+					typename TTraits::VectorType{ values[2], test::CreateRandomUniqueValue(values), values[0] },
+					typename TTraits::VectorType{ values[1] });
 		});
 	}
 }}

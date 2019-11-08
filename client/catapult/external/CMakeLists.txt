@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.2)
 project(external)
-add_definitions(-DED25519_CUSTOMHASH)
+add_definitions(-DED25519_CUSTOMHASH) # donna
+add_definitions(-DNO_MISALIGNED_ACCESSES) # sha3
 
 file(GLOB external_donna_SRC
 	"donna/*.c"

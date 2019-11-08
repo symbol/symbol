@@ -22,24 +22,41 @@
 #include "catapult/preprocessor.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/core/mocks/MockTransaction.h"
+#include "tests/test/nodeps/Alignment.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace model {
 
 #define TEST_CLASS EmbeddedTransactionTests
 
+	// region size + alignment
+
+#define EMBEDDED_TRANSACTION_FIELDS FIELD(SignerPublicKey) FIELD(Version) FIELD(Network) FIELD(Type)
+
 	TEST(TEST_CLASS, TransactionHasExpectedSize) {
 		// Arrange:
-		auto expectedSize =
-				sizeof(uint32_t) // size
-				+ sizeof(uint16_t) // version
-				+ sizeof(uint16_t) // entity type
-				+ sizeof(Key); // signer
+		auto expectedSize = sizeof(SizePrefixedEntity) + 2 * sizeof(uint32_t);
+
+#define FIELD(X) expectedSize += sizeof(EmbeddedTransaction::X);
+		EMBEDDED_TRANSACTION_FIELDS
+#undef FIELD
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(EmbeddedTransaction));
-		EXPECT_EQ(40u, sizeof(EmbeddedTransaction));
+		EXPECT_EQ(4u + 8 + 36, sizeof(EmbeddedTransaction));
 	}
+
+	TEST(TEST_CLASS, TransactionHasProperAlignment) {
+#define FIELD(X) EXPECT_ALIGNED(EmbeddedTransaction, X);
+		EMBEDDED_TRANSACTION_FIELDS
+#undef FIELD
+
+		EXPECT_EQ(0u, sizeof(EmbeddedTransaction) % 8);
+	}
+
+#undef EMBEDDED_TRANSACTION_FIELDS
+
+	// endregion
 
 	// region insertion operator
 
@@ -47,8 +64,8 @@ namespace catapult { namespace model {
 		// Arrange:
 		EmbeddedTransaction transaction;
 		transaction.Size = 121;
+		transaction.Version = 2;
 		transaction.Type = static_cast<EntityType>(0x1234);
-		transaction.Version = MakeVersion(NetworkIdentifier::Zero, 2);
 
 		// Act:
 		auto str = test::ToString(transaction);
@@ -139,6 +156,36 @@ namespace catapult { namespace model {
 		EXPECT_EQ(1u, sub.numKeys());
 
 		EXPECT_TRUE(sub.contains(transaction.SignerPublicKey));
+	}
+
+	// endregion
+
+	// region AdvanceNext
+
+	TEST(TEST_CLASS, AdvanceNext_CanMoveToNextTransactionWhenCurrentTransactionDoesNotHavePadding) {
+		// Arrange:
+		std::vector<uint8_t> buffer(120);
+		auto* pCurrent = reinterpret_cast<EmbeddedTransaction*>(&buffer[0]);
+		pCurrent->Size = 64;
+
+		// Act:
+		const auto* pNext = AdvanceNext(pCurrent);
+
+		// Assert:
+		EXPECT_EQ(reinterpret_cast<const EmbeddedTransaction*>(&buffer[64]), pNext);
+	}
+
+	TEST(TEST_CLASS, AdvanceNext_CanMoveToNextTransactionWhenCurrentTransactionHasPadding) {
+		// Arrange:
+		std::vector<uint8_t> buffer(120);
+		auto* pCurrent = reinterpret_cast<EmbeddedTransaction*>(&buffer[0]);
+		pCurrent->Size = 60;
+
+		// Act:
+		const auto* pNext = AdvanceNext(pCurrent);
+
+		// Assert:
+		EXPECT_EQ(reinterpret_cast<const EmbeddedTransaction*>(&buffer[60 + 4]), pNext);
 	}
 
 	// endregion

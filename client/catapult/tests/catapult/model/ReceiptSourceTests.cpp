@@ -19,12 +19,42 @@
 **/
 
 #include "catapult/model/ReceiptSource.h"
+#include "tests/test/nodeps/Alignment.h"
 #include "tests/test/nodeps/Comparison.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace model {
 
 #define TEST_CLASS ReceiptSourceTests
+
+	// region size + alignment
+
+#define RECEIPT_SOURCE_FIELDS FIELD(PrimaryId) FIELD(SecondaryId)
+
+	TEST(TEST_CLASS, ReceiptSourceHasExpectedSize) {
+		// Arrange:
+		auto expectedSize = 0u;
+
+#define FIELD(X) expectedSize += sizeof(ReceiptSource::X);
+		RECEIPT_SOURCE_FIELDS
+#undef FIELD
+
+		// Assert:
+		EXPECT_EQ(expectedSize, sizeof(ReceiptSource));
+		EXPECT_EQ(8u, sizeof(ReceiptSource));
+	}
+
+	TEST(TEST_CLASS, ReceiptSourceHasProperAlignment) {
+#define FIELD(X) EXPECT_ALIGNED(ReceiptSource, X);
+		RECEIPT_SOURCE_FIELDS
+#undef FIELD
+	}
+
+#undef RECEIPT_SOURCE_FIELDS
+
+	// endregion
+
+	// region constructor
 
 	TEST(TEST_CLASS, CanCreateDefaultReceiptSource) {
 		// Act:
@@ -44,16 +74,9 @@ namespace catapult { namespace model {
 		EXPECT_EQ(25u, source.SecondaryId);
 	}
 
-	TEST(TEST_CLASS, ReceiptSourceHasExpectedSize) {
-		// Arrange:
-		auto expectedSize =
-				sizeof(uint32_t) // primary source id
-				+ sizeof(uint32_t); // secondary source id
+	// endregion
 
-		// Assert:
-		EXPECT_EQ(expectedSize, sizeof(ReceiptSource));
-		EXPECT_EQ(8u, sizeof(ReceiptSource));
-	}
+	// region operators
 
 	TEST(TEST_CLASS, OperatorLessThanReturnsTrueForSmallerValuesAndFalseOtherwise) {
 		// Arrange:
@@ -67,4 +90,6 @@ namespace catapult { namespace model {
 			return out.str();
 		});
 	}
+
+	// endregion
 }}

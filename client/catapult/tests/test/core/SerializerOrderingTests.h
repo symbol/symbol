@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "BufferReader.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/TestHarness.h"
 
@@ -50,24 +51,15 @@ namespace catapult { namespace test {
 		}
 
 	private:
-		static KeyType ExtractKey(const uint8_t* pData) {
-			KeyType key;
-			memcpy(key.data(), pData, sizeof(KeyType));
-			return key;
-		}
-
 		static void AssertKeys(const std::vector<KeyType>& expectedKeys, const RawBuffer& buffer, size_t offset) {
 			ASSERT_LE(offset + sizeof(uint64_t) + expectedKeys.size() * sizeof(KeyType), buffer.Size);
 
-			const auto* pData = buffer.pData + offset;
-			ASSERT_EQ(expectedKeys.size(), *reinterpret_cast<const uint64_t*>(pData));
-			pData += sizeof(uint64_t);
+			BufferReader reader(buffer);
+			reader.advance(offset);
+			ASSERT_EQ(expectedKeys.size(), reader.read<uint64_t>());
 
-			for (auto i = 0u; i < expectedKeys.size(); ++i) {
-				auto key = ExtractKey(pData);
-				EXPECT_EQ(expectedKeys[i], key) << "at index " << i;
-				pData += sizeof(KeyType);
-			}
+			for (auto i = 0u; i < expectedKeys.size(); ++i)
+				EXPECT_EQ(expectedKeys[i], reader.read<KeyType>()) << "at index " << i;
 		}
 	};
 }}

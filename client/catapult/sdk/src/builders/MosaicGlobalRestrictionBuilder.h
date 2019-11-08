@@ -48,11 +48,11 @@ namespace catapult { namespace builders {
 		/// Sets the previous restriction value to \a previousRestrictionValue.
 		void setPreviousRestrictionValue(uint64_t previousRestrictionValue);
 
-		/// Sets the previous restriction type to \a previousRestrictionType.
-		void setPreviousRestrictionType(model::MosaicRestrictionType previousRestrictionType);
-
 		/// Sets the new restriction value to \a newRestrictionValue.
 		void setNewRestrictionValue(uint64_t newRestrictionValue);
+
+		/// Sets the previous restriction type to \a previousRestrictionType.
+		void setPreviousRestrictionType(model::MosaicRestrictionType previousRestrictionType);
 
 		/// Sets the new restriction type to \a newRestrictionType.
 		void setNewRestrictionType(model::MosaicRestrictionType newRestrictionType);
@@ -80,8 +80,8 @@ namespace catapult { namespace builders {
 		UnresolvedMosaicId m_referenceMosaicId;
 		uint64_t m_restrictionKey;
 		uint64_t m_previousRestrictionValue;
-		model::MosaicRestrictionType m_previousRestrictionType;
 		uint64_t m_newRestrictionValue;
+		model::MosaicRestrictionType m_previousRestrictionType;
 		model::MosaicRestrictionType m_newRestrictionType;
 	};
 }}

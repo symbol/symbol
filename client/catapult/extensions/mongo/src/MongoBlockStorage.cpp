@@ -57,7 +57,7 @@ namespace catapult { namespace mongo {
 
 			// in idempotent mode, if blockElement is already in the database, this call will be bypassed
 			// so nonzero inserted_count check is proper
-			auto result = blocks.insert_one(dbBlock.view()).get().result();
+			auto result = blocks.insert_one(dbBlock.view()).value().result();
 			if (0 == result.inserted_count())
 				CATAPULT_THROW_RUNTIME_ERROR("saveBlock failed: block header was not inserted");
 		}

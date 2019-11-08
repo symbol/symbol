@@ -19,7 +19,7 @@
 **/
 
 #pragma once
-#include "src/model/AccountRestrictionTypes.h"
+#include "src/model/AccountRestrictionFlags.h"
 #include "catapult/utils/Casting.h"
 
 namespace catapult { namespace state {
@@ -36,40 +36,42 @@ namespace catapult { namespace state {
 	/// Account restriction descriptor.
 	class AccountRestrictionDescriptor {
 	public:
-		/// Creates an account restriction descriptor around \a restrictionType.
-		constexpr explicit AccountRestrictionDescriptor(model::AccountRestrictionType restrictionType)
-				: m_restrictionType(restrictionType)
+		/// Creates an account restriction descriptor around \a restrictionFlags.
+		constexpr explicit AccountRestrictionDescriptor(model::AccountRestrictionFlags restrictionFlags)
+				: m_restrictionFlags(restrictionFlags)
 		{}
 
 	public:
-		/// Gets the value specific part of the restriction type including the direction.
-		constexpr model::AccountRestrictionType directionalRestrictionType() const {
-			return StripFlag(m_restrictionType, model::AccountRestrictionType::Block);
+		/// Gets the value specific part of the restriction flags including the direction.
+		constexpr model::AccountRestrictionFlags directionalRestrictionFlags() const {
+			return StripFlag(m_restrictionFlags, model::AccountRestrictionFlags::Block);
 		}
 
-		/// Gets the value specific part of the restriction type excluding the direction.
-		constexpr model::AccountRestrictionType restrictionType() const {
-			return StripFlag(m_restrictionType, model::AccountRestrictionType::Outgoing | model::AccountRestrictionType::Block);
+		/// Gets the value specific part of the restriction flags excluding the direction.
+		constexpr model::AccountRestrictionFlags restrictionFlags() const {
+			return StripFlag(m_restrictionFlags, model::AccountRestrictionFlags::Outgoing | model::AccountRestrictionFlags::Block);
 		}
 
 		/// Gets the operation type.
 		constexpr AccountRestrictionOperationType operationType() const {
-			return model::HasFlag(model::AccountRestrictionType::Block, m_restrictionType)
+			return model::HasFlag(model::AccountRestrictionFlags::Block, m_restrictionFlags)
 					? AccountRestrictionOperationType::Block
 					: AccountRestrictionOperationType::Allow;
 		}
 
-		/// Gets the raw restriction type.
-		constexpr model::AccountRestrictionType raw() const {
-			return m_restrictionType;
+		/// Gets the raw restriction flags.
+		constexpr model::AccountRestrictionFlags raw() const {
+			return m_restrictionFlags;
 		}
 
 	private:
-		static constexpr model::AccountRestrictionType StripFlag(model::AccountRestrictionType lhs, model::AccountRestrictionType flag) {
-			return static_cast<model::AccountRestrictionType>(utils::to_underlying_type(lhs) & ~utils::to_underlying_type(flag));
+		static constexpr model::AccountRestrictionFlags StripFlag(
+				model::AccountRestrictionFlags lhs,
+				model::AccountRestrictionFlags flag) {
+			return static_cast<model::AccountRestrictionFlags>(utils::to_underlying_type(lhs) & ~utils::to_underlying_type(flag));
 		}
 
 	private:
-		model::AccountRestrictionType m_restrictionType;
+		model::AccountRestrictionFlags m_restrictionFlags;
 	};
 }}

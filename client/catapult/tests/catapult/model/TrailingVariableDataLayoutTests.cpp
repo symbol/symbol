@@ -22,11 +22,14 @@
 #include "catapult/model/Mosaic.h"
 #include "catapult/utils/MemoryUtils.h"
 #include "tests/test/core/VariableSizedEntityTestUtils.h"
+#include "tests/test/nodeps/Alignment.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace model {
 
 #define TEST_CLASS TrailingVariableDataLayoutTests
+
+	// region MosaicContainer
 
 	namespace {
 #pragma pack(push, 1)
@@ -54,14 +57,39 @@ namespace catapult { namespace model {
 #pragma pack(pop)
 	}
 
+	// endregion
+
+	// region size + alignment
+
+#define LAYOUT_FIELDS FIELD(Size)
+
 	TEST(TEST_CLASS, LayoutHasExpectedSize) {
 		// Arrange:
-		auto expectedSize = sizeof(uint32_t); // size
+		using Layout = TrailingVariableDataLayout<MosaicContainer, Mosaic>;
+		auto expectedSize = 0u;
+
+#define FIELD(X) expectedSize += sizeof(Layout::X);
+		LAYOUT_FIELDS
+#undef FIELD
 
 		// Assert:
-		EXPECT_EQ(expectedSize, sizeof(TrailingVariableDataLayout<MosaicContainer, Mosaic>));
-		EXPECT_EQ(4u, sizeof(TrailingVariableDataLayout<MosaicContainer, Mosaic>));
+		EXPECT_EQ(expectedSize, sizeof(Layout));
+		EXPECT_EQ(4u, sizeof(Layout));
 	}
+
+	TEST(TEST_CLASS, LayoutHasProperAlignment) {
+		using Layout = TrailingVariableDataLayout<MosaicContainer, Mosaic>;
+
+#define FIELD(X) EXPECT_ALIGNED(Layout, X);
+		LAYOUT_FIELDS
+#undef FIELD
+	}
+
+#undef LAYOUT_FIELDS
+
+	// endregion
+
+	// region attachment pointer tests
 
 	namespace {
 		struct MosaicContainerTraits {
@@ -81,4 +109,6 @@ namespace catapult { namespace model {
 	}
 
 	DEFINE_ATTACHMENT_POINTER_TESTS(TEST_CLASS, MosaicContainerTraits) // MosaicsPtr
+
+	// endregion
 }}

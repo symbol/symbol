@@ -86,7 +86,7 @@ namespace catapult { namespace partialtransaction {
 							: validators::Failure_Aggregate_Missing_Cosignatures;
 				}
 
-				if (notification.Type == model::Aggregate_EmbeddedTransaction_Notification) {
+				if (notification.Type == model::Aggregate_Embedded_Transaction_Notification) {
 					return HasAllCosignatures(static_cast<const model::AggregateEmbeddedTransactionNotification&>(notification))
 							? ValidationResult::Success
 							: validators::Failure_Aggregate_Ineligible_Cosignatories;
@@ -241,24 +241,17 @@ namespace catapult { namespace partialtransaction {
 	}
 
 	namespace {
-		// Tests are using mock transaction plugin with Custom_Buffer option.
-		// We need to set proper value in mockTransaction.Data.Size, so that cosignatures won't be included.
-		auto FixAggregateTransactionDataSize(model::AggregateTransaction& aggregateTransaction) {
-			static_assert(
-					sizeof(model::AggregateTransaction) < sizeof(mocks::MockTransaction),
-					"this test requires mockTransaction Data to fit inside the aggregate transaction Payload");
-			if (sizeof(model::AggregateTransaction) + aggregateTransaction.PayloadSize < sizeof(mocks::MockTransaction))
-				CATAPULT_THROW_RUNTIME_ERROR("this test requires mockTransaction Data to fit inside the aggregate transaction Payload");
+		// tests are using CreateMockTransactionPlugin with Custom_Buffers option, which returns custom dataBuffer
+		// composed of data starting at end of MockTransaction header and including full MockTransaction::Data::Size.
+		// since MockTransaction::Data::Size and AggregateTransaction::PayloadSize overlap (and assuming LE byte order),
+		// dataBuffer is valid but incomplete, which is good enough for these tests.
 
-			auto* pTransactionData = reinterpret_cast<uint8_t*>(&aggregateTransaction);
-			auto& mockTransaction = reinterpret_cast<mocks::MockTransaction&>(*pTransactionData);
-			auto headerSizeDifference = sizeof(mocks::MockTransaction) - sizeof(model::AggregateTransaction);
-			mockTransaction.Data.Size = static_cast<uint16_t>(aggregateTransaction.PayloadSize - headerSizeDifference);
-		}
+		static_assert(
+				sizeof(model::AggregateTransaction) >= sizeof(mocks::MockTransaction),
+				"this test requires MockTransaction header to fit inside AggregateTransaction header");
 
 		auto CreateRandomAggregateTransaction(const model::TransactionRegistry& registry, bool validCosignatures) {
 			auto pTransaction = test::CreateRandomAggregateTransactionWithCosignatures(Num_Cosignatures);
-			FixAggregateTransactionDataSize(*pTransaction);
 
 			auto aggregateHash = CalculateTransactionHash(registry, *pTransaction);
 			if (validCosignatures)
@@ -521,7 +514,6 @@ namespace catapult { namespace partialtransaction {
 
 			// - prepare and add a transaction range to the cache
 			auto pTransaction = utils::UniqueToShared(test::CreateAggregateTransaction(1).pTransaction);
-			FixAggregateTransactionDataSize(*pTransaction);
 
 			model::TransactionInfo transactionInfo;
 			transactionInfo.EntityHash = CalculateTransactionHash(context.registry(), *pTransaction);

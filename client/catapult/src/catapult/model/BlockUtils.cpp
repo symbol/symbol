@@ -23,6 +23,7 @@
 #include "catapult/crypto/Hashes.h"
 #include "catapult/crypto/MerkleHashBuilder.h"
 #include "catapult/crypto/Signer.h"
+#include "catapult/utils/IntegerMath.h"
 #include "catapult/utils/MemoryUtils.h"
 #include <cstring>
 
@@ -32,7 +33,7 @@ namespace catapult { namespace model {
 		RawBuffer BlockDataBuffer(const Block& block) {
 			return {
 				reinterpret_cast<const uint8_t*>(&block) + VerifiableEntity::Header_Size,
-				sizeof(BlockHeader) - VerifiableEntity::Header_Size
+				sizeof(BlockHeader) - VerifiableEntity::Header_Size - Block::Footer_Size
 			};
 		}
 	}
@@ -88,25 +89,31 @@ namespace catapult { namespace model {
 	// region create block
 
 	namespace {
-		void CopyEntity(uint8_t* pDestination, const VerifiableEntity& source) {
-			std::memcpy(pDestination, &source, source.Size);
-		}
-
 		template<typename TContainer>
 		void CopyTransactions(uint8_t* pDestination, const TContainer& transactions) {
-			for (const auto& pTransaction : transactions) {
-				CopyEntity(pDestination, *pTransaction);
+			for (auto i = 0u; i < transactions.size(); ++i) {
+				const auto& pTransaction = transactions[i];
+				std::memcpy(pDestination, pTransaction.get(), pTransaction->Size);
 				pDestination += pTransaction->Size;
+
+				if (i < transactions.size() - 1) {
+					auto paddingSize = utils::GetPaddingSize(pTransaction->Size, 8);
+					std::memset(static_cast<void*>(pDestination), 0, paddingSize);
+					pDestination += paddingSize;
+				}
 			}
 		}
 
 		template<typename TContainer>
-		size_t CalculateTotalSize(const TContainer& transactions) {
-			size_t totalTransactionsSize = 0;
-			for (const auto& pTransaction : transactions)
-				totalTransactionsSize += pTransaction->Size;
+		uint32_t CalculateTotalSize(const TContainer& transactions) {
+			uint32_t totalTransactionsSize = 0;
+			uint32_t lastPaddingSize = 0;
+			for (const auto& pTransaction : transactions) {
+				lastPaddingSize = utils::GetPaddingSize(pTransaction->Size, 8);
+				totalTransactionsSize += pTransaction->Size + lastPaddingSize;
+			}
 
-			return totalTransactionsSize;
+			return totalTransactionsSize - lastPaddingSize;
 		}
 
 		template<typename TContainer>
@@ -115,15 +122,16 @@ namespace catapult { namespace model {
 				NetworkIdentifier networkIdentifier,
 				const Key& signerPublicKey,
 				const TContainer& transactions) {
-			auto size = sizeof(BlockHeader) + CalculateTotalSize(transactions);
+			uint32_t size = sizeof(BlockHeader) + CalculateTotalSize(transactions);
 			auto pBlock = utils::MakeUniqueWithSize<Block>(size);
 			std::memset(static_cast<void*>(pBlock.get()), 0, sizeof(BlockHeader));
-			pBlock->Size = static_cast<uint32_t>(size);
+			pBlock->Size = size;
 
 			pBlock->SignerPublicKey = signerPublicKey;
 			pBlock->BeneficiaryPublicKey = signerPublicKey;
 
-			pBlock->Version = MakeVersion(networkIdentifier, 3);
+			pBlock->Version = Block::Current_Version;
+			pBlock->Network = networkIdentifier;
 			pBlock->Type = Entity_Type_Block;
 
 			pBlock->Height = context.BlockHeight + Height(1);
@@ -131,7 +139,7 @@ namespace catapult { namespace model {
 			pBlock->PreviousBlockHash = context.BlockHash;
 
 			// append all the transactions
-			auto pDestination = reinterpret_cast<uint8_t*>(pBlock->TransactionsPtr());
+			auto* pDestination = reinterpret_cast<uint8_t*>(pBlock->TransactionsPtr());
 			CopyTransactions(pDestination, transactions);
 			return pBlock;
 		}
@@ -152,7 +160,7 @@ namespace catapult { namespace model {
 		pBlock->Size = static_cast<uint32_t>(size);
 
 		// append all the transactions
-		auto pDestination = reinterpret_cast<uint8_t*>(pBlock->TransactionsPtr());
+		auto* pDestination = reinterpret_cast<uint8_t*>(pBlock->TransactionsPtr());
 		CopyTransactions(pDestination, transactions);
 		return pBlock;
 	}

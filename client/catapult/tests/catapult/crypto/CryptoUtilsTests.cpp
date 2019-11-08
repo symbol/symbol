@@ -28,8 +28,8 @@ namespace catapult { namespace crypto {
 #define TEST_CLASS CryptoUtilsTests
 
 	// the purpose of this test is to verify that:
-	// a) in case of !SIGNATURE_SCHEME_NIS1: result of HashPrivateKey matches 512-bit sha3 hash
-	// b) in case of  SIGNATURE_SCHEME_NIS1: result of HashPrivateKey matches 512-bit keccak hash
+	// a) in case of !SIGNATURE_SCHEME_KECCAK: result of HashPrivateKey matches 512-bit sha3 hash
+	// b) in case of  SIGNATURE_SCHEME_KECCAK: result of HashPrivateKey matches 512-bit keccak hash
 	TEST(TEST_CLASS, PassesShaVector) {
 		// Arrange:
 		auto privateKeyString = std::string("9F2FCC7C90DE090D6B87CD7E9718C1EA6CB21118FC2D5DE9F97E5DB6AC1E9C10");
@@ -41,7 +41,7 @@ namespace catapult { namespace crypto {
 
 		// Assert:
 		Hash512 expectedHash;
-#ifdef SIGNATURE_SCHEME_NIS1
+#ifdef SIGNATURE_SCHEME_KECCAK
 		Keccak_512(test::HexStringToVector(privateKeyString), expectedHash);
 #else
 		Sha3_512(test::HexStringToVector(privateKeyString), expectedHash);

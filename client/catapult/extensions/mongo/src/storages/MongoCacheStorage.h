@@ -138,7 +138,7 @@ namespace catapult { namespace mongo { namespace storages {
 
 			auto filter = CreateDeleteFilter(ids);
 			auto deleteResult = collection.delete_many(filter.view());
-			m_errorPolicy.checkDeletedAtLeast(ids.size(), BulkWriteResult(deleteResult.get().result()), "removed and modified elements");
+			m_errorPolicy.checkDeletedAtLeast(ids.size(), BulkWriteResult(deleteResult.value().result()), "removed and modified elements");
 		}
 
 		void insertAll(const ElementContainerType& elements) {

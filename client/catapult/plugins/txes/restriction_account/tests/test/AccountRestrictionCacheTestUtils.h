@@ -22,6 +22,7 @@
 #include "AccountRestrictionTestTraits.h"
 #include "src/cache/AccountRestrictionCache.h"
 #include "src/cache/AccountRestrictionCacheStorage.h"
+#include "src/state/AccountRestrictionUtils.h"
 #include "catapult/model/Address.h"
 #include "catapult/model/BlockChainConfiguration.h"
 #include "tests/test/cache/CacheTestUtils.h"
@@ -65,7 +66,7 @@ namespace catapult { namespace test {
 		auto address = model::PublicKeyToAddress(key, model::NetworkIdentifier::Zero);
 		restrictionCacheDelta.insert(state::AccountRestrictions(address));
 		auto& restrictions = restrictionCacheDelta.find(address).get();
-		auto& restriction = restrictions.restriction(TRestrictionValueTraits::Restriction_Type);
+		auto& restriction = restrictions.restriction(TRestrictionValueTraits::Restriction_Flags);
 		for (const auto& value : values)
 			TOperationTraits::Add(restriction, state::ToVector(value));
 	}

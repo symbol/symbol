@@ -19,22 +19,33 @@
 **/
 
 #include "TransactionExtensions.h"
+#include "plugins/txes/aggregate/src/model/AggregateTransaction.h"
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/crypto/Signer.h"
+#include "catapult/model/EntityHasher.h"
 
 namespace catapult { namespace extensions {
 
 	namespace {
+		constexpr bool IsAggregateType(model::EntityType entityType) {
+			return model::Entity_Type_Aggregate_Bonded == entityType || model::Entity_Type_Aggregate_Complete == entityType;
+		}
+
 		RawBuffer TransactionDataBuffer(const model::Transaction& transaction) {
-			return {
-				reinterpret_cast<const uint8_t*>(&transaction) + model::VerifiableEntity::Header_Size,
-				transaction.Size - model::VerifiableEntity::Header_Size
-			};
+			const auto* pData = reinterpret_cast<const uint8_t*>(&transaction) + model::Transaction::Header_Size;
+			size_t size = IsAggregateType(transaction.Type)
+					? sizeof(model::AggregateTransaction) - model::Transaction::Header_Size - model::AggregateTransaction::Footer_Size
+					: transaction.Size - model::Transaction::Header_Size;
+			return { pData, size };
 		}
 	}
 
 	TransactionExtensions::TransactionExtensions(const GenerationHash& generationHash) : m_generationHash(generationHash)
 	{}
+
+	Hash256 TransactionExtensions::hash(const model::Transaction& transaction) const {
+		return model::CalculateHash(transaction, m_generationHash, TransactionDataBuffer(transaction));
+	}
 
 	void TransactionExtensions::sign(const crypto::KeyPair& signer, model::Transaction& transaction) const {
 		crypto::Sign(signer, { m_generationHash, TransactionDataBuffer(transaction) }, transaction.Signature);

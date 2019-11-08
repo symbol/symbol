@@ -22,7 +22,7 @@ void ed25519_hash_update(ed25519_hash_context *ctx, const uint8_t *in, size_t in
 }
 
 void ed25519_hash_final(ed25519_hash_context *ctx, uint8_t *hash) {
-#ifdef SIGNATURE_SCHEME_NIS1
+#ifdef SIGNATURE_SCHEME_KECCAK
 	Keccak_HashSqueeze(ctx, hash, 512);
 #else
 	Keccak_HashFinal(ctx, hash);

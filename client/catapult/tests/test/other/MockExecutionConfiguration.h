@@ -20,6 +20,7 @@
 
 #pragma once
 #include "catapult/cache/CatapultCache.h"
+#include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/cache_core/BlockStatisticCache.h"
 #include "catapult/chain/ExecutionConfiguration.h"
 #include "catapult/model/NotificationPublisher.h"
@@ -52,7 +53,7 @@ namespace catapult { namespace test {
 
 	struct MockNotification : public model::Notification {
 	public:
-		MockNotification(const Hash256& hash, size_t id)
+		MockNotification(const Hash256& hash, uint64_t id)
 				: Notification(static_cast<model::NotificationType>(-1), sizeof(MockNotification))
 				, Hash(hash)
 				, Id(id)
@@ -60,16 +61,33 @@ namespace catapult { namespace test {
 
 	public:
 		const Hash256 Hash;
-		size_t Id;
+		uint64_t Id;
 	};
 
 	class MockNotificationPublisher : public model::NotificationPublisher, public ParamsCapture<PublisherParams> {
+	public:
+		MockNotificationPublisher() : m_emulatePublicKeyNotifications(false)
+		{}
+
 	public:
 		void publish(const model::WeakEntityInfo& entityInfo, model::NotificationSubscriber& subscriber) const override {
 			const_cast<MockNotificationPublisher*>(this)->push(entityInfo);
 			subscriber.notify(MockNotification(entityInfo.hash(), 1));
 			subscriber.notify(MockNotification(entityInfo.hash(), 2));
+
+			if (m_emulatePublicKeyNotifications)
+				subscriber.notify(model::AccountPublicKeyNotification(reinterpret_cast<const Key&>(entityInfo.hash())));
 		}
+
+	public:
+		/// Emulates account public key notifications by raising notification with hash coerced to public key.
+		/// \note Tests that rely on this behavior are not using MockTransaction.
+		void emulatePublicKeyNotifications() {
+			m_emulatePublicKeyNotifications = true;
+		}
+
+	private:
+		bool m_emulatePublicKeyNotifications;
 	};
 
 	// endregion
@@ -114,19 +132,42 @@ namespace catapult { namespace test {
 		}
 
 		void notify(const model::Notification& notification, observers::ObserverContext& context) const override {
+			if (model::Core_Register_Account_Public_Key_Notification == notification.Type) {
+				// simulate AccountPublicKeyObserver
+				const auto& publicKey = CastToDerivedNotification<model::AccountPublicKeyNotification>(notification).PublicKey;
+				auto& accountStateCacheDelta = context.Cache.sub<cache::AccountStateCache>();
+				if (observers::NotifyMode::Commit == context.Mode)
+					accountStateCacheDelta.addAccount(publicKey, context.Height);
+				else
+					accountStateCacheDelta.queueRemove(publicKey, context.Height);
+
+				return;
+			}
+
 			const auto& mockNotification = CastToDerivedNotification<MockNotification>(notification);
 			const_cast<MockAggregateNotificationObserver*>(this)->push(mockNotification, context);
 
-			// add a block statistic to the cache as a marker
-			auto& cache = context.Cache.sub<cache::BlockStatisticCache>();
-			if (!m_enableRollbackEmulation || observers::NotifyMode::Commit == context.Mode)
-				cache.insert(state::BlockStatistic(Height(cache.size() + 1)));
-			else
-				cache.remove(state::BlockStatistic(Height(cache.size())));
+			addBlockStatisticBreadcrumb(context);
+			addReceiptBreadcrumb(context, mockNotification);
+		}
 
-			// add receipt breadcrumb if enabled
-			if (m_enableReceiptGeneration && observers::NotifyMode::Commit == context.Mode)
-				AddReceiptBreadcrumb(context.StatementBuilder(), mockNotification.Id, cache.size());
+	private:
+		void addBlockStatisticBreadcrumb(observers::ObserverContext& context) const {
+			auto& blockStatisticCache = context.Cache.sub<cache::BlockStatisticCache>();
+			auto markerId = blockStatisticCache.size();
+
+			if (!m_enableRollbackEmulation || observers::NotifyMode::Commit == context.Mode)
+				blockStatisticCache.insert(state::BlockStatistic(Height(markerId + 1)));
+			else
+				blockStatisticCache.remove(state::BlockStatistic(Height(markerId)));
+		}
+
+		void addReceiptBreadcrumb(observers::ObserverContext& context, const MockNotification& mockNotification) const {
+			if (!m_enableReceiptGeneration || observers::NotifyMode::Commit != context.Mode)
+				return;
+
+			auto& blockStatisticCache = context.Cache.sub<cache::BlockStatisticCache>();
+			AddReceiptBreadcrumb(context.StatementBuilder(), mockNotification.Id, blockStatisticCache.size());
 		}
 
 	public:
@@ -135,7 +176,7 @@ namespace catapult { namespace test {
 			m_enableRollbackEmulation = true;
 		}
 
-		/// Enables generation of receipts for every notify (commit) call.
+		/// Enables generation of a receipt for every notify (commit) call.
 		void enableReceiptGeneration() {
 			m_enableReceiptGeneration = true;
 		}
@@ -204,6 +245,9 @@ namespace catapult { namespace test {
 		validators::ValidationResult validate(
 				const model::Notification& notification,
 				const validators::ValidatorContext& context) const override {
+			if (model::Core_Register_Account_Public_Key_Notification == notification.Type)
+				return validators::ValidationResult::Success;
+
 			const auto& mockNotification = CastToDerivedNotification<MockNotification>(notification);
 			const_cast<MockAggregateNotificationValidator*>(this)->push(mockNotification, context);
 

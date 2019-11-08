@@ -66,7 +66,7 @@ namespace catapult { namespace validators {
 		// region Incoming / Outgoing traits
 
 		struct IncomingTraits {
-			static constexpr auto Restriction_Type = model::AccountRestrictionType::Address;
+			static constexpr auto Restriction_Flags = model::AccountRestrictionFlags::Address;
 
 			static const std::pair<Key, Key> GetPartnersOrdered(const Key& source, const Key& partner) {
 				return { source, partner };
@@ -74,7 +74,7 @@ namespace catapult { namespace validators {
 		};
 
 		struct OutgoingTraits {
-			static constexpr auto Restriction_Type = model::AccountRestrictionType::Address | model::AccountRestrictionType::Outgoing;
+			static constexpr auto Restriction_Flags = model::AccountRestrictionFlags::Address | model::AccountRestrictionFlags::Outgoing;
 
 			static const std::pair<Key, Key> GetPartnersOrdered(const Key& source, const Key& partner) {
 				return { partner, source };
@@ -88,7 +88,7 @@ namespace catapult { namespace validators {
 		template<typename TOperationTraits>
 		void PopulateCache(
 				cache::CatapultCache& cache,
-				model::AccountRestrictionType restrictionType,
+				model::AccountRestrictionFlags restrictionFlags,
 				const CacheContents& cacheContents) {
 			auto delta = cache.createDelta();
 			auto& restrictionCacheDelta = delta.sub<cache::AccountRestrictionCache>();
@@ -96,7 +96,7 @@ namespace catapult { namespace validators {
 				auto sourceAddress = model::PublicKeyToAddress(pair.first, Default_Network);
 				restrictionCacheDelta.insert(state::AccountRestrictions(sourceAddress));
 				auto& restrictions = restrictionCacheDelta.find(sourceAddress).get();
-				auto& restriction = restrictions.restriction(restrictionType);
+				auto& restriction = restrictions.restriction(restrictionFlags);
 				for (const auto& value : pair.second)
 					TOperationTraits::Add(restriction, state::ToVector(model::PublicKeyToAddress(value, Default_Network)));
 			}
@@ -108,13 +108,13 @@ namespace catapult { namespace validators {
 		void AssertValidationResult(
 				ValidationResult expectedResult,
 				const CacheContents& cacheContents,
-				model::AccountRestrictionType restrictionType,
+				model::AccountRestrictionFlags restrictionFlags,
 				const Key& source,
 				const model::UnresolvedAddressSet& participantsByAddress,
 				const utils::KeySet& participantsByKey) {
 			// Arrange:
 			auto cache = test::AccountRestrictionCacheFactory::Create();
-			PopulateCache<TOperationTraits>(cache, restrictionType, cacheContents);
+			PopulateCache<TOperationTraits>(cache, restrictionFlags, cacheContents);
 			auto pValidator = CreateAddressInteractionValidator();
 			auto entityType = static_cast<model::EntityType>(0x4123);
 			auto notification = model::AddressInteractionNotification(source, entityType, participantsByAddress, participantsByKey);
@@ -150,7 +150,7 @@ namespace catapult { namespace validators {
 		AssertValidationResult<test::AllowTraits>(
 				Failure_RestrictionAccount_Address_Interaction_Prohibited,
 				cacheContents,
-				TDirectionTraits::Restriction_Type,
+				TDirectionTraits::Restriction_Flags,
 				pair.first,
 				TTraits::ParticipantsByAddress({ pair.second }),
 				TTraits::ParticipantsByKey({ pair.second }));
@@ -167,7 +167,7 @@ namespace catapult { namespace validators {
 		AssertValidationResult<test::BlockTraits>(
 				Failure_RestrictionAccount_Address_Interaction_Prohibited,
 				cacheContents,
-				TDirectionTraits::Restriction_Type,
+				TDirectionTraits::Restriction_Flags,
 				pair.first,
 				TTraits::ParticipantsByAddress({ pair.second }),
 				TTraits::ParticipantsByKey({ pair.second }));
@@ -190,7 +190,7 @@ namespace catapult { namespace validators {
 			AssertValidationResult<TOperationTraits>(
 					ValidationResult::Success,
 					cacheContents,
-					TDirectionTraits::Restriction_Type,
+					TDirectionTraits::Restriction_Flags,
 					pair.first,
 					TTraits::ParticipantsByAddress({ pair.second }),
 					TTraits::ParticipantsByKey({ pair.second }));
@@ -218,7 +218,7 @@ namespace catapult { namespace validators {
 			AssertValidationResult<TOperationTraits>(
 					ValidationResult::Success,
 					cacheContents,
-					TDirectionTraits::Restriction_Type,
+					TDirectionTraits::Restriction_Flags,
 					pair.first,
 					TTraits::ParticipantsByAddress({ pair.second }),
 					TTraits::ParticipantsByKey({ pair.second }));
@@ -242,7 +242,7 @@ namespace catapult { namespace validators {
 		AssertValidationResult<test::AllowTraits>(
 				ValidationResult::Success,
 				cacheContents,
-				TDirectionTraits::Restriction_Type,
+				TDirectionTraits::Restriction_Flags,
 				sourceKey,
 				TTraits::ParticipantsByAddress({ sourceKey }),
 				TTraits::ParticipantsByKey({ sourceKey }));
@@ -257,7 +257,7 @@ namespace catapult { namespace validators {
 		AssertValidationResult<test::BlockTraits>(
 				ValidationResult::Success,
 				cacheContents,
-				TDirectionTraits::Restriction_Type,
+				TDirectionTraits::Restriction_Flags,
 				sourceKey,
 				TTraits::ParticipantsByAddress({ sourceKey }),
 				TTraits::ParticipantsByKey({ sourceKey }));
@@ -274,7 +274,7 @@ namespace catapult { namespace validators {
 		AssertValidationResult<test::AllowTraits>(
 				ValidationResult::Success,
 				cacheContents,
-				TDirectionTraits::Restriction_Type,
+				TDirectionTraits::Restriction_Flags,
 				pair.first,
 				TTraits::ParticipantsByAddress({ pair.second }),
 				TTraits::ParticipantsByKey({ pair.second }));
@@ -291,7 +291,7 @@ namespace catapult { namespace validators {
 		AssertValidationResult<test::BlockTraits>(
 				ValidationResult::Success,
 				cacheContents,
-				TDirectionTraits::Restriction_Type,
+				TDirectionTraits::Restriction_Flags,
 				pair.first,
 				TTraits::ParticipantsByAddress({ pair.second }),
 				TTraits::ParticipantsByKey({ pair.second }));

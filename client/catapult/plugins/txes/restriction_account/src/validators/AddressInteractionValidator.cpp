@@ -30,25 +30,25 @@ namespace catapult { namespace validators {
 	using CacheReadOnlyType = typename cache::AccountRestrictionCacheTypes::CacheReadOnlyType;
 
 	namespace {
-		constexpr auto Address_Restriction_Type = model::AccountRestrictionType::Address;
-		constexpr auto Address_Outgoing_Restriction_Type = Address_Restriction_Type | model::AccountRestrictionType::Outgoing;
+		constexpr auto Address_Restriction_Flags = model::AccountRestrictionFlags::Address;
+		constexpr auto Address_Outgoing_Restriction_Flags = Address_Restriction_Flags | model::AccountRestrictionFlags::Outgoing;
 
 		bool IsInteractionAllowed(
 				const cache::ReadOnlyCatapultCache& cache,
-				model::AccountRestrictionType restrictionType,
+				model::AccountRestrictionFlags restrictionFlags,
 				const Address& source,
 				const Address& participant) {
 			if (source == participant)
 				return true;
 
 			AccountRestrictionView view(cache);
-			return !view.initialize(participant) || view.isAllowed(restrictionType, source);
+			return !view.initialize(participant) || view.isAllowed(restrictionFlags, source);
 		}
 
 		bool IsInteractionAllowed(const cache::ReadOnlyCatapultCache& cache, const Address& source, const Address& participant) {
 			return
-					IsInteractionAllowed(cache, Address_Restriction_Type, source, participant) &&
-					IsInteractionAllowed(cache, Address_Outgoing_Restriction_Type, participant, source);
+					IsInteractionAllowed(cache, Address_Restriction_Flags, source, participant) &&
+					IsInteractionAllowed(cache, Address_Outgoing_Restriction_Flags, participant, source);
 		}
 	}
 

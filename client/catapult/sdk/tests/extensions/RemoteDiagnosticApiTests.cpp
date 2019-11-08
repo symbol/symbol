@@ -284,20 +284,25 @@ namespace catapult { namespace extensions {
 			static void ValidateResponse(const ionet::Packet& response, const model::EntityRange<EntityType>& infos) {
 				ASSERT_EQ(3u, infos.size());
 
-				auto pData = response.Data();
+				const auto* pExpectedData = response.Data();
 				auto iter = infos.cbegin();
-				for (auto i = 0u; i < infos.size(); ++i) {
+				for (auto i = 0u; i < infos.size(); ++i, ++iter) {
 					std::string message = "comparing info at " + std::to_string(i);
-					const auto& expectedInfo = reinterpret_cast<const EntityType&>(*pData);
 					const auto& actualInfo = *iter;
+
+					// `response` is the (unprocessed) response Packet, which contains unaligned data
+					// `infos` is the (processed) result, which is aligned
+					std::vector<uint8_t> expectedInfoBuffer(actualInfo.Size);
+					std::memcpy(&expectedInfoBuffer[0], pExpectedData, actualInfo.Size);
+					const auto& expectedInfo = reinterpret_cast<const EntityType&>(expectedInfoBuffer[0]);
+
 					ASSERT_EQ(expectedInfo.Size, actualInfo.Size) << message;
 					ASSERT_EQ(expectedInfo.DataSize, actualInfo.DataSize) << message;
 
 					EXPECT_EQ(expectedInfo.Id, actualInfo.Id) << message;
 					EXPECT_EQ_MEMORY(expectedInfo.DataPtr(), actualInfo.DataPtr(), actualInfo.DataSize) << message;
 
-					++iter;
-					pData += expectedInfo.Size;
+					pExpectedData += expectedInfo.Size;
 				}
 			}
 

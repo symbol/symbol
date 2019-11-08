@@ -69,10 +69,10 @@ namespace catapult { namespace observers {
 				const cache::AccountRestrictionCacheDelta& delta,
 				NotifyMode notifyMode,
 				const Key& key,
-				const model::AccountRestrictionModification<typename TRestrictionValueTraits::ValueType>& modification,
+				const typename TRestrictionValueTraits::ValueType& restrictionValue,
+				model::AccountRestrictionModificationAction action,
 				bool shouldContainCacheEntry) {
 			// Assert:
-			using ValueType = typename TRestrictionValueTraits::ValueType;
 			auto address = model::PublicKeyToAddress(key, model::NetworkIdentifier::Zero);
 
 			auto iter = delta.find(address);
@@ -82,13 +82,13 @@ namespace catapult { namespace observers {
 			}
 
 			const auto& restrictions = iter.get();
-			auto typedRestriction = restrictions.template restriction<ValueType>(TRestrictionValueTraits::Restriction_Type);
-			if (IsInsert(notifyMode, modification.ModificationAction))
-				EXPECT_TRUE(typedRestriction.contains(modification.Value));
+			const auto& restriction = restrictions.restriction(TRestrictionValueTraits::Restriction_Flags);
+			if (IsInsert(notifyMode, action))
+				EXPECT_TRUE(restriction.contains(state::ToVector(restrictionValue)));
 			else
-				EXPECT_FALSE(typedRestriction.contains(modification.Value));
+				EXPECT_FALSE(restriction.contains(state::ToVector(restrictionValue)));
 
-			EXPECT_EQ(expectedSize, typedRestriction.size());
+			EXPECT_EQ(expectedSize, restriction.values().size());
 		}
 
 		enum class CachePolicy { Populate, Empty };
@@ -107,12 +107,11 @@ namespace catapult { namespace observers {
 			test::PopulateCache<TRestrictionValueTraits, TOperationTraits>(context.cache(), key, values);
 
 			auto modification = modificationFactory(values);
-			auto unresolvedModification = model::AccountRestrictionModification<typename TRestrictionValueTraits::UnresolvedValueType>{
-				modification.ModificationAction,
-				TRestrictionValueTraits::Unresolve(modification.Value)
-			};
-
-			auto notification = test::CreateNotification<TRestrictionValueTraits, TOperationTraits>(key, unresolvedModification);
+			auto unresolvedRestrictionValue = TRestrictionValueTraits::Unresolve(modification.second);
+			auto notification = test::CreateAccountRestrictionValueNotification<TRestrictionValueTraits, TOperationTraits>(
+					key,
+					unresolvedRestrictionValue,
+					modification.first);
 			auto pObserver = TRestrictionValueTraits::CreateObserver();
 
 			// Act:
@@ -124,7 +123,8 @@ namespace catapult { namespace observers {
 					context.cache().sub<cache::AccountRestrictionCache>(),
 					notifyMode,
 					key,
-					modification,
+					modification.second,
+					modification.first,
 					shouldContainCacheEntry);
 		}
 
@@ -147,16 +147,17 @@ namespace catapult { namespace observers {
 
 			{
 				auto& restrictions = restrictionCacheDelta.find(accountAddress).get();
-				TOperationTraits::Add(restrictions.restriction(model::AccountRestrictionType::Address), state::ToVector(filteredAddress));
+				TOperationTraits::Add(restrictions.restriction(model::AccountRestrictionFlags::Address), state::ToVector(filteredAddress));
 				TOperationTraits::Add(
-						restrictions.restriction(model::AccountRestrictionType::MosaicId),
+						restrictions.restriction(model::AccountRestrictionFlags::MosaicId),
 						test::GenerateRandomVector(sizeof(MosaicId)));
 			}
 
-			auto modificationAction = NotifyMode::Commit == notifyMode ? Del : Add;
-			auto modification = model::AccountRestrictionModification<UnresolvedAddress>{ modificationAction, unresolvedFilteredAddress };
-			auto completeType = TOperationTraits::CompleteAccountRestrictionType(model::AccountRestrictionType::Address);
-			model::ModifyAccountAddressRestrictionValueNotification notification{ key, completeType, modification };
+			model::ModifyAccountAddressRestrictionValueNotification notification(
+					key,
+					TOperationTraits::CompleteAccountRestrictionFlags(model::AccountRestrictionFlags::Address),
+					unresolvedFilteredAddress,
+					NotifyMode::Commit == notifyMode ? Del : Add);
 			auto pObserver = CreateAccountAddressRestrictionValueModificationObserver();
 
 			// Act: cache entry is not removed, account address restriction is empty but account mosaic restriction is not
@@ -168,17 +169,16 @@ namespace catapult { namespace observers {
 
 			const auto& restrictions = iter.get();
 			EXPECT_FALSE(restrictions.isEmpty());
-			EXPECT_TRUE(restrictions.restriction(model::AccountRestrictionType::Address).values().empty());
-			EXPECT_EQ(1u, restrictions.restriction(model::AccountRestrictionType::MosaicId).values().size());
+			EXPECT_TRUE(restrictions.restriction(model::AccountRestrictionFlags::Address).values().empty());
+			EXPECT_EQ(1u, restrictions.restriction(model::AccountRestrictionFlags::MosaicId).values().size());
 		}
 
 		template<typename TOperationTraits, typename TRestrictionValueTraits>
 		void AssertObserverAddsAccountRestrictions(NotifyMode notifyMode) {
 			// Act:
 			RunTest<TOperationTraits, TRestrictionValueTraits>(1, notifyMode, 0, true, [notifyMode](const auto&) {
-				using AccountRestrictionModification = model::AccountRestrictionModification<typename TRestrictionValueTraits::ValueType>;
 				auto modificationAction = NotifyMode::Commit == notifyMode ? Add : Del;
-				return AccountRestrictionModification{ modificationAction, TRestrictionValueTraits::RandomValue() };
+				return std::make_pair(modificationAction, TRestrictionValueTraits::RandomValue());
 			});
 		}
 
@@ -186,9 +186,8 @@ namespace catapult { namespace observers {
 		void AssertObserverRemovesEmptyAccountRestrictions(NotifyMode notifyMode) {
 			// Act:
 			RunTest<TOperationTraits, TRestrictionValueTraits>(0, notifyMode, 1, false, [notifyMode](const auto& values) {
-				using AccountRestrictionModification = model::AccountRestrictionModification<typename TRestrictionValueTraits::ValueType>;
 				auto modificationAction = NotifyMode::Commit == notifyMode ? Del : Add;
-				return AccountRestrictionModification{ modificationAction, values[0] };
+				return std::make_pair(modificationAction, values[0]);
 			});
 		}
 
@@ -196,9 +195,8 @@ namespace catapult { namespace observers {
 		void AssertObserverInsertsModificationValueIntoRestrictions(NotifyMode notifyMode) {
 			// Act:
 			RunTest<TOperationTraits, TRestrictionValueTraits>(Num_Default_Entries + 1, notifyMode, [notifyMode](const auto& values) {
-				using AccountRestrictionModification = model::AccountRestrictionModification<typename TRestrictionValueTraits::ValueType>;
 				auto modificationAction = NotifyMode::Commit == notifyMode ? Add : Del;
-				return AccountRestrictionModification{ modificationAction, test::CreateRandomUniqueValue(values) };
+				return std::make_pair(modificationAction, test::CreateRandomUniqueValue(values));
 			});
 		}
 
@@ -206,9 +204,8 @@ namespace catapult { namespace observers {
 		void AssertObserverDeletesModificationValueFromRestrictions(NotifyMode notifyMode) {
 			// Act:
 			RunTest<TOperationTraits, TRestrictionValueTraits>(Num_Default_Entries - 1, notifyMode, [notifyMode](const auto& values) {
-				using AccountRestrictionModification = model::AccountRestrictionModification<typename TRestrictionValueTraits::ValueType>;
 				auto modificationAction = NotifyMode::Commit == notifyMode ? Del : Add;
-				return AccountRestrictionModification{ modificationAction, values[2] };
+				return std::make_pair(modificationAction, values[2]);
 			});
 		}
 	}

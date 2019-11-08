@@ -394,7 +394,8 @@ namespace catapult { namespace harvesting {
 				// Assert:
 				EXPECT_TRUE(!!pBlock);
 				EXPECT_EQ(bestKey, pBlock->SignerPublicKey);
-				EXPECT_EQ(model::MakeVersion(Network_Identifier, 3), pBlock->Version);
+				EXPECT_EQ(1u, pBlock->Version);
+				EXPECT_EQ(Network_Identifier, pBlock->Network);
 				EXPECT_EQ(model::Entity_Type_Block, pBlock->Type);
 				EXPECT_EQ(Height(2), pBlock->Height);
 				EXPECT_EQ(timestamp, pBlock->Timestamp);

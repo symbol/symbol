@@ -34,23 +34,9 @@ namespace catapult { namespace validators {
 			if (model::Entity_Type_Multisig_Account_Modification != transaction.Type)
 				return OperationType::Normal;
 
-			bool hasAdds = false;
-			bool hasDeletes = false;
 			const auto& accountModification = static_cast<const model::EmbeddedMultisigAccountModificationTransaction&>(transaction);
-			const auto* pModification = accountModification.ModificationsPtr();
-			for (auto i = 0u; i < accountModification.ModificationsCount; ++i) {
-				switch (pModification->ModificationAction) {
-				case model::CosignatoryModificationAction::Add:
-					hasAdds = true;
-					break;
-
-				case model::CosignatoryModificationAction::Del:
-					hasDeletes = true;
-					break;
-				}
-
-				++pModification;
-			}
+			auto hasAdds = 0 != accountModification.PublicKeyAdditionsCount;
+			auto hasDeletes = 0 != accountModification.PublicKeyDeletionsCount;
 
 			return hasDeletes
 					? hasAdds ? OperationType::Max : OperationType::Removal

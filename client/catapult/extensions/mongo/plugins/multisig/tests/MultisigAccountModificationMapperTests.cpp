@@ -33,20 +33,35 @@ namespace catapult { namespace mongo { namespace plugins {
 	namespace {
 		DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS(MultisigAccountModification)
 
-		using ModificationAction = model::CosignatoryModificationAction;
-
 		auto CreateMultisigAccountModificationTransactionBuilder(
 				const Key& signer,
 				int8_t minRemovalDelta,
 				int8_t minApprovalDelta,
-				std::initializer_list<model::CosignatoryModification> modifications) {
+				uint8_t numKeyAdditions,
+				uint8_t numKeyDeletions) {
 			builders::MultisigAccountModificationBuilder builder(model::NetworkIdentifier::Mijin_Test, signer);
 			builder.setMinRemovalDelta(minRemovalDelta);
 			builder.setMinApprovalDelta(minApprovalDelta);
-			for (const auto& modification : modifications)
-				builder.addModification(modification);
+
+			for (auto i = 0u; i < numKeyAdditions; ++i)
+				builder.addPublicKeyAddition(test::GenerateRandomByteArray<Key>());
+
+			for (auto i = 0u; i < numKeyDeletions; ++i)
+				builder.addPublicKeyDeletion(test::GenerateRandomByteArray<Key>());
 
 			return builder;
+		}
+
+		void AssertEqualKeys(const bsoncxx::document::view& dbTransaction, const std::string& name, const Key* pKeys, uint8_t numKeys) {
+			auto dbKeys = dbTransaction[name].get_array().value;
+			ASSERT_EQ(numKeys, test::GetFieldCount(dbKeys));
+
+			auto dbKeysIter = dbKeys.cbegin();
+			for (auto i = 0u; i < numKeys; ++i, ++dbKeysIter) {
+				Key key;
+				mongo::mappers::DbBinaryToModelArray(key, dbKeysIter->get_binary());
+				EXPECT_EQ(pKeys[i], key) << name << " at " << i;
+			}
 		}
 
 		template<typename TTransaction>
@@ -54,28 +69,24 @@ namespace catapult { namespace mongo { namespace plugins {
 			EXPECT_EQ(transaction.MinRemovalDelta, test::GetInt32(dbTransaction, "minRemovalDelta"));
 			EXPECT_EQ(transaction.MinApprovalDelta, test::GetInt32(dbTransaction, "minApprovalDelta"));
 
-			auto dbModifications = dbTransaction["modifications"].get_array().value;
-			ASSERT_EQ(transaction.ModificationsCount, test::GetFieldCount(dbModifications));
-			const auto* pModification = transaction.ModificationsPtr();
-			auto iter = dbModifications.cbegin();
-			for (auto i = 0u; i < transaction.ModificationsCount; ++i) {
-				EXPECT_EQ(
-						pModification->ModificationAction,
-						static_cast<ModificationAction>(test::GetUint32(iter->get_document().view(), "modificationAction")));
-				EXPECT_EQ(pModification->CosignatoryPublicKey, test::GetKeyValue(iter->get_document().view(), "cosignatoryPublicKey"));
-				++pModification;
-				++iter;
-			}
+			AssertEqualKeys(dbTransaction, "publicKeyAdditions", transaction.PublicKeyAdditionsPtr(), transaction.PublicKeyAdditionsCount);
+			AssertEqualKeys(dbTransaction, "publicKeyDeletions", transaction.PublicKeyDeletionsPtr(), transaction.PublicKeyDeletionsCount);
 		}
 
 		template<typename TTraits>
 		void AssertCanMapMultisigAccountModificationTransaction(
 				int8_t minRemovalDelta,
 				int8_t minApprovalDelta,
-				std::initializer_list<model::CosignatoryModification> modifications) {
+				uint8_t numKeyAdditions,
+				uint8_t numKeyDeletions) {
 			// Arrange:
 			auto signer = test::GenerateRandomByteArray<Key>();
-			auto pBuilder = CreateMultisigAccountModificationTransactionBuilder(signer, minRemovalDelta, minApprovalDelta, modifications);
+			auto pBuilder = CreateMultisigAccountModificationTransactionBuilder(
+					signer,
+					minRemovalDelta,
+					minApprovalDelta,
+					numKeyAdditions,
+					numKeyDeletions);
 			auto pTransaction = TTraits::Adapt(pBuilder);
 			auto pPlugin = TTraits::CreatePlugin();
 
@@ -85,7 +96,7 @@ namespace catapult { namespace mongo { namespace plugins {
 			auto view = builder.view();
 
 			// Assert:
-			EXPECT_EQ(3u, test::GetFieldCount(view));
+			EXPECT_EQ(4u, test::GetFieldCount(view));
 			AssertEqualNonInheritedTransferData(*pTransaction, view);
 		}
 	}
@@ -95,21 +106,19 @@ namespace catapult { namespace mongo { namespace plugins {
 	// region streamTransaction
 
 	PLUGIN_TEST(CanMapModifiyMultisigAccountTransactionWithoutModification) {
-		AssertCanMapMultisigAccountModificationTransaction<TTraits>(3, 5, {});
+		AssertCanMapMultisigAccountModificationTransaction<TTraits>(3, 5, 0, 0);
 	}
 
-	PLUGIN_TEST(CanMapModifiyMultisigAccountTransactionWithSingleModification) {
-		AssertCanMapMultisigAccountModificationTransaction<TTraits>(3, 5, {
-			{ ModificationAction::Add, test::GenerateRandomByteArray<Key>() }
-		});
+	PLUGIN_TEST(CanMapModifiyMultisigAccountTransactionWithSingleAddition) {
+		AssertCanMapMultisigAccountModificationTransaction<TTraits>(3, 5, 1, 0);
 	}
 
-	PLUGIN_TEST(CanMapModifiyMultisigAccountTransactionWithMultipleModification) {
-		AssertCanMapMultisigAccountModificationTransaction<TTraits>(3, 5, {
-			{ ModificationAction::Add, test::GenerateRandomByteArray<Key>() },
-			{ ModificationAction::Del, test::GenerateRandomByteArray<Key>() },
-			{ ModificationAction::Add, test::GenerateRandomByteArray<Key>() }
-		});
+	PLUGIN_TEST(CanMapModifiyMultisigAccountTransactionWithSingleDeletion) {
+		AssertCanMapMultisigAccountModificationTransaction<TTraits>(3, 5, 0, 1);
+	}
+
+	PLUGIN_TEST(CanMapModifiyMultisigAccountTransactionWithMultipleAdditionsAndDeletions) {
+		AssertCanMapMultisigAccountModificationTransaction<TTraits>(3, 5, 4, 2);
 	}
 
 	// endregion

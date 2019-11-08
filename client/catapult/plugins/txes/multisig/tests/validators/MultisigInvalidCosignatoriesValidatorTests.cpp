@@ -33,11 +33,7 @@ namespace catapult { namespace validators {
 	DEFINE_COMMON_VALIDATOR_TESTS(MultisigInvalidCosignatories,)
 
 	namespace {
-		using Modifications = std::vector<model::CosignatoryModification>;
-
-		auto CreateNotification(const Key& signer, const std::vector<model::CosignatoryModification>& modifications) {
-			return model::MultisigCosignatoriesNotification(signer, static_cast<uint8_t>(modifications.size()), modifications.data());
-		}
+		constexpr auto CreateNotification = test::CreateMultisigCosignatoriesNotification;
 
 		void AssertValidationResult(
 				ValidationResult expectedResult,
@@ -54,15 +50,13 @@ namespace catapult { namespace validators {
 			EXPECT_EQ(expectedResult, result);
 		}
 
-		constexpr auto Add = model::CosignatoryModificationAction::Add;
-		constexpr auto Del = model::CosignatoryModificationAction::Del;
-
-		void AssertMultisigAccountIsUnknown(ValidationResult expectedResult, model::CosignatoryModificationAction operation) {
+		void AssertMultisigAccountIsUnknown(
+				ValidationResult expectedResult,
+				const std::vector<Key>& publicKeyAdditions,
+				const std::vector<Key>& publicKeyDeletions) {
 			// Arrange:
-			auto keys = test::GenerateKeys(4);
-			const auto& signer = keys[0];
-			auto modifications = Modifications{ { Add, keys[1] }, { operation, keys[2] }, { Add, keys[3] } };
-			auto notification = CreateNotification(signer, modifications);
+			auto signer = test::GenerateRandomByteArray<Key>();
+			auto notification = CreateNotification(signer, publicKeyAdditions, publicKeyDeletions);
 
 			auto cache = test::MultisigCacheFactory::Create();
 
@@ -72,19 +66,25 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, CanAddCosignatoriesWhenAccountIsUnknown) {
-		AssertMultisigAccountIsUnknown(ValidationResult::Success, Add);
+		AssertMultisigAccountIsUnknown(ValidationResult::Success, test::GenerateRandomDataVector<Key>(3), {});
 	}
 
 	TEST(TEST_CLASS, CannotRemoveCosignatoryWhenAccountIsUnknown) {
-		AssertMultisigAccountIsUnknown(Failure_Multisig_Unknown_Multisig_Account, Del);
+		AssertMultisigAccountIsUnknown(
+				Failure_Multisig_Unknown_Multisig_Account,
+				test::GenerateRandomDataVector<Key>(3),
+				test::GenerateRandomDataVector<Key>(1));
 	}
 
 	namespace {
+		enum class CosignatoryModificationAction { Add, Del };
 		enum class CosignatoryType { Existing, New };
 
+		constexpr auto Add = CosignatoryModificationAction::Add;
+		constexpr auto Del = CosignatoryModificationAction::Del;
+
 		struct OperationAndType {
-		public:
-			model::CosignatoryModificationAction Operation;
+			CosignatoryModificationAction Operation;
 			CosignatoryType Type;
 		};
 
@@ -92,11 +92,17 @@ namespace catapult { namespace validators {
 			// Arrange: first key is a signer (multisig account key)
 			auto keys = test::GenerateKeys(1 + settings.size());
 			const auto& signer = keys[0];
-			Modifications modifications;
-			for (auto i = 0u; i < settings.size(); ++i)
-				modifications.push_back({ settings[i].Operation, keys[1 + i] });
 
-			auto notification = CreateNotification(signer, modifications);
+			std::vector<Key> publicKeyAdditions;
+			std::vector<Key> publicKeyDeletions;
+			for (auto i = 0u; i < settings.size(); ++i) {
+				if (CosignatoryModificationAction::Add == settings[i].Operation)
+					publicKeyAdditions.push_back(keys[1 + i]);
+				else
+					publicKeyDeletions.push_back(keys[1 + i]);
+			}
+
+			auto notification = CreateNotification(signer, publicKeyAdditions, publicKeyDeletions);
 			auto cache = test::MultisigCacheFactory::Create();
 
 			// - create multisig entry in cache
@@ -191,13 +197,13 @@ namespace catapult { namespace validators {
 
 	// region multiple failures
 
-	TEST(TEST_CLASS, FirstErrorIsReported) {
+	TEST(TEST_CLASS, AdditionFailuresDominateDeletionFailures) {
 		AssertCosignatoriesModifications(Failure_Multisig_Already_A_Cosignatory, {
 				{ Add, CosignatoryType::Existing },
 				{ Del, CosignatoryType::New }
 		});
 
-		AssertCosignatoriesModifications(Failure_Multisig_Not_A_Cosignatory, {
+		AssertCosignatoriesModifications(Failure_Multisig_Already_A_Cosignatory, {
 				{ Del, CosignatoryType::New },
 				{ Add, CosignatoryType::Existing }
 		});

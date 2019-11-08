@@ -32,29 +32,33 @@ namespace catapult { namespace plugins {
 	namespace {
 		template<typename TTransaction>
 		void Publish(const TTransaction& transaction, NotificationSubscriber& sub) {
-			// 1. cosig changes
+			// 1. basic
+			sub.notify(InternalPaddingNotification(transaction.MultisigAccountModificationTransactionBody_Reserved1));
+
+			// 2. cosig changes
 			utils::KeySet addedCosignatoryKeys;
-			if (0 < transaction.ModificationsCount) {
+			if (0 < transaction.PublicKeyAdditionsCount || 0 < transaction.PublicKeyDeletionsCount) {
 				// - raise new cosignatory notifications first because they are used for multisig loop detection
 				// - notify cosignatories' public keys in order to allow added cosignatories to get aggregate notifications
-				const auto* pModifications = transaction.ModificationsPtr();
-				for (auto i = 0u; i < transaction.ModificationsCount; ++i) {
-					if (model::CosignatoryModificationAction::Add == pModifications[i].ModificationAction) {
-						sub.notify(AccountPublicKeyNotification(pModifications[i].CosignatoryPublicKey));
-						sub.notify(MultisigNewCosignatoryNotification(
-								transaction.SignerPublicKey,
-								pModifications[i].CosignatoryPublicKey));
-						addedCosignatoryKeys.insert(pModifications[i].CosignatoryPublicKey);
-					}
+				const auto* pPublicKeyAdditions = transaction.PublicKeyAdditionsPtr();
+				for (auto i = 0u; i < transaction.PublicKeyAdditionsCount; ++i) {
+					sub.notify(AccountPublicKeyNotification(pPublicKeyAdditions[i]));
+					sub.notify(MultisigNewCosignatoryNotification(transaction.SignerPublicKey, pPublicKeyAdditions[i]));
+					addedCosignatoryKeys.insert(pPublicKeyAdditions[i]);
 				}
 
-				sub.notify(MultisigCosignatoriesNotification(transaction.SignerPublicKey, transaction.ModificationsCount, pModifications));
+				sub.notify(MultisigCosignatoriesNotification(
+						transaction.SignerPublicKey,
+						transaction.PublicKeyAdditionsCount,
+						pPublicKeyAdditions,
+						transaction.PublicKeyDeletionsCount,
+						transaction.PublicKeyDeletionsPtr()));
 			}
 
 			if (!addedCosignatoryKeys.empty())
 				sub.notify(AddressInteractionNotification(transaction.SignerPublicKey, transaction.Type, {}, addedCosignatoryKeys));
 
-			// 2. setting changes
+			// 3. setting changes
 			sub.notify(MultisigSettingsNotification(
 					transaction.SignerPublicKey,
 					transaction.MinRemovalDelta,

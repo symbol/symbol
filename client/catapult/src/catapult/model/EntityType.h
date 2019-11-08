@@ -45,9 +45,9 @@ namespace catapult { namespace model {
 	/// Makes entity type given \a basicEntityType, \a facilityCode and \a code.
 	constexpr EntityType MakeEntityType(BasicEntityType basicEntityType, FacilityCode facilityCode, uint8_t code) {
 		return static_cast<EntityType>(
-				(static_cast<uint16_t>(basicEntityType) & 0x03) << 14 | // 01..02: type
-				((code & 0xF) << 8) | //                                   05..08: code
-				(static_cast<uint8_t>(facilityCode) & 0xFF)); //           09..16: facility
+				(static_cast<uint16_t>(basicEntityType) & 0x03) << 14 // 01..02: type
+				| ((code & 0xF) << 8) //                                 05..08: code
+				| (static_cast<uint8_t>(facilityCode) & 0xFF)); //       09..16: facility
 	}
 
 /// Defines entity type given \a BASIC_TYPE, \a FACILITY, \a DESCRIPTION and \a CODE.

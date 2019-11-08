@@ -38,16 +38,8 @@ namespace catapult { namespace validators {
 				numCosignatories = multisigAccountEntry.cosignatoryPublicKeys().size();
 			}
 
-			const auto* pCosignatoryModification = notification.ModificationsPtr;
-			for (auto i = 0u; i < notification.ModificationsCount; ++i) {
-				if (model::CosignatoryModificationAction::Add == pCosignatoryModification->ModificationAction)
-					++numCosignatories;
-				else
-					--numCosignatories;
-
-				++pCosignatoryModification;
-			}
-
+			// cannot underflow because other validator checks that all keys being deleted exist
+			numCosignatories += notification.PublicKeyAdditionsCount - notification.PublicKeyDeletionsCount;
 			return numCosignatories > maxCosignatoriesPerAccount ? Failure_Multisig_Max_Cosignatories : ValidationResult::Success;
 		});
 	}

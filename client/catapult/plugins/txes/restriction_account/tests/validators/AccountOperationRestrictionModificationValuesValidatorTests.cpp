@@ -31,22 +31,21 @@ namespace catapult { namespace validators {
 	DEFINE_COMMON_VALIDATOR_TESTS(AccountOperationRestrictionModificationValues,)
 
 	namespace {
-		std::vector<model::AccountRestrictionModification<model::EntityType>> CreateModifications(const std::vector<uint16_t>& rawValues) {
-			std::vector<model::AccountRestrictionModification<model::EntityType>> modifications;
-			for (auto rawValue : rawValues)
-				modifications.push_back({ model::AccountRestrictionModificationAction::Add, static_cast<model::EntityType>(rawValue) });
-
-			return modifications;
-		}
+		struct AccountOperationRestrictionTraits : public test::BaseAccountOperationRestrictionTraits {
+			using NotificationType = model::ModifyAccountOperationRestrictionsNotification;
+		};
 
 		void AssertValidationResult(ValidationResult expectedResult, const std::vector<uint16_t>& rawValues) {
 			// Arrange:
-			auto modifications = CreateModifications(rawValues);
-			model::ModifyAccountOperationRestrictionNotification notification(
+			std::vector<model::EntityType> entityTypeAdditions;
+			std::vector<model::EntityType> entityTypeDeletions;
+			for (auto rawValue : rawValues)
+				entityTypeAdditions.push_back(static_cast<model::EntityType>(rawValue));
+
+			auto notification = test::CreateAccountRestrictionsNotification<AccountOperationRestrictionTraits>(
 					test::GenerateRandomByteArray<Key>(),
-					model::AccountRestrictionType::TransactionType,
-					static_cast<uint8_t>(modifications.size()),
-					modifications.data());
+					entityTypeAdditions,
+					entityTypeDeletions);
 			auto pValidator = CreateAccountOperationRestrictionModificationValuesValidator();
 
 			// Act:

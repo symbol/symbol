@@ -37,58 +37,71 @@ namespace catapult { namespace mongo { namespace plugins {
 	class AccountRestrictionMapperTests {
 	public:
 		static void AssertCanMapAccountRestrictionTransactionWithoutModifications() {
-			// Assert:
-			AssertCanMapAccountRestrictionTransaction(0);
+			AssertCanMapAccountRestrictionTransaction(0, 0);
 		}
 
-		static void AssertCanMapAccountRestrictionTransactionWithSingleModification() {
-			// Assert:
-			AssertCanMapAccountRestrictionTransaction(1);
+		static void AssertCanMapAccountRestrictionTransactionWithSingleAddition() {
+			AssertCanMapAccountRestrictionTransaction(1, 0);
 		}
 
-		static void AssertCanMapAccountRestrictionTransactionWithMultipleModifications() {
-			// Assert:
-			AssertCanMapAccountRestrictionTransaction(5);
+		static void AssertCanMapAccountRestrictionTransactionWithSingleDeletion() {
+			AssertCanMapAccountRestrictionTransaction(0, 1);
+		}
+
+		static void AssertCanMapAccountRestrictionTransactionWithMultipleAdditionsAndDeletions() {
+			AssertCanMapAccountRestrictionTransaction(3, 2);
 		}
 
 	private:
-		static auto CreateAccountRestrictionTransaction(uint8_t numModifications) {
+		static auto CreateAccountRestrictionTransaction(uint8_t numAdditions, uint8_t numDeletions) {
 			using TransactionType = typename TTraits::TransactionType;
 			auto valueSize = TRestrictionValueTraits::Restriction_Value_Size;
-			auto entitySize = static_cast<uint32_t>(sizeof(TransactionType) + numModifications * (1 + valueSize));
+			auto entitySize = static_cast<uint32_t>(sizeof(TransactionType) + (numAdditions + numDeletions) * valueSize);
 			auto pTransaction = utils::MakeUniqueWithSize<TransactionType>(entitySize);
 			test::FillWithRandomData({ reinterpret_cast<uint8_t*>(pTransaction.get()), entitySize });
 			pTransaction->Size = entitySize;
-			pTransaction->ModificationsCount = numModifications;
+			pTransaction->RestrictionAdditionsCount = numAdditions;
+			pTransaction->RestrictionDeletionsCount = numDeletions;
 			return pTransaction;
+		}
+
+		template<typename TRestrictionValue>
+		static void AssertEqualValues(
+				const bsoncxx::document::view& dbTransaction,
+				const std::string& name,
+				const TRestrictionValue* pValues,
+				uint8_t numValues) {
+			auto dbValues = dbTransaction[name].get_array().value;
+			ASSERT_EQ(numValues, test::GetFieldCount(dbValues));
+
+			auto dbValuesIter = dbValues.cbegin();
+			for (auto i = 0u; i < numValues; ++i, ++dbValuesIter) {
+				RawBuffer buffer(dbValuesIter->get_binary().bytes, dbValuesIter->get_binary().size);
+				EXPECT_EQ(pValues[i], TRestrictionValueTraits::FromBuffer(buffer)) << name << " at " << i;
+			}
 		}
 
 		template<typename TTransaction>
 		static void AssertAccountRestrictionTransaction(const TTransaction& transaction, const bsoncxx::document::view& dbTransaction) {
 			EXPECT_EQ(
-					transaction.RestrictionType,
-					static_cast<model::AccountRestrictionType>(test::GetUint8(dbTransaction, "restrictionType")));
+					transaction.RestrictionFlags,
+					static_cast<model::AccountRestrictionFlags>(test::GetUint32(dbTransaction, "restrictionFlags")));
 
-			auto dbModifications = dbTransaction["modifications"].get_array().value;
-			ASSERT_EQ(transaction.ModificationsCount, test::GetFieldCount(dbModifications));
-			const auto* pModification = transaction.ModificationsPtr();
-			auto iter = dbModifications.cbegin();
-			for (auto i = 0u; i < transaction.ModificationsCount; ++i) {
-				auto view = iter->get_document().view();
-				EXPECT_EQ(
-						pModification->ModificationAction,
-						static_cast<model::AccountRestrictionModificationAction>(test::GetUint8(view, "modificationAction")));
-
-				RawBuffer buffer(view["value"].get_binary().bytes, view["value"].get_binary().size);
-				EXPECT_EQ(pModification->Value, TRestrictionValueTraits::FromBuffer(buffer));
-				++pModification;
-				++iter;
-			}
+			AssertEqualValues(
+					dbTransaction,
+					"restrictionAdditions",
+					transaction.RestrictionAdditionsPtr(),
+					transaction.RestrictionAdditionsCount);
+			AssertEqualValues(
+					dbTransaction,
+					"restrictionDeletions",
+					transaction.RestrictionDeletionsPtr(),
+					transaction.RestrictionDeletionsCount);
 		}
 
-		static void AssertCanMapAccountRestrictionTransaction(uint8_t numModifications) {
+		static void AssertCanMapAccountRestrictionTransaction(uint8_t numAdditions, uint8_t numDeletions) {
 			// Arrange:
-			auto pTransaction = CreateAccountRestrictionTransaction(numModifications);
+			auto pTransaction = CreateAccountRestrictionTransaction(numAdditions, numDeletions);
 			auto pPlugin = TTraits::CreatePlugin();
 
 			// Act:
@@ -97,7 +110,7 @@ namespace catapult { namespace mongo { namespace plugins {
 			auto view = builder.view();
 
 			// Assert:
-			EXPECT_EQ(2u, test::GetFieldCount(view));
+			EXPECT_EQ(3u, test::GetFieldCount(view));
 			AssertAccountRestrictionTransaction(*pTransaction, view);
 		}
 	};
@@ -113,8 +126,9 @@ namespace catapult { namespace mongo { namespace plugins {
 
 #define DEFINE_ACCOUNT_RESTRICTION_MAPPER_TESTS_WITH_PREFIXED_TRAITS(TRAITS, PREFIX, RESTRICTION_VALUE_TRAITS) \
 	MAKE_ACCOUNT_RESTRICTION_MAPPER_TEST(TRAITS, PREFIX, RESTRICTION_VALUE_TRAITS, WithoutModifications) \
-	MAKE_ACCOUNT_RESTRICTION_MAPPER_TEST(TRAITS, PREFIX, RESTRICTION_VALUE_TRAITS, WithSingleModification) \
-	MAKE_ACCOUNT_RESTRICTION_MAPPER_TEST(TRAITS, PREFIX, RESTRICTION_VALUE_TRAITS, WithMultipleModifications)
+	MAKE_ACCOUNT_RESTRICTION_MAPPER_TEST(TRAITS, PREFIX, RESTRICTION_VALUE_TRAITS, WithSingleAddition) \
+	MAKE_ACCOUNT_RESTRICTION_MAPPER_TEST(TRAITS, PREFIX, RESTRICTION_VALUE_TRAITS, WithSingleDeletion) \
+	MAKE_ACCOUNT_RESTRICTION_MAPPER_TEST(TRAITS, PREFIX, RESTRICTION_VALUE_TRAITS, WithMultipleAdditionsAndDeletions)
 
 	namespace {
 		DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(AccountAddressRestriction, Address)

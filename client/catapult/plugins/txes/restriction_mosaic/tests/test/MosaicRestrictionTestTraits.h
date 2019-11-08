@@ -36,9 +36,15 @@ namespace catapult { namespace test {
 	public:
 		/// Creates default traits.
 		MosaicGlobalRestrictionTestTraits()
-				: m_mosaicId(test::GenerateRandomValue<MosaicId>())
-				, m_referenceMosaicId(test::GenerateRandomValue<MosaicId>())
+				: m_mosaicId(GenerateRandomValue<MosaicId>())
+				, m_referenceMosaicId(GenerateRandomValue<MosaicId>())
 		{}
+
+	public:
+		/// Gets the random (unresolved) reference mosaic id.
+		UnresolvedMosaicId referenceMosaicId() const {
+			return UnresolveXor(m_referenceMosaicId);
+		}
 
 	public:
 		/// Gets the unique entry key.
@@ -49,13 +55,13 @@ namespace catapult { namespace test {
 		/// Creates an add notification with \a key and \a value.
 		NotificationType createAddNotification(uint64_t key, uint64_t value) {
 			auto restrictionType = model::MosaicRestrictionType::EQ;
-			return NotificationType(test::UnresolveXor(m_mosaicId), test::UnresolveXor(m_referenceMosaicId), key, value, restrictionType);
+			return NotificationType(UnresolveXor(m_mosaicId), UnresolveXor(m_referenceMosaicId), key, value, restrictionType);
 		}
 
 		/// Creates a delete notification with \a key.
 		NotificationType createDeleteNotification(uint64_t key) {
 			auto restrictionType = model::MosaicRestrictionType::NONE;
-			return NotificationType(test::UnresolveXor(m_mosaicId), test::UnresolveXor(MosaicId()), key, 0, restrictionType);
+			return NotificationType(UnresolveXor(m_mosaicId), UnresolveXor(MosaicId()), key, 0, restrictionType);
 		}
 
 	public:
@@ -109,9 +115,9 @@ namespace catapult { namespace test {
 	public:
 		/// Creates default traits.
 		MosaicAddressRestrictionTestTraits()
-				: m_mosaicId(test::GenerateRandomValue<MosaicId>())
-				, m_address(test::GenerateRandomByteArray<Address>())
-				, m_unresolvedAddress(test::UnresolveXor(m_address))
+				: m_mosaicId(GenerateRandomValue<MosaicId>())
+				, m_address(GenerateRandomByteArray<Address>())
+				, m_unresolvedAddress(UnresolveXor(m_address))
 		{}
 
 	public:
@@ -122,7 +128,7 @@ namespace catapult { namespace test {
 
 		/// Creates an add notification with \a key and \a value.
 		NotificationType createAddNotification(uint64_t key, uint64_t value) {
-			return NotificationType(test::UnresolveXor(m_mosaicId), key, m_unresolvedAddress, value);
+			return NotificationType(UnresolveXor(m_mosaicId), key, m_unresolvedAddress, value);
 		}
 
 		/// Creates a delete notification with \a key.

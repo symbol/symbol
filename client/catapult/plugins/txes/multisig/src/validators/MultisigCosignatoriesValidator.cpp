@@ -27,37 +27,28 @@ namespace catapult { namespace validators {
 	using Notification = model::MultisigCosignatoriesNotification;
 
 	namespace {
-		constexpr bool IsValidModificationAction(model::CosignatoryModificationAction action) {
-			return model::CosignatoryModificationAction::Add == action || model::CosignatoryModificationAction::Del == action;
+		utils::KeyPointerSet ToSet(const Key* pKeys, uint8_t numKeys) {
+			utils::KeyPointerSet keys;
+			for (auto i = 0u; i < numKeys; ++i)
+				keys.insert(&pKeys[i]);
+
+			return keys;
 		}
 	}
 
 	DEFINE_STATELESS_VALIDATOR(MultisigCosignatories, [](const Notification& notification) {
-		utils::KeyPointerSet addedAccounts;
-		utils::KeyPointerSet removedAccounts;
-
-		const auto* pModifications = notification.ModificationsPtr;
-		for (auto i = 0u; i < notification.ModificationsCount; ++i) {
-			if (!IsValidModificationAction(pModifications[i].ModificationAction))
-				return Failure_Multisig_Invalid_Modification_Action;
-
-			auto& accounts = model::CosignatoryModificationAction::Add == pModifications[i].ModificationAction
-					? addedAccounts
-					: removedAccounts;
-			const auto& oppositeAccounts = &accounts == &addedAccounts ? removedAccounts : addedAccounts;
-
-			auto& key = pModifications[i].CosignatoryPublicKey;
-			if (oppositeAccounts.end() != oppositeAccounts.find(&key))
-				return Failure_Multisig_Account_In_Both_Sets;
-
-			accounts.insert(&key);
-		}
-
-		if (1 < removedAccounts.size())
+		if (1 < notification.PublicKeyDeletionsCount)
 			return Failure_Multisig_Multiple_Deletes;
 
-		if (notification.ModificationsCount != addedAccounts.size() + removedAccounts.size())
+		auto publicKeyAdditions = ToSet(notification.PublicKeyAdditionsPtr, notification.PublicKeyAdditionsCount);
+		auto publicKeyDeletions = ToSet(notification.PublicKeyDeletionsPtr, notification.PublicKeyDeletionsCount);
+		if (notification.PublicKeyAdditionsCount != publicKeyAdditions.size())
 			return Failure_Multisig_Redundant_Modification;
+
+		for (const auto* pKey : publicKeyAdditions) {
+			if (publicKeyDeletions.cend() != publicKeyDeletions.find(pKey))
+				return Failure_Multisig_Account_In_Both_Sets;
+		}
 
 		return ValidationResult::Success;
 	});

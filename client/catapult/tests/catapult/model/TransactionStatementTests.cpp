@@ -68,8 +68,8 @@ namespace catapult { namespace model {
 		auto transactionStatement = TransactionStatement({ 0x222, 0x333 });
 
 		// Assert: source
-		EXPECT_EQ(0x222u, transactionStatement.source() .PrimaryId);
-		EXPECT_EQ(0x333u, transactionStatement.source() .SecondaryId);
+		EXPECT_EQ(0x222u, transactionStatement.source().PrimaryId);
+		EXPECT_EQ(0x333u, transactionStatement.source().SecondaryId);
 
 		// - receipts
 		EXPECT_EQ(0u, transactionStatement.size());
@@ -103,8 +103,8 @@ namespace catapult { namespace model {
 		transactionStatement.addReceipt(receipt);
 
 		// Assert: source
-		EXPECT_EQ(0x222u, transactionStatement.source() .PrimaryId);
-		EXPECT_EQ(0x333u, transactionStatement.source() .SecondaryId);
+		EXPECT_EQ(0x222u, transactionStatement.source().PrimaryId);
+		EXPECT_EQ(0x333u, transactionStatement.source().SecondaryId);
 
 		// - receipts
 		ASSERT_EQ(1u, transactionStatement.size());
@@ -144,8 +144,8 @@ namespace catapult { namespace model {
 		transactionStatement.addReceipt(receipt);
 
 		// Assert: source
-		EXPECT_EQ(0x222u, transactionStatement.source() .PrimaryId);
-		EXPECT_EQ(0x333u, transactionStatement.source() .SecondaryId);
+		EXPECT_EQ(0x222u, transactionStatement.source().PrimaryId);
+		EXPECT_EQ(0x333u, transactionStatement.source().SecondaryId);
 
 		// - receipts
 		ASSERT_EQ(3u, transactionStatement.size());
@@ -193,8 +193,8 @@ namespace catapult { namespace model {
 		transactionStatement.addReceipt(receipt3);
 
 		// Assert: source
-		EXPECT_EQ(0x222u, transactionStatement.source() .PrimaryId);
-		EXPECT_EQ(0x333u, transactionStatement.source() .SecondaryId);
+		EXPECT_EQ(0x222u, transactionStatement.source().PrimaryId);
+		EXPECT_EQ(0x333u, transactionStatement.source().SecondaryId);
 
 		// - receipts
 		ASSERT_EQ(3u, transactionStatement.size());
@@ -248,8 +248,8 @@ namespace catapult { namespace model {
 		transactionStatement.addReceipt(receipt6);
 
 		// Assert: source
-		EXPECT_EQ(0x222u, transactionStatement.source() .PrimaryId);
-		EXPECT_EQ(0x333u, transactionStatement.source() .SecondaryId);
+		EXPECT_EQ(0x222u, transactionStatement.source().PrimaryId);
+		EXPECT_EQ(0x333u, transactionStatement.source().SecondaryId);
 
 		// - receipts (sorted by type followed by add order)
 		ASSERT_EQ(6u, transactionStatement.size());

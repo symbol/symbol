@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "Mosaic.h"
 #include "ReceiptType.h"
 #include "SizePrefixedEntity.h"
 #include "catapult/types.h"
@@ -26,6 +27,8 @@
 namespace catapult { namespace model {
 
 #pragma pack(push, 1)
+
+	// region Receipt
 
 	/// Binary layout for a receipt entity.
 	struct Receipt : public SizePrefixedEntity {
@@ -35,6 +38,10 @@ namespace catapult { namespace model {
 		/// Receipt type.
 		ReceiptType Type;
 	};
+
+	// endregion
+
+	// region BalanceTransferReceipt
 
 	/// Binary layout for a balance transfer receipt.
 	struct BalanceTransferReceipt : public Receipt {
@@ -46,72 +53,71 @@ namespace catapult { namespace model {
 				const Address& recipientAddress,
 				catapult::MosaicId mosaicId,
 				catapult::Amount amount)
-				: SenderPublicKey(senderPublicKey)
-				, RecipientAddress(recipientAddress)
-				, MosaicId(mosaicId)
-				, Amount(amount) {
+				: Mosaic({ mosaicId, amount })
+				, SenderPublicKey(senderPublicKey)
+				, RecipientAddress(recipientAddress) {
 			Size = sizeof(BalanceTransferReceipt);
 			Version = 1;
 			Type = receiptType;
 		}
 
 	public:
+		/// Mosaic.
+		model::Mosaic Mosaic;
+
 		/// Mosaic sender public key.
 		Key SenderPublicKey;
 
 		/// Mosaic recipient address.
 		Address RecipientAddress;
-
-		/// Mosaic id.
-		catapult::MosaicId MosaicId;
-
-		/// Amount.
-		catapult::Amount Amount;
 	};
+
+	// endregion
+
+	// region BalanceChangeReceipt
 
 	/// Binary layout for a balance change receipt.
 	struct BalanceChangeReceipt : public Receipt {
 	public:
 		/// Creates a receipt around \a receiptType, \a targetPublicKey, \a mosaicId and \a amount.
 		BalanceChangeReceipt(ReceiptType receiptType, const Key& targetPublicKey, catapult::MosaicId mosaicId, catapult::Amount amount)
-				: TargetPublicKey(targetPublicKey)
-				, MosaicId(mosaicId)
-				, Amount(amount) {
+				: Mosaic({ mosaicId, amount })
+				, TargetPublicKey(targetPublicKey) {
 			Size = sizeof(BalanceChangeReceipt);
 			Version = 1;
 			Type = receiptType;
 		}
 
 	public:
+		/// Mosaic.
+		model::Mosaic Mosaic;
+
 		/// Account public key.
 		Key TargetPublicKey;
-
-		/// Mosaic id.
-		catapult::MosaicId MosaicId;
-
-		/// Amount.
-		catapult::Amount Amount;
 	};
+
+	// endregion
+
+	// region InflationReceipt
 
 	/// Binary layout for an inflation receipt.
 	struct InflationReceipt : public Receipt {
 	public:
 		/// Creates a receipt around \a receiptType, \a mosaicId and \a amount.
-		InflationReceipt(ReceiptType receiptType, catapult::MosaicId mosaicId, catapult::Amount amount)
-				: MosaicId(mosaicId)
-				, Amount(amount) {
+		InflationReceipt(ReceiptType receiptType, catapult::MosaicId mosaicId, catapult::Amount amount) : Mosaic({ mosaicId, amount }) {
 			Size = sizeof(InflationReceipt);
 			Version = 1;
 			Type = receiptType;
 		}
 
 	public:
-		/// Mosaic id.
-		catapult::MosaicId MosaicId;
-
-		/// Amount.
-		catapult::Amount Amount;
+		/// Mosaic.
+		model::Mosaic Mosaic;
 	};
+
+	// endregion
+
+	// region ArtifactExpiryReceipt
 
 	/// Binary layout for an artifact expiry receipt.
 	template<typename TArtifactId>
@@ -128,6 +134,8 @@ namespace catapult { namespace model {
 		/// Artifact id.
 		TArtifactId ArtifactId;
 	};
+
+	// endregion
 
 #pragma pack(pop)
 

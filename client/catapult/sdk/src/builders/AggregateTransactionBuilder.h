@@ -45,7 +45,7 @@ namespace catapult { namespace builders {
 		std::unique_ptr<model::AggregateTransaction> build() const;
 
 	private:
-		std::vector<EmbeddedTransactionPointer> m_pTransactions;
+		std::vector<EmbeddedTransactionPointer> m_transactions;
 	};
 
 	/// Helper to add cosignatures to an aggregate transaction.

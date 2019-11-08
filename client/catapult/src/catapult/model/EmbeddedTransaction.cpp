@@ -22,11 +22,12 @@
 #include "NotificationSubscriber.h"
 #include "Transaction.h"
 #include "TransactionPlugin.h"
+#include "catapult/utils/IntegerMath.h"
 
 namespace catapult { namespace model {
 
 	std::ostream& operator<<(std::ostream& out, const EmbeddedTransaction& transaction) {
-		auto version = static_cast<uint16_t>(transaction.EntityVersion());
+		auto version = static_cast<uint16_t>(transaction.Version);
 		out << "(embedded) " << transaction.Type << " (v" << version << ") with size " << transaction.Size;
 		return out;
 	}
@@ -60,5 +61,11 @@ namespace catapult { namespace model {
 
 	void PublishNotifications(const EmbeddedTransaction& transaction, NotificationSubscriber& sub) {
 		sub.notify(AccountPublicKeyNotification(transaction.SignerPublicKey));
+	}
+
+	const model::EmbeddedTransaction* AdvanceNext(const model::EmbeddedTransaction* pTransaction) {
+		const auto* pTransactionData = reinterpret_cast<const uint8_t*>(pTransaction);
+		auto paddingSize = utils::GetPaddingSize(pTransaction->Size, 8);
+		return reinterpret_cast<const model::EmbeddedTransaction*>(pTransactionData + pTransaction->Size + paddingSize);
 	}
 }}

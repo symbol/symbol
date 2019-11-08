@@ -22,6 +22,7 @@
 #include "catapult/subscribers/StateChangeInfo.h"
 #include "catapult/subscribers/SubscriberOperationTypes.h"
 #include "tests/test/cache/CacheTestUtils.h"
+#include "tests/test/core/BufferReader.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/TestHarness.h"
 
@@ -78,12 +79,11 @@ namespace catapult { namespace local {
 		EXPECT_EQ(1u, stream.numFlushes());
 		ASSERT_EQ(1u + 2 * sizeof(uint64_t), buffer.size());
 
-		auto expectedOperationType = subscribers::StateChangeOperationType::Score_Change;
-		EXPECT_EQ(expectedOperationType, static_cast<subscribers::StateChangeOperationType>(buffer[0]));
+		test::BufferReader reader(buffer);
+		EXPECT_EQ(subscribers::StateChangeOperationType::Score_Change, reader.read<subscribers::StateChangeOperationType>());
 
-		auto* pUint64Values = reinterpret_cast<const uint64_t*>(buffer.data() + 1);
-		EXPECT_EQ(chainScore.toArray()[0], pUint64Values[0]);
-		EXPECT_EQ(chainScore.toArray()[1], pUint64Values[1]);
+		EXPECT_EQ(chainScore.toArray()[0], reader.read<uint64_t>());
+		EXPECT_EQ(chainScore.toArray()[1], reader.read<uint64_t>());
 	}
 
 	TEST(TEST_CLASS, NotifyStateChangeWritesToUnderlyingStream) {
@@ -120,22 +120,17 @@ namespace catapult { namespace local {
 		EXPECT_EQ(1u, stream.numFlushes());
 		ASSERT_EQ(1u + 3 * sizeof(uint64_t) + 2 * (sizeof(uint32_t) + sizeof(uintptr_t)), buffer.size());
 
-		auto expectedOperationType = subscribers::StateChangeOperationType::State_Change;
-		EXPECT_EQ(expectedOperationType, static_cast<subscribers::StateChangeOperationType>(buffer[0]));
+		test::BufferReader reader(buffer);
+		EXPECT_EQ(subscribers::StateChangeOperationType::State_Change, reader.read<subscribers::StateChangeOperationType>());
 
-		auto* pUint64Values = reinterpret_cast<const uint64_t*>(buffer.data() + 1);
-		EXPECT_EQ(chainScore.toArray()[0], pUint64Values[0]);
-		EXPECT_EQ(chainScore.toArray()[1], pUint64Values[1]);
-		EXPECT_EQ(height, Height(pUint64Values[2]));
+		EXPECT_EQ(chainScore.toArray()[0], reader.read<uint64_t>());
+		EXPECT_EQ(chainScore.toArray()[1], reader.read<uint64_t>());
+		EXPECT_EQ(height, reader.read<Height>());
 
 		// - check that both uint32_t value and CacheChanges pointer were written for each storage
-		auto offset = 1 + 3 * sizeof(uint64_t);
 		for (auto storageSentinel : { storageSentinel1, storageSentinel2 }) {
-			EXPECT_EQ(storageSentinel, reinterpret_cast<const uint32_t&>(buffer[offset])) << offset;
-			offset += sizeof(uint32_t);
-
-			EXPECT_EQ(expectedCacheChangesPointerValue, reinterpret_cast<const uintptr_t&>(buffer[offset])) << offset;
-			offset += sizeof(uintptr_t);
+			EXPECT_EQ(storageSentinel, reader.read<uint32_t>()) << reader.position();
+			EXPECT_EQ(expectedCacheChangesPointerValue, reader.read<uintptr_t>()) << reader.position();
 		}
 	}
 }}

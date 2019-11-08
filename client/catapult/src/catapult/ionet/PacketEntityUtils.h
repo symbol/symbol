@@ -52,7 +52,7 @@ namespace catapult { namespace ionet {
 		auto offsets = ExtractEntityOffsets<TEntity>({ packet.Data(), dataSize }, isValid);
 		return offsets.empty()
 				? model::EntityRange<TEntity>()
-				: model::EntityRange<TEntity>::CopyVariable(packet.Data(), dataSize, offsets);
+				: model::EntityRange<TEntity>::CopyVariable(packet.Data(), dataSize, offsets, sizeof(uint64_t));
 	}
 
 	/// Extracts a single entity from \a packet with a validity check (\a isValid).

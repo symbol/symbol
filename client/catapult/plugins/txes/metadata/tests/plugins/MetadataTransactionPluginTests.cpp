@@ -56,11 +56,15 @@ namespace catapult { namespace plugins {
 			}
 
 			static const auto& AppendExpectedCustomNotificationTypes(std::vector<NotificationType>&& notificationTypes) {
+				notificationTypes.push_back(AccountPublicKeyNotification::Notification_Type);
 				return notificationTypes;
 			}
 
-			static void AddCustomExpectations(PublishTestBuilder&, const TTransaction&)
-			{}
+			static void AddCustomExpectations(PublishTestBuilder& builder, const TTransaction& transaction) {
+				builder.template addExpectation<AccountPublicKeyNotification>([&transaction](const auto& notification) {
+					EXPECT_EQ(transaction.TargetPublicKey, notification.PublicKey);
+				});
+			}
 		};
 
 		using AccountRegularTraits = AccountTraits<AccountMetadataTransaction, AccountMetadataRegularTraits>;

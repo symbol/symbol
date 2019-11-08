@@ -153,11 +153,11 @@ namespace catapult { namespace ionet {
 	}
 
 	TEST(TEST_CLASS, CanReadMultipleVariableSizeValuesFromPacket) {
-		// Arrange:
-		auto pPacket = test::CreateRandomPacket(12 + 50 + 26, PacketType::Undefined);
-		reinterpret_cast<uint32_t&>(*pPacket->Data()) = 12;
-		reinterpret_cast<uint32_t&>(*(pPacket->Data() + 12)) = 50;
-		reinterpret_cast<uint32_t&>(*(pPacket->Data() + 12 + 50)) = 26;
+		// Arrange: align entities on 8-byte boundaries
+		auto pPacket = test::CreateRandomPacket(16 + 56 + 26, PacketType::Undefined);
+		reinterpret_cast<uint32_t&>(*pPacket->Data()) = 16;
+		reinterpret_cast<uint32_t&>(*(pPacket->Data() + 16)) = 56;
+		reinterpret_cast<uint32_t&>(*(pPacket->Data() + 16 + 56)) = 26;
 
 		auto reader = CreatePacketReaderAroundPacket(*pPacket);
 
@@ -167,12 +167,12 @@ namespace catapult { namespace ionet {
 		const auto& entity3 = *reader.readVariable<model::VerifiableEntity>();
 
 		// Assert:
-		EXPECT_EQ(12u, entity1.Size);
+		EXPECT_EQ(16u, entity1.Size);
 		EXPECT_EQ(reinterpret_cast<const model::VerifiableEntity&>(*pPacket->Data()), entity1);
-		EXPECT_EQ(50u, entity2.Size);
-		EXPECT_EQ(reinterpret_cast<const model::VerifiableEntity&>(*(pPacket->Data() + 12)), entity2);
+		EXPECT_EQ(56u, entity2.Size);
+		EXPECT_EQ(reinterpret_cast<const model::VerifiableEntity&>(*(pPacket->Data() + 16)), entity2);
 		EXPECT_EQ(26u, entity3.Size);
-		EXPECT_EQ(reinterpret_cast<const model::VerifiableEntity&>(*(pPacket->Data() + 12 + 50)), entity3);
+		EXPECT_EQ(reinterpret_cast<const model::VerifiableEntity&>(*(pPacket->Data() + 16 + 56)), entity3);
 		AssertAllDataConsumed(reader);
 	}
 
@@ -210,28 +210,29 @@ namespace catapult { namespace ionet {
 	// region mixed
 
 	TEST(TEST_CLASS, CanReadMultipleHeterogeneousValuesFromPacket) {
-		// Arrange:
-		auto pPacket = test::CreateRandomPacket(4 + 12 + 2 + 25, PacketType::Undefined);
+		// Arrange: align entities on 8-byte boundaries
+		auto pPacket = test::CreateRandomPacket(4 + 4 + 14 + 2 + 25, PacketType::Undefined);
 		reinterpret_cast<uint32_t&>(*pPacket->Data()) = 0x00012234;
-		reinterpret_cast<uint32_t&>(*(pPacket->Data() + 4)) = 12;
-		reinterpret_cast<uint16_t&>(*(pPacket->Data() + 4 + 12)) = 0x77FF;
-		reinterpret_cast<uint32_t&>(*(pPacket->Data() + 4 + 12 + 2)) = 25;
+		reinterpret_cast<uint32_t&>(*(pPacket->Data() + 8)) = 14;
+		reinterpret_cast<uint16_t&>(*(pPacket->Data() + 8 + 14)) = 0x77FF;
+		reinterpret_cast<uint32_t&>(*(pPacket->Data() + 8 + 14 + 2)) = 25;
 
 		auto reader = CreatePacketReaderAroundPacket(*pPacket);
 
 		// Act:
 		auto value1 = *reader.readFixed<uint32_t>();
+		reader.readFixed<uint32_t>(); // skip padding
 		const auto& entity1 = *reader.readVariable<model::VerifiableEntity>();
 		auto value2 = *reader.readFixed<uint16_t>();
 		const auto& entity2 = *reader.readVariable<model::VerifiableEntity>();
 
 		// Assert:
 		EXPECT_EQ(0x00012234u, value1);
-		EXPECT_EQ(12u, entity1.Size);
-		EXPECT_EQ(reinterpret_cast<const model::VerifiableEntity&>(*(pPacket->Data() + 4)), entity1);
+		EXPECT_EQ(14u, entity1.Size);
+		EXPECT_EQ(reinterpret_cast<const model::VerifiableEntity&>(*(pPacket->Data() + 8)), entity1);
 		EXPECT_EQ(0x77FF, value2);
 		EXPECT_EQ(25u, entity2.Size);
-		EXPECT_EQ(reinterpret_cast<const model::VerifiableEntity&>(*(pPacket->Data() + 4 + 12 + 2)), entity2);
+		EXPECT_EQ(reinterpret_cast<const model::VerifiableEntity&>(*(pPacket->Data() + 8 + 14 + 2)), entity2);
 		AssertAllDataConsumed(reader);
 	}
 

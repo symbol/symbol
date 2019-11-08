@@ -18,25 +18,19 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#pragma once
-#include "NamespaceTypes.h"
-#include "plugins/txes/namespace/src/types.h"
-#include "catapult/model/Transaction.h"
+#include "HarvestingCacheUtils.h"
+#include "catapult/cache_core/AccountStateCache.h"
 
-namespace catapult { namespace model {
+namespace catapult { namespace harvesting {
 
-#pragma pack(push, 1)
+	void PreserveAllAccounts(
+			cache::AccountStateCacheDelta& accountStateCacheDelta,
+			const HarvestingAffectedAccounts& accounts,
+			Height height) {
+		for (const auto& addressPair : accounts.Addresses)
+			accountStateCacheDelta.clearRemove(addressPair.first, height);
 
-	/// Binary layout for an alias transaction body.
-	template<typename THeader>
-	struct SharedAliasBody : public THeader {
-	public:
-		// Alias action.
-		model::AliasAction AliasAction;
-
-		/// Identifier of the namespace that will become an alias.
-		catapult::NamespaceId NamespaceId;
-	};
-
-#pragma pack(pop)
+		for (const auto& publicKeyPair : accounts.PublicKeys)
+			accountStateCacheDelta.clearRemove(publicKeyPair.first, height);
+	}
 }}

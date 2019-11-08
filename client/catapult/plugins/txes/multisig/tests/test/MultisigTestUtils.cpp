@@ -40,24 +40,31 @@ namespace catapult { namespace test {
 
 	std::unique_ptr<model::EmbeddedMultisigAccountModificationTransaction> CreateMultisigAccountModificationTransaction(
 			const Key& signer,
-			const std::vector<model::CosignatoryModificationAction>& modificationActions) {
+			uint8_t numAdditions,
+			uint8_t numDeletions) {
 		using TransactionType = model::EmbeddedMultisigAccountModificationTransaction;
-		auto numModifications = static_cast<uint8_t>(modificationActions.size());
-		uint32_t entitySize = sizeof(TransactionType) + numModifications * sizeof(model::CosignatoryModification);
+		uint32_t entitySize = sizeof(TransactionType) + (numAdditions + numDeletions) * Key::Size;
 		auto pTransaction = utils::MakeUniqueWithSize<TransactionType>(entitySize);
+		test::FillWithRandomData({ reinterpret_cast<uint8_t*>(pTransaction.get()), entitySize });
+
 		pTransaction->Size = entitySize;
-		pTransaction->ModificationsCount = numModifications;
+		pTransaction->PublicKeyAdditionsCount = numAdditions;
+		pTransaction->PublicKeyDeletionsCount = numDeletions;
 		pTransaction->Type = model::Entity_Type_Multisig_Account_Modification;
 		pTransaction->SignerPublicKey = signer;
-
-		auto* pModification = pTransaction->ModificationsPtr();
-		for (auto i = 0u; i < numModifications; ++i) {
-			pModification->ModificationAction = modificationActions[i];
-			test::FillWithRandomData(pModification->CosignatoryPublicKey);
-			++pModification;
-		}
-
 		return pTransaction;
+	}
+
+	model::MultisigCosignatoriesNotification CreateMultisigCosignatoriesNotification(
+			const Key& signer,
+			const std::vector<Key>& publicKeyAdditions,
+			const std::vector<Key>& publicKeyDeletions) {
+		return model::MultisigCosignatoriesNotification(
+				signer,
+				static_cast<uint8_t>(publicKeyAdditions.size()),
+				publicKeyAdditions.data(),
+				static_cast<uint8_t>(publicKeyDeletions.size()),
+				publicKeyDeletions.data());
 	}
 
 	namespace {

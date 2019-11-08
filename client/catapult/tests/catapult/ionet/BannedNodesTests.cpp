@@ -226,6 +226,21 @@ namespace catapult { namespace ionet {
 		}
 	}
 
+	TEST(TEST_CLASS, CannotBanNodeWithLocalNetworkHost) {
+		// Arrange:
+		auto identity = CreateRandomIdentity();
+		identity.Host = "127.0.0.1";
+		BannedNodes bannedNodes(CreateBanSettings(), CreateTimeSupplier({ 1, 1, 1, 4, 5, 6 }), Default_Strategy);
+
+		// Act:
+		bannedNodes.add(identity, Failure_Reason);
+
+		// Assert: identity was not banned
+		EXPECT_EQ(0u, bannedNodes.size());
+		EXPECT_EQ(0u, bannedNodes.deepSize());
+		EXPECT_FALSE(bannedNodes.isBanned(identity));
+	}
+
 	// endregion
 
 	// region prune

@@ -186,7 +186,8 @@ namespace catapult { namespace state {
 	TEST(TEST_CLASS, IsUnsetReturnsTrueWhenAllValuesAreUnset) {
 		// Arrange:
 		auto mosaicId = test::GenerateRandomValue<MosaicId>();
-		auto notification = CreateNotification(mosaicId, MosaicId(), 111, 0);
+		auto referenceMosaicId = test::GenerateRandomValue<MosaicId>();
+		auto notification = CreateNotification(mosaicId, referenceMosaicId, 111, 0);
 		auto resolvers = test::CreateResolverContextXor();
 		auto facade = FacadeType(notification, resolvers);
 
@@ -197,25 +198,11 @@ namespace catapult { namespace state {
 		EXPECT_TRUE(isUnset);
 	}
 
-	TEST(TEST_CLASS, IsUnsetReturnsFalseWhenReferenceMosaicIdIsSet) {
-		// Arrange:
-		auto mosaicId = test::GenerateRandomValue<MosaicId>();
-		auto referenceMosaicId = test::GenerateRandomValue<MosaicId>();
-		auto notification = CreateNotification(mosaicId, referenceMosaicId, 111, 0);
-		auto resolvers = test::CreateResolverContextXor();
-		auto facade = FacadeType(notification, resolvers);
-
-		// Act:
-		auto isUnset = facade.isUnset();
-
-		// Assert:
-		EXPECT_FALSE(isUnset);
-	}
-
 	TEST(TEST_CLASS, IsUnsetReturnsFalseWhenRestrictionValueIsSet) {
 		// Arrange:
 		auto mosaicId = test::GenerateRandomValue<MosaicId>();
-		auto notification = CreateNotification(mosaicId, MosaicId(), 111, 222);
+		auto referenceMosaicId = test::GenerateRandomValue<MosaicId>();
+		auto notification = CreateNotification(mosaicId, referenceMosaicId, 111, 222);
 		auto resolvers = test::CreateResolverContextXor();
 		auto facade = FacadeType(notification, resolvers);
 
@@ -229,7 +216,8 @@ namespace catapult { namespace state {
 	TEST(TEST_CLASS, IsUnsetReturnsFalseWhenRestrictionTypeIsSet) {
 		// Arrange:
 		auto mosaicId = test::GenerateRandomValue<MosaicId>();
-		auto notification = CreateNotification(mosaicId, MosaicId(), 111, 0, model::MosaicRestrictionType::EQ);
+		auto referenceMosaicId = test::GenerateRandomValue<MosaicId>();
+		auto notification = CreateNotification(mosaicId, referenceMosaicId, 111, 0, model::MosaicRestrictionType::EQ);
 		auto resolvers = test::CreateResolverContextXor();
 		auto facade = FacadeType(notification, resolvers);
 

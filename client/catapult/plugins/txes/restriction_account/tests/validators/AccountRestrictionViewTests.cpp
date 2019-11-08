@@ -46,9 +46,9 @@ namespace catapult { namespace validators {
 			auto& restrictionCacheDelta = delta.sub<cache::AccountRestrictionCache>();
 			auto address = test::GenerateRandomByteArray<Address>();
 			auto restrictions = state::AccountRestrictions(address);
-			auto& restriction = restrictions.restriction(model::AccountRestrictionType::MosaicId);
+			auto& restriction = restrictions.restriction(model::AccountRestrictionFlags::MosaicId);
 			for (auto i = 0u; i < options.NumRestrictions; ++i) {
-				auto modification = model::RawAccountRestrictionModification{
+				auto modification = model::AccountRestrictionModification{
 					model::AccountRestrictionModificationAction::Add,
 					state::ToVector(MosaicId(i))
 				};
@@ -99,18 +99,18 @@ namespace catapult { namespace validators {
 
 	// region get
 
-	TEST(TEST_CLASS, GetReturnsExpectedTypedAccountRestriction) {
+	TEST(TEST_CLASS, GetReturnsExpectedAccountRestriction) {
 		// Arrange:
 		RunTest(5, [](auto& view, const auto& address) {
 			ASSERT_TRUE(view.initialize(address));
 
 			// Act:
-			auto typedRestriction = view.template get<MosaicId>(model::AccountRestrictionType::MosaicId);
+			const auto& restriction = view.get(model::AccountRestrictionFlags::MosaicId);
 
 			// Assert:
-			EXPECT_EQ(5u, typedRestriction.size());
+			EXPECT_EQ(5u, restriction.values().size());
 			for (auto i = 0u; i < 5; ++i)
-				EXPECT_TRUE(typedRestriction.contains(MosaicId(i)));
+				EXPECT_TRUE(restriction.contains(state::ToVector(MosaicId(i))));
 		});
 	}
 
@@ -120,7 +120,7 @@ namespace catapult { namespace validators {
 			ASSERT_FALSE(view.initialize(test::GenerateRandomByteArray<Address>()));
 
 			// Act + Assert:
-			EXPECT_THROW(view.template get<MosaicId>(model::AccountRestrictionType::MosaicId), catapult_invalid_argument);
+			EXPECT_THROW(view.get(model::AccountRestrictionFlags::MosaicId), catapult_invalid_argument);
 		});
 	}
 
@@ -134,7 +134,7 @@ namespace catapult { namespace validators {
 			ASSERT_TRUE(view.initialize(address));
 
 			// Act:
-			auto isAllowed = view.isAllowed(model::AccountRestrictionType::MosaicId, MosaicId(10));
+			auto isAllowed = view.isAllowed(model::AccountRestrictionFlags::MosaicId, MosaicId(10));
 
 			// Assert:
 			EXPECT_TRUE(isAllowed);
@@ -147,7 +147,7 @@ namespace catapult { namespace validators {
 			ASSERT_TRUE(view.initialize(address));
 
 			// Act:
-			auto isAllowed = view.isAllowed(model::AccountRestrictionType::MosaicId, MosaicId(3));
+			auto isAllowed = view.isAllowed(model::AccountRestrictionFlags::MosaicId, MosaicId(3));
 
 			// Assert:
 			EXPECT_TRUE(isAllowed);
@@ -160,7 +160,7 @@ namespace catapult { namespace validators {
 			ASSERT_TRUE(view.initialize(address));
 
 			// Act:
-			auto isAllowed = view.isAllowed(model::AccountRestrictionType::MosaicId, MosaicId(7));
+			auto isAllowed = view.isAllowed(model::AccountRestrictionFlags::MosaicId, MosaicId(7));
 
 			// Assert:
 			EXPECT_FALSE(isAllowed);
@@ -175,7 +175,7 @@ namespace catapult { namespace validators {
 			ASSERT_TRUE(view.initialize(address));
 
 			// Act:
-			auto isAllowed = view.isAllowed(model::AccountRestrictionType::MosaicId, MosaicId(7));
+			auto isAllowed = view.isAllowed(model::AccountRestrictionFlags::MosaicId, MosaicId(7));
 
 			// Assert:
 			EXPECT_TRUE(isAllowed);
@@ -190,7 +190,7 @@ namespace catapult { namespace validators {
 			ASSERT_TRUE(view.initialize(address));
 
 			// Act:
-			auto isAllowed = view.isAllowed(model::AccountRestrictionType::MosaicId, MosaicId(3));
+			auto isAllowed = view.isAllowed(model::AccountRestrictionFlags::MosaicId, MosaicId(3));
 
 			// Assert:
 			EXPECT_FALSE(isAllowed);

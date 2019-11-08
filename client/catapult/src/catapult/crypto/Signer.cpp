@@ -109,7 +109,7 @@ namespace catapult { namespace crypto {
 				CATAPULT_THROW_OUT_OF_RANGE("S part of signature invalid");
 		}
 
-#ifdef SIGNATURE_SCHEME_NIS1
+#ifdef SIGNATURE_SCHEME_KECCAK
 		using HashBuilder = Keccak_512_Builder;
 #else
 		using HashBuilder = Sha3_512_Builder;

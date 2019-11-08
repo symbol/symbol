@@ -34,7 +34,10 @@ namespace catapult { namespace model {
 	DEFINE_AGGREGATE_NOTIFICATION(Cosignatures, 0x0001, Validator);
 
 	/// Aggregate was received with an embedded transaction.
-	DEFINE_AGGREGATE_NOTIFICATION(EmbeddedTransaction, 0x0002, Validator);
+	DEFINE_AGGREGATE_NOTIFICATION(Embedded_Transaction, 0x0002, Validator);
+
+	/// Aggregate was received with embedded transactions.
+	DEFINE_AGGREGATE_NOTIFICATION(Embedded_Transactions, 0x0003, Validator);
 
 #undef DEFINE_AGGREGATE_NOTIFICATION
 
@@ -73,7 +76,7 @@ namespace catapult { namespace model {
 	struct AggregateEmbeddedTransactionNotification : public BasicAggregateNotification<AggregateEmbeddedTransactionNotification> {
 	public:
 		/// Matching notification type.
-		static constexpr auto Notification_Type = Aggregate_EmbeddedTransaction_Notification;
+		static constexpr auto Notification_Type = Aggregate_Embedded_Transaction_Notification;
 
 	public:
 		/// Creates a notification around \a signer, \a transaction, \a cosignaturesCount and \a pCosignatures.
@@ -116,6 +119,39 @@ namespace catapult { namespace model {
 		{}
 
 	public:
+		/// Number of transactions.
+		size_t TransactionsCount;
+
+		/// Const pointer to the first transaction.
+		const EmbeddedTransaction* TransactionsPtr;
+	};
+
+	// endregion
+
+	// region AggregateEmbeddedTransactionsNotification
+
+	/// Notification of an aggregate transaction with transactions.
+	struct AggregateEmbeddedTransactionsNotification : public Notification {
+	public:
+		/// Matching notification type.
+		static constexpr auto Notification_Type = Aggregate_Embedded_Transactions_Notification;
+
+	public:
+		/// Creates a notification around \a transactionsHash, \a transactionsCount and \a pTransactions.
+		AggregateEmbeddedTransactionsNotification(
+				const Hash256& transactionsHash,
+				size_t transactionsCount,
+				const EmbeddedTransaction* pTransactions)
+				: Notification(Notification_Type, sizeof(AggregateEmbeddedTransactionsNotification))
+				, TransactionsHash(transactionsHash)
+				, TransactionsCount(transactionsCount)
+				, TransactionsPtr(pTransactions)
+		{}
+
+	public:
+		/// Aggregate transactions hash.
+		const Hash256& TransactionsHash;
+
 		/// Number of transactions.
 		size_t TransactionsCount;
 

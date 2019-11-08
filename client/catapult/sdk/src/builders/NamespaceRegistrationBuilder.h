@@ -64,10 +64,10 @@ namespace catapult { namespace builders {
 		std::unique_ptr<TTransaction> buildImpl() const;
 
 	private:
-		model::NamespaceRegistrationType m_registrationType;
 		BlockDuration m_duration;
 		NamespaceId m_parentId;
 		NamespaceId m_id;
+		model::NamespaceRegistrationType m_registrationType;
 		std::vector<uint8_t> m_name;
 	};
 }}

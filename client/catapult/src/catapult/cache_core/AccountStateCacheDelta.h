@@ -124,6 +124,12 @@ namespace catapult { namespace cache {
 		/// information from the cache.
 		void queueRemove(const Key& publicKey, Height height);
 
+		/// Clears any queued removals for \a address at \a height
+		void clearRemove(const Address& address, Height height);
+
+		/// Clears any queued removals for \a publicKey at \a height.
+		void clearRemove(const Key& publicKey, Height height);
+
 		/// Commits all queued removals.
 		void commitRemovals();
 

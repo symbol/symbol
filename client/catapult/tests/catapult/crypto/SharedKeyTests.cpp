@@ -30,7 +30,7 @@ namespace catapult { namespace crypto {
 
 	TEST(TEST_CLASS, PassesTestVector) {
 		// Arrange: private key used is the one from KeyPairTests
-#ifdef SIGNATURE_SCHEME_NIS1
+#ifdef SIGNATURE_SCHEME_KECCAK
 		auto expectedSharedKey = utils::ParseByteArray<SharedKey>("E9BF812E9E29B1D4C8D01E3DA11EAB3715A582CD2AA66EABBDAFEA7DFB9B2422");
 #else
 		auto expectedSharedKey = utils::ParseByteArray<SharedKey>("3B3524D2E92F89423456E43A3FD25C52C71CA4C680C32F022C23506BB23BDB0C");

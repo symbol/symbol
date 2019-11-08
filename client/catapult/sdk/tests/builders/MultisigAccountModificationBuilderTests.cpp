@@ -28,7 +28,6 @@ namespace catapult { namespace builders {
 	namespace {
 		using RegularTraits = test::RegularTransactionTraits<model::MultisigAccountModificationTransaction>;
 		using EmbeddedTraits = test::EmbeddedTransactionTraits<model::EmbeddedMultisigAccountModificationTransaction>;
-		using Modifications = std::vector<model::CosignatoryModification>;
 
 		struct TransactionProperties {
 		public:
@@ -40,23 +39,27 @@ namespace catapult { namespace builders {
 		public:
 			int8_t MinRemovalDelta;
 			int8_t MinApprovalDelta;
-			std::vector<model::CosignatoryModification> Modifications;
+			std::vector<Key> PublicKeyAdditions;
+			std::vector<Key> PublicKeyDeletions;
 		};
+
+		void AssertKeys(const std::vector<Key>& expectedKeys, const Key* pKeys, uint16_t numKeys) {
+			ASSERT_EQ(expectedKeys.size(), numKeys);
+
+			auto i = 0u;
+			for (const auto& expectedKey : expectedKeys) {
+				EXPECT_EQ(expectedKey, pKeys[i]) << "key " << expectedKey << " at index " << i;
+				++i;
+			}
+		}
 
 		template<typename TTransaction>
 		void AssertTransactionProperties(const TransactionProperties& expectedProperties, const TTransaction& transaction) {
 			EXPECT_EQ(expectedProperties.MinRemovalDelta, transaction.MinRemovalDelta);
 			EXPECT_EQ(expectedProperties.MinApprovalDelta, transaction.MinApprovalDelta);
 
-			auto i = 0u;
-			const auto* pModification = transaction.ModificationsPtr();
-			for (const auto& modification : expectedProperties.Modifications) {
-				auto rawAction = static_cast<uint16_t>(modification.ModificationAction);
-				EXPECT_EQ(modification.ModificationAction, pModification->ModificationAction)
-						<< "action " << rawAction << " at index " << i;
-				EXPECT_EQ(modification.CosignatoryPublicKey, pModification->CosignatoryPublicKey) << "at index " << i;
-				++pModification;
-			}
+			AssertKeys(expectedProperties.PublicKeyAdditions, transaction.PublicKeyAdditionsPtr(), transaction.PublicKeyAdditionsCount);
+			AssertKeys(expectedProperties.PublicKeyDeletions, transaction.PublicKeyDeletionsPtr(), transaction.PublicKeyDeletionsCount);
 		}
 
 		template<typename TTraits>
@@ -77,7 +80,8 @@ namespace catapult { namespace builders {
 			TTraits::CheckBuilderSize(additionalSize, builder);
 			TTraits::CheckFields(additionalSize, *pTransaction);
 			EXPECT_EQ(signer, pTransaction->SignerPublicKey);
-			EXPECT_EQ(0x6201, pTransaction->Version);
+			EXPECT_EQ(1u, pTransaction->Version);
+			EXPECT_EQ(static_cast<model::NetworkIdentifier>(0x62), pTransaction->Network);
 			EXPECT_EQ(model::Entity_Type_Multisig_Account_Modification, pTransaction->Type);
 
 			AssertTransactionProperties(expectedProperties, *pTransaction);
@@ -126,63 +130,52 @@ namespace catapult { namespace builders {
 
 	// region modifications
 
-	namespace {
-		auto CreateModifications(uint8_t count) {
-			Modifications modifications;
-			for (auto i = 0u; i < count; ++i) {
-				auto action = 0 == i % 2 ? model::CosignatoryModificationAction::Add : model::CosignatoryModificationAction::Del;
-				modifications.push_back(model::CosignatoryModification{ action, test::GenerateRandomByteArray<Key>() });
-			}
-
-			return modifications;
-		}
-
-		void AddAll(MultisigAccountModificationBuilder& builder, const Modifications& modifications) {
-			for (const auto& modification : modifications)
-				builder.addModification(modification);
-		}
-	}
-
-	TRAITS_BASED_TEST(CanAddSingleModification) {
+	TRAITS_BASED_TEST(CanAddSingleKeyAddition) {
 		// Arrange:
 		auto expectedProperties = TransactionProperties();
-		expectedProperties.Modifications = CreateModifications(1);
-		const auto& modifications = expectedProperties.Modifications;
+		expectedProperties.PublicKeyAdditions = test::GenerateRandomDataVector<Key>(1);
+		const auto& publicKeyAdditions = expectedProperties.PublicKeyAdditions;
 
 		// Assert:
-		auto totalCosignatorySize = sizeof(model::CosignatoryModification);
-		AssertCanBuildTransaction<TTraits>(totalCosignatorySize, expectedProperties, [&modifications](auto& builder) {
-			AddAll(builder, modifications);
+		AssertCanBuildTransaction<TTraits>(Key::Size, expectedProperties, [&publicKeyAdditions](auto& builder) {
+			for (const auto& key : publicKeyAdditions)
+				builder.addPublicKeyAddition(key);
 		});
 	}
 
-	TRAITS_BASED_TEST(CanAddMultipleModifications) {
+	TRAITS_BASED_TEST(CanAddSingleKeyDeletion) {
 		// Arrange:
 		auto expectedProperties = TransactionProperties();
-		expectedProperties.Modifications = CreateModifications(5);
-		const auto& modifications = expectedProperties.Modifications;
+		expectedProperties.PublicKeyDeletions = test::GenerateRandomDataVector<Key>(1);
+		const auto& publicKeyDeletions = expectedProperties.PublicKeyDeletions;
 
 		// Assert:
-		auto totalCosignatorySize = 5 * sizeof(model::CosignatoryModification);
-		AssertCanBuildTransaction<TTraits>(totalCosignatorySize, expectedProperties, [&modifications](auto& builder) {
-			AddAll(builder, modifications);
+		AssertCanBuildTransaction<TTraits>(Key::Size, expectedProperties, [&publicKeyDeletions](auto& builder) {
+			for (const auto& key : publicKeyDeletions)
+				builder.addPublicKeyDeletion(key);
 		});
 	}
 
-	TRAITS_BASED_TEST(CanSetDeltasAndAddModifications) {
+	TRAITS_BASED_TEST(CanSetDeltasAndAdditionsAndDeletions) {
 		// Arrange:
 		auto expectedProperties = TransactionProperties();
 		expectedProperties.MinRemovalDelta = -3;
 		expectedProperties.MinApprovalDelta = 3;
-		expectedProperties.Modifications = CreateModifications(4);
-		const auto& modifications = expectedProperties.Modifications;
+		expectedProperties.PublicKeyAdditions = test::GenerateRandomDataVector<Key>(4);
+		expectedProperties.PublicKeyDeletions = test::GenerateRandomDataVector<Key>(2);
+		const auto& publicKeyAdditions = expectedProperties.PublicKeyAdditions;
+		const auto& publicKeyDeletions = expectedProperties.PublicKeyDeletions;
 
 		// Assert:
-		auto totalCosignatorySize = 4 * sizeof(model::CosignatoryModification);
-		AssertCanBuildTransaction<TTraits>(totalCosignatorySize, expectedProperties, [&modifications](auto& builder) {
+		AssertCanBuildTransaction<TTraits>(6 * Key::Size, expectedProperties, [&publicKeyAdditions, publicKeyDeletions](auto& builder) {
 			builder.setMinRemovalDelta(-3);
 			builder.setMinApprovalDelta(3);
-			AddAll(builder, modifications);
+
+			for (const auto& key : publicKeyAdditions)
+				builder.addPublicKeyAddition(key);
+
+			for (const auto& key : publicKeyDeletions)
+				builder.addPublicKeyDeletion(key);
 		});
 	}
 

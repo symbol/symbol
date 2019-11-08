@@ -23,21 +23,21 @@
 
 namespace catapult { namespace validators {
 
-	using Notification = model::AccountRestrictionTypeNotification;
+	using Notification = model::AccountRestrictionModificationNotification;
 
 	namespace {
-		bool IsValidAccountRestrictionType(model::AccountRestrictionType restrictionType) {
-			auto strippedRestrictionType = state::AccountRestrictionDescriptor(restrictionType).restrictionType();
-			auto directionalRestrictionType = state::AccountRestrictionDescriptor(restrictionType).directionalRestrictionType();
-			switch (strippedRestrictionType) {
-			case model::AccountRestrictionType::Address:
+		bool IsValidAccountRestrictionFlags(model::AccountRestrictionFlags restrictionFlags) {
+			auto strippedRestrictionFlags = state::AccountRestrictionDescriptor(restrictionFlags).restrictionFlags();
+			auto directionalRestrictionFlags = state::AccountRestrictionDescriptor(restrictionFlags).directionalRestrictionFlags();
+			switch (strippedRestrictionFlags) {
+			case model::AccountRestrictionFlags::Address:
 				return true;
 
-			case model::AccountRestrictionType::MosaicId:
-				return HasSingleFlag(directionalRestrictionType);
+			case model::AccountRestrictionFlags::MosaicId:
+				return HasSingleFlag(directionalRestrictionFlags);
 
-			case model::AccountRestrictionType::TransactionType:
-				return HasFlag(model::AccountRestrictionType::Outgoing, directionalRestrictionType);
+			case model::AccountRestrictionFlags::TransactionType:
+				return HasFlag(model::AccountRestrictionFlags::Outgoing, directionalRestrictionFlags);
 
 			default:
 				return false;
@@ -45,9 +45,9 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	DEFINE_STATELESS_VALIDATOR(AccountRestrictionType, [](const Notification& notification) {
-		return IsValidAccountRestrictionType(notification.RestrictionType)
+	DEFINE_STATELESS_VALIDATOR(AccountRestrictionFlags, [](const Notification& notification) {
+		return IsValidAccountRestrictionFlags(notification.RestrictionFlags)
 				? ValidationResult::Success
-				: Failure_RestrictionAccount_Invalid_Restriction_Type;
+				: Failure_RestrictionAccount_Invalid_Restriction_Flags;
 	});
 }}

@@ -180,7 +180,7 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, CanOutputNodeWithoutName) {
 		// Arrange:
-#ifdef SIGNATURE_SCHEME_NIS1
+#ifdef SIGNATURE_SCHEME_KECCAK
 		auto expectedMijinAddress = "MAOJUDIG67LNG5WHL5MI4RAR5Y46RKTENICGQU5C";
 		auto expectedTwentyFiveAddress = "EUOJUDIG67LNG5WHL5MI4RAR5Y46RKTENKUJJCQV";
 #else

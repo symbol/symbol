@@ -81,7 +81,7 @@ namespace catapult { namespace api {
 
 		public:
 			void addData(ionet::PacketPayloadBuilder& builder) const {
-				builder.appendValue<uint16_t>(0x0000 | m_numCosignatures);
+				builder.appendValue<uint64_t>(0x0000 | m_numCosignatures);
 				builder.appendValue(m_hash);
 				AppendValues(builder, m_cosignatures);
 			}
@@ -108,8 +108,9 @@ namespace catapult { namespace api {
 
 		public:
 			void addData(ionet::PacketPayloadBuilder& builder) const {
-				builder.appendValue<uint16_t>(0x8000 | m_numCosignatures);
+				builder.appendValue<uint64_t>(0x8000 | m_numCosignatures);
 				builder.appendEntity(m_pTransaction);
+				builder.appendValues(std::vector<uint8_t>(utils::GetPaddingSize(m_pTransaction->Size, 8), 0));
 				AppendValues(builder, m_cosignatures);
 			}
 
@@ -240,32 +241,66 @@ namespace catapult { namespace api {
 		});
 	}
 
+	TEST(TEST_CLASS, FailureWhenTagIsFollowedByInsufficientPadding) {
+		AssertParseFailure([](auto& builder) {
+			// Arrange: only 2 pad bytes are present (6 expected)
+			builder.appendValue(static_cast<uint32_t>(0x0000'0000));
+		});
+	}
+
+	TEST(TEST_CLASS, FailureWhenTagIsFollowedByNonzeroPadding) {
+		AssertParseFailure([](auto& builder) {
+			// Arrange: bit is set in reserved tag area
+			builder.appendValue(static_cast<uint64_t>(0x0200'0000'0000'0000));
+		});
+	}
+
 	TEST(TEST_CLASS, FailureWhenHashCannotBeExtracted) {
 		AssertParseFailure([](auto& builder) {
 			// Arrange: hash is expected but not present
-			builder.appendValue(static_cast<uint16_t>(0x0000));
+			builder.appendValue(static_cast<uint64_t>(0x0000));
 		});
 	}
 
 	TEST(TEST_CLASS, FailureWhenTransactionCannotBeExtracted) {
 		AssertParseFailure([](auto& builder) {
 			// Arrange: transaction is expected but not present
-			builder.appendValue(static_cast<uint16_t>(0x8000));
+			builder.appendValue(static_cast<uint64_t>(0x8000));
 		});
 	}
 
 	TEST(TEST_CLASS, FailureWhenTransactionDataCannotBeExtracted) {
 		AssertParseFailure([](auto& builder) {
 			// Arrange: transaction is expected but only header (size) is present
-			builder.appendValue(static_cast<uint16_t>(0x8000));
+			builder.appendValue(static_cast<uint64_t>(0x8000));
 			builder.appendValue(static_cast<uint32_t>(sizeof(model::Transaction)));
+		});
+	}
+
+	TEST(TEST_CLASS, FailureWhenTransactionIsFollowedByInsufficientPadding) {
+		AssertParseFailure([](auto& builder) {
+			// Arrange: only 2 pad bytes are present (4 expected)
+			auto pTransaction = utils::UniqueToShared(test::GenerateRandomTransactionWithSize(140));
+			builder.template appendValue<uint64_t>(0x8000);
+			builder.appendEntity(pTransaction);
+			builder.template appendValue<uint16_t>(0x0000);
+		});
+	}
+
+	TEST(TEST_CLASS, FailureWhenTransactionIsFollowedByNonzeroPadding) {
+		AssertParseFailure([](auto& builder) {
+			// Arrange: bit is set in reserved tag area
+			auto pTransaction = utils::UniqueToShared(test::GenerateRandomTransactionWithSize(140));
+			builder.template appendValue<uint64_t>(0x8000);
+			builder.appendEntity(pTransaction);
+			builder.template appendValue<uint32_t>(0x0020'0000);
 		});
 	}
 
 	TEST(TEST_CLASS, FailureWhenCosignatureCannotBeExtracted) {
 		AssertParseFailure([](auto& builder) {
 			// Arrange: two cosignatures are present but only one is written
-			builder.appendValue(static_cast<uint16_t>(0x0002));
+			builder.appendValue(static_cast<uint64_t>(0x0002));
 			builder.appendValue(test::GenerateRandomByteArray<Hash256>());
 			AppendValues(builder, test::GenerateRandomDataVector<model::Cosignature>(1));
 		});

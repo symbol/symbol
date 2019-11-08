@@ -29,28 +29,20 @@ namespace catapult { namespace validators {
 
 	DEFINE_STATEFUL_VALIDATOR(MultisigInvalidCosignatories, [](const Notification& notification, const ValidatorContext& context) {
 		const auto& multisigCache = context.Cache.sub<cache::MultisigCache>();
-		const auto* pModifications = notification.ModificationsPtr;
 
-		if (!multisigCache.contains(notification.Signer)) {
-			for (auto i = 0u; i < notification.ModificationsCount; ++i) {
-				if (model::CosignatoryModificationAction::Del == pModifications[i].ModificationAction)
-					return Failure_Multisig_Unknown_Multisig_Account;
-			}
-
-			return ValidationResult::Success;
-		}
+		if (!multisigCache.contains(notification.Signer))
+			return 0 == notification.PublicKeyDeletionsCount ? ValidationResult::Success : Failure_Multisig_Unknown_Multisig_Account;
 
 		auto multisigIter = multisigCache.find(notification.Signer);
 		const auto& multisigEntry = multisigIter.get();
-		for (auto i = 0u; i < notification.ModificationsCount; ++i) {
-			auto isCosignatory = multisigEntry.hasCosignatory(pModifications[i].CosignatoryPublicKey);
-			auto isEnablingCosignatory = model::CosignatoryModificationAction::Add == pModifications[i].ModificationAction;
-
-			if (!isEnablingCosignatory && !isCosignatory)
-				return Failure_Multisig_Not_A_Cosignatory;
-
-			if (isEnablingCosignatory && isCosignatory)
+		for (auto i = 0u; i < notification.PublicKeyAdditionsCount; ++i) {
+			if (multisigEntry.hasCosignatory(notification.PublicKeyAdditionsPtr[i]))
 				return Failure_Multisig_Already_A_Cosignatory;
+		}
+
+		for (auto i = 0u; i < notification.PublicKeyDeletionsCount; ++i) {
+			if (!multisigEntry.hasCosignatory(notification.PublicKeyDeletionsPtr[i]))
+				return Failure_Multisig_Not_A_Cosignatory;
 		}
 
 		return ValidationResult::Success;

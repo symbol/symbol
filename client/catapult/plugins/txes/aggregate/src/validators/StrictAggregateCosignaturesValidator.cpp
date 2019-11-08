@@ -26,13 +26,6 @@ namespace catapult { namespace validators {
 
 	using Notification = model::AggregateCosignaturesNotification;
 
-	namespace {
-		const model::EmbeddedTransaction* AdvanceNext(const model::EmbeddedTransaction* pTransaction) {
-			const auto* pTransactionData = reinterpret_cast<const uint8_t*>(pTransaction);
-			return reinterpret_cast<const model::EmbeddedTransaction*>(pTransactionData + pTransaction->Size);
-		}
-	}
-
 	DEFINE_STATELESS_VALIDATOR(StrictAggregateCosignatures, [](const Notification& notification) {
 		// collect all cosignatories (initially set used flag to false)
 		utils::ArrayPointerFlagMap<Key> cosignatories;
@@ -54,7 +47,7 @@ namespace catapult { namespace validators {
 			else
 				iter->second = true;
 
-			pTransaction = AdvanceNext(pTransaction);
+			pTransaction = model::AdvanceNext(pTransaction);
 		}
 
 		// only return success if all cosignatories are used

@@ -23,9 +23,6 @@
 
 namespace catapult { namespace model {
 
-	/// Modification type used with account mosaic restriction transaction.
-	using AccountMosaicRestrictionModification = AccountRestrictionModification<UnresolvedMosaicId>;
-
 #pragma pack(push, 1)
 
 	/// Binary layout for an account mosaic restriction transaction body.

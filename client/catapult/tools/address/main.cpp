@@ -39,7 +39,7 @@ namespace catapult { namespace tools { namespace address {
 
 			void prepareOptions(OptionsBuilder& optionsBuilder, OptionsPositional&) override {
 				optionsBuilder("generate,g",
-						OptionsValue<uint32_t>(m_numRandomKeys)->default_value(10),
+						OptionsValue<uint32_t>(m_numRandomKeys)->default_value(3),
 						"number of random keys to generate");
 				optionsBuilder("public,p",
 						OptionsValue<std::string>(m_publicKey),
@@ -47,13 +47,19 @@ namespace catapult { namespace tools { namespace address {
 				optionsBuilder("secret,s",
 						OptionsValue<std::string>(m_secretKey),
 						"show address and public key associated with private key");
+#ifdef SIGNATURE_SCHEME_KECCAK
 				optionsBuilder("network,n",
 						OptionsValue<std::string>(m_networkName)->default_value("public"),
-						"network, possible values: mijin, mijin-test, public (default), public-test");
+						"network, possible values: public (default), public-test");
+#else
+				optionsBuilder("network,n",
+						OptionsValue<std::string>(m_networkName)->default_value("mijin"),
+						"network, possible values: mijin (default), mijin-test");
+#endif
 
-				optionsBuilder("useHighEntropySource,e",
+				optionsBuilder("useLowEntropySource,w",
 						OptionsSwitch(),
-						"true if a high entropy source should be used for randomness");
+						"true if a low entropy source should be used for randomness (unsafe)");
 			}
 
 			int run(const Options& options) override {
@@ -71,10 +77,10 @@ namespace catapult { namespace tools { namespace address {
 					return 0;
 				}
 
-				if (options["useHighEntropySource"].as<bool>())
-					generateKeys(networkId, utils::HighEntropyRandomGenerator());
-				else
+				if (options["useLowEntropySource"].as<bool>())
 					generateKeys(networkId, utils::LowEntropyRandomGenerator());
+				else
+					generateKeys(networkId, utils::HighEntropyRandomGenerator());
 
 				return 0;
 			}

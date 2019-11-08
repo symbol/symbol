@@ -175,13 +175,13 @@ namespace catapult { namespace mongo {
 		void bulkWrite(BulkWriteParams& bulkWriteParams, thread::promise<BulkWriteResult>& promise) {
 			try {
 				// if something goes wrong mongo will throw, else a result is always available
-				auto result = bulkWriteParams.Bulk.execute().get();
+				auto result = bulkWriteParams.Bulk.execute().value();
 				promise.set_value(BulkWriteResult(result));
 			} catch (const mongocxx::bulk_write_exception& e) {
 				std::ostringstream stream;
 				stream << "message: " << e.code().message();
 				if (e.raw_server_error()) {
-					auto description = bsoncxx::to_json(e.raw_server_error().get());
+					auto description = bsoncxx::to_json(e.raw_server_error().value());
 					stream << ", description: " << description;
 				}
 

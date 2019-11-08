@@ -249,10 +249,13 @@ namespace catapult { namespace state {
 			mosaicHeader.MosaicsCount = static_cast<uint16_t>(accountState.Balances.size());
 			pData += sizeof(MosaicHeader);
 
-			auto* pUint64Data = reinterpret_cast<uint64_t*>(pData);
+			// pData is not 8-byte aligned, so need to use memcpy
 			for (const auto& pair : accountState.Balances) {
-				*pUint64Data++ = pair.first.unwrap();
-				*pUint64Data++ = pair.second.unwrap();
+				std::memcpy(pData, &pair.first, sizeof(uint64_t));
+				pData += sizeof(uint64_t);
+
+				std::memcpy(pData, &pair.second, sizeof(uint64_t));
+				pData += sizeof(uint64_t);
 			}
 		}
 

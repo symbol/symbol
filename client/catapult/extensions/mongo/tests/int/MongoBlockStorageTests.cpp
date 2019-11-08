@@ -204,7 +204,7 @@ namespace catapult { namespace mongo {
 			auto totalFee = model::CalculateBlockTransactionsInfo(block).TotalFee;
 
 			auto filter = document() << "block.height" << static_cast<int64_t>(block.Height.unwrap()) << finalize;
-			auto result = database["blocks"].find_one(filter.view()).get();
+			auto result = database["blocks"].find_one(filter.view()).value();
 			auto view = result.view();
 
 			// block metadata
@@ -252,7 +252,7 @@ namespace catapult { namespace mongo {
 		void AssertNoBlock(mongocxx::database& database, Height height) {
 			auto filter = document() << "block.height" << static_cast<int64_t>(height.unwrap()) << finalize;
 			auto result = database["blocks"].find_one(filter.view());
-			EXPECT_FALSE(result.is_initialized());
+			EXPECT_FALSE(result.has_value());
 		}
 
 		void AssertNoBlockOrTransactions(Height height) {

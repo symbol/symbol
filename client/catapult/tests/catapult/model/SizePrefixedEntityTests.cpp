@@ -20,6 +20,7 @@
 
 #include "catapult/model/SizePrefixedEntity.h"
 #include "catapult/utils/MemoryUtils.h"
+#include "tests/test/nodeps/Alignment.h"
 #include "tests/test/nodeps/Equality.h"
 #include "tests/TestHarness.h"
 
@@ -27,14 +28,32 @@ namespace catapult { namespace model {
 
 #define TEST_CLASS SizePrefixedEntityTests
 
+	// region size + alignment
+
+#define SIZE_PREFIXED_ENTITY_FIELDS FIELD(Size)
+
 	TEST(TEST_CLASS, EntityHasExpectedSize) {
 		// Arrange:
-		auto expectedSize = sizeof(uint32_t); // size
+		auto expectedSize = 0u;
+
+#define FIELD(X) expectedSize += sizeof(SizePrefixedEntity::X);
+		SIZE_PREFIXED_ENTITY_FIELDS
+#undef FIELD
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(SizePrefixedEntity));
 		EXPECT_EQ(4u, sizeof(SizePrefixedEntity));
 	}
+
+	TEST(TEST_CLASS, EntityHasProperAlignment) {
+#define FIELD(X) EXPECT_ALIGNED(SizePrefixedEntity, X);
+		SIZE_PREFIXED_ENTITY_FIELDS
+#undef FIELD
+	}
+
+#undef SIZE_PREFIXED_ENTITY_FIELDS
+
+	// endregion
 
 	// region data pointers
 

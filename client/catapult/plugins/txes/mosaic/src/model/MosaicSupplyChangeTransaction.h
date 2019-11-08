@@ -41,11 +41,11 @@ namespace catapult { namespace model {
 		/// Affected mosaic identifier.
 		UnresolvedMosaicId MosaicId;
 
-		/// Supply change action.
-		MosaicSupplyChangeAction Action;
-
 		/// Change amount.
 		Amount Delta;
+
+		/// Supply change action.
+		MosaicSupplyChangeAction Action;
 
 	public:
 		/// Calculates the real size of a mosaic supply change \a transaction.

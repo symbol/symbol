@@ -21,6 +21,7 @@
 #include "src/model/HashLockTransaction.h"
 #include "catapult/utils/MemoryUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
+#include "tests/test/nodeps/Alignment.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace model {
@@ -29,21 +30,30 @@ namespace catapult { namespace model {
 
 #define TEST_CLASS HashLockTransactionTests
 
-	// region size + properties
+	// region size + alignment + properties
+
+#define TRANSACTION_FIELDS FIELD(Mosaic) FIELD(Duration) FIELD(Hash)
 
 	namespace {
 		template<typename T>
-		void AssertEntityHasExpectedSize(size_t baseSize) {
+		void AssertTransactionHasExpectedSize(size_t baseSize) {
 			// Arrange:
-			auto expectedSize =
-					baseSize // base
-					+ sizeof(Mosaic) // mosaic
-					+ sizeof(Height) // height
-					+ Hash256::Size; // hash
+			auto expectedSize = baseSize;
+
+#define FIELD(X) expectedSize += sizeof(T::X);
+			TRANSACTION_FIELDS
+#undef FIELD
 
 			// Assert:
 			EXPECT_EQ(expectedSize, sizeof(T));
 			EXPECT_EQ(baseSize + 56u, sizeof(T));
+		}
+
+		template<typename T>
+		void AssertTransactionHasProperAlignment() {
+#define FIELD(X) EXPECT_ALIGNED(T, X);
+			TRANSACTION_FIELDS
+#undef FIELD
 		}
 
 		template<typename T>
@@ -53,6 +63,8 @@ namespace catapult { namespace model {
 			EXPECT_EQ(1u, T::Current_Version);
 		}
 	}
+
+#undef TRANSACTION_FIELDS
 
 	ADD_BASIC_TRANSACTION_SIZE_PROPERTY_TESTS(HashLock)
 

@@ -36,17 +36,17 @@ namespace catapult { namespace consumers {
 	namespace {
 		constexpr auto CreateResolverContext = test::CreateResolverContextWithCustomDoublingMosaicResolver;
 
-		std::vector<uint16_t> GetExpectedVersions(uint16_t numTransactions, uint16_t seed) {
-			std::vector<uint16_t> versions;
+		std::vector<uint8_t> GetExpectedVersions(uint8_t numTransactions, uint8_t seed) {
+			std::vector<uint8_t> versions;
 			versions.push_back(seed); // block should be processed after all transactions, so it should be undone first
 
-			for (uint16_t i = 0u; i < numTransactions; ++i)
+			for (uint8_t i = 0u; i < numTransactions; ++i)
 				versions.push_back(seed + numTransactions - i);
 
 			return versions;
 		}
 
-		void SetVersions(model::Block& block, uint16_t seed) {
+		void SetVersions(model::Block& block, uint8_t seed) {
 			block.Version = seed;
 
 			for (auto& tx : block.Transactions())

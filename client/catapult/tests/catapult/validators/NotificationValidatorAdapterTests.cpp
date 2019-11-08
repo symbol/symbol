@@ -110,7 +110,7 @@ namespace catapult { namespace validators {
 
 			// Assert: the mock transaction plugin sends additional public key notification and 6 custom notifications
 			//         (notice that only 4/6 are raised on validator channel)
-			EXPECT_EQ(8u + 4u, validator.notificationTypes().size());
+			EXPECT_EQ(8u + 4, validator.notificationTypes().size());
 
 			std::vector<model::NotificationType> expectedNotificationTypes{
 				model::Core_Register_Account_Public_Key_Notification,
@@ -158,7 +158,7 @@ namespace catapult { namespace validators {
 			ValidateEntity(adapter, *pTransaction);
 
 			// Assert:
-			EXPECT_EQ(12u - 8u, validator.notificationTypes().size());
+			EXPECT_EQ(12u - 8, validator.notificationTypes().size());
 
 			std::vector<model::NotificationType> expectedNotificationTypes{
 				model::Core_Balance_Debit_Notification,

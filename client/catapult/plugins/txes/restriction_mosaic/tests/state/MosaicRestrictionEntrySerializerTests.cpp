@@ -210,9 +210,10 @@ namespace catapult { namespace state {
 		auto i = 0u;
 		const auto* pTuple = reinterpret_cast<const typename TTraits::TupleType*>(&buffer[sizeof(typename TTraits::HeaderType)]);
 		for (auto key : TTraits::GetKeys(entry)) {
+			auto tupleAlignedCopy = *pTuple; // not aligned so cannot be passed by reference
 			auto message = "tuple at " + std::to_string(i++);
-			EXPECT_EQ(key, pTuple->Key) << message;
-			TTraits::AssertTuple(entry, key, *pTuple, message);
+			EXPECT_EQ(key, tupleAlignedCopy.Key) << message;
+			TTraits::AssertTuple(entry, key, tupleAlignedCopy, message);
 			++pTuple;
 		}
 	}
@@ -240,8 +241,9 @@ namespace catapult { namespace state {
 		std::vector<uint64_t> expectedKeysOrdered{ 12, 34, 57, 123 };
 		const auto* pTuple = reinterpret_cast<const typename TTraits::TupleType*>(&buffer[sizeof(typename TTraits::HeaderType)]);
 		for (auto key : expectedKeysOrdered) {
+			auto tupleAlignedCopy = *pTuple; // not aligned so cannot be passed by reference
 			auto message = "tuple at " + std::to_string(i++);
-			EXPECT_EQ(key, pTuple->Key) << message;
+			EXPECT_EQ(key, tupleAlignedCopy.Key) << message;
 			++pTuple;
 		}
 	}

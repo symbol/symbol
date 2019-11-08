@@ -117,9 +117,9 @@ namespace catapult { namespace mongo {
 			auto txFilter = document() << "meta.hash" << mappers::ToBinary(parentHash) << finalize;
 			auto optionalValue = collection.find_one(txFilter.view());
 
-			ASSERT_TRUE(optionalValue.is_initialized());
+			ASSERT_TRUE(optionalValue.has_value());
 
-			auto dbDoc = optionalValue.get();
+			auto dbDoc = optionalValue.value();
 			auto dbTransaction = dbDoc.view()["transaction"];
 			auto dbCosignatures = dbTransaction["cosignatures"].get_array().value;
 			ASSERT_EQ(cosignatures.size(), test::GetFieldCount(dbCosignatures));
@@ -134,7 +134,7 @@ namespace catapult { namespace mongo {
 			auto txFilter = document() << "meta.hash" << mappers::ToBinary(parentHash) << finalize;
 			auto optionalValue = collection.find_one(txFilter.view());
 
-			ASSERT_FALSE(optionalValue.is_initialized());
+			ASSERT_FALSE(optionalValue.has_value());
 		}
 	}
 

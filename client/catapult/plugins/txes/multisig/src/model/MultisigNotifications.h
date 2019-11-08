@@ -51,23 +51,37 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = Multisig_Cosignatories_Notification;
 
 	public:
-		/// Creates a notification around \a signer, \a modificationsCount and \a pModifications.
-		MultisigCosignatoriesNotification(const Key& signer, uint8_t modificationsCount, const CosignatoryModification* pModifications)
+		/// Creates a notification around \a signer, \a publicKeyAdditionsCount, \a pPublicKeyAdditions, \a publicKeyDeletionsCount
+		/// and \a pPublicKeyDeletions.
+		MultisigCosignatoriesNotification(
+				const Key& signer,
+				uint8_t publicKeyAdditionsCount,
+				const Key* pPublicKeyAdditions,
+				uint8_t publicKeyDeletionsCount,
+				const Key* pPublicKeyDeletions)
 				: Notification(Notification_Type, sizeof(MultisigCosignatoriesNotification))
 				, Signer(signer)
-				, ModificationsCount(modificationsCount)
-				, ModificationsPtr(pModifications)
+				, PublicKeyAdditionsCount(publicKeyAdditionsCount)
+				, PublicKeyAdditionsPtr(pPublicKeyAdditions)
+				, PublicKeyDeletionsCount(publicKeyDeletionsCount)
+				, PublicKeyDeletionsPtr(pPublicKeyDeletions)
 		{}
 
 	public:
 		/// Signer.
 		const Key& Signer;
 
-		/// Number of modifications.
-		uint8_t ModificationsCount;
+		/// Number of cosignatory public key additions.
+		uint8_t PublicKeyAdditionsCount;
 
-		/// Const pointer to the first modification.
-		const CosignatoryModification* ModificationsPtr;
+		/// Const pointer to the first public key to add as cosignatory.
+		const Key* PublicKeyAdditionsPtr;
+
+		/// Number of cosignatory public key deletions.
+		uint8_t PublicKeyDeletionsCount;
+
+		/// Const pointer to the first public key to remove as cosignatory.
+		const Key* PublicKeyDeletionsPtr;
 	};
 
 	// endregion

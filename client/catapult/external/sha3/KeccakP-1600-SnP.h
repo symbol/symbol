@@ -24,8 +24,11 @@ Please refer to SnP-documentation.h for more details.
 #define KeccakP1600_implementation      "generic 64-bit optimized implementation (" KeccakP1600_implementation_config ")"
 #define KeccakP1600_stateSizeInBytes    200
 #define KeccakP1600_stateAlignment      8
+
+#ifndef NO_MISALIGNED_ACCESSES
 #define KeccakF1600_FastLoop_supported
 #define KeccakP1600_12rounds_FastLoop_supported
+#endif
 
 #include <stddef.h>
 

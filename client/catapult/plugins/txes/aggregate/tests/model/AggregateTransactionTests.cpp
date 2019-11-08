@@ -23,29 +23,44 @@
 #include "tests/test/core/TransactionContainerTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"
+#include "tests/test/nodeps/Alignment.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace model {
 
 #define TEST_CLASS AggregateTransactionTests
 
-	// region size + properties
+	// region size + alignment + properties
 
-	TEST(TEST_CLASS, EntityHasExpectedSize){
+#define TRANSACTION_FIELDS FIELD(TransactionsHash) FIELD(PayloadSize)
+
+	TEST(TEST_CLASS, TransactionHasExpectedSize) {
 		// Arrange:
-		auto expectedSize =
-				sizeof(Transaction) // base
-				+ sizeof(uint32_t); // payload size
+		auto expectedSize = sizeof(Transaction) + sizeof(uint32_t);
+
+#define FIELD(X) expectedSize += sizeof(AggregateTransaction::X);
+		TRANSACTION_FIELDS
+#undef FIELD
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(AggregateTransaction));
-		EXPECT_EQ(120u + 4, sizeof(AggregateTransaction));
+		EXPECT_EQ(128u + 4 + 36, sizeof(AggregateTransaction));
+	}
+
+	TEST(TEST_CLASS, TransactionHasProperAlignment) {
+#define FIELD(X) EXPECT_ALIGNED(AggregateTransaction, X);
+		TRANSACTION_FIELDS
+#undef FIELD
+
+		EXPECT_EQ(0u, sizeof(AggregateTransaction) % 8);
 	}
 
 	TEST(TEST_CLASS, TransactionHasExpectedProperties) {
 		EXPECT_EQ(Entity_Type_Aggregate_Complete, AggregateTransaction::Entity_Type);
 		EXPECT_EQ(1u, AggregateTransaction::Current_Version);
 	}
+
+#undef TRANSACTION_FIELDS
 
 	// endregion
 
@@ -54,12 +69,21 @@ namespace catapult { namespace model {
 	namespace {
 		using EmbeddedTransactionType = mocks::EmbeddedMockTransaction;
 
+		uint32_t CalculateAggregateTransactionSize(uint32_t extraSize, std::initializer_list<uint16_t> attachmentExtraSizes) {
+			uint32_t size = sizeof(AggregateTransaction) + extraSize;
+			for (auto attachmentExtraSize : attachmentExtraSizes) {
+				uint32_t attachmentSize = sizeof(EmbeddedTransactionType) + attachmentExtraSize;
+				uint32_t paddingSize = utils::GetPaddingSize(attachmentSize, 8);
+				size += attachmentSize + paddingSize;
+			}
+
+			return size;
+		}
+
 		std::unique_ptr<AggregateTransaction> CreateAggregateTransaction(
 				uint32_t extraSize,
 				std::initializer_list<uint16_t> attachmentExtraSizes) {
-			uint32_t size = sizeof(AggregateTransaction) + extraSize;
-			for (auto attachmentExtraSize : attachmentExtraSizes)
-				size += sizeof(EmbeddedTransactionType) + attachmentExtraSize;
+			auto size = CalculateAggregateTransactionSize(extraSize, attachmentExtraSizes);
 
 			auto pTransaction = utils::MakeUniqueWithSize<AggregateTransaction>(size);
 			pTransaction->Size = size;
@@ -71,7 +95,7 @@ namespace catapult { namespace model {
 				pEmbeddedTransaction->Size = sizeof(EmbeddedTransactionType) + attachmentExtraSize;
 				pEmbeddedTransaction->Type = EmbeddedTransactionType::Entity_Type;
 				pEmbeddedTransaction->Data.Size = attachmentExtraSize;
-				pData += pEmbeddedTransaction->Size;
+				pData += pEmbeddedTransaction->Size + utils::GetPaddingSize(pEmbeddedTransaction->Size, 8);
 			}
 
 			return pTransaction;
@@ -79,7 +103,9 @@ namespace catapult { namespace model {
 
 		EmbeddedTransactionType& GetSecondTransaction(AggregateTransaction& transaction) {
 			uint8_t* pBytes = reinterpret_cast<uint8_t*>(transaction.TransactionsPtr());
-			return *reinterpret_cast<EmbeddedTransactionType*>(pBytes + transaction.TransactionsPtr()->Size);
+			auto firstTransactionSize = transaction.TransactionsPtr()->Size;
+			auto paddingSize = utils::GetPaddingSize(firstTransactionSize, 8);
+			return *reinterpret_cast<EmbeddedTransactionType*>(pBytes + firstTransactionSize + paddingSize);
 		}
 	}
 
@@ -314,7 +340,19 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, SizeInvalidWhenPayloadSizeIsTooLargeRelativeToSize) {
 		// Arrange:
 		auto pTransaction = CreateAggregateTransaction(0, { 1, 2, 3 });
-		++pTransaction->PayloadSize;
+		pTransaction->PayloadSize += 8;
+
+		// Act + Assert:
+		EXPECT_FALSE(IsSizeValid(*pTransaction));
+	}
+
+	TEST(TEST_CLASS, SizeInvalidWhenPayloadSizeIsNotPaddedProperly) {
+		// Arrange: remove padding from last transaction
+		auto pTransaction = CreateAggregateTransaction(0, { 1, 2, 3 });
+		auto lastTxPaddingSize = utils::GetPaddingSize<uint32_t>(sizeof(EmbeddedTransactionType) + 3, 8);
+
+		pTransaction->Size -= lastTxPaddingSize;
+		pTransaction->PayloadSize -= lastTxPaddingSize;
 
 		// Act + Assert:
 		EXPECT_FALSE(IsSizeValid(*pTransaction));

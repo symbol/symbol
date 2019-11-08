@@ -39,11 +39,11 @@ namespace catapult { namespace builders {
 		/// Sets the affected mosaic identifier to \a mosaicId.
 		void setMosaicId(UnresolvedMosaicId mosaicId);
 
-		/// Sets the supply change action to \a action.
-		void setAction(model::MosaicSupplyChangeAction action);
-
 		/// Sets the change amount to \a delta.
 		void setDelta(Amount delta);
+
+		/// Sets the supply change action to \a action.
+		void setAction(model::MosaicSupplyChangeAction action);
 
 	public:
 		/// Gets the size of mosaic supply change transaction.
@@ -65,7 +65,7 @@ namespace catapult { namespace builders {
 
 	private:
 		UnresolvedMosaicId m_mosaicId;
-		model::MosaicSupplyChangeAction m_action;
 		Amount m_delta;
+		model::MosaicSupplyChangeAction m_action;
 	};
 }}

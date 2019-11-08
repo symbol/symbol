@@ -42,14 +42,14 @@ namespace catapult { namespace model {
 		/// Restriction key.
 		uint64_t RestrictionKey;
 
-		/// Address being restricted.
-		UnresolvedAddress TargetAddress;
-
 		/// Previous restriction value.
 		uint64_t PreviousRestrictionValue;
 
 		/// New restriction value.
 		uint64_t NewRestrictionValue;
+
+		/// Address being restricted.
+		UnresolvedAddress TargetAddress;
 
 	public:
 		/// Calculates the real size of a mosaic address restriction \a transaction.

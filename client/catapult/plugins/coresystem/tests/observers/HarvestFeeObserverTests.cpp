@@ -91,9 +91,9 @@ namespace catapult { namespace observers {
 			ASSERT_EQ(sizeof(model::BalanceChangeReceipt), receipt.Size) << message;
 			EXPECT_EQ(1u, receipt.Version) << message;
 			EXPECT_EQ(model::Receipt_Type_Harvest_Fee, receipt.Type) << message;
+			EXPECT_EQ(Currency_Mosaic_Id, receipt.Mosaic.MosaicId) << message;
+			EXPECT_EQ(expectedAmount, receipt.Mosaic.Amount) << message;
 			EXPECT_EQ(expectedKey, receipt.TargetPublicKey) << message;
-			EXPECT_EQ(Currency_Mosaic_Id, receipt.MosaicId) << message;
-			EXPECT_EQ(expectedAmount, receipt.Amount) << message;
 		}
 
 		template<typename TAction>
@@ -195,8 +195,8 @@ namespace catapult { namespace observers {
 			ASSERT_EQ(sizeof(model::InflationReceipt), receipt.Size) << message;
 			EXPECT_EQ(1u, receipt.Version) << message;
 			EXPECT_EQ(model::Receipt_Type_Inflation, receipt.Type) << message;
-			EXPECT_EQ(Currency_Mosaic_Id, receipt.MosaicId) << message;
-			EXPECT_EQ(expectedAmount, receipt.Amount) << message;
+			EXPECT_EQ(Currency_Mosaic_Id, receipt.Mosaic.MosaicId) << message;
+			EXPECT_EQ(expectedAmount, receipt.Mosaic.Amount) << message;
 		}
 
 		void AssertHarvesterSharesFees(

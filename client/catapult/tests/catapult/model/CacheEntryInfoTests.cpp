@@ -21,6 +21,7 @@
 #include "catapult/model/CacheEntryInfo.h"
 #include "catapult/utils/MemoryUtils.h"
 #include "tests/test/core/VariableSizedEntityTestUtils.h"
+#include "tests/test/nodeps/Alignment.h"
 #include "tests/test/nodeps/NumericTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -32,17 +33,32 @@ namespace catapult { namespace model {
 		constexpr auto Max_Data_Size = CacheEntryInfo<uint64_t>::Max_Data_Size;
 	}
 
-	TEST(TEST_CLASS, EntityHasExpectedSize) {
+	// region size + alignment
+
+#define CACHE_ENTRY_INFO_FIELDS FIELD(DataSize) FIELD(Id)
+
+	TEST(TEST_CLASS, CacheEntryInfoHasExpectedSize) {
 		// Arrange:
-		auto expectedSize =
-				sizeof(uint32_t) // Size
-				+ sizeof(uint64_t) // Id
-				+ sizeof(uint32_t); // DataSize
+		auto expectedSize = sizeof(TrailingVariableDataLayout<CacheEntryInfo<uint64_t>, uint8_t>);
+
+#define FIELD(X) expectedSize += sizeof(CacheEntryInfo<uint64_t>::X);
+		CACHE_ENTRY_INFO_FIELDS
+#undef FIELD
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(CacheEntryInfo<uint64_t>));
-		EXPECT_EQ(16u, sizeof(CacheEntryInfo<uint64_t>));
+		EXPECT_EQ(4u + 12, sizeof(CacheEntryInfo<uint64_t>));
 	}
+
+	TEST(TEST_CLASS, CacheEntryInfoHasProperAlignment) {
+#define FIELD(X) EXPECT_ALIGNED(CacheEntryInfo<uint64_t>, X);
+		CACHE_ENTRY_INFO_FIELDS
+#undef FIELD
+	}
+
+#undef CACHE_ENTRY_INFO_FIELDS
+
+	// endregion
 
 	// region CalculateRealSize
 

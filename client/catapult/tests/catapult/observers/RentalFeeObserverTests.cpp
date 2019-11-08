@@ -88,10 +88,10 @@ namespace catapult { namespace observers {
 			ASSERT_EQ(sizeof(model::BalanceTransferReceipt), receipt.Size);
 			EXPECT_EQ(1u, receipt.Version);
 			EXPECT_EQ(Default_Receipt_Type, receipt.Type);
+			EXPECT_EQ(MosaicId(345), receipt.Mosaic.MosaicId);
+			EXPECT_EQ(Amount(123 * 999), receipt.Mosaic.Amount);
 			EXPECT_EQ(signer, receipt.SenderPublicKey);
 			EXPECT_EQ(recipient, receipt.RecipientAddress);
-			EXPECT_EQ(MosaicId(345), receipt.MosaicId);
-			EXPECT_EQ(Amount(123 * 999), receipt.Amount);
 		});
 	}
 

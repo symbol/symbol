@@ -43,6 +43,7 @@ namespace catapult { namespace handlers {
 			uint32_t Size;
 			uint32_t Seed;
 			uint16_t Value;
+			uint16_t Reserved1;
 		};
 
 #pragma pack(pop)

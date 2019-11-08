@@ -33,11 +33,11 @@ namespace catapult { namespace model {
 
 		/// Resolution entry.
 		struct ResolutionEntry {
-			/// Resolved value.
-			TResolved ResolvedValue;
-
 			/// Source of resolution within block.
 			ReceiptSource Source;
+
+			/// Resolved value.
+			TResolved ResolvedValue;
 		};
 
 #pragma pack(pop)
@@ -64,8 +64,14 @@ namespace catapult { namespace model {
 		void addResolution(const TResolved& resolved, const ReceiptSource& source);
 
 	private:
+		// store compiler aligned struct in vector instead of packed struct in order to align all entries in vector on 8-byte boundaries
+		struct PaddedResolutionEntry : public ResolutionEntry {
+			uint64_t Reserved;
+		};
+
+	private:
 		TUnresolved m_unresolved;
-		std::vector<ResolutionEntry> m_entries;
+		std::vector<PaddedResolutionEntry> m_entries;
 	};
 
 	/// Address resolution statement.

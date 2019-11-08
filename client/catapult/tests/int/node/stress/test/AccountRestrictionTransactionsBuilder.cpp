@@ -71,13 +71,13 @@ namespace catapult { namespace test {
 		auto partnerAddress = extensions::CopyToUnresolvedAddress(accounts().getAddress(descriptor.PartnerId));
 
 		builders::AccountAddressRestrictionBuilder builder(Network_Identifier, senderKeyPair.publicKey());
-		builder.setRestrictionType(model::AccountRestrictionType::Block | model::AccountRestrictionType::Address);
-		builder.addModification({
-			descriptor.IsAdd ? model::AccountRestrictionModificationAction::Add : model::AccountRestrictionModificationAction::Del,
-			partnerAddress
-		});
-		auto pTransaction = builder.build();
+		builder.setRestrictionFlags(model::AccountRestrictionFlags::Block | model::AccountRestrictionFlags::Address);
+		if (descriptor.IsAdd)
+			builder.addRestrictionAddition(partnerAddress);
+		else
+			builder.addRestrictionDeletion(partnerAddress);
 
+		auto pTransaction = builder.build();
 		return SignWithDeadline(std::move(pTransaction), senderKeyPair, deadline);
 	}
 

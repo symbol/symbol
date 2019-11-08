@@ -21,6 +21,7 @@
 #include "catapult/ionet/PackedNodeInfo.h"
 #include "catapult/utils/MemoryUtils.h"
 #include "tests/test/core/VariableSizedEntityTestUtils.h"
+#include "tests/test/nodeps/Alignment.h"
 #include "tests/test/nodeps/NumericTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -28,39 +29,88 @@ namespace catapult { namespace ionet {
 
 #define TEST_CLASS PackedNodeInfoTests
 
-	// region sizes
+	// region size + alignment (PackedConnectionState)
+
+#define PACKED_CONNECTION_STATE_FIELDS FIELD(ServiceId) FIELD(Age) FIELD(NumConsecutiveFailures) FIELD(BanAge)
 
 	TEST(TEST_CLASS, PackedConnectionStateHasExpectedSize) {
 		// Arrange:
-		auto expectedSize = sizeof(ServiceIdentifier) + 3 * sizeof(uint32_t);
+		auto expectedSize = 0u;
+
+#define FIELD(X) expectedSize += sizeof(PackedConnectionState::X);
+		PACKED_CONNECTION_STATE_FIELDS
+#undef FIELD
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(PackedConnectionState));
 		EXPECT_EQ(16u, sizeof(PackedConnectionState));
 	}
 
+	TEST(TEST_CLASS, PackedConnectionStateHasProperAlignment) {
+#define FIELD(X) EXPECT_ALIGNED(PackedConnectionState, X);
+		PACKED_CONNECTION_STATE_FIELDS
+#undef FIELD
+
+		EXPECT_EQ(0u, sizeof(PackedConnectionState) % 8);
+	}
+
+#undef PACKED_CONNECTION_STATE_FIELDS
+
+	// endregion
+
+	// region size + alignment (PackedNodeInteractions)
+
+#define PACKED_NODE_INTERACTIONS_FIELDS FIELD(NumSuccesses) FIELD(NumFailures)
+
 	TEST(TEST_CLASS, PackedNodeInteractionsHasExpectedSize) {
 		// Arrange:
-		auto expectedSize = 2 * sizeof(uint32_t);
+		auto expectedSize = 0u;
+
+#define FIELD(X) expectedSize += sizeof(PackedNodeInteractions::X);
+		PACKED_NODE_INTERACTIONS_FIELDS
+#undef FIELD
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(PackedNodeInteractions));
 		EXPECT_EQ(8u, sizeof(PackedNodeInteractions));
 	}
 
+	TEST(TEST_CLASS, PackedNodeInteractionsHasProperAlignment) {
+#define FIELD(X) EXPECT_ALIGNED(PackedNodeInteractions, X);
+		PACKED_NODE_INTERACTIONS_FIELDS
+#undef FIELD
+	}
+
+#undef PACKED_NODE_INTERACTIONS_FIELDS
+
+	// endregion
+
+	// region size + alignment (PackedNodeInfo)
+
+#define PACKED_NODE_INFO_FIELDS FIELD(Source) FIELD(IdentityKey) FIELD(Interactions) FIELD(ConnectionStatesCount)
+
 	TEST(TEST_CLASS, PackedNodeInfoHasExpectedSize) {
 		// Arrange:
-		auto expectedSize =
-				sizeof(uint32_t) // size
-				+ Key::Size // identity key
-				+ sizeof(NodeSource) // node source
-				+ sizeof(NodeInteractions) // node interactions
-				+ sizeof(uint8_t); // number of connection states
+		auto expectedSize = sizeof(model::TrailingVariableDataLayout<PackedNodeInfo, PackedConnectionState>) + 7;
+
+#define FIELD(X) expectedSize += sizeof(PackedNodeInfo::X);
+		PACKED_NODE_INFO_FIELDS
+#undef FIELD
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(PackedNodeInfo));
-		EXPECT_EQ(49u, sizeof(PackedNodeInfo));
+		EXPECT_EQ(4u + 7 + 45, sizeof(PackedNodeInfo));
 	}
+
+	TEST(TEST_CLASS, PackedNodeInfoHasProperAlignment) {
+#define FIELD(X) EXPECT_ALIGNED(PackedNodeInfo, X);
+		PACKED_NODE_INFO_FIELDS
+#undef FIELD
+
+		EXPECT_EQ(0u, sizeof(PackedNodeInfo) % 8);
+	}
+
+#undef PACKED_NODE_INFO_FIELDS
 
 	// endregion
 

@@ -118,7 +118,8 @@ namespace catapult { namespace state {
 
 			EXPECT_EQ(alias.type(), rootHeader.AliasType) << message;
 			if (AliasType::None == alias.type()) {
-				EXPECT_EQ(numChildren, rootHeader.NumChildren) << message;
+				// not aligned so cannot be passed by reference
+				EXPECT_EQ(numChildren, static_cast<uint64_t>(rootHeader.NumChildren)) << message;
 				return;
 			}
 

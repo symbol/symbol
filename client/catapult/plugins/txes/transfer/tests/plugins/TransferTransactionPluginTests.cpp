@@ -43,11 +43,11 @@ namespace catapult { namespace plugins {
 			using TransactionType = typename TTraits::TransactionType;
 			uint32_t entitySize = sizeof(TransactionType) + numMosaics * sizeof(Mosaic) + messageSize;
 			auto pTransaction = utils::MakeUniqueWithSize<TransactionType>(entitySize);
+			test::FillWithRandomData({ reinterpret_cast<uint8_t*>(pTransaction.get()), entitySize });
+
 			pTransaction->Size = entitySize;
 			pTransaction->MessageSize = messageSize;
 			pTransaction->MosaicsCount = numMosaics;
-			test::FillWithRandomData(pTransaction->SignerPublicKey);
-			test::FillWithRandomData(pTransaction->RecipientAddress);
 			return pTransaction;
 		}
 	}
@@ -63,6 +63,9 @@ namespace catapult { namespace plugins {
 		void AddCommonExpectations(
 				typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder& builder,
 				const typename TTraits::TransactionType& transaction) {
+			builder.template addExpectation<InternalPaddingNotification>([&transaction](const auto& notification) {
+				EXPECT_EQ(transaction.TransferTransactionBody_Reserved1, notification.Padding);
+			});
 			builder.template addExpectation<AccountAddressNotification>([&transaction](const auto& notification) {
 				EXPECT_EQ(transaction.RecipientAddress, notification.Address);
 			});
@@ -84,6 +87,7 @@ namespace catapult { namespace plugins {
 
 		// Act + Assert:
 		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
+			InternalPaddingNotification::Notification_Type,
 			AccountAddressNotification::Notification_Type,
 			AddressInteractionNotification::Notification_Type
 		});
@@ -124,6 +128,7 @@ namespace catapult { namespace plugins {
 
 		// Act + Assert:
 		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(*pTransaction, {
+			InternalPaddingNotification::Notification_Type,
 			AccountAddressNotification::Notification_Type,
 			AddressInteractionNotification::Notification_Type,
 			TransferMessageNotification::Notification_Type
@@ -170,6 +175,7 @@ namespace catapult { namespace plugins {
 
 		// Act + Assert:
 		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(*pTransaction, {
+			InternalPaddingNotification::Notification_Type,
 			AccountAddressNotification::Notification_Type,
 			AddressInteractionNotification::Notification_Type,
 			BalanceTransferNotification::Notification_Type,
@@ -226,6 +232,7 @@ namespace catapult { namespace plugins {
 
 		// Act + Assert:
 		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(*pTransaction, {
+			InternalPaddingNotification::Notification_Type,
 			AccountAddressNotification::Notification_Type,
 			AddressInteractionNotification::Notification_Type,
 			BalanceTransferNotification::Notification_Type,

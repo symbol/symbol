@@ -66,7 +66,8 @@ namespace catapult { namespace plugins {
 					"MaxTransactionsValidator",
 					"NetworkValidator",
 					"EntityVersionValidator",
-					"TransactionFeeValidator"
+					"TransactionFeeValidator",
+					"ZeroInternalPaddingValidator"
 				};
 			}
 

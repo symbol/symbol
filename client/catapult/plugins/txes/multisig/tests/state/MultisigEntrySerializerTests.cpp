@@ -84,7 +84,9 @@ namespace catapult { namespace state {
 		}
 
 		void AssertAccountKeys(const utils::SortedKeySet& expectedKeys, const uint8_t* pData) {
-			ASSERT_EQ(expectedKeys.size(), *reinterpret_cast<const uint64_t*>(pData));
+			// pData is not 8-byte aligned, so need to use memcpy
+			uint64_t numKeys;
+			std::memcpy(&numKeys, pData, sizeof(uint64_t));
 			pData += sizeof(uint64_t);
 
 			std::set<Key> keys;

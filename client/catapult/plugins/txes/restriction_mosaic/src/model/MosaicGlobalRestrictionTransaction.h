@@ -49,11 +49,11 @@ namespace catapult { namespace model {
 		/// Previous restriction value.
 		uint64_t PreviousRestrictionValue;
 
-		/// Previous restriction type.
-		MosaicRestrictionType PreviousRestrictionType;
-
 		/// New restriction value.
 		uint64_t NewRestrictionValue;
+
+		/// Previous restriction type.
+		MosaicRestrictionType PreviousRestrictionType;
 
 		/// New restriction type.
 		MosaicRestrictionType NewRestrictionType;
