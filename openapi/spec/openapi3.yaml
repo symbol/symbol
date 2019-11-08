@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  version: 0.7.19
+  version: 0.7.20
   title: Catapult REST Endpoints
   license:
     name: Apache 2.0
@@ -1694,70 +1694,6 @@ components:
         * 0xE143 (57667 decimal) - Transaction_Group.
         * 0xF143 (61763 decimal) - Address_Alias_Resolution.
         * 0xF243 (62019 decimal) - Mosaic_Alias_Resolution.
-    BalanceTransferReceiptDTO:
-      type: object
-      description: Invisible state change that triggered a mosaic transfer.
-      allOf:
-        - $ref: "#/components/schemas/ReceiptDTO"
-        - type: object
-          required:
-            - senderPublicKey
-            - recipientAddress
-            - mosaicId
-            - amount
-          properties:
-            senderPublicKey:
-              $ref: "#/components/schemas/PublicKey"
-            recipientAddress:
-              $ref: "#/components/schemas/Address"
-            mosaicId:
-              $ref: "#/components/schemas/MosaicId"
-            amount:
-              $ref: "#/components/schemas/Amount"
-    BalanceChangeReceiptDTO:
-      type: object
-      description: Invisible state change that changed an account balance.
-      allOf:
-        - $ref: "#/components/schemas/ReceiptDTO"
-        - type: object
-          required:
-            - targetPublicKey
-            - mosaicId
-            - amount
-          properties:
-            targetPublicKey:
-              $ref: "#/components/schemas/PublicKey"
-            mosaicId:
-              $ref: "#/components/schemas/MosaicId"
-            amount:
-              $ref: "#/components/schemas/Amount"
-    ArtifactExpiryReceiptDTO:
-      type: object
-      description: An artifact namespace or mosaic expired.
-      allOf:
-        - $ref: "#/components/schemas/ReceiptDTO"
-        - type: object
-          required:
-            - artifactId
-          properties:
-            artifactId:
-              anyOf:
-                - $ref: "#/components/schemas/NamespaceId"
-                - $ref: "#/components/schemas/MosaicId"
-    InflationReceiptDTO:
-      type: object
-      description: Native currency mosaics that were created due to inflation.
-      allOf:
-        - $ref: "#/components/schemas/ReceiptDTO"
-        - type: object
-          required:
-            - mosaicId
-            - amount
-          properties:
-            mosaicId:
-              $ref: "#/components/schemas/MosaicId"
-            amount:
-              $ref: "#/components/schemas/Amount"
     # Enumerations - RestrictionAccount
     AccountRestrictionTypeEnum:
       type: integer
@@ -2352,6 +2288,7 @@ components:
       allOf:
         - $ref: "#/components/schemas/EmbeddedTransactionDTO"
         - $ref: "#/components/schemas/HashLockTransactionDTO"
+    # Schemas - LockSecret
     SecretLockTransactionBodyDTO:
       type: object
       required:
@@ -2387,7 +2324,6 @@ components:
       allOf:
         - $ref: "#/components/schemas/EmbeddedTransactionDTO"
         - $ref: "#/components/schemas/SecretLockTransactionBodyDTO"
-    # Schemas - LockSecret
     SecretProofTransactionBodyDTO:
       type: object
       required:
@@ -2478,7 +2414,7 @@ components:
         ownerPublicKey:
           $ref: "#/components/schemas/PublicKey"
         ownerAddress:
-          $ref: "#/components/schemas/PublicKey"
+          $ref: "#/components/schemas/Address"
         revision:
           type: integer
           format: int32
@@ -2667,6 +2603,54 @@ components:
         - $ref: "#/components/schemas/EmbeddedTransactionDTO"
         - $ref: "#/components/schemas/MultisigAccountModificationTransactionBodyDTO"
     # Schemas - Metadata
+    MetadataEntriesDTO:
+      type: object
+      required:
+        - metadataEntries
+      properties:
+        metadataEntries:
+          type: array
+          description: Array of account metadata.
+          items:
+            $ref: "#/components/schemas/MetadataDTO"
+    MetadataDTO:
+      type: object
+      required:
+        - id
+        - metadataEntry
+      properties:
+        id:
+          type: string
+        metadataEntry:
+          $ref: "#/components/schemas/MetadataEntryDTO"
+    MetadataEntryDTO:
+      type: object
+      required:
+        - compositeHash
+        - senderPublicKey
+        - targetPublicKey
+        - scopedMetadataKey
+        - metadataType
+        - value
+      properties:
+        compositeHash:
+          $ref: "#/components/schemas/Hash256"
+        senderPublicKey:
+          $ref: "#/components/schemas/PublicKey"
+        targetPublicKey:
+          $ref: "#/components/schemas/PublicKey"
+        scopedMetadataKey:
+          $ref: "#/components/schemas/MetadataKey"
+        targetId:
+          anyOf:
+            - $ref: "#/components/schemas/MosaicId"
+            - $ref: "#/components/schemas/NamespaceId"
+        metadataType:
+          $ref: "#/components/schemas/MetadataTypeEnum"
+        value:
+          type: string
+          format: hex
+          description: Metadata value.
     AccountMetadataTransactionBodyDTO:
       type: object
       required:
@@ -3008,6 +2992,70 @@ components:
         - $ref: "#/components/schemas/EmbeddedTransactionDTO"
         - $ref: "#/components/schemas/MosaicAliasTransactionBodyDTO"
     # Schemas - Receipt
+    BalanceTransferReceiptDTO:
+      type: object
+      description: Invisible state change that triggered a mosaic transfer.
+      allOf:
+        - $ref: "#/components/schemas/ReceiptDTO"
+        - type: object
+          required:
+            - senderPublicKey
+            - recipientAddress
+            - mosaicId
+            - amount
+          properties:
+            senderPublicKey:
+              $ref: "#/components/schemas/PublicKey"
+            recipientAddress:
+              $ref: "#/components/schemas/Address"
+            mosaicId:
+              $ref: "#/components/schemas/MosaicId"
+            amount:
+              $ref: "#/components/schemas/Amount"
+    BalanceChangeReceiptDTO:
+      type: object
+      description: Invisible state change that changed an account balance.
+      allOf:
+        - $ref: "#/components/schemas/ReceiptDTO"
+        - type: object
+          required:
+            - targetPublicKey
+            - mosaicId
+            - amount
+          properties:
+            targetPublicKey:
+              $ref: "#/components/schemas/PublicKey"
+            mosaicId:
+              $ref: "#/components/schemas/MosaicId"
+            amount:
+              $ref: "#/components/schemas/Amount"
+    ArtifactExpiryReceiptDTO:
+      type: object
+      description: An artifact namespace or mosaic expired.
+      allOf:
+        - $ref: "#/components/schemas/ReceiptDTO"
+        - type: object
+          required:
+            - artifactId
+          properties:
+            artifactId:
+              anyOf:
+                - $ref: "#/components/schemas/NamespaceId"
+                - $ref: "#/components/schemas/MosaicId"
+    InflationReceiptDTO:
+      type: object
+      description: Native currency mosaics that were created due to inflation.
+      allOf:
+        - $ref: "#/components/schemas/ReceiptDTO"
+        - type: object
+          required:
+            - mosaicId
+            - amount
+          properties:
+            mosaicId:
+              $ref: "#/components/schemas/MosaicId"
+            amount:
+              $ref: "#/components/schemas/Amount"
     StatementsDTO:
       type: object
       description: Collection of transaction statements and resolutions triggered for
@@ -3469,56 +3517,6 @@ components:
       allOf:
         - $ref: "#/components/schemas/EmbeddedTransactionDTO"
         - $ref: "#/components/schemas/TransferTransactionBodyDTO"
-
-    # Schemas - Metadata
-    MetadataEntriesDTO:
-      type: object
-      required:
-        - metadataEntries
-      properties:
-        metadataEntries:
-          type: array
-          description: Array of account metadata.
-          items:
-            $ref: "#/components/schemas/MetadataDTO"
-    MetadataDTO:
-      type: object
-      required:
-        - id
-        - metadataEntry
-      properties:
-        id:
-          type: string
-        metadataEntry:
-          $ref: "#/components/schemas/MetadataEntryDTO"
-    MetadataEntryDTO:
-      type: object
-      required:
-        - compositeHash
-        - senderPublicKey
-        - targetPublicKey
-        - scopedMetadataKey
-        - metadataType
-        - value
-      properties:
-        compositeHash:
-          $ref: "#/components/schemas/Hash256"
-        senderPublicKey:
-          $ref: "#/components/schemas/PublicKey"
-        targetPublicKey:
-          $ref: "#/components/schemas/PublicKey"
-        scopedMetadataKey:
-          $ref: "#/components/schemas/MetadataKey"
-        targetId:
-          anyOf:
-            - $ref: "#/components/schemas/MosaicId"
-            - $ref: "#/components/schemas/NamespaceId"
-        metadataType:
-          $ref: "#/components/schemas/MetadataTypeEnum"
-        value:
-          type: string
-          format: hex
-          description: Metadata value.
 
     # Request bodies
     accountIds:
