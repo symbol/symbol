@@ -46,12 +46,12 @@ namespace catapult { namespace validators {
 
 		auto multisigIter = multisigCache.find(notification.Signer);
 		const auto& multisigEntry = multisigIter.get();
-		int newMinRemoval = multisigEntry.minRemoval() + notification.MinRemovalDelta;
-		int newMinApproval = multisigEntry.minApproval() + notification.MinApprovalDelta;
+		int64_t newMinRemoval = static_cast<int64_t>(multisigEntry.minRemoval()) + notification.MinRemovalDelta;
+		int64_t newMinApproval = static_cast<int64_t>(multisigEntry.minApproval()) + notification.MinApprovalDelta;
 		if (1 > newMinRemoval || 1 > newMinApproval)
 			return Failure_Multisig_Min_Setting_Out_Of_Range;
 
-		int maxValue = static_cast<int>(multisigEntry.cosignatoryPublicKeys().size());
+		auto maxValue = static_cast<int64_t>(multisigEntry.cosignatoryPublicKeys().size());
 		if (newMinRemoval > maxValue || newMinApproval > maxValue)
 			return Failure_Multisig_Min_Setting_Larger_Than_Num_Cosignatories;
 

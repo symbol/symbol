@@ -153,8 +153,8 @@ namespace catapult { namespace validators {
 		auto CreateCacheWithSingleLevelMultisig(
 				const Key& embeddedSigner,
 				const std::vector<Key>& cosignatories,
-				uint8_t minApproval = 3,
-				uint8_t minRemoval = 4) {
+				uint32_t minApproval = 3,
+				uint32_t minRemoval = 4) {
 			auto cache = test::MultisigCacheFactory::Create();
 			auto cacheDelta = cache.createDelta();
 
@@ -319,8 +319,8 @@ namespace catapult { namespace validators {
 				uint32_t expectedLimit,
 				uint8_t numAdditions,
 				uint8_t numDeletions,
-				uint8_t minApproval,
-				uint8_t minRemoval) {
+				uint32_t minApproval,
+				uint32_t minRemoval) {
 			// Arrange:
 			auto embeddedSigner = test::GenerateRandomByteArray<Key>();
 			auto aggregateSigner = test::GenerateRandomByteArray<Key>();

@@ -40,14 +40,14 @@ namespace catapult { namespace observers {
 
 		struct MultisigSettings {
 		public:
-			uint8_t Removal;
-			uint8_t Approval;
+			uint32_t Removal;
+			uint32_t Approval;
 		};
 
 		struct TestSettings {
 		public:
-			uint8_t Expected;
-			uint8_t Current;
+			uint32_t Expected;
+			uint32_t Current;
 			int8_t Delta;
 		};
 
@@ -143,8 +143,9 @@ namespace catapult { namespace observers {
 	}
 
 	NOTIFY_MODE_BASED_TRAITS(ObserverDoesNotCareAboutWrapAround) {
-		// Assert: note: that's something that settings validator checks
-		TTraits::AssertTestWithSettings({ 124, 254, 126 }, { 128, 0, -128 });
+		// Assert: this is checked by settings validator
+		auto maxUnsignedValue = std::numeric_limits<uint32_t>::max();
+		TTraits::AssertTestWithSettings({ 124, maxUnsignedValue - 1, 126 }, { maxUnsignedValue - 127, 0, -128 });
 	}
 
 	// endregion

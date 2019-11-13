@@ -52,8 +52,8 @@ namespace catapult { namespace state {
 		public:
 			auto createEntry(size_t mainAccountId, size_t numCosignatories, size_t numMultisigAccounts) {
 				MultisigEntry entry(m_accountKeys[mainAccountId]);
-				entry.setMinApproval(static_cast<uint8_t>(mainAccountId + 23));
-				entry.setMinRemoval(static_cast<uint8_t>(mainAccountId + 34));
+				entry.setMinApproval(0x80000000 | static_cast<uint32_t>(mainAccountId + 23));
+				entry.setMinRemoval(0x00010000 | static_cast<uint32_t>(mainAccountId + 34));
 
 				// add cosignatories
 				for (auto i = mainAccountId; i < mainAccountId + numCosignatories; ++i)
@@ -103,9 +103,9 @@ namespace catapult { namespace state {
 
 		void AssertEntryBuffer(const MultisigEntry& entry, const uint8_t* pData, size_t expectedSize) {
 			const auto* pExpectedEnd = pData + expectedSize;
-			EXPECT_EQ(entry.minApproval(), pData[0]);
-			EXPECT_EQ(entry.minRemoval(), pData[1]);
-			pData += 2;
+			EXPECT_EQ(entry.minApproval(), reinterpret_cast<const uint32_t&>(pData[0]));
+			EXPECT_EQ(entry.minRemoval(), reinterpret_cast<const uint32_t&>(pData[sizeof(uint32_t)]));
+			pData += 2 * sizeof(uint32_t);
 
 			auto accountKey = ExtractKey(pData);
 			EXPECT_EQ(entry.key(), accountKey);
@@ -134,7 +134,7 @@ namespace catapult { namespace state {
 		MultisigEntrySerializer::Save(entry, context.outputStream());
 
 		// Assert:
-		auto expectedSize = sizeof(uint8_t) * 2 + sizeof(Key) + 2 * sizeof(uint64_t);
+		auto expectedSize = sizeof(uint32_t) * 2 + sizeof(Key) + 2 * sizeof(uint64_t);
 		ASSERT_EQ(expectedSize, context.buffer().size());
 		AssertEntryBuffer(entry, context.buffer().data(), expectedSize);
 	}
@@ -148,7 +148,7 @@ namespace catapult { namespace state {
 		MultisigEntrySerializer::Save(entry, context.outputStream());
 
 		// Assert:
-		auto expectedSize = sizeof(uint8_t) * 2 + sizeof(Key) + 2 * sizeof(uint64_t) + 3 * sizeof(Key) + 4 * sizeof(Key);
+		auto expectedSize = sizeof(uint32_t) * 2 + sizeof(Key) + 2 * sizeof(uint64_t) + 3 * sizeof(Key) + 4 * sizeof(Key);
 		ASSERT_EQ(expectedSize, context.buffer().size());
 		AssertEntryBuffer(entry, context.buffer().data(), expectedSize);
 	}
@@ -176,7 +176,7 @@ namespace catapult { namespace state {
 			}
 
 			static constexpr size_t GetKeyStartBufferOffset() {
-				return 2u * sizeof(uint8_t) + Key::Size;
+				return 2u * sizeof(uint32_t) + Key::Size;
 			}
 		};
 
@@ -188,7 +188,7 @@ namespace catapult { namespace state {
 			}
 
 			static constexpr size_t GetKeyStartBufferOffset() {
-				return 2u * sizeof(uint8_t) + Key::Size + sizeof(uint64_t);
+				return 2u * sizeof(uint32_t) + Key::Size + sizeof(uint64_t);
 			}
 		};
 	}

@@ -43,11 +43,11 @@ namespace catapult { namespace validators {
 	/// Validator that applies to multisig new osignatory notifications and validates that:
 	/// - the cosignatory is cosigning at most \a maxCosignedAccountsPerAccount
 	DECLARE_STATEFUL_VALIDATOR(MultisigMaxCosignedAccounts, model::MultisigNewCosignatoryNotification)(
-			uint8_t maxCosignedAccountsPerAccount);
+			uint32_t maxCosignedAccountsPerAccount);
 
 	/// Validator that applies to multisig cosignatories notifications and validates that:
 	/// - the multisig account has at most \a maxCosignatoriesPerAccount cosignatories
-	DECLARE_STATEFUL_VALIDATOR(MultisigMaxCosignatories, model::MultisigCosignatoriesNotification)(uint8_t maxCosignatoriesPerAccount);
+	DECLARE_STATEFUL_VALIDATOR(MultisigMaxCosignatories, model::MultisigCosignatoriesNotification)(uint32_t maxCosignatoriesPerAccount);
 
 	/// Validator that applies to multisig new cosignatory notifications and validates that:
 	/// - the multisig depth is at most \a maxMultisigDepth

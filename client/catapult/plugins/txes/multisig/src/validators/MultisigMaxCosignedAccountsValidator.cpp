@@ -26,7 +26,7 @@ namespace catapult { namespace validators {
 
 	using Notification = model::MultisigNewCosignatoryNotification;
 
-	DECLARE_STATEFUL_VALIDATOR(MultisigMaxCosignedAccounts, Notification)(uint8_t maxCosignedAccountsPerAccount) {
+	DECLARE_STATEFUL_VALIDATOR(MultisigMaxCosignedAccounts, Notification)(uint32_t maxCosignedAccountsPerAccount) {
 		return MAKE_STATEFUL_VALIDATOR(MultisigMaxCosignedAccounts, [maxCosignedAccountsPerAccount](
 				const Notification& notification,
 				const ValidatorContext& context) {

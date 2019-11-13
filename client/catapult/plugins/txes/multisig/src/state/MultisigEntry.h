@@ -49,29 +49,29 @@ namespace catapult { namespace state {
 		}
 
 		/// Gets the number of cosignatories required when approving (any) transaction.
-		uint8_t minApproval() const {
+		uint32_t minApproval() const {
 			return m_minApproval;
 		}
 
 		/// Sets the number of cosignatories required (\a minApproval) when approving (any) transaction.
-		void setMinApproval(uint8_t minApproval) {
+		void setMinApproval(uint32_t minApproval) {
 			m_minApproval = minApproval;
 		}
 
 		/// Gets the number of cosignatories required when removing an account.
-		uint8_t minRemoval() const {
+		uint32_t minRemoval() const {
 			return m_minRemoval;
 		}
 
 		/// Sets the number of cosignatories required (\a minRemoval) when removing an account.
-		void setMinRemoval(uint8_t minRemoval) {
+		void setMinRemoval(uint32_t minRemoval) {
 			m_minRemoval = minRemoval;
 		}
 
 	private:
 		utils::SortedKeySet m_cosignatoryPublicKeys;
-		uint8_t m_minApproval;
-		uint8_t m_minRemoval;
+		uint32_t m_minApproval;
+		uint32_t m_minRemoval;
 	};
 
 	/// Mixin for storing information about accounts that current account can cosign.

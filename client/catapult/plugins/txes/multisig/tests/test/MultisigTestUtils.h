@@ -74,8 +74,8 @@ namespace catapult { namespace test {
 			cache::CatapultCacheDelta& cache,
 			const Key& multisigKey,
 			const std::vector<Key>& cosignatoryKeys,
-			uint8_t minApproval = 0,
-			uint8_t minRemoval = 0);
+			uint32_t minApproval = 0,
+			uint32_t minRemoval = 0);
 
 	/// Asserts that multisig entry \a actual is equal to \a expected.
 	void AssertEqual(const state::MultisigEntry& expected, const state::MultisigEntry& actual);

@@ -26,8 +26,8 @@ namespace catapult { namespace observers {
 	using Notification = model::MultisigSettingsNotification;
 
 	namespace {
-		constexpr uint8_t AddDelta(uint8_t value, int8_t direction, int8_t delta) {
-			return static_cast<uint8_t>(value + direction * delta);
+		constexpr uint32_t AddDelta(uint32_t value, int8_t direction, int8_t delta) {
+			return static_cast<uint32_t>(static_cast<int32_t>(value) + direction * delta);
 		}
 	}
 

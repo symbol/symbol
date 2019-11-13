@@ -43,7 +43,7 @@ namespace catapult { namespace validators {
 					: OperationType::Normal;
 		}
 
-		uint8_t GetMinRequiredCosignatories(const state::MultisigEntry& multisigEntry, OperationType operationType) {
+		uint32_t GetMinRequiredCosignatories(const state::MultisigEntry& multisigEntry, OperationType operationType) {
 			return OperationType::Max == operationType
 					? std::max(multisigEntry.minRemoval(), multisigEntry.minApproval())
 					: OperationType::Removal == operationType ? multisigEntry.minRemoval() : multisigEntry.minApproval();

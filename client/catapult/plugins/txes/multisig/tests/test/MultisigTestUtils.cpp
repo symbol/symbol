@@ -80,8 +80,8 @@ namespace catapult { namespace test {
 			cache::CatapultCacheDelta& cache,
 			const Key& multisigKey,
 			const std::vector<Key>& cosignatoryKeys,
-			uint8_t minApproval,
-			uint8_t minRemoval) {
+			uint32_t minApproval,
+			uint32_t minRemoval) {
 		auto& multisigCache = cache.sub<cache::MultisigCache>();
 
 		auto& multisigEntry = GetOrCreateEntry(multisigCache, multisigKey);
