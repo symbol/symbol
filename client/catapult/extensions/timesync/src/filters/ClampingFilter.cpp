@@ -26,18 +26,12 @@
 
 namespace catapult { namespace timesync { namespace filters {
 
-	namespace {
-		int64_t ToInt64(const utils::TimeSpan& timeSpan) {
-			return static_cast<int64_t>(timeSpan.millis());
-		}
-	}
-
 	SynchronizationFilter CreateClampingFilter() {
 		return [](const auto& sample, auto nodeAge) {
-			auto ageToUse = std::max<int64_t>(nodeAge.unwrap() - Start_Decay_After_Round, 0);
+			auto ageToUse = static_cast<double>(std::max<int64_t>(nodeAge.unwrap() - Start_Decay_After_Round, 0));
 			auto toleratedDeviation = std::max(
-					static_cast<int64_t>(std::exp(-Decay_Strength * ageToUse) * ToInt64(Tolerated_Deviation_Start)),
-					ToInt64(Tolerated_Deviation_Minimum));
+					static_cast<int64_t>(std::exp(-Decay_Strength * ageToUse) * static_cast<double>(Tolerated_Deviation_Start.millis())),
+					static_cast<int64_t>(Tolerated_Deviation_Minimum.millis()));
 			auto timeOffsetToRemote = sample.timeOffsetToRemote();
 			return timeOffsetToRemote > toleratedDeviation || -toleratedDeviation > timeOffsetToRemote;
 		};

@@ -40,7 +40,7 @@ namespace catapult { namespace timesync { namespace filters {
 		});
 
 		// alpha trim on both ends
-		auto samplesToDiscardAtBothEnds = static_cast<size_t>(samples.size() * Alpha / 2);
+		auto samplesToDiscardAtBothEnds = static_cast<size_t>(static_cast<double>(samples.size()) * Alpha / 2.0);
 		for (auto i = 0u; i < samplesToDiscardAtBothEnds; ++i) {
 			samples.erase(samples.cbegin());
 			samples.erase(--samples.cend());

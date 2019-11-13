@@ -113,7 +113,8 @@ namespace catapult { namespace chain {
 			double smoother = 1.0;
 			if (0 != config.BlockTimeSmoothingFactor) {
 				double factor = config.BlockTimeSmoothingFactor / 1000.0;
-				smoother = std::min(std::exp(factor * static_cast<int64_t>(timeDiff - targetTime) / targetTime), 100.0);
+				auto power = factor * static_cast<double>(static_cast<int64_t>(timeDiff - targetTime)) / static_cast<double>(targetTime);
+				smoother = std::min(std::exp(power), 100.0);
 			}
 
 			BlockTarget target(static_cast<uint64_t>(Two_To_54 * smoother));

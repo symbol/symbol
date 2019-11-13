@@ -170,8 +170,9 @@ namespace catapult { namespace chain {
 			for (auto i = 2u; i < 102; ++i) {
 				// Act: calculate the difficulty using current information
 				auto difficulty = CalculateDifficulty(ToRange(set), config);
-				auto difficultyDiff = static_cast<int64_t>((difficulty - previousDifficulty).unwrap());
-				auto percentageChange = static_cast<int32_t>(std::round(difficultyDiff * 100.0 / previousDifficulty.unwrap()));
+				auto difficultyDiff = static_cast<double>(static_cast<int64_t>((difficulty - previousDifficulty).unwrap()));
+				auto percentageChange = difficultyDiff * 100.0 / static_cast<double>(previousDifficulty.unwrap());
+				auto percentageChangeRounded = static_cast<int32_t>(std::round(percentageChange));
 
 				if (IsClamped(difficulty)) {
 					CATAPULT_LOG(debug) << "difficulty is clamped after " << i << " samples";
@@ -180,8 +181,8 @@ namespace catapult { namespace chain {
 				}
 
 				// Assert: the percentage change matches the expected change
-				CATAPULT_LOG(debug) << "sample = " << i << ", % change = " << percentageChange << ", difficulty = " << difficulty;
-				EXPECT_EQ(expectedChange, percentageChange);
+				CATAPULT_LOG(debug) << "sample = " << i << ", % change = " << percentageChangeRounded << ", difficulty = " << difficulty;
+				EXPECT_EQ(expectedChange, percentageChangeRounded);
 
 				// Arrange: add new entry to difficulty set and update previous
 				set.insert(CreateStatistic(Height(100 + i), Timestamp(100 + generationTime * i), difficulty));

@@ -61,7 +61,7 @@ namespace catapult { namespace utils {
 				maxValue = std::max(observedValue, maxValue);
 
 				auto difference = observedValue - expectedValue;
-				chiSquare += static_cast<double>(difference * difference) / expectedValue;
+				chiSquare += static_cast<double>(difference * difference) / static_cast<double>(expectedValue);
 			}
 
 			CATAPULT_LOG(debug) << "chiSquare = " << chiSquare << ", min = " << minValue << ", max = " << maxValue;

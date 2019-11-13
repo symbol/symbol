@@ -212,7 +212,7 @@ namespace catapult { namespace utils {
 				// Act:
 				auto result = Log2TimesPowerOfTwo(value, Exponent);
 				auto expected = std::log2(value) * Two_To_Fifty_Four;
-				auto ratio = 0.0 == expected && 0 == result ? 1 : result / expected;
+				auto ratio = 0.0 == expected && 0 == result ? 1.0 : static_cast<double>(result) / expected;
 
 				// Assert:
 				auto message = "for value " + std::to_string(value);
