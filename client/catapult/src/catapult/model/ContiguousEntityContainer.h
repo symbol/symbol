@@ -92,7 +92,8 @@ namespace catapult { namespace model {
 					: m_pStart(pStart)
 					, m_pCurrent(pCurrent)
 					, m_state(state) {
-				if (!m_pCurrent)
+				// only advance when m_pStart is a valid poiner (m_pStart may be nullptr when empty)
+				if (!m_pCurrent && m_pStart)
 					m_pCurrent = advance(m_pStart, m_state.Size); // advance to end
 
 				checkError();
@@ -153,7 +154,7 @@ namespace catapult { namespace model {
 			}
 
 			constexpr bool isEnd(value_type* pEntity) const noexcept {
-				return endBytePointer() == ToBytePointer(pEntity);
+				return !pEntity || endBytePointer() == ToBytePointer(pEntity);
 			}
 
 			constexpr auto endBytePointer() const noexcept {
