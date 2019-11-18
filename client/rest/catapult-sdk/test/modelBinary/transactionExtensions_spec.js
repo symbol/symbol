@@ -25,8 +25,10 @@ const { expect } = require('chai');
 
 describe('transaction extensions', () => {
 	const createMockTransaction = (alpha, beta) => ({
+		verifiableEntityHeader_Reserved1: 0,
 		signerPublicKey: test.random.bytes(sizes.signerPublicKey),
 		signature: test.random.bytes(sizes.signature),
+		entityBody_Reserved1: 0,
 		alpha,
 		beta
 	});
@@ -35,8 +37,10 @@ describe('transaction extensions', () => {
 		serialize: (transaction, serializer) => {
 			// write header (will be ignored)
 			serializer.writeUint32(sizes.transactionHeader + 2 + 4);
+			serializer.writeUint32(transaction.verifiableEntityHeader_Reserved1);
 			serializer.writeBuffer(transaction.signature);
 			serializer.writeBuffer(transaction.signerPublicKey);
+			serializer.writeUint32(transaction.entityBody_Reserved1);
 
 			// write data
 			serializer.writeUint16(transaction.alpha);

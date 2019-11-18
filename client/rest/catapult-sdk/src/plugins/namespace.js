@@ -123,48 +123,48 @@ const namespacePlugin = {
 	registerCodecs: codecBuilder => {
 		codecBuilder.addTransactionSupport(EntityType.aliasAddress, {
 			deserialize: parser => ({
-				aliasAction: parser.uint8(),
 				namespaceId: parser.uint64(),
-				address: parser.buffer(constants.sizes.addressDecoded)
+				address: parser.buffer(constants.sizes.addressDecoded),
+				aliasAction: parser.uint8()
 			}),
 
 			serialize: (transaction, serializer) => {
-				serializer.writeUint8(transaction.aliasAction);
 				serializer.writeUint64(transaction.namespaceId);
 				serializer.writeBuffer(transaction.address);
+				serializer.writeUint8(transaction.aliasAction);
 			}
 		});
 
 		codecBuilder.addTransactionSupport(EntityType.aliasMosaic, {
 			deserialize: parser => ({
-				aliasAction: parser.uint8(),
 				namespaceId: parser.uint64(),
-				mosaicId: parser.uint64()
+				mosaicId: parser.uint64(),
+				aliasAction: parser.uint8()
 			}),
 
 			serialize: (transaction, serializer) => {
-				serializer.writeUint8(transaction.aliasAction);
 				serializer.writeUint64(transaction.namespaceId);
 				serializer.writeUint64(transaction.mosaicId);
+				serializer.writeUint8(transaction.aliasAction);
 			}
 		});
 
 		codecBuilder.addTransactionSupport(EntityType.registerNamespace, {
 			deserialize: parser => {
 				const transaction = {};
-				transaction.registrationType = parser.uint8();
-				transaction[isNamespaceTypeRoot(transaction.registrationType) ? 'duration' : 'parentId'] = parser.uint64();
+				const parentIdOrDuration = parser.uint64();
 				transaction.id = parser.uint64();
-
+				transaction.registrationType = parser.uint8();
+				transaction[isNamespaceTypeRoot(transaction.registrationType) ? 'duration' : 'parentId'] = parentIdOrDuration;
 				const nameSize = parser.uint8();
 				transaction.name = parseString(parser, nameSize);
 				return transaction;
 			},
 
 			serialize: (transaction, serializer) => {
-				serializer.writeUint8(transaction.registrationType);
 				serializer.writeUint64(isNamespaceTypeRoot(transaction.registrationType) ? transaction.duration : transaction.parentId);
 				serializer.writeUint64(transaction.id);
+				serializer.writeUint8(transaction.registrationType);
 				serializer.writeUint8(transaction.name.length);
 				writeString(serializer, transaction.name);
 			}

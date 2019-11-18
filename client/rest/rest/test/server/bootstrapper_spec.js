@@ -759,15 +759,24 @@ describe('server (bootstrapper)', () => {
 		const delays = { publish: 50 };
 
 		const createBlockBuffer = tag => Buffer.concat([
-			Buffer.of(0xC0, 0x00, 0x00, 0x00), // size
-			Buffer.from(test.random.bytes(test.constants.sizes.signature)), // signature
-			Buffer.from('A4C656B45C02A02DEF64F15DD781DD5AF29698A353F414FAAA9CDB364A09F98F', 'hex'), // signerPublicKey
-			Buffer.of(0x03, 0x00, 0x00, 0x80), // version, type
-			Buffer.of(0x97, 0x87, 0x45, 0x0E, tag || 0xE1, 0x6C, 0xB6, 0x62), // height
-			Buffer.from(test.random.bytes(8)), // timestamp
-			Buffer.from(test.random.bytes(8)), // difficulty
-			Buffer.from(test.random.bytes(test.constants.sizes.hash256)), // previous block hash
-			Buffer.from(test.random.bytes(test.constants.sizes.hash256)) // block transactions hash
+			Buffer.of(0x30, 0x01, 0x00, 0x00), // size 4b
+			Buffer.of(0x00, 0x00, 0x00, 0x00), // verifiable entity header reserved 1 4b
+			Buffer.from(test.random.bytes(test.constants.sizes.signature)), // signature 64b
+			Buffer.from('A4C656B45C02A02DEF64F15DD781DD5AF29698A353F414FAAA9CDB364A09F98F', 'hex'), // signerPublicKey 32b
+			Buffer.of(0x00, 0x00, 0x00, 0x00), // entity body reserved 1 4b
+			Buffer.of(0x03), // version 1b
+			Buffer.of(0x90), // network 1b
+			Buffer.of(0x00, 0x80), // type 2b
+			Buffer.of(0x97, 0x87, 0x45, 0x0E, tag || 0xE1, 0x6C, 0xB6, 0x62), // height 8b
+			Buffer.from(test.random.bytes(8)), // timestamp 8b
+			Buffer.from(test.random.bytes(8)), // difficulty 8b
+			Buffer.from(test.random.bytes(test.constants.sizes.hash256)), // previous block hash 32b
+			Buffer.from(test.random.bytes(test.constants.sizes.hash256)), // transactionsHashBuffer 32b
+			Buffer.from(test.random.bytes(test.constants.sizes.hash256)), // receiptsHashBuffer 32b
+			Buffer.from(test.random.bytes(test.constants.sizes.hash256)), // stateHashBuffer 32b
+			test.random.bytes(test.constants.sizes.signerPublicKey), // beneficiaryPublicKey 32b
+			Buffer.of(0x0A, 0x00, 0x00, 0x00), // fee feeMultiplierBuffer 4b
+			Buffer.of(0x00, 0x00, 0x00, 0x00) // reserved padding 4b
 		]);
 
 		// notice that the formatter only returns height and signerPublicKey

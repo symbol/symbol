@@ -39,7 +39,7 @@ const sizes = {
 	/**
 	 * @property {numeric} Size of a transaction header.
 	 */
-	transactionHeader: 4 + 64 + 32,
+	transactionHeader: 4 + 4 + 64 + 32 + 4,
 
 	/**
 	 * @property {numeric} Size of a sha3 256 hash.

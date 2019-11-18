@@ -33,7 +33,8 @@ const constants = { sizes };
 const multisigPlugin = {
 	registerSchema: builder => {
 		builder.addTransactionSupport(EntityType.modifyMultisigAccount, {
-			modifications: { type: ModelType.array, schemaName: 'modifyMultisigAccount.modification' }
+			publicKeyAdditions: { type: ModelType.array, schemaName: 'modifyMultisigAccount.modification' },
+			publicKeyDeletions: { type: ModelType.array, schemaName: 'modifyMultisigAccount.modification' }
 		});
 		builder.addSchema('modifyMultisigAccount.modification', {
 			cosignatoryPublicKey: ModelType.binary
@@ -60,14 +61,18 @@ const multisigPlugin = {
 				transaction.minRemovalDelta = convert.uint8ToInt8(parser.uint8());
 				transaction.minApprovalDelta = convert.uint8ToInt8(parser.uint8());
 
-				const modificationsCount = parser.uint8();
-				transaction.modifications = [];
+				const publicKeyAdditionsCount = parser.uint8();
+				const publicKeyDeletionsCount = parser.uint8();
 
-				while (transaction.modifications.length < modificationsCount) {
-					const modificationAction = parser.uint8();
-					const cosignatoryPublicKey = parser.buffer(constants.sizes.signerPublicKey);
-					transaction.modifications.push({ modificationAction, cosignatoryPublicKey });
-				}
+				transaction.multisigAccountModificationTransactionBody_Reserved1 = parser.uint32();
+
+				transaction.publicKeyAdditions = [];
+				for (let i = 0; i < publicKeyAdditionsCount; ++i)
+					transaction.publicKeyAdditions.push(parser.buffer(constants.sizes.signerPublicKey));
+
+				transaction.publicKeyDeletions = [];
+				for (let i = 0; i < publicKeyDeletionsCount; ++i)
+					transaction.publicKeyDeletions.push(parser.buffer(constants.sizes.signerPublicKey));
 
 				return transaction;
 			},
@@ -75,10 +80,14 @@ const multisigPlugin = {
 			serialize: (transaction, serializer) => {
 				serializer.writeUint8(convert.int8ToUint8(transaction.minRemovalDelta));
 				serializer.writeUint8(convert.int8ToUint8(transaction.minApprovalDelta));
-				serializer.writeUint8(transaction.modifications.length);
-				transaction.modifications.forEach(modification => {
-					serializer.writeUint8(modification.modificationAction);
-					serializer.writeBuffer(modification.cosignatoryPublicKey);
+				serializer.writeUint8(transaction.publicKeyAdditions.length);
+				serializer.writeUint8(transaction.publicKeyDeletions.length);
+				serializer.writeUint32(transaction.multisigAccountModificationTransactionBody_Reserved1);
+				transaction.publicKeyAdditions.forEach(key => {
+					serializer.writeBuffer(key);
+				});
+				transaction.publicKeyDeletions.forEach(key => {
+					serializer.writeBuffer(key);
 				});
 			}
 		});

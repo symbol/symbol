@@ -27,8 +27,8 @@ const SerializedSizeCalculator = require('../serializer/SerializedSizeCalculator
 
 const constants = { sizes: {} };
 Object.assign(constants.sizes, sizes, {
-	aggregate: 120 + 4, // size passed into deserialize includes full transaction size (even previously processed parts)
-	embedded: 40,
+	aggregate: 128 + 32 + 4 + 4, // size passed into deserialize includes full transaction size (even previously processed parts)
+	embedded: 48,
 	cosignature: sizes.signerPublicKey + sizes.signature
 });
 
@@ -108,6 +108,9 @@ const aggregatePlugin = {
 			deserialize: (parser, size, txCodecs) => {
 				requireCodecs(txCodecs);
 
+				const transaction = {};
+				transaction.transactionsHash = parser.buffer(constants.sizes.hash256);
+
 				if (size < constants.sizes.aggregate)
 					throw Error('aggregate must contain complete aggregate header');
 
@@ -115,8 +118,9 @@ const aggregatePlugin = {
 				if (size < payloadSize + constants.sizes.aggregate)
 					throw Error('aggregate must contain complete payload');
 
+				transaction.aggregateTransactionHeader_Reserved1 = parser.uint32();
+
 				// 1. deserialize transactions
-				const transaction = {};
 				if (0 < payloadSize) {
 					transaction.transactions = [];
 
@@ -153,6 +157,8 @@ const aggregatePlugin = {
 			serialize: (transaction, serializer, txCodecs) => {
 				requireCodecs(txCodecs);
 
+				serializer.writeBuffer(transaction.transactionsHash);
+
 				// 1. calculate payload size
 				const txCodec = createSubTransactionCodec(txCodecs);
 
@@ -168,6 +174,8 @@ const aggregatePlugin = {
 				});
 
 				serializer.writeUint32(payloadSize);
+
+				serializer.writeUint32(transaction.aggregateTransactionHeader_Reserved1);
 
 				// 2. serialize transactions
 				let i = 0;

@@ -27,7 +27,7 @@ const { expect } = require('chai');
 
 const constants = {
 	sizes: {
-		transfer: 28,
+		transfer: 32,
 		message: 0x70,
 		mosaics: 0x50
 	}
@@ -84,11 +84,14 @@ describe('transfer plugin', () => {
 			return {
 				buffer: Buffer.concat([
 					RecipientAddress_Buffer,
-					Buffer.of(0x00, 0x00, 0x00) // footer
+					Buffer.of(0x00), // num mosaics 1b
+					Buffer.of(0x00, 0x00), // message size 2b
+					Buffer.of(0x00, 0x00, 0x00, 0x00) // transfer transaction body reserved 1 4b
 				]),
 
 				object: {
-					recipientAddress: RecipientAddress_Buffer
+					recipientAddress: RecipientAddress_Buffer,
+					transferTransactionBody_Reserved1: 0
 				}
 			};
 		};
@@ -111,7 +114,7 @@ describe('transfer plugin', () => {
 					Buffer.of(0x90), // message type
 					Message_Buffer
 				]);
-				data.buffer.writeUInt16LE(constants.sizes.message, constants.sizes.transfer - 3);
+				data.buffer.writeUInt16LE(constants.sizes.message, constants.sizes.transfer - 6);
 
 				data.object.message = { type: 0x90, payload: Buffer.from(Message_Buffer) };
 				return data;
@@ -124,7 +127,7 @@ describe('transfer plugin', () => {
 				data.buffer,
 				Buffer.of(0x90) // message type
 			]);
-			data.buffer.writeUInt16LE(1, constants.sizes.transfer - 3);
+			data.buffer.writeUInt16LE(1, constants.sizes.transfer - 6);
 
 			data.object.message = { type: 0x90, payload: [] };
 			return data;
@@ -145,7 +148,7 @@ describe('transfer plugin', () => {
 					data.buffer,
 					Mosaics_Buffer
 				]);
-				data.buffer.writeUInt8(5, constants.sizes.transfer - 1);
+				data.buffer.writeUInt8(5, constants.sizes.transfer - 7);
 
 				data.object.mosaics = [
 					{ id: [0xAD8A3EED, 0x3FDAADEC], amount: [0x3C490533, 0x94AE976C] },
@@ -181,7 +184,7 @@ describe('transfer plugin', () => {
 				test.binary.test.addAll(
 					getCodec(),
 					constants.sizes.transfer + constants.sizes.message + constants.sizes.mosaics,
-					addMosaics(addMessage(generateTransaction))
+					addMessage(addMosaics(generateTransaction))
 				);
 			});
 		});

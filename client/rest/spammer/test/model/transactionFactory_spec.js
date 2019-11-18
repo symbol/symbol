@@ -56,7 +56,7 @@ describe('transaction factory', () => {
 			);
 
 			// Assert:
-			assertTransactionData(transaction, keyPair, (Mijin_Test_Network << 8) + 3, 0x4154);
+			assertTransactionData(transaction, keyPair, Mijin_Test_Network + 3, 0x4154);
 			expect(transaction.recipientAddress).to.deep.equal(recipientAddress);
 			expect(transaction.message.type).to.equal(0);
 			expect(transaction.message.payload).to.deep.equal(Buffer.of(0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x12, 0x34));
@@ -77,7 +77,7 @@ describe('transaction factory', () => {
 			);
 
 			// Assert:
-			assertTransactionData(transaction, keyPair, 0xA503, 0x4141);
+			assertTransactionData(transaction, keyPair, 0xA8, 0x4141);
 			expect(transaction.transactions).to.equal(transactions);
 			expect(transactions.cosignatures).to.equal(undefined);
 		});

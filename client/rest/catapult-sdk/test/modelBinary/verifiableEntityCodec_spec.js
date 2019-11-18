@@ -28,18 +28,25 @@ describe('verifiable entity codec', () => {
 
 		return {
 			buffer: Buffer.concat([
+				Buffer.of(0x00, 0x00, 0x00, 0x00), // verifiable entity header reserved 1 4b
 				Signature_Buffer,
 				SignerPublicKey_Buffer,
-				Buffer.of(0x2A, 0x81, 0x1C, 0x45) // version, type
+				Buffer.of(0x00, 0x00, 0x00, 0x00), // entity body reserved 1 4b
+				Buffer.of(0xBA), // version 1b
+				Buffer.of(0x55), // network 1b
+				Buffer.of(0x1C, 0x45) // type 2b
 			]),
 			object: {
+				verifiableEntityHeader_Reserved1: 0,
 				signature: Signature_Buffer,
 				signerPublicKey: SignerPublicKey_Buffer,
-				version: 0x812A,
+				entityBody_Reserved1: 0,
+				version: 0xBA,
+				network: 0x55,
 				type: 0x451C
 			}
 		};
 	};
 
-	test.binary.test.addAll(verifiableEntityCodec, 100, generateVerifiableEntity);
+	test.binary.test.addAll(verifiableEntityCodec, 108, generateVerifiableEntity);
 });

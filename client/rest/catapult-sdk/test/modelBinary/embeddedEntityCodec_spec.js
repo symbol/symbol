@@ -27,16 +27,23 @@ describe('embedded entity codec', () => {
 
 		return {
 			buffer: Buffer.concat([
+				Buffer.of(0x00, 0x00, 0x00, 0x00), // embedded transaction header reserved 1 4b
 				SignerPublicKey_Buffer,
-				Buffer.of(0x2A, 0x81, 0x1C, 0x45) // version, type
+				Buffer.of(0x00, 0x00, 0x00, 0x00), // entity body reserved 1 4b
+				Buffer.of(0x2A), // version 1b
+				Buffer.of(0x55), // network 1b
+				Buffer.of(0x1C, 0x45) // type 2b
 			]),
 			object: {
+				embeddedTransactionHeader_Reserved1: 0,
 				signerPublicKey: SignerPublicKey_Buffer,
-				version: 0x812A,
+				entityBody_Reserved1: 0,
+				version: 0x2A,
+				network: 0x55,
 				type: 0x451C
 			}
 		};
 	};
 
-	test.binary.test.addAll(embeddedEntityCodec, 36, generateEmbeddedEntity);
+	test.binary.test.addAll(embeddedEntityCodec, 44, generateEmbeddedEntity);
 });

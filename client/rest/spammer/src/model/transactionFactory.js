@@ -25,10 +25,15 @@ const catapult = require('catapult-sdk');
 const { uint64 } = catapult.utils;
 
 const createTransaction = (options, type) => ({
+	verifiableEntityHeader_Reserved1: 0,
 	signature: new Uint8Array(catapult.constants.sizes.signature),
 	signerPublicKey: options.signerPublicKey,
-	version: (options.networkId << 8) + 3,
+	entityBody_Reserved1: 0,
+	version: options.networkId + 3,
+	network: options.networkId,
 	type,
+	transactionsHash: new Uint8Array(catapult.constants.sizes.hash256),
+	aggregateTransactionHeader_Reserved1: 0,
 	maxFee: uint64.fromUint(0),
 	deadline: uint64.fromUint(networkTime.getNetworkTime() + (60 * 60 * 1000))
 });

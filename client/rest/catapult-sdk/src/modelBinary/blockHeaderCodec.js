@@ -36,6 +36,11 @@ const blockHeaderCodec = {
 		blockHeader.difficulty = parser.uint64();
 		blockHeader.previousBlockHash = parser.buffer(constants.sizes.hash256);
 		blockHeader.transactionsHash = parser.buffer(constants.sizes.hash256);
+		blockHeader.receiptsHash = parser.buffer(constants.sizes.hash256);
+		blockHeader.stateHash = parser.buffer(constants.sizes.hash256);
+		blockHeader.beneficiaryPublicKey = parser.buffer(constants.sizes.signerPublicKey);
+		blockHeader.feeMultiplier = parser.uint32();
+		blockHeader.blockHeader_Reserved1 = parser.uint32();
 		return blockHeader;
 	},
 
@@ -50,6 +55,11 @@ const blockHeaderCodec = {
 		serializer.writeUint64(blockHeader.difficulty);
 		serializer.writeBuffer(blockHeader.previousBlockHash);
 		serializer.writeBuffer(blockHeader.transactionsHash);
+		serializer.writeBuffer(blockHeader.receiptsHash);
+		serializer.writeBuffer(blockHeader.stateHash);
+		serializer.writeBuffer(blockHeader.beneficiaryPublicKey);
+		serializer.writeUint32(blockHeader.feeMultiplier);
+		serializer.writeUint32(blockHeader.blockHeader_Reserved1);
 	}
 };
 

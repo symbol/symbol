@@ -258,15 +258,15 @@ describe('namespace plugin', () => {
 
 			test.binary.test.addAll(getCodec(EntityType.aliasAddress), constants.sizes.aliasAddress, () => ({
 				buffer: Buffer.concat([
-					Buffer.of(0xCA), // alias action
 					Buffer.of(0xF2, 0x26, 0x6C, 0x06, 0x40, 0x83, 0xB2, 0x92), // namespace id
-					Buffer.from(address) // address
+					Buffer.from(address), // address
+					Buffer.of(0xCA) // alias action
 				]),
 
 				object: {
-					aliasAction: 0xCA,
 					namespaceId: [0x066C26F2, 0x92B28340],
-					address
+					address,
+					aliasAction: 0xCA
 				}
 			}));
 		});
@@ -274,15 +274,15 @@ describe('namespace plugin', () => {
 		describe('supports alias mosaic', () => {
 			test.binary.test.addAll(getCodec(EntityType.aliasMosaic), constants.sizes.aliasMosaic, () => ({
 				buffer: Buffer.concat([
-					Buffer.of(0xCA), // alias action
 					Buffer.of(0xF2, 0x26, 0x6C, 0x06, 0x40, 0x83, 0xB2, 0x92), // namespace id
-					Buffer.of(0xCA, 0xD0, 0x8E, 0x6E, 0xFF, 0x21, 0x2F, 0x49) // mosaic id
+					Buffer.of(0xCA, 0xD0, 0x8E, 0x6E, 0xFF, 0x21, 0x2F, 0x49), // mosaic id
+					Buffer.of(0xCA) // alias action
 				]),
 
 				object: {
-					aliasAction: 0xCA,
 					namespaceId: [0x066C26F2, 0x92B28340],
-					mosaicId: [0x6E8ED0CA, 0x492F21FF]
+					mosaicId: [0x6E8ED0CA, 0x492F21FF],
+					aliasAction: 0xCA
 				}
 			}));
 		});
@@ -290,17 +290,17 @@ describe('namespace plugin', () => {
 		describe('supports register namespace', () => {
 			const generateTransaction = registrationType => ({
 				buffer: Buffer.concat([
-					Buffer.of(registrationType), // namespace type
 					Buffer.of(0xCA, 0xD0, 0x8E, 0x6E, 0xFF, 0x21, 0x2F, 0x49), // duration or parent id
 					Buffer.of(0xF2, 0x26, 0x6C, 0x06, 0x40, 0x83, 0xB2, 0x92), // namespace id
+					Buffer.of(registrationType), // namespace type
 					Buffer.of(0x06), // namespace name size
 					Buffer.of(0x6A, 0x61, 0x62, 0x6F, 0x33, 0x38) // namespace name
 				]),
 
 				object: {
-					registrationType,
 					[registrationType ? 'parentId' : 'duration']: [0x6E8ED0CA, 0x492F21FF],
 					id: [0x066C26F2, 0x92B28340],
+					registrationType,
 					name: 'jabo38'
 				}
 			});

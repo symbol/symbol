@@ -138,11 +138,16 @@ describe('zmq service', () => {
 	describe('subscription messages', () => {
 		const generateBlockBuffers = () => ({
 			block: Buffer.concat([
-				Buffer.of(0x97, 0x87, 0x45, 0x0E, 0xE1, 0x6C, 0xB6, 0x62), // height
-				Buffer.of(0x30, 0x3A, 0x46, 0x8B, 0x15, 0x2D, 0x60, 0x54), // timestamp
-				Buffer.of(0x86, 0x02, 0x75, 0x30, 0xE8, 0x50, 0x78, 0xE8), // difficulty
-				Buffer.from(test.random.hash()), // previous block hash
-				Buffer.from(test.random.hash()) // block transactions hash
+				Buffer.of(0x97, 0x87, 0x45, 0x0E, 0xE1, 0x6C, 0xB6, 0x62), // height 8b
+				Buffer.of(0x30, 0x3A, 0x46, 0x8B, 0x15, 0x2D, 0x60, 0x54), // timestamp 8b
+				Buffer.of(0x86, 0x02, 0x75, 0x30, 0xE8, 0x50, 0x78, 0xE8), // difficulty 8b
+				Buffer.from(test.random.hash()), // previous block hash 32b
+				Buffer.from(test.random.hash()), // block transactions hash 32b
+				Buffer.from(test.random.hash()), // receiptsHashBuffer 32b
+				Buffer.from(test.random.hash()), // stateHashBuffer 32b
+				test.random.bytes(test.constants.sizes.signerPublicKey), // beneficiaryPublicKey 32b
+				Buffer.of(0x0A, 0x00, 0x00, 0x00), // fee multiplier 4b
+				Buffer.of(0x00, 0x00, 0x00, 0x00) // reserved padding 4b
 			]),
 
 			entityHash: Buffer.from(test.random.hash()),

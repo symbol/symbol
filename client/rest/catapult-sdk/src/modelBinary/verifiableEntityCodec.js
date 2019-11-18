@@ -31,9 +31,12 @@ const verifiableEntityCodec = {
 	 */
 	deserialize: parser => {
 		const entity = {};
+		entity.verifiableEntityHeader_Reserved1 = parser.uint32();
 		entity.signature = parser.buffer(constants.sizes.signature);
 		entity.signerPublicKey = parser.buffer(constants.sizes.signerPublicKey);
-		entity.version = parser.uint16();
+		entity.entityBody_Reserved1 = parser.uint32();
+		entity.version = parser.uint8();
+		entity.network = parser.uint8();
 		entity.type = parser.uint16();
 		return entity;
 	},
@@ -44,9 +47,12 @@ const verifiableEntityCodec = {
 	 * @param {object} serializer Serializer.
 	 */
 	serialize: (entity, serializer) => {
+		serializer.writeUint32(entity.verifiableEntityHeader_Reserved1);
 		serializer.writeBuffer(entity.signature);
 		serializer.writeBuffer(entity.signerPublicKey);
-		serializer.writeUint16(entity.version);
+		serializer.writeUint32(entity.entityBody_Reserved1);
+		serializer.writeUint8(entity.version);
+		serializer.writeUint8(entity.network);
 		serializer.writeUint16(entity.type);
 	}
 };

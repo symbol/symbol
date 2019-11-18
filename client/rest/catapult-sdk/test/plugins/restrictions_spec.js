@@ -238,137 +238,138 @@ describe('restrictions plugin', () => {
 			const addressCodec = getCodecs()[EntityType.accountRestrictionAddress];
 			const mosaicCodec = getCodecs()[EntityType.accountRestrictionMosaic];
 			const operationCodec = getCodecs()[EntityType.accountRestrictionOperation];
-			const addNoModificationTests = (restrictionType, codec) => {
-				const bufferSize = 1 + 1; // account restriction type (in bytes) + modifications count (in bytes)
-				test.binary.test.addAll(codec, bufferSize, () => ({
+
+			const generateTransaction = restrictionFlags => {
+				const data = {
 					buffer: Buffer.concat([
-						Buffer.of(restrictionType), // account restriction type
-						Buffer.of(0x00) // modifications count
+						Buffer.of(0x00, 0x00), // account restriction type 2b
+						Buffer.of(0x00), // restrictionAdditions count 1b
+						Buffer.of(0x00), // restrictionDeletions count 1b
+						Buffer.of(0x00, 0x00, 0x00, 0x00) // account restriction transaction body reserved 1 4b
 					]),
 					object: {
-						restrictionType,
-						modifications: []
+						restrictionFlags,
+						accountRestrictionTransactionBody_Reserved1: 0,
+						restrictionAdditions: [],
+						restrictionDeletions: []
 					}
-				}));
-			};
-			const addModificationTests = (restrictionType, codec, modBuffers, modValues) => {
-				// bufferSize = account restriction type (in bytes) + mods count (in bytes) + (each mod size in bytes) * num mods
-				const bufferSize = 1 + 1 + ((1 + modBuffers[0][1].byteLength) * modBuffers.length);
-
-				const concatModificationBuffers = buffers =>
-					Buffer.concat(buffers.map(componentBuffers => Buffer.concat(componentBuffers)));
-
-				const splitModificationValues = values => {
-					const mods = [];
-					for (let i = 0; i < values.length; ++i)
-						mods.push({ modificationAction: values[i][0], value: values[i][1] });
-					return mods;
 				};
+				data.buffer.writeUInt32LE(restrictionFlags);
 
-				test.binary.test.addAll(codec, bufferSize, () => ({
-					buffer: Buffer.concat([
-						Buffer.of(restrictionType), // account restriction type
-						Buffer.of(modBuffers.length), // modifications count
-						concatModificationBuffers(modBuffers) // modification types and values buffers
-					]),
-					object: {
-						restrictionType,
-						modifications: splitModificationValues(modValues)
-					}
-				}));
+				return data;
 			};
 
-			describe('supports account address restriction with no modifications', () => {
+			const addNoModificationTests = (restrictionFlags, codec) => {
+				test.binary.test.addAll(codec, 8, () => generateTransaction(restrictionFlags));
+			};
+
+			const addModificationTests = (restrictionType, codec, additionsBuffer, additionsValues, deletionsBuffer, deletionsValues) => {
+				const data = generateTransaction(restrictionType);
+
+				data.buffer = Buffer.concat([data.buffer, additionsBuffer, deletionsBuffer]);
+
+				data.buffer.writeUInt8(additionsValues.length, 2); // restrictionAdditionsCount, additions at 2 bytes offset
+				data.buffer.writeUInt8(deletionsValues.length, 3); // restrictionDeletionsCount, deletions at 3 bytes offset
+
+				data.object.restrictionAdditions = additionsValues;
+				data.object.restrictionDeletions = deletionsValues;
+
+				const bufferSize = 8 + additionsBuffer.length + deletionsBuffer.length;
+
+				test.binary.test.addAll(codec, bufferSize, () => (data));
+			};
+
+			describe('supports account address restriction with no additions or deletions', () => {
 				addNoModificationTests(AccountRestrictionType.addressAllow, addressCodec);
 			});
 
-			describe('supports account mosaic restriction with no modifications', () => {
+			describe('supports account mosaic restriction with no additions or deletions', () => {
 				addNoModificationTests(AccountRestrictionType.mosaicAllow, mosaicCodec);
 			});
 
-			describe('supports account operation restriction with no modifications', () => {
+			describe('supports account operation restriction with no additions or deletions', () => {
 				addNoModificationTests(AccountRestrictionType.operationAllow, operationCodec);
 			});
 
-			describe('supports account address restriction with one modification', () => {
-				const testAddress = test.random.bytes(test.constants.sizes.addressDecoded);
+			describe('supports account address restriction with one addition and deletion', () => {
+				const additionTestAddress = test.random.bytes(test.constants.sizes.addressDecoded);
+				const deletionTestAddress = test.random.bytes(test.constants.sizes.addressDecoded);
+
 				addModificationTests(
 					AccountRestrictionType.addressAllow,
 					addressCodec,
-					[[Buffer.of(0x00), Buffer.from(testAddress)]],
-					[[0x00, testAddress]]
+					Buffer.from(additionTestAddress),
+					[additionTestAddress],
+					Buffer.from(deletionTestAddress),
+					[deletionTestAddress]
 				);
 			});
 
-			describe('supports account mosaic restriction with one modification', () => {
+			describe('supports account mosaic restriction with one addition and deletion', () => {
 				addModificationTests(
 					AccountRestrictionType.mosaicAllow,
 					mosaicCodec,
-					[[Buffer.of(0x00), Buffer.of(0xF2, 0x26, 0x6C, 0x06, 0x40, 0x83, 0xB2, 0x92)]],
-					[[0x00, [0x066C26F2, 0x92B28340]]]
+					Buffer.of(0xF2, 0x26, 0x6C, 0x06, 0x40, 0x83, 0xB2, 0x92),
+					[[0x066C26F2, 0x92B28340]],
+					Buffer.of(0xE3, 0x12, 0x4B, 0x33, 0x25, 0x38, 0x00, 0x12),
+					[[0x334B12E3, 0x12003825]]
 				);
 			});
 
-			describe('supports account operation restriction with one modification', () => {
+			describe('supports account operation restriction with one addition and deletion', () => {
 				addModificationTests(
 					AccountRestrictionType.operationAllow,
 					operationCodec,
-					[[Buffer.of(0x02), Buffer.of(0xF2, 0x83)]],
-					[[0x02, 0x83F2]]
+					Buffer.of(0xF2, 0x83),
+					[0x83F2],
+					Buffer.of(0x03, 0x44),
+					[0x4403]
 				);
 			});
 
-			describe('supports account address restriction with several modifications', () => {
+			describe('supports account address restriction with several additions and deletions', () => {
 				const testAddress1 = test.random.bytes(test.constants.sizes.addressDecoded);
 				const testAddress2 = test.random.bytes(test.constants.sizes.addressDecoded);
 				const testAddress3 = test.random.bytes(test.constants.sizes.addressDecoded);
+				const testAddress4 = test.random.bytes(test.constants.sizes.addressDecoded);
+				const testAddress5 = test.random.bytes(test.constants.sizes.addressDecoded);
+
 				addModificationTests(
 					AccountRestrictionType.addressAllow,
 					addressCodec,
-					[
-						[Buffer.of(0xD0), Buffer.from(testAddress1)],
-						[Buffer.of(0x64), Buffer.from(testAddress2)],
-						[Buffer.of(0x32), Buffer.from(testAddress3)]
-					],
-					[
-						[0xD0, testAddress1],
-						[0x64, testAddress2],
-						[0x32, testAddress3]
-					]
+					Buffer.concat([Buffer.from(testAddress1), Buffer.from(testAddress2), Buffer.from(testAddress3)]),
+					[testAddress1, testAddress2, testAddress3],
+					Buffer.concat([Buffer.from(testAddress4), Buffer.from(testAddress5)]),
+					[testAddress4, testAddress5]
 				);
 			});
 
-			describe('supports account mosaic restriction with several modifications', () => {
+			describe('supports account mosaic restriction with several additions and deletions', () => {
+				const mosaic1 = Buffer.of(0xF2, 0x26, 0x6C, 0x06, 0x40, 0x83, 0xB2, 0x10);
+				const mosaic2 = Buffer.of(0xB2, 0x26, 0x6C, 0x06, 0x40, 0x83, 0xB2, 0x11);
+				const mosaic3 = Buffer.of(0xD2, 0x26, 0x6C, 0x06, 0x40, 0x83, 0xB2, 0x12);
+
+				const mosaic4 = Buffer.of(0xAA, 0x00, 0x4B, 0x33, 0x25, 0x38, 0x00, 0x13);
+				const mosaic5 = Buffer.of(0xBB, 0x00, 0x4B, 0x33, 0x25, 0x38, 0x00, 0x14);
+
 				addModificationTests(
 					AccountRestrictionType.mosaicAllow,
 					mosaicCodec,
-					[
-						[Buffer.of(0xAB), Buffer.of(0xF2, 0x10, 0x20, 0x0A, 0x40, 0x83, 0xB2, 0x92)],
-						[Buffer.of(0xAE), Buffer.of(0xF3, 0x11, 0x12, 0x0B, 0x40, 0x83, 0xB2, 0xE3)],
-						[Buffer.of(0x22), Buffer.of(0xF4, 0x12, 0x32, 0x0C, 0x40, 0x83, 0xB2, 0xC0)]
-					],
-					[
-						[0xAB, [0x0A2010F2, 0x92B28340]],
-						[0xAE, [0x0B1211F3, 0xE3B28340]],
-						[0x22, [0x0C3212F4, 0xC0B28340]]
-					]
+					Buffer.concat([mosaic1, mosaic2, mosaic3]),
+					[[0x066C26F2, 0x10B28340], [0x066C26B2, 0x11B28340], [0x066C26D2, 0x12B28340]],
+					Buffer.concat([mosaic4, mosaic5]),
+					[[0x334B00AA, 0x13003825], [0x334B00BB, 0x14003825]]
 				);
 			});
 
-			describe('supports account operation restriction with several modifications', () => {
+			describe('supports account operation restriction with several additions and deletions', () => {
 				addModificationTests(
 					AccountRestrictionType.operationAllow,
 					operationCodec,
-					[
-						[Buffer.of(0x5A), Buffer.of(0xF2, 0x36)],
-						[Buffer.of(0x7C), Buffer.of(0xB1, 0x83)],
-						[Buffer.of(0x10), Buffer.of(0x13, 0x54)]
-					],
-					[
-						[0x5A, 0x36F2],
-						[0x7C, 0x83B1],
-						[0x10, 0x5413]
-					]
+					Buffer.concat([Buffer.of(0xF2, 0x83), Buffer.of(0xAA, 0xBB), Buffer.of(0x01, 0x10)]),
+					[0x83F2, 0xBBAA, 0x1001],
+					Buffer.concat([Buffer.of(0x03, 0x44), Buffer.of(0x12, 0x34)]),
+					[0x4403, 0x3412]
 				);
 			});
 		});
@@ -383,17 +384,17 @@ describe('restrictions plugin', () => {
 					buffer: Buffer.concat([
 						Buffer.of(0xA4, 0x78, 0xB2, 0x05, 0x04, 0x40, 0x38, 0x36), // mosaicId
 						Buffer.of(0xFF, 0x12, 0x77, 0x31, 0x82, 0x33, 0x32, 0x29), // restrictionKey
-						Buffer.from(targetAddress), // targetAddress 25b
 						Buffer.of(0xD3, 0xA1, 0x3E, 0x35, 0x02, 0x22, 0xC5, 0xC4), // previousRestrictionValue
-						Buffer.of(0xCC, 0x33, 0xC2, 0x2A, 0x23, 0x32, 0x67, 0xAC) // newRestrictionValue
+						Buffer.of(0xCC, 0x33, 0xC2, 0x2A, 0x23, 0x32, 0x67, 0xAC), // newRestrictionValue
+						Buffer.from(targetAddress) // targetAddress 25b
 					]),
 
 					object: {
 						mosaicId: [0x05B278A4, 0x36384004],
 						restrictionKey: [0x317712FF, 0x29323382],
-						targetAddress,
 						previousRestrictionValue: [0x353EA1D3, 0xC4C52202],
-						newRestrictionValue: [0x2AC233CC, 0xAC673223]
+						newRestrictionValue: [0x2AC233CC, 0xAC673223],
+						targetAddress
 					}
 				}));
 			});
@@ -405,8 +406,8 @@ describe('restrictions plugin', () => {
 						Buffer.of(0x45, 0x32, 0x27, 0xAA, 0x23, 0xC2, 0x2B, 0xEE), // referenceMosaicId
 						Buffer.of(0xC4, 0x56, 0x12, 0xB5, 0xF3, 0x3A, 0xA3, 0x01), // restrictionKey
 						Buffer.of(0xDD, 0x2E, 0x3C, 0x56, 0x77, 0x7F, 0xF7, 0x7F), // previousRestrictionValue
-						Buffer.of(0x01), // previousRestrictionType
 						Buffer.of(0x34, 0x03, 0x0F, 0x0C, 0x0C, 0x00, 0x11, 0xB2), // newRestrictionValue
+						Buffer.of(0x01), // previousRestrictionType
 						Buffer.of(0x02) // newRestrictionType
 					]),
 
@@ -415,8 +416,8 @@ describe('restrictions plugin', () => {
 						referenceMosaicId: [0xAA273245, 0xEE2BC223],
 						restrictionKey: [0xB51256C4, 0x01A33AF3],
 						previousRestrictionValue: [0x563C2EDD, 0x7FF77F77],
-						previousRestrictionType: 0x01,
 						newRestrictionValue: [0x0C0F0334, 0xB211000C],
+						previousRestrictionType: 0x01,
 						newRestrictionType: 0x02
 					}
 				}));

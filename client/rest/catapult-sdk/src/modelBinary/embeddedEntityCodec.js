@@ -31,8 +31,11 @@ const embeddedEntityCodec = {
 	 */
 	deserialize: parser => {
 		const entity = {};
+		entity.embeddedTransactionHeader_Reserved1 = parser.uint32();
 		entity.signerPublicKey = parser.buffer(constants.sizes.signerPublicKey);
-		entity.version = parser.uint16();
+		entity.entityBody_Reserved1 = parser.uint32();
+		entity.version = parser.uint8();
+		entity.network = parser.uint8();
 		entity.type = parser.uint16();
 		return entity;
 	},
@@ -43,8 +46,11 @@ const embeddedEntityCodec = {
 	 * @param {object} serializer Serializer.
 	 */
 	serialize: (entity, serializer) => {
+		serializer.writeUint32(entity.embeddedTransactionHeader_Reserved1);
 		serializer.writeBuffer(entity.signerPublicKey);
-		serializer.writeUint16(entity.version);
+		serializer.writeUint32(entity.entityBody_Reserved1);
+		serializer.writeUint8(entity.version);
+		serializer.writeUint8(entity.network);
 		serializer.writeUint16(entity.type);
 	}
 };

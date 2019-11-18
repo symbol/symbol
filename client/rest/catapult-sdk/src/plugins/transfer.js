@@ -47,14 +47,10 @@ const transferPlugin = {
 				const transaction = {};
 				transaction.recipientAddress = parser.buffer(constants.sizes.addressDecoded);
 
-				const messageSize = parser.uint16();
 				const numMosaics = parser.uint8();
+				const messageSize = parser.uint16();
 
-				if (0 < messageSize) {
-					transaction.message = {};
-					transaction.message.type = parser.uint8();
-					transaction.message.payload = 1 < messageSize ? parser.buffer(messageSize - 1) : [];
-				}
+				transaction.transferTransactionBody_Reserved1 = parser.uint32();
 
 				if (0 < numMosaics) {
 					transaction.mosaics = [];
@@ -65,11 +61,20 @@ const transferPlugin = {
 					}
 				}
 
+				if (0 < messageSize) {
+					transaction.message = {};
+					transaction.message.type = parser.uint8();
+					transaction.message.payload = 1 < messageSize ? parser.buffer(messageSize - 1) : [];
+				}
+
 				return transaction;
 			},
 
 			serialize: (transaction, serializer) => {
 				serializer.writeBuffer(transaction.recipientAddress);
+
+				const numMosaics = transaction.mosaics ? transaction.mosaics.length : 0;
+				serializer.writeUint8(numMosaics);
 
 				let payloadSize = 0;
 				if (transaction.message) {
@@ -79,21 +84,20 @@ const transferPlugin = {
 					serializer.writeUint16(0);
 				}
 
-				const numMosaics = transaction.mosaics ? transaction.mosaics.length : 0;
-				serializer.writeUint8(numMosaics);
-
-				if (transaction.message) {
-					serializer.writeUint8(transaction.message.type);
-
-					if (0 < payloadSize)
-						serializer.writeBuffer(transaction.message.payload);
-				}
+				serializer.writeUint32(transaction.transferTransactionBody_Reserved1);
 
 				if (0 < numMosaics) {
 					transaction.mosaics.forEach(mosaic => {
 						serializer.writeUint64(mosaic.id);
 						serializer.writeUint64(mosaic.amount);
 					});
+				}
+
+				if (transaction.message) {
+					serializer.writeUint8(transaction.message.type);
+
+					if (0 < payloadSize)
+						serializer.writeBuffer(transaction.message.payload);
 				}
 			}
 		});

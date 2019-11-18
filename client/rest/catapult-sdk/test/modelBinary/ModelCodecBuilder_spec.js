@@ -26,9 +26,9 @@ const { expect } = require('chai');
 const constants = {
 	knownTxType: 0x4123,
 	sizes: {
-		blockHeader: 192,
-		transactionHeader: 120,
-		transaction: 120 + 8 + 1
+		blockHeader: 304,
+		transactionHeader: 128,
+		transaction: 128 + 8 + 1
 	}
 };
 
@@ -75,22 +75,34 @@ describe('model codec builder', () => {
 		return {
 			buffer: Buffer.concat([
 				test.buffer.fromSize(size),
+				Buffer.of(0x00, 0x00, 0x00, 0x00), // verifiable entity header reserved 1 4b
 				Signature_Buffer,
 				Signer_Buffer,
-				Buffer.of(0x2A, 0x81, type & 0xFF, (type >> 8) & 0xFF) // version, type
+				Buffer.of(0x00, 0x00, 0x00, 0x00), // entity body reserved 1 4b
+				Buffer.of(0x2A), // version 1b
+				Buffer.of(0x81), // network 1b
+				Buffer.of(type & 0xFF, (type >> 8) & 0xFF) // type 2b
 			]),
 			object: {
+				verifiableEntityHeader_Reserved1: 0,
 				signature: Signature_Buffer,
 				signerPublicKey: Signer_Buffer,
-				version: 0x812A,
+				entityBody_Reserved1: 0,
+				version: 0x2A,
+				network: 0x81,
 				type
 			}
 		};
 	};
 
 	const generateBlockHeader = () => {
-		const Previous_Block_Hash_Buffer = Buffer.from(test.random.bytes(test.constants.sizes.hash256));
-		const Block_Transactions_Hash_Buffer = Buffer.from(test.random.bytes(test.constants.sizes.hash256));
+		const previousBlockHashBuffer = Buffer.from(test.random.bytes(test.constants.sizes.hash256));
+		const transactionsHashBuffer = Buffer.from(test.random.bytes(test.constants.sizes.hash256));
+		const receiptsHashBuffer = Buffer.from(test.random.bytes(test.constants.sizes.hash256));
+		const stateHashBuffer = Buffer.from(test.random.bytes(test.constants.sizes.hash256));
+		const beneficiaryPublicKey = test.random.bytes(test.constants.sizes.signerPublicKey); // 32
+		const feeMultiplierBuffer = Buffer.of(0x0A, 0x00, 0x00, 0x00);
+		const reservedPadding = Buffer.of(0x00, 0x00, 0x00, 0x00);
 
 		const data = generateVerifiableEntity(constants.sizes.blockHeader, 0x8000);
 		data.buffer = Buffer.concat([
@@ -98,16 +110,26 @@ describe('model codec builder', () => {
 			Buffer.of(0x97, 0x87, 0x45, 0x0E, 0xE1, 0x6C, 0xB6, 0x62), // height
 			Buffer.of(0x30, 0x3A, 0x46, 0x8B, 0x15, 0x2D, 0x60, 0x54), // timestamp
 			Buffer.of(0x86, 0x02, 0x75, 0x30, 0xE8, 0x50, 0x78, 0xE8), // difficulty
-			Previous_Block_Hash_Buffer,
-			Block_Transactions_Hash_Buffer
+			previousBlockHashBuffer, // 32b
+			transactionsHashBuffer, // 32b
+			receiptsHashBuffer, // 32b
+			stateHashBuffer, // 32b
+			Buffer.from(beneficiaryPublicKey), // key 32b
+			feeMultiplierBuffer, // 4b
+			reservedPadding // 4b
 		]);
 
 		Object.assign(data.object, {
 			height: [0x0E458797, 0x62B66CE1],
 			timestamp: [0x8B463A30, 0x54602D15],
 			difficulty: [0x30750286, 0xE87850E8],
-			previousBlockHash: Previous_Block_Hash_Buffer,
-			transactionsHash: Block_Transactions_Hash_Buffer
+			previousBlockHash: previousBlockHashBuffer,
+			transactionsHash: transactionsHashBuffer,
+			receiptsHash: receiptsHashBuffer,
+			stateHash: stateHashBuffer,
+			beneficiaryPublicKey,
+			feeMultiplier: 10,
+			blockHeader_Reserved1: 0
 		});
 		return data;
 	};

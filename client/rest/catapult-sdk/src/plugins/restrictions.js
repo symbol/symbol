@@ -35,24 +35,32 @@ const AccountRestrictionTypeFlags = Object.freeze({
 const accountRestrictionsCreateBaseCodec = valueCodec => ({
 	deserialize: parser => {
 		const transaction = {};
-		transaction.restrictionType = parser.uint8();
-		transaction.modifications = [];
-		const modificationsCount = parser.uint8();
-		for (let i = 0; i < modificationsCount; ++i) {
-			transaction.modifications.push({
-				modificationAction: parser.uint8(),
-				value: valueCodec.deserializeValue(parser)
-			});
-		}
+		transaction.restrictionFlags = parser.uint16();
+		const restrictionAdditionsCount = parser.uint8();
+		const restrictionDeletionsCount = parser.uint8();
+		transaction.accountRestrictionTransactionBody_Reserved1 = parser.uint32();
+
+		transaction.restrictionAdditions = [];
+		for (let i = 0; i < restrictionAdditionsCount; ++i)
+			transaction.restrictionAdditions.push(valueCodec.deserializeValue(parser));
+
+		transaction.restrictionDeletions = [];
+		for (let i = 0; i < restrictionDeletionsCount; ++i)
+			transaction.restrictionDeletions.push(valueCodec.deserializeValue(parser));
+
 		return transaction;
 	},
 	serialize: (transaction, serializer) => {
-		serializer.writeUint8(transaction.restrictionType);
-		serializer.writeUint8(transaction.modifications.length);
-		for (let i = 0; i < transaction.modifications.length; ++i) {
-			serializer.writeUint8(transaction.modifications[i].modificationAction);
-			valueCodec.serializeValue(serializer, transaction.modifications[i].value);
-		}
+		serializer.writeUint16(transaction.restrictionFlags);
+		serializer.writeUint8(transaction.restrictionAdditions.length);
+		serializer.writeUint8(transaction.restrictionDeletions.length);
+		serializer.writeUint32(transaction.accountRestrictionTransactionBody_Reserved1);
+		transaction.restrictionAdditions.forEach(key => {
+			valueCodec.serializeValue(serializer, key);
+		});
+		transaction.restrictionDeletions.forEach(key => {
+			valueCodec.serializeValue(serializer, key);
+		});
 	}
 });
 
@@ -225,18 +233,18 @@ const restrictionsPlugin = {
 				const transaction = {};
 				transaction.mosaicId = parser.uint64();
 				transaction.restrictionKey = parser.uint64();
-				transaction.targetAddress = parser.buffer(constants.sizes.addressDecoded);
 				transaction.previousRestrictionValue = parser.uint64();
 				transaction.newRestrictionValue = parser.uint64();
+				transaction.targetAddress = parser.buffer(constants.sizes.addressDecoded);
 				return transaction;
 			},
 
 			serialize: (transaction, serializer) => {
 				serializer.writeUint64(transaction.mosaicId);
 				serializer.writeUint64(transaction.restrictionKey);
-				serializer.writeBuffer(transaction.targetAddress);
 				serializer.writeUint64(transaction.previousRestrictionValue);
 				serializer.writeUint64(transaction.newRestrictionValue);
+				serializer.writeBuffer(transaction.targetAddress);
 			}
 		});
 
@@ -248,8 +256,8 @@ const restrictionsPlugin = {
 				transaction.referenceMosaicId = parser.uint64();
 				transaction.restrictionKey = parser.uint64();
 				transaction.previousRestrictionValue = parser.uint64();
-				transaction.previousRestrictionType = parser.uint8();
 				transaction.newRestrictionValue = parser.uint64();
+				transaction.previousRestrictionType = parser.uint8();
 				transaction.newRestrictionType = parser.uint8();
 				return transaction;
 			},
@@ -259,8 +267,8 @@ const restrictionsPlugin = {
 				serializer.writeUint64(transaction.referenceMosaicId);
 				serializer.writeUint64(transaction.restrictionKey);
 				serializer.writeUint64(transaction.previousRestrictionValue);
-				serializer.writeUint8(transaction.previousRestrictionType);
 				serializer.writeUint64(transaction.newRestrictionValue);
+				serializer.writeUint8(transaction.previousRestrictionType);
 				serializer.writeUint8(transaction.newRestrictionType);
 			}
 		});

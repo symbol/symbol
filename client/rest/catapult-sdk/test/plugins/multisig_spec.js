@@ -27,8 +27,7 @@ const { expect } = require('chai');
 
 const constants = {
 	sizes: {
-		modifyMultisigAccount: 3,
-		modifications: 3 * (1 + 32)
+		modifyMultisigAccount: 8
 	}
 };
 
@@ -54,8 +53,8 @@ describe('multisig plugin', () => {
 			]);
 
 			// - modify multisig account
-			expect(Object.keys(modelSchema.modifyMultisigAccount).length).to.equal(Object.keys(modelSchema.transaction).length + 1);
-			expect(modelSchema.modifyMultisigAccount).to.contain.all.keys(['modifications']);
+			expect(Object.keys(modelSchema.modifyMultisigAccount).length).to.equal(Object.keys(modelSchema.transaction).length + 2);
+			expect(modelSchema.modifyMultisigAccount).to.contain.all.keys(['publicKeyAdditions', 'publicKeyDeletions']);
 
 			// - cosignatory modification
 			expect(modelSchema['modifyMultisigAccount.modification']).to.deep.equal({
@@ -96,46 +95,46 @@ describe('multisig plugin', () => {
 		});
 
 		const generateTransaction = () => ({
-			buffer: Buffer.of(0x2B, 0x4D, 0x00),
+			buffer: Buffer.concat([
+				Buffer.of(0x2B), // minRemovalDelta 1b
+				Buffer.of(0x4D), // minApprovalDelta 1b
+				Buffer.of(0x00), // publicKeyAdditionsCount 1b
+				Buffer.of(0x00), // publicKeyDeletionsCount 1b
+				Buffer.of(0x00, 0x00, 0x00, 0x00) // multisig account modification transaction body reserved 1 4b
+			]),
 			object: {
 				minRemovalDelta: 0x2B,
 				minApprovalDelta: 0x4D,
-				modifications: []
+				multisigAccountModificationTransactionBody_Reserved1: 0,
+				publicKeyAdditions: [],
+				publicKeyDeletions: []
 			}
 		});
 
 		const addModifications = generator => {
-			const key1 = Buffer.of(
+			const keyAddition1 = Buffer.of(
 				0x77, 0xBE, 0xE1, 0xCA, 0xD0, 0x8E, 0x6E, 0x48, 0x95, 0xE8, 0x18, 0xB2, 0x7B, 0xD8, 0xFA, 0xC9,
 				0x47, 0x0D, 0xB8, 0xFD, 0x2D, 0x81, 0x47, 0x6A, 0xC5, 0x61, 0xA4, 0xCE, 0xE1, 0x81, 0x40, 0x83
 			);
-			const key2 = Buffer.of(
+			const keyAddition2 = Buffer.of(
 				0x3E, 0xCA, 0x9E, 0x17, 0x1A, 0x02, 0xFB, 0xD4, 0x9C, 0x73, 0x75, 0x5D, 0x82, 0xEE, 0xCE, 0x6F,
 				0x63, 0x90, 0x5A, 0x44, 0xA2, 0x7C, 0xF1, 0x3A, 0x7B, 0x77, 0xA9, 0xB3, 0x8A, 0xD1, 0xB2, 0x92
 			);
-			const key3 = Buffer.of(
+			const keyDeletion1 = Buffer.of(
 				0x99, 0xF2, 0x26, 0x6C, 0x06, 0xBE, 0xE0, 0xE1, 0xC7, 0x39, 0x57, 0xFE, 0x0F, 0x39, 0x7E, 0x7A,
 				0xE3, 0x15, 0xEA, 0x51, 0x6B, 0xA7, 0x12, 0xEF, 0x82, 0x7C, 0xE6, 0x2B, 0xD9, 0x5E, 0x01, 0xEC
 			);
 
 			return () => {
 				const data = generator();
-				data.buffer = Buffer.concat([
-					data.buffer,
-					Buffer.of(0x31),
-					key1,
-					Buffer.of(0x20),
-					key2,
-					Buffer.of(0x86),
-					key3
-				]);
-				data.buffer.writeUInt8(3, constants.sizes.modifyMultisigAccount - 1);
+				data.buffer = Buffer.concat([data.buffer, keyAddition1, keyAddition2, keyDeletion1]);
 
-				data.object.modifications = [
-					{ modificationAction: 0x31, cosignatoryPublicKey: key1 },
-					{ modificationAction: 0x20, cosignatoryPublicKey: key2 },
-					{ modificationAction: 0x86, cosignatoryPublicKey: key3 }
-				];
+				data.buffer.writeUInt8(2, 2); // publicKeyAdditionsCount, two additions at 2 bytes offset
+				data.buffer.writeUInt8(1, 3); // publicKeyDeletionsCount, one deletion at 3 bytes offset
+
+				data.object.publicKeyAdditions = [keyAddition1, keyAddition2];
+				data.object.publicKeyDeletions = [keyDeletion1];
+
 				return data;
 			};
 		};
@@ -143,25 +142,33 @@ describe('multisig plugin', () => {
 		const getCodec = () => getCodecs()[EntityType.modifyMultisigAccount];
 
 		describe('supports modify multisig account', () => {
-			describe('with no modifications', () => {
+			describe('with no additions or deletions', () => {
 				test.binary.test.addAll(getCodec(), constants.sizes.modifyMultisigAccount, generateTransaction);
 			});
 
-			describe('with no modifications and negative deltas', () => {
+			describe('with no additions or deletions and negative deltas', () => {
 				test.binary.test.addAll(getCodec(), constants.sizes.modifyMultisigAccount, () => ({
-					buffer: Buffer.of(0xA2, 0xC9, 0x00),
+					buffer: Buffer.concat([
+						Buffer.of(0xA2), // minRemovalDelta 1b
+						Buffer.of(0xC9), // minApprovalDelta 1b
+						Buffer.of(0x00), // publicKeyAdditionsCount 1b
+						Buffer.of(0x00), // publicKeyDeletionsCount 1b
+						Buffer.of(0x00, 0x00, 0x00, 0x00) // multisig account modification transaction body reserved 1 4b
+					]),
 					object: {
 						minRemovalDelta: -94,
 						minApprovalDelta: -55,
-						modifications: []
+						publicKeyAdditions: [],
+						publicKeyDeletions: [],
+						multisigAccountModificationTransactionBody_Reserved1: 0
 					}
 				}));
 			});
 
-			describe('with modifications', () => {
+			describe('with additions and deletions', () => {
 				test.binary.test.addAll(
 					getCodec(),
-					constants.sizes.modifyMultisigAccount + constants.sizes.modifications,
+					constants.sizes.modifyMultisigAccount + (3 * 32),
 					addModifications(generateTransaction)
 				);
 			});
