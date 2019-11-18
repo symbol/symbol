@@ -33,9 +33,14 @@ describe('deserialize', () => {
 			0x07, 0x7D, 0x16, 0xB4, 0x60, 0x99, 0x9A, 0xAB, 0xE7, 0xAD, 0xB5, 0x26, 0x2B, 0xE2, 0x9A, 0x68
 		]);
 		const packetBuffer = Buffer.concat([
-			Buffer.from([0x31, 0x00, 0x00, 0x00]),
+			Buffer.from([0x31, 0x00, 0x00, 0x00]), // size
+			Buffer.from([0x17, 0x00, 0x00, 0x00]), // version
 			publicKeyBuffer,
-			Buffer.from([0xDC, 0x1E, 0x90, 0x17, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00])
+			Buffer.from([0x02, 0x00, 0x00, 0x00]), // roles
+			Buffer.from([0xDC, 0x1E]), // port
+			Buffer.from([0x90]), // network identifier
+			Buffer.from([0x00]), // host size
+			Buffer.from([0x00]) // friendly name size
 		]);
 		binaryParser.push(packetBuffer);
 
@@ -44,13 +49,13 @@ describe('deserialize', () => {
 
 		// Assert:
 		expect(deserializedData).to.deep.equal({
-			friendlyName: Buffer.from([]),
-			host: Buffer.from([]),
-			networkIdentifier: 144,
-			port: 7900,
+			version: 23,
 			publicKey: publicKeyBuffer,
 			roles: 2,
-			version: 23
+			port: 7900,
+			networkIdentifier: 144,
+			friendlyName: Buffer.from([]),
+			host: Buffer.from([])
 		});
 	});
 
@@ -63,9 +68,15 @@ describe('deserialize', () => {
 			0x07, 0x7D, 0x16, 0xB4, 0x60, 0x99, 0x9A, 0xAB, 0xE7, 0xAD, 0xB5, 0x26, 0x2B, 0xE2, 0x9A, 0x68
 		]);
 		const packetBuffer = Buffer.concat([
-			Buffer.from([0x31 + friendlyNameBuffer.length, 0x00, 0x00, 0x00]),
+			Buffer.from([0x31 + friendlyNameBuffer.length, 0x00, 0x00, 0x00]), // size
+			Buffer.from([0x17, 0x00, 0x00, 0x00]), // version
 			publicKeyBuffer,
-			Buffer.from([0xDC, 0x1E, 0x90, 0x17, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, friendlyNameBuffer.length]),
+			Buffer.from([0x02, 0x00, 0x00, 0x00]), // roles
+			Buffer.from([0xDC, 0x1E]), // port
+			Buffer.from([0x90]), // network identifier
+			Buffer.from([0x00]), // host size
+			Buffer.from([friendlyNameBuffer.length]), // friendly name size
+			// host
 			friendlyNameBuffer
 		]);
 		binaryParser.push(Buffer.from(packetBuffer));
@@ -75,13 +86,13 @@ describe('deserialize', () => {
 
 		// Assert:
 		expect(deserializedData).to.deep.equal({
-			friendlyName: friendlyNameBuffer,
-			host: Buffer.from([]),
-			networkIdentifier: 144,
-			port: 7900,
+			version: 23,
 			publicKey: publicKeyBuffer,
 			roles: 2,
-			version: 23
+			port: 7900,
+			networkIdentifier: 144,
+			friendlyName: friendlyNameBuffer,
+			host: Buffer.from([])
 		});
 	});
 
@@ -94,9 +105,14 @@ describe('deserialize', () => {
 			0x07, 0x7D, 0x16, 0xB4, 0x60, 0x99, 0x9A, 0xAB, 0xE7, 0xAD, 0xB5, 0x26, 0x2B, 0xE2, 0x9A, 0x68
 		]);
 		const packetBuffer = Buffer.concat([
-			Buffer.from([0x31 + hostBuffer.length, 0x00, 0x00, 0x00]),
+			Buffer.from([0x31 + hostBuffer.length, 0x00, 0x00, 0x00]), // size
+			Buffer.from([0x17, 0x00, 0x00, 0x00]), // version
 			publicKeyBuffer,
-			Buffer.from([0xDC, 0x1E, 0x90, 0x17, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, hostBuffer.length, 0x00]),
+			Buffer.from([0x02, 0x00, 0x00, 0x00]), // roles
+			Buffer.from([0xDC, 0x1E]), // port
+			Buffer.from([0x90]), // network identifier
+			Buffer.from([hostBuffer.length]), // host size
+			Buffer.from([0x00]), // friendly name size
 			hostBuffer
 		]);
 		binaryParser.push(Buffer.from(packetBuffer));
@@ -106,13 +122,13 @@ describe('deserialize', () => {
 
 		// Assert:
 		expect(deserializedData).to.deep.equal({
-			friendlyName: Buffer.from([]),
-			host: hostBuffer,
-			networkIdentifier: 144,
-			port: 7900,
+			version: 23,
 			publicKey: publicKeyBuffer,
 			roles: 2,
-			version: 23
+			port: 7900,
+			networkIdentifier: 144,
+			friendlyName: Buffer.from([]),
+			host: hostBuffer
 		});
 	});
 
@@ -126,9 +142,14 @@ describe('deserialize', () => {
 			0x07, 0x7D, 0x16, 0xB4, 0x60, 0x99, 0x9A, 0xAB, 0xE7, 0xAD, 0xB5, 0x26, 0x2B, 0xE2, 0x9A, 0x68
 		]);
 		const packetBuffer = Buffer.concat([
-			Buffer.from([0x31 + friendlyNameBuffer.length + hostBuffer.length, 0x00, 0x00, 0x00]),
+			Buffer.from([0x31 + friendlyNameBuffer.length + hostBuffer.length, 0x00, 0x00, 0x00]), // size
+			Buffer.from([0x17, 0x00, 0x00, 0x00]), // version
 			publicKeyBuffer,
-			Buffer.from([0xDC, 0x1E, 0x90, 0x17, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, hostBuffer.length, friendlyNameBuffer.length]),
+			Buffer.from([0x02, 0x00, 0x00, 0x00]), // roles
+			Buffer.from([0xDC, 0x1E]), // port
+			Buffer.from([0x90]), // network identifier
+			Buffer.from([hostBuffer.length]), // host size
+			Buffer.from([friendlyNameBuffer.length]), // friendly name size
 			hostBuffer,
 			friendlyNameBuffer
 		]);
@@ -139,13 +160,13 @@ describe('deserialize', () => {
 
 		// Assert:
 		expect(deserializedData).to.deep.equal({
-			friendlyName: friendlyNameBuffer,
-			host: hostBuffer,
-			networkIdentifier: 144,
-			port: 7900,
+			version: 23,
 			publicKey: publicKeyBuffer,
 			roles: 2,
-			version: 23
+			port: 7900,
+			networkIdentifier: 144,
+			friendlyName: friendlyNameBuffer,
+			host: hostBuffer
 		});
 	});
 });
