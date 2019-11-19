@@ -47,6 +47,7 @@ namespace catapult { namespace mongo { namespace plugins {
 			auto pTransaction = utils::MakeUniqueWithSize<TransactionType>(entitySize);
 			pTransaction->Size = entitySize;
 			pTransaction->PayloadSize = payloadSize;
+			test::FillWithRandomData(pTransaction->TransactionsHash);
 			return pTransaction;
 		}
 	}
@@ -95,12 +96,13 @@ namespace catapult { namespace mongo { namespace plugins {
 			pPlugin->streamTransaction(builder, *pTransaction);
 			auto view = builder.view();
 
-			// Assert: only cosignatures should be present and they should always be present (even if there are no cosignatures)
-			EXPECT_EQ(1u, test::GetFieldCount(view));
+			// Assert:
+			EXPECT_EQ(2u, test::GetFieldCount(view));
+
+			EXPECT_EQ(pTransaction->TransactionsHash, test::GetHashValue(view, "transactionsHash"));
 
 			auto dbCosignatures = view["cosignatures"].get_array().value;
 			ASSERT_EQ(numCosignatures, test::GetFieldCount(dbCosignatures));
-
 			test::AssertEqualCosignatures(cosignatures, dbCosignatures);
 		}
 	}

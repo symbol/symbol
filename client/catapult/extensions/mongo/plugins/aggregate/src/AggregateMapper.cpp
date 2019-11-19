@@ -59,6 +59,7 @@ namespace catapult { namespace mongo { namespace plugins {
 
 			void streamTransaction(bson_stream::document& builder, const model::Transaction& transaction) const override {
 				const auto& aggregate = CastToDerivedType(transaction);
+				builder << "transactionsHash" << ToBinary(aggregate.TransactionsHash);
 				StreamCosignatures(builder, aggregate.CosignaturesPtr(), aggregate.CosignaturesCount());
 			}
 
