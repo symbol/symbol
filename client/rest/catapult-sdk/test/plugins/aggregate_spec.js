@@ -54,8 +54,8 @@ describe('aggregate plugin', () => {
 			expect(modelSchema).to.contain.all.keys(['aggregateComplete', 'aggregateBonded', 'aggregate.cosignature']);
 
 			// - aggregate
-			expect(Object.keys(modelSchema[schemaName]).length).to.equal(Object.keys(modelSchema.transaction).length + 2);
-			expect(modelSchema[schemaName]).to.contain.all.keys(['transactions', 'cosignatures']);
+			expect(Object.keys(modelSchema[schemaName]).length).to.equal(Object.keys(modelSchema.transaction).length + 3);
+			expect(modelSchema[schemaName]).to.contain.all.keys(['transactionHash', 'transactions', 'cosignatures']);
 
 			// - cosignature
 			expect(modelSchema['aggregate.cosignature']).to.deep.equal({

@@ -20,7 +20,6 @@
 
 const EntityType = require('../../src/model/EntityType');
 const ModelSchemaBuilder = require('../../src/model/ModelSchemaBuilder');
-const ModelType = require('../../src/model/ModelType');
 const multisig = require('../../src/plugins/multisig');
 const test = require('../binaryTestUtils');
 const { expect } = require('chai');
@@ -43,10 +42,9 @@ describe('multisig plugin', () => {
 			const modelSchema = builder.build();
 
 			// Assert:
-			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 5);
+			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 4);
 			expect(modelSchema).to.contain.all.keys([
 				'modifyMultisigAccount',
-				'modifyMultisigAccount.modification',
 				'multisigEntry',
 				'multisigEntry.multisig',
 				'multisigGraph'
@@ -55,11 +53,6 @@ describe('multisig plugin', () => {
 			// - modify multisig account
 			expect(Object.keys(modelSchema.modifyMultisigAccount).length).to.equal(Object.keys(modelSchema.transaction).length + 2);
 			expect(modelSchema.modifyMultisigAccount).to.contain.all.keys(['publicKeyAdditions', 'publicKeyDeletions']);
-
-			// - cosignatory modification
-			expect(modelSchema['modifyMultisigAccount.modification']).to.deep.equal({
-				cosignatoryPublicKey: ModelType.binary
-			});
 
 			// - multisig entry
 			expect(Object.keys(modelSchema.multisigEntry).length).to.equal(1);

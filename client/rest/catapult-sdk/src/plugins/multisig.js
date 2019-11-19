@@ -33,11 +33,8 @@ const constants = { sizes };
 const multisigPlugin = {
 	registerSchema: builder => {
 		builder.addTransactionSupport(EntityType.modifyMultisigAccount, {
-			publicKeyAdditions: { type: ModelType.array, schemaName: 'modifyMultisigAccount.modification' },
-			publicKeyDeletions: { type: ModelType.array, schemaName: 'modifyMultisigAccount.modification' }
-		});
-		builder.addSchema('modifyMultisigAccount.modification', {
-			cosignatoryPublicKey: ModelType.binary
+			publicKeyAdditions: { type: ModelType.array, schemaName: ModelType.binary },
+			publicKeyDeletions: { type: ModelType.array, schemaName: ModelType.binary }
 		});
 
 		builder.addSchema('multisigEntry', {

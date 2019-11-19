@@ -25,7 +25,7 @@ const sizes = require('../modelBinary/sizes');
 
 const constants = { sizes };
 
-const accountRestrictionTypeBlockOffset = 128;
+const accountRestrictionTypeBlockOffset = 0x8000;
 const AccountRestrictionTypeFlags = Object.freeze({
 	address: 1,
 	mosaic: 2,
@@ -100,51 +100,47 @@ const restrictionsPlugin = {
 	}),
 
 	registerSchema: builder => {
-		const modificationTypeSchema = modificationsSchemaName => ({
-			modifications: { type: ModelType.array, schemaName: modificationsSchemaName }
-		});
-
-		// account restrictions
+		/**
+		 * Account restrictions scope
+		 */
 		accountRestrictionTypeDescriptors.forEach(restrictionTypeDescriptor => {
 			// transaction schemas
-			builder.addTransactionSupport(
-				restrictionTypeDescriptor.entityType,
-				modificationTypeSchema(`accountRestriction.${restrictionTypeDescriptor.schemaPrefix}ModificationType`)
-			);
-			builder.addSchema(`accountRestriction.${restrictionTypeDescriptor.schemaPrefix}ModificationType`, {
-				value: restrictionTypeDescriptor.valueType
+			builder.addTransactionSupport(restrictionTypeDescriptor.entityType, {
+				restrictionAdditions: { type: ModelType.array, schemaName: restrictionTypeDescriptor.valueType },
+				restrictionDeletions: { type: ModelType.array, schemaName: restrictionTypeDescriptor.valueType }
 			});
 
-			// aggregated account restriction schemas
+			// aggregated account restriction subschemas
 			builder.addSchema(`accountRestriction.${restrictionTypeDescriptor.schemaPrefix}AccountRestriction`, {
 				values: { type: ModelType.array, schemaName: restrictionTypeDescriptor.valueType }
 			});
 		});
 
-		// account restriction fallback
-		builder.addSchema('accountRestriction.fallback', {});
-
 		// aggregated account restrictions schemas
 		builder.addSchema('accountRestrictions', {
 			accountRestrictions: { type: ModelType.object, schemaName: 'accountRestriction.restrictions' }
 		});
-
-		// account restriction restrictions
 		builder.addSchema('accountRestriction.restrictions', {
 			address: ModelType.binary,
 			restrictions: {
 				type: ModelType.array,
 				schemaName: entity => {
 					for (let i = 0; i < accountRestrictionTypeDescriptors.length; i++) {
-						if ((entity.restrictionType & 0x3F) === accountRestrictionTypeDescriptors[i].flag)
+						if ((entity.restrictionFlags & 0x3FFF) === accountRestrictionTypeDescriptors[i].flag)
+							// the following schemas were added in the previous loop
 							return `accountRestriction.${accountRestrictionTypeDescriptors[i].schemaPrefix}AccountRestriction`;
 					}
 					return 'accountRestriction.fallback';
 				}
 			}
 		});
+		builder.addSchema('accountRestriction.fallback', {});
 
-		// mosaic restrictions address
+
+		/**
+		 * Mosaic restrictions scope
+		 */
+		// transaction schema
 		builder.addTransactionSupport(EntityType.mosaicRestrictionAddress, {
 			mosaicId: ModelType.uint64HexIdentifier,
 			restrictionKey: ModelType.uint64HexIdentifier,
@@ -153,7 +149,7 @@ const restrictionsPlugin = {
 			newRestrictionValue: ModelType.uint64
 		});
 
-		// mosaic restrictions global
+		// mosaic global restrictions
 		builder.addTransactionSupport(EntityType.mosaicRestrictionGlobal, {
 			mosaicId: ModelType.uint64HexIdentifier,
 			referenceMosaicId: ModelType.uint64HexIdentifier,
@@ -162,37 +158,34 @@ const restrictionsPlugin = {
 			newRestrictionValue: ModelType.uint64
 		});
 
+		// mosaic global restrictions
 		builder.addSchema('mosaicRestriction.mosaicGlobalRestriction', {
 			mosaicRestrictionEntry: { type: ModelType.object, schemaName: 'mosaicGlobalRestriction.entry' }
 		});
-
 		builder.addSchema('mosaicGlobalRestriction.entry', {
 			compositeHash: ModelType.binary,
 			mosaicId: ModelType.uint64HexIdentifier,
 			restrictions: { type: ModelType.array, schemaName: 'mosaicGlobalRestriction.entry.restriction' }
 		});
-
 		builder.addSchema('mosaicGlobalRestriction.entry.restriction', {
 			key: ModelType.uint64,
 			restriction: { type: ModelType.object, schemaName: 'mosaicGlobalRestriction.entry.restriction.restriction' }
 		});
-
 		builder.addSchema('mosaicGlobalRestriction.entry.restriction.restriction', {
 			referenceMosaicId: ModelType.uint64HexIdentifier,
 			restrictionValue: ModelType.uint64
 		});
 
+		// mosaic address restrictions
 		builder.addSchema('mosaicRestriction.mosaicAddressRestriction', {
 			mosaicRestrictionEntry: { type: ModelType.object, schemaName: 'mosaicAddressRestriction.entry' }
 		});
-
 		builder.addSchema('mosaicAddressRestriction.entry', {
 			compositeHash: ModelType.binary,
 			mosaicId: ModelType.uint64HexIdentifier,
 			targetAddress: ModelType.binary,
 			restrictions: { type: ModelType.array, schemaName: 'mosaicAddressRestriction.entry.restriction' }
 		});
-
 		builder.addSchema('mosaicAddressRestriction.entry.restriction', {
 			key: ModelType.uint64,
 			value: ModelType.uint64

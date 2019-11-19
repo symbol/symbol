@@ -28,7 +28,7 @@ const { expect } = require('chai');
 describe('restrictions plugin', () => {
 	describe('account restriction types enumeration', () => {
 		it('contains valid values', () => {
-			const accountRestrictionTypeBlockOffset = 128;
+			const accountRestrictionTypeBlockOffset = 0x8000;
 
 			// Assert:
 			expect(AccountRestrictionType.addressAllow).to.equal(1);
@@ -44,11 +44,6 @@ describe('restrictions plugin', () => {
 		// Arrange:
 		const builder = new ModelSchemaBuilder();
 		const numDefaultKeys = Object.keys(builder.build()).length;
-		const modificationTypeSchemas = [
-			'accountRestriction.addressModificationType',
-			'accountRestriction.mosaicModificationType',
-			'accountRestriction.operationModificationType'
-		];
 		const accountRestrictionSchemas = [
 			'accountRestriction.addressAccountRestriction',
 			'accountRestriction.mosaicAccountRestriction',
@@ -61,7 +56,7 @@ describe('restrictions plugin', () => {
 
 		// Assert:
 		it('adds restrictions system schema', () => {
-			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 21);
+			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 18);
 			expect(modelSchema).to.contain.all.keys([
 				'accountRestrictionAddress',
 				'accountRestrictionMosaic',
@@ -78,31 +73,25 @@ describe('restrictions plugin', () => {
 				'mosaicRestriction.mosaicAddressRestriction',
 				'mosaicAddressRestriction.entry',
 				'mosaicAddressRestriction.entry.restriction'
-			].concat(modificationTypeSchemas).concat(accountRestrictionSchemas));
+			].concat(accountRestrictionSchemas));
 		});
 
 		it('adds account restrictions schemas', () => {
 			// - accountRestrictionAddress
-			expect(Object.keys(modelSchema.accountRestrictionAddress).length).to.equal(Object.keys(modelSchema.transaction).length + 1);
-			expect(modelSchema.accountRestrictionAddress).to.contain.all.keys(['modifications']);
+			expect(Object.keys(modelSchema.accountRestrictionAddress).length).to.equal(Object.keys(modelSchema.transaction).length + 2);
+			expect(modelSchema.accountRestrictionAddress).to.contain.all.keys(['restrictionAdditions', 'restrictionDeletions']);
 
 			// - accountRestrictionMosaic
-			expect(Object.keys(modelSchema.accountRestrictionMosaic).length).to.equal(Object.keys(modelSchema.transaction).length + 1);
-			expect(modelSchema.accountRestrictionMosaic).to.contain.all.keys(['modifications']);
+			expect(Object.keys(modelSchema.accountRestrictionMosaic).length).to.equal(Object.keys(modelSchema.transaction).length + 2);
+			expect(modelSchema.accountRestrictionMosaic).to.contain.all.keys(['restrictionAdditions', 'restrictionDeletions']);
 
 			// - accountRestrictionOperation
-			expect(Object.keys(modelSchema.accountRestrictionOperation).length).to.equal(Object.keys(modelSchema.transaction).length + 1);
-			expect(modelSchema.accountRestrictionOperation).to.contain.all.keys(['modifications']);
+			expect(Object.keys(modelSchema.accountRestrictionOperation).length).to.equal(Object.keys(modelSchema.transaction).length + 2);
+			expect(modelSchema.accountRestrictionOperation).to.contain.all.keys(['restrictionAdditions', 'restrictionDeletions']);
 
 			// - accountRestrictions
 			expect(Object.keys(modelSchema.accountRestrictions).length).to.equal(1);
 			expect(modelSchema.accountRestrictions).to.contain.all.keys(['accountRestrictions']);
-
-			// - accountRestriction modification types
-			modificationTypeSchemas.forEach(schema => {
-				expect(Object.keys(modelSchema[schema]).length).to.equal(1);
-				expect(modelSchema[schema]).to.contain.all.keys(['value']);
-			});
 
 			// - accountRestriction.restrictions
 			expect(Object.keys(modelSchema['accountRestriction.restrictions']).length).to.equal(2);
@@ -120,23 +109,23 @@ describe('restrictions plugin', () => {
 			const accountRestrictionSchema = modelSchema['accountRestriction.restrictions'].restrictions.schemaName;
 
 			// Assert:
-			expect(accountRestrictionSchema({ restrictionType: AccountRestrictionType.addressAllow }))
+			expect(accountRestrictionSchema({ restrictionFlags: AccountRestrictionType.addressAllow }))
 				.to.equal('accountRestriction.addressAccountRestriction');
-			expect(accountRestrictionSchema({ restrictionType: AccountRestrictionType.addressBlock }))
+			expect(accountRestrictionSchema({ restrictionFlags: AccountRestrictionType.addressBlock }))
 				.to.equal('accountRestriction.addressAccountRestriction');
-			expect(accountRestrictionSchema({ restrictionType: AccountRestrictionType.mosaicAllow }))
+			expect(accountRestrictionSchema({ restrictionFlags: AccountRestrictionType.mosaicAllow }))
 				.to.equal('accountRestriction.mosaicAccountRestriction');
-			expect(accountRestrictionSchema({ restrictionType: AccountRestrictionType.mosaicBlock }))
+			expect(accountRestrictionSchema({ restrictionFlags: AccountRestrictionType.mosaicBlock }))
 				.to.equal('accountRestriction.mosaicAccountRestriction');
-			expect(accountRestrictionSchema({ restrictionType: AccountRestrictionType.operationAllow }))
+			expect(accountRestrictionSchema({ restrictionFlags: AccountRestrictionType.operationAllow }))
 				.to.equal('accountRestriction.operationAccountRestriction');
-			expect(accountRestrictionSchema({ restrictionType: AccountRestrictionType.operationBlock }))
+			expect(accountRestrictionSchema({ restrictionFlags: AccountRestrictionType.operationBlock }))
 				.to.equal('accountRestriction.operationAccountRestriction');
-			expect(accountRestrictionSchema({ restrictionType: 99 }))
+			expect(accountRestrictionSchema({ restrictionFlags: 99 }))
 				.to.equal('accountRestriction.fallback');
 		});
 
-		it('adds mosaic restrictions system schema', () => {
+		it('adds mosaic restrictions system schemas', () => {
 			// - mosaic restriction address
 			expect(Object.keys(modelSchema.mosaicRestrictionAddress).length).to.equal(Object.keys(modelSchema.transaction).length + 5);
 			expect(modelSchema.mosaicRestrictionAddress).to.contain.all.keys([
