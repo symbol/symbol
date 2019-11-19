@@ -232,7 +232,11 @@ namespace catapult { namespace sync {
 				if (m_state.config().Node.EnableAutoSyncCleanup)
 					disruptorConsumers.push_back(CreateBlockChainSyncCleanupConsumer(m_state.config().User.DataDirectory));
 
-				disruptorConsumers.push_back(CreateNewBlockConsumer(m_state.hooks().newBlockSink(), InputSource::Local));
+				// forward locally harvested blocks and blocks pushed by partners
+				auto newBlockSinkSourceMask = static_cast<InputSource>(
+						utils::to_underlying_type(InputSource::Local)
+						| utils::to_underlying_type(InputSource::Remote_Push));
+				disruptorConsumers.push_back(CreateNewBlockConsumer(m_state.hooks().newBlockSink(), newBlockSinkSourceMask));
 				return CreateConsumerDispatcher(
 						m_state,
 						CreateBlockConsumerDispatcherOptions(m_nodeConfig),
