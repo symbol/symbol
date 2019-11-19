@@ -1,5 +1,12 @@
 #!/bin/bash
 
+block_inputs=(
+	"block")
+
+receipt_inputs=(
+	"receipts"
+	"namespace/namespace_receipts")
+
 transaction_inputs=(
 	"account_link/account_link"
 	"aggregate/aggregate"

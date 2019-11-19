@@ -80,6 +80,22 @@ class StructParserTest(unittest.TestCase):
             {'name': 'bar', 'condition': 'foo', 'condition_value': 'red'}
         ]}), result)
 
+    def test_can_append_scalar_conditional_trailing_discriminator(self):
+        # Arrange:
+        parser = StructParserFactory().create()
+
+        # Act:
+        parser.process_line('struct Car')
+        parser.append({'name': 'bar', 'condition': 'foo', 'condition_value': 'red'})
+        parser.append({'name': 'foo'})
+        result = parser.commit()
+
+        # Assert:
+        self.assertEqual(('Car', {'type': 'struct', 'layout': [
+            {'name': 'bar', 'condition': 'foo', 'condition_value': 'red'},
+            {'name': 'foo'}
+        ]}), result)
+
     def test_cannot_append_scalar_with_invalid_condition_reference(self):
         for condition in ['baz', '10']:
             # Arrange:
@@ -88,10 +104,11 @@ class StructParserTest(unittest.TestCase):
             # Act:
             parser.process_line('struct Car')
             parser.append({'name': 'foo'})
+            parser.append({'name': 'bar', 'condition': condition, 'condition_value': 'red'})
 
             # Assert:
             with self.assertRaises(CatsParseException):
-                parser.append({'name': 'bar', 'condition': condition, 'condition_value': 'red'})
+                parser.commit()
 
     def test_can_append_array_with_numeric_size(self):
         # Arrange:

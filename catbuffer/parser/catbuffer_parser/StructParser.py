@@ -30,14 +30,18 @@ class StructParser(CompositeTypeParser):
         if 'size' in property_type_descriptor:
             self._require_known_property(property_type_descriptor['size'])
 
-        if 'condition' in property_type_descriptor:
-            self._require_known_property(property_type_descriptor['condition'], False)
-
         descriptor_uid = self._get_descriptor_uid(property_type_descriptor)
         if descriptor_uid[0]:
             self._require_unknown_property(descriptor_uid)
 
         self.type_descriptor['layout'].append(property_type_descriptor)
+
+    def commit(self):
+        for property_type_descriptor in self.type_descriptor['layout']:
+            if 'condition' in property_type_descriptor:
+                self._require_known_property(property_type_descriptor['condition'], False)
+
+        return super().commit()
 
     def _require_no_array_with_fill_disposition(self):
         layout = self.type_descriptor['layout']

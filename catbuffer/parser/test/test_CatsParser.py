@@ -44,6 +44,17 @@ class CatsParserTests(unittest.TestCase):
         with self.assertRaises(CatsParseException):
             parser.process_line(lines[-1])
 
+    def _assert_parse_commit_exception(self, lines):
+        # Arrange:
+        imports = []
+        parser = CatsParser(imports.append)
+        for line in lines:
+            parser.process_line(line)
+
+        # Act + Assert:
+        with self.assertRaises(CatsParseException):
+            parser.commit()
+
     # endregion
 
     # region empty + basic
@@ -186,7 +197,7 @@ class CatsParserTests(unittest.TestCase):
             '\tenclosingType = Shape',
             '\t# u part 1',
             '\tcircumference = Circ if enclosingType equals circle',
-            '\t# union part 2',
+            '\t# union pt 2',
             '\tperimiter = Perm if enclosingType equals rectangle'
         ])
 
@@ -195,7 +206,31 @@ class CatsParserTests(unittest.TestCase):
         self.assertEqual(type_descriptors['Enclosing'], {'type': 'struct', 'comments': '', 'layout': [
             {'name': 'enclosingType', 'type': 'Shape', 'comments': ''},
             {'name': 'circumference', 'type': 'Circ', 'condition': 'enclosingType', 'condition_value': 'circle', 'comments': 'u part 1'},
-            {'name': 'perimiter', 'type': 'Perm', 'condition': 'enclosingType', 'condition_value': 'rectangle', 'comments': 'union part 2'}
+            {'name': 'perimiter', 'type': 'Perm', 'condition': 'enclosingType', 'condition_value': 'rectangle', 'comments': 'union pt 2'}
+        ]})
+
+    def test_can_parse_struct_conditional_types_trailing_discriminator(self):
+        # Act:
+        type_descriptors = parse_all([
+            'enum Shape : uint8',
+            '\tcircle = 4',
+            '\trectangle = 9',
+            'using Circ = uint16',
+            'using Perm = uint16',
+            'struct Enclosing',
+            '\t# u part 1',
+            '\tcircumference = Circ if enclosingType equals circle',
+            '\t# union pt 2',
+            '\tperimiter = Perm if enclosingType equals rectangle',
+            '\tenclosingType = Shape'
+        ])
+
+        # Assert:
+        self.assertEqual(4, len(type_descriptors))
+        self.assertEqual(type_descriptors['Enclosing'], {'type': 'struct', 'comments': '', 'layout': [
+            {'name': 'circumference', 'type': 'Circ', 'condition': 'enclosingType', 'condition_value': 'circle', 'comments': 'u part 1'},
+            {'name': 'perimiter', 'type': 'Perm', 'condition': 'enclosingType', 'condition_value': 'rectangle', 'comments': 'union pt 2'},
+            {'name': 'enclosingType', 'type': 'Shape', 'comments': ''}
         ]})
 
     def test_can_parse_struct_array_types(self):
@@ -347,7 +382,7 @@ class CatsParserTests(unittest.TestCase):
 
     def test_cannot_parse_struct_with_non_enum_condition_link(self):
         # Act + Assert:
-        self._assert_parse_delayed_exception([
+        self._assert_parse_commit_exception([
             'using Shape = uint8',
             'using Circ = uint16',
             'struct Enclosing',
@@ -357,7 +392,7 @@ class CatsParserTests(unittest.TestCase):
 
     def test_cannot_parse_struct_with_unknown_condition_value(self):
         # Act + Assert:
-        self._assert_parse_delayed_exception([
+        self._assert_parse_commit_exception([
             'enum Shape : uint8',
             '\tcircle = 1',
             'using Circ = uint16',
