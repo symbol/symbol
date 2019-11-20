@@ -598,30 +598,28 @@ namespace catapult { namespace ionet {
 		EXPECT_EQ(1u, numCallbackCalls);
 	}
 
-	TEST(TEST_CLASS, WaitForDataCanBeTriggeredMultipleTimes) {
-		// Arrange: send two buffers each containing a packet
+	TEST(TEST_CLASS, ReadOrWaitForDataIsTriggered) {
+		// Arrange: send a buffer containing a packet
 		std::atomic<size_t> callbackMask(0);
-		std::vector<ByteBuffer> sendBuffers{ test::GenerateRandomPacketBuffer(100), test::GenerateRandomPacketBuffer(80) };
+		std::vector<ByteBuffer> sendBuffers{ test::GenerateRandomPacketBuffer(100) };
 
-		// Act: "server" - waits for data to become available, reads a packet and waits again
-		//      "client" - sends two buffers
+		// Act: "server" - in parallel try to async_read the data and wait for the data to become available
+		//      "client" - sends a single buffer
 		auto pPool = test::CreateStartedIoThreadPool();
 		test::SpawnPacketServerWork(pPool->ioContext(), [&callbackMask](const auto& pServerSocket) {
 			pServerSocket->waitForData([pServerSocket, &callbackMask]() {
 				callbackMask += (1 << 8);
+			});
 
-				pServerSocket->read([pServerSocket, &callbackMask](auto, const auto*) {
-					pServerSocket->waitForData([&callbackMask]() {
-						callbackMask += (1 << 4);
-					});
-				});
+			pServerSocket->read([pServerSocket, &callbackMask](auto, const auto*) {
+				callbackMask += (1 << 4);
 			});
 		});
 		test::AddClientWriteBuffersTask(pPool->ioContext(), sendBuffers);
 		pPool->join();
 
 		// Assert:
-		EXPECT_EQ(0x0110u, callbackMask);
+		EXPECT_LE(0x0010u, callbackMask);
 	}
 
 	TEST(TEST_CLASS, WaitForDataDoesNotAffectRead) {

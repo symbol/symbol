@@ -278,13 +278,13 @@ namespace catapult { namespace ionet {
 			}
 
 			void waitForData(const PacketSocket::WaitForDataCallback& callback) {
-				if (isDataAvailableForRead()) {
+				if (0 != m_buffer.size()) {
 					callback();
 					return;
 				}
 
 				m_socket.async_wait(socket::wait_read, m_wrapper.wrap([this, callback](const auto&) {
-					if (isDataAvailableForRead())
+					if (m_socket.is_open() && m_socket.available())
 						callback();
 				}));
 			}
@@ -302,11 +302,6 @@ namespace catapult { namespace ionet {
 
 			void setOptions() {
 				m_socket.non_blocking(true);
-			}
-
-		private:
-			bool isDataAvailableForRead() const {
-				return 0 != m_buffer.size() || (m_socket.is_open() && m_socket.available());
 			}
 
 		private:
