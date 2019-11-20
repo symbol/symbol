@@ -27,6 +27,7 @@
 namespace catapult { namespace test {
 
 	void AssertRestrictionValues(const state::AccountRestriction& restriction, const bsoncxx::document::view& dbRestrictionValues) {
+		EXPECT_FALSE(restriction.values().empty());
 		EXPECT_EQ(restriction.values().size(), test::GetFieldCount(dbRestrictionValues));
 		for (const auto& dbRestrictionValue : dbRestrictionValues) {
 			auto valueSize = restriction.valueSize();
@@ -43,8 +44,13 @@ namespace catapult { namespace test {
 			const bsoncxx::document::view& dbAccountRestrictions) {
 		EXPECT_EQ(restrictions.address(), test::GetAddressValue(dbAccountRestrictions, "address"));
 
+		// note that only restrictions that are not empty should have been saved to the mongo db
 		auto dbRestrictions = dbAccountRestrictions["restrictions"].get_array().value;
-		ASSERT_EQ(restrictions.size(), test::GetFieldCount(dbRestrictions));
+		auto numRestrictionsWithValues = 0u;
+		for (const auto& pair : restrictions)
+			numRestrictionsWithValues += pair.second.values().empty() ? 0 : 1;
+
+		ASSERT_EQ(numRestrictionsWithValues, test::GetFieldCount(dbRestrictions));
 
 		for (const auto& dbRestriction : dbRestrictions) {
 			auto dbRestrictionView = dbRestriction.get_document().view();
