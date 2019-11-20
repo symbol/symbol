@@ -1,0 +1,10 @@
+type: integer
+format: int32
+enum:
+  - 1
+  - 2
+description: |
+  Role of the node:
+  * 1 - Peer node.
+  * 2 - Api node.
+example: 2

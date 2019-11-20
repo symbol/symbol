@@ -1,0 +1,18 @@
+type: object
+description: Transaction that triggered the receipt.
+required:
+  - primaryId
+  - secondaryId
+properties:
+  primaryId:
+    type: integer
+    format: int32
+    description: Transaction index within the block.
+    example: 1
+  secondaryId:
+    type: integer
+    format: int32
+    description: |
+      Transaction index inside within the aggregate transaction.
+      If the transaction is not an inner transaction, then the secondary id is set to 0.
+    example: 0

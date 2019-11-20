@@ -1,0 +1,5 @@
+type: object
+description: Transaction to link a namespace to an account.
+allOf:
+  - $ref: "../../../core/transaction/schemas/TransactionDTO.yml"
+  - $ref: "./AddressAliasTransactionBodyDTO.yml"

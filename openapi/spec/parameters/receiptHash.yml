@@ -1,0 +1,6 @@
+name: hash
+in: path
+description: Receipt hash.
+required: true
+schema:
+  $ref: "../types/Hash256.yml"

@@ -1,0 +1,15 @@
+type: object
+required:
+  - mosaicId
+  - amount
+  - duration
+  - hash
+properties:
+  mosaicId:
+    $ref: "../../../types/UnresolvedMosaicId.yml"
+  amount:
+    $ref: "../../../types/Amount.yml"
+  duration:
+    $ref: "../../../types/BlockDuration.yml"
+  hash:
+    $ref: "../../../types/Hash256.yml"

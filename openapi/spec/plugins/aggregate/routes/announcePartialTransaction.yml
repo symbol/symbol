@@ -1,0 +1,18 @@
+tags:
+  - Transaction routes
+summary: Announce an aggregate bonded transaction
+description: Announces an aggregate bonded transaction to the network.
+operationId: announcePartialTransaction
+requestBody:
+  $ref: "../../../request_bodies/transactionPayload.yml"
+responses:
+  "202":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../../../core/transaction/schemas/AnnounceTransactionInfoDTO.yml"
+  "400":
+    $ref: "../../../responses/InvalidContent.yml"
+  "409":
+    $ref: "../../../responses/InvalidArgument.yml"

@@ -1,0 +1,9 @@
+type: object
+required:
+  - maxFee
+  - deadline
+properties:
+  maxFee:
+    $ref: "../../../types/Amount.yml"
+  deadline:
+    $ref: "../../../types/BlockDuration.yml"

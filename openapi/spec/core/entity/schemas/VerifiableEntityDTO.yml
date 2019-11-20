@@ -1,0 +1,6 @@
+type: object
+required:
+  - signature
+properties:
+  signature:
+    $ref: "../../../types/Signature.yml"

@@ -1,0 +1,15 @@
+type: object
+required:
+  - restrictionFlags
+  - values
+properties:
+  restrictionFlags:
+    $ref: "./AccountRestrictionFlagsEnum.yml"
+  values:
+    type: array
+    description: Address, mosaic id, or transaction type to restrict.
+    items:
+      anyOf:
+        - $ref: "../../../types/UnresolvedAddress.yml"
+        - $ref: "../../../types/UnresolvedMosaicId.yml"
+        - $ref: "../../../core/transaction/schemas/TransactionTypeEnum.yml"

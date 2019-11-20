@@ -1,0 +1,5 @@
+type: object
+description: Transaction to prevent incoming and outgoing transactions for a given a set of addresses.
+allOf:
+  - $ref: "../../../core/transaction/schemas/TransactionDTO.yml"
+  - $ref: "./AccountAddressRestrictionTransactionBodyDTO.yml"

@@ -1,0 +1,14 @@
+type: integer
+format: int32
+enum:
+  - 104
+  - 152
+  - 96
+  - 144
+description: |
+  Network type:
+  * 0x60 (96 decimal) - Private network.
+  * 0x90 (144 decimal) - Private test network.
+  * 0x68 (104 decimal) - Public main network.
+  * 0x98 (152 decimal) - Public test network.
+example: 144

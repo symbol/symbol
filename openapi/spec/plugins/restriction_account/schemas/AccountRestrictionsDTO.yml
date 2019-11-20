@@ -1,0 +1,11 @@
+type: object
+required:
+  - address
+  - restrictions
+properties:
+  address:
+    $ref: "../../../types/Address.yml"
+  restrictions:
+    type: array
+    items:
+      $ref: "./AccountRestrictionDTO.yml"

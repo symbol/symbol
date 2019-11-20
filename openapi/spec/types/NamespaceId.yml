@@ -1,0 +1,4 @@
+type: string
+format: hex
+description: Namespace identifier.
+example: 85BBEA6CC462B244

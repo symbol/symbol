@@ -1,0 +1,20 @@
+tags:
+  - Metadata routes
+summary: Get mosaic metadata
+description: Returns the mosaic metadata given a mosaic id, a key, and a sender.
+operationId: getMosaicMetadataByKeyAndSender
+parameters:
+  - $ref: "../../../parameters/mosaicId.yml"
+  - $ref: "../../../parameters/metadataKey.yml"
+  - $ref: "../../../parameters/publicKey.yml"
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../schemas/MetadataDTO.yml"
+  "404":
+    $ref: "../../../responses/ResourceNotFound.yml"
+  "409":
+    $ref: "../../../responses/InvalidArgument.yml"

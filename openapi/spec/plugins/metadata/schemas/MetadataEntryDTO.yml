@@ -1,0 +1,27 @@
+type: object
+required:
+  - compositeHash
+  - senderPublicKey
+  - targetPublicKey
+  - scopedMetadataKey
+  - metadataType
+  - value
+properties:
+  compositeHash:
+    $ref: "../../../types/Hash256.yml"
+  senderPublicKey:
+    $ref: "../../../types/PublicKey.yml"
+  targetPublicKey:
+    $ref: "../../../types/PublicKey.yml"
+  scopedMetadataKey:
+    $ref: "../../../types/MetadataKey.yml"
+  targetId:
+    anyOf:
+      - $ref: "../../../types/MosaicId.yml"
+      - $ref: "../../../types/NamespaceId.yml"
+  metadataType:
+    $ref: "./MetadataTypeEnum.yml"
+  value:
+    type: string
+    format: hex
+    description: Metadata value.

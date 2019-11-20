@@ -1,0 +1,23 @@
+tags:
+  - Account routes
+summary: Get aggregate bonded transactions information
+description: |
+  Gets an array of aggregate bonded transactions where the account is the sender or requires to cosign the transaction.
+operationId: getAccountPartialTransactions
+parameters:
+  - $ref: "../../../parameters/accountId.yml"
+  - $ref: "../../../parameters/pageSize.yml"
+  - $ref: "../../../parameters/transactionIdLimit.yml"
+  - $ref: "../../../parameters/ordering.yml"
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          type: array
+          description: Array of aggregate bonded transactions.
+          items:
+            $ref: "../../transaction/schemas/TransactionInfoDTO.yml"
+  "409":
+    $ref : "../../../responses/InvalidArgument.yml"

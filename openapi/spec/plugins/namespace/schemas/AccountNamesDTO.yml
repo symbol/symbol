@@ -1,0 +1,15 @@
+type: object
+required:
+  - address
+  - names
+properties:
+  address:
+    $ref: "../../../types/Address.yml"
+  names:
+    type: array
+    description: Account linked namespace names.
+    example:
+      - alias1
+      - alias2
+    items:
+      type: string

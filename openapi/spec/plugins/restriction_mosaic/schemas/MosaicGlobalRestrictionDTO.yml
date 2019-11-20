@@ -1,0 +1,6 @@
+type: object
+required:
+  - mosaicRestrictionEntry
+properties:
+  mosaicRestrictionEntry:
+    $ref: "./MosaicGlobalRestrictionEntryWrapperDTO.yml"

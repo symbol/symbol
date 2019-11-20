@@ -1,0 +1,30 @@
+accountId:
+  $ref: './accountId.yml'
+height:
+  $ref: './height.yml'
+limit:
+  $ref: './limit.yml'
+metadataIdLimit:
+  $ref: './metadataIdLimit.yml'
+metadataKey:
+  $ref: './metadataKey.yml'
+mosaicId:
+  $ref: './mosaicId.yml'
+namespaceId:
+  $ref: './namespaceId.yml'
+namespaceIdLimit:
+  $ref: './namespaceIdLimit.yml'
+ordering:
+  $ref: './ordering.yml'
+pageSize:
+  $ref: './pageSize.yml'
+publicKey:
+  $ref: './publicKey.yml'
+receiptHash:
+  $ref: './receiptHash.yml'
+transactionHash:
+  $ref: './transactionHash.yml'
+transactionId:
+  $ref: './transactionId.yml'
+transactionIdLimit:
+  $ref: './transactionIdLimit.yml'

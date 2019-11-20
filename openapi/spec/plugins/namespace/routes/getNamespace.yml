@@ -1,0 +1,18 @@
+tags:
+  - Namespace routes
+summary: Get namespace information
+description: Gets the namespace for a given namespace identifier.
+operationId: getNamespace
+parameters:
+  - $ref: "../../../parameters/namespaceId.yml"
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../schemas/NamespaceInfoDTO.yml"
+  "404":
+    $ref: "../../../responses/ResourceNotFound.yml"
+  "409":
+    $ref: "../../../responses/InvalidArgument.yml"

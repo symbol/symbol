@@ -1,0 +1,12 @@
+tags:
+  - Node routes
+summary: Get the node time
+description: Gets the node time at the moment the reply was sent and received.
+operationId: getNodeTime
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../schemas/NodeTimeDTO.yml"

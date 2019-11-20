@@ -1,0 +1,18 @@
+tags:
+  - Mosaic routes
+summary: Get mosaics created for given array of addresses
+description: Gets mosaics created for a given array of addresses.
+operationId: getMosaicsFromAccounts
+requestBody:
+  $ref: "../../../request_bodies/accountIds.yml"
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../schemas/MosaicsInfoDTO.yml"
+  "400":
+    $ref : "../../../responses/InvalidContent.yml"
+  "409":
+    $ref : "../../../responses/InvalidArgument.yml"

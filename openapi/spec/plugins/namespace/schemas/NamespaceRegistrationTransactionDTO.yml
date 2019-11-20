@@ -1,0 +1,5 @@
+type: object
+description: Transaction to create or renew a namespace.
+allOf:
+  - $ref: "../../../core/transaction/schemas/TransactionDTO.yml"
+  - $ref: "./NamespaceRegistrationTransactionBodyDTO.yml"

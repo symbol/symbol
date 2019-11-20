@@ -1,0 +1,19 @@
+type: object
+description: Invisible state change that triggered a mosaic transfer.
+allOf:
+  - $ref: "./ReceiptDTO.yml"
+  - type: object
+    required:
+      - mosaicId
+      - amount
+      - senderPublicKey
+      - recipientAddress
+    properties:
+      mosaicId:
+        $ref: "../../../types/MosaicId.yml"
+      amount:
+        $ref: "../../../types/Amount.yml"
+      senderPublicKey:
+        $ref: "../../../types/PublicKey.yml"
+      recipientAddress:
+        $ref: "../../../types/Address.yml"

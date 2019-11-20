@@ -1,0 +1,18 @@
+tags:
+  - Transaction routes
+summary: Announce a cosignature transaction
+description: Announces a cosignature transaction to the network.
+operationId: announceCosignatureTransaction
+requestBody:
+  $ref: "../../../request_bodies/cosignature.yml"
+responses:
+  "202":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../../../core/transaction/schemas/AnnounceTransactionInfoDTO.yml"
+  "400":
+    $ref: "../../../responses/InvalidContent.yml"
+  "409":
+    $ref: "../../../responses/InvalidArgument.yml"

@@ -1,0 +1,7 @@
+name: transactionId
+in: path
+description: Transaction identifier or hash.
+required: true
+schema:
+  type: string
+

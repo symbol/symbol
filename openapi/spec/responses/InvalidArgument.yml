@@ -1,0 +1,5 @@
+description: InvalidArgument
+content:
+  application/json:
+    schema:
+      $ref: '../types/ModelError.yml'

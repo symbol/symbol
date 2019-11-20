@@ -1,0 +1,21 @@
+tags:
+  - Account routes
+summary: Get accounts information
+description: Returns the account information for an array of accounts.
+operationId: getAccountsInfo
+requestBody:
+  $ref: "../../../request_bodies/accountIds.yml"
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          type: array
+          description: Array of accounts information.
+          items:
+            $ref: "../schemas/AccountInfoDTO.yml"
+  "400":
+    $ref : "../../../responses/InvalidContent.yml"
+  "409":
+    $ref : "../../../responses/InvalidArgument.yml"

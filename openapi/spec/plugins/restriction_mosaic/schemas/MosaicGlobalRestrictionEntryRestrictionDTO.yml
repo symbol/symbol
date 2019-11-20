@@ -1,0 +1,12 @@
+type: object
+required:
+  - referenceMosaicId
+  - restrictionValue
+  - restrictionType
+properties:
+  referenceMosaicId:
+    $ref: "../../../types/MosaicId.yml"
+  restrictionValue:
+    $ref: "../../../types/RestrictionValue.yml"
+  restrictionType:
+    $ref: "./MosaicRestrictionTypeEnum.yml"
