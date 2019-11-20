@@ -354,9 +354,9 @@ namespace catapult { namespace extensions {
 			// Assert: remove candidates were removed from writers
 			test::AssertEqualIdentities(removeCandidates, writers.closedNodeIdentities());
 
-			// - removed nodes are still aged if they are active during selection (their ages will be zeroed on next iteration)
+			// - ages of all removed nodes are reset even if the nodes are active during selection
 			auto view = container.view();
-			EXPECT_EQ(3u, view.getNodeInfo(nodes[1].identity()).getConnectionState(serviceId)->Age);
+			EXPECT_EQ(0u, view.getNodeInfo(nodes[1].identity()).getConnectionState(serviceId)->Age);
 			EXPECT_EQ(0u, view.getNodeInfo(nodes[9].identity()).getConnectionState(serviceId)->Age);
 		}
 	}

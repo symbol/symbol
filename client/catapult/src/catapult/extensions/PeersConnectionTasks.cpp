@@ -195,15 +195,19 @@ namespace catapult { namespace extensions {
 		auto serviceId = settings.ServiceId;
 		auto ager = CreateNodeAger(serviceId, settings.Config, settings.Nodes);
 		return thread::CreateNamedTask("connect peers task", [serviceId, ager, selector, &nodes = settings.Nodes, &packetWriters]() {
-			// 1. age all connections
-			ager(packetWriters.identities());
+			auto activeIdentities = packetWriters.identities();
 
-			// 2. select add and remove candidates
+			// 1. select add and remove candidates
 			auto result = selector();
 
-			// 3. process remove candidates
-			for (const auto& identity : result.RemoveCandidates)
+			// 2. process remove candidates
+			for (const auto& identity : result.RemoveCandidates) {
 				packetWriters.closeOne(identity);
+				activeIdentities.erase(identity);
+			}
+
+			// 3. age all active connections
+			ager(activeIdentities);
 
 			// 4. process add candidates
 			AddCandidateProcessor processor({ nodes, packetWriters, serviceId });
@@ -239,15 +243,19 @@ namespace catapult { namespace extensions {
 		auto serviceId = settings.ServiceId;
 		auto ager = CreateNodeAger(serviceId, settings.Config, settings.Nodes);
 		return thread::CreateNamedTask("age peers task", [serviceId, ager, selector, &connectionContainer]() {
-			// 1. age all connections
-			ager(connectionContainer.identities());
+			auto activeIdentities = connectionContainer.identities();
 
-			// 2. select remove candidates
+			// 1. select remove candidates
 			auto removeCandidates = selector();
 
-			// 3. process remove candidates
-			for (const auto& identity : removeCandidates)
+			// 2. process remove candidates
+			for (const auto& identity : removeCandidates) {
 				connectionContainer.closeOne(identity);
+				activeIdentities.erase(identity);
+			}
+
+			// 3. age all active connections
+			ager(activeIdentities);
 
 			return thread::make_ready_future(thread::TaskResult::Continue);
 		});
