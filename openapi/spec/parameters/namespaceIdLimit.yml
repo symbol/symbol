@@ -1,0 +1,5 @@
+name: id
+in: query
+description: Namespace identifier up to which transactions are returned.
+schema:
+  type: string

@@ -1,0 +1,13 @@
+type: object
+description: Native currency mosaics that were created due to inflation.
+allOf:
+  - $ref: "./ReceiptDTO.yml"
+  - type: object
+    required:
+      - mosaicId
+      - amount
+    properties:
+      mosaicId:
+        $ref: "../../../types/MosaicId.yml"
+      amount:
+        $ref: "../../../types/Amount.yml"

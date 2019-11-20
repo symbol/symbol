@@ -1,0 +1,5 @@
+type: string
+description: |
+  Address decoded. If the bit 0 of byte 0 is not set (like in 0x90), then it is a
+  regular address. Else (e.g. 0x91) it represents a namespace id which starts at byte 1.
+example: 9081FCCB41F8C8409A9B99E485E0E28D23BD6304EF7215E01A

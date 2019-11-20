@@ -1,0 +1,23 @@
+tags:
+  - Block routes
+summary: Get the merkle path for a given a transaction and block
+description: |
+  Returns the merkle path for a transaction included in a block.
+  The path is the complementary data needed to calculate the merkle root.
+  A client can compare if the calculated root equals the one recorded in the
+  block header, verifying that the transaction was included in the block.
+operationId: getMerkleTransaction
+parameters:
+  - $ref: "../../../parameters/height.yml"
+  - $ref: "../../../parameters/transactionHash.yml"
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../schemas/MerkleProofInfoDTO.yml"
+  "404":
+    $ref: "../../../responses/ResourceNotFound.yml"
+  "409":
+    $ref: "../../../responses/InvalidArgument.yml"

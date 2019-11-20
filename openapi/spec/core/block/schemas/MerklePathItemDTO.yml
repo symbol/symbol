@@ -1,0 +1,8 @@
+type: object
+properties:
+  position:
+    type: integer
+    format: uint32
+    example: 1
+  hash:
+    $ref: "../../../types/Hash256.yml"

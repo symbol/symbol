@@ -1,0 +1,9 @@
+type: integer
+format: int32
+enum:
+  - 0
+  - 1
+description: |
+  Type of action:
+  * 0 - Unlink.
+  * 1 - Link.

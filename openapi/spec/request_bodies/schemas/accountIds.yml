@@ -1,0 +1,12 @@
+type: object
+properties:
+  publicKeys:
+    type: array
+    description: Array of public keys.
+    items:
+      $ref: "../../types/PublicKey.yml"
+  addresses:
+    type: array
+    description: Array of addresses.
+    items:
+      $ref: "../../types/Address.yml"

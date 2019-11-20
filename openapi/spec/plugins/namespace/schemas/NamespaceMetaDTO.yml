@@ -1,0 +1,13 @@
+type: object
+required:
+  - id
+  - active
+  - index
+properties:
+  id:
+    type: string
+  active:
+    type: boolean
+  index:
+    type: integer
+    format: int32

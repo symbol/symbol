@@ -1,0 +1,6 @@
+name: accountId
+in: path
+description: Account public key or address.
+required: true
+schema:
+  type: string

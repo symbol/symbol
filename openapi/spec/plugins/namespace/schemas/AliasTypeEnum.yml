@@ -1,0 +1,12 @@
+type: integer
+format: int32
+enum:
+  - 0
+  - 1
+  - 2
+description: |
+  Type of alias:
+  * 0 - No alias.
+  * 1 - Mosaic id alias.
+  * 2 - Addres alias.
+example: 0

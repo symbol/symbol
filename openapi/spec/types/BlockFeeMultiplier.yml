@@ -1,0 +1,4 @@
+type: integer
+format: int32
+description: Fee multiplier applied to transactions contained in block.
+example: 0

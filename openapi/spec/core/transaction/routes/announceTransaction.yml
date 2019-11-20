@@ -1,0 +1,20 @@
+tags:
+  - Transaction routes
+summary: Announce a new transaction
+description: |
+  Announces a transaction to the network.
+  We recommended to use the NEM2-SDK to announce transactions as they should be serialized.
+operationId: announceTransaction
+requestBody:
+  $ref: "../../../request_bodies/transactionPayload.yml"
+responses:
+  "202":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../schemas/AnnounceTransactionInfoDTO.yml"
+  "400":
+    $ref: "../../../responses/InvalidContent.yml"
+  "409":
+    $ref: "../../../responses/InvalidArgument.yml"

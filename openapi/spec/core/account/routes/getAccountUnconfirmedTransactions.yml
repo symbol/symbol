@@ -1,0 +1,22 @@
+tags:
+  - Account routes
+summary: Get unconfirmed transactions
+description: Gets the array of transactions not included in a block where an account is the sender or receiver.
+operationId: getAccountUnconfirmedTransactions
+parameters:
+  - $ref: "../../../parameters/accountId.yml"
+  - $ref: "../../../parameters/pageSize.yml"
+  - $ref: "../../../parameters/transactionIdLimit.yml"
+  - $ref: "../../../parameters/ordering.yml"
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          type: array
+          description: Array of unconfirmed transactions.
+          items:
+            $ref: "../../transaction/schemas/TransactionInfoDTO.yml"
+  "409":
+    $ref : "../../../responses/InvalidArgument.yml"

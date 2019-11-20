@@ -1,0 +1,7 @@
+type: object
+description: Collection of receipts related to a transaction.
+required:
+  - statement
+properties:
+  statement:
+    $ref: "./TransactionStatementBodyDTO.yml"

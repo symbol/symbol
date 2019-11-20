@@ -1,0 +1,11 @@
+type: integer
+format: int32
+enum:
+  - 0
+  - 1
+  - 2
+description: |
+  Metadata type:
+  * 0 - Account.
+  * 1 - Mosaic.
+  * 2 - Namespace.

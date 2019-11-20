@@ -1,0 +1,7 @@
+name: namespaceId
+in: path
+description: Namespace identifier.
+required: true
+schema:
+  $ref: "../types/NamespaceId.yml"
+

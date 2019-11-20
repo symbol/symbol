@@ -1,0 +1,19 @@
+type: object
+required:
+  - height
+  - aggregateHash
+  - aggregateId
+  - index
+  - id
+properties:
+  height:
+    $ref: "../../../types/Height.yml"
+  aggregateHash:
+    $ref: "../../../types/Hash256.yml"
+  aggregateId:
+    type: string
+  index:
+    type: integer
+    format: int32
+  id:
+    type: string

@@ -1,0 +1,18 @@
+type: object
+required:
+  - signerPublicKey
+  - version
+  - network
+  - type
+properties:
+  signerPublicKey:
+    $ref: "../../../types/PublicKey.yml"
+  version:
+    type: integer
+    format: int32
+    description: Entity version.
+  network:
+    $ref: "./NetworkTypeEnum.yml"
+  type:
+    type: integer
+    format: int32

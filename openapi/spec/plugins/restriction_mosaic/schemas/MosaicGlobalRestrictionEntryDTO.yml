@@ -1,0 +1,9 @@
+type: object
+required:
+  - key
+  - restriction
+properties:
+  key:
+    $ref: "../../../types/MosaicRestrictionKey.yml"
+  restriction:
+    $ref: "./MosaicGlobalRestrictionEntryRestrictionDTO.yml"

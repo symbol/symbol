@@ -1,0 +1,9 @@
+name: height
+in: path
+description: |
+  Block height.
+  If height -1 is not a multiple of the limit provided, the inferior closest multiple + 1 is used instead.
+required: true
+schema:
+  $ref: "../types/Height.yml"
+

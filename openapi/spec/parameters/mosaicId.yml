@@ -1,0 +1,7 @@
+name: mosaicId
+in: path
+description: Mosaic identifier.
+required: true
+schema:
+  $ref: "../types/MosaicId.yml"
+

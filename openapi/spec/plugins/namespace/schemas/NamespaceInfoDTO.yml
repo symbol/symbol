@@ -1,0 +1,9 @@
+type: object
+required:
+  - meta
+  - namespace
+properties:
+  meta:
+    $ref: "./NamespaceMetaDTO.yml"
+  namespace:
+    $ref: "./NamespaceDTO.yml"

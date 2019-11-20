@@ -1,0 +1,18 @@
+type: object
+required:
+  - startHeight
+  - totalFeesPaid
+  - beneficiaryCount
+  - rawScore
+properties:
+  startHeight:
+    $ref: "../../../types/Height.yml"
+  totalFeesPaid:
+    type: integer
+    format: int64
+  beneficiaryCount:
+    type: integer
+    format: int32
+  rawScore:
+    type: integer
+    format: int64

@@ -1,0 +1,9 @@
+type: object
+required:
+  - id
+  - amount
+properties:
+  id:
+    $ref: "./MosaicId.yml"
+  amount:
+    $ref: "./Amount.yml"
