@@ -55,7 +55,7 @@ describe('aggregate plugin', () => {
 
 			// - aggregate
 			expect(Object.keys(modelSchema[schemaName]).length).to.equal(Object.keys(modelSchema.transaction).length + 3);
-			expect(modelSchema[schemaName]).to.contain.all.keys(['transactionHash', 'transactions', 'cosignatures']);
+			expect(modelSchema[schemaName]).to.contain.all.keys(['transactionsHash', 'transactions', 'cosignatures']);
 
 			// - cosignature
 			expect(modelSchema['aggregate.cosignature']).to.deep.equal({
