@@ -99,12 +99,12 @@ namespace catapult { namespace net {
 
 		class ClientService {
 		public:
-			ClientService(uint32_t numAttempts, uint32_t numThreads)
+			ClientService(uint32_t numAttempts, uint32_t numThreads, size_t timeoutMillis = 50)
 					: m_numAttempts(numAttempts)
 					, m_numConnects(0)
 					, m_numConnectFailures(0)
 					, m_numConnectTimeouts(0) {
-				spawnConnectionAttempts(numAttempts);
+				spawnConnectionAttempts(numAttempts, timeoutMillis);
 				for (auto i = 0u; i < numThreads; ++i)
 					m_threads.create_thread([&]() { m_ioContext.run(); });
 			}
@@ -208,12 +208,12 @@ namespace catapult { namespace net {
 
 			// endregion
 
-			void spawnConnectionAttempts(uint32_t numAttempts) {
+			void spawnConnectionAttempts(uint32_t numAttempts, size_t timeoutMillis) {
 				for (auto i = 0u; i < numAttempts; ++i) {
 					auto pContext = std::make_shared<SpawnContext>(m_ioContext, i);
-					boost::asio::post(m_ioContext, [this, pContext{std::move(pContext)}]() {
+					boost::asio::post(m_ioContext, [this, timeoutMillis, pContext{std::move(pContext)}]() {
 						// set a 50ms deadline on the async_connect
-						pContext->setDeadline(50);
+						pContext->setDeadline(timeoutMillis);
 						pContext->connect([this](auto status) {
 							switch (status) {
 							case ConnectionStatus::Success:
@@ -592,10 +592,10 @@ namespace catapult { namespace net {
 			server.settings().MaxPendingConnections = static_cast<uint16_t>(Max_Test_Connections);
 			server.init();
 
-			// Act: queue connects to the server
+			// Act: queue connects to the server (increase test connection timeout because this test makes a lot of connections)
 			std::vector<std::shared_ptr<ClientService>> clientServices;
 			for (auto numConnects : { Num_Default_Threads, Max_Test_Connections, 15u }) {
-				clientServices.push_back(std::make_shared<ClientService>(numConnects, 1));
+				clientServices.push_back(std::make_shared<ClientService>(numConnects, 1, 250));
 				clientServices.back()->wait();
 			}
 
