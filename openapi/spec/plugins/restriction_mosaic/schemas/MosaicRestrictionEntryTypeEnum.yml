@@ -1,0 +1,8 @@
+type: integer
+format: int32
+enum:
+  - 0
+  - 1
+description: |
+  - 0 - Mosaic address restriction.
+  - 1 - Mosaic global restriction.

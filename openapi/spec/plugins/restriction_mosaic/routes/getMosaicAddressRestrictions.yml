@@ -1,0 +1,23 @@
+tags:
+  - Restriction Mosaic routes
+summary: Get mosaic address restrictions for a given mosaic and account identifiers array.
+description: Get mosaic address restrictions.
+operationId: getMosaicAddressRestrictions
+parameters:
+  - $ref: "../../../parameters/mosaicId.yml"
+requestBody:
+  $ref: "../../../request_bodies/accountIds.yml"
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          type: array
+          description: Array of mosaics address restrictions.
+          items:
+            $ref: "../schemas/MosaicAddressRestrictionDTO.yml"
+  "400":
+    $ref : "../../../responses/InvalidContent.yml"
+  "409":
+    $ref : "../../../responses/InvalidArgument.yml"

@@ -1,0 +1,19 @@
+type: object
+required:
+  - height
+  - hash
+  - merkleComponentHash
+  - index
+  - id
+properties:
+  height:
+    $ref: "../../../types/Height.yml"
+  hash:
+    $ref: "../../../types/Hash256.yml"
+  merkleComponentHash:
+    $ref: "../../../types/Hash256.yml"
+  index:
+    type: integer
+    format: int32
+  id:
+    type: string

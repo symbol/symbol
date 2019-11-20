@@ -1,0 +1,9 @@
+type: object
+required:
+  - namespaces
+properties:
+  namespaces:
+    type: array
+    description: Array of namespaces information.
+    items:
+      $ref: "./NamespaceInfoDTO.yml"

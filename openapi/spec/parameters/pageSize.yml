@@ -1,0 +1,10 @@
+name: pageSize
+in: query
+description: Number of transactions to return for each request.
+schema:
+  type: integer
+  format: int32
+  minimum: 10
+  maximum: 100
+  default: 10
+

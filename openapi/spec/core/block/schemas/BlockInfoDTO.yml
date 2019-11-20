@@ -1,0 +1,9 @@
+type: object
+required:
+  - meta
+  - block
+properties:
+  meta:
+    $ref: "./BlockMetaDTO.yml"
+  block:
+    $ref: "./BlockDTO.yml"

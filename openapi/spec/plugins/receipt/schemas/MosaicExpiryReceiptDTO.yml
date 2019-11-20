@@ -1,0 +1,10 @@
+type: object
+description: A mosaic expired in this block.
+allOf:
+  - $ref: "./ReceiptDTO.yml"
+  - type: object
+    required:
+      - artifactId
+    properties:
+      artifactId:
+        $ref: "../../../types/MosaicId.yml"

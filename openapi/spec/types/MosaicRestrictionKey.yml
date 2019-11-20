@@ -1,0 +1,4 @@
+type: string
+format: hex
+description: Restriction key.
+example: 0DC67FBE1CAD29E3

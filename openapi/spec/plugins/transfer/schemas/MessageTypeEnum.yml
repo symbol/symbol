@@ -1,0 +1,12 @@
+type: integer
+format: int32
+enum:
+  - 0
+  - 1
+  - 254
+description: |
+  Type of message:
+  * 0 - Regular message.
+  * 1 - Encrypted message.
+  * 254 - Persistent harvesting delegation.
+example: 0

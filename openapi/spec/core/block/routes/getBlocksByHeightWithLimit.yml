@@ -1,0 +1,20 @@
+tags:
+  - Block routes
+summary: Get blocks information
+description: Gets up to limit number of blocks after given block height.
+operationId: getBlocksByHeightWithLimit
+parameters:
+  - $ref: "../../../parameters/height.yml"
+  - $ref: "../../../parameters/limit.yml"
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          type: array
+          description: Array of blocks information.
+          items:
+            $ref: "../schemas/BlockInfoDTO.yml"
+  "409":
+    $ref: "../../../responses/InvalidArgument.yml"

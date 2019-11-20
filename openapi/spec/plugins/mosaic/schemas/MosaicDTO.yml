@@ -1,0 +1,38 @@
+type: object
+required:
+  - id
+  - supply
+  - startHeight
+  - ownerPublicKey
+  - ownerAddress
+  - revision
+  - flags
+  - divisibility
+  - duration
+properties:
+  id:
+    $ref: "../../../types/MosaicId.yml"
+  supply:
+    $ref: "../../../types/Amount.yml"
+  startHeight:
+    $ref: "../../../types/Height.yml"
+  ownerPublicKey:
+    $ref: "../../../types/PublicKey.yml"
+  ownerAddress:
+    $ref: "../../../types/Address.yml"
+  revision:
+    type: integer
+    format: int32
+    description: Number of definitions for the same mosaic.
+    example: 1
+  flags:
+    $ref: "./MosaicFlagsEnum.yml"
+  divisibility:
+    type : integer
+    format: uint32
+    description: |
+      Determines up to what decimal place the mosaic can be divided.
+      Divisibility of 3 means that a mosaic can be divided into smallest parts of 0.001 mosaics.
+      The divisibility must be in the range of 0 and 6.
+  duration:
+    $ref: "../../../types/BlockDuration.yml"

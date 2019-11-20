@@ -1,0 +1,7 @@
+type: object
+properties:
+  mosaicIds:
+    type: array
+    description: Array of mosaic identifiers.
+    items:
+      $ref: "../../types/MosaicId.yml"

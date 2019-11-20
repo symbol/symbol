@@ -1,11 +1,12 @@
 {
   "name": "nem2-openapi",
-  "version": "0.7.20",
+  "version": "0.7.21",
   "description": "OpenAPI spec for Catapult",
   "main": "index.js",
   "scripts": {
-    "test": "swagger-cli validate spec/openapi3.yaml",
-    "postman": "openapi2postmanv2 -s spec/openapi3.yaml -o spec/postman.json -p"
+    "test": "swagger-cli validate _build/openapi3.yml",
+    "build": "swagger-cli bundle ./spec/openapi.yml --outfile _build/openapi3.yml --type yaml",
+    "postman": "openapi2postmanv2 -s _build/openapi3.yml -o _build/postman.json -p"
   },
   "repository": {
     "type": "git",

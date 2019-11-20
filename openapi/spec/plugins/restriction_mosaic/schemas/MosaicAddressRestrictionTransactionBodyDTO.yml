@@ -1,0 +1,18 @@
+type: object
+required:
+  - mosaicId
+  - restrictionKey
+  - previousRestrictionValue
+  - newRestrictionValue
+  - targetAddress
+properties:
+  mosaicId:
+    $ref: "../../../types/UnresolvedMosaicId.yml"
+  restrictionKey:
+    $ref: "../../../types/MosaicRestrictionKey.yml"
+  previousRestrictionValue:
+    $ref: "../../../types/RestrictionValue.yml"
+  newRestrictionValue:
+    $ref: "../../../types/RestrictionValue.yml"
+  targetAddress:
+    $ref: "../../../types/UnresolvedAddress.yml"

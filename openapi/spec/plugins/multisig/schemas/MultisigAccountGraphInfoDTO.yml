@@ -1,0 +1,15 @@
+type: object
+required:
+  - level
+  - multisigEntries
+properties:
+  level:
+    type: integer
+    format: int32
+    description: Level of the multisig account.
+    example: 0
+  multisigEntries:
+    type: array
+    description: Array of multisig accounts for this level.
+    items:
+      $ref: "./MultisigAccountInfoDTO.yml"

@@ -1,0 +1,35 @@
+type: object
+required:
+  - accountPublicKey
+  - accountAddress
+  - minApproval
+  - minRemoval
+  - cosignatoryPublicKeys
+  - multisigPublicKeys
+properties:
+  accountPublicKey:
+    $ref: "../../../types/PublicKey.yml"
+  accountAddress:
+    $ref: "../../../types/Address.yml"
+  minApproval:
+    type: integer
+    format: int32
+    description: Number of signatures needed to approve a transaction.
+    example: 2
+  minRemoval:
+    description: Number of signatures needed to remove a cosignatory.
+    type: integer
+    format: int32
+    example: 1
+  cosignatoryPublicKeys:
+    type: array
+    description: Array of public keys of the cosignatory accounts.
+    items:
+      $ref: "../../../types/PublicKey.yml"
+  multisigPublicKeys:
+    type: array
+    description: Array of multisig accounts where the account is cosignatory.
+    example:
+      - 565059F55E68F904214E8BE1D610B5BBEA4CE46CC13D246D45BC1DAE5D32A0D2
+    items:
+      $ref: "../../../types/PublicKey.yml"

@@ -1,0 +1,12 @@
+tags:
+  - Diagnostic routes
+summary: Get the version of the running rest component
+description: Returns the version of the running catapult-rest component.
+operationId: getServerInfo
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../schemas/ServerInfoDTO.yml"

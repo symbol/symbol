@@ -1,0 +1,5 @@
+type: object
+allOf:
+  - $ref: "../../entity/schemas/VerifiableEntityDTO.yml"
+  - $ref: "../../entity/schemas/EntityDTO.yml"
+  - $ref: "./TransactionBodyDTO.yml"

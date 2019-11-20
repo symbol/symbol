@@ -1,0 +1,9 @@
+type: object
+required:
+  - id
+  - metadataEntry
+properties:
+  id:
+    type: string
+  metadataEntry:
+    $ref: "./MetadataEntryDTO.yml"

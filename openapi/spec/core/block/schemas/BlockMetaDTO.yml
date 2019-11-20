@@ -1,0 +1,26 @@
+type: object
+required:
+  - hash
+  - totalFee
+  - generationHash
+  - stateHashSubCacheMerkleRoots
+  - numTransactions
+properties:
+  hash:
+    $ref: "../../../types/Hash256.yml"
+  totalFee:
+    $ref: "../../../types/Amount.yml"
+  generationHash:
+    $ref: "../../../types/Hash256.yml"
+  stateHashSubCacheMerkleRoots:
+    type: array
+    items:
+      $ref: "../../../types/Hash256.yml"
+  numTransactions:
+    type: integer
+    format: int32
+    example: 0
+  numStatements:
+    type: integer
+    format: int32
+    example: 1

@@ -1,0 +1,12 @@
+type: object
+required:
+  - mosaicId
+  - delta
+  - action
+properties:
+  mosaicId:
+    $ref: "../../../types/UnresolvedMosaicId.yml"
+  delta:
+    $ref: "../../../types/Amount.yml"
+  action:
+    $ref: "./MosaicSupplyChangeActionEnum.yml"

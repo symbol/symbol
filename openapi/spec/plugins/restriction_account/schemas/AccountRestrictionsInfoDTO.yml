@@ -1,0 +1,6 @@
+type: object
+required:
+  - accountRestrictions
+properties:
+  accountRestrictions:
+    $ref: "./AccountRestrictionsDTO.yml"

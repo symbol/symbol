@@ -1,0 +1,18 @@
+tags:
+  - Block routes
+summary: Get block information
+description: Gets a block from the chain that has the given height.
+operationId: getBlockByHeight
+parameters:
+  - $ref: "../../../parameters/height.yml"
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../schemas/BlockInfoDTO.yml"
+  "404":
+    $ref: "../../../responses/ResourceNotFound.yml"
+  "409":
+    $ref: "../../../responses/InvalidArgument.yml"

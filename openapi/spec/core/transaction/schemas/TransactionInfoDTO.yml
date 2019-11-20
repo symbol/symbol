@@ -1,0 +1,29 @@
+type: object
+required:
+  - meta
+  - transaction
+properties:
+  meta:
+    $ref: "./TransactionMetaDTO.yml"
+  transaction:
+    anyOf:
+      - $ref: "../../../plugins/account_link/schemas/AccountLinkTransactionDTO.yml"
+      - $ref: "../../../plugins/aggregate/schemas/AggregateTransactionDTO.yml"
+      - $ref: "../../../plugins/lock_hash/schemas/HashLockTransactionDTO.yml"
+      - $ref: "../../../plugins/lock_secret/schemas/SecretLockTransactionDTO.yml"
+      - $ref: "../../../plugins/lock_secret/schemas/SecretProofTransactionDTO.yml"
+      - $ref: "../../../plugins/metadata/schemas/AccountMetadataTransactionDTO.yml"
+      - $ref: "../../../plugins/metadata/schemas/MosaicMetadataTransactionDTO.yml"
+      - $ref: "../../../plugins/metadata/schemas/NamespaceMetadataTransactionDTO.yml"
+      - $ref: "../../../plugins/mosaic/schemas/MosaicDefinitionTransactionDTO.yml"
+      - $ref: "../../../plugins/mosaic/schemas/MosaicSupplyChangeTransactionDTO.yml"
+      - $ref: "../../../plugins/namespace/schemas/NamespaceRegistrationTransactionDTO.yml"
+      - $ref: "../../../plugins/namespace/schemas/AddressAliasTransactionDTO.yml"
+      - $ref: "../../../plugins/namespace/schemas/MosaicAliasTransactionDTO.yml"
+      - $ref: "../../../plugins/multisig/schemas/MultisigAccountModificationTransactionDTO.yml"
+      - $ref: "../../../plugins/restriction_account/schemas/AccountAddressRestrictionTransactionDTO.yml"
+      - $ref: "../../../plugins/restriction_account/schemas/AccountMosaicRestrictionTransactionDTO.yml"
+      - $ref: "../../../plugins/restriction_account/schemas/AccountOperationRestrictionTransactionDTO.yml"
+      - $ref: "../../../plugins/restriction_mosaic/schemas/MosaicGlobalRestrictionTransactionDTO.yml"
+      - $ref: "../../../plugins/restriction_mosaic/schemas/MosaicAddressRestrictionTransactionDTO.yml"
+      - $ref: "../../../plugins/transfer/schemas/TransferTransactionDTO.yml"

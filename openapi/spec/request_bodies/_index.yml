@@ -1,0 +1,14 @@
+accountIds:
+  $ref: './accountIds.yml'
+cosignature:
+  $ref: './cosignature.yml'
+mosaicIds:
+  $ref: './mosaicIds.yml'
+namespaceIds:
+  $ref: './namespaceIds.yml'
+transactionHashes:
+  $ref: './transactionHashes.yml'
+transactionIds:
+  $ref: './transactionIds.yml'
+transactionPayload:
+  $ref: './transactionPayload.yml'

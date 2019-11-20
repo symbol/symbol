@@ -1,0 +1,21 @@
+tags:
+  - Transaction routes
+summary: Get transactions status
+description: Returns an array of transaction statuses for a given array of transaction hashes.
+operationId: getTransactionsStatuses
+requestBody:
+  $ref: "../../../request_bodies/transactionHashes.yml"
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          type: array
+          description: Array of transactions status.
+          items:
+            $ref: "../schemas/TransactionStatusDTO.yml"
+  "400":
+    $ref: "../../../responses/InvalidContent.yml"
+  "409":
+    $ref: "../../../responses/InvalidArgument.yml"

@@ -1,0 +1,14 @@
+type: object
+required:
+  - status
+properties:
+  group:
+    type: string
+  status:
+    type: string
+  hash:
+    $ref: "../../../types/Hash256.yml"
+  deadline:
+    $ref: "../../../types/BlockDuration.yml"
+  height:
+    $ref: "../../../types/Height.yml"

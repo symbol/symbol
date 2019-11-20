@@ -1,0 +1,5 @@
+type: object
+description: Transaction to set a restriction rule to an address.
+allOf:
+  - $ref: "../../../core/transaction/schemas/TransactionDTO.yml"
+  - $ref: "./MosaicAddressRestrictionTransactionBodyDTO.yml"

@@ -1,0 +1,6 @@
+type: object
+required:
+  - communicationTimestamps
+properties:
+  communicationTimestamps:
+    $ref: "./CommunicationTimestampsDTO.yml"

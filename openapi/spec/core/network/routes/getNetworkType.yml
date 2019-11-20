@@ -1,0 +1,12 @@
+tags:
+  - Network routes
+summary: Get the current network type of the chain
+description: Returns the current network type.
+operationId: getNetworkType
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../schemas/NetworkTypeDTO.yml"

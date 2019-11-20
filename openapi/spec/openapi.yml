@@ -1,0 +1,21 @@
+openapi: 3.0.0
+info:
+  "$ref": "./info.yml"
+tags:
+  "$ref": "./tags.yml"
+paths:
+  "$ref": "./routes.yml"
+externalDocs:
+  description: NEM Developer Center
+  url: https://nemtech.github.io/
+servers:
+  - url: http://localhost:3000
+components:
+  parameters:
+    "$ref": "./parameters/_index.yml"
+  requestBodies:
+    "$ref": "./request_bodies/_index.yml"
+  schemas:
+    $ref: "./schemas.yml"
+  responses:
+    $ref: "./responses/_index.yml"

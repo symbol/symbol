@@ -1,0 +1,14 @@
+- name: Account routes
+- name: Block routes
+- name: Chain routes
+- name: Diagnostic routes
+- name: Metadata routes
+- name: Mosaic routes
+- name: Multisig routes
+- name: Namespace routes
+- name: Network routes
+- name: Node routes
+- name: Restriction Mosaic routes
+- name: Restriction Account routes
+- name: Receipt routes
+- name: Transaction routes

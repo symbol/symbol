@@ -1,0 +1,7 @@
+type: object
+properties:
+  merklePath:
+    type: array
+    description: Complementary data needed to calculate the merkle root.
+    items:
+      $ref: "./MerklePathItemDTO.yml"

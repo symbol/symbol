@@ -1,0 +1,10 @@
+type: integer
+format: int32
+enum:
+  - 0
+  - 1
+description: |
+  Type of namespace:
+  * 0 - Root namespace.
+  * 1 - Subnamespace.
+example: 0

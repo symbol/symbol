@@ -1,0 +1,40 @@
+type: object
+required:
+  - address
+  - addressHeight
+  - publicKey
+  - publicKeyHeight
+  - accountType
+  - linkedAccountKey
+  - activityBuckets
+  - mosaics
+  - importance
+  - importanceHeight
+properties:
+  address:
+    $ref: "../../../types/Address.yml"
+  addressHeight:
+    $ref: "../../../types/Height.yml"
+  publicKey:
+    $ref: "../../../types/PublicKey.yml"
+  publicKeyHeight:
+    $ref: "../../../types/Height.yml"
+  accountType:
+    $ref: "./AccountTypeEnum.yml"
+  linkedAccountKey:
+    $ref: "../../../types/PublicKey.yml"
+  activityBuckets:
+    type: array
+    items:
+      $ref: "./ActivityBucketDTO.yml"
+  mosaics:
+    type: array
+    description: |
+      Mosaic units owned. The amount is represented in absolute amount.
+      Thus a balance of 123456789 for a mosaic with divisibility 6 (absolute) means the account owns 123.456789.
+    items:
+      $ref: "../../../types/Mosaic.yml"
+  importance:
+    $ref: "../../../types/Importance.yml"
+  importanceHeight:
+    $ref: "../../../types/Height.yml"

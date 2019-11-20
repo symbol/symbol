@@ -1,0 +1,20 @@
+type: object
+required:
+  - compositeHash
+  - entryType
+  - mosaicId
+  - targetAddress
+  - restrictions
+properties:
+  compositeHash:
+    $ref: "../../../types/Hash256.yml"
+  entryType:
+    $ref: "./MosaicRestrictionEntryTypeEnum.yml"
+  mosaicId:
+    $ref: "../../../types/MosaicId.yml"
+  targetAddress:
+    $ref: "../../../types/Address.yml"
+  restrictions:
+    type: array
+    items:
+      $ref: "./MosaicAddressRestrictionEntryDTO.yml"

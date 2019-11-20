@@ -1,0 +1,20 @@
+tags:
+  - Metadata routes
+summary: Get namespace metadata
+description: Returns the namespace metadata given a namespace id, a key, and a sender.
+operationId: getNamespaceMetadataByKeyAndSender
+parameters:
+  - $ref: "../../../parameters/namespaceId.yml"
+  - $ref: "../../../parameters/metadataKey.yml"
+  - $ref: "../../../parameters/publicKey.yml"
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../schemas/MetadataDTO.yml"
+  "404":
+    $ref: "../../../responses/ResourceNotFound.yml"
+  "409":
+    $ref: "../../../responses/InvalidArgument.yml"

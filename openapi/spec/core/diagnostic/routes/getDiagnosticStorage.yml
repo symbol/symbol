@@ -1,0 +1,12 @@
+tags:
+  - Diagnostic routes
+summary: Get the storage information of the node
+description: Returns diagnostic information about the node storage.
+operationId: getDiagnosticStorage
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../schemas/StorageInfoDTO.yml"

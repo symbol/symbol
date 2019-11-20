@@ -1,0 +1,5 @@
+type: object
+description: Transaction to increase or decrease the supply of a mosaic.
+allOf:
+  - $ref: "../../../core/transaction/schemas/TransactionDTO.yml"
+  - $ref: "./MosaicSupplyChangeTransactionBodyDTO.yml"

@@ -1,0 +1,11 @@
+type: object
+required:
+  - source
+  - resolved
+properties:
+  source:
+    $ref: "./SourceDTO.yml"
+  resolved:
+    anyOf:
+      - $ref: "../../../types/Address.yml"
+      - $ref: "../../../types/MosaicId.yml"

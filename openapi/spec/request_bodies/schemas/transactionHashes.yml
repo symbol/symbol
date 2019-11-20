@@ -1,0 +1,7 @@
+type: object
+properties:
+  hashes:
+    type: array
+    description: Array of transaction hashes.
+    items:
+      $ref: "../../types/Hash256.yml"

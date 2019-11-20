@@ -1,0 +1,31 @@
+type: object
+required:
+  - minRemovalDelta
+  - minApprovalDelta
+  - publicKeyAdditions
+  - publicKeyDeletions
+properties:
+  minRemovalDelta:
+    type: integer
+    format: int32
+    description: |
+      Number of signatures needed to remove a cosignatory.
+      If we are modifying an existing multisig account, this indicates the relative change of the minimum cosignatories.
+    example: 1
+  minApprovalDelta:
+    type: integer
+    format: int32
+    description: |
+      Number of signatures needed to approve a transaction.
+      If we are modifying an existing multisig account, this indicates the relative change of the minimum cosignatories.
+    example: 1
+  publicKeyAdditions:
+    type: array
+    description: Array of cosignatory accounts to add.
+    items:
+      $ref: "../../../types/PublicKey.yml"
+  publicKeyDeletions:
+    type: array
+    description: Array of cosignatory accounts to delete.
+    items:
+      $ref: "../../../types/PublicKey.yml"

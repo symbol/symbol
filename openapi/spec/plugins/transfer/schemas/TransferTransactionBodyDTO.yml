@@ -1,0 +1,16 @@
+type: object
+required:
+  - recipientAddress
+  - mosaics
+  - message
+properties:
+  recipientAddress:
+    $ref: "../../../types/UnresolvedAddress.yml"
+  mosaics:
+    type: array
+    description: |
+      Array of mosaics sent to the recipient.
+    items:
+      $ref: "../../../types/UnresolvedMosaic.yml"
+  message:
+    $ref: "./MessageDTO.yml"

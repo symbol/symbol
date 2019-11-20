@@ -1,0 +1,21 @@
+tags:
+  - Namespace routes
+summary: Get readable names for a set of namespaces
+description: Returns friendly names for namespaces.
+operationId: getNamespacesNames
+requestBody:
+  $ref: "../../../request_bodies/namespaceIds.yml"
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          type: array
+          description: Array of namespace names.
+          items:
+            $ref: "../schemas/NamespaceNameDTO.yml"
+  "400":
+    $ref : "../../../responses/InvalidContent.yml"
+  "409":
+    $ref : "../../../responses/InvalidArgument.yml"

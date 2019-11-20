@@ -1,0 +1,12 @@
+type: object
+required:
+  - namespaceId
+  - mosaicId
+  - aliasAction
+properties:
+  namespaceId:
+    $ref: "../../../types/NamespaceId.yml"
+  mosaicId:
+    $ref: "../../../types/MosaicId.yml"
+  aliasAction:
+    $ref: "./AliasActionEnum.yml"

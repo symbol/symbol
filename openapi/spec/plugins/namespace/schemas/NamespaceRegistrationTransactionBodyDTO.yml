@@ -1,0 +1,19 @@
+type: object
+required:
+  - duration
+  - parentId
+  - id
+  - registrationType
+  - name
+properties:
+  duration:
+    $ref: "../../../types/BlockDuration.yml"
+  parentId:
+    $ref: "../../../types/NamespaceId.yml"
+  id:
+    $ref: "../../../types/NamespaceId.yml"
+  registrationType:
+    $ref: "./NamespaceRegistrationTypeEnum.yml"
+  name:
+    type: string
+    description: Namespace name.

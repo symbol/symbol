@@ -1,0 +1,8 @@
+type: object
+properties:
+  parentHash:
+    $ref: "../../types/Hash256.yml"
+  signature:
+    $ref: "../../types/Signature.yml"
+  signerPublicKey:
+    $ref: "../../types/PublicKey.yml"

@@ -1,0 +1,5 @@
+type: string
+description: |
+  Score of the blockchain.During synchronization, nodes try to get the
+  blockchain with highest score in the network.
+example: 1683298087010368306

@@ -1,0 +1,19 @@
+tags:
+  - Metadata routes
+summary: Get account metadata
+description: Returns the account metadata given an account id and a key.
+operationId: getAccountMetadataByKey
+parameters:
+  - $ref: "../../../parameters/accountId.yml"
+  - $ref: "../../../parameters/metadataKey.yml"
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../schemas/MetadataEntriesDTO.yml"
+  "404":
+    $ref: "../../../responses/ResourceNotFound.yml"
+  "409":
+    $ref: "../../../responses/InvalidArgument.yml"

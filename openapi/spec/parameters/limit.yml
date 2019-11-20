@@ -1,0 +1,13 @@
+name: limit
+in: path
+description: Number of elements to be returned.
+required: true
+schema:
+  type: integer
+  format: int32
+  enum:
+    - 25
+    - 50
+    - 75
+    - 100
+

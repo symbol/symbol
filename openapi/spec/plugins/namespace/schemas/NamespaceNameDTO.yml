@@ -1,0 +1,13 @@
+type: object
+required:
+  - id
+  - name
+properties:
+  parentId:
+    $ref: "../../../types/NamespaceId.yml"
+  id:
+    $ref: "../../../types/NamespaceId.yml"
+  name:
+    type: string
+    description: Namespace name.
+    example: cat

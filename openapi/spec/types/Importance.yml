@@ -1,0 +1,3 @@
+type: string
+description: Probability of an account to harvest the next block.
+example: 0

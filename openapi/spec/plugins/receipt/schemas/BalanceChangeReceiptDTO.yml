@@ -1,0 +1,16 @@
+type: object
+description: Invisible state change that changed an account balance.
+allOf:
+  - $ref: "./ReceiptDTO.yml"
+  - type: object
+    required:
+      - mosaicId
+      - amount
+      - targetPublicKey
+    properties:
+      mosaicId:
+        $ref: "../../../types/MosaicId.yml"
+      amount:
+        $ref: "../../../types/Amount.yml"
+      targetPublicKey:
+        $ref: "../../../types/PublicKey.yml"

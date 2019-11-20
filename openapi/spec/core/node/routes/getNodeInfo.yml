@@ -1,0 +1,12 @@
+tags:
+  - Node routes
+summary: Get the node information
+description: Supplies additional information about the application running on a node.
+operationId: getNodeInfo
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../schemas/NodeInfoDTO.yml"

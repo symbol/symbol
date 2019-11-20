@@ -1,0 +1,5 @@
+description: ResourceNotFound
+content:
+  application/json:
+    schema:
+      $ref: '../types/ModelError.yml'

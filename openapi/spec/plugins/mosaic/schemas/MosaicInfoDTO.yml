@@ -1,0 +1,6 @@
+type: object
+required:
+  - mosaic
+properties:
+  mosaic:
+    $ref: "./MosaicDTO.yml"

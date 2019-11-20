@@ -1,0 +1,9 @@
+type: object
+required:
+  - mosaics
+properties:
+  mosaics:
+    type: array
+    description: Array of mosaics information.
+    items:
+      $ref: "./MosaicDTO.yml"

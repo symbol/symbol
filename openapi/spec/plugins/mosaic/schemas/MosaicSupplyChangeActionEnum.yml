@@ -1,0 +1,10 @@
+type: integer
+format: int32
+enum:
+  - 0
+  - 1
+description: |
+  Direction of the supply change:
+  * 0  - Decrease.
+  * 1  - Increase.
+example: 0

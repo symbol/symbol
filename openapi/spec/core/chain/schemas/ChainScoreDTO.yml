@@ -1,0 +1,9 @@
+type: object
+required:
+  - scoreHigh
+  - scoreLow
+properties:
+  scoreHigh:
+    $ref: "../../../types/Score.yml"
+  scoreLow:
+    $ref: "../../../types/Score.yml"

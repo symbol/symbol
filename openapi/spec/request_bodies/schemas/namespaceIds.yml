@@ -1,0 +1,7 @@
+type: object
+properties:
+  namespaceIds:
+    type: array
+    description: Array of namespace identifiers.
+    items:
+      $ref: "../../types/NamespaceId.yml"

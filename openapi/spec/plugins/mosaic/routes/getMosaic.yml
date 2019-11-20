@@ -1,0 +1,18 @@
+tags:
+  - Mosaic routes
+summary: Get mosaic information
+description: Gets the mosaic definition for a given mosaic identifier.
+operationId: getMosaic
+parameters:
+  - $ref: "../../../parameters/mosaicId.yml"
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../schemas/MosaicInfoDTO.yml"
+  "404":
+    $ref: "../../../responses/ResourceNotFound.yml"
+  "409":
+    $ref: "../../../responses/InvalidArgument.yml"

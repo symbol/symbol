@@ -1,0 +1,3 @@
+type: string
+description: Defines how difficult it will be to harvest next the block, based on previous blocks.
+example: 100000000000000

@@ -1,0 +1,18 @@
+tags:
+  - Namespace routes
+summary: Get readable names for a set of mosaics
+description: Returns friendly names for mosaics.
+operationId: getMosaicsNames
+requestBody:
+  $ref: "../../../request_bodies/mosaicIds.yml"
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../schemas/MosaicsNamesDTO.yml"
+  "400":
+    $ref : "../../../responses/InvalidContent.yml"
+  "409":
+    $ref : "../../../responses/InvalidArgument.yml"

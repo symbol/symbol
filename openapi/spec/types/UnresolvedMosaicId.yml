@@ -1,0 +1,6 @@
+type: string
+format: hex
+description: |
+  Mosaic identifier. If the most significant bit of byte 0 is set, a namespaceId (alias)
+  is used instead of the real mosaic identifier.
+example: 85BBEA6CC462B244

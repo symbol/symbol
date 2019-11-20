@@ -1,0 +1,11 @@
+type: object
+required:
+  - version
+  - type
+properties:
+  version:
+    type: integer
+    format: int32
+    description: Version of the receipt.
+  type:
+    $ref: "./ReceiptTypeEnum.yml"

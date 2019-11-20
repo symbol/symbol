@@ -1,0 +1,14 @@
+type: object
+required:
+  - mosaicId
+  - names
+properties:
+  mosaicId:
+    $ref: "../../../types/MosaicId.yml"
+  names:
+    type: array
+    description: Mosaic linked namespace names.
+    example:
+      - cat.currency
+    items:
+      type: string

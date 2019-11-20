@@ -1,0 +1,18 @@
+tags:
+  - Transaction routes
+summary: Get transaction status
+description: Returns the transaction status for a given hash.
+operationId: getTransactionStatus
+parameters:
+  - $ref: "../../../parameters/transactionHash.yml"
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../schemas/TransactionStatusDTO.yml"
+  "404":
+    $ref: "../../../responses/ResourceNotFound.yml"
+  "409":
+    $ref: "../../../responses/InvalidArgument.yml"
