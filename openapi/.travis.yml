@@ -19,7 +19,7 @@ deploy:
   skip_cleanup: true
   file:
     - _build/openapi3.yml
-    - _build/postman.yml
+    - _build/postman.json
   api_key: $GITHUB_TOKEN
   on:
     tags: true
