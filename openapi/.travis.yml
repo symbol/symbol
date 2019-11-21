@@ -13,3 +13,13 @@ script:
   - npm run build
   - npm run postman
   - npm test
+
+deploy:
+  provider: releases
+  skip_cleanup: true
+  file:
+    - _build/openapi3.yml
+    - _build/postman.yml
+  api_key: $GITHUB_TOKEN
+  on:
+    tags: true
