@@ -47,7 +47,8 @@ const lockSecretPlugin = {
 
 		builder.addTransactionSupport(EntityType.secretLock, {
 			secret: ModelType.binary,
-			mosaic: ModelType.uint64HexIdentifier,
+			mosaicId: ModelType.uint64HexIdentifier,
+			amount: ModelType.uint64,
 			duration: ModelType.uint64,
 			recipientAddress: ModelType.binary
 		});
