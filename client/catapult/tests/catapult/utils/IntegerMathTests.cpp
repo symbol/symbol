@@ -234,6 +234,32 @@ namespace catapult { namespace utils {
 
 	// endregion
 
+	// region FixedPointPowerOfTwo
+
+	namespace {
+		auto FixedPointToDouble(int32_t value) {
+			return static_cast<double>(value) / 65'536;
+		}
+	}
+
+	TEST(TEST_CLASS, FixedPointPowerOfTwoIsAGoodApproximationForExactValue) {
+		// Arrange:
+		for (auto value = -(6 << 16); value < 15 << 16; value += 0xFF) {
+			// Act:
+			auto result = FixedPointToDouble(static_cast<int32_t>(FixedPointPowerOfTwo(value)));
+			auto exactResult = std::pow(2, FixedPointToDouble(value));
+			auto relativeError = (exactResult - result) / exactResult;
+
+			// Assert:
+			EXPECT_LT(relativeError, 0.001)
+					<< "for value (" << FixedPointToDouble(value)
+					<< "), result (" << result
+					<< "), exact result (" << exactResult << ")";
+		}
+	}
+
+	// endregion
+
 	// region Pow2
 
 	TEST(TEST_CLASS, Pow2ReturnsCorrectValueForInRangeResults) {
