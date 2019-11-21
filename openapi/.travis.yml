@@ -15,11 +15,17 @@ script:
   - npm test
 
 deploy:
-  provider: releases
-  skip_cleanup: true
-  file:
-    - _build/openapi3.yml
-    - _build/postman.json
-  api_key: $GITHUB_TOKEN
-  on:
-    tags: true
+  - provider: releases
+    skip_cleanup: true
+    file:
+      - _build/openapi3.yml
+      - _build/postman.json
+    api_key: $GITHUB_TOKEN
+    on:
+      tags: true
+  - provider: pages
+    skip_cleanup: true
+    github_token: $GITHUB_TOKEN
+    local_dir: _build
+    on:
+      branch: master
