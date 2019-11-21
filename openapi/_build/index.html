@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Endpoints - NEM Developer Center</title>
+    <!-- needed for adaptive design -->
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,700|Roboto:300,400,700" rel="stylesheet">
+
+    <!--
+    ReDoc doesn't change outer page styles
+    -->
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+<div id="redoc"></div>
+<script>
+    Redoc.init('./openapi3.yml', {
+        "scrollYOffset": '30',
+        "suppressWarnings": true,
+        "nativeScrollbars": true,
+        "theme": {
+            "breakpoints": {
+                "medium": "4500px",
+            },
+            "spacing": {
+                "sectionVertical": 15
+            }
+        }
+    }, document.getElementById('redoc'));
+</script>
+<script src="https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js"> </script>
+</body>
+</html>
