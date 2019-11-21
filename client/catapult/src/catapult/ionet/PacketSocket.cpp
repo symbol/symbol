@@ -25,6 +25,7 @@
 #include "catapult/thread/StrandOwnerLifetimeExtender.h"
 #include "catapult/utils/Casting.h"
 #include "catapult/utils/Logging.h"
+#include "catapult/utils/StackTimer.h"
 #include <deque>
 #include <memory>
 
@@ -318,6 +319,37 @@ namespace catapult { namespace ionet {
 
 		// region StrandedPacketSocket
 
+		class SocketIdentifier {
+		public:
+			explicit SocketIdentifier(uint64_t id)
+					: m_id(id)
+					, m_isClosed(false)
+			{}
+
+		public:
+			bool fetchClose() {
+				if (m_isClosed)
+					return true;
+
+				m_isClosed = true;
+				return false;
+			}
+
+		public:
+			friend std::ostream& operator<<(std::ostream& out, const SocketIdentifier& id) {
+				out << "(" << utils::HexFormat(id.m_id) << ")";
+				if (id.m_isClosed)
+					out << ", " << id.m_timer.millis() << "ms elapsed";
+
+				return out;
+			}
+
+		private:
+			uint64_t m_id;
+			bool m_isClosed;
+			utils::StackTimer m_timer;
+		};
+
 		// implements PacketSocket using an explicit strand and ensures deterministic shutdown by using enable_shared_from_this
 		class StrandedPacketSocket final
 				: public PacketSocket
@@ -330,6 +362,7 @@ namespace catapult { namespace ionet {
 					: m_strand(ioContext)
 					, m_strandWrapper(m_strand)
 					, m_socket(ioContext, options, *this)
+					, m_id(s_idCounter.fetch_add(1))
 			{}
 
 			~StrandedPacketSocket() override {
@@ -339,6 +372,10 @@ namespace catapult { namespace ionet {
 
 				// closing the socket is safe (this is the only thread left) and the strand can be destroyed
 				// because it has been emptied
+				if (m_id.fetchClose())
+					return;
+
+				CATAPULT_LOG(debug) << "socket close triggered by destruction " << m_id;
 				m_socket.close();
 			}
 
@@ -364,8 +401,13 @@ namespace catapult { namespace ionet {
 			}
 
 			void close() override {
-				CATAPULT_LOG(debug) << "explicitly closing socket";
-				post([](auto& socket) { socket.close(); });
+				post([&id = m_id](auto& socket) {
+					if (id.fetchClose())
+						return;
+
+					CATAPULT_LOG(debug) << "socket close triggered by owner " << id;
+					socket.close();
+				});
 			}
 
 			std::shared_ptr<PacketIo> buffered() override {
@@ -379,6 +421,10 @@ namespace catapult { namespace ionet {
 
 			boost::asio::io_context::strand& strand() {
 				return m_strand;
+			}
+
+			const SocketIdentifier& id() const {
+				return m_id;
 			}
 
 			void setOptions() {
@@ -404,10 +450,16 @@ namespace catapult { namespace ionet {
 			}
 
 		private:
+			static std::atomic<uint64_t> s_idCounter;
+
+		private:
 			boost::asio::io_context::strand m_strand;
 			thread::StrandOwnerLifetimeExtender<StrandedPacketSocket> m_strandWrapper;
 			SocketType m_socket;
+			SocketIdentifier m_id;
 		};
+
+		std::atomic<uint64_t> StrandedPacketSocket::s_idCounter(1);
 
 		// endregion
 	}
@@ -452,7 +504,7 @@ namespace catapult { namespace ionet {
 					return m_accept(PacketSocketInfo());
 				}
 
-				CATAPULT_LOG(trace) << "invoking user callback after successful async_accept";
+				CATAPULT_LOG(debug) << "invoking user callback after successful async_accept " << m_pSocket->id();
 				m_pSocket->setOptions();
 				return m_accept(PacketSocketInfo(asioEndpoint.address().to_string(), m_pSocket));
 			}
@@ -543,7 +595,7 @@ namespace catapult { namespace ionet {
 				if (shouldAbort(ec, "connecting to"))
 					return invokeCallback(ConnectResult::Connect_Error);
 
-				CATAPULT_LOG(info) << "connected to " << m_host << " [" << m_endpoint << "]";
+				CATAPULT_LOG(info) << "connected to " << m_host << " [" << m_endpoint << "] " << m_pSocket->id();
 				return invokeCallback(ConnectResult::Connected);
 			}
 
