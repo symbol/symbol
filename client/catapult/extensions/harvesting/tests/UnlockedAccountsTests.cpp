@@ -155,9 +155,11 @@ namespace catapult { namespace harvesting {
 		EXPECT_EQ(2u, accounts.view().size());
 
 		// Act:
-		accounts.modifier().remove(keyPairWrapper1.PublicKey);
+		auto removeResult = accounts.modifier().remove(keyPairWrapper1.PublicKey);
 
 		// Assert:
+		EXPECT_TRUE(removeResult);
+
 		auto view = accounts.view();
 		EXPECT_EQ(1u, view.size());
 		EXPECT_FALSE(view.contains(keyPairWrapper1.PublicKey));
@@ -172,9 +174,11 @@ namespace catapult { namespace harvesting {
 
 		// Act:
 		auto result = accounts.modifier().add(std::move(keyPairWrapper.KeyPair));
-		accounts.modifier().remove(test::GenerateKeyPair().publicKey());
+		auto removeResult = accounts.modifier().remove(test::GenerateKeyPair().publicKey());
 
 		// Assert:
+		EXPECT_FALSE(removeResult);
+
 		auto view = accounts.view();
 		EXPECT_EQ(UnlockedAccountsAddResult::Success_New, result);
 		EXPECT_EQ(1u, view.size());

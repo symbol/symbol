@@ -39,10 +39,14 @@ namespace catapult { namespace harvesting {
 		explicit UnlockedAccountsStorage(const std::string& filename);
 
 	public:
+		/// Returns \c true if this storage contains an entry with an announcer public key matching \a announcerPublicKey.
+		bool containsAnnouncer(const Key& announcerPublicKey);
+
+	public:
 		/// Adds unlocked entry pair (\a announcerPublicKey, \a encryptedEntry) associated with \a harvesterPublicKey.
 		void add(const Key& announcerPublicKey, const RawBuffer& encryptedEntry, const Key& harvesterPublicKey);
 
-		/// Removes unlocked entry identified by announcerPublicKey.
+		/// Removes unlocked entry identified by \a announcerPublicKey.
 		void remove(const Key& announcerPublicKey);
 
 		/// Saves unlocked entries filtered using \a filter.
@@ -54,7 +58,7 @@ namespace catapult { namespace harvesting {
 	private:
 		void addEntry(const Key& announcerPublicKey, const std::vector<uint8_t>& encryptedEntry, const Key& harvesterPublicKey);
 
-		void removeEntry(const Key& announcerPublicKey);
+		bool tryRemoveEntry(const Key& announcerPublicKey);
 
 	private:
 		std::string m_filename;

@@ -102,10 +102,14 @@ namespace catapult { namespace harvesting {
 		return UnlockedAccountsAddResult::Success_New;
 	}
 
-	void UnlockedAccountsModifier::remove(const Key& publicKey) {
+	bool UnlockedAccountsModifier::remove(const Key& publicKey) {
 		auto iter = std::remove_if(m_prioritizedKeyPairs.begin(), m_prioritizedKeyPairs.end(), CreateContainsPredicate(publicKey));
-		if (m_prioritizedKeyPairs.end() != iter)
+		if (m_prioritizedKeyPairs.end() != iter) {
 			m_prioritizedKeyPairs.erase(iter);
+			return true;
+		}
+
+		return false;
 	}
 
 	void UnlockedAccountsModifier::removeIf(const KeyPredicate& predicate) {

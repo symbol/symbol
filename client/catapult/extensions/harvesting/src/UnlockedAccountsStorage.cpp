@@ -48,42 +48,52 @@ namespace catapult { namespace harvesting {
 			boost::filesystem::rename(tempFilename, filename);
 		}
 
-		auto GetAnnouncerPublicKey(const std::string& filename) {
-			size_t entrySize = Key::Size + EncryptedUnlockedEntrySize();
-			Key announcerPublicKey;
+		size_t GetLastAnnouncerPublicKey(const std::string& filename, Key& announcerPublicKey) {
+			auto entrySize = Key::Size + EncryptedUnlockedEntrySize();
 			io::RawFile input(filename, io::OpenMode::Read_Only);
-			input.seek(input.size() - entrySize);
-			input.read(announcerPublicKey);
-			return announcerPublicKey;
-		}
-
-		void RemoveLastEntry(const std::string& filename, const Key& expectedAnnouncerPublicKey) {
-			if (!boost::filesystem::exists(filename))
-				CATAPULT_THROW_RUNTIME_ERROR_1("file does not exist", filename);
-
-			auto fileSize = boost::filesystem::file_size(filename);
-			size_t entrySize = Key::Size + EncryptedUnlockedEntrySize();
-			if (fileSize < entrySize)
-				CATAPULT_THROW_RUNTIME_ERROR_1("file is invalid", filename);
-
-			auto announcerPublicKey = GetAnnouncerPublicKey(filename);
-			if (expectedAnnouncerPublicKey != announcerPublicKey) {
-				CATAPULT_THROW_RUNTIME_ERROR_2(
-						"unexpected entry in file (expected, actual)",
-						expectedAnnouncerPublicKey,
-						announcerPublicKey);
+			if (0 != input.size() % entrySize) {
+				CATAPULT_LOG(warning) << filename << " is corrupt with size (" << input.size() << ")";
+				CATAPULT_THROW_RUNTIME_ERROR_1("file contains imcomplete entries", filename);
 			}
 
-			boost::filesystem::resize_file(filename, fileSize - entrySize);
+			auto entryStartPosition = input.size() - entrySize;
+			input.seek(entryStartPosition);
+			input.read(announcerPublicKey);
+			return entryStartPosition;
+		}
+
+		void TryRemoveLastEntry(const std::string& filename, const Key& expectedAnnouncerPublicKey) {
+			if (!boost::filesystem::exists(filename)) {
+				CATAPULT_LOG(warning) << filename << " does not exist";
+				return;
+			}
+
+			Key announcerPublicKey;
+			auto entryStartPosition = GetLastAnnouncerPublicKey(filename, announcerPublicKey);
+			if (expectedAnnouncerPublicKey != announcerPublicKey) {
+				CATAPULT_LOG(warning)
+						<< "last announcer public key (" << announcerPublicKey << ") "
+						<< "does not match expected announcer public key (" << expectedAnnouncerPublicKey << ")";
+				return;
+			}
+
+			boost::filesystem::resize_file(filename, entryStartPosition);
 		}
 	}
 
 	UnlockedAccountsStorage::UnlockedAccountsStorage(const std::string& filename) : m_filename(filename)
 	{}
 
+	bool UnlockedAccountsStorage::containsAnnouncer(const Key& announcerPublicKey) {
+		return m_announcerToEntryMap.cend() != m_announcerToEntryMap.find(announcerPublicKey);
+	}
+
 	void UnlockedAccountsStorage::add(const Key& announcerPublicKey, const RawBuffer& encryptedEntry, const Key& harvesterPublicKey) {
 		if (EncryptedUnlockedEntrySize() != encryptedEntry.Size)
-			CATAPULT_THROW_INVALID_ARGUMENT_2("encrypted entry has invalid size", EncryptedUnlockedEntrySize(), encryptedEntry.Size);
+			CATAPULT_THROW_INVALID_ARGUMENT_1("encrypted entry has invalid size", encryptedEntry.Size);
+
+		if (containsAnnouncer(announcerPublicKey))
+			CATAPULT_THROW_INVALID_ARGUMENT_1("cannot add same announcer public key to storage multiple times", announcerPublicKey);
 
 		SafeAppend(m_filename, announcerPublicKey, encryptedEntry);
 
@@ -92,8 +102,12 @@ namespace catapult { namespace harvesting {
 	}
 
 	void UnlockedAccountsStorage::remove(const Key& announcerPublicKey) {
-		RemoveLastEntry(m_filename, announcerPublicKey);
-		removeEntry(announcerPublicKey);
+		TryRemoveLastEntry(m_filename, announcerPublicKey);
+
+		if (!tryRemoveEntry(announcerPublicKey)) {
+			CATAPULT_LOG(debug) << "cannot remove announcer public key " << announcerPublicKey << " because it is not in map";
+			return;
+		}
 	}
 
 	void UnlockedAccountsStorage::save(const predicate<const Key&>& filter) const {
@@ -154,9 +168,13 @@ namespace catapult { namespace harvesting {
 		m_entryToHarvesterMap.emplace(*iter, harvesterPublicKey);
 	}
 
-	void UnlockedAccountsStorage::removeEntry(const Key& announcerPublicKey) {
+	bool UnlockedAccountsStorage::tryRemoveEntry(const Key& announcerPublicKey) {
 		auto iter = m_announcerToEntryMap.find(announcerPublicKey);
+		if (m_announcerToEntryMap.cend() == iter)
+			return false;
+
 		m_entryToHarvesterMap.erase(*iter); // note, in this case *iter is a key for entryToHarvesterMap
 		m_announcerToEntryMap.erase(iter);
+		return true;
 	}
 }}

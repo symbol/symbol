@@ -101,7 +101,7 @@ namespace catapult { namespace harvesting {
 		UnlockedAccountsAddResult add(crypto::KeyPair&& keyPair);
 
 		/// Removes (locks) the account identified by the public key (\a publicKey).
-		void remove(const Key& publicKey);
+		bool remove(const Key& publicKey);
 
 		/// Removes all accounts for which \a predicate returns \c true.
 		void removeIf(const KeyPredicate& predicate);

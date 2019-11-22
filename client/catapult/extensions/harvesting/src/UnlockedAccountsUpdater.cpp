@@ -56,9 +56,13 @@ namespace catapult { namespace harvesting {
 			return false;
 		}
 
-		void RemoveFromUnlocked(UnlockedAccounts& unlockedAccounts, const Key& publicKey) {
-			unlockedAccounts.modifier().remove(publicKey);
-			CATAPULT_LOG(info) << "removed account " << publicKey;
+		bool RemoveFromUnlocked(UnlockedAccounts& unlockedAccounts, const Key& publicKey) {
+			if (unlockedAccounts.modifier().remove(publicKey)) {
+				CATAPULT_LOG(info) << "removed account " << publicKey;
+				return true;
+			}
+
+			return false;
 		}
 	}
 
@@ -90,13 +94,14 @@ namespace catapult { namespace harvesting {
 		UnlockedFileQueueConsumer(m_dataDirectory.dir("transfer_message"), m_bootKeyPair, [&unlockedAccounts, &storage, &hasAnyRemoval](
 				const auto& unlockedEntryMessage,
 				auto&& keyPair) {
-			auto harvesterPublicKey = keyPair.publicKey();
+			const auto& announcerPublicKey = unlockedEntryMessage.AnnouncerPublicKey;
+			const auto& harvesterPublicKey = keyPair.publicKey();
 			if (UnlockedEntryDirection::Add == unlockedEntryMessage.Direction) {
-				if (AddToUnlocked(unlockedAccounts, std::move(keyPair)))
-					storage.add(unlockedEntryMessage.AnnouncerPublicKey, unlockedEntryMessage.EncryptedEntry, harvesterPublicKey);
+				if (!storage.containsAnnouncer(announcerPublicKey) && AddToUnlocked(unlockedAccounts, std::move(keyPair)))
+					storage.add(announcerPublicKey, unlockedEntryMessage.EncryptedEntry, harvesterPublicKey);
 			} else {
-				RemoveFromUnlocked(unlockedAccounts, keyPair.publicKey());
-				storage.remove(unlockedEntryMessage.AnnouncerPublicKey);
+				RemoveFromUnlocked(unlockedAccounts, harvesterPublicKey);
+				storage.remove(announcerPublicKey);
 				hasAnyRemoval = true;
 			}
 		});

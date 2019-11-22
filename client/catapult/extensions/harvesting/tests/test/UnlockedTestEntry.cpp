@@ -49,10 +49,17 @@ namespace catapult { namespace test {
 			const crypto::KeyPair& keyPair,
 			const RawBuffer& entryBuffer,
 			EncryptionMutationFlag encryptionMutationFlag) {
+		return PrepareUnlockedTestEntry(test::GenerateKeyPair().publicKey(), keyPair, entryBuffer, encryptionMutationFlag);
+	}
+
+	UnlockedTestEntry PrepareUnlockedTestEntry(
+			const Key& announcerPublicKey,
+			const crypto::KeyPair& keyPair,
+			const RawBuffer& entryBuffer,
+			EncryptionMutationFlag encryptionMutationFlag) {
 		UnlockedTestEntry entry;
-		auto announcerKeyPair = test::GenerateKeyPair();
 		auto salt = GenerateRandomByteArray<crypto::Salt>();
-		auto sharedKey = crypto::DeriveSharedKey(keyPair, announcerKeyPair.publicKey(), salt);
+		auto sharedKey = crypto::DeriveSharedKey(keyPair, announcerPublicKey, salt);
 		auto initializationVector = GenerateRandomByteArray<crypto::AesInitializationVector>();
 
 		std::vector<uint8_t> encrypted;
@@ -62,10 +69,9 @@ namespace catapult { namespace test {
 				: AesPkcs7MalformedPaddingScheme;
 		AesCbcEncrypt(sharedKey, initializationVector, entryBuffer, encrypted, paddingScheme);
 
-		entry.Key = announcerKeyPair.publicKey();
+		entry.Key = announcerPublicKey;
 		std::memcpy(entry.Payload.data(), salt.data(), crypto::Salt::Size);
 		std::memcpy(entry.Payload.data() + crypto::Salt::Size, encrypted.data(), encrypted.size());
-
 		return entry;
 	}
 

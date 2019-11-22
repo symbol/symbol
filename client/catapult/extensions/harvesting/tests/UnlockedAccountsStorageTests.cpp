@@ -32,10 +32,10 @@ namespace catapult { namespace harvesting {
 
 #define TEST_CLASS UnlockedAccountsStorageTests
 
-	// region add
-
 	namespace {
 		constexpr auto Filename = "accounts.dat";
+
+		// region test utils
 
 		auto GeneratePrivateKeyBuffers(size_t numPrivateKeys) {
 			return test::GenerateRandomDataVector<Key>(numPrivateKeys);
@@ -59,35 +59,112 @@ namespace catapult { namespace harvesting {
 			auto keyPair = test::GenerateKeyPair();
 			return PrepareEntries(keyPair, numEntries);
 		}
+
+		void AssertFileSize(const std::string& filename, size_t expectedSize) {
+			io::RawFile file(filename, io::OpenMode::Read_Only);
+			EXPECT_EQ(expectedSize, file.size());
+		}
+
+		auto SeedEntries(
+				UnlockedAccountsStorage& storage,
+				const std::string& filename,
+				size_t numNewEntries,
+				size_t numInitialEntries = 0) {
+			auto entries = PrepareEntries(numNewEntries);
+
+			for (const auto& entry : entries)
+				EXPECT_NO_THROW(storage.add(entry.Key, entry.Payload, test::GenerateRandomByteArray<Key>()));
+
+			// Sanity:
+			AssertFileSize(filename, (numNewEntries + numInitialEntries) * sizeof(test::UnlockedTestEntry));
+			return entries;
+		}
+
+		// endregion
 	}
+
+	// region containsAnnouncer
+
+	TEST(TEST_CLASS, ContainsAnnouncerReturnsTrueForKnownAnnouncer) {
+		// Arrange:
+		test::TempFileGuard guard(Filename);
+		UnlockedAccountsStorage storage(guard.name());
+		auto entries = SeedEntries(storage, guard.name(), 3);
+
+		// Act + Assert:
+		for (const auto& entry : entries)
+			EXPECT_TRUE(storage.containsAnnouncer(entry.Key));
+	}
+
+	TEST(TEST_CLASS, ContainsAnnouncerReturnsFalseForUnknownAnnouncer) {
+		// Arrange:
+		test::TempFileGuard guard(Filename);
+		UnlockedAccountsStorage storage(guard.name());
+		auto entries = SeedEntries(storage, guard.name(), 3);
+
+		// Act + Assert:
+		for (auto i = 0u; i < 10u; ++i)
+			EXPECT_FALSE(storage.containsAnnouncer(test::GenerateRandomByteArray<Key>()));
+	}
+
+	// endregion
+
+	// region add
 
 	TEST(TEST_CLASS, AddThrowsWhenEntryHasInvalidSize) {
 		// Arrange:
 		test::TempFileGuard guard(Filename);
 		UnlockedAccountsStorage storage(guard.name());
-		Key key;
 		auto keyPair = test::GenerateKeyPair();
 		auto privateKeyBuffer = test::GenerateRandomByteArray<Key>();
 		auto entry = test::ConvertUnlockedTestEntryToBuffer(test::PrepareUnlockedTestEntry(keyPair, privateKeyBuffer));
 		entry.resize(entry.size() + 1);
 
 		// Act + Assert:
-		EXPECT_THROW(storage.add(key, entry, keyPair.publicKey()), catapult_invalid_argument);
+		Key entryPublicKey;
+		EXPECT_THROW(storage.add(entryPublicKey, entry, keyPair.publicKey()), catapult_invalid_argument);
 	}
 
-	TEST(TEST_CLASS, CanAddEntryWithProperSize) {
+	TEST(TEST_CLASS, CanAddEntriesWithProperSize) {
 		// Arrange:
 		test::TempFileGuard guard(Filename);
 		UnlockedAccountsStorage storage(guard.name());
-		Key harvesterKey;
-		auto entries = PrepareEntries(3);
 
 		// Act:
-		for (const auto& entry : entries)
-			EXPECT_NO_THROW(storage.add(entry.Key, entry.Payload, harvesterKey));
+		auto entries = SeedEntries(storage, guard.name(), 3);
 
 		// Assert:
 		test::AssertUnlockedEntriesFileContents(guard.name(), entries);
+	}
+
+	TEST(TEST_CLASS, CanAddMultipleEntriesWithSameHarvester) {
+		// Arrange:
+		test::TempFileGuard guard(Filename);
+		UnlockedAccountsStorage storage(guard.name());
+		auto entries = PrepareEntries(3);
+		auto harvesterPublicKey = test::GenerateRandomByteArray<Key>();
+
+		// Act:
+		for (const auto& entry : entries)
+			EXPECT_NO_THROW(storage.add(entry.Key, entry.Payload, harvesterPublicKey));
+
+		// Assert:
+		test::AssertUnlockedEntriesFileContents(guard.name(), entries);
+	}
+
+	TEST(TEST_CLASS, CannotAddMultipleEntriesWithSameAnnouncer) {
+		// Arrange:
+		test::TempFileGuard guard(Filename);
+		UnlockedAccountsStorage storage(guard.name());
+		auto entry1 = *PrepareEntries(1).cbegin();
+		auto entry2 = entry1;
+
+		// Act:
+		EXPECT_NO_THROW(storage.add(entry1.Key, entry1.Payload, test::GenerateRandomByteArray<Key>()));
+		EXPECT_THROW(storage.add(entry2.Key, entry2.Payload, test::GenerateRandomByteArray<Key>()), catapult_invalid_argument);
+
+		// Assert: the second entry with a duplicate announcer was not added
+		test::AssertUnlockedEntriesFileContents(guard.name(), { entry1 });
 	}
 
 	// endregion
@@ -95,73 +172,112 @@ namespace catapult { namespace harvesting {
 	// region remove
 
 	namespace {
-		void CreateFile(const std::string& filename, size_t size = 0) {
-			io::RawFile file(filename, io::OpenMode::Read_Write);
-			if (0 == size)
-				return;
+		void AssertRemoveThrowsWhenInputHasIncompleteEntries(size_t numEntries) {
+			// Arrange:
+			test::TempFileGuard guard(Filename);
+			UnlockedAccountsStorage storage(guard.name());
+			auto entries = SeedEntries(storage, guard.name(), numEntries);
+			boost::filesystem::resize_file(guard.name(), numEntries * sizeof(test::UnlockedTestEntry) - 1);
 
-			auto buffer = test::GenerateRandomVector(size);
-			file.write(buffer);
+			// Sanity:
+			EXPECT_TRUE(boost::filesystem::exists(guard.name()));
+
+			// Act + Assert:
+			EXPECT_THROW(storage.remove(entries.cbegin()->Key), catapult_runtime_error);
 		}
-
-		void AssertFileSize(const std::string& filename, size_t expectedSize) {
-			io::RawFile file(filename, io::OpenMode::Read_Only);
-			EXPECT_EQ(expectedSize, file.size());
-		}
-	}
-
-	TEST(TEST_CLASS, RemoveThrowsWhenInputDoesNotExist) {
-		// Arrange:
-		test::TempFileGuard guard(Filename);
-		UnlockedAccountsStorage storage(guard.name());
-		Key announcerPublicKey;
-
-		// Act + Assert:
-		EXPECT_THROW(storage.remove(announcerPublicKey), catapult_runtime_error);
 	}
 
 	TEST(TEST_CLASS, RemoveThrowsWhenInputDoesNotHaveEnoughData) {
-		// Arrange:
-		test::TempFileGuard guard(Filename);
-		CreateFile(guard.name(), sizeof(test::UnlockedTestEntry) - 1);
-		UnlockedAccountsStorage storage(guard.name());
-		Key announcerPublicKey;
-
-		// Act + Assert:
-		EXPECT_THROW(storage.remove(announcerPublicKey), catapult_runtime_error);
+		AssertRemoveThrowsWhenInputHasIncompleteEntries(1);
 	}
 
-	TEST(TEST_CLASS, RemoveThrowsWhenRemovingNotMostRecentEntry) {
+	TEST(TEST_CLASS, RemoveThrowsWhenInputHasIncompleteData) {
+		AssertRemoveThrowsWhenInputHasIncompleteEntries(3);
+	}
+
+	TEST(TEST_CLASS, RemoveCanRemoveAnnouncerFromMapWhenFileHasBeenDeleted) {
 		// Arrange:
 		test::TempFileGuard guard(Filename);
 		UnlockedAccountsStorage storage(guard.name());
-		Key harvesterKey;
-		auto entries = PrepareEntries(5);
-
-		for (const auto& entry : entries)
-			EXPECT_NO_THROW(storage.add(entry.Key, entry.Payload, harvesterKey));
+		auto entries = SeedEntries(storage, guard.name(), 1);
+		boost::filesystem::remove(guard.name());
 
 		// Sanity:
-		AssertFileSize(guard.name(), 5 * sizeof(test::UnlockedTestEntry));
+		const auto& announcerPublicKey = entries.cbegin()->Key;
+		EXPECT_TRUE(storage.containsAnnouncer(announcerPublicKey));
+		EXPECT_FALSE(boost::filesystem::exists(guard.name()));
 
-		// Act + Assert: try to remove 4th entry (out of order)
-		auto iter = entries.cbegin();
-		std::advance(iter, 3);
-		EXPECT_THROW(storage.remove(iter->Key), catapult_runtime_error);
+		// Act:
+		storage.remove(announcerPublicKey);
+
+		// Assert: map but not file was updated
+		EXPECT_FALSE(storage.containsAnnouncer(announcerPublicKey));
+		EXPECT_FALSE(boost::filesystem::exists(guard.name()));
+	}
+
+	TEST(TEST_CLASS, RemoveCanRemoveAnnouncerFromMapWhenAnnouncerHasAlreadyBeenRemovedFromFile) {
+		// Arrange:
+		test::TempFileGuard guard(Filename);
+		UnlockedAccountsStorage storage(guard.name());
+		auto entries = SeedEntries(storage, guard.name(), 3);
+		boost::filesystem::resize_file(guard.name(), 2 * sizeof(test::UnlockedTestEntry));
+
+		// Sanity:
+		const auto& announcerPublicKey = (--entries.cend())->Key;
+		EXPECT_TRUE(storage.containsAnnouncer(announcerPublicKey));
+		AssertFileSize(guard.name(), 2 * sizeof(test::UnlockedTestEntry));
+
+		// Act:
+		storage.remove(announcerPublicKey);
+
+		// Assert: map but not file was updated
+		EXPECT_FALSE(storage.containsAnnouncer(announcerPublicKey));
+		AssertFileSize(guard.name(), 2 * sizeof(test::UnlockedTestEntry));
+	}
+
+	TEST(TEST_CLASS, RemoveCanRemoveAnnouncerFromMapAndThenFromFile) {
+		// Arrange:
+		test::TempFileGuard guard(Filename);
+		UnlockedAccountsStorage storage(guard.name());
+		auto entries = SeedEntries(storage, guard.name(), 3);
+
+		// Sanity:
+		const auto& announcerPublicKey2 = (++entries.cbegin())->Key;
+		const auto& announcerPublicKey3 = (++++entries.cbegin())->Key;
+		EXPECT_TRUE(storage.containsAnnouncer(announcerPublicKey2));
+		EXPECT_TRUE(storage.containsAnnouncer(announcerPublicKey3));
+		AssertFileSize(guard.name(), 3 * sizeof(test::UnlockedTestEntry));
+
+		// Act: remove the second key
+		storage.remove(announcerPublicKey2);
+
+		// Assert: map but not file was updated (last key in file is announcerPublicKey3)
+		EXPECT_FALSE(storage.containsAnnouncer(announcerPublicKey2));
+		EXPECT_TRUE(storage.containsAnnouncer(announcerPublicKey3));
+		AssertFileSize(guard.name(), 3 * sizeof(test::UnlockedTestEntry));
+
+		// Act: remove the third key
+		storage.remove(announcerPublicKey3);
+
+		// Assert: map and file were updated
+		EXPECT_FALSE(storage.containsAnnouncer(announcerPublicKey2));
+		EXPECT_FALSE(storage.containsAnnouncer(announcerPublicKey3));
+		AssertFileSize(guard.name(), 2 * sizeof(test::UnlockedTestEntry));
+
+		// Act: remove the second key (again)
+		storage.remove(announcerPublicKey2);
+
+		// Assert: file but not map was updated
+		EXPECT_FALSE(storage.containsAnnouncer(announcerPublicKey2));
+		EXPECT_FALSE(storage.containsAnnouncer(announcerPublicKey3));
+		AssertFileSize(guard.name(), 1 * sizeof(test::UnlockedTestEntry));
 	}
 
 	TEST(TEST_CLASS, CanRemoveAllEntriesInReverseOrder) {
 		// Arrange:
 		test::TempFileGuard guard(Filename);
 		UnlockedAccountsStorage storage(guard.name());
-		Key harvesterKey;
-		auto entries = PrepareEntries(5);
-
-		for (const auto& entry : entries)
-			EXPECT_NO_THROW(storage.add(entry.Key, entry.Payload, harvesterKey));
-
-		// Sanity:
-		AssertFileSize(guard.name(), 5 * sizeof(test::UnlockedTestEntry));
+		auto entries = SeedEntries(storage, guard.name(), 5);
 
 		// Act:
 		for (auto iter = entries.crbegin(); entries.crend() != iter; ++iter)
@@ -175,22 +291,26 @@ namespace catapult { namespace harvesting {
 		// Arrange:
 		test::TempFileGuard guard(Filename);
 		UnlockedAccountsStorage storage(guard.name());
-		Key harvesterKey;
-		auto entries = PrepareEntries(3);
-		auto entriesNew = PrepareEntries(2);
-
-		for (const auto& entry : entries)
-			EXPECT_NO_THROW(storage.add(entry.Key, entry.Payload, harvesterKey));
-
-		for (const auto& entry : entriesNew)
-			EXPECT_NO_THROW(storage.add(entry.Key, entry.Payload, harvesterKey));
-
-		// Sanity:
-		AssertFileSize(guard.name(), 5 * sizeof(test::UnlockedTestEntry));
+		auto entries = SeedEntries(storage, guard.name(), 3);
+		auto entriesNew = SeedEntries(storage, guard.name(), 2, 3);
 
 		// Act:
 		for (auto iter = entriesNew.crbegin(); entriesNew.crend() != iter; ++iter)
 			storage.remove(iter->Key);
+
+		// Assert:
+		test::AssertUnlockedEntriesFileContents(guard.name(), entries);
+	}
+
+	TEST(TEST_CLASS, RemoveIgnoresUnknownAnnouncer) {
+		// Arrange:
+		test::TempFileGuard guard(Filename);
+		UnlockedAccountsStorage storage(guard.name());
+		auto entries = SeedEntries(storage, guard.name(), 3);
+
+		// Act:
+		for (auto i = 0u; i < 10u; ++i)
+			EXPECT_NO_THROW(storage.remove(test::GenerateRandomByteArray<Key>()));
 
 		// Assert:
 		test::AssertUnlockedEntriesFileContents(guard.name(), entries);
@@ -209,14 +329,23 @@ namespace catapult { namespace harvesting {
 			return false;
 		}
 
+		void CreateFile(const std::string& filename, size_t size = 0) {
+			io::RawFile file(filename, io::OpenMode::Read_Write);
+			if (0 == size)
+				return;
+
+			auto buffer = test::GenerateRandomVector(size);
+			file.write(buffer);
+		}
+
 		auto AddEntries(UnlockedAccountsStorage& storage, const test::UnlockedTestEntries& entries) {
 			std::map<Key, Key> announcerToHarvester;
-			Key harvesterKey;
+			Key harvesterPublicKey;
 			auto i = 0u;
 			for (const auto& entry : entries) {
-				harvesterKey[0] = static_cast<uint8_t>(i + 1);
-				storage.add(entry.Key, entry.Payload, harvesterKey);
-				announcerToHarvester.emplace(entry.Key, harvesterKey);
+				harvesterPublicKey[0] = static_cast<uint8_t>(i + 1);
+				storage.add(entry.Key, entry.Payload, harvesterPublicKey);
+				announcerToHarvester.emplace(entry.Key, harvesterPublicKey);
 				++i;
 			}
 
@@ -283,15 +412,15 @@ namespace catapult { namespace harvesting {
 		auto announcerToHarvester = AddEntries(storage, entries);
 
 		// Act:
-		storage.save([](const auto& harvesterKey) { return harvesterKey[0] & 1; });
+		storage.save([](const auto& harvesterPublicKey) { return harvesterPublicKey[0] & 1; });
 
 		// Assert:
 		EXPECT_TRUE(boost::filesystem::exists(guard.name()));
 		test::UnlockedTestEntries expectedEntries;
 		std::copy_if(entries.cbegin(), entries.cend(), std::inserter(expectedEntries, expectedEntries.end()), [&announcerToHarvester](
 				const auto& entry) {
-			const auto& harvesterKey = announcerToHarvester[entry.Key];
-			return harvesterKey[0] & 1;
+			const auto& harvesterPublicKey = announcerToHarvester[entry.Key];
+			return harvesterPublicKey[0] & 1;
 		});
 
 		// - every odd entry should be in expected set
@@ -426,8 +555,8 @@ namespace catapult { namespace harvesting {
 		// Act:
 		UnlockedAccountsStorage storage(guard.name());
 		std::set<Key> collectedKeys;
-		storage.load(keyPair, [&collectedKeys](auto&& harvesterKeyPair) {
-			collectedKeys.insert(harvesterKeyPair.publicKey());
+		storage.load(keyPair, [&collectedKeys](auto&& harvesterPublicKeyPair) {
+			collectedKeys.insert(harvesterPublicKeyPair.publicKey());
 		});
 
 		// Assert: remove the file, save and check if it matches initial data
