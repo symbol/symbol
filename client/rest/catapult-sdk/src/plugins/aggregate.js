@@ -82,6 +82,12 @@ const requireCodecs = txCodecs => {
 		throw Error('aggregate transaction is not embeddable');
 };
 
+// after every inner transaction in an aggregate there's padding up to 8 bytes
+const innerAggregateTxPaddingSize = innerTransactionSize => {
+	const alignment = 8;
+	return 0 === innerTransactionSize % alignment ? 0 : alignment - (innerTransactionSize % alignment);
+};
+
 /**
  * Creates an aggregate plugin.
  * @type {module:plugins/CatapultPlugin}
@@ -122,6 +128,7 @@ const aggregatePlugin = {
 				transaction.aggregateTransactionHeader_Reserved1 = parser.uint32();
 
 				// 1. deserialize transactions
+				let totalPaddingSize = 0;
 				if (0 < payloadSize) {
 					transaction.transactions = [];
 
@@ -132,13 +139,20 @@ const aggregatePlugin = {
 						transaction.transactions.push({ transaction: subTransaction.entity });
 						processedSize += subTransaction.size;
 
+						const paddingSize = innerAggregateTxPaddingSize(subTransaction.size);
+						if (0 < paddingSize) {
+							parser.buffer(paddingSize);
+							processedSize += paddingSize;
+							totalPaddingSize += paddingSize;
+						}
 						if (subTransaction.size < constants.sizes.embedded)
 							throw Error('sub transaction must contain complete transaction header');
 					}
 				}
 
 				// 2. deserialize cosignatures
-				const numCosignatures = (size - payloadSize - constants.sizes.aggregate) / constants.sizes.cosignature;
+				const numCosignatures = (size - payloadSize - constants.sizes.aggregate - totalPaddingSize) / constants.sizes.cosignature;
+
 				if (numCosignatures !== (numCosignatures | 0))
 					throw Error('aggregate cannot have partial cosignatures');
 
@@ -181,7 +195,11 @@ const aggregatePlugin = {
 				// 2. serialize transactions
 				let i = 0;
 				transactions.forEach(subTransaction => {
-					txCodec.serialize(subTransaction, serializer, subTransactionSizes[i++]);
+					const subTransactionSize = subTransactionSizes[i++];
+					txCodec.serialize(subTransaction, serializer, subTransactionSize);
+					const paddingSize = innerAggregateTxPaddingSize(subTransactionSize);
+					if (0 < paddingSize)
+						serializer.writeBuffer(Buffer.alloc(paddingSize));
 				});
 
 				// 3. serialize cosignatures
