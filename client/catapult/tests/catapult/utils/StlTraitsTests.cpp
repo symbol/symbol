@@ -27,6 +27,8 @@ namespace catapult { namespace utils {
 
 #define TEST_CLASS StlTraitsTests
 
+	// region is_map
+
 	namespace {
 		template<typename T>
 		void AssertIsMap(size_t lineNumber) {
@@ -66,9 +68,68 @@ namespace catapult { namespace utils {
 		AssertIsMap<std::map<std::string, double>>(__LINE__);
 		AssertIsMap<std::map<int, int, std::greater<int>>>(__LINE__);
 
-		// - unordered map
+		// - unordered maps
 		AssertIsMap<std::unordered_map<int, int>>(__LINE__);
 		AssertIsMap<std::unordered_map<std::string, double>>(__LINE__);
 		AssertIsMap<std::unordered_map<int, int, CustomIntHasher>>(__LINE__);
 	}
+
+	// endregion
+
+	// region is_ordered
+
+	namespace {
+		template<typename T>
+		void AssertIsOrdered(size_t lineNumber) {
+			// Assert: both const and non const variants
+			EXPECT_TRUE(traits::is_ordered<T>::value) << lineNumber;
+			EXPECT_TRUE(traits::is_ordered<const T>::value) << lineNumber;
+
+			EXPECT_TRUE(traits::is_ordered_v<T>) << lineNumber;
+			EXPECT_TRUE(traits::is_ordered_v<const T>) << lineNumber;
+		}
+
+		template<typename T>
+		void AssertIsNotOrdered(size_t lineNumber) {
+			// Assert: both const and non const variants
+			EXPECT_FALSE(traits::is_ordered<T>::value) << lineNumber;
+			EXPECT_FALSE(traits::is_ordered<const T>::value) << lineNumber;
+
+			EXPECT_FALSE(traits::is_ordered_v<T>) << lineNumber;
+			EXPECT_FALSE(traits::is_ordered_v<const T>) << lineNumber;
+		}
+	}
+
+	TEST(TEST_CLASS, IsOrderedReturnsTrueOnlyForOrderedSetsAndOrderedMaps) {
+		// Assert: neither maps nor sets
+		AssertIsNotOrdered<int>(__LINE__);
+
+		// - set and map related types
+		AssertIsNotOrdered<std::shared_ptr<std::set<int>>>(__LINE__);
+		AssertIsNotOrdered<const std::set<int>&>(__LINE__);
+		AssertIsNotOrdered<std::shared_ptr<std::map<int, int>>>(__LINE__);
+		AssertIsNotOrdered<const std::map<int, int>&>(__LINE__);
+
+		// - ordered sets
+		AssertIsOrdered<std::set<int>>(__LINE__);
+		AssertIsOrdered<std::set<std::string>>(__LINE__);
+		AssertIsOrdered<std::set<int, CustomIntHasher>>(__LINE__);
+
+		// - unordered sets
+		AssertIsNotOrdered<std::unordered_set<int, int>>(__LINE__);
+		AssertIsNotOrdered<std::unordered_set<std::string>>(__LINE__);
+		AssertIsNotOrdered<std::unordered_set<int, CustomIntHasher>>(__LINE__);
+
+		// - ordered maps
+		AssertIsOrdered<std::map<int, int>>(__LINE__);
+		AssertIsOrdered<std::map<std::string, double>>(__LINE__);
+		AssertIsOrdered<std::map<int, int, std::greater<int>>>(__LINE__);
+
+		// - unordered maps
+		AssertIsNotOrdered<std::unordered_map<int, int>>(__LINE__);
+		AssertIsNotOrdered<std::unordered_map<std::string, double>>(__LINE__);
+		AssertIsNotOrdered<std::unordered_map<int, int, CustomIntHasher>>(__LINE__);
+	}
+
+	// endregion
 }}

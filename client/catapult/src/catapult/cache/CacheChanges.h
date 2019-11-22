@@ -58,7 +58,7 @@ namespace catapult { namespace cache {
 	template<typename TCacheDelta, typename TValue>
 	class SingleCacheChangesT : public SingleCacheChanges {
 	private:
-		using PointerContainer = std::unordered_set<const TValue*>;
+		using PointerContainer = decltype(reinterpret_cast<const TCacheDelta*>(0)->addedElements());
 
 	public:
 		/// Creates changes around \a cacheDelta.
