@@ -49,6 +49,7 @@ namespace catapult { namespace ionet {
 		};
 
 		using StatsCallback = consumer<const Stats&>;
+		using WaitForDataCallback = action;
 
 	public:
 		virtual ~PacketSocket() = default;
@@ -58,7 +59,7 @@ namespace catapult { namespace ionet {
 		virtual void stats(const StatsCallback& callback) = 0;
 
 		/// Calls \a callback when data is available for reading.
-		virtual void waitForData(const action& callback) = 0;
+		virtual void waitForData(const WaitForDataCallback& callback) = 0;
 
 		/// Closes the socket.
 		virtual void close() = 0;

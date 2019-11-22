@@ -54,7 +54,7 @@ namespace catapult { namespace ionet {
 			m_pSocket->stats(callback);
 		}
 
-		void waitForData(const action& callback) override {
+		void waitForData(const WaitForDataCallback& callback) override {
 			m_pSocket->waitForData(callback);
 		}
 

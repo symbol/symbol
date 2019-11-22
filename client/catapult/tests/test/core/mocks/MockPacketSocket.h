@@ -86,7 +86,7 @@ namespace catapult { namespace mocks {
 			callback({ true, ++m_numStatsCalls });
 		}
 
-		void waitForData(const action& callback) override {
+		void waitForData(const WaitForDataCallback& callback) override {
 			callback();
 		}
 

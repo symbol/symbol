@@ -276,7 +276,7 @@ namespace catapult { namespace ionet {
 				callback(stats);
 			}
 
-			void waitForData(const action& callback) {
+			void waitForData(const PacketSocket::WaitForDataCallback& callback) {
 				if (isDataAvailableForRead()) {
 					callback();
 					return;
@@ -359,7 +359,7 @@ namespace catapult { namespace ionet {
 				post([callback](auto& socket) { socket.stats(callback); });
 			}
 
-			void waitForData(const action& callback) override {
+			void waitForData(const WaitForDataCallback& callback) override {
 				post([callback](auto& socket) { socket.waitForData(callback); });
 			}
 
