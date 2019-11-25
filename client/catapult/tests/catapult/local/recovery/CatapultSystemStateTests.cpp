@@ -31,10 +31,13 @@ namespace catapult { namespace local {
 	namespace {
 		// region TestOptions / TestContext
 
+		constexpr uint8_t Flag_Broker = 0x01;
+		constexpr uint8_t Flag_Server = 0x02;
+		constexpr uint8_t Flag_Harvesters_Temp = 0x04;
+		constexpr uint8_t Flag_Commit_Step = 0x08;
+
 		struct TestOptions {
-			bool CreateBrokerLock;
-			bool CreateServerLock;
-			bool CreateCommitStep;
+			uint8_t FileFlags;
 			consumers::CommitOperationStep OperationStep;
 		};
 
@@ -43,13 +46,16 @@ namespace catapult { namespace local {
 			explicit TestContext(const TestOptions& options)
 					: m_dataDirectory(m_tempDir.name())
 					, m_systemState(m_dataDirectory) {
-				if (options.CreateBrokerLock)
+				if (Flag_Broker & options.FileFlags)
 					createLockFile("broker.lock");
 
-				if (options.CreateServerLock)
+				if (Flag_Server & options.FileFlags)
 					createLockFile("server.lock");
 
-				if (options.CreateCommitStep)
+				if (Flag_Harvesters_Temp & options.FileFlags)
+					createPlaceholderFile("harvesters.dat.tmp");
+
+				if (Flag_Commit_Step & options.FileFlags)
 					io::IndexFile(m_dataDirectory.rootDir().file("commit_step.dat")).set(static_cast<uint64_t>(options.OperationStep));
 			}
 
@@ -58,9 +64,18 @@ namespace catapult { namespace local {
 				return m_systemState;
 			}
 
+		public:
+			bool exists(const std::string& filename) {
+				return boost::filesystem::exists(m_dataDirectory.rootDir().file(filename));
+			}
+
 		private:
 			void createLockFile(const std::string& filename) const {
 				// simulate an abandoned lock file by creating an empty file (using FileLock will prevent delete on windows)
+				createPlaceholderFile(filename);
+			}
+
+			void createPlaceholderFile(const std::string& filename) const {
 				io::RawFile(m_dataDirectory.rootDir().file(filename), io::OpenMode::Read_Write);
 			}
 
@@ -75,59 +90,45 @@ namespace catapult { namespace local {
 
 	// region constructor / detection
 
-	TEST(TEST_CLASS, CanCreateAroundNoFiles) {
-		// Arrange:
-		TestContext context({ false, false, false, consumers::CommitOperationStep::Blocks_Written });
-		const auto& systemState = context.systemState();
+	namespace {
+		void AssertCanCreate(const TestOptions& options) {
+			// Arrange:
+			TestContext context(options);
+			const auto& systemState = context.systemState();
 
-		// Act + Assert:
-		EXPECT_FALSE(systemState.shouldRecoverBroker());
-		EXPECT_FALSE(systemState.shouldRecoverServer());
-		EXPECT_EQ(consumers::CommitOperationStep::All_Updated, systemState.commitStep());
+			// Act + Assert:
+			EXPECT_EQ(0 != (Flag_Broker & options.FileFlags), systemState.shouldRecoverBroker());
+			EXPECT_EQ(0 != (Flag_Server & options.FileFlags), systemState.shouldRecoverServer());
+
+			auto expectedOperationStep = Flag_Commit_Step & options.FileFlags
+					? options.OperationStep
+					: consumers::CommitOperationStep::All_Updated;
+			EXPECT_EQ(expectedOperationStep, systemState.commitStep());
+		}
+	}
+
+	TEST(TEST_CLASS, CanCreateAroundNoFiles) {
+		AssertCanCreate({ 0x00, consumers::CommitOperationStep::Blocks_Written });
 	}
 
 	TEST(TEST_CLASS, CanCreateAroundOnlyBrokerLock) {
-		// Arrange:
-		TestContext context({ true, false, false, consumers::CommitOperationStep::Blocks_Written });
-		const auto& systemState = context.systemState();
-
-		// Act + Assert:
-		EXPECT_TRUE(systemState.shouldRecoverBroker());
-		EXPECT_FALSE(systemState.shouldRecoverServer());
-		EXPECT_EQ(consumers::CommitOperationStep::All_Updated, systemState.commitStep());
+		AssertCanCreate({ 0x01, consumers::CommitOperationStep::Blocks_Written });
 	}
 
 	TEST(TEST_CLASS, CanCreateAroundOnlyServerLock) {
-		// Arrange:
-		TestContext context({ false, true, false, consumers::CommitOperationStep::Blocks_Written });
-		const auto& systemState = context.systemState();
+		AssertCanCreate({ 0x02, consumers::CommitOperationStep::Blocks_Written });
+	}
 
-		// Act + Assert:
-		EXPECT_FALSE(systemState.shouldRecoverBroker());
-		EXPECT_TRUE(systemState.shouldRecoverServer());
-		EXPECT_EQ(consumers::CommitOperationStep::All_Updated, systemState.commitStep());
+	TEST(TEST_CLASS, CanCreateAroundOnlyHarvestersTemp) {
+		AssertCanCreate({ 0x04, consumers::CommitOperationStep::Blocks_Written });
 	}
 
 	TEST(TEST_CLASS, CanCreateAroundOnlyCommitStep) {
-		// Arrange:
-		TestContext context({ false, false, true, consumers::CommitOperationStep::Blocks_Written });
-		const auto& systemState = context.systemState();
-
-		// Act + Assert:
-		EXPECT_FALSE(systemState.shouldRecoverBroker());
-		EXPECT_FALSE(systemState.shouldRecoverServer());
-		EXPECT_EQ(consumers::CommitOperationStep::Blocks_Written, systemState.commitStep());
+		AssertCanCreate({ 0x08, consumers::CommitOperationStep::Blocks_Written });
 	}
 
 	TEST(TEST_CLASS, CanCreateAroundAllFiles) {
-		// Arrange:
-		TestContext context({ true, true, true, consumers::CommitOperationStep::Blocks_Written });
-		const auto& systemState = context.systemState();
-
-		// Act + Assert:
-		EXPECT_TRUE(systemState.shouldRecoverBroker());
-		EXPECT_TRUE(systemState.shouldRecoverServer());
-		EXPECT_EQ(consumers::CommitOperationStep::Blocks_Written, systemState.commitStep());
+		AssertCanCreate({ 0x0F, consumers::CommitOperationStep::Blocks_Written });
 	}
 
 	// endregion
@@ -147,27 +148,33 @@ namespace catapult { namespace local {
 			EXPECT_FALSE(systemState.shouldRecoverBroker());
 			EXPECT_FALSE(systemState.shouldRecoverServer());
 			EXPECT_EQ(consumers::CommitOperationStep::All_Updated, systemState.commitStep());
+
+			EXPECT_FALSE(context.exists("harvesters.dat.tmp"));
 		}
 	}
 
 	TEST(TEST_CLASS, CanResetFromNoFiles) {
-		AssertCanResetFrom({ false, false, false, consumers::CommitOperationStep::Blocks_Written });
+		AssertCanResetFrom({ 0x00, consumers::CommitOperationStep::Blocks_Written });
 	}
 
 	TEST(TEST_CLASS, CanResetFromOnlyBrokerLock) {
-		AssertCanResetFrom({ true, false, false, consumers::CommitOperationStep::Blocks_Written });
+		AssertCanResetFrom({ 0x01, consumers::CommitOperationStep::Blocks_Written });
 	}
 
 	TEST(TEST_CLASS, CanResetFromOnlyServerLock) {
-		AssertCanResetFrom({ false, true, false, consumers::CommitOperationStep::Blocks_Written });
+		AssertCanResetFrom({ 0x02, consumers::CommitOperationStep::Blocks_Written });
+	}
+
+	TEST(TEST_CLASS, CanResetFromOnlyHarvestersTemp) {
+		AssertCanResetFrom({ 0x04, consumers::CommitOperationStep::Blocks_Written });
 	}
 
 	TEST(TEST_CLASS, CanResetFromOnlyCommitStep) {
-		AssertCanResetFrom({ false, false, true, consumers::CommitOperationStep::Blocks_Written });
+		AssertCanResetFrom({ 0x08, consumers::CommitOperationStep::Blocks_Written });
 	}
 
 	TEST(TEST_CLASS, CanResetFromAllFiles) {
-		AssertCanResetFrom({ true, true, true, consumers::CommitOperationStep::Blocks_Written });
+		AssertCanResetFrom({ 0x0F, consumers::CommitOperationStep::Blocks_Written });
 	}
 
 	// endregion

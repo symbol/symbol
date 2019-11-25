@@ -60,15 +60,6 @@ namespace catapult { namespace local {
 				destinationIndexFile.set(sourceIndexFile.get());
 			}
 
-			void remove(const std::string& filename) {
-				auto path = m_dataDirectory.rootDir().file(filename);
-				if (!boost::filesystem::exists(path))
-					return;
-
-				boost::filesystem::remove(path);
-				CATAPULT_LOG(debug) << " - removed " << filename;
-			}
-
 		private:
 			config::CatapultDataDirectory m_dataDirectory;
 		};
@@ -90,9 +81,6 @@ namespace catapult { namespace local {
 
 		// remove temporary directory used by recovery orchestrator during chain load
 		repairer.purge("block_recover");
-
-		// remove temporary harvesters file
-		repairer.remove("harvesters.dat.tmp");
 
 		if (consumers::CommitOperationStep::State_Written == commitStep)
 			return;

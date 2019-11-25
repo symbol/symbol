@@ -58,7 +58,6 @@ namespace catapult { namespace local {
 					io::IndexFile(directory.file("marker")).set(0);
 				}
 
-				io::IndexFile(harvestersTempFilename()).set(0);
 				io::IndexFile(rootMarkerFilename()).set(0);
 			}
 
@@ -70,10 +69,6 @@ namespace catapult { namespace local {
 		public:
 			std::string rootMarkerFilename() const {
 				return m_dataDirectory.rootDir().file("marker");
-			}
-
-			std::string harvestersTempFilename() const {
-				return m_dataDirectory.rootDir().file("harvesters.dat.tmp");
 			}
 
 			bool exists(const std::string& queueName) const {
@@ -192,7 +187,7 @@ namespace catapult { namespace local {
 		void RepairAndCheckNonStateChangeDirectories(TestContext& context, uint64_t expectedIndexValue, size_t numRepairs = 1) {
 			// Sanity:
 			EXPECT_EQ(6u, TTraits::GetPurgedQueueNames().size() + TTraits::GetRetainedQueueNames().size());
-			EXPECT_EQ(2u, context.countRootFiles());
+			EXPECT_EQ(1u, context.countRootFiles());
 
 			// Act:
 			for (auto i = 0u; i < numRepairs; ++i)
@@ -204,7 +199,6 @@ namespace catapult { namespace local {
 
 			// - only marker left in root dir
 			EXPECT_EQ(1u, context.countRootFiles());
-			EXPECT_FALSE(boost::filesystem::exists(context.harvestersTempFilename()));
 			EXPECT_TRUE(boost::filesystem::exists(context.rootMarkerFilename()));
 
 			// - check retained directories
