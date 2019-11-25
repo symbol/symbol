@@ -107,6 +107,7 @@ namespace catapult { namespace local {
 					, m_pTransactionStatusSubscriber(m_pBootstrapper->subscriptionManager().createTransactionStatusSubscriber())
 					, m_pStateChangeSubscriber(m_pBootstrapper->subscriptionManager().createStateChangeSubscriber())
 					, m_pluginManager(m_pBootstrapper->pluginManager())
+					, m_stateSavingRequired(true)
 			{}
 
 			~DefaultRecoveryOrchestrator() override {
@@ -205,6 +206,10 @@ namespace catapult { namespace local {
 				CATAPULT_LOG(debug) << " - moving supplemental data and block files";
 				MoveSupplementalDataFiles(m_dataDirectory);
 				MoveBlockFiles(m_dataDirectory.spoolDir("block_sync"), *m_pBlockStorage);
+
+				// when cache database storage is enabled and State_Written,
+				// cache database and supplemental data are updated by repairState
+				m_stateSavingRequired = !stateRef().Config.Node.EnableCacheDatabaseStorage;
 			}
 
 		public:
@@ -217,6 +222,13 @@ namespace catapult { namespace local {
 
 		private:
 			void saveStateToDisk() {
+				if (!m_stateSavingRequired) {
+					// just write the commit step file that was deleted during recover
+					io::IndexFile commitStepFile(m_dataDirectory.rootDir().file("commit_step.dat"));
+					commitStepFile.set(utils::to_underlying_type(consumers::CommitOperationStep::All_Updated));
+					return;
+				}
+
 				constexpr auto SaveStateToDirectoryWithCheckpointing = extensions::SaveStateToDirectoryWithCheckpointing;
 				SaveStateToDirectoryWithCheckpointing(m_dataDirectory, m_config.Node, m_catapultCache, m_score.get());
 			}
@@ -249,6 +261,7 @@ namespace catapult { namespace local {
 			std::unique_ptr<subscribers::StateChangeSubscriber> m_pStateChangeSubscriber;
 
 			plugins::PluginManager& m_pluginManager;
+			bool m_stateSavingRequired;
 		};
 	}
 

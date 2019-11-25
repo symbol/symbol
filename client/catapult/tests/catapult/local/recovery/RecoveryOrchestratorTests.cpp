@@ -192,6 +192,10 @@ namespace catapult { namespace local {
 				return commitStepIndexFile().exists();
 			}
 
+			consumers::CommitOperationStep readCommitStepFile() {
+				return static_cast<consumers::CommitOperationStep>(commitStepIndexFile().get());
+			}
+
 			void setCommitStepFile(consumers::CommitOperationStep operationStep) {
 				commitStepIndexFile().set(static_cast<uint64_t>(operationStep));
 			}
@@ -637,11 +641,14 @@ namespace catapult { namespace local {
 
 			// Act:
 			context.boot();
+			context.reset();
 
 			// Assert: files were purged but not moved
 			auto stateDirectory = context.subDir("state");
-			EXPECT_EQ(0u, test::CountFilesAndDirectories(stateTempDirectory.path()));
-			EXPECT_FALSE(boost::filesystem::exists(stateDirectory.path()));
+			EXPECT_FALSE(boost::filesystem::exists(stateTempDirectory.path()));
+			EXPECT_TRUE(boost::filesystem::exists(stateDirectory.path()));
+
+			EXPECT_EQ(consumers::CommitOperationStep::All_Updated, context.readCommitStepFile());
 		}
 	}
 
@@ -658,22 +665,28 @@ namespace catapult { namespace local {
 		RecoveryOrchestratorTestContext context;
 		context.setCommitStepFile(consumers::CommitOperationStep::State_Written);
 
-		// - add temp directory with marker
+		// - add temp directory with marker and supplemental file
 		auto stateTempDirectory = context.subDir("state.tmp");
 		boost::filesystem::create_directories(stateTempDirectory.path());
 		io::IndexFile(stateTempDirectory.file("marker.dat")).set(123);
+		io::IndexFile(stateTempDirectory.file("supplemental.dat")).set(999);
 
 		// Sanity:
-		EXPECT_EQ(1u, test::CountFilesAndDirectories(stateTempDirectory.path()));
+		EXPECT_EQ(2u, test::CountFilesAndDirectories(stateTempDirectory.path()));
 
 		// Act:
 		context.boot();
+		context.reset();
 
 		// Assert: files were purged and moved
+		// - supplemental.dat from state.tmp should take precedence and it should not be written out again
 		auto stateDirectory = context.subDir("state");
 		EXPECT_FALSE(boost::filesystem::exists(stateTempDirectory.path()));
-		EXPECT_EQ(1u, test::CountFilesAndDirectories(stateDirectory.path()));
+		EXPECT_EQ(2u, test::CountFilesAndDirectories(stateDirectory.path()));
 		EXPECT_EQ(123u, io::IndexFile(stateDirectory.file("marker.dat")).get());
+		EXPECT_EQ(999u, io::IndexFile(stateDirectory.file("supplemental.dat")).get());
+
+		EXPECT_EQ(consumers::CommitOperationStep::All_Updated, context.readCommitStepFile());
 	}
 
 	// endregion
