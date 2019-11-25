@@ -595,7 +595,8 @@ namespace catapult { namespace net {
 			// Act: queue connects to the server (increase test connection timeout because this test makes a lot of connections)
 			std::vector<std::shared_ptr<ClientService>> clientServices;
 			for (auto numConnects : { Num_Default_Threads, Max_Test_Connections, 15u }) {
-				clientServices.push_back(std::make_shared<ClientService>(numConnects, 1, 250));
+				auto timeoutMillis = std::max<size_t>(Num_Default_Threads * 50, 250);
+				clientServices.push_back(std::make_shared<ClientService>(numConnects, 1, timeoutMillis));
 				clientServices.back()->wait();
 			}
 
