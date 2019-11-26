@@ -86,7 +86,7 @@ namespace catapult { namespace utils {
 		// 2.4261112219321804e-1 (approx. 0x3E1CC333 / 2^32)
 		// 6.9326098546062365e-1 (approx. 0x58BD46A6 / 2^31)
 		// 9.9992807353939517e-1 (approx. 0x7FFDE4A3 / 2^31)
-		auto r = 0x00000E20;
+		int64_t r = 0x00000E20;
 		r = (r * f + 0x3E1CC333) / 131'072;
 		r = (r * f + 0x58BD46A6) / 65'536;
 		r = r * f + 0x7FFDE4A3;
