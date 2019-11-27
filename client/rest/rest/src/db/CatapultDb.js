@@ -377,7 +377,7 @@ class CatapultDb {
 			.then(entities => entities.map(accountWithMetadata => {
 				const { account } = accountWithMetadata;
 				if (0 < account.importances.length) {
-					const importanceSnapshot = account.importances.pop();
+					const importanceSnapshot = account.importances.shift();
 					account.importance = importanceSnapshot.value;
 					account.importanceHeight = importanceSnapshot.height;
 				} else {

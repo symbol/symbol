@@ -52,7 +52,7 @@ const createImportances = count => {
 	for (let i = 1; i <= count; ++i)
 		importances.push({ value: Long.fromNumber(i), height: Long.fromNumber(i * i) });
 
-	return importances;
+	return importances.reverse();
 };
 
 const createAccount = (publicKey, savePublicKey, mosaics, importances) => {
