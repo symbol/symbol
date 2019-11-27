@@ -41,6 +41,7 @@ namespace catapult { namespace timesync {
 		constexpr int64_t Warning_Threshold_Millis = 5'000;
 		constexpr Importance Total_Chain_Importance(1'000'000);
 		constexpr uint64_t Default_Threshold = 85;
+		constexpr auto Default_Epoch_Adjustment = utils::TimeSpan::FromMilliseconds(11223344556677);
 
 		class SimpleResultSupplier {
 		public:
@@ -138,7 +139,7 @@ namespace catapult { namespace timesync {
 					, TimeSyncConfig(TimeSynchronizationConfiguration::Uninitialized())
 					, RequestResultFutureSupplier(ExtractCommunicationTimestampsContainer(samples, NodeType::Remote), numValidNodes)
 					, ServiceTestState(CreateCache())
-					, pTimeSyncState(std::make_shared<TimeSynchronizationState>(Default_Threshold))
+					, pTimeSyncState(std::make_shared<TimeSynchronizationState>(Default_Epoch_Adjustment, Default_Threshold))
 					, NetworkTimeSupplier(ExtractCommunicationTimestampsContainer(samples, NodeType::Local)) {
 				TimeSyncConfig.MaxNodes = 5;
 

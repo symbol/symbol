@@ -77,7 +77,9 @@ namespace catapult { namespace harvesting {
 				setHooks();
 			}
 
-			explicit TestContext(cache::CatapultCache&& cache, const supplier<Timestamp>& timeSupplier = &utils::NetworkTime)
+			explicit TestContext(
+					cache::CatapultCache&& cache,
+					const supplier<Timestamp>& timeSupplier = test::CreateDefaultNetworkTimeSupplier())
 					: BaseType(std::move(cache), timeSupplier)
 					, m_config(CreateHarvestingConfiguration()) {
 				setHooks();

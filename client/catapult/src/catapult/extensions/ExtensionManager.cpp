@@ -46,8 +46,8 @@ namespace catapult { namespace extensions {
 		return m_systemPluginNames;
 	}
 
-	ExtensionManager::NetworkTimeSupplier ExtensionManager::networkTimeSupplier() const {
-		return m_networkTimeSupplier ? m_networkTimeSupplier : &utils::NetworkTime;
+	ExtensionManager::NetworkTimeSupplier ExtensionManager::networkTimeSupplier(const utils::TimeSpan& epochAdjustment) const {
+		return m_networkTimeSupplier ? m_networkTimeSupplier : [epochAdjustment]() { return utils::NetworkTime(epochAdjustment).now(); };
 	}
 
 	void ExtensionManager::registerServices(ServiceLocator& locator, ServiceState& state) {

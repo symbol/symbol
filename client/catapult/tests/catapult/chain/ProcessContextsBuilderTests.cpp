@@ -39,11 +39,7 @@ namespace catapult { namespace chain {
 					: Cache(test::CreateCatapultCacheWithMarkerAccount())
 					, ResolverCallPairs(0, 0)
 					, Builder(Height(111), Timestamp(222), {
-						model::NetworkInfo(
-								static_cast<model::NetworkIdentifier>(33),
-								static_cast<model::NodeIdentityEqualityStrategy>(44),
-								Key(),
-								GenerationHash()),
+						CreateNetworkInfo(),
 						[this](const auto& readOnlyCache) {
 							++ResolverCallPairs.first;
 							if (test::IsMarkedCache(readOnlyCache))
@@ -54,9 +50,18 @@ namespace catapult { namespace chain {
 					})
 			{}
 
+		public:
 			cache::CatapultCache Cache;
 			std::pair<size_t, size_t> ResolverCallPairs;
 			ProcessContextsBuilder Builder;
+
+		private:
+			static model::NetworkInfo CreateNetworkInfo() {
+				model::NetworkInfo networkInfo;
+				networkInfo.Identifier = static_cast<model::NetworkIdentifier>(33);
+				networkInfo.NodeEqualityStrategy = static_cast<model::NodeIdentityEqualityStrategy>(44);
+				return networkInfo;
+			}
 		};
 
 		// endregion

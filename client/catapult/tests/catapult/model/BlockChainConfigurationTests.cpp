@@ -46,7 +46,8 @@ namespace catapult { namespace model {
 							{ "identifier", "public-test" },
 							{ "nodeEqualityStrategy", "host" },
 							{ "publicKey", Nemesis_Public_Key },
-							{ "generationHash", Nemesis_Generation_Hash }
+							{ "generationHash", Nemesis_Generation_Hash },
+							{ "epochAdjustment", "1234567h" }
 						}
 					},
 					{
@@ -107,6 +108,7 @@ namespace catapult { namespace model {
 				EXPECT_EQ(static_cast<NodeIdentityEqualityStrategy>(0), config.Network.NodeEqualityStrategy);
 				EXPECT_EQ(Key(), config.Network.PublicKey);
 				EXPECT_EQ(GenerationHash(), config.Network.GenerationHash);
+				EXPECT_EQ(utils::TimeSpan(), config.Network.EpochAdjustment);
 
 				EXPECT_FALSE(config.EnableVerifiableState);
 				EXPECT_FALSE(config.EnableVerifiableReceipts);
@@ -145,6 +147,7 @@ namespace catapult { namespace model {
 				EXPECT_EQ(NodeIdentityEqualityStrategy::Host, config.Network.NodeEqualityStrategy);
 				EXPECT_EQ(crypto::ParseKey(Nemesis_Public_Key), config.Network.PublicKey);
 				EXPECT_EQ(utils::ParseByteArray<GenerationHash>(Nemesis_Generation_Hash), config.Network.GenerationHash);
+				EXPECT_EQ(utils::TimeSpan::FromHours(1234567), config.Network.EpochAdjustment);
 
 				EXPECT_TRUE(config.EnableVerifiableState);
 				EXPECT_TRUE(config.EnableVerifiableReceipts);

@@ -49,6 +49,9 @@ namespace catapult { namespace test {
 		Should_Auto_Harvest = 2
 	};
 
+	/// Creates a default network time supplier for use in local tests.
+	supplier<Timestamp> CreateDefaultNetworkTimeSupplier();
+
 	/// Gets the server key pair.
 	crypto::KeyPair LoadServerKeyPair();
 

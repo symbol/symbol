@@ -28,6 +28,7 @@ namespace catapult { namespace timesync {
 #define TEST_CLASS TimeSynchronizationStateTests
 
 	namespace {
+		constexpr auto Default_Epoch_Adjustment = utils::TimeSpan::FromMilliseconds(11223344556677);
 		constexpr uint64_t Default_Threshold(123);
 	}
 
@@ -35,7 +36,7 @@ namespace catapult { namespace timesync {
 
 	TEST(TEST_CLASS, CanDefaultConstructState) {
 		// Act:
-		TimeSynchronizationState state(Default_Threshold);
+		TimeSynchronizationState state(Default_Epoch_Adjustment, Default_Threshold);
 
 		// Assert:
 		EXPECT_EQ(TimeOffset(), state.offset());
@@ -51,7 +52,7 @@ namespace catapult { namespace timesync {
 	namespace {
 		void AssertUpdateDoesNotChangeState(uint64_t threshold, int64_t offset) {
 			// Arrange:
-			TimeSynchronizationState state(threshold);
+			TimeSynchronizationState state(Default_Epoch_Adjustment, threshold);
 
 			// Act:
 			state.update(TimeOffset(offset));
@@ -66,7 +67,7 @@ namespace catapult { namespace timesync {
 
 	TEST(TEST_CLASS, UpdateIncreasesNodeAge) {
 		// Arrange:
-		TimeSynchronizationState state(Default_Threshold);
+		TimeSynchronizationState state(Default_Epoch_Adjustment, Default_Threshold);
 
 		// Act:
 		state.update(TimeOffset());
@@ -88,7 +89,7 @@ namespace catapult { namespace timesync {
 
 	TEST(TEST_CLASS, UpdateCanChangeOffsetInPositiveDirection) {
 		// Arrange:
-		TimeSynchronizationState state(Default_Threshold);
+		TimeSynchronizationState state(Default_Epoch_Adjustment, Default_Threshold);
 
 		// Act:
 		state.update(TimeOffset(150));
@@ -102,7 +103,7 @@ namespace catapult { namespace timesync {
 
 	TEST(TEST_CLASS, UpdateCanChangeOffsetInNegativeDirection) {
 		// Arrange:
-		TimeSynchronizationState state(Default_Threshold);
+		TimeSynchronizationState state(Default_Epoch_Adjustment, Default_Threshold);
 
 		// Act:
 		state.update(TimeOffset(-150));
@@ -116,7 +117,7 @@ namespace catapult { namespace timesync {
 
 	TEST(TEST_CLASS, UpdateRespectsExistingState) {
 		// Arrange:
-		TimeSynchronizationState state(Default_Threshold);
+		TimeSynchronizationState state(Default_Epoch_Adjustment, Default_Threshold);
 
 		// Act: threshold is 125, -150 + 350 - 250 = -50
 		for (auto rawOffset : { -150, -50, 100, 350, -250})
@@ -135,14 +136,14 @@ namespace catapult { namespace timesync {
 
 	TEST(TEST_CLASS, NetworkTimeUsesOffset) {
 		// Arrange:
-		TimeSynchronizationState state(Default_Threshold);
+		TimeSynchronizationState state(Default_Epoch_Adjustment, Default_Threshold);
 		state.update(TimeOffset(234));
 		Timestamp timestamp;
 		Timestamp networkTime;
 
 		// Act:
 		test::RunDeterministicOperation([&state, &timestamp, &networkTime]() {
-			timestamp = utils::NetworkTime();
+			timestamp = utils::NetworkTime(Default_Epoch_Adjustment).now();
 			networkTime = state.networkTime();
 		});
 

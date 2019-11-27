@@ -26,7 +26,6 @@
 #include "catapult/io/IndexFile.h"
 #include "catapult/model/BlockUtils.h"
 #include "catapult/plugins/PluginLoader.h"
-#include "catapult/utils/NetworkTime.h"
 #include "catapult/preprocessor.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
@@ -164,7 +163,7 @@ namespace catapult { namespace sync {
 			using BaseType = test::ServiceLocatorTestContext<DispatcherServiceTraits>;
 
 		public:
-			TestContext() : TestContext(utils::NetworkTime)
+			TestContext() : TestContext(test::CreateDefaultNetworkTimeSupplier())
 			{}
 
 			explicit TestContext(const supplier<Timestamp>& timeSupplier)
@@ -1020,7 +1019,7 @@ namespace catapult { namespace sync {
 			for (auto& transaction : range) {
 				auto keyPair = test::GenerateKeyPair();
 				transaction.SignerPublicKey = keyPair.publicKey();
-				transaction.Deadline = utils::NetworkTime() + Timestamp(60'000);
+				transaction.Deadline = test::CreateDefaultNetworkTimeSupplier()() + Timestamp(60'000);
 				extensions::TransactionExtensions(test::GetNemesisGenerationHash()).sign(keyPair, transaction);
 			}
 
@@ -1127,7 +1126,7 @@ namespace catapult { namespace sync {
 		auto signer = test::GenerateKeyPair();
 		auto pValidTransaction = test::GenerateRandomTransaction();
 		pValidTransaction->SignerPublicKey = signer.publicKey();
-		pValidTransaction->Deadline = utils::NetworkTime() + Timestamp(60'000);
+		pValidTransaction->Deadline = test::CreateDefaultNetworkTimeSupplier()() + Timestamp(60'000);
 		extensions::TransactionExtensions(test::GetNemesisGenerationHash()).sign(signer, *pValidTransaction);
 
 		auto range = test::CreateEntityRange({ pValidTransaction.get() });
@@ -1200,7 +1199,7 @@ namespace catapult { namespace sync {
 		EXPECT_EQ(1u, context.bannedNodesDeepSize());
 
 		// Act: valid transaction range is not processed
-		pTransaction->Deadline = utils::NetworkTime() + Timestamp(60'000);
+		pTransaction->Deadline = test::CreateDefaultNetworkTimeSupplier()() + Timestamp(60'000);
 		extensions::TransactionExtensions(test::GetNemesisGenerationHash()).sign(signer, *pTransaction);
 
 		auto range2 = model::AnnotatedTransactionRange(test::CreateEntityRange({ pTransaction.get() }), nodeIdentity);

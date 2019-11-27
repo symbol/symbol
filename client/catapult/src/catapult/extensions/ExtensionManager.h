@@ -25,7 +25,10 @@
 #include <memory>
 #include <vector>
 
-namespace catapult { namespace cache { class CatapultCache; } }
+namespace catapult {
+	namespace cache { class CatapultCache; }
+	namespace utils { class TimeSpan; }
+}
 
 namespace catapult { namespace extensions {
 
@@ -53,8 +56,8 @@ namespace catapult { namespace extensions {
 		/// Gets the system plugin names.
 		const std::vector<std::string>& systemPluginNames() const;
 
-		/// Gets the network time supplier.
-		NetworkTimeSupplier networkTimeSupplier() const;
+		/// Gets the network time supplier given \a epochAdjustment.
+		NetworkTimeSupplier networkTimeSupplier(const utils::TimeSpan& epochAdjustment) const;
 
 		/// Registers all services by forwarding \a locator and \a state.
 		void registerServices(ServiceLocator& locator, ServiceState& state);

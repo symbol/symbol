@@ -55,6 +55,7 @@ namespace catapult { namespace timesync {
 		constexpr auto State_Service_Name = "timesync.state";
 		constexpr auto Task_Name = "time synchronization task";
 
+		constexpr auto Default_Epoch_Adjustment = utils::TimeSpan::FromMilliseconds(11223344556677);
 		constexpr uint64_t Default_Threshold = 85;
 
 		cache::CatapultCache CreateCache(Importance totalChainImportance) {
@@ -82,7 +83,7 @@ namespace catapult { namespace timesync {
 			}
 
 			static auto CreateRegistrar() {
-				return CreateRegistrar(std::make_shared<TimeSynchronizationState>(Default_Threshold));
+				return CreateRegistrar(std::make_shared<TimeSynchronizationState>(Default_Epoch_Adjustment, Default_Threshold));
 			}
 		};
 
@@ -164,7 +165,7 @@ namespace catapult { namespace timesync {
 
 	TEST(TEST_CLASS, ServiceUsesNetworkTime) {
 		// Arrange:
-		auto pTimeSyncState = std::make_shared<TimeSynchronizationState>(100);
+		auto pTimeSyncState = std::make_shared<TimeSynchronizationState>(Default_Epoch_Adjustment, 100);
 		pTimeSyncState->update(TimeOffset(500));
 		TestContext context(CreateCache(), [&timeSyncState = *pTimeSyncState]() {
 			return timeSyncState.networkTime();
@@ -176,7 +177,7 @@ namespace catapult { namespace timesync {
 
 		// Act:
 		test::RunDeterministicOperation([timeSupplier, &timestamp, &networkTime]() {
-			timestamp = utils::NetworkTime();
+			timestamp = utils::NetworkTime(Default_Epoch_Adjustment).now();
 			networkTime = timeSupplier();
 		});
 
@@ -237,7 +238,7 @@ namespace catapult { namespace timesync {
 			auto& blockChainConfig = const_cast<model::BlockChainConfiguration&>(context.testState().config().BlockChain);
 			blockChainConfig.TotalChainImportance = Total_Chain_Importance;
 			test::AddNode(context.testState().state().nodes(), keyPair.publicKey(), "alice");
-			auto pTimeSyncState = std::make_shared<TimeSynchronizationState>(Default_Threshold);
+			auto pTimeSyncState = std::make_shared<TimeSynchronizationState>(Default_Epoch_Adjustment, Default_Threshold);
 			context.boot(pTimeSyncState);
 
 			// Sanity:

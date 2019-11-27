@@ -20,6 +20,7 @@
 
 #pragma once
 #include "types.h"
+#include "catapult/utils/TimeSpan.h"
 #include <atomic>
 
 namespace catapult { namespace timesync {
@@ -36,9 +37,9 @@ namespace catapult { namespace timesync {
 	/// Time synchronization state.
 	class TimeSynchronizationState {
 	public:
-		/// Creates a time synchronization state that only updates internal offset values when magnitude of change
-		/// is greater than \a clockAdjustmentThreshold.
-		explicit TimeSynchronizationState(uint64_t clockAdjustmentThreshold);
+		/// Creates a time synchronization state with an epoch adjustment relative to unix timestamp epoch of \a epochAdjustment
+		/// that only updates internal offset values when magnitude of change is greater than \a clockAdjustmentThreshold.
+		TimeSynchronizationState(const utils::TimeSpan& epochAdjustment, uint64_t clockAdjustmentThreshold);
 
 	public:
 		/// Gets the offset.
@@ -61,6 +62,7 @@ namespace catapult { namespace timesync {
 		void update(TimeOffset offset);
 
 	private:
+		utils::TimeSpan m_epochAdjustment;
 		uint64_t m_clockAdjustmentThreshold;
 		std::atomic<int64_t> m_offset;
 		std::atomic<int64_t> m_nodeAge;

@@ -20,6 +20,7 @@
 
 #pragma once
 #include "NodeIdentity.h"
+#include "catapult/utils/TimeSpan.h"
 
 namespace catapult { namespace model {
 
@@ -55,20 +56,28 @@ namespace catapult { namespace model {
 	public:
 		/// Creates a default, uninitialized network info.
 		constexpr NetworkInfo()
-				: NetworkInfo(NetworkIdentifier::Zero, NodeIdentityEqualityStrategy::Key, Key(), catapult::GenerationHash())
+				: NetworkInfo(
+						NetworkIdentifier::Zero,
+						NodeIdentityEqualityStrategy::Key,
+						Key(),
+						catapult::GenerationHash(),
+						utils::TimeSpan())
 		{}
 
 		/// Creates a network info around network \a identifier, node equality strategy (\a nodeEqualityStrategy),
-		/// nemesis public key (\a publicKey) and nemesis generation hash (\a generationHash).
+		/// nemesis public key (\a publicKey), nemesis generation hash (\a generationHash)
+		/// and nemesis epoch time adjustment (\a epochAdjustment).
 		constexpr NetworkInfo(
 				NetworkIdentifier identifier,
 				NodeIdentityEqualityStrategy nodeEqualityStrategy,
 				const Key& publicKey,
-				const catapult::GenerationHash& generationHash)
+				const catapult::GenerationHash& generationHash,
+				const utils::TimeSpan& epochAdjustment)
 				: Identifier(identifier)
 				, NodeEqualityStrategy(nodeEqualityStrategy)
 				, PublicKey(publicKey)
 				, GenerationHash(generationHash)
+				, EpochAdjustment(epochAdjustment)
 		{}
 
 	public:
@@ -83,6 +92,9 @@ namespace catapult { namespace model {
 
 		/// Nemesis generation hash.
 		catapult::GenerationHash GenerationHash;
+
+		/// Nemesis epoch time adjustment.
+		utils::TimeSpan EpochAdjustment;
 	};
 
 	/// Tries to parse \a networkName into a network identifier (\a networkIdentifier).

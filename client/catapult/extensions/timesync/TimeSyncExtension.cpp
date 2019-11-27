@@ -31,7 +31,9 @@ namespace catapult { namespace timesync {
 			auto& extensionManager = bootstrapper.extensionManager();
 
 			// register network time provider
-			auto pTimeSyncState = std::make_shared<TimeSynchronizationState>(Clock_Adjustment_Threshold);
+			auto pTimeSyncState = std::make_shared<TimeSynchronizationState>(
+					bootstrapper.config().BlockChain.Network.EpochAdjustment,
+					Clock_Adjustment_Threshold);
 			extensionManager.setNetworkTimeSupplier([&timeSyncState = *pTimeSyncState]() {
 				return timeSyncState.networkTime();
 			});

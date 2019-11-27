@@ -90,7 +90,7 @@ namespace catapult { namespace local {
 							m_config.Node.MaxTrackedNodes,
 							m_config.BlockChain.Network.NodeEqualityStrategy,
 							GetBanSettings(m_config.Node.Banning),
-							m_pBootstrapper->extensionManager().networkTimeSupplier())
+							m_pBootstrapper->extensionManager().networkTimeSupplier(m_config.BlockChain.Network.EpochAdjustment))
 					, m_catapultCache({}) // note that sub caches are added in boot
 					, m_storage(
 							m_pBootstrapper->subscriptionManager().createBlockStorage(m_pBlockChangeSubscriber),
@@ -137,7 +137,7 @@ namespace catapult { namespace local {
 						m_storage,
 						m_score,
 						*m_pUtCache,
-						extensionManager.networkTimeSupplier(),
+						extensionManager.networkTimeSupplier(m_config.BlockChain.Network.EpochAdjustment),
 						*m_pTransactionStatusSubscriber,
 						*m_pStateChangeSubscriber,
 						*m_pNodeSubscriber,

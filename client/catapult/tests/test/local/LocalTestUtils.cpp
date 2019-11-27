@@ -24,6 +24,7 @@
 #include "catapult/crypto/KeyUtils.h"
 #include "catapult/extensions/PluginUtils.h"
 #include "catapult/plugins/PluginLoader.h"
+#include "catapult/utils/NetworkTime.h"
 #include "tests/test/net/NodeTestUtils.h"
 #include "tests/test/nodeps/MijinConstants.h"
 #include "tests/test/nodeps/Nemesis.h"
@@ -33,6 +34,7 @@
 namespace catapult { namespace test {
 
 	namespace {
+		constexpr auto Default_Network_Epoch_Adjustment = utils::TimeSpan::FromMilliseconds(1459468800000);
 		constexpr auto Local_Node_Private_Key = "4A236D9F894CF0C4FC8C042DB5DB41CCF35118B7B220163E5B4BC1872C1CD618";
 
 		void SetConnectionsSubConfiguration(config::NodeConfiguration::ConnectionsSubConfiguration& config) {
@@ -92,7 +94,12 @@ namespace catapult { namespace test {
 			network.Identifier = model::NetworkIdentifier::Mijin_Test;
 			network.PublicKey = crypto::KeyPair::FromString(Mijin_Test_Nemesis_Private_Key).publicKey();
 			network.GenerationHash = GetNemesisGenerationHash();
+			network.EpochAdjustment = Default_Network_Epoch_Adjustment;
 		}
+	}
+
+	supplier<Timestamp> CreateDefaultNetworkTimeSupplier() {
+		return []() { return utils::NetworkTime(Default_Network_Epoch_Adjustment).now(); };
 	}
 
 	crypto::KeyPair LoadServerKeyPair() {

@@ -38,6 +38,7 @@ namespace catapult { namespace model {
 		EXPECT_EQ(NodeIdentityEqualityStrategy::Key, networkInfo.NodeEqualityStrategy);
 		EXPECT_EQ(Key(), networkInfo.PublicKey);
 		EXPECT_EQ(GenerationHash(), networkInfo.GenerationHash);
+		EXPECT_EQ(utils::TimeSpan(), networkInfo.EpochAdjustment);
 	}
 
 	TEST(TEST_CLASS, CanCreateCustomNetwork) {
@@ -50,13 +51,15 @@ namespace catapult { namespace model {
 				static_cast<NetworkIdentifier>(0xB9),
 				static_cast<NodeIdentityEqualityStrategy>(0xA7),
 				publicKey,
-				generationHash);
+				generationHash,
+				utils::TimeSpan::FromHours(123));
 
 		// Assert:
 		EXPECT_EQ(static_cast<NetworkIdentifier>(0xB9), networkInfo.Identifier);
 		EXPECT_EQ(static_cast<NodeIdentityEqualityStrategy>(0xA7), networkInfo.NodeEqualityStrategy);
 		EXPECT_EQ(publicKey, networkInfo.PublicKey);
 		EXPECT_EQ(generationHash, networkInfo.GenerationHash);
+		EXPECT_EQ(utils::TimeSpan::FromHours(123), networkInfo.EpochAdjustment);
 	}
 
 	// endregion

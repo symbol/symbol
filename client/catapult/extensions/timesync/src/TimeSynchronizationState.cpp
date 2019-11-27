@@ -25,8 +25,9 @@
 
 namespace catapult { namespace timesync {
 
-	TimeSynchronizationState::TimeSynchronizationState(uint64_t clockAdjustmentThreshold)
-			: m_clockAdjustmentThreshold(clockAdjustmentThreshold)
+	TimeSynchronizationState::TimeSynchronizationState(const utils::TimeSpan& epochAdjustment, uint64_t clockAdjustmentThreshold)
+			: m_epochAdjustment(epochAdjustment)
+			, m_clockAdjustmentThreshold(clockAdjustmentThreshold)
 			, m_offset(0)
 			, m_nodeAge(0)
 	{}
@@ -48,7 +49,7 @@ namespace catapult { namespace timesync {
 	}
 
 	Timestamp TimeSynchronizationState::networkTime() const {
-		return Timestamp(utils::NetworkTime().unwrap() + static_cast<uint64_t>(m_offset));
+		return Timestamp(utils::NetworkTime(m_epochAdjustment).now().unwrap() + static_cast<uint64_t>(m_offset));
 	}
 
 	void TimeSynchronizationState::update(TimeOffset offset) {
