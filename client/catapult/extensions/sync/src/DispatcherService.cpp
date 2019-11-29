@@ -91,7 +91,8 @@ namespace catapult { namespace sync {
 				std::vector<DisruptorConsumer>&& disruptorConsumers) {
 			auto& statusSubscriber = state.transactionStatusSubscriber();
 			auto reclaimMemoryInspector = CreateReclaimMemoryInspector();
-			auto inspector = [&statusSubscriber, &nodes = state.nodes(), reclaimMemoryInspector](
+			const auto& localNetworks = state.config().Node.LocalNetworks;
+			auto inspector = [&statusSubscriber, &nodes = state.nodes(), &localNetworks, reclaimMemoryInspector](
 					auto& input,
 					const auto& completionResult) {
 				statusSubscriber.flush();
@@ -100,8 +101,13 @@ namespace catapult { namespace sync {
 
 				auto nodesModifier = nodes.modifier();
 				nodesModifier.pruneBannedNodes();
-				if (ConsumerResultSeverity::Fatal == completionResult.ResultSeverity)
-					nodesModifier.ban(input.sourceIdentity(), completionResult.CompletionCode);
+				const auto& identity = input.sourceIdentity();
+				if (ConsumerResultSeverity::Fatal == completionResult.ResultSeverity) {
+					if (config::IsLocalHost(identity.Host, localNetworks))
+						CATAPULT_LOG(debug) << "bypassing banning of " << identity << " because host is contained in local networks";
+					else
+						nodesModifier.ban(identity, completionResult.CompletionCode);
+				}
 
 				reclaimMemoryInspector(input, completionResult);
 			};

@@ -19,6 +19,7 @@
 **/
 
 #include "NodeContainerSubscriberAdapter.h"
+#include "catapult/config/NodeConfiguration.h"
 #include "catapult/ionet/NodeContainer.h"
 
 namespace catapult { namespace local {
@@ -37,7 +38,7 @@ namespace catapult { namespace local {
 			}
 
 			bool notifyIncomingNode(const model::NodeIdentity& identity, ionet::ServiceIdentifier serviceId) override {
-				auto adjustedHost = isLocalHost(identity.Host) ? "127.0.0.1" : identity.Host;
+				auto adjustedHost = config::IsLocalHost(identity.Host, m_localNetworks) ? "127.0.0.1" : identity.Host;
 				ionet::Node node({ identity.PublicKey, adjustedHost }, { adjustedHost, 0 }, ionet::NodeMetadata());
 
 				auto modifier = m_nodes.modifier();
@@ -52,13 +53,6 @@ namespace catapult { namespace local {
 
 			void notifyBan(const model::NodeIdentity& identity, validators::ValidationResult reason) override {
 				m_nodes.modifier().ban(identity, utils::to_underlying_type(reason));
-			}
-
-		private:
-			bool isLocalHost(const std::string& host) const {
-				return std::any_of(m_localNetworks.cbegin(), m_localNetworks.cend(), [&host](const auto& localNetwork) {
-					return host.size() >= localNetwork.size() && 0 == std::memcmp(&localNetwork[0], &host[0], localNetwork.size());
-				});
 			}
 
 		private:

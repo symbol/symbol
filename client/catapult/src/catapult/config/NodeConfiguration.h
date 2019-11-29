@@ -232,4 +232,7 @@ namespace catapult { namespace config {
 		/// Loads a node configuration from \a bag.
 		static NodeConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
 	};
+
+	/// Returns \c true when \a host is contained in \a localNetworks.
+	bool IsLocalHost(const std::string& host, const std::unordered_set<std::string>& localNetworks);
 }}

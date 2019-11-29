@@ -132,4 +132,14 @@ namespace catapult { namespace config {
 	}
 
 #undef LOAD_PROPERTY
+
+	// region utils
+
+	bool IsLocalHost(const std::string& host, const std::unordered_set<std::string>& localNetworks) {
+		return std::any_of(localNetworks.cbegin(), localNetworks.cend(), [&host](const auto& localNetwork) {
+			return host.size() >= localNetwork.size() && 0 == std::memcmp(&localNetwork[0], &host[0], localNetwork.size());
+		});
+	}
+
+	// endregion
 }}

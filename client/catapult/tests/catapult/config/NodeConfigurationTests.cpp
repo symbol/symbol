@@ -24,6 +24,8 @@
 
 namespace catapult { namespace config {
 
+#define TEST_CLASS NodeConfigurationTests
+
 	namespace {
 		struct NodeConfigurationTraits {
 			using ConfigurationType = NodeConfiguration;
@@ -288,4 +290,36 @@ namespace catapult { namespace config {
 	}
 
 	DEFINE_CONFIGURATION_TESTS(NodeConfigurationTests, Node)
+
+	// region utils
+
+	namespace {
+		auto CreateLocalNetworks() {
+			return std::unordered_set<std::string>{ "11.22.33.44", "22.33.44.55", "33.44" };
+		}
+	}
+
+	TEST(TEST_CLASS, IsLocalHostReturnsTrueWhenHostIsContainedInLocalNetworks) {
+		// Arrange:
+		auto localNetworks = CreateLocalNetworks();
+
+		// Act + Assert:
+		EXPECT_TRUE(IsLocalHost("11.22.33.44", localNetworks));
+		EXPECT_TRUE(IsLocalHost("22.33.44.55", localNetworks));
+		EXPECT_TRUE(IsLocalHost("33.44.55", localNetworks));
+	}
+
+	TEST(TEST_CLASS, IsLocalHostReturnsFalseWhenHostIsNotContainedInLocalNetworks) {
+		// Arrange:
+		auto localNetworks = CreateLocalNetworks();
+
+		// Act + Assert:
+		EXPECT_FALSE(IsLocalHost("12.22.33.44", localNetworks));
+		EXPECT_FALSE(IsLocalHost("111.222.333.444.555", localNetworks));
+		EXPECT_FALSE(IsLocalHost("11.22.33", localNetworks));
+		EXPECT_FALSE(IsLocalHost("1.2.3.4", localNetworks));
+		EXPECT_FALSE(IsLocalHost("", localNetworks));
+	}
+
+	// endregion
 }}

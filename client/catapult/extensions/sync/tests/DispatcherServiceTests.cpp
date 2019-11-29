@@ -965,6 +965,32 @@ namespace catapult { namespace sync {
 		EXPECT_EQ(0u, context.bannedNodesDeepSize());
 	}
 
+	CONSUMER_FACTORY_TRAITS_BASED_TEST(Dispatcher_NodeIsNotBannedWhenHostIsInLocalNetworks_BlockRange) {
+		// Arrange:
+		TestContext context;
+		const_cast<config::NodeConfiguration&>(context.testState().state().config().Node).LocalNetworks.emplace("123.456.789");
+		context.setBlockValidationResults(ValidationResults(ValidationResult::Failure, ValidationResult::Success));
+		context.boot();
+
+		auto nodeIdentity = model::NodeIdentity{ test::GenerateRandomByteArray<Key>(), "123.456.789.123" };
+		auto pNextBlock = CreateValidBlockForDispatcherTests(GetBlockSignerKeyPair());
+		auto annotatedRange = model::AnnotatedBlockRange(test::CreateEntityRange({ pNextBlock.get() }), nodeIdentity);
+
+		auto factory = TTraits::CreateFactory(context, disruptor::InputSource::Local);
+
+		// Act:
+		TTraits::ConsumeRange(factory, std::move(annotatedRange));
+
+		// - wait a bit to give the service time to consume more if there is a bug in the implementation
+		test::Pause();
+
+		// Assert:
+		EXPECT_EQ(1u, context.counter(Block_Elements_Counter_Name));
+		EXPECT_EQ(0u, context.counter(Transaction_Elements_Counter_Name));
+		EXPECT_EQ(0u, context.bannedNodesSize());
+		EXPECT_EQ(0u, context.bannedNodesDeepSize());
+	}
+
 	CONSUMER_FACTORY_TRAITS_BASED_TEST(Dispatcher_BannedNodesArePruned) {
 		// Arrange:
 		TestContext context(CreateTimeSupplier({ 1, 1, 1, 5 }));
@@ -1168,6 +1194,34 @@ namespace catapult { namespace sync {
 		ValidationResults transactionValidationResults;
 		transactionValidationResults.Stateful = ValidationResult::Failure;
 		AssertTransactionRangeConsumeHandlesBanning(transactionValidationResults, CreateSignedTransactionEntityRange(1), 0);
+	}
+
+	TEST(TEST_CLASS, Dispatcher_NodeIsNotBannedWhenHostIsInLocalNetworks_TransactionRange) {
+		// Arrange:
+		ValidationResults transactionValidationResults;
+		transactionValidationResults.Stateless = ValidationResult::Failure;
+		TestContext context;
+		const_cast<config::NodeConfiguration&>(context.testState().state().config().Node).LocalNetworks.emplace("123.456.789");
+		context.setTransactionValidationResults(transactionValidationResults);
+		context.boot();
+		auto factory = context.testState().state().hooks().transactionRangeConsumerFactory()(disruptor::InputSource::Local);
+
+		// Act:
+		auto nodeIdentity = model::NodeIdentity{ test::GenerateRandomByteArray<Key>(), "123.456.789.123" };
+		auto annotatedRange = model::AnnotatedTransactionRange(test::CreateTransactionEntityRange(1), nodeIdentity);
+		factory(std::move(annotatedRange));
+		context.testState().state().tasks()[0].Callback();
+		WAIT_FOR_ONE_EXPR(context.counter(Transaction_Elements_Counter_Name));
+		WAIT_FOR_ZERO_EXPR(context.counter(Transaction_Elements_Active_Counter_Name));
+
+		// - wait a bit to give the service time to consume more if there is a bug in the implementation
+		test::Pause();
+
+		// Assert:
+		EXPECT_EQ(0u, context.counter(Block_Elements_Counter_Name));
+		EXPECT_EQ(1u, context.counter(Transaction_Elements_Counter_Name));
+		EXPECT_EQ(0u, context.bannedNodesSize());
+		EXPECT_EQ(0u, context.bannedNodesDeepSize());
 	}
 
 	TEST(TEST_CLASS, Dispatcher_TransactionRangeFromBannedNodeIsIgnored) {
