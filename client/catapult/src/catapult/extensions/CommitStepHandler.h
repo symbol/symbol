@@ -21,17 +21,10 @@
 #pragma once
 #include "catapult/consumers/BlockChainSyncHandlers.h"
 
-namespace catapult {
-	namespace config { class CatapultDataDirectory; }
-	namespace extensions { class LocalNodeChainScore; }
-}
+namespace catapult { namespace config { class CatapultDataDirectory; } }
 
-namespace catapult { namespace sync {
+namespace catapult { namespace extensions {
 
-	/// Updates \a syncHandlers to support supplemental data resiliency given \a dataDirectory, \a cache and \a score.
-	void AddSupplementalDataResiliency(
-			consumers::BlockChainSyncHandlers& syncHandlers,
-			const config::CatapultDataDirectory& dataDirectory,
-			const cache::CatapultCache& cache,
-			const extensions::LocalNodeChainScore& score);
+	/// Creates a commit step handler around \a dataDirectory.
+	consumers::BlockChainSyncHandlers::CommitStepFunc CreateCommitStepHandler(const config::CatapultDataDirectory& dataDirectory);
 }}

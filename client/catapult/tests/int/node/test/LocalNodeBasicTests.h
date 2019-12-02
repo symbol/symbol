@@ -20,6 +20,8 @@
 
 #pragma once
 #include "LocalNodeTestUtils.h"
+#include "catapult/config/CatapultDataDirectory.h"
+#include "catapult/io/IndexFile.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/other/mocks/MockBlockChangeSubscriber.h"
 #include "tests/test/other/mocks/MockStateChangeSubscriber.h"
@@ -150,6 +152,11 @@ namespace catapult { namespace test {
 
 			EXPECT_EQ(1u, pStateChangeSubscriberRaw->numScoreChanges());
 			EXPECT_EQ(1u, pStateChangeSubscriberRaw->numStateChanges());
+
+			auto dataDirectory = config::CatapultDataDirectory(context.dataDirectory());
+			EXPECT_EQ(2u, io::IndexFile(dataDirectory.spoolDir("state_change").file("index_server.dat")).get());
+			EXPECT_EQ(2u, io::IndexFile(dataDirectory.spoolDir("state_change").file("index.dat")).get());
+			EXPECT_EQ(2u, io::IndexFile(dataDirectory.rootDir().file("commit_step.dat")).get());
 		}
 
 		static void AssertLocalNodeDoesNotTriggerNemesisSubscribersAtHeightTwo() {

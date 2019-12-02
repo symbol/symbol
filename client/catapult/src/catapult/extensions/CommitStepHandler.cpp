@@ -18,20 +18,25 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#pragma once
-#include "catapult/consumers/BlockChainSyncHandlers.h"
+#include "CommitStepHandler.h"
+#include "catapult/config/CatapultDataDirectory.h"
+#include "catapult/io/IndexFile.h"
 
-namespace catapult {
-	namespace config { class CatapultDataDirectory; }
-	namespace extensions { class LocalNodeChainScore; }
-}
+namespace catapult { namespace extensions {
 
-namespace catapult { namespace sync {
+	consumers::BlockChainSyncHandlers::CommitStepFunc CreateCommitStepHandler(const config::CatapultDataDirectory& dataDirectory) {
+		return [dataDirectory](auto step) {
+			io::IndexFile(dataDirectory.rootDir().file("commit_step.dat")).set(utils::to_underlying_type(step));
 
-	/// Updates \a syncHandlers to support supplemental data resiliency given \a dataDirectory, \a cache and \a score.
-	void AddSupplementalDataResiliency(
-			consumers::BlockChainSyncHandlers& syncHandlers,
-			const config::CatapultDataDirectory& dataDirectory,
-			const cache::CatapultCache& cache,
-			const extensions::LocalNodeChainScore& score);
+			if (consumers::CommitOperationStep::All_Updated != step)
+				return;
+
+			auto stateChangeDirectory = dataDirectory.spoolDir("state_change");
+			auto syncIndexWriterFile = io::IndexFile(stateChangeDirectory.file("index_server.dat"));
+			if (!syncIndexWriterFile.exists())
+				return;
+
+			io::IndexFile(stateChangeDirectory.file("index.dat")).set(syncIndexWriterFile.get());
+		};
+	}
 }}
