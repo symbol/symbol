@@ -140,6 +140,11 @@ describe('aggregate plugin', () => {
 			};
 		};
 
+		const innerAggregateTxPaddingSize = innerTransactionSize => {
+			const alignment = 8;
+			return 0 === innerTransactionSize % alignment ? 0 : alignment - (innerTransactionSize % alignment);
+		};
+
 		const generateTransaction = options => {
 			const type = (options || {}).type || constants.knownTxType;
 			const extraSize = (options || {}).extraSize || 0;
@@ -171,11 +176,6 @@ describe('aggregate plugin', () => {
 			};
 		};
 
-		const innerAggregateTxPaddingSize = innerTransactionSize => {
-			const alignment = 8;
-			return 0 === innerTransactionSize % alignment ? 0 : alignment - (innerTransactionSize % alignment);
-		};
-
 		const addTransaction = (generator, options) => () => {
 			const data = generator();
 			const txData = generateTransaction(options);
@@ -188,9 +188,7 @@ describe('aggregate plugin', () => {
 			if (txPadding)
 				data.buffer = Buffer.concat([data.buffer, Buffer.alloc(txPadding)]);
 
-			const payloadSize = data.buffer.readUInt32LE(constants.sizes.transactionsHash)
-				+ constants.sizes.embedded
-				+ ((options || {}).extraSize || 0);
+			const payloadSize = data.buffer.readUInt32LE(constants.sizes.transactionsHash) + txData.buffer.length + txPadding;
 			data.buffer.writeUInt32LE(payloadSize, constants.sizes.transactionsHash);
 
 			if (!data.object.transactions)
@@ -244,7 +242,7 @@ describe('aggregate plugin', () => {
 				describe('with multiple transactions', () => {
 					// use extraSize to emulate transactions of varying sizes within a single aggregate
 					addAll(
-						constants.sizes.aggregate + (3 * constants.sizes.embedded) + 7 + 7 + 4 + 6,
+						constants.sizes.aggregate + (3 * constants.sizes.embedded) + (1 + 4 + 2) + 7 + 4 + 6, // extra sizes + their padding
 						addTransaction(
 							addTransaction(
 								addTransaction(generateAggregate, { extraSize: 1 }),
