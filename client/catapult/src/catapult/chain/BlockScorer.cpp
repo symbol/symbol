@@ -109,17 +109,20 @@ namespace catapult { namespace chain {
 
 	namespace {
 		BlockTarget GetMultiplier(uint64_t timeDiff, const model::BlockChainConfiguration& config) {
+			using boost::multiprecision::int128_t;
+			using boost::multiprecision::uint128_t;
+
 			constexpr int64_t Fixed_Point_Log2_100 = 435411;
 			uint32_t smoother = 1 << 16;
 			if (0 != config.BlockTimeSmoothingFactor) {
-				uint64_t factor = config.BlockTimeSmoothingFactor << 16;
-				factor = (factor << 16) / (1000 << 16);
+				uint128_t factor = config.BlockTimeSmoothingFactor << 16;
+				factor = (factor << 16) / (1000u << 16);
 
-				auto targetTime = static_cast<int32_t>(config.BlockGenerationTargetTime.seconds() << 16);
-				auto elapsedTime = static_cast<int32_t>(timeDiff << 16);
+				auto targetTime = static_cast<int128_t>(config.BlockGenerationTargetTime.seconds() << 16);
+				auto elapsedTime = static_cast<int128_t>(timeDiff << 16);
 
 				// divide by log2(e), use precision that does not lead to an overflow
-				auto power = static_cast<int64_t>(factor) * (elapsedTime - targetTime) / targetTime;
+				auto power = static_cast<int128_t>(factor) * (elapsedTime - targetTime) / targetTime;
 				power = power * 14'426'950'408 / 10'000'000'000;
 
 				// lowend cap is necessary because the calculation of the power of two only works within a certain range
