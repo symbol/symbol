@@ -1,6 +1,6 @@
 {
   "name": "catapult-sdk",
-  "version": "0.7.20",
+  "version": "0.7.20.1",
   "description": "Catapult SDK core",
   "main": "_build/index.js",
   "scripts": {
