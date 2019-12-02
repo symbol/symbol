@@ -26,6 +26,8 @@
 #include "RepairState.h"
 #include "StateChangeRepairingSubscriber.h"
 #include "StorageStart.h"
+#include "catapult/cache/ReadOnlyCatapultCache.h"
+#include "catapult/chain/BlockExecutor.h"
 #include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/extensions/LocalNodeChainScore.h"
 #include "catapult/extensions/LocalNodeStateFileStorage.h"
@@ -35,6 +37,7 @@
 #include "catapult/io/FilesystemUtils.h"
 #include "catapult/io/MoveBlockFiles.h"
 #include "catapult/local/HostUtils.h"
+#include "catapult/observers/NotificationObserverAdapter.h"
 #include "catapult/subscribers/BlockChangeReader.h"
 #include "catapult/subscribers/BrokerMessageReaders.h"
 #include "catapult/subscribers/TransactionStatusReader.h"
@@ -84,15 +87,16 @@ namespace catapult { namespace local {
 			serializer.moveTo(dataDirectory.dir("state"));
 		}
 
-		void MoveBlockFiles(const config::CatapultDirectory& stagingDirectory, io::BlockStorage& destinationStorage) {
+		Height MoveBlockFiles(const config::CatapultDirectory& stagingDirectory, io::BlockStorage& destinationStorage) {
 			io::FileBlockStorage staging(stagingDirectory.str());
 			if (Height(0) == staging.chainHeight())
-				return;
+				return Height(0);
 
 			// mind that startHeight will be > 1, so there is no additional check
 			auto startHeight = FindStartHeight(staging);
 			CATAPULT_LOG(debug) << "moving blocks: " << startHeight << "-" << staging.chainHeight();
 			io::MoveBlockFiles(staging, destinationStorage, startHeight);
+			return startHeight;
 		}
 
 		class DefaultRecoveryOrchestrator final : public RecoveryOrchestrator {
@@ -205,11 +209,43 @@ namespace catapult { namespace local {
 
 				CATAPULT_LOG(debug) << " - moving supplemental data and block files";
 				MoveSupplementalDataFiles(m_dataDirectory);
-				MoveBlockFiles(m_dataDirectory.spoolDir("block_sync"), *m_pBlockStorage);
+				auto startHeight = MoveBlockFiles(m_dataDirectory.spoolDir("block_sync"), *m_pBlockStorage);
+
+				// when verifiable state is enabled, forcibly regenerate all patricia trees because cache changes are coalesced
+				if (stateRef().Config.BlockChain.EnableVerifiableState && startHeight > Height(0))
+					reapplyBlocks(startHeight);
 
 				// when cache database storage is enabled and State_Written,
 				// cache database and supplemental data are updated by repairState
 				m_stateSavingRequired = !stateRef().Config.Node.EnableCacheDatabaseStorage;
+			}
+
+			void reapplyBlocks(Height startHeight) {
+				auto chainHeight = m_pBlockStorage->chainHeight();
+				CATAPULT_LOG(info) << "reapplying blocks to regenerate patricia trees " << startHeight << "-" << chainHeight;
+
+				auto cacheDelta = stateRef().Cache.createDelta();
+				auto observerState = observers::ObserverState(cacheDelta);
+
+				auto readOnlyCache = cacheDelta.toReadOnly();
+				auto resolverContext = m_pluginManager.createResolverContext(readOnlyCache);
+
+				observers::NotificationObserverAdapter observer(
+						m_pluginManager.createObserver(),
+						m_pluginManager.createNotificationPublisher());
+				chain::BlockExecutionContext executionContext{ observer, resolverContext, observerState };
+
+				CATAPULT_LOG(debug) << " - rolling back blocks";
+				for (auto height = chainHeight; height >= startHeight; height = height - Height(1))
+					chain::RollbackBlock(*m_pBlockStorage->loadBlockElement(height), executionContext);
+
+				CATAPULT_LOG(debug) << " - executing blocks";
+				for (auto height = startHeight; height <= chainHeight; height = height + Height(1)) {
+					chain::ExecuteBlock(*m_pBlockStorage->loadBlockElement(height), executionContext);
+					cacheDelta.calculateStateHash(height); // force recalculation of patricia tree
+				}
+
+				stateRef().Cache.commit(chainHeight);
 			}
 
 		public:

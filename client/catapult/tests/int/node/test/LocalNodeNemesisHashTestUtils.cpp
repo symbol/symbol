@@ -19,42 +19,14 @@
 **/
 
 #include "LocalNodeNemesisHashTestUtils.h"
-#include "sdk/src/extensions/BlockExtensions.h"
 #include "plugins/txes/mosaic/src/model/MosaicEntityType.h"
-#include "catapult/io/FileBlockStorage.h"
-#include "catapult/io/RawFile.h"
 #include "catapult/model/BlockStatementBuilder.h"
 #include "catapult/model/BlockUtils.h"
-#include "catapult/model/EntityHasher.h"
-#include "tests/test/core/BlockTestUtils.h"
+#include "tests/test/core/StorageTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
-#include "tests/test/nodeps/MijinConstants.h"
-#include "tests/test/nodeps/Nemesis.h"
 #include "tests/test/nodeps/TestConstants.h"
 
 namespace catapult { namespace test {
-
-	namespace {
-		template<typename TModify>
-		void ModifyNemesis(const std::string& destination, TModify modify) {
-			// load from file storage to allow successive modifications
-			io::FileBlockStorage storage(destination);
-			auto pNemesisBlockElement = storage.loadBlockElement(Height(1));
-
-			// modify nemesis block and resign it
-			auto& nemesisBlock = const_cast<model::Block&>(pNemesisBlockElement->Block);
-			modify(nemesisBlock, *pNemesisBlockElement);
-			extensions::BlockExtensions(GetNemesisGenerationHash()).signFullBlock(
-					crypto::KeyPair::FromString(Mijin_Test_Nemesis_Private_Key),
-					nemesisBlock);
-
-			// overwrite the nemesis file in destination
-			// (only the block and entity hash need to be rewritten; this works because block size does not change)
-			io::RawFile nemesisFile(destination + "/00000/00001.dat", io::OpenMode::Read_Append);
-			nemesisFile.write({ reinterpret_cast<const uint8_t*>(&nemesisBlock), nemesisBlock.Size });
-			nemesisFile.write(model::CalculateHash(nemesisBlock));
-		}
-	}
 
 	namespace {
 		std::vector<uint32_t> GetMosaicSupplyChangePrimarySourceIds(const model::Block& block) {
