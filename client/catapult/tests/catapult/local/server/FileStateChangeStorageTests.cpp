@@ -40,6 +40,11 @@ namespace catapult { namespace local {
 			{}
 
 		public:
+			size_t id() const override {
+				CATAPULT_THROW_INVALID_ARGUMENT("id - not supported in mock");
+			}
+
+		public:
 			void saveAll(const cache::CacheChanges& changes, io::OutputStream& output) const override {
 				io::Write32(output, m_value);
 				io::Write64(output, reinterpret_cast<uintptr_t>(&changes));

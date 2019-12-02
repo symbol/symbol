@@ -34,6 +34,11 @@ namespace catapult { namespace cache {
 		{}
 
 	public:
+		size_t id() const override {
+			return TCache::Id;
+		}
+
+	public:
 		void saveAll(const CacheChanges& changes, io::OutputStream& output) const override {
 			WriteCacheChanges<TStorageTraits>(changes.sub<TCache>(), output);
 		}

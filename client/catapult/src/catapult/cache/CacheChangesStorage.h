@@ -36,6 +36,10 @@ namespace catapult { namespace cache {
 		virtual ~CacheChangesStorage() = default;
 
 	public:
+		/// Gets the cache id.
+		virtual size_t id() const = 0;
+
+	public:
 		/// Saves cache \a changes to \a output.
 		virtual void saveAll(const CacheChanges& changes, io::OutputStream& output) const = 0;
 
