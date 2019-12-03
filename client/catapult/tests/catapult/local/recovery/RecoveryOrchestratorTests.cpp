@@ -19,7 +19,7 @@
 **/
 
 #include "catapult/local/recovery/RecoveryOrchestrator.h"
-#include "catapult/cache/SupplementalData.h"
+#include "catapult/cache/SupplementalDataStorage.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/cache_core/BlockStatisticCache.h"
 #include "catapult/chain/BlockScorer.h"
@@ -155,10 +155,6 @@ namespace catapult { namespace local {
 
 		// region test context
 
-		observers::NotificationObserverPointerT<model::Notification> CreateMockObserver(std::vector<Height>& heights) {
-			return std::make_unique<mocks::MockBlockHeightCapturingNotificationObserver>(heights);
-		}
-
 		enum class Flags : uint8_t {
 			Default = 0,
 			Cache_Database_Enabled = 1
@@ -212,17 +208,21 @@ namespace catapult { namespace local {
 			}
 
 		public:
-			Height storageHeight() const {
-				io::IndexFile indexFile(dataDirectory().rootDir().file("index.dat"));
-				return Height(indexFile.get());
-			}
-
-			const std::vector<uint64_t>& blockScores() const {
+			const auto& blockScores() const {
 				return m_blockScores;
 			}
 
-			const std::vector<Height>& blockHeights() const {
+			const auto& blockHeights() const {
 				return m_blockHeights;
+			}
+
+			const auto& blockStates() const {
+				return m_blockStates;
+			}
+
+			Height storageHeight() const {
+				io::IndexFile indexFile(dataDirectory().rootDir().file("index.dat"));
+				return Height(indexFile.get());
 			}
 
 			config::CatapultConfiguration createConfig() const {
@@ -276,8 +276,12 @@ namespace catapult { namespace local {
 					pBootstrapper->subscriptionManager().addBlockChangeSubscriber(std::make_unique<mocks::MockBlockChangeSubscriber>());
 
 				if (m_enableBlockHeightsObserver) {
-					pBootstrapper->pluginManager().addObserverHook([&blockHeights = m_blockHeights](auto& builder) {
-						builder.add(CreateMockObserver(blockHeights));
+					pBootstrapper->pluginManager().addObserverHook([this](auto& builder) {
+						using ObserverPointer = observers::NotificationObserverPointerT<model::Notification>;
+						ObserverPointer pObserver = std::make_unique<const mocks::MockBlockHeightCapturingNotificationObserver>(
+								m_blockHeights,
+								m_blockStates);
+						builder.add(std::move(pObserver));
 					});
 				}
 
@@ -306,6 +310,7 @@ namespace catapult { namespace local {
 			bool m_enableBlockHeightsObserver;
 			std::vector<uint64_t> m_blockScores;
 			std::vector<Height> m_blockHeights;
+			std::vector<state::CatapultState> m_blockStates;
 			std::unique_ptr<RecoveryOrchestrator> m_pRecoveryOrchestrator;
 		};
 	}
@@ -506,6 +511,17 @@ namespace catapult { namespace local {
 			pStateChangeStorage->notifyStateChange({ cache::CacheChanges(cacheDelta), model::ChainScore(100), endHeight });
 		}
 
+		void PrepareSupplementalDataFile(const config::CatapultDirectory& directory) {
+			boost::filesystem::create_directories(directory.path());
+			auto supplementalDataStream = io::BufferedOutputFileStream(io::RawFile(
+					directory.file("supplemental.dat"),
+					io::OpenMode::Read_Write));
+
+			cache::SupplementalData supplementalData;
+			supplementalData.State.NumTotalTransactions = 998877;
+			cache::SaveSupplementalData(supplementalData, Height(), supplementalDataStream);
+		}
+
 		auto RunCanMoveBlocksTest(consumers::CommitOperationStep commitStep, Height expectedHeight) {
 			// Arrange: seed nemesis block
 			RecoveryOrchestratorTestContext context;
@@ -517,6 +533,9 @@ namespace catapult { namespace local {
 
 			// - prepare cache state changes
 			PrepareStateChanges(context, Height(2), Height(5));
+
+			// - prepare supplemental data
+			PrepareSupplementalDataFile(context.subDir("state.tmp"));
 
 			// Sanity:
 			EXPECT_TRUE(context.commitStepFileExists());
@@ -530,6 +549,17 @@ namespace catapult { namespace local {
 			EXPECT_FALSE(context.commitStepFileExists());
 			EXPECT_EQ(0u, context.countMessageFiles("block_sync"));
 			EXPECT_EQ(expectedHeight, context.storageHeight());
+
+			// - catapult state is loaded from supplemental data (using NumTotalTransactions as sentinel)
+			// - first state corresponds to nemesis, which is processed *BEFORE* loading supplemental data
+			EXPECT_FALSE(context.blockStates().empty());
+
+			auto i = 0u;
+			for (const auto& state : context.blockStates()) {
+				EXPECT_EQ(0 == i ? 0u : 998877u, state.NumTotalTransactions);
+				++i;
+			}
+
 			return context.blockHeights();
 		}
 	}

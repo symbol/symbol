@@ -30,19 +30,32 @@ namespace catapult { namespace mocks {
 		/// Creates a mock observer around \a blockHeights.
 		explicit MockBlockHeightCapturingNotificationObserver(std::vector<Height>& blockHeights)
 				: MockNotificationObserverT("MockBlockHeightCapturingNotificationObserver")
-				, m_blockHeights(blockHeights)
+				, m_pBlockHeights(&blockHeights)
+				, m_pBlockStates(nullptr)
+		{}
+
+		/// Creates a mock observer around \a blockHeights and \a blockStates.
+		MockBlockHeightCapturingNotificationObserver(std::vector<Height>& blockHeights, std::vector<state::CatapultState>& blockStates)
+				: MockNotificationObserverT("MockBlockHeightCapturingNotificationObserver")
+				, m_pBlockHeights(&blockHeights)
+				, m_pBlockStates(&blockStates)
 		{}
 
 	public:
 		void notify(const model::Notification& notification, observers::ObserverContext& context) const override {
 			MockNotificationObserverT::notify(notification, context);
 
-			// collect heights only when a block is processed
-			if (model::Core_Block_Notification == notification.Type)
-				m_blockHeights.push_back(context.Height);
+			// collect heights and states only when a block is processed
+			if (model::Core_Block_Notification == notification.Type) {
+				m_pBlockHeights->push_back(context.Height);
+
+				if (m_pBlockStates)
+					m_pBlockStates->push_back(context.Cache.dependentState());
+			}
 		}
 
 	private:
-		std::vector<Height>& m_blockHeights;
+		std::vector<Height>* m_pBlockHeights;
+		std::vector<state::CatapultState>* m_pBlockStates;
 	};
 }}

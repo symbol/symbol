@@ -49,6 +49,9 @@ namespace catapult { namespace extensions {
 	/// Returns \c true if serialized state is present in \a directory.
 	bool HasSerializedState(const config::CatapultDirectory& directory);
 
+	/// Loads dependent state from \a directory and updates \a cache.
+	void LoadDependentStateFromDirectory(const config::CatapultDirectory& directory, cache::CatapultCache& cache);
+
 	/// Loads catapult state into \a stateRef from \a directory given \a pluginManager.
 	StateHeights LoadStateFromDirectory(
 			const config::CatapultDirectory& directory,

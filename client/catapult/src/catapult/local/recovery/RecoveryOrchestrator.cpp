@@ -212,8 +212,11 @@ namespace catapult { namespace local {
 				auto startHeight = MoveBlockFiles(m_dataDirectory.spoolDir("block_sync"), *m_pBlockStorage);
 
 				// when verifiable state is enabled, forcibly regenerate all patricia trees because cache changes are coalesced
-				if (stateRef().Config.BlockChain.EnableVerifiableState && startHeight > Height(0))
+				if (stateRef().Config.BlockChain.EnableVerifiableState && startHeight > Height(0)) {
+					CATAPULT_LOG(debug) << "- reloading supplemental state";
+					extensions::LoadDependentStateFromDirectory(m_dataDirectory.dir("state"), stateRef().Cache);
 					reapplyBlocks(startHeight);
+				}
 
 				// when cache database storage is enabled and State_Written,
 				// cache database and supplemental data are updated by repairState
