@@ -20,11 +20,12 @@
 
 #pragma once
 #include "plugins/txes/lock_shared/src/state/LockInfo.h"
+#include "catapult/plugins.h"
 
 namespace catapult { namespace state {
 
 	/// Hash lock info.
-	struct HashLockInfo : public LockInfo {
+	struct PLUGIN_API_DEPENDENCY HashLockInfo : public LockInfo {
 	public:
 		/// Creates a default hash lock info.
 		HashLockInfo() : LockInfo()

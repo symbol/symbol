@@ -20,6 +20,7 @@
 
 #pragma once
 #include "CacheStorageInclude.h"
+#include "catapult/plugins.h"
 #include <string>
 
 namespace catapult {
@@ -32,7 +33,7 @@ namespace catapult {
 namespace catapult { namespace cache {
 
 	/// Interface for loading and saving cache data.
-	class CacheStorage {
+	class PLUGIN_API_DEPENDENCY CacheStorage {
 	public:
 		virtual ~CacheStorage() = default;
 

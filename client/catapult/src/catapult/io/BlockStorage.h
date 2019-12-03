@@ -60,7 +60,7 @@ namespace catapult { namespace io {
 	};
 
 	/// Interface that allows saving, loading and pruning blocks.
-	class PrunableBlockStorage : public BlockStorage {
+	class PLUGIN_API_DEPENDENCY PrunableBlockStorage : public BlockStorage {
 	public:
 		/// Purges all blocks from storage.
 		virtual void purge() = 0;

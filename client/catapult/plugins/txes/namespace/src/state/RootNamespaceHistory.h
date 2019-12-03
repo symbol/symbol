@@ -21,6 +21,7 @@
 #pragma once
 #include "RootNamespace.h"
 #include "catapult/utils/Functional.h"
+#include "catapult/plugins.h"
 #include <boost/optional.hpp>
 #include <list>
 #include <set>
@@ -28,7 +29,7 @@
 namespace catapult { namespace state {
 
 	/// Root namespace history.
-	class RootNamespaceHistory {
+	class PLUGIN_API_DEPENDENCY RootNamespaceHistory {
 	public:
 		static constexpr auto Is_Deactivation_Destructive = true;
 

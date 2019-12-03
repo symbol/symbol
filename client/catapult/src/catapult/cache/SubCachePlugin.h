@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "catapult/plugins.h"
 #include "catapult/types.h"
 #include <memory>
 #include <string>
@@ -65,7 +66,7 @@ namespace catapult { namespace cache {
 	// region SubCacheView / DetachedSubCacheView
 
 	/// Sub cache view.
-	class SubCacheView {
+	class PLUGIN_API_DEPENDENCY SubCacheView {
 	public:
 		virtual ~SubCacheView() = default;
 
@@ -96,7 +97,7 @@ namespace catapult { namespace cache {
 	};
 
 	/// Detached sub cache view.
-	class DetachedSubCacheView {
+	class PLUGIN_API_DEPENDENCY DetachedSubCacheView {
 	public:
 		virtual ~DetachedSubCacheView() = default;
 

@@ -19,12 +19,13 @@
 **/
 
 #pragma once
+#include "catapult/plugins.h"
 #include "catapult/types.h"
 
 namespace catapult { namespace io {
 
 	/// Reader interface.
-	class InputStream {
+	class PLUGIN_API_DEPENDENCY InputStream {
 	public:
 		virtual ~InputStream() = default;
 
@@ -38,7 +39,7 @@ namespace catapult { namespace io {
 	};
 
 	/// Writer interface.
-	class OutputStream {
+	class PLUGIN_API_DEPENDENCY OutputStream {
 	public:
 		virtual ~OutputStream() = default;
 

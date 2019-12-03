@@ -21,12 +21,13 @@
 #pragma once
 #include "ObserverContext.h"
 #include "catapult/model/Notifications.h"
+#include "catapult/plugins.h"
 
 namespace catapult { namespace observers {
 
 	/// Strongly typed notification observer.
 	template<typename TNotification>
-	class NotificationObserverT {
+	class PLUGIN_API_DEPENDENCY NotificationObserverT {
 	public:
 		/// Notification type.
 		using NotificationType = TNotification;

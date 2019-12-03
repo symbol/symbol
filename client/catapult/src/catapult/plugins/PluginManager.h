@@ -49,7 +49,7 @@ namespace catapult { namespace plugins {
 	};
 
 	/// Manager for registering plugins.
-	class PluginManager {
+	class PLUGIN_API_DEPENDENCY PluginManager {
 	private:
 		using HandlerHook = consumer<ionet::ServerPacketHandlers&, const cache::CatapultCache&>;
 		using CounterHook = consumer<std::vector<utils::DiagnosticCounter>&, const cache::CatapultCache&>;

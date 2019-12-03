@@ -25,7 +25,7 @@
 namespace catapult { namespace cache {
 
 	/// Unconfirmed transactions change subscriber.
-	class UtChangeSubscriber {
+	class PLUGIN_API_DEPENDENCY UtChangeSubscriber {
 	public:
 		using TransactionInfos = model::TransactionInfosSet;
 

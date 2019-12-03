@@ -20,6 +20,7 @@
 
 #pragma once
 #include "catapult/validators/ValidationResult.h"
+#include "catapult/plugins.h"
 #include "catapult/types.h"
 
 namespace catapult { namespace model { struct Transaction; } }
@@ -27,7 +28,7 @@ namespace catapult { namespace model { struct Transaction; } }
 namespace catapult { namespace subscribers {
 
 	/// Transaction status subscriber.
-	class TransactionStatusSubscriber {
+	class PLUGIN_API_DEPENDENCY TransactionStatusSubscriber {
 	public:
 		virtual ~TransactionStatusSubscriber() = default;
 

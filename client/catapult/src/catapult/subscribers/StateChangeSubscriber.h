@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "catapult/plugins.h"
 
 namespace catapult {
 	namespace model { class ChainScore; }
@@ -28,7 +29,7 @@ namespace catapult {
 namespace catapult { namespace subscribers {
 
 	/// State change subscriber.
-	class StateChangeSubscriber {
+	class PLUGIN_API_DEPENDENCY StateChangeSubscriber {
 	public:
 		virtual ~StateChangeSubscriber() = default;
 

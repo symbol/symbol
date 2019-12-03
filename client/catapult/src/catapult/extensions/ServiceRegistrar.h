@@ -20,6 +20,7 @@
 
 #pragma once
 #include "ServiceRegistrarPhase.h"
+#include "catapult/plugins.h"
 #include <memory>
 #include <string>
 
@@ -42,7 +43,7 @@ namespace catapult { namespace extensions {
 	};
 
 	/// Registrar for registering a service.
-	class ServiceRegistrar {
+	class PLUGIN_API_DEPENDENCY ServiceRegistrar {
 	public:
 		virtual ~ServiceRegistrar() = default;
 

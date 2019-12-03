@@ -42,7 +42,7 @@ namespace catapult { namespace state {
 	};
 
 	/// Account state data.
-	struct AccountState {
+	struct PLUGIN_API_DEPENDENCY AccountState {
 	public:
 		/// Creates an account state from \a address and \a addressHeight.
 		AccountState(const catapult::Address& address, Height addressHeight)

@@ -21,11 +21,12 @@
 #pragma once
 #include "MetadataKey.h"
 #include "MetadataValue.h"
+#include "catapult/plugins.h"
 
 namespace catapult { namespace state {
 
 	/// Metadata entry.
-	class MetadataEntry {
+	class PLUGIN_API_DEPENDENCY MetadataEntry {
 	public:
 		/// Creates an entry around \a key.
 		explicit MetadataEntry(const MetadataKey& key);

@@ -25,6 +25,7 @@
 #include "NotificationType.h"
 #include "catapult/utils/ArraySet.h"
 #include "catapult/utils/TimeSpan.h"
+#include "catapult/plugins.h"
 #include "catapult/types.h"
 #include <vector>
 
@@ -33,7 +34,7 @@ namespace catapult { namespace model {
 	// region base notification
 
 	/// Basic notification.
-	struct Notification {
+	struct PLUGIN_API_DEPENDENCY Notification {
 	public:
 		/// Creates a new notification with \a type and \a size.
 		Notification(NotificationType type, size_t size)

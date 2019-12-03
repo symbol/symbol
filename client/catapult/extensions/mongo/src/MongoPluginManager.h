@@ -29,7 +29,7 @@
 namespace catapult { namespace mongo {
 
 	/// Manager for registering mongo plugins.
-	class MongoPluginManager {
+	class PLUGIN_API_DEPENDENCY MongoPluginManager {
 	public:
 		/// Creates a new plugin manager around \a mongoContext and \a networkIdentifier.
 		MongoPluginManager(MongoStorageContext& mongoContext, model::NetworkIdentifier networkIdentifier);

@@ -47,7 +47,7 @@ namespace catapult { namespace state {
 	// region MosaicEntry
 
 	/// Tuple composed of a mosaic definition and its current state.
-	class MosaicEntry : public MosaicEntrySupplyMixin {
+	class PLUGIN_API_DEPENDENCY MosaicEntry : public MosaicEntrySupplyMixin {
 	public:
 		static constexpr auto Is_Deactivation_Destructive = false;
 

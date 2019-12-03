@@ -20,12 +20,6 @@
 
 #pragma once
 
-#if defined(__APPLE__)
-#define ATTRIBUTE_CALLS_PLUGIN_API __attribute__ ((no_sanitize("function")))
-#else
-#define ATTRIBUTE_CALLS_PLUGIN_API
-#endif
-
 #if defined(__GNUC__) && !defined(__clang__)
 // gcc raises `redundant-move` when explicit std::move is present
 #define PORTABLE_MOVE(X) X

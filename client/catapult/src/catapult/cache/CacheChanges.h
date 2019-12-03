@@ -29,13 +29,13 @@ namespace catapult { namespace cache {
 
 	/// Deserialized cache changes for a single cache.
 	/// \note This is used for tagging.
-	struct MemoryCacheChanges : public utils::NonCopyable {
+	struct PLUGIN_API_DEPENDENCY MemoryCacheChanges : public utils::NonCopyable {
 		virtual ~MemoryCacheChanges() = default;
 	};
 
 	/// Deserialized cache changes for a single cache.
 	template<typename TValue>
-	struct MemoryCacheChangesT : public MemoryCacheChanges {
+	struct PLUGIN_API_DEPENDENCY MemoryCacheChangesT : public MemoryCacheChanges {
 		/// Added elements.
 		std::vector<TValue> Added;
 
