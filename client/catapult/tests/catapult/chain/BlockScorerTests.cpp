@@ -427,11 +427,12 @@ namespace catapult { namespace chain {
 		expectedTarget *= multiplier; // magic number with smoothing multiplier
 		expectedTarget /= 50'000'000'000'000; // difficulty
 
-		// Assert:
-		EXPECT_EQ(expectedTarget, target);
+		// Assert: target is very close to expected target
+		EXPECT_GT(1.0001, expectedTarget.convert_to<double>() / target.convert_to<double>());
+		EXPECT_LT(0.9999, expectedTarget.convert_to<double>() / target.convert_to<double>());
 	}
 
-	TEST(TEST_CLASS, BlockTargetSmoothingIsCapped) {
+	TEST(TEST_CLASS, BlockTargetSmoothingIsCappedOnUpperEnd) {
 		// Act:
 		auto config = CreateConfiguration();
 		config.BlockGenerationTargetTime = utils::TimeSpan::FromSeconds(10);
@@ -440,6 +441,18 @@ namespace catapult { namespace chain {
 
 		// Assert:
 		auto expectedTarget = GetWellKnownBlockTarget(Max_Smoothing);
+		EXPECT_EQ(expectedTarget, target);
+	}
+
+	TEST(TEST_CLASS, BlockTargetSmoothingIsCappedOnLowerEnd) {
+		// Act:
+		auto config = CreateConfiguration();
+		config.BlockGenerationTargetTime = utils::TimeSpan::FromSeconds(1000);
+		config.BlockTimeSmoothingFactor = 6000;
+		auto target = CalculateBlockTarget(900, 1000, 72000, 50, config);
+
+		// Assert:
+		auto expectedTarget = GetWellKnownBlockTarget(0);
 		EXPECT_EQ(expectedTarget, target);
 	}
 

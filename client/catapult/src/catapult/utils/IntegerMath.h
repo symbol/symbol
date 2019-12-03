@@ -67,6 +67,9 @@ namespace catapult { namespace utils {
 	/// Calculates log2(\a value^(2^\a n)).
 	uint64_t Log2TimesPowerOfTwo(uint64_t value, uint64_t n);
 
+	/// Calculates 2^(\a value) with fixed point s15.16.
+	uint32_t FixedPointPowerOfTwo(int32_t value);
+
 	/// Calculates 2^(\a value).
 	template<typename T, typename X = std::enable_if_t<std::is_unsigned_v<T>>>
 	constexpr T Pow2(T value) {

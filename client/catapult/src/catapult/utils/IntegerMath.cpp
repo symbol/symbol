@@ -72,4 +72,24 @@ namespace catapult { namespace utils {
 
 		return y;
 	}
+
+	// compute 2^value in s15.16 fixed-point arithmetic, -15 < value < 15
+	// note that the accuracy gets worse as value gets smaller, therefore it should only be used for -5 < value < 15
+	uint32_t FixedPointPowerOfTwo(int32_t value) {
+		// split value = i + f, such that f in (-0.5, 0.5]
+		auto i = (value + 0x8000) & ~0xFFFF;
+		auto f = value - i;
+		auto s = ((15 << 16) - i) / 65'536;
+
+		// minimax approximation for 2^f on (-0.5, 0.5]
+		// 5.5171669058037949e-2 (approx. 0x00000E20 / 2^16)
+		// 2.4261112219321804e-1 (approx. 0x3E1CC333 / 2^32)
+		// 6.9326098546062365e-1 (approx. 0x58BD46A6 / 2^31)
+		// 9.9992807353939517e-1 (approx. 0x7FFDE4A3 / 2^31)
+		int64_t r = 0x00000E20;
+		r = (r * f + 0x3E1CC333) / 131'072;
+		r = (r * f + 0x58BD46A6) / 65'536;
+		r = r * f + 0x7FFDE4A3;
+		return static_cast<uint32_t>(r) >> s;
+	}
 }}
