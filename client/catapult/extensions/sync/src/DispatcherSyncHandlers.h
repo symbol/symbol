@@ -28,9 +28,6 @@ namespace catapult {
 
 namespace catapult { namespace sync {
 
-	/// Creates a commit step handler around \a dataDirectory.
-	consumers::BlockChainSyncHandlers::CommitStepFunc CreateCommitStepHandler(const config::CatapultDataDirectory& dataDirectory);
-
 	/// Updates \a syncHandlers to support supplemental data resiliency given \a dataDirectory, \a cache and \a score.
 	void AddSupplementalDataResiliency(
 			consumers::BlockChainSyncHandlers& syncHandlers,

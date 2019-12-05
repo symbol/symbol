@@ -41,7 +41,13 @@ namespace catapult { namespace subscribers {
 		// region MockCacheChangesStorageReader / ReadValueAt
 
 		// simulate CacheChangesStorage by reading single uint32_t value in loadAll and inserting it into Added container (as sentinel)
+		template<size_t CacheId>
 		class MockCacheChangesStorageReader : public cache::CacheChangesStorage {
+		public:
+			size_t id() const override {
+				return CacheId;
+			}
+
 		public:
 			void saveAll(const cache::CacheChanges&, io::OutputStream&) const override {
 				CATAPULT_THROW_INVALID_ARGUMENT("saveAll - not supported in mock");
@@ -111,8 +117,8 @@ namespace catapult { namespace subscribers {
 		// - simulate two cache changes storages
 		mocks::MockMemoryStream stream(buffer);
 		CacheChangesStorages cacheChangesStorages;
-		cacheChangesStorages.emplace_back(std::make_unique<MockCacheChangesStorageReader>());
-		cacheChangesStorages.emplace_back(std::make_unique<MockCacheChangesStorageReader>());
+		cacheChangesStorages.emplace_back(std::make_unique<MockCacheChangesStorageReader<3>>());
+		cacheChangesStorages.emplace_back(std::make_unique<MockCacheChangesStorageReader<7>>());
 		mocks::MockStateChangeSubscriber subscriber;
 
 		// Act:
@@ -127,8 +133,8 @@ namespace catapult { namespace subscribers {
 		EXPECT_EQ(Height(values[2]), capturedStateChangeInfo.Height);
 
 		// - each cache changes storage extracted single uint32_t value
-		EXPECT_EQ(values[3] & 0xFFFF'FFFF, ReadValueAt<0>(capturedStateChangeInfo));
-		EXPECT_EQ(values[3] >> 32, ReadValueAt<1>(capturedStateChangeInfo));
+		EXPECT_EQ(values[3] & 0xFFFF'FFFF, ReadValueAt<3>(capturedStateChangeInfo));
+		EXPECT_EQ(values[3] >> 32, ReadValueAt<7>(capturedStateChangeInfo));
 	}
 
 	TEST(TEST_CLASS, CannotReadSingleUnknownOperationType) {

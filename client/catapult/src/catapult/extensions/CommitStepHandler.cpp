@@ -18,35 +18,25 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#pragma once
-#include "CacheChanges.h"
+#include "CommitStepHandler.h"
+#include "catapult/config/CatapultDataDirectory.h"
+#include "catapult/io/IndexFile.h"
 
-namespace catapult {
-	namespace io {
-		class InputStream;
-		class OutputStream;
+namespace catapult { namespace extensions {
+
+	consumers::BlockChainSyncHandlers::CommitStepFunc CreateCommitStepHandler(const config::CatapultDataDirectory& dataDirectory) {
+		return [dataDirectory](auto step) {
+			io::IndexFile(dataDirectory.rootDir().file("commit_step.dat")).set(utils::to_underlying_type(step));
+
+			if (consumers::CommitOperationStep::All_Updated != step)
+				return;
+
+			auto stateChangeDirectory = dataDirectory.spoolDir("state_change");
+			auto syncIndexWriterFile = io::IndexFile(stateChangeDirectory.file("index_server.dat"));
+			if (!syncIndexWriterFile.exists())
+				return;
+
+			io::IndexFile(stateChangeDirectory.file("index.dat")).set(syncIndexWriterFile.get());
+		};
 	}
-}
-
-namespace catapult { namespace cache {
-
-	/// Interface for loading and saving cache changes.
-	class CacheChangesStorage {
-	public:
-		virtual ~CacheChangesStorage() = default;
-
-	public:
-		/// Gets the cache id.
-		virtual size_t id() const = 0;
-
-	public:
-		/// Saves cache \a changes to \a output.
-		virtual void saveAll(const CacheChanges& changes, io::OutputStream& output) const = 0;
-
-		/// Loads cache changes from \a input.
-		virtual std::unique_ptr<const MemoryCacheChanges> loadAll(io::InputStream& input) const = 0;
-
-		/// Applies cache \a changes to the underlying cache.
-		virtual void apply(const CacheChanges& changes) const = 0;
-	};
 }}

@@ -53,7 +53,7 @@ namespace catapult { namespace harvesting {
 			io::RawFile input(filename, io::OpenMode::Read_Only);
 			if (0 != input.size() % entrySize) {
 				CATAPULT_LOG(warning) << filename << " is corrupt with size (" << input.size() << ")";
-				CATAPULT_THROW_RUNTIME_ERROR_1("file contains imcomplete entries", filename);
+				CATAPULT_THROW_RUNTIME_ERROR_1("file contains incomplete entries", filename);
 			}
 
 			auto entryStartPosition = input.size() - entrySize;

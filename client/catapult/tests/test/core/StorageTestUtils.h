@@ -19,12 +19,26 @@
 **/
 
 #pragma once
+#include "catapult/functions.h"
 #include <string>
+
+namespace catapult {
+	namespace model {
+		struct Block;
+		struct BlockElement;
+	}
+}
 
 namespace catapult { namespace test {
 
-	/// Prepares the storage by copying seed data into the \a destination directory.
+	/// Prepares the storage by creating the \a destination directory structure and seeding a nemesis block.
 	void PrepareStorage(const std::string& destination);
+
+	/// Prepares the storage by creating the \a destination directory structure.
+	void PrepareStorageWithoutNemesis(const std::string& destination);
+
+	/// Modifies the nemesis block stored in \a destination by applying \a modify.
+	void ModifyNemesis(const std::string& destination, const consumer<model::Block&, const model::BlockElement&>& modify);
 
 	/// Fakes file-based chain located at \a destination to \a height
 	/// by setting proper value in index.dat and filling 00000/hashes.dat.

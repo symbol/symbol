@@ -58,13 +58,41 @@ namespace catapult { namespace extensions {
 
 	// endregion
 
-	// region LoadStateFromDirectory
+	// region LoadDependentStateFromDirectory
 
 	namespace {
 		io::BufferedInputFileStream OpenInputStream(const config::CatapultDirectory& directory, const std::string& filename) {
 			return io::BufferedInputFileStream(io::RawFile(directory.file(filename), io::OpenMode::Read_Only));
 		}
 
+		void LoadDependentStateFromDirectory(
+				const config::CatapultDirectory& directory,
+				cache::CatapultCache& cache,
+				cache::SupplementalData& supplementalData) {
+			// load supplemental data
+			Height chainHeight;
+			{
+				auto inputStream = OpenInputStream(directory, Supplemental_Data_Filename);
+				cache::LoadSupplementalData(inputStream, supplementalData, chainHeight);
+			}
+
+			// commit changes
+			auto cacheDelta = cache.createDelta();
+			cacheDelta.dependentState() = supplementalData.State;
+			cache.commit(chainHeight);
+		}
+	}
+
+	void LoadDependentStateFromDirectory(const config::CatapultDirectory& directory, cache::CatapultCache& cache) {
+		cache::SupplementalData supplementalData;
+		LoadDependentStateFromDirectory(directory, cache, supplementalData);
+	}
+
+	// endregion
+
+	// region LoadStateFromDirectory
+
+	namespace {
 		bool LoadStateFromDirectory(
 				const config::CatapultDirectory& directory,
 				cache::CatapultCache& cache,
@@ -80,16 +108,7 @@ namespace catapult { namespace extensions {
 			}
 
 			// 2. load supplemental data
-			Height chainHeight;
-			{
-				auto inputStream = OpenInputStream(directory, Supplemental_Data_Filename);
-				cache::LoadSupplementalData(inputStream, supplementalData, chainHeight);
-			}
-
-			// 3. commit changes
-			auto cacheDelta = cache.createDelta();
-			cacheDelta.dependentState() = supplementalData.State;
-			cache.commit(chainHeight);
+			LoadDependentStateFromDirectory(directory, cache, supplementalData);
 			return true;
 		}
 	}

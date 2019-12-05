@@ -109,7 +109,7 @@ namespace catapult { namespace cache {
 
 	// endregion
 
-	// region SingleCacheChanges - cache delta
+	// region SingleCacheChanges - memory cache changes
 
 	TEST(TEST_CLASS, SingleCacheChangesCanDelegateToMemoryCacheChanges_AddedElements) {
 		// Arrange:
@@ -156,6 +156,41 @@ namespace catapult { namespace cache {
 			&memoryCacheChanges.Removed[0], &memoryCacheChanges.Removed[1], &memoryCacheChanges.Removed[2], &memoryCacheChanges.Removed[3]
 		};
 		EXPECT_EQ(expected, result);
+	}
+
+	// endregion
+
+	// region SingleCacheChanges - ordering
+
+	TEST(TEST_CLASS, SingleCacheChangesDoesNotPreserveOrderOfMapElements) {
+		// Arrange:
+		VectorCacheDeltas deltas;
+		deltaset::DeltaElementsMixin<VectorCacheDeltas> cacheDelta(deltas);
+
+		// Act:
+		VectorSingleCacheChanges cacheChanges(cacheDelta);
+		auto result = cacheChanges.addedElements();
+
+		// Assert:
+		EXPECT_FALSE(utils::traits::is_map_v<std::remove_reference_t<decltype(result)>>);
+		EXPECT_FALSE(utils::traits::is_ordered_v<std::remove_reference_t<decltype(result)>>);
+	}
+
+	TEST(TEST_CLASS, SingleCacheChangesPreservesOrderOfOrderedSetElements) {
+		// Arrange:
+		using ByteSetCacheDeltas = test::DeltaElementsTestUtils::Wrapper<std::set<uint8_t>>;
+		using ByteSetSingleCacheChanges = SingleCacheChangesT<deltaset::DeltaElementsMixin<ByteSetCacheDeltas>, uint8_t>;
+
+		ByteSetCacheDeltas deltas;
+		deltaset::DeltaElementsMixin<ByteSetCacheDeltas> cacheDelta(deltas);
+
+		// Act:
+		ByteSetSingleCacheChanges cacheChanges(cacheDelta);
+		auto result = cacheChanges.addedElements();
+
+		// Assert:
+		EXPECT_FALSE(utils::traits::is_map_v<std::remove_reference_t<decltype(result)>>);
+		EXPECT_TRUE(utils::traits::is_ordered_v<std::remove_reference_t<decltype(result)>>);
 	}
 
 	// endregion

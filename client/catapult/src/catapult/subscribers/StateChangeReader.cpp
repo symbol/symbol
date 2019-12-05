@@ -38,8 +38,13 @@ namespace catapult { namespace subscribers {
 
 		cache::CacheChanges ReadCacheChanges(io::InputStream& inputStream, const CacheChangesStorages& cacheChangesStorages) {
 			cache::CacheChanges::MemoryCacheChangesContainer loadedChanges;
-			for (const auto& pStorage : cacheChangesStorages)
-				loadedChanges.push_back(pStorage->loadAll(inputStream));
+			for (const auto& pStorage : cacheChangesStorages) {
+				auto cacheId = pStorage->id();
+				if (loadedChanges.size() <= cacheId)
+					loadedChanges.resize(cacheId + 1);
+
+				loadedChanges[cacheId] = pStorage->loadAll(inputStream);
+			}
 
 			return cache::CacheChanges(std::move(loadedChanges));
 		}

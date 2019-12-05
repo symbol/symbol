@@ -26,6 +26,7 @@
 #include "NodeUtils.h"
 #include "StaticNodeRefreshService.h"
 #include "catapult/config/CatapultDataDirectory.h"
+#include "catapult/extensions/CommitStepHandler.h"
 #include "catapult/extensions/ConfigurationUtils.h"
 #include "catapult/extensions/LocalNodeChainScore.h"
 #include "catapult/extensions/LocalNodeStateFileStorage.h"
@@ -183,6 +184,10 @@ namespace catapult { namespace local {
 					notifier.raise(*m_pBlockChangeSubscriber);
 
 				notifier.raise(*m_pStateChangeSubscriber);
+
+				// indicate the nemesis block is fully updated so that it can be processed downstream immediately
+				auto commitStep = extensions::CreateCommitStepHandler(m_dataDirectory);
+				commitStep(consumers::CommitOperationStep::All_Updated);
 
 				// skip next *two* messages because subscriber creates two files during raise (score change and state change)
 				if (m_config.Node.EnableAutoSyncCleanup)

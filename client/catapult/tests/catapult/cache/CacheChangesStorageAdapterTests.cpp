@@ -29,6 +29,28 @@ namespace catapult { namespace cache {
 
 	using StorageAdapter = CacheChangesStorageAdapter<test::DeltasAwareCache<0>, test::DeltasAwareCacheStorageTraits>;
 
+	// region id
+
+	namespace {
+		template<size_t CacheId>
+		size_t GetCacheId() {
+			// Arrange:
+			test::ByteVectorCacheDeltas deltas;
+			test::DeltasAwareCache<CacheId> cache(deltas);
+			CacheChangesStorageAdapter<test::DeltasAwareCache<CacheId>, test::DeltasAwareCacheStorageTraits> adapter(cache);
+
+			// Act:
+			return adapter.id();
+		}
+	}
+
+	TEST(TEST_CLASS, AdapterExposesCacheId) {
+		EXPECT_EQ(4u, GetCacheId<4>());
+		EXPECT_EQ(7u, GetCacheId<7>());
+	}
+
+	// endregion
+
 	// region saveAll
 
 	TEST(TEST_CLASS, CanSaveTypedChanges) {

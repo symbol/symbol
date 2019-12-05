@@ -52,10 +52,25 @@ namespace catapult { namespace deltaset {
 		// endregion
 
 	private:
+		template<typename TSet>
+		struct PointerComparer {
+			bool operator()(const typename TSet::value_type* pLhs, const typename TSet::value_type* pRhs) const {
+				return typename TSet::key_compare()(*pLhs, *pRhs);
+			}
+		};
+
 		// use MemorySetType for detection because it is always stl (memory) container
-		using ValueAccessor = ValueAccessorT<typename TSetDelta::MemorySetType>;
+		using MemorySetType = typename TSetDelta::MemorySetType;
+		using ValueAccessor = ValueAccessorT<MemorySetType>;
 		using ValueType = typename ValueAccessor::ValueType;
-		using PointerContainer = std::unordered_set<const ValueType*>;
+
+		// only ordered sets (not maps) support ordered pointers
+		// [this constraint is inconsequential because ordered maps aren't currently used]
+		using PointerContainer = std::conditional_t<
+			!utils::traits::is_map_v<MemorySetType> && utils::traits::is_ordered_v<MemorySetType>,
+			std::set<const ValueType*, PointerComparer<MemorySetType>>,
+			std::unordered_set<const ValueType*>
+		>;
 
 	public:
 		/// Creates a mixin around \a setDelta.

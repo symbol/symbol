@@ -19,34 +19,12 @@
 **/
 
 #pragma once
-#include "CacheChanges.h"
+#include "catapult/consumers/BlockChainSyncHandlers.h"
 
-namespace catapult {
-	namespace io {
-		class InputStream;
-		class OutputStream;
-	}
-}
+namespace catapult { namespace config { class CatapultDataDirectory; } }
 
-namespace catapult { namespace cache {
+namespace catapult { namespace extensions {
 
-	/// Interface for loading and saving cache changes.
-	class CacheChangesStorage {
-	public:
-		virtual ~CacheChangesStorage() = default;
-
-	public:
-		/// Gets the cache id.
-		virtual size_t id() const = 0;
-
-	public:
-		/// Saves cache \a changes to \a output.
-		virtual void saveAll(const CacheChanges& changes, io::OutputStream& output) const = 0;
-
-		/// Loads cache changes from \a input.
-		virtual std::unique_ptr<const MemoryCacheChanges> loadAll(io::InputStream& input) const = 0;
-
-		/// Applies cache \a changes to the underlying cache.
-		virtual void apply(const CacheChanges& changes) const = 0;
-	};
+	/// Creates a commit step handler around \a dataDirectory.
+	consumers::BlockChainSyncHandlers::CommitStepFunc CreateCommitStepHandler(const config::CatapultDataDirectory& dataDirectory);
 }}

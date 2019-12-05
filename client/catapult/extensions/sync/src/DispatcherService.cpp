@@ -39,6 +39,7 @@
 #include "catapult/consumers/TransactionConsumers.h"
 #include "catapult/consumers/UndoBlock.h"
 #include "catapult/disruptor/BatchRangeDispatcher.h"
+#include "catapult/extensions/CommitStepHandler.h"
 #include "catapult/extensions/DispatcherUtils.h"
 #include "catapult/extensions/ExecutionConfigurationFactory.h"
 #include "catapult/extensions/LocalNodeChainScore.h"
@@ -186,7 +187,7 @@ namespace catapult { namespace sync {
 			auto dataDirectory = config::CatapultDataDirectory(state.config().User.DataDirectory);
 			syncHandlers.PreStateWritten = [](const auto&, auto) {};
 			syncHandlers.TransactionsChange = state.hooks().transactionsChangeHandler();
-			syncHandlers.CommitStep = CreateCommitStepHandler(dataDirectory);
+			syncHandlers.CommitStep = extensions::CreateCommitStepHandler(dataDirectory);
 
 			if (state.config().Node.EnableCacheDatabaseStorage)
 				AddSupplementalDataResiliency(syncHandlers, dataDirectory, state.cache(), state.score());

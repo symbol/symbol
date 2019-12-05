@@ -26,6 +26,11 @@ namespace catapult { namespace local {
 	namespace {
 		constexpr auto Broker_Lock_Filename = "broker.lock";
 		constexpr auto Server_Lock_Filename = "server.lock";
+
+		// this file can always be deleted because, on success, it is moved to harvesters.dat
+		// it will only ever exist when there is a failure (and it was created but something happened before it was moved)
+		constexpr auto Harvesters_Temp_Filename = "harvesters.dat.tmp";
+
 		constexpr auto Commit_Step_Filename = "commit_step.dat";
 	}
 
@@ -48,7 +53,7 @@ namespace catapult { namespace local {
 	}
 
 	void CatapultSystemState::reset() {
-		for (const auto& filename : { Broker_Lock_Filename, Server_Lock_Filename, Commit_Step_Filename })
+		for (const auto& filename : { Broker_Lock_Filename, Server_Lock_Filename, Harvesters_Temp_Filename, Commit_Step_Filename })
 			boost::filesystem::remove(qualifyRootFile(filename));
 	}
 

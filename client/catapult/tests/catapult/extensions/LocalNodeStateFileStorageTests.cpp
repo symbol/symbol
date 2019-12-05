@@ -169,6 +169,33 @@ namespace catapult { namespace extensions {
 
 	// endregion
 
+	// region LoadDependentStateFromDirectory
+
+	TEST(TEST_CLASS, LoadDependentStateFromDirectory_LoadsAndUpdatesDependentState) {
+		// Arrange: seed and save the cache state with rocks disabled
+		test::TempDirectoryGuard tempDir;
+		auto stateDirectory = config::CatapultDirectory(tempDir.name() + "/zstate");
+		auto blockChainConfig = model::BlockChainConfiguration::Uninitialized();
+		auto originalCache = test::CoreSystemCacheFactory::Create(blockChainConfig);
+
+		// - save the state
+		PrepareAndSaveCompleteState(stateDirectory, originalCache);
+
+		// Sanity:
+		auto cache = test::CoreSystemCacheFactory::Create(blockChainConfig);
+		test::AssertEqual(state::CatapultState(), cache.createView().dependentState());
+
+		// Act: load the state
+		LoadDependentStateFromDirectory(stateDirectory, cache);
+
+		// Assert: cache was updated
+		auto cacheView = cache.createView();
+		test::AssertEqual(CreateDeterministicSupplementalData().State, cacheView.dependentState());
+		EXPECT_EQ(Height(54321), cacheView.height());
+	}
+
+	// endregion
+
 	// region LoadStateFromDirectory - first boot
 
 	TEST(TEST_CLASS, NemesisBlockIsExecutedWhenSupplementalDataFileIsNotPresent) {
