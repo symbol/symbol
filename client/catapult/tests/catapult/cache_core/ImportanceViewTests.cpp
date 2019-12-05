@@ -22,6 +22,7 @@
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/model/Address.h"
 #include "catapult/model/NetworkInfo.h"
+#include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/cache/ImportanceViewTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -36,14 +37,7 @@ namespace catapult { namespace cache {
 
 	namespace {
 		constexpr auto Harvesting_Mosaic_Id = MosaicId(9876);
-
-		constexpr auto Default_Cache_Options = AccountStateCacheTypes::Options{
-			model::NetworkIdentifier::Mijin_Test,
-			123,
-			Amount(),
-			MosaicId(1111),
-			Harvesting_Mosaic_Id
-		};
+		constexpr auto Default_Cache_Options = test::CreateDefaultAccountStateCacheOptions(MosaicId(1111), Harvesting_Mosaic_Id);
 
 		struct AddressTraits {
 			static auto AddAccount(AccountStateCacheDelta& delta, const Key& publicKey, Height height) {
@@ -105,10 +99,15 @@ namespace catapult { namespace cache {
 			return model::ConvertToImportanceHeight(height, Default_Cache_Options.ImportanceGrouping);
 		}
 
-		auto CreateAccountStateCache(Amount minHarvesterBalance = Amount(std::numeric_limits<Amount::ValueType>::max())) {
+		auto CreateAccountStateCache(Amount minHarvesterBalance, Amount maxHarvesterBalance) {
 			auto options = Default_Cache_Options;
 			options.MinHarvesterBalance = minHarvesterBalance;
+			options.MaxHarvesterBalance = maxHarvesterBalance;
 			return std::make_unique<AccountStateCache>(CacheConfiguration(), options);
+		}
+
+		auto CreateAccountStateCache() {
+			return CreateAccountStateCache(Amount(), Amount(std::numeric_limits<Amount::ValueType>::max()));
 		}
 	}
 
@@ -220,7 +219,7 @@ namespace catapult { namespace cache {
 		// Arrange:
 		auto key = test::GenerateRandomByteArray<Key>();
 		auto height = Height(1000);
-		auto pCache = CreateAccountStateCache(Amount(1234));
+		auto pCache = CreateAccountStateCache(Amount(1234), Amount(9876));
 		AddAccount<TTraits>(*pCache, key, Importance(1000), ConvertToImportanceHeight(height));
 
 		// Act + Assert:
@@ -232,35 +231,44 @@ namespace catapult { namespace cache {
 		bool CanHarvest(int64_t minBalanceDelta, Importance importance, ImportanceHeight importanceHeight, Height testHeight) {
 			// Arrange:
 			auto key = test::GenerateRandomByteArray<Key>();
-			auto pCache = CreateAccountStateCache(Amount(1234));
+			auto pCache = CreateAccountStateCache(Amount(1234), Amount(9876));
 			auto initialBalance = Amount(static_cast<Amount::ValueType>(1234 + minBalanceDelta));
 			AddAccount<TTraits>(*pCache, key, importance, importanceHeight, initialBalance);
 
 			// Act:
 			return TTraits::CanHarvest(*pCache, key, testHeight);
 		}
+
+		template<typename TTraits>
+		bool CanHarvest(int64_t minBalanceDelta, Importance importance) {
+			auto height = Height(10000);
+			return CanHarvest<TTraits>(minBalanceDelta, importance, ConvertToImportanceHeight(height), height);
+		}
 	}
 
 	CAN_HARVEST_TRAITS_BASED_TEST(CannotHarvestWhenBalanceIsBelowMinBalance) {
-		auto height = Height(10000);
-		EXPECT_FALSE(CanHarvest<TTraits>(-1, Importance(123), ConvertToImportanceHeight(height), height));
-		EXPECT_FALSE(CanHarvest<TTraits>(-100, Importance(123), ConvertToImportanceHeight(height), height));
+		EXPECT_FALSE(CanHarvest<TTraits>(-1, Importance(123)));
+		EXPECT_FALSE(CanHarvest<TTraits>(-100, Importance(123)));
+	}
+
+	CAN_HARVEST_TRAITS_BASED_TEST(CannotHarvestWhenBalanceIsAboveMaxBalance) {
+		EXPECT_FALSE(CanHarvest<TTraits>(9876 - 1234 + 1, Importance(123)));
+		EXPECT_FALSE(CanHarvest<TTraits>(12345, Importance(123)));
 	}
 
 	CAN_HARVEST_TRAITS_BASED_TEST(CannotHarvestWhenImportanceIsZero) {
-		auto height = Height(10000);
-		EXPECT_FALSE(CanHarvest<TTraits>(12345, Importance(0), ConvertToImportanceHeight(height), height));
+		EXPECT_FALSE(CanHarvest<TTraits>(2345, Importance(0)));
 	}
 
 	CAN_HARVEST_TRAITS_BASED_TEST(CannotHarvestWhenImportanceIsNotSetAtCorrectHeight) {
-		EXPECT_FALSE(CanHarvest<TTraits>(12345, Importance(0), ImportanceHeight(123), Height(1234)));
+		EXPECT_FALSE(CanHarvest<TTraits>(2345, Importance(0), ImportanceHeight(123), Height(1234)));
 	}
 
 	CAN_HARVEST_TRAITS_BASED_TEST(CanHarvestWhenAllCriteriaAreMet) {
-		auto height = Height(10000);
-		EXPECT_TRUE(CanHarvest<TTraits>(0, Importance(123), ConvertToImportanceHeight(height), height));
-		EXPECT_TRUE(CanHarvest<TTraits>(1, Importance(123), ConvertToImportanceHeight(height), height));
-		EXPECT_TRUE(CanHarvest<TTraits>(12345, Importance(123), ConvertToImportanceHeight(height), height));
+		EXPECT_TRUE(CanHarvest<TTraits>(0, Importance(123)));
+		EXPECT_TRUE(CanHarvest<TTraits>(1, Importance(123)));
+		EXPECT_TRUE(CanHarvest<TTraits>(2345, Importance(123)));
+		EXPECT_TRUE(CanHarvest<TTraits>(9876 - 1234, Importance(123)));
 	}
 
 	// endregion

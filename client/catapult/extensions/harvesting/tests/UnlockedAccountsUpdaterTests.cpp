@@ -133,6 +133,7 @@ namespace catapult { namespace harvesting {
 				config.HarvestingMosaicId = Harvesting_Mosaic_Id;
 				config.ImportanceGrouping = 100;
 				config.MinHarvesterBalance = Amount(1000);
+				config.MaxHarvesterBalance = Amount(std::numeric_limits<Amount::ValueType>::max());
 				return config;
 			}
 

@@ -76,6 +76,7 @@ namespace catapult { namespace model {
 
 							{ "totalChainImportance", "88'000'000'000" },
 							{ "minHarvesterBalance", "4'000'000'000" },
+							{ "maxHarvesterBalance", "9'000'000'000" },
 							{ "harvestBeneficiaryPercentage", "56" },
 
 							{ "blockPruneInterval", "432" },
@@ -133,6 +134,7 @@ namespace catapult { namespace model {
 
 				EXPECT_EQ(Importance(0), config.TotalChainImportance);
 				EXPECT_EQ(Amount(0), config.MinHarvesterBalance);
+				EXPECT_EQ(Amount(0), config.MaxHarvesterBalance);
 				EXPECT_EQ(0u, config.HarvestBeneficiaryPercentage);
 
 				EXPECT_EQ(0u, config.BlockPruneInterval);
@@ -172,6 +174,7 @@ namespace catapult { namespace model {
 
 				EXPECT_EQ(Importance(88'000'000'000), config.TotalChainImportance);
 				EXPECT_EQ(Amount(4'000'000'000), config.MinHarvesterBalance);
+				EXPECT_EQ(Amount(9'000'000'000), config.MaxHarvesterBalance);
 				EXPECT_EQ(56u, config.HarvestBeneficiaryPercentage);
 
 				EXPECT_EQ(432u, config.BlockPruneInterval);

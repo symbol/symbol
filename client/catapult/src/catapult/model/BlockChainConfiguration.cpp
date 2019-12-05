@@ -75,6 +75,7 @@ namespace catapult { namespace model {
 
 		LOAD_CHAIN_PROPERTY(TotalChainImportance);
 		LOAD_CHAIN_PROPERTY(MinHarvesterBalance);
+		LOAD_CHAIN_PROPERTY(MaxHarvesterBalance);
 		LOAD_CHAIN_PROPERTY(HarvestBeneficiaryPercentage);
 
 		LOAD_CHAIN_PROPERTY(BlockPruneInterval);
@@ -97,7 +98,7 @@ namespace catapult { namespace model {
 			numPluginProperties += iter->second.size();
 		}
 
-		utils::VerifyBagSizeLte(bag, 5 + 20 + numPluginProperties);
+		utils::VerifyBagSizeLte(bag, 5 + 21 + numPluginProperties);
 		return config;
 	}
 

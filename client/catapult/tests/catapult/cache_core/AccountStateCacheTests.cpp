@@ -21,6 +21,7 @@
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/model/Address.h"
 #include "catapult/utils/Casting.h"
+#include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/cache/CacheBasicTests.h"
 #include "tests/test/cache/CacheMixinsTests.h"
 #include "tests/test/cache/DeltaElementsMixinTests.h"
@@ -38,14 +39,7 @@ namespace catapult { namespace cache {
 		constexpr auto Network_Identifier = model::NetworkIdentifier::Mijin_Test;
 		constexpr auto Currency_Mosaic_Id = MosaicId(1234);
 		constexpr auto Harvesting_Mosaic_Id = MosaicId(9876);
-
-		constexpr auto Default_Cache_Options = AccountStateCacheTypes::Options{
-			Network_Identifier,
-			543,
-			Amount(std::numeric_limits<Amount::ValueType>::max()),
-			Currency_Mosaic_Id,
-			Harvesting_Mosaic_Id
-		};
+		constexpr auto Default_Cache_Options = test::CreateDefaultAccountStateCacheOptions(Currency_Mosaic_Id, Harvesting_Mosaic_Id);
 
 		struct AddressTraits {
 			using Type = Address;
@@ -334,6 +328,18 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(Amount(336644), cache.createView()->minHarvesterBalance());
 		EXPECT_EQ(Amount(336644), cache.createDelta()->minHarvesterBalance());
 		EXPECT_EQ(Amount(336644), cache.createDetachedDelta().tryLock()->minHarvesterBalance());
+	}
+
+	TEST(TEST_CLASS, CacheWrappersExposeMaxHarvesterBalance) {
+		// Arrange:
+		auto options = Default_Cache_Options;
+		options.MaxHarvesterBalance = Amount(446633);
+		AccountStateCache cache(CacheConfiguration(), options);
+
+		// Act + Assert:
+		EXPECT_EQ(Amount(446633), cache.createView()->maxHarvesterBalance());
+		EXPECT_EQ(Amount(446633), cache.createDelta()->maxHarvesterBalance());
+		EXPECT_EQ(Amount(446633), cache.createDetachedDelta().tryLock()->maxHarvesterBalance());
 	}
 
 	TEST(TEST_CLASS, CacheWrappersExposeHarvestingMosaicId) {

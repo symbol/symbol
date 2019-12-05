@@ -72,6 +72,10 @@ namespace catapult { namespace cache {
 		return m_options.MinHarvesterBalance;
 	}
 
+	Amount BasicAccountStateCacheDelta::maxHarvesterBalance() const {
+		return m_options.MaxHarvesterBalance;
+	}
+
 	MosaicId BasicAccountStateCacheDelta::harvestingMosaicId() const {
 		return m_options.HarvestingMosaicId;
 	}

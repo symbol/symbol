@@ -23,6 +23,7 @@
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/model/Address.h"
 #include "timesync/tests/test/TimeSynchronizationTestUtils.h"
+#include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/TestHarness.h"
 #include <cmath>
 
@@ -75,7 +76,7 @@ namespace catapult { namespace timesync {
 		}
 
 		cache::AccountStateCacheTypes::Options CreateAccountStateCacheOptions() {
-			return { Default_Network_Identifier, 234, Amount(1000), MosaicId(1111), Harvesting_Mosaic_Id };
+			return test::CreateDefaultAccountStateCacheOptions(MosaicId(1111), Harvesting_Mosaic_Id);
 		}
 
 		enum class KeyType { Address, PublicKey, };

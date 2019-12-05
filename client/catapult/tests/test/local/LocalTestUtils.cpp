@@ -127,6 +127,7 @@ namespace catapult { namespace test {
 
 		config.TotalChainImportance = Importance(17'000);
 		config.MinHarvesterBalance = Amount(500'000);
+		config.MaxHarvesterBalance = config.InitialCurrencyAtomicUnits;
 
 		config.BlockPruneInterval = 360;
 		config.MaxTransactionsPerBlock = 200'000;

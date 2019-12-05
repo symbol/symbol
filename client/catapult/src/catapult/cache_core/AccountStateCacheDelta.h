@@ -101,6 +101,9 @@ namespace catapult { namespace cache {
 		/// Gets the minimum harvester balance.
 		Amount minHarvesterBalance() const;
 
+		/// Gets the maximum harvester balance.
+		Amount maxHarvesterBalance() const;
+
 		/// Gets the harvesting mosaic id.
 		MosaicId harvestingMosaicId() const;
 

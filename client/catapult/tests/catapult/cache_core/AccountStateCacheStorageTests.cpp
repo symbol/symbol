@@ -21,6 +21,7 @@
 #include "catapult/cache_core/AccountStateCacheStorage.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/model/Address.h"
+#include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/cache/CacheStorageTestUtils.h"
 #include "tests/test/core/AccountStateTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
@@ -33,13 +34,7 @@ namespace catapult { namespace cache {
 	namespace {
 		struct AccountStateCacheStorageTraits {
 		private:
-			static constexpr auto Default_Cache_Options = AccountStateCacheTypes::Options{
-				model::NetworkIdentifier::Mijin_Test,
-				543,
-				Amount(std::numeric_limits<Amount::ValueType>::max()),
-				MosaicId(1111),
-				MosaicId(2222)
-			};
+			static constexpr auto Default_Cache_Options = test::CreateDefaultAccountStateCacheOptions();
 
 		public:
 			using StorageType = AccountStateCacheStorage;

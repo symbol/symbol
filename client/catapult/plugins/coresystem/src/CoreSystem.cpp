@@ -40,6 +40,7 @@ namespace catapult { namespace plugins {
 				config.Network.Identifier,
 				config.ImportanceGrouping,
 				config.MinHarvesterBalance,
+				config.MaxHarvesterBalance,
 				config.CurrencyMosaicId,
 				config.HarvestingMosaicId
 			};

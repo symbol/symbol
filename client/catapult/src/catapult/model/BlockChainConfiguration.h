@@ -90,6 +90,9 @@ namespace catapult { namespace model {
 		/// Minimum number of harvesting mosaic atomic units needed for an account to be eligible for harvesting.
 		Amount MinHarvesterBalance;
 
+		/// Maximum number of harvesting mosaic atomic units needed for an account to be eligible for harvesting.
+		Amount MaxHarvesterBalance;
+
 		/// Percentage of the harvested fee that is collected by the beneficiary account.
 		uint8_t HarvestBeneficiaryPercentage;
 

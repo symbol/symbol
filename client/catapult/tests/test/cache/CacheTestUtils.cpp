@@ -39,6 +39,7 @@ namespace catapult { namespace test {
 				config.Network.Identifier,
 				config.ImportanceGrouping,
 				config.MinHarvesterBalance,
+				config.MaxHarvesterBalance,
 				config.CurrencyMosaicId,
 				config.HarvestingMosaicId
 			};
@@ -75,6 +76,8 @@ namespace catapult { namespace test {
 
 	// endregion
 
+	// region CreateEmptyCatapultCache
+
 	cache::CatapultCache CreateEmptyCatapultCache() {
 		return CreateEmptyCatapultCache(model::BlockChainConfiguration::Uninitialized());
 	}
@@ -90,6 +93,10 @@ namespace catapult { namespace test {
 		CoreSystemCacheFactory::CreateSubCaches(config, cacheConfig, subCaches);
 		return cache::CatapultCache(std::move(subCaches));
 	}
+
+	// endregion
+
+	// region cache marker utils
 
 	cache::CatapultCache CreateCatapultCacheWithMarkerAccount() {
 		return CreateCatapultCacheWithMarkerAccount(Height(0));
@@ -125,4 +132,6 @@ namespace catapult { namespace test {
 	bool IsMarkedCache(const cache::CatapultCacheDelta& cache) {
 		return IsMarkedCacheT(cache);
 	}
+
+	// endregion
 }}

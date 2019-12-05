@@ -42,11 +42,12 @@ namespace catapult { namespace validators {
 			return model::ConvertToImportanceHeight(height, Importance_Grouping);
 		}
 
-		auto CreateEmptyCatapultCache(Amount minHarvesterBalance) {
+		auto CreateEmptyCatapultCache(Amount minHarvesterBalance, Amount maxHarvesterBalance) {
 			auto config = model::BlockChainConfiguration::Uninitialized();
 			config.HarvestingMosaicId = Harvesting_Mosaic_Id;
 			config.ImportanceGrouping = Importance_Grouping;
 			config.MinHarvesterBalance = minHarvesterBalance;
+			config.MaxHarvesterBalance = maxHarvesterBalance;
 			return test::CreateEmptyCatapultCache(config);
 		}
 
@@ -68,7 +69,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureWhenAccountIsUnknown) {
 		// Arrange:
-		auto cache = CreateEmptyCatapultCache(Amount(0));
+		auto cache = CreateEmptyCatapultCache(Amount(0), Amount(100'000));
 		auto key = test::GenerateRandomByteArray<Key>();
 		auto height = Height(1000);
 		AddAccount(cache, key, Importance(1000), ConvertToImportanceHeight(height), Amount(9999));
@@ -93,7 +94,7 @@ namespace catapult { namespace validators {
 				model::ImportanceHeight importanceHeight,
 				Height blockHeight) {
 			// Arrange:
-			auto cache = CreateEmptyCatapultCache(Amount(1234));
+			auto cache = CreateEmptyCatapultCache(Amount(1234), Amount(9876));
 			auto key = test::GenerateRandomByteArray<Key>();
 			auto initialBalance = Amount(static_cast<Amount::ValueType>(1234 + minBalanceDelta));
 			AddAccount(cache, key, importance, importanceHeight, initialBalance);
@@ -107,29 +108,38 @@ namespace catapult { namespace validators {
 			// Assert:
 			EXPECT_EQ(expectedResult, result);
 		}
+
+		void AssertValidationResult(ValidationResult expectedResult, int64_t minBalanceDelta, Importance importance) {
+			auto height = Height(10000);
+			AssertValidationResult(expectedResult, minBalanceDelta, importance, ConvertToImportanceHeight(height), height);
+		}
 	}
 
 	TEST(TEST_CLASS, FailureWhenBalanceIsBelowMinBalance) {
 		constexpr auto expectedResult = Failure_Core_Block_Harvester_Ineligible;
-		auto height = Height(10000);
-		AssertValidationResult(expectedResult, -1, Importance(123), ConvertToImportanceHeight(height), height);
-		AssertValidationResult(expectedResult, -100, Importance(123), ConvertToImportanceHeight(height), height);
+		AssertValidationResult(expectedResult, -1, Importance(123));
+		AssertValidationResult(expectedResult, -100, Importance(123));
+	}
+
+	TEST(TEST_CLASS, FailureWhenBalanceIsAboveMaxBalance) {
+		constexpr auto expectedResult = Failure_Core_Block_Harvester_Ineligible;
+		AssertValidationResult(expectedResult, 9876 - 1234 + 1, Importance(123));
+		AssertValidationResult(expectedResult, 12345, Importance(123));
 	}
 
 	TEST(TEST_CLASS, FailureWhenImportanceIsZero) {
-		auto height = Height(10000);
-		AssertValidationResult(Failure_Core_Block_Harvester_Ineligible, 12345, Importance(0), ConvertToImportanceHeight(height), height);
+		AssertValidationResult(Failure_Core_Block_Harvester_Ineligible, 2345, Importance(0));
 	}
 
 	TEST(TEST_CLASS, FailureWhenImportanceIsNotSetAtCorrectHeight) {
-		AssertValidationResult(Failure_Core_Block_Harvester_Ineligible, 12345, Importance(0), model::ImportanceHeight(123), Height(1234));
+		AssertValidationResult(Failure_Core_Block_Harvester_Ineligible, 2345, Importance(0), model::ImportanceHeight(123), Height(1234));
 	}
 
 	TEST(TEST_CLASS, SuccessWhenAllCriteriaAreMet) {
 		constexpr auto expectedResult = ValidationResult::Success;
-		auto height = Height(10000);
-		AssertValidationResult(expectedResult, 0, Importance(123), ConvertToImportanceHeight(height), height);
-		AssertValidationResult(expectedResult, 1, Importance(123), ConvertToImportanceHeight(height), height);
-		AssertValidationResult(expectedResult, 12345, Importance(123), ConvertToImportanceHeight(height), height);
+		AssertValidationResult(expectedResult, 0, Importance(123));
+		AssertValidationResult(expectedResult, 1, Importance(123));
+		AssertValidationResult(expectedResult, 2345, Importance(123));
+		AssertValidationResult(expectedResult, 9876 - 1234, Importance(123));
 	}
 }}

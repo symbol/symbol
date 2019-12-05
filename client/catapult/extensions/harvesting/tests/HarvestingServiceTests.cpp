@@ -443,6 +443,7 @@ namespace catapult { namespace harvesting {
 			config.HarvestingMosaicId = Harvesting_Mosaic_Id;
 			config.ImportanceGrouping = Importance_Grouping;
 			config.MinHarvesterBalance = Account_Balance;
+			config.MaxHarvesterBalance = Amount(std::numeric_limits<Amount::ValueType>::max());
 			auto cache = test::CreateEmptyCatapultCache(config, cacheConfig);
 			auto delta = cache.createDelta();
 

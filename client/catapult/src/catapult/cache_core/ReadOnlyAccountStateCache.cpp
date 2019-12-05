@@ -50,6 +50,10 @@ namespace catapult { namespace cache {
 		return m_pCache ? m_pCache->minHarvesterBalance() : m_pCacheDelta->minHarvesterBalance();
 	}
 
+	Amount ReadOnlyAccountStateCache::maxHarvesterBalance() const {
+		return m_pCache ? m_pCache->maxHarvesterBalance() : m_pCacheDelta->maxHarvesterBalance();
+	}
+
 	MosaicId ReadOnlyAccountStateCache::harvestingMosaicId() const {
 		return m_pCache ? m_pCache->harvestingMosaicId() : m_pCacheDelta->harvestingMosaicId();
 	}

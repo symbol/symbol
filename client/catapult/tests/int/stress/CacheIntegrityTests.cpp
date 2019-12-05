@@ -24,6 +24,7 @@
 #include "catapult/model/NetworkInfo.h"
 #include "catapult/utils/SpinLock.h"
 #include "tests/int/stress/test/StressThreadLogger.h"
+#include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
@@ -36,14 +37,7 @@ namespace catapult { namespace cache {
 
 	namespace {
 		constexpr auto Transferable_Mosaic_Id = MosaicId(1234);
-
-		constexpr auto Default_Cache_Options = AccountStateCacheTypes::Options{
-			model::NetworkIdentifier::Mijin_Test,
-			359,
-			Amount(std::numeric_limits<Amount::ValueType>::max()),
-			MosaicId(1111),
-			MosaicId(2222)
-		};
+		constexpr auto Default_Cache_Options = test::CreateDefaultAccountStateCacheOptions();
 
 		size_t GetNumIterations() {
 			return test::GetStressIterationCount() ? 20'000 : 1'000;

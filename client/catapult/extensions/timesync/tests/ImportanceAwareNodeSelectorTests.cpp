@@ -24,6 +24,7 @@
 #include "catapult/ionet/NodeContainer.h"
 #include "catapult/ionet/NodeInfo.h"
 #include "catapult/utils/ArraySet.h"
+#include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/cache/ImportanceViewTestUtils.h"
 #include "tests/test/net/NodeTestUtils.h"
 #include "tests/test/nodeps/Waits.h"
@@ -56,11 +57,9 @@ namespace catapult { namespace timesync {
 		}
 
 		auto CreateAccountStateCache() {
-			auto cacheConfig = cache::CacheConfiguration();
-			auto networkIdentifier = model::NetworkIdentifier::Mijin_Test;
-			auto maxAmount = Amount(std::numeric_limits<Amount::ValueType>::max());
-			cache::AccountStateCacheTypes::Options options{ networkIdentifier, 234, maxAmount, MosaicId(1111), MosaicId(2222) };
-			return std::make_unique<cache::AccountStateCache>(cacheConfig, options);
+			auto options = test::CreateDefaultAccountStateCacheOptions();
+			options.ImportanceGrouping = 234;
+			return std::make_unique<cache::AccountStateCache>(cache::CacheConfiguration(), options);
 		}
 
 		struct SeedNodeContainerOptions {

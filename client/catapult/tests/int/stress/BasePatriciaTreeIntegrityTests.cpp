@@ -23,6 +23,7 @@
 #include "catapult/utils/HexParser.h"
 #include "catapult/utils/StackTimer.h"
 #include "tests/int/stress/test/InputDependentTest.h"
+#include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
 
@@ -49,7 +50,7 @@ namespace catapult { namespace cache {
 
 		AccountStateCacheTypes::Options CreateAccountStateCacheOptions() {
 			// CurrencyId must match id used when generating resources
-			return { model::NetworkIdentifier::Mijin_Test, 543, Amount(1000), MosaicId(0xE329'AD1C'BE7F'C60D), MosaicId(2222) };
+			return test::CreateDefaultAccountStateCacheOptions(MosaicId(0xE329'AD1C'BE7F'C60D), MosaicId(2222));
 		}
 
 		template<typename TSerializer>

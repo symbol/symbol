@@ -20,6 +20,7 @@
 
 #include "src/importance/ImportanceCalculator.h"
 #include "catapult/cache_core/AccountStateCache.h"
+#include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -56,9 +57,7 @@ namespace catapult { namespace importance {
 		template<typename TAction>
 		void RunTestWithDelta(TAction action) {
 			// Arrange:
-			auto networkIdentifier = model::NetworkIdentifier::Mijin_Test;
-			cache::AccountStateCacheTypes::Options options{ networkIdentifier, 123, Amount(0), MosaicId(1111), MosaicId(2222) };
-			cache::AccountStateCache cache(cache::CacheConfiguration(), options);
+			cache::AccountStateCache cache(cache::CacheConfiguration(), test::CreateDefaultAccountStateCacheOptions());
 			auto cacheDelta = cache.createDelta();
 
 			// Act:

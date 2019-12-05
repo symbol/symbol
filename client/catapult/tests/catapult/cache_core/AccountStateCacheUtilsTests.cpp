@@ -20,6 +20,7 @@
 
 #include "catapult/cache_core/AccountStateCacheUtils.h"
 #include "catapult/cache_core/AccountStateCache.h"
+#include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace cache {
@@ -30,7 +31,7 @@ namespace catapult { namespace cache {
 		class TestContext {
 		public:
 			TestContext()
-					: m_cache(CacheConfiguration(), { model::NetworkIdentifier::Mijin_Test, 123, Amount(), MosaicId(111), MosaicId(987) })
+					: m_cache(CacheConfiguration(), test::CreateDefaultAccountStateCacheOptions())
 					, m_pDelta(m_cache.createDelta())
 			{}
 

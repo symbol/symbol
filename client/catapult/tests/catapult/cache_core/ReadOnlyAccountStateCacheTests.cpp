@@ -20,6 +20,7 @@
 
 #include "catapult/cache_core/ReadOnlyAccountStateCache.h"
 #include "catapult/cache_core/AccountStateCache.h"
+#include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace cache {
@@ -29,13 +30,7 @@ namespace catapult { namespace cache {
 	// region cache properties
 
 	namespace {
-		constexpr auto Default_Cache_Options = AccountStateCacheTypes::Options{
-			model::NetworkIdentifier::Mijin_Test,
-			543,
-			Amount(std::numeric_limits<Amount::ValueType>::max()),
-			MosaicId(1111),
-			MosaicId(2222)
-		};
+		constexpr auto Default_Cache_Options = test::CreateDefaultAccountStateCacheOptions();
 	}
 
 	TEST(TEST_CLASS, NetworkIdentifierIsExposed) {
@@ -70,6 +65,17 @@ namespace catapult { namespace cache {
 		// Act + Assert:
 		EXPECT_EQ(Amount(336644), ReadOnlyAccountStateCache(*originalCache.createView()).minHarvesterBalance());
 		EXPECT_EQ(Amount(336644), ReadOnlyAccountStateCache(*originalCache.createDelta()).minHarvesterBalance());
+	}
+
+	TEST(TEST_CLASS, MaxHarvesterBalanceIsExposed) {
+		// Arrange:
+		auto options = Default_Cache_Options;
+		options.MaxHarvesterBalance = Amount(446633);
+		AccountStateCache originalCache(CacheConfiguration(), options);
+
+		// Act + Assert:
+		EXPECT_EQ(Amount(446633), ReadOnlyAccountStateCache(*originalCache.createView()).maxHarvesterBalance());
+		EXPECT_EQ(Amount(446633), ReadOnlyAccountStateCache(*originalCache.createDelta()).maxHarvesterBalance());
 	}
 
 	TEST(TEST_CLASS, HarvestingMosaicIdIsExposed) {

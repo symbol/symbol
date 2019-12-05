@@ -24,6 +24,7 @@
 #include "catapult/model/BlockChainConfiguration.h"
 #include "catapult/model/NetworkInfo.h"
 #include "catapult/state/AccountActivityBuckets.h"
+#include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace importance {
@@ -73,13 +74,7 @@ namespace catapult { namespace importance {
 		struct CacheHolder {
 		public:
 			explicit CacheHolder(Amount minBalance)
-					: Cache(cache::CacheConfiguration(), {
-						model::NetworkIdentifier::Mijin_Test,
-						123,
-						minBalance,
-						MosaicId(1111),
-						Harvesting_Mosaic_Id
-					})
+					: Cache(cache::CacheConfiguration(), CreateAccountStateCacheOptions(minBalance))
 					, Delta(Cache.createDelta())
 			{}
 
@@ -107,6 +102,13 @@ namespace catapult { namespace importance {
 		public:
 			cache::AccountStateCache Cache;
 			cache::LockedCacheDelta<cache::AccountStateCacheDelta> Delta;
+
+		private:
+			static cache::AccountStateCacheTypes::Options CreateAccountStateCacheOptions(Amount minBalance) {
+				auto options = test::CreateDefaultAccountStateCacheOptions(MosaicId(1111), Harvesting_Mosaic_Id);
+				options.MinHarvesterBalance = minBalance;
+				return options;
+			}
 		};
 
 		template<typename TTraits>

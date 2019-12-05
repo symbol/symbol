@@ -29,6 +29,8 @@ namespace catapult { namespace cache { class ReadOnlyCatapultCache; } }
 
 namespace catapult { namespace test {
 
+	// region CoreSystemCacheFactory
+
 	/// Cache factory for creating a catapult cache composed of all core sub caches.
 	struct CoreSystemCacheFactory {
 		/// Creates an empty catapult cache around \a config.
@@ -45,6 +47,10 @@ namespace catapult { namespace test {
 				const cache::CacheConfiguration& cacheConfig,
 				std::vector<std::unique_ptr<cache::SubCachePlugin>>& subCaches);
 	};
+
+	// endregion
+
+	// region SubCachePlugin factories
 
 	/// Creates a sub cache plugin given \a args for a plugin that doesn't require configuration.
 	template<typename TCache, typename TStorageTraits, typename... TArgs>
@@ -67,6 +73,10 @@ namespace catapult { namespace test {
 		return MakeSubCachePluginWithCacheConfiguration<TCache, TStorageTraits>(cache::CacheConfiguration(), std::forward<TArgs>(args)...);
 	}
 
+	// endregion
+
+	// region CreateEmptyCatapultCache
+
 	/// Creates an empty catapult cache.
 	cache::CatapultCache CreateEmptyCatapultCache();
 
@@ -84,6 +94,10 @@ namespace catapult { namespace test {
 		return TCacheFactory::Create(config);
 	}
 
+	// endregion
+
+	// region cache marker utils
+
 	/// Creates a catapult cache with a marker account.
 	cache::CatapultCache CreateCatapultCacheWithMarkerAccount();
 
@@ -99,6 +113,10 @@ namespace catapult { namespace test {
 	/// Returns \c true if \a cache contains the marker account.
 	bool IsMarkedCache(const cache::CatapultCacheDelta& cache);
 
+	// endregion
+
+	// region ExtractValuesFromCache
+
 	/// Extract all values from \a cache.
 	template<typename TCache, typename TValue>
 	std::vector<TValue> ExtractValuesFromCache(const TCache& cache) {
@@ -109,4 +127,6 @@ namespace catapult { namespace test {
 
 		return values;
 	}
+
+	// endregion
 }}

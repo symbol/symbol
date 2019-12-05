@@ -20,6 +20,7 @@
 
 #include "harvesting/src/HarvestingCacheUtils.h"
 #include "catapult/cache_core/AccountStateCache.h"
+#include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace harvesting {
@@ -30,13 +31,7 @@ namespace catapult { namespace harvesting {
 		template<typename TAction>
 		void RunPreserveAllAccountsTest(TAction action) {
 			// Arrange:
-			cache::AccountStateCache accountStateCache(cache::CacheConfiguration(), {
-				model::NetworkIdentifier::Mijin_Test,
-				123,
-				Amount(),
-				MosaicId(1111),
-				MosaicId(9876)
-			});
+			cache::AccountStateCache accountStateCache(cache::CacheConfiguration(), test::CreateDefaultAccountStateCacheOptions());
 			auto accountStateCacheDelta = accountStateCache.createDelta();
 
 			auto addresses = test::GenerateRandomDataVector<Address>(3);

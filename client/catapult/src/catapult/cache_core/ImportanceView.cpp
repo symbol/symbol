@@ -81,9 +81,15 @@ namespace catapult { namespace cache {
 	bool ImportanceView::canHarvest(const Key& publicKey, Height height) const {
 		auto mosaicId = m_cache.harvestingMosaicId();
 		auto minHarvesterBalance = m_cache.minHarvesterBalance();
-		return FindAccountStateWithImportance(m_cache, publicKey, height, [mosaicId, minHarvesterBalance](const auto& accountState) {
+		auto maxHarvesterBalance = m_cache.maxHarvesterBalance();
+		return FindAccountStateWithImportance(m_cache, publicKey, height, [mosaicId, minHarvesterBalance, maxHarvesterBalance](
+				const auto& accountState) {
 			auto currentImportance = accountState.ImportanceSnapshots.current();
-			return currentImportance > Importance(0) && accountState.Balances.get(mosaicId) >= minHarvesterBalance;
+			if (Importance(0) == currentImportance)
+				return false;
+
+			auto balance = accountState.Balances.get(mosaicId);
+			return minHarvesterBalance <= balance && balance <= maxHarvesterBalance;
 		});
 	}
 }}
