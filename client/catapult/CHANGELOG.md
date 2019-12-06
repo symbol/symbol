@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.9.1.1] - 06-December-2019
+
+### Added
+ - Make nemesis epoch time configurable
+ - Network setting: maxHarvesterBalance
+
+### Fixed
+ - Multiple recovery fixes
+ - Avoid banning hosts defined as local network
+ - Fixed point math based block time smoothing
+ - Unlocked accounts duplicate handling
+ - Propagate single blocks properly (unused mask)
+ - Mongo: save only non-empty account restrictions
+ - Mongo: missing transactionHash of aggregate transaction
+
 ## [0.9.0.1] - 08-November-2019
 
 ### Added
@@ -168,6 +183,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Added
 - Initial code release.
 
+[0.9.1.1]: https://github.com/nemtech/catapult-server/compare/v0.9.0.1...v0.9.1.1
 [0.9.0.1]: https://github.com/nemtech/catapult-server/compare/v0.8.0.3...v0.9.0.1
 [0.8.0.3]: https://github.com/nemtech/catapult-server/compare/v0.7.0.1...v0.8.0.3
 [0.7.0.1]: https://github.com/nemtech/catapult-server/compare/v0.6.0.1...v0.7.0.1
