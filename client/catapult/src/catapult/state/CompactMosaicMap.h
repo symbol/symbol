@@ -29,7 +29,7 @@ namespace catapult { namespace state {
 
 	/// Mosaic (ordered) map that is optimized for storage of a small number of elements.
 	/// \note This map assumes that MosaicId(0) is not a valid mosaic.
-	//        This is acceptable for mosaics stored in AccountBalances but not for a general purpose map.
+	///       This is acceptable for mosaics stored in AccountBalances but not for a general purpose map.
 	class CompactMosaicMap : utils::MoveOnly {
 	private:
 		static constexpr auto Array_Size = 5;

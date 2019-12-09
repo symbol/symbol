@@ -76,7 +76,7 @@ namespace catapult { namespace tools {
 			if (std::current_exception()) {
 				CATAPULT_LOG(fatal)
 						<< std::endl << "thread: " << thread::GetThreadName()
-						<< std::endl << UNHANDLED_EXCEPTION_MESSAGE("running tool");
+						<< std::endl << UNHANDLED_EXCEPTION_MESSAGE("running a tool");
 			}
 
 			// 2. flush the log and abort

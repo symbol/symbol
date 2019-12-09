@@ -47,7 +47,7 @@ namespace catapult { namespace model {
 		Hash256 Hash;
 
 	public:
-		// Calculates the real size of hash lock \a transaction.
+		/// Calculates the real size of hash lock \a transaction.
 		static constexpr uint64_t CalculateRealSize(const TransactionType&) noexcept {
 			return sizeof(TransactionType);
 		}

@@ -61,7 +61,7 @@ namespace catapult { namespace model {
 		}
 
 	public:
-		// Calculates the real size of metadata \a transaction.
+		/// Calculates the real size of metadata \a transaction.
 		static constexpr uint64_t CalculateRealSize(const TransactionType& transaction) noexcept {
 			return sizeof(TransactionType) + transaction.ValueSize;
 		}

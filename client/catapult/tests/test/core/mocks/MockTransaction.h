@@ -127,7 +127,7 @@ namespace catapult { namespace mocks {
 		}
 
 	public:
-		// Calculates the real size of mock \a transaction.
+		/// Calculates the real size of mock \a transaction.
 		static constexpr uint64_t CalculateRealSize(const TransactionType& transaction) noexcept {
 			return sizeof(TransactionType) + transaction.Data.Size;
 		}

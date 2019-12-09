@@ -70,7 +70,7 @@ namespace catapult { namespace model {
 		}
 
 	public:
-		// Calculates the real size of transfer \a transaction.
+		/// Calculates the real size of transfer \a transaction.
 		static constexpr uint64_t CalculateRealSize(const TransactionType& transaction) noexcept {
 			return sizeof(TransactionType) + transaction.MessageSize + transaction.MosaicsCount * sizeof(UnresolvedMosaic);
 		}

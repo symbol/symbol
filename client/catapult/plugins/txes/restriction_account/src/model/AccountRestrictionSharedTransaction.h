@@ -67,7 +67,7 @@ namespace catapult { namespace model {
 		}
 
 	public:
-		// Calculates the real size of account restriction \a transaction.
+		/// Calculates the real size of account restriction \a transaction.
 		static constexpr uint64_t CalculateRealSize(const TransactionType& transaction) noexcept {
 			return sizeof(TransactionType)
 					+ (transaction.RestrictionAdditionsCount + transaction.RestrictionDeletionsCount) * sizeof(TAccountRestrictionValue);

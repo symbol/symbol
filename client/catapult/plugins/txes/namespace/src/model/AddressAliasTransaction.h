@@ -44,11 +44,11 @@ namespace catapult { namespace model {
 		/// Aliased address.
 		catapult::Address Address;
 
-		// Alias action.
+		/// Alias action.
 		model::AliasAction AliasAction;
 
 	public:
-		// Calculates the real size of address alias \a transaction.
+		/// Calculates the real size of address alias \a transaction.
 		static constexpr uint64_t CalculateRealSize(const TransactionType&) noexcept {
 			return sizeof(TransactionType);
 		}

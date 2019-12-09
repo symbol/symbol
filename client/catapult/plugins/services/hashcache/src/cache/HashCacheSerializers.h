@@ -38,6 +38,6 @@ namespace catapult { namespace cache {
 			return timestampedHash.Time.unwrap();
 		}
 
-		// DeserializeValue is not needed because code using it shouldn't be generated for hash cache.
+		// DeserializeValue is not needed because code using it shouldn't be generated for hash cache
 	};
 }}

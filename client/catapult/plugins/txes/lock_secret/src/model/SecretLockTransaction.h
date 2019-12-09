@@ -54,7 +54,7 @@ namespace catapult { namespace model {
 		UnresolvedAddress RecipientAddress;
 
 	public:
-		// Calculates the real size of secret lock \a transaction.
+		/// Calculates the real size of secret lock \a transaction.
 		static constexpr uint64_t CalculateRealSize(const TransactionType&) noexcept {
 			return sizeof(TransactionType);
 		}

@@ -73,7 +73,7 @@ namespace catapult { namespace model {
 		}
 
 	public:
-		// Calculates the real size of a multisig account modification \a transaction.
+		/// Calculates the real size of a multisig account modification \a transaction.
 		static constexpr uint64_t CalculateRealSize(const TransactionType& transaction) noexcept {
 			return sizeof(TransactionType) + (transaction.PublicKeyAdditionsCount + transaction.PublicKeyDeletionsCount) * Key::Size;
 		}

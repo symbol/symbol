@@ -588,6 +588,7 @@ class MultiConditionChecker(SimpleValidator):
         self.patternTestNameIf = re.compile(r'TEST.*If|\b(Next|Remove)When')
         self.patternTestNameIfExclusions = re.compile(r'\b(Next|Remove)If')
 
+        self.patternHeaderComment = re.compile(r'^[^/]*// .*\.$')
         self.patternDoxygenComment = re.compile(r'///')
 
         self.patternAutoContextParam = re.compile(r'auto& (context|notification)')
@@ -611,6 +612,7 @@ class MultiConditionChecker(SimpleValidator):
             self.checkDeclareMacroNoParams: 'use DEFINE macro',
             self.checkSingleLineFunction: 'reformat info multiple lines',
             self.checkTestNameIf: 'use When instead of If',
+            self.checkHeaderComment: '. unexpected in header file comment',
             self.checkCppDoxygenComment: '/// unexpected in cpp file',
             self.checkAutoContextParam: 'use type name instead of auto',
             self.checkGetsSetsDocumentation: 'add an article to documentation',
@@ -729,6 +731,10 @@ class MultiConditionChecker(SimpleValidator):
 
     def checkTestNameIf(self, line, _):
         return self.patternTestNameIf.search(line) and not self.patternTestNameIfExclusions.search(line)
+
+    def checkHeaderComment(self, _, rawLine):
+        # rule only applies to header files
+        return self.path.endswith('.h') and self.patternHeaderComment.match(rawLine)
 
     def checkCppDoxygenComment(self, _, rawLine):
         # rule only applies to cpp files

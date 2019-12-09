@@ -178,7 +178,7 @@ namespace catapult { namespace test {
 			// - no response container
 		}
 
-		// Asserts that a successful interaction can follow a failed interaction.
+		/// Asserts that a successful interaction can follow a failed interaction.
 		static void AssertCanRecoverAfterFailedInteraction() {
 			// Arrange:
 			// - create the synchronizer

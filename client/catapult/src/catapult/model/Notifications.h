@@ -325,7 +325,7 @@ namespace catapult { namespace model {
 		/// Transaction fee.
 		Amount Fee;
 
-		// Maximum transaction fee.
+		/// Maximum transaction fee.
 		Amount MaxFee;
 	};
 

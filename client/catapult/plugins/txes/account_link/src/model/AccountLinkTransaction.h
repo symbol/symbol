@@ -44,7 +44,7 @@ namespace catapult { namespace model {
 		AccountLinkAction LinkAction;
 
 	public:
-		// Calculates the real size of account link \a transaction.
+		/// Calculates the real size of account link \a transaction.
 		static constexpr uint64_t CalculateRealSize(const TransactionType&) noexcept {
 			return sizeof(TransactionType);
 		}

@@ -35,7 +35,7 @@ namespace catapult { namespace state {
 		/// Increases the supply by \a delta.
 		void increaseSupply(Amount delta);
 
-		// Decreases the supply by \a delta.
+		/// Decreases the supply by \a delta.
 		void decreaseSupply(Amount delta);
 
 	private:

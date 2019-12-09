@@ -131,11 +131,11 @@ namespace catapult { namespace test {
 			const std::string& message = "");
 
 	/// Asserts that \a expected and \a actual are equal.
-	// \node This helper is needed because NodeIdentity doesn't have an equality operator.
+	/// \note This helper is needed because NodeIdentity doesn't have an equality operator.
 	void AssertEqualIdentities(const model::NodeIdentitySet& expected, const model::NodeIdentitySet& actual);
 
 	/// Asserts that \a expected and \a actual are equal.
-	// \node This helper is needed because Node doesn't have an equality operator.
+	/// \note This helper is needed because Node doesn't have an equality operator.
 	void AssertEqualNodes(const ionet::NodeSet& expected, const ionet::NodeSet& actual);
 
 	// endregion

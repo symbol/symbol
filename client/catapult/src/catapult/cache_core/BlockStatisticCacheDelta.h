@@ -59,7 +59,7 @@ namespace catapult { namespace cache {
 	public:
 		/// Creates an iterable view of the cache.
 		/// \note Match BlockStatisticCacheDeltaMixins::Iteration signature but don't derive because
-		//  IsBaseSetIterable is not (and should not be) implemented for base set deltas.
+		///       IsBaseSetIterable is not (and should not be) implemented for base set deltas.
 		std::unique_ptr<IterableView> tryMakeIterableView() const;
 
 	public:
