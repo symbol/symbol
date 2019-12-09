@@ -24,6 +24,7 @@ const CatapultDb = require('../../src/db/CatapultDb');
 const catapult = require('catapult-sdk');
 const { expect } = require('chai');
 const MongoDb = require('mongodb');
+const sinon = require('sinon');
 
 const { address, EntityType } = catapult.model;
 
@@ -733,513 +734,111 @@ describe('catapult db', () => {
 	});
 
 	describe('account transactions', () => {
-		const getCollectionName = traits => [traits.collectionName || 'transactions'];
+		const testPublicKey = test.random.publicKey();
+		const testAddress = keyToAddress(testPublicKey);
+		const testObjectId = '00123456789AABBBCCDDEEFF';
 
-		const createTransactionMetadata = transaction => ({
-			addresses: [keyToAddress(transaction.signerPublicKey.buffer), transaction.recipientAddress.buffer]
-		});
-
-		const dbTransactionTraits = {
-			incoming: { dbFunctionName: 'accountTransactionsIncoming' },
-			outgoing: { dbFunctionName: 'accountTransactionsOutgoing' },
-			all: { dbFunctionName: 'accountTransactionsAll' },
-			unconfirmed: { dbFunctionName: 'accountTransactionsUnconfirmed', collectionName: 'unconfirmedTransactions' },
-			partial: { dbFunctionName: 'accountTransactionsPartial', collectionName: 'partialTransactions' }
-		};
-
-		describe('can customize queries', () => {
-			// creates transactions for three accounts such that: A is sender, B is recipient address, C is sender and recipient address
-			// [0001] A -> B, [0002] A -> C, [0003] C -> B, [0004] C -> C
-			const createDirectionalTransactions = (key1, key2, key3) => {
-				const keys = [key1, key2, key3];
-				const addresses = keys.map(keyToAddress);
-
-				const createTransactionTemplate = (signerPublicKey, recipientAddress) => ({
-					signerPublicKey: new Binary(signerPublicKey), recipientAddress: new Binary(recipientAddress)
-				});
-
-				const transactionTemplates = [
-					createTransactionTemplate(keys[0], addresses[1]),
-					createTransactionTemplate(keys[0], addresses[2]),
-					createTransactionTemplate(keys[2], addresses[1]),
-					createTransactionTemplate(keys[2], addresses[2])
-				];
-
-				let id = 1;
-				const transactions = [];
-				transactionTemplates.forEach(transaction => {
-					transactions.push({ _id: test.db.createObjectId(id++), meta: createTransactionMetadata(transaction), transaction });
-				});
-
-				return transactions;
-			};
-
-			const addTests = (traits, ordering) => {
-				const addDirectionalTest = (keySelector, expectedTransactionIndexes, queryOrdering) => {
-					// Arrange:
-					const keys = [test.random.publicKey(), test.random.publicKey(), test.random.publicKey()];
-					const seedTransactions = createDirectionalTransactions(keys[0], keys[1], keys[2]);
-					return runDbTest(
-						{ [getCollectionName(traits)]: seedTransactions },
-						// Act: retrieve transactions for an account
-						db => db[traits.dbFunctionName](
-							traits.dbFunctionName === dbTransactionTraits.incoming.dbFunctionName
-								? keyToAddress(keySelector(keys))
-								: keySelector(keys),
-							undefined,
-							undefined,
-							queryOrdering
-						),
-						transactions => {
-							// Assert: expected transactions are ordered
-							assertEqualDocuments(expectedTransactionIndexes.map(index => seedTransactions[index]), transactions);
-						}
-					);
-				};
-
-				it('for account without transactions', () =>
-					addDirectionalTest(() => test.random.publicKey(), [], ordering)); // random
-
-				it('for account with outgoing only transactions', () =>
-					addDirectionalTest(keys => keys[0], traits.directional.outgoing, ordering)); // A
-
-				it('for account with incoming only transactions', () =>
-					addDirectionalTest(keys => keys[1], traits.directional.incoming, ordering)); // B
-
-				it('for account with incoming and outgoing transactions', () =>
-					addDirectionalTest(keys => keys[2], traits.directional.incomingAndOutgoing, ordering)); // C
-			};
-
-			describe('filtering by', () => {
-				describe('incoming', () => {
-					addTests(Object.assign({
-						directional: { outgoing: [], incoming: [2, 0], incomingAndOutgoing: [3, 1] }
-					}, dbTransactionTraits.incoming));
-				});
-
-				describe('outgoing', () => {
-					addTests(Object.assign({
-						directional: { outgoing: [1, 0], incoming: [], incomingAndOutgoing: [3, 2] }
-					}, dbTransactionTraits.outgoing));
-				});
-
-				['all', 'unconfirmed', 'partial'].forEach(key => {
-					describe(key, () => {
-						addTests(Object.assign({
-							directional: { outgoing: [1, 0], incoming: [2, 0], incomingAndOutgoing: [3, 2, 1] }
-						}, dbTransactionTraits[key]));
-					});
-				});
-			});
-
-			describe('ordering by', () => {
-				describe('incoming (ascending)', () => {
-					addTests(Object.assign({
-						directional: { outgoing: [], incoming: [0, 2], incomingAndOutgoing: [1, 3] }
-					}, dbTransactionTraits.incoming), 1);
-				});
-
-				describe('outgoing (ascending)', () => {
-					addTests(Object.assign({
-						directional: { outgoing: [0, 1], incoming: [], incomingAndOutgoing: [2, 3] }
-					}, dbTransactionTraits.outgoing), 1);
-				});
-
-				describe('all, unconfirmed and partial (ascending)', () => {
-					['all', 'unconfirmed', 'partial'].forEach(key => {
-						addTests(Object.assign({
-							directional: { outgoing: [0, 1], incoming: [0, 2], incomingAndOutgoing: [1, 2, 3] }
-						}, dbTransactionTraits[key]), 1);
-					});
-				});
-
-				describe('incoming (descending)', () => {
-					addTests(Object.assign({
-						directional: { outgoing: [], incoming: [2, 0], incomingAndOutgoing: [3, 1] }
-					}, dbTransactionTraits.incoming), -1);
-				});
-
-				describe('outgoing (descending)', () => {
-					addTests(Object.assign({
-						directional: { outgoing: [1, 0], incoming: [], incomingAndOutgoing: [3, 2] }
-					}, dbTransactionTraits.outgoing), -1);
-				});
-
-				describe('all, unconfirmed and partial (descending)', () => {
-					['all', 'unconfirmed', 'partial'].forEach(key => {
-						addTests(Object.assign({
-							directional: { outgoing: [1, 0], incoming: [2, 0], incomingAndOutgoing: [3, 2, 1] }
-						}, dbTransactionTraits[key]), -1);
-					});
-				});
-			});
-		});
-
-		describe('can page', () => {
-			const addTransactions = (transactions, id, signerPublicKey, recipientAddress, numDependentDocuments) => {
-				const aggregateId = test.db.createObjectId(id);
-				const aggregateType = 0 === transactions.length % 2 ? EntityType.aggregateComplete : EntityType.aggregateBonded;
-				const transaction = {
-					type: aggregateType, signerPublicKey: new Binary(signerPublicKey), recipientAddress: new Binary(recipientAddress)
-				};
-				transactions.push({ _id: aggregateId, meta: createTransactionMetadata(transaction), transaction });
-
-				for (let j = 0; j < numDependentDocuments; ++j)
-					transactions.push({ _id: test.db.createObjectId(id + j + 1), meta: { aggregateId }, transaction: {} });
-			};
-
-			const createBilateralTransactions = (keys, options) => {
-				const addresses = keys.map(keyToAddress);
-
-				let id = 0;
-				const transactions = [];
-				keys.forEach(signerPublicKey => addresses.forEach(recipientAddress => {
-					const numDependentDocuments = (options || {}).numDependentDocuments || 0;
-					addTransactions(transactions, id, signerPublicKey, recipientAddress, numDependentDocuments);
-					id += 1 + numDependentDocuments;
-				}));
-
-				return transactions;
-			};
-
-			const createAlternatingTransactions = (numMatchingTransactions, createMatchingSenderRecipientPair, options) => {
-				const transactions = [];
-				const randomKey = test.random.publicKey();
-				const randomAddress = keyToAddress(test.random.publicKey());
-
-				let id = 0;
-				for (let i = 0; i < 2 * numMatchingTransactions; ++i) {
-					// create a matching transaction every even iteration
-					const senderRecipientPair = 0 === id % 2
-						? createMatchingSenderRecipientPair()
-						: { signerPublicKey: randomKey, recipientAddress: randomAddress };
-					const numDependentDocuments = (options || {}).numDependentDocuments || 0;
-					addTransactions(transactions, id, senderRecipientPair.signerPublicKey, senderRecipientPair.recipientAddress,
-						numDependentDocuments);
-					id += 1 + numDependentDocuments;
-				}
-
-				return transactions;
-			};
-
-			// helper functions for creating transactions for paging tests
-			const createPagingSeedTransactionsFactory = {
-				curryIncoming: options => (numMatchingTransactions, key) => {
-					// incoming recipient address should match
-					const signerPublicKey = test.random.publicKey();
-					const recipientAddress = keyToAddress(key);
-					return createAlternatingTransactions(numMatchingTransactions, () => ({ signerPublicKey, recipientAddress }), options);
+		const transactionDbEntities = [
+			{
+				meta: {
+					height: 1,
+					hash: '',
+					addresses: [new Binary(testAddress)]
 				},
-
-				curryOutgoing: options => (numMatchingTransactions, key) => {
-					// outgoing signer should match
-					const recipientAddress = keyToAddress(test.random.publicKey());
-					return createAlternatingTransactions(numMatchingTransactions,
-						() => ({ signerPublicKey: key, recipientAddress }), options);
-				},
-
-				curryAll: options => (numMatchingTransactions, key) => {
-					// incoming recipient address and/or outgoing signer public key should match, so alternate
-					let i = 0;
-					const recipientAddress = keyToAddress(key);
-					const randomSigner = test.random.publicKey();
-					const randomRecipient = keyToAddress(test.random.publicKey());
-					return createAlternatingTransactions(
-						numMatchingTransactions,
-						() => (0 === i++ % 2 ? { signerPublicKey: key, recipientAddress: randomRecipient }
-							: { signerPublicKey: randomSigner, recipientAddress }),
-						options
-					);
+				transaction: {
+					recipientAddress: new Binary(testAddress),
+					signerPublicKey: new Binary(testPublicKey)
 				}
-			};
-
-			const addTests = traits => {
-				it('can retrieve all matching transactions', () => {
-					// Arrange:
-					const keys = [test.random.publicKey(), test.random.publicKey(), test.random.publicKey()];
-					const seedTransactions = traits.createSeedTransactions(keys);
-					return runDbTest(
-						{ [getCollectionName(traits)]: seedTransactions },
-						// Act: retrieve transactions from the second account
-						db => db[traits.dbFunctionName](
-							traits.dbFunctionName === dbTransactionTraits.incoming.dbFunctionName
-								? keyToAddress(keys[1])
-								: keys[1]
-						),
-						transactions => {
-							// Assert: only the transactions matching the second account were returned
-							assertEqualDocuments(traits.getAccount2Transactions(seedTransactions), transactions);
-						}
-					);
-				});
-
-				it('query respects supplied id', () => {
-					// Arrange:
-					const keys = [test.random.publicKey(), test.random.publicKey(), test.random.publicKey()];
-					const seedTransactions = traits.createSeedTransactions(keys);
-					return runDbTest(
-						{ [getCollectionName(traits)]: seedTransactions },
-						// Act: query passing a custom id
-						db => db[traits.dbFunctionName](
-							traits.dbFunctionName === dbTransactionTraits.incoming.dbFunctionName
-								? keyToAddress(keys[1])
-								: keys[1],
-							traits.startId
-						),
-						transactions => {
-							// Assert: only the transactions after the passed id should be returned
-							assertEqualDocuments(traits.getAccount2FilteredTransactions(seedTransactions, [2]), transactions);
-						}
-					);
-				});
-
-				const assertPageSize = (numMatchingTransactions, pageSize, numExpectedTransactions) => {
-					// Arrange: generate transactions that alternate matching the filter; Y, N, Y, N ...
-					const key = test.random.publicKey();
-					const seedTransactions = traits.createPagingSeedTransactions(numMatchingTransactions, key);
-					return runDbTest(
-						{ [getCollectionName(traits)]: seedTransactions },
-						// Act: query with a custom page size
-						db => db[traits.dbFunctionName](
-							traits.dbFunctionName === dbTransactionTraits.incoming.dbFunctionName
-								? keyToAddress(key)
-								: key,
-							undefined,
-							pageSize
-						),
-						transactions => {
-							// Assert: at most a single page was returned (subtract 1 because oids are 0-based)
-							const expectedIndexes = [];
-							for (let i = 0; i < numExpectedTransactions; ++i)
-								expectedIndexes.push(((numMatchingTransactions - i - 1) * 2) * traits.pageIdStep);
-
-							assertEqualDocuments(traits.curryFromIndexes(expectedIndexes)(seedTransactions), transactions);
-						}
-					);
-				};
-
-				// minimum and maximum values are set in CatapultDb ctor
-				it('query respects page size', () => assertPageSize(14, 12, 12));
-				it('query ensures minimum page size', () => assertPageSize(14, 3, 10));
-				it('query ensures maximum page size', () => assertPageSize(150, 125, 100));
-			};
-
-			describe('transactions', () => {
-				// create 3 x 3 transactions (second account [B] is used by all tests)
-				// - 0000 A -> A, 0001 A -> B, 0002 A -> C
-				// - 0003 B -> A, 0004 B -> B, 0005 B -> C
-				// - 0006 C -> A, 0007 C -> B, 0008 C -> C
-				const basicTraits = {
-					createSeedTransactions: createBilateralTransactions,
-					curryFromIndexes: indexes => seedTransactions => indexes.map(index => seedTransactions[index]),
-					startId: test.db.createObjectId(4), // for id test, the id passed in as a filter
-					pageIdStep: 1 // difference between consecutive ids
-				};
-
-				// region test cases
-
-				describe('incoming', () => {
-					addTests(Object.assign({
-						getAccount2Transactions: basicTraits.curryFromIndexes([7, 4, 1]),
-						getAccount2FilteredTransactions: basicTraits.curryFromIndexes([1]),
-						createPagingSeedTransactions: createPagingSeedTransactionsFactory.curryIncoming()
-					}, basicTraits, dbTransactionTraits.incoming));
-				});
-
-				describe('outgoing', () => {
-					addTests(Object.assign({
-						getAccount2Transactions: basicTraits.curryFromIndexes([5, 4, 3]),
-						getAccount2FilteredTransactions: basicTraits.curryFromIndexes([3]),
-						createPagingSeedTransactions: createPagingSeedTransactionsFactory.curryOutgoing()
-					}, basicTraits, dbTransactionTraits.outgoing));
-				});
-
-				['all', 'unconfirmed', 'partial'].forEach(key => {
-					describe(key, () => {
-						addTests(Object.assign({
-							getAccount2Transactions: basicTraits.curryFromIndexes([7, 5, 4, 3, 1]),
-							getAccount2FilteredTransactions: basicTraits.curryFromIndexes([3, 1]),
-							createPagingSeedTransactions: createPagingSeedTransactionsFactory.curryAll()
-						}, basicTraits, dbTransactionTraits[key]));
-					});
-				});
-
-				// endregion
-			});
-
-			describe('transactions with dependent documents', () => {
-				// create 3 x 3 transactions (second account [B] is used by all tests)
-				// - 0000 (0001, 0002) A -> A, 0003 (0004, 0005) A -> B, 0006 (0007, 0008) A -> C
-				// - 0009 (000A, 000B) B -> A, 000C (000D, 000E) B -> B, 000F (0010, 0011) B -> C
-				// - 0012 (0013, 0014) C -> A, 0015 (0016, 0017) C -> B, 0018 (0019, 001A) C -> C
-				const basicTraits = {
-					createSeedTransactions: keys => createBilateralTransactions(keys, { numDependentDocuments: 2 }),
-					curryFromIndexes: indexes => seedTransactions => indexes.map(index => {
-						const stitchedAggregate = Object.assign({}, seedTransactions[index]);
-						stitchedAggregate.transaction.transactions = [seedTransactions[index + 1], seedTransactions[index + 2]];
-						return stitchedAggregate;
-					}),
-					startId: test.db.createObjectId(12),
-					pageIdStep: 3 // difference between consecutive ids (1 + 2 dependent documents)
-				};
-
-				// region test cases
-
-				describe('incoming', () => {
-					addTests(Object.assign({
-						getAccount2Transactions: basicTraits.curryFromIndexes([21, 12, 3]),
-						getAccount2FilteredTransactions: basicTraits.curryFromIndexes([3]),
-						createPagingSeedTransactions: createPagingSeedTransactionsFactory.curryIncoming({ numDependentDocuments: 2 })
-					}, basicTraits, dbTransactionTraits.incoming));
-				});
-
-				describe('outgoing', () => {
-					addTests(Object.assign({
-						getAccount2Transactions: basicTraits.curryFromIndexes([15, 12, 9]),
-						getAccount2FilteredTransactions: basicTraits.curryFromIndexes([9]),
-						createPagingSeedTransactions: createPagingSeedTransactionsFactory.curryOutgoing({ numDependentDocuments: 2 })
-					}, basicTraits, dbTransactionTraits.outgoing));
-				});
-
-				['all', 'unconfirmed', 'partial'].forEach(key => {
-					describe(key, () => {
-						addTests(Object.assign({
-							getAccount2Transactions: basicTraits.curryFromIndexes([21, 15, 12, 9, 3]),
-							getAccount2FilteredTransactions: basicTraits.curryFromIndexes([9, 3]),
-							createPagingSeedTransactions: createPagingSeedTransactionsFactory.curryAll({ numDependentDocuments: 2 })
-						}, basicTraits, dbTransactionTraits[key]));
-					});
-				});
-
-				// endregion
-			});
-		});
-
-		const addParticipantTests = (aggregateType, setTransactionParticipants) => {
-			// creates transactions for four accounts A, B, C (tested account), D
-			// [0001] A -> B, [0002] A -> C, [0003] D -> D :: C, [0004] C -> B, [0005] C -> C, [0006] A -> B, [0007] A -> B :: D, C
-			const createTransactionsWithParticipants = key => {
-				const keys = [test.random.publicKey(), test.random.publicKey(), key, test.random.publicKey()];
-				const addresses = keys.map(keyToAddress);
-
-				const createTransactionTemplate = (signerPublicKey, recipientAddress, participants) => {
-					const transaction = {
-						type: aggregateType, signerPublicKey: new Binary(signerPublicKey), recipientAddress: new Binary(recipientAddress)
-					};
-					return { transaction, participants };
-				};
-
-				const transactionTemplates = [
-					createTransactionTemplate(keys[0], addresses[1]),
-					createTransactionTemplate(keys[0], addresses[2]),
-					createTransactionTemplate(keys[3], addresses[3], [keys[2]]),
-					createTransactionTemplate(keys[2], addresses[1]),
-					createTransactionTemplate(keys[2], addresses[2]),
-					createTransactionTemplate(keys[0], addresses[1]),
-					createTransactionTemplate(keys[0], addresses[1], [keys[3], keys[2]])
-				];
-
-				let id = 1;
-				const transactions = [];
-				transactionTemplates.forEach(template => {
-					// Arrange: set the participants if present (either transaction or meta needs to be modified)
-					const { transaction } = template;
-					const meta = createTransactionMetadata(transaction);
-					if (template.participants)
-						setTransactionParticipants(transaction, meta, template.participants);
-
-					transactions.push({ _id: test.db.createObjectId(id++), meta, transaction });
-				});
-
-				return transactions;
-			};
-
-			const runBasicParticipantsTest = (traits, expectedTransactionIndexes) => {
-				// Arrange:
-				const key = test.random.publicKey();
-				const seedTransactions = createTransactionsWithParticipants(key);
-				return runDbTest(
-					{ [getCollectionName(traits)]: seedTransactions },
-					// Act: retrieve transactions for an account
-					db => db[traits.dbFunctionName](
-						traits.dbFunctionName === dbTransactionTraits.incoming.dbFunctionName
-							? keyToAddress(key)
-							: key
-					),
-					transactions => {
-						// Assert: expected transactions are available
-						assertEqualDocuments(expectedTransactionIndexes.map(index => seedTransactions[index]), transactions);
-					}
-				);
-			};
-
-			// notice that incoming and outgoing apis do not include participant-only transactions
-			it('is ignored by incoming', () => runBasicParticipantsTest(dbTransactionTraits.incoming, [4, 1]));
-			it('is ignored by outgoing', () => runBasicParticipantsTest(dbTransactionTraits.outgoing, [4, 3]));
-
-			const addSupportedParticipantsTests = traits => {
-				const expectedTransactionIndexes = [6, 4, 3, 2, 1];
-				it(`is included in ${traits.name}`, () => runBasicParticipantsTest(traits, expectedTransactionIndexes));
-				it(`is included in ${traits.name} and pulls in all sub transactions`, () => {
-					// Arrange:
-					const key = test.random.publicKey();
-					const seedTransactions = createTransactionsWithParticipants(key);
-
-					// - for each seed transaction append two dependent documents
-					const numAggregates = seedTransactions.length;
-					for (let i = 0; i < numAggregates; ++i) {
-						const aggregateId = seedTransactions[i]._id;
-						const startId = numAggregates + (2 * i) + 1; // 1-based ids
-						seedTransactions.push({ _id: test.db.createObjectId(startId), meta: { aggregateId }, transaction: {} });
-						seedTransactions.push({ _id: test.db.createObjectId(startId + 1), meta: { aggregateId }, transaction: {} });
-					}
-
-					return runDbTest(
-						{ [getCollectionName(traits)]: seedTransactions },
-						// Act: retrieve transactions for an account
-						db => db[traits.dbFunctionName](key),
-						transactions => {
-							// Assert: expected transactions are available and have stitched sub documents
-							assertEqualDocuments(expectedTransactionIndexes.map(index => {
-								const dependentStartIndex = numAggregates + (2 * index);
-								const stitchedAggregate = seedTransactions[index];
-								stitchedAggregate.transaction.transactions = [
-									seedTransactions[dependentStartIndex],
-									seedTransactions[dependentStartIndex + 1]
-								];
-								return stitchedAggregate;
-							}), transactions);
-						}
-					);
-				});
-			};
-
-			['all', 'unconfirmed', 'partial'].forEach(key => {
-				addSupportedParticipantsTests(Object.assign({ name: key }, dbTransactionTraits[key]));
-			});
-		};
-
-		const aggregateDescriptors = [
-			{ name: 'aggregate complete', type: EntityType.aggregateComplete },
-			{ name: 'aggregate bonded', type: EntityType.aggregateBonded }
+			}
 		];
 
-		aggregateDescriptors.forEach(aggregateDescriptor => {
-			describe(aggregateDescriptor.name, () => {
-				describe('cosignature only', () => {
-					// Arrange: add participants as cosigners
-					addParticipantTests(aggregateDescriptor.type, (transaction, meta, participants) => {
-						transaction.cosignatures = participants.map(cosigner => ({ signerPublicKey: new Binary(cosigner) }));
-					});
-				});
+		const runDbWithQueryTransactionsSpy = (dbEntities, issueDbCommand, expectedParams) => {
+			// Arrange:
+			const db = new CatapultDb({ networkId: Mijin_Test_Network });
+			const queryTransactionsSpy = sinon.spy(db, 'queryTransactions');
 
-				describe('participant only', () => {
-					// Arrange: add participants as affected addresses
-					addParticipantTests(aggregateDescriptor.type, (transaction, meta, participants) => {
-						meta.addresses = meta.addresses.concat(participants.map(participant => keyToAddress(participant)));
-					});
-				});
-			});
+			// Act + Assert:
+			return db.connect(testDbOptions.url, 'test')
+				.then(() => test.db.populateDatabase(db, dbEntities))
+				.then(() => deleteIds(dbEntities))
+				.then(() => issueDbCommand(db))
+				.then(result => {
+					expect(queryTransactionsSpy.calledOnce).to.equal(true);
+
+					// check all params
+					expect(queryTransactionsSpy.firstCall.args.length).to.equal(expectedParams.length);
+					for (let i = 0; i < expectedParams.length; ++i)
+						expect(queryTransactionsSpy.firstCall.args[i]).to.deep.equal(expectedParams[i]);
+
+					queryTransactionsSpy.restore();
+					return result;
+				})
+				.then(() => db.close());
+		};
+
+		describe('confirmed', () => {
+			// Arrange:
+			const queriedConditions = { 'meta.addresses': Buffer.from(testAddress) };
+
+			// Act + Assert:
+			it('calls queryTransactions with correct conditions and pagination params', () =>
+				runDbWithQueryTransactionsSpy(
+					{ transactions: transactionDbEntities },
+					db => db.accountTransactionsConfirmed(testAddress, testObjectId, 25, 1),
+					[queriedConditions, testObjectId, 25, { sortOrder: 1 }]
+				));
+		});
+
+		describe('incoming', () => {
+			// Arrange:
+			const queriedConditions = { 'transaction.recipientAddress': Buffer.from(testAddress) };
+
+			// Act + Assert:
+			it('calls queryTransactions with correct conditions and pagination params', () =>
+				runDbWithQueryTransactionsSpy(
+					{ transactions: transactionDbEntities },
+					db => db.accountTransactionsIncoming(testAddress, testObjectId, 25, 1),
+					[queriedConditions, testObjectId, 25, { sortOrder: 1 }]
+				));
+		});
+
+		describe('outgoing', () => {
+			// Arrange:
+			const queriedConditions = { 'transaction.signerPublicKey': testPublicKey };
+
+			// Act + Assert:
+			it('calls queryTransactions with correct conditions and pagination params', () =>
+				runDbWithQueryTransactionsSpy(
+					{ transactions: transactionDbEntities },
+					db => db.accountTransactionsOutgoing(testPublicKey, testObjectId, 25, 1),
+					[queriedConditions, testObjectId, 25, { sortOrder: 1 }]
+				));
+		});
+
+		describe('unconfirmed', () => {
+			// Arrange:
+			const queriedConditions = { 'meta.addresses': Buffer.from(testAddress) };
+
+			// Act + Assert:
+			it('calls queryTransactions with correct conditions, pagination params and collection name', () =>
+				runDbWithQueryTransactionsSpy(
+					{ transactions: transactionDbEntities },
+					db => db.accountTransactionsUnconfirmed(testAddress, testObjectId, 25, 1),
+					[queriedConditions, testObjectId, 25, { collectionName: 'unconfirmedTransactions', sortOrder: 1 }]
+				));
+		});
+
+		describe('partial', () => {
+			// Arrange:
+			const queriedConditions = { 'meta.addresses': Buffer.from(testAddress) };
+
+			// Act + Assert:
+			it('calls queryTransactions with correct conditions, pagination params and collection name', () =>
+				runDbWithQueryTransactionsSpy(
+					{ transactions: transactionDbEntities },
+					db => db.accountTransactionsPartial(testAddress, testObjectId, 25, 1),
+					[queriedConditions, testObjectId, 25, { collectionName: 'partialTransactions', sortOrder: 1 }]
+				));
 		});
 	});
 

@@ -22,11 +22,13 @@ const { test } = require('./utils/routeTestUtils');
 const accountRoutes = require('../../src/routes/accountRoutes');
 const { MockServer } = require('../../test/routes/utils/routeTestUtils');
 const AccountType = require('../../src/plugins/AccountType');
+const MongoDb = require('mongodb');
 const catapult = require('catapult-sdk');
 const { expect } = require('chai');
 const sinon = require('sinon');
 
 const { address } = catapult.model;
+const { Binary } = MongoDb;
 const { convert } = catapult.utils;
 const { addresses, publicKeys } = test.sets;
 
@@ -92,133 +94,73 @@ describe('account routes', () => {
 	});
 
 	describe('account transactions', () => {
-		describe('all, outgoing, unconfirmed, partial', () => {
-			const addGetTestsBy = accountIdType => {
-				const addAccountTransactionsTests = (apiPath, dbApiPath) => {
-					describe(dbApiPath, () => {
-						const pagingTestsFactory = test.setup.createPagingTestsFactory(
-							{
-								routes: accountRoutes,
-								routeName: `/account/:accountId/${apiPath}`,
-								createDb: (queriedIdentifiers, transactions) => ({
-									[dbApiPath]: (publicKey, pageId, pageSize) => {
-										queriedIdentifiers.push({ publicKey, pageId, pageSize });
-										return Promise.resolve(transactions);
-									},
-									addressToPublicKey: () => Promise.resolve({
-										account: { publicKey: { buffer: convert.hexToUint8(publicKeys.valid[0]) } }
-									})
-								}),
-								config: { transactionStates: [{ dbPostfix: 'Partial', routePostfix: '/partial' }] }
-							},
-							{ accountId: accountIdType === AccountType.publicKey ? publicKeys.valid[0] : addresses.valid[0] },
-							{ publicKey: convert.hexToUint8(publicKeys.valid[0]) },
-							'transactionWithMetadata'
-						);
+		const testPublicKey = '7DE16AEDF57EB9561D3E6EFA4AE66F27ABDA8AEC8BC020B6277360E31619DCE7';
+		const uint8TestPublicKey = convert.hexToUint8(testPublicKey);
 
-						pagingTestsFactory.addDefault();
-						pagingTestsFactory.addNonPagingParamFailureTest('accountId', '12345');
-					});
-				};
+		const testAddress = 'SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXWV';
 
-				// default transaction states
-				addAccountTransactionsTests('transactions', 'accountTransactionsAll');
-				addAccountTransactionsTests('transactions/outgoing', 'accountTransactionsOutgoing');
-				addAccountTransactionsTests('transactions/unconfirmed', 'accountTransactionsUnconfirmed');
+		const nonExistingTestAddress = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+		const uint8NonExistingTestAddress = address.stringToAddress(nonExistingTestAddress);
 
-				// custom transaction states (enabled via custom configuration)
-				addAccountTransactionsTests('transactions/partial', 'accountTransactionsPartial');
+		const getTestsBy = accountIdType => {
+			const fakeTransactions = [{ meta: { addresses: [] }, transaction: { type: 12345 } }];
+			const dbTransactionsFake = sinon.fake.resolves(fakeTransactions);
+			const mockServer = new MockServer();
 
-				const addOrderingParamTests = (apiPath, dbApiPath) => {
-					describe(dbApiPath, () => {
-						// Arrange:
-						const createDb = (queriedIdentifiers, transactions) => ({
-							[dbApiPath]: (publicKey, pageId, pageSize, ordering) => {
-								queriedIdentifiers.push({
-									publicKey, pageId, pageSize, ordering
-								});
-								return Promise.resolve(transactions);
-							}
-						});
-						const keyGroups = [];
-						const db = createDb(keyGroups, []);
+			const db = {
+				accountTransactionsConfirmed: dbTransactionsFake,
+				accountTransactionsUnconfirmed: dbTransactionsFake,
+				accountTransactionsPartial: dbTransactionsFake,
+				accountTransactionsIncoming: dbTransactionsFake,
+				accountTransactionsOutgoing: dbTransactionsFake,
+				addressToPublicKey: searchedAddress => {
+					if (Buffer.from(searchedAddress).equals(Buffer.from(uint8NonExistingTestAddress)))
+						return Promise.reject(Error('account not found'));
 
-						// Act:
-						it('queries the database with ordering param', () => test.route.executeSingle(
-							accountRoutes.register,
-							`/account/:accountId/${apiPath}`,
-							'get',
-							Object.assign({}, { accountId: publicKeys.valid[0] }, { ordering: 'id' }),
-							db,
-							{ transactionStates: [{ dbPostfix: 'Partial', routePostfix: '/partial' }] },
-							() => {
-								// Assert:
-								expect(keyGroups).to.deep.equal([Object.assign(
-									{},
-									{ publicKey: convert.hexToUint8(publicKeys.valid[0]) },
-									{ pageId: undefined, pageSize: 0, ordering: 1 }
-								)]);
-							}
-						));
-					});
-				};
-
-				// default transaction states
-				addOrderingParamTests('transactions', 'accountTransactionsAll');
-				addOrderingParamTests('transactions/outgoing', 'accountTransactionsOutgoing');
-				addOrderingParamTests('transactions/unconfirmed', 'accountTransactionsUnconfirmed');
-
-				// custom transaction states (enabled via custom configuration)
-				addOrderingParamTests('transactions/partial', 'accountTransactionsPartial');
+					return Promise.resolve({ account: { publicKey: new Binary(Buffer.from(uint8TestPublicKey)) } });
+				}
+			};
+			const services = {
+				config: {
+					network: { name: 'mijinTest' },
+					transactionStates: [{ dbPostfix: 'Partial', routePostfix: '/partial' }]
+				}
 			};
 
-			describe('by publicKey', () => addGetTestsBy(AccountType.publicKey));
-
-			describe('by address', () => addGetTestsBy(AccountType.address));
-		});
-
-		describe('incoming', () => {
-			const testAddress = 'SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXWV';
-			const testPublicKey = '7DE16AEDF57EB9561D3E6EFA4AE66F27ABDA8AEC8BC020B6277360E31619DCE7';
-			const testObjectId = '112233445566778899AABBCC';
-
-			const transactionSample = { meta: { height: 1, index: 0 }, transaction: { id: 12345 } };
-			const sentPayload = { payload: [transactionSample], type: 'transactionWithMetadata' };
-			const dbIncomingFake = sinon.fake(() => Promise.resolve([transactionSample]));
-
-			const mockServer = new MockServer();
-			const db = { accountTransactionsIncoming: dbIncomingFake };
-			const services = { config: { transactionStates: [], network: { name: 'mijinTest' } } };
 			accountRoutes.register(mockServer.server, db, services);
-			const route = mockServer.getRoute('/account/:accountId/transactions/incoming').get();
 
 			beforeEach(() => {
 				mockServer.resetStats();
-				dbIncomingFake.resetHistory();
+				dbTransactionsFake.resetHistory();
 			});
 
-			const testBy = accountId => {
+			const basicQueryTest = route =>
 				it('basic query', () => {
 					// Arrange:
-					const req = { params: { accountId } };
+					const req = { params: { accountId: AccountType.publicKey === accountIdType ? testPublicKey : testAddress } };
 
 					// Act:
 					return mockServer.callRoute(route, req).then(() => {
 						// Assert:
-						expect(dbIncomingFake.calledOnce).to.equal(true);
-						expect(dbIncomingFake.firstCall.args[0]).to.deep.equal(address.stringToAddress(testAddress));
-						expect(mockServer.send.firstCall.args[0]).to.deep.equal(sentPayload);
+						expect(dbTransactionsFake.calledOnce).to.equal(true);
+						expect(dbTransactionsFake.firstCall.args[0]).to.deep.equal(address.stringToAddress(testAddress));
+
+						expect(mockServer.send.firstCall.args[0]).to.deep.equal({
+							payload: fakeTransactions,
+							type: 'transactionWithMetadata'
+						});
 						expect(mockServer.next.calledOnce).to.equal(true);
 					});
 				});
 
-				it('query with pageId, pageSize and ordering', () => {
+			const paginationParamsTest = route =>
+				it('parses and fordwards pagination params correctly', () => {
 					// Arrange:
 					const req = {
 						params: {
-							accountId,
-							id: testObjectId,
-							pageSize: '50',
+							accountId: testPublicKey,
+							id: '00123456789AABBBCCDDEEFF',
+							pageSize: '25',
 							ordering: 'id'
 						}
 					};
@@ -226,58 +168,105 @@ describe('account routes', () => {
 					// Act:
 					return mockServer.callRoute(route, req).then(() => {
 						// Assert:
-						expect(dbIncomingFake.calledOnce).to.equal(true);
-						expect(dbIncomingFake.firstCall.args[0]).to.deep.equal(address.stringToAddress(testAddress));
-						expect(dbIncomingFake.firstCall.args[1]).to.deep.equal(testObjectId);
-						expect(dbIncomingFake.firstCall.args[2]).to.deep.equal(50);
-						expect(dbIncomingFake.firstCall.args[3]).to.deep.equal(1);
-						expect(mockServer.send.firstCall.args[0]).to.deep.equal(sentPayload);
-						expect(mockServer.next.calledOnce).to.equal(true);
+						expect(dbTransactionsFake.calledOnce).to.equal(true);
+						expect(dbTransactionsFake.firstCall.args[1]).to.equal('00123456789AABBBCCDDEEFF');
+						expect(dbTransactionsFake.firstCall.args[2]).to.equal(25);
+						expect(dbTransactionsFake.firstCall.args[3]).to.equal(1);
 					});
 				});
 
-				it('throws error if invalid pageId', () => {
+			const invalidPageIdTest = route =>
+				it('returns 409 if invalid pageId', () => {
 					// Arrange:
-					const req = {
-						params: {
-							accountId,
-							id: 'alice',
-							pageSize: '50',
-							ordering: 'id'
-						}
-					};
+					const req = { params: { accountId: testPublicKey, id: '12345' } };
 
 					// Act + Assert:
 					expect(() => mockServer.callRoute(route, req)).to.throw('id is not a valid object id');
 				});
 
-				it('throws error if invalid pageSize', () => {
+			const invalidPageSizeTest = route =>
+				it('returns 409 if invalid pageSize', () => {
 					// Arrange:
-					const req = {
-						params: {
-							accountId,
-							id: testObjectId,
-							pageSize: 'alice',
-							ordering: 'id'
-						}
-					};
+					const req = { params: { accountId: testPublicKey, id: '00123456789AABBBCCDDEEFF', pageSize: '-1' } };
 
 					// Act + Assert:
 					expect(() => mockServer.callRoute(route, req)).to.throw('pageSize is not a valid unsigned integer');
 				});
 
-				it('throws error if accountId is invalid', () => {
+			const invalidAccountTest = route =>
+				it('returns 409 if accountId is invalid', () => {
 					// Arrange:
-					const req = { params: { accountId: 'ABCD' } };
+					const req = { params: { accountId: 'aabbccddeeff' } };
 
 					// Act + Assert:
 					expect(() => mockServer.callRoute(route, req)).to.throw('accountId has an invalid format');
 				});
+
+			const getStandardTests = route => {
+				basicQueryTest(route);
+				paginationParamsTest(route);
+				invalidPageIdTest(route);
+				invalidPageSizeTest(route);
+				invalidAccountTest(route);
 			};
 
-			describe('by publicKey', () => testBy(testPublicKey));
+			describe('confirmed', () => getStandardTests(mockServer.getRoute('/account/:accountId/transactions').get()));
 
-			describe('by address', () => testBy(testAddress));
-		});
+			describe('incoming', () => getStandardTests(mockServer.getRoute('/account/:accountId/transactions/incoming').get()));
+
+			describe('unconfirmed', () => getStandardTests(mockServer.getRoute('/account/:accountId/transactions/unconfirmed').get()));
+
+			describe('partial', () => getStandardTests(mockServer.getRoute('/account/:accountId/transactions/partial').get()));
+
+			describe('outgoing', () => {
+				const route = mockServer.getRoute('/account/:accountId/transactions/outgoing').get();
+
+				it('basic query', () => {
+					// Arrange:
+					const req = { params: { accountId: AccountType.publicKey === accountIdType ? testPublicKey : testAddress } };
+
+					// Act:
+					return mockServer.callRoute(route, req).then(() => {
+						// Assert:
+						expect(dbTransactionsFake.calledOnce).to.equal(true);
+						expect(dbTransactionsFake.firstCall.args[0]).to.deep.equal(uint8TestPublicKey);
+
+						expect(mockServer.send.firstCall.args[0]).to.deep.equal({
+							payload: fakeTransactions,
+							type: 'transactionWithMetadata'
+						});
+						expect(mockServer.next.calledOnce).to.equal(true);
+					});
+				});
+
+				// tests only nedded when searching by address
+				if (AccountType.address === accountIdType) {
+					it('account does not exists or does not have public key', () => {
+						// Arrange:
+						const req = { params: { accountId: nonExistingTestAddress } };
+
+						// Act:
+						return mockServer.callRoute(route, req).then(() => {
+							// Assert:
+							expect(dbTransactionsFake.calledOnce).to.equal(false);
+
+							expect(mockServer.send.firstCall.args[0]).to.deep.equal({
+								payload: [],
+								type: 'transactionWithMetadata'
+							});
+							expect(mockServer.next.calledOnce).to.equal(true);
+						});
+					});
+				}
+
+				paginationParamsTest(route);
+				invalidPageIdTest(route);
+				invalidPageSizeTest(route);
+				invalidAccountTest(route);
+			});
+		};
+
+		describe('by publicKey', () => getTestsBy(AccountType.publicKey));
+		describe('by address', () => getTestsBy(AccountType.address));
 	});
 });
