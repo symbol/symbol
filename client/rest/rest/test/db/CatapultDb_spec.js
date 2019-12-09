@@ -842,6 +842,262 @@ describe('catapult db', () => {
 		});
 	});
 
+	describe('query transactions', () => {
+		const testPublicKeyOne = test.random.publicKey();
+		const testAddressOne = keyToAddress(testPublicKeyOne);
+		const testPublicKeyTwo = test.random.publicKey();
+		const testAddressTwo = keyToAddress(testPublicKeyTwo);
+
+		const createTransaction = (objectId, addresses, type) => ({
+			_id: objectId,
+			meta: { addresses: addresses.map(a => new Binary(a)) },
+			transaction: { type }
+		});
+
+		const createDependentDocument = (objectId, aggregateId) => ({
+			_id: objectId,
+			meta: { aggregateId },
+			transaction: {}
+		});
+
+		it('does not expose private meta.addresses field', () => {
+			// Arrange:
+			const id1 = test.db.createObjectId(100);
+			const id2 = test.db.createObjectId(200);
+			const dbTransactions = [];
+			dbTransactions.push(createTransaction(id1, [testAddressOne, testAddressTwo], EntityType.transfer));
+			dbTransactions.push(createTransaction(id2, [testAddressOne, testAddressTwo], EntityType.aggregateComplete));
+
+			// Act + Assert:
+			return runDbTest({ transactions: dbTransactions },
+				db => db.queryTransactions({ 'meta.addresses': Buffer.from(testAddressOne) }),
+				transactions => {
+					transactions.forEach(transaction => {
+						expect(Object.keys(transaction.meta).length).to.equal(1);
+						expect(transaction.meta).to.contain.all.keys(['id']);
+					});
+				});
+		});
+
+		it('uses transactions collection by default', () => {
+			// Arrange:
+			const id1 = test.db.createObjectId(100);
+			const id2 = test.db.createObjectId(200);
+
+			const dbEntities = {
+				transactions: [createTransaction(id1, [testAddressOne], EntityType.transfer)],
+				partialTransactions: [createTransaction(id2, [testAddressOne], EntityType.transfer)]
+			};
+
+			// Act + Assert:
+			return runDbTest(dbEntities,
+				db => db.queryTransactions({ 'meta.addresses': Buffer.from(testAddressOne) }),
+				transactions => {
+					expect(transactions.length).to.equal(1);
+					expect(transactions[0].meta.id).to.deep.equal(id1);
+				});
+		});
+
+		it('uses specified collection', () => {
+			// Arrange:
+			const id1 = test.db.createObjectId(100);
+			const id2 = test.db.createObjectId(200);
+
+			const dbEntities = {
+				transactions: [createTransaction(id1, [testAddressOne], EntityType.transfer)],
+				partialTransactions: [createTransaction(id2, [testAddressOne], EntityType.transfer)]
+			};
+
+			// Act + Assert:
+			return runDbTest(dbEntities,
+				db => db.queryTransactions(
+					{ 'meta.addresses': Buffer.from(testAddressOne) },
+					undefined,
+					undefined,
+					{ collectionName: 'partialTransactions' }
+				),
+				transactions => {
+					expect(transactions.length).to.equal(1);
+					expect(transactions[0].meta.id).to.deep.equal(id2);
+				});
+		});
+
+		it('filters out dependent documents', () => {
+			// Arrange:
+			const id1 = test.db.createObjectId(100);
+			const id2 = test.db.createObjectId(200);
+			const id3 = test.db.createObjectId(300);
+
+			const dbTransactions = [];
+
+			// transactions to ouput
+			dbTransactions.push(createTransaction(id1, [testAddressOne, testAddressTwo], EntityType.transfer));
+			dbTransactions.push(createTransaction(id2, [testAddressOne, testAddressTwo], EntityType.aggregateComplete));
+			dbTransactions.push(createTransaction(id3, [testAddressOne, testAddressTwo], EntityType.aggregateBonded));
+
+			// dependent documents to filter out
+			dbTransactions.push(createDependentDocument(test.db.createObjectId(56543), id2));
+			dbTransactions.push(createDependentDocument(test.db.createObjectId(23238), id2));
+			dbTransactions.push(createDependentDocument(test.db.createObjectId(96212), id3));
+
+			// Act + Assert:
+			return runDbTest({ transactions: dbTransactions },
+				db => db.queryTransactions({ 'meta.addresses': Buffer.from(testAddressOne) }),
+				transactions => {
+					const ids = transactions.map(transaction => transaction.meta.id);
+					expect(ids.length).to.equal(3);
+					expect(ids).to.deep.equal([id3, id2, id1]);
+				});
+		});
+
+		it('correctly retrieves transactions without dependent documents', () => {
+			// Arrange:
+			const id1 = test.db.createObjectId(100);
+			const id2 = test.db.createObjectId(200);
+			const id3 = test.db.createObjectId(300);
+
+			const dbTransactions = [];
+			dbTransactions.push(createTransaction(id1, [testAddressOne], EntityType.transfer));
+			dbTransactions.push(createTransaction(id2, [testAddressTwo, testAddressOne], EntityType.mosaicSupplyChange));
+			dbTransactions.push(createTransaction(id3, [keyToAddress(test.random.publicKey())], EntityType.registerNamespace));
+
+			// Act + Assert:
+			return runDbTest({ transactions: dbTransactions },
+				db => db.queryTransactions({ 'meta.addresses': Buffer.from(testAddressOne) }),
+				transactions => {
+					expect(transactions.length).to.equal(2);
+					expect(transactions).to.deep.equal([
+						{ meta: { id: id2 }, transaction: { type: EntityType.mosaicSupplyChange } },
+						{ meta: { id: id1 }, transaction: { type: EntityType.transfer } }
+					]);
+				});
+		});
+
+		it('correctly retrieves transactions with dependent documents and pushes dependent documents to transactions', () => {
+			// Arrange:
+			const id1 = test.db.createObjectId(100);
+			const id2 = test.db.createObjectId(200);
+			const id3 = test.db.createObjectId(300);
+
+			const dbTransactions = [];
+			dbTransactions.push(createTransaction(id1, [testAddressOne], EntityType.aggregateComplete));
+			dbTransactions.push(createTransaction(id2, [testAddressOne], EntityType.aggregateBonded));
+			dbTransactions.push(createTransaction(id3, [keyToAddress(test.random.publicKey())], EntityType.mosaicSupplyChange));
+
+			// dependent documents
+			const id4 = test.db.createObjectId(400);
+			const id5 = test.db.createObjectId(500);
+			const id6 = test.db.createObjectId(600);
+			const id7 = test.db.createObjectId(700);
+			dbTransactions.push(createDependentDocument(id4, id1));
+			dbTransactions.push(createDependentDocument(id5, id1));
+			dbTransactions.push(createDependentDocument(id6, id2));
+			dbTransactions.push(createDependentDocument(id7, id2));
+			dbTransactions.push(createDependentDocument(test.db.createObjectId(34654), test.db.createObjectId(89876)));
+
+			// Act + Assert:
+			return runDbTest({ transactions: dbTransactions },
+				db => db.queryTransactions({ 'meta.addresses': Buffer.from(testAddressOne) }),
+				transactions => {
+					expect(transactions.length).to.equal(2);
+					expect(transactions).to.deep.equal([
+						{
+							meta: { id: id2 },
+							transaction: {
+								type: EntityType.aggregateBonded,
+								transactions: [
+									{ meta: { aggregateId: id2, id: id6 }, transaction: {} },
+									{ meta: { aggregateId: id2, id: id7 }, transaction: {} }
+								]
+							}
+						},
+						{
+							meta: { id: id1 },
+							transaction: {
+								type: EntityType.aggregateComplete,
+								transactions: [
+									{ meta: { aggregateId: id1, id: id4 }, transaction: {} },
+									{ meta: { aggregateId: id1, id: id5 }, transaction: {} }
+								]
+							}
+						}
+					]);
+				});
+		});
+
+		it('query respects supplied id', () => {
+			// Arrange:
+			const dbTransactions = [];
+			for (let i = 0; 25 > i; ++i)
+				dbTransactions.push(createTransaction(test.db.createObjectId(i), [testAddressOne], EntityType.transfer));
+
+			// Act + Assert:
+			return runDbTest({ transactions: dbTransactions },
+				db => db.queryTransactions({ 'meta.addresses': Buffer.from(testAddressOne) }, test.db.createObjectId(15)),
+				transactions => {
+					const expectedIds = [];
+					for (let i = 14; 0 <= i; --i)
+						expectedIds.push(test.db.createObjectId(i));
+
+					expect(transactions.map(t => t.meta.id)).to.deep.equal(expectedIds);
+				});
+		});
+
+		const runOrderingTest = (ordering, exepctedIds) => {
+			// Arrange:
+			const dbTransactions = [];
+			for (let i = 0; 10 > i; ++i)
+				dbTransactions.push(createTransaction(test.db.createObjectId(i), [testAddressOne], EntityType.transfer));
+
+			// Act + Assert:
+			return runDbTest({ transactions: dbTransactions },
+				db => db.queryTransactions(
+					{ 'meta.addresses': Buffer.from(testAddressOne) }, undefined, undefined, { sortOrder: ordering }
+				),
+				transactions => { expect(transactions.map(t => t.meta.id)).to.deep.equal(exepctedIds); });
+		};
+
+		it('query respects options ordering asc', () => {
+			const expectedIdsAsc = [];
+			for (let i = 0; 10 > i; ++i)
+				expectedIdsAsc.push(test.db.createObjectId(i));
+
+			return runOrderingTest(1, expectedIdsAsc);
+		});
+
+		it('query respects options ordering desc', () => {
+			const expectedIdsDesc = [];
+			for (let i = 9; 0 <= i; --i)
+				expectedIdsDesc.push(test.db.createObjectId(i));
+
+			return runOrderingTest(-1, expectedIdsDesc);
+		});
+
+		const runPageSizeTests = (numTransactionsCreated, pageSize, expectedNumTransactions) => {
+			// Arrange:
+			const dbTransactions = [];
+			for (let i = 0; numTransactionsCreated > i; ++i)
+				dbTransactions.push(createTransaction(test.db.createObjectId(i), [testAddressOne], EntityType.transfer));
+
+			// Act + Assert:
+			return runDbTest({ transactions: dbTransactions },
+				db => db.queryTransactions({ 'meta.addresses': Buffer.from(testAddressOne) }, undefined, pageSize),
+				transactions => { expect(transactions.length).to.equal(expectedNumTransactions); });
+		};
+
+		it('query respects page size', () => runPageSizeTests(50, 25, 25));
+
+		it('query ensures minimum page size', () => {
+			const minPageSize = new CatapultDb({ networkId: Mijin_Test_Network }).pageSizeMin;
+			return runPageSizeTests(minPageSize + 5, minPageSize - 1, minPageSize);
+		});
+
+		it('query ensures maximum page size', () => {
+			const maxPageSize = new CatapultDb({ networkId: Mijin_Test_Network }).pageSizeMax;
+			return runPageSizeTests(maxPageSize + 5, maxPageSize + 1, maxPageSize);
+		});
+	});
+
 	describe('account get', () => {
 		const publicKey = test.random.publicKey();
 		const decodedAddress = keyToAddress(publicKey);
