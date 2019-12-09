@@ -59,8 +59,8 @@ namespace catapult { namespace plugins {
 
 	void RegisterMosaicSubsystem(PluginManager& manager) {
 		auto config = model::LoadPluginConfiguration<config::MosaicConfiguration>(manager.config(), "catapult.plugins.mosaic");
-		auto currencyMosaicId = model::GetUnresolvedCurrencyMosaicId(manager.config());
-		auto rentalFeeConfig = ToMosaicRentalFeeConfiguration(manager.config().Network, currencyMosaicId, config);
+		auto unresolvedCurrencyMosaicId = model::GetUnresolvedCurrencyMosaicId(manager.config());
+		auto rentalFeeConfig = ToMosaicRentalFeeConfiguration(manager.config().Network, unresolvedCurrencyMosaicId, config);
 		manager.addTransactionSupport(CreateMosaicDefinitionTransactionPlugin(rentalFeeConfig));
 		manager.addTransactionSupport(CreateMosaicSupplyChangeTransactionPlugin());
 
@@ -84,25 +84,28 @@ namespace catapult { namespace plugins {
 
 		auto maxMosaics = config.MaxMosaicsPerAccount;
 		auto maxAtomicUnits = manager.config().MaxMosaicAtomicUnits;
-		manager.addStatefulValidatorHook([maxMosaics, maxAtomicUnits, maxDuration, currencyMosaicId](auto& builder) {
+		manager.addStatefulValidatorHook([maxMosaics, maxAtomicUnits, maxDuration, unresolvedCurrencyMosaicId](auto& builder) {
 			builder
 				.add(validators::CreateRequiredMosaicValidator())
 				.add(validators::CreateMosaicAvailabilityValidator())
 				.add(validators::CreateMosaicDurationValidator(maxDuration))
-				.add(validators::CreateMosaicTransferValidator(currencyMosaicId))
+				.add(validators::CreateMosaicTransferValidator(unresolvedCurrencyMosaicId))
 				.add(validators::CreateMaxMosaicsBalanceTransferValidator(maxMosaics))
 				.add(validators::CreateMaxMosaicsSupplyChangeValidator(maxMosaics))
 				// note that the following validator depends on RequiredMosaicValidator
 				.add(validators::CreateMosaicSupplyChangeAllowedValidator(maxAtomicUnits));
 		});
 
+		auto currencyMosaicId = manager.config().CurrencyMosaicId;
+		const auto& calculator = manager.inflationConfig().InflationCalculator;
 		auto maxRollbackBlocks = BlockDuration(manager.config().MaxRollbackBlocks);
-		manager.addObserverHook([maxRollbackBlocks](auto& builder) {
+		manager.addObserverHook([currencyMosaicId, calculator, maxRollbackBlocks](auto& builder) {
 			auto rentalFeeReceiptType = model::Receipt_Type_Mosaic_Rental_Fee;
 			auto expiryReceiptType = model::Receipt_Type_Mosaic_Expired;
 			builder
 				.add(observers::CreateMosaicDefinitionObserver())
 				.add(observers::CreateMosaicSupplyChangeObserver())
+				.add(observers::CreateMosaicSupplyInflationObserver(currencyMosaicId, calculator))
 				.add(observers::CreateRentalFeeObserver<model::MosaicRentalFeeNotification>("Mosaic", rentalFeeReceiptType))
 				.add(observers::CreateCacheBlockTouchObserver<cache::MosaicCache>("Mosaic", expiryReceiptType));
 		});

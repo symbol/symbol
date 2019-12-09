@@ -63,28 +63,26 @@ namespace catapult { namespace observers {
 			MosaicId currencyMosaicId,
 			uint8_t harvestBeneficiaryPercentage,
 			const model::InflationCalculator& calculator) {
-		auto mosaicId = currencyMosaicId;
-		auto percentage = harvestBeneficiaryPercentage;
-		return MAKE_OBSERVER(HarvestFee, Notification, ([mosaicId, percentage, calculator](
+		return MAKE_OBSERVER(HarvestFee, Notification, ([currencyMosaicId, harvestBeneficiaryPercentage, calculator](
 				const Notification& notification,
 				ObserverContext& context) {
 			auto inflationAmount = calculator.getSpotAmount(context.Height);
 			auto totalAmount = notification.TotalFee + inflationAmount;
-			auto beneficiaryAmount = ShouldShareFees(notification.Signer, notification.Beneficiary, percentage)
-					? Amount(totalAmount.unwrap() * percentage / 100)
+			auto beneficiaryAmount = ShouldShareFees(notification.Signer, notification.Beneficiary, harvestBeneficiaryPercentage)
+					? Amount(totalAmount.unwrap() * harvestBeneficiaryPercentage / 100)
 					: Amount();
 			auto harvesterAmount = totalAmount - beneficiaryAmount;
 
 			// always create receipt for harvester
-			ApplyFee(notification.Signer, { mosaicId, harvesterAmount }, context);
+			ApplyFee(notification.Signer, { currencyMosaicId, harvesterAmount }, context);
 
 			// only if amount is non-zero create receipt for beneficiary account
 			if (Amount() != beneficiaryAmount)
-				ApplyFee(notification.Beneficiary, { mosaicId, beneficiaryAmount }, context);
+				ApplyFee(notification.Beneficiary, { currencyMosaicId, beneficiaryAmount }, context);
 
 			// add inflation receipt
 			if (Amount() != inflationAmount && NotifyMode::Commit == context.Mode) {
-				model::InflationReceipt receipt(model::Receipt_Type_Inflation, mosaicId, inflationAmount);
+				model::InflationReceipt receipt(model::Receipt_Type_Inflation, currencyMosaicId, inflationAmount);
 				context.StatementBuilder().addReceipt(receipt);
 			}
 		}));

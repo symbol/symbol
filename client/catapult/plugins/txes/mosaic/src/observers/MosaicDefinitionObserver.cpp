@@ -41,10 +41,10 @@ namespace catapult { namespace observers {
 		}
 
 		auto ApplyNotification(
-				state::MosaicEntry& currentEntry,
+				state::MosaicEntry& currentMosaicEntry,
 				const model::MosaicDefinitionNotification& notification,
 				NotifyMode mode) {
-			const auto& currentDefinition = currentEntry.definition();
+			const auto& currentDefinition = currentMosaicEntry.definition();
 			auto newProperties = MergeProperties(currentDefinition.properties(), notification.Properties, mode);
 			auto revision = NotifyMode::Commit == mode ? currentDefinition.revision() + 1 : currentDefinition.revision() - 1;
 			auto definition = state::MosaicDefinition(currentDefinition.startHeight(), notification.Signer, revision, newProperties);
@@ -55,22 +55,22 @@ namespace catapult { namespace observers {
 	DEFINE_OBSERVER(MosaicDefinition, model::MosaicDefinitionNotification, [](
 			const model::MosaicDefinitionNotification& notification,
 			const ObserverContext& context) {
-		auto& cache = context.Cache.sub<cache::MosaicCache>();
+		auto& mosaicCache = context.Cache.sub<cache::MosaicCache>();
 
 		// mosaic supply will always be zero when a mosaic definition is observed
-		auto mosaicIter = cache.find(notification.MosaicId);
+		auto mosaicIter = mosaicCache.find(notification.MosaicId);
 		if (mosaicIter.tryGet()) {
 			// copy existing mosaic entry before removing
 			auto mosaicEntry = mosaicIter.get();
-			cache.remove(notification.MosaicId);
+			mosaicCache.remove(notification.MosaicId);
 
 			if (NotifyMode::Rollback == context.Mode && 1 == mosaicEntry.definition().revision())
 				return;
 
-			cache.insert(ApplyNotification(mosaicEntry, notification, context.Mode));
+			mosaicCache.insert(ApplyNotification(mosaicEntry, notification, context.Mode));
 		} else {
 			auto definition = state::MosaicDefinition(context.Height, notification.Signer, 1, notification.Properties);
-			cache.insert(state::MosaicEntry(notification.MosaicId, definition));
+			mosaicCache.insert(state::MosaicEntry(notification.MosaicId, definition));
 		}
 	});
 }}

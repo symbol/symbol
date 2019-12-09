@@ -103,6 +103,7 @@ namespace catapult { namespace plugins {
 				return {
 					"MosaicDefinitionObserver",
 					"MosaicSupplyChangeObserver",
+					"MosaicSupplyInflationObserver",
 					"MosaicRentalFeeObserver",
 					"MosaicTouchObserver"
 				};

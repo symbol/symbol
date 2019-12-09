@@ -37,19 +37,19 @@ namespace catapult { namespace observers {
 	DEFINE_OBSERVER(MosaicSupplyChange, Notification, [](const Notification& notification, const ObserverContext& context) {
 		auto mosaicId = context.Resolvers.resolve(notification.MosaicId);
 		auto& accountStateCache = context.Cache.sub<cache::AccountStateCache>();
-		auto& cache = context.Cache.sub<cache::MosaicCache>();
+		auto& mosaicCache = context.Cache.sub<cache::MosaicCache>();
 
 		auto accountStateIter = accountStateCache.find(notification.Signer);
 		auto& accountState = accountStateIter.get();
 
-		auto mosaicIter = cache.find(mosaicId);
-		auto& entry = mosaicIter.get();
+		auto mosaicIter = mosaicCache.find(mosaicId);
+		auto& mosaicEntry = mosaicIter.get();
 		if (ShouldIncrease(context.Mode, notification.Action)) {
 			accountState.Balances.credit(mosaicId, notification.Delta);
-			entry.increaseSupply(notification.Delta);
+			mosaicEntry.increaseSupply(notification.Delta);
 		} else {
 			accountState.Balances.debit(mosaicId, notification.Delta);
-			entry.decreaseSupply(notification.Delta);
+			mosaicEntry.decreaseSupply(notification.Delta);
 		}
 	});
 }}
