@@ -18,14 +18,14 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const transactionStatusRoutes = require('../../src/routes/transactionStatusRoutes');
+const dbFacade = require('../../src/routes/dbFacade');
 const routeResultTypes = require('../../src/routes/routeResultTypes');
 const routeUtils = require('../../src/routes/routeUtils');
-const dbFacade = require('../../src/routes/dbFacade');
+const transactionStatusRoutes = require('../../src/routes/transactionStatusRoutes');
 const { MockServer } = require('../../test/routes/utils/routeTestUtils');
-const sinon = require('sinon');
 const catapult = require('catapult-sdk');
 const { expect } = require('chai');
+const sinon = require('sinon');
 
 const { convert } = catapult.utils;
 

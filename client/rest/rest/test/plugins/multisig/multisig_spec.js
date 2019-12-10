@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const multisig = require('../../../src/plugins/multisig/multisig');
 const MultisigDb = require('../../../src/plugins/multisig/MultisigDb');
+const multisig = require('../../../src/plugins/multisig/multisig');
 const { test } = require('../../routes/utils/routeTestUtils');
 const pluginTest = require('../utils/pluginTestUtils');
 

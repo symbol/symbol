@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const namespace = require('../../../src/plugins/namespace/namespace');
 const NamespaceDb = require('../../../src/plugins/namespace/NamespaceDb');
+const namespace = require('../../../src/plugins/namespace/namespace');
 const { test } = require('../../routes/utils/routeTestUtils');
 const pluginTest = require('../utils/pluginTestUtils');
 

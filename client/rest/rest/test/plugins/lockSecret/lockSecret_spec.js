@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const lockSecret = require('../../../src/plugins/lockSecret/lockSecret');
 const LockSecretDb = require('../../../src/plugins/lockSecret/LockSecretDb');
+const lockSecret = require('../../../src/plugins/lockSecret/lockSecret');
 const { test } = require('../../routes/utils/routeTestUtils');
 const pluginTest = require('../utils/pluginTestUtils');
 

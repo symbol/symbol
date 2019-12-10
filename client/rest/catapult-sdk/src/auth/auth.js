@@ -19,8 +19,8 @@
  */
 
 /** @module auth/auth */
-const verifyPeer = require('./verifyPeer');
 const VerifyResult = require('./VerifyResult');
+const verifyPeer = require('./verifyPeer');
 const PacketParser = require('../parser/PacketParser');
 
 /**

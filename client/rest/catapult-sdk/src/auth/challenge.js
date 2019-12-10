@@ -20,8 +20,8 @@
 
 /** @module auth/challenge */
 const { sign, verify } = require('../crypto/keyPair');
-const packetHeader = require('../packet/header');
 const PacketType = require('../packet/PacketType');
+const packetHeader = require('../packet/header');
 const crypto = require('crypto');
 
 const sizes = {

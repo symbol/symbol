@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const lockHash = require('../../../src/plugins/lockHash/lockHash');
 const LockHashDb = require('../../../src/plugins/lockHash/LockHashDb');
+const lockHash = require('../../../src/plugins/lockHash/lockHash');
 const { test } = require('../../routes/utils/routeTestUtils');
 const pluginTest = require('../utils/pluginTestUtils');
 

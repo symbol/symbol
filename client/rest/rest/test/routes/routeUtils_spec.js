@@ -20,9 +20,9 @@
 
 const { test } = require('./utils/routeTestUtils');
 const routeUtils = require('../../src/routes/routeUtils');
-const MongoDb = require('mongodb');
 const catapult = require('catapult-sdk');
 const { expect } = require('chai');
+const MongoDb = require('mongodb');
 const sinon = require('sinon');
 
 const { Binary } = MongoDb;

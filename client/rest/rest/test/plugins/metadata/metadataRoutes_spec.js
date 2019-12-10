@@ -21,9 +21,9 @@
 const metadataRoutes = require('../../../src/plugins/metadata/metadataRoutes');
 const routeUtils = require('../../../src/routes/routeUtils');
 const { MockServer } = require('../../routes/utils/routeTestUtils');
-const MongoDb = require('mongodb');
 const catapult = require('catapult-sdk');
 const { expect } = require('chai');
+const MongoDb = require('mongodb');
 const sinon = require('sinon');
 
 const { address } = catapult.model;

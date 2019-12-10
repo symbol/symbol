@@ -19,8 +19,8 @@
  */
 
 const test = require('./restrictionsDbTestUtils');
-const { expect } = require('chai');
 const catapult = require('catapult-sdk');
+const { expect } = require('chai');
 
 const { restriction } = catapult.model;
 

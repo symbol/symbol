@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const schemaFormatter = require('../../src/utils/schemaFormatter');
 const SchemaType = require('../../src/utils/SchemaType');
+const schemaFormatter = require('../../src/utils/schemaFormatter');
 const { expect } = require('chai');
 
 describe('schema formatter', () => {

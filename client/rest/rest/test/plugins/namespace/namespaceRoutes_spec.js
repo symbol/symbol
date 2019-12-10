@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const AccountType = require('../../../src/plugins/AccountType');
 const { convertToLong } = require('../../../src/db/dbUtils');
+const AccountType = require('../../../src/plugins/AccountType');
 const namespaceRoutes = require('../../../src/plugins/namespace/namespaceRoutes');
 const namespaceUtils = require('../../../src/plugins/namespace/namespaceUtils');
 const { MockServer } = require('../../routes/utils/routeTestUtils');

@@ -103,6 +103,8 @@ rules:
       - internal
       - external
       - builtin
+      alphabetize:
+        order: asc
 
   import/extensions:
   - error

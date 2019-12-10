@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const metadata = require('../../../src/plugins/metadata/metadata');
 const MetadataDb = require('../../../src/plugins/metadata/MetadataDb');
+const metadata = require('../../../src/plugins/metadata/metadata');
 const { test } = require('../../routes/utils/routeTestUtils');
 const pluginTest = require('../utils/pluginTestUtils');
 

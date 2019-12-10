@@ -19,12 +19,12 @@
  */
 
 const { test } = require('./utils/routeTestUtils');
+const AccountType = require('../../src/plugins/AccountType');
 const accountRoutes = require('../../src/routes/accountRoutes');
 const { MockServer } = require('../../test/routes/utils/routeTestUtils');
-const AccountType = require('../../src/plugins/AccountType');
-const MongoDb = require('mongodb');
 const catapult = require('catapult-sdk');
 const { expect } = require('chai');
+const MongoDb = require('mongodb');
 const sinon = require('sinon');
 
 const { address } = catapult.model;

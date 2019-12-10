@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const restrictions = require('../../../src/plugins/restrictions/restrictions');
 const RestrictionsDb = require('../../../src/plugins/restrictions/RestrictionsDb');
+const restrictions = require('../../../src/plugins/restrictions/restrictions');
 const { test } = require('../../routes/utils/routeTestUtils');
 const pluginTest = require('../utils/pluginTestUtils');
 

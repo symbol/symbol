@@ -19,8 +19,8 @@
  */
 
 const test = require('./utils/authUtils');
-const auth = require('../../src/auth/auth');
 const VerifyResult = require('../../src/auth/VerifyResult');
+const auth = require('../../src/auth/auth');
 const { expect } = require('chai');
 
 describe('create auth promise', () => {

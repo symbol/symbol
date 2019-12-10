@@ -18,11 +18,11 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const test = require('../../db/utils/dbTestUtils');
 const MetadataDb = require('../../../src/plugins/metadata/MetadataDb');
-const MongoDb = require('mongodb');
+const test = require('../../db/utils/dbTestUtils');
 const catapult = require('catapult-sdk');
 const { expect } = require('chai');
+const MongoDb = require('mongodb');
 
 const { convert } = catapult.utils;
 const { Binary, ObjectId, Long } = MongoDb;

@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const errors = require('./errors');
 const SubscriptionManager = require('./SubscriptionManager');
+const errors = require('./errors');
 const websocketMessageHandler = require('./websocketMessageHandler');
 const websocketUtils = require('./websocketUtils');
 const restify = require('restify');

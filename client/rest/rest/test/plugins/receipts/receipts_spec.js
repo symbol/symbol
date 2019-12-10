@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const receipts = require('../../../src/plugins/receipts/receipts');
 const ReceiptsDb = require('../../../src/plugins/receipts/ReceiptsDb');
+const receipts = require('../../../src/plugins/receipts/receipts');
 const { test } = require('../../routes/utils/routeTestUtils');
 const pluginTest = require('../utils/pluginTestUtils');
 
