@@ -54,6 +54,7 @@ describe('model formatter builder', () => {
 				'nodeInfo',
 				'nodeTime',
 				'serverInfo',
+				'stateTree',
 				'storageInfo',
 				'transactionStatus'
 			]);

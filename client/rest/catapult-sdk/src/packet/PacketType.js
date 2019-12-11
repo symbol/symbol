@@ -20,6 +20,8 @@
 
 /** @module packet/PacketType */
 
+const statePathBaseType = 800;
+
 /**
  * Packet types.
  * @enum {numeric}
@@ -47,7 +49,31 @@ const PacketType = {
 	nodeDiscoveryPullPing: 601,
 
 	/** Node time information has been requested by a peer. */
-	timeSyncNodeTime: 700
+	timeSyncNodeTime: 700,
+
+	/** State path has been requested by a peer. */
+	accountStatePath: statePathBaseType + 0x43,
+	hashLockStatePath: statePathBaseType + 0x48,
+	secretLockStatePath: statePathBaseType + 0x52,
+	metadataStatePath: statePathBaseType + 0x44,
+	mosaicStatePath: statePathBaseType + 0x4D,
+	multisigStatePath: statePathBaseType + 0x55,
+	namespaceStatePath: statePathBaseType + 0x4E,
+	accountRestrictionsStatePath: statePathBaseType + 0x50,
+	mosaicRestrictionsStatePath: statePathBaseType + 0x51
 };
 
-module.exports = PacketType;
+module.exports = {
+	PacketType,
+	StatePathPacketTypes: [
+		PacketType.accountStatePath,
+		PacketType.hashLockStatePath,
+		PacketType.secretLockStatePath,
+		PacketType.metadataStatePath,
+		PacketType.mosaicStatePath,
+		PacketType.multisigStatePath,
+		PacketType.namespaceStatePath,
+		PacketType.accountRestrictionsStatePath,
+		PacketType.mosaicRestrictionsStatePath
+	]
+};

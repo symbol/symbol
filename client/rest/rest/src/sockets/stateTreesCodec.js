@@ -18,26 +18,24 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const routeResultTypes = require('../../src/routes/routeResultTypes');
-const { expect } = require('chai');
+/** @module sockets/stateTreesCodec */
 
-describe('routeResultTypes', () => {
-	it('has correct links to schema', () => {
-		expect(Object.keys(routeResultTypes).length).to.equal(13);
-		expect(routeResultTypes).to.deep.equal({
-			account: 'accountWithMetadata',
-			block: 'blockHeaderWithMetadata',
-			transaction: 'transactionWithMetadata',
-			chainStatistic: 'chainStatistic',
-			chainStatisticCurrent: 'chainStatisticCurrent',
-			merkleProofInfo: 'merkleProofInfo',
-			receipts: 'receipts',
-			stateTree: 'stateTree',
-			transactionStatus: 'transactionStatus',
-			nodeInfo: 'nodeInfo',
-			nodeTime: 'nodeTime',
-			serverInfo: 'serverInfo',
-			storageInfo: 'storageInfo'
-		});
-	});
-});
+const catapult = require('catapult-sdk');
+
+const { sizes } = catapult.constants;
+
+const stateTreesCodec = {
+	/**
+	 * Parses state trees.
+	 * @param {object} parser Parser.
+	 * @returns {object} Parsed state tree.
+	 */
+	deserialize: parser => {
+		const tree = [];
+		while (parser.numUnprocessedBytes())
+			tree.push(parser.buffer(sizes.hash256));
+		return { tree };
+	}
+};
+
+module.exports = stateTreesCodec;

@@ -34,7 +34,7 @@ const status = require('./model/status');
 const serialize = require('./modelBinary/serialize');
 const sizes = require('./modelBinary/sizes');
 const transactionExtensions = require('./modelBinary/transactionExtensions');
-const PacketType = require('./packet/PacketType');
+const { PacketType, StatePathPacketTypes } = require('./packet/PacketType');
 const packetHeader = require('./packet/header');
 const BinaryParser = require('./parser/BinaryParser');
 const PacketParser = require('./parser/PacketParser');
@@ -80,7 +80,8 @@ const catapultSdk = {
 	},
 	packet: {
 		header: packetHeader,
-		PacketType
+		PacketType,
+		StatePathPacketTypes
 	},
 	parser: {
 		BinaryParser,

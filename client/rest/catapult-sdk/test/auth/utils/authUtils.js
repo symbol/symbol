@@ -19,7 +19,7 @@
  */
 
 const { sign } = require('../../../src/crypto/keyPair');
-const PacketType = require('../../../src/packet/PacketType');
+const { PacketType } = require('../../../src/packet/PacketType');
 const test = require('../../testUtils');
 const crypto = require('crypto');
 

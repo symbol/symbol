@@ -22,6 +22,13 @@ const dbFacade = require('./dbFacade');
 const routeResultTypes = require('./routeResultTypes');
 const routeUtils = require('./routeUtils');
 const errors = require('../server/errors');
+const stateTreesCodec = require('../sockets/stateTreesCodec');
+const catapult = require('catapult-sdk');
+
+const { constants } = catapult;
+const packetHeader = catapult.packet.header;
+const { StatePathPacketTypes } = catapult.packet;
+const { BinaryParser } = catapult.parser;
 
 const parseHeight = params => routeUtils.parseArgument(params, 'height', 'uint');
 
@@ -33,9 +40,7 @@ const getLimit = (validLimits, params) => {
 const alignDown = (height, alignment) => (Math.floor((height - 1) / alignment) * alignment) + 1;
 
 module.exports = {
-	register: (server, db, { config }) => {
-		const validPageSizes = routeUtils.generateValidPageSizes(config.pageSize); // throws if there is not at least one valid page size
-
+	register: (server, db, services) => {
 		server.get('/block/:height', (req, res, next) => {
 			const height = parseHeight(req.params);
 
@@ -66,6 +71,8 @@ module.exports = {
 		});
 
 		server.get('/blocks/:height/limit/:limit', (req, res, next) => {
+			const validPageSizes = routeUtils.generateValidPageSizes(services.config.pageSize);
+
 			const height = parseHeight(req.params);
 			const limit = getLimit(validPageSizes, req.params);
 
@@ -78,6 +85,33 @@ module.exports = {
 				res.send({ payload: blocks, type: routeResultTypes.block });
 				next();
 			});
+		});
+
+		const buildResponse = (packet, codec, resultType) => {
+			const binaryParser = new BinaryParser();
+			binaryParser.push(packet.payload);
+			return { payload: codec.deserialize(binaryParser), type: resultType, formatter: 'ws' };
+		};
+
+		// this endpoint is here because it is expected to support requests by block other than <current block>
+		server.get('/state/:state/hash/:hash/merkle', (req, res, next) => {
+			const { state } = req.params;
+			const hash = routeUtils.parseArgument(req.params, 'hash', 'hash256');
+
+			if (!StatePathPacketTypes.includes(state))
+				throw errors.createInvalidArgumentError('invalid `state` provided');
+
+			const { connections } = services;
+			const { timeout } = services.config.apiNode;
+
+			const headerBuffer = packetHeader.createBuffer(state, packetHeader.size + constants.sizes.hash256);
+			const packetBuffer = Buffer.concat([headerBuffer, hash]);
+			return connections.singleUse()
+				.then(connection => connection.pushPull(packetBuffer, timeout))
+				.then(packet => {
+					res.send(buildResponse(packet, stateTreesCodec, routeResultTypes.stateTree));
+					next();
+				});
 		});
 	}
 };

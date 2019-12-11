@@ -44,6 +44,7 @@ class ModelFormatterBuilder {
 			'nodeInfo',
 			'nodeTime',
 			'serverInfo',
+			'stateTree',
 			'storageInfo',
 			'transactionStatus'
 		]);

@@ -93,6 +93,7 @@ describe('model schema builder', () => {
 				'communicationTimestamps',
 				'nodeTime',
 				'serverInfo',
+				'stateTree',
 				'storageInfo'
 			]);
 		});
@@ -167,7 +168,8 @@ describe('model schema builder', () => {
 				'blockHeaderMetadata.stateHashSubCacheMerkleRoots',
 				'merkleProofInfo.merklePath',
 				'account.activityBuckets',
-				'account.mosaics'
+				'account.mosaics',
+				'stateTree.tree'
 			]);
 		});
 
@@ -209,7 +211,8 @@ describe('model schema builder', () => {
 				'account.publicKey',
 				'account.linkedAccountKey',
 
-				'nodeInfo.publicKey'
+				'nodeInfo.publicKey',
+				'stateTree.tree.schemaName'
 			]);
 		});
 

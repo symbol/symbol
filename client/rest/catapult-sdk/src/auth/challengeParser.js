@@ -19,7 +19,7 @@
  */
 
 /** @module auth/challengeParser */
-const PacketType = require('../packet/PacketType');
+const { PacketType } = require('../packet/PacketType');
 
 const headerInfos = {
 	server: { type: PacketType.serverChallenge, size: 72 },

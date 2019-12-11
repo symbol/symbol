@@ -21,7 +21,7 @@
 const test = require('./utils/authUtils');
 const handler = require('../../src/auth/challenge');
 const { verify } = require('../../src/crypto/keyPair');
-const PacketType = require('../../src/packet/PacketType');
+const { PacketType } = require('../../src/packet/PacketType');
 const { expect } = require('chai');
 
 describe('challenge', () => {

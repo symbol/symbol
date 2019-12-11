@@ -22,7 +22,7 @@ const test = require('./utils/authUtils');
 const VerifyResult = require('../../src/auth/VerifyResult');
 const verifyPeer = require('../../src/auth/verifyPeer');
 const { verify } = require('../../src/crypto/keyPair');
-const PacketType = require('../../src/packet/PacketType');
+const { PacketType } = require('../../src/packet/PacketType');
 const { expect } = require('chai');
 
 describe('verify peer', () => {
