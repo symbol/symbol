@@ -40,7 +40,14 @@ yarn start resources/rest.json
 
 ## Contributing
 
-Before contributing please [read this](CONTRIBUTING.md).
+Before contributing please [read this](CONTRIBUTING.md) and consider the following guidelines:
+- Submit small and concise PRs that address a single and clear feature or issue
+- Submit only fully tested code
+- Split test scope areas with _Arrange/Act/Assert_ comments
+- Use spontaneous comments only when necessary
+- Follow linting rules - tests are set to fail if those aren't followed
+- Notify or update related API resources of accepted changes ([OpenApi](https://github.com/nemtech/nem2-openapi))
+
 
 ## License
 
