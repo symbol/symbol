@@ -65,6 +65,12 @@ const createSanitizer = () => ({
 	}
 });
 
+const createMetaAddressesConditions = accountAddress => ({ 'meta.addresses': Buffer.from(accountAddress) });
+
+const createMetaAddressesAndTypeConditions = (accountAddress, transactionType) => (
+	{ $and: [createMetaAddressesConditions(accountAddress), { 'transaction.type': transactionType }] }
+);
+
 const mapToPromise = dbObject => Promise.resolve(null === dbObject ? undefined : dbObject);
 
 const buildBlocksFromOptions = (height, numBlocks, chainHeight) => {
@@ -333,53 +339,71 @@ class CatapultDb {
 	 * Retrieves confirmed transactions for which an account is the sender or receiver.
 	 * An account is sender or receiver if its address is in the transaction meta addresses.
 	 * @param {Uint8Array} accountAddress Account address who sends or receives the transactions.
+	 * @param {uint} transactionType Transaction type to filter by.
 	 * @param {string} id Paging id.
 	 * @param {int} pageSize Page size.
 	 * @param {object} ordering Page ordering.
 	 * @returns {Promise.<array>} Confirmed transactions.
 	 */
-	accountTransactionsConfirmed(accountAddress, id, pageSize, ordering) {
-		const conditions = { 'meta.addresses': Buffer.from(accountAddress) };
+	accountTransactionsConfirmed(accountAddress, transactionType, id, pageSize, ordering) {
+		const conditions = undefined !== transactionType
+			? createMetaAddressesAndTypeConditions(accountAddress, transactionType)
+			: createMetaAddressesConditions(accountAddress);
+
 		return this.queryTransactions(conditions, id, pageSize, { sortOrder: ordering });
 	}
 
 	/**
 	 * Retrieves confirmed incoming transactions for which an account is the receiver.
 	 * @param {Uint8Array} accountAddress Account address who receives the transactions.
+	 * @param {uint} transactionType Transaction type to filter by.
 	 * @param {string} id Paging id.
 	 * @param {int} pageSize Page size.
 	 * @param {object} ordering Page ordering.
 	 * @returns {Promise.<array>} Confirmed transactions.
 	 */
-	accountTransactionsIncoming(accountAddress, id, pageSize, ordering) {
+	accountTransactionsIncoming(accountAddress, transactionType, id, pageSize, ordering) {
 		const bufferAddress = Buffer.from(accountAddress);
-		return this.queryTransactions({ 'transaction.recipientAddress': bufferAddress }, id, pageSize, { sortOrder: ordering });
+		const conditions = undefined !== transactionType
+			? { $and: [{ 'transaction.recipientAddress': bufferAddress }, { 'transaction.type': transactionType }] }
+			: { 'transaction.recipientAddress': bufferAddress };
+
+		return this.queryTransactions(conditions, id, pageSize, { sortOrder: ordering });
 	}
 
 	/**
 	 * Retrieves confirmed outgoing transactions for which an account is the sender.
 	 * @param {Uint8Array} publicKey Public key of the account who sends the transactions.
+	 * @param {uint} transactionType Transaction type to filter by.
 	 * @param {string} id Paging id.
 	 * @param {int} pageSize Page size.
 	 * @param {object} ordering Page ordering.
 	 * @returns {Promise.<array>} Confirmed transactions.
 	 */
-	accountTransactionsOutgoing(publicKey, id, pageSize, ordering) {
+	accountTransactionsOutgoing(publicKey, transactionType, id, pageSize, ordering) {
 		const bufferPublicKey = Buffer.from(publicKey);
-		return this.queryTransactions({ 'transaction.signerPublicKey': bufferPublicKey }, id, pageSize, { sortOrder: ordering });
+		const conditions = undefined !== transactionType
+			? { $and: [{ 'transaction.signerPublicKey': bufferPublicKey }, { 'transaction.type': transactionType }] }
+			: { 'transaction.signerPublicKey': bufferPublicKey };
+
+		return this.queryTransactions(conditions, id, pageSize, { sortOrder: ordering });
 	}
 
 	/**
 	 * Retrieves unconfirmed transactions for which an account is the sender or receiver.
 	 * An account is sender or receiver if its address is in the unconfirmed transaction meta addresses.
 	 * @param {Uint8Array} accountAddress Account address who sends or receives the unconfirmed transactions.
+	 * @param {uint} transactionType Transaction type to filter by.
 	 * @param {string} id Paging id.
 	 * @param {int} pageSize Page size.
 	 * @param {object} ordering Page ordering.
 	 * @returns {Promise.<array>} Unconfirmed transactions.
 	 */
-	accountTransactionsUnconfirmed(accountAddress, id, pageSize, ordering) {
-		const conditions = { 'meta.addresses': Buffer.from(accountAddress) };
+	accountTransactionsUnconfirmed(accountAddress, transactionType, id, pageSize, ordering) {
+		const conditions = undefined !== transactionType
+			? createMetaAddressesAndTypeConditions(accountAddress, transactionType)
+			: createMetaAddressesConditions(accountAddress);
+
 		return this.queryTransactions(conditions, id, pageSize, { collectionName: 'unconfirmedTransactions', sortOrder: ordering });
 	}
 
@@ -387,13 +411,17 @@ class CatapultDb {
 	 * Retrieves partial transactions for which an account is the sender or receiver.
 	 * An account is sender or receiver if its address is in the partial transaction meta addresses.
 	 * @param {Uint8Array} accountAddress Account address who sends or receives the partial transactions.
+	 * @param {uint} transactionType Transaction type to filter by.
 	 * @param {string} id Paging id.
 	 * @param {int} pageSize Page size.
 	 * @param {object} ordering Page ordering.
 	 * @returns {Promise.<array>} Partial transactions.
 	 */
-	accountTransactionsPartial(accountAddress, id, pageSize, ordering) {
-		const conditions = { 'meta.addresses': Buffer.from(accountAddress) };
+	accountTransactionsPartial(accountAddress, transactionType, id, pageSize, ordering) {
+		const conditions = undefined !== transactionType
+			? createMetaAddressesAndTypeConditions(accountAddress, transactionType)
+			: createMetaAddressesConditions(accountAddress);
+
 		return this.queryTransactions(conditions, id, pageSize, { collectionName: 'partialTransactions', sortOrder: ordering });
 	}
 

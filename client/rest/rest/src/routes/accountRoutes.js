@@ -63,6 +63,7 @@ module.exports = {
 		transactionStates.concat(services.config.transactionStates).forEach(state => {
 			server.get(`/account/:accountId/transactions${state.routePostfix}`, (req, res, next) => {
 				const [type, accountId] = routeUtils.parseArgument(req.params, 'accountId', 'accountId');
+				const transactionType = req.params.type ? routeUtils.parseArgument(req.params, 'type', 'uint') : undefined;
 				const pagingOptions = routeUtils.parsePagingArguments(req.params);
 				const ordering = routeUtils.parseArgument(req.params, 'ordering', input => ('id' === input ? 1 : -1));
 
@@ -70,8 +71,13 @@ module.exports = {
 					? address.publicKeyToAddress(accountId, networkInfo.networks[services.config.network.name].id)
 					: accountId;
 
-				return db[`accountTransactions${state.dbPostfix}`](accountAddress, pagingOptions.id, pagingOptions.pageSize, ordering)
-					.then(transactionSender.sendArray('accountId', res, next));
+				return db[`accountTransactions${state.dbPostfix}`](
+					accountAddress,
+					transactionType,
+					pagingOptions.id,
+					pagingOptions.pageSize,
+					ordering
+				).then(transactionSender.sendArray('accountId', res, next));
 			});
 		});
 
@@ -84,11 +90,12 @@ module.exports = {
 
 		server.get('/account/:accountId/transactions/outgoing', (req, res, next) => {
 			const [type, accountId] = routeUtils.parseArgument(req.params, 'accountId', 'accountId');
+			const transactionType = req.params.type ? routeUtils.parseArgument(req.params, 'type', 'uint') : undefined;
 			const pagingOptions = routeUtils.parsePagingArguments(req.params);
 			const ordering = routeUtils.parseArgument(req.params, 'ordering', input => ('id' === input ? 1 : -1));
 
 			return accountIdToPublicKey(type, accountId).then(publicKey =>
-				db.accountTransactionsOutgoing(publicKey, pagingOptions.id, pagingOptions.pageSize, ordering)
+				db.accountTransactionsOutgoing(publicKey, transactionType, pagingOptions.id, pagingOptions.pageSize, ordering)
 					.then(transactionSender.sendArray('accountId', res, next)))
 				.catch(() => {
 					transactionSender.sendArray('accountId', res, next)([]);

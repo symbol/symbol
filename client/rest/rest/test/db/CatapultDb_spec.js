@@ -777,68 +777,124 @@ describe('catapult db', () => {
 		};
 
 		describe('confirmed', () => {
-			// Arrange:
-			const queriedConditions = { 'meta.addresses': Buffer.from(testAddress) };
+			describe('calls queryTransactions with correct conditions and pagination params', () => {
+				it('without transaction type filter', () =>
+					runDbWithQueryTransactionsSpy(
+						{ transactions: transactionDbEntities },
+						db => db.accountTransactionsConfirmed(testAddress, undefined, testObjectId, 25, 1),
+						[{ 'meta.addresses': Buffer.from(testAddress) }, testObjectId, 25, { sortOrder: 1 }]
+					));
 
-			// Act + Assert:
-			it('calls queryTransactions with correct conditions and pagination params', () =>
-				runDbWithQueryTransactionsSpy(
-					{ transactions: transactionDbEntities },
-					db => db.accountTransactionsConfirmed(testAddress, testObjectId, 25, 1),
-					[queriedConditions, testObjectId, 25, { sortOrder: 1 }]
-				));
+				it('with transaction type filter', () =>
+					runDbWithQueryTransactionsSpy(
+						{ transactions: transactionDbEntities },
+						db => db.accountTransactionsConfirmed(testAddress, 0x4154, testObjectId, 25, 1),
+						[
+							{ $and: [{ 'meta.addresses': Buffer.from(testAddress) }, { 'transaction.type': 0x4154 }] },
+							testObjectId,
+							25,
+							{ sortOrder: 1 }
+						]
+					));
+			});
 		});
 
 		describe('incoming', () => {
-			// Arrange:
-			const queriedConditions = { 'transaction.recipientAddress': Buffer.from(testAddress) };
-
-			// Act + Assert:
-			it('calls queryTransactions with correct conditions and pagination params', () =>
-				runDbWithQueryTransactionsSpy(
-					{ transactions: transactionDbEntities },
-					db => db.accountTransactionsIncoming(testAddress, testObjectId, 25, 1),
-					[queriedConditions, testObjectId, 25, { sortOrder: 1 }]
-				));
+			describe('calls queryTransactions with correct conditions and pagination params', () => {
+				it('without transaction type filter', () =>
+					runDbWithQueryTransactionsSpy(
+						{ transactions: transactionDbEntities },
+						db => db.accountTransactionsIncoming(testAddress, undefined, testObjectId, 25, 1),
+						[{ 'transaction.recipientAddress': Buffer.from(testAddress) }, testObjectId, 25, { sortOrder: 1 }]
+					));
+				it('with transaction type filter', () =>
+					runDbWithQueryTransactionsSpy(
+						{ transactions: transactionDbEntities },
+						db => db.accountTransactionsIncoming(testAddress, 0x4154, testObjectId, 25, 1),
+						[
+							{ $and: [{ 'transaction.recipientAddress': Buffer.from(testAddress) }, { 'transaction.type': 0x4154 }] },
+							testObjectId,
+							25,
+							{ sortOrder: 1 }
+						]
+					));
+			});
 		});
 
 		describe('outgoing', () => {
-			// Arrange:
-			const queriedConditions = { 'transaction.signerPublicKey': testPublicKey };
-
-			// Act + Assert:
-			it('calls queryTransactions with correct conditions and pagination params', () =>
-				runDbWithQueryTransactionsSpy(
-					{ transactions: transactionDbEntities },
-					db => db.accountTransactionsOutgoing(testPublicKey, testObjectId, 25, 1),
-					[queriedConditions, testObjectId, 25, { sortOrder: 1 }]
-				));
+			describe('calls queryTransactions with correct conditions and pagination params', () => {
+				it('without transaction type filter', () =>
+					runDbWithQueryTransactionsSpy(
+						{ transactions: transactionDbEntities },
+						db => db.accountTransactionsOutgoing(testPublicKey, undefined, testObjectId, 25, 1),
+						[{ 'transaction.signerPublicKey': testPublicKey }, testObjectId, 25, { sortOrder: 1 }]
+					));
+				it('with transaction type filter', () =>
+					runDbWithQueryTransactionsSpy(
+						{ transactions: transactionDbEntities },
+						db => db.accountTransactionsOutgoing(testPublicKey, 0x4154, testObjectId, 25, 1),
+						[
+							{ $and: [{ 'transaction.signerPublicKey': testPublicKey }, { 'transaction.type': 0x4154 }] },
+							testObjectId,
+							25,
+							{ sortOrder: 1 }
+						]
+					));
+			});
 		});
 
 		describe('unconfirmed', () => {
-			// Arrange:
-			const queriedConditions = { 'meta.addresses': Buffer.from(testAddress) };
-
-			// Act + Assert:
-			it('calls queryTransactions with correct conditions, pagination params and collection name', () =>
-				runDbWithQueryTransactionsSpy(
-					{ transactions: transactionDbEntities },
-					db => db.accountTransactionsUnconfirmed(testAddress, testObjectId, 25, 1),
-					[queriedConditions, testObjectId, 25, { collectionName: 'unconfirmedTransactions', sortOrder: 1 }]
-				));
+			describe('calls queryTransactions with correct conditions, pagination params and collection name', () => {
+				it('without transaction type filter', () =>
+					runDbWithQueryTransactionsSpy(
+						{ transactions: transactionDbEntities },
+						db => db.accountTransactionsUnconfirmed(testAddress, undefined, testObjectId, 25, 1),
+						[
+							{ 'meta.addresses': Buffer.from(testAddress) },
+							testObjectId,
+							25,
+							{ collectionName: 'unconfirmedTransactions', sortOrder: 1 }
+						]
+					));
+				it('with transaction type filter', () =>
+					runDbWithQueryTransactionsSpy(
+						{ transactions: transactionDbEntities },
+						db => db.accountTransactionsUnconfirmed(testAddress, 0x4154, testObjectId, 25, 1),
+						[
+							{ $and: [{ 'meta.addresses': Buffer.from(testAddress) }, { 'transaction.type': 0x4154 }] },
+							testObjectId,
+							25,
+							{ collectionName: 'unconfirmedTransactions', sortOrder: 1 }
+						]
+					));
+			});
 		});
 
 		describe('partial', () => {
-			// Arrange:
-			const queriedConditions = { 'meta.addresses': Buffer.from(testAddress) };
-
-			// Act + Assert:
-			it('calls queryTransactions with correct conditions, pagination params and collection name', () =>
-				runDbWithQueryTransactionsSpy(
-					{ transactions: transactionDbEntities },
-					db => db.accountTransactionsPartial(testAddress, testObjectId, 25, 1),
-					[queriedConditions, testObjectId, 25, { collectionName: 'partialTransactions', sortOrder: 1 }]
-				));
+			describe('calls queryTransactions with correct conditions, pagination params and collection name', () => {
+				it('without transaction type filter', () =>
+					runDbWithQueryTransactionsSpy(
+						{ transactions: transactionDbEntities },
+						db => db.accountTransactionsPartial(testAddress, undefined, testObjectId, 25, 1),
+						[
+							{ 'meta.addresses': Buffer.from(testAddress) },
+							testObjectId,
+							25,
+							{ collectionName: 'partialTransactions', sortOrder: 1 }
+						]
+					));
+				it('with transaction type filter', () =>
+					runDbWithQueryTransactionsSpy(
+						{ transactions: transactionDbEntities },
+						db => db.accountTransactionsPartial(testAddress, 0x4154, testObjectId, 25, 1),
+						[
+							{ $and: [{ 'meta.addresses': Buffer.from(testAddress) }, { 'transaction.type': 0x4154 }] },
+							testObjectId,
+							25,
+							{ collectionName: 'partialTransactions', sortOrder: 1 }
+						]
+					));
+			});
 		});
 	});
 
