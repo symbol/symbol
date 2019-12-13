@@ -121,7 +121,7 @@ namespace catapult { namespace chain {
 				auto targetTime = static_cast<int128_t>(config.BlockGenerationTargetTime.seconds() << 16);
 				auto elapsedTime = static_cast<int128_t>(timeDiff << 16);
 
-				// divide by log2(e), use precision that does not lead to an overflow
+				// multiply by log2(e), use precision that does not lead to an overflow
 				auto power = static_cast<int128_t>(factor) * (elapsedTime - targetTime) / targetTime;
 				power = power * 14'426'950'408 / 10'000'000'000;
 
