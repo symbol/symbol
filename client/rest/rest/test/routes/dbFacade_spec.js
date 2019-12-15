@@ -76,17 +76,17 @@ describe('db facade', () => {
 			});
 		};
 
-		const createFailed = value => ({ status: { f: value } });
+		const createFailed = value => ({ code: { f: value } });
 		const createUnwrappedFailedStatus = value => ({ group: 'failed', f: value });
 		const createTransaction = (hash, deadline, height) => ({ meta: { hash, height }, transaction: { deadline } });
 		const createUnconfirmedStatus = (hash, deadline) => ({
-			group: 'unconfirmed', status: 0, hash, deadline, height: 0
+			group: 'unconfirmed', code: 0, hash, deadline, height: 0
 		});
 		const createConfirmedStatus = (hash, deadline, height) => ({
-			group: 'confirmed', status: 0, hash, deadline, height
+			group: 'confirmed', code: 0, hash, deadline, height
 		});
 		const createUnwrappedCustomStatus = (hash, deadline, height) => ({
-			group: 'custom', status: 0, hash, deadline, height
+			group: 'custom', code: 0, hash, deadline, height
 		});
 
 		it('unknown hashes are properly mapped', () =>

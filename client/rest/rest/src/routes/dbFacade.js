@@ -20,7 +20,7 @@
 
 const extractFromMetadata = (group, transaction) => ({
 	group,
-	status: 0,
+	code: 0,
 	hash: transaction.meta.hash,
 	deadline: transaction.transaction.deadline,
 	height: transaction.meta.height
@@ -67,7 +67,7 @@ const dbFacade = {
 
 		const promises = [];
 		promises.push(db.transactionsByHashesFailed(hashes)
-			.then(objs => objs.map(status => status.status))	// removes wrapping property
+			.then(objs => objs.map(status => status.code))	// removes wrapping property
 			.then(objs => objs.map(status => Object.assign(status, { group: 'failed' }))));
 		transactionStates.forEach(state => {
 			const dbPromise = db[`transactionsByHashes${state.dbPostfix}`](hashes);
