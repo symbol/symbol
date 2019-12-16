@@ -28,3 +28,5 @@ transactionId:
   $ref: './transactionId.yml'
 transactionIdLimit:
   $ref: './transactionIdLimit.yml'
+transactionType:
+  $ref: './transactionType.yml'
