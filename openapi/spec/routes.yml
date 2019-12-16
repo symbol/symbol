@@ -7,7 +7,7 @@
     $ref: "./core/account/routes/getAccountsInfo.yml"
 "/account/{accountId}/transactions":
   get:
-    $ref: "./core/account/routes/getAccountTransactions.yml"
+    $ref: "./core/account/routes/getAccountConfirmedTransactions.yml"
 "/account/{accountId}/transactions/incoming":
   get:
     $ref: "./core/account/routes/getAccountIncomingTransactions.yml"

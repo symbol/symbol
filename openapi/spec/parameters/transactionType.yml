@@ -1,0 +1,5 @@
+name: transactionType
+in: query
+description: Transaction type to filter by.
+schema:
+  $ref: "../core/transaction/schemas/TransactionTypeEnum.yml"

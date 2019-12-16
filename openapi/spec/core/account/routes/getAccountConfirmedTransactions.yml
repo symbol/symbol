@@ -2,12 +2,13 @@ tags:
   - Account routes
 summary: Get confirmed transactions
 description: Gets an array of transactions for which an account is the sender or receiver.
-operationId: getAccountTransactions
+operationId: getAccountConfirmedTransactions
 parameters:
   - $ref: "../../../parameters/accountId.yml"
   - $ref: "../../../parameters/pageSize.yml"
   - $ref: "../../../parameters/transactionIdLimit.yml"
   - $ref: "../../../parameters/ordering.yml"
+  - $ref: "../../../parameters/transactionType.yml"
 responses:
   "200":
     description: success
