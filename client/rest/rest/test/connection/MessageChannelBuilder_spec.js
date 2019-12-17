@@ -249,7 +249,7 @@ describe('message channel builder', () => {
 						payload: {
 							hash: Buffer.alloc(test.constants.sizes.hash256, 41),
 							address: addressTemplate.decoded,
-							status: 55,
+							code: 55,
 							deadline: [66, 0]
 						}
 					});
