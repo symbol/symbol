@@ -109,8 +109,8 @@ namespace catapult { namespace importance {
 							: accountSummary.StakeImportance;
 				}
 
-				auto nominator = accountSummary.ActivityImportance.unwrap() * targetActivityImportanceRaw;
-				return accountSummary.StakeImportance + Importance(nominator / totalActivityImportance.unwrap());
+				auto numerator = accountSummary.ActivityImportance.unwrap() * targetActivityImportanceRaw;
+				return accountSummary.StakeImportance + Importance(numerator / totalActivityImportance.unwrap());
 			}
 
 		private:
