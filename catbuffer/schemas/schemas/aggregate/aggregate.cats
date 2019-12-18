@@ -30,7 +30,7 @@ struct AggregateCompleteTransaction
 # binary layout for an aggregate bonded transaction
 struct AggregateBondedTransaction
 	const uint8 version = 1
-	const EntityType entityType = 0x4142
+	const EntityType entityType = 0x4241
 
 	inline Transaction
 	inline AggregateTransactionBody
