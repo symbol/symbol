@@ -144,23 +144,6 @@ const routeUtils = {
 	},
 
 	/**
-	 * Generates valid page sizes from page size config.
-	 * @param {object} config Page size config.
-	 * @returns {object} Valid limits.
-	 */
-	generateValidPageSizes: config => {
-		const pageSizes = [];
-		const start = config.min + (0 === config.min % config.step ? 0 : config.step - (config.min % config.step));
-		for (let pageSize = start; config.max >= pageSize; pageSize += config.step)
-			pageSizes.push(pageSize);
-
-		if (0 === pageSizes.length)
-			throw Error('page size configuration does not specify any valid page sizes');
-
-		return pageSizes;
-	},
-
-	/**
 	 * Creates a sender for forwarding one or more objects of a given type.
 	 * @param {module:routes/routeResultTypes} type Object type.
 	 * @returns {object} Sender.

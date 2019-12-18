@@ -30,7 +30,7 @@ const { convert } = catapult.utils;
 
 describe('block routes', () => {
 	const addChainStatisticToDb = db => { db.chainStatisticCurrent = () => Promise.resolve({ height: 10 }); };
-	const routeConfig = { pageSize: { min: 30, max: 80, step: 12 } };
+	const routeConfig = { pageSize: { min: 30, max: 80 } };
 
 	const serviceCreator = packet => ({
 		connections: {
@@ -68,9 +68,9 @@ describe('block routes', () => {
 			config: routeConfig
 		});
 
-		builder.addValidInputTest({ object: { height: '1', limit: '36' }, parsed: [1, 36] }, '(default limit)');
+		builder.addValidInputTest({ object: { height: '1', limit: '80' }, parsed: [1, 80] }, '(default limit)');
 		builder.addValidInputTest({ object: { height: '3601', limit: '72' }, parsed: [3601, 72] }, '(custom valid limit)');
-		builder.addEmptyArrayTest({ object: { height: '1', limit: '36' }, parsed: [1, 36] });
+		builder.addEmptyArrayTest({ object: { height: '1', limit: '40' }, parsed: [1, 40] });
 
 		// notice that this expands to four tests { 'height', 'limit'} x { '10A', '-4321' }
 		['height', 'limit'].forEach(property => ['10A', '-4321'].forEach(value => {
@@ -79,26 +79,27 @@ describe('block routes', () => {
 			builder.addInvalidKeyTest({ object, error: errorMessage }, `(${property} with value ${value})`);
 		}));
 
-		builder.addRedirectTest({ object: { height: '0', limit: '0' }, redirectUri: '/blocks/1/limit/36' }, '{ height: 0, limit: 0 }');
+		builder.addRedirectTest({ object: { height: '0', limit: '0' }, redirectUri: '/blocks/1/limit/30' }, '{ height: 0, limit: 0 }');
 
-		// invalid limit is mapped to 36 (first valid limit)
+		// limit is sanitized correctly
 		builder.addRedirectTest(
-			{ object: { height: '3601', limit: '80' }, redirectUri: '/blocks/3601/limit/36' },
-			'{ height: 3601, limit: 80 }'
+			{ object: { height: '3601', limit: '0' }, redirectUri: '/blocks/3601/limit/30' },
+			'{ height: 3601, limit: 0 }'
 		);
 
-		// invalid height is mapped to multiple of limit
 		builder.addRedirectTest(
-			{ object: { height: '125', limit: '60' }, redirectUri: '/blocks/121/limit/60' },
-			'{ height: 125, limit: 60 }'
+			{ object: { height: '3601', limit: '29' }, redirectUri: '/blocks/3601/limit/30' },
+			'{ height: 3601, limit: 29 }'
 		);
+
 		builder.addRedirectTest(
-			{ object: { height: '360', limit: '60' }, redirectUri: '/blocks/301/limit/60' },
-			'{ height: 360, limit: 60 }'
+			{ object: { height: '3601', limit: '81' }, redirectUri: '/blocks/3601/limit/80' },
+			'{ height: 3601, limit: 81 }'
 		);
+
 		builder.addRedirectTest(
-			{ object: { height: '362', limit: '60' }, redirectUri: '/blocks/361/limit/60' },
-			'{ height: 362, limit: 60 }'
+			{ object: { height: '3601', limit: '100' }, redirectUri: '/blocks/3601/limit/80' },
+			'{ height: 3601, limit: 100 }'
 		);
 	});
 

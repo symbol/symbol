@@ -237,62 +237,6 @@ describe('route utils', () => {
 		});
 	});
 
-	describe('generate valid page sizes', () => {
-		it('can generate page sizes inclusive of min and max', () => {
-			// Act:
-			const pageSizes = routeUtils.generateValidPageSizes({ min: 30, max: 100, step: 10 });
-
-			// Assert:
-			expect(pageSizes).to.deep.equal([30, 40, 50, 60, 70, 80, 90, 100]);
-		});
-
-		it('can generate page sizes inclusive of min but not max', () => {
-			// Act:
-			const pageSizes = routeUtils.generateValidPageSizes({ min: 30, max: 99, step: 10 });
-
-			// Assert:
-			expect(pageSizes).to.deep.equal([30, 40, 50, 60, 70, 80, 90]);
-		});
-
-		it('can generate page sizes inclusive of max but not min', () => {
-			// Act:
-			const pageSizes = routeUtils.generateValidPageSizes({ min: 31, max: 100, step: 25 });
-
-			// Assert:
-			expect(pageSizes).to.deep.equal([50, 75, 100]);
-		});
-
-		it('can generate page sizes exclusive of min and max', () => {
-			// Act:
-			const pageSizes = routeUtils.generateValidPageSizes({ min: 10, max: 110, step: 25 });
-
-			// Assert:
-			expect(pageSizes).to.deep.equal([25, 50, 75, 100]);
-		});
-
-		it('can generate page sizes when only a single valid page size is configured', () => {
-			// Act:
-			const pageSizes = routeUtils.generateValidPageSizes({ min: 30, max: 45, step: 40 });
-
-			// Assert:
-			expect(pageSizes).to.deep.equal([40]);
-		});
-
-		it('cannot generate page sizes when there are no valid page sizes configured ', () => {
-			// Arrange:
-			const testCases = [
-				{ config: { min: 30, max: 45, step: 25 }, desc: 'no step multiple is within range' },
-				{ config: { min: 30, max: 45, step: 50 }, desc: 'step is greater than max' }
-			];
-
-			// Act:
-			const errorMessage = 'page size configuration does not specify any valid page sizes';
-			testCases.forEach(testCase => {
-				expect(() => routeUtils.generateValidPageSizes(testCase.config), testCase.name).to.throw(errorMessage);
-			});
-		});
-	});
-
 	describe('sender', () => {
 		const sendTest = (sender, assertResponse) => {
 			// Arrange: set up the route params

@@ -24,7 +24,7 @@ const allRoutes = require('../../src/routes/allRoutes');
 describe('all routes', () => {
 	const registerAll = server => {
 		const config = {
-			pageSize: { min: 10, max: 100, step: 25 },
+			pageSize: { min: 10, max: 100 },
 			transactionStates: [],
 			apiNode: { timeout: 1000 }
 		};

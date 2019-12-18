@@ -32,12 +32,11 @@ const { BinaryParser } = catapult.parser;
 
 const parseHeight = params => routeUtils.parseArgument(params, 'height', 'uint');
 
-const getLimit = (validLimits, params) => {
-	const limit = routeUtils.parseArgument(params, 'limit', 'uint');
-	return -1 === validLimits.indexOf(limit) ? undefined : limit;
+const getSanitizedLimit = (pageSize, limit) => {
+	let sanitizedLimit = Math.max(limit, pageSize.min);
+	sanitizedLimit = Math.min(sanitizedLimit, pageSize.max);
+	return sanitizedLimit;
 };
-
-const alignDown = (height, alignment) => (Math.floor((height - 1) / alignment) * alignment) + 1;
 
 module.exports = {
 	register: (server, db, services) => {
@@ -71,17 +70,14 @@ module.exports = {
 		});
 
 		server.get('/blocks/:height/limit/:limit', (req, res, next) => {
-			const validPageSizes = routeUtils.generateValidPageSizes(services.config.pageSize);
+			const height = parseHeight(req.params) || 1;
+			const limit = routeUtils.parseArgument(req.params, 'limit', 'uint');
+			const sanitizedLimit = getSanitizedLimit(services.config.pageSize, limit);
 
-			const height = parseHeight(req.params);
-			const limit = getLimit(validPageSizes, req.params);
+			if (sanitizedLimit !== limit)
+				return res.redirect(`/blocks/${height}/limit/${sanitizedLimit}`, next); // redirect calls next
 
-			const sanitizedLimit = limit || validPageSizes[0];
-			const sanitizedHeight = alignDown(height || 1, sanitizedLimit);
-			if (sanitizedHeight !== height || !limit)
-				return res.redirect(`/blocks/${sanitizedHeight}/limit/${sanitizedLimit}`, next); // redirect calls next
-
-			return db.blocksFrom(height, limit).then(blocks => {
+			return db.blocksFrom(height, sanitizedLimit).then(blocks => {
 				res.send({ payload: blocks, type: routeResultTypes.block });
 				next();
 			});
