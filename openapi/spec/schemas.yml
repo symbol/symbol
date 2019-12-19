@@ -103,10 +103,10 @@ NodeTimeDTO:
   "$ref": "./core/node/schemas/NodeTimeDTO.yml"
 
 # Core - Transaction
-TransactionStateEnum:
-  "$ref": "./core/transaction/schemas/TransactionStateEnum.yml"
-TransactionStatusCodeEnum:
-  "$ref": "./core/transaction/schemas/TransactionStatusCodeEnum.yml"
+TransactionStateTypeEnum:
+  "$ref": "./core/transaction/schemas/TransactionStateTypeEnum.yml"
+TransactionStatusTypeEnum:
+  "$ref": "./core/transaction/schemas/TransactionStatusTypeEnum.yml"
 TransactionTypeEnum:
   "$ref": "./core/transaction/schemas/TransactionTypeEnum.yml"
 AnnounceTransactionInfoDTO:
