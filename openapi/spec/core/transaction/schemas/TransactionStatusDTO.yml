@@ -1,11 +1,13 @@
 type: object
 required:
-  - status
+  - group
+  - deadline
+  - hash
 properties:
   group:
-    type: string
-  status:
-    type: string
+    $ref: "./TransactionStateEnum.yml"
+  code:
+    $ref: "./TransactionStatusCodeEnum.yml"
   hash:
     $ref: "../../../types/Hash256.yml"
   deadline:

@@ -1,0 +1,6 @@
+type: string
+enum:
+  - confirmed
+  - unconfirmed
+  - failed
+description: State of the transaction.
