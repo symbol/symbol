@@ -76,7 +76,7 @@ describe('db facade', () => {
 			});
 		};
 
-		const createFailed = value => ({ code: { f: value } });
+		const createFailed = value => ({ status: { f: value } });
 		const createUnwrappedFailedStatus = value => ({ group: 'failed', f: value });
 		const createTransaction = (hash, deadline, height) => ({ meta: { hash, height }, transaction: { deadline } });
 		const createUnconfirmedStatus = (hash, deadline) => ({
