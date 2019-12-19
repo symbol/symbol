@@ -1,13 +1,10 @@
 name: limit
 in: path
-description: Number of elements to be returned.
+description: |
+  Number of elements to be returned.
+  The limit should be greater than or equal to "db.pageSizeMin" and not higher than "db.pageSizeMax".
+  The settings are adjustable via a configuration file (rest/resources/rest.json) per REST instance.
 required: true
 schema:
   type: integer
   format: int32
-  enum:
-    - 25
-    - 50
-    - 75
-    - 100
-
