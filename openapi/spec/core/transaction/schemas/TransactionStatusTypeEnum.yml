@@ -151,6 +151,7 @@ enum:
   - Failure_Extension_Partial_Transaction_Dependency_Removed
   - Failure_Extension_Read_Rate_Limit_Exceeded
 description: |
+  Status of the transaction:
   * Success -
   * Neutral -
   * Failure -

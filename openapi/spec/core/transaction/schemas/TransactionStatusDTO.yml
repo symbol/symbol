@@ -5,9 +5,9 @@ required:
   - hash
 properties:
   group:
-    $ref: "./TransactionStateEnum.yml"
+    $ref: "./TransactionStateTypeEnum.yml"
   code:
-    $ref: "./TransactionStatusCodeEnum.yml"
+    $ref: "./TransactionStatusTypeEnum.yml"
   hash:
     $ref: "../../../types/Hash256.yml"
   deadline:
