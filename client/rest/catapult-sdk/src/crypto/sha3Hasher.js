@@ -21,9 +21,26 @@
 /** @module crypto/sha3Hasher */
 const arrayUtils = require('../utils/arrayUtils');
 const convert = require('../utils/convert');
-const { sha3_256, sha3_512 } = require('js-sha3');
+const jsSha3 = require('js-sha3');
 
-const getHasher = (length = 64) => ({ 32: sha3_256, 64: sha3_512 }[length]);
+const HashingFunctions = Object.freeze({
+	sha3: 'sha3',
+	keccak: 'keccak'
+});
+
+let hashFunction256 = null;
+let hashFunction512 = null;
+if (process.env.HASHING_FUNCTION === HashingFunctions.sha3) {
+	hashFunction256 = jsSha3.sha3_256;
+	hashFunction512 = jsSha3.sha3_512;
+} else if (process.env.HASHING_FUNCTION === HashingFunctions.keccak) {
+	hashFunction256 = jsSha3.keccak256;
+	hashFunction512 = jsSha3.keccak512;
+} else {
+	throw new Error('A valid hashing function has to be specified in the configuration file <package.json>');
+}
+
+const getHasher = (length = 64) => ({ 32: hashFunction256, 64: hashFunction512 }[length]);
 
 const sha3Hasher = {
 	/**
@@ -37,6 +54,13 @@ const sha3Hasher = {
 		const hash = hasher.arrayBuffer(data);
 		arrayUtils.copy(dest, arrayUtils.uint8View(hash));
 	},
+
+	/**
+	 * Returns the currently used hasher library for this build.
+	 * @param {numeric} length Hash length in bytes.
+	 * @returns {object} Hasher.
+	 */
+	getHasher,
 
 	/**
 	 * Creates a hasher object.

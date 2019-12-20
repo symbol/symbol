@@ -1,6 +1,6 @@
 {
   "name": "catapult-api-rest",
-  "version": "1.0.20.6",
+  "version": "1.0.20.7",
   "description": "",
   "main": "_build/index.js",
   "scripts": {
