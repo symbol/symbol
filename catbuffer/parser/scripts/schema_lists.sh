@@ -5,7 +5,8 @@ block_inputs=(
 
 receipt_inputs=(
 	"receipts"
-	"namespace/namespace_receipts")
+	"namespace/namespace_receipts"
+	"resolution_statement/resolution_statements")
 
 state_inputs=(
 	"state/account_state"
@@ -40,4 +41,3 @@ transaction_inputs=(
 	"restriction_mosaic/mosaic_address_restriction"
 	"restriction_mosaic/mosaic_global_restriction"
 	"transfer/transfer")
-
