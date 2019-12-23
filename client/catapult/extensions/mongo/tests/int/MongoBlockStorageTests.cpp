@@ -334,7 +334,8 @@ namespace catapult { namespace mongo {
 
 		class TestContext final : public test::PrepareDatabaseMixin {
 		public:
-			explicit TestContext(size_t topHeight) : m_pStorage(CreateMongoBlockStorage(mocks::CreateMockTransactionMongoPlugin())) {
+			explicit TestContext(size_t topHeight, MongoErrorPolicy::Mode errorPolicyMode = MongoErrorPolicy::Mode::Strict)
+					: m_pStorage(CreateMongoBlockStorage(mocks::CreateMockTransactionMongoPlugin(), errorPolicyMode)) {
 				for (auto i = 1u; i <= topHeight; ++i) {
 					auto transactions = test::GenerateRandomTransactions(10);
 					m_blocks.push_back(test::GenerateBlockWithTransactions(transactions));
@@ -577,6 +578,7 @@ namespace catapult { namespace mongo {
 
 		// Assert:
 		ASSERT_EQ(Height(1), pStorage->chainHeight());
+
 		AssertEqual(blockElement);
 
 		// - check collection sizes
@@ -585,6 +587,41 @@ namespace catapult { namespace mongo {
 		auto filter = document() << finalize;
 		EXPECT_EQ(1u, database["blocks"].count_documents(filter.view()));
 		EXPECT_EQ(3u, static_cast<size_t>(database["transactions"].count_documents(filter.view())));
+	}
+
+	TEST(TEST_CLASS, CanRewriteBlockAtLastBlockHeightWhenErrorModeIsIdempotent) {
+		// Arrange: create new block with same height as db
+		auto transactions = test::GenerateRandomTransactions(10);
+		auto pBlock = test::GenerateBlockWithTransactions(transactions);
+		pBlock->Height = Height(Multiple_Blocks_Count);
+		auto newBlockElement = test::BlockToBlockElement(*pBlock, test::GenerateRandomByteArray<Hash256>());
+		AddStatements(newBlockElement, { 0, 1, 2, 3 });
+
+		// - prepare db with blocks
+		TestContext context(Multiple_Blocks_Count, MongoErrorPolicy::Mode::Idempotent);
+		context.saveBlocks();
+
+		// Sanity:
+		ASSERT_EQ(Height(Multiple_Blocks_Count), context.storage().chainHeight());
+
+		// Act:
+		context.storage().saveBlock(newBlockElement);
+
+		// Assert: unmodified block elements
+		ASSERT_EQ(Height(Multiple_Blocks_Count), context.storage().chainHeight());
+
+		BlockElementCounts blockElementCounts;
+		for (auto i = 0u; i < context.elements().size() - 1; ++i) {
+			const auto& blockElement = context.elements()[i];
+			AssertEqual(blockElement);
+			blockElementCounts.AddCounts(blockElement);
+		}
+
+		// - new block element
+		AssertEqual(newBlockElement);
+		blockElementCounts.AddCounts(newBlockElement);
+
+		AssertCollectionSizes(blockElementCounts);
 	}
 
 	namespace {

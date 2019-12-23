@@ -183,14 +183,12 @@ namespace catapult { namespace mongo {
 			}
 
 			void saveBlock(const model::BlockElement& blockElement) override {
-				auto dbHeight = chainHeight();
 				auto height = blockElement.Block.Height;
 
-				if (MongoErrorPolicy::Mode::Idempotent == m_errorPolicy.mode() && height == dbHeight) {
-					CATAPULT_LOG(debug) << "skipping block at height " << height << " in idempotent mode";
-					return;
-				}
+				if (MongoErrorPolicy::Mode::Idempotent == m_errorPolicy.mode())
+					dropBlocksAfter(height - Height(1));
 
+				auto dbHeight = chainHeight();
 				if (height != dbHeight + Height(1)) {
 					std::ostringstream out;
 					out << "cannot save block with height " << height << " when storage height is " << dbHeight;
