@@ -61,7 +61,7 @@ describe('hasher', () => {
 				if ('sha3' === hashingFunction)
 					result = { size32: jsSha3.sha3_256, size64: jsSha3.sha3_512 };
 
-				if ('keccakk' === hashingFunction)
+				if ('keccak' === hashingFunction)
 					result = { size32: jsSha3.keccak256, size64: jsSha3.keccak512 };
 
 				return result;
