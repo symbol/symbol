@@ -43,7 +43,7 @@ namespace catapult { namespace harvesting {
 	BlockGenerator CreateHarvesterBlockGenerator(
 			model::TransactionSelectionStrategy strategy,
 			const HarvestingUtFacadeFactory& utFacadeFactory,
-			const cache::MemoryUtCache& utCache) {
+			const cache::ReadWriteUtCache& utCache) {
 		auto transactionsInfoSupplier = CreateTransactionsInfoSupplier(strategy, utCache);
 		return [utFacadeFactory, transactionsInfoSupplier](const auto& blockHeader, auto maxTransactionsPerBlock) {
 			// 1. check height consistency

@@ -85,7 +85,7 @@ namespace catapult { namespace harvesting {
 				const Key& beneficiaryPublicKey) {
 			const auto& cache = state.cache();
 			const auto& blockChainConfig = state.config().BlockChain;
-			const auto& utCache = state.utCache();
+			const auto& utCache = const_cast<const extensions::ServiceState&>(state).utCache();
 			auto strategy = state.config().Node.TransactionSelectionStrategy;
 			auto executionConfig = extensions::CreateExecutionConfiguration(state.pluginManager());
 			HarvestingUtFacadeFactory utFacadeFactory(cache, blockChainConfig, executionConfig);

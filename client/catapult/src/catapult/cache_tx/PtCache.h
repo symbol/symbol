@@ -20,6 +20,7 @@
 
 #pragma once
 #include "BasicTransactionsCache.h"
+#include "catapult/model/EntityInfo.h"
 #include "catapult/functions.h"
 #include <vector>
 
@@ -27,13 +28,23 @@ namespace catapult { namespace cache {
 
 	/// Interface for modifying a partial transactions cache.
 	/// \note Cache assumes that added transactions are stripped of all cosignatures.
-	class PtCacheModifier : public BasicTransactionsCacheModifier<model::DetachedTransactionInfo> {
+	class PtCacheModifier {
 	public:
-		using BasicTransactionsCacheModifier<model::DetachedTransactionInfo>::add;
+		virtual ~PtCacheModifier() noexcept(false) {}
 
 	public:
+		/// Gets the number of transactions in the cache.
+		virtual size_t size() const = 0;
+
+		/// Adds the transaction info (\a transactionInfo) to the cache.
+		/// Returns \c true if the transaction info was successfully added.
+		virtual bool add(const model::DetachedTransactionInfo& transactionInfo) = 0;
+
 		/// Adds a cosignature (composed of \a signer and \a signature) for a partial transaction with hash \a parentHash to the cache.
 		virtual model::DetachedTransactionInfo add(const Hash256& parentHash, const Key& signer, const Signature& signature) = 0;
+
+		/// Removes the transaction identified by \a hash from the cache.
+		virtual model::DetachedTransactionInfo remove(const Hash256& hash) = 0;
 
 		/// Removes all partial transactions that have deadlines at or before the given \a timestamp.
 		virtual std::vector<model::DetachedTransactionInfo> prune(Timestamp timestamp) = 0;
@@ -67,6 +78,16 @@ namespace catapult { namespace cache {
 		}
 	};
 
-	/// Interface for caching partial transactions.
-	class PtCache : public BasicTransactionsCache<PtCacheModifierProxy> {};
+	/// Interface (write only) for caching partial transactions.
+	class PtCache {
+	public:
+		using CacheModifierProxy = PtCacheModifierProxy;
+
+	public:
+		virtual ~PtCache() = default;
+
+	public:
+		/// Gets a write only view of the cache.
+		virtual PtCacheModifierProxy modifier() = 0;
+	};
 }}

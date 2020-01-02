@@ -77,8 +77,19 @@ namespace catapult { namespace cache {
 		utils::SpinReaderWriterLock::ReaderLockGuard m_readLock;
 	};
 
+	/// Interface (read write) for caching unconfirmed transactions.
+	class PLUGIN_API_DEPENDENCY ReadWriteUtCache : public UtCache {
+	public:
+		/// Gets a read only view based on this cache.
+		virtual MemoryUtCacheView view() const = 0;
+	};
+
 	/// Cache for all unconfirmed transactions.
-	class MemoryUtCache : public UtCache {
+	class MemoryUtCache : public ReadWriteUtCache {
+	public:
+		using CacheWriteOnlyInterface = UtCache;
+		using CacheReadWriteInterface = ReadWriteUtCache;
+
 	public:
 		/// Creates an unconfirmed transactions cache around \a options.
 		explicit MemoryUtCache(const MemoryCacheOptions& options);
@@ -87,10 +98,8 @@ namespace catapult { namespace cache {
 		~MemoryUtCache() override;
 
 	public:
-		/// Gets a read only view based on this cache.
-		MemoryUtCacheView view() const;
+		MemoryUtCacheView view() const override;
 
-	public:
 		UtCacheModifierProxy modifier() override;
 
 	private:
@@ -104,7 +113,7 @@ namespace catapult { namespace cache {
 	};
 
 	/// Delegating proxy around a MemoryUtCache.
-	class MemoryUtCacheProxy : public MemoryCacheProxy<MemoryUtCache, UtCache, UtCacheModifierProxy> {
-		using MemoryCacheProxy<MemoryUtCache, UtCache, UtCacheModifierProxy>::MemoryCacheProxy;
+	class MemoryUtCacheProxy : public MemoryCacheProxy<MemoryUtCache> {
+		using MemoryCacheProxy<MemoryUtCache>::MemoryCacheProxy;
 	};
 }}

@@ -25,8 +25,16 @@
 namespace catapult { namespace cache {
 
 	/// Delegating proxy around a memory-based cache.
-	template<typename TMemoryCache, typename TCache, typename TCacheModifierProxy>
-	class MemoryCacheProxy : public TCache {
+	/// \note This extra level of indirection is present to support both
+	///       (1) dynamic modifier decoration
+	///       (2) by value view/modifier semantics for consistency across the codebase.
+	template<typename TMemoryCache>
+	class MemoryCacheProxy : public TMemoryCache::CacheWriteOnlyInterface {
+	private:
+		using CacheModifierProxy = typename TMemoryCache::CacheModifierProxy;
+		using CacheWriteOnlyInterface = typename TMemoryCache::CacheWriteOnlyInterface;
+		using CacheReadWriteInterface = typename TMemoryCache::CacheReadWriteInterface;
+
 	public:
 		/// Creates a proxy around \a options.
 		explicit MemoryCacheProxy(const MemoryCacheOptions& options)
@@ -44,24 +52,33 @@ namespace catapult { namespace cache {
 		{}
 
 	public:
-		/// Gets a read only view based on this cache.
-		auto view() const {
-			return m_memoryCache.view();
+		/// Gets the underlying (const) read write cache.
+		const CacheReadWriteInterface& get() const {
+			return m_memoryCache;
 		}
 
-		/// Implicitly casts this proxy to a (const) memory cache.
-		operator const TMemoryCache&() const {
+		/// Gets the underlying (non-const) read write cache.
+		CacheReadWriteInterface& get() {
 			return m_memoryCache;
 		}
 
 	public:
-		TCacheModifierProxy modifier() override {
+		/// Gets a read only view based on this cache.
+		/// \note This is non-virtual because MemoryCacheProxy derives from CacheWriteOnlyInterface but not CacheReadWriteInterface.
+		///       Aggregate implementations used to trigger subscriptions only need to intercept modifier but not view calls.
+		///       The presence of this function allows for nicer usage when using proxy directly.
+		auto view() const {
+			return m_memoryCache.view();
+		}
+
+	public:
+		CacheModifierProxy modifier() override {
 			return m_pCache->modifier();
 		}
 
 	private:
 		TMemoryCache m_memoryCache;
-		std::unique_ptr<TCache> m_pMutableCache;
-		TCache* m_pCache;
+		std::unique_ptr<CacheWriteOnlyInterface> m_pMutableCache;
+		CacheWriteOnlyInterface* m_pCache;
 	};
 }}

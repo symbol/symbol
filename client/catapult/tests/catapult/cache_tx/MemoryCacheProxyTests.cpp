@@ -29,9 +29,15 @@ namespace catapult { namespace cache {
 
 	// tests use MemoryUtCache types
 	using MemoryCache = MemoryUtCache;
-	using Cache = UtCache;
-	using CacheModifierProxy = UtCacheModifierProxy;
-	using CacheProxy = MemoryCacheProxy<MemoryCache, Cache, CacheModifierProxy>;
+	using CacheProxy = MemoryCacheProxy<MemoryCache>;
+
+	namespace {
+		void AssertSize(size_t expectedSize, const CacheProxy& cache) {
+			EXPECT_EQ(expectedSize, cache.view().size());
+			EXPECT_EQ(expectedSize, cache.get().view().size());
+			EXPECT_EQ(expectedSize, const_cast<CacheProxy&>(cache).get().view().size());
+		}
+	}
 
 	TEST(TEST_CLASS, CanCreateProxyAroundMemoryCache) {
 		// Arrange:
@@ -42,12 +48,11 @@ namespace catapult { namespace cache {
 			cache.modifier().add(info);
 
 		// Assert: check view sizes
-		EXPECT_EQ(5u, cache.view().size());
-		EXPECT_EQ(5u, static_cast<const MemoryCache&>(cache).view().size());
+		AssertSize(5, cache);
 	}
 
 	namespace {
-		class MockMutableCache : public Cache {
+		class MockMutableCache : public MemoryCache::CacheWriteOnlyInterface {
 		public:
 			MockMutableCache(MemoryCache& memoryCache, size_t& numModifyCalls)
 					: m_memoryCache(memoryCache)
@@ -55,7 +60,7 @@ namespace catapult { namespace cache {
 			{}
 
 		public:
-			CacheModifierProxy modifier() override {
+			MemoryCache::CacheModifierProxy modifier() override {
 				++m_numModifierCalls;
 				return m_memoryCache.modifier();
 			}
@@ -65,7 +70,7 @@ namespace catapult { namespace cache {
 			size_t& m_numModifierCalls;
 		};
 
-		std::unique_ptr<Cache> CreateMockMutableCache(MemoryCache& memoryCache, size_t& numModifyCalls) {
+		std::unique_ptr<MemoryCache::CacheWriteOnlyInterface> CreateMockMutableCache(MemoryCache& memoryCache, size_t& numModifyCalls) {
 			return std::make_unique<MockMutableCache>(memoryCache, numModifyCalls);
 		}
 	}
@@ -80,8 +85,7 @@ namespace catapult { namespace cache {
 			cache.modifier().add(info);
 
 		// Assert: check view sizes
-		EXPECT_EQ(5u, cache.view().size());
-		EXPECT_EQ(5u, static_cast<const MemoryCache&>(cache).view().size());
+		AssertSize(5, cache);
 
 		// - importantly notice that modifier() was called on the wrapper, which delegated to the memory cache modifier()
 		EXPECT_EQ(5u, numModifierCalls);
