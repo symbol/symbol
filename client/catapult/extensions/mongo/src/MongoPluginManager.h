@@ -32,32 +32,21 @@ namespace catapult { namespace mongo {
 	class MongoPluginManager {
 	public:
 		/// Creates a new plugin manager around \a mongoContext and \a networkIdentifier.
-		MongoPluginManager(MongoStorageContext& mongoContext, model::NetworkIdentifier networkIdentifier)
-				: m_mongoContext(mongoContext)
-				, m_networkIdentifier(networkIdentifier)
-		{}
+		MongoPluginManager(MongoStorageContext& mongoContext, model::NetworkIdentifier networkIdentifier);
 
 	public:
 		/// Gets the mongo storage context.
-		MongoStorageContext& mongoContext() const {
-			return m_mongoContext;
-		}
+		MongoStorageContext& mongoContext() const;
 
 		/// Gets the network idenfifier.
-		model::NetworkIdentifier networkIdentifier() const {
-			return m_networkIdentifier;
-		}
+		model::NetworkIdentifier networkIdentifier() const;
 
 	public:
 		/// Adds support for a transaction described by \a pTransactionPlugin.
-		void addTransactionSupport(std::unique_ptr<MongoTransactionPlugin>&& pTransactionPlugin) {
-			m_transactionRegistry.registerPlugin(std::move(pTransactionPlugin));
-		}
+		void addTransactionSupport(std::unique_ptr<MongoTransactionPlugin>&& pTransactionPlugin);
 
 		/// Adds support for a receipt described by \a pReceiptPlugin.
-		void addReceiptSupport(std::unique_ptr<MongoReceiptPlugin>&& pReceiptPlugin) {
-			m_receiptRegistry.registerPlugin(std::move(pReceiptPlugin));
-		}
+		void addReceiptSupport(std::unique_ptr<MongoReceiptPlugin>&& pReceiptPlugin);
 
 		/// Adds support for an external cache storage described by \a pStorage.
 		template<typename TStorage>
@@ -67,19 +56,13 @@ namespace catapult { namespace mongo {
 
 	public:
 		/// Gets the transaction registry.
-		const MongoTransactionRegistry& transactionRegistry() const {
-			return m_transactionRegistry;
-		}
+		const MongoTransactionRegistry& transactionRegistry() const;
 
 		/// Gets the receipt registry.
-		const MongoReceiptRegistry& receiptRegistry() const {
-			return m_receiptRegistry;
-		}
+		const MongoReceiptRegistry& receiptRegistry() const;
 
 		/// Creates an external cache storage.
-		std::unique_ptr<ExternalCacheStorage> createStorage() {
-			return m_storageBuilder.build();
-		}
+		std::unique_ptr<ExternalCacheStorage> createStorage();
 
 	private:
 		MongoStorageContext& m_mongoContext;
