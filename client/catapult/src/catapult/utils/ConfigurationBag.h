@@ -29,13 +29,13 @@
 namespace catapult { namespace utils {
 
 	/// Exception class that is thrown when a required configuration property is missing.
-	class VISIBLE_EXCEPTION_ATTRIBUTE property_not_found_error : public catapult_invalid_argument {
+	class PLUGIN_API_EXCEPTION property_not_found_error : public catapult_invalid_argument {
 	public:
 		using catapult_invalid_argument::catapult_invalid_argument;
 	};
 
 	/// Exception class that is thrown when a configuration property is malformed.
-	class VISIBLE_EXCEPTION_ATTRIBUTE property_malformed_error : public catapult_runtime_error {
+	class PLUGIN_API_EXCEPTION property_malformed_error : public catapult_runtime_error {
 	public:
 		using catapult_runtime_error::catapult_runtime_error;
 	};

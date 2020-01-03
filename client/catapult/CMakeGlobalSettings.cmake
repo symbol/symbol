@@ -61,12 +61,19 @@ if(ENABLE_CODE_COVERAGE)
 endif()
 
 ### set sanitization
+if(ENABLE_FUZZ_BUILD)
+	set(USE_SANITIZER "undefined")
+endif()
+
 if(USE_SANITIZER)
 	set(SANITIZER_BLACKLIST "${PROJECT_SOURCE_DIR}/sanitizer_blacklist.txt")
 	set(SANITIZATION_FLAGS "-fno-omit-frame-pointer -fsanitize-blacklist=${SANITIZER_BLACKLIST} -fsanitize=${USE_SANITIZER}")
 
 	if(USE_SANITIZER MATCHES "undefined")
 		set(SANITIZATION_FLAGS "${SANITIZATION_FLAGS} -fsanitize=implicit-conversion,nullability")
+		if (ENABLE_FUZZ_BUILD)
+			set(SANITIZATION_FLAGS "${SANITIZATION_FLAGS} -fsanitize=address -fno-sanitize-recover=all")
+		endif()
 	endif()
 
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SANITIZATION_FLAGS}")
@@ -163,7 +170,7 @@ endfunction()
 function(catapult_add_tests_subdirectory DIRECTORY_NAME)
 	if(ENABLE_TESTS)
 		add_subdirectory(${DIRECTORY_NAME})
-	endif()	
+	endif()
 endfunction()
 
 # sets additional compiler options for test projects in order to quiet GTEST warnings while allowing source warning checks to be stricter

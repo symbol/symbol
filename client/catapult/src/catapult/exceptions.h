@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "plugins.h"
 #include "utils/BaseValue.h"
 #include "utils/HexFormatter.h"
 #include "utils/Logging.h"
@@ -29,17 +30,11 @@
 #include <atomic>
 #include <exception>
 
-#if defined(WIN32) || defined(WIN64)
-#define VISIBLE_EXCEPTION_ATTRIBUTE
-#else
-#define VISIBLE_EXCEPTION_ATTRIBUTE __attribute__ ((visibility ("default")))
-#endif
-
 namespace catapult {
 
 	/// Base class for all catapult exceptions that derives from both std::exception and boost::exception.
 	template<typename TStlException>
-	class VISIBLE_EXCEPTION_ATTRIBUTE catapult_error : public TStlException, public boost::exception, public utils::NonCopyable {
+	class PLUGIN_API_EXCEPTION catapult_error : public TStlException, public boost::exception, public utils::NonCopyable {
 	public:
 		/// Creates an exception with a message (\a what).
 		explicit catapult_error(const char* what) : TStlException(what)
@@ -61,7 +56,7 @@ namespace catapult {
 	};
 
 	template<typename TStlException>
-	class VISIBLE_EXCEPTION_ATTRIBUTE catapult_error<catapult_error<TStlException>> : public catapult_error<TStlException> {
+	class PLUGIN_API_EXCEPTION catapult_error<catapult_error<TStlException>> : public catapult_error<TStlException> {
 	public:
 		/// Creates an exception with a message (\a what).
 		explicit catapult_error(const char* what) : catapult_error<TStlException>(what)
