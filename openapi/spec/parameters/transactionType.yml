@@ -1,4 +1,4 @@
-name: transactionType
+name: type
 in: query
 description: Transaction type to filter by.
 schema:
