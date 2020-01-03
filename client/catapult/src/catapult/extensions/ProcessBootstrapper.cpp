@@ -93,7 +93,16 @@ namespace catapult { namespace extensions {
 
 	void ProcessBootstrapper::loadExtensions() {
 		for (const auto& extension : m_config.Extensions.Names) {
-			m_extensionModules.emplace_back(m_config.User.PluginsDirectory, extension);
+			auto scope = plugins::PluginModule::Scope::Local;
+
+#if defined(__APPLE__)
+			// any extensions that provide additional plugin models need to be imported globally so that their symbols can
+			// be used to resolve usages in their plugins
+			if ("extension.mongo" == extension)
+				scope = plugins::PluginModule::Scope::Global;
+#endif
+
+			m_extensionModules.emplace_back(m_config.User.PluginsDirectory, extension, scope);
 
 			CATAPULT_LOG(info) << "registering dynamic extension " << extension;
 			LoadExtension(m_extensionModules.back(), *this);
