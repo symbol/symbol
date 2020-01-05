@@ -26,6 +26,13 @@
 
 namespace catapult { namespace extensions {
 
+#ifdef STRICT_SYMBOL_VISIBILITY
+	template<typename T>
+	void ForceSymbolInjection() {
+		CATAPULT_LOG(debug) << "forcibly injecting symbol: " << typeid(T).name () << " => " << typeid(T).hash_code();
+	}
+#endif
+
 	ProcessBootstrapper::ProcessBootstrapper(
 			const config::CatapultConfiguration& config,
 			const std::string& resourcesPath,
@@ -41,8 +48,12 @@ namespace catapult { namespace extensions {
 							? thread::MultiServicePool::IsolatedPoolMode::Disabled
 							: thread::MultiServicePool::IsolatedPoolMode::Enabled))
 			, m_subscriptionManager(config)
-			, m_pluginManager(m_config.BlockChain, CreateStorageConfiguration(config), m_config.User, m_config.Inflation)
-	{}
+			, m_pluginManager(m_config.BlockChain, CreateStorageConfiguration(config), m_config.User, m_config.Inflation) {
+#ifdef STRICT_SYMBOL_VISIBILITY
+			// need to forcibly inject typeinfos into containing exe so that they are properly resolved across modules
+			ForceSymbolInjection<model::EmbeddedTransactionPlugin>();
+#endif
+	}
 
 	const config::CatapultConfiguration& ProcessBootstrapper::config() const {
 		return m_config;
@@ -95,7 +106,7 @@ namespace catapult { namespace extensions {
 		for (const auto& extension : m_config.Extensions.Names) {
 			auto scope = plugins::PluginModule::Scope::Local;
 
-#if defined(__APPLE__)
+#ifdef STRICT_SYMBOL_VISIBILITY
 			// any extensions that provide additional plugin models need to be imported globally so that their symbols can
 			// be used to resolve usages in their plugins
 			if ("extension.mongo" == extension)

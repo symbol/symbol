@@ -22,11 +22,21 @@
 #include "MongoPluginManager.h"
 #include "catapult/plugins/PluginExceptions.h"
 #include "catapult/utils/Logging.h"
+#include "catapult/preprocessor.h"
 #include <boost/exception_ptr.hpp>
 
 namespace catapult { namespace mongo {
 
 	namespace {
+		plugins::PluginModule::Scope GetSymbolScope() {
+#ifdef STRICT_SYMBOL_VISIBILITY
+			// MemoryCacheChanges<X> typeinfos need to be merged between mongo and non-mongo plugins
+			return plugins::PluginModule::Scope::Global;
+#else
+			return plugins::PluginModule::Scope::Local;
+#endif
+		}
+
 		void LoadPlugin(MongoPluginManager& manager, const plugins::PluginModule& module, const char* symbolName) {
 			auto registerSubsystem = module.symbol<decltype(::RegisterMongoSubsystem)*>(symbolName);
 
@@ -44,7 +54,7 @@ namespace catapult { namespace mongo {
 	void LoadPluginByName(MongoPluginManager& manager, PluginModules& modules, const std::string& directory, const std::string& name) {
 		CATAPULT_LOG(info) << "registering dynamic mongo plugin " << name;
 
-		modules.emplace_back(directory, name);
+		modules.emplace_back(directory, name, GetSymbolScope());
 		LoadPlugin(manager, modules.back(), "RegisterMongoSubsystem");
 	}
 }}

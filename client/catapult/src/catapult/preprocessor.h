@@ -27,3 +27,10 @@
 // clang requires explicit std::move to avoid `return-std-move-in-c++11`
 #define PORTABLE_MOVE(X) std::move(X)
 #endif
+
+#if defined(__APPLE__)
+// take extra care to ensure that typeinfos are imported correctly so that all sanitizers pass
+#define STRICT_SYMBOL_VISIBILITY 1
+#else
+#define STRICT_SYMBOL_VISIBILITY 0
+#endif
