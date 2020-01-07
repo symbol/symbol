@@ -21,6 +21,7 @@
 #pragma once
 #include "EmbeddedTransaction.h"
 #include "VerifiableEntity.h"
+#include "catapult/plugins.h"
 
 namespace catapult { namespace model { class TransactionRegistry; } }
 
@@ -29,7 +30,7 @@ namespace catapult { namespace model {
 #pragma pack(push, 1)
 
 	/// Binary layout for a transaction.
-	struct Transaction : public VerifiableEntity {
+	struct PLUGIN_API_DEPENDENCY Transaction : public VerifiableEntity {
 		/// Maximum transaction fee paid for confirmation.
 		/// \note Actual fee paid is dependent on containing block.
 		Amount MaxFee;

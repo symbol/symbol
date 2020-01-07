@@ -21,6 +21,7 @@
 #pragma once
 #include "catapult/ionet/NodeInfo.h"
 #include "catapult/validators/ValidationResult.h"
+#include "catapult/plugins.h"
 #include "catapult/types.h"
 
 namespace catapult {
@@ -31,7 +32,7 @@ namespace catapult {
 namespace catapult { namespace subscribers {
 
 	/// Node subscriber.
-	class NodeSubscriber {
+	class PLUGIN_API_DEPENDENCY NodeSubscriber {
 	public:
 		virtual ~NodeSubscriber() = default;
 

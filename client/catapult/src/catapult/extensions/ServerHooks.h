@@ -183,7 +183,7 @@ namespace catapult { namespace extensions {
 		}
 
 		/// Gets the known hash predicate augmented with a check in \a utCache.
-		KnownHashPredicate knownHashPredicate(const cache::MemoryUtCache& utCache) const {
+		KnownHashPredicate knownHashPredicate(const cache::ReadWriteUtCache& utCache) const {
 			return [&utCache, knownHashPredicates = m_knownHashPredicates](auto timestamp, const auto& hash) {
 				if (utCache.view().contains(hash))
 					return true;

@@ -20,20 +20,17 @@
 
 #include "PluginLoader.h"
 #include "PluginExceptions.h"
+#include "PluginManager.h"
 #include "catapult/utils/Logging.h"
 #include "catapult/functions.h"
-#include "catapult/preprocessor.h"
 #include <boost/exception_ptr.hpp>
 #include <unordered_map>
 
 namespace catapult { namespace plugins {
 
 	namespace {
-		using RegisterSubsystemFunc = void (*)(PluginManager&);
-
-		ATTRIBUTE_CALLS_PLUGIN_API
 		void LoadPlugin(PluginManager& manager, const PluginModule& module, const char* symbolName) {
-			auto registerSubsystem = module.symbol<RegisterSubsystemFunc>(symbolName);
+			auto registerSubsystem = module.symbol<decltype(::RegisterSubsystem)*>(symbolName);
 
 			try {
 				registerSubsystem(manager);

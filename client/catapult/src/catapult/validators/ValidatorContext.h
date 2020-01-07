@@ -22,6 +22,7 @@
 #include "catapult/cache/ReadOnlyCatapultCache.h"
 #include "catapult/model/NetworkInfo.h"
 #include "catapult/model/ResolverContext.h"
+#include "catapult/plugins.h"
 #include "catapult/types.h"
 #include <cstdint>
 #include <limits>
@@ -29,7 +30,7 @@
 namespace catapult { namespace validators {
 
 	/// Contextual information passed to stateful validators.
-	struct ValidatorContext {
+	struct PLUGIN_API_DEPENDENCY ValidatorContext {
 	public:
 		/// Creates a validator context around \a height, \a blockTime, \a network, \a resolvers and \a cache.
 		ValidatorContext(

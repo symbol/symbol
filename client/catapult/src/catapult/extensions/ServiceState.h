@@ -29,7 +29,8 @@
 namespace catapult {
 	namespace cache {
 		class CatapultCache;
-		class MemoryUtCacheProxy;
+		class ReadWriteUtCache;
+		class UtCache;
 	}
 	namespace extensions { class LocalNodeChainScore; }
 	namespace io { class BlockStorageCache; }
@@ -57,7 +58,7 @@ namespace catapult { namespace extensions {
 				cache::CatapultCache& cache,
 				io::BlockStorageCache& storage,
 				LocalNodeChainScore& score,
-				cache::MemoryUtCacheProxy& utCache,
+				cache::ReadWriteUtCache& utCache,
 				const supplier<Timestamp>& timeSupplier,
 				subscribers::TransactionStatusSubscriber& transactionStatusSubscriber,
 				subscribers::StateChangeSubscriber& stateChangeSubscriber,
@@ -108,7 +109,12 @@ namespace catapult { namespace extensions {
 		}
 
 		/// Gets the unconfirmed transactions cache.
-		auto& utCache() const {
+		const cache::ReadWriteUtCache& utCache() const {
+			return m_utCache;
+		}
+
+		/// Gets the unconfirmed transactions cache.
+		cache::UtCache& utCache() {
 			return m_utCache;
 		}
 
@@ -180,7 +186,7 @@ namespace catapult { namespace extensions {
 		cache::CatapultCache& m_cache;
 		io::BlockStorageCache& m_storage;
 		LocalNodeChainScore& m_score;
-		cache::MemoryUtCacheProxy& m_utCache;
+		cache::ReadWriteUtCache& m_utCache;
 		supplier<Timestamp> m_timeSupplier;
 
 		subscribers::TransactionStatusSubscriber& m_transactionStatusSubscriber;

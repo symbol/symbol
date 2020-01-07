@@ -24,7 +24,7 @@
 namespace catapult { namespace io {
 
 	/// Block change subscriber.
-	class BlockChangeSubscriber {
+	class PLUGIN_API_DEPENDENCY BlockChangeSubscriber {
 	public:
 		virtual ~BlockChangeSubscriber() = default;
 

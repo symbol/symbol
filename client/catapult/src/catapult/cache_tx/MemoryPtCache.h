@@ -68,8 +68,19 @@ namespace catapult { namespace cache {
 		utils::SpinReaderWriterLock::ReaderLockGuard m_readLock;
 	};
 
+	/// Interface (read write) for caching partial transactions.
+	class ReadWritePtCache : public PtCache {
+	public:
+		/// Gets a read only view based on this cache.
+		virtual MemoryPtCacheView view() const = 0;
+	};
+
 	/// Cache for all partial transactions.
-	class MemoryPtCache : public PtCache {
+	class MemoryPtCache : public ReadWritePtCache {
+	public:
+		using CacheWriteOnlyInterface = PtCache;
+		using CacheReadWriteInterface = ReadWritePtCache;
+
 	public:
 		/// Creates a partial transactions cache around \a options.
 		explicit MemoryPtCache(const MemoryCacheOptions& options);
@@ -78,10 +89,8 @@ namespace catapult { namespace cache {
 		~MemoryPtCache() override;
 
 	public:
-		/// Gets a read only view based on this cache.
-		MemoryPtCacheView view() const;
+		MemoryPtCacheView view() const override;
 
-	public:
 		PtCacheModifierProxy modifier() override;
 
 	private:
@@ -94,7 +103,7 @@ namespace catapult { namespace cache {
 	};
 
 	/// Delegating proxy around a MemoryPtCache.
-	class MemoryPtCacheProxy : public MemoryCacheProxy<MemoryPtCache, PtCache, PtCacheModifierProxy> {
-		using MemoryCacheProxy<MemoryPtCache, PtCache, PtCacheModifierProxy>::MemoryCacheProxy;
+	class MemoryPtCacheProxy : public MemoryCacheProxy<MemoryPtCache> {
+		using MemoryCacheProxy<MemoryPtCache>::MemoryCacheProxy;
 	};
 }}

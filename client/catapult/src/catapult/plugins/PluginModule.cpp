@@ -36,7 +36,7 @@ namespace catapult { namespace plugins {
 		constexpr auto Name_Prefix = "";
 		constexpr auto Directory_Separator = "\\";
 
-		void* CatapultLoad(const std::string& pluginPath) {
+		void* CatapultLoad(const std::string& pluginPath, PluginModule::Scope) {
 			return ::LoadLibraryA(pluginPath.c_str());
 		}
 
@@ -56,8 +56,8 @@ namespace catapult { namespace plugins {
 		constexpr auto Name_Prefix = "lib";
 		constexpr auto Directory_Separator = "/";
 
-		void* CatapultLoad(const std::string& pluginPath) {
-			return ::dlopen(pluginPath.c_str(), RTLD_NOW | RTLD_LOCAL);
+		void* CatapultLoad(const std::string& pluginPath, PluginModule::Scope scope) {
+			return ::dlopen(pluginPath.c_str(), RTLD_NOW | (PluginModule::Scope::Global == scope ? RTLD_GLOBAL : RTLD_LOCAL));
 		}
 
 		void CatapultUnload(void* pModule) {
@@ -74,11 +74,14 @@ namespace catapult { namespace plugins {
 		}
 	}
 
-	PluginModule::PluginModule(const std::string& directory, const std::string& name) {
+	PluginModule::PluginModule(const std::string& directory, const std::string& name) : PluginModule(directory, name, Scope::Local)
+	{}
+
+	PluginModule::PluginModule(const std::string& directory, const std::string& name, Scope scope) {
 		auto pluginPath = GetPluginPath(directory, name);
 		CATAPULT_LOG(info) << "loading plugin from " << pluginPath;
 
-		m_pModule = std::shared_ptr<void>(CatapultLoad(pluginPath), [pluginPath](auto* pModule) {
+		m_pModule = std::shared_ptr<void>(CatapultLoad(pluginPath, scope), [pluginPath](auto* pModule) {
 			if (!pModule)
 				return;
 

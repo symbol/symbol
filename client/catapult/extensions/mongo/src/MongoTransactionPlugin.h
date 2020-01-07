@@ -36,7 +36,7 @@ namespace catapult { namespace mongo {
 
 	/// Typed mongo transaction plugin.
 	template<typename TTransaction>
-	class MongoTransactionPluginT {
+	class PLUGIN_API_DEPENDENCY MongoTransactionPluginT {
 	public:
 		virtual ~MongoTransactionPluginT() = default;
 
@@ -49,10 +49,10 @@ namespace catapult { namespace mongo {
 	};
 
 	/// Embedded mongo transaction plugin.
-	class EmbeddedMongoTransactionPlugin : public MongoTransactionPluginT<model::EmbeddedTransaction> {};
+	class PLUGIN_API_DEPENDENCY EmbeddedMongoTransactionPlugin : public MongoTransactionPluginT<model::EmbeddedTransaction> {};
 
 	/// Mongo transaction plugin.
-	class MongoTransactionPlugin : public MongoTransactionPluginT<model::Transaction> {
+	class PLUGIN_API_DEPENDENCY MongoTransactionPlugin : public MongoTransactionPluginT<model::Transaction> {
 	public:
 		/// Extracts dependent documents from \a transaction given the associated \a metadata.
 		/// \note The document representing the transaction is created separately via the streamTransaction() call.

@@ -70,7 +70,7 @@ namespace catapult { namespace extensions {
 				catapultCache,
 				storage,
 				score,
-				*pUtCache,
+				pUtCache->get(),
 				timeSupplier,
 				transactionStatusSubscriber,
 				stateChangeSubscriber,
@@ -86,7 +86,9 @@ namespace catapult { namespace extensions {
 		EXPECT_EQ(&catapultCache, &state.cache());
 		EXPECT_EQ(&storage, &state.storage());
 		EXPECT_EQ(&score, &state.score());
-		EXPECT_EQ(pUtCache.get(), &state.utCache());
+
+		EXPECT_EQ(&pUtCache->get(), &const_cast<const ServiceState&>(state).utCache());
+		EXPECT_EQ(&pUtCache->get(), &state.utCache());
 
 		EXPECT_EQ(&transactionStatusSubscriber, &state.transactionStatusSubscriber());
 		EXPECT_EQ(&stateChangeSubscriber, &state.stateChangeSubscriber());

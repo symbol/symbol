@@ -23,7 +23,7 @@
 #include "catapult/model/TransactionSelectionStrategy.h"
 
 namespace catapult {
-	namespace cache { class MemoryUtCache; }
+	namespace cache { class ReadWriteUtCache; }
 	namespace harvesting { class HarvestingUtFacade; }
 }
 
@@ -50,5 +50,5 @@ namespace catapult { namespace harvesting {
 	/// Creates a default transactions info supplier around\a utCache for specified transaction \a strategy.
 	TransactionsInfoSupplier CreateTransactionsInfoSupplier(
 			model::TransactionSelectionStrategy strategy,
-			const cache::MemoryUtCache& utCache);
+			const cache::ReadWriteUtCache& utCache);
 }}

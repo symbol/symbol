@@ -24,7 +24,7 @@
 namespace catapult { namespace model {
 
 	/// Notification subscriber.
-	class NotificationSubscriber {
+	class PLUGIN_API_DEPENDENCY NotificationSubscriber {
 	public:
 		virtual ~NotificationSubscriber() = default;
 

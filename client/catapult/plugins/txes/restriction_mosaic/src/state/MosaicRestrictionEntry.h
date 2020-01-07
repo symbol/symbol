@@ -21,6 +21,7 @@
 #pragma once
 #include "MosaicAddressRestriction.h"
 #include "MosaicGlobalRestriction.h"
+#include "catapult/plugins.h"
 #include <memory>
 
 namespace catapult { namespace state {
@@ -28,7 +29,7 @@ namespace catapult { namespace state {
 	// region MosaicRestrictionEntry
 
 	/// Mosaic restriction entry.
-	class MosaicRestrictionEntry {
+	class PLUGIN_API_DEPENDENCY MosaicRestrictionEntry {
 	public:
 		/// Type of entry.
 		enum class EntryType : uint8_t {

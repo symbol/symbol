@@ -39,7 +39,7 @@ namespace catapult { namespace extensions {
 	};
 
 	/// Process bootstrapper.
-	class ProcessBootstrapper {
+	class PLUGIN_API_DEPENDENCY ProcessBootstrapper {
 	public:
 		/// Creates a process bootstrapper around \a config, \a resourcesPath, \a disposition and \a servicePoolName.
 		ProcessBootstrapper(

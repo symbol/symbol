@@ -25,7 +25,7 @@
 namespace catapult { namespace cache {
 
 	/// Partial transactions change subscriber.
-	class PtChangeSubscriber {
+	class PLUGIN_API_DEPENDENCY PtChangeSubscriber {
 	public:
 		using TransactionInfos = model::TransactionInfosSet;
 

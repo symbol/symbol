@@ -23,7 +23,7 @@
 #include "catapult/model/TransactionSelectionStrategy.h"
 
 namespace catapult {
-	namespace cache { class MemoryUtCache; }
+	namespace cache { class ReadWriteUtCache; }
 	namespace harvesting { class HarvestingUtFacadeFactory; }
 }
 
@@ -36,5 +36,5 @@ namespace catapult { namespace harvesting {
 	BlockGenerator CreateHarvesterBlockGenerator(
 			model::TransactionSelectionStrategy strategy,
 			const HarvestingUtFacadeFactory& utFacadeFactory,
-			const cache::MemoryUtCache& utCache);
+			const cache::ReadWriteUtCache& utCache);
 }}

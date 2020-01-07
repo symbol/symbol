@@ -215,7 +215,8 @@ namespace catapult { namespace sync {
 			std::shared_ptr<ConsumerDispatcher> build(
 					const std::shared_ptr<thread::IoThreadPool>& pValidatorPool,
 					RollbackInfo& rollbackInfo) {
-				auto requiresValidationPredicate = ToRequiresValidationPredicate(m_state.hooks().knownHashPredicate(m_state.utCache()));
+				const auto& utCache = const_cast<const extensions::ServiceState&>(m_state).utCache();
+				auto requiresValidationPredicate = ToRequiresValidationPredicate(m_state.hooks().knownHashPredicate(utCache));
 				m_consumers.push_back(CreateBlockChainCheckConsumer(
 						m_nodeConfig.MaxBlocksPerSyncAttempt,
 						m_state.config().BlockChain.MaxBlockFutureTime,
@@ -293,13 +294,14 @@ namespace catapult { namespace sync {
 
 		public:
 			void addHashConsumers() {
+				const auto& utCache = const_cast<const extensions::ServiceState&>(m_state).utCache();
 				m_consumers.push_back(CreateTransactionHashCalculatorConsumer(
 						m_state.config().BlockChain.Network.GenerationHash,
 						m_state.pluginManager().transactionRegistry()));
 				m_consumers.push_back(CreateTransactionHashCheckConsumer(
 						m_state.timeSupplier(),
 						extensions::CreateHashCheckOptions(m_nodeConfig.ShortLivedCacheTransactionDuration, m_nodeConfig),
-						m_state.hooks().knownHashPredicate(m_state.utCache())));
+						m_state.hooks().knownHashPredicate(utCache)));
 			}
 
 			std::shared_ptr<ConsumerDispatcher> build(

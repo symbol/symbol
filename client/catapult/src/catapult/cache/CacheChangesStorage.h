@@ -31,7 +31,7 @@ namespace catapult {
 namespace catapult { namespace cache {
 
 	/// Interface for loading and saving cache changes.
-	class CacheChangesStorage {
+	class PLUGIN_API_DEPENDENCY CacheChangesStorage {
 	public:
 		virtual ~CacheChangesStorage() = default;
 

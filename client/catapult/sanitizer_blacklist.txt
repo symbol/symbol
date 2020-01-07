@@ -1,7 +1,16 @@
 [function]
 # call to function through pointer to incorrect function type
-src:**/boost/log/utility/type_dispatch/**
 src:**/boost/asio/detail/scheduler_operation.hpp
+src:**/boost/log/utility/type_dispatch/**
+
+[vptr]
+# member call on address which does not point to an object of type
+src:**/boost/any.hpp
+src:**/boost/log/**
+src:**/boost/program_options/variables_map.hpp
+
+# + disable due to likely llvm bug: https://reviews.llvm.org/D48680
+src:**/functional
 
 [thread]
 # false positive data race (const data set in constructor read by other thread)

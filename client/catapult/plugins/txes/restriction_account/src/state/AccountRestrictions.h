@@ -25,7 +25,7 @@
 namespace catapult { namespace state {
 
 	/// Account restrictions.
-	class AccountRestrictions {
+	class PLUGIN_API_DEPENDENCY AccountRestrictions {
 	private:
 		using RestrictionsMap = std::map<model::AccountRestrictionFlags, AccountRestriction>;
 		using const_iterator = RestrictionsMap::const_iterator;

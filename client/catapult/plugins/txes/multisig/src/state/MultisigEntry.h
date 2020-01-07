@@ -20,6 +20,7 @@
 
 #pragma once
 #include "catapult/utils/ArraySet.h"
+#include "catapult/plugins.h"
 
 namespace catapult { namespace state {
 
@@ -92,7 +93,7 @@ namespace catapult { namespace state {
 	};
 
 	/// Multisig entry.
-	class MultisigEntry : public MultisigCosignatoriesMixin, public MultisigCosignatoryOfMixin {
+	class PLUGIN_API_DEPENDENCY MultisigEntry : public MultisigCosignatoriesMixin, public MultisigCosignatoryOfMixin {
 	public:
 		/// Creates a multisig entry around \a key.
 		explicit MultisigEntry(const Key& key) : m_key(key)

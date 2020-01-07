@@ -47,7 +47,7 @@ namespace catapult { namespace model {
 	};
 
 	/// Binary layout for an embedded transaction (non-verifiable).
-	struct EmbeddedTransaction : public EntityBody<EmbeddedTransactionHeader> {};
+	struct PLUGIN_API_DEPENDENCY EmbeddedTransaction : public EntityBody<EmbeddedTransactionHeader> {};
 
 	// EmbeddedTransaction Layout:
 	// * SizePrefixedEntity

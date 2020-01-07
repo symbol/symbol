@@ -27,11 +27,24 @@ namespace catapult { namespace plugins {
 	/// Plugin module.
 	class PluginModule {
 	public:
+		/// Imported symbol scope.
+		enum class Scope {
+			/// Symbols are imported locally.
+			Local,
+
+			/// Symbols are imported globally.
+			Global
+		};
+
+	public:
 		/// Creates an unloaded module.
 		PluginModule() = default;
 
 		/// Creates a loaded module around a plugin named \a name in \a directory.
 		PluginModule(const std::string& directory, const std::string& name);
+
+		/// Creates a loaded module around a plugin named \a name in \a directory with specified symbol import \a scope.
+		PluginModule(const std::string& directory, const std::string& name, Scope scope);
 
 	public:
 		/// Returns \c true if this module wraps a loaded system module.

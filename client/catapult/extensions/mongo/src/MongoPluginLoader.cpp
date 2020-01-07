@@ -19,6 +19,7 @@
 **/
 
 #include "MongoPluginLoader.h"
+#include "MongoPluginManager.h"
 #include "catapult/plugins/PluginExceptions.h"
 #include "catapult/utils/Logging.h"
 #include "catapult/preprocessor.h"
@@ -27,22 +28,33 @@
 namespace catapult { namespace mongo {
 
 	namespace {
-		using RegisterMongoSubsystemFunc = void (*)(MongoPluginManager&);
+		plugins::PluginModule::Scope GetSymbolScope() {
+#ifdef STRICT_SYMBOL_VISIBILITY
+			// MemoryCacheChanges<X> typeinfos need to be merged between mongo and non-mongo plugins
+			return plugins::PluginModule::Scope::Global;
+#else
+			return plugins::PluginModule::Scope::Local;
+#endif
+		}
+
+		void LoadPlugin(MongoPluginManager& manager, const plugins::PluginModule& module, const char* symbolName) {
+			auto registerSubsystem = module.symbol<decltype(::RegisterMongoSubsystem)*>(symbolName);
+
+			try {
+				registerSubsystem(manager);
+			} catch (...) {
+				// since the module will be unloaded after this function exits, throw a copy of the exception that
+				// is not dependent on the (soon to be unloaded) module
+				auto exInfo = boost::diagnostic_information(boost::current_exception());
+				CATAPULT_THROW_AND_LOG_0(plugins::plugin_load_error, exInfo.c_str());
+			}
+		}
 	}
 
-	ATTRIBUTE_CALLS_PLUGIN_API
 	void LoadPluginByName(MongoPluginManager& manager, PluginModules& modules, const std::string& directory, const std::string& name) {
-		modules.emplace_back(directory, name);
-		auto registerMongoSubsystem = modules.back().symbol<RegisterMongoSubsystemFunc>("RegisterMongoSubsystem");
-
 		CATAPULT_LOG(info) << "registering dynamic mongo plugin " << name;
-		try {
-			registerMongoSubsystem(manager);
-		} catch (...) {
-			// since the module will be unloaded after this function exits, throw a copy of the exception that
-			// is not dependent on the (soon to be unloaded) module
-			auto exInfo = boost::diagnostic_information(boost::current_exception());
-			CATAPULT_THROW_AND_LOG_0(plugins::plugin_load_error, exInfo.c_str());
-		}
+
+		modules.emplace_back(directory, name, GetSymbolScope());
+		LoadPlugin(manager, modules.back(), "RegisterMongoSubsystem");
 	}
 }}

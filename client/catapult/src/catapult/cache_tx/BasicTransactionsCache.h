@@ -19,29 +19,10 @@
 **/
 
 #pragma once
-#include "catapult/model/ContainerTypes.h"
-#include "catapult/model/EntityInfo.h"
+#include "catapult/types.h"
 #include <memory>
 
 namespace catapult { namespace cache {
-
-	/// Interface for modifying a transactions cache.
-	template<typename TTransactionInfo>
-	class BasicTransactionsCacheModifier {
-	public:
-		virtual ~BasicTransactionsCacheModifier() noexcept(false) {}
-
-	public:
-		/// Gets the number of transactions in the cache.
-		virtual size_t size() const = 0;
-
-		/// Adds the transaction info (\a transactionInfo) to the cache.
-		/// Returns \c true if the transaction info was successfully added.
-		virtual bool add(const TTransactionInfo& transactionInfo) = 0;
-
-		/// Removes the transaction identified by \a hash from the cache.
-		virtual TTransactionInfo remove(const Hash256& hash) = 0;
-	};
 
 	/// Delegating proxy around a transactions cache modifier.
 	/// \note This is returned by value by BasicTransactionsCache::modifier in order to allow it to be consistent with other
@@ -84,16 +65,5 @@ namespace catapult { namespace cache {
 
 	private:
 		std::unique_ptr<TTransactionsCacheModifier> m_pModifier;
-	};
-
-	/// Interface for caching transactions.
-	template<typename TTransactionsCacheModifierProxy>
-	class BasicTransactionsCache : public utils::NonCopyable {
-	public:
-		virtual ~BasicTransactionsCache() = default;
-
-	public:
-		/// Gets a write only view of the cache.
-		virtual TTransactionsCacheModifierProxy modifier() = 0;
 	};
 }}

@@ -24,6 +24,7 @@
 #include "WeakEntityInfo.h"
 #include "catapult/utils/ArraySet.h"
 #include "catapult/utils/TimeSpan.h"
+#include "catapult/plugins.h"
 
 namespace catapult {
 	namespace model {
@@ -50,7 +51,7 @@ namespace catapult { namespace model {
 
 	/// Typed transaction plugin.
 	template<typename TTransaction>
-	class TransactionPluginT {
+	class PLUGIN_API_DEPENDENCY TransactionPluginT {
 	public:
 		virtual ~TransactionPluginT() = default;
 
@@ -66,7 +67,7 @@ namespace catapult { namespace model {
 	};
 
 	/// Embedded transaction plugin.
-	class EmbeddedTransactionPlugin : public TransactionPluginT<EmbeddedTransaction> {
+	class PLUGIN_API_DEPENDENCY EmbeddedTransactionPlugin : public TransactionPluginT<EmbeddedTransaction> {
 	public:
 		/// Extracts public keys of additional accounts that must approve \a transaction.
 		virtual utils::KeySet additionalRequiredCosignatories(const EmbeddedTransaction& transaction) const = 0;
@@ -76,7 +77,7 @@ namespace catapult { namespace model {
 	};
 
 	/// Transaction plugin.
-	class TransactionPlugin : public TransactionPluginT<Transaction> {
+	class PLUGIN_API_DEPENDENCY TransactionPlugin : public TransactionPluginT<Transaction> {
 	public:
 		/// Sends all notifications from \a transactionInfo to \a sub.
 		virtual void publish(const WeakEntityInfoT<Transaction>& transactionInfo, NotificationSubscriber& sub) const = 0;

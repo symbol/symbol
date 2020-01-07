@@ -20,13 +20,27 @@
 
 #pragma once
 #include "BasicTransactionsCache.h"
+#include "catapult/model/EntityInfo.h"
 #include <vector>
 
 namespace catapult { namespace cache {
 
 	/// Interface for modifying an unconfirmed transactions cache.
-	class UtCacheModifier : public BasicTransactionsCacheModifier<model::TransactionInfo> {
+	class PLUGIN_API_DEPENDENCY UtCacheModifier {
 	public:
+		virtual ~UtCacheModifier() noexcept(false) {}
+
+	public:
+		/// Gets the number of transactions in the cache.
+		virtual size_t size() const = 0;
+
+		/// Adds the transaction info (\a transactionInfo) to the cache.
+		/// Returns \c true if the transaction info was successfully added.
+		virtual bool add(const model::TransactionInfo& transactionInfo) = 0;
+
+		/// Removes the transaction identified by \a hash from the cache.
+		virtual model::TransactionInfo remove(const Hash256& hash) = 0;
+
 		/// Gets the number of transactions an account with public \a key has placed into the cache.
 		virtual size_t count(const Key& key) const = 0;
 
@@ -52,6 +66,16 @@ namespace catapult { namespace cache {
 		}
 	};
 
-	/// Interface for caching unconfirmed transactions.
-	class UtCache : public BasicTransactionsCache<UtCacheModifierProxy> {};
+	/// Interface (write only) for caching unconfirmed transactions.
+	class PLUGIN_API_DEPENDENCY UtCache {
+	public:
+		using CacheModifierProxy = UtCacheModifierProxy;
+
+	public:
+		virtual ~UtCache() = default;
+
+	public:
+		/// Gets a write only view of the cache.
+		virtual UtCacheModifierProxy modifier() = 0;
+	};
 }}

@@ -1325,11 +1325,12 @@ namespace catapult { namespace sync {
 			context.testState().state().tasks()[0].Callback(); // forward all batched transactions to the dispatcher
 
 			// - wait for the transactions to flow through the consumers
+			const auto& utCache = const_cast<const extensions::ServiceState&>(context.testState().state()).utCache();
 			WAIT_FOR_ONE_EXPR(context.counter(Transaction_Elements_Counter_Name));
-			WAIT_FOR_VALUE_EXPR(expectedCacheSize, context.testState().state().utCache().view().size());
+			WAIT_FOR_VALUE_EXPR(expectedCacheSize, utCache.view().size());
 
 			// Assert:
-			EXPECT_EQ(expectedCacheSize, context.testState().state().utCache().view().size());
+			EXPECT_EQ(expectedCacheSize, utCache.view().size());
 			EXPECT_EQ(maxCacheSize - expectedCacheSize, context.numTransactionStatuses());
 		}
 	}

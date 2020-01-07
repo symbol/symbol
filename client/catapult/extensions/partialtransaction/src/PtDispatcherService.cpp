@@ -71,7 +71,8 @@ namespace catapult { namespace partialtransaction {
 		}
 
 		auto CreateKnownHashPredicate(const cache::MemoryPtCacheProxy& ptCache, ServiceState& state) {
-			auto knownHashPredicate = state.hooks().knownHashPredicate(state.utCache());
+			const auto& utCache = const_cast<const extensions::ServiceState&>(state).utCache();
+			auto knownHashPredicate = state.hooks().knownHashPredicate(utCache);
 			return [&ptCache, knownHashPredicate](auto timestamp, const auto& hash) {
 				return ptCache.view().find(hash) || knownHashPredicate(timestamp, hash);
 			};
