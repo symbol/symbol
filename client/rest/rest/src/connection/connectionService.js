@@ -39,6 +39,9 @@ module.exports.createConnectionService = (config, connectionFactory, authPromise
 	const node = config.apiNode;
 	const clientKeyPair = createKeyPairFromPrivateKeyString(config.clientPrivateKey);
 	const aliveConnections = {};
+	// the connection is not persisted until authentication is done, and this may take a while,
+	// to avoid duplicate connections those are cached in the following object
+	const authenticatingConnectionPromises = {};
 
 	/**
 	 * Opens a new connection authenticated to catapult.
@@ -65,15 +68,31 @@ module.exports.createConnectionService = (config, connectionFactory, authPromise
 				reject(errors.createServiceUnavailableError('connection failed'));
 			});
 
-		return authPromiseFactory(serverSocket, clientKeyPair, apiNodePublicKey, logger)
+		const authPromise = authPromiseFactory(serverSocket, clientKeyPair, apiNodePublicKey, logger)
 			.then(() => {
 				// wrap the socket in a catapult connection and save it
 				const serverConnection = catapultConnection.wrap(serverSocket);
-				if (isPersistent)
+				if (isPersistent) {
 					aliveConnections[node] = serverConnection;
+					delete authenticatingConnectionPromises[node];
+				}
 
+				// return and additionally, return the connection for possible queued connections on `authenticatingConnectionPromises`
 				resolve(serverConnection);
-			}, reject);
+				return serverConnection;
+			}).catch(err => {
+				if (isPersistent)
+					delete authenticatingConnectionPromises[node];
+
+				// reject and additionally, return the connection for possible queued connections on `authenticatingConnectionPromises`
+				reject(err);
+				throw err;
+			});
+
+		if (isPersistent)
+			authenticatingConnectionPromises[node] = authPromise;
+
+		return authPromise;
 	});
 
 	return {
@@ -82,6 +101,10 @@ module.exports.createConnectionService = (config, connectionFactory, authPromise
 		 * @returns {module:connection/catapultConnection~CatapultConnection} A connection.
 		 */
 		lease: () => {
+			const authenticatingPromise = authenticatingConnectionPromises[node];
+			if (authenticatingPromise)
+				return authenticatingPromise;
+
 			const connection = aliveConnections[node];
 			if (connection)
 				return Promise.resolve(connection);

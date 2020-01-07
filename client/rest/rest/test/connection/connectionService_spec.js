@@ -261,4 +261,70 @@ describe('connection service', () => {
 			});
 		}
 	);
+
+	describe('handles first simultaneous connections correctly when authentication is delayed', () => {
+		it('on successful authentication both parties should lease the same connection', () => {
+			// Arrange:
+			const context = createTestContext();
+			let authPromiseResolve;
+			const connectionService = createConnectionService(
+				Test_Config,
+				context.mockConnectionFactory,
+				context.createAuthPromise(() => new Promise(resolve => {
+					authPromiseResolve = resolve;
+				}))
+			);
+
+			// Act:
+			let firstConn;
+			let secondConn;
+			const leasePromises = Promise.all([
+				connectionService.lease().then(firstConnection => {
+					// Assert:
+					firstConn = firstConnection;
+					expect(context.numConnectionFactoryCalls).to.equal(1);
+				}),
+				connectionService.lease().then(secondConnection => {
+					// Assert:
+					secondConn = secondConnection;
+					expect(context.numConnectionFactoryCalls).to.equal(1);
+				})
+			]).then(() => {
+				// Assert:
+				expect(secondConn).to.equal(firstConn);
+			});
+
+			// unblocks the first promise (simulates delayed acceptance of authentication)
+			authPromiseResolve();
+
+			return leasePromises;
+		});
+
+		it('on failed authentication both parties should fail on the same pending authentication promise', done => {
+			// Arrange:
+			const context = createTestContext();
+			let authPromiseReject;
+			const connectionService = createConnectionService(
+				Test_Config,
+				context.mockConnectionFactory,
+				context.createAuthPromise(() => new Promise((resolve, reject) => {
+					authPromiseReject = reject;
+				}))
+			);
+			const authError = Error('failure auth promise');
+
+			// Act:
+			Promise.all([
+				connectionService.lease(),
+				connectionService.lease()
+			]).catch(err => {
+				// Assert:
+				expect(err).to.equal(authError);
+				done();
+			});
+
+			// unblocks the first promise (simulates delayed authentication failure)
+			authPromiseReject(authError);
+		});
+	});
 });
