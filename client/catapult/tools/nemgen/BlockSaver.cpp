@@ -30,6 +30,20 @@
 namespace catapult { namespace tools { namespace nemgen {
 
 	namespace {
+		void CreatePlaceholderHashesFile(const std::string& binDirectory) {
+			auto blockVersionedDirectory = boost::filesystem::path(binDirectory) / "00000";
+			boost::filesystem::create_directories(blockVersionedDirectory);
+
+			io::RawFile hashesFile((blockVersionedDirectory / "hashes.dat").generic_string(), io::OpenMode::Read_Write);
+			hashesFile.write(Hash256());
+			hashesFile.write(Hash256());
+		}
+
+		void UpdateFileBlockStorageData(const model::BlockElement& blockElement, const std::string& binDirectory) {
+			io::FileBlockStorage storage(binDirectory);
+			storage.saveBlock(blockElement);
+		}
+
 		void UpdateMemoryBlockStorageData(const model::Block& block, const std::string& cppFile, const std::string& cppFileHeader) {
 			io::RawFile cppRawFile(cppFile, io::OpenMode::Read_Write);
 
@@ -41,10 +55,10 @@ namespace catapult { namespace tools { namespace nemgen {
 			}
 
 			auto header =
-				"#pragma once\n"
-				"#include <stdint.h>\n\n"
-				"namespace catapult { namespace test {\n\n"
-				"\tconstexpr inline uint8_t MemoryBlockStorage_NemesisBlockData[] = {\n";
+					"#pragma once\n"
+					"#include <stdint.h>\n\n"
+					"namespace catapult { namespace test {\n\n"
+					"\tconstexpr inline uint8_t MemoryBlockStorage_NemesisBlockData[] = {\n";
 			cppRawFile.write(RawBuffer(reinterpret_cast<const uint8_t*>(header), strlen(header)));
 
 			auto pCurrent = reinterpret_cast<const uint8_t*>(&block);
@@ -73,22 +87,20 @@ namespace catapult { namespace tools { namespace nemgen {
 			auto footer = "\t};\n}}\n";
 			cppRawFile.write(RawBuffer(reinterpret_cast<const uint8_t*>(footer), strlen(footer)));
 		}
-
-		void UpdateFileBlockStorageData(const model::BlockElement& blockElement, const std::string& binDirectory) {
-			io::FileBlockStorage storage(binDirectory);
-			storage.saveBlock(blockElement);
-		}
 	}
 
 	void SaveNemesisBlockElement(const model::BlockElement& blockElement, const NemesisConfiguration& config) {
 		// 1. reset the index file
 		io::IndexFile((boost::filesystem::path(config.BinDirectory) / "index.dat").generic_string()).set(0);
 
-		// 2. update the file based storage data
+		// 2. create placeholder hashes file
+		CreatePlaceholderHashesFile(config.BinDirectory);
+
+		// 3. update the file based storage data
 		CATAPULT_LOG(info) << "creating binary storage seed in " << config.BinDirectory;
 		UpdateFileBlockStorageData(blockElement, config.BinDirectory);
 
-		// 3. update the memory based storage data
+		// 4. update the memory based storage data
 		if (!config.CppFile.empty()) {
 			CATAPULT_LOG(info) << "creating cpp file " << config.CppFile;
 			UpdateMemoryBlockStorageData(blockElement.Block, config.CppFile, config.CppFileHeader);
