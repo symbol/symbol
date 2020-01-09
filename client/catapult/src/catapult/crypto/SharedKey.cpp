@@ -36,6 +36,7 @@
 #elif defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wunused-function"
 #pragma GCC diagnostic ignored "-Wstrict-aliasing"
+#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
 #elif defined(_MSC_VER)
 #pragma warning(push)
 #pragma warning(disable : 4324) /* ed25519 structs use __declspec(align()) */
