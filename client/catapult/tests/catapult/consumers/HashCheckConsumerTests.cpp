@@ -607,7 +607,7 @@ namespace catapult { namespace consumers {
 	}
 
 	TRANSACTION_HASH_CHECK_CONSUMER_TEST(PreviouslySeenAndExternallySeenEntitiesWithinMultipleEntitiesAreSkipped) {
-		// Arrange: prepare an input with 9 elements (2) and a subset input with 4 elements (1)
+		// Arrange: prepare an input with 9 elements and a subset input with 4 elements
 		auto transactions = test::MakeConst(test::GenerateRandomTransactions(9));
 		auto subsetElements = CreateTransactionElements(transactions, { 1, 4, 5, 6 });
 		auto elements = CreateTransactionElements(transactions);
@@ -643,6 +643,47 @@ namespace catapult { namespace consumers {
 		AssertEqual(elements, 3, predicate.params(), 2);
 		AssertEqual(elements, 7, predicate.params(), 3);
 		AssertEqual(elements, 8, predicate.params(), 4);
+	}
+
+	TRANSACTION_HASH_CHECK_CONSUMER_TEST(RecencyCacheUsesMerkleComponentHash) {
+		// Arrange: prepare an input with 6 elements and a subset with 4 elements
+		auto transactions = test::MakeConst(test::GenerateRandomTransactions(6));
+		auto subsetElements = CreateTransactionElements(transactions, { 1, 2, 3, 4 });
+		auto elements = CreateTransactionElements(transactions);
+
+		// - change a single hash in the common elements
+		test::FillWithRandomData(elements[1].EntityHash);
+		test::FillWithRandomData(elements[2].MerkleComponentHash);
+		test::FillWithRandomData(elements[3].EntityHash);
+		test::FillWithRandomData(elements[4].MerkleComponentHash);
+
+		// - create the consumer
+		MockKnownHashPredicate predicate;
+		auto consumer = CreateTransactionConsumer(predicate);
+
+		// - process / cache the first (subset) input
+		consumer(subsetElements);
+
+		// - clear any captured predicate calls
+		predicate.clear();
+
+		// Act: process the second (full) input
+		auto result = consumer(elements);
+
+		// Assert: only (1, 3) elements with matching merkle component hashes were skipped
+		test::AssertContinued(result);
+		for (auto i : { 1u, 3u})
+			EXPECT_EQ(disruptor::ConsumerResultSeverity::Neutral, elements[i].ResultSeverity) << "element at " << i;
+
+		for (auto i : { 0u, 2u, 4u, 5u })
+			EXPECT_EQ(disruptor::ConsumerResultSeverity::Success, elements[i].ResultSeverity) << "element at " << i;
+
+		// - the predicate was called only for elements not previously seen
+		ASSERT_EQ(4u, predicate.params().size());
+		AssertEqual(elements, 0, predicate.params(), 0);
+		AssertEqual(elements, 2, predicate.params(), 1);
+		AssertEqual(elements, 4, predicate.params(), 2);
+		AssertEqual(elements, 5, predicate.params(), 3);
 	}
 
 	// endregion

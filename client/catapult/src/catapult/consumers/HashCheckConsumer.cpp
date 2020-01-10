@@ -92,7 +92,7 @@ namespace catapult { namespace consumers {
 
 		private:
 			bool shouldSkip(const model::TransactionElement& element) {
-				if (!m_recentHashCache.add(element.EntityHash))
+				if (!m_recentHashCache.add(element.MerkleComponentHash))
 					return true;
 
 				return m_knownHashPredicate(element.Transaction.Deadline, element.EntityHash);
