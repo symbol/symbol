@@ -112,12 +112,12 @@ namespace catapult { namespace ionet {
 	{}
 
 	bool NodeContainerModifier::add(const Node& node, NodeSource source) {
-		auto& nodeContainer = m_nodeContainerData.NodeDataContainer;
+		auto& nodeDataContainer = m_nodeContainerData.NodeDataContainer;
 
 		if (m_bannedNodes.isBanned(node.identity()))
 			return false;
 
-		auto prepareInsertResultPair = nodeContainer.prepareInsert(node.identity(), source);
+		auto prepareInsertResultPair = nodeDataContainer.prepareInsert(node.identity(), source);
 		auto* pNodeData = prepareInsertResultPair.first;
 		if (NodeDataContainer::PrepareInsertCode::Allowed != prepareInsertResultPair.second)
 			return NodeDataContainer::PrepareInsertCode::Conflict != prepareInsertResultPair.second;
@@ -126,23 +126,23 @@ namespace catapult { namespace ionet {
 			if (!ensureAtLeastOneEmptySlot()) {
 				CATAPULT_LOG(warning)
 						<< "node container is full and no nodes are eligible for pruning"
-						<< " (size = " << nodeContainer.size()
+						<< " (size = " << nodeDataContainer.size()
 						<< ", max = " << m_nodeContainerData.MaxNodes << ")";
 				return false;
 			}
 
-			pNodeData = nodeContainer.insert(NodeData(node, source, m_nodeContainerData.NextNodeId++));
+			pNodeData = nodeDataContainer.insert(NodeData(node, source, m_nodeContainerData.NextNodeId++));
 			autoProvisionConnectionStates(*pNodeData);
 			return true;
 		}
 
 		if (!model::NodeIdentityEquality(model::NodeIdentityEqualityStrategy::Key_And_Host)(pNodeData->Node.identity(), node.identity())) {
 			auto nodeDataCopy = *pNodeData;
-			nodeContainer.erase(pNodeData->Node.identity());
+			nodeDataContainer.erase(pNodeData->Node.identity());
 
-			// need to set Node before inserting so that nodeContainer maps are correct
+			// need to set Node before inserting so that nodeDataContainer maps are correct
 			nodeDataCopy.Node = node;
-			pNodeData = nodeContainer.insert(nodeDataCopy);
+			pNodeData = nodeDataContainer.insert(nodeDataCopy);
 		} else {
 			// safe update because identity is strictly equal
 			pNodeData->Node = node;
@@ -220,13 +220,13 @@ namespace catapult { namespace ionet {
 	}
 
 	bool NodeContainerModifier::ensureAtLeastOneEmptySlot() {
-		auto& nodeContainer = m_nodeContainerData.NodeDataContainer;
-		if (nodeContainer.size() < m_nodeContainerData.MaxNodes)
+		auto& nodeDataContainer = m_nodeContainerData.NodeDataContainer;
+		if (nodeDataContainer.size() < m_nodeContainerData.MaxNodes)
 			return true;
 
-		const auto* pWorstNodeData = nodeContainer.tryFindWorst();
+		const auto* pWorstNodeData = nodeDataContainer.tryFindWorst();
 		if (pWorstNodeData) {
-			nodeContainer.erase(pWorstNodeData->Node.identity());
+			nodeDataContainer.erase(pWorstNodeData->Node.identity());
 			return true;
 		}
 

@@ -485,6 +485,50 @@ namespace catapult { namespace ionet {
 		EXPECT_EQ(expectedContents, CollectAll(container));
 	}
 
+	TEST(TEST_CLASS, PrepareInsertAllowsKeyMigrationRequiringSourceUpgrade_Host) {
+		// Arrange:
+		NodeDataContainer container(model::NodeIdentityEqualityStrategy::Host);
+		auto keys = test::GenerateRandomDataVector<Key>(3);
+		container.insert(NodeData(Node({ keys[0], "11.22.33.44" }), NodeSource::Dynamic, 16));
+		container.insert(NodeData(Node({ keys[1], "22.33.44.55" }), NodeSource::Dynamic_Incoming, 9));
+		container.insert(NodeData(Node({ keys[2], "33.44.55.66" }), NodeSource::Dynamic, 4));
+
+		// - set marker indicating inactive connection
+		container.tryGet({ keys[1], "22.33.44.55" })->NodeInfo.provisionConnectionState(ServiceIdentifier(123)).BanAge = 17;
+
+		// Act: existing key, new host
+		auto resultPair = container.prepareInsert({ keys[1], "99.88.77.66" }, NodeSource::Dynamic);
+
+		// Assert: node data associated with key (not host) is returned
+		EXPECT_EQ(NodeDataContainer::PrepareInsertCode::Allowed, resultPair.second);
+		ASSERT_TRUE(!!resultPair.first);
+		EXPECT_EQ(keys[1], resultPair.first->Node.identity().PublicKey);
+		EXPECT_EQ("22.33.44.55", resultPair.first->Node.identity().Host);
+
+		EXPECT_EQ(3u, container.size());
+	}
+
+	TEST(TEST_CLASS, PrepareInsertDisallowsKeyMigrationRequiringSourceDowngrade_Host) {
+		// Arrange:
+		NodeDataContainer container(model::NodeIdentityEqualityStrategy::Host);
+		auto keys = test::GenerateRandomDataVector<Key>(3);
+		container.insert(NodeData(Node({ keys[0], "11.22.33.44" }), NodeSource::Dynamic, 16));
+		container.insert(NodeData(Node({ keys[1], "22.33.44.55" }), NodeSource::Dynamic, 9));
+		container.insert(NodeData(Node({ keys[2], "33.44.55.66" }), NodeSource::Dynamic, 4));
+
+		// - set marker indicating inactive connection
+		container.tryGet({ keys[1], "22.33.44.55" })->NodeInfo.provisionConnectionState(ServiceIdentifier(123)).BanAge = 17;
+
+		// Act: existing key, new host
+		auto resultPair = container.prepareInsert({ keys[1], "99.88.77.66" }, NodeSource::Dynamic_Incoming);
+
+		// Assert: migration is not allowed so no node data is returned
+		EXPECT_EQ(NodeDataContainer::PrepareInsertCode::Conflict, resultPair.second);
+		EXPECT_FALSE(!!resultPair.first);
+
+		EXPECT_EQ(3u, container.size());
+	}
+
 	// endregion
 
 	// region insert / erase

@@ -67,6 +67,10 @@ namespace catapult { namespace ionet {
 					<< ") with in use identity key (" << nodeData.Node.identity() << ")";
 			return CanUpdateIdentityResult::Disallowed;
 		}
+
+		bool IsSourceDowngrade(const NodeData& nodeData, NodeSource source) {
+			return nodeData.NodeInfo.source() > source;
+		}
 	}
 
 	std::pair<NodeData*, NodeDataContainer::PrepareInsertCode> NodeDataContainer::prepareInsert(
@@ -83,10 +87,12 @@ namespace catapult { namespace ionet {
 				auto keyHostNodeIdentity = model::NodeIdentity{ keyHostIter->first, keyHostIter->second };
 				auto nodeIter = m_nodeMap.find(keyHostNodeIdentity);
 				auto canUpdateIdentityResult = CanUpdateIdentity(nodeIter->second, identity);
-				if (CanUpdateIdentityResult::Disallowed == canUpdateIdentityResult)
-					return std::make_pair(nullptr, NodeDataContainer::PrepareInsertCode::Conflict);
 
 				if (CanUpdateIdentityResult::Equal != canUpdateIdentityResult) {
+					// fail if migration is disallowed or would require effective source downgrade
+					if (CanUpdateIdentityResult::Disallowed == canUpdateIdentityResult || IsSourceDowngrade(nodeIter->second, source))
+						return std::make_pair(nullptr, NodeDataContainer::PrepareInsertCode::Conflict);
+
 					if (!pNodeData) {
 						// host is not previously seen but key is, so migrate data associated with key to new host
 						pNodeData = &nodeIter->second;
@@ -99,7 +105,7 @@ namespace catapult { namespace ionet {
 			}
 		}
 
-		if (pNodeData && pNodeData->NodeInfo.source() > source)
+		if (pNodeData && IsSourceDowngrade(*pNodeData, source))
 			return std::make_pair(pNodeData, NodeDataContainer::PrepareInsertCode::Redundant);
 
 		return std::make_pair(pNodeData, NodeDataContainer::PrepareInsertCode::Allowed);

@@ -28,9 +28,9 @@ namespace catapult { namespace local {
 #define TEST_CLASS NodeContainerSubscriberAdapterTests
 
 	namespace {
-		ionet::NodeContainer CreateNodeContainer(size_t maxNodes = std::numeric_limits<size_t>::max()) {
-			auto equalityStrategy = model::NodeIdentityEqualityStrategy::Key_And_Host;
-
+		ionet::NodeContainer CreateNodeContainer(
+				size_t maxNodes = std::numeric_limits<size_t>::max(),
+				model::NodeIdentityEqualityStrategy equalityStrategy = model::NodeIdentityEqualityStrategy::Key_And_Host) {
 			ionet::BanSettings banSettings;
 			banSettings.DefaultBanDuration = utils::TimeSpan::FromHours(1);
 			banSettings.MaxBannedNodes = 50;
@@ -186,6 +186,25 @@ namespace catapult { namespace local {
 		const auto* pConnectionState2 = nodeInfo.getConnectionState(ionet::ServiceIdentifier(2));
 		ASSERT_TRUE(!!pConnectionState2);
 		EXPECT_EQ(1u, pConnectionState2->Age);
+	}
+
+	TEST(TEST_CLASS, NotifyNodeCanBeFollowedByNotifyIncomingNodeWithHostChange) {
+		// Arrange: create a container and register a connection state
+		auto nodes = CreateNodeContainer(5, model::NodeIdentityEqualityStrategy::Host);
+		nodes.modifier().addConnectionStates(ionet::ServiceIdentifier(1), ionet::NodeRoles::Peer);
+
+		auto identityPublicKey = test::GenerateRandomByteArray<Key>();
+		auto identity1 = model::NodeIdentity{ identityPublicKey, "11.22.33.44" };
+		auto identity2 = model::NodeIdentity{ identityPublicKey, "22.33.44.33" };
+		auto node = test::CreateNamedNode(identity1, "alice", ionet::NodeRoles::Peer);
+
+		// Act: notify the node
+		auto pSubscriber = CreateNodeContainerSubscriberAdapter(nodes);
+		pSubscriber->notifyNode(node);
+		auto notifyIncomingNodeResult = pSubscriber->notifyIncomingNode(identity2, ionet::ServiceIdentifier(2));
+
+		// Assert: node was not added (downgraded source cannot trigger key migration)
+		EXPECT_FALSE(notifyIncomingNodeResult);
 	}
 
 	TEST(TEST_CLASS, NotifyIncomingNodeCanBeFollowedByNotifyNode) {
