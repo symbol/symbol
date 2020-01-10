@@ -144,7 +144,7 @@ namespace catapult { namespace ionet {
 		EXPECT_EQ_MEMORY(pPacket->Data(), readPacket.Data(), Data_Size);
 
 		// - callback was called
-		EXPECT_EQ(std::vector<uint32_t>({ sizeof(PacketHeader) + Data_Size }), context.ReadPacketSizes);
+		EXPECT_EQ(std::vector<uint32_t>{ sizeof(PacketHeader) + Data_Size }, context.ReadPacketSizes);
 	}
 
 	// endregion

@@ -192,9 +192,9 @@ namespace catapult { namespace local {
 		AssertRefreshSucceedsWhenThereAreMultipleResolvableStaticNodes("127.0.0.1");
 	}
 
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__APPLE__)
 
-	// windows doesn't support 'localhost' resolution
+	// some versions of windows and macos don't support 'localhost' resolution
 
 	TEST(TEST_CLASS, RefreshSucceedsWhenThereAreMultipleResolvableStaticNodes_Localhost) {
 		AssertRefreshSucceedsWhenThereAreMultipleResolvableStaticNodes("localhost");
