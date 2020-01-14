@@ -481,53 +481,69 @@ namespace catapult { namespace importance {
 
 	// endregion
 
-	// region removed accounts
+	// region activity bucket creation / removal
 
-	TEST(TEST_CLASS, PosDisablesActivityCollectionAndRemovesBucketWhenPresent) {
-		// Arrange:
-		auto config = CreateBlockChainConfiguration(0);
+	namespace {
+		void RunActivityBucketCreationRemovalTest(
+				const consumer<const state::AccountActivityBuckets&, uint8_t>& checkIneligibleBalance,
+				const consumer<const state::AccountActivityBuckets&, uint8_t>& checkEligibleBalance) {
+			// Arrange:
+			auto config = CreateBlockChainConfiguration(0);
 
-		std::vector<AccountSeed> accountSeeds;
-		for (auto i = 1u; i <= Num_Account_States; ++i) {
-			std::vector<state::AccountActivityBuckets::ActivityBucket> buckets;
-			buckets.push_back(CreateActivityBucket(Amount(100), 200, Recalculation_Height));
-			accountSeeds.push_back({ config.MinHarvesterBalance, buckets });
-		}
+			std::vector<AccountSeed> accountSeeds;
+			for (auto i = 1u; i <= Num_Account_States; ++i) {
+				std::vector<state::AccountActivityBuckets::ActivityBucket> buckets;
+				buckets.push_back(CreateActivityBucket(Amount(100), 200, Recalculation_Height));
+				accountSeeds.push_back({ config.MinHarvesterBalance, buckets });
+			}
 
-		// Sanity:
-		EXPECT_EQ(10u, accountSeeds.size());
+			// Sanity:
+			EXPECT_EQ(10u, accountSeeds.size());
 
-		CacheHolder holder(config.MinHarvesterBalance);
-		holder.seedDelta(accountSeeds, Recalculation_Height);
-		holder.Cache.commit();
-		for (uint8_t i = 1u; i <= Num_Account_States; ++i) {
-			auto& accountState = holder.get(Key{ { i } });
-			if (1 == i % 2) {
-				accountState.Balances.debit(Harvesting_Mosaic_Id, Amount(1));
-				if (1 == i % 4)
-					holder.Delta->queueRemove(accountState.PublicKey, accountState.PublicKeyHeight);
+			CacheHolder holder(config.MinHarvesterBalance);
+			holder.seedDelta(accountSeeds, Recalculation_Height);
+			holder.Cache.commit();
+			for (uint8_t i = 1u; i <= Num_Account_States; ++i) {
+				auto& accountState = holder.get(Key{ { i } });
+				if (1 == i % 2) {
+					accountState.Balances.debit(Harvesting_Mosaic_Id, Amount(1));
+					if (1 == i % 4)
+						holder.Delta->queueRemove(accountState.PublicKey, accountState.PublicKeyHeight);
+				}
+			}
+
+			holder.Delta->commitRemovals();
+			auto pCalculator = CreateImportanceCalculator(config);
+
+			// Act:
+			pCalculator->recalculate(Recalculation_Height, *holder.Delta);
+
+			// Assert:
+			for (uint8_t i = 1u; i <= Num_Account_States; ++i) {
+				if (1 == i % 4) {
+					// note that this will not happen in real scenario
+					EXPECT_FALSE(holder.Delta->contains(Key{ { i } })) << "account " << i;
+				} else {
+					const auto& buckets = holder.Delta->find(Key{ { i } }).get().ActivityBuckets;
+					auto checker = (1 == i % 2) ? checkIneligibleBalance : checkEligibleBalance;
+					checker(buckets, i);
+				}
 			}
 		}
+	}
 
-		holder.Delta->commitRemovals();
-		auto pCalculator = CreateImportanceCalculator(config);
-
-		// Act:
-		pCalculator->recalculate(Recalculation_Height, *holder.Delta);
-
-		// Assert:
-		for (uint8_t i = 1u; i <= Num_Account_States; ++i) {
-			if (1 == i % 4) {
-				// note that this will not happen in real scenario
-				EXPECT_FALSE(holder.Delta->contains(Key{ { i } })) << "account " << i;
-			} else {
-				const auto& buckets = holder.Delta->find(Key{ { i } }).get().ActivityBuckets;
-				if (1 == i % 2)
-					EXPECT_EQ(model::ImportanceHeight(), buckets.get(Recalculation_Height).StartHeight) << "account " << i;
-				else
-					EXPECT_EQ(Recalculation_Height, buckets.get(Recalculation_Height).StartHeight) << "account " << i;
-			}
-		}
+	TEST(TEST_CLASS, PosCreatesNewActivityBucketOnlyForAccountsWithMinBalanceAtRecalculationHeight) {
+		RunActivityBucketCreationRemovalTest(
+				[](const auto& buckets, auto i) {
+					const auto& bucket = buckets.get(Recalculation_Height);
+					EXPECT_EQ(model::ImportanceHeight(), bucket.StartHeight) << "account " << i;
+					EXPECT_EQ(0u, bucket.RawScore) << "account " << i;
+				},
+				[](const auto& buckets, auto i) {
+					const auto& bucket = buckets.get(Recalculation_Height);
+					EXPECT_EQ(Recalculation_Height, bucket.StartHeight) << "account " << i;
+					EXPECT_NE(0u, bucket.RawScore) << "account " << i;
+				});
 	}
 
 	// endregion

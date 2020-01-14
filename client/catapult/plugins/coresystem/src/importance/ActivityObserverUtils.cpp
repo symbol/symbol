@@ -24,15 +24,6 @@
 
 namespace catapult { namespace importance {
 
-	namespace {
-		bool ShouldPopBucket(const state::AccountActivityBuckets::ActivityBucket& bucket) {
-			return model::ImportanceHeight() != bucket.StartHeight
-					&& Amount() == bucket.TotalFeesPaid
-					&& 0u == bucket.BeneficiaryCount
-					&& 0u == bucket.RawScore;
-		}
-	}
-
 	void UpdateActivity(
 			const Key& publicKey,
 			const observers::ObserverContext& context,
@@ -40,18 +31,10 @@ namespace catapult { namespace importance {
 			const ActivityBucketConsumer& rollbackAction) {
 		auto& accountStateCache = context.Cache.sub<cache::AccountStateCache>();
 		auto accountStateIter = accountStateCache.find(publicKey);
-		if (accountStateIter.get().Balances.get(accountStateCache.harvestingMosaicId()) < accountStateCache.minHarvesterBalance())
-			return;
 
 		auto& activityBuckets = accountStateIter.get().ActivityBuckets;
 		auto importanceHeight = model::ConvertToImportanceHeight(context.Height, accountStateCache.importanceGrouping());
-		if (observers::NotifyMode::Commit == context.Mode) {
-			activityBuckets.update(importanceHeight, commitAction);
-		} else {
-			activityBuckets.tryUpdate(importanceHeight, rollbackAction);
 
-			if (ShouldPopBucket(*activityBuckets.begin()))
-				activityBuckets.pop();
-		}
+		activityBuckets.tryUpdate(importanceHeight, observers::NotifyMode::Commit == context.Mode ? commitAction : rollbackAction);
 	}
 }}
