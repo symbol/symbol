@@ -18,8 +18,5 @@ struct MetadataEntry
 	# metadata type
 	metadataType = MetadataType
 
-	# size of the value
-	valueSize = uint16
-
 	# value
 	value = MetadataValue
