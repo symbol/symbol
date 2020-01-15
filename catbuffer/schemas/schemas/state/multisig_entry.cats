@@ -3,10 +3,10 @@ import "types.cats"
 # binary layout for a multisig entry
 struct MultisigEntry
 	# minimum approval for modifications
-	minApproval = uint8
+	minApproval = uint32
 
 	# minimum approval for removal
-	minRemoval = uint8
+	minRemoval = uint32
 
 	# account public key
 	accountPublicKey = Key

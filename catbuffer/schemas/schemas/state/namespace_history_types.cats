@@ -34,7 +34,7 @@ struct NamespaceAlias
 # binary layout for a namespace path
 struct NamespacePath
 	# number of paths (excluding root id)
-	pathSize = uint64
+	pathSize = uint8
 
 	# namespace path (excluding root id)
 	path = array(NamespaceId, pathSize)
