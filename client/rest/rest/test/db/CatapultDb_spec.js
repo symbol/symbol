@@ -736,6 +736,8 @@ describe('catapult db', () => {
 	describe('account transactions', () => {
 		const testPublicKey = test.random.publicKey();
 		const testAddress = keyToAddress(testPublicKey);
+		const nonExistingTestPublicKey = test.random.publicKey();
+		const nonExistingTestAddress = keyToAddress(nonExistingTestPublicKey);
 		const testObjectId = '00123456789AABBBCCDDEEFF';
 
 		const transactionDbEntities = [
@@ -751,6 +753,24 @@ describe('catapult db', () => {
 				}
 			}
 		];
+
+		const numToObjectId = num => `000000000000000000000000${num.toString()}`.slice(-24);
+
+		const runIncomingTransactionsDbTest = (dbEntities, accountAddress, expectedIds, type) => {
+			const db = new CatapultDb({ networkId: Mijin_Test_Network });
+			const expectedObjectIds = expectedIds.map(numToObjectId);
+
+			return db.connect(testDbOptions.url, 'test')
+				.then(() => test.db.populateDatabase(db, { transactions: dbEntities }))
+				.then(() => deleteIds({ transactions: dbEntities }))
+				.then(() => db.accountTransactionsIncoming(accountAddress, type))
+				.then(result => {
+					expect(result.map(transaction => transaction.id).sort()).to.deep.equal(expectedObjectIds.sort());
+					expect(result.length).to.equal(expectedObjectIds.length);
+					return result;
+				})
+				.then(() => db.close());
+		};
 
 		const runDbWithQueryTransactionsSpy = (dbEntities, issueDbCommand, expectedParams) => {
 			// Arrange:
@@ -800,24 +820,133 @@ describe('catapult db', () => {
 		});
 
 		describe('incoming', () => {
-			describe('calls queryTransactions with correct conditions and pagination params', () => {
-				it('without transaction type filter', () =>
-					runDbWithQueryTransactionsSpy(
-						{ transactions: transactionDbEntities },
-						db => db.accountTransactionsIncoming(testAddress, undefined, testObjectId, 25, 1),
-						[{ 'transaction.recipientAddress': Buffer.from(testAddress) }, testObjectId, 25, { sortOrder: 1 }]
-					));
-				it('with transaction type filter', () =>
-					runDbWithQueryTransactionsSpy(
-						{ transactions: transactionDbEntities },
-						db => db.accountTransactionsIncoming(testAddress, 0x4154, testObjectId, 25, 1),
-						[
-							{ $and: [{ 'transaction.recipientAddress': Buffer.from(testAddress) }, { 'transaction.type': 0x4154 }] },
-							testObjectId,
-							25,
-							{ sortOrder: 1 }
-						]
-					));
+			const createTransaction = (id, accountAddress, type) => ({
+				id: numToObjectId(id),
+				meta: {},
+				transaction: {
+					type,
+					recipientAddress: new Binary(accountAddress)
+				}
+			});
+
+			describe('correctly retrieves incoming transactions', () => {
+				it('returns empty if no incoming transactions', () => {
+					// Arrange:
+					const incomingDbEntities = [
+						createTransaction(1, nonExistingTestAddress),
+						createTransaction(2, nonExistingTestAddress)
+					];
+
+					// Act + Assert:
+					return runIncomingTransactionsDbTest(incomingDbEntities, testAddress, []);
+				});
+
+				it('returns only incoming transactions', () => {
+					// Arrange:
+					const incomingDbEntities = [
+						createTransaction(1, testAddress),
+						createTransaction(2, testAddress),
+						createTransaction(3, nonExistingTestAddress),
+						{ id: numToObjectId(4), meta: {}, transaction: {} }
+					];
+
+					// Act + Assert:
+					return runIncomingTransactionsDbTest(incomingDbEntities, testAddress, [1, 2]);
+				});
+
+				it('returns incoming transactions included inside aggregate', () => {
+					// Arrange:
+					const aggregateId = numToObjectId(999);
+					const aggregateTransaction = {
+						id: aggregateId,
+						meta: { height: 1 },
+						transaction: {}
+					};
+					const innerTransactionOne = createTransaction(1, testAddress);
+					innerTransactionOne.meta.aggregateId = aggregateId;
+					const innerTransactionTwo = createTransaction(2, nonExistingTestAddress);
+					innerTransactionTwo.meta.aggregateId = aggregateId;
+
+					const incomingDbEntities = [
+						aggregateTransaction,
+						innerTransactionOne,
+						innerTransactionTwo,
+						createTransaction(3, testAddress)
+					];
+
+					// Act + Assert:
+					return runIncomingTransactionsDbTest(incomingDbEntities, testAddress, [999, 3]);
+				});
+			});
+
+			describe('correctly filters incoming transactions', () => {
+				it('filters incoming transactions', () => {
+					// Arrange:
+					const incomingDbEntities = [
+						createTransaction(1, testAddress, 0x01),
+						createTransaction(2, testAddress, 0x02),
+						createTransaction(3, nonExistingTestAddress, 0x03)
+					];
+
+					// Act + Assert:
+					return runIncomingTransactionsDbTest(incomingDbEntities, testAddress, [2], 0x02);
+				});
+
+				it('filters incoming transactions inside aggregate, aggregate is of correct type but no inner', () => {
+					// Arrange:
+					const aggregateId = numToObjectId(999);
+					const aggregateTransaction = {
+						id: aggregateId,
+						meta: {},
+						transaction: { type: 0x01 }
+					};
+					const innerTransaction = createTransaction(1, testAddress, 0x02);
+					innerTransaction.meta.aggregateId = aggregateId;
+
+					// Act + Assert:
+					return runIncomingTransactionsDbTest([aggregateTransaction, innerTransaction], testAddress, [], 0x01);
+				});
+
+				it('filters incoming transactions inside aggregate, inner transaction is of correct type but no aggregate', () => {
+					// Arrange:
+					const aggregateId = numToObjectId(999);
+					const aggregateTransaction = {
+						id: aggregateId,
+						meta: {},
+						transaction: { type: 0x01 }
+					};
+					const innerTransaction = createTransaction(1, testAddress, 0x02);
+					innerTransaction.meta.aggregateId = aggregateId;
+
+					// Act + Assert:
+					return runIncomingTransactionsDbTest([aggregateTransaction, innerTransaction], testAddress, [], 0x02);
+				});
+			});
+
+			describe('correctly processes pagination params', () => {
+				it('calls queryTransactions with correct pagination params', () => {
+					// Arrange:
+					const db = new CatapultDb({ networkId: Mijin_Test_Network });
+					const queryTransactionsSpy = sinon.spy(db, 'queryTransactions');
+
+					// Act + Assert:
+					return db.connect(testDbOptions.url, 'test')
+						.then(() => test.db.populateDatabase(db, transactionDbEntities))
+						.then(() => deleteIds(transactionDbEntities))
+						.then(() => db.accountTransactionsIncoming(testAddress, undefined, testObjectId, 25, 1))
+						.then(result => {
+							expect(queryTransactionsSpy.calledOnce).to.equal(true);
+							expect(queryTransactionsSpy.firstCall.args.length).to.equal(4);
+
+							expect(queryTransactionsSpy.firstCall.args[1]).to.deep.equal(testObjectId);
+							expect(queryTransactionsSpy.firstCall.args[2]).to.deep.equal(25);
+							expect(queryTransactionsSpy.firstCall.args[3]).to.deep.equal({ sortOrder: 1 });
+
+							queryTransactionsSpy.restore();
+							return result;
+						})
+						.then(() => db.close());
+				});
 			});
 		});
 
