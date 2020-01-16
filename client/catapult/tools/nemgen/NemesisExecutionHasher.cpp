@@ -19,7 +19,6 @@
 **/
 
 #include "NemesisExecutionHasher.h"
-#include "blockhashes/NemesisBlockHashesCalculator.h"
 #include "catapult/config/CatapultConfiguration.h"
 #include "catapult/model/Elements.h"
 #include "catapult/utils/HexFormatter.h"
@@ -85,11 +84,12 @@ namespace catapult { namespace tools { namespace nemgen {
 				<< "    Receipts Hash: " << blockExecutionHashesInfo.ReceiptsHash << std::endl
 				<< Format(blockExecutionHashesInfo);
 
-		return {
-			blockExecutionHashesInfo.ReceiptsHash,
-			blockExecutionHashesInfo.StateHash,
-			out.str(),
-			std::move(blockExecutionHashesInfo.pBlockStatement)
-		};
+		NemesisExecutionHashesDescriptor descriptor;
+		descriptor.ReceiptsHash = blockExecutionHashesInfo.ReceiptsHash;
+		descriptor.StateHash = blockExecutionHashesInfo.StateHash;
+		descriptor.SubCacheMerkleRoots = blockExecutionHashesInfo.SubCacheMerkleRoots;
+		descriptor.pBlockStatement = std::move(blockExecutionHashesInfo.pBlockStatement);
+		descriptor.Summary = out.str();
+		return descriptor;
 	}
 }}}

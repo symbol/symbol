@@ -24,6 +24,7 @@
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/extensions/NemesisBlockLoader.h"
 #include "catapult/io/BlockChangeSubscriber.h"
+#include "catapult/io/BlockStatementSerializer.h"
 #include "catapult/io/BlockStorageCache.h"
 #include "catapult/model/ChainScore.h"
 #include "catapult/plugins/PluginManager.h"
@@ -84,6 +85,14 @@ namespace catapult { namespace local {
 			CATAPULT_THROW_RUNTIME_ERROR("NemesisBlockNotifier can only be called during first boot");
 
 		auto pNemesisBlockElement = storageView.loadBlockElement(Nemesis_Height);
+		auto nemesisBlockStatementPair = storageView.loadBlockStatementData(Nemesis_Height);
+		if (nemesisBlockStatementPair.second) {
+			auto pNemesisBlockStatement = std::make_shared<model::BlockStatement>();
+			io::BufferInputStreamAdapter<std::vector<uint8_t>> nemesisBlockStatementStream(nemesisBlockStatementPair.first);
+			io::ReadBlockStatement(nemesisBlockStatementStream, *pNemesisBlockStatement);
+			const_cast<model::BlockElement&>(*pNemesisBlockElement).OptionalStatement = std::move(pNemesisBlockStatement);
+		}
+
 		action(*pNemesisBlockElement);
 	}
 }}

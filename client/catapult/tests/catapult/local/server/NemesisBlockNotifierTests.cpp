@@ -21,6 +21,8 @@
 #include "catapult/local/server/NemesisBlockNotifier.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/plugins/PluginManager.h"
+#include "tests/test/core/BlockStatementTestUtils.h"
+#include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
 #include "tests/test/local/LocalTestUtils.h"
 #include "tests/test/nemesis/NemesisCompatibleConfiguration.h"
@@ -56,6 +58,21 @@ namespace catapult { namespace local {
 				auto cacheDelta = m_cache.createDelta();
 				cacheDelta.sub<cache::AccountStateCache>().addAccount(test::GenerateRandomByteArray<Key>(), Height(1));
 				m_cache.commit(Height());
+			}
+
+			auto reseedNemesisWithStatement() {
+				auto modifier = m_pStorage->modifier();
+				modifier.dropBlocksAfter(Height(0));
+
+				model::Block block;
+				block.Size = sizeof(model::BlockHeader);
+				block.Height = Height(1);
+				auto blockElement = test::BlockToBlockElement(block);
+				blockElement.OptionalStatement = test::GenerateRandomStatements({ 3, 1, 2 });
+				modifier.saveBlock(blockElement);
+				modifier.commit();
+
+				return blockElement.OptionalStatement;
 			}
 
 		private:
@@ -102,7 +119,7 @@ namespace catapult { namespace local {
 		EXPECT_EQ(0u, capturedBlockElements.size());
 	}
 
-	TEST(TEST_CLASS, BlockNotificationsAreRaisedWhenHeightIsEqualToOneAndPreviousExecutionIsNotDetected) {
+	TEST(TEST_CLASS, BlockNotificationsAreRaisedWhenHeightIsEqualToOneAndPreviousExecutionIsNotDetected_WithoutStatement) {
 		// Arrange:
 		TestContext context(1);
 		mocks::MockBlockChangeSubscriber subscriber;
@@ -114,6 +131,26 @@ namespace catapult { namespace local {
 		const auto& capturedBlockElements = subscriber.copiedBlockElements();
 		ASSERT_EQ(1u, capturedBlockElements.size());
 		EXPECT_EQ(Height(1), capturedBlockElements[0]->Block.Height);
+
+		EXPECT_FALSE(capturedBlockElements[0]->OptionalStatement);
+	}
+
+	TEST(TEST_CLASS, BlockNotificationsAreRaisedWhenHeightIsEqualToOneAndPreviousExecutionIsNotDetected_WithStatement) {
+		// Arrange:
+		TestContext context(1);
+		auto pBlockStatement = context.reseedNemesisWithStatement();
+		mocks::MockBlockChangeSubscriber subscriber;
+
+		// Act:
+		context.notifier().raise(subscriber);
+
+		// Assert:
+		const auto& capturedBlockElements = subscriber.copiedBlockElements();
+		ASSERT_EQ(1u, capturedBlockElements.size());
+		EXPECT_EQ(Height(1), capturedBlockElements[0]->Block.Height);
+
+		ASSERT_TRUE(capturedBlockElements[0]->OptionalStatement);
+		test::AssertEqual(*pBlockStatement, *capturedBlockElements[0]->OptionalStatement);
 	}
 
 	// endregion
