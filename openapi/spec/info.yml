@@ -1,5 +1,6 @@
-version: 0.7.20.6
+version: 0.7.21
 title: Catapult REST Endpoints
+description: OpenAPI Specification of catapult-rest 1.0.20.8
 license:
   name: Apache 2.0
   url: http://www.apache.org/licenses/LICENSE-2.0.html
