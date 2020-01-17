@@ -3,4 +3,5 @@ enum:
   - confirmed
   - unconfirmed
   - failed
+  - partial
 description: State of the transaction.
