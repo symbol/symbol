@@ -20,6 +20,7 @@
 
 #include "catapult/crypto/Signer.h"
 #include "catapult/utils/Logging.h"
+#include "catapult/utils/RandomGenerator.h"
 #include "tests/bench/nodeps/Random.h"
 #include <benchmark/benchmark.h>
 
@@ -30,6 +31,12 @@ namespace catapult { namespace crypto {
 
 		auto CreateRandomKeyPair() {
 			return KeyPair::FromPrivate(PrivateKey::Generate(bench::RandomByte));
+		}
+
+		RandomFiller CreateRandomFiller() {
+			return [](auto* pOut, auto count) {
+				utils::HighEntropyRandomGenerator().fill(pOut, count);
+			};
 		}
 
 		void BenchmarkVerify(benchmark::State& state) {
@@ -74,7 +81,7 @@ namespace catapult { namespace crypto {
 
 				state.ResumeTiming();
 
-				if (!crypto::VerifyMulti(signatureInputs.data(), signatureInputs.size()).second)
+				if (!crypto::VerifyMulti(CreateRandomFiller(), signatureInputs.data(), signatureInputs.size()).second)
 					++numFailures;
 			}
 

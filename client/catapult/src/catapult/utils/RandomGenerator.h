@@ -31,6 +31,13 @@ namespace catapult { namespace utils {
 		using result_type = uint64_t;
 
 	public:
+		/// Creates the generator.
+		HighEntropyRandomGenerator();
+
+		/// Creates the generator using the specified \a token source.
+		explicit HighEntropyRandomGenerator(const std::string& token);
+
+	public:
 		/// Gets the mininmum generated value.
 		static constexpr result_type min() {
 			return std::random_device::min();

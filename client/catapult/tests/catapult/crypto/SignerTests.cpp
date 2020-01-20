@@ -21,6 +21,7 @@
 #include "catapult/crypto/Signer.h"
 #include "catapult/crypto/KeyUtils.h"
 #include "catapult/utils/HexParser.h"
+#include "catapult/utils/RandomGenerator.h"
 #include "tests/TestHarness.h"
 #include <numeric>
 
@@ -317,9 +318,16 @@ namespace catapult { namespace crypto {
 			TTraits::AssertVerifyResult(result, false, failedIndexes);
 		}
 
+		RandomFiller CreateRandomFiller() {
+			return [](auto* pOut, auto count) {
+				// can use low entropy source for tests
+				utils::LowEntropyRandomGenerator().fill(pOut, count);
+			};
+		}
+
 		struct VerifyMultiTraits {
 			static std::pair<std::vector<bool>, bool> Verify(const std::vector<SignatureInput>& signatureInputs) {
-				return VerifyMulti(signatureInputs.data(), signatureInputs.size());
+				return VerifyMulti(CreateRandomFiller(), signatureInputs.data(), signatureInputs.size());
 			}
 
 			static void AssertVerifyResult(
@@ -344,7 +352,7 @@ namespace catapult { namespace crypto {
 
 		struct VerifyMultiShortCircuitTraits {
 			static bool Verify(const std::vector<SignatureInput>& signatureInputs) {
-				return VerifyMultiShortCircuit(signatureInputs.data(), signatureInputs.size());
+				return VerifyMultiShortCircuit(CreateRandomFiller(), signatureInputs.data(), signatureInputs.size());
 			}
 
 			static void AssertVerifyResult(bool result, bool expectedAggregateResult, std::unordered_set<size_t>&) {
@@ -552,7 +560,7 @@ namespace catapult { namespace crypto {
 		}
 
 		// Act:
-		auto pair = VerifyMulti(signatureInputs.data(), signatureInputs.size());
+		auto pair = VerifyMulti(CreateRandomFiller(), signatureInputs.data(), signatureInputs.size());
 
 		// Assert:
 		EXPECT_TRUE(pair.second);

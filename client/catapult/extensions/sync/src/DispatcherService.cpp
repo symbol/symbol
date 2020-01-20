@@ -54,6 +54,7 @@
 #include "catapult/subscribers/StateChangeSubscriber.h"
 #include "catapult/subscribers/TransactionStatusSubscriber.h"
 #include "catapult/thread/MultiServicePool.h"
+#include "catapult/utils/RandomGenerator.h"
 #include <boost/filesystem.hpp>
 
 using namespace catapult::consumers;
@@ -63,6 +64,12 @@ namespace catapult { namespace sync {
 
 	namespace {
 		// region utils
+
+		crypto::RandomFiller CreateRandomFiller(const std::string& token) {
+			return [token](auto* pOut, auto count) {
+				utils::HighEntropyRandomGenerator(token).fill(pOut, count);
+			};
+		}
 
 		std::shared_ptr<const validators::ParallelValidationPolicy> CreateParallelValidationPolicy(
 				const std::shared_ptr<thread::IoThreadPool>& pValidatorPool,
@@ -226,6 +233,7 @@ namespace catapult { namespace sync {
 						requiresValidationPredicate));
 				m_consumers.push_back(CreateBlockBatchSignatureConsumer(
 						m_state.config().BlockChain.Network.GenerationHash,
+						CreateRandomFiller(m_state.config().Node.BatchVerificationRandomSource),
 						m_state.pluginManager().createNotificationPublisher(),
 						pValidatorPool,
 						requiresValidationPredicate));
@@ -313,6 +321,7 @@ namespace catapult { namespace sync {
 						failedTransactionSink));
 				m_consumers.push_back(CreateTransactionBatchSignatureConsumer(
 						m_state.config().BlockChain.Network.GenerationHash,
+						CreateRandomFiller(m_state.config().Node.BatchVerificationRandomSource),
 						m_state.pluginManager().createNotificationPublisher(),
 						pValidatorPool,
 						failedTransactionSink));

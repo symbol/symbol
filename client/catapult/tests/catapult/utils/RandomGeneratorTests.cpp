@@ -148,23 +148,25 @@ namespace catapult { namespace utils {
 				return probability < 75.0;
 			});
 		}
+
+		class HighEntropyRandomGeneratorCustomToken : public HighEntropyRandomGenerator {
+		public:
+			HighEntropyRandomGeneratorCustomToken() : HighEntropyRandomGenerator("/dev/urandom")
+			{}
+		};
 	}
 
-	TEST(TEST_CLASS, HighEntropyRandomGeneratorExhibitsRandomness) {
-		AssertExhibitsRandomness<HighEntropyRandomGenerator>();
+#define DEFINE_RANDOMNESS_TESTS(NAME) \
+	TEST(TEST_CLASS, NAME##ExhibitsRandomness) { \
+		AssertExhibitsRandomness<NAME>(); \
+	} \
+	TEST(TEST_CLASS, NAME##FillExhibitsRandomness) { \
+		AssertFillExhibitsRandomness<NAME>(); \
 	}
 
-	TEST(TEST_CLASS, LowEntropyRandomGeneratorExhibitsRandomness) {
-		AssertExhibitsRandomness<LowEntropyRandomGenerator>();
-	}
-
-	TEST(TEST_CLASS, HighEntropyRandomGeneratorFillExhibitsRandomness) {
-		AssertFillExhibitsRandomness<HighEntropyRandomGenerator>();
-	}
-
-	TEST(TEST_CLASS, LowEntropyRandomGeneratorFillExhibitsRandomness) {
-		AssertFillExhibitsRandomness<LowEntropyRandomGenerator>();
-	}
+	DEFINE_RANDOMNESS_TESTS(HighEntropyRandomGenerator)
+	DEFINE_RANDOMNESS_TESTS(HighEntropyRandomGeneratorCustomToken)
+	DEFINE_RANDOMNESS_TESTS(LowEntropyRandomGenerator)
 
 	// endregion
 }}

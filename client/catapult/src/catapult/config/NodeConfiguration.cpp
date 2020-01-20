@@ -81,6 +81,8 @@ namespace catapult { namespace config {
 		LOAD_NODE_PROPERTY(MaxCacheDatabaseWriteBatchSize);
 		LOAD_NODE_PROPERTY(MaxTrackedNodes);
 
+		LOAD_NODE_PROPERTY(BatchVerificationRandomSource);
+
 		LOAD_NODE_PROPERTY(TrustedHosts);
 		LOAD_NODE_PROPERTY(LocalNetworks);
 
@@ -127,7 +129,7 @@ namespace catapult { namespace config {
 
 #undef LOAD_BANNING_PROPERTY
 
-		utils::VerifyBagSizeLte(bag, 36 + 4 + 4 + 5 + 7);
+		utils::VerifyBagSizeLte(bag, 37 + 4 + 4 + 5 + 7);
 		return config;
 	}
 

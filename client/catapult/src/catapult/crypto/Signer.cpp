@@ -21,10 +21,8 @@
 #include "Signer.h"
 #include "CryptoUtils.h"
 #include "Hashes.h"
-#include "catapult/utils/RandomGenerator.h"
 #include "catapult/exceptions.h"
 #include <cstring>
-#include <random>
 
 #ifdef __clang__
 #pragma clang diagnostic push
@@ -233,11 +231,6 @@ namespace catapult { namespace crypto {
 	// region VerifyMulti
 
 	namespace {
-		void RandomBytes(uint8_t* pOut, size_t count) {
-			utils::LowEntropyRandomGenerator generator;
-			generator.fill(pOut, count);
-		}
-
 		std::pair<std::vector<bool>, bool> CheckForCanonicalFormAndNonzeroKeys(const SignatureInput* pSignatureInputs, size_t count) {
 			// reject if not canonical or public key is zero
 			auto aggregateResult = true;
@@ -263,6 +256,7 @@ namespace catapult { namespace crypto {
 		}
 
 		bool VerifyBatches(
+				const RandomFiller& randomFiller,
 				const SignatureInput* pSignatureInputs,
 				size_t count,
 				std::pair<std::vector<bool>, bool>& result,
@@ -280,7 +274,7 @@ namespace catapult { namespace crypto {
 
 				// generate r (scalars[batchSize+1]..scalars[2*batchSize]
 				// compute scalars[0] = ((r1s1 + r2s2 + ...))
-				RandomBytes(reinterpret_cast<uint8_t*>(batch.r), batchSize * 16);
+				randomFiller(reinterpret_cast<uint8_t*>(batch.r), batchSize * 16);
 				r_scalars = &batch.scalars[batchSize + 1];
 				for (auto i = 0u; i < batchSize; ++i) {
 					expand256_modm(r_scalars[i], batch.r[i], 16);
@@ -334,18 +328,21 @@ namespace catapult { namespace crypto {
 		}
 	}
 
-	std::pair<std::vector<bool>, bool> VerifyMulti(const SignatureInput* pSignatureInputs, size_t count) {
+	std::pair<std::vector<bool>, bool> VerifyMulti(
+			const RandomFiller& randomFiller,
+			const SignatureInput* pSignatureInputs,
+			size_t count) {
 		auto result = CheckForCanonicalFormAndNonzeroKeys(pSignatureInputs, count);
-		VerifyBatches(pSignatureInputs, count, result, [&pSignatureInputs, &result](auto offset, auto batchSize) {
+		VerifyBatches(randomFiller, pSignatureInputs, count, result, [&pSignatureInputs, &result](auto offset, auto batchSize) {
 			result.second &= VerifySingle(pSignatureInputs, offset, batchSize, result.first);
 			return true;
 		});
 		return result;
 	}
 
-	bool VerifyMultiShortCircuit(const SignatureInput* pSignatureInputs, size_t count) {
+	bool VerifyMultiShortCircuit(const RandomFiller& randomFiller, const SignatureInput* pSignatureInputs, size_t count) {
 		auto result = CheckForCanonicalFormAndNonzeroKeys(pSignatureInputs, count);
-		return result.second && VerifyBatches(pSignatureInputs, count, result, [](auto, auto) {
+		return result.second && VerifyBatches(randomFiller, pSignatureInputs, count, result, [](auto, auto) {
 			return false;
 		});
 	}

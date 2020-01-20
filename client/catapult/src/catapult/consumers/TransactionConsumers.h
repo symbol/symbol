@@ -22,6 +22,7 @@
 #include "HashCheckOptions.h"
 #include "InputUtils.h"
 #include "catapult/chain/ChainFunctions.h"
+#include "catapult/crypto/Signer.h"
 #include "catapult/disruptor/DisruptorConsumer.h"
 #include "catapult/model/EntityInfo.h"
 #include "catapult/validators/ParallelValidationPolicy.h"
@@ -51,8 +52,10 @@ namespace catapult { namespace consumers {
 
 	/// Creates a consumer that runs batch signature validation using \a pPublisher and \a pPool for the network with the specified
 	/// generation hash (\a generationHash) and calls \a failedTransactionSink for each failure.
+	/// \a randomFiller is used to generate random bytes.
 	disruptor::TransactionConsumer CreateTransactionBatchSignatureConsumer(
 			const GenerationHash& generationHash,
+			const crypto::RandomFiller& randomFiller,
 			const std::shared_ptr<model::NotificationPublisher>& pPublisher,
 			const std::shared_ptr<thread::IoThreadPool>& pPool,
 			const chain::FailedTransactionSink& failedTransactionSink);

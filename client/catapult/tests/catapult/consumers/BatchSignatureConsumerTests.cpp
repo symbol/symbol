@@ -23,6 +23,7 @@
 #include "catapult/crypto/Signer.h"
 #include "catapult/model/NotificationSubscriber.h"
 #include "catapult/model/TransactionStatus.h"
+#include "catapult/utils/RandomGenerator.h"
 #include "tests/catapult/consumers/test/ConsumerTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
@@ -150,6 +151,13 @@ namespace catapult { namespace consumers {
 			return true;
 		}
 
+		crypto::RandomFiller CreateRandomFiller() {
+			return [](auto* pOut, auto count) {
+				// can use low entropy source for tests
+				utils::LowEntropyRandomGenerator().fill(pOut, count);
+			};
+		}
+
 		struct BlockTraits {
 		public:
 			struct TestContext {
@@ -164,7 +172,12 @@ namespace catapult { namespace consumers {
 								descriptors,
 								alwaysVerifiableIndexes))
 						, pPool(test::CreateStartedIoThreadPool())
-						, Consumer(CreateBlockBatchSignatureConsumer(GenerationHash, pPublisher, pPool, requiresValidationPredicate))
+						, Consumer(CreateBlockBatchSignatureConsumer(
+								GenerationHash,
+								CreateRandomFiller(),
+								pPublisher,
+								pPool,
+								requiresValidationPredicate))
 				{}
 
 			public:
@@ -270,13 +283,15 @@ namespace catapult { namespace consumers {
 								descriptors,
 								alwaysVerifiableIndexes))
 						, pPool(test::CreateStartedIoThreadPool())
-						, Consumer(CreateTransactionBatchSignatureConsumer(GenerationHash, pPublisher, pPool, [this](
-								const auto& transaction,
-								const auto& hash,
-								auto result) {
-							// notice that transaction.Deadline is used as transaction marker
-							FailedTransactionStatuses.emplace_back(hash, utils::to_underlying_type(result), transaction.Deadline);
-						}))
+						, Consumer(CreateTransactionBatchSignatureConsumer(
+								GenerationHash,
+								CreateRandomFiller(),
+								pPublisher,
+								pPool,
+								[this](const auto& transaction, const auto& hash, auto result) {
+									// notice that transaction.Deadline is used as transaction marker
+									FailedTransactionStatuses.emplace_back(hash, utils::to_underlying_type(result), transaction.Deadline);
+								}))
 				{}
 
 			public:

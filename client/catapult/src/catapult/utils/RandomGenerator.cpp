@@ -37,6 +37,11 @@ namespace catapult { namespace utils {
 
 	// region HighEntropyRandomGenerator
 
+	HighEntropyRandomGenerator::HighEntropyRandomGenerator() = default;
+
+	HighEntropyRandomGenerator::HighEntropyRandomGenerator(const std::string& token) : m_rd(token)
+	{}
+
 	HighEntropyRandomGenerator::result_type HighEntropyRandomGenerator::operator()() {
 		return (static_cast<uint64_t>(m_rd()) << 32) | m_rd();
 	}
