@@ -3,6 +3,8 @@
 [![Build Status](https://api.travis-ci.org/nemtech/catapult-rest.svg?branch=master)](https://travis-ci.org/nemtech/catapult-rest)
 [![Coverage Status](https://coveralls.io/repos/github/nemtech/catapult-rest/badge.svg?branch=master)](https://coveralls.io/github/nemtech/catapult-rest?branch=master)
 
+Catapult REST gateway combines HTTP and WebSockets to perform read and write actions on the blockchain.
+
 ## Requirements
 
 - NodeJS version 8 or 9
@@ -37,6 +39,10 @@
 cd rest
 yarn start resources/rest.json
 ```
+
+## Usage
+
+Please refer to the [documentation](https://nemtech.github.io/api.html) for more information.
 
 ## Contributing
 
