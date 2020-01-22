@@ -148,7 +148,7 @@ namespace catapult { namespace harvesting {
 			inputFile.read(announcerPublicKey);
 			inputFile.read(encryptedEntry);
 
-			auto decryptedPair = TryDecryptUnlockedEntry(encryptedEntry, bootKeyPair, announcerPublicKey);
+			auto decryptedPair = TryDecryptUnlockedEntry(encryptedEntry, bootKeyPair);
 			if (!decryptedPair.second)
 				CATAPULT_THROW_RUNTIME_ERROR("malformed harvesters file");
 

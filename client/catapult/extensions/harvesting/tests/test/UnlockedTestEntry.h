@@ -58,16 +58,9 @@ namespace catapult { namespace test {
 		Mutate_Padding
 	};
 
-	/// Creates encrypted unlocked entry around \a entryBuffer using \a keyPair with \a encryptionMutationFlag.
+	/// Creates encrypted unlocked entry around \a entryBuffer using \a recipientPublicKey with \a encryptionMutationFlag.
 	UnlockedTestEntry PrepareUnlockedTestEntry(
-			const crypto::KeyPair& keyPair,
-			const RawBuffer& entryBuffer,
-			EncryptionMutationFlag encryptionMutationFlag = EncryptionMutationFlag::None);
-
-	/// Creates encrypted unlocked entry around \a entryBuffer using \a keyPair and \a announcerPublicKey with \a encryptionMutationFlag.
-	UnlockedTestEntry PrepareUnlockedTestEntry(
-			const Key& announcerPublicKey,
-			const crypto::KeyPair& keyPair,
+			const Key& recipientPublicKey,
 			const RawBuffer& entryBuffer,
 			EncryptionMutationFlag encryptionMutationFlag = EncryptionMutationFlag::None);
 

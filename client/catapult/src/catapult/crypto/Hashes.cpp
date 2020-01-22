@@ -98,6 +98,45 @@ namespace catapult { namespace crypto {
 		HashSingleBuffer<Keccak_512_Builder>(dataBuffer, hash);
 	}
 
+	namespace {
+		struct Sha256_Block_tag { static constexpr size_t Size = 64; };
+		using Sha256_Block = utils::ByteArray<Sha256_Block_tag>;
+	}
+
+	void Hmac_Sha256(const RawBuffer& key, const RawBuffer& input, Hash256& output) {
+		crypto_hash_sha256_state state;
+		// zero-initialized by default
+		Sha256_Block innerKeyPad;
+		Sha256_Block outerKeyPad;
+
+		if (key.Size > Sha256_Block::Size) {
+			Hash256 tempKey;
+			Sha256(state, key, tempKey);
+			std::memcpy(innerKeyPad.data(), tempKey.data(), Hash256::Size);
+		} else {
+			std::memcpy(innerKeyPad.data(), key.pData, key.Size);
+		}
+
+		for (auto i = 0u; i < Sha256_Block::Size; ++i) {
+			auto byte = innerKeyPad[i];
+			innerKeyPad[i] = byte ^ 0x36;
+			outerKeyPad[i] = byte ^ 0x5C;
+		}
+
+		crypto_hash_sha256_state innerState;
+		Hash256 innerHash;
+		crypto_hash_sha256_init(&innerState);
+		crypto_hash_sha256_update(&innerState, innerKeyPad.data(), innerKeyPad.size());
+		crypto_hash_sha256_update(&innerState, input.pData, input.Size);
+		crypto_hash_sha256_final(&innerState, innerHash.data());
+
+		crypto_hash_sha256_state outerState;
+		crypto_hash_sha256_init(&outerState);
+		crypto_hash_sha256_update(&outerState, outerKeyPad.data(), outerKeyPad.size());
+		crypto_hash_sha256_update(&outerState, innerHash.data(), innerHash.size());
+		crypto_hash_sha256_final(&outerState, output.data());
+	}
+
 	// endregion
 
 	// region sha3 / keccak builders

@@ -41,18 +41,16 @@ namespace catapult { namespace harvesting {
 	}
 
 	size_t EncryptedUnlockedEntrySize() {
-		return crypto::Salt::Size
+		// ephemeral public key | aes cbc initialization vector | encrypted harvester private key | padding
+		return Key::Size
 				+ crypto::AesInitializationVector::Size
 				+ Key::Size
 				+ Aes_Pkcs7_Padding_Size;
 	}
 
-	std::pair<crypto::PrivateKey, bool> TryDecryptUnlockedEntry(
-			const RawBuffer& saltedEncrypted,
-			const crypto::KeyPair& bootKeyPair,
-			const Key& publicKey) {
+	std::pair<crypto::PrivateKey, bool> TryDecryptUnlockedEntry(const RawBuffer& encryptedWithKey, const crypto::KeyPair& bootKeyPair) {
 		std::vector<uint8_t> decrypted;
-		if (!crypto::TryDecryptEd25199BlockCipher(saltedEncrypted, bootKeyPair, publicKey, decrypted) || Key::Size != decrypted.size())
+		if (!crypto::TryDecryptEd25199BlockCipher(encryptedWithKey, bootKeyPair, decrypted) || Key::Size != decrypted.size())
 			return std::make_pair(crypto::PrivateKey(), false);
 
 		return std::make_pair(crypto::PrivateKey::Generate([iter = decrypted.begin()]() mutable { return *iter++; }), true);
@@ -69,10 +67,7 @@ namespace catapult { namespace harvesting {
 				return;
 
 			auto unlockedEntryMessage = DeserializeUnlockedEntryMessage(buffer);
-			auto decryptedPair = TryDecryptUnlockedEntry(
-					unlockedEntryMessage.EncryptedEntry,
-					bootKeyPair,
-					unlockedEntryMessage.AnnouncerPublicKey);
+			auto decryptedPair = TryDecryptUnlockedEntry(unlockedEntryMessage.EncryptedEntry, bootKeyPair);
 			if (!decryptedPair.second)
 				return;
 

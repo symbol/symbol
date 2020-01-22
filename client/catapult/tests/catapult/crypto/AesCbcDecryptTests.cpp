@@ -192,24 +192,22 @@ namespace catapult { namespace crypto {
 	TEST(TEST_CLASS, Ed25199BlockCipher_ThrowsWhenEncryptedDataIsTooSmall) {
 		// Arrange:
 		auto keyPair = GenerateKeyPair();
-		auto publicKey = GenerateKeyPair().publicKey();
-		auto saltedEncrypted = test::GenerateRandomVector(Salt::Size - 1);
+		auto encryptedWithKey = test::GenerateRandomVector(Key::Size - 1);
 
 		// Act + Assert:
 		std::vector<uint8_t> decrypted;
-		EXPECT_THROW(TryDecryptEd25199BlockCipher(saltedEncrypted, keyPair, publicKey, decrypted), catapult_invalid_argument);
+		EXPECT_THROW(TryDecryptEd25199BlockCipher(encryptedWithKey, keyPair, decrypted), catapult_invalid_argument);
 	}
 
 	namespace {
 		void AssertNotEnoughDataFailure(size_t size) {
 			// Arrange:
 			auto keyPair = GenerateKeyPair();
-			auto publicKey = GenerateKeyPair().publicKey();
-			auto saltedEncrypted = test::GenerateRandomVector(size);
+			auto encryptedWithKey = test::GenerateRandomVector(size);
 
 			// Act:
 			std::vector<uint8_t> decrypted;
-			auto result = TryDecryptEd25199BlockCipher(saltedEncrypted, keyPair, publicKey, decrypted);
+			auto result = TryDecryptEd25199BlockCipher(encryptedWithKey, keyPair, decrypted);
 
 			// Assert:
 			EXPECT_FALSE(result);
@@ -217,27 +215,26 @@ namespace catapult { namespace crypto {
 	}
 
 	TEST(TEST_CLASS, Ed25199BlockCipher_FailsWhenEncryptedDataDoesNotContainInitializationVector) {
-		AssertNotEnoughDataFailure(Salt::Size + AesInitializationVector::Size - 1);
+		AssertNotEnoughDataFailure(Key::Size + AesInitializationVector::Size - 1);
 	}
 
 	TEST(TEST_CLASS, Ed25199BlockCipher_FailsWhenEncryptedDataDoesNotContainPadding) {
-		AssertNotEnoughDataFailure(Salt::Size + AesInitializationVector::Size + 16 - 1);
+		AssertNotEnoughDataFailure(Key::Size + AesInitializationVector::Size + 16 - 1);
 	}
 
 	namespace {
 		void AssertDecryptEd25199BlockCipher(size_t dataSize, size_t expectedEncryptedSize) {
 			// Arrange:
 			auto clearText = test::GenerateRandomVector(dataSize);
-			auto keyPair = GenerateKeyPair();
-			auto publicKey = GenerateKeyPair().publicKey();
-			auto saltedEncrypted = test::SaltAndEncrypt(clearText, keyPair, publicKey);
+			auto recipientKeyPair = GenerateKeyPair();
+			auto prefixedEncrypted = test::GenerateEphemeralAndEncrypt(clearText, recipientKeyPair.publicKey());
 
 			// Sanity:
-			EXPECT_EQ(expectedEncryptedSize, saltedEncrypted.size());
+			EXPECT_EQ(expectedEncryptedSize, prefixedEncrypted.size());
 
 			// Act:
 			std::vector<uint8_t> decrypted;
-			auto result = TryDecryptEd25199BlockCipher(saltedEncrypted, keyPair, publicKey, decrypted);
+			auto result = TryDecryptEd25199BlockCipher(prefixedEncrypted, recipientKeyPair, decrypted);
 
 			// Assert:
 			EXPECT_TRUE(result);
@@ -246,12 +243,12 @@ namespace catapult { namespace crypto {
 	}
 
 	TEST(TEST_CLASS, Ed25199BlockCipher_CanDecryptEmptyMessage) {
-		AssertDecryptEd25199BlockCipher(0, Salt::Size + AesInitializationVector::Size + 16);
+		AssertDecryptEd25199BlockCipher(0, Key::Size + AesInitializationVector::Size + 16);
 	}
 
 	TEST(TEST_CLASS, Ed25199BlockCipher_CanDecryptMessage) {
 		// padding size = 16 - (123 % 16) = 5
-		AssertDecryptEd25199BlockCipher(123, Salt::Size + AesInitializationVector::Size + 123 + 5);
+		AssertDecryptEd25199BlockCipher(123, Key::Size + AesInitializationVector::Size + 123 + 5);
 	}
 
 	// endregion

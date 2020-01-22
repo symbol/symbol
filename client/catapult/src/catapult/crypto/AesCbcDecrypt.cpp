@@ -72,19 +72,15 @@ namespace catapult { namespace crypto {
 		}
 	}
 
-	bool TryDecryptEd25199BlockCipher(
-			const RawBuffer& saltedEncrypted,
-			const KeyPair& keyPair,
-			const Key& publicKey,
-			std::vector<uint8_t>& decrypted) {
-		if (Salt::Size > saltedEncrypted.Size)
-			CATAPULT_THROW_INVALID_ARGUMENT("encrypted data is not salted");
+	bool TryDecryptEd25199BlockCipher(const RawBuffer& encryptedWithKey, const KeyPair& keyPair, std::vector<uint8_t>& decrypted) {
+		if (Key::Size > encryptedWithKey.Size)
+			CATAPULT_THROW_INVALID_ARGUMENT("encrypted data does not contain key");
 
-		Salt salt;
-		std::memcpy(salt.data(), saltedEncrypted.pData, Salt::Size);
+		Key ephemeralPublicKey;
+		std::memcpy(ephemeralPublicKey.data(), encryptedWithKey.pData, Key::Size);
 
-		auto sharedKey = DeriveSharedKey(keyPair, publicKey, salt);
-		auto encryptedData = SubView(saltedEncrypted, Salt::Size);
+		auto sharedKey = DeriveSharedKey(keyPair, ephemeralPublicKey);
+		auto encryptedData = SubView(encryptedWithKey, Key::Size);
 		return TryAesCbcDecrypt(sharedKey, encryptedData, decrypted);
 	}
 }}

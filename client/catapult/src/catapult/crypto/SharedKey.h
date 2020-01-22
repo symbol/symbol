@@ -23,12 +23,16 @@
 
 namespace catapult { namespace crypto {
 
-	struct Salt_tag { static constexpr size_t Size = 32; };
-	using Salt = utils::ByteArray<Salt_tag>;
+	struct SharedSecret_tag { static constexpr size_t Size = 32; };
+	using SharedSecret = utils::ByteArray<SharedSecret_tag>;
 
 	struct SharedKey_tag { static constexpr size_t Size = 32; };
 	using SharedKey = utils::ByteArray<SharedKey_tag>;
 
-	/// Generates shared key using \a keyPair, \a otherPublicKey and \a salt.
-	SharedKey DeriveSharedKey(const KeyPair& keyPair, const Key& otherPublicKey, const Salt& salt);
+	/// Generates HKDF of \a sharedSecret using default zeroed salt and constant label "catapult".
+	SharedKey Hkdf_Hmac_Sha256_32(const SharedSecret& sharedSecret);
+
+	/// Generates shared key using \a keyPair and \a otherPublicKey.
+	/// \note: One of the provided keys is expected to be an ephemeral key.
+	SharedKey DeriveSharedKey(const KeyPair& keyPair, const Key& otherPublicKey);
 }}
