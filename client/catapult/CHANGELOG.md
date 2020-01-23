@@ -3,6 +3,15 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.9.2.1] - 23-January-2019
+
+## Fixed
+ - bugfix: incomplete nemesis block data inside mongo
+ - bugfix: remove spurious check in CreateCacheBlockTouchObserver
+ - bugfix: make unconditional update of activity information based on account balance
+ - minor: do not migrate node identity key (when source is worse)
+ - minor: reprocessing of aggregates with different set of cosigners
+
 ## [0.9.1.1] - 06-December-2019
 
 ### Added
@@ -183,6 +192,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Added
 - Initial code release.
 
+[0.9.2.1]: https://github.com/nemtech/catapult-server/compare/v0.9.1.1...v0.9.2.1
 [0.9.1.1]: https://github.com/nemtech/catapult-server/compare/v0.9.0.1...v0.9.1.1
 [0.9.0.1]: https://github.com/nemtech/catapult-server/compare/v0.8.0.3...v0.9.0.1
 [0.8.0.3]: https://github.com/nemtech/catapult-server/compare/v0.7.0.1...v0.8.0.3
