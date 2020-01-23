@@ -56,7 +56,7 @@ namespace catapult { namespace mongo {
 		public:
 			void notifyStatus(const model::Transaction& transaction, const Hash256& hash, uint32_t status) override {
 				utils::SpinLockGuard guard(m_lock);
-				m_transactionStatuses.emplace_back(hash, status, transaction.Deadline);
+				m_transactionStatuses.emplace_back(hash, transaction.Deadline, status);
 			}
 
 			void flush() override {

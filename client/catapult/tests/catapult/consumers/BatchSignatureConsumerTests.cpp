@@ -290,7 +290,7 @@ namespace catapult { namespace consumers {
 								pPool,
 								[this](const auto& transaction, const auto& hash, auto result) {
 									// notice that transaction.Deadline is used as transaction marker
-									FailedTransactionStatuses.emplace_back(hash, utils::to_underlying_type(result), transaction.Deadline);
+									FailedTransactionStatuses.emplace_back(hash, transaction.Deadline, utils::to_underlying_type(result));
 								}))
 				{}
 

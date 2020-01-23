@@ -107,7 +107,7 @@ namespace catapult { namespace zeromq {
 		context.notifyStatus(*transactionInfos[0].pEntity, transactionInfos[0].EntityHash, 123);
 
 		// Assert:
-		model::TransactionStatus transactionStatus(transactionInfos[0].EntityHash, 123, transactionInfos[0].pEntity->Deadline);
+		model::TransactionStatus transactionStatus(transactionInfos[0].EntityHash, transactionInfos[0].pEntity->Deadline, 123);
 		test::AssertMessages(context.zmqSocket(), Marker, addresses, [&transactionStatus](const auto& message, const auto& topic) {
 			test::AssertTransactionStatusMessage(message, topic, transactionStatus);
 		});
@@ -129,7 +129,7 @@ namespace catapult { namespace zeromq {
 		// Assert:
 		i = 0u;
 		for (const auto& transactionInfo : transactionInfos) {
-			model::TransactionStatus transactionStatus(transactionInfo.EntityHash, i++, transactionInfo.pEntity->Deadline);
+			model::TransactionStatus transactionStatus(transactionInfo.EntityHash, transactionInfo.pEntity->Deadline, i++);
 			auto addresses = test::ExtractAddresses(test::ToMockTransaction(*transactionInfo.pEntity));
 			test::AssertMessages(context.zmqSocket(), Marker, addresses, [&transactionStatus](const auto& message, const auto& topic) {
 				test::AssertTransactionStatusMessage(message, topic, transactionStatus);

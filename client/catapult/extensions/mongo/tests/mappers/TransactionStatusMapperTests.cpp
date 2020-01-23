@@ -31,11 +31,11 @@ namespace catapult { namespace mongo { namespace mappers {
 	TEST(TEST_CLASS, CanMapTransactionStatus) {
 		// Arrange:
 		auto hash = test::GenerateRandomByteArray<Hash256>();
-		auto status = 123456u;
 		auto deadline = Timestamp(321);
+		auto status = 123456u;
 
 		// Act:
-		auto document = ToDbModel(model::TransactionStatus(hash, status, deadline));
+		auto document = ToDbModel(model::TransactionStatus(hash, deadline, status));
 		auto documentView = document.view();
 
 		// Assert:

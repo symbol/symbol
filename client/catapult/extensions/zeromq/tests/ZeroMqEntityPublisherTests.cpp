@@ -315,7 +315,7 @@ namespace catapult { namespace zeromq {
 		context.publishTransactionStatus(*pTransaction, hash, 123);
 
 		// Assert:
-		model::TransactionStatus expectedTransactionStatus(hash, 123, pTransaction->Deadline);
+		model::TransactionStatus expectedTransactionStatus(hash, pTransaction->Deadline, 123);
 		test::AssertMessages(context.zmqSocket(), marker, addresses, [&expectedTransactionStatus](const auto& message, const auto& topic) {
 			test::AssertTransactionStatusMessage(message, topic, expectedTransactionStatus);
 		});

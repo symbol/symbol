@@ -49,7 +49,7 @@ namespace catapult { namespace mongo {
 		auto CreateTransactionStatuses(size_t count) {
 			std::vector<model::TransactionStatus> statuses;
 			for (auto i = 0u; i < count; ++i)
-				statuses.emplace_back(test::GenerateRandomByteArray<Hash256>(), i, Timestamp(i * i));
+				statuses.emplace_back(test::GenerateRandomByteArray<Hash256>(), Timestamp(i * i), i);
 
 			return statuses;
 		}

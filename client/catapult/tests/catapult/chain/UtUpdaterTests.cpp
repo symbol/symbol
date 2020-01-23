@@ -131,7 +131,7 @@ namespace catapult { namespace chain {
 							[]() { return Default_Time; },
 							[this](const auto& transaction, const auto& hash, auto result) {
 								// notice that transaction.Deadline is used as transaction marker
-								m_failedTransactionStatuses.emplace_back(hash, utils::to_underlying_type(result), transaction.Deadline);
+								m_failedTransactionStatuses.emplace_back(hash, transaction.Deadline, utils::to_underlying_type(result));
 							},
 							[this, throttleMode](const auto& transactionInfo, const auto& context) {
 								m_throttleParams.emplace_back(transactionInfo, context);

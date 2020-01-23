@@ -209,7 +209,7 @@ namespace catapult { namespace zeromq {
 
 	void ZeroMqEntityPublisher::publishTransactionStatus(const model::Transaction& transaction, const Hash256& hash, uint32_t status) {
 		auto topicMarker = TransactionMarker::Transaction_Status_Marker;
-		model::TransactionStatus transactionStatus(hash, status, transaction.Deadline);
+		model::TransactionStatus transactionStatus(hash, transaction.Deadline, status);
 		publish("transaction status", topicMarker, WeakTransactionInfo(transaction, hash), [&transactionStatus](auto& multipart) {
 			multipart.addmem(static_cast<const void*>(&transactionStatus), sizeof(transactionStatus));
 		});
