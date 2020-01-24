@@ -94,14 +94,14 @@ namespace catapult { namespace harvesting {
 		UnlockedFileQueueConsumer(m_dataDirectory.dir("transfer_message"), m_bootKeyPair, [&unlockedAccounts, &storage, &hasAnyRemoval](
 				const auto& unlockedEntryMessage,
 				auto&& keyPair) {
-			const auto& announcerPublicKey = unlockedEntryMessage.AnnouncerPublicKey;
+			auto messageIdentifier = GetMessageIdentifier(unlockedEntryMessage);
 			const auto& harvesterPublicKey = keyPair.publicKey();
 			if (UnlockedEntryDirection::Add == unlockedEntryMessage.Direction) {
-				if (!storage.containsAnnouncer(announcerPublicKey) && AddToUnlocked(unlockedAccounts, std::move(keyPair)))
-					storage.add(announcerPublicKey, unlockedEntryMessage.EncryptedEntry, harvesterPublicKey);
+				if (!storage.contains(messageIdentifier) && AddToUnlocked(unlockedAccounts, std::move(keyPair)))
+					storage.add(messageIdentifier, unlockedEntryMessage.EncryptedEntry, harvesterPublicKey);
 			} else {
 				RemoveFromUnlocked(unlockedAccounts, harvesterPublicKey);
-				storage.remove(announcerPublicKey);
+				storage.remove(messageIdentifier);
 				hasAnyRemoval = true;
 			}
 		});

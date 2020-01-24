@@ -19,24 +19,34 @@
 **/
 
 #pragma once
-#include "UnlockedEntryMessage.h"
-#include "catapult/crypto/KeyPair.h"
-#include "catapult/functions.h"
-#include <string>
-
-namespace catapult {
-	namespace config { class CatapultDirectory; }
-	namespace crypto { class KeyPair; }
-}
+#include "catapult/types.h"
 
 namespace catapult { namespace harvesting {
 
-	/// Decrypts \a encryptedWithKey using \a bootKeyPair.
-	std::pair<crypto::PrivateKey, bool> TryDecryptUnlockedEntry(const RawBuffer& encryptedWithKey, const crypto::KeyPair& bootKeyPair);
+	struct UnlockedEntryMessageIdentifier_tag { static constexpr size_t Size = 32; };
+	using UnlockedEntryMessageIdentifier = utils::ByteArray<UnlockedEntryMessageIdentifier_tag>;
 
-	/// Reads encrypted unlocked entry messages from \a directory, validates using \a bootKeyPair and forwards to \a processEntryKeyPair.
-	void UnlockedFileQueueConsumer(
-			const config::CatapultDirectory& directory,
-			const crypto::KeyPair& bootKeyPair,
-			const consumer<const UnlockedEntryMessage&, crypto::KeyPair&&>& processEntryKeyPair);
+	/// Unlocked entry direction.
+	enum class UnlockedEntryDirection : uint8_t {
+		/// Add unlocked entry.
+		Add,
+
+		/// Remove unlocked entry.
+		Remove
+	};
+
+	/// Unlocked entry message.
+	struct UnlockedEntryMessage {
+		/// Unlocked entry direction.
+		UnlockedEntryDirection Direction;
+
+		/// Encrypted entry.
+		RawBuffer EncryptedEntry;
+	};
+
+	/// Gets the size of encrypted entry.
+	size_t EncryptedUnlockedEntrySize();
+
+	/// Gets a unique identifier for \a message.
+	UnlockedEntryMessageIdentifier GetMessageIdentifier(const UnlockedEntryMessage& message);
 }}

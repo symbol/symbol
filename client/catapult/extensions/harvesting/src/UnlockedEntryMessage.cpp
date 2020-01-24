@@ -18,25 +18,27 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#pragma once
 #include "UnlockedEntryMessage.h"
-#include "catapult/crypto/KeyPair.h"
-#include "catapult/functions.h"
-#include <string>
-
-namespace catapult {
-	namespace config { class CatapultDirectory; }
-	namespace crypto { class KeyPair; }
-}
+#include "catapult/crypto/AesCbcDecrypt.h"
+#include <cstring>
 
 namespace catapult { namespace harvesting {
 
-	/// Decrypts \a encryptedWithKey using \a bootKeyPair.
-	std::pair<crypto::PrivateKey, bool> TryDecryptUnlockedEntry(const RawBuffer& encryptedWithKey, const crypto::KeyPair& bootKeyPair);
+	namespace {
+		constexpr auto Aes_Pkcs7_Padding_Size = 16;
+	}
 
-	/// Reads encrypted unlocked entry messages from \a directory, validates using \a bootKeyPair and forwards to \a processEntryKeyPair.
-	void UnlockedFileQueueConsumer(
-			const config::CatapultDirectory& directory,
-			const crypto::KeyPair& bootKeyPair,
-			const consumer<const UnlockedEntryMessage&, crypto::KeyPair&&>& processEntryKeyPair);
+	size_t EncryptedUnlockedEntrySize() {
+		// ephemeral public key | aes cbc initialization vector | encrypted harvester private key | padding
+		return Key::Size
+				+ crypto::AesInitializationVector::Size
+				+ Key::Size
+				+ Aes_Pkcs7_Padding_Size;
+	}
+
+	UnlockedEntryMessageIdentifier GetMessageIdentifier(const UnlockedEntryMessage& message) {
+		UnlockedEntryMessageIdentifier messageIdentifier;
+		std::memcpy(messageIdentifier.data(), message.EncryptedEntry.pData, messageIdentifier.size());
+		return messageIdentifier;
+	}
 }}

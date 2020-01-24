@@ -40,8 +40,14 @@ namespace catapult { namespace test {
 		}
 	}
 
+	harvesting::UnlockedEntryMessageIdentifier GetMessageIdentifier(const UnlockedTestEntry& entry) {
+		harvesting::UnlockedEntryMessageIdentifier messageIdentifier;
+		std::memcpy(messageIdentifier.data(), entry.Payload.data(), messageIdentifier.size());
+		return messageIdentifier;
+	}
+
 	std::ostream& operator<<(std::ostream& out, const UnlockedTestEntry& entry) {
-		out << "key:" << entry.Key << ", " << "payload:" << utils::HexFormat(entry.Payload) << std::endl;
+		out << "identifier:" << GetMessageIdentifier(entry) << ", " << "payload:" << utils::HexFormat(entry.Payload) << std::endl;
 		return out;
 	}
 
@@ -49,8 +55,15 @@ namespace catapult { namespace test {
 			const Key& recipientPublicKey,
 			const RawBuffer& entryBuffer,
 			EncryptionMutationFlag encryptionMutationFlag) {
+		return PrepareUnlockedTestEntry(test::GenerateKeyPair(), recipientPublicKey, entryBuffer, encryptionMutationFlag);
+	}
+
+	UnlockedTestEntry PrepareUnlockedTestEntry(
+			const crypto::KeyPair& ephemeralKeyPair,
+			const Key& recipientPublicKey,
+			const RawBuffer& entryBuffer,
+			EncryptionMutationFlag encryptionMutationFlag) {
 		UnlockedTestEntry entry;
-		auto ephemeralKeyPair = test::GenerateKeyPair();
 		auto sharedKey = crypto::DeriveSharedKey(ephemeralKeyPair, recipientPublicKey);
 		auto initializationVector = GenerateRandomByteArray<crypto::AesInitializationVector>();
 
@@ -61,7 +74,6 @@ namespace catapult { namespace test {
 				: AesPkcs7MalformedPaddingScheme;
 		AesCbcEncrypt(sharedKey, initializationVector, entryBuffer, encrypted, paddingScheme);
 
-		entry.Key = test::GenerateKeyPair().publicKey();
 		std::memcpy(entry.Payload.data(), ephemeralKeyPair.publicKey().data(), Key::Size);
 		std::memcpy(entry.Payload.data() + Key::Size, encrypted.data(), encrypted.size());
 		return entry;

@@ -282,7 +282,7 @@ namespace catapult { namespace harvesting {
 			for (auto i = 0u; i < numEntries; ++i) {
 				auto privateKeyBuffer = test::GenerateRandomByteArray<Key>();
 				auto entry = test::PrepareUnlockedTestEntry(nodeOwnerPublicKey, privateKeyBuffer);
-				storage.add(entry.Key, entry.Payload, Key{ { static_cast<uint8_t>(i) } });
+				storage.add(test::GetMessageIdentifier(entry), entry.Payload, Key{ { static_cast<uint8_t>(i) } });
 			}
 		}
 	}

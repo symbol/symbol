@@ -23,29 +23,18 @@
 #include "catapult/crypto/AesCbcDecrypt.h"
 #include "catapult/io/FileQueue.h"
 #include "catapult/io/RawFile.h"
+#include "catapult/utils/Logging.h"
 
 namespace catapult { namespace harvesting {
 
 	namespace {
-		constexpr auto Aes_Pkcs7_Padding_Size = 16;
-
 		UnlockedEntryMessage DeserializeUnlockedEntryMessage(const std::vector<uint8_t>& buffer) {
 			UnlockedEntryMessage message;
 			// note: value of direction comes from TransferMessageObserver, so it is trusted
 			message.Direction = static_cast<UnlockedEntryDirection>(buffer[0]);
-			std::memcpy(message.AnnouncerPublicKey.data(), &buffer[1], Key::Size);
-			message.EncryptedEntry = RawBuffer{ &buffer[1 + Key::Size], EncryptedUnlockedEntrySize() };
-
+			message.EncryptedEntry = RawBuffer{ &buffer[1], EncryptedUnlockedEntrySize() };
 			return message;
 		}
-	}
-
-	size_t EncryptedUnlockedEntrySize() {
-		// ephemeral public key | aes cbc initialization vector | encrypted harvester private key | padding
-		return Key::Size
-				+ crypto::AesInitializationVector::Size
-				+ Key::Size
-				+ Aes_Pkcs7_Padding_Size;
 	}
 
 	std::pair<crypto::PrivateKey, bool> TryDecryptUnlockedEntry(const RawBuffer& encryptedWithKey, const crypto::KeyPair& bootKeyPair) {
@@ -63,13 +52,17 @@ namespace catapult { namespace harvesting {
 		io::FileQueueReader reader(directory.str());
 		auto appendMessage = [&bootKeyPair, &processEntryKeyPair](const std::vector<uint8_t>& buffer) {
 			// filter out invalid messages
-			if (1 + Key::Size + EncryptedUnlockedEntrySize() != buffer.size())
+			if (1 + EncryptedUnlockedEntrySize() != buffer.size()) {
+				CATAPULT_LOG(warning) << "rejecting buffer with wrong size: " << buffer.size();
 				return;
+			}
 
 			auto unlockedEntryMessage = DeserializeUnlockedEntryMessage(buffer);
 			auto decryptedPair = TryDecryptUnlockedEntry(unlockedEntryMessage.EncryptedEntry, bootKeyPair);
-			if (!decryptedPair.second)
+			if (!decryptedPair.second) {
+				CATAPULT_LOG(warning) << "rejecting buffer that could not be decrypted";
 				return;
+			}
 
 			auto keyPair = crypto::KeyPair::FromPrivate(std::move(decryptedPair.first));
 			processEntryKeyPair(unlockedEntryMessage, std::move(keyPair));

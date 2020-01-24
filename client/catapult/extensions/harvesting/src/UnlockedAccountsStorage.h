@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "UnlockedEntryMessage.h"
 #include "catapult/functions.h"
 #include "catapult/types.h"
 #include <map>
@@ -30,24 +31,24 @@ namespace catapult { namespace harvesting {
 	/// Unlocked accounts storage.
 	class UnlockedAccountsStorage {
 	private:
-		using AnnouncerToEntryMap = std::map<Key, std::vector<uint8_t>>;
-		using AccountEntryPair = AnnouncerToEntryMap::value_type;
-		using EntryToHarvesterMap = std::map<AccountEntryPair, Key>;
+		using IdentityToEntryMap = std::map<UnlockedEntryMessageIdentifier, std::vector<uint8_t>>;
+		using IdentityEntryPair = IdentityToEntryMap::value_type;
+		using EntryToHarvesterMap = std::map<IdentityEntryPair, Key>;
 
 	public:
 		/// Creates unlocked accounts storage around \a filename.
 		explicit UnlockedAccountsStorage(const std::string& filename);
 
 	public:
-		/// Returns \c true if this storage contains an entry with an announcer public key matching \a announcerPublicKey.
-		bool containsAnnouncer(const Key& announcerPublicKey);
+		/// Returns \c true if this storage contains an entry identified by \a messageIdentifier.
+		bool contains(const UnlockedEntryMessageIdentifier& messageIdentifier);
 
 	public:
-		/// Adds unlocked entry pair (\a announcerPublicKey, \a encryptedEntry) associated with \a harvesterPublicKey.
-		void add(const Key& announcerPublicKey, const RawBuffer& encryptedEntry, const Key& harvesterPublicKey);
+		/// Adds unlocked entry pair (\a messageIdentifier, \a encryptedEntry) associated with \a harvesterPublicKey.
+		void add(const UnlockedEntryMessageIdentifier& messageIdentifier, const RawBuffer& encryptedEntry, const Key& harvesterPublicKey);
 
-		/// Removes unlocked entry identified by \a announcerPublicKey.
-		void remove(const Key& announcerPublicKey);
+		/// Removes unlocked entry identified by \a messageIdentifier.
+		void remove(const UnlockedEntryMessageIdentifier& messageIdentifier);
 
 		/// Saves unlocked entries filtered using \a filter.
 		void save(const predicate<const Key&>& filter) const;
@@ -56,13 +57,16 @@ namespace catapult { namespace harvesting {
 		void load(const crypto::KeyPair& bootKeyPair, const consumer<crypto::KeyPair&&>& processKeyPair);
 
 	private:
-		void addEntry(const Key& announcerPublicKey, const std::vector<uint8_t>& encryptedEntry, const Key& harvesterPublicKey);
+		void addEntry(
+				const UnlockedEntryMessageIdentifier& messageIdentifier,
+				const std::vector<uint8_t>& encryptedEntry,
+				const Key& harvesterPublicKey);
 
-		bool tryRemoveEntry(const Key& announcerPublicKey);
+		bool tryRemoveEntry(const UnlockedEntryMessageIdentifier& messageIdentifier);
 
 	private:
 		std::string m_filename;
-		AnnouncerToEntryMap m_announcerToEntryMap;
+		IdentityToEntryMap m_identityToEntryMap;
 		EntryToHarvesterMap m_entryToHarvesterMap;
 	};
 }}

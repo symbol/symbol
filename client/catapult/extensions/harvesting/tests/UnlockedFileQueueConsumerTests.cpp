@@ -32,15 +32,6 @@ namespace catapult { namespace harvesting {
 
 #define TEST_CLASS UnlockedFileQueueConsumerTests
 
-	// region alignment (UnlockedEntryMessage)
-
-	TEST(TEST_CLASS, UnlockedEntryMessageHasProperAlignment) {
-		// Assert: AnnouncerPublicKey needs to be 8-byte aligned, which is not guaranteed even though `UnlockedEntryMessage` is not packed
-		EXPECT_ALIGNED(UnlockedEntryMessage, AnnouncerPublicKey);
-	}
-
-	// endregion
-
 	// region decrypt unlocked entry
 
 	namespace {
@@ -94,11 +85,10 @@ namespace catapult { namespace harvesting {
 		}
 
 		auto SerializeUnlockedEntryMessage(const UnlockedEntryMessage& message) {
-			std::vector<uint8_t> announcerEntryPair(1 + Key::Size + message.EncryptedEntry.Size);
-			announcerEntryPair[0] = static_cast<uint8_t>(message.Direction);
-			std::memcpy(announcerEntryPair.data() + 1, message.AnnouncerPublicKey.data(), message.AnnouncerPublicKey.size());
-			std::memcpy(announcerEntryPair.data() + 1 + Key::Size, message.EncryptedEntry.pData, message.EncryptedEntry.Size);
-			return announcerEntryPair;
+			std::vector<uint8_t> messageBuffer(1 + message.EncryptedEntry.Size);
+			messageBuffer[0] = static_cast<uint8_t>(message.Direction);
+			std::memcpy(messageBuffer.data() + 1, message.EncryptedEntry.pData, message.EncryptedEntry.Size);
+			return messageBuffer;
 		}
 
 		// endregion
