@@ -175,8 +175,10 @@ namespace catapult { namespace extensions {
 			const NodeSelectionConfiguration& config,
 			const ImportanceRetriever& importanceRetriever) {
 		// 1. find compatible (service and role) nodes
+		//    need to use node container view because node candidates are held by reference
+		auto nodesView = nodes.view();
 		NodeSelectionResult result;
-		auto nodesInfo = FindServiceNodes(nodes.view(), config.ServiceId, config.RequiredRole, importanceRetriever);
+		auto nodesInfo = FindServiceNodes(nodesView, config.ServiceId, config.RequiredRole, importanceRetriever);
 
 		// 2. find removal candidates
 		auto numActiveNodes = nodesInfo.Actives.size();
@@ -198,8 +200,10 @@ namespace catapult { namespace extensions {
 			const NodeAgingConfiguration& config,
 			const ImportanceRetriever& importanceRetriever) {
 		// 1. find compatible (service) nodes; always match all roles
+		//    need to use node container view because node candidates are held by reference
+		auto nodesView = nodes.view();
 		NodeSelectionResult result;
-		auto nodesInfo = FindServiceNodes(nodes.view(), config.ServiceId, ionet::NodeRoles::None, importanceRetriever);
+		auto nodesInfo = FindServiceNodes(nodesView, config.ServiceId, ionet::NodeRoles::None, importanceRetriever);
 
 		// 2. find removal candidates
 		// a. allow at most 1/4 of active nodes to be disconnected
