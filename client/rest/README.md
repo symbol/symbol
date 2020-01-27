@@ -59,7 +59,6 @@ Before contributing please [read this](CONTRIBUTING.md) and consider the followi
 
 Copyright (c) 2018 Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp Licensed under the [GNU Lesser General Public License v3](LICENSE)
 
-
 [yarn]: https://yarnpkg.com/lang/en/
-[catapult-server]: https://yarnpkg.com/lang/en/
+[catapult-server]: https://github.com/nemtech/catapult-server
 [api-node]: https://nemtech.github.io/server.html#installation
