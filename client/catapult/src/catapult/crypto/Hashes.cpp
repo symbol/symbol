@@ -21,6 +21,7 @@
 #include "Hashes.h"
 #include "KeccakHash.h"
 #include "catapult/utils/Casting.h"
+#include "catapult/utils/MemoryUtils.h"
 
 #ifdef __clang__
 #pragma clang diagnostic push
@@ -114,7 +115,7 @@ namespace catapult { namespace crypto {
 			Sha256(state, key, tempKey);
 			std::memcpy(innerKeyPad.data(), tempKey.data(), Hash256::Size);
 		} else {
-			std::memcpy(innerKeyPad.data(), key.pData, key.Size);
+			utils::memcpy_cond(innerKeyPad.data(), key.pData, key.Size);
 		}
 
 		for (auto i = 0u; i < Sha256_Block::Size; ++i) {
