@@ -25,6 +25,21 @@ namespace catapult { namespace crypto { class PrivateKey; } }
 
 namespace catapult { namespace crypto {
 
+	/// Multiplier for scalar multiplication.
+	using ScalarMultiplier = uint8_t[32];
+
+	/// bignum256modm type definition.
+	using bignum256modm_type = uint64_t[5];
+
 	/// Calculates \a hash of \a privateKey.
 	void HashPrivateKey(const PrivateKey& privateKey, Hash512& hash);
+
+	/// Extracts the \a multiplier used to derive the public key from \a privateKey.
+	void ExtractMultiplier(const PrivateKey& privateKey, ScalarMultiplier& multiplier);
+
+	/// Generates \a nonce from \a privateKey and a list of buffers (\a buffersList).
+	void GenerateNonce(const PrivateKey& privateKey, std::initializer_list<const RawBuffer> buffersList, bignum256modm_type& nonce);
+
+	/// Constant time scalar multiplication of \a publicKey with \a multiplier. The result is stored in \a sharedSecret.
+	bool ScalarMult(const ScalarMultiplier& multiplier, const Key& publicKey, Key& sharedSecret);
 }}

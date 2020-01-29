@@ -18,21 +18,19 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#pragma once
-#include "KeyPair.h"
+#include "CurveUtils.h"
+#include "tests/test/nodeps/Conversions.h"
 
-namespace catapult { namespace crypto {
+namespace catapult { namespace test {
 
-	struct SharedKey_tag { static constexpr size_t Size = 32; };
-	using SharedKey = utils::ByteArray<SharedKey_tag>;
-
-	/// Generates HKDF of \a sharedSecret using default zeroed salt and constant label "catapult".
-	SharedKey Hkdf_Hmac_Sha256_32(const Key& sharedSecret);
-
-	/// Derives shared secret from \a keyPair and \a otherPublicKey.
-	Key DeriveSharedSecret(const KeyPair& keyPair, const Key& otherPublicKey);
-
-	/// Generates shared key using \a keyPair and \a otherPublicKey.
-	/// \note: One of the provided keys is expected to be an ephemeral key.
-	SharedKey DeriveSharedKey(const KeyPair& keyPair, const Key& otherPublicKey);
+	void ScalarAddGroupOrder(uint8_t* scalar) {
+		// 2^252 + 27742317777372353535851937790883648493, little endian.
+		auto groupOrder = test::HexStringToVector("EDD3F55C1A631258D69CF7A2DEF9DE1400000000000000000000000000000010");
+		uint8_t r = 0;
+		for (auto i = 0u; i < groupOrder.size(); ++i) {
+			auto t = static_cast<uint16_t>(scalar[i]) + static_cast<uint16_t>(groupOrder[i]);
+			scalar[i] = static_cast<uint8_t>(scalar[i] + groupOrder[i] + r);
+			r = static_cast<uint8_t>(t >> 8);
+		}
+	}
 }}

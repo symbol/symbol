@@ -19,20 +19,10 @@
 **/
 
 #pragma once
-#include "KeyPair.h"
+#include <cstdint>
 
-namespace catapult { namespace crypto {
+namespace catapult { namespace test {
 
-	struct SharedKey_tag { static constexpr size_t Size = 32; };
-	using SharedKey = utils::ByteArray<SharedKey_tag>;
-
-	/// Generates HKDF of \a sharedSecret using default zeroed salt and constant label "catapult".
-	SharedKey Hkdf_Hmac_Sha256_32(const Key& sharedSecret);
-
-	/// Derives shared secret from \a keyPair and \a otherPublicKey.
-	Key DeriveSharedSecret(const KeyPair& keyPair, const Key& otherPublicKey);
-
-	/// Generates shared key using \a keyPair and \a otherPublicKey.
-	/// \note: One of the provided keys is expected to be an ephemeral key.
-	SharedKey DeriveSharedKey(const KeyPair& keyPair, const Key& otherPublicKey);
+	/// Adds the group order to \a scalar.
+	void ScalarAddGroupOrder(uint8_t* scalar);
 }}

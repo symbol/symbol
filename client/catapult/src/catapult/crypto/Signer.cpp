@@ -117,21 +117,11 @@ namespace catapult { namespace crypto {
 		uint8_t *RESTRICT encodedR = computedSignature.data();
 		uint8_t *RESTRICT encodedS = computedSignature.data() + Encoded_Size;
 
-		// hash the private key to improve randomness
-		Hash512 privHash;
-		HashPrivateKey(keyPair.privateKey(), privHash);
-
 		// r = H(privHash[256:512] || data)
-		// "EdDSA avoids these issues by generating r = H(h_b, ..., h_2b?1, M), so that
+		// "EdDSA avoids these issues by generating r = H(h_b, ..., h_2b-1, M), so that
 		//  different messages will lead to different, hard-to-predict values of r."
-		Hash512 hash_r;
-		Sha512_Builder hasher_r;
-		hasher_r.update({ privHash.data() + Hash512::Size / 2, Hash512::Size / 2 });
-		hasher_r.update(buffersList);
-		hasher_r.final(hash_r);
-
 		bignum256modm r;
-		expand256_modm(r, hash_r.data(), 64);
+		GenerateNonce(keyPair.privateKey(), buffersList, r);
 
 		// R = rModQ * base point
 		ge25519 ALIGN(16) R;
@@ -147,6 +137,10 @@ namespace catapult { namespace crypto {
 
 		bignum256modm h;
 		expand256_modm(h, hash_h.data(), 64);
+
+		// hash the private key to improve randomness
+		Hash512 privHash;
+		HashPrivateKey(keyPair.privateKey(), privHash);
 
 		// a = fieldElement(privHash[0:256])
 		privHash[0] &= 0xF8;
