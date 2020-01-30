@@ -19,20 +19,34 @@
 **/
 
 #pragma once
-#include "KeyPair.h"
+#include "catapult/types.h"
 
-namespace catapult { namespace crypto {
+namespace catapult { namespace harvesting {
 
-	struct SharedSecret_tag { static constexpr size_t Size = 32; };
-	using SharedSecret = utils::ByteArray<SharedSecret_tag>;
+	struct UnlockedEntryMessageIdentifier_tag { static constexpr size_t Size = 32; };
+	using UnlockedEntryMessageIdentifier = utils::ByteArray<UnlockedEntryMessageIdentifier_tag>;
 
-	struct SharedKey_tag { static constexpr size_t Size = 32; };
-	using SharedKey = utils::ByteArray<SharedKey_tag>;
+	/// Unlocked entry direction.
+	enum class UnlockedEntryDirection : uint8_t {
+		/// Add unlocked entry.
+		Add,
 
-	/// Generates HKDF of \a sharedSecret using default zeroed salt and constant label "catapult".
-	SharedKey Hkdf_Hmac_Sha256_32(const SharedSecret& sharedSecret);
+		/// Remove unlocked entry.
+		Remove
+	};
 
-	/// Generates shared key using \a keyPair and \a otherPublicKey.
-	/// \note: One of the provided keys is expected to be an ephemeral key.
-	SharedKey DeriveSharedKey(const KeyPair& keyPair, const Key& otherPublicKey);
+	/// Unlocked entry message.
+	struct UnlockedEntryMessage {
+		/// Unlocked entry direction.
+		UnlockedEntryDirection Direction;
+
+		/// Encrypted entry.
+		RawBuffer EncryptedEntry;
+	};
+
+	/// Gets the size of encrypted entry.
+	size_t EncryptedUnlockedEntrySize();
+
+	/// Gets a unique identifier for \a message.
+	UnlockedEntryMessageIdentifier GetMessageIdentifier(const UnlockedEntryMessage& message);
 }}

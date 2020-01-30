@@ -46,7 +46,7 @@ namespace catapult { namespace plugins {
 		auto recipient = model::PublicKeyToAddress(bootKeyPair.publicKey(), manager.config().Network.Identifier);
 		auto dataDirectory = config::CatapultDataDirectory(manager.userConfig().DataDirectory);
 		manager.addObserverHook([recipient, dataDirectory](auto& builder) {
-			builder.add(observers::CreateTransferMessageObserver(0x98E5BF64C771CCFE, recipient, dataDirectory.dir("transfer_message")));
+			builder.add(observers::CreateTransferMessageObserver(0xE201735761802AFE, recipient, dataDirectory.dir("transfer_message")));
 		});
 	}
 }}

@@ -19,7 +19,7 @@
 **/
 
 #pragma once
-#include "catapult/types.h"
+#include "harvesting/src/UnlockedFileQueueConsumer.h"
 #include <set>
 #include <vector>
 
@@ -33,18 +33,18 @@ namespace catapult { namespace test {
 #pragma pack(push, 1)
 	/// Unlocked test entry.
 	struct UnlockedTestEntry {
-		/// Announcer public key.
-		catapult::Key Key;
-
 		/// Encrypted unlocked entry.
 		std::array<uint8_t, Unlocked_Test_Entry_Payload_Size> Payload;
 
 		/// Returns \c true if this unlocked test entry is equal to \a rhs.
 		bool operator==(const UnlockedTestEntry& rhs) const {
-			return Key == rhs.Key && Payload == rhs.Payload;
+			return Payload == rhs.Payload;
 		}
 	};
 #pragma pack(pop)
+
+	/// Gets a unique identifier for \a entry.
+	harvesting::UnlockedEntryMessageIdentifier GetMessageIdentifier(const UnlockedTestEntry& entry);
 
 	/// Insertion operator for outputting \a entry to \a out.
 	std::ostream& operator<<(std::ostream& out, const UnlockedTestEntry& entry);
@@ -58,16 +58,17 @@ namespace catapult { namespace test {
 		Mutate_Padding
 	};
 
-	/// Creates encrypted unlocked entry around \a entryBuffer using \a keyPair with \a encryptionMutationFlag.
+	/// Creates an encrypted unlocked entry around \a entryBuffer using \a recipientPublicKey with \a encryptionMutationFlag.
 	UnlockedTestEntry PrepareUnlockedTestEntry(
-			const crypto::KeyPair& keyPair,
+			const Key& recipientPublicKey,
 			const RawBuffer& entryBuffer,
 			EncryptionMutationFlag encryptionMutationFlag = EncryptionMutationFlag::None);
 
-	/// Creates encrypted unlocked entry around \a entryBuffer using \a keyPair and \a announcerPublicKey with \a encryptionMutationFlag.
+	/// Creates an encrypted unlocked entry around \a entryBuffer using \a ephemeralKeyPair and \a recipientPublicKey
+	/// with \a encryptionMutationFlag.
 	UnlockedTestEntry PrepareUnlockedTestEntry(
-			const Key& announcerPublicKey,
-			const crypto::KeyPair& keyPair,
+			const crypto::KeyPair& ephemeralKeyPair,
+			const Key& recipientPublicKey,
 			const RawBuffer& entryBuffer,
 			EncryptionMutationFlag encryptionMutationFlag = EncryptionMutationFlag::None);
 
@@ -77,7 +78,7 @@ namespace catapult { namespace test {
 	/// Unlocked test entry order comparator.
 	struct UnlockedTestEntryComparator {
 		bool operator()(const UnlockedTestEntry& lhs, const UnlockedTestEntry& rhs) const {
-			return lhs.Key < rhs.Key;
+			return GetMessageIdentifier(lhs) < GetMessageIdentifier(rhs);
 		}
 	};
 

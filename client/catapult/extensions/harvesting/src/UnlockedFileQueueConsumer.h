@@ -19,9 +19,9 @@
 **/
 
 #pragma once
+#include "UnlockedEntryMessage.h"
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/functions.h"
-#include "catapult/types.h"
 #include <string>
 
 namespace catapult {
@@ -31,35 +31,8 @@ namespace catapult {
 
 namespace catapult { namespace harvesting {
 
-	/// Unlocked entry direction.
-	enum class UnlockedEntryDirection : uint8_t {
-		/// Add unlocked entry.
-		Add,
-
-		/// Remove unlocked entry.
-		Remove
-	};
-
-	/// Unlocked entry message.
-	struct UnlockedEntryMessage {
-		/// Announcer public key.
-		Key AnnouncerPublicKey;
-
-		/// Unlocked entry direction.
-		UnlockedEntryDirection Direction;
-
-		/// Encrypted entry.
-		RawBuffer EncryptedEntry;
-	};
-
-	/// Gets the size of encrypted entry.
-	size_t EncryptedUnlockedEntrySize();
-
-	/// Decrypts \a saltedEncrypted using \a bootKeyPair and \a publicKey.
-	std::pair<crypto::PrivateKey, bool> TryDecryptUnlockedEntry(
-			const RawBuffer& saltedEncrypted,
-			const crypto::KeyPair& bootKeyPair,
-			const Key& publicKey);
+	/// Decrypts \a encryptedWithKey using \a bootKeyPair.
+	std::pair<crypto::PrivateKey, bool> TryDecryptUnlockedEntry(const RawBuffer& encryptedWithKey, const crypto::KeyPair& bootKeyPair);
 
 	/// Reads encrypted unlocked entry messages from \a directory, validates using \a bootKeyPair and forwards to \a processEntryKeyPair.
 	void UnlockedFileQueueConsumer(

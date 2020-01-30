@@ -18,21 +18,28 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#pragma once
-#include "KeyPair.h"
+#include "harvesting/src/UnlockedEntryMessage.h"
+#include "tests/TestHarness.h"
 
-namespace catapult { namespace crypto {
+namespace catapult { namespace harvesting {
 
-	struct SharedSecret_tag { static constexpr size_t Size = 32; };
-	using SharedSecret = utils::ByteArray<SharedSecret_tag>;
+#define TEST_CLASS UnlockedEntryMessageTests
 
-	struct SharedKey_tag { static constexpr size_t Size = 32; };
-	using SharedKey = utils::ByteArray<SharedKey_tag>;
+	TEST(TEST_CLASS, CanGetEncryptedUnlockedEntrySize) {
+		EXPECT_EQ(32u + 16 + 32 + 16, EncryptedUnlockedEntrySize());
+	}
 
-	/// Generates HKDF of \a sharedSecret using default zeroed salt and constant label "catapult".
-	SharedKey Hkdf_Hmac_Sha256_32(const SharedSecret& sharedSecret);
+	TEST(TEST_CLASS, CanGetMessageIdentifierFromMessage) {
+		// Arrange:
+		auto expectedMessageIdentifier = test::GenerateRandomByteArray<UnlockedEntryMessageIdentifier>();
 
-	/// Generates shared key using \a keyPair and \a otherPublicKey.
-	/// \note: One of the provided keys is expected to be an ephemeral key.
-	SharedKey DeriveSharedKey(const KeyPair& keyPair, const Key& otherPublicKey);
+		UnlockedEntryMessage message;
+		message.EncryptedEntry = RawBuffer{ expectedMessageIdentifier.data(), expectedMessageIdentifier.size() };
+
+		// Act:
+		auto messageIdentifier = GetMessageIdentifier(message);
+
+		// Assert:
+		EXPECT_EQ(expectedMessageIdentifier, messageIdentifier);
+	}
 }}

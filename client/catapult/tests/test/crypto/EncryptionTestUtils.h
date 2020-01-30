@@ -34,6 +34,6 @@ namespace catapult { namespace test {
 			std::vector<uint8_t>& output,
 			const consumer<std::vector<uint8_t>&>& applyPaddingScheme = AesPkcs7PaddingScheme);
 
-	/// Generates random salt and encrypts \a clearText with shared key derived from \a keyPair and \a publicKey.
-	std::vector<uint8_t> SaltAndEncrypt(const RawBuffer& clearText, const crypto::KeyPair& keyPair, const Key& publicKey);
+	/// Encrypts \a clearText with shared key derived from generated ephemeral key and \a recipientPublicKey.
+	std::vector<uint8_t> GenerateEphemeralAndEncrypt(const RawBuffer& clearText, const Key& recipientPublicKey);
 }}

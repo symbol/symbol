@@ -18,21 +18,27 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#pragma once
-#include "KeyPair.h"
+#include "UnlockedEntryMessage.h"
+#include "catapult/crypto/AesCbcDecrypt.h"
+#include <cstring>
 
-namespace catapult { namespace crypto {
+namespace catapult { namespace harvesting {
 
-	struct SharedSecret_tag { static constexpr size_t Size = 32; };
-	using SharedSecret = utils::ByteArray<SharedSecret_tag>;
+	namespace {
+		constexpr auto Aes_Pkcs7_Padding_Size = 16;
+	}
 
-	struct SharedKey_tag { static constexpr size_t Size = 32; };
-	using SharedKey = utils::ByteArray<SharedKey_tag>;
+	size_t EncryptedUnlockedEntrySize() {
+		// ephemeral public key | aes cbc initialization vector | encrypted harvester private key | padding
+		return Key::Size
+				+ crypto::AesInitializationVector::Size
+				+ Key::Size
+				+ Aes_Pkcs7_Padding_Size;
+	}
 
-	/// Generates HKDF of \a sharedSecret using default zeroed salt and constant label "catapult".
-	SharedKey Hkdf_Hmac_Sha256_32(const SharedSecret& sharedSecret);
-
-	/// Generates shared key using \a keyPair and \a otherPublicKey.
-	/// \note: One of the provided keys is expected to be an ephemeral key.
-	SharedKey DeriveSharedKey(const KeyPair& keyPair, const Key& otherPublicKey);
+	UnlockedEntryMessageIdentifier GetMessageIdentifier(const UnlockedEntryMessage& message) {
+		UnlockedEntryMessageIdentifier messageIdentifier;
+		std::memcpy(messageIdentifier.data(), message.EncryptedEntry.pData, messageIdentifier.size());
+		return messageIdentifier;
+	}
 }}

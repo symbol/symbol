@@ -169,10 +169,9 @@ namespace catapult { namespace observers {
 
 		auto expectedMessagePayloadSize = 3u;
 		auto messageFileContents = context.readAll("0000000000000000.dat");
-		ASSERT_EQ(1 + Key::Size + expectedMessagePayloadSize, messageFileContents.size());
+		ASSERT_EQ(1 + expectedMessagePayloadSize, messageFileContents.size());
 		EXPECT_EQ(TTraits::Message_First_Byte, messageFileContents[0]);
-		EXPECT_EQ(sender, reinterpret_cast<const Key&>(messageFileContents[1]));
-		EXPECT_EQ_MEMORY(&message[sizeof(uint64_t)], &messageFileContents[1 + Key::Size], expectedMessagePayloadSize);
+		EXPECT_EQ_MEMORY(&message[sizeof(uint64_t)], &messageFileContents[1], expectedMessagePayloadSize);
 	}
 
 	// endregion

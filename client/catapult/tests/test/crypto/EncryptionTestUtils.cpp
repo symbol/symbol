@@ -20,6 +20,7 @@
 
 #include "EncryptionTestUtils.h"
 #include "catapult/utils/MemoryUtils.h"
+#include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/nodeps/Random.h"
 #include <tiny-aes-c/aes.hpp>
 #include <cstring>
@@ -67,18 +68,18 @@ namespace catapult { namespace test {
 		AES_CBC_encrypt_buffer(&ctx, output.data() + initializationVector.size(), static_cast<uint32_t>(encryptedDataSize));
 	}
 
-	std::vector<uint8_t> SaltAndEncrypt(const RawBuffer& clearText, const crypto::KeyPair& keyPair, const Key& publicKey) {
-		auto salt = GenerateRandomByteArray<crypto::Salt>();
-		auto sharedKey = DeriveSharedKey(keyPair, publicKey, salt);
+	std::vector<uint8_t> GenerateEphemeralAndEncrypt(const RawBuffer& clearText, const Key& recipientPublicKey) {
+		auto ephemeralKeyPair = test::GenerateKeyPair();
+		auto sharedKey = DeriveSharedKey(ephemeralKeyPair, recipientPublicKey);
 		auto initializationVector = GenerateRandomByteArray<crypto::AesInitializationVector>();
 
 		std::vector<uint8_t> encrypted;
 		AesCbcEncrypt(sharedKey, initializationVector, clearText, encrypted);
 
-		std::vector<uint8_t> saltedEncrypted(crypto::Salt::Size + encrypted.size());
-		std::memcpy(saltedEncrypted.data(), salt.data(), crypto::Salt::Size);
-		std::memcpy(saltedEncrypted.data() + crypto::Salt::Size, encrypted.data(), encrypted.size());
+		std::vector<uint8_t> encryptedWithKey(Key::Size + encrypted.size());
+		std::memcpy(encryptedWithKey.data(), ephemeralKeyPair.publicKey().data(), Key::Size);
+		std::memcpy(encryptedWithKey.data() + Key::Size, encrypted.data(), encrypted.size());
 
-		return saltedEncrypted;
+		return encryptedWithKey;
 	}
 }}

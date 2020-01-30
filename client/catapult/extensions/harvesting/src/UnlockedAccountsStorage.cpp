@@ -32,24 +32,23 @@ namespace catapult { namespace harvesting {
 			return filename + ".tmp";
 		}
 
-		void Append(const std::string& filename, const Key& announcerPublicKey, const RawBuffer& encryptedEntry) {
+		void Append(const std::string& filename, const RawBuffer& encryptedEntry) {
 			io::RawFile output(filename, io::OpenMode::Read_Append);
 			output.seek(output.size());
-			output.write(announcerPublicKey);
 			output.write(encryptedEntry);
 		}
 
-		void SafeAppend(const std::string& filename, const Key& announcerPublicKey, const RawBuffer& encryptedEntry) {
+		void SafeAppend(const std::string& filename, const RawBuffer& encryptedEntry) {
 			auto tempFilename = GetTempFilename(filename);
 			if (boost::filesystem::exists(filename))
 				boost::filesystem::copy_file(filename, tempFilename, boost::filesystem::copy_option::overwrite_if_exists);
 
-			Append(tempFilename, announcerPublicKey, encryptedEntry);
+			Append(tempFilename, encryptedEntry);
 			boost::filesystem::rename(tempFilename, filename);
 		}
 
-		size_t GetLastAnnouncerPublicKey(const std::string& filename, Key& announcerPublicKey) {
-			auto entrySize = Key::Size + EncryptedUnlockedEntrySize();
+		size_t GetLastMessageIdentifier(const std::string& filename, UnlockedEntryMessageIdentifier& messageIdentifier) {
+			auto entrySize = EncryptedUnlockedEntrySize();
 			io::RawFile input(filename, io::OpenMode::Read_Only);
 			if (0 != input.size() % entrySize) {
 				CATAPULT_LOG(warning) << filename << " is corrupt with size (" << input.size() << ")";
@@ -58,22 +57,22 @@ namespace catapult { namespace harvesting {
 
 			auto entryStartPosition = input.size() - entrySize;
 			input.seek(entryStartPosition);
-			input.read(announcerPublicKey);
+			input.read(messageIdentifier);
 			return entryStartPosition;
 		}
 
-		void TryRemoveLastEntry(const std::string& filename, const Key& expectedAnnouncerPublicKey) {
+		void TryRemoveLastEntry(const std::string& filename, const UnlockedEntryMessageIdentifier& expectedMesssageIdentifier) {
 			if (!boost::filesystem::exists(filename)) {
 				CATAPULT_LOG(warning) << filename << " does not exist";
 				return;
 			}
 
-			Key announcerPublicKey;
-			auto entryStartPosition = GetLastAnnouncerPublicKey(filename, announcerPublicKey);
-			if (expectedAnnouncerPublicKey != announcerPublicKey) {
+			UnlockedEntryMessageIdentifier messageIdentifier;
+			auto entryStartPosition = GetLastMessageIdentifier(filename, messageIdentifier);
+			if (expectedMesssageIdentifier != messageIdentifier) {
 				CATAPULT_LOG(warning)
-						<< "last announcer public key (" << announcerPublicKey << ") "
-						<< "does not match expected announcer public key (" << expectedAnnouncerPublicKey << ")";
+						<< "last message identifier (" << messageIdentifier << ") "
+						<< "does not match expected message identifier (" << expectedMesssageIdentifier << ")";
 				return;
 			}
 
@@ -84,36 +83,39 @@ namespace catapult { namespace harvesting {
 	UnlockedAccountsStorage::UnlockedAccountsStorage(const std::string& filename) : m_filename(filename)
 	{}
 
-	bool UnlockedAccountsStorage::containsAnnouncer(const Key& announcerPublicKey) {
-		return m_announcerToEntryMap.cend() != m_announcerToEntryMap.find(announcerPublicKey);
+	bool UnlockedAccountsStorage::contains(const UnlockedEntryMessageIdentifier& messageIdentifier) {
+		return m_identityToEntryMap.cend() != m_identityToEntryMap.find(messageIdentifier);
 	}
 
-	void UnlockedAccountsStorage::add(const Key& announcerPublicKey, const RawBuffer& encryptedEntry, const Key& harvesterPublicKey) {
+	void UnlockedAccountsStorage::add(
+			const UnlockedEntryMessageIdentifier& messageIdentifier,
+			const RawBuffer& encryptedEntry,
+			const Key& harvesterPublicKey) {
 		if (EncryptedUnlockedEntrySize() != encryptedEntry.Size)
 			CATAPULT_THROW_INVALID_ARGUMENT_1("encrypted entry has invalid size", encryptedEntry.Size);
 
-		if (containsAnnouncer(announcerPublicKey))
-			CATAPULT_THROW_INVALID_ARGUMENT_1("cannot add same announcer public key to storage multiple times", announcerPublicKey);
+		if (contains(messageIdentifier))
+			CATAPULT_THROW_INVALID_ARGUMENT_1("cannot add same message identifier to storage multiple times", messageIdentifier);
 
-		SafeAppend(m_filename, announcerPublicKey, encryptedEntry);
+		SafeAppend(m_filename, encryptedEntry);
 
 		std::vector<uint8_t> entry(encryptedEntry.pData, encryptedEntry.pData + encryptedEntry.Size);
-		addEntry(announcerPublicKey, entry, harvesterPublicKey);
+		addEntry(messageIdentifier, entry, harvesterPublicKey);
 	}
 
-	void UnlockedAccountsStorage::remove(const Key& announcerPublicKey) {
-		TryRemoveLastEntry(m_filename, announcerPublicKey);
+	void UnlockedAccountsStorage::remove(const UnlockedEntryMessageIdentifier& messageIdentifier) {
+		TryRemoveLastEntry(m_filename, messageIdentifier);
 
-		if (!tryRemoveEntry(announcerPublicKey)) {
-			CATAPULT_LOG(debug) << "cannot remove announcer public key " << announcerPublicKey << " because it is not in map";
+		if (!tryRemoveEntry(messageIdentifier)) {
+			CATAPULT_LOG(debug) << "cannot remove message identifier " << messageIdentifier << " because it is not in map";
 			return;
 		}
 	}
 
 	void UnlockedAccountsStorage::save(const predicate<const Key&>& filter) const {
 		std::unique_ptr<io::RawFile> pRawFile;
-		for (const auto& announcerEntryPair : m_announcerToEntryMap) {
-			const auto& harvesterPublicKey = m_entryToHarvesterMap.find(announcerEntryPair)->second;
+		for (const auto& identityEntryPair : m_identityToEntryMap) {
+			const auto& harvesterPublicKey = m_entryToHarvesterMap.find(identityEntryPair)->second;
 			if (!filter(harvesterPublicKey))
 				continue;
 
@@ -121,8 +123,7 @@ namespace catapult { namespace harvesting {
 			if (!pRawFile)
 				pRawFile = std::make_unique<io::RawFile>(GetTempFilename(m_filename), io::OpenMode::Read_Write);
 
-			pRawFile->write(announcerEntryPair.first);
-			pRawFile->write(announcerEntryPair.second);
+			pRawFile->write(identityEntryPair.second);
 		}
 
 		// if all entries have been filtered out, remove file
@@ -144,16 +145,17 @@ namespace catapult { namespace harvesting {
 		io::RawFile inputFile(m_filename, io::OpenMode::Read_Only);
 		std::vector<uint8_t> encryptedEntry(EncryptedUnlockedEntrySize());
 		while (inputFile.position() != inputFile.size()) {
-			Key announcerPublicKey;
-			inputFile.read(announcerPublicKey);
 			inputFile.read(encryptedEntry);
 
-			auto decryptedPair = TryDecryptUnlockedEntry(encryptedEntry, bootKeyPair, announcerPublicKey);
+			auto decryptedPair = TryDecryptUnlockedEntry(encryptedEntry, bootKeyPair);
 			if (!decryptedPair.second)
 				CATAPULT_THROW_RUNTIME_ERROR("malformed harvesters file");
 
+			UnlockedEntryMessage message;
+			message.EncryptedEntry = RawBuffer(encryptedEntry);
+
 			auto keyPair = crypto::KeyPair::FromPrivate(std::move(decryptedPair.first));
-			addEntry(announcerPublicKey, encryptedEntry, keyPair.publicKey());
+			addEntry(GetMessageIdentifier(message), encryptedEntry, keyPair.publicKey());
 			processKeyPair(std::move(keyPair));
 		}
 
@@ -161,20 +163,20 @@ namespace catapult { namespace harvesting {
 	}
 
 	void UnlockedAccountsStorage::addEntry(
-			const Key& announcerPublicKey,
+			const UnlockedEntryMessageIdentifier& messageIdentifier,
 			const std::vector<uint8_t>& entry,
 			const Key& harvesterPublicKey) {
-		auto iter = m_announcerToEntryMap.emplace(announcerPublicKey, entry).first;
+		auto iter = m_identityToEntryMap.emplace(messageIdentifier, entry).first;
 		m_entryToHarvesterMap.emplace(*iter, harvesterPublicKey);
 	}
 
-	bool UnlockedAccountsStorage::tryRemoveEntry(const Key& announcerPublicKey) {
-		auto iter = m_announcerToEntryMap.find(announcerPublicKey);
-		if (m_announcerToEntryMap.cend() == iter)
+	bool UnlockedAccountsStorage::tryRemoveEntry(const UnlockedEntryMessageIdentifier& messageIdentifier) {
+		auto iter = m_identityToEntryMap.find(messageIdentifier);
+		if (m_identityToEntryMap.cend() == iter)
 			return false;
 
 		m_entryToHarvesterMap.erase(*iter); // note, in this case *iter is a key for entryToHarvesterMap
-		m_announcerToEntryMap.erase(iter);
+		m_identityToEntryMap.erase(iter);
 		return true;
 	}
 }}

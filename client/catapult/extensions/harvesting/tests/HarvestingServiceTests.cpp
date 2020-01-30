@@ -277,12 +277,12 @@ namespace catapult { namespace harvesting {
 	}
 
 	namespace {
-		void AddHarvestersFileEntries(const std::string& filename, const crypto::KeyPair& nodeOwnerKeyPair, size_t numEntries) {
+		void AddHarvestersFileEntries(const std::string& filename, const Key& nodeOwnerPublicKey, size_t numEntries) {
 			UnlockedAccountsStorage storage(filename);
 			for (auto i = 0u; i < numEntries; ++i) {
 				auto privateKeyBuffer = test::GenerateRandomByteArray<Key>();
-				auto entry = test::PrepareUnlockedTestEntry(nodeOwnerKeyPair, privateKeyBuffer);
-				storage.add(entry.Key, entry.Payload, Key{ { static_cast<uint8_t>(i) } });
+				auto entry = test::PrepareUnlockedTestEntry(nodeOwnerPublicKey, privateKeyBuffer);
+				storage.add(test::GetMessageIdentifier(entry), entry.Payload, Key{ { static_cast<uint8_t>(i) } });
 			}
 		}
 	}
@@ -294,7 +294,7 @@ namespace catapult { namespace harvesting {
 		context.setDataDirectory(directoryGuard.name());
 
 		auto filename = config::CatapultDataDirectory(directoryGuard.name()).rootDir().file("harvesters.dat");
-		AddHarvestersFileEntries(filename, context.locator().keyPair(), 3);
+		AddHarvestersFileEntries(filename, context.locator().keyPair().publicKey(), 3);
 
 		RunUnlockedAccountsServiceTest(context, [&context](const auto& unlockedAccounts) {
 			// Assert: only accounts from the file were unlocked
