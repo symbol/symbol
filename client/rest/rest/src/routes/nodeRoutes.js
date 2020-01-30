@@ -25,7 +25,6 @@ const catapult = require('catapult-sdk');
 
 const packetHeader = catapult.packet.header;
 const { PacketType } = catapult.packet;
-
 const { BinaryParser } = catapult.parser;
 
 const buildResponse = (packet, codec, resultType) => {
@@ -55,6 +54,56 @@ module.exports = {
 				.then(connection => connection.pushPull(packetBuffer, timeout))
 				.then(packet => {
 					res.send(buildResponse(packet, nodeTimeCodec, routeResultTypes.nodeTime));
+					next();
+				});
+		});
+
+		server.get('/node/health', (req, res, next) => {
+			const parseNodeInfoPacket = packet => {
+				const binaryParser = new BinaryParser();
+				binaryParser.push(packet.payload);
+				return nodeInfoCodec.deserialize(binaryParser);
+			};
+
+			const ServiceStatus = Object.freeze({
+				up: 'up',
+				down: 'down'
+			});
+
+			// Check database status
+			const dbStatusPromise = new Promise((resolve, reject) => (db.database.serverConfig.isConnected() ? resolve() : reject()));
+
+			// Check apiNode status
+			const packetBuffer = packetHeader.createBuffer(PacketType.nodeDiscoveryPullPing, packetHeader.size);
+			const apiNodeStatusPromise = services.connections.singleUse()
+				.then(connection => connection.pushPull(packetBuffer, services.config.apiNode.timeout))
+				.then(packet => parseNodeInfoPacket(packet));
+
+			const allSettled = promises => {
+				const wrappedPromises = promises.map(p => Promise.resolve(p)
+					.then(
+						val => ({ status: 'fulfilled', value: val }),
+						err => ({ status: 'rejected', reason: err })
+					));
+				return Promise.all(wrappedPromises);
+			};
+
+			// Promise.allSettled() is officially supported from Node.js 12.9.0
+			return allSettled([dbStatusPromise, apiNodeStatusPromise])
+				.then(results => {
+					const statusCode = results.some(result => 'fulfilled' !== result.status) ? 503 : 200;
+					const checkResult = result => ('fulfilled' === result.status ? ServiceStatus.up : ServiceStatus.down);
+
+					res.status(statusCode);
+					res.send({
+						payload: {
+							status: {
+								apiNode: checkResult(results[1]),
+								db: checkResult(results[0])
+							}
+						},
+						type: routeResultTypes.nodeHealth
+					});
 					next();
 				});
 		});

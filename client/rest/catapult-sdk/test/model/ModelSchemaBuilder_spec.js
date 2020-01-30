@@ -89,6 +89,7 @@ describe('model schema builder', () => {
 
 				'chainStatistic',
 				'chainStatisticCurrent',
+				'nodeHealth',
 				'nodeInfo',
 				'communicationTimestamps',
 				'nodeTime',

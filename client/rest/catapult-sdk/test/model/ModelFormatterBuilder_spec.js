@@ -51,6 +51,7 @@ describe('model formatter builder', () => {
 				'chainStatistic',
 				'chainStatisticCurrent',
 				'merkleProofInfo',
+				'nodeHealth',
 				'nodeInfo',
 				'nodeTime',
 				'serverInfo',

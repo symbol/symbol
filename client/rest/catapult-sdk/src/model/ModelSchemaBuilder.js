@@ -149,6 +149,8 @@ class ModelSchemaBuilder {
 				scoreLow: ModelType.uint64,
 				scoreHigh: ModelType.uint64
 			},
+			nodeHealth: {
+			},
 			nodeInfo: {
 				friendlyName: ModelType.string,
 				host: ModelType.string,

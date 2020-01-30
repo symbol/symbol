@@ -25,9 +25,6 @@ const diagnosticRoutes = require('../../src/routes/diagnosticRoutes');
 const { expect } = require('chai');
 
 describe('diagnostic routes', () => {
-	const executeRoute = (routeName, db, assertResponse) =>
-		test.route.executeSingle(diagnosticRoutes.register, routeName, 'get', {}, db, undefined, assertResponse);
-
 	describe('blocks', () => {
 		const builder = test.route.document.prepareGetDocumentsRouteTests(diagnosticRoutes.register, {
 			route: '/diagnostic/blocks/:height/limit/:limit',
@@ -71,6 +68,9 @@ describe('diagnostic routes', () => {
 	});
 
 	describe('storage', () => {
+		const executeRoute = (routeName, db, assertResponse) =>
+			test.route.executeSingle(diagnosticRoutes.register, routeName, 'get', {}, db, undefined, assertResponse);
+
 		const createMockStorageInfoDb = (numBlocks, numTransactions, numAccounts) => ({
 			storageInfo: () => Promise.resolve({ numBlocks, numTransactions, numAccounts })
 		});

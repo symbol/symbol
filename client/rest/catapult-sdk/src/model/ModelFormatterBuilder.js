@@ -41,6 +41,7 @@ class ModelFormatterBuilder {
 			'chainStatistic',
 			'chainStatisticCurrent',
 			'merkleProofInfo',
+			'nodeHealth',
 			'nodeInfo',
 			'nodeTime',
 			'serverInfo',
