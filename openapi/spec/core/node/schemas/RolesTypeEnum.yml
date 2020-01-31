@@ -3,8 +3,10 @@ format: int32
 enum:
   - 1
   - 2
+  - 3
 description: |
   Role of the node:
   * 1 - Peer node.
   * 2 - Api node.
+  * 3 - Dual node.
 example: 2
