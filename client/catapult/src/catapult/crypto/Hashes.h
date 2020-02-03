@@ -28,11 +28,14 @@ namespace catapult { namespace crypto {
 	/// Calculates the ripemd160 hash of \a dataBuffer into \a hash.
 	void Ripemd160(const RawBuffer& dataBuffer, Hash160& hash) noexcept;
 
-	/// Calculates bitcoin's hash 160 of \a dataBuffer into \a hash (sha256 + ripemd).
+	/// Calculates the Bitcoin hash 160 of \a dataBuffer into \a hash (sha256 + ripemd).
 	void Bitcoin160(const RawBuffer& dataBuffer, Hash160& hash) noexcept;
 
-	/// Calculates double sha256 hash of \a dataBuffer into \a hash.
+	/// Calculates the double sha256 hash of \a dataBuffer into \a hash.
 	void Sha256Double(const RawBuffer& dataBuffer, Hash256& hash) noexcept;
+
+	/// Calculates the sha512 hash of \a dataBuffer into \a hash.
+	void Sha512(const RawBuffer& dataBuffer, Hash512& hash) noexcept;
 
 	/// Calculates the 256-bit SHA3 hash of \a dataBuffer into \a hash.
 	void Sha3_256(const RawBuffer& dataBuffer, Hash256& hash) noexcept;
@@ -46,8 +49,36 @@ namespace catapult { namespace crypto {
 	/// Calculates the 512-bit Keccak hash of \a dataBuffer into \a hash.
 	void Keccak_512(const RawBuffer& dataBuffer, Hash512& hash) noexcept;
 
-	/// Calculates Sha256 HMAC of \a input with \a key, producing \a output.
+	/// Calculates the sha256 HMAC of \a input with \a key, producing \a output.
 	void Hmac_Sha256(const RawBuffer& key, const RawBuffer& input, Hash256& output);
+
+	// endregion
+
+	// region sha512 builder
+
+	/// Builder for building a sha512 hash.
+	class alignas(32) Sha512_Builder {
+	public:
+		using OutputType = Hash512;
+
+	public:
+		/// Creates a builder.
+		Sha512_Builder();
+
+	public:
+		/// Updates the state of hash with data inside \a dataBuffer.
+		void update(const RawBuffer& dataBuffer) noexcept;
+
+		/// Updates the state of hash with concatenated \a buffers.
+		void update(std::initializer_list<const RawBuffer> buffers) noexcept;
+
+		/// Finalize hash calculation. Returns result in \a output.
+		void final(OutputType& output) noexcept;
+
+	private:
+		// size below is related to amount of data sha512 needs for its internal state
+		uint8_t m_hashContext[256];
+	};
 
 	// endregion
 
@@ -59,7 +90,7 @@ namespace catapult { namespace crypto {
 	/// Use with KeccakBuilder to generate Keccak hashes.
 	struct KeccakModeTag {};
 
-	/// Builder for building a hash.
+	/// Builder for building a keccak hash.
 	template<typename TModeTag, typename THashTag>
 	class alignas(32) KeccakBuilder {
 	public:
