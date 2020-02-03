@@ -1,6 +1,6 @@
 {
   "name": "nem2-openapi",
-  "version": "0.7.22",
+  "version": "0.7.24",
   "description": "OpenAPI Specification of catapult-rest",
   "main": "index.js",
   "scripts": {

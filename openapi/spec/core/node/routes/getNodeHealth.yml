@@ -1,0 +1,18 @@
+tags:
+  - Node routes
+summary: Get the node health information
+description: Supplies information regarding the connection and services status.
+operationId: getNodeHealth
+responses:
+  "200":
+    description: Both API node and database services are reachable from REST server.
+    content:
+      application/json:
+        schema:
+          $ref: "../schemas/NodeHealthInfoDTO.yml"
+  "503":
+    description: Either API node or database service is unavailable or unreachable from REST server.
+    content:
+      application/json:
+        schema:
+          $ref: "../schemas/NodeHealthInfoDTO.yml"

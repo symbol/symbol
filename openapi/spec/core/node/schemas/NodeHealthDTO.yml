@@ -1,0 +1,11 @@
+type: object
+required:
+  - apiNode
+  - db
+properties:
+  apiNode:
+    $ref: "./NodeStatusEnum.yml"
+    description: API node service status.
+  db:
+    $ref: "./NodeStatusEnum.yml"
+    description: MongoDB service status.

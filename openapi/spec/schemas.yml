@@ -93,10 +93,16 @@ NetworkTypeDTO:
   "$ref": "./core/network/schemas/NetworkTypeDTO.yml"
 
 # Core - Node
+NodeStatusEnum:
+  "$ref": "./core/node/schemas/NodeStatusEnum.yml"
 RolesTypeEnum:
   "$ref": "./core/node/schemas/RolesTypeEnum.yml"
 CommunicationTimestampsDTO:
   "$ref": "./core/node/schemas/CommunicationTimestampsDTO.yml"
+NodeHealthDTO:
+  "$ref": "./core/node/schemas/NodeHealthDTO.yml"
+NodeHealthInfoDTO:
+  "$ref": "./core/node/schemas/NodeHealthInfoDTO.yml"
 NodeInfoDTO:
   "$ref": "./core/node/schemas/NodeInfoDTO.yml"
 NodeTimeDTO:
