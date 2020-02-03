@@ -57,6 +57,9 @@
     $ref: "./core/network/routes/getNetworkType.yml"
 
 # Core - Node
+/node/health:
+  get:
+    $ref: "./core/node/routes/getNodeHealth.yml"
 /node/info:
   get:
     $ref: "./core/node/routes/getNodeInfo.yml"
