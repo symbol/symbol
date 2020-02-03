@@ -21,7 +21,6 @@
 const accountRoutes = require('./accountRoutes');
 const blockRoutes = require('./blockRoutes');
 const chainRoutes = require('./chainRoutes');
-const diagnosticRoutes = require('./diagnosticRoutes');
 const networkRoutes = require('./networkRoutes');
 const nodeRoutes = require('./nodeRoutes');
 const transactionRoutes = require('./transactionRoutes');
@@ -34,7 +33,6 @@ module.exports = {
 			accountRoutes,
 			blockRoutes,
 			chainRoutes,
-			diagnosticRoutes,
 			networkRoutes,
 			nodeRoutes,
 			transactionRoutes,

@@ -61,13 +61,11 @@ describe('all routes', () => {
 			'/node/info',
 			'/node/time',
 			'/node/health',
+			'/node/server',
+			'/node/storage',
 
 			'/transaction/:transactionId',
-			'/transaction/:hash/status',
-
-			'/diagnostic/blocks/:height/limit/:limit',
-			'/diagnostic/server',
-			'/diagnostic/storage'
+			'/transaction/:hash/status'
 		]);
 	});
 

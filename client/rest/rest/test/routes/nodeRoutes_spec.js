@@ -19,6 +19,8 @@
  */
 
 const { MockServer, test } = require('./utils/routeTestUtils');
+const { version: sdkVersion } = require('../../../catapult-sdk/package.json');
+const { version: restVersion } = require('../../package.json');
 const nodeRoutes = require('../../src/routes/nodeRoutes');
 const errors = require('../../src/server/errors');
 const { expect } = require('chai');
@@ -264,6 +266,53 @@ describe('node routes', () => {
 						type: 'nodeHealth'
 					});
 					expect(mockServer.next.calledOnce).to.equal(true);
+				});
+			});
+		});
+
+		describe('server info', () => {
+			it('can retrieve info', () => {
+				// Arrange:
+				const endpointUnderTest = '/node/server';
+				const mockServer = new MockServer();
+				nodeRoutes.register(mockServer.server, {}, serviceCreator({}));
+
+				// Act:
+				const route = mockServer.getRoute(endpointUnderTest).get();
+				mockServer.callRoute(route, {});
+
+				// Assert:
+				expect(mockServer.send.firstCall.args[0]).to.deep.equal({
+					payload: {
+						serverInfo: {
+							restVersion,
+							sdkVersion
+						}
+					},
+					type: 'serverInfo'
+				});
+			});
+		});
+
+		describe('storage', () => {
+			const executeRoute = (routeName, db, assertResponse) =>
+				test.route.executeSingle(nodeRoutes.register, routeName, 'get', {}, db, serviceCreator({}).config, assertResponse);
+
+			const createMockStorageInfoDb = (numBlocks, numTransactions, numAccounts) => ({
+				storageInfo: () => Promise.resolve({ numBlocks, numTransactions, numAccounts })
+			});
+
+			it('can retrieve info', () => {
+				// Arrange:
+				const db = createMockStorageInfoDb(2, 64, 9);
+
+				// Act:
+				return executeRoute('/node/storage', db, response => {
+					// Assert:
+					expect(response).to.deep.equal({
+						payload: { numBlocks: 2, numTransactions: 64, numAccounts: 9 },
+						type: 'storageInfo'
+					});
 				});
 			});
 		});

@@ -19,6 +19,8 @@
  */
 
 const routeResultTypes = require('./routeResultTypes');
+const { version: sdkVersion } = require('../../../catapult-sdk/package.json');
+const { version: restVersion } = require('../../package.json');
 const nodeInfoCodec = require('../sockets/nodeInfoCodec');
 const nodeTimeCodec = require('../sockets/nodeTimeCodec');
 const catapult = require('catapult-sdk');
@@ -107,5 +109,24 @@ module.exports = {
 					next();
 				});
 		});
+
+		server.get('/node/server', (req, res, next) => {
+			res.send({
+				payload: {
+					serverInfo: {
+						restVersion,
+						sdkVersion
+					}
+				},
+				type: routeResultTypes.serverInfo
+			});
+			return next();
+		});
+
+		server.get('/node/storage', (req, res, next) =>
+			db.storageInfo().then(storageInfo => {
+				res.send({ payload: storageInfo, type: routeResultTypes.storageInfo });
+				next();
+			}));
 	}
 };
