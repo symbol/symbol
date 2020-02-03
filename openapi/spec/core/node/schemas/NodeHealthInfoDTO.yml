@@ -1,0 +1,6 @@
+type: object
+required:
+  - status
+properties:
+  status:
+    $ref: "./NodeHealthDTO.yml"
