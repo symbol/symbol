@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.2)
 project(external)
-add_definitions(-DED25519_CUSTOMHASH) # donna
 add_definitions(-DNO_MISALIGNED_ACCESSES) # sha3
 
 file(GLOB external_donna_SRC
@@ -38,4 +37,7 @@ add_library(external
 	${external_ripemd160_SRC}
 	${external_tiny_aes_SRC}
 	README.txt)
+
+catapult_add_ssl_dependencies(external)
+
 set_property(TARGET external PROPERTY POSITION_INDEPENDENT_CODE ON)

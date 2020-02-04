@@ -62,8 +62,6 @@ EMPTYLINES_FALSEPOSITIVES = (
 )
 
 LONGLINES_FALSEPOSITIVES = (
-    # 64-byte hex strings
-    re.compile(r'SignerTests.cpp'),
 )
 
 SPECIAL_INCLUDES = (

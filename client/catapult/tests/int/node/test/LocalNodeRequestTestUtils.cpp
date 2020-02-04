@@ -65,7 +65,7 @@ namespace catapult { namespace test {
 
 	namespace {
 		crypto::KeyPair GetNemesisAccountKeyPair() {
-			return crypto::KeyPair::FromString(Mijin_Test_Private_Keys[0]); // use a nemesis account
+			return crypto::KeyPair::FromString(Mijin_Test_Private_Keys[5]); // use a nemesis account
 		}
 
 		std::shared_ptr<model::Block> CreateBlock() {

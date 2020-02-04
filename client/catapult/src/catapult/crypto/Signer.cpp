@@ -106,12 +106,6 @@ namespace catapult { namespace crypto {
 			if (0 == (ValidateEncodedSPart(encodedS) & Is_Reduced))
 				CATAPULT_THROW_OUT_OF_RANGE("S part of signature invalid");
 		}
-
-#ifdef SIGNATURE_SCHEME_KECCAK
-		using HashBuilder = Keccak_512_Builder;
-#else
-		using HashBuilder = Sha3_512_Builder;
-#endif
 	}
 
 	// region Sign
@@ -132,7 +126,7 @@ namespace catapult { namespace crypto {
 		// "EdDSA avoids these issues by generating r = H(h_b, ..., h_2b?1, M), so that
 		//  different messages will lead to different, hard-to-predict values of r."
 		Hash512 hash_r;
-		HashBuilder hasher_r;
+		Sha512_Builder hasher_r;
 		hasher_r.update({ privHash.data() + Hash512::Size / 2, Hash512::Size / 2 });
 		hasher_r.update(buffersList);
 		hasher_r.final(hash_r);
@@ -147,7 +141,7 @@ namespace catapult { namespace crypto {
 
 		// h = H(encodedR || public || data)
 		Hash512 hash_h;
-		HashBuilder hasher_h;
+		Sha512_Builder hasher_h;
 		hasher_h.update({ { encodedR, Encoded_Size }, keyPair.publicKey() });
 		hasher_h.update(buffersList);
 		hasher_h.final(hash_h);
@@ -198,7 +192,7 @@ namespace catapult { namespace crypto {
 
 		// h = H(encodedR || public || data)
 		Hash512 hash_h;
-		HashBuilder hasher_h;
+		Sha512_Builder hasher_h;
 		hasher_h.update({ { encodedR, Encoded_Size }, publicKey });
 		for (const auto& buffer : buffers)
 			hasher_h.update(buffer);
@@ -287,7 +281,7 @@ namespace catapult { namespace crypto {
 				// compute scalars[1]..scalars[batchSize] as r[i]*H(R[i],A[i],m[i])
 				for (auto i = 0u; i < batchSize; ++i) {
 					Hash512 hash_h;
-					HashBuilder hasher_h;
+					Sha512_Builder hasher_h;
 					const auto& signatureInput = pSignatureInputs[offset + i];
 					hasher_h.update({ { signatureInput.Signature.data(), Encoded_Size }, signatureInput.PublicKey });
 					for (const auto& buffer : signatureInput.Buffers)

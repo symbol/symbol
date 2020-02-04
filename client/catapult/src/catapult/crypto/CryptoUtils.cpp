@@ -25,10 +25,6 @@
 namespace catapult { namespace crypto {
 
 	void HashPrivateKey(const PrivateKey& privateKey, Hash512& hash) {
-#ifdef SIGNATURE_SCHEME_KECCAK
-		Keccak_512({ privateKey.data(), privateKey.size() }, hash);
-#else
-		Sha3_512({ privateKey.data(), privateKey.size() }, hash);
-#endif
+		Sha512({ privateKey.data(), privateKey.size() }, hash);
 	}
 }}

@@ -49,7 +49,7 @@ namespace catapult { namespace config {
 			// Assert:
 			EXPECT_EQ(model::NetworkIdentifier::Mijin_Test, config.Network.Identifier);
 			EXPECT_EQ(model::NodeIdentityEqualityStrategy::Host, config.Network.NodeEqualityStrategy);
-			EXPECT_EQ(crypto::ParseKey("B4F12E7C9F6946091E2CB8B6D3A12B50D17CCBBF646386EA27CE2946A7423DCF"), config.Network.PublicKey);
+			EXPECT_EQ(crypto::ParseKey("C67F465087EF681824805B7E9FF3B2728A4EE847DE044DE5D9FA415F7660B08E"), config.Network.PublicKey);
 			EXPECT_EQ(
 					utils::ParseByteArray<GenerationHash>("57F7DA205008026C776CB6AED843393F04CD458E0AA2D9F1D5F31A402072B2D6"),
 					config.Network.GenerationHash);
@@ -59,8 +59,8 @@ namespace catapult { namespace config {
 
 			// - raw values are used instead of test::Default_*_Mosaic_Ids because
 			// config files contain mosaic ids when SIGNATURE_SCHEME_KECCAK is disabled
-			EXPECT_EQ(MosaicId(0x0DC6'7FBE'1CAD'29E3), config.CurrencyMosaicId);
-			EXPECT_EQ(MosaicId(0x2651'4E2A'1EF3'3824), config.HarvestingMosaicId);
+			EXPECT_EQ(MosaicId(0x621E'C5B4'0385'6FC2), config.CurrencyMosaicId);
+			EXPECT_EQ(MosaicId(0x4291'ED23'000A'037A), config.HarvestingMosaicId);
 
 			EXPECT_EQ(utils::TimeSpan::FromSeconds(15), config.BlockGenerationTargetTime);
 			EXPECT_EQ(3000u, config.BlockTimeSmoothingFactor);
