@@ -72,14 +72,6 @@ ChainScoreDTO:
 HeightInfoDTO:
   "$ref": "./core/chain/schemas/HeightInfoDTO.yml"
 
-# Core - Diagnostic
-ServerDTO:
-  "$ref": "./core/diagnostic/schemas/ServerDTO.yml"
-ServerInfoDTO:
-  "$ref": "./core/diagnostic/schemas/ServerInfoDTO.yml"
-StorageInfoDTO:
-  "$ref": "./core/diagnostic/schemas/StorageInfoDTO.yml"
-
 # Core - Entity
 NetworkTypeEnum:
   "$ref": "./core/entity/schemas/NetworkTypeEnum.yml"
@@ -107,6 +99,12 @@ NodeInfoDTO:
   "$ref": "./core/node/schemas/NodeInfoDTO.yml"
 NodeTimeDTO:
   "$ref": "./core/node/schemas/NodeTimeDTO.yml"
+ServerDTO:
+  "$ref": "./core/node/schemas/ServerDTO.yml"
+ServerInfoDTO:
+  "$ref": "./core/node/schemas/ServerInfoDTO.yml"
+StorageInfoDTO:
+  "$ref": "./core/node/schemas/StorageInfoDTO.yml"
 
 # Core - Transaction
 TransactionStateTypeEnum:

@@ -1,8 +1,8 @@
 tags:
-  - Diagnostic routes
+  - Node routes
 summary: Get the storage information of the node
-description: Returns diagnostic information about the node storage.
-operationId: getDiagnosticStorage
+description: Returns storage information about the node.
+operationId: getNodeStorage
 responses:
   "200":
     description: success
