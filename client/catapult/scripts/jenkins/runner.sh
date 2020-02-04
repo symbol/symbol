@@ -4,18 +4,18 @@ set -ex
 
 rm -rf catapult-src/internal
 
-branchName=$(echo ${GIT_BRANCH} | sed 's/origin\///;')
+branchName="$(echo "${GIT_BRANCH}" | sed 's/origin\///;')"
 
 # pick master as default
 internalBranchName="master"
 
 # if there's corresponding internal branch to main repo branch pick it instead
-hasInternal=$(GIT_SSH_COMMAND="ssh -i ${CREDS_KEYFILE}" git ls-remote --heads ${INTERNAL_REPO} refs/heads/${branchName} | wc -l)
+hasInternal=$(GIT_SSH_COMMAND="ssh -i ${CREDS_KEYFILE}" git ls-remote --heads "${INTERNAL_REPO}" "refs/heads/${branchName}" | wc -l)
 if [ "${hasInternal}" == "1" ]; then
     internalBranchName="${branchName}"
 fi
 
-GIT_SSH_COMMAND="ssh -i ${CREDS_KEYFILE}" git clone -b ${internalBranchName} ${INTERNAL_REPO} catapult-src/internal
+GIT_SSH_COMMAND="ssh -i ${CREDS_KEYFILE}" git clone -b "${internalBranchName}" "${INTERNAL_REPO}" catapult-src/internal
 
 pushd catapult-src/internal
 
@@ -26,4 +26,4 @@ popd
 scriptName="${1}"
 shift
 ls catapult-src/internal
-exec bash ./catapult-src/internal/scripts/build/${scriptName} $*
+exec bash "./catapult-src/internal/scripts/build/${scriptName}" "$@"
