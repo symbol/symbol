@@ -22,7 +22,7 @@
 #include "catapult/cache/CacheDatabaseMixin.h"
 #include "catapult/cache/CacheDescriptorAdapters.h"
 #include "catapult/deltaset/BaseSetDelta.h"
-#include "catapult/model/NetworkInfo.h"
+#include "catapult/model/NetworkIdentifier.h"
 #include "catapult/state/AccountState.h"
 #include "catapult/utils/Casting.h"
 #include "catapult/utils/Hashers.h"

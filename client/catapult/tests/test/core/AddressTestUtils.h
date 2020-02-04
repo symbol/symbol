@@ -20,7 +20,7 @@
 
 #pragma once
 #include "catapult/model/ContainerTypes.h"
-#include "catapult/model/NetworkInfo.h"
+#include "catapult/model/NetworkIdentifier.h"
 #include <memory>
 
 namespace catapult { namespace test {

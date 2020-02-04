@@ -19,7 +19,7 @@
 **/
 
 #include "catapult/model/Address.h"
-#include "catapult/model/NetworkInfo.h"
+#include "catapult/model/NetworkIdentifier.h"
 #include "catapult/utils/Casting.h"
 #include "catapult/utils/HexParser.h"
 #include "tests/TestHarness.h"

@@ -19,7 +19,7 @@
 **/
 
 #pragma once
-#include "catapult/model/NetworkInfo.h"
+#include "catapult/model/NetworkIdentifier.h"
 #include "catapult/state/MosaicEntry.h"
 #include "catapult/state/RootNamespace.h"
 #include "catapult/utils/Hashers.h"

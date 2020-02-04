@@ -18,7 +18,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "NetworkInfo.h"
+#include "NetworkIdentifier.h"
 #include "catapult/utils/ConfigurationValueParsers.h"
 #include "catapult/utils/MacroBasedEnumIncludes.h"
 

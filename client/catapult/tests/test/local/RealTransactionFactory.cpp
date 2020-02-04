@@ -28,7 +28,7 @@
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/crypto/Signer.h"
 #include "catapult/model/Address.h"
-#include "catapult/model/NetworkInfo.h"
+#include "catapult/model/NetworkIdentifier.h"
 #include "catapult/preprocessor.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"

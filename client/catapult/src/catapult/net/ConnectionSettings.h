@@ -21,7 +21,7 @@
 #pragma once
 #include "catapult/ionet/ConnectionSecurityMode.h"
 #include "catapult/ionet/PacketSocketOptions.h"
-#include "catapult/model/NetworkInfo.h"
+#include "catapult/model/NetworkIdentifier.h"
 #include "catapult/model/NodeIdentity.h"
 #include "catapult/utils/FileSize.h"
 #include "catapult/utils/TimeSpan.h"

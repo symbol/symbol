@@ -23,7 +23,7 @@
 #include "MongoReceiptPlugin.h"
 #include "MongoStorageContext.h"
 #include "MongoTransactionPlugin.h"
-#include "catapult/model/NetworkInfo.h"
+#include "catapult/model/NetworkIdentifier.h"
 #include "catapult/plugins.h"
 
 namespace catapult { namespace mongo {

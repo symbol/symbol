@@ -21,7 +21,7 @@
 #pragma once
 #include "ContainerTypes.h"
 #include "EntityType.h"
-#include "NetworkInfo.h"
+#include "NetworkIdentifier.h"
 #include "NotificationType.h"
 #include "catapult/utils/ArraySet.h"
 #include "catapult/utils/TimeSpan.h"

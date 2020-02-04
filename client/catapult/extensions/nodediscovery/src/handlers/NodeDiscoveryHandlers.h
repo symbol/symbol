@@ -21,7 +21,7 @@
 #pragma once
 #include "catapult/ionet/NodeSet.h"
 #include "catapult/ionet/PacketHandlers.h"
-#include "catapult/model/NetworkInfo.h"
+#include "catapult/model/NetworkIdentifier.h"
 
 namespace catapult { namespace ionet { struct NetworkNode; } }
 

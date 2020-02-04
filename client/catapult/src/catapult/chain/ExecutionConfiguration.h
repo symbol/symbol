@@ -19,7 +19,7 @@
 **/
 
 #pragma once
-#include "catapult/model/NetworkInfo.h"
+#include "catapult/model/NetworkIdentifier.h"
 #include "catapult/model/NotificationPublisher.h"
 #include "catapult/observers/ObserverTypes.h"
 #include "catapult/validators/ValidatorTypes.h"

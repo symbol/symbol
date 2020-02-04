@@ -19,7 +19,7 @@
 **/
 
 #pragma once
-#include "NetworkInfo.h"
+#include "NetworkIdentifier.h"
 #include "catapult/types.h"
 #include <string>
 

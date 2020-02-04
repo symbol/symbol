@@ -20,7 +20,7 @@
 
 #pragma once
 #include "NodeRoles.h"
-#include "catapult/model/NetworkInfo.h"
+#include "catapult/model/NetworkIdentifier.h"
 #include "catapult/model/NodeIdentity.h"
 #include "catapult/utils/Hashers.h"
 #include <unordered_set>
