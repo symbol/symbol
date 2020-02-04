@@ -43,14 +43,6 @@
   get:
     $ref: "./core/chain/routes/getChainScore.yml"
 
-# Core - Diagnostic
-/diagnostic/storage:
-  get:
-    $ref: "./core/diagnostic/routes/getDiagnosticStorage.yml"
-/diagnostic/server:
-  get:
-    $ref: "./core/diagnostic/routes/getServerInfo.yml"
-
 # Core -Network
 /network:
   get:
@@ -66,6 +58,12 @@
 /node/time:
   get:
     $ref: "./core/node/routes/getNodeTime.yml"
+/node/storage:
+  get:
+    $ref: "./core/node/routes/getNodeStorage.yml"
+/node/server:
+  get:
+    $ref: "./core/node/routes/getServerInfo.yml"
 
 # Core - Transaction
 "/transaction/{transactionId}":

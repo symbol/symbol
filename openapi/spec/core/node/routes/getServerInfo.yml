@@ -1,6 +1,6 @@
 tags:
-  - Diagnostic routes
-summary: Get the version of the running rest component
+  - Node routes
+summary: Get the version of the running REST component
 description: Returns the version of the running catapult-rest component.
 operationId: getServerInfo
 responses:
