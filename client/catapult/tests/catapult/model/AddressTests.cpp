@@ -30,13 +30,8 @@ namespace catapult { namespace model {
 
 	namespace {
 		constexpr auto Network_Identifier = NetworkIdentifier::Mijin_Test;
-#ifdef SIGNATURE_SCHEME_KECCAK
-		constexpr auto Encoded_Address = "SCG7O6OEEMP6M6OHXBQJYYEZYQ7ZMWW2NJ3PKISE";
-		constexpr auto Decoded_Address = "908DF779C4231FE679C7B8609C6099C43F965ADA6A76F52244";
-#else
 		constexpr auto Encoded_Address = "SAAA244WMCB2JXGNQTQHQOS45TGBFF4V2MJBVOUI";
 		constexpr auto Decoded_Address = "90000D73966083A4DCCD84E0783A5CECCC129795D3121ABA88";
-#endif
 		constexpr auto Public_Key = "75D8BB873DA8F5CCA741435DE76A46AFC2840803EBF080E931195B048D77F88C";
 
 		Key ParseKey(const std::string& publicKeyString) {
@@ -105,11 +100,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCreateAddressFromPublicKeyForWellKnownNetwork) {
 		// Arrange:
-#ifdef SIGNATURE_SCHEME_KECCAK
-		auto expected = utils::ParseByteArray<Address>("60E4DF097CBFD7E1E216C0E84BD4F524E28DA80D5C35EC4431");
-#else
 		auto expected = utils::ParseByteArray<Address>("60000D73966083A4DCCD84E0783A5CECCC129795D32534F0A7");
-#endif
 		auto publicKey = ParseKey(Public_Key);
 		auto networkId = NetworkIdentifier::Mijin;
 
@@ -124,11 +115,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCreateAddressFromPublicKeyForCustomNetwork) {
 		// Arrange:
-#ifdef SIGNATURE_SCHEME_KECCAK
-		auto expected = utils::ParseByteArray<Address>("7BE4DF097CBFD7E1E216C0E84BD4F524E28DA80D5CB68B8A77");
-#else
 		auto expected = utils::ParseByteArray<Address>("7B000D73966083A4DCCD84E0783A5CECCC129795D3D6A7CE45");
-#endif
 		auto publicKey = ParseKey(Public_Key);
 		auto networkId = static_cast<NetworkIdentifier>(123);
 

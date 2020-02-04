@@ -32,11 +32,7 @@
 namespace catapult { namespace test {
 
 	namespace {
-#ifdef SIGNATURE_SCHEME_KECCAK
-		constexpr auto Source_Directory = "../seed/mijin-test.nis1";
-#else
 		constexpr auto Source_Directory = "../seed/mijin-test";
-#endif
 
 		void SetIndexHeight(const std::string& destination, uint64_t height) {
 			io::RawFile indexFile(destination + "/index.dat", io::OpenMode::Read_Write);

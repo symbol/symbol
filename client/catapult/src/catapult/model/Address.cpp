@@ -29,12 +29,6 @@ namespace catapult { namespace model {
 	namespace {
 		constexpr uint8_t Checksum_Size = 4;
 		constexpr size_t Address_Encoded_Size = 40;
-
-#ifdef SIGNATURE_SCHEME_KECCAK
-		constexpr auto CatapultHash = crypto::Keccak_256;
-#else
-		constexpr auto CatapultHash = crypto::Sha3_256;
-#endif
 	}
 
 	Address StringToAddress(const std::string& str) {
@@ -51,7 +45,7 @@ namespace catapult { namespace model {
 	Address PublicKeyToAddress(const Key& publicKey, NetworkIdentifier networkIdentifier) {
 		// step 1: sha3 hash of the public key
 		Hash256 publicKeyHash;
-		CatapultHash(publicKey, publicKeyHash);
+		crypto::Sha3_256(publicKey, publicKeyHash);
 
 		// step 2: ripemd160 hash of (1)
 		Address decoded;
@@ -62,7 +56,7 @@ namespace catapult { namespace model {
 
 		// step 4: concatenate (3) and the checksum of (3)
 		Hash256 step3Hash;
-		CatapultHash(RawBuffer{ decoded.data(), Hash160::Size + 1 }, step3Hash);
+		crypto::Sha3_256(RawBuffer{ decoded.data(), Hash160::Size + 1 }, step3Hash);
 		std::copy(step3Hash.cbegin(), step3Hash.cbegin() + Checksum_Size, decoded.begin() + Hash160::Size + 1);
 
 		return decoded;
@@ -74,7 +68,7 @@ namespace catapult { namespace model {
 
 		Hash256 hash;
 		auto checksumBegin = Address::Size - Checksum_Size;
-		CatapultHash(RawBuffer{ address.data(), checksumBegin }, hash);
+		crypto::Sha3_256(RawBuffer{ address.data(), checksumBegin }, hash);
 
 		return std::equal(hash.begin(), hash.begin() + Checksum_Size, address.begin() + checksumBegin);
 	}

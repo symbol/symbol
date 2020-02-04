@@ -57,10 +57,8 @@ namespace catapult { namespace config {
 			EXPECT_TRUE(config.EnableVerifiableState);
 			EXPECT_TRUE(config.EnableVerifiableReceipts);
 
-			// - raw values are used instead of test::Default_*_Mosaic_Ids because
-			// config files contain mosaic ids when SIGNATURE_SCHEME_KECCAK is disabled
-			EXPECT_EQ(MosaicId(0x621E'C5B4'0385'6FC2), config.CurrencyMosaicId);
-			EXPECT_EQ(MosaicId(0x4291'ED23'000A'037A), config.HarvestingMosaicId);
+			EXPECT_EQ(test::Default_Currency_Mosaic_Id, config.CurrencyMosaicId);
+			EXPECT_EQ(test::Default_Harvesting_Mosaic_Id, config.HarvestingMosaicId);
 
 			EXPECT_EQ(utils::TimeSpan::FromSeconds(15), config.BlockGenerationTargetTime);
 			EXPECT_EQ(3000u, config.BlockTimeSmoothingFactor);

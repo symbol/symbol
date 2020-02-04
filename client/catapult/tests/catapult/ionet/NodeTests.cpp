@@ -206,13 +206,8 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, CanOutputNodeWithoutName) {
 		// Arrange:
-#ifdef SIGNATURE_SCHEME_KECCAK
-		auto expectedMijinAddress = "MAOJUDIG67LNG5WHL5MI4RAR5Y46RKTENICGQU5C";
-		auto expectedTwentyFiveAddress = "EUOJUDIG67LNG5WHL5MI4RAR5Y46RKTENKUJJCQV";
-#else
 		auto expectedMijinAddress = "MCX7YGZ5D524BZVRCPJL3M34MV23QJKFRND6NWMJ";
 		auto expectedTwentyFiveAddress = "EWX7YGZ5D524BZVRCPJL3M34MV23QJKFRPLA5UKO";
-#endif
 
 		// Assert: note that the public key -> address conversion is dependent on network
 		auto identityKey = crypto::ParseKey("1B664F8BDA2DBF33CB6BE21C8EB3ECA9D9D5BF144C08E9577ED0D1E5E5608751");
