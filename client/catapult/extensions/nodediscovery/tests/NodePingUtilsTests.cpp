@@ -169,7 +169,7 @@ namespace catapult { namespace nodediscovery {
 		ionet::Node node({ test::GenerateRandomByteArray<Key>(), "11.22.33.44" });
 
 		// Act + Assert:
-		EXPECT_FALSE(IsNodeCompatible(node, model::NetworkIdentifier::Mijin_Test, node.identity().PublicKey));
+		EXPECT_FALSE(IsNodeCompatible(node, test::CreateNodeDiscoveryNetworkFingerprint(), node.identity().PublicKey));
 	}
 
 	TEST(TEST_CLASS, IsNodeCompatibleReturnsFalseWhenIdentityDoesNotMatch) {
@@ -177,7 +177,7 @@ namespace catapult { namespace nodediscovery {
 		ionet::Node node({ test::GenerateRandomByteArray<Key>(), "11.22.33.44" });
 
 		// Act + Assert:
-		EXPECT_FALSE(IsNodeCompatible(node, node.metadata().NetworkFingerprint.Identifier, test::GenerateRandomByteArray<Key>()));
+		EXPECT_FALSE(IsNodeCompatible(node, node.metadata().NetworkFingerprint, test::GenerateRandomByteArray<Key>()));
 	}
 
 	TEST(TEST_CLASS, IsNodeCompatibleReturnsTrueWhenAllChecksPass) {
@@ -185,7 +185,7 @@ namespace catapult { namespace nodediscovery {
 		ionet::Node node({ test::GenerateRandomByteArray<Key>(), "11.22.33.44" });
 
 		// Act + Assert:
-		EXPECT_TRUE(IsNodeCompatible(node, node.metadata().NetworkFingerprint.Identifier, node.identity().PublicKey));
+		EXPECT_TRUE(IsNodeCompatible(node, node.metadata().NetworkFingerprint, node.identity().PublicKey));
 	}
 
 	// endregion

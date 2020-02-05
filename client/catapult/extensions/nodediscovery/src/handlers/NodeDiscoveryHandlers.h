@@ -37,10 +37,10 @@ namespace catapult { namespace handlers {
 	using NodesSupplier = supplier<ionet::NodeSet>;
 
 	/// Registers a node discovery push ping handler in \a handlers that forwards node information to \a nodeConsumer given
-	/// the current network identifier (\a networkIdentifier).
+	/// the network fingerprint (\a networkFingerprint).
 	void RegisterNodeDiscoveryPushPingHandler(
 			ionet::ServerPacketHandlers& handlers,
-			model::NetworkIdentifier networkIdentifier,
+			const model::UniqueNetworkFingerprint& networkFingerprint,
 			const NodeConsumer& nodeConsumer);
 
 	/// Registers a node discovery pull ping handler in \a handlers that responds with \a pLocalNode.

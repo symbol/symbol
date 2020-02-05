@@ -20,10 +20,18 @@
 
 #include "NodeDiscoveryTestUtils.h"
 #include "catapult/ionet/NetworkNode.h"
+#include "catapult/utils/HexParser.h"
 #include "tests/test/core/PacketTestUtils.h"
 #include "tests/test/nodeps/Random.h"
 
 namespace catapult { namespace test {
+
+	model::UniqueNetworkFingerprint CreateNodeDiscoveryNetworkFingerprint() {
+		constexpr auto Generation_Hash_String = "272C4ECC55B7A42A07478A9550543C62673D1599A8362CC662E019049B76B7F2";
+		return model::UniqueNetworkFingerprint(
+				model::NetworkIdentifier::Mijin_Test,
+				utils::ParseByteArray<GenerationHash>(Generation_Hash_String));
+	}
 
 	std::unique_ptr<ionet::NetworkNode> CreateNetworkNode(const std::string& host, const std::string& name) {
 		auto hostSize = static_cast<uint8_t>(host.size());
@@ -43,6 +51,8 @@ namespace catapult { namespace test {
 			ionet::NodeVersion version,
 			const std::string& host,
 			const std::string& name) {
+		auto networkFingerprint = CreateNodeDiscoveryNetworkFingerprint();
+
 		auto hostSize = static_cast<uint8_t>(host.size());
 		auto nameSize = static_cast<uint8_t>(name.size());
 		uint32_t payloadSize = sizeof(ionet::NetworkNode) + hostSize + nameSize;
@@ -50,7 +60,8 @@ namespace catapult { namespace test {
 		auto& networkNode = reinterpret_cast<ionet::NetworkNode&>(*pPacket->Data());
 		networkNode.Size = payloadSize;
 		networkNode.IdentityKey = identityKey;
-		networkNode.NetworkIdentifier = model::NetworkIdentifier::Mijin_Test;
+		networkNode.NetworkIdentifier = networkFingerprint.Identifier;
+		networkNode.NetworkGenerationHash = networkFingerprint.GenerationHash;
 		networkNode.Version = version;
 		networkNode.HostSize = hostSize;
 		networkNode.FriendlyNameSize = nameSize;

@@ -35,13 +35,13 @@ namespace catapult { namespace nodediscovery {
 
 	public:
 		/// Creates a processor around the server public key (\a serverPublicKey), the set of known nodes (\a nodeContainer),
-		/// a service for pinging other nodes (\a pingRequesInitiator), the current network identifier (\a networkIdentifier)
+		/// a service for pinging other nodes (\a pingRequesInitiator), the network fingerprint (\a networkFingerprint)
 		/// and a consumer that should be called when new partner nodes are discovered (\a newPartnerNodeConsumer).
 		PeersProcessor(
 				const Key& serverPublicKey,
 				const ionet::NodeContainer& nodeContainer,
 				const NodePingRequestInitiator& pingRequestInitiator,
-				model::NetworkIdentifier networkIdentifier,
+				const model::UniqueNetworkFingerprint& networkFingerprint,
 				const NodeConsumer& newPartnerNodeConsumer);
 
 	public:
@@ -55,7 +55,7 @@ namespace catapult { namespace nodediscovery {
 		const Key& m_serverPublicKey;
 		const ionet::NodeContainer& m_nodeContainer;
 		NodePingRequestInitiator m_pingRequestInitiator;
-		model::NetworkIdentifier m_networkIdentifier;
+		model::UniqueNetworkFingerprint m_networkFingerprint;
 		NodeConsumer m_newPartnerNodeConsumer;
 	};
 }}

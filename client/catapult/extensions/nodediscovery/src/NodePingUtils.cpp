@@ -49,10 +49,10 @@ namespace catapult { namespace nodediscovery {
 		return true;
 	}
 
-	bool IsNodeCompatible(const ionet::Node& node, model::NetworkIdentifier networkIdentifier, const Key& identityKey) {
+	bool IsNodeCompatible(const ionet::Node& node, const model::UniqueNetworkFingerprint& networkFingerprint, const Key& identityKey) {
 		// this function is used to check that a remote node returns expected identity key to local node
 		// in order to prevent remote from announcing one key but then returning information for another node
-		return node.metadata().NetworkFingerprint.Identifier == networkIdentifier && node.identity().PublicKey == identityKey;
+		return node.metadata().NetworkFingerprint == networkFingerprint && node.identity().PublicKey == identityKey;
 	}
 
 	ionet::NodeSet SelectUnknownNodes(const ionet::NodeContainerView& view, const ionet::NodeSet& nodes) {

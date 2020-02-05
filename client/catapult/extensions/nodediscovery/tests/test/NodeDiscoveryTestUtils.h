@@ -26,6 +26,9 @@ namespace catapult { namespace ionet { struct Packet; } }
 
 namespace catapult { namespace test {
 
+	/// Creates network fingerprint for node discovery tests.
+	model::UniqueNetworkFingerprint CreateNodeDiscoveryNetworkFingerprint();
+
 	/// Creates a random network node with \a host and \a name.
 	std::unique_ptr<ionet::NetworkNode> CreateNetworkNode(const std::string& host, const std::string& name);
 

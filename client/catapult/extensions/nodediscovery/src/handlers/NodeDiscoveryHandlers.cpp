@@ -30,16 +30,16 @@ namespace catapult { namespace handlers {
 
 	void RegisterNodeDiscoveryPushPingHandler(
 			ionet::ServerPacketHandlers& handlers,
-			model::NetworkIdentifier networkIdentifier,
+			const model::UniqueNetworkFingerprint& networkFingerprint,
 			const NodeConsumer& nodeConsumer) {
-		handlers.registerHandler(ionet::PacketType::Node_Discovery_Push_Ping, [networkIdentifier, nodeConsumer](
+		handlers.registerHandler(ionet::PacketType::Node_Discovery_Push_Ping, [networkFingerprint, nodeConsumer](
 				const auto& packet,
 				const auto& context) {
 			ionet::Node node;
 			if (!nodediscovery::TryParseNodePacket(packet, node))
 				return;
 
-			if (!nodediscovery::IsNodeCompatible(node, networkIdentifier, context.key())) {
+			if (!nodediscovery::IsNodeCompatible(node, networkFingerprint, context.key())) {
 				CATAPULT_LOG(warning)
 						<< "ignoring ping packet for incompatible node (identity = "
 						<< node.identity() << ", network = " << node.metadata().NetworkFingerprint << ")";

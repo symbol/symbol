@@ -36,8 +36,8 @@ namespace catapult { namespace nodediscovery {
 	/// Tries to parse \a packet into \a nodes.
 	bool TryParseNodesPacket(const ionet::Packet& packet, ionet::NodeSet& nodes);
 
-	/// Determines if \a node is compatible with expected network (\a networkIdentifier) and identity (\a identityKey).
-	bool IsNodeCompatible(const ionet::Node& node, model::NetworkIdentifier networkIdentifier, const Key& identityKey);
+	/// Determines if \a node is compatible with expected network (\a networkFingerprint) and identity (\a identityKey).
+	bool IsNodeCompatible(const ionet::Node& node, const model::UniqueNetworkFingerprint& networkFingerprint, const Key& identityKey);
 
 	/// Filters \a nodes by returning all nodes not contained in \a view.
 	ionet::NodeSet SelectUnknownNodes(const ionet::NodeContainerView& view, const ionet::NodeSet& nodes);

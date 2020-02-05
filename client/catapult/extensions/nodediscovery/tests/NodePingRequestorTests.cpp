@@ -34,7 +34,7 @@ namespace catapult { namespace nodediscovery {
 
 		public:
 			explicit RequestorTestContext(const utils::TimeSpan& timeout = utils::TimeSpan::FromMinutes(1))
-					: BaseType(timeout, NodePingResponseCompatibilityChecker(model::NetworkIdentifier::Mijin_Test))
+					: BaseType(timeout, NodePingResponseCompatibilityChecker(test::CreateNodeDiscoveryNetworkFingerprint()))
 			{}
 
 		public:
