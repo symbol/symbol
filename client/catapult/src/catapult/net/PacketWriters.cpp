@@ -414,7 +414,8 @@ namespace catapult { namespace net {
 			bool addWriter(const model::NodeIdentity& identity, const SocketPointer& pSocket) {
 				// this is for supporting eventsource extension where api writers register to receive pushed data
 				// endpoint and metadata are unimportant because only key-based filtering is required
-				auto node = ionet::Node(identity, ionet::NodeEndpoint(), ionet::NodeMetadata(m_networkIdentifier));
+				auto networkFingerprint = model::UniqueNetworkFingerprint(m_networkIdentifier);
+				auto node = ionet::Node(identity, ionet::NodeEndpoint(), ionet::NodeMetadata(networkFingerprint));
 				return addWriter(node, pSocket);
 			}
 

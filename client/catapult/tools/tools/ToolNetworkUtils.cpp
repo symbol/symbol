@@ -34,7 +34,7 @@ namespace catapult { namespace tools {
 			return ionet::Node(
 					{ serverPublicKey, "127.0.0.1" },
 					{ "127.0.0.1", 7900 },
-					{ model::NetworkIdentifier::Zero, "tool endpoint" });
+					{ model::UniqueNetworkFingerprint(), "tool endpoint" });
 		}
 	}
 

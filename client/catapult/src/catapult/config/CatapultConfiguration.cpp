@@ -81,7 +81,10 @@ namespace catapult { namespace config {
 		endpoint.Host = localNodeConfig.Host;
 		endpoint.Port = config.Node.Port;
 
-		auto metadata = ionet::NodeMetadata(config.BlockChain.Network.Identifier);
+		auto networkFingerprint = model::UniqueNetworkFingerprint(
+				config.BlockChain.Network.Identifier,
+				config.BlockChain.Network.GenerationHash);
+		auto metadata = ionet::NodeMetadata(networkFingerprint);
 		metadata.Name = localNodeConfig.FriendlyName;
 		metadata.Version = ionet::NodeVersion(localNodeConfig.Version);
 		metadata.Roles = localNodeConfig.Roles;

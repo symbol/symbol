@@ -37,6 +37,9 @@ namespace catapult { namespace ionet {
 		/// Unique node identifier (public key).
 		Key IdentityKey;
 
+		/// Network generation hash.
+		GenerationHash NetworkGenerationHash;
+
 		/// Role(s).
 		NodeRoles Roles;
 

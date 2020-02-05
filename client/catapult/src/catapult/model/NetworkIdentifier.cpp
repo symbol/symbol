@@ -24,6 +24,8 @@
 
 namespace catapult { namespace model {
 
+	// region NetworkIdentifier
+
 #define DEFINE_ENUM NetworkIdentifier
 #define EXPLICIT_VALUE_ENUM
 #define ENUM_LIST NETWORK_IDENTIFIER_LIST
@@ -52,4 +54,35 @@ namespace catapult { namespace model {
 		networkIdentifier = static_cast<NetworkIdentifier>(rawNetworkIdentifier);
 		return true;
 	}
+
+	// endregion
+
+	// region UniqueNetworkFingerprint
+
+	UniqueNetworkFingerprint::UniqueNetworkFingerprint() : UniqueNetworkFingerprint(NetworkIdentifier::Zero)
+	{}
+
+	UniqueNetworkFingerprint::UniqueNetworkFingerprint(NetworkIdentifier identifier)
+			: UniqueNetworkFingerprint(identifier, catapult::GenerationHash())
+	{}
+
+	UniqueNetworkFingerprint::UniqueNetworkFingerprint(NetworkIdentifier identifier, const catapult::GenerationHash& generationHash)
+			: Identifier(identifier)
+			, GenerationHash(generationHash)
+	{}
+
+	bool UniqueNetworkFingerprint::operator==(const UniqueNetworkFingerprint& rhs) const {
+		return Identifier == rhs.Identifier && GenerationHash == rhs.GenerationHash;
+	}
+
+	bool UniqueNetworkFingerprint::operator!=(const UniqueNetworkFingerprint& rhs) const {
+		return !(*this == rhs);
+	}
+
+	std::ostream& operator<<(std::ostream& out, const UniqueNetworkFingerprint& fingerprint) {
+		out << fingerprint.Identifier << "::" << fingerprint.GenerationHash;
+		return out;
+	}
+
+	// endregion
 }}

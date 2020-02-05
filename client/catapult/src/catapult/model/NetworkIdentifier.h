@@ -19,9 +19,12 @@
 **/
 
 #pragma once
+#include "catapult/types.h"
 #include <string>
 
 namespace catapult { namespace model {
+
+	// region NetworkIdentifier
 
 /// \note The lower 3 bits must be cleared because they are used for different purposes, e.g. resolvers.
 #define NETWORK_IDENTIFIER_LIST \
@@ -52,4 +55,40 @@ namespace catapult { namespace model {
 
 	/// Tries to parse \a networkName into a network identifier (\a networkIdentifier).
 	bool TryParseValue(const std::string& networkName, NetworkIdentifier& networkIdentifier);
+
+	// endregion
+
+	// region UniqueNetworkFingerprint
+
+	/// Globally unique network fingerprint.
+	struct UniqueNetworkFingerprint {
+	public:
+		/// Creates default fingerprint.
+		UniqueNetworkFingerprint();
+
+		/// Creates fingerprint around \a identifier.
+		explicit UniqueNetworkFingerprint(NetworkIdentifier identifier);
+
+		/// Creates fingerprint around \a identifier and \a generationHash.
+		UniqueNetworkFingerprint(NetworkIdentifier identifier, const catapult::GenerationHash& generationHash);
+
+	public:
+		/// Network identifier.
+		NetworkIdentifier Identifier;
+
+		/// Nemesis generation hash.
+		catapult::GenerationHash GenerationHash;
+
+	public:
+		/// Returns \c true if this fingerprint is equal to \a rhs.
+		bool operator==(const UniqueNetworkFingerprint& rhs) const;
+
+		/// Returns \c true if this fingerprint is not equal to \a rhs.
+		bool operator!=(const UniqueNetworkFingerprint& rhs) const;
+	};
+
+	/// Insertion operator for outputting \a fingerprint to \a out.
+	std::ostream& operator<<(std::ostream& out, const UniqueNetworkFingerprint& fingerprint);
+
+	// endregion
 }}

@@ -94,7 +94,7 @@ namespace catapult { namespace tools { namespace network {
 			builder.add("Host (Resolved)", node.identity().Host);
 			builder.add("Host", node.endpoint().Host);
 			builder.add("Port", node.endpoint().Port);
-			builder.add("Network", node.metadata().NetworkIdentifier);
+			builder.add("Network", node.metadata().NetworkFingerprint);
 			builder.add("Name", node.metadata().Name);
 			builder.add("Version", node.metadata().Version);
 			builder.add("Roles", node.metadata().Roles);

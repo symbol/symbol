@@ -37,7 +37,7 @@ namespace catapult { namespace test {
 
 	void AddNode(ionet::NodeContainer& container, const Key& identityKey, const std::string& nodeName) {
 		auto modifier = container.modifier();
-		auto metadata = ionet::NodeMetadata(model::NetworkIdentifier::Zero, nodeName);
+		auto metadata = ionet::NodeMetadata(model::UniqueNetworkFingerprint(), nodeName);
 		metadata.Roles = ionet::NodeRoles::Peer;
 
 		auto identity = model::NodeIdentity{ identityKey, "fake-host-from-time-synchronization-cache-test-utils" };

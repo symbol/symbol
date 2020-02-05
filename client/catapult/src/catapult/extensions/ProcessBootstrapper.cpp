@@ -125,7 +125,9 @@ namespace catapult { namespace extensions {
 	}
 
 	void AddStaticNodesFromPath(ProcessBootstrapper& bootstrapper, const std::string& path) {
-		auto nodes = config::LoadPeersFromPath(path, bootstrapper.config().BlockChain.Network.Identifier);
+		const auto& networkInfo = bootstrapper.config().BlockChain.Network;
+		auto networkFingerprint = model::UniqueNetworkFingerprint(networkInfo.Identifier, networkInfo.GenerationHash);
+		auto nodes = config::LoadPeersFromPath(path, networkFingerprint);
 		bootstrapper.addStaticNodes(nodes);
 	}
 }}

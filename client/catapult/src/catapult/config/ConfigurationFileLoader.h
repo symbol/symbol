@@ -50,12 +50,12 @@ namespace catapult { namespace config {
 		});
 	}
 
-	/// Loads peers configuration from \a path for network \a networkIdentifier.
+	/// Loads peers configuration from \a path for network \a networkFingerprint.
 	inline std::vector<ionet::Node> LoadPeersConfiguration(
 			const boost::filesystem::path& path,
-			model::NetworkIdentifier networkIdentifier) {
-		return LoadConfiguration(path, [networkIdentifier](const auto& filePath) {
-			return LoadPeersFromPath(filePath, networkIdentifier);
+			const model::UniqueNetworkFingerprint& networkFingerprint) {
+		return LoadConfiguration(path, [networkFingerprint](const auto& filePath) {
+			return LoadPeersFromPath(filePath, networkFingerprint);
 		});
 	}
 }}

@@ -42,7 +42,7 @@ namespace catapult { namespace handlers {
 			if (!nodediscovery::IsNodeCompatible(node, networkIdentifier, context.key())) {
 				CATAPULT_LOG(warning)
 						<< "ignoring ping packet for incompatible node (identity = "
-						<< node.identity() << ", network = " << node.metadata().NetworkIdentifier << ")";
+						<< node.identity() << ", network = " << node.metadata().NetworkFingerprint << ")";
 				return;
 			}
 

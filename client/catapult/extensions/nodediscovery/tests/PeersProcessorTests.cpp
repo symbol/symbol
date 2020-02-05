@@ -100,7 +100,7 @@ namespace catapult { namespace nodediscovery {
 		};
 
 		ionet::NodeMetadata CreateNamedMetadata(const std::string& name) {
-			return ionet::NodeMetadata(Network_Identifier, name);
+			return ionet::NodeMetadata(model::UniqueNetworkFingerprint(Network_Identifier), name);
 		}
 
 		std::vector<ionet::Node> ToNodes(const std::vector<model::NodeIdentity>& identities) {
