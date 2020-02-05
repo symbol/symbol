@@ -2,4 +2,4 @@ description: ResourceNotFound
 content:
   application/json:
     schema:
-      $ref: '../types/ModelError.yml'
+      $ref: '../schemas/ModelError.yml'

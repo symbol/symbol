@@ -4,6 +4,6 @@ required:
   - linkAction
 properties:
   remotePublicKey:
-    $ref: "../../../types/PublicKey.yml"
+    $ref: "../../../schemas/PublicKey.yml"
   linkAction:
     $ref: "./AccountLinkActionEnum.yml"

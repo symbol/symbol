@@ -5,11 +5,11 @@ required:
   - resolutionEntries
 properties:
   height:
-    $ref: "../../../types/Height.yml"
+    $ref: "../../../schemas/Height.yml"
   unresolved:
     anyOf:
-      - $ref: "../../../types/UnresolvedMosaicId.yml"
-      - $ref: "../../../types/UnresolvedAddress.yml"
+      - $ref: "../../../schemas/UnresolvedMosaicId.yml"
+      - $ref: "../../../schemas/UnresolvedAddress.yml"
   resolutionEntries:
     type: array
     description: |

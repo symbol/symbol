@@ -10,9 +10,9 @@ properties:
     type: array
     description: Account restriction additions.
     items:
-      $ref: "../../../types/UnresolvedMosaicId.yml"
+      $ref: "../../../schemas/UnresolvedMosaicId.yml"
   restrictionDeletions:
     type: array
     description: Account restriction deletions.
     items:
-      $ref: "../../../types/UnresolvedMosaicId.yml"
+      $ref: "../../../schemas/UnresolvedMosaicId.yml"

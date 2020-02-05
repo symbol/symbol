@@ -3,4 +3,4 @@ required:
   - height
 properties:
   height:
-    $ref: "../../../types/Height.yml"
+    $ref: "../../../schemas/Height.yml"

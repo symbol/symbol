@@ -3,4 +3,4 @@ required:
   - signature
 properties:
   signature:
-    $ref: "../../../types/Signature.yml"
+    $ref: "../../../schemas/Signature.yml"

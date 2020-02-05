@@ -14,7 +14,7 @@ properties:
     format: int32
     example: 0
   publicKey:
-    $ref: "../../../types/PublicKey.yml"
+    $ref: "../../../schemas/PublicKey.yml"
   roles:
     $ref: "./RolesTypeEnum.yml"
   port:

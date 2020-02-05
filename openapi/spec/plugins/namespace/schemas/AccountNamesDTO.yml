@@ -4,7 +4,7 @@ required:
   - names
 properties:
   address:
-    $ref: "../../../types/Address.yml"
+    $ref: "../../../schemas/Address.yml"
   names:
     type: array
     description: Account linked namespace names.

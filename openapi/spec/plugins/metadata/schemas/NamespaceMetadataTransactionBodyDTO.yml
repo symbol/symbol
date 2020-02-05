@@ -8,11 +8,11 @@ required:
   - value
 properties:
   targetPublicKey:
-    $ref: "../../../types/PublicKey.yml"
+    $ref: "../../../schemas/PublicKey.yml"
   scopedMetadataKey:
-    $ref: "../../../types/MetadataKey.yml"
+    $ref: "../../../schemas/MetadataKey.yml"
   targetNamespaceId:
-    $ref: "../../../types/NamespaceId.yml"
+    $ref: "../../../schemas/NamespaceId.yml"
   valueSizeDelta:
     type: integer
     format: int32
@@ -22,6 +22,4 @@ properties:
     format: int32
     description: Value size in bytes.
   value:
-    type: string
-    format: hex
-    description: When there is an existing value, the new value is calculated as xor(previous-value, value).
+    $ref: "../../../schemas/MetadataValue.yml"

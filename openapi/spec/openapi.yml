@@ -1,4 +1,4 @@
-openapi: 3.0.0
+openapi: 3.0.2
 info:
   "$ref": "./info.yml"
 tags:
@@ -16,6 +16,6 @@ components:
   requestBodies:
     "$ref": "./request_bodies/_index.yml"
   schemas:
-    $ref: "./schemas.yml"
+    $ref: "./schemas/_index.yml"
   responses:
     $ref: "./responses/_index.yml"

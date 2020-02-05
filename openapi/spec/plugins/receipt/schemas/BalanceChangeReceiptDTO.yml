@@ -1,5 +1,5 @@
 type: object
-description: Invisible state change that changed an account balance.
+description: Receipt stored when a state change modified an account balance.
 allOf:
   - $ref: "./ReceiptDTO.yml"
   - type: object
@@ -9,8 +9,8 @@ allOf:
       - targetPublicKey
     properties:
       mosaicId:
-        $ref: "../../../types/MosaicId.yml"
+        $ref: "../../../schemas/MosaicId.yml"
       amount:
-        $ref: "../../../types/Amount.yml"
+        $ref: "../../../schemas/Amount.yml"
       targetPublicKey:
-        $ref: "../../../types/PublicKey.yml"
+        $ref: "../../../schemas/PublicKey.yml"

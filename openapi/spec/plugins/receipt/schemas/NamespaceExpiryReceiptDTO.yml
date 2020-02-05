@@ -1,5 +1,5 @@
 type: object
-description: An namespace expired in this block.
+description: Receipt stored when a namespace expires.
 allOf:
   - $ref: "./ReceiptDTO.yml"
   - type: object
@@ -7,4 +7,4 @@ allOf:
       - artifactId
     properties:
       artifactId:
-        $ref: "../../../types/NamespaceId.yml"
+        $ref: "../../../schemas/NamespaceId.yml"

@@ -4,4 +4,4 @@ properties:
     type: array
     description: Array of namespace identifiers.
     items:
-      $ref: "../../types/NamespaceId.yml"
+      $ref: "../../schemas/NamespaceId.yml"

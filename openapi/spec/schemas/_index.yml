@@ -1,0 +1,407 @@
+# Generic types
+Address:
+  "$ref": "./Address.yml"
+Amount:
+  "$ref": "./Amount.yml"
+BlockDuration:
+  "$ref": "./BlockDuration.yml"
+BlockFeeMultiplier:
+  "$ref": "./BlockFeeMultiplier.yml"
+Difficulty:
+  "$ref": "./Difficulty.yml"
+Hash256:
+  "$ref": "./Hash256.yml"
+Height:
+  "$ref": "./Height.yml"
+Importance:
+  "$ref": "./Importance.yml"
+MetadataKey:
+  "$ref": "./MetadataKey.yml"
+MetadataValue:
+  "$ref": "./MetadataValue.yml"
+ModelError:
+  "$ref": "./ModelError.yml"
+MosaicId:
+  "$ref": "./MosaicId.yml"
+Mosaic:
+  "$ref": "./Mosaic.yml"
+RestrictionKey:
+  "$ref": "./RestrictionKey.yml"
+NamespaceId:
+  "$ref": "./NamespaceId.yml"
+PublicKey:
+  "$ref": "./PublicKey.yml"
+Score:
+  "$ref": "./Score.yml"
+Signature:
+  "$ref": "./Signature.yml"
+Timestamp:
+  "$ref": "./Timestamp.yml"
+UnresolvedAddress:
+  "$ref": "./UnresolvedAddress.yml"
+UnresolvedMosaicId:
+  "$ref": "./UnresolvedMosaicId.yml"
+UnresolvedMosaic:
+  "$ref": "./UnresolvedMosaic.yml"
+RestrictionValue:
+  "$ref": "./RestrictionValue.yml"
+
+# Core - Account
+AccountTypeEnum:
+  "$ref": "../core/account/schemas/AccountTypeEnum.yml"
+AccountDTO:
+  "$ref": "../core/account/schemas/AccountDTO.yml"
+AccountInfoDTO:
+  "$ref": "../core/account/schemas/AccountInfoDTO.yml"
+ActivityBucketDTO:
+  "$ref": "../core/account/schemas/ActivityBucketDTO.yml"
+
+# Core - Block
+BlockDTO:
+  "$ref": "../core/block/schemas/BlockDTO.yml"
+BlockInfoDTO:
+  "$ref": "../core/block/schemas/BlockInfoDTO.yml"
+BlockMetaDTO:
+  "$ref": "../core/block/schemas/BlockMetaDTO.yml"
+MerklePathItemDTO:
+  "$ref": "../core/block/schemas/MerklePathItemDTO.yml"
+MerkleProofInfoDTO:
+  "$ref": "../core/block/schemas/MerkleProofInfoDTO.yml"
+
+# Core - Chain
+ChainScoreDTO:
+  "$ref": "../core/chain/schemas/ChainScoreDTO.yml"
+HeightInfoDTO:
+  "$ref": "../core/chain/schemas/HeightInfoDTO.yml"
+
+# Core - Entity
+NetworkTypeEnum:
+  "$ref": "../core/entity/schemas/NetworkTypeEnum.yml"
+EntityDTO:
+  "$ref": "../core/entity/schemas/EntityDTO.yml"
+VerifiableEntityDTO:
+  "$ref": "../core/entity/schemas/VerifiableEntityDTO.yml"
+
+# Core - Network
+NetworkTypeDTO:
+  "$ref": "../core/network/schemas/NetworkTypeDTO.yml"
+
+# Core - Node
+NodeStatusEnum:
+  "$ref": "../core/node/schemas/NodeStatusEnum.yml"
+RolesTypeEnum:
+  "$ref": "../core/node/schemas/RolesTypeEnum.yml"
+CommunicationTimestampsDTO:
+  "$ref": "../core/node/schemas/CommunicationTimestampsDTO.yml"
+NodeHealthDTO:
+  "$ref": "../core/node/schemas/NodeHealthDTO.yml"
+NodeHealthInfoDTO:
+  "$ref": "../core/node/schemas/NodeHealthInfoDTO.yml"
+NodeInfoDTO:
+  "$ref": "../core/node/schemas/NodeInfoDTO.yml"
+NodeTimeDTO:
+  "$ref": "../core/node/schemas/NodeTimeDTO.yml"
+ServerDTO:
+  "$ref": "../core/node/schemas/ServerDTO.yml"
+ServerInfoDTO:
+  "$ref": "../core/node/schemas/ServerInfoDTO.yml"
+StorageInfoDTO:
+  "$ref": "../core/node/schemas/StorageInfoDTO.yml"
+
+# Core - Transaction
+TransactionStateTypeEnum:
+  "$ref": "../core/transaction/schemas/TransactionStateTypeEnum.yml"
+TransactionStatusTypeEnum:
+  "$ref": "../core/transaction/schemas/TransactionStatusTypeEnum.yml"
+TransactionTypeEnum:
+  "$ref": "../core/transaction/schemas/TransactionTypeEnum.yml"
+AnnounceTransactionInfoDTO:
+  "$ref": "../core/transaction/schemas/AnnounceTransactionInfoDTO.yml"
+EmbeddedTransactionDTO:
+  "$ref": "../core/transaction/schemas/EmbeddedTransactionDTO.yml"
+EmbeddedTransactionInfoDTO:
+  "$ref": "../core/transaction/schemas/EmbeddedTransactionInfoDTO.yml"
+EmbeddedTransactionMetaDTO:
+  "$ref": "../core/transaction/schemas/EmbeddedTransactionMetaDTO.yml"
+TransactionBodyDTO:
+  "$ref": "../core/transaction/schemas/TransactionBodyDTO.yml"
+TransactionDTO:
+  "$ref": "../core/transaction/schemas/TransactionDTO.yml"
+TransactionInfoDTO:
+  "$ref": "../core/transaction/schemas/TransactionInfoDTO.yml"
+TransactionMetaDTO:
+  "$ref": "../core/transaction/schemas/TransactionMetaDTO.yml"
+TransactionStatusDTO:
+  "$ref": "../core/transaction/schemas/TransactionStatusDTO.yml"
+
+# Plugin - AccountLink
+AccountLinkActionEnum:
+  "$ref": "../plugins/account_link/schemas/AccountLinkActionEnum.yml"
+AccountLinkTransactionBodyDTO:
+  "$ref": "../plugins/account_link/schemas/AccountLinkTransactionBodyDTO.yml"
+AccountLinkTransactionDTO:
+  "$ref": "../plugins/account_link/schemas/AccountLinkTransactionDTO.yml"
+EmbeddedAccountLinkTransactionDTO:
+  "$ref": "../plugins/account_link/schemas/EmbeddedAccountLinkTransactionDTO.yml"
+
+# Plugin - Aggregate
+AggregateTransactionBodyDTO:
+  "$ref": "../plugins/aggregate/schemas/AggregateTransactionBodyDTO.yml"
+AggregateTransactionDTO:
+  "$ref": "../plugins/aggregate/schemas/AggregateTransactionDTO.yml"
+CosignatureDTO:
+  "$ref": "../plugins/aggregate/schemas/CosignatureDTO.yml"
+
+# Plugin - LockHash
+EmbeddedHashLockTransactionDTO:
+  "$ref": "../plugins/lock_hash/schemas/EmbeddedHashLockTransactionDTO.yml"
+HashLockTransactionBodyDTO:
+  "$ref": "../plugins/lock_hash/schemas/HashLockTransactionBodyDTO.yml"
+HashLockTransactionDTO:
+  "$ref": "../plugins/lock_hash/schemas/HashLockTransactionDTO.yml"
+
+# Plugin - LockSecret
+LockHashAlgorithmEnum:
+  "$ref": "../plugins/lock_secret/schemas/LockHashAlgorithmEnum.yml"
+EmbeddedSecretLockTransactionDTO:
+  "$ref": "../plugins/lock_secret/schemas/EmbeddedSecretLockTransactionDTO.yml"
+EmbeddedSecretProofTransactionDTO:
+  "$ref": "../plugins/lock_secret/schemas/EmbeddedSecretProofTransactionDTO.yml"
+SecretLockTransactionBodyDTO:
+  "$ref": "../plugins/lock_secret/schemas/SecretLockTransactionBodyDTO.yml"
+SecretLockTransactionDTO:
+  "$ref": "../plugins/lock_secret/schemas/SecretLockTransactionDTO.yml"
+SecretProofTransactionBodyDTO:
+  "$ref": "../plugins/lock_secret/schemas/SecretProofTransactionBodyDTO.yml"
+SecretProofTransactionDTO:
+  "$ref": "../plugins/lock_secret/schemas/SecretProofTransactionDTO.yml"
+
+# Plugin - Metadata
+MetadataTypeEnum:
+  "$ref": "../plugins/metadata/schemas/MetadataTypeEnum.yml"
+AccountMetadataTransactionBodyDTO:
+  "$ref": "../plugins/metadata/schemas/AccountMetadataTransactionBodyDTO.yml"
+AccountMetadataTransactionDTO:
+  "$ref": "../plugins/metadata/schemas/AccountMetadataTransactionDTO.yml"
+EmbeddedAccountMetadataTransactionDTO:
+  "$ref": "../plugins/metadata/schemas/EmbeddedAccountMetadataTransactionDTO.yml"
+EmbeddedMosaicMetadataTransactionDTO:
+  "$ref": "../plugins/metadata/schemas/EmbeddedMosaicMetadataTransactionDTO.yml"
+EmbeddedNamespaceMetadataTransactionDTO:
+  "$ref": "../plugins/metadata/schemas/EmbeddedNamespaceMetadataTransactionDTO.yml"
+MetadataDTO:
+  "$ref": "../plugins/metadata/schemas/MetadataDTO.yml"
+MetadataEntriesDTO:
+  "$ref": "../plugins/metadata/schemas/MetadataEntriesDTO.yml"
+MetadataEntryDTO:
+  "$ref": "../plugins/metadata/schemas/MetadataEntryDTO.yml"
+MosaicMetadataTransactionBodyDTO:
+  "$ref": "../plugins/metadata/schemas/MosaicMetadataTransactionBodyDTO.yml"
+MosaicMetadataTransactionDTO:
+  "$ref": "../plugins/metadata/schemas/MosaicMetadataTransactionDTO.yml"
+NamespaceMetadataTransactionBodyDTO:
+  "$ref": "../plugins/metadata/schemas/NamespaceMetadataTransactionBodyDTO.yml"
+NamespaceMetadataTransactionDTO:
+  "$ref": "../plugins/metadata/schemas/NamespaceMetadataTransactionDTO.yml"
+
+# Plugin - Mosaic
+MosaicFlagsEnum:
+  "$ref": "../plugins/mosaic/schemas/MosaicFlagsEnum.yml"
+MosaicSupplyChangeActionEnum:
+  "$ref": "../plugins/mosaic/schemas/MosaicSupplyChangeActionEnum.yml"
+EmbeddedMosaicDefinitionTransactionDTO:
+  "$ref": "../plugins/mosaic/schemas/EmbeddedMosaicDefinitionTransactionDTO.yml"
+EmbeddedMosaicSupplyChangeTransactionDTO:
+  "$ref": "../plugins/mosaic/schemas/EmbeddedMosaicSupplyChangeTransactionDTO.yml"
+MosaicDefinitionTransactionBodyDTO:
+  "$ref": "../plugins/mosaic/schemas/MosaicDefinitionTransactionBodyDTO.yml"
+MosaicDefinitionTransactionDTO:
+  "$ref": "../plugins/mosaic/schemas/MosaicDefinitionTransactionDTO.yml"
+MosaicDTO:
+  "$ref": "../plugins/mosaic/schemas/MosaicDTO.yml"
+MosaicInfoDTO:
+  "$ref": "../plugins/mosaic/schemas/MosaicInfoDTO.yml"
+MosaicsInfoDTO:
+  "$ref": "../plugins/mosaic/schemas/MosaicsInfoDTO.yml"
+MosaicSupplyChangeTransactionBodyDTO:
+  "$ref": "../plugins/mosaic/schemas/MosaicSupplyChangeTransactionBodyDTO.yml"
+MosaicSupplyChangeTransactionDTO:
+  "$ref": "../plugins/mosaic/schemas/MosaicSupplyChangeTransactionDTO.yml"
+
+# Plugin - Multisig
+EmbeddedMultisigAccountModificationTransactionDTO:
+  "$ref": "../plugins/multisig/schemas/EmbeddedMultisigAccountModificationTransactionDTO.yml"
+MultisigAccountGraphInfoDTO:
+  "$ref": "../plugins/multisig/schemas/MultisigAccountGraphInfoDTO.yml"
+MultisigAccountInfoDTO:
+  "$ref": "../plugins/multisig/schemas/MultisigAccountInfoDTO.yml"
+MultisigAccountModificationTransactionBodyDTO:
+  "$ref": "../plugins/multisig/schemas/MultisigAccountModificationTransactionBodyDTO.yml"
+MultisigAccountModificationTransactionDTO:
+  "$ref": "../plugins/multisig/schemas/MultisigAccountModificationTransactionDTO.yml"
+MultisigDTO:
+  "$ref": "../plugins/multisig/schemas/MultisigDTO.yml"
+
+# Plugin - Namespace
+AliasActionEnum:
+  "$ref": "../plugins/namespace/schemas/AliasActionEnum.yml"
+AliasTypeEnum:
+  "$ref": "../plugins/namespace/schemas/AliasTypeEnum.yml"
+NamespaceRegistrationTypeEnum:
+  "$ref": "../plugins/namespace/schemas/NamespaceRegistrationTypeEnum.yml"
+AccountNamesDTO:
+  "$ref": "../plugins/namespace/schemas/AccountNamesDTO.yml"
+AccountsNamesDTO:
+  "$ref": "../plugins/namespace/schemas/AccountsNamesDTO.yml"
+AddressAliasTransactionBodyDTO:
+  "$ref": "../plugins/namespace/schemas/AddressAliasTransactionBodyDTO.yml"
+AddressAliasTransactionDTO:
+  "$ref": "../plugins/namespace/schemas/AddressAliasTransactionDTO.yml"
+AliasDTO:
+  "$ref": "../plugins/namespace/schemas/AliasDTO.yml"
+EmbeddedAddressAliasTransactionDTO:
+  "$ref": "../plugins/namespace/schemas/EmbeddedAddressAliasTransactionDTO.yml"
+EmbeddedMosaicAliasTransactionDTO:
+  "$ref": "../plugins/namespace/schemas/EmbeddedMosaicAliasTransactionDTO.yml"
+EmbeddedNamespaceRegistrationTransactionDTO:
+  "$ref": "../plugins/namespace/schemas/EmbeddedNamespaceRegistrationTransactionDTO.yml"
+MosaicAliasTransactionBodyDTO:
+  "$ref": "../plugins/namespace/schemas/MosaicAliasTransactionBodyDTO.yml"
+MosaicAliasTransactionDTO:
+  "$ref": "../plugins/namespace/schemas/MosaicAliasTransactionDTO.yml"
+MosaicNamesDTO:
+  "$ref": "../plugins/namespace/schemas/MosaicNamesDTO.yml"
+MosaicsNamesDTO:
+  "$ref": "../plugins/namespace/schemas/MosaicsNamesDTO.yml"
+NamespaceInfoDTO:
+  "$ref": "../plugins/namespace/schemas/NamespaceInfoDTO.yml"
+NamespaceMetaDTO:
+  "$ref": "../plugins/namespace/schemas/NamespaceMetaDTO.yml"
+NamespaceDTO:
+  "$ref": "../plugins/namespace/schemas/NamespaceDTO.yml"
+NamespaceNameDTO:
+  "$ref": "../plugins/namespace/schemas/NamespaceNameDTO.yml"
+NamespaceRegistrationTransactionBodyDTO:
+  "$ref": "../plugins/namespace/schemas/NamespaceRegistrationTransactionBodyDTO.yml"
+NamespaceRegistrationTransactionDTO:
+  "$ref": "../plugins/namespace/schemas/NamespaceRegistrationTransactionDTO.yml"
+NamespacesInfoDTO:
+  "$ref": "../plugins/namespace/schemas/NamespacesInfoDTO.yml"
+
+# Plugin - Receipt
+ReceiptTypeEnum:
+  "$ref": "../plugins/receipt/schemas/ReceiptTypeEnum.yml"
+BalanceTransferReceiptDTO:
+  "$ref": "../plugins/receipt/schemas/BalanceTransferReceiptDTO.yml"
+BalanceChangeReceiptDTO:
+  "$ref": "../plugins/receipt/schemas/BalanceChangeReceiptDTO.yml"
+NamespaceExpiryReceiptDTO:
+  "$ref": "../plugins/receipt/schemas/NamespaceExpiryReceiptDTO.yml"
+MosaicExpiryReceiptDTO:
+  "$ref": "../plugins/receipt/schemas/MosaicExpiryReceiptDTO.yml"
+InflationReceiptDTO:
+  "$ref": "../plugins/receipt/schemas/InflationReceiptDTO.yml"
+ReceiptDTO:
+  "$ref": "../plugins/receipt/schemas/ReceiptDTO.yml"
+ResolutionEntryDTO:
+  "$ref": "../plugins/receipt/schemas/ResolutionEntryDTO.yml"
+ResolutionStatementBodyDTO:
+  "$ref": "../plugins/receipt/schemas/ResolutionStatementBodyDTO.yml"
+ResolutionStatementDTO:
+  "$ref": "../plugins/receipt/schemas/ResolutionStatementDTO.yml"
+SourceDTO:
+  "$ref": "../plugins/receipt/schemas/SourceDTO.yml"
+StatementsDTO:
+  "$ref": "../plugins/receipt/schemas/StatementsDTO.yml"
+TransactionStatementBodyDTO:
+  "$ref": "../plugins/receipt/schemas/TransactionStatementBodyDTO.yml"
+TransactionStatementDTO:
+  "$ref": "../plugins/receipt/schemas/TransactionStatementDTO.yml"
+
+# Plugin - RestrictionAccount
+AccountRestrictionFlagsEnum:
+  "$ref": "../plugins/restriction_account/schemas/AccountRestrictionFlagsEnum.yml"
+AccountAddressRestrictionTransactionBodyDTO:
+  "$ref": "../plugins/restriction_account/schemas/AccountAddressRestrictionTransactionBodyDTO.yml"
+AccountAddressRestrictionTransactionDTO:
+  "$ref": "../plugins/restriction_account/schemas/AccountAddressRestrictionTransactionDTO.yml"
+AccountMosaicRestrictionTransactionBodyDTO:
+  "$ref": "../plugins/restriction_account/schemas/AccountMosaicRestrictionTransactionBodyDTO.yml"
+AccountMosaicRestrictionTransactionDTO:
+  "$ref": "../plugins/restriction_account/schemas/AccountMosaicRestrictionTransactionDTO.yml"
+AccountOperationRestrictionTransactionBodyDTO:
+  "$ref": "../plugins/restriction_account/schemas/AccountOperationRestrictionTransactionBodyDTO.yml"
+AccountOperationRestrictionTransactionDTO:
+  "$ref": "../plugins/restriction_account/schemas/AccountOperationRestrictionTransactionDTO.yml"
+AccountRestrictionsInfoDTO:
+  "$ref": "../plugins/restriction_account/schemas/AccountRestrictionsInfoDTO.yml"
+AccountRestrictionsDTO:
+  "$ref": "../plugins/restriction_account/schemas/AccountRestrictionsDTO.yml"
+AccountRestrictionDTO:
+  "$ref": "../plugins/restriction_account/schemas/AccountRestrictionDTO.yml"
+EmbeddedAccountAddressRestrictionTransactionDTO:
+  "$ref": "../plugins/restriction_account/schemas/EmbeddedAccountAddressRestrictionTransactionDTO.yml"
+EmbeddedAccountMosaicRestrictionTransactionDTO:
+  "$ref": "../plugins/restriction_account/schemas/EmbeddedAccountMosaicRestrictionTransactionDTO.yml"
+EmbeddedAccountOperationRestrictionTransactionDTO:
+  "$ref": "../plugins/restriction_account/schemas/EmbeddedAccountOperationRestrictionTransactionDTO.yml"
+
+# Plugin - RestrictionMosaic
+MosaicRestrictionEntryTypeEnum:
+  "$ref": "../plugins/restriction_mosaic/schemas/MosaicRestrictionEntryTypeEnum.yml"
+MosaicRestrictionTypeEnum:
+  "$ref": "../plugins/restriction_mosaic/schemas/MosaicRestrictionTypeEnum.yml"
+EmbeddedMosaicAddressRestrictionTransactionDTO:
+  "$ref": "../plugins/restriction_mosaic/schemas/EmbeddedMosaicAddressRestrictionTransactionDTO.yml"
+EmbeddedMosaicGlobalRestrictionTransactionDTO:
+  "$ref": "../plugins/restriction_mosaic/schemas/EmbeddedMosaicGlobalRestrictionTransactionDTO.yml"
+MosaicAddressRestrictionDTO:
+  "$ref": "../plugins/restriction_mosaic/schemas/MosaicAddressRestrictionDTO.yml"
+MosaicAddressRestrictionEntryDTO:
+  "$ref": "../plugins/restriction_mosaic/schemas/MosaicAddressRestrictionEntryDTO.yml"
+MosaicAddressRestrictionEntryWrapperDTO:
+  "$ref": "../plugins/restriction_mosaic/schemas/MosaicAddressRestrictionEntryWrapperDTO.yml"
+MosaicAddressRestrictionTransactionBodyDTO:
+  "$ref": "../plugins/restriction_mosaic/schemas/MosaicAddressRestrictionTransactionBodyDTO.yml"
+MosaicAddressRestrictionTransactionDTO:
+  "$ref": "../plugins/restriction_mosaic/schemas/MosaicAddressRestrictionTransactionDTO.yml"
+MosaicGlobalRestrictionDTO:
+  "$ref": "../plugins/restriction_mosaic/schemas/MosaicGlobalRestrictionDTO.yml"
+MosaicGlobalRestrictionEntryDTO:
+  "$ref": "../plugins/restriction_mosaic/schemas/MosaicGlobalRestrictionEntryDTO.yml"
+MosaicGlobalRestrictionEntryRestrictionDTO:
+  "$ref": "../plugins/restriction_mosaic/schemas/MosaicGlobalRestrictionEntryRestrictionDTO.yml"
+MosaicGlobalRestrictionEntryWrapperDTO:
+  "$ref": "../plugins/restriction_mosaic/schemas/MosaicGlobalRestrictionEntryWrapperDTO.yml"
+MosaicGlobalRestrictionTransactionBodyDTO:
+  "$ref": "../plugins/restriction_mosaic/schemas/MosaicGlobalRestrictionTransactionBodyDTO.yml"
+MosaicGlobalRestrictionTransactionDTO:
+  "$ref": "../plugins/restriction_mosaic/schemas/MosaicGlobalRestrictionTransactionDTO.yml"
+
+# Plugin - Transfer
+MessageTypeEnum:
+  "$ref": "../plugins/transfer/schemas/MessageTypeEnum.yml"
+EmbeddedTransferTransactionDTO:
+  "$ref": "../plugins/transfer/schemas/EmbeddedTransferTransactionDTO.yml"
+MessageDTO:
+  "$ref": "../plugins/transfer/schemas/MessageDTO.yml"
+TransferTransactionBodyDTO:
+  "$ref": "../plugins/transfer/schemas/TransferTransactionBodyDTO.yml"
+TransferTransactionDTO:
+  "$ref": "../plugins/transfer/schemas/TransferTransactionDTO.yml"
+
+# Request bodies
+accountIds:
+  "$ref": "../request_bodies/schemas/accountIds.yml"
+cosignature:
+  "$ref": "../request_bodies/schemas/cosignature.yml"
+mosaicIds:
+  "$ref": "../request_bodies/schemas/mosaicIds.yml"
+namespaceIds:
+  "$ref": "../request_bodies/schemas/namespaceIds.yml"
+transactionHashes:
+  "$ref": "../request_bodies/schemas/transactionHashes.yml"
+transactionIds:
+  "$ref": "../request_bodies/schemas/transactionIds.yml"
+transactionPayload:
+  "$ref": "../request_bodies/schemas/transactionPayload.yml"

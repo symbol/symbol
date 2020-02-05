@@ -4,6 +4,6 @@ required:
   - scoreLow
 properties:
   scoreHigh:
-    $ref: "../../../types/Score.yml"
+    $ref: "../../../schemas/Score.yml"
   scoreLow:
-    $ref: "../../../types/Score.yml"
+    $ref: "../../../schemas/Score.yml"

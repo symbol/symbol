@@ -7,4 +7,5 @@ properties:
     $ref: "./MessageTypeEnum.yml"
   payload:
     type: string
-    description: Content of the message in hexadecimal.
+    format: hex
+    description: Content of the message.

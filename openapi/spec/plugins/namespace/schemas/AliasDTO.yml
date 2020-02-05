@@ -5,6 +5,6 @@ properties:
   type:
     $ref: "./AliasTypeEnum.yml"
   mosaicId:
-    $ref: "../../../types/MosaicId.yml"
+    $ref: "../../../schemas/MosaicId.yml"
   address:
-    $ref: "../../../types/Address.yml"
+    $ref: "../../../schemas/Address.yml"

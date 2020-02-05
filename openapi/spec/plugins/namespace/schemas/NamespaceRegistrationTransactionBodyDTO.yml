@@ -7,11 +7,11 @@ required:
   - name
 properties:
   duration:
-    $ref: "../../../types/BlockDuration.yml"
+    $ref: "../../../schemas/BlockDuration.yml"
   parentId:
-    $ref: "../../../types/NamespaceId.yml"
+    $ref: "../../../schemas/NamespaceId.yml"
   id:
-    $ref: "../../../types/NamespaceId.yml"
+    $ref: "../../../schemas/NamespaceId.yml"
   registrationType:
     $ref: "./NamespaceRegistrationTypeEnum.yml"
   name:

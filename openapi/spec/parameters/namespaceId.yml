@@ -3,5 +3,5 @@ in: path
 description: Namespace identifier.
 required: true
 schema:
-  $ref: "../types/NamespaceId.yml"
+  $ref: "../schemas/NamespaceId.yml"
 

@@ -7,13 +7,13 @@ required:
   - restrictions
 properties:
   compositeHash:
-    $ref: "../../../types/Hash256.yml"
+    $ref: "../../../schemas/Hash256.yml"
   entryType:
     $ref: "./MosaicRestrictionEntryTypeEnum.yml"
   mosaicId:
-    $ref: "../../../types/MosaicId.yml"
+    $ref: "../../../schemas/MosaicId.yml"
   targetAddress:
-    $ref: "../../../types/Address.yml"
+    $ref: "../../../schemas/Address.yml"
   restrictions:
     type: array
     items:

@@ -7,13 +7,15 @@ required:
   - id
 properties:
   height:
-    $ref: "../../../types/Height.yml"
+    $ref: "../../../schemas/Height.yml"
   hash:
-    $ref: "../../../types/Hash256.yml"
+    $ref: "../../../schemas/Hash256.yml"
   merkleComponentHash:
-    $ref: "../../../types/Hash256.yml"
+    $ref: "../../../schemas/Hash256.yml"
   index:
     type: integer
     format: int32
+    description: Transaction index within the block.
   id:
     type: string
+    description: Identifier of the transaciton

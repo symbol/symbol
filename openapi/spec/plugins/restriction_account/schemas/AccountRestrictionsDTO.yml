@@ -4,7 +4,7 @@ required:
   - restrictions
 properties:
   address:
-    $ref: "../../../types/Address.yml"
+    $ref: "../../../schemas/Address.yml"
   restrictions:
     type: array
     items:

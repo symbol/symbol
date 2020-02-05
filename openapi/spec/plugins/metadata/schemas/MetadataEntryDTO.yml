@@ -8,17 +8,17 @@ required:
   - value
 properties:
   compositeHash:
-    $ref: "../../../types/Hash256.yml"
+    $ref: "../../../schemas/Hash256.yml"
   senderPublicKey:
-    $ref: "../../../types/PublicKey.yml"
+    $ref: "../../../schemas/PublicKey.yml"
   targetPublicKey:
-    $ref: "../../../types/PublicKey.yml"
+    $ref: "../../../schemas/PublicKey.yml"
   scopedMetadataKey:
-    $ref: "../../../types/MetadataKey.yml"
+    $ref: "../../../schemas/MetadataKey.yml"
   targetId:
     anyOf:
-      - $ref: "../../../types/MosaicId.yml"
-      - $ref: "../../../types/NamespaceId.yml"
+      - $ref: "../../../schemas/MosaicId.yml"
+      - $ref: "../../../schemas/NamespaceId.yml"
   metadataType:
     $ref: "./MetadataTypeEnum.yml"
   value:

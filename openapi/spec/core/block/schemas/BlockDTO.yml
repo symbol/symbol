@@ -15,20 +15,20 @@ allOf:
       - feeMultiplier
     properties:
       height:
-        $ref: "../../../types/Height.yml"
+        $ref: "../../../schemas/Height.yml"
       timestamp:
-        $ref: "../../../types/Timestamp.yml"
+        $ref: "../../../schemas/Timestamp.yml"
       difficulty:
-        $ref: "../../../types/Difficulty.yml"
+        $ref: "../../../schemas/Difficulty.yml"
       previousBlockHash:
-        $ref: "../../../types/Hash256.yml"
+        $ref: "../../../schemas/Hash256.yml"
       transactionsHash:
-        $ref: "../../../types/Hash256.yml"
+        $ref: "../../../schemas/Hash256.yml"
       receiptsHash:
-        $ref: "../../../types/Hash256.yml"
+        $ref: "../../../schemas/Hash256.yml"
       stateHash:
-        $ref: "../../../types/Hash256.yml"
+        $ref: "../../../schemas/Hash256.yml"
       beneficiaryPublicKey:
-        $ref: "../../../types/PublicKey.yml"
+        $ref: "../../../schemas/PublicKey.yml"
       feeMultiplier:
-        $ref: "../../../types/BlockFeeMultiplier.yml"
+        $ref: "../../../schemas/BlockFeeMultiplier.yml"

@@ -4,4 +4,4 @@ properties:
     type: array
     description: Array of transaction hashes.
     items:
-      $ref: "../../types/Hash256.yml"
+      $ref: "../../schemas/Hash256.yml"

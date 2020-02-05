@@ -11,15 +11,15 @@ required:
   - duration
 properties:
   id:
-    $ref: "../../../types/MosaicId.yml"
+    $ref: "../../../schemas/MosaicId.yml"
   supply:
-    $ref: "../../../types/Amount.yml"
+    $ref: "../../../schemas/Amount.yml"
   startHeight:
-    $ref: "../../../types/Height.yml"
+    $ref: "../../../schemas/Height.yml"
   ownerPublicKey:
-    $ref: "../../../types/PublicKey.yml"
+    $ref: "../../../schemas/PublicKey.yml"
   ownerAddress:
-    $ref: "../../../types/Address.yml"
+    $ref: "../../../schemas/Address.yml"
   revision:
     type: integer
     format: int32
@@ -35,4 +35,4 @@ properties:
       Divisibility of 3 means that a mosaic can be divided into smallest parts of 0.001 mosaics.
       The divisibility must be in the range of 0 and 6.
   duration:
-    $ref: "../../../types/BlockDuration.yml"
+    $ref: "../../../schemas/BlockDuration.yml"

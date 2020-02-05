@@ -5,4 +5,4 @@ properties:
     format: uint32
     example: 1
   hash:
-    $ref: "../../../types/Hash256.yml"
+    $ref: "../../../schemas/Hash256.yml"

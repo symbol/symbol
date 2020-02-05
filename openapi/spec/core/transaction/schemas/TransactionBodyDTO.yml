@@ -4,6 +4,6 @@ required:
   - deadline
 properties:
   maxFee:
-    $ref: "../../../types/Amount.yml"
+    $ref: "../../../schemas/Amount.yml"
   deadline:
-    $ref: "../../../types/BlockDuration.yml"
+    $ref: "../../../schemas/BlockDuration.yml"
