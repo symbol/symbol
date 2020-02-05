@@ -5,12 +5,12 @@ required:
   - message
 properties:
   recipientAddress:
-    $ref: "../../../types/UnresolvedAddress.yml"
+    $ref: "../../../schemas/UnresolvedAddress.yml"
   mosaics:
     type: array
     description: |
       Array of mosaics sent to the recipient.
     items:
-      $ref: "../../../types/UnresolvedMosaic.yml"
+      $ref: "../../../schemas/UnresolvedMosaic.yml"
   message:
     $ref: "./MessageDTO.yml"

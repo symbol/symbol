@@ -13,6 +13,6 @@ properties:
     type: integer
     format: int32
     description: |
-      Transaction index inside within the aggregate transaction.
+      Transaction index within the aggregate transaction.
       If the transaction is not an inner transaction, then the secondary id is set to 0.
     example: 0

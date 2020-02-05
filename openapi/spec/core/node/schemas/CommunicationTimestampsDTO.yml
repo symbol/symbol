@@ -1,6 +1,6 @@
 type: object
 properties:
   sendTimestamp:
-    $ref: "../../../types/Timestamp.yml"
+    $ref: "../../../schemas/Timestamp.yml"
   receiveTimestamp:
-    $ref: "../../../types/Timestamp.yml"
+    $ref: "../../../schemas/Timestamp.yml"

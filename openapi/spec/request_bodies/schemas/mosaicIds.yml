@@ -4,4 +4,4 @@ properties:
     type: array
     description: Array of mosaic identifiers.
     items:
-      $ref: "../../types/MosaicId.yml"
+      $ref: "../../schemas/MosaicId.yml"

@@ -1,4 +1,0 @@
-type: string
-format: hex
-description: Metadata key scoped to source, target and type.
-example: 0DC67FBE1CAD29E3

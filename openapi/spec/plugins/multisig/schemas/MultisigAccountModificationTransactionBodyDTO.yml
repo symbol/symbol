@@ -23,9 +23,9 @@ properties:
     type: array
     description: Array of cosignatory accounts to add.
     items:
-      $ref: "../../../types/PublicKey.yml"
+      $ref: "../../../schemas/PublicKey.yml"
   publicKeyDeletions:
     type: array
     description: Array of cosignatory accounts to delete.
     items:
-      $ref: "../../../types/PublicKey.yml"
+      $ref: "../../../schemas/PublicKey.yml"

@@ -6,7 +6,7 @@ required:
   - type
 properties:
   signerPublicKey:
-    $ref: "../../../types/PublicKey.yml"
+    $ref: "../../../schemas/PublicKey.yml"
   version:
     type: integer
     format: int32

@@ -3,4 +3,4 @@ in: path
 description: Transaction hash.
 required: true
 schema:
-  $ref: "../types/Hash256.yml"
+  $ref: "../schemas/Hash256.yml"

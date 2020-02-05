@@ -6,11 +6,11 @@ required:
   - restrictions
 properties:
   compositeHash:
-    $ref: "../../../types/Hash256.yml"
+    $ref: "../../../schemas/Hash256.yml"
   entryType:
     $ref: "./MosaicRestrictionEntryTypeEnum.yml"
   mosaicId:
-    $ref: "../../../types/MosaicId.yml"
+    $ref: "../../../schemas/MosaicId.yml"
   restrictions:
     type: array
     items:

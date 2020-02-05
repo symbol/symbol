@@ -7,9 +7,9 @@ required:
   - divisibility
 properties:
   id:
-    $ref: "../../../types/MosaicId.yml"
+    $ref: "../../../schemas/MosaicId.yml"
   duration:
-    $ref: "../../../types/BlockDuration.yml"
+    $ref: "../../../schemas/BlockDuration.yml"
   nonce:
     type: integer
     format: int64

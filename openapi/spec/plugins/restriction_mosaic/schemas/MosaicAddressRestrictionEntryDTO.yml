@@ -4,7 +4,7 @@ required:
   - value
 properties:
   key:
-    $ref: "../../../types/MosaicRestrictionKey.yml"
+    $ref: "../../../schemas/RestrictionKey.yml"
   value:
     type: string
     description: Restriction value.

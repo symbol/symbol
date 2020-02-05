@@ -1,5 +1,5 @@
 type: object
-description: Native currency mosaics that were created due to inflation.
+description: Receipt stored when network currency mosaics were created due to inflation.
 allOf:
   - $ref: "./ReceiptDTO.yml"
   - type: object
@@ -8,6 +8,6 @@ allOf:
       - amount
     properties:
       mosaicId:
-        $ref: "../../../types/MosaicId.yml"
+        $ref: "../../../schemas/MosaicId.yml"
       amount:
-        $ref: "../../../types/Amount.yml"
+        $ref: "../../../schemas/Amount.yml"

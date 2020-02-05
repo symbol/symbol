@@ -7,13 +7,16 @@ required:
   - id
 properties:
   height:
-    $ref: "../../../types/Height.yml"
+    $ref: "../../../schemas/Height.yml"
   aggregateHash:
-    $ref: "../../../types/Hash256.yml"
+    $ref: "../../../schemas/Hash256.yml"
   aggregateId:
     type: string
+    description: Identifier of the aggregate transaction.
   index:
     type: integer
     format: int32
+    description: Transaction index within the aggregate.
   id:
     type: string
+    description: Identifier of the transaction.

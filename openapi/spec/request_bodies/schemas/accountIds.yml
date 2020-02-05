@@ -4,9 +4,9 @@ properties:
     type: array
     description: Array of public keys.
     items:
-      $ref: "../../types/PublicKey.yml"
+      $ref: "../../schemas/PublicKey.yml"
   addresses:
     type: array
     description: Array of addresses.
     items:
-      $ref: "../../types/Address.yml"
+      $ref: "../../schemas/AddressBase32.yml"

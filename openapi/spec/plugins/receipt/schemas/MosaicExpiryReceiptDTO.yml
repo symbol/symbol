@@ -1,5 +1,5 @@
 type: object
-description: A mosaic expired in this block.
+description: Receipt stored when a mosaic expires.
 allOf:
   - $ref: "./ReceiptDTO.yml"
   - type: object
@@ -7,4 +7,4 @@ allOf:
       - artifactId
     properties:
       artifactId:
-        $ref: "../../../types/MosaicId.yml"
+        $ref: "../../../schemas/MosaicId.yml"

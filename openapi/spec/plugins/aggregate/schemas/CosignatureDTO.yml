@@ -6,4 +6,4 @@ allOf:
       - signerPublicKey
     properties:
       signerPublicKey:
-        $ref: "../../../types/PublicKey.yml"
+        $ref: "../../../schemas/PublicKey.yml"
