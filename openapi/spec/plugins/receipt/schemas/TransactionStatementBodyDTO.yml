@@ -5,7 +5,7 @@ required:
   - receipts
 properties:
   height:
-    $ref: "../../../types/Height.yml"
+    $ref: "../../../schemas/Height.yml"
   source:
     $ref: "./SourceDTO.yml"
   receipts:

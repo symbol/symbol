@@ -4,5 +4,5 @@ description: |
   Block height.
 required: true
 schema:
-  $ref: "../types/Height.yml"
+  $ref: "../schemas/Height.yml"
 

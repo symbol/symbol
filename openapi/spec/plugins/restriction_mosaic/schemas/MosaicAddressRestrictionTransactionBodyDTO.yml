@@ -7,12 +7,12 @@ required:
   - targetAddress
 properties:
   mosaicId:
-    $ref: "../../../types/UnresolvedMosaicId.yml"
+    $ref: "../../../schemas/UnresolvedMosaicId.yml"
   restrictionKey:
-    $ref: "../../../types/MosaicRestrictionKey.yml"
+    $ref: "../../../schemas/RestrictionKey.yml"
   previousRestrictionValue:
-    $ref: "../../../types/RestrictionValue.yml"
+    $ref: "../../../schemas/RestrictionValue.yml"
   newRestrictionValue:
-    $ref: "../../../types/RestrictionValue.yml"
+    $ref: "../../../schemas/RestrictionValue.yml"
   targetAddress:
-    $ref: "../../../types/UnresolvedAddress.yml"
+    $ref: "../../../schemas/UnresolvedAddress.yml"

@@ -5,8 +5,8 @@ required:
   - restrictionType
 properties:
   referenceMosaicId:
-    $ref: "../../../types/MosaicId.yml"
+    $ref: "../../../schemas/MosaicId.yml"
   restrictionValue:
-    $ref: "../../../types/RestrictionValue.yml"
+    $ref: "../../../schemas/RestrictionValue.yml"
   restrictionType:
     $ref: "./MosaicRestrictionTypeEnum.yml"

@@ -7,15 +7,15 @@ required:
   - numTransactions
 properties:
   hash:
-    $ref: "../../../types/Hash256.yml"
+    $ref: "../../../schemas/Hash256.yml"
   totalFee:
-    $ref: "../../../types/Amount.yml"
+    $ref: "../../../schemas/Amount.yml"
   generationHash:
-    $ref: "../../../types/Hash256.yml"
+    $ref: "../../../schemas/Hash256.yml"
   stateHashSubCacheMerkleRoots:
     type: array
     items:
-      $ref: "../../../types/Hash256.yml"
+      $ref: "../../../schemas/Hash256.yml"
   numTransactions:
     type: integer
     format: int32

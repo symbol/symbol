@@ -4,15 +4,22 @@ required:
   - totalFeesPaid
   - beneficiaryCount
   - rawScore
+description: |
+  Supplementary data stored for importance recalculation.
+  At each importance recalculation, existing buckets are shifted, the working bucket is finalized and a new working bucketis created.
+  Each bucket influences at most five importance recalculations.
 properties:
   startHeight:
-    $ref: "../../../types/Height.yml"
+    $ref: "../../../schemas/Height.yml"
   totalFeesPaid:
     type: integer
     format: int64
+    description: Fees paid by the account for this bucket.
   beneficiaryCount:
     type: integer
     format: int32
+    description: Number of times the account has been a beneficiary for this bucket.
   rawScore:
     type: integer
     format: int64
+    description: Importance score for this bucket. This is taken into account to calculate the latest account importance.

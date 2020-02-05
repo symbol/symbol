@@ -1,6 +1,6 @@
 name: accountId
 in: path
-description: Account public key or address.
+description: Account public key or address enconded using a 32-character set.
 required: true
 schema:
   type: string

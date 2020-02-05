@@ -10,6 +10,6 @@ properties:
     description: Address, mosaic id, or transaction type to restrict.
     items:
       anyOf:
-        - $ref: "../../../types/UnresolvedAddress.yml"
-        - $ref: "../../../types/UnresolvedMosaicId.yml"
+        - $ref: "../../../schemas/UnresolvedAddress.yml"
+        - $ref: "../../../schemas/UnresolvedMosaicId.yml"
         - $ref: "../../../core/transaction/schemas/TransactionTypeEnum.yml"

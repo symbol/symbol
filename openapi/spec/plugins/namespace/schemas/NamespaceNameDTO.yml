@@ -4,9 +4,9 @@ required:
   - name
 properties:
   parentId:
-    $ref: "../../../types/NamespaceId.yml"
+    $ref: "../../../schemas/NamespaceId.yml"
   id:
-    $ref: "../../../types/NamespaceId.yml"
+    $ref: "../../../schemas/NamespaceId.yml"
   name:
     type: string
     description: Namespace name.
