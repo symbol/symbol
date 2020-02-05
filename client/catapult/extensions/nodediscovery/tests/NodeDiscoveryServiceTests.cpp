@@ -34,6 +34,7 @@
 #include "tests/test/net/SocketTestUtils.h"
 #include "tests/test/net/mocks/MockPacketWriters.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
+#include "tests/test/nodeps/Nemesis.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace nodediscovery {
@@ -162,11 +163,13 @@ namespace catapult { namespace nodediscovery {
 
 	namespace {
 		auto CreateNodePushPingPacket(const Key& identityKey, const std::string& host, const std::string& name) {
-			return test::CreateNodePushPingPacket(identityKey, ionet::NodeVersion(1234), host, name);
+			auto pPacket = test::CreateNodePushPingPacket(identityKey, ionet::NodeVersion(1234), host, name);
+			reinterpret_cast<ionet::NetworkNode*>(pPacket->Data())->NetworkGenerationHash = test::GetNemesisGenerationHash();
+			return pPacket;
 		}
 
 		auto CreateNodePullPingPacket(const Key& identityKey, const std::string& host, const std::string& name) {
-			auto pPacket = test::CreateNodePushPingPacket(identityKey, ionet::NodeVersion(1234), host, name);
+			auto pPacket = CreateNodePushPingPacket(identityKey, host, name);
 			pPacket->Type = ionet::PacketType::Node_Discovery_Pull_Ping;
 			return pPacket;
 		}

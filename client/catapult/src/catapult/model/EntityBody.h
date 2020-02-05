@@ -20,7 +20,7 @@
 
 #pragma once
 #include "EntityType.h"
-#include "NetworkInfo.h"
+#include "NetworkIdentifier.h"
 #include "catapult/types.h"
 
 namespace catapult { namespace model {

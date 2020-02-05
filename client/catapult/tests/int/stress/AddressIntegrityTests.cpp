@@ -20,7 +20,7 @@
 
 #include "catapult/crypto/KeyGenerator.h"
 #include "catapult/model/Address.h"
-#include "catapult/model/NetworkInfo.h"
+#include "catapult/model/NetworkIdentifier.h"
 #include "catapult/utils/HexFormatter.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/nodeps/MijinConstants.h"

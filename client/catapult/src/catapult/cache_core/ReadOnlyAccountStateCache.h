@@ -20,7 +20,7 @@
 
 #pragma once
 #include "catapult/cache/ReadOnlyArtifactCache.h"
-#include "catapult/model/NetworkInfo.h"
+#include "catapult/model/NetworkIdentifier.h"
 #include "catapult/state/AccountState.h"
 
 namespace catapult {

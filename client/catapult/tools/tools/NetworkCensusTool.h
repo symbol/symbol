@@ -60,8 +60,11 @@ namespace catapult { namespace tools {
 
 		int run(const Options&) override final {
 			auto config = LoadConfiguration(m_resourcesPath);
-			auto p2pNodes = LoadPeers(m_resourcesPath, config.BlockChain.Network.Identifier);
-			auto apiNodes = LoadOptionalApiPeers(m_resourcesPath, config.BlockChain.Network.Identifier);
+			auto networkFingerprint = model::UniqueNetworkFingerprint(
+					config.BlockChain.Network.Identifier,
+					config.BlockChain.Network.GenerationHash);
+			auto p2pNodes = LoadPeers(m_resourcesPath, networkFingerprint);
+			auto apiNodes = LoadOptionalApiPeers(m_resourcesPath, networkFingerprint);
 
 			MultiNodeConnector connector(ExtractKeyPair(m_clientPrivateKey));
 			std::vector<NodeInfoFuture> nodeInfoFutures;

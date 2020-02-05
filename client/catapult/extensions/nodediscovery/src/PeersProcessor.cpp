@@ -28,12 +28,12 @@ namespace catapult { namespace nodediscovery {
 			const Key& serverPublicKey,
 			const ionet::NodeContainer& nodeContainer,
 			const NodePingRequestInitiator& pingRequestInitiator,
-			model::NetworkIdentifier networkIdentifier,
+			const model::UniqueNetworkFingerprint& networkFingerprint,
 			const NodeConsumer& newPartnerNodeConsumer)
 			: m_serverPublicKey(serverPublicKey)
 			, m_nodeContainer(nodeContainer)
 			, m_pingRequestInitiator(pingRequestInitiator)
-			, m_networkIdentifier(networkIdentifier)
+			, m_networkFingerprint(networkFingerprint)
 			, m_newPartnerNodeConsumer(newPartnerNodeConsumer)
 	{}
 
@@ -51,16 +51,16 @@ namespace catapult { namespace nodediscovery {
 	}
 
 	void PeersProcessor::process(const ionet::Node& candidateNode) const {
-		auto networkIdentifier = m_networkIdentifier;
+		auto networkFingerprint = m_networkFingerprint;
 		auto newPartnerNodeConsumer = m_newPartnerNodeConsumer;
-		m_pingRequestInitiator(candidateNode, [candidateNode, networkIdentifier, newPartnerNodeConsumer](
+		m_pingRequestInitiator(candidateNode, [candidateNode, networkFingerprint, newPartnerNodeConsumer](
 				auto result,
 				const auto& responseNode) {
 			CATAPULT_LOG(info) << "ping with '" << candidateNode << "' completed with: " << result;
 			if (net::NodeRequestResult::Success != result)
 				return;
 
-			if (!IsNodeCompatible(responseNode, networkIdentifier, candidateNode.identity().PublicKey)) {
+			if (!IsNodeCompatible(responseNode, networkFingerprint, candidateNode.identity().PublicKey)) {
 				CATAPULT_LOG(warning) << "ping with '" << candidateNode << "' rejected due to incompatibility";
 				return;
 			}

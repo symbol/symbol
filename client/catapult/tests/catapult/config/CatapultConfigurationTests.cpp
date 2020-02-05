@@ -311,9 +311,12 @@ namespace catapult { namespace config {
 	// region ToLocalNode
 
 	namespace {
+		constexpr auto Generation_Hash_String = "272C4ECC55B7A42A07478A9550543C62673D1599A8362CC662E019049B76B7F2";
+
 		auto CreateCatapultConfiguration(const std::string& privateKeyString) {
 			test::MutableCatapultConfiguration config;
 			config.BlockChain.Network.Identifier = model::NetworkIdentifier::Mijin_Test;
+			config.BlockChain.Network.GenerationHash = utils::ParseByteArray<GenerationHash>(Generation_Hash_String);
 
 			config.Node.Port = 9876;
 			config.Node.Local.Host = "alice.com";
@@ -345,7 +348,8 @@ namespace catapult { namespace config {
 		EXPECT_EQ(9876u, endpoint.Port);
 
 		const auto& metadata = node.metadata();
-		EXPECT_EQ(model::NetworkIdentifier::Mijin_Test, metadata.NetworkIdentifier);
+		EXPECT_EQ(model::NetworkIdentifier::Mijin_Test, metadata.NetworkFingerprint.Identifier);
+		EXPECT_EQ(utils::ParseByteArray<GenerationHash>(Generation_Hash_String), metadata.NetworkFingerprint.GenerationHash);
 		EXPECT_EQ("a GREAT node", metadata.Name);
 		EXPECT_EQ(ionet::NodeVersion(123), metadata.Version);
 		EXPECT_EQ(ionet::NodeRoles::Api, metadata.Roles);

@@ -20,7 +20,7 @@
 
 #include "AccountStateCacheView.h"
 #include "catapult/model/Address.h"
-#include "catapult/model/NetworkInfo.h"
+#include "catapult/model/NetworkIdentifier.h"
 
 namespace catapult { namespace cache {
 

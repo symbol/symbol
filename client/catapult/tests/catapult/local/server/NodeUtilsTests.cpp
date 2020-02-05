@@ -36,7 +36,7 @@ namespace catapult { namespace local {
 			CATAPULT_LOG(debug) << "seed with lengths: " << peerHostSize << ", " << peerNameSize;
 
 			auto peerEndpoint = ionet::NodeEndpoint{ std::string(peerHostSize, 'q'), 1234 };
-			auto peerMetadata = ionet::NodeMetadata(model::NetworkIdentifier::Zero, std::string(peerNameSize, 'p'));
+			auto peerMetadata = ionet::NodeMetadata(model::UniqueNetworkFingerprint(), std::string(peerNameSize, 'p'));
 			std::vector<ionet::Node> nodes{
 				ionet::Node({ Key{ { 1 } }, "1.2.3.4" }),
 				ionet::Node({ Key{ { 4 } }, "3.3.3.3" }, peerEndpoint, peerMetadata),

@@ -19,7 +19,7 @@
 **/
 
 #pragma once
-#include "catapult/model/NetworkInfo.h"
+#include "catapult/model/NetworkIdentifier.h"
 #include "catapult/model/Transaction.h"
 #include "catapult/utils/Casting.h"
 #include "catapult/utils/MemoryUtils.h"

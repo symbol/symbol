@@ -30,17 +30,19 @@ namespace catapult { namespace tools {
 		return config::CatapultConfiguration::LoadFromPath(resourcesPath, "server");
 	}
 
-	std::vector<ionet::Node> LoadOptionalApiPeers(const std::string& resourcesPath, model::NetworkIdentifier networkIdentifier) {
+	std::vector<ionet::Node> LoadOptionalApiPeers(
+			const std::string& resourcesPath,
+			const model::UniqueNetworkFingerprint& networkFingerprint) {
 		std::vector<ionet::Node> apiNodes;
 		auto apiPeersFilename = boost::filesystem::path(resourcesPath) / "resources" / "peers-api.json";
 		if (boost::filesystem::exists(apiPeersFilename))
-			apiNodes = config::LoadPeersConfiguration(apiPeersFilename, networkIdentifier);
+			apiNodes = config::LoadPeersConfiguration(apiPeersFilename, networkFingerprint);
 
 		return apiNodes;
 	}
 
-	std::vector<ionet::Node> LoadPeers(const std::string& resourcesPath, model::NetworkIdentifier networkIdentifier) {
+	std::vector<ionet::Node> LoadPeers(const std::string& resourcesPath, const model::UniqueNetworkFingerprint& networkFingerprint) {
 		auto peersFilename = boost::filesystem::path(resourcesPath) / "resources" / "peers-p2p.json";
-		return config::LoadPeersConfiguration(peersFilename, networkIdentifier);
+		return config::LoadPeersConfiguration(peersFilename, networkFingerprint);
 	}
 }}

@@ -20,7 +20,7 @@
 
 #include "Node.h"
 #include "catapult/model/Address.h"
-#include "catapult/model/NetworkInfo.h"
+#include "catapult/model/NetworkIdentifier.h"
 #include <cctype>
 
 namespace catapult { namespace ionet {
@@ -34,7 +34,7 @@ namespace catapult { namespace ionet {
 		std::string GetPrintableName(const Key& identityKey, const NodeEndpoint& endpoint, const NodeMetadata& metadata) {
 			std::ostringstream printableName;
 			if (metadata.Name.empty())
-				printableName << model::AddressToString(model::PublicKeyToAddress(identityKey, metadata.NetworkIdentifier));
+				printableName << model::AddressToString(model::PublicKeyToAddress(identityKey, metadata.NetworkFingerprint.Identifier));
 			else
 				printableName << metadata.Name;
 

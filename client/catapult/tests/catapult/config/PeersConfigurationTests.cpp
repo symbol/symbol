@@ -28,7 +28,12 @@ namespace catapult { namespace config {
 #define TEST_CLASS PeersConfigurationTests
 
 	namespace {
-		const auto Network_Identifier = static_cast<model::NetworkIdentifier>(0x25);
+		constexpr auto Network_Identifier = static_cast<model::NetworkIdentifier>(0x25);
+		constexpr auto Generation_Hash_String = "272C4ECC55B7A42A07478A9550543C62673D1599A8362CC662E019049B76B7F2";
+
+		auto GetNetworkFingerprint() {
+			return model::UniqueNetworkFingerprint(Network_Identifier, utils::ParseByteArray<GenerationHash>(Generation_Hash_String));
+		}
 
 		void AssertIdentity(const model::NodeIdentity& identity, const Key& identityKey, const std::string& host) {
 			EXPECT_EQ(identityKey, identity.PublicKey);
@@ -42,7 +47,8 @@ namespace catapult { namespace config {
 
 		void AssertMetadata(const ionet::NodeMetadata& metadata, const std::string& name, ionet::NodeRoles roles) {
 			EXPECT_EQ(name, metadata.Name);
-			EXPECT_EQ(Network_Identifier, metadata.NetworkIdentifier);
+			EXPECT_EQ(Network_Identifier, metadata.NetworkFingerprint.Identifier);
+			EXPECT_EQ(utils::ParseByteArray<GenerationHash>(Generation_Hash_String), metadata.NetworkFingerprint.GenerationHash);
 			EXPECT_EQ(ionet::NodeVersion(), metadata.Version);
 			EXPECT_EQ(roles, metadata.Roles);
 		}
@@ -57,7 +63,7 @@ namespace catapult { namespace config {
 		})";
 
 		// Act + Assert:
-		EXPECT_THROW(LoadPeersFromStream(stream, Network_Identifier), catapult_runtime_error);
+		EXPECT_THROW(LoadPeersFromStream(stream, GetNetworkFingerprint()), catapult_runtime_error);
 	}
 
 	TEST(TEST_CLASS, PeersEntryMustBeArray) {
@@ -68,7 +74,7 @@ namespace catapult { namespace config {
 		})";
 
 		// Act + Assert:
-		EXPECT_THROW(LoadPeersFromStream(stream, Network_Identifier), catapult_runtime_error);
+		EXPECT_THROW(LoadPeersFromStream(stream, GetNetworkFingerprint()), catapult_runtime_error);
 	}
 
 	TEST(TEST_CLASS, PeersEntriesMustBeValid) {
@@ -81,7 +87,7 @@ namespace catapult { namespace config {
 		})";
 
 		// Act + Assert:
-		EXPECT_THROW(LoadPeersFromStream(stream, Network_Identifier), catapult_runtime_error);
+		EXPECT_THROW(LoadPeersFromStream(stream, GetNetworkFingerprint()), catapult_runtime_error);
 	}
 
 	TEST(TEST_CLASS, AllRequiredLeafPropertiesMustBePresent) {
@@ -98,7 +104,7 @@ namespace catapult { namespace config {
 		})";
 
 		// Act + Assert:
-		EXPECT_THROW(LoadPeersFromStream(stream, Network_Identifier), catapult_runtime_error);
+		EXPECT_THROW(LoadPeersFromStream(stream, GetNetworkFingerprint()), catapult_runtime_error);
 	}
 
 	TEST(TEST_CLASS, AllRequiredPropertiesMustBePresent) {
@@ -114,7 +120,7 @@ namespace catapult { namespace config {
 		})";
 
 		// Act + Assert:
-		EXPECT_THROW(LoadPeersFromStream(stream, Network_Identifier), catapult_runtime_error);
+		EXPECT_THROW(LoadPeersFromStream(stream, GetNetworkFingerprint()), catapult_runtime_error);
 	}
 
 	TEST(TEST_CLASS, NodeRolesMustBeValid) {
@@ -131,7 +137,7 @@ namespace catapult { namespace config {
 		})";
 
 		// Act + Assert:
-		EXPECT_THROW(LoadPeersFromStream(stream, Network_Identifier), catapult_runtime_error);
+		EXPECT_THROW(LoadPeersFromStream(stream, GetNetworkFingerprint()), catapult_runtime_error);
 	}
 
 	// endregion
@@ -144,7 +150,7 @@ namespace catapult { namespace config {
 		})";
 
 		// Act:
-		auto nodes = LoadPeersFromStream(stream, Network_Identifier);
+		auto nodes = LoadPeersFromStream(stream, GetNetworkFingerprint());
 
 		// Assert:
 		EXPECT_EQ(0u, nodes.size());
@@ -164,7 +170,7 @@ namespace catapult { namespace config {
 		})";
 
 		// Act:
-		auto nodes = LoadPeersFromStream(stream, Network_Identifier);
+		auto nodes = LoadPeersFromStream(stream, GetNetworkFingerprint());
 
 		// Assert:
 		ASSERT_EQ(1u, nodes.size());
@@ -191,7 +197,7 @@ namespace catapult { namespace config {
 		})";
 
 		// Act:
-		auto nodes = LoadPeersFromStream(stream, Network_Identifier);
+		auto nodes = LoadPeersFromStream(stream, GetNetworkFingerprint());
 
 		// Assert:
 		ASSERT_EQ(1u, nodes.size());
@@ -229,7 +235,7 @@ namespace catapult { namespace config {
 		})";
 
 		// Act:
-		auto nodes = LoadPeersFromStream(stream, Network_Identifier);
+		auto nodes = LoadPeersFromStream(stream, GetNetworkFingerprint());
 
 		// Assert:
 		ASSERT_EQ(2u, nodes.size());
@@ -262,7 +268,7 @@ namespace catapult { namespace config {
 			CATAPULT_LOG(debug) << "parsing peers from " << filename;
 
 			// Act:
-			auto peers = LoadPeersFromPath((resourcesPath / filename).generic_string(), Network_Identifier);
+			auto peers = LoadPeersFromPath((resourcesPath / filename).generic_string(), GetNetworkFingerprint());
 
 			// Assert:
 			EXPECT_FALSE(peers.empty());

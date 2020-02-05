@@ -22,7 +22,7 @@
 #include "MosaicRestrictionCacheDelta.h"
 #include "MosaicRestrictionCacheView.h"
 #include "catapult/cache/BasicCache.h"
-#include "catapult/model/NetworkInfo.h"
+#include "catapult/model/NetworkIdentifier.h"
 
 namespace catapult { namespace cache {
 

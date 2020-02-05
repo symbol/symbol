@@ -41,7 +41,8 @@ namespace catapult { namespace ionet {
 		pNetworkNode->Size = packedNodeSize;
 		pNetworkNode->Port = endpoint.Port;
 		pNetworkNode->IdentityKey = node.identity().PublicKey;
-		pNetworkNode->NetworkIdentifier = metadata.NetworkIdentifier;
+		pNetworkNode->NetworkIdentifier = metadata.NetworkFingerprint.Identifier;
+		pNetworkNode->NetworkGenerationHash = metadata.NetworkFingerprint.GenerationHash;
 		pNetworkNode->Version = metadata.Version;
 		pNetworkNode->Roles = metadata.Roles;
 
@@ -68,7 +69,8 @@ namespace catapult { namespace ionet {
 		pNetworkNodeData += networkNode.HostSize;
 
 		auto metadata = NodeMetadata();
-		metadata.NetworkIdentifier = networkNode.NetworkIdentifier;
+		metadata.NetworkFingerprint.Identifier = networkNode.NetworkIdentifier;
+		metadata.NetworkFingerprint.GenerationHash = networkNode.NetworkGenerationHash;
 		metadata.Name = std::string(pNetworkNodeData, networkNode.FriendlyNameSize);
 		metadata.Version = networkNode.Version;
 		metadata.Roles = networkNode.Roles;

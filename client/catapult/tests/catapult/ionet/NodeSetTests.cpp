@@ -27,17 +27,21 @@ namespace catapult { namespace ionet {
 #define TEST_CLASS NodeSetTests
 
 	namespace {
+		NodeMetadata CreateMetadata(model::NetworkIdentifier networkIdentifier) {
+			return NodeMetadata(model::UniqueNetworkFingerprint(networkIdentifier));
+		}
+
 		std::unordered_map<std::string, Node> GenerateEqualityInstanceMap() {
 			auto key1 = test::GenerateRandomByteArray<Key>();
 			auto key2 = test::GenerateRandomByteArray<Key>();
 			return {
-				{ "default", { { key1, "11.22.33.44" }, { "bob.com", 1234 }, NodeMetadata(model::NetworkIdentifier::Mijin) } },
-				{ "copy", { { key1, "11.22.33.44" }, { "bob.com", 1234 }, NodeMetadata(model::NetworkIdentifier::Mijin) } },
-				{ "diff-key", { { key2, "11.22.33.44" }, { "bob.com", 1234 }, NodeMetadata(model::NetworkIdentifier::Mijin) } },
-				{ "diff-host", { { key1, "99.88.77.66" }, { "bob.com", 1234 }, NodeMetadata(model::NetworkIdentifier::Mijin) } },
-				{ "diff-key-host", { { key2, "99.88.77.66" }, { "bob.com", 1234 }, NodeMetadata(model::NetworkIdentifier::Mijin) } },
-				{ "diff-endpoint", { { key1, "11.22.33.44" }, { "alice.com", 1234 }, NodeMetadata(model::NetworkIdentifier::Mijin) } },
-				{ "diff-metadata", { { key1, "11.22.33.44" }, { "bob.com", 1234 }, NodeMetadata(model::NetworkIdentifier::Public) } }
+				{ "default", { { key1, "11.22.33.44" }, { "bob.com", 1234 }, CreateMetadata(model::NetworkIdentifier::Mijin) } },
+				{ "copy", { { key1, "11.22.33.44" }, { "bob.com", 1234 }, CreateMetadata(model::NetworkIdentifier::Mijin) } },
+				{ "diff-key", { { key2, "11.22.33.44" }, { "bob.com", 1234 }, CreateMetadata(model::NetworkIdentifier::Mijin) } },
+				{ "diff-host", { { key1, "99.88.77.66" }, { "bob.com", 1234 }, CreateMetadata(model::NetworkIdentifier::Mijin) } },
+				{ "diff-key-host", { { key2, "99.88.77.66" }, { "bob.com", 1234 }, CreateMetadata(model::NetworkIdentifier::Mijin) } },
+				{ "diff-endpoint", { { key1, "11.22.33.44" }, { "alice.com", 1234 }, CreateMetadata(model::NetworkIdentifier::Mijin) } },
+				{ "diff-metadata", { { key1, "11.22.33.44" }, { "bob.com", 1234 }, CreateMetadata(model::NetworkIdentifier::Public) } }
 			};
 		}
 	}

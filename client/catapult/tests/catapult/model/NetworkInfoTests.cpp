@@ -19,15 +19,11 @@
 **/
 
 #include "catapult/model/NetworkInfo.h"
-#include "catapult/utils/Casting.h"
-#include "tests/test/nodeps/ConfigurationTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace model {
 
 #define TEST_CLASS NetworkInfoTests
-
-	// region construction
 
 	TEST(TEST_CLASS, CanCreateDefaultNetwork) {
 		// Act:
@@ -61,38 +57,4 @@ namespace catapult { namespace model {
 		EXPECT_EQ(generationHash, networkInfo.GenerationHash);
 		EXPECT_EQ(utils::TimeSpan::FromHours(123), networkInfo.EpochAdjustment);
 	}
-
-	// endregion
-
-	// region parsing
-
-	TEST(TEST_CLASS, CanParseValidNetworkValue) {
-		// Arrange:
-		auto assertSuccessfulParse = [](const auto& input, const auto& expectedParsedValue) {
-			test::AssertParse(input, expectedParsedValue, [](const auto& str, auto& parsedValue) {
-				return TryParseValue(str, parsedValue);
-			});
-		};
-
-		// Assert:
-		assertSuccessfulParse("mijin", NetworkIdentifier::Mijin);
-		assertSuccessfulParse("mijin-test", NetworkIdentifier::Mijin_Test);
-		assertSuccessfulParse("public", NetworkIdentifier::Public);
-		assertSuccessfulParse("public-test", NetworkIdentifier::Public_Test);
-
-		assertSuccessfulParse("0", static_cast<NetworkIdentifier>(0));
-		assertSuccessfulParse("17", static_cast<NetworkIdentifier>(17));
-		assertSuccessfulParse("255", static_cast<NetworkIdentifier>(255));
-	}
-
-	TEST(TEST_CLASS, CannotParseInvalidNetworkValue) {
-		test::AssertEnumParseFailure("mijin", NetworkIdentifier::Public, [](const auto& str, auto& parsedValue) {
-			return TryParseValue(str, parsedValue);
-		});
-		test::AssertFailedParse("256", NetworkIdentifier::Public, [](const auto& str, auto& parsedValue) {
-			return TryParseValue(str, parsedValue);
-		});
-	}
-
-	// endregion
 }}

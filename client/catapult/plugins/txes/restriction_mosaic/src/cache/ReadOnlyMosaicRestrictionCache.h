@@ -21,7 +21,7 @@
 #pragma once
 #include "src/state/MosaicRestrictionEntry.h"
 #include "catapult/cache/ReadOnlyArtifactCache.h"
-#include "catapult/model/NetworkInfo.h"
+#include "catapult/model/NetworkIdentifier.h"
 
 namespace catapult {
 	namespace cache {

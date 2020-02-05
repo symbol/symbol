@@ -139,7 +139,7 @@ namespace catapult { namespace config {
 		// Arrange:
 		RunTestWithTemporaryDirectory([](const auto& path) {
 			// Act + Assert:
-			EXPECT_THROW(LoadPeersConfiguration(path / Not_Config_Filename, model::NetworkIdentifier::Zero), catapult_runtime_error);
+			EXPECT_THROW(LoadPeersConfiguration(path / Not_Config_Filename, model::UniqueNetworkFingerprint()), catapult_runtime_error);
 		});
 	}
 
@@ -147,7 +147,7 @@ namespace catapult { namespace config {
 		// Arrange:
 		RunTestWithTemporaryDirectory([](const auto& path) {
 			// Act:
-			auto nodes = LoadPeersConfiguration(path / Config_Peers_Filename, model::NetworkIdentifier::Zero);
+			auto nodes = LoadPeersConfiguration(path / Config_Peers_Filename, model::UniqueNetworkFingerprint());
 
 			// Assert:
 			EXPECT_TRUE(nodes.empty());

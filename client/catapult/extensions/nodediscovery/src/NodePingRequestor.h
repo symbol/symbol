@@ -28,15 +28,15 @@ namespace catapult { namespace nodediscovery {
 	/// Node ping response compatibility checker.
 	class NodePingResponseCompatibilityChecker {
 	public:
-		/// Creates a checker around \a networkIdentifier.
-		explicit NodePingResponseCompatibilityChecker(model::NetworkIdentifier networkIdentifier)
-				: m_networkIdentifier(networkIdentifier)
+		/// Creates a checker around \a networkFingerprint.
+		explicit NodePingResponseCompatibilityChecker(const model::UniqueNetworkFingerprint& networkFingerprint)
+				: m_networkFingerprint(networkFingerprint)
 		{}
 
 	public:
 		/// Returns \c true if \a requestNode and \a responseNode are compatible nodes.
 		bool isResponseCompatible(const ionet::Node& requestNode, const ionet::Node& responseNode) const {
-			if (IsNodeCompatible(responseNode, m_networkIdentifier, requestNode.identity().PublicKey))
+			if (IsNodeCompatible(responseNode, m_networkFingerprint, requestNode.identity().PublicKey))
 				return true;
 
 			CATAPULT_LOG(warning) << "rejecting incompatible partner node '" << responseNode << "'";
@@ -44,7 +44,7 @@ namespace catapult { namespace nodediscovery {
 		}
 
 	private:
-		model::NetworkIdentifier m_networkIdentifier;
+		model::UniqueNetworkFingerprint m_networkFingerprint;
 	};
 
 	/// Node ping request policy.
@@ -64,11 +64,11 @@ namespace catapult { namespace nodediscovery {
 	/// Brief server requestor for requesting node ping information.
 	using NodePingRequestor = net::BriefServerRequestor<NodePingRequestPolicy, NodePingResponseCompatibilityChecker>;
 
-	/// Creates a node ping requestor for a server with a key pair of \a keyPair and a network identified by \a networkIdentifier
+	/// Creates a node ping requestor for a server with a key pair of \a keyPair and a network identified by \a networkFingerprint
 	/// using \a pPool and configured with \a settings.
 	std::shared_ptr<NodePingRequestor> CreateNodePingRequestor(
 			const std::shared_ptr<thread::IoThreadPool>& pPool,
 			const crypto::KeyPair& keyPair,
 			const net::ConnectionSettings& settings,
-			model::NetworkIdentifier networkIdentifier);
+			const model::UniqueNetworkFingerprint& networkFingerprint);
 }}

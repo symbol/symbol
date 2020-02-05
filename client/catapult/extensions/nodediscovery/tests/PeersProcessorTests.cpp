@@ -21,6 +21,7 @@
 #include "nodediscovery/src/PeersProcessor.h"
 #include "catapult/ionet/NodeContainer.h"
 #include "catapult/utils/ArraySet.h"
+#include "nodediscovery/tests/test/NodeDiscoveryTestUtils.h"
 #include "tests/test/net/NodeTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -29,8 +30,6 @@ namespace catapult { namespace nodediscovery {
 #define TEST_CLASS PeersProcessorTests
 
 	namespace {
-		constexpr auto Network_Identifier = model::NetworkIdentifier::Mijin_Test;
-
 		// region MockNodePingRequestInitiator
 
 		class MockNodePingRequestInitiator {
@@ -88,7 +87,12 @@ namespace catapult { namespace nodediscovery {
 		public:
 			TestContext()
 					: ServerPublicKey(test::GenerateRandomByteArray<Key>())
-					, Processor(ServerPublicKey, NodeContainer, PingRequestInitiator.ref(), Network_Identifier, CaptureNode(ResponseNodes))
+					, Processor(
+							ServerPublicKey,
+							NodeContainer,
+							PingRequestInitiator.ref(),
+							test::CreateNodeDiscoveryNetworkFingerprint(),
+							CaptureNode(ResponseNodes))
 			{}
 
 		public:
@@ -100,7 +104,7 @@ namespace catapult { namespace nodediscovery {
 		};
 
 		ionet::NodeMetadata CreateNamedMetadata(const std::string& name) {
-			return ionet::NodeMetadata(Network_Identifier, name);
+			return ionet::NodeMetadata(test::CreateNodeDiscoveryNetworkFingerprint(), name);
 		}
 
 		std::vector<ionet::Node> ToNodes(const std::vector<model::NodeIdentity>& identities) {

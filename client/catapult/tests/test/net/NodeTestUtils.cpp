@@ -48,7 +48,7 @@ namespace catapult { namespace test {
 	}
 
 	ionet::Node CreateNamedNode(const model::NodeIdentity& identity, const std::string& name, ionet::NodeRoles roles) {
-		auto metadata = ionet::NodeMetadata(model::NetworkIdentifier::Zero, name);
+		auto metadata = ionet::NodeMetadata(model::UniqueNetworkFingerprint(), name);
 		metadata.Roles = roles;
 		return ionet::Node(identity, ionet::NodeEndpoint(), metadata);
 	}

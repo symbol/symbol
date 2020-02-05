@@ -102,7 +102,7 @@ namespace catapult { namespace local {
 			return ionet::Node(
 					{ publicKey, "" },
 					{ endpointHost, static_cast<unsigned short>(test::GetLocalHostPort() + portIncrement) },
-					{ model::NetworkIdentifier::Zero, name });
+					{ model::UniqueNetworkFingerprint(), name });
 		}
 
 		std::vector<std::unique_ptr<test::TcpAcceptor>> SpawnAcceptors(

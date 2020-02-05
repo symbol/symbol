@@ -91,7 +91,9 @@ namespace catapult { namespace nodediscovery {
 			}
 
 			void registerServices(extensions::ServiceLocator& locator, extensions::ServiceState& state) override {
-				auto networkIdentifier = state.config().BlockChain.Network.Identifier;
+				auto networkFingerprint = model::UniqueNetworkFingerprint(
+						state.config().BlockChain.Network.Identifier,
+						state.config().BlockChain.Network.GenerationHash);
 
 				// create callbacks
 				auto pushNodeConsumer = CreatePushNodeConsumer(state);
@@ -103,14 +105,14 @@ namespace catapult { namespace nodediscovery {
 						CreateNodePingRequestor,
 						locator.keyPair(),
 						connectionSettings,
-						networkIdentifier);
+						networkFingerprint);
 
 				locator.registerService(Service_Name, pNodePingRequestor);
 
 				// set handlers
 				auto& nodeContainer = state.nodes();
 				auto& pingRequestor = *pNodePingRequestor;
-				handlers::RegisterNodeDiscoveryPushPingHandler(state.packetHandlers(), networkIdentifier, pushNodeConsumer);
+				handlers::RegisterNodeDiscoveryPushPingHandler(state.packetHandlers(), networkFingerprint, pushNodeConsumer);
 				handlers::RegisterNodeDiscoveryPullPingHandler(state.packetHandlers(), m_pLocalNetworkNode);
 
 				auto pingRequestInitiator = [&pingRequestor](const auto& node, const auto& callback) {
@@ -120,7 +122,7 @@ namespace catapult { namespace nodediscovery {
 						locator.keyPair().publicKey(),
 						nodeContainer,
 						pingRequestInitiator,
-						networkIdentifier,
+						networkFingerprint,
 						pushNodeConsumer);
 				auto pushPeersHandler = [peersProcessor](const auto& candidateNodes) {
 					peersProcessor.process(candidateNodes);

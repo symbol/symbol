@@ -81,7 +81,7 @@ namespace catapult { namespace test {
 	}
 
 	ionet::Node CreateLocalPartnerNode() {
-		auto metadata = ionet::NodeMetadata(model::NetworkIdentifier::Zero, "PARTNER");
+		auto metadata = ionet::NodeMetadata(model::UniqueNetworkFingerprint(), "PARTNER");
 		metadata.Roles = ionet::NodeRoles::Api | ionet::NodeRoles::Peer;
 		return ionet::Node(
 				{ LoadPartnerServerKeyPair().publicKey(), "127.0.0.1" },

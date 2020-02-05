@@ -77,7 +77,9 @@ namespace catapult { namespace config {
 			return roles;
 		}
 
-		std::vector<ionet::Node> LoadPeersFromProperties(const pt::ptree& properties, model::NetworkIdentifier networkIdentifier) {
+		std::vector<ionet::Node> LoadPeersFromProperties(
+				const pt::ptree& properties,
+				const model::UniqueNetworkFingerprint& networkFingerprint) {
 			if (!GetOptional<std::string>(properties, "knownPeers").empty())
 				CATAPULT_THROW_RUNTIME_ERROR("knownPeers must be an array");
 
@@ -88,7 +90,7 @@ namespace catapult { namespace config {
 
 				auto identityKey = crypto::ParseKey(Get<std::string>(peerJson.second, "publicKey"));
 				auto endpoint = ionet::NodeEndpoint{ Get<std::string>(endpointJson, "host"), Get<unsigned short>(endpointJson, "port") };
-				auto metadata = ionet::NodeMetadata(networkIdentifier, GetOptional<std::string>(metadataJson, "name"));
+				auto metadata = ionet::NodeMetadata(networkFingerprint, GetOptional<std::string>(metadataJson, "name"));
 				metadata.Roles = ParseRoles(Get<std::string>(metadataJson, "roles"));
 				peers.push_back({ { identityKey, endpoint.Host }, endpoint, metadata });
 			}
@@ -97,14 +99,14 @@ namespace catapult { namespace config {
 		}
 	}
 
-	std::vector<ionet::Node> LoadPeersFromStream(std::istream& input, model::NetworkIdentifier networkIdentifier) {
+	std::vector<ionet::Node> LoadPeersFromStream(std::istream& input, const model::UniqueNetworkFingerprint& networkFingerprint) {
 		pt::ptree properties;
 		pt::read_json(input, properties);
-		return LoadPeersFromProperties(properties, networkIdentifier);
+		return LoadPeersFromProperties(properties, networkFingerprint);
 	}
 
-	std::vector<ionet::Node> LoadPeersFromPath(const std::string& path, model::NetworkIdentifier networkIdentifier) {
+	std::vector<ionet::Node> LoadPeersFromPath(const std::string& path, const model::UniqueNetworkFingerprint& networkFingerprint) {
 		std::ifstream inputStream(path);
-		return LoadPeersFromStream(inputStream, networkIdentifier);
+		return LoadPeersFromStream(inputStream, networkFingerprint);
 	}
 }}

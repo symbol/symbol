@@ -71,6 +71,12 @@ namespace catapult { namespace test {
 	constexpr size_t GetRequiredAlignment<model::UnresolvedMosaic>() {
 		return sizeof(uint64_t);
 	}
+
+	/// Gets the desired alignment for type GenerationHash.
+	template<>
+	constexpr size_t GetRequiredAlignment<GenerationHash>() {
+		return sizeof(uint64_t);
+	}
 }}
 
 /// Asserts that \a FIELD has proper alignment within \a STRUCT.

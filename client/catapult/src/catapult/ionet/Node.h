@@ -20,7 +20,7 @@
 
 #pragma once
 #include "NodeRoles.h"
-#include "catapult/model/NetworkInfo.h"
+#include "catapult/model/NetworkIdentifier.h"
 #include "catapult/model/NodeIdentity.h"
 #include "catapult/utils/Hashers.h"
 #include <unordered_set>
@@ -55,29 +55,33 @@ namespace catapult { namespace ionet {
 	struct NodeMetadata {
 	public:
 		/// Creates default metadata.
-		NodeMetadata() : NodeMetadata(model::NetworkIdentifier::Zero)
+		NodeMetadata() : NodeMetadata(model::UniqueNetworkFingerprint())
 		{}
 
-		/// Creates metadata for a node in the network identified by \a networkIdentifier.
-		explicit NodeMetadata(model::NetworkIdentifier networkIdentifier) : NodeMetadata(networkIdentifier, "")
+		/// Creates metadata for a node in the network identified by \a networkFingerprint.
+		explicit NodeMetadata(const model::UniqueNetworkFingerprint& networkFingerprint) : NodeMetadata(networkFingerprint, "")
 		{}
 
-		/// Creates metadata for a node with \a name in the network identified by \a networkIdentifier.
-		NodeMetadata(model::NetworkIdentifier networkIdentifier, const std::string& name)
-				: NodeMetadata(networkIdentifier, name, NodeVersion(), NodeRoles::None)
+		/// Creates metadata for a node with \a name in the network identified by \a networkFingerprint.
+		NodeMetadata(const model::UniqueNetworkFingerprint& networkFingerprint, const std::string& name)
+				: NodeMetadata(networkFingerprint, name, NodeVersion(), NodeRoles::None)
 		{}
 
-		/// Creates metadata for a node with \a name, \a version and \a roles in the network identified by \a networkIdentifier.
-		NodeMetadata(model::NetworkIdentifier networkIdentifier, const std::string& name, NodeVersion version, NodeRoles roles)
-				: NetworkIdentifier(networkIdentifier)
+		/// Creates metadata for a node with \a name, \a version and \a roles in the network identified by \a networkFingerprint.
+		NodeMetadata(
+				const model::UniqueNetworkFingerprint& networkFingerprint,
+				const std::string& name,
+				NodeVersion version,
+				NodeRoles roles)
+				: NetworkFingerprint(networkFingerprint)
 				, Name(name)
 				, Version(version)
 				, Roles(roles)
 		{}
 
 	public:
-		/// Network identifier.
-		model::NetworkIdentifier NetworkIdentifier;
+		/// Network fingerprint.
+		model::UniqueNetworkFingerprint NetworkFingerprint;
 
 		/// Friendly name (optional).
 		std::string Name;
