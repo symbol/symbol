@@ -458,11 +458,7 @@ namespace catapult { namespace test {
 
 		static void AssertStorageSeedInitiallyContainsNemesisBlock() {
 			// Arrange:
-#ifdef SIGNATURE_SCHEME_KECCAK
-			constexpr auto Source_Directory = "../seed/mijin-test.nis1";
-#else
 			constexpr auto Source_Directory = "../seed/mijin-test";
-#endif
 
 			auto nemesisBlockElement = BlockToBlockElement(GetNemesisBlock(), GetNemesisGenerationHash());
 

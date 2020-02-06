@@ -24,15 +24,6 @@ if(ENABLE_CATAPULT_DIAGNOSTICS)
 	add_definitions(-DENABLE_CATAPULT_DIAGNOSTICS)
 endif()
 
-### detect signature scheme
-if(USE_KECCAK)
-	add_definitions(-DSIGNATURE_SCHEME_KECCAK)
-	set(HASH_VARIANT_NAME "keccak")
-else()
-	add_definitions(-DSIGNATURE_SCHEME_SHA3)
-	set(HASH_VARIANT_NAME "sha3")
-endif()
-
 ### forward docker build settings
 if(CATAPULT_TEST_DB_URL)
 	add_definitions(-DCATAPULT_TEST_DB_URL="${CATAPULT_TEST_DB_URL}")
@@ -191,6 +182,31 @@ function(catapult_set_test_compiler_options)
 	endif()
 endfunction()
 
+### define openssl helper functions
+
+# find and set openssl
+function(catapult_add_ssl_dependencies TARGET_NAME)
+	message("--- locating openssl dependencies ---")
+
+	if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+		# https://gitlab.kitware.com/cmake/cmake/issues/16885
+		include_directories(${OPENSSL_ROOT_DIR}/include)
+		list(APPEND OPENSSL_LIBS ${OPENSSL_ROOT_DIR}/lib/libssl.dylib)
+		list(APPEND OPENSSL_LIBS ${OPENSSL_ROOT_DIR}/lib/libcrypto.dylib)
+
+		message("OpenSSL root: ${OPENSSL_ROOT_DIR}")
+	else()
+		find_package(OpenSSL REQUIRED)
+		list(APPEND OPENSSL_LIBS OpenSSL::SSL)
+
+		message("OpenSSL Version: ${OPENSSL_VERSION} ${OPENSSL_INCLUDE_DIR} ${OPENSSL_LIBRARIES}")
+	endif()
+
+	message("OpenSSL libs: ${OPENSSL_LIBS}")
+
+	target_link_libraries(${TARGET_NAME} ${OPENSSL_LIBS})
+endfunction()
+
 ### define version helpers
 
 # set CATAPULT_VERSION_DESCRIPTION to a reasonable value
@@ -208,9 +224,9 @@ if(NOT CATAPULT_BUILD_DEVELOPMENT)
 		OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 	if(CATAPULT_BUILD_RELEASE)
-		set(CATAPULT_VERSION_DESCRIPTION "(public, ${HASH_VARIANT_NAME})")
+		set(CATAPULT_VERSION_DESCRIPTION "(public)")
 	else()
-		set(CATAPULT_VERSION_DESCRIPTION "${GIT_COMMIT_HASH} [${GIT_BRANCH}] (${HASH_VARIANT_NAME})")
+		set(CATAPULT_VERSION_DESCRIPTION "${GIT_COMMIT_HASH} [${GIT_BRANCH}]")
 	endif()
 endif()
 

@@ -74,16 +74,6 @@ namespace catapult { namespace crypto {
 			static std::string MillionTimesATestVector() {
 				return "52783243C1697BDBE16D37F97F68F08325DC1528";
 			}
-
-			static std::vector<std::string> CatapultStringTestVectors() {
-				return {
-					"37F332F68DB77BD9D7EDD4969571AD671CF9DD3B",
-					"114C70B78838555E6C3AB418F3052A949F73544A",
-					"7D0982BE59EBE828D02AA0D031AA6651644D60DA",
-					"5A4535208909435DECD5C7D6D818F67626A177E4",
-					"1B3ACB0409F7BA78A0BE07A2DE5454DCB0D48817"
-				};
-			}
 		};
 
 		struct Bitcoin160_Traits {
@@ -120,16 +110,6 @@ namespace catapult { namespace crypto {
 					"11B366EDFC0A8B66FEEBAE5C2E25A7B6A5D1CF31"
 				};
 			}
-
-			static std::vector<std::string> CatapultStringTestVectors() {
-				return {
-					"0E3397B4ABC7A382B3EA2365883C3C7CA5F07600",
-					"5367F36F9B941E14EBE4B30783B8A32274481A62",
-					"17F200E445D54D96986F579662A85D7BF0A1E106",
-					"359327D26A3A91458E0F6FDD9BB9F4FF77B9299F",
-					"18638F1D82C80B35703A4B89227E3D567FA03BEA"
-				};
-			}
 		};
 
 		struct Sha256Double_Traits {
@@ -163,17 +143,56 @@ namespace catapult { namespace crypto {
 			static std::string MillionTimesATestVector() {
 				return "80D1189477563E1B5206B2749F1AFE4807E5705E8BD77887A60187A712156688";
 			}
+		};
 
-			// those vectors were generated
-			// non authorative results: https://github.com/DeathAndTaxes/BitCrypto/blob/master/BitCrypto.Test/Sha256Tests.cs
-			static std::vector<std::string> CatapultStringTestVectors() {
+		struct Sha512_Traits {
+			using HashBuilder = Sha512_Builder;
+			using HashType = HashBuilder::OutputType;
+
+			static constexpr auto HashFunc = Sha512;
+
+			static std::string EmptyStringHash() {
+				return
+						"CF83E1357EEFB8BDF1542850D66D8007D620E4050B5715DC83F4A921D36CE9CE"
+						"47D0D13C5D85F2B0FF8318D2877EEC2F63B931BD47417A81A538327AF927DA3E";
+			}
+
+			// data taken from : https://opensource.apple.com/source/sudo/sudo-83/sudo/plugins/sudoers/regress/parser/check_digest.out.ok
+			static std::vector<std::string> SampleTestVectorsInput() {
 				return {
-					"6D37795021E544D82B41850EDF7AABAB9A0EBE274E54A519840C4666F35B3937",
-					"DB6F466A6C6B50BE9AE850C01693BA95BEDC4A8CF8028D2B52B8429F406F6F2F",
-					"A1DB794104F5A6532731E7A0F3FD39077932A3B978CC9E250F20259DA900DAD4",
-					"7FE281A3E3F5AF049328818B02B8BEC1F9BAE1B5C5D8D3DD3F0AACE75700604F",
-					"94A09FEA3A99ED4CFE79819BDEA443AF4B35C83E9E92AD21669B521C5375FA9C"
+					AsciiToHexString("a"),
+					AsciiToHexString("abc"),
+					AsciiToHexString("message digest"),
+					AsciiToHexString("abcdefghijklmnopqrstuvwxyz"),
+					AsciiToHexString("abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"),
+					AsciiToHexString("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"),
+					AsciiToHexString("12345678901234567890123456789012345678901234567890123456789012345678901234567890")
 				};
+			}
+
+			static std::vector<std::string> SampleTestVectorsOutput() {
+				return {
+					"1F40FC92DA241694750979EE6CF582F2D5D7D28E18335DE05ABC54D0560E0F53"
+					"02860C652BF08D560252AA5E74210546F369FBBBCE8C12CFC7957B2652FE9A75",
+					"DDAF35A193617ABACC417349AE20413112E6FA4E89A97EA20A9EEEE64B55D39A"
+					"2192992A274FC1A836BA3C23A3FEEBBD454D4423643CE80E2A9AC94FA54CA49F",
+					"107DBF389D9E9F71A3A95F6C055B9251BC5268C2BE16D6C13492EA45B0199F33"
+					"09E16455AB1E96118E8A905D5597B72038DDB372A89826046DE66687BB420E7C",
+					"4DBFF86CC2CA1BAE1E16468A05CB9881C97F1753BCE3619034898FAA1AABE429"
+					"955A1BF8EC483D7421FE3C1646613A59ED5441FB0F321389F77F48A879C7B1F1",
+					"204A8FC6DDA82F0A0CED7BEB8E08A41657C16EF468B228A8279BE331A703C335"
+					"96FD15C13B1B07F9AA1D3BEA57789CA031AD85C7A71DD70354EC631238CA3445",
+					"1E07BE23C26A86EA37EA810C8EC7809352515A970E9253C26F536CFC7A9996C4"
+					"5C8370583E0A78FA4A90041D71A4CEAB7423F19C71B9D5A3E01249F0BEBD5894",
+					"72EC1EF1124A45B047E8B7C75A932195135BB61DE24EC0D1914042246E0AEC3A"
+					"2354E093D76F3048B456764346900CB130D2A4FD5DD16ABB5E30BCB850DEE843"
+				};
+			}
+
+			static std::string MillionTimesATestVector() {
+				return
+						"E718483D0CE769644E2E42C7BC15B4638E1F98B13B2044285632A803AFA973EB"
+						"DE0FF244877EA60A4CB0432CE577C31BEB009C5C2C49AA2E4EADB217AD8CC09B";
 			}
 		};
 
@@ -380,37 +399,6 @@ namespace catapult { namespace crypto {
 			EXPECT_EQ(expectedHash, hash);
 		}
 
-		template<typename TTraits>
-		void AssertCatapultStringHasExpectedHash() {
-			// Arrange:
-			std::vector<std::string> dataSet{
-				"The quick brown fox jumps over the lazy dog",
-				"Kitten Kaboodle",
-				"Lorem ipsum dolor sit amet",
-				"GimreJaguar0625BloodyRookie",
-				"The ripe taste of cheese improves with age"
-			};
-			auto expectedHashes = TTraits::CatapultStringTestVectors();
-
-			// Sanity:
-			ASSERT_EQ(dataSet.size(), expectedHashes.size());
-
-			auto i = 0u;
-			for (const auto& dataStr : dataSet) {
-				// Arrange:
-				auto hex = AsciiToHexString(dataStr);
-				auto buffer = test::HexStringToVector(hex);
-
-				// Act:
-				typename TTraits::HashType hash;
-				TTraits::HashFunc(buffer, hash);
-
-				// Assert:
-				EXPECT_EQ(utils::ParseByteArray<typename TTraits::HashType>(expectedHashes[i]), hash);
-				++i;
-			}
-		}
-
 		// endregion
 	}
 
@@ -422,7 +410,6 @@ namespace catapult { namespace crypto {
 	MAKE_HASH_TEST(Ripemd160, EmptyStringHasExpectedHash)
 	MAKE_HASH_TEST(Ripemd160, SampleTestVectors)
 	MAKE_HASH_TEST(Ripemd160, MillionTimesAHasExpectedHash)
-	MAKE_HASH_TEST(Ripemd160, CatapultStringHasExpectedHash)
 
 	// endregion
 
@@ -431,7 +418,6 @@ namespace catapult { namespace crypto {
 	MAKE_HASH_TEST(Bitcoin160, EmptyStringHasExpectedHash)
 	MAKE_HASH_TEST(Bitcoin160, SampleTestVectors)
 	// MillionTimesAHasExpectedHash left out, couldn't find any resource on the network, that would confirm the value
-	MAKE_HASH_TEST(Bitcoin160, CatapultStringHasExpectedHash)
 
 	// endregion
 
@@ -440,11 +426,18 @@ namespace catapult { namespace crypto {
 	MAKE_HASH_TEST(Sha256Double, EmptyStringHasExpectedHash)
 	MAKE_HASH_TEST(Sha256Double, SampleTestVectors)
 	MAKE_HASH_TEST(Sha256Double, MillionTimesAHasExpectedHash)
-	MAKE_HASH_TEST(Sha256Double, CatapultStringHasExpectedHash)
 
 	// endregion
 
-	// region sha3 / keccak free function tests
+	// region Sha512
+
+	MAKE_HASH_TEST(Sha512, EmptyStringHasExpectedHash)
+	MAKE_HASH_TEST(Sha512, SampleTestVectors)
+	MAKE_HASH_TEST(Sha512, MillionTimesAHasExpectedHash)
+
+	// endregion
+
+	// region Sha3 / Keccak
 
 #define SHA3_TRAITS_BASED_TEST(TEST_NAME) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
@@ -467,11 +460,9 @@ namespace catapult { namespace crypto {
 		AssertMillionTimesAHasExpectedHash<TTraits>();
 	}
 
-	// CatapultStringHasExpectedHash is intentionally left out
-
 	// endregion
 
-	// region Hmac Sha256 tests
+	// region Hmac_Sha256
 
 	// data from: https://github.com/randombit/botan/blob/master/src/tests/data/mac/hmac.vec
 
@@ -567,7 +558,7 @@ namespace catapult { namespace crypto {
 
 	// endregion
 
-	// region Sha3 builder - utils
+	// region builder test utils
 
 	namespace {
 		// data taken from http://mumble.net/~campbell/hg/sha3/kat/ShortMsgKAT_SHA3-256.txt)
@@ -659,7 +650,19 @@ namespace catapult { namespace crypto {
 
 	// endregion
 
-	// region Sha3 builder - tests
+	// region Sha512 builder - tests
+
+	TEST(TEST_CLASS, Sha512_ConcatenatedMatchesSingleCallVariant) {
+		AssertConcatenatedHashMatchesSingleCallVariant<Sha512_Builder>(Sha512_Traits::HashFunc);
+	}
+
+	TEST(TEST_CLASS, Sha512_BuilderBasedMatchesSingleCallVariant) {
+		AssertBuilderBasedHashMatchesSingleCallVariant<Sha512_Builder>(Sha512_Traits::HashFunc);
+	}
+
+	// endregion
+
+	// region Sha3 / Keccak builder - tests
 
 	SHA3_TRAITS_BASED_TEST(ConcatenatedMatchesSingleCallVariant) {
 		AssertConcatenatedHashMatchesSingleCallVariant<typename TTraits::HashBuilder>(TTraits::HashFunc);

@@ -32,11 +32,7 @@ namespace catapult { namespace test {
 	using MutableTransactions = std::vector<std::shared_ptr<model::Transaction>>;
 
 	/// Hash string of the deterministic transaction.
-#ifdef SIGNATURE_SCHEME_KECCAK
-	constexpr auto Deterministic_Transaction_Hash_String = "05DDD42BB6D2A47E6861FDA4AE31CFF57B72E1053A9CECF04B639EA735A74CDB";
-#else
-	constexpr auto Deterministic_Transaction_Hash_String = "928C1370941AAACE99C91D31D6C6B4FA511F83387C4DA99536F8F0B62545D755";
-#endif
+	constexpr auto Deterministic_Transaction_Hash_String = "C4E72AF384593105898104BE541748CB30EB1D45F40528BA76B45D9C74744AA6";
 
 	/// Gets the default generation hash used in tests.
 	GenerationHash GetDefaultGenerationHash();

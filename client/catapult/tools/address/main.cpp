@@ -47,16 +47,9 @@ namespace catapult { namespace tools { namespace address {
 				optionsBuilder("secret,s",
 						OptionsValue<std::string>(m_secretKey),
 						"show address and public key associated with private key");
-#ifdef SIGNATURE_SCHEME_KECCAK
-				optionsBuilder("network,n",
-						OptionsValue<std::string>(m_networkName)->default_value("public"),
-						"network, possible values: public (default), public-test");
-#else
 				optionsBuilder("network,n",
 						OptionsValue<std::string>(m_networkName)->default_value("mijin"),
-						"network, possible values: mijin (default), mijin-test");
-#endif
-
+						"network, possible values: mijin (default), mijin-test, public, public-test");
 				optionsBuilder("useLowEntropySource,w",
 						OptionsSwitch(),
 						"true if a low entropy source should be used for randomness (unsafe)");

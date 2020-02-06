@@ -25,14 +25,21 @@
 
 #ifdef __clang__
 #pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreserved-id-macro"
+#endif
+#include <openssl/sha.h>
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+
+#ifdef __clang__
+#pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdocumentation"
 #pragma clang diagnostic ignored "-Wdocumentation-unknown-command"
 #endif
-
 extern "C" {
 #include <ripemd160/ripemd160.h>
 }
-
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
@@ -81,6 +88,10 @@ namespace catapult { namespace crypto {
 			hashBuilder.update(dataBuffer);
 			hashBuilder.final(hash);
 		}
+	}
+
+	void Sha512(const RawBuffer& dataBuffer, Hash512& hash) noexcept {
+		HashSingleBuffer<Sha512_Builder>(dataBuffer, hash);
 	}
 
 	void Sha3_256(const RawBuffer& dataBuffer, Hash256& hash) noexcept {
@@ -136,6 +147,34 @@ namespace catapult { namespace crypto {
 		crypto_hash_sha256_update(&outerState, outerKeyPad.data(), outerKeyPad.size());
 		crypto_hash_sha256_update(&outerState, innerHash.data(), innerHash.size());
 		crypto_hash_sha256_final(&outerState, output.data());
+	}
+
+	// endregion
+
+	// region sha512 builder
+
+	namespace {
+		SHA512_CTX* CastToSha512HashInstance(uint8_t* pHashContext) noexcept {
+			return reinterpret_cast<SHA512_CTX*>(pHashContext);
+		}
+	}
+
+	Sha512_Builder::Sha512_Builder() {
+		static_assert(sizeof(SHA512_CTX) <= sizeof(m_hashContext), "m_hashContext is too small to fit sha512 instance");
+		SHA512_Init(CastToSha512HashInstance(m_hashContext));
+	}
+
+	void Sha512_Builder::update(const RawBuffer& dataBuffer) noexcept {
+		SHA512_Update(CastToSha512HashInstance(m_hashContext), dataBuffer.pData, dataBuffer.Size);
+	}
+
+	void Sha512_Builder::update(std::initializer_list<const RawBuffer> buffers) noexcept {
+		for (const auto& buffer : buffers)
+			update(buffer);
+	}
+
+	void Sha512_Builder::final(Hash512& output) noexcept {
+		SHA512_Final(output.data(), CastToSha512HashInstance(m_hashContext));
 	}
 
 	// endregion
