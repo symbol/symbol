@@ -102,14 +102,14 @@ namespace catapult { namespace model {
 		// Arrange:
 		auto expected = utils::ParseByteArray<Address>("60000D73966083A4DCCD84E0783A5CECCC129795D32534F0A7");
 		auto publicKey = ParseKey(Public_Key);
-		auto networkId = NetworkIdentifier::Mijin;
+		auto networkIdentifier = NetworkIdentifier::Mijin;
 
 		// Act:
-		auto decoded = PublicKeyToAddress(publicKey, networkId);
+		auto decoded = PublicKeyToAddress(publicKey, networkIdentifier);
 
 		// Assert:
 		EXPECT_TRUE(IsValidAddress(decoded, NetworkIdentifier::Mijin));
-		EXPECT_EQ(decoded[0], utils::to_underlying_type(networkId));
+		EXPECT_EQ(decoded[0], utils::to_underlying_type(networkIdentifier));
 		EXPECT_EQ(expected, decoded);
 	}
 
@@ -117,14 +117,14 @@ namespace catapult { namespace model {
 		// Arrange:
 		auto expected = utils::ParseByteArray<Address>("7B000D73966083A4DCCD84E0783A5CECCC129795D3D6A7CE45");
 		auto publicKey = ParseKey(Public_Key);
-		auto networkId = static_cast<NetworkIdentifier>(123);
+		auto networkIdentifier = static_cast<NetworkIdentifier>(123);
 
 		// Act:
-		auto decoded = PublicKeyToAddress(publicKey, networkId);
+		auto decoded = PublicKeyToAddress(publicKey, networkIdentifier);
 
 		// Assert:
-		EXPECT_TRUE(IsValidAddress(decoded, networkId));
-		EXPECT_EQ(decoded[0], utils::to_underlying_type(networkId));
+		EXPECT_TRUE(IsValidAddress(decoded, networkIdentifier));
+		EXPECT_EQ(decoded[0], utils::to_underlying_type(networkIdentifier));
 		EXPECT_EQ(expected, decoded);
 	}
 

@@ -49,12 +49,12 @@ namespace catapult { namespace extensions {
 		}
 
 		void LogNemesisBlockInfo(const model::BlockElement& blockElement) {
-			auto networkId = blockElement.Block.Network;
+			auto networkIdentifier = blockElement.Block.Network;
 			const auto& publicKey = blockElement.Block.SignerPublicKey;
 			const auto& generationHash = blockElement.GenerationHash;
 			CATAPULT_LOG(info)
 					<< std::endl
-					<< "      nemesis network id: " << networkId << std::endl
+					<< "      nemesis network id: " << networkIdentifier << std::endl
 					<< "      nemesis public key: " << publicKey << std::endl
 					<< " nemesis generation hash: " << generationHash;
 		}
@@ -78,12 +78,12 @@ namespace catapult { namespace extensions {
 		}
 
 		void CheckNemesisBlockInfo(const model::BlockElement& blockElement, const model::NetworkInfo& expectedNetwork) {
-			auto networkId = blockElement.Block.Network;
+			auto networkIdentifier = blockElement.Block.Network;
 			const auto& publicKey = blockElement.Block.SignerPublicKey;
 			const auto& generationHash = blockElement.GenerationHash;
 
-			if (expectedNetwork.Identifier != networkId)
-				CATAPULT_THROW_INVALID_ARGUMENT_1("nemesis network id does not match network", networkId);
+			if (expectedNetwork.Identifier != networkIdentifier)
+				CATAPULT_THROW_INVALID_ARGUMENT_1("nemesis network id does not match network", networkIdentifier);
 
 			if (expectedNetwork.PublicKey != publicKey)
 				CATAPULT_THROW_INVALID_ARGUMENT_1("nemesis public key does not match network", publicKey);

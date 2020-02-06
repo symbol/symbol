@@ -69,11 +69,11 @@ namespace catapult { namespace builders {
 				const TransactionProperties& expectedProperties,
 				const consumer<TransferBuilder&>& buildTransaction) {
 			// Arrange:
-			auto networkId = static_cast<model::NetworkIdentifier>(0x62);
+			auto networkIdentifier = static_cast<model::NetworkIdentifier>(0x62);
 			auto signer = test::GenerateRandomByteArray<Key>();
 
 			// Act:
-			TransferBuilder builder(networkId, signer);
+			TransferBuilder builder(networkIdentifier, signer);
 			builder.setRecipientAddress(expectedProperties.Recipient);
 			buildTransaction(builder);
 			auto pTransaction = TTraits::InvokeBuilder(builder);

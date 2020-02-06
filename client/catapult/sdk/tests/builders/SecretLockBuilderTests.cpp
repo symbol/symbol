@@ -60,11 +60,11 @@ namespace catapult { namespace builders {
 				const TransactionProperties& expectedProperties,
 				const consumer<SecretLockBuilder&>& buildTransaction) {
 			// Arrange:
-			auto networkId = static_cast<model::NetworkIdentifier>(0x62);
+			auto networkIdentifier = static_cast<model::NetworkIdentifier>(0x62);
 			auto signer = test::GenerateRandomByteArray<Key>();
 
 			// Act:
-			SecretLockBuilder builder(networkId, signer);
+			SecretLockBuilder builder(networkIdentifier, signer);
 			buildTransaction(builder);
 			auto pTransaction = TTraits::InvokeBuilder(builder);
 

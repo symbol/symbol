@@ -75,11 +75,11 @@ namespace catapult { namespace builders {
 				const typename TLinkTraits::TransactionProperties& expectedProperties,
 				const consumer<typename TLinkTraits::Builder&>& buildTransaction) {
 			// Arrange:
-			auto networkId = static_cast<model::NetworkIdentifier>(0x62);
+			auto networkIdentifier = static_cast<model::NetworkIdentifier>(0x62);
 			auto signer = test::GenerateRandomByteArray<Key>();
 
 			// Act:
-			typename TLinkTraits::Builder builder(networkId, signer);
+			typename TLinkTraits::Builder builder(networkIdentifier, signer);
 			buildTransaction(builder);
 			auto pTransaction = TTraits::InvokeBuilder(builder);
 

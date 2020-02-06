@@ -102,11 +102,11 @@ namespace catapult { namespace builders {
 				const typename TAliasTraits::TransactionProperties& expectedProperties,
 				const consumer<typename TAliasTraits::Builder&>& buildTransaction) {
 			// Arrange:
-			auto networkId = static_cast<model::NetworkIdentifier>(0x62);
+			auto networkIdentifier = static_cast<model::NetworkIdentifier>(0x62);
 			auto signer = test::GenerateRandomByteArray<Key>();
 
 			// Act:
-			auto builder = typename TAliasTraits::Builder(networkId, signer);
+			auto builder = typename TAliasTraits::Builder(networkIdentifier, signer);
 			buildTransaction(builder);
 			auto pTransaction = TTraits::InvokeBuilder(builder);
 

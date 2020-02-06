@@ -56,48 +56,48 @@ namespace catapult { namespace tools { namespace address {
 			}
 
 			int run(const Options& options) override {
-				model::NetworkIdentifier networkId;
-				if (!model::TryParseValue(m_networkName, networkId))
+				model::NetworkIdentifier networkIdentifier;
+				if (!model::TryParseValue(m_networkName, networkIdentifier))
 					CATAPULT_THROW_INVALID_ARGUMENT_1("unknown network", m_networkName);
 
 				if (!m_publicKey.empty()) {
-					output(networkId, crypto::ParseKey(m_publicKey));
+					output(networkIdentifier, crypto::ParseKey(m_publicKey));
 					return 0;
 				}
 
 				if (!m_secretKey.empty()) {
-					output(networkId, crypto::KeyPair::FromString(m_secretKey));
+					output(networkIdentifier, crypto::KeyPair::FromString(m_secretKey));
 					return 0;
 				}
 
 				if (options["useLowEntropySource"].as<bool>())
-					generateKeys(networkId, utils::LowEntropyRandomGenerator());
+					generateKeys(networkIdentifier, utils::LowEntropyRandomGenerator());
 				else
-					generateKeys(networkId, utils::HighEntropyRandomGenerator());
+					generateKeys(networkIdentifier, utils::HighEntropyRandomGenerator());
 
 				return 0;
 			}
 
 		private:
-			void output(model::NetworkIdentifier networkId, const crypto::KeyPair& keyPair) {
+			void output(model::NetworkIdentifier networkIdentifier, const crypto::KeyPair& keyPair) {
 				std::cout << std::setw(Label_Width) << "private key: " << crypto::FormatKey(keyPair.privateKey()) << std::endl;
-				output(networkId, keyPair.publicKey());
+				output(networkIdentifier, keyPair.publicKey());
 			}
 
-			void output(model::NetworkIdentifier networkId, const Key& publicKey) {
+			void output(model::NetworkIdentifier networkIdentifier, const Key& publicKey) {
 				std::cout
 						<< std::setw(Label_Width) << "public key: " << crypto::FormatKey(publicKey) << std::endl
 						<< std::setw(Label_Width - static_cast<int>(m_networkName.size()) - 3)
 								<< "address (" << m_networkName << "): "
-								<< model::AddressToString(model::PublicKeyToAddress(publicKey, networkId)) << std::endl;
+								<< model::AddressToString(model::PublicKeyToAddress(publicKey, networkIdentifier)) << std::endl;
 			}
 
 			template<typename TGenerator>
-			void generateKeys(model::NetworkIdentifier networkId, TGenerator&& generator) {
+			void generateKeys(model::NetworkIdentifier networkIdentifier, TGenerator&& generator) {
 				std::cout << "--- generating " << m_numRandomKeys << " keys ---" << std::endl;
 
 				for (auto i = 0u; i < m_numRandomKeys; ++i) {
-					output(networkId, crypto::KeyPair::FromPrivate(crypto::PrivateKey::Generate([&generator]() {
+					output(networkIdentifier, crypto::KeyPair::FromPrivate(crypto::PrivateKey::Generate([&generator]() {
 						return static_cast<uint8_t>(generator());
 					})));
 					std::cout << std::endl;
