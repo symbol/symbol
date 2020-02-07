@@ -98,18 +98,6 @@ namespace catapult { namespace crypto {
 		HashSingleBuffer<Sha3_256_Builder>(dataBuffer, hash);
 	}
 
-	void Sha3_512(const RawBuffer& dataBuffer, Hash512& hash) noexcept {
-		HashSingleBuffer<Sha3_512_Builder>(dataBuffer, hash);
-	}
-
-	void Keccak_256(const RawBuffer& dataBuffer, Hash256& hash) noexcept {
-		HashSingleBuffer<Keccak_256_Builder>(dataBuffer, hash);
-	}
-
-	void Keccak_512(const RawBuffer& dataBuffer, Hash512& hash) noexcept {
-		HashSingleBuffer<Keccak_512_Builder>(dataBuffer, hash);
-	}
-
 	namespace {
 		struct Sha256_Block_tag { static constexpr size_t Size = 64; };
 		using Sha256_Block = utils::ByteArray<Sha256_Block_tag>;
@@ -190,16 +178,8 @@ namespace catapult { namespace crypto {
 			Keccak_HashInitialize_SHA3_256(pHashContext);
 		}
 
-		inline void KeccakInitialize(Keccak_HashInstance* pHashContext, Hash512_tag) {
-			Keccak_HashInitialize_SHA3_512(pHashContext);
-		}
-
 		inline void KeccakInitialize(Keccak_HashInstance* pHashContext, GenerationHash_tag) {
 			Keccak_HashInitialize_SHA3_256(pHashContext);
-		}
-
-		inline void KeccakFinal(uint8_t* context, uint8_t* output, int hashSize, KeccakModeTag) noexcept {
-			Keccak_HashSqueeze(CastToKeccakHashInstance(context), output, static_cast<uint32_t>(hashSize * 8));
 		}
 
 		inline void KeccakFinal(uint8_t* context, uint8_t* output, int /* ignore last argument */, Sha3ModeTag) noexcept {
@@ -230,9 +210,6 @@ namespace catapult { namespace crypto {
 	}
 
 	template class KeccakBuilder<Sha3ModeTag, Hash256_tag>;
-	template class KeccakBuilder<Sha3ModeTag, Hash512_tag>;
-	template class KeccakBuilder<KeccakModeTag, Hash256_tag>;
-	template class KeccakBuilder<KeccakModeTag, Hash512_tag>;
 	template class KeccakBuilder<Sha3ModeTag, GenerationHash_tag>;
 
 	// endregion

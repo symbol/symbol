@@ -40,15 +40,6 @@ namespace catapult { namespace crypto {
 	/// Calculates the 256-bit SHA3 hash of \a dataBuffer into \a hash.
 	void Sha3_256(const RawBuffer& dataBuffer, Hash256& hash) noexcept;
 
-	/// Calculates the 512-bit SHA3 hash of \a dataBuffer into \a hash.
-	void Sha3_512(const RawBuffer& dataBuffer, Hash512& hash) noexcept;
-
-	/// Calculates the 256-bit Keccak hash of \a dataBuffer into \a hash.
-	void Keccak_256(const RawBuffer& dataBuffer, Hash256& hash) noexcept;
-
-	/// Calculates the 512-bit Keccak hash of \a dataBuffer into \a hash.
-	void Keccak_512(const RawBuffer& dataBuffer, Hash512& hash) noexcept;
-
 	/// Calculates the sha256 HMAC of \a input with \a key, producing \a output.
 	void Hmac_Sha256(const RawBuffer& key, const RawBuffer& input, Hash256& output);
 
@@ -87,9 +78,6 @@ namespace catapult { namespace crypto {
 	/// Use with KeccakBuilder to generate SHA3 hashes.
 	struct Sha3ModeTag {};
 
-	/// Use with KeccakBuilder to generate Keccak hashes.
-	struct KeccakModeTag {};
-
 	/// Builder for building a keccak hash.
 	template<typename TModeTag, typename THashTag>
 	class alignas(32) KeccakBuilder {
@@ -118,18 +106,6 @@ namespace catapult { namespace crypto {
 	/// Sha3_256_Builder.
 	using Sha3_256_Builder = KeccakBuilder<Sha3ModeTag, Hash256_tag>;
 	extern template class KeccakBuilder<Sha3ModeTag, Hash256_tag>;
-
-	/// Sha3_512_Builder.
-	using Sha3_512_Builder = KeccakBuilder<Sha3ModeTag, Hash512_tag>;
-	extern template class KeccakBuilder<Sha3ModeTag, Hash512_tag>;
-
-	/// Keccak_256_Builder.
-	using Keccak_256_Builder = KeccakBuilder<KeccakModeTag, Hash256_tag>;
-	extern template class KeccakBuilder<KeccakModeTag, Hash256_tag>;
-
-	/// Keccak_512_Builder.
-	using Keccak_512_Builder = KeccakBuilder<KeccakModeTag, Hash512_tag>;
-	extern template class KeccakBuilder<KeccakModeTag, Hash512_tag>;
 
 	/// GenerationHash_Builder.
 	using GenerationHash_Builder = KeccakBuilder<Sha3ModeTag, GenerationHash_tag>;

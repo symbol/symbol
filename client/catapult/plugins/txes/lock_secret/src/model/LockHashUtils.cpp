@@ -48,9 +48,6 @@ namespace catapult { namespace model {
 		case LockHashAlgorithm::Op_Sha3_256:
 			return CalculateHash256(crypto::Sha3_256, data);
 
-		case LockHashAlgorithm::Op_Keccak_256:
-			return CalculateHash256(crypto::Keccak_256, data);
-
 		case LockHashAlgorithm::Op_Hash_160:
 			return CalculateHash<Hash160>(crypto::Bitcoin160, data);
 

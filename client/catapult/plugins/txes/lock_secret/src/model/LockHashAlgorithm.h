@@ -28,9 +28,6 @@ namespace catapult { namespace model {
 		/// Input is hashed using Sha-3-256.
 		Op_Sha3_256,
 
-		/// Input is hashed using Keccak-256.
-		Op_Keccak_256,
-
 		/// Input is hashed twice: first with SHA-256 and then with RIPEMD-160.
 		Op_Hash_160,
 
