@@ -48,7 +48,6 @@
 extern "C" {
 #include <donna/ed25519-donna-batchverify.h>
 #include <donna/modm-donna-64bit.h>
-#include <sha3/KeccakHash.h>
 }
 
 #ifdef __clang__

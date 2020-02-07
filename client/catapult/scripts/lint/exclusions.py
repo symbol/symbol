@@ -27,7 +27,6 @@ NAMESPACES_FALSEPOSITIVES = (
     re.compile(r'src.catapult.plugins.h'),
     re.compile(r'src.catapult.preprocessor.h'),
     re.compile(r'src.catapult.cache_db.RocksInclude.h'),
-    re.compile(r'src.catapult.crypto.KeccakHash.h'),
     re.compile(r'src.catapult.utils.BitwiseEnum.h'),
     re.compile(r'src.catapult.utils.ExceptionLogging.h'),
     re.compile(r'src.catapult.utils.MacroBasedEnumIncludes.h'),

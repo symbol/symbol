@@ -18,23 +18,58 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#pragma once
+#include "OpensslContexts.h"
+#include "catapult/types.h"
 
 #ifdef __clang__
 #pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wold-style-cast"
 #pragma clang diagnostic ignored "-Wreserved-id-macro"
-#pragma clang diagnostic ignored "-Wdocumentation"
-#elif defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable : 4324) /* keccak structs use __declspec(align()) */
 #endif
-
-extern "C" {
-#include <sha3/KeccakHash.h>
-}
-
+#include <openssl/evp.h>
 #ifdef __clang__
 #pragma clang diagnostic pop
-#elif defined(_MSC_VER)
-#pragma warning(pop)
 #endif
+
+namespace catapult { namespace crypto {
+
+	// region OpensslDigestContext
+
+	OpensslDigestContext::OpensslDigestContext() {
+		std::memset(&m_buffer, 0, CountOf(m_buffer));
+	}
+
+	OpensslDigestContext::~OpensslDigestContext() {
+		reset();
+	}
+
+	EVP_MD_CTX* OpensslDigestContext::get() {
+		return reinterpret_cast<EVP_MD_CTX*>(m_buffer);
+	}
+
+	void OpensslDigestContext::reset() {
+		EVP_MD_CTX_reset(get());
+	}
+
+	// endregion
+
+	// region OpensslCipherContext
+
+	OpensslCipherContext::OpensslCipherContext() {
+		std::memset(&m_buffer, 0, CountOf(m_buffer));
+	}
+
+	OpensslCipherContext::~OpensslCipherContext() {
+		reset();
+	}
+
+	EVP_CIPHER_CTX* OpensslCipherContext::get() {
+		return reinterpret_cast<EVP_CIPHER_CTX*>(m_buffer);
+	}
+
+	void OpensslCipherContext::reset() {
+		EVP_CIPHER_CTX_reset(get());
+	}
+
+	// endregion
+}}

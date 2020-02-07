@@ -19,11 +19,21 @@
 **/
 
 #include "EncryptionTestUtils.h"
+#include "catapult/crypto/OpensslContexts.h"
 #include "catapult/utils/MemoryUtils.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/nodeps/Random.h"
-#include <tiny-aes-c/aes.hpp>
 #include <cstring>
+
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wold-style-cast"
+#pragma clang diagnostic ignored "-Wreserved-id-macro"
+#endif
+#include <openssl/evp.h>
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 namespace catapult { namespace test {
 
@@ -58,14 +68,16 @@ namespace catapult { namespace test {
 		// initializationVector || data || padding
 		output.resize(input.Size);
 		applyPaddingScheme(output);
-		auto encryptedDataSize = output.size();
-
 		Prepend(output, initializationVector);
 		utils::memcpy_cond(output.data() + initializationVector.size(), input.pData, input.Size);
 
-		AES_ctx ctx;
-		AES_init_ctx_iv(&ctx, encryptionKey.data(), initializationVector.data());
-		AES_CBC_encrypt_buffer(&ctx, output.data() + initializationVector.size(), static_cast<uint32_t>(encryptedDataSize));
+		auto* pOutputDataStart = output.data() + initializationVector.size();
+		auto outputSize = static_cast<int>(output.size() - initializationVector.size());
+
+		crypto::OpensslCipherContext cipherContext;
+		cipherContext.dispatch(EVP_EncryptInit_ex, EVP_aes_256_cbc(), nullptr, encryptionKey.data(), initializationVector.data());
+		cipherContext.dispatch(EVP_EncryptUpdate, pOutputDataStart, &outputSize, pOutputDataStart, outputSize);
+		// skip EVP_EncryptFinal_ex because it always adds padding and padding (possibly corrupted) was explicitly added above
 	}
 
 	std::vector<uint8_t> GenerateEphemeralAndEncrypt(const RawBuffer& clearText, const Key& recipientPublicKey) {
@@ -79,7 +91,6 @@ namespace catapult { namespace test {
 		std::vector<uint8_t> encryptedWithKey(Key::Size + encrypted.size());
 		std::memcpy(encryptedWithKey.data(), ephemeralKeyPair.publicKey().data(), Key::Size);
 		std::memcpy(encryptedWithKey.data() + Key::Size, encrypted.data(), encrypted.size());
-
 		return encryptedWithKey;
 	}
 }}

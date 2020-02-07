@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "OpensslContexts.h"
 #include "catapult/types.h"
 
 namespace catapult { namespace crypto {
@@ -26,90 +27,68 @@ namespace catapult { namespace crypto {
 	// region free functions
 
 	/// Calculates the ripemd160 hash of \a dataBuffer into \a hash.
-	void Ripemd160(const RawBuffer& dataBuffer, Hash160& hash) noexcept;
+	void Ripemd160(const RawBuffer& dataBuffer, Hash160& hash);
 
 	/// Calculates the Bitcoin hash 160 of \a dataBuffer into \a hash (sha256 + ripemd).
-	void Bitcoin160(const RawBuffer& dataBuffer, Hash160& hash) noexcept;
+	void Bitcoin160(const RawBuffer& dataBuffer, Hash160& hash);
 
 	/// Calculates the double sha256 hash of \a dataBuffer into \a hash.
-	void Sha256Double(const RawBuffer& dataBuffer, Hash256& hash) noexcept;
+	void Sha256Double(const RawBuffer& dataBuffer, Hash256& hash);
 
 	/// Calculates the sha512 hash of \a dataBuffer into \a hash.
-	void Sha512(const RawBuffer& dataBuffer, Hash512& hash) noexcept;
+	void Sha512(const RawBuffer& dataBuffer, Hash512& hash);
 
 	/// Calculates the 256-bit SHA3 hash of \a dataBuffer into \a hash.
-	void Sha3_256(const RawBuffer& dataBuffer, Hash256& hash) noexcept;
+	void Sha3_256(const RawBuffer& dataBuffer, Hash256& hash);
 
 	/// Calculates the sha256 HMAC of \a input with \a key, producing \a output.
 	void Hmac_Sha256(const RawBuffer& key, const RawBuffer& input, Hash256& output);
 
 	// endregion
 
-	// region sha512 builder
+	// region hash builders
 
-	/// Builder for building a sha512 hash.
-	class alignas(32) Sha512_Builder {
-	public:
-		using OutputType = Hash512;
+	/// Use with HashBuilderT to generate SHA2 hashes.
+	struct Sha2ModeTag {};
 
-	public:
-		/// Creates a builder.
-		Sha512_Builder();
-
-	public:
-		/// Updates the state of hash with data inside \a dataBuffer.
-		void update(const RawBuffer& dataBuffer) noexcept;
-
-		/// Updates the state of hash with concatenated \a buffers.
-		void update(std::initializer_list<const RawBuffer> buffers) noexcept;
-
-		/// Finalize hash calculation. Returns result in \a output.
-		void final(OutputType& output) noexcept;
-
-	private:
-		// size below is related to amount of data sha512 needs for its internal state
-		uint8_t m_hashContext[256];
-	};
-
-	// endregion
-
-	// region sha3 / keccak builders
-
-	/// Use with KeccakBuilder to generate SHA3 hashes.
+	/// Use with HashBuilderT to generate SHA3 hashes.
 	struct Sha3ModeTag {};
 
 	/// Builder for building a keccak hash.
 	template<typename TModeTag, typename THashTag>
-	class alignas(32) KeccakBuilder {
+	class HashBuilderT {
 	public:
 		using OutputType = utils::ByteArray<THashTag>;
 
 	public:
 		/// Creates a builder.
-		KeccakBuilder();
+		HashBuilderT();
 
 	public:
 		/// Updates the state of hash with data inside \a dataBuffer.
-		void update(const RawBuffer& dataBuffer) noexcept;
+		void update(const RawBuffer& dataBuffer);
 
 		/// Updates the state of hash with concatenated \a buffers.
-		void update(std::initializer_list<const RawBuffer> buffers) noexcept;
+		void update(std::initializer_list<const RawBuffer> buffers);
 
 		/// Finalize hash calculation. Returns result in \a output.
-		void final(OutputType& output) noexcept;
+		void final(OutputType& output);
 
 	private:
-		// size below is related to amount of data Keccak needs for its internal state
-		uint8_t m_hashContext[256];
+		OpensslDigestContext m_context;
 	};
 
+	/// Sha512_Builder.
+	using Sha512_Builder = HashBuilderT<Sha2ModeTag, Hash512_tag>;
+	extern template class HashBuilderT<Sha2ModeTag, Hash512_tag>;
+
 	/// Sha3_256_Builder.
-	using Sha3_256_Builder = KeccakBuilder<Sha3ModeTag, Hash256_tag>;
-	extern template class KeccakBuilder<Sha3ModeTag, Hash256_tag>;
+	using Sha3_256_Builder = HashBuilderT<Sha3ModeTag, Hash256_tag>;
+	extern template class HashBuilderT<Sha3ModeTag, Hash256_tag>;
 
 	/// GenerationHash_Builder.
-	using GenerationHash_Builder = KeccakBuilder<Sha3ModeTag, GenerationHash_tag>;
-	extern template class KeccakBuilder<Sha3ModeTag, GenerationHash_tag>;
+	using GenerationHash_Builder = HashBuilderT<Sha3ModeTag, GenerationHash_tag>;
+	extern template class HashBuilderT<Sha3ModeTag, GenerationHash_tag>;
 
 	// endregion
 }}
