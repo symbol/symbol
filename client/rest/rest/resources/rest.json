@@ -73,5 +73,7 @@
       "maxsize": 20971520,
       "maxFiles": 100
     }
-  }
+  },
+
+  "numBlocksTransactionFeeStats": 300
 }

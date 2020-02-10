@@ -220,6 +220,23 @@ class CatapultDb {
 		});
 	}
 
+	/**
+	 * Retrieves the fee multiplier for the last (higher on the chain) numBlocks blocks
+	 * @param {int} numBlocks Number of blocks to retrieve.
+	 * @returns {Promise} Promise that resolves to feeMultiplier array
+	 */
+	latestBlocksFeeMultiplier(numBlocks) {
+		if (0 === numBlocks)
+			return Promise.resolve([]);
+
+		return this.database.collection('blocks').find()
+			.sort({ 'block.height': -1 })
+			.limit(numBlocks)
+			.project({ 'block.feeMultiplier': 1 })
+			.toArray()
+			.then(blocks => Promise.resolve(blocks.map(block => block.block.feeMultiplier)));
+	}
+
 	queryDependentDocuments(collectionName, aggregateIds) {
 		if (0 === aggregateIds.length)
 			return Promise.resolve([]);

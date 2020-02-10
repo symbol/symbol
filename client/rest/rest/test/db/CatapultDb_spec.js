@@ -396,6 +396,99 @@ describe('catapult db', () => {
 			));
 	});
 
+	describe('latest blocks fee multiplier', () => {
+		it('returns empty array when requesting 0 blocks', () => {
+			// Arrange:
+			const blockDbEntities = [
+				{ block: { height: 10, feeMultiplier: 10 } },
+				{ block: { height: 11, feeMultiplier: 11 } }
+			];
+
+			// Act + Assert:
+			return runDbTest(
+				{ blocks: blockDbEntities },
+				db => db.latestBlocksFeeMultiplier(0),
+				feeMultipliers => {
+					expect(feeMultipliers).to.deep.equal([]);
+				}
+			);
+		});
+
+		it('returns latest available blocks based on height', () => {
+			// Arrange:
+			const blockDbEntities = [
+				{ block: { height: 12, feeMultiplier: 12 } },
+				{ block: { height: 15, feeMultiplier: 15 } },
+				{ block: { height: 10, feeMultiplier: 10 } },
+				{ block: { height: 14, feeMultiplier: 14 } },
+				{ block: { height: 11, feeMultiplier: 11 } },
+				{ block: { height: 13, feeMultiplier: 13 } }
+			];
+
+			// Act + Assert:
+			return runDbTest(
+				{ blocks: blockDbEntities },
+				db => db.latestBlocksFeeMultiplier(5),
+				feeMultipliers => {
+					expect(feeMultipliers).to.deep.equal([15, 14, 13, 12, 11]);
+				}
+			);
+		});
+
+		it('respects requested number of blocks', () => {
+			// Arrange:
+			const blockDbEntities = [
+				{ block: { height: 10, feeMultiplier: 1 } },
+				{ block: { height: 11, feeMultiplier: 1 } },
+				{ block: { height: 12, feeMultiplier: 1 } },
+				{ block: { height: 13, feeMultiplier: 1 } },
+				{ block: { height: 14, feeMultiplier: 1 } }
+			];
+
+			// Act + Assert:
+			return runDbTest(
+				{ blocks: blockDbEntities },
+				db => db.latestBlocksFeeMultiplier(3),
+				feeMultipliers => {
+					expect(feeMultipliers.length).to.equal(3);
+				}
+			);
+		});
+
+		it('returns only fee multiplier values', () => {
+			// Arrange:
+			const blockDbEntities = [
+				{
+					meta: { hash: 'h1' },
+					block: {
+						network: 144,
+						type: 33091,
+						height: 11,
+						feeMultiplier: 11.1
+					}
+				},
+				{
+					meta: { hash: 'h2' },
+					block: {
+						network: 144,
+						type: 33091,
+						height: 10,
+						feeMultiplier: 10.1
+					}
+				}
+			];
+
+			// Act + Assert:
+			return runDbTest(
+				{ blocks: blockDbEntities },
+				db => db.latestBlocksFeeMultiplier(5),
+				feeMultipliers => {
+					expect(feeMultipliers).to.deep.equal([11.1, 10.1]);
+				}
+			);
+		});
+	});
+
 	const createTransactionHash = id => catapult.utils.convert.hexToUint8(`${'00'.repeat(16)}${id.toString(16)}`.slice(-32));
 
 	const createSeedTransactions = (numTransactionsPerHeight, heights, options) => {
