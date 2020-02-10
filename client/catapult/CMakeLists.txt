@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.14)
 project(catapult_server)
 include(CMakeGlobalSettings.cmake)
 option(ENABLE_CODE_COVERAGE "Enable code coverage" OFF)
