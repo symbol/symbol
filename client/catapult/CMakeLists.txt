@@ -10,6 +10,7 @@ message(STATUS "CATAPULT_VERSION_DESCRIPTION: ${CATAPULT_VERSION_DESCRIPTION}")
 message(STATUS "CMAKE_CXX_COMPILER_ID: ${CMAKE_CXX_COMPILER_ID}")
 message(STATUS "CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
 message(STATUS "CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
+message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 message(STATUS "BOOST_ROOT: $ENV{BOOST_ROOT}")
 
 set(CORE_CATAPULT_LIBS catapult.io catapult.ionet catapult.model catapult.thread catapult.utils)
@@ -17,6 +18,33 @@ set(CORE_CATAPULT_LIBS catapult.io catapult.ionet catapult.model catapult.thread
 ### setup boost
 find_package(Boost COMPONENTS atomic system date_time regex timer chrono log thread filesystem program_options REQUIRED)
 include_directories(SYSTEM ${Boost_INCLUDE_DIR})
+
+### setup openssl
+message("--- locating openssl dependencies ---")
+
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+	# https://gitlab.kitware.com/cmake/cmake/issues/16885
+	set(OPENSSL_INCLUDE_DIR ${OPENSSL_ROOT_DIR}/include)
+	list(APPEND OPENSSL_LIBS ${OPENSSL_ROOT_DIR}/lib/libssl.dylib)
+	list(APPEND OPENSSL_LIBS ${OPENSSL_ROOT_DIR}/lib/libcrypto.dylib)
+
+	message("OpenSSL root: ${OPENSSL_ROOT_DIR}")
+else()
+	find_package(OpenSSL REQUIRED)
+	list(APPEND OPENSSL_LIBS OpenSSL::SSL)
+
+	message("OpenSSL  ver: ${OPENSSL_VERSION}")
+	message("OpenSSL libs: ${OPENSSL_LIBRARIES}")
+endif()
+
+message("OpenSSL  inc: ${OPENSSL_INCLUDE_DIR}")
+message("OpenSSL libs: ${OPENSSL_LIBS}")
+
+# used to add openssl dependencies to a target
+function(catapult_add_openssl_dependencies TARGET_NAME)
+	include_directories(${OPENSSL_INCLUDE_DIR})
+	target_link_libraries(${TARGET_NAME} ${OPENSSL_LIBS})
+endfunction()
 
 ### setup rocksdb
 message("--- locating rocksdb dependencies ---")

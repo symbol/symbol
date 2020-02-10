@@ -38,6 +38,6 @@ add_library(external
 	${external_tiny_aes_SRC}
 	README.txt)
 
-catapult_add_ssl_dependencies(external)
+catapult_add_openssl_dependencies(external)
 
 set_property(TARGET external PROPERTY POSITION_INDEPENDENT_CODE ON)
