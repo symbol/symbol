@@ -21,6 +21,7 @@
 #include "Signer.h"
 #include "CryptoUtils.h"
 #include "Hashes.h"
+#include "SecureZero.h"
 #include "catapult/exceptions.h"
 #include <cstring>
 
@@ -161,6 +162,10 @@ namespace catapult { namespace crypto {
 		// throw if encodedS is not less than the group order, don't fail in case encodedS == 0
 		// (this should only throw if there is a bug in the signing code)
 		CheckEncodedS(encodedS);
+
+		SecureZero(privHash);
+		SecureZero(r);
+		SecureZero(a);
 	}
 
 	// endregion

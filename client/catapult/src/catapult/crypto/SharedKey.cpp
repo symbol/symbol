@@ -21,6 +21,7 @@
 #include "SharedKey.h"
 #include "CryptoUtils.h"
 #include "Hashes.h"
+#include "SecureZero.h"
 #include <cstring>
 
 namespace catapult { namespace crypto {
@@ -39,6 +40,8 @@ namespace catapult { namespace crypto {
 
 		SharedKey sharedKey;
 		std::memcpy(sharedKey.data(), outputKeyingMaterial.data(), outputKeyingMaterial.size());
+		SecureZero(pseudoRandomKey);
+		SecureZero(outputKeyingMaterial);
 		return sharedKey;
 	}
 
@@ -47,11 +50,20 @@ namespace catapult { namespace crypto {
 		ExtractMultiplier(keyPair.privateKey(), multiplier);
 
 		Key sharedSecret;
-		return ScalarMult(multiplier, otherPublicKey, sharedSecret) ? sharedSecret : Key();
+		if (!ScalarMult(multiplier, otherPublicKey, sharedSecret))
+			return Key();
+
+		SecureZero(multiplier);
+		return sharedSecret;
 	}
 
 	SharedKey DeriveSharedKey(const KeyPair& keyPair, const Key& otherPublicKey) {
 		auto sharedSecret = DeriveSharedSecret(keyPair, otherPublicKey);
-		return Key() == sharedSecret ? SharedKey() : Hkdf_Hmac_Sha256_32(sharedSecret);
+		if (Key() == sharedSecret)
+			return SharedKey();
+
+		auto sharedKey = Hkdf_Hmac_Sha256_32(sharedSecret);
+		SecureZero(sharedSecret);
+		return sharedKey;
 	}
 }}

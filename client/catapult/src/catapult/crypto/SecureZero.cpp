@@ -39,10 +39,6 @@
 
 namespace catapult { namespace crypto {
 
-	void SecureZero(Key& key) {
-		SecureZero(&key[0], key.size());
-	}
-
 	void SecureZero(uint8_t* pData, size_t dataSize) {
 		CATAPULT_ZEROMEM(pData, dataSize);
 	}

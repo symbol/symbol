@@ -224,7 +224,7 @@ namespace catapult { namespace crypto {
 		privHash[31] &= 0x7F;
 		privHash[31] |= 0x40;
 		std::memcpy(multiplier, privHash.data(), Hash256::Size);
-		SecureZero(privHash.data(), privHash.size());
+		SecureZero(privHash);
 	}
 
 	void GenerateNonce(const PrivateKey& privateKey, std::initializer_list<const RawBuffer> buffersList, bignum256modm_type& nonce) {
@@ -238,7 +238,7 @@ namespace catapult { namespace crypto {
 		builder.final(hash);
 		expand256_modm(nonce, hash.data(), 64);
 
-		SecureZero(privHash.data(), privHash.size());
+		SecureZero(privHash);
 	}
 
 	bool ScalarMult(const ScalarMultiplier& multiplier, const Key& publicKey, Key& sharedSecret) {
@@ -284,7 +284,7 @@ namespace catapult { namespace crypto {
 		ge25519_pnielsadd_p1p1(&R, &H, &T, 0);
 		ge25519_p1p1_to_full(&H, &R);
 		ge25519_pack(sharedSecret.data(), &H);
-		SecureZero(reinterpret_cast<uint8_t*>(e), sizeof(e[0])* CountOf(e));
+		SecureZero(e);
 		return true;
 	}
 }}

@@ -23,9 +23,18 @@
 
 namespace catapult { namespace crypto {
 
-	/// Securely zeros out the memory backing the specified \a key.
-	void SecureZero(Key& key);
-
 	/// Securely zeros out the memory backing the specified \a pData with size \a dataSize.
 	void SecureZero(uint8_t* pData, size_t dataSize);
+
+	/// Securely zeros out the memory backed by \a array.
+	template<typename T, size_t N>
+	void SecureZero(T (&array)[N]) {
+		SecureZero(reinterpret_cast<uint8_t*>(array), sizeof(T) * N);
+	}
+
+	/// Securely zeros out the memory backed by \a byteArray.
+	template<typename TByteArray>
+	void SecureZero(TByteArray& byteArray) {
+		SecureZero(byteArray.data(), byteArray.size());
+	}
 }}
