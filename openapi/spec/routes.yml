@@ -47,6 +47,9 @@
 /network:
   get:
     $ref: "./core/network/routes/getNetworkType.yml"
+/network/fees:
+  get:
+    $ref: "./core/network/routes/getNetworkFees.yml"
 
 # Core - Node
 /node/health:
