@@ -244,14 +244,12 @@ namespace catapult { namespace tools { namespace testvectors {
 			}
 
 			int run(const Options&) override {
-				RunTest(parseJsonFile("0.test-keccak-256"), "keccak", CreateHashTester(crypto::Keccak_256));
 				RunTest(parseJsonFile("0.test-sha3-256"), "sha3", CreateHashTester(crypto::Sha3_256));
 				RunTest(parseJsonFile("1.test-keys"), "key conversion", KeyConversionTester);
 				RunTest(parseJsonFile("1.test-address"), "address conversion", AddressConversionTester);
 				RunTest(parseJsonFile("2.test-sign"), "signing", SigningTester);
 				RunTest(parseJsonFile("3.test-derive"), "shared key derive", DeriveTester);
 				RunTest(parseJsonFile("4.test-cipher"), "aes-cbc decryption", DecryptTester);
-
 				return 0;
 			}
 

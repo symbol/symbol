@@ -503,6 +503,13 @@ class NamespacesParser:
 
         elif tok.type == 'SEMI_COLON':
             self.switchToNormal()
+
+            # do not consider forward declarations in global scope
+            # (they do not add anything to namespace)
+            if not self.namespaceStack:
+                # no need to clearNameStack() cause it is empty
+                return
+
             self.namespaceStack[-1].hadForward = True
 
             name = '::'.join(map(lambda c: c.current, self.namespaceStack))

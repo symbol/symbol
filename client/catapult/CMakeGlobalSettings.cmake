@@ -158,6 +158,7 @@ function(catapult_add_gtest_dependencies)
 	include_directories(SYSTEM ${GTEST_INCLUDE_DIR})
 endfunction()
 
+# add tests subdirectory
 function(catapult_add_tests_subdirectory DIRECTORY_NAME)
 	if(ENABLE_TESTS)
 		add_subdirectory(${DIRECTORY_NAME})
@@ -180,31 +181,6 @@ function(catapult_set_test_compiler_options)
 			-Wno-zero-as-null-pointer-constant"
 			PARENT_SCOPE)
 	endif()
-endfunction()
-
-### define openssl helper functions
-
-# find and set openssl
-function(catapult_add_ssl_dependencies TARGET_NAME)
-	message("--- locating openssl dependencies ---")
-
-	if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-		# https://gitlab.kitware.com/cmake/cmake/issues/16885
-		include_directories(${OPENSSL_ROOT_DIR}/include)
-		list(APPEND OPENSSL_LIBS ${OPENSSL_ROOT_DIR}/lib/libssl.dylib)
-		list(APPEND OPENSSL_LIBS ${OPENSSL_ROOT_DIR}/lib/libcrypto.dylib)
-
-		message("OpenSSL root: ${OPENSSL_ROOT_DIR}")
-	else()
-		find_package(OpenSSL REQUIRED)
-		list(APPEND OPENSSL_LIBS OpenSSL::SSL)
-
-		message("OpenSSL Version: ${OPENSSL_VERSION} ${OPENSSL_INCLUDE_DIR} ${OPENSSL_LIBRARIES}")
-	endif()
-
-	message("OpenSSL libs: ${OPENSSL_LIBS}")
-
-	target_link_libraries(${TARGET_NAME} ${OPENSSL_LIBS})
 endfunction()
 
 ### define version helpers

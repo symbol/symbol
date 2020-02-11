@@ -124,7 +124,7 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, FailureWhenHashAlgorithmDoesNotMatch) {
 		// Arrange:
 		auto notificationBuilder = CreateNotificationBuilder();
-		notificationBuilder.setAlgorithm(model::LockHashAlgorithm::Op_Keccak_256);
+		notificationBuilder.setAlgorithm(model::LockHashAlgorithm::Op_Hash_256);
 
 		// Assert:
 		AssertValidationResult(Failure_LockSecret_Hash_Algorithm_Mismatch, notificationBuilder);

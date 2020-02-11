@@ -81,7 +81,7 @@ class CheckResult(Enum):
 
 
 def isExternalInclude(inc):
-    return inc.startswith('<donna') or inc.startswith('<openssl') or inc.startswith('<ripemd160') or inc.startswith('<sha3')
+    return inc.startswith('<donna') or inc.startswith('<openssl')
 
 
 def checkExternalInclude(incA, incB):
@@ -98,7 +98,7 @@ def checkExternalInclude(incA, incB):
 
 
 def isCppInclude(inc):
-    cppIncludes = ['<boost', '<mongocxx', '<bsoncxx', '<rocksdb', '<benchmark', '<tiny-aes-c']
+    cppIncludes = ['<boost', '<mongocxx', '<bsoncxx', '<rocksdb', '<benchmark']
     return any(map(inc.startswith, cppIncludes))
 
 

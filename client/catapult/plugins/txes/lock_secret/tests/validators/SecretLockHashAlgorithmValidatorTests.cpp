@@ -36,11 +36,11 @@ namespace catapult { namespace validators {
 			static constexpr auto CreateValidator = CreateSecretLockHashAlgorithmValidator;
 
 			static std::vector<uint8_t> ValidValues() {
-				return { 0, 1, 2, 3 };
+				return { 0, 1, 2 };
 			}
 
 			static std::vector<uint8_t> InvalidValues() {
-				return { 4, 0xFF };
+				return { 3, 4, 0xFF };
 			}
 
 			static auto CreateNotification(EnumType value) {

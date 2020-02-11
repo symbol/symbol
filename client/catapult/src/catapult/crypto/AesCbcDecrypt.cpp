@@ -19,19 +19,30 @@
 **/
 
 #include "AesCbcDecrypt.h"
-#include "catapult/exceptions.h"
-#include <tiny-aes-c/aes.hpp>
+#include "OpensslContexts.h"
 #include <cstring>
+
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wold-style-cast"
+#pragma clang diagnostic ignored "-Wreserved-id-macro"
+#endif
+#include <openssl/evp.h>
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 namespace catapult { namespace crypto {
 
 	namespace {
+		constexpr auto Aes_Pkcs7_Padding_Size = 16u;
+
 		bool DropPadding(std::vector<uint8_t>& result) {
-			if (result.size() < AES_BLOCKLEN)
+			if (result.size() < Aes_Pkcs7_Padding_Size)
 				return false;
 
 			auto padByte = result.back();
-			if (0 == padByte || padByte > AES_BLOCKLEN)
+			if (0 == padByte || padByte > Aes_Pkcs7_Padding_Size)
 				return false;
 
 			// check padding
@@ -49,15 +60,18 @@ namespace catapult { namespace crypto {
 			return false;
 
 		output.resize(input.Size - initializationVector.size());
-		if (0 != output.size() % AES_BLOCKLEN)
+		if (0 != output.size() % Aes_Pkcs7_Padding_Size)
 			return false;
 
 		std::memcpy(initializationVector.data(), input.pData, initializationVector.size());
-		std::memcpy(output.data(), input.pData + initializationVector.size(), output.size());
 
-		AES_ctx ctx;
-		AES_init_ctx_iv(&ctx, key.data(), initializationVector.data());
-		AES_CBC_decrypt_buffer(&ctx, output.data(), static_cast<uint32_t>(output.size()));
+		auto outputSize = static_cast<int>(output.size());
+
+		OpensslCipherContext cipherContext;
+		cipherContext.dispatch(EVP_DecryptInit_ex, EVP_aes_256_cbc(), nullptr, key.data(), initializationVector.data());
+		cipherContext.dispatch(EVP_DecryptUpdate, output.data(), &outputSize, input.pData + initializationVector.size(), outputSize);
+		if (!cipherContext.tryDispatch(EVP_DecryptFinal_ex, output.data() + outputSize, &outputSize))
+			return false;
 
 		// drop PKCS#7 padding
 		if (!DropPadding(output))

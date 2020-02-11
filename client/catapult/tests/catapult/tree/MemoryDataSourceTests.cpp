@@ -109,15 +109,15 @@ namespace catapult { namespace tree {
 
 			EXPECT_EQ(hash1, pSavedNode->hash());
 
-			// - only the first hash should recalculate the hash, so assert (conservatively) it is at least 3x slower
+			// - only the first hash should recalculate the hash, so assert (conservatively) it is at least 1.5x slower
 			auto elaspedHashTime = (time2 - time1).count();
 			auto elaspedSetTime = (time3 - time2).count();
 			CATAPULT_LOG(debug) << "elaspedHashTime = " << elaspedHashTime << ", elaspedSetTime = " << elaspedSetTime;
 
-			if (elaspedHashTime <= elaspedSetTime * 3)
+			if (elaspedHashTime <= elaspedSetTime * 3 / 2)
 				return false;
 
-			EXPECT_GT(elaspedHashTime, elaspedSetTime * 3);
+			EXPECT_GT(elaspedHashTime, elaspedSetTime * 3 / 2);
 			return true;
 		});
 	}

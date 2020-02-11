@@ -42,24 +42,14 @@ namespace catapult { namespace crypto {
 			static constexpr auto HashFunc = Sha256Double;
 		};
 
+		struct Sha512_Traits {
+			using HashType = Hash512;
+			static constexpr auto HashFunc = Sha512;
+		};
+
 		struct Sha3_256_Traits {
 			using HashType = Hash256;
 			static constexpr auto HashFunc = Sha3_256;
-		};
-
-		struct Sha3_512_Traits {
-			using HashType = Hash512;
-			static constexpr auto HashFunc = Sha3_512;
-		};
-
-		struct Keccak_256_Traits {
-			using HashType = Hash256;
-			static constexpr auto HashFunc = Keccak_256;
-		};
-
-		struct Keccak_512_Traits {
-			using HashType = Hash512;
-			static constexpr auto HashFunc = Keccak_512;
 		};
 
 		// endregion
@@ -96,8 +86,6 @@ void RegisterTests() {
 	CATAPULT_REGISTER_HASHER_BENCHMARK(Ripemd160_Traits);
 	CATAPULT_REGISTER_HASHER_BENCHMARK(Bitcoin160_Traits);
 	CATAPULT_REGISTER_HASHER_BENCHMARK(Sha256Double_Traits);
+	CATAPULT_REGISTER_HASHER_BENCHMARK(Sha512_Traits);
 	CATAPULT_REGISTER_HASHER_BENCHMARK(Sha3_256_Traits);
-	CATAPULT_REGISTER_HASHER_BENCHMARK(Sha3_512_Traits);
-	CATAPULT_REGISTER_HASHER_BENCHMARK(Keccak_256_Traits);
-	CATAPULT_REGISTER_HASHER_BENCHMARK(Keccak_512_Traits);
 }

@@ -115,10 +115,6 @@ namespace catapult { namespace validators {
 		AssertSuccessIfSecretMatchesProof(model::LockHashAlgorithm::Op_Sha3_256);
 	}
 
-	TEST(TEST_CLASS, SuccessWhenSecretMatchesProof_Keccak) {
-		AssertSuccessIfSecretMatchesProof(model::LockHashAlgorithm::Op_Keccak_256);
-	}
-
 	TEST(TEST_CLASS, SuccessWhenSecretMatchesProof_Bitcoin160) {
 		AssertSuccessIfSecretMatchesProof(model::LockHashAlgorithm::Op_Hash_160);
 	}

@@ -36,12 +36,6 @@ namespace catapult { namespace model {
 			static constexpr auto HashFunc = crypto::Sha3_256;
 		};
 
-		struct OpKeccak_256_Traits {
-			using HashType = Hash256;
-			static constexpr auto HashAlgorithm = LockHashAlgorithm::Op_Keccak_256;
-			static constexpr auto HashFunc = crypto::Keccak_256;
-		};
-
 		struct OpHash_160_Traits {
 			using HashType = Hash160;
 			static constexpr auto HashAlgorithm = LockHashAlgorithm::Op_Hash_160;
@@ -79,8 +73,6 @@ namespace catapult { namespace model {
 	}
 
 	MAKE_CALCULATE_HASH_TEST(OpSha3_256)
-
-	MAKE_CALCULATE_HASH_TEST(OpKeccak_256)
 
 	MAKE_CALCULATE_HASH_TEST(OpHash_160)
 
