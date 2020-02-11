@@ -1,0 +1,25 @@
+type: object
+required:
+  - averageFeeMultiplier
+  - medianFeeMultiplier
+  - highestFeeMultiplier
+  - lowestFeeMultiplier
+properties:
+  averageFeeMultiplier:
+    type: number
+    format: double
+    description: Average fee multiplier over the last "numBlocksTransactionFeeStats".
+    example: 1
+  medianFeeMultiplier:
+    type: number
+    format: double
+    description: Median fee multiplier over the last "numBlocksTransactionFeeStats".
+    example: 1
+  highestFeeMultiplier:
+    $ref: "../../../schemas/BlockFeeMultiplier.yml"
+    description: Highest fee multiplier over the last "numBlocksTransactionFeeStats".
+    example: 2
+  lowestFeeMultiplier:
+    $ref: "../../../schemas/BlockFeeMultiplier.yml"
+    description: Lowest fee multiplier over the last "numBlocksTransactionFeeStats".
+    example: 0
