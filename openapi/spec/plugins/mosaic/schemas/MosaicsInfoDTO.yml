@@ -7,3 +7,4 @@ properties:
     description: Array of mosaics information.
     items:
       $ref: "./MosaicDTO.yml"
+
