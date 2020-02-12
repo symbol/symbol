@@ -53,7 +53,7 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, FailureWhenEntityHasVersionGreaterThanMaxVersion) {
-		for (uint8_t version = Max_Entity_Version + 1; 0 != version; ++version)
+		for (uint8_t version = 0xFF; version >= Max_Entity_Version + 1; --version)
 			AssertValidationResult(Failure_Core_Invalid_Version, version);
 	}
 

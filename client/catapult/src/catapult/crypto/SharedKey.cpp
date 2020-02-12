@@ -89,7 +89,7 @@ namespace catapult { namespace crypto {
 			auto ub = static_cast<uint8_t>(b);
 			auto uc = static_cast<uint8_t>(c);
 			auto x = static_cast<uint8_t>(ub ^ uc);
-			--x;
+			x = static_cast<uint8_t>(x - 1);
 			x >>= 7;
 			return x;
 		}

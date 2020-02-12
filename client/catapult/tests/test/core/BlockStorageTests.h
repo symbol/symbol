@@ -297,8 +297,9 @@ namespace catapult { namespace test {
 		// running this test does not make any sense, as it needs to produce quite some blocks
 		static void AssertLoadHashesFrom_LoadsCanCrossIndexFileBoundary() {
 			// Arrange: (note hashes are set inside SeedBlocks)
-			std::vector<uint8_t> expectedHashes(11);
-			std::iota(expectedHashes.begin(), expectedHashes.end(), static_cast<uint8_t>(65530 % 0xFF));
+			std::vector<uint8_t> expectedHashes;
+			for (uint8_t i = 65530 % 0xFF; expectedHashes.size() < 11; i = static_cast<uint8_t>(i + 1))
+				expectedHashes.push_back(i);
 
 			StorageContext context;
 			context.pTempDirectoryGuard = std::make_unique<typename TTraits::Guard>();
