@@ -128,7 +128,8 @@ const registerRoutes = (server, db, services) => {
 				max: services.config.db.pageSizeMax
 			},
 			apiNode: services.config.apiNode,
-			websocket: services.config.websocket
+			websocket: services.config.websocket,
+			numBlocksTransactionFeeStats: services.config.numBlocksTransactionFeeStats
 		},
 		connections: services.connectionService
 	};
