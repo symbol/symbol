@@ -22,7 +22,6 @@
 #include "VerifyPeer.h"
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/ionet/PacketSocket.h"
-#include "catapult/ionet/SecureSignedPacketSocketDecorator.h"
 #include "catapult/thread/IoThreadPool.h"
 #include "catapult/thread/TimedCallback.h"
 #include "catapult/utils/Logging.h"
@@ -77,7 +76,7 @@ namespace catapult { namespace net {
 				pRequest->setTimeout(m_settings.Timeout);
 				pRequest->setTimeoutHandler([pAcceptedSocket]() { pAcceptedSocket->close(); });
 
-				auto securityModes = m_settings.IncomingSecurityModes;
+				auto securityModes = ionet::ConnectionSecurityMode::None;
 				VerifyClient(pAcceptedSocket, m_keyPair, securityModes, [pThis = shared_from_this(), pAcceptedSocket, pRequest](
 						auto verifyResult,
 						const auto& verifiedPeerInfo) {
@@ -91,19 +90,13 @@ namespace catapult { namespace net {
 						return pRequest->callback(PeerConnectCode::Self_Connection_Error, nullptr, Empty_Key);
 					}
 
-					auto pSecuredSocket = pThis->secure(pAcceptedSocket, verifiedPeerInfo);
-					return pRequest->callback(PeerConnectCode::Accepted, pSecuredSocket, verifiedPeerInfo.PublicKey);
+					return pRequest->callback(PeerConnectCode::Accepted, pAcceptedSocket, verifiedPeerInfo.PublicKey);
 				});
 			}
 
 			void shutdown() override {
 				CATAPULT_LOG(info) << "closing all connections in ClientConnector" << m_tag;
 				m_sockets.clear();
-			}
-
-		private:
-			PacketSocketPointer secure(const PacketSocketPointer& pSocket, const VerifiedPeerInfo& peerInfo) {
-				return AddSecureSigned(pSocket, peerInfo.SecurityMode, m_keyPair, peerInfo.PublicKey, m_settings.MaxPacketDataSize);
 			}
 
 		private:

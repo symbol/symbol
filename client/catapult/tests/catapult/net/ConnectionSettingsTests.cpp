@@ -37,9 +37,6 @@ namespace catapult { namespace net {
 		EXPECT_EQ(0u, settings.SocketWorkingBufferSensitivity);
 		EXPECT_EQ(utils::FileSize::FromMegabytes(100), settings.MaxPacketDataSize);
 
-		EXPECT_EQ(ionet::ConnectionSecurityMode::None, settings.OutgoingSecurityMode);
-		EXPECT_EQ(ionet::ConnectionSecurityMode::None, settings.IncomingSecurityModes);
-
 		EXPECT_TRUE(settings.AllowIncomingSelfConnections);
 		EXPECT_FALSE(settings.AllowOutgoingSelfConnections);
 	}

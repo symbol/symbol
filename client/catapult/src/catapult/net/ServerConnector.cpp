@@ -23,7 +23,6 @@
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/ionet/Node.h"
 #include "catapult/ionet/PacketSocket.h"
-#include "catapult/ionet/SecureSignedPacketSocketDecorator.h"
 #include "catapult/thread/IoThreadPool.h"
 #include "catapult/thread/TimedCallback.h"
 #include "catapult/utils/Logging.h"
@@ -102,22 +101,17 @@ namespace catapult { namespace net {
 					CATAPULT_LOG(debug) << "verify failed due to timeout" << pThis->m_tag;
 				});
 
-				VerifiedPeerInfo serverPeerInfo{ publicKey, m_settings.OutgoingSecurityMode };
+				VerifiedPeerInfo serverPeerInfo{ publicKey, ionet::ConnectionSecurityMode::None };
 				VerifyServer(pConnectedSocket, serverPeerInfo, m_keyPair, [pThis = shared_from_this(), host, pConnectedSocket, pRequest](
 						auto verifyResult,
-						const auto& verifiedPeerInfo) {
+						const auto&) {
 					if (VerifyResult::Success != verifyResult) {
 						CATAPULT_LOG(warning) << "VerifyServer failed with " << verifyResult << pThis->m_tag;
 						return pRequest->callback(PeerConnectCode::Verify_Error, ionet::PacketSocketInfo());
 					}
 
-					auto pSecuredSocket = pThis->secure(pConnectedSocket, verifiedPeerInfo);
-					return pRequest->callback(PeerConnectCode::Accepted, ionet::PacketSocketInfo(host, pSecuredSocket));
+					return pRequest->callback(PeerConnectCode::Accepted, ionet::PacketSocketInfo(host, pConnectedSocket));
 				});
-			}
-
-			PacketSocketPointer secure(const PacketSocketPointer& pSocket, const VerifiedPeerInfo& peerInfo) {
-				return AddSecureSigned(pSocket, peerInfo.SecurityMode, m_keyPair, peerInfo.PublicKey, m_settings.MaxPacketDataSize);
 			}
 
 		public:

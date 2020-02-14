@@ -50,8 +50,6 @@ namespace catapult { namespace extensions {
 			config.Node.IncomingConnections.MaxConnections = 17;
 			config.Node.IncomingConnections.BacklogSize = 83;
 			config.Node.EnableAddressReuse = true;
-			config.Node.OutgoingSecurityMode = static_cast<ionet::ConnectionSecurityMode>(8);
-			config.Node.IncomingSecurityModes = static_cast<ionet::ConnectionSecurityMode>(21);
 
 			config.Node.Banning.DefaultBanDuration = utils::TimeSpan::FromHours(1);
 			config.Node.Banning.MaxBannedNodes = 50;
@@ -103,9 +101,6 @@ namespace catapult { namespace extensions {
 		EXPECT_EQ(utils::FileSize::FromBytes(512), settings.SocketWorkingBufferSize);
 		EXPECT_EQ(987u, settings.SocketWorkingBufferSensitivity);
 		EXPECT_EQ(utils::FileSize::FromKilobytes(12), settings.MaxPacketDataSize);
-
-		EXPECT_EQ(static_cast<ionet::ConnectionSecurityMode>(8), settings.OutgoingSecurityMode);
-		EXPECT_EQ(static_cast<ionet::ConnectionSecurityMode>(21), settings.IncomingSecurityModes);
 
 		EXPECT_TRUE(settings.AllowIncomingSelfConnections);
 		EXPECT_FALSE(settings.AllowOutgoingSelfConnections);

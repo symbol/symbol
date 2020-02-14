@@ -50,9 +50,6 @@ namespace catapult { namespace extensions {
 		settings.SocketWorkingBufferSize = config.Node.SocketWorkingBufferSize;
 		settings.SocketWorkingBufferSensitivity = config.Node.SocketWorkingBufferSensitivity;
 		settings.MaxPacketDataSize = config.Node.MaxPacketDataSize;
-
-		settings.OutgoingSecurityMode = config.Node.OutgoingSecurityMode;
-		settings.IncomingSecurityModes = config.Node.IncomingSecurityModes;
 		return settings;
 	}
 

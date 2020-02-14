@@ -39,8 +39,6 @@ namespace catapult { namespace net {
 				, SocketWorkingBufferSize(utils::FileSize::FromKilobytes(4))
 				, SocketWorkingBufferSensitivity(0) // memory reclamation disabled
 				, MaxPacketDataSize(utils::FileSize::FromMegabytes(100))
-				, OutgoingSecurityMode(ionet::ConnectionSecurityMode::None)
-				, IncomingSecurityModes(ionet::ConnectionSecurityMode::None)
 				, AllowIncomingSelfConnections(true)
 				, AllowOutgoingSelfConnections(false)
 		{}
@@ -63,12 +61,6 @@ namespace catapult { namespace net {
 
 		/// Maximum packet data size.
 		utils::FileSize MaxPacketDataSize;
-
-		/// Security mode of outgoing connections initiated by this node.
-		ionet::ConnectionSecurityMode OutgoingSecurityMode;
-
-		/// Accepted security modes of incoming connections initiated by other nodes.
-		ionet::ConnectionSecurityMode IncomingSecurityModes;
 
 		/// Allows incoming self connections when \c true.
 		bool AllowIncomingSelfConnections;

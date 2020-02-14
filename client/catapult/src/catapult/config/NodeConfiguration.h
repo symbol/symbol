@@ -19,7 +19,6 @@
 **/
 
 #pragma once
-#include "catapult/ionet/ConnectionSecurityMode.h"
 #include "catapult/ionet/NodeRoles.h"
 #include "catapult/model/TransactionSelectionStrategy.h"
 #include "catapult/utils/FileSize.h"
@@ -124,12 +123,6 @@ namespace catapult { namespace config {
 
 		/// \c true if all dispatcher inputs should be audited.
 		bool EnableDispatcherInputAuditing;
-
-		/// Security mode of outgoing connections initiated by this node.
-		ionet::ConnectionSecurityMode OutgoingSecurityMode;
-
-		/// Accepted security modes of incoming connections initiated by other nodes.
-		ionet::ConnectionSecurityMode IncomingSecurityModes;
 
 		/// Maximum cache database write batch size.
 		utils::FileSize MaxCacheDatabaseWriteBatchSize;

@@ -128,9 +128,6 @@ namespace catapult { namespace config {
 			EXPECT_TRUE(config.EnableDispatcherAbortWhenFull);
 			EXPECT_TRUE(config.EnableDispatcherInputAuditing);
 
-			EXPECT_EQ(ionet::ConnectionSecurityMode::None, config.OutgoingSecurityMode);
-			EXPECT_EQ(ionet::ConnectionSecurityMode::None, config.IncomingSecurityModes);
-
 			EXPECT_EQ(utils::FileSize::FromMegabytes(5), config.MaxCacheDatabaseWriteBatchSize);
 			EXPECT_EQ(5'000u, config.MaxTrackedNodes);
 

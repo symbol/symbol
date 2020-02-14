@@ -68,9 +68,6 @@ namespace catapult { namespace test {
 			config.BlockDisruptorSize = 4 * 1024;
 			config.TransactionDisruptorSize = 16 * 1024;
 
-			config.OutgoingSecurityMode = ionet::ConnectionSecurityMode::None;
-			config.IncomingSecurityModes = ionet::ConnectionSecurityMode::None;
-
 			config.MaxCacheDatabaseWriteBatchSize = utils::FileSize::FromMegabytes(5);
 			config.MaxTrackedNodes = 5'000;
 
