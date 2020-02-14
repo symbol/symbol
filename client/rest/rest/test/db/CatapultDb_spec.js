@@ -489,6 +489,185 @@ describe('catapult db', () => {
 		});
 	});
 
+	describe('account harvested blocks', () => {
+		const testPublicKey = {
+			one: test.random.publicKey(),
+			two: test.random.publicKey()
+		};
+
+		const createBlock = (id, accountPublicKey) => ({
+			_id: id,
+			meta: {
+				hash: '',
+				generationHash: '',
+				totalFee: '',
+				stateHashSubCacheMerkleRoots: '',
+				numTransactions: '',
+				transactionMerkleTree: '',
+				numStatements: '',
+				statementMerkleTree: ''
+			},
+			block: {
+				signature: '',
+				signerPublicKey: accountPublicKey,
+				version: '',
+				network: '',
+				type: '',
+				height: '',
+				timestamp: '',
+				difficulty: '',
+				feeMultiplier: '',
+				previousBlockHash: '',
+				transactionsHash: '',
+				receiptsHash: '',
+				stateHash: '',
+				beneficiaryPublicKey: ''
+			}
+		});
+
+		it('returns harvested blocks by public key', () => {
+			// Arrange:
+			const blockDbEntities = [
+				createBlock(1, testPublicKey.one),
+				createBlock(10, testPublicKey.one),
+				createBlock(20, testPublicKey.two)
+			];
+
+			// Act + Assert:
+			return runDbTest(
+				{ blocks: blockDbEntities },
+				db => db.accountHarvestedBlocks(testPublicKey.one),
+				blocks => {
+					expect(blocks.map(b => b.id).sort()).to.deep.equal([1, 10]);
+				}
+			);
+		});
+
+		it('returns empty when signer public key doesn\'t match', () => {
+			// Arrange:
+			const blockDbEntities = [
+				createBlock(1, testPublicKey.one)
+			];
+
+			// Act + Assert:
+			return runDbTest(
+				{ blocks: blockDbEntities },
+				db => db.accountHarvestedBlocks(testPublicKey.two),
+				blocks => {
+					expect(blocks).to.deep.equal([]);
+				}
+			);
+		});
+
+		it('returns correct block projection', () => {
+			// Arrange:
+			const blockDbEntities = [createBlock(1, testPublicKey.one)];
+
+			// Act + Assert:
+			return runDbTest(
+				{ blocks: blockDbEntities },
+				db => db.accountHarvestedBlocks(testPublicKey.one),
+				blocks => {
+					expect(Object.keys(blocks[0])).to.deep.equal(['id', 'meta', 'block']);
+					expect(Object.keys(blocks[0].meta)).to.deep.equal(
+						[
+							'hash',
+							'generationHash',
+							'totalFee',
+							'stateHashSubCacheMerkleRoots',
+							'numTransactions',
+							'numStatements'
+						]
+					);
+					expect(Object.keys(blocks[0].block)).to.deep.equal(
+						[
+							'signature',
+							'signerPublicKey',
+							'version',
+							'network',
+							'type',
+							'height',
+							'timestamp',
+							'difficulty',
+							'feeMultiplier',
+							'previousBlockHash',
+							'transactionsHash',
+							'receiptsHash',
+							'stateHash',
+							'beneficiaryPublicKey'
+						]
+					);
+				}
+			);
+		});
+
+		it('query respects supplied id', () => {
+			// Arrange:
+			const blockDbEntities = [];
+			for (let i = 0; 25 > i; ++i)
+				blockDbEntities.push(createBlock(test.db.createObjectId(i), testPublicKey.one));
+
+			// Act + Assert:
+			return runDbTest(
+				{ blocks: blockDbEntities },
+				db => db.accountHarvestedBlocks(testPublicKey.one, test.db.createObjectId(15)),
+				blocks => {
+					const expectedIds = [];
+					for (let i = 14; 0 <= i; --i)
+						expectedIds.push(test.db.createObjectId(i));
+
+					expect(blocks.map(b => b.id)).to.deep.equal(expectedIds);
+				}
+			);
+		});
+
+		const runPageSizeTests = (numBlocksCreated, pageSize, expectedNumBlocks) => {
+			// Arrange:
+			const blockDbEntities = [];
+			for (let i = 0; numBlocksCreated > i; ++i)
+				blockDbEntities.push(createBlock(test.db.createObjectId(i), testPublicKey.one));
+
+			// Act + Assert:
+			return runDbTest(
+				{ blocks: blockDbEntities },
+				db => db.accountHarvestedBlocks(testPublicKey.one, undefined, pageSize),
+				blocks => { expect(blocks.length).to.equal(expectedNumBlocks); }
+			);
+		};
+
+		it('query respects page size', () => runPageSizeTests(50, 25, 25));
+
+		const runOrderingTest = (ordering, exepctedIds) => {
+			// Arrange:
+			const blockDbEntities = [];
+			for (let i = 0; 10 > i; ++i)
+				blockDbEntities.push(createBlock(test.db.createObjectId(i), testPublicKey.one));
+
+			// Act + Assert:
+			return runDbTest(
+				{ blocks: blockDbEntities },
+				db => db.accountHarvestedBlocks(testPublicKey.one, undefined, undefined, ordering),
+				blocks => { expect(blocks.map(b => b.id)).to.deep.equal(exepctedIds); }
+			);
+		};
+
+		it('query respects options ordering asc', () => {
+			const expectedIdsAsc = [];
+			for (let i = 0; 10 > i; ++i)
+				expectedIdsAsc.push(test.db.createObjectId(i));
+
+			return runOrderingTest(1, expectedIdsAsc);
+		});
+
+		it('query respects options ordering desc', () => {
+			const expectedIdsDesc = [];
+			for (let i = 9; 0 <= i; --i)
+				expectedIdsDesc.push(test.db.createObjectId(i));
+
+			return runOrderingTest(-1, expectedIdsDesc);
+		});
+	});
+
 	const createTransactionHash = id => catapult.utils.convert.hexToUint8(`${'00'.repeat(16)}${id.toString(16)}`.slice(-32));
 
 	const createSeedTransactions = (numTransactionsPerHeight, heights, options) => {

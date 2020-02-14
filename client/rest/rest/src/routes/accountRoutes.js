@@ -30,11 +30,32 @@ module.exports = {
 	register: (server, db, services) => {
 		const transactionSender = routeUtils.createSender(routeResultTypes.transaction);
 
+		const accountIdToPublicKey = (type, accountId) => {
+			if (AccountType.publicKey === type)
+				return Promise.resolve(accountId);
+
+			return routeUtils.addressToPublicKey(db, accountId);
+		};
+
 		server.get('/account/:accountId', (req, res, next) => {
 			const [type, accountId] = routeUtils.parseArgument(req.params, 'accountId', 'accountId');
 			const sender = routeUtils.createSender(routeResultTypes.account);
 			return db.accountsByIds([{ [type]: accountId }])
 				.then(sender.sendOne(req.params.accountId, res, next));
+		});
+
+		server.get('/account/:accountId/harvest', (req, res, next) => {
+			const [type, accountId] = routeUtils.parseArgument(req.params, 'accountId', 'accountId');
+			const pagingOptions = routeUtils.parsePagingArguments(req.params);
+			const ordering = routeUtils.parseArgument(req.params, 'ordering', input => ('id' === input ? 1 : -1));
+			const sender = routeUtils.createSender(routeResultTypes.blockWithId);
+
+			return accountIdToPublicKey(type, accountId).then(accountPublicKey =>
+				db.accountHarvestedBlocks(accountPublicKey, pagingOptions.id, pagingOptions.pageSize, ordering)
+					.then(sender.sendArray('accountId', res, next)))
+				.catch(() => {
+					sender.sendArray('accountId', res, next)([]);
+				});
 		});
 
 		server.post('/account', (req, res, next) => {
@@ -80,13 +101,6 @@ module.exports = {
 				).then(transactionSender.sendArray('accountId', res, next));
 			});
 		});
-
-		const accountIdToPublicKey = (type, accountId) => {
-			if (AccountType.publicKey === type)
-				return Promise.resolve(accountId);
-
-			return routeUtils.addressToPublicKey(db, accountId);
-		};
 
 		server.get('/account/:accountId/transactions/outgoing', (req, res, next) => {
 			const [type, accountId] = routeUtils.parseArgument(req.params, 'accountId', 'accountId');

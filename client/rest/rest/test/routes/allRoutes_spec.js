@@ -42,6 +42,7 @@ describe('all routes', () => {
 		// Assert:
 		test.assert.assertRoutes(routes, [
 			'/account/:accountId',
+			'/account/:accountId/harvest',
 			'/account/:accountId/transactions',
 			'/account/:accountId/transactions/incoming',
 			'/account/:accountId/transactions/outgoing',

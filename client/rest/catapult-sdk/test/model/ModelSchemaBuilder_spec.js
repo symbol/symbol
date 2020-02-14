@@ -72,6 +72,7 @@ describe('model schema builder', () => {
 				'blockHeader',
 				'blockHeaderMetadata',
 				'blockHeaderWithMetadata',
+				'blockHeaderWithMetadataAndId',
 				'merkleProofInfo',
 				'merkleProofInfoPathNode',
 
@@ -147,6 +148,8 @@ describe('model schema builder', () => {
 			expect(matchingProperties).to.deep.equal([
 				'blockHeaderWithMetadata.meta',
 				'blockHeaderWithMetadata.block',
+				'blockHeaderWithMetadataAndId.meta',
+				'blockHeaderWithMetadataAndId.block',
 
 				'transactionWithMetadata.meta',
 				'transactionWithMetadata.transaction',
@@ -269,6 +272,7 @@ describe('model schema builder', () => {
 
 			// Assert:
 			expect(matchingProperties).to.deep.equal([
+				'blockHeaderWithMetadataAndId.id',
 				'transactionMetadata.aggregateId',
 				'transactionMetadata.id'
 			]);

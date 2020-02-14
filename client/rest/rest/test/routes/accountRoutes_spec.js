@@ -33,6 +33,12 @@ const { convert } = catapult.utils;
 const { addresses, publicKeys } = test.sets;
 
 describe('account routes', () => {
+	const testPublicKey = '7DE16AEDF57EB9561D3E6EFA4AE66F27ABDA8AEC8BC020B6277360E31619DCE7';
+	const uint8TestPublicKey = convert.hexToUint8(testPublicKey);
+	const testAddress = 'SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXWV';
+	const nonExistingTestAddress = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+	const uint8NonExistingTestAddress = address.stringToAddress(nonExistingTestAddress);
+
 	describe('get by account', () => {
 		const addGetTests = (key, ids, parsedIds, validBody, invalidBody, errorMessage) => {
 			test.route.document.addGetPostDocumentRouteTests(accountRoutes.register, {
@@ -93,15 +99,134 @@ describe('account routes', () => {
 		});
 	});
 
+	describe('account harvested blocks', () => {
+		const fakeBlocks = [
+			{
+				id: 0x5E3CD1498E18164DD5536133,
+				meta: { hash: '' },
+				block: { height: 1 }
+			},
+			{
+				id: 0x4DD787654E887231D5111AAE,
+				meta: { hash: '' },
+				block: { height: 1 }
+			}
+		];
+
+		const dbAccountHarvestedBlocksFake = sinon.fake.resolves(fakeBlocks);
+		const mockServer = new MockServer();
+
+		const db = {
+			accountHarvestedBlocks: dbAccountHarvestedBlocksFake,
+			addressToPublicKey: searchedAddress => {
+				if (Buffer.from(searchedAddress).equals(Buffer.from(uint8NonExistingTestAddress)))
+					return Promise.reject(Error('account not found'));
+
+				return Promise.resolve({ account: { publicKey: new Binary(Buffer.from(uint8TestPublicKey)) } });
+			}
+		};
+
+		const services = { config: { transactionStates: [] } };
+
+		accountRoutes.register(mockServer.server, db, services);
+		const route = mockServer.getRoute('/account/:accountId/harvest').get();
+
+		beforeEach(() => {
+			mockServer.resetStats();
+			dbAccountHarvestedBlocksFake.resetHistory();
+		});
+
+		const getTestsBy = accountIdType => {
+			it(`returns account harvested blocks by ${accountIdType}`, () => {
+				// Arrange:
+				const req = { params: { accountId: AccountType.publicKey === accountIdType ? testPublicKey : testAddress } };
+
+				// Act:
+				return mockServer.callRoute(route, req).then(() => {
+					// Assert:
+					expect(dbAccountHarvestedBlocksFake.calledOnce).to.equal(true);
+					expect(dbAccountHarvestedBlocksFake.firstCall.args[0]).to.deep.equal(uint8TestPublicKey);
+					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
+						payload: fakeBlocks,
+						type: 'blockHeaderWithMetadataAndId'
+					});
+					expect(mockServer.next.calledOnce).to.equal(true);
+				});
+			});
+		};
+
+		getTestsBy(AccountType.publicKey);
+		getTestsBy(AccountType.address);
+
+		it('returns empty if account can\'t be found by address', () => {
+			// Arrange:
+			const req = { params: { accountId: nonExistingTestAddress } };
+
+			// Act:
+			return mockServer.callRoute(route, req).then(() => {
+				// Assert:
+				expect(dbAccountHarvestedBlocksFake.calledOnce).to.equal(false);
+				expect(mockServer.send.firstCall.args[0]).to.deep.equal({
+					payload: [],
+					type: 'blockHeaderWithMetadataAndId'
+				});
+				expect(mockServer.next.calledOnce).to.equal(true);
+			});
+		});
+
+		it('parses and fordwards params correctly', () => {
+			// Arrange:
+			const req = {
+				params: {
+					accountId: testPublicKey,
+					id: '00123456789AABBBCCDDEEFF',
+					pageSize: '25',
+					ordering: 'id'
+				}
+			};
+
+			// Act:
+			return mockServer.callRoute(route, req).then(() => {
+				// Assert:
+				expect(dbAccountHarvestedBlocksFake.calledOnce).to.equal(true);
+				expect(dbAccountHarvestedBlocksFake.firstCall.args[0]).to.deep.equal(uint8TestPublicKey);
+				expect(dbAccountHarvestedBlocksFake.firstCall.args[1]).to.equal('00123456789AABBBCCDDEEFF');
+				expect(dbAccountHarvestedBlocksFake.firstCall.args[2]).to.equal(25);
+				expect(dbAccountHarvestedBlocksFake.firstCall.args[3]).to.equal(1);
+				expect(mockServer.send.firstCall.args[0]).to.deep.equal({
+					payload: fakeBlocks,
+					type: 'blockHeaderWithMetadataAndId'
+				});
+				expect(mockServer.next.calledOnce).to.equal(true);
+			});
+		});
+
+		it('returns 409 if invalid pageId', () => {
+			// Arrange:
+			const req = { params: { accountId: testPublicKey, id: '12345' } };
+
+			// Act + Assert:
+			expect(() => mockServer.callRoute(route, req)).to.throw('id is not a valid object id');
+		});
+
+		it('returns 409 if invalid pageSize', () => {
+			// Arrange:
+			const req = { params: { accountId: testPublicKey, id: '00123456789AABBBCCDDEEFF', pageSize: '-1' } };
+
+			// Act + Assert:
+			expect(() => mockServer.callRoute(route, req)).to.throw('pageSize is not a valid unsigned integer');
+		});
+
+		it('returns 409 if accountId is invalid', () => {
+			// Arrange:
+			const req = { params: { accountId: 'aabbccddeeff' } };
+
+			// Act + Assert:
+			expect(() => mockServer.callRoute(route, req)).to.throw('accountId has an invalid format');
+		});
+	});
+
 	describe('account transactions', () => {
-		const testPublicKey = '7DE16AEDF57EB9561D3E6EFA4AE66F27ABDA8AEC8BC020B6277360E31619DCE7';
-		const uint8TestPublicKey = convert.hexToUint8(testPublicKey);
-
-		const testAddress = 'SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXWV';
-
-		const nonExistingTestAddress = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
-		const uint8NonExistingTestAddress = address.stringToAddress(nonExistingTestAddress);
-
 		const getTestsBy = accountIdType => {
 			const fakeTransactions = [{ meta: { addresses: [] }, transaction: { type: 12345 } }];
 			const dbTransactionsFake = sinon.fake.resolves(fakeTransactions);

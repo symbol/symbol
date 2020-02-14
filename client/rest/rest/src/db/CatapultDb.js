@@ -150,11 +150,19 @@ class CatapultDb {
 
 	queryPagedDocuments(collectionName, conditions, id, pageSize, options = {}) {
 		const sortOrder = options.sortOrder || -1;
-		if (id)
-			conditions.$and.push({ _id: { [0 > sortOrder ? '$lt' : '$gt']: new ObjectId(id) } });
+		let allConditions = conditions;
+
+		if (id) {
+			allConditions = {
+				$and: [
+					conditions,
+					{ _id: { [0 > sortOrder ? '$lt' : '$gt']: new ObjectId(id) } }
+				]
+			};
+		}
 
 		const collection = this.database.collection(collectionName);
-		return collection.find(conditions)
+		return collection.find(allConditions)
 			.project(options.projection)
 			.sort({ _id: sortOrder })
 			.limit(boundPageSize(pageSize, this))
@@ -235,6 +243,26 @@ class CatapultDb {
 			.project({ 'block.feeMultiplier': 1 })
 			.toArray()
 			.then(blocks => Promise.resolve(blocks.map(block => block.block.feeMultiplier)));
+	}
+
+	/**
+	 * Retrieves blocks harvested by account based on signer public key.
+	 * @param {Uint8Array} accountPublicKey Public key of the account harvesting blocks.
+	 * @param {string} id Paging id.
+	 * @param {int} pageSize Page size.
+	 * @param {object} ordering Page ordering.
+	 * @returns {Promise} Promise that resolves to harvested blocks.
+	 */
+	accountHarvestedBlocks(accountPublicKey, id, pageSize, ordering) {
+		const bufferPublicKey = Buffer.from(accountPublicKey);
+		const conditions = { 'block.signerPublicKey': bufferPublicKey };
+		const options = {
+			sortOrder: ordering,
+			projection: { 'meta.transactionMerkleTree': 0, 'meta.statementMerkleTree': 0 }
+		};
+
+		return this.queryPagedDocuments('blocks', conditions, id, pageSize, options).then(blocks =>
+			blocks.map(b => ({ id: b._id, meta: b.meta, block: b.block })));
 	}
 
 	queryDependentDocuments(collectionName, aggregateIds) {
