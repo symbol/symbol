@@ -91,7 +91,10 @@ namespace catapult { namespace net {
 				CATAPULT_LOG(debug)
 						<< TRequestPolicy::Friendly_Name << " request connection to '" << m_requestNode
 						<< "' failed: " << connectCode;
-				complete(NodeRequestResult::Failure_Connection);
+				auto result = PeerConnectCode::Timed_Out == connectCode
+						? NodeRequestResult::Failure_Timeout
+						: NodeRequestResult::Failure_Connection;
+				complete(result);
 			}
 
 			void complete(thread::future<ResponseType>&& responseFuture) {

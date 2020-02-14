@@ -19,6 +19,7 @@
 **/
 
 #include "SocketTestUtils.h"
+#include "CertificateLocator.h"
 #include "ClientSocket.h"
 #include "NodeTestUtils.h"
 #include "catapult/crypto/Signer.h"
@@ -27,6 +28,7 @@
 #include "catapult/net/ConnectionSettings.h"
 #include "catapult/thread/IoThreadPool.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
+#include <boost/asio/ssl.hpp>
 #include <boost/asio/steady_timer.hpp>
 
 namespace catapult { namespace test {
@@ -183,8 +185,36 @@ namespace catapult { namespace test {
 		return boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string("127.0.0.1"), port);
 	}
 
+	namespace {
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wexit-time-destructors"
+#endif
+
+		supplier<boost::asio::ssl::context&> GetDefaultContextSupplier() {
+			static auto supplier = ionet::CreateSslContextSupplier(test::GetDefaultCertificateDirectory());
+			return supplier;
+		}
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+	}
+
+	ionet::PacketSocketSslOptions CreatePacketSocketSslOptions() {
+		ionet::PacketSocketSslOptions options;
+		options.ContextSupplier = GetDefaultContextSupplier();
+		return options;
+	}
+
 	ionet::PacketSocketOptions CreatePacketSocketOptions() {
-		return net::ConnectionSettings().toSocketOptions();
+		return CreateConnectionSettings().toSocketOptions();
+	}
+
+	net::ConnectionSettings CreateConnectionSettings() {
+		auto settings = net::ConnectionSettings();
+		settings.SslOptions = CreatePacketSocketSslOptions();
+		return settings;
 	}
 
 	std::shared_ptr<boost::asio::ip::tcp::acceptor> CreateImplicitlyClosedLocalHostAcceptor(boost::asio::io_context& ioContext) {
@@ -273,6 +303,10 @@ namespace catapult { namespace test {
 		return stats.IsOpen;
 	}
 
+	void WaitForClosedSocket(ionet::PacketSocket& socket) {
+		WAIT_FOR_EXPR(!IsSocketOpen(socket));
+	}
+
 	// endregion
 
 	// region write tests
@@ -319,7 +353,7 @@ namespace catapult { namespace test {
 				});
 			});
 		});
-		AddClientReadBufferTask(pPool->ioContext(), receiveBuffer);
+		auto pClientSocket = AddClientReadBufferTask(pPool->ioContext(), receiveBuffer);
 		pPool->join();
 
 		// Assert: both writes should have succeeded and no data should have been interleaved
@@ -349,7 +383,7 @@ namespace catapult { namespace test {
 				payload2.Code = writeCode;
 			});
 		});
-		AddClientReadBufferTask(pPool->ioContext(), receiveBuffer);
+		auto pClientSocket = AddClientReadBufferTask(pPool->ioContext(), receiveBuffer);
 		pPool->join();
 
 		// Assert: both writes should have succeeded and no data should have been interleaved
@@ -396,11 +430,11 @@ namespace catapult { namespace test {
 			}
 		};
 
-		void AddClientWriteBuffersTask(
+		auto AddClientWriteBuffersTask(
 				boost::asio::io_context& ioContext,
 				const LargeReadPayload& payload1,
 				const LargeReadPayload& payload2) {
-			test::AddClientWriteBuffersTask(ioContext, { payload1.Buffer, payload2.Buffer });
+			return test::AddClientWriteBuffersTask(ioContext, { payload1.Buffer, payload2.Buffer });
 		}
 	}
 
@@ -422,7 +456,7 @@ namespace catapult { namespace test {
 				});
 			});
 		});
-		AddClientWriteBuffersTask(pPool->ioContext(), payload1, payload2);
+		auto pClientSocket = AddClientWriteBuffersTask(pPool->ioContext(), payload1, payload2);
 		pPool->join();
 
 		// Assert: both reads should have succeeded and no data should have been interleaved
@@ -450,7 +484,7 @@ namespace catapult { namespace test {
 				payload2.update(result, pPacket);
 			});
 		});
-		AddClientWriteBuffersTask(pPool->ioContext(), payload1, payload2);
+		auto pClientSocket = AddClientWriteBuffersTask(pPool->ioContext(), payload1, payload2);
 		pPool->join();
 
 		// Assert: both reads should have succeeded and no data should have been interleaved

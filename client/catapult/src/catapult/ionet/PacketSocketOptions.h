@@ -19,9 +19,28 @@
 **/
 
 #pragma once
-#include <stddef.h>
+#include "catapult/functions.h"
+#include <boost/filesystem/path.hpp>
+
+namespace boost {
+	namespace asio {
+		namespace ssl {
+			class context;
+			class verify_context;
+		}
+	}
+}
 
 namespace catapult { namespace ionet {
+
+	/// Packet socket ssl options.
+	struct PacketSocketSslOptions {
+		/// Supplies an ssl context.
+		supplier<boost::asio::ssl::context&> ContextSupplier;
+
+		/// Callback used to verify ssl certificates.
+		predicate<bool, boost::asio::ssl::verify_context&> VerifyCallback;
+	};
 
 	/// Packet socket options.
 	struct PacketSocketOptions {
@@ -33,5 +52,11 @@ namespace catapult { namespace ionet {
 
 		/// Maximum packet data size.
 		size_t MaxPacketDataSize;
+
+		/// Ssl options.
+		PacketSocketSslOptions SslOptions;
 	};
+
+	/// Creates an ssl context supplier given the specified certificate directory (\a certificateDirectory).
+	supplier<boost::asio::ssl::context&> CreateSslContextSupplier(const boost::filesystem::path& certificateDirectory);
 }}

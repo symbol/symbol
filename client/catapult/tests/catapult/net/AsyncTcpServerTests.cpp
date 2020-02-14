@@ -24,6 +24,7 @@
 #include "catapult/utils/AtomicIncrementDecrementGuard.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/core/WaitFunctions.h"
+#include "tests/test/net/ClientSocket.h"
 #include "tests/test/net/SocketTestUtils.h"
 #include <boost/asio/steady_timer.hpp>
 #include <boost/thread.hpp>
@@ -35,8 +36,12 @@ namespace catapult { namespace net {
 #define TEST_CLASS AsyncTcpServerTests
 
 	namespace {
+		constexpr int Wait_Duration_Millis = 5;
 		const uint32_t Num_Default_Threads = test::GetNumDefaultPoolThreads();
 		const uint32_t Default_Max_Active_Connections = 2 * Num_Default_Threads + 1;
+		const auto Empty_Accept_Handler = [](const auto&) {};
+
+		// region PoolServerPair
 
 		class PoolServerPair {
 		public:
@@ -93,18 +98,40 @@ namespace catapult { namespace net {
 
 		AsyncTcpServerSettings CreateSettings(const AcceptHandler& acceptHandler) {
 			auto settings = AsyncTcpServerSettings(acceptHandler);
+			settings.PacketSocketOptions = test::CreatePacketSocketOptions();
 			settings.MaxActiveConnections = Default_Max_Active_Connections;
 			return settings;
 		}
 
+		auto CreateLocalHostAsyncTcpServer(const AsyncTcpServerSettings& settings, bool allowAddressReuse = true) {
+			// enable AllowAddressReuse in tests in order to avoid sporadic 'address already in use' errors
+			auto testSettings = AsyncTcpServerSettings(settings);
+			testSettings.AllowAddressReuse = allowAddressReuse;
+
+			auto pPool = test::CreateStartedIoThreadPool();
+			return PoolServerPair(std::move(pPool), test::CreateLocalHostEndpoint(), testSettings);
+		}
+
+		auto CreateLocalHostAsyncTcpServer(const AcceptHandler& acceptHandler, bool allowAddressReuse = true) {
+			return CreateLocalHostAsyncTcpServer(AsyncTcpServerSettings(acceptHandler), allowAddressReuse);
+		}
+
+		// endregion
+
+		// region ClientService
+
 		class ClientService {
 		public:
-			ClientService(uint32_t numAttempts, uint32_t numThreads, size_t timeoutMillis = 50)
+			ClientService(
+					uint32_t numAttempts,
+					uint32_t numThreads,
+					test::ClientSocket::ConnectOptions connectOptions = test::ClientSocket::ConnectOptions::Normal,
+					size_t timeoutMillis = 1000)
 					: m_numAttempts(numAttempts)
 					, m_numConnects(0)
 					, m_numConnectFailures(0)
 					, m_numConnectTimeouts(0) {
-				spawnConnectionAttempts(numAttempts, timeoutMillis);
+				spawnConnectionAttempts(numAttempts, connectOptions, timeoutMillis);
 				for (auto i = 0u; i < numThreads; ++i)
 					m_threads.create_thread([&]() { m_ioContext.run(); });
 			}
@@ -136,6 +163,10 @@ namespace catapult { namespace net {
 						<< "Shutting down ClientService: "
 						<< "connects " << m_numConnects
 						<< ", failures " << m_numConnectFailures;
+
+				for (const auto& pConnection : m_connections)
+					pConnection->abort();
+
 				m_ioContext.stop();
 				m_threads.join_all();
 				CATAPULT_LOG(debug) << "ClientService shut down";
@@ -144,54 +175,71 @@ namespace catapult { namespace net {
 		private:
 			enum class ConnectionStatus { Unset, Success, Error, Timeout };
 
-			// region SpawnContext
-
 			class SpawnContext : public std::enable_shared_from_this<SpawnContext> {
 			private:
 				using ConnectionHandler = consumer<ConnectionStatus>;
 
 			public:
-				SpawnContext(boost::asio::io_context& ioContext, size_t id)
-						: m_socket(ioContext)
+				SpawnContext(boost::asio::io_context& ioContext, test::ClientSocket::ConnectOptions connectOptions, size_t id)
+						: m_pSocket(test::CreateClientSocket(ioContext))
+						, m_connectOptions(connectOptions)
 						, m_id(id)
 						, m_deadline(ioContext)
 						, m_status(ConnectionStatus::Unset)
 				{}
 
 			public:
-				void setDeadline(size_t millis) {
+				void abort() {
+					m_pSocket->abort();
+				}
+
+			public:
+				void setDeadline(size_t millis, const ConnectionHandler& handler) {
 					m_deadline.expires_from_now(std::chrono::milliseconds(millis));
-					m_deadline.async_wait([pThis = shared_from_this()](const auto& ec) {
-						pThis->handleTimeout(ec);
+					m_deadline.async_wait([pThis = shared_from_this(), handler](const auto& ec) {
+						pThis->handleTimeout(ec, handler);
 					});
 				}
 
 			private:
-				void handleTimeout(const boost::system::error_code& ec) {
+				void handleTimeout(const boost::system::error_code& ec, const ConnectionHandler& handler) {
 					if (setStatus(ConnectionStatus::Timeout)) {
 						CATAPULT_LOG(debug) << "test thread " << m_id << " timed out " << ec.message();
-						m_socket.close();
+						handler(ConnectionStatus::Timeout);
+
+						m_pSocket->shutdown();
 					}
 				}
 
 			public:
 				void connect(const ConnectionHandler& handler) {
-					m_socket.async_connect(test::CreateLocalHostEndpoint(), [pThis = shared_from_this(), handler](const auto& ec) {
-						pThis->handleConnect(ec, handler);
+					m_pSocket->connect(m_connectOptions).then([pThis = shared_from_this(), handler](auto&& connectFuture) {
+						try {
+							connectFuture.get();
+							pThis->handleConnect(boost::system::error_code(), handler);
+						} catch (const boost::system::system_error& ex) {
+							pThis->handleConnect(ex.code(), handler);
+						}
 					});
 				}
 
 			private:
 				void handleConnect(const boost::system::error_code& ec, const ConnectionHandler& connectionHandler) {
+					bool hasNewStatus = false;
 					if (!ec) {
-						setStatus(ConnectionStatus::Success);
+						// all non-normal connect options are errors, so don't indicate success
+						if (test::ClientSocket::ConnectOptions::Normal != m_connectOptions)
+							return;
+
+						hasNewStatus = setStatus(ConnectionStatus::Success);
 						CATAPULT_LOG(trace) << "test thread " << m_id << " connected";
 					} else {
-						setStatus(ConnectionStatus::Error);
+						hasNewStatus = setStatus(ConnectionStatus::Error);
 						CATAPULT_LOG(debug) << "test thread " << m_id << " errored " << ec.message();
 					}
 
-					connectionHandler(m_status);
+					if (hasNewStatus)
+						connectionHandler(m_status);
 				}
 
 				bool setStatus(ConnectionStatus status) {
@@ -200,21 +248,20 @@ namespace catapult { namespace net {
 				}
 
 			private:
-				ionet::socket m_socket;
+				std::shared_ptr<test::ClientSocket> m_pSocket;
+				test::ClientSocket::ConnectOptions m_connectOptions;
 				size_t m_id;
 				boost::asio::steady_timer m_deadline;
 				std::atomic<ConnectionStatus> m_status;
 			};
 
-			// endregion
-
-			void spawnConnectionAttempts(uint32_t numAttempts, size_t timeoutMillis) {
+		private:
+			void spawnConnectionAttempts(uint32_t numAttempts, test::ClientSocket::ConnectOptions connectOptions, size_t timeoutMillis) {
 				for (auto i = 0u; i < numAttempts; ++i) {
-					auto pContext = std::make_shared<SpawnContext>(m_ioContext, i);
+					auto pContext = std::make_shared<SpawnContext>(m_ioContext, connectOptions, i);
+					m_connections.push_back(pContext);
 					boost::asio::post(m_ioContext, [this, timeoutMillis, pContext{std::move(pContext)}]() {
-						// set a 50ms deadline on the async_connect
-						pContext->setDeadline(timeoutMillis);
-						pContext->connect([this](auto status) {
+						auto connectionHandler = [this](auto status) {
 							switch (status) {
 							case ConnectionStatus::Success:
 								++m_numConnects;
@@ -228,8 +275,13 @@ namespace catapult { namespace net {
 
 							default:
 								++m_numConnectFailures;
+								break;
 							}
-						});
+						};
+
+						// set a deadline on the connect operation
+						pContext->setDeadline(timeoutMillis, connectionHandler);
+						pContext->connect(connectionHandler);
 					});
 				}
 			}
@@ -241,19 +293,12 @@ namespace catapult { namespace net {
 			std::atomic<uint32_t> m_numConnects;
 			std::atomic<uint32_t> m_numConnectFailures;
 			std::atomic<uint32_t> m_numConnectTimeouts;
+			std::vector<std::shared_ptr<SpawnContext>> m_connections;
 		};
 
-		template<typename T>
-		auto CreateLocalHostAsyncTcpServer(const T& settings, bool allowAddressReuse = true) {
-			// enable AllowAddressReuse in tests in order to avoid sporadic 'address already in use' errors
-			auto testSettings = AsyncTcpServerSettings(settings);
-			testSettings.AllowAddressReuse = allowAddressReuse;
+		// endregion
 
-			auto pPool = test::CreateStartedIoThreadPool();
-			return PoolServerPair(std::move(pPool), test::CreateLocalHostEndpoint(), testSettings);
-		}
-
-		constexpr int Wait_Duration_Millis = 5;
+		// region AcceptServer
 
 		class AcceptServer {
 		public:
@@ -261,11 +306,10 @@ namespace catapult { namespace net {
 					: m_pPool(test::CreateStartedIoThreadPool(1))
 					, m_shouldWait(1)
 					, m_numAcceptCallbacks(0) {
-				m_pSettings = std::make_unique<AsyncTcpServerSettings>([&, wait](const auto& acceptedSocketInfo) {
+				m_pSettings = std::make_unique<AsyncTcpServerSettings>(CreateSettings([&, wait](const auto& acceptedSocketInfo) {
 					++m_numAcceptCallbacks;
 					wait(m_pPool->ioContext(), [this, acceptedSocketInfo]() { return 0 != m_shouldWait; });
-				});
-				m_pSettings->MaxActiveConnections = Default_Max_Active_Connections;
+				}));
 			}
 
 			~AcceptServer() {
@@ -315,7 +359,7 @@ namespace catapult { namespace net {
 			{}
 		};
 
-		const auto Empty_Accept_Handler = [](const auto&) {};
+		// endregion
 	}
 
 	// region basic start and shutdown
@@ -380,7 +424,7 @@ namespace catapult { namespace net {
 		// Act: connect to the server
 		boost::system::error_code connectEc;
 		boost::asio::io_context ioContext;
-		ionet::socket socket(ioContext);
+		ionet::NetworkSocket socket(ioContext);
 		socket.async_connect(test::CreateLocalHostEndpoint(), [&connectEc](const auto& ec) {
 			connectEc = ec;
 		});
@@ -424,6 +468,8 @@ namespace catapult { namespace net {
 
 	// endregion
 
+	// region basic connections
+
 	TEST(TEST_CLASS, ServerForwardsAppropriateAcceptedSocketInfoOnSuccess) {
 		// Arrange: set up a multithreaded server
 		ionet::PacketSocketInfo* pAcceptedSocketInfoRaw;
@@ -452,7 +498,7 @@ namespace catapult { namespace net {
 	TEST(TEST_CLASS, ServerCanServeMoreRequestsThanWorkerThreads) {
 		// Arrange: set up a multithreaded server
 		std::atomic<uint32_t> numCallbacks(0);
-		auto pServer = CreateLocalHostAsyncTcpServer([&numCallbacks](const auto&) { ++numCallbacks; });
+		auto pServer = CreateLocalHostAsyncTcpServer(CreateSettings([&numCallbacks](const auto&) { ++numCallbacks; }));
 
 		// Act: queue more connects than threads to the server on a single thread
 		ClientService clientService(2 * Num_Default_Threads, 1);
@@ -548,6 +594,42 @@ namespace catapult { namespace net {
 		EXPECT_EQ(1u, server.asyncServer().numPendingAccepts());
 	}
 
+	TEST(TEST_CLASS, ServerAcceptorsAreNotKilledBySocketConnectFailures) {
+		// Arrange: set up a multithreaded server
+		BlockingAcceptServer server;
+		server.init();
+
+		// Sanity:
+		EXPECT_EQ(1u, server.asyncServer().numPendingAccepts());
+		EXPECT_EQ(0u, server.asyncServer().numLifetimeConnections());
+		EXPECT_EQ(0u, server.asyncServer().numCurrentConnections());
+
+		// Act: make connections that fail handshake
+		ClientService clientService1(2, 1, test::ClientSocket::ConnectOptions::Skip_Handshake);
+		clientService1.wait();
+
+		// Sanity:
+		EXPECT_EQ(1u, server.asyncServer().numPendingAccepts());
+		EXPECT_EQ(0u, server.asyncServer().numLifetimeConnections());
+		EXPECT_EQ(0u, server.asyncServer().numCurrentConnections());
+
+		// Act: make connections that pass handshake
+		ClientService clientService2(2, 1);
+		clientService2.wait();
+
+		WAIT_FOR_VALUE_EXPR(2u, server.asyncServer().numLifetimeConnections());
+
+		// Assert: no workers should have been killed and there should still be a pending accept
+		//         (additionally, all client connections should be async blocked in the accept handler)
+		EXPECT_EQ(1u, server.asyncServer().numPendingAccepts());
+		EXPECT_EQ(2u, server.asyncServer().numLifetimeConnections());
+		EXPECT_EQ(2u, server.asyncServer().numCurrentConnections());
+	}
+
+	// endregion
+
+	// region MaxPendingConnections
+
 	TEST(TEST_CLASS, ServerAllowsManyConnections) {
 		test::RunNonDeterministicTest("server allows many connections", []() {
 			// Arrange: set up a multithreaded server and 100 max connections and block in the accept handler
@@ -564,14 +646,15 @@ namespace catapult { namespace net {
 			// - wait for all threads to have work
 			WAIT_FOR_VALUE_EXPR(Num_Default_Threads, server.asyncServer().numLifetimeConnections());
 
-			if (clientService.numConnectTimeouts() > 0) {
+			if (clientService.numConnectTimeouts() > 100 - Num_Default_Threads) {
 				CATAPULT_LOG(debug) << clientService.numConnectTimeouts() << " connection(s) timed out";
 				return false;
 			}
 
 			// Assert: all connections should have been made and one should be executing on each server thread
-			EXPECT_EQ(100u, clientService.numConnects());
-			EXPECT_EQ(0u, clientService.numConnectFailures());
+			//         (notice that all connections greater than Num_Default_Threads connect but don't complete handshake)
+			EXPECT_EQ(Num_Default_Threads, clientService.numConnects());
+			EXPECT_EQ(100u - Num_Default_Threads, clientService.numConnectTimeouts());
 			EXPECT_EQ(Num_Default_Threads, server.asyncServer().numLifetimeConnections());
 			EXPECT_EQ(Num_Default_Threads, server.asyncServer().numCurrentConnections());
 			return true;
@@ -581,51 +664,34 @@ namespace catapult { namespace net {
 	namespace {
 		bool RunServerEnforcesMaximumOnNumberOfConnectionsIteration() {
 			// Arrange: set up a multithreaded server with a max connections limit and block in the accept handler
-#ifdef _WIN32
-			constexpr uint32_t Max_Test_Connections = 201;
-#else
-			constexpr uint32_t Max_Test_Connections = 10;
-#endif
-			constexpr uint32_t Listener_Queue_Slack = 4;
+			constexpr uint32_t Max_Test_Connections = 25;
 
 			BlockingAcceptServer server;
-			server.settings().MaxPendingConnections = static_cast<uint16_t>(Max_Test_Connections);
+			server.settings().MaxPendingConnections = static_cast<uint16_t>(Num_Default_Threads);
 			server.init();
 
-			// Act: queue connects to the server (increase test connection timeout because this test makes a lot of connections)
-			std::vector<std::shared_ptr<ClientService>> clientServices;
-			for (auto numConnects : { Num_Default_Threads, Max_Test_Connections, 15u }) {
-				auto timeoutMillis = std::max<size_t>(Num_Default_Threads * 50, 250);
-				clientServices.push_back(std::make_shared<ClientService>(numConnects, 1, timeoutMillis));
-				clientServices.back()->wait();
-			}
+			// - (phase 1) queue connects to the server that will fill up all threads
+			ClientService clientServicePhase1(Num_Default_Threads, 1);
+			clientServicePhase1.wait();
 
-			// Retry: if there are any unexpected failures
-			auto numClient0Failures = clientServices[0]->numConnectFailures();
-			auto numClient1Failures = clientServices[1]->numConnectFailures();
-			if (0 != numClient0Failures || 0 != numClient1Failures) {
-				CATAPULT_LOG(warning) << "Unexpected failures: C0 = " << numClient0Failures << ", C1 = " << numClient1Failures;
+			// Sanity: all connections succeeded
+			if (0 != clientServicePhase1.numConnectFailures())
 				return false;
-			}
 
-			// Assert:
-			// - first Num_Default_Threads connects should be blocking server threads
-			auto clientId = 0u;
-			EXPECT_EQ(Num_Default_Threads, clientServices[clientId]->numConnects());
-			EXPECT_EQ(0u, clientServices[clientId]->numConnectFailures());
+			EXPECT_EQ(Num_Default_Threads, clientServicePhase1.numConnects());
+			EXPECT_EQ(0u, clientServicePhase1.numConnectFailures());
+			EXPECT_EQ(0u, clientServicePhase1.numConnectTimeouts());
 
-			// - next Max_Test_Connections should be in the connection queue
-			++clientId;
-			EXPECT_EQ(Max_Test_Connections, clientServices[clientId]->numConnects());
-			EXPECT_EQ(0u, clientServices[clientId]->numConnectFailures());
+			// Act: (phase 2) queue connects that fill up the listener queue and additional connections
+			ClientService clientServicePhase2(Max_Test_Connections, 1);
+			clientServicePhase2.wait();
 
-			// - most of the last 15 should have been rejected (depending on os)
-			//   (on mac and windows all 15 are rejected, on linux up to 4 are not rejected)
-			++clientId;
-			EXPECT_GE(15u - Listener_Queue_Slack, clientServices[clientId]->numConnects());
-			EXPECT_LE(0u + Listener_Queue_Slack, clientServices[clientId]->numConnectFailures());
+			// Assert: all additional connections timed out because the connect handshake couldn't be completed
+			EXPECT_EQ(0u, clientServicePhase2.numConnects());
+			EXPECT_EQ(Max_Test_Connections, clientServicePhase2.numConnectFailures());
+			EXPECT_EQ(Max_Test_Connections, clientServicePhase2.numConnectTimeouts());
 
-			// - there is one connection per thread
+			// - there is (still) one connection per thread
 			EXPECT_EQ(Num_Default_Threads, server.asyncServer().numLifetimeConnections());
 			EXPECT_EQ(Num_Default_Threads, server.asyncServer().numCurrentConnections());
 			return true;
@@ -637,49 +703,5 @@ namespace catapult { namespace net {
 		test::RunNonDeterministicTest("Max number of connections", RunServerEnforcesMaximumOnNumberOfConnectionsIteration);
 	}
 
-	TEST(TEST_CLASS, ServerCallsConfigureSocketHandlerForAllSockets) {
-		// Arrange: set up a multithreaded server
-		std::atomic<uint32_t> numAcceptCallbacks(0);
-		std::atomic<uint32_t> numConfigureSocketCallbacks(0);
-		auto settings = CreateSettings([&numAcceptCallbacks](const auto&) { ++numAcceptCallbacks; });
-		settings.ConfigureSocket = [&numConfigureSocketCallbacks](const auto&) { ++numConfigureSocketCallbacks; };
-		auto pServer = CreateLocalHostAsyncTcpServer(settings);
-
-		// Act: queue four connects to the server on a single thread
-		ClientService clientService(4, 1);
-
-		// - wait for the server to get four accepts
-		WAIT_FOR_VALUE(4u, numAcceptCallbacks);
-		pServer.stopAll();
-
-		// Assert: the server should have configured 5 sockets (one per request + one pending accept)
-		EXPECT_EQ(5u, numConfigureSocketCallbacks);
-		EXPECT_EQ(4u, numAcceptCallbacks);
-	}
-
-	TEST(TEST_CLASS, ServerAcceptorsAreNotKilledBySocketAcceptFailures) {
-		// Arrange: set up a multithreaded server and cause the first two accepts to fail (already open)
-		NonBlockingAcceptServer server;
-		std::atomic<uint32_t> numConfigureSocketCallbacks(0);
-		server.settings().ConfigureSocket = [&numConfigureSocketCallbacks](auto& socket) {
-			uint32_t num = ++numConfigureSocketCallbacks;
-			if (num <= 2) {
-				CATAPULT_LOG(debug) << "emulating accept failure #" << num;
-				socket.open(boost::asio::ip::tcp::v4());
-			}
-		};
-
-		server.init();
-
-		// Act: queue two requests per server thread
-		ClientService clientService(2 * Num_Default_Threads, 1);
-		server.waitForAccepts(2 * Num_Default_Threads);
-		clientService.shutdown();
-
-		// Assert: no workers should have been killed and there should still be a pending accept
-		//         (additionally, all client connections should be async blocked in the accept handler)
-		EXPECT_EQ(1u, server.asyncServer().numPendingAccepts());
-		EXPECT_EQ(2 * Num_Default_Threads, server.asyncServer().numLifetimeConnections());
-		EXPECT_EQ(2 * Num_Default_Threads, server.asyncServer().numCurrentConnections());
-	}
+	// endregion
 }}

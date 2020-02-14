@@ -268,6 +268,7 @@ namespace catapult { namespace net {
 		RunConnectedSocketTest(context, [&](auto, auto& serverSocket, const auto&) {
 			// Act: shutdown the readers
 			context.pReaders->shutdown();
+			test::WaitForClosedSocket(serverSocket);
 
 			// Assert: the server socket was closed
 			EXPECT_FALSE(test::IsSocketOpen(serverSocket));
@@ -302,7 +303,7 @@ namespace catapult { namespace net {
 				const std::function<model::NodeIdentitySet (const PacketReadersTestContext&)>& extractExpectedIdentities) {
 			// Act: establish multiple connections with the same identity
 			constexpr auto Num_Connections = 5u;
-			auto settings = ConnectionSettings();
+			auto settings = test::CreateConnectionSettings();
 			settings.NodeIdentityEqualityStrategy = equalityStrategy;
 
 			PacketReadersTestContext context(ionet::ServerPacketHandlers(), Num_Connections, 1, settings);
@@ -332,7 +333,7 @@ namespace catapult { namespace net {
 				const std::function<model::NodeIdentitySet (const PacketReadersTestContext&)>& extractExpectedIdentities) {
 			// Act: establish multiple connections with the same identity
 			constexpr auto Num_Connections = 5u;
-			auto settings = ConnectionSettings();
+			auto settings = test::CreateConnectionSettings();
 			settings.NodeIdentityEqualityStrategy = equalityStrategy;
 
 			PacketReadersTestContext context(ionet::ServerPacketHandlers(), Num_Connections, 3, settings);
@@ -437,6 +438,7 @@ namespace catapult { namespace net {
 		RunConnectingSocketTest(context, [&](auto, auto& serverSocket, const auto&) {
 			// Act: shutdown the readers
 			context.pReaders->shutdown();
+			test::WaitForClosedSocket(serverSocket);
 
 			// Assert: the server socket was closed
 			EXPECT_FALSE(test::IsSocketOpen(serverSocket));

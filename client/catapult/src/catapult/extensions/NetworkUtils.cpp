@@ -50,6 +50,8 @@ namespace catapult { namespace extensions {
 		settings.SocketWorkingBufferSize = config.Node.SocketWorkingBufferSize;
 		settings.SocketWorkingBufferSensitivity = config.Node.SocketWorkingBufferSensitivity;
 		settings.MaxPacketDataSize = config.Node.MaxPacketDataSize;
+
+		settings.SslOptions.ContextSupplier = ionet::CreateSslContextSupplier(config.User.CertificateDirectory);
 		return settings;
 	}
 

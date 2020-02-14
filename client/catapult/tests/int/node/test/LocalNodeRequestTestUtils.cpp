@@ -54,6 +54,9 @@ namespace catapult { namespace test {
 			CATAPULT_LOG(debug) << "writing entity";
 			pPacketSocket->write(payload, [&isWriteFinished](auto code) {
 				CATAPULT_LOG(debug) << "write result: " << code;
+
+				// give server enough time for ssl handshake
+				test::Sleep(500);
 				isWriteFinished = true;
 			});
 		});

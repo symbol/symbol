@@ -65,6 +65,7 @@ namespace catapult { namespace test {
 		static net::ConnectionSettings CreateSettingsWithTimeout(const utils::TimeSpan& timeout) {
 			auto settings = net::ConnectionSettings();
 			settings.Timeout = timeout;
+			settings.SslOptions = CreatePacketSocketSslOptions();
 			return settings;
 		}
 	};

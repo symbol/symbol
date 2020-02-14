@@ -39,7 +39,7 @@ namespace catapult { namespace net {
 
 		struct ConnectorTestContext {
 		public:
-			explicit ConnectorTestContext(const ConnectionSettings& settings = ConnectionSettings())
+			explicit ConnectorTestContext(const ConnectionSettings& settings = test::CreateConnectionSettings())
 					: ServerKeyPair(test::GenerateKeyPair())
 					, ClientKeyPair(test::GenerateKeyPair())
 					, pPool(test::CreateStartedIoThreadPool())
@@ -164,7 +164,7 @@ namespace catapult { namespace net {
 
 	TEST(TEST_CLASS, ConnectDoesNotFailOnSelfConnectionError_WhenSelfConnectionsAllowed) {
 		// Arrange: allow self connections
-		ConnectionSettings settings;
+		auto settings = test::CreateConnectionSettings();
 		settings.AllowOutgoingSelfConnections = true;
 
 		ConnectorTestContext context(settings);
@@ -279,6 +279,7 @@ namespace catapult { namespace net {
 		RunConnectedSocketTest(context, [&](auto, const auto&, const auto& pClientSocket, const auto&) {
 			// Act: shutdown the connector
 			context.pConnector->shutdown();
+			test::WaitForClosedSocket(*pClientSocket);
 
 			// Assert: the client socket was closed
 			EXPECT_FALSE(test::IsSocketOpen(*pClientSocket));
@@ -373,10 +374,11 @@ namespace catapult { namespace net {
 			// - server: accept a single connection
 			CATAPULT_LOG(debug) << "starting async accept";
 			test::TcpAcceptor acceptor(context.IoContext);
-			auto serverSocket = boost::asio::ip::tcp::socket(context.IoContext);
-			boost::asio::post(acceptor.strand(), [&acceptor = acceptor.get(), &numCallbacks, &serverSocket]() {
-				acceptor.async_accept(serverSocket, [&numCallbacks](const auto& acceptEc) {
-					CATAPULT_LOG(debug) << "async_accept completed with: " << acceptEc.message();
+			std::shared_ptr<ionet::PacketSocket> pServerSocket;
+			boost::asio::post(acceptor.strand(), [&context, &acceptor = acceptor.get(), &numCallbacks, &pServerSocket]() {
+				ionet::Accept(context.IoContext, acceptor, test::CreatePacketSocketOptions(), [&numCallbacks, &pServerSocket](
+						const auto& socketInfo) {
+					pServerSocket = socketInfo.socket();
 					++numCallbacks;
 				});
 			});
@@ -438,7 +440,7 @@ namespace catapult { namespace net {
 	TEST(TEST_CLASS, TimeoutClosesConnectingSocket) {
 		// Arrange: timeout immediately (during connect where 0 active connections are expected)
 		const auto Num_Expected_Active_Connections = 0;
-		ConnectionSettings settings;
+		auto settings = test::CreateConnectionSettings();
 		settings.Timeout = utils::TimeSpan::FromMilliseconds(0);
 
 		// Assert:
@@ -448,7 +450,7 @@ namespace catapult { namespace net {
 	TEST(TEST_CLASS, TimeoutClosesVerifyingSocket) {
 		// Arrange: timeout with some delay (during verify where 1 active connection is expected)
 		const auto Num_Expected_Active_Connections = 1;
-		ConnectionSettings settings;
+		auto settings = test::CreateConnectionSettings();
 		settings.Timeout = utils::TimeSpan::FromMilliseconds(50);
 
 		// Assert:

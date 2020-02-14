@@ -56,4 +56,27 @@ namespace catapult { namespace net {
 		EXPECT_EQ(123u, options.WorkingBufferSensitivity);
 		EXPECT_EQ(2u * 1024 * 1024, options.MaxPacketDataSize);
 	}
+
+	TEST(TEST_CLASS, CanConvertToPacketSocketOptions_SslOptions) {
+		// Arrange:
+		auto settings = ConnectionSettings();
+		uint16_t callbackMask = 0x0000;
+		settings.SslOptions.ContextSupplier = [&callbackMask]() -> boost::asio::ssl::context& {
+			callbackMask += 0x01;
+			CATAPULT_THROW_RUNTIME_ERROR("context supplier error");
+		};
+		settings.SslOptions.VerifyCallback = [&callbackMask](auto, const auto&) {
+			callbackMask += 0x0100;
+			return true;
+		};
+
+		// Act:
+		auto options = settings.toSocketOptions();
+
+		// Assert:
+		int placeholder = 0;
+		EXPECT_THROW(options.SslOptions.ContextSupplier(), catapult_runtime_error);
+		EXPECT_TRUE(options.SslOptions.VerifyCallback(false, reinterpret_cast<boost::asio::ssl::verify_context&>(placeholder)));
+		EXPECT_EQ(0x0101u, callbackMask);
+	}
 }}

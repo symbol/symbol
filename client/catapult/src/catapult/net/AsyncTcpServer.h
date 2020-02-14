@@ -27,8 +27,6 @@ namespace catapult { namespace net {
 
 	using AcceptHandler = consumer<const ionet::PacketSocketInfo&>;
 
-	using ConfigureSocketHandler = consumer<ionet::socket&>;
-
 	/// Settings used to configure AsyncTcpServer behavior.
 	struct AsyncTcpServerSettings {
 	public:
@@ -38,9 +36,6 @@ namespace catapult { namespace net {
 	public:
 		/// Accept handler (must be set via constructor).
 		const AcceptHandler Accept;
-
-		/// Configure socket handler.
-		ConfigureSocketHandler ConfigureSocket;
 
 		/// Packet socket options.
 		ionet::PacketSocketOptions PacketSocketOptions;

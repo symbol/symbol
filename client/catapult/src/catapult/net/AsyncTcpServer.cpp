@@ -116,8 +116,8 @@ namespace catapult { namespace net {
 
 		private:
 			void closeAcceptor() {
-				boost::system::error_code ignored_ec;
-				m_acceptor.close(ignored_ec);
+				boost::system::error_code ignoredEc;
+				m_acceptor.close(ignoredEc);
 			}
 
 			void handleAccept(const ionet::PacketSocketInfo& socketInfo) {
@@ -192,7 +192,7 @@ namespace catapult { namespace net {
 				auto acceptHandler = [pThis = shared_from_this()](const auto& socketInfo) {
 					pThis->handleAccept(socketInfo);
 				};
-				ionet::Accept(m_pPool->ioContext(), m_acceptor, m_settings.PacketSocketOptions, m_settings.ConfigureSocket, acceptHandler);
+				ionet::Accept(m_pPool->ioContext(), m_acceptor, m_settings.PacketSocketOptions, acceptHandler);
 			}
 
 		private:
@@ -208,10 +208,9 @@ namespace catapult { namespace net {
 		};
 	}
 
-	AsyncTcpServerSettings::AsyncTcpServerSettings(const AcceptHandler& accept) :
-			Accept(accept),
-			ConfigureSocket([](const auto&) {}),
-			PacketSocketOptions(ConnectionSettings().toSocketOptions())
+	AsyncTcpServerSettings::AsyncTcpServerSettings(const AcceptHandler& accept)
+			: Accept(accept)
+			, PacketSocketOptions(ConnectionSettings().toSocketOptions())
 	{}
 
 	std::shared_ptr<AsyncTcpServer> CreateAsyncTcpServer(

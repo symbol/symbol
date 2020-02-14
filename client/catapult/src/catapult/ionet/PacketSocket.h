@@ -64,6 +64,9 @@ namespace catapult { namespace ionet {
 		/// Closes the socket.
 		virtual void close() = 0;
 
+		/// Aborts the current operation and closes the socket.
+		virtual void abort() = 0;
+
 		/// Gets a buffered interface to the packet socket.
 		virtual std::shared_ptr<PacketIo> buffered() = 0;
 	};
@@ -111,9 +114,6 @@ namespace catapult { namespace ionet {
 
 	// region Accept
 
-	/// Callback for configuring a socket before initiating an accept.
-	using ConfigureSocketCallback = consumer<socket&>;
-
 	/// Callback for an accepted socket.
 	using AcceptCallback = consumer<const PacketSocketInfo&>;
 
@@ -122,16 +122,6 @@ namespace catapult { namespace ionet {
 			boost::asio::io_context& ioContext,
 			boost::asio::ip::tcp::acceptor& acceptor,
 			const PacketSocketOptions& options,
-			const AcceptCallback& accept);
-
-	/// Accepts a connection using \a ioContext and \a acceptor and calls \a accept on completion configuring the socket with \a options.
-	/// \a configureSocket is called before starting the accept to allow custom configuration of asio sockets.
-	/// \note User callbacks passed to the accepted socket are serialized.
-	void Accept(
-			boost::asio::io_context& ioContext,
-			boost::asio::ip::tcp::acceptor& acceptor,
-			const PacketSocketOptions& options,
-			const ConfigureSocketCallback& configureSocket,
 			const AcceptCallback& accept);
 
 	// endregion

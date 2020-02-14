@@ -58,7 +58,9 @@ namespace catapult { namespace net {
 
 		struct PacketWritersTestContext {
 		public:
-			PacketWritersTestContext(size_t numClientKeyPairs = 1, const ConnectionSettings& connectionSettings = ConnectionSettings())
+			PacketWritersTestContext(
+					size_t numClientKeyPairs = 1,
+					const ConnectionSettings& connectionSettings = test::CreateConnectionSettings())
 					: ServerKeyPair(test::GenerateKeyPair())
 					, pPool(test::CreateStartedIoThreadPool())
 					, IoContext(pPool->ioContext())
@@ -472,6 +474,7 @@ namespace catapult { namespace net {
 		RunAcceptedSocketTest(context, [&](auto, auto& serverSocket) {
 			// Act: shutdown the writers
 			context.pWriters->shutdown();
+			test::WaitForClosedSocket(serverSocket);
 
 			// Assert: the server socket was closed
 			EXPECT_FALSE(test::IsSocketOpen(serverSocket));
@@ -497,11 +500,11 @@ namespace catapult { namespace net {
 
 			// Act:
 			std::atomic<size_t> numCallbacks(0);
-
 			auto buffer = test::GenerateRandomPacketBuffer(95);
 			state.ClientSockets.back()->write(test::BufferToPacketPayload(buffer), [&numCallbacks](auto) { ++numCallbacks; });
+
 			WAIT_FOR_ONE(numCallbacks);
-			WAIT_FOR_EXPR(!test::IsSocketOpen(*state.ServerSockets.back()));
+			test::WaitForClosedSocket(*state.ServerSockets.back());
 
 			// Assert:
 			EXPECT_FALSE(test::IsSocketOpen(*state.ServerSockets.back()));
@@ -645,6 +648,7 @@ namespace catapult { namespace net {
 		RunConnectingAcceptSocketTest(context, [&](auto, auto& serverSocket) {
 			// Act: shutdown the writers
 			context.pWriters->shutdown();
+			test::WaitForClosedSocket(serverSocket);
 
 			// Assert: the server socket was closed
 			EXPECT_FALSE(test::IsSocketOpen(serverSocket));
@@ -956,7 +960,7 @@ namespace catapult { namespace net {
 			WAIT_FOR_ONE(numCallbacks);
 
 			// Assert: the connection is closed
-			EXPECT_EQ(ionet::SocketOperationCode::Read_Error, readCode);
+			EXPECT_EQ(ionet::SocketOperationCode::Closed, readCode);
 		});
 	}
 
@@ -1436,7 +1440,7 @@ namespace catapult { namespace net {
 				const std::function<model::NodeIdentitySet (const PacketWritersTestContext&)>& extractExpectedIdentities) {
 			// Act: establish multiple connections with the same identity
 			constexpr auto Num_Connections = 5u;
-			auto settings = ConnectionSettings();
+			auto settings = test::CreateConnectionSettings();
 			settings.NodeIdentityEqualityStrategy = equalityStrategy;
 
 			PacketWritersTestContext context(Num_Connections, settings);
@@ -1483,7 +1487,7 @@ namespace catapult { namespace net {
 				const std::function<ionet::Node (const PacketWritersTestContext&)>& createNode,
 				const std::function<model::NodeIdentitySet (const PacketWritersTestContext&)>& extractExpectedIdentities) {
 			// Arrange:
-			auto settings = ConnectionSettings();
+			auto settings = test::CreateConnectionSettings();
 			settings.NodeIdentityEqualityStrategy = equalityStrategy;
 
 			PacketWritersTestContext context(1, settings);
@@ -1511,7 +1515,7 @@ namespace catapult { namespace net {
 				model::NodeIdentityEqualityStrategy equalityStrategy,
 				const std::function<ionet::Node (const PacketWritersTestContext&)>& createNode) {
 			// Arrange:
-			auto settings = ConnectionSettings();
+			auto settings = test::CreateConnectionSettings();
 			settings.NodeIdentityEqualityStrategy = equalityStrategy;
 
 			PacketWritersTestContext context(1, settings);

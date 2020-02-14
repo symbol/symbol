@@ -31,6 +31,7 @@
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/local/LocalTestUtils.h"
+#include "tests/test/net/SocketTestUtils.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/nodeps/MijinConstants.h"
 #include "tests/test/other/RemoteApiFactory.h"
@@ -50,7 +51,7 @@ namespace catapult { namespace test {
 		explicit ExternalSourceConnection(const ionet::Node& node)
 				: m_pPool(CreateStartedIoThreadPool(1))
 				, m_clientKeyPair(crypto::KeyPair::FromPrivate(GenerateRandomPrivateKey()))
-				, m_pConnector(net::CreateServerConnector(m_pPool, m_clientKeyPair, net::ConnectionSettings(), "external source"))
+				, m_pConnector(net::CreateServerConnector(m_pPool, m_clientKeyPair, CreateConnectionSettings(), "external source"))
 				, m_localNode(node)
 		{}
 

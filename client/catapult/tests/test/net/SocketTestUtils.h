@@ -33,6 +33,7 @@ namespace catapult {
 		class PacketIo;
 		class PacketSocket;
 	}
+	namespace net { struct ConnectionSettings; }
 	namespace thread { class IoThreadPool; }
 }
 
@@ -86,8 +87,14 @@ namespace catapult { namespace test {
 	/// Creates a local host endpoint with the specified \a port.
 	boost::asio::ip::tcp::endpoint CreateLocalHostEndpoint(unsigned short port);
 
+	/// Creates a default PacketSocketSslOptions.
+	ionet::PacketSocketSslOptions CreatePacketSocketSslOptions();
+
 	/// Creates a default PacketSocketOptions.
 	ionet::PacketSocketOptions CreatePacketSocketOptions();
+
+	/// Creates a default ConnectionSettings.
+	net::ConnectionSettings CreateConnectionSettings();
 
 	/// Creates an implicitly closed local host acceptor around \a service.
 	/// \note This acceptor can only be used in tests where it is implicitly closed by stopping \a ioContext.
@@ -121,6 +128,9 @@ namespace catapult { namespace test {
 
 	/// Gets a value indicating whether or not \a socket is open.
 	bool IsSocketOpen(ionet::PacketSocket& socket);
+
+	/// Waits for \a socket to be closed.
+	void WaitForClosedSocket(ionet::PacketSocket& socket);
 
 	// endregion
 

@@ -107,6 +107,8 @@ namespace catapult { namespace extensions {
 
 		EXPECT_TRUE(settings.AllowIncomingSelfConnections);
 		EXPECT_FALSE(settings.AllowOutgoingSelfConnections);
+
+		EXPECT_NO_THROW(settings.SslOptions.ContextSupplier());
 	}
 
 	TEST(TEST_CLASS, CanUpdateAsyncTcpServerSettingsFromCatapultConfiguration) {
@@ -285,7 +287,7 @@ namespace catapult { namespace extensions {
 
 		// Act: connect to the server
 		auto pClientThreadPool = test::CreateStartedIoThreadPool(1);
-		test::CreateClientSocket(pClientThreadPool->ioContext())->connect().get();
+		auto pClientSocket = test::AddClientConnectionTask(pClientThreadPool->ioContext());
 		WAIT_FOR_ONE_EXPR(context.acceptor().numAccepts());
 
 		// Assert:
@@ -308,7 +310,7 @@ namespace catapult { namespace extensions {
 
 		// Act: connect to the server
 		auto pClientThreadPool = test::CreateStartedIoThreadPool(1);
-		test::CreateClientSocket(pClientThreadPool->ioContext())->connect().get();
+		auto pClientSocket = test::AddClientConnectionTask(pClientThreadPool->ioContext());
 		WAIT_FOR_ONE_EXPR(context.acceptor().numAccepts());
 
 		// Assert:
@@ -324,7 +326,7 @@ namespace catapult { namespace extensions {
 
 		// Act: connect to the server
 		auto pClientThreadPool = test::CreateStartedIoThreadPool(1);
-		test::CreateClientSocket(pClientThreadPool->ioContext())->connect().get();
+		auto pClientSocket = test::AddClientConnectionTask(pClientThreadPool->ioContext());
 		WAIT_FOR_ONE_EXPR(context.acceptor().numAccepts());
 
 		// Assert:
@@ -346,7 +348,7 @@ namespace catapult { namespace extensions {
 			// Act: connect to the server and send a packet
 			auto writeBuffer = test::GenerateRandomPacketBuffer(bufferSize);
 			auto pClientThreadPool = test::CreateStartedIoThreadPool(1);
-			test::CreateClientSocket(pClientThreadPool->ioContext())->connect().get()->write(writeBuffer).get();
+			auto pClientSocket = test::AddClientWriteBuffersTask(pClientThreadPool->ioContext(), { writeBuffer });
 			WAIT_FOR_ONE_EXPR(context.acceptor().numAccepts());
 
 			ASSERT_EQ(1u, context.acceptor().socketInfos().size());

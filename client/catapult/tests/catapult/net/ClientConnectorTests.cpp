@@ -36,7 +36,7 @@ namespace catapult { namespace net {
 
 		struct ConnectorTestContext {
 		public:
-			explicit ConnectorTestContext(const ConnectionSettings& settings = ConnectionSettings())
+			explicit ConnectorTestContext(const ConnectionSettings& settings = test::CreateConnectionSettings())
 					: ServerKeyPair(test::GenerateKeyPair())
 					, ClientKeyPair(test::GenerateKeyPair())
 					, pPool(test::CreateStartedIoThreadPool())
@@ -273,6 +273,7 @@ namespace catapult { namespace net {
 		RunConnectedSocketTest(context, [&](auto, const auto&, const auto& pServerSocket, const auto&) {
 			// Act: shutdown the connector
 			context.pConnector->shutdown();
+			test::WaitForClosedSocket(*pServerSocket);
 
 			// Assert: the server socket was closed
 			EXPECT_FALSE(test::IsSocketOpen(*pServerSocket));
@@ -351,6 +352,7 @@ namespace catapult { namespace net {
 		RunConnectingSocketTest(context, [&](const auto& pServerSocket) {
 			// Act: shutdown the connector
 			context.pConnector->shutdown();
+			test::WaitForClosedSocket(*pServerSocket);
 
 			// Assert: the server socket was closed
 			EXPECT_FALSE(test::IsSocketOpen(*pServerSocket));
@@ -372,6 +374,8 @@ namespace catapult { namespace net {
 					CATAPULT_LOG(warning) << "Socket was accepted before timeout";
 					return;
 				}
+
+				test::WaitForClosedSocket(*pServerSocket);
 
 				// Assert: the server socket should have timed out and was closed
 				EXPECT_EQ(PeerConnectCode::Timed_Out, connectCode);

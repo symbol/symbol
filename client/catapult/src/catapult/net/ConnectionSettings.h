@@ -68,6 +68,9 @@ namespace catapult { namespace net {
 		/// Allows outgoing self connections when \c true.
 		bool AllowOutgoingSelfConnections;
 
+		/// Ssl options.
+		ionet::PacketSocketSslOptions SslOptions;
+
 	public:
 		/// Gets the packet socket options represented by the configured settings.
 		ionet::PacketSocketOptions toSocketOptions() const {
@@ -75,6 +78,7 @@ namespace catapult { namespace net {
 			options.WorkingBufferSize = SocketWorkingBufferSize.bytes();
 			options.WorkingBufferSensitivity = SocketWorkingBufferSensitivity;
 			options.MaxPacketDataSize = MaxPacketDataSize.bytes();
+			options.SslOptions = SslOptions;
 			return options;
 		}
 	};
