@@ -50,6 +50,12 @@ namespace catapult { namespace tools {
 			const ionet::Node& node,
 			const std::shared_ptr<thread::IoThreadPool>& pPool);
 
+	/// Connects to \a node as a client with \a connectionSettings using \a pPool.
+	PacketIoFuture ConnectToNode(
+			const net::ConnectionSettings& connectionSettings,
+			const ionet::Node& node,
+			const std::shared_ptr<thread::IoThreadPool>& pPool);
+
 	/// Creates tool connection settings around certificates in \a certificateDirectory.
 	net::ConnectionSettings CreateToolConnectionSettings(const std::string& certificateDirectory);
 

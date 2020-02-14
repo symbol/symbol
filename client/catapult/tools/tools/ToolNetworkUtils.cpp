@@ -75,10 +75,17 @@ namespace catapult { namespace tools {
 			const std::string& certificateDirectory,
 			const ionet::Node& node,
 			const std::shared_ptr<thread::IoThreadPool>& pPool) {
+		return ConnectToNode(CreateToolConnectionSettings(certificateDirectory), node, pPool);
+	}
+
+	PacketIoFuture ConnectToNode(
+			const net::ConnectionSettings& connectionSettings,
+			const ionet::Node& node,
+			const std::shared_ptr<thread::IoThreadPool>& pPool) {
 		auto pPromise = std::make_shared<thread::promise<std::shared_ptr<ionet::PacketIo>>>();
 
 		// it is ok to pass empty Key() because key is used only to disallow connections to self and AllowOutgoingSelfConnections is set
-		auto pConnector = net::CreateServerConnector(pPool, Key(), CreateToolConnectionSettings(certificateDirectory), "tool");
+		auto pConnector = net::CreateServerConnector(pPool, Key(), connectionSettings, "tool");
 		pConnector->connect(node, [node, pPool, pPromise](auto connectResult, const auto& socketInfo) {
 			switch (connectResult) {
 			case net::PeerConnectCode::Accepted:
