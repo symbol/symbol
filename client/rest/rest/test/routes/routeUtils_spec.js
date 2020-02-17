@@ -453,8 +453,8 @@ describe('route utils', () => {
 				expect(sendFake.calledOnceWith(sinon.match({
 					payload: {
 						merklePath: [
-							{ position: 2, hash: merkleTree[3].buffer },
-							{ position: 1, hash: merkleTree[4].buffer }
+							{ position: catapult.crypto.merkle.NodePosition.right, hash: merkleTree[3].buffer },
+							{ position: catapult.crypto.merkle.NodePosition.left, hash: merkleTree[4].buffer }
 						]
 					},
 					type: 'merkleProofInfo'

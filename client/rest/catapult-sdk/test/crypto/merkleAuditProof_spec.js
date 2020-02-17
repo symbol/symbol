@@ -183,100 +183,100 @@ describe('buildAuditPath', () => {
 		// Assert:
 		const trail0 = buildAuditPath(merkleTree2.nodes[0], merkleTree2);
 		expect(trail0).to.deep.equal([
-			{ hash: merkleTree2.nodes[1], position: 2 },
-			{ hash: merkleTree2.nodes[5], position: 2 }
+			{ hash: merkleTree2.nodes[1], position: NodePosition.right },
+			{ hash: merkleTree2.nodes[5], position: NodePosition.right }
 		]);
 
 		const trail1 = buildAuditPath(merkleTree2.nodes[1], merkleTree2);
 		expect(trail1).to.deep.equal([
-			{ hash: merkleTree2.nodes[0], position: 1 },
-			{ hash: merkleTree2.nodes[5], position: 2 }
+			{ hash: merkleTree2.nodes[0], position: NodePosition.left },
+			{ hash: merkleTree2.nodes[5], position: NodePosition.right }
 		]);
 
 		const trail2 = buildAuditPath(merkleTree2.nodes[2], merkleTree2);
 		expect(trail2).to.deep.equal([
-			{ hash: merkleTree2.nodes[3], position: 2 },
-			{ hash: merkleTree2.nodes[4], position: 1 }
+			{ hash: merkleTree2.nodes[3], position: NodePosition.right },
+			{ hash: merkleTree2.nodes[4], position: NodePosition.left }
 		]);
 	});
 
 	it('should return correctly if number of transactions is even', () => {
 		const trail0 = buildAuditPath(merkleTree.nodes[0], merkleTree);
 		expect(trail0).to.deep.equal([
-			{ hash: merkleTree.nodes[1], position: 2 },
-			{ hash: merkleTree.nodes[5], position: 2 }
+			{ hash: merkleTree.nodes[1], position: NodePosition.right },
+			{ hash: merkleTree.nodes[5], position: NodePosition.right }
 		]);
 
 		const trail1 = buildAuditPath(merkleTree.nodes[1], merkleTree);
 		expect(trail1).to.deep.equal([
-			{ hash: merkleTree.nodes[0], position: 1 },
-			{ hash: merkleTree.nodes[5], position: 2 }
+			{ hash: merkleTree.nodes[0], position: NodePosition.left },
+			{ hash: merkleTree.nodes[5], position: NodePosition.right }
 		]);
 
 		const trail2 = buildAuditPath(merkleTree.nodes[2], merkleTree);
 		expect(trail2).to.deep.equal([
-			{ hash: merkleTree.nodes[3], position: 2 },
-			{ hash: merkleTree.nodes[4], position: 1 }
+			{ hash: merkleTree.nodes[3], position: NodePosition.right },
+			{ hash: merkleTree.nodes[4], position: NodePosition.left }
 		]);
 
 		const trail3 = buildAuditPath(merkleTree.nodes[3], merkleTree);
 		expect(trail3).to.deep.equal([
-			{ hash: merkleTree.nodes[2], position: 2 },
-			{ hash: merkleTree.nodes[4], position: 1 }
+			{ hash: merkleTree.nodes[2], position: NodePosition.right },
+			{ hash: merkleTree.nodes[4], position: NodePosition.left }
 		]);
 	});
 
 	it('should return correctly if number of transactions is even on a four-level tree', () => {
 		const trail0 = buildAuditPath(merkleTreeLong.nodes[0], merkleTreeLong);
 		expect(trail0).to.deep.equal([
-			{ hash: merkleTreeLong.nodes[1], position: 2 },
-			{ hash: merkleTreeLong.nodes[7], position: 2 },
-			{ hash: merkleTreeLong.nodes[11], position: 2 }
+			{ hash: merkleTreeLong.nodes[1], position: NodePosition.right },
+			{ hash: merkleTreeLong.nodes[7], position: NodePosition.right },
+			{ hash: merkleTreeLong.nodes[11], position: NodePosition.right }
 		]);
 
 		const trail1 = buildAuditPath(merkleTreeLong.nodes[1], merkleTreeLong);
 		expect(trail1).to.deep.equal([
-			{ hash: merkleTreeLong.nodes[0], position: 1 },
-			{ hash: merkleTreeLong.nodes[7], position: 2 },
-			{ hash: merkleTreeLong.nodes[11], position: 2 }
+			{ hash: merkleTreeLong.nodes[0], position: NodePosition.left },
+			{ hash: merkleTreeLong.nodes[7], position: NodePosition.right },
+			{ hash: merkleTreeLong.nodes[11], position: NodePosition.right }
 		]);
 
 		const trail2 = buildAuditPath(merkleTreeLong.nodes[2], merkleTreeLong);
 		expect(trail2).to.deep.equal([
-			{ hash: merkleTreeLong.nodes[3], position: 2 },
-			{ hash: merkleTreeLong.nodes[6], position: 1 },
-			{ hash: merkleTreeLong.nodes[11], position: 2 }
+			{ hash: merkleTreeLong.nodes[3], position: NodePosition.right },
+			{ hash: merkleTreeLong.nodes[6], position: NodePosition.left },
+			{ hash: merkleTreeLong.nodes[11], position: NodePosition.right }
 		]);
 
 		const trail3 = buildAuditPath(merkleTreeLong.nodes[3], merkleTreeLong);
 		expect(trail3).to.deep.equal([
-			{ hash: merkleTreeLong.nodes[2], position: 1 },
-			{ hash: merkleTreeLong.nodes[6], position: 1 },
-			{ hash: merkleTreeLong.nodes[11], position: 2 }
+			{ hash: merkleTreeLong.nodes[2], position: NodePosition.left },
+			{ hash: merkleTreeLong.nodes[6], position: NodePosition.left },
+			{ hash: merkleTreeLong.nodes[11], position: NodePosition.right }
 		]);
 
 		const trail4 = buildAuditPath(merkleTreeLong.nodes[4], merkleTreeLong);
 		expect(trail4).to.deep.equal([
-			{ hash: merkleTreeLong.nodes[5], position: 2 },
-			{ hash: merkleTreeLong.nodes[9], position: 2 },
-			{ hash: merkleTreeLong.nodes[10], position: 1 }
+			{ hash: merkleTreeLong.nodes[5], position: NodePosition.right },
+			{ hash: merkleTreeLong.nodes[9], position: NodePosition.right },
+			{ hash: merkleTreeLong.nodes[10], position: NodePosition.left }
 		]);
 
 		const trail5 = buildAuditPath(merkleTreeLong.nodes[5], merkleTreeLong);
 		expect(trail5).to.deep.equal([
-			{ hash: merkleTreeLong.nodes[4], position: 1 },
-			{ hash: merkleTreeLong.nodes[9], position: 2 },
-			{ hash: merkleTreeLong.nodes[10], position: 1 }
+			{ hash: merkleTreeLong.nodes[4], position: NodePosition.left },
+			{ hash: merkleTreeLong.nodes[9], position: NodePosition.right },
+			{ hash: merkleTreeLong.nodes[10], position: NodePosition.left }
 		]);
 	});
 });
 
 describe('NodePosition', () => {
 	it('should be 1 for Left value', () => {
-		expect(NodePosition.left).to.equal(1);
+		expect(NodePosition.left).to.equal('left');
 	});
 
 	it('should be 2 for Right value', () => {
-		expect(NodePosition.right).to.equal(2);
+		expect(NodePosition.right).to.equal('right');
 	});
 });

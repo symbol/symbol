@@ -21,8 +21,8 @@
 const arrayUtils = require('../utils/arrayUtils');
 
 const NodePosition = Object.freeze({
-	left: 1,
-	right: 2
+	left: 'left',
+	right: 'right'
 });
 
 class HashNotFoundError extends Error {}
