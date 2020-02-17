@@ -159,7 +159,8 @@ class ModelSchemaBuilder {
 			nodeInfo: {
 				friendlyName: ModelType.string,
 				host: ModelType.string,
-				publicKey: ModelType.binary
+				publicKey: ModelType.binary,
+				networkGenerationHash: ModelType.binary
 			},
 			communicationTimestamps: {
 				receiveTimestamp: ModelType.uint64,

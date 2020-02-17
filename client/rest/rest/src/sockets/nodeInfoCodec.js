@@ -34,6 +34,7 @@ const nodeInfoCodec = {
 		parser.uint32(); // Node size
 		nodeInfo.version = parser.uint32();
 		nodeInfo.publicKey = parser.buffer(sizes.signerPublicKey);
+		nodeInfo.networkGenerationHash = parser.buffer(sizes.hash256);
 		nodeInfo.roles = parser.uint32();
 		nodeInfo.port = parser.uint16();
 		nodeInfo.networkIdentifier = parser.uint8();
