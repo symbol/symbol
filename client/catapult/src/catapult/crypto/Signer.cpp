@@ -202,7 +202,7 @@ namespace catapult { namespace crypto {
 
 		// A = -pub
 		ge25519 ALIGN(16) A;
-		if (!ge25519_unpack_negative_vartime(&A, publicKey.data()))
+		if (!UnpackNegativeAndCheckSubgroup(A, publicKey))
 			return false;
 
 		bignum256modm S;
@@ -296,8 +296,10 @@ namespace catapult { namespace crypto {
 				bool success = true;
 				for (auto i = 0u; i < batchSize; ++i) {
 					const auto& signatureInput = pSignatureInputs[offset + i];
-					success &= 1 == ge25519_unpack_negative_vartime(&batch.points[i + 1], signatureInput.PublicKey.data());
-					success &= 1 == ge25519_unpack_negative_vartime(&batch.points[batchSize + i + 1], signatureInput.Signature.data());
+					Key R;
+					std::memcpy(R.data(), signatureInput.Signature.data(), Key::Size);
+					success &= UnpackNegativeAndCheckSubgroup(batch.points[i + 1], signatureInput.PublicKey);
+					success &= UnpackNegativeAndCheckSubgroup(batch.points[batchSize + i + 1], R);
 					if (!success)
 						break;
 				}

@@ -60,35 +60,14 @@ extern "C" {
 namespace catapult { namespace crypto {
 
 	namespace {
-		void SetZero(bignum25519 f) {
-			std::memset(&f[0], 0, 5 * sizeof(uint64_t));
-		}
-
-		void SetOne(bignum25519 f) {
-			f[0] = 1;
-			std::memset(&f[1], 0, 4 * sizeof(uint64_t));
-		}
-
-		void SetZero(ge25519& A) {
-			SetZero(A.x);
-			SetOne(A.y);
-			SetOne(A.z);
-			SetZero(A.t);
-		}
-
 		bool ge25519_unpack_positive_vartime(ge25519& A, const Key& publicKey) {
 			// unpack public key
 			if (!ge25519_unpack_negative_vartime(&A, publicKey.data()))
 				return false;
 
 			// negate A
-			ge25519_p1p1 B;
-			ge25519_pniels C;
-			ge25519 D;
-			ge25519_full_to_pniels(&C, &A);
-			SetZero(D);
-			ge25519_pnielsadd_p1p1(&B, &D, &C, 1);
-			ge25519_p1p1_to_full(&A, &B);
+			curve25519_neg(A.x, A.x);
+			curve25519_neg(A.t, A.t);
 
 			return true;
 		}
@@ -134,11 +113,10 @@ namespace catapult { namespace crypto {
 			while (true) {
 				// Hash(suite | action | publicKey | alpha | i)
 				auto hash = IetfHash(0x03, 0x01, { publicKey, alpha, { &i, 1 } });
-				if (ge25519_unpack_negative_vartime(&A, hash.data())) {
-					Key key;
-					std::memcpy(key.data(), hash.data(), key.size());
+				Key key;
+				std::memcpy(key.data(), hash.data(), key.size());
+				if (UnpackNegative(A, key))
 					return ScalarMultEight(key);
-				}
 
 				++i;
 				if (0u == i)
@@ -148,7 +126,7 @@ namespace catapult { namespace crypto {
 
 		Key DoubleScalarMultVarTime(const ScalarMultiplier& encodedS, const Key& publicKey, const ScalarMultiplier& encodedC) {
 			ge25519 A;
-			if (!ge25519_unpack_negative_vartime(&A, publicKey.data()))
+			if (!UnpackNegativeAndCheckSubgroup(A, publicKey))
 				return Key();
 
 			bignum256modm S;
@@ -237,7 +215,7 @@ namespace catapult { namespace crypto {
 	Hash512 VerifyVrfProof(const VrfProof& vrfProof, const RawBuffer& alpha, const Key& publicKey) {
 		// gamma must be on the curve
 		ge25519 A;
-		if (!ge25519_unpack_negative_vartime(&A, vrfProof.Gamma.data()))
+		if (!UnpackNegative(A, vrfProof.Gamma))
 			return Hash512();
 
 		// map to group element

@@ -62,6 +62,10 @@ namespace catapult { namespace crypto {
 	namespace {
 		// region byte / byte array helpers
 
+		bool IsZero(uint32_t b) {
+			return 1 == (((b - 1) >> 8) & 1);
+		}
+
 		uint8_t IsNegative(int8_t b) {
 			auto x = static_cast<uint8_t>(b);
 			x >>= 7;
@@ -107,6 +111,22 @@ namespace catapult { namespace crypto {
 		void SetOne(bignum25519 f) {
 			f[0] = 1;
 			std::memset(&f[1], 0, 4 * sizeof(uint64_t));
+		}
+
+		bool IsZeroScalar(const uint8_t* n, size_t nlen) {
+			uint32_t a = 0;
+			for (auto i = 0u; i < nlen; ++i)
+				a |= n[i];
+
+			return IsZero(a);
+		}
+
+		bool IsEqualScalar(const uint8_t* x, const uint8_t* y, size_t nlen) {
+			uint32_t a = 0;
+			for (auto i = 0u; i < nlen; ++i)
+				a |= x[i] ^ y[i];
+
+			return IsZero(a);
 		}
 
 		// f = flag ? g : f
@@ -208,7 +228,87 @@ namespace catapult { namespace crypto {
 			ge25519_full_to_pniels(&table[7], &A8);
 		}
 
+		void ScalarMultGroupOrder(ge25519& H, const ge25519& A) {
+			// precompute table for A
+			ge25519_pniels precomputedTable[8];
+			PrecomputeTable(A, precomputedTable);
+
+			// group order q represented by radix 16
+			int8_t q[64] = {
+				-3, -1, 4, -3, 6, -1, -3, 6, -6, 2, 3, 6, 2, 1, -8, 6,
+				6, -3, -3, -6, -8, 0, 3, -6, -1, -2, -6, 0, -1, -2, 5, 1,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
+			};
+
+			// scalar multiplication
+			ge25519_p1p1 R;
+			ge25519 G;
+			SetZero(H);
+			for (auto i = 63; 0 <= i; --i) {
+				if (0 != q[i]) {
+					ge25519_pnielsadd_p1p1(&R, &H, &precomputedTable[abs(q[i]) - 1], static_cast<uint8_t>(q[i]) >> 7);
+					ge25519_p1p1_to_full(&H, &R);
+				}
+
+				if (0 != i) {
+					ge25519_double(&G, &H);
+					ge25519_double(&H, &G);
+					ge25519_double(&G, &H);
+					ge25519_double(&H, &G);
+				}
+			}
+		}
+
 		// endregion
+	}
+
+	// publicKey is canonical if the y coordinate is smaller than 2^255 - 19
+	bool IsCanonicalKey(const Key& publicKey) {
+		// 0 != a if bits 8 through 254 of data are all set
+		const auto* buffer = publicKey.data();
+		uint32_t a = (buffer[31] & 0x7F) ^ 0x7F;
+		for (auto i = 30u; i > 0; --i)
+			a |= buffer[i] ^ 0xFF;
+
+		a = (a - 1) >> 8;
+
+		// 0 != b if data[0] < 256 - 19
+		uint32_t b = (0xED - 1u - static_cast<uint32_t>(buffer[0])) >> 8;
+		return 0 != 1 - (a & b & 1);
+	}
+
+	bool IsNeutralElement(const Key& publicKey) {
+		const auto* buffer = publicKey.data();
+		uint32_t c = static_cast<uint8_t>(buffer[0] ^ 0x01);
+		for (auto i = 1u; i < 31; ++i)
+			c |= buffer[i];
+
+		c |= buffer[31] & 0x7F;
+
+		return IsZero(c);
+	}
+
+	// multiply by the group order q and check if the result is the neutral element
+	bool IsInMainSubgroup(const ge25519& A) {
+		ge25519 R;
+		ScalarMultGroupOrder(R, A);
+
+		uint8_t contractedX[32];
+		curve25519_contract(contractedX, R.x);
+		uint8_t contractedY[32];
+		curve25519_contract(contractedY, R.y);
+		uint8_t contractedZ[32];
+		curve25519_contract(contractedZ, R.z);
+		return IsZeroScalar(contractedX, 32) && IsEqualScalar(contractedY, contractedZ, 32);
+	}
+
+	bool UnpackNegative(ge25519& A, const Key& publicKey) {
+		return IsCanonicalKey(publicKey) && 0 != ge25519_unpack_negative_vartime(&A, publicKey.data());
+	}
+
+	bool UnpackNegativeAndCheckSubgroup(ge25519& A, const Key& publicKey) {
+		return UnpackNegative(A, publicKey) && IsInMainSubgroup(A);
 	}
 
 	void HashPrivateKey(const PrivateKey& privateKey, Hash512& hash) {
@@ -244,17 +344,12 @@ namespace catapult { namespace crypto {
 	bool ScalarMult(const ScalarMultiplier& multiplier, const Key& publicKey, Key& sharedSecret) {
 		// unpack public key
 		ge25519 A;
-		if (!ge25519_unpack_negative_vartime(&A, publicKey.data()))
+		if (!UnpackNegativeAndCheckSubgroup(A, publicKey))
 			return false;
 
 		// negate A
-		ge25519_p1p1 B;
-		ge25519_pniels C;
-		ge25519 D;
-		ge25519_full_to_pniels(&C, &A);
-		SetZero(D);
-		ge25519_pnielsadd_p1p1(&B, &D, &C, 1);
-		ge25519_p1p1_to_full(&A, &B);
+		curve25519_neg(A.x, A.x);
+		curve25519_neg(A.t, A.t);
 
 		// precompute table for A
 		ge25519_pniels precomputedTable[8];
@@ -285,6 +380,6 @@ namespace catapult { namespace crypto {
 		ge25519_p1p1_to_full(&H, &R);
 		ge25519_pack(sharedSecret.data(), &H);
 		SecureZero(e);
-		return true;
+		return !IsNeutralElement(sharedSecret);
 	}
 }}

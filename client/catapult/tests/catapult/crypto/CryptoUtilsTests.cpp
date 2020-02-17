@@ -21,6 +21,7 @@
 #include "catapult/crypto/CryptoUtils.h"
 #include "catapult/crypto/Hashes.h"
 #include "catapult/crypto/KeyPair.h"
+#include "catapult/crypto/KeyUtils.h"
 #include "catapult/utils/HexParser.h"
 #include "catapult/utils/RandomGenerator.h"
 #include "tests/TestHarness.h"
@@ -61,6 +62,159 @@ extern "C" {
 namespace catapult { namespace crypto {
 
 #define TEST_CLASS CryptoUtilsTests
+
+	// region helpers
+
+	namespace {
+		void AssertCanonicalKey(const std::string& publicKeyString, bool expectedResult) {
+			// Act:
+			auto result = IsCanonicalKey(crypto::ParseKey(publicKeyString));
+
+			// Assert:
+			EXPECT_EQ(expectedResult, result) << "for public key " << publicKeyString;
+		}
+
+		void AssertNeutralElement(const std::string& publicKeyString, bool expectedResult) {
+			// Act:
+			auto result = IsNeutralElement(crypto::ParseKey(publicKeyString));
+
+			// Assert:
+			EXPECT_EQ(expectedResult, result) << "for public key " << publicKeyString;
+		}
+
+		void AssertElementInMainSubgroup(const std::string& publicKeyString, bool expectedResult) {
+			// Arrange:
+			auto publicKey = crypto::ParseKey(publicKeyString);
+			ge25519 A;
+			EXPECT_TRUE(ge25519_unpack_negative_vartime(&A, publicKey.data()));
+
+			// - negate A
+			curve25519_neg(A.x, A.x);
+			curve25519_neg(A.t, A.t);
+
+			// Act:
+			auto result = IsInMainSubgroup(A);
+
+			// Assert:
+			EXPECT_EQ(expectedResult, result);
+		}
+
+		void AssertUnpacking(const std::string& publicKeyString, bool expectedResult) {
+			// Act:
+			ge25519 A;
+			auto result = UnpackNegative(A, crypto::ParseKey(publicKeyString));
+
+			// Assert:
+			EXPECT_EQ(expectedResult, result) << "for public key " << publicKeyString;
+		}
+
+		void AssertUnpackingWithSubGroupCheck(const std::string& publicKeyString, bool expectedResult) {
+			// Act:
+			ge25519 A;
+			auto result = UnpackNegativeAndCheckSubgroup(A, crypto::ParseKey(publicKeyString));
+
+			// Assert:
+			EXPECT_EQ(expectedResult, result) << "for public key " << publicKeyString;
+		}
+	}
+
+	// endregion
+
+	// region IsCanonicalKey
+
+	TEST(TEST_CLASS, IsCanonicalKeyReturnsTrueWhenYCoordinateIsSmallerThanFieldOrder) {
+		AssertCanonicalKey("0000000000000000000000000000000000000000000000000000000000000000", true);
+		AssertCanonicalKey("8CCB08D2A1A282AA8CC99902ECAF0F67A9F21CFFE28005CB27FCF129E963F99D", true);
+		AssertCanonicalKey("8CCB08D2A1A282AA8CC9990FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF7F", true);
+		AssertCanonicalKey("ECFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF7F", true);
+	}
+
+	TEST(TEST_CLASS, IsCanonicalKeyReturnsFalseWhenYCoordinateIsAtLeastAsLargeAsTheFieldOrder) {
+		AssertCanonicalKey("EDFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF7F", false);
+		AssertCanonicalKey("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF7F", false);
+	}
+
+	TEST(TEST_CLASS, IsCanonicalKeyIgnoresMostSignificantBit) {
+		AssertCanonicalKey("ECFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", true);
+		AssertCanonicalKey("EDFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", false);
+	}
+
+	// endregion
+
+	// region IsNeutralElement
+
+	TEST(TEST_CLASS, IsNeutralElementReturnsTrueForNeutralElement) {
+		AssertNeutralElement("0100000000000000000000000000000000000000000000000000000000000000", true);
+		AssertNeutralElement("0100000000000000000000000000000000000000000000000000000000000080", true);
+	}
+
+	TEST(TEST_CLASS, IsNeutralElementReturnsFalseForNonNeutralElements) {
+		AssertNeutralElement("0000000000000000000000000000000000000000000000000000000000000000", false);
+		AssertNeutralElement("0200000000000000000000000000000000000000000000000000000000000000", false);
+		AssertNeutralElement("C8C6D604F4D7B56B57247E8686168EEBB2BF8AE40DA7B912143773A77555420E", false);
+	}
+
+	TEST(TEST_CLASS, IsNeutralElementIgnoresMostSignificantBit) {
+		AssertNeutralElement("0100000000000000000000000000000000000000000000000000000000000080", true);
+		AssertNeutralElement("5112BA143B78132AF616AF1A94E911EAD890FDB51B164A1B57C352ECD9CA1894", false);
+	}
+
+	// endregion
+
+	// region IsInMainSubgroup
+
+	TEST(TEST_CLASS, IsInMainSubgroupReturnsTrueWhenElementIsInMainSubgroup) {
+		AssertElementInMainSubgroup("C8C6D604F4D7B56B57247E8686168EEBB2BF8AE40DA7B912143773A77555420E", true);
+	}
+
+	TEST(TEST_CLASS, IsInMainSubgroupReturnsFalseWhenElementIsNotInMainSubgroup) {
+		AssertElementInMainSubgroup("0000000000000000000000000000000000000000000000000000000000000000", false);
+		AssertElementInMainSubgroup("ECFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF7F", false);
+	}
+
+	// endregion
+
+	// region UnpackNegative
+
+	TEST(TEST_CLASS, UnpackNegativeSucceedsForValidSubgroupElement) {
+		AssertUnpacking("C8C6D604F4D7B56B57247E8686168EEBB2BF8AE40DA7B912143773A77555420E", true);
+	}
+
+	TEST(TEST_CLASS, UnpackNegativeSucceedsForElementOnCurveButNotInSubgroup) {
+		// on curve but not in main subgroup
+		AssertUnpacking("0000000000000000000000000000000000000000000000000000000000000000", true);
+	}
+
+	TEST(TEST_CLASS, UnpackNegativeFailsForValidGroupElementWithNonCanonicalAffineYCoordinate) {
+		AssertUnpacking("EDFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF7F", false);
+	}
+
+	TEST(TEST_CLASS, UnpackNegativeFailsForElementsNotOnCurve) {
+		// not on curve
+		AssertUnpacking("4F91BE9568552181E01968999EFC09BFEB77A736B8F3188160B7769D7B9B9F6E", false);
+	}
+
+	// endregion
+
+	// region UnpackNegativeAndCheckSubgroup
+
+	TEST(TEST_CLASS, UnpackNegativeAndCheckSubgroupSucceedsForValidSubgroupElement) {
+		AssertUnpackingWithSubGroupCheck("C8C6D604F4D7B56B57247E8686168EEBB2BF8AE40DA7B912143773A77555420E", true);
+	}
+
+	TEST(TEST_CLASS, UnpackNegativeAndCheckSubgroupFailsForValidGroupElementWithNonCanonicalAffineYCoordinate) {
+		AssertUnpackingWithSubGroupCheck("EDFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF7F", false);
+	}
+
+	TEST(TEST_CLASS, UnpackNegativeAndCheckSubgroupFailsForElementsNotInSubgroup) {
+		// not on curve
+		AssertUnpackingWithSubGroupCheck("4F91BE9568552181E01968999EFC09BFEB77A736B8F3188160B7769D7B9B9F6E", false);
+
+		// on curve but not in main subgroup
+		AssertUnpackingWithSubGroupCheck("0000000000000000000000000000000000000000000000000000000000000000", false);
+	}
+
+	// endregion
 
 	// region HashPrivateKey
 
@@ -138,7 +292,7 @@ namespace catapult { namespace crypto {
 			bignum256modm expandedMultiplier;
 			expand256_modm(expandedMultiplier, multiplier, sizeof(ScalarMultiplier));
 			auto publicKey = ScalarMultiplyWithBasePoint(expandedMultiplier);
-			EXPECT_EQ(utils::ParseByteArray<Key>(testVectorsOutput[i]), publicKey) << "at index " << i;
+			EXPECT_EQ(crypto::ParseKey(testVectorsOutput[i]), publicKey) << "at index " << i;
 
 			++i;
 		}
@@ -206,7 +360,7 @@ namespace catapult { namespace crypto {
 
 			// Assert: nonce * base point should yield the R part of the signature
 			auto publicKey = ScalarMultiplyWithBasePoint(nonce);
-			EXPECT_EQ(utils::ParseByteArray<Key>(testVectorsOutput[i]), publicKey) << "at index " << i;
+			EXPECT_EQ(crypto::ParseKey(testVectorsOutput[i]), publicKey) << "at index " << i;
 
 			++i;
 		}
@@ -224,7 +378,7 @@ namespace catapult { namespace crypto {
 
 		// Assert: nonce * base point should yield the R part of the signature
 		auto publicKey = ScalarMultiplyWithBasePoint(nonce);
-		EXPECT_EQ(utils::ParseByteArray<Key>(GenerateNonceSamplesOutput()[3]), publicKey);
+		EXPECT_EQ(crypto::ParseKey(GenerateNonceSamplesOutput()[3]), publicKey);
 	}
 
 	// endregion
@@ -274,8 +428,8 @@ namespace catapult { namespace crypto {
 		auto i = 0u;
 		for (const auto& input : testVectorsInput) {
 			// Arrange:
-			auto publicKey = utils::ParseByteArray<Key>(input.PublicKey);
-			auto multiplier = utils::ParseByteArray<Key>(input.Multiplier);
+			auto publicKey = crypto::ParseKey(input.PublicKey);
+			auto multiplier = crypto::ParseKey(input.Multiplier);
 			ScalarMultiplier encodedMultiplier;
 			std::memcpy(encodedMultiplier, multiplier.data(), 32);
 
@@ -285,7 +439,7 @@ namespace catapult { namespace crypto {
 
 			// Assert:
 			EXPECT_TRUE(success);
-			EXPECT_EQ(utils::ParseByteArray<Key>(testVectorsOutput[i]), result) << "at index " << i;
+			EXPECT_EQ(crypto::ParseKey(testVectorsOutput[i]), result) << "at index " << i;
 
 			++i;
 		}
@@ -293,7 +447,7 @@ namespace catapult { namespace crypto {
 
 	TEST(TEST_CLASS, ScalarMultReturnsFalseWhenPublicKeyIsNotOnTheCurve) {
 		// Arrange:
-		auto publicKey = utils::ParseByteArray<Key>("4F91BE9568552181E01968999EFC09BFEB77A736B8F3188160B7769D7B9B9F6E");
+		auto publicKey = crypto::ParseKey("4F91BE9568552181E01968999EFC09BFEB77A736B8F3188160B7769D7B9B9F6E");
 		uint8_t multiplier[32];
 		multiplier[0] = 1;
 
@@ -308,6 +462,20 @@ namespace catapult { namespace crypto {
 		// Assert:
 		EXPECT_FALSE(success);
 		EXPECT_EQ(Key(), result);
+	}
+
+	TEST(TEST_CLASS, ScalarMultReturnsFalseWhenResultIsTheNeutralElement) {
+		// Arrange: multiply neutral element with some value
+		auto publicKey = crypto::ParseKey("0100000000000000000000000000000000000000000000000000000000000000");
+		uint8_t multiplier[32];
+		multiplier[14] = 123;
+
+		// Act:
+		Key result;
+		bool success = ScalarMult(multiplier, publicKey, result);
+
+		// Assert:
+		EXPECT_FALSE(success);
 	}
 
 	// endregion
