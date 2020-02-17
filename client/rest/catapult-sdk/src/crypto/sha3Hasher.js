@@ -23,22 +23,8 @@ const arrayUtils = require('../utils/arrayUtils');
 const convert = require('../utils/convert');
 const jsSha3 = require('js-sha3');
 
-const HashingFunctions = Object.freeze({
-	sha3: 'sha3',
-	keccak: 'keccak'
-});
-
-let hashFunction256 = null;
-let hashFunction512 = null;
-if (process.env.HASHING_FUNCTION === HashingFunctions.sha3) {
-	hashFunction256 = jsSha3.sha3_256;
-	hashFunction512 = jsSha3.sha3_512;
-} else if (process.env.HASHING_FUNCTION === HashingFunctions.keccak) {
-	hashFunction256 = jsSha3.keccak256;
-	hashFunction512 = jsSha3.keccak512;
-} else {
-	throw new Error('A valid hashing function has to be specified in the configuration file <package.json>');
-}
+const hashFunction256 = jsSha3.sha3_256;
+const hashFunction512 = jsSha3.sha3_512;
 
 const getHasher = (length = 64) => ({ 32: hashFunction256, 64: hashFunction512 }[length]);
 

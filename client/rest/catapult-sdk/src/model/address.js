@@ -18,10 +18,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const sha3Hasher = require('../crypto/sha3Hasher');
 const arrayUtils = require('../utils/arrayUtils');
 const base32 = require('../utils/base32');
 const convert = require('../utils/convert');
+const jsSha3 = require('js-sha3');
 const Ripemd160 = require('ripemd160');
 
 const constants = {
@@ -68,7 +68,7 @@ const address = {
 	 */
 	publicKeyToAddress: (publicKey, networkIdentifier) => {
 		// step 1: sha3 hash of the public key
-		const publicKeyHash = sha3Hasher.getHasher(constants.sizes.key).arrayBuffer(publicKey);
+		const publicKeyHash = jsSha3.sha3_256.arrayBuffer(publicKey);
 
 		// step 2: ripemd160 hash of (1)
 		const ripemdHash = new Ripemd160().update(Buffer.from(publicKeyHash)).digest();
@@ -79,7 +79,7 @@ const address = {
 		arrayUtils.copy(decodedAddress, ripemdHash, constants.sizes.ripemd160, 1);
 
 		// step 4: concatenate (3) and the checksum of (3)
-		const hash = sha3Hasher.getHasher(constants.sizes.key).arrayBuffer(decodedAddress.subarray(0, constants.sizes.ripemd160 + 1));
+		const hash = jsSha3.sha3_256.arrayBuffer(decodedAddress.subarray(0, constants.sizes.ripemd160 + 1));
 		arrayUtils.copy(decodedAddress, arrayUtils.uint8View(hash), constants.sizes.checksum, constants.sizes.ripemd160 + 1);
 
 		return decodedAddress;
@@ -91,7 +91,7 @@ const address = {
 	 * @returns {boolean} true if the decoded address is valid, false otherwise.
 	 */
 	isValidAddress: decoded => {
-		const hash = sha3Hasher.getHasher(constants.sizes.key).create();
+		const hash = jsSha3.sha3_256.create();
 		const checksumBegin = constants.sizes.addressDecoded - constants.sizes.checksum;
 		hash.update(decoded.subarray(0, checksumBegin));
 		const checksum = new Uint8Array(constants.sizes.checksum);

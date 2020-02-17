@@ -56,34 +56,15 @@ describe('hasher', () => {
 		});
 
 		describe('getHasher', () => {
-			const hashingFunctionSelector = hashingFunction => {
-				let result;
-				if ('sha3' === hashingFunction)
-					result = { size32: jsSha3.sha3_256, size64: jsSha3.sha3_512 };
-
-				if ('keccak' === hashingFunction)
-					result = { size32: jsSha3.keccak256, size64: jsSha3.keccak512 };
-
-				return result;
-			};
-
-			// note that the environment variable that dictates the hasher is taken into consideration
-			// at build time, consider however tests may be running on non-compiled code
-			it('returns build-time configured hasher depending on size param', () => {
-				// Arrange:
-				const selectedHashingFunctions = hashingFunctionSelector(process.env.HASHING_FUNCTION);
-
+			it('returns hasher depending on size param', () => {
 				// Assert:
-				expect(sha3Hasher.getHasher(32)).to.equal(selectedHashingFunctions.size32);
-				expect(sha3Hasher.getHasher(64)).to.equal(selectedHashingFunctions.size64);
+				expect(sha3Hasher.getHasher(32)).to.equal(jsSha3.sha3_256);
+				expect(sha3Hasher.getHasher(64)).to.equal(jsSha3.sha3_512);
 			});
 
 			it('takes a default size param', () => {
-				// Arrange:
-				const selectedHashingFunctions = hashingFunctionSelector(process.env.HASHING_FUNCTION);
-
 				// Assert:
-				expect(sha3Hasher.getHasher()).to.equal(selectedHashingFunctions.size64);
+				expect(sha3Hasher.getHasher()).to.equal(jsSha3.sha3_512);
 			});
 		});
 

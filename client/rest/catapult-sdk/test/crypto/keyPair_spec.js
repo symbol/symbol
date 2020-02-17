@@ -18,34 +18,33 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const {
-	createKeyPairFromPrivateKeyString, sign, verify, deriveSharedKey
-} = require('../../src/crypto/keyPair');
+const { createKeyPairFromPrivateKeyString, sign, verify } = require('../../src/crypto/keyPair');
 const convert = require('../../src/utils/convert');
 const test = require('../testUtils');
 const { expect } = require('chai');
+
 
 describe('key pair', () => {
 	const Private_Key_Size = 32;
 	const Signature_Size = 64;
 
 	const Private_Keys = [
-		'8D31B712AB28D49591EAF5066E9E967B44507FC19C3D54D742F7B3A255CFF4AB',
-		'15923F9D2FFFB11D771818E1F7D7DDCD363913933264D58533CB3A5DD2DAA66A',
-		'A9323CEF24497AB770516EA572A0A2645EE2D5A75BC72E78DE534C0A03BC328E',
-		'D7D816DA0566878EE739EDE2131CD64201BCCC27F88FA51BA5815BCB0FE33CC8',
-		'27FC9998454848B987FAD89296558A34DEED4358D1517B953572F3E0AAA0A22D'
+		'ABF4CF55A2B3F742D7543D9CC17F50447B969E6E06F5EA9195D428AB12B7318D',
+		'6AA6DAD25D3ACB3385D5643293133936CDDDD7F7E11818771DB1FF2F9D3F9215',
+		'8E32BC030A4C53DE782EC75BA7D5E25E64A2A072A56E5170B77A4924EF3C32A9',
+		'C83CE30FCB5B81A51BA58FF827CCBC0142D61C13E2ED39E78E876605DA16D8D7',
+		'2DA2A0AAE0F37235957B51D15843EDDE348A559692D8FA87B94848459899FC27'
 	];
 
 	describe('construction', () => {
 		it('can extract from private key test vectors', () => {
 			// Arrange:
 			const Expected_Public_Keys = [
-				'53C659B47C176A70EB228DE5C0A0FF391282C96640C2A42CD5BBD0982176AB1B',
-				'3FE4A1AA148F5E76891CE924F5DC05627A87047B2B4AD9242C09C0ECED9B2338',
-				'F398C0A2BDACDBD7037D2F686727201641BBF87EF458F632AE2A04B4E8F57994',
-				'6A283A241A8D8203B3A1E918B1E6F0A3E14E75E16D4CFFA45AE4EF89E38ED6B5',
-				'4DC62B38215826438DE2369743C6BBE6D13428405025DFEFF2857B9A9BC9D821'
+				'4DB881D07086498C3626F1F84EF89D7E08E5D8293298400F27CA98C92AB2D271',
+				'F7BBE3BB4DBF9698122DA02EB8A6EDE55F1EF90D0C64819E8A792231A2A0B143',
+				'41C7467803C694DC7CB1D11384AD35BF63873E21EC04454E434FE64934942621',
+				'4CD65AE31B90557EA0F80BCA0748AE1C91C9A1FB53666E8DCCC176774B94E52A',
+				'37C877158F0BCCEF264475AF113494A0A385CB01CDA2ABCEC93C76A8EFC537A8'
 			];
 
 			// Sanity:
@@ -130,7 +129,7 @@ describe('key pair', () => {
 			const keyPair = createKeyPairFromPrivateKeyString(Private_Keys[0]);
 
 			// Assert:
-			expect(() => { sign(keyPair, {}); }).to.throw('unsupported data type');
+			expect(() => { sign(keyPair, {}); }).to.throw('unexpected type, use Uint8Array');
 		});
 	});
 
@@ -289,22 +288,22 @@ describe('key pair', () => {
 
 		const Expected_Signatures = [
 			/* eslint-disable max-len */
-			'C9B1342EAB27E906567586803DA265CC15CCACA411E0AEF44508595ACBC47600D02527F2EED9AB3F28C856D27E30C3808AF7F22F5F243DE698182D373A9ADE03',
-			'0755E437ED4C8DD66F1EC29F581F6906AB1E98704ECA94B428A25937DF00EC64796F08E5FEF30C6F6C57E4A5FB4C811D617FA661EB6958D55DAE66DDED205501',
-			'15D6585A2A456E90E89E8774E9D12FE01A6ACFE09936EE41271AA1FBE0551264A9FF9329CB6FEE6AE034238C8A91522A6258361D48C5E70A41C1F1C51F55330D',
-			'F6FB0D8448FEC0605CF74CFFCC7B7AE8D31D403BCA26F7BD21CB4AC87B00769E9CC7465A601ED28CDF08920C73C583E69D621BA2E45266B86B5FCF8165CBE309',
-			'E88D8C32FE165D34B775F70657B96D8229FFA9C783E61198A6F3CCB92F487982D08F8B16AB9157E2EFC3B78F126088F585E26055741A9F25127AC13E883C9A05'
+			'31D272F0662915CAC43AB7D721CAF65D8601F52B2E793EA1533E7BC20E04EA97B74859D9209A7B18DFECFD2C4A42D6957628F5357E3FB8B87CF6A888BAB4280E',
+			'F21E4BE0A914C0C023F724E1EAB9071A3743887BB8824CB170404475873A827B301464261E93700725E8D4427A3E39D365AFB2C9191F75D33C6BE55896E0CC00',
+			'939CD8932093571E24B21EA53F1359279BA5CFC32CE99BB020E676CF82B0AA1DD4BC76FCDE41EF784C06D122B3D018135352C057F079C926B3EFFA7E73CF1D06',
+			'9B4AFBB7B96CAD7726389C2A4F31115940E6EEE3EA29B3293C82EC8C03B9555C183ED1C55CA89A58C17729EFBA76A505C79AA40EC618D83124BC1134B887D305',
+			'7AF2F0D9B30DE3B6C40605FDD4EBA93ECE39FA7458B300D538EC8D0ABAC1756DEFC0CA84C8A599954313E58CE36EFBA4C24A82FD6BB8127023A58EFC52A8410A'
 			/* eslint-enable max-len */
 		];
 
-		const assertCanSignTestVectors = dataTransform => {
+		it('can sign test vectors as binary', () => {
 			// Sanity:
 			expect(Private_Keys.length).equal(Input_Data.length);
 			expect(Private_Keys.length).equal(Expected_Signatures.length);
 
 			for (let i = 0; i < Private_Keys.length; ++i) {
 				// Arrange:
-				const inputData = dataTransform(Input_Data[i]);
+				const inputData = convert.hexToUint8(Input_Data[i]);
 				const keyPair = createKeyPairFromPrivateKeyString(Private_Keys[i]);
 
 				// Act:
@@ -314,26 +313,16 @@ describe('key pair', () => {
 				const message = `signing with ${Private_Keys[i]}`;
 				expect(convert.uint8ToHex(signature), message).equal(Expected_Signatures[i]);
 			}
-		};
-
-		it('can sign test vectors as hex string', () => {
-			// Assert:
-			assertCanSignTestVectors(data => data);
 		});
 
-		it('can sign test vectors as binary', () => {
-			// Assert:
-			assertCanSignTestVectors(data => convert.hexToUint8(data));
-		});
-
-		const assertCanVerifyTestVectors = dataTransform => {
+		it('can verify test vectors as binary', () => {
 			// Sanity:
 			expect(Private_Keys.length).equal(Input_Data.length);
 			expect(Private_Keys.length).equal(Expected_Signatures.length);
 
 			for (let i = 0; i < Private_Keys.length; ++i) {
 				// Arrange:
-				const inputData = dataTransform(Input_Data[i]);
+				const inputData = convert.hexToUint8(Input_Data[i]);
 				const keyPair = createKeyPairFromPrivateKeyString(Private_Keys[i]);
 				const signature = sign(keyPair, inputData);
 
@@ -344,73 +333,6 @@ describe('key pair', () => {
 				const message = `verifying with ${Private_Keys[i]}`;
 				expect(isVerified, message).equal(true);
 			}
-		};
-
-		it('can verify test vectors as hex string', () => {
-			// Assert:
-			assertCanVerifyTestVectors(data => data);
-		});
-
-		it('can verify test vectors as binary', () => {
-			// Assert:
-			assertCanVerifyTestVectors(data => convert.hexToUint8(data));
-		});
-	});
-
-	describe('derive shared key', () => {
-		const Salt_Size = 32;
-
-		it('fails if salt is wrong size', () => {
-			// Arrange: create a salt that is too long
-			const keyPair = test.random.keyPair();
-			const publicKey = test.random.publicKey();
-			const salt = test.random.bytes(Salt_Size + 1);
-
-			// Act:
-			expect(() => { deriveSharedKey(keyPair, publicKey, salt); })
-				.to.throw('salt has unexpected size');
-		});
-
-		it('derives same shared key for both partners', () => {
-			// Arrange:
-			const keyPair1 = test.random.keyPair();
-			const keyPair2 = test.random.keyPair();
-			const salt = test.random.bytes(Salt_Size);
-
-			// Act:
-			const sharedKey1 = deriveSharedKey(keyPair1, keyPair2.publicKey, salt);
-			const sharedKey2 = deriveSharedKey(keyPair2, keyPair1.publicKey, salt);
-
-			// Assert:
-			expect(sharedKey1).to.deep.equal(sharedKey2);
-		});
-
-		it('derives different shared keys for different partners', () => {
-			// Arrange:
-			const keyPair = test.random.keyPair();
-			const publicKey1 = test.random.publicKey();
-			const publicKey2 = test.random.publicKey();
-			const salt = test.random.bytes(Salt_Size);
-
-			// Act:
-			const sharedKey1 = deriveSharedKey(keyPair, publicKey1, salt);
-			const sharedKey2 = deriveSharedKey(keyPair, publicKey2, salt);
-
-			// Assert:
-			expect(sharedKey1).to.not.deep.equal(sharedKey2);
-		});
-
-		it('can derive deterministic shared key from well known inputs', () => {
-			// Arrange:
-			const privateKey = convert.hexToUint8('8F545C2816788AB41D352F236D80DBBCBC34705B5F902EFF1F1D88327C7C1300');
-			const publicKey = convert.hexToUint8('BF684FB1A85A8C8091EE0442EDDB22E51683802AFA0C0E7C6FE3F3E3E87A8D72');
-			const salt = convert.hexToUint8('422C39DF16AAE42A74A5597D6EE2D59CFB4EEB6B3F26D98425B9163A03DAA3B5');
-
-			// Act:
-			const sharedKey = deriveSharedKey({ privateKey }, publicKey, salt);
-
-			// Assert:
-			expect(convert.uint8ToHex(sharedKey)).to.equal('FF9623D28FBC13B6F0E0659117FC7BE294DB3385C046055A6BAC39EDF198D50D');
 		});
 	});
 });

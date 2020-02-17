@@ -1,14 +1,11 @@
 {
   "name": "catapult-sdk",
-  "version": "0.7.20.13",
+  "version": "0.7.20.14",
   "description": "Catapult SDK core",
   "main": "_build/index.js",
-  "config": {
-    "hashingFunction": "sha3"
-  },
   "scripts": {
     "clean": "rimraf _build && mkdir _build && rimraf _build_browser && mkdir _build_browser",
-    "build": "ncp src/ _build && cross-env BABEL_ENV=production HASHING_FUNCTION=$npm_package_config_hashingFunction babel src -d _build_browser --source-maps",
+    "build": "ncp src/ _build && cross-env BABEL_ENV=production babel src -d _build_browser --source-maps",
     "rebuild": "npm run clean && npm run build",
     "test": "mocha --full-trace --recursive",
     "test:coverage": "nyc npm test && nyc report --reporter=text-lcov",
