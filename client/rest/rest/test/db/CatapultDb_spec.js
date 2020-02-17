@@ -1053,14 +1053,14 @@ describe('catapult db', () => {
 
 		const numToObjectId = num => `000000000000000000000000${num.toString()}`.slice(-24);
 
-		const runIncomingTransactionsDbTest = (dbEntities, accountAddress, expectedIds, type) => {
+		const runIncomingTransactionsDbTest = (dbEntities, accountAddress, expectedIds, types) => {
 			const db = new CatapultDb({ networkId: Mijin_Test_Network });
 			const expectedObjectIds = expectedIds.map(numToObjectId);
 
 			return db.connect(testDbOptions.url, 'test')
 				.then(() => test.db.populateDatabase(db, { transactions: dbEntities }))
 				.then(() => deleteIds({ transactions: dbEntities }))
-				.then(() => db.accountTransactionsIncoming(accountAddress, type))
+				.then(() => db.accountTransactionsIncoming(accountAddress, types))
 				.then(result => {
 					expect(result.map(transaction => transaction.id).sort()).to.deep.equal(expectedObjectIds.sort());
 					expect(result.length).to.equal(expectedObjectIds.length);
@@ -1105,9 +1105,9 @@ describe('catapult db', () => {
 				it('with transaction type filter', () =>
 					runDbWithQueryTransactionsSpy(
 						{ transactions: transactionDbEntities },
-						db => db.accountTransactionsConfirmed(testAddress, 0x4154, testObjectId, 25, 1),
+						db => db.accountTransactionsConfirmed(testAddress, [0x4154, 0x414D], testObjectId, 25, 1),
 						[
-							{ $and: [{ 'meta.addresses': Buffer.from(testAddress) }, { 'transaction.type': 0x4154 }] },
+							{ $and: [{ 'meta.addresses': Buffer.from(testAddress) }, { 'transaction.type': { $in: [0x4154, 0x414D] } }] },
 							testObjectId,
 							25,
 							{ sortOrder: 1 }
@@ -1186,7 +1186,7 @@ describe('catapult db', () => {
 					];
 
 					// Act + Assert:
-					return runIncomingTransactionsDbTest(incomingDbEntities, testAddress, [2], 0x02);
+					return runIncomingTransactionsDbTest(incomingDbEntities, testAddress, [2], [0x02]);
 				});
 
 				it('filters incoming transactions inside aggregate, aggregate is of correct type but no inner', () => {
@@ -1201,7 +1201,7 @@ describe('catapult db', () => {
 					innerTransaction.meta.aggregateId = aggregateId;
 
 					// Act + Assert:
-					return runIncomingTransactionsDbTest([aggregateTransaction, innerTransaction], testAddress, [], 0x01);
+					return runIncomingTransactionsDbTest([aggregateTransaction, innerTransaction], testAddress, [], [0x01]);
 				});
 
 				it('filters incoming transactions inside aggregate, inner transaction is of correct type but no aggregate', () => {
@@ -1216,7 +1216,7 @@ describe('catapult db', () => {
 					innerTransaction.meta.aggregateId = aggregateId;
 
 					// Act + Assert:
-					return runIncomingTransactionsDbTest([aggregateTransaction, innerTransaction], testAddress, [], 0x02);
+					return runIncomingTransactionsDbTest([aggregateTransaction, innerTransaction], testAddress, [], [0x02]);
 				});
 			});
 
@@ -1258,9 +1258,9 @@ describe('catapult db', () => {
 				it('with transaction type filter', () =>
 					runDbWithQueryTransactionsSpy(
 						{ transactions: transactionDbEntities },
-						db => db.accountTransactionsOutgoing(testPublicKey, 0x4154, testObjectId, 25, 1),
+						db => db.accountTransactionsOutgoing(testPublicKey, [0x4154, 0x414D], testObjectId, 25, 1),
 						[
-							{ $and: [{ 'transaction.signerPublicKey': testPublicKey }, { 'transaction.type': 0x4154 }] },
+							{ $and: [{ 'transaction.signerPublicKey': testPublicKey }, { 'transaction.type': { $in: [0x4154, 0x414D] } }] },
 							testObjectId,
 							25,
 							{ sortOrder: 1 }
@@ -1285,9 +1285,9 @@ describe('catapult db', () => {
 				it('with transaction type filter', () =>
 					runDbWithQueryTransactionsSpy(
 						{ transactions: transactionDbEntities },
-						db => db.accountTransactionsUnconfirmed(testAddress, 0x4154, testObjectId, 25, 1),
+						db => db.accountTransactionsUnconfirmed(testAddress, [0x4154, 0x414D], testObjectId, 25, 1),
 						[
-							{ $and: [{ 'meta.addresses': Buffer.from(testAddress) }, { 'transaction.type': 0x4154 }] },
+							{ $and: [{ 'meta.addresses': Buffer.from(testAddress) }, { 'transaction.type': { $in: [0x4154, 0x414D] } }] },
 							testObjectId,
 							25,
 							{ collectionName: 'unconfirmedTransactions', sortOrder: 1 }
@@ -1312,9 +1312,9 @@ describe('catapult db', () => {
 				it('with transaction type filter', () =>
 					runDbWithQueryTransactionsSpy(
 						{ transactions: transactionDbEntities },
-						db => db.accountTransactionsPartial(testAddress, 0x4154, testObjectId, 25, 1),
+						db => db.accountTransactionsPartial(testAddress, [0x4154, 0x414D], testObjectId, 25, 1),
 						[
-							{ $and: [{ 'meta.addresses': Buffer.from(testAddress) }, { 'transaction.type': 0x4154 }] },
+							{ $and: [{ 'meta.addresses': Buffer.from(testAddress) }, { 'transaction.type': { $in: [0x4154, 0x414D] } }] },
 							testObjectId,
 							25,
 							{ collectionName: 'partialTransactions', sortOrder: 1 }

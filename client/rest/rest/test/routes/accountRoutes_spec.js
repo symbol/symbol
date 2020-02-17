@@ -293,7 +293,7 @@ describe('account routes', () => {
 					const req = {
 						params: {
 							accountId: testPublicKey,
-							type: '16724',
+							type: '16724,16717,16973',
 							id: '00123456789AABBBCCDDEEFF',
 							pageSize: '25',
 							ordering: 'id'
@@ -304,7 +304,7 @@ describe('account routes', () => {
 					return mockServer.callRoute(route, req).then(() => {
 						// Assert:
 						expect(dbTransactionsFake.calledOnce).to.equal(true);
-						expect(dbTransactionsFake.firstCall.args[1]).to.equal(16724);
+						expect(dbTransactionsFake.firstCall.args[1]).to.deep.equal([16724, 16717, 16973]);
 						expect(dbTransactionsFake.firstCall.args[2]).to.equal('00123456789AABBBCCDDEEFF');
 						expect(dbTransactionsFake.firstCall.args[3]).to.equal(25);
 						expect(dbTransactionsFake.firstCall.args[4]).to.equal(1);
