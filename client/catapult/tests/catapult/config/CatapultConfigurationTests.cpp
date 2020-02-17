@@ -194,6 +194,7 @@ namespace catapult { namespace config {
 			EXPECT_TRUE(config.EnableDelegatedHarvestersAutoDetection);
 
 			EXPECT_EQ("../data", config.DataDirectory);
+			EXPECT_EQ("../certificate", config.CertificateDirectory);
 			EXPECT_EQ(".", config.PluginsDirectory);
 		}
 

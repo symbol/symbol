@@ -41,6 +41,7 @@ namespace catapult { namespace config {
 						"storage",
 						{
 							{ "dataDirectory", "./db" },
+							{ "certificateDirectory", "./cert" },
 							{ "pluginsDirectory", "./ext" }
 						}
 					}
@@ -57,6 +58,7 @@ namespace catapult { namespace config {
 				EXPECT_FALSE(config.EnableDelegatedHarvestersAutoDetection);
 
 				EXPECT_EQ("", config.DataDirectory);
+				EXPECT_EQ("", config.CertificateDirectory);
 				EXPECT_EQ("", config.PluginsDirectory);
 			}
 
@@ -66,6 +68,7 @@ namespace catapult { namespace config {
 				EXPECT_TRUE(config.EnableDelegatedHarvestersAutoDetection);
 
 				EXPECT_EQ("./db", config.DataDirectory);
+				EXPECT_EQ("./cert", config.CertificateDirectory);
 				EXPECT_EQ("./ext", config.PluginsDirectory);
 			}
 		};
