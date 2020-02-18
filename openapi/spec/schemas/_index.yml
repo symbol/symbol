@@ -57,6 +57,8 @@ ActivityBucketDTO:
   "$ref": "../core/account/schemas/ActivityBucketDTO.yml"
 
 # Core - Block
+PositionEnum:
+  "$ref": "../core/block/schemas/PositionEnum.yml"
 BlockDTO:
   "$ref": "../core/block/schemas/BlockDTO.yml"
 BlockInfoDTO:

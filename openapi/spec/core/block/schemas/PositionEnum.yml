@@ -1,0 +1,5 @@
+type: string
+enum:
+  - left
+  - right
+description: Position relative to the proofHash being evaluated.
