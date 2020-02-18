@@ -61,11 +61,12 @@ describe('all routes', () => {
 
 			'/network',
 			'/network/fees',
-			'/node/info',
-			'/node/time',
 			'/node/health',
+			'/node/info',
+			'/node/peers',
 			'/node/server',
 			'/node/storage',
+			'/node/time',
 
 			'/transaction/:transactionId',
 			'/transaction/:hash/status'

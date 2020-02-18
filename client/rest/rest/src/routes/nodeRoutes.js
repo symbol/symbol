@@ -22,6 +22,7 @@ const routeResultTypes = require('./routeResultTypes');
 const { version: sdkVersion } = require('../../../catapult-sdk/package.json');
 const { version: restVersion } = require('../../package.json');
 const nodeInfoCodec = require('../sockets/nodeInfoCodec');
+const nodePeersCodec = require('../sockets/nodePeersCodec');
 const nodeTimeCodec = require('../sockets/nodeTimeCodec');
 const catapult = require('catapult-sdk');
 
@@ -39,26 +40,6 @@ module.exports = {
 	register: (server, db, services) => {
 		const { connections } = services;
 		const { timeout } = services.config.apiNode;
-
-		server.get('/node/info', (req, res, next) => {
-			const packetBuffer = packetHeader.createBuffer(PacketType.nodeDiscoveryPullPing, packetHeader.size);
-			return connections.singleUse()
-				.then(connection => connection.pushPull(packetBuffer, timeout))
-				.then(packet => {
-					res.send(buildResponse(packet, nodeInfoCodec, routeResultTypes.nodeInfo));
-					next();
-				});
-		});
-
-		server.get('/node/time', (req, res, next) => {
-			const packetBuffer = packetHeader.createBuffer(PacketType.timeSyncNodeTime, packetHeader.size);
-			return connections.singleUse()
-				.then(connection => connection.pushPull(packetBuffer, timeout))
-				.then(packet => {
-					res.send(buildResponse(packet, nodeTimeCodec, routeResultTypes.nodeTime));
-					next();
-				});
-		});
 
 		server.get('/node/health', (req, res, next) => {
 			const parseNodeInfoPacket = packet => {
@@ -110,6 +91,26 @@ module.exports = {
 				});
 		});
 
+		server.get('/node/info', (req, res, next) => {
+			const packetBuffer = packetHeader.createBuffer(PacketType.nodeDiscoveryPullPing, packetHeader.size);
+			return connections.singleUse()
+				.then(connection => connection.pushPull(packetBuffer, timeout))
+				.then(packet => {
+					res.send(buildResponse(packet, nodeInfoCodec, routeResultTypes.nodeInfo));
+					next();
+				});
+		});
+
+		server.get('/node/peers', (req, res, next) => {
+			const packetBuffer = packetHeader.createBuffer(PacketType.nodeDiscoveryPullPeers, packetHeader.size);
+			return connections.singleUse()
+				.then(connection => connection.pushPull(packetBuffer, timeout))
+				.then(packet => {
+					res.send(buildResponse(packet, nodePeersCodec, routeResultTypes.nodeInfo));
+					next();
+				});
+		});
+
 		server.get('/node/server', (req, res, next) => {
 			res.send({
 				payload: {
@@ -128,5 +129,15 @@ module.exports = {
 				res.send({ payload: storageInfo, type: routeResultTypes.storageInfo });
 				next();
 			}));
+
+		server.get('/node/time', (req, res, next) => {
+			const packetBuffer = packetHeader.createBuffer(PacketType.timeSyncNodeTime, packetHeader.size);
+			return connections.singleUse()
+				.then(connection => connection.pushPull(packetBuffer, timeout))
+				.then(packet => {
+					res.send(buildResponse(packet, nodeTimeCodec, routeResultTypes.nodeTime));
+					next();
+				});
+		});
 	}
 };
