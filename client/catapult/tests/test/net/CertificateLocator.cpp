@@ -19,16 +19,24 @@
 **/
 
 #include "CertificateLocator.h"
+#include "catapult/io/RawFile.h"
 #include "catapult/exceptions.h"
+#include "tests/test/crypto/CertificateTestUtils.h"
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem.hpp>
 
 namespace catapult { namespace test {
 
 	namespace {
-		[[noreturn]]
-		void GenerateCertificateFiles(const boost::filesystem::path& certificateDirectory) {
-			CATAPULT_THROW_INVALID_ARGUMENT_1("cannot generate certificates", certificateDirectory);
+		void SaveToFile(const std::string& certDirectory, const std::string& filename, const std::string& buffer) {
+			io::RawFile dataFile((boost::filesystem::path(certDirectory) / filename).generic_string(), io::OpenMode::Read_Write);
+			dataFile.write({ reinterpret_cast<const uint8_t*>(buffer.data()), buffer.size() });
+		}
+
+		void SavePemCertificate(const PemCertificate& pemCertificate, const std::string& certificateDirectory) {
+			SaveToFile(certificateDirectory, "node.key.pem", pemCertificate.keyString());
+			SaveToFile(certificateDirectory, "dhparam.pem", pemCertificate.dhParamString());
+			SaveToFile(certificateDirectory, "node.full.crt.pem", pemCertificate.certificateChainString());
 		}
 	}
 
@@ -39,7 +47,9 @@ namespace catapult { namespace test {
 
 		CATAPULT_LOG(info) << "generating new certificate directory: " << certificateDirectory;
 		boost::filesystem::create_directories(certificateDirectory);
-		GenerateCertificateFiles(certificateDirectory);
-		// TODO: return certificateDirectory;
+
+		test::PemCertificate pemCertificate;
+		SavePemCertificate(pemCertificate, certificateDirectory);
+		return certificateDirectory;
 	}
 }}

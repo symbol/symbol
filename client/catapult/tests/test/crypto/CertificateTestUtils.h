@@ -74,4 +74,36 @@ namespace catapult { namespace test {
 	};
 
 	// endregion
+
+	// region PemCertificate
+
+	/// Pem certificate generator.
+	class PemCertificate {
+	public:
+		/// Creates pem certificate with random node key pair.
+		PemCertificate();
+
+		/// Creates pem certificate around \a nodeKeyPair.
+		explicit PemCertificate(const crypto::KeyPair& nodeKeyPair);
+
+		/// Creates pem certificate around \a caKeyPair and \a nodeKeyPair.
+		PemCertificate(const crypto::KeyPair& caKeyPair, const crypto::KeyPair& nodeKeyPair);
+
+	public:
+		/// Gets the key in pem format.
+		const std::string& keyString() const;
+
+		/// Gets the dhparam in pem format.
+		const std::string& dhParamString() const;
+
+		/// Gets the certificate chain in pem format.
+		const std::string& certificateChainString() const;
+
+	private:
+		std::string m_pemKey;
+		std::string m_pemDhParams;
+		std::string m_pemCertificateChain;
+	};
+
+	// endregion
 }}

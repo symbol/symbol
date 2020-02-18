@@ -21,6 +21,7 @@
 #include "CertificateTestUtils.h"
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/crypto/KeyUtils.h"
+#include "catapult/utils/HexParser.h"
 #include "catapult/exceptions.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 
@@ -29,6 +30,8 @@
 #pragma clang diagnostic ignored "-Wold-style-cast"
 #pragma clang diagnostic ignored "-Wreserved-id-macro"
 #endif
+#include <openssl/bio.h>
+#include <openssl/pem.h>
 #include <openssl/x509.h>
 #ifdef __clang__
 #pragma clang diagnostic pop
@@ -121,6 +124,128 @@ namespace catapult { namespace test {
 
 	X509* CertificateBuilder::get() {
 		return m_pCertificate.get();
+	}
+
+	// endregion
+
+	// region PemCertificate
+
+	namespace {
+		struct BioWrapper {
+		public:
+			BioWrapper() : m_pBio(std::shared_ptr<BIO>(BIO_new(BIO_s_mem()), BIO_free)) {
+				if (!m_pBio)
+					throw std::bad_alloc();
+			}
+
+		public:
+			operator BIO*() const {
+				return m_pBio.get();
+			}
+
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wold-style-cast"
+#endif
+
+			std::string toString() const {
+				char* pBioData = nullptr;
+				auto bioSize = static_cast<size_t>(BIO_get_mem_data(m_pBio.get(), &pBioData));
+				return std::string(pBioData, pBioData + bioSize);
+			}
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+
+		private:
+			std::shared_ptr<BIO> m_pBio;
+		};
+
+		auto GeneratePemKey(const crypto::KeyPair& keyPair) {
+			BioWrapper bio;
+			auto pKey = GenerateCertificateKey(keyPair);
+			if (!PEM_write_bio_PrivateKey(bio, pKey.get(), nullptr, nullptr, 0, nullptr, nullptr))
+				CATAPULT_THROW_RUNTIME_ERROR("error writing key to bio");
+
+			return bio.toString();
+		}
+
+		auto GenerateLowSecurityDhParams() {
+			auto pDh = std::shared_ptr<DH>(DH_new(), DH_free);
+			if (!pDh)
+				throw std::bad_alloc();
+
+			// note, this uses BN_generate_prime_ex, with min 8 bits and requirement p mod 24 == 11
+			// the lowest prime that it will generate should be 16 bits
+			if (!DH_generate_parameters_ex(pDh.get(), 8, DH_GENERATOR_2, nullptr))
+				CATAPULT_THROW_RUNTIME_ERROR("could not generate dh parameters");
+
+			int codes = 0;
+			if (!DH_check(pDh.get(), &codes))
+				CATAPULT_THROW_RUNTIME_ERROR("could not generate dh parameters");
+
+			return pDh;
+		}
+
+		auto GeneratePemDh() {
+			BioWrapper bio;
+			auto pDhParams = GenerateLowSecurityDhParams();
+			if (!PEM_write_bio_DHparams(bio, pDhParams.get()))
+				CATAPULT_THROW_RUNTIME_ERROR("error writing dh params to bio");
+
+			return bio.toString();
+		}
+
+		auto GeneratePemCertificateChain(const crypto::KeyPair& caKeyPair, const crypto::KeyPair& nodeKeyPair) {
+			auto pCaKey = GenerateCertificateKey(caKeyPair);
+			CertificateBuilder caCertBuilder;
+			caCertBuilder.setIssuer("XD", "CA", "Ca cert");
+			caCertBuilder.setSubject("XD", "CA", "Ca cert");
+			caCertBuilder.setPublicKey(*pCaKey.get());
+			auto caCert = caCertBuilder.buildAndSign();
+
+			auto pNodeKey = GenerateCertificateKey(nodeKeyPair);
+			CertificateBuilder nodeCertBuilder;
+			nodeCertBuilder.setIssuer("XD", "CA", "Ca cert");
+			nodeCertBuilder.setSubject("US", "Symbol", "nijuichi");
+			nodeCertBuilder.setPublicKey(*pNodeKey.get());
+			auto nodeCert = nodeCertBuilder.buildAndSign(*pCaKey.get());
+
+			// write both certs to bio (order matters)
+			BioWrapper bio;
+			if (!PEM_write_bio_X509(bio, nodeCert.get()))
+				CATAPULT_THROW_RUNTIME_ERROR("error writing node cert to bio");
+
+			if (!PEM_write_bio_X509(bio, caCert.get()))
+				CATAPULT_THROW_RUNTIME_ERROR("error writing ca cert to bio");
+
+			return bio.toString();
+		}
+	}
+
+	PemCertificate::PemCertificate() : PemCertificate(GenerateKeyPair())
+	{}
+
+	PemCertificate::PemCertificate(const crypto::KeyPair& nodeKeyPair) : PemCertificate(GenerateKeyPair(), nodeKeyPair)
+	{}
+
+	PemCertificate::PemCertificate(const crypto::KeyPair& caKeyPair, const crypto::KeyPair& nodeKeyPair)
+			: m_pemKey(GeneratePemKey(nodeKeyPair))
+			, m_pemDhParams(GeneratePemDh())
+			, m_pemCertificateChain(GeneratePemCertificateChain(caKeyPair, nodeKeyPair))
+	{}
+
+	const std::string& PemCertificate::keyString() const {
+		return m_pemKey;
+	}
+
+	const std::string& PemCertificate::dhParamString() const {
+		return m_pemDhParams;
+	}
+
+	const std::string& PemCertificate::certificateChainString() const {
+		return m_pemCertificateChain;
 	}
 
 	// endregion
