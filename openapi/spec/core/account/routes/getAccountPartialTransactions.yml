@@ -9,7 +9,7 @@ parameters:
   - $ref: "../../../parameters/pageSize.yml"
   - $ref: "../../../parameters/transactionIdLimit.yml"
   - $ref: "../../../parameters/ordering.yml"
-  - $ref: "../../../parameters/transactionType.yml"
+  - $ref: "../../../parameters/transactionTypes.yml"
 responses:
   "200":
     description: success
