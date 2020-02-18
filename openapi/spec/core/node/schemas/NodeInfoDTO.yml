@@ -2,6 +2,7 @@ type: object
 required:
   - version
   - publicKey
+  - networkGenerationHash
   - roles
   - port
   - networkIdentifier
@@ -15,6 +16,8 @@ properties:
     example: 0
   publicKey:
     $ref: "../../../schemas/PublicKey.yml"
+  networkGenerationHash:
+    $ref: "../../../schemas/Hash256.yml"
   roles:
     $ref: "./RolesTypeEnum.yml"
   port:
