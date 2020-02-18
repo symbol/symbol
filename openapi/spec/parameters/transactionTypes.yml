@@ -1,0 +1,6 @@
+name: type
+in: query
+description: Transaction types to filter by, separated by commas.
+schema:
+  type: string
+  example: 16717,16718,16973
