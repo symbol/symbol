@@ -81,7 +81,7 @@ namespace catapult { namespace timesync {
 				auto pServiceGroup = state.pool().pushServiceGroup(Service_Group);
 				auto pNodeNetworkTimeRequestor = pServiceGroup->pushService(
 						CreateNodeNetworkTimeRequestor,
-						locator.keyPair(),
+						locator.keyPair().publicKey(),
 						connectionSettings);
 
 				locator.registerService(Requestor_Service_Name, pNodeNetworkTimeRequestor);

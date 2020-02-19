@@ -25,7 +25,6 @@
 #include <memory>
 
 namespace catapult {
-	namespace crypto { class KeyPair; }
 	namespace ionet {
 		class PacketSocket;
 		class PacketSocketInfo;
@@ -59,11 +58,11 @@ namespace catapult { namespace net {
 		virtual void shutdown() = 0;
 	};
 
-	/// Creates a client connector for a server with a key pair of \a keyPair using \a pPool and configured with \a settings.
+	/// Creates a client connector for a server with specified \a serverPublicKey using \a pPool and configured with \a settings.
 	/// Optional friendly \a name can be provided to tag logs.
 	std::shared_ptr<ClientConnector> CreateClientConnector(
 			const std::shared_ptr<thread::IoThreadPool>& pPool,
-			const crypto::KeyPair& keyPair,
+			const Key& serverPublicKey,
 			const ConnectionSettings& settings,
 			const char* name = nullptr);
 }}

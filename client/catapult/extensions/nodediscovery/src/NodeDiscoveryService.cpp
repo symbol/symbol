@@ -103,7 +103,7 @@ namespace catapult { namespace nodediscovery {
 				auto pServiceGroup = state.pool().pushServiceGroup("node_discovery");
 				auto pNodePingRequestor = pServiceGroup->pushService(
 						CreateNodePingRequestor,
-						locator.keyPair(),
+						locator.keyPair().publicKey(),
 						connectionSettings,
 						networkFingerprint);
 

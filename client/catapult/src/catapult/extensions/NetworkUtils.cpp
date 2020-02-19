@@ -52,7 +52,15 @@ namespace catapult { namespace extensions {
 		settings.MaxPacketDataSize = config.Node.MaxPacketDataSize;
 
 		settings.SslOptions.ContextSupplier = ionet::CreateSslContextSupplier(config.User.CertificateDirectory);
-		settings.SslOptions.VerifyCallback = [](const auto&) {
+
+		// TODO: workaround for tests.catapult.int.node.stress to simulate unique identities
+		static std::atomic<uint64_t> counter(0);
+		settings.SslOptions.VerifyCallback = [](auto& verifyContext) {
+			auto marker = ++counter;
+
+			Key publicKey;
+			std::memcpy(publicKey.data(), &marker, sizeof(marker));
+			verifyContext.setPublicKey(publicKey);
 			return true;
 		};
 		return settings;

@@ -27,9 +27,6 @@ namespace catapult { namespace net {
 	/* Underlying socket operation failed. */ \
 	ENUM_VALUE(Socket_Error) \
 	\
-	/* Peer failed verification. */ \
-	ENUM_VALUE(Verify_Error) \
-	\
 	/* Self connection was detected and bypassed. */ \
 	ENUM_VALUE(Self_Connection_Error) \
 	\

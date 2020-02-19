@@ -60,6 +60,7 @@ namespace catapult { namespace ionet {
 		bool m_preverified;
 		boost::asio::ssl::verify_context* m_pVerifyContext;
 		Key* m_pPublicKey;
+		Key m_publicKeyBacking;
 	};
 
 	/// Packet socket ssl options.

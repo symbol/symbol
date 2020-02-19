@@ -62,7 +62,7 @@ namespace catapult { namespace packetserver {
 				auto pReaders = pServiceGroup->pushService(
 						net::CreatePacketReaders,
 						state.packetHandlers(),
-						locator.keyPair(),
+						locator.keyPair().publicKey(),
 						extensions::GetConnectionSettings(config),
 						config.Node.MaxIncomingConnectionsPerIdentity);
 				extensions::BootServer(

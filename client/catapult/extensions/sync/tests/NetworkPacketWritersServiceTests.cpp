@@ -21,7 +21,6 @@
 #include "sync/src/NetworkPacketWritersService.h"
 #include "catapult/api/ChainPackets.h"
 #include "catapult/ionet/PacketPayloadFactory.h"
-#include "catapult/net/VerifyPeer.h"
 #include "tests/test/local/PacketWritersServiceTestUtils.h"
 #include "tests/test/local/ServiceTestUtils.h"
 #include "tests/TestHarness.h"
@@ -56,10 +55,8 @@ namespace catapult { namespace sync {
 	TEST(TEST_CLASS, WritersAreRegisteredInPacketIoPickers) {
 		// Arrange: create a (tcp) server
 		auto pPool = test::CreateStartedIoThreadPool();
-		auto serverKeyPair = test::GenerateKeyPair();
-		test::SpawnPacketServerWork(pPool->ioContext(), [&serverKeyPair](const auto& pServer) {
-			net::VerifyClient(pServer, serverKeyPair, ionet::ConnectionSecurityMode::None, [](auto, const auto&) {});
-		});
+		auto serverPublicKey = test::GenerateRandomByteArray<Key>();
+		test::SpawnPacketServerWork(pPool->ioContext(), [](const auto&) {});
 
 		// Act: create and boot the service
 		TestContext context;
@@ -67,7 +64,7 @@ namespace catapult { namespace sync {
 		auto pickers = context.testState().state().packetIoPickers();
 
 		// - get the packet writers and attempt to connect to the server
-		test::ConnectToLocalHost(*GetPacketWriters(context.locator()), serverKeyPair.publicKey());
+		test::ConnectToLocalHost(*GetPacketWriters(context.locator()), serverPublicKey);
 
 		// Assert: the writers are registered with role `Peer`
 		EXPECT_EQ(1u, pickers.pickMatching(utils::TimeSpan::FromSeconds(1), ionet::NodeRoles::Peer).size());
@@ -82,16 +79,10 @@ namespace catapult { namespace sync {
 		// Arrange: create a (tcp) server
 		ionet::ByteBuffer packetBuffer;
 		auto pPool = test::CreateStartedIoThreadPool();
-		auto serverKeyPair = test::GenerateKeyPair();
-		test::SpawnPacketServerWork(pPool->ioContext(), [&ioContext = pPool->ioContext(), &packetBuffer, &serverKeyPair](
-				const auto& pServer) {
-			// - verify the client
-			net::VerifyClient(pServer, serverKeyPair, ionet::ConnectionSecurityMode::None, [&ioContext, &packetBuffer, pServer](
-					auto,
-					const auto&) {
-				// - read the packet and copy it into packetBuffer
-				test::AsyncReadIntoBuffer(ioContext, *pServer, packetBuffer);
-			});
+		auto serverPublicKey = test::GenerateRandomByteArray<Key>();
+		test::SpawnPacketServerWork(pPool->ioContext(), [&ioContext = pPool->ioContext(), &packetBuffer](const auto& pServer) {
+			// read the packet and copy it into packetBuffer
+			test::AsyncReadIntoBuffer(ioContext, *pServer, packetBuffer);
 		});
 
 		// - create and boot the service
@@ -100,7 +91,7 @@ namespace catapult { namespace sync {
 		auto sink = context.testState().state().hooks().packetPayloadSink();
 
 		// - get the packet writers and attempt to connect to the server
-		test::ConnectToLocalHost(*GetPacketWriters(context.locator()), serverKeyPair.publicKey());
+		test::ConnectToLocalHost(*GetPacketWriters(context.locator()), serverPublicKey);
 
 		// Sanity: a single connection was accepted
 		EXPECT_EQ(1u, context.counter(NetworkPacketWritersServiceTraits::Counter_Name));
@@ -145,16 +136,14 @@ namespace catapult { namespace sync {
 				std::atomic<size_t> numCallbacks(0);
 				test::SpawnPacketServerWork(acceptor, [&](const auto& pSocket) {
 					serverSockets.push_back(pSocket);
-					net::VerifyClient(pSocket, peerKeyPair, ionet::ConnectionSecurityMode::None, [&numCallbacks](auto, const auto&) {
-						++numCallbacks;
-					});
+					++numCallbacks;
 				});
 
 				pWriters->connect(node, [&](auto) {
 					++numCallbacks;
 				});
 
-				// - wait for both verifications to complete
+				// - wait for both connections to complete
 				WAIT_FOR_VALUE(2u, numCallbacks);
 			}
 

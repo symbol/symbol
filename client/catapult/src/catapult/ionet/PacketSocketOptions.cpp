@@ -26,7 +26,7 @@ namespace catapult { namespace ionet {
 	PacketSocketSslVerifyContext::PacketSocketSslVerifyContext()
 			: m_preverified(false)
 			, m_pVerifyContext(nullptr)
-			, m_pPublicKey(nullptr)
+			, m_pPublicKey(&m_publicKeyBacking)
 	{}
 
 	PacketSocketSslVerifyContext::PacketSocketSslVerifyContext(

@@ -27,7 +27,6 @@
 #include <memory>
 
 namespace catapult {
-	namespace crypto { class KeyPair; }
 	namespace ionet {
 		class PacketIo;
 		class PacketSocket;
@@ -49,12 +48,12 @@ namespace catapult { namespace net {
 		virtual void shutdown() = 0;
 	};
 
-	/// Creates a packet readers container for a server with a key pair of \a keyPair using \a pPool and \a handlers,
+	/// Creates a packet readers container for a server with specified \a serverPublicKey using \a pPool and \a handlers,
 	/// configured with \a settings and allowing \a maxConnectionsPerIdentity.
 	std::shared_ptr<PacketReaders> CreatePacketReaders(
 			const std::shared_ptr<thread::IoThreadPool>& pPool,
 			const ionet::ServerPacketHandlers& handlers,
-			const crypto::KeyPair& keyPair,
+			const Key& serverPublicKey,
 			const ConnectionSettings& settings,
 			uint32_t maxConnectionsPerIdentity);
 }}

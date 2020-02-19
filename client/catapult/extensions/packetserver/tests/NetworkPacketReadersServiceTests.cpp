@@ -90,6 +90,9 @@ namespace catapult { namespace packetserver {
 		auto pPool = test::CreateStartedIoThreadPool();
 		auto pIo = test::ConnectToLocalHost(pPool->ioContext(), test::GetLocalHostPort(), context.publicKey());
 
+		// - wait for a single connection
+		WAIT_FOR_ONE_EXPR(context.counter(Counter_Name));
+
 		// Assert: a single connection was accepted
 		EXPECT_EQ(1u, context.counter(Counter_Name));
 	}
@@ -148,8 +151,8 @@ namespace catapult { namespace packetserver {
 		auto pPool = test::CreateStartedIoThreadPool();
 		auto pIo = test::ConnectToLocalHost(pPool->ioContext(), test::GetLocalHostPort(), context.publicKey());
 
-		// Sanity: a single connection was accepted
-		EXPECT_EQ(1u, context.counter(Counter_Name));
+		// - wait for a single connection
+		WAIT_FOR_ONE_EXPR(context.counter(Counter_Name));
 
 		// Act: send a simple squares request
 		ionet::ByteBuffer packetBuffer;

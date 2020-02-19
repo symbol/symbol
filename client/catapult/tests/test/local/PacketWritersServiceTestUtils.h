@@ -22,7 +22,6 @@
 #include "NetworkTestUtils.h"
 #include "ServiceLocatorTestContext.h"
 #include "catapult/ionet/PacketSocket.h"
-#include "catapult/net/VerifyPeer.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/net/SocketTestUtils.h"
@@ -126,9 +125,7 @@ namespace catapult { namespace test {
 			// Arrange: create a (tcp) server
 			auto pPool = CreateStartedIoThreadPool();
 			auto serverKeyPair = GenerateKeyPair();
-			SpawnPacketServerWork(pPool->ioContext(), [&serverKeyPair](const auto& pServer) {
-				net::VerifyClient(pServer, serverKeyPair, ionet::ConnectionSecurityMode::None, [](auto, const auto&) {});
-			});
+			SpawnPacketServerWork(pPool->ioContext(), [](const auto&) {});
 
 			// - create the service
 			TestContext context;
@@ -155,15 +152,9 @@ namespace catapult { namespace test {
 			ionet::ByteBuffer packetBuffer;
 			auto pPool = CreateStartedIoThreadPool();
 			auto serverKeyPair = GenerateKeyPair();
-			SpawnPacketServerWork(pPool->ioContext(), [&ioContext = pPool->ioContext(), &packetBuffer, &serverKeyPair](
-					const auto& pServer) {
-				// - verify the client
-				net::VerifyClient(pServer, serverKeyPair, ionet::ConnectionSecurityMode::None, [&ioContext, &packetBuffer, pServer](
-						auto,
-						const auto&) {
-					// - read the packet and copy it into packetBuffer
-					AsyncReadIntoBuffer(ioContext, *pServer, packetBuffer);
-				});
+			SpawnPacketServerWork(pPool->ioContext(), [&ioContext = pPool->ioContext(), &packetBuffer](const auto& pServer) {
+				// - read the packet and copy it into packetBuffer
+				AsyncReadIntoBuffer(ioContext, *pServer, packetBuffer);
 			});
 
 			// - create and boot the service
@@ -194,8 +185,7 @@ namespace catapult { namespace test {
 			// Arrange: create a (tcp) server
 			auto pPool = CreateStartedIoThreadPool();
 			auto serverKeyPair = GenerateKeyPair();
-			SpawnPacketServerWork(pPool->ioContext(), [&serverKeyPair](const auto& pServer) {
-				net::VerifyClient(pServer, serverKeyPair, ionet::ConnectionSecurityMode::None, [](auto, const auto&) {});
+			SpawnPacketServerWork(pPool->ioContext(), [](const auto&) {
 			});
 
 			// Act: create and boot the service

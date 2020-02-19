@@ -24,7 +24,6 @@
 #include "NodeTestUtils.h"
 #include "catapult/crypto/Signer.h"
 #include "catapult/ionet/PacketSocket.h"
-#include "catapult/net/Challenge.h"
 #include "catapult/net/ConnectionSettings.h"
 #include "catapult/thread/IoThreadPool.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"

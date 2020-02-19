@@ -73,17 +73,11 @@ namespace catapult { namespace tools {
 			const ionet::Node& node,
 			const std::shared_ptr<thread::IoThreadPool>& pPool) {
 		auto pPromise = std::make_shared<thread::promise<std::shared_ptr<ionet::PacketIo>>>();
-		auto pConnector = net::CreateServerConnector(pPool, clientKeyPair, CreateToolConnectionSettings(), "tool");
+		auto pConnector = net::CreateServerConnector(pPool, clientKeyPair.publicKey(), CreateToolConnectionSettings(), "tool");
 		pConnector->connect(node, [node, pPool, pPromise](auto connectResult, const auto& socketInfo) {
 			switch (connectResult) {
 			case net::PeerConnectCode::Accepted:
 				return pPromise->set_value(CreateBufferedPacketIo(socketInfo.socket(), pPool));
-
-			case net::PeerConnectCode::Verify_Error:
-				CATAPULT_LOG(fatal)
-						<< "verification problem - client expected following public key from the server: "
-						<< crypto::FormatKey(node.identity().PublicKey);
-				return pPromise->set_exception(MakePeerConnectException(node, connectResult));
 
 			default:
 				CATAPULT_LOG(fatal) << "error occurred when trying to connect to node: " << connectResult;

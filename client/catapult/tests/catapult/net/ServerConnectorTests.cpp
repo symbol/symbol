@@ -19,10 +19,8 @@
 **/
 
 #include "catapult/net/ServerConnector.h"
-#include "catapult/crypto/KeyPair.h"
 #include "catapult/ionet/Node.h"
 #include "catapult/ionet/PacketSocket.h"
-#include "catapult/net/VerifyPeer.h"
 #include "catapult/thread/IoThreadPool.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/net/ClientSocket.h"
@@ -43,11 +41,11 @@ namespace catapult { namespace net {
 			{}
 
 			explicit ConnectorTestContext(const ConnectionSettings& settings = test::CreateConnectionSettings())
-					: ServerKeyPair(test::GenerateKeyPair())
-					, ClientKeyPair(test::GenerateKeyPair())
+					: ServerPublicKey(test::GenerateRandomByteArray<Key>())
+					, ClientPublicKey(test::GenerateRandomByteArray<Key>())
 					, pPool(test::CreateStartedIoThreadPool())
 					, IoContext(pPool->ioContext())
-					, pConnector(CreateServerConnector(pPool, ClientKeyPair, settings))
+					, pConnector(CreateServerConnector(pPool, ClientPublicKey, settings))
 			{}
 
 			~ConnectorTestContext() {
@@ -59,15 +57,15 @@ namespace catapult { namespace net {
 			}
 
 		public:
-			crypto::KeyPair ServerKeyPair;
-			crypto::KeyPair ClientKeyPair;
+			Key ServerPublicKey;
+			Key ClientPublicKey;
 			std::shared_ptr<thread::IoThreadPool> pPool;
 			boost::asio::io_context& IoContext;
 			std::shared_ptr<ServerConnector> pConnector;
 
 		public:
 			ionet::Node serverNode() const {
-				return test::CreateLocalHostNode(ServerKeyPair.publicKey());
+				return test::CreateLocalHostNode(ServerPublicKey);
 			}
 
 			void waitForActiveConnections(uint32_t numConnections) const {
@@ -93,9 +91,7 @@ namespace catapult { namespace net {
 				std::atomic<size_t> numCallbacks(0);
 				test::SpawnPacketServerWork(acceptor, [&](const auto& pSocket) {
 					state.ServerSockets.push_back(pSocket);
-					VerifyClient(pSocket, context.ServerKeyPair, ionet::ConnectionSecurityMode::None, [&](auto, const auto&) {
-						++numCallbacks;
-					});
+					++numCallbacks;
 				});
 
 				context.pConnector->connect(context.serverNode(), [&](auto connectResult, const auto& connectedSocketInfo) {
@@ -104,7 +100,7 @@ namespace catapult { namespace net {
 					++numCallbacks;
 				});
 
-				// - wait for both verifications to complete
+				// - wait for both connections to complete
 				WAIT_FOR_VALUE(2u, numCallbacks);
 			}
 
@@ -119,7 +115,7 @@ namespace catapult { namespace net {
 	TEST(TEST_CLASS, CanCreateConnectorWithDefaultName) {
 		// Act:
 		auto pPool = test::CreateStartedIoThreadPool();
-		auto pConnector = CreateServerConnector(std::move(pPool), test::GenerateKeyPair(), ConnectionSettings());
+		auto pConnector = CreateServerConnector(std::move(pPool), Key(), ConnectionSettings());
 
 		// Assert:
 		EXPECT_EQ(0u, pConnector->numActiveConnections());
@@ -129,7 +125,7 @@ namespace catapult { namespace net {
 	TEST(TEST_CLASS, CanCreateConnectorWithCustomName) {
 		// Act:
 		auto pPool = test::CreateStartedIoThreadPool();
-		auto pConnector = CreateServerConnector(std::move(pPool), test::GenerateKeyPair(), ConnectionSettings(), "Crazy Amazing");
+		auto pConnector = CreateServerConnector(std::move(pPool), Key(), ConnectionSettings(), "Crazy Amazing");
 
 		// Assert:
 		EXPECT_EQ(0u, pConnector->numActiveConnections());
@@ -143,7 +139,7 @@ namespace catapult { namespace net {
 	TEST(TEST_CLASS, ConnectFailsOnSelfConnectionError_WhenSelfConnectionsDisallowed) {
 		// Arrange:
 		ConnectorTestContext context;
-		context.ServerKeyPair = test::CopyKeyPair(context.ClientKeyPair);
+		context.ServerPublicKey = context.ClientPublicKey;
 		std::atomic<size_t> numCallbacks(0);
 
 		// Act: try to connect to a server with same public key
@@ -168,7 +164,7 @@ namespace catapult { namespace net {
 		settings.AllowOutgoingSelfConnections = true;
 
 		ConnectorTestContext context(settings);
-		context.ServerKeyPair = test::CopyKeyPair(context.ClientKeyPair);
+		context.ServerPublicKey = context.ClientPublicKey;
 		std::atomic<size_t> numCallbacks(0);
 
 		// Act: try to connect to a server with same public key
@@ -204,36 +200,6 @@ namespace catapult { namespace net {
 
 		// Assert:
 		EXPECT_EQ(PeerConnectCode::Socket_Error, code);
-		test::AssertEmpty(socketInfo);
-		EXPECT_EQ(0u, context.pConnector->numActiveConnections());
-	}
-
-	TEST(TEST_CLASS, ConnectFailsOnVerifyError) {
-		// Arrange:
-		ConnectorTestContext context;
-		std::atomic<size_t> numCallbacks(0);
-
-		// Act: start a server and client verify operation
-		PeerConnectCode code;
-		test::SpawnPacketServerWork(context.IoContext, [&](const auto& pSocket) {
-			// - trigger a verify error by closing the socket without responding
-			pSocket->close();
-			++numCallbacks;
-		});
-
-		ionet::PacketSocketInfo socketInfo;
-		context.pConnector->connect(context.serverNode(), [&](auto connectCode, const auto& connectedSocketInfo) {
-			code = connectCode;
-			socketInfo = connectedSocketInfo;
-			++numCallbacks;
-		});
-
-		// - wait for both callbacks to complete and the connection to close
-		WAIT_FOR_VALUE(2u, numCallbacks);
-		context.waitForActiveConnections(0);
-
-		// Assert: the verification should have failed and all connections should have been destroyed
-		EXPECT_EQ(PeerConnectCode::Verify_Error, code);
 		test::AssertEmpty(socketInfo);
 		EXPECT_EQ(0u, context.pConnector->numActiveConnections());
 	}
@@ -306,61 +272,6 @@ namespace catapult { namespace net {
 		}
 
 		EXPECT_EQ(Num_Connections, context.pConnector->numActiveConnections());
-	}
-
-	// endregion
-
-	// region connecting socket
-
-	namespace {
-		void RunConnectingSocketTest(const ConnectorTestContext& context, const action& handler) {
-			std::atomic<size_t> numCallbacks(0);
-
-			// Act: start a verify operation that the server does not respond to
-			std::shared_ptr<ionet::PacketSocket> pServerSocket;
-			test::SpawnPacketServerWork(context.IoContext, [&](const auto& pSocket) {
-				pServerSocket = pSocket;
-				++numCallbacks;
-			});
-
-			// - (use a result shared_ptr so that the connect callback is valid even after this function returns)
-			auto pCode = std::make_shared<PeerConnectCode>(static_cast<PeerConnectCode>(-1));
-			context.pConnector->connect(context.serverNode(), [&, pCode](auto connectCode, const auto&) {
-				// note that this is not expected to get called until shutdown because the client doesn't read or write any data
-				*pCode = connectCode;
-			});
-
-			// - wait for the initial work to complete and the connection to become active
-			WAIT_FOR_ONE(numCallbacks);
-			context.waitForActiveConnections(1);
-
-			// Assert: the client connect handler was never called
-			EXPECT_EQ(static_cast<PeerConnectCode>(-1), *pCode);
-
-			// - call the test handler
-			handler();
-		}
-	}
-
-	TEST(TEST_CLASS, VerifyingConnectionIsIncludedInNumActiveConnections) {
-		// Act:
-		ConnectorTestContext context;
-		RunConnectingSocketTest(context, [&]() {
-			// Assert: the verifying connection is active
-			EXPECT_EQ(1u, context.pConnector->numActiveConnections());
-		});
-	}
-
-	TEST(TEST_CLASS, ShutdownClosesVerifyingSocket) {
-		// Act:
-		ConnectorTestContext context;
-		RunConnectingSocketTest(context, [&]() {
-			// Act: shutdown the connector
-			context.pConnector->shutdown();
-
-			// Assert: the verifying socket is no longer active
-			EXPECT_EQ(0u, context.pConnector->numActiveConnections());
-		});
 	}
 
 	// endregion
@@ -445,16 +356,6 @@ namespace catapult { namespace net {
 		const auto Num_Expected_Active_Connections = 0;
 		auto settings = test::CreateConnectionSettings();
 		settings.Timeout = utils::TimeSpan::FromMilliseconds(0);
-
-		// Assert:
-		RunTimeoutTest(settings, Num_Expected_Active_Connections);
-	}
-
-	TEST(TEST_CLASS, TimeoutClosesVerifyingSocket) {
-		// Arrange: timeout with some delay (during verify where 1 active connection is expected)
-		const auto Num_Expected_Active_Connections = 1;
-		auto settings = test::CreateConnectionSettings();
-		settings.Timeout = utils::TimeSpan::FromMilliseconds(50);
 
 		// Assert:
 		RunTimeoutTest(settings, Num_Expected_Active_Connections);

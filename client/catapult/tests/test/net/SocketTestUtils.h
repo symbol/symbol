@@ -28,7 +28,6 @@
 #include <thread>
 
 namespace catapult {
-	namespace crypto { class KeyPair; }
 	namespace ionet {
 		class PacketIo;
 		class PacketSocket;

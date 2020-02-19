@@ -19,10 +19,8 @@
 **/
 
 #include "catapult/net/PacketReaders.h"
-#include "catapult/crypto/KeyPair.h"
 #include "catapult/ionet/PacketSocket.h"
 #include "catapult/ionet/SocketReader.h"
-#include "catapult/net/VerifyPeer.h"
 #include "catapult/thread/IoThreadPool.h"
 #include "tests/catapult/net/test/ConnectionContainerTestUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
@@ -39,7 +37,7 @@ namespace catapult { namespace net {
 		// region basic test utils / aliases
 
 		static constexpr auto ToIdentity = test::ConnectionContainerTestUtils::ToIdentity;
-		static constexpr auto ToIdentitySet = test::ConnectionContainerTestUtils::KeyPairsToIdentitySet;
+		static constexpr auto ToIdentitySet = test::ConnectionContainerTestUtils::PublicKeysToIdentitySet;
 		static constexpr auto PickIdentities = test::ConnectionContainerTestUtils::PickIdentities;
 		static constexpr auto AssertEqualIdentities = test::AssertEqualIdentities;
 
@@ -49,22 +47,22 @@ namespace catapult { namespace net {
 
 		struct PacketReadersTestContext {
 		public:
-			explicit PacketReadersTestContext(uint32_t numClientKeyPairs = 1, uint32_t maxConnectionsPerIdentity = 1)
-					: PacketReadersTestContext(ionet::ServerPacketHandlers(), numClientKeyPairs, maxConnectionsPerIdentity)
+			explicit PacketReadersTestContext(uint32_t numClientPublicKeys = 1, uint32_t maxConnectionsPerIdentity = 1)
+					: PacketReadersTestContext(ionet::ServerPacketHandlers(), numClientPublicKeys, maxConnectionsPerIdentity)
 			{}
 
 			PacketReadersTestContext(
 					const ionet::ServerPacketHandlers& handlers,
-					uint32_t numClientKeyPairs,
+					uint32_t numClientPublicKeys,
 					uint32_t maxConnectionsPerIdentity,
 					const ConnectionSettings& connectionSettings = ConnectionSettings())
-					: ServerKeyPair(test::GenerateKeyPair())
+					: ServerPublicKey(test::GenerateRandomByteArray<Key>())
 					, pPool(test::CreateStartedIoThreadPool())
 					, IoContext(pPool->ioContext())
 					, Handlers(handlers)
-					, pReaders(CreatePacketReaders(pPool, Handlers, ServerKeyPair, connectionSettings, maxConnectionsPerIdentity)) {
-				for (auto i = 0u; i < numClientKeyPairs; ++i) {
-					ClientKeyPairs.push_back(test::GenerateKeyPair());
+					, pReaders(CreatePacketReaders(pPool, Handlers, ServerPublicKey, connectionSettings, maxConnectionsPerIdentity)) {
+				for (auto i = 0u; i < numClientPublicKeys; ++i) {
+					ClientPublicKeys.push_back(test::GenerateRandomByteArray<Key>());
 					Hosts.push_back(std::to_string(i));
 				}
 			}
@@ -76,8 +74,8 @@ namespace catapult { namespace net {
 			}
 
 		public:
-			crypto::KeyPair ServerKeyPair; // the server hosting the PacketReaders instance
-			std::vector<crypto::KeyPair> ClientKeyPairs; // accepted clients forwarded to the server
+			Key ServerPublicKey; // the server hosting the PacketReaders instance
+			std::vector<Key> ClientPublicKeys; // accepted clients forwarded to the server
 			std::vector<std::string> Hosts;
 			std::shared_ptr<thread::IoThreadPool> pPool;
 			boost::asio::io_context& IoContext;
@@ -95,8 +93,8 @@ namespace catapult { namespace net {
 		};
 
 		void UseSharedPublicKey(PacketReadersTestContext& context) {
-			for (auto& keyPair : context.ClientKeyPairs)
-				keyPair = test::CopyKeyPair(context.ClientKeyPairs[0]);
+			for (auto& publicKey : context.ClientPublicKeys)
+				publicKey = context.ClientPublicKeys[0];
 		}
 
 		void UseSharedHost(PacketReadersTestContext& context) {
@@ -118,10 +116,10 @@ namespace catapult { namespace net {
 			// Act: start multiple server and client verify operations
 			MultiConnectionState state;
 			test::TcpAcceptor acceptor(context.IoContext);
-			for (auto i = 0u; i < context.ClientKeyPairs.size(); ++i) {
+			for (auto i = 0u; i < context.ClientPublicKeys.size(); ++i) {
 				std::atomic<size_t> numCallbacks(0);
 				auto host = context.Hosts[i];
-				auto clientPublicKey = context.ClientKeyPairs[i].publicKey();
+				auto clientPublicKey = context.ClientPublicKeys[i];
 				test::SpawnPacketServerWork(acceptor, [&, host, clientPublicKey](const auto& pSocket) {
 					state.ServerSockets.push_back(pSocket);
 					context.pReaders->accept(ionet::PacketSocketInfo(host, clientPublicKey, pSocket), [&](const auto& connectResult) {
@@ -130,19 +128,13 @@ namespace catapult { namespace net {
 					});
 				});
 
-				bool isServerVerified = false;
-				test::SpawnPacketClientWork(context.IoContext, [&, i](const auto& pSocket) {
+				test::SpawnPacketClientWork(context.IoContext, [&](const auto& pSocket) {
 					state.ClientSockets.push_back(pSocket);
-					auto serverPeerInfo = VerifiedPeerInfo{ context.ServerKeyPair.publicKey(), ionet::ConnectionSecurityMode::None };
-					VerifyServer(pSocket, serverPeerInfo, context.ClientKeyPairs[i], [&](auto result, const auto&) {
-						isServerVerified = VerifyResult::Success == result;
-						++numCallbacks;
-					});
+					++numCallbacks;
 				});
 
-				// - wait for both verifications to complete and make sure the client verified too
+				// - wait for both connections to complete
 				WAIT_FOR_VALUE(2u, numCallbacks);
-				EXPECT_TRUE(isServerVerified);
 			}
 
 			return state;
@@ -152,13 +144,6 @@ namespace catapult { namespace net {
 	}
 
 	// region custom test macros
-
-#define EXPECT_NUM_PENDING_READERS(EXPECTED_NUM_READERS, READERS) \
-	do { \
-		EXPECT_EQ(EXPECTED_NUM_READERS, (READERS).numActiveConnections()); \
-		EXPECT_EQ(0u, (READERS).numActiveReaders()); \
-		EXPECT_EQ(0u, (READERS).identities().size()); \
-	} while (false)
 
 #define EXPECT_NUM_ACTIVE_READERS(EXPECTED_NUM_READERS, READERS) \
 	do { \
@@ -181,7 +166,7 @@ namespace catapult { namespace net {
 	namespace {
 		auto CreateDefaultPacketReaders() {
 			auto pPool = utils::UniqueToShared(test::CreateStartedIoThreadPool());
-			return CreatePacketReaders(pPool, ionet::ServerPacketHandlers(), test::GenerateKeyPair(), ConnectionSettings(), 1);
+			return CreatePacketReaders(pPool, ionet::ServerPacketHandlers(), Key(), ConnectionSettings(), 1);
 		}
 	}
 
@@ -206,35 +191,6 @@ namespace catapult { namespace net {
 		EXPECT_NUM_ACTIVE_READERS(0u, *pReaders);
 	}
 
-	TEST(TEST_CLASS, AcceptFailsOnVerifyError) {
-		// Arrange:
-		PacketReadersTestContext context;
-		std::atomic<size_t> numCallbacks(0);
-
-		// Act: start a server and client verify operation
-		PeerConnectResult result;
-		test::SpawnPacketServerWork(context.IoContext, [&](const auto& pSocket) {
-			context.pReaders->accept(test::CreatePacketSocketInfo(pSocket), [&](const auto& acceptResult) {
-				result = acceptResult;
-				++numCallbacks;
-			});
-		});
-
-		test::SpawnPacketClientWork(context.IoContext, [&](const auto& pSocket) {
-			// - trigger a verify error by closing the socket without responding
-			pSocket->close();
-			++numCallbacks;
-		});
-
-		// - wait for both callbacks to complete and the connection to close
-		WAIT_FOR_VALUE(2u, numCallbacks);
-		WAIT_FOR_ZERO_EXPR(context.pReaders->numActiveConnections());
-
-		// Assert: the verification should have failed and all connections should have been destroyed
-		EXPECT_EQ(PeerConnectCode::Verify_Error, result.Code);
-		EXPECT_NUM_ACTIVE_READERS(0u, *context.pReaders);
-	}
-
 	// endregion
 
 	// region accepted reader
@@ -257,10 +213,10 @@ namespace catapult { namespace net {
 		RunConnectedSocketTest(context, [&](const auto& connectResult, const auto&, const auto&) {
 			// Assert: the verification should have succeeded and the connection should be active
 			EXPECT_EQ(PeerConnectCode::Accepted, connectResult.Code);
-			EXPECT_EQ(context.ClientKeyPairs[0].publicKey(), connectResult.Identity.PublicKey);
+			EXPECT_EQ(context.ClientPublicKeys[0], connectResult.Identity.PublicKey);
 			EXPECT_EQ("0", connectResult.Identity.Host);
 			EXPECT_NUM_ACTIVE_READERS(1u, *context.pReaders);
-			AssertEqualIdentities(ToIdentitySet(context.ClientKeyPairs), context.pReaders->identities());
+			AssertEqualIdentities(ToIdentitySet(context.ClientPublicKeys), context.pReaders->identities());
 		});
 	}
 
@@ -289,13 +245,13 @@ namespace catapult { namespace net {
 		EXPECT_EQ(Num_Connections, state.Results.size());
 		for (const auto& result : state.Results) {
 			EXPECT_EQ(PeerConnectCode::Accepted, result.Code);
-			EXPECT_EQ(context.ClientKeyPairs[i].publicKey(), result.Identity.PublicKey);
+			EXPECT_EQ(context.ClientPublicKeys[i], result.Identity.PublicKey);
 			EXPECT_EQ(std::to_string(i), result.Identity.Host);
 			++i;
 		}
 
 		EXPECT_NUM_ACTIVE_READERS(Num_Connections, *context.pReaders);
-		AssertEqualIdentities(ToIdentitySet(context.ClientKeyPairs), context.pReaders->identities());
+		AssertEqualIdentities(ToIdentitySet(context.ClientPublicKeys), context.pReaders->identities());
 	}
 
 	namespace {
@@ -364,86 +320,25 @@ namespace catapult { namespace net {
 
 	TEST(TEST_CLASS, OnlyOneConnectionIsAllowedPerIdentityByDefault_KeyPrimacy) {
 		AssertSingleConnection(model::NodeIdentityEqualityStrategy::Key, UseSharedPublicKey, [](const auto& context) {
-			return ToIdentitySet(context.ClientKeyPairs);
+			return ToIdentitySet(context.ClientPublicKeys);
 		});
 	}
 
 	TEST(TEST_CLASS, OnlyOneConnectionIsAllowedPerIdentityByDefault_HostPrimacy) {
 		AssertSingleConnection(model::NodeIdentityEqualityStrategy::Host, UseSharedHost, [](const auto& context) {
-			return test::ConnectionContainerTestUtils::HostsToIdentitySet(context.Hosts, context.ClientKeyPairs[0].publicKey());
+			return test::ConnectionContainerTestUtils::HostsToIdentitySet(context.Hosts, context.ClientPublicKeys[0]);
 		});
 	}
 
 	TEST(TEST_CLASS, MultipleConnectionsAreAllowedPerIdentityWithCustomConfiguration_KeyPrimacy) {
 		AssertMultipleConnections(model::NodeIdentityEqualityStrategy::Key, UseSharedPublicKey, [](const auto& context) {
-			return ToIdentitySet(context.ClientKeyPairs);
+			return ToIdentitySet(context.ClientPublicKeys);
 		});
 	}
 
 	TEST(TEST_CLASS, MultipleConnectionsAreAllowedPerIdentityWithCustomConfiguration_HostPrimacy) {
 		AssertMultipleConnections(model::NodeIdentityEqualityStrategy::Host, UseSharedHost, [](const auto& context) {
-			return test::ConnectionContainerTestUtils::HostsToIdentitySet(context.Hosts, context.ClientKeyPairs[0].publicKey());
-		});
-	}
-
-	// endregion
-
-	// region connecting (accepting) reader
-
-	namespace {
-		void RunConnectingSocketTest(const PacketReadersTestContext& context, const ResultServerClientHandler& handler) {
-			std::atomic<size_t> numCallbacks(0);
-
-			// Act: start a server verify operation that the client does not respond to
-			//      (use a result shared_ptr so that the accept callback is valid even after this function returns)
-			auto pResult = std::make_shared<PeerConnectResult>(static_cast<PeerConnectCode>(-1));
-			std::shared_ptr<ionet::PacketSocket> pServerSocket;
-			test::SpawnPacketServerWork(context.IoContext, [&, pResult](const auto& pSocket) {
-				pServerSocket = pSocket;
-				context.pReaders->accept(test::CreatePacketSocketInfo(pSocket), [&, pResult](const auto& acceptResult) {
-					// note that this is not expected to get called until shutdown because the client doesn't read or write any data
-					*pResult = acceptResult;
-				});
-				++numCallbacks;
-			});
-
-			std::shared_ptr<ionet::PacketSocket> pClientSocket;
-			test::SpawnPacketClientWork(context.IoContext, [&](const auto& pSocket) {
-				pClientSocket = pSocket;
-				++numCallbacks;
-			});
-
-			// - wait for the initial work to complete
-			WAIT_FOR_VALUE(2u, numCallbacks);
-
-			// Assert: the server accept callback was neved called
-			EXPECT_EQ(static_cast<PeerConnectCode>(-1), pResult->Code);
-
-			// - call the test handler
-			handler(*pResult, *pServerSocket, *pClientSocket);
-		}
-	}
-
-	TEST(TEST_CLASS, VerifyingConnectionIsIncludedInNumActiveConnections) {
-		// Act:
-		PacketReadersTestContext context;
-		RunConnectingSocketTest(context, [&](auto, const auto&, const auto&) {
-			// Assert: the verifying connection is active
-			EXPECT_NUM_PENDING_READERS(1u, *context.pReaders);
-		});
-	}
-
-	TEST(TEST_CLASS, ShutdownClosesVerifyingSocket) {
-		// Act:
-		PacketReadersTestContext context;
-		RunConnectingSocketTest(context, [&](auto, auto& serverSocket, const auto&) {
-			// Act: shutdown the readers
-			context.pReaders->shutdown();
-			test::WaitForClosedSocket(serverSocket);
-
-			// Assert: the server socket was closed
-			EXPECT_FALSE(test::IsSocketOpen(serverSocket));
-			EXPECT_NUM_ACTIVE_READERS(0u, *context.pReaders);
+			return test::ConnectionContainerTestUtils::HostsToIdentitySet(context.Hosts, context.ClientPublicKeys[0]);
 		});
 	}
 
@@ -503,7 +398,7 @@ namespace catapult { namespace net {
 			for (auto i = 0u; i < numConnections; ++i) {
 				auto message = "tagged packet " + std::to_string(i);
 				EXPECT_EQ(sendBuffers[i], receiveBuffers[i]) << message;
-				EXPECT_EQ(context.ClientKeyPairs[i].publicKey(), receiveIdentities[i].PublicKey) << message;
+				EXPECT_EQ(context.ClientPublicKeys[i], receiveIdentities[i].PublicKey) << message;
 				EXPECT_EQ(std::to_string(i), receiveIdentities[i].Host) << message;
 			}
 		}
@@ -552,8 +447,8 @@ namespace catapult { namespace net {
 	TEST(TEST_CLASS, ReadErrorDisconnectsAllConnectedSocketsWithSameIdentity) {
 		// Act: establish five connections, three of which have the same identity
 		PacketReadersTestContext context(5, 3);
-		context.ClientKeyPairs[2] = test::CopyKeyPair(context.ClientKeyPairs[0]);
-		context.ClientKeyPairs[4] = test::CopyKeyPair(context.ClientKeyPairs[0]);
+		context.ClientPublicKeys[2] = context.ClientPublicKeys[0];
+		context.ClientPublicKeys[4] = context.ClientPublicKeys[0];
 
 		auto state = SetupMultiConnectionTest(context);
 		auto& readers = *context.pReaders;
@@ -568,7 +463,7 @@ namespace catapult { namespace net {
 
 		// Assert: three readers (shared identity) were destroyed
 		EXPECT_EQ(2u, readers.numActiveReaders());
-		AssertEqualIdentities(PickIdentities(context.ClientKeyPairs, { 1, 3 }), readers.identities());
+		AssertEqualIdentities(PickIdentities(context.ClientPublicKeys, { 1, 3 }), readers.identities());
 
 		// Sanity: closing the corresponding server socket removes the pending connection too
 		state.ServerSockets[0].reset();
@@ -581,8 +476,8 @@ namespace catapult { namespace net {
 	TEST(TEST_CLASS, CloseDoesNotTriggerAnyDisconnectionsOfSocketsWithSameIdentity) {
 		// Act: establish five connections, three of which have the same identity
 		PacketReadersTestContext context(5, 3);
-		context.ClientKeyPairs[2] = test::CopyKeyPair(context.ClientKeyPairs[0]);
-		context.ClientKeyPairs[4] = test::CopyKeyPair(context.ClientKeyPairs[0]);
+		context.ClientPublicKeys[2] = context.ClientPublicKeys[0];
+		context.ClientPublicKeys[4] = context.ClientPublicKeys[0];
 
 		auto state = SetupMultiConnectionTest(context);
 		auto& readers = *context.pReaders;
@@ -596,7 +491,7 @@ namespace catapult { namespace net {
 
 		// Assert: one reader (closed one) was destroyed
 		EXPECT_EQ(4u, readers.numActiveReaders());
-		AssertEqualIdentities(PickIdentities(context.ClientKeyPairs, { 0, 1, 3 }), readers.identities());
+		AssertEqualIdentities(PickIdentities(context.ClientPublicKeys, { 0, 1, 3 }), readers.identities());
 
 		// Sanity: closing the corresponding server socket removes the pending connection too
 		state.ServerSockets[2].reset();
@@ -618,12 +513,12 @@ namespace catapult { namespace net {
 		EXPECT_NUM_ACTIVE_READERS(2u, readers);
 
 		// Act: close one connection
-		auto isClosed = readers.closeOne(ToIdentity(context.ClientKeyPairs[0].publicKey()));
+		auto isClosed = readers.closeOne(ToIdentity(context.ClientPublicKeys[0]));
 
 		// Assert: one reader was destroyed
 		EXPECT_TRUE(isClosed);
 		EXPECT_EQ(1u, readers.numActiveReaders());
-		AssertEqualIdentities(PickIdentities(context.ClientKeyPairs, { 1 }), readers.identities());
+		AssertEqualIdentities(PickIdentities(context.ClientPublicKeys, { 1 }), readers.identities());
 
 		// Sanity: closing the corresponding server socket removes the pending connection too
 		state.ServerSockets[0].reset();
@@ -646,14 +541,14 @@ namespace catapult { namespace net {
 		// Assert:
 		EXPECT_FALSE(isClosed);
 		EXPECT_NUM_ACTIVE_READERS(2u, readers);
-		AssertEqualIdentities(ToIdentitySet(context.ClientKeyPairs), readers.identities());
+		AssertEqualIdentities(ToIdentitySet(context.ClientPublicKeys), readers.identities());
 	}
 
 	TEST(TEST_CLASS, CloseOneCanCloseAllSocketsWithMatchingIdentity) {
 		// Act: establish five connections, three of which have the same identity
 		PacketReadersTestContext context(5, 3);
-		context.ClientKeyPairs[2] = test::CopyKeyPair(context.ClientKeyPairs[0]);
-		context.ClientKeyPairs[4] = test::CopyKeyPair(context.ClientKeyPairs[0]);
+		context.ClientPublicKeys[2] = context.ClientPublicKeys[0];
+		context.ClientPublicKeys[4] = context.ClientPublicKeys[0];
 
 		auto state = SetupMultiConnectionTest(context);
 		auto& readers = *context.pReaders;
@@ -662,12 +557,12 @@ namespace catapult { namespace net {
 		EXPECT_NUM_ACTIVE_READERS_AND_IDENTITIES(5u, 3u, readers);
 
 		// Act: close one connection
-		auto isClosed = readers.closeOne(ToIdentity(context.ClientKeyPairs[2].publicKey()));
+		auto isClosed = readers.closeOne(ToIdentity(context.ClientPublicKeys[2]));
 
 		// Assert: three readers (shared identity) were destroyed
 		EXPECT_TRUE(isClosed);
 		EXPECT_EQ(2u, readers.numActiveReaders());
-		AssertEqualIdentities(PickIdentities(context.ClientKeyPairs, { 1, 3 }), readers.identities());
+		AssertEqualIdentities(PickIdentities(context.ClientPublicKeys, { 1, 3 }), readers.identities());
 
 		// Sanity: closing the corresponding server socket removes the pending connection too
 		state.ServerSockets[0].reset();

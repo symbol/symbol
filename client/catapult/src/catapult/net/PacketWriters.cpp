@@ -289,11 +289,11 @@ namespace catapult { namespace net {
 		public:
 			DefaultPacketWriters(
 					const std::shared_ptr<thread::IoThreadPool>& pPool,
-					const crypto::KeyPair& keyPair,
+					const Key& serverPublicKey,
 					const ConnectionSettings& settings)
 					: m_pPool(pPool)
-					, m_pClientConnector(CreateClientConnector(m_pPool, keyPair, settings, "writers"))
-					, m_pServerConnector(CreateServerConnector(m_pPool, keyPair, settings, "writers"))
+					, m_pClientConnector(CreateClientConnector(m_pPool, serverPublicKey, settings, "writers"))
+					, m_pServerConnector(CreateServerConnector(m_pPool, serverPublicKey, settings, "writers"))
 					, m_networkIdentifier(settings.NetworkIdentifier)
 					, m_writers(settings.NodeIdentityEqualityStrategy)
 			{}
@@ -460,8 +460,8 @@ namespace catapult { namespace net {
 
 	std::shared_ptr<PacketWriters> CreatePacketWriters(
 			const std::shared_ptr<thread::IoThreadPool>& pPool,
-			const crypto::KeyPair& keyPair,
+			const Key& serverPublicKey,
 			const ConnectionSettings& settings) {
-		return std::make_shared<DefaultPacketWriters>(pPool, keyPair, settings);
+		return std::make_shared<DefaultPacketWriters>(pPool, serverPublicKey, settings);
 	}
 }}

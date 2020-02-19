@@ -86,7 +86,7 @@ namespace catapult { namespace local {
 
 				auto pServerConnector = pServiceGroup->pushService(
 						net::CreateServerConnector,
-						locator.keyPair(),
+						locator.keyPair().publicKey(),
 						connectionSettings,
 						"static node refresh");
 				locator.registerService("snr.server_connector", pServerConnector);

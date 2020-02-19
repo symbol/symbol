@@ -20,7 +20,6 @@
 
 #include "catapult/local/server/StaticNodeRefreshService.h"
 #include "catapult/ionet/PacketSocket.h"
-#include "catapult/net/VerifyPeer.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"
 #include "tests/test/local/ServiceTestUtils.h"
@@ -111,9 +110,7 @@ namespace catapult { namespace local {
 			std::vector<std::unique_ptr<test::TcpAcceptor>> acceptors;
 			for (auto i = 0u; i < remoteKeyPairs.size(); ++i) {
 				acceptors.push_back(std::make_unique<test::TcpAcceptor>(ioContext, test::GetLocalHostPort() + i));
-				test::SpawnPacketServerWork(*acceptors.back(), [&remoteKeyPair = remoteKeyPairs[i]](const auto& pSocket) {
-					net::VerifyClient(pSocket, remoteKeyPair, ionet::ConnectionSecurityMode::None, [](auto, const auto&) {});
-				});
+				test::SpawnPacketServerWork(*acceptors.back(), [](const auto&) {});
 			}
 
 			return acceptors;
@@ -210,8 +207,7 @@ namespace catapult { namespace local {
 		auto remoteKeyPairs = GenerateKeyPairs(3);
 		auto staticNodes = std::vector<ionet::Node>{
 			CreateNamedLocalHostNode(remoteKeyPairs[0].publicKey(), "x", 0, "alice"), // invalid host
-			CreateNamedLocalHostNode(remoteKeyPairs[1].publicKey(), "127.0.0.1", 1, "bob"), // valid host
-			CreateNamedLocalHostNode(remoteKeyPairs[1].publicKey(), "127.0.0.1", 2, "charlie") // fails challenge
+			CreateNamedLocalHostNode(remoteKeyPairs[1].publicKey(), "127.0.0.1", 1, "bob") // valid host
 		};
 		context.boot(staticNodes);
 

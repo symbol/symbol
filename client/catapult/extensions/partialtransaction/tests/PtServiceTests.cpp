@@ -79,10 +79,8 @@ namespace catapult { namespace partialtransaction {
 	TEST(TEST_CLASS, WritersAreRegisteredInPacketIoPickers) {
 		// Arrange: create a (tcp) server
 		auto pPool = test::CreateStartedIoThreadPool();
-		auto serverKeyPair = test::GenerateKeyPair();
-		test::SpawnPacketServerWork(pPool->ioContext(), [&serverKeyPair](const auto& pServer) {
-			net::VerifyClient(pServer, serverKeyPair, ionet::ConnectionSecurityMode::None, [](auto, const auto&) {});
-		});
+		auto serverPublicKey = test::GenerateRandomByteArray<Key>();
+		test::SpawnPacketServerWork(pPool->ioContext(), [](const auto&) {});
 
 		// Act: create and boot the service
 		TestContext context;
@@ -90,7 +88,7 @@ namespace catapult { namespace partialtransaction {
 		auto pickers = context.testState().state().packetIoPickers();
 
 		// - get the packet writers and attempt to connect to the server
-		test::ConnectToLocalHost(*PtServiceTraits::GetWriters(context.locator()), serverKeyPair.publicKey());
+		test::ConnectToLocalHost(*PtServiceTraits::GetWriters(context.locator()), serverPublicKey);
 
 		// Assert: the writers are registered with role `Api`
 		EXPECT_EQ(0u, pickers.pickMatching(utils::TimeSpan::FromSeconds(1), ionet::NodeRoles::Peer).size());

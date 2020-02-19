@@ -64,7 +64,7 @@ namespace catapult { namespace eventsource {
 				const auto& config = state.config();
 				auto connectionSettings = extensions::GetConnectionSettings(config);
 				auto pServiceGroup = state.pool().pushServiceGroup("api");
-				auto pWriters = pServiceGroup->pushService(net::CreatePacketWriters, locator.keyPair(), connectionSettings);
+				auto pWriters = pServiceGroup->pushService(net::CreatePacketWriters, locator.keyPair().publicKey(), connectionSettings);
 				extensions::BootServer(
 						*pServiceGroup,
 						config.Node.ApiPort,

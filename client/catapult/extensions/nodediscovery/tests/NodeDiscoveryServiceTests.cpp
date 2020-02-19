@@ -22,7 +22,6 @@
 #include "catapult/ionet/NetworkNode.h"
 #include "catapult/ionet/PacketSocket.h"
 #include "catapult/net/ServerConnector.h"
-#include "catapult/net/VerifyPeer.h"
 #include "nodediscovery/tests/test/NodeDiscoveryTestUtils.h"
 #include "tests/test/core/PacketPayloadTestUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"

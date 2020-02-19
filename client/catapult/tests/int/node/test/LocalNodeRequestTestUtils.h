@@ -51,7 +51,11 @@ namespace catapult { namespace test {
 		explicit ExternalSourceConnection(const ionet::Node& node)
 				: m_pPool(CreateStartedIoThreadPool(1))
 				, m_clientKeyPair(crypto::KeyPair::FromPrivate(GenerateRandomPrivateKey()))
-				, m_pConnector(net::CreateServerConnector(m_pPool, m_clientKeyPair, CreateConnectionSettings(), "external source"))
+				, m_pConnector(net::CreateServerConnector(
+						m_pPool,
+						m_clientKeyPair.publicKey(),
+						CreateConnectionSettings(),
+						"external source"))
 				, m_localNode(node)
 		{}
 

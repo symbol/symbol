@@ -19,8 +19,6 @@
 **/
 
 #include "ClientConnector.h"
-#include "VerifyPeer.h"
-#include "catapult/crypto/KeyPair.h"
 #include "catapult/ionet/PacketSocket.h"
 #include "catapult/thread/IoThreadPool.h"
 #include "catapult/thread/TimedCallback.h"
@@ -40,11 +38,11 @@ namespace catapult { namespace net {
 		public:
 			DefaultClientConnector(
 					const std::shared_ptr<thread::IoThreadPool>& pPool,
-					const crypto::KeyPair& keyPair,
+					const Key& serverPublicKey,
 					const ConnectionSettings& settings,
 					const std::string& name)
 					: m_pPool(pPool)
-					, m_keyPair(keyPair)
+					, m_serverPublicKey(serverPublicKey)
 					, m_settings(settings)
 					, m_name(name)
 					, m_tag(m_name.empty() ? std::string() : " (" + m_name + ")")
@@ -65,34 +63,14 @@ namespace catapult { namespace net {
 				if (!acceptedSocketInfo)
 					return callback(PeerConnectCode::Socket_Error, nullptr, Empty_Key);
 
+				if (!m_settings.AllowIncomingSelfConnections && m_serverPublicKey == acceptedSocketInfo.publicKey()) {
+					CATAPULT_LOG(warning) << "self accept detected and aborted" << m_tag;
+					return callback(PeerConnectCode::Self_Connection_Error, nullptr, Empty_Key);
+				}
+
 				auto pAcceptedSocket = acceptedSocketInfo.socket();
 				m_sockets.insert(pAcceptedSocket);
-
-				auto pRequest = thread::MakeTimedCallback(
-						m_pPool->ioContext(),
-						callback,
-						PeerConnectCode::Timed_Out,
-						PacketSocketPointer(),
-						Empty_Key);
-				pRequest->setTimeout(m_settings.Timeout);
-				pRequest->setTimeoutHandler([pAcceptedSocket]() { pAcceptedSocket->close(); });
-
-				auto securityModes = ionet::ConnectionSecurityMode::None;
-				VerifyClient(pAcceptedSocket, m_keyPair, securityModes, [pThis = shared_from_this(), pAcceptedSocket, pRequest](
-						auto verifyResult,
-						const auto& verifiedPeerInfo) {
-					if (VerifyResult::Success != verifyResult) {
-						CATAPULT_LOG(warning) << "VerifyClient failed with " << verifyResult << pThis->m_tag;
-						return pRequest->callback(PeerConnectCode::Verify_Error, nullptr, Empty_Key);
-					}
-
-					if (!pThis->m_settings.AllowIncomingSelfConnections && pThis->m_keyPair.publicKey() == verifiedPeerInfo.PublicKey) {
-						CATAPULT_LOG(warning) << "self accept detected and aborted" << pThis->m_tag;
-						return pRequest->callback(PeerConnectCode::Self_Connection_Error, nullptr, Empty_Key);
-					}
-
-					return pRequest->callback(PeerConnectCode::Accepted, pAcceptedSocket, verifiedPeerInfo.PublicKey);
-				});
+				callback(PeerConnectCode::Accepted, pAcceptedSocket, acceptedSocketInfo.publicKey());
 			}
 
 			void shutdown() override {
@@ -102,7 +80,7 @@ namespace catapult { namespace net {
 
 		private:
 			std::shared_ptr<thread::IoThreadPool> m_pPool;
-			const crypto::KeyPair& m_keyPair;
+			Key m_serverPublicKey;
 			ConnectionSettings m_settings;
 
 			std::string m_name;
@@ -114,9 +92,9 @@ namespace catapult { namespace net {
 
 	std::shared_ptr<ClientConnector> CreateClientConnector(
 			const std::shared_ptr<thread::IoThreadPool>& pPool,
-			const crypto::KeyPair& keyPair,
+			const Key& serverPublicKey,
 			const ConnectionSettings& settings,
 			const char* name) {
-		return std::make_shared<DefaultClientConnector>(pPool, keyPair, settings, name ? std::string(name) : std::string());
+		return std::make_shared<DefaultClientConnector>(pPool, serverPublicKey, settings, name ? std::string(name) : std::string());
 	}
 }}

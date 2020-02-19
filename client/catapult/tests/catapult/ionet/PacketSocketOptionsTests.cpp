@@ -33,6 +33,7 @@ namespace catapult { namespace ionet {
 
 		// Assert:
 		EXPECT_FALSE(context.preverified());
+		EXPECT_NO_THROW(context.publicKey());
 	}
 
 	TEST(TEST_CLASS, PacketSocketSslVerifyContext_CanCreateWithArguments) {
