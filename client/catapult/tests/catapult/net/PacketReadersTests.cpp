@@ -120,9 +120,11 @@ namespace catapult { namespace net {
 			test::TcpAcceptor acceptor(context.IoContext);
 			for (auto i = 0u; i < context.ClientKeyPairs.size(); ++i) {
 				std::atomic<size_t> numCallbacks(0);
-				test::SpawnPacketServerWork(acceptor, [&, host = context.Hosts[i]](const auto& pSocket) {
+				auto host = context.Hosts[i];
+				auto clientPublicKey = context.ClientKeyPairs[i].publicKey();
+				test::SpawnPacketServerWork(acceptor, [&, host, clientPublicKey](const auto& pSocket) {
 					state.ServerSockets.push_back(pSocket);
-					context.pReaders->accept(ionet::PacketSocketInfo(host, pSocket), [&](const auto& connectResult) {
+					context.pReaders->accept(ionet::PacketSocketInfo(host, clientPublicKey, pSocket), [&](const auto& connectResult) {
 						state.Results.push_back(connectResult);
 						++numCallbacks;
 					});
@@ -212,7 +214,7 @@ namespace catapult { namespace net {
 		// Act: start a server and client verify operation
 		PeerConnectResult result;
 		test::SpawnPacketServerWork(context.IoContext, [&](const auto& pSocket) {
-			context.pReaders->accept(ionet::PacketSocketInfo("", pSocket), [&](const auto& acceptResult) {
+			context.pReaders->accept(test::CreatePacketSocketInfo(pSocket), [&](const auto& acceptResult) {
 				result = acceptResult;
 				++numCallbacks;
 			});
@@ -398,9 +400,8 @@ namespace catapult { namespace net {
 			std::shared_ptr<ionet::PacketSocket> pServerSocket;
 			test::SpawnPacketServerWork(context.IoContext, [&, pResult](const auto& pSocket) {
 				pServerSocket = pSocket;
-				context.pReaders->accept(ionet::PacketSocketInfo("", pSocket), [&, pResult](const auto& acceptResult) {
-					// note that this is not expected to get called until shutdown because the client doesn't read
-					// or write any data
+				context.pReaders->accept(test::CreatePacketSocketInfo(pSocket), [&, pResult](const auto& acceptResult) {
+					// note that this is not expected to get called until shutdown because the client doesn't read or write any data
 					*pResult = acceptResult;
 				});
 				++numCallbacks;

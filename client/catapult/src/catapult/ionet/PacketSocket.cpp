@@ -340,11 +340,12 @@ namespace catapult { namespace ionet {
 		// region BasicPacketSocket
 
 		namespace {
-			void ConfigureSslVerify(Socket& socket) {
+			void ConfigureSslVerify(Socket& socket, Key& publicKey, const predicate<PacketSocketSslVerifyContext&>& verifyCallback) {
 				socket.set_verify_mode(boost::asio::ssl::verify_peer);
 				socket.set_verify_depth(1);
-				socket.set_verify_callback([](auto, const auto&) {
-					return true;
+				socket.set_verify_callback([&publicKey, verifyCallback](auto preverified, auto& asioVerifyContext) {
+					PacketSocketSslVerifyContext verifyContext(preverified, asioVerifyContext, publicKey);
+					return verifyCallback(verifyContext);
 				});
 			}
 		}
@@ -366,7 +367,7 @@ namespace catapult { namespace ionet {
 					, m_socket(m_pSocketGuard->socket())
 					, m_buffer(options)
 					, m_wrapper(wrapper) {
-				ConfigureSslVerify(m_socket);
+				ConfigureSslVerify(m_socket, m_publicKey, options.SslOptions.VerifyCallback);
 			}
 
 		public:
@@ -414,6 +415,10 @@ namespace catapult { namespace ionet {
 				return m_socket;
 			}
 
+			const Key& publicKey() const {
+				return m_publicKey;
+			}
+
 			boost::asio::io_context::strand& strand() {
 				return m_pSocketGuard->strand();
 			}
@@ -429,6 +434,7 @@ namespace catapult { namespace ionet {
 		private:
 			std::shared_ptr<SocketGuard> m_pSocketGuard;
 			Socket& m_socket;
+			Key m_publicKey;
 			WorkingBuffer m_buffer;
 			TSocketCallbackWrapper& m_wrapper;
 		};
@@ -538,6 +544,10 @@ namespace catapult { namespace ionet {
 				return m_socket.impl();
 			}
 
+			const Key& publicKey() const {
+				return m_socket.publicKey();
+			}
+
 			boost::asio::io_context::strand& strand() {
 				return m_socket.strand();
 			}
@@ -597,6 +607,35 @@ namespace catapult { namespace ionet {
 		// endregion
 	}
 
+	// region PacketSocketInfo
+
+	PacketSocketInfo::PacketSocketInfo()
+	{}
+
+	PacketSocketInfo::PacketSocketInfo(const std::string& host, const Key& publicKey, const std::shared_ptr<PacketSocket>& pPacketSocket)
+			: m_host(host)
+			, m_publicKey(publicKey)
+			, m_pPacketSocket(pPacketSocket)
+	{}
+
+	const std::string& PacketSocketInfo::host() const {
+		return m_host;
+	}
+
+	const Key& PacketSocketInfo::publicKey() const {
+		return m_publicKey;
+	}
+
+	const std::shared_ptr<PacketSocket>& PacketSocketInfo::socket() const {
+		return m_pPacketSocket;
+	}
+
+	PacketSocketInfo::operator bool() const {
+		return !!m_pPacketSocket;
+	}
+
+	// endregion
+
 	// region Accept
 
 	namespace {
@@ -654,7 +693,7 @@ namespace catapult { namespace ionet {
 
 				CATAPULT_LOG(debug) << "invoking user callback after successful async_accept " << m_pSocket->id();
 				m_pSocket->markOpen();
-				return m_accept(PacketSocketInfo(m_host, m_pSocket));
+				return m_accept(PacketSocketInfo(m_host, m_pSocket->publicKey(), m_pSocket));
 			}
 
 		private:
@@ -767,7 +806,7 @@ namespace catapult { namespace ionet {
 				if (ConnectResult::Connected == callbackResult) {
 					m_pSocket->setOptions();
 					m_pSocket->markOpen();
-					m_callback(callbackResult, PacketSocketInfo(m_endpoint.address().to_string(), m_pSocket));
+					m_callback(callbackResult, PacketSocketInfo(m_endpoint.address().to_string(), m_pSocket->publicKey(), m_pSocket));
 				} else {
 					m_callback(callbackResult, PacketSocketInfo());
 				}

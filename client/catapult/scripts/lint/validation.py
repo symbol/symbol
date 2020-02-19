@@ -556,7 +556,7 @@ class MultiConditionChecker(SimpleValidator):
 
     def __init__(self):
         super().__init__()
-        self.patternOperatorBool = re.compile(r'operator bool')
+        self.patternOperatorBool = re.compile(r'[^\:]operator bool')
         self.patternOperatorBoolWithExplicit = re.compile(r'explicit operator bool')
         self.patternTest = re.compile(r'\s+(NO_STRESS_)?TEST\(')
         self.patternTestClass = re.compile(r'TEST\([A-Z_]*TEST_CLASS')

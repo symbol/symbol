@@ -52,6 +52,9 @@ namespace catapult { namespace extensions {
 		settings.MaxPacketDataSize = config.Node.MaxPacketDataSize;
 
 		settings.SslOptions.ContextSupplier = ionet::CreateSslContextSupplier(config.User.CertificateDirectory);
+		settings.SslOptions.VerifyCallback = [](const auto&) {
+			return true;
+		};
 		return settings;
 	}
 
@@ -115,6 +118,7 @@ namespace catapult { namespace extensions {
 			};
 			ionet::PacketSocketInfo decoratedSocketInfo(
 					socketInfo.host(),
+					socketInfo.publicKey(),
 					ionet::AddReadRateMonitor(socketInfo.socket(), rateMonitorSettings, timeSupplier, rateExceededHandler));
 
 			bootServerState.Acceptor.accept(decoratedSocketInfo, [bootServerState, pCurrentNodeIdentity](const auto& connectResult) {

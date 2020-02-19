@@ -209,9 +209,11 @@ namespace catapult { namespace net {
 			auto numConnections = context.ClientKeyPairs.size();
 			for (auto i = 0u; i < numConnections; ++i) {
 				std::atomic<size_t> numCallbacks(0);
-				test::SpawnPacketServerWork(acceptor, [&, host = context.Hosts[i]](const auto& pSocket) {
+				auto host = context.Hosts[i];
+				auto clientPublicKey = context.ClientKeyPairs[i].publicKey();
+				test::SpawnPacketServerWork(acceptor, [&, host, clientPublicKey](const auto& pSocket) {
 					state.ServerSockets.push_back(pSocket);
-					context.pWriters->accept(ionet::PacketSocketInfo(host, pSocket), [&](auto acceptResult) {
+					context.pWriters->accept(ionet::PacketSocketInfo(host, clientPublicKey, pSocket), [&](auto acceptResult) {
 						state.Results.push_back(acceptResult);
 						++numCallbacks;
 					});
@@ -349,7 +351,7 @@ namespace catapult { namespace net {
 		// Act: start a server and client verify operation
 		PeerConnectResult result;
 		test::SpawnPacketServerWork(context.IoContext, [&](const auto& pSocket) {
-			context.pWriters->accept(ionet::PacketSocketInfo("", pSocket), [&](auto acceptResult) {
+			context.pWriters->accept(test::CreatePacketSocketInfo(pSocket), [&](auto acceptResult) {
 				result = acceptResult;
 				++numCallbacks;
 			});
@@ -567,7 +569,7 @@ namespace catapult { namespace net {
 			std::shared_ptr<ionet::PacketSocket> pServerSocket;
 			test::SpawnPacketServerWork(context.IoContext, [&, pResult](const auto& pSocket) {
 				pServerSocket = pSocket;
-				context.pWriters->accept(ionet::PacketSocketInfo("", pSocket), [&, pResult](const auto& acceptResult) {
+				context.pWriters->accept(test::CreatePacketSocketInfo(pSocket), [&, pResult](const auto& acceptResult) {
 					// note that this is not expected to get called until shutdown because the client doesn't read or write any data
 					*pResult = acceptResult;
 				});

@@ -75,38 +75,32 @@ namespace catapult { namespace ionet {
 
 	// region PacketSocketInfo
 
-	/// Pair composed of packet socket and (resolved) host.
+	/// Tuple composed of (resolved) host, public key and packet socket.
 	class PacketSocketInfo {
 	public:
 		/// Creates an empty info.
-		PacketSocketInfo()
-		{}
+		PacketSocketInfo();
 
-		/// Creates an info around \a host and \a pPacketSocket.
-		PacketSocketInfo(const std::string& host, const std::shared_ptr<PacketSocket>& pPacketSocket)
-				: m_host(host)
-				, m_pPacketSocket(pPacketSocket)
-		{}
+		/// Creates an info around \a host, \a publicKey and \a pPacketSocket.
+		PacketSocketInfo(const std::string& host, const Key& publicKey, const std::shared_ptr<PacketSocket>& pPacketSocket);
 
 	public:
 		/// Gets the host.
-		const std::string& host() const {
-			return m_host;
-		}
+		const std::string& host() const;
+
+		/// Gets the public key.
+		const Key& publicKey() const;
 
 		/// Gets the socket.
-		const std::shared_ptr<PacketSocket>& socket() const {
-			return m_pPacketSocket;
-		}
+		const std::shared_ptr<PacketSocket>& socket() const;
 
 	public:
 		/// Returns \c true if this info is not empty.
-		explicit operator bool() const {
-			return !!m_pPacketSocket;
-		}
+		explicit operator bool() const;
 
 	private:
 		std::string m_host;
+		Key m_publicKey;
 		std::shared_ptr<PacketSocket> m_pPacketSocket;
 	};
 

@@ -77,7 +77,7 @@ namespace catapult { namespace net {
 				std::atomic<size_t> numCallbacks(0);
 				test::SpawnPacketServerWork(acceptor, [&](const auto& pSocket) {
 					state.ServerSockets.push_back(pSocket);
-					context.pConnector->accept(pSocket, [&](auto result, const auto&, const auto& key) {
+					context.pConnector->accept(test::CreatePacketSocketInfo(pSocket), [&](auto result, const auto&, const auto& key) {
 						state.Codes.push_back(result);
 						state.ClientKeys.push_back(key);
 						++numCallbacks;
@@ -119,7 +119,10 @@ namespace catapult { namespace net {
 				ClientConnector& connector,
 				const std::shared_ptr<ionet::PacketSocket>& pSocket,
 				AcceptCallbackParams& capture) {
-			connector.accept(pSocket, [&capture](auto acceptConnectCode, const auto& pVerifiedSocket, const auto& key) {
+			connector.accept(test::CreatePacketSocketInfo(pSocket), [&capture](
+					auto acceptConnectCode,
+					const auto& pVerifiedSocket,
+					const auto& key) {
 				capture.Code = acceptConnectCode;
 				capture.pClientSocket = pVerifiedSocket;
 				capture.ClientKey = key;
@@ -313,7 +316,10 @@ namespace catapult { namespace net {
 			std::shared_ptr<ionet::PacketSocket> pServerSocket;
 			test::SpawnPacketServerWork(context.IoContext, [&, pConnectCode](const auto& pSocket) {
 				pServerSocket = pSocket;
-				context.pConnector->accept(pSocket, [&, pConnectCode](auto acceptConnectCode, const auto&, const auto&) {
+				context.pConnector->accept(test::CreatePacketSocketInfo(pSocket), [&, pConnectCode](
+						auto acceptConnectCode,
+						const auto&,
+						const auto&) {
 					// note that this is not expected to get called until shutdown because the client doesn't read or write any data
 					*pConnectCode = acceptConnectCode;
 				});

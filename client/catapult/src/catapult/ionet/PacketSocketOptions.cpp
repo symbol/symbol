@@ -23,6 +23,37 @@
 
 namespace catapult { namespace ionet {
 
+	PacketSocketSslVerifyContext::PacketSocketSslVerifyContext()
+			: m_preverified(false)
+			, m_pVerifyContext(nullptr)
+			, m_pPublicKey(nullptr)
+	{}
+
+	PacketSocketSslVerifyContext::PacketSocketSslVerifyContext(
+			bool preverified,
+			boost::asio::ssl::verify_context& verifyContext,
+			Key& publicKey)
+			: m_preverified(preverified)
+			, m_pVerifyContext(&verifyContext)
+			, m_pPublicKey(&publicKey)
+	{}
+
+	bool PacketSocketSslVerifyContext::preverified() const {
+		return m_preverified;
+	}
+
+	boost::asio::ssl::verify_context& PacketSocketSslVerifyContext::asioVerifyContext() {
+		return *m_pVerifyContext;
+	}
+
+	const Key& PacketSocketSslVerifyContext::publicKey() const {
+		return *m_pPublicKey;
+	}
+
+	void PacketSocketSslVerifyContext::setPublicKey(const Key& publicKey) {
+		*m_pPublicKey = publicKey;
+	}
+
 	supplier<boost::asio::ssl::context&> CreateSslContextSupplier(const boost::filesystem::path& certificateDirectory) {
 		auto pSslContext = std::make_shared<boost::asio::ssl::context>(boost::asio::ssl::context::tlsv13);
 		pSslContext->set_options(

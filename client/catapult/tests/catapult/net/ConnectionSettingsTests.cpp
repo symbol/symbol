@@ -65,7 +65,7 @@ namespace catapult { namespace net {
 			callbackMask += 0x01;
 			CATAPULT_THROW_RUNTIME_ERROR("context supplier error");
 		};
-		settings.SslOptions.VerifyCallback = [&callbackMask](auto, const auto&) {
+		settings.SslOptions.VerifyCallback = [&callbackMask](const auto&) {
 			callbackMask += 0x0100;
 			return true;
 		};
@@ -74,9 +74,9 @@ namespace catapult { namespace net {
 		auto options = settings.toSocketOptions();
 
 		// Assert:
-		int placeholder = 0;
+		ionet::PacketSocketSslVerifyContext verifyContext;
 		EXPECT_THROW(options.SslOptions.ContextSupplier(), catapult_runtime_error);
-		EXPECT_TRUE(options.SslOptions.VerifyCallback(false, reinterpret_cast<boost::asio::ssl::verify_context&>(placeholder)));
+		EXPECT_TRUE(options.SslOptions.VerifyCallback(verifyContext));
 		EXPECT_EQ(0x0101u, callbackMask);
 	}
 }}

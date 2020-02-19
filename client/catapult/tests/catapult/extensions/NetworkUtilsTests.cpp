@@ -108,7 +108,9 @@ namespace catapult { namespace extensions {
 		EXPECT_TRUE(settings.AllowIncomingSelfConnections);
 		EXPECT_FALSE(settings.AllowOutgoingSelfConnections);
 
+		ionet::PacketSocketSslVerifyContext verifyContext;
 		EXPECT_NO_THROW(settings.SslOptions.ContextSupplier());
+		EXPECT_TRUE(settings.SslOptions.VerifyCallback(verifyContext));
 	}
 
 	TEST(TEST_CLASS, CanUpdateAsyncTcpServerSettingsFromCatapultConfiguration) {

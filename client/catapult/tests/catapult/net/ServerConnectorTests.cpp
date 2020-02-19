@@ -39,6 +39,9 @@ namespace catapult { namespace net {
 
 		struct ConnectorTestContext {
 		public:
+			explicit ConnectorTestContext(const Key& publicKey) : ConnectorTestContext(test::CreateConnectionSettings(publicKey))
+			{}
+
 			explicit ConnectorTestContext(const ConnectionSettings& settings = test::CreateConnectionSettings())
 					: ServerKeyPair(test::GenerateKeyPair())
 					, ClientKeyPair(test::GenerateKeyPair())
@@ -79,8 +82,7 @@ namespace catapult { namespace net {
 		struct MultiConnectionState {
 			std::vector<PeerConnectCode> Codes;
 			std::vector<std::shared_ptr<ionet::PacketSocket>> ServerSockets;
-			std::vector<std::shared_ptr<ionet::PacketSocket>> ClientSockets;
-			std::vector<std::string> ClientHosts;
+			std::vector<ionet::PacketSocketInfo> ClientSocketInfos;
 		};
 
 		MultiConnectionState SetupMultiConnectionTest(const ConnectorTestContext& context, size_t numConnections) {
@@ -98,8 +100,7 @@ namespace catapult { namespace net {
 
 				context.pConnector->connect(context.serverNode(), [&](auto connectResult, const auto& connectedSocketInfo) {
 					state.Codes.push_back(connectResult);
-					state.ClientSockets.push_back(connectedSocketInfo.socket());
-					state.ClientHosts.push_back(connectedSocketInfo.host());
+					state.ClientSocketInfos.push_back(connectedSocketInfo);
 					++numCallbacks;
 				});
 
@@ -157,8 +158,7 @@ namespace catapult { namespace net {
 
 		// Assert:
 		EXPECT_EQ(PeerConnectCode::Self_Connection_Error, code);
-		EXPECT_FALSE(!!socketInfo);
-		EXPECT_EQ("", socketInfo.host());
+		test::AssertEmpty(socketInfo);
 		EXPECT_EQ(0u, context.pConnector->numActiveConnections());
 	}
 
@@ -183,8 +183,7 @@ namespace catapult { namespace net {
 
 		// Assert: Self_Connection_Error has priority over Socket_Error
 		EXPECT_EQ(PeerConnectCode::Socket_Error, code);
-		EXPECT_FALSE(!!socketInfo);
-		EXPECT_EQ("", socketInfo.host());
+		test::AssertEmpty(socketInfo);
 		EXPECT_EQ(0u, context.pConnector->numActiveConnections());
 	}
 
@@ -205,8 +204,7 @@ namespace catapult { namespace net {
 
 		// Assert:
 		EXPECT_EQ(PeerConnectCode::Socket_Error, code);
-		EXPECT_FALSE(!!socketInfo);
-		EXPECT_EQ("", socketInfo.host());
+		test::AssertEmpty(socketInfo);
 		EXPECT_EQ(0u, context.pConnector->numActiveConnections());
 	}
 
@@ -236,8 +234,7 @@ namespace catapult { namespace net {
 
 		// Assert: the verification should have failed and all connections should have been destroyed
 		EXPECT_EQ(PeerConnectCode::Verify_Error, code);
-		EXPECT_FALSE(!!socketInfo);
-		EXPECT_EQ("", socketInfo.host());
+		test::AssertEmpty(socketInfo);
 		EXPECT_EQ(0u, context.pConnector->numActiveConnections());
 	}
 
@@ -247,58 +244,65 @@ namespace catapult { namespace net {
 
 	namespace {
 		using ResultServerClientHandler = consumer<
-				PeerConnectCode,
-				std::shared_ptr<ionet::PacketSocket>&,
-				std::shared_ptr<ionet::PacketSocket>&,
-				const std::string&>;
+			PeerConnectCode,
+			const std::shared_ptr<ionet::PacketSocket>&,
+			const ionet::PacketSocketInfo&>;
 
 		void RunConnectedSocketTest(const ConnectorTestContext& context, const ResultServerClientHandler& handler) {
 			// Act: establish a single connection
 			auto state = SetupMultiConnectionTest(context, 1);
 
 			// Assert: call the handler
-			handler(state.Codes.back(), state.ServerSockets.back(), state.ClientSockets.back(), state.ClientHosts.back());
+			handler(state.Codes.back(), state.ServerSockets.back(), state.ClientSocketInfos.back());
 		}
 	}
 
 	TEST(TEST_CLASS, ConnectSucceedsOnVerifySuccess) {
+		// Arrange:
+		auto publicKey = test::GenerateRandomByteArray<Key>();
+		ConnectorTestContext context(publicKey);
+
 		// Act:
-		ConnectorTestContext context;
-		RunConnectedSocketTest(context, [&](auto connectCode, const auto&, const auto& pClientSocket, const auto& host) {
+		RunConnectedSocketTest(context, [&](auto connectCode, const auto&, const auto& clientSocketInfo) {
 			// Assert: the verification should have succeeded and the connection should be active
 			EXPECT_EQ(PeerConnectCode::Accepted, connectCode);
 			EXPECT_EQ(1u, context.pConnector->numActiveConnections());
-			EXPECT_TRUE(!!pClientSocket);
-			EXPECT_EQ("127.0.0.1", host);
+			EXPECT_TRUE(!!clientSocketInfo.socket());
+			EXPECT_EQ("127.0.0.1", clientSocketInfo.host());
+			EXPECT_EQ(publicKey, clientSocketInfo.publicKey());
 		});
 	}
 
 	TEST(TEST_CLASS, ShutdownClosesConnectedSocket) {
 		// Act:
 		ConnectorTestContext context;
-		RunConnectedSocketTest(context, [&](auto, const auto&, const auto& pClientSocket, const auto&) {
+		RunConnectedSocketTest(context, [&context](auto, const auto&, const auto& clientSocketInfo) {
 			// Act: shutdown the connector
 			context.pConnector->shutdown();
-			test::WaitForClosedSocket(*pClientSocket);
+			test::WaitForClosedSocket(*clientSocketInfo.socket());
 
 			// Assert: the client socket was closed
-			EXPECT_FALSE(test::IsSocketOpen(*pClientSocket));
+			EXPECT_FALSE(test::IsSocketOpen(*clientSocketInfo.socket()));
 			EXPECT_EQ(0u, context.pConnector->numActiveConnections());
 		});
 	}
 
 	TEST(TEST_CLASS, CanManageMultipleConnections) {
-		// Act: establish multiple connections
+		// Arrange: establish multiple connections
 		constexpr auto Num_Connections = 5u;
-		ConnectorTestContext context;
+		auto publicKey = test::GenerateRandomByteArray<Key>();
+		ConnectorTestContext context(publicKey);
+
+		// Act:
 		auto state = SetupMultiConnectionTest(context, Num_Connections);
 
 		// Assert: all connections are active
 		EXPECT_EQ(Num_Connections, state.Codes.size());
 		for (auto i = 0u; i < Num_Connections; ++i) {
 			EXPECT_EQ(PeerConnectCode::Accepted, state.Codes[i]);
-			EXPECT_TRUE(!!state.ClientSockets[i]);
-			EXPECT_EQ("127.0.0.1", state.ClientHosts[i]);
+			EXPECT_TRUE(!!state.ClientSocketInfos[i].socket());
+			EXPECT_EQ("127.0.0.1", state.ClientSocketInfos[i].host());
+			EXPECT_EQ(publicKey, state.ClientSocketInfos[i].publicKey());
 		}
 
 		EXPECT_EQ(Num_Connections, context.pConnector->numActiveConnections());
@@ -420,8 +424,7 @@ namespace catapult { namespace net {
 
 			// Assert: the client connect handler was called with a timeout and nullptr
 			EXPECT_EQ(PeerConnectCode::Timed_Out, code);
-			EXPECT_FALSE(!!clientSocketInfo);
-			EXPECT_EQ("", clientSocketInfo.host());
+			test::AssertEmpty(clientSocketInfo);
 
 			// - wait for all connections to be destroyed
 			context.waitForActiveConnections(0);

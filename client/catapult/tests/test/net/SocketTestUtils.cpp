@@ -202,18 +202,34 @@ namespace catapult { namespace test {
 	}
 
 	ionet::PacketSocketSslOptions CreatePacketSocketSslOptions() {
+		return CreatePacketSocketSslOptions(Key());
+	}
+
+	ionet::PacketSocketSslOptions CreatePacketSocketSslOptions(const Key& publicKey) {
 		ionet::PacketSocketSslOptions options;
 		options.ContextSupplier = GetDefaultContextSupplier();
+		options.VerifyCallback = [publicKey](auto& verifyContext) {
+			verifyContext.setPublicKey(publicKey);
+			return true;
+		};
 		return options;
 	}
 
 	ionet::PacketSocketOptions CreatePacketSocketOptions() {
-		return CreateConnectionSettings().toSocketOptions();
+		return CreatePacketSocketOptions(Key());
+	}
+
+	ionet::PacketSocketOptions CreatePacketSocketOptions(const Key& publicKey) {
+		return CreateConnectionSettings(publicKey).toSocketOptions();
 	}
 
 	net::ConnectionSettings CreateConnectionSettings() {
+		return CreateConnectionSettings(Key());
+	}
+
+	net::ConnectionSettings CreateConnectionSettings(const Key& publicKey) {
 		auto settings = net::ConnectionSettings();
-		settings.SslOptions = CreatePacketSocketSslOptions();
+		settings.SslOptions = CreatePacketSocketSslOptions(publicKey);
 		return settings;
 	}
 
@@ -291,6 +307,10 @@ namespace catapult { namespace test {
 
 	// region packet socket utils
 
+	ionet::PacketSocketInfo CreatePacketSocketInfo(const std::shared_ptr<ionet::PacketSocket>& pPacketSocket) {
+		return ionet::PacketSocketInfo("", Key(), pPacketSocket);
+	}
+
 	bool IsSocketOpen(ionet::PacketSocket& socket) {
 		ionet::PacketSocket::Stats stats;
 		std::atomic_bool hasStats(false);
@@ -305,6 +325,13 @@ namespace catapult { namespace test {
 
 	void WaitForClosedSocket(ionet::PacketSocket& socket) {
 		WAIT_FOR_EXPR(!IsSocketOpen(socket));
+	}
+
+	void AssertEmpty(const ionet::PacketSocketInfo& socketInfo) {
+		EXPECT_FALSE(!!socketInfo);
+		EXPECT_EQ("", socketInfo.host());
+		EXPECT_EQ(Key(), socketInfo.publicKey());
+		EXPECT_FALSE(!!socketInfo.socket());
 	}
 
 	// endregion

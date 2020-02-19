@@ -61,10 +61,11 @@ namespace catapult { namespace net {
 			}
 
 		public:
-			void accept(const PacketSocketPointer& pAcceptedSocket, const AcceptCallback& callback) override {
-				if (!pAcceptedSocket)
+			void accept(const ionet::PacketSocketInfo& acceptedSocketInfo, const AcceptCallback& callback) override {
+				if (!acceptedSocketInfo)
 					return callback(PeerConnectCode::Socket_Error, nullptr, Empty_Key);
 
+				auto pAcceptedSocket = acceptedSocketInfo.socket();
 				m_sockets.insert(pAcceptedSocket);
 
 				auto pRequest = thread::MakeTimedCallback(

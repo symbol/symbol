@@ -21,10 +21,47 @@
 #include "catapult/ionet/PacketSocketOptions.h"
 #include "tests/test/net/CertificateLocator.h"
 #include "tests/TestHarness.h"
+#include <boost/asio/ssl.hpp>
 
 namespace catapult { namespace ionet {
 
 #define TEST_CLASS PacketSocketOptionsTests
+
+	TEST(TEST_CLASS, PacketSocketSslVerifyContext_CanCreateDefault) {
+		// Act:
+		PacketSocketSslVerifyContext context;
+
+		// Assert:
+		EXPECT_FALSE(context.preverified());
+	}
+
+	TEST(TEST_CLASS, PacketSocketSslVerifyContext_CanCreateWithArguments) {
+		// Arrange:
+		boost::asio::ssl::verify_context asioVerifyContext(nullptr);
+		Key publicKey;
+
+		// Act:
+		PacketSocketSslVerifyContext context(true, asioVerifyContext, publicKey);
+
+		// Assert:
+		EXPECT_TRUE(context.preverified());
+		EXPECT_EQ(&asioVerifyContext, &context.asioVerifyContext());
+		EXPECT_EQ(&publicKey, &context.publicKey());
+	}
+
+	TEST(TEST_CLASS, PacketSocketSslVerifyContext_CanChangePublicKey) {
+		// Arrange:
+		boost::asio::ssl::verify_context asioVerifyContext(nullptr);
+		Key publicKey;
+		PacketSocketSslVerifyContext context(true, asioVerifyContext, publicKey);
+
+		// Act:
+		auto publicKey2 = test::GenerateRandomByteArray<Key>();
+		context.setPublicKey(publicKey2);
+
+		// Assert:
+		EXPECT_EQ(publicKey2, publicKey);
+	}
 
 	TEST(TEST_CLASS, CanCreateSslContextSupplier) {
 		// Act + Assert

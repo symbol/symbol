@@ -211,11 +211,11 @@ namespace catapult { namespace net {
 
 		public:
 			void accept(const ionet::PacketSocketInfo& socketInfo, const AcceptCallback& callback) override {
-				m_pClientConnector->accept(socketInfo.socket(), [pThis = shared_from_this(), host = socketInfo.host(), callback](
+				m_pClientConnector->accept(socketInfo, [pThis = shared_from_this(), host = socketInfo.host(), callback](
 						auto connectCode,
 						const auto& pVerifiedSocket,
 						const auto& identityKey) {
-					ionet::PacketSocketInfo verifiedSocketInfo(host, pVerifiedSocket);
+					ionet::PacketSocketInfo verifiedSocketInfo(host, identityKey, pVerifiedSocket);
 					if (PeerConnectCode::Accepted == connectCode) {
 						if (!pThis->addReader(identityKey, verifiedSocketInfo))
 							connectCode = PeerConnectCode::Already_Connected;

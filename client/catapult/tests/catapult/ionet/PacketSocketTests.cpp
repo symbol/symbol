@@ -25,6 +25,7 @@
 #include "catapult/ionet/WorkingBuffer.h"
 #include "catapult/thread/IoThreadPool.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
+#include "tests/test/core/mocks/MockPacketSocket.h"
 #include "tests/test/net/ClientSocket.h"
 #include "tests/test/net/NodeTestUtils.h"
 #include "tests/test/net/SocketTestUtils.h"
@@ -784,29 +785,60 @@ namespace catapult { namespace ionet {
 
 	// endregion
 
+	// region PacketSocketInfo
+
+	TEST(TEST_CLASS, PacketSocketInfo_CanCreateDefault) {
+		// Act:
+		PacketSocketInfo socketInfo;
+
+		// Assert:
+		EXPECT_EQ("", socketInfo.host());
+		EXPECT_EQ(Key(), socketInfo.publicKey());
+		EXPECT_FALSE(!!socketInfo.socket());
+	}
+
+	TEST(TEST_CLASS, PacketSocketInfo_CanCreateAroundSocketAndIdentity) {
+		// Arrange:
+		auto publicKey = test::GenerateRandomByteArray<Key>();
+		auto pSocket = std::make_shared<mocks::MockPacketSocket>();
+
+		// Act:
+		PacketSocketInfo socketInfo("a.b.c", publicKey, pSocket);
+
+		// Assert:
+		EXPECT_EQ("a.b.c", socketInfo.host());
+		EXPECT_EQ(publicKey, socketInfo.publicKey());
+		EXPECT_EQ(pSocket, socketInfo.socket());
+	}
+
+	// endregion
+
 	// region Accept
 
 	TEST(TEST_CLASS, AcceptReturnsOpenSocketOnSuccess) {
 		// Arrange:
+		auto publicKey = test::GenerateRandomByteArray<Key>();
 		auto pPool = test::CreateStartedIoThreadPool();
-		auto pAcceptor = test::CreateImplicitlyClosedLocalHostAcceptor(pPool->ioContext());
+		auto& ioContext = pPool->ioContext();
+		auto pAcceptor = test::CreateImplicitlyClosedLocalHostAcceptor(ioContext);
 
 		// Act: "server" - accepts a connection
 		//      "client" - connects to the server
 		PacketSocket::Stats stats;
 		PacketSocketInfo socketInfo;
-		boost::asio::post(pPool->ioContext(), [&ioContext = pPool->ioContext(), &acceptor = *pAcceptor, &stats, &socketInfo]() {
-			Accept(ioContext, acceptor, test::CreatePacketSocketOptions(), [&stats, &socketInfo](const auto& acceptedSocketInfo) {
+		boost::asio::post(ioContext, [&ioContext, &acceptor = *pAcceptor, publicKey, &stats, &socketInfo]() {
+			Accept(ioContext, acceptor, test::CreatePacketSocketOptions(publicKey), [&stats, &socketInfo](const auto& acceptedSocketInfo) {
 				socketInfo = acceptedSocketInfo;
 				socketInfo.socket()->stats([&stats](const auto& socketStats) { stats = socketStats; });
 			});
 		});
-		auto pClientSocket = test::AddClientConnectionTask(pPool->ioContext());
+		auto pClientSocket = test::AddClientConnectionTask(ioContext);
 		pPool->join();
 
 		// Assert: loopback address is used in tests
 		EXPECT_TRUE(!!socketInfo);
 		EXPECT_EQ("127.0.0.1", socketInfo.host());
+		EXPECT_EQ(publicKey, socketInfo.publicKey());
 		EXPECT_TRUE(!!socketInfo.socket());
 
 		EXPECT_TRUE(stats.IsOpen);
@@ -834,9 +866,7 @@ namespace catapult { namespace ionet {
 		pPool->join();
 
 		// Assert:
-		EXPECT_FALSE(!!socketInfo);
-		EXPECT_TRUE(socketInfo.host().empty());
-		EXPECT_FALSE(!!socketInfo.socket());
+		test::AssertEmpty(socketInfo);
 
 		EXPECT_TRUE(isCallbackCalled);
 	}
@@ -862,9 +892,7 @@ namespace catapult { namespace ionet {
 		pPool->join();
 
 		// Assert:
-		EXPECT_FALSE(!!socketInfo);
-		EXPECT_TRUE(socketInfo.host().empty());
-		EXPECT_FALSE(!!socketInfo.socket());
+		test::AssertEmpty(socketInfo);
 
 		EXPECT_TRUE(isCallbackCalled);
 	}
@@ -900,9 +928,7 @@ namespace catapult { namespace ionet {
 				return false;
 
 			// Assert:
-			EXPECT_FALSE(!!socketInfo);
-			EXPECT_TRUE(socketInfo.host().empty());
-			EXPECT_FALSE(!!socketInfo.socket());
+			test::AssertEmpty(socketInfo);
 
 			EXPECT_TRUE(isCallbackCalled);
 			return true;
@@ -964,22 +990,24 @@ namespace catapult { namespace ionet {
 		struct ConnectResultTuple {
 			ConnectResult Result;
 			std::string Host;
+			Key PublicKey;
 			bool IsSocketValid;
 		};
 
-		auto Connect(boost::asio::io_context& ioContext, const NodeEndpoint& endpoint, ConnectResultTuple& result) {
-			auto options = test::CreatePacketSocketOptions();
+		auto Connect(boost::asio::io_context& ioContext, const NodeEndpoint& endpoint, const Key& publicKey, ConnectResultTuple& result) {
+			auto options = test::CreatePacketSocketOptions(publicKey);
 			return ionet::Connect(ioContext, options, endpoint, [&result](auto connectResult, const auto& connectedSocketInfo) {
 				result.Result = connectResult;
 				result.Host = connectedSocketInfo.host();
+				result.PublicKey = connectedSocketInfo.publicKey();
 				result.IsSocketValid = !!connectedSocketInfo;
 			});
 		}
 
-		ConnectResultTuple ConnectAndWait(boost::asio::io_context& ioContext, const NodeEndpoint& endpoint) {
+		ConnectResultTuple ConnectAndWait(boost::asio::io_context& ioContext, const NodeEndpoint& endpoint, const Key& publicKey) {
 			// Act:
 			ConnectResultTuple result;
-			Connect(ioContext, endpoint, result);
+			Connect(ioContext, endpoint, publicKey, result);
 
 			// - wait for all work to complete
 			ioContext.run();
@@ -988,7 +1016,7 @@ namespace catapult { namespace ionet {
 
 		ConnectResultTuple ConnectAndWait(const NodeEndpoint& endpoint) {
 			boost::asio::io_context ioContext;
-			return ConnectAndWait(ioContext, endpoint);
+			return ConnectAndWait(ioContext, endpoint, test::GenerateRandomByteArray<Key>());
 		}
 	}
 
@@ -1012,6 +1040,7 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, ConnectionFailsWhenServerHandshakeFails) {
 		// Arrange: set up a server acceptor thread
+		auto publicKey = test::GenerateRandomByteArray<Key>();
 		boost::asio::io_context ioContext;
 		auto pAcceptor = test::CreateImplicitlyClosedLocalHostAcceptor(ioContext);
 
@@ -1023,32 +1052,27 @@ namespace catapult { namespace ionet {
 		});
 
 		// Act: attempt to connect to a running server
-		auto result = ConnectAndWait(ioContext, test::CreateLocalHostNodeEndpoint());
+		auto result = ConnectAndWait(ioContext, test::CreateLocalHostNodeEndpoint(), publicKey);
 
 		// Assert:
 		EXPECT_EQ(ConnectResult::Handshake_Error, result.Result);
 		EXPECT_FALSE(result.IsSocketValid);
 	}
 
-	namespace {
-		void AssertCanConnectToServer(boost::asio::io_context& ioContext, const NodeEndpoint& endpoint) {
-			// Act: attempt to connect to a running server
-			auto result = ConnectAndWait(ioContext, endpoint);
-
-			// Assert:
-			EXPECT_EQ(ConnectResult::Connected, result.Result);
-			EXPECT_EQ("127.0.0.1", result.Host);
-			EXPECT_TRUE(result.IsSocketValid);
-		}
-	}
-
 	TEST(TEST_CLASS, ConnectionSucceedsWhenServerAcceptsConnection) {
 		// Arrange: set up a server acceptor thread (this is required to perform ssl handshake)
+		auto publicKey = test::GenerateRandomByteArray<Key>();
 		boost::asio::io_context ioContext;
 		test::SpawnPacketServerWork(ioContext, [](const auto&) {});
 
+		// Act: attempt to connect to a running server
+		auto result = ConnectAndWait(ioContext, test::CreateLocalHostNodeEndpoint(), publicKey);
+
 		// Assert:
-		AssertCanConnectToServer(ioContext, test::CreateLocalHostNodeEndpoint());
+		EXPECT_EQ(ConnectResult::Connected, result.Result);
+		EXPECT_EQ("127.0.0.1", result.Host);
+		EXPECT_EQ(publicKey, result.PublicKey);
+		EXPECT_TRUE(result.IsSocketValid);
 	}
 
 	namespace {
@@ -1071,7 +1095,7 @@ namespace catapult { namespace ionet {
 
 			// Act: attempt to connect to a running local server
 			ConnectResultTuple result;
-			auto cancel = Connect(ioContext, test::CreateLocalHostNodeEndpoint(), result);
+			auto cancel = Connect(ioContext, test::CreateLocalHostNodeEndpoint(), Key(), result);
 
 			// - immediately cancel the connect
 			cancel();

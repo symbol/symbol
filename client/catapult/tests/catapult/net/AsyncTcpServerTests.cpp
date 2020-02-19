@@ -96,9 +96,9 @@ namespace catapult { namespace net {
 			PoolServerPair(PoolServerPair&& rhs) = default;
 		};
 
-		AsyncTcpServerSettings CreateSettings(const AcceptHandler& acceptHandler) {
+		AsyncTcpServerSettings CreateSettings(const AcceptHandler& acceptHandler, const Key& publicKey = Key()) {
 			auto settings = AsyncTcpServerSettings(acceptHandler);
-			settings.PacketSocketOptions = test::CreatePacketSocketOptions();
+			settings.PacketSocketOptions = test::CreatePacketSocketOptions(publicKey);
 			settings.MaxActiveConnections = Default_Max_Active_Connections;
 			return settings;
 		}
@@ -478,7 +478,9 @@ namespace catapult { namespace net {
 			*pAcceptedSocketInfoRaw = acceptedSocketInfo;
 			isAccepted = true;
 		};
-		auto pServer = CreateLocalHostAsyncTcpServer(CreateSettings(acceptHandler));
+
+		auto publicKey = test::GenerateRandomByteArray<Key>();
+		auto pServer = CreateLocalHostAsyncTcpServer(CreateSettings(acceptHandler, publicKey));
 
 		// - for correct shutdown, the captured accepted socket needs to be destroyed before pServer
 		auto pAcceptedSocketInfo = std::make_unique<ionet::PacketSocketInfo>();
@@ -493,6 +495,7 @@ namespace catapult { namespace net {
 		EXPECT_TRUE(!!acceptedSocketInfo);
 		EXPECT_TRUE(!!acceptedSocketInfo.socket());
 		EXPECT_EQ("127.0.0.1", acceptedSocketInfo.host());
+		EXPECT_EQ(publicKey, acceptedSocketInfo.publicKey());
 	}
 
 	TEST(TEST_CLASS, ServerCanServeMoreRequestsThanWorkerThreads) {

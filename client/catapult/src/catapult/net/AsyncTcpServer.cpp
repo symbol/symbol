@@ -122,7 +122,10 @@ namespace catapult { namespace net {
 
 			void handleAccept(const ionet::PacketSocketInfo& socketInfo) {
 				// add a destruction hook to the socket and post additional handling to the strand
-				ionet::PacketSocketInfo decoratedSocketInfo(socketInfo.host(), addDestructionHook(socketInfo.socket()));
+				ionet::PacketSocketInfo decoratedSocketInfo(
+						socketInfo.host(),
+						socketInfo.publicKey(),
+						addDestructionHook(socketInfo.socket()));
 				boost::asio::post(m_acceptorStrand, [pThis = shared_from_this(), decoratedSocketInfo]() {
 					pThis->handleAcceptOnStrand(decoratedSocketInfo);
 				});

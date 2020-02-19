@@ -20,6 +20,7 @@
 
 #pragma once
 #include "catapult/functions.h"
+#include "catapult/types.h"
 #include <boost/filesystem/path.hpp>
 
 namespace boost {
@@ -33,13 +34,41 @@ namespace boost {
 
 namespace catapult { namespace ionet {
 
+	/// Context passed to PacketSocketSslOptions::VerifyCallback.
+	class PacketSocketSslVerifyContext {
+	public:
+		/// Creates a default context.
+		PacketSocketSslVerifyContext();
+
+		/// Creates a context around \a preverified, \a verifyContext and \a publicKey.
+		PacketSocketSslVerifyContext(bool preverified, boost::asio::ssl::verify_context& verifyContext, Key& publicKey);
+
+	public:
+		/// Gets the preverified status.
+		bool preverified() const;
+
+		/// Gets the asio verify context.
+		boost::asio::ssl::verify_context& asioVerifyContext();
+
+		/// Gets the public key.
+		const Key& publicKey() const;
+
+		/// Sets the public key to \a publicKey.
+		void setPublicKey(const Key& publicKey);
+
+	private:
+		bool m_preverified;
+		boost::asio::ssl::verify_context* m_pVerifyContext;
+		Key* m_pPublicKey;
+	};
+
 	/// Packet socket ssl options.
 	struct PacketSocketSslOptions {
 		/// Supplies an ssl context.
 		supplier<boost::asio::ssl::context&> ContextSupplier;
 
 		/// Callback used to verify ssl certificates.
-		predicate<bool, boost::asio::ssl::verify_context&> VerifyCallback;
+		predicate<PacketSocketSslVerifyContext&> VerifyCallback;
 	};
 
 	/// Packet socket options.

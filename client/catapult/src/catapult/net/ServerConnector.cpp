@@ -93,7 +93,6 @@ namespace catapult { namespace net {
 					const Key& publicKey,
 					const ionet::PacketSocketInfo& connectedSocketInfo,
 					const std::shared_ptr<TRequest>& pRequest) {
-				auto host = connectedSocketInfo.host();
 				auto pConnectedSocket = connectedSocketInfo.socket();
 				m_sockets.insert(pConnectedSocket);
 				pRequest->setTimeoutHandler([pThis = shared_from_this(), pConnectedSocket]() {
@@ -102,7 +101,7 @@ namespace catapult { namespace net {
 				});
 
 				VerifiedPeerInfo serverPeerInfo{ publicKey, ionet::ConnectionSecurityMode::None };
-				VerifyServer(pConnectedSocket, serverPeerInfo, m_keyPair, [pThis = shared_from_this(), host, pConnectedSocket, pRequest](
+				VerifyServer(pConnectedSocket, serverPeerInfo, m_keyPair, [pThis = shared_from_this(), connectedSocketInfo, pRequest](
 						auto verifyResult,
 						const auto&) {
 					if (VerifyResult::Success != verifyResult) {
@@ -110,7 +109,7 @@ namespace catapult { namespace net {
 						return pRequest->callback(PeerConnectCode::Verify_Error, ionet::PacketSocketInfo());
 					}
 
-					return pRequest->callback(PeerConnectCode::Accepted, ionet::PacketSocketInfo(host, pConnectedSocket));
+					pRequest->callback(PeerConnectCode::Accepted, connectedSocketInfo);
 				});
 			}
 
