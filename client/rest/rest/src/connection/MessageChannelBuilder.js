@@ -93,8 +93,8 @@ class MessageChannelBuilder {
 				parser.push(buffer);
 
 				const hash = parser.buffer(catapult.constants.sizes.hash256);
-				const code = parser.uint32();
 				const deadline = parser.uint64();
+				const code = parser.uint32();
 
 				// removing the markerChart from topic
 				const address = topic.subarray(1);

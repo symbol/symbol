@@ -232,8 +232,8 @@ describe('message channel builder', () => {
 					// Act:
 					const buffer = Buffer.concat([
 						Buffer.alloc(test.constants.sizes.hash256, 41), // hash
-						Buffer.of(55, 0, 0, 0), // status
-						Buffer.of(66, 0, 0, 0, 0, 0, 0, 0) // deadline
+						Buffer.of(66, 0, 0, 0, 0, 0, 0, 0), // deadline
+						Buffer.of(55, 0, 0, 0) // status
 					]);
 					const topic = Buffer.concat([Buffer.of('s'.charCodeAt(0)), addressTemplate.decoded]);
 					handler(codec, eventData => emitted.push(eventData))(topic, buffer, 99);
