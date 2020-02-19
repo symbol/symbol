@@ -38,7 +38,7 @@ const createBlockDescriptor = () => ({
 	},
 
 	handler: (codec, emit) => (topic, binaryBlock, hash, generationHash) => {
-		const block = codec.deserialize(parserFromData(binaryBlock), { skipBlockTransactions: true });
+		const block = codec.deserialize(parserFromData(binaryBlock));
 		emit({ type: 'blockHeaderWithMetadata', payload: { block, meta: { hash, generationHash } } });
 	}
 });

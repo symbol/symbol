@@ -186,7 +186,6 @@ describe('message channel builder', () => {
 					// - trailing params (99, 88) should be ignored
 					expect(codec.collected.length).to.equal(1);
 					expect(codec.collected[0].parser.buffers.current()).to.equal(blockBuffer);
-					expect(codec.collected[0].options).to.deep.equal({ skipBlockTransactions: true });
 
 					expect(emitted.length).to.equal(1);
 					expect(emitted[0]).to.deep.equal({

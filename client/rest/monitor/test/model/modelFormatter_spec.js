@@ -74,8 +74,13 @@ describe('model formatter', () => {
 			)
 		};
 
-		const assertCanParseAndFormatBlock = (payload, payloadSize) => {
+		it('can parse and format', () => {
 			// Arrange:
+			const payload = Buffer.concat([
+				Buffer.alloc(4), // size
+				buffers.blockHeader
+			]);
+			const payloadSize = 304;
 			payload.writeInt32LE(payloadSize, 0);
 
 			// Sanity:
@@ -109,23 +114,6 @@ describe('model formatter', () => {
 				feeMultiplier: 10,
 				blockHeader_Reserved1: 0
 			});
-		};
-
-		it('can parse and format with no transactions', () => {
-			// Assert:
-			assertCanParseAndFormatBlock(Buffer.concat([
-				Buffer.alloc(4), // size
-				buffers.blockHeader
-			]), 304);
-		});
-
-		it('can parse and format with transactions', () => {
-			// Assert:
-			assertCanParseAndFormatBlock(Buffer.concat([
-				Buffer.alloc(4), // size
-				buffers.blockHeader,
-				buffers.transaction
-			]), 304 + 157); // block + transaction size
 		});
 	});
 });
