@@ -284,8 +284,20 @@ namespace catapult { namespace ionet {
 				}
 
 				m_socket.async_wait(socket::wait_read, m_wrapper.wrap([this, callback](const auto&) {
-					if (m_socket.is_open() && m_socket.available())
+					if (!m_socket.is_open())
+						return;
+
+					// try to (non-blocking) read a single byte from the stream
+					// this will skip any and all protocol-level data (e.g. ssl handshake)
+					uint8_t peekByte;
+					boost::system::error_code ignoredEc;
+					auto numBytesRead = m_socket.read_some(boost::asio::buffer(&peekByte, 1), ignoredEc);
+
+					// if a byte was successfully read, trigger the callback
+					if (1 == numBytesRead) {
+						m_buffer.append(peekByte);
 						callback();
+					}
 				}));
 			}
 
