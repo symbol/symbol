@@ -102,6 +102,10 @@ namespace catapult { namespace test {
 		}
 	}
 
+	void AssertContainsAll(const cache::MemoryUtCacheProxy& cacheProxy, const std::vector<Hash256>& hashes) {
+		AssertContainsAll(cacheProxy.view(), hashes, true);
+	}
+
 	void AssertContainsAll(const cache::MemoryUtCache& cache, const std::vector<Hash256>& hashes) {
 		AssertContainsAll(cache.view(), hashes, true);
 	}

@@ -58,7 +58,7 @@ namespace catapult { namespace extensions {
 				cache::CatapultCache& cache,
 				io::BlockStorageCache& storage,
 				LocalNodeChainScore& score,
-				cache::ReadWriteUtCache& utCache,
+				cache::MemoryUtCacheProxy& utCache,
 				const supplier<Timestamp>& timeSupplier,
 				subscribers::TransactionStatusSubscriber& transactionStatusSubscriber,
 				subscribers::StateChangeSubscriber& stateChangeSubscriber,
@@ -110,12 +110,12 @@ namespace catapult { namespace extensions {
 
 		/// Gets the unconfirmed transactions cache.
 		const cache::ReadWriteUtCache& utCache() const {
-			return m_utCache;
+			return const_cast<const cache::MemoryUtCacheProxy&>(m_utCache).get();
 		}
 
 		/// Gets the unconfirmed transactions cache.
 		cache::UtCache& utCache() {
-			return m_utCache;
+			return m_utCache.get();
 		}
 
 		/// Gets the time supplier.
@@ -186,7 +186,7 @@ namespace catapult { namespace extensions {
 		cache::CatapultCache& m_cache;
 		io::BlockStorageCache& m_storage;
 		LocalNodeChainScore& m_score;
-		cache::ReadWriteUtCache& m_utCache;
+		cache::MemoryUtCacheProxy& m_utCache;
 		supplier<Timestamp> m_timeSupplier;
 
 		subscribers::TransactionStatusSubscriber& m_transactionStatusSubscriber;

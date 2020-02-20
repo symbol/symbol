@@ -67,7 +67,7 @@ namespace catapult { namespace test {
 						m_catapultCache,
 						m_storage,
 						m_score,
-						m_pUtCache->get(),
+						*m_pUtCache,
 						timeSupplier,
 						m_transactionStatusSubscriber,
 						m_stateChangeSubscriber,

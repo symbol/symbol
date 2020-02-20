@@ -137,7 +137,7 @@ namespace catapult { namespace local {
 						m_catapultCache,
 						m_storage,
 						m_score,
-						m_pUtCache->get(),
+						*m_pUtCache,
 						extensionManager.networkTimeSupplier(m_config.BlockChain.Network.EpochAdjustment),
 						*m_pTransactionStatusSubscriber,
 						*m_pStateChangeSubscriber,

@@ -70,7 +70,7 @@ namespace catapult { namespace extensions {
 				catapultCache,
 				storage,
 				score,
-				pUtCache->get(),
+				*pUtCache,
 				timeSupplier,
 				transactionStatusSubscriber,
 				stateChangeSubscriber,

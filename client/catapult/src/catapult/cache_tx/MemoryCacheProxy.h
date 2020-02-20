@@ -57,9 +57,9 @@ namespace catapult { namespace cache {
 			return m_memoryCache;
 		}
 
-		/// Gets the underlying (non-const) read write cache.
-		CacheReadWriteInterface& get() {
-			return m_memoryCache;
+		/// Gets the underlying (non-const) write only cache.
+		CacheWriteOnlyInterface& get() {
+			return *m_pCache;
 		}
 
 	public:

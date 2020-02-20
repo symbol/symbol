@@ -35,7 +35,7 @@ namespace catapult { namespace cache {
 		void AssertSize(size_t expectedSize, const CacheProxy& cache) {
 			EXPECT_EQ(expectedSize, cache.view().size());
 			EXPECT_EQ(expectedSize, cache.get().view().size());
-			EXPECT_EQ(expectedSize, const_cast<CacheProxy&>(cache).get().view().size());
+			EXPECT_EQ(expectedSize, const_cast<CacheProxy&>(cache).get().modifier().size());
 		}
 	}
 
@@ -84,10 +84,10 @@ namespace catapult { namespace cache {
 		for (const auto& info : test::CreateTransactionInfos(5))
 			cache.modifier().add(info);
 
-		// Assert: check view sizes
+		// Assert: check view sizes, this makes an additonal call to modifier
 		AssertSize(5, cache);
 
 		// - importantly notice that modifier() was called on the wrapper, which delegated to the memory cache modifier()
-		EXPECT_EQ(5u, numModifierCalls);
+		EXPECT_EQ(6u, numModifierCalls);
 	}
 }}

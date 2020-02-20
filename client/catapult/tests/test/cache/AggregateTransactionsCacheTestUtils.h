@@ -69,6 +69,14 @@ namespace catapult { namespace test {
 		}
 
 	public:
+		/// Clears all added, removed and flush infos.
+		void reset() {
+			m_addedInfos.clear();
+			m_removedInfos.clear();
+			m_flushInfos.clear();
+		}
+
+	public:
 		void flush() override {
 			m_flushInfos.push_back(createFlushInfo());
 		}
