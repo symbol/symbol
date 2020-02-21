@@ -310,6 +310,7 @@ class NamespacesParser:
         self.tok = nextToken
         return NextTokenBehavior.Skip
 
+    # pylint: disable=too-many-branches
     def collectOperator(self):
         tok = lex.token()
         self.nameStack.append(tok)
@@ -333,6 +334,10 @@ class NamespacesParser:
             self.saveTokenOrBye(tok, tok2, 'EQUALS')
         # operator|
         elif tok.type == 'PIPE':
+            self.tok = tok2
+            return
+        # operator bool
+        elif tok.type == 'NAME' and tok.value == 'bool':
             self.tok = tok2
             return
         # operator*

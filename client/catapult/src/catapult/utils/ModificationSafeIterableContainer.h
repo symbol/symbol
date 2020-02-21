@@ -37,7 +37,7 @@ namespace catapult { namespace utils {
 		}
 
 		/// Gets a value indicating whether or not the container is empty.
-		bool empty () const {
+		bool empty() const {
 			return m_container.empty();
 		}
 

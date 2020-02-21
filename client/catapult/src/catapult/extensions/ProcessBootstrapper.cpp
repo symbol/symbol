@@ -29,7 +29,7 @@ namespace catapult { namespace extensions {
 #ifdef STRICT_SYMBOL_VISIBILITY
 	template<typename T>
 	void ForceSymbolInjection() {
-		CATAPULT_LOG(debug) << "forcibly injecting symbol: " << typeid(T).name () << " => " << typeid(T).hash_code();
+		CATAPULT_LOG(debug) << "forcibly injecting symbol: " << typeid(T).name() << " => " << typeid(T).hash_code();
 	}
 #endif
 

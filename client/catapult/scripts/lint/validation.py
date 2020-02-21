@@ -397,7 +397,8 @@ class TypoChecker(SimpleValidator):
             re.compile(r'/// Gets the (const )?(pointer|reference)\b'): 'use a instead of the',
             re.compile(r'\d+u( [^:] \d+)*u'): 'only first `u` is needed',
             re.compile(r' \.([^\.]|$)'): 'check spacing around \'.\'',
-            re.compile(r'Header::(Footer|Header)'): 'drop Header'
+            re.compile(r'Header::(Footer|Header)'): 'drop Header',
+            re.compile(r'\S \(\)[^>]'): 'remove space before ()'
         }
 
     def check(self, lineNumber, line):
