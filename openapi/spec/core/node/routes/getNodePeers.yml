@@ -1,0 +1,14 @@
+tags:
+  - Node routes
+summary: Get peers information
+description: Gets the list of peers visible by the node.
+operationId: getNodePeers
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            $ref: "../schemas/NodeInfoDTO.yml"
