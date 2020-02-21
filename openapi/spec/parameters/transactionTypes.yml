@@ -1,6 +1,9 @@
 name: type
 in: query
 description: Transaction types to filter by, separated by commas.
+style: form
+explode: false
 schema:
-  type: string
-  example: 16717,16718,16973
+  type: array
+  items:
+    $ref: "../core/transaction/schemas/TransactionTypeEnum.yml"
