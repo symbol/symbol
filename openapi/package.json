@@ -1,5 +1,5 @@
 {
-  "name": "nem2-openapi",
+  "name": "symbol-openapi",
   "version": "0.8.4",
   "description": "OpenAPI Specification of catapult-rest",
   "main": "index.js",
@@ -10,13 +10,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nemtech/nem2-openapi.git"
+    "url": "git+https://github.com/nemtech/symbol-openapi.git"
   },
   "license": "Apache 2.0",
   "bugs": {
-    "url": "https://github.com/nemtech/nem2-openapi/issues"
+    "url": "https://github.com/nemtech/symbol-openapi/issues"
   },
-  "homepage": "https://github.com/nemtech/nem2-openapi#readme",
+  "homepage": "https://github.com/nemtech/symbol-openapi#readme",
   "dependencies": {
     "openapi-to-postmanv2": "^1.1.6"
   }

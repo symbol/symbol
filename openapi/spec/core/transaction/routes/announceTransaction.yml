@@ -3,7 +3,7 @@ tags:
 summary: Announce a new transaction
 description: |
   Announces a transaction to the network.
-  We recommended to use the NEM2-SDK to announce transactions as they should be serialized.
+  We recommended to use the Symbol-SDKs to announce transactions because they should be serialized.
 operationId: announceTransaction
 requestBody:
   $ref: "../../../request_bodies/transactionPayload.yml"

@@ -9,6 +9,6 @@ properties:
     type: array
     description: Mosaic linked namespace names.
     example:
-      - cat.currency
+      - symbol.xym
     items:
       type: string
