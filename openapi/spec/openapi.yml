@@ -6,7 +6,7 @@ tags:
 paths:
   "$ref": "./routes.yml"
 externalDocs:
-  description: NEM Developer Center
+  description: Symbol Developers
   url: https://nemtech.github.io/
 servers:
   - url: http://localhost:3000
