@@ -58,12 +58,15 @@
 /node/info:
   get:
     $ref: "./core/node/routes/getNodeInfo.yml"
-/node/time:
+/node/peers:
   get:
-    $ref: "./core/node/routes/getNodeTime.yml"
+    $ref: "./core/node/routes/getNodePeers.yml"
 /node/storage:
   get:
     $ref: "./core/node/routes/getNodeStorage.yml"
+/node/time:
+  get:
+    $ref: "./core/node/routes/getNodeTime.yml"
 /node/server:
   get:
     $ref: "./core/node/routes/getServerInfo.yml"
