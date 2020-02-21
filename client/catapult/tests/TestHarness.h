@@ -104,9 +104,10 @@ namespace catapult { namespace test {
 				ecm_out << MESSAGE << ":" << std::endl; \
 			\
 			ecm_out << "{ "; \
-			for (const auto& ecm_value : VALUES) \
+			for (const auto& ecm_value : VALUES) { \
 				Printer::Print(ecm_value, &ecm_out); \
 				ecm_out << " "; \
+			} \
 			\
 			ecm_out << "} does not contain: "; \
 			Printer::Print(VALUE, &ecm_out); \
