@@ -25,6 +25,7 @@
 #include "catapult/extensions/PluginUtils.h"
 #include "catapult/plugins/PluginLoader.h"
 #include "catapult/utils/NetworkTime.h"
+#include "tests/test/net/CertificateLocator.h"
 #include "tests/test/net/NodeTestUtils.h"
 #include "tests/test/nodeps/MijinConstants.h"
 #include "tests/test/nodeps/Nemesis.h"
@@ -158,6 +159,7 @@ namespace catapult { namespace test {
 
 		config.User.BootPrivateKey = Local_Node_Private_Key;
 		config.User.DataDirectory = dataDirectory;
+		config.User.CertificateDirectory = test::GetDefaultCertificateDirectory();
 		return config.ToConst();
 	}
 

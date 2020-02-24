@@ -24,6 +24,7 @@
 #include "catapult/net/PeerConnectResult.h"
 #include "tests/test/core/PacketTestUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
+#include "tests/test/net/CertificateLocator.h"
 #include "tests/test/net/ClientSocket.h"
 #include "tests/test/nodeps/TimeSupplier.h"
 #include "tests/test/other/MutableCatapultConfiguration.h"
@@ -39,6 +40,8 @@ namespace catapult { namespace extensions {
 	namespace {
 		auto CreateCatapultConfiguration(bool enableReadRateMonitoring = false) {
 			test::MutableCatapultConfiguration config;
+			config.User.CertificateDirectory = test::GetDefaultCertificateDirectory();
+
 			config.BlockChain.Network.Identifier = static_cast<model::NetworkIdentifier>(7);
 			config.BlockChain.Network.NodeEqualityStrategy = static_cast<model::NodeIdentityEqualityStrategy>(11);
 
