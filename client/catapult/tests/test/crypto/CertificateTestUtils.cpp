@@ -31,6 +31,7 @@
 #pragma clang diagnostic ignored "-Wreserved-id-macro"
 #endif
 #include <openssl/bio.h>
+#include <openssl/dh.h>
 #include <openssl/pem.h>
 #include <openssl/x509.h>
 #ifdef __clang__
@@ -88,7 +89,7 @@ namespace catapult { namespace test {
 			CATAPULT_THROW_RUNTIME_ERROR("failed to set certificate serial number");
 
 		// set expiration from now until one year from now
-		if (!X509_gmtime_adj(X509_get_notBefore(get()), 0) || !X509_gmtime_adj(X509_get_notAfter(get()), 31536000L))
+		if (!X509_gmtime_adj(X509_getm_notBefore(get()), 0) || !X509_gmtime_adj(X509_getm_notAfter(get()), 31536000L))
 			CATAPULT_THROW_RUNTIME_ERROR("failed to set certificate expiration");
 	}
 
