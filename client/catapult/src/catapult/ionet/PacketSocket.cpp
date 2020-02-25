@@ -162,10 +162,34 @@ namespace catapult { namespace ionet {
 					: m_socket(socket)
 					, m_wrapper(wrapper)
 					, m_buffer(buffer)
+					, m_isReadActive(false)
 			{}
 
 		public:
+			bool isReadActive() const {
+				return m_isReadActive;
+			}
+
 			void read(const PacketSocket::ReadCallback& callback, bool allowMultiple) {
+				m_isReadActive = true;
+				readInternal([callback, &isReadActive = m_isReadActive](auto code, const auto* pPacket) {
+					callback(code, pPacket);
+					isReadActive = false;
+				}, allowMultiple);
+			}
+
+		private:
+			struct SharedAppendContext {
+			public:
+				explicit SharedAppendContext(AppendContext&& context) : Context(std::move(context))
+				{}
+
+			public:
+				AppendContext Context;
+			};
+
+		private:
+			void readInternal(const PacketSocket::ReadCallback& callback, bool allowMultiple) {
 				// try to extract a packet from the working buffer
 				const Packet* pExtractedPacket = nullptr;
 				auto packetExtractor = m_buffer.preparePacketExtractor();
@@ -197,16 +221,6 @@ namespace catapult { namespace ionet {
 				readSome(callback, allowMultiple);
 			}
 
-		private:
-			struct SharedAppendContext {
-			public:
-				explicit SharedAppendContext(AppendContext&& context) : Context(std::move(context))
-				{}
-
-			public:
-				AppendContext Context;
-			};
-
 			void readSome(const PacketSocket::ReadCallback& callback, bool allowMultiple) {
 				auto pAppendContext = std::make_shared<SharedAppendContext>(m_buffer.prepareAppend());
 				auto readHandler = [this, callback, allowMultiple, pAppendContext](const auto& ec, auto bytesReceived) {
@@ -215,7 +229,7 @@ namespace catapult { namespace ionet {
 						return callback(code, nullptr);
 
 					pAppendContext->Context.commit(bytesReceived);
-					this->read(callback, allowMultiple);
+					this->readInternal(callback, allowMultiple);
 				};
 
 				m_socket.async_read_some(pAppendContext->Context.buffer(), m_wrapper.wrap(readHandler));
@@ -248,6 +262,7 @@ namespace catapult { namespace ionet {
 			socket& m_socket;
 			TSocketCallbackWrapper& m_wrapper;
 			WorkingBuffer& m_buffer;
+			bool m_isReadActive;
 		};
 
 		// endregion
@@ -284,7 +299,7 @@ namespace catapult { namespace ionet {
 				}
 
 				m_socket.async_wait(socket::wait_read, m_wrapper.wrap([this, callback](const auto&) {
-					if (!m_socket.is_open())
+					if (!m_socket.is_open() || this->isReadActive())
 						return;
 
 					// try to (non-blocking) read a single byte from the stream
