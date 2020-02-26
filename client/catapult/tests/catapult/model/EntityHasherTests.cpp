@@ -93,7 +93,7 @@ namespace catapult { namespace model {
 		EXPECT_NE(originalHash, modifiedHash);
 	}
 
-	BASIC_HASH_TEST(HashDoesNotChangeWhenSPartOfSignatureChanges) {
+	BASIC_HASH_TEST(HashChangesWhenSPartOfSignatureChanges) {
 		// Arrange:
 		auto pEntity = TTraits::Generate();
 		auto generationHash = test::GenerateRandomByteArray<GenerationHash>();
@@ -104,7 +104,7 @@ namespace catapult { namespace model {
 		auto modifiedHash = TTraits::CalculateHash(*pEntity, generationHash);
 
 		// Assert:
-		EXPECT_EQ(originalHash, modifiedHash);
+		EXPECT_NE(originalHash, modifiedHash);
 	}
 
 	BASIC_HASH_TEST(HashChangesWhenSignerChanges) {
