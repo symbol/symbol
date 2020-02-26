@@ -51,7 +51,7 @@ namespace catapult { namespace test {
 	}
 
 	uint32_t GetNumDefaultPoolThreads() {
-		return 2 * std::thread::hardware_concurrency();
+		return std::max<uint32_t>(16, 2 * std::thread::hardware_concurrency());
 	}
 
 	namespace {
