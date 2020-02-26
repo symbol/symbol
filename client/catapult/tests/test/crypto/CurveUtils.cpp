@@ -18,28 +18,19 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "SecureZero.h"
+#include "CurveUtils.h"
+#include "tests/test/nodeps/Conversions.h"
 
-#ifdef _WIN32
-#include <windows.h>
-#endif
+namespace catapult { namespace test {
 
-#ifdef _WIN32
-#define CATAPULT_ZEROMEM(PTR, SIZE) SecureZeroMemory(PTR, SIZE)
-#elif defined(__APPLE__) || defined(__STDC_LIB_EXT1__)
-#define CATAPULT_ZEROMEM(PTR, SIZE) memset_s(PTR, SIZE, 0, SIZE)
-#else
-#define CATAPULT_ZEROMEM(PTR, SIZE) \
-	do { \
-		volatile uint8_t* p = PTR; \
-		size_t n = SIZE; \
-		while (n--) *p++ = 0; \
-	} while (false)
-#endif
-
-namespace catapult { namespace crypto {
-
-	void SecureZero(uint8_t* pData, size_t dataSize) {
-		CATAPULT_ZEROMEM(pData, dataSize);
+	void ScalarAddGroupOrder(uint8_t* scalar) {
+		// 2^252 + 27742317777372353535851937790883648493, little endian.
+		auto groupOrder = test::HexStringToVector("EDD3F55C1A631258D69CF7A2DEF9DE1400000000000000000000000000000010");
+		uint8_t r = 0;
+		for (auto i = 0u; i < groupOrder.size(); ++i) {
+			auto t = static_cast<uint16_t>(scalar[i]) + static_cast<uint16_t>(groupOrder[i]);
+			scalar[i] = static_cast<uint8_t>(scalar[i] + groupOrder[i] + r);
+			r = static_cast<uint8_t>(t >> 8);
+		}
 	}
 }}

@@ -25,24 +25,6 @@ namespace catapult { namespace crypto {
 
 #define TEST_CLASS SecureZeroTests
 
-	TEST(TEST_CLASS, SecureZeroZerosOutBackingMemoryOfKey) {
-		// Arrange:
-		auto key = test::GenerateRandomByteArray<Key>();
-		const uint8_t* pRawKey = key.data();
-
-		// Sanity:
-		Key zeroKey;
-		std::fill(zeroKey.begin(), zeroKey.end(), static_cast<uint8_t>(0));
-		EXPECT_FALSE(std::equal(zeroKey.cbegin(), zeroKey.cend(), pRawKey, pRawKey + key.size()));
-
-		// Act:
-		SecureZero(key);
-
-		// Assert:
-		EXPECT_TRUE(std::equal(zeroKey.cbegin(), zeroKey.cend(), pRawKey, pRawKey + key.size()));
-		EXPECT_EQ(zeroKey, key);
-	}
-
 	TEST(TEST_CLASS, SecureZeroZerosOutBackingMemoryOfData) {
 		// Arrange:
 		auto buffer = test::GenerateRandomArray<625>();
@@ -59,5 +41,40 @@ namespace catapult { namespace crypto {
 		// Assert:
 		EXPECT_TRUE(std::equal(zeroData.cbegin(), zeroData.cend(), pRawData, pRawData + buffer.size()));
 		EXPECT_EQ(zeroData, buffer);
+	}
+
+	TEST(TEST_CLASS, SecureZeroZerosOutBackingMemoryOfArray) {
+		// Arrange:
+		uint64_t buffer[123];
+		test::FillWithRandomData({ reinterpret_cast<uint8_t*>(buffer), sizeof(uint64_t) * 123 });
+
+		// Sanity:
+		uint64_t zeroData[123]{};
+		auto equalMemory = 0 == std::memcmp(zeroData, buffer, sizeof(uint64_t) * 123);
+		EXPECT_FALSE(equalMemory);
+
+		// Act:
+		SecureZero(buffer);
+
+		// Assert:
+		EXPECT_EQ_MEMORY(zeroData, buffer, sizeof(uint64_t) * 123);
+	}
+
+	TEST(TEST_CLASS, SecureZeroZerosOutBackingMemoryOfByteArray) {
+		// Arrange:
+		auto key = test::GenerateRandomByteArray<Key>();
+		const uint8_t* pRawKey = key.data();
+
+		// Sanity:
+		Key zeroKey;
+		std::fill(zeroKey.begin(), zeroKey.end(), static_cast<uint8_t>(0));
+		EXPECT_FALSE(std::equal(zeroKey.cbegin(), zeroKey.cend(), pRawKey, pRawKey + key.size()));
+
+		// Act:
+		SecureZero(key);
+
+		// Assert:
+		EXPECT_TRUE(std::equal(zeroKey.cbegin(), zeroKey.cend(), pRawKey, pRawKey + key.size()));
+		EXPECT_EQ(zeroKey, key);
 	}
 }}

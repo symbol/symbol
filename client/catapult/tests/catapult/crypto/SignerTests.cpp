@@ -22,6 +22,7 @@
 #include "catapult/crypto/KeyUtils.h"
 #include "catapult/utils/HexParser.h"
 #include "catapult/utils/RandomGenerator.h"
+#include "tests/test/crypto/CurveUtils.h"
 #include "tests/TestHarness.h"
 #include <numeric>
 
@@ -221,19 +222,6 @@ namespace catapult { namespace crypto {
 		EXPECT_FALSE(isVerified);
 	}
 
-	namespace {
-		void ScalarAddGroupOrder(uint8_t* scalar) {
-			// 2^252 + 27742317777372353535851937790883648493, little endian.
-			auto groupOrder = test::HexStringToVector("EDD3F55C1A631258D69CF7A2DEF9DE1400000000000000000000000000000010");
-			uint8_t r = 0;
-			for (auto i = 0u; i < groupOrder.size(); ++i) {
-				auto t = static_cast<uint16_t>(scalar[i]) + static_cast<uint16_t>(groupOrder[i]);
-				scalar[i] = static_cast<uint8_t>(scalar[i] + groupOrder[i] + r);
-				r = static_cast<uint8_t>(t >> 8);
-			}
-		}
-	}
-
 	TEST(TEST_CLASS, CannotVerifyNonCanonicalSignature) {
 		// Arrange: the value 30 in the payload ensures that the encodedS part of the signature is < 2 ^ 253 after adding the group order
 		std::array<uint8_t, 10> payload{ { 1, 2, 3, 4, 5, 6, 7, 8, 9, 30 } };
@@ -242,7 +230,7 @@ namespace catapult { namespace crypto {
 		auto canonicalSignature = SignPayload(keyPair, payload);
 		// this is signature with group order added to 'encodedS' part of signature
 		auto nonCanonicalSignature = canonicalSignature;
-		ScalarAddGroupOrder(nonCanonicalSignature.data() + Signature::Size / 2);
+		test::ScalarAddGroupOrder(nonCanonicalSignature.data() + Signature::Size / 2);
 
 		// Act:
 		bool isCanonicalVerified = Verify(keyPair.publicKey(), payload, canonicalSignature);
@@ -426,7 +414,7 @@ namespace catapult { namespace crypto {
 			auto keyPair = GetDefaultKeyPair();
 			auto nonCanonicalSignature = SignPayload(keyPair, payload);
 			// this is signature with group order added to 'encodedS' part of signature
-			ScalarAddGroupOrder(nonCanonicalSignature.data() + Signature::Size / 2);
+			test::ScalarAddGroupOrder(nonCanonicalSignature.data() + Signature::Size / 2);
 			const_cast<Signature&>(signatureInputs[index].Signature) = nonCanonicalSignature;
 		});
 	}

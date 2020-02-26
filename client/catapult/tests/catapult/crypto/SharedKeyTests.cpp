@@ -19,8 +19,8 @@
 **/
 
 #include "catapult/crypto/SharedKey.h"
+#include "catapult/crypto/CryptoUtils.h"
 #include "catapult/crypto/Hashes.h"
-#include "catapult/crypto/KeyUtils.h"
 #include "catapult/utils/HexParser.h"
 #include "catapult/utils/MemoryUtils.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
@@ -137,7 +137,7 @@ namespace catapult { namespace crypto {
 
 		for (auto i = 0; i < 10; ++i) {
 			// - calculate expected output using generic implementation
-			auto sharedSecret = test::GenerateRandomByteArray<SharedSecret>();
+			auto sharedSecret = test::GenerateRandomByteArray<Key>();
 			std::vector<uint8_t> expectedOutput(32);
 			Hkdf_Hmac_Sha256(sharedSecret, salt, label, expectedOutput);
 
@@ -152,13 +152,30 @@ namespace catapult { namespace crypto {
 
 	// endregion
 
+	// region shared secret / key
+
 	namespace {
+		struct SharedSecretTraits {
+			using SharedResult = Key;
+
+			static constexpr auto DeriveSharedResult = DeriveSharedSecret;
+		};
+
+		struct SharedKeyTraits {
+			using SharedResult = SharedKey;
+
+			static constexpr auto DeriveSharedResult = DeriveSharedKey;
+		};
+
 		auto CreateKeyPair(const Key& privateKey) {
 			auto index = 0u;
 			return KeyPair::FromPrivate(PrivateKey::Generate([&privateKey, &index]() { return privateKey[index++]; }));
 		}
 
-		void AssertDerivedSharedKey(const consumer<Key&, Key&>& mutate, const consumer<const SharedKey&, const SharedKey&>& assertKeys) {
+		template<typename TTraits>
+		void AssertDerivedSharedResult(
+				const consumer<Key&, Key&>& mutate,
+				const consumer<const typename TTraits::SharedResult&, const typename TTraits::SharedResult&>& assertKeys) {
 			// Arrange: the public key needs to be valid, else unpacking will fail
 			auto privateKey1 = test::GenerateRandomByteArray<Key>();
 			auto otherPublicKey1 = test::GenerateKeyPair().publicKey();
@@ -172,43 +189,51 @@ namespace catapult { namespace crypto {
 			auto keyPair2 = CreateKeyPair(privateKey2);
 
 			// Act:
-			auto sharedKey1 = DeriveSharedKey(keyPair1, otherPublicKey1);
-			auto sharedKey2 = DeriveSharedKey(keyPair2, otherPublicKey2);
+			auto sharedResult1 = TTraits::DeriveSharedResult(keyPair1, otherPublicKey1);
+			auto sharedResult2 = TTraits::DeriveSharedResult(keyPair2, otherPublicKey2);
 
 			// Assert:
-			assertKeys(sharedKey1, sharedKey2);
+			assertKeys(sharedResult1, sharedResult2);
 		}
 
-		void AssertDerivedSharedKeysAreEqual(const consumer<Key&, Key&>& mutate) {
-			AssertDerivedSharedKey(mutate, [](const auto& sharedKey1, const auto& sharedKey2) {
-				EXPECT_EQ(sharedKey1, sharedKey2);
+		template<typename TTraits>
+		void AssertDerivedSharedResultsAreEqual(const consumer<Key&, Key&>& mutate) {
+			AssertDerivedSharedResult<TTraits>(mutate, [](const auto& sharedResult1, const auto& sharedResult2) {
+				EXPECT_EQ(sharedResult1, sharedResult2);
 			});
 		}
 
-		void AssertDerivedSharedKeysAreDifferent(const consumer<Key&, Key&>& mutate) {
-			AssertDerivedSharedKey(mutate, [](const auto& sharedKey1, const auto& sharedKey2) {
-				EXPECT_NE(sharedKey1, sharedKey2);
+		template<typename TTraits>
+		void AssertDerivedSharedResultsAreDifferent(const consumer<Key&, Key&>& mutate) {
+			AssertDerivedSharedResult<TTraits>(mutate, [](const auto& sharedResult1, const auto& sharedResult2) {
+				EXPECT_NE(sharedResult1, sharedResult2);
 			});
 		}
 	}
 
-	TEST(TEST_CLASS, SharedKeysGeneratedWithSameInputsAreEqual) {
-		AssertDerivedSharedKeysAreEqual([] (const auto&, const auto&) {});
+#define SHARED_BASED_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(SharedKeyTests, TEST_NAME##_SharedSecret) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<SharedSecretTraits>(); } \
+	TEST(SharedKeyTests, TEST_NAME##_SharedKey) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<SharedKeyTraits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+	SHARED_BASED_TEST(SharedResultsGeneratedWithSameInputsAreEqual) {
+		AssertDerivedSharedResultsAreEqual<TTraits>([] (const auto&, const auto&) {});
 	}
 
-	TEST(TEST_CLASS, SharedKeysGeneratedForDifferentKeyPairsAreDifferent) {
-		AssertDerivedSharedKeysAreDifferent([] (auto& privateKey, const auto&) {
+	SHARED_BASED_TEST(SharedResultsGeneratedForDifferentKeyPairsAreDifferent) {
+		AssertDerivedSharedResultsAreDifferent<TTraits>([] (auto& privateKey, const auto&) {
 			privateKey[0] ^= 0xFF;
 		});
 	}
 
-	TEST(TEST_CLASS, SharedKeysGeneratedForDifferentOtherPublicKeysAreDifferent) {
-		AssertDerivedSharedKeysAreDifferent([] (const auto&, auto& otherPublicKey) {
+	SHARED_BASED_TEST(SharedResultsGeneratedForDifferentOtherPublicKeysAreDifferent) {
+		AssertDerivedSharedResultsAreDifferent<TTraits>([] (const auto&, auto& otherPublicKey) {
 			otherPublicKey[0] ^= 0xFF;
 		});
 	}
 
-	TEST(TEST_CLASS, MutualSharedKeysAreEqual) {
+	SHARED_BASED_TEST(MutualSharedResultsAreEqual) {
 		// Arrange:
 		auto privateKey1 = test::GenerateRandomByteArray<Key>();
 		auto privateKey2 = test::GenerateRandomByteArray<Key>();
@@ -216,23 +241,25 @@ namespace catapult { namespace crypto {
 		auto keyPair2 = CreateKeyPair(privateKey2);
 
 		// Act:
-		auto sharedKey1 = DeriveSharedKey(keyPair1, keyPair2.publicKey());
-		auto sharedKey2 = DeriveSharedKey(keyPair2, keyPair1.publicKey());
+		auto sharedResult1 = TTraits::DeriveSharedResult(keyPair1, keyPair2.publicKey());
+		auto sharedResult2 = TTraits::DeriveSharedResult(keyPair2, keyPair1.publicKey());
 
 		// Assert:
-		EXPECT_EQ(sharedKey2, sharedKey1);
+		EXPECT_EQ(sharedResult2, sharedResult1);
 	}
 
-	TEST(TEST_CLASS, PublicKeyNotOnTheCurveResultsInZeroSharedKey) {
+	SHARED_BASED_TEST(PublicKeyNotOnTheCurveResultsInZeroSharedResult) {
 		// Arrange:
 		auto keyPair = test::GenerateKeyPair();
 		Key publicKey{};
 		publicKey[Key::Size - 1] = 1; // not on the curve
 
 		// Act:
-		auto sharedKey = DeriveSharedKey(keyPair, publicKey);
+		auto sharedResult = TTraits::DeriveSharedResult(keyPair, publicKey);
 
 		// Assert:
-		EXPECT_EQ(SharedKey(), sharedKey);
+		EXPECT_EQ(typename TTraits::SharedResult(), sharedResult);
 	}
+
+	// endregion
 }}

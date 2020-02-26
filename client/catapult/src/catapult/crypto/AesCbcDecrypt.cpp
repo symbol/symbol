@@ -20,6 +20,7 @@
 
 #include "AesCbcDecrypt.h"
 #include "OpensslContexts.h"
+#include "SecureZero.h"
 #include <cstring>
 
 #ifdef __clang__
@@ -95,6 +96,8 @@ namespace catapult { namespace crypto {
 
 		auto sharedKey = DeriveSharedKey(keyPair, ephemeralPublicKey);
 		auto encryptedData = SubView(encryptedWithKey, Key::Size);
-		return TryAesCbcDecrypt(sharedKey, encryptedData, decrypted);
+		bool success = TryAesCbcDecrypt(sharedKey, encryptedData, decrypted);
+		SecureZero(sharedKey);
+		return success;
 	}
 }}

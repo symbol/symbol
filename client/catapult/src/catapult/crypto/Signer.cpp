@@ -21,6 +21,7 @@
 #include "Signer.h"
 #include "CryptoUtils.h"
 #include "Hashes.h"
+#include "SecureZero.h"
 #include "catapult/exceptions.h"
 #include <cstring>
 
@@ -117,21 +118,11 @@ namespace catapult { namespace crypto {
 		uint8_t *RESTRICT encodedR = computedSignature.data();
 		uint8_t *RESTRICT encodedS = computedSignature.data() + Encoded_Size;
 
-		// hash the private key to improve randomness
-		Hash512 privHash;
-		HashPrivateKey(keyPair.privateKey(), privHash);
-
 		// r = H(privHash[256:512] || data)
-		// "EdDSA avoids these issues by generating r = H(h_b, ..., h_2b?1, M), so that
+		// "EdDSA avoids these issues by generating r = H(h_b, ..., h_2b-1, M), so that
 		//  different messages will lead to different, hard-to-predict values of r."
-		Hash512 hash_r;
-		Sha512_Builder hasher_r;
-		hasher_r.update({ privHash.data() + Hash512::Size / 2, Hash512::Size / 2 });
-		hasher_r.update(buffersList);
-		hasher_r.final(hash_r);
-
 		bignum256modm r;
-		expand256_modm(r, hash_r.data(), 64);
+		GenerateNonce(keyPair.privateKey(), buffersList, r);
 
 		// R = rModQ * base point
 		ge25519 ALIGN(16) R;
@@ -147,6 +138,10 @@ namespace catapult { namespace crypto {
 
 		bignum256modm h;
 		expand256_modm(h, hash_h.data(), 64);
+
+		// hash the private key to improve randomness
+		Hash512 privHash;
+		HashPrivateKey(keyPair.privateKey(), privHash);
 
 		// a = fieldElement(privHash[0:256])
 		privHash[0] &= 0xF8;
@@ -167,6 +162,10 @@ namespace catapult { namespace crypto {
 		// throw if encodedS is not less than the group order, don't fail in case encodedS == 0
 		// (this should only throw if there is a bug in the signing code)
 		CheckEncodedS(encodedS);
+
+		SecureZero(privHash);
+		SecureZero(r);
+		SecureZero(a);
 	}
 
 	// endregion
@@ -203,7 +202,7 @@ namespace catapult { namespace crypto {
 
 		// A = -pub
 		ge25519 ALIGN(16) A;
-		if (!ge25519_unpack_negative_vartime(&A, publicKey.data()))
+		if (!UnpackNegativeAndCheckSubgroup(A, publicKey))
 			return false;
 
 		bignum256modm S;
@@ -297,8 +296,10 @@ namespace catapult { namespace crypto {
 				bool success = true;
 				for (auto i = 0u; i < batchSize; ++i) {
 					const auto& signatureInput = pSignatureInputs[offset + i];
-					success &= 1 == ge25519_unpack_negative_vartime(&batch.points[i + 1], signatureInput.PublicKey.data());
-					success &= 1 == ge25519_unpack_negative_vartime(&batch.points[batchSize + i + 1], signatureInput.Signature.data());
+					Key R;
+					std::memcpy(R.data(), signatureInput.Signature.data(), Key::Size);
+					success &= UnpackNegativeAndCheckSubgroup(batch.points[i + 1], signatureInput.PublicKey);
+					success &= UnpackNegativeAndCheckSubgroup(batch.points[batchSize + i + 1], R);
 					if (!success)
 						break;
 				}
