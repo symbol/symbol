@@ -19,6 +19,7 @@
 **/
 
 #include "PacketSocketOptions.h"
+#include "catapult/crypto/CatapultCertificateProcessor.h"
 #include <boost/asio/ssl.hpp>
 
 namespace catapult { namespace ionet {
@@ -69,6 +70,21 @@ namespace catapult { namespace ionet {
 		pSslContext->use_tmp_dh_file((certificateDirectory / "dhparam.pem").generic_string());
 		return [pSslContext]() -> boost::asio::ssl::context& {
 			return *pSslContext;
+		};
+	}
+
+	supplier<predicate<PacketSocketSslVerifyContext&>> CreateSslVerifyCallbackSupplier() {
+		return []() {
+			crypto::CatapultCertificateProcessor processor;
+			return [processor](auto& verifyContext) mutable {
+				if (!processor.verify(verifyContext.preverified(), *verifyContext.asioVerifyContext().native_handle()))
+					return false;
+
+				if (processor.size() > 0)
+					verifyContext.setPublicKey(processor.certificate(0).PublicKey);
+
+				return true;
+			};
 		};
 	}
 }}

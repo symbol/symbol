@@ -110,7 +110,7 @@ namespace catapult { namespace extensions {
 
 		ionet::PacketSocketSslVerifyContext verifyContext;
 		EXPECT_NO_THROW(settings.SslOptions.ContextSupplier());
-		EXPECT_TRUE(settings.SslOptions.VerifyCallback(verifyContext));
+		EXPECT_TRUE(settings.SslOptions.VerifyCallbackSupplier()(verifyContext));
 	}
 
 	TEST(TEST_CLASS, CanUpdateAsyncTcpServerSettingsFromCatapultConfiguration) {

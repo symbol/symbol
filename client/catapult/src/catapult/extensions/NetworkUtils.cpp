@@ -41,6 +41,21 @@ namespace catapult { namespace extensions {
 
 	// region GetConnectionSettings / UpdateAsyncTcpServerSettings
 
+	namespace {
+		auto CreateVerifyCallbackSupplier(std::atomic<uint64_t>& counter) {
+			return [&counter]() {
+				return [&counter](auto& verifyContext) {
+					auto marker = ++counter;
+
+					Key publicKey;
+					std::memcpy(publicKey.data(), &marker, sizeof(marker));
+					verifyContext.setPublicKey(publicKey);
+					return true;
+				};
+			};
+		}
+	}
+
 	net::ConnectionSettings GetConnectionSettings(const config::CatapultConfiguration& config) {
 		net::ConnectionSettings settings;
 		settings.NetworkIdentifier = config.BlockChain.Network.Identifier;
@@ -55,14 +70,7 @@ namespace catapult { namespace extensions {
 
 		// TODO: workaround for tests.catapult.int.node.stress to simulate unique identities
 		static std::atomic<uint64_t> counter(0);
-		settings.SslOptions.VerifyCallback = [](auto& verifyContext) {
-			auto marker = ++counter;
-
-			Key publicKey;
-			std::memcpy(publicKey.data(), &marker, sizeof(marker));
-			verifyContext.setPublicKey(publicKey);
-			return true;
-		};
+		settings.SslOptions.VerifyCallbackSupplier = CreateVerifyCallbackSupplier(counter);
 		return settings;
 	}
 

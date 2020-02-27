@@ -59,6 +59,50 @@ namespace catapult { namespace test {
 
 	// endregion
 
+	// region certificate store context utils
+
+	void SetActiveCertificate(CertificateStoreContextHolder& holder, size_t index) {
+		X509_STORE_CTX_set_current_cert(holder.pCertificateStoreContext.get(), holder.Certificates[index].get());
+	}
+
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wused-but-marked-unused"
+#endif
+
+	namespace {
+		struct CertificateStackDeleter {
+			void operator()(STACK_OF(X509)* pStack) const {
+				sk_X509_free(pStack);
+			}
+		};
+	}
+
+	CertificateStoreContextHolder CreateCertificateStoreContextFromCertificates(const std::vector<std::shared_ptr<X509>>& certificates) {
+		CertificateStoreContextHolder holder;
+		holder.Certificates = certificates;
+
+		auto pCertificateStack = std::unique_ptr<STACK_OF(X509), CertificateStackDeleter>(sk_X509_new_null());
+		for (const auto& pCertificate : holder.Certificates) {
+			if (!pCertificateStack || !sk_X509_push(pCertificateStack.get(), pCertificate.get()))
+				CATAPULT_THROW_RUNTIME_ERROR("failed to add certificate to stack");
+		}
+
+		holder.pCertificateStoreContext = std::shared_ptr<X509_STORE_CTX>(X509_STORE_CTX_new(), X509_STORE_CTX_free);
+		if (!holder.pCertificateStoreContext || !X509_STORE_CTX_init(holder.pCertificateStoreContext.get(), nullptr, nullptr, nullptr))
+			CATAPULT_THROW_RUNTIME_ERROR("failed to initialize certificate store context");
+
+		X509_STORE_CTX_set0_verified_chain(holder.pCertificateStoreContext.get(), pCertificateStack.release());
+		SetActiveCertificate(holder, 0);
+		return holder;
+	}
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+
+	// endregion
+
 	// region CertificateBuilder
 
 	namespace {

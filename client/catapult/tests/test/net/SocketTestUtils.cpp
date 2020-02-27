@@ -207,9 +207,11 @@ namespace catapult { namespace test {
 	ionet::PacketSocketSslOptions CreatePacketSocketSslOptions(const Key& publicKey) {
 		ionet::PacketSocketSslOptions options;
 		options.ContextSupplier = GetDefaultContextSupplier();
-		options.VerifyCallback = [publicKey](auto& verifyContext) {
-			verifyContext.setPublicKey(publicKey);
-			return true;
+		options.VerifyCallbackSupplier = [publicKey]() {
+			return [publicKey](auto& verifyContext) {
+				verifyContext.setPublicKey(publicKey);
+				return true;
+			};
 		};
 		return options;
 	}

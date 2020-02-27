@@ -34,7 +34,7 @@ namespace boost {
 
 namespace catapult { namespace ionet {
 
-	/// Context passed to PacketSocketSslOptions::VerifyCallback.
+	/// Context passed to ssl verify context predicate.
 	class PacketSocketSslVerifyContext {
 	public:
 		/// Creates a default context.
@@ -69,7 +69,7 @@ namespace catapult { namespace ionet {
 		supplier<boost::asio::ssl::context&> ContextSupplier;
 
 		/// Callback used to verify ssl certificates.
-		predicate<PacketSocketSslVerifyContext&> VerifyCallback;
+		supplier<predicate<PacketSocketSslVerifyContext&>> VerifyCallbackSupplier;
 	};
 
 	/// Packet socket options.
@@ -89,4 +89,7 @@ namespace catapult { namespace ionet {
 
 	/// Creates an ssl context supplier given the specified certificate directory (\a certificateDirectory).
 	supplier<boost::asio::ssl::context&> CreateSslContextSupplier(const boost::filesystem::path& certificateDirectory);
+
+	/// Creates an ssl verify callback supplier.
+	supplier<predicate<PacketSocketSslVerifyContext&>> CreateSslVerifyCallbackSupplier();
 }}

@@ -367,7 +367,7 @@ namespace catapult { namespace ionet {
 					, m_socket(m_pSocketGuard->socket())
 					, m_buffer(options)
 					, m_wrapper(wrapper) {
-				ConfigureSslVerify(m_socket, m_publicKey, options.SslOptions.VerifyCallback);
+				ConfigureSslVerify(m_socket, m_publicKey, options.SslOptions.VerifyCallbackSupplier());
 			}
 
 		public:

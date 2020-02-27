@@ -24,6 +24,7 @@
 namespace catapult { namespace crypto { class KeyPair; } }
 struct evp_pkey_st;
 struct x509_st;
+struct x509_store_ctx_st;
 
 namespace catapult { namespace test {
 
@@ -34,6 +35,25 @@ namespace catapult { namespace test {
 
 	/// Generates a certificate key from \a keyPair.
 	std::shared_ptr<evp_pkey_st> GenerateCertificateKey(const crypto::KeyPair& keyPair);
+
+	// endregion
+
+	// region certificate store context utils
+
+	/// Holds a certificate store context and certificates.
+	struct CertificateStoreContextHolder {
+		/// Certificates.
+		std::vector<std::shared_ptr<x509_st>> Certificates;
+
+		/// Certificate store context.
+		std::shared_ptr<x509_store_ctx_st> pCertificateStoreContext;
+	};
+
+	/// Sets the active certificate in \a holder to the certificate at \a index.
+	void SetActiveCertificate(CertificateStoreContextHolder& holder, size_t index);
+
+	/// Creates a certificate store context around \a certificates.
+	CertificateStoreContextHolder CreateCertificateStoreContextFromCertificates(const std::vector<std::shared_ptr<x509_st>>& certificates);
 
 	// endregion
 

@@ -38,12 +38,11 @@ namespace catapult { namespace crypto {
 
 	// region test utils
 
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wused-but-marked-unused"
-#endif
-
 	namespace {
+		int GetError(test::CertificateStoreContextHolder& holder) {
+			return X509_STORE_CTX_get_error(holder.pCertificateStoreContext.get());
+		}
+
 		std::shared_ptr<X509> CreateDefaultCertificate(const std::string& commonName) {
 			test::CertificateBuilder builder;
 			builder.setSubject("JP", "NEM", commonName);
@@ -52,57 +51,14 @@ namespace catapult { namespace crypto {
 			return builder.buildAndSign();
 		}
 
-		struct CertificateStoreContextHolder {
-			std::vector<std::shared_ptr<X509>> Certificates;
-			std::shared_ptr<X509_STORE_CTX> pCertificateStoreContext;
-		};
-
-		struct CertificateStackDeleter {
-			void operator()(STACK_OF(X509)* pStack) const {
-				sk_X509_free(pStack);
-			}
-		};
-
-		int GetError(CertificateStoreContextHolder& holder) {
-			return X509_STORE_CTX_get_error(holder.pCertificateStoreContext.get());
-		}
-
-		void SetActiveCertificate(CertificateStoreContextHolder& holder, size_t index) {
-			X509_STORE_CTX_set_current_cert(holder.pCertificateStoreContext.get(), holder.Certificates[index].get());
-		}
-
-		CertificateStoreContextHolder CreateCertificateStoreContextFromCertificates(
-				const std::vector<std::shared_ptr<X509>>& certificates) {
-			CertificateStoreContextHolder holder;
-			holder.Certificates = certificates;
-
-			auto pCertificateStack = std::unique_ptr<STACK_OF(X509), CertificateStackDeleter>(sk_X509_new_null());
-			for (const auto& pCertificate : holder.Certificates) {
-				if (!pCertificateStack || !sk_X509_push(pCertificateStack.get(), pCertificate.get()))
-					CATAPULT_THROW_RUNTIME_ERROR("failed to add certificate to stack");
-			}
-
-			holder.pCertificateStoreContext = std::shared_ptr<X509_STORE_CTX>(X509_STORE_CTX_new(), X509_STORE_CTX_free);
-			if (!holder.pCertificateStoreContext || !X509_STORE_CTX_init(holder.pCertificateStoreContext.get(), nullptr, nullptr, nullptr))
-				CATAPULT_THROW_RUNTIME_ERROR("failed to initialize certificate store context");
-
-			X509_STORE_CTX_set0_verified_chain(holder.pCertificateStoreContext.get(), pCertificateStack.release());
-			SetActiveCertificate(holder, 0);
-			return holder;
-		}
-
-		CertificateStoreContextHolder CreateCertificateStoreContext(const std::vector<std::string>& commonNames) {
+		test::CertificateStoreContextHolder CreateCertificateStoreContext(const std::vector<std::string>& commonNames) {
 			std::vector<std::shared_ptr<X509>> certificates;
 			for (const auto& commonName : commonNames)
 				certificates.push_back(CreateDefaultCertificate(commonName));
 
-			return CreateCertificateStoreContextFromCertificates(certificates);
+			return test::CreateCertificateStoreContextFromCertificates(certificates);
 		}
 	}
-
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
 
 	// endregion
 
@@ -136,10 +92,13 @@ namespace catapult { namespace crypto {
 	// region preverified
 
 	namespace {
-		std::vector<bool> PreverifyMultiple(CatapultCertificateProcessor& processor, CertificateStoreContextHolder& holder, size_t count) {
+		std::vector<bool> PreverifyMultiple(
+				CatapultCertificateProcessor& processor,
+				test::CertificateStoreContextHolder& holder,
+				size_t count) {
 			std::vector<bool> results;
 			for (auto i = 0u; i < count; ++i) {
-				SetActiveCertificate(holder, i);
+				test::SetActiveCertificate(holder, i);
 				results.push_back(processor.verify(true, *holder.pCertificateStoreContext));
 			}
 
@@ -213,7 +172,7 @@ namespace catapult { namespace crypto {
 		test::CertificateBuilder builder;
 		builder.setSubject("JP", "NEM", "Alice");
 		builder.setIssuer("JP", "NEM", "Alice");
-		auto holder = CreateCertificateStoreContextFromCertificates({ builder.build(), CreateDefaultCertificate("Bob") });
+		auto holder = test::CreateCertificateStoreContextFromCertificates({ builder.build(), CreateDefaultCertificate("Bob") });
 		CatapultCertificateProcessor processor;
 
 		// Act:
@@ -239,7 +198,7 @@ namespace catapult { namespace crypto {
 		builder2.setIssuer("CA", "SYM", "Bob");
 		builder2.setPublicKey(*pCertificateKey);
 
-		auto holder = CreateCertificateStoreContextFromCertificates({ builder1.buildAndSign(), builder2.buildAndSign() });
+		auto holder = test::CreateCertificateStoreContextFromCertificates({ builder1.buildAndSign(), builder2.buildAndSign() });
 		CatapultCertificateProcessor processor;
 
 		// Act:
@@ -266,7 +225,7 @@ namespace catapult { namespace crypto {
 		builder2.setIssuer("JP", "NEM", "Alice");
 		builder2.setPublicKey(*test::GenerateRandomCertificateKey());
 
-		auto holder = CreateCertificateStoreContextFromCertificates({ builder1.buildAndSign(), builder2.buildAndSign() });
+		auto holder = test::CreateCertificateStoreContextFromCertificates({ builder1.buildAndSign(), builder2.buildAndSign() });
 		CatapultCertificateProcessor processor;
 
 		// Act:
@@ -308,7 +267,7 @@ namespace catapult { namespace crypto {
 
 		auto verifyResult1 = processor.verify(false, *holder.pCertificateStoreContext);
 		auto verifyResult2 = processor.verify(true, *holder.pCertificateStoreContext);
-		SetActiveCertificate(holder, 1);
+		test::SetActiveCertificate(holder, 1);
 
 		// Act:
 		auto verifyResult3 = processor.verify(false, *holder.pCertificateStoreContext);
@@ -336,7 +295,7 @@ namespace catapult { namespace crypto {
 			builder.setPublicKey(*test::GenerateRandomCertificateKey());
 			auto pCertificate = shouldSign ? builder.buildAndSign() : builder.build();
 
-			auto holder = CreateCertificateStoreContextFromCertificates({ pCertificate, CreateDefaultCertificate("Bob") });
+			auto holder = test::CreateCertificateStoreContextFromCertificates({ pCertificate, CreateDefaultCertificate("Bob") });
 			X509_STORE_CTX_set_error(holder.pCertificateStoreContext.get(), X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN + errorCodeDelta);
 			CatapultCertificateProcessor processor;
 
