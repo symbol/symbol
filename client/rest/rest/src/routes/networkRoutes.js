@@ -18,12 +18,34 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const errors = require('../server/errors');
+const ini = require('ini');
+const fs = require('fs');
+const util = require('util');
+
 module.exports = {
 	register: (server, db, services) => {
 		server.get('/network', (req, res, next) => {
-			// forward entire config network section without formatting
-			res.send(services.config.network);
+			res.send({ name: services.config.network.name, description: services.config.network.description });
 			next();
+		});
+
+		server.get('/network/properties', (req, res, next) => {
+			const readFile = util.promisify(fs.readFile);
+			return readFile(services.config.network.propertiesFilePath, 'utf8')
+				.then(fileData => ini.parse(fileData))
+				.then(propertiesObject => {
+					res.send({
+						network: propertiesObject.network,
+						chain: propertiesObject.chain,
+						plugins: propertiesObject['plugin:catapult'].plugins
+					});
+					next();
+				})
+				.catch(() => {
+					res.send(errors.createInvalidArgumentError('there was an error reading the network properties file'));
+					next();
+				});
 		});
 
 		server.get('/network/fees', (req, res, next) => {

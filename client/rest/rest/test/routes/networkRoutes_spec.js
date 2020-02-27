@@ -22,13 +22,14 @@ const { MockServer, test } = require('./utils/routeTestUtils');
 const networkRoutes = require('../../src/routes/networkRoutes');
 const { expect } = require('chai');
 const sinon = require('sinon');
+const fs = require('fs');
 
 describe('network routes', () => {
 	describe('get', () => {
 		describe('network', () => {
-			it('can retrieve network', () => {
+			it('can retrieve network info', () => {
 				// Act:
-				const services = { config: { network: { name: 'foo', head: 'bar' } } };
+				const services = { config: { network: { name: 'foo', description: 'bar' } } };
 				return test.route.prepareExecuteRoute(networkRoutes.register, '/network', 'get', {}, {}, services, routeContext => {
 					// - invoke route synchronously
 					routeContext.routeInvoker();
@@ -40,8 +41,120 @@ describe('network routes', () => {
 
 					// - no type information because formatting is completely bypassed
 					const response = routeContext.responses[0];
-					expect(response).to.deep.equal({ name: 'foo', head: 'bar' });
-					expect(response).to.equal(services.config.network);
+					expect(response).to.deep.equal({
+						name: services.config.network.name,
+						description: services.config.network.description
+					});
+				});
+			});
+
+			it('skips network info not explicitly included', () => {
+				// Act:
+				const services = { config: { network: { name: 'foo', description: 'bar', head: 'fuu' } } };
+				return test.route.prepareExecuteRoute(networkRoutes.register, '/network', 'get', {}, {}, services, routeContext => {
+					// - invoke route synchronously
+					routeContext.routeInvoker();
+
+					const response = routeContext.responses[0];
+					expect(response).to.deep.equal({
+						name: services.config.network.name,
+						description: services.config.network.description
+					});
+				});
+			});
+		});
+
+		describe('network properties', () => {
+			it('can retrieve network properties', () => {
+				const readFileStub = sinon.stub(fs, 'readFile').callsFake((path, data, callback) =>
+					callback(null, '[network]\n'
+						+ 'identifier = mijin-test\n'
+						+ '[chain]\n'
+						+ 'enableVerifiableState = true\n'
+						+ '[plugin:catapult.plugins.aggregate]\n'
+						+ 'maxTransactionsPerAggregate = 1\'000'));
+
+				const services = { config: { network: { propertiesFilePath: 'wouldBeValidFilePath' } } };
+				const mockServer = new MockServer();
+
+				networkRoutes.register(mockServer.server, {}, services);
+
+				const route = mockServer.getRoute('/network/properties').get();
+				return mockServer.callRoute(route).then(() => {
+					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
+						network: { identifier: 'mijin-test' },
+						chain: { enableVerifiableState: true },
+						plugins: { aggregate: { maxTransactionsPerAggregate: '1\'000' } }
+					});
+					readFileStub.restore();
+				});
+			});
+
+			it('skips non-explicit properties', () => {
+				const readFileStub = sinon.stub(fs, 'readFile').callsFake((path, data, callback) =>
+					callback(null, '[network]\n'
+						+ 'identifier = mijin-test\n'
+						+ '[chain]\n'
+						+ 'enableVerifiableState = true\n'
+						+ '[private]\n'
+						+ 'secretCode = 42\n'
+						+ '[plugin:catapult.plugins.aggregate]\n'
+						+ 'maxTransactionsPerAggregate = 1\'000'));
+
+				const services = { config: { network: { propertiesFilePath: 'wouldBeValidFilePath' } } };
+				const mockServer = new MockServer();
+
+				networkRoutes.register(mockServer.server, {}, services);
+
+				const route = mockServer.getRoute('/network/properties').get();
+				return mockServer.callRoute(route).then(() => {
+					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
+						network: { identifier: 'mijin-test' },
+						chain: { enableVerifiableState: true },
+						plugins: { aggregate: { maxTransactionsPerAggregate: '1\'000' } }
+					});
+					readFileStub.restore();
+				});
+			});
+
+			it('errors if no file path specified', () => {
+				const mockServer = new MockServer();
+				networkRoutes.register(mockServer.server, {}, { config: { network: {} } });
+
+				const route = mockServer.getRoute('/network/properties').get();
+				return mockServer.callRoute(route).then(() => {
+					expect(mockServer.send.firstCall.args[0].statusCode).to.equal(409);
+					expect(mockServer.send.firstCall.args[0].message).to.equal('there was an error reading the network properties file');
+				});
+			});
+
+			it('errors when the file has an invalid format', () => {
+				const readFileStub = sinon.stub(fs, 'readFile').callsFake((path, data, callback) =>
+					callback(null, '{ "not": "iniFormat" }'));
+
+				const services = { config: { network: {} } };
+				const mockServer = new MockServer();
+
+				networkRoutes.register(mockServer.server, {}, services);
+
+				const route = mockServer.getRoute('/network/properties').get();
+				return mockServer.callRoute(route).then(() => {
+					expect(mockServer.send.firstCall.args[0].statusCode).to.equal(409);
+					expect(mockServer.send.firstCall.args[0].message).to.equal('there was an error reading the network properties file');
+					readFileStub.restore();
+				});
+			});
+
+			it('errors if the file does not exist', () => {
+				const mockServer = new MockServer();
+				networkRoutes.register(mockServer.server, {}, { config: { network: { propertiesFilePath: 'nowaythispath€xists' } } });
+
+				const route = mockServer.getRoute('/network/properties').get();
+				return mockServer.callRoute(route).then(() => {
+					expect(mockServer.send.firstCall.args[0].statusCode).to.equal(409);
+					expect(mockServer.send.firstCall.args[0].message).to.equal('there was an error reading the network properties file');
 				});
 			});
 		});

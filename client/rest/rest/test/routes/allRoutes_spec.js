@@ -60,6 +60,7 @@ describe('all routes', () => {
 			'/chain/score',
 
 			'/network',
+			'/network/properties',
 			'/network/fees',
 			'/node/health',
 			'/node/info',
