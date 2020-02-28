@@ -76,4 +76,18 @@ namespace catapult { namespace extensions {
 		EXPECT_EQ(ionet::PacketType::Push_Partial_Transactions, pWriters->broadcastedPayloads()[0].header().Type);
 		test::AssertEqualPayload(expectedPayload, pWriters->broadcastedPayloads()[0]);
 	}
+
+	TEST(TEST_CLASS, CanCreateCloseConnectionSink) {
+		// Arrange:
+		auto pWriters = std::make_shared<mocks::BroadcastAwareMockPacketWriters>();
+		model::NodeIdentity identity{ test::GenerateRandomByteArray<Key>(), "Alice" };
+
+		// Act:
+		auto sink = CreateCloseConnectionSink(*pWriters);
+		sink(identity);
+
+		// Assert:
+		EXPECT_EQ(1u, pWriters->closedNodeIdentities().size());
+		EXPECT_CONTAINS(pWriters->closedNodeIdentities(), identity);
+	}
 }}

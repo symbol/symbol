@@ -109,7 +109,9 @@ namespace catapult { namespace extensions {
 			pCurrentNodeIdentity->Host = socketInfo.host();
 
 			auto rateExceededHandler = [bootServerState, pCurrentNodeIdentity]() {
-				bootServerState.NodeSubscriber.notifyBan(*pCurrentNodeIdentity, Failure_Extension_Read_Rate_Limit_Exceeded);
+				bootServerState.NodeSubscriber.notifyBan(
+						*pCurrentNodeIdentity,
+						utils::to_underlying_type(Failure_Extension_Read_Rate_Limit_Exceeded));
 				bootServerState.Acceptor.closeOne(*pCurrentNodeIdentity);
 			};
 			ionet::PacketSocketInfo decoratedSocketInfo(

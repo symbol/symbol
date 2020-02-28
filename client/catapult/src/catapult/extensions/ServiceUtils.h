@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "ServerHooks.h"
 #include "ServiceLocator.h"
 #include "catapult/ionet/BroadcastUtils.h"
 #include "catapult/net/PacketWriters.h"
@@ -41,6 +42,13 @@ namespace catapult { namespace extensions {
 		return [&locator, serviceName, packetType](const auto& entities) {
 			auto payload = ionet::CreateBroadcastPayload(entities, packetType);
 			locator.service<net::PacketWriters>(serviceName)->broadcast(payload);
+		};
+	}
+
+	/// Creates a sink that closes the propagated node identity in \a container.
+	inline BannedNodeIdentitySink CreateCloseConnectionSink(net::ConnectionContainer& container) {
+		return [&container](const auto& identity) {
+			container.closeOne(identity);
 		};
 	}
 }}

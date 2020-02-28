@@ -174,6 +174,34 @@ namespace catapult { namespace packetserver {
 
 	// endregion
 
+	// region bannedNodeIdentitySink
+
+	TEST(TEST_CLASS, ReadersAreRegisteredInBannedNodeIdentitySink) {
+		// Arrange:
+		TestContext context;
+		context.boot();
+		auto sink = context.testState().state().hooks().bannedNodeIdentitySink();
+
+		// - connect to the server as a reader
+		auto clientKeyPair = test::GenerateKeyPair();
+		auto pPool = test::CreateStartedIoThreadPool();
+		auto pIo = test::ConnectToLocalHost(pPool->ioContext(), test::GetLocalHostPort(), context.publicKey(), clientKeyPair);
+
+		// Sanity: a single connection was accepted
+		EXPECT_EQ(1u, context.counter(Counter_Name));
+
+		// Act: trigger the sink, which should close the connection
+		sink(model::NodeIdentity{ clientKeyPair.publicKey(), "" });
+
+		// - wait for the test to complete
+		pPool->join();
+
+		// Assert: the connection was closed
+		EXPECT_EQ(0u, context.counter(Counter_Name));
+	}
+
+	// endregion
+
 	// region tasks
 
 	TEST(TEST_CLASS, AgePeersTaskIsScheduled) {

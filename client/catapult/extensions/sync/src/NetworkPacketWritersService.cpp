@@ -84,6 +84,7 @@ namespace catapult { namespace sync {
 				state.hooks().addNewBlockSink(extensions::CreatePushEntitySink<BlockSink>(locator, Service_Name));
 				state.hooks().addNewTransactionsSink(extensions::CreatePushEntitySink<TransactionsSink>(locator, Service_Name));
 				state.hooks().addPacketPayloadSink([&writers = *pWriters](const auto& payload) { writers.broadcast(payload); });
+				state.hooks().addBannedNodeIdentitySink(extensions::CreateCloseConnectionSink(*pWriters));
 
 				// add retrievers
 				state.hooks().setRemoteChainHeightsRetriever(CreateRemoteChainHeightsRetriever(*pWriters));

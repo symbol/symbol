@@ -72,6 +72,7 @@ namespace catapult { namespace partialtransaction {
 	ADD_PACKET_WRITERS_SERVICE_TEST(TEST_CLASS, Mixin, CanBootService)
 	ADD_PACKET_WRITERS_SERVICE_TEST(TEST_CLASS, Mixin, CanShutdownService)
 	ADD_PACKET_WRITERS_SERVICE_TEST(TEST_CLASS, Mixin, CanConnectToExternalServer)
+	ADD_PACKET_WRITERS_SERVICE_TEST(TEST_CLASS, Mixin, WritersAreRegisteredInBannedNodeIdentitySink)
 
 	// region packetIoPickers
 

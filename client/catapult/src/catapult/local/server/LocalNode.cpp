@@ -62,8 +62,9 @@ namespace catapult { namespace local {
 		std::unique_ptr<subscribers::NodeSubscriber> CreateNodeSubscriber(
 				subscribers::SubscriptionManager& subscriptionManager,
 				ionet::NodeContainer& nodes,
-				const std::unordered_set<std::string>& localNetworks) {
-			subscriptionManager.addNodeSubscriber(CreateNodeContainerSubscriberAdapter(nodes, localNetworks));
+				const std::unordered_set<std::string>& localNetworks,
+				const extensions::BannedNodeIdentitySink& bannedNodeIdentitySink) {
+			subscriptionManager.addNodeSubscriber(CreateNodeContainerSubscriberAdapter(nodes, localNetworks, bannedNodeIdentitySink));
 			return subscriptionManager.createNodeSubscriber();
 		}
 
@@ -102,7 +103,11 @@ namespace catapult { namespace local {
 							m_pBootstrapper->subscriptionManager(),
 							m_catapultCache,
 							m_dataDirectory))
-					, m_pNodeSubscriber(CreateNodeSubscriber(m_pBootstrapper->subscriptionManager(), m_nodes, m_config.Node.LocalNetworks))
+					, m_pNodeSubscriber(CreateNodeSubscriber(
+							m_pBootstrapper->subscriptionManager(),
+							m_nodes,
+							m_config.Node.LocalNetworks,
+							m_bannedNodeIdentitySink))
 					, m_pluginManager(m_pBootstrapper->pluginManager())
 					, m_isBooted(false) {
 				ValidateNodes(m_pBootstrapper->staticNodes());
@@ -149,6 +154,9 @@ namespace catapult { namespace local {
 				for (const auto& counter : m_serviceLocator.counters())
 					m_counters.push_back(counter);
 
+				// notice that CreateNodeContainerSubscriberAdapter takes reference to m_bannedNodeIdentitySink,
+				// otherwise this would not work
+				m_bannedNodeIdentitySink = serviceState.hooks().bannedNodeIdentitySink();
 				m_isBooted = true;
 
 				// save nemesis state on first boot so that state directory is created and NemesisBlockNotifier
@@ -276,6 +284,7 @@ namespace catapult { namespace local {
 
 			plugins::PluginManager& m_pluginManager;
 			std::vector<utils::DiagnosticCounter> m_counters;
+			extensions::BannedNodeIdentitySink m_bannedNodeIdentitySink;
 			bool m_isBooted;
 		};
 	}

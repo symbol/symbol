@@ -19,7 +19,7 @@
 **/
 
 #pragma once
-#include "catapult/model/NodeIdentity.h"
+#include "catapult/ionet/NodeContainer.h"
 #include "catapult/subscribers/NodeSubscriber.h"
 #include "tests/test/nodeps/ParamsCapture.h"
 
@@ -63,7 +63,7 @@ namespace catapult { namespace mocks {
 	struct NodeSubscriberBanParams {
 	public:
 		/// Creates params around \a identity and \a reason.
-		NodeSubscriberBanParams(const model::NodeIdentity& identity, validators::ValidationResult reason)
+		NodeSubscriberBanParams(const model::NodeIdentity& identity, uint32_t reason)
 				: Identity(identity)
 				, Reason(reason)
 		{}
@@ -73,14 +73,26 @@ namespace catapult { namespace mocks {
 		const model::NodeIdentity Identity;
 
 		/// Ban reason.
-		const validators::ValidationResult Reason;
+		const uint32_t Reason;
 	};
 
 	/// Mock noop node subscriber implementation.
 	class MockNodeSubscriber : public subscribers::NodeSubscriber {
 	public:
 		/// Creates a mock subscriber.
-		MockNodeSubscriber() : m_numNodesNotified(0)
+		MockNodeSubscriber() : MockNodeSubscriber(nullptr)
+		{}
+
+		/// Creates a mock subscriber around \a nodes.
+		explicit MockNodeSubscriber(ionet::NodeContainer& nodes) : MockNodeSubscriber(&nodes)
+		{}
+
+	private:
+		MockNodeSubscriber(ionet::NodeContainer* pNodes)
+				: m_pNodes(pNodes)
+				, m_numNodesNotified(0)
+				, m_enableBanSimulation(false)
+				, m_notifyIncomingNodeResult(true)
 		{}
 
 	public:
@@ -106,6 +118,11 @@ namespace catapult { namespace mocks {
 		}
 
 	public:
+		/// Enables banning on the node container when ban notifications are made.
+		void enableBanSimulation() {
+			m_enableBanSimulation = true;
+		}
+
 		/// Sets the value returned by notifyIncomingNode to \a result.
 		void setNotifyIncomingNodeResult(bool result) {
 			m_notifyIncomingNodeResult = result;
@@ -122,15 +139,21 @@ namespace catapult { namespace mocks {
 			return m_notifyIncomingNodeResult;
 		}
 
-		void notifyBan(const model::NodeIdentity& identity, validators::ValidationResult reason) override {
+		void notifyBan(const model::NodeIdentity& identity, uint32_t reason) override {
 			m_banParams.push(identity, reason);
+
+			if (m_enableBanSimulation)
+				m_pNodes->modifier().ban(identity, reason);
 		}
 
 	private:
-		bool m_notifyIncomingNodeResult = true;
+		ionet::NodeContainer* m_pNodes;
+		std::atomic<size_t> m_numNodesNotified;
+		bool m_enableBanSimulation;
+		bool m_notifyIncomingNodeResult;
+
 		test::ParamsCapture<NodeSubscriberNodeParams> m_nodeParams;
 		test::ParamsCapture<NodeSubscriberIncomingNodeParams> m_incomingNodeParams;
 		test::ParamsCapture<NodeSubscriberBanParams> m_banParams;
-		std::atomic<size_t> m_numNodesNotified;
 	};
 }}

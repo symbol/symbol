@@ -43,6 +43,9 @@ namespace catapult { namespace extensions {
 	/// Packet payload sink.
 	using PacketPayloadSink = consumer<const ionet::PacketPayload&>;
 
+	/// Banned node identity sink.
+	using BannedNodeIdentitySink = consumer<const model::NodeIdentity&>;
+
 	/// Handler that is called when the confirmed state of transactions changes.
 	using TransactionsChangeHandler = consumers::BlockChainSyncHandlers::TransactionsChangeFunc;
 
@@ -89,6 +92,11 @@ namespace catapult { namespace extensions {
 		/// Adds a packet payload \a sink.
 		void addPacketPayloadSink(const PacketPayloadSink& sink) {
 			m_packetPayloadSinks.push_back(sink);
+		}
+
+		/// Adds a banned node identity \a sink.
+		void addBannedNodeIdentitySink(const BannedNodeIdentitySink& sink) {
+			m_bannedNodeIdentitySinks.push_back(sink);
 		}
 
 		/// Adds a transactions change \a handler.
@@ -147,6 +155,11 @@ namespace catapult { namespace extensions {
 			return AggregateConsumers(m_packetPayloadSinks);
 		}
 
+		/// Gets the banned node identity sink.
+		auto bannedNodeIdentitySink() const {
+			return AggregateConsumers(m_bannedNodeIdentitySinks);
+		}
+
 		/// Gets the transactions change handler.
 		auto transactionsChangeHandler() const {
 			return AggregateConsumers(m_transactionsChangeHandlers);
@@ -201,6 +214,7 @@ namespace catapult { namespace extensions {
 		std::vector<NewBlockSink> m_newBlockSinks;
 		std::vector<SharedNewTransactionsSink> m_newTransactionsSinks;
 		std::vector<PacketPayloadSink> m_packetPayloadSinks;
+		std::vector<BannedNodeIdentitySink> m_bannedNodeIdentitySinks;
 		std::vector<TransactionsChangeHandler> m_transactionsChangeHandlers;
 		std::vector<TransactionEventHandler> m_transactionEventHandlers;
 

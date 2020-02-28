@@ -108,7 +108,7 @@ namespace catapult { namespace subscribers {
 		EXPECT_EQ(3u, context.subscribers().size());
 
 		// Act:
-		context.aggregate().notifyBan({ key, "11.22.33.44" }, static_cast<validators::ValidationResult>(123));
+		context.aggregate().notifyBan({ key, "11.22.33.44" }, 123);
 
 		// Assert:
 		auto i = 0u;
@@ -118,7 +118,7 @@ namespace catapult { namespace subscribers {
 			ASSERT_EQ(1u, capturedParams.size()) << message;
 			EXPECT_EQ(key, capturedParams[0].Identity.PublicKey) << message;
 			EXPECT_EQ("11.22.33.44", capturedParams[0].Identity.Host) << message;
-			EXPECT_EQ(static_cast<validators::ValidationResult>(123), capturedParams[0].Reason) << message;
+			EXPECT_EQ(123u, capturedParams[0].Reason) << message;
 		}
 	}
 }}

@@ -186,6 +186,37 @@ namespace catapult { namespace test {
 		}
 
 		// endregion
+
+	public:
+		// region bannedNodeIdentitySink
+
+		static void AssertWritersAreRegisteredInBannedNodeIdentitySink() {
+			// Arrange: create a (tcp) server
+			auto pPool = CreateStartedIoThreadPool();
+			auto serverKeyPair = GenerateKeyPair();
+			SpawnPacketServerWork(pPool->ioContext(), [&serverKeyPair](const auto& pServer) {
+				net::VerifyClient(pServer, serverKeyPair, ionet::ConnectionSecurityMode::None, [](auto, const auto&) {});
+			});
+
+			// Act: create and boot the service
+			TestContext context;
+			context.boot();
+			auto sink = context.testState().state().hooks().bannedNodeIdentitySink();
+
+			// - get the packet writers and attempt to connect to the server
+			ConnectToExternalWriter(context, serverKeyPair.publicKey());
+
+			// Act: trigger the sink, which should close the connection
+			sink(model::NodeIdentity{ serverKeyPair.publicKey(), "" });
+
+			// - wait for the test to complete
+			pPool->join();
+
+			// Assert: the connection was closed
+			EXPECT_EQ(0u, context.counter(Traits::Counter_Name));
+		}
+
+		// endregion
 	};
 
 #define ADD_PACKET_WRITERS_SERVICE_TEST(TEST_CLASS, MIXIN, TEST_NAME) \
@@ -196,5 +227,6 @@ namespace catapult { namespace test {
 	ADD_PACKET_WRITERS_SERVICE_TEST(TEST_CLASS, MIXIN, CanShutdownService) \
 	ADD_PACKET_WRITERS_SERVICE_TEST(TEST_CLASS, MIXIN, CanConnectToExternalServer) \
 	ADD_PACKET_WRITERS_SERVICE_TEST(TEST_CLASS, MIXIN, CanBroadcastBlockToWriters) \
-	ADD_PACKET_WRITERS_SERVICE_TEST(TEST_CLASS, MIXIN, CanBroadcastTransactionToWriters)
+	ADD_PACKET_WRITERS_SERVICE_TEST(TEST_CLASS, MIXIN, CanBroadcastTransactionToWriters) \
+	ADD_PACKET_WRITERS_SERVICE_TEST(TEST_CLASS, MIXIN, WritersAreRegisteredInBannedNodeIdentitySink)
 }}

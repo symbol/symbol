@@ -23,6 +23,7 @@
 #include "catapult/extensions/PeersConnectionTasks.h"
 #include "catapult/extensions/ServiceLocator.h"
 #include "catapult/extensions/ServiceState.h"
+#include "catapult/extensions/ServiceUtils.h"
 #include "catapult/thread/MultiServicePool.h"
 
 namespace catapult { namespace packetserver {
@@ -74,6 +75,9 @@ namespace catapult { namespace packetserver {
 						*pReaders);
 
 				locator.registerService(Service_Name, pReaders);
+
+				// add sinks
+				state.hooks().addBannedNodeIdentitySink(extensions::CreateCloseConnectionSink(*pReaders));
 
 				// add tasks
 				state.tasks().push_back(CreateAgePeersTask(state, *pReaders));

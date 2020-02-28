@@ -182,6 +182,9 @@ namespace catapult { namespace sync {
 				state.hooks().addNewBlockSink([&counter = m_numNewBlockSinkCalls](const auto&) { ++counter; });
 				state.hooks().addNewTransactionsSink([&counter = m_numNewTransactionsSinkCalls](const auto&) { ++counter; });
 
+				// configure subscribers
+				testState().nodeSubscriber().enableBanSimulation();
+
 				// the service needs to be able to raise notifications from the mock transactions sent to it
 				auto& pluginManager = testState().pluginManager();
 				pluginManager.addTransactionSupport(mocks::CreateMockTransactionPlugin());

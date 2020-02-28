@@ -51,6 +51,7 @@
 #include "catapult/ionet/NodeInteractionResult.h"
 #include "catapult/model/BlockChainConfiguration.h"
 #include "catapult/plugins/PluginManager.h"
+#include "catapult/subscribers/NodeSubscriber.h"
 #include "catapult/subscribers/StateChangeSubscriber.h"
 #include "catapult/subscribers/TransactionStatusSubscriber.h"
 #include "catapult/thread/MultiServicePool.h"
@@ -97,24 +98,25 @@ namespace catapult { namespace sync {
 				extensions::ServiceState& state,
 				const ConsumerDispatcherOptions& options,
 				std::vector<DisruptorConsumer>&& disruptorConsumers) {
+			auto& nodeSubscriber = state.nodeSubscriber();
 			auto& statusSubscriber = state.transactionStatusSubscriber();
 			auto reclaimMemoryInspector = CreateReclaimMemoryInspector();
 			const auto& localNetworks = state.config().Node.LocalNetworks;
-			auto inspector = [&statusSubscriber, &nodes = state.nodes(), &localNetworks, reclaimMemoryInspector](
+			auto inspector = [&nodeSubscriber, &statusSubscriber, &nodes = state.nodes(), &localNetworks, reclaimMemoryInspector](
 					auto& input,
 					const auto& completionResult) {
 				statusSubscriber.flush();
 				auto interactionResult = consumers::ToNodeInteractionResult(input.sourceIdentity(), completionResult);
 				extensions::IncrementNodeInteraction(nodes, interactionResult);
 
-				auto nodesModifier = nodes.modifier();
-				nodesModifier.pruneBannedNodes();
-				const auto& identity = input.sourceIdentity();
+				nodes.modifier().pruneBannedNodes();
+
 				if (ConsumerResultSeverity::Fatal == completionResult.ResultSeverity) {
+					const auto& identity = input.sourceIdentity();
 					if (config::IsLocalHost(identity.Host, localNetworks))
 						CATAPULT_LOG(debug) << "bypassing banning of " << identity << " because host is contained in local networks";
 					else
-						nodesModifier.ban(identity, completionResult.CompletionCode);
+						nodeSubscriber.notifyBan(identity, completionResult.CompletionCode);
 				}
 
 				reclaimMemoryInspector(input, completionResult);

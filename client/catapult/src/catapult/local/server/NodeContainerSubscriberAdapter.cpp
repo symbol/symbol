@@ -27,9 +27,13 @@ namespace catapult { namespace local {
 	namespace {
 		class NodeContainerSubscriberAdapter : public subscribers::NodeSubscriber {
 		public:
-			NodeContainerSubscriberAdapter(ionet::NodeContainer& nodes, const std::unordered_set<std::string>& localNetworks)
+			NodeContainerSubscriberAdapter(
+					ionet::NodeContainer& nodes,
+					const std::unordered_set<std::string>& localNetworks,
+					const extensions::BannedNodeIdentitySink* pBannedNodeIdentitySink)
 					: m_nodes(nodes)
 					, m_localNetworks(localNetworks)
+					, m_pBannedNodeIdentitySink(pBannedNodeIdentitySink)
 			{}
 
 		public:
@@ -51,19 +55,30 @@ namespace catapult { namespace local {
 				return false;
 			}
 
-			void notifyBan(const model::NodeIdentity& identity, validators::ValidationResult reason) override {
-				m_nodes.modifier().ban(identity, utils::to_underlying_type(reason));
+			void notifyBan(const model::NodeIdentity& identity, uint32_t reason) override {
+				m_nodes.modifier().ban(identity, reason);
+
+				if (m_pBannedNodeIdentitySink)
+					(*m_pBannedNodeIdentitySink)(identity);
 			}
 
 		private:
 			ionet::NodeContainer& m_nodes;
 			std::unordered_set<std::string> m_localNetworks;
+			const extensions::BannedNodeIdentitySink* m_pBannedNodeIdentitySink;
 		};
 	}
 
 	std::unique_ptr<subscribers::NodeSubscriber> CreateNodeContainerSubscriberAdapter(
 			ionet::NodeContainer& nodes,
 			const std::unordered_set<std::string>& localNetworks) {
-		return std::make_unique<NodeContainerSubscriberAdapter>(nodes, localNetworks);
+		return std::make_unique<NodeContainerSubscriberAdapter>(nodes, localNetworks, nullptr);
+	}
+
+	std::unique_ptr<subscribers::NodeSubscriber> CreateNodeContainerSubscriberAdapter(
+			ionet::NodeContainer& nodes,
+			const std::unordered_set<std::string>& localNetworks,
+			const extensions::BannedNodeIdentitySink& bannedNodeIdentitySink) {
+		return std::make_unique<NodeContainerSubscriberAdapter>(nodes, localNetworks, &bannedNodeIdentitySink);
 	}
 }}

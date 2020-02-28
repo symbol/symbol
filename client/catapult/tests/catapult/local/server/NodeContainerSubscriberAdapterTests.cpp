@@ -309,12 +309,31 @@ namespace catapult { namespace local {
 
 		// Act:
 		auto pSubscriber = CreateNodeContainerSubscriberAdapter(nodes);
-		pSubscriber->notifyBan(identity, static_cast<validators::ValidationResult>(123));
+		pSubscriber->notifyBan(identity, 123);
 
 		// Assert:
 		auto nodesView = nodes.view();
 		EXPECT_EQ(0u, nodesView.size());
 		EXPECT_TRUE(nodesView.isBanned(identity));
+	}
+
+	TEST(TEST_CLASS, NotifyBanForwardsNodeIdentityToBannedNodeIdentitySink) {
+		// Arrange:
+		auto nodes = CreateNodeContainer();
+		auto identity = model::NodeIdentity{ test::GenerateRandomByteArray<Key>(), "11.22.33.44" };
+		std::vector<model::NodeIdentity> bannedNodeIdentities;
+		extensions::BannedNodeIdentitySink bannedNodeIdentitySink = [&bannedNodeIdentities](const auto& bannedNodeIdentity) {
+			bannedNodeIdentities.push_back(bannedNodeIdentity);
+		};
+
+		// Act:
+		auto pSubscriber = CreateNodeContainerSubscriberAdapter(nodes, {}, bannedNodeIdentitySink);
+		pSubscriber->notifyBan(identity, 123);
+
+		// Assert:
+		ASSERT_EQ(1u, bannedNodeIdentities.size());
+		EXPECT_EQ(identity.PublicKey, bannedNodeIdentities[0].PublicKey);
+		EXPECT_EQ(identity.Host, bannedNodeIdentities[0].Host);
 	}
 
 	// endregion

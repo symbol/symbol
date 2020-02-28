@@ -26,6 +26,7 @@
 #include "catapult/extensions/NetworkUtils.h"
 #include "catapult/extensions/PeersConnectionTasks.h"
 #include "catapult/extensions/ServiceLocator.h"
+#include "catapult/extensions/ServiceUtils.h"
 #include "catapult/extensions/SynchronizerTaskCallbacks.h"
 #include "catapult/net/PacketWriters.h"
 #include "catapult/thread/MultiServicePool.h"
@@ -89,6 +90,9 @@ namespace catapult { namespace partialtransaction {
 
 				locator.registerService(Service_Name, pWriters);
 				state.packetIoPickers().insert(*pWriters, ionet::NodeRoles::Api);
+
+				// add sinks
+				state.hooks().addBannedNodeIdentitySink(extensions::CreateCloseConnectionSink(*pWriters));
 
 				// add tasks
 				state.tasks().push_back(CreateConnectPeersTask(state, *pWriters));

@@ -44,6 +44,6 @@ namespace catapult { namespace subscribers {
 		virtual bool notifyIncomingNode(const model::NodeIdentity& identity, ionet::ServiceIdentifier serviceId) = 0;
 
 		/// Indicates node with \a identity is banned due to \a reason.
-		virtual void notifyBan(const model::NodeIdentity& identity, validators::ValidationResult reason) = 0;
+		virtual void notifyBan(const model::NodeIdentity& identity, uint32_t reason) = 0;
 	};
 }}

@@ -59,6 +59,7 @@ namespace catapult { namespace test {
 				, m_catapultCache(std::move(cache))
 				, m_storage(std::make_unique<mocks::MockMemoryBlockStorage>(), std::make_unique<mocks::MockMemoryBlockStorage>())
 				, m_pUtCache(CreateUtCacheProxy())
+				, m_nodeSubscriber(m_nodes)
 				, m_pluginManager(m_config.BlockChain, plugins::StorageConfiguration(), m_config.User, m_config.Inflation)
 				, m_pool("service locator test context", 2)
 				, m_state(
@@ -101,6 +102,11 @@ namespace catapult { namespace test {
 
 		/// Gets the node subscriber.
 		const auto& nodeSubscriber() const {
+			return m_nodeSubscriber;
+		}
+
+		/// Gets the node subscriber.
+		auto& nodeSubscriber() {
 			return m_nodeSubscriber;
 		}
 

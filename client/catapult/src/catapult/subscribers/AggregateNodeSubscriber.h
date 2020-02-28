@@ -43,7 +43,7 @@ namespace catapult { namespace subscribers {
 			return result;
 		}
 
-		void notifyBan(const model::NodeIdentity& identity, validators::ValidationResult reason) override {
+		void notifyBan(const model::NodeIdentity& identity, uint32_t reason) override {
 			this->forEach([&identity, reason](auto& subscriber) { subscriber.notifyBan(identity, reason); });
 		}
 	};

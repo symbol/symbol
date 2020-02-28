@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "catapult/extensions/ServerHooks.h"
 #include "catapult/subscribers/NodeSubscriber.h"
 #include <memory>
 
@@ -30,4 +31,10 @@ namespace catapult { namespace local {
 	std::unique_ptr<subscribers::NodeSubscriber> CreateNodeContainerSubscriberAdapter(
 			ionet::NodeContainer& nodes,
 			const std::unordered_set<std::string>& localNetworks);
+
+	/// Adapts \a nodes to a node subscriber given \a localNetworks and \a bannedNodeIdentitySink.
+	std::unique_ptr<subscribers::NodeSubscriber> CreateNodeContainerSubscriberAdapter(
+			ionet::NodeContainer& nodes,
+			const std::unordered_set<std::string>& localNetworks,
+			const extensions::BannedNodeIdentitySink& bannedNodeIdentitySink);
 }}

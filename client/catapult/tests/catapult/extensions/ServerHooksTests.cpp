@@ -74,6 +74,20 @@ namespace catapult { namespace extensions {
 			}
 		};
 
+		struct BannedNodeIdentitySinkTraits {
+			static auto CreateConsumer(const ServerHooks& hooks) {
+				return hooks.bannedNodeIdentitySink();
+			}
+
+			static void AddConsumer(ServerHooks& hooks, const BannedNodeIdentitySink& sink) {
+				hooks.addBannedNodeIdentitySink(sink);
+			}
+
+			static auto CreateConsumerInput() {
+				return model::NodeIdentity();
+			}
+		};
+
 		struct TransactionsChangeHandlerTraits {
 			static auto CreateConsumer(const ServerHooks& hooks) {
 				return hooks.transactionsChangeHandler();
@@ -108,6 +122,7 @@ namespace catapult { namespace extensions {
 	DEFINE_CONSUMER_HANDLER_TESTS(TEST_CLASS, ServerHooks, NewBlockSink)
 	DEFINE_CONSUMER_HANDLER_TESTS(TEST_CLASS, ServerHooks, NewTransactionsSink)
 	DEFINE_CONSUMER_HANDLER_TESTS(TEST_CLASS, ServerHooks, PacketPayloadSink)
+	DEFINE_CONSUMER_HANDLER_TESTS(TEST_CLASS, ServerHooks, BannedNodeIdentitySink)
 	DEFINE_CONSUMER_HANDLER_TESTS(TEST_CLASS, ServerHooks, TransactionsChangeHandler)
 	DEFINE_CONSUMER_HANDLER_TESTS(TEST_CLASS, ServerHooks, TransactionEventHandler)
 

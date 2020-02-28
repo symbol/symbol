@@ -75,7 +75,7 @@ namespace catapult { namespace test {
 			CATAPULT_THROW_RUNTIME_ERROR("notifyIncomingNode - not supported in mock");
 		}
 
-		void notifyBan(const model::NodeIdentity&, validators::ValidationResult) override {
+		void notifyBan(const model::NodeIdentity&, uint32_t) override {
 			CATAPULT_THROW_RUNTIME_ERROR("notifyBan - not supported in mock");
 		}
 	};

@@ -386,7 +386,7 @@ namespace catapult { namespace extensions {
 			ASSERT_EQ(1u, banParams.size());
 			EXPECT_EQ(key, banParams[0].Identity.PublicKey);
 			EXPECT_EQ("11.22.33.44", banParams[0].Identity.Host);
-			EXPECT_EQ(Failure_Extension_Read_Rate_Limit_Exceeded, banParams[0].Reason);
+			EXPECT_EQ(Failure_Extension_Read_Rate_Limit_Exceeded, static_cast<validators::ValidationResult>(banParams[0].Reason));
 		});
 	}
 

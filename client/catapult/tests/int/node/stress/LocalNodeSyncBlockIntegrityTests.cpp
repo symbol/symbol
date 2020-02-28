@@ -71,7 +71,8 @@ namespace catapult { namespace local {
 			auto pIo2 = test::PushEntity(connection2, ionet::PacketType::Push_Block, pSignedBlock);
 
 			// - wait for the chain height to change and for all height readers to disconnect
-			test::WaitForHeightAndElements(context, Height(2), 2, 2);
+			//   (notice that the reader pushing the invalid entity will be forcibly disconnected)
+			test::WaitForHeightAndElements(context, Height(2), 2, 1);
 			stateHashes.emplace_back(GetStateHash(context));
 
 			// Assert: the cache has expected balances (from the signed block)
