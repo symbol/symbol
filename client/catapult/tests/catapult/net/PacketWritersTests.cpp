@@ -185,6 +185,7 @@ namespace catapult { namespace net {
 				});
 
 				context.pWriters->connect(node, [&](const auto& connectResult) {
+					WAIT_FOR_ONE(numCallbacks);
 					state.Results.push_back(connectResult);
 					++numCallbacks;
 				});
