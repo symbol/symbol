@@ -1,0 +1,22 @@
+type: object
+description: Network related configuration properties.
+properties:
+  identifier:
+    type: string # NetworkIdentifier
+    description: Network identifier.
+    example: mijin-test
+  nodeEqualityStrategy:
+    $ref: "./NodeIdentityEqualityStrategy.yml"
+    example: host
+  publicKey:
+    $ref: "../../../schemas/PublicKey.yml"
+    description: Nemesis public key.
+    example: B4F12E7C9F6946091E2CB8B6D3A12B50D17CCBBF646386EA27CE2946A7423DCF
+  generationHash:
+    $ref: "../../../schemas/Hash256.yml"
+    description: Nemesis generation hash.
+    example: 57F7DA205008026C776CB6AED843393F04CD458E0AA2D9F1D5F31A402072B2D6
+  epochAdjustment:
+    type: string # utils::TimeSpan
+    description: Nemesis epoch time adjustment.
+    example: 1573430400s

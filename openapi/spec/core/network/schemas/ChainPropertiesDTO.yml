@@ -1,0 +1,87 @@
+type: object
+description: Chain related configuration properties.
+properties:
+  enableVerifiableState:
+    type: boolean
+    description: Set to true if block chain should calculate state hashes so that state is fully verifiable at each block.
+    example: true
+  enableVerifiableReceipts:
+    type: boolean
+    description: Set to true if block chain should calculate receipts so that state changes are fully verifiable at each block.
+    example: true
+  currencyMosaicId:
+    type: string
+    description: Mosaic id used as primary chain currency.
+    example: 0x621E'C5B4'0385'6FC2
+  harvestingMosaicId:
+    type: string
+    description: Mosaic id used to provide harvesting ability.
+    example: 0x4291'ED23'000A'037A
+  blockGenerationTargetTime:
+    type: string # utils::TimeSpan
+    description: Targeted time between blocks.
+    example: 15s
+  blockTimeSmoothingFactor:
+    type: string # uint32
+    description: A higher value makes the network more biased.
+    example: "3000"
+  importanceGrouping:
+    type: string # uint64
+    description: Number of blocks that should be treated as a group for importance purposes.
+    example: "39"
+  importanceActivityPercentage:
+    type: string
+    description: Percentage of importance resulting from fee generation and beneficiary usage.
+    example: "5"
+  maxRollbackBlocks:
+    type: string # uint32
+    description: Maximum number of blocks that can be rolled back.
+    example: "40"
+  maxDifficultyBlocks:
+    type: string # uint32
+    description: Maximum number of blocks to use in a difficulty calculation.
+    example: "60"
+  defaultDynamicFeeMultiplier:
+    type: string # BlockFeeMultiplier
+    description: Default multiplier to use for dynamic fees.
+    example: 10'000
+  maxTransactionLifetime:
+    type: string #utils::TimeSpan
+    description: Maximum lifetime a transaction can have before it expires.
+    example: 24h
+  maxBlockFutureTime:
+    type: string # utils::TimeSpan
+    description: Maximum future time of a block that can be accepted.
+    example: 500ms
+  initialCurrencyAtomicUnits:
+    type: string # Amount
+    description: Initial currency atomic units available in the network.
+    example: 8'998'999'998'000'000
+  maxMosaicAtomicUnits:
+    type: string # Amount
+    description: Maximum atomic units (total-supply * 10 ^ divisibility) of a mosaic allowed in the network.
+    example: 9'000'000'000'000'000
+  totalChainImportance:
+    type: string # Importance
+    description: Total whole importance units available in the network.
+    example: 15'000'000
+  minHarvesterBalance:
+    type: string # Amount
+    description: Minimum number of harvesting mosaic atomic units needed for an account to be eligible for harvesting.
+    example: "500"
+  maxHarvesterBalance:
+    type: string # Amount
+    description: Maximum number of harvesting mosaic atomic units needed for an account to be eligible for harvesting.
+    example: 4'000'000
+  harvestBeneficiaryPercentage:
+    type: string
+    description: Percentage of the harvested fee that is collected by the beneficiary account.
+    example: "10"
+  blockPruneInterval:
+    type: string # uint32
+    description: Number of blocks between cache pruning.
+    example: "360"
+  maxTransactionsPerBlock:
+    type: string # uint32
+    description: Maximum number of transactions per block.
+    example: 200'000
