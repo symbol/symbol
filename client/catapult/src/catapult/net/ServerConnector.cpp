@@ -76,7 +76,7 @@ namespace catapult { namespace net {
 					if (ionet::ConnectResult::Connected != result)
 						return pRequest->callback(PeerConnectCode::Socket_Error, ionet::PacketSocketInfo());
 
-					pThis->verify(node.identity().PublicKey, connectedSocketInfo, pRequest);
+					pThis->verify(connectedSocketInfo, pRequest);
 				});
 
 				pRequest->setTimeoutHandler([pThis = shared_from_this(), cancel]() {
@@ -87,7 +87,7 @@ namespace catapult { namespace net {
 
 		private:
 			template<typename TRequest>
-			void verify(const Key&, const ionet::PacketSocketInfo& connectedSocketInfo, const std::shared_ptr<TRequest>& pRequest) {
+			void verify(const ionet::PacketSocketInfo& connectedSocketInfo, const std::shared_ptr<TRequest>& pRequest) {
 				auto pConnectedSocket = connectedSocketInfo.socket();
 				m_sockets.insert(pConnectedSocket);
 

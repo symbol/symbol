@@ -177,7 +177,7 @@ namespace catapult { namespace nodediscovery {
 		public:
 			void prepareValidResponse(const crypto::KeyPair& partnerKeyPair, const std::string& name) {
 				auto pResponsePacket = CreateNodePullPingPacket(partnerKeyPair.publicKey(), "127.0.0.1", name);
-				test::RemotePullServer::prepareValidResponse(partnerKeyPair, pResponsePacket);
+				test::RemotePullServer::prepareValidResponse(pResponsePacket);
 			}
 		};
 	}

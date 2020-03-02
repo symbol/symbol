@@ -184,7 +184,7 @@ namespace catapult { namespace test {
 		}
 
 	protected:
-		void prepareValidResponse(const crypto::KeyPair&, const std::shared_ptr<ionet::Packet>& pResponsePacket) {
+		void prepareValidResponse(const std::shared_ptr<ionet::Packet>& pResponsePacket) {
 			test::SpawnPacketServerWork(m_acceptor, [this, pResponsePacket](const auto& pSocket) {
 				this->setServerSocket(pSocket);
 

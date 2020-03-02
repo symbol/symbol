@@ -29,17 +29,13 @@
 
 namespace catapult { namespace test {
 
-	std::shared_ptr<ionet::PacketSocket> ConnectToLocalHost(
-			boost::asio::io_context& ioContext,
-			unsigned short port,
-			const Key&,
-			const crypto::KeyPair&) {
+	std::shared_ptr<ionet::PacketSocket> ConnectToLocalHost(boost::asio::io_context& ioContext, unsigned short port) {
 		// Act: connect to the server
 		std::atomic_bool isConnected(false);
 		auto options = CreatePacketSocketOptions();
 		auto endpoint = CreateLocalHostNodeEndpoint(port);
 		std::shared_ptr<ionet::PacketSocket> pIo;
-		ionet::Connect(ioContext, options, endpoint, [&](auto connectCode, const auto& connectedSocketInfo) {
+		ionet::Connect(ioContext, options, endpoint, [&isConnected, &pIo](auto connectCode, const auto& connectedSocketInfo) {
 			CATAPULT_LOG(debug) << "node is connected with code " << connectCode;
 			pIo = connectedSocketInfo.socket();
 			if (!pIo)
@@ -49,14 +45,6 @@ namespace catapult { namespace test {
 		});
 		WAIT_FOR(isConnected);
 		return pIo;
-	}
-
-	std::shared_ptr<ionet::PacketSocket> ConnectToLocalHost(
-			boost::asio::io_context& ioContext,
-			unsigned short port,
-			const Key& serverPublicKey) {
-		auto clientKeyPair = GenerateKeyPair();
-		return ConnectToLocalHost(ioContext, port, serverPublicKey, clientKeyPair);
 	}
 
 	void ConnectToLocalHost(net::PacketWriters& packetWriters, const Key& serverPublicKey) {

@@ -202,9 +202,9 @@ namespace catapult { namespace timesync {
 
 		class NetworkTimeServer : public test::RemotePullServer {
 		public:
-			void prepareValidResponse(const crypto::KeyPair& partnerKeyPair, int64_t timeOffset) {
+			void prepareValidResponse(int64_t timeOffset) {
 				auto pResponsePacket = CreateValidResponsePacket(static_cast<uint64_t>(timeOffset));
-				test::RemotePullServer::prepareValidResponse(partnerKeyPair, pResponsePacket);
+				test::RemotePullServer::prepareValidResponse(pResponsePacket);
 			}
 		};
 
@@ -224,7 +224,7 @@ namespace catapult { namespace timesync {
 			// - simulate the remote node by responding with communication timestamps
 			NetworkTimeServer networkTimeServer;
 			if (ResponseType::Success == responseType)
-				networkTimeServer.prepareValidResponse(keyPair, remoteOffset);
+				networkTimeServer.prepareValidResponse(remoteOffset);
 			else
 				networkTimeServer.prepareNoResponse();
 

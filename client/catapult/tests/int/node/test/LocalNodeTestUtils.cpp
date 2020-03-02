@@ -131,7 +131,7 @@ namespace catapult { namespace test {
 		connection.pPool = CreateStartedIoThreadPool(1);
 
 		auto serverKeyPair = LoadServerKeyPair();
-		connection.pIo = ConnectToLocalHost(connection.pPool->ioContext(), port, serverKeyPair.publicKey());
+		connection.pIo = ConnectToLocalHost(connection.pPool->ioContext(), port);
 		return connection;
 	}
 
