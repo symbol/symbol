@@ -1,0 +1,6 @@
+type: object
+properties:
+  maxMessageSize:
+    type: string
+    description: Maximum transaction message size.
+    example: "1024"

@@ -1,0 +1,25 @@
+type: object
+description: Plugin related configuration properties.
+properties:
+  accountlink:
+    $ref: "../../../plugins/account_link/schemas/AccountLinkNetworkPropertiesDTO.yml"
+  aggregate:
+    $ref: "../../../plugins/aggregate/schemas/AggregateNetworkPropertiesDTO.yml"
+  lockhash:
+    $ref: "../../../plugins/lock_hash/schemas/HashLockNetworkPropertiesDTO.yml"
+  locksecret:
+    $ref: "../../../plugins/lock_secret/schemas/SecretLockNetworkPropertiesDTO.yml"
+  metadata:
+    $ref: "../../../plugins/metadata/schemas/MetadataNetworkPropertiesDTO.yml"
+  mosaic:
+    $ref: "../../../plugins/mosaic/schemas/MosaicNetworkPropertiesDTO.yml"
+  multisig:
+    $ref: "../../../plugins/multisig/schemas/MultisigNetworkPropertiesDTO.yml"
+  namespace:
+    $ref: "../../../plugins/namespace/schemas/NamespaceNetworkPropertiesDTO.yml"
+  restrictionaccount:
+    $ref: "../../../plugins/restriction_account/schemas/AccountRestrictionNetworkPropertiesDTO.yml"
+  restrictionmosaic:
+    $ref: "../../../plugins/restriction_mosaic/schemas/MosaicRestrictionNetworkPropertiesDTO.yml"
+  transfer:
+    $ref: "../../../plugins/transfer/schemas/TransferNetworkPropertiesDTO.yml"

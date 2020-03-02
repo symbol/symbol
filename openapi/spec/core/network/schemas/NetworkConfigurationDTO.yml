@@ -1,0 +1,12 @@
+type: object
+required:
+  - network
+  - chain
+  - plugins
+properties:
+  network:
+    $ref: "./NetworkPropertiesDTO.yml"
+  chain:
+    $ref: "./ChainPropertiesDTO.yml"
+  plugins:
+    $ref: "./PluginsPropertiesDTO.yml"
