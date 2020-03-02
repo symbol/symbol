@@ -1,0 +1,42 @@
+type: object
+properties:
+  maxNameSize:
+    type: string
+    description: Maximum namespace name size.
+    example: "64"
+  maxChildNamespaces:
+    type: string
+    description: Maximum number of children for a root namespace.
+    example: "500"
+  maxNamespaceDepth:
+    type: string
+    description: Maximum namespace depth.
+    example: "3"
+  minNamespaceDuration:
+    type: string # utils::BlockSpan
+    description: Minimum namespace duration.
+    example: 1m
+  maxNamespaceDuration:
+    type: string # utils::BlockSpan
+    description: Maximum namespace duration.
+    example: 365d
+  namespaceGracePeriodDuration:
+    type: string # utils::BlockSpan
+    description: Grace period during which time only the previous owner can renew an expired namespace.
+    example: 2m
+  reservedRootNamespaceNames:
+    type: string
+    description: Reserved root namespaces that cannot be claimed.
+    example: xem, nem, user, account, org, com, biz, net, edu, mil, gov, info
+  namespaceRentalFeeSinkPublicKey:
+    $ref: "../../../schemas/PublicKey.yml"
+    description: Public key of the namespace rental fee sink account.
+    example: 3E82E1C1E4A75ADAA3CBA8C101C3CD31D9817A2EB966EB3B511FB2ED45B8E262
+  rootNamespaceRentalFeePerBlock:
+    type: string # Amount
+    description: Root namespace rental fee per block.
+    example: "1"
+  childNamespaceRentalFee:
+    type: string # Amount
+    description: Child namespace rental fee.
+    example: "100"

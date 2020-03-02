@@ -1,0 +1,6 @@
+type: object
+properties:
+  maxAccountRestrictionValues:
+    type: string
+    description: Maximum number of account restriction values.
+    example: "512"

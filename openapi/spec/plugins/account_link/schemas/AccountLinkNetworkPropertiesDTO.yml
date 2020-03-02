@@ -1,0 +1,5 @@
+type: object
+properties:
+  dummy:
+    type: string
+    description: to trigger plugin load
