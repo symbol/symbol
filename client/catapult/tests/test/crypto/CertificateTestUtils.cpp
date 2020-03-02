@@ -216,32 +216,6 @@ namespace catapult { namespace test {
 			return bio.toString();
 		}
 
-		auto GenerateLowSecurityDhParams() {
-			auto pDh = std::shared_ptr<DH>(DH_new(), DH_free);
-			if (!pDh)
-				throw std::bad_alloc();
-
-			// note, this uses BN_generate_prime_ex, with min 8 bits and requirement p mod 24 == 11
-			// the lowest prime that it will generate should be 16 bits
-			if (!DH_generate_parameters_ex(pDh.get(), 8, DH_GENERATOR_2, nullptr))
-				CATAPULT_THROW_RUNTIME_ERROR("could not generate dh parameters");
-
-			int codes = 0;
-			if (!DH_check(pDh.get(), &codes))
-				CATAPULT_THROW_RUNTIME_ERROR("could not generate dh parameters");
-
-			return pDh;
-		}
-
-		auto GeneratePemDh() {
-			BioWrapper bio;
-			auto pDhParams = GenerateLowSecurityDhParams();
-			if (!PEM_write_bio_DHparams(bio, pDhParams.get()))
-				CATAPULT_THROW_RUNTIME_ERROR("error writing dh params to bio");
-
-			return bio.toString();
-		}
-
 		auto GeneratePemCertificateChain(const crypto::KeyPair& caKeyPair, const crypto::KeyPair& nodeKeyPair) {
 			auto pCaKey = GenerateCertificateKey(caKeyPair);
 			CertificateBuilder caCertBuilder;
@@ -277,16 +251,11 @@ namespace catapult { namespace test {
 
 	PemCertificate::PemCertificate(const crypto::KeyPair& caKeyPair, const crypto::KeyPair& nodeKeyPair)
 			: m_pemKey(GeneratePemKey(nodeKeyPair))
-			, m_pemDhParams(GeneratePemDh())
 			, m_pemCertificateChain(GeneratePemCertificateChain(caKeyPair, nodeKeyPair))
 	{}
 
 	const std::string& PemCertificate::keyString() const {
 		return m_pemKey;
-	}
-
-	const std::string& PemCertificate::dhParamString() const {
-		return m_pemDhParams;
 	}
 
 	const std::string& PemCertificate::certificateChainString() const {
@@ -295,4 +264,3 @@ namespace catapult { namespace test {
 
 	// endregion
 }}
-

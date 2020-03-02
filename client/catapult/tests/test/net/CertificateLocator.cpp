@@ -35,7 +35,6 @@ namespace catapult { namespace test {
 
 		void SavePemCertificate(const PemCertificate& pemCertificate, const std::string& certificateDirectory) {
 			SaveToFile(certificateDirectory, "node.key.pem", pemCertificate.keyString());
-			SaveToFile(certificateDirectory, "dhparam.pem", pemCertificate.dhParamString());
 			SaveToFile(certificateDirectory, "node.full.crt.pem", pemCertificate.certificateChainString());
 		}
 	}

@@ -58,16 +58,19 @@ namespace catapult { namespace ionet {
 	supplier<boost::asio::ssl::context&> CreateSslContextSupplier(const boost::filesystem::path& certificateDirectory) {
 		auto pSslContext = std::make_shared<boost::asio::ssl::context>(boost::asio::ssl::context::tlsv13);
 		pSslContext->set_options(
-				boost::asio::ssl::context::single_dh_use
-				| boost::asio::ssl::context::no_sslv2
+				boost::asio::ssl::context::no_sslv2
 				| boost::asio::ssl::context::no_sslv3
 				| boost::asio::ssl::context::no_tlsv1
 				| boost::asio::ssl::context::no_tlsv1_1
-				| boost::asio::ssl::context::no_tlsv1_2);
+				| boost::asio::ssl::context::no_tlsv1_2
+				| SSL_OP_CIPHER_SERVER_PREFERENCE);
 
 		pSslContext->use_certificate_chain_file((certificateDirectory / "node.full.crt.pem").generic_string());
 		pSslContext->use_private_key_file((certificateDirectory / "node.key.pem").generic_string(), boost::asio::ssl::context::pem);
-		pSslContext->use_tmp_dh_file((certificateDirectory / "dhparam.pem").generic_string());
+
+		std::array<int, 1> curves{ NID_X25519 };
+		SSL_CTX_set1_groups(pSslContext->native_handle(), curves.data(), static_cast<long>(curves.size()));
+
 		return [pSslContext]() -> boost::asio::ssl::context& {
 			return *pSslContext;
 		};

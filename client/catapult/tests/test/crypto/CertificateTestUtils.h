@@ -113,15 +113,11 @@ namespace catapult { namespace test {
 		/// Gets the key in pem format.
 		const std::string& keyString() const;
 
-		/// Gets the dhparam in pem format.
-		const std::string& dhParamString() const;
-
 		/// Gets the certificate chain in pem format.
 		const std::string& certificateChainString() const;
 
 	private:
 		std::string m_pemKey;
-		std::string m_pemDhParams;
 		std::string m_pemCertificateChain;
 	};
 
