@@ -124,11 +124,8 @@ namespace catapult { namespace test {
 
 	// region partner nodes
 
-	/// Gets the partner server key pair.
-	crypto::KeyPair LoadPartnerServerKeyPair();
-
-	/// Creates a local partner node.
-	ionet::Node CreateLocalPartnerNode();
+	/// Creates a local partner node with \a publicKey.
+	ionet::Node CreateLocalPartnerNode(const Key& publicKey);
 
 	/// Boots a local partner node around \a config with \a keyPair and specified \a nodeFlag.
 	std::unique_ptr<local::LocalNode> BootLocalPartnerNode(

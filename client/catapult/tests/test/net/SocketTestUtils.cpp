@@ -191,7 +191,7 @@ namespace catapult { namespace test {
 #endif
 
 		supplier<boost::asio::ssl::context&> GetDefaultContextSupplier() {
-			static auto supplier = ionet::CreateSslContextSupplier(test::GetDefaultCertificateDirectory());
+			static auto supplier = ionet::CreateSslContextSupplier(GetDefaultCertificateDirectory());
 			return supplier;
 		}
 

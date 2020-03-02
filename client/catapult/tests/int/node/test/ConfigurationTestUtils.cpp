@@ -20,6 +20,7 @@
 
 #include "ConfigurationTestUtils.h"
 #include "catapult/utils/Logging.h"
+#include "tests/test/net/CertificateLocator.h"
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/property_tree/ini_parser.hpp>
@@ -51,6 +52,8 @@ namespace catapult { namespace test {
 		boost::filesystem::create_directories(destinationResourcesPath);
 		CopyFile(destinationResourcesPath, "config-networkheight.properties");
 		CopyFile(destinationResourcesPath, "config-task.properties");
+
+		GenerateCertificateDirectory((boost::filesystem::path(destination) / "cert").generic_string());
 
 		// don't copy the harvesting configuration if an api node is being simulated
 		if (HasFlag(NodeFlag::Simulated_Api, nodeFlag))

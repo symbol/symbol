@@ -32,7 +32,7 @@ namespace catapult { namespace test {
 	std::shared_ptr<ionet::PacketSocket> ConnectToLocalHost(boost::asio::io_context& ioContext, unsigned short port) {
 		// Act: connect to the server
 		std::atomic_bool isConnected(false);
-		auto options = CreatePacketSocketOptions();
+		auto options = CreatePacketSocketOptions(GenerateRandomByteArray<Key>());
 		auto endpoint = CreateLocalHostNodeEndpoint(port);
 		std::shared_ptr<ionet::PacketSocket> pIo;
 		ionet::Connect(ioContext, options, endpoint, [&isConnected, &pIo](auto connectCode, const auto& connectedSocketInfo) {

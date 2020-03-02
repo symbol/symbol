@@ -125,7 +125,7 @@ namespace catapult { namespace test {
 			throw std::bad_alloc();
 
 		// set the version
-		if (!X509_set_version(get(), 2))
+		if (!X509_set_version(get(), 0))
 			CATAPULT_THROW_RUNTIME_ERROR("failed to set certificate version");
 
 		// set the serial number

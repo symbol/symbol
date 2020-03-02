@@ -67,19 +67,23 @@ namespace catapult { namespace test {
 				: m_nodeFlag(nodeFlag)
 				, m_nodes(nodes)
 				, m_configTransform(configTransform)
-				, m_serverKeyPair(loadServerKeyPair())
-				, m_partnerServerKeyPair(LoadPartnerServerKeyPair())
+				, m_serverKeyPair(crypto::KeyPair::FromPrivate(crypto::PrivateKey()))
+				, m_partnerServerKeyPair(crypto::KeyPair::FromPrivate(crypto::PrivateKey()))
 				, m_tempDir("lntc" + tempDirPostfix)
 				, m_partnerTempDir("lntc_partner" + tempDirPostfix) {
-			initializeDataDirectory(m_tempDir.name());
+			m_serverKeyPair = initializeDataDirectory(m_tempDir.name());
+			CATAPULT_LOG(debug) << "creating server with public key " << m_serverKeyPair.publicKey();
 
 			if (HasFlag(NodeFlag::With_Partner, nodeFlag)) {
-				initializeDataDirectory(m_partnerTempDir.name());
+				m_partnerServerKeyPair = initializeDataDirectory(m_partnerTempDir.name());
+				CATAPULT_LOG(debug) << "creating partner with public key " << m_partnerServerKeyPair.publicKey();
 
 				// need to call configTransform first so that partner node loads all required transaction plugins
 				auto config = CreatePrototypicalCatapultConfiguration(m_partnerTempDir.name());
 				m_configTransform(config);
 				m_pLocalPartnerNode = BootLocalPartnerNode(std::move(config), m_partnerServerKeyPair, nodeFlag);
+
+				m_nodes.push_back(CreateLocalPartnerNode(m_partnerServerKeyPair.publicKey()));
 			}
 
 			if (!HasFlag(NodeFlag::Require_Explicit_Boot, nodeFlag))
@@ -87,7 +91,7 @@ namespace catapult { namespace test {
 		}
 
 	private:
-		void initializeDataDirectory(const std::string& directory) const {
+		crypto::KeyPair initializeDataDirectory(const std::string& directory) const {
 			PrepareStorage(directory);
 			PrepareConfiguration(directory, m_nodeFlag);
 
@@ -100,6 +104,8 @@ namespace catapult { namespace test {
 
 				SetNemesisStateHash(directory, config);
 			}
+
+			return loadKeyPair(directory);
 		}
 
 	public:
@@ -113,12 +119,17 @@ namespace catapult { namespace test {
 			return m_tempDir.name() + "/resources";
 		}
 
-		/// Gets the public key of the (first) local node.
+		/// Gets the public key of the (primary) local node.
 		const Key& publicKey() const {
 			return m_serverKeyPair.publicKey();
 		}
 
-		/// Gets the primary (first) local node.
+		/// Gets the public key of the (partner) local node.
+		const Key& partnerPublicKey() const {
+			return m_partnerServerKeyPair.publicKey();
+		}
+
+		/// Gets the (primary) local node.
 		local::LocalNode& localNode() const {
 			return *m_pLocalNode;
 		}
@@ -207,9 +218,8 @@ namespace catapult { namespace test {
 			m_configTransform(config);
 		}
 
-		crypto::KeyPair loadServerKeyPair() const {
-			// can pass empty string to CreateCatapultConfiguration because this config is only being used to get boot key
-			auto config = CreatePrototypicalCatapultConfiguration("");
+		crypto::KeyPair loadKeyPair(const std::string& directory) const {
+			auto config = CreatePrototypicalCatapultConfiguration(directory);
 			m_configTransform(config);
 			return crypto::ReadKeyPairFromPrivateKeyPemFile(config::GetPrivateKeyPemFilename(config.User));
 		}

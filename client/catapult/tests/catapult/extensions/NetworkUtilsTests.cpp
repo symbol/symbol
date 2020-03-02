@@ -24,12 +24,14 @@
 #include "catapult/net/PeerConnectResult.h"
 #include "tests/test/core/PacketTestUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
+#include "tests/test/crypto/CertificateTestUtils.h"
 #include "tests/test/net/CertificateLocator.h"
 #include "tests/test/net/ClientSocket.h"
 #include "tests/test/nodeps/TimeSupplier.h"
 #include "tests/test/other/MutableCatapultConfiguration.h"
 #include "tests/test/other/mocks/MockNodeSubscriber.h"
 #include "tests/TestHarness.h"
+#include <boost/asio/ssl.hpp>
 
 namespace catapult { namespace extensions {
 
@@ -89,6 +91,25 @@ namespace catapult { namespace extensions {
 
 	// region GetConnectionSettings / UpdateAsyncTcpServerSettings
 
+	namespace {
+		bool RunVerifyCallback(const predicate<ionet::PacketSocketSslVerifyContext&>& verifyCallback) {
+			// Arrange:
+			test::CertificateBuilder builder;
+			builder.setSubject("JP", "NEM", "Node");
+			builder.setIssuer("JP", "NEM", "Root");
+			builder.setPublicKey(*test::GenerateRandomCertificateKey());
+			auto certificate = builder.build();
+			auto holder = test::CreateCertificateStoreContextFromCertificates({ certificate });
+
+			boost::asio::ssl::verify_context asioVerifyContext(holder.pCertificateStoreContext.get());
+			Key publicKey;
+			ionet::PacketSocketSslVerifyContext verifyContext(false, asioVerifyContext, publicKey);
+
+			// Act:
+			return verifyCallback(verifyContext);
+		}
+	}
+
 	TEST(TEST_CLASS, CanExtractConnectionSettingsFromCatapultConfiguration) {
 		// Arrange:
 		auto config = CreateCatapultConfiguration();
@@ -108,9 +129,8 @@ namespace catapult { namespace extensions {
 		EXPECT_TRUE(settings.AllowIncomingSelfConnections);
 		EXPECT_FALSE(settings.AllowOutgoingSelfConnections);
 
-		ionet::PacketSocketSslVerifyContext verifyContext;
 		EXPECT_NO_THROW(settings.SslOptions.ContextSupplier());
-		EXPECT_TRUE(settings.SslOptions.VerifyCallbackSupplier()(verifyContext));
+		EXPECT_FALSE(RunVerifyCallback(settings.SslOptions.VerifyCallbackSupplier()));
 	}
 
 	TEST(TEST_CLASS, CanUpdateAsyncTcpServerSettingsFromCatapultConfiguration) {

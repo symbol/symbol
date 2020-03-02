@@ -21,8 +21,16 @@
 #pragma once
 #include <string>
 
+namespace catapult { namespace crypto { class KeyPair; } }
+
 namespace catapult { namespace test {
 
 	/// Gets the default directory for certificates used in tests.
 	std::string GetDefaultCertificateDirectory();
+
+	/// Generates all certificate files in \a certificateDirectory.
+	void GenerateCertificateDirectory(const std::string& certificateDirectory);
+
+	/// Generates all certificate files in \a certificateDirectory with seed \a nodeKeyPair.
+	void GenerateCertificateDirectory(const std::string& certificateDirectory, const crypto::KeyPair& nodeKeyPair);
 }}

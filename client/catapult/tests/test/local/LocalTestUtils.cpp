@@ -152,7 +152,9 @@ namespace catapult { namespace test {
 		config.Node = CreateNodeConfiguration();
 
 		config.User.DataDirectory = dataDirectory;
-		config.User.CertificateDirectory = test::GetDefaultCertificateDirectory();
+		config.User.CertificateDirectory = dataDirectory.empty()
+				? GetDefaultCertificateDirectory()
+				: (boost::filesystem::path(dataDirectory) / "cert").generic_string();
 		return config.ToConst();
 	}
 

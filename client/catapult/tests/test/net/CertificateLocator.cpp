@@ -22,6 +22,7 @@
 #include "catapult/io/RawFile.h"
 #include "catapult/exceptions.h"
 #include "tests/test/crypto/CertificateTestUtils.h"
+#include "tests/test/nodeps/KeyTestUtils.h"
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem.hpp>
 
@@ -41,14 +42,21 @@ namespace catapult { namespace test {
 
 	std::string GetDefaultCertificateDirectory() {
 		auto certificateDirectory = "./cert";
-		if (boost::filesystem::exists(certificateDirectory))
-			return certificateDirectory;
+		if (!boost::filesystem::exists(certificateDirectory))
+			GenerateCertificateDirectory(certificateDirectory);
 
+		return certificateDirectory;
+	}
+
+	void GenerateCertificateDirectory(const std::string& certificateDirectory) {
+		GenerateCertificateDirectory(certificateDirectory, GenerateKeyPair());
+	}
+
+	void GenerateCertificateDirectory(const std::string& certificateDirectory, const crypto::KeyPair& nodeKeyPair) {
 		CATAPULT_LOG(info) << "generating new certificate directory: " << certificateDirectory;
 		boost::filesystem::create_directories(certificateDirectory);
 
-		test::PemCertificate pemCertificate;
+		PemCertificate pemCertificate(nodeKeyPair);
 		SavePemCertificate(pemCertificate, certificateDirectory);
-		return certificateDirectory;
 	}
 }}

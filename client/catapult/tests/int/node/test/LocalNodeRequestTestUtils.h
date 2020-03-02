@@ -31,7 +31,9 @@
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/local/LocalTestUtils.h"
+#include "tests/test/net/CertificateLocator.h"
 #include "tests/test/net/SocketTestUtils.h"
+#include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/nodeps/MijinConstants.h"
 #include "tests/test/other/RemoteApiFactory.h"
@@ -52,13 +54,23 @@ namespace catapult { namespace test {
 		explicit ExternalSourceConnection(const ionet::Node& node)
 				: m_pPool(CreateStartedIoThreadPool(1))
 				, m_clientKeyPair(crypto::KeyPair::FromPrivate(GenerateRandomPrivateKey()))
+				, m_tempDirectoryGuard(ToString(m_clientKeyPair.publicKey()))
 				, m_pConnector(net::CreateServerConnector(
 						m_pPool,
 						m_clientKeyPair.publicKey(),
-						CreateConnectionSettings(),
+						createConnectionSettings(),
 						"external source"))
 				, m_localNode(node)
 		{}
+
+	private:
+		net::ConnectionSettings createConnectionSettings() {
+			GenerateCertificateDirectory(m_tempDirectoryGuard.name(), m_clientKeyPair);
+
+			auto settings = CreateConnectionSettings();
+			settings.SslOptions.ContextSupplier = ionet::CreateSslContextSupplier(m_tempDirectoryGuard.name());
+			return settings;
+		}
 
 	public:
 		std::shared_ptr<ionet::PacketIo> io() const {
@@ -94,6 +106,7 @@ namespace catapult { namespace test {
 	private:
 		std::shared_ptr<thread::IoThreadPool> m_pPool;
 		crypto::KeyPair m_clientKeyPair;
+		TempDirectoryGuard m_tempDirectoryGuard;
 		std::shared_ptr<net::ServerConnector> m_pConnector;
 		ionet::Node m_localNode;
 

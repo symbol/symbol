@@ -34,9 +34,7 @@ namespace catapult { namespace local {
 		class TestContext : public test::LocalNodeTestContext<test::LocalNodePeerTraits> {
 		public:
 			explicit TestContext(NodeFlag nodeFlag)
-					: test::LocalNodeTestContext<test::LocalNodePeerTraits>(
-							nodeFlag | NodeFlag::With_Partner,
-							{ test::CreateLocalPartnerNode() })
+					: test::LocalNodeTestContext<test::LocalNodePeerTraits>(nodeFlag | NodeFlag::With_Partner, {})
 			{}
 		};
 

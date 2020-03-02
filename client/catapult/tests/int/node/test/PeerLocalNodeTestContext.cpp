@@ -55,7 +55,7 @@ namespace catapult { namespace test {
 			const consumer<config::CatapultConfiguration&>& configTransform)
 			: m_context(
 					nodeFlag | NodeFlag::With_Partner,
-					{ CreateLocalPartnerNode() },
+					{},
 					[additionalPlugins, configTransform](auto& config) {
 						AddAdditionalPlugins(config, additionalPlugins);
 						configTransform(config);

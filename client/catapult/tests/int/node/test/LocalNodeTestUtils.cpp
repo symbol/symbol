@@ -72,21 +72,10 @@ namespace catapult { namespace test {
 
 	// region partner nodes
 
-	namespace {
-		constexpr auto Local_Node_Partner_Private_Key = "8473645728B15F007385CE2889D198D26369D2806DCDED4A9B219FD0DE23A505";
-	}
-
-	crypto::KeyPair LoadPartnerServerKeyPair() {
-		return crypto::KeyPair::FromPrivate(crypto::PrivateKey::FromString(Local_Node_Partner_Private_Key));
-	}
-
-	ionet::Node CreateLocalPartnerNode() {
+	ionet::Node CreateLocalPartnerNode(const Key& publicKey) {
 		auto metadata = ionet::NodeMetadata(model::UniqueNetworkFingerprint(), "PARTNER");
 		metadata.Roles = ionet::NodeRoles::Api | ionet::NodeRoles::Peer;
-		return ionet::Node(
-				{ LoadPartnerServerKeyPair().publicKey(), "127.0.0.1" },
-				CreateLocalHostNodeEndpoint(GetLocalHostPort() + 10),
-				metadata);
+		return ionet::Node({ publicKey, "127.0.0.1" }, CreateLocalHostNodeEndpoint(GetLocalHostPort() + 10), metadata);
 	}
 
 	std::unique_ptr<local::LocalNode> BootLocalPartnerNode(
