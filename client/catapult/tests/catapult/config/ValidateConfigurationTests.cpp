@@ -30,10 +30,6 @@ namespace catapult { namespace config {
 #define TEST_CLASS ValidateConfigurationTests
 
 	namespace {
-		// the key is invalid because it contains a non hex char ('G')
-		const char* Invalid_Private_Key = "3485D98EFD7EB07ABAFCFD1A157D89DE2G96A95E780813C0258AF3F5F84ED8CB";
-		const char* Valid_Private_Key = "3485D98EFD7EB07ABAFCFD1A157D89DE2796A95E780813C0258AF3F5F84ED8CB";
-
 		auto CreateMutableCatapultConfiguration() {
 			test::MutableCatapultConfiguration config;
 
@@ -44,33 +40,9 @@ namespace catapult { namespace config {
 			auto& inflationConfig = config.Inflation;
 			inflationConfig.InflationCalculator.add(Height(1), Amount(1));
 			inflationConfig.InflationCalculator.add(Height(100), Amount());
-
-			auto& userConfig = config.User;
-			userConfig.BootPrivateKey = Valid_Private_Key;
-
 			return config;
 		}
 	}
-
-	// region boot key validation
-
-	namespace {
-		void AssertInvalidBootPrivateKey(const std::string& bootPrivateKey) {
-			// Arrange:
-			auto mutableConfig = CreateMutableCatapultConfiguration();
-			mutableConfig.User.BootPrivateKey = bootPrivateKey;
-
-			// Act + Assert:
-			EXPECT_THROW(ValidateConfiguration(mutableConfig.ToConst()), utils::property_malformed_error);
-		}
-	}
-
-	TEST(TEST_CLASS, ValidationFailsWhenBootPrivateKeyIsInvalid) {
-		AssertInvalidBootPrivateKey(Invalid_Private_Key);
-		AssertInvalidBootPrivateKey("");
-	}
-
-	// endregion
 
 	// region importance grouping validation
 

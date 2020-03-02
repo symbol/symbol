@@ -29,11 +29,6 @@ namespace catapult { namespace config {
 #define CATAPULT_THROW_VALIDATION_ERROR(MESSAGE) CATAPULT_THROW_AND_LOG_0(utils::property_malformed_error, MESSAGE)
 
 	namespace {
-		void ValidateConfiguration(const UserConfiguration& config) {
-			if (!crypto::IsValidKeyString(config.BootPrivateKey))
-				CATAPULT_THROW_VALIDATION_ERROR("BootPrivateKey must be a valid private key");
-		}
-
 		void ValidateConfiguration(const model::BlockChainConfiguration& config) {
 			if (2 * config.ImportanceGrouping <= config.MaxRollbackBlocks)
 				CATAPULT_THROW_VALIDATION_ERROR("ImportanceGrouping must be greater than MaxRollbackBlocks / 2");
@@ -59,7 +54,6 @@ namespace catapult { namespace config {
 	}
 
 	void ValidateConfiguration(const CatapultConfiguration& config) {
-		ValidateConfiguration(config.User);
 		ValidateConfiguration(config.BlockChain);
 		ValidateConfiguration(config.BlockChain, config.Inflation);
 	}

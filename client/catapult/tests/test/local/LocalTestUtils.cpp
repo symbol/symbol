@@ -36,7 +36,6 @@ namespace catapult { namespace test {
 
 	namespace {
 		constexpr auto Default_Network_Epoch_Adjustment = utils::TimeSpan::FromMilliseconds(1459468800000);
-		constexpr auto Local_Node_Private_Key = "4A236D9F894CF0C4FC8C042DB5DB41CCF35118B7B220163E5B4BC1872C1CD618";
 
 		void SetConnectionsSubConfiguration(config::NodeConfiguration::ConnectionsSubConfiguration& config) {
 			config.MaxConnections = 25;
@@ -102,10 +101,6 @@ namespace catapult { namespace test {
 		return []() { return utils::NetworkTime(Default_Network_Epoch_Adjustment).now(); };
 	}
 
-	crypto::KeyPair LoadServerKeyPair() {
-		return crypto::KeyPair::FromPrivate(crypto::PrivateKey::FromString(Local_Node_Private_Key));
-	}
-
 	model::BlockChainConfiguration CreatePrototypicalBlockChainConfiguration() {
 		auto config = model::BlockChainConfiguration::Uninitialized();
 		SetNetwork(config.Network);
@@ -138,7 +133,6 @@ namespace catapult { namespace test {
 		MutableCatapultConfiguration config;
 		config.BlockChain.ImportanceGrouping = 1;
 		config.BlockChain.MaxRollbackBlocks = 0;
-		config.User.BootPrivateKey = Local_Node_Private_Key;
 		return config.ToConst();
 	}
 
@@ -157,7 +151,6 @@ namespace catapult { namespace test {
 		config.BlockChain = std::move(blockChainConfig);
 		config.Node = CreateNodeConfiguration();
 
-		config.User.BootPrivateKey = Local_Node_Private_Key;
 		config.User.DataDirectory = dataDirectory;
 		config.User.CertificateDirectory = test::GetDefaultCertificateDirectory();
 		return config.ToConst();
@@ -188,7 +181,6 @@ namespace catapult { namespace test {
 				const plugins::StorageConfiguration& storageConfig,
 				const config::InflationConfiguration& inflationConfig) {
 			auto userConfig = config::UserConfiguration::Uninitialized();
-			userConfig.BootPrivateKey = ToString(Key());
 
 			std::vector<plugins::PluginModule> modules;
 			auto pPluginManager = std::make_shared<plugins::PluginManager>(config, storageConfig, userConfig, inflationConfig);

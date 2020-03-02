@@ -81,7 +81,7 @@ namespace catapult { namespace harvesting {
 		thread::Task CreateHarvestingTask(
 				extensions::ServiceState& state,
 				UnlockedAccounts& unlockedAccounts,
-				const crypto::KeyPair& bootKeyPair,
+				const crypto::KeyPair& encryptionKeyPair,
 				const Key& beneficiaryPublicKey) {
 			const auto& cache = state.cache();
 			const auto& blockChainConfig = state.config().BlockChain;
@@ -93,7 +93,7 @@ namespace catapult { namespace harvesting {
 			auto pUnlockedAccountsUpdater = std::make_shared<UnlockedAccountsUpdater>(
 					cache,
 					unlockedAccounts,
-					bootKeyPair,
+					encryptionKeyPair,
 					config::CatapultDataDirectory(state.config().User.DataDirectory));
 			pUnlockedAccountsUpdater->load();
 

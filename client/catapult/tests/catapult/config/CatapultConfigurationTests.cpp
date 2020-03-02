@@ -19,9 +19,10 @@
 **/
 
 #include "catapult/config/CatapultConfiguration.h"
-#include "catapult/crypto/KeyPair.h"
 #include "catapult/crypto/KeyUtils.h"
+#include "catapult/crypto/OpensslKeyUtils.h"
 #include "catapult/utils/HexParser.h"
+#include "tests/test/net/CertificateLocator.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/nodeps/TestConstants.h"
 #include "tests/test/other/MutableCatapultConfiguration.h"
@@ -190,7 +191,6 @@ namespace catapult { namespace config {
 
 		void AssertDefaultUserConfiguration(const UserConfiguration& config) {
 			// Assert:
-			EXPECT_EQ("0000000000000000000000000000000000000000000000000000000000000000", config.BootPrivateKey);
 			EXPECT_TRUE(config.EnableDelegatedHarvestersAutoDetection);
 
 			EXPECT_EQ("../data", config.DataDirectory);
@@ -309,7 +309,7 @@ namespace catapult { namespace config {
 	namespace {
 		constexpr auto Generation_Hash_String = "272C4ECC55B7A42A07478A9550543C62673D1599A8362CC662E019049B76B7F2";
 
-		auto CreateCatapultConfiguration(const std::string& privateKeyString) {
+		auto CreateCatapultConfiguration() {
 			test::MutableCatapultConfiguration config;
 			config.BlockChain.Network.Identifier = model::NetworkIdentifier::Mijin_Test;
 			config.BlockChain.Network.GenerationHash = utils::ParseByteArray<GenerationHash>(Generation_Hash_String);
@@ -320,23 +320,23 @@ namespace catapult { namespace config {
 			config.Node.Local.Version = 123;
 			config.Node.Local.Roles = ionet::NodeRoles::Api;
 
-			config.User.BootPrivateKey = privateKeyString;
+			config.User.CertificateDirectory = test::GetDefaultCertificateDirectory();
 			return config.ToConst();
 		}
 	}
 
 	TEST(TEST_CLASS, CanExtractLocalNodeFromConfiguration) {
 		// Arrange:
-		auto privateKeyString = test::GenerateRandomHexString(2 * Key::Size);
-		auto keyPair = crypto::KeyPair::FromString(privateKeyString);
-		auto config = CreateCatapultConfiguration(privateKeyString);
+		auto config = CreateCatapultConfiguration();
+		auto expectedPublicKey = crypto::ReadPublicKeyFromPrivateKeyPemFile(GetPrivateKeyPemFilename(config.User));
 
 		// Act:
 		auto node = ToLocalNode(config);
 
 		// Assert:
 		const auto& identity = node.identity();
-		EXPECT_EQ(keyPair.publicKey(), identity.PublicKey);
+		EXPECT_EQ(expectedPublicKey, identity.PublicKey);
+		EXPECT_NE(Key(), identity.PublicKey);
 		EXPECT_EQ("127.0.0.1", identity.Host);
 
 		const auto& endpoint = node.endpoint();

@@ -19,27 +19,13 @@
 **/
 
 #pragma once
-#include "UnlockedEntryMessage.h"
-#include "catapult/crypto/KeyPair.h"
-#include "catapult/functions.h"
-#include <string>
+#include "KeyPair.h"
 
-namespace catapult {
-	namespace config { class CatapultDirectory; }
-	namespace crypto { class KeyPair; }
-}
+namespace catapult { namespace crypto {
 
-namespace catapult { namespace harvesting {
+	/// Reads the public key from a private key pem file with name \a filename.
+	Key ReadPublicKeyFromPrivateKeyPemFile(const std::string& filename);
 
-	/// Decrypts \a encryptedWithKey using \a encryptionKeyPair.
-	std::pair<crypto::PrivateKey, bool> TryDecryptUnlockedEntry(
-			const RawBuffer& encryptedWithKey,
-			const crypto::KeyPair& encryptionKeyPair);
-
-	/// Reads encrypted unlocked entry messages from \a directory, validates using \a encryptionKeyPair
-	/// and forwards to \a processEntryKeyPair.
-	void UnlockedFileQueueConsumer(
-			const config::CatapultDirectory& directory,
-			const crypto::KeyPair& encryptionKeyPair,
-			const consumer<const UnlockedEntryMessage&, crypto::KeyPair&&>& processEntryKeyPair);
+	/// Reads the key pair from a private key pem file with name \a filename.
+	crypto::KeyPair ReadKeyPairFromPrivateKeyPemFile(const std::string& filename);
 }}

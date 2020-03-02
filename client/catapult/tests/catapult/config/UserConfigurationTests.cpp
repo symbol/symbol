@@ -24,6 +24,10 @@
 
 namespace catapult { namespace config {
 
+#define TEST_CLASS UserConfigurationTests
+
+	// region UserConfiguration
+
 	namespace {
 		struct UserConfigurationTraits {
 			using ConfigurationType = UserConfiguration;
@@ -33,7 +37,6 @@ namespace catapult { namespace config {
 					{
 						"account",
 						{
-							{ "bootPrivateKey", "boot-key" },
 							{ "enableDelegatedHarvestersAutoDetection", "true" }
 						}
 					},
@@ -54,7 +57,6 @@ namespace catapult { namespace config {
 
 			static void AssertZero(const UserConfiguration& config) {
 				// Assert:
-				EXPECT_EQ("", config.BootPrivateKey);
 				EXPECT_FALSE(config.EnableDelegatedHarvestersAutoDetection);
 
 				EXPECT_EQ("", config.DataDirectory);
@@ -64,7 +66,6 @@ namespace catapult { namespace config {
 
 			static void AssertCustom(const UserConfiguration& config) {
 				// Assert:
-				EXPECT_EQ("boot-key", config.BootPrivateKey);
 				EXPECT_TRUE(config.EnableDelegatedHarvestersAutoDetection);
 
 				EXPECT_EQ("./db", config.DataDirectory);
@@ -75,4 +76,22 @@ namespace catapult { namespace config {
 	}
 
 	DEFINE_CONFIGURATION_TESTS(UserConfigurationTests, User)
+
+	// endregion
+
+	// region calculated properties
+
+	TEST(TEST_CLASS, CanGetPrivateKeyPemFilename) {
+		// Arrange:
+		auto config = UserConfiguration::Uninitialized();
+		config.CertificateDirectory = "abc";
+
+		// Act:
+		auto filename = GetPrivateKeyPemFilename(config);
+
+		// Assert:
+		EXPECT_EQ("abc/node.key.pem", filename);
+	}
+
+	// endregion
 }}

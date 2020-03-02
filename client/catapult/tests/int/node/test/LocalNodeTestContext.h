@@ -22,7 +22,7 @@
 #include "ConfigurationTestUtils.h"
 #include "LocalNodeNemesisHashTestUtils.h"
 #include "LocalNodeTestUtils.h"
-#include "catapult/crypto/KeyPair.h"
+#include "catapult/crypto/OpensslKeyUtils.h"
 #include "catapult/extensions/ProcessBootstrapper.h"
 #include "catapult/extensions/ServiceState.h"
 #include "catapult/local/server/LocalNode.h"
@@ -111,6 +111,11 @@ namespace catapult { namespace test {
 		/// Gets the resources directory.
 		std::string resourcesDirectory() const {
 			return m_tempDir.name() + "/resources";
+		}
+
+		/// Gets the public key of the (first) local node.
+		const Key& publicKey() const {
+			return m_serverKeyPair.publicKey();
 		}
 
 		/// Gets the primary (first) local node.
@@ -206,7 +211,7 @@ namespace catapult { namespace test {
 			// can pass empty string to CreateCatapultConfiguration because this config is only being used to get boot key
 			auto config = CreatePrototypicalCatapultConfiguration("");
 			m_configTransform(config);
-			return crypto::KeyPair::FromString(config.User.BootPrivateKey);
+			return crypto::ReadKeyPairFromPrivateKeyPemFile(config::GetPrivateKeyPemFilename(config.User));
 		}
 
 	public:

@@ -52,9 +52,6 @@ namespace catapult { namespace test {
 	/// Creates a default network time supplier for use in local tests.
 	supplier<Timestamp> CreateDefaultNetworkTimeSupplier();
 
-	/// Gets the server key pair.
-	crypto::KeyPair LoadServerKeyPair();
-
 	/// Creates a prototypical block chain configuration that is safe to use in local tests.
 	model::BlockChainConfiguration CreatePrototypicalBlockChainConfiguration();
 

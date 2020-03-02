@@ -129,8 +129,6 @@ namespace catapult { namespace test {
 	ExternalConnection CreateExternalConnection(unsigned short port) {
 		ExternalConnection connection;
 		connection.pPool = CreateStartedIoThreadPool(1);
-
-		auto serverKeyPair = LoadServerKeyPair();
 		connection.pIo = ConnectToLocalHost(connection.pPool->ioContext(), port);
 		return connection;
 	}

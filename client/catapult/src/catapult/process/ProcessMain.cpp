@@ -22,8 +22,8 @@
 #include "Signals.h"
 #include "catapult/config/CatapultConfiguration.h"
 #include "catapult/config/ValidateConfiguration.h"
-#include "catapult/crypto/KeyPair.h"
 #include "catapult/crypto/KeyUtils.h"
+#include "catapult/crypto/OpensslKeyUtils.h"
 #include "catapult/io/FileLock.h"
 #include "catapult/thread/ThreadInfo.h"
 #include "catapult/utils/ExceptionLogging.h"
@@ -75,7 +75,7 @@ namespace catapult { namespace process {
 		// endregion
 
 		void Run(config::CatapultConfiguration&& config, ProcessOptions processOptions, const CreateProcessHost& createProcessHost) {
-			auto keyPair = crypto::KeyPair::FromString(config.User.BootPrivateKey);
+			auto keyPair = crypto::ReadKeyPairFromPrivateKeyPemFile(config::GetPrivateKeyPemFilename(config.User));
 
 			CATAPULT_LOG(info) << "booting process with public key " << crypto::FormatKey(keyPair.publicKey());
 			auto pProcessHost = createProcessHost(std::move(config), keyPair);

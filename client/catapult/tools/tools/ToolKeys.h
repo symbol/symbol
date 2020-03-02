@@ -25,9 +25,6 @@
 
 namespace catapult { namespace tools {
 
-	/// Gets the server key pair used by tools.
-	crypto::KeyPair LoadServerKeyPair();
-
 	/// Generates a random key pair.
 	crypto::KeyPair GenerateRandomKeyPair();
 

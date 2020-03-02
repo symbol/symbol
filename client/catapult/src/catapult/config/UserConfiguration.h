@@ -28,9 +28,6 @@ namespace catapult { namespace config {
 	/// User configuration settings.
 	struct UserConfiguration {
 	public:
-		/// Boot private key.
-		std::string BootPrivateKey;
-
 		/// \c true if potential delegated harvesters should be automatically detected.
 		bool EnableDelegatedHarvestersAutoDetection;
 
@@ -54,4 +51,7 @@ namespace catapult { namespace config {
 		/// Loads a user configuration from \a bag.
 		static UserConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
 	};
+
+	/// Gets the name of the private key pem file from \a config.
+	std::string GetPrivateKeyPemFilename(const UserConfiguration& config);
 }}

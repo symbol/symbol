@@ -89,11 +89,7 @@ namespace catapult { namespace local {
 			// 2. specify custom network settings
 			UpdateBlockChainConfiguration(const_cast<model::BlockChainConfiguration&>(config.BlockChain));
 
-			// 3. give each node its own key
-			auto& userConfig = const_cast<config::UserConfiguration&>(config.User);
-			userConfig.BootPrivateKey = test::Mijin_Test_Private_Keys[id];
-
-			// 4. ensure configuration is valid
+			// 3. ensure configuration is valid
 			ValidateConfiguration(config);
 		}
 

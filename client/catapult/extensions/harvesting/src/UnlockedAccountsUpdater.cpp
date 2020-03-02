@@ -69,11 +69,11 @@ namespace catapult { namespace harvesting {
 	UnlockedAccountsUpdater::UnlockedAccountsUpdater(
 			const cache::CatapultCache& cache,
 			UnlockedAccounts& unlockedAccounts,
-			const crypto::KeyPair& bootKeyPair,
+			const crypto::KeyPair& encryptionKeyPair,
 			const config::CatapultDataDirectory& dataDirectory)
 			: m_cache(cache)
 			, m_unlockedAccounts(unlockedAccounts)
-			, m_bootKeyPair(bootKeyPair)
+			, m_encryptionKeyPair(encryptionKeyPair)
 			, m_dataDirectory(dataDirectory)
 			, m_harvestersFilename(m_dataDirectory.rootDir().file("harvesters.dat"))
 			, m_unlockedAccountsStorage(m_harvestersFilename)
@@ -81,17 +81,15 @@ namespace catapult { namespace harvesting {
 
 	void UnlockedAccountsUpdater::load() {
 		// load entries
-		m_unlockedAccountsStorage.load(m_bootKeyPair, [&unlockedAccounts = m_unlockedAccounts](auto&& keyPair) {
+		m_unlockedAccountsStorage.load(m_encryptionKeyPair, [&unlockedAccounts = m_unlockedAccounts](auto&& keyPair) {
 			AddToUnlocked(unlockedAccounts, std::move(keyPair));
 		});
 	}
 
 	void UnlockedAccountsUpdater::update() {
 		// 1. process queued accounts
-		auto& unlockedAccounts = m_unlockedAccounts;
-		auto& storage = m_unlockedAccountsStorage;
 		bool hasAnyRemoval = false;
-		UnlockedFileQueueConsumer(m_dataDirectory.dir("transfer_message"), m_bootKeyPair, [&unlockedAccounts, &storage, &hasAnyRemoval](
+		auto processEntryKeyPair = [&unlockedAccounts = m_unlockedAccounts, &storage = m_unlockedAccountsStorage, &hasAnyRemoval](
 				const auto& unlockedEntryMessage,
 				auto&& keyPair) {
 			auto messageIdentifier = GetMessageIdentifier(unlockedEntryMessage);
@@ -104,7 +102,8 @@ namespace catapult { namespace harvesting {
 				storage.remove(messageIdentifier);
 				hasAnyRemoval = true;
 			}
-		});
+		};
+		UnlockedFileQueueConsumer(m_dataDirectory.dir("transfer_message"), m_encryptionKeyPair, processEntryKeyPair);
 
 		// 2. prune accounts that are not eligible to harvest the next block
 		auto numPrunedAccounts = PruneUnlockedAccounts(m_unlockedAccounts, m_cache);

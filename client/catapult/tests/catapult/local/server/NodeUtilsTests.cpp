@@ -19,7 +19,8 @@
 **/
 
 #include "catapult/local/server/NodeUtils.h"
-#include "catapult/crypto/KeyPair.h"
+#include "catapult/crypto/OpensslKeyUtils.h"
+#include "tests/test/net/CertificateLocator.h"
 #include "tests/test/net/NodeTestUtils.h"
 #include "tests/test/other/MutableCatapultConfiguration.h"
 #include "tests/TestHarness.h"
@@ -58,24 +59,20 @@ namespace catapult { namespace local {
 	}
 
 	namespace {
-		auto CreateCatapultConfiguration(const std::string& bootPrivateKey, const std::string& host, const std::string& name) {
+		auto CreateCatapultConfiguration(const std::string& host, const std::string& name) {
 			test::MutableCatapultConfiguration config;
 			config.Node.Local.Host = host;
 			config.Node.Local.FriendlyName = name;
 
-			config.User.BootPrivateKey = bootPrivateKey;
+			config.User.CertificateDirectory = test::GetDefaultCertificateDirectory();
 			return config.ToConst();
 		}
 
-		void AddLocalNodeWithLengths(
-				ionet::NodeContainer& nodes,
-				const std::string& bootPrivateKey,
-				size_t localHostSize,
-				size_t localNameSize) {
+		void AddLocalNodeWithLengths(ionet::NodeContainer& nodes, size_t localHostSize, size_t localNameSize) {
 			// Arrange: configure single node with specified lengths
 			CATAPULT_LOG(debug) << "seed with lengths: " << localHostSize << ", " << localNameSize;
 
-			auto config = CreateCatapultConfiguration(bootPrivateKey, std::string(localHostSize, 'm'), std::string(localNameSize, 'l'));
+			auto config = CreateCatapultConfiguration(std::string(localHostSize, 'm'), std::string(localNameSize, 'l'));
 
 			// Act:
 			AddLocalNode(nodes, config);
@@ -84,29 +81,29 @@ namespace catapult { namespace local {
 
 	TEST(TEST_CLASS, AddLocalNode_SucceedsWhenMaxStringLengthsAreUsed) {
 		// Arrange:
+		auto userConfig = config::UserConfiguration::Uninitialized();
+		userConfig.CertificateDirectory = test::GetDefaultCertificateDirectory();
+
 		ionet::NodeContainer nodes;
-		auto hexPrivateKey = test::GenerateRandomHexString(2 * Key::Size);
+		auto nodePublicKey = crypto::ReadPublicKeyFromPrivateKeyPemFile(config::GetPrivateKeyPemFilename(userConfig));
 
 		// Act:
-		AddLocalNodeWithLengths(nodes, hexPrivateKey, 255, 255);
+		AddLocalNodeWithLengths(nodes, 255, 255);
 
 		// Assert: local node is added to nodes
 		auto nodesView = nodes.view();
 		EXPECT_EQ(1u, nodesView.size());
-		auto expectedContents = test::BasicNodeDataContainer{
-			{ crypto::KeyPair::FromString(hexPrivateKey).publicKey(), std::string(255, 'l'), ionet::NodeSource::Local }
-		};
+		auto expectedContents = test::BasicNodeDataContainer{ { nodePublicKey, std::string(255, 'l'), ionet::NodeSource::Local } };
 		EXPECT_EQ(expectedContents, test::CollectAll(nodesView));
 	}
 
 	TEST(TEST_CLASS, AddLocalNode_FailsWhenMaxStringLengthsAreExceeded) {
 		// Arrange:
 		ionet::NodeContainer nodes;
-		auto hexPrivateKey = test::GenerateRandomHexString(2 * Key::Size);
 
 		// Act + Assert:
-		EXPECT_THROW(AddLocalNodeWithLengths(nodes, hexPrivateKey, 256, 255), catapult_invalid_argument);
-		EXPECT_THROW(AddLocalNodeWithLengths(nodes, hexPrivateKey, 255, 256), catapult_invalid_argument);
+		EXPECT_THROW(AddLocalNodeWithLengths(nodes, 256, 255), catapult_invalid_argument);
+		EXPECT_THROW(AddLocalNodeWithLengths(nodes, 255, 256), catapult_invalid_argument);
 	}
 
 	// endregion

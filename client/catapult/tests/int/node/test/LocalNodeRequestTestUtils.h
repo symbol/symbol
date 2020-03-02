@@ -44,7 +44,8 @@ namespace catapult { namespace test {
 	class ExternalSourceConnection {
 	public:
 		/// Creates an external source connection to default local node.
-		ExternalSourceConnection() : ExternalSourceConnection(CreateLocalHostNode(LoadServerKeyPair().publicKey(), GetLocalHostPort()))
+		ExternalSourceConnection()
+				: ExternalSourceConnection(CreateLocalHostNode(test::GenerateRandomByteArray<Key>(), GetLocalHostPort()))
 		{}
 
 		/// Creates an external source connection to specified local \a node.
