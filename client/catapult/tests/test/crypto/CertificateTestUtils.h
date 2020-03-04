@@ -20,6 +20,7 @@
 
 #pragma once
 #include "catapult/types.h"
+#include <memory>
 
 namespace catapult { namespace crypto { class KeyPair; } }
 struct evp_pkey_st;

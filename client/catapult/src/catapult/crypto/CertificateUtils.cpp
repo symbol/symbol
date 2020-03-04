@@ -19,6 +19,8 @@
 **/
 
 #include "CertificateUtils.h"
+#include <cstring>
+#include <memory>
 
 #ifdef __clang__
 #pragma clang diagnostic push
