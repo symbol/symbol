@@ -19,10 +19,12 @@
 **/
 
 #include "catapult/net/ServerConnector.h"
+#include "catapult/crypto/OpensslKeyUtils.h"
 #include "catapult/ionet/Node.h"
 #include "catapult/ionet/PacketSocket.h"
 #include "catapult/thread/IoThreadPool.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
+#include "tests/test/net/CertificateLocator.h"
 #include "tests/test/net/ClientSocket.h"
 #include "tests/test/net/NodeTestUtils.h"
 #include "tests/test/net/SocketTestUtils.h"
@@ -37,8 +39,9 @@ namespace catapult { namespace net {
 
 		struct ConnectorTestContext {
 		public:
-			explicit ConnectorTestContext(const Key& publicKey) : ConnectorTestContext(test::CreateConnectionSettings(publicKey))
-			{}
+			explicit ConnectorTestContext(const Key& publicKey) : ConnectorTestContext(test::CreateConnectionSettings(publicKey)) {
+				ServerPublicKey = publicKey;
+			}
 
 			explicit ConnectorTestContext(const ConnectionSettings& settings = test::CreateConnectionSettings())
 					: ServerPublicKey(test::GenerateRandomByteArray<Key>())
@@ -97,6 +100,9 @@ namespace catapult { namespace net {
 				context.pConnector->connect(context.serverNode(), [&](auto connectResult, const auto& connectedSocketInfo) {
 					state.Codes.push_back(connectResult);
 					state.ClientSocketInfos.push_back(connectedSocketInfo);
+
+					// - wait for server callback
+					WAIT_FOR_ONE(numCallbacks);
 					++numCallbacks;
 				});
 
@@ -223,10 +229,23 @@ namespace catapult { namespace net {
 		}
 	}
 
+	TEST(TEST_CLASS, ConnectFailsOnVerifyError) {
+		// Arrange:
+		ConnectorTestContext context(test::GenerateRandomByteArray<Key>());
+		context.ServerPublicKey = test::GenerateRandomByteArray<Key>();
+
+		// Act:
+		RunConnectedSocketTest(context, [&](auto connectCode, const auto&, const auto& clientSocketInfo) {
+			// Assert: the verification should have failed
+			EXPECT_EQ(PeerConnectCode::Verify_Error, connectCode);
+			test::AssertEmpty(clientSocketInfo);
+			EXPECT_EQ(0u, context.pConnector->numActiveConnections());
+		});
+	}
+
 	TEST(TEST_CLASS, ConnectSucceedsOnVerifySuccess) {
 		// Arrange:
-		auto publicKey = test::GenerateRandomByteArray<Key>();
-		ConnectorTestContext context(publicKey);
+		ConnectorTestContext context(test::GenerateRandomByteArray<Key>());
 
 		// Act:
 		RunConnectedSocketTest(context, [&](auto connectCode, const auto&, const auto& clientSocketInfo) {
@@ -235,13 +254,15 @@ namespace catapult { namespace net {
 			EXPECT_EQ(1u, context.pConnector->numActiveConnections());
 			EXPECT_TRUE(!!clientSocketInfo.socket());
 			EXPECT_EQ("127.0.0.1", clientSocketInfo.host());
-			EXPECT_EQ(publicKey, clientSocketInfo.publicKey());
+			EXPECT_EQ(context.ServerPublicKey, clientSocketInfo.publicKey());
 		});
 	}
 
 	TEST(TEST_CLASS, ShutdownClosesConnectedSocket) {
+		// Arrange:
+		ConnectorTestContext context(test::GenerateRandomByteArray<Key>());
+
 		// Act:
-		ConnectorTestContext context;
 		RunConnectedSocketTest(context, [&context](auto, const auto&, const auto& clientSocketInfo) {
 			// Act: shutdown the connector
 			context.pConnector->shutdown();
@@ -256,19 +277,18 @@ namespace catapult { namespace net {
 	TEST(TEST_CLASS, CanManageMultipleConnections) {
 		// Arrange: establish multiple connections
 		constexpr auto Num_Connections = 5u;
-		auto publicKey = test::GenerateRandomByteArray<Key>();
-		ConnectorTestContext context(publicKey);
+		ConnectorTestContext context(test::GenerateRandomByteArray<Key>());
 
 		// Act:
 		auto state = SetupMultiConnectionTest(context, Num_Connections);
 
-		// Assert: all connections are active
+		// Assert: all connections are active (notice that connect is passed server information)
 		EXPECT_EQ(Num_Connections, state.Codes.size());
 		for (auto i = 0u; i < Num_Connections; ++i) {
 			EXPECT_EQ(PeerConnectCode::Accepted, state.Codes[i]);
 			EXPECT_TRUE(!!state.ClientSocketInfos[i].socket());
 			EXPECT_EQ("127.0.0.1", state.ClientSocketInfos[i].host());
-			EXPECT_EQ(publicKey, state.ClientSocketInfos[i].publicKey());
+			EXPECT_EQ(context.ServerPublicKey, state.ClientSocketInfos[i].publicKey());
 		}
 
 		EXPECT_EQ(Num_Connections, context.pConnector->numActiveConnections());

@@ -21,12 +21,9 @@
 #pragma once
 #include "NetworkTestUtils.h"
 #include "ServiceLocatorTestContext.h"
-#include "catapult/ionet/PacketSocket.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
-#include "tests/test/net/SocketTestUtils.h"
-#include "tests/test/nodeps/KeyTestUtils.h"
-#include "tests/TestHarness.h"
+#include "tests/test/net/RemoteAcceptServer.h"
 
 namespace catapult { namespace test {
 
@@ -110,29 +107,35 @@ namespace catapult { namespace test {
 		// endregion
 
 	private:
-		static void ConnectToExternalWriter(const TestContext& context, const Key& serverPublicKey) {
-			// Act: get the packet writers and attempt to connect to the server
-			ConnectToLocalHost(*Traits::GetWriters(context.locator()), serverPublicKey);
+		// region ServerBootstrapper
 
-			// Assert: a single connection was accepted
-			EXPECT_EQ(1u, context.counter(Traits::Counter_Name));
-		}
+		class ServerBootstrapper : public RemoteAcceptServer {
+		public:
+			void connectToExternalWriter(const TestContext& context) {
+				// Act: get the packet writers and attempt to connect to the server
+				ConnectToLocalHost(*Traits::GetWriters(context.locator()), caPublicKey());
+
+				// Assert: a single connection was accepted
+				EXPECT_EQ(1u, context.counter(Traits::Counter_Name));
+			}
+		};
+
+		// endregion
 
 	public:
 		// region connection + writing
 
 		static void AssertCanConnectToExternalServer() {
 			// Arrange: create a (tcp) server
-			auto pPool = CreateStartedIoThreadPool();
-			auto serverKeyPair = GenerateKeyPair();
-			SpawnPacketServerWork(pPool->ioContext(), [](const auto&) {});
+			ServerBootstrapper server;
+			server.start();
 
 			// - create the service
 			TestContext context;
 			context.boot();
 
 			// Act + Assert: attempt to connect to the server
-			ConnectToExternalWriter(context, serverKeyPair.publicKey());
+			server.connectToExternalWriter(context);
 		}
 
 		static void AssertCanBroadcastBlockToWriters() {
@@ -149,10 +152,9 @@ namespace catapult { namespace test {
 		template<typename TBroadcastTraits>
 		static void AssertCanBroadcastEntityToWriters() {
 			// Arrange: create a (tcp) server
+			ServerBootstrapper server;
 			ionet::ByteBuffer packetBuffer;
-			auto pPool = CreateStartedIoThreadPool();
-			auto serverKeyPair = GenerateKeyPair();
-			SpawnPacketServerWork(pPool->ioContext(), [&ioContext = pPool->ioContext(), &packetBuffer](const auto& pServer) {
+			server.start([&ioContext = server.ioContext(), &packetBuffer](const auto& pServer) {
 				// - read the packet and copy it into packetBuffer
 				AsyncReadIntoBuffer(ioContext, *pServer, packetBuffer);
 			});
@@ -162,14 +164,14 @@ namespace catapult { namespace test {
 			context.boot();
 
 			// - get the packet writers and attempt to connect to the server
-			ConnectToExternalWriter(context, serverKeyPair.publicKey());
+			server.connectToExternalWriter(context);
 
 			// Act: broadcast an entity to the server
 			auto entity = TBroadcastTraits::CreateEntity();
 			TBroadcastTraits::Broadcast(entity, context.testState().state().hooks());
 
 			// - wait for the test to complete
-			pPool->join();
+			server.join();
 
 			// Assert: the server received the broadcasted entity
 			ASSERT_FALSE(packetBuffer.empty());
@@ -183,10 +185,8 @@ namespace catapult { namespace test {
 
 		static void AssertWritersAreRegisteredInBannedNodeIdentitySink() {
 			// Arrange: create a (tcp) server
-			auto pPool = CreateStartedIoThreadPool();
-			auto serverKeyPair = GenerateKeyPair();
-			SpawnPacketServerWork(pPool->ioContext(), [](const auto&) {
-			});
+			ServerBootstrapper server;
+			server.start();
 
 			// Act: create and boot the service
 			TestContext context;
@@ -194,13 +194,13 @@ namespace catapult { namespace test {
 			auto sink = context.testState().state().hooks().bannedNodeIdentitySink();
 
 			// - get the packet writers and attempt to connect to the server
-			ConnectToExternalWriter(context, serverKeyPair.publicKey());
+			server.connectToExternalWriter(context);
 
 			// Act: trigger the sink, which should close the connection
-			sink(model::NodeIdentity{ serverKeyPair.publicKey(), "" });
+			sink(model::NodeIdentity{ server.caPublicKey(), "" });
 
 			// - wait for the test to complete
-			pPool->join();
+			server.join();
 
 			// Assert: the connection was closed
 			EXPECT_EQ(0u, context.counter(Traits::Counter_Name));

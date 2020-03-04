@@ -54,9 +54,8 @@ namespace catapult { namespace sync {
 
 	TEST(TEST_CLASS, WritersAreRegisteredInPacketIoPickers) {
 		// Arrange: create a (tcp) server
-		auto pPool = test::CreateStartedIoThreadPool();
-		auto serverPublicKey = test::GenerateRandomByteArray<Key>();
-		test::SpawnPacketServerWork(pPool->ioContext(), [](const auto&) {});
+		test::RemoteAcceptServer server;
+		server.start();
 
 		// Act: create and boot the service
 		TestContext context;
@@ -64,7 +63,7 @@ namespace catapult { namespace sync {
 		auto pickers = context.testState().state().packetIoPickers();
 
 		// - get the packet writers and attempt to connect to the server
-		test::ConnectToLocalHost(*GetPacketWriters(context.locator()), serverPublicKey);
+		test::ConnectToLocalHost(*GetPacketWriters(context.locator()), server.caPublicKey());
 
 		// Assert: the writers are registered with role `Peer`
 		EXPECT_EQ(1u, pickers.pickMatching(utils::TimeSpan::FromSeconds(1), ionet::NodeRoles::Peer).size());
@@ -77,12 +76,11 @@ namespace catapult { namespace sync {
 
 	TEST(TEST_CLASS, PacketPayloadsAreBroadcastViaWriters) {
 		// Arrange: create a (tcp) server
+		test::RemoteAcceptServer server;
 		ionet::ByteBuffer packetBuffer;
-		auto pPool = test::CreateStartedIoThreadPool();
-		auto serverPublicKey = test::GenerateRandomByteArray<Key>();
-		test::SpawnPacketServerWork(pPool->ioContext(), [&ioContext = pPool->ioContext(), &packetBuffer](const auto& pServer) {
+		server.start([&ioContext = server.ioContext(), &packetBuffer](const auto& pServerSocket) {
 			// read the packet and copy it into packetBuffer
-			test::AsyncReadIntoBuffer(ioContext, *pServer, packetBuffer);
+			test::AsyncReadIntoBuffer(ioContext, *pServerSocket, packetBuffer);
 		});
 
 		// - create and boot the service
@@ -91,7 +89,7 @@ namespace catapult { namespace sync {
 		auto sink = context.testState().state().hooks().packetPayloadSink();
 
 		// - get the packet writers and attempt to connect to the server
-		test::ConnectToLocalHost(*GetPacketWriters(context.locator()), serverPublicKey);
+		test::ConnectToLocalHost(*GetPacketWriters(context.locator()), server.caPublicKey());
 
 		// Sanity: a single connection was accepted
 		EXPECT_EQ(1u, context.counter(NetworkPacketWritersServiceTraits::Counter_Name));
@@ -101,7 +99,7 @@ namespace catapult { namespace sync {
 		sink(ionet::PacketPayloadFactory::FromEntity(ionet::PacketType::Undefined, pTransaction));
 
 		// - wait for the test to complete
-		pPool->join();
+		server.join();
 
 		// Assert: the server received the broadcasted entity
 		ASSERT_FALSE(packetBuffer.empty());
@@ -127,14 +125,11 @@ namespace catapult { namespace sync {
 			test::TcpAcceptor acceptor(ioContext);
 			for (auto i = 0u; i < numConnections; ++i) {
 				// - connect to nodes with different identities
-				auto peerKeyPair = test::GenerateKeyPair();
-				ionet::Node node(
-						{ peerKeyPair.publicKey(), std::to_string(i) },
-						test::CreateLocalHostNodeEndpoint(),
-						ionet::NodeMetadata());
+				test::RemoteAcceptServer server;
+				ionet::Node node({ server.caPublicKey(), std::to_string(i) }, test::CreateLocalHostNodeEndpoint(), ionet::NodeMetadata());
 
 				std::atomic<size_t> numCallbacks(0);
-				test::SpawnPacketServerWork(acceptor, [&](const auto& pSocket) {
+				server.start(acceptor, [&](const auto& pSocket) {
 					serverSockets.push_back(pSocket);
 					++numCallbacks;
 				});

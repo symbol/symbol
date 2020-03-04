@@ -34,6 +34,10 @@ namespace catapult { namespace local {
 			{}
 
 		public:
+			auto publicKey() const {
+				return m_context.publicKey();
+			}
+
 			auto stats() const {
 				return m_context.stats();
 			}
@@ -64,7 +68,7 @@ namespace catapult { namespace local {
 
 		// Act:
 		// - note that push valid block will create a new reader connection, increasing the number of readers from 1 (self) to 2
-		test::ExternalSourceConnection connection;
+		test::ExternalSourceConnection connection(context.publicKey());
 		auto pIo = test::PushValidBlock(connection);
 
 		// - wait for the external reader to be closed by the server
@@ -85,7 +89,7 @@ namespace catapult { namespace local {
 		test::WaitForBoot(context);
 
 		// Act:
-		test::ExternalSourceConnection connection;
+		test::ExternalSourceConnection connection(context.publicKey());
 		auto pIo = test::PushValidTransaction(connection);
 		WAIT_FOR_ONE_EXPR(context.stats().NumAddedTransactionElements);
 

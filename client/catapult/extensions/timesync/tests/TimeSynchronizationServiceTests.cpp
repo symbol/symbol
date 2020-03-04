@@ -213,16 +213,16 @@ namespace catapult { namespace timesync {
 		template<typename TAssertState>
 		void AssertStateChange(int64_t remoteOffset, Importance importance, ResponseType responseType, TAssertState assertState) {
 			// Arrange: prepare account state cache
-			auto keyPair = test::GenerateKeyPair();
+			NetworkTimeServer networkTimeServer;
+			auto serverPublicKey = networkTimeServer.caPublicKey();
 			auto cache = CreateCache(Total_Chain_Importance);
 			{
 				auto cacheDelta = cache.createDelta();
-				test::AddAccount(cacheDelta.sub<cache::AccountStateCache>(), keyPair.publicKey(), importance, model::ImportanceHeight(1));
+				test::AddAccount(cacheDelta.sub<cache::AccountStateCache>(), serverPublicKey, importance, model::ImportanceHeight(1));
 				cache.commit(Height(1));
 			}
 
 			// - simulate the remote node by responding with communication timestamps
-			NetworkTimeServer networkTimeServer;
 			if (ResponseType::Success == responseType)
 				networkTimeServer.prepareValidResponse(remoteOffset);
 			else
@@ -236,7 +236,7 @@ namespace catapult { namespace timesync {
 			TestContext context(std::move(cache), timeSupplier);
 			auto& blockChainConfig = const_cast<model::BlockChainConfiguration&>(context.testState().config().BlockChain);
 			blockChainConfig.TotalChainImportance = Total_Chain_Importance;
-			test::AddNode(context.testState().state().nodes(), keyPair.publicKey(), "alice");
+			test::AddNode(context.testState().state().nodes(), serverPublicKey, "alice");
 			auto pTimeSyncState = std::make_shared<TimeSynchronizationState>(Default_Epoch_Adjustment, Default_Threshold);
 			context.boot(pTimeSyncState);
 

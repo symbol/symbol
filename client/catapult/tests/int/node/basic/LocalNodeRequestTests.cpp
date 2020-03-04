@@ -79,7 +79,7 @@ namespace catapult { namespace local {
 			EXPECT_EQ(2u, ReadIndexFileValue(dataDirectory.stateChangeWriterIndex()));
 
 			// Act:
-			test::ExternalSourceConnection connection;
+			test::ExternalSourceConnection connection(context.publicKey());
 			auto pIo = test::PushValidBlock(connection);
 
 			// - wait for the chain height to change and for all height readers to disconnect
@@ -141,7 +141,7 @@ namespace catapult { namespace local {
 		test::WaitForBoot(context);
 
 		// Act:
-		test::ExternalSourceConnection connection;
+		test::ExternalSourceConnection connection(context.publicKey());
 		auto pIo = test::PushValidTransaction(connection);
 		WAIT_FOR_ONE_EXPR(context.stats().NumAddedTransactionElements);
 

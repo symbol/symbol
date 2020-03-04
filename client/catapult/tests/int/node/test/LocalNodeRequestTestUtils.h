@@ -19,101 +19,16 @@
 **/
 
 #pragma once
+#include "ExternalSourceConnection.h"
 #include "catapult/api/RemoteChainApi.h"
-#include "catapult/crypto/KeyPair.h"
-#include "catapult/ionet/Node.h"
 #include "catapult/ionet/PacketPayloadFactory.h"
 #include "catapult/ionet/PacketSocket.h"
 #include "catapult/model/BlockUtils.h"
-#include "catapult/net/ServerConnector.h"
-#include "tests/test/core/ThreadPoolTestUtils.h"
-#include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
-#include "tests/test/core/mocks/MockTransaction.h"
-#include "tests/test/local/LocalTestUtils.h"
-#include "tests/test/net/CertificateLocator.h"
-#include "tests/test/net/SocketTestUtils.h"
-#include "tests/test/nodeps/Filesystem.h"
-#include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/test/nodeps/MijinConstants.h"
-#include "tests/test/other/RemoteApiFactory.h"
+#include "tests/test/nodeps/Waits.h"
 
 namespace catapult { namespace test {
-
-	// region ExternalSourceConnection
-
-	/// Represents an external source connection.
-	class ExternalSourceConnection {
-	public:
-		/// Creates an external source connection to default local node.
-		ExternalSourceConnection()
-				: ExternalSourceConnection(CreateLocalHostNode(test::GenerateRandomByteArray<Key>(), GetLocalHostPort()))
-		{}
-
-		/// Creates an external source connection to specified local \a node.
-		explicit ExternalSourceConnection(const ionet::Node& node)
-				: m_pPool(CreateStartedIoThreadPool(1))
-				, m_clientKeyPair(crypto::KeyPair::FromPrivate(GenerateRandomPrivateKey()))
-				, m_tempDirectoryGuard(ToString(m_clientKeyPair.publicKey()))
-				, m_pConnector(net::CreateServerConnector(
-						m_pPool,
-						m_clientKeyPair.publicKey(),
-						createConnectionSettings(),
-						"external source"))
-				, m_localNode(node)
-		{}
-
-	private:
-		net::ConnectionSettings createConnectionSettings() {
-			GenerateCertificateDirectory(m_tempDirectoryGuard.name(), m_clientKeyPair);
-
-			auto settings = CreateConnectionSettings();
-			settings.SslOptions.ContextSupplier = ionet::CreateSslContextSupplier(m_tempDirectoryGuard.name());
-			return settings;
-		}
-
-	public:
-		std::shared_ptr<ionet::PacketIo> io() const {
-			return m_pIo;
-		}
-
-	public:
-		/// Connects to the local node and calls \a onConnect on completion.
-		void connect(const consumer<const std::shared_ptr<ionet::PacketSocket>&>& onConnect) {
-			m_pConnector->connect(m_localNode, [&pIo = m_pIo, onConnect](auto connectCode, const auto& socketInfo) {
-				// save pIo in a member to tie the lifetime of the connection to the lifetime of the owning ExternalSourceConnection
-				pIo = socketInfo.socket();
-				if (net::PeerConnectCode::Accepted == connectCode)
-					onConnect(socketInfo.socket());
-			});
-		}
-
-		/// Connects to the local node and calls \a onConnect on completion.
-		void apiCall(const consumer<const std::shared_ptr<api::RemoteChainApi>&>& onConnect) {
-			connect([onConnect](const auto& pPacketIo) {
-				auto pRemoteApi = CreateLifetimeExtendedApi(
-						api::CreateRemoteChainApi,
-						pPacketIo,
-						model::NodeIdentity(),
-						CreateTransactionRegistry());
-				onConnect(pRemoteApi);
-			});
-		}
-
-	private:
-		static model::TransactionRegistry CreateTransactionRegistry();
-
-	private:
-		std::shared_ptr<thread::IoThreadPool> m_pPool;
-		crypto::KeyPair m_clientKeyPair;
-		TempDirectoryGuard m_tempDirectoryGuard;
-		std::shared_ptr<net::ServerConnector> m_pConnector;
-		ionet::Node m_localNode;
-
-		std::shared_ptr<ionet::PacketIo> m_pIo;
-	};
-
-	// endregion
 
 	// region boot
 
@@ -168,7 +83,7 @@ namespace catapult { namespace test {
 		std::atomic_bool isReadFinished(false);
 		bool isExceptionRaised = false;
 		typename TApiTraits::ResultType result;
-		ExternalSourceConnection connection;
+		ExternalSourceConnection connection(context.publicKey());
 		connection.apiCall([&](const auto& pRemoteChainApi) {
 			TApiTraits::InitiateValidRequest(*pRemoteChainApi).then([&, pRemoteChainApi](auto&& future) {
 				try {
@@ -199,7 +114,7 @@ namespace catapult { namespace test {
 
 		// Act:
 		std::atomic_bool isReadFinished(false);
-		ExternalSourceConnection connection;
+		ExternalSourceConnection connection(context.publicKey());
 		connection.apiCall([&](const auto& pRemoteChainApi) {
 			requestInitator(*pRemoteChainApi).then([&, pRemoteChainApi](auto&& future) {
 				// Act + Assert:

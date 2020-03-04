@@ -20,13 +20,10 @@
 
 #pragma once
 #include "NodeTestUtils.h"
-#include "SocketTestUtils.h"
-#include "catapult/ionet/PacketSocket.h"
+#include "RemoteAcceptServer.h"
 #include "catapult/net/ConnectionSettings.h"
 #include "catapult/net/NodeRequestResult.h"
-#include "catapult/utils/TimeSpan.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
-#include "tests/test/nodeps/KeyTestUtils.h"
 
 namespace catapult { namespace crypto { class KeyPair; } }
 
@@ -44,7 +41,7 @@ namespace catapult { namespace test {
 				: pPool(CreateStartedIoThreadPool())
 				, ServerPublicKey(GenerateRandomByteArray<Key>())
 				, ClientPublicKey(GenerateRandomByteArray<Key>())
-				, pRequestor(std::make_shared<TRequestor>(pPool, ClientPublicKey, CreateSettingsWithTimeout(timeout), requestorParam))
+				, pRequestor(std::make_shared<TRequestor>(pPool, ClientPublicKey, createSettingsWithTimeout(timeout), requestorParam))
 		{}
 
 	public:
@@ -61,10 +58,10 @@ namespace catapult { namespace test {
 		}
 
 	private:
-		static net::ConnectionSettings CreateSettingsWithTimeout(const utils::TimeSpan& timeout) {
+		net::ConnectionSettings createSettingsWithTimeout(const utils::TimeSpan& timeout) {
 			auto settings = net::ConnectionSettings();
 			settings.Timeout = timeout;
-			settings.SslOptions = CreatePacketSocketSslOptions();
+			settings.SslOptions = CreatePacketSocketSslOptions(ServerPublicKey);
 			return settings;
 		}
 	};
@@ -169,12 +166,10 @@ namespace catapult { namespace test {
 	// region RemotePullServer
 
 	/// Remote pull server.
-	class RemotePullServer {
+	class RemotePullServer : public RemoteAcceptServer {
 	public:
 		/// Creates a remote pull server.
-		RemotePullServer()
-				: m_pPool(test::CreateStartedIoThreadPool(1))
-				, m_acceptor(m_pPool->ioContext())
+		RemotePullServer() : m_acceptor(ioContext())
 		{}
 
 	public:
@@ -185,7 +180,7 @@ namespace catapult { namespace test {
 
 	protected:
 		void prepareValidResponse(const std::shared_ptr<ionet::Packet>& pResponsePacket) {
-			test::SpawnPacketServerWork(m_acceptor, [this, pResponsePacket](const auto& pSocket) {
+			start(m_acceptor, [this, pResponsePacket](const auto& pSocket) {
 				this->setServerSocket(pSocket);
 
 				// write the packet
@@ -196,7 +191,7 @@ namespace catapult { namespace test {
 	public:
 		/// Spawns server work but does not respond to any request.
 		void prepareNoResponse() {
-			test::SpawnPacketServerWork(m_acceptor, [this](const auto& pSocket) {
+			start(m_acceptor, [this](const auto& pSocket) {
 				this->setServerSocket(pSocket);
 			});
 		}
@@ -216,7 +211,6 @@ namespace catapult { namespace test {
 		}
 
 	private:
-		std::unique_ptr<thread::IoThreadPool> m_pPool;
 		test::TcpAcceptor m_acceptor;
 
 		std::shared_ptr<ionet::PacketSocket> m_pServerSocket;

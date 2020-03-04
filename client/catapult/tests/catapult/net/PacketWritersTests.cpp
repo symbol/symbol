@@ -27,6 +27,7 @@
 #include "tests/catapult/net/test/ConnectionContainerTestUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/net/NodeTestUtils.h"
+#include "tests/test/net/RemoteAcceptServer.h"
 #include "tests/test/net/SocketTestUtils.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 
@@ -56,15 +57,22 @@ namespace catapult { namespace net {
 
 		struct PacketWritersTestContext {
 		public:
-			PacketWritersTestContext(
-					size_t numClientPublicKeys = 1,
-					const ConnectionSettings& connectionSettings = test::CreateConnectionSettings())
-					: ServerPublicKey(test::GenerateRandomByteArray<Key>())
+			explicit PacketWritersTestContext(size_t numClientPublicKeys = 1)
+					: PacketWritersTestContext(numClientPublicKeys, test::GenerateRandomByteArray<Key>())
+			{}
+
+			PacketWritersTestContext(size_t numClientPublicKeys, const Key& serverPublicKey)
+					: PacketWritersTestContext(numClientPublicKeys, serverPublicKey, test::CreateConnectionSettings(serverPublicKey))
+			{}
+
+			PacketWritersTestContext(size_t numClientPublicKeys, const Key& serverPublicKey, const ConnectionSettings& connectionSettings)
+					: ServerPublicKey(serverPublicKey)
 					, pPool(test::CreateStartedIoThreadPool())
 					, IoContext(pPool->ioContext())
-					, pWriters(CreatePacketWriters(pPool, ServerPublicKey, connectionSettings)) {
+					, pWriters(CreatePacketWriters(pPool, ServerPublicKey, SetRealVerifyCallback(connectionSettings))) {
 				for (auto i = 0u; i < numClientPublicKeys; ++i) {
-					ClientPublicKeys.push_back(test::GenerateRandomByteArray<Key>());
+					ClientKeyPairs.push_back(test::GenerateKeyPair());
+					ClientPublicKeys.push_back(ClientKeyPairs.back().publicKey());
 					Hosts.push_back(std::to_string(i));
 				}
 			}
@@ -79,9 +87,17 @@ namespace catapult { namespace net {
 				pPool->join();
 			}
 
+		private:
+			static ConnectionSettings SetRealVerifyCallback(const ConnectionSettings& settings) {
+				auto copy = settings;
+				copy.SslOptions.VerifyCallbackSupplier = ionet::CreateSslVerifyCallbackSupplier();
+				return copy;
+			}
+
 		public:
 			Key ServerPublicKey; // the server hosting the PacketWriters instance
 			std::vector<Key> ClientPublicKeys; // accepted clients forwarded to the server AND/OR connections initiated by server
+			std::vector<crypto::KeyPair> ClientKeyPairs;
 			std::vector<std::string> Hosts;
 			std::shared_ptr<thread::IoThreadPool> pPool;
 			boost::asio::io_context& IoContext;
@@ -179,7 +195,8 @@ namespace catapult { namespace net {
 				ionet::Node node(peerIdentity, context.serverNode().endpoint(), ionet::NodeMetadata());
 
 				std::atomic<size_t> numCallbacks(0);
-				test::SpawnPacketServerWork(acceptor, [&](const auto& pSocket) {
+				test::RemoteAcceptServer server(context.ClientKeyPairs[i]);
+				server.start(acceptor, [&](const auto& pSocket) {
 					state.ServerSockets.push_back(pSocket);
 					++numCallbacks;
 				});
@@ -296,6 +313,33 @@ namespace catapult { namespace net {
 
 		// Assert:
 		EXPECT_EQ(PeerConnectCode::Socket_Error, result.Code);
+		EXPECT_NUM_ACTIVE_WRITERS(0u, *context.pWriters);
+	}
+
+	TEST(TEST_CLASS, ConnectFailsOnVerifyError) {
+		// Arrange:
+		PacketWritersTestContext context;
+		std::atomic<size_t> numCallbacks(0);
+
+		// Act: start a server and client verify operation
+		PeerConnectResult result;
+		test::SpawnPacketServerWork(context.IoContext, [&](const auto& pSocket) {
+			// - trigger a verify error by closing the socket without responding
+			pSocket->close();
+			++numCallbacks;
+		});
+
+		context.pWriters->connect(context.serverNode(), [&](auto connectResult) {
+			result = connectResult;
+			++numCallbacks;
+		});
+
+		// - wait for both callbacks to complete and the connection to close
+		WAIT_FOR_VALUE(2u, numCallbacks);
+		context.waitForConnections(0);
+
+		// Assert: the verification should have failed and all connections should have been destroyed
+		EXPECT_EQ(PeerConnectCode::Verify_Error, result.Code);
 		EXPECT_NUM_ACTIVE_WRITERS(0u, *context.pWriters);
 	}
 
@@ -1238,10 +1282,11 @@ namespace catapult { namespace net {
 				const std::function<model::NodeIdentitySet (const PacketWritersTestContext&)>& extractExpectedIdentities) {
 			// Act: establish multiple connections with the same identity
 			constexpr auto Num_Connections = 5u;
-			auto settings = test::CreateConnectionSettings();
+			auto serverPublicKey = test::GenerateRandomByteArray<Key>();
+			auto settings = test::CreateConnectionSettings(serverPublicKey);
 			settings.NodeIdentityEqualityStrategy = equalityStrategy;
 
-			PacketWritersTestContext context(Num_Connections, settings);
+			PacketWritersTestContext context(Num_Connections, serverPublicKey, settings);
 			prepare(context);
 
 			auto state = SetupMultiConnectionAcceptTest(context, 1);
@@ -1285,10 +1330,11 @@ namespace catapult { namespace net {
 				const std::function<ionet::Node (const PacketWritersTestContext&)>& createNode,
 				const std::function<model::NodeIdentitySet (const PacketWritersTestContext&)>& extractExpectedIdentities) {
 			// Arrange:
-			auto settings = test::CreateConnectionSettings();
+			auto serverPublicKey = test::GenerateRandomByteArray<Key>();
+			auto settings = test::CreateConnectionSettings(serverPublicKey);
 			settings.NodeIdentityEqualityStrategy = equalityStrategy;
 
-			PacketWritersTestContext context(1, settings);
+			PacketWritersTestContext context(1, serverPublicKey, settings);
 			context.Hosts[0] = "127.0.0.1";
 
 			// Act:

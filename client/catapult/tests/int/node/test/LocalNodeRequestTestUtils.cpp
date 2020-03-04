@@ -20,30 +20,11 @@
 
 #include "LocalNodeRequestTestUtils.h"
 #include "sdk/src/extensions/BlockExtensions.h"
-#include "plugins/txes/mosaic/src/plugins/MosaicDefinitionTransactionPlugin.h"
-#include "plugins/txes/mosaic/src/plugins/MosaicSupplyChangeTransactionPlugin.h"
-#include "plugins/txes/namespace/src/plugins/MosaicAliasTransactionPlugin.h"
-#include "plugins/txes/namespace/src/plugins/NamespaceRegistrationTransactionPlugin.h"
-#include "plugins/txes/transfer/src/plugins/TransferTransactionPlugin.h"
 #include "catapult/preprocessor.h"
-#include "tests/test/core/BlockTestUtils.h"
+#include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/local/RealTransactionFactory.h"
 
 namespace catapult { namespace test {
-
-	// region ExternalSourceConnection
-
-	model::TransactionRegistry ExternalSourceConnection::CreateTransactionRegistry() {
-		auto registry = model::TransactionRegistry();
-		registry.registerPlugin(plugins::CreateMosaicDefinitionTransactionPlugin(plugins::MosaicRentalFeeConfiguration()));
-		registry.registerPlugin(plugins::CreateMosaicSupplyChangeTransactionPlugin());
-		registry.registerPlugin(plugins::CreateMosaicAliasTransactionPlugin());
-		registry.registerPlugin(plugins::CreateNamespaceRegistrationTransactionPlugin(plugins::NamespaceRentalFeeConfiguration()));
-		registry.registerPlugin(plugins::CreateTransferTransactionPlugin());
-		return registry;
-	}
-
-	// endregion
 
 	// region push
 

@@ -323,8 +323,10 @@ namespace catapult { namespace local {
 				auto postfix = "_" + std::to_string(i);
 				contexts.push_back(std::make_unique<NodeTestContext>(nodeFlag, peers, configTransform, postfix));
 
+				auto& context = *contexts.back();
+				context.regenerateCertificates(crypto::KeyPair::FromString(test::Mijin_Test_Private_Keys[i]));
+
 				// - (re)schedule a few tasks and boot the node
-				auto& context = *contexts[i];
 				RescheduleTasks(context.resourcesDirectory());
 				context.boot();
 

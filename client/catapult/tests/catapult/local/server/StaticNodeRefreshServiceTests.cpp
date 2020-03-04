@@ -23,6 +23,7 @@
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"
 #include "tests/test/local/ServiceTestUtils.h"
+#include "tests/test/net/RemoteAcceptServer.h"
 #include "tests/test/net/SocketTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -85,14 +86,6 @@ namespace catapult { namespace local {
 	// region task
 
 	namespace {
-		std::vector<crypto::KeyPair> GenerateKeyPairs(size_t count) {
-			std::vector<crypto::KeyPair> keyPairs;
-			for (auto i = 0u; i < count; ++i)
-				keyPairs.push_back(test::GenerateKeyPair());
-
-			return keyPairs;
-		}
-
 		ionet::Node CreateNamedLocalHostNode(
 				const Key& publicKey,
 				const std::string& endpointHost,
@@ -104,14 +97,38 @@ namespace catapult { namespace local {
 					{ model::UniqueNetworkFingerprint(), name });
 		}
 
-		std::vector<std::unique_ptr<test::TcpAcceptor>> SpawnAcceptors(boost::asio::io_context& ioContext, size_t count) {
-			std::vector<std::unique_ptr<test::TcpAcceptor>> acceptors;
-			for (auto i = 0u; i < count; ++i) {
-				acceptors.push_back(std::make_unique<test::TcpAcceptor>(ioContext, test::GetLocalHostPort() + i));
-				test::SpawnPacketServerWork(*acceptors.back(), [](const auto&) {});
+		class AcceptorServer {
+		public:
+			AcceptorServer() : m_pPool(test::CreateStartedIoThreadPool(1))
+			{}
+
+		public:
+			const Key& publicKeyAt(size_t index) {
+				return m_servers[index]->caPublicKey();
 			}
 
-			return acceptors;
+		public:
+			void startAccept() {
+				m_acceptors.push_back(std::make_unique<test::TcpAcceptor>(
+						m_pPool->ioContext(),
+						test::GetLocalHostPort() + m_acceptors.size()));
+
+				m_servers.push_back(std::make_unique<test::RemoteAcceptServer>());
+				m_servers.back()->start(*m_acceptors.back(), [](const auto&) {});
+			}
+
+		private:
+			std::unique_ptr<thread::IoThreadPool> m_pPool;
+			std::vector<std::unique_ptr<test::TcpAcceptor>> m_acceptors;
+			std::vector<std::unique_ptr<test::RemoteAcceptServer>> m_servers;
+		};
+
+		auto SpawnAcceptors(size_t count) {
+			auto pAcceptorServer = std::make_unique<AcceptorServer>();
+			for (auto i = 0u; i < count; ++i)
+				pAcceptorServer->startAccept();
+
+			return pAcceptorServer;
 		}
 	}
 
@@ -144,21 +161,19 @@ namespace catapult { namespace local {
 			// Arrange:
 			TestContext context;
 
+			// - set up challenge responses
+			auto pAcceptorServer = SpawnAcceptors(3);
+
 			// - set up static nodes
-			auto remoteKeyPairs = GenerateKeyPairs(3);
 			auto staticNodes = std::vector<ionet::Node>{
-				CreateNamedLocalHostNode(remoteKeyPairs[0].publicKey(), endpointHost, 0, "alice"),
-				CreateNamedLocalHostNode(remoteKeyPairs[1].publicKey(), endpointHost, 1, "bob"),
-				CreateNamedLocalHostNode(remoteKeyPairs[2].publicKey(), endpointHost, 2, "charlie")
+				CreateNamedLocalHostNode(pAcceptorServer->publicKeyAt(0), endpointHost, 0, "alice"),
+				CreateNamedLocalHostNode(pAcceptorServer->publicKeyAt(1), endpointHost, 1, "bob"),
+				CreateNamedLocalHostNode(pAcceptorServer->publicKeyAt(2), endpointHost, 2, "charlie")
 			};
 			context.boot(staticNodes);
 
-			// - set up challenge responses
-			auto pThreadPool = test::CreateStartedIoThreadPool();
-			auto acceptors = SpawnAcceptors(pThreadPool->ioContext(), remoteKeyPairs.size());
-
 			const auto& nodes = context.testState().state().nodes();
-			test::RunTaskTestPostBoot(context, 1, Task_Name, [&nodes, &remoteKeyPairs, &endpointHost](const auto& task) {
+			test::RunTaskTestPostBoot(context, 1, Task_Name, [&nodes, &pAcceptorServer, &endpointHost](const auto& task) {
 				// Act:
 				auto result = task.Callback().get();
 
@@ -168,9 +183,9 @@ namespace catapult { namespace local {
 				auto nodesView = nodes.view();
 				EXPECT_EQ(3u, nodesView.size());
 				auto expectedContents = test::BasicNodeDataContainer{
-					{ remoteKeyPairs[0].publicKey(), "alice", ionet::NodeSource::Static },
-					{ remoteKeyPairs[1].publicKey(), "bob", ionet::NodeSource::Static },
-					{ remoteKeyPairs[2].publicKey(), "charlie", ionet::NodeSource::Static }
+					{ pAcceptorServer->publicKeyAt(0), "alice", ionet::NodeSource::Static },
+					{ pAcceptorServer->publicKeyAt(1), "bob", ionet::NodeSource::Static },
+					{ pAcceptorServer->publicKeyAt(2), "charlie", ionet::NodeSource::Static }
 				};
 				EXPECT_EQ(expectedContents, test::CollectAll(nodesView));
 
@@ -201,20 +216,18 @@ namespace catapult { namespace local {
 		// Arrange:
 		TestContext context;
 
+		// - set up challenge responses
+		auto pAcceptorServer = SpawnAcceptors(2);
+
 		// - set up static nodes
-		auto remoteKeyPairs = GenerateKeyPairs(3);
 		auto staticNodes = std::vector<ionet::Node>{
-			CreateNamedLocalHostNode(remoteKeyPairs[0].publicKey(), "x", 0, "alice"), // invalid host
-			CreateNamedLocalHostNode(remoteKeyPairs[1].publicKey(), "127.0.0.1", 1, "bob") // valid host
+			CreateNamedLocalHostNode(pAcceptorServer->publicKeyAt(0), "x", 0, "alice"), // invalid host
+			CreateNamedLocalHostNode(pAcceptorServer->publicKeyAt(1), "127.0.0.1", 1, "bob") // valid host
 		};
 		context.boot(staticNodes);
 
-		// - set up challenge responses
-		auto pThreadPool = test::CreateStartedIoThreadPool();
-		auto acceptors = SpawnAcceptors(pThreadPool->ioContext(), remoteKeyPairs.size());
-
 		const auto& nodes = context.testState().state().nodes();
-		test::RunTaskTestPostBoot(context, 1, Task_Name, [&nodes, &remoteKeyPairs](const auto& task) {
+		test::RunTaskTestPostBoot(context, 1, Task_Name, [&nodes, &pAcceptorServer](const auto& task) {
 			// Act:
 			auto result = task.Callback().get();
 
@@ -224,7 +237,7 @@ namespace catapult { namespace local {
 			auto nodesView = nodes.view();
 			EXPECT_EQ(1u, nodesView.size());
 			auto expectedContents = test::BasicNodeDataContainer{
-				{ remoteKeyPairs[1].publicKey(), "bob", ionet::NodeSource::Static }
+				{ pAcceptorServer->publicKeyAt(1), "bob", ionet::NodeSource::Static }
 			};
 			EXPECT_EQ(expectedContents, test::CollectAll(nodesView));
 
@@ -247,8 +260,7 @@ namespace catapult { namespace local {
 		context.boot(staticNodes);
 
 		// - set up challenge responses
-		auto pThreadPool = test::CreateStartedIoThreadPool();
-		auto acceptors = SpawnAcceptors(pThreadPool->ioContext(), 1);
+		auto pAcceptorServer = SpawnAcceptors(1);
 
 		const auto& nodes = context.testState().state().nodes();
 		test::RunTaskTestPostBoot(context, 1, Task_Name, [&nodes](const auto& task) {

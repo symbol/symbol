@@ -45,7 +45,10 @@ namespace catapult { namespace test {
 				const consumer<config::CatapultConfiguration&>& configTransform = [](const auto&) {});
 
 	public:
-		/// Gets the primary (first) local node.
+		/// Gets the public key of the (primary) local node.
+		const Key& publicKey() const;
+
+		/// Gets the (primary) local node.
 		local::LocalNode& localNode() const;
 
 		/// Gets the data directory.

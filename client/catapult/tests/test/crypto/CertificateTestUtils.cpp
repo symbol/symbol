@@ -246,7 +246,7 @@ namespace catapult { namespace test {
 				CATAPULT_THROW_RUNTIME_ERROR("error writing node cert to bio");
 
 			if (!PEM_write_bio_X509(bio, caCert.get()))
-				CATAPULT_THROW_RUNTIME_ERROR("error writing ca cert to bio");
+				CATAPULT_THROW_RUNTIME_ERROR("error writing CA cert to bio");
 
 			return bio.toString();
 		}

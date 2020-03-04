@@ -77,7 +77,7 @@ namespace catapult { namespace local {
 			auto pSecretLockBlock = utils::UniqueToShared(builder.asSingleBlock(transactionsBuilder));
 
 			// Act:
-			test::ExternalSourceConnection connection;
+			test::ExternalSourceConnection connection(context.publicKey());
 			auto pIo = test::PushEntity(connection, ionet::PacketType::Push_Block, pSecretLockBlock);
 
 			// - wait for the chain height to change and for all height readers to disconnect
@@ -142,7 +142,7 @@ namespace catapult { namespace local {
 				auto secretLockTuple = PrepareSecretLock(m_context, m_accounts, stateHashCalculator, m_stateHashes);
 
 				// - add the specified number of blocks
-				test::ExternalSourceConnection connection;
+				test::ExternalSourceConnection connection(m_context.publicKey());
 				auto builder2 = secretLockTuple.Builder.createChainedBuilder();
 				auto transferBlocksResult = PushTransferBlocks(m_context, connection, m_accounts, builder2, numBlocks);
 				m_numAliveChains = transferBlocksResult.NumAliveChains;
@@ -248,7 +248,7 @@ namespace catapult { namespace local {
 			});
 
 			// Act:
-			test::ExternalSourceConnection connection;
+			test::ExternalSourceConnection connection(context.publicKey());
 			auto pIo1 = test::PushEntities(connection, ionet::PacketType::Push_Block, nextBlocks);
 
 			// - wait for the chain height to change and for all height readers to disconnect
@@ -306,7 +306,7 @@ namespace catapult { namespace local {
 			});
 
 			// Act:
-			test::ExternalSourceConnection connection;
+			test::ExternalSourceConnection connection(context.publicKey());
 			auto pIo1 = test::PushEntities(connection, ionet::PacketType::Push_Block, nextBlocks);
 
 			// - wait for the chain height to change and for all height readers to disconnect
@@ -368,7 +368,7 @@ namespace catapult { namespace local {
 			});
 
 			// Act:
-			test::ExternalSourceConnection connection;
+			test::ExternalSourceConnection connection(context.publicKey());
 			auto pIo1 = test::PushEntities(connection, ionet::PacketType::Push_Block, worseBlocks);
 			auto pIo2 = test::PushEntities(connection, ionet::PacketType::Push_Block, betterBlocks);
 
@@ -442,7 +442,7 @@ namespace catapult { namespace local {
 			});
 
 			// Act:
-			test::ExternalSourceConnection connection;
+			test::ExternalSourceConnection connection(context.publicKey());
 			auto pIo1 = test::PushEntities(connection, ionet::PacketType::Push_Block, worseBlocks);
 			auto pIo2 = test::PushEntities(connection, ionet::PacketType::Push_Block, betterBlocks);
 
@@ -495,6 +495,7 @@ namespace catapult { namespace local {
 			SecretLockRollbackTestContext()
 					: m_context(test::NonNemesisTransactionPlugins::Lock_Secret, ConfigTransform)
 					, m_accounts(4)
+					, m_connection(m_context.publicKey())
 			{}
 
 		public:
@@ -716,7 +717,7 @@ namespace catapult { namespace local {
 			BlockChainBuilder builder(accounts, stateHashCalculator);
 			auto blocks = builder.asBlockChain(transactionsBuilder);
 
-			test::ExternalSourceConnection connection;
+			test::ExternalSourceConnection connection(context.publicKey());
 			test::PushEntities(connection, ionet::PacketType::Push_Block, blocks);
 			test::WaitForHeightAndElements(context, Height(5), 1, 1);
 			stateHashes.emplace_back(GetStateHash(context), GetComponentStateHash(context));

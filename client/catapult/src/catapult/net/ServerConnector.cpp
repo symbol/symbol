@@ -59,10 +59,10 @@ namespace catapult { namespace net {
 
 		public:
 			void connect(const ionet::Node& node, const ConnectCallback& callback) override {
-				if (!m_settings.AllowOutgoingSelfConnections && m_serverPublicKey == node.identity().PublicKey) {
+				const auto& identityKey = node.identity().PublicKey;
+				if (!m_settings.AllowOutgoingSelfConnections && m_serverPublicKey == identityKey) {
 					CATAPULT_LOG(warning) << "self connection detected and aborted" << m_tag;
-					callback(PeerConnectCode::Self_Connection_Error, ionet::PacketSocketInfo());
-					return;
+					return callback(PeerConnectCode::Self_Connection_Error, ionet::PacketSocketInfo());
 				}
 
 				auto& ioContext = m_pPool->ioContext();
@@ -70,13 +70,14 @@ namespace catapult { namespace net {
 				pRequest->setTimeout(m_settings.Timeout);
 
 				auto socketOptions = m_settings.toSocketOptions();
-				auto cancel = ionet::Connect(ioContext, socketOptions, node.endpoint(), [pThis = shared_from_this(), node, pRequest](
+				const auto& endpoint = node.endpoint();
+				auto cancel = ionet::Connect(ioContext, socketOptions, endpoint, [pThis = shared_from_this(), identityKey, pRequest](
 						auto result,
 						const auto& connectedSocketInfo) {
 					if (ionet::ConnectResult::Connected != result)
 						return pRequest->callback(PeerConnectCode::Socket_Error, ionet::PacketSocketInfo());
 
-					pThis->verify(connectedSocketInfo, pRequest);
+					pThis->verify(identityKey, connectedSocketInfo, pRequest);
 				});
 
 				pRequest->setTimeoutHandler([pThis = shared_from_this(), cancel]() {
@@ -87,10 +88,18 @@ namespace catapult { namespace net {
 
 		private:
 			template<typename TRequest>
-			void verify(const ionet::PacketSocketInfo& connectedSocketInfo, const std::shared_ptr<TRequest>& pRequest) {
-				auto pConnectedSocket = connectedSocketInfo.socket();
-				m_sockets.insert(pConnectedSocket);
+			void verify(
+					const Key& expectedIdentityKey,
+					const ionet::PacketSocketInfo& connectedSocketInfo,
+					const std::shared_ptr<TRequest>& pRequest) {
+				if (expectedIdentityKey != connectedSocketInfo.publicKey()) {
+					CATAPULT_LOG(warning)
+							<< "aborting connection with identity mismatch (expected " << expectedIdentityKey
+							<< ", actual " << connectedSocketInfo.publicKey() << ")" << m_tag;
+					return pRequest->callback(PeerConnectCode::Verify_Error, ionet::PacketSocketInfo());
+				}
 
+				m_sockets.insert(connectedSocketInfo.socket());
 				pRequest->callback(PeerConnectCode::Accepted, connectedSocketInfo);
 			}
 

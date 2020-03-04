@@ -65,8 +65,8 @@ namespace catapult { namespace local {
 			}
 
 			// Act: two different connections, each having its own identity, are needed because first identity will be banned
-			test::ExternalSourceConnection connection1;
-			test::ExternalSourceConnection connection2;
+			test::ExternalSourceConnection connection1(context.publicKey());
+			test::ExternalSourceConnection connection2(context.publicKey());
 			auto pIo1 = test::PushEntity(connection1, ionet::PacketType::Push_Block, pUnsignedBlock);
 			auto pIo2 = test::PushEntity(connection2, ionet::PacketType::Push_Block, pSignedBlock);
 

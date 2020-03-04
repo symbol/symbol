@@ -28,7 +28,9 @@
 #include "catapult/extensions/ServiceState.h"
 #include "catapult/local/server/LocalNode.h"
 #include "tests/test/core/StorageTestUtils.h"
+#include "tests/test/crypto/CertificateTestUtils.h"
 #include "tests/test/nemesis/NemesisCompatibleConfiguration.h"
+#include "tests/test/net/CertificateLocator.h"
 #include "tests/test/nodeps/Filesystem.h"
 
 namespace catapult { namespace test {
@@ -104,7 +106,7 @@ namespace catapult { namespace test {
 				SetNemesisStateHash(directory, config);
 			}
 
-			return loadKeys(directory);
+			return config::CatapultKeys(findCertificateSubdirectory(directory));
 		}
 
 	public:
@@ -158,6 +160,15 @@ namespace catapult { namespace test {
 			auto config = CreatePrototypicalCatapultConfiguration(directory);
 			prepareCatapultConfiguration(config);
 			return config;
+		}
+
+		/// Regenerates (primary) certificates with specified \a caKeyPair.
+		/// \note This is required for happy block chain tests, which require high-balance nemesis accounts.
+		void regenerateCertificates(const crypto::KeyPair& caKeyPair) {
+			auto certificateDirectory = findCertificateSubdirectory(dataDirectory());
+			GenerateCertificateDirectory(certificateDirectory, PemCertificate(caKeyPair, GenerateKeyPair()));
+
+			m_serverKeys = config::CatapultKeys(certificateDirectory);
 		}
 
 	public:
@@ -217,10 +228,10 @@ namespace catapult { namespace test {
 			m_configTransform(config);
 		}
 
-		config::CatapultKeys loadKeys(const std::string& directory) const {
+		std::string findCertificateSubdirectory(const std::string& directory) const {
 			auto config = CreatePrototypicalCatapultConfiguration(directory);
 			m_configTransform(config);
-			return config::CatapultKeys(config.User.CertificateDirectory);
+			return config.User.CertificateDirectory;
 		}
 
 	public:
