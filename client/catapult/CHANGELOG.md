@@ -3,9 +3,29 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [0.9.2.1] - 23-January-2019
+## [0.9.3.1] - 05-March-2020
 
-## Fixed
+### Added
+ - forcibly disconnect connections to/from newly banned node identity
+ - use network fingerprint (id + generation hash) for nicer network separation
+ - missing mongo index on beneficiaryPublicKey
+
+### Changed
+ - unit221b pentesting: use ephemeral keys in unlock messages, use HKDF for key derivation
+ - unit221b pentesting: include S-part of signature in entity hash, to avoid "invalid tx announce" attack
+ - model: moved TransactionStatus.Deadline before Status
+
+### Fixed
+ - bugfix: possible race in node selector
+ - bugfix: unconfirmed transactions subscriptions
+
+### Removed
+ - unit221b pentesting: `SIGNATURE_SCHEME_*` defines, catapult now uses standard ed25519 derivation with sha512
+ - in-source implementations of ripemd160, sha256, sha3, aes, use variants provided by openssl
+
+## [0.9.2.1] - 23-January-2020
+
+### Fixed
  - bugfix: incomplete nemesis block data inside mongo
  - bugfix: remove spurious check in CreateCacheBlockTouchObserver
  - bugfix: make unconditional update of activity information based on account balance
@@ -192,6 +212,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Added
 - Initial code release.
 
+[0.9.3.1]: https://github.com/nemtech/catapult-server/compare/v0.9.2.1...v0.9.3.1
 [0.9.2.1]: https://github.com/nemtech/catapult-server/compare/v0.9.1.1...v0.9.2.1
 [0.9.1.1]: https://github.com/nemtech/catapult-server/compare/v0.9.0.1...v0.9.1.1
 [0.9.0.1]: https://github.com/nemtech/catapult-server/compare/v0.8.0.3...v0.9.0.1
@@ -204,3 +225,4 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 [0.3.0.1]: https://github.com/nemtech/catapult-server/compare/v0.2.0.2...v0.3.0.1
 [0.2.0.2]: https://github.com/nemtech/catapult-server/compare/v0.1.0.1...v0.2.0.2
 [0.1.0.1]: https://github.com/nemtech/catapult-server/releases/tag/v0.1.0.1
+
