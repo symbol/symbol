@@ -159,7 +159,7 @@ describe('network routes', () => {
 			});
 		});
 
-		describe('network fees', () => {
+		describe('network fees transaction', () => {
 			const runNetworkFeesTest = (testName, feeMultipliers, average, median, max, min) => {
 				const services = {
 					config: {
@@ -176,7 +176,7 @@ describe('network routes', () => {
 					// Arrange:
 					const mockServer = new MockServer();
 					networkRoutes.register(mockServer.server, db, services);
-					const route = mockServer.getRoute('/network/fees').get();
+					const route = mockServer.getRoute('/network/fees/transaction').get();
 
 					// Act
 					return mockServer.callRoute(route, {}).then(() => {

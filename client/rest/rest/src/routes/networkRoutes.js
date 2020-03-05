@@ -48,7 +48,7 @@ module.exports = {
 				});
 		});
 
-		server.get('/network/fees', (req, res, next) => {
+		server.get('/network/fees/transaction', (req, res, next) => {
 			const average = array => array.reduce((p, c) => p + c, 0) / array.length;
 			const median = array => {
 				array.sort((a, b) => a - b);
