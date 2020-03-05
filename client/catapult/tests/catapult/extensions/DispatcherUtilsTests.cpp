@@ -19,6 +19,7 @@
 **/
 
 #include "catapult/extensions/DispatcherUtils.h"
+#include "catapult/config/CatapultKeys.h"
 #include "catapult/config/NodeConfiguration.h"
 #include "catapult/disruptor/ConsumerDispatcher.h"
 #include "catapult/extensions/ServiceLocator.h"
@@ -101,8 +102,8 @@ namespace catapult { namespace extensions {
 		isExecutingBlockedElementCallback.state()->wait();
 
 		// - create a locator and register the service
-		auto keyPair = test::GenerateKeyPair();
-		ServiceLocator locator(keyPair);
+		config::CatapultKeys keys;
+		ServiceLocator locator(keys);
 		locator.registerRootedService("foo", pDispatcher);
 
 		// Act: register the counters

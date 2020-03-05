@@ -24,8 +24,10 @@
 #include <memory>
 
 namespace catapult {
-	namespace config { class CatapultConfiguration; }
-	namespace crypto { class KeyPair; }
+	namespace config {
+		class CatapultConfiguration;
+		class CatapultKeys;
+	}
 }
 
 namespace catapult { namespace process {
@@ -41,7 +43,7 @@ namespace catapult { namespace process {
 
 	/// Prototype for creating a process host.
 	/// \note Return value is a shared_ptr because unique_ptr of void is not allowed.
-	using CreateProcessHost = std::function<std::shared_ptr<void> (config::CatapultConfiguration&&, const crypto::KeyPair&)>;
+	using CreateProcessHost = std::function<std::shared_ptr<void> (config::CatapultConfiguration&&, const config::CatapultKeys&)>;
 
 	/// Extracts the resources path from the command line arguments.
 	/// \a argc commmand line arguments are accessible via \a argv.

@@ -21,11 +21,8 @@
 #include "UserConfiguration.h"
 #include "catapult/utils/ConfigurationBag.h"
 #include "catapult/utils/ConfigurationUtils.h"
-#include <boost/filesystem/path.hpp>
 
 namespace catapult { namespace config {
-
-	// region UserConfiguration
 
 #define LOAD_PROPERTY(SECTION, NAME) utils::LoadIniProperty(bag, SECTION, #NAME, config.NAME)
 
@@ -55,14 +52,4 @@ namespace catapult { namespace config {
 	}
 
 #undef LOAD_PROPERTY
-
-	// endregion
-
-	// region calculated properties
-
-	std::string GetPrivateKeyPemFilename(const UserConfiguration& config) {
-		return (boost::filesystem::path(config.CertificateDirectory) / "node.key.pem").generic_string();
-	}
-
-	// endregion
 }}

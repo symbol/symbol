@@ -35,7 +35,19 @@
 namespace catapult { namespace crypto {
 
 	namespace {
-		template<typename TTransformer>
+		struct PublicKeyPemTraits {
+			static EVP_PKEY* ReadKey(BIO& bio) {
+				return PEM_read_bio_PUBKEY(&bio, nullptr, nullptr, nullptr);
+			}
+		};
+
+		struct PrivateKeyPemTraits {
+			static EVP_PKEY* ReadKey(BIO& bio) {
+				return PEM_read_bio_PrivateKey(&bio, nullptr, nullptr, nullptr);
+			}
+		};
+
+		template<typename TPemTraits, typename TTransformer>
 		auto TransformPemFileContents(const std::string& filename, TTransformer transformer) {
 			std::ifstream fin(filename, std::ios_base::in);
 			std::string pemStr((std::istreambuf_iterator<char>(fin)), std::istreambuf_iterator<char>());
@@ -44,7 +56,7 @@ namespace catapult { namespace crypto {
 			if (!pMemBio)
 				throw std::bad_alloc();
 
-			auto* pKey = PEM_read_bio_PrivateKey(pMemBio.get(), nullptr, nullptr, nullptr);
+			auto* pKey = TPemTraits::ReadKey(*pMemBio);
 			if (!pKey)
 				CATAPULT_THROW_INVALID_ARGUMENT_1("could not load private key from file", filename);
 
@@ -54,19 +66,25 @@ namespace catapult { namespace crypto {
 
 			return std::move(transformerResult.first);
 		}
-	}
 
-	Key ReadPublicKeyFromPrivateKeyPemFile(const std::string& filename) {
-		return TransformPemFileContents(filename, [](const auto& key) {
+		auto MapEvpKeyToPublicKey(const EVP_PKEY& key) {
 			Key publicKey;
 			auto publicKeyBufferSize = Key::Size;
 			auto result = EVP_PKEY_get_raw_public_key(&key, publicKey.data(), &publicKeyBufferSize);
 			return std::make_pair(publicKey, result);
-		});
+		}
+	}
+
+	Key ReadPublicKeyFromPublicKeyPemFile(const std::string& filename) {
+		return TransformPemFileContents<PublicKeyPemTraits>(filename, MapEvpKeyToPublicKey);
+	}
+
+	Key ReadPublicKeyFromPrivateKeyPemFile(const std::string& filename) {
+		return TransformPemFileContents<PrivateKeyPemTraits>(filename, MapEvpKeyToPublicKey);
 	}
 
 	crypto::KeyPair ReadKeyPairFromPrivateKeyPemFile(const std::string& filename) {
-		return TransformPemFileContents(filename, [](const auto& key) {
+		return TransformPemFileContents<PrivateKeyPemTraits>(filename, [](const auto& key) {
 			std::array<uint8_t, Key::Size> privateKeyBuffer;
 			auto privateKeyBufferSize = Key::Size;
 			if (!EVP_PKEY_get_raw_private_key(&key, privateKeyBuffer.data(), &privateKeyBufferSize))

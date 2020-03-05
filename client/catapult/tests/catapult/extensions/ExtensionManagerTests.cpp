@@ -158,8 +158,8 @@ namespace catapult { namespace extensions {
 
 	TEST(TEST_CLASS, CanRegisterZeroServices) {
 		// Arrange:
-		auto keyPair = test::GenerateKeyPair();
-		ServiceLocator locator(keyPair);
+		config::CatapultKeys keys;
+		ServiceLocator locator(keys);
 		test::ServiceTestState testState;
 		auto& state = testState.state();
 
@@ -171,8 +171,8 @@ namespace catapult { namespace extensions {
 
 	TEST(TEST_CLASS, CanRegisterSingleService) {
 		// Arrange:
-		auto keyPair = test::GenerateKeyPair();
-		ServiceLocator locator(keyPair);
+		config::CatapultKeys keys;
+		ServiceLocator locator(keys);
 		test::ServiceTestState testState;
 		auto& state = testState.state();
 		std::vector<ServiceRegistrarBreadcrumb> breadcrumbs;
@@ -191,8 +191,8 @@ namespace catapult { namespace extensions {
 
 	TEST(TEST_CLASS, CanRegisterMultipleServices) {
 		// Arrange:
-		auto keyPair = test::GenerateKeyPair();
-		ServiceLocator locator(keyPair);
+		config::CatapultKeys keys;
+		ServiceLocator locator(keys);
 		test::ServiceTestState testState;
 		auto& state = testState.state();
 		std::vector<ServiceRegistrarBreadcrumb> breadcrumbs;
@@ -219,8 +219,8 @@ namespace catapult { namespace extensions {
 
 	TEST(TEST_CLASS, RegisterServicesDestroysRegistrars) {
 		// Arrange:
-		auto keyPair = test::GenerateKeyPair();
-		ServiceLocator locator(keyPair);
+		config::CatapultKeys keys;
+		ServiceLocator locator(keys);
 		test::ServiceTestState testState;
 		auto& state = testState.state();
 		std::vector<ServiceRegistrarBreadcrumb> breadcrumbs;

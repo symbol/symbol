@@ -80,7 +80,7 @@ namespace catapult { namespace test {
 
 	std::unique_ptr<local::LocalNode> BootLocalPartnerNode(
 			config::CatapultConfiguration&& config,
-			const crypto::KeyPair& keyPair,
+			const config::CatapultKeys& keys,
 			NodeFlag nodeFlag) {
 		// partner node is a P2P node on offset ports
 		const_cast<uint16_t&>(config.Node.Port) += 10;
@@ -94,7 +94,7 @@ namespace catapult { namespace test {
 		auto pBootstrapper = std::make_unique<extensions::ProcessBootstrapper>(std::move(config), resourcesPath, disposition, "Partner");
 		pBootstrapper->loadExtensions();
 
-		return local::CreateLocalNode(keyPair, std::move(pBootstrapper));
+		return local::CreateLocalNode(keys, std::move(pBootstrapper));
 	}
 
 	void PrepareCatapultConfiguration(config::CatapultConfiguration& config, NodeFlag nodeFlag) {

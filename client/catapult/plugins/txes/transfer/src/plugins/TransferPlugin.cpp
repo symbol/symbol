@@ -24,6 +24,7 @@
 #include "src/observers/Observers.h"
 #include "src/validators/Validators.h"
 #include "catapult/config/CatapultDataDirectory.h"
+#include "catapult/config/CatapultKeys.h"
 #include "catapult/crypto/OpensslKeyUtils.h"
 #include "catapult/model/Address.h"
 #include "catapult/plugins/PluginManager.h"
@@ -42,7 +43,8 @@ namespace catapult { namespace plugins {
 		if (!manager.userConfig().EnableDelegatedHarvestersAutoDetection)
 			return;
 
-		auto encryptionPublicKey = crypto::ReadPublicKeyFromPrivateKeyPemFile(config::GetPrivateKeyPemFilename(manager.userConfig()));
+		auto encryptionPrivateKeyPemFilename = config::GetNodePrivateKeyPemFilename(manager.userConfig().CertificateDirectory);
+		auto encryptionPublicKey = crypto::ReadPublicKeyFromPrivateKeyPemFile(encryptionPrivateKeyPemFilename);
 		auto recipient = model::PublicKeyToAddress(encryptionPublicKey, manager.config().Network.Identifier);
 		auto dataDirectory = config::CatapultDataDirectory(manager.userConfig().DataDirectory);
 		manager.addObserverHook([recipient, dataDirectory](auto& builder) {

@@ -20,6 +20,7 @@
 
 #include "NetworkPacketWritersService.h"
 #include "catapult/api/RemoteChainApi.h"
+#include "catapult/config/CatapultKeys.h"
 #include "catapult/extensions/NetworkUtils.h"
 #include "catapult/extensions/ServiceLocator.h"
 #include "catapult/extensions/ServiceState.h"
@@ -75,7 +76,7 @@ namespace catapult { namespace sync {
 			void registerServices(extensions::ServiceLocator& locator, extensions::ServiceState& state) override {
 				auto connectionSettings = extensions::GetConnectionSettings(state.config());
 				auto pServiceGroup = state.pool().pushServiceGroup(Service_Name);
-				auto pWriters = pServiceGroup->pushService(net::CreatePacketWriters, locator.keyPair().publicKey(), connectionSettings);
+				auto pWriters = pServiceGroup->pushService(net::CreatePacketWriters, locator.keys().caPublicKey(), connectionSettings);
 
 				locator.registerService(Service_Name, pWriters);
 				state.packetIoPickers().insert(*pWriters, ionet::NodeRoles::Peer);

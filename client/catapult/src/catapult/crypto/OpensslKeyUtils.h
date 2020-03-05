@@ -23,6 +23,9 @@
 
 namespace catapult { namespace crypto {
 
+	/// Reads the public key from a public key pem file with name \a filename.
+	Key ReadPublicKeyFromPublicKeyPemFile(const std::string& filename);
+
 	/// Reads the public key from a private key pem file with name \a filename.
 	Key ReadPublicKeyFromPrivateKeyPemFile(const std::string& filename);
 

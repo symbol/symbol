@@ -19,7 +19,7 @@
 **/
 
 #include "StaticNodeRefreshService.h"
-#include "catapult/crypto/KeyPair.h"
+#include "catapult/config/CatapultKeys.h"
 #include "catapult/extensions/NetworkUtils.h"
 #include "catapult/extensions/ServiceLocator.h"
 #include "catapult/extensions/ServiceState.h"
@@ -86,13 +86,13 @@ namespace catapult { namespace local {
 
 				auto pServerConnector = pServiceGroup->pushService(
 						net::CreateServerConnector,
-						locator.keyPair().publicKey(),
+						locator.keys().caPublicKey(),
 						connectionSettings,
 						"static node refresh");
 				locator.registerService("snr.server_connector", pServerConnector);
 
 				// add task
-				state.tasks().push_back(CreateRefreshTask(m_staticNodes, locator.keyPair().publicKey(), *pServerConnector, state.nodes()));
+				state.tasks().push_back(CreateRefreshTask(m_staticNodes, locator.keys().caPublicKey(), *pServerConnector, state.nodes()));
 			}
 
 		private:

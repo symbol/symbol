@@ -19,6 +19,7 @@
 **/
 
 #include "CatapultConfiguration.h"
+#include "CatapultKeys.h"
 #include "ConfigurationFileLoader.h"
 #include "catapult/crypto/OpensslKeyUtils.h"
 #include "catapult/utils/ConfigurationBag.h"
@@ -75,7 +76,7 @@ namespace catapult { namespace config {
 	ionet::Node ToLocalNode(const CatapultConfiguration& config) {
 		const auto& localNodeConfig = config.Node.Local;
 
-		auto identityKey = crypto::ReadPublicKeyFromPrivateKeyPemFile(GetPrivateKeyPemFilename(config.User));
+		auto identityKey = crypto::ReadPublicKeyFromPublicKeyPemFile(GetCaPublicKeyPemFilename(config.User.CertificateDirectory));
 
 		auto endpoint = ionet::NodeEndpoint();
 		endpoint.Host = localNodeConfig.Host;

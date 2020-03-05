@@ -35,7 +35,8 @@ namespace catapult { namespace test {
 		}
 
 		void SavePemCertificate(const PemCertificate& pemCertificate, const std::string& certificateDirectory) {
-			SaveToFile(certificateDirectory, "node.key.pem", pemCertificate.keyString());
+			SaveToFile(certificateDirectory, "ca.pubkey.pem", pemCertificate.caPublicKeyString());
+			SaveToFile(certificateDirectory, "node.key.pem", pemCertificate.nodePrivateKeyString());
 			SaveToFile(certificateDirectory, "node.full.crt.pem", pemCertificate.certificateChainString());
 		}
 	}
@@ -49,14 +50,17 @@ namespace catapult { namespace test {
 	}
 
 	void GenerateCertificateDirectory(const std::string& certificateDirectory) {
-		GenerateCertificateDirectory(certificateDirectory, GenerateKeyPair());
+		GenerateCertificateDirectory(certificateDirectory, PemCertificate());
 	}
 
 	void GenerateCertificateDirectory(const std::string& certificateDirectory, const crypto::KeyPair& nodeKeyPair) {
+		GenerateCertificateDirectory(certificateDirectory, PemCertificate(nodeKeyPair));
+	}
+
+	void GenerateCertificateDirectory(const std::string& certificateDirectory, const PemCertificate& pemCertificate) {
 		CATAPULT_LOG(info) << "generating new certificate directory: " << certificateDirectory;
 		boost::filesystem::create_directories(certificateDirectory);
 
-		PemCertificate pemCertificate(nodeKeyPair);
 		SavePemCertificate(pemCertificate, certificateDirectory);
 	}
 }}

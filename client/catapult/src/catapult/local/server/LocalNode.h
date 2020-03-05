@@ -26,7 +26,7 @@
 
 namespace catapult {
 	namespace cache { class CatapultCache; }
-	namespace crypto { class KeyPair; }
+	namespace config { class CatapultKeys; }
 	namespace extensions { class ProcessBootstrapper; }
 	namespace ionet { class NodeContainerView; }
 	namespace model { class ChainScore; }
@@ -85,9 +85,9 @@ namespace catapult { namespace local {
 		virtual ionet::NodeContainerView nodes() const = 0;
 	};
 
-	/// Creates and boots a local node around the specified key pair (\a keyPair) and bootstrapper (\a pBootstrapper).
+	/// Creates and boots a local node around the specified \a keys and bootstrapper (\a pBootstrapper).
 	std::unique_ptr<LocalNode> CreateLocalNode(
-			const crypto::KeyPair& keyPair,
+			const config::CatapultKeys& keys,
 			std::unique_ptr<extensions::ProcessBootstrapper>&& pBootstrapper);
 
 	// endregion

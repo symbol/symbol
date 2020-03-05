@@ -111,14 +111,18 @@ namespace catapult { namespace test {
 		PemCertificate(const crypto::KeyPair& caKeyPair, const crypto::KeyPair& nodeKeyPair);
 
 	public:
-		/// Gets the key in pem format.
-		const std::string& keyString() const;
+		/// Gets the CA public key in pem format.
+		const std::string& caPublicKeyString() const;
+
+		/// Gets the node private key in pem format.
+		const std::string& nodePrivateKeyString() const;
 
 		/// Gets the certificate chain in pem format.
 		const std::string& certificateChainString() const;
 
 	private:
-		std::string m_pemKey;
+		std::string m_caPublicKey;
+		std::string m_nodePrivateKey;
 		std::string m_pemCertificateChain;
 	};
 

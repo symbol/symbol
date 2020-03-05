@@ -207,11 +207,20 @@ namespace catapult { namespace test {
 			std::shared_ptr<BIO> m_pBio;
 		};
 
-		auto GeneratePemKey(const crypto::KeyPair& keyPair) {
+		auto GeneratePublicKeyPem(const crypto::KeyPair& keyPair) {
+			BioWrapper bio;
+			auto pKey = GenerateCertificateKey(keyPair);
+			if (!PEM_write_bio_PUBKEY(bio, pKey.get()))
+				CATAPULT_THROW_RUNTIME_ERROR("error writing public key to bio");
+
+			return bio.toString();
+		}
+
+		auto GeneratePrivateKeyPem(const crypto::KeyPair& keyPair) {
 			BioWrapper bio;
 			auto pKey = GenerateCertificateKey(keyPair);
 			if (!PEM_write_bio_PrivateKey(bio, pKey.get(), nullptr, nullptr, 0, nullptr, nullptr))
-				CATAPULT_THROW_RUNTIME_ERROR("error writing key to bio");
+				CATAPULT_THROW_RUNTIME_ERROR("error writing private key to bio");
 
 			return bio.toString();
 		}
@@ -250,12 +259,17 @@ namespace catapult { namespace test {
 	{}
 
 	PemCertificate::PemCertificate(const crypto::KeyPair& caKeyPair, const crypto::KeyPair& nodeKeyPair)
-			: m_pemKey(GeneratePemKey(nodeKeyPair))
+			: m_caPublicKey(GeneratePublicKeyPem(caKeyPair))
+			, m_nodePrivateKey(GeneratePrivateKeyPem(nodeKeyPair))
 			, m_pemCertificateChain(GeneratePemCertificateChain(caKeyPair, nodeKeyPair))
 	{}
 
-	const std::string& PemCertificate::keyString() const {
-		return m_pemKey;
+	const std::string& PemCertificate::caPublicKeyString() const {
+		return m_caPublicKey;
+	}
+
+	const std::string& PemCertificate::nodePrivateKeyString() const {
+		return m_nodePrivateKey;
 	}
 
 	const std::string& PemCertificate::certificateChainString() const {

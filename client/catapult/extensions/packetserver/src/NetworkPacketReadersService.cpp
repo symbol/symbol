@@ -19,6 +19,7 @@
 **/
 
 #include "NetworkPacketReadersService.h"
+#include "catapult/config/CatapultKeys.h"
 #include "catapult/extensions/NetworkUtils.h"
 #include "catapult/extensions/PeersConnectionTasks.h"
 #include "catapult/extensions/ServiceLocator.h"
@@ -62,7 +63,7 @@ namespace catapult { namespace packetserver {
 				auto pReaders = pServiceGroup->pushService(
 						net::CreatePacketReaders,
 						state.packetHandlers(),
-						locator.keyPair().publicKey(),
+						locator.keys().caPublicKey(),
 						extensions::GetConnectionSettings(config),
 						config.Node.MaxIncomingConnectionsPerIdentity);
 				extensions::BootServer(

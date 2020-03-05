@@ -25,6 +25,7 @@
 #include "TimeSynchronizationUtils.h"
 #include "TimeSynchronizer.h"
 #include "timesync/src/handlers/TimeSyncHandlers.h"
+#include "catapult/config/CatapultKeys.h"
 #include "catapult/extensions/NetworkUtils.h"
 #include "catapult/extensions/ServiceLocator.h"
 #include "catapult/extensions/ServiceState.h"
@@ -81,7 +82,7 @@ namespace catapult { namespace timesync {
 				auto pServiceGroup = state.pool().pushServiceGroup(Service_Group);
 				auto pNodeNetworkTimeRequestor = pServiceGroup->pushService(
 						CreateNodeNetworkTimeRequestor,
-						locator.keyPair().publicKey(),
+						locator.keys().caPublicKey(),
 						connectionSettings);
 
 				locator.registerService(Requestor_Service_Name, pNodeNetworkTimeRequestor);

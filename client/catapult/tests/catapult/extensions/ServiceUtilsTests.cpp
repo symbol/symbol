@@ -19,7 +19,7 @@
 **/
 
 #include "catapult/extensions/ServiceUtils.h"
-#include "catapult/crypto/KeyPair.h"
+#include "catapult/config/CatapultKeys.h"
 #include "catapult/extensions/ServerHooks.h"
 #include "catapult/extensions/ServiceLocator.h"
 #include "tests/test/core/PacketPayloadTestUtils.h"
@@ -42,10 +42,11 @@ namespace catapult { namespace extensions {
 	TEST(TEST_CLASS, CanCreatePushEntitySink) {
 		// Arrange:
 		auto pWriters = std::make_shared<mocks::BroadcastAwareMockPacketWriters>();
-		auto keyPair = test::GenerateKeyPair();
 		auto transactionInfos = test::CreateTransactionInfos(1);
 		auto expectedPayload = ionet::CreateBroadcastPayload(transactionInfos);
-		ServiceLocator locator(keyPair);
+
+		config::CatapultKeys keys;
+		ServiceLocator locator(keys);
 		locator.registerService(Service_Name, pWriters);
 
 		// Act:
@@ -61,10 +62,11 @@ namespace catapult { namespace extensions {
 	TEST(TEST_CLASS, CanCreatePushEntitySinkWithCustomPacketType) {
 		// Arrange:
 		auto pWriters = std::make_shared<mocks::BroadcastAwareMockPacketWriters>();
-		auto keyPair = test::GenerateKeyPair();
 		auto transactionInfos = test::CreateTransactionInfos(1);
 		auto expectedPayload = ionet::CreateBroadcastPayload(transactionInfos, ionet::PacketType::Push_Partial_Transactions);
-		ServiceLocator locator(keyPair);
+
+		config::CatapultKeys keys;
+		ServiceLocator locator(keys);
 		locator.registerService(Service_Name, pWriters);
 
 		// Act:

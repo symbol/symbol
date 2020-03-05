@@ -19,6 +19,7 @@
 **/
 
 #include "catapult/config/CatapultConfiguration.h"
+#include "catapult/config/CatapultKeys.h"
 #include "catapult/crypto/KeyUtils.h"
 #include "catapult/crypto/OpensslKeyUtils.h"
 #include "catapult/utils/HexParser.h"
@@ -328,7 +329,7 @@ namespace catapult { namespace config {
 	TEST(TEST_CLASS, CanExtractLocalNodeFromConfiguration) {
 		// Arrange:
 		auto config = CreateCatapultConfiguration();
-		auto expectedPublicKey = crypto::ReadPublicKeyFromPrivateKeyPemFile(GetPrivateKeyPemFilename(config.User));
+		auto expectedPublicKey = crypto::ReadPublicKeyFromPublicKeyPemFile(GetCaPublicKeyPemFilename(config.User.CertificateDirectory));
 
 		// Act:
 		auto node = ToLocalNode(config);

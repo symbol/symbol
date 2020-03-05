@@ -19,6 +19,7 @@
 **/
 
 #include "ApiNetworkPacketWritersService.h"
+#include "catapult/config/CatapultKeys.h"
 #include "catapult/extensions/NetworkUtils.h"
 #include "catapult/extensions/PeersConnectionTasks.h"
 #include "catapult/extensions/ServiceLocator.h"
@@ -64,7 +65,7 @@ namespace catapult { namespace eventsource {
 				const auto& config = state.config();
 				auto connectionSettings = extensions::GetConnectionSettings(config);
 				auto pServiceGroup = state.pool().pushServiceGroup("api");
-				auto pWriters = pServiceGroup->pushService(net::CreatePacketWriters, locator.keyPair().publicKey(), connectionSettings);
+				auto pWriters = pServiceGroup->pushService(net::CreatePacketWriters, locator.keys().caPublicKey(), connectionSettings);
 				extensions::BootServer(
 						*pServiceGroup,
 						config.Node.ApiPort,

@@ -19,36 +19,37 @@
 **/
 
 #pragma once
-#include <string>
-
-namespace catapult { namespace utils { class ConfigurationBag; } }
+#include "catapult/crypto/KeyPair.h"
 
 namespace catapult { namespace config {
 
-	/// User configuration settings.
-	struct UserConfiguration {
+	/// Container of keys used by catapult.
+	class CatapultKeys {
 	public:
-		/// \c true if potential delegated harvesters should be automatically detected.
-		bool EnableDelegatedHarvestersAutoDetection;
+		/// Creates empty container.
+		CatapultKeys();
 
-		/// Data directory.
-		std::string DataDirectory;
+		/// Creates a new container and loads keys from \a directory.
+		explicit CatapultKeys(const std::string& directory);
 
-		/// Certificate directory.
-		std::string CertificateDirectory;
+		/// Creates a new container around \a caPublicKey and \a nodeKeyPair.
+		CatapultKeys(Key&& caPublicKey, crypto::KeyPair&& nodeKeyPair);
 
-		/// Plugins directory.
-		std::string PluginsDirectory;
+	public:
+		/// Gets the CA public key.
+		const Key& caPublicKey() const;
+
+		/// Gets the node key pair.
+		const crypto::KeyPair& nodeKeyPair() const;
 
 	private:
-		UserConfiguration() = default;
-
-	public:
-		/// Creates an uninitialized user configuration.
-		static UserConfiguration Uninitialized();
-
-	public:
-		/// Loads a user configuration from \a bag.
-		static UserConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
+		Key m_caPublicKey;
+		crypto::KeyPair m_nodeKeyPair;
 	};
+
+	/// Gets the name of the CA public key pem file in \a directory.
+	std::string GetCaPublicKeyPemFilename(const std::string& directory);
+
+	/// Gets the name of the node private key pem file in \a directory.
+	std::string GetNodePrivateKeyPemFilename(const std::string& directory);
 }}

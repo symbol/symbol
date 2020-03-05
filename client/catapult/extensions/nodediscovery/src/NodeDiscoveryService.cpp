@@ -23,7 +23,7 @@
 #include "NodePingRequestor.h"
 #include "PeersProcessor.h"
 #include "nodediscovery/src/handlers/NodeDiscoveryHandlers.h"
-#include "catapult/crypto/KeyPair.h"
+#include "catapult/config/CatapultKeys.h"
 #include "catapult/extensions/NetworkUtils.h"
 #include "catapult/extensions/NodeInteractionUtils.h"
 #include "catapult/extensions/ServiceLocator.h"
@@ -103,7 +103,7 @@ namespace catapult { namespace nodediscovery {
 				auto pServiceGroup = state.pool().pushServiceGroup("node_discovery");
 				auto pNodePingRequestor = pServiceGroup->pushService(
 						CreateNodePingRequestor,
-						locator.keyPair().publicKey(),
+						locator.keys().caPublicKey(),
 						connectionSettings,
 						networkFingerprint);
 
@@ -119,7 +119,7 @@ namespace catapult { namespace nodediscovery {
 					return pingRequestor.beginRequest(node, callback);
 				};
 				PeersProcessor peersProcessor(
-						locator.keyPair().publicKey(),
+						locator.keys().caPublicKey(),
 						nodeContainer,
 						pingRequestInitiator,
 						networkFingerprint,

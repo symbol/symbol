@@ -22,6 +22,7 @@
 #include "ConfigurationTestUtils.h"
 #include "LocalNodeNemesisHashTestUtils.h"
 #include "LocalNodeTestUtils.h"
+#include "catapult/config/CatapultKeys.h"
 #include "catapult/crypto/OpensslKeyUtils.h"
 #include "catapult/extensions/ProcessBootstrapper.h"
 #include "catapult/extensions/ServiceState.h"
@@ -67,23 +68,21 @@ namespace catapult { namespace test {
 				: m_nodeFlag(nodeFlag)
 				, m_nodes(nodes)
 				, m_configTransform(configTransform)
-				, m_serverKeyPair(crypto::KeyPair::FromPrivate(crypto::PrivateKey()))
-				, m_partnerServerKeyPair(crypto::KeyPair::FromPrivate(crypto::PrivateKey()))
 				, m_tempDir("lntc" + tempDirPostfix)
 				, m_partnerTempDir("lntc_partner" + tempDirPostfix) {
-			m_serverKeyPair = initializeDataDirectory(m_tempDir.name());
-			CATAPULT_LOG(debug) << "creating server with public key " << m_serverKeyPair.publicKey();
+			m_serverKeys = initializeDataDirectory(m_tempDir.name());
+			CATAPULT_LOG(debug) << "creating server with public key " << m_serverKeys.caPublicKey();
 
 			if (HasFlag(NodeFlag::With_Partner, nodeFlag)) {
-				m_partnerServerKeyPair = initializeDataDirectory(m_partnerTempDir.name());
-				CATAPULT_LOG(debug) << "creating partner with public key " << m_partnerServerKeyPair.publicKey();
+				m_partnerServerKeys = initializeDataDirectory(m_partnerTempDir.name());
+				CATAPULT_LOG(debug) << "creating partner with public key " << m_partnerServerKeys.caPublicKey();
 
 				// need to call configTransform first so that partner node loads all required transaction plugins
 				auto config = CreatePrototypicalCatapultConfiguration(m_partnerTempDir.name());
 				m_configTransform(config);
-				m_pLocalPartnerNode = BootLocalPartnerNode(std::move(config), m_partnerServerKeyPair, nodeFlag);
+				m_pLocalPartnerNode = BootLocalPartnerNode(std::move(config), m_partnerServerKeys, nodeFlag);
 
-				m_nodes.push_back(CreateLocalPartnerNode(m_partnerServerKeyPair.publicKey()));
+				m_nodes.push_back(CreateLocalPartnerNode(m_partnerServerKeys.caPublicKey()));
 			}
 
 			if (!HasFlag(NodeFlag::Require_Explicit_Boot, nodeFlag))
@@ -91,7 +90,7 @@ namespace catapult { namespace test {
 		}
 
 	private:
-		crypto::KeyPair initializeDataDirectory(const std::string& directory) const {
+		config::CatapultKeys initializeDataDirectory(const std::string& directory) const {
 			PrepareStorage(directory);
 			PrepareConfiguration(directory, m_nodeFlag);
 
@@ -105,7 +104,7 @@ namespace catapult { namespace test {
 				SetNemesisStateHash(directory, config);
 			}
 
-			return loadKeyPair(directory);
+			return loadKeys(directory);
 		}
 
 	public:
@@ -121,12 +120,12 @@ namespace catapult { namespace test {
 
 		/// Gets the public key of the (primary) local node.
 		const Key& publicKey() const {
-			return m_serverKeyPair.publicKey();
+			return m_serverKeys.caPublicKey();
 		}
 
 		/// Gets the public key of the (partner) local node.
 		const Key& partnerPublicKey() const {
-			return m_partnerServerKeyPair.publicKey();
+			return m_partnerServerKeys.caPublicKey();
 		}
 
 		/// Gets the (primary) local node.
@@ -209,7 +208,7 @@ namespace catapult { namespace test {
 
 			configure(*pBootstrapper);
 
-			return local::CreateLocalNode(m_serverKeyPair, std::move(pBootstrapper));
+			return local::CreateLocalNode(m_serverKeys, std::move(pBootstrapper));
 		}
 
 	private:
@@ -218,10 +217,10 @@ namespace catapult { namespace test {
 			m_configTransform(config);
 		}
 
-		crypto::KeyPair loadKeyPair(const std::string& directory) const {
+		config::CatapultKeys loadKeys(const std::string& directory) const {
 			auto config = CreatePrototypicalCatapultConfiguration(directory);
 			m_configTransform(config);
-			return crypto::ReadKeyPairFromPrivateKeyPemFile(config::GetPrivateKeyPemFilename(config.User));
+			return config::CatapultKeys(config.User.CertificateDirectory);
 		}
 
 	public:
@@ -279,8 +278,8 @@ namespace catapult { namespace test {
 		NodeFlag m_nodeFlag;
 		std::vector<ionet::Node> m_nodes;
 		consumer<config::CatapultConfiguration&> m_configTransform;
-		crypto::KeyPair m_serverKeyPair;
-		crypto::KeyPair m_partnerServerKeyPair;
+		config::CatapultKeys m_serverKeys;
+		config::CatapultKeys m_partnerServerKeys;
 		TempDirectoryGuard m_tempDir;
 		TempDirectoryGuard m_partnerTempDir;
 

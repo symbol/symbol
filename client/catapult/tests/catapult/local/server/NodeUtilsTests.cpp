@@ -19,6 +19,7 @@
 **/
 
 #include "catapult/local/server/NodeUtils.h"
+#include "catapult/config/CatapultKeys.h"
 #include "catapult/crypto/OpensslKeyUtils.h"
 #include "tests/test/net/CertificateLocator.h"
 #include "tests/test/net/NodeTestUtils.h"
@@ -81,11 +82,9 @@ namespace catapult { namespace local {
 
 	TEST(TEST_CLASS, AddLocalNode_SucceedsWhenMaxStringLengthsAreUsed) {
 		// Arrange:
-		auto userConfig = config::UserConfiguration::Uninitialized();
-		userConfig.CertificateDirectory = test::GetDefaultCertificateDirectory();
-
 		ionet::NodeContainer nodes;
-		auto nodePublicKey = crypto::ReadPublicKeyFromPrivateKeyPemFile(config::GetPrivateKeyPemFilename(userConfig));
+		auto caPublicKeyPemFilename = config::GetCaPublicKeyPemFilename(test::GetDefaultCertificateDirectory());
+		auto caPublicKey = crypto::ReadPublicKeyFromPublicKeyPemFile(caPublicKeyPemFilename);
 
 		// Act:
 		AddLocalNodeWithLengths(nodes, 255, 255);
@@ -93,7 +92,7 @@ namespace catapult { namespace local {
 		// Assert: local node is added to nodes
 		auto nodesView = nodes.view();
 		EXPECT_EQ(1u, nodesView.size());
-		auto expectedContents = test::BasicNodeDataContainer{ { nodePublicKey, std::string(255, 'l'), ionet::NodeSource::Local } };
+		auto expectedContents = test::BasicNodeDataContainer{ { caPublicKey, std::string(255, 'l'), ionet::NodeSource::Local } };
 		EXPECT_EQ(expectedContents, test::CollectAll(nodesView));
 	}
 

@@ -21,7 +21,10 @@
 #pragma once
 #include <string>
 
-namespace catapult { namespace crypto { class KeyPair; } }
+namespace catapult {
+	namespace crypto { class KeyPair; }
+	namespace test { class PemCertificate; }
+}
 
 namespace catapult { namespace test {
 
@@ -33,4 +36,7 @@ namespace catapult { namespace test {
 
 	/// Generates all certificate files in \a certificateDirectory with seed \a nodeKeyPair.
 	void GenerateCertificateDirectory(const std::string& certificateDirectory, const crypto::KeyPair& nodeKeyPair);
+
+	/// Generates all certificate files in \a certificateDirectory with seed \a pemCertificate.
+	void GenerateCertificateDirectory(const std::string& certificateDirectory, const PemCertificate& pemCertificate);
 }}

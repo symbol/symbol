@@ -104,11 +104,9 @@ namespace catapult { namespace local {
 					{ model::UniqueNetworkFingerprint(), name });
 		}
 
-		std::vector<std::unique_ptr<test::TcpAcceptor>> SpawnAcceptors(
-				boost::asio::io_context& ioContext,
-				const std::vector<crypto::KeyPair>& remoteKeyPairs) {
+		std::vector<std::unique_ptr<test::TcpAcceptor>> SpawnAcceptors(boost::asio::io_context& ioContext, size_t count) {
 			std::vector<std::unique_ptr<test::TcpAcceptor>> acceptors;
-			for (auto i = 0u; i < remoteKeyPairs.size(); ++i) {
+			for (auto i = 0u; i < count; ++i) {
 				acceptors.push_back(std::make_unique<test::TcpAcceptor>(ioContext, test::GetLocalHostPort() + i));
 				test::SpawnPacketServerWork(*acceptors.back(), [](const auto&) {});
 			}
@@ -157,7 +155,7 @@ namespace catapult { namespace local {
 
 			// - set up challenge responses
 			auto pThreadPool = test::CreateStartedIoThreadPool();
-			auto acceptors = SpawnAcceptors(pThreadPool->ioContext(), remoteKeyPairs);
+			auto acceptors = SpawnAcceptors(pThreadPool->ioContext(), remoteKeyPairs.size());
 
 			const auto& nodes = context.testState().state().nodes();
 			test::RunTaskTestPostBoot(context, 1, Task_Name, [&nodes, &remoteKeyPairs, &endpointHost](const auto& task) {
@@ -213,7 +211,7 @@ namespace catapult { namespace local {
 
 		// - set up challenge responses
 		auto pThreadPool = test::CreateStartedIoThreadPool();
-		auto acceptors = SpawnAcceptors(pThreadPool->ioContext(), remoteKeyPairs);
+		auto acceptors = SpawnAcceptors(pThreadPool->ioContext(), remoteKeyPairs.size());
 
 		const auto& nodes = context.testState().state().nodes();
 		test::RunTaskTestPostBoot(context, 1, Task_Name, [&nodes, &remoteKeyPairs](const auto& task) {
@@ -249,11 +247,8 @@ namespace catapult { namespace local {
 		context.boot(staticNodes);
 
 		// - set up challenge responses
-		std::vector<crypto::KeyPair> remoteKeyPairs;
-		remoteKeyPairs.push_back(test::CopyKeyPair(context.locator().keyPair()));
-
 		auto pThreadPool = test::CreateStartedIoThreadPool();
-		auto acceptors = SpawnAcceptors(pThreadPool->ioContext(), remoteKeyPairs);
+		auto acceptors = SpawnAcceptors(pThreadPool->ioContext(), 1);
 
 		const auto& nodes = context.testState().state().nodes();
 		test::RunTaskTestPostBoot(context, 1, Task_Name, [&nodes](const auto& task) {

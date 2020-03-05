@@ -19,6 +19,7 @@
 **/
 
 #include "catapult/crypto/OpensslKeyUtils.h"
+#include "catapult/crypto/KeyUtils.h"
 #include "tests/test/crypto/CertificateTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
@@ -39,19 +40,48 @@ namespace catapult { namespace crypto {
 
 #define TEST_CLASS OpensslKeyUtilsTests
 
-	// region traits
+	// region traits - Read
 
 	namespace {
-		struct PublicKeyTraits {
-			static constexpr auto Read = ReadPublicKeyFromPrivateKeyPemFile;
+		struct PublicPemPublicKeyTraits {
+			static constexpr auto Read = ReadPublicKeyFromPublicKeyPemFile;
+
+			static void WritePemFile(const KeyPair& keyPair, const std::string& filename) {
+				auto pOut = std::shared_ptr<BIO>(BIO_new_file(filename.c_str(), "w"), BIO_free);
+				if (!pOut)
+					throw std::bad_alloc();
+
+				auto pKey = test::GenerateCertificateKey(keyPair);
+				if (!PEM_write_bio_PUBKEY(pOut.get(), pKey.get()))
+					CATAPULT_THROW_RUNTIME_ERROR("error writing public key to file");
+			}
 
 			static void AssertReadResult(const KeyPair& expectedKeyPair, const Key& actualPublicKey) {
 				EXPECT_EQ(expectedKeyPair.publicKey(), actualPublicKey);
 			}
 		};
 
-		struct KeyPairTraits {
+		struct PrivatePemPublicKeyTraits {
+			static constexpr auto Read = ReadPublicKeyFromPrivateKeyPemFile;
+
+			static void WritePemFile(const KeyPair& keyPair, const std::string& filename) {
+				auto pOut = std::shared_ptr<BIO>(BIO_new_file(filename.c_str(), "w"), BIO_free);
+				if (!pOut)
+					throw std::bad_alloc();
+
+				auto pKey = test::GenerateCertificateKey(keyPair);
+				if (!PEM_write_bio_PrivateKey(pOut.get(), pKey.get(), nullptr, nullptr, 0, nullptr, nullptr))
+					CATAPULT_THROW_RUNTIME_ERROR("error writing private key to file");
+			}
+
+			static void AssertReadResult(const KeyPair& expectedKeyPair, const Key& actualPublicKey) {
+				EXPECT_EQ(expectedKeyPair.publicKey(), actualPublicKey);
+			}
+		};
+
+		struct PrivatePemKeyPairTraits {
 			static constexpr auto Read = ReadKeyPairFromPrivateKeyPemFile;
+			static constexpr auto WritePemFile = PrivatePemPublicKeyTraits::WritePemFile;
 
 			static void AssertReadResult(const KeyPair& expectedKeyPair, const KeyPair& actualKeyPair) {
 				EXPECT_EQ(expectedKeyPair.publicKey(), actualKeyPair.publicKey());
@@ -62,23 +92,14 @@ namespace catapult { namespace crypto {
 
 #define KEY_TYPE_TRAITS_BASED_TEST(TEST_NAME) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_PublicKey) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PublicKeyTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_KeyPair) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<KeyPairTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_PublicPemPublicKey) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PublicPemPublicKeyTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_PrivatePemPublicKey) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PrivatePemPublicKeyTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_PrivatePemKeyPair) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PrivatePemKeyPairTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 
-	namespace {
-		void WritePrivateKeyPemFile(const KeyPair& keyPair, const std::string& filename) {
-			auto pOut = std::shared_ptr<BIO>(BIO_new_file(filename.c_str(), "w"), BIO_free);
-			if (!pOut)
-				throw std::bad_alloc();
-
-			auto pKey = test::GenerateCertificateKey(keyPair);
-			if (!PEM_write_bio_PrivateKey(pOut.get(), pKey.get(), nullptr, nullptr, 0, nullptr, nullptr))
-				CATAPULT_THROW_RUNTIME_ERROR("error writing key to file");
-		}
-	}
+	// region Read
 
 	KEY_TYPE_TRAITS_BASED_TEST(ReadFailsWhenFileDoesNotExist) {
 		// Arrange:
@@ -104,7 +125,7 @@ namespace catapult { namespace crypto {
 		// Arrange:
 		test::TempFileGuard fileGuard("key.pem");
 		auto keyPair = test::GenerateKeyPair();
-		WritePrivateKeyPemFile(keyPair, fileGuard.name());
+		TTraits::WritePemFile(keyPair, fileGuard.name());
 
 		// Act:
 		auto readResult = TTraits::Read(fileGuard.name());
@@ -112,4 +133,24 @@ namespace catapult { namespace crypto {
 		// Assert:
 		TTraits::AssertReadResult(keyPair, readResult);
 	}
+
+	TEST(TEST_CLASS, ReadSucceedsWhenReadingFromFileGeneratedByOpensslTool_PublicPemPublicKey) {
+		// Arrange:
+		test::TempFileGuard fileGuard("key.pem");
+		{
+			std::ofstream fout(fileGuard.name(), std::ios_base::out);
+			fout
+				<< "-----BEGIN PUBLIC KEY-----" << std::endl
+				<< "MCowBQYDK2VwAyEAtL+kth++Wt/T5fhjXBkyWdQqqAU2ZJ+FJKnP4hatXRo=" << std::endl
+				<< "-----END PUBLIC KEY-----";
+		}
+
+		// Act:
+		auto readPublicKey = ReadPublicKeyFromPublicKeyPemFile(fileGuard.name());
+
+		// Assert:
+		EXPECT_EQ(ParseKey("B4BFA4B61FBE5ADFD3E5F8635C193259D42AA80536649F8524A9CFE216AD5D1A"), readPublicKey);
+	}
+
+	// endregion
 }}

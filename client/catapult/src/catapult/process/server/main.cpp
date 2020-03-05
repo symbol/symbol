@@ -28,7 +28,7 @@ namespace {
 
 int main(int argc, const char** argv) {
 	using namespace catapult;
-	return process::ProcessMain(argc, argv, Process_Name, [argc, argv](auto&& config, const auto& keyPair) {
+	return process::ProcessMain(argc, argv, Process_Name, [argc, argv](auto&& config, const auto& keys) {
 		// create bootstrapper
 		auto resourcesPath = process::GetResourcesPath(argc, argv).generic_string();
 		auto disposition = extensions::ProcessDisposition::Production;
@@ -39,6 +39,6 @@ int main(int argc, const char** argv) {
 		pBootstrapper->loadExtensions();
 
 		// create the local node
-		return local::CreateLocalNode(keyPair, std::move(pBootstrapper));
+		return local::CreateLocalNode(keys, std::move(pBootstrapper));
 	});
 }

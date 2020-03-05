@@ -23,6 +23,7 @@
 #include "partialtransaction/src/api/RemotePtApi.h"
 #include "partialtransaction/src/chain/PtSynchronizer.h"
 #include "catapult/cache_tx/MemoryPtCache.h"
+#include "catapult/config/CatapultKeys.h"
 #include "catapult/extensions/NetworkUtils.h"
 #include "catapult/extensions/PeersConnectionTasks.h"
 #include "catapult/extensions/ServiceLocator.h"
@@ -86,7 +87,7 @@ namespace catapult { namespace partialtransaction {
 			void registerServices(extensions::ServiceLocator& locator, extensions::ServiceState& state) override {
 				auto connectionSettings = extensions::GetConnectionSettings(state.config());
 				auto pServiceGroup = state.pool().pushServiceGroup("partial");
-				auto pWriters = pServiceGroup->pushService(net::CreatePacketWriters, locator.keyPair().publicKey(), connectionSettings);
+				auto pWriters = pServiceGroup->pushService(net::CreatePacketWriters, locator.keys().caPublicKey(), connectionSettings);
 
 				locator.registerService(Service_Name, pWriters);
 				state.packetIoPickers().insert(*pWriters, ionet::NodeRoles::Api);
