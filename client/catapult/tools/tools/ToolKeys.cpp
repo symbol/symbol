@@ -57,10 +57,6 @@ namespace catapult { namespace tools {
 		return crypto::KeyPair::FromPrivate(crypto::PrivateKey::Generate([&iter]() { return *iter++; }));
 	}
 
-	crypto::KeyPair ExtractKeyPair(const std::string& privateKey) {
-		return privateKey.empty() ? GenerateRandomKeyPair() : crypto::KeyPair::FromString(privateKey);
-	}
-
 	std::vector<Address> PrepareAddresses(size_t count) {
 		std::vector<Address> addresses;
 		auto seedKey = Key();

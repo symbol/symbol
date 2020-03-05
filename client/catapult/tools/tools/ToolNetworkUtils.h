@@ -37,27 +37,27 @@ namespace catapult { namespace tools {
 	/// Future that returns a packet io shared pointer.
 	using PacketIoFuture = thread::future<std::shared_ptr<ionet::PacketIo>>;
 
-	/// Connects to localhost as a client with \a clientKeyPair using \a pPool.
+	/// Connects to localhost as a client with certificates in \a certificateDirectory using \a pPool.
 	/// Localhost is expected to have identity \a serverPublicKey.
 	PacketIoFuture ConnectToLocalNode(
-			const crypto::KeyPair& clientKeyPair,
+			const std::string& certificateDirectory,
 			const Key& serverPublicKey,
 			const std::shared_ptr<thread::IoThreadPool>& pPool);
 
-	/// Connects to \a node as a client with \a clientKeyPair using \a pPool.
+	/// Connects to \a node as a client with certificates in \a certificateDirectory using \a pPool.
 	PacketIoFuture ConnectToNode(
-			const crypto::KeyPair& clientKeyPair,
+			const std::string& certificateDirectory,
 			const ionet::Node& node,
 			const std::shared_ptr<thread::IoThreadPool>& pPool);
 
-	/// Creates tool connection settings.
-	net::ConnectionSettings CreateToolConnectionSettings();
+	/// Creates tool connection settings around certificates in \a certificateDirectory.
+	net::ConnectionSettings CreateToolConnectionSettings(const std::string& certificateDirectory);
 
 	/// Helper class for connecting to multiple nodes.
 	class MultiNodeConnector {
 	public:
-		/// Creates a connector around \a clientKeyPair.
-		explicit MultiNodeConnector(crypto::KeyPair&& clientKeyPair);
+		/// Creates a connector around certificates in \a certificateDirectory.
+		explicit MultiNodeConnector(const std::string& certificateDirectory);
 
 		/// Destroys the connector.
 		~MultiNodeConnector();
@@ -71,7 +71,7 @@ namespace catapult { namespace tools {
 		PacketIoFuture connect(const ionet::Node& node);
 
 	private:
-		crypto::KeyPair m_clientKeyPair;
+		std::string m_certificateDirectory;
 		std::shared_ptr<thread::IoThreadPool> m_pPool;
 	};
 }}

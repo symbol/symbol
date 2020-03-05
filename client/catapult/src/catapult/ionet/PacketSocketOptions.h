@@ -87,7 +87,7 @@ namespace catapult { namespace ionet {
 		PacketSocketSslOptions SslOptions;
 	};
 
-	/// Creates an ssl context supplier given the specified certificate directory (\a certificateDirectory).
+	/// Creates an ssl context supplier given the specified certificates in \a certificateDirectory.
 	supplier<boost::asio::ssl::context&> CreateSslContextSupplier(const boost::filesystem::path& certificateDirectory);
 
 	/// Creates an ssl verify callback supplier.
