@@ -208,5 +208,166 @@ describe('network routes', () => {
 				runNetworkFeesTest('Correct decimals', [23.33, 29.73, 31.53, 27.53], 28.03, 28.63, 31.53, 23.33);
 			});
 		});
+
+		describe('network effective rental fees', () => {
+			let readFileStub = null;
+			afterEach(() => {
+				if (null !== readFileStub) {
+					readFileStub.restore();
+					readFileStub = null;
+				}
+			});
+
+			it('can retrieve network properties needed for rental fees', () => {
+				readFileStub = sinon.stub(fs, 'readFile').callsFake((path, data, callback) =>
+					callback(null, '[chain]\n'
+						+ 'maxDifficultyBlocks = 5\n'
+						+ 'defaultDynamicFeeMultiplier = 1\'000\n'
+						+ '[plugin:catapult.plugins.namespace]\n'
+						+ 'rootNamespaceRentalFeePerBlock = 1\'000\n'
+						+ 'childNamespaceRentalFee = 100\n'
+						+ '[plugin:catapult.plugins.mosaic]\n'
+						+ 'mosaicRentalFee = 500'));
+
+				const dbLatestBlocksFeeMultiplierFake = sinon.fake.resolves([0, 1, 2, 3, 4]);
+				const db = {
+					latestBlocksFeeMultiplier: dbLatestBlocksFeeMultiplierFake
+				};
+				const services = { config: { network: { propertiesFilePath: 'wouldBeValidFilePath' } } };
+				const mockServer = new MockServer();
+
+				networkRoutes.register(mockServer.server, db, services);
+
+				const route = mockServer.getRoute('/network/fees/rental').get();
+				return mockServer.callRoute(route).then(() => {
+					expect(mockServer.next.calledOnce).to.equal(true);
+					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
+						effectiveChildNamespaceRentalFee: '300',
+						effectiveMosaicRentalFee: '1500',
+						effectiveRootNamespaceRentalFeePerBlock: '3000'
+					});
+				});
+			});
+
+			it('errors if no file path specified', () => {
+				const mockServer = new MockServer();
+				networkRoutes.register(mockServer.server, {}, { config: { network: {} } });
+
+				const route = mockServer.getRoute('/network/fees/rental').get();
+				return mockServer.callRoute(route).then(() => {
+					expect(mockServer.send.firstCall.args[0].statusCode).to.equal(409);
+					expect(mockServer.send.firstCall.args[0].message).to.equal('there was an error reading the network properties file');
+				});
+			});
+
+			it('errors when the file has an invalid format', () => {
+				readFileStub = sinon.stub(fs, 'readFile').callsFake((path, data, callback) =>
+					callback(null, '{ "not": "iniFormat" }'));
+
+				const services = { config: { network: {} } };
+				const mockServer = new MockServer();
+
+				networkRoutes.register(mockServer.server, {}, services);
+
+				const route = mockServer.getRoute('/network/fees/rental').get();
+				return mockServer.callRoute(route).then(() => {
+					expect(mockServer.send.firstCall.args[0].statusCode).to.equal(409);
+					expect(mockServer.send.firstCall.args[0].message).to.equal('there was an error reading the network properties file');
+				});
+			});
+
+			it('errors if the file does not exist', () => {
+				const mockServer = new MockServer();
+				networkRoutes.register(mockServer.server, {}, { config: { network: { propertiesFilePath: 'nowaythispath€xists' } } });
+
+				const route = mockServer.getRoute('/network/fees/rental').get();
+				return mockServer.callRoute(route).then(() => {
+					expect(mockServer.send.firstCall.args[0].statusCode).to.equal(409);
+					expect(mockServer.send.firstCall.args[0].message).to.equal('there was an error reading the network properties file');
+				});
+			});
+
+			const runNetworkEffectiveRentalFeesTest = (
+				testName,
+				maxDifficultyBlocks,
+				defaultDynamicFeeMultiplier,
+				rootNamespaceRentalFeePerBlock,
+				childNamespaceRentalFee,
+				mosaicRentalFee,
+				feeMultipliers,
+				effectiveRootNamespaceRentalFeePerBlock,
+				effectiveChildNamespaceRentalFee,
+				effectiveMosaicRentalFee
+			) => {
+				it(`${testName}: [${[feeMultipliers]}]`, () => {
+					readFileStub = sinon.stub(fs, 'readFile').callsFake((path, data, callback) =>
+						callback(null, '[chain]\n'
+							+ `maxDifficultyBlocks = ${maxDifficultyBlocks}\n`
+							+ `defaultDynamicFeeMultiplier = ${defaultDynamicFeeMultiplier}\n`
+							+ '[plugin:catapult.plugins.namespace]\n'
+							+ `rootNamespaceRentalFeePerBlock = ${rootNamespaceRentalFeePerBlock}\n`
+							+ `childNamespaceRentalFee = ${childNamespaceRentalFee}\n`
+							+ '[plugin:catapult.plugins.mosaic]\n'
+							+ `mosaicRentalFee = ${mosaicRentalFee}`));
+
+					const dbLatestBlocksFeeMultiplierFake = sinon.fake.resolves(feeMultipliers);
+					const db = {
+						latestBlocksFeeMultiplier: dbLatestBlocksFeeMultiplierFake
+					};
+					const services = { config: { network: { propertiesFilePath: 'wouldBeValidFilePath' } } };
+					const mockServer = new MockServer();
+
+					networkRoutes.register(mockServer.server, db, services);
+
+					const route = mockServer.getRoute('/network/fees/rental').get();
+					return mockServer.callRoute(route).then(() => {
+						expect(mockServer.next.calledOnce).to.equal(true);
+						expect(mockServer.send.firstCall.args[0]).to.deep.equal({
+							effectiveChildNamespaceRentalFee,
+							effectiveMosaicRentalFee,
+							effectiveRootNamespaceRentalFeePerBlock
+						});
+					});
+				});
+			};
+
+			describe('network effective rental fees are computed correctly for the following values', () => {
+				runNetworkEffectiveRentalFeesTest(
+					'Simple all 1', 1,
+					0, 1, 1, 1, [1],
+					'1', '1', '1'
+				);
+				runNetworkEffectiveRentalFeesTest(
+					'No need for default dynamic fee multiplier', 3,
+					0, 1, 1, 1, [1, 2, 3],
+					'2', '2', '2'
+				);
+				runNetworkEffectiveRentalFeesTest(
+					'Default dynamic fee multiplier applied', 3,
+					5, 1, 1, 1, [5, 0, 5],
+					'5', '5', '5'
+				);
+				runNetworkEffectiveRentalFeesTest(
+					'Standard case', 5,
+					0, 1, 2, 3, [10, 10, 25, 50, 50],
+					'25', '50', '75'
+				);
+				runNetworkEffectiveRentalFeesTest(
+					'Decimals', 6,
+					0, 1, 1, 1, [10, 10, 20, 29, 50, 50],
+					'24', '24', '24'
+				);
+				runNetworkEffectiveRentalFeesTest(
+					'Random case', 12,
+					0, 1, 55, 28, [25, 32, 77, 9, 1, 50, 11, 4, 89, 56],
+					'28', '1540', '784'
+				);
+				runNetworkEffectiveRentalFeesTest(
+					'Big numbers', 3,
+					0, '4294967295', '67632967295', '9007199254740993', [25, 32, 77],
+					'137438953440', '2164254953440', '288230376151711776'
+				);
+			});
+		});
 	});
 });
