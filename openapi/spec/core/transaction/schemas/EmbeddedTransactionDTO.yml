@@ -1,4 +1,3 @@
 type: object
 allOf:
   - $ref: "../../entity/schemas/EntityDTO.yml"
-  - $ref: "./TransactionBodyDTO.yml"
