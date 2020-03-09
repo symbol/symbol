@@ -89,13 +89,10 @@ module.exports = {
 			{ dbPostfix: 'Unconfirmed', routePostfix: '/unconfirmed' }
 		];
 
-		const parseUintArrayString = arrayString =>
-			routeUtils.parseArgumentAsArray({ param: arrayString.split(',') }, 'param', 'uint');
-
 		transactionStates.concat(services.config.transactionStates).forEach(state => {
 			server.get(`/account/:accountId/transactions${state.routePostfix}`, (req, res, next) => {
 				const [type, accountId] = routeUtils.parseArgument(req.params, 'accountId', 'accountId');
-				const transactionTypes = req.params.type ? parseUintArrayString(req.params.type) : undefined;
+				const transactionTypes = req.params.type ? routeUtils.parseArgumentAsArray(req.params, 'type', 'uint') : undefined;
 				const pagingOptions = routeUtils.parsePagingArguments(req.params);
 				const ordering = routeUtils.parseArgument(req.params, 'ordering', input => ('id' === input ? 1 : -1));
 
@@ -115,7 +112,7 @@ module.exports = {
 
 		server.get('/account/:accountId/transactions/outgoing', (req, res, next) => {
 			const [type, accountId] = routeUtils.parseArgument(req.params, 'accountId', 'accountId');
-			const transactionTypes = req.params.type ? parseUintArrayString(req.params.type) : undefined;
+			const transactionTypes = req.params.type ? routeUtils.parseArgumentAsArray(req.params, 'type', 'uint') : undefined;
 			const pagingOptions = routeUtils.parsePagingArguments(req.params);
 			const ordering = routeUtils.parseArgument(req.params, 'ordering', input => ('id' === input ? 1 : -1));
 

@@ -293,7 +293,7 @@ describe('account routes', () => {
 					const req = {
 						params: {
 							accountId: testPublicKey,
-							type: '16724,16717,16973',
+							type: ['16724', '16717', '16973'],
 							id: '00123456789AABBBCCDDEEFF',
 							pageSize: '25',
 							ordering: 'id'
