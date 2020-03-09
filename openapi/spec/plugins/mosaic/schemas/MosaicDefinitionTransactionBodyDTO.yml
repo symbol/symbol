@@ -12,14 +12,12 @@ properties:
     $ref: "../../../schemas/BlockDuration.yml"
   nonce:
     type: integer
-    format: int64
     description: Random nonce used to generate the mosaic id.
     example: 0
   flags:
     $ref: "./MosaicFlagsEnum.yml"
   divisibility:
     type : integer
-    format: uint32
     description: |
       Determines up to what decimal place the mosaic can be divided.
       Divisibility of 3 means that a mosaic can be divided into smallest parts of 0.001 mosaics.

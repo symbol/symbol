@@ -5,7 +5,6 @@ required:
 properties:
   level:
     type: integer
-    format: int32
     description: Level of the multisig account.
     example: 0
   multisigEntries:

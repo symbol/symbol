@@ -6,16 +6,13 @@ required:
 properties:
   numBlocks:
     type: integer
-    format: int64
     description: Number of blocks stored.
     example: 245053
   numTransactions:
     type: integer
-    format: int64
     description: Number of transactions stored.
     example: 58590
   numAccounts:
     type: integer
-    format: int64
     description: Number of accounts created.
     example: 177

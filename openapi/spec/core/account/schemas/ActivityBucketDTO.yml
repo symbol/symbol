@@ -13,13 +13,10 @@ properties:
     $ref: "../../../schemas/Height.yml"
   totalFeesPaid:
     type: integer
-    format: int64
     description: Fees paid by the account for this bucket.
   beneficiaryCount:
     type: integer
-    format: int32
     description: Number of times the account has been a beneficiary for this bucket.
   rawScore:
     type: integer
-    format: int64
     description: Importance score for this bucket. This is taken into account to calculate the latest account importance.

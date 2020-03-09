@@ -12,11 +12,9 @@ properties:
     $ref: "../../../schemas/MetadataKey.yml"
   valueSizeDelta:
     type: integer
-    format: int32
     description: Change in value size in bytes.
   valueSize:
     type: integer
-    format: int32
     description: Value size in bytes.
   value:
     $ref: "../../../schemas/MetadataValue.yml"

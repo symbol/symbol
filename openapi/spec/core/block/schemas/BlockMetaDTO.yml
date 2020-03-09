@@ -18,9 +18,7 @@ properties:
       $ref: "../../../schemas/Hash256.yml"
   numTransactions:
     type: integer
-    format: int32
     example: 0
   numStatements:
     type: integer
-    format: int32
     example: 1
