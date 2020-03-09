@@ -1,8 +1,10 @@
 name: type
 in: query
-description: Transaction types to filter by, separated by commas.
+description: |
+  Transaction type to filter by.
+  To filter by multiple transaction types, add more filter query params like: ``type=16974&type=16718``.
 style: form
-explode: false
+explode: true
 schema:
   type: array
   items:
