@@ -1,0 +1,17 @@
+tags:
+  - Network routes
+summary: Get rental fees information
+description: |
+  Returns the estimated effective rental fees for namespaces and mosaics.
+  This endpoint is only available if the REST instance has access to catapult-server ``resources/config-network.properties`` file.
+  To activate this feature, add the setting "network.propertiesFilePath" in the configuration file (rest/resources/rest.json).
+operationId: getRentalFees
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../schemas/RentalFeesDTO.yml"
+  "409":
+    $ref: "../../../responses/InvalidArgument.yml"

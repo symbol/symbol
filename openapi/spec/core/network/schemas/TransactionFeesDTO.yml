@@ -6,13 +6,11 @@ required:
   - lowestFeeMultiplier
 properties:
   averageFeeMultiplier:
-    type: number
-    format: double
+    type: integer
     description: Average fee multiplier over the last "numBlocksTransactionFeeStats".
     example: 1
   medianFeeMultiplier:
-    type: number
-    format: double
+    type: integer
     description: Median fee multiplier over the last "numBlocksTransactionFeeStats".
     example: 1
   highestFeeMultiplier:

@@ -47,9 +47,12 @@
 /network:
   get:
     $ref: "./core/network/routes/getNetworkType.yml"
-/network/fees:
+/network/fees/rental:
   get:
-    $ref: "./core/network/routes/getNetworkFees.yml"
+    $ref: "./core/network/routes/getRentalFees.yml"
+/network/fees/transaction:
+  get:
+    $ref: "./core/network/routes/getTransactionFees.yml"
 
 /network/properties:
   get:
