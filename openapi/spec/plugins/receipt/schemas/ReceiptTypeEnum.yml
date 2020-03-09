@@ -1,5 +1,4 @@
 type: integer
-format: int32
 enum:
   - 4685
   - 4942

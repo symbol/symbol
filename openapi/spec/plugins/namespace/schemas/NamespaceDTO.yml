@@ -14,7 +14,6 @@ properties:
     $ref: "./NamespaceRegistrationTypeEnum.yml"
   depth:
     type: integer
-    format: int32
     description: Level of the namespace.
     example: 1
   level0:

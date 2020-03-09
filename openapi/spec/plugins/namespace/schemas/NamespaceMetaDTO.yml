@@ -12,4 +12,3 @@ properties:
     description: If true, the namespace is active.
   index:
     type: integer
-    format: int32

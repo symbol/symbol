@@ -12,7 +12,6 @@ properties:
   version:
     type: integer
     description: Version of the application.
-    format: int32
     example: 0
   publicKey:
     $ref: "../../../schemas/PublicKey.yml"
@@ -23,11 +22,9 @@ properties:
   port:
     type: integer
     description: Port used for the communication.
-    format: int32
     example: 7900
   networkIdentifier:
     type: integer
-    format: int32
     example: 144
   friendlyName:
     type: string

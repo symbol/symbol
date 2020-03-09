@@ -14,7 +14,6 @@ properties:
     $ref: "../../../schemas/Hash256.yml"
   index:
     type: integer
-    format: int32
     description: Transaction index within the block.
   id:
     type: string
