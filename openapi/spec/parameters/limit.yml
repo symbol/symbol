@@ -3,7 +3,7 @@ in: path
 description: |
   Number of elements to be returned.
   The limit should be greater than or equal to "db.pageSizeMin" and not higher than "db.pageSizeMax".
-  The settings are adjustable via a configuration file (rest/resources/rest.json) per REST instance.
+  The settings are adjustable via the configuration file (rest/resources/rest.json) per REST instance.
 required: true
 schema:
   type: integer

@@ -1,0 +1,14 @@
+tags:
+  - Network routes
+summary: Get transaction fees information
+description: |
+  Returns the average, median, highest and lower fee multiplier over the last "numBlocksTransactionFeeStats".
+  The setting "numBlocksTransactionFeeStats" is adjustable via the configuration file (rest/resources/rest.json) per REST instance.
+operationId: getTransactionFees
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../schemas/TransactionFeesDTO.yml"
