@@ -22,14 +22,12 @@ properties:
     $ref: "../../../schemas/Address.yml"
   revision:
     type: integer
-    format: int32
     description: Number of definitions for the same mosaic.
     example: 1
   flags:
     $ref: "./MosaicFlagsEnum.yml"
   divisibility:
     type : integer
-    format: uint32
     description: |
       Determines up to what decimal place the mosaic can be divided.
       Divisibility of 3 means that a mosaic can be divided into smallest parts of 0.001 mosaics.

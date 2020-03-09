@@ -7,4 +7,3 @@ description: |
 required: true
 schema:
   type: integer
-  format: int32

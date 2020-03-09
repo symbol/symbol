@@ -1,5 +1,4 @@
 type: integer
-format: int32
 description: |
   - 0x00 (none) - No flags present.
   - 0x01 (supplyMutable) - Mosaic supports supply changes even when mosaic owner owns partial supply.
