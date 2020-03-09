@@ -1,0 +1,18 @@
+type: object
+required:
+  - effectiveRootNamespaceRentalFeePerBlock
+  - effectiveChildNamespaceRentalFee
+  - effectiveMosaicRentalFee
+properties:
+  effectiveRootNamespaceRentalFeePerBlock:
+    $ref: "../../../schemas/Amount.yml"
+    description: Estimated effective rental fee to register/extend a namespace per block.
+    example: 0
+  effectiveChildNamespaceRentalFee:
+    $ref: "../../../schemas/Amount.yml"
+    description: Estimated effective rental fee to create a subnamespace.
+    example: 0
+  effectiveMosaicRentalFee:
+    $ref: "../../../schemas/Amount.yml"
+    description: Estimated effective rental fee to create a mosaic.
+    example: 0
