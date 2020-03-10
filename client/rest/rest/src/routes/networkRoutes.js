@@ -34,7 +34,6 @@ module.exports = {
 			const mid = array.length / 2;
 			return mid % 1 ? array[mid - 0.5] : (array[mid - 1] + array[mid]) / 2;
 		};
-		const round = num => Number(num.toFixed(2));
 
 		const readAndParseNetworkPropertiesFile = () => {
 			const readFile = util.promisify(fs.readFile);
@@ -64,8 +63,8 @@ module.exports = {
 			const numBlocksTransactionFeeStats = services.config.numBlocksTransactionFeeStats || 1;
 			return db.latestBlocksFeeMultiplier(numBlocksTransactionFeeStats).then(feeMultipliers => {
 				res.send({
-					averageFeeMultiplier: round(average(feeMultipliers)),
-					medianFeeMultiplier: round(median(feeMultipliers)),
+					averageFeeMultiplier: Math.floor(average(feeMultipliers)),
+					medianFeeMultiplier: Math.floor(median(feeMultipliers)),
 					highestFeeMultiplier: Math.max(...feeMultipliers),
 					lowestFeeMultiplier: Math.min(...feeMultipliers)
 				});

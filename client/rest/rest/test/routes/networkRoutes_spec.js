@@ -198,14 +198,12 @@ describe('network routes', () => {
 			describe('network fees are computed correctly for the following values', () => {
 				runNetworkFeesTest('One block', [0], 0, 0, 0, 0);
 				runNetworkFeesTest('All 0s', [0, 0, 0, 0, 0], 0, 0, 0, 0);
-				runNetworkFeesTest('Negative values', [0, -10, 0, 99, 50], 27.8, 0, 99, -10);
 				runNetworkFeesTest('Big values', [999999999, 999999999, 999999999, 999999999], 999999999, 999999999, 999999999, 999999999);
 				runNetworkFeesTest('Correct average', [1, 1, 1, 1], 1, 1, 1, 1);
 				runNetworkFeesTest('Correct median', [90, 92, 93, 88, 95, 88, 97, 87, 98], 92, 92, 98, 87);
-				runNetworkFeesTest('Correct median even number', [27, 29, 30, 31, 32, 35.5, 40, 43], 33.44, 31.5, 43, 27);
-				runNetworkFeesTest('Correct decimals', [100, 2.34, 5.6, 0, 7.8, 8.9], 20.77, 6.70, 100, 0);
-				runNetworkFeesTest('Correct decimals', [23.33, 31.53, 27.53], 27.46, 27.53, 31.53, 23.33);
-				runNetworkFeesTest('Correct decimals', [23.33, 29.73, 31.53, 27.53], 28.03, 28.63, 31.53, 23.33);
+				runNetworkFeesTest('Correct median even number', [35, 27, 31, 32, 30, 40, 29, 43], 33, 31, 43, 27);
+				runNetworkFeesTest('Correct decimals floor', [10, 11, 12, 13], 11, 11, 13, 10);
+				runNetworkFeesTest('Correct decimals floor', [23, 29, 31, 27], 27, 28, 31, 23);
 			});
 		});
 
