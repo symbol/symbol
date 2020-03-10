@@ -66,6 +66,13 @@ namespace catapult { namespace test {
 		/// Gets a strand that should be used when calling the acceptor.
 		boost::asio::io_context::strand& strand() const;
 
+		/// Returns \c true if the underlying acceptor is stopped.
+		bool isStopped() const;
+
+	public:
+		/// Stops and closes the acceptor.
+		void stop();
+
 	private:
 		class Impl;
 		std::shared_ptr<Impl> m_pImpl;

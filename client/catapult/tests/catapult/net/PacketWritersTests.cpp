@@ -212,6 +212,8 @@ namespace catapult { namespace net {
 			}
 
 			context.waitForWriters(0 == numExpectedWriters ? numConnections : numExpectedWriters);
+			acceptor.stop();
+			WAIT_FOR_EXPR(acceptor.isStopped());
 			return state;
 		}
 
@@ -243,6 +245,8 @@ namespace catapult { namespace net {
 			}
 
 			context.waitForWriters(0 == numExpectedWriters ? numConnections : numExpectedWriters);
+			acceptor.stop();
+			WAIT_FOR_EXPR(acceptor.isStopped());
 			return state;
 		}
 
@@ -330,6 +334,7 @@ namespace catapult { namespace net {
 		});
 
 		context.pWriters->connect(context.serverNode(), [&](auto connectResult) {
+			WAIT_FOR_ONE(numCallbacks);
 			result = connectResult;
 			++numCallbacks;
 		});
@@ -527,7 +532,7 @@ namespace catapult { namespace net {
 					ASSERT_EQ(buffer.size(), pPacket->Size);
 					EXPECT_EQ_MEMORY(&buffer[0], pPacketData, pPacket->Size);
 				} else {
-					EXPECT_EQ(ionet::SocketOperationCode::Closed, code);
+					test::AssertSocketClosedDuringRead(code);
 					EXPECT_FALSE(!!pPacket);
 				}
 

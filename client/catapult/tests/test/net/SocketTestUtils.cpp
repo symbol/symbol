@@ -51,7 +51,7 @@ namespace catapult { namespace test {
 		}
 	}
 
-	class TcpAcceptor::Impl {
+	class TcpAcceptor::Impl : public std::enable_shared_from_this<TcpAcceptor::Impl> {
 	public:
 		Impl(boost::asio::io_context& ioContext, unsigned short port)
 				: m_ioContext(ioContext)
@@ -59,21 +59,8 @@ namespace catapult { namespace test {
 				, m_acceptorStrand(m_ioContext)
 				, m_timer(m_ioContext)
 				, m_isClosed(false)
-				, m_pAcceptor(CreateLocalHostAcceptor(m_ioContext, m_port)) {
-			// setup the timer
-			m_timer.expires_from_now(std::chrono::seconds(2 * detail::Default_Wait_Timeout));
-			m_timer.async_wait([this](const auto& ec) {
-				if (boost::asio::error::operation_aborted == ec)
-					return;
-
-				EXPECT_EQ(boost::asio::error::operation_aborted, ec) << "TcpAcceptor timer fired, forcing close of acceptor";
-				this->closeAcceptor();
-			});
-		}
-
-		~Impl() {
-			destroy();
-		}
+				, m_pAcceptor(CreateLocalHostAcceptor(m_ioContext, m_port))
+		{}
 
 	public:
 		auto& ioContext() {
@@ -88,24 +75,36 @@ namespace catapult { namespace test {
 			return m_acceptorStrand;
 		}
 
-	private:
+		bool isStopped() const {
+			return m_isClosed;
+		}
+
+	public:
+		void init() {
+			// setup the timer
+			m_timer.expires_from_now(std::chrono::seconds(2 * detail::Default_Wait_Timeout));
+			m_timer.async_wait([pThis = shared_from_this()](const auto& ec) {
+				if (boost::asio::error::operation_aborted == ec)
+					return;
+
+				EXPECT_EQ(boost::asio::error::operation_aborted, ec) << "TcpAcceptor timer fired, forcing close of acceptor";
+				pThis->closeAcceptor();
+			});
+		}
+
 		void destroy() {
 			// cancel the timer
 			m_timer.cancel();
 
 			// forcibly close the acceptor (if not already closed)
 			closeAcceptor();
-
-			// wait for the acceptor to close, this ensures that:
-			// 1. the acceptor's lifetime is tied to the owning Impl
-			// 2. the acceptor is completely closed when the Impl is destroyed
-			WAIT_FOR(m_isClosed);
 		}
 
+	private:
 		void closeAcceptor() {
 			CATAPULT_LOG(debug) << "dispatching close of socket acceptor";
-			boost::asio::dispatch(m_acceptorStrand, [&acceptor = *m_pAcceptor, &isClosed = m_isClosed, port = m_port]() {
-				Close(acceptor, isClosed, port);
+			boost::asio::dispatch(m_acceptorStrand, [pThis = shared_from_this()]() {
+				Close(*pThis->m_pAcceptor, pThis->m_isClosed, pThis->m_port);
 			});
 		}
 
@@ -159,10 +158,14 @@ namespace catapult { namespace test {
 	TcpAcceptor::TcpAcceptor(boost::asio::io_context& ioContext) : TcpAcceptor(ioContext, GetLocalHostPort())
 	{}
 
-	TcpAcceptor::TcpAcceptor(boost::asio::io_context& ioContext, unsigned short port) : m_pImpl(std::make_unique<Impl>(ioContext, port))
-	{}
+	TcpAcceptor::TcpAcceptor(boost::asio::io_context& ioContext, unsigned short port) : m_pImpl(std::make_shared<Impl>(ioContext, port)) {
+		m_pImpl->init();
+	}
 
-	TcpAcceptor::~TcpAcceptor() = default;
+	TcpAcceptor::~TcpAcceptor() {
+		if (!isStopped())
+			m_pImpl->destroy();
+	}
 
 	boost::asio::ip::tcp::acceptor& TcpAcceptor::get() const {
 		return m_pImpl->acceptor();
@@ -170,6 +173,14 @@ namespace catapult { namespace test {
 
 	boost::asio::io_context::strand& TcpAcceptor::strand() const {
 		return m_pImpl->strand();
+	}
+
+	bool TcpAcceptor::isStopped() const {
+		return m_pImpl->isStopped();
+	}
+
+	void TcpAcceptor::stop() {
+		return m_pImpl->destroy();
 	}
 
 	// endregion
