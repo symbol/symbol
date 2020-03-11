@@ -112,7 +112,7 @@ module.exports = {
 		const addCrossDomainHeaders = createCrossDomainHeaderAdder(crossDomainConfig || {});
 		server.use(catapultRestifyPlugins.crossDomain(addCrossDomainHeaders));
 		server.use(restify.plugins.acceptParser('application/json'));
-		server.use(restify.plugins.queryParser({ mapParams: true }));
+		server.use(restify.plugins.queryParser({ mapParams: true, parseArrays: false }));
 		server.use(restify.plugins.jsonBodyParser({ mapParams: true }));
 
 		if (!crossDomainConfig)

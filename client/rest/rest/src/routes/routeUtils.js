@@ -111,11 +111,12 @@ const routeUtils = {
 	 */
 	parseArgumentAsArray: (args, key, parser) => {
 		const realParser = 'string' === typeof parser ? namedParserMap[parser] : parser;
-		if (!Array.isArray(args[key]))
-			throw errors.createInvalidArgumentError(`${key} has an invalid format: not an array`);
+		let providedArgs = args[key];
+		if (!Array.isArray(providedArgs))
+			providedArgs = [providedArgs];
 
 		try {
-			return args[key].map(realParser);
+			return providedArgs.map(realParser);
 		} catch (err) {
 			throw errors.createInvalidArgumentError(`element in array ${key} has an invalid format`, err);
 		}

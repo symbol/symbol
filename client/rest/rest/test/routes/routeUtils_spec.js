@@ -164,12 +164,12 @@ describe('route utils', () => {
 			expect(result).to.deep.equal([10, 16, 26]);
 		});
 
-		it('non array passed to parser maps to 409 error', () => {
-			// Act + Assert:
-			test.assert.invokerThrowsError(() => routeUtils.parseArgumentAsArray({ ids: 1234 }, 'ids', id => id * 2), {
-				statusCode: 409,
-				message: 'ids has an invalid format: not an array'
-			});
+		it('non array passed to parser forcefully converts to array', () => {
+			// Act:
+			const result = routeUtils.parseArgumentAsArray({ ids: 1234 }, 'ids', id => id * 2);
+
+			// Assert:
+			expect(result).to.deep.equal([2468]);
 		});
 
 		it('maps parser error to 409 error', () => {
