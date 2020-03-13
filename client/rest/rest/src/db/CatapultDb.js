@@ -307,8 +307,28 @@ class CatapultDb {
 			});
 	}
 
-	transactionsAtHeight(height, id, pageSize) {
-		return this.queryTransactions({ 'meta.height': convertToLong(height) }, id, pageSize, { sortOrder: 1 });
+	/**
+	 * Retrieves confirmed transactions in a certain height.
+	 * @param {module:catapult.utils/uint64~uint64} height Height.
+	 * @param {uintArray} transactionTypes Transaction types to filter by.
+	 * @param {string} id Paging id.
+	 * @param {int} pageSize Page size.
+	 * @returns {Promise.<array>} Confirmed transactions.
+	 */
+	transactionsAtHeight(height, transactionTypes, id, pageSize) {
+		const metaHeightConditions = { 'meta.height': convertToLong(height) };
+		const metaHeightAndTypeConditions = {
+			$and: [
+				metaHeightConditions,
+				{ 'transaction.type': { $in: transactionTypes } }
+			]
+		};
+
+		const conditions = undefined !== transactionTypes
+			? metaHeightAndTypeConditions
+			: metaHeightConditions;
+
+		return this.queryTransactions(conditions, id, pageSize, { sortOrder: 1 });
 	}
 
 	transactionsByIdsImpl(collectionName, conditions) {

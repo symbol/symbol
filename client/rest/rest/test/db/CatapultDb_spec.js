@@ -21,6 +21,7 @@
 const test = require('./utils/dbTestUtils');
 const testDbOptions = require('./utils/testDbOptions');
 const CatapultDb = require('../../src/db/CatapultDb');
+const { convertToLong } = require('../../src/db/dbUtils');
 const catapult = require('catapult-sdk');
 const { expect } = require('chai');
 const MongoDb = require('mongodb');
@@ -52,6 +53,30 @@ describe('catapult db', () => {
 			.then(() => deleteIds(dbEntities))
 			.then(() => issueDbCommand(db))
 			.then(assertDbCommandResult)
+			.then(() => db.close());
+	};
+
+	const runDbTestWithQueryTransactionsSpy = (dbEntities, issueDbCommand, expectedParams) => {
+		// Arrange:
+		const db = new CatapultDb({ networkId: Mijin_Test_Network });
+		const queryTransactionsSpy = sinon.spy(db, 'queryTransactions');
+
+		// Act + Assert:
+		return db.connect(testDbOptions.url, 'test')
+			.then(() => test.db.populateDatabase(db, dbEntities))
+			.then(() => deleteIds(dbEntities))
+			.then(() => issueDbCommand(db))
+			.then(result => {
+				expect(queryTransactionsSpy.calledOnce).to.equal(true);
+
+				// check all params
+				expect(queryTransactionsSpy.firstCall.args.length).to.equal(expectedParams.length);
+				for (let i = 0; i < expectedParams.length; ++i)
+					expect(queryTransactionsSpy.firstCall.args[i]).to.deep.equal(expectedParams[i]);
+
+				queryTransactionsSpy.restore();
+				return result;
+			})
 			.then(() => db.close());
 	};
 
@@ -720,99 +745,40 @@ describe('catapult db', () => {
 	};
 
 	describe('transactions at height', () => {
-		const addTests = traits => {
-			it('returns empty array for unknown height', () => {
-				// Arrange: at heights 17, 25 and 36 - for each height create 3 transactions
-				const seedTransactions = traits.createSeedTransactions(3);
-				return runDbTest(
-					{ transactions: seedTransactions },
-					db => db.transactionsAtHeight(30),
-					transactions => {
-						// Assert: no transactions are available at height 30
-						assertEqualDocuments([], transactions);
-					}
-				);
-			});
+		const height = 35200;
+		const testObjectId = '00123456789AABBBCCDDEEFF';
+		const pageSize = 25;
 
-			it('can retrieve all transactions at height', () => {
-				// Arrange: at heights 17, 25 and 36 - for each height create 3 transactions
-				const seedTransactions = traits.createSeedTransactions(3);
-				return runDbTest(
-					{ transactions: seedTransactions },
-					db => db.transactionsAtHeight(25),
-					transactions => {
-						// Assert: all three transactions at height 25 are returned
-						assertEqualDocuments(traits.getHeight25Transactions(seedTransactions, [0, 1, 2]), transactions);
-					}
-				);
-			});
+		const transactionDbEntities = [
+			{
+				meta: {
+					height: 35200
+				},
+				transaction: {
+					type: 16717
+				}
+			}
+		];
 
-			it('query respects supplied id', () => {
-				// Arrange: at heights 17, 25 and 36 - for each height create 3 transactions
-				const seedTransactions = traits.createSeedTransactions(3);
-				return runDbTest(
-					{ transactions: seedTransactions },
-					// Act: query passing the id of the second transaction
-					db => db.transactionsAtHeight(25, traits.getHeight25Transactions(seedTransactions, [1])[0].meta.id.toString()),
-					transactions => {
-						// Assert: only the transactions after the passed id should be returned
-						assertEqualDocuments(traits.getHeight25Transactions(seedTransactions, [2]), transactions);
-					}
-				);
-			});
+		describe('calls queryTransactions with correct conditions and pagination params', () => {
+			it('without transaction type filter', () =>
+				runDbTestWithQueryTransactionsSpy(
+					{ transactions: transactionDbEntities },
+					db => db.transactionsAtHeight(height, undefined, testObjectId, pageSize),
+					[{ 'meta.height': convertToLong(height) }, testObjectId, pageSize, { sortOrder: 1 }]
+				));
 
-			const assertPageSize = (numTransactionsPerHeight, pageSize, numExpectedTransactions) => {
-				// Arrange:
-				const seedTransactions = traits.createSeedTransactions(numTransactionsPerHeight);
-				return runDbTest(
-					{ transactions: seedTransactions },
-					// Act: query with a custom page size
-					db => db.transactionsAtHeight(25, undefined, pageSize),
-					transactions => {
-						// Assert: at most a single page was returned starting from the first transaction
-						const expectedIndexes = [];
-						for (let i = 0; i < numExpectedTransactions; ++i)
-							expectedIndexes.push(i);
-
-						assertEqualDocuments(traits.getHeight25Transactions(seedTransactions, expectedIndexes), transactions);
-					}
-				);
-			};
-
-			// minimum and maximum values are set in CatapultDb ctor
-			it('query respects page size', () => assertPageSize(14, 12, 12));
-			it('query ensures minimum page size', () => assertPageSize(14, 3, 10));
-			it('query ensures maximum page size', () => assertPageSize(150, 125, 100));
-		};
-
-		describe('for transactions', () => {
-			addTests({
-				// at heights 17, 25 and 36 - for each height create X transactions
-				// - 17: 0000, 0003, 0006
-				// - 25: 0001, 0004, 0007
-				// - 36: 0002, 0005, 0008
-				createSeedTransactions: numTransactionsPerHeight => createSeedTransactions(numTransactionsPerHeight, [17, 25, 36]),
-
-				getHeight25Transactions: (seedTransactions, indexes) => indexes.map(index => seedTransactions[1 + (3 * index)])
-			});
-		});
-
-		describe('for transactions with dependent documents', () => {
-			addTests({
-				// at heights 25 and 36 - for each height create X transactions with 2 dependent documents each
-				// - 17: 0000 (0001, 0002), 0009 (000A, 000B), 0012 (0013, 0014)
-				// - 25: 0003 (0004, 0005), 000C (000D, 000E), 0015 (0016, 0017)
-				// - 36: 0006 (0007, 0008), 000F (0010, 0011), 0018 (0019, 0020)
-				createSeedTransactions: numTransactionsPerHeight =>
-					createSeedTransactions(numTransactionsPerHeight, [17, 25, 36], { numDependentDocuments: 2 }),
-
-				getHeight25Transactions: (seedTransactions, indexes) => indexes.map(index => {
-					const startIndex = 3 + (9 * index);
-					const stitchedAggregate = Object.assign({}, seedTransactions[startIndex]);
-					stitchedAggregate.transaction.transactions = [seedTransactions[startIndex + 1], seedTransactions[startIndex + 2]];
-					return stitchedAggregate;
-				})
-			});
+			it('with transaction type filter', () =>
+				runDbTestWithQueryTransactionsSpy(
+					{ transactions: transactionDbEntities },
+					db => db.transactionsAtHeight(height, [0x4154, 0x414D], testObjectId, pageSize),
+					[
+						{ $and: [{ 'meta.height': convertToLong(height) }, { 'transaction.type': { $in: [0x4154, 0x414D] } }] },
+						testObjectId,
+						pageSize,
+						{ sortOrder: 1 }
+					]
+				));
 		});
 	});
 
@@ -1069,41 +1035,17 @@ describe('catapult db', () => {
 				.then(() => db.close());
 		};
 
-		const runDbWithQueryTransactionsSpy = (dbEntities, issueDbCommand, expectedParams) => {
-			// Arrange:
-			const db = new CatapultDb({ networkId: Mijin_Test_Network });
-			const queryTransactionsSpy = sinon.spy(db, 'queryTransactions');
-
-			// Act + Assert:
-			return db.connect(testDbOptions.url, 'test')
-				.then(() => test.db.populateDatabase(db, dbEntities))
-				.then(() => deleteIds(dbEntities))
-				.then(() => issueDbCommand(db))
-				.then(result => {
-					expect(queryTransactionsSpy.calledOnce).to.equal(true);
-
-					// check all params
-					expect(queryTransactionsSpy.firstCall.args.length).to.equal(expectedParams.length);
-					for (let i = 0; i < expectedParams.length; ++i)
-						expect(queryTransactionsSpy.firstCall.args[i]).to.deep.equal(expectedParams[i]);
-
-					queryTransactionsSpy.restore();
-					return result;
-				})
-				.then(() => db.close());
-		};
-
 		describe('confirmed', () => {
 			describe('calls queryTransactions with correct conditions and pagination params', () => {
 				it('without transaction type filter', () =>
-					runDbWithQueryTransactionsSpy(
+					runDbTestWithQueryTransactionsSpy(
 						{ transactions: transactionDbEntities },
 						db => db.accountTransactionsConfirmed(testAddress, undefined, testObjectId, 25, 1),
 						[{ 'meta.addresses': Buffer.from(testAddress) }, testObjectId, 25, { sortOrder: 1 }]
 					));
 
 				it('with transaction type filter', () =>
-					runDbWithQueryTransactionsSpy(
+					runDbTestWithQueryTransactionsSpy(
 						{ transactions: transactionDbEntities },
 						db => db.accountTransactionsConfirmed(testAddress, [0x4154, 0x414D], testObjectId, 25, 1),
 						[
@@ -1250,13 +1192,13 @@ describe('catapult db', () => {
 		describe('outgoing', () => {
 			describe('calls queryTransactions with correct conditions and pagination params', () => {
 				it('without transaction type filter', () =>
-					runDbWithQueryTransactionsSpy(
+					runDbTestWithQueryTransactionsSpy(
 						{ transactions: transactionDbEntities },
 						db => db.accountTransactionsOutgoing(testPublicKey, undefined, testObjectId, 25, 1),
 						[{ 'transaction.signerPublicKey': testPublicKey }, testObjectId, 25, { sortOrder: 1 }]
 					));
 				it('with transaction type filter', () =>
-					runDbWithQueryTransactionsSpy(
+					runDbTestWithQueryTransactionsSpy(
 						{ transactions: transactionDbEntities },
 						db => db.accountTransactionsOutgoing(testPublicKey, [0x4154, 0x414D], testObjectId, 25, 1),
 						[
@@ -1272,7 +1214,7 @@ describe('catapult db', () => {
 		describe('unconfirmed', () => {
 			describe('calls queryTransactions with correct conditions, pagination params and collection name', () => {
 				it('without transaction type filter', () =>
-					runDbWithQueryTransactionsSpy(
+					runDbTestWithQueryTransactionsSpy(
 						{ transactions: transactionDbEntities },
 						db => db.accountTransactionsUnconfirmed(testAddress, undefined, testObjectId, 25, 1),
 						[
@@ -1283,7 +1225,7 @@ describe('catapult db', () => {
 						]
 					));
 				it('with transaction type filter', () =>
-					runDbWithQueryTransactionsSpy(
+					runDbTestWithQueryTransactionsSpy(
 						{ transactions: transactionDbEntities },
 						db => db.accountTransactionsUnconfirmed(testAddress, [0x4154, 0x414D], testObjectId, 25, 1),
 						[
@@ -1299,7 +1241,7 @@ describe('catapult db', () => {
 		describe('partial', () => {
 			describe('calls queryTransactions with correct conditions, pagination params and collection name', () => {
 				it('without transaction type filter', () =>
-					runDbWithQueryTransactionsSpy(
+					runDbTestWithQueryTransactionsSpy(
 						{ transactions: transactionDbEntities },
 						db => db.accountTransactionsPartial(testAddress, undefined, testObjectId, 25, 1),
 						[
@@ -1310,7 +1252,7 @@ describe('catapult db', () => {
 						]
 					));
 				it('with transaction type filter', () =>
-					runDbWithQueryTransactionsSpy(
+					runDbTestWithQueryTransactionsSpy(
 						{ transactions: transactionDbEntities },
 						db => db.accountTransactionsPartial(testAddress, [0x4154, 0x414D], testObjectId, 25, 1),
 						[

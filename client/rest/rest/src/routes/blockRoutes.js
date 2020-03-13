@@ -55,9 +55,10 @@ module.exports = {
 
 		server.get('/block/:height/transactions', (req, res, next) => {
 			const height = parseHeight(req.params);
+			const transactionTypes = req.params.type ? routeUtils.parseArgumentAsArray(req.params, 'type', 'uint') : undefined;
 			const pagingOptions = routeUtils.parsePagingArguments(req.params);
 
-			const operation = () => db.transactionsAtHeight(height, pagingOptions.id, pagingOptions.pageSize);
+			const operation = () => db.transactionsAtHeight(height, transactionTypes, pagingOptions.id, pagingOptions.pageSize);
 			return dbFacade.runHeightDependentOperation(db, height, operation)
 				.then(result => {
 					if (!result.isRequestValid) {

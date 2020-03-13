@@ -104,43 +104,86 @@ describe('block routes', () => {
 	});
 
 	describe('block transactions', () => {
-		const builder = test.route.document.prepareGetDocumentsRouteTests(blockRoutes.register, {
-			route: '/block/:height/transactions',
-			dbApiName: 'transactionsAtHeight',
-			type: 'transactionWithMetadata',
-			extendDb: addChainStatisticToDb,
-			config: routeConfig
+		// Arrange:
+		const highestHeight = 100;
+		const fakeTransactions = [
+			{ meta: { addresses: [] }, transaction: { type: 12345 } }
+		];
+		const dbTransactionsAtHeightFake = sinon.fake.resolves(fakeTransactions);
+		const db = {
+			transactionsAtHeight: dbTransactionsAtHeightFake,
+			chainStatisticCurrent: () => Promise.resolve({ height: highestHeight })
+		};
+		const mockServer = new MockServer();
+		blockRoutes.register(mockServer.server, db, { config: routeConfig });
+
+		beforeEach(() => {
+			mockServer.resetStats();
+			dbTransactionsAtHeightFake.resetHistory();
+		});
+		const route = mockServer.getRoute('/block/:height/transactions').get();
+
+		it('basic query', () => {
+			// Arrange:
+			const req = { params: { height: '10' } };
+
+			// Act:
+			return mockServer.callRoute(route, req).then(() => {
+				// Assert:
+				expect(dbTransactionsAtHeightFake.calledOnce).to.equal(true);
+				expect(dbTransactionsAtHeightFake.firstCall.args[0]).to.deep.equal(10);
+
+				expect(mockServer.send.firstCall.args[0]).to.deep.equal({
+					payload: fakeTransactions,
+					type: 'transactionWithMetadata'
+				});
+				expect(mockServer.next.calledOnce).to.equal(true);
+			});
 		});
 
-		builder.addValidInputTest({ object: { height: '3' }, parsed: [3, undefined, 0], printable: '3' });
-		builder.addEmptyArrayTest({ object: { height: '3' }, parsed: [3, undefined, 0], printable: '3' });
-		builder.addNotFoundInputTest(
-			{ object: { height: '11' }, parsed: [11, undefined, 0], printable: '11' },
-			'chain height is too small'
-		);
-		builder.addInvalidKeyTest({ object: { height: '10A' }, error: 'height has an invalid format' });
+		it('parses and fordwards params correctly', () => {
+			// Arrange:
+			const req = {
+				params: {
+					height: '10',
+					type: ['16724', '16717', '16973'],
+					id: '00123456789AABBBCCDDEEFF',
+					pageSize: '25'
+				}
+			};
 
-		describe('paging', () => {
-			const pagingTestsFactory = test.setup.createPagingTestsFactory(
-				{
-					routes: blockRoutes,
-					routeName: '/block/:height/transactions',
-					createDb: (queriedIdentifiers, transactions) => ({
-						transactionsAtHeight: (height, pageId, pageSize) => {
-							queriedIdentifiers.push({ height, pageId, pageSize });
-							return Promise.resolve(transactions);
-						},
-						chainStatisticCurrent: () => Promise.resolve({ height: 10 })
-					}),
-					config: routeConfig
-				},
-				{ height: '3' },
-				{ height: 3 },
-				'transactionWithMetadata'
-			);
+			// Act:
+			return mockServer.callRoute(route, req).then(() => {
+				// Assert:
+				expect(dbTransactionsAtHeightFake.calledOnce).to.equal(true);
+				expect(dbTransactionsAtHeightFake.firstCall.args[1]).to.deep.equal([16724, 16717, 16973]);
+				expect(dbTransactionsAtHeightFake.firstCall.args[2]).to.equal('00123456789AABBBCCDDEEFF');
+				expect(dbTransactionsAtHeightFake.firstCall.args[3]).to.equal(25);
+			});
+		});
 
-			pagingTestsFactory.addDefault();
-			pagingTestsFactory.addNonPagingParamFailureTest('height', '-1');
+		it('returns 409 if invalid height', () => {
+			// Arrange:
+			const req = { params: { height: 'abc' } };
+
+			// Act + Assert:
+			expect(() => mockServer.callRoute(route, req)).to.throw('height has an invalid format');
+		});
+
+		it('returns 409 if invalid pageId', () => {
+			// Arrange:
+			const req = { params: { height: 10, id: '12345' } };
+
+			// Act + Assert:
+			expect(() => mockServer.callRoute(route, req)).to.throw('id is not a valid object id');
+		});
+
+		it('returns 409 if invalid pageSize', () => {
+			// Arrange:
+			const req = { params: { height: '10', id: '00123456789AABBBCCDDEEFF', pageSize: '-1' } };
+
+			// Act + Assert:
+			expect(() => mockServer.callRoute(route, req)).to.throw('pageSize is not a valid unsigned integer');
 		});
 	});
 
