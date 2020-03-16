@@ -6,6 +6,7 @@ Building on Ubuntu 18.04 (LTS)
 Prerequisites
 ---
 
+ * OpenSSL dev library, at least 1.1.1 (libssl-dev)
  * cmake (at least 3.14)
  * git
  * python 3.x

@@ -6,6 +6,7 @@ Building on Windows
 Prerequisites
 ---
 
+ * OpenSSL dev libraries (built for/with MSVC)
  * cmake (at least 3.14)
  * git
  * python 3.x
@@ -200,6 +201,7 @@ cmake -G "Visual Studio 15 2017 Win64" \
     -DBOOST_ROOT=X:\devlibs\2017\boost.bin \
     -DGTEST_ROOT=X:\devlibs\2017\googletest \
     -Dbenchmark_DIR=X:\devlibs\2017\googlebench\lib\cmake\benchmark \
+    -DOPENSSL_ROOT_DIR=X:\devlibs\openssl-1.1.1\x64 \
     -DCMAKE_PREFIX_PATH=X:\devlibs\2017\libmongocxx;X:\devlibs\2017\libmongoc \
     -DZeroMQ_DIR=X:\devlibs\2017\libzmq\CMake \
     -Dcppzmq_DIR=X:\devlibs\2017\cppzmq\share\cmake\cppzmq \
