@@ -4,7 +4,7 @@ summary: Get mosaic information
 description: Gets the mosaic definition for a given mosaic identifier.
 operationId: getMosaic
 parameters:
-  - $ref: "../../../parameters/mosaicId.yml"
+  - $ref: "../../../parameters/path/mosaicId.yml"
 responses:
   "200":
     description: success

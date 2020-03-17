@@ -15,8 +15,8 @@ description: |
   block header (block.transactionsHash) to verify if the transaction was included in the block.
 operationId: getMerkleTransaction
 parameters:
-  - $ref: "../../../parameters/height.yml"
-  - $ref: "../../../parameters/transactionHash.yml"
+  - $ref: "../../../parameters/path/height.yml"
+  - $ref: "../../../parameters/path/transactionHash.yml"
 responses:
   "200":
     description: success

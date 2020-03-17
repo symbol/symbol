@@ -5,11 +5,11 @@ description: |
   Gets an array of aggregate bonded transactions where the account is the sender or requires to cosign the transaction.
 operationId: getAccountPartialTransactions
 parameters:
-  - $ref: "../../../parameters/accountId.yml"
-  - $ref: "../../../parameters/pageSize.yml"
-  - $ref: "../../../parameters/transactionIdLimit.yml"
-  - $ref: "../../../parameters/ordering.yml"
-  - $ref: "../../../parameters/transactionTypes.yml"
+  - $ref: "../../../parameters/path/accountId.yml"
+  - $ref: "../../../parameters/query/pageSize.yml"
+  - $ref: "../../../parameters/query/id.yml"
+  - $ref: "../../../parameters/query/ordering.yml"
+  - $ref: "../../../parameters/query/transactionTypes.yml"
 responses:
   "200":
     description: success

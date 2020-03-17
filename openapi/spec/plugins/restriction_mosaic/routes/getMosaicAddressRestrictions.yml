@@ -4,7 +4,7 @@ summary: Get mosaic address restrictions for a given mosaic and account identifi
 description: Get mosaic address restrictions.
 operationId: getMosaicAddressRestrictions
 parameters:
-  - $ref: "../../../parameters/mosaicId.yml"
+  - $ref: "../../../parameters/path/mosaicId.yml"
 requestBody:
   $ref: "../../../request_bodies/accountIds.yml"
 responses:

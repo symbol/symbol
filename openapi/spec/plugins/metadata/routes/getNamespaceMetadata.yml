@@ -4,10 +4,10 @@ summary: Get namespace metadata
 description: Returns the namespace metadata given a namespace id.
 operationId: getNamespaceMetadata
 parameters:
-  - $ref: "../../../parameters/namespaceId.yml"
-  - $ref: "../../../parameters/pageSize.yml"
-  - $ref: "../../../parameters/metadataIdLimit.yml"
-  - $ref: "../../../parameters/ordering.yml"
+  - $ref: "../../../parameters/path/namespaceId.yml"
+  - $ref: "../../../parameters/query/pageSize.yml"
+  - $ref: "../../../parameters/query/id.yml"
+  - $ref: "../../../parameters/query/ordering.yml"
 responses:
   "200":
     description: success

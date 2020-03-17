@@ -1,5 +1,0 @@
-name: id
-in: query
-description: Transaction identifier up to which transactions are returned.
-schema:
-  type: string

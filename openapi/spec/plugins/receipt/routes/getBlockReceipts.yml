@@ -4,7 +4,7 @@ summary: Get receipts from a block
 description: Returns the receipts linked to a block.
 operationId: getBlockReceipts
 parameters:
-  - $ref: "../../../parameters/height.yml"
+  - $ref: "../../../parameters/path/height.yml"
 responses:
   "200":
     description: success
