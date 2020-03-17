@@ -4,10 +4,10 @@ summary: Get mosaic metadata
 description: Returns the mosaic metadata given a mosaic id.
 operationId: getMosaicMetadata
 parameters:
-  - $ref: "../../../parameters/mosaicId.yml"
-  - $ref: "../../../parameters/pageSize.yml"
-  - $ref: "../../../parameters/metadataIdLimit.yml"
-  - $ref: "../../../parameters/ordering.yml"
+  - $ref: "../../../parameters/path/mosaicId.yml"
+  - $ref: "../../../parameters/query/pageSize.yml"
+  - $ref: "../../../parameters/query/id.yml"
+  - $ref: "../../../parameters/query/ordering.yml"
 responses:
   "200":
     description: success

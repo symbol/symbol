@@ -1,6 +1,6 @@
 name: pageSize
 in: query
-description: Number of transactions to return for each request.
+description: Number of entries to return.
 schema:
   type: integer
   minimum: 10

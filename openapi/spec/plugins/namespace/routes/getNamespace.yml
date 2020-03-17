@@ -4,7 +4,7 @@ summary: Get namespace information
 description: Gets the namespace for a given namespace identifier.
 operationId: getNamespace
 parameters:
-  - $ref: "../../../parameters/namespaceId.yml"
+  - $ref: "../../../parameters/path/namespaceId.yml"
 responses:
   "200":
     description: success

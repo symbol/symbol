@@ -4,7 +4,7 @@ summary: Get block information
 description: Gets a block from the chain that has the given height.
 operationId: getBlockByHeight
 parameters:
-  - $ref: "../../../parameters/height.yml"
+  - $ref: "../../../parameters/path/height.yml"
 responses:
   "200":
     description: success

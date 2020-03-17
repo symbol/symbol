@@ -4,7 +4,7 @@ summary: Get transaction information
 description: Returns transaction information given a transactionId or hash.
 operationId: getTransaction
 parameters:
-  - $ref: "../../../parameters/transactionId.yml"
+  - $ref: "../../../parameters/path/transactionId.yml"
 responses:
   "200":
     description: success
