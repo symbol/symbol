@@ -20,6 +20,7 @@
 
 #include "PacketSocketOptions.h"
 #include "catapult/crypto/CatapultCertificateProcessor.h"
+#include "catapult/exceptions.h"
 #include <boost/asio/ssl.hpp>
 
 namespace catapult { namespace ionet {
@@ -64,6 +65,9 @@ namespace catapult { namespace ionet {
 				| boost::asio::ssl::context::no_tlsv1_1
 				| boost::asio::ssl::context::no_tlsv1_2
 				| SSL_OP_CIPHER_SERVER_PREFERENCE);
+
+		if (!SSL_CTX_set_num_tickets(pSslContext->native_handle(), 0))
+			CATAPULT_THROW_RUNTIME_ERROR("failed to set the number of server tickets");
 
 		pSslContext->use_certificate_chain_file((certificateDirectory / "node.full.crt.pem").generic_string());
 		pSslContext->use_private_key_file((certificateDirectory / "node.key.pem").generic_string(), boost::asio::ssl::context::pem);
