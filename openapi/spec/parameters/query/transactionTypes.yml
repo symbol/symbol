@@ -8,4 +8,4 @@ explode: true
 schema:
   type: array
   items:
-    $ref: "../core/transaction/schemas/TransactionTypeEnum.yml"
+    $ref: "../../core/transaction/schemas/TransactionTypeEnum.yml"

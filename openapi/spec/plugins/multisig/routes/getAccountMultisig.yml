@@ -4,7 +4,7 @@ summary: Get multisig account information
 description: Returns the multisig account information.
 operationId: getAccountMultisig
 parameters:
-  - $ref: "../../../parameters/accountId.yml"
+  - $ref: "../../../parameters/path/accountId.yml"
 responses:
   "200":
     description: success

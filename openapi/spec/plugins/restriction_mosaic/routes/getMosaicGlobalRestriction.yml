@@ -4,7 +4,7 @@ summary: Get mosaic global restriction for a given mosaic identifier.
 description: Get mosaic global restriction.
 operationId: getMosaicGlobalRestriction
 parameters:
-  - $ref: "../../../parameters/mosaicId.yml"
+  - $ref: "../../../parameters/path/mosaicId.yml"
 responses:
   "200":
     description: success

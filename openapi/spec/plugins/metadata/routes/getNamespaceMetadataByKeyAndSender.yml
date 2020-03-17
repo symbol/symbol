@@ -4,9 +4,9 @@ summary: Get namespace metadata
 description: Returns the namespace metadata given a namespace id, a key, and a sender.
 operationId: getNamespaceMetadataByKeyAndSender
 parameters:
-  - $ref: "../../../parameters/namespaceId.yml"
-  - $ref: "../../../parameters/metadataKey.yml"
-  - $ref: "../../../parameters/publicKey.yml"
+  - $ref: "../../../parameters/path/namespaceId.yml"
+  - $ref: "../../../parameters/path/metadataKey.yml"
+  - $ref: "../../../parameters/path/publicKey.yml"
 responses:
   "200":
     description: success

@@ -4,10 +4,10 @@ summary: Get transactions from a block
 description: Returns an array of transactions included in a block for a given block height.
 operationId: getBlockTransactions
 parameters:
-  - $ref: "../../../parameters/height.yml"
-  - $ref: "../../../parameters/pageSize.yml"
-  - $ref: "../../../parameters/transactionIdLimit.yml"
-  - $ref: "../../../parameters/ordering.yml"
+  - $ref: "../../../parameters/path/height.yml"
+  - $ref: "../../../parameters/query/pageSize.yml"
+  - $ref: "../../../parameters/query/id.yml"
+  - $ref: "../../../parameters/query/ordering.yml"
 responses:
   "200":
     description: success

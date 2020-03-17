@@ -4,8 +4,8 @@ summary: Get blocks information
 description: Gets up to limit number of blocks after given block height.
 operationId: getBlocksByHeightWithLimit
 parameters:
-  - $ref: "../../../parameters/height.yml"
-  - $ref: "../../../parameters/limit.yml"
+  - $ref: "../../../parameters/path/height.yml"
+  - $ref: "../../../parameters/path/limit.yml"
 responses:
   "200":
     description: success

@@ -4,8 +4,8 @@ summary: Get mosaic metadata
 description: Returns the mosaic metadata given a mosaic id and a key.
 operationId: getMosaicMetadataByKey
 parameters:
-  - $ref: "../../../parameters/mosaicId.yml"
-  - $ref: "../../../parameters/metadataKey.yml"
+  - $ref: "../../../parameters/path/mosaicId.yml"
+  - $ref: "../../../parameters/path/metadataKey.yml"
 responses:
   "200":
     description: success

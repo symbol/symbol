@@ -1,32 +1,30 @@
+# path
 accountId:
-  $ref: './accountId.yml'
+  $ref: './path/accountId.yml'
 height:
-  $ref: './height.yml'
+  $ref: './path/height.yml'
 limit:
-  $ref: './limit.yml'
-metadataIdLimit:
-  $ref: './metadataIdLimit.yml'
+  $ref: './path/limit.yml'
 metadataKey:
-  $ref: './metadataKey.yml'
+  $ref: './path/metadataKey.yml'
 mosaicId:
-  $ref: './mosaicId.yml'
+  $ref: './path/mosaicId.yml'
 namespaceId:
-  $ref: './namespaceId.yml'
-namespaceIdLimit:
-  $ref: './namespaceIdLimit.yml'
-ordering:
-  $ref: './ordering.yml'
-pageSize:
-  $ref: './pageSize.yml'
+  $ref: './path/namespaceId.yml'
 publicKey:
-  $ref: './publicKey.yml'
+  $ref: './path/publicKey.yml'
 receiptHash:
-  $ref: './receiptHash.yml'
+  $ref: './path/receiptHash.yml'
 transactionHash:
-  $ref: './transactionHash.yml'
+  $ref: './path/transactionHash.yml'
 transactionId:
-  $ref: './transactionId.yml'
-transactionIdLimit:
-  $ref: './transactionIdLimit.yml'
+  $ref: './path/transactionId.yml'
+# query
+id:
+  $ref: './query/id.yml'
+ordering:
+  $ref: './query/ordering.yml'
+pageSize:
+  $ref: './query/pageSize.yml'
 transactionType:
-  $ref: './transactionTypes.yml'
+  $ref: './query/transactionTypes.yml'

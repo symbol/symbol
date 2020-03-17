@@ -4,11 +4,11 @@ summary: Get confirmed transactions
 description: Gets an array of transactions for which an account is the sender or receiver.
 operationId: getAccountConfirmedTransactions
 parameters:
-  - $ref: "../../../parameters/accountId.yml"
-  - $ref: "../../../parameters/pageSize.yml"
-  - $ref: "../../../parameters/transactionIdLimit.yml"
-  - $ref: "../../../parameters/ordering.yml"
-  - $ref: "../../../parameters/transactionTypes.yml"
+  - $ref: "../../../parameters/path/accountId.yml"
+  - $ref: "../../../parameters/query/pageSize.yml"
+  - $ref: "../../../parameters/query/id.yml"
+  - $ref: "../../../parameters/query/ordering.yml"
+  - $ref: "../../../parameters/query/transactionTypes.yml"
 responses:
   "200":
     description: success

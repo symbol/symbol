@@ -4,7 +4,7 @@ summary: Get mosaics created by an account
 description: Gets an array of mosaics created for a given account address.
 operationId: getMosaicsFromAccount
 parameters:
-  - $ref: "../../../parameters/accountId.yml"
+  - $ref: "../../../parameters/path/accountId.yml"
 responses:
   "200":
     description: success

@@ -3,5 +3,5 @@ in: path
 description: Mosaic identifier.
 required: true
 schema:
-  $ref: "../schemas/MosaicId.yml"
+  $ref: "../../schemas/MosaicId.yml"
 

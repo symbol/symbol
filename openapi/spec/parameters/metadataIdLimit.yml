@@ -1,5 +1,0 @@
-name: id
-in: query
-description: Metadata identifier up to which metadata are returned.
-schema:
-  type: string
