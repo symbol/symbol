@@ -29,6 +29,11 @@ rules:
   - error
   - code: 140
 
+  max-classes-per-file:
+  - off
+  prefer-object-spread:
+  - off
+
   nonblock-statement-body-position:
   - error
   - below

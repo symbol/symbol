@@ -19,9 +19,9 @@
  */
 
 const { test } = require('./utils/routeTestUtils');
+const { MockServer } = require('./utils/routeTestUtils');
 const AccountType = require('../../src/plugins/AccountType');
 const accountRoutes = require('../../src/routes/accountRoutes');
-const { MockServer } = require('../../test/routes/utils/routeTestUtils');
 const catapult = require('catapult-sdk');
 const { expect } = require('chai');
 const MongoDb = require('mongodb');
