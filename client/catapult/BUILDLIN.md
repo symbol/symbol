@@ -125,7 +125,7 @@ rocks
 ```sh
 git clone https://github.com/nemtech/rocksdb.git rocksdb.git
 cd rocksdb.git
-git checkout v6.2.4-nem
+git checkout v6.6.4-nem
 
 mkdir _build && cd _build
 cmake -DCMAKE_BUILD_TYPE=Release -DWITH_TESTS=OFF -DCMAKE_INSTALL_PREFIX=/usr/local ..

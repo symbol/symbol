@@ -161,7 +161,7 @@ rocks
 ```bat
 git clone https://github.com/nemtech/rocksdb.git rocksdb.git
 cd rocksdb.git
-git checkout v6.2.4-nem
+git checkout v6.6.4-nem
 ```
 
 edit `thirdparty.inc`
