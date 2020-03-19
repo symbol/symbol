@@ -7,7 +7,7 @@ Catapult REST gateway combines HTTP and WebSockets to perform read and write act
 
 ## Requirements
 
-- NodeJS version 8 or 9
+- NodeJS version 12
 - [yarn][yarn] dependency manager
 - [catapult-server][catapult-server] configured as an [API node][api-node].
 

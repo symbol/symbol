@@ -62,17 +62,7 @@ module.exports = {
 				.then(connection => connection.pushPull(packetBuffer, services.config.apiNode.timeout))
 				.then(packet => parseNodeInfoPacket(packet));
 
-			const allSettled = promises => {
-				const wrappedPromises = promises.map(p => Promise.resolve(p)
-					.then(
-						val => ({ status: 'fulfilled', value: val }),
-						err => ({ status: 'rejected', reason: err })
-					));
-				return Promise.all(wrappedPromises);
-			};
-
-			// Promise.allSettled() is officially supported from Node.js 12.9.0
-			return allSettled([dbStatusPromise, apiNodeStatusPromise])
+			return Promise.allSettled([dbStatusPromise, apiNodeStatusPromise])
 				.then(results => {
 					const statusCode = results.some(result => 'fulfilled' !== result.status) ? 503 : 200;
 					const checkResult = result => ('fulfilled' === result.status ? ServiceStatus.up : ServiceStatus.down);
