@@ -3,6 +3,11 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.9.3.2] - 19-March-2020
+
+### Changed
+ - rocks upgraded to v6.6.4
+
 ## [0.9.3.1] - 05-March-2020
 
 ### Added
@@ -212,6 +217,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Added
 - Initial code release.
 
+[0.9.3.2]: https://github.com/nemtech/catapult-server/compare/v0.9.3.1...v0.9.3.2
 [0.9.3.1]: https://github.com/nemtech/catapult-server/compare/v0.9.2.1...v0.9.3.1
 [0.9.2.1]: https://github.com/nemtech/catapult-server/compare/v0.9.1.1...v0.9.2.1
 [0.9.1.1]: https://github.com/nemtech/catapult-server/compare/v0.9.0.1...v0.9.1.1
