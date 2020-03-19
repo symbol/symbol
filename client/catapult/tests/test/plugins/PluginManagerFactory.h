@@ -38,8 +38,6 @@ namespace catapult { namespace test {
 	/// Creates a plugin manager around \a config.
 	inline plugins::PluginManager CreatePluginManager(const model::BlockChainConfiguration& config) {
 		auto userConfig = config::UserConfiguration::Uninitialized();
-		userConfig.BootPrivateKey = ToString(Key());
-
 		return CreatePluginManager(config, userConfig);
 	}
 

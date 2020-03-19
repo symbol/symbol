@@ -123,7 +123,7 @@ namespace catapult { namespace local {
 		template<typename THandler>
 		void RunExternalConnectionTest(unsigned short port, THandler handler) {
 			// Arrange: boot a local node and wait for the node to connect to the peer
-			TestContext context(NodeFlag::With_Partner, { test::CreateLocalPartnerNode() });
+			TestContext context(NodeFlag::With_Partner, {});
 			context.waitForNumActiveWriters(1);
 
 			// Act: create an external connection to the node
@@ -160,7 +160,7 @@ namespace catapult { namespace local {
 
 	TEST(TEST_CLASS, CanShutdownLocalNodeWithExternalConnections) {
 		// Arrange: boot a local node and wait for the node to connect to the peer
-		TestContext context(NodeFlag::With_Partner, { test::CreateLocalPartnerNode() });
+		TestContext context(NodeFlag::With_Partner, {});
 		context.waitForNumActiveWriters(1);
 
 		// Act: create external connections to the node

@@ -28,11 +28,12 @@
 #include <thread>
 
 namespace catapult {
-	namespace crypto { class KeyPair; }
 	namespace ionet {
 		class PacketIo;
 		class PacketSocket;
+		class PacketSocketInfo;
 	}
+	namespace net { struct ConnectionSettings; }
 	namespace thread { class IoThreadPool; }
 }
 
@@ -65,6 +66,13 @@ namespace catapult { namespace test {
 		/// Gets a strand that should be used when calling the acceptor.
 		boost::asio::io_context::strand& strand() const;
 
+		/// Returns \c true if the underlying acceptor is stopped.
+		bool isStopped() const;
+
+	public:
+		/// Stops and closes the acceptor.
+		void stop();
+
 	private:
 		class Impl;
 		std::shared_ptr<Impl> m_pImpl;
@@ -86,8 +94,23 @@ namespace catapult { namespace test {
 	/// Creates a local host endpoint with the specified \a port.
 	boost::asio::ip::tcp::endpoint CreateLocalHostEndpoint(unsigned short port);
 
+	/// Creates a default PacketSocketSslOptions.
+	ionet::PacketSocketSslOptions CreatePacketSocketSslOptions();
+
+	/// Creates a PacketSocketSslOptions with specified \a publicKey.
+	ionet::PacketSocketSslOptions CreatePacketSocketSslOptions(const Key& publicKey);
+
 	/// Creates a default PacketSocketOptions.
 	ionet::PacketSocketOptions CreatePacketSocketOptions();
+
+	/// Creates a PacketSocketOptions with specified \a publicKey.
+	ionet::PacketSocketOptions CreatePacketSocketOptions(const Key& publicKey);
+
+	/// Creates a default ConnectionSettings.
+	net::ConnectionSettings CreateConnectionSettings();
+
+	/// Creates a ConnectionSettings with specified \a publicKey.
+	net::ConnectionSettings CreateConnectionSettings(const Key& publicKey);
 
 	/// Creates an implicitly closed local host acceptor around \a service.
 	/// \note This acceptor can only be used in tests where it is implicitly closed by stopping \a ioContext.
@@ -119,8 +142,17 @@ namespace catapult { namespace test {
 
 	// region packet socket utils
 
+	/// Creates a packet socket info around \a pPacketSocket.
+	ionet::PacketSocketInfo CreatePacketSocketInfo(const std::shared_ptr<ionet::PacketSocket>& pPacketSocket);
+
 	/// Gets a value indicating whether or not \a socket is open.
 	bool IsSocketOpen(ionet::PacketSocket& socket);
+
+	/// Waits for \a socket to be closed.
+	void WaitForClosedSocket(ionet::PacketSocket& socket);
+
+	/// Asserts that \a socketInfo is empty and does not contain an active connection.
+	void AssertEmpty(const ionet::PacketSocketInfo& socketInfo);
 
 	// endregion
 

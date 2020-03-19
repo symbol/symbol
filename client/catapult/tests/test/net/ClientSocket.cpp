@@ -20,7 +20,9 @@
 
 #include "ClientSocket.h"
 #include "SocketTestUtils.h"
+#include "catapult/thread/StrandOwnerLifetimeExtender.h"
 #include "catapult/exceptions.h"
+#include <boost/asio/ssl.hpp>
 #include <boost/asio/steady_timer.hpp>
 
 namespace catapult { namespace test {
@@ -35,18 +37,95 @@ namespace catapult { namespace test {
 			promise.set_exception(std::make_exception_ptr(boost::system::system_error(ec)));
 		}
 
-		struct DefaultClientSocket : public ClientSocket, public std::enable_shared_from_this<DefaultClientSocket> {
+		class SocketGuard : public std::enable_shared_from_this<SocketGuard>{
+		public:
+			explicit SocketGuard(boost::asio::io_context& ioContext)
+					: m_strand(ioContext)
+					, m_strandWrapper(m_strand)
+					, m_socket(ioContext, CreatePacketSocketSslOptions().ContextSupplier())
+					, m_sentinelByte(0) {
+				m_isClosed.clear();
+			}
+
+		public:
+			auto& get() {
+				return m_socket;
+			}
+
+		public:
+			void close() {
+				closeOnce([this]() {
+					CATAPULT_LOG(debug) << "closing client socket via close";
+					post([this](auto& socket) {
+						socket.async_shutdown(wrap([](const auto& ec) {
+							CATAPULT_LOG(debug) << "async_shutdown completed " << ec.message();
+						}));
+					});
+
+					post([this](auto& socket) {
+						auto asioBuffer = boost::asio::buffer(&m_sentinelByte, 1);
+						boost::asio::async_write(socket, asioBuffer, wrap([this](const auto& ec, auto) {
+							CATAPULT_LOG(debug) << "async_write completed " << ec.message();
+							closeInternal();
+						}));
+					});
+				});
+			}
+
+			void abort() {
+				closeOnce([this]() {
+					CATAPULT_LOG(debug) << "closing client socket via abort";
+					closeInternal();
+				});
+			}
+
+		private:
+			void closeInternal() {
+				boost::system::error_code ignoredEc;
+				m_socket.lowest_layer().close(ignoredEc);
+			}
+
+			template<typename THandler>
+			void closeOnce(THandler handler) {
+				if (m_isClosed.test_and_set())
+					return;
+
+				handler();
+			}
+
+		private:
+			template<typename THandler>
+			auto wrap(THandler handler) {
+				// when BasicPacketSocket calls wrap, the returned callback needs to extend the lifetime of this object
+				return m_strandWrapper.wrap(shared_from_this(), handler);
+			}
+
+			template<typename THandler>
+			void post(THandler handler) {
+				// ensure all handlers extend the lifetime of this object and post to a strand
+				return m_strandWrapper.post(shared_from_this(), [handler](const auto& pThis) {
+					handler(pThis->m_socket);
+				});
+			}
+
+		private:
+			boost::asio::io_context::strand m_strand;
+			thread::StrandOwnerLifetimeExtender<SocketGuard> m_strandWrapper;
+			ionet::Socket m_socket;
+			uint8_t m_sentinelByte;
+			std::atomic_flag m_isClosed;
+		};
+
+		class DefaultClientSocket : public ClientSocket, public std::enable_shared_from_this<DefaultClientSocket> {
 		public:
 			explicit DefaultClientSocket(boost::asio::io_context& ioContext)
-					: m_socket(ioContext)
+					: m_pSocketGuard(std::make_shared<SocketGuard>(ioContext))
+					, m_socket(m_pSocketGuard->get())
 					, m_timer(ioContext)
 			{}
 
 			~DefaultClientSocket() override {
-				CATAPULT_LOG(debug) << "closing client socket";
-				boost::system::error_code ec;
-				m_socket.close(ec);
-				CATAPULT_LOG(debug) << "client socket closed: " << ec.message();
+				shutdown();
 			}
 
 		public:
@@ -61,19 +140,30 @@ namespace catapult { namespace test {
 				// connect to the local host
 				auto endpoint = CreateLocalHostEndpoint(port);
 				CATAPULT_LOG(debug) << "attempting client socket connection to " << endpoint;
-				m_socket.async_connect(endpoint, [pThis = shared_from_this(), options, pPromise](const auto& ec) {
+				m_socket.lowest_layer().async_connect(endpoint, [pThis = shared_from_this(), options, pPromise](const auto& ec) {
 					CATAPULT_LOG(debug) << "client socket connected " << ToMessage(ec);
 					if (ec)
 						return SetPromiseException(*pPromise, ec);
 
 					if (ConnectOptions::Abort == options) {
 						CATAPULT_LOG(debug) << "aborting client socket connection";
-						pThis->m_socket.set_option(boost::asio::socket_base::linger(true, 0));
-						pThis->m_socket.close();
+						pThis->m_socket.lowest_layer().set_option(boost::asio::socket_base::linger(true, 0));
+						pThis->m_socket.lowest_layer().close();
 						CATAPULT_LOG(debug) << "aborted client socket connection";
 					}
 
-					pPromise->set_value(pThis.get());
+					if (ConnectOptions::Skip_Handshake == options) {
+						CATAPULT_LOG(debug) << "skipping client socket handshake";
+						pPromise->set_value(pThis.get());
+						return;
+					}
+
+					pThis->m_socket.async_handshake(ionet::Socket::client, [pThis, pPromise](const auto& handshakeEc) {
+						if (handshakeEc)
+							return SetPromiseException(*pPromise, handshakeEc);
+
+						pPromise->set_value(pThis.get());
+					});
 				});
 
 				return future;
@@ -175,13 +265,16 @@ namespace catapult { namespace test {
 			}
 
 			void shutdown() override {
-				CATAPULT_LOG(debug) << "shutting down client socket";
-				m_socket.shutdown(ionet::socket::shutdown_both);
-				m_socket.close();
+				m_pSocketGuard->close();
+			}
+
+			void abort() override {
+				m_pSocketGuard->abort();
 			}
 
 		private:
-			ionet::socket m_socket;
+			std::shared_ptr<SocketGuard> m_pSocketGuard;
+			ionet::Socket& m_socket;
 			boost::asio::steady_timer m_timer;
 		};
 	}
@@ -190,19 +283,27 @@ namespace catapult { namespace test {
 		return std::make_shared<DefaultClientSocket>(ioContext);
 	}
 
-	void AddClientConnectionTask(boost::asio::io_context& ioContext) {
-		CreateClientSocket(ioContext)->connect();
+	std::shared_ptr<ClientSocket> AddClientConnectionTask(boost::asio::io_context& ioContext) {
+		auto pClientSocket = CreateClientSocket(ioContext);
+		pClientSocket->connect();
+		return pClientSocket;
 	}
 
-	void AddClientReadBufferTask(boost::asio::io_context& ioContext, ionet::ByteBuffer& receiveBuffer) {
-		CreateClientSocket(ioContext)->connect().then([&receiveBuffer](auto&& socketFuture) {
+	std::shared_ptr<ClientSocket> AddClientReadBufferTask(boost::asio::io_context& ioContext, ionet::ByteBuffer& receiveBuffer) {
+		auto pClientSocket = CreateClientSocket(ioContext);
+		pClientSocket->connect().then([&receiveBuffer](auto&& socketFuture) {
 			socketFuture.get()->read(receiveBuffer);
 		});
+		return pClientSocket;
 	}
 
-	void AddClientWriteBuffersTask(boost::asio::io_context& ioContext, const std::vector<ionet::ByteBuffer>& sendBuffers) {
-		CreateClientSocket(ioContext)->connect().then([sendBuffers](auto&& socketFuture) {
+	std::shared_ptr<ClientSocket> AddClientWriteBuffersTask(
+			boost::asio::io_context& ioContext,
+			const std::vector<ionet::ByteBuffer>& sendBuffers) {
+		auto pClientSocket = CreateClientSocket(ioContext);
+		pClientSocket->connect().then([sendBuffers](auto&& socketFuture) {
 			socketFuture.get()->write(sendBuffers);
 		});
+		return pClientSocket;
 	}
 }}

@@ -19,23 +19,24 @@
 **/
 
 #pragma once
-#include "ConnectionSecurityMode.h"
 #include "catapult/types.h"
 
-namespace catapult {
-	namespace crypto { class KeyPair; }
-	namespace ionet { class PacketSocket; }
-	namespace utils { class FileSize; }
-}
+struct x509_st;
 
-namespace catapult { namespace ionet {
+namespace catapult { namespace crypto {
 
-	/// Secures a packet socket (\a pSocket) to conform with \a securityMode for a connection from \a sourceKeyPair to \a remoteKey
-	/// allowing a specified max packet data size (\a maxPacketDataSize).
-	std::shared_ptr<PacketSocket> AddSecureSigned(
-			const std::shared_ptr<PacketSocket>& pSocket,
-			ConnectionSecurityMode securityMode,
-			const crypto::KeyPair& sourceKeyPair,
-			const Key& remoteKey,
-			utils::FileSize maxPacketDataSize);
+	/// Information about a certificate.
+	struct CertificateInfo {
+		/// Certificate subject.
+		std::string Subject;
+
+		/// Certificate public key.
+		Key PublicKey;
+	};
+
+	/// Tries to extract information about \a certificate into \a certificateInfo.
+	bool TryParseCertificate(const x509_st& certificate, CertificateInfo& certificateInfo);
+
+	/// Returns \c true if self-signed \a certificate signature is correct.
+	bool VerifySelfSigned(x509_st& certificate);
 }}

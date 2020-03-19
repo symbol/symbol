@@ -26,9 +26,6 @@
 namespace catapult { namespace tools {
 
 	namespace {
-		// a nemesis recipient account
-		constexpr auto Mijin_Test_Private_Key = "8473645728B15F007385CE2889D198D26369D2806DCDED4A9B219FD0DE23A505";
-
 		void NextKey(Key& key) {
 			Hash256 hash;
 			crypto::Sha3_256(key, hash);
@@ -46,10 +43,6 @@ namespace catapult { namespace tools {
 		}
 	}
 
-	crypto::KeyPair LoadServerKeyPair() {
-		return crypto::KeyPair::FromString(Mijin_Test_Private_Key);
-	}
-
 	crypto::KeyPair GenerateRandomKeyPair() {
 		return crypto::KeyPair::FromPrivate(crypto::PrivateKey::Generate(RandomByte));
 	}
@@ -62,10 +55,6 @@ namespace catapult { namespace tools {
 	crypto::KeyPair CopyKeyPair(const crypto::KeyPair& keyPair) {
 		auto iter = keyPair.privateKey().begin();
 		return crypto::KeyPair::FromPrivate(crypto::PrivateKey::Generate([&iter]() { return *iter++; }));
-	}
-
-	crypto::KeyPair ExtractKeyPair(const std::string& privateKey) {
-		return privateKey.empty() ? GenerateRandomKeyPair() : crypto::KeyPair::FromString(privateKey);
 	}
 
 	std::vector<Address> PrepareAddresses(size_t count) {

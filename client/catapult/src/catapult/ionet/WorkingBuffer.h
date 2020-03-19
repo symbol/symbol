@@ -59,6 +59,9 @@ namespace catapult { namespace ionet {
 		}
 
 	public:
+		/// Appends \a byte to the end of the working buffer.
+		void append(uint8_t byte);
+
 		/// Creates an append context that can be used to append data to the working buffer.
 		AppendContext prepareAppend();
 

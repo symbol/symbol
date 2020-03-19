@@ -29,6 +29,10 @@ namespace catapult { namespace ionet {
 		m_data.reserve(m_options.WorkingBufferSize);
 	}
 
+	void WorkingBuffer::append(uint8_t byte) {
+		m_data.push_back(byte);
+	}
+
 	AppendContext WorkingBuffer::prepareAppend() {
 		AppendContext appendContext(m_data, m_options.WorkingBufferSize);
 		checkMemoryUsage();

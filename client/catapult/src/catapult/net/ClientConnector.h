@@ -25,8 +25,10 @@
 #include <memory>
 
 namespace catapult {
-	namespace crypto { class KeyPair; }
-	namespace ionet { class PacketSocket; }
+	namespace ionet {
+		class PacketSocket;
+		class PacketSocketInfo;
+	}
 	namespace thread { class IoThreadPool; }
 }
 
@@ -49,18 +51,18 @@ namespace catapult { namespace net {
 		virtual const std::string& name() const = 0;
 
 	public:
-		/// Accepts a connection represented by \a pAcceptedSocket and calls \a callback on completion.
-		virtual void accept(const std::shared_ptr<ionet::PacketSocket>& pAcceptedSocket, const AcceptCallback& callback) = 0;
+		/// Accepts a connection represented by \a acceptedSocketInfo and calls \a callback on completion.
+		virtual void accept(const ionet::PacketSocketInfo& acceptedSocketInfo, const AcceptCallback& callback) = 0;
 
 		/// Shuts down all connections.
 		virtual void shutdown() = 0;
 	};
 
-	/// Creates a client connector for a server with a key pair of \a keyPair using \a pPool and configured with \a settings.
+	/// Creates a client connector for a server with specified \a serverPublicKey using \a pPool and configured with \a settings.
 	/// Optional friendly \a name can be provided to tag logs.
 	std::shared_ptr<ClientConnector> CreateClientConnector(
 			const std::shared_ptr<thread::IoThreadPool>& pPool,
-			const crypto::KeyPair& keyPair,
+			const Key& serverPublicKey,
 			const ConnectionSettings& settings,
 			const char* name = nullptr);
 }}

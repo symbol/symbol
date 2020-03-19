@@ -37,9 +37,11 @@ namespace catapult { namespace harvesting {
 		}
 	}
 
-	std::pair<crypto::PrivateKey, bool> TryDecryptUnlockedEntry(const RawBuffer& encryptedWithKey, const crypto::KeyPair& bootKeyPair) {
+	std::pair<crypto::PrivateKey, bool> TryDecryptUnlockedEntry(
+			const RawBuffer& encryptedWithKey,
+			const crypto::KeyPair& encryptionKeyPair) {
 		std::vector<uint8_t> decrypted;
-		if (!crypto::TryDecryptEd25199BlockCipher(encryptedWithKey, bootKeyPair, decrypted) || Key::Size != decrypted.size())
+		if (!crypto::TryDecryptEd25199BlockCipher(encryptedWithKey, encryptionKeyPair, decrypted) || Key::Size != decrypted.size())
 			return std::make_pair(crypto::PrivateKey(), false);
 
 		return std::make_pair(crypto::PrivateKey::Generate([iter = decrypted.begin()]() mutable { return *iter++; }), true);
@@ -47,10 +49,10 @@ namespace catapult { namespace harvesting {
 
 	void UnlockedFileQueueConsumer(
 			const config::CatapultDirectory& directory,
-			const crypto::KeyPair& bootKeyPair,
+			const crypto::KeyPair& encryptionKeyPair,
 			const consumer<const UnlockedEntryMessage&, crypto::KeyPair&&>& processEntryKeyPair) {
 		io::FileQueueReader reader(directory.str());
-		auto appendMessage = [&bootKeyPair, &processEntryKeyPair](const std::vector<uint8_t>& buffer) {
+		auto appendMessage = [&encryptionKeyPair, &processEntryKeyPair](const std::vector<uint8_t>& buffer) {
 			// filter out invalid messages
 			if (1 + EncryptedUnlockedEntrySize() != buffer.size()) {
 				CATAPULT_LOG(warning) << "rejecting buffer with wrong size: " << buffer.size();
@@ -58,7 +60,7 @@ namespace catapult { namespace harvesting {
 			}
 
 			auto unlockedEntryMessage = DeserializeUnlockedEntryMessage(buffer);
-			auto decryptedPair = TryDecryptUnlockedEntry(unlockedEntryMessage.EncryptedEntry, bootKeyPair);
+			auto decryptedPair = TryDecryptUnlockedEntry(unlockedEntryMessage.EncryptedEntry, encryptionKeyPair);
 			if (!decryptedPair.second) {
 				CATAPULT_LOG(warning) << "rejecting buffer that could not be decrypted";
 				return;

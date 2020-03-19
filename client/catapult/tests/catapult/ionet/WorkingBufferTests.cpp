@@ -75,6 +75,38 @@ namespace catapult { namespace ionet {
 
 	// endregion
 
+	// region append
+
+	TEST(TEST_CLASS, AppendCanAppendSingleByteToWorkingBuffer) {
+		// Arrange:
+		auto buffer = CreateWorkingBuffer();
+
+		// Act:
+		buffer.append(0x4E);
+
+		// Assert:
+		EXPECT_EQ(1u, buffer.size());
+		EXPECT_EQ(Default_Capacity, buffer.capacity());
+		AssertEqual(std::vector<uint8_t>{ 0x4E }, buffer);
+	}
+
+	TEST(TEST_CLASS, AppendCanAppendMultipleBytesToWorkingBuffer) {
+		// Arrange:
+		auto buffer = CreateWorkingBuffer();
+
+		// Act:
+		buffer.append(0x4E);
+		buffer.append(0x45);
+		buffer.append(0x4D);
+
+		// Assert:
+		EXPECT_EQ(3u, buffer.size());
+		EXPECT_EQ(Default_Capacity, buffer.capacity());
+		AssertEqual(std::vector<uint8_t>{ 0x4E, 0x45, 0x4D }, buffer);
+	}
+
+	// endregion
+
 	// region prepareAppend
 
 	TEST(TEST_CLASS, CanAppendDataToWorkingBuffer) {

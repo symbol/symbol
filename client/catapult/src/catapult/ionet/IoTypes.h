@@ -23,9 +23,20 @@
 #include <vector>
 #include <stdint.h>
 
+namespace boost {
+	namespace asio {
+		namespace ssl {
+			template<typename NextLayer>
+			class stream;
+		}
+	}
+}
+
 namespace catapult { namespace ionet {
 
 	using ByteBuffer = std::vector<uint8_t>;
 
-	using socket = boost::asio::ip::tcp::socket;
+	using NetworkSocket = boost::asio::ip::tcp::socket;
+
+	using Socket = boost::asio::ssl::stream<boost::asio::ip::tcp::socket>;
 }}

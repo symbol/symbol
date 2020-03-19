@@ -52,15 +52,13 @@ namespace catapult { namespace test {
 
 			// - check nodes
 			EXPECT_EQ(1u, nodes.size());
-			auto expectedContents = BasicNodeDataContainer{ { LoadServerKeyPair().publicKey(), "LOCAL", ionet::NodeSource::Local } };
+			auto expectedContents = BasicNodeDataContainer{ { context.publicKey(), "LOCAL", ionet::NodeSource::Local } };
 			EXPECT_EQ(expectedContents, CollectAll(nodes));
 		}
 
 		static void AssertCanBootLocalNodeWithPeers() {
 			// Act: create the node with custom peers
-			TestContext context(NodeFlag::Custom_Peers | NodeFlag::With_Partner, {
-				CreateLocalPartnerNode()
-			});
+			TestContext context(NodeFlag::Custom_Peers | NodeFlag::With_Partner, {});
 
 			context.waitForNumActiveWriters(1);
 			auto stats = context.stats();
@@ -74,8 +72,8 @@ namespace catapult { namespace test {
 			// - check nodes
 			EXPECT_EQ(2u, nodes.size());
 			auto expectedContents = BasicNodeDataContainer{
-				{ LoadServerKeyPair().publicKey(), "LOCAL", ionet::NodeSource::Local },
-				{ CreateLocalPartnerNode().identity().PublicKey, "PARTNER", ionet::NodeSource::Static }
+				{ context.publicKey(), "LOCAL", ionet::NodeSource::Local },
+				{ context.partnerPublicKey(), "PARTNER", ionet::NodeSource::Static }
 			};
 			EXPECT_EQ(expectedContents, CollectAll(nodes));
 		}

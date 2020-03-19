@@ -89,11 +89,7 @@ namespace catapult { namespace local {
 			// 2. specify custom network settings
 			UpdateBlockChainConfiguration(const_cast<model::BlockChainConfiguration&>(config.BlockChain));
 
-			// 3. give each node its own key
-			auto& userConfig = const_cast<config::UserConfiguration&>(config.User);
-			userConfig.BootPrivateKey = test::Mijin_Test_Private_Keys[id];
-
-			// 4. ensure configuration is valid
+			// 3. ensure configuration is valid
 			ValidateConfiguration(config);
 		}
 
@@ -327,8 +323,10 @@ namespace catapult { namespace local {
 				auto postfix = "_" + std::to_string(i);
 				contexts.push_back(std::make_unique<NodeTestContext>(nodeFlag, peers, configTransform, postfix));
 
+				auto& context = *contexts.back();
+				context.regenerateCertificates(crypto::KeyPair::FromString(test::Mijin_Test_Private_Keys[i]));
+
 				// - (re)schedule a few tasks and boot the node
-				auto& context = *contexts[i];
 				RescheduleTasks(context.resourcesDirectory());
 				context.boot();
 

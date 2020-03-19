@@ -75,9 +75,6 @@ namespace catapult { namespace config {
 		LOAD_NODE_PROPERTY(EnableDispatcherAbortWhenFull);
 		LOAD_NODE_PROPERTY(EnableDispatcherInputAuditing);
 
-		LOAD_NODE_PROPERTY(OutgoingSecurityMode);
-		LOAD_NODE_PROPERTY(IncomingSecurityModes);
-
 		LOAD_NODE_PROPERTY(MaxCacheDatabaseWriteBatchSize);
 		LOAD_NODE_PROPERTY(MaxTrackedNodes);
 
@@ -129,7 +126,7 @@ namespace catapult { namespace config {
 
 #undef LOAD_BANNING_PROPERTY
 
-		utils::VerifyBagSizeLte(bag, 37 + 4 + 4 + 5 + 7);
+		utils::VerifyBagSizeLte(bag, 35 + 4 + 4 + 5 + 7);
 		return config;
 	}
 

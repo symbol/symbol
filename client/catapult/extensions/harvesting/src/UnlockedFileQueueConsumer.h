@@ -31,12 +31,15 @@ namespace catapult {
 
 namespace catapult { namespace harvesting {
 
-	/// Decrypts \a encryptedWithKey using \a bootKeyPair.
-	std::pair<crypto::PrivateKey, bool> TryDecryptUnlockedEntry(const RawBuffer& encryptedWithKey, const crypto::KeyPair& bootKeyPair);
+	/// Decrypts \a encryptedWithKey using \a encryptionKeyPair.
+	std::pair<crypto::PrivateKey, bool> TryDecryptUnlockedEntry(
+			const RawBuffer& encryptedWithKey,
+			const crypto::KeyPair& encryptionKeyPair);
 
-	/// Reads encrypted unlocked entry messages from \a directory, validates using \a bootKeyPair and forwards to \a processEntryKeyPair.
+	/// Reads encrypted unlocked entry messages from \a directory, validates using \a encryptionKeyPair
+	/// and forwards to \a processEntryKeyPair.
 	void UnlockedFileQueueConsumer(
 			const config::CatapultDirectory& directory,
-			const crypto::KeyPair& bootKeyPair,
+			const crypto::KeyPair& encryptionKeyPair,
 			const consumer<const UnlockedEntryMessage&, crypto::KeyPair&&>& processEntryKeyPair);
 }}

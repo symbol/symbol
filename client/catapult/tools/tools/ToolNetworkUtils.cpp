@@ -39,16 +39,19 @@ namespace catapult { namespace tools {
 	}
 
 	PacketIoFuture ConnectToLocalNode(
-			const crypto::KeyPair& clientKeyPair,
+			const std::string& certificateDirectory,
 			const Key& serverPublicKey,
 			const std::shared_ptr<thread::IoThreadPool>& pPool) {
-		return ConnectToNode(clientKeyPair, CreateLocalNode(serverPublicKey), pPool);
+		return ConnectToNode(certificateDirectory, CreateLocalNode(serverPublicKey), pPool);
 	}
 
-	net::ConnectionSettings CreateToolConnectionSettings() {
+	net::ConnectionSettings CreateToolConnectionSettings(const std::string& certificateDirectory) {
 		auto settings = net::ConnectionSettings();
 		settings.NetworkIdentifier = model::NetworkIdentifier::Mijin_Test;
 		settings.AllowOutgoingSelfConnections = true;
+
+		settings.SslOptions.ContextSupplier = ionet::CreateSslContextSupplier(certificateDirectory);
+		settings.SslOptions.VerifyCallbackSupplier = ionet::CreateSslVerifyCallbackSupplier();
 		return settings;
 	}
 
@@ -69,21 +72,24 @@ namespace catapult { namespace tools {
 	}
 
 	PacketIoFuture ConnectToNode(
-			const crypto::KeyPair& clientKeyPair,
+			const std::string& certificateDirectory,
+			const ionet::Node& node,
+			const std::shared_ptr<thread::IoThreadPool>& pPool) {
+		return ConnectToNode(CreateToolConnectionSettings(certificateDirectory), node, pPool);
+	}
+
+	PacketIoFuture ConnectToNode(
+			const net::ConnectionSettings& connectionSettings,
 			const ionet::Node& node,
 			const std::shared_ptr<thread::IoThreadPool>& pPool) {
 		auto pPromise = std::make_shared<thread::promise<std::shared_ptr<ionet::PacketIo>>>();
-		auto pConnector = net::CreateServerConnector(pPool, clientKeyPair, CreateToolConnectionSettings(), "tool");
+
+		// it is ok to pass empty Key() because key is used only to disallow connections to self and AllowOutgoingSelfConnections is set
+		auto pConnector = net::CreateServerConnector(pPool, Key(), connectionSettings, "tool");
 		pConnector->connect(node, [node, pPool, pPromise](auto connectResult, const auto& socketInfo) {
 			switch (connectResult) {
 			case net::PeerConnectCode::Accepted:
 				return pPromise->set_value(CreateBufferedPacketIo(socketInfo.socket(), pPool));
-
-			case net::PeerConnectCode::Verify_Error:
-				CATAPULT_LOG(fatal)
-						<< "verification problem - client expected following public key from the server: "
-						<< crypto::FormatKey(node.identity().PublicKey);
-				return pPromise->set_exception(MakePeerConnectException(node, connectResult));
 
 			default:
 				CATAPULT_LOG(fatal) << "error occurred when trying to connect to node: " << connectResult;
@@ -96,8 +102,8 @@ namespace catapult { namespace tools {
 
 	// region MultiNodeConnector
 
-	MultiNodeConnector::MultiNodeConnector(crypto::KeyPair&& clientKeyPair)
-			: m_clientKeyPair(std::move(clientKeyPair))
+	MultiNodeConnector::MultiNodeConnector(const std::string& certificateDirectory)
+			: m_certificateDirectory(certificateDirectory)
 			, m_pPool(CreateStartedThreadPool())
 	{}
 
@@ -111,7 +117,7 @@ namespace catapult { namespace tools {
 	}
 
 	PacketIoFuture MultiNodeConnector::connect(const ionet::Node& node) {
-		return ConnectToNode(m_clientKeyPair, node, m_pPool);
+		return ConnectToNode(m_certificateDirectory, node, m_pPool);
 	}
 
 	// endregion

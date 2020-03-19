@@ -52,9 +52,6 @@ namespace catapult { namespace tools {
 			optionsBuilder("resources,r",
 					OptionsValue<std::string>(m_resourcesPath)->default_value(".."),
 					"the path to the resources directory");
-			optionsBuilder("clientPrivateKey",
-					OptionsValue<std::string>(m_clientPrivateKey)->default_value(""),
-					"client private key to use when connecting to the network");
 			positional.add("resources", -1);
 		}
 
@@ -66,7 +63,7 @@ namespace catapult { namespace tools {
 			auto p2pNodes = LoadPeers(m_resourcesPath, networkFingerprint);
 			auto apiNodes = LoadOptionalApiPeers(m_resourcesPath, networkFingerprint);
 
-			MultiNodeConnector connector(ExtractKeyPair(m_clientPrivateKey));
+			MultiNodeConnector connector(config.User.CertificateDirectory);
 			std::vector<NodeInfoFuture> nodeInfoFutures;
 			auto addNodeInfoFutures = [this, &connector, &nodeInfoFutures](const auto& nodes) {
 				for (const auto& node : nodes) {
@@ -123,6 +120,5 @@ namespace catapult { namespace tools {
 	private:
 		std::string m_censusName;
 		std::string m_resourcesPath;
-		std::string m_clientPrivateKey;
 	};
 }}

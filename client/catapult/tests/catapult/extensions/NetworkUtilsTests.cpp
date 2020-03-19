@@ -24,11 +24,14 @@
 #include "catapult/net/PeerConnectResult.h"
 #include "tests/test/core/PacketTestUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
+#include "tests/test/crypto/CertificateTestUtils.h"
+#include "tests/test/net/CertificateLocator.h"
 #include "tests/test/net/ClientSocket.h"
 #include "tests/test/nodeps/TimeSupplier.h"
 #include "tests/test/other/MutableCatapultConfiguration.h"
 #include "tests/test/other/mocks/MockNodeSubscriber.h"
 #include "tests/TestHarness.h"
+#include <boost/asio/ssl.hpp>
 
 namespace catapult { namespace extensions {
 
@@ -39,6 +42,8 @@ namespace catapult { namespace extensions {
 	namespace {
 		auto CreateCatapultConfiguration(bool enableReadRateMonitoring = false) {
 			test::MutableCatapultConfiguration config;
+			config.User.CertificateDirectory = test::GetDefaultCertificateDirectory();
+
 			config.BlockChain.Network.Identifier = static_cast<model::NetworkIdentifier>(7);
 			config.BlockChain.Network.NodeEqualityStrategy = static_cast<model::NodeIdentityEqualityStrategy>(11);
 
@@ -50,8 +55,6 @@ namespace catapult { namespace extensions {
 			config.Node.IncomingConnections.MaxConnections = 17;
 			config.Node.IncomingConnections.BacklogSize = 83;
 			config.Node.EnableAddressReuse = true;
-			config.Node.OutgoingSecurityMode = static_cast<ionet::ConnectionSecurityMode>(8);
-			config.Node.IncomingSecurityModes = static_cast<ionet::ConnectionSecurityMode>(21);
 
 			config.Node.Banning.DefaultBanDuration = utils::TimeSpan::FromHours(1);
 			config.Node.Banning.MaxBannedNodes = 50;
@@ -88,6 +91,25 @@ namespace catapult { namespace extensions {
 
 	// region GetConnectionSettings / UpdateAsyncTcpServerSettings
 
+	namespace {
+		bool RunVerifyCallback(const predicate<ionet::PacketSocketSslVerifyContext&>& verifyCallback) {
+			// Arrange:
+			test::CertificateBuilder builder;
+			builder.setSubject("JP", "NEM", "Node");
+			builder.setIssuer("JP", "NEM", "Root");
+			builder.setPublicKey(*test::GenerateRandomCertificateKey());
+			auto certificate = builder.build();
+			auto holder = test::CreateCertificateStoreContextFromCertificates({ certificate });
+
+			boost::asio::ssl::verify_context asioVerifyContext(holder.pCertificateStoreContext.get());
+			Key publicKey;
+			ionet::PacketSocketSslVerifyContext verifyContext(false, asioVerifyContext, publicKey);
+
+			// Act:
+			return verifyCallback(verifyContext);
+		}
+	}
+
 	TEST(TEST_CLASS, CanExtractConnectionSettingsFromCatapultConfiguration) {
 		// Arrange:
 		auto config = CreateCatapultConfiguration();
@@ -104,11 +126,11 @@ namespace catapult { namespace extensions {
 		EXPECT_EQ(987u, settings.SocketWorkingBufferSensitivity);
 		EXPECT_EQ(utils::FileSize::FromKilobytes(12), settings.MaxPacketDataSize);
 
-		EXPECT_EQ(static_cast<ionet::ConnectionSecurityMode>(8), settings.OutgoingSecurityMode);
-		EXPECT_EQ(static_cast<ionet::ConnectionSecurityMode>(21), settings.IncomingSecurityModes);
-
 		EXPECT_TRUE(settings.AllowIncomingSelfConnections);
 		EXPECT_FALSE(settings.AllowOutgoingSelfConnections);
+
+		EXPECT_NO_THROW(settings.SslOptions.ContextSupplier());
+		EXPECT_FALSE(RunVerifyCallback(settings.SslOptions.VerifyCallbackSupplier()));
 	}
 
 	TEST(TEST_CLASS, CanUpdateAsyncTcpServerSettingsFromCatapultConfiguration) {
@@ -287,7 +309,7 @@ namespace catapult { namespace extensions {
 
 		// Act: connect to the server
 		auto pClientThreadPool = test::CreateStartedIoThreadPool(1);
-		test::CreateClientSocket(pClientThreadPool->ioContext())->connect().get();
+		auto pClientSocket = test::AddClientConnectionTask(pClientThreadPool->ioContext());
 		WAIT_FOR_ONE_EXPR(context.acceptor().numAccepts());
 
 		// Assert:
@@ -310,7 +332,7 @@ namespace catapult { namespace extensions {
 
 		// Act: connect to the server
 		auto pClientThreadPool = test::CreateStartedIoThreadPool(1);
-		test::CreateClientSocket(pClientThreadPool->ioContext())->connect().get();
+		auto pClientSocket = test::AddClientConnectionTask(pClientThreadPool->ioContext());
 		WAIT_FOR_ONE_EXPR(context.acceptor().numAccepts());
 
 		// Assert:
@@ -326,7 +348,7 @@ namespace catapult { namespace extensions {
 
 		// Act: connect to the server
 		auto pClientThreadPool = test::CreateStartedIoThreadPool(1);
-		test::CreateClientSocket(pClientThreadPool->ioContext())->connect().get();
+		auto pClientSocket = test::AddClientConnectionTask(pClientThreadPool->ioContext());
 		WAIT_FOR_ONE_EXPR(context.acceptor().numAccepts());
 
 		// Assert:
@@ -348,7 +370,7 @@ namespace catapult { namespace extensions {
 			// Act: connect to the server and send a packet
 			auto writeBuffer = test::GenerateRandomPacketBuffer(bufferSize);
 			auto pClientThreadPool = test::CreateStartedIoThreadPool(1);
-			test::CreateClientSocket(pClientThreadPool->ioContext())->connect().get()->write(writeBuffer).get();
+			auto pClientSocket = test::AddClientWriteBuffersTask(pClientThreadPool->ioContext(), { writeBuffer });
 			WAIT_FOR_ONE_EXPR(context.acceptor().numAccepts());
 
 			ASSERT_EQ(1u, context.acceptor().socketInfos().size());

@@ -20,14 +20,12 @@
 
 #pragma once
 #include "NodeTestUtils.h"
-#include "SocketTestUtils.h"
-#include "catapult/ionet/PacketSocket.h"
+#include "RemoteAcceptServer.h"
 #include "catapult/net/ConnectionSettings.h"
 #include "catapult/net/NodeRequestResult.h"
-#include "catapult/net/VerifyPeer.h"
-#include "catapult/utils/TimeSpan.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
-#include "tests/test/nodeps/KeyTestUtils.h"
+
+namespace catapult { namespace crypto { class KeyPair; } }
 
 namespace catapult { namespace test {
 
@@ -40,19 +38,17 @@ namespace catapult { namespace test {
 		/// Creates a test context with the specified \a timeout around a requestor initialized with \a requestorParam.
 		template<typename TRequestorParam>
 		BriefServerRequestorTestContext(const utils::TimeSpan& timeout, const TRequestorParam& requestorParam)
-				: ClientKeyPair(GenerateKeyPair())
-				, pPool(CreateStartedIoThreadPool())
-				, ServerKeyPair(GenerateKeyPair())
-				, ServerPublicKey(ServerKeyPair.publicKey())
-				, pRequestor(std::make_shared<TRequestor>(pPool, ClientKeyPair, CreateSettingsWithTimeout(timeout), requestorParam))
+				: pPool(CreateStartedIoThreadPool())
+				, ServerPublicKey(GenerateRandomByteArray<Key>())
+				, ClientPublicKey(GenerateRandomByteArray<Key>())
+				, pRequestor(std::make_shared<TRequestor>(pPool, ClientPublicKey, createSettingsWithTimeout(timeout), requestorParam))
 		{}
 
 	public:
-		crypto::KeyPair ClientKeyPair;
 		std::shared_ptr<thread::IoThreadPool> pPool;
 
-		crypto::KeyPair ServerKeyPair;
 		Key ServerPublicKey;
+		Key ClientPublicKey;
 
 		std::shared_ptr<TRequestor> pRequestor;
 
@@ -62,9 +58,10 @@ namespace catapult { namespace test {
 		}
 
 	private:
-		static net::ConnectionSettings CreateSettingsWithTimeout(const utils::TimeSpan& timeout) {
+		net::ConnectionSettings createSettingsWithTimeout(const utils::TimeSpan& timeout) {
 			auto settings = net::ConnectionSettings();
 			settings.Timeout = timeout;
+			settings.SslOptions = CreatePacketSocketSslOptions(ServerPublicKey);
 			return settings;
 		}
 	};
@@ -79,6 +76,33 @@ namespace catapult { namespace test {
 		}
 	};
 
+	/// Runs a brief server requestor disconnected test using \a context.
+	/// \a action is called with the result of beginRequest.
+	template<typename TBeginRequestPolicy, typename TTestContext, typename TAction>
+	void RunBriefServerRequestorDisconnectedTest(const TTestContext& context, TAction action) {
+		using ResponseType = typename decltype(context.pRequestor)::element_type::ResponseType;
+
+		// Act: initiate a request without previously starting a server for connecting
+		std::atomic<size_t> numCallbacks(0);
+		std::vector<std::pair<net::NodeRequestResult, ResponseType>> resultPairs;
+		auto requestNode = CreateLocalHostNode(context.ServerPublicKey);
+		TBeginRequestPolicy::BeginRequest(*context.pRequestor, requestNode, [&numCallbacks, &resultPairs](
+				auto result,
+				const auto& response) {
+			resultPairs.emplace_back(result, response);
+			++numCallbacks;
+		});
+		WAIT_FOR_ONE(numCallbacks);
+
+		// Assert:
+		ASSERT_EQ(1u, resultPairs.size());
+		action(*context.pRequestor, resultPairs[0].first, resultPairs[0].second);
+
+		// - no connections remain
+		context.waitForActiveConnections(0);
+		EXPECT_EQ(0u, context.pRequestor->numActiveConnections());
+	}
+
 	/// Runs a brief server requestor connected test using \a context with the specified response packet (\a pResponsePacket).
 	/// \a action is called with the result of beginRequest.
 	template<typename TBeginRequestPolicy, typename TTestContext, typename TAction>
@@ -92,15 +116,12 @@ namespace catapult { namespace test {
 		TcpAcceptor acceptor(context.pPool->ioContext());
 
 		std::shared_ptr<ionet::PacketSocket> pServerSocket;
-		SpawnPacketServerWork(acceptor, [&context, &pServerSocket, pResponsePacket](const auto& pSocket) {
+		SpawnPacketServerWork(acceptor, [&pServerSocket, pResponsePacket](const auto& pSocket) {
 			pServerSocket = pSocket;
-			net::VerifyClient(pSocket, context.ServerKeyPair, ionet::ConnectionSecurityMode::None, [pResponsePacket, pSocket](
-					auto,
-					const auto&) {
-				// - write the packet if specified
-				if (pResponsePacket)
-					pSocket->write(ionet::PacketPayload(pResponsePacket), [](auto) {});
-			});
+
+			// - write the packet if specified
+			if (pResponsePacket)
+				pSocket->write(ionet::PacketPayload(pResponsePacket), [](auto) {});
 		});
 
 		// Act: initiate a request
@@ -145,12 +166,10 @@ namespace catapult { namespace test {
 	// region RemotePullServer
 
 	/// Remote pull server.
-	class RemotePullServer {
+	class RemotePullServer : public RemoteAcceptServer {
 	public:
 		/// Creates a remote pull server.
-		RemotePullServer()
-				: m_pPool(test::CreateStartedIoThreadPool(1))
-				, m_acceptor(m_pPool->ioContext())
+		RemotePullServer() : m_acceptor(ioContext())
 		{}
 
 	public:
@@ -160,22 +179,19 @@ namespace catapult { namespace test {
 		}
 
 	protected:
-		void prepareValidResponse(const crypto::KeyPair& partnerKeyPair, const std::shared_ptr<ionet::Packet>& pResponsePacket) {
-			test::SpawnPacketServerWork(m_acceptor, [this, &partnerKeyPair, pResponsePacket](const auto& pSocket) {
+		void prepareValidResponse(const std::shared_ptr<ionet::Packet>& pResponsePacket) {
+			start(m_acceptor, [this, pResponsePacket](const auto& pSocket) {
 				this->setServerSocket(pSocket);
 
-				auto securityMode = ionet::ConnectionSecurityMode::None;
-				net::VerifyClient(pSocket, partnerKeyPair, securityMode, [pResponsePacket, pSocket](auto, const auto&) {
-					// write the packet
-					pSocket->write(ionet::PacketPayload(pResponsePacket), [](auto) {});
-				});
+				// write the packet
+				pSocket->write(ionet::PacketPayload(pResponsePacket), [](auto) {});
 			});
 		}
 
 	public:
 		/// Spawns server work but does not respond to any request.
 		void prepareNoResponse() {
-			test::SpawnPacketServerWork(m_acceptor, [this](const auto& pSocket) {
+			start(m_acceptor, [this](const auto& pSocket) {
 				this->setServerSocket(pSocket);
 			});
 		}
@@ -195,7 +211,6 @@ namespace catapult { namespace test {
 		}
 
 	private:
-		std::unique_ptr<thread::IoThreadPool> m_pPool;
 		test::TcpAcceptor m_acceptor;
 
 		std::shared_ptr<ionet::PacketSocket> m_pServerSocket;

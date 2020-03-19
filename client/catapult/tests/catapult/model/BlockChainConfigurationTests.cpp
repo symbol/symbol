@@ -29,7 +29,7 @@ namespace catapult { namespace model {
 
 #define TEST_CLASS BlockChainConfigurationTests
 
-	// region loading
+	// region BlockChainConfiguration
 
 	namespace {
 		constexpr auto Nemesis_Public_Key = "C738E237C98760FA72726BA13DC2A1E3C13FA67DE26AF09742E972EE4EE45E1C";

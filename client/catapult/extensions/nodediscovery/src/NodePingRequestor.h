@@ -64,11 +64,11 @@ namespace catapult { namespace nodediscovery {
 	/// Brief server requestor for requesting node ping information.
 	using NodePingRequestor = net::BriefServerRequestor<NodePingRequestPolicy, NodePingResponseCompatibilityChecker>;
 
-	/// Creates a node ping requestor for a server with a key pair of \a keyPair and a network identified by \a networkFingerprint
+	/// Creates a node ping requestor for a server with specified \a serverPublicKey and a network identified by \a networkFingerprint
 	/// using \a pPool and configured with \a settings.
 	std::shared_ptr<NodePingRequestor> CreateNodePingRequestor(
 			const std::shared_ptr<thread::IoThreadPool>& pPool,
-			const crypto::KeyPair& keyPair,
+			const Key& serverPublicKey,
 			const net::ConnectionSettings& settings,
 			const model::UniqueNetworkFingerprint& networkFingerprint);
 }}

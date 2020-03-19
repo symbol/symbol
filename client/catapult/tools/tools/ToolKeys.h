@@ -25,9 +25,6 @@
 
 namespace catapult { namespace tools {
 
-	/// Gets the server key pair used by tools.
-	crypto::KeyPair LoadServerKeyPair();
-
 	/// Generates a random key pair.
 	crypto::KeyPair GenerateRandomKeyPair();
 
@@ -36,10 +33,6 @@ namespace catapult { namespace tools {
 
 	/// Copies a given \a keyPair.
 	crypto::KeyPair CopyKeyPair(const crypto::KeyPair& keyPair);
-
-	/// Extracts a key pair from \a privateKey.
-	/// \note Random key pair is returned when \a privateKey is empty.
-	crypto::KeyPair ExtractKeyPair(const std::string& privateKey);
 
 	/// Generate \a count deterministic addresses.
 	std::vector<Address> PrepareAddresses(size_t count);

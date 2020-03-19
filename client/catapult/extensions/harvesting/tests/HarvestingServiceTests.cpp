@@ -86,7 +86,7 @@ namespace catapult { namespace harvesting {
 			}
 
 		public:
-			Key harvesterKey() const {
+			Key harvesterPublicKey() const {
 				return crypto::KeyPair::FromString(m_config.HarvesterPrivateKey).publicKey();
 			}
 
@@ -173,7 +173,7 @@ namespace catapult { namespace harvesting {
 		RunUnlockedAccountsServiceTest(context, [&context](const auto& unlockedAccounts) {
 			// Assert: a single account was unlocked
 			EXPECT_EQ(1u, context.counter("UNLKED ACCTS"));
-			EXPECT_TRUE(unlockedAccounts.view().contains(context.harvesterKey()));
+			EXPECT_TRUE(unlockedAccounts.view().contains(context.harvesterPublicKey()));
 		});
 	}
 
@@ -183,7 +183,7 @@ namespace catapult { namespace harvesting {
 		RunUnlockedAccountsServiceTest(context, [&context](const auto& unlockedAccounts) {
 			// Assert: no accounts were unlocked
 			EXPECT_EQ(0u, context.counter("UNLKED ACCTS"));
-			EXPECT_FALSE(unlockedAccounts.view().contains(context.harvesterKey()));
+			EXPECT_FALSE(unlockedAccounts.view().contains(context.harvesterPublicKey()));
 		});
 	}
 
@@ -261,7 +261,7 @@ namespace catapult { namespace harvesting {
 				EXPECT_EQ(5u, context.counter("UNLKED ACCTS"));
 
 				auto unlockedAccountsView = unlockedAccounts.view();
-				EXPECT_TRUE(unlockedAccountsView.contains(context.harvesterKey()));
+				EXPECT_TRUE(unlockedAccountsView.contains(context.harvesterPublicKey()));
 				for (auto i : expectedIndexes)
 					EXPECT_TRUE(unlockedAccountsView.contains(publicKeys[i])) << "public key " << i;
 			});
@@ -294,12 +294,12 @@ namespace catapult { namespace harvesting {
 		context.setDataDirectory(directoryGuard.name());
 
 		auto filename = config::CatapultDataDirectory(directoryGuard.name()).rootDir().file("harvesters.dat");
-		AddHarvestersFileEntries(filename, context.locator().keyPair().publicKey(), 3);
+		AddHarvestersFileEntries(filename, context.locator().keys().nodeKeyPair().publicKey(), 3);
 
 		RunUnlockedAccountsServiceTest(context, [&context](const auto& unlockedAccounts) {
 			// Assert: only accounts from the file were unlocked
 			EXPECT_EQ(3u, context.counter("UNLKED ACCTS"));
-			EXPECT_FALSE(unlockedAccounts.view().contains(context.harvesterKey()));
+			EXPECT_FALSE(unlockedAccounts.view().contains(context.harvesterPublicKey()));
 		});
 	}
 

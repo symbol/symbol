@@ -19,7 +19,6 @@
 **/
 
 #pragma once
-#include "catapult/ionet/ConnectionSecurityMode.h"
 #include "catapult/ionet/PacketSocketOptions.h"
 #include "catapult/model/NetworkIdentifier.h"
 #include "catapult/model/NodeIdentity.h"
@@ -39,8 +38,6 @@ namespace catapult { namespace net {
 				, SocketWorkingBufferSize(utils::FileSize::FromKilobytes(4))
 				, SocketWorkingBufferSensitivity(0) // memory reclamation disabled
 				, MaxPacketDataSize(utils::FileSize::FromMegabytes(100))
-				, OutgoingSecurityMode(ionet::ConnectionSecurityMode::None)
-				, IncomingSecurityModes(ionet::ConnectionSecurityMode::None)
 				, AllowIncomingSelfConnections(true)
 				, AllowOutgoingSelfConnections(false)
 		{}
@@ -64,17 +61,14 @@ namespace catapult { namespace net {
 		/// Maximum packet data size.
 		utils::FileSize MaxPacketDataSize;
 
-		/// Security mode of outgoing connections initiated by this node.
-		ionet::ConnectionSecurityMode OutgoingSecurityMode;
-
-		/// Accepted security modes of incoming connections initiated by other nodes.
-		ionet::ConnectionSecurityMode IncomingSecurityModes;
-
 		/// Allows incoming self connections when \c true.
 		bool AllowIncomingSelfConnections;
 
 		/// Allows outgoing self connections when \c true.
 		bool AllowOutgoingSelfConnections;
+
+		/// Ssl options.
+		ionet::PacketSocketSslOptions SslOptions;
 
 	public:
 		/// Gets the packet socket options represented by the configured settings.
@@ -83,6 +77,7 @@ namespace catapult { namespace net {
 			options.WorkingBufferSize = SocketWorkingBufferSize.bytes();
 			options.WorkingBufferSensitivity = SocketWorkingBufferSensitivity;
 			options.MaxPacketDataSize = MaxPacketDataSize.bytes();
+			options.SslOptions = SslOptions;
 			return options;
 		}
 	};

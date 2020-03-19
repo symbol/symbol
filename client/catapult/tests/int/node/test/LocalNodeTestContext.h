@@ -22,12 +22,15 @@
 #include "ConfigurationTestUtils.h"
 #include "LocalNodeNemesisHashTestUtils.h"
 #include "LocalNodeTestUtils.h"
-#include "catapult/crypto/KeyPair.h"
+#include "catapult/config/CatapultKeys.h"
+#include "catapult/crypto/OpensslKeyUtils.h"
 #include "catapult/extensions/ProcessBootstrapper.h"
 #include "catapult/extensions/ServiceState.h"
 #include "catapult/local/server/LocalNode.h"
 #include "tests/test/core/StorageTestUtils.h"
+#include "tests/test/crypto/CertificateTestUtils.h"
 #include "tests/test/nemesis/NemesisCompatibleConfiguration.h"
+#include "tests/test/net/CertificateLocator.h"
 #include "tests/test/nodeps/Filesystem.h"
 
 namespace catapult { namespace test {
@@ -67,19 +70,21 @@ namespace catapult { namespace test {
 				: m_nodeFlag(nodeFlag)
 				, m_nodes(nodes)
 				, m_configTransform(configTransform)
-				, m_serverKeyPair(loadServerKeyPair())
-				, m_partnerServerKeyPair(LoadPartnerServerKeyPair())
 				, m_tempDir("lntc" + tempDirPostfix)
 				, m_partnerTempDir("lntc_partner" + tempDirPostfix) {
-			initializeDataDirectory(m_tempDir.name());
+			m_serverKeys = initializeDataDirectory(m_tempDir.name());
+			CATAPULT_LOG(debug) << "creating server with public key " << m_serverKeys.caPublicKey();
 
 			if (HasFlag(NodeFlag::With_Partner, nodeFlag)) {
-				initializeDataDirectory(m_partnerTempDir.name());
+				m_partnerServerKeys = initializeDataDirectory(m_partnerTempDir.name());
+				CATAPULT_LOG(debug) << "creating partner with public key " << m_partnerServerKeys.caPublicKey();
 
 				// need to call configTransform first so that partner node loads all required transaction plugins
 				auto config = CreatePrototypicalCatapultConfiguration(m_partnerTempDir.name());
 				m_configTransform(config);
-				m_pLocalPartnerNode = BootLocalPartnerNode(std::move(config), m_partnerServerKeyPair, nodeFlag);
+				m_pLocalPartnerNode = BootLocalPartnerNode(std::move(config), m_partnerServerKeys, nodeFlag);
+
+				m_nodes.push_back(CreateLocalPartnerNode(m_partnerServerKeys.caPublicKey()));
 			}
 
 			if (!HasFlag(NodeFlag::Require_Explicit_Boot, nodeFlag))
@@ -87,7 +92,7 @@ namespace catapult { namespace test {
 		}
 
 	private:
-		void initializeDataDirectory(const std::string& directory) const {
+		config::CatapultKeys initializeDataDirectory(const std::string& directory) const {
 			PrepareStorage(directory);
 			PrepareConfiguration(directory, m_nodeFlag);
 
@@ -100,6 +105,8 @@ namespace catapult { namespace test {
 
 				SetNemesisStateHash(directory, config);
 			}
+
+			return config::CatapultKeys(findCertificateSubdirectory(directory));
 		}
 
 	public:
@@ -113,7 +120,17 @@ namespace catapult { namespace test {
 			return m_tempDir.name() + "/resources";
 		}
 
-		/// Gets the primary (first) local node.
+		/// Gets the public key of the (primary) local node.
+		const Key& publicKey() const {
+			return m_serverKeys.caPublicKey();
+		}
+
+		/// Gets the public key of the (partner) local node.
+		const Key& partnerPublicKey() const {
+			return m_partnerServerKeys.caPublicKey();
+		}
+
+		/// Gets the (primary) local node.
 		local::LocalNode& localNode() const {
 			return *m_pLocalNode;
 		}
@@ -143,6 +160,15 @@ namespace catapult { namespace test {
 			auto config = CreatePrototypicalCatapultConfiguration(directory);
 			prepareCatapultConfiguration(config);
 			return config;
+		}
+
+		/// Regenerates (primary) certificates with specified \a caKeyPair.
+		/// \note This is required for happy block chain tests, which require high-balance nemesis accounts.
+		void regenerateCertificates(const crypto::KeyPair& caKeyPair) {
+			auto certificateDirectory = findCertificateSubdirectory(dataDirectory());
+			GenerateCertificateDirectory(certificateDirectory, PemCertificate(caKeyPair, GenerateKeyPair()));
+
+			m_serverKeys = config::CatapultKeys(certificateDirectory);
 		}
 
 	public:
@@ -193,7 +219,7 @@ namespace catapult { namespace test {
 
 			configure(*pBootstrapper);
 
-			return local::CreateLocalNode(m_serverKeyPair, std::move(pBootstrapper));
+			return local::CreateLocalNode(m_serverKeys, std::move(pBootstrapper));
 		}
 
 	private:
@@ -202,11 +228,10 @@ namespace catapult { namespace test {
 			m_configTransform(config);
 		}
 
-		crypto::KeyPair loadServerKeyPair() const {
-			// can pass empty string to CreateCatapultConfiguration because this config is only being used to get boot key
-			auto config = CreatePrototypicalCatapultConfiguration("");
+		std::string findCertificateSubdirectory(const std::string& directory) const {
+			auto config = CreatePrototypicalCatapultConfiguration(directory);
 			m_configTransform(config);
-			return crypto::KeyPair::FromString(config.User.BootPrivateKey);
+			return config.User.CertificateDirectory;
 		}
 
 	public:
@@ -264,8 +289,8 @@ namespace catapult { namespace test {
 		NodeFlag m_nodeFlag;
 		std::vector<ionet::Node> m_nodes;
 		consumer<config::CatapultConfiguration&> m_configTransform;
-		crypto::KeyPair m_serverKeyPair;
-		crypto::KeyPair m_partnerServerKeyPair;
+		config::CatapultKeys m_serverKeys;
+		config::CatapultKeys m_partnerServerKeys;
 		TempDirectoryGuard m_tempDir;
 		TempDirectoryGuard m_partnerTempDir;
 

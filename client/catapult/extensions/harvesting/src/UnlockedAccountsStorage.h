@@ -53,8 +53,8 @@ namespace catapult { namespace harvesting {
 		/// Saves unlocked entries filtered using \a filter.
 		void save(const predicate<const Key&>& filter) const;
 
-		/// Loads unlocked account entries using \a bootKeyPair and forwards to \a processKeyPair.
-		void load(const crypto::KeyPair& bootKeyPair, const consumer<crypto::KeyPair&&>& processKeyPair);
+		/// Loads unlocked account entries using \a encryptionKeyPair and forwards to \a processKeyPair.
+		void load(const crypto::KeyPair& encryptionKeyPair, const consumer<crypto::KeyPair&&>& processKeyPair);
 
 	private:
 		void addEntry(

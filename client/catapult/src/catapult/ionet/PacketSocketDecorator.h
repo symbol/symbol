@@ -58,8 +58,12 @@ namespace catapult { namespace ionet {
 			m_pSocket->waitForData(callback);
 		}
 
-		void close() override{
+		void close() override {
 			m_pSocket->close();
+		}
+
+		void abort() override {
+			m_pSocket->abort();
 		}
 
 		std::shared_ptr<PacketIo> buffered() override {

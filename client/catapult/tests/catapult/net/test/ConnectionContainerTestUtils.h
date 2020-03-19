@@ -32,13 +32,13 @@ namespace catapult { namespace test {
 			return { identityKey, "11.22.33.44" };
 		}
 
-		/// Maps all \a keyPairs to 0-based node identities.
-		static model::NodeIdentitySet KeyPairsToIdentitySet(const std::vector<crypto::KeyPair>& keyPairs) {
+		/// Maps all \a publicKeys to 0-based node identities.
+		static model::NodeIdentitySet PublicKeysToIdentitySet(const std::vector<Key>& publicKeys) {
 			auto identities = CreateNodeIdentitySet(model::NodeIdentityEqualityStrategy::Key);
 
 			auto i = 0u;
-			for (const auto& keyPair : keyPairs)
-				identities.insert({ keyPair.publicKey(), std::to_string(i++) });
+			for (const auto& publicKey : publicKeys)
+				identities.insert({ publicKey, std::to_string(i++) });
 
 			return identities;
 		}
@@ -53,12 +53,12 @@ namespace catapult { namespace test {
 			return identities;
 		}
 
-		/// Maps all \a keyPairs at \a indexes to 0-based node identities.
-		static model::NodeIdentitySet PickIdentities(const std::vector<crypto::KeyPair>& keyPairs, std::initializer_list<size_t> indexes) {
+		/// Maps all \a publicKeys at \a indexes to 0-based node identities.
+		static model::NodeIdentitySet PickIdentities(const std::vector<Key>& publicKeys, std::initializer_list<size_t> indexes) {
 			auto identities = CreateNodeIdentitySet(model::NodeIdentityEqualityStrategy::Key);
 
 			for (auto index : indexes)
-				identities.insert({ keyPairs[index].publicKey(), std::to_string(index) });
+				identities.insert({ publicKeys[index], std::to_string(index) });
 
 			return identities;
 		}

@@ -100,7 +100,7 @@ namespace catapult { namespace local {
 			auto blocks = TTraits::GetBlocks(builder, transactionsBuilder);
 
 			// Act:
-			test::ExternalSourceConnection connection;
+			test::ExternalSourceConnection connection(context.publicKey());
 			auto pIo = test::PushEntities(connection, ionet::PacketType::Push_Block, blocks);
 
 			// - wait for the chain height to change and for all height readers to disconnect
@@ -171,7 +171,7 @@ namespace catapult { namespace local {
 			auto blocks = TTraits::GetBlocks(builder, transactionsBuilder);
 
 			// Act:
-			test::ExternalSourceConnection connection;
+			test::ExternalSourceConnection connection(context.publicKey());
 			auto pIo = test::PushEntities(connection, ionet::PacketType::Push_Block, blocks);
 
 			// - wait for the chain height to change and for all height readers to disconnect
@@ -212,7 +212,7 @@ namespace catapult { namespace local {
 			auto pTailBlock = utils::UniqueToShared(builder2.asSingleBlock(transactionsBuilder2));
 
 			// Act:
-			test::ExternalSourceConnection connection;
+			test::ExternalSourceConnection connection(context.publicKey());
 			auto pIo1 = test::PushEntities(connection, ionet::PacketType::Push_Block, blocks);
 			auto pIo2 = test::PushEntity(connection, ionet::PacketType::Push_Block, pTailBlock);
 
@@ -301,7 +301,7 @@ namespace catapult { namespace local {
 			}
 
 			// Act:
-			test::ExternalSourceConnection connection;
+			test::ExternalSourceConnection connection(context.publicKey());
 			auto pIo1 = test::PushEntities(connection, ionet::PacketType::Push_Block, invalidBlocks);
 			auto pIo2 = test::PushEntity(connection, ionet::PacketType::Push_Block, pTailBlock);
 
@@ -451,7 +451,7 @@ namespace catapult { namespace local {
 			}
 
 			// Act:
-			test::ExternalSourceConnection connection;
+			test::ExternalSourceConnection connection(context.publicKey());
 			auto pIo1 = test::PushEntities(connection, ionet::PacketType::Push_Block, invalidBlocks);
 			auto pIo2 = test::PushEntity(connection, ionet::PacketType::Push_Block, pTailBlock);
 

@@ -137,7 +137,7 @@ namespace catapult { namespace harvesting {
 		}
 	}
 
-	void UnlockedAccountsStorage::load(const crypto::KeyPair& bootKeyPair, const consumer<crypto::KeyPair&&>& processKeyPair) {
+	void UnlockedAccountsStorage::load(const crypto::KeyPair& encryptionKeyPair, const consumer<crypto::KeyPair&&>& processKeyPair) {
 		if (!boost::filesystem::exists(m_filename))
 			return;
 
@@ -147,7 +147,7 @@ namespace catapult { namespace harvesting {
 		while (inputFile.position() != inputFile.size()) {
 			inputFile.read(encryptedEntry);
 
-			auto decryptedPair = TryDecryptUnlockedEntry(encryptedEntry, bootKeyPair);
+			auto decryptedPair = TryDecryptUnlockedEntry(encryptedEntry, encryptionKeyPair);
 			if (!decryptedPair.second)
 				CATAPULT_THROW_RUNTIME_ERROR("malformed harvesters file");
 

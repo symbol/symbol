@@ -95,6 +95,17 @@ namespace catapult { namespace test {
 			// Assert:
 			EXPECT_EQ(1u, context.pMockPacketSocket->numCloseCalls());
 		}
+
+		static void AssertCanAbort() {
+			// Arrange:
+			typename TTraits::TestContextType context;
+
+			// Act:
+			context.pDecoratedSocket->abort();
+
+			// Assert:
+			EXPECT_EQ(1u, context.pMockPacketSocket->numAbortCalls());
+		}
 	};
 }}
 
@@ -107,4 +118,5 @@ namespace catapult { namespace test {
 	MAKE_PACKET_SOCKET_DECORATOR_TEST(TRAITS_NAME, PREFIX, CanRoundtripBufferedPackets) \
 	MAKE_PACKET_SOCKET_DECORATOR_TEST(TRAITS_NAME, PREFIX, CanAccessStats) \
 	MAKE_PACKET_SOCKET_DECORATOR_TEST(TRAITS_NAME, PREFIX, CanWaitForData) \
-	MAKE_PACKET_SOCKET_DECORATOR_TEST(TRAITS_NAME, PREFIX, CanClose)
+	MAKE_PACKET_SOCKET_DECORATOR_TEST(TRAITS_NAME, PREFIX, CanClose) \
+	MAKE_PACKET_SOCKET_DECORATOR_TEST(TRAITS_NAME, PREFIX, CanAbort)

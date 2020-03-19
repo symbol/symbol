@@ -21,9 +21,8 @@
 #include "ProcessMain.h"
 #include "Signals.h"
 #include "catapult/config/CatapultConfiguration.h"
+#include "catapult/config/CatapultKeys.h"
 #include "catapult/config/ValidateConfiguration.h"
-#include "catapult/crypto/KeyPair.h"
-#include "catapult/crypto/KeyUtils.h"
 #include "catapult/io/FileLock.h"
 #include "catapult/thread/ThreadInfo.h"
 #include "catapult/utils/ExceptionLogging.h"
@@ -75,10 +74,13 @@ namespace catapult { namespace process {
 		// endregion
 
 		void Run(config::CatapultConfiguration&& config, ProcessOptions processOptions, const CreateProcessHost& createProcessHost) {
-			auto keyPair = crypto::KeyPair::FromString(config.User.BootPrivateKey);
+			auto catapultKeys = config::CatapultKeys(config.User.CertificateDirectory);
 
-			CATAPULT_LOG(info) << "booting process with public key " << crypto::FormatKey(keyPair.publicKey());
-			auto pProcessHost = createProcessHost(std::move(config), keyPair);
+			CATAPULT_LOG(info)
+					<< "booting process with keys:"
+					<< std::endl << " -   CA " << catapultKeys.caPublicKey()
+					<< std::endl << " - NODE " << catapultKeys.nodeKeyPair().publicKey();
+			auto pProcessHost = createProcessHost(std::move(config), catapultKeys);
 
 			if (ProcessOptions::Exit_After_Termination_Signal == processOptions)
 				WaitForTerminationSignal();

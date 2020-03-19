@@ -57,7 +57,7 @@ namespace catapult { namespace eventsource {
 		std::shared_ptr<ionet::PacketSocket> AcceptBroadcastWriter(boost::asio::io_context& ioContext, const TestContext& context) {
 			// Act: connect to the server as a broadcast writer
 			unsigned short localHostApiPort = test::GetLocalHostPort() + 1;
-			auto pIo = test::ConnectToLocalHost(ioContext, localHostApiPort, context.publicKey());
+			auto pIo = test::ConnectToLocalHost(ioContext, localHostApiPort);
 
 			// - wait for the writer to be available
 			WAIT_FOR_ONE_EXPR(context.counter("B WRITERS"));

@@ -19,14 +19,15 @@
 **/
 
 #include "SocketTestUtils.h"
+#include "CertificateLocator.h"
 #include "ClientSocket.h"
 #include "NodeTestUtils.h"
 #include "catapult/crypto/Signer.h"
 #include "catapult/ionet/PacketSocket.h"
-#include "catapult/net/Challenge.h"
 #include "catapult/net/ConnectionSettings.h"
 #include "catapult/thread/IoThreadPool.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
+#include <boost/asio/ssl.hpp>
 #include <boost/asio/steady_timer.hpp>
 
 namespace catapult { namespace test {
@@ -50,7 +51,7 @@ namespace catapult { namespace test {
 		}
 	}
 
-	class TcpAcceptor::Impl {
+	class TcpAcceptor::Impl : public std::enable_shared_from_this<TcpAcceptor::Impl> {
 	public:
 		Impl(boost::asio::io_context& ioContext, unsigned short port)
 				: m_ioContext(ioContext)
@@ -58,21 +59,8 @@ namespace catapult { namespace test {
 				, m_acceptorStrand(m_ioContext)
 				, m_timer(m_ioContext)
 				, m_isClosed(false)
-				, m_pAcceptor(CreateLocalHostAcceptor(m_ioContext, m_port)) {
-			// setup the timer
-			m_timer.expires_from_now(std::chrono::seconds(2 * detail::Default_Wait_Timeout));
-			m_timer.async_wait([this](const auto& ec) {
-				if (boost::asio::error::operation_aborted == ec)
-					return;
-
-				EXPECT_EQ(boost::asio::error::operation_aborted, ec) << "TcpAcceptor timer fired, forcing close of acceptor";
-				this->closeAcceptor();
-			});
-		}
-
-		~Impl() {
-			destroy();
-		}
+				, m_pAcceptor(CreateLocalHostAcceptor(m_ioContext, m_port))
+		{}
 
 	public:
 		auto& ioContext() {
@@ -87,24 +75,36 @@ namespace catapult { namespace test {
 			return m_acceptorStrand;
 		}
 
-	private:
+		bool isStopped() const {
+			return m_isClosed;
+		}
+
+	public:
+		void init() {
+			// setup the timer
+			m_timer.expires_from_now(std::chrono::seconds(2 * detail::Default_Wait_Timeout));
+			m_timer.async_wait([pThis = shared_from_this()](const auto& ec) {
+				if (boost::asio::error::operation_aborted == ec)
+					return;
+
+				EXPECT_EQ(boost::asio::error::operation_aborted, ec) << "TcpAcceptor timer fired, forcing close of acceptor";
+				pThis->closeAcceptor();
+			});
+		}
+
 		void destroy() {
 			// cancel the timer
 			m_timer.cancel();
 
 			// forcibly close the acceptor (if not already closed)
 			closeAcceptor();
-
-			// wait for the acceptor to close, this ensures that:
-			// 1. the acceptor's lifetime is tied to the owning Impl
-			// 2. the acceptor is completely closed when the Impl is destroyed
-			WAIT_FOR(m_isClosed);
 		}
 
+	private:
 		void closeAcceptor() {
 			CATAPULT_LOG(debug) << "dispatching close of socket acceptor";
-			boost::asio::dispatch(m_acceptorStrand, [&acceptor = *m_pAcceptor, &isClosed = m_isClosed, port = m_port]() {
-				Close(acceptor, isClosed, port);
+			boost::asio::dispatch(m_acceptorStrand, [pThis = shared_from_this()]() {
+				Close(*pThis->m_pAcceptor, pThis->m_isClosed, pThis->m_port);
 			});
 		}
 
@@ -158,10 +158,14 @@ namespace catapult { namespace test {
 	TcpAcceptor::TcpAcceptor(boost::asio::io_context& ioContext) : TcpAcceptor(ioContext, GetLocalHostPort())
 	{}
 
-	TcpAcceptor::TcpAcceptor(boost::asio::io_context& ioContext, unsigned short port) : m_pImpl(std::make_unique<Impl>(ioContext, port))
-	{}
+	TcpAcceptor::TcpAcceptor(boost::asio::io_context& ioContext, unsigned short port) : m_pImpl(std::make_shared<Impl>(ioContext, port)) {
+		m_pImpl->init();
+	}
 
-	TcpAcceptor::~TcpAcceptor() = default;
+	TcpAcceptor::~TcpAcceptor() {
+		if (!isStopped())
+			m_pImpl->destroy();
+	}
 
 	boost::asio::ip::tcp::acceptor& TcpAcceptor::get() const {
 		return m_pImpl->acceptor();
@@ -169,6 +173,14 @@ namespace catapult { namespace test {
 
 	boost::asio::io_context::strand& TcpAcceptor::strand() const {
 		return m_pImpl->strand();
+	}
+
+	bool TcpAcceptor::isStopped() const {
+		return m_pImpl->isStopped();
+	}
+
+	void TcpAcceptor::stop() {
+		return m_pImpl->destroy();
 	}
 
 	// endregion
@@ -183,8 +195,54 @@ namespace catapult { namespace test {
 		return boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string("127.0.0.1"), port);
 	}
 
+	namespace {
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wexit-time-destructors"
+#endif
+
+		supplier<boost::asio::ssl::context&> GetDefaultContextSupplier() {
+			static auto supplier = ionet::CreateSslContextSupplier(GetDefaultCertificateDirectory());
+			return supplier;
+		}
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+	}
+
+	ionet::PacketSocketSslOptions CreatePacketSocketSslOptions() {
+		return CreatePacketSocketSslOptions(Key());
+	}
+
+	ionet::PacketSocketSslOptions CreatePacketSocketSslOptions(const Key& publicKey) {
+		ionet::PacketSocketSslOptions options;
+		options.ContextSupplier = GetDefaultContextSupplier();
+		options.VerifyCallbackSupplier = [publicKey]() {
+			return [publicKey](auto& verifyContext) {
+				verifyContext.setPublicKey(publicKey);
+				return true;
+			};
+		};
+		return options;
+	}
+
 	ionet::PacketSocketOptions CreatePacketSocketOptions() {
-		return net::ConnectionSettings().toSocketOptions();
+		return CreatePacketSocketOptions(Key());
+	}
+
+	ionet::PacketSocketOptions CreatePacketSocketOptions(const Key& publicKey) {
+		return CreateConnectionSettings(publicKey).toSocketOptions();
+	}
+
+	net::ConnectionSettings CreateConnectionSettings() {
+		return CreateConnectionSettings(Key());
+	}
+
+	net::ConnectionSettings CreateConnectionSettings(const Key& publicKey) {
+		auto settings = net::ConnectionSettings();
+		settings.SslOptions = CreatePacketSocketSslOptions(publicKey);
+		return settings;
 	}
 
 	std::shared_ptr<boost::asio::ip::tcp::acceptor> CreateImplicitlyClosedLocalHostAcceptor(boost::asio::io_context& ioContext) {
@@ -261,6 +319,10 @@ namespace catapult { namespace test {
 
 	// region packet socket utils
 
+	ionet::PacketSocketInfo CreatePacketSocketInfo(const std::shared_ptr<ionet::PacketSocket>& pPacketSocket) {
+		return ionet::PacketSocketInfo("", Key(), pPacketSocket);
+	}
+
 	bool IsSocketOpen(ionet::PacketSocket& socket) {
 		ionet::PacketSocket::Stats stats;
 		std::atomic_bool hasStats(false);
@@ -271,6 +333,17 @@ namespace catapult { namespace test {
 
 		WAIT_FOR(hasStats);
 		return stats.IsOpen;
+	}
+
+	void WaitForClosedSocket(ionet::PacketSocket& socket) {
+		WAIT_FOR_EXPR(!IsSocketOpen(socket));
+	}
+
+	void AssertEmpty(const ionet::PacketSocketInfo& socketInfo) {
+		EXPECT_FALSE(!!socketInfo);
+		EXPECT_EQ("", socketInfo.host());
+		EXPECT_EQ(Key(), socketInfo.publicKey());
+		EXPECT_FALSE(!!socketInfo.socket());
 	}
 
 	// endregion
@@ -319,7 +392,7 @@ namespace catapult { namespace test {
 				});
 			});
 		});
-		AddClientReadBufferTask(pPool->ioContext(), receiveBuffer);
+		auto pClientSocket = AddClientReadBufferTask(pPool->ioContext(), receiveBuffer);
 		pPool->join();
 
 		// Assert: both writes should have succeeded and no data should have been interleaved
@@ -349,7 +422,7 @@ namespace catapult { namespace test {
 				payload2.Code = writeCode;
 			});
 		});
-		AddClientReadBufferTask(pPool->ioContext(), receiveBuffer);
+		auto pClientSocket = AddClientReadBufferTask(pPool->ioContext(), receiveBuffer);
 		pPool->join();
 
 		// Assert: both writes should have succeeded and no data should have been interleaved
@@ -396,11 +469,11 @@ namespace catapult { namespace test {
 			}
 		};
 
-		void AddClientWriteBuffersTask(
+		auto AddClientWriteBuffersTask(
 				boost::asio::io_context& ioContext,
 				const LargeReadPayload& payload1,
 				const LargeReadPayload& payload2) {
-			test::AddClientWriteBuffersTask(ioContext, { payload1.Buffer, payload2.Buffer });
+			return test::AddClientWriteBuffersTask(ioContext, { payload1.Buffer, payload2.Buffer });
 		}
 	}
 
@@ -422,7 +495,7 @@ namespace catapult { namespace test {
 				});
 			});
 		});
-		AddClientWriteBuffersTask(pPool->ioContext(), payload1, payload2);
+		auto pClientSocket = AddClientWriteBuffersTask(pPool->ioContext(), payload1, payload2);
 		pPool->join();
 
 		// Assert: both reads should have succeeded and no data should have been interleaved
@@ -450,7 +523,7 @@ namespace catapult { namespace test {
 				payload2.update(result, pPacket);
 			});
 		});
-		AddClientWriteBuffersTask(pPool->ioContext(), payload1, payload2);
+		auto pClientSocket = AddClientWriteBuffersTask(pPool->ioContext(), payload1, payload2);
 		pPool->join();
 
 		// Assert: both reads should have succeeded and no data should have been interleaved

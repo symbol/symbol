@@ -35,7 +35,6 @@ namespace catapult { namespace config {
 
 #define LOAD_ACCOUNT_PROPERTY(NAME) LOAD_PROPERTY("account", NAME)
 
-		LOAD_ACCOUNT_PROPERTY(BootPrivateKey);
 		LOAD_ACCOUNT_PROPERTY(EnableDelegatedHarvestersAutoDetection);
 
 #undef LOAD_ACCOUNT_PROPERTY
@@ -43,6 +42,7 @@ namespace catapult { namespace config {
 #define LOAD_STORAGE_PROPERTY(NAME) LOAD_PROPERTY("storage", NAME)
 
 		LOAD_STORAGE_PROPERTY(DataDirectory);
+		LOAD_STORAGE_PROPERTY(CertificateDirectory);
 		LOAD_STORAGE_PROPERTY(PluginsDirectory);
 
 #undef LOAD_STORAGE_PROPERTY

@@ -91,7 +91,10 @@ namespace catapult { namespace net {
 				CATAPULT_LOG(debug)
 						<< TRequestPolicy::Friendly_Name << " request connection to '" << m_requestNode
 						<< "' failed: " << connectCode;
-				complete(NodeRequestResult::Failure_Connection);
+				auto result = PeerConnectCode::Timed_Out == connectCode
+						? NodeRequestResult::Failure_Timeout
+						: NodeRequestResult::Failure_Connection;
+				complete(result);
 			}
 
 			void complete(thread::future<ResponseType>&& responseFuture) {
@@ -128,17 +131,17 @@ namespace catapult { namespace net {
 		// endregion
 
 	public:
-		/// Creates a server requestor for a server with a key pair of \a keyPair using \a pPool and configured with \a settings
+		/// Creates a server requestor for a server with specified \a serverPublicKey using \a pPool and configured with \a settings
 		/// and a custom response compatibility checker (\a responseCompatibilityChecker).
 		BriefServerRequestor(
 				const std::shared_ptr<thread::IoThreadPool>& pPool,
-				const crypto::KeyPair& keyPair,
+				const Key& serverPublicKey,
 				const ConnectionSettings& settings,
 				const TResponseCompatibilityChecker& responseCompatibilityChecker)
 				: m_pPool(pPool)
 				, m_responseCompatibilityChecker(responseCompatibilityChecker)
 				, m_requestTimeout(settings.Timeout)
-				, m_pConnector(CreateServerConnector(pPool, keyPair, settings, TRequestPolicy::Friendly_Name))
+				, m_pConnector(CreateServerConnector(pPool, serverPublicKey, settings, TRequestPolicy::Friendly_Name))
 				, m_numTotalRequests(0)
 				, m_numSuccessfulRequests(0)
 		{}

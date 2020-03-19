@@ -20,6 +20,7 @@
 
 #include "src/plugins/TransferPlugin.h"
 #include "plugins/txes/transfer/src/model/TransferEntityType.h"
+#include "tests/test/net/CertificateLocator.h"
 #include "tests/test/plugins/PluginManagerFactory.h"
 #include "tests/test/plugins/PluginTestUtils.h"
 #include "tests/TestHarness.h"
@@ -37,7 +38,7 @@ namespace catapult { namespace plugins {
 				config.Plugins.emplace("catapult.plugins.transfer", utils::ConfigurationBag({{ "", { { "maxMessageSize", "0" } } }}));
 
 				auto userConfig = config::UserConfiguration::Uninitialized();
-				userConfig.BootPrivateKey = test::ToString(test::GenerateRandomByteArray<Key>());
+				userConfig.CertificateDirectory = test::GetDefaultCertificateDirectory();
 				userConfig.EnableDelegatedHarvestersAutoDetection = EnableAutoDetection;
 
 				auto manager = test::CreatePluginManager(config, userConfig);

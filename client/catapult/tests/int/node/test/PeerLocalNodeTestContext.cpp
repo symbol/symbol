@@ -55,13 +55,17 @@ namespace catapult { namespace test {
 			const consumer<config::CatapultConfiguration&>& configTransform)
 			: m_context(
 					nodeFlag | NodeFlag::With_Partner,
-					{ CreateLocalPartnerNode() },
+					{},
 					[additionalPlugins, configTransform](auto& config) {
 						AddAdditionalPlugins(config, additionalPlugins);
 						configTransform(config);
 					},
 					"")
 	{}
+
+	const Key& PeerLocalNodeTestContext::publicKey() const {
+		return m_context.publicKey();
+	}
 
 	local::LocalNode& PeerLocalNodeTestContext::localNode() const {
 		return m_context.localNode();
@@ -76,7 +80,7 @@ namespace catapult { namespace test {
 	}
 
 	Height PeerLocalNodeTestContext::height() const {
-		ExternalSourceConnection connection;
+		ExternalSourceConnection connection(publicKey());
 		return GetLocalNodeHeightViaApi(connection);
 	}
 
@@ -85,7 +89,7 @@ namespace catapult { namespace test {
 	}
 
 	void PeerLocalNodeTestContext::waitForHeight(Height height) const {
-		ExternalSourceConnection connection;
+		ExternalSourceConnection connection(publicKey());
 		WaitForLocalNodeHeight(connection, height);
 	}
 

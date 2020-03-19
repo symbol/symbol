@@ -19,6 +19,9 @@ set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
 
+### set openssl definitions
+add_definitions(-DOPENSSL_API_COMPAT=0x10100000L)
+
 ### set custom diagnostics
 if(ENABLE_CATAPULT_DIAGNOSTICS)
 	add_definitions(-DENABLE_CATAPULT_DIAGNOSTICS)

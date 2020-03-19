@@ -19,12 +19,12 @@
 **/
 
 #include "catapult/net/ServerConnector.h"
-#include "catapult/crypto/KeyPair.h"
+#include "catapult/crypto/OpensslKeyUtils.h"
 #include "catapult/ionet/Node.h"
 #include "catapult/ionet/PacketSocket.h"
-#include "catapult/net/VerifyPeer.h"
 #include "catapult/thread/IoThreadPool.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
+#include "tests/test/net/CertificateLocator.h"
 #include "tests/test/net/ClientSocket.h"
 #include "tests/test/net/NodeTestUtils.h"
 #include "tests/test/net/SocketTestUtils.h"
@@ -39,12 +39,16 @@ namespace catapult { namespace net {
 
 		struct ConnectorTestContext {
 		public:
-			explicit ConnectorTestContext(const ConnectionSettings& settings = ConnectionSettings())
-					: ServerKeyPair(test::GenerateKeyPair())
-					, ClientKeyPair(test::GenerateKeyPair())
+			explicit ConnectorTestContext(const Key& publicKey) : ConnectorTestContext(test::CreateConnectionSettings(publicKey)) {
+				ServerPublicKey = publicKey;
+			}
+
+			explicit ConnectorTestContext(const ConnectionSettings& settings = test::CreateConnectionSettings())
+					: ServerPublicKey(test::GenerateRandomByteArray<Key>())
+					, ClientPublicKey(test::GenerateRandomByteArray<Key>())
 					, pPool(test::CreateStartedIoThreadPool())
 					, IoContext(pPool->ioContext())
-					, pConnector(CreateServerConnector(pPool, ClientKeyPair, settings))
+					, pConnector(CreateServerConnector(pPool, ClientPublicKey, settings))
 			{}
 
 			~ConnectorTestContext() {
@@ -56,15 +60,15 @@ namespace catapult { namespace net {
 			}
 
 		public:
-			crypto::KeyPair ServerKeyPair;
-			crypto::KeyPair ClientKeyPair;
+			Key ServerPublicKey;
+			Key ClientPublicKey;
 			std::shared_ptr<thread::IoThreadPool> pPool;
 			boost::asio::io_context& IoContext;
 			std::shared_ptr<ServerConnector> pConnector;
 
 		public:
 			ionet::Node serverNode() const {
-				return test::CreateLocalHostNode(ServerKeyPair.publicKey());
+				return test::CreateLocalHostNode(ServerPublicKey);
 			}
 
 			void waitForActiveConnections(uint32_t numConnections) const {
@@ -79,8 +83,7 @@ namespace catapult { namespace net {
 		struct MultiConnectionState {
 			std::vector<PeerConnectCode> Codes;
 			std::vector<std::shared_ptr<ionet::PacketSocket>> ServerSockets;
-			std::vector<std::shared_ptr<ionet::PacketSocket>> ClientSockets;
-			std::vector<std::string> ClientHosts;
+			std::vector<ionet::PacketSocketInfo> ClientSocketInfos;
 		};
 
 		MultiConnectionState SetupMultiConnectionTest(const ConnectorTestContext& context, size_t numConnections) {
@@ -91,19 +94,19 @@ namespace catapult { namespace net {
 				std::atomic<size_t> numCallbacks(0);
 				test::SpawnPacketServerWork(acceptor, [&](const auto& pSocket) {
 					state.ServerSockets.push_back(pSocket);
-					VerifyClient(pSocket, context.ServerKeyPair, ionet::ConnectionSecurityMode::None, [&](auto, const auto&) {
-						++numCallbacks;
-					});
+					++numCallbacks;
 				});
 
 				context.pConnector->connect(context.serverNode(), [&](auto connectResult, const auto& connectedSocketInfo) {
 					state.Codes.push_back(connectResult);
-					state.ClientSockets.push_back(connectedSocketInfo.socket());
-					state.ClientHosts.push_back(connectedSocketInfo.host());
+					state.ClientSocketInfos.push_back(connectedSocketInfo);
+
+					// - wait for server callback
+					WAIT_FOR_ONE(numCallbacks);
 					++numCallbacks;
 				});
 
-				// - wait for both verifications to complete
+				// - wait for both connections to complete
 				WAIT_FOR_VALUE(2u, numCallbacks);
 			}
 
@@ -118,7 +121,7 @@ namespace catapult { namespace net {
 	TEST(TEST_CLASS, CanCreateConnectorWithDefaultName) {
 		// Act:
 		auto pPool = test::CreateStartedIoThreadPool();
-		auto pConnector = CreateServerConnector(std::move(pPool), test::GenerateKeyPair(), ConnectionSettings());
+		auto pConnector = CreateServerConnector(std::move(pPool), Key(), ConnectionSettings());
 
 		// Assert:
 		EXPECT_EQ(0u, pConnector->numActiveConnections());
@@ -128,7 +131,7 @@ namespace catapult { namespace net {
 	TEST(TEST_CLASS, CanCreateConnectorWithCustomName) {
 		// Act:
 		auto pPool = test::CreateStartedIoThreadPool();
-		auto pConnector = CreateServerConnector(std::move(pPool), test::GenerateKeyPair(), ConnectionSettings(), "Crazy Amazing");
+		auto pConnector = CreateServerConnector(std::move(pPool), Key(), ConnectionSettings(), "Crazy Amazing");
 
 		// Assert:
 		EXPECT_EQ(0u, pConnector->numActiveConnections());
@@ -142,7 +145,7 @@ namespace catapult { namespace net {
 	TEST(TEST_CLASS, ConnectFailsOnSelfConnectionError_WhenSelfConnectionsDisallowed) {
 		// Arrange:
 		ConnectorTestContext context;
-		context.ServerKeyPair = test::CopyKeyPair(context.ClientKeyPair);
+		context.ServerPublicKey = context.ClientPublicKey;
 		std::atomic<size_t> numCallbacks(0);
 
 		// Act: try to connect to a server with same public key
@@ -157,18 +160,17 @@ namespace catapult { namespace net {
 
 		// Assert:
 		EXPECT_EQ(PeerConnectCode::Self_Connection_Error, code);
-		EXPECT_FALSE(!!socketInfo);
-		EXPECT_EQ("", socketInfo.host());
+		test::AssertEmpty(socketInfo);
 		EXPECT_EQ(0u, context.pConnector->numActiveConnections());
 	}
 
 	TEST(TEST_CLASS, ConnectDoesNotFailOnSelfConnectionError_WhenSelfConnectionsAllowed) {
 		// Arrange: allow self connections
-		ConnectionSettings settings;
+		auto settings = test::CreateConnectionSettings();
 		settings.AllowOutgoingSelfConnections = true;
 
 		ConnectorTestContext context(settings);
-		context.ServerKeyPair = test::CopyKeyPair(context.ClientKeyPair);
+		context.ServerPublicKey = context.ClientPublicKey;
 		std::atomic<size_t> numCallbacks(0);
 
 		// Act: try to connect to a server with same public key
@@ -183,8 +185,7 @@ namespace catapult { namespace net {
 
 		// Assert: Self_Connection_Error has priority over Socket_Error
 		EXPECT_EQ(PeerConnectCode::Socket_Error, code);
-		EXPECT_FALSE(!!socketInfo);
-		EXPECT_EQ("", socketInfo.host());
+		test::AssertEmpty(socketInfo);
 		EXPECT_EQ(0u, context.pConnector->numActiveConnections());
 	}
 
@@ -205,39 +206,7 @@ namespace catapult { namespace net {
 
 		// Assert:
 		EXPECT_EQ(PeerConnectCode::Socket_Error, code);
-		EXPECT_FALSE(!!socketInfo);
-		EXPECT_EQ("", socketInfo.host());
-		EXPECT_EQ(0u, context.pConnector->numActiveConnections());
-	}
-
-	TEST(TEST_CLASS, ConnectFailsOnVerifyError) {
-		// Arrange:
-		ConnectorTestContext context;
-		std::atomic<size_t> numCallbacks(0);
-
-		// Act: start a server and client verify operation
-		PeerConnectCode code;
-		test::SpawnPacketServerWork(context.IoContext, [&](const auto& pSocket) {
-			// - trigger a verify error by closing the socket without responding
-			pSocket->close();
-			++numCallbacks;
-		});
-
-		ionet::PacketSocketInfo socketInfo;
-		context.pConnector->connect(context.serverNode(), [&](auto connectCode, const auto& connectedSocketInfo) {
-			code = connectCode;
-			socketInfo = connectedSocketInfo;
-			++numCallbacks;
-		});
-
-		// - wait for both callbacks to complete and the connection to close
-		WAIT_FOR_VALUE(2u, numCallbacks);
-		context.waitForActiveConnections(0);
-
-		// Assert: the verification should have failed and all connections should have been destroyed
-		EXPECT_EQ(PeerConnectCode::Verify_Error, code);
-		EXPECT_FALSE(!!socketInfo);
-		EXPECT_EQ("", socketInfo.host());
+		test::AssertEmpty(socketInfo);
 		EXPECT_EQ(0u, context.pConnector->numActiveConnections());
 	}
 
@@ -247,115 +216,82 @@ namespace catapult { namespace net {
 
 	namespace {
 		using ResultServerClientHandler = consumer<
-				PeerConnectCode,
-				std::shared_ptr<ionet::PacketSocket>&,
-				std::shared_ptr<ionet::PacketSocket>&,
-				const std::string&>;
+			PeerConnectCode,
+			const std::shared_ptr<ionet::PacketSocket>&,
+			const ionet::PacketSocketInfo&>;
 
 		void RunConnectedSocketTest(const ConnectorTestContext& context, const ResultServerClientHandler& handler) {
 			// Act: establish a single connection
 			auto state = SetupMultiConnectionTest(context, 1);
 
 			// Assert: call the handler
-			handler(state.Codes.back(), state.ServerSockets.back(), state.ClientSockets.back(), state.ClientHosts.back());
+			handler(state.Codes.back(), state.ServerSockets.back(), state.ClientSocketInfos.back());
 		}
 	}
 
-	TEST(TEST_CLASS, ConnectSucceedsOnVerifySuccess) {
+	TEST(TEST_CLASS, ConnectFailsOnVerifyError) {
+		// Arrange:
+		ConnectorTestContext context(test::GenerateRandomByteArray<Key>());
+		context.ServerPublicKey = test::GenerateRandomByteArray<Key>();
+
 		// Act:
-		ConnectorTestContext context;
-		RunConnectedSocketTest(context, [&](auto connectCode, const auto&, const auto& pClientSocket, const auto& host) {
+		RunConnectedSocketTest(context, [&](auto connectCode, const auto&, const auto& clientSocketInfo) {
+			// Assert: the verification should have failed
+			EXPECT_EQ(PeerConnectCode::Verify_Error, connectCode);
+			test::AssertEmpty(clientSocketInfo);
+			EXPECT_EQ(0u, context.pConnector->numActiveConnections());
+		});
+	}
+
+	TEST(TEST_CLASS, ConnectSucceedsOnVerifySuccess) {
+		// Arrange:
+		ConnectorTestContext context(test::GenerateRandomByteArray<Key>());
+
+		// Act:
+		RunConnectedSocketTest(context, [&](auto connectCode, const auto&, const auto& clientSocketInfo) {
 			// Assert: the verification should have succeeded and the connection should be active
 			EXPECT_EQ(PeerConnectCode::Accepted, connectCode);
 			EXPECT_EQ(1u, context.pConnector->numActiveConnections());
-			EXPECT_TRUE(!!pClientSocket);
-			EXPECT_EQ("127.0.0.1", host);
+			EXPECT_TRUE(!!clientSocketInfo.socket());
+			EXPECT_EQ("127.0.0.1", clientSocketInfo.host());
+			EXPECT_EQ(context.ServerPublicKey, clientSocketInfo.publicKey());
 		});
 	}
 
 	TEST(TEST_CLASS, ShutdownClosesConnectedSocket) {
+		// Arrange:
+		ConnectorTestContext context(test::GenerateRandomByteArray<Key>());
+
 		// Act:
-		ConnectorTestContext context;
-		RunConnectedSocketTest(context, [&](auto, const auto&, const auto& pClientSocket, const auto&) {
+		RunConnectedSocketTest(context, [&context](auto, const auto&, const auto& clientSocketInfo) {
 			// Act: shutdown the connector
 			context.pConnector->shutdown();
+			test::WaitForClosedSocket(*clientSocketInfo.socket());
 
 			// Assert: the client socket was closed
-			EXPECT_FALSE(test::IsSocketOpen(*pClientSocket));
+			EXPECT_FALSE(test::IsSocketOpen(*clientSocketInfo.socket()));
 			EXPECT_EQ(0u, context.pConnector->numActiveConnections());
 		});
 	}
 
 	TEST(TEST_CLASS, CanManageMultipleConnections) {
-		// Act: establish multiple connections
+		// Arrange: establish multiple connections
 		constexpr auto Num_Connections = 5u;
-		ConnectorTestContext context;
+		ConnectorTestContext context(test::GenerateRandomByteArray<Key>());
+
+		// Act:
 		auto state = SetupMultiConnectionTest(context, Num_Connections);
 
-		// Assert: all connections are active
+		// Assert: all connections are active (notice that connect is passed server information)
 		EXPECT_EQ(Num_Connections, state.Codes.size());
 		for (auto i = 0u; i < Num_Connections; ++i) {
 			EXPECT_EQ(PeerConnectCode::Accepted, state.Codes[i]);
-			EXPECT_TRUE(!!state.ClientSockets[i]);
-			EXPECT_EQ("127.0.0.1", state.ClientHosts[i]);
+			EXPECT_TRUE(!!state.ClientSocketInfos[i].socket());
+			EXPECT_EQ("127.0.0.1", state.ClientSocketInfos[i].host());
+			EXPECT_EQ(context.ServerPublicKey, state.ClientSocketInfos[i].publicKey());
 		}
 
 		EXPECT_EQ(Num_Connections, context.pConnector->numActiveConnections());
-	}
-
-	// endregion
-
-	// region connecting socket
-
-	namespace {
-		void RunConnectingSocketTest(const ConnectorTestContext& context, const action& handler) {
-			std::atomic<size_t> numCallbacks(0);
-
-			// Act: start a verify operation that the server does not respond to
-			std::shared_ptr<ionet::PacketSocket> pServerSocket;
-			test::SpawnPacketServerWork(context.IoContext, [&](const auto& pSocket) {
-				pServerSocket = pSocket;
-				++numCallbacks;
-			});
-
-			// - (use a result shared_ptr so that the connect callback is valid even after this function returns)
-			auto pCode = std::make_shared<PeerConnectCode>(static_cast<PeerConnectCode>(-1));
-			context.pConnector->connect(context.serverNode(), [&, pCode](auto connectCode, const auto&) {
-				// note that this is not expected to get called until shutdown because the client doesn't read or write any data
-				*pCode = connectCode;
-			});
-
-			// - wait for the initial work to complete and the connection to become active
-			WAIT_FOR_ONE(numCallbacks);
-			context.waitForActiveConnections(1);
-
-			// Assert: the client connect handler was never called
-			EXPECT_EQ(static_cast<PeerConnectCode>(-1), *pCode);
-
-			// - call the test handler
-			handler();
-		}
-	}
-
-	TEST(TEST_CLASS, VerifyingConnectionIsIncludedInNumActiveConnections) {
-		// Act:
-		ConnectorTestContext context;
-		RunConnectingSocketTest(context, [&]() {
-			// Assert: the verifying connection is active
-			EXPECT_EQ(1u, context.pConnector->numActiveConnections());
-		});
-	}
-
-	TEST(TEST_CLASS, ShutdownClosesVerifyingSocket) {
-		// Act:
-		ConnectorTestContext context;
-		RunConnectingSocketTest(context, [&]() {
-			// Act: shutdown the connector
-			context.pConnector->shutdown();
-
-			// Assert: the verifying socket is no longer active
-			EXPECT_EQ(0u, context.pConnector->numActiveConnections());
-		});
 	}
 
 	// endregion
@@ -373,10 +309,11 @@ namespace catapult { namespace net {
 			// - server: accept a single connection
 			CATAPULT_LOG(debug) << "starting async accept";
 			test::TcpAcceptor acceptor(context.IoContext);
-			auto serverSocket = boost::asio::ip::tcp::socket(context.IoContext);
-			boost::asio::post(acceptor.strand(), [&acceptor = acceptor.get(), &numCallbacks, &serverSocket]() {
-				acceptor.async_accept(serverSocket, [&numCallbacks](const auto& acceptEc) {
-					CATAPULT_LOG(debug) << "async_accept completed with: " << acceptEc.message();
+			std::shared_ptr<ionet::PacketSocket> pServerSocket;
+			boost::asio::post(acceptor.strand(), [&context, &acceptor = acceptor.get(), &numCallbacks, &pServerSocket]() {
+				ionet::Accept(context.IoContext, acceptor, test::CreatePacketSocketOptions(), [&numCallbacks, &pServerSocket](
+						const auto& socketInfo) {
+					pServerSocket = socketInfo.socket();
 					++numCallbacks;
 				});
 			});
@@ -418,8 +355,7 @@ namespace catapult { namespace net {
 
 			// Assert: the client connect handler was called with a timeout and nullptr
 			EXPECT_EQ(PeerConnectCode::Timed_Out, code);
-			EXPECT_FALSE(!!clientSocketInfo);
-			EXPECT_EQ("", clientSocketInfo.host());
+			test::AssertEmpty(clientSocketInfo);
 
 			// - wait for all connections to be destroyed
 			context.waitForActiveConnections(0);
@@ -438,135 +374,11 @@ namespace catapult { namespace net {
 	TEST(TEST_CLASS, TimeoutClosesConnectingSocket) {
 		// Arrange: timeout immediately (during connect where 0 active connections are expected)
 		const auto Num_Expected_Active_Connections = 0;
-		ConnectionSettings settings;
+		auto settings = test::CreateConnectionSettings();
 		settings.Timeout = utils::TimeSpan::FromMilliseconds(0);
 
 		// Assert:
 		RunTimeoutTest(settings, Num_Expected_Active_Connections);
-	}
-
-	TEST(TEST_CLASS, TimeoutClosesVerifyingSocket) {
-		// Arrange: timeout with some delay (during verify where 1 active connection is expected)
-		const auto Num_Expected_Active_Connections = 1;
-		ConnectionSettings settings;
-		settings.Timeout = utils::TimeSpan::FromMilliseconds(50);
-
-		// Assert:
-		RunTimeoutTest(settings, Num_Expected_Active_Connections);
-	}
-
-	// endregion
-
-	// region security mode
-
-	namespace {
-		struct SecurityModeTestState {
-			PeerConnectCode ConnectCode;
-			std::shared_ptr<ionet::PacketSocket> pServerSocket;
-			std::shared_ptr<ionet::PacketSocket> pConnectedClientSocket;
-		};
-
-		template<typename TAction>
-		void RunSecurityModeTest(const ConnectionSettings& settings, bool shouldSimulateError, TAction action) {
-			// Arrange:
-			ConnectorTestContext context(settings);
-			test::TcpAcceptor acceptor(context.IoContext);
-			auto pNumCallbacks = std::make_shared<std::atomic<size_t>>(0);
-
-			// - make a single connection with custom settings
-			SecurityModeTestState state;
-			test::SpawnPacketServerWork(acceptor, [&, pNumCallbacks](const auto& pSocket) {
-				state.pServerSocket = pSocket;
-				VerifyClient(pSocket, context.ServerKeyPair, settings.IncomingSecurityModes, [&, pNumCallbacks](auto, const auto&) {
-					++*pNumCallbacks;
-
-					// - simulate an error by having the server close the socket
-					if (shouldSimulateError)
-						state.pServerSocket->close();
-				});
-			});
-
-			context.pConnector->connect(context.serverNode(), [&, pNumCallbacks](auto connectCode, const auto& connectedSocketInfo) {
-				state.ConnectCode = connectCode;
-				state.pConnectedClientSocket = connectedSocketInfo.socket();
-				++*pNumCallbacks;
-			});
-
-			// - wait for the connection to be established
-			WAIT_FOR_VALUE(2u, *pNumCallbacks);
-
-			// Act: + Assert:
-			action(state);
-		}
-
-		void AssertWrittenPacketType(
-				const SecurityModeTestState& state,
-				ionet::PacketType expectedPacketType,
-				ionet::PacketType packetType) {
-			// Arrange: write a regular packet
-			auto pPacket = test::CreateRandomPacket(100, packetType);
-
-			std::atomic_bool isPacketRead(false);
-			ionet::PacketType readPacketType;
-			state.pConnectedClientSocket->write(ionet::PacketPayload(pPacket), [&](auto) { // sign-decorating write
-				state.pServerSocket->read([&](auto, const auto* pReadPacket) { // raw read
-					readPacketType = pReadPacket ? pReadPacket->Type : ionet::PacketType::Undefined;
-					isPacketRead = true;
-				});
-			});
-
-			// - wait for the read to occur
-			WAIT_FOR(isPacketRead);
-
-			// Assert:
-			EXPECT_EQ(expectedPacketType, readPacketType);
-		}
-	}
-
-	TEST(TEST_CLASS, SecurityModeNoneDoesNotWriteSecurePackets) {
-		// Arrange:
-		ConnectionSettings settings;
-		settings.OutgoingSecurityMode = ionet::ConnectionSecurityMode::None;
-		settings.IncomingSecurityModes = ionet::ConnectionSecurityMode::None | ionet::ConnectionSecurityMode::Signed;
-
-		// Act:
-		RunSecurityModeTest(settings, false, [](const auto& state) {
-			// Assert:
-			EXPECT_EQ(PeerConnectCode::Accepted, state.ConnectCode);
-			EXPECT_TRUE(!!state.pConnectedClientSocket);
-
-			AssertWrittenPacketType(state, ionet::PacketType::Chain_Info, ionet::PacketType::Chain_Info);
-		});
-	}
-
-	TEST(TEST_CLASS, SecurityModeSignedWritesSecurePackets) {
-		// Arrange:
-		ConnectionSettings settings;
-		settings.OutgoingSecurityMode = ionet::ConnectionSecurityMode::Signed;
-		settings.IncomingSecurityModes = ionet::ConnectionSecurityMode::None | ionet::ConnectionSecurityMode::Signed;
-
-		// Act:
-		RunSecurityModeTest(settings, false, [](const auto& state) {
-			// Assert:
-			EXPECT_EQ(PeerConnectCode::Accepted, state.ConnectCode);
-			EXPECT_TRUE(!!state.pConnectedClientSocket);
-
-			AssertWrittenPacketType(state, ionet::PacketType::Secure_Signed, ionet::PacketType::Chain_Info);
-		});
-	}
-
-	TEST(TEST_CLASS, UnsupportedSecurityModeIsRejected) {
-		// Arrange:
-		ConnectionSettings settings;
-		settings.OutgoingSecurityMode = ionet::ConnectionSecurityMode::None;
-		settings.IncomingSecurityModes = ionet::ConnectionSecurityMode::Signed;
-
-		// Act:
-		RunSecurityModeTest(settings, true, [](const auto& state) {
-			// Assert:
-			EXPECT_EQ(PeerConnectCode::Verify_Error, state.ConnectCode);
-			EXPECT_FALSE(!!state.pConnectedClientSocket);
-		});
 	}
 
 	// endregion

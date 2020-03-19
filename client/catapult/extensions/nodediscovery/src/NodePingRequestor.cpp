@@ -24,9 +24,13 @@ namespace catapult { namespace nodediscovery {
 
 	std::shared_ptr<NodePingRequestor> CreateNodePingRequestor(
 			const std::shared_ptr<thread::IoThreadPool>& pPool,
-			const crypto::KeyPair& keyPair,
+			const Key& serverPublicKey,
 			const net::ConnectionSettings& settings,
 			const model::UniqueNetworkFingerprint& networkFingerprint) {
-		return std::make_shared<NodePingRequestor>(pPool, keyPair, settings, NodePingResponseCompatibilityChecker(networkFingerprint));
+		return std::make_shared<NodePingRequestor>(
+				pPool,
+				serverPublicKey,
+				settings,
+				NodePingResponseCompatibilityChecker(networkFingerprint));
 	}
 }}

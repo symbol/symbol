@@ -83,9 +83,9 @@ namespace catapult { namespace local {
 
 		class DefaultLocalNode final : public LocalNode {
 		public:
-			DefaultLocalNode(std::unique_ptr<extensions::ProcessBootstrapper>&& pBootstrapper, const crypto::KeyPair& keyPair)
+			DefaultLocalNode(std::unique_ptr<extensions::ProcessBootstrapper>&& pBootstrapper, const config::CatapultKeys& keys)
 					: m_pBootstrapper(std::move(pBootstrapper))
-					, m_serviceLocator(keyPair)
+					, m_serviceLocator(keys)
 					, m_config(m_pBootstrapper->config())
 					, m_dataDirectory(config::CatapultDataDirectoryPreparer::Prepare(m_config.User.DataDirectory))
 					, m_nodes(
@@ -290,8 +290,8 @@ namespace catapult { namespace local {
 	}
 
 	std::unique_ptr<LocalNode> CreateLocalNode(
-			const crypto::KeyPair& keyPair,
+			const config::CatapultKeys& keys,
 			std::unique_ptr<extensions::ProcessBootstrapper>&& pBootstrapper) {
-		return CreateAndBootHost<DefaultLocalNode>(std::move(pBootstrapper), keyPair);
+		return CreateAndBootHost<DefaultLocalNode>(std::move(pBootstrapper), keys);
 	}
 }}

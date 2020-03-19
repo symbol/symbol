@@ -104,7 +104,7 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region utils
+	// region calculated properties
 
 	UnresolvedMosaicId GetUnresolvedCurrencyMosaicId(const BlockChainConfiguration& config) {
 		return UnresolvedMosaicId(config.CurrencyMosaicId.unwrap());

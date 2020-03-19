@@ -21,7 +21,7 @@
 #pragma once
 #include "LocalTestUtils.h"
 #include "catapult/cache_tx/MemoryUtCache.h"
-#include "catapult/crypto/KeyPair.h"
+#include "catapult/config/CatapultKeys.h"
 #include "catapult/extensions/LocalNodeChainScore.h"
 #include "catapult/extensions/ServiceLocator.h"
 #include "catapult/extensions/ServiceState.h"
@@ -156,8 +156,8 @@ namespace catapult { namespace test {
 	public:
 		/// Creates the test context.
 		ServiceLocatorTestContext()
-				: m_keyPair(GenerateKeyPair())
-				, m_locator(m_keyPair)
+				: m_keys(test::GenerateRandomByteArray<Key>(), GenerateKeyPair())
+				, m_locator(m_keys)
 		{}
 
 		/// Creates the test context around \a cache.
@@ -167,8 +167,8 @@ namespace catapult { namespace test {
 
 		/// Creates the test context around \a cache and \a timeSupplier.
 		ServiceLocatorTestContext(cache::CatapultCache&& cache, const supplier<Timestamp>& timeSupplier)
-				: m_keyPair(GenerateKeyPair())
-				, m_locator(m_keyPair)
+				: m_keys(test::GenerateRandomByteArray<Key>(), GenerateKeyPair())
+				, m_locator(m_keys)
 				, m_testState(std::move(cache), timeSupplier)
 		{}
 
@@ -186,7 +186,7 @@ namespace catapult { namespace test {
 	public:
 		/// Gets the public key.
 		const auto& publicKey() const {
-			return m_keyPair.publicKey();
+			return m_keys.caPublicKey();
 		}
 
 		/// Gets the service locator.
@@ -229,7 +229,7 @@ namespace catapult { namespace test {
 		}
 
 	private:
-		crypto::KeyPair m_keyPair;
+		config::CatapultKeys m_keys;
 		extensions::ServiceLocator m_locator;
 
 		ServiceTestState m_testState;

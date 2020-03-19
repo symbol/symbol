@@ -95,7 +95,7 @@ CORE_FIRSTINCLUDES = {
     'src/catapult/consumers/NewTransactionsConsumer.cpp': 'TransactionConsumers.h',
     'src/catapult/consumers/StatelessValidationConsumer.cpp': 'BlockConsumers.h',
 
-    'src/catapult/ionet/IoEnums.cpp': 'ConnectionSecurityMode.h',
+    'src/catapult/ionet/IoEnums.cpp': 'ConnectResult.h',
     'src/catapult/net/NetEnums.cpp': 'NodeRequestResult.h',
     'src/catapult/process/broker/main.cpp': 'catapult/extensions/ProcessBootstrapper.h',
     'src/catapult/process/recovery/main.cpp': 'catapult/extensions/ProcessBootstrapper.h',

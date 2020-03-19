@@ -19,11 +19,8 @@
 **/
 
 #include "ServerConnector.h"
-#include "VerifyPeer.h"
-#include "catapult/crypto/KeyPair.h"
 #include "catapult/ionet/Node.h"
 #include "catapult/ionet/PacketSocket.h"
-#include "catapult/ionet/SecureSignedPacketSocketDecorator.h"
 #include "catapult/thread/IoThreadPool.h"
 #include "catapult/thread/TimedCallback.h"
 #include "catapult/utils/Logging.h"
@@ -40,11 +37,11 @@ namespace catapult { namespace net {
 		public:
 			DefaultServerConnector(
 					const std::shared_ptr<thread::IoThreadPool>& pPool,
-					const crypto::KeyPair& keyPair,
+					const Key& serverPublicKey,
 					const ConnectionSettings& settings,
 					const std::string& name)
 					: m_pPool(pPool)
-					, m_keyPair(keyPair)
+					, m_serverPublicKey(serverPublicKey)
 					, m_settings(settings)
 					, m_name(name)
 					, m_tag(m_name.empty() ? std::string() : " (" + m_name + ")")
@@ -62,10 +59,10 @@ namespace catapult { namespace net {
 
 		public:
 			void connect(const ionet::Node& node, const ConnectCallback& callback) override {
-				if (!m_settings.AllowOutgoingSelfConnections && m_keyPair.publicKey() == node.identity().PublicKey) {
+				const auto& identityKey = node.identity().PublicKey;
+				if (!m_settings.AllowOutgoingSelfConnections && m_serverPublicKey == identityKey) {
 					CATAPULT_LOG(warning) << "self connection detected and aborted" << m_tag;
-					callback(PeerConnectCode::Self_Connection_Error, ionet::PacketSocketInfo());
-					return;
+					return callback(PeerConnectCode::Self_Connection_Error, ionet::PacketSocketInfo());
 				}
 
 				auto& ioContext = m_pPool->ioContext();
@@ -73,13 +70,14 @@ namespace catapult { namespace net {
 				pRequest->setTimeout(m_settings.Timeout);
 
 				auto socketOptions = m_settings.toSocketOptions();
-				auto cancel = ionet::Connect(ioContext, socketOptions, node.endpoint(), [pThis = shared_from_this(), node, pRequest](
+				const auto& endpoint = node.endpoint();
+				auto cancel = ionet::Connect(ioContext, socketOptions, endpoint, [pThis = shared_from_this(), identityKey, pRequest](
 						auto result,
 						const auto& connectedSocketInfo) {
 					if (ionet::ConnectResult::Connected != result)
 						return pRequest->callback(PeerConnectCode::Socket_Error, ionet::PacketSocketInfo());
 
-					pThis->verify(node.identity().PublicKey, connectedSocketInfo, pRequest);
+					pThis->verify(identityKey, connectedSocketInfo, pRequest);
 				});
 
 				pRequest->setTimeoutHandler([pThis = shared_from_this(), cancel]() {
@@ -91,33 +89,18 @@ namespace catapult { namespace net {
 		private:
 			template<typename TRequest>
 			void verify(
-					const Key& publicKey,
+					const Key& expectedIdentityKey,
 					const ionet::PacketSocketInfo& connectedSocketInfo,
 					const std::shared_ptr<TRequest>& pRequest) {
-				auto host = connectedSocketInfo.host();
-				auto pConnectedSocket = connectedSocketInfo.socket();
-				m_sockets.insert(pConnectedSocket);
-				pRequest->setTimeoutHandler([pThis = shared_from_this(), pConnectedSocket]() {
-					pConnectedSocket->close();
-					CATAPULT_LOG(debug) << "verify failed due to timeout" << pThis->m_tag;
-				});
+				if (expectedIdentityKey != connectedSocketInfo.publicKey()) {
+					CATAPULT_LOG(warning)
+							<< "aborting connection with identity mismatch (expected " << expectedIdentityKey
+							<< ", actual " << connectedSocketInfo.publicKey() << ")" << m_tag;
+					return pRequest->callback(PeerConnectCode::Verify_Error, ionet::PacketSocketInfo());
+				}
 
-				VerifiedPeerInfo serverPeerInfo{ publicKey, m_settings.OutgoingSecurityMode };
-				VerifyServer(pConnectedSocket, serverPeerInfo, m_keyPair, [pThis = shared_from_this(), host, pConnectedSocket, pRequest](
-						auto verifyResult,
-						const auto& verifiedPeerInfo) {
-					if (VerifyResult::Success != verifyResult) {
-						CATAPULT_LOG(warning) << "VerifyServer failed with " << verifyResult << pThis->m_tag;
-						return pRequest->callback(PeerConnectCode::Verify_Error, ionet::PacketSocketInfo());
-					}
-
-					auto pSecuredSocket = pThis->secure(pConnectedSocket, verifiedPeerInfo);
-					return pRequest->callback(PeerConnectCode::Accepted, ionet::PacketSocketInfo(host, pSecuredSocket));
-				});
-			}
-
-			PacketSocketPointer secure(const PacketSocketPointer& pSocket, const VerifiedPeerInfo& peerInfo) {
-				return AddSecureSigned(pSocket, peerInfo.SecurityMode, m_keyPair, peerInfo.PublicKey, m_settings.MaxPacketDataSize);
+				m_sockets.insert(connectedSocketInfo.socket());
+				pRequest->callback(PeerConnectCode::Accepted, connectedSocketInfo);
 			}
 
 		public:
@@ -128,7 +111,7 @@ namespace catapult { namespace net {
 
 		private:
 			std::shared_ptr<thread::IoThreadPool> m_pPool;
-			const crypto::KeyPair& m_keyPair;
+			Key m_serverPublicKey;
 			ConnectionSettings m_settings;
 
 			std::string m_name;
@@ -140,9 +123,9 @@ namespace catapult { namespace net {
 
 	std::shared_ptr<ServerConnector> CreateServerConnector(
 			const std::shared_ptr<thread::IoThreadPool>& pPool,
-			const crypto::KeyPair& keyPair,
+			const Key& serverPublicKey,
 			const ConnectionSettings& settings,
 			const char* name) {
-		return std::make_shared<DefaultServerConnector>(pPool, keyPair, settings, name ? std::string(name) : std::string());
+		return std::make_shared<DefaultServerConnector>(pPool, serverPublicKey, settings, name ? std::string(name) : std::string());
 	}
 }}

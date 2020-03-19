@@ -64,6 +64,9 @@ namespace catapult { namespace ionet {
 		/// Closes the socket.
 		virtual void close() = 0;
 
+		/// Aborts the current operation and closes the socket.
+		virtual void abort() = 0;
+
 		/// Gets a buffered interface to the packet socket.
 		virtual std::shared_ptr<PacketIo> buffered() = 0;
 	};
@@ -72,47 +75,38 @@ namespace catapult { namespace ionet {
 
 	// region PacketSocketInfo
 
-	/// Pair composed of packet socket and (resolved) host.
+	/// Tuple composed of (resolved) host, public key and packet socket.
 	class PacketSocketInfo {
 	public:
 		/// Creates an empty info.
-		PacketSocketInfo()
-		{}
+		PacketSocketInfo();
 
-		/// Creates an info around \a host and \a pPacketSocket.
-		PacketSocketInfo(const std::string& host, const std::shared_ptr<PacketSocket>& pPacketSocket)
-				: m_host(host)
-				, m_pPacketSocket(pPacketSocket)
-		{}
+		/// Creates an info around \a host, \a publicKey and \a pPacketSocket.
+		PacketSocketInfo(const std::string& host, const Key& publicKey, const std::shared_ptr<PacketSocket>& pPacketSocket);
 
 	public:
 		/// Gets the host.
-		const std::string& host() const {
-			return m_host;
-		}
+		const std::string& host() const;
+
+		/// Gets the public key.
+		const Key& publicKey() const;
 
 		/// Gets the socket.
-		const std::shared_ptr<PacketSocket>& socket() const {
-			return m_pPacketSocket;
-		}
+		const std::shared_ptr<PacketSocket>& socket() const;
 
 	public:
 		/// Returns \c true if this info is not empty.
-		explicit operator bool() const {
-			return !!m_pPacketSocket;
-		}
+		explicit operator bool() const;
 
 	private:
 		std::string m_host;
+		Key m_publicKey;
 		std::shared_ptr<PacketSocket> m_pPacketSocket;
 	};
 
 	// endregion
 
 	// region Accept
-
-	/// Callback for configuring a socket before initiating an accept.
-	using ConfigureSocketCallback = consumer<socket&>;
 
 	/// Callback for an accepted socket.
 	using AcceptCallback = consumer<const PacketSocketInfo&>;
@@ -122,16 +116,6 @@ namespace catapult { namespace ionet {
 			boost::asio::io_context& ioContext,
 			boost::asio::ip::tcp::acceptor& acceptor,
 			const PacketSocketOptions& options,
-			const AcceptCallback& accept);
-
-	/// Accepts a connection using \a ioContext and \a acceptor and calls \a accept on completion configuring the socket with \a options.
-	/// \a configureSocket is called before starting the accept to allow custom configuration of asio sockets.
-	/// \note User callbacks passed to the accepted socket are serialized.
-	void Accept(
-			boost::asio::io_context& ioContext,
-			boost::asio::ip::tcp::acceptor& acceptor,
-			const PacketSocketOptions& options,
-			const ConfigureSocketCallback& configureSocket,
 			const AcceptCallback& accept);
 
 	// endregion

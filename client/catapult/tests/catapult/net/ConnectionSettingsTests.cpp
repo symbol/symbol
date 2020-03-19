@@ -37,9 +37,6 @@ namespace catapult { namespace net {
 		EXPECT_EQ(0u, settings.SocketWorkingBufferSensitivity);
 		EXPECT_EQ(utils::FileSize::FromMegabytes(100), settings.MaxPacketDataSize);
 
-		EXPECT_EQ(ionet::ConnectionSecurityMode::None, settings.OutgoingSecurityMode);
-		EXPECT_EQ(ionet::ConnectionSecurityMode::None, settings.IncomingSecurityModes);
-
 		EXPECT_TRUE(settings.AllowIncomingSelfConnections);
 		EXPECT_FALSE(settings.AllowOutgoingSelfConnections);
 	}
@@ -58,5 +55,30 @@ namespace catapult { namespace net {
 		EXPECT_EQ(54u * 1024, options.WorkingBufferSize);
 		EXPECT_EQ(123u, options.WorkingBufferSensitivity);
 		EXPECT_EQ(2u * 1024 * 1024, options.MaxPacketDataSize);
+	}
+
+	TEST(TEST_CLASS, CanConvertToPacketSocketOptions_SslOptions) {
+		// Arrange:
+		auto settings = ConnectionSettings();
+		uint16_t callbackMask = 0x0000;
+		settings.SslOptions.ContextSupplier = [&callbackMask]() -> boost::asio::ssl::context& {
+			callbackMask += 0x01;
+			CATAPULT_THROW_RUNTIME_ERROR("context supplier error");
+		};
+		settings.SslOptions.VerifyCallbackSupplier = [&callbackMask]() {
+			return [&callbackMask](const auto&) {
+				callbackMask += 0x0100;
+				return true;
+			};
+		};
+
+		// Act:
+		auto options = settings.toSocketOptions();
+
+		// Assert:
+		ionet::PacketSocketSslVerifyContext verifyContext;
+		EXPECT_THROW(options.SslOptions.ContextSupplier(), catapult_runtime_error);
+		EXPECT_TRUE(options.SslOptions.VerifyCallbackSupplier()(verifyContext));
+		EXPECT_EQ(0x0101u, callbackMask);
 	}
 }}

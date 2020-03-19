@@ -19,30 +19,24 @@
 **/
 
 #pragma once
-#include "catapult/utils/BitwiseEnum.h"
-#include <iosfwd>
+#include <string>
 
-namespace catapult { namespace ionet {
+namespace catapult {
+	namespace crypto { class KeyPair; }
+	namespace test { class PemCertificate; }
+}
 
-#define CONNECTION_SECURITY_MODE_LIST \
-	/* Connection allows regular packets. */ \
-	ENUM_VALUE(None, 1) \
-	\
-	/* Connection only allows signed packets. */ \
-	ENUM_VALUE(Signed, 2)
+namespace catapult { namespace test {
 
-#define ENUM_VALUE(LABEL, VALUE) LABEL = VALUE,
-	/// Possible connection security modes.
-	enum class ConnectionSecurityMode : uint8_t {
-		CONNECTION_SECURITY_MODE_LIST
-	};
-#undef ENUM_VALUE
+	/// Gets the default directory for certificates used in tests.
+	std::string GetDefaultCertificateDirectory();
 
-	MAKE_BITWISE_ENUM(ConnectionSecurityMode)
+	/// Generates all certificate files in \a certificateDirectory.
+	void GenerateCertificateDirectory(const std::string& certificateDirectory);
 
-	/// Insertion operator for outputting \a value to \a out.
-	std::ostream& operator<<(std::ostream& out, ConnectionSecurityMode value);
+	/// Generates all certificate files in \a certificateDirectory with seed \a nodeKeyPair.
+	void GenerateCertificateDirectory(const std::string& certificateDirectory, const crypto::KeyPair& nodeKeyPair);
 
-	/// Tries to parse \a str into connection security \a modes.
-	bool TryParseValue(const std::string& str, ConnectionSecurityMode& modes);
+	/// Generates all certificate files in \a certificateDirectory with seed \a pemCertificate.
+	void GenerateCertificateDirectory(const std::string& certificateDirectory, const PemCertificate& pemCertificate);
 }}

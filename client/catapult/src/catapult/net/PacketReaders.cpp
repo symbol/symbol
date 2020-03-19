@@ -188,11 +188,11 @@ namespace catapult { namespace net {
 			DefaultPacketReaders(
 					const std::shared_ptr<thread::IoThreadPool>& pPool,
 					const ionet::ServerPacketHandlers& handlers,
-					const crypto::KeyPair& keyPair,
+					const Key& serverPublicKey,
 					const ConnectionSettings& settings,
 					uint32_t maxConnectionsPerIdentity)
 					: m_handlers(handlers)
-					, m_pClientConnector(CreateClientConnector(pPool, keyPair, settings, "readers"))
+					, m_pClientConnector(CreateClientConnector(pPool, serverPublicKey, settings, "readers"))
 					, m_readers(maxConnectionsPerIdentity, settings.NodeIdentityEqualityStrategy)
 			{}
 
@@ -211,11 +211,11 @@ namespace catapult { namespace net {
 
 		public:
 			void accept(const ionet::PacketSocketInfo& socketInfo, const AcceptCallback& callback) override {
-				m_pClientConnector->accept(socketInfo.socket(), [pThis = shared_from_this(), host = socketInfo.host(), callback](
+				m_pClientConnector->accept(socketInfo, [pThis = shared_from_this(), host = socketInfo.host(), callback](
 						auto connectCode,
 						const auto& pVerifiedSocket,
 						const auto& identityKey) {
-					ionet::PacketSocketInfo verifiedSocketInfo(host, pVerifiedSocket);
+					ionet::PacketSocketInfo verifiedSocketInfo(host, identityKey, pVerifiedSocket);
 					if (PeerConnectCode::Accepted == connectCode) {
 						if (!pThis->addReader(identityKey, verifiedSocketInfo))
 							connectCode = PeerConnectCode::Already_Connected;
@@ -270,9 +270,9 @@ namespace catapult { namespace net {
 	std::shared_ptr<PacketReaders> CreatePacketReaders(
 			const std::shared_ptr<thread::IoThreadPool>& pPool,
 			const ionet::ServerPacketHandlers& handlers,
-			const crypto::KeyPair& keyPair,
+			const Key& serverPublicKey,
 			const ConnectionSettings& settings,
 			uint32_t maxConnectionsPerIdentity) {
-		return std::make_shared<DefaultPacketReaders>(pPool, handlers, keyPair, settings, maxConnectionsPerIdentity);
+		return std::make_shared<DefaultPacketReaders>(pPool, handlers, serverPublicKey, settings, maxConnectionsPerIdentity);
 	}
 }}

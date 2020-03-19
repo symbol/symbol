@@ -34,18 +34,16 @@ namespace catapult { namespace local {
 		class TestContext : public test::LocalNodeTestContext<test::LocalNodePeerTraits> {
 		public:
 			explicit TestContext(NodeFlag nodeFlag)
-					: test::LocalNodeTestContext<test::LocalNodePeerTraits>(
-							nodeFlag | NodeFlag::With_Partner,
-							{ test::CreateLocalPartnerNode() })
+					: test::LocalNodeTestContext<test::LocalNodePeerTraits>(nodeFlag | NodeFlag::With_Partner, {})
 			{}
 		};
 
-		void PushAndWaitForSecondBlock() {
+		void PushAndWaitForSecondBlock(const TestContext& context) {
 			// push and wait for a block with height 2
-			test::ExternalSourceConnection connection1;
+			test::ExternalSourceConnection connection1(context.publicKey());
 			auto pIo = test::PushValidBlock(connection1);
 
-			test::ExternalSourceConnection connection2;
+			test::ExternalSourceConnection connection2(context.publicKey());
 			test::WaitForLocalNodeHeight(connection2, Height(2));
 		}
 	}
@@ -80,7 +78,7 @@ namespace catapult { namespace local {
 		EXPECT_EQ(Height(1), context.loadSavedStateChainHeight());
 
 		// Act:
-		PushAndWaitForSecondBlock();
+		PushAndWaitForSecondBlock(context);
 
 		// Assert: state was not updated
 		EXPECT_EQ(Height(1), context.loadSavedStateChainHeight());
@@ -100,7 +98,7 @@ namespace catapult { namespace local {
 		EXPECT_EQ(Height(1), context.loadSavedStateChainHeight());
 
 		// Act:
-		PushAndWaitForSecondBlock();
+		PushAndWaitForSecondBlock(context);
 
 		// Assert: state was updated
 		EXPECT_EQ(Height(2), context.loadSavedStateChainHeight());
@@ -119,7 +117,7 @@ namespace catapult { namespace local {
 	TEST(TEST_CLASS, ShutdownDoesNotSaveStateToDiskOnFailedBoot) {
 		// Arrange: create saved state
 		TestContext context(NodeFlag::Regular);
-		PushAndWaitForSecondBlock();
+		PushAndWaitForSecondBlock(context);
 		context.localNode().shutdown();
 
 		// Sanity:

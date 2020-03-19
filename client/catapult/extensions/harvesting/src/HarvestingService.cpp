@@ -26,6 +26,7 @@
 #include "UnlockedAccountsUpdater.h"
 #include "catapult/cache_core/ImportanceView.h"
 #include "catapult/cache_tx/MemoryUtCache.h"
+#include "catapult/config/CatapultKeys.h"
 #include "catapult/crypto/KeyUtils.h"
 #include "catapult/extensions/ConfigurationUtils.h"
 #include "catapult/extensions/ExecutionConfigurationFactory.h"
@@ -81,7 +82,7 @@ namespace catapult { namespace harvesting {
 		thread::Task CreateHarvestingTask(
 				extensions::ServiceState& state,
 				UnlockedAccounts& unlockedAccounts,
-				const crypto::KeyPair& bootKeyPair,
+				const crypto::KeyPair& encryptionKeyPair,
 				const Key& beneficiaryPublicKey) {
 			const auto& cache = state.cache();
 			const auto& blockChainConfig = state.config().BlockChain;
@@ -93,7 +94,7 @@ namespace catapult { namespace harvesting {
 			auto pUnlockedAccountsUpdater = std::make_shared<UnlockedAccountsUpdater>(
 					cache,
 					unlockedAccounts,
-					bootKeyPair,
+					encryptionKeyPair,
 					config::CatapultDataDirectory(state.config().User.DataDirectory));
 			pUnlockedAccountsUpdater->load();
 
@@ -167,7 +168,11 @@ namespace catapult { namespace harvesting {
 
 				// add tasks
 				auto beneficiaryPublicKey = crypto::ParseKey(m_config.BeneficiaryPublicKey);
-				state.tasks().push_back(CreateHarvestingTask(state, *pUnlockedAccounts, locator.keyPair(), beneficiaryPublicKey));
+				state.tasks().push_back(CreateHarvestingTask(
+						state,
+						*pUnlockedAccounts,
+						locator.keys().nodeKeyPair(),
+						beneficiaryPublicKey));
 
 				if (IsDiagnosticExtensionEnabled(state.config().Extensions))
 					RegisterDiagnosticUnlockedAccountsHandler(state, *pUnlockedAccounts);

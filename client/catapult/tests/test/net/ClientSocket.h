@@ -34,7 +34,10 @@ namespace catapult { namespace test {
 			Normal,
 
 			/// Abort connection immediately after connect.
-			Abort
+			Abort,
+
+			/// Skip handshake after connect.
+			Skip_Handshake
 		};
 
 	public:
@@ -61,17 +64,22 @@ namespace catapult { namespace test {
 
 		/// Shuts down the client socket.
 		virtual void shutdown() = 0;
+
+		/// Aborts the client socket.
+		virtual void abort() = 0;
 	};
 
 	/// Creates a client socket around \a ioContext.
 	std::shared_ptr<ClientSocket> CreateClientSocket(boost::asio::io_context& ioContext);
 
 	/// Spawns a task on \a ioContext that connects to the (localhost) server.
-	void AddClientConnectionTask(boost::asio::io_context& ioContext);
+	std::shared_ptr<ClientSocket> AddClientConnectionTask(boost::asio::io_context& ioContext);
 
 	/// Spawns a task on \a ioContext that reads \a receiveBuffer from a client socket.
-	void AddClientReadBufferTask(boost::asio::io_context& ioContext, ionet::ByteBuffer& receiveBuffer);
+	std::shared_ptr<ClientSocket> AddClientReadBufferTask(boost::asio::io_context& ioContext, ionet::ByteBuffer& receiveBuffer);
 
 	/// Spawns a task on \a ioContext that writes all \a sendBuffers to a client socket.
-	void AddClientWriteBuffersTask(boost::asio::io_context& ioContext, const std::vector<ionet::ByteBuffer>& sendBuffers);
+	std::shared_ptr<ClientSocket> AddClientWriteBuffersTask(
+			boost::asio::io_context& ioContext,
+			const std::vector<ionet::ByteBuffer>& sendBuffers);
 }}

@@ -33,19 +33,8 @@ namespace catapult {
 
 namespace catapult { namespace test {
 
-	/// Creates a connection to localhost on \a port configured with server public key \a serverPublicKey using \a ioContext
-	/// from a client with specified key pair (\a clientKeyPair).
-	std::shared_ptr<ionet::PacketSocket> ConnectToLocalHost(
-			boost::asio::io_context& ioContext,
-			unsigned short port,
-			const Key& serverPublicKey,
-			const crypto::KeyPair& clientKeyPair);
-
-	/// Creates a connection to localhost on \a port configured with server public key \a serverPublicKey using \a ioContext.
-	std::shared_ptr<ionet::PacketSocket> ConnectToLocalHost(
-			boost::asio::io_context& ioContext,
-			unsigned short port,
-			const Key& serverPublicKey);
+	/// Creates a connection to localhost on \a port configured using \a ioContext.
+	std::shared_ptr<ionet::PacketSocket> ConnectToLocalHost(boost::asio::io_context& ioContext, unsigned short port);
 
 	/// Creates a connection to localhost configured with server public key \a serverPublicKey
 	/// using \a packetWriters.

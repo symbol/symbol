@@ -75,9 +75,6 @@ namespace catapult { namespace config {
 							{ "enableDispatcherAbortWhenFull", "true" },
 							{ "enableDispatcherInputAuditing", "true" },
 
-							{ "outgoingSecurityMode", "Signed" },
-							{ "incomingSecurityModes", "None, Signed" },
-
 							{ "maxCacheDatabaseWriteBatchSize", "17KB" },
 							{ "maxTrackedNodes", "222" },
 
@@ -177,9 +174,6 @@ namespace catapult { namespace config {
 				EXPECT_FALSE(config.EnableDispatcherAbortWhenFull);
 				EXPECT_FALSE(config.EnableDispatcherInputAuditing);
 
-				EXPECT_EQ(static_cast<ionet::ConnectionSecurityMode>(0), config.OutgoingSecurityMode);
-				EXPECT_EQ(static_cast<ionet::ConnectionSecurityMode>(0), config.IncomingSecurityModes);
-
 				EXPECT_EQ(utils::FileSize::FromMegabytes(0), config.MaxCacheDatabaseWriteBatchSize);
 				EXPECT_EQ(0u, config.MaxTrackedNodes);
 
@@ -255,9 +249,6 @@ namespace catapult { namespace config {
 
 				EXPECT_TRUE(config.EnableDispatcherAbortWhenFull);
 				EXPECT_TRUE(config.EnableDispatcherInputAuditing);
-
-				EXPECT_EQ(ionet::ConnectionSecurityMode::Signed, config.OutgoingSecurityMode);
-				EXPECT_EQ(ionet::ConnectionSecurityMode::None | ionet::ConnectionSecurityMode::Signed, config.IncomingSecurityModes);
 
 				EXPECT_EQ(utils::FileSize::FromKilobytes(17), config.MaxCacheDatabaseWriteBatchSize);
 				EXPECT_EQ(222u, config.MaxTrackedNodes);

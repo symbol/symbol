@@ -110,11 +110,11 @@ namespace catapult { namespace net {
 		RequestorTestContext<> context;
 		auto pPacket = context.createResponsePacket(Height(1234));
 
-		// - change the public key to fail verification (verify failures are treated as connection failures)
-		test::FillWithRandomData(context.ServerPublicKey);
-
 		// Act:
-		RunConnectedTest<MemberBeginRequestPolicy>(context, pPacket, [](const auto& requestor, auto result, const auto& response) {
+		test::RunBriefServerRequestorDisconnectedTest<MemberBeginRequestPolicy>(context, [](
+				const auto& requestor,
+				auto result,
+				const auto& response) {
 			// Assert:
 			EXPECT_EQ(NodeRequestResult::Failure_Connection, result);
 			AssertFailedConnection(requestor, response);
@@ -206,9 +206,8 @@ namespace catapult { namespace net {
 			// - set up a server but don't respond to verify in order to trigger a timeout error
 			test::TcpAcceptor acceptor(context.pPool->ioContext());
 			std::shared_ptr<ionet::PacketSocket> pServerSocket;
-			test::SpawnPacketServerWork(acceptor, [&serverKeyPair = context.ServerKeyPair, &pServerSocket](const auto& pSocket) {
+			test::SpawnPacketServerWork(acceptor, [&pServerSocket](const auto& pSocket) {
 				pServerSocket = pSocket;
-				VerifyClient(pSocket, serverKeyPair, ionet::ConnectionSecurityMode::None, [pSocket](auto, const auto&) {});
 			});
 
 			// - initiate a request

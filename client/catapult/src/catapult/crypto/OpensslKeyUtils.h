@@ -18,17 +18,17 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/ionet/ConnectionSecurityMode.h"
-#include "tests/test/nodeps/ConfigurationTestUtils.h"
-#include "tests/TestHarness.h"
+#pragma once
+#include "KeyPair.h"
 
-namespace catapult { namespace ionet {
+namespace catapult { namespace crypto {
 
-#define TEST_CLASS ConnectionSecurityModeTests
+	/// Reads the public key from a public key pem file with name \a filename.
+	Key ReadPublicKeyFromPublicKeyPemFile(const std::string& filename);
 
-	TEST(TEST_CLASS, CanParseValidConnectionSecurityModes) {
-		test::AssertParse("None", ConnectionSecurityMode::None, TryParseValue);
-		test::AssertParse("Signed", ConnectionSecurityMode::Signed, TryParseValue);
-		test::AssertParse("None,Signed", ConnectionSecurityMode::None | ConnectionSecurityMode::Signed, TryParseValue);
-	}
+	/// Reads the public key from a private key pem file with name \a filename.
+	Key ReadPublicKeyFromPrivateKeyPemFile(const std::string& filename);
+
+	/// Reads the key pair from a private key pem file with name \a filename.
+	crypto::KeyPair ReadKeyPairFromPrivateKeyPemFile(const std::string& filename);
 }}

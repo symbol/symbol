@@ -79,6 +79,10 @@ namespace catapult { namespace net {
 				auto id = ++nextId;
 				if (id > sendBuffers.size()) {
 					CATAPULT_LOG(debug) << "wrote " << sendBuffers.size() << " buffers";
+
+					// don't shutdown unless at least one buffer was received in order to ensure all ssl handshakes are properly completed
+					WAIT_FOR_EXPR(m_numReceivedBuffers >= 1);
+					socket.shutdown();
 					return;
 				}
 
@@ -139,7 +143,8 @@ namespace catapult { namespace net {
 			});
 
 			auto pWriteContext = std::make_shared<WriteHandshakeContext>(numReceivedBuffers, options.NumReadsToConfirm);
-			test::CreateClientSocket(pPool->ioContext())->connect().then([&](auto&& socketFuture) {
+			auto pClientSocket = test::CreateClientSocket(pPool->ioContext());
+			pClientSocket->connect().then([&](auto&& socketFuture) {
 				pWriteContext->start(*socketFuture.get(), sendBuffers);
 			});
 
@@ -168,7 +173,7 @@ namespace catapult { namespace net {
 		test::SpawnPacketServerWork(pPool->ioContext(), [&](const auto& pServerSocket) {
 			pReader = CreateChainedReader(pServerSocket, handlers, clientIdentity, completionCode);
 		});
-		test::AddClientWriteBuffersTask(pPool->ioContext(), { test::GenerateRandomPacketBuffer(50) });
+		auto pClientSocket = test::AddClientWriteBuffersTask(pPool->ioContext(), { test::GenerateRandomPacketBuffer(50) });
 
 		// - wait for the test to complete
 		pPool->join();
@@ -198,7 +203,8 @@ namespace catapult { namespace net {
 			pReader = CreateChainedReader(pServerSocket, handlers, clientIdentity, completionCode);
 			pReader->start();
 		});
-		test::AddClientWriteBuffersTask(pPool->ioContext(), { test::GenerateRandomPacketBuffer(50) });
+		auto pClientSocket = test::AddClientWriteBuffersTask(pPool->ioContext(), { test::GenerateRandomPacketBuffer(50) });
+		pClientSocket.reset(); // server socket does not read the data
 
 		// - wait for the test to complete
 		pPool->join();
@@ -258,27 +264,34 @@ namespace catapult { namespace net {
 	}
 
 	TEST(TEST_CLASS, ReaderCanBeStopped) {
-		// Arrange: send three packets
-		auto sendBuffers = test::GenerateRandomPacketBuffers({ 20, 17, 50 });
+		// Assert: non-deterministic because stop is async
+		test::RunNonDeterministicTest("ReaderCanBeStopped", []() {
+			// Arrange: send three packets
+			auto sendBuffers = test::GenerateRandomPacketBuffers({ 20, 17, 50 });
 
-		// Act: stop the reader after the first packet was read
-		//      (this test needs to confirm the first read in order to delay the subsequent writes
-		//       until AFTER the first read is handled and the socket is closed)
-		SendBuffersOptions options;
-		options.NumReadsToConfirm = 1;
-		options.HookPacketReceived = [](auto& reader) {
-			CATAPULT_LOG(debug) << "stopping reader ";
-			reader.stop();
-			CATAPULT_LOG(debug) << "stopped reader ";
-		};
-		auto resultPair = SendBuffers(sendBuffers, options);
-		const auto& receivedBuffers = resultPair.first;
-		auto completionCode = resultPair.second;
+			// Act: stop the reader after the first packet was read
+			//      (this test needs to confirm the first read in order to delay the subsequent writes
+			//       until AFTER the first read is handled and the socket is closed)
+			SendBuffersOptions options;
+			options.NumReadsToConfirm = 1;
+			options.HookPacketReceived = [](auto& reader) {
+				CATAPULT_LOG(debug) << "stopping reader ";
+				reader.stop();
+				CATAPULT_LOG(debug) << "stopped reader ";
+			};
+			auto resultPair = SendBuffers(sendBuffers, options);
+			const auto& receivedBuffers = resultPair.first;
+			auto completionCode = resultPair.second;
 
-		// Assert: only the first packet (before the reader was stopped) was read
-		EXPECT_EQ(ionet::SocketOperationCode::Read_Error, completionCode);
-		ASSERT_EQ(1u, receivedBuffers.size());
-		EXPECT_EQUAL_BUFFERS(sendBuffers[0], 0, 20u, receivedBuffers[0]);
+			if (1 < receivedBuffers.size())
+				return false;
+
+			// Assert: only the first packet (before the reader was stopped) was read
+			EXPECT_EQ(ionet::SocketOperationCode::Read_Error, completionCode);
+			EXPECT_EQ(1u, receivedBuffers.size());
+			EXPECT_EQUAL_BUFFERS(sendBuffers[0], 0, 20u, receivedBuffers[0]);
+			return true;
+		});
 	}
 
 	TEST(TEST_CLASS, ReadsAreChained) {

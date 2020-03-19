@@ -20,30 +20,13 @@
 
 #include "LocalNodeRequestTestUtils.h"
 #include "sdk/src/extensions/BlockExtensions.h"
-#include "plugins/txes/mosaic/src/plugins/MosaicDefinitionTransactionPlugin.h"
-#include "plugins/txes/mosaic/src/plugins/MosaicSupplyChangeTransactionPlugin.h"
-#include "plugins/txes/namespace/src/plugins/MosaicAliasTransactionPlugin.h"
-#include "plugins/txes/namespace/src/plugins/NamespaceRegistrationTransactionPlugin.h"
-#include "plugins/txes/transfer/src/plugins/TransferTransactionPlugin.h"
+#include "sdk/src/extensions/TransactionExtensions.h"
 #include "catapult/preprocessor.h"
-#include "tests/test/core/BlockTestUtils.h"
+#include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/local/RealTransactionFactory.h"
+#include "tests/test/nodeps/Nemesis.h"
 
 namespace catapult { namespace test {
-
-	// region ExternalSourceConnection
-
-	model::TransactionRegistry ExternalSourceConnection::CreateTransactionRegistry() {
-		auto registry = model::TransactionRegistry();
-		registry.registerPlugin(plugins::CreateMosaicDefinitionTransactionPlugin(plugins::MosaicRentalFeeConfiguration()));
-		registry.registerPlugin(plugins::CreateMosaicSupplyChangeTransactionPlugin());
-		registry.registerPlugin(plugins::CreateMosaicAliasTransactionPlugin());
-		registry.registerPlugin(plugins::CreateNamespaceRegistrationTransactionPlugin(plugins::NamespaceRentalFeeConfiguration()));
-		registry.registerPlugin(plugins::CreateTransferTransactionPlugin());
-		return registry;
-	}
-
-	// endregion
 
 	// region push
 
@@ -54,6 +37,9 @@ namespace catapult { namespace test {
 			CATAPULT_LOG(debug) << "writing entity";
 			pPacketSocket->write(payload, [&isWriteFinished](auto code) {
 				CATAPULT_LOG(debug) << "write result: " << code;
+
+				// give server enough time for ssl handshake
+				test::Sleep(500);
 				isWriteFinished = true;
 			});
 		});
@@ -68,14 +54,17 @@ namespace catapult { namespace test {
 			return crypto::KeyPair::FromString(Mijin_Test_Private_Keys[5]); // use a nemesis account
 		}
 
+		model::PreviousBlockContext LoadNemesisPreviousBlockContext() {
+			mocks::MockMemoryBlockStorage storage;
+			auto pNemesisBlockElement = storage.loadBlockElement(Height(1));
+			return model::PreviousBlockContext(*pNemesisBlockElement);
+		}
+
 		std::shared_ptr<model::Block> CreateBlock() {
 			constexpr auto Network_Identifier = model::NetworkIdentifier::Mijin_Test;
 			auto signer = GetNemesisAccountKeyPair();
+			auto context = LoadNemesisPreviousBlockContext();
 
-			mocks::MockMemoryBlockStorage storage;
-			auto pNemesisBlockElement = storage.loadBlockElement(Height(1));
-
-			model::PreviousBlockContext context(*pNemesisBlockElement);
 			auto pBlock = model::CreateBlock(context, Network_Identifier, signer.publicKey(), model::Transactions());
 			pBlock->Timestamp = context.Timestamp + Timestamp(60000);
 			extensions::BlockExtensions(GetDefaultGenerationHash()).signFullBlock(signer, *pBlock);
@@ -89,8 +78,15 @@ namespace catapult { namespace test {
 	}
 
 	std::shared_ptr<ionet::PacketIo> PushValidTransaction(ExternalSourceConnection& connection) {
+		auto signer = GetNemesisAccountKeyPair();
+		auto context = LoadNemesisPreviousBlockContext();
+
 		auto recipient = test::GenerateRandomUnresolvedAddress();
-		auto pTransaction = CreateTransferTransaction(GetNemesisAccountKeyPair(), recipient, Amount(10000));
+		auto pTransaction = CreateUnsignedTransferTransaction(signer.publicKey(), recipient, Amount(10000));
+		pTransaction->MaxFee = Amount(10 * pTransaction->Size);
+		pTransaction->Deadline = context.Timestamp + Timestamp(120000);
+		extensions::TransactionExtensions(GetNemesisGenerationHash()).sign(signer, *pTransaction);
+
 		return PushEntity(connection, ionet::PacketType::Push_Transactions, std::shared_ptr<model::Transaction>(std::move(pTransaction)));
 	}
 

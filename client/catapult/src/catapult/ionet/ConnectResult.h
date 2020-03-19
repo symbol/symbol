@@ -30,6 +30,9 @@ namespace catapult { namespace ionet {
 	/* Connection could not be established. */ \
 	ENUM_VALUE(Connect_Error) \
 	\
+	/* Connection handshake failed. */ \
+	ENUM_VALUE(Handshake_Error) \
+	\
 	/* Connection attempt was cancelled. */ \
 	ENUM_VALUE(Connect_Cancelled) \
 	\

@@ -90,7 +90,7 @@ namespace catapult { namespace local {
 		template<typename THandler>
 		void RunExternalReaderTest(THandler handler) {
 			// Arrange: boot a partner node
-			TestContext context(NodeFlag::With_Partner, { test::CreateLocalPartnerNode() });
+			TestContext context(NodeFlag::With_Partner, {});
 			context.waitForNumActiveWriters(1);
 
 			// Act: create an external connection to the node
