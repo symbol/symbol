@@ -2,7 +2,7 @@ tags:
   - Account routes
 summary: Get aggregate bonded transactions information
 description: |
-  Gets an array of aggregate bonded transactions where the account is the sender or requires to cosign the transaction.
+  Gets an array of aggregate bonded transactions where the account is the sender, recipient, or requires to cosign the transaction.
 operationId: getAccountPartialTransactions
 parameters:
   - $ref: "../../../parameters/path/accountId.yml"
