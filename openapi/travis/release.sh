@@ -27,8 +27,6 @@ if [ "$TRAVIS_BRANCH" = "$RELEASE_BRANCH" ]; then
   echo "Creating tag v$CURRENT_VERSION"
   git tag -fa "v$CURRENT_VERSION" -m "Releasing version $CURRENT_VERSION"
 
-  cp travis/.npmrc $HOME/.npmrc
-
   echo "Increasing openapi version"
   npm version patch -m "Increasing version to %s" --git-tag-version false
 
