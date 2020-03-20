@@ -71,7 +71,14 @@ namespace catapult { namespace extensions {
 				, m_cache(cache)
 				, m_storage(storage)
 				, m_score(score)
-				, m_utCache(utCache)
+				/**
+				*** cannot hold reference to MemoryUtCacheProxy because it is not allowed to be called across modules
+				*** (it does not have type_visibility attribute) and ServiceState is passed to extensions.
+				*** instead, call MemoryUtCacheProxy::get (both return types with type_visibility attribute) during ServiceState
+				*** construction, which is expected to be in same module as MemoryUtCacheProxy.
+				**/
+				, m_readWriteUtCache(const_cast<const cache::MemoryUtCacheProxy&>(utCache).get())
+				, m_utCache(utCache.get())
 				, m_timeSupplier(timeSupplier)
 				, m_transactionStatusSubscriber(transactionStatusSubscriber)
 				, m_stateChangeSubscriber(stateChangeSubscriber)
@@ -110,12 +117,12 @@ namespace catapult { namespace extensions {
 
 		/// Gets the unconfirmed transactions cache.
 		const cache::ReadWriteUtCache& utCache() const {
-			return const_cast<const cache::MemoryUtCacheProxy&>(m_utCache).get();
+			return m_readWriteUtCache;
 		}
 
 		/// Gets the unconfirmed transactions cache.
 		cache::UtCache& utCache() {
-			return m_utCache.get();
+			return m_utCache;
 		}
 
 		/// Gets the time supplier.
@@ -186,7 +193,8 @@ namespace catapult { namespace extensions {
 		cache::CatapultCache& m_cache;
 		io::BlockStorageCache& m_storage;
 		LocalNodeChainScore& m_score;
-		cache::MemoryUtCacheProxy& m_utCache;
+		const cache::ReadWriteUtCache& m_readWriteUtCache;
+		cache::UtCache& m_utCache;
 		supplier<Timestamp> m_timeSupplier;
 
 		subscribers::TransactionStatusSubscriber& m_transactionStatusSubscriber;
