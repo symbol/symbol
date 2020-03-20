@@ -6,7 +6,8 @@
   "scripts": {
     "test": "swagger-cli validate _build/openapi3.yml",
     "build": "swagger-cli bundle ./spec/openapi.yml --outfile _build/openapi3.yml --type yaml",
-    "postman": "openapi2postmanv2 -s _build/openapi3.yml -o _build/postman.json -p"
+    "postman": "openapi2postmanv2 -s _build/openapi3.yml -o _build/postman.json -p",
+    "version": "echo $npm_package_version"
   },
   "repository": {
     "type": "git",
