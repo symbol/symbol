@@ -7,12 +7,22 @@ cache:
 before_script:
   - npm install -g swagger-cli
   - npm install -g openapi-to-postmanv2
+  - npm install -g yaml-cli
 script:
   - npm run build
   - npm run postman
   - npm test
-
 deploy:
+  - provider: script
+    skip_cleanup: true
+    script: /bin/sh travis/github-pages.sh
+    on:
+      branch: $RELEASE_BRANCH
+  - provider: script
+    skip_cleanup: true
+    script: /bin/sh travis/release.sh
+    on:
+      branch: $RELEASE_BRANCH
   - provider: releases
     skip_cleanup: true
     file:
@@ -21,9 +31,3 @@ deploy:
     api_key: $GITHUB_TOKEN
     on:
       tags: true
-  - provider: pages
-    skip_cleanup: true
-    github_token: $GITHUB_TOKEN
-    local_dir: _build
-    on:
-      branch: master
