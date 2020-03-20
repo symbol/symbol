@@ -8,6 +8,10 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 Targets catapult-rest 1.0.20.22
 
+### Added
+
+- Automatic release management with TravisCI.
+
 ### Changed
 
 - Parameters split in two folders "query" and "parameters"
