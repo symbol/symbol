@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.8.9] - 19-Mar-2020
+
+Targets catapult-rest 1.0.20.22
+
+### Changed
+
+- Parameters split in two folders "query" and "parameters"
+- Parameters names are now unique.
+
 ## [0.8.7] - 09-Mar-2020
 
 Targets catapult-rest 1.0.20.22
