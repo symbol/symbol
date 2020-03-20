@@ -61,8 +61,11 @@ namespace catapult { namespace crypto {
 				auto dataSize = BIO_get_mem_data(m_pImpl.get(), &pRawData);
 
 				std::string result;
-				result.resize(static_cast<size_t>(dataSize));
-				std::memcpy(result.data(), pRawData, result.size());
+				if (pRawData) {
+					result.resize(static_cast<size_t>(dataSize));
+					std::memcpy(result.data(), pRawData, result.size());
+				}
+
 				return result;
 			}
 

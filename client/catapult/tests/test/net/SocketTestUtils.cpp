@@ -195,29 +195,13 @@ namespace catapult { namespace test {
 		return boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string("127.0.0.1"), port);
 	}
 
-	namespace {
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wexit-time-destructors"
-#endif
-
-		supplier<boost::asio::ssl::context&> GetDefaultContextSupplier() {
-			static auto supplier = ionet::CreateSslContextSupplier(GetDefaultCertificateDirectory());
-			return supplier;
-		}
-
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
-	}
-
 	ionet::PacketSocketSslOptions CreatePacketSocketSslOptions() {
 		return CreatePacketSocketSslOptions(Key());
 	}
 
 	ionet::PacketSocketSslOptions CreatePacketSocketSslOptions(const Key& publicKey) {
 		ionet::PacketSocketSslOptions options;
-		options.ContextSupplier = GetDefaultContextSupplier();
+		options.ContextSupplier = ionet::CreateSslContextSupplier(GetDefaultCertificateDirectory());
 		options.VerifyCallbackSupplier = [publicKey]() {
 			return [publicKey](auto& verifyContext) {
 				verifyContext.setPublicKey(publicKey);

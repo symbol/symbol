@@ -80,6 +80,7 @@ namespace catapult { namespace ionet {
 					, m_strandWrapper(m_strand)
 					, m_socket(ioContext, sslContext)
 					, m_sentinelByte(0) {
+				m_isClosed.clear();
 				m_isClosed.test_and_set();
 			}
 
@@ -88,6 +89,7 @@ namespace catapult { namespace ionet {
 					, m_strandWrapper(m_strand)
 					, m_socket(std::move(socket), sslContext)
 					, m_sentinelByte(0) {
+				m_isClosed.clear();
 				m_isClosed.test_and_set();
 			}
 
