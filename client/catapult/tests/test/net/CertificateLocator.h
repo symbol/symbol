@@ -34,9 +34,6 @@ namespace catapult { namespace test {
 	/// Generates all certificate files in \a certificateDirectory.
 	void GenerateCertificateDirectory(const std::string& certificateDirectory);
 
-	/// Generates all certificate files in \a certificateDirectory with seed \a nodeKeyPair.
-	void GenerateCertificateDirectory(const std::string& certificateDirectory, const crypto::KeyPair& nodeKeyPair);
-
 	/// Generates all certificate files in \a certificateDirectory with seed \a pemCertificate.
 	void GenerateCertificateDirectory(const std::string& certificateDirectory, const PemCertificate& pemCertificate);
 }}

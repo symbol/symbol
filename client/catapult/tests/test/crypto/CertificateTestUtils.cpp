@@ -251,10 +251,7 @@ namespace catapult { namespace test {
 		}
 	}
 
-	PemCertificate::PemCertificate() : PemCertificate(GenerateKeyPair())
-	{}
-
-	PemCertificate::PemCertificate(const crypto::KeyPair& nodeKeyPair) : PemCertificate(GenerateKeyPair(), nodeKeyPair)
+	PemCertificate::PemCertificate() : PemCertificate(GenerateKeyPair(), GenerateKeyPair())
 	{}
 
 	PemCertificate::PemCertificate(const crypto::KeyPair& caKeyPair, const crypto::KeyPair& nodeKeyPair)

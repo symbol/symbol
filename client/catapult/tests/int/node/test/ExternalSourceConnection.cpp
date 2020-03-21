@@ -29,6 +29,7 @@
 #include "catapult/ionet/PacketSocket.h"
 #include "catapult/net/ServerConnector.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
+#include "tests/test/crypto/CertificateTestUtils.h"
 #include "tests/test/net/CertificateLocator.h"
 #include "tests/test/other/RemoteApiFactory.h"
 
@@ -71,7 +72,7 @@ namespace catapult { namespace test {
 	}
 
 	net::ConnectionSettings ExternalSourceConnection::createConnectionSettings() {
-		GenerateCertificateDirectory(m_tempDirectoryGuard.name(), m_caKeyPair);
+		GenerateCertificateDirectory(m_tempDirectoryGuard.name(), PemCertificate(m_caKeyPair, GenerateKeyPair()));
 
 		auto settings = CreateConnectionSettings();
 		settings.SslOptions.ContextSupplier = ionet::CreateSslContextSupplier(m_tempDirectoryGuard.name());

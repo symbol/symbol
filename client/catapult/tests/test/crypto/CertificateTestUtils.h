@@ -104,9 +104,6 @@ namespace catapult { namespace test {
 		/// Creates pem certificate with random node key pair.
 		PemCertificate();
 
-		/// Creates pem certificate around \a nodeKeyPair.
-		explicit PemCertificate(const crypto::KeyPair& nodeKeyPair);
-
 		/// Creates pem certificate around \a caKeyPair and \a nodeKeyPair.
 		PemCertificate(const crypto::KeyPair& caKeyPair, const crypto::KeyPair& nodeKeyPair);
 

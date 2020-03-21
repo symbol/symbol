@@ -53,10 +53,6 @@ namespace catapult { namespace test {
 		GenerateCertificateDirectory(certificateDirectory, PemCertificate());
 	}
 
-	void GenerateCertificateDirectory(const std::string& certificateDirectory, const crypto::KeyPair& nodeKeyPair) {
-		GenerateCertificateDirectory(certificateDirectory, PemCertificate(nodeKeyPair));
-	}
-
 	void GenerateCertificateDirectory(const std::string& certificateDirectory, const PemCertificate& pemCertificate) {
 		CATAPULT_LOG(info) << "generating new certificate directory: " << certificateDirectory;
 		boost::filesystem::create_directories(certificateDirectory);
