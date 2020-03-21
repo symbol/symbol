@@ -27,7 +27,6 @@
 #include "catapult/cache_core/ImportanceView.h"
 #include "catapult/cache_tx/MemoryUtCache.h"
 #include "catapult/config/CatapultKeys.h"
-#include "catapult/crypto/KeyUtils.h"
 #include "catapult/extensions/ConfigurationUtils.h"
 #include "catapult/extensions/ExecutionConfigurationFactory.h"
 #include "catapult/extensions/ServiceLocator.h"
@@ -36,6 +35,7 @@
 #include "catapult/ionet/PacketPayloadFactory.h"
 #include "catapult/model/EntityRange.h"
 #include "catapult/plugins/PluginManager.h"
+#include "catapult/utils/HexParser.h"
 
 namespace catapult { namespace harvesting {
 
@@ -167,7 +167,7 @@ namespace catapult { namespace harvesting {
 				locator.registerRootedService("unlockedAccounts", pUnlockedAccounts);
 
 				// add tasks
-				auto beneficiaryPublicKey = crypto::ParseKey(m_config.BeneficiaryPublicKey);
+				auto beneficiaryPublicKey = utils::ParseByteArray<Key>(m_config.BeneficiaryPublicKey);
 				state.tasks().push_back(CreateHarvestingTask(
 						state,
 						*pUnlockedAccounts,

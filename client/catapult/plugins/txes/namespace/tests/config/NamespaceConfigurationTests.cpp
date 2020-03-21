@@ -19,7 +19,7 @@
 **/
 
 #include "src/config/NamespaceConfiguration.h"
-#include "catapult/crypto/KeyUtils.h"
+#include "catapult/utils/HexParser.h"
 #include "tests/test/nodeps/ConfigurationTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -84,7 +84,7 @@ namespace catapult { namespace config {
 				EXPECT_EQ(utils::BlockSpan::FromDays(20), config.NamespaceGracePeriodDuration);
 				EXPECT_EQ((std::unordered_set<std::string>{ "alpha", "omega" }), config.ReservedRootNamespaceNames);
 
-				EXPECT_EQ(crypto::ParseKey(Namespace_Rental_Fee_Sink_Public_Key), config.NamespaceRentalFeeSinkPublicKey);
+				EXPECT_EQ(utils::ParseByteArray<Key>(Namespace_Rental_Fee_Sink_Public_Key), config.NamespaceRentalFeeSinkPublicKey);
 				EXPECT_EQ(Amount(78), config.RootNamespaceRentalFeePerBlock);
 				EXPECT_EQ(Amount(11223322), config.ChildNamespaceRentalFee);
 			}

@@ -21,7 +21,6 @@
 #include "ToolNetworkUtils.h"
 #include "ToolKeys.h"
 #include "ToolThreadUtils.h"
-#include "catapult/crypto/KeyUtils.h"
 #include "catapult/ionet/Node.h"
 #include "catapult/ionet/PacketSocket.h"
 #include "catapult/net/ServerConnector.h"

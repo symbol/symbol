@@ -20,7 +20,6 @@
 
 #include "catapult/config/CatapultConfiguration.h"
 #include "catapult/config/CatapultKeys.h"
-#include "catapult/crypto/KeyUtils.h"
 #include "catapult/crypto/OpensslKeyUtils.h"
 #include "catapult/utils/HexParser.h"
 #include "tests/test/net/CertificateLocator.h"
@@ -51,7 +50,9 @@ namespace catapult { namespace config {
 			// Assert:
 			EXPECT_EQ(model::NetworkIdentifier::Mijin_Test, config.Network.Identifier);
 			EXPECT_EQ(model::NodeIdentityEqualityStrategy::Host, config.Network.NodeEqualityStrategy);
-			EXPECT_EQ(crypto::ParseKey("C67F465087EF681824805B7E9FF3B2728A4EE847DE044DE5D9FA415F7660B08E"), config.Network.PublicKey);
+			EXPECT_EQ(
+					utils::ParseByteArray<Key>("C67F465087EF681824805B7E9FF3B2728A4EE847DE044DE5D9FA415F7660B08E"),
+					config.Network.PublicKey);
 			EXPECT_EQ(
 					utils::ParseByteArray<GenerationHash>("57F7DA205008026C776CB6AED843393F04CD458E0AA2D9F1D5F31A402072B2D6"),
 					config.Network.GenerationHash);

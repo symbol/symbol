@@ -19,9 +19,9 @@
 **/
 
 #include "catapult/ionet/Node.h"
-#include "catapult/crypto/KeyUtils.h"
 #include "catapult/model/Address.h"
 #include "catapult/model/NetworkIdentifier.h"
+#include "catapult/utils/HexParser.h"
 #include "tests/TestHarness.h"
 #include <sstream>
 
@@ -210,7 +210,7 @@ namespace catapult { namespace ionet {
 		auto expectedTwentyFiveAddress = "EWX7YGZ5D524BZVRCPJL3M34MV23QJKFRPLA5UKO";
 
 		// Assert: note that the public key -> address conversion is dependent on network
-		auto identityKey = crypto::ParseKey("1B664F8BDA2DBF33CB6BE21C8EB3ECA9D9D5BF144C08E9577ED0D1E5E5608751");
+		auto identityKey = utils::ParseByteArray<Key>("1B664F8BDA2DBF33CB6BE21C8EB3ECA9D9D5BF144C08E9577ED0D1E5E5608751");
 		AssertOutputOperator(
 				{ { identityKey, "11.22.33.44" }, { "bob.com", 1234 }, CreateMetadata(model::NetworkIdentifier::Mijin) },
 				std::string(expectedMijinAddress) + " @ bob.com:1234");

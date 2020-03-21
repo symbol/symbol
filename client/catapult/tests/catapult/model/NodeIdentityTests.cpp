@@ -19,7 +19,7 @@
 **/
 
 #include "catapult/model/NodeIdentity.h"
-#include "catapult/crypto/KeyUtils.h"
+#include "catapult/utils/HexParser.h"
 #include "tests/test/nodeps/ConfigurationTestUtils.h"
 #include "tests/test/nodeps/Equality.h"
 #include "tests/TestHarness.h"
@@ -42,14 +42,14 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, CanOutputNodeWithHost) {
-		auto identityKey = crypto::ParseKey("1B664F8BDA2DBF33CB6BE21C8EB3ECA9D9D5BF144C08E9577ED0D1E5E5608751");
+		auto identityKey = utils::ParseByteArray<Key>("1B664F8BDA2DBF33CB6BE21C8EB3ECA9D9D5BF144C08E9577ED0D1E5E5608751");
 		AssertOutputOperator(
 				{ identityKey, "11.22.33.44" },
 				"1B664F8BDA2DBF33CB6BE21C8EB3ECA9D9D5BF144C08E9577ED0D1E5E5608751 @ 11.22.33.44");
 	}
 
 	TEST(TEST_CLASS, CanOutputNodeWithoutHost) {
-		auto identityKey = crypto::ParseKey("1B664F8BDA2DBF33CB6BE21C8EB3ECA9D9D5BF144C08E9577ED0D1E5E5608751");
+		auto identityKey = utils::ParseByteArray<Key>("1B664F8BDA2DBF33CB6BE21C8EB3ECA9D9D5BF144C08E9577ED0D1E5E5608751");
 		AssertOutputOperator({ identityKey, "" }, "1B664F8BDA2DBF33CB6BE21C8EB3ECA9D9D5BF144C08E9577ED0D1E5E5608751");
 	}
 

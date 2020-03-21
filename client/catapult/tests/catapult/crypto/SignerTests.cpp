@@ -19,7 +19,6 @@
 **/
 
 #include "catapult/crypto/Signer.h"
-#include "catapult/crypto/KeyUtils.h"
 #include "catapult/utils/HexParser.h"
 #include "catapult/utils/RandomGenerator.h"
 #include "tests/test/crypto/CurveUtils.h"
@@ -247,7 +246,7 @@ namespace catapult { namespace crypto {
 
 	namespace {
 		constexpr auto Default_Signature_Count = 100u;
-		const Key Valid_Public_Key = ParseKey("53C659B47C176A70EB228DE5C0A0FF391282C96640C2A42CD5BBD0982176AB1B");
+		const Key Valid_Public_Key = utils::ParseByteArray<Key>("53C659B47C176A70EB228DE5C0A0FF391282C96640C2A42CD5BBD0982176AB1B");
 
 		struct DataHolder {
 			std::vector<Key> PublicKeys;

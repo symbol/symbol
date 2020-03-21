@@ -21,7 +21,6 @@
 #include "LocalTestUtils.h"
 #include "catapult/cache_tx/MemoryUtCache.h"
 #include "catapult/chain/UtUpdater.h"
-#include "catapult/crypto/KeyUtils.h"
 #include "catapult/extensions/PluginUtils.h"
 #include "catapult/plugins/PluginLoader.h"
 #include "catapult/utils/NetworkTime.h"

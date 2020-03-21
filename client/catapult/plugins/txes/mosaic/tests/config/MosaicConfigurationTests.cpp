@@ -19,7 +19,7 @@
 **/
 
 #include "src/config/MosaicConfiguration.h"
-#include "catapult/crypto/KeyUtils.h"
+#include "catapult/utils/HexParser.h"
 #include "tests/test/nodeps/ConfigurationTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -67,7 +67,7 @@ namespace catapult { namespace config {
 				EXPECT_EQ(utils::BlockSpan::FromHours(2340), config.MaxMosaicDuration);
 				EXPECT_EQ(7u, config.MaxMosaicDivisibility);
 
-				EXPECT_EQ(crypto::ParseKey(Mosaic_Rental_Fee_Sink_Public_Key), config.MosaicRentalFeeSinkPublicKey);
+				EXPECT_EQ(utils::ParseByteArray<Key>(Mosaic_Rental_Fee_Sink_Public_Key), config.MosaicRentalFeeSinkPublicKey);
 				EXPECT_EQ(Amount(773388), config.MosaicRentalFee);
 			}
 		};

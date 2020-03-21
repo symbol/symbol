@@ -24,8 +24,8 @@
 #include "catapult/cache/CatapultCache.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/crypto/KeyPair.h"
-#include "catapult/crypto/KeyUtils.h"
 #include "catapult/model/Address.h"
+#include "catapult/utils/HexParser.h"
 #include "tests/test/nodeps/MijinConstants.h"
 #include "tests/test/nodeps/TestConstants.h"
 #include "tests/TestHarness.h"
@@ -42,7 +42,7 @@ namespace catapult { namespace test {
 	}
 
 	Address RawPublicKeyToAddress(const char* publicKeyString) {
-		return model::PublicKeyToAddress(crypto::ParseKey(publicKeyString), Network_Identifier);
+		return model::PublicKeyToAddress(utils::ParseByteArray<Key>(publicKeyString), Network_Identifier);
 	}
 
 	Address RawPrivateKeyToAddress(const char* privateKeyString) {
@@ -120,8 +120,8 @@ namespace catapult { namespace test {
 			AssertNemesisAccount(view);
 
 			// - check rental fee accounts
-			AssertRentalFeeAccount(view, crypto::ParseKey(Namespace_Rental_Fee_Sink_Public_Key));
-			AssertRentalFeeAccount(view, crypto::ParseKey(Mosaic_Rental_Fee_Sink_Public_Key));
+			AssertRentalFeeAccount(view, utils::ParseByteArray<Key>(Namespace_Rental_Fee_Sink_Public_Key));
+			AssertRentalFeeAccount(view, utils::ParseByteArray<Key>(Mosaic_Rental_Fee_Sink_Public_Key));
 
 			// - check recipient accounts
 			for (const auto* pRecipientPrivateKeyString : test::Mijin_Test_Private_Keys)

@@ -22,6 +22,7 @@
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/crypto/KeyUtils.h"
 #include "catapult/model/Address.h"
+#include "catapult/utils/HexParser.h"
 #include "catapult/utils/Logging.h"
 #include "catapult/utils/RandomGenerator.h"
 #include "catapult/exceptions.h"
@@ -61,7 +62,7 @@ namespace catapult { namespace tools { namespace address {
 					CATAPULT_THROW_INVALID_ARGUMENT_1("unknown network", m_networkName);
 
 				if (!m_publicKey.empty()) {
-					output(networkIdentifier, crypto::ParseKey(m_publicKey));
+					output(networkIdentifier, utils::ParseByteArray<Key>(m_publicKey));
 					return 0;
 				}
 
@@ -86,7 +87,7 @@ namespace catapult { namespace tools { namespace address {
 
 			void output(model::NetworkIdentifier networkIdentifier, const Key& publicKey) {
 				std::cout
-						<< std::setw(Label_Width) << "public key: " << crypto::FormatKey(publicKey) << std::endl
+						<< std::setw(Label_Width) << "public key: " << publicKey << std::endl
 						<< std::setw(Label_Width - static_cast<int>(m_networkName.size()) - 3)
 								<< "address (" << m_networkName << "): "
 								<< model::AddressToString(model::PublicKeyToAddress(publicKey, networkIdentifier)) << std::endl;

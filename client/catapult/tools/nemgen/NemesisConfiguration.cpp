@@ -20,7 +20,6 @@
 
 #include "NemesisConfiguration.h"
 #include "catapult/crypto/KeyPair.h"
-#include "catapult/crypto/KeyUtils.h"
 #include "catapult/extensions/IdGenerator.h"
 #include "catapult/model/MosaicIdGenerator.h"
 #include "catapult/model/NamespaceIdGenerator.h"

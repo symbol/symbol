@@ -22,7 +22,6 @@
 #include "EntityTestUtils.h"
 #include "sdk/src/extensions/TransactionExtensions.h"
 #include "mocks/MockTransaction.h"
-#include "catapult/crypto/KeyUtils.h"
 #include "catapult/crypto/Signer.h"
 #include "catapult/model/VerifiableEntity.h"
 #include "catapult/utils/HexParser.h"
@@ -95,7 +94,7 @@ namespace catapult { namespace test {
 		pTransaction->Network = model::NetworkIdentifier::Zero;
 		pTransaction->MaxFee = Amount(2468);
 		pTransaction->Deadline = Timestamp(45678);
-		pTransaction->RecipientPublicKey = crypto::ParseKey("72B69A64B20AF34C3815073647C8A2354800E8E83B718303909ABDC0F38E7ED7");
+		pTransaction->RecipientPublicKey = utils::ParseByteArray<Key>("72B69A64B20AF34C3815073647C8A2354800E8E83B718303909ABDC0F38E7ED7");
 		reinterpret_cast<uint64_t&>(*pTransaction->DataPtr()) = 12345;
 
 		auto generationHash = utils::ParseByteArray<GenerationHash>(test::Deterministic_Network_Generation_Hash_String);

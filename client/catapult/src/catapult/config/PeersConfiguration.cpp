@@ -19,8 +19,8 @@
 **/
 
 #include "PeersConfiguration.h"
-#include "catapult/crypto/KeyUtils.h"
 #include "catapult/ionet/Node.h"
+#include "catapult/utils/HexParser.h"
 #include "catapult/exceptions.h"
 #include "catapult/types.h"
 
@@ -88,7 +88,7 @@ namespace catapult { namespace config {
 				const auto& endpointJson = GetChild(peerJson.second, "endpoint");
 				const auto& metadataJson = GetChild(peerJson.second, "metadata");
 
-				auto identityKey = crypto::ParseKey(Get<std::string>(peerJson.second, "publicKey"));
+				auto identityKey = utils::ParseByteArray<Key>(Get<std::string>(peerJson.second, "publicKey"));
 				auto endpoint = ionet::NodeEndpoint{ Get<std::string>(endpointJson, "host"), Get<unsigned short>(endpointJson, "port") };
 				auto metadata = ionet::NodeMetadata(networkFingerprint, GetOptional<std::string>(metadataJson, "name"));
 				metadata.Roles = ParseRoles(Get<std::string>(metadataJson, "roles"));

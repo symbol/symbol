@@ -20,7 +20,6 @@
 
 #include "CertificateUtils.h"
 #include "catapult/crypto/KeyPair.h"
-#include "catapult/crypto/KeyUtils.h"
 #include "catapult/utils/HexParser.h"
 #include "catapult/utils/RandomGenerator.h"
 #include "catapult/exceptions.h"

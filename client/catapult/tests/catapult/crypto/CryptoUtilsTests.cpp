@@ -21,7 +21,6 @@
 #include "catapult/crypto/CryptoUtils.h"
 #include "catapult/crypto/Hashes.h"
 #include "catapult/crypto/KeyPair.h"
-#include "catapult/crypto/KeyUtils.h"
 #include "catapult/utils/HexParser.h"
 #include "catapult/utils/RandomGenerator.h"
 #include "tests/TestHarness.h"
@@ -68,7 +67,7 @@ namespace catapult { namespace crypto {
 	namespace {
 		void AssertCanonicalKey(const std::string& publicKeyString, bool expectedResult) {
 			// Act:
-			auto result = IsCanonicalKey(crypto::ParseKey(publicKeyString));
+			auto result = IsCanonicalKey(utils::ParseByteArray<Key>(publicKeyString));
 
 			// Assert:
 			EXPECT_EQ(expectedResult, result) << "for public key " << publicKeyString;
@@ -76,7 +75,7 @@ namespace catapult { namespace crypto {
 
 		void AssertNeutralElement(const std::string& publicKeyString, bool expectedResult) {
 			// Act:
-			auto result = IsNeutralElement(crypto::ParseKey(publicKeyString));
+			auto result = IsNeutralElement(utils::ParseByteArray<Key>(publicKeyString));
 
 			// Assert:
 			EXPECT_EQ(expectedResult, result) << "for public key " << publicKeyString;
@@ -84,7 +83,7 @@ namespace catapult { namespace crypto {
 
 		void AssertElementInMainSubgroup(const std::string& publicKeyString, bool expectedResult) {
 			// Arrange:
-			auto publicKey = crypto::ParseKey(publicKeyString);
+			auto publicKey = utils::ParseByteArray<Key>(publicKeyString);
 			ge25519 A;
 			EXPECT_TRUE(ge25519_unpack_negative_vartime(&A, publicKey.data()));
 
@@ -102,7 +101,7 @@ namespace catapult { namespace crypto {
 		void AssertUnpacking(const std::string& publicKeyString, bool expectedResult) {
 			// Act:
 			ge25519 A;
-			auto result = UnpackNegative(A, crypto::ParseKey(publicKeyString));
+			auto result = UnpackNegative(A, utils::ParseByteArray<Key>(publicKeyString));
 
 			// Assert:
 			EXPECT_EQ(expectedResult, result) << "for public key " << publicKeyString;
@@ -111,7 +110,7 @@ namespace catapult { namespace crypto {
 		void AssertUnpackingWithSubGroupCheck(const std::string& publicKeyString, bool expectedResult) {
 			// Act:
 			ge25519 A;
-			auto result = UnpackNegativeAndCheckSubgroup(A, crypto::ParseKey(publicKeyString));
+			auto result = UnpackNegativeAndCheckSubgroup(A, utils::ParseByteArray<Key>(publicKeyString));
 
 			// Assert:
 			EXPECT_EQ(expectedResult, result) << "for public key " << publicKeyString;
@@ -292,7 +291,7 @@ namespace catapult { namespace crypto {
 			bignum256modm expandedMultiplier;
 			expand256_modm(expandedMultiplier, multiplier, sizeof(ScalarMultiplier));
 			auto publicKey = ScalarMultiplyWithBasePoint(expandedMultiplier);
-			EXPECT_EQ(crypto::ParseKey(testVectorsOutput[i]), publicKey) << "at index " << i;
+			EXPECT_EQ(utils::ParseByteArray<Key>(testVectorsOutput[i]), publicKey) << "at index " << i;
 
 			++i;
 		}
@@ -360,7 +359,7 @@ namespace catapult { namespace crypto {
 
 			// Assert: nonce * base point should yield the R part of the signature
 			auto publicKey = ScalarMultiplyWithBasePoint(nonce);
-			EXPECT_EQ(crypto::ParseKey(testVectorsOutput[i]), publicKey) << "at index " << i;
+			EXPECT_EQ(utils::ParseByteArray<Key>(testVectorsOutput[i]), publicKey) << "at index " << i;
 
 			++i;
 		}
@@ -378,7 +377,7 @@ namespace catapult { namespace crypto {
 
 		// Assert: nonce * base point should yield the R part of the signature
 		auto publicKey = ScalarMultiplyWithBasePoint(nonce);
-		EXPECT_EQ(crypto::ParseKey(GenerateNonceSamplesOutput()[3]), publicKey);
+		EXPECT_EQ(utils::ParseByteArray<Key>(GenerateNonceSamplesOutput()[3]), publicKey);
 	}
 
 	// endregion
@@ -428,8 +427,8 @@ namespace catapult { namespace crypto {
 		auto i = 0u;
 		for (const auto& input : testVectorsInput) {
 			// Arrange:
-			auto publicKey = crypto::ParseKey(input.PublicKey);
-			auto multiplier = crypto::ParseKey(input.Multiplier);
+			auto publicKey = utils::ParseByteArray<Key>(input.PublicKey);
+			auto multiplier = utils::ParseByteArray<Key>(input.Multiplier);
 			ScalarMultiplier encodedMultiplier;
 			std::memcpy(encodedMultiplier, multiplier.data(), 32);
 
@@ -439,7 +438,7 @@ namespace catapult { namespace crypto {
 
 			// Assert:
 			EXPECT_TRUE(success);
-			EXPECT_EQ(crypto::ParseKey(testVectorsOutput[i]), result) << "at index " << i;
+			EXPECT_EQ(utils::ParseByteArray<Key>(testVectorsOutput[i]), result) << "at index " << i;
 
 			++i;
 		}
@@ -447,7 +446,7 @@ namespace catapult { namespace crypto {
 
 	TEST(TEST_CLASS, ScalarMultReturnsFalseWhenPublicKeyIsNotOnTheCurve) {
 		// Arrange:
-		auto publicKey = crypto::ParseKey("4F91BE9568552181E01968999EFC09BFEB77A736B8F3188160B7769D7B9B9F6E");
+		auto publicKey = utils::ParseByteArray<Key>("4F91BE9568552181E01968999EFC09BFEB77A736B8F3188160B7769D7B9B9F6E");
 		uint8_t multiplier[32];
 		multiplier[0] = 1;
 
@@ -466,7 +465,7 @@ namespace catapult { namespace crypto {
 
 	TEST(TEST_CLASS, ScalarMultReturnsFalseWhenResultIsTheNeutralElement) {
 		// Arrange: multiply neutral element with some value
-		auto publicKey = crypto::ParseKey("0100000000000000000000000000000000000000000000000000000000000000");
+		auto publicKey = utils::ParseByteArray<Key>("0100000000000000000000000000000000000000000000000000000000000000");
 		uint8_t multiplier[32];
 		multiplier[14] = 123;
 

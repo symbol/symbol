@@ -28,7 +28,6 @@
 #include "catapult/builders/NamespaceRegistrationBuilder.h"
 #include "catapult/builders/TransferBuilder.h"
 #include "catapult/crypto/KeyPair.h"
-#include "catapult/crypto/KeyUtils.h"
 #include "catapult/extensions/BlockExtensions.h"
 #include "catapult/extensions/ConversionExtensions.h"
 #include "catapult/extensions/IdGenerator.h"

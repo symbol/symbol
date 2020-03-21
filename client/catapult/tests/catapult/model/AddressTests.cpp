@@ -34,12 +34,6 @@ namespace catapult { namespace model {
 		constexpr auto Decoded_Address = "90000D73966083A4DCCD84E0783A5CECCC129795D3121ABA88";
 		constexpr auto Public_Key = "75D8BB873DA8F5CCA741435DE76A46AFC2840803EBF080E931195B048D77F88C";
 
-		Key ParseKey(const std::string& publicKeyString) {
-			Key publicKey;
-			utils::ParseHexStringIntoContainer(publicKeyString.c_str(), 2 * Key::Size, publicKey);
-			return publicKey;
-		}
-
 		void AssertCannotCreateAddress(const std::string& encoded) {
 			// Act + Assert:
 			EXPECT_FALSE(IsValidEncodedAddress(encoded, Network_Identifier)) << encoded;
@@ -79,7 +73,7 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region AddressToString
+	// region AddressToString / PublicKeyToAddressString
 
 	TEST(TEST_CLASS, CanCreateEncodedAddressFromAddress) {
 		// Arrange:
@@ -94,6 +88,20 @@ namespace catapult { namespace model {
 		EXPECT_EQ(expected, encoded);
 	}
 
+	TEST(TEST_CLASS, CanCreateEncodedAddressFromPublicKey) {
+		// Arrange:
+		auto expected = Encoded_Address;
+		auto publicKey = utils::ParseByteArray<Key>(Public_Key);
+		auto networkIdentifier = NetworkIdentifier::Mijin_Test;
+
+		// Act:
+		auto encoded = PublicKeyToAddressString(publicKey, networkIdentifier);
+
+		// Assert:
+		EXPECT_TRUE(IsValidEncodedAddress(encoded, Network_Identifier));
+		EXPECT_EQ(expected, encoded);
+	}
+
 	// endregion
 
 	// region PublicKeyToAddress
@@ -101,7 +109,7 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CanCreateAddressFromPublicKeyForWellKnownNetwork) {
 		// Arrange:
 		auto expected = utils::ParseByteArray<Address>("60000D73966083A4DCCD84E0783A5CECCC129795D32534F0A7");
-		auto publicKey = ParseKey(Public_Key);
+		auto publicKey = utils::ParseByteArray<Key>(Public_Key);
 		auto networkIdentifier = NetworkIdentifier::Mijin;
 
 		// Act:
@@ -116,7 +124,7 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CanCreateAddressFromPublicKeyForCustomNetwork) {
 		// Arrange:
 		auto expected = utils::ParseByteArray<Address>("7B000D73966083A4DCCD84E0783A5CECCC129795D3D6A7CE45");
-		auto publicKey = ParseKey(Public_Key);
+		auto publicKey = utils::ParseByteArray<Key>(Public_Key);
 		auto networkIdentifier = static_cast<NetworkIdentifier>(123);
 
 		// Act:
@@ -130,7 +138,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, AddressCalculationIsDeterministic) {
 		// Arrange:
-		auto publicKey = ParseKey(Public_Key);
+		auto publicKey = utils::ParseByteArray<Key>(Public_Key);
 
 		// Act:
 		auto decoded1 = PublicKeyToAddress(publicKey, Network_Identifier);

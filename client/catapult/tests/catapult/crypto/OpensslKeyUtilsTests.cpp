@@ -19,7 +19,7 @@
 **/
 
 #include "catapult/crypto/OpensslKeyUtils.h"
-#include "catapult/crypto/KeyUtils.h"
+#include "catapult/utils/HexParser.h"
 #include "tests/test/crypto/CertificateTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
@@ -149,7 +149,7 @@ namespace catapult { namespace crypto {
 		auto readPublicKey = ReadPublicKeyFromPublicKeyPemFile(fileGuard.name());
 
 		// Assert:
-		EXPECT_EQ(ParseKey("B4BFA4B61FBE5ADFD3E5F8635C193259D42AA80536649F8524A9CFE216AD5D1A"), readPublicKey);
+		EXPECT_EQ(utils::ParseByteArray<Key>("B4BFA4B61FBE5ADFD3E5F8635C193259D42AA80536649F8524A9CFE216AD5D1A"), readPublicKey);
 	}
 
 	// endregion

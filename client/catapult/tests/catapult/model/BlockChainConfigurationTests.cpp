@@ -19,7 +19,6 @@
 **/
 
 #include "catapult/model/BlockChainConfiguration.h"
-#include "catapult/crypto/KeyUtils.h"
 #include "catapult/utils/ConfigurationUtils.h"
 #include "catapult/utils/HexParser.h"
 #include "tests/test/nodeps/ConfigurationTestUtils.h"
@@ -147,7 +146,7 @@ namespace catapult { namespace model {
 				// Assert: notice that ParseKey also works for Hash256 because it is the same type as Key
 				EXPECT_EQ(NetworkIdentifier::Public_Test, config.Network.Identifier);
 				EXPECT_EQ(NodeIdentityEqualityStrategy::Host, config.Network.NodeEqualityStrategy);
-				EXPECT_EQ(crypto::ParseKey(Nemesis_Public_Key), config.Network.PublicKey);
+				EXPECT_EQ(utils::ParseByteArray<Key>(Nemesis_Public_Key), config.Network.PublicKey);
 				EXPECT_EQ(utils::ParseByteArray<GenerationHash>(Nemesis_Generation_Hash), config.Network.GenerationHash);
 				EXPECT_EQ(utils::TimeSpan::FromHours(1234567), config.Network.EpochAdjustment);
 

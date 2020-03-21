@@ -42,6 +42,10 @@ namespace catapult { namespace model {
 		return utils::Base32Encode(address);
 	}
 
+	std::string PublicKeyToAddressString(const Key& publicKey, NetworkIdentifier networkIdentifier) {
+		return AddressToString(PublicKeyToAddress(publicKey, networkIdentifier));
+	}
+
 	Address PublicKeyToAddress(const Key& publicKey, NetworkIdentifier networkIdentifier) {
 		// step 1: sha3 hash of the public key
 		Hash256 publicKeyHash;

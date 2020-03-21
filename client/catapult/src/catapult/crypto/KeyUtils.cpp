@@ -24,16 +24,8 @@
 
 namespace catapult { namespace crypto {
 
-	utils::ContainerHexFormatter<Key::const_iterator> FormatKey(const Key& key) {
-		return utils::HexFormat(key.cbegin(), key.cend());
-	}
-
 	utils::ContainerHexFormatter<Key::const_iterator> FormatKey(const PrivateKey& key) {
 		return utils::HexFormat(key.begin(), key.end());
-	}
-
-	Key ParseKey(const std::string& keyString) {
-		return utils::ParseByteArray<Key>(keyString);
 	}
 
 	bool IsValidKeyString(const std::string& str) {

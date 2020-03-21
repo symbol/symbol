@@ -20,7 +20,6 @@
 
 #include "ValidateConfiguration.h"
 #include "CatapultConfiguration.h"
-#include "catapult/crypto/KeyUtils.h"
 #include "catapult/utils/ConfigurationBag.h"
 #include "catapult/utils/HexParser.h"
 
