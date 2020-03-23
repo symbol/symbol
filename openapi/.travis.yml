@@ -10,8 +10,10 @@ before_script:
   - npm install -g yaml-cli
 script:
   - npm run build
-  - npm run postman
   - npm test
+  - npm run postman
+  - npm run version:prepare
+  - npm run version:pack
 deploy:
   - provider: script
     skip_cleanup: true
