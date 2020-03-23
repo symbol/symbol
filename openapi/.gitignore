@@ -1,2 +1,4 @@
 .idea
 node_modules
+_build/openapi3.yml
+_build/postman.json
