@@ -43,7 +43,7 @@ namespace catapult { namespace crypto {
 			return X509_STORE_CTX_get_error(holder.pCertificateStoreContext.get());
 		}
 
-		std::shared_ptr<X509> CreateDefaultCertificate(const std::string& commonName) {
+		test::CertificatePointer CreateDefaultCertificate(const std::string& commonName) {
 			test::CertificateBuilder builder;
 			builder.setSubject("JP", "NEM", commonName);
 			builder.setIssuer("JP", "NEM", commonName);
@@ -52,11 +52,11 @@ namespace catapult { namespace crypto {
 		}
 
 		test::CertificateStoreContextHolder CreateCertificateStoreContext(const std::vector<std::string>& commonNames) {
-			std::vector<std::shared_ptr<X509>> certificates;
+			std::vector<test::CertificatePointer> certificates;
 			for (const auto& commonName : commonNames)
 				certificates.push_back(CreateDefaultCertificate(commonName));
 
-			return test::CreateCertificateStoreContextFromCertificates(certificates);
+			return test::CreateCertificateStoreContextFromCertificates(std::move(certificates));
 		}
 	}
 
@@ -172,7 +172,11 @@ namespace catapult { namespace crypto {
 		test::CertificateBuilder builder;
 		builder.setSubject("JP", "NEM", "Alice");
 		builder.setIssuer("JP", "NEM", "Alice");
-		auto holder = test::CreateCertificateStoreContextFromCertificates({ builder.build(), CreateDefaultCertificate("Bob") });
+
+		std::vector<test::CertificatePointer> certificates;
+		certificates.push_back(builder.build());
+		certificates.push_back(CreateDefaultCertificate("Bob"));
+		auto holder = test::CreateCertificateStoreContextFromCertificates(std::move(certificates));
 		CatapultCertificateProcessor processor;
 
 		// Act:
@@ -198,7 +202,10 @@ namespace catapult { namespace crypto {
 		builder2.setIssuer("CA", "SYM", "Bob");
 		builder2.setPublicKey(*pCertificateKey);
 
-		auto holder = test::CreateCertificateStoreContextFromCertificates({ builder1.buildAndSign(), builder2.buildAndSign() });
+		std::vector<test::CertificatePointer> certificates;
+		certificates.push_back(builder1.buildAndSign());
+		certificates.push_back(builder2.buildAndSign());
+		auto holder = test::CreateCertificateStoreContextFromCertificates(std::move(certificates));
 		CatapultCertificateProcessor processor;
 
 		// Act:
@@ -225,7 +232,10 @@ namespace catapult { namespace crypto {
 		builder2.setIssuer("JP", "NEM", "Alice");
 		builder2.setPublicKey(*test::GenerateRandomCertificateKey());
 
-		auto holder = test::CreateCertificateStoreContextFromCertificates({ builder1.buildAndSign(), builder2.buildAndSign() });
+		std::vector<test::CertificatePointer> certificates;
+		certificates.push_back(builder1.buildAndSign());
+		certificates.push_back(builder2.buildAndSign());
+		auto holder = test::CreateCertificateStoreContextFromCertificates(std::move(certificates));
 		CatapultCertificateProcessor processor;
 
 		// Act:
@@ -295,7 +305,10 @@ namespace catapult { namespace crypto {
 			builder.setPublicKey(*test::GenerateRandomCertificateKey());
 			auto pCertificate = shouldSign ? builder.buildAndSign() : builder.build();
 
-			auto holder = test::CreateCertificateStoreContextFromCertificates({ pCertificate, CreateDefaultCertificate("Bob") });
+			std::vector<test::CertificatePointer> certificates;
+			certificates.push_back(std::move(pCertificate));
+			certificates.push_back(CreateDefaultCertificate("Bob"));
+			auto holder = test::CreateCertificateStoreContextFromCertificates(std::move(certificates));
 			X509_STORE_CTX_set_error(holder.pCertificateStoreContext.get(), X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN + errorCodeDelta);
 			CatapultCertificateProcessor processor;
 

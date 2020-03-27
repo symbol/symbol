@@ -60,8 +60,12 @@ namespace catapult { namespace test {
 
 	// region certificate store context utils
 
+	void CertificateDeleter::operator()(x509_st* pCertificate) const {
+		X509_free(pCertificate);
+	}
+
 	void SetActiveCertificate(CertificateStoreContextHolder& holder, size_t index) {
-		X509_STORE_CTX_set_current_cert(holder.pCertificateStoreContext.get(), holder.Certificates[index].get());
+		X509_STORE_CTX_set_current_cert(holder.pCertificateStoreContext.get(), holder.Certificates[index]);
 	}
 
 #ifdef __clang__
@@ -77,13 +81,18 @@ namespace catapult { namespace test {
 		};
 	}
 
-	CertificateStoreContextHolder CreateCertificateStoreContextFromCertificates(const std::vector<std::shared_ptr<X509>>& certificates) {
+	CertificateStoreContextHolder CreateCertificateStoreContextFromCertificates(std::vector<CertificatePointer>&& certificates) {
 		CertificateStoreContextHolder holder;
-		holder.Certificates = certificates;
-
 		auto pCertificateStack = std::unique_ptr<STACK_OF(X509), CertificateStackDeleter>(sk_X509_new_null());
-		for (const auto& pCertificate : holder.Certificates) {
-			if (!pCertificateStack || !sk_X509_push(pCertificateStack.get(), pCertificate.get()))
+		if (!pCertificateStack)
+			throw std::bad_alloc();
+
+		for (auto i = 0u; i < certificates.size(); ++i) {
+			auto& pCertificate = certificates[i];
+			holder.Certificates.push_back(pCertificate.get());
+
+			// sk_X509_push takes ownership of pCertificate
+			if (!sk_X509_push(pCertificateStack.get(), pCertificate.release()))
 				CATAPULT_THROW_RUNTIME_ERROR("failed to add certificate to stack");
 		}
 
@@ -119,7 +128,7 @@ namespace catapult { namespace test {
 
 	CertificateBuilder::CertificateBuilder()
 			: m_pKey(nullptr)
-			, m_pCertificate(std::shared_ptr<X509>(X509_new(), X509_free)) {
+			, m_pCertificate(CertificatePointer(X509_new())) {
 		if (!m_pCertificate)
 			throw std::bad_alloc();
 
@@ -151,15 +160,15 @@ namespace catapult { namespace test {
 		m_pKey = &key;
 	}
 
-	std::shared_ptr<X509> CertificateBuilder::build() {
-		return m_pCertificate;
+	CertificatePointer CertificateBuilder::build() {
+		return std::move(m_pCertificate);
 	}
 
-	std::shared_ptr<X509> CertificateBuilder::buildAndSign() {
+	CertificatePointer CertificateBuilder::buildAndSign() {
 		return buildAndSign(*m_pKey);
 	}
 
-	std::shared_ptr<X509> CertificateBuilder::buildAndSign(EVP_PKEY& key) {
+	CertificatePointer CertificateBuilder::buildAndSign(EVP_PKEY& key) {
 		if (0 == X509_sign(get(), &key, EVP_md_null()))
 			CATAPULT_THROW_RUNTIME_ERROR("failed to sign certificate");
 

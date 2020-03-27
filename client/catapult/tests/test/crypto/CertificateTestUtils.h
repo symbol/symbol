@@ -41,10 +41,19 @@ namespace catapult { namespace test {
 
 	// region certificate store context utils
 
+	/// Custom deleter for X509 structures.
+	struct CertificateDeleter {
+		/// Deletes \a pCertificate.
+		void operator()(x509_st* pCertificate) const;
+	};
+
+	/// Unique pointer for X509 structures.
+	using CertificatePointer = std::unique_ptr<x509_st, CertificateDeleter>;
+
 	/// Holds a certificate store context and certificates.
 	struct CertificateStoreContextHolder {
 		/// Certificates.
-		std::vector<std::shared_ptr<x509_st>> Certificates;
+		std::vector<x509_st*> Certificates;
 
 		/// Certificate store context.
 		std::shared_ptr<x509_store_ctx_st> pCertificateStoreContext;
@@ -54,7 +63,7 @@ namespace catapult { namespace test {
 	void SetActiveCertificate(CertificateStoreContextHolder& holder, size_t index);
 
 	/// Creates a certificate store context around \a certificates.
-	CertificateStoreContextHolder CreateCertificateStoreContextFromCertificates(const std::vector<std::shared_ptr<x509_st>>& certificates);
+	CertificateStoreContextHolder CreateCertificateStoreContextFromCertificates(std::vector<CertificatePointer>&& certificates);
 
 	// endregion
 
@@ -78,20 +87,20 @@ namespace catapult { namespace test {
 
 	public:
 		/// Builds the certificate.
-		std::shared_ptr<x509_st> build();
+		CertificatePointer build();
 
 		/// Builds and signs the certificate with previously specified key.
-		std::shared_ptr<x509_st> buildAndSign();
+		CertificatePointer buildAndSign();
 
 		/// Builds and signs the certificate with \a key.
-		std::shared_ptr<x509_st> buildAndSign(evp_pkey_st& key);
+		CertificatePointer buildAndSign(evp_pkey_st& key);
 
 	private:
 		x509_st* get();
 
 	private:
 		evp_pkey_st* m_pKey;
-		std::shared_ptr<x509_st> m_pCertificate;
+		CertificatePointer m_pCertificate;
 	};
 
 	// endregion

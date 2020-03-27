@@ -124,7 +124,10 @@ namespace catapult { namespace ionet {
 			builder2.setPublicKey(*test::GenerateRandomCertificateKey());
 			auto certificate2 = builder2.buildAndSign(*pCertificateKey);
 
-			auto holder = test::CreateCertificateStoreContextFromCertificates({ certificate1, certificate2 });
+			std::vector<test::CertificatePointer> certificates;
+			certificates.push_back(std::move(certificate1));
+			certificates.push_back(std::move(certificate2));
+			auto holder = test::CreateCertificateStoreContextFromCertificates(std::move(certificates));
 			X509_STORE_CTX_set_error(holder.pCertificateStoreContext.get(), X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN);
 			return holder;
 		}

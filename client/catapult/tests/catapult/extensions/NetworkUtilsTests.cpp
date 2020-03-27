@@ -98,8 +98,10 @@ namespace catapult { namespace extensions {
 			builder.setSubject("JP", "NEM", "Node");
 			builder.setIssuer("JP", "NEM", "Root");
 			builder.setPublicKey(*test::GenerateRandomCertificateKey());
-			auto certificate = builder.build();
-			auto holder = test::CreateCertificateStoreContextFromCertificates({ certificate });
+
+			std::vector<test::CertificatePointer> certificates;
+			certificates.push_back(builder.build());
+			auto holder = test::CreateCertificateStoreContextFromCertificates(std::move(certificates));
 
 			boost::asio::ssl::verify_context asioVerifyContext(holder.pCertificateStoreContext.get());
 			Key publicKey;

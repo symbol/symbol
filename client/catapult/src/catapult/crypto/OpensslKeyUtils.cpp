@@ -36,14 +36,14 @@ namespace catapult { namespace crypto {
 
 	namespace {
 		struct PublicKeyPemTraits {
-			static EVP_PKEY* ReadKey(BIO& bio) {
-				return PEM_read_bio_PUBKEY(&bio, nullptr, nullptr, nullptr);
+			static std::shared_ptr<EVP_PKEY> ReadKey(BIO& bio) {
+				return std::shared_ptr<EVP_PKEY>(PEM_read_bio_PUBKEY(&bio, nullptr, nullptr, nullptr), EVP_PKEY_free);
 			}
 		};
 
 		struct PrivateKeyPemTraits {
-			static EVP_PKEY* ReadKey(BIO& bio) {
-				return PEM_read_bio_PrivateKey(&bio, nullptr, nullptr, nullptr);
+			static std::shared_ptr<EVP_PKEY> ReadKey(BIO& bio) {
+				return std::shared_ptr<EVP_PKEY>(PEM_read_bio_PrivateKey(&bio, nullptr, nullptr, nullptr), EVP_PKEY_free);
 			}
 		};
 
@@ -56,7 +56,7 @@ namespace catapult { namespace crypto {
 			if (!pMemBio)
 				throw std::bad_alloc();
 
-			auto* pKey = TPemTraits::ReadKey(*pMemBio);
+			auto pKey = TPemTraits::ReadKey(*pMemBio);
 			if (!pKey)
 				CATAPULT_THROW_INVALID_ARGUMENT_1("could not load private key from file", filename);
 
