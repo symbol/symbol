@@ -1,10 +1,12 @@
+# Building on Windows
+
 NOTE: Commands are using `\` as marker for line continuations
 
-Building on Windows
-===
+NOTE: building instructions should be executed from `VS x64 native command prompt`
 
-Prerequisites
----
+NOTE: following instructions use X:\devlibs as a destination location for libraries
+
+## Prerequisites
 
  * OpenSSL dev libraries (built for/with MSVC)
  * cmake (at least 3.14)
@@ -12,12 +14,7 @@ Prerequisites
  * python 3.x
  * Visual Studio Community 2017 (at least 15.8)
 
-NOTE: building instructions should be executed from `VS x64 native command prompt`
-
-NOTE: following instructions use X:\devlibs as a destination location for libraries
-
-Boost
----
+### Boost
 
 download and unpack:
     https://dl.bintray.com/boostorg/release/1.71.0/source/boost_1_71_0.tar.gz
@@ -31,8 +28,7 @@ b2 address-model=64 --build-dir="X:\devlibs\2017\boost.build" toolset=msvc \
     stage release --without-python
 ```
 
-Gtest
----
+### Gtest
 
 ```bat
 git clone https://github.com/google/googletest.git googletest.git
@@ -46,8 +42,7 @@ msbuild /p:Configuration=RelWithDebInfo /p:Platform=x64 ALL_BUILD.vcxproj
 msbuild /p:Configuration=RelWithDebInfo /p:Platform=x64 INSTALL.vcxproj
 ```
 
-Google benchmark
----
+### Google benchmark
 
 ```bat
 git clone https://github.com/google/benchmark.git google.benchmark.git
@@ -98,8 +93,7 @@ msbuild /p:Configuration=RelWithDebInfo /p:Platform=x64 ALL_BUILD.vcxproj
 msbuild /p:Configuration=RelWithDebInfo /p:Platform=x64 INSTALL.vcxproj
 ```
 
-ZMQ
----
+### ZMQ
 
 libzmq
 ```bat
@@ -129,8 +123,7 @@ msbuild /p:Configuration=RelWithDebInfo /p:Platform=x64 ALL_BUILD.vcxproj
 msbuild /p:Configuration=RelWithDebInfo /p:Platform=x64 INSTALL.vcxproj
 ```
 
-Rocks
----
+### Rocks
 
 gflags
 ```bat
@@ -188,8 +181,7 @@ msbuild /p:Configuration=RelWithDebInfo /p:Platform=x64 ALL_BUILD.vcxproj
 msbuild /p:Configuration=RelWithDebInfo /p:Platform=x64 INSTALL.vcxproj
 ```
 
-CATAPULT
----
+### CATAPULT
 
 full cmake:
 ```bat

@@ -1,26 +1,26 @@
-# symbol-server
+# catapult-server
 
 [![docs](badges/docs--green.svg)](https://nemtech.github.io)
 [![docker](badges/docker-techbureau-brightgreen.svg)](https://hub.docker.com/u/techbureau)
 
 Symbol-based networks rely on nodes to provide a trustless, high-performance, and secure blockchain platform.
 
-These nodes are deployed using [symbol-server] software, a C++ rewrite of the previous Java-written [NEM] distributed ledger that has been running since 2015.
+These nodes are deployed using [catapult-server] software, a C++ rewrite of the previous Java-written [NEM] distributed ledger that has been running since 2015.
 
 Learn more about the protocol by reading the [whitepaper] and the  [developer documentation].
 
 ## Package Organization
 
-symbol-server code is organized as follows:
+catapult-server code is organized as follows:
 
 | Folder name | Description |
 | -------------|--------------|
-|/extensions | Modules that add features to the bare symbol-server. These capabilities are all optional because none of them impact consensus. |
+| /extensions | Modules that add features to the bare catapult-server. These capabilities are all optional because none of them impact consensus. |
 | /external | External dependencies that are built with the server. |
 | /plugins | Modules that introduce new and different ways to alter the chain's state via transactions. |
-|/resources | Default properties. These can be configured per network and node. |
-|/scripts | Utility scripts for developers. |
-|/sdk | Reusable code used by tests and tools. |
+| /resources | Default properties. These can be configured per network and node. |
+| /scripts | Utility scripts for developers. |
+| /sdk | Reusable code used by tests and tools. |
 | /seed | Nemesis blocks used in tests. |
 | /src | Symbol's core engine. |
 | /tests | Collection of tests. |
@@ -28,17 +28,17 @@ symbol-server code is organized as follows:
 
 ## Building the Image
 
-To compile symbol-server source code, follow the [building instructions](BUILDING.md). 
+To compile catapult-server source code, follow the [developer notes](docs/README.md). 
 
-## Running symbol-server
+## Running catapult-server
 
-symbol-server executable can be used either to run different types of nodes or to launch new networks. This section contains the instructions on how to run the symbol-server for various purposes.
+catapult-server executable can be used either to run different types of nodes or to launch new networks. This section contains the instructions on how to run the catapult-server for various purposes.
 
 ### Test Network Node
 
 Developers can deploy test net nodes to experiment with the offered transaction set in a live network without the loss of valuable assets. 
 
-To run a test net node, follow [this guide](https://nemtech.github.io/guides/network/running-a-test-net-node.html#running-a-test-net-node).
+To run a test net node, follow [this guide](https://nemtech.github.io/guides/network/running-a-test-net-node.html).
 
 ### Main Network Node
 
@@ -73,7 +73,7 @@ Copyright (c) 2018 Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp Licensed u
 [Forum]: https://forum.nem.io/c/announcement
 [issues]: https://github.com/nemtech/catapult-server/issues
 [slack]: https://join.slack.com/t/nem2/shared_invite/enQtMzY4MDc2NTg0ODgyLWZmZWRiMjViYTVhZjEzOTA0MzUyMTA1NTA5OWQ0MWUzNTA4NjM5OTJhOGViOTBhNjkxYWVhMWRiZDRkOTE0YmU
-[symbol-server]: https://github.com/nemtech/catapult-server
+[catapult-server]: https://github.com/nemtech/catapult-server
 [symbol-rest]: https://github.com/nemtech/catapult-rest
 [Service Bootstrap]: https://github.com/techbureau/catapult-service-bootstrap
 [nem]: https://nem.io

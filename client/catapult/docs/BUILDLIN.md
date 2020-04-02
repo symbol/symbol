@@ -1,10 +1,10 @@
+# Building on Ubuntu 18.04 (LTS)
+
+Instructions below are for gcc, but project compiles with clang 9 as well.
+
 NOTE: Commands are using `\` as marker for line continuations
 
-Building on Ubuntu 18.04 (LTS)
-===
-
-Prerequisites
----
+## Prerequisites
 
  * OpenSSL dev library, at least 1.1.1 (libssl-dev)
  * cmake (at least 3.14)
@@ -13,10 +13,7 @@ Prerequisites
  * gcc 9.2
  * ninja-build - suggested
 
-Instructions below are for gcc, but project compiles with clang 9 as well.
-
-Boost
----
+### Boost
 
 ```sh
 curl -o boost_1_71_0.tar.gz -SL \
@@ -31,8 +28,7 @@ cd boost_1_71_0
 ./b2 --prefix=${HOME}/boost-build-1.71.0 --without-python install
 ```
 
-Gtest
----
+### Gtest
 
 ```sh
 git clone https://github.com/google/googletest.git googletest.git
@@ -45,8 +41,7 @@ make
 sudo make install
 ```
 
-Google benchmark
----
+### Google benchmark
 
 ```sh
 git clone https://github.com/google/benchmark.git google.benchmark.git
@@ -59,8 +54,7 @@ make
 sudo make install
 ```
 
-Mongo
----
+### Mongo
 
 mongo-c
 
@@ -89,8 +83,7 @@ make
 sudo make install
 ```
 
-ZMQ
----
+### ZMQ
 
 libzmq
 ```sh
@@ -116,8 +109,7 @@ make
 sudo make install
 ```
 
-Rocks
----
+### Rocks
 
 Currently ubuntu 18.04 has gflags in version 2.2.1 and snappy in version 1.1.7 which are OK
 
@@ -133,8 +125,7 @@ make
 sudo make install
 ```
 
-CATAPULT
----
+### CATAPULT
 
 ```sh
 git clone https://github.com/nemtech/catapult-server.git
