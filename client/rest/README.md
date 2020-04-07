@@ -1,6 +1,6 @@
 # catapult-rest
 
-[![Build Status](https://api.travis-ci.org/nemtech/catapult-rest.svg?branch=master)](https://travis-ci.org/nemtech/catapult-rest)
+[![Build Status](https://api.travis-ci.com/nemtech/catapult-rest.svg?branch=master)](https://travis-ci.com/nemtech/catapult-rest)
 [![Coverage Status](https://coveralls.io/repos/github/nemtech/catapult-rest/badge.svg?branch=master)](https://coveralls.io/github/nemtech/catapult-rest?branch=master)
 
 Catapult REST gateway combines HTTP and WebSockets to perform read and write actions on the blockchain.
