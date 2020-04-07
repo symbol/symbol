@@ -7,7 +7,7 @@ yarn run rebuild
 cd ..
 
 # install servers
-for module in 'monitor' 'rest' 'spammer' 'tools'
+for module in 'rest' 'spammer' 'tools'
 do
 	cd "${module}"
 	yarn install

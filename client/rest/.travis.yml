@@ -15,7 +15,6 @@ services: mongodb
 env:
   matrix:
     - SUBPROJECT=catapult-sdk
-    - SUBPROJECT=monitor
     - SUBPROJECT=rest
     - SUBPROJECT=spammer
 
