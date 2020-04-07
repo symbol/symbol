@@ -1,6 +1,6 @@
 # symbol-openapi
 
-[![Build Status](https://travis-ci.org/nemtech/symbol-openapi.svg?branch=master)](https://travis-ci.org/nemtech/symbol-openapi)
+[![Build Status](https://travis-ci.com/nemtech/symbol-openapi.svg?branch=master)](https://travis-ci.com/nemtech/symbol-openapi)
 
 OpenAPI specification for catapult-rest.
 
