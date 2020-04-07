@@ -1,6 +1,6 @@
 # catbuffer
 
-[![Build Status](https://api.travis-ci.org/nemtech/catbuffer.svg?branch=master)](https://travis-ci.org/nemtech/catbuffer)
+[![Build Status](https://api.travis-ci.com/nemtech/catbuffer.svg?branch=master)](https://travis-ci.com/nemtech/catbuffer)
 
 The catbuffer library defines the protocol to serialize and deserialize Catapult entities.
 
