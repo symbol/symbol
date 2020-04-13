@@ -90,10 +90,11 @@ namespace catapult { namespace state {
 
 	void RootNamespaceHistory::push_back(const Key& owner, const NamespaceLifetime& lifetime) {
 		if (!m_rootHistory.empty()) {
-			const auto& previousNamespace = back();
-			if (previousNamespace.ownerPublicKey() == owner) {
-				// inherit all children since it is the same owner
-				m_rootHistory.push_back(previousNamespace.renew(lifetime));
+			const auto& previousRootNamespace = back();
+			if (previousRootNamespace.ownerPublicKey() == owner) {
+				// since it is the same owner, inherit all children and aliases (child aliases are migrated automatically with children)
+				m_rootHistory.push_back(previousRootNamespace.renew(lifetime));
+				m_rootHistory.back().setAlias(previousRootNamespace.id(), previousRootNamespace.alias(previousRootNamespace.id()));
 				return;
 			}
 		}

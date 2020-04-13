@@ -338,6 +338,38 @@ namespace catapult { namespace state {
 		EXPECT_EQ(std::vector<Height> ({ Height(234), Height(355) }), GetLifetimeStartHeights(history));
 	}
 
+	TEST(TEST_CLASS, CanAddRootNamespaceWithSameOwnerToExistingHistoryWithAlias) {
+		// Arrange:
+		auto owner = test::CreateRandomOwner();
+		RootNamespaceHistory history(NamespaceId(123));
+		history.push_back(owner, test::CreateLifetime(234, 321));
+		history.back().setAlias(NamespaceId(123), NamespaceAlias(MosaicId(999)));
+
+		// Act:
+		history.push_back(owner, test::CreateLifetime(355, 469));
+
+		// Assert: alias is still set
+		const auto& rootAlias = history.back().alias(NamespaceId(123));
+		EXPECT_EQ(AliasType::Mosaic, rootAlias.type());
+		EXPECT_EQ(MosaicId(999), rootAlias.mosaicId());
+	}
+
+	TEST(TEST_CLASS, CanAddRootNamespaceWithDifferentOwnerToExistingHistoryWithAlias) {
+		// Arrange:
+		auto owner = test::CreateRandomOwner();
+		RootNamespaceHistory history(NamespaceId(123));
+		history.push_back(owner, test::CreateLifetime(234, 321));
+		history.back().setAlias(NamespaceId(123), NamespaceAlias(MosaicId(999)));
+
+		// Act:
+		auto diffOwner = test::CreateRandomOwner();
+		history.push_back(diffOwner, test::CreateLifetime(355, 469));
+
+		// Assert: alias is cleared
+		const auto& rootAlias = history.back().alias(NamespaceId(123));
+		EXPECT_EQ(AliasType::None, rootAlias.type());
+	}
+
 	TEST(TEST_CLASS, AddingRootWithSameOwnerSharesChildrenWithNewRoot) {
 		// Arrange:
 		auto owner = test::CreateRandomOwner();
