@@ -18,7 +18,6 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const auth = require('./auth/auth');
 const { createKeyPairFromPrivateKeyString, sign, verify } = require('./crypto/keyPair');
 const merkle = require('./crypto/merkleAuditProof');
 const sha3Hasher = require('./crypto/sha3Hasher');
@@ -52,7 +51,6 @@ const schemaFormatter = require('./utils/schemaFormatter');
 const uint64 = require('./utils/uint64');
 
 const catapultSdk = {
-	auth,
 	constants: {
 		sizes
 	},

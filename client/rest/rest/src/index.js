@@ -30,7 +30,6 @@ const messageFormattingRules = require('./server/messageFormattingRules');
 const catapult = require('catapult-sdk');
 const winston = require('winston');
 const fs = require('fs');
-const { createConnection } = require('net');
 
 const createLoggingTransportConfiguration = loggingConfig => {
 	const transportConfig = Object.assign({}, loggingConfig);
@@ -173,7 +172,13 @@ const registerRoutes = (server, db, services) => {
 			const { server } = serverAndCodec;
 			serviceManager.pushService(server, 'close');
 
-			const connectionService = createConnectionService(config, createConnection, catapult.auth.createAuthPromise, winston.verbose);
+			const connectionConfig = {
+				apiNode: config.apiNode,
+				certificate: fs.readFileSync(config.apiNode.tlsClientCertificatePath),
+				key: fs.readFileSync(config.apiNode.tlsClientKeyPath),
+				caCertificate: fs.readFileSync(config.apiNode.tlsCaCertificatePath)
+			};
+			const connectionService = createConnectionService(connectionConfig, winston.verbose);
 			registerRoutes(server, db, { codec: serverAndCodec.codec, config, connectionService });
 
 			winston.info(`listening on port ${config.port}`);

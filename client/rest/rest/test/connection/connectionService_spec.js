@@ -18,313 +18,218 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const { MockSocket } = require('./MockSocket');
 const { createConnectionService } = require('../../src/connection/connectionService');
-const catapult = require('catapult-sdk');
 const { expect } = require('chai');
+const sinon = require('sinon');
+const tls = require('tls');
 
-const { convert } = catapult.utils;
-const { createKeyPairFromPrivateKeyString } = catapult.crypto;
 
 describe('connection service', () => {
-	const Test_Config = {
+	const sockets = [];
+	let tlsConnectStub;
+	const testConfig = {
 		apiNode: {
 			host: 'test hostname',
 			port: 12345,
-			publicKey: '11223344556677889900AABBCCDDEEFF'
-		},
-		clientPrivateKey: '0000000000000000000000000000000000000000000000000000000000000000'
+			key: '',
+			certificate: '',
+			caCertificate: ''
+		}
 	};
-	Test_Config.expected = {
-		clientKeyPair: createKeyPairFromPrivateKeyString(Test_Config.clientPrivateKey),
-		apiNodePublicKey: convert.hexToUint8(Test_Config.apiNode.publicKey)
-	};
+	let connectionService;
 
-	const createTestContext = () => {
-		const routeContext = {
-			onCalls: {},
-			mockSockets: [], // stores all mock sockets created by factory
-			lastSocket: () => routeContext.mockSockets[routeContext.mockSockets.length - 1],
-			numConnectionFactoryCalls: 0,
-			mockConnectionFactory: (port, host) => {
-				++routeContext.numConnectionFactoryCalls;
-				routeContext.host = host;
-				routeContext.port = port;
+	beforeEach(() => {
+		tlsConnectStub = sinon.stub(tls, 'connect').callsFake(() => {
+			const fakeSocket = new MockSocket();
+			sockets.push(fakeSocket);
+			return fakeSocket;
+		});
+		connectionService = createConnectionService(testConfig);
+	});
 
-				const mockSocket = {
-					numWrites: 0,
-					on: (eventName, eventHandler) => {
-						routeContext.onCalls[eventName] = eventHandler;
-						return mockSocket;
-					},
-					once: () => {
-					},
-					write: () => {
-						++mockSocket.numWrites;
-					}
-				};
-
-				routeContext.mockSockets.push(mockSocket);
-				return routeContext.lastSocket();
-			},
-			auth: {},
-			createAuthPromise: promiseFactory =>
-				(serverSocket, clientKeyPair, apiNodePublicKey) => {
-					routeContext.auth.serverSocket = serverSocket;
-					routeContext.auth.clientKeyPair = clientKeyPair;
-					routeContext.auth.apiNodePublicKey = apiNodePublicKey;
-					return promiseFactory();
-				},
-			createSuccessAuthPromise: () => routeContext.createAuthPromise(() => Promise.resolve()),
-			createFailureAuthPromise: () => routeContext.createAuthPromise(() => Promise.reject(Error('failure auth promise')))
-		};
-		return routeContext;
-	};
-
-	const assertData = context => {
-		expect(context.host).to.equal(Test_Config.apiNode.host);
-		expect(context.port).to.equal(Test_Config.apiNode.port);
-		expect(context.numConnectionFactoryCalls).to.equal(1);
-
-		// note: this is not deep equal on purpose
-		expect(context.auth.serverSocket).to.equal(context.lastSocket());
-		expect(context.auth.clientKeyPair).to.deep.equal(Test_Config.expected.clientKeyPair);
-		expect(context.auth.apiNodePublicKey).to.deep.equal(Test_Config.expected.apiNodePublicKey);
-
-		expect(context.onCalls).to.have.all.keys(['close', 'error']);
-	};
+	afterEach(() => {
+		tlsConnectStub.restore();
+		tlsConnectStub = undefined;
+		sockets.splice(0, sockets.length);
+		connectionService = undefined;
+	});
 
 	it('authentication success is forwarded', () => {
-		// Arrange:
-		const context = createTestContext();
-		const connectionService = createConnectionService(Test_Config, context.mockConnectionFactory, context.createSuccessAuthPromise());
-
 		// Act:
-		return connectionService.lease().then(connection => {
-			// Assert:
-			assertData(context);
-
-			// - the connection sends to the last socket
+		const leasePromise = connectionService.lease().then(connection => {
 			connection.send();
-			expect(context.lastSocket().numWrites).to.equal(1);
-		});
-	});
 
-	it('authentication failure is forwarded', () => {
-		// Arrange:
-		const context = createTestContext();
-		const connectionService = createConnectionService(Test_Config, context.mockConnectionFactory, context.createFailureAuthPromise());
-
-		// Act:
-		const promise = connectionService.lease();
-		return promise.catch(err => {
 			// Assert:
-			assertData(context);
-			expect(err.message).to.equal('failure auth promise');
+			expect(sockets[0].numWrites).to.equal(1);
 		});
+		sockets[0].authorized = true;
+		sockets[0].fireEvent('secureConnect');
+
+		return leasePromise;
 	});
 
-	it('connection failure is forwarded', () => {
-		// Arrange:
-		const context = createTestContext();
-		const promiseInterruptedByDisconnect = context.createAuthPromise(() => {
-			// note: assumption is that connection() registers 'close' event and
-			// that it rejects promise if close occurred
-			context.onCalls.close();
-			return Promise.resolve();
-		});
-		const connectionService = createConnectionService(Test_Config, context.mockConnectionFactory, promiseInterruptedByDisconnect);
 
+	it('connection close is forwarded', () => {
 		// Act:
-		return connectionService.lease()
-			.then(() => {
-				throw new Error('promise resolved');
-			})
-			.catch(err => {
-				// Assert:
-				assertData(context);
-				expect(err.statusCode).to.equal(503);
-				expect(err.message).to.equal('connection failed');
-			});
+		const leasePromise = connectionService.lease().catch(error => {
+			// Assert:
+			expect(error.message).to.equal('connection failed');
+		});
+		sockets[0].authorized = true;
+		sockets[0].fireEvent('close');
+
+		return leasePromise;
 	});
 
-	const assertAfterFirstConnectionSucceeded = (name, method, followingActions) => {
-		it(`first connection succeeded, ${name}`, () => {
-			// Arrange:
-			const context = createTestContext();
-			const connectionService = createConnectionService(
-				Test_Config,
-				context.mockConnectionFactory,
-				context.createSuccessAuthPromise()
-			);
-
+	describe('connection lease', () => {
+		it('connection is cached/reused', () => {
 			// Act:
-			return connectionService[method]().then(firstConnection => {
-				assertData(context);
+			const leasePromise = connectionService.lease().then(connection1 =>
+				connectionService.lease().then(connection2 => {
+					// Assert:
+					expect(connection2).to.equal(connection1);
+				}));
 
-				return followingActions(context, connectionService, firstConnection);
-			});
+			sockets[0].authorized = true;
+			sockets[0].fireEvent('secureConnect');
+
+			return leasePromise;
 		});
-	};
 
-	assertAfterFirstConnectionSucceeded('connection is cached using lease', 'lease', (context, connectionService, firstConnection) =>
-		// Act: connection succeeded, let's try to make another one, and check that they match:
-		connectionService.lease().then(secondConnection => {
-			// Assert: connection was created only once
-			expect(context.numConnectionFactoryCalls).to.equal(1);
-			expect(secondConnection).to.equal(firstConnection);
-		}));
+		it('connection will be recreated after close', () => {
+			const leasePromise = connectionService.lease().then(connection1 => {
+				sockets[0].fireEvent('close');
 
-	assertAfterFirstConnectionSucceeded(
-		'connection will be restored after close using lease',
-		'lease',
-		(context, connectionService, firstConnection) => {
-			// Act: break the connection
-			context.onCalls.close();
+				const leasePromise2 = connectionService.lease().then(connection2 => {
+					// Assert:
+					expect(connection2).to.not.equal(connection1);
 
-			return connectionService.lease().then(secondConnection => {
-				// Assert:
-				expect(context.numConnectionFactoryCalls).to.equal(2);
-				expect(secondConnection).to.not.equal(firstConnection);
+					connection2.send();
+					expect(sockets[0].numWrites).to.equal(0);
+					expect(sockets[1].numWrites).to.equal(1);
+				});
 
-				// - the first connection sends to the first socket
-				firstConnection.send();
-				expect(context.mockSockets[0].numWrites).to.equal(1);
+				sockets[1].authorized = true;
+				sockets[1].fireEvent('secureConnect');
 
-				// - the second connection sends to the second socket
-				secondConnection.send();
-				expect(context.mockSockets[1].numWrites).to.equal(1);
+				return leasePromise2;
 			});
-		}
-	);
+			sockets[0].authorized = true;
+			sockets[0].fireEvent('secureConnect');
 
-	assertAfterFirstConnectionSucceeded(
-		'error alone does not affect connection using lease',
-		'lease',
-		(context, connectionService, firstConnection) => {
-			// Act: emit an error
-			context.onCalls.error(new Error());
+			return leasePromise;
+		});
 
-			return connectionService.lease().then(secondConnection => {
-				// Assert: connection was created only once
-				expect(context.numConnectionFactoryCalls).to.equal(1);
-				expect(secondConnection).to.equal(firstConnection);
+		it('error event does not affect connection', () => {
+			// Act:
+			const leasePromise = connectionService.lease().then(connection => {
+				sockets[0].fireEvent('error');
+				connection.send();
+				expect(sockets[0].numWrites).to.equal(1);
 			});
-		}
-	);
+			sockets[0].authorized = true;
+			sockets[0].fireEvent('secureConnect');
 
-	assertAfterFirstConnectionSucceeded(
-		'connection is not cached using singleUse',
-		'singleUse',
-		(context, connectionService, firstConnection) =>
-			// Act: connection succeeded, let's try to make another one, and check that they do not match:
-			connectionService.lease().then(secondConnection => {
-				// Assert: connection was created twice
-				expect(context.numConnectionFactoryCalls).to.equal(2);
-				expect(secondConnection).to.not.equal(firstConnection);
-			})
-	);
+			return leasePromise;
+		});
+	});
 
-	assertAfterFirstConnectionSucceeded(
-		'connection will be restored after close using singleUse',
-		'singleUse',
-		(context, connectionService, firstConnection) => {
-			// Act: break the connection
-			context.onCalls.close();
+	describe('connection singleUse', () => {
+		it('connection is not cached/reused', () => {
+			// Act:
+			const singleUsePromise = connectionService.singleUse().then(connection1 => {
+				const singleUsePromise2 = connectionService.singleUse().then(connection2 => {
+					// Assert:
+					expect(connection2).to.not.equal(connection1);
+				});
+				sockets[1].authorized = true;
+				sockets[1].fireEvent('secureConnect');
 
-			return connectionService.lease().then(secondConnection => {
-				// Assert:
-				expect(context.numConnectionFactoryCalls).to.equal(2);
-				expect(secondConnection).to.not.equal(firstConnection);
-
-				// - the first connection sends to the first socket
-				firstConnection.send();
-				expect(context.mockSockets[0].numWrites).to.equal(1);
-
-				// - the second connection sends to the second socket
-				secondConnection.send();
-				expect(context.mockSockets[1].numWrites).to.equal(1);
+				return singleUsePromise2;
 			});
-		}
-	);
+			sockets[0].authorized = true;
+			sockets[0].fireEvent('secureConnect');
 
-	assertAfterFirstConnectionSucceeded(
-		'error alone does not affect connection using singleUse',
-		'singleUse',
-		(context, connectionService, firstConnection) => {
-			// Act: emit an error
-			context.onCalls.error(new Error());
+			return singleUsePromise;
+		});
 
-			return connectionService.lease().then(secondConnection => {
-				// Assert: connection was created twice
-				expect(context.numConnectionFactoryCalls).to.equal(2);
-				expect(secondConnection).to.not.equal(firstConnection);
+		it('new connection is created after close', () => {
+			const singleUsePromise = connectionService.singleUse().then(connection1 => {
+				sockets[0].fireEvent('close');
+
+				const singleUsePromise2 = connectionService.singleUse().then(connection2 => {
+					// Assert:
+					expect(connection2).to.not.equal(connection1);
+
+					connection2.send();
+					expect(sockets[0].numWrites).to.equal(0);
+					expect(sockets[1].numWrites).to.equal(1);
+				});
+
+				sockets[1].authorized = true;
+				sockets[1].fireEvent('secureConnect');
+
+				return singleUsePromise2;
 			});
-		}
-	);
+			sockets[0].authorized = true;
+			sockets[0].fireEvent('secureConnect');
 
-	describe('handles first simultaneous connections correctly when authentication is delayed', () => {
-		it('on successful authentication both parties should lease the same connection', () => {
-			// Arrange:
-			const context = createTestContext();
-			let authPromiseResolve;
-			const connectionService = createConnectionService(
-				Test_Config,
-				context.mockConnectionFactory,
-				context.createAuthPromise(() => new Promise(resolve => {
-					authPromiseResolve = resolve;
-				}))
-			);
+			return singleUsePromise;
+		});
 
+		it('error event does not affect connection', () => {
+			// Act:
+			const singleUsePromise = connectionService.singleUse().then(connection => {
+				sockets[0].fireEvent('error');
+				connection.send();
+				expect(sockets[0].numWrites).to.equal(1);
+			});
+			sockets[0].authorized = true;
+			sockets[0].fireEvent('secureConnect');
+
+			return singleUsePromise;
+		});
+	});
+
+	describe('handles first simultaneous connections correctly when authorization is delayed', () => {
+		it('on successful authorization both parties should lease the same connection', () => {
 			// Act:
 			let firstConn;
 			let secondConn;
 			const leasePromises = Promise.all([
 				connectionService.lease().then(firstConnection => {
-					// Assert:
 					firstConn = firstConnection;
-					expect(context.numConnectionFactoryCalls).to.equal(1);
 				}),
 				connectionService.lease().then(secondConnection => {
-					// Assert:
 					secondConn = secondConnection;
-					expect(context.numConnectionFactoryCalls).to.equal(1);
 				})
 			]).then(() => {
 				// Assert:
 				expect(secondConn).to.equal(firstConn);
 			});
 
-			// unblocks the first promise (simulates delayed acceptance of authentication)
-			authPromiseResolve();
+			// unblocks the first promise (simulates delayed acceptance of authorization)
+			sockets[0].authorized = true;
+			sockets[0].fireEvent('secureConnect');
 
 			return leasePromises;
 		});
 
-		it('on failed authentication both parties should fail on the same pending authentication promise', done => {
-			// Arrange:
-			const context = createTestContext();
-			let authPromiseReject;
-			const connectionService = createConnectionService(
-				Test_Config,
-				context.mockConnectionFactory,
-				context.createAuthPromise(() => new Promise((resolve, reject) => {
-					authPromiseReject = reject;
-				}))
-			);
-			const authError = Error('failure auth promise');
-
+		it('on failed authorization both parties should fail on the same pending authorization promise', () => {
 			// Act:
-			Promise.all([
+			const leasePromises = Promise.all([
 				connectionService.lease(),
 				connectionService.lease()
-			]).catch(err => {
+			]).catch(error => {
 				// Assert:
-				expect(err).to.equal(authError);
-				done();
+				expect(error.message).to.equal('connection failed');
 			});
 
-			// unblocks the first promise (simulates delayed authentication failure)
-			authPromiseReject(authError);
+			// unblocks the first promise (simulates delayed authorization failure)
+			sockets[0].fireEvent('close');
+
+			return leasePromises;
 		});
 	});
 });

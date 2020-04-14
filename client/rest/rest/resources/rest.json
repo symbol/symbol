@@ -9,7 +9,6 @@
     "allowedHosts": ["*"],
     "allowedMethods": ["GET", "POST", "PUT", "OPTIONS"]
   },
-  "clientPrivateKey": "0000000000000000000000000000000000000000000000000000000000000000",
   "extensions": [
     "accountLink",
     "aggregate",
@@ -36,8 +35,10 @@
   "apiNode": {
     "host": "127.0.0.1",
     "port": 7900,
-    "publicKey": "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
-    "timeout": 1000
+    "timeout": 1000,
+    "tlsClientCertificatePath": "/",
+    "tlsClientKeyPath": "/",
+    "tlsCaCertificatePath": "/"
   },
 
   "websocket": {

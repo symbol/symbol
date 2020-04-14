@@ -18,24 +18,39 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @module auth/VerifyResult */
+class MockSocket {
+	constructor() {
+		this.authorized = false;
+		this.numWrites = 0;
+		this.onceEventHandlers = {};
+		this.onEventHandlers = {};
+	}
 
-/**
- * Possible results of a verification handshake with a peer.
- * @enum {numeric}
- */
-const VerifyResult = {
-	/** Peer was verified. */
-	success: 0,
+	once(event, handler) {
+		this.onceEventHandlers[event] = handler;
+		return this;
+	}
 
-	/** An i/o error was encountered during verification. */
-	ioError: 1,
+	on(event, handler) {
+		this.onEventHandlers[event] = handler;
+		return this;
+	}
 
-	/** Peer sent malformed data. */
-	malformedData: 2,
+	write() {
+		this.numWrites++;
+	}
 
-	/** Peer failed the challenge. */
-	failedChallenge: 3
+	fireEvent(event) {
+		const onceEvent = this.onceEventHandlers[event];
+		if (onceEvent) {
+			delete this.onceEventHandlers[event];
+			onceEvent();
+		} else if (this.onEventHandlers[event]) {
+			this.onEventHandlers[event]();
+		}
+	}
+}
+
+module.exports = {
+	MockSocket
 };
-
-module.exports = VerifyResult;
