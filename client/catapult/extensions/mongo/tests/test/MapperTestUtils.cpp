@@ -59,6 +59,16 @@ namespace catapult { namespace test {
 				++i;
 			}
 		}
+
+		template<typename TDocument>
+		crypto::ProofVerificationHash GetProofVerificationHashValue(const TDocument& doc, const std::string& name) {
+			return GetBinaryArray<crypto::ProofVerificationHash::Size>(doc, name);
+		}
+
+		template<typename TDocument>
+		crypto::ProofScalar GetProofScalarValue(const TDocument& doc, const std::string& name) {
+			return GetBinaryArray<crypto::ProofScalar::Size>(doc, name);
+		}
 	}
 
 	void AssertEqualEmbeddedTransactionData(const model::EmbeddedTransaction& transaction, const bsoncxx::document::view& dbTransaction) {
@@ -95,19 +105,22 @@ namespace catapult { namespace test {
 	}
 
 	void AssertEqualBlockData(const model::Block& block, const bsoncxx::document::view& dbBlock) {
-		// - 5 fields from VerifiableEntity, 9 fields from Block
-		EXPECT_EQ(14u, GetFieldCount(dbBlock));
+		// - 5 fields from VerifiableEntity, 12 fields from Block
+		EXPECT_EQ(17u, GetFieldCount(dbBlock));
 		AssertEqualVerifiableEntityData(block, dbBlock);
 
 		EXPECT_EQ(block.Height, Height(GetUint64(dbBlock, "height")));
 		EXPECT_EQ(block.Timestamp, Timestamp(GetUint64(dbBlock, "timestamp")));
 		EXPECT_EQ(block.Difficulty, Difficulty(GetUint64(dbBlock, "difficulty")));
-		EXPECT_EQ(block.FeeMultiplier, BlockFeeMultiplier(GetUint32(dbBlock, "feeMultiplier")));
+		EXPECT_EQ(block.GenerationHashProof.Gamma, GetKeyValue(dbBlock, "proofGamma"));
+		EXPECT_EQ(block.GenerationHashProof.VerificationHash, GetProofVerificationHashValue(dbBlock, "proofVerificationHash"));
+		EXPECT_EQ(block.GenerationHashProof.Scalar, GetProofScalarValue(dbBlock, "proofScalar"));
 		EXPECT_EQ(block.PreviousBlockHash, GetHashValue(dbBlock, "previousBlockHash"));
 		EXPECT_EQ(block.TransactionsHash, GetHashValue(dbBlock, "transactionsHash"));
 		EXPECT_EQ(block.ReceiptsHash, GetHashValue(dbBlock, "receiptsHash"));
 		EXPECT_EQ(block.StateHash, GetHashValue(dbBlock, "stateHash"));
 		EXPECT_EQ(block.BeneficiaryPublicKey, GetKeyValue(dbBlock, "beneficiaryPublicKey"));
+		EXPECT_EQ(block.FeeMultiplier, BlockFeeMultiplier(GetUint32(dbBlock, "feeMultiplier")));
 	}
 
 	void AssertEqualBlockMetadata(

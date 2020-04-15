@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "catapult/crypto/Vrf.h"
 #include "catapult/model/Mosaic.h"
 #include "catapult/types.h"
 
@@ -75,6 +76,18 @@ namespace catapult { namespace test {
 	/// Gets the desired alignment for type GenerationHash.
 	template<>
 	constexpr size_t GetRequiredAlignment<GenerationHash>() {
+		return sizeof(uint64_t);
+	}
+
+	/// Gets the desired alignment for type ProofVerificationHash.
+	template<>
+	constexpr size_t GetRequiredAlignment<crypto::ProofVerificationHash>() {
+		return sizeof(uint64_t);
+	}
+
+	/// Gets the desired alignment for type ProofScalar.
+	template<>
+	constexpr size_t GetRequiredAlignment<crypto::ProofScalar>() {
 		return sizeof(uint64_t);
 	}
 }}

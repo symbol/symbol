@@ -82,12 +82,15 @@ namespace catapult { namespace mongo { namespace mappers {
 				<< "height" << ToInt64(block.Height)
 				<< "timestamp" << ToInt64(block.Timestamp)
 				<< "difficulty" << ToInt64(block.Difficulty)
-				<< "feeMultiplier" << ToInt32(block.FeeMultiplier)
+				<< "proofGamma" << ToBinary(block.GenerationHashProof.Gamma)
+				<< "proofVerificationHash" << ToBinary(block.GenerationHashProof.VerificationHash)
+				<< "proofScalar" << ToBinary(block.GenerationHashProof.Scalar)
 				<< "previousBlockHash" << ToBinary(block.PreviousBlockHash)
 				<< "transactionsHash" << ToBinary(block.TransactionsHash)
 				<< "receiptsHash" << ToBinary(block.ReceiptsHash)
 				<< "stateHash" << ToBinary(block.StateHash)
-				<< "beneficiaryPublicKey" << ToBinary(block.BeneficiaryPublicKey);
+				<< "beneficiaryPublicKey" << ToBinary(block.BeneficiaryPublicKey)
+				<< "feeMultiplier" << ToInt32(block.FeeMultiplier);
 		builder << bson_stream::close_document;
 		return builder << bson_stream::finalize;
 	}
