@@ -48,7 +48,7 @@ namespace catapult { namespace validators {
 			cache.commit(Height(1));
 		}
 
-		void AssertValidation(ValidationResult expectedResult, state::AccountType accountType, model::AccountLinkAction linkAction) {
+		void AssertValidation(ValidationResult expectedResult, state::AccountType accountType, model::LinkAction linkAction) {
 			// Arrange:
 			auto mainAccountKey = test::GenerateRandomByteArray<Key>();
 			auto remoteAccountKey = test::GenerateRandomByteArray<Key>();
@@ -74,7 +74,7 @@ namespace catapult { namespace validators {
 	namespace {
 		void AssertLinkValidationForAccountWithType(ValidationResult expectedResult, state::AccountType accountType) {
 			// Assert:
-			AssertValidation(expectedResult, accountType, model::AccountLinkAction::Link);
+			AssertValidation(expectedResult, accountType, model::LinkAction::Link);
 		}
 	}
 
@@ -97,7 +97,7 @@ namespace catapult { namespace validators {
 	namespace {
 		void AssertUnlinkValidationForAccountWithType(ValidationResult expectedResult, state::AccountType accountType) {
 			// Assert:
-			AssertValidation(expectedResult, accountType, model::AccountLinkAction::Unlink);
+			AssertValidation(expectedResult, accountType, model::LinkAction::Unlink);
 		}
 	}
 
@@ -128,7 +128,7 @@ namespace catapult { namespace validators {
 		// - the notification remote account key does not match the state remote account key
 		auto pValidator = CreateAccountLinkAvailabilityValidator();
 		auto notificationRemoteKey = test::GenerateRandomByteArray<Key>();
-		auto unlinkAction = model::AccountLinkAction::Unlink;
+		auto unlinkAction = model::LinkAction::Unlink;
 		auto notification = model::RemoteAccountLinkNotification(mainAccountKey, notificationRemoteKey, unlinkAction);
 
 		// Act:

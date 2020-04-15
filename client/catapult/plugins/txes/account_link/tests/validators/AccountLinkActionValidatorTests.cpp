@@ -30,7 +30,7 @@ namespace catapult { namespace validators {
 
 	namespace {
 		struct AccountLinkActionTraits {
-			using EnumType = model::AccountLinkAction;
+			using EnumType = model::LinkAction;
 
 			static constexpr auto Failure_Result = Failure_AccountLink_Invalid_Action;
 			static constexpr auto CreateValidator = CreateAccountLinkActionValidator;

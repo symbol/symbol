@@ -31,7 +31,7 @@ namespace catapult { namespace validators {
 		auto accountStateIter = cache.find(notification.MainAccountKey);
 		const auto& accountState = accountStateIter.get();
 
-		if (model::AccountLinkAction::Link == notification.LinkAction) {
+		if (model::LinkAction::Link == notification.LinkAction) {
 			if (state::AccountType::Unlinked != accountState.AccountType)
 				return Failure_AccountLink_Link_Already_Exists;
 		} else {

@@ -50,13 +50,13 @@ namespace catapult { namespace builders {
 		public:
 			struct TransactionProperties {
 			public:
-				explicit TransactionProperties(model::AccountLinkAction linkAction)
+				explicit TransactionProperties(model::LinkAction linkAction)
 						: LinkAction(linkAction)
 						, LinkedAccountKey()
 				{}
 
 			public:
-				model::AccountLinkAction LinkAction;
+				model::LinkAction LinkAction;
 				typename TExpectedTraits::LinkedType LinkedAccountKey;
 			};
 
@@ -109,7 +109,7 @@ namespace catapult { namespace builders {
 
 	TRAITS_BASED_TEST(CanCreateTransaction) {
 		// Arrange:
-		auto expectedProperties = typename TLinkTraits::TransactionProperties(model::AccountLinkAction::Unlink);
+		auto expectedProperties = typename TLinkTraits::TransactionProperties(model::LinkAction::Unlink);
 
 		// Assert:
 		AssertCanBuildTransaction<TLinkTraits, TTraits>(expectedProperties, [](const auto&) {});
@@ -121,7 +121,7 @@ namespace catapult { namespace builders {
 
 	TRAITS_BASED_TEST(CanSetRemote) {
 		// Arrange:
-		auto expectedProperties = typename TLinkTraits::TransactionProperties(model::AccountLinkAction::Unlink);
+		auto expectedProperties = typename TLinkTraits::TransactionProperties(model::LinkAction::Unlink);
 		test::FillWithRandomData(expectedProperties.LinkedAccountKey);
 		const auto& linkedAccountKey = expectedProperties.LinkedAccountKey;
 
@@ -133,17 +133,17 @@ namespace catapult { namespace builders {
 
 	TRAITS_BASED_TEST(CanSetAction) {
 		// Arrange:
-		auto expectedProperties = typename TLinkTraits::TransactionProperties(static_cast<model::AccountLinkAction>(0x45));
+		auto expectedProperties = typename TLinkTraits::TransactionProperties(static_cast<model::LinkAction>(0x45));
 
 		// Assert:
 		AssertCanBuildTransaction<TLinkTraits, TTraits>(expectedProperties, [](auto& builder) {
-			builder.setLinkAction(static_cast<model::AccountLinkAction>(0x45));
+			builder.setLinkAction(static_cast<model::LinkAction>(0x45));
 		});
 	}
 
 	TRAITS_BASED_TEST(CanSetRemoteAndAction) {
 		// Arrange:
-		auto linkAction = static_cast<model::AccountLinkAction>(0x45);
+		auto linkAction = static_cast<model::LinkAction>(0x45);
 		auto expectedProperties = typename TLinkTraits::TransactionProperties(linkAction);
 		test::FillWithRandomData(expectedProperties.LinkedAccountKey);
 		const auto& linkedAccountKey = expectedProperties.LinkedAccountKey;

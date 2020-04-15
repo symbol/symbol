@@ -41,7 +41,7 @@ namespace catapult { namespace plugins {
 
 	// endregion
 
-	// region publish - account link action link
+	// region publish - link action link
 
 	namespace {
 		template<typename TTraits>
@@ -62,11 +62,11 @@ namespace catapult { namespace plugins {
 		}
 	}
 
-	PLUGIN_TEST(CanPublishAllNotificationsInCorrectOrderWhenAccountLinkActionIsLink) {
+	PLUGIN_TEST(CanPublishAllNotificationsInCorrectOrderWhenLinkActionIsLink) {
 		// Arrange:
 		typename TTraits::TransactionType transaction;
 		test::FillWithRandomData(transaction);
-		transaction.LinkAction = AccountLinkAction::Link;
+		transaction.LinkAction = LinkAction::Link;
 
 		// Act + Assert:
 		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
@@ -77,11 +77,11 @@ namespace catapult { namespace plugins {
 		});
 	}
 
-	PLUGIN_TEST(CanPublishAllNotificationsWhenAccountLinkActionIsLink) {
+	PLUGIN_TEST(CanPublishAllNotificationsWhenLinkActionIsLink) {
 		// Arrange:
 		typename TTraits::TransactionType transaction;
 		test::FillWithRandomData(transaction);
-		transaction.LinkAction = AccountLinkAction::Link;
+		transaction.LinkAction = LinkAction::Link;
 
 		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
 		AddCommonExpectations<TTraits>(builder, transaction);
@@ -98,13 +98,13 @@ namespace catapult { namespace plugins {
 
 	// endregion
 
-	// region publish - account link action unlink
+	// region publish - link action unlink
 
-	PLUGIN_TEST(CanPublishAllNotificationsInCorrectOrderWhenAccountLinkActionIsUnlink) {
+	PLUGIN_TEST(CanPublishAllNotificationsInCorrectOrderWhenLinkActionIsUnlink) {
 		// Arrange:
 		typename TTraits::TransactionType transaction;
 		test::FillWithRandomData(transaction);
-		transaction.LinkAction = AccountLinkAction::Unlink;
+		transaction.LinkAction = LinkAction::Unlink;
 
 		// Act + Assert:
 		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
@@ -113,11 +113,11 @@ namespace catapult { namespace plugins {
 		});
 	}
 
-	PLUGIN_TEST(CanPublishAllNotificationsWhenAccountLinkActionIsUnlink) {
+	PLUGIN_TEST(CanPublishAllNotificationsWhenLinkActionIsUnlink) {
 		// Arrange:
 		typename TTraits::TransactionType transaction;
 		test::FillWithRandomData(transaction);
-		transaction.LinkAction = AccountLinkAction::Unlink;
+		transaction.LinkAction = LinkAction::Unlink;
 
 		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
 		AddCommonExpectations<TTraits>(builder, transaction);

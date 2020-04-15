@@ -23,8 +23,8 @@
 
 namespace catapult { namespace model {
 
-	/// Account link action.
-	enum class AccountLinkAction : uint8_t {
+	/// Link action.
+	enum class LinkAction : uint8_t {
 		/// Unlink account.
 		Unlink,
 

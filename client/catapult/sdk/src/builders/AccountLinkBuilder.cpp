@@ -32,7 +32,7 @@ namespace catapult { namespace builders {
 		m_remotePublicKey = remotePublicKey;
 	}
 
-	void AccountLinkBuilder::setLinkAction(model::AccountLinkAction linkAction) {
+	void AccountLinkBuilder::setLinkAction(model::LinkAction linkAction) {
 		m_linkAction = linkAction;
 	}
 

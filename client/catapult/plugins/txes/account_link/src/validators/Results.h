@@ -28,7 +28,7 @@ namespace catapult { namespace validators {
 /// Defines an account link validation result with \a DESCRIPTION and \a CODE.
 #define DEFINE_ACCOUNT_LINK_RESULT(DESCRIPTION, CODE) DEFINE_VALIDATION_RESULT(Failure, AccountLink, DESCRIPTION, CODE, None)
 
-	/// Validation failed because account link action is invalid.
+	/// Validation failed because link action is invalid.
 	DEFINE_ACCOUNT_LINK_RESULT(Invalid_Action, 1);
 
 	/// Validation failed because main account is already linked to another account.

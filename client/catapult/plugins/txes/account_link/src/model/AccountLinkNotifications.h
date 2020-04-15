@@ -19,7 +19,7 @@
 **/
 
 #pragma once
-#include "AccountLinkAction.h"
+#include "catapult/model/LinkAction.h"
 #include "catapult/model/Mosaic.h"
 #include "catapult/model/Notifications.h"
 
@@ -50,7 +50,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Creates a notification around \a mainAccountKey, \a remoteAccountKey and \a linkAction.
-		RemoteAccountLinkNotification(const Key& mainAccountKey, const Key& remoteAccountKey, AccountLinkAction linkAction)
+		RemoteAccountLinkNotification(const Key& mainAccountKey, const Key& remoteAccountKey, LinkAction linkAction)
 				: Notification(Notification_Type, sizeof(RemoteAccountLinkNotification))
 				, MainAccountKey(mainAccountKey)
 				, RemoteAccountKey(remoteAccountKey)
@@ -64,8 +64,8 @@ namespace catapult { namespace model {
 		/// Remote account key.
 		const Key& RemoteAccountKey;
 
-		/// Account link action.
-		AccountLinkAction LinkAction;
+		/// Link action.
+		model::LinkAction LinkAction;
 	};
 
 	// endregion

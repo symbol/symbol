@@ -35,15 +35,15 @@ namespace catapult { namespace observers {
 	namespace {
 		struct CommitTraits {
 			static constexpr auto Notify_Mode = NotifyMode::Commit;
-			static constexpr auto Create_Link = model::AccountLinkAction::Link;
-			static constexpr auto Remove_Link = model::AccountLinkAction::Unlink;
+			static constexpr auto Create_Link = model::LinkAction::Link;
+			static constexpr auto Remove_Link = model::LinkAction::Unlink;
 		};
 
 		struct RollbackTraits {
 			static constexpr auto Notify_Mode = NotifyMode::Rollback;
 			// during rollback actions need to be reversed to create or remove link
-			static constexpr auto Create_Link = model::AccountLinkAction::Unlink;
-			static constexpr auto Remove_Link = model::AccountLinkAction::Link;
+			static constexpr auto Create_Link = model::LinkAction::Unlink;
+			static constexpr auto Remove_Link = model::LinkAction::Link;
 		};
 	}
 

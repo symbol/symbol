@@ -19,8 +19,8 @@
 **/
 
 #pragma once
-#include "AccountLinkAction.h"
 #include "AccountLinkEntityType.h"
+#include "catapult/model/LinkAction.h"
 #include "catapult/model/Transaction.h"
 
 namespace catapult { namespace model {
@@ -40,8 +40,8 @@ namespace catapult { namespace model {
 		/// Remote public key.
 		Key RemotePublicKey;
 
-		/// Account link action.
-		AccountLinkAction LinkAction;
+		/// Link action.
+		model::LinkAction LinkAction;
 
 	public:
 		/// Calculates the real size of account link \a transaction.

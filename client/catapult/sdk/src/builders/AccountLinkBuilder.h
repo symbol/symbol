@@ -39,8 +39,8 @@ namespace catapult { namespace builders {
 		/// Sets the remote public key to \a remotePublicKey.
 		void setRemotePublicKey(const Key& remotePublicKey);
 
-		/// Sets the account link action to \a linkAction.
-		void setLinkAction(model::AccountLinkAction linkAction);
+		/// Sets the link action to \a linkAction.
+		void setLinkAction(model::LinkAction linkAction);
 
 	public:
 		/// Gets the size of account link transaction.
@@ -62,6 +62,6 @@ namespace catapult { namespace builders {
 
 	private:
 		Key m_remotePublicKey;
-		model::AccountLinkAction m_linkAction;
+		model::LinkAction m_linkAction;
 	};
 }}
