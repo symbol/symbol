@@ -44,7 +44,7 @@ namespace catapult { namespace state {
 		EXPECT_EQ(Height(0), state.PublicKeyHeight);
 
 		EXPECT_EQ(AccountType::Unlinked, state.AccountType);
-		EXPECT_EQ(Key(), state.LinkedAccountKey);
+		EXPECT_EQ(0u, state.SupplementalAccountKeys.size());
 
 		for (const auto& snapshot : state.ImportanceSnapshots) {
 			EXPECT_EQ(Importance(0), snapshot.Importance);
@@ -92,8 +92,8 @@ namespace catapult { namespace state {
 			test::FillWithRandomData(mainAccountState.PublicKey);
 			mainAccountState.AccountType = AccountType::Main;
 
-			remoteAccountState.LinkedAccountKey = mainAccountState.PublicKey;
-			mainAccountState.LinkedAccountKey = remoteAccountState.PublicKey;
+			remoteAccountState.SupplementalAccountKeys.set(AccountKeyType::Linked, mainAccountState.PublicKey);
+			mainAccountState.SupplementalAccountKeys.set(AccountKeyType::Linked, remoteAccountState.PublicKey);
 
 			// Act + Assert:
 			action(remoteAccountState, mainAccountState);
@@ -136,10 +136,22 @@ namespace catapult { namespace state {
 		});
 	}
 
+	namespace {
+		void MutateLinkedAccountKey(AccountState& accountState) {
+			auto& accountKeys = accountState.SupplementalAccountKeys;
+
+			auto linkedAccountKey = accountKeys.get(AccountKeyType::Linked);
+			accountKeys.unset(AccountKeyType::Linked);
+
+			linkedAccountKey[0] ^= 0xFF;
+			accountKeys.set(AccountKeyType::Linked, linkedAccountKey);
+		}
+	}
+
 	TEST(TEST_CLASS, RequireLinkedRemoteAndMainAccounts_ThrowsWhenRemoteAccountStateHasWrongLinkedAccountKey) {
 		// Arrange:
 		PrepareRequireLinkedRemoteAndMainAccountsTest([](auto& remoteAccountState, const auto& mainAccountState) {
-			remoteAccountState.LinkedAccountKey[0] ^= 0xFF;
+			MutateLinkedAccountKey(remoteAccountState);
 
 			// Act + Assert:
 			EXPECT_THROW(RequireLinkedRemoteAndMainAccounts(remoteAccountState, mainAccountState), catapult_runtime_error);
@@ -149,7 +161,7 @@ namespace catapult { namespace state {
 	TEST(TEST_CLASS, RequireLinkedRemoteAndMainAccounts_ThrowsWhenMainAccountStateHasWrongLinkedAccountKey) {
 		// Arrange:
 		PrepareRequireLinkedRemoteAndMainAccountsTest([](const auto& remoteAccountState, auto& mainAccountState) {
-			mainAccountState.LinkedAccountKey[0] ^= 0xFF;
+			MutateLinkedAccountKey(mainAccountState);
 
 			// Act + Assert:
 			EXPECT_THROW(RequireLinkedRemoteAndMainAccounts(remoteAccountState, mainAccountState), catapult_runtime_error);
@@ -192,6 +204,34 @@ namespace catapult { namespace state {
 		auto activityBucket = accountState.ActivityBuckets.get(model::ImportanceHeight(100));
 		EXPECT_EQ(model::ImportanceHeight(100), activityBucket.StartHeight);
 		EXPECT_EQ(Amount(222), activityBucket.TotalFeesPaid);
+	}
+
+	// endregion
+
+	// region account key accessors
+
+	TEST(TEST_CLASS, CanRetrieveSupplementalAccountKeysViaAccessorsWhenUnset) {
+		// Arrange:
+		AccountState accountState(test::GenerateRandomAddress(), Height(123));
+
+		// Act + Assert:
+		EXPECT_EQ(Key(), GetLinkedAccountKey(accountState));
+		EXPECT_EQ(Key(), GetVrfKey(accountState));
+		EXPECT_EQ(Key(), GetVotingKey(accountState));
+	}
+
+	TEST(TEST_CLASS, CanRetrieveSupplementalAccountKeysViaAccessorsWhenSet) {
+		// Arrange:
+		auto keyVector = test::GenerateRandomDataVector<Key>(3);
+		AccountState accountState(test::GenerateRandomAddress(), Height(123));
+		accountState.SupplementalAccountKeys.set(AccountKeyType::Linked, keyVector[0]);
+		accountState.SupplementalAccountKeys.set(AccountKeyType::VRF, keyVector[1]);
+		accountState.SupplementalAccountKeys.set(AccountKeyType::Voting, keyVector[2]);
+
+		// Act + Assert:
+		EXPECT_EQ(keyVector[0], GetLinkedAccountKey(accountState));
+		EXPECT_EQ(keyVector[1], GetVrfKey(accountState));
+		EXPECT_EQ(keyVector[2], GetVotingKey(accountState));
 	}
 
 	// endregion

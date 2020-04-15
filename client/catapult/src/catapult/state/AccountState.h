@@ -22,6 +22,7 @@
 #include "AccountActivityBuckets.h"
 #include "AccountBalances.h"
 #include "AccountImportanceSnapshots.h"
+#include "AccountKeys.h"
 #include "catapult/model/Mosaic.h"
 
 namespace catapult { namespace state {
@@ -38,6 +39,7 @@ namespace catapult { namespace state {
 		Remote,
 
 		/// Account is a remote harvester eligible account that is unlinked.
+		/// \note This allows an account that has previously been used as remote to be reused as a remote.
 		Remote_Unlinked
 	};
 
@@ -45,14 +47,7 @@ namespace catapult { namespace state {
 	struct PLUGIN_API_DEPENDENCY AccountState {
 	public:
 		/// Creates an account state from \a address and \a addressHeight.
-		AccountState(const catapult::Address& address, Height addressHeight)
-				: Address(address)
-				, AddressHeight(addressHeight)
-				, PublicKey()
-				, PublicKeyHeight(0)
-				, AccountType(AccountType::Unlinked)
-				, LinkedAccountKey()
-		{}
+		AccountState(const catapult::Address& address, Height addressHeight);
 
 	public:
 		/// Address of an account.
@@ -70,8 +65,8 @@ namespace catapult { namespace state {
 		/// Type of account.
 		state::AccountType AccountType;
 
-		/// Public key of linked account.
-		Key LinkedAccountKey;
+		/// Supplemental account keys.
+		AccountKeys SupplementalAccountKeys;
 
 		/// Importance snapshots of the account.
 		AccountImportanceSnapshots ImportanceSnapshots;
@@ -91,4 +86,13 @@ namespace catapult { namespace state {
 
 	/// Applys \a fee surplus at \a importanceHeight to \a accountState.
 	void ApplyFeeSurplus(AccountState& accountState, const model::Mosaic& fee, model::ImportanceHeight importanceHeight);
+
+	/// Gets the linked account key associated with \a accountState or a zero key.
+	Key GetLinkedAccountKey(const AccountState& accountState);
+
+	/// Gets the vrf key associated with \a accountState or a zero key.
+	Key GetVrfKey(const AccountState& accountState);
+
+	/// Gets the voting key associated with \a accountState or a zero key.
+	Key GetVotingKey(const AccountState& accountState);
 }}

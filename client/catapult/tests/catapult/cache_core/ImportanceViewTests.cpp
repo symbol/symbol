@@ -24,6 +24,7 @@
 #include "catapult/model/NetworkIdentifier.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/cache/ImportanceViewTestUtils.h"
+#include "tests/test/core/AccountStateTestUtils.h"
 #include "tests/TestHarness.h"
 
 using catapult::model::ImportanceHeight;
@@ -59,7 +60,7 @@ namespace catapult { namespace cache {
 				// explicitly mark the account as a main account (local harvesting when remote harvesting is enabled)
 				auto accountStateIter = PublicKeyTraits::AddAccount(delta, publicKey, height);
 				accountStateIter.get().AccountType = state::AccountType::Main;
-				accountStateIter.get().LinkedAccountKey = test::GenerateRandomByteArray<Key>();
+				test::ForceSetLinkedAccountKey(accountStateIter.get(), test::GenerateRandomByteArray<Key>());
 				return accountStateIter;
 			}
 		};
@@ -70,12 +71,12 @@ namespace catapult { namespace cache {
 				auto mainAccountPublicKey = test::GenerateRandomByteArray<Key>();
 				auto mainAccountStateIter = PublicKeyTraits::AddAccount(delta, mainAccountPublicKey, height);
 				mainAccountStateIter.get().AccountType = state::AccountType::Main;
-				mainAccountStateIter.get().LinkedAccountKey = publicKey;
+				test::ForceSetLinkedAccountKey(mainAccountStateIter.get(), publicKey);
 
 				// 2. add the remote account with specified key
 				auto accountStateIter = PublicKeyTraits::AddAccount(delta, publicKey, height);
 				accountStateIter.get().AccountType = state::AccountType::Remote;
-				accountStateIter.get().LinkedAccountKey = mainAccountPublicKey;
+				test::ForceSetLinkedAccountKey(accountStateIter.get(), mainAccountPublicKey);
 				return mainAccountStateIter;
 			}
 		};
@@ -334,7 +335,7 @@ namespace catapult { namespace cache {
 	IMPROPER_LINKS_TRAITS_BASED_TEST(FailureWhenLinkedAccountDoesNotReferenceRemoteAccount) {
 		AssertImproperLink<TTraits>([](auto& accountState) {
 			// Arrange: change the main account to point to a different account
-			test::FillWithRandomData(accountState.LinkedAccountKey);
+			test::ForceSetLinkedAccountKey(accountState, test::GenerateRandomByteArray<Key>());
 		});
 	}
 

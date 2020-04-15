@@ -33,7 +33,10 @@ namespace catapult { namespace mongo { namespace mappers {
 	// region ToDbModel
 
 	namespace {
-		auto CreateAccountState(Height publicKeyHeight, std::initializer_list<model::Mosaic> mosaics) {
+		auto CreateAccountState(
+				Height publicKeyHeight,
+				std::initializer_list<model::Mosaic> mosaics,
+				bool shouldSetSupplementalAccountKeys) {
 			state::AccountState accountState(test::GenerateRandomAddress(), Height(123));
 			if (Height(0) != publicKeyHeight) {
 				accountState.PublicKeyHeight = publicKeyHeight;
@@ -41,7 +44,11 @@ namespace catapult { namespace mongo { namespace mappers {
 			}
 
 			accountState.AccountType = static_cast<state::AccountType>(34);
-			test::FillWithRandomData(accountState.LinkedAccountKey);
+			if (shouldSetSupplementalAccountKeys) {
+				// set { 0, 2 } linked keys
+				accountState.SupplementalAccountKeys.set(state::AccountKeyType::Linked, test::GenerateRandomByteArray<Key>());
+				accountState.SupplementalAccountKeys.set(state::AccountKeyType::Voting, test::GenerateRandomByteArray<Key>());
+			}
 
 			auto numImportanceSnapshots = 1u + test::Random() % Importance_History_Size;
 			for (auto i = 0u; i < numImportanceSnapshots; ++i)
@@ -62,9 +69,12 @@ namespace catapult { namespace mongo { namespace mappers {
 			return accountState;
 		}
 
-		void AssertCanMapAccountState(Height publicKeyHeight, std::initializer_list<model::Mosaic> mosaics) {
+		void AssertCanMapAccountState(
+				Height publicKeyHeight,
+				std::initializer_list<model::Mosaic> mosaics,
+				bool shouldSetSupplementalAccountKeys = true) {
 			// Arrange:
-			auto accountState = CreateAccountState(publicKeyHeight, mosaics);
+			auto accountState = CreateAccountState(publicKeyHeight, mosaics, shouldSetSupplementalAccountKeys);
 
 			// Act:
 			auto dbAccount = ToDbModel(accountState);
@@ -105,6 +115,10 @@ namespace catapult { namespace mongo { namespace mappers {
 		AssertCanMapAccountState(
 				Height(456),
 				{ { MosaicId(1234), Amount(234) }, { MosaicId(1357), Amount(345) }, { MosaicId(31), Amount(45) } });
+	}
+
+	TEST(TEST_CLASS, CanMapAccountStateWithoutSupplementalAccountKeys) {
+		AssertCanMapAccountState(Height(456), { { MosaicId(1234), Amount(234) } }, false);
 	}
 
 	// endregion

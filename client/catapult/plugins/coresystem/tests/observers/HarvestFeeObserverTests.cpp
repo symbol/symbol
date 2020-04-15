@@ -21,6 +21,7 @@
 #include "src/observers/Observers.h"
 #include "catapult/model/InflationCalculator.h"
 #include "tests/test/cache/BalanceTransferTestUtils.h"
+#include "tests/test/core/AccountStateTestUtils.h"
 #include "tests/test/core/NotificationTestUtils.h"
 #include "tests/test/plugins/AccountObserverTestContext.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
@@ -49,7 +50,7 @@ namespace catapult { namespace observers {
 				// explicitly mark the account as a main account (local harvesting when remote harvesting is enabled)
 				auto accountStateIter = UnlinkedAccountTraits::AddAccount(delta, publicKey, height);
 				accountStateIter.get().AccountType = state::AccountType::Main;
-				accountStateIter.get().LinkedAccountKey = test::GenerateRandomByteArray<Key>();
+				test::ForceSetLinkedAccountKey(accountStateIter.get(), test::GenerateRandomByteArray<Key>());
 				return accountStateIter;
 			}
 		};
@@ -60,12 +61,12 @@ namespace catapult { namespace observers {
 				auto mainAccountPublicKey = test::GenerateRandomByteArray<Key>();
 				auto mainAccountStateIter = UnlinkedAccountTraits::AddAccount(delta, mainAccountPublicKey, height);
 				mainAccountStateIter.get().AccountType = state::AccountType::Main;
-				mainAccountStateIter.get().LinkedAccountKey = publicKey;
+				test::ForceSetLinkedAccountKey(mainAccountStateIter.get(), publicKey);
 
 				// 2. add the remote account with specified key
 				auto accountStateIter = UnlinkedAccountTraits::AddAccount(delta, publicKey, height);
 				accountStateIter.get().AccountType = state::AccountType::Remote;
-				accountStateIter.get().LinkedAccountKey = mainAccountPublicKey;
+				test::ForceSetLinkedAccountKey(accountStateIter.get(), mainAccountPublicKey);
 				return mainAccountStateIter;
 			}
 		};
@@ -479,7 +480,7 @@ namespace catapult { namespace observers {
 	TEST(TEST_CLASS, FailureWhenLinkedAccountDoesNotReferenceRemoteAccount) {
 		AssertImproperLink([](auto& accountState) {
 			// Arrange: change the main account to point to a different account
-			test::FillWithRandomData(accountState.LinkedAccountKey);
+			test::ForceSetLinkedAccountKey(accountState, test::GenerateRandomByteArray<Key>());
 		});
 	}
 

@@ -20,6 +20,7 @@
 
 #include "AccountStateTestUtils.h"
 #include "AddressTestUtils.h"
+#include "catapult/utils/Casting.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {
@@ -86,7 +87,13 @@ namespace catapult { namespace test {
 		EXPECT_EQ(expected.PublicKeyHeight, actual.PublicKeyHeight) << message;
 
 		EXPECT_EQ(expected.AccountType, actual.AccountType) << message;
-		EXPECT_EQ(expected.LinkedAccountKey, actual.LinkedAccountKey) << message;
+
+		for (auto i = 0u; i < utils::to_underlying_type(state::AccountKeyType::Count); ++i) {
+			auto keyType = static_cast<state::AccountKeyType>(i);
+			EXPECT_EQ(
+					expected.SupplementalAccountKeys.get(keyType),
+					actual.SupplementalAccountKeys.get(keyType)) << message << ": key " << i;
+		}
 
 		AssertEqual(expected.ImportanceSnapshots, actual.ImportanceSnapshots, message + ": importance snapshot");
 		AssertEqual(expected.ActivityBuckets, actual.ActivityBuckets, message + ": activity bucket");
@@ -113,5 +120,10 @@ namespace catapult { namespace test {
 		}
 
 		return accountStates;
+	}
+
+	void ForceSetLinkedAccountKey(state::AccountState& accountState, const Key& linkedAccountKey) {
+		accountState.SupplementalAccountKeys.unset(state::AccountKeyType::Linked);
+		accountState.SupplementalAccountKeys.set(state::AccountKeyType::Linked, linkedAccountKey);
 	}
 }}

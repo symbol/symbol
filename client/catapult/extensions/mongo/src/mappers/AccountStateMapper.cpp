@@ -28,7 +28,25 @@ namespace catapult { namespace mongo { namespace mappers {
 	// region ToDbModel
 
 	namespace {
-		auto& StreamAccountImportanceSnapshots(bson_stream::document& builder, const state::AccountImportanceSnapshots& snapshots) {
+		void StreamAccountKeys(bson_stream::document& builder, const state::AccountKeys& accountKeys) {
+			auto keysArray = builder << "supplementalAccountKeys" << bson_stream::open_array;
+
+			for (uint8_t i = 0u; i < utils::to_underlying_type(state::AccountKeyType::Count); ++i) {
+				const auto& key = accountKeys.get(static_cast<state::AccountKeyType>(i));
+				if (Key() == key)
+					continue;
+
+				keysArray
+						<< bson_stream::open_document
+							<< "keyType" << i
+							<< "key" << ToBinary(key)
+						<< bson_stream::close_document;
+			}
+
+			keysArray << bson_stream::close_array;
+		}
+
+		void StreamAccountImportanceSnapshots(bson_stream::document& builder, const state::AccountImportanceSnapshots& snapshots) {
 			auto importancesArray = builder << "importances" << bson_stream::open_array;
 			for (const auto& snapshot : snapshots) {
 				if (model::ImportanceHeight(0) == snapshot.Height)
@@ -42,10 +60,9 @@ namespace catapult { namespace mongo { namespace mappers {
 			}
 
 			importancesArray << bson_stream::close_array;
-			return builder;
 		}
 
-		auto& StreamAccountActivityBuckets(bson_stream::document& builder, const state::AccountActivityBuckets& buckets) {
+		void StreamAccountActivityBuckets(bson_stream::document& builder, const state::AccountActivityBuckets& buckets) {
 			auto activityBucketsArray = builder << "activityBuckets" << bson_stream::open_array;
 			for (const auto& bucket : buckets) {
 				if (model::ImportanceHeight(0) == bucket.StartHeight)
@@ -61,16 +78,14 @@ namespace catapult { namespace mongo { namespace mappers {
 			}
 
 			activityBucketsArray << bson_stream::close_array;
-			return builder;
 		}
 
-		auto& StreamAccountBalances(bson_stream::document& builder, const state::AccountBalances& balances) {
+		void StreamAccountBalances(bson_stream::document& builder, const state::AccountBalances& balances) {
 			auto mosaicsArray = builder << "mosaics" << bson_stream::open_array;
 			for (const auto& entry : balances)
 				StreamMosaic(mosaicsArray, entry.first, entry.second);
 
 			mosaicsArray << bson_stream::close_array;
-			return builder;
 		}
 	}
 
@@ -82,8 +97,9 @@ namespace catapult { namespace mongo { namespace mappers {
 					<< "addressHeight" << ToInt64(accountState.AddressHeight)
 					<< "publicKey" << ToBinary(accountState.PublicKey)
 					<< "publicKeyHeight" << ToInt64(accountState.PublicKeyHeight)
-					<< "accountType" << utils::to_underlying_type(accountState.AccountType)
-					<< "linkedAccountKey" << ToBinary(accountState.LinkedAccountKey);
+					<< "accountType" << utils::to_underlying_type(accountState.AccountType);
+
+		StreamAccountKeys(builder, accountState.SupplementalAccountKeys);
 		StreamAccountImportanceSnapshots(builder, accountState.ImportanceSnapshots);
 		StreamAccountActivityBuckets(builder, accountState.ActivityBuckets);
 		StreamAccountBalances(builder, accountState.Balances);

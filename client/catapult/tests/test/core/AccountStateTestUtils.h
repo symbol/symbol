@@ -39,4 +39,7 @@ namespace catapult { namespace test {
 
 	/// Creates \a count account states with successive public keys starting at \c 1.
 	AccountStates CreateAccountStates(size_t count);
+
+	/// Forcibly clears and sets linked account key in \a accountState to \a linkedAccountKey.
+	void ForceSetLinkedAccountKey(state::AccountState& accountState, const Key& linkedAccountKey);
 }}

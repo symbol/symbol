@@ -147,6 +147,29 @@ namespace catapult { namespace test {
 	}
 
 	namespace {
+		void Increment(state::AccountKeyType& keyType) {
+			keyType = static_cast<state::AccountKeyType>(utils::to_underlying_type(keyType) + 1);
+		}
+
+		void AssertEqualAccountKeys(const state::AccountKeys& accountKeys, const bsoncxx::document::view& dbAccountKeys) {
+			size_t numAccountKeys = 0;
+
+			auto keyType = static_cast<state::AccountKeyType>(0);
+			for (const auto& accountKeyElement : dbAccountKeys) {
+				while (keyType < state::AccountKeyType::Count && !accountKeys.contains(keyType))
+					Increment(keyType);
+
+				auto accountKeyDocument = accountKeyElement.get_document();
+				EXPECT_EQ(keyType, static_cast<state::AccountKeyType>(GetUint32(accountKeyDocument.view(), "keyType")));
+				EXPECT_EQ(accountKeys.get(keyType), GetKeyValue(accountKeyDocument.view(), "key"));
+
+				Increment(keyType);
+				++numAccountKeys;
+			}
+
+			EXPECT_EQ(accountKeys.size(), numAccountKeys);
+		}
+
 		void AssertEqualAccountImportanceSnapshots(
 				const state::AccountImportanceSnapshots& snapshots,
 				const bsoncxx::document::view& dbImportances) {
@@ -195,8 +218,8 @@ namespace catapult { namespace test {
 		EXPECT_EQ(accountState.PublicKeyHeight, Height(GetUint64(dbAccount, "publicKeyHeight")));
 
 		EXPECT_EQ(accountState.AccountType, static_cast<state::AccountType>(GetInt32(dbAccount, "accountType")));
-		EXPECT_EQ(accountState.LinkedAccountKey, GetKeyValue(dbAccount, "linkedAccountKey"));
 
+		AssertEqualAccountKeys(accountState.SupplementalAccountKeys, dbAccount["supplementalAccountKeys"].get_array().value);
 		AssertEqualAccountImportanceSnapshots(accountState.ImportanceSnapshots, dbAccount["importances"].get_array().value);
 		AssertEqualAccountActivityBuckets(accountState.ActivityBuckets, dbAccount["activityBuckets"].get_array().value);
 

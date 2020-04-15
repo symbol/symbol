@@ -23,6 +23,14 @@
 
 namespace catapult { namespace state {
 
+	AccountState::AccountState(const catapult::Address& address, Height addressHeight)
+			: Address(address)
+			, AddressHeight(addressHeight)
+			, PublicKey()
+			, PublicKeyHeight(0)
+			, AccountType(AccountType::Unlinked)
+	{}
+
 	namespace {
 		void RequireAccountType(const AccountState& accountState, AccountType requiredAccountType, const char* requiredAccountTypeName) {
 			if (requiredAccountType == accountState.AccountType)
@@ -34,7 +42,7 @@ namespace catapult { namespace state {
 		}
 
 		bool AreLinked(const AccountState& lhs, const AccountState& rhs) {
-			return lhs.LinkedAccountKey == rhs.PublicKey && rhs.LinkedAccountKey == lhs.PublicKey;
+			return GetLinkedAccountKey(lhs) == rhs.PublicKey && GetLinkedAccountKey(rhs) == lhs.PublicKey;
 		}
 	}
 
@@ -68,5 +76,17 @@ namespace catapult { namespace state {
 		accountState.ActivityBuckets.tryUpdate(importanceHeight, [surplus = fee.Amount](auto& bucket) {
 			bucket.TotalFeesPaid = bucket.TotalFeesPaid - surplus;
 		});
+	}
+
+	Key GetLinkedAccountKey(const AccountState& accountState) {
+		return accountState.SupplementalAccountKeys.get(AccountKeyType::Linked);
+	}
+
+	Key GetVrfKey(const AccountState& accountState) {
+		return accountState.SupplementalAccountKeys.get(AccountKeyType::VRF);
+	}
+
+	Key GetVotingKey(const AccountState& accountState) {
+		return accountState.SupplementalAccountKeys.get(AccountKeyType::Voting);
 	}
 }}

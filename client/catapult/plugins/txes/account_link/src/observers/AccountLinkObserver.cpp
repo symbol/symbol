@@ -26,7 +26,11 @@ namespace catapult { namespace observers {
 
 	namespace {
 		void SetLink(state::AccountState& accountState, const Key& linkedAccountKey, state::AccountType accountType) {
-			accountState.LinkedAccountKey = linkedAccountKey;
+			if (Key() != linkedAccountKey)
+				accountState.SupplementalAccountKeys.set(state::AccountKeyType::Linked, linkedAccountKey);
+			else
+				accountState.SupplementalAccountKeys.unset(state::AccountKeyType::Linked);
+
 			accountState.AccountType = accountType;
 		}
 	}

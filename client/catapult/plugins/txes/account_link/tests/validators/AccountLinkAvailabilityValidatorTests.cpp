@@ -42,7 +42,7 @@ namespace catapult { namespace validators {
 			auto mainAccountStateIter = accountStateCacheDelta.find(mainAccountKey);
 			auto& mainAccountState = mainAccountStateIter.get();
 
-			mainAccountState.LinkedAccountKey = linkedAccountKey;
+			mainAccountState.SupplementalAccountKeys.set(state::AccountKeyType::Linked, linkedAccountKey);
 			mainAccountState.AccountType = accountType;
 
 			cache.commit(Height(1));

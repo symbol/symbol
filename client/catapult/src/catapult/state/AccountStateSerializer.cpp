@@ -148,13 +148,24 @@ namespace catapult { namespace state {
 		output.write(accountState.PublicKey);
 		io::Write(output, accountState.PublicKeyHeight);
 
-		// write link information
+		// write account attributes
 		io::Write8(output, utils::to_underlying_type(accountState.AccountType));
-		output.write(accountState.LinkedAccountKey);
 
-		// write importance information for high value accounts
 		auto format = GetFormat(accountState);
 		io::Write8(output, utils::to_underlying_type(format));
+
+		// write supplemental account keys
+		io::Write8(output, static_cast<uint8_t>(accountState.SupplementalAccountKeys.size()));
+		for (uint8_t i = 0u; i < utils::to_underlying_type(AccountKeyType::Count); ++i) {
+			const auto& key = accountState.SupplementalAccountKeys.get(static_cast<AccountKeyType>(i));
+			if (Key() == key) // only write nonzero keys
+				continue;
+
+			io::Write8(output, i);
+			output.write(key);
+		}
+
+		// write importance information for high value accounts
 		if (AccountStateFormat::High_Value == format) {
 			WriteSnapshots(output, accountState.ImportanceSnapshots, 0, Importance_History_Size - Rollback_Buffer_Size);
 			WriteBuckets(output, accountState.ActivityBuckets, 0, Activity_Bucket_History_Size - Rollback_Buffer_Size);
@@ -181,12 +192,22 @@ namespace catapult { namespace state {
 			input.read(accountState.PublicKey);
 			accountState.PublicKeyHeight = io::Read<Height>(input);
 
-			// read link information
+			// read account attributes
 			accountState.AccountType = static_cast<state::AccountType>(io::Read8(input));
-			input.read(accountState.LinkedAccountKey);
+			auto format = static_cast<AccountStateFormat>(io::Read8(input));
+
+			// read supplemental account keys
+			auto numSupplementalAccountKeys = io::Read8(input);
+			for (auto i = 0u; i < numSupplementalAccountKeys; ++i) {
+				auto accountKeyType = static_cast<AccountKeyType>(io::Read8(input));
+
+				Key accountKey;
+				input.read(accountKey);
+
+				accountState.SupplementalAccountKeys.set(accountKeyType, accountKey);
+			}
 
 			// read importance information for high value accounts
-			auto format = static_cast<AccountStateFormat>(io::Read8(input));
 			if (AccountStateFormat::High_Value == format) {
 				importanceReader.readSnapshots(input, Importance_History_Size - Rollback_Buffer_Size);
 				importanceReader.readBuckets(input, Activity_Bucket_History_Size - Rollback_Buffer_Size);
