@@ -611,6 +611,8 @@ namespace catapult { namespace net {
 		ClientService clientService1(2, 1, test::ClientSocket::ConnectOptions::Skip_Handshake);
 		clientService1.wait();
 
+		WAIT_FOR_ONE_EXPR(server.asyncServer().numPendingAccepts());
+
 		// Sanity:
 		EXPECT_EQ(1u, server.asyncServer().numPendingAccepts());
 		EXPECT_EQ(0u, server.asyncServer().numLifetimeConnections());
@@ -620,6 +622,7 @@ namespace catapult { namespace net {
 		ClientService clientService2(2, 1);
 		clientService2.wait();
 
+		WAIT_FOR_ONE_EXPR(server.asyncServer().numPendingAccepts());
 		WAIT_FOR_VALUE_EXPR(2u, server.asyncServer().numLifetimeConnections());
 
 		// Assert: no workers should have been killed and there should still be a pending accept
