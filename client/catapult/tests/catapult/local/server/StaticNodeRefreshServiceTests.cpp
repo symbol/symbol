@@ -111,7 +111,7 @@ namespace catapult { namespace local {
 			void startAccept() {
 				m_acceptors.push_back(std::make_unique<test::TcpAcceptor>(
 						m_pPool->ioContext(),
-						test::GetLocalHostPort() + m_acceptors.size()));
+						static_cast<uint16_t>(test::GetLocalHostPort() + m_acceptors.size())));
 
 				m_servers.push_back(std::make_unique<test::RemoteAcceptServer>());
 				m_servers.back()->start(*m_acceptors.back(), [](const auto&) {});
