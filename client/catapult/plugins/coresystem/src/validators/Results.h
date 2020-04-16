@@ -67,6 +67,9 @@ namespace catapult { namespace validators {
 	/// Validation failed because internal padding is nonzero.
 	DEFINE_CORE_RESULT(Nonzero_Internal_Padding, 13);
 
+	/// Validation failed because link action is invalid.
+	DEFINE_CORE_RESULT(Invalid_Link_Action, 14);
+
 #ifndef CUSTOM_RESULT_DEFINITION
 }}
 #endif

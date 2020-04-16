@@ -126,6 +126,12 @@ namespace catapult { namespace model {
 	/// Internal padding was identified.
 	DEFINE_CORE_NOTIFICATION(Internal_Padding, 0x000E, Validator);
 
+	/// Voting key was linked/unlinked.
+	DEFINE_CORE_NOTIFICATION(Voting_Key_Link, 0x000F, All);
+
+	/// Vrf key was linked/unlinked.
+	DEFINE_CORE_NOTIFICATION(Vrf_Key_Link, 0x0010, All);
+
 #undef DEFINE_CORE_NOTIFICATION
 
 	// endregion

@@ -19,9 +19,11 @@
 **/
 
 #include "CoreSystem.h"
-#include "importance/ImportanceCalculator.h"
-#include "observers/Observers.h"
-#include "validators/Validators.h"
+#include "VotingKeyLinkTransactionPlugin.h"
+#include "VrfKeyLinkTransactionPlugin.h"
+#include "src/importance/ImportanceCalculator.h"
+#include "src/observers/Observers.h"
+#include "src/validators/Validators.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/cache_core/AccountStateCacheStorage.h"
 #include "catapult/cache_core/AccountStateCacheSubCachePlugin.h"
@@ -75,6 +77,22 @@ namespace catapult { namespace plugins {
 				counters.emplace_back(utils::DiagnosticCounterId("BLKDIF C"), [&cache]() {
 					return cache.sub<BlockStatisticCache>().createView()->size();
 				});
+			});
+		}
+
+		void RegisterVotingKeyLinkTransaction(PluginManager& manager) {
+			manager.addTransactionSupport(CreateVotingKeyLinkTransactionPlugin());
+
+			manager.addStatelessValidatorHook([](auto& builder) {
+				builder.add(validators::CreateVotingKeyLinkActionValidator());
+			});
+		}
+
+		void RegisterVrfKeyLinkTransaction(PluginManager& manager) {
+			manager.addTransactionSupport(CreateVrfKeyLinkTransactionPlugin());
+
+			manager.addStatelessValidatorHook([](auto& builder) {
+				builder.add(validators::CreateVrfKeyLinkActionValidator());
 			});
 		}
 	}
@@ -132,6 +150,9 @@ namespace catapult { namespace plugins {
 						config.BlockPruneInterval,
 						BlockDuration()));
 		});
+
+		RegisterVotingKeyLinkTransaction(manager);
+		RegisterVrfKeyLinkTransaction(manager);
 	}
 }}
 

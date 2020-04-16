@@ -18,7 +18,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/CoreSystem.h"
+#include "src/plugins/CoreSystem.h"
 #include "tests/test/plugins/PluginManagerFactory.h"
 #include "tests/test/plugins/PluginTestUtils.h"
 #include "tests/TestHarness.h"
@@ -40,7 +40,7 @@ namespace catapult { namespace plugins {
 
 		public:
 			static std::vector<model::EntityType> GetTransactionTypes() {
-				return {};
+				return { model::Entity_Type_Voting_Key_Link, model::Entity_Type_Vrf_Key_Link };
 			}
 
 			static std::vector<std::string> GetCacheNames() {
@@ -67,7 +67,11 @@ namespace catapult { namespace plugins {
 					"NetworkValidator",
 					"EntityVersionValidator",
 					"TransactionFeeValidator",
-					"ZeroInternalPaddingValidator"
+					"ZeroInternalPaddingValidator",
+
+					// core transaction validators
+					"VotingKeyLinkActionValidator",
+					"VrfKeyLinkActionValidator"
 				};
 			}
 

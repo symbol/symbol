@@ -37,6 +37,12 @@ namespace catapult { namespace test {
 		return sizeof(uint64_t);
 	}
 
+	/// Gets the desired alignment for type VotingKey.
+	template<>
+	constexpr size_t GetRequiredAlignment<VotingKey>() {
+		return sizeof(uint64_t);
+	}
+
 	/// Gets the desired alignment for type Hash256.
 	template<>
 	constexpr size_t GetRequiredAlignment<Hash256>() {

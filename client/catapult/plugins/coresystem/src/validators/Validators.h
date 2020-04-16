@@ -20,6 +20,7 @@
 
 #pragma once
 #include "Results.h"
+#include "src/model/KeyLinkNotifications.h"
 #include "catapult/utils/TimeSpan.h"
 #include "catapult/validators/ValidatorTypes.h"
 
@@ -96,6 +97,18 @@ namespace catapult { namespace validators {
 	/// Validator that applies to all internal padding notifications and validates that:
 	/// - internal padding is zero
 	DECLARE_STATELESS_VALIDATOR(ZeroInternalPadding, model::InternalPaddingNotification)();
+
+	// endregion
+
+	// region core transactions
+
+	/// Validator that applies to voting key link notifications and validates that:
+	/// - link action is valid
+	DECLARE_STATELESS_VALIDATOR(VotingKeyLinkAction, model::VotingKeyLinkNotification)();
+
+	/// Validator that applies to vrf key link notifications and validates that:
+	/// - link action is valid
+	DECLARE_STATELESS_VALIDATOR(VrfKeyLinkAction, model::VrfKeyLinkNotification)();
 
 	// endregion
 }}
