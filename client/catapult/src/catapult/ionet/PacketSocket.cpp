@@ -23,6 +23,7 @@
 #include "Node.h"
 #include "WorkingBuffer.h"
 #include "catapult/thread/StrandOwnerLifetimeExtender.h"
+#include "catapult/thread/TimedCallback.h"
 #include "catapult/utils/StackTimer.h"
 #include <boost/asio/ssl.hpp>
 
@@ -681,6 +682,17 @@ namespace catapult { namespace ionet {
 						std::make_shared<SocketGuard>(std::move(socket), m_ioContext, m_options.SslOptions.ContextSupplier()),
 						m_options);
 				m_pSocket->setOptions();
+
+				auto pTimedCallback = thread::MakeTimedCallback(m_ioContext, m_accept, ionet::PacketSocketInfo());
+				pTimedCallback->setTimeout(m_options.AcceptHandshakeTimeout);
+				pTimedCallback->setTimeoutHandler([pSocket = m_pSocket]() {
+					pSocket->close();
+					CATAPULT_LOG(debug) << "accept handshake failed due to timeout " << pSocket->id();
+				});
+
+				m_accept = [pTimedCallback](const auto& socketInfo) {
+					pTimedCallback->callback(socketInfo);
+				};
 
 				m_pSocket->impl().async_handshake(Socket::server, [pThis = shared_from_this()](const auto& handshakeEc) {
 					pThis->handleHandshake(handshakeEc);

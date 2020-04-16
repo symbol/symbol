@@ -225,6 +225,7 @@ namespace catapult { namespace test {
 
 	net::ConnectionSettings CreateConnectionSettings(const Key& publicKey) {
 		auto settings = net::ConnectionSettings();
+		settings.Timeout = utils::TimeSpan::FromMinutes(1);
 		settings.SslOptions = CreatePacketSocketSslOptions(publicKey);
 		return settings;
 	}

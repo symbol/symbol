@@ -19,8 +19,8 @@
 **/
 
 #pragma once
+#include "catapult/utils/TimeSpan.h"
 #include "catapult/functions.h"
-#include "catapult/types.h"
 #include <boost/filesystem/path.hpp>
 
 namespace boost {
@@ -74,6 +74,10 @@ namespace catapult { namespace ionet {
 
 	/// Packet socket options.
 	struct PacketSocketOptions {
+		/// Handshake timeout when accepting an incoming connection.
+		/// \note Timeouts are applied at higher levels when making an outgoing connection.
+		utils::TimeSpan AcceptHandshakeTimeout;
+
 		/// Initial working buffer size.
 		size_t WorkingBufferSize;
 

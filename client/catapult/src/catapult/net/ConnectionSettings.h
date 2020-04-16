@@ -74,6 +74,7 @@ namespace catapult { namespace net {
 		/// Gets the packet socket options represented by the configured settings.
 		ionet::PacketSocketOptions toSocketOptions() const {
 			ionet::PacketSocketOptions options;
+			options.AcceptHandshakeTimeout = Timeout;
 			options.WorkingBufferSize = SocketWorkingBufferSize.bytes();
 			options.WorkingBufferSensitivity = SocketWorkingBufferSensitivity;
 			options.MaxPacketDataSize = MaxPacketDataSize.bytes();

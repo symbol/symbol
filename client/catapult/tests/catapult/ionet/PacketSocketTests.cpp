@@ -851,7 +851,7 @@ namespace catapult { namespace ionet {
 		auto& ioContext = pPool->ioContext();
 		auto pAcceptor = std::make_shared<boost::asio::ip::tcp::acceptor>(ioContext);
 
-		// Act: "server" - accepts a connection after invalidating the socket in the configure callback
+		// Act: "server" - does not listen for connections
 		//      "client" - connects to the server
 		PacketSocketInfo socketInfo;
 		std::atomic_bool isCallbackCalled(false);
@@ -872,13 +872,13 @@ namespace catapult { namespace ionet {
 	}
 
 	TEST(TEST_CLASS, AcceptReturnsNullSocketOnHandshakeFailure) {
-		// Arrange: notice acceptor is not listening
+		// Arrange:
 		auto pPool = test::CreateStartedIoThreadPool();
 		auto& ioContext = pPool->ioContext();
 		auto pAcceptor = test::CreateImplicitlyClosedLocalHostAcceptor(ioContext);
 
-		// Act: "server" - accepts a connection after invalidating the socket in the configure callback
-		//      "client" - connects to the server
+		// Act: "server" - accepts a connection
+		//      "client" - connects to the server but does not participate in handshake and disconnects
 		PacketSocketInfo socketInfo;
 		std::atomic_bool isCallbackCalled(false);
 		boost::asio::post(ioContext, [&ioContext, &acceptor = *pAcceptor, &socketInfo, &isCallbackCalled]() {
@@ -889,6 +889,35 @@ namespace catapult { namespace ionet {
 			});
 		});
 		test::CreateClientSocket(ioContext)->connect(test::ClientSocket::ConnectOptions::Skip_Handshake);
+		pPool->join();
+
+		// Assert:
+		test::AssertEmpty(socketInfo);
+
+		EXPECT_TRUE(isCallbackCalled);
+	}
+
+	TEST(TEST_CLASS, AcceptReturnsNullSocketWhenHandshakeExceedsTimeout) {
+		// Arrange:
+		auto pPool = test::CreateStartedIoThreadPool();
+		auto& ioContext = pPool->ioContext();
+		auto pAcceptor = test::CreateImplicitlyClosedLocalHostAcceptor(ioContext);
+
+		// Act: "server" - accepts a connection
+		//      "client" - connects to the server but does not participate in handshake and stays connected
+		PacketSocketInfo socketInfo;
+		std::atomic_bool isCallbackCalled(false);
+		boost::asio::post(ioContext, [&ioContext, &acceptor = *pAcceptor, &socketInfo, &isCallbackCalled]() {
+			auto options = test::CreatePacketSocketOptions();
+			options.AcceptHandshakeTimeout = utils::TimeSpan::FromSeconds(1);
+			Accept(ioContext, acceptor, options, [&socketInfo, &isCallbackCalled](const auto& acceptedSocketInfo) {
+				socketInfo = acceptedSocketInfo;
+				isCallbackCalled = true;
+			});
+		});
+
+		auto pClientSocket = test::CreateClientSocket(ioContext);
+		pClientSocket->connect(test::ClientSocket::ConnectOptions::Skip_Handshake);
 		pPool->join();
 
 		// Assert:
@@ -910,7 +939,7 @@ namespace catapult { namespace ionet {
 			auto& ioContext = pPool->ioContext();
 			auto pAcceptor = test::CreateImplicitlyClosedLocalHostAcceptor(ioContext);
 
-			// Act: "server" - accepts a connection after invalidating the socket in the configure callback
+			// Act: "server" - accepts a connection
 			//      "client" - connects to the server and immediately aborts the connection
 			PacketSocketInfo socketInfo;
 			std::atomic_bool isCallbackCalled(false);

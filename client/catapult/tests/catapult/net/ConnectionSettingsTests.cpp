@@ -44,6 +44,7 @@ namespace catapult { namespace net {
 	TEST(TEST_CLASS, CanConvertToPacketSocketOptions) {
 		// Arrange:
 		auto settings = ConnectionSettings();
+		settings.Timeout = utils::TimeSpan::FromSeconds(987);
 		settings.SocketWorkingBufferSize = utils::FileSize::FromKilobytes(54);
 		settings.SocketWorkingBufferSensitivity = 123;
 		settings.MaxPacketDataSize = utils::FileSize::FromMegabytes(2);
@@ -52,6 +53,7 @@ namespace catapult { namespace net {
 		auto options = settings.toSocketOptions();
 
 		// Assert:
+		EXPECT_EQ(utils::TimeSpan::FromSeconds(987), options.AcceptHandshakeTimeout);
 		EXPECT_EQ(54u * 1024, options.WorkingBufferSize);
 		EXPECT_EQ(123u, options.WorkingBufferSensitivity);
 		EXPECT_EQ(2u * 1024 * 1024, options.MaxPacketDataSize);
