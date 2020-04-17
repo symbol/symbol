@@ -70,6 +70,11 @@ namespace catapult { namespace sync {
 			return crypto::KeyPair::FromString("75C1A1762304FE9EC59C5E9632D8E88C746BDB92B0563CCDDFC4A15C7BFD4578");
 		}
 
+		crypto::KeyPair GetBlockSignerVrfKeyPair() {
+			// random key is fine because signer vrf is configured in InitializeCatapultCacheForDispatcherTests
+			return crypto::KeyPair::FromString("1A8BF1F961C6EB875D7C909E314DDA6D43AFAC182745D449B0671B8C455806C3");
+		}
+
 		cache::CatapultCache CreateCatapultCacheForDispatcherTests() {
 			// importance grouping must be non-zero
 			auto config = model::BlockChainConfiguration::Uninitialized();
@@ -79,7 +84,10 @@ namespace catapult { namespace sync {
 			return test::CreateEmptyCatapultCache<test::CoreSystemCacheFactory>(config);
 		}
 
-		void InitializeCatapultCacheForDispatcherTests(cache::CatapultCache& cache, const crypto::KeyPair& signer) {
+		void InitializeCatapultCacheForDispatcherTests(
+				cache::CatapultCache& cache,
+				const crypto::KeyPair& signer,
+				const Key& vrfPublicKey) {
 			// create the delta
 			auto delta = cache.createDelta();
 
@@ -91,6 +99,7 @@ namespace catapult { namespace sync {
 			accountStateCache.addAccount(signer.publicKey(), Height(1));
 			auto& accountState = accountStateCache.find(signer.publicKey()).get();
 			accountState.ImportanceSnapshots.set(Importance(1'000'000'000), model::ImportanceHeight(1));
+			accountState.SupplementalAccountKeys.vrfPublicKey().set(vrfPublicKey);
 
 			// commit all changes
 			cache.commit(Height(1));
@@ -105,8 +114,12 @@ namespace catapult { namespace sync {
 			model::PreviousBlockContext context(*pNemesisBlockElement);
 			auto pBlock = model::CreateBlock(context, Network_Identifier, signer.publicKey(), model::Transactions());
 			pBlock->Timestamp = context.Timestamp + Timestamp(60000);
-			model::SignBlockHeader(signer, *pBlock);
 
+			auto vrfKeyPair = GetBlockSignerVrfKeyPair();
+			auto vrfProof = crypto::GenerateVrfProof(context.GenerationHash, vrfKeyPair);
+			pBlock->GenerationHashProof = { vrfProof.Gamma, vrfProof.VerificationHash, vrfProof.Scalar };
+
+			model::SignBlockHeader(signer, *pBlock);
 			return PORTABLE_MOVE(pBlock);
 		}
 
@@ -176,7 +189,7 @@ namespace catapult { namespace sync {
 				const_cast<std::string&>(state.config().User.DataDirectory) = m_tempDir.name();
 
 				// initialize the cache
-				InitializeCatapultCacheForDispatcherTests(state.cache(), GetBlockSignerKeyPair());
+				InitializeCatapultCacheForDispatcherTests(state.cache(), GetBlockSignerKeyPair(), GetBlockSignerVrfKeyPair().publicKey());
 
 				// set up sinks
 				state.hooks().addNewBlockSink([&counter = m_numNewBlockSinkCalls](const auto&) { ++counter; });

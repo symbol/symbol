@@ -51,7 +51,7 @@ namespace catapult { namespace test {
 
 	namespace {
 		crypto::KeyPair GetNemesisAccountKeyPair() {
-			return crypto::KeyPair::FromString(Mijin_Test_Private_Keys[5]); // use a nemesis account
+			return crypto::KeyPair::FromString(Mijin_Test_Private_Keys[4]); // use a nemesis account
 		}
 
 		model::PreviousBlockContext LoadNemesisPreviousBlockContext() {
@@ -67,6 +67,11 @@ namespace catapult { namespace test {
 
 			auto pBlock = model::CreateBlock(context, Network_Identifier, signer.publicKey(), model::Transactions());
 			pBlock->Timestamp = context.Timestamp + Timestamp(60000);
+
+			auto vrfKeyPair = LookupVrfKeyPair(signer.publicKey());
+			auto vrfProof = crypto::GenerateVrfProof(context.GenerationHash, vrfKeyPair);
+			pBlock->GenerationHashProof = { vrfProof.Gamma, vrfProof.VerificationHash, vrfProof.Scalar };
+
 			extensions::BlockExtensions(GetDefaultGenerationHash()).signFullBlock(signer, *pBlock);
 			return PORTABLE_MOVE(pBlock);
 		}

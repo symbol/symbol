@@ -95,9 +95,7 @@ namespace catapult { namespace test {
 		crypto::KeyPair findBlockSigner(const model::PreviousBlockContext& context, Timestamp timestamp, Difficulty difficulty);
 
 	private:
-		static std::shared_ptr<const model::BlockElement> ToSharedBlockElement(
-				const GenerationHash& parentGenerationHash,
-				const model::Block& block);
+		static std::shared_ptr<const model::BlockElement> ToSharedBlockElement(const model::Block& block);
 
 	private:
 		// pointers instead of references to allow copy

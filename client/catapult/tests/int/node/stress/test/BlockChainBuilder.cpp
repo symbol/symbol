@@ -110,7 +110,7 @@ namespace catapult { namespace test {
 	BlockChainBuilder BlockChainBuilder::createChainedBuilder(StateHashCalculator& stateHashCalculator, const model::Block& block) const {
 		// resources directory is not used when creating chained builder
 		auto builder = BlockChainBuilder(*m_pAccounts, stateHashCalculator, m_config, "", true);
-		builder.m_pTailBlockElement = ToSharedBlockElement(m_pTailBlockElement->GenerationHash, block);
+		builder.m_pTailBlockElement = ToSharedBlockElement(block);
 		builder.m_pParentBlockElement = builder.m_pTailBlockElement;
 		builder.m_statistics = m_statistics;
 		return builder;
@@ -126,7 +126,7 @@ namespace catapult { namespace test {
 			transactions.push_back(transactionsGenerator.generateAt(i, blockTimestamp));
 
 		auto pBlock = createBlock(context, blockTimestamp, transactions);
-		m_pTailBlockElement = ToSharedBlockElement(context.GenerationHash, *pBlock);
+		m_pTailBlockElement = ToSharedBlockElement(*pBlock);
 		m_pParentBlockElement = m_pTailBlockElement;
 		return pBlock;
 	}
@@ -139,7 +139,7 @@ namespace catapult { namespace test {
 
 			auto blockTimestamp = context.Timestamp + m_blockTimeInterval;
 			auto pBlock = createBlock(context, blockTimestamp, { transactionsGenerator.generateAt(i, blockTimestamp) });
-			m_pParentBlockElement = ToSharedBlockElement(context.GenerationHash, *pBlock);
+			m_pParentBlockElement = ToSharedBlockElement(*pBlock);
 			blocks.push_back(std::move(pBlock));
 		}
 
@@ -160,15 +160,20 @@ namespace catapult { namespace test {
 			const model::Transactions& transactions) {
 		auto difficulty = chain::CalculateDifficulty(cache::BlockStatisticRange(m_statistics.cbegin(), m_statistics.cend()), m_config);
 
-		auto signer = findBlockSigner(context, timestamp, difficulty);
-		auto pBlock = model::CreateBlock(context, Network_Identifier, signer.publicKey(), transactions);
+		auto signerKeyPair = findBlockSigner(context, timestamp, difficulty);
+		auto pBlock = model::CreateBlock(context, Network_Identifier, signerKeyPair.publicKey(), transactions);
 		pBlock->Timestamp = timestamp;
 		pBlock->Difficulty = difficulty;
 		pBlock->BeneficiaryPublicKey = Key{ { 1 } }; // burn beneficiary allotment so that it doesn't cause state changes
 
 		pBlock->ReceiptsHash = m_blockReceiptsHashCalculator(*pBlock);
 		m_pStateHashCalculator->updateStateHash(*pBlock);
-		extensions::BlockExtensions(GetNemesisGenerationHash()).signFullBlock(signer, *pBlock);
+
+		auto vrfKeyPair = LookupVrfKeyPair(signerKeyPair.publicKey());
+		auto vrfProof = crypto::GenerateVrfProof(context.GenerationHash, vrfKeyPair);
+		pBlock->GenerationHashProof = { vrfProof.Gamma, vrfProof.VerificationHash, vrfProof.Scalar };
+
+		extensions::BlockExtensions(GetNemesisGenerationHash()).signFullBlock(signerKeyPair, *pBlock);
 		return pBlock;
 	}
 
@@ -187,27 +192,26 @@ namespace catapult { namespace test {
 			if (0u == i++)
 				continue;
 
-			auto keyPair = crypto::KeyPair::FromString(pPrivateKeyString);
+			auto signerKeyPair = crypto::KeyPair::FromString(pPrivateKeyString);
+			auto vrfKeyPair = LookupVrfKeyPair(signerKeyPair.publicKey());
+			auto vrfProof = crypto::GenerateVrfProof(context.GenerationHash, vrfKeyPair);
 
 			chain::BlockHitContext blockHitContext;
-			blockHitContext.GenerationHash = model::CalculateGenerationHash(context.GenerationHash, keyPair.publicKey());
+			blockHitContext.GenerationHash = model::CalculateGenerationHash(vrfProof.Gamma);
 			blockHitContext.ElapsedTime = utils::TimeSpan::FromDifference(timestamp, context.Timestamp);
-			blockHitContext.Signer = keyPair.publicKey();
+			blockHitContext.Signer = signerKeyPair.publicKey();
 			blockHitContext.Difficulty = difficulty;
 			blockHitContext.Height = context.BlockHeight + Height(1);
 
 			if (hitPredicate(blockHitContext))
-				return keyPair;
+				return signerKeyPair;
 		}
 
 		CATAPULT_THROW_RUNTIME_ERROR("no eligible harvesting accounts were found");
 	}
 
-	std::shared_ptr<const model::BlockElement> BlockChainBuilder::ToSharedBlockElement(
-			const GenerationHash& parentGenerationHash,
-			const model::Block& block) {
-		auto pBlockElement = std::make_shared<model::BlockElement>(BlockToBlockElement(block, GetNemesisGenerationHash()));
-		pBlockElement->GenerationHash = model::CalculateGenerationHash(parentGenerationHash, block.SignerPublicKey);
-		return PORTABLE_MOVE(pBlockElement);
+	std::shared_ptr<const model::BlockElement> BlockChainBuilder::ToSharedBlockElement(const model::Block& block) {
+		auto generationHash = model::CalculateGenerationHash(block.GenerationHashProof.Gamma);
+		return std::make_shared<model::BlockElement>(BlockToBlockElement(block, generationHash));
 	}
 }}

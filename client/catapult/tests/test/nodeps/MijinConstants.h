@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "catapult/exceptions.h"
 #include "catapult/types.h"
 #include <cstring>
 
@@ -69,12 +70,25 @@ namespace catapult { namespace test {
 	constexpr auto Namespace_Rental_Fee_Sink_Public_Key = "3E82E1C1E4A75ADAA3CBA8C101C3CD31D9817A2EB966EB3B511FB2ED45B8E262";
 	constexpr auto Mosaic_Rental_Fee_Sink_Public_Key = "53E140B5947F104CABC2D6FE8BAEDBC30EF9A0609C717D9613DE593EC2A266D3";
 
-	/// Gets the nemesis importance for \a publicKey.
-	inline Importance GetNemesisImportance(const Key& publicKey) {
+	/// Finds the vrf key pair associated with the specified signing public key (\a signingPublicKey).
+	inline crypto::KeyPair LookupVrfKeyPair(const Key& signingPublicKey) {
 		auto index = 0u;
-		for (const auto* pRecipientPrivateKeyString : test::Mijin_Test_Private_Keys) {
-			auto keyPair = crypto::KeyPair::FromString(pRecipientPrivateKeyString);
-			if (keyPair.publicKey() == publicKey)
+		for (const auto* pPrivateKeyString : Mijin_Test_Vrf_Private_Keys) {
+			if (crypto::KeyPair::FromString(Mijin_Test_Private_Keys[index]).publicKey() == signingPublicKey)
+				return crypto::KeyPair::FromString(pPrivateKeyString);
+
+			++index;
+		}
+
+		CATAPULT_THROW_INVALID_ARGUMENT_1("no vrf key pair associated with signing public key", signingPublicKey);
+	}
+
+	/// Gets the nemesis importance for the specified signing public key (\a signingPublicKey).
+	inline Importance GetNemesisImportance(const Key& signingPublicKey) {
+		auto index = 0u;
+		for (const auto* pPrivateKeyString : Mijin_Test_Private_Keys) {
+			auto keyPair = crypto::KeyPair::FromString(pPrivateKeyString);
+			if (keyPair.publicKey() == signingPublicKey)
 				break;
 
 			++index;
