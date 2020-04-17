@@ -60,17 +60,6 @@ namespace catapult { namespace harvesting {
 			return std::vector<Importance>(count, Default_Importance);
 		}
 
-		void CreateAccounts(
-				cache::AccountStateCacheDelta& cache,
-				const std::vector<KeyPair>& keyPairs,
-				const std::vector<Importance> importances) {
-			for (auto i = 0u; i < keyPairs.size(); ++i) {
-				cache.addAccount(keyPairs[i].publicKey(), Height(123));
-				auto& accountState = cache.find(keyPairs[i].publicKey()).get();
-				accountState.ImportanceSnapshots.set(importances[i], model::ImportanceHeight(1));
-			}
-		}
-
 		std::unique_ptr<model::Block> CreateBlock() {
 			// the created block needs to have height 1 to be able to add it to the block statistic cache
 			auto pBlock = test::GenerateEmptyRandomBlock();
@@ -99,20 +88,21 @@ namespace catapult { namespace harvesting {
 		public:
 			HarvesterContext()
 					: Cache(test::CreateEmptyCatapultCache(CreateConfiguration()))
-					, KeyPairs(CreateKeyPairs(Num_Accounts))
+					, SigningKeyPairs(CreateKeyPairs(Num_Accounts))
+					, VrfKeyPairs(CreateKeyPairs(Num_Accounts))
 					, Beneficiary(test::GenerateRandomByteArray<Key>())
 					, Importances(CreateImportances(Num_Accounts))
 					, pUnlockedAccounts(std::make_unique<UnlockedAccounts>(Num_Accounts, [](const auto&) { return 0; }))
 					, pLastBlock(CreateBlock())
 					, LastBlockElement(test::BlockToBlockElement(*pLastBlock)) {
 				auto delta = Cache.createDelta();
-				CreateAccounts(delta.sub<cache::AccountStateCache>(), KeyPairs, Importances);
+				CreateAccounts(delta.sub<cache::AccountStateCache>(), SigningKeyPairs, VrfKeyPairs, Importances);
 
 				auto& statisticCache = delta.sub<cache::BlockStatisticCache>();
 				state::BlockStatistic statistic(*pLastBlock);
 				statisticCache.insert(statistic);
 				Cache.commit(Height(1));
-				UnlockAllAccounts(*pUnlockedAccounts, KeyPairs);
+				UnlockAllAccounts(*pUnlockedAccounts, SigningKeyPairs, VrfKeyPairs);
 
 				LastBlockElement.GenerationHash = test::GenerateRandomByteArray<GenerationHash>();
 			}
@@ -137,15 +127,32 @@ namespace catapult { namespace harvesting {
 			}
 
 		private:
-			static void UnlockAllAccounts(UnlockedAccounts& unlockedAccounts, const std::vector<KeyPair>& keyPairs) {
+			static void CreateAccounts(
+					cache::AccountStateCacheDelta& cache,
+					const std::vector<KeyPair>& signingKeyPairs,
+					const std::vector<KeyPair>& vrfKeyPairs,
+					const std::vector<Importance> importances) {
+				for (auto i = 0u; i < Num_Accounts; ++i) {
+					cache.addAccount(signingKeyPairs[i].publicKey(), Height(123));
+					auto& accountState = cache.find(signingKeyPairs[i].publicKey()).get();
+					accountState.ImportanceSnapshots.set(importances[i], model::ImportanceHeight(1));
+					accountState.SupplementalAccountKeys.set(state::AccountKeyType::VRF, vrfKeyPairs[i].publicKey());
+				}
+			}
+
+			static void UnlockAllAccounts(
+					UnlockedAccounts& unlockedAccounts,
+					const std::vector<KeyPair>& signingKeyPairs,
+					const std::vector<KeyPair>& vrfKeyPairs) {
 				auto modifier = unlockedAccounts.modifier();
-				for (const auto& keyPair : keyPairs)
-					modifier.add(test::CopyKeyPair(keyPair));
+				for (auto i = 0u; i < Num_Accounts; ++i)
+					modifier.add(BlockGeneratorKeyPairs(test::CopyKeyPair(signingKeyPairs[i]), test::CopyKeyPair(vrfKeyPairs[i])));
 			}
 
 		public:
 			cache::CatapultCache Cache;
-			std::vector<KeyPair> KeyPairs;
+			std::vector<KeyPair> SigningKeyPairs;
+			std::vector<KeyPair> VrfKeyPairs;
 			Key Beneficiary;
 			std::vector<Importance> Importances;
 			std::unique_ptr<UnlockedAccounts> pUnlockedAccounts;
@@ -199,7 +206,7 @@ namespace catapult { namespace harvesting {
 		HarvesterContext context;
 		{
 			auto modifier = context.pUnlockedAccounts->modifier();
-			for (const auto& keyPair : context.KeyPairs)
+			for (const auto& keyPair : context.SigningKeyPairs)
 				modifier.remove(keyPair.publicKey());
 		}
 
@@ -262,7 +269,7 @@ namespace catapult { namespace harvesting {
 		// - a better (lower) hit but still won't be the signer of the block.
 		test::RunNonDeterministicTest("harvester with best key harvests", []() {
 			HarvesterContext context;
-			auto bestKey = BestHarvesterKey(context.LastBlockElement, context.KeyPairs);
+			auto bestKey = BestHarvesterKey(context.LastBlockElement, context.SigningKeyPairs);
 			auto timestamp = CalculateBlockGenerationTime(context, bestKey);
 			auto tooEarly = Timestamp(timestamp.unwrap() - 1000);
 			auto pHarvester = context.CreateHarvester();
@@ -286,7 +293,7 @@ namespace catapult { namespace harvesting {
 	TEST(TEST_CLASS, HarvestReturnsNullptrWhenNoHarvesterHasHit) {
 		// Arrange:
 		HarvesterContext context;
-		auto bestKey = BestHarvesterKey(context.LastBlockElement, context.KeyPairs);
+		auto bestKey = BestHarvesterKey(context.LastBlockElement, context.SigningKeyPairs);
 		auto timestamp = CalculateBlockGenerationTime(context, bestKey);
 		auto tooEarly = Timestamp(timestamp.unwrap() - 1000);
 		auto pHarvester = context.CreateHarvester();
@@ -307,7 +314,7 @@ namespace catapult { namespace harvesting {
 		{
 			auto cacheDelta = context.Cache.createDelta();
 			auto& accountStateCache = cacheDelta.sub<cache::AccountStateCache>();
-			for (const auto& keyPair : context.KeyPairs) {
+			for (const auto& keyPair : context.SigningKeyPairs) {
 				// - next block has height 2 and thus importance is expected to be set at height 1
 				auto& accountState = accountStateCache.find(keyPair.publicKey()).get();
 				accountState.ImportanceSnapshots.set(accountState.ImportanceSnapshots.current(), model::ImportanceHeight(360));
@@ -331,7 +338,7 @@ namespace catapult { namespace harvesting {
 		{
 			auto cacheDelta = context.Cache.createDelta();
 			auto& accountStateCache = cacheDelta.sub<cache::AccountStateCache>();
-			for (const auto& keyPair : context.KeyPairs)
+			for (const auto& keyPair : context.SigningKeyPairs)
 				accountStateCache.queueRemove(keyPair.publicKey(), Height(123));
 
 			accountStateCache.commitRemovals();
@@ -355,8 +362,8 @@ namespace catapult { namespace harvesting {
 		HarvesterContext context;
 		auto pHarvester = context.CreateHarvester();
 		Key firstPublicKey;
-		context.pUnlockedAccounts->view().forEach([&firstPublicKey](const auto& keyPair) {
-			firstPublicKey = keyPair.publicKey();
+		context.pUnlockedAccounts->view().forEach([&firstPublicKey](const auto& keyPairs) {
+			firstPublicKey = keyPairs.signingKeyPair().publicKey();
 			return false;
 		});
 
@@ -380,7 +387,7 @@ namespace catapult { namespace harvesting {
 				context.Beneficiary = beneficiary;
 
 				auto pLastBlock = context.pLastBlock;
-				auto bestKey = BestHarvesterKey(context.LastBlockElement, context.KeyPairs);
+				auto bestKey = BestHarvesterKey(context.LastBlockElement, context.SigningKeyPairs);
 				auto timestamp = CalculateBlockGenerationTime(context, bestKey);
 				auto pHarvester = context.CreateHarvester();
 				const auto& statisticCache = context.Cache.sub<cache::BlockStatisticCache>();
@@ -483,7 +490,7 @@ namespace catapult { namespace harvesting {
 
 		// - generator was called with expected params
 		ASSERT_EQ(1u, capturedParams.size());
-		EXPECT_TRUE(IsAnyKeyPairMatch(context.KeyPairs, capturedParams[0].first));
+		EXPECT_TRUE(IsAnyKeyPairMatch(context.SigningKeyPairs, capturedParams[0].first));
 		EXPECT_EQ(123u, capturedParams[0].second);
 
 		// - block signer was passed to generator
@@ -509,7 +516,7 @@ namespace catapult { namespace harvesting {
 
 		// - generator was called with expected params
 		ASSERT_EQ(1u, capturedParams.size());
-		EXPECT_TRUE(IsAnyKeyPairMatch(context.KeyPairs, capturedParams[0].first));
+		EXPECT_TRUE(IsAnyKeyPairMatch(context.SigningKeyPairs, capturedParams[0].first));
 		EXPECT_EQ(123u, capturedParams[0].second);
 	}
 

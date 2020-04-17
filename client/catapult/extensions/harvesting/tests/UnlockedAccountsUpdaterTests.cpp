@@ -47,10 +47,11 @@ namespace catapult { namespace harvesting {
 					, m_unlockedAccounts(10, [](const auto&) { return 0; })
 					, m_keyPair(test::GenerateKeyPair())
 					, m_updater(m_cache, m_unlockedAccounts, m_keyPair, m_dataDirectory) {
-				auto keyPair = test::GenerateKeyPair();
-				auto publicKey = keyPair.publicKey();
-				m_unlockedAccounts.modifier().add(std::move(keyPair));
-				addAccount(publicKey, Amount(1234));
+				auto keyPairs = BlockGeneratorKeyPairs(test::GenerateKeyPair(), test::GenerateKeyPair());
+				auto signingKeyPair = keyPairs.signingKeyPair().publicKey();
+				auto vrfPublicKey = keyPairs.vrfKeyPair().publicKey();
+				m_unlockedAccounts.modifier().add(std::move(keyPairs));
+				addAccount(signingKeyPair, vrfPublicKey, Amount(1234));
 			}
 
 		public:
@@ -103,7 +104,10 @@ namespace catapult { namespace harvesting {
 			}
 
 			void addEnabledAccount(const std::vector<uint8_t>& privateKeyBuffer) {
-				addAccount(test::KeyPairFromPrivateKeyBuffer(privateKeyBuffer).publicKey(), Amount(1111));
+				addAccount(
+						test::KeyPairFromPrivateKeyBuffer(privateKeyBuffer).publicKey(),
+						test::GenerateRandomByteArray<Key>(),
+						Amount(1111));
 			}
 
 			void assertHarvesterFileEntries(const test::UnlockedTestEntries& expectedEntries) {
@@ -115,15 +119,16 @@ namespace catapult { namespace harvesting {
 			}
 
 		private:
-			void addAccount(const Key& publicKey, Amount balance = Amount(0)) {
+			void addAccount(const Key& signingPublicKey, const Key& vrfPublicKey, Amount balance = Amount(0)) {
 				auto delta = m_cache.createDelta();
 				auto& accountStateCache = delta.sub<cache::AccountStateCache>();
-				accountStateCache.addAccount(publicKey, Height(100));
+				accountStateCache.addAccount(signingPublicKey, Height(100));
 
-				auto accountStateIter = accountStateCache.find(publicKey);
+				auto accountStateIter = accountStateCache.find(signingPublicKey);
 				auto& accountState = accountStateIter.get();
-				accountState.ImportanceSnapshots.set(Importance(1000), model::ImportanceHeight(100));
 				accountState.Balances.credit(Harvesting_Mosaic_Id, balance);
+				accountState.ImportanceSnapshots.set(Importance(1000), model::ImportanceHeight(100));
+				accountState.SupplementalAccountKeys.set(state::AccountKeyType::VRF, vrfPublicKey);
 				m_cache.commit(Height(100));
 			}
 

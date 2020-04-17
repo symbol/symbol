@@ -33,8 +33,8 @@ namespace catapult { namespace harvesting {
 	/* Account was successfully (newly) unlocked. */ \
 	ENUM_VALUE(Success_New) \
 	\
-	/* Account was successfully (previously) unlocked. */ \
-	ENUM_VALUE(Success_Redundant) \
+	/* Account was (previously) unlocked and successfully updated. */ \
+	ENUM_VALUE(Success_Update) \
 	\
 	/* Account could not be unlocked because it is ineligible for harvesting. */ \
 	ENUM_VALUE(Failure_Harvesting_Ineligible) \
@@ -57,8 +57,26 @@ namespace catapult { namespace harvesting {
 
 	// endregion
 
+	/// Key pairs used by a single account during block generation.
+	class BlockGeneratorKeyPairs {
+	public:
+		/// Creates key pairs around \a signingKeyPair and \a vrfKeyPair.
+		BlockGeneratorKeyPairs(crypto::KeyPair&& signingKeyPair, crypto::KeyPair&& vrfKeyPair);
+
+	public:
+		/// Gets the signing key pair.
+		const crypto::KeyPair& signingKeyPair() const;
+
+		/// Gets the vrf key pair.
+		const crypto::KeyPair& vrfKeyPair() const;
+
+	private:
+		crypto::KeyPair m_signingKeyPair;
+		crypto::KeyPair m_vrfKeyPair;
+	};
+
 	/// Container used by unlocked accounts to store key pairs.
-	using UnlockedAccountsKeyPairContainer = std::vector<std::pair<crypto::KeyPair, size_t>>;
+	using UnlockedAccountsKeyPairContainer = std::vector<std::pair<BlockGeneratorKeyPairs, size_t>>;
 
 	/// Read only view on top of unlocked accounts.
 	class UnlockedAccountsView : utils::MoveOnly {
@@ -72,11 +90,11 @@ namespace catapult { namespace harvesting {
 		/// Gets the number of unlocked accounts.
 		size_t size() const;
 
-		/// Returns \c true if the public key belongs to an unlocked account, \c false otherwise.
+		/// Returns \c true if the public (signing) key belongs to an unlocked account, \c false otherwise.
 		bool contains(const Key& publicKey) const;
 
-		/// Calls \a consumer with key pairs until all are consumed or \c false is returned by consumer.
-		void forEach(const predicate<const crypto::KeyPair&>& consumer) const;
+		/// Calls \a consumer with block generator key pairs until all are consumed or \c false is returned by consumer.
+		void forEach(const predicate<const BlockGeneratorKeyPairs&>& consumer) const;
 
 	private:
 		const UnlockedAccountsKeyPairContainer& m_prioritizedKeyPairs;
@@ -97,10 +115,10 @@ namespace catapult { namespace harvesting {
 				utils::SpinReaderWriterLock::WriterLockGuard&& writeLock);
 
 	public:
-		/// Adds (unlocks) the account identified by key pair (\a keyPair).
-		UnlockedAccountsAddResult add(crypto::KeyPair&& keyPair);
+		/// Adds (unlocks) the account owning the specified key pairs (\a keyPairs).
+		UnlockedAccountsAddResult add(BlockGeneratorKeyPairs&& keyPairs);
 
-		/// Removes (locks) the account identified by the public key (\a publicKey).
+		/// Removes (locks) the account identified by the public (signing) key (\a publicKey).
 		bool remove(const Key& publicKey);
 
 		/// Removes all accounts for which \a predicate returns \c true.

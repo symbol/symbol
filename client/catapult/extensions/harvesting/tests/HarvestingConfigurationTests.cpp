@@ -35,7 +35,9 @@ namespace catapult { namespace harvesting {
 					{
 						"harvesting",
 						{
-							{ "harvesterPrivateKey", "harvester-key" },
+							{ "harvesterSigningPrivateKey", "signing-key" },
+							{ "harvesterVrfPrivateKey", "vrf-key" },
+
 							{ "enableAutoHarvesting", "true" },
 							{ "maxUnlockedAccounts", "2" },
 							{ "delegatePrioritizationPolicy", "Importance" },
@@ -51,7 +53,9 @@ namespace catapult { namespace harvesting {
 
 			static void AssertZero(const HarvestingConfiguration& config) {
 				// Assert:
-				EXPECT_EQ("", config.HarvesterPrivateKey);
+				EXPECT_EQ("", config.HarvesterSigningPrivateKey);
+				EXPECT_EQ("", config.HarvesterVrfPrivateKey);
+
 				EXPECT_FALSE(config.EnableAutoHarvesting);
 				EXPECT_EQ(0u, config.MaxUnlockedAccounts);
 				EXPECT_EQ(DelegatePrioritizationPolicy::Age, config.DelegatePrioritizationPolicy);
@@ -60,7 +64,9 @@ namespace catapult { namespace harvesting {
 
 			static void AssertCustom(const HarvestingConfiguration& config) {
 				// Assert:
-				EXPECT_EQ("harvester-key", config.HarvesterPrivateKey);
+				EXPECT_EQ("signing-key", config.HarvesterSigningPrivateKey);
+				EXPECT_EQ("vrf-key", config.HarvesterVrfPrivateKey);
+
 				EXPECT_TRUE(config.EnableAutoHarvesting);
 				EXPECT_EQ(2u, config.MaxUnlockedAccounts);
 				EXPECT_EQ(DelegatePrioritizationPolicy::Importance, config.DelegatePrioritizationPolicy);
@@ -83,7 +89,9 @@ namespace catapult { namespace harvesting {
 		auto config = HarvestingConfiguration::LoadFromPath("../resources");
 
 		// Assert:
-		EXPECT_EQ("", config.HarvesterPrivateKey);
+		EXPECT_EQ("", config.HarvesterSigningPrivateKey);
+		EXPECT_EQ("", config.HarvesterVrfPrivateKey);
+
 		EXPECT_FALSE(config.EnableAutoHarvesting);
 		EXPECT_EQ(5u, config.MaxUnlockedAccounts);
 		EXPECT_EQ(DelegatePrioritizationPolicy::Importance, config.DelegatePrioritizationPolicy);

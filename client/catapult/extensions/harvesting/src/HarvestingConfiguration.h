@@ -30,8 +30,11 @@ namespace catapult { namespace harvesting {
 	/// Harvesting configuration settings.
 	struct HarvestingConfiguration {
 	public:
-		/// Harvester private key.
-		std::string HarvesterPrivateKey;
+		/// Harvester signing private key.
+		std::string HarvesterSigningPrivateKey;
+
+		/// Harvester vrf private key.
+		std::string HarvesterVrfPrivateKey;
 
 		/// \c true if auto harvesting is enabled.
 		bool EnableAutoHarvesting;

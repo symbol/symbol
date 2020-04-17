@@ -127,21 +127,22 @@ namespace catapult { namespace harvesting {
 				return pLastBlock;
 			}
 
-			void prepareAndUnlockSenderAccount(crypto::KeyPair&& keyPair) {
+			void prepareAndUnlockSenderAccount(crypto::KeyPair&& signingKeyPair) {
 				// 1. seed an account with an initial currency balance of N and harvesting balance of 10'000'000
-				auto currencyMosaicId = test::Default_Currency_Mosaic_Id;
-				auto harvestingMosaicId = test::Default_Harvesting_Mosaic_Id;
+				auto vrfKeyPair = test::GenerateKeyPair();
+
 				auto cacheDelta = m_cache.createDelta();
 				auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
-				accountStateCacheDelta.addAccount(keyPair.publicKey(), Height(1));
-				auto accountStateIter = accountStateCacheDelta.find(keyPair.publicKey());
-				accountStateIter.get().Balances.credit(currencyMosaicId, Amount(GetNumIterations()));
-				accountStateIter.get().Balances.credit(harvestingMosaicId, Amount(10'000'000));
+				accountStateCacheDelta.addAccount(signingKeyPair.publicKey(), Height(1));
+				auto accountStateIter = accountStateCacheDelta.find(signingKeyPair.publicKey());
+				accountStateIter.get().Balances.credit(test::Default_Currency_Mosaic_Id, Amount(GetNumIterations()));
+				accountStateIter.get().Balances.credit(test::Default_Harvesting_Mosaic_Id, Amount(10'000'000));
 				accountStateIter.get().ImportanceSnapshots.set(Importance(10'000'000), model::ImportanceHeight(1));
+				accountStateIter.get().SupplementalAccountKeys.set(state::AccountKeyType::VRF, vrfKeyPair.publicKey());
 				m_cache.commit(Height(1));
 
 				// 2. unlock the account
-				m_unlockedAccounts.modifier().add(std::move(keyPair));
+				m_unlockedAccounts.modifier().add(BlockGeneratorKeyPairs(std::move(signingKeyPair), std::move(vrfKeyPair)));
 			}
 
 			void prepareSenderAccountAndTransactions(crypto::KeyPair&& keyPair, Timestamp deadline) {
