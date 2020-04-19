@@ -687,7 +687,11 @@ namespace catapult { namespace ionet {
 				pTimedCallback->setTimeout(m_options.AcceptHandshakeTimeout);
 				pTimedCallback->setTimeoutHandler([pSocket = m_pSocket]() {
 					pSocket->close();
-					CATAPULT_LOG(debug) << "accept handshake failed due to timeout " << pSocket->id();
+
+					// need to post log on strand because SocketIdentifier fields are non-atomic
+					boost::asio::post(pSocket->strand(), [pSocket]() {
+						CATAPULT_LOG(debug) << "accept handshake failed due to timeout " << pSocket->id();
+					});
 				});
 
 				m_accept = [pTimedCallback](const auto& socketInfo) {

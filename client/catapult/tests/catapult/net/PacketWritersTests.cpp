@@ -194,21 +194,21 @@ namespace catapult { namespace net {
 				auto peerIdentity = model::NodeIdentity{ context.ClientPublicKeys[i], context.Hosts[i] };
 				ionet::Node node(peerIdentity, context.serverNode().endpoint(), ionet::NodeMetadata());
 
-				std::atomic<size_t> numCallbacks(0);
+				auto pNumCallbacks = std::make_shared<std::atomic<size_t>>(0);
 				test::RemoteAcceptServer server(context.ClientKeyPairs[i]);
-				server.start(acceptor, [&](const auto& pSocket) {
+				server.start(acceptor, [pNumCallbacks, &state](const auto& pSocket) {
 					state.ServerSockets.push_back(pSocket);
-					++numCallbacks;
+					++*pNumCallbacks;
 				});
 
-				context.pWriters->connect(node, [&](const auto& connectResult) {
-					WAIT_FOR_ONE(numCallbacks);
+				context.pWriters->connect(node, [pNumCallbacks, &state](const auto& connectResult) {
+					WAIT_FOR_ONE(*pNumCallbacks);
 					state.Results.push_back(connectResult);
-					++numCallbacks;
+					++*pNumCallbacks;
 				});
 
 				// - wait for both connections to complete
-				WAIT_FOR_VALUE(2u, numCallbacks);
+				WAIT_FOR_VALUE(2u, *pNumCallbacks);
 			}
 
 			context.waitForWriters(0 == numExpectedWriters ? numConnections : numExpectedWriters);
