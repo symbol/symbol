@@ -159,6 +159,44 @@ namespace catapult { namespace state {
 
 	// endregion
 
+	// region size / contains / get
+
+	TEST(TEST_CLASS, SizeIgnoresZeroKeys) {
+		// Arrange:
+		AccountKeys keys;
+		keys.set(AccountKeyType::VRF, { { 0x00 } });
+		keys.set(AccountKeyType::Voting, { { 0x01 } });
+
+		// Act + Assert
+		EXPECT_EQ(1u, keys.size());
+	}
+
+	TEST(TEST_CLASS, ContainsIgnoresZeroKeys) {
+		// Arrange:
+		AccountKeys keys;
+		keys.set(AccountKeyType::VRF, { { 0x00 } });
+		keys.set(AccountKeyType::Voting, { { 0x01 } });
+
+		// Act + Assert
+		EXPECT_FALSE(keys.contains(AccountKeyType::Linked));
+		EXPECT_FALSE(keys.contains(AccountKeyType::VRF));
+		EXPECT_TRUE(keys.contains(AccountKeyType::Voting));
+	}
+
+	TEST(TEST_CLASS, GetIgnoresZeroKeys) {
+		// Arrange:
+		AccountKeys keys;
+		keys.set(AccountKeyType::VRF, { { 0x00 } });
+		keys.set(AccountKeyType::Voting, { { 0x01 } });
+
+		// Act + Assert
+		EXPECT_EQ(Key(), keys.get(AccountKeyType::Linked));
+		EXPECT_EQ(Key(), keys.get(AccountKeyType::VRF));
+		EXPECT_EQ(Key{ { 0x01 } }, keys.get(AccountKeyType::Voting));
+	}
+
+	// endregion
+
 	// region set / unset
 
 	KEY_TYPE_BASED_TEST(CanSetKey) {

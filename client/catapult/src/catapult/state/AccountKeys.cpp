@@ -28,6 +28,10 @@ namespace catapult { namespace state {
 		auto& Lookup(TKeys& keys, AccountKeyType keyType) {
 			return keys[utils::to_underlying_type(keyType)];
 		}
+
+		bool IsValidKey(const std::shared_ptr<Key>& pKey) {
+			return pKey && Key() != *pKey;
+		}
 	}
 
 	AccountKeys::AccountKeys() = default;
@@ -53,17 +57,11 @@ namespace catapult { namespace state {
 	AccountKeys& AccountKeys::operator=(AccountKeys&& accountKeys) = default;
 
 	size_t AccountKeys::size() const {
-		size_t count = 0u;
-		for (const auto& pKey : m_keys) {
-			if (!!pKey)
-				++count;
-		}
-
-		return count;
+		return static_cast<size_t>(std::count_if(m_keys.cbegin(), m_keys.cend(), IsValidKey));
 	}
 
 	bool AccountKeys::contains(AccountKeyType keyType) const {
-		return !!Lookup(m_keys, keyType);
+		return IsValidKey(Lookup(m_keys, keyType));
 	}
 
 	Key AccountKeys::get(AccountKeyType keyType) const {
