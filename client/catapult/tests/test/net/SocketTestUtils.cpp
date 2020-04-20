@@ -309,15 +309,24 @@ namespace catapult { namespace test {
 	}
 
 	bool IsSocketOpen(ionet::PacketSocket& socket) {
-		ionet::PacketSocket::Stats stats;
-		std::atomic_bool hasStats(false);
-		socket.stats([&](const auto& socketStats) {
-			stats = socketStats;
-			hasStats = true;
+		struct Capture {
+		public:
+			Capture() : HasStats(false)
+			{}
+
+		public:
+			ionet::PacketSocket::Stats Stats;
+			std::atomic_bool HasStats;
+		};
+
+		auto pCapture = std::make_shared<Capture>();
+		socket.stats([pCapture](const auto& socketStats) {
+			pCapture->Stats = socketStats;
+			pCapture->HasStats = true;
 		});
 
-		WAIT_FOR(hasStats);
-		return stats.IsOpen;
+		WAIT_FOR(pCapture->HasStats);
+		return pCapture->Stats.IsOpen;
 	}
 
 	void WaitForClosedSocket(ionet::PacketSocket& socket) {
