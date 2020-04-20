@@ -14,6 +14,7 @@ using Address = binary_fixed(25)
 using Hash256 = binary_fixed(32)
 using Hash512 = binary_fixed(64)
 using Key = binary_fixed(32)
+using VotingKey = binary_fixed(48)
 using Signature = binary_fixed(64)
 
 # binary layout for a mosaic
@@ -31,3 +32,11 @@ struct UnresolvedMosaic
 
 	# mosaic amount
 	amount = Amount
+
+# enumeration of link actions
+enum LinkAction : uint8
+	# unlink account
+	unlink = 0x00
+
+	# link account
+	link = 0x01
