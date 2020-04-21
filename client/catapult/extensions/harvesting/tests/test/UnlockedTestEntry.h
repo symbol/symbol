@@ -28,7 +28,7 @@ namespace catapult { namespace crypto { class KeyPair; } }
 namespace catapult { namespace test {
 
 	/// Unlocked test entry payload size.
-	constexpr auto Unlocked_Test_Entry_Payload_Size = 32u + 16 + 32 + 16;
+	constexpr auto Unlocked_Test_Entry_Payload_Size = 32u + 16 + 32 + 32 + 16;
 
 #pragma pack(push, 1)
 	/// Unlocked test entry.
@@ -87,4 +87,10 @@ namespace catapult { namespace test {
 
 	/// Asserts that contents of file (\a filename) matches \a expectedEntries.
 	void AssertUnlockedEntriesFileContents(const std::string& filename, const UnlockedTestEntries& expectedEntries);
+
+	/// Generates \a numDescriptors random block generator account descriptors.
+	std::vector<harvesting::BlockGeneratorAccountDescriptor> GenerateRandomAccountDescriptors(size_t numDescriptors);
+
+	/// Serializes \a descriptor into a clear text buffer.
+	std::vector<uint8_t> ToClearTextBuffer(const harvesting::BlockGeneratorAccountDescriptor& descriptor);
 }}

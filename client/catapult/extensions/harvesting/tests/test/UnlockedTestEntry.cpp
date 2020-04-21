@@ -55,7 +55,7 @@ namespace catapult { namespace test {
 			const Key& recipientPublicKey,
 			const RawBuffer& entryBuffer,
 			EncryptionMutationFlag encryptionMutationFlag) {
-		return PrepareUnlockedTestEntry(test::GenerateKeyPair(), recipientPublicKey, entryBuffer, encryptionMutationFlag);
+		return PrepareUnlockedTestEntry(GenerateKeyPair(), recipientPublicKey, entryBuffer, encryptionMutationFlag);
 	}
 
 	UnlockedTestEntry PrepareUnlockedTestEntry(
@@ -102,5 +102,20 @@ namespace catapult { namespace test {
 
 		// - compare against expected entries
 		EXPECT_EQ(expectedEntries, actualEntries);
+	}
+
+	std::vector<harvesting::BlockGeneratorAccountDescriptor> GenerateRandomAccountDescriptors(size_t numDescriptors) {
+		std::vector<harvesting::BlockGeneratorAccountDescriptor> descriptors;
+		for (auto i = 0u; i < numDescriptors; ++i)
+			descriptors.emplace_back(GenerateKeyPair(), GenerateKeyPair());
+
+		return descriptors;
+	}
+
+	std::vector<uint8_t> ToClearTextBuffer(const harvesting::BlockGeneratorAccountDescriptor& descriptor) {
+		std::vector<uint8_t> clearText(2 * Key::Size);
+		std::memcpy(&clearText[0], descriptor.signingKeyPair().privateKey().data(), Key::Size);
+		std::memcpy(&clearText[Key::Size], descriptor.vrfKeyPair().privateKey().data(), Key::Size);
+		return clearText;
 	}
 }}

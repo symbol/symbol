@@ -24,7 +24,10 @@
 #include "catapult/types.h"
 #include <map>
 
-namespace catapult { namespace crypto { class KeyPair; } }
+namespace catapult {
+	namespace crypto { class KeyPair; }
+	namespace harvesting { class BlockGeneratorAccountDescriptor; }
+}
 
 namespace catapult { namespace harvesting {
 
@@ -53,8 +56,8 @@ namespace catapult { namespace harvesting {
 		/// Saves unlocked entries filtered using \a filter.
 		void save(const predicate<const Key&>& filter) const;
 
-		/// Loads unlocked account entries using \a encryptionKeyPair and forwards to \a processKeyPair.
-		void load(const crypto::KeyPair& encryptionKeyPair, const consumer<crypto::KeyPair&&>& processKeyPair);
+		/// Loads unlocked account entries using \a encryptionKeyPair and forwards to \a processDescriptor.
+		void load(const crypto::KeyPair& encryptionKeyPair, const consumer<BlockGeneratorAccountDescriptor&&>& processDescriptor);
 
 	private:
 		void addEntry(

@@ -80,11 +80,7 @@ namespace catapult { namespace harvesting {
 
 	void UnlockedAccountsUpdater::load() {
 		// load entries
-		m_unlockedAccountsStorage.load(m_encryptionKeyPair, [&unlockedAccounts = m_unlockedAccounts](auto&& keyPair) {
-			// TODO: unlock account message will need to be updated to support multiple keys
-			BlockGeneratorAccountDescriptor descriptor(
-					std::move(keyPair),
-					crypto::KeyPair::FromString("0000000000000000000000000000000000000000000000000000000000000001"));
+		m_unlockedAccountsStorage.load(m_encryptionKeyPair, [&unlockedAccounts = m_unlockedAccounts](auto&& descriptor) {
 			AddToUnlocked(unlockedAccounts, std::move(descriptor));
 		});
 	}
@@ -92,25 +88,21 @@ namespace catapult { namespace harvesting {
 	void UnlockedAccountsUpdater::update() {
 		// 1. process queued accounts
 		bool hasAnyRemoval = false;
-		auto processEntryKeyPair = [&unlockedAccounts = m_unlockedAccounts, &storage = m_unlockedAccountsStorage, &hasAnyRemoval](
+		auto processDescriptor = [&unlockedAccounts = m_unlockedAccounts, &storage = m_unlockedAccountsStorage, &hasAnyRemoval](
 				const auto& unlockedEntryMessage,
-				auto&& keyPair) {
+				auto&& descriptor) {
 			auto messageIdentifier = GetMessageIdentifier(unlockedEntryMessage);
-			const auto& harvesterPublicKey = keyPair.publicKey();
+			auto harvesterSigningPublicKey = descriptor.signingKeyPair().publicKey();
 			if (UnlockedEntryDirection::Add == unlockedEntryMessage.Direction) {
-				// TODO: unlock account message will need to be updated to support multiple keys
-				BlockGeneratorAccountDescriptor descriptor(
-						std::move(keyPair),
-						crypto::KeyPair::FromString("0000000000000000000000000000000000000000000000000000000000000001"));
 				if (!storage.contains(messageIdentifier) && AddToUnlocked(unlockedAccounts, std::move(descriptor)))
-					storage.add(messageIdentifier, unlockedEntryMessage.EncryptedEntry, harvesterPublicKey);
+					storage.add(messageIdentifier, unlockedEntryMessage.EncryptedEntry, harvesterSigningPublicKey);
 			} else {
-				RemoveFromUnlocked(unlockedAccounts, harvesterPublicKey);
+				RemoveFromUnlocked(unlockedAccounts, harvesterSigningPublicKey);
 				storage.remove(messageIdentifier);
 				hasAnyRemoval = true;
 			}
 		};
-		UnlockedFileQueueConsumer(m_dataDirectory.dir("transfer_message"), m_encryptionKeyPair, processEntryKeyPair);
+		UnlockedFileQueueConsumer(m_dataDirectory.dir("transfer_message"), m_encryptionKeyPair, processDescriptor);
 
 		// 2. prune accounts that are not eligible to harvest the next block
 		auto numPrunedAccounts = PruneUnlockedAccounts(m_unlockedAccounts, m_cache);
@@ -118,8 +110,8 @@ namespace catapult { namespace harvesting {
 		// 3. save accounts
 		if (numPrunedAccounts > 0 || hasAnyRemoval) {
 			auto view = m_unlockedAccounts.view();
-			m_unlockedAccountsStorage.save([&view](const auto& harvesterPublicKey) {
-				return view.contains(harvesterPublicKey);
+			m_unlockedAccountsStorage.save([&view](const auto& harvesterSigningPublicKey) {
+				return view.contains(harvesterSigningPublicKey);
 			});
 		}
 	}

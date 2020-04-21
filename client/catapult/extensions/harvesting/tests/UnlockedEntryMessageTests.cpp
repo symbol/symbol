@@ -19,6 +19,7 @@
 **/
 
 #include "harvesting/src/UnlockedEntryMessage.h"
+#include "harvesting/tests/test/UnlockedTestEntry.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace harvesting {
@@ -26,7 +27,8 @@ namespace catapult { namespace harvesting {
 #define TEST_CLASS UnlockedEntryMessageTests
 
 	TEST(TEST_CLASS, CanGetEncryptedUnlockedEntrySize) {
-		EXPECT_EQ(32u + 16 + 32 + 16, EncryptedUnlockedEntrySize());
+		EXPECT_EQ(32u + 16 + 32 + 32 + 16, EncryptedUnlockedEntrySize());
+		EXPECT_EQ(test::Unlocked_Test_Entry_Payload_Size, EncryptedUnlockedEntrySize());
 	}
 
 	TEST(TEST_CLASS, CanGetMessageIdentifierFromMessage) {

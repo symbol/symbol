@@ -282,8 +282,8 @@ namespace catapult { namespace harvesting {
 		void AddHarvestersFileEntries(const std::string& filename, const Key& nodeOwnerPublicKey, size_t numEntries) {
 			UnlockedAccountsStorage storage(filename);
 			for (auto i = 0u; i < numEntries; ++i) {
-				auto privateKeyBuffer = test::GenerateRandomByteArray<Key>();
-				auto entry = test::PrepareUnlockedTestEntry(nodeOwnerPublicKey, privateKeyBuffer);
+				auto decryptedBuffer = test::GenerateRandomVector(2 * Key::Size);
+				auto entry = test::PrepareUnlockedTestEntry(nodeOwnerPublicKey, decryptedBuffer);
 				storage.add(test::GetMessageIdentifier(entry), entry.Payload, Key{ { static_cast<uint8_t>(i) } });
 			}
 		}

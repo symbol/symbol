@@ -32,9 +32,11 @@ namespace catapult { namespace harvesting {
 
 #define TEST_CLASS UnlockedFileQueueConsumerTests
 
-	// region decrypt unlocked entry
+	// region TryDecryptBlockGeneratorAccountDescriptor
 
 	namespace {
+		constexpr auto Encrypted_Data_Size = 2 * Key::Size;
+
 		void AssertFailureWhenDecryptedDataHasInvalidSize(size_t dataSize) {
 			// Arrange:
 			auto clearText = test::GenerateRandomVector(dataSize);
@@ -42,47 +44,40 @@ namespace catapult { namespace harvesting {
 			auto encryptedWithKey = test::GenerateEphemeralAndEncrypt(clearText, recipientKeyPair.publicKey());
 
 			// Act:
-			auto decryptedPair = TryDecryptUnlockedEntry(encryptedWithKey, recipientKeyPair);
+			auto decryptedPair = TryDecryptBlockGeneratorAccountDescriptor(encryptedWithKey, recipientKeyPair);
 
 			// Assert:
 			EXPECT_FALSE(decryptedPair.second);
 		}
 	}
 
-	TEST(TEST_CLASS, TryDecryptUnlockedEntry_FailsWhenDecryptedDataIsTooSmall) {
-		AssertFailureWhenDecryptedDataHasInvalidSize(Key::Size - 1);
+	TEST(TEST_CLASS, TryDecryptBlockGeneratorAccountDescriptor_FailsWhenDecryptedDataIsTooSmall) {
+		AssertFailureWhenDecryptedDataHasInvalidSize(Encrypted_Data_Size - 1);
 	}
 
-	TEST(TEST_CLASS, TryDecryptUnlockedEntry_FailsWhenDecryptedDataIsTooLarge) {
-		AssertFailureWhenDecryptedDataHasInvalidSize(Key::Size + 1);
+	TEST(TEST_CLASS, TryDecryptBlockGeneratorAccountDescriptor_FailsWhenDecryptedDataIsTooLarge) {
+		AssertFailureWhenDecryptedDataHasInvalidSize(Encrypted_Data_Size + 1);
 	}
 
-	TEST(TEST_CLASS, TryDecryptUnlockedEntry_SucceedsWhenDecryptedDataHasProperSize) {
+	TEST(TEST_CLASS, TryDecryptBlockGeneratorAccountDescriptor_SucceedsWhenDecryptedDataHasProperSize) {
 		// Arrange:
-		auto clearText = test::GenerateRandomByteArray<Key>();
+		auto clearText = test::GenerateRandomVector(Encrypted_Data_Size);
 		auto recipientKeyPair = test::GenerateKeyPair();
 		auto encryptedWithKey = test::GenerateEphemeralAndEncrypt(clearText, recipientKeyPair.publicKey());
 
 		// Act:
-		auto decryptedPair = TryDecryptUnlockedEntry(encryptedWithKey, recipientKeyPair);
+		auto decryptedPair = TryDecryptBlockGeneratorAccountDescriptor(encryptedWithKey, recipientKeyPair);
 
 		// Assert:
-		EXPECT_TRUE(decryptedPair.second);
-		EXPECT_EQ_MEMORY(clearText.data(), decryptedPair.first.data(), Key::Size);
+		ASSERT_TRUE(decryptedPair.second);
+		EXPECT_EQ_MEMORY(clearText.data(), decryptedPair.first.signingKeyPair().privateKey().data(), Key::Size);
+		EXPECT_EQ_MEMORY(clearText.data() + Key::Size, decryptedPair.first.vrfKeyPair().privateKey().data(), Key::Size);
 	}
 
 	// endregion
 
 	namespace {
 		// region utils
-
-		auto GenerateKeys(size_t numKeys) {
-			std::vector<Key> randomPrivateKeys;
-			for (auto i = 0u; i < numKeys; ++i)
-				randomPrivateKeys.emplace_back(test::GenerateRandomByteArray<Key>());
-
-			return randomPrivateKeys;
-		}
 
 		auto SerializeUnlockedEntryMessage(const UnlockedEntryMessage& message) {
 			std::vector<uint8_t> messageBuffer(1 + message.EncryptedEntry.Size);
@@ -110,42 +105,45 @@ namespace catapult { namespace harvesting {
 			}
 
 			void runConsumerAndAssert(
-					const std::vector<Key>& keys,
+					const std::vector<BlockGeneratorAccountDescriptor>& descriptors,
 					const std::vector<std::vector<uint8_t>>& messages,
 					std::initializer_list<size_t> validIndexes) {
 				// Act:
 				config::CatapultDirectory directory(m_directoryGuard.name());
 				std::vector<std::vector<uint8_t>> collectedMessages;
-				std::vector<crypto::KeyPair> collectedKeyPairs;
-				UnlockedFileQueueConsumer(directory, m_keyPair, [&collectedMessages, &collectedKeyPairs](
+				std::vector<BlockGeneratorAccountDescriptor> collectedDescriptors;
+				UnlockedFileQueueConsumer(directory, m_keyPair, [&collectedMessages, &collectedDescriptors](
 						const auto& message,
-						auto&& harvesterKeyPair) {
+						auto&& descriptor) {
 					collectedMessages.emplace_back(SerializeUnlockedEntryMessage(message));
-					collectedKeyPairs.emplace_back(std::move(harvesterKeyPair));
+					collectedDescriptors.emplace_back(std::move(descriptor));
 				});
 
 				// Assert:
-				assertForwardedMessages(collectedMessages, messages, validIndexes);
-				assertKeyPairs(collectedKeyPairs, keys, validIndexes);
+				AssertForwardedMessages(collectedMessages, messages, validIndexes);
+				AssertDescriptors(collectedDescriptors, descriptors, validIndexes);
 			}
 
 		public:
 			enum class InvalidMessageFlag { Invalid_Padding, Invalid_Decrypted_Data_Size };
 			enum class Sizes { Underflow, Normal, Overflow };
 
-			auto prepareMessage(const Key& randomPrivate, test::EncryptionMutationFlag encryptionMutationFlag) {
-				auto entry = test::PrepareUnlockedTestEntry(m_keyPair.publicKey(), randomPrivate, encryptionMutationFlag);
-				return entryToMessage(entry);
+			auto prepareMessage(const BlockGeneratorAccountDescriptor& descriptor, test::EncryptionMutationFlag encryptionMutationFlag) {
+				auto clearText = test::ToClearTextBuffer(descriptor);
+				auto entry = test::PrepareUnlockedTestEntry(m_keyPair.publicKey(), clearText, encryptionMutationFlag);
+				return EntryToMessage(entry);
 			}
 
-			auto prepareMessages(const std::vector<Key>& privateKeys, std::initializer_list<Sizes> messageDeltas) {
-				if (messageDeltas.size() != privateKeys.size())
+			auto prepareMessages(
+					const std::vector<BlockGeneratorAccountDescriptor>& descriptors,
+					std::initializer_list<Sizes> messageDeltas) {
+				if (messageDeltas.size() != descriptors.size())
 					CATAPULT_THROW_INVALID_ARGUMENT("arguments sizes mismatch");
 
 				std::vector<std::vector<uint8_t>> messages;
 				auto i = 0u;
 				for (auto messageDelta : messageDeltas) {
-					auto buffer = prepareMessage(privateKeys[i], test::EncryptionMutationFlag::None);
+					auto buffer = prepareMessage(descriptors[i], test::EncryptionMutationFlag::None);
 					if (Sizes::Underflow == messageDelta)
 						buffer.resize(buffer.size() - 1);
 					else if (Sizes::Overflow == messageDelta)
@@ -158,18 +156,18 @@ namespace catapult { namespace harvesting {
 				return messages;
 			}
 
-			auto prepareInvalidMessage(const Key& randomPrivate, InvalidMessageFlag invalidMessageFlag) {
+			auto prepareInvalidMessage(const BlockGeneratorAccountDescriptor& descriptor, InvalidMessageFlag invalidMessageFlag) {
 				if (InvalidMessageFlag::Invalid_Padding == invalidMessageFlag)
-					return prepareMessage(randomPrivate, test::EncryptionMutationFlag::Mutate_Padding);
+					return prepareMessage(descriptor, test::EncryptionMutationFlag::Mutate_Padding);
 
-				std::vector<uint8_t> randomPrivateBuffer(randomPrivate.cbegin(), randomPrivate.cend());
-				randomPrivateBuffer.resize(randomPrivateBuffer.size() + 1);
-				auto entry = test::PrepareUnlockedTestEntry(m_keyPair.publicKey(), randomPrivateBuffer);
-				return entryToMessage(entry);
+				auto clearText = test::ToClearTextBuffer(descriptor);
+				clearText.resize(clearText.size() + 1);
+				auto entry = test::PrepareUnlockedTestEntry(m_keyPair.publicKey(), clearText);
+				return EntryToMessage(entry);
 			}
 
 		private:
-			std::vector<uint8_t> entryToMessage(const test::UnlockedTestEntry& entry) {
+			static std::vector<uint8_t> EntryToMessage(const test::UnlockedTestEntry& entry) {
 				std::vector<uint8_t> buffer;
 				buffer.push_back(test::RandomByte() % 2);
 				auto entryBuffer = test::ConvertUnlockedTestEntryToBuffer(entry);
@@ -177,7 +175,7 @@ namespace catapult { namespace harvesting {
 				return buffer;
 			}
 
-			void assertForwardedMessages(
+			static void AssertForwardedMessages(
 					const std::vector<std::vector<uint8_t>>& collectedMessages,
 					const std::vector<std::vector<uint8_t>>& messages,
 					std::initializer_list<size_t> validIndexes) {
@@ -189,16 +187,16 @@ namespace catapult { namespace harvesting {
 				}
 			}
 
-			void assertKeyPairs(
-					const std::vector<crypto::KeyPair>& collectedKeyPairs,
-					const std::vector<Key>& keys,
+			static void AssertDescriptors(
+					const std::vector<BlockGeneratorAccountDescriptor>& collectedDescriptors,
+					const std::vector<BlockGeneratorAccountDescriptor>& descriptors,
 					std::initializer_list<size_t> validIndexes) {
-				ASSERT_EQ(collectedKeyPairs.size(), validIndexes.size());
-				auto iter = collectedKeyPairs.cbegin();
+				ASSERT_EQ(collectedDescriptors.size(), validIndexes.size());
+				auto iter = collectedDescriptors.cbegin();
 				for (const auto index : validIndexes) {
-					auto expectedKeyPair = test::KeyPairFromPrivateKeyBuffer(keys[index]);
-					EXPECT_EQ(expectedKeyPair.publicKey(), iter->publicKey());
-					EXPECT_EQ(expectedKeyPair.privateKey(), iter->privateKey());
+					const auto& expectedDescriptor = descriptors[index];
+					EXPECT_EQ(expectedDescriptor.signingKeyPair().publicKey(), iter->signingKeyPair().publicKey());
+					EXPECT_EQ(expectedDescriptor.vrfKeyPair().publicKey(), iter->vrfKeyPair().publicKey());
 					++iter;
 				}
 			}
@@ -215,12 +213,12 @@ namespace catapult { namespace harvesting {
 				std::initializer_list<TestContext::Sizes> messageDeltas) {
 			// Arrange:
 			TestContext context;
-			auto keys = GenerateKeys(messageDeltas.size());
-			auto messages = context.prepareMessages(keys, messageDeltas);
+			auto descriptors = test::GenerateRandomAccountDescriptors(messageDeltas.size());
+			auto messages = context.prepareMessages(descriptors, messageDeltas);
 			context.write(messages);
 
 			// Act + Assert:
-			context.runConsumerAndAssert(keys, messages, validIndexes);
+			context.runConsumerAndAssert(descriptors, messages, validIndexes);
 		}
 	}
 
@@ -242,15 +240,15 @@ namespace catapult { namespace harvesting {
 		void AssertConsumerFiltersMessages(TestContext::InvalidMessageFlag invalidMessageFlag) {
 			// Arrange:
 			TestContext context;
-			auto keys = GenerateKeys(3);
+			auto descriptors = test::GenerateRandomAccountDescriptors(3);
 			std::vector<std::vector<uint8_t>> messages;
-			messages.emplace_back(context.prepareMessage(keys[0], test::EncryptionMutationFlag::None));
-			messages.emplace_back(context.prepareInvalidMessage(keys[1], invalidMessageFlag));
-			messages.emplace_back(context.prepareMessage(keys[2], test::EncryptionMutationFlag::None));
+			messages.emplace_back(context.prepareMessage(descriptors[0], test::EncryptionMutationFlag::None));
+			messages.emplace_back(context.prepareInvalidMessage(descriptors[1], invalidMessageFlag));
+			messages.emplace_back(context.prepareMessage(descriptors[2], test::EncryptionMutationFlag::None));
 			context.write(messages);
 
 			// Act + Assert:
-			context.runConsumerAndAssert(keys, messages, { 0, 2 });
+			context.runConsumerAndAssert(descriptors, messages, { 0, 2 });
 		}
 	}
 

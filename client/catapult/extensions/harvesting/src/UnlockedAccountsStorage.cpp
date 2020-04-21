@@ -137,7 +137,9 @@ namespace catapult { namespace harvesting {
 		}
 	}
 
-	void UnlockedAccountsStorage::load(const crypto::KeyPair& encryptionKeyPair, const consumer<crypto::KeyPair&&>& processKeyPair) {
+	void UnlockedAccountsStorage::load(
+			const crypto::KeyPair& encryptionKeyPair,
+			const consumer<BlockGeneratorAccountDescriptor&&>& processDescriptor) {
 		if (!boost::filesystem::exists(m_filename))
 			return;
 
@@ -147,16 +149,16 @@ namespace catapult { namespace harvesting {
 		while (inputFile.position() != inputFile.size()) {
 			inputFile.read(encryptedEntry);
 
-			auto decryptedPair = TryDecryptUnlockedEntry(encryptedEntry, encryptionKeyPair);
+			auto decryptedPair = TryDecryptBlockGeneratorAccountDescriptor(encryptedEntry, encryptionKeyPair);
 			if (!decryptedPair.second)
 				CATAPULT_THROW_RUNTIME_ERROR("malformed harvesters file");
 
 			UnlockedEntryMessage message;
 			message.EncryptedEntry = RawBuffer(encryptedEntry);
 
-			auto keyPair = crypto::KeyPair::FromPrivate(std::move(decryptedPair.first));
-			addEntry(GetMessageIdentifier(message), encryptedEntry, keyPair.publicKey());
-			processKeyPair(std::move(keyPair));
+			auto& descriptor = decryptedPair.first;
+			addEntry(GetMessageIdentifier(message), encryptedEntry, descriptor.signingKeyPair().publicKey());
+			processDescriptor(std::move(descriptor));
 		}
 
 		CATAPULT_LOG(info) << "loading done, closing file";

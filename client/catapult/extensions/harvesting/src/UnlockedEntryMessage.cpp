@@ -29,11 +29,11 @@ namespace catapult { namespace harvesting {
 	}
 
 	size_t EncryptedUnlockedEntrySize() {
-		// ephemeral public key | aes cbc initialization vector | encrypted harvester private key | padding
-		return Key::Size
-				+ crypto::AesInitializationVector::Size
-				+ Key::Size
-				+ Aes_Pkcs7_Padding_Size;
+		return Key::Size //                                ephemeral public key
+				+ crypto::AesInitializationVector::Size // aes cbc initialization vector
+				+ Key::Size //                             encrypted harvester signing private key
+				+ Key::Size //                             encrypted harvester vrf private key
+				+ Aes_Pkcs7_Padding_Size; //               padding
 	}
 
 	UnlockedEntryMessageIdentifier GetMessageIdentifier(const UnlockedEntryMessage& message) {

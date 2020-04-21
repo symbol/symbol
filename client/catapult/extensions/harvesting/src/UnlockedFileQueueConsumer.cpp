@@ -28,6 +28,8 @@
 namespace catapult { namespace harvesting {
 
 	namespace {
+		constexpr auto Decrypted_Data_Size = 2 * Key::Size;
+
 		UnlockedEntryMessage DeserializeUnlockedEntryMessage(const std::vector<uint8_t>& buffer) {
 			UnlockedEntryMessage message;
 			// note: value of direction comes from TransferMessageObserver, so it is trusted
@@ -37,22 +39,30 @@ namespace catapult { namespace harvesting {
 		}
 	}
 
-	std::pair<crypto::PrivateKey, bool> TryDecryptUnlockedEntry(
+	std::pair<BlockGeneratorAccountDescriptor, bool> TryDecryptBlockGeneratorAccountDescriptor(
 			const RawBuffer& encryptedWithKey,
 			const crypto::KeyPair& encryptionKeyPair) {
 		std::vector<uint8_t> decrypted;
-		if (!crypto::TryDecryptEd25199BlockCipher(encryptedWithKey, encryptionKeyPair, decrypted) || Key::Size != decrypted.size())
-			return std::make_pair(crypto::PrivateKey(), false);
+		auto isDecryptSuccessful = crypto::TryDecryptEd25199BlockCipher(encryptedWithKey, encryptionKeyPair, decrypted);
+		if (!isDecryptSuccessful || Decrypted_Data_Size != decrypted.size())
+			return std::make_pair(BlockGeneratorAccountDescriptor(), false);
 
-		return std::make_pair(crypto::PrivateKey::Generate([iter = decrypted.begin()]() mutable { return *iter++; }), true);
+		auto iter = decrypted.begin();
+		auto extractKeyPair = [&iter]() {
+			return crypto::KeyPair::FromPrivate(crypto::PrivateKey::Generate([&iter]() mutable { return *iter++; }));
+		};
+
+		auto signingKeyPair = extractKeyPair();
+		auto vrfKeyPair = extractKeyPair();
+		return std::make_pair(BlockGeneratorAccountDescriptor(std::move(signingKeyPair), std::move(vrfKeyPair)), true);
 	}
 
 	void UnlockedFileQueueConsumer(
 			const config::CatapultDirectory& directory,
 			const crypto::KeyPair& encryptionKeyPair,
-			const consumer<const UnlockedEntryMessage&, crypto::KeyPair&&>& processEntryKeyPair) {
+			const consumer<const UnlockedEntryMessage&, BlockGeneratorAccountDescriptor&&>& processDescriptor) {
 		io::FileQueueReader reader(directory.str());
-		auto appendMessage = [&encryptionKeyPair, &processEntryKeyPair](const std::vector<uint8_t>& buffer) {
+		auto appendMessage = [&encryptionKeyPair, &processDescriptor](const auto& buffer) {
 			// filter out invalid messages
 			if (1 + EncryptedUnlockedEntrySize() != buffer.size()) {
 				CATAPULT_LOG(warning) << "rejecting buffer with wrong size: " << buffer.size();
@@ -60,14 +70,13 @@ namespace catapult { namespace harvesting {
 			}
 
 			auto unlockedEntryMessage = DeserializeUnlockedEntryMessage(buffer);
-			auto decryptedPair = TryDecryptUnlockedEntry(unlockedEntryMessage.EncryptedEntry, encryptionKeyPair);
+			auto decryptedPair = TryDecryptBlockGeneratorAccountDescriptor(unlockedEntryMessage.EncryptedEntry, encryptionKeyPair);
 			if (!decryptedPair.second) {
 				CATAPULT_LOG(warning) << "rejecting buffer that could not be decrypted";
 				return;
 			}
 
-			auto keyPair = crypto::KeyPair::FromPrivate(std::move(decryptedPair.first));
-			processEntryKeyPair(unlockedEntryMessage, std::move(keyPair));
+			processDescriptor(unlockedEntryMessage, std::move(decryptedPair.first));
 		};
 
 		while (reader.tryReadNextMessage(appendMessage))

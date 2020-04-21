@@ -37,14 +37,10 @@ namespace catapult { namespace harvesting {
 
 		// region test utils
 
-		auto GeneratePrivateKeyBuffers(size_t numPrivateKeys) {
-			return test::GenerateRandomDataVector<Key>(numPrivateKeys);
-		}
-
-		auto PrepareEntries(const Key& recipientPublicKey, const std::vector<Key>& privateKeyBuffers) {
+		auto PrepareEntries(const Key& recipientPublicKey, const std::vector<BlockGeneratorAccountDescriptor>& descriptors) {
 			test::UnlockedTestEntries entries;
-			for (const auto& privateKeyBuffer : privateKeyBuffers) {
-				auto entry = test::PrepareUnlockedTestEntry(recipientPublicKey, privateKeyBuffer);
+			for (const auto& descriptor : descriptors) {
+				auto entry = test::PrepareUnlockedTestEntry(recipientPublicKey, test::ToClearTextBuffer(descriptor));
 				entries.emplace(entry);
 			}
 
@@ -52,7 +48,7 @@ namespace catapult { namespace harvesting {
 		}
 
 		auto PrepareEntries(const Key& recipientPublicKey, size_t numEntries) {
-			return PrepareEntries(recipientPublicKey, GeneratePrivateKeyBuffers(numEntries));
+			return PrepareEntries(recipientPublicKey, test::GenerateRandomAccountDescriptors(numEntries));
 		}
 
 		auto PrepareEntries(size_t numEntries) {
@@ -116,8 +112,8 @@ namespace catapult { namespace harvesting {
 		test::TempFileGuard guard(Filename);
 		UnlockedAccountsStorage storage(guard.name());
 		auto keyPair = test::GenerateKeyPair();
-		auto privateKeyBuffer = test::GenerateRandomByteArray<Key>();
-		auto entry = test::ConvertUnlockedTestEntryToBuffer(test::PrepareUnlockedTestEntry(keyPair.publicKey(), privateKeyBuffer));
+		auto decryptedPayload = test::ToClearTextBuffer(test::GenerateRandomAccountDescriptors(1)[0]);
+		auto entry = test::ConvertUnlockedTestEntryToBuffer(test::PrepareUnlockedTestEntry(keyPair.publicKey(), decryptedPayload));
 		entry.resize(entry.size() + 1);
 
 		// Act + Assert:
@@ -530,6 +526,15 @@ namespace catapult { namespace harvesting {
 	}
 
 	namespace {
+		struct BlockGeneratorAccountDescriptorHasher {
+			size_t operator()(const BlockGeneratorAccountDescriptor& descriptor) const {
+				return utils::ArrayHasher<Key>()(descriptor.signingKeyPair().publicKey());
+			}
+		};
+
+		using BlockGeneratorAccountDescriptorUnorderedSet =
+			std::unordered_set<BlockGeneratorAccountDescriptor, BlockGeneratorAccountDescriptorHasher>;
+
 		auto AppendUnlockedEntryToFile(const std::string& filename, const test::UnlockedTestEntry& entry) {
 			io::RawFile output(filename, io::OpenMode::Read_Append);
 			output.seek(output.size());
@@ -549,16 +554,16 @@ namespace catapult { namespace harvesting {
 		// Arrange:
 		test::TempFileGuard guard(Filename);
 		auto keyPair = test::GenerateKeyPair();
-		auto privateKeyBuffers = GeneratePrivateKeyBuffers(3);
-		auto entries = PrepareEntries(keyPair.publicKey(), privateKeyBuffers);
+		auto descriptors = test::GenerateRandomAccountDescriptors(3);
+		auto entries = PrepareEntries(keyPair.publicKey(), descriptors);
 		for (const auto& entry : entries)
 			AppendUnlockedEntryToFile(guard.name(), entry);
 
 		// Act:
 		UnlockedAccountsStorage storage(guard.name());
-		std::set<Key> collectedKeys;
-		storage.load(keyPair, [&collectedKeys](auto&& harvesterPublicKeyPair) {
-			collectedKeys.insert(harvesterPublicKeyPair.publicKey());
+		BlockGeneratorAccountDescriptorUnorderedSet collectedDescriptors;
+		storage.load(keyPair, [&collectedDescriptors](auto&& descriptor) {
+			collectedDescriptors.insert(std::move(descriptor));
 		});
 
 		// Assert: remove the file, save and check if it matches initial data
@@ -566,20 +571,20 @@ namespace catapult { namespace harvesting {
 		storage.save(NoFiltering);
 		test::AssertUnlockedEntriesFileContents(guard.name(), entries);
 
-		// - check all loaded keys were passed to process function
-		std::set<Key> expectedKeys;
-		for (const auto& privateKeyBuffer : privateKeyBuffers)
-			expectedKeys.insert(test::KeyPairFromPrivateKeyBuffer(privateKeyBuffer).publicKey());
+		// - check all loaded keys were passed to process function (order doesn't matter)
+		BlockGeneratorAccountDescriptorUnorderedSet expectedDescriptors;
+		for (auto& descriptor : descriptors)
+			expectedDescriptors.emplace(std::move(descriptor));
 
-		EXPECT_EQ(expectedKeys, collectedKeys);
+		EXPECT_EQ(expectedDescriptors, collectedDescriptors);
 	}
 
 	TEST(TEST_CLASS, LoadThrowsWhenInputDoesNotHaveEnoughData) {
 		// Arrange: create file with one proper entry and one "short"
 		test::TempFileGuard guard(Filename);
 		auto keyPair = test::GenerateKeyPair();
-		auto randomPrivateBuffer = test::GenerateRandomByteArray<Key>();
-		auto entry = test::PrepareUnlockedTestEntry(keyPair.publicKey(), randomPrivateBuffer);
+		auto decryptedPayload = test::ToClearTextBuffer(test::GenerateRandomAccountDescriptors(1)[0]);
+		auto entry = test::PrepareUnlockedTestEntry(keyPair.publicKey(), decryptedPayload);
 		AppendUnlockedEntryToFile(guard.name(), entry);
 		AppendToFile(guard.name(), sizeof(test::UnlockedTestEntry) - 1);
 
