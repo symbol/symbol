@@ -18,7 +18,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "UnlockedEntryMessage.h"
+#include "HarvestRequest.h"
 #include "catapult/crypto/AesCbcDecrypt.h"
 #include <cstring>
 
@@ -28,17 +28,21 @@ namespace catapult { namespace harvesting {
 		constexpr auto Aes_Pkcs7_Padding_Size = 16;
 	}
 
-	size_t EncryptedUnlockedEntrySize() {
+	size_t HarvestRequest::DecryptedPayloadSize() {
+		// encrypted harvester signing private key | encrypted harvester vrf private key
+		return 2 * Key::Size;
+	}
+
+	size_t HarvestRequest::EncryptedPayloadSize() {
 		return Key::Size //                                ephemeral public key
 				+ crypto::AesInitializationVector::Size // aes cbc initialization vector
-				+ Key::Size //                             encrypted harvester signing private key
-				+ Key::Size //                             encrypted harvester vrf private key
+				+ DecryptedPayloadSize() //                decrypted payload
 				+ Aes_Pkcs7_Padding_Size; //               padding
 	}
 
-	UnlockedEntryMessageIdentifier GetMessageIdentifier(const UnlockedEntryMessage& message) {
-		UnlockedEntryMessageIdentifier messageIdentifier;
-		std::memcpy(messageIdentifier.data(), message.EncryptedEntry.pData, messageIdentifier.size());
-		return messageIdentifier;
+	HarvestRequestIdentifier GetRequestIdentifier(const HarvestRequest& request) {
+		HarvestRequestIdentifier requestIdentifier;
+		std::memcpy(requestIdentifier.data(), request.EncryptedPayload.pData, requestIdentifier.size());
+		return requestIdentifier;
 	}
 }}

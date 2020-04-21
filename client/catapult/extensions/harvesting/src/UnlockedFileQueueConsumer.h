@@ -20,7 +20,7 @@
 
 #pragma once
 #include "BlockGeneratorAccountDescriptor.h"
-#include "UnlockedEntryMessage.h"
+#include "HarvestRequest.h"
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/functions.h"
 #include <string>
@@ -37,10 +37,10 @@ namespace catapult { namespace harvesting {
 			const RawBuffer& encryptedWithKey,
 			const crypto::KeyPair& encryptionKeyPair);
 
-	/// Reads encrypted unlocked entry messages from \a directory, validates using \a encryptionKeyPair
+	/// Reads (encrypted) harvest requests from \a directory, validates using \a encryptionKeyPair
 	/// and forwards to \a processDescriptor.
 	void UnlockedFileQueueConsumer(
 			const config::CatapultDirectory& directory,
 			const crypto::KeyPair& encryptionKeyPair,
-			const consumer<const UnlockedEntryMessage&, BlockGeneratorAccountDescriptor&&>& processDescriptor);
+			const consumer<const HarvestRequest&, BlockGeneratorAccountDescriptor&&>& processDescriptor);
 }}

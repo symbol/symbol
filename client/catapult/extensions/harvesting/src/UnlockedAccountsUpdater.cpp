@@ -79,7 +79,7 @@ namespace catapult { namespace harvesting {
 	{}
 
 	void UnlockedAccountsUpdater::load() {
-		// load entries
+		// load account descriptors
 		m_unlockedAccountsStorage.load(m_encryptionKeyPair, [&unlockedAccounts = m_unlockedAccounts](auto&& descriptor) {
 			AddToUnlocked(unlockedAccounts, std::move(descriptor));
 		});
@@ -89,16 +89,16 @@ namespace catapult { namespace harvesting {
 		// 1. process queued accounts
 		bool hasAnyRemoval = false;
 		auto processDescriptor = [&unlockedAccounts = m_unlockedAccounts, &storage = m_unlockedAccountsStorage, &hasAnyRemoval](
-				const auto& unlockedEntryMessage,
+				const auto& harvestRequest,
 				auto&& descriptor) {
-			auto messageIdentifier = GetMessageIdentifier(unlockedEntryMessage);
+			auto requestIdentifier = GetRequestIdentifier(harvestRequest);
 			auto harvesterSigningPublicKey = descriptor.signingKeyPair().publicKey();
-			if (UnlockedEntryDirection::Add == unlockedEntryMessage.Direction) {
-				if (!storage.contains(messageIdentifier) && AddToUnlocked(unlockedAccounts, std::move(descriptor)))
-					storage.add(messageIdentifier, unlockedEntryMessage.EncryptedEntry, harvesterSigningPublicKey);
+			if (HarvestRequestOperation::Add == harvestRequest.Operation) {
+				if (!storage.contains(requestIdentifier) && AddToUnlocked(unlockedAccounts, std::move(descriptor)))
+					storage.add(requestIdentifier, harvestRequest.EncryptedPayload, harvesterSigningPublicKey);
 			} else {
 				RemoveFromUnlocked(unlockedAccounts, harvesterSigningPublicKey);
-				storage.remove(messageIdentifier);
+				storage.remove(requestIdentifier);
 				hasAnyRemoval = true;
 			}
 		};

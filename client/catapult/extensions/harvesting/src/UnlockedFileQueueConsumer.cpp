@@ -28,14 +28,12 @@
 namespace catapult { namespace harvesting {
 
 	namespace {
-		constexpr auto Decrypted_Data_Size = 2 * Key::Size;
-
-		UnlockedEntryMessage DeserializeUnlockedEntryMessage(const std::vector<uint8_t>& buffer) {
-			UnlockedEntryMessage message;
+		HarvestRequest DeserializeHarvestRequest(const std::vector<uint8_t>& buffer) {
+			HarvestRequest request;
 			// note: value of direction comes from TransferMessageObserver, so it is trusted
-			message.Direction = static_cast<UnlockedEntryDirection>(buffer[0]);
-			message.EncryptedEntry = RawBuffer{ &buffer[1], EncryptedUnlockedEntrySize() };
-			return message;
+			request.Operation = static_cast<HarvestRequestOperation>(buffer[0]);
+			request.EncryptedPayload = RawBuffer{ &buffer[1], HarvestRequest::EncryptedPayloadSize() };
+			return request;
 		}
 	}
 
@@ -44,7 +42,7 @@ namespace catapult { namespace harvesting {
 			const crypto::KeyPair& encryptionKeyPair) {
 		std::vector<uint8_t> decrypted;
 		auto isDecryptSuccessful = crypto::TryDecryptEd25199BlockCipher(encryptedWithKey, encryptionKeyPair, decrypted);
-		if (!isDecryptSuccessful || Decrypted_Data_Size != decrypted.size())
+		if (!isDecryptSuccessful || HarvestRequest::DecryptedPayloadSize() != decrypted.size())
 			return std::make_pair(BlockGeneratorAccountDescriptor(), false);
 
 		auto iter = decrypted.begin();
@@ -60,23 +58,23 @@ namespace catapult { namespace harvesting {
 	void UnlockedFileQueueConsumer(
 			const config::CatapultDirectory& directory,
 			const crypto::KeyPair& encryptionKeyPair,
-			const consumer<const UnlockedEntryMessage&, BlockGeneratorAccountDescriptor&&>& processDescriptor) {
+			const consumer<const HarvestRequest&, BlockGeneratorAccountDescriptor&&>& processDescriptor) {
 		io::FileQueueReader reader(directory.str());
 		auto appendMessage = [&encryptionKeyPair, &processDescriptor](const auto& buffer) {
-			// filter out invalid messages
-			if (1 + EncryptedUnlockedEntrySize() != buffer.size()) {
+			// filter out invalid requests
+			if (1 + HarvestRequest::EncryptedPayloadSize() != buffer.size()) {
 				CATAPULT_LOG(warning) << "rejecting buffer with wrong size: " << buffer.size();
 				return;
 			}
 
-			auto unlockedEntryMessage = DeserializeUnlockedEntryMessage(buffer);
-			auto decryptedPair = TryDecryptBlockGeneratorAccountDescriptor(unlockedEntryMessage.EncryptedEntry, encryptionKeyPair);
+			auto harvestRequest = DeserializeHarvestRequest(buffer);
+			auto decryptedPair = TryDecryptBlockGeneratorAccountDescriptor(harvestRequest.EncryptedPayload, encryptionKeyPair);
 			if (!decryptedPair.second) {
 				CATAPULT_LOG(warning) << "rejecting buffer that could not be decrypted";
 				return;
 			}
 
-			processDescriptor(unlockedEntryMessage, std::move(decryptedPair.first));
+			processDescriptor(harvestRequest, std::move(decryptedPair.first));
 		};
 
 		while (reader.tryReadNextMessage(appendMessage))

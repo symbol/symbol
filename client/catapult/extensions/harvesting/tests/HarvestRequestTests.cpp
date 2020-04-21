@@ -18,30 +18,34 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "harvesting/src/UnlockedEntryMessage.h"
-#include "harvesting/tests/test/UnlockedTestEntry.h"
+#include "harvesting/src/HarvestRequest.h"
+#include "harvesting/tests/test/HarvestRequestEncryptedPayload.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace harvesting {
 
-#define TEST_CLASS UnlockedEntryMessageTests
+#define TEST_CLASS HarvestRequestTests
 
-	TEST(TEST_CLASS, CanGetEncryptedUnlockedEntrySize) {
-		EXPECT_EQ(32u + 16 + 32 + 32 + 16, EncryptedUnlockedEntrySize());
-		EXPECT_EQ(test::Unlocked_Test_Entry_Payload_Size, EncryptedUnlockedEntrySize());
+	TEST(TEST_CLASS, CanGetDecryptedPayloadSize) {
+		EXPECT_EQ(32u + 32, HarvestRequest::DecryptedPayloadSize());
 	}
 
-	TEST(TEST_CLASS, CanGetMessageIdentifierFromMessage) {
-		// Arrange:
-		auto expectedMessageIdentifier = test::GenerateRandomByteArray<UnlockedEntryMessageIdentifier>();
+	TEST(TEST_CLASS, CanGetEncryptedPayloadSize) {
+		EXPECT_EQ(32u + 16 + 32 + 32 + 16, HarvestRequest::EncryptedPayloadSize());
+		EXPECT_EQ(test::HarvestRequestEncryptedPayload::Size, HarvestRequest::EncryptedPayloadSize());
+	}
 
-		UnlockedEntryMessage message;
-		message.EncryptedEntry = RawBuffer{ expectedMessageIdentifier.data(), expectedMessageIdentifier.size() };
+	TEST(TEST_CLASS, CanGetRequestIdentifierFromRequest) {
+		// Arrange:
+		auto expectedRequestIdentifier = test::GenerateRandomByteArray<HarvestRequestIdentifier>();
+
+		HarvestRequest request;
+		request.EncryptedPayload = RawBuffer{ expectedRequestIdentifier.data(), expectedRequestIdentifier.size() };
 
 		// Act:
-		auto messageIdentifier = GetMessageIdentifier(message);
+		auto requestIdentifier = GetRequestIdentifier(request);
 
 		// Assert:
-		EXPECT_EQ(expectedMessageIdentifier, messageIdentifier);
+		EXPECT_EQ(expectedRequestIdentifier, requestIdentifier);
 	}
 }}

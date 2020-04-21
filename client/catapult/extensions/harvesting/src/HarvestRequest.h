@@ -23,30 +23,36 @@
 
 namespace catapult { namespace harvesting {
 
-	struct UnlockedEntryMessageIdentifier_tag { static constexpr size_t Size = 32; };
-	using UnlockedEntryMessageIdentifier = utils::ByteArray<UnlockedEntryMessageIdentifier_tag>;
+	struct HarvestRequestIdentifier_tag { static constexpr size_t Size = 32; };
+	using HarvestRequestIdentifier = utils::ByteArray<HarvestRequestIdentifier_tag>;
 
-	/// Unlocked entry direction.
-	enum class UnlockedEntryDirection : uint8_t {
-		/// Add unlocked entry.
+	/// Harvest request operation.
+	enum class HarvestRequestOperation : uint8_t {
+		/// Add unlocked harvester.
 		Add,
 
-		/// Remove unlocked entry.
+		/// Remove unlocked harvester.
 		Remove
 	};
 
-	/// Unlocked entry message.
-	struct UnlockedEntryMessage {
-		/// Unlocked entry direction.
-		UnlockedEntryDirection Direction;
+	/// Harvest request.
+	struct HarvestRequest {
+	public:
+		/// Operation.
+		HarvestRequestOperation Operation;
 
-		/// Encrypted entry.
-		RawBuffer EncryptedEntry;
+		/// Encrypted payload.
+		/// \note This decrypts into BlockGeneratorAccountDescriptor.
+		RawBuffer EncryptedPayload;
+
+	public:
+		/// Gets the decrypted payload size.
+		static size_t DecryptedPayloadSize();
+
+		/// Gets the encrypted payload size.
+		static size_t EncryptedPayloadSize();
 	};
 
-	/// Gets the size of encrypted entry.
-	size_t EncryptedUnlockedEntrySize();
-
-	/// Gets a unique identifier for \a message.
-	UnlockedEntryMessageIdentifier GetMessageIdentifier(const UnlockedEntryMessage& message);
+	/// Gets a unique identifier for \a request.
+	HarvestRequestIdentifier GetRequestIdentifier(const HarvestRequest& request);
 }}

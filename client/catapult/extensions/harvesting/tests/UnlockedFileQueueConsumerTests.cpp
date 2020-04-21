@@ -21,7 +21,7 @@
 #include "harvesting/src/UnlockedFileQueueConsumer.h"
 #include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/io/FileQueue.h"
-#include "harvesting/tests/test/UnlockedTestEntry.h"
+#include "harvesting/tests/test/HarvestRequestEncryptedPayload.h"
 #include "tests/test/crypto/EncryptionTestUtils.h"
 #include "tests/test/nodeps/Alignment.h"
 #include "tests/test/nodeps/Filesystem.h"
@@ -79,11 +79,11 @@ namespace catapult { namespace harvesting {
 	namespace {
 		// region utils
 
-		auto SerializeUnlockedEntryMessage(const UnlockedEntryMessage& message) {
-			std::vector<uint8_t> messageBuffer(1 + message.EncryptedEntry.Size);
-			messageBuffer[0] = static_cast<uint8_t>(message.Direction);
-			std::memcpy(messageBuffer.data() + 1, message.EncryptedEntry.pData, message.EncryptedEntry.Size);
-			return messageBuffer;
+		auto SerializeHarvestRequest(const HarvestRequest& request) {
+			std::vector<uint8_t> requestBuffer(1 + request.EncryptedPayload.Size);
+			requestBuffer[0] = static_cast<uint8_t>(request.Operation);
+			std::memcpy(requestBuffer.data() + 1, request.EncryptedPayload.pData, request.EncryptedPayload.Size);
+			return requestBuffer;
 		}
 
 		// endregion
@@ -113,9 +113,9 @@ namespace catapult { namespace harvesting {
 				std::vector<std::vector<uint8_t>> collectedMessages;
 				std::vector<BlockGeneratorAccountDescriptor> collectedDescriptors;
 				UnlockedFileQueueConsumer(directory, m_keyPair, [&collectedMessages, &collectedDescriptors](
-						const auto& message,
+						const auto& request,
 						auto&& descriptor) {
-					collectedMessages.emplace_back(SerializeUnlockedEntryMessage(message));
+					collectedMessages.emplace_back(SerializeHarvestRequest(request));
 					collectedDescriptors.emplace_back(std::move(descriptor));
 				});
 
@@ -130,8 +130,11 @@ namespace catapult { namespace harvesting {
 
 			auto prepareMessage(const BlockGeneratorAccountDescriptor& descriptor, test::EncryptionMutationFlag encryptionMutationFlag) {
 				auto clearText = test::ToClearTextBuffer(descriptor);
-				auto entry = test::PrepareUnlockedTestEntry(m_keyPair.publicKey(), clearText, encryptionMutationFlag);
-				return EntryToMessage(entry);
+				auto encryptedPayload = test::PrepareHarvestRequestEncryptedPayload(
+						m_keyPair.publicKey(),
+						clearText,
+						encryptionMutationFlag);
+				return EncryptedPayloadToMessage(encryptedPayload);
 			}
 
 			auto prepareMessages(
@@ -162,17 +165,17 @@ namespace catapult { namespace harvesting {
 
 				auto clearText = test::ToClearTextBuffer(descriptor);
 				clearText.resize(clearText.size() + 1);
-				auto entry = test::PrepareUnlockedTestEntry(m_keyPair.publicKey(), clearText);
-				return EntryToMessage(entry);
+				auto encryptedPayload = test::PrepareHarvestRequestEncryptedPayload(m_keyPair.publicKey(), clearText);
+				return EncryptedPayloadToMessage(encryptedPayload);
 			}
 
 		private:
-			static std::vector<uint8_t> EntryToMessage(const test::UnlockedTestEntry& entry) {
-				std::vector<uint8_t> buffer;
-				buffer.push_back(test::RandomByte() % 2);
-				auto entryBuffer = test::ConvertUnlockedTestEntryToBuffer(entry);
-				buffer.insert(buffer.end(), entryBuffer.cbegin(), entryBuffer.cend());
-				return buffer;
+			static std::vector<uint8_t> EncryptedPayloadToMessage(const test::HarvestRequestEncryptedPayload& encryptedPayload) {
+				std::vector<uint8_t> messageBuffer;
+				messageBuffer.push_back(test::RandomByte() % 2);
+				auto encryptedBuffer = test::CopyHarvestRequestEncryptedPayloadToBuffer(encryptedPayload);
+				messageBuffer.insert(messageBuffer.end(), encryptedBuffer.cbegin(), encryptedBuffer.cend());
+				return messageBuffer;
 			}
 
 			static void AssertForwardedMessages(

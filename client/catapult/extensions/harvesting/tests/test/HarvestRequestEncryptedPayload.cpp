@@ -18,7 +18,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "UnlockedTestEntry.h"
+#include "HarvestRequestEncryptedPayload.h"
 #include "catapult/io/BufferedFileStream.h"
 #include "tests/test/crypto/EncryptionTestUtils.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
@@ -40,30 +40,32 @@ namespace catapult { namespace test {
 		}
 	}
 
-	harvesting::UnlockedEntryMessageIdentifier GetMessageIdentifier(const UnlockedTestEntry& entry) {
-		harvesting::UnlockedEntryMessageIdentifier messageIdentifier;
-		std::memcpy(messageIdentifier.data(), entry.Payload.data(), messageIdentifier.size());
-		return messageIdentifier;
+	harvesting::HarvestRequestIdentifier GetRequestIdentifier(const HarvestRequestEncryptedPayload& encryptedPayload) {
+		harvesting::HarvestRequestIdentifier requestIdentifier;
+		std::memcpy(requestIdentifier.data(), encryptedPayload.Data.data(), requestIdentifier.size());
+		return requestIdentifier;
 	}
 
-	std::ostream& operator<<(std::ostream& out, const UnlockedTestEntry& entry) {
-		out << "identifier:" << GetMessageIdentifier(entry) << ", " << "payload:" << utils::HexFormat(entry.Payload) << std::endl;
+	std::ostream& operator<<(std::ostream& out, const HarvestRequestEncryptedPayload& encryptedPayload) {
+		out
+				<< "identifier:" << GetRequestIdentifier(encryptedPayload)
+				<< ", data:" << utils::HexFormat(encryptedPayload.Data) << std::endl;
 		return out;
 	}
 
-	UnlockedTestEntry PrepareUnlockedTestEntry(
+	HarvestRequestEncryptedPayload PrepareHarvestRequestEncryptedPayload(
 			const Key& recipientPublicKey,
-			const RawBuffer& entryBuffer,
+			const RawBuffer& clearTextBuffer,
 			EncryptionMutationFlag encryptionMutationFlag) {
-		return PrepareUnlockedTestEntry(GenerateKeyPair(), recipientPublicKey, entryBuffer, encryptionMutationFlag);
+		return PrepareHarvestRequestEncryptedPayload(GenerateKeyPair(), recipientPublicKey, clearTextBuffer, encryptionMutationFlag);
 	}
 
-	UnlockedTestEntry PrepareUnlockedTestEntry(
+	HarvestRequestEncryptedPayload PrepareHarvestRequestEncryptedPayload(
 			const crypto::KeyPair& ephemeralKeyPair,
 			const Key& recipientPublicKey,
-			const RawBuffer& entryBuffer,
+			const RawBuffer& clearTextBuffer,
 			EncryptionMutationFlag encryptionMutationFlag) {
-		UnlockedTestEntry entry;
+		HarvestRequestEncryptedPayload encryptedPayload;
 		auto sharedKey = crypto::DeriveSharedKey(ephemeralKeyPair, recipientPublicKey);
 		auto initializationVector = GenerateRandomByteArray<crypto::AesInitializationVector>();
 
@@ -72,36 +74,36 @@ namespace catapult { namespace test {
 				EncryptionMutationFlag::None == encryptionMutationFlag
 				? AesPkcs7PaddingScheme
 				: AesPkcs7MalformedPaddingScheme;
-		AesCbcEncrypt(sharedKey, initializationVector, entryBuffer, encrypted, paddingScheme);
+		AesCbcEncrypt(sharedKey, initializationVector, clearTextBuffer, encrypted, paddingScheme);
 
-		std::memcpy(entry.Payload.data(), ephemeralKeyPair.publicKey().data(), Key::Size);
-		std::memcpy(entry.Payload.data() + Key::Size, encrypted.data(), encrypted.size());
-		return entry;
+		std::memcpy(encryptedPayload.Data.data(), ephemeralKeyPair.publicKey().data(), Key::Size);
+		std::memcpy(encryptedPayload.Data.data() + Key::Size, encrypted.data(), encrypted.size());
+		return encryptedPayload;
 	}
 
-	std::vector<uint8_t> ConvertUnlockedTestEntryToBuffer(const UnlockedTestEntry& entry) {
-		std::vector<uint8_t> buffer(sizeof(UnlockedTestEntry));
-		std::memcpy(buffer.data(), &entry, sizeof(UnlockedTestEntry));
+	std::vector<uint8_t> CopyHarvestRequestEncryptedPayloadToBuffer(const HarvestRequestEncryptedPayload& encryptedPayload) {
+		std::vector<uint8_t> buffer(sizeof(HarvestRequestEncryptedPayload));
+		std::memcpy(buffer.data(), &encryptedPayload, sizeof(HarvestRequestEncryptedPayload));
 		return buffer;
 	}
 
-	void AssertUnlockedEntriesFileContents(const std::string& filename, const UnlockedTestEntries& expectedEntries) {
+	void AssertHarvesterFileContents(const std::string& filename, const HarvestRequestEncryptedPayloads& expectedEncryptedPayloads) {
 		// Assert:
 		io::RawFile file(filename, io::OpenMode::Read_Only);
-		EXPECT_EQ(expectedEntries.size() * sizeof(UnlockedTestEntry), file.size());
+		EXPECT_EQ(expectedEncryptedPayloads.size() * sizeof(HarvestRequestEncryptedPayload), file.size());
 
 		io::BufferedInputFileStream inputStream(std::move(file));
 
-		// - read entries directly from file
-		UnlockedTestEntries actualEntries;
+		// - read encrypted payloads directly from file
+		HarvestRequestEncryptedPayloads actualEncryptedPayloads;
 		while (!inputStream.eof()) {
-			UnlockedTestEntry entry;
-			inputStream.read({ reinterpret_cast<uint8_t*>(&entry), sizeof(UnlockedTestEntry) });
-			actualEntries.emplace(entry);
+			HarvestRequestEncryptedPayload encryptedPayload;
+			inputStream.read({ reinterpret_cast<uint8_t*>(&encryptedPayload), sizeof(HarvestRequestEncryptedPayload) });
+			actualEncryptedPayloads.emplace(encryptedPayload);
 		}
 
-		// - compare against expected entries
-		EXPECT_EQ(expectedEntries, actualEntries);
+		// - compare against expected encrypted payloads
+		EXPECT_EQ(expectedEncryptedPayloads, actualEncryptedPayloads);
 	}
 
 	std::vector<harvesting::BlockGeneratorAccountDescriptor> GenerateRandomAccountDescriptors(size_t numDescriptors) {

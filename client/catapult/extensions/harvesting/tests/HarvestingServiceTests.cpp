@@ -24,7 +24,7 @@
 #include "harvesting/src/UnlockedAccountsStorage.h"
 #include "catapult/cache_core/BlockStatisticCache.h"
 #include "catapult/config/CatapultDataDirectory.h"
-#include "harvesting/tests/test/UnlockedTestEntry.h"
+#include "harvesting/tests/test/HarvestRequestEncryptedPayload.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/HandlersTrustedHostTests.h"
 #include "tests/test/core/PacketPayloadTestUtils.h"
@@ -279,12 +279,12 @@ namespace catapult { namespace harvesting {
 	}
 
 	namespace {
-		void AddHarvestersFileEntries(const std::string& filename, const Key& nodeOwnerPublicKey, size_t numEntries) {
+		void AddHarvestersFileRequests(const std::string& filename, const Key& nodeOwnerPublicKey, size_t numRequests) {
 			UnlockedAccountsStorage storage(filename);
-			for (auto i = 0u; i < numEntries; ++i) {
+			for (auto i = 0u; i < numRequests; ++i) {
 				auto decryptedBuffer = test::GenerateRandomVector(2 * Key::Size);
-				auto entry = test::PrepareUnlockedTestEntry(nodeOwnerPublicKey, decryptedBuffer);
-				storage.add(test::GetMessageIdentifier(entry), entry.Payload, Key{ { static_cast<uint8_t>(i) } });
+				auto encryptedPayload = test::PrepareHarvestRequestEncryptedPayload(nodeOwnerPublicKey, decryptedBuffer);
+				storage.add(test::GetRequestIdentifier(encryptedPayload), encryptedPayload.Data, Key{ { static_cast<uint8_t>(i) } });
 			}
 		}
 	}
@@ -296,7 +296,7 @@ namespace catapult { namespace harvesting {
 		context.setDataDirectory(directoryGuard.name());
 
 		auto filename = config::CatapultDataDirectory(directoryGuard.name()).rootDir().file("harvesters.dat");
-		AddHarvestersFileEntries(filename, context.locator().keys().nodeKeyPair().publicKey(), 3);
+		AddHarvestersFileRequests(filename, context.locator().keys().nodeKeyPair().publicKey(), 3);
 
 		RunUnlockedAccountsServiceTest(context, [&context](const auto& unlockedAccounts) {
 			// Assert: only accounts from the file were unlocked
