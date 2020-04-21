@@ -52,15 +52,15 @@ namespace catapult { namespace harvesting {
 			if (!config.EnableAutoHarvesting)
 				return unlockedAccountsFactory(Key());
 
-			auto harvesterKeyPairs = BlockGeneratorKeyPairs(
+			auto harvesterDescriptor = BlockGeneratorAccountDescriptor(
 					crypto::KeyPair::FromString(config.HarvesterSigningPrivateKey),
 					crypto::KeyPair::FromString(config.HarvesterVrfPrivateKey));
-			auto harvesterSigningPublicKey = harvesterKeyPairs.signingKeyPair().publicKey();
-			auto harvesterVrfPublicKey = harvesterKeyPairs.vrfKeyPair().publicKey();
+			auto harvesterSigningPublicKey = harvesterDescriptor.signingKeyPair().publicKey();
+			auto harvesterVrfPublicKey = harvesterDescriptor.vrfKeyPair().publicKey();
 			auto pUnlockedAccounts = unlockedAccountsFactory(harvesterSigningPublicKey);
 
 			// unlock configured account if it's eligible to harvest the next block
-			auto unlockResult = pUnlockedAccounts->modifier().add(std::move(harvesterKeyPairs));
+			auto unlockResult = pUnlockedAccounts->modifier().add(std::move(harvesterDescriptor));
 			CATAPULT_LOG(info)
 					<< std::endl << "Unlocked harvesting account with result " << unlockResult
 					<< std::endl << "+ Signing " << harvesterSigningPublicKey
@@ -135,8 +135,8 @@ namespace catapult { namespace harvesting {
 
 				auto view = unlockedAccounts.view();
 				std::vector<Key> harvesterPublicKeys;
-				view.forEach([&harvesterPublicKeys](const auto& keyPairs) {
-					harvesterPublicKeys.push_back(keyPairs.signingKeyPair().publicKey());
+				view.forEach([&harvesterPublicKeys](const auto& descriptor) {
+					harvesterPublicKeys.push_back(descriptor.signingKeyPair().publicKey());
 					return true;
 				});
 

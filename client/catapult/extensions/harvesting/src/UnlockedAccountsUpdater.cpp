@@ -45,10 +45,10 @@ namespace catapult { namespace harvesting {
 			return numPrunedAccounts;
 		}
 
-		bool AddToUnlocked(UnlockedAccounts& unlockedAccounts, BlockGeneratorKeyPairs&& keyPairs) {
-			auto addResult = unlockedAccounts.modifier().add(std::move(keyPairs));
+		bool AddToUnlocked(UnlockedAccounts& unlockedAccounts, BlockGeneratorAccountDescriptor&& descriptor) {
+			auto addResult = unlockedAccounts.modifier().add(std::move(descriptor));
 			if (UnlockedAccountsAddResult::Success_New == addResult) {
-				CATAPULT_LOG(info) << "added NEW account " << keyPairs.signingKeyPair().publicKey();
+				CATAPULT_LOG(info) << "added NEW account " << descriptor.signingKeyPair().publicKey();
 				return true;
 			}
 
@@ -82,10 +82,10 @@ namespace catapult { namespace harvesting {
 		// load entries
 		m_unlockedAccountsStorage.load(m_encryptionKeyPair, [&unlockedAccounts = m_unlockedAccounts](auto&& keyPair) {
 			// TODO: unlock account message will need to be updated to support multiple keys
-			BlockGeneratorKeyPairs keyPairs(
+			BlockGeneratorAccountDescriptor descriptor(
 					std::move(keyPair),
 					crypto::KeyPair::FromString("0000000000000000000000000000000000000000000000000000000000000001"));
-			AddToUnlocked(unlockedAccounts, std::move(keyPairs));
+			AddToUnlocked(unlockedAccounts, std::move(descriptor));
 		});
 	}
 
@@ -99,10 +99,10 @@ namespace catapult { namespace harvesting {
 			const auto& harvesterPublicKey = keyPair.publicKey();
 			if (UnlockedEntryDirection::Add == unlockedEntryMessage.Direction) {
 				// TODO: unlock account message will need to be updated to support multiple keys
-				BlockGeneratorKeyPairs keyPairs(
+				BlockGeneratorAccountDescriptor descriptor(
 						std::move(keyPair),
 						crypto::KeyPair::FromString("0000000000000000000000000000000000000000000000000000000000000001"));
-				if (!storage.contains(messageIdentifier) && AddToUnlocked(unlockedAccounts, std::move(keyPairs)))
+				if (!storage.contains(messageIdentifier) && AddToUnlocked(unlockedAccounts, std::move(descriptor)))
 					storage.add(messageIdentifier, unlockedEntryMessage.EncryptedEntry, harvesterPublicKey);
 			} else {
 				RemoveFromUnlocked(unlockedAccounts, harvesterPublicKey);

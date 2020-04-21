@@ -114,7 +114,7 @@ namespace catapult { namespace harvesting {
 
 		void UnlockAccount(UnlockedAccounts& unlockedAccounts, const KeyPair& keyPair) {
 			auto modifier = unlockedAccounts.modifier();
-			modifier.add(BlockGeneratorKeyPairs(test::CopyKeyPair(keyPair), test::GenerateKeyPair()));
+			modifier.add(BlockGeneratorAccountDescriptor(test::CopyKeyPair(keyPair), test::GenerateKeyPair()));
 		}
 
 		struct HarvesterContext {

@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "BlockGeneratorAccountDescriptor.h"
 #include "DelegatePrioritizationPolicy.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/crypto/KeyPair.h"
@@ -57,26 +58,8 @@ namespace catapult { namespace harvesting {
 
 	// endregion
 
-	/// Key pairs used by a single account during block generation.
-	class BlockGeneratorKeyPairs {
-	public:
-		/// Creates key pairs around \a signingKeyPair and \a vrfKeyPair.
-		BlockGeneratorKeyPairs(crypto::KeyPair&& signingKeyPair, crypto::KeyPair&& vrfKeyPair);
-
-	public:
-		/// Gets the signing key pair.
-		const crypto::KeyPair& signingKeyPair() const;
-
-		/// Gets the vrf key pair.
-		const crypto::KeyPair& vrfKeyPair() const;
-
-	private:
-		crypto::KeyPair m_signingKeyPair;
-		crypto::KeyPair m_vrfKeyPair;
-	};
-
 	/// Container used by unlocked accounts to store key pairs.
-	using UnlockedAccountsKeyPairContainer = std::vector<std::pair<BlockGeneratorKeyPairs, size_t>>;
+	using UnlockedAccountsKeyPairContainer = std::vector<std::pair<BlockGeneratorAccountDescriptor, size_t>>;
 
 	/// Read only view on top of unlocked accounts.
 	class UnlockedAccountsView : utils::MoveOnly {
@@ -93,8 +76,8 @@ namespace catapult { namespace harvesting {
 		/// Returns \c true if the public (signing) key belongs to an unlocked account, \c false otherwise.
 		bool contains(const Key& publicKey) const;
 
-		/// Calls \a consumer with block generator key pairs until all are consumed or \c false is returned by consumer.
-		void forEach(const predicate<const BlockGeneratorKeyPairs&>& consumer) const;
+		/// Calls \a consumer with block generator account descriptors until all are consumed or \c false is returned by consumer.
+		void forEach(const predicate<const BlockGeneratorAccountDescriptor&>& consumer) const;
 
 	private:
 		const UnlockedAccountsKeyPairContainer& m_prioritizedKeyPairs;
@@ -115,8 +98,8 @@ namespace catapult { namespace harvesting {
 				utils::SpinReaderWriterLock::WriterLockGuard&& writeLock);
 
 	public:
-		/// Adds (unlocks) the account owning the specified key pairs (\a keyPairs).
-		UnlockedAccountsAddResult add(BlockGeneratorKeyPairs&& keyPairs);
+		/// Adds (unlocks) the account described by \a descriptor.
+		UnlockedAccountsAddResult add(BlockGeneratorAccountDescriptor&& descriptor);
 
 		/// Removes (locks) the account identified by the public (signing) key (\a publicKey).
 		bool remove(const Key& publicKey);

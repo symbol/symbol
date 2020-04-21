@@ -30,22 +30,22 @@ namespace catapult { namespace harvesting {
 	// region test utils
 
 	namespace {
-		struct KeyPairsWrapper {
+		struct AccountDescriptorWrapper {
 		public:
-			BlockGeneratorKeyPairs KeyPairs;
+			BlockGeneratorAccountDescriptor Descriptor;
 			Key SigningPublicKey;
 			Key VrfPublicKey;
 
 		public:
-			KeyPairsWrapper()
-					: KeyPairs(test::GenerateKeyPair(), test::GenerateKeyPair())
-					, SigningPublicKey(KeyPairs.signingKeyPair().publicKey())
-					, VrfPublicKey(KeyPairs.vrfKeyPair().publicKey())
+			AccountDescriptorWrapper()
+					: Descriptor(test::GenerateKeyPair(), test::GenerateKeyPair())
+					, SigningPublicKey(Descriptor.signingKeyPair().publicKey())
+					, VrfPublicKey(Descriptor.vrfKeyPair().publicKey())
 			{}
 		};
 
-		KeyPairsWrapper GenerateKeyPairsWrapper() {
-			return KeyPairsWrapper();
+		AccountDescriptorWrapper GenerateAccountDescriptorWrapper() {
+			return AccountDescriptorWrapper();
 		}
 
 		struct TestContext {
@@ -61,12 +61,12 @@ namespace catapult { namespace harvesting {
 			std::unordered_map<Key, size_t, utils::ArrayHasher<Key>> CustomPrioritizationMap;
 		};
 
-		UnlockedAccountsAddResult AddAccount(TestContext& context, BlockGeneratorKeyPairs&& keyPairs) {
-			return context.Accounts.modifier().add(std::move(keyPairs));
+		UnlockedAccountsAddResult AddAccount(TestContext& context, BlockGeneratorAccountDescriptor&& descriptor) {
+			return context.Accounts.modifier().add(std::move(descriptor));
 		}
 
 		UnlockedAccountsAddResult AddRandomAccount(TestContext& context) {
-			return AddAccount(context, GenerateKeyPairsWrapper().KeyPairs);
+			return AddAccount(context, GenerateAccountDescriptorWrapper().Descriptor);
 		}
 	}
 
@@ -78,13 +78,13 @@ namespace catapult { namespace harvesting {
 		std::pair<Key, size_t> GetPrioritizedVrfPublicKey(const UnlockedAccounts& accounts, const Key& signingPublicKey) {
 			auto index = 0u;
 			auto vrfPublicKey = Key();
-			accounts.view().forEach([&signingPublicKey, &index, &vrfPublicKey](const auto& keyPairs) {
-				if (keyPairs.signingKeyPair().publicKey() != signingPublicKey) {
+			accounts.view().forEach([&signingPublicKey, &index, &vrfPublicKey](const auto& descriptor) {
+				if (descriptor.signingKeyPair().publicKey() != signingPublicKey) {
 					++index;
 					return true;
 				}
 
-				vrfPublicKey = keyPairs.vrfKeyPair().publicKey();
+				vrfPublicKey = descriptor.vrfKeyPair().publicKey();
 				return false;
 			});
 
@@ -107,49 +107,49 @@ namespace catapult { namespace harvesting {
 
 	TEST(TEST_CLASS, CanAddHarvestingEligibleAccount) {
 		// Arrange:
-		auto keyPairsWrapper = GenerateKeyPairsWrapper();
+		auto accountDescriptorWrapper = GenerateAccountDescriptorWrapper();
 		TestContext context(8);
 		auto& accounts = context.Accounts;
 
 		// Act:
-		auto result = accounts.modifier().add(std::move(keyPairsWrapper.KeyPairs));
+		auto result = accounts.modifier().add(std::move(accountDescriptorWrapper.Descriptor));
 
 		// Assert:
 		auto view = accounts.view();
 		EXPECT_EQ(UnlockedAccountsAddResult::Success_New, result);
 		EXPECT_EQ(1u, view.size());
-		EXPECT_TRUE(view.contains(keyPairsWrapper.SigningPublicKey));
+		EXPECT_TRUE(view.contains(accountDescriptorWrapper.SigningPublicKey));
 
 		// - vrf public key is properly associated
-		EXPECT_FALSE(view.contains(keyPairsWrapper.VrfPublicKey));
-		EXPECT_EQ(keyPairsWrapper.VrfPublicKey, GetVrfPublicKey(accounts, keyPairsWrapper.SigningPublicKey));
+		EXPECT_FALSE(view.contains(accountDescriptorWrapper.VrfPublicKey));
+		EXPECT_EQ(accountDescriptorWrapper.VrfPublicKey, GetVrfPublicKey(accounts, accountDescriptorWrapper.SigningPublicKey));
 	}
 
 	TEST(TEST_CLASS, CanAddMultipleAccountsToContainer) {
 		// Arrange:
-		auto keyPairsWrapper1 = GenerateKeyPairsWrapper();
-		auto keyPairsWrapper2 = GenerateKeyPairsWrapper();
+		auto accountDescriptorWrapper1 = GenerateAccountDescriptorWrapper();
+		auto accountDescriptorWrapper2 = GenerateAccountDescriptorWrapper();
 		TestContext context(8);
 		auto& accounts = context.Accounts;
 
 		// Act:
 		{
 			auto modifier = accounts.modifier();
-			modifier.add(std::move(keyPairsWrapper1.KeyPairs));
-			modifier.add(std::move(keyPairsWrapper2.KeyPairs));
+			modifier.add(std::move(accountDescriptorWrapper1.Descriptor));
+			modifier.add(std::move(accountDescriptorWrapper2.Descriptor));
 		}
 
 		// Assert:
 		auto view = accounts.view();
 		EXPECT_EQ(2u, view.size());
-		EXPECT_TRUE(view.contains(keyPairsWrapper1.SigningPublicKey));
-		EXPECT_TRUE(view.contains(keyPairsWrapper2.SigningPublicKey));
+		EXPECT_TRUE(view.contains(accountDescriptorWrapper1.SigningPublicKey));
+		EXPECT_TRUE(view.contains(accountDescriptorWrapper2.SigningPublicKey));
 
 		// - vrf public keys are properly associated
-		EXPECT_FALSE(view.contains(keyPairsWrapper1.VrfPublicKey));
-		EXPECT_FALSE(view.contains(keyPairsWrapper2.VrfPublicKey));
-		EXPECT_EQ(keyPairsWrapper1.VrfPublicKey, GetVrfPublicKey(accounts, keyPairsWrapper1.SigningPublicKey));
-		EXPECT_EQ(keyPairsWrapper2.VrfPublicKey, GetVrfPublicKey(accounts, keyPairsWrapper2.SigningPublicKey));
+		EXPECT_FALSE(view.contains(accountDescriptorWrapper1.VrfPublicKey));
+		EXPECT_FALSE(view.contains(accountDescriptorWrapper2.VrfPublicKey));
+		EXPECT_EQ(accountDescriptorWrapper1.VrfPublicKey, GetVrfPublicKey(accounts, accountDescriptorWrapper1.SigningPublicKey));
+		EXPECT_EQ(accountDescriptorWrapper2.VrfPublicKey, GetVrfPublicKey(accounts, accountDescriptorWrapper2.SigningPublicKey));
 	}
 
 	TEST(TEST_CLASS, AdditionOfAlreadyAddedAccountUpdatesVrfPublicKey) {
@@ -162,8 +162,12 @@ namespace catapult { namespace harvesting {
 		auto& accounts = context.Accounts;
 
 		// Act:
-		auto result1 = accounts.modifier().add(BlockGeneratorKeyPairs(test::CopyKeyPair(signingKeyPair), test::CopyKeyPair(vrfKeyPair1)));
-		auto result2 = accounts.modifier().add(BlockGeneratorKeyPairs(test::CopyKeyPair(signingKeyPair), test::CopyKeyPair(vrfKeyPair2)));
+		auto result1 = accounts.modifier().add(BlockGeneratorAccountDescriptor(
+				test::CopyKeyPair(signingKeyPair),
+				test::CopyKeyPair(vrfKeyPair1)));
+		auto result2 = accounts.modifier().add(BlockGeneratorAccountDescriptor(
+				test::CopyKeyPair(signingKeyPair),
+				test::CopyKeyPair(vrfKeyPair2)));
 
 		// Assert:
 		auto view = accounts.view();
@@ -190,15 +194,17 @@ namespace catapult { namespace harvesting {
 
 		// - add account 1 with priority 3
 		context.CustomPrioritizationMap[signingKeyPair1.publicKey()] = 3;
-		accounts.modifier().add(BlockGeneratorKeyPairs(test::CopyKeyPair(signingKeyPair1), test::CopyKeyPair(vrfKeyPair1)));
+		accounts.modifier().add(BlockGeneratorAccountDescriptor(test::CopyKeyPair(signingKeyPair1), test::CopyKeyPair(vrfKeyPair1)));
 
 		// Act: lower account 1 priority and update VRF
 		context.CustomPrioritizationMap[signingKeyPair1.publicKey()] = 1;
-		auto result = accounts.modifier().add(BlockGeneratorKeyPairs(test::CopyKeyPair(signingKeyPair1), test::CopyKeyPair(vrfKeyPair2)));
+		auto result = accounts.modifier().add(BlockGeneratorAccountDescriptor(
+				test::CopyKeyPair(signingKeyPair1),
+				test::CopyKeyPair(vrfKeyPair2)));
 
 		// - add account 2 with in-between priority
 		context.CustomPrioritizationMap[signingKeyPair2.publicKey()] = 2;
-		accounts.modifier().add(BlockGeneratorKeyPairs(test::CopyKeyPair(signingKeyPair2), test::GenerateKeyPair()));
+		accounts.modifier().add(BlockGeneratorAccountDescriptor(test::CopyKeyPair(signingKeyPair2), test::GenerateKeyPair()));
 
 		// Assert:
 		auto view = accounts.view();
@@ -218,40 +224,40 @@ namespace catapult { namespace harvesting {
 
 	TEST(TEST_CLASS, CanRemoveAccountFromContainer) {
 		// Arrange:
-		auto keyPairsWrapper1 = GenerateKeyPairsWrapper();
-		auto keyPairsWrapper2 = GenerateKeyPairsWrapper();
+		auto accountDescriptorWrapper1 = GenerateAccountDescriptorWrapper();
+		auto accountDescriptorWrapper2 = GenerateAccountDescriptorWrapper();
 		TestContext context(8);
 		auto& accounts = context.Accounts;
 
 		{
 			auto modifier = accounts.modifier();
-			modifier.add(std::move(keyPairsWrapper1.KeyPairs));
-			modifier.add(std::move(keyPairsWrapper2.KeyPairs));
+			modifier.add(std::move(accountDescriptorWrapper1.Descriptor));
+			modifier.add(std::move(accountDescriptorWrapper2.Descriptor));
 		}
 
 		// Sanity:
 		EXPECT_EQ(2u, accounts.view().size());
 
 		// Act:
-		auto removeResult = accounts.modifier().remove(keyPairsWrapper1.SigningPublicKey);
+		auto removeResult = accounts.modifier().remove(accountDescriptorWrapper1.SigningPublicKey);
 
 		// Assert:
 		EXPECT_TRUE(removeResult);
 
 		auto view = accounts.view();
 		EXPECT_EQ(1u, view.size());
-		EXPECT_FALSE(view.contains(keyPairsWrapper1.SigningPublicKey));
-		EXPECT_TRUE(view.contains(keyPairsWrapper2.SigningPublicKey));
+		EXPECT_FALSE(view.contains(accountDescriptorWrapper1.SigningPublicKey));
+		EXPECT_TRUE(view.contains(accountDescriptorWrapper2.SigningPublicKey));
 	}
 
 	TEST(TEST_CLASS, RemovalOfAccountNotInContainerHasNoEffect) {
 		// Arrange:
-		auto keyPairsWrapper = GenerateKeyPairsWrapper();
+		auto accountDescriptorWrapper = GenerateAccountDescriptorWrapper();
 		TestContext context(8);
 		auto& accounts = context.Accounts;
 
 		// Act:
-		auto result = accounts.modifier().add(std::move(keyPairsWrapper.KeyPairs));
+		auto result = accounts.modifier().add(std::move(accountDescriptorWrapper.Descriptor));
 		auto removeResult = accounts.modifier().remove(test::GenerateKeyPair().publicKey());
 
 		// Assert:
@@ -260,7 +266,7 @@ namespace catapult { namespace harvesting {
 		auto view = accounts.view();
 		EXPECT_EQ(UnlockedAccountsAddResult::Success_New, result);
 		EXPECT_EQ(1u, view.size());
-		EXPECT_TRUE(view.contains(keyPairsWrapper.SigningPublicKey));
+		EXPECT_TRUE(view.contains(accountDescriptorWrapper.SigningPublicKey));
 	}
 
 	// endregion
@@ -282,9 +288,9 @@ namespace catapult { namespace harvesting {
 		std::vector<AccountPublicKeys> AddAccounts(TestContext& context, size_t numAccounts) {
 			std::vector<AccountPublicKeys> publicKeys;
 			for (auto i = 0u; i < numAccounts; ++i) {
-				auto keyPairsWrapper = GenerateKeyPairsWrapper();
-				publicKeys.push_back({ keyPairsWrapper.SigningPublicKey, keyPairsWrapper.VrfPublicKey });
-				AddAccount(context, std::move(keyPairsWrapper.KeyPairs));
+				auto accountDescriptorWrapper = GenerateAccountDescriptorWrapper();
+				publicKeys.push_back({ accountDescriptorWrapper.SigningPublicKey, accountDescriptorWrapper.VrfPublicKey });
+				AddAccount(context, std::move(accountDescriptorWrapper.Descriptor));
 			}
 
 			return publicKeys;
@@ -294,8 +300,8 @@ namespace catapult { namespace harvesting {
 				const UnlockedAccountsView& view,
 				size_t maxPublicKeys = std::numeric_limits<size_t>::max()) {
 			std::vector<AccountPublicKeys> publicKeys;
-			view.forEach([maxPublicKeys, &publicKeys](const auto& keyPairs) {
-				publicKeys.push_back({ keyPairs.signingKeyPair().publicKey(), keyPairs.vrfKeyPair().publicKey() });
+			view.forEach([maxPublicKeys, &publicKeys](const auto& descriptor) {
+				publicKeys.push_back({ descriptor.signingKeyPair().publicKey(), descriptor.vrfKeyPair().publicKey() });
 				return publicKeys.size() < maxPublicKeys;
 			});
 
@@ -347,10 +353,10 @@ namespace catapult { namespace harvesting {
 		// - sorted indexes: 0 4 8 1 5 9 2 6 A 3 7 B
 		std::vector<Key> expectedPublicKeys;
 		for (auto i = 0u; i < Num_Accounts; ++i) {
-			auto keyPairsWrapper = GenerateKeyPairsWrapper();
-			expectedPublicKeys.push_back(keyPairsWrapper.SigningPublicKey);
-			context.CustomPrioritizationMap.emplace(keyPairsWrapper.SigningPublicKey, 2 - (i % 3));
-			AddAccount(context, std::move(keyPairsWrapper.KeyPairs));
+			auto accountDescriptorWrapper = GenerateAccountDescriptorWrapper();
+			expectedPublicKeys.push_back(accountDescriptorWrapper.SigningPublicKey);
+			context.CustomPrioritizationMap.emplace(accountDescriptorWrapper.SigningPublicKey, 2 - (i % 3));
+			AddAccount(context, std::move(accountDescriptorWrapper.Descriptor));
 		}
 
 		// Act:
@@ -417,16 +423,16 @@ namespace catapult { namespace harvesting {
 
 			std::vector<AccountPublicKeys> expectedPublicKeys;
 			for (auto i = 0u; i < 8; ++i) {
-				auto keyPairsWrapper = GenerateKeyPairsWrapper();
-				expectedPublicKeys.push_back({ keyPairsWrapper.SigningPublicKey, keyPairsWrapper.VrfPublicKey });
-				context.CustomPrioritizationMap.emplace(keyPairsWrapper.SigningPublicKey, indexToPriorityMap(i));
-				AddAccount(context, std::move(keyPairsWrapper.KeyPairs));
+				auto accountDescriptorWrapper = GenerateAccountDescriptorWrapper();
+				expectedPublicKeys.push_back({ accountDescriptorWrapper.SigningPublicKey, accountDescriptorWrapper.VrfPublicKey });
+				context.CustomPrioritizationMap.emplace(accountDescriptorWrapper.SigningPublicKey, indexToPriorityMap(i));
+				AddAccount(context, std::move(accountDescriptorWrapper.Descriptor));
 			}
 
 			// Act:
-			auto keyPairsWrapper = GenerateKeyPairsWrapper();
-			context.CustomPrioritizationMap.emplace(keyPairsWrapper.SigningPublicKey, indexToPriorityMap(8));
-			auto result = AddAccount(context, std::move(keyPairsWrapper.KeyPairs));
+			auto accountDescriptorWrapper = GenerateAccountDescriptorWrapper();
+			context.CustomPrioritizationMap.emplace(accountDescriptorWrapper.SigningPublicKey, indexToPriorityMap(8));
+			auto result = AddAccount(context, std::move(accountDescriptorWrapper.Descriptor));
 
 			auto view = accounts.view();
 			auto actualPublicKeys = ExtractAllPublicKeysOrdered(view);
@@ -456,20 +462,21 @@ namespace catapult { namespace harvesting {
 		// - sorted indexes: 0 2 4 6 7 1 3 5
 		std::vector<AccountPublicKeys> expectedPublicKeys;
 		for (auto i = 0u; i < Num_Accounts; ++i) {
-			auto keyPairsWrapper = GenerateKeyPairsWrapper();
-			expectedPublicKeys.push_back({ keyPairsWrapper.SigningPublicKey, keyPairsWrapper.VrfPublicKey });
-			context.CustomPrioritizationMap.emplace(keyPairsWrapper.SigningPublicKey, 4 - (i % 5));
-			AddAccount(context, std::move(keyPairsWrapper.KeyPairs));
+			auto accountDescriptorWrapper = GenerateAccountDescriptorWrapper();
+			expectedPublicKeys.push_back({ accountDescriptorWrapper.SigningPublicKey, accountDescriptorWrapper.VrfPublicKey });
+			context.CustomPrioritizationMap.emplace(accountDescriptorWrapper.SigningPublicKey, 4 - (i % 5));
+			AddAccount(context, std::move(accountDescriptorWrapper.Descriptor));
 		}
 
 		// Act:
-		auto keyPairsWrapper = GenerateKeyPairsWrapper();
-		context.CustomPrioritizationMap.emplace(keyPairsWrapper.SigningPublicKey, 2);
+		auto accountDescriptorWrapper = GenerateAccountDescriptorWrapper();
+		context.CustomPrioritizationMap.emplace(accountDescriptorWrapper.SigningPublicKey, 2);
 
-		expectedPublicKeys[4] = expectedPublicKeys[3]; // lowest is popped
-		expectedPublicKeys[3] = { keyPairsWrapper.SigningPublicKey, keyPairsWrapper.VrfPublicKey }; // new key pair is second lowest
+		// - lowest is popped and new descriptor is second lowest
+		expectedPublicKeys[4] = expectedPublicKeys[3];
+		expectedPublicKeys[3] = { accountDescriptorWrapper.SigningPublicKey, accountDescriptorWrapper.VrfPublicKey };
 
-		auto result = AddAccount(context, std::move(keyPairsWrapper.KeyPairs));
+		auto result = AddAccount(context, std::move(accountDescriptorWrapper.Descriptor));
 
 		auto view = accounts.view();
 		auto actualPublicKeys = ExtractAllPublicKeysOrdered(view);
@@ -489,13 +496,13 @@ namespace catapult { namespace harvesting {
 
 	TEST(TEST_CLASS, RemovedAccountsDoNotCountTowardsLimit) {
 		// Arrange:
-		auto keyPairsWrapper = GenerateKeyPairsWrapper();
+		auto accountDescriptorWrapper = GenerateAccountDescriptorWrapper();
 		TestContext context(8);
 		auto& accounts = context.Accounts;
 
 		// Act:
 		for (auto i = 0u; i < 4; ++i) AddRandomAccount(context);
-		AddAccount(context, std::move(keyPairsWrapper.KeyPairs));
+		AddAccount(context, std::move(accountDescriptorWrapper.Descriptor));
 		for (auto i = 0u; i < 3; ++i) AddRandomAccount(context);
 
 		// Sanity:
@@ -503,7 +510,7 @@ namespace catapult { namespace harvesting {
 		EXPECT_EQ(UnlockedAccountsAddResult::Failure_Server_Limit, result);
 
 		// Act:
-		accounts.modifier().remove(keyPairsWrapper.SigningPublicKey);
+		accounts.modifier().remove(accountDescriptorWrapper.SigningPublicKey);
 		result = AddRandomAccount(context);
 
 		// Assert:

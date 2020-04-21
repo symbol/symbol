@@ -47,10 +47,10 @@ namespace catapult { namespace harvesting {
 					, m_unlockedAccounts(10, [](const auto&) { return 0; })
 					, m_keyPair(test::GenerateKeyPair())
 					, m_updater(m_cache, m_unlockedAccounts, m_keyPair, m_dataDirectory) {
-				auto keyPairs = BlockGeneratorKeyPairs(test::GenerateKeyPair(), test::GenerateKeyPair());
-				auto signingKeyPair = keyPairs.signingKeyPair().publicKey();
-				auto vrfPublicKey = keyPairs.vrfKeyPair().publicKey();
-				m_unlockedAccounts.modifier().add(std::move(keyPairs));
+				auto descriptor = BlockGeneratorAccountDescriptor(test::GenerateKeyPair(), test::GenerateKeyPair());
+				auto signingKeyPair = descriptor.signingKeyPair().publicKey();
+				auto vrfPublicKey = descriptor.vrfKeyPair().publicKey();
+				m_unlockedAccounts.modifier().add(std::move(descriptor));
 				addAccount(signingKeyPair, vrfPublicKey, Amount(1234));
 			}
 

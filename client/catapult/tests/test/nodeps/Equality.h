@@ -28,108 +28,106 @@
 
 namespace catapult { namespace test {
 
-	/// Asserts that operator== returns the correct results when comparing entities in \a descToEntityMap against
-	/// the default entity (having key \a defaultKey in the map). keys in \a equalityTags are expected to have
-	/// entity values equal to the entity associated with \a defaultKey.
+	/// Asserts that operator== returns the correct results when comparing values in \a descToValueMap against
+	/// the default value (having key \a defaultKey in the map). keys in \a equalityTags are expected to have
+	/// values equal to the value associated with \a defaultKey.
 	/// \a equal is the comparison function used.
-	template<typename TEntity>
+	template<typename TValue>
 	void AssertEqualReturnsTrueForEqualObjects(
 			const std::string& defaultKey,
-			const std::unordered_map<std::string, TEntity>& descToEntityMap,
+			const std::unordered_map<std::string, TValue>& descToValueMap,
 			const std::unordered_set<std::string>& equalityTags,
-			const predicate<const TEntity&, const TEntity&>& equal) {
+			const predicate<const TValue&, const TValue&>& equal) {
 		// Arrange:
-		const auto& Default_Entity = descToEntityMap.find(defaultKey)->second;
-		for (const auto& entity : descToEntityMap) {
-			auto isEqualityExpected = equalityTags.cend() != equalityTags.find(entity.first);
+		const auto& defaultValue = descToValueMap.find(defaultKey)->second;
+		for (const auto& value : descToValueMap) {
+			auto isEqualityExpected = equalityTags.cend() != equalityTags.find(value.first);
 
 			// Act:
-			auto compareResult = equal(Default_Entity, entity.second);
+			auto compareResult = equal(defaultValue, value.second);
 
 			// Assert:
 			EXPECT_EQ(isEqualityExpected, compareResult)
-					<< "expected " << isEqualityExpected << " for '" << entity.first << "'";
-			CATAPULT_LOG(debug) << defaultKey << "' == '" << entity.first << "' ? expected " << isEqualityExpected;
+					<< "expected " << isEqualityExpected << " for '" << value.first << "'";
+			CATAPULT_LOG(debug) << defaultKey << "' == '" << value.first << "' ? expected " << isEqualityExpected;
 		}
 	}
 
-	/// Asserts that operator== returns the correct results when comparing entities in \a descToEntityMap against
-	/// the default entity (having key \a defaultKey in the map). keys in \a equalityTags are expected to have
-	/// entity values equal to the entity associated with \a defaultKey.
-	template<typename TEntity>
+	/// Asserts that operator== returns the correct results when comparing values in \a descToValueMap against
+	/// the default value (having key \a defaultKey in the map). keys in \a equalityTags are expected to have
+	/// values equal to the value associated with \a defaultKey.
+	template<typename TValue>
 	void AssertOperatorEqualReturnsTrueForEqualObjects(
 			const std::string& defaultKey,
-			const std::unordered_map<std::string, TEntity>& descToEntityMap,
+			const std::unordered_map<std::string, TValue>& descToValueMap,
 			const std::unordered_set<std::string>& equalityTags) {
-		AssertEqualReturnsTrueForEqualObjects<TEntity>(defaultKey, descToEntityMap, equalityTags, [](const auto& lhs, const auto& rhs) {
+		AssertEqualReturnsTrueForEqualObjects<TValue>(defaultKey, descToValueMap, equalityTags, [](const auto& lhs, const auto& rhs) {
 			return lhs == rhs;
 		});
 	}
 
-	/// Asserts that operator== returns the correct results when comparing entities in \a descToEntityMap against
-	/// the default entity (having key \a defaultKey in the map). keys in \a equalityTags are expected to have
-	/// entity values equal to the entity associated with \a defaultKey.
-	template<typename TEntity>
+	/// Asserts that operator== returns the correct results when comparing values in \a descToValueMap against
+	/// the default value (having key \a defaultKey in the map). keys in \a equalityTags are expected to have
+	/// values equal to the value associated with \a defaultKey.
+	template<typename TValue>
 	void AssertOperatorEqualReturnsTrueForEqualObjects(
 			const std::string& defaultKey,
-			const std::unordered_map<std::string, std::unique_ptr<TEntity>>& descToEntityMap,
+			const std::unordered_map<std::string, std::unique_ptr<TValue>>& descToValueMap,
 			const std::unordered_set<std::string>& equalityTags) {
-		AssertEqualReturnsTrueForEqualObjects<std::unique_ptr<TEntity>>(defaultKey, descToEntityMap, equalityTags, [](
+		AssertEqualReturnsTrueForEqualObjects<std::unique_ptr<TValue>>(defaultKey, descToValueMap, equalityTags, [](
 				const auto& pLhs,
 				const auto& pRhs) {
 			return *pLhs == *pRhs;
 		});
 	}
 
-	/// Asserts that operator!= returns the correct results when comparing entities in \a descToEntityMap against
-	/// the default entity (having key \a defaultKey in the map). keys in \a equalityTags are expected to have
-	/// entity values equal to the entity associated with \a defaultKey.
+	/// Asserts that operator!= returns the correct results when comparing values in \a descToValueMap against
+	/// the default value (having key \a defaultKey in the map). keys in \a equalityTags are expected to have
+	/// values equal to the value associated with \a defaultKey.
 	/// \a notEqual is the comparison function used.
-	template<typename TEntity>
+	template<typename TValue>
 	void AssertNotEqualReturnsTrueForUnequalObjects(
 			const std::string& defaultKey,
-			const std::unordered_map<std::string, TEntity>& descToEntityMap,
+			const std::unordered_map<std::string, TValue>& descToValueMap,
 			const std::unordered_set<std::string>& equalityTags,
-			const predicate<const TEntity&, const TEntity&>& notEqual) {
+			const predicate<const TValue&, const TValue&>& notEqual) {
 		// Arrange:
-		const auto& Default_Entity = descToEntityMap.find(defaultKey)->second;
-		for (const auto& entity : descToEntityMap) {
-			auto isEqualityExpected = equalityTags.cend() != equalityTags.find(entity.first);
+		const auto& defaultValue = descToValueMap.find(defaultKey)->second;
+		for (const auto& value : descToValueMap) {
+			auto isEqualityExpected = equalityTags.cend() != equalityTags.find(value.first);
 
 			// Act:
-			auto compareResult = notEqual(Default_Entity, entity.second);
+			auto compareResult = notEqual(defaultValue, value.second);
 
 			// Assert:
 			EXPECT_EQ(!isEqualityExpected, compareResult)
-					<< "expected " << !isEqualityExpected << " for '" << entity.first << "'";
-			CATAPULT_LOG(debug) << defaultKey << "' != '" << entity.first << "' ? expected " << !isEqualityExpected;
+					<< "expected " << !isEqualityExpected << " for '" << value.first << "'";
+			CATAPULT_LOG(debug) << defaultKey << "' != '" << value.first << "' ? expected " << !isEqualityExpected;
 		}
 	}
 
-	/// Asserts that operator!= returns the correct results when comparing entities in \a descToEntityMap against
-	/// the default entity (having key \a defaultKey in the map). keys in \a equalityTags are expected to have
-	/// entity values equal to the entity associated with \a defaultKey.
-	template<typename TEntity>
+	/// Asserts that operator!= returns the correct results when comparing values in \a descToValueMap against
+	/// the default value (having key \a defaultKey in the map). keys in \a equalityTags are expected to have
+	/// values equal to the value associated with \a defaultKey.
+	template<typename TValue>
 	void AssertOperatorNotEqualReturnsTrueForUnequalObjects(
 			const std::string& defaultKey,
-			const std::unordered_map<std::string, TEntity>& descToEntityMap,
+			const std::unordered_map<std::string, TValue>& descToValueMap,
 			const std::unordered_set<std::string>& equalityTags) {
-		AssertNotEqualReturnsTrueForUnequalObjects<TEntity>(defaultKey, descToEntityMap, equalityTags, [](
-				const auto& lhs,
-				const auto& rhs) {
+		AssertNotEqualReturnsTrueForUnequalObjects<TValue>(defaultKey, descToValueMap, equalityTags, [](const auto& lhs, const auto& rhs) {
 			return lhs != rhs;
 		});
 	}
 
-	/// Asserts that operator!= returns the correct results when comparing entities in \a descToEntityMap against
-	/// the default entity (having key \a defaultKey in the map). keys in \a equalityTags are expected to have
-	/// entity values equal to the entity associated with \a defaultKey.
-	template<typename TEntity>
+	/// Asserts that operator!= returns the correct results when comparing values in \a descToValueMap against
+	/// the default value (having key \a defaultKey in the map). keys in \a equalityTags are expected to have
+	/// values equal to the value associated with \a defaultKey.
+	template<typename TValue>
 	void AssertOperatorNotEqualReturnsTrueForUnequalObjects(
 			const std::string& defaultKey,
-			const std::unordered_map<std::string, std::unique_ptr<TEntity>>& descToEntityMap,
+			const std::unordered_map<std::string, std::unique_ptr<TValue>>& descToValueMap,
 			const std::unordered_set<std::string>& equalityTags) {
-		AssertNotEqualReturnsTrueForUnequalObjects<std::unique_ptr<TEntity>>(defaultKey, descToEntityMap, equalityTags, [](
+		AssertNotEqualReturnsTrueForUnequalObjects<std::unique_ptr<TValue>>(defaultKey, descToValueMap, equalityTags, [](
 				const auto& pLhs,
 				const auto& pRhs) {
 			return *pLhs != *pRhs;
@@ -137,53 +135,53 @@ namespace catapult { namespace test {
 	}
 
 	namespace detail {
-		template<typename TEntity>
+		template<typename TValue>
 		struct EqualityTestInputs {
-			std::unordered_map<std::string, TEntity> DescToEntityMap;
+			std::unordered_map<std::string, TValue> DescToValueMap;
 			std::unordered_set<std::string> EqualityTags;
 		};
 
-		template<typename TEntity>
-		EqualityTestInputs<TEntity> CreateEqualityTestInputsFromInitializerLists(
-				std::initializer_list<TEntity> equalEntities,
-				std::initializer_list<TEntity> unequalEntities) {
-			EqualityTestInputs<TEntity> inputs;
+		template<typename TValue>
+		EqualityTestInputs<TValue> CreateEqualityTestInputsFromInitializerLists(
+				std::initializer_list<TValue> equalValues,
+				std::initializer_list<TValue> unequalValues) {
+			EqualityTestInputs<TValue> inputs;
 
 			size_t i = 0;
-			for (const auto& entity : equalEntities) {
+			for (const auto& value : equalValues) {
 				++i;
 				auto tag = std::to_string(i);
-				inputs.DescToEntityMap.emplace(tag, entity);
+				inputs.DescToValueMap.emplace(tag, value);
 				inputs.EqualityTags.emplace(tag);
 			}
 
-			for (const auto& entity : unequalEntities) {
+			for (const auto& value : unequalValues) {
 				++i;
 				auto tag = std::to_string(i);
-				inputs.DescToEntityMap.emplace(tag, entity);
+				inputs.DescToValueMap.emplace(tag, value);
 			}
 
 			return inputs;
 		}
 	}
 
-	/// Asserts that operator== returns \c true when comparing entities in \a equalEntities and \c false when comparing
-	/// an entity in \a equalEntities with an entity in \a unequalEntities.
-	template<typename TEntity>
+	/// Asserts that operator== returns \c true when comparing values in \a equalValues and \c false when comparing
+	/// an value in \a equalValues with an value in \a unequalValues.
+	template<typename TValue>
 	void AssertOperatorEqualReturnsTrueForEqualObjects(
-			std::initializer_list<TEntity> equalEntities,
-			std::initializer_list<TEntity> unequalEntities) {
-		auto inputs = detail::CreateEqualityTestInputsFromInitializerLists(equalEntities, unequalEntities);
-		AssertOperatorEqualReturnsTrueForEqualObjects("1", inputs.DescToEntityMap, inputs.EqualityTags);
+			std::initializer_list<TValue> equalValues,
+			std::initializer_list<TValue> unequalValues) {
+		auto inputs = detail::CreateEqualityTestInputsFromInitializerLists(equalValues, unequalValues);
+		AssertOperatorEqualReturnsTrueForEqualObjects("1", inputs.DescToValueMap, inputs.EqualityTags);
 	}
 
-	/// Asserts that operator!= returns \c false when comparing entities in \a equalEntities and \c true when comparing
-	/// an entity in \a equalEntities with an entity in \a unequalEntities.
-	template<typename TEntity>
+	/// Asserts that operator!= returns \c false when comparing values in \a equalValues and \c true when comparing
+	/// an value in \a equalValues with an value in \a unequalValues.
+	template<typename TValue>
 	void AssertOperatorNotEqualReturnsTrueForUnequalObjects(
-			std::initializer_list<TEntity> equalEntities,
-			std::initializer_list<TEntity> unequalEntities) {
-		auto inputs = detail::CreateEqualityTestInputsFromInitializerLists(equalEntities, unequalEntities);
-		AssertOperatorNotEqualReturnsTrueForUnequalObjects("1", inputs.DescToEntityMap, inputs.EqualityTags);
+			std::initializer_list<TValue> equalValues,
+			std::initializer_list<TValue> unequalValues) {
+		auto inputs = detail::CreateEqualityTestInputsFromInitializerLists(equalValues, unequalValues);
+		AssertOperatorNotEqualReturnsTrueForUnequalObjects("1", inputs.DescToValueMap, inputs.EqualityTags);
 	}
 }}

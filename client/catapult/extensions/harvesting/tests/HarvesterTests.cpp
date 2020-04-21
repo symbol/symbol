@@ -145,8 +145,11 @@ namespace catapult { namespace harvesting {
 					const std::vector<KeyPair>& signingKeyPairs,
 					const std::vector<KeyPair>& vrfKeyPairs) {
 				auto modifier = unlockedAccounts.modifier();
-				for (auto i = 0u; i < Num_Accounts; ++i)
-					modifier.add(BlockGeneratorKeyPairs(test::CopyKeyPair(signingKeyPairs[i]), test::CopyKeyPair(vrfKeyPairs[i])));
+				for (auto i = 0u; i < Num_Accounts; ++i) {
+					modifier.add(BlockGeneratorAccountDescriptor(
+							test::CopyKeyPair(signingKeyPairs[i]),
+							test::CopyKeyPair(vrfKeyPairs[i])));
+				}
 			}
 
 		public:
@@ -362,8 +365,8 @@ namespace catapult { namespace harvesting {
 		HarvesterContext context;
 		auto pHarvester = context.CreateHarvester();
 		Key firstPublicKey;
-		context.pUnlockedAccounts->view().forEach([&firstPublicKey](const auto& keyPairs) {
-			firstPublicKey = keyPairs.signingKeyPair().publicKey();
+		context.pUnlockedAccounts->view().forEach([&firstPublicKey](const auto& descriptor) {
+			firstPublicKey = descriptor.signingKeyPair().publicKey();
 			return false;
 		});
 

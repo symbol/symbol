@@ -142,7 +142,7 @@ namespace catapult { namespace harvesting {
 				m_cache.commit(Height(1));
 
 				// 2. unlock the account
-				m_unlockedAccounts.modifier().add(BlockGeneratorKeyPairs(std::move(signingKeyPair), std::move(vrfKeyPair)));
+				m_unlockedAccounts.modifier().add(BlockGeneratorAccountDescriptor(std::move(signingKeyPair), std::move(vrfKeyPair)));
 			}
 
 			void prepareSenderAccountAndTransactions(crypto::KeyPair&& keyPair, Timestamp deadline) {
