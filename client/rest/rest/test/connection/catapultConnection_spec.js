@@ -23,9 +23,9 @@ const { expect } = require('chai');
 
 describe('catapult connection', () => {
 	const createTestContext = () => {
-		let isDestroyed = false;
+		let isEnded = false;
 		const context = {
-			isDestroyed: () => isDestroyed,
+			isEnded: () => isEnded,
 			onCalls: {},
 			onceCalls: {},
 			writeCalls: [],
@@ -47,8 +47,8 @@ describe('catapult connection', () => {
 
 				emit: name => context.onCalls[name](),
 
-				destroy: () => {
-					isDestroyed = true;
+				end: () => {
+					isEnded = true;
 				}
 			}
 		};
@@ -142,7 +142,7 @@ describe('catapult connection', () => {
 				});
 				expect(context.removeCalls).to.have.all.keys('close');
 				expect(context.removeCalls.close).to.equal(context.onceCalls.close);
-				expect(context.isDestroyed()).to.be.equal(true);
+				expect(context.isEnded()).to.be.equal(true);
 			});
 		});
 
@@ -173,7 +173,7 @@ describe('catapult connection', () => {
 					// Assert:
 					expect(err.statusCode).to.equal(503);
 					expect(err.message).to.equal('connection failed');
-					expect(context.isDestroyed()).to.be.equal(true);
+					expect(context.isEnded()).to.be.equal(true);
 				});
 		});
 

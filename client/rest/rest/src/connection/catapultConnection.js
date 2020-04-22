@@ -68,7 +68,7 @@ module.exports = {
 
 				packetParser.onPacket(packet => {
 					connection.removeListener('close', innerReject);
-					connection.destroy();
+					connection.end();
 					resolve(packet);
 				});
 			});
@@ -78,7 +78,7 @@ module.exports = {
 			const timeout = new Promise((resolve, reject) => {
 				const id = setTimeout(() => {
 					clearTimeout(id);
-					connection.destroy();
+					connection.end();
 					rejectOnClose(reject)();
 				}, timeoutMs);
 			});
