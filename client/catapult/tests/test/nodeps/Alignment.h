@@ -85,6 +85,12 @@ namespace catapult { namespace test {
 		return sizeof(uint64_t);
 	}
 
+	/// Gets the desired alignment for type ProofGamma.
+	template<>
+	constexpr size_t GetRequiredAlignment<crypto::ProofGamma>() {
+		return sizeof(uint64_t);
+	}
+
 	/// Gets the desired alignment for type ProofVerificationHash.
 	template<>
 	constexpr size_t GetRequiredAlignment<crypto::ProofVerificationHash>() {

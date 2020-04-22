@@ -101,7 +101,7 @@ namespace catapult { namespace crypto {
 
 			// Assert:
 			auto verificationHash = testVectorsOutput[i].VerificationHash;
-			EXPECT_EQ(utils::ParseByteArray<Key>(testVectorsOutput[i].Gamma), vrcProof.Gamma) << message;
+			EXPECT_EQ(utils::ParseByteArray<ProofGamma>(testVectorsOutput[i].Gamma), vrcProof.Gamma) << message;
 			EXPECT_EQ(utils::ParseByteArray<ProofVerificationHash>(verificationHash), vrcProof.VerificationHash) << message;
 			EXPECT_EQ(utils::ParseByteArray<ProofScalar>(testVectorsOutput[i].Scalar), vrcProof.Scalar) << message;
 
@@ -140,7 +140,7 @@ namespace catapult { namespace crypto {
 	TEST(TEST_CLASS, VerifyVrfProofFailsWhenGammaIsNotOnTheCurve) {
 		// Act: corrupt Gamma
 		AssertVerifyVrfProofFailsWhenProofIsCorrupted([](auto& vrfProof) {
-			vrfProof.Gamma = utils::ParseByteArray<Key>("4F91BE9568552181E01968999EFC09BFEB77A736B8F3188160B7769D7B9B9F6E");
+			vrfProof.Gamma = utils::ParseByteArray<ProofGamma>("4F91BE9568552181E01968999EFC09BFEB77A736B8F3188160B7769D7B9B9F6E");
 		});
 	}
 
@@ -148,7 +148,7 @@ namespace catapult { namespace crypto {
 		// Act: corrupt Gamma
 		AssertVerifyVrfProofFailsWhenProofIsCorrupted([](auto& vrfProof) {
 			// valid public key
-			vrfProof.Gamma = utils::ParseByteArray<Key>("C8C6D604F4D7B56B57247E8686168EEBB2BF8AE40DA7B912143773A77555420E");
+			vrfProof.Gamma = utils::ParseByteArray<ProofGamma>("C8C6D604F4D7B56B57247E8686168EEBB2BF8AE40DA7B912143773A77555420E");
 		});
 	}
 

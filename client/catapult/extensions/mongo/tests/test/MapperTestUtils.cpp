@@ -59,16 +59,6 @@ namespace catapult { namespace test {
 				++i;
 			}
 		}
-
-		template<typename TDocument>
-		crypto::ProofVerificationHash GetProofVerificationHashValue(const TDocument& doc, const std::string& name) {
-			return GetBinaryArray<crypto::ProofVerificationHash::Size>(doc, name);
-		}
-
-		template<typename TDocument>
-		crypto::ProofScalar GetProofScalarValue(const TDocument& doc, const std::string& name) {
-			return GetBinaryArray<crypto::ProofScalar::Size>(doc, name);
-		}
 	}
 
 	void AssertEqualEmbeddedTransactionData(const model::EmbeddedTransaction& transaction, const bsoncxx::document::view& dbTransaction) {
@@ -112,9 +102,11 @@ namespace catapult { namespace test {
 		EXPECT_EQ(block.Height, Height(GetUint64(dbBlock, "height")));
 		EXPECT_EQ(block.Timestamp, Timestamp(GetUint64(dbBlock, "timestamp")));
 		EXPECT_EQ(block.Difficulty, Difficulty(GetUint64(dbBlock, "difficulty")));
-		EXPECT_EQ(block.GenerationHashProof.Gamma, GetKeyValue(dbBlock, "proofGamma"));
-		EXPECT_EQ(block.GenerationHashProof.VerificationHash, GetProofVerificationHashValue(dbBlock, "proofVerificationHash"));
-		EXPECT_EQ(block.GenerationHashProof.Scalar, GetProofScalarValue(dbBlock, "proofScalar"));
+		EXPECT_EQ(block.GenerationHashProof.Gamma, GetBinaryArray<crypto::ProofGamma::Size>(dbBlock, "proofGamma"));
+		EXPECT_EQ(
+				block.GenerationHashProof.VerificationHash,
+				GetBinaryArray<crypto::ProofVerificationHash::Size>(dbBlock, "proofVerificationHash"));
+		EXPECT_EQ(block.GenerationHashProof.Scalar, GetBinaryArray<crypto::ProofScalar::Size>(dbBlock, "proofScalar"));
 		EXPECT_EQ(block.PreviousBlockHash, GetHashValue(dbBlock, "previousBlockHash"));
 		EXPECT_EQ(block.TransactionsHash, GetHashValue(dbBlock, "transactionsHash"));
 		EXPECT_EQ(block.ReceiptsHash, GetHashValue(dbBlock, "receiptsHash"));

@@ -34,7 +34,7 @@ namespace catapult { namespace model {
 	/// Generation hash proof.
 	struct PackedGenerationHashProof {
 		/// Gamma.
-		Key Gamma;
+		crypto::ProofGamma Gamma;
 
 		/// Verification hash.
 		crypto::ProofVerificationHash VerificationHash;
