@@ -136,7 +136,7 @@ namespace catapult { namespace harvesting {
 					cache.addAccount(signingKeyPairs[i].publicKey(), Height(123));
 					auto& accountState = cache.find(signingKeyPairs[i].publicKey()).get();
 					accountState.ImportanceSnapshots.set(importances[i], model::ImportanceHeight(1));
-					accountState.SupplementalAccountKeys.set(state::AccountKeyType::VRF, vrfKeyPairs[i].publicKey());
+					accountState.SupplementalAccountKeys.vrfPublicKey().set(vrfKeyPairs[i].publicKey());
 				}
 			}
 

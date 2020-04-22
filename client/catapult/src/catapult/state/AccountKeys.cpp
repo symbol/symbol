@@ -19,64 +19,96 @@
 **/
 
 #include "AccountKeys.h"
-#include "catapult/utils/Casting.h"
 
 namespace catapult { namespace state {
 
-	namespace {
-		template<typename TKeys>
-		auto& Lookup(TKeys& keys, AccountKeyType keyType) {
-			return keys[utils::to_underlying_type(keyType)];
-		}
+	// region KeyAccessor
 
-		bool IsValidKey(const std::shared_ptr<Key>& pKey) {
-			return pKey && Key() != *pKey;
-		}
+	template<typename TKey>
+	AccountKeys::KeyAccessor<TKey>::KeyAccessor() = default;
+
+	template<typename TKey>
+	AccountKeys::KeyAccessor<TKey>::KeyAccessor(const KeyAccessor& keyAccessor) {
+		*this = keyAccessor;
 	}
 
-	AccountKeys::AccountKeys() = default;
+	template<typename TKey>
+	AccountKeys::KeyAccessor<TKey>::KeyAccessor(KeyAccessor&&) = default;
 
-	AccountKeys::AccountKeys(const AccountKeys& accountKeys) {
-		*this = accountKeys;
-	}
-
-	AccountKeys::AccountKeys(AccountKeys&& accountKeys) = default;
-
-	AccountKeys& AccountKeys::operator=(const AccountKeys& accountKeys) {
-		for (auto i = 0u; i < std::tuple_size_v<KeysContainer>; ++i) {
-			const auto& pSourceKey = accountKeys.m_keys[i];
-			if (!pSourceKey)
-				continue;
-
-			m_keys[i] = std::make_shared<Key>(*pSourceKey);
-		}
+	template<typename TKey>
+	AccountKeys::KeyAccessor<TKey>& AccountKeys::KeyAccessor<TKey>::operator=(const KeyAccessor& keyAccessor) {
+		if (keyAccessor.m_pKey)
+			m_pKey = std::make_shared<TKey>(*keyAccessor.m_pKey);
+		else
+			m_pKey.reset();
 
 		return *this;
 	}
 
-	AccountKeys& AccountKeys::operator=(AccountKeys&& accountKeys) = default;
+	template<typename TKey>
+	AccountKeys::KeyAccessor<TKey>& AccountKeys::KeyAccessor<TKey>::operator=(KeyAccessor&&) = default;
 
-	size_t AccountKeys::size() const {
-		return static_cast<size_t>(std::count_if(m_keys.cbegin(), m_keys.cend(), IsValidKey));
+	template<typename TKey>
+	AccountKeys::KeyAccessor<TKey>::operator bool() const {
+		return m_pKey && TKey() != *m_pKey;
 	}
 
-	bool AccountKeys::contains(AccountKeyType keyType) const {
-		return IsValidKey(Lookup(m_keys, keyType));
+	template<typename TKey>
+	TKey AccountKeys::KeyAccessor<TKey>::get() const {
+		return m_pKey ? *m_pKey : TKey();
 	}
 
-	Key AccountKeys::get(AccountKeyType keyType) const {
-		auto pKey = Lookup(m_keys, keyType);
-		return pKey ? *pKey : Key();
+	template<typename TKey>
+	void AccountKeys::KeyAccessor<TKey>::set(const TKey& key) {
+		if (m_pKey)
+			CATAPULT_THROW_INVALID_ARGUMENT("must call unset before resetting key with value");
+
+		m_pKey = std::make_shared<TKey>(key);
 	}
 
-	void AccountKeys::set(AccountKeyType keyType, const Key& key) {
-		if (contains(keyType))
-			CATAPULT_THROW_INVALID_ARGUMENT_1("cannot set key multiple times", static_cast<uint16_t>(keyType));
-
-		Lookup(m_keys, keyType) = std::make_shared<Key>(key);
+	template<typename TKey>
+	void AccountKeys::KeyAccessor<TKey>::unset() {
+		m_pKey.reset();
 	}
 
-	void AccountKeys::unset(AccountKeyType keyType) {
-		Lookup(m_keys, keyType) = std::shared_ptr<Key>();
+	template class AccountKeys::KeyAccessor<Key>;
+	template class AccountKeys::KeyAccessor<VotingKey>;
+
+	// endregion
+
+	// region AccountKeys
+
+	AccountKeys::KeyType AccountKeys::mask() const {
+		auto keyType = KeyType::Unset;
+		keyType |= m_linkedPublicKey ? KeyType::Linked : KeyType::Unset;
+		keyType |= m_vrfPublicKey ? KeyType::VRF : KeyType::Unset;
+		keyType |= m_votingPublicKey ? KeyType::Voting : KeyType::Unset;
+		return keyType;
 	}
+
+	const AccountKeys::KeyAccessor<Key>& AccountKeys::linkedPublicKey() const {
+		return m_linkedPublicKey;
+	}
+
+	AccountKeys::KeyAccessor<Key>& AccountKeys::linkedPublicKey() {
+		return m_linkedPublicKey;
+	}
+
+	const AccountKeys::KeyAccessor<Key>& AccountKeys::vrfPublicKey() const {
+		return m_vrfPublicKey;
+	}
+
+	AccountKeys::KeyAccessor<Key>& AccountKeys::vrfPublicKey() {
+		return m_vrfPublicKey;
+	}
+
+	const AccountKeys::KeyAccessor<VotingKey>& AccountKeys::votingPublicKey() const {
+		return m_votingPublicKey;
+	}
+
+	AccountKeys::KeyAccessor<VotingKey>& AccountKeys::votingPublicKey() {
+		return m_votingPublicKey;
+	}
+
+	// endregion
 }}

@@ -42,7 +42,7 @@ namespace catapult { namespace state {
 		}
 
 		bool AreLinked(const AccountState& lhs, const AccountState& rhs) {
-			return GetLinkedAccountKey(lhs) == rhs.PublicKey && GetLinkedAccountKey(rhs) == lhs.PublicKey;
+			return GetLinkedPublicKey(lhs) == rhs.PublicKey && GetLinkedPublicKey(rhs) == lhs.PublicKey;
 		}
 	}
 
@@ -78,15 +78,15 @@ namespace catapult { namespace state {
 		});
 	}
 
-	Key GetLinkedAccountKey(const AccountState& accountState) {
-		return accountState.SupplementalAccountKeys.get(AccountKeyType::Linked);
+	Key GetLinkedPublicKey(const AccountState& accountState) {
+		return accountState.SupplementalAccountKeys.linkedPublicKey().get();
 	}
 
-	Key GetVrfKey(const AccountState& accountState) {
-		return accountState.SupplementalAccountKeys.get(AccountKeyType::VRF);
+	Key GetVrfPublicKey(const AccountState& accountState) {
+		return accountState.SupplementalAccountKeys.vrfPublicKey().get();
 	}
 
-	Key GetVotingKey(const AccountState& accountState) {
-		return accountState.SupplementalAccountKeys.get(AccountKeyType::Voting);
+	VotingKey GetVotingPublicKey(const AccountState& accountState) {
+		return accountState.SupplementalAccountKeys.votingPublicKey().get();
 	}
 }}

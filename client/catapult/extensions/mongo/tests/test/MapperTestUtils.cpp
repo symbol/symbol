@@ -139,27 +139,41 @@ namespace catapult { namespace test {
 	}
 
 	namespace {
-		void Increment(state::AccountKeyType& keyType) {
-			keyType = static_cast<state::AccountKeyType>(utils::to_underlying_type(keyType) + 1);
+		void Advance(state::AccountKeys::KeyType& keyType) {
+			keyType = static_cast<state::AccountKeys::KeyType>(utils::to_underlying_type(keyType) << 1);
 		}
 
 		void AssertEqualAccountKeys(const state::AccountKeys& accountKeys, const bsoncxx::document::view& dbAccountKeys) {
-			size_t numAccountKeys = 0;
+			auto dbIter = dbAccountKeys.cbegin();
+			for (auto keyType = state::AccountKeys::KeyType::Linked; keyType <= state::AccountKeys::KeyType::Voting; Advance(keyType)) {
+				if (!HasFlag(keyType, accountKeys.mask()))
+					continue;
 
-			auto keyType = static_cast<state::AccountKeyType>(0);
-			for (const auto& accountKeyElement : dbAccountKeys) {
-				while (keyType < state::AccountKeyType::Count && !accountKeys.contains(keyType))
-					Increment(keyType);
+				auto accountKeyDocument = dbIter->get_document();
+				EXPECT_EQ(keyType, static_cast<state::AccountKeys::KeyType>(GetUint32(accountKeyDocument.view(), "keyType")));
 
-				auto accountKeyDocument = accountKeyElement.get_document();
-				EXPECT_EQ(keyType, static_cast<state::AccountKeyType>(GetUint32(accountKeyDocument.view(), "keyType")));
-				EXPECT_EQ(accountKeys.get(keyType), GetKeyValue(accountKeyDocument.view(), "key"));
+				switch (keyType) {
+				case state::AccountKeys::KeyType::Linked:
+					EXPECT_EQ(accountKeys.linkedPublicKey().get(), GetKeyValue(accountKeyDocument.view(), "key"));
+					break;
 
-				Increment(keyType);
-				++numAccountKeys;
+				case state::AccountKeys::KeyType::VRF:
+					EXPECT_EQ(accountKeys.vrfPublicKey().get(), GetKeyValue(accountKeyDocument.view(), "key"));
+					break;
+
+				case state::AccountKeys::KeyType::Voting:
+					EXPECT_EQ(accountKeys.votingPublicKey().get(), GetVotingKeyValue(accountKeyDocument.view(), "key"));
+					break;
+
+				default:
+					CATAPULT_THROW_INVALID_ARGUMENT_1("unexpected keyType in mongo", static_cast<uint16_t>(keyType));
+					break;
+				}
+
+				++dbIter;
 			}
 
-			EXPECT_EQ(accountKeys.size(), numAccountKeys);
+			EXPECT_EQ(dbAccountKeys.cend(), dbIter);
 		}
 
 		void AssertEqualAccountImportanceSnapshots(

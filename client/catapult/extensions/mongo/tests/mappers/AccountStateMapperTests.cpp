@@ -22,6 +22,7 @@
 #include "catapult/model/Mosaic.h"
 #include "catapult/state/AccountState.h"
 #include "mongo/tests/test/MapperTestUtils.h"
+#include "tests/test/core/AccountStateTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/TestHarness.h"
 #include <mongocxx/client.hpp>
@@ -36,7 +37,7 @@ namespace catapult { namespace mongo { namespace mappers {
 		auto CreateAccountState(
 				Height publicKeyHeight,
 				std::initializer_list<model::Mosaic> mosaics,
-				bool shouldSetSupplementalAccountKeys) {
+				state::AccountKeys::KeyType supplementalAccountKeysMask) {
 			state::AccountState accountState(test::GenerateRandomAddress(), Height(123));
 			if (Height(0) != publicKeyHeight) {
 				accountState.PublicKeyHeight = publicKeyHeight;
@@ -44,11 +45,7 @@ namespace catapult { namespace mongo { namespace mappers {
 			}
 
 			accountState.AccountType = static_cast<state::AccountType>(34);
-			if (shouldSetSupplementalAccountKeys) {
-				// set { 0, 2 } linked keys
-				accountState.SupplementalAccountKeys.set(state::AccountKeyType::Linked, test::GenerateRandomByteArray<Key>());
-				accountState.SupplementalAccountKeys.set(state::AccountKeyType::Voting, test::GenerateRandomByteArray<Key>());
-			}
+			test::SetRandomSupplementalAccountKeys(accountState, supplementalAccountKeysMask);
 
 			auto numImportanceSnapshots = 1u + test::Random() % Importance_History_Size;
 			for (auto i = 0u; i < numImportanceSnapshots; ++i)
@@ -72,9 +69,9 @@ namespace catapult { namespace mongo { namespace mappers {
 		void AssertCanMapAccountState(
 				Height publicKeyHeight,
 				std::initializer_list<model::Mosaic> mosaics,
-				bool shouldSetSupplementalAccountKeys = true) {
+				state::AccountKeys::KeyType supplementalAccountKeysMask = state::AccountKeys::KeyType::Unset) {
 			// Arrange:
-			auto accountState = CreateAccountState(publicKeyHeight, mosaics, shouldSetSupplementalAccountKeys);
+			auto accountState = CreateAccountState(publicKeyHeight, mosaics, supplementalAccountKeysMask);
 
 			// Act:
 			auto dbAccount = ToDbModel(accountState);
@@ -118,7 +115,20 @@ namespace catapult { namespace mongo { namespace mappers {
 	}
 
 	TEST(TEST_CLASS, CanMapAccountStateWithoutSupplementalAccountKeys) {
-		AssertCanMapAccountState(Height(456), { { MosaicId(1234), Amount(234) } }, false);
+		// Arrange:
+		std::vector<state::AccountKeys::KeyType> keyTypeMasks{
+			state::AccountKeys::KeyType::Linked,
+			state::AccountKeys::KeyType::VRF,
+			state::AccountKeys::KeyType::Voting,
+			state::AccountKeys::KeyType::Linked | state::AccountKeys::KeyType::Voting,
+			state::AccountKeys::KeyType::Linked | state::AccountKeys::KeyType::VRF | state::AccountKeys::KeyType::Voting
+		};
+
+		// Act + Assert:
+		for (auto keyType : keyTypeMasks) {
+			CATAPULT_LOG(debug) << "key type mask: " << static_cast<uint16_t>(keyType);
+			AssertCanMapAccountState(Height(456), { { MosaicId(1234), Amount(234) } }, keyType);
+		}
 	}
 
 	// endregion

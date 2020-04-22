@@ -49,7 +49,7 @@ namespace catapult { namespace cache {
 			void addAccount(const Key& publicKey, state::AccountType accountType, const Key& remoteKey) {
 				auto accountStateIter = addAccount(publicKey);
 				accountStateIter.get().AccountType = accountType;
-				accountStateIter.get().SupplementalAccountKeys.set(state::AccountKeyType::Linked, remoteKey);
+				accountStateIter.get().SupplementalAccountKeys.linkedPublicKey().set(remoteKey);
 			}
 
 		private:

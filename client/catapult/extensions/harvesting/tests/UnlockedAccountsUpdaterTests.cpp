@@ -128,7 +128,7 @@ namespace catapult { namespace harvesting {
 				auto& accountState = accountStateIter.get();
 				accountState.Balances.credit(Harvesting_Mosaic_Id, balance);
 				accountState.ImportanceSnapshots.set(Importance(1000), model::ImportanceHeight(100));
-				accountState.SupplementalAccountKeys.set(state::AccountKeyType::VRF, vrfPublicKey);
+				accountState.SupplementalAccountKeys.vrfPublicKey().set(vrfPublicKey);
 				m_cache.commit(Height(100));
 			}
 

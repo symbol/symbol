@@ -32,7 +32,7 @@ namespace catapult { namespace cache {
 			return;
 		}
 
-		auto linkedAccountStateIter = cache.find(state::GetLinkedAccountKey(accountState));
+		auto linkedAccountStateIter = cache.find(state::GetLinkedPublicKey(accountState));
 		auto& linkedAccountState = linkedAccountStateIter.get();
 
 		// this check is merely a precaution and will only fire if there is a bug that has corrupted links

@@ -28,16 +28,8 @@ namespace catapult { namespace builders {
 #define TEST_CLASS LinkBuilderTests
 
 	namespace {
-		auto GetLinkedAccountKey(const model::AccountLinkTransaction& transaction) {
-			return transaction.LinkedPublicKey;
-		}
-
-		auto GetLinkedAccountKey(const model::EmbeddedAccountLinkTransaction& transaction) {
-			return transaction.LinkedPublicKey;
-		}
-
 		template<typename TTransaction>
-		auto GetLinkedAccountKey(const TTransaction& transaction) {
+		auto GetLinkedPublicKey(const TTransaction& transaction) {
 			return transaction.LinkedPublicKey;
 		}
 
@@ -109,7 +101,7 @@ namespace catapult { namespace builders {
 			template<typename TTransaction>
 			static void AssertTransactionProperties(const TransactionProperties& expectedProperties, const TTransaction& transaction) {
 				EXPECT_EQ(expectedProperties.LinkAction, transaction.LinkAction);
-				EXPECT_EQ(expectedProperties.LinkedAccountKey, GetLinkedAccountKey(transaction));
+				EXPECT_EQ(expectedProperties.LinkedAccountKey, GetLinkedPublicKey(transaction));
 			}
 		};
 

@@ -28,20 +28,28 @@ namespace catapult { namespace mongo { namespace mappers {
 	// region ToDbModel
 
 	namespace {
+		template<typename TKey>
+		void StreamAccountKey(
+				bson_stream::array_context& context,
+				state::AccountKeys::KeyType mask,
+				state::AccountKeys::KeyType keyType,
+				const state::AccountKeys::KeyAccessor<TKey>& keyAccessor) {
+			if (!HasFlag(keyType, mask))
+				return;
+
+			context
+					<< bson_stream::open_document
+						<< "keyType" << utils::to_underlying_type(keyType)
+						<< "key" << ToBinary(keyAccessor.get())
+					<< bson_stream::close_document;
+		}
+
 		void StreamAccountKeys(bson_stream::document& builder, const state::AccountKeys& accountKeys) {
 			auto keysArray = builder << "supplementalAccountKeys" << bson_stream::open_array;
 
-			for (uint8_t i = 0u; i < utils::to_underlying_type(state::AccountKeyType::Count); ++i) {
-				const auto& key = accountKeys.get(static_cast<state::AccountKeyType>(i));
-				if (Key() == key)
-					continue;
-
-				keysArray
-						<< bson_stream::open_document
-							<< "keyType" << i
-							<< "key" << ToBinary(key)
-						<< bson_stream::close_document;
-			}
+			StreamAccountKey(keysArray, accountKeys.mask(), state::AccountKeys::KeyType::Linked, accountKeys.linkedPublicKey());
+			StreamAccountKey(keysArray, accountKeys.mask(), state::AccountKeys::KeyType::VRF, accountKeys.vrfPublicKey());
+			StreamAccountKey(keysArray, accountKeys.mask(), state::AccountKeys::KeyType::Voting, accountKeys.votingPublicKey());
 
 			keysArray << bson_stream::close_array;
 		}

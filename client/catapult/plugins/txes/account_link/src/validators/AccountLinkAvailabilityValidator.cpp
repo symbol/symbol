@@ -39,7 +39,7 @@ namespace catapult { namespace validators {
 			if (state::AccountType::Main != accountState.AccountType)
 				return Failure_AccountLink_Unknown_Link;
 
-			if (notification.LinkedPublicKey != state::GetLinkedAccountKey(accountState))
+			if (notification.LinkedPublicKey != state::GetLinkedPublicKey(accountState))
 				return Failure_AccountLink_Inconsistent_Unlink_Data;
 		}
 

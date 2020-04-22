@@ -19,270 +19,370 @@
 **/
 
 #include "catapult/state/AccountKeys.h"
-#include "catapult/utils/Casting.h"
-#include "catapult/utils/HexParser.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace state {
 
 #define TEST_CLASS AccountKeysTests
 
-	// region utils + traits
+#define KEY_ACCESSOR_TEST(NAME) TEST(TEST_CLASS, KeyAccessor_##NAME)
+
+	// region KeyAccessor - construction + assignment
 
 	namespace {
-		constexpr auto Num_Key_Types = utils::to_underlying_type(AccountKeyType::Count);
+		template<typename TKey>
+		using KeyAccessor = AccountKeys::KeyAccessor<TKey>;
 
-		void AssertEmpty(const AccountKeys& keys) {
-			// Assert:
-			EXPECT_EQ(0u, keys.size());
-
-			// - all keys are unset
-			for (auto i = 0u; i < Num_Key_Types; ++i) {
-				auto keyType = static_cast<AccountKeyType>(i);
-				EXPECT_FALSE(keys.contains(keyType)) << i;
-				EXPECT_EQ(Key(), keys.get(keyType)) << i;
-			}
+		template<typename TKey>
+		void AssertUnset(const KeyAccessor<TKey>& keyAccessor) {
+			EXPECT_FALSE(!!keyAccessor);
+			EXPECT_EQ(TKey(), keyAccessor.get());
 		}
 
-		void AssertSingleKeyIsSet(const AccountKeys& keys, AccountKeyType keyType, const Key& key) {
-			EXPECT_EQ(1u, keys.size());
-
-			EXPECT_TRUE(keys.contains(keyType));
-			EXPECT_EQ(key, keys.get(keyType));
-
-			// - other keys are unset
-			for (auto i = 0u; i < Num_Key_Types; ++i) {
-				auto otherKeyType = static_cast<AccountKeyType>(i);
-				if (keyType == otherKeyType)
-					continue;
-
-				EXPECT_FALSE(keys.contains(otherKeyType)) << i;
-				EXPECT_EQ(Key(), keys.get(otherKeyType)) << i;
-			}
-		}
-	}
-
-#define KEY_TYPE_BASED_TEST(TEST_NAME) \
-	template<AccountKeyType Key_Type> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Linked) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountKeyType::Linked>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_VRF) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountKeyType::VRF>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Voting) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountKeyType::Voting>(); } \
-	template<AccountKeyType Key_Type> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
-
-	// endregion
-
-	// region construction + assignment
-
-	TEST(TEST_CLASS, CanCreateEmptyContainer) {
-		// Act:
-		AccountKeys keys;
-
-		// Assert:
-		AssertEmpty(keys);
-	}
-
-	namespace {
-		AccountKeys CreateKeysForConstructionTests() {
-			AccountKeys keys;
-			keys.set(AccountKeyType::Linked, { { 0x44 } });
-			return keys;
+		template<typename TKey>
+		void AssertSet(const KeyAccessor<TKey>& keyAccessor, const TKey& expectedKey) {
+			EXPECT_TRUE(!!keyAccessor);
+			EXPECT_EQ(expectedKey, keyAccessor.get());
 		}
 
-		void AssertCopied(const AccountKeys& keys, const AccountKeys& keysCopy) {
+		void AssertCopied(const KeyAccessor<Key>& keyAccessor, const KeyAccessor<Key>& keyAccessorCopy) {
+			// Assert: the original values are copied into the copy
+			EXPECT_TRUE(!!keyAccessor);
+			EXPECT_EQ(Key{ { 0x44 } }, keyAccessor.get());
+
+			EXPECT_TRUE(!!keyAccessorCopy);
+			EXPECT_EQ(Key{ { 0x44 } }, keyAccessorCopy.get());
+		}
+
+		void AssertDeepCopied(const KeyAccessor<Key>& keyAccessor, const KeyAccessor<Key>& keyAccessorCopy) {
 			// Assert: the copy is detached from the original
-			EXPECT_EQ(1u, keys.size());
-			EXPECT_EQ(Key{ { 0x44 } }, keys.get(AccountKeyType::Linked));
+			EXPECT_TRUE(!!keyAccessor);
+			EXPECT_EQ(Key{ { 0x44 } }, keyAccessor.get());
 
-			EXPECT_EQ(2u, keysCopy.size());
-			EXPECT_EQ(Key{ { 0x44 } }, keysCopy.get(AccountKeyType::Linked));
-			EXPECT_EQ(Key{ { 0x32 } }, keysCopy.get(AccountKeyType::Voting));
+			EXPECT_TRUE(!!keyAccessorCopy);
+			EXPECT_EQ(Key{ { 0x32 } }, keyAccessorCopy.get());
 		}
 
-		void AssertMoved(const AccountKeys& keys, const AccountKeys& keysMoved) {
+		void AssertMoved(const KeyAccessor<Key>& keyAccessor, const KeyAccessor<Key>& keyAccessorMoved) {
 			// Assert: the original values are moved into the copy
-			EXPECT_EQ(0u, keys.size());
+			EXPECT_FALSE(!!keyAccessor);
+			EXPECT_EQ(Key(), keyAccessor.get());
 
-			EXPECT_EQ(1u, keysMoved.size());
-			EXPECT_EQ(Key{ { 0x44 } }, keysMoved.get(AccountKeyType::Linked));
+			EXPECT_TRUE(!!keyAccessorMoved);
+			EXPECT_EQ(Key{ { 0x44 } }, keyAccessorMoved.get());
 		}
 	}
 
-	TEST(TEST_CLASS, CanCopyConstruct) {
-		// Arrange:
-		auto keys = CreateKeysForConstructionTests();
-
+	KEY_ACCESSOR_TEST(CanCreateEmpty) {
 		// Act:
-		AccountKeys keysCopy(keys);
-		keysCopy.set(AccountKeyType::Voting, { { 0x32 } });
+		KeyAccessor<Key> keyAccessor;
 
 		// Assert:
-		AssertCopied(keys, keysCopy);
+		AssertUnset(keyAccessor);
 	}
 
-	TEST(TEST_CLASS, CanMoveConstruct) {
+	KEY_ACCESSOR_TEST(CanCopyConstruct) {
 		// Arrange:
-		auto keys = CreateKeysForConstructionTests();
+		KeyAccessor<Key> keyAccessor;
+		keyAccessor.set({ { 0x44 } });
 
 		// Act:
-		AccountKeys keysMoved(std::move(keys));
+		KeyAccessor<Key> keyAccessorCopy(keyAccessor);
 
 		// Assert:
-		AssertMoved(keys, keysMoved);
+		AssertCopied(keyAccessor, keyAccessorCopy);
+
+		// Act: modify to check deep copy
+		keyAccessorCopy.unset();
+		keyAccessorCopy.set({ { 0x32 } });
+
+		// Assert:
+		AssertDeepCopied(keyAccessor, keyAccessorCopy);
 	}
 
-	TEST(TEST_CLASS, CanCopyAssign) {
+	KEY_ACCESSOR_TEST(CanMoveConstruct) {
 		// Arrange:
-		auto keys = CreateKeysForConstructionTests();
+		KeyAccessor<Key> keyAccessor;
+		keyAccessor.set({ { 0x44 } });
 
 		// Act:
-		AccountKeys keysCopy;
-		const auto& assignResult = keysCopy = keys;
-		keysCopy.set(AccountKeyType::Voting, { { 0x32 } });
+		KeyAccessor<Key> keyAccessorMoved(std::move(keyAccessor));
 
 		// Assert:
-		EXPECT_EQ(&keysCopy, &assignResult);
-		AssertCopied(keys, keysCopy);
+		AssertMoved(keyAccessor, keyAccessorMoved);
 	}
 
-	TEST(TEST_CLASS, CanMoveAssign) {
+	KEY_ACCESSOR_TEST(CanCopyAssign) {
 		// Arrange:
-		auto keys = CreateKeysForConstructionTests();
+		KeyAccessor<Key> keyAccessor;
+		keyAccessor.set({ { 0x44 } });
 
 		// Act:
-		AccountKeys keysMoved;
-		const auto& assignResult = keysMoved = std::move(keys);
+		KeyAccessor<Key> keyAccessorCopy;
+		const auto& assignResult = keyAccessorCopy = keyAccessor;
 
 		// Assert:
-		EXPECT_EQ(&keysMoved, &assignResult);
-		AssertMoved(keys, keysMoved);
+		EXPECT_EQ(&keyAccessorCopy, &assignResult);
+		AssertCopied(keyAccessor, keyAccessorCopy);
+
+		// Act: modify to check deep copy
+		keyAccessorCopy.unset();
+		keyAccessorCopy.set({ { 0x32 } });
+
+		// Assert:
+		AssertDeepCopied(keyAccessor, keyAccessorCopy);
+	}
+
+	KEY_ACCESSOR_TEST(CanMoveAssign) {
+		// Arrange:
+		KeyAccessor<Key> keyAccessor;
+		keyAccessor.set({ { 0x44 } });
+
+		// Act:
+		KeyAccessor<Key> keyAccessorMoved;
+		const auto& assignResult = keyAccessorMoved = std::move(keyAccessor);
+
+		// Assert:
+		EXPECT_EQ(&keyAccessorMoved, &assignResult);
+		AssertMoved(keyAccessor, keyAccessorMoved);
+	}
+
+	KEY_ACCESSOR_TEST(CanCopyAssignWhenSourceIsEmpty) {
+		// Arrange:
+		KeyAccessor<Key> keyAccessor;
+
+		KeyAccessor<Key> keyAccessorCopy;
+		keyAccessorCopy.set({ { 0x32 } });
+
+		// Act:
+		keyAccessorCopy = keyAccessor;
+
+		// Assert:
+		AssertUnset(keyAccessorCopy);
+		AssertUnset(keyAccessor);
+	}
+
+	KEY_ACCESSOR_TEST(CanMoveAssignWhenSourceIsEmpty) {
+		// Arrange:
+		KeyAccessor<Key> keyAccessorMoved;
+		keyAccessorMoved.set({ { 0x32 } });
+
+		// Act:
+		keyAccessorMoved = KeyAccessor<Key>();
+
+		// Assert:
+		AssertUnset(keyAccessorMoved);
 	}
 
 	// endregion
 
-	// region size / contains / get
+	// region KeyAccessor - bool / get
 
-	TEST(TEST_CLASS, SizeIgnoresZeroKeys) {
+	KEY_ACCESSOR_TEST(BoolOperatorReturnsFalseWhenZeroKeyIsExplicitlySet) {
 		// Arrange:
-		AccountKeys keys;
-		keys.set(AccountKeyType::VRF, { { 0x00 } });
-		keys.set(AccountKeyType::Voting, { { 0x01 } });
+		KeyAccessor<Key> keyAccessor;
+		keyAccessor.set(Key());
 
 		// Act + Assert
-		EXPECT_EQ(1u, keys.size());
+		EXPECT_FALSE(!!keyAccessor);
 	}
 
-	TEST(TEST_CLASS, ContainsIgnoresZeroKeys) {
+	KEY_ACCESSOR_TEST(GetReturnsZeroKeyWhenZeroKeyIsExplicitlySet) {
 		// Arrange:
-		AccountKeys keys;
-		keys.set(AccountKeyType::VRF, { { 0x00 } });
-		keys.set(AccountKeyType::Voting, { { 0x01 } });
+		KeyAccessor<Key> keyAccessor;
+		keyAccessor.set(Key());
 
 		// Act + Assert
-		EXPECT_FALSE(keys.contains(AccountKeyType::Linked));
-		EXPECT_FALSE(keys.contains(AccountKeyType::VRF));
-		EXPECT_TRUE(keys.contains(AccountKeyType::Voting));
-	}
-
-	TEST(TEST_CLASS, GetIgnoresZeroKeys) {
-		// Arrange:
-		AccountKeys keys;
-		keys.set(AccountKeyType::VRF, { { 0x00 } });
-		keys.set(AccountKeyType::Voting, { { 0x01 } });
-
-		// Act + Assert
-		EXPECT_EQ(Key(), keys.get(AccountKeyType::Linked));
-		EXPECT_EQ(Key(), keys.get(AccountKeyType::VRF));
-		EXPECT_EQ(Key{ { 0x01 } }, keys.get(AccountKeyType::Voting));
+		EXPECT_EQ(Key(), keyAccessor.get());
 	}
 
 	// endregion
 
 	// region set / unset
 
-	KEY_TYPE_BASED_TEST(CanSetKey) {
+	KEY_ACCESSOR_TEST(CanSetKey) {
 		// Arrange:
 		auto key = test::GenerateRandomByteArray<Key>();
-		AccountKeys keys;
+		KeyAccessor<Key> keyAccessor;
 
 		// Act:
-		keys.set(Key_Type, key);
+		keyAccessor.set(key);
 
 		// Assert:
-		AssertSingleKeyIsSet(keys, Key_Type, key);
+		AssertSet(keyAccessor, key);
 	}
 
-	KEY_TYPE_BASED_TEST(CannotResetKeyWithValue) {
+	KEY_ACCESSOR_TEST(CannotResetKeyWithValue) {
 		// Arrange:
 		auto key = test::GenerateRandomByteArray<Key>();
-		AccountKeys keys;
-
-		keys.set(Key_Type, key);
+		KeyAccessor<Key> keyAccessor;
+		keyAccessor.set(key);
 
 		// Act + Assert:
-		EXPECT_THROW(keys.set(Key_Type, key), catapult_invalid_argument);
+		EXPECT_THROW(keyAccessor.set(key), catapult_invalid_argument);
 	}
 
-	KEY_TYPE_BASED_TEST(CanUnsetKey) {
+	KEY_ACCESSOR_TEST(CanUnsetKey) {
 		// Arrange:
 		auto key = test::GenerateRandomByteArray<Key>();
-		AccountKeys keys;
-
-		keys.set(Key_Type, key);
+		KeyAccessor<Key> keyAccessor;
+		keyAccessor.set(key);
 
 		// Act:
-		keys.unset(Key_Type);
+		keyAccessor.unset();
 
 		// Assert:
-		AssertEmpty(keys);
+		AssertUnset(keyAccessor);
 	}
 
-	KEY_TYPE_BASED_TEST(CanUnsetAlreadyUnsetKey) {
+	KEY_ACCESSOR_TEST(CanUnsetKeyWhenEmpty) {
 		// Arrange:
-		AccountKeys keys;
+		KeyAccessor<Key> keyAccessor;
+		keyAccessor.set(test::GenerateRandomByteArray<Key>());
+		keyAccessor.unset();
 
 		// Act:
-		keys.unset(Key_Type);
+		keyAccessor.unset();
 
 		// Assert:
-		AssertEmpty(keys);
+		AssertUnset(keyAccessor);
 	}
 
-	KEY_TYPE_BASED_TEST(CanSetKeyAfterUnset) {
+	KEY_ACCESSOR_TEST(CanSetKeyAfterUnset) {
 		// Arrange:
 		auto key = test::GenerateRandomByteArray<Key>();
-		AccountKeys keys;
+		KeyAccessor<Key> keyAccessor;
 
-		keys.set(Key_Type, test::GenerateRandomByteArray<Key>());
-		keys.unset(Key_Type);
+		keyAccessor.set(test::GenerateRandomByteArray<Key>());
+		keyAccessor.unset();
 
 		// Act:
-		keys.set(Key_Type, key);
+		keyAccessor.set(key);
 
 		// Assert:
-		AssertSingleKeyIsSet(keys, Key_Type, key);
+		AssertSet(keyAccessor, key);
 	}
 
 	// endregion
 
-	// region set multiple
+	// region AccountKeys
 
-	TEST(TEST_CLASS, CanSetAllKeys) {
+	TEST(TEST_CLASS, CanCreateEmptyContainer) {
+		// Act:
+		AccountKeys keys;
+
+		// Assert:
+		EXPECT_EQ(AccountKeys::KeyType::Unset, keys.mask());
+
+		// - all keys are unset
+		EXPECT_FALSE(!!keys.linkedPublicKey());
+		EXPECT_FALSE(!!keys.vrfPublicKey());
+		EXPECT_FALSE(!!keys.votingPublicKey());
+
+		// - const and non-const accessors reference same objects
+		EXPECT_EQ(&keys.linkedPublicKey(), &const_cast<const AccountKeys&>(keys).linkedPublicKey());
+		EXPECT_EQ(&keys.vrfPublicKey(), &const_cast<const AccountKeys&>(keys).vrfPublicKey());
+		EXPECT_EQ(&keys.votingPublicKey(), &const_cast<const AccountKeys&>(keys).votingPublicKey());
+	}
+
+	TEST(TEST_CLASS, CanDeepCopy) {
+		// Arrange: sanity check that copied keys are unlinked
+		auto key1 = test::GenerateRandomByteArray<Key>();
+		auto key2 = test::GenerateRandomByteArray<Key>();
+		AccountKeys keys;
+		keys.linkedPublicKey().set(key1);
+
+		// Act:
+		AccountKeys keysCopy;
+		keysCopy = keys;
+		keysCopy.linkedPublicKey().unset();
+		keysCopy.linkedPublicKey().set(key2);
+
+		// Assert:
+		EXPECT_EQ(key1, keys.linkedPublicKey().get());
+		EXPECT_EQ(key2, keysCopy.linkedPublicKey().get());
+	}
+
+	TEST(TEST_CLASS, CanSetLinkedPublicKey) {
 		// Arrange:
-		auto keyVector = test::GenerateRandomDataVector<Key>(Num_Key_Types);
+		auto key = test::GenerateRandomByteArray<Key>();
 		AccountKeys keys;
 
 		// Act:
-		for (auto i = 0u; i < Num_Key_Types; ++i)
-			keys.set(static_cast<AccountKeyType>(i), keyVector[i]);
+		keys.linkedPublicKey().set(key);
 
 		// Assert:
-		EXPECT_EQ(Num_Key_Types, keys.size());
+		EXPECT_EQ(AccountKeys::KeyType::Linked, keys.mask());
 
-		for (auto i = 0u; i < Num_Key_Types; ++i) {
-			auto keyType = static_cast<AccountKeyType>(i);
-			EXPECT_TRUE(keys.contains(keyType)) << i;
-			EXPECT_EQ(keyVector[i], keys.get(keyType)) << i;
-		}
+		// - one key is set
+		EXPECT_TRUE(!!keys.linkedPublicKey());
+		EXPECT_FALSE(!!keys.vrfPublicKey());
+		EXPECT_FALSE(!!keys.votingPublicKey());
+
+		EXPECT_EQ(key, keys.linkedPublicKey().get());
+	}
+
+	TEST(TEST_CLASS, CanSetVrfPublicKey) {
+		// Arrange:
+		auto key = test::GenerateRandomByteArray<Key>();
+		AccountKeys keys;
+
+		// Act:
+		keys.vrfPublicKey().set(key);
+
+		// Assert:
+		EXPECT_EQ(AccountKeys::KeyType::VRF, keys.mask());
+
+		// - one key is set
+		EXPECT_FALSE(!!keys.linkedPublicKey());
+		EXPECT_TRUE(!!keys.vrfPublicKey());
+		EXPECT_FALSE(!!keys.votingPublicKey());
+
+		EXPECT_EQ(key, keys.vrfPublicKey().get());
+	}
+
+	TEST(TEST_CLASS, CanSetVotingPublicKey) {
+		// Arrange:
+		auto key = test::GenerateRandomByteArray<VotingKey>();
+		AccountKeys keys;
+
+		// Act:
+		keys.votingPublicKey().set(key);
+
+		// Assert:
+		EXPECT_EQ(AccountKeys::KeyType::Voting, keys.mask());
+
+		// - one key is set
+		EXPECT_FALSE(!!keys.linkedPublicKey());
+		EXPECT_FALSE(!!keys.vrfPublicKey());
+		EXPECT_TRUE(!!keys.votingPublicKey());
+
+		EXPECT_EQ(key, keys.votingPublicKey().get());
+	}
+
+	TEST(TEST_CLASS, CanSetAllKeys) {
+		// Arrange:
+		auto linkedPublicKey = test::GenerateRandomByteArray<Key>();
+		auto vrfPublicKey = test::GenerateRandomByteArray<Key>();
+		auto votingPublicKey = test::GenerateRandomByteArray<VotingKey>();
+		AccountKeys keys;
+
+		// Act:
+		keys.linkedPublicKey().set(linkedPublicKey);
+		keys.vrfPublicKey().set(vrfPublicKey);
+		keys.votingPublicKey().set(votingPublicKey);
+
+		// Assert:
+		EXPECT_EQ(AccountKeys::KeyType::Linked | AccountKeys::KeyType::VRF | AccountKeys::KeyType::Voting, keys.mask());
+
+		// - one key is set
+		EXPECT_TRUE(!!keys.linkedPublicKey());
+		EXPECT_TRUE(!!keys.vrfPublicKey());
+		EXPECT_TRUE(!!keys.votingPublicKey());
+
+		EXPECT_EQ(linkedPublicKey, keys.linkedPublicKey().get());
+		EXPECT_EQ(vrfPublicKey, keys.vrfPublicKey().get());
+		EXPECT_EQ(votingPublicKey, keys.votingPublicKey().get());
 	}
 
 	// endregion

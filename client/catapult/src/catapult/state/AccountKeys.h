@@ -19,66 +19,107 @@
 **/
 
 #pragma once
+#include "catapult/utils/BitwiseEnum.h"
 #include "catapult/types.h"
-#include <array>
 #include <memory>
 
 namespace catapult { namespace state {
 
-	/// Types of account keys.
-	enum class AccountKeyType : uint8_t {
-		/// Linked account public key.
-		/// \note This can be either a remote or main account public key depending on context.
-		Linked,
-
-		/// VRF public key.
-		VRF,
-
-		/// Voting public key.
-		Voting,
-
-		/// Number of account key types.
-		Count
-	};
-
 	/// Container holding account key information.
 	class AccountKeys {
 	public:
-		/// Creates empty account keys.
-		AccountKeys();
+		// region KeyType
 
-		/// Copy constructor that makes a deep copy of \a accountKeys.
-		AccountKeys(const AccountKeys& accountKeys);
+		/// Types of account keys.
+		enum class KeyType : uint8_t {
+			/// Unset key.
+			Unset = 0x00,
 
-		/// Move constructor that move constructs an account keys from \a accountKeys.
-		AccountKeys(AccountKeys&& accountKeys);
+			/// Linked account public key.
+			/// \note This can be either a remote or main account public key depending on context.
+			Linked = 0x01,
+
+			/// VRF public key.
+			VRF = 0x02,
+
+			/// Voting public key.
+			Voting = 0x04
+		};
+
+		// endregion
+
+		// region KeyAccessor
+
+		/// Key accessor.
+		template<typename TKey>
+		class KeyAccessor {
+		public:
+			/// Creates unset key.
+			KeyAccessor();
+
+			/// Copy constructor that makes a deep copy of \a keyAccessor.
+			KeyAccessor(const KeyAccessor& keyAccessor);
+
+			/// Move constructor that move constructs a key accessor from \a keyAccessor.
+			KeyAccessor(KeyAccessor&& keyAccessor);
+
+		public:
+			/// Assignment operator that makes a deep copy of \a keyAccessor.
+			KeyAccessor& operator=(const KeyAccessor& keyAccessor);
+
+			/// Move assignment operator that assigns \a keyAccessor.
+			KeyAccessor& operator=(KeyAccessor&& keyAccessor);
+
+		public:
+			/// Returns \c true if the underlying key is set.
+			explicit operator bool() const;
+
+			/// Gets the underlying key or a zero key if unset.
+			TKey get() const;
+
+		public:
+			/// Sets the underlying key to \a key.
+			void set(const TKey& key);
+
+			/// Unsets the underlying key.
+			void unset();
+
+		private:
+			std::shared_ptr<TKey> m_pKey;
+		};
+
+		// endregion
 
 	public:
-		/// Assignment operator that makes a deep copy of \a accountKeys.
-		AccountKeys& operator=(const AccountKeys& accountKeys);
+		/// Gets the mask of set keys.
+		KeyType mask() const;
 
-		/// Move assignment operator that assigns \a accountKeys.
-		AccountKeys& operator=(AccountKeys&& accountKeys);
+		/// Gets the (const) linked public key.
+		const KeyAccessor<Key>& linkedPublicKey() const;
 
-	public:
-		/// Gets the number of keys.
-		size_t size() const;
+		/// Gets the linked public key.
+		KeyAccessor<Key>& linkedPublicKey();
 
-		/// Returns \c true if a key of the specified type (\a keyType) is set.
-		bool contains(AccountKeyType keyType) const;
+		/// Gets the (const) vrf public key.
+		const KeyAccessor<Key>& vrfPublicKey() const;
 
-		/// Gets the key associated with \a keyType or a zero key if no such key exists.
-		Key get(AccountKeyType keyType) const;
+		/// Gets the vrf public key.
+		KeyAccessor<Key>& vrfPublicKey();
 
-	public:
-		/// Sets an account \a key with \a keyType.
-		void set(AccountKeyType keyType, const Key& key);
+		/// Gets the (const) voting public key.
+		const KeyAccessor<VotingKey>& votingPublicKey() const;
 
-		/// Unsets the account key with \a keyType.
-		void unset(AccountKeyType keyType);
+		/// Gets the voting public key.
+		KeyAccessor<VotingKey>& votingPublicKey();
 
 	private:
-		using KeysContainer = std::array<std::shared_ptr<Key>, static_cast<size_t>(AccountKeyType::Count)>;
-		KeysContainer m_keys;
+		KeyAccessor<Key> m_linkedPublicKey;
+		KeyAccessor<Key> m_vrfPublicKey;
+		KeyAccessor<VotingKey> m_votingPublicKey;
 	};
+
+	MAKE_BITWISE_ENUM(AccountKeys::KeyType)
+
+	extern template class AccountKeys::KeyAccessor<Key>;
+	extern template class AccountKeys::KeyAccessor<VotingKey>;
 }}

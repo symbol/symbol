@@ -473,7 +473,7 @@ namespace catapult { namespace harvesting {
 			auto& accountState = accountStateCache.find(accountDescriptorWrapper.SigningPublicKey).get();
 			accountState.Balances.credit(Harvesting_Mosaic_Id, balance);
 			accountState.ImportanceSnapshots.set(Importance(123), importanceHeight);
-			accountState.SupplementalAccountKeys.set(state::AccountKeyType::VRF, accountDescriptorWrapper.VrfPublicKey);
+			accountState.SupplementalAccountKeys.vrfPublicKey().set(accountDescriptorWrapper.VrfPublicKey);
 
 			// - add a block statistic
 			auto& blockStatisticCache = delta.sub<cache::BlockStatisticCache>();

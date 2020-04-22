@@ -87,12 +87,12 @@ namespace catapult { namespace state {
 	/// Applys \a fee surplus at \a importanceHeight to \a accountState.
 	void ApplyFeeSurplus(AccountState& accountState, const model::Mosaic& fee, model::ImportanceHeight importanceHeight);
 
-	/// Gets the linked account key associated with \a accountState or a zero key.
-	Key GetLinkedAccountKey(const AccountState& accountState);
+	/// Gets the linked public key associated with \a accountState or a zero key.
+	Key GetLinkedPublicKey(const AccountState& accountState);
 
-	/// Gets the vrf key associated with \a accountState or a zero key.
-	Key GetVrfKey(const AccountState& accountState);
+	/// Gets the vrf public key associated with \a accountState or a zero key.
+	Key GetVrfPublicKey(const AccountState& accountState);
 
-	/// Gets the voting key associated with \a accountState or a zero key.
-	Key GetVotingKey(const AccountState& accountState);
+	/// Gets the voting public key associated with \a accountState or a zero key.
+	VotingKey GetVotingPublicKey(const AccountState& accountState);
 }}
