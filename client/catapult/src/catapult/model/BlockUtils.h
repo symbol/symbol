@@ -34,7 +34,11 @@ namespace catapult { namespace model {
 
 	/// Calculates the generation hash from a previous generation hash (\a previousGenerationHash)
 	/// and a public key (\a publicKey).
+	/// \note TODO: remove this before merging feature branch
 	GenerationHash CalculateGenerationHash(const GenerationHash& previousGenerationHash, const Key& publicKey);
+
+	/// Calculates the generation hash from \a gamma.
+	GenerationHash CalculateGenerationHash(const crypto::ProofGamma& gamma);
 
 	// endregion
 

@@ -54,4 +54,7 @@ namespace catapult { namespace crypto {
 
 	/// Verifies verifiable random function proof (\a vrfProof) using \a alpha and \a publicKey.
 	Hash512 VerifyVrfProof(const VrfProof& vrfProof, const RawBuffer& alpha, const Key& publicKey);
+
+	/// Generates a verifiable random function proof hash from \a gamma.
+	Hash512 GenerateVrfProofHash(const ProofGamma& gamma);
 }}

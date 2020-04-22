@@ -273,9 +273,10 @@ namespace catapult { namespace crypto {
 
 		// verificationHash = first 16 bytes of Sha512(suite | 0x2 | h | gamma | u | v)
 		auto verificationHash = VrfC(h, gamma, u, v);
+		return vrfProof.VerificationHash == verificationHash ? GenerateVrfProofHash(vrfProof.Gamma) : Hash512();
+	}
 
-		return vrfProof.VerificationHash == verificationHash
-				? IetfHash(0x03, 0x03, { ScalarMultEight(gamma) })
-				: Hash512();
+	Hash512 GenerateVrfProofHash(const ProofGamma& gamma) {
+		return IetfHash(0x03, 0x03, { ScalarMultEight(CoerceTo<Key>(gamma)) });
 	}
 }}

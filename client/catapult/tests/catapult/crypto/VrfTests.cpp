@@ -97,16 +97,16 @@ namespace catapult { namespace crypto {
 			auto message = "at index " + std::to_string(i);
 
 			// Act: compute proof
-			auto vrcProof = GenerateVrfProof(alpha, keyPair);
+			auto vrfProof = GenerateVrfProof(alpha, keyPair);
 
 			// Assert:
 			auto verificationHash = testVectorsOutput[i].VerificationHash;
-			EXPECT_EQ(utils::ParseByteArray<ProofGamma>(testVectorsOutput[i].Gamma), vrcProof.Gamma) << message;
-			EXPECT_EQ(utils::ParseByteArray<ProofVerificationHash>(verificationHash), vrcProof.VerificationHash) << message;
-			EXPECT_EQ(utils::ParseByteArray<ProofScalar>(testVectorsOutput[i].Scalar), vrcProof.Scalar) << message;
+			EXPECT_EQ(utils::ParseByteArray<ProofGamma>(testVectorsOutput[i].Gamma), vrfProof.Gamma) << message;
+			EXPECT_EQ(utils::ParseByteArray<ProofVerificationHash>(verificationHash), vrfProof.VerificationHash) << message;
+			EXPECT_EQ(utils::ParseByteArray<ProofScalar>(testVectorsOutput[i].Scalar), vrfProof.Scalar) << message;
 
 			// Act: verify proof and compute beta
-			auto proofHash = VerifyVrfProof(vrcProof, alpha, keyPair.publicKey());
+			auto proofHash = VerifyVrfProof(vrfProof, alpha, keyPair.publicKey());
 
 			// Assert:
 			EXPECT_EQ(utils::ParseByteArray<Hash512>(testVectorsOutput[i].Beta), proofHash) << message;
@@ -122,15 +122,15 @@ namespace catapult { namespace crypto {
 		void AssertVerifyVrfProofFailsWhenProofIsCorrupted(const consumer<VrfProof&>& transform) {
 			auto keyPair = KeyPair::FromString("9D61B19DEFFD5A60BA844AF492EC2CC44449C5697B326919703BAC031CAE7F60");
 			auto alpha = test::HexStringToVector("af82");
-			auto vrcProof = GenerateVrfProof(alpha, keyPair);
+			auto vrfProof = GenerateVrfProof(alpha, keyPair);
 
 			// Sanity:
-			auto proofHash = VerifyVrfProof(vrcProof, alpha, keyPair.publicKey());
+			auto proofHash = VerifyVrfProof(vrfProof, alpha, keyPair.publicKey());
 			EXPECT_NE(Hash512(), proofHash);
 
 			// Act: corrupt proof
-			transform(vrcProof);
-			proofHash = VerifyVrfProof(vrcProof, alpha, keyPair.publicKey());
+			transform(vrfProof);
+			proofHash = VerifyVrfProof(vrfProof, alpha, keyPair.publicKey());
 
 			// Assert:
 			EXPECT_EQ(Hash512(), proofHash);
@@ -171,6 +171,38 @@ namespace catapult { namespace crypto {
 		AssertVerifyVrfProofFailsWhenProofIsCorrupted([](auto& vrfProof) {
 			test::ScalarAddGroupOrder(vrfProof.Scalar.data());
 		});
+	}
+
+	// endregion
+
+	// region GenerateVrfProofHash
+
+	TEST(TEST_CLASS, VrfSampleTestVectors_GenerateVrfProofHash) {
+		// Arrange:
+		auto testVectorsInput = SampleTestVectorsInput();
+		auto testVectorsOutput = SampleTestVectorsOutput();
+
+		// Sanity:
+		ASSERT_EQ(testVectorsInput.size(), testVectorsOutput.size());
+
+		auto i = 0u;
+		for (const auto& input : testVectorsInput) {
+			// Arrange:
+			auto keyPair = KeyPair::FromString(input.SK);
+			auto alpha = test::HexStringToVector(input.Alpha);
+			auto message = "at index " + std::to_string(i);
+
+			// - compute proof hash
+			auto vrfProof = GenerateVrfProof(alpha, keyPair);
+			auto proofHash = VerifyVrfProof(vrfProof, alpha, keyPair.publicKey());
+
+			// Act: compute proof hash from gamma
+			auto proofHashFromGamma = GenerateVrfProofHash(vrfProof.Gamma);
+
+			// Assert:
+			EXPECT_EQ(proofHash, proofHashFromGamma) << message;
+			++i;
+		}
 	}
 
 	// endregion
