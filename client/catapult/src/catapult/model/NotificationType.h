@@ -132,6 +132,9 @@ namespace catapult { namespace model {
 	/// Vrf key was linked/unlinked.
 	DEFINE_CORE_NOTIFICATION(Vrf_Key_Link, 0x0010, All);
 
+	/// Key link action was received.
+	DEFINE_CORE_NOTIFICATION(Key_Link_Action, 0x0011, Validator);
+
 #undef DEFINE_CORE_NOTIFICATION
 
 	// endregion

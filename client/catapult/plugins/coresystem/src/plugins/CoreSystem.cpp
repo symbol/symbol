@@ -82,18 +82,10 @@ namespace catapult { namespace plugins {
 
 		void RegisterVotingKeyLinkTransaction(PluginManager& manager) {
 			manager.addTransactionSupport(CreateVotingKeyLinkTransactionPlugin());
-
-			manager.addStatelessValidatorHook([](auto& builder) {
-				builder.add(validators::CreateVotingKeyLinkActionValidator());
-			});
 		}
 
 		void RegisterVrfKeyLinkTransaction(PluginManager& manager) {
 			manager.addTransactionSupport(CreateVrfKeyLinkTransactionPlugin());
-
-			manager.addStatelessValidatorHook([](auto& builder) {
-				builder.add(validators::CreateVrfKeyLinkActionValidator());
-			});
 		}
 	}
 
@@ -111,6 +103,7 @@ namespace catapult { namespace plugins {
 				.add(validators::CreateNetworkValidator(config.Network.Identifier))
 				.add(validators::CreateEntityVersionValidator())
 				.add(validators::CreateTransactionFeeValidator())
+				.add(validators::CreateKeyLinkActionValidator())
 				.add(validators::CreateZeroInternalPaddingValidator());
 		});
 

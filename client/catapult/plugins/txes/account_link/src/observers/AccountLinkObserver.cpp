@@ -25,9 +25,9 @@
 namespace catapult { namespace observers {
 
 	namespace {
-		void SetLink(state::AccountState& accountState, const Key& linkedAccountKey, state::AccountType accountType) {
-			if (Key() != linkedAccountKey)
-				accountState.SupplementalAccountKeys.set(state::AccountKeyType::Linked, linkedAccountKey);
+		void SetLink(state::AccountState& accountState, const Key& linkedPublicKey, state::AccountType accountType) {
+			if (Key() != linkedPublicKey)
+				accountState.SupplementalAccountKeys.set(state::AccountKeyType::Linked, linkedPublicKey);
 			else
 				accountState.SupplementalAccountKeys.unset(state::AccountKeyType::Linked);
 
@@ -40,15 +40,15 @@ namespace catapult { namespace observers {
 			const ObserverContext& context) {
 		auto& cache = context.Cache.sub<cache::AccountStateCache>();
 
-		auto mainAccountStateIter = cache.find(notification.MainAccountKey);
+		auto mainAccountStateIter = cache.find(notification.MainAccountPublicKey);
 		auto& mainAccountState = mainAccountStateIter.get();
 
-		auto remoteAccountStateIter = cache.find(notification.RemoteAccountKey);
+		auto remoteAccountStateIter = cache.find(notification.LinkedPublicKey);
 		auto& remoteAccountState = remoteAccountStateIter.get();
 
 		if (ShouldLink(notification.LinkAction, context.Mode)) {
-			SetLink(mainAccountState, notification.RemoteAccountKey, state::AccountType::Main);
-			SetLink(remoteAccountState, notification.MainAccountKey, state::AccountType::Remote);
+			SetLink(mainAccountState, notification.LinkedPublicKey, state::AccountType::Main);
+			SetLink(remoteAccountState, notification.MainAccountPublicKey, state::AccountType::Remote);
 		} else {
 			SetLink(mainAccountState, Key(), state::AccountType::Unlinked);
 			SetLink(remoteAccountState, Key(), state::AccountType::Remote_Unlinked);

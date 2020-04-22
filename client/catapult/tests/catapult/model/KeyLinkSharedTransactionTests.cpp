@@ -18,14 +18,27 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/model/AccountLinkTransaction.h"
+#include "catapult/model/KeyLinkSharedTransaction.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/nodeps/Alignment.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace model {
 
-#define TEST_CLASS AccountLinkTransactionTests
+#define TEST_CLASS KeyLinkSharedTransactionTests
+
+#pragma pack(push, 1)
+
+	namespace {
+		// use KeyLinkSharedTransactionBody class name so that all tests are in same test suite (KeyLinkSharedTransactionTests)
+		// use a non-key type (MosaicId) in tests
+		template<typename THeader>
+		struct KeyLinkSharedTransactionBody : public BasicKeyLinkTransactionBody<THeader, MosaicId, static_cast<EntityType>(17)> {};
+
+		DEFINE_EMBEDDABLE_TRANSACTION(KeyLinkShared)
+	}
+
+#pragma pack(pop)
 
 	// region size + alignment + properties
 
@@ -43,7 +56,7 @@ namespace catapult { namespace model {
 
 			// Assert:
 			EXPECT_EQ(expectedSize, sizeof(T));
-			EXPECT_EQ(baseSize + 33u, sizeof(T));
+			EXPECT_EQ(baseSize + 9u, sizeof(T));
 		}
 
 		template<typename T>
@@ -56,26 +69,26 @@ namespace catapult { namespace model {
 		template<typename T>
 		void AssertTransactionHasExpectedProperties() {
 			// Assert:
-			EXPECT_EQ(Entity_Type_Account_Link, T::Entity_Type);
+			EXPECT_EQ(static_cast<EntityType>(17), T::Entity_Type);
 			EXPECT_EQ(1u, T::Current_Version);
 		}
 	}
 
 #undef TRANSACTION_FIELDS
 
-	ADD_BASIC_TRANSACTION_SIZE_PROPERTY_TESTS(AccountLink)
+	ADD_BASIC_TRANSACTION_SIZE_PROPERTY_TESTS(KeyLinkShared)
 
 	// endregion
 
 	TEST(TEST_CLASS, CanCalculateRealSizeWithReasonableValues) {
 		// Arrange:
-		AccountLinkTransaction transaction;
+		KeyLinkSharedTransaction transaction;
 		transaction.Size = 0;
 
 		// Act:
-		auto realSize = AccountLinkTransaction::CalculateRealSize(transaction);
+		auto realSize = KeyLinkSharedTransaction::CalculateRealSize(transaction);
 
 		// Assert:
-		EXPECT_EQ(sizeof(AccountLinkTransaction), realSize);
+		EXPECT_EQ(sizeof(KeyLinkSharedTransaction), realSize);
 	}
 }}

@@ -21,6 +21,7 @@
 #pragma once
 #include "ContainerTypes.h"
 #include "EntityType.h"
+#include "LinkAction.h"
 #include "NetworkIdentifier.h"
 #include "NotificationType.h"
 #include "catapult/utils/ArraySet.h"
@@ -529,6 +530,55 @@ namespace catapult { namespace model {
 	public:
 		/// Padding data.
 		uint64_t Padding;
+	};
+
+	// endregion
+
+	// region key link
+
+	/// Notification of a key link action.
+	struct KeyLinkActionNotification : public Notification {
+	public:
+		/// Matching notification type.
+		static constexpr auto Notification_Type = Core_Key_Link_Action_Notification;
+
+	public:
+		/// Creates a notification around \a linkAction.
+		explicit KeyLinkActionNotification(model::LinkAction linkAction)
+				: Notification(Notification_Type, sizeof(KeyLinkActionNotification))
+				, LinkAction(linkAction)
+		{}
+
+	public:
+		/// Link action.
+		model::LinkAction LinkAction;
+	};
+
+	/// Notification of a key link.
+	template<typename TKey, NotificationType Key_Link_Notification_Type>
+	struct BasicKeyLinkNotification : public Notification {
+	public:
+		/// Matching notification type.
+		static constexpr auto Notification_Type = Key_Link_Notification_Type;
+
+	public:
+		/// Creates a notification around \a mainAccountPublicKey, \a linkedPublicKey and \a linkAction.
+		BasicKeyLinkNotification(const Key& mainAccountPublicKey, const TKey& linkedPublicKey, model::LinkAction linkAction)
+				: Notification(Notification_Type, sizeof(BasicKeyLinkNotification))
+				, MainAccountPublicKey(mainAccountPublicKey)
+				, LinkedPublicKey(linkedPublicKey)
+				, LinkAction(linkAction)
+		{}
+
+	public:
+		/// Main account public key.
+		const Key& MainAccountPublicKey;
+
+		/// Linked public key.
+		const TKey& LinkedPublicKey;
+
+		/// Link action.
+		model::LinkAction LinkAction;
 	};
 
 	// endregion

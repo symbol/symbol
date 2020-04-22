@@ -48,8 +48,11 @@ namespace catapult { namespace plugins {
 		void AddCommonExpectations(
 				typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder& builder,
 				const typename TTraits::TransactionType& transaction) {
+			builder.template addExpectation<KeyLinkActionNotification>([&transaction](const auto& notification) {
+				EXPECT_EQ(transaction.LinkAction, notification.LinkAction);
+			});
 			builder.template addExpectation<VotingKeyLinkNotification>([&transaction](const auto& notification) {
-				EXPECT_EQ(transaction.SignerPublicKey, notification.MainAccountKey);
+				EXPECT_EQ(transaction.SignerPublicKey, notification.MainAccountPublicKey);
 				EXPECT_EQ(transaction.LinkedPublicKey, notification.LinkedPublicKey);
 				EXPECT_EQ(transaction.LinkAction, notification.LinkAction);
 			});
@@ -64,6 +67,7 @@ namespace catapult { namespace plugins {
 
 		// Act + Assert:
 		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
+			KeyLinkActionNotification::Notification_Type,
 			VotingKeyLinkNotification::Notification_Type
 		});
 	}
@@ -93,6 +97,7 @@ namespace catapult { namespace plugins {
 
 		// Act + Assert:
 		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
+			KeyLinkActionNotification::Notification_Type,
 			VotingKeyLinkNotification::Notification_Type
 		});
 	}

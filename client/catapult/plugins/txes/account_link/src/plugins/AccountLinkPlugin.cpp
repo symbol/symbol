@@ -29,10 +29,6 @@ namespace catapult { namespace plugins {
 	void RegisterAccountLinkSubsystem(PluginManager& manager) {
 		manager.addTransactionSupport(CreateAccountLinkTransactionPlugin());
 
-		manager.addStatelessValidatorHook([](auto& builder) {
-			builder.add(validators::CreateAccountLinkActionValidator());
-		});
-
 		manager.addStatefulValidatorHook([](auto& builder) {
 			builder
 				.add(validators::CreateAccountLinkAvailabilityValidator())

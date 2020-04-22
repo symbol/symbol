@@ -29,11 +29,11 @@ namespace catapult { namespace builders {
 
 	namespace {
 		auto GetLinkedAccountKey(const model::AccountLinkTransaction& transaction) {
-			return transaction.RemotePublicKey;
+			return transaction.LinkedPublicKey;
 		}
 
 		auto GetLinkedAccountKey(const model::EmbeddedAccountLinkTransaction& transaction) {
-			return transaction.RemotePublicKey;
+			return transaction.LinkedPublicKey;
 		}
 
 		template<typename TTransaction>
@@ -47,7 +47,7 @@ namespace catapult { namespace builders {
 			static constexpr auto Transaction_Type = model::Entity_Type_Account_Link;
 
 			static void SetKey(BuilderType& builder, const LinkedType& key) {
-				builder.setRemotePublicKey(key);
+				builder.setLinkedPublicKey(key);
 			}
 		};
 

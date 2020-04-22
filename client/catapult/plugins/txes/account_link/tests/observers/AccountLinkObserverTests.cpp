@@ -57,16 +57,16 @@ namespace catapult { namespace observers {
 		template<typename TAction>
 		void RunTwoAccountTest(cache::AccountStateCacheDelta& accountStateCacheDelta, TAction action) {
 			// Arrange:
-			auto mainAccountKey = test::GenerateRandomByteArray<Key>();
-			auto remoteAccountKey = test::GenerateRandomByteArray<Key>();
+			auto mainAccountPublicKey = test::GenerateRandomByteArray<Key>();
+			auto linkedPublicKey = test::GenerateRandomByteArray<Key>();
 
-			accountStateCacheDelta.addAccount(mainAccountKey, Height(444));
-			accountStateCacheDelta.addAccount(remoteAccountKey, Height(444));
+			accountStateCacheDelta.addAccount(mainAccountPublicKey, Height(444));
+			accountStateCacheDelta.addAccount(linkedPublicKey, Height(444));
 
-			auto mainAccountStateIter = accountStateCacheDelta.find(mainAccountKey);
+			auto mainAccountStateIter = accountStateCacheDelta.find(mainAccountPublicKey);
 			auto& mainAccountState = mainAccountStateIter.get();
 
-			auto remoteAccountStateIter = accountStateCacheDelta.find(remoteAccountKey);
+			auto remoteAccountStateIter = accountStateCacheDelta.find(linkedPublicKey);
 			auto& remoteAccountState = remoteAccountStateIter.get();
 
 			// Act + Assert:
@@ -80,10 +80,10 @@ namespace catapult { namespace observers {
 		RunTwoAccountTest(context.cache().sub<cache::AccountStateCache>(), [&context](
 				const auto& mainAccountState,
 				const auto& remoteAccountState) {
-			auto mainAccountKey = mainAccountState.PublicKey;
-			auto remoteAccountKey = remoteAccountState.PublicKey;
+			auto mainAccountPublicKey = mainAccountState.PublicKey;
+			auto linkedPublicKey = remoteAccountState.PublicKey;
 
-			auto notification = model::RemoteAccountLinkNotification(mainAccountKey, remoteAccountKey, TTraits::Create_Link);
+			auto notification = model::RemoteAccountLinkNotification(mainAccountPublicKey, linkedPublicKey, TTraits::Create_Link);
 			auto pObserver = CreateAccountLinkObserver();
 
 			// Act:
@@ -91,10 +91,10 @@ namespace catapult { namespace observers {
 
 			// Assert: link was created
 			EXPECT_EQ(state::AccountType::Main, mainAccountState.AccountType);
-			EXPECT_EQ(remoteAccountKey, state::GetLinkedAccountKey(mainAccountState));
+			EXPECT_EQ(linkedPublicKey, state::GetLinkedAccountKey(mainAccountState));
 
 			EXPECT_EQ(state::AccountType::Remote, remoteAccountState.AccountType);
-			EXPECT_EQ(mainAccountKey, state::GetLinkedAccountKey(remoteAccountState));
+			EXPECT_EQ(mainAccountPublicKey, state::GetLinkedAccountKey(remoteAccountState));
 		});
 	}
 
@@ -102,16 +102,16 @@ namespace catapult { namespace observers {
 		// Arrange:
 		auto context = ObserverTestContext(TTraits::Notify_Mode, Height(888));
 		RunTwoAccountTest(context.cache().sub<cache::AccountStateCache>(), [&context](auto& mainAccountState, auto& remoteAccountState) {
-			auto mainAccountKey = mainAccountState.PublicKey;
-			auto remoteAccountKey = remoteAccountState.PublicKey;
+			auto mainAccountPublicKey = mainAccountState.PublicKey;
+			auto linkedPublicKey = remoteAccountState.PublicKey;
 
-			mainAccountState.SupplementalAccountKeys.set(state::AccountKeyType::Linked, remoteAccountKey);
+			mainAccountState.SupplementalAccountKeys.set(state::AccountKeyType::Linked, linkedPublicKey);
 			mainAccountState.AccountType = state::AccountType::Main;
 
-			remoteAccountState.SupplementalAccountKeys.set(state::AccountKeyType::Linked, mainAccountKey);
+			remoteAccountState.SupplementalAccountKeys.set(state::AccountKeyType::Linked, mainAccountPublicKey);
 			remoteAccountState.AccountType = state::AccountType::Remote;
 
-			auto notification = model::RemoteAccountLinkNotification(mainAccountKey, remoteAccountKey, TTraits::Remove_Link);
+			auto notification = model::RemoteAccountLinkNotification(mainAccountPublicKey, linkedPublicKey, TTraits::Remove_Link);
 			auto pObserver = CreateAccountLinkObserver();
 
 			// Act:

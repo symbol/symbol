@@ -19,41 +19,9 @@
 **/
 
 #pragma once
-#include "catapult/model/LinkAction.h"
 #include "catapult/model/Notifications.h"
 
 namespace catapult { namespace model {
-
-	// region KeyLinkNotification
-
-	/// Notification of a key link.
-	template<typename TKey, NotificationType Key_Link_Notification_Type>
-	struct BasicKeyLinkNotification : public Notification {
-	public:
-		/// Matching notification type.
-		static constexpr auto Notification_Type = Key_Link_Notification_Type;
-
-	public:
-		/// Creates a notification around \a mainAccountKey, \a linkedPublicKey and \a linkAction.
-		BasicKeyLinkNotification(const Key& mainAccountKey, const TKey& linkedPublicKey, LinkAction linkAction)
-				: Notification(Notification_Type, sizeof(BasicKeyLinkNotification))
-				, MainAccountKey(mainAccountKey)
-				, LinkedPublicKey(linkedPublicKey)
-				, LinkAction(linkAction)
-		{}
-
-	public:
-		/// Main account key.
-		const Key& MainAccountKey;
-
-		/// Linked public key.
-		const TKey& LinkedPublicKey;
-
-		/// Link action.
-		model::LinkAction LinkAction;
-	};
-
-	// endregion
 
 	/// Notification of a voting key link.
 	using VotingKeyLinkNotification = BasicKeyLinkNotification<VotingKey, Core_Voting_Key_Link_Notification>;

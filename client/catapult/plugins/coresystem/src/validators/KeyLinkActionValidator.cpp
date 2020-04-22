@@ -18,36 +18,14 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#pragma once
-#include "catapult/model/LinkAction.h"
-#include "catapult/model/Transaction.h"
+#include "Validators.h"
+#include "catapult/validators/ValidatorUtils.h"
 
-namespace catapult { namespace model {
+namespace catapult { namespace validators {
 
-#pragma pack(push, 1)
+	using Notification = model::KeyLinkActionNotification;
 
-	/// Binary layout for a key link transaction body.
-	template<typename THeader, typename TKey, EntityType Key_Link_Entity_Type>
-	struct BasicKeyLinkTransactionBody : public THeader {
-	private:
-		using TransactionType = BasicKeyLinkTransactionBody<THeader, TKey, Key_Link_Entity_Type>;
-
-	public:
-		DEFINE_TRANSACTION_CONSTANTS(Key_Link_Entity_Type, 1)
-
-	public:
-		/// Linked public key.
-		TKey LinkedPublicKey;
-
-		/// Link action.
-		model::LinkAction LinkAction;
-
-	public:
-		/// Calculates the real size of key link \a transaction.
-		static constexpr uint64_t CalculateRealSize(const TransactionType&) noexcept {
-			return sizeof(TransactionType);
-		}
-	};
-
-#pragma pack(pop)
+	DEFINE_STATELESS_VALIDATOR(KeyLinkAction, [](const Notification& notification) {
+		return ValidateLessThanOrEqual(notification.LinkAction, model::LinkAction::Link, Failure_Core_Invalid_Link_Action);
+	});
 }}

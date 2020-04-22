@@ -43,30 +43,7 @@ namespace catapult { namespace model {
 	// region RemoteAccountLinkNotification
 
 	/// Notification of a remote account link.
-	struct RemoteAccountLinkNotification : public Notification {
-	public:
-		/// Matching notification type.
-		static constexpr auto Notification_Type = AccountLink_Remote_Notification;
-
-	public:
-		/// Creates a notification around \a mainAccountKey, \a remoteAccountKey and \a linkAction.
-		RemoteAccountLinkNotification(const Key& mainAccountKey, const Key& remoteAccountKey, LinkAction linkAction)
-				: Notification(Notification_Type, sizeof(RemoteAccountLinkNotification))
-				, MainAccountKey(mainAccountKey)
-				, RemoteAccountKey(remoteAccountKey)
-				, LinkAction(linkAction)
-		{}
-
-	public:
-		/// Main account key.
-		const Key& MainAccountKey;
-
-		/// Remote account key.
-		const Key& RemoteAccountKey;
-
-		/// Link action.
-		model::LinkAction LinkAction;
-	};
+	using RemoteAccountLinkNotification = BasicKeyLinkNotification<Key, AccountLink_Remote_Notification>;
 
 	// endregion
 
@@ -79,15 +56,15 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = AccountLink_New_Remote_Account_Notification;
 
 	public:
-		/// Creates a notification around \a remoteAccountKey.
-		explicit NewRemoteAccountNotification(const Key& remoteAccountKey)
+		/// Creates a notification around \a linkedPublicKey.
+		explicit NewRemoteAccountNotification(const Key& linkedPublicKey)
 				: Notification(Notification_Type, sizeof(NewRemoteAccountNotification))
-				, RemoteAccountKey(remoteAccountKey)
+				, LinkedPublicKey(linkedPublicKey)
 		{}
 
 	public:
-		/// Remote account key.
-		const Key& RemoteAccountKey;
+		/// Linked public key.
+		const Key& LinkedPublicKey;
 	};
 
 	// endregion

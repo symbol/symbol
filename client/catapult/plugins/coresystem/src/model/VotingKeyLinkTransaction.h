@@ -19,7 +19,7 @@
 **/
 
 #pragma once
-#include "KeyLinkSharedTransaction.h"
+#include "catapult/model/KeyLinkSharedTransaction.h"
 
 namespace catapult { namespace model {
 
@@ -27,9 +27,7 @@ namespace catapult { namespace model {
 
 	/// Binary layout for a voting key link transaction body.
 	template<typename THeader>
-	struct VotingKeyLinkTransactionBody
-			: public BasicKeyLinkTransactionBody<THeader, VotingKey, Entity_Type_Voting_Key_Link>
-	{};
+	struct VotingKeyLinkTransactionBody : public BasicKeyLinkTransactionBody<THeader, VotingKey, Entity_Type_Voting_Key_Link> {};
 
 	DEFINE_EMBEDDABLE_TRANSACTION(VotingKeyLink)
 

@@ -28,7 +28,7 @@ namespace catapult { namespace validators {
 
 	DEFINE_STATEFUL_VALIDATOR(AccountLinkAvailability, [](const Notification& notification, const ValidatorContext& context) {
 		const auto& cache = context.Cache.sub<cache::AccountStateCache>();
-		auto accountStateIter = cache.find(notification.MainAccountKey);
+		auto accountStateIter = cache.find(notification.MainAccountPublicKey);
 		const auto& accountState = accountStateIter.get();
 
 		if (model::LinkAction::Link == notification.LinkAction) {
@@ -39,7 +39,7 @@ namespace catapult { namespace validators {
 			if (state::AccountType::Main != accountState.AccountType)
 				return Failure_AccountLink_Unknown_Link;
 
-			if (notification.RemoteAccountKey != state::GetLinkedAccountKey(accountState))
+			if (notification.LinkedPublicKey != state::GetLinkedAccountKey(accountState))
 				return Failure_AccountLink_Inconsistent_Unlink_Data;
 		}
 
