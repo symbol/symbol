@@ -10,6 +10,7 @@ Catapult REST gateway combines HTTP and WebSockets to perform read and write act
 - NodeJS version 12
 - [yarn][yarn] dependency manager
 - [catapult-server][catapult-server] configured as an [API node][api-node].
+- MongoDb 4.2
 
 ## Installation
 

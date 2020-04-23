@@ -7,10 +7,15 @@ addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
+    - sourceline: 'deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/4.2 multiverse'
+      key_url: 'https://www.mongodb.org/static/pgp/server-4.2.asc'
     packages:
     - libzmq3-dev
-
-services: mongodb
+    - mongodb-org
+    - mongodb-org-mongos
+    - mongodb-org-server
+    - mongodb-org-shell
+    - mongodb-org-tools
 
 env:
   matrix:
@@ -20,6 +25,8 @@ env:
 
 cache: yarn
 
-before_script: sh yarn_setup.sh
+before_script:
+- sudo systemctl start mongod
+- sh yarn_setup.sh
 
 script: cd ${SUBPROJECT} && yarn run lint && yarn run test:travis
