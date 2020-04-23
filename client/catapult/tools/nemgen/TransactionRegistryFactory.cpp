@@ -24,6 +24,8 @@
 #include "catapult/plugins/MosaicSupplyChangeTransactionPlugin.h"
 #include "catapult/plugins/NamespaceRegistrationTransactionPlugin.h"
 #include "catapult/plugins/TransferTransactionPlugin.h"
+#include "catapult/plugins/VotingKeyLinkTransactionPlugin.h"
+#include "catapult/plugins/VrfKeyLinkTransactionPlugin.h"
 
 namespace catapult { namespace tools { namespace nemgen {
 
@@ -36,6 +38,8 @@ namespace catapult { namespace tools { namespace nemgen {
 		registry.registerPlugin(plugins::CreateMosaicSupplyChangeTransactionPlugin());
 		registry.registerPlugin(plugins::CreateNamespaceRegistrationTransactionPlugin(namespaceConfig));
 		registry.registerPlugin(plugins::CreateTransferTransactionPlugin());
+		registry.registerPlugin(plugins::CreateVotingKeyLinkTransactionPlugin());
+		registry.registerPlugin(plugins::CreateVrfKeyLinkTransactionPlugin());
 		return registry;
 	}
 }}}

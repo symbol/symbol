@@ -207,7 +207,9 @@ namespace catapult { namespace tools { namespace nemgen {
 		// load mosaics information
 		auto numMosaicProperties = LoadMosaics(bag, config, owner);
 
-		utils::VerifyBagSizeLte(bag, 6 + numNamespaceProperties + numMosaicProperties);
+		LOAD_PROPERTY("transactions", TransactionsDirectory);
+
+		utils::VerifyBagSizeLte(bag, 7 + numNamespaceProperties + numMosaicProperties);
 		return config;
 	}
 }}}

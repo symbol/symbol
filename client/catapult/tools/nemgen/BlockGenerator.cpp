@@ -19,6 +19,7 @@
 **/
 
 #include "BlockGenerator.h"
+#include "AdditionalTransactions.h"
 #include "NemesisConfiguration.h"
 #include "NemesisExecutionHasher.h"
 #include "TransactionRegistryFactory.h"
@@ -134,6 +135,11 @@ namespace catapult { namespace tools { namespace nemgen {
 				signAndAdd(builder.build());
 			}
 
+			void addTransactions(model::Transactions&& transactions) {
+				for (auto&& pTransaction : transactions)
+					m_transactions.push_back(std::move(pTransaction));
+			}
+
 		public:
 			const model::Transactions& transactions() const {
 				return m_transactions;
@@ -157,6 +163,9 @@ namespace catapult { namespace tools { namespace nemgen {
 	std::unique_ptr<model::Block> CreateNemesisBlock(const NemesisConfiguration& config) {
 		auto signer = crypto::KeyPair::FromString(config.NemesisSignerPrivateKey);
 		NemesisTransactions transactions(config.NetworkIdentifier, config.NemesisGenerationHash, signer);
+
+		// - load and validate additional transactions
+		auto additionalTransactions = LoadAndValidateAdditionalTransactions(config.TransactionsDirectory);
 
 		// - namespace creation
 		for (const auto& rootPair : config.RootNamespaces) {
@@ -208,6 +217,9 @@ namespace catapult { namespace tools { namespace nemgen {
 			auto recipient = model::StringToAddress(addressMosaicSeedsPair.first);
 			transactions.addTransfer(nameToMosaicIdMap, recipient, addressMosaicSeedsPair.second);
 		}
+
+		// - add additional transactions
+		transactions.addTransactions(std::move(additionalTransactions));
 
 		model::PreviousBlockContext context;
 		auto pBlock = model::CreateBlock(context, config.NetworkIdentifier, signer.publicKey(), transactions.transactions());

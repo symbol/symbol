@@ -85,6 +85,9 @@ namespace catapult { namespace tools { namespace nemgen {
 		/// Map of nemesis account addresses to mosaic seeds.
 		AddressToMosaicSeedsMap NemesisAddressToMosaicSeeds;
 
+		/// Additional transactions directory.
+		std::string TransactionsDirectory;
+
 	public:
 		/// Loads a nemesis configuration from \a bag.
 		static NemesisConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
