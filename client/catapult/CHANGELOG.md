@@ -3,6 +3,13 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.9.4.1] - 23-April-2020
+
+### Added
+ - major: TLS support, changes are large, please refer to project documentation for details
+ - bugfix: namespace extension must preserve root alias
+ - bugfix: add timeout around accept (of incoming connection)
+
 ## [0.9.3.2] - 19-March-2020
 
 ### Changed
