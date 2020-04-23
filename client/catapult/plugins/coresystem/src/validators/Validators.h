@@ -90,9 +90,23 @@ namespace catapult { namespace validators {
 	/// - max fee multiplier does not overflow 32-bit value
 	DECLARE_STATELESS_VALIDATOR(TransactionFee, model::TransactionFeeNotification)();
 
+	// endregion
+
+	// region (KeyLink) Transaction
+
 	/// Validator that applies to key link action notifications and validates that:
 	/// - link action is valid
 	DECLARE_STATELESS_VALIDATOR(KeyLinkAction, model::KeyLinkActionNotification)();
+
+	/// Validator that applies to voting key link notifications and validates that:
+	/// - no link exists when linking
+	/// - matching link exists when unlinking
+	DECLARE_STATEFUL_VALIDATOR(VotingKeyLink, model::VotingKeyLinkNotification)();
+
+	/// Validator that applies to vrf key link notifications and validates that:
+	/// - no link exists when linking
+	/// - matching link exists when unlinking
+	DECLARE_STATEFUL_VALIDATOR(VrfKeyLink, model::VrfKeyLinkNotification)();
 
 	// endregion
 

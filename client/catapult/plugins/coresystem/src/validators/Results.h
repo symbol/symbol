@@ -67,8 +67,18 @@ namespace catapult { namespace validators {
 	/// Validation failed because internal padding is nonzero.
 	DEFINE_CORE_RESULT(Nonzero_Internal_Padding, 13);
 
+	// region key link results
+
 	/// Validation failed because link action is invalid.
-	DEFINE_CORE_RESULT(Invalid_Link_Action, 14);
+	DEFINE_CORE_RESULT(Invalid_Link_Action, 101);
+
+	/// Validation failed because main account is already linked to another account.
+	DEFINE_CORE_RESULT(Link_Already_Exists, 102);
+
+	/// Validation failed because unlink data is not consistent with existing account link.
+	DEFINE_CORE_RESULT(Inconsistent_Unlink_Data, 103);
+
+	// endregion
 
 #ifndef CUSTOM_RESULT_DEFINITION
 }}

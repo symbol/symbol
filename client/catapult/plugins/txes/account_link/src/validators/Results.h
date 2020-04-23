@@ -31,11 +31,11 @@ namespace catapult { namespace validators {
 	/// Validation failed because main account is already linked to another account.
 	DEFINE_ACCOUNT_LINK_RESULT(Link_Already_Exists, 1);
 
-	/// Validation failed because main account is not linked to another account.
-	DEFINE_ACCOUNT_LINK_RESULT(Unknown_Link, 2);
-
 	/// Validation failed because unlink data is not consistent with existing account link.
-	DEFINE_ACCOUNT_LINK_RESULT(Inconsistent_Unlink_Data, 3);
+	DEFINE_ACCOUNT_LINK_RESULT(Inconsistent_Unlink_Data, 2);
+
+	/// Validation failed because main account is not linked to another account.
+	DEFINE_ACCOUNT_LINK_RESULT(Unknown_Link, 3);
 
 	/// Validation failed because link is attempting to convert ineligible account to remote.
 	DEFINE_ACCOUNT_LINK_RESULT(Remote_Account_Ineligible, 4);

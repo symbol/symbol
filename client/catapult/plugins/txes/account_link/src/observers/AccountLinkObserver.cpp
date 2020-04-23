@@ -25,12 +25,13 @@
 namespace catapult { namespace observers {
 
 	namespace {
-		void SetLink(state::AccountState& accountState, const Key& linkedPublicKey, state::AccountType accountType) {
-			if (Key() != linkedPublicKey)
-				accountState.SupplementalAccountKeys.linkedPublicKey().set(linkedPublicKey);
-			else
-				accountState.SupplementalAccountKeys.linkedPublicKey().unset();
+		void ClearLink(state::AccountState& accountState, state::AccountType accountType) {
+			accountState.SupplementalAccountKeys.linkedPublicKey().unset();
+			accountState.AccountType = accountType;
+		}
 
+		void SetLink(state::AccountState& accountState, const Key& linkedPublicKey, state::AccountType accountType) {
+			accountState.SupplementalAccountKeys.linkedPublicKey().set(linkedPublicKey);
 			accountState.AccountType = accountType;
 		}
 	}
@@ -50,8 +51,8 @@ namespace catapult { namespace observers {
 			SetLink(mainAccountState, notification.LinkedPublicKey, state::AccountType::Main);
 			SetLink(remoteAccountState, notification.MainAccountPublicKey, state::AccountType::Remote);
 		} else {
-			SetLink(mainAccountState, Key(), state::AccountType::Unlinked);
-			SetLink(remoteAccountState, Key(), state::AccountType::Remote_Unlinked);
+			ClearLink(mainAccountState, state::AccountType::Unlinked);
+			ClearLink(remoteAccountState, state::AccountType::Remote_Unlinked);
 		}
 	});
 }}

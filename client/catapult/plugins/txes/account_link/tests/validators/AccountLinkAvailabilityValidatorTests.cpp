@@ -77,7 +77,6 @@ namespace catapult { namespace validators {
 
 	namespace {
 		void AssertLinkValidationForAccountWithType(ValidationResult expectedResult, state::AccountType accountType) {
-			// Assert:
 			AssertValidation(expectedResult, accountType, model::LinkAction::Link);
 		}
 	}
@@ -100,7 +99,6 @@ namespace catapult { namespace validators {
 
 	namespace {
 		void AssertUnlinkValidationForAccountWithType(ValidationResult expectedResult, state::AccountType accountType) {
-			// Assert:
 			AssertValidation(expectedResult, accountType, model::LinkAction::Unlink);
 		}
 	}

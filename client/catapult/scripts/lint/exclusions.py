@@ -134,9 +134,11 @@ PLUGINS_FIRSTINCLUDES = {
     # plugins
     'plugins/coresystem/src/importance/PosImportanceCalculator.cpp': 'ImportanceCalculator.h',
     'plugins/coresystem/src/importance/RestoreImportanceCalculator.cpp': 'ImportanceCalculator.h',
+    'plugins/coresystem/src/observers/KeyLinkObservers.cpp': 'KeyLinkObservers.h',
 
     'plugins/coresystem/tests/importance/PosImportanceCalculatorTests.cpp': 'src/importance/ImportanceCalculator.h',
     'plugins/coresystem/tests/importance/RestoreImportanceCalculatorTests.cpp': 'src/importance/ImportanceCalculator.h',
+    'plugins/coresystem/tests/observers/KeyLinkObserversTests.cpp': 'src/observers/KeyLinkObservers.h',
 
     'plugins/txes/metadata/tests/model/MetadataTransactionTests.cpp': 'src/model/AccountMetadataTransaction.h',
     'plugins/txes/restriction_account/tests/model/AccountRestrictionTransactionTests.cpp':

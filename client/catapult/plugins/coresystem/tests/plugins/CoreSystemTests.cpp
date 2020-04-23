@@ -79,25 +79,22 @@ namespace catapult { namespace plugins {
 					"NemesisSinkValidator",
 					"EligibleHarvesterValidator",
 					"BalanceDebitValidator",
-					"BalanceTransferValidator"
+					"BalanceTransferValidator",
+
+					// key link transactions
+					"VotingKeyLinkValidator",
+					"VrfKeyLinkValidator"
 				};
 			}
 
 			static std::vector<std::string> GetObserverNames() {
-				return {
-					"SourceChangeObserver",
-					"AccountAddressObserver",
-					"AccountPublicKeyObserver",
-					"BalanceDebitObserver",
-					"BalanceTransferObserver",
-					"BeneficiaryObserver",
-					"TransactionFeeActivityObserver",
-					"HarvestFeeObserver",
-					"TotalTransactionsObserver",
-					"RecalculateImportancesObserver",
-					"BlockStatisticObserver",
-					"BlockStatisticPruningObserver"
-				};
+				auto names = GetPermanentObserverNames();
+
+				// transient observers
+				names.push_back("RecalculateImportancesObserver");
+				names.push_back("BlockStatisticObserver");
+				names.push_back("BlockStatisticPruningObserver");
+				return names;
 			}
 
 			static std::vector<std::string> GetPermanentObserverNames() {
@@ -110,7 +107,11 @@ namespace catapult { namespace plugins {
 					"BeneficiaryObserver",
 					"TransactionFeeActivityObserver",
 					"HarvestFeeObserver",
-					"TotalTransactionsObserver"
+					"TotalTransactionsObserver",
+
+					// key link transactions
+					"VotingKeyLinkObserver",
+					"VrfKeyLinkObserver"
 				};
 			}
 		};
