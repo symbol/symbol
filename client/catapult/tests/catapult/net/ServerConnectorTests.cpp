@@ -100,9 +100,6 @@ namespace catapult { namespace net {
 				context.pConnector->connect(context.serverNode(), [&](auto connectResult, const auto& connectedSocketInfo) {
 					state.Codes.push_back(connectResult);
 					state.ClientSocketInfos.push_back(connectedSocketInfo);
-
-					// - wait for server callback
-					WAIT_FOR_ONE(numCallbacks);
 					++numCallbacks;
 				});
 
