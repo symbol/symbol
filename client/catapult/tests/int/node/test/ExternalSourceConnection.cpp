@@ -20,6 +20,7 @@
 
 #include "ExternalSourceConnection.h"
 #include "LocalNodeTestUtils.h"
+#include "plugins/coresystem/src/plugins/VrfKeyLinkTransactionPlugin.h"
 #include "plugins/txes/mosaic/src/plugins/MosaicDefinitionTransactionPlugin.h"
 #include "plugins/txes/mosaic/src/plugins/MosaicSupplyChangeTransactionPlugin.h"
 #include "plugins/txes/namespace/src/plugins/MosaicAliasTransactionPlugin.h"
@@ -87,6 +88,7 @@ namespace catapult { namespace test {
 		registry.registerPlugin(plugins::CreateMosaicAliasTransactionPlugin());
 		registry.registerPlugin(plugins::CreateNamespaceRegistrationTransactionPlugin(plugins::NamespaceRentalFeeConfiguration()));
 		registry.registerPlugin(plugins::CreateTransferTransactionPlugin());
+		registry.registerPlugin(plugins::CreateVrfKeyLinkTransactionPlugin());
 		return registry;
 	}
 }}

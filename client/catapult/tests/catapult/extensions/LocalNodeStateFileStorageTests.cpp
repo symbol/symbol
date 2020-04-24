@@ -228,7 +228,7 @@ namespace catapult { namespace extensions {
 		auto expectedState = state::CatapultState();
 		expectedState.LastRecalculationHeight = model::ImportanceHeight(1);
 		expectedState.DynamicFeeMultiplier = BlockFeeMultiplier(1);
-		expectedState.NumTotalTransactions = 31;
+		expectedState.NumTotalTransactions = 31 + 11;
 		test::AssertEqual(expectedState, cacheView.dependentState());
 		EXPECT_EQ(Height(1), cacheView.height());
 	}

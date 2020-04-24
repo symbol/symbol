@@ -39,11 +39,17 @@ namespace catapult { namespace extensions {
 		// 1) Num_Nemesis_Namespaces namespace registration transactions
 		// 2) for each mosaic - (a) mosaic definition transaction, (b) mosaic supply change transaction, (c) mosaic alias transaction
 		// 3) Num_Nemesis_Accounts transfer transactions
+		// 4) Num_Nemesis_Harvesting_Accounts vrf key link transactions
 
 		constexpr auto Num_Nemesis_Accounts = CountOf(test::Mijin_Test_Private_Keys);
+		constexpr auto Num_Nemesis_Harvesting_Accounts = CountOf(test::Mijin_Test_Vrf_Private_Keys);
 		constexpr auto Num_Nemesis_Namespaces = 3;
 		constexpr auto Num_Nemesis_Mosaics = 2;
-		constexpr auto Num_Nemesis_Transactions = Num_Nemesis_Namespaces + 3 * Num_Nemesis_Mosaics + Num_Nemesis_Accounts;
+		constexpr auto Num_Nemesis_Transactions = 0
+				+ Num_Nemesis_Namespaces
+				+ 3 * Num_Nemesis_Mosaics
+				+ Num_Nemesis_Accounts
+				+ Num_Nemesis_Harvesting_Accounts;
 
 		template<typename TAction>
 		void RunNemesisBlockTest(TAction action) {
