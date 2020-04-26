@@ -669,16 +669,18 @@ namespace catapult { namespace ionet {
 		//      "client" - connects to the server
 		PacketSocket::Stats stats;
 		std::shared_ptr<PacketSocket> pSocket;
-		boost::asio::post(pPool->ioContext(), [&ioContext = pPool->ioContext(), &acceptor = *pAcceptor, &pSocket]() {
-			Accept(ioContext, acceptor, test::CreatePacketSocketOptions(), [&pSocket](const auto& acceptedSocketInfo) {
+		std::atomic_bool hasClosedSocket(false);
+		boost::asio::post(pPool->ioContext(), [&ioContext = pPool->ioContext(), &acceptor = *pAcceptor, &pSocket, &hasClosedSocket]() {
+			Accept(ioContext, acceptor, test::CreatePacketSocketOptions(), [&pSocket, &hasClosedSocket](const auto& acceptedSocketInfo) {
 				pSocket = acceptedSocketInfo.socket();
 				pSocket->close();
+				hasClosedSocket = true;
 			});
 		});
 		auto pClientSocket = test::AddClientConnectionTask(pPool->ioContext());
 
 		// - close is async, so wait for it
-		WAIT_FOR_EXPR(!!pSocket);
+		WAIT_FOR(hasClosedSocket);
 		test::WaitForClosedSocket(*pSocket);
 		pSocket->stats([&stats](const auto& socketStats) { stats = socketStats; });
 
