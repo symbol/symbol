@@ -48,15 +48,6 @@ namespace catapult { namespace model {
 		builder.final(blockTransactionsHash);
 	}
 
-	GenerationHash CalculateGenerationHash(const GenerationHash& previousGenerationHash, const Key& publicKey) {
-		GenerationHash generationHash;
-		crypto::GenerationHash_Builder hasher;
-		hasher.update(previousGenerationHash);
-		hasher.update(publicKey);
-		hasher.final(generationHash);
-		return generationHash;
-	}
-
 	GenerationHash CalculateGenerationHash(const crypto::ProofGamma& gamma) {
 		auto proofHash = GenerateVrfProofHash(gamma);
 

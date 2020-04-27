@@ -31,8 +31,8 @@ namespace catapult { namespace model {
 
 #pragma pack(push, 1)
 
-	/// Generation hash proof.
-	struct PackedGenerationHashProof {
+	/// VRF proof for the verifiable random function.
+	struct PackedVrfProof {
 		/// Gamma.
 		crypto::ProofGamma Gamma;
 
@@ -63,7 +63,7 @@ namespace catapult { namespace model {
 		catapult::Difficulty Difficulty;
 
 		/// Generation hash proof.
-		PackedGenerationHashProof GenerationHashProof;
+		PackedVrfProof GenerationHashProof;
 
 		/// Previous block hash.
 		Hash256 PreviousBlockHash;

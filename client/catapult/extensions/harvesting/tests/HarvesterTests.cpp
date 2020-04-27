@@ -389,8 +389,8 @@ namespace catapult { namespace harvesting {
 	}
 
 	namespace {
-		crypto::VrfProof UnpackVrfProof(const model::PackedGenerationHashProof& generationHashProof) {
-			return { generationHashProof.Gamma, generationHashProof.VerificationHash, generationHashProof.Scalar };
+		crypto::VrfProof UnpackVrfProof(const model::PackedVrfProof& proof) {
+			return { proof.Gamma, proof.VerificationHash, proof.Scalar };
 		}
 
 		void AssertHarvestedBlockHasExpectedProperties(

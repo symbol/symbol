@@ -162,20 +162,6 @@ namespace catapult { namespace model {
 
 	// region hashes - CalculateGenerationHash
 
-	TEST(TEST_CLASS, GenerationHashIsCalculatedAsExpected_Legacy) {
-		// Arrange:
-		constexpr auto ParseGenerationHash = utils::ParseByteArray<GenerationHash>;
-		auto previousGenerationHash = ParseGenerationHash("57F7DA205008026C776CB6AED843393F04CD458E0AA2D9F1D5F31A402072B2D6");
-		auto publicKey = utils::ParseByteArray<Key>("6FB9C930C0AC6BEF09D6DFEBD091AE83C91B35F2C0305B05B4F6F7AF4B6FC1F0");
-
-		// Act:
-		auto hash = CalculateGenerationHash(previousGenerationHash, publicKey);
-
-		// Assert:
-		auto expectedHash = ParseGenerationHash("575E4F520DC2C026F1C9021FD3773F236F0872A03B4AEFC22A9E0066FF204A23");
-		EXPECT_EQ(expectedHash, hash);
-	}
-
 	TEST(TEST_CLASS, GenerationHashIsCalculatedAsExpected) {
 		// Arrange:
 		auto gamma = utils::ParseByteArray<crypto::ProofGamma>("6FB9C930C0AC6BEF09D6DFEBD091AE83C91B35F2C0305B05B4F6F7AF4B6FC1F0");

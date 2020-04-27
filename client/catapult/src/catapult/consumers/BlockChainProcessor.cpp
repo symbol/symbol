@@ -165,7 +165,7 @@ namespace catapult { namespace consumers {
 			}
 
 		private:
-			static crypto::VrfProof Unpack(const model::PackedGenerationHashProof& proof) {
+			static crypto::VrfProof Unpack(const model::PackedVrfProof& proof) {
 				return { proof.Gamma, proof.VerificationHash, proof.Scalar };
 			}
 
