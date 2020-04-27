@@ -91,9 +91,9 @@ namespace catapult { namespace builders {
 	}
 
 	AggregateCosignatureAppender::AggregateCosignatureAppender(
-			const GenerationHash& generationHash,
+			const GenerationHash& generationHashSeed,
 			std::unique_ptr<TransactionType>&& pAggregateTransaction)
-			: m_generationHash(generationHash)
+			: m_generationHashSeed(generationHashSeed)
 			, m_pAggregateTransaction(std::move(pAggregateTransaction))
 	{}
 
@@ -102,7 +102,7 @@ namespace catapult { namespace builders {
 			m_pAggregateTransaction->Type = model::Entity_Type_Aggregate_Complete;
 			m_transactionHash = model::CalculateHash(
 					*m_pAggregateTransaction,
-					m_generationHash,
+					m_generationHashSeed,
 					TransactionDataBuffer(*m_pAggregateTransaction));
 		}
 

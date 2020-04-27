@@ -210,11 +210,11 @@ namespace catapult { namespace extensions {
 
 	TEST(TEST_CLASS, DeterministicTransactionIsFullyVerifiable) {
 		// Arrange:
-		auto generationHash = utils::ParseByteArray<GenerationHash>(test::Deterministic_Network_Generation_Hash_String);
+		auto generationHashSeed = utils::ParseByteArray<GenerationHash>(test::Deterministic_Network_Generation_Hash_Seed_String);
 		auto pTransaction = test::GenerateDeterministicTransaction();
 
 		// Act:
-		auto isVerified = TransactionExtensions(generationHash).verify(*pTransaction);
+		auto isVerified = TransactionExtensions(generationHashSeed).verify(*pTransaction);
 
 		// Assert:
 		EXPECT_TRUE(isVerified);

@@ -146,8 +146,8 @@ namespace catapult { namespace builders {
 		void AssertAggregateCosignaturesTransaction(size_t numCosignatures) {
 			// Arrange: create transaction with 3 embedded transactions
 			TestContext context(3);
-			auto generationHash = test::GenerateRandomByteArray<GenerationHash>();
-			AggregateCosignatureAppender builder(generationHash, context.buildTransaction());
+			auto generationHashSeed = test::GenerateRandomByteArray<GenerationHash>();
+			AggregateCosignatureAppender builder(generationHashSeed, context.buildTransaction());
 			auto cosignatories = GenerateKeys(numCosignatures);
 
 			// Act:
@@ -158,7 +158,7 @@ namespace catapult { namespace builders {
 
 			// Assert:
 			context.assertTransaction(*pTransaction, cosignatories.size(), model::Entity_Type_Aggregate_Complete);
-			auto hash = model::CalculateHash(*pTransaction, generationHash, TransactionDataBuffer(*pTransaction));
+			auto hash = model::CalculateHash(*pTransaction, generationHashSeed, TransactionDataBuffer(*pTransaction));
 			const auto* pCosignature = pTransaction->CosignaturesPtr();
 			for (const auto& cosignatory : cosignatories) {
 				EXPECT_EQ(cosignatory.publicKey(), pCosignature->SignerPublicKey) << "invalid signer";

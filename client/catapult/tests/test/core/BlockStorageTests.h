@@ -461,7 +461,7 @@ namespace catapult { namespace test {
 			// Arrange:
 			constexpr auto Source_Directory = "../seed/mijin-test";
 
-			auto nemesisBlockElement = BlockToBlockElement(GetNemesisBlock(), GetNemesisGenerationHash());
+			auto nemesisBlockElement = BlockToBlockElement(GetNemesisBlock(), GetNemesisGenerationHashSeed());
 
 			// Act:
 			const auto pStorage = TTraits::OpenStorage(Source_Directory);

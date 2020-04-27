@@ -1062,7 +1062,7 @@ namespace catapult { namespace sync {
 				auto keyPair = test::GenerateKeyPair();
 				transaction.SignerPublicKey = keyPair.publicKey();
 				transaction.Deadline = test::CreateDefaultNetworkTimeSupplier()() + Timestamp(60'000);
-				extensions::TransactionExtensions(test::GetNemesisGenerationHash()).sign(keyPair, transaction);
+				extensions::TransactionExtensions(test::GetNemesisGenerationHashSeed()).sign(keyPair, transaction);
 			}
 
 			return range;
@@ -1169,7 +1169,7 @@ namespace catapult { namespace sync {
 		auto pValidTransaction = test::GenerateRandomTransaction();
 		pValidTransaction->SignerPublicKey = signer.publicKey();
 		pValidTransaction->Deadline = test::CreateDefaultNetworkTimeSupplier()() + Timestamp(60'000);
-		extensions::TransactionExtensions(test::GetNemesisGenerationHash()).sign(signer, *pValidTransaction);
+		extensions::TransactionExtensions(test::GetNemesisGenerationHashSeed()).sign(signer, *pValidTransaction);
 
 		auto range = test::CreateEntityRange({ pValidTransaction.get() });
 
@@ -1270,7 +1270,7 @@ namespace catapult { namespace sync {
 
 		// Act: valid transaction range is not processed
 		pTransaction->Deadline = test::CreateDefaultNetworkTimeSupplier()() + Timestamp(60'000);
-		extensions::TransactionExtensions(test::GetNemesisGenerationHash()).sign(signer, *pTransaction);
+		extensions::TransactionExtensions(test::GetNemesisGenerationHashSeed()).sign(signer, *pTransaction);
 
 		auto range2 = model::AnnotatedTransactionRange(test::CreateEntityRange({ pTransaction.get() }), nodeIdentity);
 

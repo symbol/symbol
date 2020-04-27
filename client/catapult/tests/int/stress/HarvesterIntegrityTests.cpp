@@ -153,7 +153,7 @@ namespace catapult { namespace harvesting {
 					pTransaction->MaxFee = Amount(0);
 					pTransaction->Deadline = deadline;
 
-					auto transactionHash = model::CalculateHash(*pTransaction, test::GetNemesisGenerationHash());
+					auto transactionHash = model::CalculateHash(*pTransaction, test::GetNemesisGenerationHashSeed());
 					model::TransactionInfo transactionInfo(std::move(pTransaction), transactionHash);
 					m_transactionsCache.modifier().add(std::move(transactionInfo));
 				}
@@ -212,7 +212,7 @@ namespace catapult { namespace harvesting {
 				{
 					auto utCacheView = context.transactionsCache().view();
 					auto pTransaction = utCacheView.unknownTransactions(BlockFeeMultiplier(0), utils::ShortHashesSet())[0];
-					auto transactionHash = model::CalculateHash(*pTransaction, test::GetNemesisGenerationHash());
+					auto transactionHash = model::CalculateHash(*pTransaction, test::GetNemesisGenerationHashSeed());
 					nextTransactionInfo = model::TransactionInfo(std::move(pTransaction), transactionHash);
 				}
 

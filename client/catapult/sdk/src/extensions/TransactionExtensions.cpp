@@ -40,21 +40,21 @@ namespace catapult { namespace extensions {
 		}
 	}
 
-	TransactionExtensions::TransactionExtensions(const GenerationHash& generationHash) : m_generationHash(generationHash)
+	TransactionExtensions::TransactionExtensions(const GenerationHash& generationHashSeed) : m_generationHashSeed(generationHashSeed)
 	{}
 
 	Hash256 TransactionExtensions::hash(const model::Transaction& transaction) const {
-		return model::CalculateHash(transaction, m_generationHash, TransactionDataBuffer(transaction));
+		return model::CalculateHash(transaction, m_generationHashSeed, TransactionDataBuffer(transaction));
 	}
 
 	void TransactionExtensions::sign(const crypto::KeyPair& signer, model::Transaction& transaction) const {
-		crypto::Sign(signer, { m_generationHash, TransactionDataBuffer(transaction) }, transaction.Signature);
+		crypto::Sign(signer, { m_generationHashSeed, TransactionDataBuffer(transaction) }, transaction.Signature);
 	}
 
 	bool TransactionExtensions::verify(const model::Transaction& transaction) const {
 		return crypto::Verify(
 				transaction.SignerPublicKey,
-				{ m_generationHash, TransactionDataBuffer(transaction) },
+				{ m_generationHashSeed, TransactionDataBuffer(transaction) },
 				transaction.Signature);
 	}
 }}

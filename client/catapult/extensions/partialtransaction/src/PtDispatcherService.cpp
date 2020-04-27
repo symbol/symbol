@@ -97,7 +97,7 @@ namespace catapult { namespace partialtransaction {
 		public:
 			void addHashConsumers(const cache::MemoryPtCacheProxy& ptCache) {
 				m_consumers.push_back(CreateTransactionHashCalculatorConsumer(
-						m_state.config().BlockChain.Network.GenerationHash,
+						m_state.config().BlockChain.Network.GenerationHashSeed,
 						m_state.pluginManager().transactionRegistry()));
 				m_consumers.push_back(CreateTransactionHashCheckConsumer(
 						m_state.timeSupplier(),

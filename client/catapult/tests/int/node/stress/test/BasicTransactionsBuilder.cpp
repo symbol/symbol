@@ -117,7 +117,7 @@ namespace catapult { namespace test {
 			Timestamp deadline) {
 		pTransaction->Deadline = deadline;
 		pTransaction->MaxFee = Amount(pTransaction->Size);
-		extensions::TransactionExtensions(GetNemesisGenerationHash()).sign(signerKeyPair, *pTransaction);
+		extensions::TransactionExtensions(GetNemesisGenerationHashSeed()).sign(signerKeyPair, *pTransaction);
 		return std::move(pTransaction);
 	}
 }}

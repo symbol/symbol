@@ -80,7 +80,7 @@ namespace catapult { namespace test {
 			const UnresolvedAddress& recipient,
 			Amount amount) {
 		auto pTransaction = CreateUnsignedTransferTransaction(signer.publicKey(), recipient, amount);
-		extensions::TransactionExtensions(GetNemesisGenerationHash()).sign(signer, *pTransaction);
+		extensions::TransactionExtensions(GetNemesisGenerationHashSeed()).sign(signer, *pTransaction);
 		return pTransaction;
 	}
 
@@ -105,7 +105,7 @@ namespace catapult { namespace test {
 		builder.setDuration(duration);
 		auto pTransaction = builder.build();
 
-		extensions::TransactionExtensions(GetNemesisGenerationHash()).sign(signer, *pTransaction);
+		extensions::TransactionExtensions(GetNemesisGenerationHashSeed()).sign(signer, *pTransaction);
 		return PORTABLE_MOVE(pTransaction);
 	}
 
@@ -120,7 +120,7 @@ namespace catapult { namespace test {
 		builder.setAliasAction(model::AliasAction::Link);
 		auto pTransaction = builder.build();
 
-		extensions::TransactionExtensions(GetNemesisGenerationHash()).sign(signer, *pTransaction);
+		extensions::TransactionExtensions(GetNemesisGenerationHashSeed()).sign(signer, *pTransaction);
 		return PORTABLE_MOVE(pTransaction);
 	}
 

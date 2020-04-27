@@ -108,7 +108,7 @@ namespace catapult { namespace extensions {
 			if (NemesisBlockModification::Generation_Hash == modification)
 				test::FillWithRandomData(modifiedNemesisBlockElement.GenerationHash);
 			else
-				modifiedNemesisBlockElement.GenerationHash = network.GenerationHash;
+				modifiedNemesisBlockElement.GenerationHash = network.GenerationHashSeed;
 
 			// 3. modify the block signature if requested
 			if (NemesisBlockModification::Signature == modification)
@@ -140,7 +140,7 @@ namespace catapult { namespace extensions {
 			auto config = model::BlockChainConfiguration::Uninitialized();
 			config.Network.Identifier = Network_Identifier;
 			config.Network.PublicKey = nemesisBlock.SignerPublicKey;
-			test::FillWithRandomData(config.Network.GenerationHash);
+			test::FillWithRandomData(config.Network.GenerationHashSeed);
 			config.CurrencyMosaicId = Currency_Mosaic_Id;
 			config.HarvestingMosaicId = Harvesting_Mosaic_Id;
 			config.InitialCurrencyAtomicUnits = nemesisOptions.InitialCurrencyAtomicUnits;

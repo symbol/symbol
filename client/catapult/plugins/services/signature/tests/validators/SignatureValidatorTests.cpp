@@ -35,10 +35,10 @@ namespace catapult { namespace validators {
 
 		void AssertValidationResult(
 				ValidationResult expectedResult,
-				const GenerationHash& generationHash,
+				const GenerationHash& generationHashSeed,
 				const model::SignatureNotification& notification) {
 			// Arrange:
-			auto pValidator = CreateSignatureValidator(generationHash);
+			auto pValidator = CreateSignatureValidator(generationHashSeed);
 
 			// Act:
 			auto result = test::ValidateNotification(*pValidator, notification);
@@ -51,18 +51,18 @@ namespace catapult { namespace validators {
 		public:
 			explicit TestContext(ReplayProtectionMode mode)
 					: SignerKeyPair(test::GenerateKeyPair())
-					, GenerationHash(test::GenerateRandomByteArray<catapult::GenerationHash>())
+					, GenerationHashSeed(test::GenerateRandomByteArray<catapult::GenerationHash>())
 					, DataBuffer(test::GenerateRandomVector(55)) {
 				// when replay protection is enabled, data buffer should be prepended by generation hash
 				if (ReplayProtectionMode::Enabled == mode)
-					crypto::Sign(SignerKeyPair, { GenerationHash, DataBuffer }, Signature);
+					crypto::Sign(SignerKeyPair, { GenerationHashSeed, DataBuffer }, Signature);
 				else
 					crypto::Sign(SignerKeyPair, DataBuffer, Signature);
 			}
 
 		public:
 			crypto::KeyPair SignerKeyPair;
-			catapult::GenerationHash GenerationHash;
+			catapult::GenerationHash GenerationHashSeed;
 			std::vector<uint8_t> DataBuffer;
 			catapult::Signature Signature;
 		};
@@ -80,7 +80,7 @@ namespace catapult { namespace validators {
 		model::SignatureNotification notification(context.SignerKeyPair.publicKey(), context.Signature, context.DataBuffer, Mode);
 
 		// Assert:
-		AssertValidationResult(ValidationResult::Success, context.GenerationHash, notification);
+		AssertValidationResult(ValidationResult::Success, context.GenerationHashSeed, notification);
 	}
 
 	ALL_REPLAY_PROTECTION_MODES_TEST(FailureWhenSignatureIsAltered) {
@@ -91,7 +91,7 @@ namespace catapult { namespace validators {
 		context.Signature[0] ^= 0xFF;
 
 		// Assert:
-		AssertValidationResult(Failure_Signature_Not_Verifiable, context.GenerationHash, notification);
+		AssertValidationResult(Failure_Signature_Not_Verifiable, context.GenerationHashSeed, notification);
 	}
 
 	ALL_REPLAY_PROTECTION_MODES_TEST(FailureWhenDataIsAltered) {
@@ -102,7 +102,7 @@ namespace catapult { namespace validators {
 		context.DataBuffer[10] ^= 0xFF;
 
 		// Assert:
-		AssertValidationResult(Failure_Signature_Not_Verifiable, context.GenerationHash, notification);
+		AssertValidationResult(Failure_Signature_Not_Verifiable, context.GenerationHashSeed, notification);
 	}
 
 	TEST(TEST_CLASS, FailureWhenGenerationHashIsAltered_ReplayProtectionEnabled) {
@@ -111,10 +111,10 @@ namespace catapult { namespace validators {
 		TestContext context(mode);
 		model::SignatureNotification notification(context.SignerKeyPair.publicKey(), context.Signature, context.DataBuffer, mode);
 
-		context.GenerationHash[2] ^= 0xFF;
+		context.GenerationHashSeed[2] ^= 0xFF;
 
 		// Assert:
-		AssertValidationResult(Failure_Signature_Not_Verifiable, context.GenerationHash, notification);
+		AssertValidationResult(Failure_Signature_Not_Verifiable, context.GenerationHashSeed, notification);
 	}
 
 	TEST(TEST_CLASS, SuccessWhenGenerationHashIsAltered_ReplayProtectionDisabled) {
@@ -123,9 +123,9 @@ namespace catapult { namespace validators {
 		TestContext context(mode);
 		model::SignatureNotification notification(context.SignerKeyPair.publicKey(), context.Signature, context.DataBuffer, mode);
 
-		context.GenerationHash[2] ^= 0xFF;
+		context.GenerationHashSeed[2] ^= 0xFF;
 
 		// Assert:
-		AssertValidationResult(ValidationResult::Success, context.GenerationHash, notification);
+		AssertValidationResult(ValidationResult::Success, context.GenerationHashSeed, notification);
 	}
 }}

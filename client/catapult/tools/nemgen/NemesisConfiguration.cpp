@@ -180,7 +180,7 @@ namespace catapult { namespace tools { namespace nemgen {
 #define LOAD_NEMESIS_PROPERTY(NAME) LOAD_PROPERTY("nemesis", NAME)
 
 		LOAD_NEMESIS_PROPERTY(NetworkIdentifier);
-		LOAD_NEMESIS_PROPERTY(NemesisGenerationHash);
+		LOAD_NEMESIS_PROPERTY(NemesisGenerationHashSeed);
 		LOAD_NEMESIS_PROPERTY(NemesisSignerPrivateKey);
 
 #undef LOAD_NEMESIS_PROPERTY

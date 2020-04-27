@@ -585,7 +585,7 @@ namespace catapult { namespace local {
 					auto pTransaction = test::CreateTransferTransaction(keyPair, unresolvedRecipient, Amount(0));
 					pTransaction->Deadline = deadline;
 					pTransaction->MaxFee = Amount(pTransaction->Size);
-					extensions::TransactionExtensions(test::GetNemesisGenerationHash()).sign(keyPair, *pTransaction);
+					extensions::TransactionExtensions(test::GetNemesisGenerationHashSeed()).sign(keyPair, *pTransaction);
 					return pTransaction;
 				}
 			};

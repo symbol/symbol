@@ -59,7 +59,7 @@ namespace catapult { namespace tools {
 			auto config = LoadConfiguration(m_resourcesPath);
 			auto networkFingerprint = model::UniqueNetworkFingerprint(
 					config.BlockChain.Network.Identifier,
-					config.BlockChain.Network.GenerationHash);
+					config.BlockChain.Network.GenerationHashSeed);
 			auto p2pNodes = LoadPeers(m_resourcesPath, networkFingerprint);
 			auto apiNodes = LoadOptionalApiPeers(m_resourcesPath, networkFingerprint);
 

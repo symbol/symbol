@@ -29,10 +29,10 @@ namespace catapult { namespace config {
 
 	namespace {
 		constexpr auto Network_Identifier = static_cast<model::NetworkIdentifier>(0x25);
-		constexpr auto Generation_Hash_String = "272C4ECC55B7A42A07478A9550543C62673D1599A8362CC662E019049B76B7F2";
+		constexpr auto Generation_Hash_Seed_String = "272C4ECC55B7A42A07478A9550543C62673D1599A8362CC662E019049B76B7F2";
 
 		auto GetNetworkFingerprint() {
-			return model::UniqueNetworkFingerprint(Network_Identifier, utils::ParseByteArray<GenerationHash>(Generation_Hash_String));
+			return model::UniqueNetworkFingerprint(Network_Identifier, utils::ParseByteArray<GenerationHash>(Generation_Hash_Seed_String));
 		}
 
 		void AssertIdentity(const model::NodeIdentity& identity, const Key& identityKey, const std::string& host) {
@@ -48,7 +48,7 @@ namespace catapult { namespace config {
 		void AssertMetadata(const ionet::NodeMetadata& metadata, const std::string& name, ionet::NodeRoles roles) {
 			EXPECT_EQ(name, metadata.Name);
 			EXPECT_EQ(Network_Identifier, metadata.NetworkFingerprint.Identifier);
-			EXPECT_EQ(utils::ParseByteArray<GenerationHash>(Generation_Hash_String), metadata.NetworkFingerprint.GenerationHash);
+			EXPECT_EQ(utils::ParseByteArray<GenerationHash>(Generation_Hash_Seed_String), metadata.NetworkFingerprint.GenerationHashSeed);
 			EXPECT_EQ(ionet::NodeVersion(), metadata.Version);
 			EXPECT_EQ(roles, metadata.Roles);
 		}

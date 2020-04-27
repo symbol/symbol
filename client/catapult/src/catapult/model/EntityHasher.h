@@ -33,12 +33,12 @@ namespace catapult { namespace model {
 	/// Calculates the hash for the given \a block header.
 	Hash256 CalculateHash(const Block& block);
 
-	/// Calculates the hash for the given \a transaction for the network with the specified generation hash (\a generationHash).
-	Hash256 CalculateHash(const Transaction& transaction, const GenerationHash& generationHash);
+	/// Calculates the hash for the given \a transaction for the network with the specified generation hash seed (\a generationHashSeed).
+	Hash256 CalculateHash(const Transaction& transaction, const GenerationHash& generationHashSeed);
 
 	/// Calculates the hash for the given \a transaction with data \a buffer for the network with the specified
-	/// generation hash (\a generationHash).
-	Hash256 CalculateHash(const Transaction& transaction, const GenerationHash& generationHash, const RawBuffer& buffer);
+	/// generation hash seed (\a generationHashSeed).
+	Hash256 CalculateHash(const Transaction& transaction, const GenerationHash& generationHashSeed, const RawBuffer& buffer);
 
 	/// Calculates the merkle component hash for the given \a transaction with \a transactionHash
 	/// using transaction information from \a transactionRegistry.
@@ -50,10 +50,10 @@ namespace catapult { namespace model {
 	/// Calculates the merkle tree from \a transactionElements.
 	std::vector<Hash256> CalculateMerkleTree(const std::vector<TransactionElement>& transactionElements);
 
-	/// Calculates the hashes for \a transactionElement in place for the network with the specified generation hash (\a generationHash)
-	/// using transaction information from \a transactionRegistry.
+	/// Calculates the hashes for \a transactionElement in place for the network with the specified
+	/// generation hash seed (\a generationHashSeed) using transaction information from \a transactionRegistry.
 	void UpdateHashes(
 				const TransactionRegistry& transactionRegistry,
-				const GenerationHash& generationHash,
+				const GenerationHash& generationHashSeed,
 				TransactionElement& transactionElement);
 }}

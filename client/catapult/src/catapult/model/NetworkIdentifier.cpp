@@ -66,13 +66,13 @@ namespace catapult { namespace model {
 			: UniqueNetworkFingerprint(identifier, catapult::GenerationHash())
 	{}
 
-	UniqueNetworkFingerprint::UniqueNetworkFingerprint(NetworkIdentifier identifier, const catapult::GenerationHash& generationHash)
+	UniqueNetworkFingerprint::UniqueNetworkFingerprint(NetworkIdentifier identifier, const catapult::GenerationHash& generationHashSeed)
 			: Identifier(identifier)
-			, GenerationHash(generationHash)
+			, GenerationHashSeed(generationHashSeed)
 	{}
 
 	bool UniqueNetworkFingerprint::operator==(const UniqueNetworkFingerprint& rhs) const {
-		return Identifier == rhs.Identifier && GenerationHash == rhs.GenerationHash;
+		return Identifier == rhs.Identifier && GenerationHashSeed == rhs.GenerationHashSeed;
 	}
 
 	bool UniqueNetworkFingerprint::operator!=(const UniqueNetworkFingerprint& rhs) const {
@@ -80,7 +80,7 @@ namespace catapult { namespace model {
 	}
 
 	std::ostream& operator<<(std::ostream& out, const UniqueNetworkFingerprint& fingerprint) {
-		out << fingerprint.Identifier << "::" << fingerprint.GenerationHash;
+		out << fingerprint.Identifier << "::" << fingerprint.GenerationHashSeed;
 		return out;
 	}
 

@@ -40,8 +40,8 @@ namespace catapult { namespace test {
 	/// Generates a transaction with random data.
 	std::unique_ptr<model::Transaction> GenerateRandomTransaction();
 
-	/// Generates a transaction for a network with specified generation hash (\a generationHash).
-	std::unique_ptr<model::Transaction> GenerateRandomTransaction(const GenerationHash& generationHash);
+	/// Generates a transaction for a network with specified generation hash seed (\a generationHashSeed).
+	std::unique_ptr<model::Transaction> GenerateRandomTransaction(const GenerationHash& generationHashSeed);
 
 	/// Generates a transaction with random data around \a signer.
 	std::unique_ptr<model::Transaction> GenerateRandomTransaction(const Key& signer);

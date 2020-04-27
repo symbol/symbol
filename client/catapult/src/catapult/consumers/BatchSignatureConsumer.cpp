@@ -32,8 +32,8 @@ namespace catapult { namespace consumers {
 	namespace {
 		class SignatureCapturingNotificationSubscriber : public model::NotificationSubscriber {
 		public:
-			explicit SignatureCapturingNotificationSubscriber(const GenerationHash& generationHash)
-					: m_generationHash(generationHash)
+			explicit SignatureCapturingNotificationSubscriber(const GenerationHash& generationHashSeed)
+					: m_generationHashSeed(generationHashSeed)
 					, m_entityIndex(0)
 			{}
 
@@ -64,7 +64,7 @@ namespace catapult { namespace consumers {
 			void add(const model::SignatureNotification& notification) {
 				std::vector<RawBuffer> buffers;
 				if (model::SignatureNotification::ReplayProtectionMode::Enabled == notification.DataReplayProtectionMode)
-					buffers.push_back(m_generationHash);
+					buffers.push_back(m_generationHashSeed);
 
 				buffers.push_back(notification.Data);
 
@@ -72,17 +72,17 @@ namespace catapult { namespace consumers {
 			}
 
 		private:
-			const GenerationHash& m_generationHash;
+			const GenerationHash& m_generationHashSeed;
 			size_t m_entityIndex;
 			std::vector<size_t> m_notificationToEntityIndexMap;
 			std::vector<crypto::SignatureInput> m_inputs;
 		};
 
 		std::unique_ptr<SignatureCapturingNotificationSubscriber> ExtractAllSignatureNotifications(
-				const GenerationHash& generationHash,
+				const GenerationHash& generationHashSeed,
 				const model::NotificationPublisher& publisher,
 				const model::WeakEntityInfos& entityInfos) {
-			auto pSub = std::make_unique<SignatureCapturingNotificationSubscriber>(generationHash);
+			auto pSub = std::make_unique<SignatureCapturingNotificationSubscriber>(generationHashSeed);
 			for (const auto& entityInfo : entityInfos) {
 				publisher.publish(entityInfo, *pSub);
 				pSub->next();
@@ -106,15 +106,15 @@ namespace catapult { namespace consumers {
 	}
 
 	disruptor::ConstBlockConsumer CreateBlockBatchSignatureConsumer(
-			const GenerationHash& generationHash,
+			const GenerationHash& generationHashSeed,
 			const crypto::RandomFiller& randomFiller,
 			const std::shared_ptr<model::NotificationPublisher>& pPublisher,
 			const std::shared_ptr<thread::IoThreadPool>& pPool,
 			const RequiresValidationPredicate& requiresValidationPredicate) {
-		return MakeBlockValidationConsumer(requiresValidationPredicate, [generationHash, randomFiller, pPublisher, pPool](
+		return MakeBlockValidationConsumer(requiresValidationPredicate, [generationHashSeed, randomFiller, pPublisher, pPool](
 				const auto& entityInfos) {
 			// find all signature notifications
-			auto inputs = ExtractAllSignatureNotifications(generationHash, *pPublisher, entityInfos)->inputs();
+			auto inputs = ExtractAllSignatureNotifications(generationHashSeed, *pPublisher, entityInfos)->inputs();
 
 			// process signatures in batches
 			std::atomic<validators::ValidationResult> aggregateResult(validators::ValidationResult::Success);
@@ -130,15 +130,15 @@ namespace catapult { namespace consumers {
 	}
 
 	disruptor::TransactionConsumer CreateTransactionBatchSignatureConsumer(
-			const GenerationHash& generationHash,
+			const GenerationHash& generationHashSeed,
 			const crypto::RandomFiller& randomFiller,
 			const std::shared_ptr<model::NotificationPublisher>& pPublisher,
 			const std::shared_ptr<thread::IoThreadPool>& pPool,
 			const chain::FailedTransactionSink& failedTransactionSink) {
-		return MakeTransactionValidationConsumer(failedTransactionSink, [generationHash, randomFiller, pPublisher, pPool](
+		return MakeTransactionValidationConsumer(failedTransactionSink, [generationHashSeed, randomFiller, pPublisher, pPool](
 				const auto& entityInfos) {
 			// find all signature notifications
-			auto pSub = ExtractAllSignatureNotifications(generationHash, *pPublisher, entityInfos);
+			auto pSub = ExtractAllSignatureNotifications(generationHashSeed, *pPublisher, entityInfos);
 
 			// process signatures in batches
 			// note: store notification (not entity) results because it's possible for an entity to be split across partitions,

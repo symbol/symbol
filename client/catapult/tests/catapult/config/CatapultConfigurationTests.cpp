@@ -55,7 +55,7 @@ namespace catapult { namespace config {
 					config.Network.PublicKey);
 			EXPECT_EQ(
 					utils::ParseByteArray<GenerationHash>("57F7DA205008026C776CB6AED843393F04CD458E0AA2D9F1D5F31A402072B2D6"),
-					config.Network.GenerationHash);
+					config.Network.GenerationHashSeed);
 
 			EXPECT_TRUE(config.EnableVerifiableState);
 			EXPECT_TRUE(config.EnableVerifiableReceipts);
@@ -308,12 +308,12 @@ namespace catapult { namespace config {
 	// region ToLocalNode
 
 	namespace {
-		constexpr auto Generation_Hash_String = "272C4ECC55B7A42A07478A9550543C62673D1599A8362CC662E019049B76B7F2";
+		constexpr auto Generation_Hash_Seed_String = "272C4ECC55B7A42A07478A9550543C62673D1599A8362CC662E019049B76B7F2";
 
 		auto CreateCatapultConfiguration() {
 			test::MutableCatapultConfiguration config;
 			config.BlockChain.Network.Identifier = model::NetworkIdentifier::Mijin_Test;
-			config.BlockChain.Network.GenerationHash = utils::ParseByteArray<GenerationHash>(Generation_Hash_String);
+			config.BlockChain.Network.GenerationHashSeed = utils::ParseByteArray<GenerationHash>(Generation_Hash_Seed_String);
 
 			config.Node.Port = 9876;
 			config.Node.Local.Host = "alice.com";
@@ -346,7 +346,7 @@ namespace catapult { namespace config {
 
 		const auto& metadata = node.metadata();
 		EXPECT_EQ(model::NetworkIdentifier::Mijin_Test, metadata.NetworkFingerprint.Identifier);
-		EXPECT_EQ(utils::ParseByteArray<GenerationHash>(Generation_Hash_String), metadata.NetworkFingerprint.GenerationHash);
+		EXPECT_EQ(utils::ParseByteArray<GenerationHash>(Generation_Hash_Seed_String), metadata.NetworkFingerprint.GenerationHashSeed);
 		EXPECT_EQ("a GREAT node", metadata.Name);
 		EXPECT_EQ(ionet::NodeVersion(123), metadata.Version);
 		EXPECT_EQ(ionet::NodeRoles::Api, metadata.Roles);

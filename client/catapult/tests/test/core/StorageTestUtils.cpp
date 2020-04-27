@@ -66,7 +66,7 @@ namespace catapult { namespace test {
 		// modify nemesis block and resign it
 		auto& nemesisBlock = const_cast<model::Block&>(pNemesisBlockElement->Block);
 		modify(nemesisBlock, *pNemesisBlockElement);
-		extensions::BlockExtensions(GetNemesisGenerationHash()).signFullBlock(
+		extensions::BlockExtensions(GetNemesisGenerationHashSeed()).signFullBlock(
 				crypto::KeyPair::FromString(Mijin_Test_Nemesis_Private_Key),
 				nemesisBlock);
 

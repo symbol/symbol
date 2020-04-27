@@ -32,7 +32,7 @@ namespace catapult { namespace model {
 
 	namespace {
 		constexpr auto Nemesis_Public_Key = "C738E237C98760FA72726BA13DC2A1E3C13FA67DE26AF09742E972EE4EE45E1C";
-		constexpr auto Nemesis_Generation_Hash = "CE076EF4ABFBC65B046987429E274EC31506D173E91BF102F16BEB7FB8176230";
+		constexpr auto Nemesis_Generation_Hash_Seed = "CE076EF4ABFBC65B046987429E274EC31506D173E91BF102F16BEB7FB8176230";
 
 		struct BlockChainConfigurationTraits {
 			using ConfigurationType = BlockChainConfiguration;
@@ -45,7 +45,7 @@ namespace catapult { namespace model {
 							{ "identifier", "public-test" },
 							{ "nodeEqualityStrategy", "host" },
 							{ "publicKey", Nemesis_Public_Key },
-							{ "generationHash", Nemesis_Generation_Hash },
+							{ "generationHashSeed", Nemesis_Generation_Hash_Seed },
 							{ "epochAdjustment", "1234567h" }
 						}
 					},
@@ -107,7 +107,7 @@ namespace catapult { namespace model {
 				EXPECT_EQ(NetworkIdentifier::Zero, config.Network.Identifier);
 				EXPECT_EQ(static_cast<NodeIdentityEqualityStrategy>(0), config.Network.NodeEqualityStrategy);
 				EXPECT_EQ(Key(), config.Network.PublicKey);
-				EXPECT_EQ(GenerationHash(), config.Network.GenerationHash);
+				EXPECT_EQ(GenerationHash(), config.Network.GenerationHashSeed);
 				EXPECT_EQ(utils::TimeSpan(), config.Network.EpochAdjustment);
 
 				EXPECT_FALSE(config.EnableVerifiableState);
@@ -147,7 +147,7 @@ namespace catapult { namespace model {
 				EXPECT_EQ(NetworkIdentifier::Public_Test, config.Network.Identifier);
 				EXPECT_EQ(NodeIdentityEqualityStrategy::Host, config.Network.NodeEqualityStrategy);
 				EXPECT_EQ(utils::ParseByteArray<Key>(Nemesis_Public_Key), config.Network.PublicKey);
-				EXPECT_EQ(utils::ParseByteArray<GenerationHash>(Nemesis_Generation_Hash), config.Network.GenerationHash);
+				EXPECT_EQ(utils::ParseByteArray<GenerationHash>(Nemesis_Generation_Hash_Seed), config.Network.GenerationHashSeed);
 				EXPECT_EQ(utils::TimeSpan::FromHours(1234567), config.Network.EpochAdjustment);
 
 				EXPECT_TRUE(config.EnableVerifiableState);

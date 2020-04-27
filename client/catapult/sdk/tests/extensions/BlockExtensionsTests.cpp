@@ -40,7 +40,7 @@ namespace catapult { namespace extensions {
 			Hash256 MerkleComponentHash;
 		};
 
-		GenerationHash GetNetworkGenerationHash() {
+		GenerationHash GetNetworkGenerationHashSeed() {
 			return utils::ParseByteArray<GenerationHash>("CE076EF4ABFBC65B046987429E274EC31506D173E91BF102F16BEB7FB8176230");
 		}
 
@@ -49,14 +49,14 @@ namespace catapult { namespace extensions {
 			template<typename TAction>
 			static void RunExtensionsTest(TAction action) {
 				// Act:
-				action(BlockExtensions(GetNetworkGenerationHash()));
+				action(BlockExtensions(GetNetworkGenerationHashSeed()));
 			}
 
 			static Hash256 CalculateExpectedBlockTransactionsHash(const model::Block& block) {
 				// calculate the expected block transactions hash
 				crypto::MerkleHashBuilder builder;
 				for (const auto& transaction : block.Transactions())
-					builder.update(model::CalculateHash(transaction, GetNetworkGenerationHash()));
+					builder.update(model::CalculateHash(transaction, GetNetworkGenerationHashSeed()));
 
 				Hash256 expectedBlockTransactionsHash;
 				builder.final(expectedBlockTransactionsHash);
@@ -65,7 +65,7 @@ namespace catapult { namespace extensions {
 
 			static TransactionHashes CalculateTransactionHashes(const model::Transaction& transaction) {
 				TransactionHashes hashes;
-				hashes.EntityHash = model::CalculateHash(transaction, GetNetworkGenerationHash());
+				hashes.EntityHash = model::CalculateHash(transaction, GetNetworkGenerationHashSeed());
 				hashes.MerkleComponentHash = hashes.EntityHash;
 				return hashes;
 			}
@@ -79,7 +79,7 @@ namespace catapult { namespace extensions {
 				auto transactionRegistry = CreateCustomTransactionRegistry();
 
 				// Act:
-				action(BlockExtensions(GetNetworkGenerationHash(), transactionRegistry));
+				action(BlockExtensions(GetNetworkGenerationHashSeed(), transactionRegistry));
 			}
 
 			static Hash256 CalculateExpectedBlockTransactionsHash(const model::Block& block) {
@@ -88,7 +88,7 @@ namespace catapult { namespace extensions {
 				crypto::MerkleHashBuilder builder;
 				for (const auto& transaction : block.Transactions()) {
 					auto transactionElement = model::TransactionElement(transaction);
-					model::UpdateHashes(transactionRegistry, GetNetworkGenerationHash(), transactionElement);
+					model::UpdateHashes(transactionRegistry, GetNetworkGenerationHashSeed(), transactionElement);
 					builder.update(transactionElement.MerkleComponentHash);
 				}
 
@@ -102,7 +102,7 @@ namespace catapult { namespace extensions {
 				const auto& plugin = *transactionRegistry.findPlugin(transaction.Type);
 
 				TransactionHashes hashes;
-				hashes.EntityHash = model::CalculateHash(transaction, GetNetworkGenerationHash(), plugin.dataBuffer(transaction));
+				hashes.EntityHash = model::CalculateHash(transaction, GetNetworkGenerationHashSeed(), plugin.dataBuffer(transaction));
 				hashes.MerkleComponentHash = model::CalculateMerkleComponentHash(transaction, hashes.EntityHash, transactionRegistry);
 				return hashes;
 			}
@@ -134,7 +134,7 @@ namespace catapult { namespace extensions {
 			// generate transactions
 			test::ConstTransactions transactions;
 			for (auto i = 1u; i <= numTransactions; ++i) {
-				auto pTransaction = test::GenerateRandomTransaction(GetNetworkGenerationHash());
+				auto pTransaction = test::GenerateRandomTransaction(GetNetworkGenerationHashSeed());
 				transactions.push_back(std::move(pTransaction));
 			}
 
@@ -383,7 +383,7 @@ namespace catapult { namespace extensions {
 
 	TEST(TEST_CLASS, DeterministicBlockIsFullyVerifiable) {
 		// Arrange:
-		auto generationHash = utils::ParseByteArray<GenerationHash>(test::Deterministic_Network_Generation_Hash_String);
+		auto generationHash = utils::ParseByteArray<GenerationHash>(test::Deterministic_Network_Generation_Hash_Seed_String);
 		auto pBlock = test::GenerateDeterministicBlock();
 
 		// Act: deterministic block does not contain any aggregate transactions, so no transaction registry is required

@@ -29,21 +29,21 @@
 
 namespace catapult { namespace extensions {
 
-	BlockExtensions::BlockExtensions(const GenerationHash& generationHash)
-			: m_generationHash(generationHash)
-			, m_calculateTransactionEntityHash([generationHash](const auto& transaction) {
-				return model::CalculateHash(transaction, generationHash);
+	BlockExtensions::BlockExtensions(const GenerationHash& generationHashSeed)
+			: m_generationHashSeed(generationHashSeed)
+			, m_calculateTransactionEntityHash([generationHashSeed](const auto& transaction) {
+				return model::CalculateHash(transaction, generationHashSeed);
 			})
 			, m_calculateTransactionMerkleComponentHash([](const auto&, const auto& entityHash) {
 				return entityHash;
 			})
 	{}
 
-	BlockExtensions::BlockExtensions(const GenerationHash& generationHash, const model::TransactionRegistry& transactionRegistry)
-			: m_generationHash(generationHash)
-			, m_calculateTransactionEntityHash([generationHash, &transactionRegistry](const auto& transaction) {
+	BlockExtensions::BlockExtensions(const GenerationHash& generationHashSeed, const model::TransactionRegistry& transactionRegistry)
+			: m_generationHashSeed(generationHashSeed)
+			, m_calculateTransactionEntityHash([generationHashSeed, &transactionRegistry](const auto& transaction) {
 				const auto& plugin = *transactionRegistry.findPlugin(transaction.Type);
-				return model::CalculateHash(transaction, generationHash, plugin.dataBuffer(transaction));
+				return model::CalculateHash(transaction, generationHashSeed, plugin.dataBuffer(transaction));
 			})
 			, m_calculateTransactionMerkleComponentHash([&transactionRegistry](const auto& transaction, const auto& entityHash) {
 				return model::CalculateMerkleComponentHash(transaction, entityHash, transactionRegistry);
@@ -85,7 +85,7 @@ namespace catapult { namespace extensions {
 			return VerifyFullBlockResult::Invalid_Block_Transactions_Hash;
 
 		// check transaction signatures
-		TransactionExtensions transactionExtensions(m_generationHash);
+		TransactionExtensions transactionExtensions(m_generationHashSeed);
 		for (const auto& transaction : block.Transactions()) {
 			if (!transactionExtensions.verify(transaction))
 				return VerifyFullBlockResult::Invalid_Transaction_Signature;

@@ -75,7 +75,7 @@ namespace catapult { namespace tools { namespace linker {
 
 				// 2. sign it
 				pTransaction->Deadline = Timestamp(1);
-				auto transactionExtensions = extensions::TransactionExtensions(config.BlockChain.Network.GenerationHash);
+				auto transactionExtensions = extensions::TransactionExtensions(config.BlockChain.Network.GenerationHashSeed);
 				transactionExtensions.sign(signer, *pTransaction);
 				auto transactionHash = transactionExtensions.hash(*pTransaction);
 

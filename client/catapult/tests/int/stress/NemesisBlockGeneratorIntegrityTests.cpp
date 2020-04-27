@@ -39,7 +39,7 @@ namespace catapult {
 		constexpr Amount Nemesis_Amount(9000000000ull / CountOf(test::Mijin_Test_Private_Keys) * 1000000ull);
 
 		bool VerifyNemesisNetworkTransactionSignature(const model::Transaction& transaction) {
-			return extensions::TransactionExtensions(test::GetNemesisGenerationHash()).verify(transaction);
+			return extensions::TransactionExtensions(test::GetNemesisGenerationHashSeed()).verify(transaction);
 		}
 	}
 
@@ -77,26 +77,26 @@ namespace catapult {
 	namespace {
 		auto CreateNemesisBlock() {
 			auto signer = crypto::KeyPair::FromString(test::Mijin_Test_Nemesis_Private_Key);
-			auto generationHash = test::GetNemesisGenerationHash();
+			auto generationHashSeed = test::GetNemesisGenerationHashSeed();
 
 			model::Transactions transactions;
 			for (const auto* pRecipientPrivateKeyString : test::Mijin_Test_Private_Keys) {
 				auto recipient = crypto::KeyPair::FromString(pRecipientPrivateKeyString);
 				auto pTransfer = test::CreateTransferTransaction(signer, recipient.publicKey(), Nemesis_Amount);
 				pTransfer->MaxFee = Amount(0);
-				extensions::TransactionExtensions(generationHash).sign(signer, *pTransfer);
+				extensions::TransactionExtensions(generationHashSeed).sign(signer, *pTransfer);
 				transactions.push_back(std::move(pTransfer));
 			}
 
 			model::PreviousBlockContext context;
-			context.GenerationHash = generationHash;
+			context.GenerationHash = generationHashSeed;
 			auto pBlock = model::CreateBlock(context, Network_Identifier, signer.publicKey(), transactions);
-			extensions::BlockExtensions(generationHash).signFullBlock(signer, *pBlock);
+			extensions::BlockExtensions(generationHashSeed).signFullBlock(signer, *pBlock);
 			return pBlock;
 		}
 
 		void VerifyNemesisBlock(const model::Block& block) {
-			auto blockExtensions = extensions::BlockExtensions(test::GetNemesisGenerationHash());
+			auto blockExtensions = extensions::BlockExtensions(test::GetNemesisGenerationHashSeed());
 			auto verifyResult = blockExtensions.verifyFullBlock(block);
 			EXPECT_EQ(extensions::VerifyFullBlockResult::Success, verifyResult);
 		}

@@ -88,7 +88,7 @@ namespace catapult { namespace extensions {
 			if (expectedNetwork.PublicKey != publicKey)
 				CATAPULT_THROW_INVALID_ARGUMENT_1("nemesis public key does not match network", publicKey);
 
-			if (expectedNetwork.GenerationHash != generationHash)
+			if (expectedNetwork.GenerationHashSeed != generationHash)
 				CATAPULT_THROW_INVALID_ARGUMENT_1("nemesis generation hash does not match network", generationHash);
 		}
 

@@ -90,7 +90,7 @@ namespace catapult { namespace test {
 		auto pTransaction = CreateUnsignedTransferTransaction(signer.publicKey(), recipient, Amount(10000));
 		pTransaction->MaxFee = Amount(10 * pTransaction->Size);
 		pTransaction->Deadline = context.Timestamp + Timestamp(120000);
-		extensions::TransactionExtensions(GetNemesisGenerationHash()).sign(signer, *pTransaction);
+		extensions::TransactionExtensions(GetNemesisGenerationHashSeed()).sign(signer, *pTransaction);
 
 		return PushEntity(connection, ionet::PacketType::Push_Transactions, std::shared_ptr<model::Transaction>(std::move(pTransaction)));
 	}

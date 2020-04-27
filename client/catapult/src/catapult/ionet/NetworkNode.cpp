@@ -42,7 +42,7 @@ namespace catapult { namespace ionet {
 		pNetworkNode->Port = endpoint.Port;
 		pNetworkNode->IdentityKey = node.identity().PublicKey;
 		pNetworkNode->NetworkIdentifier = metadata.NetworkFingerprint.Identifier;
-		pNetworkNode->NetworkGenerationHash = metadata.NetworkFingerprint.GenerationHash;
+		pNetworkNode->NetworkGenerationHashSeed = metadata.NetworkFingerprint.GenerationHashSeed;
 		pNetworkNode->Version = metadata.Version;
 		pNetworkNode->Roles = metadata.Roles;
 
@@ -70,7 +70,7 @@ namespace catapult { namespace ionet {
 
 		auto metadata = NodeMetadata();
 		metadata.NetworkFingerprint.Identifier = networkNode.NetworkIdentifier;
-		metadata.NetworkFingerprint.GenerationHash = networkNode.NetworkGenerationHash;
+		metadata.NetworkFingerprint.GenerationHashSeed = networkNode.NetworkGenerationHashSeed;
 		metadata.Name = std::string(pNetworkNodeData, networkNode.FriendlyNameSize);
 		metadata.Version = networkNode.Version;
 		metadata.Roles = networkNode.Roles;

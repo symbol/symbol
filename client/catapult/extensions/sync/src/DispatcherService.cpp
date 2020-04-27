@@ -214,7 +214,7 @@ namespace catapult { namespace sync {
 		public:
 			void addHashConsumers() {
 				m_consumers.push_back(CreateBlockHashCalculatorConsumer(
-						m_state.config().BlockChain.Network.GenerationHash,
+						m_state.config().BlockChain.Network.GenerationHashSeed,
 						m_state.pluginManager().transactionRegistry()));
 				m_consumers.push_back(CreateBlockHashCheckConsumer(
 						m_state.timeSupplier(),
@@ -234,7 +234,7 @@ namespace catapult { namespace sync {
 						CreateParallelValidationPolicy(pValidatorPool, m_state.pluginManager()),
 						requiresValidationPredicate));
 				m_consumers.push_back(CreateBlockBatchSignatureConsumer(
-						m_state.config().BlockChain.Network.GenerationHash,
+						m_state.config().BlockChain.Network.GenerationHashSeed,
 						CreateRandomFiller(m_state.config().Node.BatchVerificationRandomSource),
 						m_state.pluginManager().createNotificationPublisher(),
 						pValidatorPool,
@@ -306,7 +306,7 @@ namespace catapult { namespace sync {
 			void addHashConsumers() {
 				const auto& utCache = const_cast<const extensions::ServiceState&>(m_state).utCache();
 				m_consumers.push_back(CreateTransactionHashCalculatorConsumer(
-						m_state.config().BlockChain.Network.GenerationHash,
+						m_state.config().BlockChain.Network.GenerationHashSeed,
 						m_state.pluginManager().transactionRegistry()));
 				m_consumers.push_back(CreateTransactionHashCheckConsumer(
 						m_state.timeSupplier(),
@@ -322,7 +322,7 @@ namespace catapult { namespace sync {
 						CreateParallelValidationPolicy(pValidatorPool, m_state.pluginManager()),
 						failedTransactionSink));
 				m_consumers.push_back(CreateTransactionBatchSignatureConsumer(
-						m_state.config().BlockChain.Network.GenerationHash,
+						m_state.config().BlockChain.Network.GenerationHashSeed,
 						CreateRandomFiller(m_state.config().Node.BatchVerificationRandomSource),
 						m_state.pluginManager().createNotificationPublisher(),
 						pValidatorPool,

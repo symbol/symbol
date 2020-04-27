@@ -59,10 +59,10 @@ namespace catapult { namespace tools { namespace nemgen {
 		public:
 			NemesisTransactions(
 					model::NetworkIdentifier networkIdentifier,
-					const GenerationHash& generationHash,
+					const GenerationHash& generationHashSeed,
 					const crypto::KeyPair& signer)
 					: m_networkIdentifier(networkIdentifier)
-					, m_generationHash(generationHash)
+					, m_generationHashSeed(generationHashSeed)
 					, m_signer(signer)
 			{}
 
@@ -148,13 +148,13 @@ namespace catapult { namespace tools { namespace nemgen {
 		private:
 			void signAndAdd(std::unique_ptr<model::Transaction>&& pTransaction) {
 				pTransaction->Deadline = Timestamp(1);
-				extensions::TransactionExtensions(m_generationHash).sign(m_signer, *pTransaction);
+				extensions::TransactionExtensions(m_generationHashSeed).sign(m_signer, *pTransaction);
 				m_transactions.push_back(std::move(pTransaction));
 			}
 
 		private:
 			model::NetworkIdentifier m_networkIdentifier;
-			const GenerationHash& m_generationHash;
+			const GenerationHash& m_generationHashSeed;
 			const crypto::KeyPair& m_signer;
 			model::Transactions m_transactions;
 		};
@@ -162,7 +162,7 @@ namespace catapult { namespace tools { namespace nemgen {
 
 	std::unique_ptr<model::Block> CreateNemesisBlock(const NemesisConfiguration& config) {
 		auto signer = crypto::KeyPair::FromString(config.NemesisSignerPrivateKey);
-		NemesisTransactions transactions(config.NetworkIdentifier, config.NemesisGenerationHash, signer);
+		NemesisTransactions transactions(config.NetworkIdentifier, config.NemesisGenerationHashSeed, signer);
 
 		// - load and validate additional transactions
 		auto additionalTransactions = LoadAndValidateAdditionalTransactions(config.TransactionsDirectory);
@@ -224,7 +224,7 @@ namespace catapult { namespace tools { namespace nemgen {
 		model::PreviousBlockContext context;
 		auto pBlock = model::CreateBlock(context, config.NetworkIdentifier, signer.publicKey(), transactions.transactions());
 		pBlock->Type = model::Entity_Type_Nemesis_Block;
-		extensions::BlockExtensions(config.NemesisGenerationHash).signFullBlock(signer, *pBlock);
+		extensions::BlockExtensions(config.NemesisGenerationHashSeed).signFullBlock(signer, *pBlock);
 		return pBlock;
 	}
 
@@ -236,13 +236,13 @@ namespace catapult { namespace tools { namespace nemgen {
 		block.StateHash = executionHashesDescriptor.StateHash;
 
 		auto signer = crypto::KeyPair::FromString(config.NemesisSignerPrivateKey);
-		extensions::BlockExtensions(config.NemesisGenerationHash).signFullBlock(signer, block);
+		extensions::BlockExtensions(config.NemesisGenerationHashSeed).signFullBlock(signer, block);
 		return model::CalculateHash(block);
 	}
 
 	model::BlockElement CreateNemesisBlockElement(const NemesisConfiguration& config, const model::Block& block) {
 		auto registry = CreateTransactionRegistry();
-		auto generationHash = config.NemesisGenerationHash;
-		return extensions::BlockExtensions(generationHash, registry).convertBlockToBlockElement(block, generationHash);
+		auto generationHashSeed = config.NemesisGenerationHashSeed;
+		return extensions::BlockExtensions(generationHashSeed, registry).convertBlockToBlockElement(block, generationHashSeed);
 	}
 }}}

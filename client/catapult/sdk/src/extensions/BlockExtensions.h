@@ -44,12 +44,12 @@ namespace catapult { namespace extensions {
 	class BlockExtensions {
 	public:
 		/// Creates extensions for blocks containing only basic transactions for the network with the specified
-		/// generation hash (\a generationHash).
-		explicit BlockExtensions(const GenerationHash& generationHash);
+		/// generation hash seed (\a generationHashSeed).
+		explicit BlockExtensions(const GenerationHash& generationHashSeed);
 
 		/// Creates extensions for blocks containing transactions registered in \a transactionRegistry for the network with the specified
-		/// generation hash (\a generationHash).
-		BlockExtensions(const GenerationHash& generationHash, const model::TransactionRegistry& transactionRegistry);
+		/// generation hash seed (\a generationHashSeed).
+		BlockExtensions(const GenerationHash& generationHashSeed, const model::TransactionRegistry& transactionRegistry);
 
 	public:
 		/// Calculates and updates the block transactions hash of \a block.
@@ -71,7 +71,7 @@ namespace catapult { namespace extensions {
 		model::BlockElement convertBlockToBlockElement(const model::Block& block, const GenerationHash& generationHash) const;
 
 	private:
-		GenerationHash m_generationHash;
+		GenerationHash m_generationHashSeed;
 		std::function<Hash256 (const model::Transaction&)> m_calculateTransactionEntityHash;
 		std::function<Hash256 (const model::Transaction&, const Hash256&)> m_calculateTransactionMerkleComponentHash;
 	};

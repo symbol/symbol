@@ -87,10 +87,10 @@ namespace catapult { namespace consumers {
 		class MockSignatureNotificationPublisher : public model::NotificationPublisher {
 		public:
 			MockSignatureNotificationPublisher(
-					const GenerationHash& generationHash,
+					const GenerationHash& generationHashSeed,
 					const std::vector<NotificationDescriptor>& descriptors,
 					const std::unordered_set<size_t>& alwaysVerifiableIndexes)
-					: m_generationHash(generationHash)
+					: m_generationHashSeed(generationHashSeed)
 					, m_descriptors(descriptors)
 					, m_alwaysVerifiableIndexes(alwaysVerifiableIndexes)
 			{}
@@ -117,7 +117,7 @@ namespace catapult { namespace consumers {
 
 					auto replayProtectionMode = model::SignatureNotification::ReplayProtectionMode::Disabled;
 					if (HasFlag(NotificationDescriptor::Replay, descriptor)) {
-						crypto::Sign(input.Signer, { RawBuffer(m_generationHash), RawBuffer(input.Data) }, input.Signature);
+						crypto::Sign(input.Signer, { RawBuffer(m_generationHashSeed), RawBuffer(input.Data) }, input.Signature);
 						replayProtectionMode = model::SignatureNotification::ReplayProtectionMode::Enabled;
 					} else {
 						crypto::Sign(input.Signer, input.Data, input.Signature);
@@ -133,7 +133,7 @@ namespace catapult { namespace consumers {
 			}
 
 		private:
-			const GenerationHash& m_generationHash;
+			const GenerationHash& m_generationHashSeed;
 			std::vector<NotificationDescriptor> m_descriptors;
 			std::unordered_set<size_t> m_alwaysVerifiableIndexes;
 			mutable model::WeakEntityInfos m_entityInfos;

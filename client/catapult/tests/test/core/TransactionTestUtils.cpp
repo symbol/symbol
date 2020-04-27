@@ -40,10 +40,10 @@ namespace catapult { namespace test {
 		return GenerateRandomTransaction(GetDefaultGenerationHash());
 	}
 
-	std::unique_ptr<model::Transaction> GenerateRandomTransaction(const GenerationHash& generationHash) {
+	std::unique_ptr<model::Transaction> GenerateRandomTransaction(const GenerationHash& generationHashSeed) {
 		auto signer = GenerateKeyPair();
 		auto pTransaction = GenerateRandomTransaction(signer.publicKey());
-		extensions::TransactionExtensions(generationHash).sign(signer, *pTransaction);
+		extensions::TransactionExtensions(generationHashSeed).sign(signer, *pTransaction);
 		return pTransaction;
 	}
 
@@ -97,8 +97,8 @@ namespace catapult { namespace test {
 		pTransaction->RecipientPublicKey = utils::ParseByteArray<Key>("72B69A64B20AF34C3815073647C8A2354800E8E83B718303909ABDC0F38E7ED7");
 		reinterpret_cast<uint64_t&>(*pTransaction->DataPtr()) = 12345;
 
-		auto generationHash = utils::ParseByteArray<GenerationHash>(test::Deterministic_Network_Generation_Hash_String);
-		extensions::TransactionExtensions(generationHash).sign(keyPair, *pTransaction);
+		auto generationHashSeed = utils::ParseByteArray<GenerationHash>(test::Deterministic_Network_Generation_Hash_Seed_String);
+		extensions::TransactionExtensions(generationHashSeed).sign(keyPair, *pTransaction);
 		return PORTABLE_MOVE(pTransaction);
 	}
 

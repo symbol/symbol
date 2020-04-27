@@ -84,7 +84,7 @@ namespace catapult { namespace config {
 
 		auto networkFingerprint = model::UniqueNetworkFingerprint(
 				config.BlockChain.Network.Identifier,
-				config.BlockChain.Network.GenerationHash);
+				config.BlockChain.Network.GenerationHashSeed);
 		auto metadata = ionet::NodeMetadata(networkFingerprint);
 		metadata.Name = localNodeConfig.FriendlyName;
 		metadata.Version = ionet::NodeVersion(localNodeConfig.Version);

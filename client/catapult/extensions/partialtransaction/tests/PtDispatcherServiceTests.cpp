@@ -165,7 +165,7 @@ namespace catapult { namespace partialtransaction {
 
 		Hash256 CalculateTransactionHash(const model::TransactionRegistry& registry, const model::Transaction& transaction) {
 			const auto& plugin = *registry.findPlugin(transaction.Type);
-			return model::CalculateHash(transaction, test::GetNemesisGenerationHash(), plugin.dataBuffer(transaction));
+			return model::CalculateHash(transaction, test::GetNemesisGenerationHashSeed(), plugin.dataBuffer(transaction));
 		}
 
 		std::vector<Hash256> CalculateHashes(const model::TransactionRegistry& registry, const model::TransactionRange& transactionRange) {
