@@ -158,6 +158,19 @@ namespace catapult { namespace tools { namespace nemgen {
 			const crypto::KeyPair& m_signer;
 			model::Transactions m_transactions;
 		};
+
+		GenerationHash AddGenerationHashProof(
+				model::Block& block,
+				const GenerationHash& generationHashSeed,
+				const crypto::KeyPair& vrfKeyPair) {
+			auto vrfProof = crypto::GenerateVrfProof(generationHashSeed, vrfKeyPair);
+			block.GenerationHashProof.Gamma = vrfProof.Gamma;
+			block.GenerationHashProof.VerificationHash = vrfProof.VerificationHash;
+			block.GenerationHashProof.Scalar = vrfProof.Scalar;
+
+			auto vrfProofHash = crypto::GenerateVrfProofHash(vrfProof.Gamma);
+			return vrfProofHash.copyTo<GenerationHash>();
+		}
 	}
 
 	std::unique_ptr<model::Block> CreateNemesisBlock(const NemesisConfiguration& config) {
@@ -224,6 +237,9 @@ namespace catapult { namespace tools { namespace nemgen {
 		model::PreviousBlockContext context;
 		auto pBlock = model::CreateBlock(context, config.NetworkIdentifier, signer.publicKey(), transactions.transactions());
 		pBlock->Type = model::Entity_Type_Nemesis_Block;
+
+		// - add generation hash proof using signer as vrf key pair
+		AddGenerationHashProof(*pBlock, config.NemesisGenerationHashSeed, signer);
 		extensions::BlockExtensions(config.NemesisGenerationHashSeed).signFullBlock(signer, *pBlock);
 		return pBlock;
 	}
@@ -242,7 +258,8 @@ namespace catapult { namespace tools { namespace nemgen {
 
 	model::BlockElement CreateNemesisBlockElement(const NemesisConfiguration& config, const model::Block& block) {
 		auto registry = CreateTransactionRegistry();
-		auto generationHashSeed = config.NemesisGenerationHashSeed;
-		return extensions::BlockExtensions(generationHashSeed, registry).convertBlockToBlockElement(block, generationHashSeed);
+		auto proofHash = crypto::GenerateVrfProofHash(block.GenerationHashProof.Gamma);
+		return extensions::BlockExtensions(config.NemesisGenerationHashSeed, registry)
+				.convertBlockToBlockElement(block, proofHash.copyTo<GenerationHash>());
 	}
 }}}

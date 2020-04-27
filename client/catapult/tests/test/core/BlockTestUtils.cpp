@@ -185,7 +185,8 @@ namespace catapult { namespace test {
 	}
 
 	model::BlockElement BlockToBlockElement(const model::Block& block, const GenerationHash& generationHashSeed) {
-		return extensions::BlockExtensions(generationHashSeed).convertBlockToBlockElement(block, generationHashSeed);
+		auto generationHash = model::CalculateGenerationHash(block.GenerationHashProof.Gamma);
+		return extensions::BlockExtensions(generationHashSeed).convertBlockToBlockElement(block, generationHash);
 	}
 
 	model::BlockElement BlockToBlockElement(const model::Block& block, const Hash256& hash) {
