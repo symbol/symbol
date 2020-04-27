@@ -50,10 +50,7 @@ namespace catapult { namespace model {
 
 	GenerationHash CalculateGenerationHash(const crypto::ProofGamma& gamma) {
 		auto proofHash = GenerateVrfProofHash(gamma);
-
-		GenerationHash generationHash;
-		std::memcpy(generationHash.data(), proofHash.data(), GenerationHash::Size);
-		return generationHash;
+		return proofHash.copyTo<GenerationHash>();
 	}
 
 	// endregion

@@ -77,9 +77,9 @@ namespace catapult { namespace state {
 
 		// region test utils
 
-		Key ExtractKey(const uint8_t* data) {
+		Key ExtractKey(const uint8_t* pData) {
 			Key key;
-			memcpy(key.data(), data, Key::Size);
+			memcpy(key.data(), pData, Key::Size);
 			return key;
 		}
 

@@ -296,8 +296,7 @@ namespace catapult { namespace crypto {
 				bool success = true;
 				for (auto i = 0u; i < batchSize; ++i) {
 					const auto& signatureInput = pSignatureInputs[offset + i];
-					Key R;
-					std::memcpy(R.data(), signatureInput.Signature.data(), Key::Size);
+					auto R = signatureInput.Signature.copyTo<Key>();
 					success &= UnpackNegativeAndCheckSubgroup(batch.points[i + 1], signatureInput.PublicKey);
 					success &= UnpackNegativeAndCheckSubgroup(batch.points[batchSize + i + 1], R);
 					if (!success)

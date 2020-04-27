@@ -31,20 +31,11 @@ namespace catapult { namespace extensions {
 		return MosaicId(unresolvedMosaicId.unwrap());
 	}
 
-	namespace {
-		template<typename TDest, typename TSource>
-		TDest Copy(const TSource& source) {
-			TDest dest;
-			std::memcpy(dest.data(), source.data(), source.size());
-			return dest;
-		}
-	}
-
 	UnresolvedAddress CopyToUnresolvedAddress(const Address& address) {
-		return Copy<UnresolvedAddress>(address);
+		return address.copyTo<UnresolvedAddress>();
 	}
 
 	Address CopyToAddress(const UnresolvedAddress& unresolvedAddress) {
-		return Copy<Address>(unresolvedAddress);
+		return unresolvedAddress.copyTo<Address>();
 	}
 }}

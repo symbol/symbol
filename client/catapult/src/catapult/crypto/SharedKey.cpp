@@ -38,8 +38,7 @@ namespace catapult { namespace crypto {
 		Hash256 outputKeyingMaterial;
 		Hmac_Sha256(pseudoRandomKey, buffer, outputKeyingMaterial);
 
-		SharedKey sharedKey;
-		std::memcpy(sharedKey.data(), outputKeyingMaterial.data(), outputKeyingMaterial.size());
+		auto sharedKey = outputKeyingMaterial.copyTo<SharedKey>();
 		SecureZero(pseudoRandomKey);
 		SecureZero(outputKeyingMaterial);
 		return sharedKey;

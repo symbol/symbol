@@ -194,7 +194,7 @@ namespace catapult { namespace consumers {
 					return chain::Failure_Chain_Block_Invalid_Vrf_Proof;
 				}
 
-				std::memcpy(element.GenerationHash.data(), vrfVerifyResult.data(), element.GenerationHash.size());
+				element.GenerationHash = vrfVerifyResult.copyTo<GenerationHash>();
 				if (!blockHitPredicate(parentBlock, block, element.GenerationHash)) {
 					CATAPULT_LOG(warning) << "block " << block.Height << " failed hit";
 					return chain::Failure_Chain_Block_Not_Hit;

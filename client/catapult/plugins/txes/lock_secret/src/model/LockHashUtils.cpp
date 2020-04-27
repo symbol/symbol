@@ -35,11 +35,9 @@ namespace catapult { namespace model {
 
 		template<typename THashType, typename THasher>
 		Hash256 CalculateHash(THasher hasher, const RawBuffer& data) {
-			Hash256 result{}; // 0-pad hash
 			THashType hash;
 			hasher(data, hash);
-			std::memcpy(result.data(), hash.data(), hash.size());
-			return result;
+			return hash.template copyTo<Hash256>();
 		}
 	}
 

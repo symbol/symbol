@@ -113,8 +113,7 @@ namespace catapult { namespace crypto {
 			while (true) {
 				// Hash(suite | action | publicKey | alpha | i)
 				auto hash = IetfHash(0x03, 0x01, { publicKey, alpha, { &i, 1 } });
-				Key key;
-				std::memcpy(key.data(), hash.data(), key.size());
+				auto key = hash.copyTo<Key>();
 				if (UnpackNegative(A, key))
 					return ScalarMultEight(key);
 
@@ -171,13 +170,6 @@ namespace catapult { namespace crypto {
 			contract256_modm(s.data(), S);
 			return s;
 		}
-
-		template<typename TDestination, typename TSource>
-		TDestination CoerceTo(const TSource& source) {
-			TDestination dest;
-			std::memcpy(dest.data(), source.data(), TDestination::Size);
-			return dest;
-		}
 	}
 
 	VrfProof GenerateVrfProof(const RawBuffer& alpha, const KeyPair& keyPair) {
@@ -216,11 +208,11 @@ namespace catapult { namespace crypto {
 		SecureZero(encodedK);
 		SecureZero(encodedX);
 
-		return { CoerceTo<ProofGamma>(gamma), c, s };
+		return { gamma.copyTo<ProofGamma>(), c, s };
 	}
 
 	Hash512 VerifyVrfProof(const VrfProof& vrfProof, const RawBuffer& alpha, const Key& publicKey) {
-		auto gamma = CoerceTo<Key>(vrfProof.Gamma);
+		auto gamma = vrfProof.Gamma.copyTo<Key>();
 
 		// gamma must be on the curve
 		ge25519 A;
@@ -277,6 +269,6 @@ namespace catapult { namespace crypto {
 	}
 
 	Hash512 GenerateVrfProofHash(const ProofGamma& gamma) {
-		return IetfHash(0x03, 0x03, { ScalarMultEight(CoerceTo<Key>(gamma)) });
+		return IetfHash(0x03, 0x03, { ScalarMultEight(gamma.copyTo<Key>()) });
 	}
 }}
