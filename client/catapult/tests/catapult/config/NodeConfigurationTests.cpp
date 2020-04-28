@@ -36,7 +36,6 @@ namespace catapult { namespace config {
 						"node",
 						{
 							{ "port", "1234" },
-							{ "apiPort", "8888" },
 							{ "maxIncomingConnectionsPerIdentity", "7" },
 
 							{ "enableAddressReuse", "true" },
@@ -135,7 +134,6 @@ namespace catapult { namespace config {
 			static void AssertZero(const NodeConfiguration& config) {
 				// Assert:
 				EXPECT_EQ(0u, config.Port);
-				EXPECT_EQ(0u, config.ApiPort);
 				EXPECT_EQ(0u, config.MaxIncomingConnectionsPerIdentity);
 
 				EXPECT_FALSE(config.EnableAddressReuse);
@@ -211,7 +209,6 @@ namespace catapult { namespace config {
 			static void AssertCustom(const NodeConfiguration& config) {
 				// Assert:
 				EXPECT_EQ(1234u, config.Port);
-				EXPECT_EQ(8888u, config.ApiPort);
 				EXPECT_EQ(7u, config.MaxIncomingConnectionsPerIdentity);
 
 				EXPECT_TRUE(config.EnableAddressReuse);

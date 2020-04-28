@@ -158,7 +158,7 @@ namespace catapult { namespace extensions {
 	// region BootServer
 
 	namespace {
-		class MockAcceptor : public net::ConnectionContainer {
+		class MockAcceptor : public net::AcceptedConnectionContainer {
 		public:
 			MockAcceptor(net::PeerConnectCode connectCode, const model::NodeIdentity& identity)
 					: m_connectCode(connectCode)

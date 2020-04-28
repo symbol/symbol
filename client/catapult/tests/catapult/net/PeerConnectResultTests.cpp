@@ -19,11 +19,14 @@
 **/
 
 #include "catapult/net/PeerConnectResult.h"
+#include "tests/test/core/mocks/MockPacketSocket.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace net {
 
 #define TEST_CLASS PeerConnectResultTests
+
+	// region PeerConnectResult
 
 	TEST(TEST_CLASS, CanCreateDefaultResult) {
 		// Act:
@@ -66,4 +69,58 @@ namespace catapult { namespace net {
 		EXPECT_EQ(Key(), result.Identity.PublicKey);
 		EXPECT_EQ("", result.Identity.Host);
 	}
+
+	// endregion
+
+	// region PeerConnectResultEx
+
+	TEST(TEST_CLASS, Ex_CanCreateDefaultResult) {
+		// Act:
+		auto result = PeerConnectResultEx();
+
+		// Assert:
+		EXPECT_EQ(static_cast<PeerConnectCode>(-1), result.Code);
+		EXPECT_EQ(Key(), result.Identity.PublicKey);
+		EXPECT_EQ("", result.Identity.Host);
+		EXPECT_FALSE(!!result.pPeerSocket);
+	}
+
+	TEST(TEST_CLASS, Ex_CanCreateDefaultResultFromCode) {
+		// Act:
+		auto result = PeerConnectResultEx(PeerConnectCode::Accepted);
+
+		// Assert:
+		EXPECT_EQ(PeerConnectCode::Accepted, result.Code);
+		EXPECT_EQ(Key(), result.Identity.PublicKey);
+		EXPECT_EQ("", result.Identity.Host);
+		EXPECT_FALSE(!!result.pPeerSocket);
+	}
+
+	TEST(TEST_CLASS, Ex_CanCreateDefaultResultFromCodeAndKeyAndSocket_Success) {
+		// Act:
+		auto key = test::GenerateRandomByteArray<Key>();
+		auto pSocket = std::make_shared<mocks::MockPacketSocket>();
+		auto result = PeerConnectResultEx(PeerConnectCode::Accepted, { key, "11.22.33.44" }, pSocket);
+
+		// Assert:
+		EXPECT_EQ(PeerConnectCode::Accepted, result.Code);
+		EXPECT_EQ(key, result.Identity.PublicKey);
+		EXPECT_EQ("11.22.33.44", result.Identity.Host);
+		EXPECT_EQ(pSocket, result.pPeerSocket);
+	}
+
+	TEST(TEST_CLASS, Ex_CanCreateDefaultResultFromCodeAndKeyAndSocket_Error) {
+		// Act:
+		auto key = test::GenerateRandomByteArray<Key>();
+		auto pSocket = std::make_shared<mocks::MockPacketSocket>();
+		auto result = PeerConnectResultEx(PeerConnectCode::Already_Connected, { key, "11.22.33.44" }, pSocket);
+
+		// Assert:
+		EXPECT_EQ(PeerConnectCode::Already_Connected, result.Code);
+		EXPECT_EQ(Key(), result.Identity.PublicKey);
+		EXPECT_EQ("", result.Identity.Host);
+		EXPECT_FALSE(!!result.pPeerSocket);
+	}
+
+	// endregion
 }}

@@ -27,7 +27,7 @@
 #include "catapult/thread/MultiServicePool.h"
 
 namespace catapult {
-	namespace net { class ConnectionContainer; }
+	namespace net { class AcceptedConnectionContainer; }
 	namespace subscribers { class NodeSubscriber; }
 }
 
@@ -51,5 +51,5 @@ namespace catapult { namespace extensions {
 			const config::CatapultConfiguration& config,
 			const supplier<Timestamp>& timeSupplier,
 			subscribers::NodeSubscriber& nodeSubscriber,
-			net::ConnectionContainer& acceptor);
+			net::AcceptedConnectionContainer& acceptor);
 }}

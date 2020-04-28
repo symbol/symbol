@@ -52,7 +52,7 @@ namespace catapult { namespace mocks {
 			return identities;
 		}
 
-		void connect(const ionet::Node& node, const AcceptCallback& callback) override {
+		void connect(const ionet::Node& node, const ConnectCallback& callback) override {
 			m_nodes.push_back(node);
 
 			// call the callback from a separate thread after some delay
@@ -109,10 +109,6 @@ namespace catapult { namespace mocks {
 			CATAPULT_THROW_RUNTIME_ERROR("not implemented in mock");
 		}
 
-		void accept(const ionet::PacketSocketInfo&, const AcceptCallback&) override {
-			CATAPULT_THROW_RUNTIME_ERROR("not implemented in mock");
-		}
-
 		void shutdown() override {
 			CATAPULT_THROW_RUNTIME_ERROR("not implemented in mock");
 		}
@@ -120,9 +116,13 @@ namespace catapult { namespace mocks {
 	// endregion
 
 	private:
-		net::PeerConnectResult getResult(const model::NodeIdentity& identity) const {
+		net::PeerConnectResultEx getResult(const model::NodeIdentity& identity) const {
 			auto resultIter = m_nodeConnectCodeMap.find(identity);
-			return { m_nodeConnectCodeMap.cend() == resultIter ? net::PeerConnectCode::Accepted : resultIter->second, identity };
+			return {
+				m_nodeConnectCodeMap.cend() == resultIter ? net::PeerConnectCode::Accepted : resultIter->second,
+				identity,
+				nullptr
+			};
 		}
 
 	private:

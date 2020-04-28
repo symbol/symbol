@@ -36,29 +36,22 @@ namespace catapult { namespace local {
 			using test::LocalNodeTestContext<test::LocalNodePeerTraits>::LocalNodeTestContext;
 
 		public:
-			void waitForNumActiveBroadcastWriters(size_t value) const {
-				WAIT_FOR_VALUE_EXPR(value, stats().NumActiveBroadcastWriters);
-			}
-
-		public:
 			void assertShutdown() const {
 				// Assert:
 				auto stats = this->stats();
 				EXPECT_EQ(Sentinel_Counter_Value, stats.NumActiveReaders);
 				EXPECT_EQ(Sentinel_Counter_Value, stats.NumActiveWriters);
 				EXPECT_EQ(Sentinel_Counter_Value, stats.NumScheduledTasks);
-				EXPECT_EQ(Sentinel_Counter_Value, stats.NumActiveBroadcastWriters);
 			}
 		};
 
 		struct BasicTestContext {
 			using LocalNodeTestContext = TestContext;
 
-			static constexpr auto Num_Tasks = 10u;
+			static constexpr auto Num_Tasks = 9u;
 
-			static void AssertBoot(const test::PeerLocalNodeStats& stats) {
-				EXPECT_EQ(0u, stats.NumActiveBroadcastWriters);
-			}
+			static void AssertBoot(const test::PeerLocalNodeStats&)
+			{}
 		};
 	}
 
@@ -141,20 +134,6 @@ namespace catapult { namespace local {
 			// Assert:
 			EXPECT_EQ(1u, stats.NumActiveReaders);
 			EXPECT_EQ(1u, stats.NumActiveWriters);
-			EXPECT_EQ(0u, stats.NumActiveBroadcastWriters);
-		});
-	}
-
-	TEST(TEST_CLASS, CanConnectToLocalNodeAsBroadcastWriter) {
-		// Act:
-		RunExternalConnectionTest(test::GetLocalNodeApiPort(), [](auto& context) {
-			context.waitForNumActiveBroadcastWriters(1);
-			auto stats = context.stats();
-
-			// Assert:
-			EXPECT_EQ(0u, stats.NumActiveReaders);
-			EXPECT_EQ(1u, stats.NumActiveWriters);
-			EXPECT_EQ(1u, stats.NumActiveBroadcastWriters);
 		});
 	}
 
@@ -163,11 +142,9 @@ namespace catapult { namespace local {
 		TestContext context(NodeFlag::With_Partner, {});
 		context.waitForNumActiveWriters(1);
 
-		// Act: create external connections to the node
-		auto connection1 = test::CreateExternalConnection(test::GetLocalNodePort());
-		auto connection2 = test::CreateExternalConnection(test::GetLocalNodeApiPort());
+		// Act: create an external connection to the node
+		auto connection = test::CreateExternalConnection(test::GetLocalNodePort());
 		context.waitForNumActiveReaders(1);
-		context.waitForNumActiveBroadcastWriters(1);
 
 		// Act: shutdown the local node
 		CATAPULT_LOG(debug) << "shutting down local node";

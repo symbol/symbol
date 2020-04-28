@@ -38,7 +38,7 @@ namespace catapult {
 namespace catapult { namespace net {
 
 	/// Manages a collection of connections that receive data from external nodes.
-	class PacketReaders : public ConnectionContainer {
+	class PacketReaders : public AcceptedConnectionContainer {
 	public:
 		/// Gets the number of active readers.
 		virtual size_t numActiveReaders() const = 0;

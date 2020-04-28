@@ -36,11 +36,6 @@ namespace catapult { namespace test {
 		return GetLocalHostPort();
 	}
 
-	/// Gets the local node api port.
-	inline unsigned short GetLocalNodeApiPort() {
-		return GetLocalNodePort() + 1;
-	}
-
 	/// Possible node flags.
 	enum class NodeFlag {
 		/// Node with a single (self) peer.
@@ -101,9 +96,6 @@ namespace catapult { namespace test {
 
 	/// Statistics about a local p2p node.
 	struct PeerLocalNodeStats : public BasicLocalNodeStats {
-		/// Number of active broadcast packet writers.
-		uint64_t NumActiveBroadcastWriters;
-
 		/// Number of unlocked accounts.
 		uint64_t NumUnlockedAccounts;
 	};

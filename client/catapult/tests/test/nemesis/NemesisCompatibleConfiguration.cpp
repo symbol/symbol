@@ -81,7 +81,7 @@ namespace catapult { namespace test {
 
 	void AddPeerPluginExtensions(config::ExtensionsConfiguration& config) {
 		AddCommonPluginExtensions(config);
-		AddPluginExtensions(config, { "eventsource", "harvesting", "syncsource" });
+		AddPluginExtensions(config, { "harvesting", "syncsource" });
 	}
 
 	void AddSimplePartnerPluginExtensions(config::ExtensionsConfiguration& config) {

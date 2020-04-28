@@ -105,6 +105,5 @@ namespace catapult { namespace test {
 		// Assert: the external reader connection is still active
 		EXPECT_EQ(1u, stats.NumActiveReaders);
 		EXPECT_EQ(1u, stats.NumActiveWriters);
-		EXPECT_EQ(0u, stats.NumActiveBroadcastWriters);
 	}
 }}

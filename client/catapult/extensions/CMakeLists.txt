@@ -33,7 +33,6 @@ endfunction()
 
 add_subdirectory(addressextraction)
 add_subdirectory(diagnostics)
-add_subdirectory(eventsource)
 add_subdirectory(filespooling)
 add_subdirectory(harvesting)
 add_subdirectory(hashcache)

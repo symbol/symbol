@@ -92,7 +92,6 @@ namespace catapult { namespace config {
 		void AssertDefaultNodeConfiguration(const NodeConfiguration& config) {
 			// Assert:
 			EXPECT_EQ(7900u, config.Port);
-			EXPECT_EQ(7901u, config.ApiPort);
 			EXPECT_EQ(3u, config.MaxIncomingConnectionsPerIdentity);
 
 			EXPECT_FALSE(config.EnableAddressReuse);
@@ -267,7 +266,7 @@ namespace catapult { namespace config {
 		AssertDefaultLoggingConfiguration(config.Logging, "catapult_server%4N.log");
 		AssertDefaultUserConfiguration(config.User);
 		AssertDefaultExtensionsConfiguration(config.Extensions, {
-			"extension.eventsource", "extension.harvesting", "extension.syncsource",
+			"extension.harvesting", "extension.syncsource",
 			"extension.diagnostics", "extension.hashcache", "extension.networkheight",
 			"extension.nodediscovery", "extension.packetserver", "extension.pluginhandlers", "extension.sync",
 			"extension.timesync", "extension.transactionsink", "extension.unbondedpruning"

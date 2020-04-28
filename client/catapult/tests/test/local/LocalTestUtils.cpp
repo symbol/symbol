@@ -46,7 +46,6 @@ namespace catapult { namespace test {
 		config::NodeConfiguration CreateNodeConfiguration() {
 			auto config = config::NodeConfiguration::Uninitialized();
 			config.Port = GetLocalHostPort();
-			config.ApiPort = GetLocalHostPort() + 1;
 			config.MaxIncomingConnectionsPerIdentity = 2;
 
 			config.EnableAddressReuse = true;

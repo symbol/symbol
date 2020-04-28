@@ -35,9 +35,6 @@ namespace catapult { namespace config {
 		/// Server port.
 		unsigned short Port;
 
-		/// Server api port.
-		unsigned short ApiPort;
-
 		/// Maximum number of incoming connections per identity over primary port.
 		uint32_t MaxIncomingConnectionsPerIdentity;
 

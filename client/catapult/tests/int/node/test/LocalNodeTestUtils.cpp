@@ -63,7 +63,6 @@ namespace catapult { namespace test {
 	PeerLocalNodeStats CountersToPeerLocalNodeStats(const local::LocalNodeCounterValues& counters) {
 		PeerLocalNodeStats stats;
 		CountersToBasicLocalNodeStats(counters, stats);
-		stats.NumActiveBroadcastWriters = GetCounterValue(counters, "B WRITERS");
 		stats.NumUnlockedAccounts = GetCounterValue(counters, "UNLKED ACCTS");
 		return stats;
 	}
@@ -84,7 +83,6 @@ namespace catapult { namespace test {
 			NodeFlag nodeFlag) {
 		// partner node is a P2P node on offset ports
 		const_cast<uint16_t&>(config.Node.Port) += 10;
-		const_cast<uint16_t&>(config.Node.ApiPort) += 10;
 
 		// make additional configuration modifications
 		PrepareCatapultConfiguration(config, AddSimplePartnerPluginExtensions, nodeFlag);

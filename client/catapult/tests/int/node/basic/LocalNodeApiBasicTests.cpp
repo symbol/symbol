@@ -82,10 +82,6 @@ namespace catapult { namespace local {
 
 	// region connection tests
 
-	TEST(TEST_CLASS, CannotConnectToApiPort) {
-		test::AssertConnectionError<TestContext>(test::GetLocalNodeApiPort());
-	}
-
 	namespace {
 		template<typename THandler>
 		void RunExternalReaderTest(THandler handler) {

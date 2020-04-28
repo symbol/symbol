@@ -36,7 +36,6 @@ namespace catapult { namespace config {
 #define LOAD_NODE_PROPERTY(NAME) LOAD_PROPERTY("node", NAME)
 
 		LOAD_NODE_PROPERTY(Port);
-		LOAD_NODE_PROPERTY(ApiPort);
 		LOAD_NODE_PROPERTY(MaxIncomingConnectionsPerIdentity);
 
 		LOAD_NODE_PROPERTY(EnableAddressReuse);
@@ -126,7 +125,7 @@ namespace catapult { namespace config {
 
 #undef LOAD_BANNING_PROPERTY
 
-		utils::VerifyBagSizeLte(bag, 35 + 4 + 4 + 5 + 7);
+		utils::VerifyBagSizeLte(bag, 34 + 4 + 4 + 5 + 7);
 		return config;
 	}
 

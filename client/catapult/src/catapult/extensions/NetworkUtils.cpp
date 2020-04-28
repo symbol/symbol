@@ -76,7 +76,7 @@ namespace catapult { namespace extensions {
 					unsigned short port,
 					ionet::ServiceIdentifier serviceId,
 					subscribers::NodeSubscriber& nodeSubscriber,
-					net::ConnectionContainer& acceptor)
+					net::AcceptedConnectionContainer& acceptor)
 					: Port(port)
 					, ServiceId(serviceId)
 					, NodeSubscriber(nodeSubscriber)
@@ -87,7 +87,7 @@ namespace catapult { namespace extensions {
 			unsigned short Port;
 			ionet::ServiceIdentifier ServiceId;
 			subscribers::NodeSubscriber& NodeSubscriber;
-			net::ConnectionContainer& Acceptor;
+			net::AcceptedConnectionContainer& Acceptor;
 		};
 	}
 
@@ -98,7 +98,7 @@ namespace catapult { namespace extensions {
 			const config::CatapultConfiguration& config,
 			const supplier<Timestamp>& timeSupplier,
 			subscribers::NodeSubscriber& nodeSubscriber,
-			net::ConnectionContainer& acceptor) {
+			net::AcceptedConnectionContainer& acceptor) {
 		auto endpoint = boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port);
 
 		BootServerState bootServerState(port, serviceId, nodeSubscriber, acceptor);

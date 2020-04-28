@@ -84,7 +84,6 @@ namespace catapult { namespace local {
 			auto port = GetPortForNode(id);
 			auto& nodeConfig = const_cast<config::NodeConfiguration&>(config.Node);
 			nodeConfig.Port = port;
-			nodeConfig.ApiPort = port + 1;
 
 			// 2. specify custom network settings
 			UpdateBlockChainConfiguration(const_cast<model::BlockChainConfiguration&>(config.BlockChain));

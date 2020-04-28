@@ -32,9 +32,6 @@ namespace catapult { namespace net {
 	/// Manages a collection of connections.
 	class ConnectionContainer {
 	public:
-		using AcceptCallback = consumer<const PeerConnectResult&>;
-
-	public:
 		virtual ~ConnectionContainer() = default;
 
 	public:
@@ -45,10 +42,17 @@ namespace catapult { namespace net {
 		virtual model::NodeIdentitySet identities() const = 0;
 
 	public:
-		/// Accepts a connection represented by \a socketInfo and calls \a callback on completion.
-		virtual void accept(const ionet::PacketSocketInfo& socketInfo, const AcceptCallback& callback) = 0;
-
 		/// Closes any active connections to the node identified by \a identity.
 		virtual bool closeOne(const model::NodeIdentity& identity) = 0;
+	};
+
+	/// Manages a collection of accepted connections.
+	class AcceptedConnectionContainer : public ConnectionContainer {
+	public:
+		using AcceptCallback = consumer<const PeerConnectResult&>;
+
+	public:
+		/// Accepts a connection represented by \a socketInfo and calls \a callback on completion.
+		virtual void accept(const ionet::PacketSocketInfo& socketInfo, const AcceptCallback& callback) = 0;
 	};
 }}
