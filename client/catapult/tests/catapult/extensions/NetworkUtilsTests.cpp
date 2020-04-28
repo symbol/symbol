@@ -176,6 +176,10 @@ namespace catapult { namespace extensions {
 				return m_numCloses;
 			}
 
+			const auto& callbackResults() const {
+				return m_callbackResults;
+			}
+
 			const auto& socketInfos() const {
 				return m_socketInfos;
 			}
@@ -201,7 +205,7 @@ namespace catapult { namespace extensions {
 		public:
 			void accept(const ionet::PacketSocketInfo& socketInfo, const AcceptCallback& callback) override {
 				m_socketInfos.push_back(socketInfo);
-				callback(net::PeerConnectResult(m_connectCode, m_identity));
+				m_callbackResults.push_back(callback(net::PeerConnectResult(m_connectCode, m_identity)));
 				++m_numAccepts;
 			}
 
@@ -216,6 +220,7 @@ namespace catapult { namespace extensions {
 			model::NodeIdentity m_identity;
 			std::atomic<size_t> m_numAccepts;
 			std::atomic<size_t> m_numCloses;
+			std::vector<bool> m_callbackResults;
 			std::vector<ionet::PacketSocketInfo> m_socketInfos;
 			std::vector<model::NodeIdentity> m_closedIdentities;
 		};
@@ -262,15 +267,28 @@ namespace catapult { namespace extensions {
 			mocks::MockNodeSubscriber m_nodeSubscriber;
 		};
 
+		enum class ConnectionFlags { None = 0, Is_Closed = 1, Is_Banned = 2, Is_Callback_Failure = 4 };
+
+		constexpr ConnectionFlags operator|(ConnectionFlags lhs, ConnectionFlags rhs) {
+			return static_cast<ConnectionFlags>(utils::to_underlying_type(lhs) | utils::to_underlying_type(rhs));
+		}
+
+		constexpr bool HasFlag(ConnectionFlags testedFlag, ConnectionFlags value) {
+			return utils::to_underlying_type(testedFlag) == (utils::to_underlying_type(testedFlag) & utils::to_underlying_type(value));
+		}
+
 		void AssertAcceptedConnection(
 				const BootServerContext& context,
 				const Key& key,
 				const net::AsyncTcpServer& server,
-				bool isClosed = false,
-				bool isBanned = false) {
+				ConnectionFlags flags = ConnectionFlags::None) {
 			EXPECT_EQ(1u, server.numLifetimeConnections());
 			EXPECT_EQ(1u, context.acceptor().numAccepts());
-			EXPECT_EQ(isClosed ? 1u : 0u, context.acceptor().closedIdentities().size());
+			EXPECT_EQ(HasFlag(ConnectionFlags::Is_Closed, flags) ? 1u : 0u, context.acceptor().closedIdentities().size());
+
+			const auto& callbackResults = context.acceptor().callbackResults();
+			ASSERT_EQ(1u, callbackResults.size());
+			EXPECT_EQ(!HasFlag(ConnectionFlags::Is_Callback_Failure, flags), callbackResults[0]);
 
 			const auto& params = context.nodeSubscriber().incomingNodeParams().params();
 			ASSERT_EQ(1u, params.size());
@@ -279,7 +297,7 @@ namespace catapult { namespace extensions {
 			EXPECT_EQ(ionet::ServiceIdentifier(123), params[0].ServiceId); // from BootServerContext::boot
 
 			const auto& banParams = context.nodeSubscriber().banParams().params();
-			EXPECT_EQ(isBanned ? 1u : 0u, banParams.size());
+			EXPECT_EQ(HasFlag(ConnectionFlags::Is_Banned, flags) ? 1u : 0u, banParams.size());
 		}
 	}
 
@@ -295,6 +313,9 @@ namespace catapult { namespace extensions {
 		EXPECT_EQ(0u, pServer->numLifetimeConnections());
 		EXPECT_EQ(0u, context.acceptor().numAccepts());
 		EXPECT_EQ(0u, context.acceptor().closedIdentities().size());
+
+		const auto& callbackResults = context.acceptor().callbackResults();
+		EXPECT_EQ(0u, callbackResults.size());
 
 		const auto& params = context.nodeSubscriber().incomingNodeParams().params();
 		EXPECT_EQ(0u, params.size());
@@ -318,6 +339,10 @@ namespace catapult { namespace extensions {
 		EXPECT_EQ(1u, pServer->numLifetimeConnections());
 		EXPECT_EQ(1u, context.acceptor().numAccepts());
 		EXPECT_EQ(0u, context.acceptor().closedIdentities().size());
+
+		const auto& callbackResults = context.acceptor().callbackResults();
+		ASSERT_EQ(1u, callbackResults.size());
+		EXPECT_FALSE(callbackResults[0]);
 
 		const auto& params = context.nodeSubscriber().incomingNodeParams().params();
 		EXPECT_EQ(0u, params.size());
@@ -354,7 +379,7 @@ namespace catapult { namespace extensions {
 		WAIT_FOR_ONE_EXPR(context.acceptor().numAccepts());
 
 		// Assert:
-		AssertAcceptedConnection(context, key, *pServer, true);
+		AssertAcceptedConnection(context, key, *pServer, ConnectionFlags::Is_Closed | ConnectionFlags::Is_Callback_Failure);
 	}
 
 	// endregion
@@ -404,7 +429,7 @@ namespace catapult { namespace extensions {
 		RunRateLimitingTest(true, 1025, [](const auto& context, const auto& key, const auto& server) {
 			WAIT_FOR_ONE_EXPR(context.acceptor().numCloses());
 
-			AssertAcceptedConnection(context, key, server, true, true);
+			AssertAcceptedConnection(context, key, server, ConnectionFlags::Is_Closed | ConnectionFlags::Is_Banned);
 
 			const auto& banParams = context.nodeSubscriber().banParams().params();
 			ASSERT_EQ(1u, banParams.size());

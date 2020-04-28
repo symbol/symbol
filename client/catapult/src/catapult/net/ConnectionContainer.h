@@ -49,7 +49,7 @@ namespace catapult { namespace net {
 	/// Manages a collection of accepted connections.
 	class AcceptedConnectionContainer : public ConnectionContainer {
 	public:
-		using AcceptCallback = consumer<const PeerConnectResult&>;
+		using AcceptCallback = predicate<const PeerConnectResult&>;
 
 	public:
 		/// Accepts a connection represented by \a socketInfo and calls \a callback on completion.

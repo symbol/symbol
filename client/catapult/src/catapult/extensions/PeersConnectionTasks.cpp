@@ -137,6 +137,7 @@ namespace catapult { namespace extensions {
 						CATAPULT_LOG_LEVEL(MapToLogLevel(connectResult.Code))
 								<< "connection attempt to " << node << " completed with " << connectResult.Code;
 						pPromise->set_value(std::make_pair(node.identity(), connectResult.Code));
+						return true;
 					});
 				}
 

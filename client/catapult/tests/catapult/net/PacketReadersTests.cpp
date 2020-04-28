@@ -112,7 +112,7 @@ namespace catapult { namespace net {
 			std::vector<std::shared_ptr<ionet::PacketSocket>> ClientSockets;
 		};
 
-		MultiConnectionState SetupMultiConnectionTest(const PacketReadersTestContext& context) {
+		MultiConnectionState SetupMultiConnectionTest(const PacketReadersTestContext& context, bool userCallbackResult = true) {
 			// Act: start multiple server and client verify operations
 			MultiConnectionState state;
 			test::TcpAcceptor acceptor(context.IoContext);
@@ -122,13 +122,16 @@ namespace catapult { namespace net {
 				auto clientPublicKey = context.ClientPublicKeys[i];
 				test::SpawnPacketServerWork(acceptor, [&, host, clientPublicKey](const auto& pSocket) {
 					state.ServerSockets.push_back(pSocket);
-					context.pReaders->accept(ionet::PacketSocketInfo(host, clientPublicKey, pSocket), [&](const auto& connectResult) {
+
+					auto packetSocketInfo = ionet::PacketSocketInfo(host, clientPublicKey, pSocket);
+					context.pReaders->accept(packetSocketInfo, [&state, &numCallbacks, userCallbackResult](const auto& connectResult) {
 						state.Results.push_back(connectResult);
 						++numCallbacks;
+						return userCallbackResult;
 					});
 				});
 
-				test::SpawnPacketClientWork(context.IoContext, [&](const auto& pSocket) {
+				test::SpawnPacketClientWork(context.IoContext, [&state, &numCallbacks](const auto& pSocket) {
 					state.ClientSockets.push_back(pSocket);
 					++numCallbacks;
 				});
@@ -184,7 +187,10 @@ namespace catapult { namespace net {
 
 		// Act: on an accept error, the server will pass nullptr
 		PeerConnectResult result;
-		pReaders->accept(ionet::PacketSocketInfo(), [&result](const auto& acceptResult) { result = acceptResult; });
+		pReaders->accept(ionet::PacketSocketInfo(), [&result](const auto& acceptResult) {
+			result = acceptResult;
+			return true;
+		});
 
 		// Assert:
 		EXPECT_EQ(PeerConnectCode::Socket_Error, result.Code);
@@ -218,6 +224,23 @@ namespace catapult { namespace net {
 			EXPECT_NUM_ACTIVE_READERS(1u, *context.pReaders);
 			AssertEqualIdentities(ToIdentitySet(context.ClientPublicKeys), context.pReaders->identities());
 		});
+	}
+
+	TEST(TEST_CLASS, AcceptIsBypassedByCallbackError) {
+		// Act: attempt to establish a single connection, but configure user callback to return false
+		PacketReadersTestContext context;
+		auto state = SetupMultiConnectionTest(context, false);
+
+		// Assert: the verification should have succeeded but the connection should NOT be active
+		const auto& connectResult = state.Results.back();
+		EXPECT_EQ(PeerConnectCode::Accepted, connectResult.Code);
+		EXPECT_EQ(context.ClientPublicKeys[0], connectResult.Identity.PublicKey);
+		EXPECT_EQ("0", connectResult.Identity.Host);
+
+		// Sanity: closing the corresponding server sockets removes the pending connections
+		state.ServerSockets.clear();
+		context.waitForConnections(0);
+		EXPECT_NUM_ACTIVE_READERS(0u, *context.pReaders);
 	}
 
 	TEST(TEST_CLASS, ShutdownClosesAcceptedSocket) {

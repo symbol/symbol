@@ -126,11 +126,14 @@ namespace catapult { namespace extensions {
 						<< " from " << pCurrentNodeIdentity->Host << ": " << connectResult.Code;
 
 				if (net::PeerConnectCode::Accepted != connectResult.Code)
-					return;
+					return false;
 
 				*pCurrentNodeIdentity = connectResult.Identity;
-				if (!bootServerState.NodeSubscriber.notifyIncomingNode(connectResult.Identity, bootServerState.ServiceId))
-					bootServerState.Acceptor.closeOne(connectResult.Identity);
+				if (bootServerState.NodeSubscriber.notifyIncomingNode(connectResult.Identity, bootServerState.ServiceId))
+					return true;
+
+				bootServerState.Acceptor.closeOne(connectResult.Identity);
+				return false;
 			});
 		});
 

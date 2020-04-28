@@ -54,6 +54,7 @@ namespace catapult { namespace test {
 		packetWriters.connect(CreateLocalHostNode(serverPublicKey), [&](const auto& connectResult) {
 			connectCode = connectResult.Code;
 			++numConnects;
+			return true;
 		});
 		WAIT_FOR_ONE(numConnects);
 

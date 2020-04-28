@@ -66,7 +66,22 @@ namespace catapult { namespace net {
 				return activeIdentities;
 			}
 
-			bool insert(
+		public:
+			struct InsertOperation {
+			public:
+				explicit InsertOperation(bool isPending)
+						: IsPending(isPending)
+						, Abort([]() {})
+				{}
+
+			public:
+				bool IsPending;
+				action Commit;
+				action Abort;
+			};
+
+		public:
+			InsertOperation insert(
 					const model::NodeIdentity& identity,
 					const PacketSocketPointer& pSocket,
 					const ChainedSocketReaderFactory& readerFactory) {
@@ -89,14 +104,28 @@ namespace catapult { namespace net {
 					// all available connections for the current identity are used up
 					CATAPULT_LOG(warning) << "rejecting incoming connection from " << identity << " (max connections in use)";
 					pSocket->close();
-					return false;
+					return InsertOperation(false);
 				}
 
 				// the reader takes ownership of the socket
 				auto pReader = readerFactory(pSocket, insertedReaderIter->first.second);
-				pReader->start();
 				insertedReaderIter->second.pReader = pReader;
-				return true;
+
+				InsertOperation operation(true);
+				operation.Commit = [&lock = m_lock, pReader]() {
+					utils::SpinLockGuard guard2(lock);
+
+					pReader->start();
+				};
+				operation.Abort = [&lock = m_lock, &readers = m_readers, pSocket, insertedReaderIter]() {
+					utils::SpinLockGuard guard2(lock);
+
+					CATAPULT_LOG(warning) << "aborting incoming connection from " << insertedReaderIter->first.first;
+					pSocket->close();
+					readers.erase(insertedReaderIter);
+				};
+
+				return operation;
 			}
 
 			bool close(const model::NodeIdentity& identity) {
@@ -215,15 +244,26 @@ namespace catapult { namespace net {
 						auto connectCode,
 						const auto& pVerifiedSocket,
 						const auto& identityKey) {
-					ionet::PacketSocketInfo verifiedSocketInfo(host, identityKey, pVerifiedSocket);
-					if (PeerConnectCode::Accepted == connectCode) {
-						if (!pThis->addReader(identityKey, verifiedSocketInfo))
-							connectCode = PeerConnectCode::Already_Connected;
-						else
-							CATAPULT_LOG(debug) << "accepted connection from '" << verifiedSocketInfo.host() << "' as " << identityKey;
+					auto connectResult = PeerConnectResult{ connectCode, { identityKey, host } };
+					if (PeerConnectCode::Accepted != connectCode) {
+						callback(connectResult);
+						return;
 					}
 
-					return callback({ connectCode, { identityKey, host } });
+					ionet::PacketSocketInfo verifiedSocketInfo(host, identityKey, pVerifiedSocket);
+					auto operation = pThis->tryAddReader(identityKey, verifiedSocketInfo);
+					if (operation.IsPending) {
+						if (callback(connectResult)) {
+							CATAPULT_LOG(debug) << "accepted connection from '" << verifiedSocketInfo.host() << "' as " << identityKey;
+							operation.Commit();
+							return;
+						}
+					} else {
+						connectResult.Code = PeerConnectCode::Already_Connected;
+						callback(connectResult);
+					}
+
+					operation.Abort();
 				});
 			}
 
@@ -239,7 +279,7 @@ namespace catapult { namespace net {
 			}
 
 		private:
-			bool addReader(const Key& identityKey, const ionet::PacketSocketInfo& socketInfo) {
+			ReaderContainer::InsertOperation tryAddReader(const Key& identityKey, const ionet::PacketSocketInfo& socketInfo) {
 				auto identity = model::NodeIdentity{ identityKey, socketInfo.host() };
 				return m_readers.insert(identity, socketInfo.socket(), [this, &identity](const auto& pSocket, auto id) {
 					return this->createReader(pSocket, identity, id);

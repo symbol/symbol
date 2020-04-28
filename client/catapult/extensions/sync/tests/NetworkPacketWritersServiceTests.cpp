@@ -136,6 +136,7 @@ namespace catapult { namespace sync {
 
 				pWriters->connect(node, [&](auto) {
 					++numCallbacks;
+					return true;
 				});
 
 				// - wait for both connections to complete
