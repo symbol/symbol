@@ -16,6 +16,6 @@ cp -r $REPO_PATH/_build/. ./
 git add .
 git config user.name  "Travis"
 git config user.email "travis@travis-ci.org"
-git commit -m "Uploading $CURRENT_VERSION docs."
+git commit -m "Uploading $CURRENT_VERSION docs." --allow-empty
 git push -fq origin $PUBLICATION_BRANCH 2>&1 > /dev/null
 cd $REPO_PATH
