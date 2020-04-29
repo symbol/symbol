@@ -17,9 +17,9 @@ script:
 deploy:
   - provider: script
     skip_cleanup: true
-    script: /bin/sh travis/github-pages.sh
+    script: /bin/sh travis/githubPages.sh
     on:
-      branch: $RELEASE_BRANCH
+      branch: master
   - provider: script
     skip_cleanup: true
     script: /bin/sh travis/release.sh
