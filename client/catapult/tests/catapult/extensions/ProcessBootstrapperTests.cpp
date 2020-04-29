@@ -154,7 +154,7 @@ namespace catapult { namespace extensions {
 		auto CreateCatapultConfigurationWithCustomNetworkFingerprint() {
 			test::MutableCatapultConfiguration config;
 			config.BlockChain.Network.Identifier = model::NetworkIdentifier::Mijin_Test;
-			config.BlockChain.Network.GenerationHashSeed = utils::ParseByteArray<GenerationHash>(Generation_Hash_Seed_String);
+			config.BlockChain.Network.GenerationHashSeed = utils::ParseByteArray<GenerationHashSeed>(Generation_Hash_Seed_String);
 			return config.ToConst();
 		}
 
@@ -164,7 +164,7 @@ namespace catapult { namespace extensions {
 
 			// test::CreateLocalHostNode creates nodes with default network fingerprint and addStaticNodes doesn't override fingerprint
 			EXPECT_EQ(model::NetworkIdentifier::Zero, node.metadata().NetworkFingerprint.Identifier) << tag;
-			EXPECT_EQ(GenerationHash(), node.metadata().NetworkFingerprint.GenerationHashSeed) << tag;
+			EXPECT_EQ(GenerationHashSeed(), node.metadata().NetworkFingerprint.GenerationHashSeed) << tag;
 		}
 	}
 
@@ -212,7 +212,7 @@ namespace catapult { namespace extensions {
 		const auto& node = bootstrapper.staticNodes()[0];
 		EXPECT_EQ(model::NetworkIdentifier::Mijin_Test, node.metadata().NetworkFingerprint.Identifier);
 
-		auto expectedGenerationHashSeed = utils::ParseByteArray<GenerationHash>(Generation_Hash_Seed_String);
+		auto expectedGenerationHashSeed = utils::ParseByteArray<GenerationHashSeed>(Generation_Hash_Seed_String);
 		EXPECT_EQ(expectedGenerationHashSeed, node.metadata().NetworkFingerprint.GenerationHashSeed);
 	}
 

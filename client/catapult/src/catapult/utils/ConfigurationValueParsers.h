@@ -88,8 +88,8 @@ namespace catapult { namespace utils {
 	/// Tries to parse \a str into a Hash256 (\a parsedValue).
 	bool TryParseValue(const std::string& str, Hash256& parsedValue);
 
-	/// Tries to parse \a str into a GenerationHash (\a parsedValue).
-	bool TryParseValue(const std::string& str, GenerationHash& parsedValue);
+	/// Tries to parse \a str into a GenerationHashSeed (\a parsedValue).
+	bool TryParseValue(const std::string& str, GenerationHashSeed& parsedValue);
 
 	/// Tries to parse \a str into a string (\a parsedValue).
 	/// \note This function just copies \a str into \a parsedValue.

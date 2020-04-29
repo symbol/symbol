@@ -30,7 +30,7 @@ namespace catapult { namespace test {
 		constexpr auto Generation_Hash_Seed_String = "272C4ECC55B7A42A07478A9550543C62673D1599A8362CC662E019049B76B7F2";
 		return model::UniqueNetworkFingerprint(
 				model::NetworkIdentifier::Mijin_Test,
-				utils::ParseByteArray<GenerationHash>(Generation_Hash_Seed_String));
+				utils::ParseByteArray<GenerationHashSeed>(Generation_Hash_Seed_String));
 	}
 
 	std::unique_ptr<ionet::NetworkNode> CreateNetworkNode(const std::string& host, const std::string& name) {

@@ -34,11 +34,11 @@ namespace catapult { namespace model {
 	Hash256 CalculateHash(const Block& block);
 
 	/// Calculates the hash for the given \a transaction for the network with the specified generation hash seed (\a generationHashSeed).
-	Hash256 CalculateHash(const Transaction& transaction, const GenerationHash& generationHashSeed);
+	Hash256 CalculateHash(const Transaction& transaction, const GenerationHashSeed& generationHashSeed);
 
 	/// Calculates the hash for the given \a transaction with data \a buffer for the network with the specified
 	/// generation hash seed (\a generationHashSeed).
-	Hash256 CalculateHash(const Transaction& transaction, const GenerationHash& generationHashSeed, const RawBuffer& buffer);
+	Hash256 CalculateHash(const Transaction& transaction, const GenerationHashSeed& generationHashSeed, const RawBuffer& buffer);
 
 	/// Calculates the merkle component hash for the given \a transaction with \a transactionHash
 	/// using transaction information from \a transactionRegistry.
@@ -54,6 +54,6 @@ namespace catapult { namespace model {
 	/// generation hash seed (\a generationHashSeed) using transaction information from \a transactionRegistry.
 	void UpdateHashes(
 				const TransactionRegistry& transactionRegistry,
-				const GenerationHash& generationHashSeed,
+				const GenerationHashSeed& generationHashSeed,
 				TransactionElement& transactionElement);
 }}

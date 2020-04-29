@@ -101,7 +101,7 @@ namespace catapult { namespace ionet {
 	namespace {
 		Node CreateNodeForPackTests(const std::string& host, const std::string& name) {
 			auto key = test::GenerateRandomByteArray<Key>();
-			auto generationHashSeed = test::GenerateRandomByteArray<GenerationHash>();
+			auto generationHashSeed = test::GenerateRandomByteArray<GenerationHashSeed>();
 			auto networkFingerprint = model::UniqueNetworkFingerprint(model::NetworkIdentifier::Mijin_Test, generationHashSeed);
 			return Node({ key, "11.22.33.44" }, { host, 1234 }, { networkFingerprint, name, NodeVersion(7), NodeRoles::Peer });
 		}
@@ -109,7 +109,7 @@ namespace catapult { namespace ionet {
 		void AssertPackedNode(
 				const NetworkNode& node,
 				const Key& expectedKey,
-				const GenerationHash& expectedGenerationHashSeed,
+				const GenerationHashSeed& expectedGenerationHashSeed,
 				const std::string& expectedHost,
 				const std::string& expectedName) {
 			const auto* host = reinterpret_cast<const char*>(&node + 1);
@@ -213,7 +213,7 @@ namespace catapult { namespace ionet {
 		void AssertUnpackedNode(
 				const Node& node,
 				const Key& expectedIdentityKey,
-				const GenerationHash& expectedGenerationHashSeed,
+				const GenerationHashSeed& expectedGenerationHashSeed,
 				const std::string& expectedHost,
 				const std::string& expectedName) {
 			// Assert:

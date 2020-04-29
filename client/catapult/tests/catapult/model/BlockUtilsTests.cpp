@@ -183,7 +183,7 @@ namespace catapult { namespace model {
 			// random generation hash is used because VerifyBlockHeaderSignature should succeed independent of generation hash
 			auto signer = test::GenerateKeyPair();
 			auto pBlock = test::GenerateBlockWithTransactions(signer, test::GenerateRandomTransactions(numTransactions));
-			extensions::BlockExtensions(test::GenerateRandomByteArray<GenerationHash>()).updateBlockTransactionsHash(*pBlock);
+			extensions::BlockExtensions(test::GenerateRandomByteArray<GenerationHashSeed>()).updateBlockTransactionsHash(*pBlock);
 			SignBlockHeader(signer, *pBlock);
 			return pBlock;
 		}

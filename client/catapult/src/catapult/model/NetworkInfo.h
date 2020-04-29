@@ -34,7 +34,7 @@ namespace catapult { namespace model {
 						NetworkIdentifier::Zero,
 						NodeIdentityEqualityStrategy::Key,
 						Key(),
-						catapult::GenerationHash(),
+						catapult::GenerationHashSeed(),
 						utils::TimeSpan())
 		{}
 
@@ -45,7 +45,7 @@ namespace catapult { namespace model {
 				NetworkIdentifier identifier,
 				NodeIdentityEqualityStrategy nodeEqualityStrategy,
 				const Key& publicKey,
-				const catapult::GenerationHash& generationHashSeed,
+				const catapult::GenerationHashSeed& generationHashSeed,
 				const utils::TimeSpan& epochAdjustment)
 				: Identifier(identifier)
 				, NodeEqualityStrategy(nodeEqualityStrategy)
@@ -65,7 +65,7 @@ namespace catapult { namespace model {
 		Key PublicKey;
 
 		/// Nemesis generation hash seed.
-		catapult::GenerationHash GenerationHashSeed;
+		catapult::GenerationHashSeed GenerationHashSeed;
 
 		/// Nemesis epoch time adjustment.
 		utils::TimeSpan EpochAdjustment;

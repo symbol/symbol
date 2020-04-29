@@ -29,7 +29,7 @@
 
 namespace catapult { namespace extensions {
 
-	BlockExtensions::BlockExtensions(const GenerationHash& generationHashSeed)
+	BlockExtensions::BlockExtensions(const GenerationHashSeed& generationHashSeed)
 			: m_generationHashSeed(generationHashSeed)
 			, m_calculateTransactionEntityHash([generationHashSeed](const auto& transaction) {
 				return model::CalculateHash(transaction, generationHashSeed);
@@ -39,7 +39,7 @@ namespace catapult { namespace extensions {
 			})
 	{}
 
-	BlockExtensions::BlockExtensions(const GenerationHash& generationHashSeed, const model::TransactionRegistry& transactionRegistry)
+	BlockExtensions::BlockExtensions(const GenerationHashSeed& generationHashSeed, const model::TransactionRegistry& transactionRegistry)
 			: m_generationHashSeed(generationHashSeed)
 			, m_calculateTransactionEntityHash([generationHashSeed, &transactionRegistry](const auto& transaction) {
 				const auto& plugin = *transactionRegistry.findPlugin(transaction.Type);

@@ -26,7 +26,7 @@
 
 namespace catapult { namespace validators {
 
-	DEFINE_COMMON_VALIDATOR_TESTS(Signature, GenerationHash())
+	DEFINE_COMMON_VALIDATOR_TESTS(Signature, GenerationHashSeed())
 
 #define TEST_CLASS SignatureValidatorTests
 
@@ -35,7 +35,7 @@ namespace catapult { namespace validators {
 
 		void AssertValidationResult(
 				ValidationResult expectedResult,
-				const GenerationHash& generationHashSeed,
+				const GenerationHashSeed& generationHashSeed,
 				const model::SignatureNotification& notification) {
 			// Arrange:
 			auto pValidator = CreateSignatureValidator(generationHashSeed);
@@ -51,7 +51,7 @@ namespace catapult { namespace validators {
 		public:
 			explicit TestContext(ReplayProtectionMode mode)
 					: SignerKeyPair(test::GenerateKeyPair())
-					, GenerationHashSeed(test::GenerateRandomByteArray<catapult::GenerationHash>())
+					, GenerationHashSeed(test::GenerateRandomByteArray<catapult::GenerationHashSeed>())
 					, DataBuffer(test::GenerateRandomVector(55)) {
 				// when replay protection is enabled, data buffer should be prepended by generation hash
 				if (ReplayProtectionMode::Enabled == mode)
@@ -62,7 +62,7 @@ namespace catapult { namespace validators {
 
 		public:
 			crypto::KeyPair SignerKeyPair;
-			catapult::GenerationHash GenerationHashSeed;
+			catapult::GenerationHashSeed GenerationHashSeed;
 			std::vector<uint8_t> DataBuffer;
 			catapult::Signature Signature;
 		};

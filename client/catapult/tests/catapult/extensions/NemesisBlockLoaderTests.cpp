@@ -124,7 +124,7 @@ namespace catapult { namespace extensions {
 			if (NemesisBlockModification::Signature == modification)
 				test::FillWithRandomData(pModifiedBlock->Signature);
 			else
-				extensions::BlockExtensions(pNemesisBlockElement->GenerationHash).signFullBlock(*blockSignerPair.pSigner, *pModifiedBlock);
+				extensions::BlockExtensions(network.GenerationHashSeed).signFullBlock(*blockSignerPair.pSigner, *pModifiedBlock);
 
 			storageModifier.saveBlock(modifiedNemesisBlockElement);
 			storageModifier.commit();

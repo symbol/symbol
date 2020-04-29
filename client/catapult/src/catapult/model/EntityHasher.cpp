@@ -32,7 +32,7 @@ namespace catapult { namespace model {
 			return { reinterpret_cast<const uint8_t*>(&entity) + headerSize, totalSize - headerSize };
 		}
 
-		Hash256 CalculateHash(const VerifiableEntity& entity, const RawBuffer& buffer, const GenerationHash* pGenerationHashSeed) {
+		Hash256 CalculateHash(const VerifiableEntity& entity, const RawBuffer& buffer, const GenerationHashSeed* pGenerationHashSeed) {
 			Hash256 entityHash;
 			crypto::Sha3_256_Builder sha3;
 
@@ -55,11 +55,11 @@ namespace catapult { namespace model {
 		return CalculateHash(block, blockRawBuffer, nullptr);
 	}
 
-	Hash256 CalculateHash(const Transaction& transaction, const GenerationHash& generationHashSeed) {
+	Hash256 CalculateHash(const Transaction& transaction, const GenerationHashSeed& generationHashSeed) {
 		return CalculateHash(transaction, EntityDataBuffer(transaction, transaction.Size), &generationHashSeed);
 	}
 
-	Hash256 CalculateHash(const Transaction& transaction, const GenerationHash& generationHashSeed, const RawBuffer& buffer) {
+	Hash256 CalculateHash(const Transaction& transaction, const GenerationHashSeed& generationHashSeed, const RawBuffer& buffer) {
 		return CalculateHash(transaction, buffer, &generationHashSeed);
 	}
 
@@ -95,7 +95,7 @@ namespace catapult { namespace model {
 
 	void UpdateHashes(
 			const TransactionRegistry& transactionRegistry,
-			const GenerationHash& generationHashSeed,
+			const GenerationHashSeed& generationHashSeed,
 			TransactionElement& transactionElement) {
 		const auto& transaction = transactionElement.Transaction;
 		const auto& plugin = *transactionRegistry.findPlugin(transaction.Type);

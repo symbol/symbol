@@ -70,14 +70,14 @@ namespace catapult { namespace model {
 		explicit UniqueNetworkFingerprint(NetworkIdentifier identifier);
 
 		/// Creates fingerprint around \a identifier and \a generationHashSeed.
-		UniqueNetworkFingerprint(NetworkIdentifier identifier, const catapult::GenerationHash& generationHashSeed);
+		UniqueNetworkFingerprint(NetworkIdentifier identifier, const catapult::GenerationHashSeed& generationHashSeed);
 
 	public:
 		/// Network identifier.
 		NetworkIdentifier Identifier;
 
 		/// Nemesis generation hash seed.
-		catapult::GenerationHash GenerationHashSeed;
+		catapult::GenerationHashSeed GenerationHashSeed;
 
 	public:
 		/// Returns \c true if this fingerprint is equal to \a rhs.

@@ -107,7 +107,7 @@ namespace catapult { namespace model {
 				EXPECT_EQ(NetworkIdentifier::Zero, config.Network.Identifier);
 				EXPECT_EQ(static_cast<NodeIdentityEqualityStrategy>(0), config.Network.NodeEqualityStrategy);
 				EXPECT_EQ(Key(), config.Network.PublicKey);
-				EXPECT_EQ(GenerationHash(), config.Network.GenerationHashSeed);
+				EXPECT_EQ(GenerationHashSeed(), config.Network.GenerationHashSeed);
 				EXPECT_EQ(utils::TimeSpan(), config.Network.EpochAdjustment);
 
 				EXPECT_FALSE(config.EnableVerifiableState);
@@ -147,7 +147,7 @@ namespace catapult { namespace model {
 				EXPECT_EQ(NetworkIdentifier::Public_Test, config.Network.Identifier);
 				EXPECT_EQ(NodeIdentityEqualityStrategy::Host, config.Network.NodeEqualityStrategy);
 				EXPECT_EQ(utils::ParseByteArray<Key>(Nemesis_Public_Key), config.Network.PublicKey);
-				EXPECT_EQ(utils::ParseByteArray<GenerationHash>(Nemesis_Generation_Hash_Seed), config.Network.GenerationHashSeed);
+				EXPECT_EQ(utils::ParseByteArray<GenerationHashSeed>(Nemesis_Generation_Hash_Seed), config.Network.GenerationHashSeed);
 				EXPECT_EQ(utils::TimeSpan::FromHours(1234567), config.Network.EpochAdjustment);
 
 				EXPECT_TRUE(config.EnableVerifiableState);

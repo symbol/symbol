@@ -43,8 +43,8 @@ namespace catapult { namespace consumers {
 	// region CustomBuffersTraits
 
 	namespace {
-		GenerationHash GetNetworkGenerationHashSeed() {
-			return utils::ParseByteArray<GenerationHash>("CE076EF4ABFBC65B046987429E274EC31506D173E91BF102F16BEB7FB8176230");
+		GenerationHashSeed GetNetworkGenerationHashSeed() {
+			return utils::ParseByteArray<GenerationHashSeed>("CE076EF4ABFBC65B046987429E274EC31506D173E91BF102F16BEB7FB8176230");
 		}
 
 		struct CustomBuffersTraits {
@@ -190,7 +190,7 @@ namespace catapult { namespace consumers {
 
 	TEST(BLOCK_TEST_CLASS, CalculatesCorrectHashForDeterministicEntity) {
 		// Arrange:
-		auto generationHashSeed = utils::ParseByteArray<GenerationHash>(test::Deterministic_Network_Generation_Hash_Seed_String);
+		auto generationHashSeed = utils::ParseByteArray<GenerationHashSeed>(test::Deterministic_Network_Generation_Hash_Seed_String);
 
 		auto registry = mocks::CreateDefaultTransactionRegistry();
 		auto pEntity = test::GenerateDeterministicBlock();
@@ -303,7 +303,7 @@ namespace catapult { namespace consumers {
 
 	TEST(TRANSACTION_TEST_CLASS, CalculatesCorrectHashForDeterministicEntity) {
 		// Arrange:
-		auto generationHashSeed = utils::ParseByteArray<GenerationHash>(test::Deterministic_Network_Generation_Hash_Seed_String);
+		auto generationHashSeed = utils::ParseByteArray<GenerationHashSeed>(test::Deterministic_Network_Generation_Hash_Seed_String);
 
 		auto registry = mocks::CreateDefaultTransactionRegistry();
 		auto pEntity = test::GenerateDeterministicTransaction();

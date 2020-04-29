@@ -40,7 +40,7 @@ namespace catapult { namespace extensions {
 		}
 	}
 
-	TransactionExtensions::TransactionExtensions(const GenerationHash& generationHashSeed) : m_generationHashSeed(generationHashSeed)
+	TransactionExtensions::TransactionExtensions(const GenerationHashSeed& generationHashSeed) : m_generationHashSeed(generationHashSeed)
 	{}
 
 	Hash256 TransactionExtensions::hash(const model::Transaction& transaction) const {

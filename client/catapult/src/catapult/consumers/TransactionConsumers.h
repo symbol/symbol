@@ -34,7 +34,7 @@ namespace catapult { namespace consumers {
 	/// Creates a consumer that calculates hashes of all entities using \a transactionRegistry for the network with the specified
 	/// generation hash seed (\a generationHashSeed).
 	disruptor::TransactionConsumer CreateTransactionHashCalculatorConsumer(
-			const GenerationHash& generationHashSeed,
+			const GenerationHashSeed& generationHashSeed,
 			const model::TransactionRegistry& transactionRegistry);
 
 	/// Creates a consumer that checks entities for previous processing based on their hash.
@@ -54,7 +54,7 @@ namespace catapult { namespace consumers {
 	/// generation hash seed (\a generationHashSeed) and calls \a failedTransactionSink for each failure.
 	/// \a randomFiller is used to generate random bytes.
 	disruptor::TransactionConsumer CreateTransactionBatchSignatureConsumer(
-			const GenerationHash& generationHashSeed,
+			const GenerationHashSeed& generationHashSeed,
 			const crypto::RandomFiller& randomFiller,
 			const std::shared_ptr<model::NotificationPublisher>& pPublisher,
 			const std::shared_ptr<thread::IoThreadPool>& pPool,

@@ -211,6 +211,6 @@ namespace catapult { namespace test {
 	}
 
 	std::shared_ptr<const model::BlockElement> BlockChainBuilder::ToSharedBlockElement(const model::Block& block) {
-		return std::make_shared<model::BlockElement>(BlockToBlockElement(block, GenerationHash()));
+		return std::make_shared<model::BlockElement>(BlockToBlockElement(block, GenerationHashSeed()));
 	}
 }}

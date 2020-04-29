@@ -27,7 +27,7 @@ namespace catapult { namespace extensions {
 	class TransactionExtensions {
 	public:
 		/// Creates extensions for transactions for the network with the specified generation hash seed (\a generationHashSeed).
-		explicit TransactionExtensions(const GenerationHash& generationHashSeed);
+		explicit TransactionExtensions(const GenerationHashSeed& generationHashSeed);
 
 	public:
 		/// Hashes the \a transaction.
@@ -40,6 +40,6 @@ namespace catapult { namespace extensions {
 		bool verify(const model::Transaction& transaction) const;
 
 	private:
-		GenerationHash m_generationHashSeed;
+		GenerationHashSeed m_generationHashSeed;
 	};
 }}

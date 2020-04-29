@@ -63,10 +63,12 @@ namespace catapult { namespace model {
 	{}
 
 	UniqueNetworkFingerprint::UniqueNetworkFingerprint(NetworkIdentifier identifier)
-			: UniqueNetworkFingerprint(identifier, catapult::GenerationHash())
+			: UniqueNetworkFingerprint(identifier, catapult::GenerationHashSeed())
 	{}
 
-	UniqueNetworkFingerprint::UniqueNetworkFingerprint(NetworkIdentifier identifier, const catapult::GenerationHash& generationHashSeed)
+	UniqueNetworkFingerprint::UniqueNetworkFingerprint(
+			NetworkIdentifier identifier,
+			const catapult::GenerationHashSeed& generationHashSeed)
 			: Identifier(identifier)
 			, GenerationHashSeed(generationHashSeed)
 	{}

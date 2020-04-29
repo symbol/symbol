@@ -49,6 +49,9 @@ namespace catapult {
 	struct GenerationHash_tag { static constexpr size_t Size = 32; };
 	using GenerationHash = utils::ByteArray<GenerationHash_tag>;
 
+	struct GenerationHashSeed_tag { static constexpr size_t Size = 32; };
+	using GenerationHashSeed = utils::ByteArray<GenerationHashSeed_tag>;
+
 	// endregion
 
 	// region byte arrays (address)

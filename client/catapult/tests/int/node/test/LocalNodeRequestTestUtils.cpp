@@ -72,7 +72,7 @@ namespace catapult { namespace test {
 			auto vrfProof = crypto::GenerateVrfProof(context.GenerationHash, vrfKeyPair);
 			pBlock->GenerationHashProof = { vrfProof.Gamma, vrfProof.VerificationHash, vrfProof.Scalar };
 
-			extensions::BlockExtensions(GetDefaultGenerationHash()).signFullBlock(signer, *pBlock);
+			extensions::BlockExtensions(GetDefaultGenerationHashSeed()).signFullBlock(signer, *pBlock);
 			return PORTABLE_MOVE(pBlock);
 		}
 	}

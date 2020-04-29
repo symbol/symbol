@@ -79,9 +79,9 @@ namespace catapult { namespace test {
 		return sizeof(uint64_t);
 	}
 
-	/// Gets the desired alignment for type GenerationHash.
+	/// Gets the desired alignment for type GenerationHashSeed.
 	template<>
-	constexpr size_t GetRequiredAlignment<GenerationHash>() {
+	constexpr size_t GetRequiredAlignment<GenerationHashSeed>() {
 		return sizeof(uint64_t);
 	}
 

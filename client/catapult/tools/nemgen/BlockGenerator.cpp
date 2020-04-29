@@ -59,7 +59,7 @@ namespace catapult { namespace tools { namespace nemgen {
 		public:
 			NemesisTransactions(
 					model::NetworkIdentifier networkIdentifier,
-					const GenerationHash& generationHashSeed,
+					const GenerationHashSeed& generationHashSeed,
 					const crypto::KeyPair& signer)
 					: m_networkIdentifier(networkIdentifier)
 					, m_generationHashSeed(generationHashSeed)
@@ -154,22 +154,14 @@ namespace catapult { namespace tools { namespace nemgen {
 
 		private:
 			model::NetworkIdentifier m_networkIdentifier;
-			const GenerationHash& m_generationHashSeed;
+			const GenerationHashSeed& m_generationHashSeed;
 			const crypto::KeyPair& m_signer;
 			model::Transactions m_transactions;
 		};
 
-		GenerationHash AddGenerationHashProof(
-				model::Block& block,
-				const GenerationHash& generationHashSeed,
-				const crypto::KeyPair& vrfKeyPair) {
+		void AddGenerationHashProof(model::Block& block, const GenerationHashSeed& generationHashSeed, const crypto::KeyPair& vrfKeyPair) {
 			auto vrfProof = crypto::GenerateVrfProof(generationHashSeed, vrfKeyPair);
-			block.GenerationHashProof.Gamma = vrfProof.Gamma;
-			block.GenerationHashProof.VerificationHash = vrfProof.VerificationHash;
-			block.GenerationHashProof.Scalar = vrfProof.Scalar;
-
-			auto vrfProofHash = crypto::GenerateVrfProofHash(vrfProof.Gamma);
-			return vrfProofHash.copyTo<GenerationHash>();
+			block.GenerationHashProof = { vrfProof.Gamma, vrfProof.VerificationHash, vrfProof.Scalar };
 		}
 	}
 

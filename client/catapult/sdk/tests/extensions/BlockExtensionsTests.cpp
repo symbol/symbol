@@ -40,8 +40,8 @@ namespace catapult { namespace extensions {
 			Hash256 MerkleComponentHash;
 		};
 
-		GenerationHash GetNetworkGenerationHashSeed() {
-			return utils::ParseByteArray<GenerationHash>("CE076EF4ABFBC65B046987429E274EC31506D173E91BF102F16BEB7FB8176230");
+		GenerationHashSeed GetNetworkGenerationHashSeed() {
+			return utils::ParseByteArray<GenerationHashSeed>("CE076EF4ABFBC65B046987429E274EC31506D173E91BF102F16BEB7FB8176230");
 		}
 
 		struct BasicTraits {
@@ -306,7 +306,7 @@ namespace catapult { namespace extensions {
 			EXPECT_EQ(VerifyFullBlockResult::Success, extensions.verifyFullBlock(*pBlock));
 
 			// Act:
-			auto result = BlockExtensions(test::GenerateRandomByteArray<GenerationHash>()).verifyFullBlock(*pBlock);
+			auto result = BlockExtensions(test::GenerateRandomByteArray<GenerationHashSeed>()).verifyFullBlock(*pBlock);
 
 			// Assert:
 			EXPECT_EQ(VerifyFullBlockResult::Invalid_Block_Transactions_Hash, result);
@@ -383,11 +383,11 @@ namespace catapult { namespace extensions {
 
 	TEST(TEST_CLASS, DeterministicBlockIsFullyVerifiable) {
 		// Arrange:
-		auto generationHash = utils::ParseByteArray<GenerationHash>(test::Deterministic_Network_Generation_Hash_Seed_String);
+		auto generationHashSeed = utils::ParseByteArray<GenerationHashSeed>(test::Deterministic_Network_Generation_Hash_Seed_String);
 		auto pBlock = test::GenerateDeterministicBlock();
 
 		// Act: deterministic block does not contain any aggregate transactions, so no transaction registry is required
-		auto result = BlockExtensions(generationHash).verifyFullBlock(*pBlock);
+		auto result = BlockExtensions(generationHashSeed).verifyFullBlock(*pBlock);
 
 		// Assert:
 		EXPECT_EQ(VerifyFullBlockResult::Success, result);

@@ -32,7 +32,7 @@ namespace catapult { namespace consumers {
 	namespace {
 		class SignatureCapturingNotificationSubscriber : public model::NotificationSubscriber {
 		public:
-			explicit SignatureCapturingNotificationSubscriber(const GenerationHash& generationHashSeed)
+			explicit SignatureCapturingNotificationSubscriber(const GenerationHashSeed& generationHashSeed)
 					: m_generationHashSeed(generationHashSeed)
 					, m_entityIndex(0)
 			{}
@@ -72,14 +72,14 @@ namespace catapult { namespace consumers {
 			}
 
 		private:
-			const GenerationHash& m_generationHashSeed;
+			const GenerationHashSeed& m_generationHashSeed;
 			size_t m_entityIndex;
 			std::vector<size_t> m_notificationToEntityIndexMap;
 			std::vector<crypto::SignatureInput> m_inputs;
 		};
 
 		std::unique_ptr<SignatureCapturingNotificationSubscriber> ExtractAllSignatureNotifications(
-				const GenerationHash& generationHashSeed,
+				const GenerationHashSeed& generationHashSeed,
 				const model::NotificationPublisher& publisher,
 				const model::WeakEntityInfos& entityInfos) {
 			auto pSub = std::make_unique<SignatureCapturingNotificationSubscriber>(generationHashSeed);
@@ -106,7 +106,7 @@ namespace catapult { namespace consumers {
 	}
 
 	disruptor::ConstBlockConsumer CreateBlockBatchSignatureConsumer(
-			const GenerationHash& generationHashSeed,
+			const GenerationHashSeed& generationHashSeed,
 			const crypto::RandomFiller& randomFiller,
 			const std::shared_ptr<model::NotificationPublisher>& pPublisher,
 			const std::shared_ptr<thread::IoThreadPool>& pPool,
@@ -130,7 +130,7 @@ namespace catapult { namespace consumers {
 	}
 
 	disruptor::TransactionConsumer CreateTransactionBatchSignatureConsumer(
-			const GenerationHash& generationHashSeed,
+			const GenerationHashSeed& generationHashSeed,
 			const crypto::RandomFiller& randomFiller,
 			const std::shared_ptr<model::NotificationPublisher>& pPublisher,
 			const std::shared_ptr<thread::IoThreadPool>& pPool,

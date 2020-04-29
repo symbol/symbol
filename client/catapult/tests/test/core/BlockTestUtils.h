@@ -97,7 +97,7 @@ namespace catapult { namespace test {
 	model::BlockElement BlockToBlockElement(const model::Block& block);
 
 	/// Converts \a block to a block element with specified generation hash seed (\a generationHashSeed).
-	model::BlockElement BlockToBlockElement(const model::Block& block, const GenerationHash& generationHashSeed);
+	model::BlockElement BlockToBlockElement(const model::Block& block, const GenerationHashSeed& generationHashSeed);
 
 	/// Converts \a block with \a hash to a block element.
 	model::BlockElement BlockToBlockElement(const model::Block& block, const Hash256& hash);

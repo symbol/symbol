@@ -91,7 +91,7 @@ namespace catapult { namespace builders {
 	}
 
 	AggregateCosignatureAppender::AggregateCosignatureAppender(
-			const GenerationHash& generationHashSeed,
+			const GenerationHashSeed& generationHashSeed,
 			std::unique_ptr<TransactionType>&& pAggregateTransaction)
 			: m_generationHashSeed(generationHashSeed)
 			, m_pAggregateTransaction(std::move(pAggregateTransaction))

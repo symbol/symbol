@@ -87,7 +87,7 @@ namespace catapult { namespace consumers {
 		class MockSignatureNotificationPublisher : public model::NotificationPublisher {
 		public:
 			MockSignatureNotificationPublisher(
-					const GenerationHash& generationHashSeed,
+					const GenerationHashSeed& generationHashSeed,
 					const std::vector<NotificationDescriptor>& descriptors,
 					const std::unordered_set<size_t>& alwaysVerifiableIndexes)
 					: m_generationHashSeed(generationHashSeed)
@@ -133,7 +133,7 @@ namespace catapult { namespace consumers {
 			}
 
 		private:
-			const GenerationHash& m_generationHashSeed;
+			const GenerationHashSeed& m_generationHashSeed;
 			std::vector<NotificationDescriptor> m_descriptors;
 			std::unordered_set<size_t> m_alwaysVerifiableIndexes;
 			mutable model::WeakEntityInfos m_entityInfos;
@@ -166,14 +166,14 @@ namespace catapult { namespace consumers {
 						const std::vector<NotificationDescriptor>& descriptors,
 						const std::unordered_set<size_t>& alwaysVerifiableIndexes = {},
 						const RequiresValidationPredicate& requiresValidationPredicate = RequiresAllPredicate)
-						: GenerationHash(test::GenerateRandomByteArray<catapult::GenerationHash>())
+						: GenerationHashSeed(test::GenerateRandomByteArray<catapult::GenerationHashSeed>())
 						, pPublisher(std::make_shared<MockSignatureNotificationPublisher>(
-								GenerationHash,
+								GenerationHashSeed,
 								descriptors,
 								alwaysVerifiableIndexes))
 						, pPool(test::CreateStartedIoThreadPool())
 						, Consumer(CreateBlockBatchSignatureConsumer(
-								GenerationHash,
+								GenerationHashSeed,
 								CreateRandomFiller(),
 								pPublisher,
 								pPool,
@@ -181,7 +181,7 @@ namespace catapult { namespace consumers {
 				{}
 
 			public:
-				catapult::GenerationHash GenerationHash;
+				catapult::GenerationHashSeed GenerationHashSeed;
 				std::shared_ptr<MockSignatureNotificationPublisher> pPublisher;
 				std::shared_ptr<thread::IoThreadPool> pPool;
 
@@ -277,14 +277,14 @@ namespace catapult { namespace consumers {
 				explicit TestContext(
 						const std::vector<NotificationDescriptor>& descriptors,
 						const std::unordered_set<size_t>& alwaysVerifiableIndexes = {})
-						: GenerationHash(test::GenerateRandomByteArray<catapult::GenerationHash>())
+						: GenerationHashSeed(test::GenerateRandomByteArray<catapult::GenerationHashSeed>())
 						, pPublisher(std::make_shared<MockSignatureNotificationPublisher>(
-								GenerationHash,
+								GenerationHashSeed,
 								descriptors,
 								alwaysVerifiableIndexes))
 						, pPool(test::CreateStartedIoThreadPool())
 						, Consumer(CreateTransactionBatchSignatureConsumer(
-								GenerationHash,
+								GenerationHashSeed,
 								CreateRandomFiller(),
 								pPublisher,
 								pPool,
@@ -295,7 +295,7 @@ namespace catapult { namespace consumers {
 				{}
 
 			public:
-				catapult::GenerationHash GenerationHash;
+				catapult::GenerationHashSeed GenerationHashSeed;
 				std::shared_ptr<MockSignatureNotificationPublisher> pPublisher;
 				std::shared_ptr<thread::IoThreadPool> pPool;
 

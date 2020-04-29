@@ -465,12 +465,12 @@ namespace catapult { namespace utils {
 		AssertCannotParseInvalidByteArray<Hash256>();
 	}
 
-	TEST(TEST_CLASS, CanParseValidGenerationHash) {
-		AssertCanParseValidByteArray<GenerationHash>();
+	TEST(TEST_CLASS, CanParseValidGenerationHashSeed) {
+		AssertCanParseValidByteArray<GenerationHashSeed>();
 	}
 
-	TEST(TEST_CLASS, CannotParseInvalidGenerationHash) {
-		AssertCannotParseInvalidByteArray<GenerationHash>();
+	TEST(TEST_CLASS, CannotParseInvalidGenerationHashSeed) {
+		AssertCannotParseInvalidByteArray<GenerationHashSeed>();
 	}
 
 	// endregion

@@ -146,7 +146,7 @@ namespace catapult { namespace builders {
 		void AssertAggregateCosignaturesTransaction(size_t numCosignatures) {
 			// Arrange: create transaction with 3 embedded transactions
 			TestContext context(3);
-			auto generationHashSeed = test::GenerateRandomByteArray<GenerationHash>();
+			auto generationHashSeed = test::GenerateRandomByteArray<GenerationHashSeed>();
 			AggregateCosignatureAppender builder(generationHashSeed, context.buildTransaction());
 			auto cosignatories = GenerateKeys(numCosignatures);
 

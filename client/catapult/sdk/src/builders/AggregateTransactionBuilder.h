@@ -54,7 +54,7 @@ namespace catapult { namespace builders {
 		/// Creates aggregate cosignature appender around aggregate transaction (\a pAggregateTransaction)
 		/// for the network with the specified generation hash seed (\a generationHashSeed).
 		AggregateCosignatureAppender(
-				const GenerationHash& generationHashSeed,
+				const GenerationHashSeed& generationHashSeed,
 				std::unique_ptr<model::AggregateTransaction>&& pAggregateTransaction);
 
 	public:
@@ -65,7 +65,7 @@ namespace catapult { namespace builders {
 		std::unique_ptr<model::AggregateTransaction> build() const;
 
 	private:
-		GenerationHash m_generationHashSeed;
+		GenerationHashSeed m_generationHashSeed;
 		std::unique_ptr<model::AggregateTransaction> m_pAggregateTransaction;
 		Hash256 m_transactionHash;
 		std::vector<model::Cosignature> m_cosignatures;

@@ -89,7 +89,7 @@ namespace catapult {
 			}
 
 			model::PreviousBlockContext context;
-			context.GenerationHash = generationHashSeed;
+			context.GenerationHash = generationHashSeed.copyTo<GenerationHash>();
 			auto pBlock = model::CreateBlock(context, Network_Identifier, signer.publicKey(), transactions);
 			extensions::BlockExtensions(generationHashSeed).signFullBlock(signer, *pBlock);
 			return pBlock;
