@@ -40,12 +40,7 @@ namespace catapult { namespace validators {
 
 	/// Validator that applies to mosaic properties notifications and validates that:
 	/// - definition has valid mosaic flags
-	/// - definition has divisibility no greater than \a maxDivisibility
-	/// - mosaic duration has a value not larger than \a maxMosaicDuration
-	/// - optional mosaic properties are sorted, known and not duplicative
-	DECLARE_STATELESS_VALIDATOR(MosaicProperties, model::MosaicPropertiesNotification)(
-			uint8_t maxDivisibility,
-			BlockDuration maxMosaicDuration);
+	DECLARE_STATELESS_VALIDATOR(MosaicFlags, model::MosaicPropertiesNotification)();
 
 	/// Validator that applies to mosaic nonce notifications and validates that:
 	/// - mosaic id is the expected id generated from signer and nonce
@@ -56,8 +51,12 @@ namespace catapult { namespace validators {
 	DECLARE_STATEFUL_VALIDATOR(MosaicAvailability, model::MosaicDefinitionNotification)();
 
 	/// Validator that applies to mosaic definition notifications and validates that:
-	/// - the resulting mosaic duration is not larger than \a maxMosaicDuration and there was no overflow
+	/// - the resulting mosaic duration is no greater than \a maxMosaicDuration and there was no overflow
 	DECLARE_STATEFUL_VALIDATOR(MosaicDuration, model::MosaicDefinitionNotification)(BlockDuration maxMosaicDuration);
+
+	/// Validator that applies to mosaic definition notifications and validates that:
+	/// - the resulting mosaic divisibility is no greater than \a maxDivisibility
+	DECLARE_STATEFUL_VALIDATOR(MosaicDivisibility, model::MosaicDefinitionNotification)(uint8_t maxDivisibility);
 
 	// endregion
 

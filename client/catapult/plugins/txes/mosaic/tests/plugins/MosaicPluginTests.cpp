@@ -81,7 +81,7 @@ namespace catapult { namespace plugins {
 
 			static std::vector<std::string> GetStatelessValidatorNames() {
 				return {
-					"MosaicPropertiesValidator",
+					"MosaicFlagsValidator",
 					"MosaicIdValidator",
 					"MosaicSupplyChangeValidator"
 				};
@@ -91,6 +91,7 @@ namespace catapult { namespace plugins {
 				return {
 					"RequiredMosaicValidator",
 					"MosaicAvailabilityValidator",
+					"MosaicDivisibilityValidator",
 					"MosaicDurationValidator",
 					"MosaicTransferValidator",
 					"MaxMosaicsBalanceTransferValidator",

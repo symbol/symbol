@@ -26,35 +26,18 @@ namespace catapult { namespace validators {
 
 	using Notification = model::MosaicDefinitionNotification;
 
-	DECLARE_STATEFUL_VALIDATOR(MosaicDuration, Notification)(BlockDuration maxMosaicDuration) {
-		return MAKE_STATEFUL_VALIDATOR(MosaicDuration, [maxMosaicDuration](
+	DECLARE_STATEFUL_VALIDATOR(MosaicDivisibility, Notification)(uint8_t maxDivisibility) {
+		return MAKE_STATEFUL_VALIDATOR(MosaicDivisibility, [maxDivisibility](
 				const Notification& notification,
 				const ValidatorContext& context) {
-			// skip this validator is there is no duration change
-			if (BlockDuration() == notification.Properties.duration())
-				return ValidationResult::Success;
+			auto newDivisibility = notification.Properties.divisibility();
 
-			// as an optimization, since duration is additive, check notification before checking cache
-			if (maxMosaicDuration < notification.Properties.duration())
-				return Failure_Mosaic_Invalid_Duration;
-
-			// allow a new mosaic because checks above passed
 			const auto& cache = context.Cache.sub<cache::MosaicCache>();
 			auto mosaicIter = cache.find(notification.MosaicId);
-			if (!mosaicIter.tryGet())
-				return ValidationResult::Success;
+			if (mosaicIter.tryGet())
+				newDivisibility ^= mosaicIter.get().definition().properties().divisibility();
 
-			const auto& mosaicEntry = mosaicIter.get();
-			auto currentDuration = mosaicEntry.definition().properties().duration();
-
-			// cannot change eternal durations
-			if (BlockDuration() == currentDuration)
-				return Failure_Mosaic_Invalid_Duration;
-
-			auto resultingDuration = currentDuration + notification.Properties.duration();
-			return maxMosaicDuration < resultingDuration || resultingDuration < currentDuration
-					? Failure_Mosaic_Invalid_Duration
-					: ValidationResult::Success;
+			return newDivisibility > maxDivisibility ? Failure_Mosaic_Invalid_Divisibility : ValidationResult::Success;
 		});
 	}
 }}

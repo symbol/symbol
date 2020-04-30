@@ -74,24 +74,24 @@ namespace catapult { namespace plugins {
 			counters.emplace_back(utils::DiagnosticCounterId("MOSAIC C"), [&cache]() { return GetMosaicView(cache)->size(); });
 		});
 
-		auto maxDuration = config.MaxMosaicDuration.blocks(manager.config().BlockGenerationTargetTime);
-		manager.addStatelessValidatorHook([config, maxDuration](auto& builder) {
+		manager.addStatelessValidatorHook([](auto& builder) {
 			builder
-				.add(validators::CreateMosaicPropertiesValidator(config.MaxMosaicDivisibility, maxDuration))
+				.add(validators::CreateMosaicFlagsValidator())
 				.add(validators::CreateMosaicIdValidator())
 				.add(validators::CreateMosaicSupplyChangeValidator());
 		});
 
-		auto maxMosaics = config.MaxMosaicsPerAccount;
+		auto maxDuration = config.MaxMosaicDuration.blocks(manager.config().BlockGenerationTargetTime);
 		auto maxAtomicUnits = manager.config().MaxMosaicAtomicUnits;
-		manager.addStatefulValidatorHook([maxMosaics, maxAtomicUnits, maxDuration, unresolvedCurrencyMosaicId](auto& builder) {
+		manager.addStatefulValidatorHook([config, maxDuration, maxAtomicUnits, unresolvedCurrencyMosaicId](auto& builder) {
 			builder
 				.add(validators::CreateRequiredMosaicValidator())
 				.add(validators::CreateMosaicAvailabilityValidator())
+				.add(validators::CreateMosaicDivisibilityValidator(config.MaxMosaicDivisibility))
 				.add(validators::CreateMosaicDurationValidator(maxDuration))
 				.add(validators::CreateMosaicTransferValidator(unresolvedCurrencyMosaicId))
-				.add(validators::CreateMaxMosaicsBalanceTransferValidator(maxMosaics))
-				.add(validators::CreateMaxMosaicsSupplyChangeValidator(maxMosaics))
+				.add(validators::CreateMaxMosaicsBalanceTransferValidator(config.MaxMosaicsPerAccount))
+				.add(validators::CreateMaxMosaicsSupplyChangeValidator(config.MaxMosaicsPerAccount))
 				// note that the following validator depends on RequiredMosaicValidator
 				.add(validators::CreateMosaicSupplyChangeAllowedValidator(maxAtomicUnits));
 		});

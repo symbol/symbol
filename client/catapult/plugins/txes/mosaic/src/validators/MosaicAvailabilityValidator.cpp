@@ -53,12 +53,12 @@ namespace catapult { namespace validators {
 			return mosaicIter.tryGet() ? result : ValidationResult::Success;
 
 		// disallow a noop modification
-		const auto& entry = mosaicIter.get();
-		if (!ContainsAnyPropertyChange(entry.definition(), notification.Properties))
+		const auto& mosaicEntry = mosaicIter.get();
+		if (!ContainsAnyPropertyChange(mosaicEntry.definition(), notification.Properties))
 			return Failure_Mosaic_Modification_No_Changes;
 
 		// require mosaic supply to be zero because else, when rolling back, the definition observer does not know
 		// what the supply was before
-		return Amount() != entry.supply() ? Failure_Mosaic_Modification_Disallowed : ValidationResult::Success;
+		return Amount() != mosaicEntry.supply() ? Failure_Mosaic_Modification_Disallowed : ValidationResult::Success;
 	});
 }}

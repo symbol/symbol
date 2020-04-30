@@ -99,19 +99,30 @@ namespace catapult { namespace validators {
 
 	// endregion
 
-	// region unknown mosaic
+	// region (new) unknown mosaic
 
-	TEST(TEST_CLASS, SuccessWhenMosaicIsUnknown) {
-		// Arrange: although max duration is 123, it still should pass (MosaicPropertiesValidator checks for max duration)
+	TEST(TEST_CLASS, SuccessWhenMosaicIsUnknownAndNotificationDurationDoesNotExceedMaxDuration) {
+		// Arrange: create an empty cache
 		auto signer = test::GenerateRandomByteArray<Key>();
-		auto properties = test::CreateMosaicPropertiesFromValues(0, 0, 124);
-		auto notification = CreateNotification(signer, properties);
-
-		// - seed the cache
 		auto cache = test::MosaicCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
 
-		// Assert:
-		AssertValidationResult(ValidationResult::Success, cache, notification);
+		// Assert: max duration is 123
+		for (auto duration : { 1u, 70u, 123u }) {
+			auto properties = test::CreateMosaicPropertiesFromValues(0, 0, duration);
+			AssertValidationResult(ValidationResult::Success, cache, CreateNotification(signer, properties));
+		}
+	}
+
+	TEST(TEST_CLASS, FailureWhenMosaicIsUnknownAndNotificationDurationExceedsMaxDuration) {
+		// Arrange: create an empty cache
+		auto signer = test::GenerateRandomByteArray<Key>();
+		auto cache = test::MosaicCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
+
+		// Assert: max duration is 123
+		for (auto duration : { 124u, 999u }) {
+			auto properties = test::CreateMosaicPropertiesFromValues(0, 0, duration);
+			AssertValidationResult(Failure_Mosaic_Invalid_Duration, cache, CreateNotification(signer, properties));
+		}
 	}
 
 	// endregion

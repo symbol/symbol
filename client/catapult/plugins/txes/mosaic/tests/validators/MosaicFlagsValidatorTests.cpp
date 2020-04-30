@@ -18,30 +18,37 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "Validators.h"
-#include "catapult/constants.h"
+#include "src/validators/Validators.h"
+#include "tests/test/plugins/DiscreteIntegerValidatorTests.h"
+#include "tests/TestHarness.h"
 
 namespace catapult { namespace validators {
 
-	using Notification = model::MosaicPropertiesNotification;
+#define TEST_CLASS MosaicFlagsValidatorTests
+
+	DEFINE_COMMON_VALIDATOR_TESTS(MosaicFlags,)
 
 	namespace {
-		constexpr bool IsValidFlags(model::MosaicFlags flags) {
-			return flags <= model::MosaicFlags::All;
-		}
+		struct MosaicFlagsTraits {
+			using EnumType = model::MosaicFlags;
+
+			static constexpr auto Failure_Result = Failure_Mosaic_Invalid_Flags;
+			static constexpr auto CreateValidator = CreateMosaicFlagsValidator;
+
+			static std::vector<uint8_t> ValidValues() {
+				return { 0x00, 0x02, 0x05, 0x07 };
+			}
+
+			static std::vector<uint8_t> InvalidValues() {
+				return { 0x08, 0x09, 0xFF };
+			}
+
+			static auto CreateNotification(EnumType value) {
+				model::MosaicProperties properties(value, 0, BlockDuration());
+				return model::MosaicPropertiesNotification(properties);
+			}
+		};
 	}
 
-	DECLARE_STATELESS_VALIDATOR(MosaicProperties, Notification)(uint8_t maxDivisibility, BlockDuration maxMosaicDuration) {
-		return MAKE_STATELESS_VALIDATOR(MosaicProperties, ([maxDivisibility, maxMosaicDuration](const Notification& notification) {
-			if (!IsValidFlags(notification.Properties.flags()))
-				return Failure_Mosaic_Invalid_Flags;
-
-			if (notification.Properties.divisibility() > maxDivisibility)
-				return Failure_Mosaic_Invalid_Divisibility;
-
-			return maxMosaicDuration < notification.Properties.duration()
-					? Failure_Mosaic_Invalid_Duration
-					: ValidationResult::Success;
-		}));
-	}
+	DEFINE_DISCRETE_INTEGER_VALIDATOR_TESTS(TEST_CLASS, MosaicFlagsTraits)
 }}

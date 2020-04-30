@@ -61,12 +61,12 @@ namespace catapult { namespace validators {
 				return result;
 
 			// 2. if it's transferable there's nothing else to check
-			const auto& entry = mosaicIter.get();
-			if (entry.definition().properties().is(model::MosaicFlags::Transferable))
+			const auto& mosaicEntry = mosaicIter.get();
+			if (mosaicEntry.definition().properties().is(model::MosaicFlags::Transferable))
 				return ValidationResult::Success;
 
 			// 3. if it's NOT transferable then owner must be either sender or recipient
-			if (!IsMosaicOwnerParticipant(context.Cache, entry.definition().ownerPublicKey(), notification, context.Resolvers))
+			if (!IsMosaicOwnerParticipant(context.Cache, mosaicEntry.definition().ownerPublicKey(), notification, context.Resolvers))
 				return Failure_Mosaic_Non_Transferable;
 
 			return ValidationResult::Success;
