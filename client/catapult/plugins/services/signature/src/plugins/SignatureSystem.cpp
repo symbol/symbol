@@ -25,8 +25,8 @@
 namespace catapult { namespace plugins {
 
 	void RegisterSignatureSystem(PluginManager& manager) {
-		manager.addStatelessValidatorHook([generationHash = manager.config().Network.GenerationHash](auto& builder) {
-			builder.add(validators::CreateSignatureValidator(generationHash));
+		manager.addStatelessValidatorHook([generationHashSeed = manager.config().Network.GenerationHashSeed](auto& builder) {
+			builder.add(validators::CreateSignatureValidator(generationHashSeed));
 		});
 	}
 }}

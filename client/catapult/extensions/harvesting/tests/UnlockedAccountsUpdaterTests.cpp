@@ -23,7 +23,7 @@
 #include "harvesting/src/UnlockedFileQueueConsumer.h"
 #include "catapult/io/FileQueue.h"
 #include "catapult/model/BlockChainConfiguration.h"
-#include "harvesting/tests/test/UnlockedTestEntry.h"
+#include "harvesting/tests/test/HarvestRequestEncryptedPayload.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
@@ -47,10 +47,11 @@ namespace catapult { namespace harvesting {
 					, m_unlockedAccounts(10, [](const auto&) { return 0; })
 					, m_keyPair(test::GenerateKeyPair())
 					, m_updater(m_cache, m_unlockedAccounts, m_keyPair, m_dataDirectory) {
-				auto keyPair = test::GenerateKeyPair();
-				auto publicKey = keyPair.publicKey();
-				m_unlockedAccounts.modifier().add(std::move(keyPair));
-				addAccount(publicKey, Amount(1234));
+				auto descriptor = BlockGeneratorAccountDescriptor(test::GenerateKeyPair(), test::GenerateKeyPair());
+				auto signingKeyPair = descriptor.signingKeyPair().publicKey();
+				auto vrfPublicKey = descriptor.vrfKeyPair().publicKey();
+				m_unlockedAccounts.modifier().add(std::move(descriptor));
+				addAccount(signingKeyPair, vrfPublicKey, Amount(1234));
 			}
 
 		public:
@@ -71,43 +72,46 @@ namespace catapult { namespace harvesting {
 			}
 
 		public:
-			auto queueAddMessageWithHarvester(
-					const crypto::KeyPair& ephemeralKeyPair,
-					const std::vector<uint8_t>& harvesterPrivateKeyBuffer) {
+			auto queueAddMessageWithHarvester(const crypto::KeyPair& ephemeralKeyPair, const BlockGeneratorAccountDescriptor& descriptor) {
 				io::FileQueueWriter writer(m_dataDirectory.dir("transfer_message").str());
-				auto testEntry = test::PrepareUnlockedTestEntry(ephemeralKeyPair, m_keyPair.publicKey(), harvesterPrivateKeyBuffer);
+				auto encryptedPayload = test::PrepareHarvestRequestEncryptedPayload(
+						ephemeralKeyPair,
+						m_keyPair.publicKey(),
+						test::ToClearTextBuffer(descriptor));
 
-				io::Write8(writer, utils::to_underlying_type(UnlockedEntryDirection::Add));
-				writer.write({ reinterpret_cast<const uint8_t*>(&testEntry), sizeof(testEntry) });
+				io::Write8(writer, utils::to_underlying_type(HarvestRequestOperation::Add));
+				writer.write({ reinterpret_cast<const uint8_t*>(&encryptedPayload), sizeof(encryptedPayload) });
 				writer.flush();
-				return testEntry;
+				return encryptedPayload;
 			}
 
-			auto queueAddMessageWithHarvester(const std::vector<uint8_t>& harvesterPrivateKeyBuffer) {
-				return queueAddMessageWithHarvester(test::GenerateKeyPair(), harvesterPrivateKeyBuffer);
+			auto queueAddMessageWithHarvester(const BlockGeneratorAccountDescriptor& descriptor) {
+				return queueAddMessageWithHarvester(test::GenerateKeyPair(), descriptor);
 			}
 
-			void queueRemoveMessage(const test::UnlockedTestEntry& testEntry) {
+			void queueRemoveMessage(const test::HarvestRequestEncryptedPayload& encryptedPayload) {
 				io::FileQueueWriter writer(m_dataDirectory.dir("transfer_message").str());
-				io::Write8(writer, utils::to_underlying_type(UnlockedEntryDirection::Remove));
-				writer.write({ reinterpret_cast<const uint8_t*>(&testEntry), sizeof(testEntry) });
+				io::Write8(writer, utils::to_underlying_type(HarvestRequestOperation::Remove));
+				writer.write({ reinterpret_cast<const uint8_t*>(&encryptedPayload), sizeof(encryptedPayload) });
 				writer.flush();
 			}
 
-			void appendHarvesterDirectlyToHarvestersFile(const std::vector<uint8_t>& harvesterPrivateKey) {
+			void appendHarvesterDirectlyToHarvestersFile(const BlockGeneratorAccountDescriptor& descriptor) {
 				io::RawFile file(harvestersFilename(), io::OpenMode::Read_Append);
 				file.seek(file.size());
 
-				auto testEntry = test::PrepareUnlockedTestEntry(m_keyPair.publicKey(), harvesterPrivateKey);
-				file.write({ reinterpret_cast<const uint8_t*>(&testEntry), sizeof(testEntry) });
+				auto encryptedPayload = test::PrepareHarvestRequestEncryptedPayload(
+						m_keyPair.publicKey(),
+						test::ToClearTextBuffer(descriptor));
+				file.write({ reinterpret_cast<const uint8_t*>(&encryptedPayload), sizeof(encryptedPayload) });
 			}
 
-			void addEnabledAccount(const std::vector<uint8_t>& privateKeyBuffer) {
-				addAccount(test::KeyPairFromPrivateKeyBuffer(privateKeyBuffer).publicKey(), Amount(1111));
+			void addEnabledAccount(const BlockGeneratorAccountDescriptor& descriptor) {
+				addAccount(descriptor.signingKeyPair().publicKey(), test::GenerateRandomByteArray<Key>(), Amount(1111));
 			}
 
-			void assertHarvesterFileEntries(const test::UnlockedTestEntries& expectedEntries) {
-				test::AssertUnlockedEntriesFileContents(harvestersFilename(), expectedEntries);
+			void assertHarvesterFileRecords(const test::HarvestRequestEncryptedPayloads& expectedEncryptedPayloads) {
+				test::AssertHarvesterFileContents(harvestersFilename(), expectedEncryptedPayloads);
 			}
 
 			void assertNoHarvesterFile() {
@@ -115,15 +119,16 @@ namespace catapult { namespace harvesting {
 			}
 
 		private:
-			void addAccount(const Key& publicKey, Amount balance = Amount(0)) {
+			void addAccount(const Key& signingPublicKey, const Key& vrfPublicKey, Amount balance = Amount(0)) {
 				auto delta = m_cache.createDelta();
 				auto& accountStateCache = delta.sub<cache::AccountStateCache>();
-				accountStateCache.addAccount(publicKey, Height(100));
+				accountStateCache.addAccount(signingPublicKey, Height(100));
 
-				auto accountStateIter = accountStateCache.find(publicKey);
+				auto accountStateIter = accountStateCache.find(signingPublicKey);
 				auto& accountState = accountStateIter.get();
-				accountState.ImportanceSnapshots.set(Importance(1000), model::ImportanceHeight(100));
 				accountState.Balances.credit(Harvesting_Mosaic_Id, balance);
+				accountState.ImportanceSnapshots.set(Importance(1000), model::ImportanceHeight(100));
+				accountState.SupplementalAccountKeys.vrfPublicKey().set(vrfPublicKey);
 				m_cache.commit(Height(100));
 			}
 
@@ -157,10 +162,8 @@ namespace catapult { namespace harvesting {
 	TEST(TEST_CLASS, LoadAddsToUnlockedAccounts) {
 		// Arrange:
 		TestContext context;
-		for (auto i = 0; i < 4; ++i) {
-			auto randomPrivateBuffer = test::GenerateRandomVector(Key::Size);
-			context.appendHarvesterDirectlyToHarvestersFile(randomPrivateBuffer);
-		}
+		for (auto i = 0; i < 4; ++i)
+			context.appendHarvesterDirectlyToHarvestersFile(test::GenerateRandomAccountDescriptors(1)[0]);
 
 		// Sanity:
 		EXPECT_EQ(1u, context.numUnlockedAccounts());
@@ -193,8 +196,8 @@ namespace catapult { namespace harvesting {
 	TEST(TEST_CLASS, UpdateRemovesFileWhenAllAccountsArePruned) {
 		// Arrange: add non eligible account to queue
 		TestContext context;
-		auto randomPrivateBuffer = test::GenerateRandomVector(Key::Size);
-		context.queueAddMessageWithHarvester(randomPrivateBuffer);
+		auto descriptors = test::GenerateRandomAccountDescriptors(1);
+		context.queueAddMessageWithHarvester(descriptors[0]);
 
 		// Sanity:
 		EXPECT_EQ(1u, context.numUnlockedAccounts());
@@ -202,7 +205,7 @@ namespace catapult { namespace harvesting {
 		// Act:
 		context.update();
 
-		// Assert: entry was consumed, added to unlocked, pruned, so should not be saved to file
+		// Assert: message was consumed, added to unlocked, pruned, so should not be saved to file
 		EXPECT_EQ(1u, context.numUnlockedAccounts());
 		context.assertNoHarvesterFile();
 	}
@@ -210,16 +213,14 @@ namespace catapult { namespace harvesting {
 	TEST(TEST_CLASS, UpdateSavesOnlyNonPrunedAccounts) {
 		// Arrange:
 		TestContext context;
-		auto randomPrivateBuffer1 = test::GenerateRandomVector(Key::Size);
-		auto randomPrivateBuffer2 = test::GenerateRandomVector(Key::Size);
-		auto randomPrivateBuffer3 = test::GenerateRandomVector(Key::Size);
-		auto entry1 = context.queueAddMessageWithHarvester(randomPrivateBuffer1);
-		context.queueAddMessageWithHarvester(randomPrivateBuffer2);
-		auto entry3 = context.queueAddMessageWithHarvester(randomPrivateBuffer3);
+		auto descriptors = test::GenerateRandomAccountDescriptors(3);
+		auto encryptedPayload1 = context.queueAddMessageWithHarvester(descriptors[0]);
+		context.queueAddMessageWithHarvester(descriptors[1]);
+		auto encryptedPayload3 = context.queueAddMessageWithHarvester(descriptors[2]);
 
 		// - add accounts 1 and 3 to cache
-		context.addEnabledAccount(randomPrivateBuffer1);
-		context.addEnabledAccount(randomPrivateBuffer3);
+		context.addEnabledAccount(descriptors[0]);
+		context.addEnabledAccount(descriptors[2]);
 
 		// Sanity:
 		EXPECT_EQ(1u, context.numUnlockedAccounts());
@@ -227,9 +228,9 @@ namespace catapult { namespace harvesting {
 		// Act:
 		context.update();
 
-		// Assert: only eligible entries were added to unlocked accounts and to unlocked harvesters file
+		// Assert: only eligible messages were added to unlocked accounts and to unlocked harvesters file
 		EXPECT_EQ(3u, context.numUnlockedAccounts());
-		context.assertHarvesterFileEntries({ entry1, entry3 });
+		context.assertHarvesterFileRecords({ encryptedPayload1, encryptedPayload3 });
 	}
 
 	TEST(TEST_CLASS, UpdateDoesNotSaveAccountWhenMaxUnlockedHasBeenReached) {
@@ -240,22 +241,22 @@ namespace catapult { namespace harvesting {
 		EXPECT_EQ(1u, context.numUnlockedAccounts());
 
 		// Act:
-		test::UnlockedTestEntries expectedEntries;
+		test::HarvestRequestEncryptedPayloads expectedEncryptedPayloads;
 		for (auto i = 0u; i < 15; ++i) {
-			auto randomPrivateBuffer = test::GenerateRandomVector(Key::Size);
-			auto entry = context.queueAddMessageWithHarvester(randomPrivateBuffer);
-			context.addEnabledAccount(randomPrivateBuffer);
+			auto descriptors = test::GenerateRandomAccountDescriptors(1);
+			auto encryptedPayload = context.queueAddMessageWithHarvester(descriptors[0]);
+			context.addEnabledAccount(descriptors[0]);
 
 			// - max unlocked accounts is 10 and initially there was one account, so only first 9 will be added
 			if (i < 9)
-				expectedEntries.insert(entry);
+				expectedEncryptedPayloads.insert(encryptedPayload);
 
 			context.update();
 		}
 
 		// Assert:
 		EXPECT_EQ(10u, context.numUnlockedAccounts());
-		context.assertHarvesterFileEntries(expectedEntries);
+		context.assertHarvesterFileRecords(expectedEncryptedPayloads);
 	}
 
 	// endregion
@@ -265,11 +266,11 @@ namespace catapult { namespace harvesting {
 	TEST(TEST_CLASS, UpdateSavesAddedAccount) {
 		// Arrange: add account to cache
 		TestContext context;
-		auto randomPrivateBuffer = test::GenerateRandomVector(Key::Size);
-		context.addEnabledAccount(randomPrivateBuffer);
+		auto descriptors = test::GenerateRandomAccountDescriptors(1);
+		context.addEnabledAccount(descriptors[0]);
 
-		// - prepare entry
-		auto entry = context.queueAddMessageWithHarvester(randomPrivateBuffer);
+		// - prepare message
+		auto encryptedPayload = context.queueAddMessageWithHarvester(descriptors[0]);
 
 		// Sanity:
 		EXPECT_EQ(1u, context.numUnlockedAccounts());
@@ -277,31 +278,31 @@ namespace catapult { namespace harvesting {
 		// Act:
 		context.update();
 
-		// Assert: entry was consumed, added to unlocked accounts and added to unlocked harvesters file
+		// Assert: message was consumed, added to unlocked accounts and added to unlocked harvesters file
 		EXPECT_EQ(2u, context.numUnlockedAccounts());
-		context.assertHarvesterFileEntries({ entry });
+		context.assertHarvesterFileRecords({ encryptedPayload });
 	}
 
 	TEST(TEST_CLASS, UpdateDoesNotSaveRemovedAccount) {
 		// Arrange: add account to cache
 		TestContext context;
-		auto randomPrivateBuffer = test::GenerateRandomVector(Key::Size);
-		context.addEnabledAccount(randomPrivateBuffer);
+		auto descriptors = test::GenerateRandomAccountDescriptors(1);
+		context.addEnabledAccount(descriptors[0]);
 
-		// - prepare and process entry
-		auto entry = context.queueAddMessageWithHarvester(randomPrivateBuffer);
+		// - prepare and process message
+		auto encryptedPayload = context.queueAddMessageWithHarvester(descriptors[0]);
 		context.update();
 
 		// Sanity:
 		EXPECT_EQ(2u, context.numUnlockedAccounts());
 
-		// - prepare removal entry
-		context.queueRemoveMessage(entry);
+		// - prepare removal message
+		context.queueRemoveMessage(encryptedPayload);
 
 		// Act:
 		context.update();
 
-		// Assert: entry was consumed, removed from unlocked accounts and removed unlocked harvesters file
+		// Assert: message was consumed, removed from unlocked accounts and removed unlocked harvesters file
 		EXPECT_EQ(1u, context.numUnlockedAccounts());
 		context.assertNoHarvesterFile();
 	}
@@ -313,15 +314,14 @@ namespace catapult { namespace harvesting {
 	TEST(TEST_CLASS, UpdateDeduplicatesAddedHarvesters) {
 		// Arrange: add accounts to cache
 		TestContext context;
-		auto randomPrivateBuffer1 = test::GenerateRandomVector(Key::Size);
-		auto randomPrivateBuffer2 = test::GenerateRandomVector(Key::Size);
-		context.addEnabledAccount(randomPrivateBuffer1);
-		context.addEnabledAccount(randomPrivateBuffer2);
+		auto descriptors = test::GenerateRandomAccountDescriptors(2);
+		context.addEnabledAccount(descriptors[0]);
+		context.addEnabledAccount(descriptors[1]);
 
-		// - prepare and process non-consecutive entries with same harvester
-		auto entry1 = context.queueAddMessageWithHarvester(randomPrivateBuffer1);
-		auto entry2 = context.queueAddMessageWithHarvester(randomPrivateBuffer2);
-		context.queueAddMessageWithHarvester(randomPrivateBuffer1);
+		// - prepare and process non-consecutive messages with same harvester
+		auto encryptedPayload1 = context.queueAddMessageWithHarvester(descriptors[0]);
+		auto encryptedPayload2 = context.queueAddMessageWithHarvester(descriptors[1]);
+		context.queueAddMessageWithHarvester(descriptors[0]);
 
 		// Sanity:
 		EXPECT_EQ(1u, context.numUnlockedAccounts());
@@ -329,48 +329,47 @@ namespace catapult { namespace harvesting {
 		// Act:
 		context.update();
 
-		// Assert: only one entry was added per harvester
+		// Assert: only one message was added per harvester
 		EXPECT_EQ(3u, context.numUnlockedAccounts());
-		context.assertHarvesterFileEntries({ entry1, entry2 });
+		context.assertHarvesterFileRecords({ encryptedPayload1, encryptedPayload2 });
 	}
 
 	TEST(TEST_CLASS, UpdateAllowsRemovalOfSameHarvesterMultipleTimes) {
 		// Arrange: add accounts to cache
 		TestContext context;
-		auto randomPrivateBuffer1 = test::GenerateRandomVector(Key::Size);
-		auto randomPrivateBuffer2 = test::GenerateRandomVector(Key::Size);
-		context.addEnabledAccount(randomPrivateBuffer1);
-		context.addEnabledAccount(randomPrivateBuffer2);
+		auto descriptors = test::GenerateRandomAccountDescriptors(2);
+		context.addEnabledAccount(descriptors[0]);
+		context.addEnabledAccount(descriptors[1]);
 
-		// - prepare and process non-consecutive entries with same harvester
-		auto entry1 = context.queueAddMessageWithHarvester(randomPrivateBuffer1);
-		auto entry2 = context.queueAddMessageWithHarvester(randomPrivateBuffer2);
-		auto entry3 = context.queueAddMessageWithHarvester(randomPrivateBuffer1);
+		// - prepare and process non-consecutive messages with same harvester
+		auto encryptedPayload1 = context.queueAddMessageWithHarvester(descriptors[0]);
+		auto encryptedPayload2 = context.queueAddMessageWithHarvester(descriptors[1]);
+		auto encryptedPayload3 = context.queueAddMessageWithHarvester(descriptors[0]);
 		context.update();
 
 		// Sanity:
 		EXPECT_EQ(3u, context.numUnlockedAccounts());
 
-		// Act: remove the third entry
-		context.queueRemoveMessage(entry3);
+		// Act: remove the third message
+		context.queueRemoveMessage(encryptedPayload3);
 		context.update();
 
 		// Assert:
-		// - removes the entry from unlocked accounts (because harvester matches)
-		// - removes the entry from the storage (because announcer matches)
+		// - removes the message from unlocked accounts (because harvester matches)
+		// - removes the message from the storage (because announcer matches)
 		EXPECT_EQ(2u, context.numUnlockedAccounts());
-		context.assertHarvesterFileEntries({ entry2 });
+		context.assertHarvesterFileRecords({ encryptedPayload2 });
 
-		// Act: remove the second entry
-		context.queueRemoveMessage(entry2);
+		// Act: remove the second message
+		context.queueRemoveMessage(encryptedPayload2);
 		context.update();
 
 		// Assert:
 		EXPECT_EQ(1u, context.numUnlockedAccounts());
 		context.assertNoHarvesterFile();
 
-		// Act: remove the first entry
-		context.queueRemoveMessage(entry1);
+		// Act: remove the first message
+		context.queueRemoveMessage(encryptedPayload1);
 		context.update();
 
 		// Assert: no change (remove is skipped because harvester is already locked)
@@ -385,18 +384,16 @@ namespace catapult { namespace harvesting {
 	TEST(TEST_CLASS, UpdateDeduplicatesAddedAnnouncers) {
 		// Arrange: add accounts to cache
 		TestContext context;
-		auto randomPrivateBuffer1 = test::GenerateRandomVector(Key::Size);
-		auto randomPrivateBuffer2 = test::GenerateRandomVector(Key::Size);
-		auto randomPrivateBuffer3 = test::GenerateRandomVector(Key::Size);
-		context.addEnabledAccount(randomPrivateBuffer1);
-		context.addEnabledAccount(randomPrivateBuffer2);
-		context.addEnabledAccount(randomPrivateBuffer3);
+		auto descriptors = test::GenerateRandomAccountDescriptors(3);
+		context.addEnabledAccount(descriptors[0]);
+		context.addEnabledAccount(descriptors[1]);
+		context.addEnabledAccount(descriptors[2]);
 
-		// - prepare and process non-consecutive entries with same announcer
+		// - prepare and process non-consecutive messages with same announcer
 		auto ephemeralKeyPair = test::GenerateKeyPair();
-		auto entry1 = context.queueAddMessageWithHarvester(ephemeralKeyPair, randomPrivateBuffer1);
-		auto entry2 = context.queueAddMessageWithHarvester(randomPrivateBuffer2);
-		context.queueAddMessageWithHarvester(ephemeralKeyPair, randomPrivateBuffer3);
+		auto encryptedPayload1 = context.queueAddMessageWithHarvester(ephemeralKeyPair, descriptors[0]);
+		auto encryptedPayload2 = context.queueAddMessageWithHarvester(descriptors[1]);
+		context.queueAddMessageWithHarvester(ephemeralKeyPair, descriptors[2]);
 
 		// Sanity:
 		EXPECT_EQ(1u, context.numUnlockedAccounts());
@@ -404,54 +401,52 @@ namespace catapult { namespace harvesting {
 		// Act:
 		context.update();
 
-		// Assert: only one entry was added per announcer
+		// Assert: only one message was added per announcer
 		EXPECT_EQ(3u, context.numUnlockedAccounts());
-		context.assertHarvesterFileEntries({ entry1, entry2 });
+		context.assertHarvesterFileRecords({ encryptedPayload1, encryptedPayload2 });
 	}
 
 	TEST(TEST_CLASS, UpdateAllowsRemovalOfSameAnnouncerMultipleTimes) {
 		// Arrange: add accounts to cache
 		TestContext context;
-		auto randomPrivateBuffer1 = test::GenerateRandomVector(Key::Size);
-		auto randomPrivateBuffer2 = test::GenerateRandomVector(Key::Size);
-		auto randomPrivateBuffer3 = test::GenerateRandomVector(Key::Size);
-		context.addEnabledAccount(randomPrivateBuffer1);
-		context.addEnabledAccount(randomPrivateBuffer2);
-		context.addEnabledAccount(randomPrivateBuffer3);
+		auto descriptors = test::GenerateRandomAccountDescriptors(3);
+		context.addEnabledAccount(descriptors[0]);
+		context.addEnabledAccount(descriptors[1]);
+		context.addEnabledAccount(descriptors[2]);
 
-		// - prepare and process non-consecutive entries with same announcer
+		// - prepare and process non-consecutive messages with same announcer
 		auto ephemeralKeyPair = test::GenerateKeyPair();
-		auto entry1 = context.queueAddMessageWithHarvester(ephemeralKeyPair, randomPrivateBuffer1);
-		auto entry2 = context.queueAddMessageWithHarvester(randomPrivateBuffer2);
-		auto entry3 = context.queueAddMessageWithHarvester(ephemeralKeyPair, randomPrivateBuffer3);
+		auto encryptedPayload1 = context.queueAddMessageWithHarvester(ephemeralKeyPair, descriptors[0]);
+		auto encryptedPayload2 = context.queueAddMessageWithHarvester(descriptors[1]);
+		auto encryptedPayload3 = context.queueAddMessageWithHarvester(ephemeralKeyPair, descriptors[2]);
 		context.update();
 
 		// Sanity:
 		EXPECT_EQ(3u, context.numUnlockedAccounts());
 
-		// Act: remove the third entry
-		context.queueRemoveMessage(entry3);
+		// Act: remove the third message
+		context.queueRemoveMessage(encryptedPayload3);
 		context.update();
 
 		// Assert:
-		// - removes the entry from the storage (because announcer matches)
+		// - removes the message from the storage (because announcer matches)
 		EXPECT_EQ(3u, context.numUnlockedAccounts());
-		context.assertHarvesterFileEntries({ entry2 });
+		context.assertHarvesterFileRecords({ encryptedPayload2 });
 
-		// Act: remove the second entry
-		context.queueRemoveMessage(entry2);
+		// Act: remove the second message
+		context.queueRemoveMessage(encryptedPayload2);
 		context.update();
 
 		// Assert:
 		EXPECT_EQ(2u, context.numUnlockedAccounts());
 		context.assertNoHarvesterFile();
 
-		// Act: remove the first entry
-		context.queueRemoveMessage(entry1);
+		// Act: remove the first message
+		context.queueRemoveMessage(encryptedPayload1);
 		context.update();
 
 		// Assert:
-		// - removes the entry from unlocked accounts (because harvester matches)
+		// - removes the message from unlocked accounts (because harvester matches)
 		EXPECT_EQ(1u, context.numUnlockedAccounts());
 		context.assertNoHarvesterFile();
 	}
@@ -463,16 +458,15 @@ namespace catapult { namespace harvesting {
 	TEST(TEST_CLASS, UpdateDeduplicatesAddedAnnouncerAndHarvesterPairs) {
 		// Arrange: add accounts to cache
 		TestContext context;
-		auto randomPrivateBuffer1 = test::GenerateRandomVector(Key::Size);
-		auto randomPrivateBuffer2 = test::GenerateRandomVector(Key::Size);
-		context.addEnabledAccount(randomPrivateBuffer1);
-		context.addEnabledAccount(randomPrivateBuffer2);
+		auto descriptors = test::GenerateRandomAccountDescriptors(2);
+		context.addEnabledAccount(descriptors[0]);
+		context.addEnabledAccount(descriptors[1]);
 
-		// - prepare and process non-consecutive entries with same announcer and harvester
+		// - prepare and process non-consecutive messages with same announcer and harvester
 		auto ephemeralKeyPair = test::GenerateKeyPair();
-		auto entry1 = context.queueAddMessageWithHarvester(ephemeralKeyPair, randomPrivateBuffer1);
-		auto entry2 = context.queueAddMessageWithHarvester(randomPrivateBuffer2);
-		context.queueAddMessageWithHarvester(ephemeralKeyPair, randomPrivateBuffer1);
+		auto encryptedPayload1 = context.queueAddMessageWithHarvester(ephemeralKeyPair, descriptors[0]);
+		auto encryptedPayload2 = context.queueAddMessageWithHarvester(descriptors[1]);
+		context.queueAddMessageWithHarvester(ephemeralKeyPair, descriptors[0]);
 
 		// Sanity:
 		EXPECT_EQ(1u, context.numUnlockedAccounts());
@@ -480,49 +474,48 @@ namespace catapult { namespace harvesting {
 		// Act:
 		context.update();
 
-		// Assert: only one entry was added per announcer
+		// Assert: only one message was added per announcer
 		EXPECT_EQ(3u, context.numUnlockedAccounts());
-		context.assertHarvesterFileEntries({ entry1, entry2 });
+		context.assertHarvesterFileRecords({ encryptedPayload1, encryptedPayload2 });
 	}
 
 	TEST(TEST_CLASS, UpdateAllowsRemovalOfSameAnnouncerAndHarvesterPairMultipleTimes) {
 		// Arrange: add accounts to cache
 		TestContext context;
-		auto randomPrivateBuffer1 = test::GenerateRandomVector(Key::Size);
-		auto randomPrivateBuffer2 = test::GenerateRandomVector(Key::Size);
-		context.addEnabledAccount(randomPrivateBuffer1);
-		context.addEnabledAccount(randomPrivateBuffer2);
+		auto descriptors = test::GenerateRandomAccountDescriptors(2);
+		context.addEnabledAccount(descriptors[0]);
+		context.addEnabledAccount(descriptors[1]);
 
-		// - prepare and process non-consecutive entries with same announcer and harvester
+		// - prepare and process non-consecutive messages with same announcer and harvester
 		auto ephemeralKeyPair = test::GenerateKeyPair();
-		auto entry1 = context.queueAddMessageWithHarvester(ephemeralKeyPair, randomPrivateBuffer1);
-		auto entry2 = context.queueAddMessageWithHarvester(randomPrivateBuffer2);
-		auto entry3 = context.queueAddMessageWithHarvester(ephemeralKeyPair, randomPrivateBuffer1);
+		auto encryptedPayload1 = context.queueAddMessageWithHarvester(ephemeralKeyPair, descriptors[0]);
+		auto encryptedPayload2 = context.queueAddMessageWithHarvester(descriptors[1]);
+		auto encryptedPayload3 = context.queueAddMessageWithHarvester(ephemeralKeyPair, descriptors[0]);
 		context.update();
 
 		// Sanity:
 		EXPECT_EQ(3u, context.numUnlockedAccounts());
 
-		// Act: remove the third entry
-		context.queueRemoveMessage(entry3);
+		// Act: remove the third message
+		context.queueRemoveMessage(encryptedPayload3);
 		context.update();
 
 		// Assert:
-		// - removes the entry from unlocked accounts (because harvester matches)
-		// - removes the entry from the storage (because announcer matches)
+		// - removes the message from unlocked accounts (because harvester matches)
+		// - removes the message from the storage (because announcer matches)
 		EXPECT_EQ(2u, context.numUnlockedAccounts());
-		context.assertHarvesterFileEntries({ entry2 });
+		context.assertHarvesterFileRecords({ encryptedPayload2 });
 
-		// Act: remove the second entry
-		context.queueRemoveMessage(entry2);
+		// Act: remove the second message
+		context.queueRemoveMessage(encryptedPayload2);
 		context.update();
 
 		// Assert:
 		EXPECT_EQ(1u, context.numUnlockedAccounts());
 		context.assertNoHarvesterFile();
 
-		// Act: remove the first entry
-		context.queueRemoveMessage(entry1);
+		// Act: remove the first message
+		context.queueRemoveMessage(encryptedPayload1);
 		context.update();
 
 		// Assert: no change (remove is skipped because harvester is already locked)

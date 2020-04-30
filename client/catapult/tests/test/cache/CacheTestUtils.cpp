@@ -119,18 +119,21 @@ namespace catapult { namespace test {
 
 	namespace {
 		template<typename TCache>
-		bool IsMarkedCacheT(TCache& cache) {
+		bool IsMarkedCacheT(TCache& cache, IsMarkedCacheMode mode) {
 			const auto& accountStateCache = cache.template sub<cache::AccountStateCache>();
-			return 1u == accountStateCache.size() && accountStateCache.contains(GetSentinelCachePublicKey());
+			if (IsMarkedCacheMode::Exclusive == mode && 1 != accountStateCache.size())
+				return false;
+
+			return accountStateCache.contains(GetSentinelCachePublicKey());
 		}
 	}
 
-	bool IsMarkedCache(const cache::ReadOnlyCatapultCache& cache) {
-		return IsMarkedCacheT(cache);
+	bool IsMarkedCache(const cache::ReadOnlyCatapultCache& cache, IsMarkedCacheMode mode) {
+		return IsMarkedCacheT(cache, mode);
 	}
 
-	bool IsMarkedCache(const cache::CatapultCacheDelta& cache) {
-		return IsMarkedCacheT(cache);
+	bool IsMarkedCache(const cache::CatapultCacheDelta& cache, IsMarkedCacheMode mode) {
+		return IsMarkedCacheT(cache, mode);
 	}
 
 	// endregion

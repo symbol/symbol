@@ -22,7 +22,7 @@
 #include "harvesting/src/UnlockedFileQueueConsumer.h"
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/io/BufferedFileStream.h"
-#include "harvesting/tests/test/UnlockedTestEntry.h"
+#include "harvesting/tests/test/HarvestRequestEncryptedPayload.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/TestHarness.h"
@@ -37,27 +37,25 @@ namespace catapult { namespace harvesting {
 
 		// region test utils
 
-		auto GeneratePrivateKeyBuffers(size_t numPrivateKeys) {
-			return test::GenerateRandomDataVector<Key>(numPrivateKeys);
-		}
-
-		auto PrepareEntries(const Key& recipientPublicKey, const std::vector<Key>& privateKeyBuffers) {
-			test::UnlockedTestEntries entries;
-			for (const auto& privateKeyBuffer : privateKeyBuffers) {
-				auto entry = test::PrepareUnlockedTestEntry(recipientPublicKey, privateKeyBuffer);
-				entries.emplace(entry);
+		auto PrepareEncryptedPayloads(const Key& recipientPublicKey, const std::vector<BlockGeneratorAccountDescriptor>& descriptors) {
+			test::HarvestRequestEncryptedPayloads encryptedPayloads;
+			for (const auto& descriptor : descriptors) {
+				auto encryptedPayload = test::PrepareHarvestRequestEncryptedPayload(
+						recipientPublicKey,
+						test::ToClearTextBuffer(descriptor));
+				encryptedPayloads.emplace(encryptedPayload);
 			}
 
-			return entries;
+			return encryptedPayloads;
 		}
 
-		auto PrepareEntries(const Key& recipientPublicKey, size_t numEntries) {
-			return PrepareEntries(recipientPublicKey, GeneratePrivateKeyBuffers(numEntries));
+		auto PrepareEncryptedPayloads(const Key& recipientPublicKey, size_t numEncryptedPayloads) {
+			return PrepareEncryptedPayloads(recipientPublicKey, test::GenerateRandomAccountDescriptors(numEncryptedPayloads));
 		}
 
-		auto PrepareEntries(size_t numEntries) {
+		auto PrepareEncryptedPayloads(size_t numEncryptedPayloads) {
 			auto keyPair = test::GenerateKeyPair();
-			return PrepareEntries(keyPair.publicKey(), numEntries);
+			return PrepareEncryptedPayloads(keyPair.publicKey(), numEncryptedPayloads);
 		}
 
 		void AssertFileSize(const std::string& filename, size_t expectedSize) {
@@ -65,19 +63,22 @@ namespace catapult { namespace harvesting {
 			EXPECT_EQ(expectedSize, file.size());
 		}
 
-		auto SeedEntries(
+		auto SeedEncryptedPayloads(
 				UnlockedAccountsStorage& storage,
 				const std::string& filename,
-				size_t numNewEntries,
-				size_t numInitialEntries = 0) {
-			auto entries = PrepareEntries(numNewEntries);
+				size_t numNewEncryptedPayloads,
+				size_t numInitialEncryptedPayloads = 0) {
+			auto encryptedPayloads = PrepareEncryptedPayloads(numNewEncryptedPayloads);
 
-			for (const auto& entry : entries)
-				EXPECT_NO_THROW(storage.add(test::GetMessageIdentifier(entry), entry.Payload, test::GenerateRandomByteArray<Key>()));
+			for (const auto& encryptedPayload : encryptedPayloads) {
+				auto requestIdentifier = test::GetRequestIdentifier(encryptedPayload);
+				EXPECT_NO_THROW(storage.add(requestIdentifier, encryptedPayload.Data, test::GenerateRandomByteArray<Key>()));
+			}
 
 			// Sanity:
-			AssertFileSize(filename, (numNewEntries + numInitialEntries) * sizeof(test::UnlockedTestEntry));
-			return entries;
+			auto expectedFileSize = (numNewEncryptedPayloads + numInitialEncryptedPayloads) * sizeof(test::HarvestRequestEncryptedPayload);
+			AssertFileSize(filename, expectedFileSize);
+			return encryptedPayloads;
 		}
 
 		// endregion
@@ -89,84 +90,88 @@ namespace catapult { namespace harvesting {
 		// Arrange:
 		test::TempFileGuard guard(Filename);
 		UnlockedAccountsStorage storage(guard.name());
-		auto entries = SeedEntries(storage, guard.name(), 3);
+		auto encryptedPayloads = SeedEncryptedPayloads(storage, guard.name(), 3);
 
 		// Act + Assert:
-		for (const auto& entry : entries)
-			EXPECT_TRUE(storage.contains(test::GetMessageIdentifier(entry)));
+		for (const auto& encryptedPayload : encryptedPayloads)
+			EXPECT_TRUE(storage.contains(test::GetRequestIdentifier(encryptedPayload)));
 	}
 
 	TEST(TEST_CLASS, ContainsReturnsFalseForUnknownIdentifier) {
 		// Arrange:
 		test::TempFileGuard guard(Filename);
 		UnlockedAccountsStorage storage(guard.name());
-		auto entries = SeedEntries(storage, guard.name(), 3);
+		auto encryptedPayloads = SeedEncryptedPayloads(storage, guard.name(), 3);
 
 		// Act + Assert:
 		for (auto i = 0u; i < 10u; ++i)
-			EXPECT_FALSE(storage.contains(test::GenerateRandomByteArray<UnlockedEntryMessageIdentifier>()));
+			EXPECT_FALSE(storage.contains(test::GenerateRandomByteArray<HarvestRequestIdentifier>()));
 	}
 
 	// endregion
 
 	// region add
 
-	TEST(TEST_CLASS, AddThrowsWhenEntryHasInvalidSize) {
+	TEST(TEST_CLASS, AddThrowsWhenRequestHasInvalidSize) {
 		// Arrange:
 		test::TempFileGuard guard(Filename);
 		UnlockedAccountsStorage storage(guard.name());
 		auto keyPair = test::GenerateKeyPair();
-		auto privateKeyBuffer = test::GenerateRandomByteArray<Key>();
-		auto entry = test::ConvertUnlockedTestEntryToBuffer(test::PrepareUnlockedTestEntry(keyPair.publicKey(), privateKeyBuffer));
-		entry.resize(entry.size() + 1);
+		auto decryptedPayload = test::ToClearTextBuffer(test::GenerateRandomAccountDescriptors(1)[0]);
+		auto encryptedPayload = test::PrepareHarvestRequestEncryptedPayload(keyPair.publicKey(), decryptedPayload);
+		auto encryptedBuffer = test::CopyHarvestRequestEncryptedPayloadToBuffer(encryptedPayload);
+		encryptedBuffer.resize(encryptedBuffer.size() + 1);
 
 		// Act + Assert:
-		UnlockedEntryMessageIdentifier messageIdentifier;
-		EXPECT_THROW(storage.add(messageIdentifier, entry, keyPair.publicKey()), catapult_invalid_argument);
+		HarvestRequestIdentifier requestIdentifier;
+		EXPECT_THROW(storage.add(requestIdentifier, encryptedBuffer, keyPair.publicKey()), catapult_invalid_argument);
 	}
 
-	TEST(TEST_CLASS, CanAddEntriesWithProperSize) {
+	TEST(TEST_CLASS, CanAddRequestsWithProperSize) {
 		// Arrange:
 		test::TempFileGuard guard(Filename);
 		UnlockedAccountsStorage storage(guard.name());
 
 		// Act:
-		auto entries = SeedEntries(storage, guard.name(), 3);
+		auto encryptedPayloads = SeedEncryptedPayloads(storage, guard.name(), 3);
 
 		// Assert:
-		test::AssertUnlockedEntriesFileContents(guard.name(), entries);
+		test::AssertHarvesterFileContents(guard.name(), encryptedPayloads);
 	}
 
-	TEST(TEST_CLASS, CanAddMultipleEntriesWithSameHarvester) {
+	TEST(TEST_CLASS, CanAddMultipleRequestsWithSameHarvester) {
 		// Arrange:
 		test::TempFileGuard guard(Filename);
 		UnlockedAccountsStorage storage(guard.name());
-		auto entries = PrepareEntries(3);
+		auto encryptedPayloads = PrepareEncryptedPayloads(3);
 		auto harvesterPublicKey = test::GenerateRandomByteArray<Key>();
 
 		// Act:
-		for (const auto& entry : entries)
-			EXPECT_NO_THROW(storage.add(test::GetMessageIdentifier(entry), entry.Payload, harvesterPublicKey));
+		for (const auto& encryptedPayload : encryptedPayloads)
+			EXPECT_NO_THROW(storage.add(test::GetRequestIdentifier(encryptedPayload), encryptedPayload.Data, harvesterPublicKey));
 
 		// Assert:
-		test::AssertUnlockedEntriesFileContents(guard.name(), entries);
+		test::AssertHarvesterFileContents(guard.name(), encryptedPayloads);
 	}
 
-	TEST(TEST_CLASS, CannotAddMultipleEntriesWithSameAnnouncer) {
+	TEST(TEST_CLASS, CannotAddMultipleRequestsWithSameAnnouncer) {
 		// Arrange:
 		test::TempFileGuard guard(Filename);
 		UnlockedAccountsStorage storage(guard.name());
-		auto entry1 = *PrepareEntries(1).cbegin();
-		auto entry2 = entry1;
+		auto encryptedPayload1 = *PrepareEncryptedPayloads(1).cbegin();
+		auto encryptedPayload2 = encryptedPayload1;
 
 		// Act:
-		EXPECT_NO_THROW(storage.add(test::GetMessageIdentifier(entry1), entry1.Payload, test::GenerateRandomByteArray<Key>()));
+		auto requestIdentifier = test::GetRequestIdentifier(encryptedPayload1);
+		EXPECT_NO_THROW(storage.add(requestIdentifier, encryptedPayload1.Data, test::GenerateRandomByteArray<Key>()));
+
+		auto requestIdentifier2 = test::GetRequestIdentifier(encryptedPayload2);
 		EXPECT_THROW(
-				storage.add(test::GetMessageIdentifier(entry2), entry2.Payload, test::GenerateRandomByteArray<Key>()),
+				storage.add(requestIdentifier2, encryptedPayload2.Data, test::GenerateRandomByteArray<Key>()),
 				catapult_invalid_argument);
 
-		// Assert: the second entry with a duplicate announcer was not added
-		test::AssertUnlockedEntriesFileContents(guard.name(), { entry1 });
+		// Assert: encryptedPayload2 with a duplicate announcer was not added
+		test::AssertHarvesterFileContents(guard.name(), { encryptedPayload1 });
 	}
 
 	// endregion
@@ -174,46 +179,46 @@ namespace catapult { namespace harvesting {
 	// region remove
 
 	namespace {
-		void AssertRemoveThrowsWhenInputHasIncompleteEntries(size_t numEntries) {
+		void AssertRemoveThrowsWhenInputHasIncompleteEncryptedPayloads(size_t numEncryptedPayloads) {
 			// Arrange:
 			test::TempFileGuard guard(Filename);
 			UnlockedAccountsStorage storage(guard.name());
-			auto entries = SeedEntries(storage, guard.name(), numEntries);
-			boost::filesystem::resize_file(guard.name(), numEntries * sizeof(test::UnlockedTestEntry) - 1);
+			auto encryptedPayloads = SeedEncryptedPayloads(storage, guard.name(), numEncryptedPayloads);
+			boost::filesystem::resize_file(guard.name(), numEncryptedPayloads * sizeof(test::HarvestRequestEncryptedPayload) - 1);
 
 			// Sanity:
 			EXPECT_TRUE(boost::filesystem::exists(guard.name()));
 
 			// Act + Assert:
-			EXPECT_THROW(storage.remove(test::GetMessageIdentifier(*entries.cbegin())), catapult_runtime_error);
+			EXPECT_THROW(storage.remove(test::GetRequestIdentifier(*encryptedPayloads.cbegin())), catapult_runtime_error);
 		}
 	}
 
 	TEST(TEST_CLASS, RemoveThrowsWhenInputDoesNotHaveEnoughData) {
-		AssertRemoveThrowsWhenInputHasIncompleteEntries(1);
+		AssertRemoveThrowsWhenInputHasIncompleteEncryptedPayloads(1);
 	}
 
 	TEST(TEST_CLASS, RemoveThrowsWhenInputHasIncompleteData) {
-		AssertRemoveThrowsWhenInputHasIncompleteEntries(3);
+		AssertRemoveThrowsWhenInputHasIncompleteEncryptedPayloads(3);
 	}
 
 	TEST(TEST_CLASS, RemoveCanRemoveAnnouncerFromMapWhenFileHasBeenDeleted) {
 		// Arrange:
 		test::TempFileGuard guard(Filename);
 		UnlockedAccountsStorage storage(guard.name());
-		auto entries = SeedEntries(storage, guard.name(), 1);
+		auto encryptedPayloads = SeedEncryptedPayloads(storage, guard.name(), 1);
 		boost::filesystem::remove(guard.name());
 
 		// Sanity:
-		auto messageIdentifier = test::GetMessageIdentifier(*entries.cbegin());
-		EXPECT_TRUE(storage.contains(messageIdentifier));
+		auto requestIdentifier = test::GetRequestIdentifier(*encryptedPayloads.cbegin());
+		EXPECT_TRUE(storage.contains(requestIdentifier));
 		EXPECT_FALSE(boost::filesystem::exists(guard.name()));
 
 		// Act:
-		storage.remove(messageIdentifier);
+		storage.remove(requestIdentifier);
 
 		// Assert: map but not file was updated
-		EXPECT_FALSE(storage.contains(messageIdentifier));
+		EXPECT_FALSE(storage.contains(requestIdentifier));
 		EXPECT_FALSE(boost::filesystem::exists(guard.name()));
 	}
 
@@ -221,101 +226,101 @@ namespace catapult { namespace harvesting {
 		// Arrange:
 		test::TempFileGuard guard(Filename);
 		UnlockedAccountsStorage storage(guard.name());
-		auto entries = SeedEntries(storage, guard.name(), 3);
-		boost::filesystem::resize_file(guard.name(), 2 * sizeof(test::UnlockedTestEntry));
+		auto encryptedPayloads = SeedEncryptedPayloads(storage, guard.name(), 3);
+		boost::filesystem::resize_file(guard.name(), 2 * sizeof(test::HarvestRequestEncryptedPayload));
 
 		// Sanity:
-		auto messageIdentifier = test::GetMessageIdentifier(*--entries.cend());
-		EXPECT_TRUE(storage.contains(messageIdentifier));
-		AssertFileSize(guard.name(), 2 * sizeof(test::UnlockedTestEntry));
+		auto requestIdentifier = test::GetRequestIdentifier(*--encryptedPayloads.cend());
+		EXPECT_TRUE(storage.contains(requestIdentifier));
+		AssertFileSize(guard.name(), 2 * sizeof(test::HarvestRequestEncryptedPayload));
 
 		// Act:
-		storage.remove(messageIdentifier);
+		storage.remove(requestIdentifier);
 
 		// Assert: map but not file was updated
-		EXPECT_FALSE(storage.contains(messageIdentifier));
-		AssertFileSize(guard.name(), 2 * sizeof(test::UnlockedTestEntry));
+		EXPECT_FALSE(storage.contains(requestIdentifier));
+		AssertFileSize(guard.name(), 2 * sizeof(test::HarvestRequestEncryptedPayload));
 	}
 
 	TEST(TEST_CLASS, RemoveCanRemoveAnnouncerFromMapAndThenFromFile) {
 		// Arrange:
 		test::TempFileGuard guard(Filename);
 		UnlockedAccountsStorage storage(guard.name());
-		auto entries = SeedEntries(storage, guard.name(), 3);
+		auto encryptedPayloads = SeedEncryptedPayloads(storage, guard.name(), 3);
 
 		// Sanity:
-		auto messageIdentifier2 = test::GetMessageIdentifier(*++entries.cbegin());
-		auto messageIdentifier3 = test::GetMessageIdentifier(*++++entries.cbegin());
-		EXPECT_TRUE(storage.contains(messageIdentifier2));
-		EXPECT_TRUE(storage.contains(messageIdentifier3));
-		AssertFileSize(guard.name(), 3 * sizeof(test::UnlockedTestEntry));
+		auto requestIdentifier2 = test::GetRequestIdentifier(*++encryptedPayloads.cbegin());
+		auto requestIdentifier3 = test::GetRequestIdentifier(*++++encryptedPayloads.cbegin());
+		EXPECT_TRUE(storage.contains(requestIdentifier2));
+		EXPECT_TRUE(storage.contains(requestIdentifier3));
+		AssertFileSize(guard.name(), 3 * sizeof(test::HarvestRequestEncryptedPayload));
 
 		// Act: remove the second key
-		storage.remove(messageIdentifier2);
+		storage.remove(requestIdentifier2);
 
-		// Assert: map but not file was updated (last key in file is messageIdentifier3)
-		EXPECT_FALSE(storage.contains(messageIdentifier2));
-		EXPECT_TRUE(storage.contains(messageIdentifier3));
-		AssertFileSize(guard.name(), 3 * sizeof(test::UnlockedTestEntry));
+		// Assert: map but not file was updated (last key in file is requestIdentifier3)
+		EXPECT_FALSE(storage.contains(requestIdentifier2));
+		EXPECT_TRUE(storage.contains(requestIdentifier3));
+		AssertFileSize(guard.name(), 3 * sizeof(test::HarvestRequestEncryptedPayload));
 
 		// Act: remove the third key
-		storage.remove(messageIdentifier3);
+		storage.remove(requestIdentifier3);
 
 		// Assert: map and file were updated
-		EXPECT_FALSE(storage.contains(messageIdentifier2));
-		EXPECT_FALSE(storage.contains(messageIdentifier3));
-		AssertFileSize(guard.name(), 2 * sizeof(test::UnlockedTestEntry));
+		EXPECT_FALSE(storage.contains(requestIdentifier2));
+		EXPECT_FALSE(storage.contains(requestIdentifier3));
+		AssertFileSize(guard.name(), 2 * sizeof(test::HarvestRequestEncryptedPayload));
 
 		// Act: remove the second key (again)
-		storage.remove(messageIdentifier2);
+		storage.remove(requestIdentifier2);
 
 		// Assert: file but not map was updated
-		EXPECT_FALSE(storage.contains(messageIdentifier2));
-		EXPECT_FALSE(storage.contains(messageIdentifier3));
-		AssertFileSize(guard.name(), 1 * sizeof(test::UnlockedTestEntry));
+		EXPECT_FALSE(storage.contains(requestIdentifier2));
+		EXPECT_FALSE(storage.contains(requestIdentifier3));
+		AssertFileSize(guard.name(), 1 * sizeof(test::HarvestRequestEncryptedPayload));
 	}
 
-	TEST(TEST_CLASS, CanRemoveAllEntriesInReverseOrder) {
+	TEST(TEST_CLASS, CanRemoveAllRequestsInReverseOrder) {
 		// Arrange:
 		test::TempFileGuard guard(Filename);
 		UnlockedAccountsStorage storage(guard.name());
-		auto entries = SeedEntries(storage, guard.name(), 5);
+		auto encryptedPayloads = SeedEncryptedPayloads(storage, guard.name(), 5);
 
 		// Act:
-		for (auto iter = entries.crbegin(); entries.crend() != iter; ++iter)
-			storage.remove(test::GetMessageIdentifier(*iter));
+		for (auto iter = encryptedPayloads.crbegin(); encryptedPayloads.crend() != iter; ++iter)
+			storage.remove(test::GetRequestIdentifier(*iter));
 
 		// Assert:
-		test::AssertUnlockedEntriesFileContents(guard.name(), {});
+		test::AssertHarvesterFileContents(guard.name(), {});
 	}
 
-	TEST(TEST_CLASS, CanRemoveSomeEntriesInReverseOrder) {
+	TEST(TEST_CLASS, CanRemoveSomeRequestsInReverseOrder) {
 		// Arrange:
 		test::TempFileGuard guard(Filename);
 		UnlockedAccountsStorage storage(guard.name());
-		auto entries = SeedEntries(storage, guard.name(), 3);
-		auto entriesNew = SeedEntries(storage, guard.name(), 2, 3);
+		auto encryptedPayloads = SeedEncryptedPayloads(storage, guard.name(), 3);
+		auto encryptedPayloadsNew = SeedEncryptedPayloads(storage, guard.name(), 2, 3);
 
 		// Act:
-		for (auto iter = entriesNew.crbegin(); entriesNew.crend() != iter; ++iter)
-			storage.remove(test::GetMessageIdentifier(*iter));
+		for (auto iter = encryptedPayloadsNew.crbegin(); encryptedPayloadsNew.crend() != iter; ++iter)
+			storage.remove(test::GetRequestIdentifier(*iter));
 
 		// Assert:
-		test::AssertUnlockedEntriesFileContents(guard.name(), entries);
+		test::AssertHarvesterFileContents(guard.name(), encryptedPayloads);
 	}
 
 	TEST(TEST_CLASS, RemoveIgnoresUnknownAnnouncer) {
 		// Arrange:
 		test::TempFileGuard guard(Filename);
 		UnlockedAccountsStorage storage(guard.name());
-		auto entries = SeedEntries(storage, guard.name(), 3);
+		auto encryptedPayloads = SeedEncryptedPayloads(storage, guard.name(), 3);
 
 		// Act:
 		for (auto i = 0u; i < 10u; ++i)
-			EXPECT_NO_THROW(storage.remove(test::GenerateRandomByteArray<UnlockedEntryMessageIdentifier>()));
+			EXPECT_NO_THROW(storage.remove(test::GenerateRandomByteArray<HarvestRequestIdentifier>()));
 
 		// Assert:
-		test::AssertUnlockedEntriesFileContents(guard.name(), entries);
+		test::AssertHarvesterFileContents(guard.name(), encryptedPayloads);
 	}
 
 	// endregion
@@ -340,14 +345,14 @@ namespace catapult { namespace harvesting {
 			file.write(buffer);
 		}
 
-		auto AddEntries(UnlockedAccountsStorage& storage, const test::UnlockedTestEntries& entries) {
-			std::map<UnlockedEntryMessageIdentifier, Key> identifierToHarvester;
+		auto AddEncryptedPayloads(UnlockedAccountsStorage& storage, const test::HarvestRequestEncryptedPayloads& encryptedPayloads) {
+			std::map<HarvestRequestIdentifier, Key> identifierToHarvester;
 			Key harvesterPublicKey;
 			auto i = 0u;
-			for (const auto& entry : entries) {
+			for (const auto& encryptedPayload : encryptedPayloads) {
 				harvesterPublicKey[0] = static_cast<uint8_t>(i + 1);
-				storage.add(test::GetMessageIdentifier(entry), entry.Payload, harvesterPublicKey);
-				identifierToHarvester.emplace(test::GetMessageIdentifier(entry), harvesterPublicKey);
+				storage.add(test::GetRequestIdentifier(encryptedPayload), encryptedPayload.Data, harvesterPublicKey);
+				identifierToHarvester.emplace(test::GetRequestIdentifier(encryptedPayload), harvesterPublicKey);
 				++i;
 			}
 
@@ -355,22 +360,22 @@ namespace catapult { namespace harvesting {
 		}
 	}
 
-	TEST(TEST_CLASS, SaveStoresAddedUnlockedEntriesWhenNoFilteringIsApplied) {
+	TEST(TEST_CLASS, SaveStoresAddedRequestsWhenNoFilteringIsApplied) {
 		// Arrange:
 		test::TempFileGuard guard(Filename);
 		UnlockedAccountsStorage storage(guard.name());
-		auto entries = PrepareEntries(3);
-		AddEntries(storage, entries);
+		auto encryptedPayloads = PrepareEncryptedPayloads(3);
+		AddEncryptedPayloads(storage, encryptedPayloads);
 
 		// Act:
 		storage.save(NoFiltering);
 
 		// Assert:
 		EXPECT_TRUE(boost::filesystem::exists(guard.name()));
-		test::AssertUnlockedEntriesFileContents(guard.name(), entries);
+		test::AssertHarvesterFileContents(guard.name(), encryptedPayloads);
 	}
 
-	TEST(TEST_CLASS, SaveRemovesExistingFileWhenUnlockedEntriesAreEmpty) {
+	TEST(TEST_CLASS, SaveRemovesExistingFileWhenRequestsAreEmpty) {
 		// Arrange:
 		test::TempFileGuard guard(Filename);
 		CreateFile(guard.name());
@@ -387,14 +392,14 @@ namespace catapult { namespace harvesting {
 		EXPECT_FALSE(boost::filesystem::exists(guard.name()));
 	}
 
-	TEST(TEST_CLASS, SaveRemovesExistingFileWhenAllUnlockedEntriesAreFiltered) {
+	TEST(TEST_CLASS, SaveRemovesExistingFileWhenAllRequestsAreFiltered) {
 		// Arrange: create file
 		test::TempFileGuard guard(Filename);
 		CreateFile(guard.name());
 
 		UnlockedAccountsStorage storage(guard.name());
-		auto entries = PrepareEntries(3);
-		AddEntries(storage, entries);
+		auto encryptedPayloads = PrepareEncryptedPayloads(3);
+		AddEncryptedPayloads(storage, encryptedPayloads);
 
 		// Sanity:
 		EXPECT_TRUE(boost::filesystem::exists(guard.name()));
@@ -406,88 +411,89 @@ namespace catapult { namespace harvesting {
 		EXPECT_FALSE(boost::filesystem::exists(guard.name()));
 	}
 
-	TEST(TEST_CLASS, SaveFiltersUnlockedEntries) {
+	TEST(TEST_CLASS, SaveFiltersRequests) {
 		// Arrange:
 		test::TempFileGuard guard(Filename);
 		UnlockedAccountsStorage storage(guard.name());
-		auto entries = PrepareEntries(5);
-		auto identifierToHarvester = AddEntries(storage, entries);
+		auto encryptedPayloads = PrepareEncryptedPayloads(5);
+		auto identifierToHarvester = AddEncryptedPayloads(storage, encryptedPayloads);
 
 		// Act:
 		storage.save([](const auto& harvesterPublicKey) { return harvesterPublicKey[0] & 1; });
 
 		// Assert:
 		EXPECT_TRUE(boost::filesystem::exists(guard.name()));
-		test::UnlockedTestEntries expectedEntries;
-		std::copy_if(entries.cbegin(), entries.cend(), std::inserter(expectedEntries, expectedEntries.end()), [&identifierToHarvester](
-				const auto& entry) {
-			const auto& harvesterPublicKey = identifierToHarvester[test::GetMessageIdentifier(entry)];
+		test::HarvestRequestEncryptedPayloads expectedEncryptedPayloads;
+		auto inserter = std::inserter(expectedEncryptedPayloads, expectedEncryptedPayloads.end());
+		std::copy_if(encryptedPayloads.cbegin(), encryptedPayloads.cend(), inserter, [&identifierToHarvester](
+				const auto& encryptedPayload) {
+			const auto& harvesterPublicKey = identifierToHarvester[test::GetRequestIdentifier(encryptedPayload)];
 			return harvesterPublicKey[0] & 1;
 		});
 
-		// - every odd entry should be in expected set
-		EXPECT_EQ(3u, expectedEntries.size());
-		test::AssertUnlockedEntriesFileContents(guard.name(), expectedEntries);
+		// - every odd encryptedPayload should be in expected set
+		EXPECT_EQ(3u, expectedEncryptedPayloads.size());
+		test::AssertHarvesterFileContents(guard.name(), expectedEncryptedPayloads);
 	}
 
 	namespace {
-		auto CreateFileWithEntries(const std::string& filename, size_t numEntries) {
+		auto CreateFileWithEncryptedPayloads(const std::string& filename, size_t numEncryptedPayloads) {
 			UnlockedAccountsStorage storage(filename);
-			auto entries = PrepareEntries(numEntries);
-			AddEntries(storage, entries);
+			auto encryptedPayloads = PrepareEncryptedPayloads(numEncryptedPayloads);
+			AddEncryptedPayloads(storage, encryptedPayloads);
 
 			storage.save(NoFiltering);
-			return entries;
+			return encryptedPayloads;
 		}
 	}
 
 	TEST(TEST_CLASS, SaveOverwritesExistingFile) {
 		// Arrange:
 		test::TempFileGuard guard(Filename);
-		auto originalEntries = CreateFileWithEntries(guard.name(), 3);
+		auto originalEncryptedPayloads = CreateFileWithEncryptedPayloads(guard.name(), 3);
 
 		// Sanity:
 		EXPECT_TRUE(boost::filesystem::exists(guard.name()));
-		test::AssertUnlockedEntriesFileContents(guard.name(), originalEntries);
+		test::AssertHarvesterFileContents(guard.name(), originalEncryptedPayloads);
 
-		// - add new entries
+		// - add new encryptedPayloads
 		UnlockedAccountsStorage storage(guard.name());
-		auto entries = PrepareEntries(5);
-		AddEntries(storage, entries);
+		auto encryptedPayloads = PrepareEncryptedPayloads(5);
+		AddEncryptedPayloads(storage, encryptedPayloads);
 
 		// Act:
 		storage.save(NoFiltering);
 
-		// Assert: there was no load(), so originalEntries should be overwritten with entries
+		// Assert: there was no load(), so originalEncryptedPayloads should be overwritten with encryptedPayloads
 		EXPECT_TRUE(boost::filesystem::exists(guard.name()));
-		test::AssertUnlockedEntriesFileContents(guard.name(), entries);
+		test::AssertHarvesterFileContents(guard.name(), encryptedPayloads);
 	}
 
-	TEST(TEST_CLASS, SaveDoesNotSaveRemovedEntries) {
+	TEST(TEST_CLASS, SaveDoesNotSaveRemovedRequests) {
 		// Arrange:
 		test::TempFileGuard guard(Filename);
 		UnlockedAccountsStorage storage(guard.name());
-		auto originalEntries = PrepareEntries(5);
-		AddEntries(storage, originalEntries);
+		auto originalEncryptedPayloads = PrepareEncryptedPayloads(5);
+		AddEncryptedPayloads(storage, originalEncryptedPayloads);
 
 		storage.save(NoFiltering);
 
-		// - remove two most recent entries
-		auto reverseIter = originalEntries.crbegin();
+		// - remove two most recent encrypted payloads
+		auto reverseIter = originalEncryptedPayloads.crbegin();
 		for (int i = 0; i < 2; ++i) {
-			storage.remove(test::GetMessageIdentifier(*reverseIter));
+			storage.remove(test::GetRequestIdentifier(*reverseIter));
 			++reverseIter;
 		}
 
 		// Act:
 		storage.save(NoFiltering);
 
-		// Assert: only first three entries should be present
-		auto iter = originalEntries.cbegin();
+		// Assert: only first three encrypted payloads should be present
+		auto iter = originalEncryptedPayloads.cbegin();
 		std::advance(iter, 3);
-		originalEntries.erase(iter, originalEntries.cend());
+		originalEncryptedPayloads.erase(iter, originalEncryptedPayloads.cend());
 
-		test::AssertUnlockedEntriesFileContents(guard.name(), originalEntries);
+		test::AssertHarvesterFileContents(guard.name(), originalEncryptedPayloads);
 	}
 
 	// endregion
@@ -521,7 +527,7 @@ namespace catapult { namespace harvesting {
 	TEST(TEST_CLASS, CannotLoadWhenInputDoesNotHaveEnoughData) {
 		// Arrange:
 		test::TempFileGuard guard(Filename);
-		CreateFile(guard.name(), sizeof(test::UnlockedTestEntry) - 1);
+		CreateFile(guard.name(), sizeof(test::HarvestRequestEncryptedPayload) - 1);
 		auto keyPair = test::GenerateKeyPair();
 
 		// Act + Assert:
@@ -530,11 +536,20 @@ namespace catapult { namespace harvesting {
 	}
 
 	namespace {
-		auto AppendUnlockedEntryToFile(const std::string& filename, const test::UnlockedTestEntry& entry) {
+		struct BlockGeneratorAccountDescriptorHasher {
+			size_t operator()(const BlockGeneratorAccountDescriptor& descriptor) const {
+				return utils::ArrayHasher<Key>()(descriptor.signingKeyPair().publicKey());
+			}
+		};
+
+		using BlockGeneratorAccountDescriptorUnorderedSet =
+			std::unordered_set<BlockGeneratorAccountDescriptor, BlockGeneratorAccountDescriptorHasher>;
+
+		auto AppendEncryptedPayloadToFile(const std::string& filename, const test::HarvestRequestEncryptedPayload& encryptedPayload) {
 			io::RawFile output(filename, io::OpenMode::Read_Append);
 			output.seek(output.size());
-			output.write({ reinterpret_cast<const uint8_t*>(&entry), sizeof(test::UnlockedTestEntry) });
-			return entry;
+			output.write({ reinterpret_cast<const uint8_t*>(&encryptedPayload), sizeof(test::HarvestRequestEncryptedPayload) });
+			return encryptedPayload;
 		}
 
 		void AppendToFile(const std::string& filename, size_t size) {
@@ -545,43 +560,43 @@ namespace catapult { namespace harvesting {
 		}
 	}
 
-	TEST(TEST_CLASS, CanLoadUnlockedEntries) {
+	TEST(TEST_CLASS, CanLoadRequests) {
 		// Arrange:
 		test::TempFileGuard guard(Filename);
 		auto keyPair = test::GenerateKeyPair();
-		auto privateKeyBuffers = GeneratePrivateKeyBuffers(3);
-		auto entries = PrepareEntries(keyPair.publicKey(), privateKeyBuffers);
-		for (const auto& entry : entries)
-			AppendUnlockedEntryToFile(guard.name(), entry);
+		auto descriptors = test::GenerateRandomAccountDescriptors(3);
+		auto encryptedPayloads = PrepareEncryptedPayloads(keyPair.publicKey(), descriptors);
+		for (const auto& encryptedPayload : encryptedPayloads)
+			AppendEncryptedPayloadToFile(guard.name(), encryptedPayload);
 
 		// Act:
 		UnlockedAccountsStorage storage(guard.name());
-		std::set<Key> collectedKeys;
-		storage.load(keyPair, [&collectedKeys](auto&& harvesterPublicKeyPair) {
-			collectedKeys.insert(harvesterPublicKeyPair.publicKey());
+		BlockGeneratorAccountDescriptorUnorderedSet collectedDescriptors;
+		storage.load(keyPair, [&collectedDescriptors](auto&& descriptor) {
+			collectedDescriptors.insert(std::move(descriptor));
 		});
 
 		// Assert: remove the file, save and check if it matches initial data
 		boost::filesystem::remove(guard.name());
 		storage.save(NoFiltering);
-		test::AssertUnlockedEntriesFileContents(guard.name(), entries);
+		test::AssertHarvesterFileContents(guard.name(), encryptedPayloads);
 
-		// - check all loaded keys were passed to process function
-		std::set<Key> expectedKeys;
-		for (const auto& privateKeyBuffer : privateKeyBuffers)
-			expectedKeys.insert(test::KeyPairFromPrivateKeyBuffer(privateKeyBuffer).publicKey());
+		// - check all loaded keys were passed to process function (order doesn't matter)
+		BlockGeneratorAccountDescriptorUnorderedSet expectedDescriptors;
+		for (auto& descriptor : descriptors)
+			expectedDescriptors.emplace(std::move(descriptor));
 
-		EXPECT_EQ(expectedKeys, collectedKeys);
+		EXPECT_EQ(expectedDescriptors, collectedDescriptors);
 	}
 
 	TEST(TEST_CLASS, LoadThrowsWhenInputDoesNotHaveEnoughData) {
-		// Arrange: create file with one proper entry and one "short"
+		// Arrange: create file with one proper encryptedPayload and one "short"
 		test::TempFileGuard guard(Filename);
 		auto keyPair = test::GenerateKeyPair();
-		auto randomPrivateBuffer = test::GenerateRandomByteArray<Key>();
-		auto entry = test::PrepareUnlockedTestEntry(keyPair.publicKey(), randomPrivateBuffer);
-		AppendUnlockedEntryToFile(guard.name(), entry);
-		AppendToFile(guard.name(), sizeof(test::UnlockedTestEntry) - 1);
+		auto decryptedPayload = test::ToClearTextBuffer(test::GenerateRandomAccountDescriptors(1)[0]);
+		auto encryptedPayload = test::PrepareHarvestRequestEncryptedPayload(keyPair.publicKey(), decryptedPayload);
+		AppendEncryptedPayloadToFile(guard.name(), encryptedPayload);
+		AppendToFile(guard.name(), sizeof(test::HarvestRequestEncryptedPayload) - 1);
 
 		// Act + Assert:
 		UnlockedAccountsStorage storage(guard.name());
@@ -593,8 +608,8 @@ namespace catapult { namespace harvesting {
 		test::TempFileGuard guard(Filename);
 		auto keyPair = test::GenerateKeyPair();
 		auto invalidPrivateBuffer = test::GenerateRandomArray<Key::Size + 1>();
-		auto entry = test::PrepareUnlockedTestEntry(keyPair.publicKey(), invalidPrivateBuffer);
-		AppendUnlockedEntryToFile(guard.name(), entry);
+		auto encryptedPayload = test::PrepareHarvestRequestEncryptedPayload(keyPair.publicKey(), invalidPrivateBuffer);
+		AppendEncryptedPayloadToFile(guard.name(), encryptedPayload);
 
 		// Act + Assert:
 		UnlockedAccountsStorage storage(guard.name());

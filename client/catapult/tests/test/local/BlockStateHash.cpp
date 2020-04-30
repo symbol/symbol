@@ -55,7 +55,9 @@ namespace catapult { namespace test {
 		auto resolverContext = pluginManager.createResolverContext(readOnlyCache);
 
 		// 4. execute block
-		chain::ExecuteBlock(BlockToBlockElement(block, GetNemesisGenerationHash()), { entityObserver, resolverContext, observerState });
+		chain::ExecuteBlock(
+				BlockToBlockElement(block, GetNemesisGenerationHashSeed()),
+				{ entityObserver, resolverContext, observerState });
 		return cache.calculateStateHash(block.Height).StateHash;
 	}
 }}

@@ -62,7 +62,7 @@ namespace catapult { namespace local {
 			for (const auto* pPrivateKeyString : test::Mijin_Test_Private_Keys) {
 				auto keyPair = crypto::KeyPair::FromString(pPrivateKeyString);
 				if (keyPair.publicKey() == block.SignerPublicKey) {
-					extensions::BlockExtensions(test::GetNemesisGenerationHash()).signFullBlock(keyPair, block);
+					extensions::BlockExtensions(test::GetNemesisGenerationHashSeed()).signFullBlock(keyPair, block);
 					return;
 				}
 			}

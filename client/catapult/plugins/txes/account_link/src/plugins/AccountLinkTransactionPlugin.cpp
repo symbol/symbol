@@ -31,14 +31,15 @@ namespace catapult { namespace plugins {
 	namespace {
 		template<typename TTransaction>
 		void Publish(const TTransaction& transaction, NotificationSubscriber& sub) {
-			if (AccountLinkAction::Link == transaction.LinkAction) {
+			if (LinkAction::Link == transaction.LinkAction) {
 				// NewRemoteAccountNotification must be raised before AccountPublicKeyNotification because the latter adds account to cache
-				sub.notify(NewRemoteAccountNotification(transaction.RemotePublicKey));
-				sub.notify(AccountPublicKeyNotification(transaction.RemotePublicKey));
+				sub.notify(NewRemoteAccountNotification(transaction.LinkedPublicKey));
+				sub.notify(AccountPublicKeyNotification(transaction.LinkedPublicKey));
 			}
 
-			sub.notify(AddressInteractionNotification(transaction.SignerPublicKey, transaction.Type, {}, { transaction.RemotePublicKey }));
-			sub.notify(RemoteAccountLinkNotification(transaction.SignerPublicKey, transaction.RemotePublicKey, transaction.LinkAction));
+			sub.notify(KeyLinkActionNotification(transaction.LinkAction));
+			sub.notify(AddressInteractionNotification(transaction.SignerPublicKey, transaction.Type, {}, { transaction.LinkedPublicKey }));
+			sub.notify(RemoteAccountLinkNotification(transaction.SignerPublicKey, transaction.LinkedPublicKey, transaction.LinkAction));
 		}
 	}
 

@@ -175,6 +175,47 @@ namespace catapult { namespace utils {
 
 	// endregion
 
+	// region copyTo
+
+	TEST(TEST_CLASS, CopyToSupportsSameSizeDestinationByteArray) {
+		// Arrange:
+		auto sourceArray = test::GenerateRandomByteArray<Key>();
+
+		// Act:
+		auto destArray = sourceArray.copyTo<Hash256>();
+
+		// Assert:
+		EXPECT_EQ(sourceArray.size(), destArray.size());
+		EXPECT_EQ_MEMORY(sourceArray.data(), destArray.data(), Hash256::Size);
+	}
+
+	TEST(TEST_CLASS, CopyToSupportsSmallerSizeDestinationByteArray) {
+		// Arrange:
+		auto sourceArray = test::GenerateRandomByteArray<Hash512>();
+
+		// Act:
+		auto destArray = sourceArray.copyTo<Hash256>();
+
+		// Assert:
+		EXPECT_GT(sourceArray.size(), destArray.size());
+		EXPECT_EQ_MEMORY(sourceArray.data(), destArray.data(), Hash256::Size);
+	}
+
+	TEST(TEST_CLASS, CopyToSupportsLargerSizeDestinationByteArray) {
+		// Arrange:
+		auto sourceArray = test::GenerateRandomByteArray<Hash256>();
+
+		// Act:
+		auto destArray = sourceArray.copyTo<Hash512>();
+
+		// Assert:
+		EXPECT_LT(sourceArray.size(), destArray.size());
+		EXPECT_EQ_MEMORY(sourceArray.data(), destArray.data(), Hash256::Size);
+		EXPECT_EQ_MEMORY(Hash256().data(), destArray.data() + Hash256::Size, Hash256::Size);
+	}
+
+	// endregion
+
 	// region type convertibility
 
 	TEST(TEST_CLASS, CanAssignAliasedType) {

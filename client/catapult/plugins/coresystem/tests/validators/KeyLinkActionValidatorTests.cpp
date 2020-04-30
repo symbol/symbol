@@ -24,16 +24,16 @@
 
 namespace catapult { namespace validators {
 
-#define TEST_CLASS AccountLinkActionValidatorTests
+#define TEST_CLASS KeyLinkActionValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(AccountLinkAction,)
+	DEFINE_COMMON_VALIDATOR_TESTS(KeyLinkAction,)
 
 	namespace {
-		struct AccountLinkActionTraits {
-			using EnumType = model::AccountLinkAction;
+		struct KeyLinkActionTraits {
+			using EnumType = model::LinkAction;
 
-			static constexpr auto Failure_Result = Failure_AccountLink_Invalid_Action;
-			static constexpr auto CreateValidator = CreateAccountLinkActionValidator;
+			static constexpr auto Failure_Result = Failure_Core_Invalid_Link_Action;
+			static constexpr auto CreateValidator = CreateKeyLinkActionValidator;
 
 			static std::vector<uint8_t> ValidValues() {
 				return { 0x00, 0x01 };
@@ -44,10 +44,10 @@ namespace catapult { namespace validators {
 			}
 
 			static auto CreateNotification(EnumType value) {
-				return model::RemoteAccountLinkNotification(Key(), Key(), value);
+				return model::KeyLinkActionNotification(value);
 			}
 		};
 	}
 
-	DEFINE_DISCRETE_INTEGER_VALIDATOR_TESTS(TEST_CLASS, AccountLinkActionTraits)
+	DEFINE_DISCRETE_INTEGER_VALIDATOR_TESTS(TEST_CLASS, KeyLinkActionTraits)
 }}

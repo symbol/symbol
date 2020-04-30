@@ -51,9 +51,7 @@ namespace catapult { namespace partialtransaction {
 
 		Hash256 ToHash(const model::DetachedCosignature& cosignature) {
 			// the R-part of the signature is good enough for a hash
-			Hash256 hash;
-			std::memcpy(hash.data(), cosignature.Signature.data(), Hash256::Size);
-			return hash;
+			return cosignature.Signature.copyTo<Hash256>();
 		}
 
 		ConsumerDispatcherOptions CreateTransactionConsumerDispatcherOptions(const config::NodeConfiguration& config) {
@@ -99,7 +97,7 @@ namespace catapult { namespace partialtransaction {
 		public:
 			void addHashConsumers(const cache::MemoryPtCacheProxy& ptCache) {
 				m_consumers.push_back(CreateTransactionHashCalculatorConsumer(
-						m_state.config().BlockChain.Network.GenerationHash,
+						m_state.config().BlockChain.Network.GenerationHashSeed,
 						m_state.pluginManager().transactionRegistry()));
 				m_consumers.push_back(CreateTransactionHashCheckConsumer(
 						m_state.timeSupplier(),

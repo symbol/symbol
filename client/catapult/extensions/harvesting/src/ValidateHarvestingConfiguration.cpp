@@ -27,15 +27,17 @@
 namespace catapult { namespace harvesting {
 
 	namespace {
-		bool IsHarvesterKeyValid(const HarvestingConfiguration& config) {
-			return crypto::IsValidKeyString(config.HarvesterPrivateKey)
-					|| (!config.EnableAutoHarvesting && config.HarvesterPrivateKey.empty());
+		bool IsHarvesterKeyValid(bool enableAutoHarvesting, const std::string& privateKey) {
+			return crypto::IsValidKeyString(privateKey) || (!enableAutoHarvesting && privateKey.empty());
 		}
 	}
 
 	void ValidateHarvestingConfiguration(const HarvestingConfiguration& config) {
-		if (!IsHarvesterKeyValid(config))
-			CATAPULT_THROW_AND_LOG_0(utils::property_malformed_error, "HarvesterPrivateKey must be a valid private key");
+		if (!IsHarvesterKeyValid(config.EnableAutoHarvesting, config.HarvesterSigningPrivateKey))
+			CATAPULT_THROW_AND_LOG_0(utils::property_malformed_error, "HarvesterSigningPrivateKey must be a valid private key");
+
+		if (!IsHarvesterKeyValid(config.EnableAutoHarvesting, config.HarvesterVrfPrivateKey))
+			CATAPULT_THROW_AND_LOG_0(utils::property_malformed_error, "HarvesterVrfPrivateKey must be a valid private key");
 
 		if (!crypto::IsValidKeyString(config.BeneficiaryPublicKey))
 			CATAPULT_THROW_AND_LOG_0(utils::property_malformed_error, "BeneficiaryPublicKey must be a valid public key");

@@ -25,18 +25,22 @@
 
 namespace catapult { namespace crypto {
 
-	/// Proof verification hash.
+	/// VRF proof gamma.
+	struct ProofGamma_tag { static constexpr size_t Size = 32; };
+	using ProofGamma = utils::ByteArray<ProofGamma_tag>;
+
+	/// VRF proof verification hash.
 	struct ProofVerificationHash_tag { static constexpr size_t Size = 16; };
 	using ProofVerificationHash = utils::ByteArray<ProofVerificationHash_tag>;
 
-	/// Proof scalar.
+	/// VRF proof scalar.
 	struct ProofScalar_tag { static constexpr size_t Size = 32; };
 	using ProofScalar = utils::ByteArray<ProofScalar_tag>;
 
-	/// Proof for the verifiable random function.
+	/// VRF proof for the verifiable random function.
 	struct VrfProof {
 		/// Gamma.
-		Key Gamma;
+		ProofGamma Gamma;
 
 		/// Verification hash.
 		ProofVerificationHash VerificationHash;
@@ -50,4 +54,7 @@ namespace catapult { namespace crypto {
 
 	/// Verifies verifiable random function proof (\a vrfProof) using \a alpha and \a publicKey.
 	Hash512 VerifyVrfProof(const VrfProof& vrfProof, const RawBuffer& alpha, const Key& publicKey);
+
+	/// Generates a verifiable random function proof hash from \a gamma.
+	Hash512 GenerateVrfProofHash(const ProofGamma& gamma);
 }}

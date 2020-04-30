@@ -28,7 +28,33 @@ namespace catapult { namespace mongo { namespace mappers {
 	// region ToDbModel
 
 	namespace {
-		auto& StreamAccountImportanceSnapshots(bson_stream::document& builder, const state::AccountImportanceSnapshots& snapshots) {
+		template<typename TKey>
+		void StreamAccountKey(
+				bson_stream::array_context& context,
+				state::AccountKeys::KeyType mask,
+				state::AccountKeys::KeyType keyType,
+				const state::AccountKeys::KeyAccessor<TKey>& keyAccessor) {
+			if (!HasFlag(keyType, mask))
+				return;
+
+			context
+					<< bson_stream::open_document
+						<< "keyType" << utils::to_underlying_type(keyType)
+						<< "key" << ToBinary(keyAccessor.get())
+					<< bson_stream::close_document;
+		}
+
+		void StreamAccountKeys(bson_stream::document& builder, const state::AccountKeys& accountKeys) {
+			auto keysArray = builder << "supplementalAccountKeys" << bson_stream::open_array;
+
+			StreamAccountKey(keysArray, accountKeys.mask(), state::AccountKeys::KeyType::Linked, accountKeys.linkedPublicKey());
+			StreamAccountKey(keysArray, accountKeys.mask(), state::AccountKeys::KeyType::VRF, accountKeys.vrfPublicKey());
+			StreamAccountKey(keysArray, accountKeys.mask(), state::AccountKeys::KeyType::Voting, accountKeys.votingPublicKey());
+
+			keysArray << bson_stream::close_array;
+		}
+
+		void StreamAccountImportanceSnapshots(bson_stream::document& builder, const state::AccountImportanceSnapshots& snapshots) {
 			auto importancesArray = builder << "importances" << bson_stream::open_array;
 			for (const auto& snapshot : snapshots) {
 				if (model::ImportanceHeight(0) == snapshot.Height)
@@ -42,10 +68,9 @@ namespace catapult { namespace mongo { namespace mappers {
 			}
 
 			importancesArray << bson_stream::close_array;
-			return builder;
 		}
 
-		auto& StreamAccountActivityBuckets(bson_stream::document& builder, const state::AccountActivityBuckets& buckets) {
+		void StreamAccountActivityBuckets(bson_stream::document& builder, const state::AccountActivityBuckets& buckets) {
 			auto activityBucketsArray = builder << "activityBuckets" << bson_stream::open_array;
 			for (const auto& bucket : buckets) {
 				if (model::ImportanceHeight(0) == bucket.StartHeight)
@@ -61,16 +86,14 @@ namespace catapult { namespace mongo { namespace mappers {
 			}
 
 			activityBucketsArray << bson_stream::close_array;
-			return builder;
 		}
 
-		auto& StreamAccountBalances(bson_stream::document& builder, const state::AccountBalances& balances) {
+		void StreamAccountBalances(bson_stream::document& builder, const state::AccountBalances& balances) {
 			auto mosaicsArray = builder << "mosaics" << bson_stream::open_array;
 			for (const auto& entry : balances)
 				StreamMosaic(mosaicsArray, entry.first, entry.second);
 
 			mosaicsArray << bson_stream::close_array;
-			return builder;
 		}
 	}
 
@@ -82,8 +105,9 @@ namespace catapult { namespace mongo { namespace mappers {
 					<< "addressHeight" << ToInt64(accountState.AddressHeight)
 					<< "publicKey" << ToBinary(accountState.PublicKey)
 					<< "publicKeyHeight" << ToInt64(accountState.PublicKeyHeight)
-					<< "accountType" << utils::to_underlying_type(accountState.AccountType)
-					<< "linkedAccountKey" << ToBinary(accountState.LinkedAccountKey);
+					<< "accountType" << utils::to_underlying_type(accountState.AccountType);
+
+		StreamAccountKeys(builder, accountState.SupplementalAccountKeys);
 		StreamAccountImportanceSnapshots(builder, accountState.ImportanceSnapshots);
 		StreamAccountActivityBuckets(builder, accountState.ActivityBuckets);
 		StreamAccountBalances(builder, accountState.Balances);

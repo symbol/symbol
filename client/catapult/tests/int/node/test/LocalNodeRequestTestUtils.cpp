@@ -51,7 +51,7 @@ namespace catapult { namespace test {
 
 	namespace {
 		crypto::KeyPair GetNemesisAccountKeyPair() {
-			return crypto::KeyPair::FromString(Mijin_Test_Private_Keys[5]); // use a nemesis account
+			return crypto::KeyPair::FromString(Mijin_Test_Private_Keys[4]); // use a nemesis account
 		}
 
 		model::PreviousBlockContext LoadNemesisPreviousBlockContext() {
@@ -67,7 +67,12 @@ namespace catapult { namespace test {
 
 			auto pBlock = model::CreateBlock(context, Network_Identifier, signer.publicKey(), model::Transactions());
 			pBlock->Timestamp = context.Timestamp + Timestamp(60000);
-			extensions::BlockExtensions(GetDefaultGenerationHash()).signFullBlock(signer, *pBlock);
+
+			auto vrfKeyPair = LookupVrfKeyPair(signer.publicKey());
+			auto vrfProof = crypto::GenerateVrfProof(context.GenerationHash, vrfKeyPair);
+			pBlock->GenerationHashProof = { vrfProof.Gamma, vrfProof.VerificationHash, vrfProof.Scalar };
+
+			extensions::BlockExtensions(GetDefaultGenerationHashSeed()).signFullBlock(signer, *pBlock);
 			return PORTABLE_MOVE(pBlock);
 		}
 	}
@@ -85,7 +90,7 @@ namespace catapult { namespace test {
 		auto pTransaction = CreateUnsignedTransferTransaction(signer.publicKey(), recipient, Amount(10000));
 		pTransaction->MaxFee = Amount(10 * pTransaction->Size);
 		pTransaction->Deadline = context.Timestamp + Timestamp(120000);
-		extensions::TransactionExtensions(GetNemesisGenerationHash()).sign(signer, *pTransaction);
+		extensions::TransactionExtensions(GetNemesisGenerationHashSeed()).sign(signer, *pTransaction);
 
 		return PushEntity(connection, ionet::PacketType::Push_Transactions, std::shared_ptr<model::Transaction>(std::move(pTransaction)));
 	}

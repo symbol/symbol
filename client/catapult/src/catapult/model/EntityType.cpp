@@ -42,6 +42,8 @@ namespace catapult { namespace model {
 			// well known types defined in EntityType.h
 			CASE_WELL_KNOWN_ENTITY_TYPE(Nemesis_Block);
 			CASE_WELL_KNOWN_ENTITY_TYPE(Block);
+			CASE_WELL_KNOWN_ENTITY_TYPE(Voting_Key_Link);
+			CASE_WELL_KNOWN_ENTITY_TYPE(Vrf_Key_Link);
 
 			// plugin entity types
 			#include "plugins/txes/account_link/src/model/AccountLinkEntityType.h"

@@ -24,7 +24,7 @@
 #include "harvesting/src/UnlockedAccountsStorage.h"
 #include "catapult/cache_core/BlockStatisticCache.h"
 #include "catapult/config/CatapultDataDirectory.h"
-#include "harvesting/tests/test/UnlockedTestEntry.h"
+#include "harvesting/tests/test/HarvestRequestEncryptedPayload.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/HandlersTrustedHostTests.h"
 #include "tests/test/core/PacketPayloadTestUtils.h"
@@ -45,7 +45,9 @@ namespace catapult { namespace harvesting {
 
 		HarvestingConfiguration CreateHarvestingConfiguration(test::LocalNodeFlags flags = test::LocalNodeFlags::None) {
 			auto config = HarvestingConfiguration::Uninitialized();
-			config.HarvesterPrivateKey = Harvester_Private_Key;
+			config.HarvesterSigningPrivateKey = Harvester_Private_Key;
+			config.HarvesterVrfPrivateKey = Harvester_Private_Key;
+
 			config.EnableAutoHarvesting = test::LocalNodeFlags::Should_Auto_Harvest == flags;
 			config.MaxUnlockedAccounts = 10;
 			config.BeneficiaryPublicKey = std::string(64, '0');
@@ -87,7 +89,7 @@ namespace catapult { namespace harvesting {
 
 		public:
 			Key harvesterPublicKey() const {
-				return crypto::KeyPair::FromString(m_config.HarvesterPrivateKey).publicKey();
+				return crypto::KeyPair::FromString(m_config.HarvesterSigningPrivateKey).publicKey();
 			}
 
 			const auto& capturedStateHashes() const {
@@ -190,7 +192,7 @@ namespace catapult { namespace harvesting {
 	TEST(TEST_CLASS, UnlockedAccountsServiceIsRegisteredProperlyWhenAutoHarvestingIsDisabledAndHarvesterPrivateKeyIsEmpty) {
 		// Arrange:
 		auto config = CreateHarvestingConfiguration();
-		config.HarvesterPrivateKey.clear();
+		config.HarvesterSigningPrivateKey.clear();
 
 		TestContext context(config);
 		RunUnlockedAccountsServiceTest(context, [&context](const auto&) {
@@ -254,7 +256,7 @@ namespace catapult { namespace harvesting {
 				std::vector<Key> publicKeys;
 				for (auto& keyPair : keyPairs) {
 					publicKeys.push_back(keyPair.publicKey());
-					unlockedAccounts.modifier().add(std::move(keyPair));
+					unlockedAccounts.modifier().add(BlockGeneratorAccountDescriptor(std::move(keyPair), test::GenerateKeyPair()));
 				}
 
 				// Assert:
@@ -277,12 +279,12 @@ namespace catapult { namespace harvesting {
 	}
 
 	namespace {
-		void AddHarvestersFileEntries(const std::string& filename, const Key& nodeOwnerPublicKey, size_t numEntries) {
+		void AddHarvestersFileRequests(const std::string& filename, const Key& nodeOwnerPublicKey, size_t numRequests) {
 			UnlockedAccountsStorage storage(filename);
-			for (auto i = 0u; i < numEntries; ++i) {
-				auto privateKeyBuffer = test::GenerateRandomByteArray<Key>();
-				auto entry = test::PrepareUnlockedTestEntry(nodeOwnerPublicKey, privateKeyBuffer);
-				storage.add(test::GetMessageIdentifier(entry), entry.Payload, Key{ { static_cast<uint8_t>(i) } });
+			for (auto i = 0u; i < numRequests; ++i) {
+				auto decryptedBuffer = test::GenerateRandomVector(2 * Key::Size);
+				auto encryptedPayload = test::PrepareHarvestRequestEncryptedPayload(nodeOwnerPublicKey, decryptedBuffer);
+				storage.add(test::GetRequestIdentifier(encryptedPayload), encryptedPayload.Data, Key{ { static_cast<uint8_t>(i) } });
 			}
 		}
 	}
@@ -294,7 +296,7 @@ namespace catapult { namespace harvesting {
 		context.setDataDirectory(directoryGuard.name());
 
 		auto filename = config::CatapultDataDirectory(directoryGuard.name()).rootDir().file("harvesters.dat");
-		AddHarvestersFileEntries(filename, context.locator().keys().nodeKeyPair().publicKey(), 3);
+		AddHarvestersFileRequests(filename, context.locator().keys().nodeKeyPair().publicKey(), 3);
 
 		RunUnlockedAccountsServiceTest(context, [&context](const auto& unlockedAccounts) {
 			// Assert: only accounts from the file were unlocked
@@ -365,7 +367,7 @@ namespace catapult { namespace harvesting {
 			ASSERT_TRUE(!!pUnlockedAccounts);
 
 			for (auto& keyPair : keyPairs)
-				pUnlockedAccounts->modifier().add(std::move(keyPair));
+				pUnlockedAccounts->modifier().add(BlockGeneratorAccountDescriptor(std::move(keyPair), test::GenerateKeyPair()));
 
 			// Sanity:
 			EXPECT_EQ(keyPairs.size(), pUnlockedAccounts->view().size());
@@ -428,6 +430,24 @@ namespace catapult { namespace harvesting {
 		constexpr auto Harvesting_Mosaic_Id = MosaicId(9876);
 		constexpr auto Importance_Grouping = 234u;
 
+		struct AccountDescriptorWrapper {
+		public:
+			BlockGeneratorAccountDescriptor Descriptor;
+			Key SigningPublicKey;
+			Key VrfPublicKey;
+
+		public:
+			AccountDescriptorWrapper()
+					: Descriptor(test::GenerateKeyPair(), test::GenerateKeyPair())
+					, SigningPublicKey(Descriptor.signingKeyPair().publicKey())
+					, VrfPublicKey(Descriptor.vrfKeyPair().publicKey())
+			{}
+		};
+
+		AccountDescriptorWrapper GenerateAccountDescriptorWrapper() {
+			return AccountDescriptorWrapper();
+		}
+
 		auto ConvertToImportanceHeight(Height height) {
 			return model::ConvertToImportanceHeight(height, Importance_Grouping);
 		}
@@ -435,7 +455,7 @@ namespace catapult { namespace harvesting {
 		auto CreateCacheWithAccount(
 				const cache::CacheConfiguration& cacheConfig,
 				Height height,
-				const Key& publicKey,
+				const AccountDescriptorWrapper& accountDescriptorWrapper,
 				Amount balance,
 				model::ImportanceHeight importanceHeight) {
 			// Arrange:
@@ -449,10 +469,11 @@ namespace catapult { namespace harvesting {
 
 			// - add an account
 			auto& accountStateCache = delta.sub<cache::AccountStateCache>();
-			accountStateCache.addAccount(publicKey, Height(100));
-			auto& accountState = accountStateCache.find(publicKey).get();
-			accountState.ImportanceSnapshots.set(Importance(123), importanceHeight);
+			accountStateCache.addAccount(accountDescriptorWrapper.SigningPublicKey, Height(100));
+			auto& accountState = accountStateCache.find(accountDescriptorWrapper.SigningPublicKey).get();
 			accountState.Balances.credit(Harvesting_Mosaic_Id, balance);
+			accountState.ImportanceSnapshots.set(Importance(123), importanceHeight);
+			accountState.SupplementalAccountKeys.vrfPublicKey().set(accountDescriptorWrapper.VrfPublicKey);
 
 			// - add a block statistic
 			auto& blockStatisticCache = delta.sub<cache::BlockStatisticCache>();
@@ -464,8 +485,12 @@ namespace catapult { namespace harvesting {
 			return cache;
 		}
 
-		auto CreateCacheWithAccount(Height height, const Key& publicKey, Amount balance, model::ImportanceHeight importanceHeight) {
-			return CreateCacheWithAccount(cache::CacheConfiguration(), height, publicKey, balance, importanceHeight);
+		auto CreateCacheWithAccount(
+				Height height,
+				const AccountDescriptorWrapper& accountDescriptorWrapper,
+				Amount balance,
+				model::ImportanceHeight importanceHeight) {
+			return CreateCacheWithAccount(cache::CacheConfiguration(), height, accountDescriptorWrapper, balance, importanceHeight);
 		}
 	}
 
@@ -481,14 +506,16 @@ namespace catapult { namespace harvesting {
 		// Arrange: eligible because next height and importance height match
 		auto height = Height(2 * Importance_Grouping - 1);
 		auto importanceHeight = model::ImportanceHeight(Importance_Grouping);
-		auto keyPair = test::GenerateKeyPair();
-		TestContext context(CreateCacheWithAccount(height, keyPair.publicKey(), Account_Balance, importanceHeight));
+		auto accountDescriptorWrapper = GenerateAccountDescriptorWrapper();
+		TestContext context(CreateCacheWithAccount(height, accountDescriptorWrapper, Account_Balance, importanceHeight));
 
 		// Sanity:
 		EXPECT_EQ(importanceHeight, ConvertToImportanceHeight(height + Height(1)));
 
-		RunTaskTest(context, Task_Name, [keyPair = std::move(keyPair)](auto& unlockedAccounts, const auto& task) mutable {
-			unlockedAccounts.modifier().add(std::move(keyPair));
+		RunTaskTest(context, Task_Name, [descriptor = std::move(accountDescriptorWrapper.Descriptor)](
+				auto& unlockedAccounts,
+				const auto& task) mutable {
+			unlockedAccounts.modifier().add(std::move(descriptor));
 
 			// Act:
 			auto result = task.Callback().get();
@@ -503,14 +530,16 @@ namespace catapult { namespace harvesting {
 		// Arrange: ineligible because next height and importance height do not match
 		auto height = Height(2 * Importance_Grouping);
 		auto importanceHeight = model::ImportanceHeight(Importance_Grouping);
-		auto keyPair = test::GenerateKeyPair();
-		TestContext context(CreateCacheWithAccount(height, keyPair.publicKey(), Account_Balance, importanceHeight));
+		auto accountDescriptorWrapper = GenerateAccountDescriptorWrapper();
+		TestContext context(CreateCacheWithAccount(height, accountDescriptorWrapper, Account_Balance, importanceHeight));
 
 		// Sanity:
 		EXPECT_NE(importanceHeight, ConvertToImportanceHeight(height + Height(1)));
 
-		RunTaskTest(context, Task_Name, [keyPair = std::move(keyPair)](auto& unlockedAccounts, const auto& task) mutable {
-			unlockedAccounts.modifier().add(std::move(keyPair));
+		RunTaskTest(context, Task_Name, [descriptor = std::move(accountDescriptorWrapper.Descriptor)](
+				auto& unlockedAccounts,
+				const auto& task) mutable {
+			unlockedAccounts.modifier().add(std::move(descriptor));
 
 			// Act:
 			auto result = task.Callback().get();
@@ -525,14 +554,16 @@ namespace catapult { namespace harvesting {
 		// Arrange: ineligible because account balance is too low
 		auto height = Height(2 * Importance_Grouping - 1);
 		auto importanceHeight = model::ImportanceHeight(Importance_Grouping);
-		auto keyPair = test::GenerateKeyPair();
-		TestContext context(CreateCacheWithAccount(height, keyPair.publicKey(), Account_Balance - Amount(1), importanceHeight));
+		auto accountDescriptorWrapper = GenerateAccountDescriptorWrapper();
+		TestContext context(CreateCacheWithAccount(height, accountDescriptorWrapper, Account_Balance - Amount(1), importanceHeight));
 
 		// Sanity:
 		EXPECT_EQ(importanceHeight, ConvertToImportanceHeight(height + Height(1)));
 
-		RunTaskTest(context, Task_Name, [keyPair = std::move(keyPair)](auto& unlockedAccounts, const auto& task) mutable {
-			unlockedAccounts.modifier().add(std::move(keyPair));
+		RunTaskTest(context, Task_Name, [descriptor = std::move(accountDescriptorWrapper.Descriptor)](
+				auto& unlockedAccounts,
+				const auto& task) mutable {
+			unlockedAccounts.modifier().add(std::move(descriptor));
 
 			// Act:
 			auto result = task.Callback().get();
@@ -551,21 +582,21 @@ namespace catapult { namespace harvesting {
 		void RunHarvestingStateHashTest(bool enableVerifiableState, Hash256& harvestedStateHash) {
 			// Arrange: use a huge amount and a max timestamp to force a hit
 			test::TempDirectoryGuard dbDirGuard;
-			auto keyPair = test::GenerateKeyPair();
+			auto accountDescriptorWrapper = GenerateAccountDescriptorWrapper();
 			auto balance = Amount(1'000'000'000'000);
 			auto cacheConfig = enableVerifiableState
 					? cache::CacheConfiguration(dbDirGuard.name(), utils::FileSize(), cache::PatriciaTreeStorageMode::Enabled)
 					: cache::CacheConfiguration();
 			TestContext context(
-					CreateCacheWithAccount(cacheConfig, Height(1), keyPair.publicKey(), balance, model::ImportanceHeight(1)),
+					CreateCacheWithAccount(cacheConfig, Height(1), accountDescriptorWrapper, balance, model::ImportanceHeight(1)),
 					[]() { return Timestamp(std::numeric_limits<int64_t>::max()); });
 			if (enableVerifiableState)
 				context.enableVerifiableState();
 
-			RunTaskTest(context, Task_Name, [keyPair = std::move(keyPair), &context, &harvestedStateHash](
+			RunTaskTest(context, Task_Name, [descriptor = std::move(accountDescriptorWrapper.Descriptor), &context, &harvestedStateHash](
 					auto& unlockedAccounts,
 					const auto& task) mutable {
-				unlockedAccounts.modifier().add(std::move(keyPair));
+				unlockedAccounts.modifier().add(std::move(descriptor));
 
 				// Act:
 				auto result = task.Callback().get();

@@ -19,54 +19,60 @@
 **/
 
 #pragma once
-#include "UnlockedEntryMessage.h"
+#include "HarvestRequest.h"
 #include "catapult/functions.h"
 #include "catapult/types.h"
 #include <map>
 
-namespace catapult { namespace crypto { class KeyPair; } }
+namespace catapult {
+	namespace crypto { class KeyPair; }
+	namespace harvesting { class BlockGeneratorAccountDescriptor; }
+}
 
 namespace catapult { namespace harvesting {
 
 	/// Unlocked accounts storage.
 	class UnlockedAccountsStorage {
 	private:
-		using IdentityToEntryMap = std::map<UnlockedEntryMessageIdentifier, std::vector<uint8_t>>;
-		using IdentityEntryPair = IdentityToEntryMap::value_type;
-		using EntryToHarvesterMap = std::map<IdentityEntryPair, Key>;
+		using IdentityToEncryptedPayloadMap = std::map<HarvestRequestIdentifier, std::vector<uint8_t>>;
+
+		// "request" refers to pair of request identifier and encrypted payload
+		using IdentityRequestPair = IdentityToEncryptedPayloadMap::value_type;
+		using RequestToHarvesterMap = std::map<IdentityRequestPair, Key>;
 
 	public:
 		/// Creates unlocked accounts storage around \a filename.
 		explicit UnlockedAccountsStorage(const std::string& filename);
 
 	public:
-		/// Returns \c true if this storage contains an entry identified by \a messageIdentifier.
-		bool contains(const UnlockedEntryMessageIdentifier& messageIdentifier);
+		/// Returns \c true if this storage contains a request identified by \a requestIdentifier.
+		bool contains(const HarvestRequestIdentifier& requestIdentifier);
 
 	public:
-		/// Adds unlocked entry pair (\a messageIdentifier, \a encryptedEntry) associated with \a harvesterPublicKey.
-		void add(const UnlockedEntryMessageIdentifier& messageIdentifier, const RawBuffer& encryptedEntry, const Key& harvesterPublicKey);
+		/// Adds harvest request identified by \a requestIdentifier with encrypted payload (\a encryptedPayload)
+		/// and associated \a harvesterPublicKey.
+		void add(const HarvestRequestIdentifier& requestIdentifier, const RawBuffer& encryptedPayload, const Key& harvesterPublicKey);
 
-		/// Removes unlocked entry identified by \a messageIdentifier.
-		void remove(const UnlockedEntryMessageIdentifier& messageIdentifier);
+		/// Removes harvest request identified by \a requestIdentifier.
+		void remove(const HarvestRequestIdentifier& requestIdentifier);
 
-		/// Saves unlocked entries filtered using \a filter.
+		/// Saves harvest requests that pass \a filter.
 		void save(const predicate<const Key&>& filter) const;
 
-		/// Loads unlocked account entries using \a encryptionKeyPair and forwards to \a processKeyPair.
-		void load(const crypto::KeyPair& encryptionKeyPair, const consumer<crypto::KeyPair&&>& processKeyPair);
+		/// Loads harvest requests using \a encryptionKeyPair and forwards to \a processDescriptor.
+		void load(const crypto::KeyPair& encryptionKeyPair, const consumer<BlockGeneratorAccountDescriptor&&>& processDescriptor);
 
 	private:
-		void addEntry(
-				const UnlockedEntryMessageIdentifier& messageIdentifier,
-				const std::vector<uint8_t>& encryptedEntry,
+		void addRequest(
+				const HarvestRequestIdentifier& requestIdentifier,
+				const std::vector<uint8_t>& encryptedPayload,
 				const Key& harvesterPublicKey);
 
-		bool tryRemoveEntry(const UnlockedEntryMessageIdentifier& messageIdentifier);
+		bool tryRemoveRequest(const HarvestRequestIdentifier& requestIdentifier);
 
 	private:
 		std::string m_filename;
-		IdentityToEntryMap m_identityToEntryMap;
-		EntryToHarvesterMap m_entryToHarvesterMap;
+		IdentityToEncryptedPayloadMap m_identityToEncryptedPayloadMap;
+		RequestToHarvesterMap m_requestToHarvesterMap;
 	};
 }}

@@ -37,7 +37,7 @@ namespace catapult { namespace extensions {
 
 			static std::unique_ptr<StorageType> OpenStorage(const std::string&) {
 				// load and copy the nemesis into storage
-				auto nemesisBlockElement = test::BlockToBlockElement(test::GetNemesisBlock(), test::GetNemesisGenerationHash());
+				auto nemesisBlockElement = test::BlockToBlockElement(test::GetNemesisBlock(), test::GetNemesisGenerationHashSeed());
 				return std::make_unique<StorageType>(nemesisBlockElement);
 			}
 

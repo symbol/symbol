@@ -18,27 +18,23 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "UnlockedEntryMessage.h"
-#include "catapult/crypto/AesCbcDecrypt.h"
-#include <cstring>
+#include "VrfKeyLinkTransactionPlugin.h"
+#include "src/model/KeyLinkNotifications.h"
+#include "src/model/VrfKeyLinkTransaction.h"
+#include "catapult/model/NotificationSubscriber.h"
+#include "catapult/model/TransactionPluginFactory.h"
 
-namespace catapult { namespace harvesting {
+using namespace catapult::model;
+
+namespace catapult { namespace plugins {
 
 	namespace {
-		constexpr auto Aes_Pkcs7_Padding_Size = 16;
+		template<typename TTransaction>
+		void Publish(const TTransaction& transaction, NotificationSubscriber& sub) {
+			sub.notify(KeyLinkActionNotification(transaction.LinkAction));
+			sub.notify(VrfKeyLinkNotification(transaction.SignerPublicKey, transaction.LinkedPublicKey, transaction.LinkAction));
+		}
 	}
 
-	size_t EncryptedUnlockedEntrySize() {
-		// ephemeral public key | aes cbc initialization vector | encrypted harvester private key | padding
-		return Key::Size
-				+ crypto::AesInitializationVector::Size
-				+ Key::Size
-				+ Aes_Pkcs7_Padding_Size;
-	}
-
-	UnlockedEntryMessageIdentifier GetMessageIdentifier(const UnlockedEntryMessage& message) {
-		UnlockedEntryMessageIdentifier messageIdentifier;
-		std::memcpy(messageIdentifier.data(), message.EncryptedEntry.pData, messageIdentifier.size());
-		return messageIdentifier;
-	}
+	DEFINE_TRANSACTION_PLUGIN_FACTORY(VrfKeyLink, Default, Publish)
 }}

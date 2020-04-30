@@ -36,11 +36,11 @@ namespace catapult { namespace builders {
 		AccountLinkBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
 
 	public:
-		/// Sets the remote public key to \a remotePublicKey.
-		void setRemotePublicKey(const Key& remotePublicKey);
+		/// Sets the linked public key to \a linkedPublicKey.
+		void setLinkedPublicKey(const Key& linkedPublicKey);
 
-		/// Sets the account link action to \a linkAction.
-		void setLinkAction(model::AccountLinkAction linkAction);
+		/// Sets the link action to \a linkAction.
+		void setLinkAction(model::LinkAction linkAction);
 
 	public:
 		/// Gets the size of account link transaction.
@@ -61,7 +61,7 @@ namespace catapult { namespace builders {
 		std::unique_ptr<TTransaction> buildImpl() const;
 
 	private:
-		Key m_remotePublicKey;
-		model::AccountLinkAction m_linkAction;
+		Key m_linkedPublicKey;
+		model::LinkAction m_linkAction;
 	};
 }}

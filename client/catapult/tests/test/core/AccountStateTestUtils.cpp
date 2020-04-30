@@ -20,6 +20,7 @@
 
 #include "AccountStateTestUtils.h"
 #include "AddressTestUtils.h"
+#include "catapult/utils/Casting.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {
@@ -45,6 +46,13 @@ namespace catapult { namespace test {
 	}
 
 	namespace {
+		void AssertEqual(const state::AccountKeys& expected, const state::AccountKeys& actual, const std::string& message) {
+			EXPECT_EQ(expected.mask(), actual.mask()) << message;
+			EXPECT_EQ(expected.linkedPublicKey().get(), actual.linkedPublicKey().get()) << message;
+			EXPECT_EQ(expected.vrfPublicKey().get(), actual.vrfPublicKey().get()) << message;
+			EXPECT_EQ(expected.votingPublicKey().get(), actual.votingPublicKey().get()) << message;
+		}
+
 		void AssertEqual(
 				const state::AccountImportanceSnapshots& expected,
 				const state::AccountImportanceSnapshots& actual,
@@ -86,8 +94,8 @@ namespace catapult { namespace test {
 		EXPECT_EQ(expected.PublicKeyHeight, actual.PublicKeyHeight) << message;
 
 		EXPECT_EQ(expected.AccountType, actual.AccountType) << message;
-		EXPECT_EQ(expected.LinkedAccountKey, actual.LinkedAccountKey) << message;
 
+		AssertEqual(expected.SupplementalAccountKeys, actual.SupplementalAccountKeys, message + ": supplemental account keys");
 		AssertEqual(expected.ImportanceSnapshots, actual.ImportanceSnapshots, message + ": importance snapshot");
 		AssertEqual(expected.ActivityBuckets, actual.ActivityBuckets, message + ": activity bucket");
 
@@ -113,5 +121,21 @@ namespace catapult { namespace test {
 		}
 
 		return accountStates;
+	}
+
+	void SetRandomSupplementalAccountKeys(state::AccountState& accountState, state::AccountKeys::KeyType mask) {
+		if (HasFlag(state::AccountKeys::KeyType::Linked, mask))
+			accountState.SupplementalAccountKeys.linkedPublicKey().set(test::GenerateRandomByteArray<Key>());
+
+		if (HasFlag(state::AccountKeys::KeyType::VRF, mask))
+			accountState.SupplementalAccountKeys.vrfPublicKey().set(test::GenerateRandomByteArray<Key>());
+
+		if (HasFlag(state::AccountKeys::KeyType::Voting, mask))
+			accountState.SupplementalAccountKeys.votingPublicKey().set(test::GenerateRandomByteArray<VotingKey>());
+	}
+
+	void ForceSetLinkedAccountKey(state::AccountState& accountState, const Key& linkedAccountKey) {
+		accountState.SupplementalAccountKeys.linkedPublicKey().unset();
+		accountState.SupplementalAccountKeys.linkedPublicKey().set(linkedAccountKey);
 	}
 }}

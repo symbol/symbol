@@ -34,6 +34,9 @@ namespace catapult { namespace model {
 	FIELD(Height) \
 	FIELD(Timestamp) \
 	FIELD(Difficulty) \
+	FIELD(GenerationHashProof.Gamma) \
+	FIELD(GenerationHashProof.VerificationHash) \
+	FIELD(GenerationHashProof.Scalar) \
 	FIELD(PreviousBlockHash) \
 	FIELD(TransactionsHash) \
 	FIELD(ReceiptsHash) \
@@ -51,7 +54,7 @@ namespace catapult { namespace model {
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(BlockHeader));
-		EXPECT_EQ(112u + 4 + 188, sizeof(BlockHeader));
+		EXPECT_EQ(112u + 4 + 268, sizeof(BlockHeader));
 
 		using BlockAlias = Block; // use alias to bypass lint rule
 		EXPECT_EQ(sizeof(BlockHeader), sizeof(BlockAlias));

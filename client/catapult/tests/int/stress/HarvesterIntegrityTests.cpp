@@ -127,21 +127,22 @@ namespace catapult { namespace harvesting {
 				return pLastBlock;
 			}
 
-			void prepareAndUnlockSenderAccount(crypto::KeyPair&& keyPair) {
+			void prepareAndUnlockSenderAccount(crypto::KeyPair&& signingKeyPair) {
 				// 1. seed an account with an initial currency balance of N and harvesting balance of 10'000'000
-				auto currencyMosaicId = test::Default_Currency_Mosaic_Id;
-				auto harvestingMosaicId = test::Default_Harvesting_Mosaic_Id;
+				auto vrfKeyPair = test::GenerateKeyPair();
+
 				auto cacheDelta = m_cache.createDelta();
 				auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
-				accountStateCacheDelta.addAccount(keyPair.publicKey(), Height(1));
-				auto accountStateIter = accountStateCacheDelta.find(keyPair.publicKey());
-				accountStateIter.get().Balances.credit(currencyMosaicId, Amount(GetNumIterations()));
-				accountStateIter.get().Balances.credit(harvestingMosaicId, Amount(10'000'000));
+				accountStateCacheDelta.addAccount(signingKeyPair.publicKey(), Height(1));
+				auto accountStateIter = accountStateCacheDelta.find(signingKeyPair.publicKey());
+				accountStateIter.get().Balances.credit(test::Default_Currency_Mosaic_Id, Amount(GetNumIterations()));
+				accountStateIter.get().Balances.credit(test::Default_Harvesting_Mosaic_Id, Amount(10'000'000));
 				accountStateIter.get().ImportanceSnapshots.set(Importance(10'000'000), model::ImportanceHeight(1));
+				accountStateIter.get().SupplementalAccountKeys.vrfPublicKey().set(vrfKeyPair.publicKey());
 				m_cache.commit(Height(1));
 
 				// 2. unlock the account
-				m_unlockedAccounts.modifier().add(std::move(keyPair));
+				m_unlockedAccounts.modifier().add(BlockGeneratorAccountDescriptor(std::move(signingKeyPair), std::move(vrfKeyPair)));
 			}
 
 			void prepareSenderAccountAndTransactions(crypto::KeyPair&& keyPair, Timestamp deadline) {
@@ -152,7 +153,7 @@ namespace catapult { namespace harvesting {
 					pTransaction->MaxFee = Amount(0);
 					pTransaction->Deadline = deadline;
 
-					auto transactionHash = model::CalculateHash(*pTransaction, test::GetNemesisGenerationHash());
+					auto transactionHash = model::CalculateHash(*pTransaction, test::GetNemesisGenerationHashSeed());
 					model::TransactionInfo transactionInfo(std::move(pTransaction), transactionHash);
 					m_transactionsCache.modifier().add(std::move(transactionInfo));
 				}
@@ -211,7 +212,7 @@ namespace catapult { namespace harvesting {
 				{
 					auto utCacheView = context.transactionsCache().view();
 					auto pTransaction = utCacheView.unknownTransactions(BlockFeeMultiplier(0), utils::ShortHashesSet())[0];
-					auto transactionHash = model::CalculateHash(*pTransaction, test::GetNemesisGenerationHash());
+					auto transactionHash = model::CalculateHash(*pTransaction, test::GetNemesisGenerationHashSeed());
 					nextTransactionInfo = model::TransactionInfo(std::move(pTransaction), transactionHash);
 				}
 

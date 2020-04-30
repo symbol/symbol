@@ -61,7 +61,7 @@ namespace catapult { namespace test {
 	}
 
 	void LinkBlocks(Height chainHeight, disruptor::BlockElements& blockElements) {
-		auto blockExtensions = extensions::BlockExtensions(GetDefaultGenerationHash());
+		auto blockExtensions = extensions::BlockExtensions(GetDefaultGenerationHashSeed());
 		auto* pParentBlock = const_cast<model::Block*>(&blockElements[0].Block);
 		blockExtensions.updateBlockTransactionsHash(*pParentBlock);
 		pParentBlock->Height = chainHeight;

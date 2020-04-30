@@ -32,7 +32,7 @@ namespace catapult { namespace model {
 			return { reinterpret_cast<const uint8_t*>(&entity) + headerSize, totalSize - headerSize };
 		}
 
-		Hash256 CalculateHash(const VerifiableEntity& entity, const RawBuffer& buffer, const GenerationHash* pGenerationHash) {
+		Hash256 CalculateHash(const VerifiableEntity& entity, const RawBuffer& buffer, const GenerationHashSeed* pGenerationHashSeed) {
 			Hash256 entityHash;
 			crypto::Sha3_256_Builder sha3;
 
@@ -40,8 +40,8 @@ namespace catapult { namespace model {
 			sha3.update(entity.Signature);
 			sha3.update(entity.SignerPublicKey);
 
-			if (pGenerationHash)
-				sha3.update(*pGenerationHash);
+			if (pGenerationHashSeed)
+				sha3.update(*pGenerationHashSeed);
 
 			sha3.update(buffer);
 			sha3.final(entityHash);
@@ -55,12 +55,12 @@ namespace catapult { namespace model {
 		return CalculateHash(block, blockRawBuffer, nullptr);
 	}
 
-	Hash256 CalculateHash(const Transaction& transaction, const GenerationHash& generationHash) {
-		return CalculateHash(transaction, EntityDataBuffer(transaction, transaction.Size), &generationHash);
+	Hash256 CalculateHash(const Transaction& transaction, const GenerationHashSeed& generationHashSeed) {
+		return CalculateHash(transaction, EntityDataBuffer(transaction, transaction.Size), &generationHashSeed);
 	}
 
-	Hash256 CalculateHash(const Transaction& transaction, const GenerationHash& generationHash, const RawBuffer& buffer) {
-		return CalculateHash(transaction, buffer, &generationHash);
+	Hash256 CalculateHash(const Transaction& transaction, const GenerationHashSeed& generationHashSeed, const RawBuffer& buffer) {
+		return CalculateHash(transaction, buffer, &generationHashSeed);
 	}
 
 	Hash256 CalculateMerkleComponentHash(
@@ -95,12 +95,12 @@ namespace catapult { namespace model {
 
 	void UpdateHashes(
 			const TransactionRegistry& transactionRegistry,
-			const GenerationHash& generationHash,
+			const GenerationHashSeed& generationHashSeed,
 			TransactionElement& transactionElement) {
 		const auto& transaction = transactionElement.Transaction;
 		const auto& plugin = *transactionRegistry.findPlugin(transaction.Type);
 
-		transactionElement.EntityHash = CalculateHash(transaction, generationHash, plugin.dataBuffer(transaction));
+		transactionElement.EntityHash = CalculateHash(transaction, generationHashSeed, plugin.dataBuffer(transaction));
 		transactionElement.MerkleComponentHash = CalculateMerkleComponentHash(
 				transaction,
 				transactionElement.EntityHash,

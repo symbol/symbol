@@ -47,6 +47,18 @@ namespace catapult { namespace state {
 
 	AccountBalances& AccountBalances::operator=(AccountBalances&& accountBalances) = default;
 
+	size_t AccountBalances::size() const {
+		return m_balances.size();
+	}
+
+	CompactMosaicMap::const_iterator AccountBalances::begin() const {
+		return m_balances.begin();
+	}
+
+	CompactMosaicMap::const_iterator AccountBalances::end() const {
+		return m_balances.end();
+	}
+
 	MosaicId AccountBalances::optimizedMosaicId() const {
 		return m_optimizedMosaicId;
 	}

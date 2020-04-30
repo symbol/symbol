@@ -68,7 +68,7 @@ namespace catapult { namespace model {
 
 		// Assert:
 		EXPECT_EQ(NetworkIdentifier::Zero, fingerprint.Identifier);
-		EXPECT_EQ(GenerationHash(), fingerprint.GenerationHash);
+		EXPECT_EQ(GenerationHashSeed(), fingerprint.GenerationHashSeed);
 	}
 
 	TEST(TEST_CLASS, UniqueNetworkFingerprint_CanCreateAroundNetworkIdentifier) {
@@ -77,16 +77,16 @@ namespace catapult { namespace model {
 
 		// Assert:
 		EXPECT_EQ(static_cast<NetworkIdentifier>(17), fingerprint.Identifier);
-		EXPECT_EQ(GenerationHash(), fingerprint.GenerationHash);
+		EXPECT_EQ(GenerationHashSeed(), fingerprint.GenerationHashSeed);
 	}
 
-	TEST(TEST_CLASS, UniqueNetworkFingerprint_CanCreateAroundNetworkIdentifierAndNetworkGenerationHash) {
+	TEST(TEST_CLASS, UniqueNetworkFingerprint_CanCreateAroundNetworkIdentifierAndNetworkGenerationHashSeed) {
 		// Act:
-		auto fingerprint = UniqueNetworkFingerprint(static_cast<NetworkIdentifier>(17), GenerationHash{ { 1, 4, 9 } });
+		auto fingerprint = UniqueNetworkFingerprint(static_cast<NetworkIdentifier>(17), GenerationHashSeed{ { 1, 4, 9 } });
 
 		// Assert:
 		EXPECT_EQ(static_cast<NetworkIdentifier>(17), fingerprint.Identifier);
-		EXPECT_EQ((GenerationHash{ { 1, 4, 9 } }), fingerprint.GenerationHash);
+		EXPECT_EQ((GenerationHashSeed{ { 1, 4, 9 } }), fingerprint.GenerationHashSeed);
 	}
 
 	// endregion
@@ -100,11 +100,11 @@ namespace catapult { namespace model {
 
 		std::unordered_map<std::string, UniqueNetworkFingerprint> GenerateEqualityInstanceMap() {
 			return {
-				{ "default", { NetworkIdentifier::Mijin, GenerationHash{ { 1, 2, 3 } } } },
-				{ "copy", { NetworkIdentifier::Mijin, GenerationHash{ { 1, 2, 3 } } } },
+				{ "default", { NetworkIdentifier::Mijin, GenerationHashSeed{ { 1, 2, 3 } } } },
+				{ "copy", { NetworkIdentifier::Mijin, GenerationHashSeed{ { 1, 2, 3 } } } },
 
-				{ "diff-identifier", { NetworkIdentifier::Mijin_Test, GenerationHash{ { 1, 2, 3 } } } },
-				{ "diff-hash", { NetworkIdentifier::Mijin, GenerationHash{ { 1, 2, 4 } } } }
+				{ "diff-identifier", { NetworkIdentifier::Mijin_Test, GenerationHashSeed{ { 1, 2, 3 } } } },
+				{ "diff-hash", { NetworkIdentifier::Mijin, GenerationHashSeed{ { 1, 2, 4 } } } }
 			};
 		}
 	}
@@ -123,10 +123,10 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, UniqueNetworkFingerprint_CanOutput) {
 		// Arrange:
-		constexpr auto Generation_Hash_String = "272C4ECC55B7A42A07478A9550543C62673D1599A8362CC662E019049B76B7F2";
+		constexpr auto Generation_Hash_Seed_String = "272C4ECC55B7A42A07478A9550543C62673D1599A8362CC662E019049B76B7F2";
 		auto fingerprint = UniqueNetworkFingerprint(
 				NetworkIdentifier::Mijin_Test,
-				utils::ParseByteArray<GenerationHash>(Generation_Hash_String));
+				utils::ParseByteArray<GenerationHashSeed>(Generation_Hash_Seed_String));
 
 		// Act:
 		auto str = test::ToString(fingerprint);

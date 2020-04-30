@@ -22,6 +22,7 @@
 #include "Transaction.h"
 #include "TransactionContainer.h"
 #include "VerifiableEntity.h"
+#include "catapult/crypto/Vrf.h"
 #include "catapult/types.h"
 #include <memory>
 #include <vector>
@@ -29,6 +30,18 @@
 namespace catapult { namespace model {
 
 #pragma pack(push, 1)
+
+	/// VRF proof for the verifiable random function.
+	struct PackedVrfProof {
+		/// Gamma.
+		crypto::ProofGamma Gamma;
+
+		/// Verification hash.
+		crypto::ProofVerificationHash VerificationHash;
+
+		/// Scalar.
+		crypto::ProofScalar Scalar;
+	};
 
 	/// Binary layout for a block header.
 	struct BlockHeader : public VerifiableEntity {
@@ -48,6 +61,9 @@ namespace catapult { namespace model {
 
 		/// Block difficulty.
 		catapult::Difficulty Difficulty;
+
+		/// Generation hash proof.
+		PackedVrfProof GenerationHashProof;
 
 		/// Previous block hash.
 		Hash256 PreviousBlockHash;

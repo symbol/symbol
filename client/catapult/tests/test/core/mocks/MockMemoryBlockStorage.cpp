@@ -29,7 +29,7 @@ namespace catapult { namespace mocks {
 
 	namespace {
 		model::BlockElement CreateNemesisBlockElement() {
-			return test::BlockToBlockElement(test::GetNemesisBlock(), test::GetNemesisGenerationHash());
+			return test::BlockToBlockElement(test::GetNemesisBlock(), test::GetNemesisGenerationHashSeed());
 		}
 	}
 

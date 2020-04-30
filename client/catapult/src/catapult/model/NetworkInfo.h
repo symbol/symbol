@@ -34,23 +34,23 @@ namespace catapult { namespace model {
 						NetworkIdentifier::Zero,
 						NodeIdentityEqualityStrategy::Key,
 						Key(),
-						catapult::GenerationHash(),
+						catapult::GenerationHashSeed(),
 						utils::TimeSpan())
 		{}
 
 		/// Creates a network info around network \a identifier, node equality strategy (\a nodeEqualityStrategy),
-		/// nemesis public key (\a publicKey), nemesis generation hash (\a generationHash)
+		/// nemesis public key (\a publicKey), nemesis generation hash seed (\a generationHashSeed)
 		/// and nemesis epoch time adjustment (\a epochAdjustment).
 		constexpr NetworkInfo(
 				NetworkIdentifier identifier,
 				NodeIdentityEqualityStrategy nodeEqualityStrategy,
 				const Key& publicKey,
-				const catapult::GenerationHash& generationHash,
+				const catapult::GenerationHashSeed& generationHashSeed,
 				const utils::TimeSpan& epochAdjustment)
 				: Identifier(identifier)
 				, NodeEqualityStrategy(nodeEqualityStrategy)
 				, PublicKey(publicKey)
-				, GenerationHash(generationHash)
+				, GenerationHashSeed(generationHashSeed)
 				, EpochAdjustment(epochAdjustment)
 		{}
 
@@ -64,8 +64,8 @@ namespace catapult { namespace model {
 		/// Nemesis public key.
 		Key PublicKey;
 
-		/// Nemesis generation hash.
-		catapult::GenerationHash GenerationHash;
+		/// Nemesis generation hash seed.
+		catapult::GenerationHashSeed GenerationHashSeed;
 
 		/// Nemesis epoch time adjustment.
 		utils::TimeSpan EpochAdjustment;

@@ -19,16 +19,10 @@
 **/
 
 #pragma once
-#include <stdint.h>
+#include "catapult/model/Transaction.h"
 
-namespace catapult { namespace model {
+namespace catapult { namespace tools { namespace nemgen {
 
-	/// Account link action.
-	enum class AccountLinkAction : uint8_t {
-		/// Unlink account.
-		Unlink,
-
-		/// Link account.
-		Link
-	};
-}}
+	/// Loads and validates additional transactions from \a transactionsDirectory.
+	std::vector<std::shared_ptr<const model::Transaction>> LoadAndValidateAdditionalTransactions(const std::string& transactionsDirectory);
+}}}

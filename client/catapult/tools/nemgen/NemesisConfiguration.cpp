@@ -180,7 +180,7 @@ namespace catapult { namespace tools { namespace nemgen {
 #define LOAD_NEMESIS_PROPERTY(NAME) LOAD_PROPERTY("nemesis", NAME)
 
 		LOAD_NEMESIS_PROPERTY(NetworkIdentifier);
-		LOAD_NEMESIS_PROPERTY(NemesisGenerationHash);
+		LOAD_NEMESIS_PROPERTY(NemesisGenerationHashSeed);
 		LOAD_NEMESIS_PROPERTY(NemesisSignerPrivateKey);
 
 #undef LOAD_NEMESIS_PROPERTY
@@ -207,7 +207,9 @@ namespace catapult { namespace tools { namespace nemgen {
 		// load mosaics information
 		auto numMosaicProperties = LoadMosaics(bag, config, owner);
 
-		utils::VerifyBagSizeLte(bag, 6 + numNamespaceProperties + numMosaicProperties);
+		LOAD_PROPERTY("transactions", TransactionsDirectory);
+
+		utils::VerifyBagSizeLte(bag, 7 + numNamespaceProperties + numMosaicProperties);
 		return config;
 	}
 }}}

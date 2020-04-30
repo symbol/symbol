@@ -81,6 +81,8 @@ namespace catapult { namespace model {
 		// Assert: blocks
 		EXPECT_EQ(BasicEntityType::Block, ToBasicEntityType(Entity_Type_Nemesis_Block));
 		EXPECT_EQ(BasicEntityType::Block, ToBasicEntityType(Entity_Type_Block));
+		EXPECT_EQ(BasicEntityType::Transaction, ToBasicEntityType(Entity_Type_Vrf_Key_Link));
+		EXPECT_EQ(BasicEntityType::Transaction, ToBasicEntityType(Entity_Type_Voting_Key_Link));
 	}
 
 	TEST(TEST_CLASS, CanConvertUnknownEntityTypeToBasicEntityType) {
@@ -120,6 +122,11 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CanOutputBlockEnumValues) {
 		EXPECT_EQ("Nemesis_Block", test::ToString(Entity_Type_Nemesis_Block));
 		EXPECT_EQ("Block", test::ToString(Entity_Type_Block));
+	}
+
+	TEST(TEST_CLASS, CanOutputCoreTransactionEnumValues) {
+		EXPECT_EQ("Vrf_Key_Link", test::ToString(Entity_Type_Vrf_Key_Link));
+		EXPECT_EQ("Voting_Key_Link", test::ToString(Entity_Type_Voting_Key_Link));
 	}
 
 	TEST(TEST_CLASS, CanOutputPluginEnumValues) {

@@ -58,8 +58,8 @@ namespace catapult { namespace tools { namespace nemgen {
 		/// Block chain network identifier.
 		model::NetworkIdentifier NetworkIdentifier;
 
-		/// Nemesis generation hash.
-		GenerationHash NemesisGenerationHash;
+		/// Nemesis generation hash seed.
+		GenerationHashSeed NemesisGenerationHashSeed;
 
 		/// Nemesis signer private key.
 		std::string NemesisSignerPrivateKey;
@@ -84,6 +84,9 @@ namespace catapult { namespace tools { namespace nemgen {
 
 		/// Map of nemesis account addresses to mosaic seeds.
 		AddressToMosaicSeedsMap NemesisAddressToMosaicSeeds;
+
+		/// Additional transactions directory.
+		std::string TransactionsDirectory;
 
 	public:
 		/// Loads a nemesis configuration from \a bag.

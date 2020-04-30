@@ -95,19 +95,24 @@ namespace catapult { namespace test {
 	}
 
 	void AssertEqualBlockData(const model::Block& block, const bsoncxx::document::view& dbBlock) {
-		// - 5 fields from VerifiableEntity, 9 fields from Block
-		EXPECT_EQ(14u, GetFieldCount(dbBlock));
+		// - 5 fields from VerifiableEntity, 12 fields from Block
+		EXPECT_EQ(17u, GetFieldCount(dbBlock));
 		AssertEqualVerifiableEntityData(block, dbBlock);
 
 		EXPECT_EQ(block.Height, Height(GetUint64(dbBlock, "height")));
 		EXPECT_EQ(block.Timestamp, Timestamp(GetUint64(dbBlock, "timestamp")));
 		EXPECT_EQ(block.Difficulty, Difficulty(GetUint64(dbBlock, "difficulty")));
-		EXPECT_EQ(block.FeeMultiplier, BlockFeeMultiplier(GetUint32(dbBlock, "feeMultiplier")));
+		EXPECT_EQ(block.GenerationHashProof.Gamma, GetBinaryArray<crypto::ProofGamma::Size>(dbBlock, "proofGamma"));
+		EXPECT_EQ(
+				block.GenerationHashProof.VerificationHash,
+				GetBinaryArray<crypto::ProofVerificationHash::Size>(dbBlock, "proofVerificationHash"));
+		EXPECT_EQ(block.GenerationHashProof.Scalar, GetBinaryArray<crypto::ProofScalar::Size>(dbBlock, "proofScalar"));
 		EXPECT_EQ(block.PreviousBlockHash, GetHashValue(dbBlock, "previousBlockHash"));
 		EXPECT_EQ(block.TransactionsHash, GetHashValue(dbBlock, "transactionsHash"));
 		EXPECT_EQ(block.ReceiptsHash, GetHashValue(dbBlock, "receiptsHash"));
 		EXPECT_EQ(block.StateHash, GetHashValue(dbBlock, "stateHash"));
 		EXPECT_EQ(block.BeneficiaryPublicKey, GetKeyValue(dbBlock, "beneficiaryPublicKey"));
+		EXPECT_EQ(block.FeeMultiplier, BlockFeeMultiplier(GetUint32(dbBlock, "feeMultiplier")));
 	}
 
 	void AssertEqualBlockMetadata(
@@ -134,6 +139,43 @@ namespace catapult { namespace test {
 	}
 
 	namespace {
+		void Advance(state::AccountKeys::KeyType& keyType) {
+			keyType = static_cast<state::AccountKeys::KeyType>(utils::to_underlying_type(keyType) << 1);
+		}
+
+		void AssertEqualAccountKeys(const state::AccountKeys& accountKeys, const bsoncxx::document::view& dbAccountKeys) {
+			auto dbIter = dbAccountKeys.cbegin();
+			for (auto keyType = state::AccountKeys::KeyType::Linked; keyType <= state::AccountKeys::KeyType::Voting; Advance(keyType)) {
+				if (!HasFlag(keyType, accountKeys.mask()))
+					continue;
+
+				auto accountKeyDocument = dbIter->get_document();
+				EXPECT_EQ(keyType, static_cast<state::AccountKeys::KeyType>(GetUint32(accountKeyDocument.view(), "keyType")));
+
+				switch (keyType) {
+				case state::AccountKeys::KeyType::Linked:
+					EXPECT_EQ(accountKeys.linkedPublicKey().get(), GetKeyValue(accountKeyDocument.view(), "key"));
+					break;
+
+				case state::AccountKeys::KeyType::VRF:
+					EXPECT_EQ(accountKeys.vrfPublicKey().get(), GetKeyValue(accountKeyDocument.view(), "key"));
+					break;
+
+				case state::AccountKeys::KeyType::Voting:
+					EXPECT_EQ(accountKeys.votingPublicKey().get(), GetVotingKeyValue(accountKeyDocument.view(), "key"));
+					break;
+
+				default:
+					CATAPULT_THROW_INVALID_ARGUMENT_1("unexpected keyType in mongo", static_cast<uint16_t>(keyType));
+					break;
+				}
+
+				++dbIter;
+			}
+
+			EXPECT_EQ(dbAccountKeys.cend(), dbIter);
+		}
+
 		void AssertEqualAccountImportanceSnapshots(
 				const state::AccountImportanceSnapshots& snapshots,
 				const bsoncxx::document::view& dbImportances) {
@@ -182,8 +224,8 @@ namespace catapult { namespace test {
 		EXPECT_EQ(accountState.PublicKeyHeight, Height(GetUint64(dbAccount, "publicKeyHeight")));
 
 		EXPECT_EQ(accountState.AccountType, static_cast<state::AccountType>(GetInt32(dbAccount, "accountType")));
-		EXPECT_EQ(accountState.LinkedAccountKey, GetKeyValue(dbAccount, "linkedAccountKey"));
 
+		AssertEqualAccountKeys(accountState.SupplementalAccountKeys, dbAccount["supplementalAccountKeys"].get_array().value);
 		AssertEqualAccountImportanceSnapshots(accountState.ImportanceSnapshots, dbAccount["importances"].get_array().value);
 		AssertEqualAccountActivityBuckets(accountState.ActivityBuckets, dbAccount["activityBuckets"].get_array().value);
 

@@ -19,7 +19,8 @@
 **/
 
 #pragma once
-#include "UnlockedEntryMessage.h"
+#include "BlockGeneratorAccountDescriptor.h"
+#include "HarvestRequest.h"
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/functions.h"
 #include <string>
@@ -32,14 +33,14 @@ namespace catapult {
 namespace catapult { namespace harvesting {
 
 	/// Decrypts \a encryptedWithKey using \a encryptionKeyPair.
-	std::pair<crypto::PrivateKey, bool> TryDecryptUnlockedEntry(
+	std::pair<BlockGeneratorAccountDescriptor, bool> TryDecryptBlockGeneratorAccountDescriptor(
 			const RawBuffer& encryptedWithKey,
 			const crypto::KeyPair& encryptionKeyPair);
 
-	/// Reads encrypted unlocked entry messages from \a directory, validates using \a encryptionKeyPair
-	/// and forwards to \a processEntryKeyPair.
+	/// Reads (encrypted) harvest requests from \a directory, validates using \a encryptionKeyPair
+	/// and forwards to \a processDescriptor.
 	void UnlockedFileQueueConsumer(
 			const config::CatapultDirectory& directory,
 			const crypto::KeyPair& encryptionKeyPair,
-			const consumer<const UnlockedEntryMessage&, crypto::KeyPair&&>& processEntryKeyPair);
+			const consumer<const HarvestRequest&, BlockGeneratorAccountDescriptor&&>& processDescriptor);
 }}

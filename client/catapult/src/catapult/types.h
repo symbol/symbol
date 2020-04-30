@@ -34,6 +34,9 @@ namespace catapult {
 	struct Key_tag { static constexpr size_t Size = 32; };
 	using Key = utils::ByteArray<Key_tag>;
 
+	struct VotingKey_tag { static constexpr size_t Size = 48; };
+	using VotingKey = utils::ByteArray<VotingKey_tag>;
+
 	struct Hash512_tag { static constexpr size_t Size = 64; };
 	using Hash512 = utils::ByteArray<Hash512_tag>;
 
@@ -45,6 +48,9 @@ namespace catapult {
 
 	struct GenerationHash_tag { static constexpr size_t Size = 32; };
 	using GenerationHash = utils::ByteArray<GenerationHash_tag>;
+
+	struct GenerationHashSeed_tag { static constexpr size_t Size = 32; };
+	using GenerationHashSeed = utils::ByteArray<GenerationHashSeed_tag>;
 
 	// endregion
 

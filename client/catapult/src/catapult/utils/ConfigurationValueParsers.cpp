@@ -306,7 +306,7 @@ namespace catapult { namespace utils {
 		return TryParseByteArray(str, parsedValue);
 	}
 
-	bool TryParseValue(const std::string& str, GenerationHash& parsedValue) {
+	bool TryParseValue(const std::string& str, GenerationHashSeed& parsedValue) {
 		return TryParseByteArray(str, parsedValue);
 	}
 

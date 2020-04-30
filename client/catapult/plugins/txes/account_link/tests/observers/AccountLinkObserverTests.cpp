@@ -35,15 +35,15 @@ namespace catapult { namespace observers {
 	namespace {
 		struct CommitTraits {
 			static constexpr auto Notify_Mode = NotifyMode::Commit;
-			static constexpr auto Create_Link = model::AccountLinkAction::Link;
-			static constexpr auto Remove_Link = model::AccountLinkAction::Unlink;
+			static constexpr auto Create_Link = model::LinkAction::Link;
+			static constexpr auto Remove_Link = model::LinkAction::Unlink;
 		};
 
 		struct RollbackTraits {
 			static constexpr auto Notify_Mode = NotifyMode::Rollback;
 			// during rollback actions need to be reversed to create or remove link
-			static constexpr auto Create_Link = model::AccountLinkAction::Unlink;
-			static constexpr auto Remove_Link = model::AccountLinkAction::Link;
+			static constexpr auto Create_Link = model::LinkAction::Unlink;
+			static constexpr auto Remove_Link = model::LinkAction::Link;
 		};
 	}
 
@@ -57,16 +57,16 @@ namespace catapult { namespace observers {
 		template<typename TAction>
 		void RunTwoAccountTest(cache::AccountStateCacheDelta& accountStateCacheDelta, TAction action) {
 			// Arrange:
-			auto mainAccountKey = test::GenerateRandomByteArray<Key>();
-			auto remoteAccountKey = test::GenerateRandomByteArray<Key>();
+			auto mainAccountPublicKey = test::GenerateRandomByteArray<Key>();
+			auto linkedPublicKey = test::GenerateRandomByteArray<Key>();
 
-			accountStateCacheDelta.addAccount(mainAccountKey, Height(444));
-			accountStateCacheDelta.addAccount(remoteAccountKey, Height(444));
+			accountStateCacheDelta.addAccount(mainAccountPublicKey, Height(444));
+			accountStateCacheDelta.addAccount(linkedPublicKey, Height(444));
 
-			auto mainAccountStateIter = accountStateCacheDelta.find(mainAccountKey);
+			auto mainAccountStateIter = accountStateCacheDelta.find(mainAccountPublicKey);
 			auto& mainAccountState = mainAccountStateIter.get();
 
-			auto remoteAccountStateIter = accountStateCacheDelta.find(remoteAccountKey);
+			auto remoteAccountStateIter = accountStateCacheDelta.find(linkedPublicKey);
 			auto& remoteAccountState = remoteAccountStateIter.get();
 
 			// Act + Assert:
@@ -80,10 +80,10 @@ namespace catapult { namespace observers {
 		RunTwoAccountTest(context.cache().sub<cache::AccountStateCache>(), [&context](
 				const auto& mainAccountState,
 				const auto& remoteAccountState) {
-			auto mainAccountKey = mainAccountState.PublicKey;
-			auto remoteAccountKey = remoteAccountState.PublicKey;
+			auto mainAccountPublicKey = mainAccountState.PublicKey;
+			auto linkedPublicKey = remoteAccountState.PublicKey;
 
-			auto notification = model::RemoteAccountLinkNotification(mainAccountKey, remoteAccountKey, TTraits::Create_Link);
+			auto notification = model::RemoteAccountLinkNotification(mainAccountPublicKey, linkedPublicKey, TTraits::Create_Link);
 			auto pObserver = CreateAccountLinkObserver();
 
 			// Act:
@@ -91,10 +91,10 @@ namespace catapult { namespace observers {
 
 			// Assert: link was created
 			EXPECT_EQ(state::AccountType::Main, mainAccountState.AccountType);
-			EXPECT_EQ(remoteAccountKey, mainAccountState.LinkedAccountKey);
+			EXPECT_EQ(linkedPublicKey, state::GetLinkedPublicKey(mainAccountState));
 
 			EXPECT_EQ(state::AccountType::Remote, remoteAccountState.AccountType);
-			EXPECT_EQ(mainAccountKey, remoteAccountState.LinkedAccountKey);
+			EXPECT_EQ(mainAccountPublicKey, state::GetLinkedPublicKey(remoteAccountState));
 		});
 	}
 
@@ -102,16 +102,16 @@ namespace catapult { namespace observers {
 		// Arrange:
 		auto context = ObserverTestContext(TTraits::Notify_Mode, Height(888));
 		RunTwoAccountTest(context.cache().sub<cache::AccountStateCache>(), [&context](auto& mainAccountState, auto& remoteAccountState) {
-			auto mainAccountKey = mainAccountState.PublicKey;
-			auto remoteAccountKey = remoteAccountState.PublicKey;
+			auto mainAccountPublicKey = mainAccountState.PublicKey;
+			auto linkedPublicKey = remoteAccountState.PublicKey;
 
-			mainAccountState.LinkedAccountKey = remoteAccountKey;
+			mainAccountState.SupplementalAccountKeys.linkedPublicKey().set(linkedPublicKey);
 			mainAccountState.AccountType = state::AccountType::Main;
 
-			remoteAccountState.LinkedAccountKey = mainAccountKey;
+			remoteAccountState.SupplementalAccountKeys.linkedPublicKey().set(mainAccountPublicKey);
 			remoteAccountState.AccountType = state::AccountType::Remote;
 
-			auto notification = model::RemoteAccountLinkNotification(mainAccountKey, remoteAccountKey, TTraits::Remove_Link);
+			auto notification = model::RemoteAccountLinkNotification(mainAccountPublicKey, linkedPublicKey, TTraits::Remove_Link);
 			auto pObserver = CreateAccountLinkObserver();
 
 			// Act:
@@ -119,10 +119,10 @@ namespace catapult { namespace observers {
 
 			// Assert: link was removed
 			EXPECT_EQ(state::AccountType::Unlinked, mainAccountState.AccountType);
-			EXPECT_EQ(Key(), mainAccountState.LinkedAccountKey);
+			EXPECT_EQ(Key(), state::GetLinkedPublicKey(mainAccountState));
 
 			EXPECT_EQ(state::AccountType::Remote_Unlinked, remoteAccountState.AccountType);
-			EXPECT_EQ(Key(), remoteAccountState.LinkedAccountKey);
+			EXPECT_EQ(Key(), state::GetLinkedPublicKey(remoteAccountState));
 		});
 	}
 }}

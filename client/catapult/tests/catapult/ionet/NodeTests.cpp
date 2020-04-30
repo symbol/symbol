@@ -37,7 +37,7 @@ namespace catapult { namespace ionet {
 
 		// Assert:
 		EXPECT_EQ(model::NetworkIdentifier::Zero, metadata.NetworkFingerprint.Identifier);
-		EXPECT_EQ(GenerationHash(), metadata.NetworkFingerprint.GenerationHash);
+		EXPECT_EQ(GenerationHashSeed(), metadata.NetworkFingerprint.GenerationHashSeed);
 		EXPECT_EQ("", metadata.Name);
 		EXPECT_EQ(NodeVersion(), metadata.Version);
 		EXPECT_EQ(NodeRoles::None, metadata.Roles);
@@ -45,15 +45,15 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, CanCreateMetadataWithNetworkFingerprint) {
 		// Arrange
-		auto generationHash = test::GenerateRandomByteArray<GenerationHash>();
-		auto networkFingerprint = model::UniqueNetworkFingerprint(model::NetworkIdentifier::Mijin_Test, generationHash);
+		auto generationHashSeed = test::GenerateRandomByteArray<GenerationHashSeed>();
+		auto networkFingerprint = model::UniqueNetworkFingerprint(model::NetworkIdentifier::Mijin_Test, generationHashSeed);
 
 		// Act:
 		NodeMetadata metadata(networkFingerprint);
 
 		// Assert:
 		EXPECT_EQ(model::NetworkIdentifier::Mijin_Test, metadata.NetworkFingerprint.Identifier);
-		EXPECT_EQ(generationHash, metadata.NetworkFingerprint.GenerationHash);
+		EXPECT_EQ(generationHashSeed, metadata.NetworkFingerprint.GenerationHashSeed);
 		EXPECT_EQ("", metadata.Name);
 		EXPECT_EQ(NodeVersion(), metadata.Version);
 		EXPECT_EQ(NodeRoles::None, metadata.Roles);
@@ -61,15 +61,15 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, CanCreateMetadataWithNetworkFingerprintAndName) {
 		// Arrange
-		auto generationHash = test::GenerateRandomByteArray<GenerationHash>();
-		auto networkFingerprint = model::UniqueNetworkFingerprint(model::NetworkIdentifier::Mijin_Test, generationHash);
+		auto generationHashSeed = test::GenerateRandomByteArray<GenerationHashSeed>();
+		auto networkFingerprint = model::UniqueNetworkFingerprint(model::NetworkIdentifier::Mijin_Test, generationHashSeed);
 
 		// Act:
 		NodeMetadata metadata(networkFingerprint, "alice");
 
 		// Assert:
 		EXPECT_EQ(model::NetworkIdentifier::Mijin_Test, metadata.NetworkFingerprint.Identifier);
-		EXPECT_EQ(generationHash, metadata.NetworkFingerprint.GenerationHash);
+		EXPECT_EQ(generationHashSeed, metadata.NetworkFingerprint.GenerationHashSeed);
 		EXPECT_EQ("alice", metadata.Name);
 		EXPECT_EQ(NodeVersion(), metadata.Version);
 		EXPECT_EQ(NodeRoles::None, metadata.Roles);
@@ -77,15 +77,15 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, CanCreateCustomMetadata) {
 		// Arrange
-		auto generationHash = test::GenerateRandomByteArray<GenerationHash>();
-		auto networkFingerprint = model::UniqueNetworkFingerprint(model::NetworkIdentifier::Mijin_Test, generationHash);
+		auto generationHashSeed = test::GenerateRandomByteArray<GenerationHashSeed>();
+		auto networkFingerprint = model::UniqueNetworkFingerprint(model::NetworkIdentifier::Mijin_Test, generationHashSeed);
 
 		// Act:
 		NodeMetadata metadata(networkFingerprint, "alice", NodeVersion(123), NodeRoles::Api);
 
 		// Assert:
 		EXPECT_EQ(model::NetworkIdentifier::Mijin_Test, metadata.NetworkFingerprint.Identifier);
-		EXPECT_EQ(generationHash, metadata.NetworkFingerprint.GenerationHash);
+		EXPECT_EQ(generationHashSeed, metadata.NetworkFingerprint.GenerationHashSeed);
 		EXPECT_EQ("alice", metadata.Name);
 		EXPECT_EQ(NodeVersion(123), metadata.Version);
 		EXPECT_EQ(NodeRoles::Api, metadata.Roles);
@@ -107,7 +107,7 @@ namespace catapult { namespace ionet {
 		EXPECT_EQ(0u, node.endpoint().Port);
 
 		EXPECT_EQ(model::NetworkIdentifier::Zero, node.metadata().NetworkFingerprint.Identifier);
-		EXPECT_EQ(GenerationHash(), node.metadata().NetworkFingerprint.GenerationHash);
+		EXPECT_EQ(GenerationHashSeed(), node.metadata().NetworkFingerprint.GenerationHashSeed);
 		EXPECT_EQ("", node.metadata().Name);
 		EXPECT_EQ(NodeVersion(), node.metadata().Version);
 		EXPECT_EQ(NodeRoles::None, node.metadata().Roles);
@@ -128,7 +128,7 @@ namespace catapult { namespace ionet {
 		EXPECT_EQ(0u, node.endpoint().Port);
 
 		EXPECT_EQ(model::NetworkIdentifier::Zero, node.metadata().NetworkFingerprint.Identifier);
-		EXPECT_EQ(GenerationHash(), node.metadata().NetworkFingerprint.GenerationHash);
+		EXPECT_EQ(GenerationHashSeed(), node.metadata().NetworkFingerprint.GenerationHashSeed);
 		EXPECT_EQ("", node.metadata().Name);
 		EXPECT_EQ(NodeVersion(), node.metadata().Version);
 		EXPECT_EQ(NodeRoles::None, node.metadata().Roles);
@@ -137,8 +137,8 @@ namespace catapult { namespace ionet {
 	TEST(TEST_CLASS, CanCreateCustomNode) {
 		// Arrange:
 		auto identityKey = test::GenerateRandomByteArray<Key>();
-		auto generationHash = test::GenerateRandomByteArray<GenerationHash>();
-		auto networkFingerprint = model::UniqueNetworkFingerprint(model::NetworkIdentifier::Mijin_Test, generationHash);
+		auto generationHashSeed = test::GenerateRandomByteArray<GenerationHashSeed>();
+		auto networkFingerprint = model::UniqueNetworkFingerprint(model::NetworkIdentifier::Mijin_Test, generationHashSeed);
 
 		// Act:
 		Node node({ identityKey, "11.22.33.44" }, { "bob.com", 1234 }, { networkFingerprint, "bob", NodeVersion(7), NodeRoles::Peer });
@@ -151,7 +151,7 @@ namespace catapult { namespace ionet {
 		EXPECT_EQ(1234u, node.endpoint().Port);
 
 		EXPECT_EQ(model::NetworkIdentifier::Mijin_Test, node.metadata().NetworkFingerprint.Identifier);
-		EXPECT_EQ(generationHash, node.metadata().NetworkFingerprint.GenerationHash);
+		EXPECT_EQ(generationHashSeed, node.metadata().NetworkFingerprint.GenerationHashSeed);
 		EXPECT_EQ("bob", node.metadata().Name);
 		EXPECT_EQ(NodeVersion(7), node.metadata().Version);
 		EXPECT_EQ(NodeRoles::Peer, node.metadata().Roles);

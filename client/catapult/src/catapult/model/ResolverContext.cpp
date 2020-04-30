@@ -26,11 +26,7 @@ namespace catapult { namespace model {
 	ResolverContext::ResolverContext()
 			: ResolverContext(
 					[](auto mosaicId) { return MosaicId(mosaicId.unwrap()); },
-					[](const auto& address) {
-						Address resolvedAddress;
-						std::memcpy(resolvedAddress.data(), address.data(), address.size());
-						return resolvedAddress;
-					})
+					[](const auto& address) { return address.template copyTo<Address>(); })
 	{}
 
 	ResolverContext::ResolverContext(const MosaicResolver& mosaicResolver, const AddressResolver& addressResolver)

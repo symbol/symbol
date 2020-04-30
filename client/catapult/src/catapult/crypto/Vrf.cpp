@@ -113,8 +113,7 @@ namespace catapult { namespace crypto {
 			while (true) {
 				// Hash(suite | action | publicKey | alpha | i)
 				auto hash = IetfHash(0x03, 0x01, { publicKey, alpha, { &i, 1 } });
-				Key key;
-				std::memcpy(key.data(), hash.data(), key.size());
+				auto key = hash.copyTo<Key>();
 				if (UnpackNegative(A, key))
 					return ScalarMultEight(key);
 
@@ -209,13 +208,15 @@ namespace catapult { namespace crypto {
 		SecureZero(encodedK);
 		SecureZero(encodedX);
 
-		return { gamma, c, s };
+		return { gamma.copyTo<ProofGamma>(), c, s };
 	}
 
 	Hash512 VerifyVrfProof(const VrfProof& vrfProof, const RawBuffer& alpha, const Key& publicKey) {
+		auto gamma = vrfProof.Gamma.copyTo<Key>();
+
 		// gamma must be on the curve
 		ge25519 A;
-		if (!UnpackNegative(A, vrfProof.Gamma))
+		if (!UnpackNegative(A, gamma))
 			return Hash512();
 
 		// map to group element
@@ -245,7 +246,7 @@ namespace catapult { namespace crypto {
 		// V2 = -(c * gamma)
 		// scalar multiplication cannot fail because c is small enough
 		Key c_times_gamma;
-		ScalarMult(encodedC, vrfProof.Gamma, c_times_gamma);
+		ScalarMult(encodedC, gamma, c_times_gamma);
 
 		// unpack cannot fail because V2 is valid by construction
 		ge25519 V2_p3;
@@ -263,10 +264,11 @@ namespace catapult { namespace crypto {
 		ge25519_pack(v.data(), &V);
 
 		// verificationHash = first 16 bytes of Sha512(suite | 0x2 | h | gamma | u | v)
-		auto verificationHash = VrfC(h, vrfProof.Gamma, u, v);
+		auto verificationHash = VrfC(h, gamma, u, v);
+		return vrfProof.VerificationHash == verificationHash ? GenerateVrfProofHash(vrfProof.Gamma) : Hash512();
+	}
 
-		return 0 == std::memcmp(vrfProof.VerificationHash.data(), verificationHash.data(), verificationHash.size())
-				? IetfHash(0x03, 0x03, { ScalarMultEight(vrfProof.Gamma) })
-				: Hash512();
+	Hash512 GenerateVrfProofHash(const ProofGamma& gamma) {
+		return IetfHash(0x03, 0x03, { ScalarMultEight(gamma.copyTo<Key>()) });
 	}
 }}

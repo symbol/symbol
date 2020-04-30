@@ -18,14 +18,23 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "Validators.h"
-#include "catapult/validators/ValidatorUtils.h"
+#include "VotingKeyLinkTransactionPlugin.h"
+#include "src/model/KeyLinkNotifications.h"
+#include "src/model/VotingKeyLinkTransaction.h"
+#include "catapult/model/NotificationSubscriber.h"
+#include "catapult/model/TransactionPluginFactory.h"
 
-namespace catapult { namespace validators {
+using namespace catapult::model;
 
-	using Notification = model::RemoteAccountLinkNotification;
+namespace catapult { namespace plugins {
 
-	DEFINE_STATELESS_VALIDATOR(AccountLinkAction, [](const Notification& notification) {
-		return ValidateLessThanOrEqual(notification.LinkAction, model::AccountLinkAction::Link, Failure_AccountLink_Invalid_Action);
-	});
+	namespace {
+		template<typename TTransaction>
+		void Publish(const TTransaction& transaction, NotificationSubscriber& sub) {
+			sub.notify(KeyLinkActionNotification(transaction.LinkAction));
+			sub.notify(VotingKeyLinkNotification(transaction.SignerPublicKey, transaction.LinkedPublicKey, transaction.LinkAction));
+		}
+	}
+
+	DEFINE_TRANSACTION_PLUGIN_FACTORY(VotingKeyLink, Default, Publish)
 }}

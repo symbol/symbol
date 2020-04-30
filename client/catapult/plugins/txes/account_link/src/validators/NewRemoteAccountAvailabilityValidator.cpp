@@ -28,7 +28,7 @@ namespace catapult { namespace validators {
 
 	DEFINE_STATEFUL_VALIDATOR(NewRemoteAccountAvailability, [](const Notification& notification, const ValidatorContext& context) {
 		const auto& cache = context.Cache.sub<cache::AccountStateCache>();
-		auto remoteAccountStateIter = cache.find(notification.RemoteAccountKey);
+		auto remoteAccountStateIter = cache.find(notification.LinkedPublicKey);
 		return !remoteAccountStateIter.tryGet() || state::AccountType::Remote_Unlinked == remoteAccountStateIter.get().AccountType
 				? ValidationResult::Success
 				: Failure_AccountLink_Remote_Account_Ineligible;

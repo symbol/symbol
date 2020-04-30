@@ -139,8 +139,8 @@ namespace catapult { namespace test {
 		pBlock->StateHash = { { 242, 111 } };
 		pBlock->BeneficiaryPublicKey = { { 77, 99, 88 } };
 
-		auto generationHash = utils::ParseByteArray<GenerationHash>(test::Deterministic_Network_Generation_Hash_String);
-		extensions::BlockExtensions(generationHash).signFullBlock(keyPair, *pBlock);
+		auto generationHashSeed = utils::ParseByteArray<GenerationHashSeed>(test::Deterministic_Network_Generation_Hash_Seed_String);
+		extensions::BlockExtensions(generationHashSeed).signFullBlock(keyPair, *pBlock);
 		return pBlock;
 	}
 
@@ -181,11 +181,12 @@ namespace catapult { namespace test {
 	}
 
 	model::BlockElement BlockToBlockElement(const model::Block& block) {
-		return BlockToBlockElement(block, GetDefaultGenerationHash());
+		return BlockToBlockElement(block, GetDefaultGenerationHashSeed());
 	}
 
-	model::BlockElement BlockToBlockElement(const model::Block& block, const GenerationHash& generationHash) {
-		return extensions::BlockExtensions(generationHash).convertBlockToBlockElement(block, generationHash);
+	model::BlockElement BlockToBlockElement(const model::Block& block, const GenerationHashSeed& generationHashSeed) {
+		auto generationHash = model::CalculateGenerationHash(block.GenerationHashProof.Gamma);
+		return extensions::BlockExtensions(generationHashSeed).convertBlockToBlockElement(block, generationHash);
 	}
 
 	model::BlockElement BlockToBlockElement(const model::Block& block, const Hash256& hash) {

@@ -83,7 +83,7 @@ namespace catapult { namespace extensions {
 			return blockSignerPair;
 		}
 
-		enum class NemesisBlockModification { None, Public_Key, Generation_Hash, Signature };
+		enum class NemesisBlockModification { None, Public_Key, Generation_Hash_Proof, Generation_Hash, Signature };
 
 		void SetNemesisBlock(
 				io::BlockStorageCache& storage,
@@ -103,18 +103,28 @@ namespace catapult { namespace extensions {
 			else
 				pModifiedBlock->SignerPublicKey = network.PublicKey;
 
-			// 2. modify the generation hash if requested
-			auto modifiedNemesisBlockElement = test::BlockToBlockElement(*pModifiedBlock);
-			if (NemesisBlockModification::Generation_Hash == modification)
-				test::FillWithRandomData(modifiedNemesisBlockElement.GenerationHash);
-			else
-				modifiedNemesisBlockElement.GenerationHash = network.GenerationHash;
+			// 2. modify the generation hash proof if requested
+			if (NemesisBlockModification::Generation_Hash_Proof == modification) {
+				test::FillWithRandomData(pModifiedBlock->GenerationHashProof);
+			} else {
+				auto vrfProof = crypto::GenerateVrfProof(network.GenerationHashSeed, *blockSignerPair.pSigner);
+				pModifiedBlock->GenerationHashProof = { vrfProof.Gamma, vrfProof.VerificationHash, vrfProof.Scalar };
+			}
 
-			// 3. modify the block signature if requested
+			// 3. modify the generation hash if requested
+			auto modifiedNemesisBlockElement = test::BlockToBlockElement(*pModifiedBlock);
+			if (NemesisBlockModification::Generation_Hash == modification) {
+				test::FillWithRandomData(modifiedNemesisBlockElement.GenerationHash);
+			} else {
+				auto proofHash = crypto::GenerateVrfProofHash(pModifiedBlock->GenerationHashProof.Gamma);
+				modifiedNemesisBlockElement.GenerationHash = proofHash.copyTo<GenerationHash>();
+			}
+
+			// 4. modify the block signature if requested
 			if (NemesisBlockModification::Signature == modification)
 				test::FillWithRandomData(pModifiedBlock->Signature);
 			else
-				extensions::BlockExtensions(pNemesisBlockElement->GenerationHash).signFullBlock(*blockSignerPair.pSigner, *pModifiedBlock);
+				extensions::BlockExtensions(network.GenerationHashSeed).signFullBlock(*blockSignerPair.pSigner, *pModifiedBlock);
 
 			storageModifier.saveBlock(modifiedNemesisBlockElement);
 			storageModifier.commit();
@@ -140,7 +150,7 @@ namespace catapult { namespace extensions {
 			auto config = model::BlockChainConfiguration::Uninitialized();
 			config.Network.Identifier = Network_Identifier;
 			config.Network.PublicKey = nemesisBlock.SignerPublicKey;
-			test::FillWithRandomData(config.Network.GenerationHash);
+			test::FillWithRandomData(config.Network.GenerationHashSeed);
 			config.CurrencyMosaicId = Currency_Mosaic_Id;
 			config.HarvestingMosaicId = Harvesting_Mosaic_Id;
 			config.InitialCurrencyAtomicUnits = nemesisOptions.InitialCurrencyAtomicUnits;
@@ -694,6 +704,14 @@ namespace catapult { namespace extensions {
 
 		// Act: use the wrong public key
 		AssertLoadNemesisBlockFailure<TTraits>(nemesisBlockSignerPair, Importance(1234), NemesisBlockModification::Public_Key);
+	}
+
+	TRAITS_BASED_TEST(CannotLoadNemesisBlockWithWrongGenerationHashProof) {
+		// Arrange: create a valid nemesis block with a single (mosaic) transaction
+		auto nemesisBlockSignerPair = CreateNemesisBlock({ { MakeHarvestingMosaic(1234) } });
+
+		// Act: use the wrong generation hash proof
+		AssertLoadNemesisBlockFailure<TTraits>(nemesisBlockSignerPair, Importance(1234), NemesisBlockModification::Generation_Hash_Proof);
 	}
 
 	TRAITS_BASED_TEST(CannotLoadNemesisBlockWithWrongGenerationHash) {

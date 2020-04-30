@@ -19,9 +19,12 @@
 **/
 
 #include "CoreSystem.h"
-#include "importance/ImportanceCalculator.h"
-#include "observers/Observers.h"
-#include "validators/Validators.h"
+#include "VotingKeyLinkTransactionPlugin.h"
+#include "VrfKeyLinkTransactionPlugin.h"
+#include "src/importance/ImportanceCalculator.h"
+#include "src/observers/KeyLinkObservers.h"
+#include "src/observers/Observers.h"
+#include "src/validators/Validators.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/cache_core/AccountStateCacheStorage.h"
 #include "catapult/cache_core/AccountStateCacheSubCachePlugin.h"
@@ -77,6 +80,30 @@ namespace catapult { namespace plugins {
 				});
 			});
 		}
+
+		void RegisterVotingKeyLinkTransaction(PluginManager& manager) {
+			manager.addTransactionSupport(CreateVotingKeyLinkTransactionPlugin());
+
+			manager.addStatefulValidatorHook([](auto& builder) {
+				builder.add(validators::CreateVotingKeyLinkValidator());
+			});
+
+			manager.addObserverHook([](auto& builder) {
+				builder.add(observers::CreateVotingKeyLinkObserver());
+			});
+		}
+
+		void RegisterVrfKeyLinkTransaction(PluginManager& manager) {
+			manager.addTransactionSupport(CreateVrfKeyLinkTransactionPlugin());
+
+			manager.addStatefulValidatorHook([](auto& builder) {
+				builder.add(validators::CreateVrfKeyLinkValidator());
+			});
+
+			manager.addObserverHook([](auto& builder) {
+				builder.add(observers::CreateVrfKeyLinkObserver());
+			});
+		}
 	}
 
 	void RegisterCoreSystem(PluginManager& manager) {
@@ -93,6 +120,7 @@ namespace catapult { namespace plugins {
 				.add(validators::CreateNetworkValidator(config.Network.Identifier))
 				.add(validators::CreateEntityVersionValidator())
 				.add(validators::CreateTransactionFeeValidator())
+				.add(validators::CreateKeyLinkActionValidator())
 				.add(validators::CreateZeroInternalPaddingValidator());
 		});
 
@@ -132,6 +160,9 @@ namespace catapult { namespace plugins {
 						config.BlockPruneInterval,
 						BlockDuration()));
 		});
+
+		RegisterVotingKeyLinkTransaction(manager);
+		RegisterVrfKeyLinkTransaction(manager);
 	}
 }}
 

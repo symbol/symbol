@@ -71,8 +71,8 @@ namespace catapult { namespace extensions {
 
 	TRAITS_BASED_TEST(TransactionHashIsDependentOnGenerationHash) {
 		// Arrange:
-		TransactionExtensions extensions1(test::GenerateRandomByteArray<GenerationHash>());
-		TransactionExtensions extensions2(test::GenerateRandomByteArray<GenerationHash>());
+		TransactionExtensions extensions1(test::GenerateRandomByteArray<GenerationHashSeed>());
+		TransactionExtensions extensions2(test::GenerateRandomByteArray<GenerationHashSeed>());
 		auto pEntity = test::GenerateRandomTransactionWithSize(TTraits::Entity_Size);
 		pEntity->Type = TTraits::Entity_Type;
 
@@ -86,7 +86,7 @@ namespace catapult { namespace extensions {
 
 	TRAITS_BASED_TEST(TransactionHashIsDependentOnTransactionData) {
 		// Arrange:
-		TransactionExtensions extensions(test::GenerateRandomByteArray<GenerationHash>());
+		TransactionExtensions extensions(test::GenerateRandomByteArray<GenerationHashSeed>());
 		auto pEntity1 = test::GenerateRandomTransactionWithSize(TTraits::Entity_Size);
 		pEntity1->Type = TTraits::Entity_Type;
 
@@ -103,7 +103,7 @@ namespace catapult { namespace extensions {
 
 	TRAITS_BASED_TEST(TransactionHashIsCalculatedFromCorrectData) {
 		// Arrange:
-		TransactionExtensions extensions(test::GenerateRandomByteArray<GenerationHash>());
+		TransactionExtensions extensions(test::GenerateRandomByteArray<GenerationHashSeed>());
 		auto pEntity1 = test::GenerateRandomTransactionWithSize(TTraits::Entity_Size);
 		pEntity1->Type = TTraits::Entity_Type;
 
@@ -132,7 +132,7 @@ namespace catapult { namespace extensions {
 			// Arrange: create a signed transaction
 			auto signer = test::GenerateKeyPair();
 
-			TransactionExtensions extensions(test::GenerateRandomByteArray<GenerationHash>());
+			TransactionExtensions extensions(test::GenerateRandomByteArray<GenerationHashSeed>());
 			auto pEntity = test::GenerateRandomTransactionWithSize(TTraits::Entity_Size);
 			pEntity->Type = TTraits::Entity_Type;
 			pEntity->SignerPublicKey = signer.publicKey();
@@ -189,8 +189,8 @@ namespace catapult { namespace extensions {
 		// Arrange:
 		auto signer = test::GenerateKeyPair();
 
-		TransactionExtensions extensions1(test::GenerateRandomByteArray<GenerationHash>());
-		TransactionExtensions extensions2(test::GenerateRandomByteArray<GenerationHash>());
+		TransactionExtensions extensions1(test::GenerateRandomByteArray<GenerationHashSeed>());
+		TransactionExtensions extensions2(test::GenerateRandomByteArray<GenerationHashSeed>());
 		auto pEntity = test::GenerateRandomTransactionWithSize(TTraits::Entity_Size);
 		pEntity->Type = TTraits::Entity_Type;
 		pEntity->SignerPublicKey = signer.publicKey();
@@ -210,11 +210,11 @@ namespace catapult { namespace extensions {
 
 	TEST(TEST_CLASS, DeterministicTransactionIsFullyVerifiable) {
 		// Arrange:
-		auto generationHash = utils::ParseByteArray<GenerationHash>(test::Deterministic_Network_Generation_Hash_String);
+		auto generationHashSeed = utils::ParseByteArray<GenerationHashSeed>(test::Deterministic_Network_Generation_Hash_Seed_String);
 		auto pTransaction = test::GenerateDeterministicTransaction();
 
 		// Act:
-		auto isVerified = TransactionExtensions(generationHash).verify(*pTransaction);
+		auto isVerified = TransactionExtensions(generationHashSeed).verify(*pTransaction);
 
 		// Assert:
 		EXPECT_TRUE(isVerified);

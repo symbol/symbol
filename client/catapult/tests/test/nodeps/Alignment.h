@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "catapult/crypto/Vrf.h"
 #include "catapult/model/Mosaic.h"
 #include "catapult/types.h"
 
@@ -33,6 +34,12 @@ namespace catapult { namespace test {
 	/// Gets the desired alignment for type Key.
 	template<>
 	constexpr size_t GetRequiredAlignment<Key>() {
+		return sizeof(uint64_t);
+	}
+
+	/// Gets the desired alignment for type VotingKey.
+	template<>
+	constexpr size_t GetRequiredAlignment<VotingKey>() {
 		return sizeof(uint64_t);
 	}
 
@@ -72,9 +79,27 @@ namespace catapult { namespace test {
 		return sizeof(uint64_t);
 	}
 
-	/// Gets the desired alignment for type GenerationHash.
+	/// Gets the desired alignment for type GenerationHashSeed.
 	template<>
-	constexpr size_t GetRequiredAlignment<GenerationHash>() {
+	constexpr size_t GetRequiredAlignment<GenerationHashSeed>() {
+		return sizeof(uint64_t);
+	}
+
+	/// Gets the desired alignment for type ProofGamma.
+	template<>
+	constexpr size_t GetRequiredAlignment<crypto::ProofGamma>() {
+		return sizeof(uint64_t);
+	}
+
+	/// Gets the desired alignment for type ProofVerificationHash.
+	template<>
+	constexpr size_t GetRequiredAlignment<crypto::ProofVerificationHash>() {
+		return sizeof(uint64_t);
+	}
+
+	/// Gets the desired alignment for type ProofScalar.
+	template<>
+	constexpr size_t GetRequiredAlignment<crypto::ProofScalar>() {
 		return sizeof(uint64_t);
 	}
 }}

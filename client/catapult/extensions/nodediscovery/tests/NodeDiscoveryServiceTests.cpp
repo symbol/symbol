@@ -163,7 +163,7 @@ namespace catapult { namespace nodediscovery {
 	namespace {
 		auto CreateNodePushPingPacket(const Key& identityKey, const std::string& host, const std::string& name) {
 			auto pPacket = test::CreateNodePushPingPacket(identityKey, ionet::NodeVersion(1234), host, name);
-			reinterpret_cast<ionet::NetworkNode*>(pPacket->Data())->NetworkGenerationHash = test::GetNemesisGenerationHash();
+			reinterpret_cast<ionet::NetworkNode*>(pPacket->Data())->NetworkGenerationHashSeed = test::GetNemesisGenerationHashSeed();
 			return pPacket;
 		}
 

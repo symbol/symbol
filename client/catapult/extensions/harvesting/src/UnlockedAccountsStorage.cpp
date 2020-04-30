@@ -32,90 +32,91 @@ namespace catapult { namespace harvesting {
 			return filename + ".tmp";
 		}
 
-		void Append(const std::string& filename, const RawBuffer& encryptedEntry) {
+		void Append(const std::string& filename, const RawBuffer& encryptedPayload) {
 			io::RawFile output(filename, io::OpenMode::Read_Append);
 			output.seek(output.size());
-			output.write(encryptedEntry);
+			output.write(encryptedPayload);
 		}
 
-		void SafeAppend(const std::string& filename, const RawBuffer& encryptedEntry) {
+		void SafeAppend(const std::string& filename, const RawBuffer& encryptedPayload) {
 			auto tempFilename = GetTempFilename(filename);
 			if (boost::filesystem::exists(filename))
 				boost::filesystem::copy_file(filename, tempFilename, boost::filesystem::copy_option::overwrite_if_exists);
 
-			Append(tempFilename, encryptedEntry);
+			Append(tempFilename, encryptedPayload);
 			boost::filesystem::rename(tempFilename, filename);
 		}
 
-		size_t GetLastMessageIdentifier(const std::string& filename, UnlockedEntryMessageIdentifier& messageIdentifier) {
-			auto entrySize = EncryptedUnlockedEntrySize();
+		size_t ReadLastRequestIdentifier(const std::string& filename, HarvestRequestIdentifier& requestIdentifier) {
+			auto encryptedPayloadSize = HarvestRequest::EncryptedPayloadSize();
 			io::RawFile input(filename, io::OpenMode::Read_Only);
-			if (0 != input.size() % entrySize) {
+			if (0 != input.size() % encryptedPayloadSize) {
 				CATAPULT_LOG(warning) << filename << " is corrupt with size (" << input.size() << ")";
-				CATAPULT_THROW_RUNTIME_ERROR_1("file contains incomplete entries", filename);
+				CATAPULT_THROW_RUNTIME_ERROR_1("file contains incomplete encrypted payloads", filename);
 			}
 
-			auto entryStartPosition = input.size() - entrySize;
-			input.seek(entryStartPosition);
-			input.read(messageIdentifier);
-			return entryStartPosition;
+			// the beginning of the encrypted payload doubles as the request identifier
+			auto encryptedPayloadStartPosition = input.size() - encryptedPayloadSize;
+			input.seek(encryptedPayloadStartPosition);
+			input.read(requestIdentifier);
+			return encryptedPayloadStartPosition;
 		}
 
-		void TryRemoveLastEntry(const std::string& filename, const UnlockedEntryMessageIdentifier& expectedMesssageIdentifier) {
+		void TryRemoveLastRequest(const std::string& filename, const HarvestRequestIdentifier& expectedRequestIdentifier) {
 			if (!boost::filesystem::exists(filename)) {
 				CATAPULT_LOG(warning) << filename << " does not exist";
 				return;
 			}
 
-			UnlockedEntryMessageIdentifier messageIdentifier;
-			auto entryStartPosition = GetLastMessageIdentifier(filename, messageIdentifier);
-			if (expectedMesssageIdentifier != messageIdentifier) {
+			HarvestRequestIdentifier requestIdentifier;
+			auto encryptedPayloadStartPosition = ReadLastRequestIdentifier(filename, requestIdentifier);
+			if (expectedRequestIdentifier != requestIdentifier) {
 				CATAPULT_LOG(warning)
-						<< "last message identifier (" << messageIdentifier << ") "
-						<< "does not match expected message identifier (" << expectedMesssageIdentifier << ")";
+						<< "last request identifier (" << requestIdentifier << ") "
+						<< "does not match expected request identifier (" << expectedRequestIdentifier << ")";
 				return;
 			}
 
-			boost::filesystem::resize_file(filename, entryStartPosition);
+			boost::filesystem::resize_file(filename, encryptedPayloadStartPosition);
 		}
 	}
 
 	UnlockedAccountsStorage::UnlockedAccountsStorage(const std::string& filename) : m_filename(filename)
 	{}
 
-	bool UnlockedAccountsStorage::contains(const UnlockedEntryMessageIdentifier& messageIdentifier) {
-		return m_identityToEntryMap.cend() != m_identityToEntryMap.find(messageIdentifier);
+	bool UnlockedAccountsStorage::contains(const HarvestRequestIdentifier& requestIdentifier) {
+		return m_identityToEncryptedPayloadMap.cend() != m_identityToEncryptedPayloadMap.find(requestIdentifier);
 	}
 
 	void UnlockedAccountsStorage::add(
-			const UnlockedEntryMessageIdentifier& messageIdentifier,
-			const RawBuffer& encryptedEntry,
+			const HarvestRequestIdentifier& requestIdentifier,
+			const RawBuffer& encryptedPayload,
 			const Key& harvesterPublicKey) {
-		if (EncryptedUnlockedEntrySize() != encryptedEntry.Size)
-			CATAPULT_THROW_INVALID_ARGUMENT_1("encrypted entry has invalid size", encryptedEntry.Size);
+		if (HarvestRequest::EncryptedPayloadSize() != encryptedPayload.Size)
+			CATAPULT_THROW_INVALID_ARGUMENT_1("encrypted payload has invalid size", encryptedPayload.Size);
 
-		if (contains(messageIdentifier))
-			CATAPULT_THROW_INVALID_ARGUMENT_1("cannot add same message identifier to storage multiple times", messageIdentifier);
+		if (contains(requestIdentifier))
+			CATAPULT_THROW_INVALID_ARGUMENT_1("cannot add same request identifier to storage multiple times", requestIdentifier);
 
-		SafeAppend(m_filename, encryptedEntry);
+		SafeAppend(m_filename, encryptedPayload);
 
-		std::vector<uint8_t> entry(encryptedEntry.pData, encryptedEntry.pData + encryptedEntry.Size);
-		addEntry(messageIdentifier, entry, harvesterPublicKey);
+		std::vector<uint8_t> encryptedPayloadCopy(encryptedPayload.pData, encryptedPayload.pData + encryptedPayload.Size);
+		addRequest(requestIdentifier, encryptedPayloadCopy, harvesterPublicKey);
 	}
 
-	void UnlockedAccountsStorage::remove(const UnlockedEntryMessageIdentifier& messageIdentifier) {
-		TryRemoveLastEntry(m_filename, messageIdentifier);
+	void UnlockedAccountsStorage::remove(const HarvestRequestIdentifier& requestIdentifier) {
+		TryRemoveLastRequest(m_filename, requestIdentifier);
 
-		if (!tryRemoveEntry(messageIdentifier)) {
-			CATAPULT_LOG(debug) << "cannot remove message identifier " << messageIdentifier << " because it is not in map";
+		if (!tryRemoveRequest(requestIdentifier)) {
+			CATAPULT_LOG(debug) << "cannot remove request identifier " << requestIdentifier << " because it is not in map";
 			return;
 		}
 	}
 
 	void UnlockedAccountsStorage::save(const predicate<const Key&>& filter) const {
 		std::unique_ptr<io::RawFile> pRawFile;
-		for (const auto& identityEntryPair : m_identityToEntryMap) {
-			const auto& harvesterPublicKey = m_entryToHarvesterMap.find(identityEntryPair)->second;
+		for (const auto& request : m_identityToEncryptedPayloadMap) {
+			const auto& harvesterPublicKey = m_requestToHarvesterMap.find(request)->second;
 			if (!filter(harvesterPublicKey))
 				continue;
 
@@ -123,10 +124,10 @@ namespace catapult { namespace harvesting {
 			if (!pRawFile)
 				pRawFile = std::make_unique<io::RawFile>(GetTempFilename(m_filename), io::OpenMode::Read_Write);
 
-			pRawFile->write(identityEntryPair.second);
+			pRawFile->write(request.second);
 		}
 
-		// if all entries have been filtered out, remove file
+		// if all requests have been filtered out, remove file
 		if (!pRawFile && boost::filesystem::exists(m_filename))
 			boost::filesystem::remove(m_filename);
 
@@ -137,46 +138,48 @@ namespace catapult { namespace harvesting {
 		}
 	}
 
-	void UnlockedAccountsStorage::load(const crypto::KeyPair& encryptionKeyPair, const consumer<crypto::KeyPair&&>& processKeyPair) {
+	void UnlockedAccountsStorage::load(
+			const crypto::KeyPair& encryptionKeyPair,
+			const consumer<BlockGeneratorAccountDescriptor&&>& processDescriptor) {
 		if (!boost::filesystem::exists(m_filename))
 			return;
 
-		// read entries
+		// read requests
 		io::RawFile inputFile(m_filename, io::OpenMode::Read_Only);
-		std::vector<uint8_t> encryptedEntry(EncryptedUnlockedEntrySize());
+		std::vector<uint8_t> encryptedPayload(HarvestRequest::EncryptedPayloadSize());
 		while (inputFile.position() != inputFile.size()) {
-			inputFile.read(encryptedEntry);
+			inputFile.read(encryptedPayload);
 
-			auto decryptedPair = TryDecryptUnlockedEntry(encryptedEntry, encryptionKeyPair);
+			auto decryptedPair = TryDecryptBlockGeneratorAccountDescriptor(encryptedPayload, encryptionKeyPair);
 			if (!decryptedPair.second)
 				CATAPULT_THROW_RUNTIME_ERROR("malformed harvesters file");
 
-			UnlockedEntryMessage message;
-			message.EncryptedEntry = RawBuffer(encryptedEntry);
+			HarvestRequest request;
+			request.EncryptedPayload = RawBuffer(encryptedPayload);
 
-			auto keyPair = crypto::KeyPair::FromPrivate(std::move(decryptedPair.first));
-			addEntry(GetMessageIdentifier(message), encryptedEntry, keyPair.publicKey());
-			processKeyPair(std::move(keyPair));
+			auto& descriptor = decryptedPair.first;
+			addRequest(GetRequestIdentifier(request), encryptedPayload, descriptor.signingKeyPair().publicKey());
+			processDescriptor(std::move(descriptor));
 		}
 
 		CATAPULT_LOG(info) << "loading done, closing file";
 	}
 
-	void UnlockedAccountsStorage::addEntry(
-			const UnlockedEntryMessageIdentifier& messageIdentifier,
-			const std::vector<uint8_t>& entry,
+	void UnlockedAccountsStorage::addRequest(
+			const HarvestRequestIdentifier& requestIdentifier,
+			const std::vector<uint8_t>& encryptedPayload,
 			const Key& harvesterPublicKey) {
-		auto iter = m_identityToEntryMap.emplace(messageIdentifier, entry).first;
-		m_entryToHarvesterMap.emplace(*iter, harvesterPublicKey);
+		auto iter = m_identityToEncryptedPayloadMap.emplace(requestIdentifier, encryptedPayload).first;
+		m_requestToHarvesterMap.emplace(*iter, harvesterPublicKey);
 	}
 
-	bool UnlockedAccountsStorage::tryRemoveEntry(const UnlockedEntryMessageIdentifier& messageIdentifier) {
-		auto iter = m_identityToEntryMap.find(messageIdentifier);
-		if (m_identityToEntryMap.cend() == iter)
+	bool UnlockedAccountsStorage::tryRemoveRequest(const HarvestRequestIdentifier& requestIdentifier) {
+		auto iter = m_identityToEncryptedPayloadMap.find(requestIdentifier);
+		if (m_identityToEncryptedPayloadMap.cend() == iter)
 			return false;
 
-		m_entryToHarvesterMap.erase(*iter); // note, in this case *iter is a key for entryToHarvesterMap
-		m_identityToEntryMap.erase(iter);
+		m_requestToHarvesterMap.erase(*iter); // note, in this case *iter is a key for requestToHarvesterMap
+		m_identityToEncryptedPayloadMap.erase(iter);
 		return true;
 	}
 }}

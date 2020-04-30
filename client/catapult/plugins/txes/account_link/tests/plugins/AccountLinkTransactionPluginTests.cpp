@@ -41,55 +41,59 @@ namespace catapult { namespace plugins {
 
 	// endregion
 
-	// region publish - account link action link
+	// region publish - link action link
 
 	namespace {
 		template<typename TTraits>
 		void AddCommonExpectations(
 				typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder& builder,
 				const typename TTraits::TransactionType& transaction) {
+			builder.template addExpectation<KeyLinkActionNotification>([&transaction](const auto& notification) {
+				EXPECT_EQ(transaction.LinkAction, notification.LinkAction);
+			});
 			builder.template addExpectation<AddressInteractionNotification>([&transaction](const auto& notification) {
 				EXPECT_EQ(transaction.SignerPublicKey, notification.Source);
 				EXPECT_EQ(transaction.Type, notification.TransactionType);
 				EXPECT_EQ(UnresolvedAddressSet(), notification.ParticipantsByAddress);
-				EXPECT_EQ(utils::KeySet{ transaction.RemotePublicKey }, notification.ParticipantsByKey);
+				EXPECT_EQ(utils::KeySet{ transaction.LinkedPublicKey }, notification.ParticipantsByKey);
 			});
 			builder.template addExpectation<RemoteAccountLinkNotification>([&transaction](const auto& notification) {
-				EXPECT_EQ(transaction.SignerPublicKey, notification.MainAccountKey);
-				EXPECT_EQ(transaction.RemotePublicKey, notification.RemoteAccountKey);
+				EXPECT_EQ(transaction.SignerPublicKey, notification.MainAccountPublicKey);
+				EXPECT_EQ(transaction.LinkedPublicKey, notification.LinkedPublicKey);
 				EXPECT_EQ(transaction.LinkAction, notification.LinkAction);
 			});
 		}
 	}
 
-	PLUGIN_TEST(CanPublishAllNotificationsInCorrectOrderWhenAccountLinkActionIsLink) {
+	PLUGIN_TEST(CanPublishAllNotificationsInCorrectOrderWhenLinkActionIsLink) {
 		// Arrange:
 		typename TTraits::TransactionType transaction;
 		test::FillWithRandomData(transaction);
-		transaction.LinkAction = AccountLinkAction::Link;
+		transaction.LinkAction = LinkAction::Link;
 
 		// Act + Assert:
 		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
 			NewRemoteAccountNotification::Notification_Type,
 			AccountPublicKeyNotification::Notification_Type,
+			KeyLinkActionNotification::Notification_Type,
 			AddressInteractionNotification::Notification_Type,
 			RemoteAccountLinkNotification::Notification_Type
 		});
 	}
 
-	PLUGIN_TEST(CanPublishAllNotificationsWhenAccountLinkActionIsLink) {
+	PLUGIN_TEST(CanPublishAllNotificationsWhenLinkActionIsLink) {
 		// Arrange:
 		typename TTraits::TransactionType transaction;
 		test::FillWithRandomData(transaction);
-		transaction.LinkAction = AccountLinkAction::Link;
+		transaction.LinkAction = LinkAction::Link;
 
 		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
 		AddCommonExpectations<TTraits>(builder, transaction);
 		builder.template addExpectation<AccountPublicKeyNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(transaction.RemotePublicKey, notification.PublicKey);
+			EXPECT_EQ(transaction.LinkedPublicKey, notification.PublicKey);
 		});
 		builder.template addExpectation<NewRemoteAccountNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(transaction.RemotePublicKey, notification.RemoteAccountKey);
+			EXPECT_EQ(transaction.LinkedPublicKey, notification.LinkedPublicKey);
 		});
 
 		// Act + Assert:
@@ -98,26 +102,27 @@ namespace catapult { namespace plugins {
 
 	// endregion
 
-	// region publish - account link action unlink
+	// region publish - link action unlink
 
-	PLUGIN_TEST(CanPublishAllNotificationsInCorrectOrderWhenAccountLinkActionIsUnlink) {
+	PLUGIN_TEST(CanPublishAllNotificationsInCorrectOrderWhenLinkActionIsUnlink) {
 		// Arrange:
 		typename TTraits::TransactionType transaction;
 		test::FillWithRandomData(transaction);
-		transaction.LinkAction = AccountLinkAction::Unlink;
+		transaction.LinkAction = LinkAction::Unlink;
 
 		// Act + Assert:
 		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
+			KeyLinkActionNotification::Notification_Type,
 			AddressInteractionNotification::Notification_Type,
 			RemoteAccountLinkNotification::Notification_Type
 		});
 	}
 
-	PLUGIN_TEST(CanPublishAllNotificationsWhenAccountLinkActionIsUnlink) {
+	PLUGIN_TEST(CanPublishAllNotificationsWhenLinkActionIsUnlink) {
 		// Arrange:
 		typename TTraits::TransactionType transaction;
 		test::FillWithRandomData(transaction);
-		transaction.LinkAction = AccountLinkAction::Unlink;
+		transaction.LinkAction = LinkAction::Unlink;
 
 		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
 		AddCommonExpectations<TTraits>(builder, transaction);

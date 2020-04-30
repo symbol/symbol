@@ -33,7 +33,7 @@ namespace catapult { namespace ionet {
 	FIELD(Size) \
 	FIELD(Version) \
 	FIELD(IdentityKey) \
-	FIELD(NetworkGenerationHash) \
+	FIELD(NetworkGenerationHashSeed) \
 	FIELD(Roles) \
 	FIELD(Port) \
 	FIELD(NetworkIdentifier) \
@@ -101,15 +101,15 @@ namespace catapult { namespace ionet {
 	namespace {
 		Node CreateNodeForPackTests(const std::string& host, const std::string& name) {
 			auto key = test::GenerateRandomByteArray<Key>();
-			auto generationHash = test::GenerateRandomByteArray<GenerationHash>();
-			auto networkFingerprint = model::UniqueNetworkFingerprint(model::NetworkIdentifier::Mijin_Test, generationHash);
+			auto generationHashSeed = test::GenerateRandomByteArray<GenerationHashSeed>();
+			auto networkFingerprint = model::UniqueNetworkFingerprint(model::NetworkIdentifier::Mijin_Test, generationHashSeed);
 			return Node({ key, "11.22.33.44" }, { host, 1234 }, { networkFingerprint, name, NodeVersion(7), NodeRoles::Peer });
 		}
 
 		void AssertPackedNode(
 				const NetworkNode& node,
 				const Key& expectedKey,
-				const GenerationHash& expectedGenerationHash,
+				const GenerationHashSeed& expectedGenerationHashSeed,
 				const std::string& expectedHost,
 				const std::string& expectedName) {
 			const auto* host = reinterpret_cast<const char*>(&node + 1);
@@ -121,7 +121,7 @@ namespace catapult { namespace ionet {
 			EXPECT_EQ(expectedKey, node.IdentityKey);
 			EXPECT_EQ(1234u, node.Port);
 			EXPECT_EQ(model::NetworkIdentifier::Mijin_Test, node.NetworkIdentifier);
-			EXPECT_EQ(expectedGenerationHash, node.NetworkGenerationHash);
+			EXPECT_EQ(expectedGenerationHashSeed, node.NetworkGenerationHashSeed);
 			EXPECT_EQ(NodeVersion(7), node.Version);
 			EXPECT_EQ(NodeRoles::Peer, node.Roles);
 
@@ -140,7 +140,7 @@ namespace catapult { namespace ionet {
 			AssertPackedNode(
 					node,
 					originalNode.identity().PublicKey,
-					originalNode.metadata().NetworkFingerprint.GenerationHash,
+					originalNode.metadata().NetworkFingerprint.GenerationHashSeed,
 					expectedHost,
 					expectedName);
 		}
@@ -213,7 +213,7 @@ namespace catapult { namespace ionet {
 		void AssertUnpackedNode(
 				const Node& node,
 				const Key& expectedIdentityKey,
-				const GenerationHash& expectedGenerationHash,
+				const GenerationHashSeed& expectedGenerationHashSeed,
 				const std::string& expectedHost,
 				const std::string& expectedName) {
 			// Assert:
@@ -224,7 +224,7 @@ namespace catapult { namespace ionet {
 			EXPECT_EQ(1234u, node.endpoint().Port);
 
 			EXPECT_EQ(model::NetworkIdentifier::Mijin_Test, node.metadata().NetworkFingerprint.Identifier);
-			EXPECT_EQ(expectedGenerationHash, node.metadata().NetworkFingerprint.GenerationHash);
+			EXPECT_EQ(expectedGenerationHashSeed, node.metadata().NetworkFingerprint.GenerationHashSeed);
 
 			EXPECT_EQ(expectedName, node.metadata().Name);
 			EXPECT_EQ(NodeVersion(7), node.metadata().Version);
@@ -236,7 +236,7 @@ namespace catapult { namespace ionet {
 				const NetworkNode& originalNode,
 				const std::string& expectedHost,
 				const std::string& expectedName) {
-			AssertUnpackedNode(node, originalNode.IdentityKey, originalNode.NetworkGenerationHash, expectedHost, expectedName);
+			AssertUnpackedNode(node, originalNode.IdentityKey, originalNode.NetworkGenerationHashSeed, expectedHost, expectedName);
 		}
 	}
 

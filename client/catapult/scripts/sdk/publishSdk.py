@@ -186,6 +186,8 @@ def publish_all():
     for transaction in transactions:
         publisher.publish_plugin('txes', transaction, ['model', 'plugins', 'state'])
 
+    publisher.publish_plugin('coresystem', '', ['model', 'plugins'])
+
     for service in ['hashcache']:
         publisher.publish_plugin('services', service, ['state'])
 

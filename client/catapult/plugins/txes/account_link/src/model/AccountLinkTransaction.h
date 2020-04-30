@@ -19,9 +19,8 @@
 **/
 
 #pragma once
-#include "AccountLinkAction.h"
 #include "AccountLinkEntityType.h"
-#include "catapult/model/Transaction.h"
+#include "catapult/model/KeyLinkSharedTransaction.h"
 
 namespace catapult { namespace model {
 
@@ -29,26 +28,7 @@ namespace catapult { namespace model {
 
 	/// Binary layout for an account link transaction body.
 	template<typename THeader>
-	struct AccountLinkTransactionBody : public THeader {
-	private:
-		using TransactionType = AccountLinkTransactionBody<THeader>;
-
-	public:
-		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Account_Link, 1)
-
-	public:
-		/// Remote public key.
-		Key RemotePublicKey;
-
-		/// Account link action.
-		AccountLinkAction LinkAction;
-
-	public:
-		/// Calculates the real size of account link \a transaction.
-		static constexpr uint64_t CalculateRealSize(const TransactionType&) noexcept {
-			return sizeof(TransactionType);
-		}
-	};
+	struct AccountLinkTransactionBody : public BasicKeyLinkTransactionBody<THeader, Key, Entity_Type_Account_Link> {};
 
 	DEFINE_EMBEDDABLE_TRANSACTION(AccountLink)
 

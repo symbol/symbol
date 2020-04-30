@@ -90,7 +90,7 @@ namespace catapult { namespace test {
 		void SetNetwork(model::NetworkInfo& network) {
 			network.Identifier = model::NetworkIdentifier::Mijin_Test;
 			network.PublicKey = crypto::KeyPair::FromString(Mijin_Test_Nemesis_Private_Key).publicKey();
-			network.GenerationHash = GetNemesisGenerationHash();
+			network.GenerationHashSeed = GetNemesisGenerationHashSeed();
 			network.EpochAdjustment = Default_Network_Epoch_Adjustment;
 		}
 	}

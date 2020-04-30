@@ -67,7 +67,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		public:
 			static ModelType GenerateRandomElement(uint32_t id) {
 				MosaicId mosaicId(id);
-				Address address{};
+				Address address;
 				std::memcpy(address.data(), &id, sizeof(id));
 
 				auto restrictionEntry = state::MosaicRestrictionEntry(state::MosaicAddressRestriction(mosaicId, address));

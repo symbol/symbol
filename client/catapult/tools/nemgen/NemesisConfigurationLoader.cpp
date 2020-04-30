@@ -114,8 +114,9 @@ namespace catapult { namespace tools { namespace nemgen {
 	bool LogAndValidateNemesisConfiguration(const NemesisConfiguration& config) {
 		CATAPULT_LOG(debug) << "--- Nemesis Configuration ---";
 		CATAPULT_LOG(debug) << "Network            : " << config.NetworkIdentifier;
-		CATAPULT_LOG(debug) << "Nemesis Gen Hash   : " << config.NemesisGenerationHash;
+		CATAPULT_LOG(debug) << "Gen Hash Seed      : " << config.NemesisGenerationHashSeed;
 		CATAPULT_LOG(debug) << "Nemesis Private Key: " << config.NemesisSignerPrivateKey;
+		CATAPULT_LOG(debug) << "Txes Directory     : " << config.TransactionsDirectory;
 		CATAPULT_LOG(debug) << "Cpp File Header    : " << config.CppFileHeader;
 		CATAPULT_LOG(debug) << "Cpp File           : " << config.CppFile;
 		CATAPULT_LOG(debug) << "Bin Directory      : " << config.BinDirectory;

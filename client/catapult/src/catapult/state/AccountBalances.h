@@ -27,10 +27,10 @@
 
 namespace catapult { namespace state {
 
-	/// Container holding information about account.
+	/// Container holding account balance information.
 	class AccountBalances {
 	public:
-		/// Creates an empty account balances.
+		/// Creates empty account balances.
 		AccountBalances();
 
 		/// Copy constructor that makes a deep copy of \a accountBalances.
@@ -48,19 +48,13 @@ namespace catapult { namespace state {
 
 	public:
 		/// Gets the number of mosaics owned.
-		size_t size() const {
-			return m_balances.size();
-		}
+		size_t size() const;
 
 		/// Gets a const iterator to the first element of the underlying set.
-		auto begin() const {
-			return m_balances.begin();
-		}
+		CompactMosaicMap::const_iterator begin() const;
 
 		/// Gets a const iterator to the element following the last element of the underlying set.
-		auto end() const {
-			return m_balances.end();
-		}
+		CompactMosaicMap::const_iterator end() const;
 
 		/// Gets the optimized mosaic id.
 		MosaicId optimizedMosaicId() const;

@@ -19,34 +19,14 @@
 **/
 
 #pragma once
-#include "catapult/types.h"
+#include "catapult/plugins.h"
+#include <memory>
 
-namespace catapult { namespace harvesting {
+namespace catapult { namespace model { class TransactionPlugin; } }
 
-	struct UnlockedEntryMessageIdentifier_tag { static constexpr size_t Size = 32; };
-	using UnlockedEntryMessageIdentifier = utils::ByteArray<UnlockedEntryMessageIdentifier_tag>;
+namespace catapult { namespace plugins {
 
-	/// Unlocked entry direction.
-	enum class UnlockedEntryDirection : uint8_t {
-		/// Add unlocked entry.
-		Add,
-
-		/// Remove unlocked entry.
-		Remove
-	};
-
-	/// Unlocked entry message.
-	struct UnlockedEntryMessage {
-		/// Unlocked entry direction.
-		UnlockedEntryDirection Direction;
-
-		/// Encrypted entry.
-		RawBuffer EncryptedEntry;
-	};
-
-	/// Gets the size of encrypted entry.
-	size_t EncryptedUnlockedEntrySize();
-
-	/// Gets a unique identifier for \a message.
-	UnlockedEntryMessageIdentifier GetMessageIdentifier(const UnlockedEntryMessage& message);
+	/// Creates a vrf key link transaction plugin.
+	PLUGIN_API
+	std::unique_ptr<model::TransactionPlugin> CreateVrfKeyLinkTransactionPlugin();
 }}

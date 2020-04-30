@@ -34,14 +34,14 @@ namespace catapult { namespace test {
 	/// Hash string of the deterministic transaction.
 	constexpr auto Deterministic_Transaction_Hash_String = "D9B07A005CEC59E86310BAC4B48223330CD5746621EC4AAF5943FB4F0FFE1635";
 
-	/// Gets the default generation hash used in tests.
-	GenerationHash GetDefaultGenerationHash();
+	/// Gets the default generation hash seed used in tests.
+	GenerationHashSeed GetDefaultGenerationHashSeed();
 
 	/// Generates a transaction with random data.
 	std::unique_ptr<model::Transaction> GenerateRandomTransaction();
 
-	/// Generates a transaction for a network with specified generation hash (\a generationHash).
-	std::unique_ptr<model::Transaction> GenerateRandomTransaction(const GenerationHash& generationHash);
+	/// Generates a transaction for a network with specified generation hash seed (\a generationHashSeed).
+	std::unique_ptr<model::Transaction> GenerateRandomTransaction(const GenerationHashSeed& generationHashSeed);
 
 	/// Generates a transaction with random data around \a signer.
 	std::unique_ptr<model::Transaction> GenerateRandomTransaction(const Key& signer);

@@ -32,7 +32,7 @@ namespace catapult { namespace cache {
 				Height height,
 				TAction action) {
 			if (state::AccountType::Remote == accountState.AccountType) {
-				auto linkedAccountStateIter = cache.find(accountState.LinkedAccountKey);
+				auto linkedAccountStateIter = cache.find(state::GetLinkedPublicKey(accountState));
 				const auto& linkedAccountState = linkedAccountStateIter.get();
 
 				// this check is merely a precaution and will only fire if there is a bug that has corrupted links

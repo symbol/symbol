@@ -82,7 +82,7 @@ namespace catapult { namespace plugins {
 
 			// sink address is already resolved but needs to be passed as unresolved into notification
 			auto sinkAddress = PublicKeyToAddress(rentalFeeConfig.SinkPublicKey, network.Identifier);
-			std::memcpy(rentalFeeConfig.SinkAddress.data(), sinkAddress.data(), sinkAddress.size());
+			rentalFeeConfig.SinkAddress = sinkAddress.copyTo<UnresolvedAddress>();
 			return rentalFeeConfig;
 		}
 

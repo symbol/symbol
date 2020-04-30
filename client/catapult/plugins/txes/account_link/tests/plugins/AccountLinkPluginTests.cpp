@@ -45,7 +45,7 @@ namespace catapult { namespace plugins {
 			}
 
 			static std::vector<std::string> GetStatelessValidatorNames() {
-				return { "AccountLinkActionValidator" };
+				return {};
 			}
 
 			static std::vector<std::string> GetStatefulValidatorNames() {

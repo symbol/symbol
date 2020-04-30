@@ -32,9 +32,8 @@ namespace catapult { namespace model {
 	/// Calculates the block transactions hash of \a transactionInfos into \a blockTransactionsHash.
 	void CalculateBlockTransactionsHash(const std::vector<const TransactionInfo*>& transactionInfos, Hash256& blockTransactionsHash);
 
-	/// Calculates the generation hash from a previous generation hash (\a previousGenerationHash)
-	/// and a public key (\a publicKey).
-	GenerationHash CalculateGenerationHash(const GenerationHash& previousGenerationHash, const Key& publicKey);
+	/// Calculates the generation hash from \a gamma.
+	GenerationHash CalculateGenerationHash(const crypto::ProofGamma& gamma);
 
 	// endregion
 

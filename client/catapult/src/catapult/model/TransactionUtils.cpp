@@ -49,10 +49,7 @@ namespace catapult { namespace model {
 		private:
 			UnresolvedAddress toAddress(const Key& publicKey) const {
 				auto resolvedAddress = PublicKeyToAddress(publicKey, m_networkIdentifier);
-
-				UnresolvedAddress unresolvedAddress;
-				std::memcpy(unresolvedAddress.data(), resolvedAddress.data(), resolvedAddress.size());
-				return unresolvedAddress;
+				return resolvedAddress.copyTo<UnresolvedAddress>();
 			}
 
 		private:

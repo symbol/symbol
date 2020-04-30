@@ -66,6 +66,12 @@ namespace catapult { namespace model {
 /// Defines transaction type given \a FACILITY, \a DESCRIPTION and \a CODE.
 #define DEFINE_TRANSACTION_TYPE(FACILITY, DESCRIPTION, CODE) DEFINE_ENTITY_TYPE(Transaction, FACILITY, DESCRIPTION, CODE)
 
+	/// Voting key link transaction.
+	DEFINE_TRANSACTION_TYPE(Core, Voting_Key_Link, 0x01);
+
+	/// Vrf key link transaction.
+	DEFINE_TRANSACTION_TYPE(Core, Vrf_Key_Link, 0x02);
+
 	/// Converts an entity \a type into a basic entity type.
 	constexpr BasicEntityType ToBasicEntityType(EntityType type) {
 		// - 0x8000: block bit

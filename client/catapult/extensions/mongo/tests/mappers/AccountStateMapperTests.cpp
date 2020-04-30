@@ -22,6 +22,7 @@
 #include "catapult/model/Mosaic.h"
 #include "catapult/state/AccountState.h"
 #include "mongo/tests/test/MapperTestUtils.h"
+#include "tests/test/core/AccountStateTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/TestHarness.h"
 #include <mongocxx/client.hpp>
@@ -33,7 +34,10 @@ namespace catapult { namespace mongo { namespace mappers {
 	// region ToDbModel
 
 	namespace {
-		auto CreateAccountState(Height publicKeyHeight, std::initializer_list<model::Mosaic> mosaics) {
+		auto CreateAccountState(
+				Height publicKeyHeight,
+				std::initializer_list<model::Mosaic> mosaics,
+				state::AccountKeys::KeyType supplementalAccountKeysMask) {
 			state::AccountState accountState(test::GenerateRandomAddress(), Height(123));
 			if (Height(0) != publicKeyHeight) {
 				accountState.PublicKeyHeight = publicKeyHeight;
@@ -41,7 +45,7 @@ namespace catapult { namespace mongo { namespace mappers {
 			}
 
 			accountState.AccountType = static_cast<state::AccountType>(34);
-			test::FillWithRandomData(accountState.LinkedAccountKey);
+			test::SetRandomSupplementalAccountKeys(accountState, supplementalAccountKeysMask);
 
 			auto numImportanceSnapshots = 1u + test::Random() % Importance_History_Size;
 			for (auto i = 0u; i < numImportanceSnapshots; ++i)
@@ -62,9 +66,12 @@ namespace catapult { namespace mongo { namespace mappers {
 			return accountState;
 		}
 
-		void AssertCanMapAccountState(Height publicKeyHeight, std::initializer_list<model::Mosaic> mosaics) {
+		void AssertCanMapAccountState(
+				Height publicKeyHeight,
+				std::initializer_list<model::Mosaic> mosaics,
+				state::AccountKeys::KeyType supplementalAccountKeysMask = state::AccountKeys::KeyType::Unset) {
 			// Arrange:
-			auto accountState = CreateAccountState(publicKeyHeight, mosaics);
+			auto accountState = CreateAccountState(publicKeyHeight, mosaics, supplementalAccountKeysMask);
 
 			// Act:
 			auto dbAccount = ToDbModel(accountState);
@@ -105,6 +112,23 @@ namespace catapult { namespace mongo { namespace mappers {
 		AssertCanMapAccountState(
 				Height(456),
 				{ { MosaicId(1234), Amount(234) }, { MosaicId(1357), Amount(345) }, { MosaicId(31), Amount(45) } });
+	}
+
+	TEST(TEST_CLASS, CanMapAccountStateWithoutSupplementalAccountKeys) {
+		// Arrange:
+		std::vector<state::AccountKeys::KeyType> keyTypeMasks{
+			state::AccountKeys::KeyType::Linked,
+			state::AccountKeys::KeyType::VRF,
+			state::AccountKeys::KeyType::Voting,
+			state::AccountKeys::KeyType::Linked | state::AccountKeys::KeyType::Voting,
+			state::AccountKeys::KeyType::Linked | state::AccountKeys::KeyType::VRF | state::AccountKeys::KeyType::Voting
+		};
+
+		// Act + Assert:
+		for (auto keyType : keyTypeMasks) {
+			CATAPULT_LOG(debug) << "key type mask: " << static_cast<uint16_t>(keyType);
+			AssertCanMapAccountState(Height(456), { { MosaicId(1234), Amount(234) } }, keyType);
+		}
 	}
 
 	// endregion

@@ -107,11 +107,20 @@ namespace catapult { namespace test {
 	/// Adds a marker account to \a cache.
 	void AddMarkerAccount(cache::CatapultCache& cache);
 
-	/// Returns \c true if \a cache contains the marker account.
-	bool IsMarkedCache(const cache::ReadOnlyCatapultCache& cache);
+	/// Modes for checking a marked cache.
+	enum class IsMarkedCacheMode {
+		/// Require the cache to exclusively contain a marked account.
+		Exclusive,
 
-	/// Returns \c true if \a cache contains the marker account.
-	bool IsMarkedCache(const cache::CatapultCacheDelta& cache);
+		/// Require the cache to contain a marked account but allow other accounts.
+		Any
+	};
+
+	/// Returns \c true if \a cache contains the marker account and satisfies all \a mode constraints.
+	bool IsMarkedCache(const cache::ReadOnlyCatapultCache& cache, IsMarkedCacheMode mode = IsMarkedCacheMode::Exclusive);
+
+	/// Returns \c true if \a cache contains the marker account and satisfies all \a mode constraints.
+	bool IsMarkedCache(const cache::CatapultCacheDelta& cache, IsMarkedCacheMode mode = IsMarkedCacheMode::Exclusive);
 
 	// endregion
 

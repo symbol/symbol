@@ -20,6 +20,7 @@
 
 #include "catapult/state/AccountStateSerializer.h"
 #include "catapult/model/Mosaic.h"
+#include "catapult/utils/Casting.h"
 #include "tests/test/core/AccountStateTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/core/SerializerTestUtils.h"
@@ -61,9 +62,8 @@ namespace catapult { namespace state {
 			Height PublicKeyHeight;
 
 			state::AccountType AccountType;
-			Key LinkedAccountKey;
-
 			uint8_t Format;
+			AccountKeys::KeyType SupplementalAccountKeysMask;
 		};
 
 		struct HighValueImportanceHeader {
@@ -92,13 +92,15 @@ namespace catapult { namespace state {
 
 		// region account state utils
 
-		AccountState CreateRandomAccountState(size_t numMosaics) {
+		AccountState CreateRandomAccountState(
+				size_t numMosaics,
+				AccountKeys::KeyType supplementalAccountKeysMask = AccountKeys::KeyType::Unset) {
 			auto accountState = AccountState(test::GenerateRandomAddress(), Height(123));
 			test::FillWithRandomData(accountState.PublicKey);
 			accountState.PublicKeyHeight = Height(234);
 
 			accountState.AccountType = static_cast<AccountType>(33);
-			test::FillWithRandomData(accountState.LinkedAccountKey);
+			test::SetRandomSupplementalAccountKeys(accountState, supplementalAccountKeysMask);
 
 			test::RandomFillAccountData(1, accountState, numMosaics);
 			accountState.Balances.optimize(test::GenerateRandomValue<MosaicId>());
@@ -163,7 +165,6 @@ namespace catapult { namespace state {
 			accountState.PublicKeyHeight = header.PublicKeyHeight;
 
 			accountState.AccountType = header.AccountType;
-			accountState.LinkedAccountKey = header.LinkedAccountKey;
 			return accountState;
 		}
 
@@ -196,6 +197,21 @@ namespace catapult { namespace state {
 			pData += sizeof(AccountStateHeader);
 			auto accountState = CreateAccountStateFromHeader(accountStateHeader);
 
+			if (HasFlag(AccountKeys::KeyType::Linked, accountStateHeader.SupplementalAccountKeysMask)) {
+				accountState.SupplementalAccountKeys.linkedPublicKey().set(reinterpret_cast<const Key&>(*pData));
+				pData += Key::Size;
+			}
+
+			if (HasFlag(AccountKeys::KeyType::VRF, accountStateHeader.SupplementalAccountKeysMask)) {
+				accountState.SupplementalAccountKeys.vrfPublicKey().set(reinterpret_cast<const Key&>(*pData));
+				pData += Key::Size;
+			}
+
+			if (HasFlag(AccountKeys::KeyType::Voting, accountStateHeader.SupplementalAccountKeysMask)) {
+				accountState.SupplementalAccountKeys.votingPublicKey().set(reinterpret_cast<const VotingKey&>(*pData));
+				pData += VotingKey::Size;
+			}
+
 			if (High_Value_Format_Tag == format) {
 				// 2. process HighValueImportanceHeader
 				const auto& importanceHeader = reinterpret_cast<const HighValueImportanceHeader&>(*pData);
@@ -226,9 +242,24 @@ namespace catapult { namespace state {
 			accountStateHeader.PublicKey = accountState.PublicKey;
 			accountStateHeader.PublicKeyHeight = accountState.PublicKeyHeight;
 			accountStateHeader.AccountType = accountState.AccountType;
-			accountStateHeader.LinkedAccountKey = accountState.LinkedAccountKey;
 			accountStateHeader.Format = format;
+			accountStateHeader.SupplementalAccountKeysMask = accountState.SupplementalAccountKeys.mask();
 			pData += sizeof(AccountStateHeader);
+
+			if (HasFlag(AccountKeys::KeyType::Linked, accountStateHeader.SupplementalAccountKeysMask)) {
+				reinterpret_cast<Key&>(*pData) = accountState.SupplementalAccountKeys.linkedPublicKey().get();
+				pData += Key::Size;
+			}
+
+			if (HasFlag(AccountKeys::KeyType::VRF, accountStateHeader.SupplementalAccountKeysMask)) {
+				reinterpret_cast<Key&>(*pData) = accountState.SupplementalAccountKeys.vrfPublicKey().get();
+				pData += Key::Size;
+			}
+
+			if (HasFlag(AccountKeys::KeyType::Voting, accountStateHeader.SupplementalAccountKeysMask)) {
+				reinterpret_cast<VotingKey&>(*pData) = accountState.SupplementalAccountKeys.votingPublicKey().get();
+				pData += VotingKey::Size;
+			}
 
 			if (High_Value_Format_Tag == format) {
 				auto& importanceHeader = reinterpret_cast<HighValueImportanceHeader&>(*pData);
@@ -277,7 +308,19 @@ namespace catapult { namespace state {
 			using Serializer = AccountStateNonHistoricalSerializer;
 
 			static size_t CalculatePackedSize(const AccountState& accountState) {
-				return sizeof(AccountStateHeader) + sizeof(MosaicHeader) + accountState.Balances.size() * sizeof(model::Mosaic);
+				auto size = sizeof(AccountStateHeader) + sizeof(MosaicHeader) + accountState.Balances.size() * sizeof(model::Mosaic);
+
+				auto supplementalAccountKeysMask = accountState.SupplementalAccountKeys.mask();
+				if (HasFlag(AccountKeys::KeyType::Linked, supplementalAccountKeysMask))
+					size += Key::Size;
+
+				if (HasFlag(AccountKeys::KeyType::VRF, supplementalAccountKeysMask))
+					size += Key::Size;
+
+				if (HasFlag(AccountKeys::KeyType::Voting, supplementalAccountKeysMask))
+					size += VotingKey::Size;
+
+				return size;
 			}
 
 			static AccountState DeserializeFromBuffer(const uint8_t* pData) {
@@ -472,14 +515,25 @@ namespace catapult { namespace state {
 	// region Save
 
 	namespace {
+		std::vector<AccountKeys::KeyType> GetSupplementalAccountKeysMasks() {
+			return {
+				AccountKeys::KeyType::Unset,
+				AccountKeys::KeyType::Linked,
+				AccountKeys::KeyType::VRF,
+				AccountKeys::KeyType::Voting,
+				AccountKeys::KeyType::Linked | AccountKeys::KeyType::Voting,
+				AccountKeys::KeyType::Linked | AccountKeys::KeyType::VRF | AccountKeys::KeyType::Voting
+			};
+		}
+
 		template<typename TTraits, typename TAction>
-		void AssertCanSaveValueWithMosaics(size_t numMosaics, TAction action) {
+		void AssertCanSaveValueWithMosaics(size_t numMosaics, AccountKeys::KeyType supplementalAccountKeysMask, TAction action) {
 			// Arrange:
 			std::vector<uint8_t> buffer;
 			mocks::MockMemoryStream stream(buffer);
 
 			// - create a random account state
-			auto originalAccountState = CreateRandomAccountState(numMosaics);
+			auto originalAccountState = CreateRandomAccountState(numMosaics, supplementalAccountKeysMask);
 			TTraits::CoerceToDesiredFormat(originalAccountState);
 
 			// Act:
@@ -495,13 +549,19 @@ namespace catapult { namespace state {
 
 		template<typename TTraits>
 		void AssertCanSaveValueWithMosaics(size_t numMosaics) {
-			// Act:
-			AssertCanSaveValueWithMosaics<TTraits>(numMosaics, [numMosaics](const auto& originalAccountState, const auto& buffer) {
-				// Assert:
-				auto savedAccountState = TTraits::DeserializeFromBuffer(buffer.data());
-				EXPECT_EQ(numMosaics, savedAccountState.Balances.size());
-				TTraits::AssertEqual(originalAccountState, savedAccountState);
-			});
+			for (auto keyType : GetSupplementalAccountKeysMasks()) {
+				CATAPULT_LOG(debug) << "key type mask: " << static_cast<uint16_t>(keyType);
+
+				// Act + Assert:
+				AssertCanSaveValueWithMosaics<TTraits>(numMosaics, keyType, [numMosaics](
+						const auto& originalAccountState,
+						const auto& buffer) {
+					// Assert:
+					auto savedAccountState = TTraits::DeserializeFromBuffer(buffer.data());
+					EXPECT_EQ(numMosaics, savedAccountState.Balances.size());
+					TTraits::AssertEqual(originalAccountState, savedAccountState);
+				});
+			}
 		}
 	}
 
@@ -519,7 +579,7 @@ namespace catapult { namespace state {
 
 	SERIALIZER_TEST(MosaicsAreSavedInSortedOrder) {
 		static constexpr auto Num_Mosaics = 128u;
-		AssertCanSaveValueWithMosaics<TTraits>(Num_Mosaics, [](const auto&, const auto& buffer) {
+		AssertCanSaveValueWithMosaics<TTraits>(Num_Mosaics, AccountKeys::KeyType::Unset, [](const auto&, const auto& buffer) {
 			auto lastMosaicId = MosaicId();
 			auto firstMosaicOffset = TTraits::Mosaic_Header_Offset + sizeof(MosaicHeader);
 			const auto* pMosaic = reinterpret_cast<const model::Mosaic*>(buffer.data() + firstMosaicOffset);
@@ -538,17 +598,21 @@ namespace catapult { namespace state {
 	namespace {
 		template<typename TTraits>
 		void AssertCanLoadValueWithMosaics(size_t numMosaics) {
-			// Arrange: create a random account state
-			auto originalAccountState = CreateRandomAccountState(numMosaics);
-			auto buffer = TTraits::CopyToBuffer(originalAccountState);
+			for (auto keyType : GetSupplementalAccountKeysMasks()) {
+				CATAPULT_LOG(debug) << "key type mask: " << static_cast<uint16_t>(keyType);
 
-			// Act: load the account state
-			mocks::MockMemoryStream stream(buffer);
-			auto loadedAccountState = TTraits::Serializer::Load(stream);
+				// Arrange: create a random account state
+				auto originalAccountState = CreateRandomAccountState(numMosaics, keyType);
+				auto buffer = TTraits::CopyToBuffer(originalAccountState);
 
-			// Assert:
-			EXPECT_EQ(numMosaics, loadedAccountState.Balances.size());
-			TTraits::AssertEqual(originalAccountState, loadedAccountState);
+				// Act: load the account state
+				mocks::MockMemoryStream stream(buffer);
+				auto loadedAccountState = TTraits::Serializer::Load(stream);
+
+				// Assert:
+				EXPECT_EQ(numMosaics, loadedAccountState.Balances.size());
+				TTraits::AssertEqual(originalAccountState, loadedAccountState);
+			}
 		}
 	}
 
@@ -595,16 +659,20 @@ namespace catapult { namespace state {
 	namespace {
 		template<typename TTraits>
 		void AssertCanRoundtripValueWithMosaics(size_t numMosaics) {
-			// Arrange: create a random account state
-			auto originalAccountState = CreateRandomAccountState(numMosaics);
-			TTraits::CoerceToDesiredFormat(originalAccountState);
+			for (auto keyType : GetSupplementalAccountKeysMasks()) {
+				CATAPULT_LOG(debug) << "key type mask: " << static_cast<uint16_t>(keyType);
 
-			// Act:
-			auto result = test::RunRoundtripBufferTest<typename TTraits::Serializer>(originalAccountState);
+				// Arrange: create a random account state
+				auto originalAccountState = CreateRandomAccountState(numMosaics, keyType);
+				TTraits::CoerceToDesiredFormat(originalAccountState);
 
-			// Assert:
-			EXPECT_EQ(numMosaics, result.Balances.size());
-			TTraits::AssertEqual(originalAccountState, result);
+				// Act:
+				auto result = test::RunRoundtripBufferTest<typename TTraits::Serializer>(originalAccountState);
+
+				// Assert:
+				EXPECT_EQ(numMosaics, result.Balances.size());
+				TTraits::AssertEqual(originalAccountState, result);
+			}
 		}
 	}
 

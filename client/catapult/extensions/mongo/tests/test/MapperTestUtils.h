@@ -125,6 +125,12 @@ namespace catapult { namespace test {
 		return GetBinaryArray<Key::Size>(doc, name);
 	}
 
+	/// Converts binary field \a name from a document (\a doc) to a public voting key.
+	template<typename TDocument>
+	VotingKey GetVotingKeyValue(const TDocument& doc, const std::string& name) {
+		return GetBinaryArray<VotingKey::Size>(doc, name);
+	}
+
 	/// Converts binary field \a name from a document (\a doc) to a signature.
 	template<typename TDocument>
 	Signature GetSignatureValue(const TDocument& doc, const std::string& name) {

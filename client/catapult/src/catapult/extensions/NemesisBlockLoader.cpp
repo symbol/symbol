@@ -27,6 +27,7 @@
 #include "catapult/chain/BlockExecutor.h"
 #include "catapult/config/CatapultConfiguration.h"
 #include "catapult/crypto/Signer.h"
+#include "catapult/crypto/Vrf.h"
 #include "catapult/io/BlockStorageCache.h"
 #include "catapult/model/BlockUtils.h"
 #include "catapult/model/NotificationPublisher.h"
@@ -81,6 +82,7 @@ namespace catapult { namespace extensions {
 			auto networkIdentifier = blockElement.Block.Network;
 			const auto& publicKey = blockElement.Block.SignerPublicKey;
 			const auto& generationHash = blockElement.GenerationHash;
+			const auto& generationHashProof = blockElement.Block.GenerationHashProof;
 
 			if (expectedNetwork.Identifier != networkIdentifier)
 				CATAPULT_THROW_INVALID_ARGUMENT_1("nemesis network id does not match network", networkIdentifier);
@@ -88,8 +90,14 @@ namespace catapult { namespace extensions {
 			if (expectedNetwork.PublicKey != publicKey)
 				CATAPULT_THROW_INVALID_ARGUMENT_1("nemesis public key does not match network", publicKey);
 
-			if (expectedNetwork.GenerationHash != generationHash)
-				CATAPULT_THROW_INVALID_ARGUMENT_1("nemesis generation hash does not match network", generationHash);
+			crypto::VrfProof vrfProof{ generationHashProof.Gamma, generationHashProof.VerificationHash, generationHashProof.Scalar };
+			auto proofHash = crypto::VerifyVrfProof(vrfProof, expectedNetwork.GenerationHashSeed, publicKey);
+			if (Hash512() == proofHash)
+				CATAPULT_THROW_INVALID_ARGUMENT("nemesis block has invalid generation hash proof");
+
+			auto expectedGenerationHash = proofHash.copyTo<GenerationHash>();
+			if (expectedGenerationHash != generationHash)
+				CATAPULT_THROW_INVALID_ARGUMENT_2("nemesis block generation hash is invalid", generationHash, expectedGenerationHash);
 		}
 
 		void CheckNemesisBlockTransactionTypes(const model::Block& block, const model::TransactionRegistry& transactionRegistry) {

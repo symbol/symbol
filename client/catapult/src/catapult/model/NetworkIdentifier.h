@@ -69,15 +69,15 @@ namespace catapult { namespace model {
 		/// Creates fingerprint around \a identifier.
 		explicit UniqueNetworkFingerprint(NetworkIdentifier identifier);
 
-		/// Creates fingerprint around \a identifier and \a generationHash.
-		UniqueNetworkFingerprint(NetworkIdentifier identifier, const catapult::GenerationHash& generationHash);
+		/// Creates fingerprint around \a identifier and \a generationHashSeed.
+		UniqueNetworkFingerprint(NetworkIdentifier identifier, const catapult::GenerationHashSeed& generationHashSeed);
 
 	public:
 		/// Network identifier.
 		NetworkIdentifier Identifier;
 
-		/// Nemesis generation hash.
-		catapult::GenerationHash GenerationHash;
+		/// Nemesis generation hash seed.
+		catapult::GenerationHashSeed GenerationHashSeed;
 
 	public:
 		/// Returns \c true if this fingerprint is equal to \a rhs.

@@ -64,6 +64,10 @@ namespace catapult { namespace harvesting {
 			pBlock->BeneficiaryPublicKey = Key() == beneficiary ? signer : beneficiary;
 			return pBlock;
 		}
+
+		void AddGenerationHashProof(model::Block& block, const crypto::VrfProof& vrfProof) {
+			block.GenerationHashProof = { vrfProof.Gamma, vrfProof.VerificationHash, vrfProof.Scalar };
+		}
 	}
 
 	Harvester::Harvester(
@@ -101,12 +105,15 @@ namespace catapult { namespace harvesting {
 
 		auto unlockedAccountsView = m_unlockedAccounts.view();
 		const crypto::KeyPair* pHarvesterKeyPair = nullptr;
-		unlockedAccountsView.forEach([&context, &hitContext, &hitPredicate, &pHarvesterKeyPair](const auto& keyPair) {
-			hitContext.Signer = keyPair.publicKey();
-			hitContext.GenerationHash = model::CalculateGenerationHash(context.ParentContext.GenerationHash, hitContext.Signer);
+		crypto::VrfProof vrfProof;
 
+		unlockedAccountsView.forEach([&context, &hitContext, &hitPredicate, &pHarvesterKeyPair, &vrfProof](const auto& descriptor) {
+			hitContext.Signer = descriptor.signingKeyPair().publicKey();
+
+			vrfProof = crypto::GenerateVrfProof(context.ParentContext.GenerationHash, descriptor.vrfKeyPair());
+			hitContext.GenerationHash = model::CalculateGenerationHash(vrfProof.Gamma);
 			if (hitPredicate(hitContext)) {
-				pHarvesterKeyPair = &keyPair;
+				pHarvesterKeyPair = &descriptor.signingKeyPair();
 				return false;
 			}
 
@@ -119,6 +126,7 @@ namespace catapult { namespace harvesting {
 		utils::StackLogger stackLogger("generating candidate block", utils::LogLevel::Debug);
 		auto networkIdentifier = m_config.Network.Identifier;
 		auto pBlockHeader = CreateUnsignedBlockHeader(context, networkIdentifier, pHarvesterKeyPair->publicKey(), m_beneficiary);
+		AddGenerationHashProof(*pBlockHeader, vrfProof);
 		auto pBlock = m_blockGenerator(*pBlockHeader, m_config.MaxTransactionsPerBlock);
 		if (pBlock)
 			SignBlockHeader(*pHarvesterKeyPair, *pBlock);

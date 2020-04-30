@@ -134,9 +134,11 @@ PLUGINS_FIRSTINCLUDES = {
     # plugins
     'plugins/coresystem/src/importance/PosImportanceCalculator.cpp': 'ImportanceCalculator.h',
     'plugins/coresystem/src/importance/RestoreImportanceCalculator.cpp': 'ImportanceCalculator.h',
+    'plugins/coresystem/src/observers/KeyLinkObservers.cpp': 'KeyLinkObservers.h',
 
     'plugins/coresystem/tests/importance/PosImportanceCalculatorTests.cpp': 'src/importance/ImportanceCalculator.h',
     'plugins/coresystem/tests/importance/RestoreImportanceCalculatorTests.cpp': 'src/importance/ImportanceCalculator.h',
+    'plugins/coresystem/tests/observers/KeyLinkObserversTests.cpp': 'src/observers/KeyLinkObservers.h',
 
     'plugins/txes/metadata/tests/model/MetadataTransactionTests.cpp': 'src/model/AccountMetadataTransaction.h',
     'plugins/txes/restriction_account/tests/model/AccountRestrictionTransactionTests.cpp':
@@ -145,6 +147,7 @@ PLUGINS_FIRSTINCLUDES = {
     # sdk
     'sdk/tests/builders/AliasBuilderTests.cpp': 'src/builders/AddressAliasBuilder.h',
     'sdk/tests/builders/AccountRestrictionBuilderTests.cpp': 'src/builders/AccountAddressRestrictionBuilder.h',
+    'sdk/tests/builders/LinkBuilderTests.cpp': 'src/builders/AccountLinkBuilder.h',
     'sdk/tests/builders/MetadataBuilderTests.cpp': 'src/builders/AccountMetadataBuilder.h'
 }
 

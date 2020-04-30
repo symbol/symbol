@@ -34,30 +34,34 @@ namespace catapult { namespace validators {
 	// region test utils
 
 	namespace {
-		void AddLink(cache::CatapultCache& cache, const Key& mainAccountKey, const Key& linkedAccountKey, state::AccountType accountType) {
+		void AddLink(
+				cache::CatapultCache& cache,
+				const Key& mainAccountPublicKey,
+				const Key& linkedPublicKey,
+				state::AccountType accountType) {
 			auto cacheDelta = cache.createDelta();
 			auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
 
-			accountStateCacheDelta.addAccount(mainAccountKey, Height(1));
-			auto mainAccountStateIter = accountStateCacheDelta.find(mainAccountKey);
+			accountStateCacheDelta.addAccount(mainAccountPublicKey, Height(1));
+			auto mainAccountStateIter = accountStateCacheDelta.find(mainAccountPublicKey);
 			auto& mainAccountState = mainAccountStateIter.get();
 
-			mainAccountState.LinkedAccountKey = linkedAccountKey;
+			mainAccountState.SupplementalAccountKeys.linkedPublicKey().set(linkedPublicKey);
 			mainAccountState.AccountType = accountType;
 
 			cache.commit(Height(1));
 		}
 
-		void AssertValidation(ValidationResult expectedResult, state::AccountType accountType, model::AccountLinkAction linkAction) {
+		void AssertValidation(ValidationResult expectedResult, state::AccountType accountType, model::LinkAction linkAction) {
 			// Arrange:
-			auto mainAccountKey = test::GenerateRandomByteArray<Key>();
-			auto remoteAccountKey = test::GenerateRandomByteArray<Key>();
+			auto mainAccountPublicKey = test::GenerateRandomByteArray<Key>();
+			auto linkedPublicKey = test::GenerateRandomByteArray<Key>();
 
 			auto cache = test::CoreSystemCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
-			AddLink(cache, mainAccountKey, remoteAccountKey, accountType);
+			AddLink(cache, mainAccountPublicKey, linkedPublicKey, accountType);
 
 			auto pValidator = CreateAccountLinkAvailabilityValidator();
-			auto notification = model::RemoteAccountLinkNotification(mainAccountKey, remoteAccountKey, linkAction);
+			auto notification = model::RemoteAccountLinkNotification(mainAccountPublicKey, linkedPublicKey, linkAction);
 
 			// Act:
 			auto result = test::ValidateNotification(*pValidator, notification, cache);
@@ -69,12 +73,11 @@ namespace catapult { namespace validators {
 
 	// endregion
 
-	// region link - main account key type validation
+	// region link - main account public key type validation
 
 	namespace {
 		void AssertLinkValidationForAccountWithType(ValidationResult expectedResult, state::AccountType accountType) {
-			// Assert:
-			AssertValidation(expectedResult, accountType, model::AccountLinkAction::Link);
+			AssertValidation(expectedResult, accountType, model::LinkAction::Link);
 		}
 	}
 
@@ -92,12 +95,11 @@ namespace catapult { namespace validators {
 
 	// endregion
 
-	// region unlink - main account key type validation
+	// region unlink - main account public key type validation
 
 	namespace {
 		void AssertUnlinkValidationForAccountWithType(ValidationResult expectedResult, state::AccountType accountType) {
-			// Assert:
-			AssertValidation(expectedResult, accountType, model::AccountLinkAction::Unlink);
+			AssertValidation(expectedResult, accountType, model::LinkAction::Unlink);
 		}
 	}
 
@@ -119,17 +121,17 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, UnlinkFailsWhenExistingAccountHasMainLinkButNotificationDataIsInconsistentWithState) {
 		// Arrange:
-		auto mainAccountKey = test::GenerateRandomByteArray<Key>();
-		auto remoteAccountKey = test::GenerateRandomByteArray<Key>();
+		auto mainAccountPublicKey = test::GenerateRandomByteArray<Key>();
+		auto linkedPublicKey = test::GenerateRandomByteArray<Key>();
 
 		auto cache = test::CoreSystemCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
-		AddLink(cache, mainAccountKey, remoteAccountKey, state::AccountType::Main);
+		AddLink(cache, mainAccountPublicKey, linkedPublicKey, state::AccountType::Main);
 
-		// - the notification remote account key does not match the state remote account key
+		// - the notification linked public key does not match the state linked public key
 		auto pValidator = CreateAccountLinkAvailabilityValidator();
 		auto notificationRemoteKey = test::GenerateRandomByteArray<Key>();
-		auto unlinkAction = model::AccountLinkAction::Unlink;
-		auto notification = model::RemoteAccountLinkNotification(mainAccountKey, notificationRemoteKey, unlinkAction);
+		auto unlinkAction = model::LinkAction::Unlink;
+		auto notification = model::RemoteAccountLinkNotification(mainAccountPublicKey, notificationRemoteKey, unlinkAction);
 
 		// Act:
 		auto result = test::ValidateNotification(*pValidator, notification, cache);

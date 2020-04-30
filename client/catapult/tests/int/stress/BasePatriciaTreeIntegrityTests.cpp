@@ -101,37 +101,37 @@ namespace catapult { namespace cache {
 	TEST(TEST_CLASS, AccountStateCacheMerkleRootIsCalculatedCorrectly_Primary_1) {
 		AssertAccountStateMerkleRootIsCalculatedCorrectly<AccountStatePrimarySerializer>(
 				"../tests/int/stress/resources/1.patricia-tree-account.dat",
-				"FCC1555BF49CAF3DEB8E13FCA5F7BDCE139742FF9C9F4CD33FFD0429887F1338");
+				"08C147305D541D6E593848983A3B59FF617939E3275BB9851C75B456E02DC358");
 	}
 
 	TEST(TEST_CLASS, AccountStateCacheMerkleRootIsCalculatedCorrectly_PatriciaTree_1) {
 		AssertAccountStateMerkleRootIsCalculatedCorrectly<AccountStatePatriciaTreeSerializer>(
 				"../tests/int/stress/resources/1.patricia-tree-account.dat",
-				"FCC1555BF49CAF3DEB8E13FCA5F7BDCE139742FF9C9F4CD33FFD0429887F1338");
+				"08C147305D541D6E593848983A3B59FF617939E3275BB9851C75B456E02DC358");
 	}
 
 	TEST(TEST_CLASS, AccountStateCacheMerkleRootIsCalculatedCorrectly_Primary_2) {
 		AssertAccountStateMerkleRootIsCalculatedCorrectly<AccountStatePrimarySerializer>(
 				"../tests/int/stress/resources/2.patricia-tree-account.dat",
-				"58F90DC0C8FDB102594223C9C07EE27E2BF191CA90FB5ABF5CF2A09DD05F9FF3");
+				"F15518B2044F8A95F3580178EE99CADBD4A8A8AC83793F2F11B4808B1B431B99");
 	}
 
 	TEST(TEST_CLASS, AccountStateCacheMerkleRootIsCalculatedCorrectly_PatriciaTree_2) {
 		AssertAccountStateMerkleRootIsCalculatedCorrectly<AccountStatePatriciaTreeSerializer>(
 				"../tests/int/stress/resources/2.patricia-tree-account.dat",
-				"58F90DC0C8FDB102594223C9C07EE27E2BF191CA90FB5ABF5CF2A09DD05F9FF3");
+				"F15518B2044F8A95F3580178EE99CADBD4A8A8AC83793F2F11B4808B1B431B99");
 	}
 
 	TEST(TEST_CLASS, AccountStateCacheMerkleRootIsCalculatedCorrectly_Primary_3) {
 		AssertAccountStateMerkleRootIsCalculatedCorrectly<AccountStatePrimarySerializer>(
 				"../tests/int/stress/resources/3.patricia-tree-account.dat",
-				"E433C70F3A9CA59A924BC19CB0263898F49FA7507CBAA7F4A982755F99998111");
+				"7083BA3FFDFAAC5A5EBEB2A7396BE6B015AEEF28CB4CF8E37CEF0F25DF22CEB3");
 	}
 
 	TEST(TEST_CLASS, AccountStateCacheMerkleRootIsCalculatedCorrectly_PatriciaTree_3) {
 		AssertAccountStateMerkleRootIsCalculatedCorrectly<AccountStatePatriciaTreeSerializer>(
 				"../tests/int/stress/resources/3.patricia-tree-account.dat",
-				"E433C70F3A9CA59A924BC19CB0263898F49FA7507CBAA7F4A982755F99998111");
+				"7083BA3FFDFAAC5A5EBEB2A7396BE6B015AEEF28CB4CF8E37CEF0F25DF22CEB3");
 	}
 
 	// endregion

@@ -120,6 +120,19 @@ namespace catapult { namespace state {
 			}
 		}
 
+		void WriteSupplementalAccountKeys(io::OutputStream& output, const AccountKeys& accountKeys) {
+			io::Write8(output, utils::to_underlying_type(accountKeys.mask()));
+
+			if (HasFlag(AccountKeys::KeyType::Linked, accountKeys.mask()))
+				output.write(accountKeys.linkedPublicKey().get());
+
+			if (HasFlag(AccountKeys::KeyType::VRF, accountKeys.mask()))
+				output.write(accountKeys.vrfPublicKey().get());
+
+			if (HasFlag(AccountKeys::KeyType::Voting, accountKeys.mask()))
+				output.write(accountKeys.votingPublicKey().get());
+		}
+
 		void WriteSnapshots(io::OutputStream& output, const AccountImportanceSnapshots& snapshots, size_t start, size_t count) {
 			ProcessRange(snapshots, start, count, [&output](const auto& snapshot) {
 				io::Write(output, snapshot.Importance);
@@ -148,13 +161,16 @@ namespace catapult { namespace state {
 		output.write(accountState.PublicKey);
 		io::Write(output, accountState.PublicKeyHeight);
 
-		// write link information
+		// write account attributes
 		io::Write8(output, utils::to_underlying_type(accountState.AccountType));
-		output.write(accountState.LinkedAccountKey);
 
-		// write importance information for high value accounts
 		auto format = GetFormat(accountState);
 		io::Write8(output, utils::to_underlying_type(format));
+
+		// write supplemental account keys
+		WriteSupplementalAccountKeys(output, accountState.SupplementalAccountKeys);
+
+		// write importance information for high value accounts
 		if (AccountStateFormat::High_Value == format) {
 			WriteSnapshots(output, accountState.ImportanceSnapshots, 0, Importance_History_Size - Rollback_Buffer_Size);
 			WriteBuckets(output, accountState.ActivityBuckets, 0, Activity_Bucket_History_Size - Rollback_Buffer_Size);
@@ -170,6 +186,26 @@ namespace catapult { namespace state {
 	}
 
 	namespace {
+		template<typename TKey>
+		void ReadSupplementalAccountKey(io::InputStream& input, AccountKeys::KeyAccessor<TKey>& keyAccessor) {
+			TKey key;
+			input.read(key);
+			keyAccessor.set(key);
+		}
+
+		void ReadSupplementalAccountKeys(io::InputStream& input, AccountKeys& accountKeys) {
+			auto supplementalAccountKeysMask = static_cast<AccountKeys::KeyType>(io::Read8(input));
+
+			if (HasFlag(AccountKeys::KeyType::Linked, supplementalAccountKeysMask))
+				ReadSupplementalAccountKey(input, accountKeys.linkedPublicKey());
+
+			if (HasFlag(AccountKeys::KeyType::VRF, supplementalAccountKeysMask))
+				ReadSupplementalAccountKey(input, accountKeys.vrfPublicKey());
+
+			if (HasFlag(AccountKeys::KeyType::Voting, supplementalAccountKeysMask))
+				ReadSupplementalAccountKey(input, accountKeys.votingPublicKey());
+		}
+
 		AccountState LoadAccountStateWithoutHistory(io::InputStream& input, ImportanceReader& importanceReader) {
 			// read identifying information
 			Address address;
@@ -181,12 +217,14 @@ namespace catapult { namespace state {
 			input.read(accountState.PublicKey);
 			accountState.PublicKeyHeight = io::Read<Height>(input);
 
-			// read link information
-			accountState.AccountType = static_cast<state::AccountType>(io::Read8(input));
-			input.read(accountState.LinkedAccountKey);
+			// read account attributes
+			accountState.AccountType = static_cast<AccountType>(io::Read8(input));
+			auto format = static_cast<AccountStateFormat>(io::Read8(input));
+
+			// read supplemental account keys
+			ReadSupplementalAccountKeys(input, accountState.SupplementalAccountKeys);
 
 			// read importance information for high value accounts
-			auto format = static_cast<AccountStateFormat>(io::Read8(input));
 			if (AccountStateFormat::High_Value == format) {
 				importanceReader.readSnapshots(input, Importance_History_Size - Rollback_Buffer_Size);
 				importanceReader.readBuckets(input, Activity_Bucket_History_Size - Rollback_Buffer_Size);
