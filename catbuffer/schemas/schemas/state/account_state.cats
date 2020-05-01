@@ -22,11 +22,20 @@ struct AccountState
 	# type of account
 	accountType = AccountType
 
-	# public key of linked account
-	linkedAccountKey = Key
-
 	# account format
 	format = AccountStateFormat
+
+	# mask of supplemental account key flags
+	supplementalAccountKeysMask = AccountKeyFlags
+
+	# linked account public key
+	linkedPublicKey = Key if supplementalAccountKeysMask has linked
+
+	# vrf public key
+	vrfPublicKey = Key if supplementalAccountKeysMask has vrf
+
+	# voting public key
+	votingPublicKey = VotingKey if supplementalAccountKeysMask has voting
 
 	# current importance snapshot of the account
 	importanceSnapshots = ImportanceSnapshot if format equals highValue

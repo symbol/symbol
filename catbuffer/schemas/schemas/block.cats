@@ -1,5 +1,20 @@
 import "entity.cats"
 
+using ProofGamma = binary_fixed(32)
+using ProofVerificationHash = binary_fixed(16)
+using ProofScalar = binary_fixed(32)
+
+# Verfiable random function proof
+struct VrfProof
+	# gamma
+	gamma = ProofGamma
+
+	# verification hash
+	verificationHash = ProofVerificationHash
+
+	# scalar
+	scalar = ProofScalar
+
 # binary layout for a block header
 struct BlockHeader
 	inline SizePrefixedEntity
@@ -14,6 +29,9 @@ struct BlockHeader
 
 	# block difficulty
 	difficulty = Difficulty
+
+	# generation hash proof
+	generationHashProof = VrfProof
 
 	# previous block hash
 	previousBlockHash = Hash256

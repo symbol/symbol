@@ -1,6 +1,6 @@
 import "types.cats"
 
-# linked account type that indicates the account's link status
+# enumeration of account types
 enum AccountType : uint8
 	# account is not linked to another account
 	unlinked = 0
@@ -12,9 +12,25 @@ enum AccountType : uint8
 	remote = 2
 
 	# account is a remote harvester eligible account that is unlinked
+	# \note this allows an account that has previously been used as remote to be reused as a remote
 	remoteUnlinked = 3
 
-# account state format
+# enumeration of account key flags
+enum AccountKeyFlags : uint8
+	# unset key
+	unset = 0x00
+
+	# linked account public key
+	# \note this can be either a remote or main account public key depending on context
+	linked = 0x01
+
+	# VRF public key
+	vrf = 0x02
+
+	# voting public key
+	voting = 0x04
+
+# enumeration of account state formats
 enum AccountStateFormat : uint8
 	# regular account
 	regular = 0
