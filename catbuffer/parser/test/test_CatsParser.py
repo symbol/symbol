@@ -196,7 +196,7 @@ class CatsParserTests(unittest.TestCase):
             'struct Enclosing',
             '\tenclosingType = Shape',
             '\t# u part 1',
-            '\tcircumference = Circ if enclosingType equals circle',
+            '\tcircumference = Circ if enclosingType has circle',
             '\t# union pt 2',
             '\tperimiter = Perm if enclosingType equals rectangle'
         ])
@@ -205,8 +205,16 @@ class CatsParserTests(unittest.TestCase):
         self.assertEqual(4, len(type_descriptors))
         self.assertEqual(type_descriptors['Enclosing'], {'type': 'struct', 'comments': '', 'layout': [
             {'name': 'enclosingType', 'type': 'Shape', 'comments': ''},
-            {'name': 'circumference', 'type': 'Circ', 'condition': 'enclosingType', 'condition_value': 'circle', 'comments': 'u part 1'},
-            {'name': 'perimiter', 'type': 'Perm', 'condition': 'enclosingType', 'condition_value': 'rectangle', 'comments': 'union pt 2'}
+            {
+                'name': 'circumference', 'type': 'Circ',
+                'condition': 'enclosingType', 'condition_value': 'circle', 'condition_operation': 'has',
+                'comments': 'u part 1'
+            },
+            {
+                'name': 'perimiter', 'type': 'Perm',
+                'condition': 'enclosingType', 'condition_value': 'rectangle', 'condition_operation': 'equals',
+                'comments': 'union pt 2'
+            }
         ]})
 
     def test_can_parse_struct_conditional_types_trailing_discriminator(self):
@@ -219,7 +227,7 @@ class CatsParserTests(unittest.TestCase):
             'using Perm = uint16',
             'struct Enclosing',
             '\t# u part 1',
-            '\tcircumference = Circ if enclosingType equals circle',
+            '\tcircumference = Circ if enclosingType has circle',
             '\t# union pt 2',
             '\tperimiter = Perm if enclosingType equals rectangle',
             '\tenclosingType = Shape'
@@ -228,8 +236,16 @@ class CatsParserTests(unittest.TestCase):
         # Assert:
         self.assertEqual(4, len(type_descriptors))
         self.assertEqual(type_descriptors['Enclosing'], {'type': 'struct', 'comments': '', 'layout': [
-            {'name': 'circumference', 'type': 'Circ', 'condition': 'enclosingType', 'condition_value': 'circle', 'comments': 'u part 1'},
-            {'name': 'perimiter', 'type': 'Perm', 'condition': 'enclosingType', 'condition_value': 'rectangle', 'comments': 'union pt 2'},
+            {
+                'name': 'circumference', 'type': 'Circ',
+                'condition': 'enclosingType', 'condition_value': 'circle', 'condition_operation': 'has',
+                'comments': 'u part 1'
+            },
+            {
+                'name': 'perimiter', 'type': 'Perm',
+                'condition': 'enclosingType', 'condition_value': 'rectangle', 'condition_operation': 'equals',
+                'comments': 'union pt 2'
+            },
             {'name': 'enclosingType', 'type': 'Shape', 'comments': ''}
         ]})
 

@@ -339,13 +339,16 @@ class StructScalarParserFactoryTest(unittest.TestCase):
     def test_is_match_returns_true_for_positives(self):
         # Assert:
         ParserFactoryTestUtils(StructScalarMemberParserFactory, self).assert_positives([
-            'foo = bar', 'foo = BAR', 'fzaZa09 = d', '& = $$$', 'foo = fazFZA90', 'foo = bar if abc equals def'
+            'foo = bar', 'foo = BAR', 'fzaZa09 = d', '& = $$$', 'foo = fazFZA90',
+            'foo = bar if abc equals def', 'foo = bar if abc has def'
         ])
 
     def test_is_match_returns_false_for_negatives(self):
         # Assert:
         ParserFactoryTestUtils(StructScalarMemberParserFactory, self).assert_negatives([
-            ' foo = bar', 'foo = bar ', 'foo = ', '= bar', 'foo = array(bar, baz)', 'foo = bar if abc equals', 'foo = bar abc equals def'
+            ' foo = bar', 'foo = bar ', 'foo = ', '= bar', 'foo = array(bar, baz)', 'foo = bar if abc mask def',
+            'foo = bar if abc equals', 'foo = bar abc equals def',
+            'foo = bar if abc has', 'foo = bar abc has def'
         ])
 
 
@@ -367,11 +370,17 @@ class StructScalarParserTest(unittest.TestCase):
                 'car = {0}'.format(builtin_tuple[0]),
                 {'name': 'car', 'type': 'byte', 'signedness': builtin_tuple[2], 'size': builtin_tuple[1]})
 
-    def test_can_parse_conditional_custom_declaration(self):
+    def test_can_parse_conditional_custom_declaration_equals(self):
         # Act + Assert:
         self._assert_parse(
             'roadGrade = RoadGrade_ if terrain equals road',
-            {'name': 'roadGrade', 'type': 'RoadGrade_', 'condition': 'terrain', 'condition_value': 'road'})
+            {'name': 'roadGrade', 'type': 'RoadGrade_', 'condition': 'terrain', 'condition_operation': 'equals', 'condition_value': 'road'})
+
+    def test_can_parse_conditional_custom_declaration_has(self):
+        # Act + Assert:
+        self._assert_parse(
+            'roadGrade = RoadGrade_ if terrain has road',
+            {'name': 'roadGrade', 'type': 'RoadGrade_', 'condition': 'terrain', 'condition_operation': 'has', 'condition_value': 'road'})
 
     def test_member_names_must_have_property_name_semantics(self):
         # Assert:
@@ -388,7 +397,7 @@ class StructScalarParserTest(unittest.TestCase):
 VALID_ARRAY_PATTERNS = ['foo = {0}(bar, {1}baz)', '$$$ = {0}(&, {1}**)', '$$$ = {0}(&, {1}**, sort_key=@@)']
 INVALID_ARRAY_PATTERNS = [
     ' foo = {0}(bar, {1}baz)', 'foo = {0}(bar, {1}baz) ', 'foo = ', '= {0}(bar, {1}baz)',
-    'foo = {0}(bar, {1}baz', 'foo = {0}(bar, {1}baz) if abc equals def'
+    'foo = {0}(bar, {1}baz', 'foo = {0}(bar, {1}baz) if abc equals def', 'foo = {0}(bar, {1}baz) if abc has def'
 ]
 ARRAY_DIMENSION_QUALIFIERS = ['', 'size=']
 
