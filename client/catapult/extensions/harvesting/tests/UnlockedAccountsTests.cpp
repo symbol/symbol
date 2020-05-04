@@ -569,11 +569,11 @@ namespace catapult { namespace harvesting {
 		// Act:
 		auto i = 0u;
 		std::vector<Key> removedKeys;
-		accounts.modifier().removeIf([&](const auto& key) {
+		accounts.modifier().removeIf([&](const auto& descriptor) {
 			if (0 == i++ % 2)
 				return false;
 
-			removedKeys.push_back(key);
+			removedKeys.push_back(descriptor.signingKeyPair().publicKey());
 			return true;
 		});
 

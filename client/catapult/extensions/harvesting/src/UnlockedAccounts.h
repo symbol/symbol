@@ -86,9 +86,6 @@ namespace catapult { namespace harvesting {
 
 	/// Write only view on top of unlocked accounts.
 	class UnlockedAccountsModifier : utils::MoveOnly {
-	private:
-		using KeyPredicate = predicate<const Key&>;
-
 	public:
 		/// Creates a view around \a maxUnlockedAccounts, \a prioritizer and \a prioritizedKeyPairs with lock context \a writeLock.
 		UnlockedAccountsModifier(
@@ -105,7 +102,7 @@ namespace catapult { namespace harvesting {
 		bool remove(const Key& publicKey);
 
 		/// Removes all accounts for which \a predicate returns \c true.
-		void removeIf(const KeyPredicate& predicate);
+		void removeIf(const predicate<const BlockGeneratorAccountDescriptor&>& predicate);
 
 	private:
 		size_t m_maxUnlockedAccounts;

@@ -66,7 +66,7 @@ namespace catapult { namespace state {
 
 		std::ostringstream out;
 		out
-				<< "remote " << model::AddressToString(remoteAccountState.Address) << " link to main"
+				<< "remote " << model::AddressToString(remoteAccountState.Address) << " link to main "
 				<< model::AddressToString(mainAccountState.Address) << " is improper";
 		CATAPULT_THROW_RUNTIME_ERROR(out.str().c_str());
 	}

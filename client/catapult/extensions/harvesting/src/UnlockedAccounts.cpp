@@ -121,11 +121,11 @@ namespace catapult { namespace harvesting {
 		return false;
 	}
 
-	void UnlockedAccountsModifier::removeIf(const KeyPredicate& predicate) {
+	void UnlockedAccountsModifier::removeIf(const predicate<const BlockGeneratorAccountDescriptor&>& predicate) {
 		auto initialSize = m_prioritizedKeyPairs.size();
 		auto newPrioritizedKeyPairsEnd = std::remove_if(m_prioritizedKeyPairs.begin(), m_prioritizedKeyPairs.end(), [predicate](
 				const auto& prioritizedKeyPair) {
-			return predicate(GetPublicKey(prioritizedKeyPair));
+			return predicate(prioritizedKeyPair.first);
 		});
 
 		m_prioritizedKeyPairs.erase(newPrioritizedKeyPairsEnd, m_prioritizedKeyPairs.end());

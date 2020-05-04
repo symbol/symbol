@@ -80,9 +80,10 @@ namespace catapult { namespace harvesting {
 		// region utils
 
 		auto SerializeHarvestRequest(const HarvestRequest& request) {
-			std::vector<uint8_t> requestBuffer(1 + request.EncryptedPayload.Size);
+			std::vector<uint8_t> requestBuffer(1 + Key::Size + request.EncryptedPayload.Size);
 			requestBuffer[0] = static_cast<uint8_t>(request.Operation);
-			std::memcpy(requestBuffer.data() + 1, request.EncryptedPayload.pData, request.EncryptedPayload.Size);
+			reinterpret_cast<Key&>(requestBuffer[1]) = request.MainAccountPublicKey;
+			std::memcpy(&requestBuffer[1 + Key::Size], request.EncryptedPayload.pData, request.EncryptedPayload.Size);
 			return requestBuffer;
 		}
 
@@ -120,8 +121,19 @@ namespace catapult { namespace harvesting {
 				});
 
 				// Assert:
-				AssertForwardedMessages(collectedMessages, messages, validIndexes);
-				AssertDescriptors(collectedDescriptors, descriptors, validIndexes);
+				AssertForwarded<std::vector<uint8_t>>(messages, collectedMessages, validIndexes, [](
+						const auto& expected,
+						const auto& actual,
+						auto index) {
+					EXPECT_EQ(expected, actual) << "message at " << index;
+				});
+				AssertForwarded<BlockGeneratorAccountDescriptor>(descriptors, collectedDescriptors, validIndexes, [](
+						const auto& expected,
+						const auto& actual,
+						auto index) {
+					EXPECT_EQ(expected.signingKeyPair().publicKey(), actual.signingKeyPair().publicKey()) << "descriptor at " << index;
+					EXPECT_EQ(expected.vrfKeyPair().publicKey(), actual.vrfKeyPair().publicKey()) << "descriptor at " << index;
+				});
 			}
 
 		public:
@@ -173,33 +185,26 @@ namespace catapult { namespace harvesting {
 			static std::vector<uint8_t> EncryptedPayloadToMessage(const test::HarvestRequestEncryptedPayload& encryptedPayload) {
 				std::vector<uint8_t> messageBuffer;
 				messageBuffer.push_back(test::RandomByte() % 2);
+
+				auto mainAccountPublicKey = test::GenerateRandomByteArray<Key>();
+				messageBuffer.insert(messageBuffer.end(), mainAccountPublicKey.cbegin(), mainAccountPublicKey.cend());
+
 				auto encryptedBuffer = test::CopyHarvestRequestEncryptedPayloadToBuffer(encryptedPayload);
 				messageBuffer.insert(messageBuffer.end(), encryptedBuffer.cbegin(), encryptedBuffer.cend());
 				return messageBuffer;
 			}
 
-			static void AssertForwardedMessages(
-					const std::vector<std::vector<uint8_t>>& collectedMessages,
-					const std::vector<std::vector<uint8_t>>& messages,
-					std::initializer_list<size_t> validIndexes) {
-				ASSERT_EQ(collectedMessages.size(), validIndexes.size());
-				auto iter = collectedMessages.cbegin();
-				for (const auto index : validIndexes) {
-					EXPECT_EQ(messages[index], *iter);
-					++iter;
-				}
-			}
+			template<typename T>
+			static void AssertForwarded(
+					const std::vector<T>& allItems,
+					const std::vector<T>& collectedItems,
+					std::initializer_list<size_t> validIndexes,
+					const consumer<const T&, const T&, size_t>& checkEquality) {
+				ASSERT_EQ(validIndexes.size(), collectedItems.size());
 
-			static void AssertDescriptors(
-					const std::vector<BlockGeneratorAccountDescriptor>& collectedDescriptors,
-					const std::vector<BlockGeneratorAccountDescriptor>& descriptors,
-					std::initializer_list<size_t> validIndexes) {
-				ASSERT_EQ(collectedDescriptors.size(), validIndexes.size());
-				auto iter = collectedDescriptors.cbegin();
+				auto iter = collectedItems.cbegin();
 				for (const auto index : validIndexes) {
-					const auto& expectedDescriptor = descriptors[index];
-					EXPECT_EQ(expectedDescriptor.signingKeyPair().publicKey(), iter->signingKeyPair().publicKey());
-					EXPECT_EQ(expectedDescriptor.vrfKeyPair().publicKey(), iter->vrfKeyPair().publicKey());
+					checkEquality(allItems[index], *iter, index);
 					++iter;
 				}
 			}
