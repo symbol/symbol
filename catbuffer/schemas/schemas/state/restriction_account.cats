@@ -1,3 +1,4 @@
+import "restriction_account/restriction_account_types.cats"
 import "state/restriction_account_types.cats"
 
 # binary layout for account restrictions

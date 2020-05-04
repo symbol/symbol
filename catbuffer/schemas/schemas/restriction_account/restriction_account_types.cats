@@ -14,5 +14,5 @@ enum AccountRestrictionFlags : uint16
 	# restriction is interpreted as outgoing
 	outgoing = 0x4000
 
-	# restriction is interpreted as blocking operation
+	# restriction is interpreted as blocking (instead of allowing) operation
 	block = 0x8000
