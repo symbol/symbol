@@ -191,26 +191,29 @@ namespace catapult { namespace state {
 				accountState.Balances.credit(pMosaic->MosaicId, pMosaic->Amount);
 		}
 
+		template<typename TKey>
+		size_t SetKeyFromData(AccountKeys::KeyAccessor<TKey>& keyAccessor, const uint8_t* pData) {
+			keyAccessor.set(reinterpret_cast<const TKey&>(*pData));
+			return TKey::Size;
+		}
+
 		AccountState DeserializeNonHistoricalFromBuffer(const uint8_t* pData, uint8_t format) {
 			// 1. process AccountStateHeader
 			const auto& accountStateHeader = reinterpret_cast<const AccountStateHeader&>(*pData);
 			pData += sizeof(AccountStateHeader);
 			auto accountState = CreateAccountStateFromHeader(accountStateHeader);
 
-			if (HasFlag(AccountKeys::KeyType::Linked, accountStateHeader.SupplementalAccountKeysMask)) {
-				accountState.SupplementalAccountKeys.linkedPublicKey().set(reinterpret_cast<const Key&>(*pData));
-				pData += Key::Size;
-			}
+			if (HasFlag(AccountKeys::KeyType::Linked, accountStateHeader.SupplementalAccountKeysMask))
+				pData += SetKeyFromData(accountState.SupplementalAccountKeys.linkedPublicKey(), pData);
 
-			if (HasFlag(AccountKeys::KeyType::VRF, accountStateHeader.SupplementalAccountKeysMask)) {
-				accountState.SupplementalAccountKeys.vrfPublicKey().set(reinterpret_cast<const Key&>(*pData));
-				pData += Key::Size;
-			}
+			if (HasFlag(AccountKeys::KeyType::VRF, accountStateHeader.SupplementalAccountKeysMask))
+				pData += SetKeyFromData(accountState.SupplementalAccountKeys.vrfPublicKey(), pData);
 
-			if (HasFlag(AccountKeys::KeyType::Voting, accountStateHeader.SupplementalAccountKeysMask)) {
-				accountState.SupplementalAccountKeys.votingPublicKey().set(reinterpret_cast<const VotingKey&>(*pData));
-				pData += VotingKey::Size;
-			}
+			if (HasFlag(AccountKeys::KeyType::Voting, accountStateHeader.SupplementalAccountKeysMask))
+				pData += SetKeyFromData(accountState.SupplementalAccountKeys.votingPublicKey(), pData);
+
+			if (HasFlag(AccountKeys::KeyType::Node, accountStateHeader.SupplementalAccountKeysMask))
+				pData += SetKeyFromData(accountState.SupplementalAccountKeys.nodePublicKey(), pData);
 
 			if (High_Value_Format_Tag == format) {
 				// 2. process HighValueImportanceHeader
@@ -233,6 +236,12 @@ namespace catapult { namespace state {
 
 		// region account state => header utils
 
+		template<typename TKey>
+		size_t SetKeyInData(const AccountKeys::KeyAccessor<TKey>& keyAccessor, uint8_t* pData) {
+			reinterpret_cast<TKey&>(*pData) = keyAccessor.get();
+			return TKey::Size;
+		}
+
 		void SerializeNonHistoricalToBuffer(const AccountState& accountState, uint8_t format, std::vector<uint8_t>& buffer) {
 			auto* pData = buffer.data();
 
@@ -246,20 +255,17 @@ namespace catapult { namespace state {
 			accountStateHeader.SupplementalAccountKeysMask = accountState.SupplementalAccountKeys.mask();
 			pData += sizeof(AccountStateHeader);
 
-			if (HasFlag(AccountKeys::KeyType::Linked, accountStateHeader.SupplementalAccountKeysMask)) {
-				reinterpret_cast<Key&>(*pData) = accountState.SupplementalAccountKeys.linkedPublicKey().get();
-				pData += Key::Size;
-			}
+			if (HasFlag(AccountKeys::KeyType::Linked, accountStateHeader.SupplementalAccountKeysMask))
+				pData += SetKeyInData(accountState.SupplementalAccountKeys.linkedPublicKey(), pData);
 
-			if (HasFlag(AccountKeys::KeyType::VRF, accountStateHeader.SupplementalAccountKeysMask)) {
-				reinterpret_cast<Key&>(*pData) = accountState.SupplementalAccountKeys.vrfPublicKey().get();
-				pData += Key::Size;
-			}
+			if (HasFlag(AccountKeys::KeyType::VRF, accountStateHeader.SupplementalAccountKeysMask))
+				pData += SetKeyInData(accountState.SupplementalAccountKeys.vrfPublicKey(), pData);
 
-			if (HasFlag(AccountKeys::KeyType::Voting, accountStateHeader.SupplementalAccountKeysMask)) {
-				reinterpret_cast<VotingKey&>(*pData) = accountState.SupplementalAccountKeys.votingPublicKey().get();
-				pData += VotingKey::Size;
-			}
+			if (HasFlag(AccountKeys::KeyType::Voting, accountStateHeader.SupplementalAccountKeysMask))
+				pData += SetKeyInData(accountState.SupplementalAccountKeys.votingPublicKey(), pData);
+
+			if (HasFlag(AccountKeys::KeyType::Node, accountStateHeader.SupplementalAccountKeysMask))
+				pData += SetKeyInData(accountState.SupplementalAccountKeys.nodePublicKey(), pData);
 
 			if (High_Value_Format_Tag == format) {
 				auto& importanceHeader = reinterpret_cast<HighValueImportanceHeader&>(*pData);
@@ -311,14 +317,17 @@ namespace catapult { namespace state {
 				auto size = sizeof(AccountStateHeader) + sizeof(MosaicHeader) + accountState.Balances.size() * sizeof(model::Mosaic);
 
 				auto supplementalAccountKeysMask = accountState.SupplementalAccountKeys.mask();
-				if (HasFlag(AccountKeys::KeyType::Linked, supplementalAccountKeysMask))
-					size += Key::Size;
+				std::vector<std::pair<AccountKeys::KeyType, size_t>> keySizes{
+					{ AccountKeys::KeyType::Linked, Key::Size },
+					{ AccountKeys::KeyType::VRF, Key::Size },
+					{ AccountKeys::KeyType::Voting, VotingKey::Size },
+					{ AccountKeys::KeyType::Node, Key::Size }
+				};
 
-				if (HasFlag(AccountKeys::KeyType::VRF, supplementalAccountKeysMask))
-					size += Key::Size;
-
-				if (HasFlag(AccountKeys::KeyType::Voting, supplementalAccountKeysMask))
-					size += VotingKey::Size;
+				for (const auto& keySizePair : keySizes) {
+					if (HasFlag(keySizePair.first, supplementalAccountKeysMask))
+						size += keySizePair.second;
+				}
 
 				return size;
 			}
@@ -521,8 +530,9 @@ namespace catapult { namespace state {
 				AccountKeys::KeyType::Linked,
 				AccountKeys::KeyType::VRF,
 				AccountKeys::KeyType::Voting,
+				AccountKeys::KeyType::Node,
 				AccountKeys::KeyType::Linked | AccountKeys::KeyType::Voting,
-				AccountKeys::KeyType::Linked | AccountKeys::KeyType::VRF | AccountKeys::KeyType::Voting
+				AccountKeys::KeyType::All
 			};
 		}
 

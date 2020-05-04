@@ -50,6 +50,7 @@ namespace catapult { namespace mongo { namespace mappers {
 			StreamAccountKey(keysArray, accountKeys.mask(), state::AccountKeys::KeyType::Linked, accountKeys.linkedPublicKey());
 			StreamAccountKey(keysArray, accountKeys.mask(), state::AccountKeys::KeyType::VRF, accountKeys.vrfPublicKey());
 			StreamAccountKey(keysArray, accountKeys.mask(), state::AccountKeys::KeyType::Voting, accountKeys.votingPublicKey());
+			StreamAccountKey(keysArray, accountKeys.mask(), state::AccountKeys::KeyType::Node, accountKeys.nodePublicKey());
 
 			keysArray << bson_stream::close_array;
 		}

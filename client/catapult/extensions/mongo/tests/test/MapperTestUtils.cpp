@@ -145,7 +145,7 @@ namespace catapult { namespace test {
 
 		void AssertEqualAccountKeys(const state::AccountKeys& accountKeys, const bsoncxx::document::view& dbAccountKeys) {
 			auto dbIter = dbAccountKeys.cbegin();
-			for (auto keyType = state::AccountKeys::KeyType::Linked; keyType <= state::AccountKeys::KeyType::Voting; Advance(keyType)) {
+			for (auto keyType = state::AccountKeys::KeyType::Linked; keyType <= state::AccountKeys::KeyType::All; Advance(keyType)) {
 				if (!HasFlag(keyType, accountKeys.mask()))
 					continue;
 
@@ -163,6 +163,10 @@ namespace catapult { namespace test {
 
 				case state::AccountKeys::KeyType::Voting:
 					EXPECT_EQ(accountKeys.votingPublicKey().get(), GetVotingKeyValue(accountKeyDocument.view(), "key"));
+					break;
+
+				case state::AccountKeys::KeyType::Node:
+					EXPECT_EQ(accountKeys.nodePublicKey().get(), GetKeyValue(accountKeyDocument.view(), "key"));
 					break;
 
 				default:

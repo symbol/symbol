@@ -83,6 +83,7 @@ namespace catapult { namespace state {
 		keyType |= m_linkedPublicKey ? KeyType::Linked : KeyType::Unset;
 		keyType |= m_vrfPublicKey ? KeyType::VRF : KeyType::Unset;
 		keyType |= m_votingPublicKey ? KeyType::Voting : KeyType::Unset;
+		keyType |= m_nodePublicKey ? KeyType::Node : KeyType::Unset;
 		return keyType;
 	}
 
@@ -108,6 +109,14 @@ namespace catapult { namespace state {
 
 	AccountKeys::KeyAccessor<VotingKey>& AccountKeys::votingPublicKey() {
 		return m_votingPublicKey;
+	}
+
+	const AccountKeys::KeyAccessor<Key>& AccountKeys::nodePublicKey() const {
+		return m_nodePublicKey;
+	}
+
+	AccountKeys::KeyAccessor<Key>& AccountKeys::nodePublicKey() {
+		return m_nodePublicKey;
 	}
 
 	// endregion

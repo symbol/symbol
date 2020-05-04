@@ -278,11 +278,13 @@ namespace catapult { namespace state {
 		EXPECT_FALSE(!!keys.linkedPublicKey());
 		EXPECT_FALSE(!!keys.vrfPublicKey());
 		EXPECT_FALSE(!!keys.votingPublicKey());
+		EXPECT_FALSE(!!keys.nodePublicKey());
 
 		// - const and non-const accessors reference same objects
 		EXPECT_EQ(&keys.linkedPublicKey(), &const_cast<const AccountKeys&>(keys).linkedPublicKey());
 		EXPECT_EQ(&keys.vrfPublicKey(), &const_cast<const AccountKeys&>(keys).vrfPublicKey());
 		EXPECT_EQ(&keys.votingPublicKey(), &const_cast<const AccountKeys&>(keys).votingPublicKey());
+		EXPECT_EQ(&keys.nodePublicKey(), &const_cast<const AccountKeys&>(keys).nodePublicKey());
 	}
 
 	TEST(TEST_CLASS, CanDeepCopy) {
@@ -318,6 +320,7 @@ namespace catapult { namespace state {
 		EXPECT_TRUE(!!keys.linkedPublicKey());
 		EXPECT_FALSE(!!keys.vrfPublicKey());
 		EXPECT_FALSE(!!keys.votingPublicKey());
+		EXPECT_FALSE(!!keys.nodePublicKey());
 
 		EXPECT_EQ(key, keys.linkedPublicKey().get());
 	}
@@ -337,6 +340,7 @@ namespace catapult { namespace state {
 		EXPECT_FALSE(!!keys.linkedPublicKey());
 		EXPECT_TRUE(!!keys.vrfPublicKey());
 		EXPECT_FALSE(!!keys.votingPublicKey());
+		EXPECT_FALSE(!!keys.nodePublicKey());
 
 		EXPECT_EQ(key, keys.vrfPublicKey().get());
 	}
@@ -356,8 +360,29 @@ namespace catapult { namespace state {
 		EXPECT_FALSE(!!keys.linkedPublicKey());
 		EXPECT_FALSE(!!keys.vrfPublicKey());
 		EXPECT_TRUE(!!keys.votingPublicKey());
+		EXPECT_FALSE(!!keys.nodePublicKey());
 
 		EXPECT_EQ(key, keys.votingPublicKey().get());
+	}
+
+	TEST(TEST_CLASS, CanSetNodePublicKey) {
+		// Arrange:
+		auto key = test::GenerateRandomByteArray<Key>();
+		AccountKeys keys;
+
+		// Act:
+		keys.nodePublicKey().set(key);
+
+		// Assert:
+		EXPECT_EQ(AccountKeys::KeyType::Node, keys.mask());
+
+		// - one key is set
+		EXPECT_FALSE(!!keys.linkedPublicKey());
+		EXPECT_FALSE(!!keys.vrfPublicKey());
+		EXPECT_FALSE(!!keys.votingPublicKey());
+		EXPECT_TRUE(!!keys.nodePublicKey());
+
+		EXPECT_EQ(key, keys.nodePublicKey().get());
 	}
 
 	TEST(TEST_CLASS, CanSetAllKeys) {
@@ -365,24 +390,28 @@ namespace catapult { namespace state {
 		auto linkedPublicKey = test::GenerateRandomByteArray<Key>();
 		auto vrfPublicKey = test::GenerateRandomByteArray<Key>();
 		auto votingPublicKey = test::GenerateRandomByteArray<VotingKey>();
+		auto nodePublicKey = test::GenerateRandomByteArray<Key>();
 		AccountKeys keys;
 
 		// Act:
 		keys.linkedPublicKey().set(linkedPublicKey);
 		keys.vrfPublicKey().set(vrfPublicKey);
 		keys.votingPublicKey().set(votingPublicKey);
+		keys.nodePublicKey().set(nodePublicKey);
 
 		// Assert:
-		EXPECT_EQ(AccountKeys::KeyType::Linked | AccountKeys::KeyType::VRF | AccountKeys::KeyType::Voting, keys.mask());
+		EXPECT_EQ(AccountKeys::KeyType::All, keys.mask());
 
 		// - one key is set
 		EXPECT_TRUE(!!keys.linkedPublicKey());
 		EXPECT_TRUE(!!keys.vrfPublicKey());
 		EXPECT_TRUE(!!keys.votingPublicKey());
+		EXPECT_TRUE(!!keys.nodePublicKey());
 
 		EXPECT_EQ(linkedPublicKey, keys.linkedPublicKey().get());
 		EXPECT_EQ(vrfPublicKey, keys.vrfPublicKey().get());
 		EXPECT_EQ(votingPublicKey, keys.votingPublicKey().get());
+		EXPECT_EQ(nodePublicKey, keys.nodePublicKey().get());
 	}
 
 	// endregion

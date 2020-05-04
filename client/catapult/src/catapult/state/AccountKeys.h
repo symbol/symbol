@@ -43,7 +43,13 @@ namespace catapult { namespace state {
 			VRF = 0x02,
 
 			/// Voting public key.
-			Voting = 0x04
+			Voting = 0x04,
+
+			/// Node public key on which remote is allowed to harvest.
+			Node = 0x08,
+
+			/// All valid keys.
+			All = Linked | VRF | Voting | Node
 		};
 
 		// endregion
@@ -112,10 +118,17 @@ namespace catapult { namespace state {
 		/// Gets the voting public key.
 		KeyAccessor<VotingKey>& votingPublicKey();
 
+		/// Gets the (const) node public key.
+		const KeyAccessor<Key>& nodePublicKey() const;
+
+		/// Gets the node public key.
+		KeyAccessor<Key>& nodePublicKey();
+
 	private:
 		KeyAccessor<Key> m_linkedPublicKey;
 		KeyAccessor<Key> m_vrfPublicKey;
 		KeyAccessor<VotingKey> m_votingPublicKey;
+		KeyAccessor<Key> m_nodePublicKey;
 	};
 
 	MAKE_BITWISE_ENUM(AccountKeys::KeyType)

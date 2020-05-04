@@ -225,16 +225,19 @@ namespace catapult { namespace state {
 		auto linkedPublicKey = test::GenerateRandomByteArray<Key>();
 		auto vrfPublicKey = test::GenerateRandomByteArray<Key>();
 		auto votingPublicKey = test::GenerateRandomByteArray<VotingKey>();
+		auto nodePublicKey = test::GenerateRandomByteArray<Key>();
 
 		AccountState accountState(test::GenerateRandomAddress(), Height(123));
 		accountState.SupplementalAccountKeys.linkedPublicKey().set(linkedPublicKey);
 		accountState.SupplementalAccountKeys.vrfPublicKey().set(vrfPublicKey);
 		accountState.SupplementalAccountKeys.votingPublicKey().set(votingPublicKey);
+		accountState.SupplementalAccountKeys.nodePublicKey().set(nodePublicKey);
 
 		// Act + Assert:
 		EXPECT_EQ(linkedPublicKey, GetLinkedPublicKey(accountState));
 		EXPECT_EQ(vrfPublicKey, GetVrfPublicKey(accountState));
 		EXPECT_EQ(votingPublicKey, GetVotingPublicKey(accountState));
+		EXPECT_EQ(nodePublicKey, GetNodePublicKey(accountState));
 	}
 
 	// endregion
