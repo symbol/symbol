@@ -22,7 +22,10 @@ state_inputs=(
 
 transaction_inputs=(
 	"account_link/account_link"
+	"account_link/node_key_link"
 	"aggregate/aggregate"
+	"coresystem/voting_key_link"
+	"coresystem/vrf_key_link"
 	"lock_hash/hash_lock"
 	"lock_secret/secret_lock"
 	"lock_secret/secret_proof"
