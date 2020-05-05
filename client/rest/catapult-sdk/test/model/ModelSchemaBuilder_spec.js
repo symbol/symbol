@@ -190,6 +190,9 @@ describe('model schema builder', () => {
 				'verifiableEntity.signature',
 				'verifiableEntity.signerPublicKey',
 
+				'blockHeader.proofGamma',
+				'blockHeader.proofVerificationHash',
+				'blockHeader.proofScalar',
 				'blockHeader.previousBlockHash',
 				'blockHeader.transactionsHash',
 				'blockHeader.receiptsHash',
@@ -213,7 +216,9 @@ describe('model schema builder', () => {
 
 				'account.address',
 				'account.publicKey',
-				'account.linkedAccountKey',
+				'account.linkedPublicKey',
+				'account.vrfPublicKey',
+				'account.votingPublicKey',
 
 				'nodeInfo.publicKey',
 				'nodeInfo.networkGenerationHash',

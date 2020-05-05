@@ -26,7 +26,7 @@ const { expect } = require('chai');
 const constants = {
 	knownTxType: 0x4123,
 	sizes: {
-		blockHeader: 304,
+		blockHeader: 384,
 		transactionHeader: 128,
 		transaction: 128 + 8 + 1
 	}
@@ -96,6 +96,9 @@ describe('model codec builder', () => {
 	};
 
 	const generateBlockHeader = () => {
+		const proofGamma = Buffer.from(test.random.bytes(test.constants.sizes.vrfProof.gamma));
+		const proofVerificationHash = Buffer.from(test.random.bytes(test.constants.sizes.vrfProof.verificationHash));
+		const proofScalar = Buffer.from(test.random.bytes(test.constants.sizes.vrfProof.scalar));
 		const previousBlockHashBuffer = Buffer.from(test.random.bytes(test.constants.sizes.hash256));
 		const transactionsHashBuffer = Buffer.from(test.random.bytes(test.constants.sizes.hash256));
 		const receiptsHashBuffer = Buffer.from(test.random.bytes(test.constants.sizes.hash256));
@@ -110,6 +113,9 @@ describe('model codec builder', () => {
 			Buffer.of(0x97, 0x87, 0x45, 0x0E, 0xE1, 0x6C, 0xB6, 0x62), // height
 			Buffer.of(0x30, 0x3A, 0x46, 0x8B, 0x15, 0x2D, 0x60, 0x54), // timestamp
 			Buffer.of(0x86, 0x02, 0x75, 0x30, 0xE8, 0x50, 0x78, 0xE8), // difficulty
+			proofGamma, // 32b
+			proofVerificationHash, // 16b
+			proofScalar, // 32b
 			previousBlockHashBuffer, // 32b
 			transactionsHashBuffer, // 32b
 			receiptsHashBuffer, // 32b
@@ -123,6 +129,9 @@ describe('model codec builder', () => {
 			height: [0x0E458797, 0x62B66CE1],
 			timestamp: [0x8B463A30, 0x54602D15],
 			difficulty: [0x30750286, 0xE87850E8],
+			proofGamma,
+			proofVerificationHash,
+			proofScalar,
 			previousBlockHash: previousBlockHashBuffer,
 			transactionsHash: transactionsHashBuffer,
 			receiptsHash: receiptsHashBuffer,

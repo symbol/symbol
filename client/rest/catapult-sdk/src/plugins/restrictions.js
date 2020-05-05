@@ -25,11 +25,12 @@ const sizes = require('../modelBinary/sizes');
 
 const constants = { sizes };
 
+// const accountRestrictionTypeOutgoingOffset = 0x4000;
 const accountRestrictionTypeBlockOffset = 0x8000;
 const AccountRestrictionTypeFlags = Object.freeze({
-	address: 1,
-	mosaic: 2,
-	operation: 4
+	address: 0x0001,
+	mosaic: 0x0002,
+	operation: 0x0004
 });
 
 const accountRestrictionsCreateBaseCodec = valueCodec => ({

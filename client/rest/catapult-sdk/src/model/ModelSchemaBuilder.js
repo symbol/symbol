@@ -41,11 +41,13 @@ class ModelSchemaBuilder {
 			// endregion
 
 			// region block
-
 			blockHeader: {
 				height: ModelType.uint64,
 				timestamp: ModelType.uint64,
 				difficulty: ModelType.uint64,
+				proofGamma: ModelType.binary,
+				proofVerificationHash: ModelType.binary,
+				proofScalar: ModelType.binary,
 				previousBlockHash: ModelType.binary,
 				transactionsHash: ModelType.binary,
 				receiptsHash: ModelType.binary,
@@ -120,7 +122,9 @@ class ModelSchemaBuilder {
 				addressHeight: ModelType.uint64,
 				publicKey: ModelType.binary,
 				publicKeyHeight: ModelType.uint64,
-				linkedAccountKey: ModelType.binary,
+				linkedPublicKey: ModelType.binary,
+				vrfPublicKey: ModelType.binary,
+				votingPublicKey: ModelType.binary,
 				importance: ModelType.uint64,
 				importanceHeight: ModelType.uint64,
 				activityBuckets: { type: ModelType.array, schemaName: 'activityBucket' },

@@ -31,12 +31,12 @@ describe('restrictions plugin', () => {
 			const accountRestrictionTypeBlockOffset = 0x8000;
 
 			// Assert:
-			expect(AccountRestrictionType.addressAllow).to.equal(1);
-			expect(AccountRestrictionType.addressBlock).to.equal(1 + accountRestrictionTypeBlockOffset);
-			expect(AccountRestrictionType.mosaicAllow).to.equal(2);
-			expect(AccountRestrictionType.mosaicBlock).to.equal(2 + accountRestrictionTypeBlockOffset);
-			expect(AccountRestrictionType.operationAllow).to.equal(4);
-			expect(AccountRestrictionType.operationBlock).to.equal(4 + accountRestrictionTypeBlockOffset);
+			expect(AccountRestrictionType.addressAllow).to.equal(0x0001);
+			expect(AccountRestrictionType.addressBlock).to.equal(0x0001 + accountRestrictionTypeBlockOffset);
+			expect(AccountRestrictionType.mosaicAllow).to.equal(0x0002);
+			expect(AccountRestrictionType.mosaicBlock).to.equal(0x0002 + accountRestrictionTypeBlockOffset);
+			expect(AccountRestrictionType.operationAllow).to.equal(0x0004);
+			expect(AccountRestrictionType.operationBlock).to.equal(0x0004 + accountRestrictionTypeBlockOffset);
 		});
 	});
 
