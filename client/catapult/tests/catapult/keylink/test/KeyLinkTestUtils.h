@@ -19,16 +19,23 @@
 **/
 
 #pragma once
-#include "src/model/KeyLinkNotifications.h"
-#include "catapult/observers/ObserverTypes.h"
+#include "catapult/cache/CatapultCacheDelta.h"
+#include "catapult/cache_core/AccountStateCache.h"
+#include "tests/test/nodeps/Random.h"
 
-namespace catapult { namespace observers {
+namespace catapult { namespace test {
 
-	/// Observes changes triggered by voting key link notifications and:
-	/// - links/unlinks voting key
-	DECLARE_OBSERVER(VotingKeyLink, model::VotingKeyLinkNotification)();
+	/// Adds a random account to \a cacheDelta with specified linked public key (\a linkedPublicKey).
+	inline Key AddAccountWithLink(cache::CatapultCacheDelta& cacheDelta, const Key& linkedPublicKey) {
+		auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
 
-	/// Observes changes triggered by vrf key link notifications and:
-	/// - links/unlinks vrf key
-	DECLARE_OBSERVER(VrfKeyLink, model::VrfKeyLinkNotification)();
+		auto mainAccountPublicKey = GenerateRandomByteArray<Key>();
+		accountStateCacheDelta.addAccount(mainAccountPublicKey, Height(1));
+		auto mainAccountStateIter = accountStateCacheDelta.find(mainAccountPublicKey);
+
+		if (Key() != linkedPublicKey)
+			mainAccountStateIter.get().SupplementalAccountKeys.linkedPublicKey().set(linkedPublicKey);
+
+		return mainAccountPublicKey;
+	}
 }}

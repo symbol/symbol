@@ -18,40 +18,26 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "KeyLinkObservers.h"
+#pragma once
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/observers/ObserverUtils.h"
 
-namespace catapult { namespace observers {
+namespace catapult { namespace keylink {
 
-	namespace {
-		auto& GetKeyAccessor(state::AccountState& accountState, const model::VotingKeyLinkNotification&) {
-			return accountState.SupplementalAccountKeys.votingPublicKey();
-		}
-
-		auto& GetKeyAccessor(state::AccountState& accountState, const model::VrfKeyLinkNotification&) {
-			return accountState.SupplementalAccountKeys.vrfPublicKey();
-		}
-
-		template<typename TNotification>
-		void KeyLinkObserverHandler(const ObserverContext& context, const TNotification& notification) {
-			auto& cache = context.Cache.sub<cache::AccountStateCache>();
+	/// Creates a key link observer with \a name that links/unlinks target key.
+	template<typename TNotification, typename TAccessor>
+	observers::NotificationObserverPointerT<TNotification> CreateKeyLinkObserver(const std::string& name) {
+		using ObserverType = observers::FunctionalNotificationObserverT<TNotification>;
+		return std::make_unique<ObserverType>(name + "KeyLinkObserver", [](const auto& notification, auto& context) {
+			auto& cache = context.Cache.template sub<cache::AccountStateCache>();
 			auto accountStateIter = cache.find(notification.MainAccountPublicKey);
 			auto& accountState = accountStateIter.get();
 
-			auto& keyAccessor = GetKeyAccessor(accountState, notification);
-			if (ShouldLink(notification.LinkAction, context.Mode))
+			auto& keyAccessor = TAccessor::Get(accountState);
+			if (observers::ShouldLink(notification.LinkAction, context.Mode))
 				keyAccessor.set(notification.LinkedPublicKey);
 			else
 				keyAccessor.unset();
-		}
+		});
 	}
-
-#define DEFINE_KEY_LINK_OBSERVER(OBSERVER_NAME, NOTIFICATION) \
-	DEFINE_OBSERVER(OBSERVER_NAME, NOTIFICATION, [](const auto& notification, const ObserverContext& context) { \
-		KeyLinkObserverHandler(context, notification); \
-	})
-
-	DEFINE_KEY_LINK_OBSERVER(VotingKeyLink, model::VotingKeyLinkNotification)
-	DEFINE_KEY_LINK_OBSERVER(VrfKeyLink, model::VrfKeyLinkNotification)
 }}
