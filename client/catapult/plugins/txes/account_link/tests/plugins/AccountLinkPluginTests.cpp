@@ -41,7 +41,7 @@ namespace catapult { namespace plugins {
 
 		public:
 			static std::vector<model::EntityType> GetTransactionTypes() {
-				return { model::Entity_Type_Account_Link };
+				return { model::Entity_Type_Account_Link, model::Entity_Type_Node_Key_Link };
 			}
 
 			static std::vector<std::string> GetStatelessValidatorNames() {

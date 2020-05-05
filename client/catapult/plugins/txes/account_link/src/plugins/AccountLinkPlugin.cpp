@@ -20,6 +20,7 @@
 
 #include "AccountLinkPlugin.h"
 #include "AccountLinkTransactionPlugin.h"
+#include "NodeKeyLinkTransactionPlugin.h"
 #include "src/observers/Observers.h"
 #include "src/validators/Validators.h"
 #include "catapult/plugins/PluginManager.h"
@@ -28,6 +29,7 @@ namespace catapult { namespace plugins {
 
 	void RegisterAccountLinkSubsystem(PluginManager& manager) {
 		manager.addTransactionSupport(CreateAccountLinkTransactionPlugin());
+		manager.addTransactionSupport(CreateNodeKeyLinkTransactionPlugin());
 
 		manager.addStatefulValidatorHook([](auto& builder) {
 			builder

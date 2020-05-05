@@ -19,19 +19,18 @@
 **/
 
 #pragma once
-#ifndef CUSTOM_ENTITY_TYPE_DEFINITION
-#include "catapult/model/EntityType.h"
+#include "AccountLinkEntityType.h"
+#include "catapult/model/KeyLinkSharedTransaction.h"
 
 namespace catapult { namespace model {
 
-#endif
+#pragma pack(push, 1)
 
-	/// Account link transaction.
-	DEFINE_TRANSACTION_TYPE(AccountLink, Account_Link, 0x1);
+	/// Binary layout for a node key link transaction body.
+	template<typename THeader>
+	struct NodeKeyLinkTransactionBody : public BasicKeyLinkTransactionBody<THeader, Key, Entity_Type_Node_Key_Link> {};
 
-	/// Node key link transaction.
-	DEFINE_TRANSACTION_TYPE(AccountLink, Node_Key_Link, 0x2);
+	DEFINE_EMBEDDABLE_TRANSACTION(NodeKeyLink)
 
-#ifndef CUSTOM_ENTITY_TYPE_DEFINITION
+#pragma pack(pop)
 }}
-#endif
