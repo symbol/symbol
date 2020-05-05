@@ -30,6 +30,9 @@ enum AccountKeyFlags : uint8
 	# voting public key
 	voting = 0x04
 
+	# node public key on which remote is allowed to harvest
+	node = 0x08
+
 # enumeration of account state formats
 enum AccountStateFormat : uint8
 	# regular account

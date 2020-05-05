@@ -37,6 +37,9 @@ struct AccountState
 	# voting public key
 	votingPublicKey = VotingKey if supplementalAccountKeysMask has voting
 
+	# node public key
+	nodePublicKey = Key if supplementalAccountKeysMask has node
+
 	# current importance snapshot of the account
 	importanceSnapshots = ImportanceSnapshot if format equals highValue
 
