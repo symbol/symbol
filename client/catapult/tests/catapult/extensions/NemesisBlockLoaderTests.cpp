@@ -188,7 +188,7 @@ namespace catapult { namespace extensions {
 				.add(observers::CreateAccountAddressObserver())
 				.add(observers::CreateAccountPublicKeyObserver())
 				.add(observers::CreateBalanceTransferObserver())
-				.add(observers::CreateHarvestFeeObserver(Harvesting_Mosaic_Id, 20, model::InflationCalculator()));
+				.add(observers::CreateHarvestFeeObserver({ Harvesting_Mosaic_Id, 20, 0, Key() }, model::InflationCalculator()));
 			return builder.build();
 		}
 

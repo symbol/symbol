@@ -32,8 +32,8 @@ namespace catapult { namespace config {
 			if (2 * config.ImportanceGrouping <= config.MaxRollbackBlocks)
 				CATAPULT_THROW_VALIDATION_ERROR("ImportanceGrouping must be greater than MaxRollbackBlocks / 2");
 
-			if (100u < config.HarvestBeneficiaryPercentage)
-				CATAPULT_THROW_VALIDATION_ERROR("HarvestBeneficiaryPercentage must not be greater than 100");
+			if (100u < config.HarvestBeneficiaryPercentage + config.HarvestNetworkPercentage)
+				CATAPULT_THROW_VALIDATION_ERROR("HarvestBeneficiaryPercentage plus HarvestNetworkPercentage must not be greater than 100");
 
 			if (99u < config.ImportanceActivityPercentage)
 				CATAPULT_THROW_VALIDATION_ERROR("ImportanceActivityPercentage must not be greater than 99");
