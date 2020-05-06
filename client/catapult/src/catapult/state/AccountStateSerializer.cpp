@@ -131,6 +131,9 @@ namespace catapult { namespace state {
 
 			if (HasFlag(AccountKeys::KeyType::Voting, accountKeys.mask()))
 				output.write(accountKeys.votingPublicKey().get());
+
+			if (HasFlag(AccountKeys::KeyType::Node, accountKeys.mask()))
+				output.write(accountKeys.nodePublicKey().get());
 		}
 
 		void WriteSnapshots(io::OutputStream& output, const AccountImportanceSnapshots& snapshots, size_t start, size_t count) {
@@ -204,6 +207,9 @@ namespace catapult { namespace state {
 
 			if (HasFlag(AccountKeys::KeyType::Voting, supplementalAccountKeysMask))
 				ReadSupplementalAccountKey(input, accountKeys.votingPublicKey());
+
+			if (HasFlag(AccountKeys::KeyType::Node, supplementalAccountKeysMask))
+				ReadSupplementalAccountKey(input, accountKeys.nodePublicKey());
 		}
 
 		AccountState LoadAccountStateWithoutHistory(io::InputStream& input, ImportanceReader& importanceReader) {

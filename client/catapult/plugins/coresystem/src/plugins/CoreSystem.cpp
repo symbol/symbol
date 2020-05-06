@@ -22,7 +22,6 @@
 #include "VotingKeyLinkTransactionPlugin.h"
 #include "VrfKeyLinkTransactionPlugin.h"
 #include "src/importance/ImportanceCalculator.h"
-#include "src/observers/KeyLinkObservers.h"
 #include "src/observers/Observers.h"
 #include "src/validators/Validators.h"
 #include "catapult/cache_core/AccountStateCache.h"
@@ -30,6 +29,8 @@
 #include "catapult/cache_core/AccountStateCacheSubCachePlugin.h"
 #include "catapult/cache_core/BlockStatisticCacheStorage.h"
 #include "catapult/cache_core/BlockStatisticCacheSubCachePlugin.h"
+#include "catapult/keylink/KeyLinkObserver.h"
+#include "catapult/keylink/KeyLinkValidator.h"
 #include "catapult/model/BlockChainConfiguration.h"
 #include "catapult/observers/ObserverUtils.h"
 #include "catapult/plugins/CacheHandlers.h"
@@ -81,15 +82,34 @@ namespace catapult { namespace plugins {
 			});
 		}
 
+		struct BasicKeyAccessor {
+			static constexpr auto Failure_Link_Already_Exists = validators::Failure_Core_Link_Already_Exists;
+			static constexpr auto Failure_Inconsistent_Unlink_Data = validators::Failure_Core_Inconsistent_Unlink_Data;
+		};
+
+		struct VotingKeyAccessor : public BasicKeyAccessor {
+			template<typename TAccountState>
+			static auto& Get(TAccountState& accountState) {
+				return accountState.SupplementalAccountKeys.votingPublicKey();
+			}
+		};
+
+		struct VrfKeyAccessor : public BasicKeyAccessor {
+			template<typename TAccountState>
+			static auto& Get(TAccountState& accountState) {
+				return accountState.SupplementalAccountKeys.vrfPublicKey();
+			}
+		};
+
 		void RegisterVotingKeyLinkTransaction(PluginManager& manager) {
 			manager.addTransactionSupport(CreateVotingKeyLinkTransactionPlugin());
 
 			manager.addStatefulValidatorHook([](auto& builder) {
-				builder.add(validators::CreateVotingKeyLinkValidator());
+				builder.add(keylink::CreateKeyLinkValidator<model::VotingKeyLinkNotification, VotingKeyAccessor>("Voting"));
 			});
 
 			manager.addObserverHook([](auto& builder) {
-				builder.add(observers::CreateVotingKeyLinkObserver());
+				builder.add(keylink::CreateKeyLinkObserver<model::VotingKeyLinkNotification, VotingKeyAccessor>("Voting"));
 			});
 		}
 
@@ -97,11 +117,11 @@ namespace catapult { namespace plugins {
 			manager.addTransactionSupport(CreateVrfKeyLinkTransactionPlugin());
 
 			manager.addStatefulValidatorHook([](auto& builder) {
-				builder.add(validators::CreateVrfKeyLinkValidator());
+				builder.add(keylink::CreateKeyLinkValidator<model::VrfKeyLinkNotification, VrfKeyAccessor>("Vrf"));
 			});
 
 			manager.addObserverHook([](auto& builder) {
-				builder.add(observers::CreateVrfKeyLinkObserver());
+				builder.add(keylink::CreateKeyLinkObserver<model::VrfKeyLinkNotification, VrfKeyAccessor>("Vrf"));
 			});
 		}
 	}

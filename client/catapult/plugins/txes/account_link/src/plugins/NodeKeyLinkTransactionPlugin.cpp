@@ -18,20 +18,23 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#pragma once
-#ifndef CUSTOM_ENTITY_TYPE_DEFINITION
-#include "catapult/model/EntityType.h"
+#include "NodeKeyLinkTransactionPlugin.h"
+#include "src/model/AccountLinkNotifications.h"
+#include "src/model/NodeKeyLinkTransaction.h"
+#include "catapult/model/NotificationSubscriber.h"
+#include "catapult/model/TransactionPluginFactory.h"
 
-namespace catapult { namespace model {
+using namespace catapult::model;
 
-#endif
+namespace catapult { namespace plugins {
 
-	/// Account link transaction.
-	DEFINE_TRANSACTION_TYPE(AccountLink, Account_Link, 0x1);
+	namespace {
+		template<typename TTransaction>
+		void Publish(const TTransaction& transaction, NotificationSubscriber& sub) {
+			sub.notify(KeyLinkActionNotification(transaction.LinkAction));
+			sub.notify(NodeKeyLinkNotification(transaction.SignerPublicKey, transaction.LinkedPublicKey, transaction.LinkAction));
+		}
+	}
 
-	/// Node key link transaction.
-	DEFINE_TRANSACTION_TYPE(AccountLink, Node_Key_Link, 0x2);
-
-#ifndef CUSTOM_ENTITY_TYPE_DEFINITION
+	DEFINE_TRANSACTION_PLUGIN_FACTORY(NodeKeyLink, Default, Publish)
 }}
-#endif

@@ -51,6 +51,7 @@ namespace catapult { namespace test {
 			EXPECT_EQ(expected.linkedPublicKey().get(), actual.linkedPublicKey().get()) << message;
 			EXPECT_EQ(expected.vrfPublicKey().get(), actual.vrfPublicKey().get()) << message;
 			EXPECT_EQ(expected.votingPublicKey().get(), actual.votingPublicKey().get()) << message;
+			EXPECT_EQ(expected.nodePublicKey().get(), actual.nodePublicKey().get()) << message;
 		}
 
 		void AssertEqual(
@@ -132,6 +133,9 @@ namespace catapult { namespace test {
 
 		if (HasFlag(state::AccountKeys::KeyType::Voting, mask))
 			accountState.SupplementalAccountKeys.votingPublicKey().set(test::GenerateRandomByteArray<VotingKey>());
+
+		if (HasFlag(state::AccountKeys::KeyType::Node, mask))
+			accountState.SupplementalAccountKeys.nodePublicKey().set(test::GenerateRandomByteArray<Key>());
 	}
 
 	void ForceSetLinkedAccountKey(state::AccountState& accountState, const Key& linkedAccountKey) {

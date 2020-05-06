@@ -19,16 +19,18 @@
 **/
 
 #pragma once
-#include "src/model/KeyLinkNotifications.h"
-#include "catapult/observers/ObserverTypes.h"
+#include "AccountLinkEntityType.h"
+#include "catapult/model/KeyLinkSharedTransaction.h"
 
-namespace catapult { namespace observers {
+namespace catapult { namespace model {
 
-	/// Observes changes triggered by voting key link notifications and:
-	/// - links/unlinks voting key
-	DECLARE_OBSERVER(VotingKeyLink, model::VotingKeyLinkNotification)();
+#pragma pack(push, 1)
 
-	/// Observes changes triggered by vrf key link notifications and:
-	/// - links/unlinks vrf key
-	DECLARE_OBSERVER(VrfKeyLink, model::VrfKeyLinkNotification)();
+	/// Binary layout for a node key link transaction body.
+	template<typename THeader>
+	struct NodeKeyLinkTransactionBody : public BasicKeyLinkTransactionBody<THeader, Key, Entity_Type_Node_Key_Link> {};
+
+	DEFINE_EMBEDDABLE_TRANSACTION(NodeKeyLink)
+
+#pragma pack(pop)
 }}

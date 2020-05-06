@@ -120,8 +120,9 @@ namespace catapult { namespace mongo { namespace mappers {
 			state::AccountKeys::KeyType::Linked,
 			state::AccountKeys::KeyType::VRF,
 			state::AccountKeys::KeyType::Voting,
+			state::AccountKeys::KeyType::Node,
 			state::AccountKeys::KeyType::Linked | state::AccountKeys::KeyType::Voting,
-			state::AccountKeys::KeyType::Linked | state::AccountKeys::KeyType::VRF | state::AccountKeys::KeyType::Voting
+			state::AccountKeys::KeyType::All
 		};
 
 		// Act + Assert:

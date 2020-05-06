@@ -38,8 +38,11 @@ namespace catapult { namespace harvesting {
 	/// Harvest request.
 	struct HarvestRequest {
 	public:
-		/// Operation.
+		/// Request operation.
 		HarvestRequestOperation Operation;
+
+		/// Public key of the main account that initiated the request.
+		Key MainAccountPublicKey;
 
 		/// Encrypted payload.
 		/// \note This decrypts into BlockGeneratorAccountDescriptor.

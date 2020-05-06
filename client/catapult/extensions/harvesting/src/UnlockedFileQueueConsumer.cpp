@@ -28,11 +28,16 @@
 namespace catapult { namespace harvesting {
 
 	namespace {
+		size_t ExpectedSerializedHarvestRequestSize() {
+			return 1 + Key::Size + HarvestRequest::EncryptedPayloadSize();
+		}
+
 		HarvestRequest DeserializeHarvestRequest(const std::vector<uint8_t>& buffer) {
 			HarvestRequest request;
 			// note: value of direction comes from TransferMessageObserver, so it is trusted
 			request.Operation = static_cast<HarvestRequestOperation>(buffer[0]);
-			request.EncryptedPayload = RawBuffer{ &buffer[1], HarvestRequest::EncryptedPayloadSize() };
+			request.MainAccountPublicKey = reinterpret_cast<const Key&>(buffer[1]);
+			request.EncryptedPayload = RawBuffer{ &buffer[1 + Key::Size], HarvestRequest::EncryptedPayloadSize() };
 			return request;
 		}
 	}
@@ -62,7 +67,7 @@ namespace catapult { namespace harvesting {
 		io::FileQueueReader reader(directory.str());
 		auto appendMessage = [&encryptionKeyPair, &processDescriptor](const auto& buffer) {
 			// filter out invalid requests
-			if (1 + HarvestRequest::EncryptedPayloadSize() != buffer.size()) {
+			if (ExpectedSerializedHarvestRequestSize() != buffer.size()) {
 				CATAPULT_LOG(warning) << "rejecting buffer with wrong size: " << buffer.size();
 				return;
 			}

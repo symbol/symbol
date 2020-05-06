@@ -36,6 +36,9 @@ namespace catapult { namespace model {
 	/// New remote account was created.
 	DEFINE_ACCOUNT_LINK_NOTIFICATION(New_Remote_Account, 0x0002, Validator);
 
+	/// Account was un/linked to a node.
+	DEFINE_ACCOUNT_LINK_NOTIFICATION(Node, 0x0003, All);
+
 #undef DEFINE_ACCOUNTLINK_NOTIFICATION
 
 	// endregion
@@ -66,6 +69,13 @@ namespace catapult { namespace model {
 		/// Linked public key.
 		const Key& LinkedPublicKey;
 	};
+
+	// endregion
+
+	// region NodeKeyLinkNotification
+
+	/// Notification of a node key link.
+	using NodeKeyLinkNotification = BasicKeyLinkNotification<Key, AccountLink_Node_Notification>;
 
 	// endregion
 }}

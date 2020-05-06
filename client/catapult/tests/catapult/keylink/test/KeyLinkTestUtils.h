@@ -19,19 +19,23 @@
 **/
 
 #pragma once
-#ifndef CUSTOM_ENTITY_TYPE_DEFINITION
-#include "catapult/model/EntityType.h"
+#include "catapult/cache/CatapultCacheDelta.h"
+#include "catapult/cache_core/AccountStateCache.h"
+#include "tests/test/nodeps/Random.h"
 
-namespace catapult { namespace model {
+namespace catapult { namespace test {
 
-#endif
+	/// Adds a random account to \a cacheDelta with specified linked public key (\a linkedPublicKey).
+	inline Key AddAccountWithLink(cache::CatapultCacheDelta& cacheDelta, const Key& linkedPublicKey) {
+		auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
 
-	/// Account link transaction.
-	DEFINE_TRANSACTION_TYPE(AccountLink, Account_Link, 0x1);
+		auto mainAccountPublicKey = GenerateRandomByteArray<Key>();
+		accountStateCacheDelta.addAccount(mainAccountPublicKey, Height(1));
+		auto mainAccountStateIter = accountStateCacheDelta.find(mainAccountPublicKey);
 
-	/// Node key link transaction.
-	DEFINE_TRANSACTION_TYPE(AccountLink, Node_Key_Link, 0x2);
+		if (Key() != linkedPublicKey)
+			mainAccountStateIter.get().SupplementalAccountKeys.linkedPublicKey().set(linkedPublicKey);
 
-#ifndef CUSTOM_ENTITY_TYPE_DEFINITION
+		return mainAccountPublicKey;
+	}
 }}
-#endif
