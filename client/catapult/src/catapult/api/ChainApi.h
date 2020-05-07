@@ -32,6 +32,9 @@ namespace catapult { namespace api {
 		/// Chain height.
 		catapult::Height Height;
 
+		/// Finalized chain height.
+		catapult::Height FinalizedHeight;
+
 		/// Chain score.
 		model::ChainScore Score;
 	};

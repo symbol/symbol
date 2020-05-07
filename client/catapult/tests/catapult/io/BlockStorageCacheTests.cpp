@@ -42,6 +42,10 @@ namespace catapult { namespace io {
 				return m_cache.view().chainHeight();
 			}
 
+			Height finalizedChainHeight() const override {
+				return m_cache.view().finalizedChainHeight();
+			}
+
 			model::HashRange loadHashesFrom(Height height, size_t maxHashes) const override {
 				return m_cache.view().loadHashesFrom(height, maxHashes);
 			}

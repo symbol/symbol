@@ -33,6 +33,10 @@ namespace catapult { namespace local {
 				return m_storage.chainHeight();
 			}
 
+			Height finalizedChainHeight() const override {
+				return m_storage.finalizedChainHeight();
+			}
+
 			model::HashRange loadHashesFrom(Height height, size_t maxHashes) const override {
 				return m_storage.loadHashesFrom(height, maxHashes);
 			}

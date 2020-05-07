@@ -33,6 +33,9 @@ namespace catapult { namespace api {
 		/// Chain height.
 		catapult::Height Height;
 
+		/// Finalized chain height.
+		catapult::Height FinalizedHeight;
+
 		/// High part of the score.
 		uint64_t ScoreHigh;
 

@@ -204,8 +204,9 @@ namespace catapult { namespace handlers {
 
 		const auto* pResponse = reinterpret_cast<const uint64_t*>(test::GetSingleBufferData(handlerContext));
 		EXPECT_EQ(12u, pResponse[0]); // height
-		EXPECT_EQ(0x7890ABCDEF012345u, pResponse[1]); // score high
-		EXPECT_EQ(0x7711BBCC00DD99AAu, pResponse[2]); // score low
+		EXPECT_EQ(1u, pResponse[1]); // finalized height
+		EXPECT_EQ(0x7890ABCDEF012345u, pResponse[2]); // score high
+		EXPECT_EQ(0x7711BBCC00DD99AAu, pResponse[3]); // score low
 	}
 
 	// endregion

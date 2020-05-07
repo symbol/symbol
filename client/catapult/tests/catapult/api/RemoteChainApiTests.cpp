@@ -52,6 +52,7 @@ namespace catapult { namespace api {
 			static auto CreateValidResponsePacket() {
 				auto pResponsePacket = ionet::CreateSharedPacket<ChainInfoResponse>();
 				pResponsePacket->Height = Height(625);
+				pResponsePacket->FinalizedHeight = Height(256);
 				pResponsePacket->ScoreHigh = 0x1234567812345678;
 				pResponsePacket->ScoreLow = 0xABCDABCDABCDABCD;
 				return pResponsePacket;
@@ -68,10 +69,11 @@ namespace catapult { namespace api {
 				EXPECT_TRUE(ionet::IsPacketValid(packet, ChainInfoResponse::Packet_Type));
 			}
 
-			static void ValidateResponse(const ionet::Packet&, const ChainInfo& info) {
-				EXPECT_EQ(Height(625), info.Height);
+			static void ValidateResponse(const ionet::Packet&, const ChainInfo& chainInfo) {
+				EXPECT_EQ(Height(625), chainInfo.Height);
+				EXPECT_EQ(Height(256), chainInfo.FinalizedHeight);
 
-				auto scoreArray = info.Score.toArray();
+				auto scoreArray = chainInfo.Score.toArray();
 				EXPECT_EQ(0x1234567812345678u, scoreArray[0]);
 				EXPECT_EQ(0xABCDABCDABCDABCDu, scoreArray[1]);
 			}

@@ -59,6 +59,11 @@ namespace catapult { namespace handlers {
 	}
 
 	namespace {
+		void SetHeights(api::ChainInfoResponse& responsePacket, io::BlockStorageView&& storageView) {
+			responsePacket.Height = storageView.chainHeight();
+			responsePacket.FinalizedHeight = storageView.finalizedChainHeight();
+		}
+
 		auto CreateChainInfoHandler(const io::BlockStorageCache& storage, const model::ChainScoreSupplier& chainScoreSupplier) {
 			return [&storage, chainScoreSupplier](const auto& packet, auto& context) {
 				using RequestType = api::ChainInfoResponse;
@@ -66,7 +71,7 @@ namespace catapult { namespace handlers {
 					return;
 
 				auto pResponsePacket = ionet::CreateSharedPacket<RequestType>();
-				pResponsePacket->Height = storage.view().chainHeight();
+				SetHeights(*pResponsePacket, storage.view());
 
 				auto scoreArray = chainScoreSupplier().toArray();
 				pResponsePacket->ScoreHigh = scoreArray[0];

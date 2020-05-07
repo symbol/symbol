@@ -47,12 +47,13 @@ namespace catapult { namespace api {
 		auto pApi = api::CreateLocalChainApi(*pStorage, chainScoreSupplier);
 
 		// Act:
-		auto info = pApi->chainInfo().get();
+		auto chainInfo = pApi->chainInfo().get();
 
 		// Assert:
 		EXPECT_EQ(1u, numSupplierCalls);
-		EXPECT_EQ(Height(12), info.Height);
-		EXPECT_EQ(model::ChainScore(12345), info.Score);
+		EXPECT_EQ(Height(12), chainInfo.Height);
+		EXPECT_EQ(Height(1), chainInfo.FinalizedHeight);
+		EXPECT_EQ(model::ChainScore(12345), chainInfo.Score);
 	}
 
 	// endregion

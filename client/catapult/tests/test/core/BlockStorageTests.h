@@ -153,7 +153,7 @@ namespace catapult { namespace test {
 		}
 
 	public:
-		// region chainHeight + saveBlock - success
+		// region chainHeight + finalizedChainHeight + saveBlock - success
 
 		static void AssertSavingBlockWithHeightHigherThanChainHeightAltersChainHeight() {
 			// Arrange:
@@ -172,6 +172,7 @@ namespace catapult { namespace test {
 
 			// Assert:
 			EXPECT_EQ(Height(12), pStorage->chainHeight());
+			EXPECT_EQ(Height(1), pStorage->finalizedChainHeight());
 		}
 
 		static void AssertCanLoadNewlySavedBlock() {
@@ -187,6 +188,8 @@ namespace catapult { namespace test {
 
 			// Assert:
 			EXPECT_EQ(Height(11), pStorage->chainHeight());
+			EXPECT_EQ(Height(1), pStorage->finalizedChainHeight());
+
 			AssertEqual(expectedBlockElement, *pBlockElement);
 		}
 
@@ -205,6 +208,8 @@ namespace catapult { namespace test {
 
 			// Assert:
 			EXPECT_EQ(Height(11), pStorage->chainHeight());
+			EXPECT_EQ(Height(1), pStorage->finalizedChainHeight());
+
 			AssertEqual(expectedBlockElement, *pBlockElement);
 		}
 
@@ -226,6 +231,8 @@ namespace catapult { namespace test {
 
 			// Assert: the modified data was loaded
 			EXPECT_EQ(Height(11), pStorage->chainHeight());
+			EXPECT_EQ(Height(1), pStorage->finalizedChainHeight());
+
 			AssertEqual(expectedBlockElement, *pBlockElement);
 		}
 
@@ -338,6 +345,8 @@ namespace catapult { namespace test {
 
 			// Assert:
 			EXPECT_EQ(Height(11), pStorage->chainHeight());
+			EXPECT_EQ(Height(1), pStorage->finalizedChainHeight());
+
 			auto expected = SerializeBlockStatement(*expectedBlockElement.OptionalStatement);
 			ASSERT_TRUE(blockStatementPair.second);
 			ASSERT_EQ(expected.size(), blockStatementPair.first.size());
@@ -412,6 +421,8 @@ namespace catapult { namespace test {
 
 			// Assert:
 			EXPECT_EQ(Height(8), pStorage->chainHeight());
+			EXPECT_EQ(Height(1), pStorage->finalizedChainHeight());
+
 			EXPECT_TRUE(!!pStorage->loadBlockElement(Height(7)));
 			EXPECT_TRUE(!!pStorage->loadBlockElement(Height(8)));
 			EXPECT_THROW(pStorage->loadBlockElement(Height(9)), catapult_invalid_argument);
@@ -434,6 +445,8 @@ namespace catapult { namespace test {
 
 			// Assert:
 			EXPECT_EQ(Height(9), pStorage->chainHeight());
+			EXPECT_EQ(Height(1), pStorage->finalizedChainHeight());
+
 			EXPECT_TRUE(!!pStorage->loadBlockElement(Height(9)));
 			EXPECT_THROW(pStorage->loadBlockElement(Height(10)), catapult_invalid_argument);
 		}
@@ -450,6 +463,8 @@ namespace catapult { namespace test {
 
 			// Assert:
 			EXPECT_EQ(Height(0), pStorage->chainHeight());
+			EXPECT_EQ(Height(0), pStorage->finalizedChainHeight());
+
 			EXPECT_THROW(pStorage->loadBlockElement(Height(1)), catapult_invalid_argument);
 		}
 
@@ -469,6 +484,8 @@ namespace catapult { namespace test {
 
 			// Assert:
 			EXPECT_EQ(Height(1), pStorage->chainHeight());
+			EXPECT_EQ(Height(1), pStorage->finalizedChainHeight());
+
 			AssertEqual(nemesisBlockElement, *pBlockElement);
 			EXPECT_TRUE(model::VerifyBlockHeaderSignature(pBlockElement->Block));
 		}
@@ -494,6 +511,8 @@ namespace catapult { namespace test {
 
 			// Assert:
 			EXPECT_EQ(Height(12), pStorage->chainHeight());
+			EXPECT_EQ(Height(1), pStorage->finalizedChainHeight());
+
 			TLoadTraits::Assert(blockElement, result);
 		}
 
@@ -511,6 +530,8 @@ namespace catapult { namespace test {
 
 			// Assert:
 			EXPECT_EQ(Height(11), pStorage->chainHeight());
+			EXPECT_EQ(Height(1), pStorage->finalizedChainHeight());
+
 			TLoadTraits::Assert(blockElement, result);
 		}
 
@@ -541,6 +562,8 @@ namespace catapult { namespace test {
 
 			// Assert:
 			EXPECT_EQ(Height(7), pStorage->chainHeight());
+			EXPECT_EQ(Height(1), pStorage->finalizedChainHeight());
+
 			TLoadTraits::Assert(blockElement1, result1);
 			TLoadTraits::Assert(blockElement2, result2);
 		}
@@ -558,6 +581,8 @@ namespace catapult { namespace test {
 
 			// Assert:
 			EXPECT_EQ(Height(0), pStorage->chainHeight());
+			EXPECT_EQ(Height(0), pStorage->finalizedChainHeight());
+
 			EXPECT_THROW(pStorage->loadBlock(Height(1)), catapult_invalid_argument);
 			EXPECT_THROW(pStorage->loadBlockElement(Height(1)), catapult_invalid_argument);
 		}
@@ -572,6 +597,7 @@ namespace catapult { namespace test {
 
 			// Assert:
 			EXPECT_EQ(Height(7), pStorage->chainHeight());
+			EXPECT_EQ(Height(1), pStorage->finalizedChainHeight());
 		}
 
 		// endregion

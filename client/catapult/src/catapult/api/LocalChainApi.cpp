@@ -28,6 +28,11 @@ namespace catapult { namespace api {
 			return catapult_api_error(message) << exception_detail::Make<Height>::From(height);
 		}
 
+		void SetHeights(ChainInfo& chainInfo, io::BlockStorageView&& storageView) {
+			chainInfo.Height = storageView.chainHeight();
+			chainInfo.FinalizedHeight = storageView.finalizedChainHeight();
+		}
+
 		class LocalChainApi : public ChainApi {
 		public:
 			LocalChainApi(const io::BlockStorageCache& storage, const model::ChainScoreSupplier& chainScoreSupplier)
@@ -37,10 +42,11 @@ namespace catapult { namespace api {
 
 		public:
 			thread::future<ChainInfo> chainInfo() const override {
-				auto info = ChainInfo();
-				info.Height = m_storage.view().chainHeight();
-				info.Score = m_chainScoreSupplier();
-				return thread::make_ready_future(std::move(info));
+				auto chainInfo = ChainInfo();
+				SetHeights(chainInfo, m_storage.view());
+
+				chainInfo.Score = m_chainScoreSupplier();
+				return thread::make_ready_future(std::move(chainInfo));
 			}
 
 			thread::future<model::HashRange> hashesFrom(Height height, uint32_t maxHashes) const override {
