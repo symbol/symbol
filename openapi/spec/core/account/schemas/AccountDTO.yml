@@ -5,7 +5,9 @@ required:
   - publicKey
   - publicKeyHeight
   - accountType
-  - linkedAccountKey
+  - linkedPublicKey
+  - vrfPublicKey
+  - votingPublicKey
   - activityBuckets
   - mosaics
   - importance
@@ -21,8 +23,12 @@ properties:
     $ref: "../../../schemas/Height.yml"
   accountType:
     $ref: "./AccountTypeEnum.yml"
-  linkedAccountKey:
+  linkedPublicKey:
     $ref: "../../../schemas/PublicKey.yml"
+  vrfPublicKey:
+    $ref: "../../../schemas/PublicKey.yml"
+  votingPublicKey:
+    $ref: "../../../schemas/VotingKey.yml"
   activityBuckets:
     type: array
     items:

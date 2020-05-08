@@ -21,6 +21,9 @@ enum:
   - 16721
   - 16977
   - 16724
+  - 16963
+  - 16707
+  - 16972
 description: |
   Type of transaction:
   * 0x414C (16716 decimal) - AccountLinkTransaction.
@@ -44,3 +47,6 @@ description: |
   * 0x4151 (16721 decimal) - MosaicGlobalRestrictionTransaction.
   * 0x4251 (16977 decimal) - MosaicAddressRestrictionTransaction.
   * 0x4154 (16724 decimal) - TransferTransaction.
+  * 0x4243 (16963 decimal) - VrfKeyLinkTransaction.
+  * 0x4143 (16707 decimal) - VotingKeyLinkTransaction.
+  * 0x424c (16972 decimal) - NodeKeyLinkTransaction.
