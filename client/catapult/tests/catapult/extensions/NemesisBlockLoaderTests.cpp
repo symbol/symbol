@@ -181,15 +181,23 @@ namespace catapult { namespace extensions {
 			return manager;
 		}
 
-		std::unique_ptr<const observers::NotificationObserver> CreateObserver() {
+		std::unique_ptr<const observers::NotificationObserver> CreateObserverWithHarvestNetworkFees(
+				uint8_t harvestNetworkPercentage,
+				const Key& harvestNetworkFeeSinkPublicKey) {
 			// use real coresystem observers to create accounts, update balances and add harvest receipt
 			observers::DemuxObserverBuilder builder;
 			builder
 				.add(observers::CreateAccountAddressObserver())
 				.add(observers::CreateAccountPublicKeyObserver())
 				.add(observers::CreateBalanceTransferObserver())
-				.add(observers::CreateHarvestFeeObserver(Harvesting_Mosaic_Id, 20, model::InflationCalculator()));
+				.add(observers::CreateHarvestFeeObserver(
+						{ Harvesting_Mosaic_Id, 20, harvestNetworkPercentage, harvestNetworkFeeSinkPublicKey },
+						model::InflationCalculator()));
 			return builder.build();
+		}
+
+		std::unique_ptr<const observers::NotificationObserver> CreateObserver() {
+			return CreateObserverWithHarvestNetworkFees(0, Key());
 		}
 
 		const Key& GetTransactionRecipient(const model::Block& block, size_t index) {
@@ -630,6 +638,72 @@ namespace catapult { namespace extensions {
 			EXPECT_EQ(address, accountState.Address);
 			EXPECT_EQ(Height(1), accountState.PublicKeyHeight);
 			EXPECT_EQ(publicKey, accountState.PublicKey);
+		});
+	}
+
+	namespace {
+		template<typename TTraits, typename TAssertAccountStateCache>
+		void RunNemesisBlockSpecialSinkAccountTest(
+				uint8_t harvestNetworkPercentage,
+				const Key& harvestNetworkFeeSinkPublicKey,
+				TAssertAccountStateCache assertAccountStateCache) {
+			// Arrange: create a valid nemesis block with a single (mosaic) transaction
+			auto nemesisBlockSignerPair = CreateNemesisBlock({ { MakeHarvestingMosaic(1234) } });
+			auto nemesisOptions = NemesisOptions{ Importance(1234), Amount() };
+
+			// - create the state
+			auto config = CreateDefaultConfiguration(*nemesisBlockSignerPair.pBlock, nemesisOptions);
+			config.HarvestNetworkPercentage = harvestNetworkPercentage;
+			config.HarvestNetworkFeeSinkPublicKey = harvestNetworkFeeSinkPublicKey;
+			test::LocalNodeTestState state(config);
+			SetNemesisBlock(state.ref().Storage, nemesisBlockSignerPair, config.Network, NemesisBlockModification::None);
+
+			// - create the publisher, observer and loader
+			auto pluginManager = CreatePluginManager();
+			{
+				auto cacheDelta = state.ref().Cache.createDelta();
+				NemesisBlockLoader loader(
+						cacheDelta,
+						pluginManager,
+						CreateObserverWithHarvestNetworkFees(harvestNetworkPercentage, harvestNetworkFeeSinkPublicKey));
+
+				// Act:
+				TTraits::Execute(loader, state.ref(), nemesisOptions.StateHashVerification);
+
+				// Assert:
+				TTraits::Assert(cacheDelta, assertAccountStateCache);
+			}
+
+			auto cacheView = state.ref().Cache.createView();
+			TTraits::Assert(cacheView, assertAccountStateCache);
+		}
+	}
+
+	TRAITS_BASED_TEST(CanLoadValidNemesisBlock_SpecialSinkAccountIsCreatedWhenEnabled) {
+		// Arrange:
+		auto sinkPublicKey = test::GenerateRandomByteArray<Key>();
+
+		// Act:
+		RunNemesisBlockSpecialSinkAccountTest<TTraits>(10, sinkPublicKey, [&sinkPublicKey](const auto& accountStateCache) {
+			auto accountStateIter = accountStateCache.find(sinkPublicKey);
+
+			// Assert:
+			EXPECT_TRUE(!!accountStateIter.tryGet());
+			EXPECT_EQ(Height(1), accountStateIter.get().PublicKeyHeight);
+			EXPECT_EQ(sinkPublicKey, accountStateIter.get().PublicKey);
+		});
+	}
+
+	TRAITS_BASED_TEST(CanLoadValidNemesisBlock_SpecialSinkAccountIsNotCreatedWhenDisabled) {
+		// Arrange:
+		auto sinkPublicKey = test::GenerateRandomByteArray<Key>();
+
+		// Act:
+		RunNemesisBlockSpecialSinkAccountTest<TTraits>(0, sinkPublicKey, [&sinkPublicKey](const auto& accountStateCache) {
+			auto accountStateIter = accountStateCache.find(sinkPublicKey);
+
+			// Assert:
+			EXPECT_FALSE(!!accountStateIter.tryGet());
 		});
 	}
 

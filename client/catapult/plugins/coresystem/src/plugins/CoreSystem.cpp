@@ -154,8 +154,14 @@ namespace catapult { namespace plugins {
 				.add(validators::CreateBalanceTransferValidator());
 		});
 
+		auto harvestFeeOptions = observers::HarvestFeeOptions{
+			config.CurrencyMosaicId,
+			config.HarvestBeneficiaryPercentage,
+			config.HarvestNetworkPercentage,
+			config.HarvestNetworkFeeSinkPublicKey
+		};
 		const auto& calculator = manager.inflationConfig().InflationCalculator;
-		manager.addObserverHook([&config, &calculator](auto& builder) {
+		manager.addObserverHook([harvestFeeOptions, &calculator](auto& builder) {
 			builder
 				.add(observers::CreateSourceChangeObserver())
 				.add(observers::CreateAccountAddressObserver())
@@ -164,7 +170,7 @@ namespace catapult { namespace plugins {
 				.add(observers::CreateBalanceTransferObserver())
 				.add(observers::CreateBeneficiaryObserver())
 				.add(observers::CreateTransactionFeeActivityObserver())
-				.add(observers::CreateHarvestFeeObserver(config.CurrencyMosaicId, config.HarvestBeneficiaryPercentage, calculator))
+				.add(observers::CreateHarvestFeeObserver(harvestFeeOptions, calculator))
 				.add(observers::CreateTotalTransactionsObserver());
 		});
 

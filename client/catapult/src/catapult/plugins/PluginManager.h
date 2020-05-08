@@ -71,7 +71,7 @@ namespace catapult { namespace plugins {
 		using AggregateMosaicResolver = AggregateResolver<UnresolvedMosaicId, MosaicId>;
 		using AggregateAddressResolver = AggregateResolver<UnresolvedAddress, Address>;
 
-		using PublisherPointer = std::unique_ptr<model::NotificationPublisher>;
+		using PublisherPointer = std::unique_ptr<const model::NotificationPublisher>;
 
 	public:
 		/// Creates a new plugin manager around \a config, \a storageConfig \a userConfig and \a inflationConfig.

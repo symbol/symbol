@@ -41,19 +41,30 @@ namespace catapult { namespace observers {
 
 	// region Block
 
+	/// Options for the harvest fee observer.
+	struct HarvestFeeOptions {
+		/// Mosaic id used as primary chain currency.
+		MosaicId CurrencyMosaicId;
+
+		/// Percentage of the harvested fee that is collected by the beneficiary account.
+		uint8_t HarvestBeneficiaryPercentage;
+
+		/// Percentage of the harvested fee that is collected by the network.
+		uint8_t HarvestNetworkPercentage;
+
+		/// Public key of the harvest network fee sink account.
+		Key HarvestNetworkFeeSinkPublicKey;
+	};
+
 	/// Observes block notifications and triggers importance recalculations using either \a pCommitCalculator (for commits)
 	/// or \a pRollbackCalculator (for rollbacks).
 	DECLARE_OBSERVER(RecalculateImportances, model::BlockNotification)(
 			std::unique_ptr<importance::ImportanceCalculator>&& pCommitCalculator,
 			std::unique_ptr<importance::ImportanceCalculator>&& pRollbackCalculator);
 
-	/// Observes block notifications and credits the harvester and optionally the beneficiary account with transaction fees
-	/// given the currency mosaic id (\a currencyMosaicId), the harvest beneficiary percentage (\a harvestBeneficiaryPercentage)
-	/// and the inflation \a calculator.
-	DECLARE_OBSERVER(HarvestFee, model::BlockNotification)(
-			MosaicId currencyMosaicId,
-			uint8_t harvestBeneficiaryPercentage,
-			const model::InflationCalculator& calculator);
+	/// Observes block notifications and credits the harvester and, optionally, additional accounts specified in \a options
+	/// with the currency mosaic given the specified inflation \a calculator.
+	DECLARE_OBSERVER(HarvestFee, model::BlockNotification)(const HarvestFeeOptions& options, const model::InflationCalculator& calculator);
 
 	/// Observes block beneficiary.
 	DECLARE_OBSERVER(Beneficiary, model::BlockNotification)();

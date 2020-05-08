@@ -29,7 +29,6 @@ namespace catapult {
 	namespace model {
 		struct BlockChainConfiguration;
 		struct BlockElement;
-		class NotificationPublisher;
 	}
 	namespace plugins { class PluginManager; }
 }
@@ -84,6 +83,6 @@ namespace catapult { namespace extensions {
 		Key m_nemesisPublicKey;
 		NemesisFundingState m_nemesisFundingState;
 		std::unique_ptr<const observers::EntityObserver> m_pObserver;
-		std::unique_ptr<const model::NotificationPublisher> m_pPublisher;
+		std::vector<Key> m_specialAccountPublicKeys;
 	};
 }}

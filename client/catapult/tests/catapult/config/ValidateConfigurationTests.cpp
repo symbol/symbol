@@ -84,37 +84,44 @@ namespace catapult { namespace config {
 	// region harvest beneficiary percentage validation
 
 	namespace {
-		auto CreateCatapultConfigurationWithHarvestBeneficiaryPercentage(uint8_t harvestBeneficiaryPercentage) {
+		auto CreateCatapultConfigurationWithHarvestPercentages(uint8_t harvestBeneficiaryPercentage, uint8_t harvestNetworkPercentage) {
 			auto mutableConfig = CreateMutableCatapultConfiguration();
 			mutableConfig.BlockChain.HarvestBeneficiaryPercentage = harvestBeneficiaryPercentage;
+			mutableConfig.BlockChain.HarvestNetworkPercentage = harvestNetworkPercentage;
 			return mutableConfig.ToConst();
 		}
 	}
 
-	TEST(TEST_CLASS, HarvestBeneficiaryPercentageIsValidated) {
+	TEST(TEST_CLASS, HarvestPercentagesAreValidated) {
 		// Arrange:
-		auto assertNoThrow = [](uint8_t harvestBeneficiaryPercentage) {
-			auto config = CreateCatapultConfigurationWithHarvestBeneficiaryPercentage(harvestBeneficiaryPercentage);
-			EXPECT_NO_THROW(ValidateConfiguration(config)) << "HBP " << harvestBeneficiaryPercentage;
+		auto assertNoThrow = [](uint8_t harvestBeneficiaryPercentage, uint8_t harvestNetworkPercentage) {
+			auto config = CreateCatapultConfigurationWithHarvestPercentages(harvestBeneficiaryPercentage, harvestNetworkPercentage);
+			EXPECT_NO_THROW(ValidateConfiguration(config))
+					<< "HBP " << static_cast<uint16_t>(harvestBeneficiaryPercentage)
+					<< " HNP " << static_cast<uint16_t>(harvestNetworkPercentage);
 		};
 
-		auto assertThrow = [](uint8_t harvestBeneficiaryPercentage) {
-			auto config = CreateCatapultConfigurationWithHarvestBeneficiaryPercentage(harvestBeneficiaryPercentage);
-			EXPECT_THROW(ValidateConfiguration(config), utils::property_malformed_error) << "HBP " << harvestBeneficiaryPercentage;
+		auto assertThrow = [](uint8_t harvestBeneficiaryPercentage, uint8_t harvestNetworkPercentage) {
+			auto config = CreateCatapultConfigurationWithHarvestPercentages(harvestBeneficiaryPercentage, harvestNetworkPercentage);
+			EXPECT_THROW(ValidateConfiguration(config), utils::property_malformed_error)
+					<< "HBP " << static_cast<uint16_t>(harvestBeneficiaryPercentage)
+					<< " HNP " << static_cast<uint16_t>(harvestNetworkPercentage);
+		};
+
+		auto dispatch = [](auto check, uint8_t percentage) {
+			check(percentage, 0);
+			check(0, percentage);
+			check(percentage / 2, percentage / 2 + (0 == percentage % 2 ? 0 : 1));
 		};
 
 		// Act + Assert:
 		// - no exceptions
-		assertNoThrow(0);
-		assertNoThrow(1);
-		assertNoThrow(57);
-		assertNoThrow(99);
-		assertNoThrow(100);
+		for (auto percentage : std::initializer_list<uint8_t>{ 0, 1, 57, 99, 100 })
+			dispatch(assertNoThrow, percentage);
 
 		// - exceptions
-		assertThrow(101);
-		assertThrow(156);
-		assertThrow(255);
+		for (auto percentage : std::initializer_list<uint8_t>{ 101, 156, 255 })
+			dispatch(assertThrow, percentage);
 	}
 
 	// endregion
@@ -143,16 +150,12 @@ namespace catapult { namespace config {
 
 		// Act + Assert:
 		// - no exceptions
-		assertNoThrow(0);
-		assertNoThrow(1);
-		assertNoThrow(57);
-		assertNoThrow(99);
+		for (auto percentage : std::initializer_list<uint8_t>{ 0, 1, 57, 99 })
+			assertNoThrow(percentage);
 
 		// - exceptions
-		assertThrow(100);
-		assertThrow(101);
-		assertThrow(156);
-		assertThrow(255);
+		for (auto percentage : std::initializer_list<uint8_t>{ 100, 101, 156, 255 })
+			assertThrow(percentage);
 	}
 
 	// endregion

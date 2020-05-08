@@ -33,6 +33,7 @@ namespace catapult { namespace model {
 	namespace {
 		constexpr auto Nemesis_Public_Key = "C738E237C98760FA72726BA13DC2A1E3C13FA67DE26AF09742E972EE4EE45E1C";
 		constexpr auto Nemesis_Generation_Hash_Seed = "CE076EF4ABFBC65B046987429E274EC31506D173E91BF102F16BEB7FB8176230";
+		constexpr auto Harvest_Network_Fee_Sink_Public_Key = "38662118395299246934A07CB42F6FD7D99B3416B93649AA6CEAEB77692AA060";
 
 		struct BlockChainConfigurationTraits {
 			using ConfigurationType = BlockChainConfiguration;
@@ -76,7 +77,10 @@ namespace catapult { namespace model {
 							{ "totalChainImportance", "88'000'000'000" },
 							{ "minHarvesterBalance", "4'000'000'000" },
 							{ "maxHarvesterBalance", "9'000'000'000" },
+
 							{ "harvestBeneficiaryPercentage", "56" },
+							{ "harvestNetworkPercentage", "21" },
+							{ "harvestNetworkFeeSinkPublicKey", Harvest_Network_Fee_Sink_Public_Key },
 
 							{ "blockPruneInterval", "432" },
 							{ "maxTransactionsPerBlock", "120" }
@@ -134,7 +138,10 @@ namespace catapult { namespace model {
 				EXPECT_EQ(Importance(0), config.TotalChainImportance);
 				EXPECT_EQ(Amount(0), config.MinHarvesterBalance);
 				EXPECT_EQ(Amount(0), config.MaxHarvesterBalance);
+
 				EXPECT_EQ(0u, config.HarvestBeneficiaryPercentage);
+				EXPECT_EQ(0u, config.HarvestNetworkPercentage);
+				EXPECT_EQ(Key(), config.HarvestNetworkFeeSinkPublicKey);
 
 				EXPECT_EQ(0u, config.BlockPruneInterval);
 				EXPECT_EQ(0u, config.MaxTransactionsPerBlock);
@@ -174,7 +181,10 @@ namespace catapult { namespace model {
 				EXPECT_EQ(Importance(88'000'000'000), config.TotalChainImportance);
 				EXPECT_EQ(Amount(4'000'000'000), config.MinHarvesterBalance);
 				EXPECT_EQ(Amount(9'000'000'000), config.MaxHarvesterBalance);
+
 				EXPECT_EQ(56u, config.HarvestBeneficiaryPercentage);
+				EXPECT_EQ(21, config.HarvestNetworkPercentage);
+				EXPECT_EQ(utils::ParseByteArray<Key>(Harvest_Network_Fee_Sink_Public_Key), config.HarvestNetworkFeeSinkPublicKey);
 
 				EXPECT_EQ(432u, config.BlockPruneInterval);
 				EXPECT_EQ(120u, config.MaxTransactionsPerBlock);

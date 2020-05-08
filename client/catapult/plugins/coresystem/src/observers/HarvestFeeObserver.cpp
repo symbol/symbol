@@ -29,60 +29,77 @@ namespace catapult { namespace observers {
 	namespace {
 		using Notification = model::BlockNotification;
 
-		void ApplyFee(
-				state::AccountState& accountState,
-				NotifyMode notifyMode,
-				const model::Mosaic& feeMosaic,
-				ObserverStatementBuilder& statementBuilder) {
-			if (NotifyMode::Rollback == notifyMode) {
-				accountState.Balances.debit(feeMosaic.MosaicId, feeMosaic.Amount);
-				return;
+		class FeeApplier {
+		public:
+			FeeApplier(MosaicId currencyMosaicId, ObserverContext& context)
+					: m_currencyMosaicId(currencyMosaicId)
+					, m_context(context)
+			{}
+
+		public:
+			void apply(const Key& publicKey, Amount amount) {
+				auto& cache = m_context.Cache.sub<cache::AccountStateCache>();
+				auto feeMosaic = model::Mosaic{ m_currencyMosaicId, amount };
+				cache::ProcessForwardedAccountState(cache, publicKey, [&feeMosaic, &context = m_context](auto& accountState) {
+					ApplyFee(accountState, context.Mode, feeMosaic, context.StatementBuilder());
+				});
 			}
 
-			accountState.Balances.credit(feeMosaic.MosaicId, feeMosaic.Amount);
+		private:
+			static void ApplyFee(
+					state::AccountState& accountState,
+					NotifyMode notifyMode,
+					const model::Mosaic& feeMosaic,
+					ObserverStatementBuilder& statementBuilder) {
+				if (NotifyMode::Rollback == notifyMode) {
+					accountState.Balances.debit(feeMosaic.MosaicId, feeMosaic.Amount);
+					return;
+				}
 
-			// add fee receipt
-			auto receiptType = model::Receipt_Type_Harvest_Fee;
-			model::BalanceChangeReceipt receipt(receiptType, accountState.PublicKey, feeMosaic.MosaicId, feeMosaic.Amount);
-			statementBuilder.addReceipt(receipt);
-		}
+				accountState.Balances.credit(feeMosaic.MosaicId, feeMosaic.Amount);
 
-		void ApplyFee(const Key& publicKey, const model::Mosaic& feeMosaic, ObserverContext& context) {
-			auto& cache = context.Cache.sub<cache::AccountStateCache>();
-			cache::ProcessForwardedAccountState(cache, publicKey, [&feeMosaic, &context](auto& accountState) {
-				ApplyFee(accountState, context.Mode, feeMosaic, context.StatementBuilder());
-			});
-		}
+				// add fee receipt
+				auto receiptType = model::Receipt_Type_Harvest_Fee;
+				model::BalanceChangeReceipt receipt(receiptType, accountState.PublicKey, feeMosaic.MosaicId, feeMosaic.Amount);
+				statementBuilder.addReceipt(receipt);
+			}
+
+		private:
+			MosaicId m_currencyMosaicId;
+			ObserverContext& m_context;
+		};
 
 		bool ShouldShareFees(const Key& signer, const Key& harvesterBeneficiary, uint8_t harvestBeneficiaryPercentage) {
 			return 0u < harvestBeneficiaryPercentage && signer != harvesterBeneficiary;
 		}
 	}
 
-	DECLARE_OBSERVER(HarvestFee, Notification)(
-			MosaicId currencyMosaicId,
-			uint8_t harvestBeneficiaryPercentage,
-			const model::InflationCalculator& calculator) {
-		return MAKE_OBSERVER(HarvestFee, Notification, ([currencyMosaicId, harvestBeneficiaryPercentage, calculator](
-				const Notification& notification,
-				ObserverContext& context) {
+	DECLARE_OBSERVER(HarvestFee, Notification)(const HarvestFeeOptions& options, const model::InflationCalculator& calculator) {
+		return MAKE_OBSERVER(HarvestFee, Notification, ([options, calculator](const Notification& notification, ObserverContext& context) {
 			auto inflationAmount = calculator.getSpotAmount(context.Height);
 			auto totalAmount = notification.TotalFee + inflationAmount;
-			auto beneficiaryAmount = ShouldShareFees(notification.Signer, notification.Beneficiary, harvestBeneficiaryPercentage)
-					? Amount(totalAmount.unwrap() * harvestBeneficiaryPercentage / 100)
+
+			auto networkAmount = Amount(totalAmount.unwrap() * options.HarvestNetworkPercentage / 100);
+			auto beneficiaryAmount = ShouldShareFees(notification.Signer, notification.Beneficiary, options.HarvestBeneficiaryPercentage)
+					? Amount(totalAmount.unwrap() * options.HarvestBeneficiaryPercentage / 100)
 					: Amount();
-			auto harvesterAmount = totalAmount - beneficiaryAmount;
+			auto harvesterAmount = totalAmount - networkAmount - beneficiaryAmount;
 
 			// always create receipt for harvester
-			ApplyFee(notification.Signer, { currencyMosaicId, harvesterAmount }, context);
+			FeeApplier applier(options.CurrencyMosaicId, context);
+			applier.apply(notification.Signer, harvesterAmount);
+
+			// only if amount is non-zero create receipt for network sink account
+			if (Amount() != networkAmount)
+				applier.apply(options.HarvestNetworkFeeSinkPublicKey, networkAmount);
 
 			// only if amount is non-zero create receipt for beneficiary account
 			if (Amount() != beneficiaryAmount)
-				ApplyFee(notification.Beneficiary, { currencyMosaicId, beneficiaryAmount }, context);
+				applier.apply(notification.Beneficiary, beneficiaryAmount);
 
 			// add inflation receipt
 			if (Amount() != inflationAmount && NotifyMode::Commit == context.Mode) {
-				model::InflationReceipt receipt(model::Receipt_Type_Inflation, currencyMosaicId, inflationAmount);
+				model::InflationReceipt receipt(model::Receipt_Type_Inflation, options.CurrencyMosaicId, inflationAmount);
 				context.StatementBuilder().addReceipt(receipt);
 			}
 		}));

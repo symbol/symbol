@@ -81,7 +81,12 @@ namespace catapult { namespace config {
 			EXPECT_EQ(Importance(15'000'000), config.TotalChainImportance);
 			EXPECT_EQ(Amount(500), config.MinHarvesterBalance);
 			EXPECT_EQ(Amount(4'000'000), config.MaxHarvesterBalance);
+
 			EXPECT_EQ(10u, config.HarvestBeneficiaryPercentage);
+			EXPECT_EQ(5u, config.HarvestNetworkPercentage);
+			EXPECT_EQ(
+					utils::ParseByteArray<Key>("FF5563F1C5824EE0CD868799FBE8744B46D5549973FDA499939C952D951494E4"),
+					config.HarvestNetworkFeeSinkPublicKey);
 
 			EXPECT_EQ(360u, config.BlockPruneInterval);
 			EXPECT_EQ(200'000u, config.MaxTransactionsPerBlock);

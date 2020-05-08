@@ -56,7 +56,7 @@ namespace catapult { namespace consumers {
 	disruptor::TransactionConsumer CreateTransactionBatchSignatureConsumer(
 			const GenerationHashSeed& generationHashSeed,
 			const crypto::RandomFiller& randomFiller,
-			const std::shared_ptr<model::NotificationPublisher>& pPublisher,
+			const std::shared_ptr<const model::NotificationPublisher>& pPublisher,
 			const std::shared_ptr<thread::IoThreadPool>& pPool,
 			const chain::FailedTransactionSink& failedTransactionSink);
 

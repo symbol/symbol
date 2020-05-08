@@ -220,7 +220,7 @@ namespace catapult { namespace test {
 
 	public:
 		/// Gets the notification publisher.
-		model::NotificationPublisher& notificationPublisher() const {
+		const model::NotificationPublisher& notificationPublisher() const {
 			return *m_pNotificationPublisher;
 		}
 
@@ -230,7 +230,7 @@ namespace catapult { namespace test {
 		}
 
 	private:
-		std::unique_ptr<model::NotificationPublisher> m_pNotificationPublisher;
+		std::unique_ptr<const model::NotificationPublisher> m_pNotificationPublisher;
 		std::shared_ptr<TSubscriber> m_pZeroMqSubscriber;
 	};
 }}
