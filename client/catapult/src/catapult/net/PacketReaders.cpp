@@ -91,9 +91,11 @@ namespace catapult { namespace net {
 
 				utils::SpinLockGuard guard(m_lock);
 
+				std::pair<model::NodeIdentity, uint32_t> qualifiedReaderId;
 				auto insertedReaderIter = m_readers.end();
 				for (auto i = 0u; i < m_maxConnectionsPerIdentity; ++i) {
-					auto emplaceResult = m_readers.emplace(std::make_pair(state.Identity, i), state);
+					qualifiedReaderId = std::make_pair(state.Identity, i);
+					auto emplaceResult = m_readers.emplace(qualifiedReaderId, state);
 					if (emplaceResult.second) {
 						insertedReaderIter = emplaceResult.first;
 						break;
@@ -117,12 +119,9 @@ namespace catapult { namespace net {
 
 					pReader->start();
 				};
-				operation.Abort = [&lock = m_lock, &readers = m_readers, pSocket, insertedReaderIter]() {
-					utils::SpinLockGuard guard2(lock);
-
-					CATAPULT_LOG(warning) << "aborting incoming connection from " << insertedReaderIter->first.first;
-					pSocket->close();
-					readers.erase(insertedReaderIter);
+				operation.Abort = [this, qualifiedReaderId]() {
+					CATAPULT_LOG(warning) << "aborting incoming connection from " << qualifiedReaderId.first;
+					closeSingle(qualifiedReaderId.first, qualifiedReaderId.second);
 				};
 
 				return operation;
