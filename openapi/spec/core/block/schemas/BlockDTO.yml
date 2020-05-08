@@ -7,6 +7,9 @@ allOf:
       - height
       - timestamp
       - difficulty
+      - proofGamma
+      - proofVerificationHash
+      - proofScalar
       - previousBlockHash
       - transactionsHash
       - receiptsHash
@@ -20,6 +23,12 @@ allOf:
         $ref: "../../../schemas/Timestamp.yml"
       difficulty:
         $ref: "../../../schemas/Difficulty.yml"
+      proofGamma:
+        $ref: "../../../schemas/ProofGamma.yml"
+      proofVerificationHash:
+        $ref: "../../../schemas/ProofVerificationHash.yml"
+      proofScalar:
+        $ref: "../../../schemas/ProofScalar.yml"
       previousBlockHash:
         $ref: "../../../schemas/Hash256.yml"
       transactionsHash:

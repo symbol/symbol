@@ -27,3 +27,6 @@ properties:
       - $ref: "../../../plugins/restriction_mosaic/schemas/MosaicGlobalRestrictionTransactionDTO.yml"
       - $ref: "../../../plugins/restriction_mosaic/schemas/MosaicAddressRestrictionTransactionDTO.yml"
       - $ref: "../../../plugins/transfer/schemas/TransferTransactionDTO.yml"
+      - $ref: "../../../plugins/coresystem/schemas/VrfKeyLinkTransactionDTO.yml"
+      - $ref: "../../../plugins/coresystem/schemas/VotingKeyLinkTransactionDTO.yml"
+      - $ref: "../../../plugins/account_link/schemas/NodeKeyLinkTransactionDTO.yml"

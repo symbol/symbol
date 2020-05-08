@@ -15,6 +15,8 @@ Height:
   "$ref": "./Height.yml"
 Importance:
   "$ref": "./Importance.yml"
+LinkActionEnum:
+  "$ref": "./LinkActionEnum.yml"
 MetadataKey:
   "$ref": "./MetadataKey.yml"
 MetadataValue:
@@ -31,6 +33,12 @@ NamespaceId:
   "$ref": "./NamespaceId.yml"
 PublicKey:
   "$ref": "./PublicKey.yml"
+ProofGamma:
+  "$ref": "./ProofGamma.yml"
+ProofScalar:
+  "$ref": "./ProofScalar.yml"
+ProofVerificationHash:
+  "$ref": "./ProofVerificationHash.yml"
 Score:
   "$ref": "./Score.yml"
 Signature:
@@ -43,6 +51,8 @@ UnresolvedMosaicId:
   "$ref": "./UnresolvedMosaicId.yml"
 UnresolvedMosaic:
   "$ref": "./UnresolvedMosaic.yml"
+VotingKey:
+  "$ref": "./VotingKey.yml"
 RestrictionValue:
   "$ref": "./RestrictionValue.yml"
 
@@ -151,8 +161,6 @@ TransactionStatusDTO:
   "$ref": "../core/transaction/schemas/TransactionStatusDTO.yml"
 
 # Plugin - AccountLink
-AccountLinkActionEnum:
-  "$ref": "../plugins/account_link/schemas/AccountLinkActionEnum.yml"
 AccountLinkNetworkPropertiesDTO:
   "$ref": "../plugins/account_link/schemas/AccountLinkNetworkPropertiesDTO.yml"
 AccountLinkTransactionBodyDTO:
@@ -161,6 +169,14 @@ AccountLinkTransactionDTO:
   "$ref": "../plugins/account_link/schemas/AccountLinkTransactionDTO.yml"
 EmbeddedAccountLinkTransactionDTO:
   "$ref": "../plugins/account_link/schemas/EmbeddedAccountLinkTransactionDTO.yml"
+NodeKeyLinkNetworkPropertiesDTO:
+  "$ref": "../plugins/account_link/schemas/NodeKeyLinkNetworkPropertiesDTO.yml"
+NodeKeyLinkTransactionBodyDTO:
+  "$ref": "../plugins/account_link/schemas/NodeKeyLinkTransactionBodyDTO.yml"
+NodeKeyLinkTransactionDTO:
+  "$ref": "../plugins/account_link/schemas/NodeKeyLinkTransactionDTO.yml"
+EmbeddedNodeKeyLinkTransactionDTO:
+  "$ref": "../plugins/account_link/schemas/EmbeddedNodeKeyLinkTransactionDTO.yml"
 
 # Plugin - Aggregate
 AggregateNetworkPropertiesDTO:
@@ -171,6 +187,25 @@ AggregateTransactionDTO:
   "$ref": "../plugins/aggregate/schemas/AggregateTransactionDTO.yml"
 CosignatureDTO:
   "$ref": "../plugins/aggregate/schemas/CosignatureDTO.yml"
+
+# Plugin - Coresystem
+VrfKeyLinkNetworkPropertiesDTO:
+  "$ref": "../plugins/coresystem/schemas/VrfKeyLinkNetworkPropertiesDTO.yml"
+VrfKeyLinkTransactionBodyDTO:
+  "$ref": "../plugins/coresystem/schemas/VrfKeyLinkTransactionBodyDTO.yml"
+VrfKeyLinkTransactionDTO:
+  "$ref": "../plugins/coresystem/schemas/VrfKeyLinkTransactionDTO.yml"
+EmbeddedVrfKeyLinkTransactionDTO:
+  "$ref": "../plugins/coresystem/schemas/EmbeddedVrfKeyLinkTransactionDTO.yml"
+VotingKeyLinkNetworkPropertiesDTO:
+  "$ref": "../plugins/coresystem/schemas/VotingKeyLinkNetworkPropertiesDTO.yml"
+VotingKeyLinkTransactionBodyDTO:
+  "$ref": "../plugins/coresystem/schemas/VotingKeyLinkTransactionBodyDTO.yml"
+VotingKeyLinkTransactionDTO:
+  "$ref": "../plugins/coresystem/schemas/VotingKeyLinkTransactionDTO.yml"
+EmbeddedVotingKeyLinkTransactionDTO:
+  "$ref": "../plugins/coresystem/schemas/EmbeddedVotingKeyLinkTransactionDTO.yml"
+
 
 # Plugin - LockHash
 EmbeddedHashLockTransactionDTO:
