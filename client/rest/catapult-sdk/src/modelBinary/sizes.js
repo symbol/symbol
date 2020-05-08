@@ -58,7 +58,12 @@ const sizes = {
 		gamma: 32,
 		verificationHash: 16,
 		scalar: 32
-	}
+	},
+
+	/**
+	 * @property {numeric} Size of a voting key.
+	 */
+	votingKey: 48
 };
 
 module.exports = sizes;

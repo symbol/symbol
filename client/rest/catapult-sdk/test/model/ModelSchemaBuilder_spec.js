@@ -219,6 +219,7 @@ describe('model schema builder', () => {
 				'account.linkedPublicKey',
 				'account.vrfPublicKey',
 				'account.votingPublicKey',
+				'account.nodePublicKey',
 
 				'nodeInfo.publicKey',
 				'nodeInfo.networkGenerationHash',

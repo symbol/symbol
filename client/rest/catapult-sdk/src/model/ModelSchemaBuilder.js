@@ -125,6 +125,7 @@ class ModelSchemaBuilder {
 				linkedPublicKey: ModelType.binary,
 				vrfPublicKey: ModelType.binary,
 				votingPublicKey: ModelType.binary,
+				nodePublicKey: ModelType.binary,
 				importance: ModelType.uint64,
 				importanceHeight: ModelType.uint64,
 				activityBuckets: { type: ModelType.array, schemaName: 'activityBucket' },
