@@ -73,7 +73,7 @@ namespace catapult { namespace zeromq {
 	class ZeroMqEntityPublisher {
 	public:
 		/// Creates a zeromq entity publisher around \a port and \a pNotificationPublisher.
-		ZeroMqEntityPublisher(unsigned short port, std::unique_ptr<model::NotificationPublisher>&& pNotificationPublisher);
+		ZeroMqEntityPublisher(unsigned short port, std::unique_ptr<const model::NotificationPublisher>&& pNotificationPublisher);
 
 		~ZeroMqEntityPublisher();
 
@@ -112,7 +112,7 @@ namespace catapult { namespace zeromq {
 
 	private:
 		class SynchronizedPublisher;
-		std::unique_ptr<model::NotificationPublisher> m_pNotificationPublisher;
+		std::unique_ptr<const model::NotificationPublisher> m_pNotificationPublisher;
 		std::unique_ptr<SynchronizedPublisher> m_pSynchronizedPublisher;
 	};
 }}

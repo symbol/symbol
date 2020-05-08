@@ -71,7 +71,7 @@ namespace catapult { namespace consumers {
 	disruptor::ConstBlockConsumer CreateBlockBatchSignatureConsumer(
 			const GenerationHashSeed& generationHashSeed,
 			const crypto::RandomFiller& randomFiller,
-			const std::shared_ptr<model::NotificationPublisher>& pPublisher,
+			const std::shared_ptr<const model::NotificationPublisher>& pPublisher,
 			const std::shared_ptr<thread::IoThreadPool>& pPool,
 			const RequiresValidationPredicate& requiresValidationPredicate);
 

@@ -122,7 +122,7 @@ namespace catapult { namespace zeromq {
 
 	ZeroMqEntityPublisher::ZeroMqEntityPublisher(
 			unsigned short port,
-			std::unique_ptr<model::NotificationPublisher>&& pNotificationPublisher)
+			std::unique_ptr<const model::NotificationPublisher>&& pNotificationPublisher)
 			: m_pNotificationPublisher(std::move(pNotificationPublisher))
 			, m_pSynchronizedPublisher(std::make_unique<SynchronizedPublisher>(port))
 	{}

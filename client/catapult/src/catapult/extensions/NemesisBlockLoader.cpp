@@ -21,17 +21,13 @@
 #include "NemesisBlockLoader.h"
 #include "LocalNodeStateRef.h"
 #include "NemesisFundingObserver.h"
-#include "catapult/cache/CatapultCache.h"
-#include "catapult/cache/ReadOnlyCatapultCache.h"
-#include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/chain/BlockExecutor.h"
 #include "catapult/config/CatapultConfiguration.h"
-#include "catapult/crypto/Signer.h"
 #include "catapult/crypto/Vrf.h"
 #include "catapult/io/BlockStorageCache.h"
 #include "catapult/model/BlockUtils.h"
 #include "catapult/model/NotificationPublisher.h"
-#include "catapult/model/TransactionPlugin.h"
+#include "catapult/model/NotificationSubscriber.h"
 #include "catapult/observers/NotificationObserverAdapter.h"
 #include "catapult/plugins/PluginManager.h"
 #include "catapult/utils/IntegerMath.h"
@@ -39,7 +35,7 @@
 namespace catapult { namespace extensions {
 
 	namespace {
-		std::unique_ptr<const observers::NotificationObserver> PrependFundingObserver(
+		std::unique_ptr<const observers::NotificationObserver> PrependNemesisObservers(
 				const Key& nemesisPublicKey,
 				NemesisFundingState& nemesisFundingState,
 				std::unique_ptr<const observers::NotificationObserver>&& pObserver) {
@@ -47,6 +43,34 @@ namespace catapult { namespace extensions {
 			builder.add(CreateNemesisFundingObserver(nemesisPublicKey, nemesisFundingState));
 			builder.add(std::move(pObserver));
 			return builder.build();
+		}
+
+		class NemesisNotificationPublisherDecorator : public model::NotificationPublisher {
+		public:
+			NemesisNotificationPublisherDecorator(
+					const std::vector<Key>& specialAccountPublicKeys,
+					std::unique_ptr<const model::NotificationPublisher>&& pPublisher)
+					: m_specialAccountPublicKeys(specialAccountPublicKeys)
+					, m_pPublisher(std::move(pPublisher))
+			{}
+
+		public:
+			void publish(const model::WeakEntityInfo& entityInfo, model::NotificationSubscriber& sub) const {
+				for (const auto& publicKey : m_specialAccountPublicKeys)
+					sub.notify(model::AccountPublicKeyNotification(publicKey));
+
+				m_pPublisher->publish(entityInfo, sub);
+			}
+
+		private:
+			const std::vector<Key>& m_specialAccountPublicKeys;
+			std::unique_ptr<const model::NotificationPublisher> m_pPublisher;
+		};
+
+		std::unique_ptr<const model::NotificationPublisher> DecorateNemesisPublisher(
+				const std::vector<Key>& specialAccountPublicKeys,
+				std::unique_ptr<const model::NotificationPublisher>&& pPublisher) {
+			return std::make_unique<NemesisNotificationPublisherDecorator>(specialAccountPublicKeys, std::move(pPublisher));
 		}
 
 		void LogNemesisBlockInfo(const model::BlockElement& blockElement) {
@@ -153,9 +177,8 @@ namespace catapult { namespace extensions {
 			: m_cacheDelta(cacheDelta)
 			, m_pluginManager(pluginManager)
 			, m_pObserver(std::make_unique<observers::NotificationObserverAdapter>(
-					PrependFundingObserver(m_nemesisPublicKey, m_nemesisFundingState, std::move(pObserver)),
-					pluginManager.createNotificationPublisher()))
-			, m_pPublisher(pluginManager.createNotificationPublisher())
+					PrependNemesisObservers(m_nemesisPublicKey, m_nemesisFundingState, std::move(pObserver)),
+					DecorateNemesisPublisher(m_specialAccountPublicKeys, pluginManager.createNotificationPublisher())))
 	{}
 
 	void NemesisBlockLoader::execute(const LocalNodeStateRef& stateRef, StateHashVerification stateHashVerification) {
@@ -210,9 +233,13 @@ namespace catapult { namespace extensions {
 		CheckNemesisBlockTransactionTypes(nemesisBlockElement.Block, m_pluginManager.transactionRegistry());
 		CheckNemesisBlockFeeMultiplier(nemesisBlockElement.Block);
 
-		// 2. reset nemesis funding observer data
+		// 2. reset nemesis funding observer data and custom state
 		m_nemesisPublicKey = nemesisBlockElement.Block.SignerPublicKey;
 		m_nemesisFundingState = NemesisFundingState();
+
+		m_specialAccountPublicKeys.clear();
+		if (0 < config.HarvestNetworkPercentage)
+			m_specialAccountPublicKeys.push_back(config.HarvestNetworkFeeSinkPublicKey);
 
 		// 3. execute the block
 		auto readOnlyCache = m_cacheDelta.toReadOnly();
