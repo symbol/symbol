@@ -1,0 +1,4 @@
+type: string
+format: hex
+description: 16 bytes proof verification hash.
+example: AC1A6E1D8DE5B17D2C6B1293F1CAD382
