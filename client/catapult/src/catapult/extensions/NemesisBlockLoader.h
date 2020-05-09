@@ -20,6 +20,7 @@
 
 #pragma once
 #include "NemesisFundingState.h"
+#include "catapult/model/NemesisNotificationPublisher.h"
 #include "catapult/observers/ObserverTypes.h"
 #include "catapult/functions.h"
 
@@ -83,6 +84,6 @@ namespace catapult { namespace extensions {
 		Key m_nemesisPublicKey;
 		NemesisFundingState m_nemesisFundingState;
 		std::unique_ptr<const observers::EntityObserver> m_pObserver;
-		std::vector<Key> m_specialAccountPublicKeys;
+		model::NemesisNotificationPublisherOptions m_publisherOptions;
 	};
 }}

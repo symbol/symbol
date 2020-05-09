@@ -63,8 +63,10 @@ namespace catapult { namespace tools { namespace nemgen {
 			}
 
 			int run(const Options& options) override {
-				// 1. load config
+				// 1. load config and disable loading of user certificates during block generation
 				auto config = LoadConfiguration(m_resourcesPath);
+				const_cast<bool&>(config.User.EnableDelegatedHarvestersAutoDetection) = false;
+
 				auto nemesisConfig = LoadNemesisConfiguration(m_nemesisPropertiesFilePath);
 				if (!LogAndValidateNemesisConfiguration(nemesisConfig))
 					return -1;

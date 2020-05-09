@@ -23,6 +23,7 @@
 #include "catapult/cache/ReadOnlyCatapultCache.h"
 #include "catapult/chain/BlockExecutor.h"
 #include "catapult/config/CatapultConfiguration.h"
+#include "catapult/model/NemesisNotificationPublisher.h"
 #include "catapult/observers/NotificationObserverAdapter.h"
 
 namespace catapult { namespace tools { namespace nemgen {
@@ -36,7 +37,10 @@ namespace catapult { namespace tools { namespace nemgen {
 		auto& pluginManager = pluginLoader.manager();
 
 		// 2. prepare observer
-		observers::NotificationObserverAdapter entityObserver(pluginManager.createObserver(), pluginManager.createNotificationPublisher());
+		auto publisherOptions = model::ExtractNemesisNotificationPublisherOptions(config.BlockChain);
+		observers::NotificationObserverAdapter entityObserver(
+				pluginManager.createObserver(),
+				model::CreateNemesisNotificationPublisher(pluginManager.createNotificationPublisher(), publisherOptions));
 
 		// 3. prepare observer state
 		auto cache = pluginManager.createCache();
