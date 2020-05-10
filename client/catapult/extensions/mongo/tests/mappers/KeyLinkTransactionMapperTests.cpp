@@ -18,25 +18,25 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/AccountLinkMapper.h"
+#include "mongo/src/mappers/KeyLinkTransactionMapper.h"
 #include "mongo/src/mappers/MapperUtils.h"
-#include "plugins/txes/account_link/src/model/AccountLinkTransaction.h"
-#include "plugins/txes/account_link/src/model/NodeKeyLinkTransaction.h"
+#include "plugins/coresystem/src/model/VotingKeyLinkTransaction.h"
+#include "plugins/coresystem/src/model/VrfKeyLinkTransaction.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/MongoTransactionPluginTests.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace mongo { namespace plugins {
+namespace catapult { namespace mongo { namespace mappers {
 
-#define TEST_CLASS AccountLinkMapperTests
+#define TEST_CLASS KeyLinkTransactionMapperTests
 
 	namespace {
-		DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(AccountLink, Account)
-		DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(NodeKeyLink, Node)
+		DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(VotingKeyLink, Voting)
+		DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(VrfKeyLink, Vrf)
 	}
 
-	DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, Account, _Account, model::Entity_Type_Account_Link)
-	DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, Node, _Node, model::Entity_Type_Node_Key_Link)
+	DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, Voting, _Voting, model::Entity_Type_Voting_Key_Link)
+	DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, Vrf, _Vrf, model::Entity_Type_Vrf_Key_Link)
 
 #undef PLUGIN_TEST
 
@@ -46,8 +46,8 @@ namespace catapult { namespace mongo { namespace plugins {
 
 #define PLUGIN_TEST(TEST_NAME) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	PLUGIN_TEST_ENTRY(Account, TEST_NAME) \
-	PLUGIN_TEST_ENTRY(Node, TEST_NAME) \
+	PLUGIN_TEST_ENTRY(Voting, TEST_NAME) \
+	PLUGIN_TEST_ENTRY(Vrf, TEST_NAME) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// region streamTransaction
@@ -68,7 +68,11 @@ namespace catapult { namespace mongo { namespace plugins {
 		// Assert:
 		EXPECT_EQ(2u, test::GetFieldCount(view));
 		EXPECT_EQ(model::LinkAction::Unlink, static_cast<model::LinkAction>(test::GetUint32(view, "linkAction")));
-		EXPECT_EQ(transaction.LinkedPublicKey, test::GetKeyValue(view, "linkedPublicKey"));
+
+		if constexpr (std::is_same_v<VotingKey, decltype(transaction.LinkedPublicKey)>)
+			EXPECT_EQ(transaction.LinkedPublicKey, test::GetVotingKeyValue(view, "linkedPublicKey"));
+		else
+			EXPECT_EQ(transaction.LinkedPublicKey, test::GetKeyValue(view, "linkedPublicKey"));
 	}
 
 	// endregion

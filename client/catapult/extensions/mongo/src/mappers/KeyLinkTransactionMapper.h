@@ -18,30 +18,14 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "mongo/src/CoreMongo.h"
-#include "mongo/tests/test/MongoPluginTestUtils.h"
-#include "tests/TestHarness.h"
+#pragma once
+#include "mongo/src/MongoTransactionPlugin.h"
 
-namespace catapult { namespace mongo {
+namespace catapult { namespace mongo { namespace mappers {
 
-	namespace {
-		struct CoreMongoTraits {
-		public:
-			static constexpr auto RegisterSubsystem = RegisterCoreMongoSystem;
+	/// Creates a mongo voting key link transaction plugin.
+	std::unique_ptr<MongoTransactionPlugin> CreateVotingKeyLinkTransactionMongoPlugin();
 
-			static std::vector<model::EntityType> GetTransactionTypes() {
-				return { model::Entity_Type_Voting_Key_Link, model::Entity_Type_Vrf_Key_Link };
-			}
-
-			static std::vector<model::ReceiptType> GetReceiptTypes() {
-				return { model::Receipt_Type_Harvest_Fee, model::Receipt_Type_Inflation };
-			}
-
-			static std::string GetStorageName() {
-				return "{ AccountStateCache }";
-			}
-		};
-	}
-
-	DEFINE_MONGO_PLUGIN_TESTS(CoreMongoTests, CoreMongoTraits)
-}}
+	/// Creates a mongo vrf key link transaction plugin.
+	std::unique_ptr<MongoTransactionPlugin> CreateVrfKeyLinkTransactionMongoPlugin();
+}}}

@@ -18,30 +18,23 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "mongo/src/CoreMongo.h"
-#include "mongo/tests/test/MongoPluginTestUtils.h"
-#include "tests/TestHarness.h"
+#include "KeyLinkTransactionMapper.h"
+#include "mongo/src/MongoTransactionPluginFactory.h"
+#include "mongo/src/mappers/MapperUtils.h"
+#include "plugins/coresystem/src/model/VotingKeyLinkTransaction.h"
+#include "plugins/coresystem/src/model/VrfKeyLinkTransaction.h"
 
-namespace catapult { namespace mongo {
+namespace catapult { namespace mongo { namespace mappers {
 
 	namespace {
-		struct CoreMongoTraits {
-		public:
-			static constexpr auto RegisterSubsystem = RegisterCoreMongoSystem;
-
-			static std::vector<model::EntityType> GetTransactionTypes() {
-				return { model::Entity_Type_Voting_Key_Link, model::Entity_Type_Vrf_Key_Link };
-			}
-
-			static std::vector<model::ReceiptType> GetReceiptTypes() {
-				return { model::Receipt_Type_Harvest_Fee, model::Receipt_Type_Inflation };
-			}
-
-			static std::string GetStorageName() {
-				return "{ AccountStateCache }";
-			}
-		};
+		template<typename TTransaction>
+		void StreamTransaction(bson_stream::document& builder, const TTransaction& transaction) {
+			builder
+					<< "linkedPublicKey" << ToBinary(transaction.LinkedPublicKey)
+					<< "linkAction" << utils::to_underlying_type(transaction.LinkAction);
+		}
 	}
 
-	DEFINE_MONGO_PLUGIN_TESTS(CoreMongoTests, CoreMongoTraits)
-}}
+	DEFINE_MONGO_TRANSACTION_PLUGIN_FACTORY(VotingKeyLink, StreamTransaction)
+	DEFINE_MONGO_TRANSACTION_PLUGIN_FACTORY(VrfKeyLink, StreamTransaction)
+}}}
