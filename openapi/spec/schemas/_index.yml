@@ -65,6 +65,10 @@ AccountInfoDTO:
   "$ref": "../core/account/schemas/AccountInfoDTO.yml"
 ActivityBucketDTO:
   "$ref": "../core/account/schemas/ActivityBucketDTO.yml"
+AccountKeyDTO:
+  "$ref": "../core/account/schemas/AccountKeyDTO.yml"
+KeyTypeEnum:
+  "$ref": "../core/account/schemas/KeyTypeEnum.yml"
 
 # Core - Block
 PositionEnum:
