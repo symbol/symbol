@@ -1,0 +1,9 @@
+type: object
+required:
+  - keyType
+  - key
+properties:
+  keyType:
+    $ref: "./KeyTypeEnum.yml"
+  key:
+    type: string
