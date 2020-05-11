@@ -122,14 +122,14 @@ class ModelSchemaBuilder {
 				addressHeight: ModelType.uint64,
 				publicKey: ModelType.binary,
 				publicKeyHeight: ModelType.uint64,
-				linkedPublicKey: ModelType.binary,
-				vrfPublicKey: ModelType.binary,
-				votingPublicKey: ModelType.binary,
-				nodePublicKey: ModelType.binary,
+				supplementalAccountKeys: { type: ModelType.array, schemaName: 'supplementalAccountKey' },
 				importance: ModelType.uint64,
 				importanceHeight: ModelType.uint64,
 				activityBuckets: { type: ModelType.array, schemaName: 'activityBucket' },
 				mosaics: { type: ModelType.array, schemaName: 'mosaic' }
+			},
+			supplementalAccountKey: {
+				key: ModelType.binary
 			},
 			activityBucket: {
 				startHeight: ModelType.uint64,

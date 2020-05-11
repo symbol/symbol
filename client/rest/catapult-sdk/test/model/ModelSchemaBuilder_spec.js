@@ -83,6 +83,7 @@ describe('model schema builder', () => {
 				'transactionStatus',
 
 				'account',
+				'supplementalAccountKey',
 				'activityBucket',
 				'mosaic',
 				'accountMeta',
@@ -171,6 +172,7 @@ describe('model schema builder', () => {
 			expect(matchingProperties).to.deep.equal([
 				'blockHeaderMetadata.stateHashSubCacheMerkleRoots',
 				'merkleProofInfo.merklePath',
+				'account.supplementalAccountKeys',
 				'account.activityBuckets',
 				'account.mosaics',
 				'stateTree.tree'
@@ -216,10 +218,7 @@ describe('model schema builder', () => {
 
 				'account.address',
 				'account.publicKey',
-				'account.linkedPublicKey',
-				'account.vrfPublicKey',
-				'account.votingPublicKey',
-				'account.nodePublicKey',
+				'supplementalAccountKey.key',
 
 				'nodeInfo.publicKey',
 				'nodeInfo.networkGenerationHash',
