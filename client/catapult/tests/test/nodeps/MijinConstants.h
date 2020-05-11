@@ -67,8 +67,8 @@ namespace catapult { namespace test {
 	};
 
 	// public keys
-	constexpr auto Namespace_Rental_Fee_Sink_Address = "SDTZ23JBJZP3GTKKM2P6FYCMXS6RQYPB6R477TTR";
-	constexpr auto Mosaic_Rental_Fee_Sink_Address = "SDKDPA36TE53BO24FD4KA6OPGOUSEVOU3O5SIFMY";
+	constexpr auto Namespace_Rental_Fee_Sink_Address = "SDTZ23JBJZP3GTKKM2P6FYCMXS6RQYPB6R477TQ";
+	constexpr auto Mosaic_Rental_Fee_Sink_Address = "SDKDPA36TE53BO24FD4KA6OPGOUSEVOU3O5SIFI";
 
 	/// Finds the vrf key pair associated with the specified signing public key (\a signingPublicKey).
 	inline crypto::KeyPair LookupVrfKeyPair(const Key& signingPublicKey) {

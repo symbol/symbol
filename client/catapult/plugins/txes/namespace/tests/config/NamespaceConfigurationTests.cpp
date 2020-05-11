@@ -27,7 +27,7 @@
 namespace catapult { namespace config {
 
 	namespace {
-		constexpr auto Namespace_Rental_Fee_Sink_Address = "SDUAKZJ3WPKG6T7PYH54U2Y7SCXCAGV4EPPESHQH";
+		constexpr auto Namespace_Rental_Fee_Sink_Address = "SDUAKZJ3WPKG6T7PYH54U2Y7SCXCAGV4EPPESHQ";
 
 		struct NamespaceConfigurationTraits {
 			using ConfigurationType = NamespaceConfiguration;

@@ -46,7 +46,7 @@ namespace catapult { namespace model {
 
 			// Assert:
 			EXPECT_EQ(expectedSize, sizeof(T));
-			EXPECT_EQ(baseSize + 82u, sizeof(T));
+			EXPECT_EQ(baseSize + 81u, sizeof(T));
 		}
 
 		template<typename T>

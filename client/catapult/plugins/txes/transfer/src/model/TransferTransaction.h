@@ -40,14 +40,15 @@ namespace catapult { namespace model {
 		/// Recipient address.
 		UnresolvedAddress RecipientAddress;
 
-		/// Number of mosaics.
-		uint8_t MosaicsCount;
-
 		/// Message size in bytes.
 		uint16_t MessageSize;
 
+		/// Number of mosaics.
+		uint8_t MosaicsCount;
+
 		/// Reserved padding to align Mosaics on 8-byte boundary.
 		uint32_t TransferTransactionBody_Reserved1;
+		uint8_t TransferTransactionBody_Reserved2;
 
 		// followed by mosaics data if MosaicsCount != 0
 		DEFINE_TRANSACTION_VARIABLE_DATA_ACCESSORS(Mosaics, UnresolvedMosaic)

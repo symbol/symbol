@@ -43,7 +43,7 @@ namespace catapult { namespace plugins {
 						{ "maxMosaicDuration", "0h" },
 						{ "maxMosaicDivisibility", "0" },
 
-						{ "mosaicRentalFeeSinkAddress", "SAXQUTQQNS6JEJG7PLC6FRVJ2USS44GLMXG4DOF2" },
+						{ "mosaicRentalFeeSinkAddress", "SAXQUTQQNS6JEJG7PLC6FRVJ2USS44GLMXG4DOA" },
 						{ "mosaicRentalFee", "0" }
 					}
 				}}));

@@ -32,13 +32,13 @@ namespace catapult { namespace model {
 
 	// region size + alignment + properties
 
-#define TRANSACTION_FIELDS FIELD(RecipientAddress) FIELD(MosaicsCount) FIELD(MessageSize)
+#define TRANSACTION_FIELDS FIELD(RecipientAddress) FIELD(MessageSize) FIELD(MosaicsCount)
 
 	namespace {
 		template<typename T>
 		void AssertTransactionHasExpectedSize(size_t baseSize) {
 			// Arrange:
-			auto expectedSize = baseSize + sizeof(uint32_t);
+			auto expectedSize = baseSize + sizeof(uint32_t) + sizeof(uint8_t);
 
 #define FIELD(X) expectedSize += sizeof(T::X);
 			TRANSACTION_FIELDS
@@ -46,7 +46,7 @@ namespace catapult { namespace model {
 
 			// Assert:
 			EXPECT_EQ(expectedSize, sizeof(T));
-			EXPECT_EQ(baseSize + 4 + 28u, sizeof(T));
+			EXPECT_EQ(baseSize + 5 + 27u, sizeof(T));
 		}
 
 		template<typename T>

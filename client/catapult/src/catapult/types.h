@@ -56,10 +56,10 @@ namespace catapult {
 
 	// region byte arrays (address)
 
-	struct Address_tag { static constexpr size_t Size = 25; };
+	struct Address_tag { static constexpr size_t Size = 24; };
 	using Address = utils::ByteArray<Address_tag>;
 
-	struct UnresolvedAddress_tag { static constexpr size_t Size = 25; };
+	struct UnresolvedAddress_tag { static constexpr size_t Size = 24; };
 	using UnresolvedAddress = utils::ByteArray<UnresolvedAddress_tag>;
 
 	// endregion

@@ -27,7 +27,7 @@
 namespace catapult { namespace config {
 
 	namespace {
-		constexpr auto Mosaic_Rental_Fee_Sink_Address = "SBLIPGUADOMVLQI2TQ7SMGFHSVOZNE4H2I5NBIXV";
+		constexpr auto Mosaic_Rental_Fee_Sink_Address = "SBLIPGUADOMVLQI2TQ7SMGFHSVOZNE4H2I5NBIQ";
 
 		struct MosaicConfigurationTraits {
 			using ConfigurationType = MosaicConfiguration;

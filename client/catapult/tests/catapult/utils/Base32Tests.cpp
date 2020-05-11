@@ -180,8 +180,11 @@ namespace catapult { namespace utils {
 	// region Base32Decode
 
 	namespace {
+		struct PaddedAddress_tag { static constexpr size_t Size = 25; };
+		using PaddedAddress = utils::ByteArray<PaddedAddress_tag>;
+
 		auto HexStringToArray(const std::string& str) {
-			return utils::ParseByteArray<Address>(str);
+			return utils::ParseByteArray<PaddedAddress>(str);
 		}
 	}
 

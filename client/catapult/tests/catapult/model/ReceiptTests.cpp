@@ -67,7 +67,7 @@ namespace catapult { namespace model {
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(BalanceTransferReceipt));
-		EXPECT_EQ(8u + 73, sizeof(BalanceTransferReceipt));
+		EXPECT_EQ(8u + 72, sizeof(BalanceTransferReceipt));
 	}
 
 	TEST(TEST_CLASS, BalanceTransferReceiptHasProperAlignment) {

@@ -212,7 +212,7 @@ namespace catapult { namespace config {
 		AssertEndpoint(node.endpoint(), "bob.nem.ninja", 12345);
 		AssertMetadata(node.metadata(), "", ionet::NodeRoles::Peer);
 
-		auto expectedAddress = "EWX7YGZ5D524BZVRCPJL3M34MV23QJKFRPLA5UKO";
+		auto expectedAddress = "EWX7YGZ5D524BZVRCPJL3M34MV23QJKFRPLA5UI";
 		EXPECT_EQ(std::string(expectedAddress) + " @ bob.nem.ninja:12345", test::ToString(node));
 	}
 
