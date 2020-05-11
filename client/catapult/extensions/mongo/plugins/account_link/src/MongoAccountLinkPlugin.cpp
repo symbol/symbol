@@ -23,6 +23,6 @@
 
 extern "C" PLUGIN_API
 void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager) {
-	manager.addTransactionSupport(catapult::mongo::plugins::CreateAccountLinkTransactionMongoPlugin());
+	manager.addTransactionSupport(catapult::mongo::plugins::CreateAccountKeyLinkTransactionMongoPlugin());
 	manager.addTransactionSupport(catapult::mongo::plugins::CreateNodeKeyLinkTransactionMongoPlugin());
 }

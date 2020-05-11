@@ -19,7 +19,7 @@
 **/
 
 #include "AccountLinkPlugin.h"
-#include "AccountLinkTransactionPlugin.h"
+#include "AccountKeyLinkTransactionPlugin.h"
 #include "NodeKeyLinkTransactionPlugin.h"
 #include "src/observers/Observers.h"
 #include "src/validators/Validators.h"
@@ -42,12 +42,12 @@ namespace catapult { namespace plugins {
 	}
 
 	void RegisterAccountLinkSubsystem(PluginManager& manager) {
-		manager.addTransactionSupport(CreateAccountLinkTransactionPlugin());
+		manager.addTransactionSupport(CreateAccountKeyLinkTransactionPlugin());
 		manager.addTransactionSupport(CreateNodeKeyLinkTransactionPlugin());
 
 		manager.addStatefulValidatorHook([](auto& builder) {
 			builder
-				.add(validators::CreateAccountLinkAvailabilityValidator())
+				.add(validators::CreateAccountKeyLinkValidator())
 				.add(validators::CreateNewRemoteAccountAvailabilityValidator())
 				.add(validators::CreateRemoteSenderValidator())
 				.add(validators::CreateRemoteInteractionValidator())
@@ -56,7 +56,7 @@ namespace catapult { namespace plugins {
 
 		manager.addObserverHook([](auto& builder) {
 			builder
-				.add(observers::CreateAccountLinkObserver())
+				.add(observers::CreateAccountKeyLinkObserver())
 				.add(keylink::CreateKeyLinkObserver<model::NodeKeyLinkNotification, NodeKeyAccessor>("Node"));
 		});
 	}

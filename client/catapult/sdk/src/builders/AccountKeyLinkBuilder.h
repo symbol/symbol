@@ -20,20 +20,20 @@
 
 #pragma once
 #include "TransactionBuilder.h"
-#include "plugins/txes/account_link/src/model/AccountLinkTransaction.h"
+#include "plugins/txes/account_link/src/model/AccountKeyLinkTransaction.h"
 
 namespace catapult { namespace builders {
 
-	/// Builder for an account link transaction.
-	class AccountLinkBuilder : public TransactionBuilder {
+	/// Builder for an account key link transaction.
+	class AccountKeyLinkBuilder : public TransactionBuilder {
 	public:
-		using Transaction = model::AccountLinkTransaction;
-		using EmbeddedTransaction = model::EmbeddedAccountLinkTransaction;
+		using Transaction = model::AccountKeyLinkTransaction;
+		using EmbeddedTransaction = model::EmbeddedAccountKeyLinkTransaction;
 
 	public:
-		/// Creates an account link builder for building an account link transaction from \a signer
+		/// Creates an account link builder for building an account key link transaction from \a signer
 		/// for the network specified by \a networkIdentifier.
-		AccountLinkBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
+		AccountKeyLinkBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
 
 	public:
 		/// Sets the linked public key to \a linkedPublicKey.
@@ -43,14 +43,14 @@ namespace catapult { namespace builders {
 		void setLinkAction(model::LinkAction linkAction);
 
 	public:
-		/// Gets the size of account link transaction.
+		/// Gets the size of account key link transaction.
 		/// \note This returns size of a normal transaction not embedded transaction.
 		size_t size() const;
 
-		/// Builds a new account link transaction.
+		/// Builds a new account key link transaction.
 		std::unique_ptr<Transaction> build() const;
 
-		/// Builds a new embedded account link transaction.
+		/// Builds a new embedded account key link transaction.
 		std::unique_ptr<EmbeddedTransaction> buildEmbedded() const;
 
 	private:

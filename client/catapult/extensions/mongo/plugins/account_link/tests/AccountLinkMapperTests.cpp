@@ -20,7 +20,7 @@
 
 #include "src/AccountLinkMapper.h"
 #include "mongo/src/mappers/MapperUtils.h"
-#include "plugins/txes/account_link/src/model/AccountLinkTransaction.h"
+#include "plugins/txes/account_link/src/model/AccountKeyLinkTransaction.h"
 #include "plugins/txes/account_link/src/model/NodeKeyLinkTransaction.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/MongoTransactionPluginTests.h"
@@ -31,11 +31,11 @@ namespace catapult { namespace mongo { namespace plugins {
 #define TEST_CLASS AccountLinkMapperTests
 
 	namespace {
-		DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(AccountLink, Account)
+		DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(AccountKeyLink, Account)
 		DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(NodeKeyLink, Node)
 	}
 
-	DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, Account, _Account, model::Entity_Type_Account_Link)
+	DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, Account, _Account, model::Entity_Type_Account_Key_Link)
 	DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, Node, _Node, model::Entity_Type_Node_Key_Link)
 
 #undef PLUGIN_TEST

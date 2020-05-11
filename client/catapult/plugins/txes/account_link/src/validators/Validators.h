@@ -25,11 +25,11 @@
 
 namespace catapult { namespace validators {
 
-	/// Validator that applies to remote account link notifications and validates that:
+	/// Validator that applies to remote account key link notifications and validates that:
 	/// - link action is consistent with current state
 	/// - only main account can unlink
 	/// - unlink data matches current state
-	DECLARE_STATEFUL_VALIDATOR(AccountLinkAvailability, model::RemoteAccountLinkNotification)();
+	DECLARE_STATEFUL_VALIDATOR(AccountKeyLink, model::RemoteAccountKeyLinkNotification)();
 
 	/// Validator that applies to new remote account notifications and validates that:
 	/// - remote account does not exist

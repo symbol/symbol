@@ -18,14 +18,14 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/model/AccountLinkTransaction.h"
+#include "src/model/AccountKeyLinkTransaction.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/nodeps/Alignment.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace model {
 
-#define TEST_CLASS AccountLinkTransactionTests
+#define TEST_CLASS AccountKeyLinkTransactionTests
 
 	// region size + alignment + properties
 
@@ -56,26 +56,26 @@ namespace catapult { namespace model {
 		template<typename T>
 		void AssertTransactionHasExpectedProperties() {
 			// Assert:
-			EXPECT_EQ(Entity_Type_Account_Link, T::Entity_Type);
+			EXPECT_EQ(Entity_Type_Account_Key_Link, T::Entity_Type);
 			EXPECT_EQ(1u, T::Current_Version);
 		}
 	}
 
 #undef TRANSACTION_FIELDS
 
-	ADD_BASIC_TRANSACTION_SIZE_PROPERTY_TESTS(AccountLink)
+	ADD_BASIC_TRANSACTION_SIZE_PROPERTY_TESTS(AccountKeyLink)
 
 	// endregion
 
 	TEST(TEST_CLASS, CanCalculateRealSizeWithReasonableValues) {
 		// Arrange:
-		AccountLinkTransaction transaction;
+		AccountKeyLinkTransaction transaction;
 		transaction.Size = 0;
 
 		// Act:
-		auto realSize = AccountLinkTransaction::CalculateRealSize(transaction);
+		auto realSize = AccountKeyLinkTransaction::CalculateRealSize(transaction);
 
 		// Assert:
-		EXPECT_EQ(sizeof(AccountLinkTransaction), realSize);
+		EXPECT_EQ(sizeof(AccountKeyLinkTransaction), realSize);
 	}
 }}

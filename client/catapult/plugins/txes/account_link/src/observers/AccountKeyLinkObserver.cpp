@@ -36,8 +36,8 @@ namespace catapult { namespace observers {
 		}
 	}
 
-	DEFINE_OBSERVER(AccountLink, model::RemoteAccountLinkNotification, [](
-			const model::RemoteAccountLinkNotification& notification,
+	DEFINE_OBSERVER(AccountKeyLink, model::RemoteAccountKeyLinkNotification, [](
+			const model::RemoteAccountKeyLinkNotification& notification,
 			const ObserverContext& context) {
 		auto& cache = context.Cache.sub<cache::AccountStateCache>();
 

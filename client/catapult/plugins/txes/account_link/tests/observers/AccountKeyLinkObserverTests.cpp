@@ -26,11 +26,11 @@
 
 namespace catapult { namespace observers {
 
-#define TEST_CLASS AccountLinkObserverTests
+#define TEST_CLASS AccountKeyLinkObserverTests
 
 	using ObserverTestContext = test::ObserverTestContextT<test::CoreSystemCacheFactory>;
 
-	DEFINE_COMMON_OBSERVER_TESTS(AccountLink,)
+	DEFINE_COMMON_OBSERVER_TESTS(AccountKeyLink,)
 
 	namespace {
 		struct CommitTraits {
@@ -83,8 +83,8 @@ namespace catapult { namespace observers {
 			auto mainAccountPublicKey = mainAccountState.PublicKey;
 			auto linkedPublicKey = remoteAccountState.PublicKey;
 
-			auto notification = model::RemoteAccountLinkNotification(mainAccountPublicKey, linkedPublicKey, TTraits::Create_Link);
-			auto pObserver = CreateAccountLinkObserver();
+			auto notification = model::RemoteAccountKeyLinkNotification(mainAccountPublicKey, linkedPublicKey, TTraits::Create_Link);
+			auto pObserver = CreateAccountKeyLinkObserver();
 
 			// Act:
 			test::ObserveNotification(*pObserver, notification, context);
@@ -111,8 +111,8 @@ namespace catapult { namespace observers {
 			remoteAccountState.SupplementalAccountKeys.linkedPublicKey().set(mainAccountPublicKey);
 			remoteAccountState.AccountType = state::AccountType::Remote;
 
-			auto notification = model::RemoteAccountLinkNotification(mainAccountPublicKey, linkedPublicKey, TTraits::Remove_Link);
-			auto pObserver = CreateAccountLinkObserver();
+			auto notification = model::RemoteAccountKeyLinkNotification(mainAccountPublicKey, linkedPublicKey, TTraits::Remove_Link);
+			auto pObserver = CreateAccountKeyLinkObserver();
 
 			// Act:
 			test::ObserveNotification(*pObserver, notification, context);

@@ -19,7 +19,7 @@
 **/
 
 #include "src/validators/Validators.h"
-#include "src/model/AccountLinkTransaction.h"
+#include "src/model/AccountKeyLinkTransaction.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/model/Address.h"
 #include "catapult/model/BlockChainConfiguration.h"
@@ -142,7 +142,7 @@ namespace catapult { namespace validators {
 		// Arrange:
 		auto accountKey = test::GenerateRandomByteArray<Key>();
 		auto accountAddress = test::UnresolveXor(model::PublicKeyToAddress(accountKey, model::NetworkIdentifier::Zero));
-		constexpr auto transactionType = model::AccountLinkTransaction::Entity_Type;
+		constexpr auto transactionType = model::AccountKeyLinkTransaction::Entity_Type;
 		constexpr auto Success = ValidationResult::Success;
 
 		// Assert:

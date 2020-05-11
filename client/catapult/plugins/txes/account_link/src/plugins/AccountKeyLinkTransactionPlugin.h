@@ -26,7 +26,7 @@ namespace catapult { namespace model { class TransactionPlugin; } }
 
 namespace catapult { namespace plugins {
 
-	/// Creates an account link transaction plugin.
+	/// Creates an account key link transaction plugin.
 	PLUGIN_API
-	std::unique_ptr<model::TransactionPlugin> CreateAccountLinkTransactionPlugin();
+	std::unique_ptr<model::TransactionPlugin> CreateAccountKeyLinkTransactionPlugin();
 }}

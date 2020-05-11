@@ -18,9 +18,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "AccountLinkTransactionPlugin.h"
+#include "AccountKeyLinkTransactionPlugin.h"
+#include "src/model/AccountKeyLinkTransaction.h"
 #include "src/model/AccountLinkNotifications.h"
-#include "src/model/AccountLinkTransaction.h"
 #include "catapult/model/NotificationSubscriber.h"
 #include "catapult/model/TransactionPluginFactory.h"
 
@@ -39,9 +39,9 @@ namespace catapult { namespace plugins {
 
 			sub.notify(KeyLinkActionNotification(transaction.LinkAction));
 			sub.notify(AddressInteractionNotification(transaction.SignerPublicKey, transaction.Type, {}, { transaction.LinkedPublicKey }));
-			sub.notify(RemoteAccountLinkNotification(transaction.SignerPublicKey, transaction.LinkedPublicKey, transaction.LinkAction));
+			sub.notify(RemoteAccountKeyLinkNotification(transaction.SignerPublicKey, transaction.LinkedPublicKey, transaction.LinkAction));
 		}
 	}
 
-	DEFINE_TRANSACTION_PLUGIN_FACTORY(AccountLink, Default, Publish)
+	DEFINE_TRANSACTION_PLUGIN_FACTORY(AccountKeyLink, Default, Publish)
 }}

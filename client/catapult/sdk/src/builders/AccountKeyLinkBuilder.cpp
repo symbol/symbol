@@ -18,45 +18,45 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "AccountLinkBuilder.h"
+#include "AccountKeyLinkBuilder.h"
 
 namespace catapult { namespace builders {
 
-	AccountLinkBuilder::AccountLinkBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
+	AccountKeyLinkBuilder::AccountKeyLinkBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
 			: TransactionBuilder(networkIdentifier, signer)
 			, m_linkedPublicKey()
 			, m_linkAction()
 	{}
 
-	void AccountLinkBuilder::setLinkedPublicKey(const Key& linkedPublicKey) {
+	void AccountKeyLinkBuilder::setLinkedPublicKey(const Key& linkedPublicKey) {
 		m_linkedPublicKey = linkedPublicKey;
 	}
 
-	void AccountLinkBuilder::setLinkAction(model::LinkAction linkAction) {
+	void AccountKeyLinkBuilder::setLinkAction(model::LinkAction linkAction) {
 		m_linkAction = linkAction;
 	}
 
-	size_t AccountLinkBuilder::size() const {
+	size_t AccountKeyLinkBuilder::size() const {
 		return sizeImpl<Transaction>();
 	}
 
-	std::unique_ptr<AccountLinkBuilder::Transaction> AccountLinkBuilder::build() const {
+	std::unique_ptr<AccountKeyLinkBuilder::Transaction> AccountKeyLinkBuilder::build() const {
 		return buildImpl<Transaction>();
 	}
 
-	std::unique_ptr<AccountLinkBuilder::EmbeddedTransaction> AccountLinkBuilder::buildEmbedded() const {
+	std::unique_ptr<AccountKeyLinkBuilder::EmbeddedTransaction> AccountKeyLinkBuilder::buildEmbedded() const {
 		return buildImpl<EmbeddedTransaction>();
 	}
 
 	template<typename TransactionType>
-	size_t AccountLinkBuilder::sizeImpl() const {
+	size_t AccountKeyLinkBuilder::sizeImpl() const {
 		// calculate transaction size
 		auto size = sizeof(TransactionType);
 		return size;
 	}
 
 	template<typename TransactionType>
-	std::unique_ptr<TransactionType> AccountLinkBuilder::buildImpl() const {
+	std::unique_ptr<TransactionType> AccountKeyLinkBuilder::buildImpl() const {
 		// 1. allocate, zero (header), set model::Transaction fields
 		auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
 

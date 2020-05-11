@@ -19,7 +19,7 @@
 **/
 
 #include "Validators.h"
-#include "src/model/AccountLinkTransaction.h"
+#include "src/model/AccountKeyLinkTransaction.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/state/AccountState.h"
 #include "catapult/validators/ValidatorContext.h"
@@ -46,7 +46,7 @@ namespace catapult { namespace validators {
 	}
 
 	DEFINE_STATEFUL_VALIDATOR(RemoteInteraction, ([](const Notification& notification, const ValidatorContext& context) {
-		if (model::AccountLinkTransaction::Entity_Type == notification.TransactionType)
+		if (model::AccountKeyLinkTransaction::Entity_Type == notification.TransactionType)
 			return ValidationResult::Success;
 
 		const auto& cache = context.Cache.sub<cache::AccountStateCache>();

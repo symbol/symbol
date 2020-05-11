@@ -24,9 +24,9 @@
 
 namespace catapult { namespace validators {
 
-	using Notification = model::RemoteAccountLinkNotification;
+	using Notification = model::RemoteAccountKeyLinkNotification;
 
-	DEFINE_STATEFUL_VALIDATOR(AccountLinkAvailability, [](const Notification& notification, const ValidatorContext& context) {
+	DEFINE_STATEFUL_VALIDATOR(AccountKeyLink, [](const Notification& notification, const ValidatorContext& context) {
 		const auto& cache = context.Cache.sub<cache::AccountStateCache>();
 		auto accountStateIter = cache.find(notification.MainAccountPublicKey);
 		const auto& accountState = accountStateIter.get();

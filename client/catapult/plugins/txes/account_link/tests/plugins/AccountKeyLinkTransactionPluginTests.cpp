@@ -18,9 +18,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/plugins/AccountLinkTransactionPlugin.h"
+#include "src/plugins/AccountKeyLinkTransactionPlugin.h"
+#include "src/model/AccountKeyLinkTransaction.h"
 #include "src/model/AccountLinkNotifications.h"
-#include "src/model/AccountLinkTransaction.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
 #include "tests/TestHarness.h"
@@ -29,15 +29,15 @@ using namespace catapult::model;
 
 namespace catapult { namespace plugins {
 
-#define TEST_CLASS AccountLinkTransactionPluginTests
+#define TEST_CLASS AccountKeyLinkTransactionPluginTests
 
 	// region test utils
 
 	namespace {
-		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(AccountLink, 1, 1,)
+		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(AccountKeyLink, 1, 1,)
 	}
 
-	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , Entity_Type_Account_Link)
+	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , Entity_Type_Account_Key_Link)
 
 	// endregion
 
@@ -57,7 +57,7 @@ namespace catapult { namespace plugins {
 				EXPECT_EQ(UnresolvedAddressSet(), notification.ParticipantsByAddress);
 				EXPECT_EQ(utils::KeySet{ transaction.LinkedPublicKey }, notification.ParticipantsByKey);
 			});
-			builder.template addExpectation<RemoteAccountLinkNotification>([&transaction](const auto& notification) {
+			builder.template addExpectation<RemoteAccountKeyLinkNotification>([&transaction](const auto& notification) {
 				EXPECT_EQ(transaction.SignerPublicKey, notification.MainAccountPublicKey);
 				EXPECT_EQ(transaction.LinkedPublicKey, notification.LinkedPublicKey);
 				EXPECT_EQ(transaction.LinkAction, notification.LinkAction);
@@ -77,7 +77,7 @@ namespace catapult { namespace plugins {
 			AccountPublicKeyNotification::Notification_Type,
 			KeyLinkActionNotification::Notification_Type,
 			AddressInteractionNotification::Notification_Type,
-			RemoteAccountLinkNotification::Notification_Type
+			RemoteAccountKeyLinkNotification::Notification_Type
 		});
 	}
 
@@ -114,7 +114,7 @@ namespace catapult { namespace plugins {
 		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
 			KeyLinkActionNotification::Notification_Type,
 			AddressInteractionNotification::Notification_Type,
-			RemoteAccountLinkNotification::Notification_Type
+			RemoteAccountKeyLinkNotification::Notification_Type
 		});
 	}
 

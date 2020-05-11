@@ -145,7 +145,7 @@ PLUGINS_FIRSTINCLUDES = {
     # sdk
     'sdk/tests/builders/AliasBuilderTests.cpp': 'src/builders/AddressAliasBuilder.h',
     'sdk/tests/builders/AccountRestrictionBuilderTests.cpp': 'src/builders/AccountAddressRestrictionBuilder.h',
-    'sdk/tests/builders/LinkBuilderTests.cpp': 'src/builders/AccountLinkBuilder.h',
+    'sdk/tests/builders/KeyLinkBuilderTests.cpp': 'src/builders/AccountKeyLinkBuilder.h',
     'sdk/tests/builders/MetadataBuilderTests.cpp': 'src/builders/AccountMetadataBuilder.h'
 }
 

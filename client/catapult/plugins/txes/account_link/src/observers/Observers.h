@@ -24,7 +24,7 @@
 
 namespace catapult { namespace observers {
 
-	/// Observes changes triggered by remote account link notifications and:
+	/// Observes changes triggered by remote account key link notifications and:
 	/// - links/unlinks remote and main accounts
-	DECLARE_OBSERVER(AccountLink, model::RemoteAccountLinkNotification)();
+	DECLARE_OBSERVER(AccountKeyLink, model::RemoteAccountKeyLinkNotification)();
 }}

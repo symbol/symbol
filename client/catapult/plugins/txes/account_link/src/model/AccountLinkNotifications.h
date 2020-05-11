@@ -43,10 +43,10 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region RemoteAccountLinkNotification
+	// region RemoteAccountKeyLinkNotification
 
-	/// Notification of a remote account link.
-	using RemoteAccountLinkNotification = BasicKeyLinkNotification<Key, AccountLink_Remote_Notification>;
+	/// Notification of a remote account key link.
+	using RemoteAccountKeyLinkNotification = BasicKeyLinkNotification<Key, AccountLink_Remote_Notification>;
 
 	// endregion
 

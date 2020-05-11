@@ -134,7 +134,7 @@ namespace catapult { namespace model {
 		EXPECT_EQ("Aggregate_Complete", test::ToString(ToEntityType(0x4141)));
 		EXPECT_EQ("Mosaic_Metadata", test::ToString(ToEntityType(0x4244)));
 		EXPECT_EQ("Hash_Lock", test::ToString(ToEntityType(0x4148)));
-		EXPECT_EQ("Account_Link", test::ToString(ToEntityType(0x414C)));
+		EXPECT_EQ("Account_Key_Link", test::ToString(ToEntityType(0x414C)));
 		EXPECT_EQ("Mosaic_Supply_Change", test::ToString(ToEntityType(0x424D)));
 		EXPECT_EQ("Namespace_Registration", test::ToString(ToEntityType(0x414E)));
 		EXPECT_EQ("Account_Mosaic_Restriction", test::ToString(ToEntityType(0x4250)));

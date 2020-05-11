@@ -21,7 +21,7 @@
 #include "AccountLinkMapper.h"
 #include "mongo/src/MongoTransactionPluginFactory.h"
 #include "mongo/src/mappers/MapperUtils.h"
-#include "plugins/txes/account_link/src/model/AccountLinkTransaction.h"
+#include "plugins/txes/account_link/src/model/AccountKeyLinkTransaction.h"
 #include "plugins/txes/account_link/src/model/NodeKeyLinkTransaction.h"
 
 using namespace catapult::mongo::mappers;
@@ -37,6 +37,6 @@ namespace catapult { namespace mongo { namespace plugins {
 		}
 	}
 
-	DEFINE_MONGO_TRANSACTION_PLUGIN_FACTORY(AccountLink, StreamTransaction)
+	DEFINE_MONGO_TRANSACTION_PLUGIN_FACTORY(AccountKeyLink, StreamTransaction)
 	DEFINE_MONGO_TRANSACTION_PLUGIN_FACTORY(NodeKeyLink, StreamTransaction)
 }}}

@@ -27,9 +27,9 @@
 
 namespace catapult { namespace validators {
 
-#define TEST_CLASS AccountLinkAvailabilityValidatorTests
+#define TEST_CLASS AccountKeyLinkValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(AccountLinkAvailability,)
+	DEFINE_COMMON_VALIDATOR_TESTS(AccountKeyLink,)
 
 	// region test utils
 
@@ -60,8 +60,8 @@ namespace catapult { namespace validators {
 			auto cache = test::CoreSystemCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
 			AddLink(cache, mainAccountPublicKey, linkedPublicKey, accountType);
 
-			auto pValidator = CreateAccountLinkAvailabilityValidator();
-			auto notification = model::RemoteAccountLinkNotification(mainAccountPublicKey, linkedPublicKey, linkAction);
+			auto pValidator = CreateAccountKeyLinkValidator();
+			auto notification = model::RemoteAccountKeyLinkNotification(mainAccountPublicKey, linkedPublicKey, linkAction);
 
 			// Act:
 			auto result = test::ValidateNotification(*pValidator, notification, cache);
@@ -128,10 +128,10 @@ namespace catapult { namespace validators {
 		AddLink(cache, mainAccountPublicKey, linkedPublicKey, state::AccountType::Main);
 
 		// - the notification linked public key does not match the state linked public key
-		auto pValidator = CreateAccountLinkAvailabilityValidator();
+		auto pValidator = CreateAccountKeyLinkValidator();
 		auto notificationRemoteKey = test::GenerateRandomByteArray<Key>();
 		auto unlinkAction = model::LinkAction::Unlink;
-		auto notification = model::RemoteAccountLinkNotification(mainAccountPublicKey, notificationRemoteKey, unlinkAction);
+		auto notification = model::RemoteAccountKeyLinkNotification(mainAccountPublicKey, notificationRemoteKey, unlinkAction);
 
 		// Act:
 		auto result = test::ValidateNotification(*pValidator, notification, cache);

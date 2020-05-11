@@ -18,7 +18,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/builders/AccountLinkBuilder.h"
+#include "src/builders/AccountKeyLinkBuilder.h"
 #include "src/builders/NodeKeyLinkBuilder.h"
 #include "src/builders/VotingKeyLinkBuilder.h"
 #include "src/builders/VrfKeyLinkBuilder.h"
@@ -26,7 +26,7 @@
 
 namespace catapult { namespace builders {
 
-#define TEST_CLASS LinkBuilderTests
+#define TEST_CLASS KeyLinkBuilderTests
 
 	namespace {
 		template<typename TTransaction>
@@ -34,19 +34,19 @@ namespace catapult { namespace builders {
 			return transaction.LinkedPublicKey;
 		}
 
-		struct AccountLinkTestTraits {
-			using BuilderType = AccountLinkBuilder;
+		struct AccountKeyLinkTestTraits {
+			using BuilderType = AccountKeyLinkBuilder;
 			using LinkedType = Key;
-			static constexpr auto Transaction_Type = model::Entity_Type_Account_Link;
+			static constexpr auto Transaction_Type = model::Entity_Type_Account_Key_Link;
 
 			static void SetKey(BuilderType& builder, const LinkedType& key) {
 				builder.setLinkedPublicKey(key);
 			}
 		};
 
-		struct AccountLinkTransactionTraits {
-			using Regular = test::RegularTransactionTraits<model::AccountLinkTransaction>;
-			using Embedded = test::EmbeddedTransactionTraits<model::EmbeddedAccountLinkTransaction>;
+		struct AccountKeyLinkTransactionTraits {
+			using Regular = test::RegularTransactionTraits<model::AccountKeyLinkTransaction>;
+			using Embedded = test::EmbeddedTransactionTraits<model::EmbeddedAccountKeyLinkTransaction>;
 		};
 
 		struct NodeKeyLinkTestTraits {
@@ -121,8 +121,8 @@ namespace catapult { namespace builders {
 			}
 		};
 
-		using AccountLinkRegularTraits = LinkTraits<AccountLinkTestTraits, AccountLinkTransactionTraits::Regular>;
-		using AccountLinkEmbeddedTraits = LinkTraits<AccountLinkTestTraits, AccountLinkTransactionTraits::Embedded>;
+		using AccountKeyLinkRegularTraits = LinkTraits<AccountKeyLinkTestTraits, AccountKeyLinkTransactionTraits::Regular>;
+		using AccountKeyLinkEmbeddedTraits = LinkTraits<AccountKeyLinkTestTraits, AccountKeyLinkTransactionTraits::Embedded>;
 		using NodeKeyLinkRegularTraits = LinkTraits<NodeKeyLinkTestTraits, NodeKeyLinkTransactionTraits::Regular>;
 		using NodeKeyLinkEmbeddedTraits = LinkTraits<NodeKeyLinkTestTraits, NodeKeyLinkTransactionTraits::Embedded>;
 		using VotingKeyLinkRegularTraits = LinkTraits<VotingKeyLinkTestTraits, VotingKeyLinkTransactionTraits::Regular>;
@@ -157,14 +157,14 @@ namespace catapult { namespace builders {
 
 #define TRAITS_BASED_TEST(TEST_NAME) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_AccountLink_Regular) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountLinkRegularTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_AccountLink_Embedded) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountLinkEmbeddedTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_NodeKeyLink_Regular) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NodeKeyLinkRegularTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_NodeKeyLink_Embedded) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NodeKeyLinkEmbeddedTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_VotingKeyLink_Regular) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VotingKeyLinkRegularTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_VotingKeyLink_Embedded) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VotingKeyLinkEmbeddedTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_VrfKeyLink_Regular) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VrfKeyLinkRegularTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_VrfKeyLink_Embedded) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VrfKeyLinkEmbeddedTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Account_Regular) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountKeyLinkRegularTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Account_Embedded) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountKeyLinkEmbeddedTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Node_Regular) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NodeKeyLinkRegularTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Node_Embedded) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NodeKeyLinkEmbeddedTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Voting_Regular) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VotingKeyLinkRegularTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Voting_Embedded) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VotingKeyLinkEmbeddedTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Vrf_Regular) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VrfKeyLinkRegularTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Vrf_Embedded) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VrfKeyLinkEmbeddedTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// region constructor
