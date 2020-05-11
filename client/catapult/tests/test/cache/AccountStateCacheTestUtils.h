@@ -32,6 +32,7 @@ namespace catapult { namespace test {
 			543,
 			Amount(),
 			Amount(std::numeric_limits<Amount::ValueType>::max()),
+			Amount(),
 			currencyMosaicId,
 			harvestingMosaicId
 		};

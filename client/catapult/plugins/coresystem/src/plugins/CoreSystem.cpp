@@ -45,6 +45,7 @@ namespace catapult { namespace plugins {
 				config.ImportanceGrouping,
 				config.MinHarvesterBalance,
 				config.MaxHarvesterBalance,
+				config.MinVoterBalance,
 				config.CurrencyMosaicId,
 				config.HarvestingMosaicId
 			};

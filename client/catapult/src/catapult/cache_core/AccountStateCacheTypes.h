@@ -90,6 +90,10 @@ namespace catapult { namespace cache {
 			/// Maximum harvester balance.
 			Amount MaxHarvesterBalance;
 
+			/// Minimum voter balance.
+			/// \note This doubles as the minimum balance of tracked high value accounts with balances.
+			Amount MinVoterBalance;
+
 			/// Mosaic id used as primary chain currency.
 			MosaicId CurrencyMosaicId;
 
