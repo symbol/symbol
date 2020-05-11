@@ -37,12 +37,9 @@ namespace catapult { namespace timesync {
 	namespace {
 		using NetworkTimeSupplier = extensions::ExtensionManager::NetworkTimeSupplier;
 
-		ImportanceAwareNodeSelector CreateImportanceAwareNodeSelector(
-				const TimeSynchronizationConfiguration& timeSyncConfig,
-				const config::CatapultConfiguration& config) {
-			auto rawMinImportance = Required_Minimum_Importance * static_cast<double>(config.BlockChain.TotalChainImportance.unwrap());
-			auto minImportance = Importance(static_cast<uint64_t>(rawMinImportance));
-			return ImportanceAwareNodeSelector(ionet::ServiceIdentifier(0x53594E43), timeSyncConfig.MaxNodes, minImportance);
+		ImportanceAwareNodeSelector CreateImportanceAwareNodeSelector(const TimeSynchronizationConfiguration& timeSyncConfig) {
+			auto serviceId = ionet::ServiceIdentifier(0x53594E43);
+			return ImportanceAwareNodeSelector(serviceId, timeSyncConfig.MaxNodes, timeSyncConfig.MinImportance);
 		}
 
 		struct SamplesResult {
@@ -119,8 +116,7 @@ namespace catapult { namespace timesync {
 		const auto& cache = state.cache().sub<cache::AccountStateCache>();
 		const auto& nodes = state.nodes();
 		const auto& storage = state.storage();
-		const auto& config = state.config();
-		auto selector = CreateImportanceAwareNodeSelector(timeSyncConfig, config);
+		auto selector = CreateImportanceAwareNodeSelector(timeSyncConfig);
 		return thread::CreateNamedTask("time synchronization task", [&, resultSupplier, networkTimeSupplier, selector]() {
 			auto height = storage.view().chainHeight();
 

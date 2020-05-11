@@ -37,10 +37,11 @@ namespace catapult { namespace timesync {
 #define LOAD_TIMESYNC_PROPERTY(NAME) LOAD_PROPERTY("timesynchronization", NAME)
 
 		LOAD_TIMESYNC_PROPERTY(MaxNodes);
+		LOAD_TIMESYNC_PROPERTY(MinImportance);
 
 #undef LOAD_TIMESYNC_PROPERTY
 
-		utils::VerifyBagSizeLte(bag, 1);
+		utils::VerifyBagSizeLte(bag, 2);
 		return config;
 	}
 

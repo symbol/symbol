@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "catapult/types.h"
 #include <boost/filesystem/path.hpp>
 #include <string>
 
@@ -31,6 +32,9 @@ namespace catapult { namespace timesync {
 	public:
 		/// Number of nodes that this node should communicate with during time synchronization.
 		uint8_t MaxNodes;
+
+		/// Minimum importance a node must have in order to be considered as a synchronization partner.
+		Importance MinImportance;
 
 	private:
 		TimeSynchronizationConfiguration() = default;
