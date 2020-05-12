@@ -56,6 +56,9 @@ namespace catapult { namespace model {
 		/// \note This can lower security because it will increase the influence of time relative to importance.
 		uint32_t BlockTimeSmoothingFactor;
 
+		/// Number of blocks between successive finalization attempts.
+		uint32_t BlockFinalizationInterval;
+
 		/// Number of blocks that should be treated as a group for importance purposes.
 		/// \note Importances will only be calculated at blocks that are multiples of this grouping number.
 		uint64_t ImportanceGrouping;

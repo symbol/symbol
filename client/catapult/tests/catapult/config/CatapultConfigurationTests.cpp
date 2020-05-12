@@ -63,8 +63,9 @@ namespace catapult { namespace config {
 			EXPECT_EQ(test::Default_Currency_Mosaic_Id, config.CurrencyMosaicId);
 			EXPECT_EQ(test::Default_Harvesting_Mosaic_Id, config.HarvestingMosaicId);
 
-			EXPECT_EQ(utils::TimeSpan::FromSeconds(15), config.BlockGenerationTargetTime);
+			EXPECT_EQ(utils::TimeSpan::FromSeconds(30), config.BlockGenerationTargetTime);
 			EXPECT_EQ(3000u, config.BlockTimeSmoothingFactor);
+			EXPECT_EQ(30u, config.BlockFinalizationInterval);
 
 			EXPECT_EQ(39u, config.ImportanceGrouping);
 			EXPECT_EQ(5u, config.ImportanceActivityPercentage);

@@ -61,6 +61,7 @@ namespace catapult { namespace model {
 
 							{ "blockGenerationTargetTime", "10m" },
 							{ "blockTimeSmoothingFactor", "765" },
+							{ "blockFinalizationInterval", "512" },
 
 							{ "importanceGrouping", "444" },
 							{ "importanceActivityPercentage", "15" },
@@ -123,6 +124,7 @@ namespace catapult { namespace model {
 
 				EXPECT_EQ(utils::TimeSpan::FromMinutes(0), config.BlockGenerationTargetTime);
 				EXPECT_EQ(0u, config.BlockTimeSmoothingFactor);
+				EXPECT_EQ(0u, config.BlockFinalizationInterval);
 
 				EXPECT_EQ(0u, config.ImportanceGrouping);
 				EXPECT_EQ(0u, config.ImportanceActivityPercentage);
@@ -167,6 +169,7 @@ namespace catapult { namespace model {
 
 				EXPECT_EQ(utils::TimeSpan::FromMinutes(10), config.BlockGenerationTargetTime);
 				EXPECT_EQ(765u, config.BlockTimeSmoothingFactor);
+				EXPECT_EQ(512u, config.BlockFinalizationInterval);
 
 				EXPECT_EQ(444u, config.ImportanceGrouping);
 				EXPECT_EQ(15u, config.ImportanceActivityPercentage);
