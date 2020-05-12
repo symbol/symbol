@@ -41,7 +41,7 @@ describe('transaction status routes', () => {
 		const services = { config: { transactionStates: [] } };
 
 		const routeInfo = {
-			base: '/transaction',
+			base: '/transactions',
 			singular: 'hash',
 			plural: 'hashes',
 			postfixes: {

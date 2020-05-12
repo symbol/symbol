@@ -32,38 +32,89 @@ const formatter = {
 };
 
 describe('formatting utils', () => {
-	it('can format empty array', () => {
-		// Act:
-		const formattedResult = formattingUtils.formatArray(formatter, []);
+	describe('format array', () => {
+		it('can format empty array', () => {
+			// Act:
+			const formattedResult = formattingUtils.formatArray(formatter, []);
 
-		// Assert:
-		expect(formattedResult).to.deep.equal([]);
+			// Assert:
+			expect(formattedResult).to.deep.equal([]);
+		});
+
+		it('can format array with single element', () => {
+			// Arrange:
+			const entity = createEntity(5);
+
+			// Act:
+			const formattedResult = formattingUtils.formatArray(formatter, [entity]);
+
+			// Assert:
+			expect(formattedResult).to.deep.equal([{ foo: 10, bar: 18, bazz: 35 }]);
+		});
+
+		it('can format array with multiple elements', () => {
+			// Arrange:
+			const entity1 = createEntity(2);
+			const entity2 = createEntity(5);
+			const entity3 = createEntity(11);
+
+			// Act:
+			const formattedResult = formattingUtils.formatArray(formatter, [entity1, entity2, entity3]);
+
+			// Assert:
+			expect(formattedResult).to.deep.equal([
+				{ foo: 4, bar: 9, bazz: 20 },
+				{ foo: 10, bar: 18, bazz: 35 },
+				{ foo: 22, bar: 36, bazz: 65 }]);
+		});
 	});
 
-	it('can format array with single element', () => {
-		// Arrange:
-		const entity = createEntity(5);
+	describe('format page', () => {
+		it('can format empty page', () => {
+			// Act:
+			const formattedResult = formattingUtils.formatPage(formatter, { data: [], pagination: {} });
 
-		// Act:
-		const formattedResult = formattingUtils.formatArray(formatter, [entity]);
+			// Assert:
+			expect(formattedResult).to.deep.equal({ data: [], pagination: {} });
+		});
 
-		// Assert:
-		expect(formattedResult).to.deep.equal([{ foo: 10, bar: 18, bazz: 35 }]);
-	});
+		it('can format page with single element', () => {
+			// Arrange:
+			const entity = createEntity(5);
+			const paginatedEntity = {
+				data: [entity],
+				pagination: { numberOfEntities: 1 }
+			};
 
-	it('can format array with multiple elements', () => {
-		// Arrange:
-		const entity1 = createEntity(2);
-		const entity2 = createEntity(5);
-		const entity3 = createEntity(11);
+			// Act:
+			const formattedResult = formattingUtils.formatPage(formatter, paginatedEntity);
 
-		// Act:
-		const formattedResult = formattingUtils.formatArray(formatter, [entity1, entity2, entity3]);
+			// Assert:
+			expect(formattedResult).to.deep.equal({
+				data: [{ foo: 10, bar: 18, bazz: 35 }],
+				pagination: { numberOfEntities: 1 }
+			});
+		});
 
-		// Assert:
-		expect(formattedResult).to.deep.equal([
-			{ foo: 4, bar: 9, bazz: 20 },
-			{ foo: 10, bar: 18, bazz: 35 },
-			{ foo: 22, bar: 36, bazz: 65 }]);
+		it('can format page with multiple elements', () => {
+			// Arrange:
+			const paginatedEntity = {
+				data: [createEntity(2), createEntity(5), createEntity(11)],
+				pagination: { numberOfEntities: 3 }
+			};
+
+			// Act:
+			const formattedResult = formattingUtils.formatPage(formatter, paginatedEntity);
+
+			// Assert:
+			expect(formattedResult).to.deep.equal({
+				data: [
+					{ foo: 4, bar: 9, bazz: 20 },
+					{ foo: 10, bar: 18, bazz: 35 },
+					{ foo: 22, bar: 36, bazz: 65 }
+				],
+				pagination: { numberOfEntities: 3 }
+			});
+		});
 	});
 });

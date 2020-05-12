@@ -25,7 +25,7 @@ const { expect } = require('chai');
 const MongoDb = require('mongodb');
 const sinon = require('sinon');
 
-const { Binary } = MongoDb;
+const { Binary, ObjectId } = MongoDb;
 const { convert } = catapult.utils;
 
 const invalidObjectIdStrings = [
@@ -153,6 +153,12 @@ describe('route utils', () => {
 			valid: hashes512.valid.map(hash => ({ id: hash, parsed: catapult.utils.convert.hexToUint8(hash) })),
 			invalid: hashes512.invalid.map(hash => ({ id: hash, error: `invalid length of hash512 '${hash.length}` }))
 		}));
+
+		describe('boolean', () => addParserTests({
+			parser: 'boolean',
+			valid: [{ id: 'true', parsed: true }, { id: 'false', parsed: false }],
+			invalid: [{ id: 'abcd', error: 'must be boolean value \'true\' or \'false\'' }]
+		}));
 	});
 
 	describe('parse argument array', () => {
@@ -234,6 +240,233 @@ describe('route utils', () => {
 			// Act:
 			expect(() => routeUtils.parsePagingArguments({ id: '112233445566778899AABBCC', pageSize: '1Y2' }))
 				.to.throw('pageSize is not a valid unsigned integer');
+		});
+	});
+
+	describe('parse pagination arguments', () => {
+		const servicesConfigPageSize = {
+			min: 10,
+			max: 100,
+			default: 20
+		};
+
+		const createObjectId = id => new ObjectId(`${'00'.repeat(12)}${id.toString(16)}`.slice(-24));
+
+		it('succeeds when no arguments are provided', () => {
+			// Act:
+			const options = routeUtils.parsePaginationArguments({}, servicesConfigPageSize);
+
+			// Assert:
+			expect(options).to.deep.equal({
+				pageSize: servicesConfigPageSize.default,
+				pageNumber: 1,
+				sortField: 'id',
+				sortDirection: 1,
+				offset: undefined
+			});
+		});
+
+		it('succeeds when valid page size is provided', () => {
+			// Act:
+			const options = routeUtils.parsePaginationArguments({ pageSize: '12' }, servicesConfigPageSize);
+
+			// Assert:
+			expect(options).to.deep.equal({
+				pageSize: 12,
+				pageNumber: 1,
+				sortField: 'id',
+				sortDirection: 1,
+				offset: undefined
+			});
+		});
+
+		it('binds page size to max page size', () => {
+			// Act:
+			const options = routeUtils.parsePaginationArguments(
+				{ pageSize: (servicesConfigPageSize.max + 1).toString() },
+				servicesConfigPageSize
+			);
+
+			// Assert:
+			expect(options).to.deep.equal({
+				pageSize: servicesConfigPageSize.max,
+				pageNumber: 1,
+				sortField: 'id',
+				sortDirection: 1,
+				offset: undefined
+			});
+		});
+
+		it('binds page size to min page size', () => {
+			// Act:
+			const options = routeUtils.parsePaginationArguments(
+				{ pageSize: (servicesConfigPageSize.min - 1).toString() },
+				servicesConfigPageSize
+			);
+
+			// Assert:
+			expect(options).to.deep.equal({
+				pageSize: servicesConfigPageSize.min,
+				pageNumber: 1,
+				sortField: 'id',
+				sortDirection: 1,
+				offset: undefined
+			});
+		});
+
+		it('succeeds when valid page number is provided', () => {
+			// Act:
+			const options = routeUtils.parsePaginationArguments({ pageNumber: '5' }, servicesConfigPageSize);
+
+			// Assert:
+			expect(options).to.deep.equal({
+				pageSize: servicesConfigPageSize.default,
+				pageNumber: 5,
+				sortField: 'id',
+				sortDirection: 1,
+				offset: undefined
+			});
+		});
+
+		it('defaults page number to 1 when 0 is provided', () => {
+			// Act:
+			const options = routeUtils.parsePaginationArguments({ pageNumber: '0' }, servicesConfigPageSize);
+
+			// Assert:
+			expect(options).to.deep.equal({
+				pageSize: servicesConfigPageSize.default,
+				pageNumber: 1,
+				sortField: 'id',
+				sortDirection: 1,
+				offset: undefined
+			});
+		});
+
+		it('succeeds when valid sort field is provided', () => {
+			// Act:
+			const options = routeUtils.parsePaginationArguments({ sortField: 'hash' }, servicesConfigPageSize);
+
+			// Assert:
+			expect(options).to.deep.equal({
+				pageSize: servicesConfigPageSize.default,
+				pageNumber: 1,
+				sortField: 'hash',
+				sortDirection: 1,
+				offset: undefined
+			});
+		});
+
+		describe('succeeds when valid sort direction is provided', () => {
+			const runSortDirectionTest = (argName, order, expectedValue) => {
+				it(`sort argument: ${argName}`, () => {
+					// Act:
+					const options = routeUtils.parsePaginationArguments({ order }, servicesConfigPageSize);
+
+					// Assert:
+					expect(options).to.deep.equal({
+						pageSize: servicesConfigPageSize.default,
+						pageNumber: 1,
+						sortField: 'id',
+						sortDirection: expectedValue,
+						offset: undefined
+					});
+				});
+			};
+
+			runSortDirectionTest('asc', 'asc', 1);
+			runSortDirectionTest('desc', 'desc', -1);
+			runSortDirectionTest('other', 'abcd', 1);
+		});
+
+		it('succeeds when valid offset is provided', () => {
+			// Arrange
+			const offset = createObjectId(123).toString();
+
+			// Act:
+			const options = routeUtils.parsePaginationArguments({ offset }, servicesConfigPageSize);
+
+			// Assert:
+			expect(options).to.deep.equal({
+				pageSize: servicesConfigPageSize.default,
+				pageNumber: 1,
+				sortField: 'id',
+				sortDirection: 1,
+				offset
+			});
+		});
+
+		it('succeeds when valid page size and page number are provided', () => {
+			// Act:
+			const options = routeUtils.parsePaginationArguments({ pageSize: '12', pageNumber: '5' }, servicesConfigPageSize);
+
+			// Assert:
+			expect(options).to.deep.equal({
+				pageSize: 12,
+				pageNumber: 5,
+				sortField: 'id',
+				sortDirection: 1,
+				offset: undefined
+			});
+		});
+
+		it('succeeds when valid page size, page number, sort field and sort direction are provided', () => {
+			// Act:
+			const options = routeUtils.parsePaginationArguments({
+				pageSize: '12',
+				pageNumber: '5',
+				sortField: 'signerPublicKey',
+				order: 'desc'
+			}, servicesConfigPageSize);
+
+			// Assert:
+			expect(options).to.deep.equal({
+				pageSize: 12,
+				pageNumber: 5,
+				sortField: 'signerPublicKey',
+				sortDirection: -1,
+				offset: undefined
+			});
+		});
+
+		it('succeeds when valid page size, page number, sort field, sort direction and offset are provided', () => {
+			// Arrange
+			const offset = createObjectId(123).toString();
+
+			// Act:
+			const options = routeUtils.parsePaginationArguments({
+				pageSize: '12',
+				pageNumber: '5',
+				sortField: 'signerPublicKey',
+				order: 'desc',
+				offset
+			}, servicesConfigPageSize);
+
+			// Assert:
+			expect(options).to.deep.equal({
+				pageSize: 12,
+				pageNumber: 5,
+				sortField: 'signerPublicKey',
+				sortDirection: -1,
+				offset
+			});
+		});
+
+		it('fails when invalid page size is provided', () => {
+			// Act:
+			expect(() => routeUtils.parsePaginationArguments({ pageSize: '1Y2' }, servicesConfigPageSize))
+				.to.throw('pageSize is not a valid unsigned integer');
+		});
+
+		it('fails when invalid page number is provided', () => {
+			// Act:
+			expect(() => routeUtils.parsePaginationArguments({ pageNumber: '12aa' }, servicesConfigPageSize))
+				.to.throw('pageNumber is not a valid unsigned integer');
+		});
+
+		it('fails when invalid offset is provided', () => {
+			// Act:
+			expect(() => routeUtils.parsePaginationArguments({ offset: '123' }, servicesConfigPageSize))
+				.to.throw('offset is not a valid object id');
 		});
 	});
 
@@ -330,6 +563,57 @@ describe('route utils', () => {
 						code: 'Internal',
 						message: 'error retrieving data for id: \'alpha-7\' (length 2)'
 					});
+				});
+			});
+		});
+
+		describe('send page', () => {
+			const send = (object, type, assertResponse) => {
+				sendTest((res, next) => routeUtils.createSender(type).sendPage(res, next)(object), assertResponse);
+			};
+
+			it('forwards valid page object', () => {
+				// Act:
+				const page = {
+					data: [{}],
+					pagination: {
+						pageNumber: 1,
+						pageSize: 10,
+						totalEntries: 1,
+						totalPages: 1
+					}
+				};
+
+				send(page, 'foo', response => {
+					// Assert:
+					expect(response).to.deep.equal({ payload: page, type: 'foo', structure: 'page' });
+				});
+			});
+
+			it('forwards valid empty page object', () => {
+				// Act:
+				const page = {
+					data: [],
+					pagination: {
+						pageNumber: 1,
+						pageSize: 10,
+						totalEntries: 0,
+						totalPages: 0
+					}
+				};
+
+				send(page, 'foo', response => {
+					// Assert:
+					expect(response).to.deep.equal({ payload: page, type: 'foo', structure: 'page' });
+				});
+			});
+
+
+			it('sends error when object is not a page', () => {
+				// Act:
+				send({ alpha: 7 }, 'foo', response => {
+					// Assert:
+					expect(response.body).to.deep.equal({ code: 'Internal', message: 'error retrieving data' });
 				});
 			});
 		});

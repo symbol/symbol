@@ -100,7 +100,7 @@ describe('route system', () => {
 			routeSystem.configure(['aggregate'], server, {}, servicesTemplate);
 
 			// Assert:
-			expect(routes).to.include('/transaction/partial');
+			expect(routes).to.include('/transactions/partial');
 		});
 	});
 

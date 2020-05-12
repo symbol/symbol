@@ -20,13 +20,20 @@
 
 const catapult = require('catapult-sdk');
 
-const { formatArray } = catapult.utils.formattingUtils;
+const { formatArray, formatPage } = catapult.utils.formattingUtils;
 
 const isCatapultObject = body => body && body.payload && body.type;
 
 const formatBody = (modelFormatter, body) => {
-	const formatCatapultObject = (payload, type) =>
-		(!Array.isArray(payload) ? modelFormatter[type].format(payload) : formatArray(modelFormatter[type], payload));
+	const formatCatapultObject = (payload, type, structure) => {
+		if (Array.isArray(payload))
+			return formatArray(modelFormatter[type], payload);
+
+		if ('page' === structure)
+			return formatPage(modelFormatter[type], payload);
+
+		return modelFormatter[type].format(payload);
+	};
 
 	let view = body;
 	let statusCode;
@@ -35,7 +42,7 @@ const formatBody = (modelFormatter, body) => {
 		statusCode = body.statusCode || 500;
 		view = body.body ? body.body : { message: body.message };
 	} else if (isCatapultObject(body)) {
-		view = formatCatapultObject(body.payload, body.type);
+		view = formatCatapultObject(body.payload, body.type, body.structure);
 	}
 
 	return {

@@ -24,7 +24,7 @@ const { test } = require('../../routes/utils/routeTestUtils');
 describe('aggregate routes', () => {
 	describe('PUT transaction partial', () => {
 		test.route.packet.addPutPacketRouteTests(aggregateRoutes.register, {
-			routeName: '/transaction/partial',
+			routeName: '/transactions/partial',
 			packetType: '500',
 			inputs: {
 				valid: {
@@ -45,7 +45,7 @@ describe('aggregate routes', () => {
 
 	describe('PUT transaction cosignature', () => {
 		test.route.packet.addPutPacketRouteTests(aggregateRoutes.register, {
-			routeName: '/transaction/cosignature',
+			routeName: '/transactions/cosignature',
 			packetType: '501',
 			inputs: {
 				valid: {

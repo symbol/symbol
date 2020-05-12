@@ -22,15 +22,30 @@
 
 const formattingUtils = {
 	/**
-	 * Formats all entities in an array.
+	 * Formats all the entities in an array.
 	 * @param {module:utils/schemaFormatter~EntityFormatter} formatter Formatter.
 	 * @param {Array} collection Array.
 	 * @returns {Array} A new array of formatted entities.
 	 */
-	formatArray(formatter, collection) {
+	formatArray: (formatter, collection) => {
 		const formattedEntities = [];
 		collection.forEach(entity => { formattedEntities.push(formatter.format(entity)); });
 		return formattedEntities;
+	},
+
+	/**
+	 * Formats all the entities in a page.
+	 * @param {module:utils/schemaFormatter~EntityFormatter} formatter Formatter.
+	 * @param {object} collection Page collection containing the `data` array of results, and the `pagination` information object
+	 * @returns {object} A new object of formatted page.
+	 */
+	formatPage: (formatter, collection) => {
+		const formattedEntities = [];
+		collection.data.forEach(entity => { formattedEntities.push(formatter.format(entity)); });
+		return {
+			data: formattedEntities,
+			pagination: collection.pagination
+		};
 	}
 };
 

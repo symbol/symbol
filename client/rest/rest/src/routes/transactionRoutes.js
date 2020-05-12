@@ -20,6 +20,7 @@
 
 const routeResultTypes = require('./routeResultTypes');
 const routeUtils = require('./routeUtils');
+const errors = require('../server/errors');
 const catapult = require('catapult-sdk');
 
 const { convert } = catapult.utils;
@@ -31,6 +32,8 @@ const constants = {
 		objectId: 24
 	}
 };
+
+const parseHeight = params => routeUtils.parseArgument(params, 'height', 'uint');
 
 const parseObjectId = str => {
 	if (!convert.isHexString(str))
@@ -46,14 +49,14 @@ module.exports = {
 		routeUtils.addPutPacketRoute(
 			server,
 			services.connections,
-			{ routeName: '/transaction', packetType: PacketType.pushTransactions },
+			{ routeName: '/transactions', packetType: PacketType.pushTransactions },
 			params => routeUtils.parseArgument(params, 'payload', convert.hexToUint8)
 		);
 
 		routeUtils.addGetPostDocumentRoutes(
 			server,
 			sender,
-			{ base: '/transaction', singular: 'transactionId', plural: 'transactionIds' },
+			{ base: '/transactions', singular: 'transactionId', plural: 'transactionIds' },
 			// params has already been converted by a parser below, so it is: string - in case of objectId, Uint8Array - in case of hash
 			params => (('string' === typeof params[0]) ? db.transactionsByIds(params) : db.transactionsByHashes(params)),
 			(transactionId, index, array) => {
@@ -68,5 +71,35 @@ module.exports = {
 				throw Error(`invalid length of transaction id '${transactionId}'`);
 			}
 		);
+
+		server.get('/transactions', (req, res, next) => {
+			const { params } = req;
+
+			if (params.address && (params.signerPublicKey || params.recipientAddress)) {
+				throw errors.createInvalidArgumentError(
+					'can\'t filter by address if signerPublicKey or recipientAddress are already provided'
+				);
+			}
+
+			if (params.state && !['confirmed', 'unconfirmed', 'partial'].includes(params.state))
+				throw errors.createInvalidArgumentError('invalid transaction state provided');
+
+			const filters = {
+				height: params.height ? parseHeight(params) : undefined,
+				address: params.address ? routeUtils.parseArgument(params, 'address', 'address') : undefined,
+				signerPublicKey: params.signerPublicKey ? routeUtils.parseArgument(params, 'signerPublicKey', 'publicKey') : undefined,
+				recipientAddress: params.recipientAddress ? routeUtils.parseArgument(params, 'recipientAddress', 'address') : undefined,
+				transactionTypes: params.type ? routeUtils.parseArgumentAsArray(params, 'type', 'uint') : undefined,
+				embedded: params.embedded ? routeUtils.parseArgument(params, 'embedded', 'boolean') : undefined,
+				state: params.state
+			};
+
+			const options = routeUtils.parsePaginationArguments(params, services.config.pageSize);
+			// force sort field to 'id' until this is indexed/decided/developed
+			options.sortField = '_id';
+
+			return db.transactions(filters, options)
+				.then(result => routeUtils.createSender(routeResultTypes.transaction).sendPage(res, next)(result));
+		});
 	}
 };

@@ -53,23 +53,6 @@ module.exports = {
 			routeUtils.blockRouteMerkleProcessor(db, 'numTransactions', 'transactionMerkleTree')
 		);
 
-		server.get('/block/:height/transactions', (req, res, next) => {
-			const height = parseHeight(req.params);
-			const transactionTypes = req.params.type ? routeUtils.parseArgumentAsArray(req.params, 'type', 'uint') : undefined;
-			const pagingOptions = routeUtils.parsePagingArguments(req.params);
-
-			const operation = () => db.transactionsAtHeight(height, transactionTypes, pagingOptions.id, pagingOptions.pageSize);
-			return dbFacade.runHeightDependentOperation(db, height, operation)
-				.then(result => {
-					if (!result.isRequestValid) {
-						res.send(errors.createNotFoundError(height));
-						return next();
-					}
-
-					return routeUtils.createSender(routeResultTypes.transaction).sendArray('height', res, next)(result.payload);
-				});
-		});
-
 		server.get('/blocks/:height/limit/:limit', (req, res, next) => {
 			const height = parseHeight(req.params) || 1;
 			const limit = routeUtils.parseArgument(req.params, 'limit', 'uint');

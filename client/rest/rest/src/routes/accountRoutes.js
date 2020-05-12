@@ -22,14 +22,9 @@ const routeResultTypes = require('./routeResultTypes');
 const routeUtils = require('./routeUtils');
 const AccountType = require('../plugins/AccountType');
 const errors = require('../server/errors');
-const catapult = require('catapult-sdk');
-
-const { address, networkInfo } = catapult.model;
 
 module.exports = {
-	register: (server, db, services) => {
-		const transactionSender = routeUtils.createSender(routeResultTypes.transaction);
-
+	register: (server, db) => {
 		const accountIdToPublicKey = (type, accountId) => {
 			if (AccountType.publicKey === type)
 				return Promise.resolve(accountId);
@@ -80,50 +75,5 @@ module.exports = {
 			return db.accountsByIds(accountIds.map(accountId => ({ [idOptions.type]: accountId })))
 				.then(sender.sendArray(idOptions.keyName, res, next));
 		});
-
-		// region account transactions
-
-		const transactionStates = [
-			{ dbPostfix: 'Confirmed', routePostfix: '' },
-			{ dbPostfix: 'Incoming', routePostfix: '/incoming' },
-			{ dbPostfix: 'Unconfirmed', routePostfix: '/unconfirmed' }
-		];
-
-		transactionStates.concat(services.config.transactionStates).forEach(state => {
-			server.get(`/account/:accountId/transactions${state.routePostfix}`, (req, res, next) => {
-				const [type, accountId] = routeUtils.parseArgument(req.params, 'accountId', 'accountId');
-				const transactionTypes = req.params.type ? routeUtils.parseArgumentAsArray(req.params, 'type', 'uint') : undefined;
-				const pagingOptions = routeUtils.parsePagingArguments(req.params);
-				const ordering = routeUtils.parseArgument(req.params, 'ordering', input => ('id' === input ? 1 : -1));
-
-				const accountAddress = (AccountType.publicKey === type)
-					? address.publicKeyToAddress(accountId, networkInfo.networks[services.config.network.name].id)
-					: accountId;
-
-				return db[`accountTransactions${state.dbPostfix}`](
-					accountAddress,
-					transactionTypes,
-					pagingOptions.id,
-					pagingOptions.pageSize,
-					ordering
-				).then(transactionSender.sendArray('accountId', res, next));
-			});
-		});
-
-		server.get('/account/:accountId/transactions/outgoing', (req, res, next) => {
-			const [type, accountId] = routeUtils.parseArgument(req.params, 'accountId', 'accountId');
-			const transactionTypes = req.params.type ? routeUtils.parseArgumentAsArray(req.params, 'type', 'uint') : undefined;
-			const pagingOptions = routeUtils.parsePagingArguments(req.params);
-			const ordering = routeUtils.parseArgument(req.params, 'ordering', input => ('id' === input ? 1 : -1));
-
-			return accountIdToPublicKey(type, accountId).then(publicKey =>
-				db.accountTransactionsOutgoing(publicKey, transactionTypes, pagingOptions.id, pagingOptions.pageSize, ordering)
-					.then(transactionSender.sendArray('accountId', res, next)))
-				.catch(() => {
-					transactionSender.sendArray('accountId', res, next)([]);
-				});
-		});
-
-		// endregion
 	}
 };

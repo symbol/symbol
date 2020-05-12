@@ -31,14 +31,14 @@ module.exports = {
 		routeUtils.addPutPacketRoute(
 			server,
 			services.connections,
-			{ routeName: '/transaction/partial', packetType: PacketType.pushPartialTransactions },
+			{ routeName: '/transactions/partial', packetType: PacketType.pushPartialTransactions },
 			params => parseHexParam(params, 'payload')
 		);
 
 		routeUtils.addPutPacketRoute(
 			server,
 			services.connections,
-			{ routeName: '/transaction/cosignature', packetType: PacketType.pushDetachedCosignatures },
+			{ routeName: '/transactions/cosignature', packetType: PacketType.pushDetachedCosignatures },
 			params => Buffer.concat(['signerPublicKey', 'signature', 'parentHash'].map(key => parseHexParam(params, key)))
 		);
 	}

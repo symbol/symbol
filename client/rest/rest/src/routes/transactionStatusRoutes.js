@@ -32,7 +32,7 @@ module.exports = {
 			server,
 			routeUtils.createSender(routeResultTypes.transactionStatus),
 			{
-				base: '/transaction', singular: 'hash', plural: 'hashes', postfixes: { singular: 'status', plural: 'statuses' }
+				base: '/transactions', singular: 'hash', plural: 'hashes', postfixes: { singular: 'status', plural: 'statuses' }
 			},
 			params => dbFacade.transactionStatusesByHashes(db, params, services.config.transactionStates),
 			hash => {

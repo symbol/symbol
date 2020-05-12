@@ -18,96 +18,310 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { test } = require('./utils/routeTestUtils');
+const { MockServer, test } = require('./utils/routeTestUtils');
+const routeResultTypes = require('../../src/routes/routeResultTypes');
 const transactionRoutes = require('../../src/routes/transactionRoutes');
 const catapult = require('catapult-sdk');
+const { expect } = require('chai');
+const sinon = require('sinon');
 
+const { address } = catapult.model;
 const { convert } = catapult.utils;
 
 describe('transaction routes', () => {
-	describe('PUT transaction', () => {
-		test.route.packet.addPutPacketRouteTests(transactionRoutes.register, {
-			routeName: '/transaction',
-			packetType: '9',
-			inputs: {
-				valid: {
-					params: { payload: '123456' },
-					parsed: Buffer.of(
-						0x0B, 0x00, 0x00, 0x00, // size (header)
-						0x09, 0x00, 0x00, 0x00, // type (header)
-						0x12, 0x34, 0x56 // payload
-					)
-				},
-				invalid: {
-					params: { payload: '1234S6' },
-					error: { key: 'payload' }
+	describe('transaction', () => {
+		describe('PUT transaction', () => {
+			test.route.packet.addPutPacketRouteTests(transactionRoutes.register, {
+				routeName: '/transactions',
+				packetType: '9',
+				inputs: {
+					valid: {
+						params: { payload: '123456' },
+						parsed: Buffer.of(
+							0x0B, 0x00, 0x00, 0x00, // size (header)
+							0x09, 0x00, 0x00, 0x00, // type (header)
+							0x12, 0x34, 0x56 // payload
+						)
+					},
+					invalid: {
+						params: { payload: '1234S6' },
+						error: { key: 'payload' }
+					}
 				}
-			}
+			});
+		});
+
+		describe('get', () => {
+			const addGetPostTests = (dbApiName, key, ids, parsedIds) => {
+				const errorMessage = 'has an invalid format';
+				test.route.document.addGetPostDocumentRouteTests(transactionRoutes.register, {
+					routes: { singular: '/transactions/:transactionId', plural: '/transactions' },
+					inputs: {
+						valid: { object: { transactionId: ids[0] }, parsed: [parsedIds[0]], printable: ids[0] },
+						validMultiple: { object: { transactionIds: ids }, parsed: parsedIds },
+						invalid: { object: { transactionId: '12345' }, error: `transactionId ${errorMessage}` },
+						invalidMultiple: {
+							object: { transactionIds: ['12345', ids[0], ids[1]] },
+							error: `element in array transactionIds ${errorMessage}`
+						}
+					},
+					dbApiName,
+					type: routeResultTypes.transaction
+				});
+			};
+
+			const addHomogeneousCheck = (validIds, invalidId) => {
+				it('does not support lookup of heterogenous ids', () => {
+					// Arrange:
+					const keyGroups = [];
+					const db = test.setup.createCapturingDb('transactionsByIds', keyGroups, [{ value: 'this is nonsense' }]);
+
+					// Act:
+					const registerRoutes = transactionRoutes.register;
+					const ids = [validIds[0], validIds[1], invalidId, validIds[2]];
+					const errorMessage = 'element in array transactionIds has an invalid format';
+					return test.route.executeThrows(
+						registerRoutes,
+						'/transactions',
+						'post',
+						{ transactionIds: ids },
+						db,
+						undefined,
+						errorMessage,
+						409
+					);
+				});
+			};
+
+			const Valid_Object_Ids = ['00112233445566778899AABB', 'CCDDEEFF0011223344556677', '8899AABBCCDDEEFF00112233'];
+			const Valid_Transaction_Hashes = [
+				'00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF',
+				'112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF00',
+				'2233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF0011'
+			];
+
+			describe('objectId', () => {
+				addGetPostTests('transactionsByIds', 'transactionId', Valid_Object_Ids, Valid_Object_Ids);
+				addHomogeneousCheck(Valid_Object_Ids, Valid_Transaction_Hashes[0]);
+			});
+
+			describe('transactionHash', () => {
+				addGetPostTests(
+					'transactionsByHashes',
+					'transactionId',
+					Valid_Transaction_Hashes,
+					Valid_Transaction_Hashes.map(convert.hexToUint8)
+				);
+				addHomogeneousCheck(Valid_Transaction_Hashes, Valid_Object_Ids[0]);
+			});
 		});
 	});
 
-	describe('get', () => {
-		const addGetPostTests = (dbApiName, key, ids, parsedIds) => {
-			const errorMessage = 'has an invalid format';
-			test.route.document.addGetPostDocumentRouteTests(transactionRoutes.register, {
-				routes: { singular: '/transaction/:transactionId', plural: '/transaction' },
-				inputs: {
-					valid: { object: { transactionId: ids[0] }, parsed: [parsedIds[0]], printable: ids[0] },
-					validMultiple: { object: { transactionIds: ids }, parsed: parsedIds },
-					invalid: { object: { transactionId: '12345' }, error: `transactionId ${errorMessage}` },
-					invalidMultiple: {
-						object: { transactionIds: ['12345', ids[0], ids[1]] },
-						error: `element in array transactionIds ${errorMessage}`
+	describe('transactions', () => {
+		describe('get', () => {
+			const testAddressString = 'SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXWV';
+			const testAddress = address.stringToAddress(testAddressString);
+
+			const testPublickeyString = '7DE16AEDF57EB9561D3E6EFA4AE66F27ABDA8AEC8BC020B6277360E31619DCE7';
+			const testPublickey = convert.hexToUint8(testPublickeyString);
+
+			const fakeTransaction = { meta: { addresses: [] }, transaction: { type: 12345 } };
+			const fakePaginatedTransaction = {
+				data: [fakeTransaction],
+				pagination: {
+					pageNumber: 1,
+					pageSize: 10,
+					totalEntries: 1,
+					totalPages: 1
+				}
+			};
+			const dbTransactionsFake = sinon.fake.resolves(fakePaginatedTransaction);
+
+			const mockServer = new MockServer();
+			const db = { transactions: dbTransactionsFake };
+			const services = {
+				config: {
+					pageSize: {
+						min: 10,
+						max: 100,
+						default: 20
 					}
-				},
-				dbApiName,
-				type: 'transactionWithMetadata'
+				}
+			};
+			transactionRoutes.register(mockServer.server, db, services);
+
+			const route = mockServer.getRoute('/transactions').get();
+
+			beforeEach(() => {
+				mockServer.resetStats();
+				dbTransactionsFake.resetHistory();
 			});
-		};
 
-		const addHomogeneousCheck = (validIds, invalidId) => {
-			it('does not support lookup of heterogenous ids', () => {
-				// Arrange:
-				const keyGroups = [];
-				const db = test.setup.createCapturingDb('transactionsByIds', keyGroups, [{ value: 'this is nonsense' }]);
+			describe('returns transactions', () => {
+				it('returns correct structure with transactions', () => {
+					const req = {
+						params: {}
+					};
 
-				// Act:
-				const registerRoutes = transactionRoutes.register;
-				const ids = [validIds[0], validIds[1], invalidId, validIds[2]];
-				const errorMessage = 'element in array transactionIds has an invalid format';
-				return test.route.executeThrows(
-					registerRoutes,
-					'/transaction',
-					'post',
-					{ transactionIds: ids },
-					db,
-					undefined,
-					errorMessage,
-					409
-				);
+					// Act:
+					return mockServer.callRoute(route, req).then(() => {
+						// Assert:
+						expect(mockServer.send.firstCall.args[0]).to.deep.equal({
+							payload: fakePaginatedTransaction,
+							type: routeResultTypes.transaction,
+							structure: 'page'
+						});
+						expect(mockServer.next.calledOnce).to.equal(true);
+					});
+				});
 			});
-		};
 
-		const Valid_Object_Ids = ['00112233445566778899AABB', 'CCDDEEFF0011223344556677', '8899AABBCCDDEEFF00112233'];
-		const Valid_Transaction_Hashes = [
-			'00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF',
-			'112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF00',
-			'2233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF0011'
-		];
+			describe('parses filters', () => {
+				const runParseFilterTest = (filter, param, value) => {
+					it(filter, () => {
+						const req = { params: { [filter]: param } };
 
-		describe('objectId', () => {
-			addGetPostTests('transactionsByIds', 'transactionId', Valid_Object_Ids, Valid_Object_Ids);
-			addHomogeneousCheck(Valid_Object_Ids, Valid_Transaction_Hashes[0]);
-		});
+						const expectedResult = {
+							address: undefined,
+							height: undefined,
+							recipientAddress: undefined,
+							signerPublicKey: undefined,
+							state: undefined,
+							embedded: undefined,
+							transactionTypes: undefined
+						};
 
-		describe('transactionHash', () => {
-			addGetPostTests(
-				'transactionsByHashes',
-				'transactionId',
-				Valid_Transaction_Hashes,
-				Valid_Transaction_Hashes.map(convert.hexToUint8)
-			);
-			addHomogeneousCheck(Valid_Transaction_Hashes, Valid_Object_Ids[0]);
+						expectedResult[filter] = value;
+
+						// Act + Assert
+						return mockServer.callRoute(route, req).then(() => {
+							expect(dbTransactionsFake.firstCall.args[0]).to.deep.equal(expectedResult);
+						});
+					});
+				};
+
+				const testCases = [
+					{ filter: 'height', param: '15', value: 15 },
+					{ filter: 'address', param: testAddressString, value: testAddress },
+					{ filter: 'signerPublicKey', param: testPublickeyString, value: testPublickey },
+					{ filter: 'recipientAddress', param: testAddressString, value: testAddress },
+					{ filter: 'embedded', param: 'true', value: true },
+					{ filter: 'state', param: 'confirmed', value: 'confirmed' }
+				];
+
+				testCases.forEach(testCase => {
+					runParseFilterTest(testCase.filter, testCase.param, testCase.value);
+				});
+
+				it('transactionTypes', () => {
+					const req = { params: { type: ['1', '5', '25'] } };
+
+					// Act + Assert
+					return mockServer.callRoute(route, req).then(() => {
+						expect(dbTransactionsFake.firstCall.args[0]).to.deep.equal({
+							address: undefined,
+							height: undefined,
+							recipientAddress: undefined,
+							signerPublicKey: undefined,
+							state: undefined,
+							embedded: undefined,
+							transactionTypes: [1, 5, 25]
+						});
+					});
+				});
+			});
+
+			describe('parses options', () => {
+				it('parses options correctly', () => {
+					const req = {
+						params: {
+							pageSize: '15', pageNumber: '5', sortField: 'id', order: 'desc'
+						}
+					};
+
+					// Act + Assert
+					return mockServer.callRoute(route, req).then(() => {
+						expect(dbTransactionsFake.firstCall.args[1]).to.deep.equal({
+							pageSize: 15,
+							pageNumber: 5,
+							sortField: '_id',
+							sortDirection: -1,
+							offset: undefined
+						});
+					});
+				});
+
+				// force sort field to 'id' until this is indexed/decided/developed
+				it('always defaults sortField to id', () => {
+					const req = {
+						params: {
+							pageSize: '15', pageNumber: '1', sortField: 'meta.hash'
+						}
+					};
+
+					// Act + Assert
+					return mockServer.callRoute(route, req).then(() => {
+						expect(dbTransactionsFake.firstCall.args[1]).to.deep.equal({
+							pageSize: 15,
+							pageNumber: 1,
+							sortField: '_id',
+							sortDirection: 1,
+							offset: undefined
+						});
+					});
+				});
+			});
+
+			describe('does not allow filtering by address if signerPublicKey or recipientAddress are provided', () => {
+				const errorMessage = 'can\'t filter by address if signerPublicKey or recipientAddress are already provided';
+
+				it('address and signer public key', () => {
+					const req = {
+						params: { address: testAddressString, signerPublicKey: testPublickeyString }
+					};
+
+					// Act + Assert
+					expect(() => mockServer.callRoute(route, req)).to.throw(errorMessage);
+				});
+
+				it('address and recipient address', () => {
+					const req = {
+						params: { address: testAddressString, recipientAddress: testAddressString }
+					};
+
+					// Act + Assert
+					expect(() => mockServer.callRoute(route, req)).to.throw(errorMessage);
+				});
+			});
+
+			describe('checks correct state is provided', () => {
+				const runValidStateTest = state => {
+					it(state, () =>
+						// Act + Assert
+						mockServer.callRoute(route, { params: { state } }).then(() => {
+							expect(dbTransactionsFake.firstCall.args[0]).to.deep.equal({
+								address: undefined,
+								height: undefined,
+								recipientAddress: undefined,
+								signerPublicKey: undefined,
+								state,
+								embedded: undefined,
+								transactionTypes: undefined
+							});
+						}));
+				};
+
+				['confirmed', 'unconfirmed', 'partial'].forEach(state => runValidStateTest(state));
+
+				it('invalid', () => {
+					const req = {
+						params: { state: 'nonsenseSatate' }
+					};
+
+					// Act + Assert
+					expect(() => mockServer.callRoute(route, req)).to.throw('invalid transaction state provided');
+				});
+			});
 		});
 	});
 });

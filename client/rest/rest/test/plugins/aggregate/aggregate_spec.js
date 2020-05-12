@@ -120,8 +120,8 @@ describe('aggregate plugin', () => {
 
 			// Assert:
 			test.assert.assertRoutes(routes, [
-				'/transaction/cosignature',
-				'/transaction/partial'
+				'/transactions/cosignature',
+				'/transactions/partial'
 			]);
 		});
 	});

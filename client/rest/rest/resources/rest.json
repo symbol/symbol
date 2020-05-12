@@ -28,6 +28,7 @@
     "name": "catapult",
     "pageSizeMin": 10,
     "pageSizeMax": 100,
+    "pageSizeDefault": 20,
     "maxConnectionAttempts": 5,
     "baseRetryDelay": 500
   },
