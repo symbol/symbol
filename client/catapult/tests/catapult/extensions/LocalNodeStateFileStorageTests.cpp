@@ -69,6 +69,8 @@ namespace catapult { namespace extensions {
 
 				pAccountState->Balances.credit(Harvesting_Mosaic_Id, Amount(10));
 				test::RandomFillAccountData(i, *pAccountState);
+
+				cacheDelta.updateHighValueAccounts(Height(1));
 			}
 		}
 
@@ -356,10 +358,12 @@ namespace catapult { namespace extensions {
 
 			auto expectedView = originalCache.createView();
 			auto actualView = loadedState.ref().Cache.createView();
+			const auto& expectedAccountStateCache = expectedView.sub<cache::AccountStateCache>();
 			const auto& actualAccountStateCache = actualView.sub<cache::AccountStateCache>();
+
 			EXPECT_EQ(0u, actualAccountStateCache.size());
-			EXPECT_FALSE(actualAccountStateCache.highValueAddresses().empty());
-			EXPECT_EQ(expectedView.sub<cache::AccountStateCache>().highValueAddresses(), actualAccountStateCache.highValueAddresses());
+			EXPECT_FALSE(actualAccountStateCache.highValueAccounts().addresses().empty());
+			EXPECT_EQ(expectedAccountStateCache.highValueAccounts().addresses(), actualAccountStateCache.highValueAccounts().addresses());
 			EXPECT_EQ(expectedView.sub<cache::BlockStatisticCache>().size(), actualView.sub<cache::BlockStatisticCache>().size());
 
 			EXPECT_EQ(3u, test::CountFilesAndDirectories(stateDirectory.path()));

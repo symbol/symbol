@@ -63,6 +63,11 @@ namespace catapult { namespace importance {
 			// Act:
 			return action(*cacheDelta);
 		}
+
+		void Recalculate(model::ImportanceHeight importanceHeight, cache::AccountStateCacheDelta& delta) {
+			delta.updateHighValueAccounts(Height(1));
+			CreateRestoreImportanceCalculator()->recalculate(importanceHeight, delta);
+		}
 	}
 
 	// region no importance change
@@ -73,7 +78,7 @@ namespace catapult { namespace importance {
 			const auto& accountState = AddRandomAccount(delta);
 
 			// Act:
-			CreateRestoreImportanceCalculator()->recalculate(TestHeights::Two, delta);
+			Recalculate(TestHeights::Two, delta);
 
 			// Assert: nothing to restore
 			AssertImportance(accountState.ImportanceSnapshots, Importance(), TestHeights::Zero);
@@ -89,7 +94,7 @@ namespace catapult { namespace importance {
 			accountState.ActivityBuckets.update(TestHeights::Two, No_Op);
 
 			// Act:
-			CreateRestoreImportanceCalculator()->recalculate(TestHeights::Three, delta);
+			Recalculate(TestHeights::Three, delta);
 
 			// Assert: nothing to restore (TH.2 < TH.3)
 			AssertImportance(accountState.ImportanceSnapshots, Importance(987), TestHeights::Two);
@@ -105,7 +110,7 @@ namespace catapult { namespace importance {
 			accountState.ActivityBuckets.update(TestHeights::Two, No_Op);
 
 			// Act:
-			CreateRestoreImportanceCalculator()->recalculate(TestHeights::Two, delta);
+			Recalculate(TestHeights::Two, delta);
 
 			// Assert: importance is not restored (TH.2 == TH.2) but bucket is removed
 			AssertImportance(accountState.ImportanceSnapshots, Importance(987), TestHeights::Two);
@@ -129,7 +134,7 @@ namespace catapult { namespace importance {
 			accountState.ActivityBuckets.update(TestHeights::Three, No_Op);
 
 			// Act:
-			CreateRestoreImportanceCalculator()->recalculate(TestHeights::Two, delta);
+			Recalculate(TestHeights::Two, delta);
 
 			// Assert: restored (TH.3 > TH.2) to TH.2
 			AssertImportance(accountState.ImportanceSnapshots, Importance(888), TestHeights::Two);
@@ -147,7 +152,7 @@ namespace catapult { namespace importance {
 			accountState.ActivityBuckets.update(TestHeights::Three, No_Op);
 
 			// Act:
-			CreateRestoreImportanceCalculator()->recalculate(TestHeights::Two, delta);
+			Recalculate(TestHeights::Two, delta);
 
 			// Assert: restored (TH.3 > TH.2) to TH.1
 			AssertImportance(accountState.ImportanceSnapshots, Importance(777), TestHeights::One);
@@ -167,7 +172,7 @@ namespace catapult { namespace importance {
 			accountState.ActivityBuckets.update(TestHeights::Three, No_Op);
 
 			// Act: restore height
-			CreateRestoreImportanceCalculator()->recalculate(TestHeights::One, delta);
+			Recalculate(TestHeights::One, delta);
 
 			// Assert: restored (TH.3 > TH.2 > TH.1) to TH.2
 			//         (this is an edge case scenario that cannot happen in production because rollbacks can't be skipped)
@@ -184,7 +189,7 @@ namespace catapult { namespace importance {
 			accountState.ActivityBuckets.update(TestHeights::Two, No_Op);
 
 			// Act:
-			CreateRestoreImportanceCalculator()->recalculate(TestHeights::One, delta);
+			Recalculate(TestHeights::One, delta);
 
 			// Assert: restored (TH.2 > TH.1) to 0
 			AssertImportance(accountState.ImportanceSnapshots, Importance(), TestHeights::Zero);
@@ -224,7 +229,7 @@ namespace catapult { namespace importance {
 			accountState4.ActivityBuckets.update(TestHeights::Three, No_Op);
 
 			// Act:
-			CreateRestoreImportanceCalculator()->recalculate(TestHeights::Two, delta);
+			Recalculate(TestHeights::Two, delta);
 
 			// Assert:
 			AssertImportance(accountState1.ImportanceSnapshots, Importance(2), TestHeights::Two);

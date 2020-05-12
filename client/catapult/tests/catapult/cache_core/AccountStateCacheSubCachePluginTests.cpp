@@ -34,6 +34,13 @@ namespace catapult { namespace cache {
 	namespace {
 		constexpr auto Harvesting_Mosaic_Id = MosaicId(9876);
 
+		auto CreateConfigurationFromOptions(const AccountStateCacheTypes::Options& options) {
+			auto blockChainConfig = model::BlockChainConfiguration::Uninitialized();
+			blockChainConfig.MinHarvesterBalance = options.MinHarvesterBalance;
+			blockChainConfig.HarvestingMosaicId = options.HarvestingMosaicId;
+			return blockChainConfig;
+		}
+
 		std::vector<Address> AddAccountsWithBalances(AccountStateCacheDelta& delta, const std::vector<Amount>& balances) {
 			auto addresses = test::GenerateRandomDataVector<Address>(balances.size());
 			for (auto i = 0u; i < balances.size(); ++i) {
@@ -50,15 +57,14 @@ namespace catapult { namespace cache {
 			AccountStateCacheTypes::Options options;
 			options.MinHarvesterBalance = minHarvesterBalance;
 			options.HarvestingMosaicId = Harvesting_Mosaic_Id;
-			AccountStateCache cache(CacheConfiguration(), options);
-			AccountStateCacheSummaryCacheStorage storage(cache);
 
-			auto blockChainConfig = model::BlockChainConfiguration::Uninitialized();
-			blockChainConfig.MinHarvesterBalance = minHarvesterBalance;
-			blockChainConfig.HarvestingMosaicId = Harvesting_Mosaic_Id;
+			test::TempDirectoryGuard dbDirGuard;
+			auto config = CacheConfiguration(dbDirGuard.name(), utils::FileSize(), cache::PatriciaTreeStorageMode::Disabled);
+			AccountStateCacheSubCachePlugin plugin(config, options);
+			auto pStorage = plugin.createStorage();
 
 			// Act + Assert:
-			action(storage, blockChainConfig, cache);
+			action(*pStorage, CreateConfigurationFromOptions(options), plugin.cache());
 		}
 
 		template<typename TAction>
@@ -73,6 +79,7 @@ namespace catapult { namespace cache {
 				auto& delta = cacheDelta.template sub<AccountStateCache>();
 				auto balances = { Amount(1'000'000), Amount(500'000), Amount(750'000), Amount(1'250'000) };
 				auto addresses = AddAccountsWithBalances(delta, balances);
+				delta.updateHighValueAccounts(Height(1));
 
 				std::vector<uint8_t> buffer;
 				mocks::MockMemoryStream stream(buffer);
@@ -143,9 +150,10 @@ namespace catapult { namespace cache {
 	namespace {
 		void RunSummaryLoadTest(size_t numAccounts) {
 			// Arrange:
-			auto config = CacheConfiguration();
-			AccountStateCache cache(config, AccountStateCacheTypes::Options());
-			AccountStateCacheSummaryCacheStorage storage(cache);
+			test::TempDirectoryGuard dbDirGuard;
+			auto config = CacheConfiguration(dbDirGuard.name(), utils::FileSize(), cache::PatriciaTreeStorageMode::Disabled);
+			AccountStateCacheSubCachePlugin plugin(config, AccountStateCacheTypes::Options());
+			auto pStorage = plugin.createStorage();
 
 			auto addresses = test::GenerateRandomDataVector<Address>(numAccounts);
 
@@ -155,12 +163,13 @@ namespace catapult { namespace cache {
 			stream.write({ reinterpret_cast<const uint8_t*>(addresses.data()), numAccounts * sizeof(Address) });
 
 			// Act:
-			storage.loadAll(stream, 0);
+			pStorage->loadAll(stream, 0);
 
-			// Assert: all addresses were saved
-			auto view = cache.createView();
-			EXPECT_EQ(numAccounts, view->highValueAddresses().size());
-			EXPECT_EQ(model::AddressSet(addresses.cbegin(), addresses.cend()), view->highValueAddresses());
+			// Assert: all addresses were loaded
+			auto view = plugin.cache().createView();
+			const auto& highValueAddresses = view->highValueAccounts().addresses();
+			EXPECT_EQ(numAccounts, highValueAddresses.size());
+			EXPECT_EQ(model::AddressSet(addresses.cbegin(), addresses.cend()), highValueAddresses);
 		}
 	}
 
@@ -194,6 +203,56 @@ namespace catapult { namespace cache {
 	}
 
 	DEFINE_SUMMARY_AWARE_CACHE_STORAGE_PLUGIN_TESTS(PluginTraits)
+
+	TEST(TEST_CLASS, CanRoundtripHighValueAddresses_Full) {
+		// Arrange:
+		AccountStateCacheTypes::Options options;
+		options.MinHarvesterBalance = Amount(1'000'000);
+		options.HarvestingMosaicId = Harvesting_Mosaic_Id;
+
+		auto config = CacheConfiguration();
+
+		std::vector<uint8_t> buffer;
+		mocks::MockMemoryStream stream(buffer);
+
+		// Act: save 2/4 high value accounts
+		std::vector<Address> addresses;
+		{
+			auto catapultCache = test::CoreSystemCacheFactory::Create(CreateConfigurationFromOptions(options));
+			{
+				auto cacheDelta = catapultCache.createDelta();
+				auto& delta = cacheDelta.sub<AccountStateCache>();
+				addresses = AddAccountsWithBalances(delta, { Amount(1'000'000), Amount(500'000), Amount(750'000), Amount(1'250'000) });
+				delta.updateHighValueAccounts(Height(1));
+				catapultCache.commit(Height(1));
+			}
+
+			AccountStateCacheSubCachePlugin plugin(config, options);
+			auto pStorage = plugin.createStorage();
+
+			auto cacheView = catapultCache.createView();
+			pStorage->saveAll(cacheView, stream);
+
+			// Sanity:
+			const auto& view = cacheView.sub<AccountStateCache>();
+			EXPECT_EQ(4u, view.size());
+			EXPECT_EQ(2u, view.highValueAccounts().addresses().size());
+		}
+
+		// - reload to roundtrip
+		AccountStateCacheSubCachePlugin plugin(config, options);
+		auto pStorage = plugin.createStorage();
+		pStorage->loadAll(stream, 1);
+
+		// Assert: all accounts were loaded
+		auto& view = *plugin.cache().createView();
+		EXPECT_EQ(4u, view.size());
+
+		// - all high value addresses were loaded
+		const auto& highValueAddresses = view.highValueAccounts().addresses();
+		EXPECT_EQ(2u, highValueAddresses.size());
+		EXPECT_EQ(model::AddressSet({ addresses[0], addresses[3] }), highValueAddresses);
+	}
 
 	// endregion
 }}

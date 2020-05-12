@@ -152,6 +152,7 @@ namespace catapult { namespace extensions {
 				else
 					chain::RollbackBlock(blockElement, blockExecutionContext);
 
+				delta.sub<cache::AccountStateCache>().updateHighValueAccounts(height);
 				m_cache.commit(height);
 			}
 

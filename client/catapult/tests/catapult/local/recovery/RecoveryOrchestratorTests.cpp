@@ -51,17 +51,9 @@ namespace catapult { namespace local {
 	namespace {
 		// region PrepareRandomBlocks
 
-		std::vector<Address> GenerateRandomAddresses(size_t count) {
-			std::vector<Address> addresses;
-			for (auto i = 0u; i < count; ++i)
-				addresses.push_back(test::GenerateRandomAddress());
-
-			return addresses;
-		}
-
 		auto PrepareRandomBlocks(const config::CatapultDirectory& dataDirectory, uint64_t numBlocks) {
 			std::vector<uint64_t> scores;
-			auto recipients = GenerateRandomAddresses(numBlocks);
+			auto recipients = test::GenerateRandomAddresses(numBlocks);
 
 			// generate block per every recipient, each with random number of transactions
 			auto height = 2u;

@@ -211,6 +211,8 @@ namespace catapult { namespace timesync {
 				const std::vector<Importance>& importances) {
 			for (auto i = 0u; i < keys.size(); ++i)
 				test::AddAccount(delta, keys[i], importances[i], model::ImportanceHeight(1));
+
+			delta.updateHighValueAccounts(Height(1));
 		}
 
 		void SeedNodeContainer(ionet::NodeContainer& nodeContainer, const std::vector<Key>& keys) {

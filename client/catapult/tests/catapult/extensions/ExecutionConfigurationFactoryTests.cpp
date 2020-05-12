@@ -49,9 +49,11 @@ namespace catapult { namespace extensions {
 			"TransactionFeeActivityObserver",
 			"HarvestFeeObserver",
 			"TotalTransactionsObserver",
+			"HighValueAccountCommitObserver",
 			"VotingKeyLinkObserver",
 			"VrfKeyLinkObserver",
 			"RecalculateImportancesObserver",
+			"HighValueAccountRollbackObserver",
 			"BlockStatisticObserver"
 		};
 		EXPECT_EQ(expectedObserverNames, config.pObserver->names());

@@ -218,7 +218,9 @@ namespace catapult { namespace timesync {
 			auto cache = CreateCache(Total_Chain_Importance);
 			{
 				auto cacheDelta = cache.createDelta();
-				test::AddAccount(cacheDelta.sub<cache::AccountStateCache>(), serverPublicKey, importance, model::ImportanceHeight(1));
+				auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
+				test::AddAccount(accountStateCacheDelta, serverPublicKey, importance, model::ImportanceHeight(1));
+				accountStateCacheDelta.updateHighValueAccounts(Height(1));
 				cache.commit(Height(1));
 			}
 

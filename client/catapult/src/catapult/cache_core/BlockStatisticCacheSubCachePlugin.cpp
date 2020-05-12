@@ -22,15 +22,23 @@
 
 namespace catapult { namespace cache {
 
-	void BlockStatisticCacheSummaryCacheStorage::saveSummary(const CatapultCacheDelta& cacheDelta, io::OutputStream& output) const {
-		const auto& delta = cacheDelta.sub<BlockStatisticCache>();
-		io::Write64(output, delta.size());
+	namespace {
+		class BlockStatisticCacheSummaryCacheStorage : public CacheStorageAdapter<BlockStatisticCache, BlockStatisticCacheStorage> {
+		public:
+			using CacheStorageAdapter<BlockStatisticCache, BlockStatisticCacheStorage>::CacheStorageAdapter;
 
-		auto pIterableView = delta.tryMakeIterableView();
-		for (const auto& value : *pIterableView)
-			BlockStatisticCacheStorage::Save(value, output);
+		public:
+			void saveSummary(const CatapultCacheDelta& cacheDelta, io::OutputStream& output) const override {
+				const auto& delta = cacheDelta.sub<BlockStatisticCache>();
+				io::Write64(output, delta.size());
 
-		output.flush();
+				auto pIterableView = delta.tryMakeIterableView();
+				for (const auto& value : *pIterableView)
+					BlockStatisticCacheStorage::Save(value, output);
+
+				output.flush();
+			}
+		};
 	}
 
 	BlockStatisticCacheSubCachePlugin::BlockStatisticCacheSubCachePlugin(uint64_t historySize)
