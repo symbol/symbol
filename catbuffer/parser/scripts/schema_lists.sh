@@ -21,7 +21,7 @@ state_inputs=(
 	"state/secret_lock")
 
 transaction_inputs=(
-	"account_link/account_link"
+	"account_link/account_key_link"
 	"account_link/node_key_link"
 	"aggregate/aggregate"
 	"coresystem/voting_key_link"
