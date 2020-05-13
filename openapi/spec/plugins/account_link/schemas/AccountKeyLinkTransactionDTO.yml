@@ -2,4 +2,4 @@ type: object
 description: Delegates the account importance score to a proxy account.
 allOf:
   - $ref: "../../../core/transaction/schemas/TransactionDTO.yml"
-  - $ref: "./AccountLinkTransactionBodyDTO.yml"
+  - $ref: "./AccountKeyLinkTransactionBodyDTO.yml"
