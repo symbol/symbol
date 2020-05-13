@@ -20,11 +20,15 @@ properties:
   blockGenerationTargetTime:
     type: string # utils::TimeSpan
     description: Targeted time between blocks.
-    example: 15s
+    example: 30s
   blockTimeSmoothingFactor:
     type: string # uint32
     description: A higher value makes the network more biased.
     example: "3000"
+  blockFinalizationInterval:
+    type: string # uint32
+    description: Number of blocks between successive finalization attempts.
+    example: 30
   importanceGrouping:
     type: string # uint64
     description: Number of blocks that should be treated as a group for importance purposes.
@@ -73,6 +77,10 @@ properties:
     type: string # Amount
     description: Maximum number of harvesting mosaic atomic units needed for an account to be eligible for harvesting.
     example: 4'000'000
+  minVoterBalance:
+    type: string # Amount
+    description: Minimum number of harvesting mosaic atomic units needed for an account to be eligible for voting.
+    example: 50'000
   harvestBeneficiaryPercentage:
     type: string
     description: Percentage of the harvested fee that is collected by the beneficiary account.
