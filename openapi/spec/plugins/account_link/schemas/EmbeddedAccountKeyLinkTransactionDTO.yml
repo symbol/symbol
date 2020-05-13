@@ -1,4 +1,4 @@
 type: object
 allOf:
   - $ref: "../../../core/transaction/schemas/EmbeddedTransactionDTO.yml"
-  - $ref: "./AccountLinkTransactionBodyDTO.yml"
+  - $ref: "./AccountKeyLinkTransactionBodyDTO.yml"

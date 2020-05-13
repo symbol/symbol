@@ -7,7 +7,7 @@ properties:
     $ref: "./EmbeddedTransactionMetaDTO.yml"
   transaction:
     anyOf:
-      - $ref: "../../../plugins/account_link/schemas/EmbeddedAccountLinkTransactionDTO.yml"
+      - $ref: "../../../plugins/account_link/schemas/EmbeddedAccountKeyLinkTransactionDTO.yml"
       - $ref: "../../../plugins/lock_hash/schemas/EmbeddedHashLockTransactionDTO.yml"
       - $ref: "../../../plugins/lock_secret/schemas/EmbeddedSecretLockTransactionDTO.yml"
       - $ref: "../../../plugins/lock_secret/schemas/EmbeddedSecretProofTransactionDTO.yml"
