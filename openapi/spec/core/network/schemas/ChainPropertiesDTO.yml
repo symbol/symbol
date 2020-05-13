@@ -77,6 +77,14 @@ properties:
     type: string
     description: Percentage of the harvested fee that is collected by the beneficiary account.
     example: "10"
+  harvestNetworkPercentage:
+    type: string
+    description: Percentage of the harvested fee that is collected by the network.
+    example: "5"
+  harvestNetworkFeeSinkPublicKey:
+    type: string
+    description: Public key of the harvest network fee sink account.
+    example: "FF5563F1C5824EE0CD868799FBE8744B46D5549973FDA499939C952D951494E4"
   blockPruneInterval:
     type: string # uint32
     description: Number of blocks between cache pruning.
