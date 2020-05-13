@@ -7,7 +7,7 @@ properties:
     $ref: "./TransactionMetaDTO.yml"
   transaction:
     anyOf:
-      - $ref: "../../../plugins/account_link/schemas/AccountLinkTransactionDTO.yml"
+      - $ref: "../../../plugins/account_link/schemas/AccountKeyLinkTransactionDTO.yml"
       - $ref: "../../../plugins/aggregate/schemas/AggregateTransactionDTO.yml"
       - $ref: "../../../plugins/lock_hash/schemas/HashLockTransactionDTO.yml"
       - $ref: "../../../plugins/lock_secret/schemas/SecretLockTransactionDTO.yml"

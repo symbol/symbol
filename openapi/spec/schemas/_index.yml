@@ -164,15 +164,15 @@ TransactionMetaDTO:
 TransactionStatusDTO:
   "$ref": "../core/transaction/schemas/TransactionStatusDTO.yml"
 
-# Plugin - AccountLink
-AccountLinkNetworkPropertiesDTO:
-  "$ref": "../plugins/account_link/schemas/AccountLinkNetworkPropertiesDTO.yml"
-AccountLinkTransactionBodyDTO:
-  "$ref": "../plugins/account_link/schemas/AccountLinkTransactionBodyDTO.yml"
-AccountLinkTransactionDTO:
-  "$ref": "../plugins/account_link/schemas/AccountLinkTransactionDTO.yml"
-EmbeddedAccountLinkTransactionDTO:
-  "$ref": "../plugins/account_link/schemas/EmbeddedAccountLinkTransactionDTO.yml"
+# Plugin - AccountKeyLink
+AccountKeyLinkNetworkPropertiesDTO:
+  "$ref": "../plugins/account_link/schemas/AccountKeyLinkNetworkPropertiesDTO.yml"
+AccountKeyLinkTransactionBodyDTO:
+  "$ref": "../plugins/account_link/schemas/AccountKeyLinkTransactionBodyDTO.yml"
+AccountKeyLinkTransactionDTO:
+  "$ref": "../plugins/account_link/schemas/AccountKeyLinkTransactionDTO.yml"
+EmbeddedAccountKeyLinkTransactionDTO:
+  "$ref": "../plugins/account_link/schemas/EmbeddedAccountKeyLinkTransactionDTO.yml"
 NodeKeyLinkNetworkPropertiesDTO:
   "$ref": "../plugins/account_link/schemas/NodeKeyLinkNetworkPropertiesDTO.yml"
 NodeKeyLinkTransactionBodyDTO:
