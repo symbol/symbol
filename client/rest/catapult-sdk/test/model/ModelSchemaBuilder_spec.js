@@ -218,7 +218,7 @@ describe('model schema builder', () => {
 				'supplementalAccountKey.key',
 
 				'nodeInfo.publicKey',
-				'nodeInfo.networkGenerationHash',
+				'nodeInfo.networkGenerationHashSeed',
 				'stateTree.tree.schemaName'
 			]);
 		});

@@ -32,7 +32,7 @@ describe('deserialize', () => {
 			0xE3, 0x27, 0xC0, 0xF1, 0xC9, 0x97, 0x5C, 0x3A, 0xA5, 0x1B, 0x2A, 0x41, 0x76, 0x81, 0x58, 0xC1,
 			0x07, 0x7D, 0x16, 0xB4, 0x60, 0x99, 0x9A, 0xAB, 0xE7, 0xAD, 0xB5, 0x26, 0x2B, 0xE2, 0x9A, 0x68
 		]);
-		const networkGenerationHashBuffer = Buffer.from([
+		const networkGenerationHashSeedBuffer = Buffer.from([
 			0xA3, 0x00, 0xEA, 0xFE, 0xDA, 0xBD, 0x5C, 0xFA, 0x0D, 0x4B, 0x94, 0x1D, 0x15, 0xBB, 0x51, 0xB1,
 			0xB4, 0x64, 0x72, 0x42, 0xF1, 0xFF, 0x11, 0x00, 0x9F, 0xD0, 0x9A, 0x8F, 0x3D, 0x35, 0x87, 0xF8
 		]);
@@ -40,7 +40,7 @@ describe('deserialize', () => {
 			Buffer.from([0x31, 0x00, 0x00, 0x00]), // size
 			Buffer.from([0x17, 0x00, 0x00, 0x00]), // version
 			publicKeyBuffer,
-			networkGenerationHashBuffer,
+			networkGenerationHashSeedBuffer,
 			Buffer.from([0x02, 0x00, 0x00, 0x00]), // roles
 			Buffer.from([0xDC, 0x1E]), // port
 			Buffer.from([0x90]), // network identifier
@@ -51,7 +51,7 @@ describe('deserialize', () => {
 			Buffer.from([0x31, 0x00, 0x00, 0x00]), // size
 			Buffer.from([0x18, 0x00, 0x00, 0x00]), // version
 			publicKeyBuffer,
-			networkGenerationHashBuffer,
+			networkGenerationHashSeedBuffer,
 			Buffer.from([0x03, 0x00, 0x00, 0x00]), // roles
 			Buffer.from([0xDC, 0x1E]), // port
 			Buffer.from([0x90]), // network identifier
@@ -68,7 +68,7 @@ describe('deserialize', () => {
 		expect(deserializedData).to.deep.equal([{
 			version: 23,
 			publicKey: publicKeyBuffer,
-			networkGenerationHash: networkGenerationHashBuffer,
+			networkGenerationHashSeed: networkGenerationHashSeedBuffer,
 			roles: 2,
 			port: 7900,
 			networkIdentifier: 144,
@@ -78,7 +78,7 @@ describe('deserialize', () => {
 		{
 			version: 24,
 			publicKey: publicKeyBuffer,
-			networkGenerationHash: networkGenerationHashBuffer,
+			networkGenerationHashSeed: networkGenerationHashSeedBuffer,
 			roles: 3,
 			port: 7900,
 			networkIdentifier: 144,
@@ -97,7 +97,7 @@ describe('deserialize', () => {
 			0xE3, 0x27, 0xC0, 0xF1, 0xC9, 0x97, 0x5C, 0x3A, 0xA5, 0x1B, 0x2A, 0x41, 0x76, 0x81, 0x58, 0xC1,
 			0x07, 0x7D, 0x16, 0xB4, 0x60, 0x99, 0x9A, 0xAB, 0xE7, 0xAD, 0xB5, 0x26, 0x2B, 0xE2, 0x9A, 0x68
 		]);
-		const networkGenerationHashBuffer = Buffer.from([
+		const networkGenerationHashSeedBuffer = Buffer.from([
 			0xA3, 0x00, 0xEA, 0xFE, 0xDA, 0xBD, 0x5C, 0xFA, 0x0D, 0x4B, 0x94, 0x1D, 0x15, 0xBB, 0x51, 0xB1,
 			0xB4, 0x64, 0x72, 0x42, 0xF1, 0xFF, 0x11, 0x00, 0x9F, 0xD0, 0x9A, 0x8F, 0x3D, 0x35, 0x87, 0xF8
 		]);
@@ -105,7 +105,7 @@ describe('deserialize', () => {
 			Buffer.from([0x31 + friendlyNameBufferPeerA.length + hostBuffer.length, 0x00, 0x00, 0x00]), // size
 			Buffer.from([0x17, 0x00, 0x00, 0x00]), // version
 			publicKeyBuffer,
-			networkGenerationHashBuffer,
+			networkGenerationHashSeedBuffer,
 			Buffer.from([0x02, 0x00, 0x00, 0x00]), // roles
 			Buffer.from([0xDC, 0x1E]), // port
 			Buffer.from([0x90]), // network identifier
@@ -118,7 +118,7 @@ describe('deserialize', () => {
 			Buffer.from([0x31 + friendlyNameBufferPeerB.length + hostBuffer.length, 0x00, 0x00, 0x00]), // size
 			Buffer.from([0x17, 0x00, 0x00, 0x00]), // version
 			publicKeyBuffer,
-			networkGenerationHashBuffer,
+			networkGenerationHashSeedBuffer,
 			Buffer.from([0x02, 0x00, 0x00, 0x00]), // roles
 			Buffer.from([0xDC, 0x1E]), // port
 			Buffer.from([0x90]), // network identifier
@@ -137,7 +137,7 @@ describe('deserialize', () => {
 		expect(deserializedData).to.deep.equal([{
 			version: 23,
 			publicKey: publicKeyBuffer,
-			networkGenerationHash: networkGenerationHashBuffer,
+			networkGenerationHashSeed: networkGenerationHashSeedBuffer,
 			roles: 2,
 			port: 7900,
 			networkIdentifier: 144,
@@ -147,7 +147,7 @@ describe('deserialize', () => {
 		{
 			version: 23,
 			publicKey: publicKeyBuffer,
-			networkGenerationHash: networkGenerationHashBuffer,
+			networkGenerationHashSeed: networkGenerationHashSeedBuffer,
 			roles: 2,
 			port: 7900,
 			networkIdentifier: 144,

@@ -56,7 +56,7 @@ describe('deserialize', () => {
 		expect(deserializedData).to.deep.equal({
 			version: 23,
 			publicKey: publicKeyBuffer,
-			networkGenerationHash: networkGenerationHashBuffer,
+			networkGenerationHashSeed: networkGenerationHashBuffer,
 			roles: 2,
 			port: 7900,
 			networkIdentifier: 144,
@@ -99,7 +99,7 @@ describe('deserialize', () => {
 		expect(deserializedData).to.deep.equal({
 			version: 23,
 			publicKey: publicKeyBuffer,
-			networkGenerationHash: networkGenerationHashBuffer,
+			networkGenerationHashSeed: networkGenerationHashBuffer,
 			roles: 2,
 			port: 7900,
 			networkIdentifier: 144,
@@ -141,7 +141,7 @@ describe('deserialize', () => {
 		expect(deserializedData).to.deep.equal({
 			version: 23,
 			publicKey: publicKeyBuffer,
-			networkGenerationHash: networkGenerationHashBuffer,
+			networkGenerationHashSeed: networkGenerationHashBuffer,
 			roles: 2,
 			port: 7900,
 			networkIdentifier: 144,
@@ -185,7 +185,7 @@ describe('deserialize', () => {
 		expect(deserializedData).to.deep.equal({
 			version: 23,
 			publicKey: publicKeyBuffer,
-			networkGenerationHash: networkGenerationHashBuffer,
+			networkGenerationHashSeed: networkGenerationHashBuffer,
 			roles: 2,
 			port: 7900,
 			networkIdentifier: 144,
