@@ -11,6 +11,7 @@ OpenAPI specification for catapult-rest.
 ## Installation
 
 1. Clone the ``symbol-openapi`` repository.
+
 ```
 git clone https://github.com/nemtech/symbol-openapi.git
 ```
