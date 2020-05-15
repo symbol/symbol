@@ -18,18 +18,27 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "Validators.h"
-#include "catapult/validators/ValidatorContext.h"
+#pragma once
+#include "ResolverContext.h"
+#include "catapult/types.h"
 
-namespace catapult { namespace validators {
+namespace catapult { namespace model {
 
-	using Notification = model::SignatureNotification;
+	/// Contextual information associated with a notification.
+	/// \note This is passed to both stateful validators and observers.
+	struct NotificationContext {
+	public:
+		/// Creates a notification context around \a height and \a resolvers.
+		NotificationContext(catapult::Height height, const model::ResolverContext& resolvers)
+				: Height(height)
+				, Resolvers(resolvers)
+		{}
 
-	DEFINE_STATEFUL_VALIDATOR(NemesisSink, [](const Notification& notification, const ValidatorContext& context) {
-		auto isBlockHeightOne = context.Height == Height(1);
-		auto isNemesisPublicKey = notification.Signer == context.Network.PublicKey;
-		return isBlockHeightOne || !isNemesisPublicKey
-				? ValidationResult::Success
-				: Failure_Core_Nemesis_Account_Signed_After_Nemesis_Block;
-	});
+	public:
+		/// Current height.
+		const catapult::Height Height;
+
+		/// Alias resolvers.
+		const model::ResolverContext Resolvers;
+	};
 }}

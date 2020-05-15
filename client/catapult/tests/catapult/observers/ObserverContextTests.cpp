@@ -71,10 +71,12 @@ namespace catapult { namespace observers {
 	namespace {
 		constexpr auto Default_Height = Height(123);
 
-		model::ResolverContext CreateResolverContext() {
-			return model::ResolverContext(
+		model::NotificationContext CreateNotificationContext() {
+			auto resolvers = model::ResolverContext(
 					[](const auto& unresolved) { return MosaicId(unresolved.unwrap() * 2); },
 					[](const auto& unresolved) { return Address{ { unresolved[0] } }; });
+
+			return model::NotificationContext(Default_Height, resolvers);
 		}
 
 		void AddRandomReceipt(ObserverStatementBuilder& statementBuilder) {
@@ -87,8 +89,9 @@ namespace catapult { namespace observers {
 		void AssertContext(const ObserverContext& context, const cache::CatapultCacheDelta& cacheDelta, NotifyMode mode) {
 			// Assert:
 			EXPECT_EQ(&cacheDelta, &context.Cache);
-			EXPECT_EQ(Default_Height, context.Height);
 			EXPECT_EQ(mode, context.Mode);
+
+			EXPECT_EQ(Default_Height, context.Height);
 
 			// - resolvers are copied into context and wired up correctly
 			auto resolvedMosaicId = context.Resolvers.resolve(UnresolvedMosaicId(24));
@@ -102,7 +105,7 @@ namespace catapult { namespace observers {
 	TEST(TEST_CLASS, CanCreateCommitObserverContextWithoutBlockStatementBuilder) {
 		// Act:
 		RunTestWithCache([](auto& cacheDelta) {
-			ObserverContext context(ObserverState(cacheDelta), Default_Height, NotifyMode::Commit, CreateResolverContext());
+			ObserverContext context(CreateNotificationContext(), ObserverState(cacheDelta), NotifyMode::Commit);
 			AddRandomReceipt(context.StatementBuilder());
 
 			// Assert:
@@ -114,8 +117,7 @@ namespace catapult { namespace observers {
 		// Act:
 		RunTestWithCache([](auto& cacheDelta) {
 			model::BlockStatementBuilder blockStatementBuilder;
-			auto observerState = ObserverState(cacheDelta, blockStatementBuilder);
-			ObserverContext context(observerState, Default_Height, NotifyMode::Commit, CreateResolverContext());
+			ObserverContext context(CreateNotificationContext(), ObserverState(cacheDelta, blockStatementBuilder), NotifyMode::Commit);
 			AddRandomReceipt(context.StatementBuilder());
 
 			// Assert:
@@ -131,7 +133,7 @@ namespace catapult { namespace observers {
 	TEST(TEST_CLASS, CanCreateRollbackObserverContextWithoutBlockStatementBuilder) {
 		// Act:
 		RunTestWithCache([](auto& cacheDelta) {
-			ObserverContext context(ObserverState(cacheDelta), Default_Height, NotifyMode::Rollback, CreateResolverContext());
+			ObserverContext context(CreateNotificationContext(), ObserverState(cacheDelta), NotifyMode::Rollback);
 			AddRandomReceipt(context.StatementBuilder());
 
 			// Assert:
@@ -143,8 +145,7 @@ namespace catapult { namespace observers {
 		// Act: (this test is added for completeness because receipts are never generated during rollback)
 		RunTestWithCache([](auto& cacheDelta) {
 			model::BlockStatementBuilder blockStatementBuilder;
-			auto observerState = ObserverState(cacheDelta, blockStatementBuilder);
-			ObserverContext context(observerState, Default_Height, NotifyMode::Rollback, CreateResolverContext());
+			ObserverContext context(CreateNotificationContext(), ObserverState(cacheDelta, blockStatementBuilder), NotifyMode::Rollback);
 			AddRandomReceipt(context.StatementBuilder());
 
 			// Assert:

@@ -47,7 +47,10 @@ namespace catapult { namespace chain {
 			explicit TestContext(observers::NotifyMode executeMode = observers::NotifyMode::Commit)
 					: m_cache({})
 					, m_cacheDelta(m_cache.createDelta())
-					, m_observerContext(observers::ObserverState(m_cacheDelta), Height(123), executeMode, CreateResolverContext())
+					, m_observerContext(
+							model::NotificationContext(Height(123), CreateResolverContext()),
+							observers::ObserverState(m_cacheDelta),
+							executeMode)
 					, m_sub(m_observer, m_observerContext) {
 				CATAPULT_LOG(debug) << "preparing test context with execute mode " << executeMode;
 			}

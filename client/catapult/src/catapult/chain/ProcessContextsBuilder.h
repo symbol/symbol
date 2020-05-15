@@ -63,6 +63,9 @@ namespace catapult { namespace chain {
 		validators::ValidatorContext buildValidatorContext();
 
 	private:
+		model::NotificationContext buildNotificationContext();
+
+	private:
 		Height m_height;
 		Timestamp m_blockTime;
 		ExecutionContextConfiguration m_executionContextConfig;

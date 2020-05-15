@@ -21,43 +21,32 @@
 #pragma once
 #include "catapult/cache/ReadOnlyCatapultCache.h"
 #include "catapult/model/NetworkInfo.h"
-#include "catapult/model/ResolverContext.h"
+#include "catapult/model/NotificationContext.h"
 #include "catapult/plugins.h"
-#include "catapult/types.h"
-#include <cstdint>
-#include <limits>
 
 namespace catapult { namespace validators {
 
 	/// Contextual information passed to stateful validators.
-	struct PLUGIN_API_DEPENDENCY ValidatorContext {
+	struct PLUGIN_API_DEPENDENCY ValidatorContext : public model::NotificationContext {
 	public:
-		/// Creates a validator context around \a height, \a blockTime, \a network, \a resolvers and \a cache.
+		/// Creates a validator context around \a notificationContext, \a blockTime, \a network and \a cache.
 		ValidatorContext(
-				catapult::Height height,
+				const model::NotificationContext& notificationContext,
 				Timestamp blockTime,
 				const model::NetworkInfo& network,
-				const model::ResolverContext& resolvers,
 				const cache::ReadOnlyCatapultCache& cache)
-				: Height(height)
+				: NotificationContext(notificationContext.Height, notificationContext.Resolvers)
 				, BlockTime(blockTime)
 				, Network(network)
-				, Resolvers(resolvers)
 				, Cache(cache)
 		{}
 
 	public:
-		/// Current height.
-		const catapult::Height Height;
-
 		/// Current block time.
 		const Timestamp BlockTime;
 
 		/// Network info.
 		const model::NetworkInfo Network;
-
-		/// Alias resolvers.
-		const model::ResolverContext Resolvers;
 
 		/// Catapult cache.
 		const cache::ReadOnlyCatapultCache& Cache;

@@ -53,7 +53,10 @@ namespace catapult { namespace chain {
 					: m_cache({})
 					, m_cacheDelta(m_cache.createDelta())
 					, m_validatorContext(test::CreateValidatorContext(Height(123), m_cacheDelta.toReadOnly()))
-					, m_observerContext(observers::ObserverState(m_cacheDelta), Height(123), executeMode, CreateResolverContext())
+					, m_observerContext(
+							model::NotificationContext(Height(123), CreateResolverContext()),
+							observers::ObserverState(m_cacheDelta),
+							executeMode)
 					, m_sub(m_validator, m_validatorContext, m_observer, m_observerContext) {
 				CATAPULT_LOG(debug) << "preparing test context with execute mode " << executeMode;
 			}

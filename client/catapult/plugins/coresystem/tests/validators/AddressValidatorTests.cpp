@@ -67,8 +67,8 @@ namespace catapult { namespace validators {
 			auto cacheView = cache.createView();
 			auto readOnlyCache = cacheView.toReadOnly();
 
-			auto resolverContext = CreateResolverContextXor();
-			auto validatorContext = ValidatorContext(Height(1), Timestamp(0), networkInfo, resolverContext, readOnlyCache);
+			auto notificationContext = model::NotificationContext(Height(1), CreateResolverContextXor());
+			auto validatorContext = ValidatorContext(notificationContext, Timestamp(0), networkInfo, readOnlyCache);
 
 			auto pValidator = CreateAddressValidator();
 			model::AccountAddressNotification notification(UnresolveXor(address));

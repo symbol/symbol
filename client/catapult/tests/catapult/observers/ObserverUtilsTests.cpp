@@ -31,11 +31,15 @@ namespace catapult { namespace observers {
 	// region ShouldPrune
 
 	namespace {
+		model::NotificationContext CreateNotificationContext(Height height) {
+			return model::NotificationContext(height, model::ResolverContext());
+		}
+
 		void AssertPruningPredicate(Height height, NotifyMode mode, size_t pruneInterval, bool expectedResult) {
 			// Arrange:
 			auto cache = test::CreateEmptyCatapultCache();
 			auto cacheDelta = cache.createDelta();
-			ObserverContext context(ObserverState(cacheDelta), height, mode, model::ResolverContext());
+			ObserverContext context(CreateNotificationContext(height), ObserverState(cacheDelta), mode);
 
 			// Act:
 			auto result = ShouldPrune(context, pruneInterval);
@@ -226,7 +230,7 @@ namespace catapult { namespace observers {
 			// Arrange:
 			auto cache = CreateSimpleCatapultCache();
 			auto cacheDelta = cache.createDelta();
-			ObserverContext context(ObserverState(cacheDelta), height, mode, model::ResolverContext());
+			ObserverContext context(CreateNotificationContext(height), ObserverState(cacheDelta), mode);
 
 			// Act:
 			NotifyBlock(observer, context);
@@ -243,7 +247,7 @@ namespace catapult { namespace observers {
 			// Arrange:
 			auto cache = CreateSimpleCatapultCache();
 			auto cacheDelta = cache.createDelta();
-			ObserverContext context(ObserverState(cacheDelta), height, mode, model::ResolverContext());
+			ObserverContext context(CreateNotificationContext(height), ObserverState(cacheDelta), mode);
 
 			// Act:
 			NotifyBlock(observer, context);
@@ -260,7 +264,7 @@ namespace catapult { namespace observers {
 			// Arrange:
 			auto cache = CreateSimpleCatapultCache();
 			auto cacheDelta = cache.createDelta();
-			ObserverContext context(ObserverState(cacheDelta), height, mode, model::ResolverContext());
+			ObserverContext context(CreateNotificationContext(height), ObserverState(cacheDelta), mode);
 
 			// Act:
 			NotifyBlock(observer, context, timestamp);
@@ -411,7 +415,7 @@ namespace catapult { namespace observers {
 			auto cache = CreateSimpleCatapultCache();
 			auto cacheDelta = cache.createDelta();
 			model::BlockStatementBuilder statementBuilder;
-			ObserverContext context(ObserverState(cacheDelta, statementBuilder), observerHeight, mode, model::ResolverContext());
+			ObserverContext context(CreateNotificationContext(observerHeight), ObserverState(cacheDelta, statementBuilder), mode);
 
 			// Act:
 			NotifyBlock(observer, context);

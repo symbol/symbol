@@ -18,40 +18,26 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/validators/ValidatorContext.h"
-#include "tests/test/cache/CacheTestUtils.h"
+#include "catapult/model/NotificationContext.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace validators {
+namespace catapult { namespace model {
 
-#define TEST_CLASS ValidatorContextTests
+#define TEST_CLASS NotificationContextTests
 
 	namespace {
-		model::ResolverContext CreateResolverContext() {
-			return model::ResolverContext(
+		ResolverContext CreateResolverContext() {
+			return ResolverContext(
 					[](const auto& unresolved) { return MosaicId(unresolved.unwrap() * 2); },
 					[](const auto& unresolved) { return Address{ { unresolved[0] } }; });
 		}
 	}
 
-	TEST(TEST_CLASS, CanCreateValidatorContextAroundParameters) {
-		// Arrange:
-		model::NetworkInfo networkInfo;
-		networkInfo.Identifier = static_cast<model::NetworkIdentifier>(0xAD);
-
-		auto cache = test::CreateEmptyCatapultCache();
-		auto cacheView = cache.createView();
-		auto readOnlyCache = cacheView.toReadOnly();
-
+	TEST(TEST_CLASS, CanCreateNotificationContextAroundParameters) {
 		// Act:
-		auto notificationContext = model::NotificationContext(Height(1234), CreateResolverContext());
-		auto context = ValidatorContext(notificationContext, Timestamp(987), networkInfo, readOnlyCache);
+		auto context = NotificationContext(Height(1234), CreateResolverContext());
 
 		// Assert:
-		EXPECT_EQ(Timestamp(987), context.BlockTime);
-		EXPECT_EQ(static_cast<model::NetworkIdentifier>(0xAD), context.Network.Identifier);
-		EXPECT_EQ(&readOnlyCache, &context.Cache);
-
 		EXPECT_EQ(Height(1234), context.Height);
 
 		// - resolvers are copied into context and wired up correctly
