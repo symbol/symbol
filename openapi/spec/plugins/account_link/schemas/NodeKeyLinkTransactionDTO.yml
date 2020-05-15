@@ -1,5 +1,8 @@
 type: object
-description: Node key link transaction.
+description: | 
+  Transaction to link a public key to an account.
+  TLS uses the linked public key to create sessions.
+  Required for node operators. 
 allOf:
   - $ref: "../../../core/transaction/schemas/TransactionDTO.yml"
   - $ref: "./NodeKeyLinkTransactionBodyDTO.yml"

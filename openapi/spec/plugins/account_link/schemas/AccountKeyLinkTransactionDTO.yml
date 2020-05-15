@@ -1,5 +1,7 @@
 type: object
-description: Delegates the account importance score to a proxy account.
+description: | 
+  Transaction to delegate the account importance score to a proxy account.
+  Required for all accounts willing to activate delegated harvesting.
 allOf:
   - $ref: "../../../core/transaction/schemas/TransactionDTO.yml"
   - $ref: "./AccountKeyLinkTransactionBodyDTO.yml"
