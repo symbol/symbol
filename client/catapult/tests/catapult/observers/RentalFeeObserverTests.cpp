@@ -90,7 +90,7 @@ namespace catapult { namespace observers {
 			EXPECT_EQ(Default_Receipt_Type, receipt.Type);
 			EXPECT_EQ(MosaicId(345), receipt.Mosaic.MosaicId);
 			EXPECT_EQ(Amount(123 * 999), receipt.Mosaic.Amount);
-			EXPECT_EQ(sender.template copyTo<Key>(), receipt.SenderPublicKey);
+			EXPECT_EQ(sender, receipt.SenderAddress);
 			EXPECT_EQ(recipient, receipt.RecipientAddress);
 		});
 	}

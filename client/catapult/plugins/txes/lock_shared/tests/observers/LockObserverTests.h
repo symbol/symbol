@@ -71,7 +71,7 @@ namespace catapult { namespace observers {
 						EXPECT_EQ(TTraits::Debit_Receipt_Type, receipt.Type);
 						EXPECT_EQ(notification.Mosaic.MosaicId, test::UnresolveXor(receipt.Mosaic.MosaicId));
 						EXPECT_EQ(notification.Mosaic.Amount, receipt.Mosaic.Amount);
-						EXPECT_EQ(notification.Owner.template copyTo<Key>(), receipt.TargetPublicKey);
+						EXPECT_EQ(notification.Owner, receipt.TargetAddress);
 					});
 		}
 

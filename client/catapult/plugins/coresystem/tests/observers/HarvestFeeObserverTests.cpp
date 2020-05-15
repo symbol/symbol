@@ -100,7 +100,7 @@ namespace catapult { namespace observers {
 			EXPECT_EQ(model::Receipt_Type_Harvest_Fee, receipt.Type) << message;
 			EXPECT_EQ(Currency_Mosaic_Id, receipt.Mosaic.MosaicId) << message;
 			EXPECT_EQ(expectedAmount, receipt.Mosaic.Amount) << message;
-			EXPECT_EQ(expectedKey, receipt.TargetPublicKey) << message;
+			EXPECT_EQ(ToAddress(expectedKey), receipt.TargetAddress) << message;
 		}
 
 		template<typename TAction>

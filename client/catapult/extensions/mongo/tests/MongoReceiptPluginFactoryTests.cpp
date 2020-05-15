@@ -87,7 +87,7 @@ namespace catapult { namespace mongo {
 
 		model::BalanceTransferReceipt receipt(
 				model::ReceiptType(),
-				test::GenerateRandomByteArray<Key>(),
+				test::GenerateRandomByteArray<Address>(),
 				test::GenerateRandomByteArray<Address>(),
 				MosaicId(234),
 				Amount(345));
@@ -102,7 +102,7 @@ namespace catapult { namespace mongo {
 
 		EXPECT_EQ(receipt.Mosaic.MosaicId, MosaicId(test::GetUint64(view, "mosaicId")));
 		EXPECT_EQ(receipt.Mosaic.Amount, Amount(test::GetUint64(view, "amount")));
-		EXPECT_EQ(receipt.SenderPublicKey, test::GetKeyValue(view, "senderPublicKey"));
+		EXPECT_EQ(receipt.SenderAddress, test::GetAddressValue(view, "senderAddress"));
 		EXPECT_EQ(receipt.RecipientAddress, test::GetAddressValue(view, "recipientAddress"));
 	}
 
@@ -123,7 +123,7 @@ namespace catapult { namespace mongo {
 		auto pPlugin = CreateBalanceChangeReceiptMongoPlugin(model::ReceiptType());
 		bsoncxx::builder::stream::document builder;
 
-		model::BalanceChangeReceipt receipt(model::ReceiptType(), test::GenerateRandomByteArray<Key>(), MosaicId(234), Amount(345));
+		model::BalanceChangeReceipt receipt(model::ReceiptType(), test::GenerateRandomByteArray<Address>(), MosaicId(234), Amount(345));
 
 		// Act:
 		pPlugin->streamReceipt(builder, receipt);
@@ -135,7 +135,7 @@ namespace catapult { namespace mongo {
 
 		EXPECT_EQ(receipt.Mosaic.MosaicId, MosaicId(test::GetUint64(view, "mosaicId")));
 		EXPECT_EQ(receipt.Mosaic.Amount, Amount(test::GetUint64(view, "amount")));
-		EXPECT_EQ(receipt.TargetPublicKey, test::GetKeyValue(view, "targetPublicKey"));
+		EXPECT_EQ(receipt.TargetAddress, test::GetAddressValue(view, "targetAddress"));
 	}
 
 	// endregion

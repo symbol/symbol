@@ -36,8 +36,7 @@ namespace catapult { namespace observers {
 
 		std::vector<std::unique_ptr<model::BalanceChangeReceipt>> receipts;
 		auto receiptAppender = [&receipts, receiptType](const auto& address, auto mosaicId, auto amount) {
-			auto targetPublicKey = address.template copyTo<Key>();
-			receipts.push_back(std::make_unique<model::BalanceChangeReceipt>(receiptType, targetPublicKey, mosaicId, amount));
+			receipts.push_back(std::make_unique<model::BalanceChangeReceipt>(receiptType, address, mosaicId, amount));
 		};
 
 		auto& lockInfoCache = context.Cache.template sub<TLockInfoCache>();

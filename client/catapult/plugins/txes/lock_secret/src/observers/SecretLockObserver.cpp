@@ -55,7 +55,7 @@ namespace catapult { namespace observers {
 			cache.insert(CreateLockInfo(notification.Owner, mosaicId, endHeight, notification, context.Resolvers));
 
 			auto receiptType = model::Receipt_Type_LockSecret_Created;
-			model::BalanceChangeReceipt receipt(receiptType, notification.Owner.copyTo<Key>(), mosaicId, notification.Mosaic.Amount);
+			model::BalanceChangeReceipt receipt(receiptType, notification.Owner, mosaicId, notification.Mosaic.Amount);
 			context.StatementBuilder().addReceipt(receipt);
 		} else {
 			cache.remove(model::CalculateSecretLockInfoHash(notification.Secret, context.Resolvers.resolve(notification.Recipient)));

@@ -60,7 +60,7 @@ namespace catapult { namespace observers {
 
 				// add fee receipt
 				auto receiptType = model::Receipt_Type_Harvest_Fee;
-				model::BalanceChangeReceipt receipt(receiptType, accountState.PublicKey, feeMosaic.MosaicId, feeMosaic.Amount);
+				model::BalanceChangeReceipt receipt(receiptType, accountState.Address, feeMosaic.MosaicId, feeMosaic.Amount);
 				statementBuilder.addReceipt(receipt);
 			}
 

@@ -21,6 +21,7 @@
 #include "sdk/src/extensions/TransactionExtensions.h"
 #include "catapult/chain/BlockScorer.h"
 #include "catapult/config/ValidateConfiguration.h"
+#include "catapult/model/Address.h"
 #include "catapult/model/BlockUtils.h"
 #include "catapult/model/ChainScore.h"
 #include "tests/int/node/stress/test/BlockChainBuilder.h"
@@ -235,8 +236,11 @@ namespace catapult { namespace local {
 				auto totalFee = model::CalculateBlockTransactionsInfo(block).TotalFee;
 
 				model::BlockStatementBuilder blockStatementBuilder;
-				auto currencyMosaicId = test::Default_Currency_Mosaic_Id;
-				model::BalanceChangeReceipt receipt(model::Receipt_Type_Harvest_Fee, block.SignerPublicKey, currencyMosaicId, totalFee);
+				model::BalanceChangeReceipt receipt(
+						model::Receipt_Type_Harvest_Fee,
+						model::PublicKeyToAddress(block.SignerPublicKey, block.Network),
+						test::Default_Currency_Mosaic_Id,
+						totalFee);
 				blockStatementBuilder.addReceipt(receipt);
 
 				auto pStatement = blockStatementBuilder.build();
