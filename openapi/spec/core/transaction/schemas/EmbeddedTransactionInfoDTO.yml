@@ -8,6 +8,9 @@ properties:
   transaction:
     anyOf:
       - $ref: "../../../plugins/account_link/schemas/EmbeddedAccountKeyLinkTransactionDTO.yml"
+      - $ref: "../../../plugins/account_link/schemas/EmbeddedNodeKeyLinkTransactionDTO.yml"
+      - $ref: "../../../plugins/coresystem/schemas/EmbeddedVrfKeyLinkTransactionDTO.yml"
+      - $ref: "../../../plugins/coresystem/schemas/EmbeddedVotingKeyLinkTransactionDTO.yml"
       - $ref: "../../../plugins/lock_hash/schemas/EmbeddedHashLockTransactionDTO.yml"
       - $ref: "../../../plugins/lock_secret/schemas/EmbeddedSecretLockTransactionDTO.yml"
       - $ref: "../../../plugins/lock_secret/schemas/EmbeddedSecretProofTransactionDTO.yml"
@@ -26,6 +29,3 @@ properties:
       - $ref: "../../../plugins/restriction_mosaic/schemas/EmbeddedMosaicGlobalRestrictionTransactionDTO.yml"
       - $ref: "../../../plugins/restriction_mosaic/schemas/EmbeddedMosaicAddressRestrictionTransactionDTO.yml"
       - $ref: "../../../plugins/transfer/schemas/EmbeddedTransferTransactionDTO.yml"
-      - $ref: "../../../plugins/coresystem/schemas/EmbeddedVrfKeyLinkTransactionDTO.yml"
-      - $ref: "../../../plugins/coresystem/schemas/EmbeddedVotingKeyLinkTransactionDTO.yml"
-      - $ref: "../../../plugins/account_link/schemas/EmbeddedNodeKeyLinkTransactionDTO.yml"
