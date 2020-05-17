@@ -29,8 +29,12 @@ namespace catapult { namespace validators {
 	// region Address / Key
 
 	/// Validator that applies to all account address notifications and validates that:
-	/// - the address is valid and targets the expected network (\a networkIdentifier)
-	DECLARE_STATEFUL_VALIDATOR(Address, model::AccountAddressNotification)(model::NetworkIdentifier networkIdentifier);
+	/// - the address is valid and targets the expected network
+	DECLARE_STATEFUL_VALIDATOR(Address, model::AccountAddressNotification)();
+
+	/// Validator that applies to all account public key notifications and validates that:
+	/// - the public key is associated with a unique address (i.e. it does not collide with a previously registered public key)
+	DECLARE_STATEFUL_VALIDATOR(PublicKey, model::AccountPublicKeyNotification)();
 
 	/// Validator that applies to all account address notifications and validates that:
 	/// - the address is nonzero given the expected network (\a networkIdentifier)

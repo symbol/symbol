@@ -19,19 +19,24 @@
 **/
 
 #include "Validators.h"
+#include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/model/Address.h"
 #include "catapult/validators/ValidatorContext.h"
 
 namespace catapult { namespace validators {
 
-	using Notification = model::AccountAddressNotification;
+	using Notification = model::AccountPublicKeyNotification;
 
-	DEFINE_STATEFUL_VALIDATOR(Address, [](const Notification& notification, const ValidatorContext& context) {
-		auto networkIdentifier = context.Network.Identifier;
-		if (utils::to_underlying_type(networkIdentifier) != (notification.Address[0] & 0xFE))
-			return Failure_Core_Invalid_Address;
+	DEFINE_STATEFUL_VALIDATOR(PublicKey, [](const Notification& notification, const ValidatorContext& context) {
+		auto address = model::PublicKeyToAddress(notification.PublicKey, context.Network.Identifier);
+		auto accountStateIter = context.Cache.sub<cache::AccountStateCache>().find(address);
 
-		auto isValidAddress = IsValidAddress(context.Resolvers.resolve(notification.Address), networkIdentifier);
-		return isValidAddress ? ValidationResult::Success : Failure_Core_Invalid_Address;
+		if (accountStateIter.tryGet()) {
+			const auto& accountState = accountStateIter.get();
+			if (Height() != accountState.PublicKeyHeight && notification.PublicKey != accountState.PublicKey)
+				return Failure_Core_Address_Collision;
+		}
+
+		return ValidationResult::Success;
 	});
 }}
