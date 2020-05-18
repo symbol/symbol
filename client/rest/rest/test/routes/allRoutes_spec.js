@@ -42,12 +42,10 @@ describe('all routes', () => {
 		// Assert:
 		test.assert.assertRoutes(routes, [
 			'/account/:accountId',
-			'/account/:accountId/harvest',
-			'/account/:accountId/beneficiary',
 
-			'/block/:height',
-			'/block/:height/transaction/:hash/merkle',
-			'/blocks/:height/limit/:limit',
+			'/blocks',
+			'/blocks/:height',
+			'/blocks/:height/transaction/:hash/merkle',
 			'/state/:state/hash/:hash/merkle',
 
 			'/chain/height',

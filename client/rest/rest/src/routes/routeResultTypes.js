@@ -22,7 +22,6 @@ module.exports = {
 	// with meta data
 	account: 'accountWithMetadata',
 	block: 'blockHeaderWithMetadata',
-	blockWithId: 'blockHeaderWithMetadataAndId',
 	transaction: 'transactionWithMetadata',
 
 	// other

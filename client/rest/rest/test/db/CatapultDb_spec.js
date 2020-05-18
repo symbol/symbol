@@ -146,6 +146,204 @@ describe('catapult db', () => {
 
 	const stripExtraneousBlockInformation = block => stripBlockFields(block, ['transactionMerkleTree', 'statementMerkleTree']);
 
+	describe('blocks', () => {
+		const account1 = { publicKey: test.random.publicKey() };
+		const account2 = { publicKey: test.random.publicKey() };
+
+		const paginationOptions = {
+			pageSize: 10,
+			pageNumber: 1,
+			sortField: '_id',
+			sortDirection: -1
+		};
+
+		const { createObjectId } = test.db;
+
+		const createBlock = (objectId, height, signerPublicKey, beneficiaryPublicKey) => ({
+			_id: createObjectId(objectId),
+			meta: { height },
+			block: { signerPublicKey, beneficiaryPublicKey }
+		});
+
+		const runTestAndVerifyIds = (dbBlocks, dbQuery, expectedIds) => {
+			const expectedObjectIds = expectedIds.map(id => createObjectId(id));
+
+			return runDbTest(
+				{ blocks: dbBlocks },
+				dbQuery,
+				blocksPage => {
+					const returnedIds = blocksPage.data.map(t => t.id);
+					expect(blocksPage.data.length).to.equal(expectedObjectIds.length);
+					expect(returnedIds.sort()).to.deep.equal(expectedObjectIds.sort());
+				}
+			);
+		};
+
+		it('returns expected structure', () => {
+			// Arrange:
+			const dbBlocks = [
+				createBlock(10, 100, account1.publicKey, account2.publicKey)
+			];
+
+			// Act + Assert:
+			return runDbTest(
+				{ blocks: dbBlocks },
+				db => db.blocks(undefined, undefined, paginationOptions),
+				page => {
+					const expected_keys = ['id', 'meta', 'block'];
+					expect(Object.keys(page.data[0]).sort()).to.deep.equal(expected_keys.sort());
+				}
+			);
+		});
+
+		it('returns correct blocks when no filters are provided', () => {
+			// Arrange:
+			const dbBlocks = [
+				createBlock(10, 1),
+				createBlock(20, 1, account1.publicKey),
+				createBlock(30, 1, account1.publicKey, account2.publicKey)
+			];
+
+			// Act + Assert:
+			return runTestAndVerifyIds(dbBlocks, db => db.blocks(undefined, undefined, paginationOptions), [10, 20, 30]);
+		});
+
+		it('all the provided filters are taken into account', () => {
+			// Arrange:
+			const dbBlocks = [
+				createBlock(10, 1),
+				createBlock(20, 1, account1.publicKey),
+				createBlock(30, 1, account1.publicKey, account2.publicKey)
+			];
+
+			// Act + Assert:
+			return runTestAndVerifyIds(dbBlocks, db => db.blocks(account1.publicKey, account2.publicKey, paginationOptions), [30]);
+		});
+
+		describe('respects offset', () => {
+			// Arrange:
+			const dbBlocks = () => [
+				createBlock(10, 20),
+				createBlock(20, 30),
+				createBlock(30, 10)
+			];
+			const options = {
+				pageSize: 10,
+				pageNumber: 1,
+				sortField: '_id',
+				sortDirection: 1,
+				offset: createObjectId(20).toString()
+			};
+
+			it('gt', () => {
+				options.sortDirection = 1;
+
+				// Act + Assert:
+				return runTestAndVerifyIds(dbBlocks(), db => db.blocks(undefined, undefined, options), [30]);
+			});
+
+			it('lt', () => {
+				options.sortDirection = -1;
+
+				// Act + Assert:
+				return runTestAndVerifyIds(dbBlocks(), db => db.blocks(undefined, undefined, options), [10]);
+			});
+		});
+
+		describe('respects sort conditions', () => {
+			// Arrange:
+			const dbBlocks = () => [
+				createBlock(10, 20),
+				createBlock(20, 30),
+				createBlock(30, 10)
+			];
+
+			it('direction ascending', () => {
+				const options = {
+					pageSize: 10,
+					pageNumber: 1,
+					sortField: '_id',
+					sortDirection: 1
+				};
+
+				// Act + Assert:
+				return runDbTest(
+					{ blocks: dbBlocks() },
+					db => db.blocks(undefined, undefined, options),
+					blocksPage => {
+						expect(blocksPage.data[0].id).to.deep.equal(createObjectId(10));
+						expect(blocksPage.data[1].id).to.deep.equal(createObjectId(20));
+						expect(blocksPage.data[2].id).to.deep.equal(createObjectId(30));
+					}
+				);
+			});
+
+			it('direction descending', () => {
+				const options = {
+					pageSize: 10,
+					pageNumber: 1,
+					sortField: '_id',
+					sortDirection: -1
+				};
+
+				// Act + Assert:
+				return runDbTest(
+					{ blocks: dbBlocks() },
+					db => db.blocks(undefined, undefined, options),
+					blocksPage => {
+						expect(blocksPage.data[0].id).to.deep.equal(createObjectId(30));
+						expect(blocksPage.data[1].id).to.deep.equal(createObjectId(20));
+						expect(blocksPage.data[2].id).to.deep.equal(createObjectId(10));
+					}
+				);
+			});
+
+			it('sort field', () => {
+				const options = {
+					pageSize: 10,
+					pageNumber: 1,
+					sortField: 'meta.height',
+					sortDirection: 1
+				};
+
+				// Act + Assert:
+				return runDbTest(
+					{ blocks: dbBlocks() },
+					db => db.blocks(undefined, undefined, options),
+					blocksPage => {
+						expect(blocksPage.data[0].id).to.deep.equal(createObjectId(30));
+						expect(blocksPage.data[1].id).to.deep.equal(createObjectId(10));
+						expect(blocksPage.data[2].id).to.deep.equal(createObjectId(20));
+					}
+				);
+			});
+		});
+
+		describe('correctly applies each filter:', () => {
+			it('signerPublicKey', () => {
+				// Arrange:
+				const dbBlocks = [
+					createBlock(10, 1, account1.publicKey),
+					createBlock(20, 1, account2.publicKey)
+				];
+
+				// Act + Assert:
+				return runTestAndVerifyIds(dbBlocks, db => db.blocks(account1.publicKey, undefined, paginationOptions), [10]);
+			});
+
+			it('beneficiaryPublicKey', () => {
+				// Arrange:
+				const dbBlocks = [
+					createBlock(10, 1, account1.publicKey, account1.publicKey),
+					createBlock(20, 1, account1.publicKey, account2.publicKey)
+				];
+
+				// Act + Assert:
+				return runTestAndVerifyIds(dbBlocks, db => db.blocks(undefined, account1.publicKey, paginationOptions), [10]);
+			});
+		});
+	});
+
 	describe('block at height', () => {
 		it('undefined is returned for block at unknown height', () =>
 			// Assert:

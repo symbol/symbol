@@ -46,7 +46,6 @@ describe('model formatter builder', () => {
 			expect(subFormatterTypes).to.deep.equal([
 				'accountWithMetadata',
 				'blockHeaderWithMetadata',
-				'blockHeaderWithMetadataAndId',
 				'transactionWithMetadata',
 
 				'chainStatistic',
@@ -109,63 +108,6 @@ describe('model formatter builder', () => {
 
 			// Act:
 			const result = formatter.blockHeaderWithMetadata.format({
-				meta: {
-					hash: 0,
-					generationHash: 0,
-					totalFee: 0,
-					numTransactions: 0,
-					stateHashSubCacheMerkleRoots: [0]
-				},
-				block: {
-					signature: 0,
-					signerPublicKey: 0,
-					version: 0,
-					type: 0,
-
-					height: 0,
-					timestamp: 0,
-					difficulty: 0,
-					previousBlockHash: 0,
-					transactionsHash: 0,
-					receiptsHash: 0,
-					stateHash: 0,
-					beneficiaryPublicKey: 0
-				}
-			});
-
-			// Assert:
-			expect(result).to.deep.equal({
-				meta: {
-					hash: 'binary',
-					generationHash: 'binary',
-					totalFee: 'uint64',
-					numTransactions: 'none',
-					stateHashSubCacheMerkleRoots: ['binary']
-				},
-				block: {
-					signature: 'binary',
-					signerPublicKey: 'binary',
-					version: 'none',
-					type: 'none',
-
-					height: 'uint64',
-					timestamp: 'uint64',
-					difficulty: 'uint64',
-					previousBlockHash: 'binary',
-					transactionsHash: 'binary',
-					receiptsHash: 'binary',
-					stateHash: 'binary',
-					beneficiaryPublicKey: 'binary'
-				}
-			});
-		});
-
-		it('can format block header with metadata and Id', () => {
-			// Arrange:
-			const formatter = new ModelFormatterBuilder().build(modelSchema, formattingRules);
-
-			// Act:
-			const result = formatter.blockHeaderWithMetadataAndId.format({
 				id: 0x5E3CD1498E18164DD5536133,
 				meta: {
 					hash: 0,

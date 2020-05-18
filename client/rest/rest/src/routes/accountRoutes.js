@@ -25,40 +25,11 @@ const errors = require('../server/errors');
 
 module.exports = {
 	register: (server, db) => {
-		const accountIdToPublicKey = (type, accountId) => {
-			if (AccountType.publicKey === type)
-				return Promise.resolve(accountId);
-
-			return routeUtils.addressToPublicKey(db, accountId);
-		};
-
 		server.get('/account/:accountId', (req, res, next) => {
 			const [type, accountId] = routeUtils.parseArgument(req.params, 'accountId', 'accountId');
 			const sender = routeUtils.createSender(routeResultTypes.account);
 			return db.accountsByIds([{ [type]: accountId }])
 				.then(sender.sendOne(req.params.accountId, res, next));
-		});
-
-		// Get account blocks harvested and beneficiary by public key
-		const accountBlocks = [
-			{ dbField: 'block.signerPublicKey', routePostfix: '/harvest' },
-			{ dbField: 'block.beneficiaryPublicKey', routePostfix: '/beneficiary' }
-		];
-
-		accountBlocks.forEach(blockType => {
-			server.get(`/account/:accountId${blockType.routePostfix}`, (req, res, next) => {
-				const [type, accountId] = routeUtils.parseArgument(req.params, 'accountId', 'accountId');
-				const pagingOptions = routeUtils.parsePagingArguments(req.params);
-				const ordering = routeUtils.parseArgument(req.params, 'ordering', input => ('id' === input ? 1 : -1));
-				const sender = routeUtils.createSender(routeResultTypes.blockWithId);
-
-				return accountIdToPublicKey(type, accountId).then(accountPublicKey =>
-					db.getBlocksBy(blockType.dbField, Buffer.from(accountPublicKey), pagingOptions.id, pagingOptions.pageSize, ordering)
-						.then(sender.sendArray('accountId', res, next)))
-					.catch(() => {
-						sender.sendArray('accountId', res, next)([]);
-					});
-			});
 		});
 
 		server.post('/account', (req, res, next) => {

@@ -61,10 +61,6 @@ class ModelSchemaBuilder {
 				stateHashSubCacheMerkleRoots: { type: ModelType.array, schemaName: ModelType.binary }
 			},
 			blockHeaderWithMetadata: {
-				meta: { type: ModelType.object, schemaName: 'blockHeaderMetadata' },
-				block: { type: ModelType.object, schemaName: 'blockHeader' }
-			},
-			blockHeaderWithMetadataAndId: {
 				id: ModelType.objectId,
 				meta: { type: ModelType.object, schemaName: 'blockHeaderMetadata' },
 				block: { type: ModelType.object, schemaName: 'blockHeader' }

@@ -20,6 +20,7 @@
 
 const { MockServer, test } = require('./utils/routeTestUtils');
 const blockRoutes = require('../../src/routes/blockRoutes');
+const routeResultTypes = require('../../src/routes/routeResultTypes');
 const routeUtils = require('../../src/routes/routeUtils');
 const catapult = require('catapult-sdk');
 const { expect } = require('chai');
@@ -45,9 +46,112 @@ describe('block routes', () => {
 		}
 	});
 
-	describe('block', () => {
+	describe('blocks', () => {
+		describe('get', () => {
+			const testPublickeyString = '7DE16AEDF57EB9561D3E6EFA4AE66F27ABDA8AEC8BC020B6277360E31619DCE7';
+			const testPublickey = convert.hexToUint8(testPublickeyString);
+
+			const fakeBlock = { id: 0, meta: { numTransactions: 0 }, block: { type: 33091 } };
+			const fakePaginatedBlock = {
+				data: [fakeBlock],
+				pagination: {
+					pageNumber: 1,
+					pageSize: 10,
+					totalEntries: 1,
+					totalPages: 1
+				}
+			};
+			const dbBlocksFake = sinon.fake.resolves(fakePaginatedBlock);
+
+			const mockServer = new MockServer();
+			const db = { blocks: dbBlocksFake };
+			const services = {
+				config: {
+					pageSize: {
+						min: 10,
+						max: 100,
+						default: 20
+					}
+				}
+			};
+			blockRoutes.register(mockServer.server, db, services);
+
+			const route = mockServer.getRoute('/blocks').get();
+
+			beforeEach(() => {
+				mockServer.resetStats();
+				dbBlocksFake.resetHistory();
+			});
+
+			describe('returns blocks', () => {
+				it('returns correct structure with blocks', () => {
+					const req = { params: {} };
+
+					// Act:
+					return mockServer.callRoute(route, req).then(() => {
+						// Assert:
+						expect(mockServer.send.firstCall.args[0]).to.deep.equal({
+							payload: fakePaginatedBlock,
+							type: routeResultTypes.block,
+							structure: 'page'
+						});
+						expect(mockServer.next.calledOnce).to.equal(true);
+					});
+				});
+			});
+
+			describe('forwards signerPublicKey filter', () =>
+				mockServer.callRoute(route, { params: { signerPublicKey: testPublickeyString } }).then(() => {
+					expect(dbBlocksFake.firstCall.args[0]).to.deep.equal(testPublickey);
+					expect(dbBlocksFake.firstCall.args[1]).to.deep.equal(undefined);
+				}));
+
+			describe('forwards beneficiaryPublicKey filter', () =>
+				mockServer.callRoute(route, { params: { beneficiaryPublicKey: testPublickeyString } }).then(() => {
+					expect(dbBlocksFake.firstCall.args[0]).to.deep.equal(undefined);
+					expect(dbBlocksFake.firstCall.args[1]).to.deep.equal(testPublickey);
+				}));
+
+			describe('parses paging', () => {
+				it('parses and forwards paging options', () => {
+					// Arrange:
+					const pagingBag = 'fakePagingBagObject';
+					const paginationParser = sinon.stub(routeUtils, 'parsePaginationArguments').returns(pagingBag);
+
+					// Act:
+					return mockServer.callRoute(route, { params: {} }).then(() => {
+						// Assert:
+						expect(dbBlocksFake.calledOnce).to.equal(true);
+						expect(dbBlocksFake.firstCall.args[2]).to.deep.equal(pagingBag);
+						paginationParser.restore();
+					});
+				});
+
+				it('overrides sortField to id', () => {
+					const req = {
+						params: {
+							pageSize: '15', pageNumber: '1', sortField: 'meta.hash'
+						}
+					};
+
+					// Act + Assert
+					return mockServer.callRoute(route, req).then(() => {
+						expect(dbBlocksFake.firstCall.args[2]).to.deep.equal({
+							pageSize: 15,
+							pageNumber: 1,
+							sortField: '_id',
+							sortDirection: 1,
+							offset: undefined
+						});
+					});
+				});
+			});
+		});
+	});
+
+	describe('block at height', () => {
 		const builder = test.route.document.prepareGetDocumentRouteTests(blockRoutes.register, {
-			route: '/block/:height',
+			route: '/blocks/:height',
 			dbApiName: 'blockAtHeight',
 			type: 'blockHeaderWithMetadata',
 			extendDb: addChainStatisticToDb,
@@ -58,49 +162,6 @@ describe('block routes', () => {
 			invalid: { object: { height: '10A' }, error: 'height has an invalid format' }
 		});
 		builder.addNotFoundInputTest({ object: { height: '11' }, parsed: [11], printable: '11' }, 'chain height is too small');
-	});
-
-	describe('blocks from height', () => {
-		const builder = test.route.document.prepareGetDocumentsRouteTests(blockRoutes.register, {
-			route: '/blocks/:height/limit/:limit',
-			dbApiName: 'blocksFrom',
-			type: 'blockHeaderWithMetadata',
-			config: routeConfig
-		});
-
-		builder.addValidInputTest({ object: { height: '1', limit: '80' }, parsed: [1, 80] }, '(default limit)');
-		builder.addValidInputTest({ object: { height: '3601', limit: '72' }, parsed: [3601, 72] }, '(custom valid limit)');
-		builder.addEmptyArrayTest({ object: { height: '1', limit: '40' }, parsed: [1, 40] });
-
-		// notice that this expands to four tests { 'height', 'limit'} x { '10A', '-4321' }
-		['height', 'limit'].forEach(property => ['10A', '-4321'].forEach(value => {
-			const object = Object.assign({ height: '1234', limit: '4321' }, { [property]: value });
-			const errorMessage = `${property} has an invalid format`;
-			builder.addInvalidKeyTest({ object, error: errorMessage }, `(${property} with value ${value})`);
-		}));
-
-		builder.addRedirectTest({ object: { height: '0', limit: '0' }, redirectUri: '/blocks/1/limit/30' }, '{ height: 0, limit: 0 }');
-
-		// limit is sanitized correctly
-		builder.addRedirectTest(
-			{ object: { height: '3601', limit: '0' }, redirectUri: '/blocks/3601/limit/30' },
-			'{ height: 3601, limit: 0 }'
-		);
-
-		builder.addRedirectTest(
-			{ object: { height: '3601', limit: '29' }, redirectUri: '/blocks/3601/limit/30' },
-			'{ height: 3601, limit: 29 }'
-		);
-
-		builder.addRedirectTest(
-			{ object: { height: '3601', limit: '81' }, redirectUri: '/blocks/3601/limit/80' },
-			'{ height: 3601, limit: 81 }'
-		);
-
-		builder.addRedirectTest(
-			{ object: { height: '3601', limit: '100' }, redirectUri: '/blocks/3601/limit/80' },
-			'{ height: 3601, limit: 100 }'
-		);
 	});
 
 	describe('block with merkle tree', () => {
