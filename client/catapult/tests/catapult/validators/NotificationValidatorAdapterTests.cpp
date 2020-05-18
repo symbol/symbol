@@ -52,7 +52,7 @@ namespace catapult { namespace validators {
 				m_notificationTypes.push_back(notification.Type);
 
 				if (model::Core_Signature_Notification == notification.Type)
-					m_signerKeys.push_back(static_cast<const model::SignatureNotification&>(notification).Signer);
+					m_signerKeys.push_back(static_cast<const model::SignatureNotification&>(notification).SignerPublicKey);
 
 				return m_result;
 			}

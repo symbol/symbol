@@ -49,7 +49,7 @@ namespace catapult { namespace validators {
 			if (!root.lifetime().isActiveExcludingGracePeriod(height, cache.gracePeriodDuration()))
 				return Failure_Namespace_Expired;
 
-			if (root.ownerPublicKey() != notification.Signer)
+			if (root.ownerPublicKey() != notification.Owner)
 				return Failure_Namespace_Owner_Conflict;
 
 			return ValidationResult::Success;

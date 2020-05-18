@@ -31,10 +31,10 @@ namespace catapult { namespace validators {
 				const Notification& notification,
 				const ValidatorContext& context) {
 			const auto& multisigCache = context.Cache.sub<cache::MultisigCache>();
-			if (!multisigCache.contains(notification.CosignatoryKey))
+			if (!multisigCache.contains(notification.CosignatoryPublicKey))
 				return ValidationResult::Success;
 
-			auto multisigIter = multisigCache.find(notification.CosignatoryKey);
+			auto multisigIter = multisigCache.find(notification.CosignatoryPublicKey);
 			const auto& cosignatoryEntry = multisigIter.get();
 			return cosignatoryEntry.multisigPublicKeys().size() >= maxCosignedAccountsPerAccount
 					? Failure_Multisig_Max_Cosigned_Accounts

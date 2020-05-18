@@ -38,7 +38,7 @@ namespace catapult { namespace validators {
 			const auto& mosaicEntry = mosaicIter.get();
 
 			const auto& accountStateCache = context.Cache.sub<cache::AccountStateCache>();
-			auto accountStateIter = accountStateCache.find(notification.Signer);
+			auto accountStateIter = accountStateCache.find(notification.Owner);
 			auto ownerAmount = accountStateIter.get().Balances.get(mosaicId);
 
 			// only allow an "immutable" supply to change if the owner owns full supply

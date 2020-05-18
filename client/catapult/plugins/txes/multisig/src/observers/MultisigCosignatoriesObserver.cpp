@@ -89,7 +89,7 @@ namespace catapult { namespace observers {
 
 	DEFINE_OBSERVER(MultisigCosignatories, Notification, [](const Notification& notification, const ObserverContext& context) {
 		auto& multisigCache = context.Cache.sub<cache::MultisigCache>();
-		MultisigAccountFacade multisigAccountFacade(multisigCache, notification.Signer);
+		MultisigAccountFacade multisigAccountFacade(multisigCache, notification.SignerPublicKey);
 
 		auto isCommitMode = NotifyMode::Commit == context.Mode;
 		AddAll(multisigAccountFacade, notification.PublicKeyAdditionsPtr, notification.PublicKeyAdditionsCount, isCommitMode);

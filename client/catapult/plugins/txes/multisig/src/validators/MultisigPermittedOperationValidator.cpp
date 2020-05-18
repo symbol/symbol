@@ -28,10 +28,10 @@ namespace catapult { namespace validators {
 
 	DEFINE_STATEFUL_VALIDATOR(MultisigPermittedOperation, [](const Notification& notification, const ValidatorContext& context) {
 		const auto& multisigCache = context.Cache.sub<cache::MultisigCache>();
-		if (!multisigCache.contains(notification.Signer))
+		if (!multisigCache.contains(notification.Sender))
 			return ValidationResult::Success;
 
-		auto multisigIter = multisigCache.find(notification.Signer);
+		auto multisigIter = multisigCache.find(notification.Sender);
 		return multisigIter.get().cosignatoryPublicKeys().empty()
 				? ValidationResult::Success
 				: Failure_Multisig_Operation_Prohibited_By_Account;

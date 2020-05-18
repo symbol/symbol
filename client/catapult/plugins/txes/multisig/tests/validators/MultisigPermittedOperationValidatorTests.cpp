@@ -31,9 +31,9 @@ namespace catapult { namespace validators {
 	DEFINE_COMMON_VALIDATOR_TESTS(MultisigPermittedOperation,)
 
 	namespace {
-		void AssertValidationResult(ValidationResult expectedResult, const cache::CatapultCache& cache, const Key& signer) {
+		void AssertValidationResult(ValidationResult expectedResult, const cache::CatapultCache& cache, const Key& sender) {
 			// Arrange:
-			model::TransactionNotification notification(signer, Hash256(), model::EntityType(), Timestamp());
+			model::TransactionNotification notification(sender, Hash256(), model::EntityType(), Timestamp());
 			auto pValidator = CreateMultisigPermittedOperationValidator();
 
 			// Act:

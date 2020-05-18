@@ -32,8 +32,8 @@ namespace catapult { namespace validators {
 				const ValidatorContext& context) {
 			size_t numCosignatories = 0u;
 			const auto& multisigCache = context.Cache.sub<cache::MultisigCache>();
-			if (multisigCache.contains(notification.Signer)) {
-				auto multisigIter = multisigCache.find(notification.Signer);
+			if (multisigCache.contains(notification.SignerPublicKey)) {
+				auto multisigIter = multisigCache.find(notification.SignerPublicKey);
 				const auto& multisigAccountEntry = multisigIter.get();
 				numCosignatories = multisigAccountEntry.cosignatoryPublicKeys().size();
 			}

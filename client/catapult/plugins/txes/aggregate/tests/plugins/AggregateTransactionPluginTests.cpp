@@ -239,7 +239,7 @@ namespace catapult { namespace plugins {
 		const auto& transaction = *wrapper.pTransaction;
 		test::TransactionPluginTestUtils<AggregateTransactionTraits>::PublishTestBuilder builder;
 		builder.addExpectation<AggregateCosignaturesNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(transaction.SignerPublicKey, notification.Signer);
+			EXPECT_EQ(transaction.SignerPublicKey, notification.SignerPublicKey);
 			EXPECT_EQ(0u, notification.TransactionsCount);
 			EXPECT_FALSE(!!notification.TransactionsPtr);
 			EXPECT_EQ(0u, notification.CosignaturesCount);
@@ -282,7 +282,7 @@ namespace catapult { namespace plugins {
 					EXPECT_EQ(0xFEu, notification.MaxVersion);
 				});
 				builder.addExpectation<AggregateEmbeddedTransactionNotification>(i, [&wrapper, i](const auto& notification) {
-					EXPECT_EQ(wrapper.pTransaction->SignerPublicKey, notification.Signer);
+					EXPECT_EQ(wrapper.pTransaction->SignerPublicKey, notification.SignerPublicKey);
 					EXPECT_EQ(*wrapper.SubTransactions[i], notification.Transaction);
 					EXPECT_EQ(wrapper.pTransaction->CosignaturesCount(), notification.CosignaturesCount);
 					EXPECT_EQ(wrapper.pTransaction->CosignaturesPtr(), notification.CosignaturesPtr);
@@ -335,7 +335,7 @@ namespace catapult { namespace plugins {
 		const auto& transaction = *wrapper.pTransaction;
 		test::TransactionPluginTestUtils<AggregateTransactionTraits>::PublishTestBuilder builder;
 		builder.addExpectation<AggregateCosignaturesNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(transaction.SignerPublicKey, notification.Signer);
+			EXPECT_EQ(transaction.SignerPublicKey, notification.SignerPublicKey);
 			EXPECT_EQ(2u, notification.TransactionsCount);
 			EXPECT_EQ(transaction.TransactionsPtr(), notification.TransactionsPtr);
 			EXPECT_EQ(0u, notification.CosignaturesCount);
@@ -366,7 +366,7 @@ namespace catapult { namespace plugins {
 			for (auto i = 0u; i < count; ++i) {
 				builder.addExpectation<SignatureNotification>(i, [&wrapper, &aggregateDataHash, i](const auto& notification) {
 					// notifications should refer to cosignatories
-					EXPECT_EQ(wrapper.Cosignatories[i], notification.Signer);
+					EXPECT_EQ(wrapper.Cosignatories[i], notification.SignerPublicKey);
 					EXPECT_EQ(wrapper.CosignatorySignatures[i], notification.Signature);
 
 					// notifications should refer to same (aggregate) data hash
@@ -407,7 +407,7 @@ namespace catapult { namespace plugins {
 		const auto& transaction = *wrapper.pTransaction;
 		test::TransactionPluginTestUtils<AggregateTransactionTraits>::PublishTestBuilder builder;
 		builder.addExpectation<AggregateCosignaturesNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(transaction.SignerPublicKey, notification.Signer);
+			EXPECT_EQ(transaction.SignerPublicKey, notification.SignerPublicKey);
 			EXPECT_EQ(0u, notification.TransactionsCount);
 			EXPECT_FALSE(!!notification.TransactionsPtr);
 			EXPECT_EQ(3u, notification.CosignaturesCount);
@@ -471,7 +471,7 @@ namespace catapult { namespace plugins {
 		const auto& transaction = *wrapper.pTransaction;
 		test::TransactionPluginTestUtils<AggregateTransactionTraits>::PublishTestBuilder builder;
 		builder.addExpectation<AggregateCosignaturesNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(transaction.SignerPublicKey, notification.Signer);
+			EXPECT_EQ(transaction.SignerPublicKey, notification.SignerPublicKey);
 			EXPECT_EQ(2u, notification.TransactionsCount);
 			EXPECT_EQ(transaction.TransactionsPtr(), notification.TransactionsPtr);
 			EXPECT_EQ(3u, notification.CosignaturesCount);

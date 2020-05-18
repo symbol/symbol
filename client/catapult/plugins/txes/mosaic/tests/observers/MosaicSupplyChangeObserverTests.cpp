@@ -46,13 +46,13 @@ namespace catapult { namespace observers {
 			// Arrange: create observer and notification
 			auto pObserver = CreateMosaicSupplyChangeObserver();
 
-			auto signer = test::GenerateRandomByteArray<Key>();
-			model::MosaicSupplyChangeNotification notification(signer, test::UnresolveXor(Default_Mosaic_Id), action, delta);
+			auto owner = test::GenerateRandomByteArray<Key>();
+			model::MosaicSupplyChangeNotification notification(owner, test::UnresolveXor(Default_Mosaic_Id), action, delta);
 
 			// - initialize cache with a mosaic supply
 			ObserverTestContext context(mode, Height(888));
 			test::AddMosaic(context.cache(), Default_Mosaic_Id, Height(7), Eternal_Artifact_Duration, initialSupply);
-			test::AddMosaicOwner(context.cache(), Default_Mosaic_Id, signer, initialOwnerSupply);
+			test::AddMosaicOwner(context.cache(), Default_Mosaic_Id, owner, initialOwnerSupply);
 
 			// Act:
 			test::ObserveNotification(*pObserver, notification, context);
@@ -62,8 +62,8 @@ namespace catapult { namespace observers {
 			EXPECT_EQ(finalSupply, mosaicCacheDelta.find(Default_Mosaic_Id).get().supply());
 
 			const auto& accountStateCacheDelta = context.cache().sub<cache::AccountStateCache>();
-			auto signerAddress = accountStateCacheDelta.find(signer).get().Address;
-			EXPECT_EQ(finalOwnerSupply, accountStateCacheDelta.find(signerAddress).get().Balances.get(Default_Mosaic_Id));
+			auto ownerAddress = accountStateCacheDelta.find(owner).get().Address;
+			EXPECT_EQ(finalOwnerSupply, accountStateCacheDelta.find(ownerAddress).get().Balances.get(Default_Mosaic_Id));
 		}
 
 		void AssertSupplyIncrease(model::MosaicSupplyChangeAction action, NotifyMode mode) {

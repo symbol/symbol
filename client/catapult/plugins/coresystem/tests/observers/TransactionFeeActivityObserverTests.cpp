@@ -67,16 +67,16 @@ namespace catapult { namespace observers {
 			TestContext context(notifyMode);
 			auto pObserver = CreateTransactionFeeActivityObserver();
 
-			auto signerPublicKey = test::GenerateRandomByteArray<Key>();
-			auto signerAccountStateIter = context.addAccount(signerPublicKey, initialTotalFeesPaid);
+			auto senderPublicKey = test::GenerateRandomByteArray<Key>();
+			auto senderAccountStateIter = context.addAccount(senderPublicKey, initialTotalFeesPaid);
 
-			auto notification = model::TransactionFeeNotification(signerPublicKey, 0, fee, Amount(222));
+			auto notification = model::TransactionFeeNotification(senderPublicKey, 0, fee, Amount(222));
 
 			// Act:
 			test::ObserveNotification(*pObserver, notification, context);
 
 			// Assert:
-			const auto& activityBucket = signerAccountStateIter.get().ActivityBuckets.get(Importance_Height);
+			const auto& activityBucket = senderAccountStateIter.get().ActivityBuckets.get(Importance_Height);
 			EXPECT_EQ(expectedTotalFeesPaid, activityBucket.TotalFeesPaid);
 		}
 	}
@@ -102,16 +102,16 @@ namespace catapult { namespace observers {
 		TestContext context(NotifyMode::Commit);
 		auto pObserver = CreateTransactionFeeActivityObserver();
 
-		auto signerPublicKey = test::GenerateRandomByteArray<Key>();
-		auto signerAccountStateIter = context.addAccount(signerPublicKey, Amount(0));
+		auto senderPublicKey = test::GenerateRandomByteArray<Key>();
+		auto senderAccountStateIter = context.addAccount(senderPublicKey, Amount(0));
 
-		auto notification = model::TransactionFeeNotification(signerPublicKey, 0, Amount(0), Amount(222));
+		auto notification = model::TransactionFeeNotification(senderPublicKey, 0, Amount(0), Amount(222));
 
 		// Act:
 		test::ObserveNotification(*pObserver, notification, context);
 
 		// Assert: no bucket was created
-		const auto& activityBucket = signerAccountStateIter.get().ActivityBuckets.get(Importance_Height);
+		const auto& activityBucket = senderAccountStateIter.get().ActivityBuckets.get(Importance_Height);
 		EXPECT_EQ(model::ImportanceHeight(), activityBucket.StartHeight);
 	}
 }}

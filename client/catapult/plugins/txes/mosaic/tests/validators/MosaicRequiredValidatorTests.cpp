@@ -58,13 +58,13 @@ namespace catapult { namespace validators {
 				ValidationResult expectedResult,
 				TMosaicId affectedMosaicId,
 				Height height,
-				const Key& transactionSigner,
+				const Key& notificationOwner,
 				const Key& artifactOwner) {
 			// Arrange:
 			auto pValidator = CreateRequiredMosaicValidator();
 
 			// - create the notification
-			model::MosaicRequiredNotification notification(transactionSigner, affectedMosaicId);
+			model::MosaicRequiredNotification notification(notificationOwner, affectedMosaicId);
 
 			// - create the validator context
 			auto cache = test::MosaicCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
@@ -125,8 +125,8 @@ namespace catapult { namespace validators {
 			auto pValidator = CreateRequiredMosaicValidator();
 
 			// - create the notification
-			auto signer = test::GenerateRandomByteArray<Key>();
-			model::MosaicRequiredNotification notification(signer, affectedMosaicId, notificationPropertyFlagMask);
+			auto owner = test::GenerateRandomByteArray<Key>();
+			model::MosaicRequiredNotification notification(owner, affectedMosaicId, notificationPropertyFlagMask);
 
 			// - create the validator context
 			auto height = Height(50);
@@ -138,7 +138,7 @@ namespace catapult { namespace validators {
 				auto& mosaicCacheDelta = delta.sub<cache::MosaicCache>();
 
 				model::MosaicProperties properties(static_cast<model::MosaicFlags>(mosaicPropertyFlagMask), 0, BlockDuration(100));
-				auto definition = state::MosaicDefinition(height, signer, 1, properties);
+				auto definition = state::MosaicDefinition(height, owner, 1, properties);
 				mosaicCacheDelta.insert(state::MosaicEntry(ResolvedMosaicTraits::Default_Id, definition));
 			}
 

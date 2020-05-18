@@ -96,7 +96,7 @@ namespace catapult { namespace chain {
 				auto message = out.str();
 				const auto& notification = sub.matchingNotifications()[i];
 
-				EXPECT_EQ(wrapper.pTransaction->SignerPublicKey, notification.Signer) << message;
+				EXPECT_EQ(wrapper.pTransaction->SignerPublicKey, notification.SignerPublicKey) << message;
 				EXPECT_EQ(*wrapper.SubTransactions[i], notification.Transaction) << message;
 				EXPECT_EQ(numCosignatures, notification.CosignaturesCount);
 				EXPECT_EQ(numTransactions > 0 ? cosignatures.data() : nullptr, notification.CosignaturesPtr);
@@ -133,7 +133,7 @@ namespace catapult { namespace chain {
 		// Assert:
 		ASSERT_EQ(1u, sub.numMatchingNotifications());
 		const auto& notification = sub.matchingNotifications()[0];
-		EXPECT_EQ(wrapper.pTransaction->SignerPublicKey, notification.Signer);
+		EXPECT_EQ(wrapper.pTransaction->SignerPublicKey, notification.SignerPublicKey);
 		EXPECT_EQ(0u, notification.TransactionsCount);
 		EXPECT_FALSE(!!notification.TransactionsPtr);
 		EXPECT_EQ(0u, notification.CosignaturesCount);
@@ -155,7 +155,7 @@ namespace catapult { namespace chain {
 		// Assert:
 		ASSERT_EQ(1u, sub.numMatchingNotifications());
 		const auto& notification = sub.matchingNotifications()[0];
-		EXPECT_EQ(wrapper.pTransaction->SignerPublicKey, notification.Signer);
+		EXPECT_EQ(wrapper.pTransaction->SignerPublicKey, notification.SignerPublicKey);
 		EXPECT_EQ(2u, notification.TransactionsCount);
 		EXPECT_EQ(wrapper.pTransaction->TransactionsPtr(), notification.TransactionsPtr);
 		EXPECT_EQ(3u, notification.CosignaturesCount);

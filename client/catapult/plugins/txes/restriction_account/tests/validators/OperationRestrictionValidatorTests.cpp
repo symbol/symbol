@@ -55,13 +55,13 @@ namespace catapult { namespace validators {
 				ValidationResult expectedResult,
 				const Address& accountAddress,
 				const std::vector<uint16_t>& rawValues,
-				const Key& signer,
+				const Key& sender,
 				const model::EntityType& transactionType) {
 			// Arrange:
 			auto cache = test::AccountRestrictionCacheFactory::Create();
 			PopulateCache<TOperationTraits>(cache, accountAddress, rawValues);
 			auto pValidator = CreateOperationRestrictionValidator();
-			auto notification = model::TransactionNotification(signer, Hash256(), transactionType, Timestamp(123));
+			auto notification = model::TransactionNotification(sender, Hash256(), transactionType, Timestamp(123));
 
 			// Act:
 			auto result = test::ValidateNotification(*pValidator, notification, cache);
@@ -75,30 +75,30 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureWhenAccountIsKnownAndTransactionTypeIsNotContainedInValues_Allow) {
 		// Arrange:
-		auto signer = test::GenerateRandomByteArray<Key>();
-		auto signerAddress = model::PublicKeyToAddress(signer, model::NetworkIdentifier::Zero);
+		auto sender = test::GenerateRandomByteArray<Key>();
+		auto senderAddress = model::PublicKeyToAddress(sender, model::NetworkIdentifier::Zero);
 
 		// Act:
 		AssertValidationResult<test::AllowTraits>(
 				Failure_RestrictionAccount_Operation_Type_Prohibited,
-				signerAddress,
+				senderAddress,
 				DefaultRawTransactionTypes(),
-				signer,
+				sender,
 				static_cast<model::EntityType>(0x4040));
 	}
 
 	TEST(TEST_CLASS, FailureWhenAccountIsKnownAndTransactionTypeIsContainedInValues_Block) {
 		// Arrange:
-		auto signer = test::GenerateRandomByteArray<Key>();
-		auto signerAddress = model::PublicKeyToAddress(signer, model::NetworkIdentifier::Zero);
+		auto sender = test::GenerateRandomByteArray<Key>();
+		auto senderAddress = model::PublicKeyToAddress(sender, model::NetworkIdentifier::Zero);
 		auto values = DefaultRawTransactionTypes();
 
 		// Act:
 		AssertValidationResult<test::BlockTraits>(
 				Failure_RestrictionAccount_Operation_Type_Prohibited,
-				signerAddress,
+				senderAddress,
 				values,
-				signer,
+				sender,
 				static_cast<model::EntityType>(values[1]));
 	}
 
@@ -114,36 +114,36 @@ namespace catapult { namespace validators {
 
 	TRAITS_BASED_TEST(SuccessWhenAccountIsNotKnown) {
 		// Arrange:
-		auto signer = test::GenerateRandomByteArray<Key>();
+		auto sender = test::GenerateRandomByteArray<Key>();
 		auto address = test::GenerateRandomByteArray<Address>();
 		auto values = DefaultRawTransactionTypes();
 
 		// Act:
-		AssertValidationResult<TTraits>(ValidationResult::Success, address, values, signer, static_cast<model::EntityType>(0x4444));
+		AssertValidationResult<TTraits>(ValidationResult::Success, address, values, sender, static_cast<model::EntityType>(0x4444));
 	}
 
 	TRAITS_BASED_TEST(SuccessWhenAccountIsKnownButAccountRestrictionHasNoValues) {
 		// Arrange:
-		auto signer = test::GenerateRandomByteArray<Key>();
-		auto signerAddress = model::PublicKeyToAddress(signer, model::NetworkIdentifier::Zero);
+		auto sender = test::GenerateRandomByteArray<Key>();
+		auto senderAddress = model::PublicKeyToAddress(sender, model::NetworkIdentifier::Zero);
 
 		// Act:
-		AssertValidationResult<TTraits>(ValidationResult::Success, signerAddress, {}, signer, static_cast<model::EntityType>(0x4444));
+		AssertValidationResult<TTraits>(ValidationResult::Success, senderAddress, {}, sender, static_cast<model::EntityType>(0x4444));
 	}
 
 	namespace {
 		template<typename TOperationTraits>
 		void AssertSuccess(const std::vector<uint16_t>& rawValues, uint16_t rawTransactionType) {
 			// Arrange:
-			auto signer = test::GenerateRandomByteArray<Key>();
-			auto signerAddress = model::PublicKeyToAddress(signer, model::NetworkIdentifier::Zero);
+			auto sender = test::GenerateRandomByteArray<Key>();
+			auto senderAddress = model::PublicKeyToAddress(sender, model::NetworkIdentifier::Zero);
 
 			// Act:
 			AssertValidationResult<TOperationTraits>(
 					ValidationResult::Success,
-					signerAddress,
+					senderAddress,
 					rawValues,
-					signer,
+					sender,
 					static_cast<model::EntityType>(rawTransactionType));
 		}
 	}

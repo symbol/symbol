@@ -76,8 +76,8 @@ namespace catapult { namespace validators {
 
 		auto pValidator = CreateEligibleHarvesterValidator();
 
-		auto signer = test::GenerateRandomByteArray<Key>();
-		auto notification = test::CreateBlockNotification(signer);
+		auto senderPublicKey = test::GenerateRandomByteArray<Key>();
+		auto notification = test::CreateBlockNotification(senderPublicKey);
 
 		// Act:
 		auto result = test::ValidateNotification(*pValidator, notification, cache, height);

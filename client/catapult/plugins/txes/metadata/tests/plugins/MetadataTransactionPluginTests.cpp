@@ -91,7 +91,7 @@ namespace catapult { namespace plugins {
 
 			static void AddCustomExpectations(PublishTestBuilder& builder, const TTransaction& transaction) {
 				builder.template addExpectation<MosaicRequiredNotification>([&transaction](const auto& notification) {
-					EXPECT_EQ(transaction.TargetPublicKey, notification.Signer);
+					EXPECT_EQ(transaction.TargetPublicKey, notification.Owner);
 					EXPECT_EQ(MosaicId(), notification.MosaicId);
 					EXPECT_EQ(transaction.TargetMosaicId, notification.UnresolvedMosaicId);
 					EXPECT_EQ(0u, notification.PropertyFlagMask);
@@ -124,7 +124,7 @@ namespace catapult { namespace plugins {
 
 			static void AddCustomExpectations(PublishTestBuilder& builder, const TTransaction& transaction) {
 				builder.template addExpectation<NamespaceRequiredNotification>([&transaction](const auto& notification) {
-					EXPECT_EQ(transaction.TargetPublicKey, notification.Signer);
+					EXPECT_EQ(transaction.TargetPublicKey, notification.Owner);
 					EXPECT_EQ(transaction.TargetNamespaceId, notification.NamespaceId);
 				});
 			}

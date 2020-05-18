@@ -37,7 +37,7 @@ namespace catapult { namespace validators {
 				return Failure_Aggregate_Too_Many_Cosignatures;
 
 			utils::KeyPointerSet cosignatories;
-			cosignatories.insert(&notification.Signer);
+			cosignatories.insert(&notification.SignerPublicKey);
 			const auto* pCosignature = notification.CosignaturesPtr;
 			for (auto i = 0u; i < notification.CosignaturesCount; ++i) {
 				if (!cosignatories.insert(&pCosignature->SignerPublicKey).second)

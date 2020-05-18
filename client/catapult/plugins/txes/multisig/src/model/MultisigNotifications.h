@@ -51,16 +51,16 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = Multisig_Cosignatories_Notification;
 
 	public:
-		/// Creates a notification around \a signer, \a publicKeyAdditionsCount, \a pPublicKeyAdditions, \a publicKeyDeletionsCount
-		/// and \a pPublicKeyDeletions.
+		/// Creates a notification around \a signerPublicKey, \a publicKeyAdditionsCount, \a pPublicKeyAdditions,
+		/// \a publicKeyDeletionsCount and \a pPublicKeyDeletions.
 		MultisigCosignatoriesNotification(
-				const Key& signer,
+				const Key& signerPublicKey,
 				uint8_t publicKeyAdditionsCount,
 				const Key* pPublicKeyAdditions,
 				uint8_t publicKeyDeletionsCount,
 				const Key* pPublicKeyDeletions)
 				: Notification(Notification_Type, sizeof(MultisigCosignatoriesNotification))
-				, Signer(signer)
+				, SignerPublicKey(signerPublicKey)
 				, PublicKeyAdditionsCount(publicKeyAdditionsCount)
 				, PublicKeyAdditionsPtr(pPublicKeyAdditions)
 				, PublicKeyDeletionsCount(publicKeyDeletionsCount)
@@ -68,8 +68,8 @@ namespace catapult { namespace model {
 		{}
 
 	public:
-		/// Signer.
-		const Key& Signer;
+		/// Signer public key.
+		const Key& SignerPublicKey;
 
 		/// Number of cosignatory public key additions.
 		uint8_t PublicKeyAdditionsCount;
@@ -95,19 +95,19 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = Multisig_New_Cosignatory_Notification;
 
 	public:
-		/// Creates a notification around \a multisigAccountKey and \a cosignatoryKey.
-		MultisigNewCosignatoryNotification(const Key& multisigAccountKey, const Key& cosignatoryKey)
+		/// Creates a notification around \a multisigPublicKey and \a cosignatoryPublicKey.
+		MultisigNewCosignatoryNotification(const Key& multisigPublicKey, const Key& cosignatoryPublicKey)
 				: Notification(Notification_Type, sizeof(MultisigNewCosignatoryNotification))
-				, MultisigAccountKey(multisigAccountKey)
-				, CosignatoryKey(cosignatoryKey)
+				, MultisigPublicKey(multisigPublicKey)
+				, CosignatoryPublicKey(cosignatoryPublicKey)
 		{}
 
 	public:
-		/// Multisig account key.
-		const Key& MultisigAccountKey;
+		/// Multisig public key.
+		const Key& MultisigPublicKey;
 
-		/// New cosignatory key.
-		const Key& CosignatoryKey;
+		/// New cosignatory public key.
+		const Key& CosignatoryPublicKey;
 	};
 
 	// endregion
@@ -121,17 +121,17 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = Multisig_Settings_Notification;
 
 	public:
-		/// Creates a notification around \a signer, \a minRemovalDelta and \a minApprovalDelta.
-		MultisigSettingsNotification(const Key& signer, int8_t minRemovalDelta, int8_t minApprovalDelta)
+		/// Creates a notification around \a multisigPublicKey, \a minRemovalDelta and \a minApprovalDelta.
+		MultisigSettingsNotification(const Key& multisigPublicKey, int8_t minRemovalDelta, int8_t minApprovalDelta)
 				: Notification(Notification_Type, sizeof(MultisigSettingsNotification))
-				, Signer(signer)
+				, MultisigPublicKey(multisigPublicKey)
 				, MinRemovalDelta(minRemovalDelta)
 				, MinApprovalDelta(minApprovalDelta)
 		{}
 
 	public:
-		/// Signer.
-		const Key& Signer;
+		/// Multisig public key.
+		const Key& MultisigPublicKey;
 
 		/// Relative change of cosigs needed to remove another cosig.
 		int8_t MinRemovalDelta;

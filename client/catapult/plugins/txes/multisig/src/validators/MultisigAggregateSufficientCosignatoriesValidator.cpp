@@ -58,7 +58,7 @@ namespace catapult { namespace validators {
 					: m_notification(notification)
 					, m_transactionRegistry(transactionRegistry)
 					, m_multisigCache(multisigCache) {
-				m_cosignatories.emplace(&m_notification.Signer);
+				m_cosignatories.emplace(&m_notification.SignerPublicKey);
 				for (auto i = 0u; i < m_notification.CosignaturesCount; ++i)
 					m_cosignatories.emplace(&m_notification.CosignaturesPtr[i].SignerPublicKey);
 			}

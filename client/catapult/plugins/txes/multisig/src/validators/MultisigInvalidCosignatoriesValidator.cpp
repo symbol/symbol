@@ -30,10 +30,10 @@ namespace catapult { namespace validators {
 	DEFINE_STATEFUL_VALIDATOR(MultisigInvalidCosignatories, [](const Notification& notification, const ValidatorContext& context) {
 		const auto& multisigCache = context.Cache.sub<cache::MultisigCache>();
 
-		if (!multisigCache.contains(notification.Signer))
+		if (!multisigCache.contains(notification.SignerPublicKey))
 			return 0 == notification.PublicKeyDeletionsCount ? ValidationResult::Success : Failure_Multisig_Unknown_Multisig_Account;
 
-		auto multisigIter = multisigCache.find(notification.Signer);
+		auto multisigIter = multisigCache.find(notification.SignerPublicKey);
 		const auto& multisigEntry = multisigIter.get();
 		for (auto i = 0u; i < notification.PublicKeyAdditionsCount; ++i) {
 			if (multisigEntry.hasCosignatory(notification.PublicKeyAdditionsPtr[i]))

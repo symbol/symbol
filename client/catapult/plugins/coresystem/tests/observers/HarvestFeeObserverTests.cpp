@@ -123,12 +123,12 @@ namespace catapult { namespace observers {
 	ACCOUNT_TYPE_TRAITS_BASED_TEST(CommitCreditsHarvester) {
 		// Arrange:
 		RunHarvestFeeObserverTest(NotifyMode::Commit, 0, [](auto& context, const auto& observer) {
-			auto signerPublicKey = test::GenerateRandomByteArray<Key>();
+			auto harvester = test::GenerateRandomByteArray<Key>();
 			auto& accountStateCache = context.cache().template sub<cache::AccountStateCache>();
-			auto accountStateIter = TTraits::AddAccount(accountStateCache, signerPublicKey, Height(1));
+			auto accountStateIter = TTraits::AddAccount(accountStateCache, harvester, Height(1));
 			accountStateIter.get().Balances.credit(Currency_Mosaic_Id, Amount(987));
 
-			auto notification = test::CreateBlockNotification(signerPublicKey);
+			auto notification = test::CreateBlockNotification(harvester);
 			notification.TotalFee = Amount(123);
 
 			// Act:
@@ -137,9 +137,9 @@ namespace catapult { namespace observers {
 			// Assert:
 			test::AssertBalances(context.cache(), accountStateIter.get().PublicKey, { { Currency_Mosaic_Id, Amount(987 + 123) } });
 
-			// - if signer is remote, it should have an unchanged balance
-			if (signerPublicKey != accountStateIter.get().PublicKey)
-				test::AssertBalances(context.cache(), signerPublicKey, {});
+			// - if harvester is remote, it should have an unchanged balance
+			if (harvester != accountStateIter.get().PublicKey)
+				test::AssertBalances(context.cache(), harvester, {});
 
 			// - check receipt
 			auto pStatement = context.statementBuilder().build();
@@ -155,12 +155,12 @@ namespace catapult { namespace observers {
 	ACCOUNT_TYPE_TRAITS_BASED_TEST(RollbackDebitsHarvester) {
 		// Arrange:
 		RunHarvestFeeObserverTest(NotifyMode::Rollback, 0, [](auto& context, const auto& observer) {
-			auto signerPublicKey = test::GenerateRandomByteArray<Key>();
+			auto harvester = test::GenerateRandomByteArray<Key>();
 			auto& accountStateCache = context.cache().template sub<cache::AccountStateCache>();
-			auto accountStateIter = TTraits::AddAccount(accountStateCache, signerPublicKey, Height(1));
+			auto accountStateIter = TTraits::AddAccount(accountStateCache, harvester, Height(1));
 			accountStateIter.get().Balances.credit(Currency_Mosaic_Id, Amount(987 + 123));
 
-			auto notification = test::CreateBlockNotification(signerPublicKey);
+			auto notification = test::CreateBlockNotification(harvester);
 			notification.TotalFee = Amount(123);
 
 			// Act:
@@ -169,9 +169,9 @@ namespace catapult { namespace observers {
 			// Assert:
 			test::AssertBalances(context.cache(), accountStateIter.get().PublicKey, { { Currency_Mosaic_Id, Amount(987) } });
 
-			// - if signer is remote, it should have an unchanged balance
-			if (signerPublicKey != accountStateIter.get().PublicKey)
-				test::AssertBalances(context.cache(), signerPublicKey, {});
+			// - if harvester is remote, it should have an unchanged balance
+			if (harvester != accountStateIter.get().PublicKey)
+				test::AssertBalances(context.cache(), harvester, {});
 
 			// - check (lack of) receipt
 			auto pStatement = context.statementBuilder().build();
@@ -205,7 +205,7 @@ namespace catapult { namespace observers {
 
 		void AssertHarvesterSharesFees(
 				NotifyMode notifyMode,
-				const Key& signer,
+				const Key& harvester,
 				const Key& beneficiary,
 				const HarvestFeeOptions& options,
 				Amount totalFee,
@@ -216,7 +216,7 @@ namespace catapult { namespace observers {
 			RunHarvestFeeObserverTest(notifyMode, options, calculator, [&](auto& context, const auto& observer) {
 				// - setup cache
 				auto& accountStateCache = context.cache().template sub<cache::AccountStateCache>();
-				auto harvesterAccountStateIter = MainAccountTraits::AddAccount(accountStateCache, signer, Height(1));
+				auto harvesterAccountStateIter = MainAccountTraits::AddAccount(accountStateCache, harvester, Height(1));
 				harvesterAccountStateIter.get().Balances.credit(Currency_Mosaic_Id, Amount(987));
 
 				auto beneficiaryAccountStateIter = MainAccountTraits::AddAccount(accountStateCache, beneficiary, Height(1));
@@ -228,7 +228,7 @@ namespace catapult { namespace observers {
 						Height(1));
 				networkAccountStateIter.get().Balances.credit(Currency_Mosaic_Id, Amount(444));
 
-				auto notification = test::CreateBlockNotification(signer, beneficiary);
+				auto notification = test::CreateBlockNotification(harvester, beneficiary);
 				notification.TotalFee = totalFee;
 
 				// Act:
@@ -275,7 +275,7 @@ namespace catapult { namespace observers {
 		}
 
 		void AssertHarvesterSharesFees(
-				const Key& signer,
+				const Key& harvester,
 				const Key& beneficiary,
 				const HarvestFeeOptions& options,
 				Amount totalFee,
@@ -283,7 +283,7 @@ namespace catapult { namespace observers {
 				const std::vector<ReceiptInfo>& expectedReceiptInfos) {
 			AssertHarvesterSharesFees(
 					NotifyMode::Commit,
-					signer,
+					harvester,
 					beneficiary,
 					options,
 					totalFee,
@@ -300,111 +300,111 @@ namespace catapult { namespace observers {
 	TEST(TEST_CLASS, HarvesterDoesNotShareFeesWhenPercentagesAreZero) {
 		// Arrange:
 		auto options = CreateOptionsFromPercentages(0, 0);
-		auto signer = test::GenerateRandomByteArray<Key>();
+		auto harvester = test::GenerateRandomByteArray<Key>();
 		auto beneficiary = test::GenerateRandomByteArray<Key>();
 		BalancesInfo finalBalances{ Amount(987 + 205), Amount(234), Amount(444) };
 
 		// Act + Assert:
-		AssertHarvesterSharesFees(signer, beneficiary, options, Amount(205), finalBalances, { { signer, Amount(205) } });
+		AssertHarvesterSharesFees(harvester, beneficiary, options, Amount(205), finalBalances, { { harvester, Amount(205) } });
 	}
 
-	TEST(TEST_CLASS, HarvesterDoesNotShareFeesWhenBeneficiaryKeyIsEqualToSignerKey) {
-		// Arrange: signer account (= beneficiary account) is initially credited 987 + 234
+	TEST(TEST_CLASS, HarvesterDoesNotShareFeesWhenBeneficiaryIsEqualToHarvester) {
+		// Arrange: harvester account (= beneficiary account) is initially credited 987 + 234
 		auto options = CreateOptionsFromPercentages(20, 0);
-		auto signer = test::GenerateRandomByteArray<Key>();
+		auto harvester = test::GenerateRandomByteArray<Key>();
 		BalancesInfo finalBalances{ Amount(987 + 234 + 205), Amount(987 + 234 + 205), Amount(444) };
 
 		// Act + Assert:
-		AssertHarvesterSharesFees(signer, signer, options, Amount(205), finalBalances, { { signer, Amount(205) } });
+		AssertHarvesterSharesFees(harvester, harvester, options, Amount(205), finalBalances, { { harvester, Amount(205) } });
 	}
 
 	TEST(TEST_CLASS, HarvesterSharesFeesAccordingToGivenPercentage_BeneficiaryOnly_NoTruncation) {
 		// Arrange: 205 * 0.2 = 41
 		auto options = CreateOptionsFromPercentages(20, 0);
-		auto signer = test::GenerateRandomByteArray<Key>();
+		auto harvester = test::GenerateRandomByteArray<Key>();
 		auto beneficiary = test::GenerateRandomByteArray<Key>();
 		BalancesInfo finalBalances{ Amount(987 + 164), Amount(234 + 41), Amount(444) };
 
 		// Act + Assert:
-		AssertHarvesterSharesFees(signer, beneficiary, options, Amount(205), finalBalances, {
-			{ signer, Amount(164) }, { beneficiary, Amount(41) }
+		AssertHarvesterSharesFees(harvester, beneficiary, options, Amount(205), finalBalances, {
+			{ harvester, Amount(164) }, { beneficiary, Amount(41) }
 		});
 	}
 
 	TEST(TEST_CLASS, HarvesterSharesFeesAccordingToGivenPercentage_BeneficiaryOnly_Truncation) {
 		// Arrange: 205 * 0.3 = 61.5
 		auto options = CreateOptionsFromPercentages(30, 0);
-		auto signer = test::GenerateRandomByteArray<Key>();
+		auto harvester = test::GenerateRandomByteArray<Key>();
 		auto beneficiary = test::GenerateRandomByteArray<Key>();
 		BalancesInfo finalBalances{ Amount(987 + 144), Amount(234 + 61), Amount(444) };
 
 		// Act + Assert:
-		AssertHarvesterSharesFees(signer, beneficiary, options, Amount(205), finalBalances, {
-			{ signer, Amount(144) }, { beneficiary, Amount(61) }
+		AssertHarvesterSharesFees(harvester, beneficiary, options, Amount(205), finalBalances, {
+			{ harvester, Amount(144) }, { beneficiary, Amount(61) }
 		});
 	}
 
 	TEST(TEST_CLASS, HarvesterSharesFeesAccordingToGivenPercentage_NetworkOnly_NoTruncation) {
 		// Arrange: 205 * 0.2 = 41
 		auto options = CreateOptionsFromPercentages(0, 20);
-		auto signer = test::GenerateRandomByteArray<Key>();
+		auto harvester = test::GenerateRandomByteArray<Key>();
 		auto beneficiary = test::GenerateRandomByteArray<Key>();
 		BalancesInfo finalBalances{ Amount(987 + 164), Amount(234), Amount(444 + 41) };
 
 		// Act + Assert:
-		AssertHarvesterSharesFees(signer, beneficiary, options, Amount(205), finalBalances, {
-			{ signer, Amount(164) }, { options.HarvestNetworkFeeSinkPublicKey, Amount(41) }
+		AssertHarvesterSharesFees(harvester, beneficiary, options, Amount(205), finalBalances, {
+			{ harvester, Amount(164) }, { options.HarvestNetworkFeeSinkPublicKey, Amount(41) }
 		});
 	}
 
 	TEST(TEST_CLASS, HarvesterSharesFeesAccordingToGivenPercentage_NetworkOnly_Truncation) {
 		// Arrange: 205 * 0.3 = 61.5
 		auto options = CreateOptionsFromPercentages(0, 30);
-		auto signer = test::GenerateRandomByteArray<Key>();
+		auto harvester = test::GenerateRandomByteArray<Key>();
 		auto beneficiary = test::GenerateRandomByteArray<Key>();
 		BalancesInfo finalBalances{ Amount(987 + 144), Amount(234), Amount(444 + 61) };
 
 		// Act + Assert:
-		AssertHarvesterSharesFees(signer, beneficiary, options, Amount(205), finalBalances, {
-			{ signer, Amount(144) }, { options.HarvestNetworkFeeSinkPublicKey, Amount(61) }
+		AssertHarvesterSharesFees(harvester, beneficiary, options, Amount(205), finalBalances, {
+			{ harvester, Amount(144) }, { options.HarvestNetworkFeeSinkPublicKey, Amount(61) }
 		});
 	}
 
 	TEST(TEST_CLASS, HarvesterSharesFeesAccordingToGivenPercentage_BeneficiaryAndNetwork_NoTruncation) {
 		// Arrange: 200 * 0.1 = 20, 200 * 0.2 = 40
 		auto options = CreateOptionsFromPercentages(10, 20);
-		auto signer = test::GenerateRandomByteArray<Key>();
+		auto harvester = test::GenerateRandomByteArray<Key>();
 		auto beneficiary = test::GenerateRandomByteArray<Key>();
 		BalancesInfo finalBalances{ Amount(987 + 140), Amount(234 + 20), Amount(444 + 40) };
 
 		// Act + Assert:
-		AssertHarvesterSharesFees(signer, beneficiary, options, Amount(200), finalBalances, {
-			{ signer, Amount(140) }, { options.HarvestNetworkFeeSinkPublicKey, Amount(40) }, { beneficiary, Amount(20) }
+		AssertHarvesterSharesFees(harvester, beneficiary, options, Amount(200), finalBalances, {
+			{ harvester, Amount(140) }, { options.HarvestNetworkFeeSinkPublicKey, Amount(40) }, { beneficiary, Amount(20) }
 		});
 	}
 
 	TEST(TEST_CLASS, HarvesterSharesFeesAccordingToGivenPercentage_BeneficiaryAndNetwork_Truncation) {
 		// Arrange: 205 * 0.1 = 20.5, 205 * 0.3 = 61.5
 		auto options = CreateOptionsFromPercentages(10, 30);
-		auto signer = test::GenerateRandomByteArray<Key>();
+		auto harvester = test::GenerateRandomByteArray<Key>();
 		auto beneficiary = test::GenerateRandomByteArray<Key>();
 		BalancesInfo finalBalances{ Amount(987 + 124), Amount(234 + 20), Amount(444 + 61) };
 
 		// Act + Assert:
-		AssertHarvesterSharesFees(signer, beneficiary, options, Amount(205), finalBalances, {
-			{ signer, Amount(124) }, { options.HarvestNetworkFeeSinkPublicKey, Amount(61) }, { beneficiary, Amount(20) }
+		AssertHarvesterSharesFees(harvester, beneficiary, options, Amount(205), finalBalances, {
+			{ harvester, Amount(124) }, { options.HarvestNetworkFeeSinkPublicKey, Amount(61) }, { beneficiary, Amount(20) }
 		});
 	}
 
 	TEST(TEST_CLASS, NoAdditionalReceiptIsGeneratedWhenTruncatedAmountIsZero) {
 		// Arrange:
 		auto options = CreateOptionsFromPercentages(30, 30);
-		auto signer = test::GenerateRandomByteArray<Key>();
+		auto harvester = test::GenerateRandomByteArray<Key>();
 		auto beneficiary = test::GenerateRandomByteArray<Key>();
 		BalancesInfo finalBalances{ Amount(987 + 1), Amount(234), Amount(444) };
 
 		// Act + Assert:
-		AssertHarvesterSharesFees(signer, beneficiary, options, Amount(1), finalBalances, { { signer, Amount(1) } });
+		AssertHarvesterSharesFees(harvester, beneficiary, options, Amount(1), finalBalances, { { harvester, Amount(1) } });
 	}
 
 	// endregion
@@ -416,27 +416,27 @@ namespace catapult { namespace observers {
 		void AssertHarvesterSharesFees(NotifyMode mode, TAssert assertBalancesAndReceipts) {
 			RunHarvestFeeObserverTest(mode, 20, [&](auto& context, const auto& observer) {
 				// Arrange: setup cache
-				auto signer = test::GenerateRandomByteArray<Key>();
+				auto harvester = test::GenerateRandomByteArray<Key>();
 				auto beneficiary = test::GenerateRandomByteArray<Key>();
 				auto& accountStateCache = context.cache().template sub<cache::AccountStateCache>();
-				auto harvesterAccountStateIter = TTraits::AddAccount(accountStateCache, signer, Height(1));
+				auto harvesterAccountStateIter = TTraits::AddAccount(accountStateCache, harvester, Height(1));
 				harvesterAccountStateIter.get().Balances.credit(Currency_Mosaic_Id, Amount(987));
 				auto beneficiaryAccountStateIter = TTraits::AddAccount(accountStateCache, beneficiary, Height(1));
 				beneficiaryAccountStateIter.get().Balances.credit(Currency_Mosaic_Id, Amount(234));
 
-				auto notification = test::CreateBlockNotification(signer, beneficiary);
+				auto notification = test::CreateBlockNotification(harvester, beneficiary);
 				notification.TotalFee = Amount(205);
 
 				// Act:
 				test::ObserveNotification(observer, notification, context);
 
 				// Assert: if beneficiary is remote, it should have an unchanged balance
-				const auto& mainHarvesterKey = harvesterAccountStateIter.get().PublicKey;
-				const auto& mainBeneficiaryKey = beneficiaryAccountStateIter.get().PublicKey;
-				if (beneficiary != mainBeneficiaryKey)
+				const auto& mainHarvesterPublicKey = harvesterAccountStateIter.get().PublicKey;
+				const auto& mainBeneficiaryPublicKey = beneficiaryAccountStateIter.get().PublicKey;
+				if (beneficiary != mainBeneficiaryPublicKey)
 					test::AssertBalances(context.cache(), beneficiary, {});
 
-				assertBalancesAndReceipts(context, mainHarvesterKey, mainBeneficiaryKey);
+				assertBalancesAndReceipts(context, mainHarvesterPublicKey, mainBeneficiaryPublicKey);
 			});
 		}
 	}
@@ -498,17 +498,17 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, HarvesterSharesInflationAccordingToGivenPercentage_Commit) {
 		// Arrange: (500 + 200) * 0.2 = 140, (500 + 200) * 0.1 = 70,
-		//          initial balances are 987 for signer, 234 for beneficiary, 444 for network
+		//          initial balances are 987 for harvester, 234 for beneficiary, 444 for network
 		//          context height is 555
 		auto options = CreateOptionsFromPercentages(20, 10);
-		auto signer = test::GenerateRandomByteArray<Key>();
+		auto harvester = test::GenerateRandomByteArray<Key>();
 		auto beneficiary = test::GenerateRandomByteArray<Key>();
 		auto calculator = CreateCustomCalculator();
 		BalancesInfo finalBalances{ Amount(987 + 490), Amount(234 + 140), Amount(444 + 70) };
 
 		// Act + Assert: last receipt is the expected inflation receipt
-		AssertHarvesterSharesFees(NotifyMode::Commit, signer, beneficiary, options, Amount(500), calculator, finalBalances, {
-			{ signer, Amount(490) },
+		AssertHarvesterSharesFees(NotifyMode::Commit, harvester, beneficiary, options, Amount(500), calculator, finalBalances, {
+			{ harvester, Amount(490) },
 			{ options.HarvestNetworkFeeSinkPublicKey, Amount(70) },
 			{ beneficiary, Amount(140) },
 			{ Key(), Amount(200) }
@@ -517,16 +517,16 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, HarvesterSharesInflationAccordingToGivenPercentage_Rollback) {
 		// Arrange: (500 + 200) * 0.2 = 140, (500 + 200) * 0.1 = 70,
-		//          initial balances are 987 for signer, 234 for beneficiary, 444 for network
+		//          initial balances are 987 for harvester, 234 for beneficiary, 444 for network
 		//          context height is 555
 		auto options = CreateOptionsFromPercentages(20, 10);
-		auto signer = test::GenerateRandomByteArray<Key>();
+		auto harvester = test::GenerateRandomByteArray<Key>();
 		auto beneficiary = test::GenerateRandomByteArray<Key>();
 		auto calculator = CreateCustomCalculator();
 		BalancesInfo finalBalances{ Amount(987 - 490), Amount(234 - 140), Amount(444 - 70) };
 
 		// Act + Assert:
-		AssertHarvesterSharesFees(NotifyMode::Rollback, signer, beneficiary, options, Amount(500), calculator, finalBalances, {});
+		AssertHarvesterSharesFees(NotifyMode::Rollback, harvester, beneficiary, options, Amount(500), calculator, finalBalances, {});
 	}
 
 	// endregion
@@ -541,14 +541,14 @@ namespace catapult { namespace observers {
 			auto& accountStateCache = context.cache().sub<cache::AccountStateCache>();
 			auto pObserver = CreateHarvestFeeObserver(CreateOptionsFromPercentages(20, 0), model::InflationCalculator());
 
-			auto signerPublicKey = test::GenerateRandomByteArray<Key>();
-			auto accountStateIter = RemoteAccountTraits::AddAccount(accountStateCache, signerPublicKey, Height(1));
+			auto harvester = test::GenerateRandomByteArray<Key>();
+			auto accountStateIter = RemoteAccountTraits::AddAccount(accountStateCache, harvester, Height(1));
 			accountStateIter.get().Balances.credit(Currency_Mosaic_Id, Amount(987));
 			mutator(accountStateIter.get());
 
 			// - notification.Beneficiary must be valid because percentage is nonzero
-			auto beneficiaryPublicKey = test::GenerateRandomByteArray<Key>();
-			auto notification = test::CreateBlockNotification(signerPublicKey, beneficiaryPublicKey);
+			auto beneficiary = test::GenerateRandomByteArray<Key>();
+			auto notification = test::CreateBlockNotification(harvester, beneficiary);
 			notification.TotalFee = Amount(123);
 
 			// Act + Assert:

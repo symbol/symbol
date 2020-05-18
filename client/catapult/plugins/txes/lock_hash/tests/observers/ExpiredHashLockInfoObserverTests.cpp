@@ -54,23 +54,23 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, ObserverDoesNothingWhenNoLockInfoExpires_Commit) {
 		// Arrange:
-		auto blockSigner = test::GenerateRandomByteArray<Key>();
+		auto blockHarvester = test::GenerateRandomByteArray<Key>();
 		std::vector<SeedTuple> expiringSeeds;
 
 		// Act + Assert:
-		ObserverTests::RunBalanceTest(NotifyMode::Commit, blockSigner, expiringSeeds, {
-			{ blockSigner, MosaicId(500), Amount(200), Amount() }
+		ObserverTests::RunBalanceTest(NotifyMode::Commit, blockHarvester, expiringSeeds, {
+			{ blockHarvester, MosaicId(500), Amount(200), Amount() }
 		});
 	}
 
 	TEST(TEST_CLASS, ObserverDoesNothingWhenNoLockInfoExpires_Rollback) {
 		// Arrange:
-		auto blockSigner = test::GenerateRandomByteArray<Key>();
+		auto blockHarvester = test::GenerateRandomByteArray<Key>();
 		std::vector<SeedTuple> expiringSeeds;
 
 		// Act + Assert:
-		ObserverTests::RunBalanceTest(NotifyMode::Rollback, blockSigner, expiringSeeds, {
-			{ blockSigner, MosaicId(500), Amount(200), Amount() }
+		ObserverTests::RunBalanceTest(NotifyMode::Rollback, blockHarvester, expiringSeeds, {
+			{ blockHarvester, MosaicId(500), Amount(200), Amount() }
 		});
 	}
 
@@ -80,31 +80,31 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, ObserverCreditsAccountsOnCommit_Single) {
 		// Arrange:
-		auto blockSigner = test::GenerateRandomByteArray<Key>();
+		auto blockHarvester = test::GenerateRandomByteArray<Key>();
 		auto key = test::GenerateRandomByteArray<Key>();
 		std::vector<SeedTuple> expiringSeeds{
 			{ key, MosaicId(500), Amount(333), Amount(33) }
 		};
 
 		// Act + Assert:
-		ObserverTests::RunBalanceTest(NotifyMode::Commit, blockSigner, expiringSeeds, {
+		ObserverTests::RunBalanceTest(NotifyMode::Commit, blockHarvester, expiringSeeds, {
 			{ key, MosaicId(500), Amount(333), Amount() },
-			{ blockSigner, MosaicId(500), Amount(200 + 33), Amount() }
+			{ blockHarvester, MosaicId(500), Amount(200 + 33), Amount() }
 		});
 	}
 
 	TEST(TEST_CLASS, ObserverCreditsAccountsOnRollback_Single) {
 		// Arrange:
-		auto blockSigner = test::GenerateRandomByteArray<Key>();
+		auto blockHarvester = test::GenerateRandomByteArray<Key>();
 		auto key = test::GenerateRandomByteArray<Key>();
 		std::vector<SeedTuple> expiringSeeds{
 			{ key, MosaicId(500), Amount(333), Amount(33) }
 		};
 
 		// Act + Assert:
-		ObserverTests::RunBalanceTest(NotifyMode::Rollback, blockSigner, expiringSeeds, {
+		ObserverTests::RunBalanceTest(NotifyMode::Rollback, blockHarvester, expiringSeeds, {
 			{ key, MosaicId(500), Amount(333), Amount() },
-			{ blockSigner, MosaicId(500), Amount(200 - 33), Amount() }
+			{ blockHarvester, MosaicId(500), Amount(200 - 33), Amount() }
 		});
 	}
 
@@ -114,7 +114,7 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, ObserverCreditsAccountsOnCommit_Multiple) {
 		// Arrange: using single mosaic id to emulate typical operation
-		auto blockSigner = test::GenerateRandomByteArray<Key>();
+		auto blockHarvester = test::GenerateRandomByteArray<Key>();
 		auto keys = test::GenerateRandomDataVector<Key>(3);
 		std::vector<SeedTuple> expiringSeeds{
 			{ keys[0], MosaicId(500), Amount(333), Amount(33) },
@@ -124,17 +124,17 @@ namespace catapult { namespace observers {
 		};
 
 		// Act + Assert:
-		ObserverTests::RunBalanceTest(NotifyMode::Commit, blockSigner, expiringSeeds, {
+		ObserverTests::RunBalanceTest(NotifyMode::Commit, blockHarvester, expiringSeeds, {
 			{ keys[0], MosaicId(500), Amount(333), Amount() },
 			{ keys[1], MosaicId(500), Amount(222), Amount() },
 			{ keys[2], MosaicId(500), Amount(444), Amount() },
-			{ blockSigner, MosaicId(500), Amount(200 + 33 + 88 + 44 + 22), Amount() }
+			{ blockHarvester, MosaicId(500), Amount(200 + 33 + 88 + 44 + 22), Amount() }
 		});
 	}
 
 	TEST(TEST_CLASS, ObserverCreditsAccountsOnRollback_Multiple) {
 		// Arrange: using single mosaic id to emulate typical operation
-		auto blockSigner = test::GenerateRandomByteArray<Key>();
+		auto blockHarvester = test::GenerateRandomByteArray<Key>();
 		auto keys = test::GenerateRandomDataVector<Key>(3);
 		std::vector<SeedTuple> expiringSeeds{
 			{ keys[0], MosaicId(500), Amount(333), Amount(33) },
@@ -144,11 +144,11 @@ namespace catapult { namespace observers {
 		};
 
 		// Act + Assert:
-		ObserverTests::RunBalanceTest(NotifyMode::Rollback, blockSigner, expiringSeeds, {
+		ObserverTests::RunBalanceTest(NotifyMode::Rollback, blockHarvester, expiringSeeds, {
 			{ keys[0], MosaicId(500), Amount(333), Amount() },
 			{ keys[1], MosaicId(500), Amount(222), Amount() },
 			{ keys[2], MosaicId(500), Amount(444), Amount() },
-			{ blockSigner, MosaicId(500), Amount(200 - 33 - 88 - 44 - 22), Amount() }
+			{ blockHarvester, MosaicId(500), Amount(200 - 33 - 88 - 44 - 22), Amount() }
 		});
 	}
 
@@ -158,7 +158,7 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, ObserverCreatesReceiptsOnCommit) {
 		// Arrange: using single mosaic id to emulate typical operation
-		auto blockSigner = test::GenerateRandomByteArray<Key>();
+		auto blockHarvester = test::GenerateRandomByteArray<Key>();
 		std::vector<SeedTuple> expiringSeeds{
 			{ Key{ { 9 } }, MosaicId(500), Amount(333), Amount(33) },
 			{ Key{ { 1 } }, MosaicId(500), Amount(222), Amount(88) },
@@ -167,17 +167,17 @@ namespace catapult { namespace observers {
 		};
 
 		// Act + Assert: notice that receipts are deterministically ordered
-		ObserverTests::RunReceiptTest(NotifyMode::Commit, blockSigner, expiringSeeds, {
-			{ blockSigner, MosaicId(500), Amount(), Amount(22) },
-			{ blockSigner, MosaicId(500), Amount(), Amount(33) },
-			{ blockSigner, MosaicId(500), Amount(), Amount(44) },
-			{ blockSigner, MosaicId(500), Amount(), Amount(88) }
+		ObserverTests::RunReceiptTest(NotifyMode::Commit, blockHarvester, expiringSeeds, {
+			{ blockHarvester, MosaicId(500), Amount(), Amount(22) },
+			{ blockHarvester, MosaicId(500), Amount(), Amount(33) },
+			{ blockHarvester, MosaicId(500), Amount(), Amount(44) },
+			{ blockHarvester, MosaicId(500), Amount(), Amount(88) }
 		});
 	}
 
 	TEST(TEST_CLASS, ObserverDoesNotCreateReceiptsOnRollback) {
 		// Arrange: using single mosaic id to emulate typical operation
-		auto blockSigner = test::GenerateRandomByteArray<Key>();
+		auto blockHarvester = test::GenerateRandomByteArray<Key>();
 		std::vector<SeedTuple> expiringSeeds{
 			{ Key{ { 9 } }, MosaicId(500), Amount(333), Amount(33) },
 			{ Key{ { 1 } }, MosaicId(500), Amount(222), Amount(88) },
@@ -186,7 +186,7 @@ namespace catapult { namespace observers {
 		};
 
 		// Act + Assert:
-		ObserverTests::RunReceiptTest(NotifyMode::Rollback, blockSigner, expiringSeeds, {});
+		ObserverTests::RunReceiptTest(NotifyMode::Rollback, blockHarvester, expiringSeeds, {});
 	}
 
 	// endregion

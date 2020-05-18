@@ -68,7 +68,7 @@ namespace catapult { namespace consumers {
 
 				buffers.push_back(notification.Data);
 
-				m_inputs.push_back({ notification.Signer, buffers, notification.Signature });
+				m_inputs.push_back({ notification.SignerPublicKey, buffers, notification.Signature });
 			}
 
 		private:

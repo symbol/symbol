@@ -32,7 +32,7 @@ namespace catapult { namespace validators {
 
 	DEFINE_STATEFUL_VALIDATOR(MultisigInvalidSettings, [](const Notification& notification, const ValidatorContext& context) {
 		const auto& multisigCache = context.Cache.sub<cache::MultisigCache>();
-		if (!multisigCache.contains(notification.Signer)) {
+		if (!multisigCache.contains(notification.MultisigPublicKey)) {
 			// since the MultisigInvalidCosignatoriesValidator and the MultisigCosignatoriesObserver ran before
 			// this validator, the only scenario in which the multisig account cannot be found in the multisig cache
 			// is that the observer removed the last cosignatory reverting the multisig account to a normal accounts
@@ -44,7 +44,7 @@ namespace catapult { namespace validators {
 			return ValidationResult::Success;
 		}
 
-		auto multisigIter = multisigCache.find(notification.Signer);
+		auto multisigIter = multisigCache.find(notification.MultisigPublicKey);
 		const auto& multisigEntry = multisigIter.get();
 		int64_t newMinRemoval = static_cast<int64_t>(multisigEntry.minRemoval()) + notification.MinRemovalDelta;
 		int64_t newMinApproval = static_cast<int64_t>(multisigEntry.minApproval()) + notification.MinApprovalDelta;

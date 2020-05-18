@@ -38,8 +38,8 @@ namespace catapult { namespace observers {
 		constexpr MosaicId Default_Mosaic_Id(345);
 		constexpr Height Seed_Height(7);
 
-		model::MosaicDefinitionNotification CreateNotification(const Key& signer, const model::MosaicProperties& properties) {
-			return model::MosaicDefinitionNotification(signer, Default_Mosaic_Id, properties);
+		model::MosaicDefinitionNotification CreateNotification(const Key& owner, const model::MosaicProperties& properties) {
+			return model::MosaicDefinitionNotification(owner, Default_Mosaic_Id, properties);
 		}
 
 		template<typename TSeedCacheFunc, typename TCheckCacheFunc>
@@ -76,7 +76,7 @@ namespace catapult { namespace observers {
 
 		void AssertDefaultMosaic(
 				const cache::MosaicCacheDelta& mosaicCacheDelta,
-				const Key& signer,
+				const Key& owner,
 				Height height,
 				uint32_t expectedRevision,
 				const model::MosaicProperties& expectedProperties) {
@@ -90,7 +90,7 @@ namespace catapult { namespace observers {
 			// - definition
 			const auto& definition = entry.definition();
 			EXPECT_EQ(height, definition.startHeight());
-			EXPECT_EQ(signer, definition.ownerPublicKey());
+			EXPECT_EQ(owner, definition.ownerPublicKey());
 			EXPECT_EQ(expectedRevision, definition.revision());
 			EXPECT_EQ(expectedProperties, definition.properties());
 
@@ -103,34 +103,34 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, ObserverAddsMosaicOnCommit) {
 		// Arrange:
-		auto signer = test::GenerateRandomByteArray<Key>();
+		auto owner = test::GenerateRandomByteArray<Key>();
 		auto properties = test::CreateMosaicPropertiesFromValues(3, 6, 15);
-		auto notification = CreateNotification(signer, properties);
+		auto notification = CreateNotification(owner, properties);
 
 		// Act: add it
 		auto context = ObserverTestContext(NotifyMode::Commit, Height(888));
-		RunTest(notification, std::move(context), SeedCacheEmpty, [&signer](const auto& mosaicCacheDelta) {
+		RunTest(notification, std::move(context), SeedCacheEmpty, [&owner](const auto& mosaicCacheDelta) {
 			// Assert: the mosaic was added
 			EXPECT_EQ(1u, mosaicCacheDelta.size());
-			AssertDefaultMosaic(mosaicCacheDelta, signer, Height(888), 1, test::CreateMosaicPropertiesFromValues(3, 6, 15));
+			AssertDefaultMosaic(mosaicCacheDelta, owner, Height(888), 1, test::CreateMosaicPropertiesFromValues(3, 6, 15));
 		});
 	}
 
 	TEST(TEST_CLASS, ObserverOverwritesMosaicOnCommit) {
 		// Arrange:
-		auto signer = test::GenerateRandomByteArray<Key>();
+		auto owner = test::GenerateRandomByteArray<Key>();
 		auto properties = test::CreateMosaicPropertiesFromValues(3, 6, 15);
-		auto notification = CreateNotification(signer, properties);
+		auto notification = CreateNotification(owner, properties);
 
 		// Act: add it
 		auto context = ObserverTestContext(NotifyMode::Commit, Height(888));
-		RunTest(notification, std::move(context), SeedCacheWithDefaultMosaic, [&signer](const auto& mosaicCacheDelta) {
+		RunTest(notification, std::move(context), SeedCacheWithDefaultMosaic, [&owner](const auto& mosaicCacheDelta) {
 			// Assert: the mosaic definition was changed
 			// - height did not change
 			// - xor properties were xored (1 ^ 3, 2 ^ 6)
 			// - duration was added
 			EXPECT_EQ(1u, mosaicCacheDelta.size());
-			AssertDefaultMosaic(mosaicCacheDelta, signer, Seed_Height, 2, test::CreateMosaicPropertiesFromValues(2, 4, 20 + 15));
+			AssertDefaultMosaic(mosaicCacheDelta, owner, Seed_Height, 2, test::CreateMosaicPropertiesFromValues(2, 4, 20 + 15));
 		});
 	}
 
@@ -152,9 +152,9 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, ObserverRemovesMosaicOnRollbackWhenObserverDefinitionCounterIsEqualToOne) {
 		// Arrange:
-		auto signer = test::GenerateRandomByteArray<Key>();
+		auto owner = test::GenerateRandomByteArray<Key>();
 		auto properties = test::CreateMosaicPropertiesFromValues(3, 6, 15);
-		auto notification = CreateNotification(signer, properties);
+		auto notification = CreateNotification(owner, properties);
 		auto seedMosaics = [](auto& mosaicCacheDelta) { AddTwoMosaics(mosaicCacheDelta, 1); };
 
 		// Act: remove it
@@ -169,14 +169,14 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, ObserverDoesNotRemoveMosaicOnRollbackWhenDefinitionCounterIsGreaterThanOne) {
 		// Arrange:
-		auto signer = test::GenerateRandomByteArray<Key>();
+		auto owner = test::GenerateRandomByteArray<Key>();
 		auto properties = test::CreateMosaicPropertiesFromValues(3, 6, 15);
-		auto notification = CreateNotification(signer, properties);
+		auto notification = CreateNotification(owner, properties);
 		auto seedMosaics = [](auto& mosaicCacheDelta) { AddTwoMosaics(mosaicCacheDelta, 2); };
 
 		// Act: remove it
 		auto context = ObserverTestContext(NotifyMode::Rollback, Seed_Height);
-		RunTest(notification, std::move(context), seedMosaics, [&signer](const auto& mosaicCacheDelta) {
+		RunTest(notification, std::move(context), seedMosaics, [&owner](const auto& mosaicCacheDelta) {
 			// Assert: the mosaic was removed
 			EXPECT_EQ(2u, mosaicCacheDelta.size());
 			EXPECT_TRUE(mosaicCacheDelta.contains(Default_Mosaic_Id));
@@ -186,7 +186,7 @@ namespace catapult { namespace observers {
 			// - height did not change
 			// - xor properties were xored (2 ^ 3, 4 ^ 6)
 			// - duration was subtracted
-			AssertDefaultMosaic(mosaicCacheDelta, signer, Seed_Height, 1, test::CreateMosaicPropertiesFromValues(1, 2, 20));
+			AssertDefaultMosaic(mosaicCacheDelta, owner, Seed_Height, 1, test::CreateMosaicPropertiesFromValues(1, 2, 20));
 		});
 	}
 

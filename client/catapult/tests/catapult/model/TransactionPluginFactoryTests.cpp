@@ -112,7 +112,7 @@ namespace catapult { namespace model {
 		RunPublishTest<TTraits, Subscriber>([](const auto& transaction, const auto&, const auto& sub) {
 			// Assert:
 			ASSERT_EQ(1u, sub.numMatchingNotifications());
-			EXPECT_EQ(transaction.SignerPublicKey, sub.matchingNotifications()[0].Signer);
+			EXPECT_EQ(transaction.SignerPublicKey, sub.matchingNotifications()[0].Harvester);
 		});
 	}
 

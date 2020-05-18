@@ -39,7 +39,7 @@ namespace catapult { namespace observers {
 		auto& accountStateCache = context.Cache.sub<cache::AccountStateCache>();
 		auto& mosaicCache = context.Cache.sub<cache::MosaicCache>();
 
-		auto accountStateIter = accountStateCache.find(notification.Signer);
+		auto accountStateIter = accountStateCache.find(notification.Owner);
 		auto& accountState = accountStateIter.get();
 
 		auto mosaicIter = mosaicCache.find(mosaicId);

@@ -205,15 +205,15 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = Core_Block_Notification;
 
 	public:
-		/// Creates a block notification around \a signer, \a beneficiary, \a timestamp, \a difficulty and \a feeMultiplier.
+		/// Creates a block notification around \a harvester, \a beneficiary, \a timestamp, \a difficulty and \a feeMultiplier.
 		BlockNotification(
-				const Key& signer,
+				const Key& harvester,
 				const Key& beneficiary,
 				Timestamp timestamp,
 				Difficulty difficulty,
 				BlockFeeMultiplier feeMultiplier)
 				: Notification(Notification_Type, sizeof(BlockNotification))
-				, Signer(signer)
+				, Harvester(harvester)
 				, Beneficiary(beneficiary)
 				, Timestamp(timestamp)
 				, Difficulty(difficulty)
@@ -222,8 +222,8 @@ namespace catapult { namespace model {
 		{}
 
 	public:
-		/// Block signer.
-		const Key& Signer;
+		/// Block harvester.
+		const Key& Harvester;
 
 		/// Block beneficiary.
 		const Key& Beneficiary;
@@ -255,18 +255,18 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = Core_Transaction_Notification;
 
 	public:
-		/// Creates a transaction notification around \a signer, \a transactionHash, \a transactionType and \a deadline.
-		TransactionNotification(const Key& signer, const Hash256& transactionHash, EntityType transactionType, Timestamp deadline)
+		/// Creates a transaction notification around \a sender, \a transactionHash, \a transactionType and \a deadline.
+		TransactionNotification(const Key& sender, const Hash256& transactionHash, EntityType transactionType, Timestamp deadline)
 				: Notification(Notification_Type, sizeof(TransactionNotification))
-				, Signer(signer)
+				, Sender(sender)
 				, TransactionHash(transactionHash)
 				, TransactionType(transactionType)
 				, Deadline(deadline)
 		{}
 
 	public:
-		/// Transaction signer.
-		const Key& Signer;
+		/// Transaction sender.
+		const Key& Sender;
 
 		/// Transaction hash.
 		const Hash256& TransactionHash;
@@ -308,18 +308,18 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = Core_Transaction_Fee_Notification;
 
 	public:
-		/// Creates a transaction fee notification around \a signer, \a transactionSize, \a fee and \a maxFee.
-		TransactionFeeNotification(const Key& signer, uint32_t transactionSize, Amount fee, Amount maxFee)
+		/// Creates a transaction fee notification around \a sender, \a transactionSize, \a fee and \a maxFee.
+		TransactionFeeNotification(const Key& sender, uint32_t transactionSize, Amount fee, Amount maxFee)
 				: Notification(Notification_Type, sizeof(TransactionFeeNotification))
-				, Signer(signer)
+				, Sender(sender)
 				, TransactionSize(transactionSize)
 				, Fee(fee)
 				, MaxFee(maxFee)
 		{}
 
 	public:
-		/// Transaction signer.
-		const Key& Signer;
+		/// Transaction sender.
+		const Key& Sender;
 
 		/// Transaction size.
 		uint32_t TransactionSize;
@@ -346,23 +346,23 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = Core_Signature_Notification;
 
 	public:
-		/// Creates a signature notification around \a signer, \a signature and \a data with optional replay protection mode
+		/// Creates a signature notification around \a signerPublicKey, \a signature and \a data with optional replay protection mode
 		/// (\a dataReplayProtectionMode) applied to data.
 		SignatureNotification(
-				const Key& signer,
+				const Key& signerPublicKey,
 				const Signature& signature,
 				const RawBuffer& data,
 				ReplayProtectionMode dataReplayProtectionMode = ReplayProtectionMode::Disabled)
 				: Notification(Notification_Type, sizeof(SignatureNotification))
-				, Signer(signer)
+				, SignerPublicKey(signerPublicKey)
 				, Signature(signature)
 				, Data(data)
 				, DataReplayProtectionMode(dataReplayProtectionMode)
 		{}
 
 	public:
-		/// Signer.
-		const Key& Signer;
+		/// Signer public key.
+		const Key& SignerPublicKey;
 
 		/// Signature.
 		const catapult::Signature& Signature;
@@ -433,27 +433,27 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = Core_Mosaic_Required_Notification;
 
 	public:
-		/// Creates a notification around \a signer, \a mosaicId and optional \a propertyFlagMask.
-		MosaicRequiredNotification(const Key& signer, MosaicId mosaicId, uint8_t propertyFlagMask = 0)
+		/// Creates a notification around \a owner, \a mosaicId and optional \a propertyFlagMask.
+		MosaicRequiredNotification(const Key& owner, MosaicId mosaicId, uint8_t propertyFlagMask = 0)
 				: Notification(Notification_Type, sizeof(MosaicRequiredNotification))
-				, Signer(signer)
+				, Owner(owner)
 				, MosaicId(mosaicId)
 				, PropertyFlagMask(propertyFlagMask)
 				, ProvidedMosaicType(MosaicType::Resolved)
 		{}
 
-		/// Creates a notification around \a signer, \a mosaicId and optional \a propertyFlagMask.
-		MosaicRequiredNotification(const Key& signer, UnresolvedMosaicId mosaicId, uint8_t propertyFlagMask = 0)
+		/// Creates a notification around \a owner, \a mosaicId and optional \a propertyFlagMask.
+		MosaicRequiredNotification(const Key& owner, UnresolvedMosaicId mosaicId, uint8_t propertyFlagMask = 0)
 				: Notification(Notification_Type, sizeof(MosaicRequiredNotification))
-				, Signer(signer)
+				, Owner(owner)
 				, UnresolvedMosaicId(mosaicId)
 				, PropertyFlagMask(propertyFlagMask)
 				, ProvidedMosaicType(MosaicType::Unresolved)
 		{}
 
 	public:
-		/// Signer.
-		const Key& Signer;
+		/// Mosaic owner.
+		const Key& Owner;
 
 		/// Mosaic id (resolved).
 		catapult::MosaicId MosaicId;

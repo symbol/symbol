@@ -86,9 +86,9 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = LockHash_Hash_Notification;
 
 	public:
-		/// Creates hash lock notification around \a signer, \a mosaic, \a duration and \a hash.
-		HashLockNotification(const Key& signer, const UnresolvedMosaic& mosaic, BlockDuration duration, const Hash256& hash)
-				: BaseLockNotification(signer, mosaic, duration)
+		/// Creates hash lock notification around \a owner, \a mosaic, \a duration and \a hash.
+		HashLockNotification(const Key& owner, const UnresolvedMosaic& mosaic, BlockDuration duration, const Hash256& hash)
+				: BaseLockNotification(owner, mosaic, duration)
 				, Hash(hash)
 		{}
 

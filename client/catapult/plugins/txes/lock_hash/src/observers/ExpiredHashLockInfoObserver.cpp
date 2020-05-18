@@ -30,7 +30,7 @@ namespace catapult { namespace observers {
 			const model::BlockNotification& notification,
 			ObserverContext& context) {
 		ExpiredLockInfoObserver<cache::HashLockInfoCache>(context, model::Receipt_Type_LockHash_Expired, [&notification](const auto&) {
-			return notification.Signer;
+			return notification.Harvester;
 		});
 	});
 }}

@@ -57,8 +57,8 @@ namespace catapult { namespace observers {
 			}
 		};
 
-		model::RootNamespaceNotification CreateRootNotification(const Key& signer, NamespaceId id) {
-			return model::RootNamespaceNotification(signer, id, BlockDuration());
+		model::RootNamespaceNotification CreateRootNotification(const Key& owner, NamespaceId id) {
+			return model::RootNamespaceNotification(owner, id, BlockDuration());
 		}
 
 		template<typename TSeedCacheFunc, typename TCheckCacheFunc>
@@ -86,11 +86,11 @@ namespace catapult { namespace observers {
 			test::AssertCacheContents(namespaceCacheDelta, {});
 		}
 
-		auto SeedCacheWithRoot25TreeSigner(const Key& signer) {
-			return [signer](auto& namespaceCacheDelta) {
+		auto SeedCacheWithRoot25TreeOwner(const Key& owner) {
+			return [owner](auto& namespaceCacheDelta) {
 				// Arrange: create a cache with { 25 } and { 25, 36 }
 				auto lifetime = test::CreateLifetime(10, 123 + Grace_Period_Duration);
-				namespaceCacheDelta.insert(state::RootNamespace(NamespaceId(25), signer, lifetime));
+				namespaceCacheDelta.insert(state::RootNamespace(NamespaceId(25), owner, lifetime));
 				namespaceCacheDelta.insert(state::Namespace(test::CreatePath({ 25, 36 })));
 
 				// Sanity:
@@ -104,7 +104,7 @@ namespace catapult { namespace observers {
 	namespace {
 		void AssertRootAdded(
 				const cache::NamespaceCacheDelta& namespaceCacheDelta,
-				const Key& signer,
+				const Key& owner,
 				Height lifetimeStart,
 				Height lifetimeEnd) {
 			// Assert: the root was added
@@ -115,7 +115,7 @@ namespace catapult { namespace observers {
 			const auto& entry = namespaceIter.get();
 			EXPECT_EQ(Namespace_Base_Id, entry.ns().parentId());
 
-			EXPECT_EQ(signer, entry.root().ownerPublicKey());
+			EXPECT_EQ(owner, entry.root().ownerPublicKey());
 			EXPECT_EQ(lifetimeStart, entry.root().lifetime().Start);
 			EXPECT_EQ(lifetimeEnd, entry.root().lifetime().End);
 			EXPECT_TRUE(entry.root().empty());
@@ -124,36 +124,36 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, ObserverAddsNamespaceOnCommit_Root) {
 		// Arrange: create a new root namespace with a finite duration
-		auto signer = test::GenerateRandomByteArray<Key>();
-		auto notification = CreateRootNotification(signer, NamespaceId(25));
+		auto owner = test::GenerateRandomByteArray<Key>();
+		auto notification = CreateRootNotification(owner, NamespaceId(25));
 		notification.Duration = BlockDuration(1100);
 
 		// Act: add it
 		auto seedCache = SeedCacheEmpty;
-		RunRootTest(notification, ObserverTestContext(NotifyMode::Commit, Height(777)), seedCache, [&signer](auto& namespaceCacheDelta) {
+		RunRootTest(notification, ObserverTestContext(NotifyMode::Commit, Height(777)), seedCache, [&owner](auto& namespaceCacheDelta) {
 			// Assert: the root was added
-			AssertRootAdded(namespaceCacheDelta, signer, Height(777), Height(1877 + Grace_Period_Duration));
+			AssertRootAdded(namespaceCacheDelta, owner, Height(777), Height(1877 + Grace_Period_Duration));
 		});
 	}
 
 	TEST(TEST_CLASS, ObserverAddsNamespaceOnCommit_RootEternal) {
 		// Arrange: create a new root namespace with an eternal duration
-		auto signer = test::GenerateRandomByteArray<Key>();
-		auto notification = CreateRootNotification(signer, NamespaceId(25));
+		auto owner = test::GenerateRandomByteArray<Key>();
+		auto notification = CreateRootNotification(owner, NamespaceId(25));
 		notification.Duration = Eternal_Artifact_Duration;
 
 		// Act: add it (note that adding eternal namespaces after nemesis is prevented by a validator)
 		auto seedCache = SeedCacheEmpty;
-		RunRootTest(notification, ObserverTestContext(NotifyMode::Commit, Height(777)), seedCache, [&signer](auto& namespaceCacheDelta) {
+		RunRootTest(notification, ObserverTestContext(NotifyMode::Commit, Height(777)), seedCache, [&owner](auto& namespaceCacheDelta) {
 			// Assert: the root was added
-			AssertRootAdded(namespaceCacheDelta, signer, Height(777), Height(0xFFFF'FFFF'FFFF'FFFF));
+			AssertRootAdded(namespaceCacheDelta, owner, Height(777), Height(0xFFFF'FFFF'FFFF'FFFF));
 		});
 	}
 
 	namespace {
 		void AssertRootRenewed(
 				cache::NamespaceCacheDelta& namespaceCacheDelta,
-				const Key& signer,
+				const Key& owner,
 				Height lifetimeStart,
 				Height lifetimeEnd) {
 			// Assert: the root was renewed
@@ -165,7 +165,7 @@ namespace catapult { namespace observers {
 			const auto& entry = namespaceIter.get();
 			EXPECT_EQ(Namespace_Base_Id, entry.ns().parentId());
 
-			EXPECT_EQ(signer, entry.root().ownerPublicKey());
+			EXPECT_EQ(owner, entry.root().ownerPublicKey());
 			EXPECT_EQ(lifetimeStart, entry.root().lifetime().Start);
 			EXPECT_EQ(lifetimeEnd, entry.root().lifetime().End);
 			EXPECT_EQ(1u, entry.root().size());
@@ -176,15 +176,15 @@ namespace catapult { namespace observers {
 		// Arrange:
 		for (auto height : { Height(75), Height(122), Height(122 + Grace_Period_Duration) }) {
 			// - create a root namespace with a finite duration
-			auto signer = test::GenerateRandomByteArray<Key>();
-			auto notification = CreateRootNotification(signer, NamespaceId(25));
+			auto owner = test::GenerateRandomByteArray<Key>();
+			auto notification = CreateRootNotification(owner, NamespaceId(25));
 			notification.Duration = BlockDuration(1100);
 
 			// Act: renew it before its expiry
-			auto seedCache = SeedCacheWithRoot25TreeSigner(signer);
-			RunRootTest(notification, ObserverTestContext(NotifyMode::Commit, height), seedCache, [&signer](auto& namespaceCacheDelta) {
+			auto seedCache = SeedCacheWithRoot25TreeOwner(owner);
+			RunRootTest(notification, ObserverTestContext(NotifyMode::Commit, height), seedCache, [&owner](auto& namespaceCacheDelta) {
 				// Assert: the root was renewed - [initial start, initial end + duration)
-				AssertRootRenewed(namespaceCacheDelta, signer, Height(10), Height(1223 + Grace_Period_Duration));
+				AssertRootRenewed(namespaceCacheDelta, owner, Height(10), Height(1223 + Grace_Period_Duration));
 			});
 		}
 	}
@@ -193,16 +193,16 @@ namespace catapult { namespace observers {
 		// Arrange:
 		for (auto height : { Height(123 + Grace_Period_Duration), Height(250) }) {
 			// - create a root namespace with a finite duration
-			auto signer = test::GenerateRandomByteArray<Key>();
-			auto notification = CreateRootNotification(signer, NamespaceId(25));
+			auto owner = test::GenerateRandomByteArray<Key>();
+			auto notification = CreateRootNotification(owner, NamespaceId(25));
 			notification.Duration = BlockDuration(1100);
 
 			// Act: renew it after its expiry
 			auto testContext = ObserverTestContext(NotifyMode::Commit, height);
-			auto seedCache = SeedCacheWithRoot25TreeSigner(signer);
-			RunRootTest(notification, std::move(testContext), seedCache, [height, &signer](auto& namespaceCacheDelta) {
+			auto seedCache = SeedCacheWithRoot25TreeOwner(owner);
+			RunRootTest(notification, std::move(testContext), seedCache, [height, &owner](auto& namespaceCacheDelta) {
 				// Assert: the root was renewed - [block height, block height + duration)
-				AssertRootRenewed(namespaceCacheDelta, signer, height, height + Height(1100 + Grace_Period_Duration));
+				AssertRootRenewed(namespaceCacheDelta, owner, height, height + Height(1100 + Grace_Period_Duration));
 			});
 		}
 	}
@@ -210,7 +210,7 @@ namespace catapult { namespace observers {
 	namespace {
 		void AssertRootOwnerChanged(
 				cache::NamespaceCacheDelta& namespaceCacheDelta,
-				const Key& signer,
+				const Key& owner,
 				Height lifetimeStart,
 				Height lifetimeEnd) {
 			// Assert: the root was renewed
@@ -222,7 +222,7 @@ namespace catapult { namespace observers {
 			const auto& entry = namespaceIter.get();
 			EXPECT_EQ(Namespace_Base_Id, entry.ns().parentId());
 
-			EXPECT_EQ(signer, entry.root().ownerPublicKey());
+			EXPECT_EQ(owner, entry.root().ownerPublicKey());
 			EXPECT_EQ(lifetimeStart, entry.root().lifetime().Start);
 			EXPECT_EQ(lifetimeEnd, entry.root().lifetime().End);
 			EXPECT_TRUE(entry.root().empty());
@@ -233,16 +233,16 @@ namespace catapult { namespace observers {
 		// Arrange:
 		for (auto height : { Height(75), Height(122), Height(122 + Grace_Period_Duration) }) {
 			// - create a root namespace with a finite duration
-			auto signer = test::GenerateRandomByteArray<Key>();
-			auto notification = CreateRootNotification(signer, NamespaceId(25));
+			auto owner = test::GenerateRandomByteArray<Key>();
+			auto notification = CreateRootNotification(owner, NamespaceId(25));
 			notification.Duration = BlockDuration(1100);
 
 			// Act: change owner before its expiry (this is prevented by a validator)
 			auto testContext = ObserverTestContext(NotifyMode::Commit, height);
-			auto seedCache = SeedCacheWithRoot25TreeSigner(test::CreateRandomOwner());
-			RunRootTest(notification, std::move(testContext), seedCache, [height, &signer](auto& namespaceCacheDelta) {
+			auto seedCache = SeedCacheWithRoot25TreeOwner(test::CreateRandomOwner());
+			RunRootTest(notification, std::move(testContext), seedCache, [height, &owner](auto& namespaceCacheDelta) {
 				// Assert: the root was renewed - [block height, block height + duration)
-				AssertRootOwnerChanged(namespaceCacheDelta, signer, height, height + Height(1100 + Grace_Period_Duration));
+				AssertRootOwnerChanged(namespaceCacheDelta, owner, height, height + Height(1100 + Grace_Period_Duration));
 			});
 		}
 	}
@@ -251,16 +251,16 @@ namespace catapult { namespace observers {
 		// Arrange:
 		for (auto height : { Height(123 + Grace_Period_Duration), Height(250) }) {
 			// - create a root namespace with a finite duration
-			auto signer = test::GenerateRandomByteArray<Key>();
-			auto notification = CreateRootNotification(signer, NamespaceId(25));
+			auto owner = test::GenerateRandomByteArray<Key>();
+			auto notification = CreateRootNotification(owner, NamespaceId(25));
 			notification.Duration = BlockDuration(1100);
 
 			// Act: change owner after its expiry
 			auto testContext = ObserverTestContext(NotifyMode::Commit, height);
-			auto seedCache = SeedCacheWithRoot25TreeSigner(test::CreateRandomOwner());
-			RunRootTest(notification, std::move(testContext), seedCache, [height, &signer](auto& namespaceCacheDelta) {
+			auto seedCache = SeedCacheWithRoot25TreeOwner(test::CreateRandomOwner());
+			RunRootTest(notification, std::move(testContext), seedCache, [height, &owner](auto& namespaceCacheDelta) {
 				// Assert: the root was renewed - [block height, block height + duration)
-				AssertRootOwnerChanged(namespaceCacheDelta, signer, height, height + Height(1100 + Grace_Period_Duration));
+				AssertRootOwnerChanged(namespaceCacheDelta, owner, height, height + Height(1100 + Grace_Period_Duration));
 			});
 		}
 	}
@@ -271,17 +271,17 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, ObserverRemovesNamespaceOnRollback_Root) {
 		// Arrange: create a root namespace for removal
-		auto signer = test::GenerateRandomByteArray<Key>();
-		auto notification = CreateRootNotification(signer, NamespaceId(25));
+		auto owner = test::GenerateRandomByteArray<Key>();
+		auto notification = CreateRootNotification(owner, NamespaceId(25));
 
 		// Act: remove it
 		RunRootTest(
 				notification,
 				ObserverTestContext(NotifyMode::Rollback),
-				[&signer](auto& namespaceCacheDelta) {
+				[&owner](auto& namespaceCacheDelta) {
 					// Arrange: create a cache with { 25, 26 }
-					namespaceCacheDelta.insert(state::RootNamespace(NamespaceId(25), signer, test::CreateLifetime(10, 20)));
-					namespaceCacheDelta.insert(state::RootNamespace(NamespaceId(26), signer, test::CreateLifetime(10, 20)));
+					namespaceCacheDelta.insert(state::RootNamespace(NamespaceId(25), owner, test::CreateLifetime(10, 20)));
+					namespaceCacheDelta.insert(state::RootNamespace(NamespaceId(26), owner, test::CreateLifetime(10, 20)));
 
 					// Sanity:
 					test::AssertCacheContents(namespaceCacheDelta, { 25, 26 });

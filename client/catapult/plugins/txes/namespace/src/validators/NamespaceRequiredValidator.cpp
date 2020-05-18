@@ -38,6 +38,6 @@ namespace catapult { namespace validators {
 		if (!root.lifetime().isActiveExcludingGracePeriod(context.Height, cache.gracePeriodDuration()))
 			return Failure_Namespace_Expired;
 
-		return root.ownerPublicKey() == notification.Signer ? ValidationResult::Success : Failure_Namespace_Owner_Conflict;
+		return root.ownerPublicKey() == notification.Owner ? ValidationResult::Success : Failure_Namespace_Owner_Conflict;
 	});
 }}

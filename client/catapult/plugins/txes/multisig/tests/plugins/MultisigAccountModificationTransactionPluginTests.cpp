@@ -68,7 +68,7 @@ namespace catapult { namespace plugins {
 				EXPECT_EQ(transaction.MultisigAccountModificationTransactionBody_Reserved1, notification.Padding);
 			});
 			builder.template addExpectation<MultisigSettingsNotification>([&transaction](const auto& notification) {
-				EXPECT_EQ(transaction.SignerPublicKey, notification.Signer);
+				EXPECT_EQ(transaction.SignerPublicKey, notification.MultisigPublicKey);
 				EXPECT_EQ(transaction.MinRemovalDelta, notification.MinRemovalDelta);
 				EXPECT_EQ(transaction.MinApprovalDelta, notification.MinApprovalDelta);
 			});
@@ -133,13 +133,13 @@ namespace catapult { namespace plugins {
 			});
 
 			builder.template addExpectation<MultisigNewCosignatoryNotification>(i, [&transaction, i](const auto& notification) {
-				EXPECT_EQ(transaction.SignerPublicKey, notification.MultisigAccountKey);
-				EXPECT_EQ(transaction.PublicKeyAdditionsPtr()[i], notification.CosignatoryKey);
+				EXPECT_EQ(transaction.SignerPublicKey, notification.MultisigPublicKey);
+				EXPECT_EQ(transaction.PublicKeyAdditionsPtr()[i], notification.CosignatoryPublicKey);
 			});
 		}
 
 		builder.template addExpectation<MultisigCosignatoriesNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(transaction.SignerPublicKey, notification.Signer);
+			EXPECT_EQ(transaction.SignerPublicKey, notification.SignerPublicKey);
 			EXPECT_EQ(transaction.PublicKeyAdditionsCount, notification.PublicKeyAdditionsCount);
 			EXPECT_EQ(transaction.PublicKeyAdditionsPtr(), notification.PublicKeyAdditionsPtr);
 			EXPECT_EQ(transaction.PublicKeyDeletionsCount, notification.PublicKeyDeletionsCount);
@@ -183,7 +183,7 @@ namespace catapult { namespace plugins {
 		AddCommonExpectations<TTraits>(builder, transaction);
 
 		builder.template addExpectation<MultisigCosignatoriesNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(transaction.SignerPublicKey, notification.Signer);
+			EXPECT_EQ(transaction.SignerPublicKey, notification.SignerPublicKey);
 			EXPECT_EQ(transaction.PublicKeyAdditionsCount, notification.PublicKeyAdditionsCount);
 			EXPECT_EQ(transaction.PublicKeyAdditionsPtr(), notification.PublicKeyAdditionsPtr);
 			EXPECT_EQ(transaction.PublicKeyDeletionsCount, notification.PublicKeyDeletionsCount);
@@ -229,13 +229,13 @@ namespace catapult { namespace plugins {
 			});
 
 			builder.template addExpectation<MultisigNewCosignatoryNotification>(i, [&transaction, i](const auto& notification) {
-				EXPECT_EQ(transaction.SignerPublicKey, notification.MultisigAccountKey);
-				EXPECT_EQ(transaction.PublicKeyAdditionsPtr()[i], notification.CosignatoryKey);
+				EXPECT_EQ(transaction.SignerPublicKey, notification.MultisigPublicKey);
+				EXPECT_EQ(transaction.PublicKeyAdditionsPtr()[i], notification.CosignatoryPublicKey);
 			});
 		}
 
 		builder.template addExpectation<MultisigCosignatoriesNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(transaction.SignerPublicKey, notification.Signer);
+			EXPECT_EQ(transaction.SignerPublicKey, notification.SignerPublicKey);
 			EXPECT_EQ(transaction.PublicKeyAdditionsCount, notification.PublicKeyAdditionsCount);
 			EXPECT_EQ(transaction.PublicKeyAdditionsPtr(), notification.PublicKeyAdditionsPtr);
 			EXPECT_EQ(transaction.PublicKeyDeletionsCount, notification.PublicKeyDeletionsCount);

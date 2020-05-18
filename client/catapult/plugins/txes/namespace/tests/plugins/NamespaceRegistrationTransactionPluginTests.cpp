@@ -86,7 +86,7 @@ namespace catapult { namespace plugins {
 				EXPECT_EQ(transaction.RegistrationType, notification.RegistrationType);
 			});
 			builder.template addExpectation<RootNamespaceNotification>([&transaction](const auto& notification) {
-				EXPECT_EQ(transaction.SignerPublicKey, notification.Signer);
+				EXPECT_EQ(transaction.SignerPublicKey, notification.Owner);
 				EXPECT_EQ(transaction.Id, notification.NamespaceId);
 				EXPECT_EQ(transaction.Duration, notification.Duration);
 			});
@@ -242,7 +242,7 @@ namespace catapult { namespace plugins {
 				EXPECT_EQ(transaction.RegistrationType, notification.RegistrationType);
 			});
 			builder.template addExpectation<ChildNamespaceNotification>([&transaction](const auto& notification) {
-				EXPECT_EQ(transaction.SignerPublicKey, notification.Signer);
+				EXPECT_EQ(transaction.SignerPublicKey, notification.Owner);
 				EXPECT_EQ(transaction.Id, notification.NamespaceId);
 				EXPECT_EQ(transaction.ParentId, notification.ParentId);
 			});
