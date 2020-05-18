@@ -253,25 +253,6 @@ class CatapultDb {
 		});
 	}
 
-	/**
-	 * Retrieves blocks based on database field name and value.
-	 * @param {string} fieldName Block field name.
-	 * @param {object} value Value to search for.
-	 * @param {string} id Paging id.
-	 * @param {int} pageSize Page size.
-	 * @param {object} ordering Page ordering.
-	 * @returns {Promise} Promise that resolves to blocks.
-	 */
-	getBlocksBy(fieldName, value, id, pageSize, ordering) {
-		const conditions = { [fieldName]: value };
-		const options = {
-			sortOrder: ordering,
-			projection: { 'meta.transactionMerkleTree': 0, 'meta.statementMerkleTree': 0 }
-		};
-
-		return this.queryPagedDocuments('blocks', conditions, id, pageSize, options).then(blocks =>
-			blocks.map(b => ({ id: b._id, meta: b.meta, block: b.block })));
-	}
 
 	/**
 	 * Retrieves the fee multiplier for the last (higher on the chain) numBlocks blocks
