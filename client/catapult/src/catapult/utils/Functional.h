@@ -37,10 +37,11 @@ namespace catapult { namespace utils {
 	/// \note this does not use Reduce in order to avoid creating another lambda.
 	template<typename TContainer, typename TFunction>
 	auto Sum(const TContainer& container, TFunction accessor) {
-		std::invoke_result_t<TFunction, typename TContainer::value_type> sum = 0;
+		using ReturnType = std::invoke_result_t<TFunction, typename TContainer::value_type>;
+		auto sum = ReturnType();
 
 		for (const auto& element : container)
-			sum += accessor(element);
+			sum = sum + accessor(element);
 
 		return sum;
 	}

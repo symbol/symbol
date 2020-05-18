@@ -162,4 +162,15 @@ namespace catapult { namespace utils {
 		// Assert:
 		EXPECT_EQ(131, result);
 	}
+
+	TEST(TEST_CLASS, SumReturnsProperValue_MultipleBaseValueElements) {
+		// Arrange:
+		std::vector<Height> data{ Height(8), Height(13), Height(21), Height(34), Height(55) };
+
+		// Act:
+		auto result = Sum(data, [](auto value) { return value; });
+
+		// Assert:
+		EXPECT_EQ(Height(131), result);
+	}
 }}
