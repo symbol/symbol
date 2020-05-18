@@ -32,7 +32,7 @@ namespace catapult { namespace plugins {
 		constexpr uint8_t Mosaic_Flags_Restrictable = 0x04;
 
 		template<typename TTransaction>
-		void Publish(const TTransaction& transaction, NotificationSubscriber& sub) {
+		void Publish(const TTransaction& transaction, const PublishContext&, NotificationSubscriber& sub) {
 			sub.notify(MosaicRestrictionTypeNotification(transaction.NewRestrictionType));
 
 			sub.notify(MosaicRequiredNotification(transaction.SignerPublicKey, transaction.MosaicId, Mosaic_Flags_Restrictable));

@@ -31,7 +31,7 @@ namespace catapult { namespace plugins {
 
 	namespace {
 		template<typename TTransaction>
-		void Publish(const TTransaction& transaction, NotificationSubscriber& sub) {
+		void Publish(const TTransaction& transaction, const PublishContext&, NotificationSubscriber& sub) {
 			sub.notify(NamespaceRequiredNotification(transaction.SignerPublicKey, transaction.NamespaceId));
 			sub.notify(AliasLinkNotification(transaction.NamespaceId, transaction.AliasAction));
 			sub.notify(AliasedMosaicIdNotification(transaction.NamespaceId, transaction.AliasAction, transaction.MosaicId));

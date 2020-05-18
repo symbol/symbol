@@ -67,7 +67,7 @@ namespace catapult { namespace plugins {
 		class Publisher {
 		public:
 			template<typename TTransaction>
-			static void Publish(const TTransaction& transaction, NotificationSubscriber& sub) {
+			static void Publish(const TTransaction& transaction, const PublishContext&, NotificationSubscriber& sub) {
 				sub.notify(InternalPaddingNotification(transaction.AccountRestrictionTransactionBody_Reserved1));
 				sub.notify(AccountRestrictionModificationNotification(
 						transaction.RestrictionFlags,

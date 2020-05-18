@@ -19,6 +19,7 @@
 **/
 
 #include "catapult/model/NotificationPublisher.h"
+#include "catapult/model/Address.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/core/mocks/MockTransaction.h"
@@ -406,23 +407,29 @@ namespace catapult { namespace model {
 		});
 	}
 
+	namespace {
+		void AssertCustomTransactionNotifications(const std::vector<NotificationType>& notificationTypes, size_t startIndex) {
+			EXPECT_EQ(Core_Register_Account_Public_Key_Notification, notificationTypes[startIndex]);
+			EXPECT_EQ(mocks::Mock_Address_Notification, notificationTypes[startIndex + 1]);
+			EXPECT_EQ(mocks::Mock_Observer_1_Notification, notificationTypes[startIndex + 2]);
+			EXPECT_EQ(mocks::Mock_Validator_1_Notification, notificationTypes[startIndex + 3]);
+			EXPECT_EQ(mocks::Mock_All_1_Notification, notificationTypes[startIndex + 4]);
+			EXPECT_EQ(mocks::Mock_Observer_2_Notification, notificationTypes[startIndex + 5]);
+			EXPECT_EQ(mocks::Mock_Validator_2_Notification, notificationTypes[startIndex + 6]);
+			EXPECT_EQ(mocks::Mock_All_2_Notification, notificationTypes[startIndex + 7]);
+			EXPECT_EQ(mocks::Mock_Hash_Notification, notificationTypes[startIndex + 8]);
+		}
+	}
+
 	TEST(TEST_CLASS, CanRaiseCustomTransactionNotifications) {
 		// Arrange:
 		auto pTransaction = mocks::CreateMockTransaction(12);
 
 		// Act:
 		PublishAll(*pTransaction, [&transaction = *pTransaction](const auto& sub) {
-			// Assert: 8 raised by NotificationPublisher, 8 raised by MockTransaction::publish (first is AccountPublicKeyNotification)
-			ASSERT_EQ(8u + 1 + 7, sub.numNotifications());
-
-			size_t startIndex = 9;
-			EXPECT_EQ(mocks::Mock_Observer_1_Notification, sub.notificationTypes()[startIndex]);
-			EXPECT_EQ(mocks::Mock_Validator_1_Notification, sub.notificationTypes()[startIndex + 1]);
-			EXPECT_EQ(mocks::Mock_All_1_Notification, sub.notificationTypes()[startIndex + 2]);
-			EXPECT_EQ(mocks::Mock_Observer_2_Notification, sub.notificationTypes()[startIndex + 3]);
-			EXPECT_EQ(mocks::Mock_Validator_2_Notification, sub.notificationTypes()[startIndex + 4]);
-			EXPECT_EQ(mocks::Mock_All_2_Notification, sub.notificationTypes()[startIndex + 5]);
-			EXPECT_EQ(mocks::Mock_Hash_Notification, sub.notificationTypes()[startIndex + 6]);
+			// Assert: 8 raised by NotificationPublisher, 9 raised by MockTransaction::publish
+			ASSERT_EQ(8u + 9, sub.numNotifications());
+			AssertCustomTransactionNotifications(sub.notificationTypes(), 8);
 		});
 	}
 
@@ -432,9 +439,21 @@ namespace catapult { namespace model {
 		auto pTransaction = mocks::CreateMockTransaction(12);
 
 		// Act:
-		PublishOne<mocks::HashNotification>(*pTransaction, hash, [&hash](const auto& notification) {
+		PublishOne<mocks::MockHashNotification>(*pTransaction, hash, [&hash](const auto& notification) {
 			// Assert:
 			EXPECT_EQ(&hash, &notification.Hash);
+		});
+	}
+
+	TEST(TEST_CLASS, CanRaiseCustomTransactionNotificationsDependentOnSignerAddress) {
+		// Arrange:
+		auto pTransaction = mocks::CreateMockTransaction(12);
+		auto signerAddress = PublicKeyToAddress(pTransaction->SignerPublicKey, pTransaction->Network);
+
+		// Act:
+		PublishOne<mocks::MockAddressNotification>(*pTransaction, [&signerAddress](const auto& notification) {
+			// Assert:
+			EXPECT_EQ(signerAddress, notification.Address);
 		});
 	}
 
@@ -463,17 +482,9 @@ namespace catapult { namespace model {
 
 		// Act:
 		PublishAll(*pTransaction, PublicationMode::Custom, [&transaction = *pTransaction](const auto& sub) {
-			// Assert: 8 raised by MockTransaction::publish (first is AccountPublicKeyNotification)
-			ASSERT_EQ(1u + 7, sub.numNotifications());
-
-			EXPECT_EQ(Core_Register_Account_Public_Key_Notification, sub.notificationTypes()[0]);
-			EXPECT_EQ(mocks::Mock_Observer_1_Notification, sub.notificationTypes()[1]);
-			EXPECT_EQ(mocks::Mock_Validator_1_Notification, sub.notificationTypes()[2]);
-			EXPECT_EQ(mocks::Mock_All_1_Notification, sub.notificationTypes()[3]);
-			EXPECT_EQ(mocks::Mock_Observer_2_Notification, sub.notificationTypes()[4]);
-			EXPECT_EQ(mocks::Mock_Validator_2_Notification, sub.notificationTypes()[5]);
-			EXPECT_EQ(mocks::Mock_All_2_Notification, sub.notificationTypes()[6]);
-			EXPECT_EQ(mocks::Mock_Hash_Notification, sub.notificationTypes()[7]);
+			// Assert: 9 raised by MockTransaction::publish
+			ASSERT_EQ(9u, sub.numNotifications());
+			AssertCustomTransactionNotifications(sub.notificationTypes(), 0);
 		});
 	}
 

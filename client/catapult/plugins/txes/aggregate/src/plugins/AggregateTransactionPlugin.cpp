@@ -21,6 +21,7 @@
 #include "AggregateTransactionPlugin.h"
 #include "src/model/AggregateNotifications.h"
 #include "src/model/AggregateTransaction.h"
+#include "catapult/model/Address.h"
 #include "catapult/model/NotificationSubscriber.h"
 #include "catapult/model/TransactionPlugin.h"
 
@@ -66,7 +67,10 @@ namespace catapult { namespace plugins {
 						: std::numeric_limits<uint64_t>::max();
 			}
 
-			void publish(const WeakEntityInfoT<Transaction>& transactionInfo, NotificationSubscriber& sub) const override {
+			void publish(
+					const WeakEntityInfoT<Transaction>& transactionInfo,
+					const PublishContext&,
+					NotificationSubscriber& sub) const override {
 				const auto& aggregate = CastToDerivedType(transactionInfo.entity());
 
 				// publish aggregate notifications
@@ -111,7 +115,9 @@ namespace catapult { namespace plugins {
 
 					// - specific sub-transaction notifications
 					//   (calculateRealSize would have failed if plugin is unknown or not embeddable)
-					plugin.publish(subTransaction, sub);
+					PublishContext subContext;
+					subContext.SignerAddress = model::PublicKeyToAddress(subTransaction.SignerPublicKey, subTransaction.Network);
+					plugin.publish(subTransaction, subContext, sub);
 				}
 
 				// publish all cosignatory information (as an optimization these are published with the source of the last sub-transaction)

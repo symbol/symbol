@@ -77,7 +77,7 @@ namespace catapult { namespace plugins {
 		class Publisher {
 		public:
 			template<typename TTransaction>
-			static void Publish(const TTransaction& transaction, NotificationSubscriber& sub) {
+			static void Publish(const TTransaction& transaction, const PublishContext&, NotificationSubscriber& sub) {
 				sub.notify(MetadataSizesNotification(transaction.ValueSizeDelta, transaction.ValueSize));
 				sub.notify(MetadataValueNotification(
 						ExtractPartialMetadataKey(transaction),

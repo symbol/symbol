@@ -20,6 +20,7 @@
 
 #pragma once
 #include "TransactionPluginTests.h"
+#include "catapult/model/Address.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 
 namespace catapult { namespace test {
@@ -97,25 +98,32 @@ namespace catapult { namespace test {
 		};
 
 	private:
+		template<typename TTransaction>
+		static model::PublishContext CreatePublishContext(const TTransaction& transaction) {
+			model::PublishContext context;
+			context.SignerAddress = model::PublicKeyToAddress(transaction.SignerPublicKey, transaction.Network);
+			return context;
+		}
+
 		static void PublishTransaction(
 				const model::TransactionPlugin& plugin,
 				const TransactionType& transaction,
 				model::NotificationSubscriber& sub) {
-			plugin.publish({ transaction, Hash256() }, sub);
+			plugin.publish({ transaction, Hash256() }, CreatePublishContext(transaction), sub);
 		}
 
 		static void PublishTransaction(
 				const model::TransactionPlugin& plugin,
 				const model::WeakEntityInfoT<model::Transaction>& transactionInfo,
 				model::NotificationSubscriber& sub) {
-			plugin.publish(transactionInfo, sub);
+			plugin.publish(transactionInfo, CreatePublishContext(transactionInfo.entity()), sub);
 		}
 
 		static void PublishTransaction(
 				const model::EmbeddedTransactionPlugin& plugin,
 				const TransactionType& transaction,
 				model::NotificationSubscriber& sub) {
-			plugin.publish(transaction, sub);
+			plugin.publish(transaction, CreatePublishContext(transaction), sub);
 		}
 	};
 }}

@@ -31,7 +31,7 @@ namespace catapult { namespace plugins {
 	namespace {
 		template<typename TTransaction>
 		auto CreatePublisher(const MosaicRentalFeeConfiguration& config) {
-			return [config](const TTransaction& transaction, NotificationSubscriber& sub) {
+			return [config](const TTransaction& transaction, const PublishContext&, NotificationSubscriber& sub) {
 				// 1. sink account notification
 				sub.notify(AccountPublicKeyNotification(config.SinkPublicKey));
 

@@ -663,8 +663,8 @@ namespace catapult { namespace plugins {
 	}
 
 	TEST(TEST_CLASS, CanCreateDefaultNotificationPublisher) {
-		// Assert: 8 basic and 1 custom notifications should be raised
-		AssertCanCreateNotificationPublisher(8u + 1, [](const auto& manager) {
+		// Assert: 8 basic and 2 custom notifications should be raised
+		AssertCanCreateNotificationPublisher(8u + 2, [](const auto& manager) {
 			return manager.createNotificationPublisher();
 		});
 	}

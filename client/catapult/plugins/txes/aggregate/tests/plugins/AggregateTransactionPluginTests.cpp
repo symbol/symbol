@@ -290,6 +290,11 @@ namespace catapult { namespace plugins {
 				builder.addExpectation<AccountPublicKeyNotification>(i * 2 + 1, [&wrapper, i](const auto& notification) {
 					EXPECT_EQ(wrapper.SubTransactions[i]->RecipientPublicKey, notification.PublicKey);
 				});
+				builder.addExpectation<mocks::MockAddressNotification>(i, [&wrapper, i](const auto& notification) {
+					const auto& signerPublicKey = wrapper.SubTransactions[i]->SignerPublicKey;
+					auto signerAddress = model::PublicKeyToAddress(signerPublicKey, static_cast<NetworkIdentifier>(100 + i));
+					EXPECT_EQ(signerAddress, notification.Address);
+				});
 			}
 		}
 	}
@@ -311,12 +316,14 @@ namespace catapult { namespace plugins {
 			EntityNotification::Notification_Type,
 			AggregateEmbeddedTransactionNotification::Notification_Type,
 			AccountPublicKeyNotification::Notification_Type,
+			mocks::MockAddressNotification::Notification_Type,
 
 			SourceChangeNotification::Notification_Type,
 			AccountPublicKeyNotification::Notification_Type,
 			EntityNotification::Notification_Type,
 			AggregateEmbeddedTransactionNotification::Notification_Type,
-			AccountPublicKeyNotification::Notification_Type
+			AccountPublicKeyNotification::Notification_Type,
+			mocks::MockAddressNotification::Notification_Type
 		}, registry);
 	}
 
@@ -439,12 +446,14 @@ namespace catapult { namespace plugins {
 			EntityNotification::Notification_Type,
 			AggregateEmbeddedTransactionNotification::Notification_Type,
 			AccountPublicKeyNotification::Notification_Type,
+			mocks::MockAddressNotification::Notification_Type,
 
 			SourceChangeNotification::Notification_Type,
 			AccountPublicKeyNotification::Notification_Type,
 			EntityNotification::Notification_Type,
 			AggregateEmbeddedTransactionNotification::Notification_Type,
 			AccountPublicKeyNotification::Notification_Type,
+			mocks::MockAddressNotification::Notification_Type,
 
 			// signature notifications are raised last (and with wrong source) for performance reasons
 			SignatureNotification::Notification_Type,

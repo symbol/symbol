@@ -87,8 +87,13 @@ namespace catapult { namespace mocks {
 
 	namespace {
 		template<typename TTransaction>
-		void Publish(const TTransaction& mockTransaction, PluginOptionFlags options, NotificationSubscriber& sub) {
+		void Publish(
+				const TTransaction& mockTransaction,
+				const PublishContext& context,
+				PluginOptionFlags options,
+				NotificationSubscriber& sub) {
 			sub.notify(AccountPublicKeyNotification(mockTransaction.RecipientPublicKey));
+			sub.notify(MockAddressNotification(context.SignerAddress));
 
 			if (IsPluginOptionFlagSet(options, PluginOptionFlags::Publish_Custom_Notifications)) {
 				sub.notify(test::CreateNotification(Mock_Observer_1_Notification));
@@ -152,8 +157,11 @@ namespace catapult { namespace mocks {
 				return utils::KeySet();
 			}
 
-			void publish(const EmbeddedTransaction& transaction, NotificationSubscriber& sub) const override {
-				Publish(static_cast<const EmbeddedMockTransaction&>(transaction), m_options, sub);
+			void publish(
+					const EmbeddedTransaction& transaction,
+					const PublishContext& context,
+					NotificationSubscriber& sub) const override {
+				Publish(static_cast<const EmbeddedMockTransaction&>(transaction), context, m_options, sub);
 			}
 
 		private:
@@ -172,13 +180,16 @@ namespace catapult { namespace mocks {
 			}
 
 		public:
-			void publish(const WeakEntityInfoT<Transaction>& transactionInfo, NotificationSubscriber& sub) const override {
-				Publish(static_cast<const MockTransaction&>(transactionInfo.entity()), m_options, sub);
+			void publish(
+					const WeakEntityInfoT<Transaction>& transactionInfo,
+					const PublishContext& context,
+					NotificationSubscriber& sub) const override {
+				Publish(static_cast<const MockTransaction&>(transactionInfo.entity()), context, m_options, sub);
 
 				// raise a custom notification that includes the provided hash
 				// (this allows other tests to verify that the appropriate hash was passed down)
 				if (IsPluginOptionFlagSet(m_options, PluginOptionFlags::Publish_Custom_Notifications))
-					sub.notify(HashNotification(transactionInfo.hash()));
+					sub.notify(MockHashNotification(transactionInfo.hash()));
 			}
 
 			RawBuffer dataBuffer(const Transaction& transaction) const override {

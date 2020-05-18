@@ -19,6 +19,7 @@
 **/
 
 #include "NotificationPublisher.h"
+#include "Address.h"
 #include "Block.h"
 #include "BlockUtils.h"
 #include "FeeUtils.h"
@@ -174,7 +175,10 @@ namespace catapult { namespace model {
 
 			void publish(const Transaction& transaction, const Hash256& hash, NotificationSubscriber& sub) const {
 				const auto& plugin = *m_transactionRegistry.findPlugin(transaction.Type);
-				plugin.publish(WeakEntityInfoT<Transaction>(transaction, hash), sub);
+
+				PublishContext context;
+				context.SignerAddress = PublicKeyToAddress(transaction.SignerPublicKey, transaction.Network);
+				plugin.publish(WeakEntityInfoT<Transaction>(transaction, hash), context, sub);
 			}
 
 		private:

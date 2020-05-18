@@ -56,24 +56,45 @@ namespace catapult { namespace mocks {
 	/// Hash notification raised on no channels.
 	DEFINE_MOCK_NOTIFICATION(Hash, 0xFFFD, None);
 
+	/// Address notification raised on no channels.
+	DEFINE_MOCK_NOTIFICATION(Address, 0xFFFC, None);
+
 #undef DEFINE_MOCK_NOTIFICATION
 
 	/// Notifies the arrival of a hash.
-	struct HashNotification : public model::Notification {
+	struct MockHashNotification : public model::Notification {
 	public:
 		/// Matching notification type.
 		static constexpr auto Notification_Type = Mock_Hash_Notification;
 
 	public:
 		/// Creates a hash notification around \a hash.
-		explicit HashNotification(const Hash256& hash)
-				: model::Notification(Notification_Type, sizeof(HashNotification))
+		explicit MockHashNotification(const Hash256& hash)
+				: model::Notification(Notification_Type, sizeof(MockHashNotification))
 				, Hash(hash)
 		{}
 
 	public:
 		/// Hash.
 		const Hash256& Hash;
+	};
+
+	/// Notifies the arrival of a (resolved) address.
+	struct MockAddressNotification : public model::Notification {
+	public:
+		/// Matching notification type.
+		static constexpr auto Notification_Type = Mock_Address_Notification;
+
+	public:
+		/// Creates an address notification around \a address.
+		explicit MockAddressNotification(const Address& address)
+				: model::Notification(Notification_Type, sizeof(MockAddressNotification))
+				, Address(address)
+		{}
+
+	public:
+		/// Address.
+		catapult::Address Address;
 	};
 
 	// endregion

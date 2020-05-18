@@ -63,7 +63,10 @@ namespace catapult { namespace unbondedpruning {
 			{}
 
 		public:
-			void publish(const model::WeakEntityInfoT<model::Transaction>&, model::NotificationSubscriber& sub) const override {
+			void publish(
+					const model::WeakEntityInfoT<model::Transaction>&,
+					const model::PublishContext&,
+					model::NotificationSubscriber& sub) const override {
 				for (const auto& hash : m_dependentHashes) {
 					auto mutatedHash = MutateHash(m_numPublishes, hash);
 					sub.notify(model::HashLockNotification(Key(), model::UnresolvedMosaic(), BlockDuration(), mutatedHash));

@@ -31,7 +31,7 @@ namespace catapult { namespace plugins {
 
 	namespace {
 		template<typename TTransaction>
-		void Publish(const TTransaction& transaction, NotificationSubscriber& sub) {
+		void Publish(const TTransaction& transaction, const PublishContext&, NotificationSubscriber& sub) {
 			// 1. basic
 			sub.notify(InternalPaddingNotification(transaction.MultisigAccountModificationTransactionBody_Reserved1));
 
