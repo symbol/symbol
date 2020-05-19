@@ -33,8 +33,8 @@ namespace catapult { namespace state {
 #pragma pack(push, 1)
 
 		struct MetadataEntryHeader {
-			Key SourcePublicKey;
-			Key TargetPublicKey;
+			Address SourceAddress;
+			Address TargetAddress;
 			uint64_t ScopedMetadataKey;
 			uint64_t TargetId;
 			model::MetadataType MetadataType;
@@ -99,8 +99,8 @@ namespace catapult { namespace state {
 
 	namespace {
 		void AssertEqual(const MetadataEntryHeader& header, const MetadataKey& key) {
-			EXPECT_EQ(header.SourcePublicKey, key.sourcePublicKey());
-			EXPECT_EQ(header.TargetPublicKey, key.targetPublicKey());
+			EXPECT_EQ(header.SourceAddress, key.sourceAddress());
+			EXPECT_EQ(header.TargetAddress, key.targetAddress());
 			EXPECT_EQ(header.ScopedMetadataKey, key.scopedMetadataKey());
 			EXPECT_EQ(header.TargetId, key.targetId());
 			EXPECT_EQ(header.MetadataType, key.metadataType());

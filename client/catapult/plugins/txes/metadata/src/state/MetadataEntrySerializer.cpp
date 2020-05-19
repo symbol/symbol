@@ -30,8 +30,8 @@ namespace catapult { namespace state {
 
 	void MetadataEntrySerializer::Save(const MetadataEntry& entry, io::OutputStream& output) {
 		const auto& key = entry.key();
-		output.write(key.sourcePublicKey());
-		output.write(key.targetPublicKey());
+		output.write(key.sourceAddress());
+		output.write(key.targetAddress());
 		io::Write64(output, key.scopedMetadataKey());
 		io::Write64(output, key.targetId());
 		io::Write8(output, utils::to_underlying_type(key.metadataType()));
@@ -48,8 +48,8 @@ namespace catapult { namespace state {
 	MetadataEntry MetadataEntrySerializer::Load(io::InputStream& input) {
 		// 1. read partial key
 		model::PartialMetadataKey partialKey;
-		input.read(partialKey.SourcePublicKey);
-		input.read(partialKey.TargetPublicKey);
+		input.read(partialKey.SourceAddress);
+		input.read(partialKey.TargetAddress);
 		partialKey.ScopedMetadataKey = io::Read64(input);
 
 		// 2. read target information and create entry (note that only resolved values are serialized)

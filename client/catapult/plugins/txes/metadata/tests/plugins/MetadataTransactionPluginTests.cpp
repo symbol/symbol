@@ -196,8 +196,10 @@ namespace catapult { namespace plugins {
 		});
 		builder.template addExpectation<MetadataValueNotification>([&transaction](const auto& notification) {
 			// partial metadata key
-			EXPECT_EQ(transaction.SignerPublicKey, notification.PartialMetadataKey.SourcePublicKey);
-			EXPECT_EQ(transaction.TargetPublicKey, notification.PartialMetadataKey.TargetPublicKey);
+			auto signerAddress = model::PublicKeyToAddress(transaction.SignerPublicKey, transaction.Network);
+			auto targetAddress = model::PublicKeyToAddress(transaction.TargetPublicKey, transaction.Network);
+			EXPECT_EQ(signerAddress, notification.PartialMetadataKey.SourceAddress);
+			EXPECT_EQ(targetAddress, notification.PartialMetadataKey.TargetAddress);
 			EXPECT_EQ(transaction.ScopedMetadataKey, notification.PartialMetadataKey.ScopedMetadataKey);
 
 			// metadata target

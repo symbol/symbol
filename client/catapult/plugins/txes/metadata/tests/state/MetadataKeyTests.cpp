@@ -32,8 +32,8 @@ namespace catapult { namespace state {
 #pragma pack(push, 1)
 
 		struct PackedUniqueKey {
-			Key SourcePublicKey;
-			Key TargetPublicKey;
+			Address SourceAddress;
+			Address TargetAddress;
 			uint64_t ScopedMetadataKey;
 			uint64_t TargetId;
 			model::MetadataType MetadataType;
@@ -50,8 +50,8 @@ namespace catapult { namespace state {
 				model::MetadataType metadataType,
 				uint64_t targetId) {
 			auto packedUniqueKey = PackedUniqueKey{
-				partialKey.SourcePublicKey,
-				partialKey.TargetPublicKey,
+				partialKey.SourceAddress,
+				partialKey.TargetAddress,
 				partialKey.ScopedMetadataKey,
 				targetId,
 				metadataType
@@ -76,8 +76,8 @@ namespace catapult { namespace state {
 		EXPECT_THROW(key.namespaceTarget(), catapult_invalid_argument);
 
 		// - shared properties
-		EXPECT_EQ(partialKey.SourcePublicKey, key.sourcePublicKey());
-		EXPECT_EQ(partialKey.TargetPublicKey, key.targetPublicKey());
+		EXPECT_EQ(partialKey.SourceAddress, key.sourceAddress());
+		EXPECT_EQ(partialKey.TargetAddress, key.targetAddress());
 		EXPECT_EQ(partialKey.ScopedMetadataKey, key.scopedMetadataKey());
 		EXPECT_EQ(0u, key.targetId());
 
@@ -100,8 +100,8 @@ namespace catapult { namespace state {
 			action(key);
 
 			// - shared properties
-			EXPECT_EQ(partialKey.SourcePublicKey, key.sourcePublicKey());
-			EXPECT_EQ(partialKey.TargetPublicKey, key.targetPublicKey());
+			EXPECT_EQ(partialKey.SourceAddress, key.sourceAddress());
+			EXPECT_EQ(partialKey.TargetAddress, key.targetAddress());
 			EXPECT_EQ(partialKey.ScopedMetadataKey, key.scopedMetadataKey());
 			EXPECT_EQ(targetId, TTargetIdentifier(key.targetId()));
 
@@ -146,8 +146,8 @@ namespace catapult { namespace state {
 			auto key = ResolveMetadataKey(partialKey, target, test::CreateResolverContextXor());
 
 			// Assert:
-			EXPECT_EQ(partialKey.SourcePublicKey, key.sourcePublicKey());
-			EXPECT_EQ(partialKey.TargetPublicKey, key.targetPublicKey());
+			EXPECT_EQ(partialKey.SourceAddress, key.sourceAddress());
+			EXPECT_EQ(partialKey.TargetAddress, key.targetAddress());
 			EXPECT_EQ(partialKey.ScopedMetadataKey, key.scopedMetadataKey());
 
 			EXPECT_EQ(metadataType, key.metadataType());

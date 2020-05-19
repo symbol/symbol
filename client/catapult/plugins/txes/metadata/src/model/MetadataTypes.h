@@ -38,11 +38,11 @@ namespace catapult { namespace model {
 
 	/// Partial metadata key shared by all types of metadata.
 	struct PartialMetadataKey {
-		/// Public key of the metadata source (provider).
-		Key SourcePublicKey;
+		/// Address of the metadata source (provider).
+		Address SourceAddress;
 
-		/// Public key of the metadata target.
-		Key TargetPublicKey;
+		/// Address of the metadata target.
+		Address TargetAddress;
 
 		/// Metadata key scoped to source, target and type.
 		uint64_t ScopedMetadataKey;

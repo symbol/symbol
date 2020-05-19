@@ -34,8 +34,9 @@ namespace catapult { namespace plugins {
 
 	namespace {
 		template<typename TTransaction>
-		PartialMetadataKey ExtractPartialMetadataKey(const TTransaction& transaction) {
-			return { transaction.SignerPublicKey, transaction.TargetPublicKey, transaction.ScopedMetadataKey };
+		PartialMetadataKey ExtractPartialMetadataKey(const TTransaction& transaction, const PublishContext& context) {
+			auto targetAddress = model::PublicKeyToAddress(transaction.TargetPublicKey, transaction.Network);
+			return { context.SignerAddress, targetAddress, transaction.ScopedMetadataKey };
 		}
 
 		struct AccountTraits {
@@ -80,10 +81,10 @@ namespace catapult { namespace plugins {
 		class Publisher {
 		public:
 			template<typename TTransaction>
-			static void Publish(const TTransaction& transaction, const PublishContext&, NotificationSubscriber& sub) {
+			static void Publish(const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub) {
 				sub.notify(MetadataSizesNotification(transaction.ValueSizeDelta, transaction.ValueSize));
 				sub.notify(MetadataValueNotification(
-						ExtractPartialMetadataKey(transaction),
+						ExtractPartialMetadataKey(transaction, context),
 						TTraits::ExtractMetadataTarget(transaction),
 						transaction.ValueSizeDelta,
 						transaction.ValueSize,

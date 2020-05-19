@@ -36,8 +36,8 @@ namespace catapult { namespace mongo { namespace plugins {
 		auto doc = builder
 				<< "metadataEntry" << bson_stream::open_document
 					<< "compositeHash" << ToBinary(key.uniqueKey())
-					<< "senderPublicKey" << ToBinary(key.sourcePublicKey())
-					<< "targetPublicKey" << ToBinary(key.targetPublicKey())
+					<< "sourceAddress" << ToBinary(key.sourceAddress())
+					<< "targetAddress" << ToBinary(key.targetAddress())
 					<< "scopedMetadataKey" << static_cast<int64_t>(key.scopedMetadataKey())
 					<< "targetId" << static_cast<int64_t>(key.targetId())
 					<< "metadataType" << utils::to_underlying_type(metadataEntry.key().metadataType())

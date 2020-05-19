@@ -44,11 +44,11 @@ namespace catapult { namespace state {
 		const Hash256& uniqueKey() const;
 
 	public:
-		/// Gets the source public key.
-		const Key& sourcePublicKey() const;
+		/// Gets the source address.
+		const Address& sourceAddress() const;
 
-		/// Gets the target public key.
-		const Key& targetPublicKey() const;
+		/// Gets the target address.
+		const Address& targetAddress() const;
 
 		/// Gets the scoped metadata key.
 		uint64_t scopedMetadataKey() const;

@@ -51,12 +51,12 @@ namespace catapult { namespace state {
 		return m_uniqueKey;
 	}
 
-	const Key& MetadataKey::sourcePublicKey() const {
-		return m_partialKey.SourcePublicKey;
+	const Address& MetadataKey::sourceAddress() const {
+		return m_partialKey.SourceAddress;
 	}
 
-	const Key& MetadataKey::targetPublicKey() const {
-		return m_partialKey.TargetPublicKey;
+	const Address& MetadataKey::targetAddress() const {
+		return m_partialKey.TargetAddress;
 	}
 
 	uint64_t MetadataKey::scopedMetadataKey() const {
@@ -95,7 +95,7 @@ namespace catapult { namespace state {
 	Hash256 MetadataKey::generateUniqueKey() const {
 		crypto::Sha3_256_Builder builder;
 
-		for (const auto* pKey : { &m_partialKey.SourcePublicKey, &m_partialKey.TargetPublicKey })
+		for (const auto* pKey : { &m_partialKey.SourceAddress, &m_partialKey.TargetAddress })
 			builder.update(*pKey);
 
 		for (const auto value : { m_partialKey.ScopedMetadataKey, m_targetId })
