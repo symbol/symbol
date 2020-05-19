@@ -21,6 +21,7 @@
 #include "src/plugins/NamespaceRegistrationTransactionPlugin.h"
 #include "src/model/NamespaceNotifications.h"
 #include "src/model/NamespaceRegistrationTransaction.h"
+#include "catapult/model/Address.h"
 #include "catapult/utils/MemoryUtils.h"
 #include "catapult/constants.h"
 #include "tests/test/core/AddressTestUtils.h"
@@ -86,7 +87,8 @@ namespace catapult { namespace plugins {
 				EXPECT_EQ(transaction.RegistrationType, notification.RegistrationType);
 			});
 			builder.template addExpectation<RootNamespaceNotification>([&transaction](const auto& notification) {
-				EXPECT_EQ(transaction.SignerPublicKey, notification.Owner);
+				auto signerAddress = model::PublicKeyToAddress(transaction.SignerPublicKey, transaction.Network);
+				EXPECT_EQ(signerAddress, notification.Owner);
 				EXPECT_EQ(transaction.Id, notification.NamespaceId);
 				EXPECT_EQ(transaction.Duration, notification.Duration);
 			});
@@ -242,7 +244,8 @@ namespace catapult { namespace plugins {
 				EXPECT_EQ(transaction.RegistrationType, notification.RegistrationType);
 			});
 			builder.template addExpectation<ChildNamespaceNotification>([&transaction](const auto& notification) {
-				EXPECT_EQ(transaction.SignerPublicKey, notification.Owner);
+				auto signerAddress = model::PublicKeyToAddress(transaction.SignerPublicKey, transaction.Network);
+				EXPECT_EQ(signerAddress, notification.Owner);
 				EXPECT_EQ(transaction.Id, notification.NamespaceId);
 				EXPECT_EQ(transaction.ParentId, notification.ParentId);
 			});

@@ -27,7 +27,7 @@ namespace catapult { namespace observers {
 
 	namespace {
 		bool IsRenewal(const state::RootNamespace& root, const model::RootNamespaceNotification& notification, Height height) {
-			return root.lifetime().isActive(height) && root.ownerPublicKey() == notification.Owner;
+			return root.lifetime().isActive(height) && root.ownerAddress() == notification.Owner;
 		}
 
 		state::NamespaceLifetime CalculateNewLifetime(

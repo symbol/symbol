@@ -24,6 +24,7 @@
 #include "src/model/MosaicMetadataTransaction.h"
 #include "src/model/NamespaceMetadataTransaction.h"
 #include "plugins/txes/namespace/src/model/NamespaceNotifications.h"
+#include "catapult/model/Address.h"
 #include "catapult/model/NotificationSubscriber.h"
 #include "catapult/model/TransactionPluginFactory.h"
 
@@ -69,7 +70,8 @@ namespace catapult { namespace plugins {
 
 			template<typename TTransaction>
 			static void RaiseCustomNotifications(const TTransaction& transaction, NotificationSubscriber& sub) {
-				sub.notify(NamespaceRequiredNotification(transaction.TargetPublicKey, transaction.TargetNamespaceId));
+				auto targetAddress = model::PublicKeyToAddress(transaction.TargetPublicKey, transaction.Network);
+				sub.notify(NamespaceRequiredNotification(targetAddress, transaction.TargetNamespaceId));
 			}
 		};
 

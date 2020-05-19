@@ -84,7 +84,6 @@ namespace catapult { namespace mongo { namespace plugins {
 
 		builder
 					<< "parentId" << ToInt64(descriptor.IsRoot() ? Namespace_Base_Id : path[path.size() - 2])
-					<< "ownerPublicKey" << ToBinary(root.ownerPublicKey())
 					<< "ownerAddress" << ToBinary(descriptor.OwnerAddress)
 					<< "startHeight" << ToInt64(root.lifetime().Start)
 					<< "endHeight" << ToInt64(root.lifetime().End)

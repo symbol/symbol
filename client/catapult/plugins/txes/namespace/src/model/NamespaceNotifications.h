@@ -122,7 +122,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Creates a notification around \a owner, \a namespaceId and \a duration.
-		RootNamespaceNotification(const Key& owner, NamespaceId namespaceId, BlockDuration duration)
+		RootNamespaceNotification(const Address& owner, NamespaceId namespaceId, BlockDuration duration)
 				: Notification(Notification_Type, sizeof(RootNamespaceNotification))
 				, Owner(owner)
 				, NamespaceId(namespaceId)
@@ -131,7 +131,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Namespace owner.
-		const Key& Owner;
+		Address Owner;
 
 		/// Id of the namespace.
 		catapult::NamespaceId NamespaceId;
@@ -152,7 +152,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Creates a notification around \a owner, \a namespaceId and \a parentId.
-		ChildNamespaceNotification(const Key& owner, NamespaceId namespaceId, NamespaceId parentId)
+		ChildNamespaceNotification(const Address& owner, NamespaceId namespaceId, NamespaceId parentId)
 				: Notification(Notification_Type, sizeof(ChildNamespaceNotification))
 				, Owner(owner)
 				, NamespaceId(namespaceId)
@@ -161,7 +161,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Namespace owner.
-		const Key& Owner;
+		Address Owner;
 
 		/// Id of the namespace.
 		catapult::NamespaceId NamespaceId;
@@ -208,7 +208,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Creates a notification around \a owner and \a namespaceId.
-		NamespaceRequiredNotification(const Key& owner, NamespaceId namespaceId)
+		NamespaceRequiredNotification(const Address& owner, NamespaceId namespaceId)
 				: Notification(Notification_Type, sizeof(NamespaceRequiredNotification))
 				, Owner(owner)
 				, NamespaceId(namespaceId)
@@ -216,7 +216,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Namespace owner.
-		const Key& Owner;
+		Address Owner;
 
 		/// Namespace id.
 		catapult::NamespaceId NamespaceId;

@@ -31,11 +31,6 @@ namespace catapult { namespace mongo { namespace plugins {
 
 	namespace {
 		enum class EntityStatus { Active, Inactive };
-		constexpr auto Default_Network_Id = static_cast<model::NetworkIdentifier>(0x5A);
-
-		auto NamespaceDescriptorsFromHistory(const state::RootNamespaceHistory& history) {
-			return plugins::NamespaceDescriptorsFromHistory(history, Default_Network_Id);
-		}
 	}
 
 	// region NamespaceDescriptorsFromHistory
@@ -94,10 +89,9 @@ namespace catapult { namespace mongo { namespace plugins {
 				const state::RootNamespace& root,
 				const DescriptorMap& descriptorMap) {
 			const auto& descriptor = descriptorMap.at(PathIndexPair(path, rootIndex));
-			auto ownerAddress = model::PublicKeyToAddress(root.ownerPublicKey(), Default_Network_Id);
 			EXPECT_EQ(path, descriptor.Path);
 			EXPECT_EQ(&root, descriptor.pRoot.get());
-			EXPECT_EQ(ownerAddress, descriptor.OwnerAddress);
+			EXPECT_EQ(root.ownerAddress(), descriptor.OwnerAddress);
 			EXPECT_EQ(rootIndex, descriptor.Index);
 			EXPECT_EQ(EntityStatus::Active == status, descriptor.IsActive);
 
@@ -127,7 +121,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		void AssertCanConvertFromRootNamespaceHistoryWithDepthOne_WithoutChildren(TMutate mutate) {
 			// Arrange:
 			state::RootNamespaceHistory history(NamespaceId(123));
-			history.push_back(test::GenerateRandomByteArray<Key>(), test::CreateLifetime(234, 345));
+			history.push_back(test::CreateRandomOwner(), test::CreateLifetime(234, 345));
 
 			auto& root = history.back();
 			mutate(root);
@@ -159,7 +153,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		void AssertCanConvertFromRootNamespaceHistoryWithDepthOne_WithChildren(TMutate mutate) {
 			// Arrange:
 			state::RootNamespaceHistory history(NamespaceId(123));
-			history.push_back(test::GenerateRandomByteArray<Key>(), test::CreateLifetime(234, 345));
+			history.push_back(test::CreateRandomOwner(), test::CreateLifetime(234, 345));
 
 			auto& root = history.back();
 			AddChildren(root, { test::CreatePath({ 123, 124 }), test::CreatePath({ 123, 124, 126 }) });
@@ -193,9 +187,9 @@ namespace catapult { namespace mongo { namespace plugins {
 	TEST(TEST_CLASS, CanConvertFromRootNamespaceHistoryWithDepthGreaterThanOne_WithoutChildren) {
 		// Arrange:
 		state::RootNamespaceHistory history(NamespaceId(123));
-		history.push_back(test::GenerateRandomByteArray<Key>(), test::CreateLifetime(234, 345));
-		history.push_back(test::GenerateRandomByteArray<Key>(), test::CreateLifetime(456, 567));
-		history.push_back(test::GenerateRandomByteArray<Key>(), test::CreateLifetime(678, 789));
+		history.push_back(test::CreateRandomOwner(), test::CreateLifetime(234, 345));
+		history.push_back(test::CreateRandomOwner(), test::CreateLifetime(456, 567));
+		history.push_back(test::CreateRandomOwner(), test::CreateLifetime(678, 789));
 
 		// Act:
 		auto descriptors = NamespaceDescriptorsFromHistory(history);
@@ -217,11 +211,11 @@ namespace catapult { namespace mongo { namespace plugins {
 	TEST(TEST_CLASS, CanConvertFromRootNamespaceHistoryWithDepthGreaterThanOne_WithChildren) {
 		// Arrange:
 		state::RootNamespaceHistory history(NamespaceId(123));
-		history.push_back(test::GenerateRandomByteArray<Key>(), test::CreateLifetime(234, 345));
+		history.push_back(test::CreateRandomOwner(), test::CreateLifetime(234, 345));
 		AddChildren(history.back(), { test::CreatePath({ 123, 124 }), test::CreatePath({ 123, 124, 126 }) });
-		history.push_back(test::GenerateRandomByteArray<Key>(), test::CreateLifetime(456, 567));
+		history.push_back(test::CreateRandomOwner(), test::CreateLifetime(456, 567));
 		AddChildren(history.back(), { test::CreatePath({ 123, 130 }), test::CreatePath({ 123, 131 }) });
-		history.push_back(test::GenerateRandomByteArray<Key>(), test::CreateLifetime(678, 789));
+		history.push_back(test::CreateRandomOwner(), test::CreateLifetime(678, 789));
 		AddChildren(history.back(), { test::CreatePath({ 123, 150 }) });
 
 		// Act:
@@ -248,7 +242,7 @@ namespace catapult { namespace mongo { namespace plugins {
 
 	TEST(TEST_CLASS, CanConvertFromRootNamespaceHistoryWithDepthGreaterThanOne_SameOwner_WithChildren) {
 		// Arrange:
-		auto owner = test::GenerateRandomByteArray<Key>();
+		auto owner = test::CreateRandomOwner();
 		state::RootNamespaceHistory history(NamespaceId(123));
 		history.push_back(owner, test::CreateLifetime(234, 345));
 		AddChildren(history.back(), { test::CreatePath({ 123, 124 }), test::CreatePath({ 123, 124, 126 }) });

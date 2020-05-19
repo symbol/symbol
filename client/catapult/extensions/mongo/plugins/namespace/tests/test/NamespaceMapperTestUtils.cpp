@@ -50,7 +50,6 @@ namespace catapult { namespace test {
 
 		EXPECT_EQ(isRoot ? Namespace_Base_Id : descriptor.Path[depth - 2], NamespaceId(GetUint64(dbNamespace, "parentId")));
 		EXPECT_EQ(descriptor.OwnerAddress, GetAddressValue(dbNamespace, "ownerAddress"));
-		EXPECT_EQ(descriptor.pRoot->ownerPublicKey(), GetKeyValue(dbNamespace, "ownerPublicKey"));
 		EXPECT_EQ(descriptor.pRoot->lifetime().Start, Height(GetUint64(dbNamespace, "startHeight")));
 		EXPECT_EQ(descriptor.pRoot->lifetime().End, Height(GetUint64(dbNamespace, "endHeight")));
 

@@ -57,7 +57,7 @@ namespace catapult { namespace observers {
 			}
 		};
 
-		model::RootNamespaceNotification CreateRootNotification(const Key& owner, NamespaceId id) {
+		model::RootNamespaceNotification CreateRootNotification(const Address& owner, NamespaceId id) {
 			return model::RootNamespaceNotification(owner, id, BlockDuration());
 		}
 
@@ -86,7 +86,7 @@ namespace catapult { namespace observers {
 			test::AssertCacheContents(namespaceCacheDelta, {});
 		}
 
-		auto SeedCacheWithRoot25TreeOwner(const Key& owner) {
+		auto SeedCacheWithRoot25TreeOwner(const Address& owner) {
 			return [owner](auto& namespaceCacheDelta) {
 				// Arrange: create a cache with { 25 } and { 25, 36 }
 				auto lifetime = test::CreateLifetime(10, 123 + Grace_Period_Duration);
@@ -104,7 +104,7 @@ namespace catapult { namespace observers {
 	namespace {
 		void AssertRootAdded(
 				const cache::NamespaceCacheDelta& namespaceCacheDelta,
-				const Key& owner,
+				const Address& owner,
 				Height lifetimeStart,
 				Height lifetimeEnd) {
 			// Assert: the root was added
@@ -115,7 +115,7 @@ namespace catapult { namespace observers {
 			const auto& entry = namespaceIter.get();
 			EXPECT_EQ(Namespace_Base_Id, entry.ns().parentId());
 
-			EXPECT_EQ(owner, entry.root().ownerPublicKey());
+			EXPECT_EQ(owner, entry.root().ownerAddress());
 			EXPECT_EQ(lifetimeStart, entry.root().lifetime().Start);
 			EXPECT_EQ(lifetimeEnd, entry.root().lifetime().End);
 			EXPECT_TRUE(entry.root().empty());
@@ -124,7 +124,7 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, ObserverAddsNamespaceOnCommit_Root) {
 		// Arrange: create a new root namespace with a finite duration
-		auto owner = test::GenerateRandomByteArray<Key>();
+		auto owner = test::CreateRandomOwner();
 		auto notification = CreateRootNotification(owner, NamespaceId(25));
 		notification.Duration = BlockDuration(1100);
 
@@ -138,7 +138,7 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, ObserverAddsNamespaceOnCommit_RootEternal) {
 		// Arrange: create a new root namespace with an eternal duration
-		auto owner = test::GenerateRandomByteArray<Key>();
+		auto owner = test::CreateRandomOwner();
 		auto notification = CreateRootNotification(owner, NamespaceId(25));
 		notification.Duration = Eternal_Artifact_Duration;
 
@@ -153,7 +153,7 @@ namespace catapult { namespace observers {
 	namespace {
 		void AssertRootRenewed(
 				cache::NamespaceCacheDelta& namespaceCacheDelta,
-				const Key& owner,
+				const Address& owner,
 				Height lifetimeStart,
 				Height lifetimeEnd) {
 			// Assert: the root was renewed
@@ -165,7 +165,7 @@ namespace catapult { namespace observers {
 			const auto& entry = namespaceIter.get();
 			EXPECT_EQ(Namespace_Base_Id, entry.ns().parentId());
 
-			EXPECT_EQ(owner, entry.root().ownerPublicKey());
+			EXPECT_EQ(owner, entry.root().ownerAddress());
 			EXPECT_EQ(lifetimeStart, entry.root().lifetime().Start);
 			EXPECT_EQ(lifetimeEnd, entry.root().lifetime().End);
 			EXPECT_EQ(1u, entry.root().size());
@@ -176,7 +176,7 @@ namespace catapult { namespace observers {
 		// Arrange:
 		for (auto height : { Height(75), Height(122), Height(122 + Grace_Period_Duration) }) {
 			// - create a root namespace with a finite duration
-			auto owner = test::GenerateRandomByteArray<Key>();
+			auto owner = test::CreateRandomOwner();
 			auto notification = CreateRootNotification(owner, NamespaceId(25));
 			notification.Duration = BlockDuration(1100);
 
@@ -193,7 +193,7 @@ namespace catapult { namespace observers {
 		// Arrange:
 		for (auto height : { Height(123 + Grace_Period_Duration), Height(250) }) {
 			// - create a root namespace with a finite duration
-			auto owner = test::GenerateRandomByteArray<Key>();
+			auto owner = test::CreateRandomOwner();
 			auto notification = CreateRootNotification(owner, NamespaceId(25));
 			notification.Duration = BlockDuration(1100);
 
@@ -210,7 +210,7 @@ namespace catapult { namespace observers {
 	namespace {
 		void AssertRootOwnerChanged(
 				cache::NamespaceCacheDelta& namespaceCacheDelta,
-				const Key& owner,
+				const Address& owner,
 				Height lifetimeStart,
 				Height lifetimeEnd) {
 			// Assert: the root was renewed
@@ -222,7 +222,7 @@ namespace catapult { namespace observers {
 			const auto& entry = namespaceIter.get();
 			EXPECT_EQ(Namespace_Base_Id, entry.ns().parentId());
 
-			EXPECT_EQ(owner, entry.root().ownerPublicKey());
+			EXPECT_EQ(owner, entry.root().ownerAddress());
 			EXPECT_EQ(lifetimeStart, entry.root().lifetime().Start);
 			EXPECT_EQ(lifetimeEnd, entry.root().lifetime().End);
 			EXPECT_TRUE(entry.root().empty());
@@ -233,7 +233,7 @@ namespace catapult { namespace observers {
 		// Arrange:
 		for (auto height : { Height(75), Height(122), Height(122 + Grace_Period_Duration) }) {
 			// - create a root namespace with a finite duration
-			auto owner = test::GenerateRandomByteArray<Key>();
+			auto owner = test::CreateRandomOwner();
 			auto notification = CreateRootNotification(owner, NamespaceId(25));
 			notification.Duration = BlockDuration(1100);
 
@@ -251,7 +251,7 @@ namespace catapult { namespace observers {
 		// Arrange:
 		for (auto height : { Height(123 + Grace_Period_Duration), Height(250) }) {
 			// - create a root namespace with a finite duration
-			auto owner = test::GenerateRandomByteArray<Key>();
+			auto owner = test::CreateRandomOwner();
 			auto notification = CreateRootNotification(owner, NamespaceId(25));
 			notification.Duration = BlockDuration(1100);
 
@@ -271,7 +271,7 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, ObserverRemovesNamespaceOnRollback_Root) {
 		// Arrange: create a root namespace for removal
-		auto owner = test::GenerateRandomByteArray<Key>();
+		auto owner = test::CreateRandomOwner();
 		auto notification = CreateRootNotification(owner, NamespaceId(25));
 
 		// Act: remove it

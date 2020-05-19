@@ -105,7 +105,7 @@ namespace catapult { namespace validators {
 
 			// Assert:
 			RunAvailabilityTest(expectedResult, notification, [linkState](auto& cache) {
-				auto owner = test::GenerateRandomByteArray<Key>();
+				auto owner = test::CreateRandomOwner();
 				cache.insert(state::RootNamespace(Default_Namespace_Id, owner, test::CreateLifetime(100, 300)));
 				cache.insert(state::Namespace(test::CreatePath({ 123, 234 })));
 				TTraits::Prepare(cache);

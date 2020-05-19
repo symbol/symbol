@@ -36,7 +36,7 @@ namespace catapult { namespace test {
 	constexpr NamespaceId::ValueType Default_Root_Id(246);
 
 	/// Creates a random namespace owner.
-	Key CreateRandomOwner();
+	Address CreateRandomOwner();
 
 	/// Generates valid namespace name of length \a size.
 	std::string GenerateValidName(size_t size);

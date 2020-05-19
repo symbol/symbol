@@ -38,7 +38,7 @@ namespace catapult { namespace tools { namespace nemgen {
 				const auto& root = pair.second;
 				const auto& name = config.NamespaceNames.at(root.id());
 				OutputName(name, root.id());
-				CATAPULT_LOG(debug) << " - Owner: " << root.ownerPublicKey();
+				CATAPULT_LOG(debug) << " - Owner: " << root.ownerAddress();
 				CATAPULT_LOG(debug) << " - Start Height: " << root.lifetime().Start;
 				CATAPULT_LOG(debug) << " - End Height: " << root.lifetime().End;
 				if (!root.empty()) {

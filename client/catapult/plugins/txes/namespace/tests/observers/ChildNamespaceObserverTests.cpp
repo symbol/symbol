@@ -33,8 +33,8 @@ namespace catapult { namespace observers {
 	DEFINE_COMMON_OBSERVER_TESTS(ChildNamespace,)
 
 	namespace {
-		model::ChildNamespaceNotification CreateChildNotification(const Key& signer, NamespaceId parentId, NamespaceId id) {
-			return model::ChildNamespaceNotification(signer, id, parentId);
+		model::ChildNamespaceNotification CreateChildNotification(const Address& owner, NamespaceId parentId, NamespaceId id) {
+			return model::ChildNamespaceNotification(owner, id, parentId);
 		}
 
 		template<typename TSeedCacheFunc, typename TCheckCacheFunc>
@@ -57,10 +57,10 @@ namespace catapult { namespace observers {
 			checkCache(namespaceCacheDelta);
 		}
 
-		auto SeedCacheWithRoot25TreeSigner(const Key& signer) {
-			return [&signer](auto& namespaceCacheDelta) {
+		auto SeedCacheWithRoot25TreeOwner(const Address& owner) {
+			return [&owner](auto& namespaceCacheDelta) {
 				// Arrange: create a cache with { 25 } and { 25, 36 }
-				namespaceCacheDelta.insert(state::RootNamespace(NamespaceId(25), signer, test::CreateLifetime(10, 123)));
+				namespaceCacheDelta.insert(state::RootNamespace(NamespaceId(25), owner, test::CreateLifetime(10, 123)));
 				namespaceCacheDelta.insert(state::Namespace(test::CreatePath({ 25, 36 })));
 
 				// Sanity:
@@ -73,14 +73,14 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, ObserverAddsNamespaceOnCommit_ChildRootParent) {
 		// Arrange: create a child namespace with a root parent
-		auto signer = test::GenerateRandomByteArray<Key>();
-		auto notification = CreateChildNotification(signer, NamespaceId(25), NamespaceId(37));
+		auto owner = test::CreateRandomOwner();
+		auto notification = CreateChildNotification(owner, NamespaceId(25), NamespaceId(37));
 
 		// Act: add it
 		RunChildTest(
 				notification,
 				ObserverTestContext(NotifyMode::Commit),
-				SeedCacheWithRoot25TreeSigner(signer),
+				SeedCacheWithRoot25TreeOwner(owner),
 				[](auto& namespaceCacheDelta) {
 					// Assert: the child was added
 					EXPECT_EQ(3u, namespaceCacheDelta.activeSize());
@@ -94,14 +94,14 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, ObserverAddsNamespaceOnCommit_ChildNonRootParent) {
 		// Arrange: create a child namespace with a non-root parent
-		auto signer = test::GenerateRandomByteArray<Key>();
-		auto notification = CreateChildNotification(signer, NamespaceId(36), NamespaceId(49));
+		auto owner = test::CreateRandomOwner();
+		auto notification = CreateChildNotification(owner, NamespaceId(36), NamespaceId(49));
 
 		// Act: add it
 		RunChildTest(
 				notification,
 				ObserverTestContext(NotifyMode::Commit),
-				SeedCacheWithRoot25TreeSigner(signer),
+				SeedCacheWithRoot25TreeOwner(owner),
 				[](auto& namespaceCacheDelta) {
 					// Assert: the child was added
 					EXPECT_EQ(3u, namespaceCacheDelta.activeSize());
@@ -119,16 +119,16 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, ObserverRemovesNamespaceOnRollback_ChildRootParent) {
 		// Arrange: create a child namespace with a root parent for removal
-		auto signer = test::GenerateRandomByteArray<Key>();
-		auto notification = CreateChildNotification(signer, NamespaceId(25), NamespaceId(36));
+		auto owner = test::CreateRandomOwner();
+		auto notification = CreateChildNotification(owner, NamespaceId(25), NamespaceId(36));
 
 		// Act: remove it
 		RunChildTest(
 				notification,
 				ObserverTestContext(NotifyMode::Rollback),
-				[&signer](auto& namespaceCacheDelta) {
+				[&owner](auto& namespaceCacheDelta) {
 					// Arrange: create a cache with { 25 } and { 25, 36 }
-					namespaceCacheDelta.insert(state::RootNamespace(NamespaceId(25), signer, test::CreateLifetime(10, 20)));
+					namespaceCacheDelta.insert(state::RootNamespace(NamespaceId(25), owner, test::CreateLifetime(10, 20)));
 					namespaceCacheDelta.insert(state::Namespace(test::CreatePath({ 25, 36 })));
 
 					// Sanity:
@@ -144,16 +144,16 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, ObserverRemovesNamespaceOnRollback_ChildNonRootParent) {
 		// Arrange: create a child namespace with a non-root parent for removal
-		auto signer = test::GenerateRandomByteArray<Key>();
-		auto notification = CreateChildNotification(signer, NamespaceId(36), NamespaceId(49));
+		auto owner = test::CreateRandomOwner();
+		auto notification = CreateChildNotification(owner, NamespaceId(36), NamespaceId(49));
 
 		// Act: remove it
 		RunChildTest(
 				notification,
 				ObserverTestContext(NotifyMode::Rollback),
-				[&signer](auto& namespaceCacheDelta) {
+				[&owner](auto& namespaceCacheDelta) {
 					// Arrange: create a cache with { 25 }, { 25, 36 } and { 25, 36, 49 }
-					namespaceCacheDelta.insert(state::RootNamespace(NamespaceId(25), signer, test::CreateLifetime(10, 20)));
+					namespaceCacheDelta.insert(state::RootNamespace(NamespaceId(25), owner, test::CreateLifetime(10, 20)));
 					namespaceCacheDelta.insert(state::Namespace(test::CreatePath({ 25, 36 })));
 					namespaceCacheDelta.insert(state::Namespace(test::CreatePath({ 25, 36, 49 })));
 

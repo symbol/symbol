@@ -124,7 +124,8 @@ namespace catapult { namespace plugins {
 
 			static void AddCustomExpectations(PublishTestBuilder& builder, const TTransaction& transaction) {
 				builder.template addExpectation<NamespaceRequiredNotification>([&transaction](const auto& notification) {
-					EXPECT_EQ(transaction.TargetPublicKey, notification.Owner);
+					auto targetAddress = model::PublicKeyToAddress(transaction.TargetPublicKey, transaction.Network);
+					EXPECT_EQ(targetAddress, notification.Owner);
 					EXPECT_EQ(transaction.TargetNamespaceId, notification.NamespaceId);
 				});
 			}

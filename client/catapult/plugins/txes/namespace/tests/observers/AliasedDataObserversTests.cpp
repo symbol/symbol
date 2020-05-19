@@ -112,7 +112,7 @@ namespace catapult { namespace observers {
 		}
 
 		void SeedCacheWithoutLink(cache::NamespaceCacheDelta& namespaceCacheDelta) {
-			auto owner = test::GenerateRandomByteArray<Key>();
+			auto owner = test::CreateRandomOwner();
 			namespaceCacheDelta.insert(state::RootNamespace(Default_Namespace_Id, owner, test::CreateLifetime(10, 20)));
 		}
 

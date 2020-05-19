@@ -21,6 +21,7 @@
 #include "NemesisConfiguration.h"
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/extensions/IdGenerator.h"
+#include "catapult/model/Address.h"
 #include "catapult/model/MosaicIdGenerator.h"
 #include "catapult/model/NamespaceIdGenerator.h"
 #include "catapult/state/Namespace.h"
@@ -63,7 +64,7 @@ namespace catapult { namespace tools { namespace nemgen {
 			return std::string::npos == namespaceName.find('.');
 		}
 
-		auto CreateRoot(const utils::ConfigurationBag& bag, const Key& owner, const std::string& namespaceName) {
+		auto CreateRoot(const utils::ConfigurationBag& bag, const Address& owner, const std::string& namespaceName) {
 			const std::string section = Namespace_Section_Prefix + namespaceName;
 			auto duration = bag.get<uint64_t>(utils::ConfigurationKey(section.c_str(), "duration"));
 			auto id = model::GenerateRootNamespaceId(namespaceName);
@@ -105,7 +106,7 @@ namespace catapult { namespace tools { namespace nemgen {
 			return ToMosaicEntry(definition, mosaicNonce, supply);
 		}
 
-		size_t LoadNamespaces(const utils::ConfigurationBag& bag, NemesisConfiguration& config, const Key& owner) {
+		size_t LoadNamespaces(const utils::ConfigurationBag& bag, NemesisConfiguration& config, const Address& owner) {
 			auto namespaces = bag.getAllOrdered<bool>("namespaces");
 			auto numNamespaceProperties = namespaces.size();
 			for (const auto& optionalNs : namespaces) {
@@ -200,9 +201,10 @@ namespace catapult { namespace tools { namespace nemgen {
 
 		// the nemesis account owns all namespaces and mosaic definitions in the configuration
 		auto owner = crypto::KeyPair::FromString(config.NemesisSignerPrivateKey).publicKey();
+		auto ownerAddress = model::PublicKeyToAddress(owner, config.NetworkIdentifier);
 
 		// load namespace information
-		auto numNamespaceProperties = LoadNamespaces(bag, config, owner);
+		auto numNamespaceProperties = LoadNamespaces(bag, config, ownerAddress);
 
 		// load mosaics information
 		auto numMosaicProperties = LoadMosaics(bag, config, owner);

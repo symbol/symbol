@@ -65,7 +65,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureWhenNamespaceIsUnknown) {
 		// Arrange:
-		auto owner = test::GenerateRandomByteArray<Key>();
+		auto owner = test::CreateRandomOwner();
 		NamespaceRequiredNotification notification(owner, Default_Namespace_Id);
 
 		// Assert:
@@ -74,7 +74,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureWhenOwnerDoesNotMatch) {
 		// Arrange:
-		auto owner = test::GenerateRandomByteArray<Key>();
+		auto owner = test::CreateRandomOwner();
 		NamespaceRequiredNotification notification(owner, Default_Namespace_Id);
 
 		// Assert:
@@ -88,7 +88,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureWhenNamespaceExpired) {
 		// Arrange:
-		auto owner = test::GenerateRandomByteArray<Key>();
+		auto owner = test::CreateRandomOwner();
 		NamespaceRequiredNotification notification(owner, Default_Namespace_Id);
 
 		// Assert: notification is at height 200, so limit lifetime to 175 (including grace period)
@@ -100,7 +100,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureWhenNamespaceInGracePeriod) {
 		// Arrange:
-		auto owner = test::GenerateRandomByteArray<Key>();
+		auto owner = test::CreateRandomOwner();
 		NamespaceRequiredNotification notification(owner, Default_Namespace_Id);
 
 		// Assert: notification is at height 200, so limit lifetime to 250 (including grace period)
@@ -112,7 +112,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, SuccessWhenNamespaceActiveAndOwnerMatches) {
 		// Arrange:
-		auto owner = test::GenerateRandomByteArray<Key>();
+		auto owner = test::CreateRandomOwner();
 		NamespaceRequiredNotification notification(owner, Default_Namespace_Id);
 
 		// Assert:

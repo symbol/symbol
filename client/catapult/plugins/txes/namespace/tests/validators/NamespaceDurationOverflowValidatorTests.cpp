@@ -41,6 +41,10 @@ namespace catapult { namespace validators {
 			catapult::Height Height;
 		};
 
+		model::RootNamespaceNotification CreateNotification(NamespaceId namespaceId, BlockDuration duration) {
+			return model::RootNamespaceNotification(Address(), namespaceId, duration);
+		}
+
 		void RunRootTest(
 				ValidationResult expectedResult,
 				const model::RootNamespaceNotification& notification,
@@ -52,8 +56,8 @@ namespace catapult { namespace validators {
 				auto& namespaceCacheDelta = cacheDelta.sub<cache::NamespaceCache>();
 
 				// - create a cache with { 25 }
-				auto signer = test::GenerateRandomByteArray<Key>();
-				namespaceCacheDelta.insert(state::RootNamespace(NamespaceId(25), signer, test::CreateLifetime(10, 20)));
+				auto owner = test::CreateRandomOwner();
+				namespaceCacheDelta.insert(state::RootNamespace(NamespaceId(25), owner, test::CreateLifetime(10, 20)));
 
 				cache.commit(Height());
 			}
@@ -88,7 +92,7 @@ namespace catapult { namespace validators {
 				options.Height = height;
 
 				// Act: try to create a (new) root with a specified duration
-				auto notification = model::RootNamespaceNotification(Key(), NamespaceId(26), duration);
+				auto notification = CreateNotification(NamespaceId(26), duration);
 				RunRootTest(expectedResult, notification, options);
 			}
 		}
@@ -110,7 +114,7 @@ namespace catapult { namespace validators {
 		options.Height = Height(std::numeric_limits<uint64_t>::max()) - Height(111);
 
 		// Act: try to create a (new) root with a maximum duration [Height + Duration == Max]
-		auto notification = model::RootNamespaceNotification(Key(), NamespaceId(26), BlockDuration(111));
+		auto notification = CreateNotification(NamespaceId(26), BlockDuration(111));
 		RunRootTest(ValidationResult::Success, notification, options);
 	}
 
@@ -124,7 +128,7 @@ namespace catapult { namespace validators {
 			options.Height = Height(std::numeric_limits<uint64_t>::max()) - Height(111) + heightAdjustment;
 
 			// Act: try to create a (new) root with a duration too large [Height + Duration > Max]
-			auto notification = model::RootNamespaceNotification(Key(), NamespaceId(26), BlockDuration(111));
+			auto notification = CreateNotification(NamespaceId(26), BlockDuration(111));
 			RunRootTest(Failure_Namespace_Invalid_Duration, notification, options);
 		}
 	}
@@ -144,7 +148,7 @@ namespace catapult { namespace validators {
 			options.Height = height;
 
 			// Act: renew an expired root
-			auto notification = model::RootNamespaceNotification(Key(), NamespaceId(25), BlockDuration(111));
+			auto notification = CreateNotification(NamespaceId(25), BlockDuration(111));
 			RunRootTest(ValidationResult::Success, notification, options);
 		}
 	}
@@ -157,7 +161,7 @@ namespace catapult { namespace validators {
 		options.Height = Height(std::numeric_limits<uint64_t>::max()) - Height(111);
 
 		// Act: renew an expired root with a maximum duration [Height + Duration == Max]
-		auto notification = model::RootNamespaceNotification(Key(), NamespaceId(25), BlockDuration(111));
+		auto notification = CreateNotification(NamespaceId(25), BlockDuration(111));
 		RunRootTest(ValidationResult::Success, notification, options);
 	}
 
@@ -171,7 +175,7 @@ namespace catapult { namespace validators {
 			options.Height = Height(std::numeric_limits<uint64_t>::max()) - Height(111) + heightAdjustment;
 
 			// Act: renew an expired root with a duration too large [Height + Duration > Max]
-			auto notification = model::RootNamespaceNotification(Key(), NamespaceId(25), BlockDuration(111));
+			auto notification = CreateNotification(NamespaceId(25), BlockDuration(111));
 			RunRootTest(Failure_Namespace_Invalid_Duration, notification, options);
 		}
 	}
@@ -191,7 +195,7 @@ namespace catapult { namespace validators {
 			options.Height = height;
 
 			// Act: try to renew / extend a root that has not yet exceeded its grace period
-			auto notification = model::RootNamespaceNotification(Key(), NamespaceId(25), BlockDuration(111));
+			auto notification = CreateNotification(NamespaceId(25), BlockDuration(111));
 			RunRootTest(ValidationResult::Success, notification, options);
 		}
 	}
@@ -206,7 +210,7 @@ namespace catapult { namespace validators {
 		// Act: try to renew / extend a root that has not yet exceeded its grace period with a maximum duration
 		//      [lifetime.End(20) + Duration == Max]
 		auto duration = BlockDuration(std::numeric_limits<uint64_t>::max() - 20);
-		auto notification = model::RootNamespaceNotification(Key(), NamespaceId(25), duration);
+		auto notification = CreateNotification(NamespaceId(25), duration);
 		RunRootTest(ValidationResult::Success, notification, options);
 	}
 
@@ -220,7 +224,7 @@ namespace catapult { namespace validators {
 		// Act: try to renew / extend a root that has not yet exceeded its grace period with a maximum duration
 		//      [lifetime.End(20) + Duration == Max]
 		auto duration = BlockDuration(std::numeric_limits<uint64_t>::max() - 20);
-		auto notification = model::RootNamespaceNotification(Key(), NamespaceId(25), duration);
+		auto notification = CreateNotification(NamespaceId(25), duration);
 		RunRootTest(ValidationResult::Success, notification, options);
 	}
 
@@ -235,7 +239,7 @@ namespace catapult { namespace validators {
 			// Act: try to renew / extend a root that has not yet exceeded its grace period with a duration too large
 			//      [lifetime.End(20) + Duration > Max]
 			auto duration = BlockDuration(std::numeric_limits<uint64_t>::max() - 20) + durationAdjustment;
-			auto notification = model::RootNamespaceNotification(Key(), NamespaceId(25), duration);
+			auto notification = CreateNotification(NamespaceId(25), duration);
 			RunRootTest(Failure_Namespace_Invalid_Duration, notification, options);
 		}
 	}
@@ -254,7 +258,7 @@ namespace catapult { namespace validators {
 		// - max duration is 125 [MaxDuration(105) + GracePeriodDuration(25) + Height(15) - lifetime.End(20)]
 		for (auto duration : { BlockDuration(126), BlockDuration(200) }) {
 			// Act:
-			auto notification = model::RootNamespaceNotification(Key(), NamespaceId(25), duration);
+			auto notification = CreateNotification(NamespaceId(25), duration);
 			RunRootTest(Failure_Namespace_Invalid_Duration, notification, options);
 		}
 	}
@@ -269,7 +273,7 @@ namespace catapult { namespace validators {
 		// - max duration is 125 [MaxDuration(105) + GracePeriodDuration(25) + Height(15) - lifetime.End(20)]
 		for (auto duration : { BlockDuration(20), BlockDuration(75), BlockDuration(125) }) {
 			// Act:
-			auto notification = model::RootNamespaceNotification(Key(), NamespaceId(25), duration);
+			auto notification = CreateNotification(NamespaceId(25), duration);
 			RunRootTest(ValidationResult::Success, notification, options);
 		}
 	}
