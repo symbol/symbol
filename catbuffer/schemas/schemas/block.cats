@@ -17,6 +17,9 @@ struct VrfProof
 
 # binary layout for a block header
 struct BlockHeader
+	const uint8 version = 1
+	const EntityType entityType = 0x8143
+
 	inline SizePrefixedEntity
 	inline VerifiableEntity
 	inline EntityBody
