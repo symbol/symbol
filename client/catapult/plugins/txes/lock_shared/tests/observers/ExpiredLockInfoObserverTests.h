@@ -37,19 +37,12 @@ namespace catapult { namespace observers {
 			Amount LockAmount;
 		};
 
-		struct ReceiptTuple {
-			Key SenderPublicKey;
-			catapult::MosaicId MosaicId;
-			Amount InitialBalance;
-			Amount LockAmount;
-		};
-
 	public:
 		// region RunBalanceTest / RunReceiptTest
 
 		static void RunBalanceTest(
 				NotifyMode mode,
-				const Key& blockHarvester,
+				const Address& blockHarvester,
 				const std::vector<SeedTuple>& expiringSeeds,
 				const std::vector<SeedTuple>& expectedPostObserveBalances) {
 			// Arrange:
@@ -78,9 +71,9 @@ namespace catapult { namespace observers {
 
 		static void RunReceiptTest(
 				NotifyMode mode,
-				const Key& blockHarvester,
+				const Address& blockHarvester,
 				const std::vector<SeedTuple>& expiringSeeds,
-				const std::vector<ReceiptTuple>& expectedReceipts) {
+				const std::vector<SeedTuple>& expectedReceipts) {
 			// Arrange:
 			TestContext context(Height(55), mode);
 			context.addBlockHarvester(blockHarvester, MosaicId(500), Amount(200));
@@ -91,9 +84,6 @@ namespace catapult { namespace observers {
 
 			// - add expiring accounts
 			context.addLockInfos(expiringSeeds, [](auto) { return Height(55); });
-
-			// - add public keys so (secret) receipts are properly generated
-			context.addPublicKeys(expectedReceipts, [](auto) { return Height(55); });
 
 			// Act:
 			auto pStatement = context.observe(blockHarvester);
@@ -119,7 +109,7 @@ namespace catapult { namespace observers {
 				EXPECT_EQ(TTraits::Receipt_Type, receipt.Type) << message;
 				EXPECT_EQ(expectedReceipt.MosaicId, receipt.Mosaic.MosaicId) << message;
 				EXPECT_EQ(expectedReceipt.LockAmount, receipt.Mosaic.Amount) << message;
-				EXPECT_EQ(expectedReceipt.SenderPublicKey, receipt.TargetPublicKey) << message;
+				EXPECT_EQ(expectedReceipt.OwnerAddress.template copyTo<Key>(), receipt.TargetPublicKey) << message;
 				++i;
 			}
 		}
@@ -160,17 +150,10 @@ namespace catapult { namespace observers {
 					addLockInfo(seeds[i], heightGenerator(i));
 			}
 
-			void addPublicKeys(const std::vector<ReceiptTuple>& seeds, const HeightGenerator& heightGenerator) {
+			void addBlockHarvester(const Address& harvester, MosaicId mosaicId, Amount amount) {
 				auto& accountStateCache = this->accountStateCache();
-				for (auto i = 0u; i < seeds.size(); ++i)
-					accountStateCache.addAccount(seeds[i].SenderPublicKey, heightGenerator(i));
-			}
-
-			Key addBlockHarvester(const Key& signer, MosaicId mosaicId, Amount amount) {
-				auto& accountStateCache = this->accountStateCache();
-				accountStateCache.addAccount(signer, Height(1));
-				accountStateCache.find(signer).get().Balances.credit(mosaicId, amount);
-				return signer;
+				accountStateCache.addAccount(harvester, Height(1));
+				accountStateCache.find(harvester).get().Balances.credit(mosaicId, amount);
 			}
 
 			void addLockInfo(const SeedTuple& seed, Height height) {
@@ -191,7 +174,7 @@ namespace catapult { namespace observers {
 			}
 
 		public:
-			auto observe(const Key& blockHarvester) {
+			auto observe(const Address& blockHarvester) {
 				// Arrange:
 				auto pObserver = TTraits::CreateObserver();
 				auto notification = test::CreateBlockNotification(blockHarvester);

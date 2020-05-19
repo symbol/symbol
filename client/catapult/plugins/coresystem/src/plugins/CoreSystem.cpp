@@ -160,7 +160,7 @@ namespace catapult { namespace plugins {
 			config.CurrencyMosaicId,
 			config.HarvestBeneficiaryPercentage,
 			config.HarvestNetworkPercentage,
-			config.HarvestNetworkFeeSinkPublicKey
+			config.HarvestNetworkFeeSinkAddress
 		};
 		const auto& calculator = manager.inflationConfig().InflationCalculator;
 		manager.addObserverHook([harvestFeeOptions, &calculator](auto& builder) {

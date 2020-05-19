@@ -21,6 +21,7 @@
 #include "catapult/config/CatapultConfiguration.h"
 #include "catapult/config/CatapultKeys.h"
 #include "catapult/crypto/OpensslKeyUtils.h"
+#include "catapult/model/Address.h"
 #include "catapult/utils/HexParser.h"
 #include "tests/test/net/CertificateLocator.h"
 #include "tests/test/nodeps/Filesystem.h"
@@ -86,9 +87,7 @@ namespace catapult { namespace config {
 
 			EXPECT_EQ(10u, config.HarvestBeneficiaryPercentage);
 			EXPECT_EQ(5u, config.HarvestNetworkPercentage);
-			EXPECT_EQ(
-					utils::ParseByteArray<Key>("FF5563F1C5824EE0CD868799FBE8744B46D5549973FDA499939C952D951494E4"),
-					config.HarvestNetworkFeeSinkPublicKey);
+			EXPECT_EQ(model::StringToAddress("SBPJ3LE4SF7Y25RCEC6MA5BXBP6W2TGB2XKMID42"), config.HarvestNetworkFeeSinkAddress);
 
 			EXPECT_EQ(360u, config.BlockPruneInterval);
 			EXPECT_EQ(200'000u, config.MaxTransactionsPerBlock);

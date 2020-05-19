@@ -19,8 +19,8 @@
 **/
 
 #pragma once
+#include "ContainerTypes.h"
 #include "NotificationPublisher.h"
-#include "catapult/utils/ArraySet.h"
 
 namespace catapult { namespace model { struct BlockChainConfiguration; } }
 
@@ -28,8 +28,8 @@ namespace catapult { namespace model {
 
 	/// Options to customize behavior of nemesis notification publisher.
 	struct NemesisNotificationPublisherOptions {
-		/// Public keys of accounts to preemptively add.
-		utils::KeySet SpecialAccountPublicKeys;
+		/// Addresses of accounts to preemptively add.
+		AddressSet SpecialAccountAddresses;
 	};
 
 	/// Extracts nemesis notification publisher options from \a config.

@@ -198,7 +198,7 @@ namespace catapult { namespace cache {
 		struct CanHarvestViaMemberTraits {
 			static bool CanHarvest(const AccountStateCache& cache, const Key& publicKey, Height height) {
 				auto pView = test::CreateImportanceView(cache);
-				return pView->canHarvest(publicKey, height);
+				return pView->canHarvest(model::PublicKeyToAddress(publicKey, Default_Cache_Options.NetworkIdentifier), height);
 			}
 		};
 
@@ -292,7 +292,7 @@ namespace catapult { namespace cache {
 
 		struct CanHarvestTraits {
 			static void Act(const ImportanceView& view, const Key& publicKey) {
-				view.canHarvest(publicKey, Height(111));
+				view.canHarvest(model::PublicKeyToAddress(publicKey, Default_Cache_Options.NetworkIdentifier), Height(111));
 			}
 		};
 	}

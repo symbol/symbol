@@ -19,6 +19,7 @@
 **/
 
 #include "src/observers/Observers.h"
+#include "catapult/model/Address.h"
 #include "catapult/model/InflationCalculator.h"
 #include "tests/test/cache/BalanceTransferTestUtils.h"
 #include "tests/test/core/AccountStateTestUtils.h"
@@ -31,7 +32,7 @@ namespace catapult { namespace observers {
 
 #define TEST_CLASS HarvestFeeObserverTests
 
-	DEFINE_COMMON_OBSERVER_TESTS(HarvestFee, { MosaicId(), 0, 0, Key() }, model::InflationCalculator())
+	DEFINE_COMMON_OBSERVER_TESTS(HarvestFee, { MosaicId(), 0, 0, Address() }, model::InflationCalculator())
 
 	// region traits
 
@@ -85,6 +86,10 @@ namespace catapult { namespace observers {
 	// region fee credit/debit
 
 	namespace {
+		Address ToAddress(const Key& key) {
+			return model::PublicKeyToAddress(key, model::NetworkIdentifier::Zero);
+		}
+
 		void AssertReceipt(
 				const Key& expectedKey,
 				Amount expectedAmount,
@@ -115,7 +120,7 @@ namespace catapult { namespace observers {
 
 		template<typename TAction>
 		void RunHarvestFeeObserverTest(NotifyMode notifyMode, uint8_t harvestBeneficiaryPercentage, TAction action) {
-			auto options = HarvestFeeOptions{ Currency_Mosaic_Id, harvestBeneficiaryPercentage, 0, Key() };
+			auto options = HarvestFeeOptions{ Currency_Mosaic_Id, harvestBeneficiaryPercentage, 0, Address() };
 			RunHarvestFeeObserverTest(notifyMode, options, model::InflationCalculator(), action);
 		}
 	}
@@ -128,7 +133,7 @@ namespace catapult { namespace observers {
 			auto accountStateIter = TTraits::AddAccount(accountStateCache, harvester, Height(1));
 			accountStateIter.get().Balances.credit(Currency_Mosaic_Id, Amount(987));
 
-			auto notification = test::CreateBlockNotification(harvester);
+			auto notification = test::CreateBlockNotification(ToAddress(harvester));
 			notification.TotalFee = Amount(123);
 
 			// Act:
@@ -160,7 +165,7 @@ namespace catapult { namespace observers {
 			auto accountStateIter = TTraits::AddAccount(accountStateCache, harvester, Height(1));
 			accountStateIter.get().Balances.credit(Currency_Mosaic_Id, Amount(987 + 123));
 
-			auto notification = test::CreateBlockNotification(harvester);
+			auto notification = test::CreateBlockNotification(ToAddress(harvester));
 			notification.TotalFee = Amount(123);
 
 			// Act:
@@ -203,11 +208,15 @@ namespace catapult { namespace observers {
 			EXPECT_EQ(expectedAmount, receipt.Mosaic.Amount) << message;
 		}
 
+		struct HarvestFeeOptionsEx : public HarvestFeeOptions {
+			Key HarvestNetworkFeeSinkPublicKey;
+		};
+
 		void AssertHarvesterSharesFees(
 				NotifyMode notifyMode,
 				const Key& harvester,
 				const Key& beneficiary,
-				const HarvestFeeOptions& options,
+				const HarvestFeeOptionsEx& options,
 				Amount totalFee,
 				const model::InflationCalculator& calculator,
 				const BalancesInfo& expectedFinalBalances,
@@ -228,7 +237,7 @@ namespace catapult { namespace observers {
 						Height(1));
 				networkAccountStateIter.get().Balances.credit(Currency_Mosaic_Id, Amount(444));
 
-				auto notification = test::CreateBlockNotification(harvester, beneficiary);
+				auto notification = test::CreateBlockNotification(ToAddress(harvester), ToAddress(beneficiary));
 				notification.TotalFee = totalFee;
 
 				// Act:
@@ -277,7 +286,7 @@ namespace catapult { namespace observers {
 		void AssertHarvesterSharesFees(
 				const Key& harvester,
 				const Key& beneficiary,
-				const HarvestFeeOptions& options,
+				const HarvestFeeOptionsEx& options,
 				Amount totalFee,
 				const BalancesInfo& expectedFinalBalances,
 				const std::vector<ReceiptInfo>& expectedReceiptInfos) {
@@ -292,8 +301,15 @@ namespace catapult { namespace observers {
 					expectedReceiptInfos);
 		}
 
-		HarvestFeeOptions CreateOptionsFromPercentages(uint8_t harvestBeneficiaryPercentage, uint8_t harvestNetworkPercentage) {
-			return { Currency_Mosaic_Id, harvestBeneficiaryPercentage, harvestNetworkPercentage, test::GenerateRandomByteArray<Key>() };
+		HarvestFeeOptionsEx CreateOptionsFromPercentages(uint8_t harvestBeneficiaryPercentage, uint8_t harvestNetworkPercentage) {
+			// extend HarvestFeeOptions to add HarvestNetworkFeeSinkPublicKey so all accounts are represented as public keys
+			auto options = HarvestFeeOptionsEx();
+			options.HarvestNetworkFeeSinkPublicKey = test::GenerateRandomByteArray<Key>();
+			options.CurrencyMosaicId = Currency_Mosaic_Id;
+			options.HarvestBeneficiaryPercentage = harvestBeneficiaryPercentage;
+			options.HarvestNetworkPercentage = harvestNetworkPercentage;
+			options.HarvestNetworkFeeSinkAddress = ToAddress(options.HarvestNetworkFeeSinkPublicKey);
+			return options;
 		}
 	}
 
@@ -424,7 +440,7 @@ namespace catapult { namespace observers {
 				auto beneficiaryAccountStateIter = TTraits::AddAccount(accountStateCache, beneficiary, Height(1));
 				beneficiaryAccountStateIter.get().Balances.credit(Currency_Mosaic_Id, Amount(234));
 
-				auto notification = test::CreateBlockNotification(harvester, beneficiary);
+				auto notification = test::CreateBlockNotification(ToAddress(harvester), ToAddress(beneficiary));
 				notification.TotalFee = Amount(205);
 
 				// Act:
@@ -548,7 +564,7 @@ namespace catapult { namespace observers {
 
 			// - notification.Beneficiary must be valid because percentage is nonzero
 			auto beneficiary = test::GenerateRandomByteArray<Key>();
-			auto notification = test::CreateBlockNotification(harvester, beneficiary);
+			auto notification = test::CreateBlockNotification(ToAddress(harvester), ToAddress(beneficiary));
 			notification.TotalFee = Amount(123);
 
 			// Act + Assert:

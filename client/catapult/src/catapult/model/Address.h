@@ -51,8 +51,7 @@ namespace catapult { namespace model {
 /// Defines support for Address as a configuration value.
 #define DEFINE_ADDRESS_CONFIGURATION_VALUE_SUPPORT \
 	namespace catapult { namespace utils { \
-		bool TryParseValue(const std::string& str, Address& parsedValue); \
-		bool TryParseValue(const std::string& str, Address& parsedValue) { \
+		static bool TryParseValue(const std::string& str, Address& parsedValue) { \
 			return model::TryParseValue(str, parsedValue); \
 		} \
 	}}

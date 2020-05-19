@@ -49,33 +49,29 @@ namespace catapult { namespace observers {
 
 		using ObserverTests = ExpiredLockInfoObserverTests<ExpiredHashLockInfoTraits>;
 		using SeedTuple = ObserverTests::SeedTuple;
-
-		Address ToAddress(const Key& key) {
-			return model::PublicKeyToAddress(key, model::NetworkIdentifier::Zero);
-		}
 	}
 
 	// region no operation
 
 	TEST(TEST_CLASS, ObserverDoesNothingWhenNoLockInfoExpires_Commit) {
 		// Arrange:
-		auto blockHarvester = test::GenerateRandomByteArray<Key>();
+		auto blockHarvester = test::GenerateRandomByteArray<Address>();
 		std::vector<SeedTuple> expiringSeeds;
 
 		// Act + Assert:
 		ObserverTests::RunBalanceTest(NotifyMode::Commit, blockHarvester, expiringSeeds, {
-			{ ToAddress(blockHarvester), MosaicId(500), Amount(200), Amount() }
+			{ blockHarvester, MosaicId(500), Amount(200), Amount() }
 		});
 	}
 
 	TEST(TEST_CLASS, ObserverDoesNothingWhenNoLockInfoExpires_Rollback) {
 		// Arrange:
-		auto blockHarvester = test::GenerateRandomByteArray<Key>();
+		auto blockHarvester = test::GenerateRandomByteArray<Address>();
 		std::vector<SeedTuple> expiringSeeds;
 
 		// Act + Assert:
 		ObserverTests::RunBalanceTest(NotifyMode::Rollback, blockHarvester, expiringSeeds, {
-			{ ToAddress(blockHarvester), MosaicId(500), Amount(200), Amount() }
+			{ blockHarvester, MosaicId(500), Amount(200), Amount() }
 		});
 	}
 
@@ -85,7 +81,7 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, ObserverCreditsAccountsOnCommit_Single) {
 		// Arrange:
-		auto blockHarvester = test::GenerateRandomByteArray<Key>();
+		auto blockHarvester = test::GenerateRandomByteArray<Address>();
 		auto address = test::GenerateRandomByteArray<Address>();
 		std::vector<SeedTuple> expiringSeeds{
 			{ address, MosaicId(500), Amount(333), Amount(33) }
@@ -94,13 +90,13 @@ namespace catapult { namespace observers {
 		// Act + Assert:
 		ObserverTests::RunBalanceTest(NotifyMode::Commit, blockHarvester, expiringSeeds, {
 			{ address, MosaicId(500), Amount(333), Amount() },
-			{ ToAddress(blockHarvester), MosaicId(500), Amount(200 + 33), Amount() }
+			{ blockHarvester, MosaicId(500), Amount(200 + 33), Amount() }
 		});
 	}
 
 	TEST(TEST_CLASS, ObserverCreditsAccountsOnRollback_Single) {
 		// Arrange:
-		auto blockHarvester = test::GenerateRandomByteArray<Key>();
+		auto blockHarvester = test::GenerateRandomByteArray<Address>();
 		auto address = test::GenerateRandomByteArray<Address>();
 		std::vector<SeedTuple> expiringSeeds{
 			{ address, MosaicId(500), Amount(333), Amount(33) }
@@ -109,7 +105,7 @@ namespace catapult { namespace observers {
 		// Act + Assert:
 		ObserverTests::RunBalanceTest(NotifyMode::Rollback, blockHarvester, expiringSeeds, {
 			{ address, MosaicId(500), Amount(333), Amount() },
-			{ ToAddress(blockHarvester), MosaicId(500), Amount(200 - 33), Amount() }
+			{ blockHarvester, MosaicId(500), Amount(200 - 33), Amount() }
 		});
 	}
 
@@ -119,7 +115,7 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, ObserverCreditsAccountsOnCommit_Multiple) {
 		// Arrange: using single mosaic id to emulate typical operation
-		auto blockHarvester = test::GenerateRandomByteArray<Key>();
+		auto blockHarvester = test::GenerateRandomByteArray<Address>();
 		auto addresses = test::GenerateRandomDataVector<Address>(3);
 		std::vector<SeedTuple> expiringSeeds{
 			{ addresses[0], MosaicId(500), Amount(333), Amount(33) },
@@ -133,13 +129,13 @@ namespace catapult { namespace observers {
 			{ addresses[0], MosaicId(500), Amount(333), Amount() },
 			{ addresses[1], MosaicId(500), Amount(222), Amount() },
 			{ addresses[2], MosaicId(500), Amount(444), Amount() },
-			{ ToAddress(blockHarvester), MosaicId(500), Amount(200 + 33 + 88 + 44 + 22), Amount() }
+			{ blockHarvester, MosaicId(500), Amount(200 + 33 + 88 + 44 + 22), Amount() }
 		});
 	}
 
 	TEST(TEST_CLASS, ObserverCreditsAccountsOnRollback_Multiple) {
 		// Arrange: using single mosaic id to emulate typical operation
-		auto blockHarvester = test::GenerateRandomByteArray<Key>();
+		auto blockHarvester = test::GenerateRandomByteArray<Address>();
 		auto addresses = test::GenerateRandomDataVector<Address>(3);
 		std::vector<SeedTuple> expiringSeeds{
 			{ addresses[0], MosaicId(500), Amount(333), Amount(33) },
@@ -153,7 +149,7 @@ namespace catapult { namespace observers {
 			{ addresses[0], MosaicId(500), Amount(333), Amount() },
 			{ addresses[1], MosaicId(500), Amount(222), Amount() },
 			{ addresses[2], MosaicId(500), Amount(444), Amount() },
-			{ ToAddress(blockHarvester), MosaicId(500), Amount(200 - 33 - 88 - 44 - 22), Amount() }
+			{ blockHarvester, MosaicId(500), Amount(200 - 33 - 88 - 44 - 22), Amount() }
 		});
 	}
 
@@ -163,7 +159,7 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, ObserverCreatesReceiptsOnCommit) {
 		// Arrange: using single mosaic id to emulate typical operation
-		auto blockHarvester = test::GenerateRandomByteArray<Key>();
+		auto blockHarvester = test::GenerateRandomByteArray<Address>();
 		std::vector<SeedTuple> expiringSeeds{
 			{ Address{ { 9 } }, MosaicId(500), Amount(333), Amount(33) },
 			{ Address{ { 1 } }, MosaicId(500), Amount(222), Amount(88) },
@@ -182,7 +178,7 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, ObserverDoesNotCreateReceiptsOnRollback) {
 		// Arrange: using single mosaic id to emulate typical operation
-		auto blockHarvester = test::GenerateRandomByteArray<Key>();
+		auto blockHarvester = test::GenerateRandomByteArray<Address>();
 		std::vector<SeedTuple> expiringSeeds{
 			{ Address{ { 9 } }, MosaicId(500), Amount(333), Amount(33) },
 			{ Address{ { 1 } }, MosaicId(500), Amount(222), Amount(88) },

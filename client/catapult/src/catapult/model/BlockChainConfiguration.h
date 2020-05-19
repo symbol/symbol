@@ -105,8 +105,8 @@ namespace catapult { namespace model {
 		/// Percentage of the harvested fee that is collected by the network.
 		uint8_t HarvestNetworkPercentage;
 
-		/// Public key of the harvest network fee sink account.
-		Key HarvestNetworkFeeSinkPublicKey;
+		/// Address of the harvest network fee sink account.
+		Address HarvestNetworkFeeSinkAddress;
 
 		/// Number of blocks between cache pruning.
 		uint32_t BlockPruneInterval;

@@ -37,10 +37,10 @@ namespace catapult { namespace observers {
 			{}
 
 		public:
-			void apply(const Key& publicKey, Amount amount) {
+			void apply(const Address& address, Amount amount) {
 				auto& cache = m_context.Cache.sub<cache::AccountStateCache>();
 				auto feeMosaic = model::Mosaic{ m_currencyMosaicId, amount };
-				cache::ProcessForwardedAccountState(cache, publicKey, [&feeMosaic, &context = m_context](auto& accountState) {
+				cache::ProcessForwardedAccountState(cache, address, [&feeMosaic, &context = m_context](auto& accountState) {
 					ApplyFee(accountState, context.Mode, feeMosaic, context.StatementBuilder());
 				});
 			}
@@ -91,7 +91,7 @@ namespace catapult { namespace observers {
 
 			// only if amount is non-zero create receipt for network sink account
 			if (Amount() != networkAmount)
-				applier.apply(options.HarvestNetworkFeeSinkPublicKey, networkAmount);
+				applier.apply(options.HarvestNetworkFeeSinkAddress, networkAmount);
 
 			// only if amount is non-zero create receipt for beneficiary account
 			if (Amount() != beneficiaryAmount)

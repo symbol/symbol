@@ -26,8 +26,8 @@ namespace catapult { namespace cache {
 
 	namespace {
 		template<typename TAccountStateCache, typename TAccountState>
-		void ProcessForwardedAccountStateT(TAccountStateCache& cache, const Key& publicKey, const consumer<TAccountState&>& action) {
-			auto accountStateIter = cache.find(publicKey);
+		void ProcessForwardedAccountStateT(TAccountStateCache& cache, const Address& address, const consumer<TAccountState&>& action) {
+			auto accountStateIter = cache.find(address);
 			auto& accountState = accountStateIter.get();
 
 			if (state::AccountType::Remote != accountState.AccountType) {
@@ -44,14 +44,17 @@ namespace catapult { namespace cache {
 		}
 	}
 
-	void ProcessForwardedAccountState(AccountStateCacheDelta& cache, const Key& publicKey, const consumer<state::AccountState&>& action) {
-		ProcessForwardedAccountStateT(cache, publicKey, action);
+	void ProcessForwardedAccountState(
+			AccountStateCacheDelta& cache,
+			const Address& address,
+			const consumer<state::AccountState&>& action) {
+		ProcessForwardedAccountStateT(cache, address, action);
 	}
 
 	void ProcessForwardedAccountState(
 			const ReadOnlyAccountStateCache& cache,
-			const Key& publicKey,
+			const Address& address,
 			const consumer<const state::AccountState&>& action) {
-		ProcessForwardedAccountStateT(cache, publicKey, action);
+		ProcessForwardedAccountStateT(cache, address, action);
 	}
 }}

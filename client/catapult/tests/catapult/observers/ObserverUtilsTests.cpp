@@ -219,7 +219,7 @@ namespace catapult { namespace observers {
 		using PruningObserver = NotificationObserverT<model::BlockNotification>;
 
 		void NotifyBlock(const PruningObserver& observer, ObserverContext& context, Timestamp timestamp) {
-			observer.notify(model::BlockNotification(Key(), Key(), timestamp, Difficulty(), BlockFeeMultiplier()), context);
+			observer.notify(model::BlockNotification(Address(), Address(), timestamp, Difficulty(), BlockFeeMultiplier()), context);
 		}
 
 		void NotifyBlock(const PruningObserver& observer, ObserverContext& context) {

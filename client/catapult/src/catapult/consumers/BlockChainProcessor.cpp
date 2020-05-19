@@ -170,7 +170,7 @@ namespace catapult { namespace consumers {
 				return { proof.Gamma, proof.VerificationHash, proof.Scalar };
 			}
 
-			static Key GetVrfPublicKey(const cache::ReadOnlyAccountStateCache& accountStateCache, const Key& blockHarvester) {
+			static Key GetVrfPublicKey(const cache::ReadOnlyAccountStateCache& accountStateCache, const Address& blockHarvester) {
 				Key vrfPublicKey;
 				cache::ProcessForwardedAccountState(accountStateCache, blockHarvester, [&vrfPublicKey](const auto& accountState) {
 					vrfPublicKey = state::GetVrfPublicKey(accountState);
@@ -195,7 +195,7 @@ namespace catapult { namespace consumers {
 					return chain::Failure_Chain_Block_Unknown_Signer;
 				}
 
-				auto vrfPublicKey = GetVrfPublicKey(accountStateCache, accountStateIter.get().PublicKey);
+				auto vrfPublicKey = GetVrfPublicKey(accountStateCache, accountStateIter.get().Address);
 				auto vrfVerifyResult = crypto::VerifyVrfProof(Unpack(block.GenerationHashProof), parentGenerationHash, vrfPublicKey);
 
 				if (Hash512() == vrfVerifyResult) {
