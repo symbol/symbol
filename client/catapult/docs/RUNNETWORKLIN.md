@@ -36,7 +36,7 @@ NOTE: The script is generating ten accounts for the nemesis block, but the numbe
 The file ``resources/mijin-test.properties`` defines the transactions issued in the nemesis block.
 
 1\. Open ``mijin-test.properties`` and edit the ``[nemesis]`` section.
-Replace ``nemesisGenerationHash`` for a unique SHA3-256 hash that will identify the network 
+Replace ``nemesisGenerationHash`` for a unique SHA3-256 hash that will identify the network
 and ``nemesisSignerPrivateKey`` for one of the private keys generated in ``nemesis.addresses.txt``.
 
 ```ini
@@ -108,13 +108,13 @@ cd ..
 
 ## Edit the network properties
 
-The file ``resources/config-network.properties`` defines the network configuration. 
+The file ``resources/config-network.properties`` defines the network configuration.
 Learn more about each network property in [this guide](https://nemtech.github.io/guides/network/configuring-network-properties.html#properties).
 
 Edit the properties file to match the nemesis block and with the desired network configuration.
 
 NOTE: By default, ``initialCurrencyAtomicUnits`` and ``totalChainImportance`` do not match the values set in ``./resources/mijin-test.properties``.
-Other values that might differ from the nemesis block file are ``identifier``,  ``publicKey``, ``generationHash``, ``currencyMosaicId``, ``harvestMosaicId``, ``mosaicRentalFeeSinkPublicKey``, and ``namespaceRentalFeeSinkPublicKey``.
+Other values that might differ from the nemesis block file are ``identifier``,  ``publicKey``, ``generationHash``, ``currencyMosaicId``, ``harvestMosaicId``, ``mosaicRentalFeeSinkAddress``, and ``namespaceRentalFeeSinkAddress``.
 
 ## Generate the nemesis block
 

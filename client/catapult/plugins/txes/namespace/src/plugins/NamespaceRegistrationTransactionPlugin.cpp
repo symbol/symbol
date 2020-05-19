@@ -65,7 +65,7 @@ namespace catapult { namespace plugins {
 		auto CreatePublisher(const NamespaceRentalFeeConfiguration& config) {
 			return [config](const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub) {
 				// 1. sink account notification
-				sub.notify(AccountPublicKeyNotification(config.SinkPublicKey));
+				sub.notify(AccountAddressNotification(config.SinkAddress));
 
 				// 2. rental fee charge
 				PublishBalanceTransfer(config, transaction, sub);

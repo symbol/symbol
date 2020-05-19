@@ -38,8 +38,8 @@ namespace catapult { namespace config {
 		/// Maximum mosaic divisibility.
 		uint8_t MaxMosaicDivisibility;
 
-		/// Public key of the mosaic rental fee sink account.
-		Key MosaicRentalFeeSinkPublicKey;
+		/// Address of the mosaic rental fee sink account.
+		Address MosaicRentalFeeSinkAddress;
 
 		/// Mosaic rental fee.
 		Amount MosaicRentalFee;

@@ -254,7 +254,7 @@ namespace catapult { namespace model {
 		EXPECT_FALSE(IsValidEncodedAddress(encoded, Network_Identifier));
 	}
 
-	TEST(TEST_CLASS, AddingLeadingOrTrailingWhiteSpaceInvalidatesEncodedAddress) {
+	TEST(TEST_CLASS, IsValidEncodedAddressReturnsFalseForEncodedStringWithLeadingOrTrailingWhiteSpace) {
 		// Arrange:
 		auto encoded = std::string(Encoded_Address);
 
@@ -262,6 +262,65 @@ namespace catapult { namespace model {
 		EXPECT_FALSE(IsValidEncodedAddress("   \t    " + encoded, Network_Identifier));
 		EXPECT_FALSE(IsValidEncodedAddress(encoded + "   \t    ", Network_Identifier));
 		EXPECT_FALSE(IsValidEncodedAddress("   \t    " + encoded + "   \t    ", Network_Identifier));
+	}
+
+	// endregion
+
+	// region TryParseValue
+
+	TEST(TEST_CLASS, TryParseValueCanParseValidEncodedAddress) {
+		// Arrange:
+		auto encoded = Encoded_Address;
+		Address decoded;
+
+		// Act:
+		auto result = TryParseValue(encoded, decoded);
+
+		// Assert:
+		EXPECT_TRUE(result);
+		EXPECT_EQ(utils::ParseByteArray<Address>(Decoded_Address), decoded);
+	}
+
+	namespace {
+		void AssertTryParseValueFailure(const std::string& encoded) {
+			// Arrange:
+			Address decoded;
+
+			// Act:
+			auto result = TryParseValue(encoded, decoded);
+
+			// Assert:
+			EXPECT_FALSE(result) << encoded;
+			EXPECT_EQ(Address(), decoded) << encoded;
+		}
+	}
+
+	TEST(TEST_CLASS, TryParseValueReturnsFalseForInvalidEncodedAddress) {
+		// Arrange: change last char of valid address
+		auto encoded = std::string(Encoded_Address);
+		++encoded.back();
+
+		// Assert:
+		AssertTryParseValueFailure(encoded);
+	}
+
+	TEST(TEST_CLASS, TryParseValueReturnsFalseForEncodedAddressWithWrongLength) {
+		// Arrange: add additional characters to the end of a valid address
+		auto encoded = std::string(Encoded_Address);
+		encoded += "ABC";
+
+		// Assert:
+		AssertTryParseValueFailure(encoded);
+	}
+
+	TEST(TEST_CLASS, TryParseValueReturnsFalseForEncodedStringWithLeadingOrTrailingWhiteSpace) {
+		// Arrange:
+		auto encoded = std::string(Encoded_Address);
+
+		// Assert:
+		AssertTryParseValueFailure("   \t    " + encoded);
+		AssertTryParseValueFailure(encoded + "   \t    ");
+		AssertTryParseValueFailure("   \t    " + encoded + "   \t    ");
 	}
 
 	// endregion

@@ -74,15 +74,13 @@ namespace catapult { namespace plugins {
 				UnresolvedMosaicId currencyMosaicId,
 				const config::NamespaceConfiguration& config) {
 			NamespaceRentalFeeConfiguration rentalFeeConfig;
-			rentalFeeConfig.SinkPublicKey = config.NamespaceRentalFeeSinkPublicKey;
 			rentalFeeConfig.CurrencyMosaicId = currencyMosaicId;
 			rentalFeeConfig.RootFeePerBlock = config.RootNamespaceRentalFeePerBlock;
 			rentalFeeConfig.ChildFee = config.ChildNamespaceRentalFee;
 			rentalFeeConfig.NemesisPublicKey = network.PublicKey;
 
 			// sink address is already resolved but needs to be passed as unresolved into notification
-			auto sinkAddress = PublicKeyToAddress(rentalFeeConfig.SinkPublicKey, network.Identifier);
-			rentalFeeConfig.SinkAddress = sinkAddress.copyTo<UnresolvedAddress>();
+			rentalFeeConfig.SinkAddress = config.NamespaceRentalFeeSinkAddress.copyTo<UnresolvedAddress>();
 			return rentalFeeConfig;
 		}
 

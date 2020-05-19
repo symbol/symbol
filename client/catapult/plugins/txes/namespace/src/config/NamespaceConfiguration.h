@@ -50,8 +50,8 @@ namespace catapult { namespace config {
 		/// Reserved root namespaces that cannot be claimed.
 		std::unordered_set<std::string> ReservedRootNamespaceNames;
 
-		/// Public key of the namespace rental fee sink account.
-		Key NamespaceRentalFeeSinkPublicKey;
+		/// Address of the namespace rental fee sink account.
+		Address NamespaceRentalFeeSinkAddress;
 
 		/// Root namespace rental fee per block.
 		Amount RootNamespaceRentalFeePerBlock;

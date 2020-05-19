@@ -54,7 +54,7 @@ namespace catapult { namespace plugins {
 						{ "namespaceGracePeriodDuration", "0h" },
 						{ "reservedRootNamespaceNames", "reserved" },
 
-						{ "namespaceRentalFeeSinkPublicKey", "0000000000000000000000000000000000000000000000000000000000000000" },
+						{ "namespaceRentalFeeSinkAddress", "SAXQUTQQNS6JEJG7PLC6FRVJ2USS44GLMXG4DOF2" },
 						{ "rootNamespaceRentalFeePerBlock", "0" },
 						{ "childNamespaceRentalFee", "0" }
 					}

@@ -20,6 +20,7 @@
 
 #include "catapult/local/server/NemesisBlockNotifier.h"
 #include "catapult/cache_core/AccountStateCache.h"
+#include "catapult/model/Address.h"
 #include "catapult/plugins/PluginManager.h"
 #include "tests/test/core/BlockStatementTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
@@ -174,10 +175,6 @@ namespace catapult { namespace local {
 		bool ContainsModifiedPrivate(const model::AddressSet& addresses, const char* privateKeyString) {
 			return ContainsAddress(addresses, test::RawPrivateKeyToAddress(privateKeyString));
 		}
-
-		bool ContainsModifiedPublic(const model::AddressSet& addresses, const char* publicKeyString) {
-			return ContainsAddress(addresses, test::RawPublicKeyToAddress(publicKeyString));
-		}
 	}
 
 	TEST(TEST_CLASS, StateNotificationsAreNotRaisedWhenHeightIsGreaterThanOne) {
@@ -223,8 +220,8 @@ namespace catapult { namespace local {
 
 		// - check nemesis and rental fee sinks
 		EXPECT_TRUE(ContainsModifiedPrivate(addedAddresses, test::Mijin_Test_Nemesis_Private_Key));
-		EXPECT_TRUE(ContainsModifiedPublic(addedAddresses, test::Namespace_Rental_Fee_Sink_Public_Key));
-		EXPECT_TRUE(ContainsModifiedPublic(addedAddresses, test::Mosaic_Rental_Fee_Sink_Public_Key));
+		EXPECT_TRUE(ContainsAddress(addedAddresses, model::StringToAddress(test::Namespace_Rental_Fee_Sink_Address)));
+		EXPECT_TRUE(ContainsAddress(addedAddresses, model::StringToAddress(test::Mosaic_Rental_Fee_Sink_Address)));
 
 		// - check recipient accounts
 		for (const auto* pRecipientPrivateKeyString : test::Mijin_Test_Private_Keys)

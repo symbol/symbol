@@ -29,9 +29,6 @@ namespace catapult { namespace plugins {
 
 	/// Mosaic rental fee configuration.
 	struct MosaicRentalFeeConfiguration {
-		/// Public key of the rental fee sink account.
-		Key SinkPublicKey;
-
 		/// Currency mosaic id.
 		UnresolvedMosaicId CurrencyMosaicId;
 

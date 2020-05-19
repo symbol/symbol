@@ -41,7 +41,6 @@ namespace catapult { namespace plugins {
 
 		MosaicRentalFeeConfiguration CreateRentalFeeConfiguration(Amount fee) {
 			return {
-				test::GenerateRandomByteArray<Key>(),
 				UnresolvedMosaicId(1234),
 				test::GenerateRandomUnresolvedAddress(),
 				fee,
@@ -67,8 +66,8 @@ namespace catapult { namespace plugins {
 				typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder& builder,
 				const MosaicRentalFeeConfiguration& config,
 				const typename TTraits::TransactionType& transaction) {
-			builder.template addExpectation<AccountPublicKeyNotification>([&config](const auto& notification) {
-				EXPECT_EQ(config.SinkPublicKey, notification.PublicKey);
+			builder.template addExpectation<AccountAddressNotification>([&config](const auto& notification) {
+				EXPECT_EQ(config.SinkAddress, notification.Address);
 			});
 			builder.template addExpectation<MosaicNonceNotification>([&transaction](const auto& notification) {
 				auto signerAddress = model::PublicKeyToAddress(transaction.SignerPublicKey, transaction.Network);
@@ -101,7 +100,7 @@ namespace catapult { namespace plugins {
 
 		// Act + Assert:
 		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
-			AccountPublicKeyNotification::Notification_Type,
+			AccountAddressNotification::Notification_Type,
 			MosaicNonceNotification::Notification_Type,
 			MosaicPropertiesNotification::Notification_Type,
 			MosaicDefinitionNotification::Notification_Type
@@ -136,7 +135,7 @@ namespace catapult { namespace plugins {
 
 		// Act + Assert:
 		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
-			AccountPublicKeyNotification::Notification_Type,
+			AccountAddressNotification::Notification_Type,
 			BalanceTransferNotification::Notification_Type,
 			MosaicRentalFeeNotification::Notification_Type,
 			MosaicNonceNotification::Notification_Type,

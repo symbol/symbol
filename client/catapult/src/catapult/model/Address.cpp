@@ -77,11 +77,27 @@ namespace catapult { namespace model {
 		return std::equal(hash.begin(), hash.begin() + Checksum_Size, address.begin() + checksumBegin);
 	}
 
+	namespace {
+		bool IsValidEncodedAddress(
+				const std::string& encoded,
+				const std::function<NetworkIdentifier (uint8_t)>& networkIdentifierAccessor) {
+			if (Address_Encoded_Size != encoded.size())
+				return false;
+
+			Address decoded;
+			return utils::TryBase32Decode(encoded, decoded) && IsValidAddress(decoded, networkIdentifierAccessor(decoded[0]));
+		}
+	}
+
 	bool IsValidEncodedAddress(const std::string& encoded, NetworkIdentifier networkIdentifier) {
-		if (Address_Encoded_Size != encoded.size())
+		return IsValidEncodedAddress(encoded, [networkIdentifier](auto) { return networkIdentifier; });
+	}
+
+	bool TryParseValue(const std::string& str, Address& parsedValue) {
+		if (!IsValidEncodedAddress(str, [](auto firstDecodedByte) { return static_cast<NetworkIdentifier>(firstDecodedByte); }))
 			return false;
 
-		Address decoded;
-		return utils::TryBase32Decode(encoded, decoded) && IsValidAddress(decoded, networkIdentifier);
+		parsedValue = StringToAddress(str);
+		return true;
 	}
 }}

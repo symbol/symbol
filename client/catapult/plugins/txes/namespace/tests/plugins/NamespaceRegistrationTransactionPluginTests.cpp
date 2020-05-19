@@ -42,7 +42,6 @@ namespace catapult { namespace plugins {
 
 		NamespaceRentalFeeConfiguration CreateRentalFeeConfiguration(Amount rootFeePerBlock, Amount childFee) {
 			return {
-				test::GenerateRandomByteArray<Key>(),
 				UnresolvedMosaicId(1234),
 				test::GenerateRandomUnresolvedAddress(),
 				rootFeePerBlock,
@@ -80,8 +79,8 @@ namespace catapult { namespace plugins {
 				typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder& builder,
 				const NamespaceRentalFeeConfiguration& config,
 				const typename TTraits::TransactionType& transaction) {
-			builder.template addExpectation<AccountPublicKeyNotification>([&config](const auto& notification) {
-				EXPECT_EQ(config.SinkPublicKey, notification.PublicKey);
+			builder.template addExpectation<AccountAddressNotification>([&config](const auto& notification) {
+				EXPECT_EQ(config.SinkAddress, notification.Address);
 			});
 			builder.template addExpectation<NamespaceRegistrationNotification>([&transaction](const auto& notification) {
 				EXPECT_EQ(transaction.RegistrationType, notification.RegistrationType);
@@ -119,7 +118,7 @@ namespace catapult { namespace plugins {
 
 		// Act + Assert:
 		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(*pTransaction, {
-			AccountPublicKeyNotification::Notification_Type,
+			AccountAddressNotification::Notification_Type,
 			NamespaceRegistrationNotification::Notification_Type,
 			RootNamespaceNotification::Notification_Type,
 			NamespaceNameNotification::Notification_Type
@@ -154,7 +153,7 @@ namespace catapult { namespace plugins {
 
 		// Act + Assert:
 		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(*pTransaction, {
-			AccountPublicKeyNotification::Notification_Type,
+			AccountAddressNotification::Notification_Type,
 			BalanceTransferNotification::Notification_Type,
 			NamespaceRentalFeeNotification::Notification_Type,
 			NamespaceRegistrationNotification::Notification_Type,
@@ -205,7 +204,7 @@ namespace catapult { namespace plugins {
 
 		// Act + Assert:
 		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(*pTransaction, {
-			AccountPublicKeyNotification::Notification_Type,
+			AccountAddressNotification::Notification_Type,
 			NamespaceRegistrationNotification::Notification_Type,
 			RootNamespaceNotification::Notification_Type,
 			NamespaceNameNotification::Notification_Type
@@ -237,8 +236,8 @@ namespace catapult { namespace plugins {
 				typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder& builder,
 				const NamespaceRentalFeeConfiguration& config,
 				const typename TTraits::TransactionType& transaction) {
-			builder.template addExpectation<AccountPublicKeyNotification>([&config](const auto& notification) {
-				EXPECT_EQ(config.SinkPublicKey, notification.PublicKey);
+			builder.template addExpectation<AccountAddressNotification>([&config](const auto& notification) {
+				EXPECT_EQ(config.SinkAddress, notification.Address);
 			});
 			builder.template addExpectation<NamespaceRegistrationNotification>([&transaction](const auto& notification) {
 				EXPECT_EQ(transaction.RegistrationType, notification.RegistrationType);
@@ -276,7 +275,7 @@ namespace catapult { namespace plugins {
 
 		// Act + Assert:
 		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(*pTransaction, {
-			AccountPublicKeyNotification::Notification_Type,
+			AccountAddressNotification::Notification_Type,
 			NamespaceRegistrationNotification::Notification_Type,
 			ChildNamespaceNotification::Notification_Type,
 			NamespaceNameNotification::Notification_Type
@@ -311,7 +310,7 @@ namespace catapult { namespace plugins {
 
 		// Act + Assert:
 		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(*pTransaction, {
-			AccountPublicKeyNotification::Notification_Type,
+			AccountAddressNotification::Notification_Type,
 			BalanceTransferNotification::Notification_Type,
 			NamespaceRentalFeeNotification::Notification_Type,
 			NamespaceRegistrationNotification::Notification_Type,
