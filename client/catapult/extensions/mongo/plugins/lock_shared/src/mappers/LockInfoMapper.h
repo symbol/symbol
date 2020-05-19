@@ -35,15 +35,11 @@ namespace catapult { namespace mongo { namespace plugins {
 		// region ToDbModel
 
 	private:
-		static void StreamLockInfo(
-				mappers::bson_stream::document& builder,
-				const state::LockInfo& lockInfo,
-				const Address& senderAddress) {
+		static void StreamLockInfo(mappers::bson_stream::document& builder, const state::LockInfo& lockInfo) {
 			using namespace catapult::mongo::mappers;
 
 			builder
-					<< "senderPublicKey" << ToBinary(lockInfo.SenderPublicKey)
-					<< "senderAddress" << ToBinary(senderAddress)
+					<< "ownerAddress" << ToBinary(lockInfo.OwnerAddress)
 					<< "mosaicId" << ToInt64(lockInfo.MosaicId)
 					<< "amount" << ToInt64(lockInfo.Amount)
 					<< "endHeight" << ToInt64(lockInfo.EndHeight)
@@ -51,10 +47,11 @@ namespace catapult { namespace mongo { namespace plugins {
 		}
 
 	public:
-		static bsoncxx::document::value ToDbModel(const LockInfoType& lockInfo, const Address& senderAddress) {
+		/// Maps \a lockInfo to the corresponding db model value.
+		static bsoncxx::document::value ToDbModel(const LockInfoType& lockInfo) {
 			mappers::bson_stream::document builder;
 			auto doc = builder << "lock" << mappers::bson_stream::open_document;
-			StreamLockInfo(builder, lockInfo, senderAddress);
+			StreamLockInfo(builder, lockInfo);
 			TTraits::StreamLockInfo(builder, lockInfo);
 			return doc
 					<< mappers::bson_stream::close_document

@@ -25,7 +25,7 @@ namespace catapult { namespace test {
 
 	BasicHashLockInfoTestTraits::ValueType BasicHashLockInfoTestTraits::CreateLockInfo(Height height) {
 		return state::HashLockInfo(
-				GenerateRandomByteArray<Key>(),
+				GenerateRandomByteArray<Address>(),
 				MosaicId(Random()),
 				Amount(Random()),
 				height,

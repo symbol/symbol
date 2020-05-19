@@ -50,7 +50,7 @@ namespace catapult { namespace model {
 	struct BaseLockNotification : public Notification {
 	protected:
 		/// Creates base lock notification around \a owner, \a mosaic and \a duration.
-		BaseLockNotification(const Key& owner, const UnresolvedMosaic& mosaic, BlockDuration duration)
+		BaseLockNotification(const Address& owner, const UnresolvedMosaic& mosaic, BlockDuration duration)
 				: Notification(TDerivedNotification::Notification_Type, sizeof(TDerivedNotification))
 				, Owner(owner)
 				, Mosaic(mosaic)
@@ -59,7 +59,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Lock owner.
-		const Key& Owner;
+		Address Owner;
 
 		/// Locked mosaic.
 		UnresolvedMosaic Mosaic;

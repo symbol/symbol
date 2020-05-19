@@ -46,7 +46,7 @@ namespace catapult { namespace unbondedpruning {
 
 				// raise one hash lock notification for each dependent hash
 				for (const auto& hash : m_dependentHashes)
-					sub.notify(model::HashLockNotification(Key(), model::UnresolvedMosaic(), BlockDuration(), hash));
+					sub.notify(model::HashLockNotification(Address(), model::UnresolvedMosaic(), BlockDuration(), hash));
 
 				// if there are no dependent hashes, don't raise any notifications
 			}

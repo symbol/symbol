@@ -37,7 +37,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		};
 	}
 
-	bsoncxx::document::value ToDbModel(const state::HashLockInfo& hashLockInfo, const Address& senderAddress) {
-		return LockInfoMapper<HashLockInfoMapperTraits>::ToDbModel(hashLockInfo, senderAddress);
+	bsoncxx::document::value ToDbModel(const state::HashLockInfo& hashLockInfo) {
+		return LockInfoMapper<HashLockInfoMapperTraits>::ToDbModel(hashLockInfo);
 	}
 }}}

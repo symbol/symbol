@@ -95,7 +95,7 @@ namespace catapult { namespace model {
 	public:
 		/// Creates secret lock notification around \a owner, \a mosaic, \a duration, \a hashAlgorithm, \a secret and \a recipient.
 		SecretLockNotification(
-				const Key& owner,
+				const Address& owner,
 				const UnresolvedMosaic& mosaic,
 				BlockDuration duration,
 				LockHashAlgorithm hashAlgorithm,
@@ -161,7 +161,7 @@ namespace catapult { namespace model {
 	public:
 		/// Creates proof publication notification around \a owner, \a hashAlgorithm, \a secret and \a recipient.
 		ProofPublicationNotification(
-				const Key& owner,
+				const Address& owner,
 				LockHashAlgorithm hashAlgorithm,
 				const Hash256& secret,
 				const UnresolvedAddress& recipient)
@@ -174,7 +174,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Lock owner.
-		const Key& Owner;
+		Address Owner;
 
 		/// Hash algorithm.
 		LockHashAlgorithm HashAlgorithm;

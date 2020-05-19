@@ -35,13 +35,9 @@ namespace catapult { namespace test {
 		EXPECT_EQ(transaction.Mosaic.Amount, Amount(test::GetUint64(dbTransaction, "amount")));
 	}
 
-	/// Asserts that \a lockInfo with \a senderAddress is equal to \a dbLockInfo.
-	inline void AssertEqualBaseLockInfoData(
-			const state::LockInfo& lockInfo,
-			const Address& senderAddress,
-			const bsoncxx::document::view& dbLockInfo) {
-		EXPECT_EQ(senderAddress, GetAddressValue(dbLockInfo, "senderAddress"));
-		EXPECT_EQ(lockInfo.SenderPublicKey, GetKeyValue(dbLockInfo, "senderPublicKey"));
+	/// Asserts that \a lockInfo is equal to \a dbLockInfo.
+	inline void AssertEqualBaseLockInfoData(const state::LockInfo& lockInfo, const bsoncxx::document::view& dbLockInfo) {
+		EXPECT_EQ(lockInfo.OwnerAddress, GetAddressValue(dbLockInfo, "ownerAddress"));
 		EXPECT_EQ(lockInfo.MosaicId, MosaicId(GetUint64(dbLockInfo, "mosaicId")));
 		EXPECT_EQ(lockInfo.Amount, Amount(GetUint64(dbLockInfo, "amount")));
 		EXPECT_EQ(lockInfo.EndHeight, Height(GetUint64(dbLockInfo, "endHeight")));

@@ -77,7 +77,7 @@ namespace catapult { namespace observers {
 			}
 
 			static auto DestinationAccount(const BasicTraits::ValueType& lockInfo) {
-				return lockInfo.SenderPublicKey;
+				return lockInfo.OwnerAddress;
 			}
 		};
 

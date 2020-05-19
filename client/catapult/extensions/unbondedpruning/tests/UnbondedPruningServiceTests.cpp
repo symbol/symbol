@@ -69,7 +69,7 @@ namespace catapult { namespace unbondedpruning {
 					model::NotificationSubscriber& sub) const override {
 				for (const auto& hash : m_dependentHashes) {
 					auto mutatedHash = MutateHash(m_numPublishes, hash);
-					sub.notify(model::HashLockNotification(Key(), model::UnresolvedMosaic(), BlockDuration(), mutatedHash));
+					sub.notify(model::HashLockNotification(Address(), model::UnresolvedMosaic(), BlockDuration(), mutatedHash));
 				}
 
 				++m_numPublishes;

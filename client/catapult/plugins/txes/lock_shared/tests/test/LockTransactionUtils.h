@@ -20,6 +20,7 @@
 
 #pragma once
 #include "sdk/src/extensions/ConversionExtensions.h"
+#include "catapult/model/Address.h"
 #include "catapult/utils/MemoryUtils.h"
 #include "tests/TestHarness.h"
 
@@ -28,7 +29,8 @@ namespace catapult { namespace test {
 	/// Asserts that lock \a notification properties match with corresponding properties of \a transaction.
 	template<typename TBaseLockNotification, typename TTransaction>
 	void AssertBaseLockNotification(const TBaseLockNotification& notification, const TTransaction& transaction) {
-		EXPECT_EQ(transaction.SignerPublicKey, notification.Owner);
+		auto signerAddress = model::PublicKeyToAddress(transaction.SignerPublicKey, transaction.Network);
+		EXPECT_EQ(signerAddress, notification.Owner);
 		EXPECT_EQ(transaction.Mosaic.MosaicId, notification.Mosaic.MosaicId);
 		EXPECT_EQ(transaction.Mosaic.Amount, notification.Mosaic.Amount);
 		EXPECT_EQ(transaction.Duration, notification.Duration);

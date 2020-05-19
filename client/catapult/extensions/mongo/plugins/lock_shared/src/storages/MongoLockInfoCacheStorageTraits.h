@@ -38,9 +38,9 @@ namespace catapult { namespace mongo { namespace plugins {
 			return mappers::ToBinary(key);
 		}
 
-		/// Maps \a lockInfo given network \a networkIdentifier to a mongo document.
-		static auto MapToMongoDocument(const ModelType& lockInfo, model::NetworkIdentifier networkIdentifier) {
-			return plugins::ToDbModel(lockInfo, model::PublicKeyToAddress(lockInfo.SenderPublicKey, networkIdentifier));
+		/// Maps \a lockInfo to a mongo document.
+		static auto MapToMongoDocument(const ModelType& lockInfo, model::NetworkIdentifier) {
+			return plugins::ToDbModel(lockInfo);
 		}
 	};
 }}}

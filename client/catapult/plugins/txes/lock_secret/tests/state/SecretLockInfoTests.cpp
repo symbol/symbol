@@ -30,16 +30,16 @@ namespace catapult { namespace state {
 
 	TEST(TEST_CLASS, SecretLockInfoConstructorSetsAllFields) {
 		// Arrange:
-		auto account = test::GenerateRandomByteArray<Key>();
+		auto owner = test::GenerateRandomByteArray<Address>();
 		auto algorithm = model::LockHashAlgorithm::Op_Hash_160;
 		auto secret = test::GenerateRandomByteArray<Hash256>();
 		auto recipient = test::GenerateRandomByteArray<Address>();
 
 		// Act:
-		SecretLockInfo lockInfo(account, MosaicId(123), Amount(234), Height(345), algorithm, secret, recipient);
+		SecretLockInfo lockInfo(owner, MosaicId(123), Amount(234), Height(345), algorithm, secret, recipient);
 
 		// Assert:
-		EXPECT_EQ(account, lockInfo.SenderPublicKey);
+		EXPECT_EQ(owner, lockInfo.OwnerAddress);
 		EXPECT_EQ(MosaicId(123), lockInfo.MosaicId);
 		EXPECT_EQ(Amount(234), lockInfo.Amount);
 		EXPECT_EQ(Height(345), lockInfo.EndHeight);

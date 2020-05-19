@@ -33,17 +33,17 @@ namespace catapult { namespace state {
 		SecretLockInfo() : LockInfo()
 		{}
 
-		/// Creates a secret lock info around \a senderPublicKey, \a mosaicId, \a amount, \a endHeight, \a hashAlgorithm, \a secret
+		/// Creates a secret lock info around \a ownerAddress, \a mosaicId, \a amount, \a endHeight, \a hashAlgorithm, \a secret
 		/// and \a recipientAddress.
 		SecretLockInfo(
-				const Key& senderPublicKey,
+				const Address& ownerAddress,
 				catapult::MosaicId mosaicId,
 				catapult::Amount amount,
 				Height endHeight,
 				model::LockHashAlgorithm hashAlgorithm,
 				const Hash256& secret,
 				const catapult::Address& recipientAddress)
-				: LockInfo(senderPublicKey, mosaicId, amount, endHeight)
+				: LockInfo(ownerAddress, mosaicId, amount, endHeight)
 				, HashAlgorithm(hashAlgorithm)
 				, Secret(secret)
 				, RecipientAddress(recipientAddress)

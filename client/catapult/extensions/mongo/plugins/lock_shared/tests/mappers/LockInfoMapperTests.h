@@ -36,19 +36,18 @@ namespace catapult { namespace mongo { namespace plugins {
 		static void AssertCanMapLockInfo_ModelToDbModel() {
 			// Arrange:
 			auto lockInfo = TLockInfoTraits::CreateLockInfo(Height(123));
-			auto address = test::GenerateRandomByteArray<Address>();
 			lockInfo.Status = state::LockStatus::Used;
 
 			// Act:
-			auto document = ToDbModel(lockInfo, address);
+			auto document = ToDbModel(lockInfo);
 			auto view = document.view();
 
 			// Assert:
 			EXPECT_EQ(1u, test::GetFieldCount(view));
 
 			auto lockInfoView = view["lock"].get_document().view();
-			EXPECT_EQ(6u + TLockInfoTraits::Num_Additional_Fields, test::GetFieldCount(lockInfoView));
-			TLockInfoTraits::AssertEqualLockInfoData(lockInfo, address, lockInfoView);
+			EXPECT_EQ(5u + TLockInfoTraits::Num_Additional_Fields, test::GetFieldCount(lockInfoView));
+			TLockInfoTraits::AssertEqualLockInfoData(lockInfo, lockInfoView);
 		}
 	};
 }}}
