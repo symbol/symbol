@@ -34,26 +34,25 @@ namespace catapult { namespace mongo { namespace plugins {
 
 	namespace {
 		state::MosaicEntry CreateMosaicEntry() {
-			auto owner = test::GenerateRandomByteArray<Key>();
+			auto owner = test::CreateRandomOwner();
 			return test::CreateMosaicEntry(MosaicId(345), Height(123), owner, Amount(456), BlockDuration(12345));
 		}
 	}
 
 	TEST(TEST_CLASS, CanMapMosaicEntry_ModelToDbModel) {
 		// Arrange:
-		auto address = test::GenerateRandomByteArray<Address>();
 		auto entry = CreateMosaicEntry();
 
 		// Act:
-		auto document = ToDbModel(entry, address);
+		auto document = ToDbModel(entry);
 		auto documentView = document.view();
 
 		// Assert:
 		EXPECT_EQ(1u, test::GetFieldCount(documentView));
 
 		auto mosaicView = documentView["mosaic"].get_document().view();
-		EXPECT_EQ(9u, test::GetFieldCount(mosaicView));
-		test::AssertEqualMosaicData(entry, address, mosaicView);
+		EXPECT_EQ(8u, test::GetFieldCount(mosaicView));
+		test::AssertEqualMosaicData(entry, mosaicView);
 	}
 
 	// endregion

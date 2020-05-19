@@ -22,6 +22,7 @@
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/model/BlockChainConfiguration.h"
 #include "tests/test/MosaicCacheTestUtils.h"
+#include "tests/test/MosaicTestUtils.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
@@ -54,13 +55,13 @@ namespace catapult { namespace validators {
 
 		void RunBalanceTransferTest(ValidationResult expectedResult, uint16_t maxMosaics, UnresolvedMosaicId mosaicId, Amount amount) {
 			// Arrange:
-			auto owner = test::GenerateRandomByteArray<Key>();
+			auto sender = test::GenerateRandomByteArray<Key>();
 			auto recipient = test::GenerateRandomByteArray<Address>();
 			auto unresolvedRecipient = test::UnresolveXor(recipient);
 			auto cache = CreateAndSeedCache(recipient);
 
 			auto pValidator = CreateMaxMosaicsBalanceTransferValidator(maxMosaics);
-			auto notification = model::BalanceTransferNotification(owner, unresolvedRecipient, mosaicId, amount);
+			auto notification = model::BalanceTransferNotification(sender, unresolvedRecipient, mosaicId, amount);
 
 			// Act:
 			auto result = test::ValidateNotification(*pValidator, notification, cache);
@@ -101,7 +102,7 @@ namespace catapult { namespace validators {
 				UnresolvedMosaicId mosaicId,
 				model::MosaicSupplyChangeAction action) {
 			// Arrange:
-			auto owner = test::GenerateRandomByteArray<Key>();
+			auto owner = test::CreateRandomOwner();
 			auto cache = CreateAndSeedCache(owner);
 
 			auto pValidator = CreateMaxMosaicsSupplyChangeValidator(maxMosaics);

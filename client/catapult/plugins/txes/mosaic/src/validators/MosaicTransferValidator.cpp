@@ -23,6 +23,7 @@
 #include "src/cache/MosaicCache.h"
 #include "catapult/cache/ReadOnlyCatapultCache.h"
 #include "catapult/cache_core/AccountStateCache.h"
+#include "catapult/model/Address.h"
 #include "catapult/validators/ValidatorContext.h"
 
 namespace catapult { namespace validators {
@@ -32,14 +33,15 @@ namespace catapult { namespace validators {
 	namespace {
 		bool IsMosaicOwnerParticipant(
 				const cache::ReadOnlyCatapultCache& cache,
-				const Key& owner,
+				const Address& owner,
 				const Notification& notification,
 				const model::ResolverContext& resolvers) {
-			if (owner == notification.Sender)
+			// TODO: conversion should be removed when BalanceTransferNotification is changed
+			const auto& accountStateCache = cache.sub<cache::AccountStateCache>();
+			if (owner == model::PublicKeyToAddress(notification.Sender, accountStateCache.networkIdentifier()))
 				return true;
 
 			// the owner must exist if the mosaic lookup succeeded
-			const auto& accountStateCache = cache.sub<cache::AccountStateCache>();
 			auto ownerAccountStateIter = accountStateCache.find(owner);
 			return ownerAccountStateIter.get().Address == resolvers.resolve(notification.Recipient);
 		}
@@ -66,7 +68,7 @@ namespace catapult { namespace validators {
 				return ValidationResult::Success;
 
 			// 3. if it's NOT transferable then owner must be either sender or recipient
-			if (!IsMosaicOwnerParticipant(context.Cache, mosaicEntry.definition().ownerPublicKey(), notification, context.Resolvers))
+			if (!IsMosaicOwnerParticipant(context.Cache, mosaicEntry.definition().ownerAddress(), notification, context.Resolvers))
 				return Failure_Mosaic_Non_Transferable;
 
 			return ValidationResult::Success;

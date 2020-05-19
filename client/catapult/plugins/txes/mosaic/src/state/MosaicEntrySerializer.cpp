@@ -32,7 +32,7 @@ namespace catapult { namespace state {
 
 		void SaveDefinition(io::OutputStream& output, const MosaicDefinition& definition) {
 			io::Write(output, definition.startHeight());
-			output.write(definition.ownerPublicKey());
+			output.write(definition.ownerAddress());
 			io::Write32(output, definition.revision());
 
 			SaveProperties(output, definition.properties());
@@ -54,7 +54,7 @@ namespace catapult { namespace state {
 		}
 
 		MosaicDefinition LoadDefinition(io::InputStream& input) {
-			Key owner;
+			Address owner;
 			auto height = io::Read<Height>(input);
 			input.read(owner);
 			auto revision = io::Read32(input);

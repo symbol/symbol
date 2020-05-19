@@ -23,6 +23,9 @@
 
 namespace catapult { namespace test {
 
+	/// Creates a random mosaic owner.
+	Address CreateRandomOwner();
+
 	/// Creates mosaic properties from values: \a flags, \a divisibility, \a duration.
 	model::MosaicProperties CreateMosaicPropertiesFromValues(uint8_t flags, uint8_t divisibility, uint64_t duration);
 
@@ -39,7 +42,7 @@ namespace catapult { namespace test {
 	state::MosaicEntry CreateMosaicEntry(MosaicId id, Height height, Amount supply);
 
 	/// Creates a mosaic entry around \a id, \a height, \a owner, \a supply and \a duration.
-	state::MosaicEntry CreateMosaicEntry(MosaicId id, Height height, const Key& owner, Amount supply, BlockDuration duration);
+	state::MosaicEntry CreateMosaicEntry(MosaicId id, Height height, const Address& owner, Amount supply, BlockDuration duration);
 
 	/// Asserts that actual properties (\a actualProperties) exactly match expected properties (\a expectedProperties).
 	void AssertMosaicDefinitionProperties(

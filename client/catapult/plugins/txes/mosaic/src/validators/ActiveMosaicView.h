@@ -48,7 +48,7 @@ namespace catapult { namespace validators {
 		validators::ValidationResult tryGet(MosaicId id, Height height, FindIterator& iter) const;
 
 		/// Tries to get an entry iterator (\a iter) for an active mosaic with \a id at \a height given its purported \a owner.
-		validators::ValidationResult tryGet(MosaicId id, Height height, const Key& owner, FindIterator& iter) const;
+		validators::ValidationResult tryGet(MosaicId id, Height height, const Address& owner, FindIterator& iter) const;
 
 	private:
 		const cache::ReadOnlyCatapultCache& m_cache;

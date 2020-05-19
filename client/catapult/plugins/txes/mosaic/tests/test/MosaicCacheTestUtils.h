@@ -54,19 +54,25 @@ namespace catapult { namespace test {
 	void AddMosaic(cache::CatapultCacheDelta& cache, MosaicId id, Height height, BlockDuration duration, Amount supply);
 
 	/// Adds mosaic \a id to the mosaic sub cache in \a cache at \a height with \a duration and \a owner.
-	void AddMosaic(cache::CatapultCacheDelta& cache, MosaicId id, Height height, BlockDuration duration, const Key& owner);
+	void AddMosaic(cache::CatapultCacheDelta& cache, MosaicId id, Height height, BlockDuration duration, const Address& owner);
 
 	/// Adds mosaic \a id to the mosaic sub cache in \a cache at \a height with \a duration, \a supply and \a owner.
-	void AddMosaic(cache::CatapultCacheDelta& cache, MosaicId id, Height height, BlockDuration duration, Amount supply, const Key& owner);
+	void AddMosaic(
+			cache::CatapultCacheDelta& cache,
+			MosaicId id,
+			Height height,
+			BlockDuration duration,
+			Amount supply,
+			const Address& owner);
 
 	/// Adds eternal mosaic \a id to the mosaic sub cache in \a cache at \a height.
 	void AddEternalMosaic(cache::CatapultCacheDelta& cache, MosaicId id, Height height);
 
 	/// Adds eternal mosaic \a id to the mosaic sub cache in \a cache at \a height with \a owner.
-	void AddEternalMosaic(cache::CatapultCacheDelta& cache, MosaicId id, Height height, const Key& owner);
+	void AddEternalMosaic(cache::CatapultCacheDelta& cache, MosaicId id, Height height, const Address& owner);
 
 	/// Adds account \a owner to the account state sub cache in \a cache with \a amount units of mosaic \a id.
-	void AddMosaicOwner(cache::CatapultCacheDelta& cache, MosaicId id, const Key& owner, Amount amount);
+	void AddMosaicOwner(cache::CatapultCacheDelta& cache, MosaicId id, const Address& owner, Amount amount);
 
 	/// Asserts that \a cache exactly contains the mosaic ids in \a expectedIds.
 	void AssertCacheContents(const cache::MosaicCache& cache, std::initializer_list<MosaicId::ValueType> expectedIds);

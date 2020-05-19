@@ -73,14 +73,14 @@ namespace catapult { namespace tools { namespace nemgen {
 		}
 
 		auto ToMosaicEntry(const state::MosaicDefinition& definition, MosaicNonce mosaicNonce, Amount supply) {
-			auto entry = state::MosaicEntry(model::GenerateMosaicId(definition.ownerPublicKey(), mosaicNonce), definition);
+			auto entry = state::MosaicEntry(model::GenerateMosaicId(definition.ownerAddress(), mosaicNonce), definition);
 			entry.increaseSupply(supply);
 			return entry;
 		}
 
 		auto CreateMosaicEntry(
 				const utils::ConfigurationBag& bag,
-				const Key& owner,
+				const Address& owner,
 				const std::string& mosaicName,
 				MosaicNonce mosaicNonce) {
 			const std::string section = Mosaic_Section_Prefix + mosaicName;
@@ -141,7 +141,7 @@ namespace catapult { namespace tools { namespace nemgen {
 			return numNamespaceProperties;
 		}
 
-		size_t LoadMosaics(const utils::ConfigurationBag& bag, NemesisConfiguration& config, const Key& owner) {
+		size_t LoadMosaics(const utils::ConfigurationBag& bag, NemesisConfiguration& config, const Address& owner) {
 			auto mosaics = bag.getAllOrdered<bool>("mosaics");
 			auto numMosaicProperties = mosaics.size();
 
@@ -200,11 +200,11 @@ namespace catapult { namespace tools { namespace nemgen {
 #undef LOAD_OUTPUT_PROPERTY
 
 		// the nemesis account owns all namespaces and mosaic definitions in the configuration
-		auto owner = crypto::KeyPair::FromString(config.NemesisSignerPrivateKey).publicKey();
-		auto ownerAddress = model::PublicKeyToAddress(owner, config.NetworkIdentifier);
+		auto ownerPublicKey = crypto::KeyPair::FromString(config.NemesisSignerPrivateKey).publicKey();
+		auto owner = model::PublicKeyToAddress(ownerPublicKey, config.NetworkIdentifier);
 
 		// load namespace information
-		auto numNamespaceProperties = LoadNamespaces(bag, config, ownerAddress);
+		auto numNamespaceProperties = LoadNamespaces(bag, config, owner);
 
 		// load mosaics information
 		auto numMosaicProperties = LoadMosaics(bag, config, owner);

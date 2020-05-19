@@ -38,7 +38,7 @@ namespace catapult { namespace observers {
 		constexpr MosaicId Default_Mosaic_Id(345);
 		constexpr Height Seed_Height(7);
 
-		model::MosaicDefinitionNotification CreateNotification(const Key& owner, const model::MosaicProperties& properties) {
+		model::MosaicDefinitionNotification CreateNotification(const Address& owner, const model::MosaicProperties& properties) {
 			return model::MosaicDefinitionNotification(owner, Default_Mosaic_Id, properties);
 		}
 
@@ -67,7 +67,7 @@ namespace catapult { namespace observers {
 		}
 
 		void SeedCacheWithDefaultMosaic(cache::MosaicCacheDelta& mosaicCacheDelta) {
-			auto definition = state::MosaicDefinition(Seed_Height, Key(), 1, test::CreateMosaicPropertiesFromValues(1, 2, 20));
+			auto definition = state::MosaicDefinition(Seed_Height, Address(), 1, test::CreateMosaicPropertiesFromValues(1, 2, 20));
 			mosaicCacheDelta.insert(state::MosaicEntry(Default_Mosaic_Id, definition));
 
 			// Sanity:
@@ -76,7 +76,7 @@ namespace catapult { namespace observers {
 
 		void AssertDefaultMosaic(
 				const cache::MosaicCacheDelta& mosaicCacheDelta,
-				const Key& owner,
+				const Address& owner,
 				Height height,
 				uint32_t expectedRevision,
 				const model::MosaicProperties& expectedProperties) {
@@ -90,7 +90,7 @@ namespace catapult { namespace observers {
 			// - definition
 			const auto& definition = entry.definition();
 			EXPECT_EQ(height, definition.startHeight());
-			EXPECT_EQ(owner, definition.ownerPublicKey());
+			EXPECT_EQ(owner, definition.ownerAddress());
 			EXPECT_EQ(expectedRevision, definition.revision());
 			EXPECT_EQ(expectedProperties, definition.properties());
 
@@ -103,7 +103,7 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, ObserverAddsMosaicOnCommit) {
 		// Arrange:
-		auto owner = test::GenerateRandomByteArray<Key>();
+		auto owner = test::CreateRandomOwner();
 		auto properties = test::CreateMosaicPropertiesFromValues(3, 6, 15);
 		auto notification = CreateNotification(owner, properties);
 
@@ -118,7 +118,7 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, ObserverOverwritesMosaicOnCommit) {
 		// Arrange:
-		auto owner = test::GenerateRandomByteArray<Key>();
+		auto owner = test::CreateRandomOwner();
 		auto properties = test::CreateMosaicPropertiesFromValues(3, 6, 15);
 		auto notification = CreateNotification(owner, properties);
 
@@ -141,7 +141,7 @@ namespace catapult { namespace observers {
 	namespace {
 		void AddTwoMosaics(cache::MosaicCacheDelta& mosaicCacheDelta, uint32_t revision) {
 			auto properties = test::CreateMosaicPropertiesFromValues(2, 4, 20 + 15);
-			auto definition = state::MosaicDefinition(Seed_Height, Key(), revision, properties);
+			auto definition = state::MosaicDefinition(Seed_Height, Address(), revision, properties);
 			for (auto id : { Default_Mosaic_Id, MosaicId(987) })
 				mosaicCacheDelta.insert(state::MosaicEntry(id, definition));
 
@@ -152,7 +152,7 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, ObserverRemovesMosaicOnRollbackWhenObserverDefinitionCounterIsEqualToOne) {
 		// Arrange:
-		auto owner = test::GenerateRandomByteArray<Key>();
+		auto owner = test::CreateRandomOwner();
 		auto properties = test::CreateMosaicPropertiesFromValues(3, 6, 15);
 		auto notification = CreateNotification(owner, properties);
 		auto seedMosaics = [](auto& mosaicCacheDelta) { AddTwoMosaics(mosaicCacheDelta, 1); };
@@ -169,7 +169,7 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, ObserverDoesNotRemoveMosaicOnRollbackWhenDefinitionCounterIsGreaterThanOne) {
 		// Arrange:
-		auto owner = test::GenerateRandomByteArray<Key>();
+		auto owner = test::CreateRandomOwner();
 		auto properties = test::CreateMosaicPropertiesFromValues(3, 6, 15);
 		auto notification = CreateNotification(owner, properties);
 		auto seedMosaics = [](auto& mosaicCacheDelta) { AddTwoMosaics(mosaicCacheDelta, 2); };

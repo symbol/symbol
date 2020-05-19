@@ -20,6 +20,7 @@
 
 #include "src/validators/Validators.h"
 #include "catapult/cache_core/AccountStateCache.h"
+#include "catapult/model/Address.h"
 #include "catapult/model/BlockChainConfiguration.h"
 #include "tests/test/MosaicCacheTestUtils.h"
 #include "tests/test/MosaicTestUtils.h"
@@ -43,11 +44,11 @@ namespace catapult { namespace validators {
 			return model::MosaicProperties(flags, 0, BlockDuration());
 		}
 
-		state::MosaicDefinition CreateMosaicDefinition(Height height, const Key& owner, model::MosaicFlags flags) {
+		state::MosaicDefinition CreateMosaicDefinition(Height height, const Address& owner, model::MosaicFlags flags) {
 			return state::MosaicDefinition(height, owner, 3, CreateMosaicProperties(flags));
 		}
 
-		state::MosaicEntry CreateMosaicEntry(MosaicId mosaicId, const Key& owner, model::MosaicFlags flags) {
+		state::MosaicEntry CreateMosaicEntry(MosaicId mosaicId, const Address& owner, model::MosaicFlags flags) {
 			auto mosaicDefinition = CreateMosaicDefinition(Height(100), owner, flags);
 			return state::MosaicEntry(mosaicId, mosaicDefinition);
 		}
@@ -87,14 +88,14 @@ namespace catapult { namespace validators {
 		constexpr MosaicId Valid_Mosaic_Id(222);
 		constexpr UnresolvedMosaicId Unresolved_Unknown_Mosaic_Id(444);
 
-		auto CreateAndSeedCache(const Key& owner, model::MosaicFlags flags) {
+		auto CreateAndSeedCache(const Address& owner, model::MosaicFlags flags) {
 			// Arrange:
 			auto cache = CreateCache();
 			auto validMosaicEntry = CreateMosaicEntry(Valid_Mosaic_Id, owner, flags);
 			SeedCacheWithMosaic(cache, validMosaicEntry);
 
 			auto cacheDelta = cache.createDelta();
-			test::AddMosaicOwner(cacheDelta, Valid_Mosaic_Id, validMosaicEntry.definition().ownerPublicKey(), Amount());
+			test::AddMosaicOwner(cacheDelta, Valid_Mosaic_Id, validMosaicEntry.definition().ownerAddress(), Amount());
 			cache.commit(Height());
 
 			return cache;
@@ -102,9 +103,10 @@ namespace catapult { namespace validators {
 
 		void AssertMosaicsTest(ValidationResult expectedResult, UnresolvedMosaicId mosaicId) {
 			// Arrange:
-			auto owner = test::GenerateRandomByteArray<Key>();
-			auto notification = model::BalanceTransferNotification(owner, UnresolvedAddress(), mosaicId, Amount(123));
+			auto ownerPublicKey = test::GenerateRandomByteArray<Key>();
+			auto notification = model::BalanceTransferNotification(ownerPublicKey, UnresolvedAddress(), mosaicId, Amount(123));
 
+			auto owner = model::PublicKeyToAddress(ownerPublicKey, model::NetworkIdentifier::Zero);
 			auto cache = CreateAndSeedCache(owner, model::MosaicFlags::Transferable);
 
 			// Assert:
@@ -129,7 +131,8 @@ namespace catapult { namespace validators {
 
 		void AssertNonTransferableMosaicsTest(ValidationResult expectedResult, uint8_t notificationFlags) {
 			// Arrange:
-			auto owner = test::GenerateRandomByteArray<Key>();
+			auto ownerPublicKey = test::GenerateRandomByteArray<Key>();
+			auto owner = model::PublicKeyToAddress(ownerPublicKey, model::NetworkIdentifier::Zero);
 			auto cache = CreateAndSeedCache(owner, model::MosaicFlags::None);
 
 			// - notice that BalanceTransferNotification holds references to sender + recipient
@@ -138,7 +141,7 @@ namespace catapult { namespace validators {
 			auto notification = model::BalanceTransferNotification(sender, UnresolvedAddress(), mosaicId, Amount(123));
 
 			if (notificationFlags & Owner_Is_Sender)
-				sender = owner;
+				sender = ownerPublicKey;
 
 			if (notificationFlags & Owner_Is_Recipient) {
 				const auto& recipient = cache.createView().sub<cache::AccountStateCache>().find(owner).get().Address;

@@ -21,6 +21,7 @@
 #include "src/validators/Validators.h"
 #include "catapult/model/BlockChainConfiguration.h"
 #include "tests/test/MosaicCacheTestUtils.h"
+#include "tests/test/MosaicTestUtils.h"
 #include "tests/test/core/ResolverTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
@@ -58,8 +59,8 @@ namespace catapult { namespace validators {
 				ValidationResult expectedResult,
 				TMosaicId affectedMosaicId,
 				Height height,
-				const Key& notificationOwner,
-				const Key& artifactOwner) {
+				const Address& notificationOwner,
+				const Address& artifactOwner) {
 			// Arrange:
 			auto pValidator = CreateRequiredMosaicValidator();
 
@@ -86,8 +87,8 @@ namespace catapult { namespace validators {
 
 		template<typename TMosaicId>
 		void AssertValidationResult(ValidationResult expectedResult, TMosaicId affectedMosaicId, Height height) {
-			auto key = test::GenerateRandomByteArray<Key>();
-			AssertValidationResult(expectedResult, affectedMosaicId, height, key, key);
+			auto owner = test::CreateRandomOwner();
+			AssertValidationResult(expectedResult, affectedMosaicId, height, owner, owner);
 		}
 	}
 
@@ -101,9 +102,9 @@ namespace catapult { namespace validators {
 	}
 
 	MOSAIC_ID_TRAITS_BASED_TEST(FailureWhenMosaicOwnerDoesNotMatch) {
-		auto key1 = test::GenerateRandomByteArray<Key>();
-		auto key2 = test::GenerateRandomByteArray<Key>();
-		AssertValidationResult(Failure_Mosaic_Owner_Conflict, TTraits::Default_Id, Height(100), key1, key2);
+		auto owner1 = test::CreateRandomOwner();
+		auto owner2 = test::CreateRandomOwner();
+		AssertValidationResult(Failure_Mosaic_Owner_Conflict, TTraits::Default_Id, Height(100), owner1, owner2);
 	}
 
 	MOSAIC_ID_TRAITS_BASED_TEST(SuccessWhenMosaicIsActiveAndOwnerMatches) {
@@ -125,7 +126,7 @@ namespace catapult { namespace validators {
 			auto pValidator = CreateRequiredMosaicValidator();
 
 			// - create the notification
-			auto owner = test::GenerateRandomByteArray<Key>();
+			auto owner = test::CreateRandomOwner();
 			model::MosaicRequiredNotification notification(owner, affectedMosaicId, notificationPropertyFlagMask);
 
 			// - create the validator context

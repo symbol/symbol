@@ -34,7 +34,10 @@ namespace catapult { namespace validators {
 	DEFINE_COMMON_VALIDATOR_TESTS(MosaicAvailability,)
 
 	namespace {
-		model::MosaicDefinitionNotification CreateNotification(const Key& owner, MosaicId id, const model::MosaicProperties& properties) {
+		model::MosaicDefinitionNotification CreateNotification(
+				const Address& owner,
+				MosaicId id,
+				const model::MosaicProperties& properties) {
 			return model::MosaicDefinitionNotification(owner, id, properties);
 		}
 
@@ -53,14 +56,14 @@ namespace catapult { namespace validators {
 			EXPECT_EQ(expectedResult, result) << "height " << height << ", id " << notification.MosaicId;
 		}
 
-		void AddMosaic(cache::CatapultCache& cache, MosaicId id, Amount mosaicSupply, const Key& owner, Amount ownerSupply) {
+		void AddMosaic(cache::CatapultCache& cache, MosaicId id, Amount mosaicSupply, const Address& owner, Amount ownerSupply) {
 			auto delta = cache.createDelta();
 			test::AddMosaic(delta, id, Height(50), BlockDuration(100), mosaicSupply, owner);
 			test::AddMosaicOwner(delta, id, owner, ownerSupply);
 			cache.commit(Height());
 		}
 
-		void AddEternalMosaic(cache::CatapultCache& cache, MosaicId id, const Key& owner) {
+		void AddEternalMosaic(cache::CatapultCache& cache, MosaicId id, const Address& owner) {
 			auto delta = cache.createDelta();
 			test::AddEternalMosaic(delta, id, Height(50), owner);
 			test::AddMosaicOwner(delta, id, owner, Amount());
@@ -72,7 +75,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, SuccessWhenMosaicIsUnknown) {
 		// Arrange:
-		auto owner = test::GenerateRandomByteArray<Key>();
+		auto owner = test::CreateRandomOwner();
 		auto properties = test::CreateMosaicPropertiesFromValues(0, 0, 0);
 		auto notification = CreateNotification(owner, MosaicId(123), properties);
 
@@ -86,7 +89,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureWhenMosaicExistsButIsNotActive) {
 		// Arrange:
-		auto owner = test::GenerateRandomByteArray<Key>();
+		auto owner = test::CreateRandomOwner();
 		auto properties = test::CreateMosaicPropertiesFromValues(0, 3, 200);
 		auto notification = CreateNotification(owner, MosaicId(123), properties);
 
@@ -102,13 +105,13 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureWhenNotificationOwnerIsNotMosaicOwner) {
 		// Arrange:
-		auto owner = test::GenerateRandomByteArray<Key>();
+		auto owner = test::CreateRandomOwner();
 		auto properties = test::CreateMosaicPropertiesFromValues(0, 3, 200);
 		auto notification = CreateNotification(owner, MosaicId(123), properties);
 
 		// - seed the cache with an active mosaic with the same id and zero supply
 		auto cache = test::MosaicCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
-		AddMosaic(cache, MosaicId(123), Amount(0), test::GenerateRandomByteArray<Key>(), Amount(0));
+		AddMosaic(cache, MosaicId(123), Amount(0), test::CreateRandomOwner(), Amount(0));
 
 		// Assert:
 		AssertValidationResult(Failure_Mosaic_Owner_Conflict, cache, Height(100), notification);
@@ -121,7 +124,7 @@ namespace catapult { namespace validators {
 	namespace {
 		void AssertEternalPropertiesCheck(ValidationResult expectedResult, const model::MosaicProperties& properties) {
 			// Arrange:
-			auto owner = test::GenerateRandomByteArray<Key>();
+			auto owner = test::CreateRandomOwner();
 			auto notification = CreateNotification(owner, MosaicId(123), properties);
 
 			// - seed the cache with an active mosaic with the same id
@@ -148,7 +151,7 @@ namespace catapult { namespace validators {
 	namespace {
 		void AssertNonEternalPropertiesCheck(ValidationResult expectedResult, const model::MosaicProperties& properties) {
 			// Arrange:
-			auto owner = test::GenerateRandomByteArray<Key>();
+			auto owner = test::CreateRandomOwner();
 			auto notification = CreateNotification(owner, MosaicId(123), properties);
 
 			// - seed the cache with an active mosaic with the same id and a lifetime of 100 blocks
@@ -178,7 +181,7 @@ namespace catapult { namespace validators {
 	namespace {
 		void AssertCanReplaceActiveMosaicWhenSupplyIsZero(uint8_t divisibility) {
 			// Arrange:
-			auto owner = test::GenerateRandomByteArray<Key>();
+			auto owner = test::CreateRandomOwner();
 			auto properties = test::CreateMosaicPropertiesFromValues(0, divisibility, 200);
 			auto notification = CreateNotification(owner, MosaicId(123), properties);
 
@@ -201,7 +204,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, CannotReplaceActiveMosaicWhenSupplyIsNonzero) {
 		// Arrange:
-		auto owner = test::GenerateRandomByteArray<Key>();
+		auto owner = test::CreateRandomOwner();
 		auto properties = test::CreateMosaicPropertiesFromValues(0, 0, 200);
 		auto notification = CreateNotification(owner, MosaicId(123), properties);
 

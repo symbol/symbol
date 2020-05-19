@@ -82,7 +82,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Creates a notification around \a owner, \a mosaicId and \a properties.
-		MosaicDefinitionNotification(const Key& owner, MosaicId mosaicId, const MosaicProperties& properties)
+		MosaicDefinitionNotification(const Address& owner, MosaicId mosaicId, const MosaicProperties& properties)
 				: Notification(Notification_Type, sizeof(MosaicDefinitionNotification))
 				, Owner(owner)
 				, MosaicId(mosaicId)
@@ -91,7 +91,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Mosaic owner.
-		const Key& Owner;
+		Address Owner;
 
 		/// Id of the mosaic.
 		catapult::MosaicId MosaicId;
@@ -112,7 +112,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Creates a notification around \a owner, \a mosaicNonce and \a mosaicId.
-		MosaicNonceNotification(const Key& owner, MosaicNonce mosaicNonce, catapult::MosaicId mosaicId)
+		MosaicNonceNotification(const Address& owner, MosaicNonce mosaicNonce, catapult::MosaicId mosaicId)
 				: Notification(Notification_Type, sizeof(MosaicNonceNotification))
 				, Owner(owner)
 				, MosaicNonce(mosaicNonce)
@@ -121,7 +121,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Mosaic owner.
-		const Key& Owner;
+		Address Owner;
 
 		/// Mosaic nonce.
 		catapult::MosaicNonce MosaicNonce;
@@ -142,7 +142,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Creates a notification around \a owner, \a mosaicId, \a action and \a delta.
-		MosaicSupplyChangeNotification(const Key& owner, UnresolvedMosaicId mosaicId, MosaicSupplyChangeAction action, Amount delta)
+		MosaicSupplyChangeNotification(const Address& owner, UnresolvedMosaicId mosaicId, MosaicSupplyChangeAction action, Amount delta)
 				: Notification(Notification_Type, sizeof(MosaicSupplyChangeNotification))
 				, Owner(owner)
 				, MosaicId(mosaicId)
@@ -152,7 +152,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Mosaic owner.
-		const Key& Owner;
+		Address Owner;
 
 		/// Id of the affected mosaic.
 		UnresolvedMosaicId MosaicId;

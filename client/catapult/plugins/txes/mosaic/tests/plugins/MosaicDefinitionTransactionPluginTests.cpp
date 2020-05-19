@@ -71,7 +71,8 @@ namespace catapult { namespace plugins {
 				EXPECT_EQ(config.SinkPublicKey, notification.PublicKey);
 			});
 			builder.template addExpectation<MosaicNonceNotification>([&transaction](const auto& notification) {
-				EXPECT_EQ(transaction.SignerPublicKey, notification.Owner);
+				auto signerAddress = model::PublicKeyToAddress(transaction.SignerPublicKey, transaction.Network);
+				EXPECT_EQ(signerAddress, notification.Owner);
 				EXPECT_EQ(transaction.Nonce, notification.MosaicNonce);
 				EXPECT_EQ(transaction.Id, notification.MosaicId);
 			});
@@ -80,7 +81,8 @@ namespace catapult { namespace plugins {
 				EXPECT_EQ(expectedProperties, notification.Properties);
 			});
 			builder.template addExpectation<MosaicDefinitionNotification>([&transaction](const auto& notification) {
-				EXPECT_EQ(transaction.SignerPublicKey, notification.Owner);
+				auto signerAddress = model::PublicKeyToAddress(transaction.SignerPublicKey, transaction.Network);
+				EXPECT_EQ(signerAddress, notification.Owner);
 				EXPECT_EQ(transaction.Id, notification.MosaicId);
 
 				auto expectedProperties = model::MosaicProperties(transaction.Flags, transaction.Divisibility, transaction.Duration);

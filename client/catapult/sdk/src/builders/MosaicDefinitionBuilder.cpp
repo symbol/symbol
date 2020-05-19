@@ -20,6 +20,7 @@
 
 #include "MosaicDefinitionBuilder.h"
 #include "plugins/txes/mosaic/src/model/MosaicIdGenerator.h"
+#include "catapult/model/Address.h"
 
 namespace catapult { namespace builders {
 
@@ -73,7 +74,7 @@ namespace catapult { namespace builders {
 		auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
 
 		// 2. set fixed transaction fields
-		pTransaction->Id = model::GenerateMosaicId(signerPublicKey(), m_nonce);
+		pTransaction->Id = model::GenerateMosaicId(model::PublicKeyToAddress(signerPublicKey(), pTransaction->Network), m_nonce);
 		pTransaction->Duration = m_duration;
 		pTransaction->Nonce = m_nonce;
 		pTransaction->Flags = m_flags;

@@ -91,7 +91,8 @@ namespace catapult { namespace plugins {
 
 			static void AddCustomExpectations(PublishTestBuilder& builder, const TTransaction& transaction) {
 				builder.template addExpectation<MosaicRequiredNotification>([&transaction](const auto& notification) {
-					EXPECT_EQ(transaction.TargetPublicKey, notification.Owner);
+					auto targetAddress = model::PublicKeyToAddress(transaction.TargetPublicKey, transaction.Network);
+					EXPECT_EQ(targetAddress, notification.Owner);
 					EXPECT_EQ(MosaicId(), notification.MosaicId);
 					EXPECT_EQ(transaction.TargetMosaicId, notification.UnresolvedMosaicId);
 					EXPECT_EQ(0u, notification.PropertyFlagMask);

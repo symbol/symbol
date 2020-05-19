@@ -81,7 +81,8 @@ namespace catapult { namespace plugins {
 			EXPECT_EQ(transaction.MosaicId, notification.AliasedData);
 		});
 		builder.template addExpectation<MosaicRequiredNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(transaction.SignerPublicKey, notification.Owner);
+			auto signerAddress = model::PublicKeyToAddress(transaction.SignerPublicKey, transaction.Network);
+			EXPECT_EQ(signerAddress, notification.Owner);
 			EXPECT_EQ(transaction.MosaicId, notification.MosaicId);
 			EXPECT_EQ(UnresolvedMosaicId(), notification.UnresolvedMosaicId);
 			EXPECT_EQ(0u, notification.PropertyFlagMask);

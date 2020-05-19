@@ -21,6 +21,7 @@
 #include "src/observers/Observers.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "tests/test/MosaicCacheTestUtils.h"
+#include "tests/test/MosaicTestUtils.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -46,7 +47,7 @@ namespace catapult { namespace observers {
 			// Arrange: create observer and notification
 			auto pObserver = CreateMosaicSupplyChangeObserver();
 
-			auto owner = test::GenerateRandomByteArray<Key>();
+			auto owner = test::CreateRandomOwner();
 			model::MosaicSupplyChangeNotification notification(owner, test::UnresolveXor(Default_Mosaic_Id), action, delta);
 
 			// - initialize cache with a mosaic supply

@@ -23,6 +23,10 @@
 
 namespace catapult { namespace test {
 
+	Address CreateRandomOwner() {
+		return GenerateRandomByteArray<Address>();
+	}
+
 	model::MosaicProperties CreateMosaicPropertiesFromValues(uint8_t flags, uint8_t divisibility, uint64_t duration) {
 		return model::MosaicProperties(static_cast<model::MosaicFlags>(flags), divisibility, BlockDuration(duration));
 	}
@@ -32,7 +36,7 @@ namespace catapult { namespace test {
 	}
 
 	state::MosaicDefinition CreateMosaicDefinition(Height height) {
-		return state::MosaicDefinition(height, test::GenerateRandomByteArray<Key>(), 3, model::MosaicProperties());
+		return state::MosaicDefinition(height, CreateRandomOwner(), 3, model::MosaicProperties());
 	}
 
 	state::MosaicEntry CreateMosaicEntry(MosaicId id, Amount supply) {
@@ -46,12 +50,12 @@ namespace catapult { namespace test {
 	}
 
 	namespace {
-		state::MosaicDefinition CreateMosaicDefinition(Height height, const Key& owner, BlockDuration duration) {
+		state::MosaicDefinition CreateMosaicDefinition(Height height, const Address& owner, BlockDuration duration) {
 			return state::MosaicDefinition(height, owner, 3, CreateMosaicPropertiesWithDuration(duration));
 		}
 	}
 
-	state::MosaicEntry CreateMosaicEntry(MosaicId id, Height height, const Key& owner, Amount supply, BlockDuration duration) {
+	state::MosaicEntry CreateMosaicEntry(MosaicId id, Height height, const Address& owner, Amount supply, BlockDuration duration) {
 		auto entry = state::MosaicEntry(id, CreateMosaicDefinition(height, owner, duration));
 		entry.increaseSupply(supply);
 		return entry;
@@ -76,7 +80,7 @@ namespace catapult { namespace test {
 	namespace {
 		void AssertEqual(const state::MosaicDefinition& expected, const state::MosaicDefinition& actual) {
 			EXPECT_EQ(expected.startHeight(), actual.startHeight());
-			EXPECT_EQ(expected.ownerPublicKey(), actual.ownerPublicKey());
+			EXPECT_EQ(expected.ownerAddress(), actual.ownerAddress());
 			AssertMosaicDefinitionProperties(expected.properties(), actual.properties());
 		}
 	}

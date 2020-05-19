@@ -100,7 +100,7 @@ namespace catapult { namespace state {
 
 	namespace {
 		MosaicDefinition CreateMosaicDefinition(Height height, uint64_t duration) {
-			auto owner = test::GenerateRandomByteArray<Key>();
+			auto owner = test::CreateRandomOwner();
 			return MosaicDefinition(height, owner, 3, test::CreateMosaicPropertiesWithDuration(BlockDuration(duration)));
 		}
 	}

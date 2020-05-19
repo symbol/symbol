@@ -64,7 +64,7 @@ namespace catapult { namespace tools { namespace nemgen {
 				const auto& properties = definition.properties();
 				OutputName(name, id);
 				CATAPULT_LOG(debug)
-						<< " - Owner: " << definition.ownerPublicKey() << std::endl
+						<< " - Owner: " << definition.ownerAddress() << std::endl
 						<< " - Supply: " << mosaicEntry.supply() << std::endl
 						<< " - Divisibility: " << static_cast<uint32_t>(properties.divisibility()) << std::endl
 						<< " - Duration: " << properties.duration() << " blocks (0 = eternal)" << std::endl

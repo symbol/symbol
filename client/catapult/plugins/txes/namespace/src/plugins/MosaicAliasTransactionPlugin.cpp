@@ -38,7 +38,7 @@ namespace catapult { namespace plugins {
 
 			// in case of unlink, the existence of the (possibly expired) mosaic is guaranteed
 			if (model::AliasAction::Link == transaction.AliasAction)
-				sub.notify(MosaicRequiredNotification(transaction.SignerPublicKey, transaction.MosaicId));
+				sub.notify(MosaicRequiredNotification(context.SignerAddress, transaction.MosaicId));
 		}
 	}
 

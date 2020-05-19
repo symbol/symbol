@@ -63,14 +63,16 @@ namespace catapult { namespace plugins {
 
 		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
 		builder.template addExpectation<MosaicRequiredNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(transaction.SignerPublicKey, notification.Owner);
+			auto signerAddress = model::PublicKeyToAddress(transaction.SignerPublicKey, transaction.Network);
+			EXPECT_EQ(signerAddress, notification.Owner);
 			EXPECT_EQ(MosaicId(), notification.MosaicId);
 			EXPECT_EQ(transaction.MosaicId, notification.UnresolvedMosaicId);
 			EXPECT_EQ(0u, notification.PropertyFlagMask);
 			EXPECT_EQ(MosaicRequiredNotification::MosaicType::Unresolved, notification.ProvidedMosaicType);
 		});
 		builder.template addExpectation<MosaicSupplyChangeNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(transaction.SignerPublicKey, notification.Owner);
+			auto signerAddress = model::PublicKeyToAddress(transaction.SignerPublicKey, transaction.Network);
+			EXPECT_EQ(signerAddress, notification.Owner);
 			EXPECT_EQ(transaction.MosaicId, notification.MosaicId);
 			EXPECT_EQ(transaction.Action, notification.Action);
 			EXPECT_EQ(transaction.Delta, notification.Delta);

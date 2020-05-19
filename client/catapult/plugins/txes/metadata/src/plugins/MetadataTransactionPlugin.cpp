@@ -58,7 +58,8 @@ namespace catapult { namespace plugins {
 
 			template<typename TTransaction>
 			static void RaiseCustomNotifications(const TTransaction& transaction, NotificationSubscriber& sub) {
-				sub.notify(MosaicRequiredNotification(transaction.TargetPublicKey, transaction.TargetMosaicId));
+				auto targetAddress = model::PublicKeyToAddress(transaction.TargetPublicKey, transaction.Network);
+				sub.notify(MosaicRequiredNotification(targetAddress, transaction.TargetMosaicId));
 			}
 		};
 
