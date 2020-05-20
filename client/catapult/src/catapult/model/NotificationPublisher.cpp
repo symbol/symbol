@@ -141,10 +141,11 @@ namespace catapult { namespace model {
 						<< "+   transaction.Size: " << transaction.Size << std::endl
 						<< "+   transaction.Type: " << transaction.Type;
 
+				auto signerAddress = PublicKeyToAddress(transaction.SignerPublicKey, transaction.Network);
 				sub.notify(TransactionNotification(transaction.SignerPublicKey, hash, transaction.Type, transaction.Deadline));
 				sub.notify(TransactionDeadlineNotification(transaction.Deadline, attributes.MaxLifetime));
 				sub.notify(TransactionFeeNotification(transaction.SignerPublicKey, transaction.Size, fee, transaction.MaxFee));
-				sub.notify(BalanceDebitNotification(transaction.SignerPublicKey, m_feeMosaicId, fee));
+				sub.notify(BalanceDebitNotification(signerAddress, m_feeMosaicId, fee));
 
 				// raise a signature notification
 				sub.notify(SignatureNotification(

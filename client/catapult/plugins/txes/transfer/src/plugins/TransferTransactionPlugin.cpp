@@ -30,7 +30,7 @@ namespace catapult { namespace plugins {
 
 	namespace {
 		template<typename TTransaction>
-		void Publish(const TTransaction& transaction, const PublishContext&, NotificationSubscriber& sub) {
+		void Publish(const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub) {
 			sub.notify(InternalPaddingNotification(transaction.TransferTransactionBody_Reserved1));
 			sub.notify(AccountAddressNotification(transaction.RecipientAddress));
 			sub.notify(AddressInteractionNotification(transaction.SignerPublicKey, transaction.Type, { transaction.RecipientAddress }));
@@ -38,7 +38,7 @@ namespace catapult { namespace plugins {
 			const auto* pMosaics = transaction.MosaicsPtr();
 			for (auto i = 0u; i < transaction.MosaicsCount; ++i) {
 				sub.notify(BalanceTransferNotification(
-						transaction.SignerPublicKey,
+						context.SignerAddress,
 						transaction.RecipientAddress,
 						pMosaics[i].MosaicId,
 						pMosaics[i].Amount));

@@ -37,6 +37,7 @@ namespace catapult { namespace extensions {
 		using NotifyMode = observers::NotifyMode;
 
 		constexpr auto Harvesting_Mosaic_Id = MosaicId(9876);
+		constexpr auto Network_Identifier = model::NetworkIdentifier::Mijin_Test;
 
 		Importance GetTotalChainImportance(uint32_t numAccounts) {
 			return Importance(numAccounts * (numAccounts + 1) / 2);
@@ -48,7 +49,7 @@ namespace catapult { namespace extensions {
 
 		model::BlockChainConfiguration CreateBlockChainConfiguration(uint32_t numAccounts) {
 			auto config = model::BlockChainConfiguration::Uninitialized();
-			config.Network.Identifier = model::NetworkIdentifier::Mijin_Test;
+			config.Network.Identifier = Network_Identifier;
 			config.HarvestingMosaicId = Harvesting_Mosaic_Id;
 			config.ImportanceGrouping = 123;
 			config.MaxDifficultyBlocks = 123;
@@ -91,6 +92,7 @@ namespace catapult { namespace extensions {
 					});
 					pTransaction->SignerPublicKey = m_specialAccountKey;
 					pTransaction->RecipientPublicKey = Key{ { i } };
+					pTransaction->Network = Network_Identifier;
 					transactions.push_back(std::move(pTransaction));
 				}
 			}
@@ -107,6 +109,7 @@ namespace catapult { namespace extensions {
 					});
 					pTransaction->SignerPublicKey = Key{ { i } };
 					pTransaction->RecipientPublicKey = m_specialAccountKey;
+					pTransaction->Network = Network_Identifier;
 					transactions.push_back(std::move(pTransaction));
 				}
 			}
@@ -122,6 +125,7 @@ namespace catapult { namespace extensions {
 				});
 				pTransaction->SignerPublicKey = accountState1.PublicKey;
 				pTransaction->RecipientPublicKey = Key{ { accountId2 } };
+				pTransaction->Network = Network_Identifier;
 				transactions.push_back(std::move(pTransaction));
 			}
 

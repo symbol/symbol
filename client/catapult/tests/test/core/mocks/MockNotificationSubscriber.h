@@ -87,7 +87,7 @@ namespace catapult { namespace mocks {
 		}
 
 		/// Returns \c true if a transfer of \a amount units of \a mosaicId from \a sender to \a recipient was visited.
-		bool contains(const Key& sender, const UnresolvedAddress& recipient, UnresolvedMosaicId mosaicId, Amount amount) const {
+		bool contains(const Address& sender, const UnresolvedAddress& recipient, UnresolvedMosaicId mosaicId, Amount amount) const {
 			auto targetTransfer = Transfer(sender, recipient, mosaicId, amount);
 			return std::any_of(m_transfers.cbegin(), m_transfers.cend(), [&targetTransfer](const auto& transfer) {
 				return targetTransfer.Sender == transfer.Sender
@@ -104,7 +104,7 @@ namespace catapult { namespace mocks {
 					: Transfer(notification.Sender, notification.Recipient, notification.MosaicId, notification.Amount)
 			{}
 
-			Transfer(const Key& sender, const UnresolvedAddress& recipient, UnresolvedMosaicId mosaicId, Amount amount)
+			Transfer(const Address& sender, const UnresolvedAddress& recipient, UnresolvedMosaicId mosaicId, Amount amount)
 					: Sender(sender)
 					, Recipient(recipient)
 					, MosaicId(mosaicId)
@@ -112,7 +112,7 @@ namespace catapult { namespace mocks {
 			{}
 
 		public:
-			Key Sender;
+			Address Sender;
 			UnresolvedAddress Recipient;
 			UnresolvedMosaicId MosaicId;
 			catapult::Amount Amount;

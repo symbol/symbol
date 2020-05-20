@@ -55,13 +55,12 @@ namespace catapult { namespace validators {
 
 		void RunBalanceTransferTest(ValidationResult expectedResult, uint16_t maxMosaics, UnresolvedMosaicId mosaicId, Amount amount) {
 			// Arrange:
-			auto sender = test::GenerateRandomByteArray<Key>();
 			auto recipient = test::GenerateRandomByteArray<Address>();
 			auto unresolvedRecipient = test::UnresolveXor(recipient);
 			auto cache = CreateAndSeedCache(recipient);
 
 			auto pValidator = CreateMaxMosaicsBalanceTransferValidator(maxMosaics);
-			auto notification = model::BalanceTransferNotification(sender, unresolvedRecipient, mosaicId, amount);
+			auto notification = model::BalanceTransferNotification(Address(), unresolvedRecipient, mosaicId, amount);
 
 			// Act:
 			auto result = test::ValidateNotification(*pValidator, notification, cache);

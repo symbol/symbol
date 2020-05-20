@@ -81,7 +81,7 @@ namespace catapult { namespace extensions {
 	private:
 		cache::CatapultCacheDelta& m_cacheDelta;
 		const plugins::PluginManager& m_pluginManager;
-		Key m_nemesisPublicKey;
+		Address m_nemesisAddress;
 		NemesisFundingState m_nemesisFundingState;
 		std::unique_ptr<const observers::EntityObserver> m_pObserver;
 		model::NemesisNotificationPublisherOptions m_publisherOptions;

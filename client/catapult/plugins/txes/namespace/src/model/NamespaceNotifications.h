@@ -183,7 +183,7 @@ namespace catapult { namespace model {
 	public:
 		/// Creates a notification around \a sender, \a recipient, \a mosaicId and \a amount.
 		NamespaceRentalFeeNotification(
-				const Key& sender,
+				const Address& sender,
 				const UnresolvedAddress& recipient,
 				UnresolvedMosaicId mosaicId,
 				catapult::Amount amount)

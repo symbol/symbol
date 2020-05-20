@@ -39,13 +39,13 @@ namespace catapult { namespace plugins {
 				// a. exempt the nemesis account
 				if (config.NemesisPublicKey != transaction.SignerPublicKey) {
 					sub.notify(BalanceTransferNotification(
-							transaction.SignerPublicKey,
+							context.SignerAddress,
 							config.SinkAddress,
 							config.CurrencyMosaicId,
 							config.Fee,
 							BalanceTransferNotification::AmountType::Dynamic));
 					sub.notify(MosaicRentalFeeNotification(
-							transaction.SignerPublicKey,
+							context.SignerAddress,
 							config.SinkAddress,
 							config.CurrencyMosaicId,
 							config.Fee));

@@ -52,9 +52,21 @@ namespace catapult { namespace test {
 		cache.commit(Height());
 	}
 
+	void SetCacheBalances(cache::CatapultCache& cache, const Address& address, const BalanceTransfers& transfers) {
+		auto delta = cache.createDelta();
+		SetCacheBalances(delta, address, transfers);
+		cache.commit(Height());
+	}
+
 	cache::CatapultCache CreateCache(const Key& publicKey, const BalanceTransfers& transfers) {
 		auto cache = CreateEmptyCatapultCache();
 		SetCacheBalances(cache, publicKey, transfers);
+		return cache;
+	}
+
+	cache::CatapultCache CreateCache(const Address& address, const BalanceTransfers& transfers) {
+		auto cache = CreateEmptyCatapultCache();
+		SetCacheBalances(cache, address, transfers);
 		return cache;
 	}
 }}

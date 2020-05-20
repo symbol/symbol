@@ -36,12 +36,11 @@ namespace catapult { namespace validators {
 				const Address& owner,
 				const Notification& notification,
 				const model::ResolverContext& resolvers) {
-			// TODO: conversion should be removed when BalanceTransferNotification is changed
-			const auto& accountStateCache = cache.sub<cache::AccountStateCache>();
-			if (owner == model::PublicKeyToAddress(notification.Sender, accountStateCache.networkIdentifier()))
+			if (owner == notification.Sender)
 				return true;
 
 			// the owner must exist if the mosaic lookup succeeded
+			const auto& accountStateCache = cache.sub<cache::AccountStateCache>();
 			auto ownerAccountStateIter = accountStateCache.find(owner);
 			return ownerAccountStateIter.get().Address == resolvers.resolve(notification.Recipient);
 		}

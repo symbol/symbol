@@ -25,15 +25,15 @@ namespace catapult { namespace extensions {
 
 	using Notification = model::BalanceTransferNotification;
 
-	DECLARE_OBSERVER(NemesisFunding, Notification)(const Key& nemesisPublicKey, NemesisFundingState& fundingState) {
-		return MAKE_OBSERVER(NemesisFunding, Notification, ([&nemesisPublicKey, &fundingState](
+	DECLARE_OBSERVER(NemesisFunding, Notification)(const Address& nemesisAddress, NemesisFundingState& fundingState) {
+		return MAKE_OBSERVER(NemesisFunding, Notification, ([&nemesisAddress, &fundingState](
 				const Notification& notification,
 				const observers::ObserverContext& context) {
 			// since this is only used by NemesisBlockLoader, it only needs to support commit because nemesis can't be rolled back
 			if (observers::NotifyMode::Commit != context.Mode || Height(1) != context.Height)
 				CATAPULT_THROW_INVALID_ARGUMENT("NemesisFundingObserver only supports commit mode for nemesis block");
 
-			if (nemesisPublicKey != notification.Sender)
+			if (nemesisAddress != notification.Sender)
 				CATAPULT_THROW_INVALID_ARGUMENT_1("unexpected nemesis transfer from account", notification.Sender);
 
 			auto& cache = context.Cache.sub<cache::AccountStateCache>();

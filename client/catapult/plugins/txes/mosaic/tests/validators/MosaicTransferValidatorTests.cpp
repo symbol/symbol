@@ -77,7 +77,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, SuccessWhenValidatingCurrencyMosaicTransfer) {
 		// Arrange:
-		auto notification = model::BalanceTransferNotification(Key(), UnresolvedAddress(), Currency_Mosaic_Id, Amount(123));
+		auto notification = model::BalanceTransferNotification(Address(), UnresolvedAddress(), Currency_Mosaic_Id, Amount(123));
 		auto cache = CreateCache();
 
 		// Assert:
@@ -103,10 +103,8 @@ namespace catapult { namespace validators {
 
 		void AssertMosaicsTest(ValidationResult expectedResult, UnresolvedMosaicId mosaicId) {
 			// Arrange:
-			auto ownerPublicKey = test::GenerateRandomByteArray<Key>();
-			auto notification = model::BalanceTransferNotification(ownerPublicKey, UnresolvedAddress(), mosaicId, Amount(123));
-
-			auto owner = model::PublicKeyToAddress(ownerPublicKey, model::NetworkIdentifier::Zero);
+			auto owner = test::GenerateRandomByteArray<Address>();
+			auto notification = model::BalanceTransferNotification(owner, UnresolvedAddress(), mosaicId, Amount(123));
 			auto cache = CreateAndSeedCache(owner, model::MosaicFlags::Transferable);
 
 			// Assert:
@@ -131,17 +129,15 @@ namespace catapult { namespace validators {
 
 		void AssertNonTransferableMosaicsTest(ValidationResult expectedResult, uint8_t notificationFlags) {
 			// Arrange:
-			auto ownerPublicKey = test::GenerateRandomByteArray<Key>();
-			auto owner = model::PublicKeyToAddress(ownerPublicKey, model::NetworkIdentifier::Zero);
+			auto owner = test::GenerateRandomByteArray<Address>();
 			auto cache = CreateAndSeedCache(owner, model::MosaicFlags::None);
 
 			// - notice that BalanceTransferNotification holds references to sender + recipient
-			Key sender;
 			auto mosaicId = test::UnresolveXor(Valid_Mosaic_Id);
-			auto notification = model::BalanceTransferNotification(sender, UnresolvedAddress(), mosaicId, Amount(123));
+			auto notification = model::BalanceTransferNotification(Address(), UnresolvedAddress(), mosaicId, Amount(123));
 
 			if (notificationFlags & Owner_Is_Sender)
-				sender = ownerPublicKey;
+				notification.Sender = owner;
 
 			if (notificationFlags & Owner_Is_Recipient) {
 				const auto& recipient = cache.createView().sub<cache::AccountStateCache>().find(owner).get().Address;

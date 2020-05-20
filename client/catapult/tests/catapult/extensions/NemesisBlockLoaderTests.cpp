@@ -76,6 +76,7 @@ namespace catapult { namespace extensions {
 
 				auto pTransaction = mocks::CreateTransactionWithFeeAndTransfers(Amount(), unresolvedTransfers);
 				pTransaction->SignerPublicKey = nemesisPublicKey;
+				pTransaction->Network = model::NetworkIdentifier::Mijin_Test;
 				transactions.push_back(std::move(pTransaction));
 			}
 

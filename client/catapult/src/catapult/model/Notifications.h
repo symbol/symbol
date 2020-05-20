@@ -100,7 +100,7 @@ namespace catapult { namespace model {
 	struct BasicBalanceNotification : public Notification {
 	public:
 		/// Creates a notification around \a sender, \a mosaicId and \a amount.
-		BasicBalanceNotification(const Key& sender, UnresolvedMosaicId mosaicId, Amount amount)
+		BasicBalanceNotification(const Address& sender, UnresolvedMosaicId mosaicId, Amount amount)
 				: Notification(TDerivedNotification::Notification_Type, sizeof(TDerivedNotification))
 				, Sender(sender)
 				, MosaicId(mosaicId)
@@ -109,7 +109,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Sender.
-		const Key& Sender;
+		Address Sender;
 
 		/// Mosaic id.
 		UnresolvedMosaicId MosaicId;
@@ -132,7 +132,7 @@ namespace catapult { namespace model {
 		/// Creates a notification around \a sender, \a recipient, \a mosaicId and \a amount
 		/// with optional amount type (\a transferAmountType) indicating interpretation of transfer amount.
 		BalanceTransferNotification(
-				const Key& sender,
+				const Address& sender,
 				const UnresolvedAddress& recipient,
 				UnresolvedMosaicId mosaicId,
 				catapult::Amount amount,

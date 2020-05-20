@@ -398,10 +398,12 @@ namespace catapult { namespace model {
 		test::FillWithRandomData(pTransaction->SignerPublicKey);
 		pTransaction->MaxFee = Amount(765);
 
+		auto signerAddress = PublicKeyToAddress(pTransaction->SignerPublicKey, pTransaction->Network);
+
 		// Act:
-		PublishOne<BalanceDebitNotification>(*pTransaction, [&signer = pTransaction->SignerPublicKey](const auto& notification) {
+		PublishOne<BalanceDebitNotification>(*pTransaction, [&signerAddress](const auto& notification) {
 			// Assert:
-			EXPECT_EQ(signer, notification.Sender);
+			EXPECT_EQ(signerAddress, notification.Sender);
 			EXPECT_EQ(Currency_Mosaic_Id, notification.MosaicId);
 			EXPECT_EQ(Amount(765), notification.Amount);
 		});

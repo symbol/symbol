@@ -52,9 +52,7 @@ namespace catapult { namespace mocks {
 		return CreateMockTransactionT<EmbeddedMockTransaction>(dataSize);
 	}
 
-	std::unique_ptr<MockTransaction> CreateTransactionWithFeeAndTransfers(
-			Amount fee,
-			const std::vector<model::UnresolvedMosaic>& transfers) {
+	std::unique_ptr<MockTransaction> CreateTransactionWithFeeAndTransfers(Amount fee, const std::vector<UnresolvedMosaic>& transfers) {
 		auto pTransaction = CreateMockTransaction(static_cast<uint16_t>(transfers.size() * sizeof(Mosaic)));
 		pTransaction->MaxFee = fee;
 		pTransaction->Version = 0;
@@ -109,12 +107,10 @@ namespace catapult { namespace mocks {
 
 			auto pMosaics = reinterpret_cast<const UnresolvedMosaic*>(mockTransaction.DataPtr());
 			for (auto i = 0u; i < mockTransaction.Data.Size / sizeof(UnresolvedMosaic); ++i) {
-				const auto& sender = mockTransaction.SignerPublicKey;
-
 				// forcibly XOR recipient even though PublicKeyToAddress always returns resolved address
 				// in order to force tests to use XOR resolver context with Publish_Transfers
-				auto recipient = PublicKeyToAddress(mockTransaction.RecipientPublicKey, NetworkIdentifier::Mijin_Test);
-				sub.notify(BalanceTransferNotification(sender, test::UnresolveXor(recipient), pMosaics[i].MosaicId, pMosaics[i].Amount));
+				auto recipient = test::UnresolveXor(PublicKeyToAddress(mockTransaction.RecipientPublicKey, NetworkIdentifier::Mijin_Test));
+				sub.notify(BalanceTransferNotification(context.SignerAddress, recipient, pMosaics[i].MosaicId, pMosaics[i].Amount));
 			}
 		}
 

@@ -154,14 +154,16 @@ namespace catapult { namespace plugins {
 		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
 		AddCommonExpectations<TTraits>(builder, config, transaction);
 		builder.template addExpectation<BalanceTransferNotification>([&config, &transaction](const auto& notification) {
-			EXPECT_EQ(transaction.SignerPublicKey, notification.Sender);
+			auto signerAddress = model::PublicKeyToAddress(transaction.SignerPublicKey, transaction.Network);
+			EXPECT_EQ(signerAddress, notification.Sender);
 			EXPECT_EQ(config.SinkAddress, notification.Recipient);
 			EXPECT_EQ(config.CurrencyMosaicId, notification.MosaicId);
 			EXPECT_EQ(config.Fee, notification.Amount);
 			EXPECT_EQ(BalanceTransferNotification::AmountType::Dynamic, notification.TransferAmountType);
 		});
 		builder.template addExpectation<MosaicRentalFeeNotification>([&config, &transaction](const auto& notification) {
-			EXPECT_EQ(transaction.SignerPublicKey, notification.Sender);
+			auto signerAddress = model::PublicKeyToAddress(transaction.SignerPublicKey, transaction.Network);
+			EXPECT_EQ(signerAddress, notification.Sender);
 			EXPECT_EQ(config.SinkAddress, notification.Recipient);
 			EXPECT_EQ(config.CurrencyMosaicId, notification.MosaicId);
 			EXPECT_EQ(config.Fee, notification.Amount);

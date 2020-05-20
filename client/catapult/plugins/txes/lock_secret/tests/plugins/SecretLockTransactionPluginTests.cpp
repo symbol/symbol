@@ -82,7 +82,8 @@ namespace catapult { namespace plugins {
 			EXPECT_EQ(utils::KeySet(), notification.ParticipantsByKey);
 		});
 		builder.template addExpectation<BalanceDebitNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(transaction.SignerPublicKey, notification.Sender);
+			auto signerAddress = model::PublicKeyToAddress(transaction.SignerPublicKey, transaction.Network);
+			EXPECT_EQ(signerAddress, notification.Sender);
 			EXPECT_EQ(transaction.Mosaic.MosaicId, notification.MosaicId);
 			EXPECT_EQ(transaction.Mosaic.Amount, notification.Amount);
 		});
@@ -93,7 +94,8 @@ namespace catapult { namespace plugins {
 			EXPECT_EQ(transaction.RecipientAddress, notification.Recipient);
 		});
 		builder.template addExpectation<BalanceTransferNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(transaction.SignerPublicKey, notification.Sender);
+			auto signerAddress = model::PublicKeyToAddress(transaction.SignerPublicKey, transaction.Network);
+			EXPECT_EQ(signerAddress, notification.Sender);
 			EXPECT_EQ(transaction.RecipientAddress, notification.Recipient);
 			EXPECT_EQ(transaction.Mosaic.MosaicId, notification.MosaicId);
 			EXPECT_EQ(Amount(0), notification.Amount);
