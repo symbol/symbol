@@ -20,7 +20,6 @@
 
 #pragma once
 #include "catapult/crypto/KeyPair.h"
-#include "catapult/model/Address.h"
 #include <vector>
 
 namespace catapult { namespace tools {

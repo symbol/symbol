@@ -197,7 +197,7 @@ namespace catapult { namespace model {
 		// Act:
 		PublishOne<BlockNotification>(*pBlock, [&block = *pBlock](const auto& notification) {
 			// Assert:
-			EXPECT_EQ(PublicKeyToAddress(block.SignerPublicKey, block.Network), notification.Harvester);
+			EXPECT_EQ(GetSignerAddress(block), notification.Harvester);
 			EXPECT_EQ(PublicKeyToAddress(block.BeneficiaryPublicKey, block.Network), notification.Beneficiary);
 			EXPECT_EQ(Timestamp(123), notification.Timestamp);
 			EXPECT_EQ(Difficulty(575), notification.Difficulty);
@@ -217,7 +217,7 @@ namespace catapult { namespace model {
 		// Act:
 		PublishOne<BlockNotification>(*pBlock, [&block = *pBlock](const auto& notification) {
 			// Assert:
-			EXPECT_EQ(PublicKeyToAddress(block.SignerPublicKey, block.Network), notification.Harvester);
+			EXPECT_EQ(GetSignerAddress(block), notification.Harvester);
 			EXPECT_EQ(PublicKeyToAddress(block.BeneficiaryPublicKey, block.Network), notification.Beneficiary);
 			EXPECT_EQ(Timestamp(432), notification.Timestamp);
 			EXPECT_EQ(Difficulty(575), notification.Difficulty);
@@ -398,7 +398,7 @@ namespace catapult { namespace model {
 		test::FillWithRandomData(pTransaction->SignerPublicKey);
 		pTransaction->MaxFee = Amount(765);
 
-		auto signerAddress = PublicKeyToAddress(pTransaction->SignerPublicKey, pTransaction->Network);
+		auto signerAddress = GetSignerAddress(*pTransaction);
 
 		// Act:
 		PublishOne<BalanceDebitNotification>(*pTransaction, [&signerAddress](const auto& notification) {
@@ -450,7 +450,7 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CanRaiseCustomTransactionNotificationsDependentOnSignerAddress) {
 		// Arrange:
 		auto pTransaction = mocks::CreateMockTransaction(12);
-		auto signerAddress = PublicKeyToAddress(pTransaction->SignerPublicKey, pTransaction->Network);
+		auto signerAddress = GetSignerAddress(*pTransaction);
 
 		// Act:
 		PublishOne<mocks::MockAddressNotification>(*pTransaction, [&signerAddress](const auto& notification) {

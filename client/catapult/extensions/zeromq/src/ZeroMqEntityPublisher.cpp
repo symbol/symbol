@@ -20,7 +20,6 @@
 
 #include "ZeroMqEntityPublisher.h"
 #include "PublisherUtils.h"
-#include "catapult/model/Address.h"
 #include "catapult/model/Cosignature.h"
 #include "catapult/model/Elements.h"
 #include "catapult/model/NotificationSubscriber.h"

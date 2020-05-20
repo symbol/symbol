@@ -20,7 +20,6 @@
 
 #pragma once
 #include "mongo/src/storages/MongoCacheStorage.h"
-#include "catapult/model/Address.h"
 
 namespace catapult { namespace mongo { namespace plugins {
 

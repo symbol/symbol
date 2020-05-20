@@ -19,7 +19,6 @@
 **/
 
 #include "src/validators/Validators.h"
-#include "catapult/model/Address.h"
 #include "tests/test/MosaicRestrictionCacheTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"

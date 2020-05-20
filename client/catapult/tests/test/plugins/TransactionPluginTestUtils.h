@@ -20,7 +20,6 @@
 
 #pragma once
 #include "TransactionPluginTests.h"
-#include "catapult/model/Address.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 
 namespace catapult { namespace test {
@@ -101,7 +100,7 @@ namespace catapult { namespace test {
 		template<typename TTransaction>
 		static model::PublishContext CreatePublishContext(const TTransaction& transaction) {
 			model::PublishContext context;
-			context.SignerAddress = model::PublicKeyToAddress(transaction.SignerPublicKey, transaction.Network);
+			context.SignerAddress = model::GetSignerAddress(transaction);
 			return context;
 		}
 

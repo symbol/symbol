@@ -21,7 +21,6 @@
 #include "MongoNamespaceCacheStorageUtils.h"
 #include "src/mappers/NamespaceDescriptor.h"
 #include "plugins/txes/namespace/src/state/RootNamespaceHistory.h"
-#include "catapult/model/Address.h"
 
 namespace catapult { namespace mongo { namespace plugins {
 

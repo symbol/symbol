@@ -21,7 +21,6 @@
 #include "AggregateTransactionPlugin.h"
 #include "src/model/AggregateNotifications.h"
 #include "src/model/AggregateTransaction.h"
-#include "catapult/model/Address.h"
 #include "catapult/model/NotificationSubscriber.h"
 #include "catapult/model/TransactionPlugin.h"
 
@@ -116,7 +115,7 @@ namespace catapult { namespace plugins {
 					// - specific sub-transaction notifications
 					//   (calculateRealSize would have failed if plugin is unknown or not embeddable)
 					PublishContext subContext;
-					subContext.SignerAddress = model::PublicKeyToAddress(subTransaction.SignerPublicKey, subTransaction.Network);
+					subContext.SignerAddress = model::GetSignerAddress(subTransaction);
 					plugin.publish(subTransaction, subContext, sub);
 				}
 

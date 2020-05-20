@@ -564,12 +564,12 @@ namespace catapult { namespace extensions {
 			auto receiptMosaicId = Harvesting_Mosaic_Id;
 			blockStatementBuilder.addReceipt(model::BalanceChangeReceipt(
 					receiptType,
-					model::PublicKeyToAddress(nemesisBlock.SignerPublicKey, nemesisBlock.Network),
+					model::GetSignerAddress(nemesisBlock),
 					receiptMosaicId,
 					Amount()));
 
 			// - resolution receipts due to use of CreateResolverContextXor and interaction with MockTransaction
-			auto recipient = PublicKeyToAddress(GetTransactionRecipient(nemesisBlock, 0), model::NetworkIdentifier::Mijin_Test);
+			auto recipient = model::PublicKeyToAddress(GetTransactionRecipient(nemesisBlock, 0), model::NetworkIdentifier::Mijin_Test);
 			blockStatementBuilder.addResolution(test::UnresolveXor(recipient), recipient);
 			blockStatementBuilder.addResolution(test::UnresolveXor(receiptMosaicId), receiptMosaicId);
 

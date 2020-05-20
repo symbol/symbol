@@ -195,8 +195,7 @@ namespace catapult { namespace plugins {
 		AddCommonExpectations<TTraits>(builder, transaction);
 		for (auto i = 0u; i < 2u; ++i) {
 			builder.template addExpectation<BalanceTransferNotification>(i, [&transaction, i](const auto& notification) {
-				auto signerAddress = model::PublicKeyToAddress(transaction.SignerPublicKey, transaction.Network);
-				EXPECT_EQ(signerAddress, notification.Sender);
+				EXPECT_EQ(model::GetSignerAddress(transaction), notification.Sender);
 				EXPECT_EQ(transaction.MosaicsPtr()[i].MosaicId, notification.MosaicId);
 				EXPECT_EQ(transaction.MosaicsPtr()[i].Amount, notification.Amount);
 				EXPECT_EQ(transaction.RecipientAddress, notification.Recipient);
@@ -255,8 +254,7 @@ namespace catapult { namespace plugins {
 		AddCommonExpectations<TTraits>(builder, transaction);
 		for (auto i = 0u; i < 3u; ++i) {
 			builder.template addExpectation<BalanceTransferNotification>(i, [&transaction, i](const auto& notification) {
-				auto signerAddress = model::PublicKeyToAddress(transaction.SignerPublicKey, transaction.Network);
-				EXPECT_EQ(signerAddress, notification.Sender);
+				EXPECT_EQ(model::GetSignerAddress(transaction), notification.Sender);
 				EXPECT_EQ(transaction.MosaicsPtr()[i].MosaicId, notification.MosaicId);
 				EXPECT_EQ(transaction.MosaicsPtr()[i].Amount, notification.Amount);
 				EXPECT_EQ(transaction.RecipientAddress, notification.Recipient);

@@ -31,6 +31,17 @@ using namespace catapult::model;
 namespace catapult { namespace mocks {
 
 	namespace {
+		template<typename TTransaction>
+		Address GetRecipientAddressT(const TTransaction& mockTransaction) {
+			return model::PublicKeyToAddress(mockTransaction.RecipientPublicKey, mockTransaction.Network);
+		}
+	}
+
+	Address GetRecipientAddress(const MockTransaction& transaction) {
+		return GetRecipientAddressT(transaction);
+	}
+
+	namespace {
 		template<typename TMockTransaction>
 		std::unique_ptr<TMockTransaction> CreateMockTransactionT(uint16_t dataSize) {
 			uint32_t entitySize = sizeof(TMockTransaction) + dataSize;
@@ -109,7 +120,7 @@ namespace catapult { namespace mocks {
 			for (auto i = 0u; i < mockTransaction.Data.Size / sizeof(UnresolvedMosaic); ++i) {
 				// forcibly XOR recipient even though PublicKeyToAddress always returns resolved address
 				// in order to force tests to use XOR resolver context with Publish_Transfers
-				auto recipient = test::UnresolveXor(PublicKeyToAddress(mockTransaction.RecipientPublicKey, NetworkIdentifier::Mijin_Test));
+				auto recipient = test::UnresolveXor(GetRecipientAddressT(mockTransaction));
 				sub.notify(BalanceTransferNotification(context.SignerAddress, recipient, pMosaics[i].MosaicId, pMosaics[i].Amount));
 			}
 		}

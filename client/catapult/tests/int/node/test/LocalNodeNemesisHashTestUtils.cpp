@@ -20,7 +20,6 @@
 
 #include "LocalNodeNemesisHashTestUtils.h"
 #include "plugins/txes/mosaic/src/model/MosaicEntityType.h"
-#include "catapult/model/Address.h"
 #include "catapult/model/BlockStatementBuilder.h"
 #include "catapult/model/BlockUtils.h"
 #include "tests/test/core/StorageTestUtils.h"
@@ -58,7 +57,7 @@ namespace catapult { namespace test {
 			auto feeMosaicId = Default_Currency_Mosaic_Id;
 			model::BalanceChangeReceipt receipt(
 					model::Receipt_Type_Harvest_Fee,
-					model::PublicKeyToAddress(nemesisBlock.SignerPublicKey, nemesisBlock.Network),
+					model::GetSignerAddress(nemesisBlock),
 					feeMosaicId,
 					totalFee);
 			blockStatementBuilder.addReceipt(receipt);

@@ -21,7 +21,6 @@
 #include "catapult/plugins/PluginManager.h"
 #include "sdk/src/extensions/ConversionExtensions.h"
 #include "catapult/cache/CatapultCache.h"
-#include "catapult/model/Address.h"
 #include "tests/test/cache/SimpleCache.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/core/mocks/MockTransaction.h"

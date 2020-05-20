@@ -35,6 +35,10 @@ namespace catapult { namespace validators {
 	DEFINE_COMMON_VALIDATOR_TESTS(RemoteInteraction,)
 
 	namespace {
+		Address ToAddress(const Key& publicKey) {
+			return model::PublicKeyToAddress(publicKey, model::NetworkIdentifier::Zero);
+		}
+
 		template<typename TKey>
 		void AddAccount(cache::CatapultCache& cache, const TKey& accountKey, state::AccountType accountType) {
 			auto cacheDelta = cache.createDelta();
@@ -87,7 +91,7 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, FailureWhenAccountIsRemoteAndContainedInParticipantsByAddress_SingleParticipant) {
 		// Arrange:
 		auto accountKey = test::GenerateRandomByteArray<Key>();
-		auto accountAddress = test::UnresolveXor(model::PublicKeyToAddress(accountKey, model::NetworkIdentifier::Zero));
+		auto accountAddress = test::UnresolveXor(ToAddress(accountKey));
 		constexpr auto Failure = Failure_AccountLink_Remote_Account_Participant_Prohibited;
 
 		// Assert:
@@ -106,7 +110,7 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, FailureWhenAccountIsRemoteAndContainedInParticipantsByAddress_MultipleParticipants) {
 		// Arrange:
 		auto accountKey = test::GenerateRandomByteArray<Key>();
-		auto accountAddress = test::UnresolveXor(model::PublicKeyToAddress(accountKey, model::NetworkIdentifier::Zero));
+		auto accountAddress = test::UnresolveXor(ToAddress(accountKey));
 		auto additionalParticipants = test::GenerateRandomDataVector<Address>(2);
 		constexpr auto Failure = Failure_AccountLink_Remote_Account_Participant_Prohibited;
 
@@ -141,7 +145,7 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, SuccessWhenAccountIsRemoteAndTransactionHasTypeAccountLink) {
 		// Arrange:
 		auto accountKey = test::GenerateRandomByteArray<Key>();
-		auto accountAddress = test::UnresolveXor(model::PublicKeyToAddress(accountKey, model::NetworkIdentifier::Zero));
+		auto accountAddress = test::UnresolveXor(ToAddress(accountKey));
 		constexpr auto transactionType = model::AccountKeyLinkTransaction::Entity_Type;
 		constexpr auto Success = ValidationResult::Success;
 
@@ -164,7 +168,7 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, SuccessWhenAccountIsNotRemote) {
 		// Arrange:
 		auto accountKey = test::GenerateRandomByteArray<Key>();
-		auto accountAddress = test::UnresolveXor(model::PublicKeyToAddress(accountKey, model::NetworkIdentifier::Zero));
+		auto accountAddress = test::UnresolveXor(ToAddress(accountKey));
 		auto transactionType = static_cast<model::EntityType>(0x4123);
 		constexpr auto Success = ValidationResult::Success;
 

@@ -19,7 +19,6 @@
 **/
 
 #include "catapult/ionet/Node.h"
-#include "catapult/model/Address.h"
 #include "catapult/model/NetworkIdentifier.h"
 #include "catapult/utils/HexParser.h"
 #include "tests/TestHarness.h"

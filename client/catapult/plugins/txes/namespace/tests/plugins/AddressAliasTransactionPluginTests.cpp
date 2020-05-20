@@ -22,7 +22,6 @@
 #include "src/model/AddressAliasTransaction.h"
 #include "src/model/AliasNotifications.h"
 #include "src/model/NamespaceNotifications.h"
-#include "catapult/model/Address.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -64,8 +63,7 @@ namespace catapult { namespace plugins {
 
 		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
 		builder.template addExpectation<NamespaceRequiredNotification>([&transaction](const auto& notification) {
-			auto signerAddress = model::PublicKeyToAddress(transaction.SignerPublicKey, transaction.Network);
-			EXPECT_EQ(signerAddress, notification.Owner);
+			EXPECT_EQ(model::GetSignerAddress(transaction), notification.Owner);
 			EXPECT_EQ(transaction.NamespaceId, notification.NamespaceId);
 		});
 		builder.template addExpectation<AliasLinkNotification>([&transaction](const auto& notification) {

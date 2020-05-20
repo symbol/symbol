@@ -20,7 +20,6 @@
 
 #include "src/observers/Observers.h"
 #include "src/model/HashLockReceiptType.h"
-#include "catapult/model/Address.h"
 #include "plugins/txes/lock_shared/tests/observers/ExpiredLockInfoObserverTests.h"
 #include "tests/test/HashLockInfoCacheTestUtils.h"
 

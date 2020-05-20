@@ -21,7 +21,6 @@
 #include "src/validators/Validators.h"
 #include "catapult/cache/CatapultCache.h"
 #include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/model/Address.h"
 #include "catapult/state/CatapultState.h"
 #include "tests/test/cache/BalanceTransferTestUtils.h"
 #include "tests/test/cache/CacheTestUtils.h"

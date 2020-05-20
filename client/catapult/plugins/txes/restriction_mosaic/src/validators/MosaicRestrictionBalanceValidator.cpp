@@ -21,7 +21,6 @@
 #include "Validators.h"
 #include "src/cache/MosaicRestrictionCache.h"
 #include "src/cache/MosaicRestrictionCacheUtils.h"
-#include "catapult/model/Address.h"
 #include "catapult/validators/ValidatorContext.h"
 
 namespace catapult { namespace validators {

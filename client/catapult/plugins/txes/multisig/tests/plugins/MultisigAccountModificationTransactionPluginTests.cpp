@@ -21,7 +21,6 @@
 #include "src/plugins/MultisigAccountModificationTransactionPlugin.h"
 #include "src/model/MultisigAccountModificationTransaction.h"
 #include "src/model/MultisigNotifications.h"
-#include "catapult/model/Address.h"
 #include "catapult/utils/MemoryUtils.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"

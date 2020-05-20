@@ -160,6 +160,9 @@ namespace catapult { namespace mocks {
 
 	// endregion
 
+	/// Gets the address of the recipient of \a transaction.
+	Address GetRecipientAddress(const MockTransaction& transaction);
+
 	/// Creates a mock transaction with variable data composed of \a dataSize random bytes.
 	std::unique_ptr<MockTransaction> CreateMockTransaction(uint16_t dataSize);
 

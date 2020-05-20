@@ -19,6 +19,7 @@
 **/
 
 #include "VerifiableEntity.h"
+#include "Address.h"
 #include "Block.h"
 #include "Transaction.h"
 
@@ -27,6 +28,10 @@ namespace catapult { namespace model {
 	std::ostream& operator<<(std::ostream& out, const VerifiableEntity& entity) {
 		out << entity.Type << " (v" << static_cast<uint16_t>(entity.Version) << ") with size " << entity.Size;
 		return out;
+	}
+
+	Address GetSignerAddress(const VerifiableEntity& entity) {
+		return PublicKeyToAddress(entity.SignerPublicKey, entity.Network);
 	}
 
 	bool IsSizeValid(const VerifiableEntity& entity, const TransactionRegistry& registry) {

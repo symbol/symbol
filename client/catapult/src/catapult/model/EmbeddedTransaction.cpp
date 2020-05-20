@@ -19,6 +19,7 @@
 **/
 
 #include "EmbeddedTransaction.h"
+#include "Address.h"
 #include "NotificationSubscriber.h"
 #include "Transaction.h"
 #include "TransactionPlugin.h"
@@ -30,6 +31,10 @@ namespace catapult { namespace model {
 		auto version = static_cast<uint16_t>(transaction.Version);
 		out << "(embedded) " << transaction.Type << " (v" << version << ") with size " << transaction.Size;
 		return out;
+	}
+
+	Address GetSignerAddress(const EmbeddedTransaction& transaction) {
+		return PublicKeyToAddress(transaction.SignerPublicKey, transaction.Network);
 	}
 
 	namespace {

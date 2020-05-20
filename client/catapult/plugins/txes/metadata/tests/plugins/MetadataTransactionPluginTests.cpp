@@ -24,6 +24,7 @@
 #include "src/model/MosaicMetadataTransaction.h"
 #include "src/model/NamespaceMetadataTransaction.h"
 #include "plugins/txes/namespace/src/model/NamespaceNotifications.h"
+#include "catapult/model/Address.h"
 #include "catapult/utils/MemoryUtils.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
 #include "tests/TestHarness.h"
@@ -196,7 +197,7 @@ namespace catapult { namespace plugins {
 		});
 		builder.template addExpectation<MetadataValueNotification>([&transaction](const auto& notification) {
 			// partial metadata key
-			auto signerAddress = model::PublicKeyToAddress(transaction.SignerPublicKey, transaction.Network);
+			auto signerAddress = model::GetSignerAddress(transaction);
 			auto targetAddress = model::PublicKeyToAddress(transaction.TargetPublicKey, transaction.Network);
 			EXPECT_EQ(signerAddress, notification.PartialMetadataKey.SourceAddress);
 			EXPECT_EQ(targetAddress, notification.PartialMetadataKey.TargetAddress);

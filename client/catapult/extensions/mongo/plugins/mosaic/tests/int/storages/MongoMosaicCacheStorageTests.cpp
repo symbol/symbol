@@ -20,7 +20,6 @@
 
 #include "src/storages/MongoMosaicCacheStorage.h"
 #include "mongo/src/mappers/MapperUtils.h"
-#include "catapult/model/Address.h"
 #include "mongo/tests/test/MongoFlatCacheStorageTests.h"
 #include "mongo/tests/test/MongoTestUtils.h"
 #include "plugins/txes/mosaic/tests/test/MosaicCacheTestUtils.h"

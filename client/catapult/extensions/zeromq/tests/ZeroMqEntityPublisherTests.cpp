@@ -21,7 +21,6 @@
 #include "zeromq/src/ZeroMqEntityPublisher.h"
 #include "sdk/src/extensions/ConversionExtensions.h"
 #include "zeromq/src/PublisherUtils.h"
-#include "catapult/model/Address.h"
 #include "catapult/model/Cosignature.h"
 #include "catapult/model/Elements.h"
 #include "catapult/model/NotificationSubscriber.h"
@@ -219,7 +218,7 @@ namespace catapult { namespace zeromq {
 		// Arrange:
 		EntityPublisherContext context;
 		auto pTransaction = mocks::CreateMockTransaction(0);
-		auto recipientAddress = model::PublicKeyToAddress(pTransaction->RecipientPublicKey, pTransaction->Network);
+		auto recipientAddress = mocks::GetRecipientAddress(*pTransaction);
 		auto unresolvedRecipientAddress = extensions::CopyToUnresolvedAddress(recipientAddress);
 		auto transactionInfo = ToTransactionInfo(std::move(pTransaction));
 		Height height(123);

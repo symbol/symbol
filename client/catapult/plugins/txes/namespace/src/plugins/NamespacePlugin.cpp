@@ -31,7 +31,6 @@
 #include "src/observers/Observers.h"
 #include "src/validators/Validators.h"
 #include "catapult/cache/ReadOnlyCatapultCache.h"
-#include "catapult/model/Address.h"
 #include "catapult/observers/ObserverUtils.h"
 #include "catapult/observers/RentalFeeObserver.h"
 #include "catapult/plugins/CacheHandlers.h"

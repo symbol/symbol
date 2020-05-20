@@ -21,7 +21,6 @@
 #include "src/storages/MongoNamespaceCacheStorage.h"
 #include "src/mappers/NamespaceDescriptor.h"
 #include "mongo/src/mappers/MapperUtils.h"
-#include "catapult/model/Address.h"
 #include "mongo/tests/test/MongoHistoricalCacheStorageTests.h"
 #include "mongo/tests/test/MongoTestUtils.h"
 #include "plugins/txes/namespace/tests/test/NamespaceCacheTestUtils.h"

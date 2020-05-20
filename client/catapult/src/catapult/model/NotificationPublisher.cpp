@@ -35,9 +35,8 @@ namespace catapult { namespace model {
 		}
 
 		BlockNotification CreateBlockNotification(const Block& block) {
-			auto signerAddress = PublicKeyToAddress(block.SignerPublicKey, block.Network);
 			auto beneficiaryAddress = PublicKeyToAddress(block.BeneficiaryPublicKey, block.Network);
-			return { signerAddress, beneficiaryAddress, block.Timestamp, block.Difficulty, block.FeeMultiplier };
+			return { GetSignerAddress(block), beneficiaryAddress, block.Timestamp, block.Difficulty, block.FeeMultiplier };
 		}
 
 		class BasicNotificationPublisher : public NotificationPublisher {
@@ -141,7 +140,7 @@ namespace catapult { namespace model {
 						<< "+   transaction.Size: " << transaction.Size << std::endl
 						<< "+   transaction.Type: " << transaction.Type;
 
-				auto signerAddress = PublicKeyToAddress(transaction.SignerPublicKey, transaction.Network);
+				auto signerAddress = GetSignerAddress(transaction);
 				sub.notify(TransactionNotification(transaction.SignerPublicKey, hash, transaction.Type, transaction.Deadline));
 				sub.notify(TransactionDeadlineNotification(transaction.Deadline, attributes.MaxLifetime));
 				sub.notify(TransactionFeeNotification(transaction.SignerPublicKey, transaction.Size, fee, transaction.MaxFee));
@@ -180,7 +179,7 @@ namespace catapult { namespace model {
 				const auto& plugin = *m_transactionRegistry.findPlugin(transaction.Type);
 
 				PublishContext context;
-				context.SignerAddress = PublicKeyToAddress(transaction.SignerPublicKey, transaction.Network);
+				context.SignerAddress = GetSignerAddress(transaction);
 				plugin.publish(WeakEntityInfoT<Transaction>(transaction, hash), context, sub);
 			}
 

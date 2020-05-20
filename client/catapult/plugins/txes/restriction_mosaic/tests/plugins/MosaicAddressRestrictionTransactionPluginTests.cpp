@@ -65,8 +65,7 @@ namespace catapult { namespace plugins {
 
 		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
 		builder.template addExpectation<MosaicRequiredNotification>([&transaction](const auto& notification) {
-			auto signerAddress = model::PublicKeyToAddress(transaction.SignerPublicKey, transaction.Network);
-			EXPECT_EQ(signerAddress, notification.Owner);
+			EXPECT_EQ(model::GetSignerAddress(transaction), notification.Owner);
 			EXPECT_EQ(MosaicId(), notification.MosaicId);
 			EXPECT_EQ(transaction.MosaicId, notification.UnresolvedMosaicId);
 			EXPECT_EQ(0x04u, notification.PropertyFlagMask);

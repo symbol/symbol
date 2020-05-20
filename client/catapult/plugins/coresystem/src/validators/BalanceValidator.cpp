@@ -20,7 +20,6 @@
 
 #include "Validators.h"
 #include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/model/Address.h"
 #include "catapult/state/CatapultState.h"
 #include "catapult/validators/ValidatorContext.h"
 

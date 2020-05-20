@@ -21,7 +21,6 @@
 #include "sdk/src/extensions/TransactionExtensions.h"
 #include "catapult/chain/BlockScorer.h"
 #include "catapult/config/ValidateConfiguration.h"
-#include "catapult/model/Address.h"
 #include "catapult/model/BlockUtils.h"
 #include "catapult/model/ChainScore.h"
 #include "tests/int/node/stress/test/BlockChainBuilder.h"
@@ -238,7 +237,7 @@ namespace catapult { namespace local {
 				model::BlockStatementBuilder blockStatementBuilder;
 				model::BalanceChangeReceipt receipt(
 						model::Receipt_Type_Harvest_Fee,
-						model::PublicKeyToAddress(block.SignerPublicKey, block.Network),
+						model::GetSignerAddress(block),
 						test::Default_Currency_Mosaic_Id,
 						totalFee);
 				blockStatementBuilder.addReceipt(receipt);

@@ -21,7 +21,6 @@
 #pragma once
 #include "mongo/src/mappers/MapperUtils.h"
 #include "plugins/txes/lock_shared/src/state/LockInfo.h"
-#include "catapult/model/Address.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace mongo { namespace plugins {

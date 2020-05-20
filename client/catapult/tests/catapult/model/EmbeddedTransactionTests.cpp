@@ -19,6 +19,7 @@
 **/
 
 #include "catapult/model/EmbeddedTransaction.h"
+#include "catapult/model/Address.h"
 #include "catapult/preprocessor.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/core/mocks/MockTransaction.h"
@@ -72,6 +73,24 @@ namespace catapult { namespace model {
 
 		// Assert:
 		EXPECT_EQ("(embedded) EntityType<0x1234> (v2) with size 121", str);
+	}
+
+	// endregion
+
+	// region GetSignerAddress
+
+	TEST(TEST_CLASS, GetSignerAddressCalculatesCorrectSignerAddress) {
+		// Arrange:
+		EmbeddedTransaction transaction;
+		test::FillWithRandomData(transaction.SignerPublicKey);
+		transaction.Network = static_cast<NetworkIdentifier>(test::RandomByte());
+
+		// Act:
+		auto signerAddress = GetSignerAddress(transaction);
+
+		// Assert:
+		auto expectedSignerAddress = PublicKeyToAddress(transaction.SignerPublicKey, transaction.Network);
+		EXPECT_EQ(expectedSignerAddress, signerAddress);
 	}
 
 	// endregion

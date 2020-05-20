@@ -34,9 +34,13 @@ namespace catapult { namespace plugins {
 
 	namespace {
 		template<typename TTransaction>
+		Address GetTargetAddress(const TTransaction& transaction) {
+			return model::PublicKeyToAddress(transaction.TargetPublicKey, transaction.Network);
+		}
+
+		template<typename TTransaction>
 		PartialMetadataKey ExtractPartialMetadataKey(const TTransaction& transaction, const PublishContext& context) {
-			auto targetAddress = model::PublicKeyToAddress(transaction.TargetPublicKey, transaction.Network);
-			return { context.SignerAddress, targetAddress, transaction.ScopedMetadataKey };
+			return { context.SignerAddress, GetTargetAddress(transaction), transaction.ScopedMetadataKey };
 		}
 
 		struct AccountTraits {
@@ -59,8 +63,7 @@ namespace catapult { namespace plugins {
 
 			template<typename TTransaction>
 			static void RaiseCustomNotifications(const TTransaction& transaction, NotificationSubscriber& sub) {
-				auto targetAddress = model::PublicKeyToAddress(transaction.TargetPublicKey, transaction.Network);
-				sub.notify(MosaicRequiredNotification(targetAddress, transaction.TargetMosaicId));
+				sub.notify(MosaicRequiredNotification(GetTargetAddress(transaction), transaction.TargetMosaicId));
 			}
 		};
 
@@ -72,8 +75,7 @@ namespace catapult { namespace plugins {
 
 			template<typename TTransaction>
 			static void RaiseCustomNotifications(const TTransaction& transaction, NotificationSubscriber& sub) {
-				auto targetAddress = model::PublicKeyToAddress(transaction.TargetPublicKey, transaction.Network);
-				sub.notify(NamespaceRequiredNotification(targetAddress, transaction.TargetNamespaceId));
+				sub.notify(NamespaceRequiredNotification(GetTargetAddress(transaction), transaction.TargetNamespaceId));
 			}
 		};
 
