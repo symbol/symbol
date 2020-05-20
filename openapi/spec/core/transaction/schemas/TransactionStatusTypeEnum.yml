@@ -16,11 +16,12 @@ enum:
   - Failure_Core_Zero_Address
   - Failure_Core_Zero_Public_Key
   - Failure_Core_Nonzero_Internal_Padding
+  - Failure_Core_Invalid_Link_Action
+  - Failure_Core_Link_Already_Exists
+  - Failure_Core_Inconsistent_Unlink_Data
   - Failure_Hash_Already_Exists
   - Failure_Signature_Not_Verifiable
-  - Failure_AccountLink_Invalid_Action
   - Failure_AccountLink_Link_Already_Exists
-  - Failure_AccountLink_Unknown_Link
   - Failure_AccountLink_Inconsistent_Unlink_Data
   - Failure_AccountLink_Remote_Account_Ineligible
   - Failure_AccountLink_Remote_Account_Signer_Prohibited
@@ -151,10 +152,10 @@ enum:
   - Failure_Extension_Partial_Transaction_Dependency_Removed
   - Failure_Extension_Read_Rate_Limit_Exceeded
 description: |
-  Status of the transaction:
-  * Success -
-  * Neutral -
-  * Failure -
+  List of status errors that can be returned via the status channel after announcing a transaction:
+  * Success
+  * Neutral
+  * Failure
   * Failure_Core_Past_Deadline - Validation failed because the deadline passed.
   * Failure_Core_Future_Deadline - Validation failed because the deadline is too far in the future.
   * Failure_Core_Insufficient_Balance - Validation failed because the account has an insufficient balance.
@@ -168,11 +169,12 @@ description: |
   * Failure_Core_Zero_Address - Validation failed because an address is zero.
   * Failure_Core_Zero_Public_Key - Validation failed because a public key is zero.
   * Failure_Core_Nonzero_Internal_Padding - Validation failed because internal padding is nonzero.
-  * Failure_Hash_Already_Exists -
+  * Failure_Core_Invalid_Link_Action - Validation failed because link action is invalid.
+  * Failure_Core_Link_Already_Exists - Validation failed because main account is already linked to another account.
+  * Failure_Core_Inconsistent_Unlink_Data - Validation failed because unlink data is not consistent with existing account link.
+  * Failure_Hash_Already_Exists
   * Failure_Signature_Not_Verifiable - Validation failed because the verification of the signature failed.
-  * Failure_AccountLink_Invalid_Action - Validation failed because account link action is invalid.
   * Failure_AccountLink_Link_Already_Exists - Validation failed because main account is already linked to another account.
-  * Failure_AccountLink_Unknown_Link - Validation failed because main account is not linked to another account.
   * Failure_AccountLink_Inconsistent_Unlink_Data - Validation failed because unlink data is not consistent with existing account link.
   * Failure_AccountLink_Remote_Account_Ineligible - Validation failed because link is attempting to convert ineligible account to remote.
   * Failure_AccountLink_Remote_Account_Signer_Prohibited - Validation failed because remote is not allowed to sign a transaction.
