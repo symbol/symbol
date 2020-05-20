@@ -96,7 +96,7 @@ namespace catapult { namespace plugins {
 
 		typename TTraits::TransactionType transaction;
 		test::FillWithRandomData(transaction);
-		transaction.SignerPublicKey = config.NemesisPublicKey;
+		transaction.SignerPublicKey = config.NemesisSignerPublicKey;
 
 		// Act + Assert:
 		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
@@ -113,7 +113,7 @@ namespace catapult { namespace plugins {
 
 		typename TTraits::TransactionType transaction;
 		test::FillWithRandomData(transaction);
-		transaction.SignerPublicKey = config.NemesisPublicKey;
+		transaction.SignerPublicKey = config.NemesisSignerPublicKey;
 
 		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
 		AddCommonExpectations<TTraits>(builder, config, transaction);

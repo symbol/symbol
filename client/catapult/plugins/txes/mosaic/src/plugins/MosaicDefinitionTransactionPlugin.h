@@ -39,7 +39,7 @@ namespace catapult { namespace plugins {
 		Amount Fee;
 
 		/// Public key of the (exempt from fees) nemesis account.
-		Key NemesisPublicKey;
+		Key NemesisSignerPublicKey;
 	};
 
 	/// Creates a mosaic definition transaction plugin given the rental fee configuration (\a config).

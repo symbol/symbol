@@ -82,7 +82,7 @@ namespace catapult { namespace extensions {
 			if (expectedNetwork.Identifier != networkIdentifier)
 				CATAPULT_THROW_INVALID_ARGUMENT_1("nemesis network id does not match network", networkIdentifier);
 
-			if (expectedNetwork.PublicKey != publicKey)
+			if (expectedNetwork.NemesisSignerPublicKey != publicKey)
 				CATAPULT_THROW_INVALID_ARGUMENT_1("nemesis public key does not match network", publicKey);
 
 			crypto::VrfProof vrfProof{ generationHashProof.Gamma, generationHashProof.VerificationHash, generationHashProof.Scalar };

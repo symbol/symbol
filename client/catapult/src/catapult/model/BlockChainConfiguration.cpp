@@ -47,7 +47,7 @@ namespace catapult { namespace model {
 
 		LOAD_NETWORK_PROPERTY(Identifier);
 		LOAD_NETWORK_PROPERTY(NodeEqualityStrategy);
-		LOAD_NETWORK_PROPERTY(PublicKey);
+		LOAD_NETWORK_PROPERTY(NemesisSignerPublicKey);
 		LOAD_NETWORK_PROPERTY(GenerationHashSeed);
 		LOAD_NETWORK_PROPERTY(EpochAdjustment);
 

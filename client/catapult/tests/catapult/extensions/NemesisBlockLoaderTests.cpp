@@ -102,7 +102,7 @@ namespace catapult { namespace extensions {
 			if (NemesisBlockModification::Public_Key == modification)
 				test::FillWithRandomData(pModifiedBlock->SignerPublicKey);
 			else
-				pModifiedBlock->SignerPublicKey = network.PublicKey;
+				pModifiedBlock->SignerPublicKey = network.NemesisSignerPublicKey;
 
 			// 2. modify the generation hash proof if requested
 			if (NemesisBlockModification::Generation_Hash_Proof == modification) {
@@ -150,7 +150,7 @@ namespace catapult { namespace extensions {
 		model::BlockChainConfiguration CreateDefaultConfiguration(const model::Block& nemesisBlock, const NemesisOptions& nemesisOptions) {
 			auto config = model::BlockChainConfiguration::Uninitialized();
 			config.Network.Identifier = Network_Identifier;
-			config.Network.PublicKey = nemesisBlock.SignerPublicKey;
+			config.Network.NemesisSignerPublicKey = nemesisBlock.SignerPublicKey;
 			test::FillWithRandomData(config.Network.GenerationHashSeed);
 			config.CurrencyMosaicId = Currency_Mosaic_Id;
 			config.HarvestingMosaicId = Harvesting_Mosaic_Id;

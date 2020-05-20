@@ -32,7 +32,7 @@ namespace catapult { namespace model {
 	// region BlockChainConfiguration
 
 	namespace {
-		constexpr auto Nemesis_Public_Key = "C738E237C98760FA72726BA13DC2A1E3C13FA67DE26AF09742E972EE4EE45E1C";
+		constexpr auto Nemesis_Signer_Public_Key = "C738E237C98760FA72726BA13DC2A1E3C13FA67DE26AF09742E972EE4EE45E1C";
 		constexpr auto Nemesis_Generation_Hash_Seed = "CE076EF4ABFBC65B046987429E274EC31506D173E91BF102F16BEB7FB8176230";
 		constexpr auto Harvest_Network_Fee_Sink_Address = "SBHI5UVMDQ36X3USYK6UQELCLZ7YL3T2WP5OCK5Q";
 
@@ -46,7 +46,7 @@ namespace catapult { namespace model {
 						{
 							{ "identifier", "public-test" },
 							{ "nodeEqualityStrategy", "host" },
-							{ "publicKey", Nemesis_Public_Key },
+							{ "nemesisSignerPublicKey", Nemesis_Signer_Public_Key },
 							{ "generationHashSeed", Nemesis_Generation_Hash_Seed },
 							{ "epochAdjustment", "1234567h" }
 						}
@@ -113,7 +113,7 @@ namespace catapult { namespace model {
 				// Assert:
 				EXPECT_EQ(NetworkIdentifier::Zero, config.Network.Identifier);
 				EXPECT_EQ(static_cast<NodeIdentityEqualityStrategy>(0), config.Network.NodeEqualityStrategy);
-				EXPECT_EQ(Key(), config.Network.PublicKey);
+				EXPECT_EQ(Key(), config.Network.NemesisSignerPublicKey);
 				EXPECT_EQ(GenerationHashSeed(), config.Network.GenerationHashSeed);
 				EXPECT_EQ(utils::TimeSpan(), config.Network.EpochAdjustment);
 
@@ -158,7 +158,7 @@ namespace catapult { namespace model {
 				// Assert: notice that ParseKey also works for Hash256 because it is the same type as Key
 				EXPECT_EQ(NetworkIdentifier::Public_Test, config.Network.Identifier);
 				EXPECT_EQ(NodeIdentityEqualityStrategy::Host, config.Network.NodeEqualityStrategy);
-				EXPECT_EQ(utils::ParseByteArray<Key>(Nemesis_Public_Key), config.Network.PublicKey);
+				EXPECT_EQ(utils::ParseByteArray<Key>(Nemesis_Signer_Public_Key), config.Network.NemesisSignerPublicKey);
 				EXPECT_EQ(utils::ParseByteArray<GenerationHashSeed>(Nemesis_Generation_Hash_Seed), config.Network.GenerationHashSeed);
 				EXPECT_EQ(utils::TimeSpan::FromHours(1234567), config.Network.EpochAdjustment);
 

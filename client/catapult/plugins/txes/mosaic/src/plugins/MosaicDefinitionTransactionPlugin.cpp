@@ -37,7 +37,7 @@ namespace catapult { namespace plugins {
 
 				// 2. rental fee charge
 				// a. exempt the nemesis account
-				if (config.NemesisPublicKey != transaction.SignerPublicKey) {
+				if (config.NemesisSignerPublicKey != transaction.SignerPublicKey) {
 					sub.notify(BalanceTransferNotification(
 							context.SignerAddress,
 							config.SinkAddress,

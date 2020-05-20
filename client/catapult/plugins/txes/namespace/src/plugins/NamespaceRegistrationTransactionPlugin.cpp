@@ -37,7 +37,7 @@ namespace catapult { namespace plugins {
 				const PublishContext& context,
 				NotificationSubscriber& sub) {
 			// a. exempt the nemesis account
-			if (config.NemesisPublicKey == transaction.SignerPublicKey)
+			if (config.NemesisSignerPublicKey == transaction.SignerPublicKey)
 				return;
 
 			auto rentalFee = config.ChildFee;

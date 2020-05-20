@@ -43,7 +43,7 @@ namespace catapult { namespace plugins {
 			MosaicRentalFeeConfiguration rentalFeeConfig;
 			rentalFeeConfig.CurrencyMosaicId = currencyMosaicId;
 			rentalFeeConfig.Fee = config.MosaicRentalFee;
-			rentalFeeConfig.NemesisPublicKey = network.PublicKey;
+			rentalFeeConfig.NemesisSignerPublicKey = network.NemesisSignerPublicKey;
 
 			// sink address is already resolved but needs to be passed as unresolved into notification
 			rentalFeeConfig.SinkAddress = config.MosaicRentalFeeSinkAddress.copyTo<UnresolvedAddress>();

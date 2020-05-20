@@ -114,7 +114,7 @@ namespace catapult { namespace plugins {
 
 		auto pTransaction = CreateTransactionWithName<TTraits>(11);
 		PrepareRootNamespaceFiniteDurationTransaction(*pTransaction);
-		pTransaction->SignerPublicKey = config.NemesisPublicKey;
+		pTransaction->SignerPublicKey = config.NemesisSignerPublicKey;
 
 		// Act + Assert:
 		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(*pTransaction, {
@@ -131,7 +131,7 @@ namespace catapult { namespace plugins {
 
 		auto pTransaction = CreateTransactionWithName<TTraits>(11);
 		PrepareRootNamespaceFiniteDurationTransaction(*pTransaction);
-		pTransaction->SignerPublicKey = config.NemesisPublicKey;
+		pTransaction->SignerPublicKey = config.NemesisSignerPublicKey;
 
 		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
 		AddCommonRootExpectations<TTraits>(builder, config, *pTransaction);
@@ -273,7 +273,7 @@ namespace catapult { namespace plugins {
 
 		auto pTransaction = CreateTransactionWithName<TTraits>(11);
 		PrepareChildNamespaceTransaction(*pTransaction);
-		pTransaction->SignerPublicKey = config.NemesisPublicKey;
+		pTransaction->SignerPublicKey = config.NemesisSignerPublicKey;
 
 		// Act + Assert:
 		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(*pTransaction, {
@@ -290,7 +290,7 @@ namespace catapult { namespace plugins {
 
 		auto pTransaction = CreateTransactionWithName<TTraits>(11);
 		PrepareChildNamespaceTransaction(*pTransaction);
-		pTransaction->SignerPublicKey = config.NemesisPublicKey;
+		pTransaction->SignerPublicKey = config.NemesisSignerPublicKey;
 
 		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
 		AddCommonChildExpectations<TTraits>(builder, config, *pTransaction);
