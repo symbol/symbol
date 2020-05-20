@@ -2,8 +2,8 @@ import "transaction.cats"
 
 # binary layout for an account key link transaction
 struct AccountKeyLinkTransactionBody
-	# remote public key
-	remotePublicKey = Key
+	# linked public key
+	linkedPublicKey = Key
 
 	# link action
 	linkAction = LinkAction
