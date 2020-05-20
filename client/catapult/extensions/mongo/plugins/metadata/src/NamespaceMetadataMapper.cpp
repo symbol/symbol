@@ -31,7 +31,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		template<typename TTransaction>
 		void Stream(bson_stream::document& builder, const TTransaction& transaction) {
 			builder
-					<< "targetPublicKey" << ToBinary(transaction.TargetPublicKey)
+					<< "targetAddress" << ToBinary(transaction.TargetAddress)
 					<< "scopedMetadataKey" << static_cast<int64_t>(transaction.ScopedMetadataKey)
 					<< "targetNamespaceId" << ToInt64(transaction.TargetNamespaceId)
 					<< "valueSizeDelta" << transaction.ValueSizeDelta

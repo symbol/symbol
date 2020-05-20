@@ -25,39 +25,39 @@ namespace catapult { namespace cache {
 
 	namespace {
 		struct AncestorTraits {
-			static const auto& GetKeySet(const state::MultisigEntry& multisigEntry) {
-				return multisigEntry.multisigPublicKeys();
+			static const auto& GetAddresses(const state::MultisigEntry& multisigEntry) {
+				return multisigEntry.multisigAddresses();
 			}
 		};
 
 		struct DescendantTraits {
-			static const auto& GetKeySet(const state::MultisigEntry& multisigEntry) {
-				return multisigEntry.cosignatoryPublicKeys();
+			static const auto& GetAddresses(const state::MultisigEntry& multisigEntry) {
+				return multisigEntry.cosignatoryAddresses();
 			}
 		};
 
 		template<typename TTraits>
-		size_t FindAll(const MultisigCacheTypes::CacheReadOnlyType& multisigCache, const Key& publicKey, utils::KeySet& keySet) {
-			if (!multisigCache.contains(publicKey))
+		size_t FindAll(const MultisigCacheTypes::CacheReadOnlyType& multisigCache, const Address& address, model::AddressSet& addresses) {
+			auto multisigIter = multisigCache.find(address);
+			if (!multisigIter.tryGet())
 				return 0;
 
 			size_t numLevels = 0;
-			auto multisigIter = multisigCache.find(publicKey);
 			const auto& multisigEntry = multisigIter.get();
-			for (const auto& linkedKey : TTraits::GetKeySet(multisigEntry)) {
-				keySet.insert(linkedKey);
-				numLevels = std::max(numLevels, FindAll<TTraits>(multisigCache, linkedKey, keySet) + 1);
+			for (const auto& linkedAddress : TTraits::GetAddresses(multisigEntry)) {
+				addresses.insert(linkedAddress);
+				numLevels = std::max(numLevels, FindAll<TTraits>(multisigCache, linkedAddress, addresses) + 1);
 			}
 
 			return numLevels;
 		}
 	}
 
-	size_t FindAncestors(const MultisigCacheTypes::CacheReadOnlyType& cache, const Key& key, utils::KeySet& ancestorKeys) {
-		return FindAll<AncestorTraits>(cache, key, ancestorKeys);
+	size_t FindAncestors(const MultisigCacheTypes::CacheReadOnlyType& cache, const Address& address, model::AddressSet& ancestors) {
+		return FindAll<AncestorTraits>(cache, address, ancestors);
 	}
 
-	size_t FindDescendants(const MultisigCacheTypes::CacheReadOnlyType& cache, const Key& key, utils::KeySet& descendantKeys) {
-		return FindAll<DescendantTraits>(cache, key, descendantKeys);
+	size_t FindDescendants(const MultisigCacheTypes::CacheReadOnlyType& cache, const Address& address, model::AddressSet& descendants) {
+		return FindAll<DescendantTraits>(cache, address, descendants);
 	}
 }}

@@ -38,7 +38,7 @@ namespace catapult { namespace cache {
 				{}
 			};
 
-			using IdType = Key;
+			using IdType = Address;
 			using ValueType = state::MultisigEntry;
 
 			static uint8_t GetRawId(const IdType& id) {
@@ -46,7 +46,7 @@ namespace catapult { namespace cache {
 			}
 
 			static IdType GetId(const ValueType& entry) {
-				return entry.key();
+				return entry.address();
 			}
 
 			static IdType MakeId(uint8_t id) {
@@ -60,9 +60,9 @@ namespace catapult { namespace cache {
 
 		struct MultisigCacheDeltaModificationPolicy : public test:: DeltaInsertModificationPolicy {
 			static void Modify(MultisigCacheDelta& delta, const state::MultisigEntry& entry) {
-				auto multisigIter = delta.find(entry.key());
+				auto multisigIter = delta.find(entry.address());
 				auto& entryFromCache = multisigIter.get();
-				entryFromCache.cosignatoryPublicKeys().insert(test::GenerateRandomByteArray<Key>());
+				entryFromCache.cosignatoryAddresses().insert(test::GenerateRandomByteArray<Address>());
 			}
 		};
 	}
@@ -90,13 +90,13 @@ namespace catapult { namespace cache {
 	TEST(TEST_CLASS, LinksCanBeAddedLater) {
 		// Arrange:
 		MultisigCacheMixinTraits::CacheType cache;
-		auto keys = test::GenerateKeys(3);
+		auto addresses = test::GenerateRandomDataVector<Address>(3);
 
-		// - insert single account key
+		// - insert single entry
 		{
 
 			auto delta = cache.createDelta();
-			delta->insert(state::MultisigEntry(keys[0]));
+			delta->insert(state::MultisigEntry(addresses[0]));
 			cache.commit();
 		}
 
@@ -106,19 +106,19 @@ namespace catapult { namespace cache {
 		// Act: add links
 		{
 			auto delta = cache.createDelta();
-			auto multisigIter = delta->find(keys[0]);
+			auto multisigIter = delta->find(addresses[0]);
 			auto& entry = multisigIter.get();
-			entry.cosignatoryPublicKeys().insert(keys[1]);
-			entry.multisigPublicKeys().insert(keys[2]);
+			entry.cosignatoryAddresses().insert(addresses[1]);
+			entry.multisigAddresses().insert(addresses[2]);
 			cache.commit();
 		}
 
 		// Assert:
 		auto view = cache.createView();
-		auto multisigIter = view->find(keys[0]);
+		auto multisigIter = view->find(addresses[0]);
 		const auto& entry = multisigIter.get();
-		EXPECT_EQ(utils::SortedKeySet({ keys[1] }), entry.cosignatoryPublicKeys());
-		EXPECT_EQ(utils::SortedKeySet({ keys[2] }), entry.multisigPublicKeys());
+		EXPECT_EQ(state::SortedAddressSet({ addresses[1] }), entry.cosignatoryAddresses());
+		EXPECT_EQ(state::SortedAddressSet({ addresses[2] }), entry.multisigAddresses());
 	}
 
 	// endregion

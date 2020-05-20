@@ -26,73 +26,73 @@ namespace catapult { namespace observers {
 	using Notification = model::MultisigCosignatoriesNotification;
 
 	namespace {
-		auto GetMultisigEntry(cache::MultisigCacheDelta& multisigCache, const Key& key) {
-			if (!multisigCache.contains(key))
-				multisigCache.insert(state::MultisigEntry(key));
+		auto GetMultisigEntry(cache::MultisigCacheDelta& multisigCache, const Address& address) {
+			if (!multisigCache.contains(address))
+				multisigCache.insert(state::MultisigEntry(address));
 
-			return multisigCache.find(key);
+			return multisigCache.find(address);
 		}
 
 		class MultisigAccountFacade {
 		public:
-			MultisigAccountFacade(cache::MultisigCacheDelta& multisigCache, const Key& multisigAccountKey)
+			MultisigAccountFacade(cache::MultisigCacheDelta& multisigCache, const Address& multisig)
 					: m_multisigCache(multisigCache)
-					, m_multisigAccountKey(multisigAccountKey)
-					, m_multisigIter(GetMultisigEntry(m_multisigCache, m_multisigAccountKey))
+					, m_multisig(multisig)
+					, m_multisigIter(GetMultisigEntry(m_multisigCache, m_multisig))
 					, m_multisigEntry(m_multisigIter.get())
 			{}
 
 			~MultisigAccountFacade() {
-				removeIfEmpty(m_multisigEntry, m_multisigAccountKey);
+				removeIfEmpty(m_multisigEntry, m_multisig);
 			}
 
 		public:
-			void addCosignatory(const Key& cosignatoryKey) {
-				auto multisigIter = GetMultisigEntry(m_multisigCache, cosignatoryKey);
-				multisigIter.get().multisigPublicKeys().insert(m_multisigAccountKey);
-				m_multisigEntry.cosignatoryPublicKeys().insert(cosignatoryKey);
+			void addCosignatory(const Address& cosignatory) {
+				auto multisigIter = GetMultisigEntry(m_multisigCache, cosignatory);
+				multisigIter.get().multisigAddresses().insert(m_multisig);
+				m_multisigEntry.cosignatoryAddresses().insert(cosignatory);
 			}
 
-			void removeCosignatory(const Key& cosignatoryKey) {
-				m_multisigEntry.cosignatoryPublicKeys().erase(cosignatoryKey);
+			void removeCosignatory(const Address& cosignatory) {
+				m_multisigEntry.cosignatoryAddresses().erase(cosignatory);
 
-				auto multisigIter = m_multisigCache.find(cosignatoryKey);
+				auto multisigIter = m_multisigCache.find(cosignatory);
 				auto& cosignatoryEntry = multisigIter.get();
-				cosignatoryEntry.multisigPublicKeys().erase(m_multisigAccountKey);
+				cosignatoryEntry.multisigAddresses().erase(m_multisig);
 
-				removeIfEmpty(cosignatoryEntry, cosignatoryKey);
+				removeIfEmpty(cosignatoryEntry, cosignatory);
 			}
 
 		private:
-			void removeIfEmpty(const state::MultisigEntry& entry, const Key& key) {
-				if (entry.cosignatoryPublicKeys().empty() && entry.multisigPublicKeys().empty())
-					m_multisigCache.remove(key);
+			void removeIfEmpty(const state::MultisigEntry& entry, const Address& address) {
+				if (entry.cosignatoryAddresses().empty() && entry.multisigAddresses().empty())
+					m_multisigCache.remove(address);
 			}
 
 		private:
 			cache::MultisigCacheDelta& m_multisigCache;
-			const Key& m_multisigAccountKey;
+			const Address& m_multisig;
 			cache::MultisigCacheDelta::iterator m_multisigIter;
 			state::MultisigEntry& m_multisigEntry;
 		};
 
-		void AddAll(MultisigAccountFacade& multisigAccountFacade, const Key* pKeys, uint8_t numKeys, bool shouldAdd) {
-			for (auto i = 0u; i < numKeys; ++i) {
-				const auto& cosignatoryPublicKey = pKeys[i];
+		void AddAll(MultisigAccountFacade& multisigAccountFacade, const Address* pAddresses, uint8_t count, bool shouldAdd) {
+			for (auto i = 0u; i < count; ++i) {
+				const auto& cosignatory = pAddresses[i];
 				if (shouldAdd)
-					multisigAccountFacade.addCosignatory(cosignatoryPublicKey);
+					multisigAccountFacade.addCosignatory(cosignatory);
 				else
-					multisigAccountFacade.removeCosignatory(cosignatoryPublicKey);
+					multisigAccountFacade.removeCosignatory(cosignatory);
 			}
 		}
 	}
 
 	DEFINE_OBSERVER(MultisigCosignatories, Notification, [](const Notification& notification, const ObserverContext& context) {
 		auto& multisigCache = context.Cache.sub<cache::MultisigCache>();
-		MultisigAccountFacade multisigAccountFacade(multisigCache, notification.SignerPublicKey);
+		MultisigAccountFacade multisigAccountFacade(multisigCache, notification.Multisig);
 
 		auto isCommitMode = NotifyMode::Commit == context.Mode;
-		AddAll(multisigAccountFacade, notification.PublicKeyAdditionsPtr, notification.PublicKeyAdditionsCount, isCommitMode);
-		AddAll(multisigAccountFacade, notification.PublicKeyDeletionsPtr, notification.PublicKeyDeletionsCount, !isCommitMode);
+		AddAll(multisigAccountFacade, notification.AddressAdditionsPtr, notification.AddressAdditionsCount, isCommitMode);
+		AddAll(multisigAccountFacade, notification.AddressDeletionsPtr, notification.AddressDeletionsCount, !isCommitMode);
 	});
 }}

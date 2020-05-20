@@ -20,6 +20,7 @@
 
 #include "src/validators/Validators.h"
 #include "src/plugins/MultisigAccountModificationTransactionPlugin.h"
+#include "catapult/model/Address.h"
 #include "catapult/model/TransactionPlugin.h"
 #include "tests/test/MultisigCacheTestUtils.h"
 #include "tests/test/MultisigTestUtils.h"
@@ -35,6 +36,18 @@ namespace catapult { namespace validators {
 
 	namespace {
 		constexpr auto Failure_Result = Failure_Aggregate_Missing_Cosignatures;
+
+		Address ToAddress(const Key& publicKey) {
+			return model::PublicKeyToAddress(publicKey, model::NetworkIdentifier::Zero);
+		}
+
+		std::vector<Address> ToAddresses(const std::vector<Key>& publicKeys) {
+			std::vector<Address> addresses;
+			for (const auto& publicKey : publicKeys)
+				addresses.push_back(ToAddress(publicKey));
+
+			return addresses;
+		}
 
 		void AssertValidationResult(
 				ValidationResult expectedResult,
@@ -87,7 +100,7 @@ namespace catapult { namespace validators {
 				auto cacheDelta = cache.createDelta();
 
 				// make the aggregate signer a cosignatory of a different account
-				test::MakeMultisig(cacheDelta, test::GenerateRandomByteArray<Key>(), { aggregateSigner });
+				test::MakeMultisig(cacheDelta, test::GenerateRandomByteArray<Address>(), { ToAddress(aggregateSigner) });
 
 				cache.commit(Height());
 				return cache;
@@ -158,7 +171,8 @@ namespace catapult { namespace validators {
 			auto cache = test::MultisigCacheFactory::Create();
 			auto cacheDelta = cache.createDelta();
 
-			test::MakeMultisig(cacheDelta, embeddedSigner, cosignatories, minApproval, minRemoval); // make a (3-4-X default) multisig
+			// make a (3-4-X default) multisig
+			test::MakeMultisig(cacheDelta, ToAddress(embeddedSigner), ToAddresses(cosignatories), minApproval, minRemoval);
 
 			cache.commit(Height());
 			return cache;
@@ -232,8 +246,11 @@ namespace catapult { namespace validators {
 			auto cache = test::MultisigCacheFactory::Create();
 			auto cacheDelta = cache.createDelta();
 
-			test::MakeMultisig(cacheDelta, embeddedSigner, cosignatories, 2, 3); // make a 2-3-X multisig
-			test::MakeMultisig(cacheDelta, cosignatories[1], secondLevelCosignatories, 3, 4); // make a 3-4-X multisig
+			// make a 2-3-X multisig
+			test::MakeMultisig(cacheDelta, ToAddress(embeddedSigner), ToAddresses(cosignatories), 2, 3);
+
+			// make a 3-4-X multisig
+			test::MakeMultisig(cacheDelta, ToAddress(cosignatories[1]), ToAddresses(secondLevelCosignatories), 3, 4);
 
 			cache.commit(Height());
 			return cache;
@@ -308,11 +325,8 @@ namespace catapult { namespace validators {
 	// region multisig account modification handling
 
 	namespace {
-		void AddRequiredCosignatoriesKeys(
-				std::vector<Key>& cosignatories,
-				const model::EmbeddedMultisigAccountModificationTransaction& transaction) {
-			for (auto i = 0u; i < transaction.PublicKeyAdditionsCount; ++i)
-				cosignatories.push_back(transaction.PublicKeyAdditionsPtr()[i]);
+		void AddAll(std::vector<Key>& allCosignatories, const std::vector<Key>& cosignatories) {
+			allCosignatories.insert(allCosignatories.cend(), cosignatories.cbegin(), cosignatories.cend());
 		}
 
 		void AssertMinApprovalLimit(
@@ -326,7 +340,12 @@ namespace catapult { namespace validators {
 			auto aggregateSigner = test::GenerateRandomByteArray<Key>();
 			auto cosignatories = test::GenerateRandomDataVector<Key>(expectedLimit);
 
-			auto pSubTransaction = test::CreateMultisigAccountModificationTransaction(embeddedSigner, numAdditions, numDeletions);
+			auto publicKeyAdditions = test::GenerateRandomDataVector<Key>(numAdditions);
+			auto publicKeyDeletions = test::GenerateRandomDataVector<Key>(numDeletions);
+			auto pSubTransaction = test::CreateMultisigAccountModificationTransaction(
+					embeddedSigner,
+					ToAddresses(publicKeyAdditions),
+					ToAddresses(publicKeyDeletions));
 
 			// - create the cache making the embedded signer a single level multisig
 			auto cache = CreateCacheWithSingleLevelMultisig(embeddedSigner, cosignatories, minApproval, minRemoval);
@@ -334,12 +353,12 @@ namespace catapult { namespace validators {
 			// Assert:
 			CATAPULT_LOG(debug) << "running test with " << expectedLimit - 1 << " cosignatories (insufficient)";
 			auto insufficientCosignatories = std::vector<Key>(cosignatories.cbegin(), cosignatories.cbegin() + expectedLimit - 1);
-			AddRequiredCosignatoriesKeys(insufficientCosignatories, *pSubTransaction);
+			AddAll(insufficientCosignatories, publicKeyAdditions);
 			AssertValidationResult(Failure_Result, cache, aggregateSigner, *pSubTransaction, insufficientCosignatories);
 
 			CATAPULT_LOG(debug) << "running test with " << expectedLimit << " cosignatories (sufficient)";
 			auto sufficientCosignatories = std::vector<Key>(cosignatories.cbegin(), cosignatories.cbegin() + expectedLimit);
-			AddRequiredCosignatoriesKeys(sufficientCosignatories, *pSubTransaction);
+			AddAll(sufficientCosignatories, publicKeyAdditions);
 			AssertValidationResult(ValidationResult::Success, cache, aggregateSigner, *pSubTransaction, sufficientCosignatories);
 		}
 	}
@@ -409,14 +428,13 @@ namespace catapult { namespace validators {
 	namespace {
 		enum class AccountPolicy { Regular, Multisig };
 
-		void AddSingleLevelMultisig(cache::CatapultCache& cache, const Key& multisigPublicKey, const std::vector<Key>& cosignatories) {
+		void AddSingleLevelMultisig(cache::CatapultCache& cache, const Key& multisig, const std::vector<Key>& cosignatories) {
 			auto cacheDelta = cache.createDelta();
-			test::MakeMultisig(cacheDelta, multisigPublicKey, cosignatories, 3, 3); // make a (3-3-X default) multisig
-			cache.commit(Height());
-		}
 
-		void AddAll(std::vector<Key>& allCosignatories, const std::vector<Key>& cosignatories) {
-			allCosignatories.insert(allCosignatories.cend(), cosignatories.cbegin(), cosignatories.cend());
+			// make a (3-3-X default) multisig
+			test::MakeMultisig(cacheDelta, ToAddress(multisig), ToAddresses(cosignatories), 3, 3);
+
+			cache.commit(Height());
 		}
 
 		template<typename TMergeKeys>
@@ -434,7 +452,12 @@ namespace catapult { namespace validators {
 			auto aggregateSigner = test::GenerateRandomByteArray<Key>();
 			auto embeddedSignerCosignatories = test::GenerateRandomDataVector<Key>(3);
 
-			auto pSubTransaction = test::CreateMultisigAccountModificationTransaction(embeddedSigner, numAdditions, numDeletions);
+			auto publicKeyAdditions = test::GenerateRandomDataVector<Key>(numAdditions);
+			auto publicKeyDeletions = test::GenerateRandomDataVector<Key>(numDeletions);
+			auto pSubTransaction = test::CreateMultisigAccountModificationTransaction(
+					embeddedSigner,
+					ToAddresses(publicKeyAdditions),
+					ToAddresses(publicKeyDeletions));
 
 			// - create the cache making the embedded signer a single level multisig
 			auto cache = test::MultisigCacheFactory::Create();
@@ -442,8 +465,8 @@ namespace catapult { namespace validators {
 
 			// - make added cosignatories single level multisig according to the multisig policies
 			std::vector<Key> requiredCosignatories;
-			for (auto i = 0u; i < pSubTransaction->PublicKeyAdditionsCount; ++i) {
-				const auto& cosignatoryPublicKey = pSubTransaction->PublicKeyAdditionsPtr()[i];
+			for (auto i = 0u; i < pSubTransaction->AddressAdditionsCount; ++i) {
+				const auto& cosignatoryPublicKey = publicKeyAdditions[i];
 				if (AccountPolicy::Multisig == accountPolicies[i]) {
 					// - cosignatoryPublicKey is not a required cosignatory because it is a multisig account
 					auto cosignatoryCosignatories = test::GenerateRandomDataVector<Key>(3);

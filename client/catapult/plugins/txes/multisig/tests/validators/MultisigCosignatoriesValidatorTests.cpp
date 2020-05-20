@@ -32,11 +32,11 @@ namespace catapult { namespace validators {
 	namespace {
 		void AssertValidationResult(
 				ValidationResult expectedResult,
-				const std::vector<Key>& publicKeyAdditions,
-				const std::vector<Key>& publicKeyDeletions) {
+				const std::vector<Address>& addressAdditions,
+				const std::vector<Address>& addressDeletions) {
 			// Arrange:
-			auto signer = test::GenerateRandomByteArray<Key>();
-			auto notification = test::CreateMultisigCosignatoriesNotification(signer, publicKeyAdditions, publicKeyDeletions);
+			auto multisig = test::GenerateRandomByteArray<Address>();
+			auto notification = test::CreateMultisigCosignatoriesNotification(multisig, addressAdditions, addressDeletions);
 			auto pValidator = CreateMultisigCosignatoriesValidator();
 
 			// Act:
@@ -53,26 +53,26 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, SuccessWhenSingleAddModificationIsPresent) {
 		// Arrange:
-		auto key = test::GenerateRandomByteArray<Key>();
+		auto address = test::GenerateRandomByteArray<Address>();
 
 		// Assert:
-		AssertValidationResult(ValidationResult::Success, { key }, {});
+		AssertValidationResult(ValidationResult::Success, { address }, {});
 	}
 
 	TEST(TEST_CLASS, SuccessWhenSingleDelModificationIsPresent) {
 		// Arrange:
-		auto key = test::GenerateRandomByteArray<Key>();
+		auto address = test::GenerateRandomByteArray<Address>();
 
 		// Assert:
-		AssertValidationResult(ValidationResult::Success, {}, { key });
+		AssertValidationResult(ValidationResult::Success, {}, { address });
 	}
 
 	namespace {
 		void AssertResultWhenDifferentAccountsUsed(ValidationResult expectedResult, uint8_t numAdditions, uint8_t numDeletions) {
 			AssertValidationResult(
 					expectedResult,
-					test::GenerateRandomDataVector<Key>(numAdditions),
-					test::GenerateRandomDataVector<Key>(numDeletions));
+					test::GenerateRandomDataVector<Address>(numAdditions),
+					test::GenerateRandomDataVector<Address>(numDeletions));
 		}
 	}
 
@@ -90,10 +90,13 @@ namespace catapult { namespace validators {
 	namespace {
 		void AssertResultWhenSameAccountUsed(ValidationResult expectedResult, uint8_t numAdditions, uint8_t numDeletions) {
 			// Arrange:
-			auto key = test::GenerateRandomByteArray<Key>();
+			auto address = test::GenerateRandomByteArray<Address>();
 
 			// Assert:
-			AssertValidationResult(expectedResult, std::vector<Key>(numAdditions, key), std::vector<Key>(numDeletions, key));
+			AssertValidationResult(
+					expectedResult,
+					std::vector<Address>(numAdditions, address),
+					std::vector<Address>(numDeletions, address));
 		}
 	}
 

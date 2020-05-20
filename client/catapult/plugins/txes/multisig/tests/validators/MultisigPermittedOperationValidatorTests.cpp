@@ -19,6 +19,7 @@
 **/
 
 #include "src/validators/Validators.h"
+#include "catapult/model/Address.h"
 #include "tests/test/MultisigCacheTestUtils.h"
 #include "tests/test/MultisigTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
@@ -31,6 +32,10 @@ namespace catapult { namespace validators {
 	DEFINE_COMMON_VALIDATOR_TESTS(MultisigPermittedOperation,)
 
 	namespace {
+		Address ToAddress(const Key& publicKey) {
+			return model::PublicKeyToAddress(publicKey, model::NetworkIdentifier::Zero);
+		}
+
 		void AssertValidationResult(ValidationResult expectedResult, const cache::CatapultCache& cache, const Key& sender) {
 			// Arrange:
 			model::TransactionNotification notification(sender, Hash256(), model::EntityType(), Timestamp());
@@ -43,11 +48,12 @@ namespace catapult { namespace validators {
 			EXPECT_EQ(expectedResult, result);
 		}
 
-		auto CreateCacheWithSingleLevelMultisig(const Key& embeddedSigner, const std::vector<Key>& cosignatories) {
+		auto CreateCacheWithSingleLevelMultisig(const Address& multisig, const std::vector<Address>& cosignatories) {
 			auto cache = test::MultisigCacheFactory::Create();
 			auto cacheDelta = cache.createDelta();
 
-			test::MakeMultisig(cacheDelta, embeddedSigner, cosignatories, 3, 4); // make a 3-4-X multisig
+			// make a 3-4-X multisig
+			test::MakeMultisig(cacheDelta, multisig, cosignatories, 3, 4);
 
 			cache.commit(Height());
 			return cache;
@@ -56,9 +62,9 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, NonMultisigAccountIsAllowedToMakeAnyOperation) {
 		// Arrange:
-		auto multisigAccountKey = test::GenerateRandomByteArray<Key>();
-		auto cosignatoryAccountKey = test::GenerateRandomByteArray<Key>();
-		auto cache = CreateCacheWithSingleLevelMultisig(multisigAccountKey, { cosignatoryAccountKey });
+		auto multisig = test::GenerateRandomByteArray<Address>();
+		auto cosignatory = test::GenerateRandomByteArray<Address>();
+		auto cache = CreateCacheWithSingleLevelMultisig(multisig, { cosignatory });
 
 		// Assert:
 		AssertValidationResult(ValidationResult::Success, cache, test::GenerateRandomByteArray<Key>());
@@ -66,21 +72,21 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, CosignatoryAccountIsAllowedToMakeAnyOperation) {
 		// Arrange:
-		auto multisigAccountKey = test::GenerateRandomByteArray<Key>();
-		auto cosignatoryAccountKey = test::GenerateRandomByteArray<Key>();
-		auto cache = CreateCacheWithSingleLevelMultisig(multisigAccountKey, { cosignatoryAccountKey });
+		auto multisig = test::GenerateRandomByteArray<Address>();
+		auto cosignatoryPublicKey = test::GenerateRandomByteArray<Key>();
+		auto cache = CreateCacheWithSingleLevelMultisig(multisig, { ToAddress(cosignatoryPublicKey) });
 
 		// Assert:
-		AssertValidationResult(ValidationResult::Success, cache, cosignatoryAccountKey);
+		AssertValidationResult(ValidationResult::Success, cache, cosignatoryPublicKey);
 	}
 
 	TEST(TEST_CLASS, MultisigAccountIsNotAllowedToMakeAnyOperation) {
 		// Arrange:
-		auto multisigAccountKey = test::GenerateRandomByteArray<Key>();
-		auto cosignatoryAccountKey = test::GenerateRandomByteArray<Key>();
-		auto cache = CreateCacheWithSingleLevelMultisig(multisigAccountKey, { cosignatoryAccountKey });
+		auto multisigPublicKey = test::GenerateRandomByteArray<Key>();
+		auto cosignatory = test::GenerateRandomByteArray<Address>();
+		auto cache = CreateCacheWithSingleLevelMultisig(ToAddress(multisigPublicKey), { cosignatory });
 
 		// Assert:
-		AssertValidationResult(Failure_Multisig_Operation_Prohibited_By_Account, cache, multisigAccountKey);
+		AssertValidationResult(Failure_Multisig_Operation_Prohibited_By_Account, cache, multisigPublicKey);
 	}
 }}

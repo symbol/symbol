@@ -20,6 +20,7 @@
 
 #include "Validators.h"
 #include "src/cache/MultisigCache.h"
+#include "catapult/model/Address.h"
 #include "catapult/validators/ValidatorContext.h"
 
 namespace catapult { namespace validators {
@@ -27,12 +28,11 @@ namespace catapult { namespace validators {
 	using Notification = model::TransactionNotification;
 
 	DEFINE_STATEFUL_VALIDATOR(MultisigPermittedOperation, [](const Notification& notification, const ValidatorContext& context) {
+		// TODO: conversion can be removed when TransactionNotifications is updated
 		const auto& multisigCache = context.Cache.sub<cache::MultisigCache>();
-		if (!multisigCache.contains(notification.Sender))
-			return ValidationResult::Success;
+		auto multisigIter = multisigCache.find(model::PublicKeyToAddress(notification.Sender, context.Network.Identifier));
 
-		auto multisigIter = multisigCache.find(notification.Sender);
-		return multisigIter.get().cosignatoryPublicKeys().empty()
+		return !multisigIter.tryGet() || multisigIter.get().cosignatoryAddresses().empty()
 				? ValidationResult::Success
 				: Failure_Multisig_Operation_Prohibited_By_Account;
 	});

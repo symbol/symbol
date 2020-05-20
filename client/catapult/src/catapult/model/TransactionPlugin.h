@@ -19,10 +19,10 @@
 **/
 
 #pragma once
+#include "ContainerTypes.h"
 #include "ResolverContext.h"
 #include "TransactionRegistry.h"
 #include "WeakEntityInfo.h"
-#include "catapult/utils/ArraySet.h"
 #include "catapult/utils/TimeSpan.h"
 #include "catapult/plugins.h"
 
@@ -75,8 +75,8 @@ namespace catapult { namespace model {
 	/// Embedded transaction plugin.
 	class PLUGIN_API_DEPENDENCY EmbeddedTransactionPlugin : public TransactionPluginT<EmbeddedTransaction> {
 	public:
-		/// Extracts public keys of additional accounts that must approve \a transaction.
-		virtual utils::KeySet additionalRequiredCosignatories(const EmbeddedTransaction& transaction) const = 0;
+		/// Extracts addresses of additional accounts that must approve \a transaction.
+		virtual AddressSet additionalRequiredCosignatories(const EmbeddedTransaction& transaction) const = 0;
 
 		/// Sends all notifications from \a transaction with \a context to \a sub.
 		virtual void publish(const EmbeddedTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub) const = 0;

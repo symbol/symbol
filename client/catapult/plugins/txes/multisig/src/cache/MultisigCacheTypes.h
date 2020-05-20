@@ -49,7 +49,7 @@ namespace catapult { namespace cache {
 
 	public:
 		// key value types
-		using KeyType = Key;
+		using KeyType = Address;
 		using ValueType = state::MultisigEntry;
 
 		// cache types
@@ -63,15 +63,15 @@ namespace catapult { namespace cache {
 	public:
 		/// Gets the key corresponding to \a entry.
 		static const auto& GetKeyFromValue(const ValueType& entry) {
-			return entry.key();
+			return entry.address();
 		}
 	};
 
 	/// Multisig cache types.
 	struct MultisigCacheTypes {
-		using PrimaryTypes = MutableUnorderedMapAdapter<MultisigCacheDescriptor, utils::ArrayHasher<Key>>;
+		using PrimaryTypes = MutableUnorderedMapAdapter<MultisigCacheDescriptor, utils::ArrayHasher<Address>>;
 
-		using CacheReadOnlyType = ReadOnlyArtifactCache<BasicMultisigCacheView, BasicMultisigCacheDelta, Key, state::MultisigEntry>;
+		using CacheReadOnlyType = ReadOnlyArtifactCache<BasicMultisigCacheView, BasicMultisigCacheDelta, Address, state::MultisigEntry>;
 
 		using BaseSetDeltaPointers = MultisigBaseSetDeltaPointers;
 		using BaseSets = MultisigBaseSets;

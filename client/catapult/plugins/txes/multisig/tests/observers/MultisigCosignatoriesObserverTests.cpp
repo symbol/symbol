@@ -36,15 +36,12 @@ namespace catapult { namespace observers {
 
 		constexpr auto CreateNotification = test::CreateMultisigCosignatoriesNotification;
 
-		void LinkMultisigWithCosignatory(
-				cache::MultisigCacheDelta& cache,
-				const Key& multisigAccountKey,
-				const Key& cosignatoryAccountKey) {
-			if (!cache.contains(cosignatoryAccountKey))
-				cache.insert(state::MultisigEntry(cosignatoryAccountKey));
+		void LinkMultisigWithCosignatory(cache::MultisigCacheDelta& cache, const Address& multisig, const Address& cosignatory) {
+			if (!cache.contains(cosignatory))
+				cache.insert(state::MultisigEntry(cosignatory));
 
-			cache.find(cosignatoryAccountKey).get().multisigPublicKeys().insert(multisigAccountKey);
-			cache.find(multisigAccountKey).get().cosignatoryPublicKeys().insert(cosignatoryAccountKey);
+			cache.find(cosignatory).get().multisigAddresses().insert(multisig);
+			cache.find(multisig).get().cosignatoryAddresses().insert(cosignatory);
 		}
 
 		class MultisigCacheFacade {
@@ -53,47 +50,47 @@ namespace catapult { namespace observers {
 			{}
 
 		public:
-			void linkMultisigEntryWithCosignatories(const Key& multisigAccountKey, const std::vector<Key>& cosignatoryKeys) {
-				if (!m_multisigCache.contains(multisigAccountKey))
-					m_multisigCache.insert(state::MultisigEntry(multisigAccountKey));
+			void linkMultisigEntryWithCosignatories(const Address& multisig, const std::vector<Address>& cosignatories) {
+				if (!m_multisigCache.contains(multisig))
+					m_multisigCache.insert(state::MultisigEntry(multisig));
 
-				for (const auto& cosignatoryKey : cosignatoryKeys)
-					LinkMultisigWithCosignatory(m_multisigCache, multisigAccountKey, cosignatoryKey);
+				for (const auto& cosignatory : cosignatories)
+					LinkMultisigWithCosignatory(m_multisigCache, multisig, cosignatory);
 			}
 
 		public:
-			void assertAccountsAreNotInMultisigCache(const std::vector<Key>& accountKeys) const {
-				for (const auto& accountKey : accountKeys)
-					assertNoMultisigEntryInCache(accountKey);
+			void assertAccountsAreNotInMultisigCache(const std::vector<Address>& addresses) const {
+				for (const auto& address : addresses)
+					assertNoMultisigEntryInCache(address);
 			}
 
-			void assertHasCosignatories(const Key& accountKey, const std::vector<Key>& cosignatoryKeys) const {
+			void assertHasCosignatories(const Address& address, const std::vector<Address>& cosignatories) const {
 				// Assert:
-				ASSERT_TRUE(m_multisigCache.contains(accountKey)) << "cache is missing account " << accountKey;
+				ASSERT_TRUE(m_multisigCache.contains(address)) << "cache is missing account " << address;
 
-				const auto& multisigEntry = m_multisigCache.find(accountKey).get();
-				assertAccountsInSet(cosignatoryKeys, multisigEntry.cosignatoryPublicKeys());
+				const auto& multisigEntry = m_multisigCache.find(address).get();
+				assertAccountsInSet(cosignatories, multisigEntry.cosignatoryAddresses());
 			}
 
-			void assertHasMultisigAccounts(const Key& accountKey, const std::vector<Key>& multisigAccountKeys) const {
+			void assertHasMultisigAccounts(const Address& address, const std::vector<Address>& multisigs) const {
 				// Assert:
-				ASSERT_TRUE(m_multisigCache.contains(accountKey)) << "cache is missing account " << accountKey;
+				ASSERT_TRUE(m_multisigCache.contains(address)) << "cache is missing account " << address;
 
-				const auto& multisigEntry = m_multisigCache.find(accountKey).get();
-				assertAccountsInSet(multisigAccountKeys, multisigEntry.multisigPublicKeys());
+				const auto& multisigEntry = m_multisigCache.find(address).get();
+				assertAccountsInSet(multisigs, multisigEntry.multisigAddresses());
 			}
 
 		private:
-			void assertNoMultisigEntryInCache(const Key& accountKey) const {
-				EXPECT_FALSE(m_multisigCache.contains(accountKey)) << "cache should not have account " << accountKey;
+			void assertNoMultisigEntryInCache(const Address& address) const {
+				EXPECT_FALSE(m_multisigCache.contains(address)) << "cache should not have account " << address;
 			}
 
-			void assertAccountsInSet(const std::vector<Key>& expectedKeys, const utils::SortedKeySet& keys) const {
+			void assertAccountsInSet(const std::vector<Address>& expectedAddresses, const state::SortedAddressSet& addresses) const {
 				// Assert:
-				for (const auto& key : expectedKeys)
-					EXPECT_TRUE(m_multisigCache.contains(key)) << "cache is missing account " << key;
+				for (const auto& address : expectedAddresses)
+					EXPECT_TRUE(m_multisigCache.contains(address)) << "cache is missing account " << address;
 
-				test::AssertContents(expectedKeys, keys);
+				test::AssertContents(expectedAddresses, addresses);
 			}
 
 		private:
@@ -132,48 +129,51 @@ namespace catapult { namespace observers {
 			std::vector<size_t> CosignatoryIds;
 		};
 
-		auto IdsToKeys(const std::vector<Key>& keys, const std::vector<size_t>& ids) {
-			std::vector<Key> mapped;
+		auto Pick(const std::vector<Address>& addresses, const std::vector<size_t>& ids) {
+			std::vector<Address> mapped;
 			for (auto id : ids)
-				mapped.push_back(keys[id]);
+				mapped.push_back(addresses[id]);
 
 			return mapped;
 		}
 
 		void InitMultisigTest(
 				MultisigCacheFacade& cacheFacade,
-				const std::vector<Key>& keys,
+				const std::vector<Address>& addresses,
 				const std::vector<size_t>& unknownAccounts,
 				const std::vector<MultisigDescriptor>& multisigAccounts) {
-			for (const auto& descriptor : multisigAccounts)
-				cacheFacade.linkMultisigEntryWithCosignatories(keys[descriptor.MultisigId], IdsToKeys(keys, descriptor.CosignatoryIds));
+			for (const auto& descriptor : multisigAccounts) {
+				cacheFacade.linkMultisigEntryWithCosignatories(
+						addresses[descriptor.MultisigId],
+						Pick(addresses, descriptor.CosignatoryIds));
+			}
 
 			// Sanity: verify initial state
-			cacheFacade.assertAccountsAreNotInMultisigCache(IdsToKeys(keys, unknownAccounts));
+			cacheFacade.assertAccountsAreNotInMultisigCache(Pick(addresses, unknownAccounts));
 		}
 
 		void AssertMultisigTestResults(
 				const MultisigCacheFacade& cacheFacade,
-				const std::vector<Key>& keys,
+				const std::vector<Address>& addresses,
 				const std::vector<size_t>& unknownAccounts,
 				const std::vector<MultisigDescriptor>& multisigAccounts) {
-			cacheFacade.assertAccountsAreNotInMultisigCache(IdsToKeys(keys, unknownAccounts));
+			cacheFacade.assertAccountsAreNotInMultisigCache(Pick(addresses, unknownAccounts));
 
 			std::map<size_t, std::vector<size_t>> cosignatoryMultisigs;
 			for (const auto& descriptor : multisigAccounts) {
-				cacheFacade.assertHasCosignatories(keys[descriptor.MultisigId], IdsToKeys(keys, descriptor.CosignatoryIds));
+				cacheFacade.assertHasCosignatories(addresses[descriptor.MultisigId], Pick(addresses, descriptor.CosignatoryIds));
 				for (auto cosignatoryId : descriptor.CosignatoryIds)
 					cosignatoryMultisigs[cosignatoryId].push_back(descriptor.MultisigId);
 			}
 
 			for (const auto& entry : cosignatoryMultisigs)
-				cacheFacade.assertHasMultisigAccounts(keys[entry.first], IdsToKeys(keys, entry.second));
+				cacheFacade.assertHasMultisigAccounts(addresses[entry.first], Pick(addresses, entry.second));
 		}
 
 		struct CommitTraits {
 		public:
 			static void RunMultisigTest(
-					const std::vector<Key>& keys,
+					const std::vector<Address>& addresses,
 					const std::vector<size_t>& initialUnknownAccounts,
 					const std::vector<MultisigDescriptor>& initialMultisigAccounts,
 					const Notification& notification,
@@ -183,11 +183,11 @@ namespace catapult { namespace observers {
 				RunTest(
 						notification,
 						ObserverTestContext(NotifyMode::Commit, Height(777)),
-						[&keys, &initialUnknownAccounts, &initialMultisigAccounts](auto& cacheFacade) {
-							InitMultisigTest(cacheFacade, keys, initialUnknownAccounts, initialMultisigAccounts);
+						[&addresses, &initialUnknownAccounts, &initialMultisigAccounts](auto& cacheFacade) {
+							InitMultisigTest(cacheFacade, addresses, initialUnknownAccounts, initialMultisigAccounts);
 						},
-						[&keys, &finalUnknownAccounts, &finalMultisigAccounts](const auto& cacheFacade) {
-							AssertMultisigTestResults(cacheFacade, keys, finalUnknownAccounts, finalMultisigAccounts);
+						[&addresses, &finalUnknownAccounts, &finalMultisigAccounts](const auto& cacheFacade) {
+							AssertMultisigTestResults(cacheFacade, addresses, finalUnknownAccounts, finalMultisigAccounts);
 						});
 			}
 		};
@@ -195,7 +195,7 @@ namespace catapult { namespace observers {
 		struct RollbackTraits {
 		public:
 			static void RunMultisigTest(
-					const std::vector<Key>& keys,
+					const std::vector<Address>& addresses,
 					const std::vector<size_t>& initialUnknownAccounts,
 					const std::vector<MultisigDescriptor>& initialMultisigAccounts,
 					const Notification& notification,
@@ -205,11 +205,11 @@ namespace catapult { namespace observers {
 				RunTest(
 						notification,
 						ObserverTestContext(NotifyMode::Rollback, Height(777)),
-						[&keys, &finalUnknownAccounts, &finalMultisigAccounts](auto& cacheFacade) {
-							InitMultisigTest(cacheFacade, keys, finalUnknownAccounts, finalMultisigAccounts);
+						[&addresses, &finalUnknownAccounts, &finalMultisigAccounts](auto& cacheFacade) {
+							InitMultisigTest(cacheFacade, addresses, finalUnknownAccounts, finalMultisigAccounts);
 						},
-						[&keys, &initialUnknownAccounts, &initialMultisigAccounts](const auto& cacheFacade) {
-							AssertMultisigTestResults(cacheFacade, keys, initialUnknownAccounts, initialMultisigAccounts);
+						[&addresses, &initialUnknownAccounts, &initialMultisigAccounts](const auto& cacheFacade) {
+							AssertMultisigTestResults(cacheFacade, addresses, initialUnknownAccounts, initialMultisigAccounts);
 						});
 			}
 		};
@@ -225,32 +225,32 @@ namespace catapult { namespace observers {
 
 	NOTIFY_MODE_BASED_TRAITS(CanAddCosignatories) {
 		// Arrange:
-		auto keys = test::GenerateKeys(10);
-		auto publicKeyAdditions = std::vector<Key>{ keys[1], keys[2], keys[3] };
-		auto notification = CreateNotification(keys[0], publicKeyAdditions, std::vector<Key>());
+		auto addresses = test::GenerateRandomDataVector<Address>(10);
+		auto addressAdditions = std::vector<Address>{ addresses[1], addresses[2], addresses[3] };
+		auto notification = CreateNotification(addresses[0], addressAdditions, std::vector<Address>());
 
 		// Act + Assert:
-		TTraits::RunMultisigTest(keys, { 0, 1, 2, 3 }, {}, notification, {}, {{ 0, { 1, 2, 3 } }});
+		TTraits::RunMultisigTest(addresses, { 0, 1, 2, 3 }, {}, notification, {}, {{ 0, { 1, 2, 3 } }});
 	}
 
 	NOTIFY_MODE_BASED_TRAITS(CanConvertCosignatoryToMultisigAccount) {
 		// Arrange:
-		auto keys = test::GenerateKeys(10);
-		auto publicKeyAdditions = std::vector<Key>{ keys[3], keys[4] };
-		auto notification = CreateNotification(keys[1], publicKeyAdditions, std::vector<Key>());
+		auto addresses = test::GenerateRandomDataVector<Address>(10);
+		auto addressAdditions = std::vector<Address>{ addresses[3], addresses[4] };
+		auto notification = CreateNotification(addresses[1], addressAdditions, std::vector<Address>());
 
 		// Act + Assert:
-		TTraits::RunMultisigTest(keys, { 3, 4 }, {{ 0, { 1, 2 } }}, notification, {}, {{ 0, { 1, 2 } }, { 1, { 3, 4 } }, });
+		TTraits::RunMultisigTest(addresses, { 3, 4 }, {{ 0, { 1, 2 } }}, notification, {}, {{ 0, { 1, 2 } }, { 1, { 3, 4 } }, });
 	}
 
 	NOTIFY_MODE_BASED_TRAITS(CanAddMultisigAccountAsACosignatory) {
 		// Arrange:
-		auto keys = test::GenerateKeys(10);
-		auto publicKeyAdditions = std::vector<Key>{ keys[1], keys[4] };
-		auto notification = CreateNotification(keys[0], publicKeyAdditions, std::vector<Key>());
+		auto addresses = test::GenerateRandomDataVector<Address>(10);
+		auto addressAdditions = std::vector<Address>{ addresses[1], addresses[4] };
+		auto notification = CreateNotification(addresses[0], addressAdditions, std::vector<Address>());
 
 		// Act + Assert:
-		TTraits::RunMultisigTest(keys, { 0, 4 }, {{ 1, { 2, 3 } }}, notification, {}, {{ 0, { 1, 4 } }, { 1, { 2, 3 } }, });
+		TTraits::RunMultisigTest(addresses, { 0, 4 }, {{ 1, { 2, 3 } }}, notification, {}, {{ 0, { 1, 4 } }, { 1, { 2, 3 } }, });
 	}
 
 	// endregion
@@ -259,13 +259,13 @@ namespace catapult { namespace observers {
 
 	NOTIFY_MODE_BASED_TRAITS(CanAddAndRemoveCosignatories) {
 		// Arrange:
-		auto keys = test::GenerateKeys(10);
-		auto publicKeyAdditions = std::vector<Key>{ keys[1], keys[4] };
-		auto publicKeyDeletions = std::vector<Key>{ keys[2], keys[3] };
-		auto notification = CreateNotification(keys[0], publicKeyAdditions, publicKeyDeletions);
+		auto addresses = test::GenerateRandomDataVector<Address>(10);
+		auto addressAdditions = std::vector<Address>{ addresses[1], addresses[4] };
+		auto addressDeletions = std::vector<Address>{ addresses[2], addresses[3] };
+		auto notification = CreateNotification(addresses[0], addressAdditions, addressDeletions);
 
 		// Act + Assert:
-		TTraits::RunMultisigTest(keys, { 1, 4 }, {{ 0, { 2, 3 } }}, notification, { 2, 3 }, {{ 0, { 1, 4 } }});
+		TTraits::RunMultisigTest(addresses, { 1, 4 }, {{ 0, { 2, 3 } }}, notification, { 2, 3 }, {{ 0, { 1, 4 } }});
 	}
 
 	// endregion
@@ -274,52 +274,52 @@ namespace catapult { namespace observers {
 
 	NOTIFY_MODE_BASED_TRAITS(RemovingCosignatory_RemovesCosignatoryWithNoLinks_RemovesMultisigAccountWithNoLinks) {
 		// Arrange:
-		auto keys = test::GenerateKeys(10);
-		auto publicKeyDeletions = std::vector<Key>{ keys[1] };
-		auto notification = CreateNotification(keys[0], std::vector<Key>(), publicKeyDeletions);
+		auto addresses = test::GenerateRandomDataVector<Address>(10);
+		auto addressDeletions = std::vector<Address>{ addresses[1] };
+		auto notification = CreateNotification(addresses[0], std::vector<Address>(), addressDeletions);
 
 		// Act + Assert:
-		TTraits::RunMultisigTest(keys, {}, {{ 0, { 1 } }}, notification, { 0, 1 }, {});
+		TTraits::RunMultisigTest(addresses, {}, {{ 0, { 1 } }}, notification, { 0, 1 }, {});
 	}
 
 	NOTIFY_MODE_BASED_TRAITS(RemovingCosignatory_RemovesCosignatoryWithNoLinks_LeavesMultisigAccountWithCosignatories) {
 		// Arrange:
-		auto keys = test::GenerateKeys(10);
-		auto publicKeyDeletions = std::vector<Key>{ keys[2] };
-		auto notification = CreateNotification(keys[0], std::vector<Key>(), publicKeyDeletions);
+		auto addresses = test::GenerateRandomDataVector<Address>(10);
+		auto addressDeletions = std::vector<Address>{ addresses[2] };
+		auto notification = CreateNotification(addresses[0], std::vector<Address>(), addressDeletions);
 
 		// Act + Assert:
-		TTraits::RunMultisigTest(keys, {}, {{ 0, { 1, 2 } }}, notification, { 2 }, {{ 0, { 1 } }});
+		TTraits::RunMultisigTest(addresses, {}, {{ 0, { 1, 2 } }}, notification, { 2 }, {{ 0, { 1 } }});
 	}
 
 	NOTIFY_MODE_BASED_TRAITS(RemovingCosignatory_RemovesCosignatoryWithNoLinks_LeavesMultisigAccountWithMultisigAccounts) {
 		// Arrange:
-		auto keys = test::GenerateKeys(10);
-		auto publicKeyDeletions = std::vector<Key>{ keys[2] };
-		auto notification = CreateNotification(keys[1], std::vector<Key>(), publicKeyDeletions);
+		auto addresses = test::GenerateRandomDataVector<Address>(10);
+		auto addressDeletions = std::vector<Address>{ addresses[2] };
+		auto notification = CreateNotification(addresses[1], std::vector<Address>(), addressDeletions);
 
 		// Act + Assert:
-		TTraits::RunMultisigTest(keys, {}, {{ 0, { 1 } }, { 1, { 2 } }}, notification, { 2 }, {{ 0, { 1 } }});
+		TTraits::RunMultisigTest(addresses, {}, {{ 0, { 1 } }, { 1, { 2 } }}, notification, { 2 }, {{ 0, { 1 } }});
 	}
 
 	NOTIFY_MODE_BASED_TRAITS(RemovingCosignatory_LeavesCosignatoryWithCosignatories_RemovesMultisigAccountWitNoLinks) {
 		// Arrange:
-		auto keys = test::GenerateKeys(10);
-		auto publicKeyDeletions = std::vector<Key>{ keys[1] };
-		auto notification = CreateNotification(keys[0], std::vector<Key>(), publicKeyDeletions);
+		auto addresses = test::GenerateRandomDataVector<Address>(10);
+		auto addressDeletions = std::vector<Address>{ addresses[1] };
+		auto notification = CreateNotification(addresses[0], std::vector<Address>(), addressDeletions);
 
 		// Act + Assert:
-		TTraits::RunMultisigTest(keys, {}, {{ 0, { 1 } }, { 1, { 2 } }}, notification, { 0 }, {{ 1, { 2 } }});
+		TTraits::RunMultisigTest(addresses, {}, {{ 0, { 1 } }, { 1, { 2 } }}, notification, { 0 }, {{ 1, { 2 } }});
 	}
 
 	NOTIFY_MODE_BASED_TRAITS(RemovingCosignatory_LeavesCosignatoryWithMultisigAccounts_RemovesMultisigAccountWithNoLinks) {
 		// Arrange:
-		auto keys = test::GenerateKeys(10);
-		auto publicKeyDeletions = std::vector<Key>{ keys[2] };
-		auto notification = CreateNotification(keys[0], std::vector<Key>(), publicKeyDeletions);
+		auto addresses = test::GenerateRandomDataVector<Address>(10);
+		auto addressDeletions = std::vector<Address>{ addresses[2] };
+		auto notification = CreateNotification(addresses[0], std::vector<Address>(), addressDeletions);
 
 		// Act + Assert:
-		TTraits::RunMultisigTest(keys, {}, {{ 0, { 2 } }, { 1, { 2 } }}, notification, { 0 }, {{ 1, { 2 } }});
+		TTraits::RunMultisigTest(addresses, {}, {{ 0, { 2 } }, { 1, { 2 } }}, notification, { 0 }, {{ 1, { 2 } }});
 	}
 
 	// endregion

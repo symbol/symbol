@@ -52,11 +52,11 @@ namespace catapult { namespace validators {
 
 		void AssertMultisigAccountIsUnknown(
 				ValidationResult expectedResult,
-				const std::vector<Key>& publicKeyAdditions,
-				const std::vector<Key>& publicKeyDeletions) {
+				const std::vector<Address>& addressAdditions,
+				const std::vector<Address>& addressDeletions) {
 			// Arrange:
-			auto signer = test::GenerateRandomByteArray<Key>();
-			auto notification = CreateNotification(signer, publicKeyAdditions, publicKeyDeletions);
+			auto multisig = test::GenerateRandomByteArray<Address>();
+			auto notification = CreateNotification(multisig, addressAdditions, addressDeletions);
 
 			auto cache = test::MultisigCacheFactory::Create();
 
@@ -66,14 +66,14 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, CanAddCosignatoriesWhenAccountIsUnknown) {
-		AssertMultisigAccountIsUnknown(ValidationResult::Success, test::GenerateRandomDataVector<Key>(3), {});
+		AssertMultisigAccountIsUnknown(ValidationResult::Success, test::GenerateRandomDataVector<Address>(3), {});
 	}
 
 	TEST(TEST_CLASS, CannotRemoveCosignatoryWhenAccountIsUnknown) {
 		AssertMultisigAccountIsUnknown(
 				Failure_Multisig_Unknown_Multisig_Account,
-				test::GenerateRandomDataVector<Key>(3),
-				test::GenerateRandomDataVector<Key>(1));
+				test::GenerateRandomDataVector<Address>(3),
+				test::GenerateRandomDataVector<Address>(1));
 	}
 
 	namespace {
@@ -89,32 +89,31 @@ namespace catapult { namespace validators {
 		};
 
 		void AssertCosignatoriesModifications(ValidationResult expectedResult, const std::vector<OperationAndType>& settings) {
-			// Arrange: first key is a signer (multisig account key)
-			auto keys = test::GenerateKeys(1 + settings.size());
-			const auto& signer = keys[0];
+			// Arrange: first address is multisig account
+			auto addresses = test::GenerateRandomDataVector<Address>(1 + settings.size());
+			const auto& multisig = addresses[0];
 
-			std::vector<Key> publicKeyAdditions;
-			std::vector<Key> publicKeyDeletions;
+			std::vector<Address> addressAdditions;
+			std::vector<Address> addressDeletions;
 			for (auto i = 0u; i < settings.size(); ++i) {
 				if (CosignatoryModificationAction::Add == settings[i].Operation)
-					publicKeyAdditions.push_back(keys[1 + i]);
+					addressAdditions.push_back(addresses[1 + i]);
 				else
-					publicKeyDeletions.push_back(keys[1 + i]);
+					addressDeletions.push_back(addresses[1 + i]);
 			}
 
-			auto notification = CreateNotification(signer, publicKeyAdditions, publicKeyDeletions);
+			auto notification = CreateNotification(multisig, addressAdditions, addressDeletions);
 			auto cache = test::MultisigCacheFactory::Create();
 
 			// - create multisig entry in cache
 			{
 				auto delta = cache.createDelta();
 				auto& multisigDelta = delta.sub<cache::MultisigCache>();
-				const auto& multisigAccountKey = keys[0];
-				multisigDelta.insert(state::MultisigEntry(multisigAccountKey));
-				auto& cosignatories = multisigDelta.find(multisigAccountKey).get().cosignatoryPublicKeys();
+				multisigDelta.insert(state::MultisigEntry(multisig));
+				auto& cosignatories = multisigDelta.find(multisig).get().cosignatoryAddresses();
 				for (auto i = 0u; i < settings.size(); ++i) {
 					if (CosignatoryType::Existing == settings[i].Type)
-						cosignatories.insert(keys[1 + i]);
+						cosignatories.insert(addresses[1 + i]);
 				}
 
 				cache.commit(Height(1));

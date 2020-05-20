@@ -136,8 +136,8 @@ namespace catapult { namespace model {
 		// Act:
 		auto additionalCosignatories = pPlugin->additionalRequiredCosignatories(transaction);
 
-		// Assert:
-		utils::KeySet expectedAdditionalCosignatories{ Key{ { 1 } }, Key{ { 2 } }, transaction.RecipientPublicKey };
+		// Assert: cosignatories are forwarded from ExtractAdditionalRequiredCosignatories
+		AddressSet expectedAdditionalCosignatories{ Address{ { 1 } }, Address{ { 2 } }, mocks::GetRecipientAddress(transaction) };
 		EXPECT_EQ(expectedAdditionalCosignatories, additionalCosignatories);
 	}
 }}

@@ -34,13 +34,8 @@ namespace catapult { namespace plugins {
 
 	namespace {
 		template<typename TTransaction>
-		Address GetTargetAddress(const TTransaction& transaction) {
-			return model::PublicKeyToAddress(transaction.TargetPublicKey, transaction.Network);
-		}
-
-		template<typename TTransaction>
 		PartialMetadataKey ExtractPartialMetadataKey(const TTransaction& transaction, const PublishContext& context) {
-			return { context.SignerAddress, GetTargetAddress(transaction), transaction.ScopedMetadataKey };
+			return { context.SignerAddress, transaction.TargetAddress, transaction.ScopedMetadataKey };
 		}
 
 		struct AccountTraits {
@@ -51,7 +46,7 @@ namespace catapult { namespace plugins {
 
 			template<typename TTransaction>
 			static void RaiseCustomNotifications(const TTransaction& transaction, NotificationSubscriber& sub) {
-				sub.notify(AccountPublicKeyNotification(transaction.TargetPublicKey));
+				sub.notify(AccountAddressNotification(transaction.TargetAddress.template copyTo<UnresolvedAddress>()));
 			}
 		};
 
@@ -63,7 +58,7 @@ namespace catapult { namespace plugins {
 
 			template<typename TTransaction>
 			static void RaiseCustomNotifications(const TTransaction& transaction, NotificationSubscriber& sub) {
-				sub.notify(MosaicRequiredNotification(GetTargetAddress(transaction), transaction.TargetMosaicId));
+				sub.notify(MosaicRequiredNotification(transaction.TargetAddress, transaction.TargetMosaicId));
 			}
 		};
 
@@ -75,7 +70,7 @@ namespace catapult { namespace plugins {
 
 			template<typename TTransaction>
 			static void RaiseCustomNotifications(const TTransaction& transaction, NotificationSubscriber& sub) {
-				sub.notify(NamespaceRequiredNotification(GetTargetAddress(transaction), transaction.TargetNamespaceId));
+				sub.notify(NamespaceRequiredNotification(transaction.TargetAddress, transaction.TargetNamespaceId));
 			}
 		};
 
