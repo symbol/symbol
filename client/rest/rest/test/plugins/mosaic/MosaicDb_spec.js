@@ -18,29 +18,232 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const test = require('./mosaicDbTestUtils');
-const AccountType = require('../../../src/plugins/AccountType');
+const MosaicDb = require('../../../src/plugins/mosaic/MosaicDb');
+const test = require('../../db/utils/dbTestUtils');
 const catapult = require('catapult-sdk');
 const { expect } = require('chai');
 const MongoDb = require('mongodb');
 
 const { Binary, Long } = MongoDb;
 const { address } = catapult.model;
-const { convert } = catapult.utils;
 
 describe('mosaic db', () => {
+	const { createObjectId } = test.db;
+
+	const runMosaicsDbTest = (dbEntities, issueDbCommand, assertDbCommandResult) =>
+		test.db.runDbTest(dbEntities, 'mosaics', db => new MosaicDb(db), issueDbCommand, assertDbCommandResult);
+
+	describe('mosaics', () => {
+		const ownerAddressTest1 = address.stringToAddress('SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXWV');
+		const ownerAddressTest2 = address.stringToAddress('NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDFG');
+
+		const paginationOptions = {
+			pageSize: 10,
+			pageNumber: 1,
+			sortField: '_id',
+			sortDirection: -1
+		};
+
+		const createMosaic = (objectId, mosaicId, ownerAddress) => ({
+			_id: createObjectId(objectId),
+			mosaic: { id: mosaicId, ownerAddress }
+		});
+
+		const runTestAndVerifyIds = (dbMosaics, dbQuery, expectedIds) => {
+			const expectedObjectIds = expectedIds.map(id => createObjectId(id));
+
+			return runMosaicsDbTest(
+				dbMosaics,
+				dbQuery,
+				mosaicsPage => {
+					const returnedIds = mosaicsPage.data.map(t => t.id);
+					expect(mosaicsPage.data.length).to.equal(expectedObjectIds.length);
+					expect(returnedIds.sort()).to.deep.equal(expectedObjectIds.sort());
+				}
+			);
+		};
+
+		it('returns expected structure', () => {
+			// Arrange:
+			const dbMosaics = [createMosaic(10, 100, ownerAddressTest1)];
+
+			// Act + Assert:
+			return runMosaicsDbTest(
+				dbMosaics,
+				db => db.mosaics(undefined, paginationOptions),
+				page => {
+					const expected_keys = ['id', 'mosaic'];
+					expect(Object.keys(page.data[0]).sort()).to.deep.equal(expected_keys.sort());
+				}
+			);
+		});
+
+		it('returns empty array for unknown ownerAddress', () => {
+			// Arrange:
+			const dbMosaics = [
+				createMosaic(10, 1, ownerAddressTest1),
+				createMosaic(20, 2, ownerAddressTest1)
+			];
+
+			// Act + Assert:
+			return runTestAndVerifyIds(dbMosaics, db => db.mosaics(ownerAddressTest2, paginationOptions), []);
+		});
+
+		it('returns filtered mosaics by ownerAddress', () => {
+			// Arrange:
+			const dbMosaics = [
+				createMosaic(10, 1, ownerAddressTest1),
+				createMosaic(20, 2, ownerAddressTest2)
+			];
+
+			// Act + Assert:
+			return runTestAndVerifyIds(dbMosaics, db => db.mosaics(ownerAddressTest2, paginationOptions), [20]);
+		});
+
+		it('returns all the mosaics if no ownerAddress provided', () => {
+			// Arrange:
+			const dbMosaics = [
+				createMosaic(10, 1, ownerAddressTest1),
+				createMosaic(20, 2, ownerAddressTest2)
+			];
+
+			// Act + Assert:
+			return runTestAndVerifyIds(dbMosaics, db => db.mosaics(undefined, paginationOptions), [10, 20]);
+		});
+
+		describe('respects sort conditions', () => {
+			// Arrange:
+			const dbMosaics = () => [
+				createMosaic(10, 20),
+				createMosaic(20, 30),
+				createMosaic(30, 10)
+			];
+
+			it('direction ascending', () => {
+				const options = {
+					pageSize: 10,
+					pageNumber: 1,
+					sortField: '_id',
+					sortDirection: 1
+				};
+
+				// Act + Assert:
+				return runMosaicsDbTest(
+					dbMosaics(),
+					db => db.mosaics(undefined, options),
+					page => {
+						expect(page.data[0].id).to.deep.equal(createObjectId(10));
+						expect(page.data[1].id).to.deep.equal(createObjectId(20));
+						expect(page.data[2].id).to.deep.equal(createObjectId(30));
+					}
+				);
+			});
+
+			it('direction descending', () => {
+				const options = {
+					pageSize: 10,
+					pageNumber: 1,
+					sortField: '_id',
+					sortDirection: -1
+				};
+
+				// Act + Assert:
+				return runMosaicsDbTest(
+					dbMosaics(),
+					db => db.mosaics(undefined, options),
+					page => {
+						expect(page.data[0].id).to.deep.equal(createObjectId(30));
+						expect(page.data[1].id).to.deep.equal(createObjectId(20));
+						expect(page.data[2].id).to.deep.equal(createObjectId(10));
+					}
+				);
+			});
+
+			it('sort field', () => {
+				const options = {
+					pageSize: 10,
+					pageNumber: 1,
+					sortField: 'mosaic.id',
+					sortDirection: 1
+				};
+
+				// Act + Assert:
+				return runMosaicsDbTest(
+					dbMosaics(),
+					db => db.mosaics(undefined, options),
+					page => {
+						expect(page.data[0].id).to.deep.equal(createObjectId(30));
+						expect(page.data[1].id).to.deep.equal(createObjectId(10));
+						expect(page.data[2].id).to.deep.equal(createObjectId(20));
+					}
+				);
+			});
+		});
+
+		describe('respects offset', () => {
+			// Arrange:
+			const dbMosaics = () => [
+				createMosaic(10, 20),
+				createMosaic(20, 30),
+				createMosaic(30, 10)
+			];
+			const options = {
+				pageSize: 10,
+				pageNumber: 1,
+				sortField: '_id',
+				sortDirection: 1,
+				offset: createObjectId(20).toString()
+			};
+
+			it('gt', () => {
+				options.sortDirection = 1;
+
+				// Act + Assert:
+				return runTestAndVerifyIds(dbMosaics(), db => db.mosaics(undefined, options), [30]);
+			});
+
+			it('lt', () => {
+				options.sortDirection = -1;
+
+				// Act + Assert:
+				return runTestAndVerifyIds(dbMosaics(), db => db.mosaics(undefined, options), [10]);
+			});
+		});
+	});
+
 	describe('mosaics by ids', () => {
+		const createMosaic = (id, mosaicId, ownerPublicKey, parentId) => {
+			const mosaic = {
+				ownerPublicKey: new Binary(ownerPublicKey),
+				id: Long.fromNumber(mosaicId),
+				namespaceId: Long.fromNumber(parentId)
+			};
+
+			return { _id: createObjectId(id), mosaic };
+		};
+
+		/*
+		 * Creates mosaics with ids in the 1000s range, whereas namespace ids will be in the 2000s range
+		 */
 		const createMosaics = (numNamespaces, numMosaicsPerNamespace) => {
 			const ownerPublicKey = test.random.publicKey();
-			return test.db.createMosaics(ownerPublicKey, numNamespaces, numMosaicsPerNamespace);
+			const mosaics = [];
+			let dbId = 0;
+			let id = 10000;
+			for (let namespaceId = 0; namespaceId < numNamespaces; ++namespaceId) {
+				for (let i = 0; i < numMosaicsPerNamespace; ++i)
+					mosaics.push(createMosaic(dbId++, id++, ownerPublicKey, 20000 + namespaceId));
+			}
+
+			return mosaics;
 		};
 
 		it('returns empty array for unknown mosaic ids', () => {
-			// Arrange: mosaic ids: 10000, 10001, ... 10011
+			// Arrange:
 			const mosaics = createMosaics(3, 4);
 
 			// Assert:
-			return test.db.runDbTest(
+			return runMosaicsDbTest(
 				mosaics,
 				db => db.mosaicsByIds([[123, 456]]),
 				entities => { expect(entities).to.deep.equal([]); }
@@ -48,11 +251,11 @@ describe('mosaic db', () => {
 		});
 
 		it('returns single matching mosaic', () => {
-			// Arrange: mosaic ids: 10000, 10001, ... 10011
+			// Arrange:
 			const mosaics = createMosaics(3, 4);
 
 			// Assert:
-			return test.db.runDbTest(
+			return runMosaicsDbTest(
 				mosaics,
 				db => db.mosaicsByIds([[10010, 0]]),
 				entities => { expect(entities).to.deep.equal([mosaics[10]]); }
@@ -60,11 +263,11 @@ describe('mosaic db', () => {
 		});
 
 		it('returns multiple matching mosaics', () => {
-			// Arrange: mosaic ids: 10000, 10001, ... 10011
+			// Arrange:
 			const mosaics = createMosaics(3, 4);
 
 			// Assert:
-			return test.db.runDbTest(
+			return runMosaicsDbTest(
 				mosaics,
 				db => db.mosaicsByIds([[10010, 0], [10007, 0], [10003, 0]]),
 				entities => { expect(entities).to.deep.equal([mosaics[10], mosaics[7], mosaics[3]]); }
@@ -72,92 +275,15 @@ describe('mosaic db', () => {
 		});
 
 		it('returns only known mosaics', () => {
-			// Arrange: mosaic ids: 10000, 10001, ... 10011
+			// Arrange:
 			const mosaics = createMosaics(3, 4);
 
 			// Assert:
-			return test.db.runDbTest(
+			return runMosaicsDbTest(
 				mosaics,
 				db => db.mosaicsByIds([[10010, 0], [10021, 0], [10003, 0]]),
 				entities => expect(entities).to.deep.equal([mosaics[10], mosaics[3]])
 			);
 		});
-	});
-
-	describe('mosaics by owners', () => {
-		const testAddress = {
-			one: address.stringToAddress('SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXWV'),
-			two: address.stringToAddress('NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDFG'),
-			three: address.stringToAddress('SAAM2O7SSJ2A7AU3DZJMSTTRFZT5TFDPQ3ZIIJX7'),
-			four: address.stringToAddress('SAMZMPX33DFIIVOCNJYMF5KJTGLAEVNKHHFROLXD')
-		};
-		const testPublicKey = {
-			one: convert.hexToUint8('7DE16AEDF57EB9561D3E6EFA4AE66F27ABDA8AEC8BC020B6277360E31619DCE7'),
-			two: convert.hexToUint8('75D8BB873DA8F5CCA741435DE76A46AFC2840803EBF080E931195B048D77F88C'),
-			three: convert.hexToUint8('5AD98F5C983599634C9C9B1ECAA2B2B2B1AAB3F741D4C256CEE4D866EA5A92D1'),
-			four: convert.hexToUint8('A966DA3D73BA18B55C83E64CE4C38ACB29E38CF38B4E6C1789E7C1B254E0CB89')
-		};
-
-		const createMosaic = (mosaicId, ownerPublicKey, ownerAddress) => ({
-			_id: Long.fromNumber(mosaicId),
-			mosaic: {
-				id: Long.fromNumber(mosaicId),
-				ownerPublicKey: new Binary(ownerPublicKey),
-				ownerAddress: new Binary(ownerAddress)
-			}
-		});
-
-		// Arrange:
-		const mosaic = createMosaic(1000, Buffer.from(testPublicKey.one), Buffer.from(testAddress.one));
-		const mosaic2 = createMosaic(2000, Buffer.from(testPublicKey.two), Buffer.from(testAddress.two));
-		const mosaic3 = createMosaic(3000, Buffer.from(testPublicKey.three), Buffer.from(testAddress.three));
-
-		it('returns empty array for unknown address', () =>
-			// Act + Assert:
-			test.db.runDbTest(
-				[mosaic, mosaic2],
-				db => db.mosaicsByOwners(AccountType.address, [testAddress.three, testAddress.four]),
-				entities => { expect(entities).to.deep.equal([]); }
-			));
-
-		it('returns empty array for unknown public key', () =>
-			// Act + Assert:
-			test.db.runDbTest(
-				[mosaic, mosaic2],
-				db => db.mosaicsByOwners(AccountType.publicKey, [testPublicKey.three, testPublicKey.four]),
-				entities => { expect(entities).to.deep.equal([]); }
-			));
-
-		it('returns single matching mosaic by address', () =>
-			// Act + Assert:
-			test.db.runDbTest(
-				[mosaic, mosaic2, mosaic3],
-				db => db.mosaicsByOwners(AccountType.address, [testAddress.two]),
-				entities => { expect(entities).to.deep.equal([mosaic2.mosaic]); }
-			));
-
-		it('returns single matching mosaic by public key', () =>
-			// Act + Assert:
-			test.db.runDbTest(
-				[mosaic, mosaic2, mosaic3],
-				db => db.mosaicsByOwners(AccountType.publicKey, [testPublicKey.two]),
-				entities => { expect(entities).to.deep.equal([mosaic2.mosaic]); }
-			));
-
-		it('returns multiple matching mosaic by address', () =>
-			// Act + Assert:
-			test.db.runDbTest(
-				[mosaic, mosaic2, mosaic3],
-				db => db.mosaicsByOwners(AccountType.address, [testAddress.one, testAddress.two]),
-				entities => { expect(entities).to.deep.equal([mosaic.mosaic, mosaic2.mosaic]); }
-			));
-
-		it('returns multiple matching mosaic by public key', () =>
-			// Act + Assert:
-			test.db.runDbTest(
-				[mosaic, mosaic2, mosaic3],
-				db => db.mosaicsByOwners(AccountType.publicKey, [testPublicKey.one, testPublicKey.two]),
-				entities => { expect(entities).to.deep.equal([mosaic.mosaic, mosaic2.mosaic]); }
-			));
 	});
 });

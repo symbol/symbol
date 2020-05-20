@@ -19,44 +19,31 @@
  */
 
 const routeUtils = require('../../routes/routeUtils');
-const errors = require('../../server/errors');
-const AccountType = require('../AccountType');
 const catapult = require('catapult-sdk');
 
 const { uint64 } = catapult.utils;
 
 module.exports = {
-	register: (server, db) => {
+	register: (server, db, services) => {
 		const mosaicSender = routeUtils.createSender('mosaicDescriptor');
+
+		server.get('/mosaics', (req, res, next) => {
+			const ownerAddress = req.params.ownerAddress ? routeUtils.parseArgument(req.params, 'ownerAddress', 'address') : undefined;
+
+			const options = routeUtils.parsePaginationArguments(req.params, services.config.pageSize);
+			// force sort field to 'id' until this is indexed/decided/developed
+			options.sortField = '_id';
+
+			return db.mosaics(ownerAddress, options)
+				.then(result => mosaicSender.sendPage(res, next)(result));
+		});
 
 		routeUtils.addGetPostDocumentRoutes(
 			server,
 			mosaicSender,
-			{ base: '/mosaic', singular: 'mosaicId', plural: 'mosaicIds' },
+			{ base: '/mosaics', singular: 'mosaicId', plural: 'mosaicIds' },
 			params => db.mosaicsByIds(params),
 			uint64.fromHex
 		);
-
-		const ownedMosaicsSender = routeUtils.createSender('ownedMosaics');
-
-		server.get('/account/:accountId/mosaics', (req, res, next) => {
-			const [type, accountId] = routeUtils.parseArgument(req.params, 'accountId', 'accountId');
-
-			return db.mosaicsByOwners(type, [accountId])
-				.then(mosaics => ownedMosaicsSender.sendOne('accountId', res, next)({ mosaics }));
-		});
-
-		server.post('/account/mosaics', (req, res, next) => {
-			if (req.params.publicKeys && req.params.addresses)
-				throw errors.createInvalidArgumentError('publicKeys and addresses cannot both be provided');
-
-			const idOptions = Array.isArray(req.params.publicKeys)
-				? { keyName: 'publicKeys', parserName: 'publicKey', type: AccountType.publicKey }
-				: { keyName: 'addresses', parserName: 'address', type: AccountType.address };
-
-			const accountIds = routeUtils.parseArgumentAsArray(req.params, idOptions.keyName, idOptions.parserName);
-			return db.mosaicsByOwners(idOptions.type, accountIds)
-				.then(mosaics => ownedMosaicsSender.sendOne(idOptions.keyName, res, next)({ mosaics }));
-		});
 	}
 };

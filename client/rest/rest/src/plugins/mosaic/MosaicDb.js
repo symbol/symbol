@@ -18,10 +18,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const AccountType = require('../AccountType');
 const MongoDb = require('mongodb');
 
-const { Long } = MongoDb;
+const { Long, ObjectId } = MongoDb;
+
 
 class MosaicDb {
 	/**
@@ -32,10 +32,30 @@ class MosaicDb {
 		this.catapultDb = db;
 	}
 
-	// region mosaic retrieval
+	/**
+	 * Retrieves filtered and paginated mosaics.
+	 * @param {Uint8Array} ownerAddress Mosaic owner address
+	 * @param {object} options Options for ordering and pagination. Can have an `offset`, and must contain the `sortField`, `sortDirection`,
+	 * `pageSize` and `pageNumber`.
+	 * @returns {Promise.<object>} Mosaics page.
+	 */
+	mosaics(ownerAddress, options) {
+		const conditions = [];
+
+		// it is assumed that sortField will always be an `id` for now - this will need to be redesigned when it gets upgraded
+		// in fact, offset logic should be moved to `queryPagedDocuments`
+		if (options.offset)
+			conditions.push({ [options.sortField]: { [1 === options.sortDirection ? '$gt' : '$lt']: new ObjectId(options.offset) } });
+
+		if (ownerAddress)
+			conditions.push({ 'mosaic.ownerAddress': ownerAddress });
+
+		const sortConditions = { $sort: { [options.sortField]: options.sortDirection } };
+		return this.catapultDb.queryPagedDocuments_2(conditions, [], sortConditions, 'mosaics', options);
+	}
 
 	/**
-	 * Retrieves mosaics.
+	 * Retrieves mosaics given their ids.
 	 * @param {Array.<module:catapult.utils/uint64~uint64>} ids Mosaic ids.
 	 * @returns {Promise.<array>} Mosaics.
 	 */
@@ -48,23 +68,6 @@ class MosaicDb {
 			.toArray()
 			.then(entities => Promise.resolve(this.catapultDb.sanitizer.deleteIds(entities)));
 	}
-
-	/**
-	 * Retrieves mosaics owned by specified owners.
-	 * @param {module:db/AccountType} type Type of account ids.
-	 * @param {array<object>} accountIds Account ids.
-	 * @returns {Promise.<array>} Owned mosaics.
-	 */
-	mosaicsByOwners(type, accountIds) {
-		const buffers = accountIds.map(accountId => Buffer.from(accountId));
-		const fieldName = (AccountType.publicKey === type) ? 'mosaic.ownerPublicKey' : 'mosaic.ownerAddress';
-		const conditions = { [fieldName]: { $in: buffers } };
-
-		return this.catapultDb.queryDocuments('mosaics', conditions)
-			.then(mosaics => mosaics.map(mosaic => mosaic.mosaic));
-	}
-
-	// endregion
 }
 
 module.exports = MosaicDb;

@@ -56,8 +56,8 @@ class MockServer {
 		return this.routes[path];
 	}
 
-	callRoute(route, params) {
-		return route(params, this.res, this.next);
+	callRoute(route, req) {
+		return route(req, this.res, this.next);
 	}
 }
 
