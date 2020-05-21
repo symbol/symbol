@@ -4,6 +4,35 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.8.11] - 21-Mar-2020
+
+Targets catapult-rest 1.0.20.34
+
+### Added
+
+- catapult-server 0.9.5.1 status errors.
+
+### Changed
+
+- AccountKeyLinkTransaction remotePublicKey param renamed to linkedPublickey.
+
+## [0.8.10] - 15-Mar-2020
+
+Targets catapult-rest 1.0.20.34
+
+### Added
+
+- VRFKeyLinkTransaction DTO.
+- VotingKeyLinkTransaction DTO.
+- NodeKeyLinkTransaction DTO.
+
+### Changed
+
+- AccountLinkTransaction DTOs schema renamed to AccountKeyLink.
+- BlockHeader DTO adds VRFProof.
+- Rename generationHash to networkGenerationHashSeed
+- catapult-server 0.9.5.1 config parameters.
+
 ## [0.8.9] - 19-Mar-2020
 
 Targets catapult-rest 1.0.20.22
