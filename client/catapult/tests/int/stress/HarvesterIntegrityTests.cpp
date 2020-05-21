@@ -96,7 +96,7 @@ namespace catapult { namespace harvesting {
 
 				auto strategy = model::TransactionSelectionStrategy::Oldest;
 				auto blockGenerator = CreateHarvesterBlockGenerator(strategy, utFacadeFactory, m_transactionsCache);
-				m_pHarvester = std::make_unique<Harvester>(m_cache, m_config.BlockChain, Key(), m_unlockedAccounts, blockGenerator);
+				m_pHarvester = std::make_unique<Harvester>(m_cache, m_config.BlockChain, Address(), m_unlockedAccounts, blockGenerator);
 			}
 
 		public:

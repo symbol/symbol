@@ -50,10 +50,11 @@ namespace catapult { namespace observers {
 			{}
 
 		public:
-			auto addAccount(const Key& publicKey) {
+			template<typename TKey>
+			auto addAccount(const TKey& key) {
 				auto& accountStateCache = cache().sub<cache::AccountStateCache>();
-				accountStateCache.addAccount(publicKey, Height(123));
-				return accountStateCache.find(publicKey);
+				accountStateCache.addAccount(key, Height(123));
+				return accountStateCache.find(key);
 			}
 
 			auto setupRemote(const Key& mainPublicKey, const Key& remotePublicKey) {
@@ -132,13 +133,13 @@ namespace catapult { namespace observers {
 	BENEFICIARY_OBSERVER_TRAITS_BASED_TEST(BeneficiaryAccountIsUpdatedButSignerAccountIsNotUpdated) {
 		// Arrange:
 		RunBeneficiaryObserverTest(TTraits::Notify_Mode, [](auto& context, auto& observer) {
-			auto harvesterPublicKey = test::GenerateRandomByteArray<Key>();
-			auto beneficiaryPublicKey = test::GenerateRandomByteArray<Key>();
-			auto harvesterAccountStateIter = context.addAccount(harvesterPublicKey);
-			auto beneficiaryAccountStateIter = context.addAccount(beneficiaryPublicKey);
+			auto harvesterAddress = test::GenerateRandomByteArray<Address>();
+			auto beneficiaryAddress = test::GenerateRandomByteArray<Address>();
+			auto harvesterAccountStateIter = context.addAccount(harvesterAddress);
+			auto beneficiaryAccountStateIter = context.addAccount(beneficiaryAddress);
 			SeedAccount(beneficiaryAccountStateIter.get());
 
-			auto notification = test::CreateBlockNotification(ToAddress(harvesterPublicKey), ToAddress(beneficiaryPublicKey));
+			auto notification = test::CreateBlockNotification(harvesterAddress, beneficiaryAddress);
 			notification.TotalFee = Amount(123);
 
 			// Sanity:
@@ -157,15 +158,15 @@ namespace catapult { namespace observers {
 	BENEFICIARY_OBSERVER_TRAITS_BASED_TEST(BeneficiaryAccountIsUpdatedWhenUsingRemote) {
 		// Arrange:
 		RunBeneficiaryObserverTest(TTraits::Notify_Mode, [](auto& context, auto& observer) {
-			auto harvesterPublicKey = test::GenerateRandomByteArray<Key>();
+			auto harvesterAddress = test::GenerateRandomByteArray<Address>();
 			auto beneficiaryPublicKey = test::GenerateRandomByteArray<Key>();
-			auto beneficiaryRemoteKey = test::GenerateRandomByteArray<Key>();
-			auto harvesterAccountStateIter = context.addAccount(harvesterPublicKey);
+			auto beneficiaryRemotePublicKey = test::GenerateRandomByteArray<Key>();
+			auto harvesterAccountStateIter = context.addAccount(harvesterAddress);
 			auto beneficiaryAccountStateIter = context.addAccount(beneficiaryPublicKey);
-			auto beneficiaryRemoteStateIter = context.setupRemote(beneficiaryPublicKey, beneficiaryRemoteKey);
+			auto beneficiaryRemoteStateIter = context.setupRemote(beneficiaryPublicKey, beneficiaryRemotePublicKey);
 			SeedAccount(beneficiaryAccountStateIter.get());
 
-			auto notification = test::CreateBlockNotification(ToAddress(harvesterPublicKey), ToAddress(beneficiaryPublicKey));
+			auto notification = test::CreateBlockNotification(harvesterAddress, ToAddress(beneficiaryPublicKey));
 			notification.TotalFee = Amount(123);
 
 			// Sanity:
@@ -190,11 +191,11 @@ namespace catapult { namespace observers {
 	BENEFICIARY_OBSERVER_TRAITS_BASED_TEST(BeneficiaryAccountIsUpdatedWhenSameAsSigner) {
 		// Arrange:
 		RunBeneficiaryObserverTest(TTraits::Notify_Mode, [](auto& context, auto& observer) {
-			auto harvesterPublicKey = test::GenerateRandomByteArray<Key>();
-			auto harvesterAccountStateIter = context.addAccount(harvesterPublicKey);
+			auto harvesterAddress = test::GenerateRandomByteArray<Address>();
+			auto harvesterAccountStateIter = context.addAccount(harvesterAddress);
 			SeedAccount(harvesterAccountStateIter.get());
 
-			auto notification = test::CreateBlockNotification(ToAddress(harvesterPublicKey), ToAddress(harvesterPublicKey));
+			auto notification = test::CreateBlockNotification(harvesterAddress, harvesterAddress);
 			notification.TotalFee = Amount(123);
 
 			// Sanity:

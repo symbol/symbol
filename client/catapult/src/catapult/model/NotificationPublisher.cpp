@@ -19,7 +19,6 @@
 **/
 
 #include "NotificationPublisher.h"
-#include "Address.h"
 #include "Block.h"
 #include "BlockUtils.h"
 #include "FeeUtils.h"
@@ -34,9 +33,8 @@ namespace catapult { namespace model {
 				CATAPULT_THROW_RUNTIME_ERROR_1("NotificationPublisher only supports Block and Transaction entities", entityType);
 		}
 
-		BlockNotification CreateBlockNotification(const Block& block) {
-			auto beneficiaryAddress = PublicKeyToAddress(block.BeneficiaryPublicKey, block.Network);
-			return { GetSignerAddress(block), beneficiaryAddress, block.Timestamp, block.Difficulty, block.FeeMultiplier };
+		BlockNotification CreateBlockNotification(const Block& block, const Address& blockSignerAddress) {
+			return { blockSignerAddress, block.BeneficiaryAddress, block.Timestamp, block.Difficulty, block.FeeMultiplier };
 		}
 
 		class BasicNotificationPublisher : public NotificationPublisher {
@@ -95,15 +93,16 @@ namespace catapult { namespace model {
 
 			void publish(const Block& block, NotificationSubscriber& sub) const {
 				// raise an account public key notification
-				if (block.SignerPublicKey != block.BeneficiaryPublicKey)
-					sub.notify(AccountPublicKeyNotification(block.BeneficiaryPublicKey));
+				auto blockSignerAddress = GetSignerAddress(block);
+				if (blockSignerAddress != block.BeneficiaryAddress)
+					sub.notify(AccountAddressNotification(block.BeneficiaryAddress));
 
 				// raise an entity notification
 				sub.notify(EntityNotification(block.Network, block.Version, Block::Current_Version, Block::Current_Version));
 
 				// raise a block notification
 				auto blockTransactionsInfo = CalculateBlockTransactionsInfo(block);
-				auto blockNotification = CreateBlockNotification(block);
+				auto blockNotification = CreateBlockNotification(block, blockSignerAddress);
 				blockNotification.NumTransactions = blockTransactionsInfo.Count;
 				blockNotification.TotalFee = blockTransactionsInfo.TotalFee;
 

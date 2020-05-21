@@ -87,7 +87,7 @@ namespace catapult { namespace harvesting {
 				extensions::ServiceState& state,
 				UnlockedAccounts& unlockedAccounts,
 				const crypto::KeyPair& encryptionKeyPair,
-				const Key& beneficiaryPublicKey) {
+				const Address& beneficiaryAddress) {
 			const auto& cache = state.cache();
 			const auto& blockChainConfig = state.config().BlockChain;
 			const auto& utCache = const_cast<const extensions::ServiceState&>(state).utCache();
@@ -105,7 +105,7 @@ namespace catapult { namespace harvesting {
 			auto blockGenerator = CreateHarvesterBlockGenerator(strategy, utFacadeFactory, utCache);
 			auto pHarvesterTask = std::make_shared<ScheduledHarvesterTask>(
 					CreateHarvesterTaskOptions(state),
-					std::make_unique<Harvester>(cache, blockChainConfig, beneficiaryPublicKey, unlockedAccounts, blockGenerator));
+					std::make_unique<Harvester>(cache, blockChainConfig, beneficiaryAddress, unlockedAccounts, blockGenerator));
 
 			return thread::CreateNamedTask("harvesting task", [pUnlockedAccountsUpdater, pHarvesterTask]() {
 				pUnlockedAccountsUpdater->update();
@@ -171,12 +171,11 @@ namespace catapult { namespace harvesting {
 				locator.registerRootedService("unlockedAccounts", pUnlockedAccounts);
 
 				// add tasks
-				auto beneficiaryPublicKey = utils::ParseByteArray<Key>(m_config.BeneficiaryPublicKey);
 				state.tasks().push_back(CreateHarvestingTask(
 						state,
 						*pUnlockedAccounts,
 						locator.keys().nodeKeyPair(),
-						beneficiaryPublicKey));
+						m_config.BeneficiaryAddress));
 
 				if (IsDiagnosticExtensionEnabled(state.config().Extensions))
 					RegisterDiagnosticUnlockedAccountsHandler(state, *pUnlockedAccounts);

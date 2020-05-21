@@ -26,7 +26,7 @@
 	db.blocks.createIndex({ 'block.timestamp': -1 }, { unique: true });
 	db.blocks.createIndex({ 'block.height': -1 }, { unique: true });
 	db.blocks.createIndex({ 'block.signerPublicKey': 1, 'block.height': -1 }, { unique: true });
-	db.blocks.createIndex({ 'block.beneficiaryPublicKey': 1, 'block.height': -1 }, { unique: true });
+	db.blocks.createIndex({ 'block.beneficiaryAddress': 1, 'block.height': -1 }, { unique: true });
 
 	db.createCollection('transactions');
 	addCommonTransactionIndexes(db.transactions);

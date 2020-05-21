@@ -50,7 +50,6 @@ namespace catapult { namespace harvesting {
 
 			config.EnableAutoHarvesting = test::LocalNodeFlags::Should_Auto_Harvest == flags;
 			config.MaxUnlockedAccounts = 10;
-			config.BeneficiaryPublicKey = std::string(64, '0');
 			return config;
 		}
 

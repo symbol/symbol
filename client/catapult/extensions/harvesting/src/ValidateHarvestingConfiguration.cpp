@@ -38,8 +38,5 @@ namespace catapult { namespace harvesting {
 
 		if (!IsHarvesterKeyValid(config.EnableAutoHarvesting, config.HarvesterVrfPrivateKey))
 			CATAPULT_THROW_AND_LOG_0(utils::property_malformed_error, "HarvesterVrfPrivateKey must be a valid private key");
-
-		if (!crypto::IsValidKeyString(config.BeneficiaryPublicKey))
-			CATAPULT_THROW_AND_LOG_0(utils::property_malformed_error, "BeneficiaryPublicKey must be a valid public key");
 	}
 }}

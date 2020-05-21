@@ -35,13 +35,11 @@ namespace catapult { namespace harvesting {
 		HarvestingConfiguration CreateHarvestingConfiguration(
 				const std::string& harvesterSigningPrivateKey,
 				const std::string& harvesterVrfPrivateKey,
-				bool enableAutoHarvesting,
-				const std::string& beneficiaryPublicKey) {
+				bool enableAutoHarvesting) {
 			auto harvestingConfig = HarvestingConfiguration::Uninitialized();
 			harvestingConfig.HarvesterSigningPrivateKey = harvesterSigningPrivateKey;
 			harvestingConfig.HarvesterVrfPrivateKey = harvesterVrfPrivateKey;
 			harvestingConfig.EnableAutoHarvesting = enableAutoHarvesting;
-			harvestingConfig.BeneficiaryPublicKey = beneficiaryPublicKey;
 			return harvestingConfig;
 		}
 
@@ -57,40 +55,28 @@ namespace catapult { namespace harvesting {
 	// region harvester (signing|vrf) private key
 
 	TEST(TEST_CLASS, ValidationFailsWhenAnyHarvesterPrivateKeyIsInvalid) {
-		AssertInvalidHarvestingConfiguration(CreateHarvestingConfiguration(Invalid_Key, Valid_Key, true, Valid_Key));
-		AssertInvalidHarvestingConfiguration(CreateHarvestingConfiguration(Invalid_Key, Valid_Key, false, Valid_Key));
+		AssertInvalidHarvestingConfiguration(CreateHarvestingConfiguration(Invalid_Key, Valid_Key, true));
+		AssertInvalidHarvestingConfiguration(CreateHarvestingConfiguration(Invalid_Key, Valid_Key, false));
 
-		AssertInvalidHarvestingConfiguration(CreateHarvestingConfiguration(Valid_Key, Invalid_Key, true, Valid_Key));
-		AssertInvalidHarvestingConfiguration(CreateHarvestingConfiguration(Valid_Key, Invalid_Key, false, Valid_Key));
+		AssertInvalidHarvestingConfiguration(CreateHarvestingConfiguration(Valid_Key, Invalid_Key, true));
+		AssertInvalidHarvestingConfiguration(CreateHarvestingConfiguration(Valid_Key, Invalid_Key, false));
 	}
 
 	TEST(TEST_CLASS, ValidationFailsWhenAnyHarvesterPrivateKeyIsUnspecifiedAndAutoHarvestingIsEnabled) {
-		AssertInvalidHarvestingConfiguration(CreateHarvestingConfiguration("", Valid_Key, true, Valid_Key));
-		AssertInvalidHarvestingConfiguration(CreateHarvestingConfiguration(Valid_Key, "", true, Valid_Key));
-		AssertInvalidHarvestingConfiguration(CreateHarvestingConfiguration("", "", true, Valid_Key));
+		AssertInvalidHarvestingConfiguration(CreateHarvestingConfiguration("", Valid_Key, true));
+		AssertInvalidHarvestingConfiguration(CreateHarvestingConfiguration(Valid_Key, "", true));
+		AssertInvalidHarvestingConfiguration(CreateHarvestingConfiguration("", "", true));
 	}
 
 	TEST(TEST_CLASS, ValidationSucceedsWhenAllHarvesterPrivateKeysAreValid) {
-		AssertValidHarvestingConfiguration(CreateHarvestingConfiguration(Valid_Key, Valid_Key, true, Valid_Key));
-		AssertValidHarvestingConfiguration(CreateHarvestingConfiguration(Valid_Key, Valid_Key, false, Valid_Key));
+		AssertValidHarvestingConfiguration(CreateHarvestingConfiguration(Valid_Key, Valid_Key, true));
+		AssertValidHarvestingConfiguration(CreateHarvestingConfiguration(Valid_Key, Valid_Key, false));
 	}
 
 	TEST(TEST_CLASS, ValidationSucceedsWhenAnyHarvesterPrivateKeyIsUnspecifiedAndAutoHarvestingIsDisabled) {
-		AssertValidHarvestingConfiguration(CreateHarvestingConfiguration("", Valid_Key, false, Valid_Key));
-		AssertValidHarvestingConfiguration(CreateHarvestingConfiguration(Valid_Key, "", false, Valid_Key));
-		AssertValidHarvestingConfiguration(CreateHarvestingConfiguration("", "", false, Valid_Key));
-	}
-
-	// endregion
-
-	// region beneficiary public key
-
-	TEST(TEST_CLASS, ValidationFailsWhenBeneficiaryPublicKeyIsInvalid) {
-		AssertInvalidHarvestingConfiguration(CreateHarvestingConfiguration(Valid_Key, Valid_Key, false, Invalid_Key));
-	}
-
-	TEST(TEST_CLASS, ValidationSucceedsWhenBeneficiaryPublicKeyIsValid) {
-		AssertValidHarvestingConfiguration(CreateHarvestingConfiguration(Valid_Key, Valid_Key, false, Valid_Key));
+		AssertValidHarvestingConfiguration(CreateHarvestingConfiguration("", Valid_Key, false));
+		AssertValidHarvestingConfiguration(CreateHarvestingConfiguration(Valid_Key, "", false));
+		AssertValidHarvestingConfiguration(CreateHarvestingConfiguration("", "", false));
 	}
 
 	// endregion

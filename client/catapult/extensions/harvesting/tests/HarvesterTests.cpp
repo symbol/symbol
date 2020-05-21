@@ -21,6 +21,7 @@
 #include "harvesting/src/Harvester.h"
 #include "catapult/chain/BlockDifficultyScorer.h"
 #include "catapult/chain/BlockScorer.h"
+#include "catapult/model/Address.h"
 #include "catapult/model/Block.h"
 #include "catapult/model/BlockUtils.h"
 #include "catapult/model/EntityHasher.h"
@@ -96,7 +97,7 @@ namespace catapult { namespace harvesting {
 					: Cache(test::CreateEmptyCatapultCache(CreateConfiguration()))
 					, SigningKeyPairs(CreateKeyPairs(Num_Accounts))
 					, VrfKeyPairs(CreateKeyPairs(Num_Accounts))
-					, Beneficiary(test::GenerateRandomByteArray<Key>())
+					, Beneficiary(test::GenerateRandomByteArray<Address>())
 					, Importances(CreateImportances(Num_Accounts))
 					, pUnlockedAccounts(std::make_unique<UnlockedAccounts>(Num_Accounts, [](const auto&) { return 0; }))
 					, pLastBlock(CreateBlock())
@@ -181,7 +182,7 @@ namespace catapult { namespace harvesting {
 			cache::CatapultCache Cache;
 			std::vector<KeyPair> SigningKeyPairs;
 			std::vector<KeyPair> VrfKeyPairs;
-			Key Beneficiary;
+			Address Beneficiary;
 			std::vector<Importance> Importances;
 			std::unique_ptr<UnlockedAccounts> pUnlockedAccounts;
 			std::shared_ptr<model::Block> pLastBlock;
@@ -394,8 +395,8 @@ namespace catapult { namespace harvesting {
 		}
 
 		void AssertHarvestedBlockHasExpectedProperties(
-				Key beneficiary,
-				const std::function<Key (const Key&)>& expectedBeneficiaryAccessor) {
+				const Address& beneficiary,
+				const std::function<Address (const Key&)>& expectedBeneficiaryAccessor) {
 			// Arrange:
 			// - the harvester accepts the first account that has a hit. That means that subsequent accounts might have
 			// - a better (lower) hit but still won't be the signer of the block.
@@ -425,7 +426,7 @@ namespace catapult { namespace harvesting {
 				EXPECT_EQ(timestamp, pBlock->Timestamp);
 				EXPECT_EQ(chain::CalculateDifficulty(statisticCache, pLastBlock->Height, config), pBlock->Difficulty);
 				EXPECT_EQ(model::CalculateHash(*context.pLastBlock), pBlock->PreviousBlockHash);
-				EXPECT_EQ(expectedBeneficiaryAccessor(bestHarvester.SigningPublicKey), pBlock->BeneficiaryPublicKey);
+				EXPECT_EQ(expectedBeneficiaryAccessor(bestHarvester.SigningPublicKey), pBlock->BeneficiaryAddress);
 				EXPECT_TRUE(model::VerifyBlockHeaderSignature(*pBlock));
 				EXPECT_TRUE(model::IsSizeValid(*pBlock, model::TransactionRegistry()));
 
@@ -438,12 +439,14 @@ namespace catapult { namespace harvesting {
 	}
 
 	TEST(TEST_CLASS, HarvestedBlockHasExpectedProperties_WithBeneficiary) {
-		auto beneficiary = test::GenerateRandomByteArray<Key>();
+		auto beneficiary = test::GenerateRandomByteArray<Address>();
 		AssertHarvestedBlockHasExpectedProperties(beneficiary, [&beneficiary](const auto&) { return beneficiary; });
 	}
 
 	TEST(TEST_CLASS, HarvestedBlockHasExpectedProperties_WithoutBeneficiary) {
-		AssertHarvestedBlockHasExpectedProperties(Key(), [](const auto& signer) { return signer; });
+		AssertHarvestedBlockHasExpectedProperties(Address(), [](const auto& signer) {
+			return model::PublicKeyToAddress(signer, Network_Identifier);
+		});
 	}
 
 	TEST(TEST_CLASS, HarvesterRespectsCustomBlockChainConfiguration) {

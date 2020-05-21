@@ -23,6 +23,7 @@
 #include "catapult/chain/BlockDifficultyScorer.h"
 #include "catapult/chain/BlockScorer.h"
 #include "catapult/io/FileBlockStorage.h"
+#include "catapult/model/Address.h"
 #include "catapult/preprocessor.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/local/LocalTestUtils.h"
@@ -164,7 +165,10 @@ namespace catapult { namespace test {
 		auto pBlock = model::CreateBlock(context, Network_Identifier, signerKeyPair.publicKey(), transactions);
 		pBlock->Timestamp = timestamp;
 		pBlock->Difficulty = difficulty;
-		pBlock->BeneficiaryPublicKey = Key{ { 1 } }; // burn beneficiary allotment so that it doesn't cause state changes
+
+		// beneficiary must be a fixed low value account so that block rollback and reapply tests do not change AccountStateCache
+		// by changing an account's beneficiary count
+		pBlock->BeneficiaryAddress = model::PublicKeyToAddress({ { 1 } }, Network_Identifier);
 
 		pBlock->ReceiptsHash = m_blockReceiptsHashCalculator(*pBlock);
 		m_pStateHashCalculator->updateStateHash(*pBlock);

@@ -457,7 +457,7 @@ namespace catapult { namespace model {
 			EXPECT_EQ(Hash256(), pBlock->TransactionsHash);
 			EXPECT_EQ(Hash256(), pBlock->ReceiptsHash);
 			EXPECT_EQ(Hash256(), pBlock->StateHash);
-			EXPECT_EQ(signer.publicKey(), pBlock->BeneficiaryPublicKey);
+			EXPECT_EQ(GetSignerAddress(*pBlock), pBlock->BeneficiaryAddress);
 
 			AssertTransactionsInBlock(*pBlock, transactions);
 		}

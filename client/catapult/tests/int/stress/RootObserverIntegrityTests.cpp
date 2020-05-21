@@ -225,7 +225,7 @@ namespace catapult { namespace extensions {
 						: test::GenerateBlockWithTransactions(transactionsIter->second);
 				pBlock->Height = height;
 				pBlock->FeeMultiplier = BlockFeeMultiplier(0);
-				pBlock->BeneficiaryPublicKey = Key();
+				pBlock->BeneficiaryAddress = Address();
 
 				// in order to emulate correctly, block must have same signer when executed and reverted
 				auto signerIter = m_heightToBlockSigner.find(height);
