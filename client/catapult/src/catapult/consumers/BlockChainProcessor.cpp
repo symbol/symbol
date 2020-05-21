@@ -23,6 +23,7 @@
 #include "catapult/cache/CatapultCache.h"
 #include "catapult/cache/ReadOnlyCatapultCache.h"
 #include "catapult/cache_core/AccountStateCache.h"
+#include "catapult/cache_core/AccountStateCacheUtils.h"
 #include "catapult/chain/ChainResults.h"
 #include "catapult/chain/ChainUtils.h"
 #include "catapult/io/BlockStatementSerializer.h"
@@ -169,6 +170,14 @@ namespace catapult { namespace consumers {
 				return { proof.Gamma, proof.VerificationHash, proof.Scalar };
 			}
 
+			static Key GetVrfPublicKey(const cache::ReadOnlyAccountStateCache& accountStateCache, const Key& blockHarvester) {
+				Key vrfPublicKey;
+				cache::ProcessForwardedAccountState(accountStateCache, blockHarvester, [&vrfPublicKey](const auto& accountState) {
+					vrfPublicKey = state::GetVrfPublicKey(accountState);
+				});
+				return vrfPublicKey;
+			}
+
 			static validators::ValidationResult CheckGenerationHash(
 					model::BlockElement& element,
 					const model::Block& parentBlock,
@@ -186,7 +195,7 @@ namespace catapult { namespace consumers {
 					return chain::Failure_Chain_Block_Unknown_Signer;
 				}
 
-				auto vrfPublicKey = state::GetVrfPublicKey(accountStateIter.get());
+				auto vrfPublicKey = GetVrfPublicKey(accountStateCache, accountStateIter.get().PublicKey);
 				auto vrfVerifyResult = crypto::VerifyVrfProof(Unpack(block.GenerationHashProof), parentGenerationHash, vrfPublicKey);
 
 				if (Hash512() == vrfVerifyResult) {

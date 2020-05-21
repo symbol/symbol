@@ -20,23 +20,38 @@
 
 #include "AccountStateCacheUtils.h"
 #include "AccountStateCacheDelta.h"
+#include "AccountStateCacheView.h"
 
 namespace catapult { namespace cache {
 
-	void ProcessForwardedAccountState(AccountStateCacheDelta& cache, const Key& publicKey, const consumer<state::AccountState&>& action) {
-		auto accountStateIter = cache.find(publicKey);
-		auto& accountState = accountStateIter.get();
+	namespace {
+		template<typename TAccountStateCache, typename TAccountState>
+		void ProcessForwardedAccountStateT(TAccountStateCache& cache, const Key& publicKey, const consumer<TAccountState&>& action) {
+			auto accountStateIter = cache.find(publicKey);
+			auto& accountState = accountStateIter.get();
 
-		if (state::AccountType::Remote != accountState.AccountType) {
-			action(accountState);
-			return;
+			if (state::AccountType::Remote != accountState.AccountType) {
+				action(accountState);
+				return;
+			}
+
+			auto linkedAccountStateIter = cache.find(state::GetLinkedPublicKey(accountState));
+			auto& linkedAccountState = linkedAccountStateIter.get();
+
+			// this check is merely a precaution and will only fire if there is a bug that has corrupted links
+			RequireLinkedRemoteAndMainAccounts(accountState, linkedAccountState);
+			action(linkedAccountState);
 		}
+	}
 
-		auto linkedAccountStateIter = cache.find(state::GetLinkedPublicKey(accountState));
-		auto& linkedAccountState = linkedAccountStateIter.get();
+	void ProcessForwardedAccountState(AccountStateCacheDelta& cache, const Key& publicKey, const consumer<state::AccountState&>& action) {
+		ProcessForwardedAccountStateT(cache, publicKey, action);
+	}
 
-		// this check is merely a precaution and will only fire if there is a bug that has corrupted links
-		RequireLinkedRemoteAndMainAccounts(accountState, linkedAccountState);
-		action(linkedAccountState);
+	void ProcessForwardedAccountState(
+			const ReadOnlyAccountStateCache& cache,
+			const Key& publicKey,
+			const consumer<const state::AccountState&>& action) {
+		ProcessForwardedAccountStateT(cache, publicKey, action);
 	}
 }}

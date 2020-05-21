@@ -23,7 +23,10 @@
 #include "catapult/types.h"
 
 namespace catapult {
-	namespace cache { class AccountStateCacheDelta; }
+	namespace cache {
+		class AccountStateCacheDelta;
+		class ReadOnlyAccountStateCache;
+	}
 	namespace state { struct AccountState; }
 }
 
@@ -31,4 +34,10 @@ namespace catapult { namespace cache {
 
 	/// Forwards account state or linked account state found in \a cache associated with \a publicKey to \a action.
 	void ProcessForwardedAccountState(AccountStateCacheDelta& cache, const Key& publicKey, const consumer<state::AccountState&>& action);
+
+	/// Forwards account state or linked account state found in \a cache associated with \a publicKey to \a action.
+	void ProcessForwardedAccountState(
+			const ReadOnlyAccountStateCache& cache,
+			const Key& publicKey,
+			const consumer<const state::AccountState&>& action);
 }}

@@ -200,7 +200,7 @@ namespace catapult { namespace consumers {
 
 		// region ProcessorTestContext
 
-		enum class PrepareAccountMode { Not_In_Cache, No_Vrf_Public_Key, Wrong_Vrf_Public_Key, Default };
+		enum class PrepareAccountMode { Not_In_Cache, No_Vrf_Public_Key, Wrong_Vrf_Public_Key, Remote_Harvester, Default };
 
 		struct ProcessorTestContext {
 		public:
@@ -274,9 +274,24 @@ namespace catapult { namespace consumers {
 				if (PrepareAccountMode::Not_In_Cache < prepareAccountMode)
 					accountStateCacheDelta.addAccount(signerPublicKey, Height(1));
 
+				auto mainPublicKey = signerPublicKey;
+				if (PrepareAccountMode::Remote_Harvester == prepareAccountMode) {
+					auto remoteAccountStateIter = accountStateCacheDelta.find(signerPublicKey);
+
+					mainPublicKey = test::GenerateRandomByteArray<Key>();
+					accountStateCacheDelta.addAccount(mainPublicKey, remoteAccountStateIter.get().AddressHeight);
+					auto mainAccountStateIter = accountStateCacheDelta.find(mainPublicKey);
+
+					remoteAccountStateIter.get().SupplementalAccountKeys.linkedPublicKey().set(mainPublicKey);
+					remoteAccountStateIter.get().AccountType = state::AccountType::Remote;
+
+					mainAccountStateIter.get().SupplementalAccountKeys.linkedPublicKey().set(signerPublicKey);
+					mainAccountStateIter.get().AccountType = state::AccountType::Main;
+				}
+
 				auto vrfKeyPair = test::GenerateKeyPair();
 				if (PrepareAccountMode::No_Vrf_Public_Key < prepareAccountMode) {
-					auto accountStateIter = accountStateCacheDelta.find(signerPublicKey);
+					auto accountStateIter = accountStateCacheDelta.find(mainPublicKey);
 					auto vrfPublicKey = PrepareAccountMode::Wrong_Vrf_Public_Key < prepareAccountMode
 							? vrfKeyPair.publicKey()
 							: test::GenerateRandomByteArray<Key>();
@@ -473,6 +488,41 @@ namespace catapult { namespace consumers {
 
 		// Assert:
 		AssertCanProcessValidElements<TTraits>(elements, 3);
+	}
+
+	// endregion
+
+	// region valid - remote harvester
+
+	namespace {
+		void AssertCanProcessValidBlocksWithRemoteHarvester(size_t numBlocks, size_t remoteIndex) {
+			// Arrange:
+			auto elements = test::CreateBlockElements(numBlocks);
+			ProcessorTestContext context;
+			auto pParentBlock = test::GenerateEmptyRandomBlock();
+			PrepareChain(Height(11), *pParentBlock, elements);
+
+			// Act:
+			auto targetHeight = elements[remoteIndex].Block.Height;
+			auto result = context.Process(*pParentBlock, elements, [targetHeight](auto height) {
+				return targetHeight == height ? PrepareAccountMode::Remote_Harvester : PrepareAccountMode::Default;
+			});
+
+			// Assert:
+			EXPECT_EQ(ValidationResult::Success, result);
+			EXPECT_EQ(numBlocks, context.BlockHitPredicate.params().size());
+			EXPECT_EQ(numBlocks, context.BatchEntityProcessor.params().size());
+			context.assertBlockHitPredicateCalls(*pParentBlock, elements);
+			context.assertBatchEntityProcessorCalls(elements);
+		}
+	}
+
+	TEST(TEST_CLASS, CanProcessSingleBlockWithRemoteHarvester) {
+		AssertCanProcessValidBlocksWithRemoteHarvester(1, 0);
+	}
+
+	TEST(TEST_CLASS, CanProcessBlockChainWithRemoteHarvester) {
+		AssertCanProcessValidBlocksWithRemoteHarvester(3, 1); // block 2/3 has remote harvester
 	}
 
 	// endregion
