@@ -76,8 +76,6 @@ namespace catapult { namespace plugins {
 				return {
 					"AccountRestrictionFlagsValidator",
 
-					"AccountAddressRestrictionNoSelfModificationValidator",
-
 					"AccountOperationRestrictionModificationValuesValidator"
 				};
 			}
@@ -88,6 +86,7 @@ namespace catapult { namespace plugins {
 					"AccountAddressRestrictionValueModificationValidator",
 					"MaxAccountAddressRestrictionValuesValidator",
 					"AddressInteractionValidator",
+					"AccountAddressRestrictionNoSelfModificationValidator",
 
 					"AccountMosaicRestrictionRedundantModificationValidator",
 					"AccountMosaicRestrictionValueModificationValidator",

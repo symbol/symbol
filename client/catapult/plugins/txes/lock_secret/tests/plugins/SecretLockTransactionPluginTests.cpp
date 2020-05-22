@@ -76,10 +76,9 @@ namespace catapult { namespace plugins {
 			EXPECT_EQ(transaction.HashAlgorithm, notification.HashAlgorithm);
 		});
 		builder.template addExpectation<AddressInteractionNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(transaction.SignerPublicKey, notification.Source);
+			EXPECT_EQ(model::GetSignerAddress(transaction), notification.Source);
 			EXPECT_EQ(transaction.Type, notification.TransactionType);
 			EXPECT_EQ(model::UnresolvedAddressSet{ transaction.RecipientAddress }, notification.ParticipantsByAddress);
-			EXPECT_EQ(utils::KeySet(), notification.ParticipantsByKey);
 		});
 		builder.template addExpectation<BalanceDebitNotification>([&transaction](const auto& notification) {
 			EXPECT_EQ(model::GetSignerAddress(transaction), notification.Sender);

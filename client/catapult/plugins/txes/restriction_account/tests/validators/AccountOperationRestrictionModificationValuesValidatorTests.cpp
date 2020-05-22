@@ -43,7 +43,7 @@ namespace catapult { namespace validators {
 				entityTypeAdditions.push_back(static_cast<model::EntityType>(rawValue));
 
 			auto notification = test::CreateAccountRestrictionsNotification<AccountOperationRestrictionTraits>(
-					test::GenerateRandomByteArray<Key>(),
+					test::GenerateRandomByteArray<Address>(),
 					entityTypeAdditions,
 					entityTypeDeletions);
 			auto pValidator = CreateAccountOperationRestrictionModificationValuesValidator();

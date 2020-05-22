@@ -62,13 +62,12 @@ namespace catapult { namespace validators {
 			auto values = test::GenerateUniqueRandomDataVector<typename TRestrictionValueTraits::UnresolvedValueType>(5);
 			auto modifications = modificationsFactory(values);
 			auto notification = test::CreateAccountRestrictionsNotification<TRestrictionValueTraits>(
-					test::GenerateRandomByteArray<Key>(),
+					test::GenerateRandomByteArray<Address>(),
 					modifications.first,
 					modifications.second);
 			auto cache = test::AccountRestrictionCacheFactory::Create();
 			if (CacheSeed::Yes == cacheSeed) {
-				auto address = model::PublicKeyToAddress(notification.Key, model::NetworkIdentifier::Zero);
-				auto restrictions = state::AccountRestrictions(address);
+				auto restrictions = state::AccountRestrictions(notification.Address);
 				restrictions.restriction(TRestrictionValueTraits::Restriction_Flags).allow({
 					model::AccountRestrictionModificationAction::Add,
 					state::ToVector(values[1])

@@ -57,7 +57,7 @@ namespace catapult { namespace plugins {
 			}
 
 			if (!addedCosignatories.empty())
-				sub.notify(AddressInteractionNotification(transaction.SignerPublicKey, transaction.Type, addedCosignatories));
+				sub.notify(AddressInteractionNotification(context.SignerAddress, transaction.Type, addedCosignatories));
 
 			// 3. setting changes
 			sub.notify(MultisigSettingsNotification(context.SignerAddress, transaction.MinRemovalDelta, transaction.MinApprovalDelta));

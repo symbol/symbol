@@ -145,7 +145,7 @@ namespace catapult { namespace plugins {
 			EXPECT_EQ(transaction.AddressDeletionsPtr(), notification.AddressDeletionsPtr);
 		});
 		builder.template addExpectation<AddressInteractionNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(transaction.SignerPublicKey, notification.Source);
+			EXPECT_EQ(model::GetSignerAddress(transaction), notification.Source);
 			EXPECT_EQ(transaction.Type, notification.TransactionType);
 
 			model::UnresolvedAddressSet expectedParticipantsByAddress{
@@ -153,7 +153,6 @@ namespace catapult { namespace plugins {
 				transaction.AddressAdditionsPtr()[1].template copyTo<UnresolvedAddress>()
 			};
 			EXPECT_EQ(expectedParticipantsByAddress, notification.ParticipantsByAddress);
-			EXPECT_EQ(utils::KeySet(), notification.ParticipantsByKey);
 		});
 
 		// Act + Assert:
@@ -244,7 +243,7 @@ namespace catapult { namespace plugins {
 			EXPECT_EQ(transaction.AddressDeletionsPtr(), notification.AddressDeletionsPtr);
 		});
 		builder.template addExpectation<AddressInteractionNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(transaction.SignerPublicKey, notification.Source);
+			EXPECT_EQ(model::GetSignerAddress(transaction), notification.Source);
 			EXPECT_EQ(transaction.Type, notification.TransactionType);
 
 			model::UnresolvedAddressSet expectedParticipantsByAddress{
@@ -252,7 +251,6 @@ namespace catapult { namespace plugins {
 				transaction.AddressAdditionsPtr()[1].template copyTo<UnresolvedAddress>()
 			};
 			EXPECT_EQ(expectedParticipantsByAddress, notification.ParticipantsByAddress);
-			EXPECT_EQ(utils::KeySet(), notification.ParticipantsByKey);
 		});
 
 		// Act + Assert:

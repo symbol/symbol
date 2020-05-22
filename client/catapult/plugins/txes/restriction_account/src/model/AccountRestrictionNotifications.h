@@ -100,22 +100,22 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = RestrictionAccount_Notification_Type;
 
 	public:
-		/// Creates a notification around \a key, \a restrictionFlags, \a restrictionValue and \a action.
+		/// Creates a notification around \a address, \a restrictionFlags, \a restrictionValue and \a action.
 		ModifyAccountRestrictionValueNotification(
-				const Key& key,
+				const Address& address,
 				AccountRestrictionFlags restrictionFlags,
 				const TRestrictionValue& restrictionValue,
 				AccountRestrictionModificationAction action)
 				: Notification(Notification_Type, sizeof(ModifyAccountRestrictionValueNotification))
-				, Key(key)
+				, Address(address)
 				, AccountRestrictionDescriptor(restrictionFlags)
 				, RestrictionValue(restrictionValue)
 				, Action(action)
 		{}
 
 	public:
-		/// Account's public key.
-		catapult::Key Key;
+		/// Account's address.
+		catapult::Address Address;
 
 		/// Account restriction descriptor.
 		state::AccountRestrictionDescriptor AccountRestrictionDescriptor;
@@ -146,17 +146,17 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = RestrictionAccount_Notification_Type;
 
 	public:
-		/// Creates a notification around \a key, \a restrictionFlags, \a restrictionAdditionsCount, \a pRestrictionAdditions,
+		/// Creates a notification around \a address, \a restrictionFlags, \a restrictionAdditionsCount, \a pRestrictionAdditions,
 		/// \a restrictionDeletionsCount and \a pRestrictionDeletions.
 		ModifyAccountRestrictionsNotification(
-				const Key& key,
+				const Address& address,
 				AccountRestrictionFlags restrictionFlags,
 				uint8_t restrictionAdditionsCount,
 				const TRestrictionValue* pRestrictionAdditions,
 				uint8_t restrictionDeletionsCount,
 				const TRestrictionValue* pRestrictionDeletions)
 				: Notification(Notification_Type, sizeof(ModifyAccountRestrictionsNotification))
-				, Key(key)
+				, Address(address)
 				, AccountRestrictionDescriptor(restrictionFlags)
 				, RestrictionAdditionsCount(restrictionAdditionsCount)
 				, RestrictionAdditionsPtr(pRestrictionAdditions)
@@ -165,8 +165,8 @@ namespace catapult { namespace model {
 		{}
 
 	public:
-		/// Account's public key.
-		catapult::Key Key;
+		/// Account's address.
+		catapult::Address Address;
 
 		/// Account restriction descriptor.
 		state::AccountRestrictionDescriptor AccountRestrictionDescriptor;

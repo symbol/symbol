@@ -387,35 +387,25 @@ namespace catapult { namespace model {
 
 	public:
 		/// Creates a notification around \a source, \a transactionType and \a participantsByAddress.
-		AddressInteractionNotification(const Key& source, EntityType transactionType, const UnresolvedAddressSet& participantsByAddress)
-				: AddressInteractionNotification(source, transactionType, participantsByAddress, {})
-		{}
-
-		/// Creates a notification around \a source, \a transactionType, \a participantsByAddress and \a participantsByKey.
 		AddressInteractionNotification(
-				const Key& source,
+				const Address& source,
 				EntityType transactionType,
-				const UnresolvedAddressSet& participantsByAddress,
-				const utils::KeySet& participantsByKey)
+				const UnresolvedAddressSet& participantsByAddress)
 				: Notification(Notification_Type, sizeof(AddressInteractionNotification))
 				, Source(source)
 				, TransactionType(transactionType)
 				, ParticipantsByAddress(participantsByAddress)
-				, ParticipantsByKey(participantsByKey)
 		{}
 
 	public:
 		/// Source.
-		Key Source;
+		Address Source;
 
 		/// Transaction type.
 		EntityType TransactionType;
 
 		/// Participants given by address.
 		UnresolvedAddressSet ParticipantsByAddress;
-
-		/// Participants given by public key.
-		utils::KeySet ParticipantsByKey;
 	};
 
 	// endregion

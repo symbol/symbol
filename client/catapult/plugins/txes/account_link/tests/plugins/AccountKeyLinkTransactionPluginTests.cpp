@@ -21,6 +21,7 @@
 #include "src/plugins/AccountKeyLinkTransactionPlugin.h"
 #include "src/model/AccountKeyLinkTransaction.h"
 #include "src/model/AccountLinkNotifications.h"
+#include "catapult/model/Address.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
 #include "tests/TestHarness.h"
@@ -52,10 +53,10 @@ namespace catapult { namespace plugins {
 				EXPECT_EQ(transaction.LinkAction, notification.LinkAction);
 			});
 			builder.template addExpectation<AddressInteractionNotification>([&transaction](const auto& notification) {
-				EXPECT_EQ(transaction.SignerPublicKey, notification.Source);
+				auto linkedAddress = PublicKeyToAddress(transaction.LinkedPublicKey, transaction.Network);
+				EXPECT_EQ(GetSignerAddress(transaction), notification.Source);
 				EXPECT_EQ(transaction.Type, notification.TransactionType);
-				EXPECT_EQ(UnresolvedAddressSet(), notification.ParticipantsByAddress);
-				EXPECT_EQ(utils::KeySet{ transaction.LinkedPublicKey }, notification.ParticipantsByKey);
+				EXPECT_EQ(UnresolvedAddressSet{ linkedAddress.template copyTo<UnresolvedAddress>() }, notification.ParticipantsByAddress);
 			});
 			builder.template addExpectation<RemoteAccountKeyLinkNotification>([&transaction](const auto& notification) {
 				EXPECT_EQ(transaction.SignerPublicKey, notification.MainAccountPublicKey);

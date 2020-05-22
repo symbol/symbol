@@ -45,7 +45,7 @@ namespace catapult { namespace observers {
 		template<typename TNotification>
 		void ObserveNotification(const TNotification& notification, const ObserverContext& context) {
 			auto& restrictionCache = context.Cache.sub<cache::AccountRestrictionCache>();
-			auto address = model::PublicKeyToAddress(notification.Key, restrictionCache.networkIdentifier());
+			const auto& address = notification.Address;
 
 			auto restrictionsIter = restrictionCache.find(address);
 			if (!restrictionsIter.tryGet()) {
