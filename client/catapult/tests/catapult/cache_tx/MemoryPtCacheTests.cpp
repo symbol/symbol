@@ -47,7 +47,7 @@ namespace catapult { namespace cache {
 				const std::vector<model::Cosignature>& cosignatures) {
 			auto modifier = cache.modifier();
 			for (const auto& cosignature : cosignatures)
-				modifier.add(transactionInfo.EntityHash, cosignature.SignerPublicKey, cosignature.Signature);
+				modifier.add(transactionInfo.EntityHash, cosignature);
 		}
 
 		void AssertCacheSize(MemoryPtCache& cache, size_t expectedSize) {
@@ -86,21 +86,6 @@ namespace catapult { namespace cache {
 			return Sort(cosignatures);
 		}
 
-		void AssertCosignatures(
-				const std::vector<model::Cosignature>& expectedCosignatures,
-				const std::vector<model::Cosignature>& actualCosignatures,
-				const std::string& message = "") {
-			ASSERT_EQ(expectedCosignatures.size(), actualCosignatures.size()) << message;
-
-			for (auto i = 0u; i < expectedCosignatures.size(); ++i) {
-				auto cosignatureMessage = message + ", cosignature at " + std::to_string(i);
-				const auto& expected = expectedCosignatures[i];
-				const auto& actual = actualCosignatures[i];
-				EXPECT_EQ(expected.SignerPublicKey, actual.SignerPublicKey) << cosignatureMessage;
-				EXPECT_EQ(expected.Signature, actual.Signature) << cosignatureMessage;
-			}
-		}
-
 		void AssertTransactionWithCosignatures(
 				const model::Transaction& originalTransaction,
 				const std::vector<model::Cosignature>& expectedCosignatures,
@@ -113,7 +98,7 @@ namespace catapult { namespace cache {
 			EXPECT_EQ(originalTransaction, transactionInfoFromCache.transaction()) << message;
 
 			// - compare cosignatures
-			AssertCosignatures(expectedCosignatures, transactionInfoFromCache.cosignatures(), message);
+			test::AssertCosignatures(expectedCosignatures, transactionInfoFromCache.cosignatures(), message);
 		}
 	}
 
@@ -227,12 +212,6 @@ namespace catapult { namespace cache {
 
 	// region add(cosignature)
 
-	namespace {
-		model::Cosignature GenerateRandomCosignature() {
-			return { test::GenerateRandomByteArray<Key>(), test::GenerateRandomByteArray<Signature>() };
-		}
-	}
-
 	TEST(TEST_CLASS, CanAttachCosignatureToKnownTransaction) {
 		// Arrange:
 		MemoryPtCache cache(Default_Options);
@@ -243,11 +222,8 @@ namespace catapult { namespace cache {
 		AssertCacheSize(cache, 5);
 
 		// Act:
-		auto cosignature = GenerateRandomCosignature();
-		auto transactionInfoFromAdd = cache.modifier().add(
-				originalInfos[3].EntityHash,
-				cosignature.SignerPublicKey,
-				cosignature.Signature);
+		auto cosignature = test::CreateRandomDetachedCosignature();
+		auto transactionInfoFromAdd = cache.modifier().add(originalInfos[3].EntityHash, cosignature);
 
 		// Assert: added transaction is correct
 		ASSERT_TRUE(!!transactionInfoFromAdd);
@@ -271,11 +247,8 @@ namespace catapult { namespace cache {
 		std::vector<model::Cosignature> cosignatures;
 		std::vector<model::Cosignature> transactionsFromAdd;
 		for (auto i = 0u; i < 20; ++i) {
-			auto cosignature = GenerateRandomCosignature();
-			auto transactionInfoFromAdd = cache.modifier().add(
-					originalInfos[3].EntityHash,
-					cosignature.SignerPublicKey,
-					cosignature.Signature);
+			auto cosignature = test::CreateRandomDetachedCosignature();
+			auto transactionInfoFromAdd = cache.modifier().add(originalInfos[3].EntityHash, cosignature);
 			cosignatures.push_back(cosignature);
 
 			// Assert: notice that same transaction (without cosignatures) is returned by each add
@@ -295,16 +268,16 @@ namespace catapult { namespace cache {
 		AddAll(cache, originalInfos);
 
 		// - add a cosignature
-		auto cosignature = GenerateRandomCosignature();
-		EXPECT_TRUE(!!cache.modifier().add(originalInfos[3].EntityHash, cosignature.SignerPublicKey, cosignature.Signature));
+		auto cosignature = test::CreateRandomDetachedCosignature();
+		EXPECT_TRUE(!!cache.modifier().add(originalInfos[3].EntityHash, cosignature));
 
 		// Sanity:
 		AssertCacheSize(cache, 5);
 
 		// Act: add another cosignature with the same signer
-		auto cosignature2 = GenerateRandomCosignature();
+		auto cosignature2 = test::CreateRandomDetachedCosignature();
 		cosignature2.SignerPublicKey = cosignature.SignerPublicKey;
-		EXPECT_FALSE(!!cache.modifier().add(originalInfos[3].EntityHash, cosignature.SignerPublicKey, cosignature.Signature));
+		EXPECT_FALSE(!!cache.modifier().add(originalInfos[3].EntityHash, cosignature));
 
 		// Assert:
 		auto transactionInfoFromCache = cache.view().find(originalInfos[3].EntityHash);
@@ -320,8 +293,8 @@ namespace catapult { namespace cache {
 		AssertCacheSize(cache, 5);
 
 		// Act + Assert: no transaction in the cache should match the random hash
-		auto cosignature = GenerateRandomCosignature();
-		EXPECT_FALSE(!!cache.modifier().add(test::GenerateRandomByteArray<Hash256>(), cosignature.SignerPublicKey, cosignature.Signature));
+		auto cosignature = test::CreateRandomDetachedCosignature();
+		EXPECT_FALSE(!!cache.modifier().add(test::GenerateRandomByteArray<Hash256>(), cosignature));
 	}
 
 	// endregion
@@ -673,7 +646,7 @@ namespace catapult { namespace cache {
 		for (auto i = 0u; i < cosignatures.size(); ++i) {
 			for (auto j = 0u; j < transactionInfos.size(); ++j) {
 				const auto& cosignature = cosignatures[(i + j) % cosignatures.size()];
-				cache.modifier().add(transactionInfos[j].EntityHash, cosignature.SignerPublicKey, cosignature.Signature);
+				cache.modifier().add(transactionInfos[j].EntityHash, cosignature);
 			}
 		}
 
@@ -793,7 +766,7 @@ namespace catapult { namespace cache {
 			ASSERT_EQ(1u, unknownInfos.size());
 			EXPECT_EQ(info.EntityHash, unknownInfos[0].EntityHash);
 			EXPECT_EQ(info.pEntity, unknownInfos[0].pTransaction);
-			AssertCosignatures(cosignatures, unknownInfos[0].Cosignatures);
+			test::AssertCosignatures(cosignatures, unknownInfos[0].Cosignatures);
 		});
 	}
 
@@ -809,7 +782,7 @@ namespace catapult { namespace cache {
 			ASSERT_EQ(1u, unknownInfos.size());
 			EXPECT_EQ(info.EntityHash, unknownInfos[0].EntityHash);
 			EXPECT_FALSE(!!unknownInfos[0].pTransaction);
-			AssertCosignatures(cosignatures, unknownInfos[0].Cosignatures);
+			test::AssertCosignatures(cosignatures, unknownInfos[0].Cosignatures);
 		});
 	}
 

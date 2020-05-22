@@ -25,6 +25,7 @@
 #include "catapult/model/Address.h"
 #include "catapult/utils/IntegerMath.h"
 #include "catapult/utils/MemoryUtils.h"
+#include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/nodeps/NumericTestUtils.h"
@@ -47,8 +48,7 @@ namespace catapult { namespace plugins {
 			std::vector<const mocks::EmbeddedMockTransaction*> SubTransactions;
 			std::vector<Key> SubTransactionSigners;
 			std::vector<Key> SubTransactionRecipients;
-			std::vector<Key> Cosignatories;
-			std::vector<Signature> CosignatorySignatures;
+			std::vector<Cosignature> Cosignatures;
 		};
 
 		AggregateTransactionWrapper CreateAggregateTransaction(uint8_t numTransactions, uint8_t numCosignatures) {
@@ -74,7 +74,7 @@ namespace catapult { namespace plugins {
 				pSubTransaction->Size = transactionSize;
 				pSubTransaction->Data.Size = 0;
 				pSubTransaction->Version = (i + 1) * 2;
-				pSubTransaction->Network = static_cast<model::NetworkIdentifier>(100 + i);
+				pSubTransaction->Network = static_cast<NetworkIdentifier>(100 + i);
 				pSubTransaction->Type = mocks::EmbeddedMockTransaction::Entity_Type;
 				test::FillWithRandomData(pSubTransaction->SignerPublicKey);
 				test::FillWithRandomData(pSubTransaction->RecipientPublicKey);
@@ -88,11 +88,8 @@ namespace catapult { namespace plugins {
 
 			auto* pCosignature = pTransaction->CosignaturesPtr();
 			for (auto i = 0u; i < numCosignatures; ++i) {
-				test::FillWithRandomData(pCosignature->SignerPublicKey);
-				test::FillWithRandomData(pCosignature->Signature);
-
-				wrapper.Cosignatories.push_back(pCosignature->SignerPublicKey);
-				wrapper.CosignatorySignatures.push_back(pCosignature->Signature);
+				*pCosignature = test::CreateRandomDetachedCosignature();
+				wrapper.Cosignatures.push_back(*pCosignature);
 				++pCosignature;
 			}
 
@@ -292,7 +289,7 @@ namespace catapult { namespace plugins {
 				});
 				builder.addExpectation<mocks::MockAddressNotification>(i, [&wrapper, i](const auto& notification) {
 					const auto& signerPublicKey = wrapper.SubTransactions[i]->SignerPublicKey;
-					auto signerAddress = model::PublicKeyToAddress(signerPublicKey, static_cast<NetworkIdentifier>(100 + i));
+					auto signerAddress = PublicKeyToAddress(signerPublicKey, static_cast<NetworkIdentifier>(100 + i));
 					EXPECT_EQ(signerAddress, notification.Address);
 				});
 			}
@@ -364,10 +361,14 @@ namespace catapult { namespace plugins {
 				const Hash256& aggregateDataHash,
 				uint8_t count) {
 			for (auto i = 0u; i < count; ++i) {
-				builder.addExpectation<SignatureNotification>(i, [&wrapper, &aggregateDataHash, i](const auto& notification) {
-					// notifications should refer to cosignatories
-					EXPECT_EQ(wrapper.Cosignatories[i], notification.SignerPublicKey);
-					EXPECT_EQ(wrapper.CosignatorySignatures[i], notification.Signature);
+				// notifications should refer to cosignatories
+				const auto& cosignature = wrapper.Cosignatures[i];
+				builder.addExpectation<InternalPaddingNotification>(i, [&cosignature](const auto& notification) {
+					EXPECT_EQ(cosignature.Version, notification.Padding);
+				});
+				builder.addExpectation<SignatureNotification>(i, [&cosignature, &aggregateDataHash](const auto& notification) {
+					EXPECT_EQ(cosignature.SignerPublicKey, notification.SignerPublicKey);
+					EXPECT_EQ(cosignature.Signature, notification.Signature);
 
 					// notifications should refer to same (aggregate) data hash
 					EXPECT_EQ(aggregateDataHash.data(), notification.Data.pData);
@@ -391,9 +392,12 @@ namespace catapult { namespace plugins {
 			AggregateCosignaturesNotification::Notification_Type,
 			AggregateEmbeddedTransactionsNotification::Notification_Type,
 
-			// signature notifications are raised last (and with wrong source) for performance reasons
+			// cosignature-derived notifications are raised last (and with wrong source) for performance reasons
+			InternalPaddingNotification::Notification_Type,
 			SignatureNotification::Notification_Type,
+			InternalPaddingNotification::Notification_Type,
 			SignatureNotification::Notification_Type,
+			InternalPaddingNotification::Notification_Type,
 			SignatureNotification::Notification_Type
 		}, registry);
 	}
@@ -456,8 +460,11 @@ namespace catapult { namespace plugins {
 			mocks::MockAddressNotification::Notification_Type,
 
 			// signature notifications are raised last (and with wrong source) for performance reasons
+			InternalPaddingNotification::Notification_Type,
 			SignatureNotification::Notification_Type,
+			InternalPaddingNotification::Notification_Type,
 			SignatureNotification::Notification_Type,
+			InternalPaddingNotification::Notification_Type,
 			SignatureNotification::Notification_Type
 		}, registry);
 	}

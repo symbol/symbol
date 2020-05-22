@@ -255,6 +255,8 @@ namespace catapult { namespace test {
 		auto iter = dbCosignatures.cbegin();
 		for (const auto& expectedCosignature : expectedCosignatures) {
 			auto cosignatureView = iter->get_document().view();
+			EXPECT_EQ(3u, GetFieldCount(cosignatureView));
+			EXPECT_EQ(expectedCosignature.Version, GetUint64(cosignatureView, "version"));
 			EXPECT_EQ(expectedCosignature.SignerPublicKey, GetKeyValue(cosignatureView, "signerPublicKey"));
 			EXPECT_EQ(expectedCosignature.Signature, GetSignatureValue(cosignatureView, "signature"));
 			++iter;

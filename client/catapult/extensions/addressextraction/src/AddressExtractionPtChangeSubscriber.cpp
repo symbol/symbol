@@ -34,7 +34,7 @@ namespace catapult { namespace addressextraction {
 				m_extractor.extract(const_cast<TransactionInfos&>(transactionInfos));
 			}
 
-			void notifyAddCosignature(const model::TransactionInfo& parentTransactionInfo, const Key&, const Signature&) override {
+			void notifyAddCosignature(const model::TransactionInfo& parentTransactionInfo, const model::Cosignature&) override {
 				m_extractor.extract(const_cast<model::TransactionInfo&>(parentTransactionInfo));
 			}
 

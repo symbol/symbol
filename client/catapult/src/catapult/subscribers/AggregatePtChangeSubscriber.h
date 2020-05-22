@@ -35,12 +35,9 @@ namespace catapult { namespace subscribers {
 			this->forEach([&transactionInfos](auto& subscriber) { subscriber.notifyAddPartials(transactionInfos); });
 		}
 
-		void notifyAddCosignature(
-				const model::TransactionInfo& parentTransactionInfo,
-				const Key& signer,
-				const Signature& signature) override {
-			this->forEach([&parentTransactionInfo, &signer, &signature](auto& subscriber) {
-				subscriber.notifyAddCosignature(parentTransactionInfo, signer, signature);
+		void notifyAddCosignature(const model::TransactionInfo& parentTransactionInfo, const model::Cosignature& cosignature) override {
+			this->forEach([&parentTransactionInfo, &cosignature](auto& subscriber) {
+				subscriber.notifyAddCosignature(parentTransactionInfo, cosignature);
 			});
 		}
 

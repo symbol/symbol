@@ -76,8 +76,8 @@ namespace catapult { namespace zeromq {
 				publisher().publishTransactionStatus(transaction, hash, status);
 			}
 
-			void publishCosignature(const model::TransactionInfo& parentTransactionInfo, const Key& signer, const Signature& signature) {
-				publisher().publishCosignature(parentTransactionInfo, signer, signature);
+			void publishCosignature(const model::TransactionInfo& parentTransactionInfo, const model::Cosignature& cosignature) {
+				publisher().publishCosignature(parentTransactionInfo, cosignature);
 			}
 		};
 
@@ -328,17 +328,16 @@ namespace catapult { namespace zeromq {
 		// Arrange:
 		EntityPublisherContext context;
 		auto transactionInfo = ToTransactionInfo(mocks::CreateMockTransaction(0));
-		auto signer = test::GenerateRandomByteArray<Key>();
-		auto signature = test::GenerateRandomByteArray<Signature>();
+		auto cosignature = test::CreateRandomDetachedCosignature();
 		auto addresses = test::ExtractAddresses(test::ToMockTransaction(*transactionInfo.pEntity));
 		TransactionMarker marker = TransactionMarker::Cosignature_Marker;
 		context.subscribeAll(marker, addresses);
 
 		// Act:
-		context.publishCosignature(transactionInfo, signer, signature);
+		context.publishCosignature(transactionInfo, cosignature);
 
 		// Assert:
-		model::DetachedCosignature expectedDetachedCosignature(signer, signature, transactionInfo.EntityHash);
+		model::DetachedCosignature expectedDetachedCosignature(cosignature, transactionInfo.EntityHash);
 		auto& zmqSocket = context.zmqSocket();
 		test::AssertMessages(zmqSocket, marker, addresses, [&expectedDetachedCosignature](const auto& message, const auto& topic) {
 			test::AssertDetachedCosignatureMessage(message, topic, expectedDetachedCosignature);

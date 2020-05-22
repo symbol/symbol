@@ -68,7 +68,19 @@ namespace catapult { namespace test {
 	model::TransactionRange CreateEntityRange(const std::vector<const model::Transaction*>& transactions);
 
 	/// Creates a random (detached) cosignature.
-	model::DetachedCosignature CreateRandomCosignature();
+	model::DetachedCosignature CreateRandomDetachedCosignature();
+
+	/// Asserts that \a expectedCosignature and \a actualCosignature are equal with optional \a message.
+	void AssertCosignature(
+			const model::Cosignature& expectedCosignature,
+			const model::Cosignature& actualCosignature,
+			const std::string& message = "");
+
+	/// Asserts that \a expectedCosignatures and \a actualCosignatures are equivalent with optional \a message.
+	void AssertCosignatures(
+			const std::vector<model::Cosignature>& expectedCosignatures,
+			const std::vector<model::Cosignature>& actualCosignatures,
+			const std::string& message = "");
 
 /// Adds basic transaction property tests for \a NAME transaction with custom arguments.
 #define ADD_BASIC_TRANSACTION_PROPERTY_TESTS_WITH_ARGS(NAME, ...) \

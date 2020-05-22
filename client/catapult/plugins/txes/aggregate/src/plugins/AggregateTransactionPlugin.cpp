@@ -125,6 +125,7 @@ namespace catapult { namespace plugins {
 					// - notice that all valid cosignatories must have been observed previously as part of either
 					//   (1) sub-transaction execution or (2) composite account setup
 					// - require the cosignatories to sign the aggregate indirectly via the hash of its data
+					sub.notify(InternalPaddingNotification(pCosignature->Version));
 					sub.notify(SignatureNotification(pCosignature->SignerPublicKey, pCosignature->Signature, transactionInfo.hash()));
 					++pCosignature;
 				}
