@@ -28,9 +28,8 @@ namespace catapult { namespace validators {
 	using Notification = model::TransactionNotification;
 
 	DEFINE_STATEFUL_VALIDATOR(MultisigPermittedOperation, [](const Notification& notification, const ValidatorContext& context) {
-		// TODO: conversion can be removed when TransactionNotifications is updated
 		const auto& multisigCache = context.Cache.sub<cache::MultisigCache>();
-		auto multisigIter = multisigCache.find(model::PublicKeyToAddress(notification.Sender, context.Network.Identifier));
+		auto multisigIter = multisigCache.find(notification.Sender);
 
 		return !multisigIter.tryGet() || multisigIter.get().cosignatoryAddresses().empty()
 				? ValidationResult::Success

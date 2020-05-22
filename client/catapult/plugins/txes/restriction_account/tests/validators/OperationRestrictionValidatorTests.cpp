@@ -37,11 +37,11 @@ namespace catapult { namespace validators {
 		}
 
 		template<typename TOperationTraits>
-		void PopulateCache(cache::CatapultCache& cache, const Address& accountAddress, const std::vector<uint16_t>& rawValues) {
+		void PopulateCache(cache::CatapultCache& cache, const Address& address, const std::vector<uint16_t>& rawValues) {
 			auto delta = cache.createDelta();
 			auto& restrictionCacheDelta = delta.sub<cache::AccountRestrictionCache>();
-			restrictionCacheDelta.insert(state::AccountRestrictions(accountAddress));
-			auto& restrictions = restrictionCacheDelta.find(accountAddress).get();
+			restrictionCacheDelta.insert(state::AccountRestrictions(address));
+			auto& restrictions = restrictionCacheDelta.find(address).get();
 			auto& restriction = restrictions.restriction(Restriction_Flags);
 			for (auto rawValue : rawValues)
 				TOperationTraits::Add(restriction, state::ToVector(rawValue));
@@ -54,7 +54,7 @@ namespace catapult { namespace validators {
 				ValidationResult expectedResult,
 				const Address& accountAddress,
 				const std::vector<uint16_t>& rawValues,
-				const Key& sender,
+				const Address& sender,
 				const model::EntityType& transactionType) {
 			// Arrange:
 			auto cache = test::AccountRestrictionCacheFactory::Create();
@@ -74,13 +74,12 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureWhenAccountIsKnownAndTransactionTypeIsNotContainedInValues_Allow) {
 		// Arrange:
-		auto sender = test::GenerateRandomByteArray<Key>();
-		auto senderAddress = model::PublicKeyToAddress(sender, model::NetworkIdentifier::Zero);
+		auto sender = test::GenerateRandomByteArray<Address>();
 
 		// Act:
 		AssertValidationResult<test::AllowTraits>(
 				Failure_RestrictionAccount_Operation_Type_Prohibited,
-				senderAddress,
+				sender,
 				DefaultRawTransactionTypes(),
 				sender,
 				static_cast<model::EntityType>(0x4040));
@@ -88,14 +87,13 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureWhenAccountIsKnownAndTransactionTypeIsContainedInValues_Block) {
 		// Arrange:
-		auto sender = test::GenerateRandomByteArray<Key>();
-		auto senderAddress = model::PublicKeyToAddress(sender, model::NetworkIdentifier::Zero);
+		auto sender = test::GenerateRandomByteArray<Address>();
 		auto values = DefaultRawTransactionTypes();
 
 		// Act:
 		AssertValidationResult<test::BlockTraits>(
 				Failure_RestrictionAccount_Operation_Type_Prohibited,
-				senderAddress,
+				sender,
 				values,
 				sender,
 				static_cast<model::EntityType>(values[1]));
@@ -113,34 +111,32 @@ namespace catapult { namespace validators {
 
 	TRAITS_BASED_TEST(SuccessWhenAccountIsNotKnown) {
 		// Arrange:
-		auto sender = test::GenerateRandomByteArray<Key>();
-		auto address = test::GenerateRandomByteArray<Address>();
+		auto sender = test::GenerateRandomByteArray<Address>();
+		auto other = test::GenerateRandomByteArray<Address>();
 		auto values = DefaultRawTransactionTypes();
 
 		// Act:
-		AssertValidationResult<TTraits>(ValidationResult::Success, address, values, sender, static_cast<model::EntityType>(0x4444));
+		AssertValidationResult<TTraits>(ValidationResult::Success, other, values, sender, static_cast<model::EntityType>(0x4444));
 	}
 
 	TRAITS_BASED_TEST(SuccessWhenAccountIsKnownButAccountRestrictionHasNoValues) {
 		// Arrange:
-		auto sender = test::GenerateRandomByteArray<Key>();
-		auto senderAddress = model::PublicKeyToAddress(sender, model::NetworkIdentifier::Zero);
+		auto sender = test::GenerateRandomByteArray<Address>();
 
 		// Act:
-		AssertValidationResult<TTraits>(ValidationResult::Success, senderAddress, {}, sender, static_cast<model::EntityType>(0x4444));
+		AssertValidationResult<TTraits>(ValidationResult::Success, sender, {}, sender, static_cast<model::EntityType>(0x4444));
 	}
 
 	namespace {
 		template<typename TOperationTraits>
 		void AssertSuccess(const std::vector<uint16_t>& rawValues, uint16_t rawTransactionType) {
 			// Arrange:
-			auto sender = test::GenerateRandomByteArray<Key>();
-			auto senderAddress = model::PublicKeyToAddress(sender, model::NetworkIdentifier::Zero);
+			auto sender = test::GenerateRandomByteArray<Address>();
 
 			// Act:
 			AssertValidationResult<TOperationTraits>(
 					ValidationResult::Success,
-					senderAddress,
+					sender,
 					rawValues,
 					sender,
 					static_cast<model::EntityType>(rawTransactionType));

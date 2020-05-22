@@ -34,7 +34,7 @@ namespace catapult { namespace model {
 		template<typename TTransaction>
 		void Publish(const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub) {
 			// raise notifications dependent on the transaction and context data
-			sub.notify(model::TransactionNotification(transaction.SignerPublicKey, Hash256(), EntityType(), Timestamp()));
+			sub.notify(AccountPublicKeyNotification(transaction.SignerPublicKey));
 			sub.notify(mocks::MockAddressNotification(context.SignerAddress));
 		}
 
@@ -101,18 +101,18 @@ namespace catapult { namespace model {
 		using Subscriber = mocks::MockNotificationSubscriber;
 		RunPublishTest<TTraits, Subscriber>([](const auto&, const auto&, const auto& sub) {
 			// Assert:
-			EXPECT_EQ(TransactionNotification::Notification_Type, sub.notificationTypes()[0]);
+			EXPECT_EQ(AccountPublicKeyNotification::Notification_Type, sub.notificationTypes()[0]);
 			EXPECT_EQ(mocks::MockAddressNotification::Notification_Type, sub.notificationTypes()[1]);
 		});
 	}
 
 	PLUGIN_TEST_WITH_PREFIXED_TRAITS(CanPublishTransactionDependentNotifications, Default, _Default) {
 		// Act:
-		using Subscriber = mocks::MockTypedNotificationSubscriber<TransactionNotification>;
+		using Subscriber = mocks::MockTypedNotificationSubscriber<AccountPublicKeyNotification>;
 		RunPublishTest<TTraits, Subscriber>([](const auto& transaction, const auto&, const auto& sub) {
 			// Assert:
 			ASSERT_EQ(1u, sub.numMatchingNotifications());
-			EXPECT_EQ(transaction.SignerPublicKey, sub.matchingNotifications()[0].Sender);
+			EXPECT_EQ(transaction.SignerPublicKey, sub.matchingNotifications()[0].PublicKey);
 		});
 	}
 

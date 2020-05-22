@@ -141,9 +141,9 @@ namespace catapult { namespace model {
 						<< "+   transaction.Type: " << transaction.Type;
 
 				auto signerAddress = GetSignerAddress(transaction);
-				sub.notify(TransactionNotification(transaction.SignerPublicKey, hash, transaction.Type, transaction.Deadline));
+				sub.notify(TransactionNotification(signerAddress, hash, transaction.Type, transaction.Deadline));
 				sub.notify(TransactionDeadlineNotification(transaction.Deadline, attributes.MaxLifetime));
-				sub.notify(TransactionFeeNotification(transaction.SignerPublicKey, transaction.Size, fee, transaction.MaxFee));
+				sub.notify(TransactionFeeNotification(signerAddress, transaction.Size, fee, transaction.MaxFee));
 				sub.notify(BalanceDebitNotification(signerAddress, m_feeMosaicId, fee));
 
 				// raise a signature notification

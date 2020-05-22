@@ -446,13 +446,13 @@ namespace catapult { namespace chain {
 		// Arrange:
 		TestContext context;
 		context.sub().enableUndo();
-		auto signer = test::GenerateRandomByteArray<Key>();
+		auto sender = test::GenerateRandomByteArray<Address>();
 		auto hash = test::GenerateRandomByteArray<Hash256>();
 		auto sourceChangeType = model::SourceChangeNotification::SourceChangeType::Absolute;
 		auto notification1 = model::SourceChangeNotification(sourceChangeType, 1, sourceChangeType, 1);
 		auto notification2 = test::CreateNotification(Notification_Type_All);
 		auto notification3 = model::EntityNotification(model::NetworkIdentifier::Mijin_Test, 0, 0, 0);
-		auto notification4 = model::TransactionNotification(signer, hash, static_cast<model::EntityType>(22), Timestamp(11));
+		auto notification4 = model::TransactionNotification(sender, hash, static_cast<model::EntityType>(22), Timestamp(11));
 
 		// - process notifications
 		context.sub().notify(notification1);

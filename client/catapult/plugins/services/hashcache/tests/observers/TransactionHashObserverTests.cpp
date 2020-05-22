@@ -47,7 +47,7 @@ namespace catapult { namespace observers {
 		}
 
 		model::TransactionNotification MakeNotification(Timestamp deadline, const Hash256& hash) {
-			return model::TransactionNotification(Key(), hash, model::EntityType(), deadline);
+			return model::TransactionNotification(Address(), hash, model::EntityType(), deadline);
 		}
 	}
 

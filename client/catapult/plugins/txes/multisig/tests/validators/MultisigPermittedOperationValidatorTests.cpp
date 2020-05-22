@@ -19,7 +19,6 @@
 **/
 
 #include "src/validators/Validators.h"
-#include "catapult/model/Address.h"
 #include "tests/test/MultisigCacheTestUtils.h"
 #include "tests/test/MultisigTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
@@ -32,11 +31,7 @@ namespace catapult { namespace validators {
 	DEFINE_COMMON_VALIDATOR_TESTS(MultisigPermittedOperation,)
 
 	namespace {
-		Address ToAddress(const Key& publicKey) {
-			return model::PublicKeyToAddress(publicKey, model::NetworkIdentifier::Zero);
-		}
-
-		void AssertValidationResult(ValidationResult expectedResult, const cache::CatapultCache& cache, const Key& sender) {
+		void AssertValidationResult(ValidationResult expectedResult, const cache::CatapultCache& cache, const Address& sender) {
 			// Arrange:
 			model::TransactionNotification notification(sender, Hash256(), model::EntityType(), Timestamp());
 			auto pValidator = CreateMultisigPermittedOperationValidator();
@@ -67,26 +62,26 @@ namespace catapult { namespace validators {
 		auto cache = CreateCacheWithSingleLevelMultisig(multisig, { cosignatory });
 
 		// Assert:
-		AssertValidationResult(ValidationResult::Success, cache, test::GenerateRandomByteArray<Key>());
+		AssertValidationResult(ValidationResult::Success, cache, test::GenerateRandomByteArray<Address>());
 	}
 
 	TEST(TEST_CLASS, CosignatoryAccountIsAllowedToMakeAnyOperation) {
 		// Arrange:
 		auto multisig = test::GenerateRandomByteArray<Address>();
-		auto cosignatoryPublicKey = test::GenerateRandomByteArray<Key>();
-		auto cache = CreateCacheWithSingleLevelMultisig(multisig, { ToAddress(cosignatoryPublicKey) });
+		auto cosignatory = test::GenerateRandomByteArray<Address>();
+		auto cache = CreateCacheWithSingleLevelMultisig(multisig, { cosignatory });
 
 		// Assert:
-		AssertValidationResult(ValidationResult::Success, cache, cosignatoryPublicKey);
+		AssertValidationResult(ValidationResult::Success, cache, cosignatory);
 	}
 
 	TEST(TEST_CLASS, MultisigAccountIsNotAllowedToMakeAnyOperation) {
 		// Arrange:
-		auto multisigPublicKey = test::GenerateRandomByteArray<Key>();
+		auto multisig = test::GenerateRandomByteArray<Address>();
 		auto cosignatory = test::GenerateRandomByteArray<Address>();
-		auto cache = CreateCacheWithSingleLevelMultisig(ToAddress(multisigPublicKey), { cosignatory });
+		auto cache = CreateCacheWithSingleLevelMultisig(multisig, { cosignatory });
 
 		// Assert:
-		AssertValidationResult(Failure_Multisig_Operation_Prohibited_By_Account, cache, multisigPublicKey);
+		AssertValidationResult(Failure_Multisig_Operation_Prohibited_By_Account, cache, multisig);
 	}
 }}

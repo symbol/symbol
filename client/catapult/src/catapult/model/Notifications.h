@@ -256,7 +256,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Creates a transaction notification around \a sender, \a transactionHash, \a transactionType and \a deadline.
-		TransactionNotification(const Key& sender, const Hash256& transactionHash, EntityType transactionType, Timestamp deadline)
+		TransactionNotification(const Address& sender, const Hash256& transactionHash, EntityType transactionType, Timestamp deadline)
 				: Notification(Notification_Type, sizeof(TransactionNotification))
 				, Sender(sender)
 				, TransactionHash(transactionHash)
@@ -266,7 +266,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Transaction sender.
-		const Key& Sender;
+		Address Sender;
 
 		/// Transaction hash.
 		const Hash256& TransactionHash;
@@ -309,7 +309,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Creates a transaction fee notification around \a sender, \a transactionSize, \a fee and \a maxFee.
-		TransactionFeeNotification(const Key& sender, uint32_t transactionSize, Amount fee, Amount maxFee)
+		TransactionFeeNotification(const Address& sender, uint32_t transactionSize, Amount fee, Amount maxFee)
 				: Notification(Notification_Type, sizeof(TransactionFeeNotification))
 				, Sender(sender)
 				, TransactionSize(transactionSize)
@@ -319,7 +319,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Transaction sender.
-		const Key& Sender;
+		Address Sender;
 
 		/// Transaction size.
 		uint32_t TransactionSize;

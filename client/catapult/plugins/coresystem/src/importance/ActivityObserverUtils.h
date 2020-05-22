@@ -29,10 +29,10 @@ namespace catapult { namespace importance {
 	/// Consumes and updates an activity bucket.
 	using ActivityBucketConsumer = consumer<state::AccountActivityBuckets::HeightDetachedActivityBucket&>;
 
-	/// Updates activity information for the account with specified public key (\a publicKey) given observer \a context
+	/// Updates activity information for the account with specified \a address given observer \a context
 	/// and update functions (\a commitAction, \a rollbackAction).
 	void UpdateActivity(
-			const Key& publicKey,
+			const Address& address,
 			const observers::ObserverContext& context,
 			const ActivityBucketConsumer& commitAction,
 			const ActivityBucketConsumer& rollbackAction);
