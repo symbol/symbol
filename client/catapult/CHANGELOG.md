@@ -3,6 +3,24 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.9.5.1] - 22-May-2020
+
+### Added
+ - major: VRF support, harvesters need to register VRF key that is used to generate VRF proof for given block
+ - harvest network fees
+
+### Changed
+ - unlock message behavior: message must specify vrf key, account must be linked to a node via NodeKeyLink
+ - renamed AccountLinkTransaction to AccountKeyLinkTransaction (consistency)
+
+### Fixed:
+ - bugfix: issue #68, delay ChainedSocketReader in PacketReaders
+ - bugfix: issue #69, mosaic divisibility validation
+ - more minor fixes
+
+### Removed
+ - eventsource extension
+
 ## [0.9.4.1] - 23-April-2020
 
 ### Added
@@ -224,6 +242,8 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Added
 - Initial code release.
 
+[0.9.5.1]: https://github.com/nemtech/catapult-server/compare/v0.9.4.1...v0.9.5.1
+[0.9.4.1]: https://github.com/nemtech/catapult-server/compare/v0.9.3.2...v0.9.4.1
 [0.9.3.2]: https://github.com/nemtech/catapult-server/compare/v0.9.3.1...v0.9.3.2
 [0.9.3.1]: https://github.com/nemtech/catapult-server/compare/v0.9.2.1...v0.9.3.1
 [0.9.2.1]: https://github.com/nemtech/catapult-server/compare/v0.9.1.1...v0.9.2.1
