@@ -73,9 +73,9 @@ namespace catapult { namespace plugins {
 				EXPECT_EQ(transaction.RecipientAddress, notification.Address.unresolved());
 			});
 			builder.template addExpectation<AddressInteractionNotification>([&transaction](const auto& notification) {
-				EXPECT_EQ(model::GetSignerAddress(transaction), notification.Source);
+				EXPECT_EQ(GetSignerAddress(transaction), notification.Source);
 				EXPECT_EQ(transaction.Type, notification.TransactionType);
-				EXPECT_EQ(model::UnresolvedAddressSet{ transaction.RecipientAddress }, notification.ParticipantsByAddress);
+				EXPECT_EQ(UnresolvedAddressSet{ transaction.RecipientAddress }, notification.ParticipantsByAddress);
 			});
 		}
 	}
@@ -196,7 +196,7 @@ namespace catapult { namespace plugins {
 		AddCommonExpectations<TTraits>(builder, transaction);
 		for (auto i = 0u; i < 2u; ++i) {
 			builder.template addExpectation<BalanceTransferNotification>(i, [&transaction, i](const auto& notification) {
-				EXPECT_EQ(model::GetSignerAddress(transaction), notification.Sender);
+				EXPECT_EQ(GetSignerAddress(transaction), notification.Sender);
 				EXPECT_EQ(transaction.MosaicsPtr()[i].MosaicId, notification.MosaicId);
 				EXPECT_EQ(transaction.MosaicsPtr()[i].Amount, notification.Amount);
 				EXPECT_EQ(transaction.RecipientAddress, notification.Recipient);
@@ -255,7 +255,7 @@ namespace catapult { namespace plugins {
 		AddCommonExpectations<TTraits>(builder, transaction);
 		for (auto i = 0u; i < 3u; ++i) {
 			builder.template addExpectation<BalanceTransferNotification>(i, [&transaction, i](const auto& notification) {
-				EXPECT_EQ(model::GetSignerAddress(transaction), notification.Sender);
+				EXPECT_EQ(GetSignerAddress(transaction), notification.Sender);
 				EXPECT_EQ(transaction.MosaicsPtr()[i].MosaicId, notification.MosaicId);
 				EXPECT_EQ(transaction.MosaicsPtr()[i].Amount, notification.Amount);
 				EXPECT_EQ(transaction.RecipientAddress, notification.Recipient);

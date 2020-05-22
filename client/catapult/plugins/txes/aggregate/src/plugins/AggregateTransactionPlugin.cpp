@@ -95,7 +95,7 @@ namespace catapult { namespace plugins {
 					sub.notify(SourceChangeNotification(Relative, 0, Relative, 1));
 
 					// - signers and entity
-					model::PublishNotifications(subTransaction, sub);
+					PublishNotifications(subTransaction, sub);
 					const auto& plugin = m_transactionRegistry.findPlugin(subTransaction.Type)->embeddedPlugin();
 					auto subTransactionAttributes = plugin.attributes();
 
@@ -115,7 +115,7 @@ namespace catapult { namespace plugins {
 					// - specific sub-transaction notifications
 					//   (calculateRealSize would have failed if plugin is unknown or not embeddable)
 					PublishContext subContext;
-					subContext.SignerAddress = model::GetSignerAddress(subTransaction);
+					subContext.SignerAddress = GetSignerAddress(subTransaction);
 					plugin.publish(subTransaction, subContext, sub);
 				}
 

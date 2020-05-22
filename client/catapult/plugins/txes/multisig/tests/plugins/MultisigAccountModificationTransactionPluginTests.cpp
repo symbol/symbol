@@ -67,7 +67,7 @@ namespace catapult { namespace plugins {
 				EXPECT_EQ(transaction.MultisigAccountModificationTransactionBody_Reserved1, notification.Padding);
 			});
 			builder.template addExpectation<MultisigSettingsNotification>([&transaction](const auto& notification) {
-				EXPECT_EQ(model::GetSignerAddress(transaction), notification.Multisig);
+				EXPECT_EQ(GetSignerAddress(transaction), notification.Multisig);
 				EXPECT_EQ(transaction.MinRemovalDelta, notification.MinRemovalDelta);
 				EXPECT_EQ(transaction.MinApprovalDelta, notification.MinApprovalDelta);
 			});
@@ -134,23 +134,23 @@ namespace catapult { namespace plugins {
 			});
 
 			builder.template addExpectation<MultisigNewCosignatoryNotification>(i, [&transaction, i](const auto& notification) {
-				EXPECT_EQ(model::GetSignerAddress(transaction), notification.Multisig);
+				EXPECT_EQ(GetSignerAddress(transaction), notification.Multisig);
 				EXPECT_EQ(transaction.AddressAdditionsPtr()[i], notification.Cosignatory);
 			});
 		}
 
 		builder.template addExpectation<MultisigCosignatoriesNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(model::GetSignerAddress(transaction), notification.Multisig);
+			EXPECT_EQ(GetSignerAddress(transaction), notification.Multisig);
 			EXPECT_EQ(transaction.AddressAdditionsCount, notification.AddressAdditionsCount);
 			EXPECT_EQ(transaction.AddressAdditionsPtr(), notification.AddressAdditionsPtr);
 			EXPECT_EQ(transaction.AddressDeletionsCount, notification.AddressDeletionsCount);
 			EXPECT_EQ(transaction.AddressDeletionsPtr(), notification.AddressDeletionsPtr);
 		});
 		builder.template addExpectation<AddressInteractionNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(model::GetSignerAddress(transaction), notification.Source);
+			EXPECT_EQ(GetSignerAddress(transaction), notification.Source);
 			EXPECT_EQ(transaction.Type, notification.TransactionType);
 
-			model::UnresolvedAddressSet expectedParticipantsByAddress{
+			UnresolvedAddressSet expectedParticipantsByAddress{
 				transaction.AddressAdditionsPtr()[0],
 				transaction.AddressAdditionsPtr()[1]
 			};
@@ -186,7 +186,7 @@ namespace catapult { namespace plugins {
 		AddCommonExpectations<TTraits>(builder, transaction);
 
 		builder.template addExpectation<MultisigCosignatoriesNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(model::GetSignerAddress(transaction), notification.Multisig);
+			EXPECT_EQ(GetSignerAddress(transaction), notification.Multisig);
 			EXPECT_EQ(transaction.AddressAdditionsCount, notification.AddressAdditionsCount);
 			EXPECT_EQ(transaction.AddressAdditionsPtr(), notification.AddressAdditionsPtr);
 			EXPECT_EQ(transaction.AddressDeletionsCount, notification.AddressDeletionsCount);
@@ -234,23 +234,23 @@ namespace catapult { namespace plugins {
 			});
 
 			builder.template addExpectation<MultisigNewCosignatoryNotification>(i, [&transaction, i](const auto& notification) {
-				EXPECT_EQ(model::GetSignerAddress(transaction), notification.Multisig);
+				EXPECT_EQ(GetSignerAddress(transaction), notification.Multisig);
 				EXPECT_EQ(transaction.AddressAdditionsPtr()[i], notification.Cosignatory);
 			});
 		}
 
 		builder.template addExpectation<MultisigCosignatoriesNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(model::GetSignerAddress(transaction), notification.Multisig);
+			EXPECT_EQ(GetSignerAddress(transaction), notification.Multisig);
 			EXPECT_EQ(transaction.AddressAdditionsCount, notification.AddressAdditionsCount);
 			EXPECT_EQ(transaction.AddressAdditionsPtr(), notification.AddressAdditionsPtr);
 			EXPECT_EQ(transaction.AddressDeletionsCount, notification.AddressDeletionsCount);
 			EXPECT_EQ(transaction.AddressDeletionsPtr(), notification.AddressDeletionsPtr);
 		});
 		builder.template addExpectation<AddressInteractionNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(model::GetSignerAddress(transaction), notification.Source);
+			EXPECT_EQ(GetSignerAddress(transaction), notification.Source);
 			EXPECT_EQ(transaction.Type, notification.TransactionType);
 
-			model::UnresolvedAddressSet expectedParticipantsByAddress{
+			UnresolvedAddressSet expectedParticipantsByAddress{
 				transaction.AddressAdditionsPtr()[0],
 				transaction.AddressAdditionsPtr()[1]
 			};

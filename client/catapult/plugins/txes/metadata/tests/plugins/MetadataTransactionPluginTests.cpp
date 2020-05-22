@@ -199,7 +199,7 @@ namespace catapult { namespace plugins {
 		});
 		builder.template addExpectation<MetadataValueNotification>([&transaction](const auto& notification) {
 			// partial metadata key
-			EXPECT_EQ(model::GetSignerAddress(transaction), notification.PartialMetadataKey.SourceAddress);
+			EXPECT_EQ(GetSignerAddress(transaction), notification.PartialMetadataKey.SourceAddress);
 			EXPECT_EQ(transaction.TargetAddress, notification.PartialMetadataKey.TargetAddress);
 			EXPECT_EQ(transaction.ScopedMetadataKey, notification.PartialMetadataKey.ScopedMetadataKey);
 

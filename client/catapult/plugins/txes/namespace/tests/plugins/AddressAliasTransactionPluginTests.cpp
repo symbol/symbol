@@ -65,7 +65,7 @@ namespace catapult { namespace plugins {
 		builder.template addExpectation<NamespaceRequiredNotification>([&transaction](const auto& notification) {
 			EXPECT_TRUE(notification.Owner.isResolved());
 
-			EXPECT_EQ(model::GetSignerAddress(transaction), notification.Owner.resolved());
+			EXPECT_EQ(GetSignerAddress(transaction), notification.Owner.resolved());
 			EXPECT_EQ(transaction.NamespaceId, notification.NamespaceId);
 		});
 		builder.template addExpectation<AliasLinkNotification>([&transaction](const auto& notification) {

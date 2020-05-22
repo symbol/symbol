@@ -52,7 +52,7 @@ namespace catapult { namespace plugins {
 				}
 
 				// 3. registration
-				auto properties = model::MosaicProperties(transaction.Flags, transaction.Divisibility, transaction.Duration);
+				auto properties = MosaicProperties(transaction.Flags, transaction.Divisibility, transaction.Duration);
 				sub.notify(MosaicNonceNotification(context.SignerAddress, transaction.Nonce, transaction.Id));
 				sub.notify(MosaicPropertiesNotification(properties));
 				sub.notify(MosaicDefinitionNotification(context.SignerAddress, transaction.Id, properties));

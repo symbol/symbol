@@ -37,7 +37,7 @@ namespace catapult { namespace plugins {
 			sub.notify(AliasedMosaicIdNotification(transaction.NamespaceId, transaction.AliasAction, transaction.MosaicId));
 
 			// in case of unlink, the existence of the (possibly expired) mosaic is guaranteed
-			if (model::AliasAction::Link == transaction.AliasAction)
+			if (AliasAction::Link == transaction.AliasAction)
 				sub.notify(MosaicRequiredNotification(context.SignerAddress, transaction.MosaicId));
 		}
 	}

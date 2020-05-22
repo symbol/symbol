@@ -68,7 +68,7 @@ namespace catapult { namespace plugins {
 			EXPECT_TRUE(notification.Owner.isResolved());
 			EXPECT_FALSE(notification.MosaicId.isResolved());
 
-			EXPECT_EQ(model::GetSignerAddress(transaction), notification.Owner.resolved());
+			EXPECT_EQ(GetSignerAddress(transaction), notification.Owner.resolved());
 			EXPECT_EQ(transaction.MosaicId, notification.MosaicId.unresolved());
 			EXPECT_EQ(0x04u, notification.PropertyFlagMask);
 		});

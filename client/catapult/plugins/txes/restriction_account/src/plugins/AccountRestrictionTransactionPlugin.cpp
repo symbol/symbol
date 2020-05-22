@@ -46,8 +46,8 @@ namespace catapult { namespace plugins {
 		};
 
 		struct OperationTraits {
-			using UnresolvedValueType = model::EntityType;
-			using ResolvedValueType = model::EntityType;
+			using UnresolvedValueType = EntityType;
+			using ResolvedValueType = EntityType;
 			using ModifyAccountRestrictionsNotification = ModifyAccountOperationRestrictionsNotification;
 			using ModifyAccountRestrictionValueNotification = ModifyAccountOperationRestrictionValueNotification;
 		};

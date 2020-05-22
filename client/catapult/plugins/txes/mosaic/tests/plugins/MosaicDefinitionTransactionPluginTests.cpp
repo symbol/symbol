@@ -71,19 +71,19 @@ namespace catapult { namespace plugins {
 				EXPECT_EQ(config.SinkAddress, notification.Address.unresolved());
 			});
 			builder.template addExpectation<MosaicNonceNotification>([&transaction](const auto& notification) {
-				EXPECT_EQ(model::GetSignerAddress(transaction), notification.Owner);
+				EXPECT_EQ(GetSignerAddress(transaction), notification.Owner);
 				EXPECT_EQ(transaction.Nonce, notification.MosaicNonce);
 				EXPECT_EQ(transaction.Id, notification.MosaicId);
 			});
 			builder.template addExpectation<MosaicPropertiesNotification>([&transaction](const auto& notification) {
-				auto expectedProperties = model::MosaicProperties(transaction.Flags, transaction.Divisibility, transaction.Duration);
+				auto expectedProperties = MosaicProperties(transaction.Flags, transaction.Divisibility, transaction.Duration);
 				EXPECT_EQ(expectedProperties, notification.Properties);
 			});
 			builder.template addExpectation<MosaicDefinitionNotification>([&transaction](const auto& notification) {
-				EXPECT_EQ(model::GetSignerAddress(transaction), notification.Owner);
+				EXPECT_EQ(GetSignerAddress(transaction), notification.Owner);
 				EXPECT_EQ(transaction.Id, notification.MosaicId);
 
-				auto expectedProperties = model::MosaicProperties(transaction.Flags, transaction.Divisibility, transaction.Duration);
+				auto expectedProperties = MosaicProperties(transaction.Flags, transaction.Divisibility, transaction.Duration);
 				EXPECT_EQ(expectedProperties, notification.Properties);
 			});
 		}
@@ -153,14 +153,14 @@ namespace catapult { namespace plugins {
 		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
 		AddCommonExpectations<TTraits>(builder, config, transaction);
 		builder.template addExpectation<BalanceTransferNotification>([&config, &transaction](const auto& notification) {
-			EXPECT_EQ(model::GetSignerAddress(transaction), notification.Sender);
+			EXPECT_EQ(GetSignerAddress(transaction), notification.Sender);
 			EXPECT_EQ(config.SinkAddress, notification.Recipient);
 			EXPECT_EQ(config.CurrencyMosaicId, notification.MosaicId);
 			EXPECT_EQ(config.Fee, notification.Amount);
 			EXPECT_EQ(BalanceTransferNotification::AmountType::Dynamic, notification.TransferAmountType);
 		});
 		builder.template addExpectation<MosaicRentalFeeNotification>([&config, &transaction](const auto& notification) {
-			EXPECT_EQ(model::GetSignerAddress(transaction), notification.Sender);
+			EXPECT_EQ(GetSignerAddress(transaction), notification.Sender);
 			EXPECT_EQ(config.SinkAddress, notification.Recipient);
 			EXPECT_EQ(config.CurrencyMosaicId, notification.MosaicId);
 			EXPECT_EQ(config.Fee, notification.Amount);

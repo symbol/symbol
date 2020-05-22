@@ -66,12 +66,12 @@ namespace catapult { namespace plugins {
 			EXPECT_TRUE(notification.Owner.isResolved());
 			EXPECT_FALSE(notification.MosaicId.isResolved());
 
-			EXPECT_EQ(model::GetSignerAddress(transaction), notification.Owner.resolved());
+			EXPECT_EQ(GetSignerAddress(transaction), notification.Owner.resolved());
 			EXPECT_EQ(transaction.MosaicId, notification.MosaicId.unresolved());
 			EXPECT_EQ(0u, notification.PropertyFlagMask);
 		});
 		builder.template addExpectation<MosaicSupplyChangeNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(model::GetSignerAddress(transaction), notification.Owner);
+			EXPECT_EQ(GetSignerAddress(transaction), notification.Owner);
 			EXPECT_EQ(transaction.MosaicId, notification.MosaicId);
 			EXPECT_EQ(transaction.Action, notification.Action);
 			EXPECT_EQ(transaction.Delta, notification.Delta);
