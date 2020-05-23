@@ -46,7 +46,7 @@ namespace catapult { namespace plugins {
 
 			template<typename TTransaction>
 			static void RaiseCustomNotifications(const TTransaction& transaction, NotificationSubscriber& sub) {
-				sub.notify(AccountAddressNotification(transaction.TargetAddress.template copyTo<UnresolvedAddress>()));
+				sub.notify(AccountAddressNotification(transaction.TargetAddress));
 			}
 		};
 

@@ -128,7 +128,9 @@ namespace catapult { namespace plugins {
 
 		for (auto i = 0u; i < 2; ++i) {
 			builder.template addExpectation<AccountAddressNotification>(i, [&transaction, i](const auto& notification) {
-				EXPECT_EQ(transaction.AddressAdditionsPtr()[i].template copyTo<UnresolvedAddress>(), notification.Address);
+				EXPECT_TRUE(notification.Address.isResolved());
+
+				EXPECT_EQ(transaction.AddressAdditionsPtr()[i], notification.Address.resolved());
 			});
 
 			builder.template addExpectation<MultisigNewCosignatoryNotification>(i, [&transaction, i](const auto& notification) {
@@ -226,7 +228,9 @@ namespace catapult { namespace plugins {
 
 		for (auto i = 0u; i < 2; ++i) {
 			builder.template addExpectation<AccountAddressNotification>(i, [&transaction, i](const auto& notification) {
-				EXPECT_EQ(transaction.AddressAdditionsPtr()[i].template copyTo<UnresolvedAddress>(), notification.Address);
+				EXPECT_TRUE(notification.Address.isResolved());
+
+				EXPECT_EQ(transaction.AddressAdditionsPtr()[i], notification.Address.resolved());
 			});
 
 			builder.template addExpectation<MultisigNewCosignatoryNotification>(i, [&transaction, i](const auto& notification) {

@@ -79,7 +79,9 @@ namespace catapult { namespace plugins {
 				const NamespaceRentalFeeConfiguration& config,
 				const typename TTraits::TransactionType& transaction) {
 			builder.template addExpectation<AccountAddressNotification>([&config](const auto& notification) {
-				EXPECT_EQ(config.SinkAddress, notification.Address);
+				EXPECT_FALSE(notification.Address.isResolved());
+
+				EXPECT_EQ(config.SinkAddress, notification.Address.unresolved());
 			});
 			builder.template addExpectation<NamespaceRegistrationNotification>([&transaction](const auto& notification) {
 				EXPECT_EQ(transaction.RegistrationType, notification.RegistrationType);
@@ -235,7 +237,9 @@ namespace catapult { namespace plugins {
 				const NamespaceRentalFeeConfiguration& config,
 				const typename TTraits::TransactionType& transaction) {
 			builder.template addExpectation<AccountAddressNotification>([&config](const auto& notification) {
-				EXPECT_EQ(config.SinkAddress, notification.Address);
+				EXPECT_FALSE(notification.Address.isResolved());
+
+				EXPECT_EQ(config.SinkAddress, notification.Address.unresolved());
 			});
 			builder.template addExpectation<NamespaceRegistrationNotification>([&transaction](const auto& notification) {
 				EXPECT_EQ(transaction.RegistrationType, notification.RegistrationType);

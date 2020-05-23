@@ -44,7 +44,7 @@ namespace catapult { namespace plugins {
 					auto unresolvedAddress = pAddressAdditions[i].template copyTo<UnresolvedAddress>();
 					addedCosignatories.insert(unresolvedAddress);
 
-					sub.notify(AccountAddressNotification(unresolvedAddress));
+					sub.notify(AccountAddressNotification(pAddressAdditions[i]));
 					sub.notify(MultisigNewCosignatoryNotification(context.SignerAddress, pAddressAdditions[i]));
 				}
 

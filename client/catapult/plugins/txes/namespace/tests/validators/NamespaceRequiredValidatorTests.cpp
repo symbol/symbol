@@ -121,4 +121,16 @@ namespace catapult { namespace validators {
 			cache.insert(state::RootNamespace(Default_Namespace_Id, owner, lifetime));
 		});
 	}
+
+	TEST(TEST_CLASS, SuccessWhenNamespaceActiveAndOwnerMatches_UnresolvedAddress) {
+		// Arrange:
+		auto owner = test::CreateRandomOwner();
+		NamespaceRequiredNotification notification(test::UnresolveXor(owner), Default_Namespace_Id);
+
+		// Assert:
+		RunAvailabilityTest(ValidationResult::Success, notification, [&owner](auto& cache) {
+			auto lifetime = test::CreateLifetime(100, 300 + Grace_Period_Duration.unwrap());
+			cache.insert(state::RootNamespace(Default_Namespace_Id, owner, lifetime));
+		});
+	}
 }}

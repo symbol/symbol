@@ -67,7 +67,9 @@ namespace catapult { namespace plugins {
 
 		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
 		builder.template addExpectation<AccountAddressNotification>([&transaction](const auto& notification) {
-			EXPECT_EQ(transaction.RecipientAddress, notification.Address);
+			EXPECT_FALSE(notification.Address.isResolved());
+
+			EXPECT_EQ(transaction.RecipientAddress, notification.Address.unresolved());
 		});
 		builder.template addExpectation<SecretLockDurationNotification>([&transaction](const auto& notification) {
 			EXPECT_EQ(transaction.Duration, notification.Duration);

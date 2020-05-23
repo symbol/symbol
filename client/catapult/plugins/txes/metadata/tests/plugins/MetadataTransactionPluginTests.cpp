@@ -62,7 +62,9 @@ namespace catapult { namespace plugins {
 
 			static void AddCustomExpectations(PublishTestBuilder& builder, const TTransaction& transaction) {
 				builder.template addExpectation<AccountAddressNotification>([&transaction](const auto& notification) {
-					EXPECT_EQ(transaction.TargetAddress.template copyTo<UnresolvedAddress>(), notification.Address);
+					EXPECT_TRUE(notification.Address.isResolved());
+
+					EXPECT_EQ(transaction.TargetAddress, notification.Address.resolved());
 				});
 			}
 		};
@@ -91,11 +93,12 @@ namespace catapult { namespace plugins {
 
 			static void AddCustomExpectations(PublishTestBuilder& builder, const TTransaction& transaction) {
 				builder.template addExpectation<MosaicRequiredNotification>([&transaction](const auto& notification) {
-					EXPECT_EQ(transaction.TargetAddress, notification.Owner);
-					EXPECT_EQ(MosaicId(), notification.MosaicId);
-					EXPECT_EQ(transaction.TargetMosaicId, notification.UnresolvedMosaicId);
+					EXPECT_TRUE(notification.Owner.isResolved());
+					EXPECT_FALSE(notification.MosaicId.isResolved());
+
+					EXPECT_EQ(transaction.TargetAddress, notification.Owner.resolved());
+					EXPECT_EQ(transaction.TargetMosaicId, notification.MosaicId.unresolved());
 					EXPECT_EQ(0u, notification.PropertyFlagMask);
-					EXPECT_EQ(MosaicRequiredNotification::MosaicType::Unresolved, notification.ProvidedMosaicType);
 				});
 			}
 		};
@@ -124,7 +127,9 @@ namespace catapult { namespace plugins {
 
 			static void AddCustomExpectations(PublishTestBuilder& builder, const TTransaction& transaction) {
 				builder.template addExpectation<NamespaceRequiredNotification>([&transaction](const auto& notification) {
-					EXPECT_EQ(transaction.TargetAddress, notification.Owner);
+					EXPECT_TRUE(notification.Owner.isResolved());
+
+					EXPECT_EQ(transaction.TargetAddress, notification.Owner.resolved());
 					EXPECT_EQ(transaction.TargetNamespaceId, notification.NamespaceId);
 				});
 			}

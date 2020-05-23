@@ -46,7 +46,7 @@ namespace catapult { namespace model {
 		public:
 			void publish(const WeakEntityInfo& entityInfo, NotificationSubscriber& sub) const {
 				for (const auto& address : m_options.SpecialAccountAddresses)
-					sub.notify(AccountAddressNotification(address.copyTo<UnresolvedAddress>()));
+					sub.notify(AccountAddressNotification(address));
 
 				m_pPublisher->publish(entityInfo, sub);
 			}

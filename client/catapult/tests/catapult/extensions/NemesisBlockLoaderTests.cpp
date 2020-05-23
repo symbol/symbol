@@ -653,11 +653,9 @@ namespace catapult { namespace extensions {
 			auto nemesisOptions = NemesisOptions{ Importance(1234), Amount() };
 
 			// - create the state
-			//   since XOR address resolver is used in tests, unresolve sink address so it can be roundtripped
-			//   note that test resolver doesnt't check if an address is resolvable or not; it always resolves
 			auto config = CreateDefaultConfiguration(*nemesisBlockSignerPair.pBlock, nemesisOptions);
 			config.HarvestNetworkPercentage = harvestNetworkPercentage;
-			config.HarvestNetworkFeeSinkAddress = test::UnresolveXor(harvestNetworkFeeSinkAddress).copyTo<Address>();
+			config.HarvestNetworkFeeSinkAddress = harvestNetworkFeeSinkAddress;
 			test::LocalNodeTestState state(config);
 			SetNemesisBlock(state.ref().Storage, nemesisBlockSignerPair, config.Network, NemesisBlockModification::None);
 

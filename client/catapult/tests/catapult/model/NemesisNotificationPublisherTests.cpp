@@ -85,7 +85,7 @@ namespace catapult { namespace model {
 					pMockSubscriber->notificationTypes());
 
 			for (const auto& address : specialAccountAddresses)
-				EXPECT_TRUE(pMockSubscriber->contains(address.copyTo<UnresolvedAddress>()));
+				EXPECT_TRUE(pMockSubscriber->contains(address));
 		}
 	}
 

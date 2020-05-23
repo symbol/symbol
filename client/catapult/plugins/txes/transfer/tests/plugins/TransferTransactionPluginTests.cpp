@@ -68,7 +68,9 @@ namespace catapult { namespace plugins {
 				EXPECT_EQ(expectedPadding, notification.Padding);
 			});
 			builder.template addExpectation<AccountAddressNotification>([&transaction](const auto& notification) {
-				EXPECT_EQ(transaction.RecipientAddress, notification.Address);
+				EXPECT_FALSE(notification.Address.isResolved());
+
+				EXPECT_EQ(transaction.RecipientAddress, notification.Address.unresolved());
 			});
 			builder.template addExpectation<AddressInteractionNotification>([&transaction](const auto& notification) {
 				EXPECT_EQ(model::GetSignerAddress(transaction), notification.Source);

@@ -28,10 +28,11 @@ namespace catapult { namespace validators {
 
 	DEFINE_STATEFUL_VALIDATOR(Address, [](const Notification& notification, const ValidatorContext& context) {
 		auto networkIdentifier = context.Network.Identifier;
-		if (utils::to_underlying_type(networkIdentifier) != (notification.Address[0] & 0xFE))
+		auto address = notification.Address.resolved(context.Resolvers);
+		if (utils::to_underlying_type(networkIdentifier) != (address[0] & 0xFE))
 			return Failure_Core_Invalid_Address;
 
-		auto isValidAddress = model::IsValidAddress(context.Resolvers.resolve(notification.Address), networkIdentifier);
+		auto isValidAddress = model::IsValidAddress(address, networkIdentifier);
 		return isValidAddress ? ValidationResult::Success : Failure_Core_Invalid_Address;
 	});
 }}

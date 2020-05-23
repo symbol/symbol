@@ -23,7 +23,6 @@
 #include "src/model/MosaicNotifications.h"
 #include "catapult/utils/MemoryUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
-#include "tests/test/core/ResolverTestUtils.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
 #include "tests/TestHarness.h"
@@ -67,7 +66,9 @@ namespace catapult { namespace plugins {
 				const MosaicRentalFeeConfiguration& config,
 				const typename TTraits::TransactionType& transaction) {
 			builder.template addExpectation<AccountAddressNotification>([&config](const auto& notification) {
-				EXPECT_EQ(config.SinkAddress, notification.Address);
+				EXPECT_FALSE(notification.Address.isResolved());
+
+				EXPECT_EQ(config.SinkAddress, notification.Address.unresolved());
 			});
 			builder.template addExpectation<MosaicNonceNotification>([&transaction](const auto& notification) {
 				EXPECT_EQ(model::GetSignerAddress(transaction), notification.Owner);

@@ -666,7 +666,7 @@ class MultiConditionChecker(SimpleValidator):
             return False
 
         # allow implicit constructors for some types
-        if 'TestBlockTransactions' == match.group(1):
+        if match.group(1) in ['Resolvable', 'TestBlockTransactions']:
             return False
 
         return True

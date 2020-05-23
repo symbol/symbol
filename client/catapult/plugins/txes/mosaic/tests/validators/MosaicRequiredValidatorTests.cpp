@@ -28,7 +28,7 @@
 
 namespace catapult { namespace validators {
 
-#define TEST_CLASS RequiredMosaicValidatorTests
+#define TEST_CLASS MosaicRequiredValidatorTests
 
 	DEFINE_COMMON_VALIDATOR_TESTS(RequiredMosaic,)
 
@@ -41,7 +41,7 @@ namespace catapult { namespace validators {
 
 		struct UnresolvedMosaicTraits {
 			// custom resolver doubles unresolved mosaic ids
-			static constexpr auto Default_Id = UnresolvedMosaicId(55);
+			static constexpr auto Default_Id = UnresolvedMosaicId(110 ^ 0xFFFF'FFFF'FFFF'FFFF);
 		};
 	}
 
@@ -59,7 +59,7 @@ namespace catapult { namespace validators {
 				ValidationResult expectedResult,
 				TMosaicId affectedMosaicId,
 				Height height,
-				const Address& notificationOwner,
+				const model::ResolvableAddress& notificationOwner,
 				const Address& artifactOwner) {
 			// Arrange:
 			auto pValidator = CreateRequiredMosaicValidator();
@@ -74,9 +74,6 @@ namespace catapult { namespace validators {
 
 			auto readOnlyCache = delta.toReadOnly();
 			auto context = test::CreateValidatorContext(height, readOnlyCache);
-
-			// - set up a custom mosaic id resolver
-			const_cast<model::ResolverContext&>(context.Resolvers) = test::CreateResolverContextWithCustomDoublingMosaicResolver();
 
 			// Act:
 			auto result = test::ValidateNotification(*pValidator, notification, context);
@@ -109,6 +106,11 @@ namespace catapult { namespace validators {
 
 	MOSAIC_ID_TRAITS_BASED_TEST(SuccessWhenMosaicIsActiveAndOwnerMatches) {
 		AssertValidationResult(ValidationResult::Success, TTraits::Default_Id, Height(100));
+	}
+
+	MOSAIC_ID_TRAITS_BASED_TEST(SuccessWhenMosaicIsActiveAndOwnerMatches_UnresolvedAddress) {
+		auto owner = test::CreateRandomOwner();
+		AssertValidationResult(ValidationResult::Success, TTraits::Default_Id, Height(100), test::UnresolveXor(owner), owner);
 	}
 
 	// endregion
@@ -145,9 +147,6 @@ namespace catapult { namespace validators {
 
 			auto readOnlyCache = delta.toReadOnly();
 			auto context = test::CreateValidatorContext(height, readOnlyCache);
-
-			// - set up a custom mosaic id resolver
-			const_cast<model::ResolverContext&>(context.Resolvers) = test::CreateResolverContextWithCustomDoublingMosaicResolver();
 
 			// Act:
 			auto result = test::ValidateNotification(*pValidator, notification, context);

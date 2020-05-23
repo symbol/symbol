@@ -32,8 +32,8 @@ namespace catapult { namespace harvesting {
 			{}
 
 		public:
-			void visit(const UnresolvedAddress& address) {
-				notify(m_context.Resolvers.resolve(address));
+			void visit(const model::ResolvableAddress& address) {
+				notify(address.resolved(m_context.Resolvers));
 			}
 
 			void visit(const Key& publicKey) {

@@ -24,6 +24,7 @@
 #include "LinkAction.h"
 #include "NetworkIdentifier.h"
 #include "NotificationType.h"
+#include "Resolvable.h"
 #include "catapult/utils/ArraySet.h"
 #include "catapult/utils/TimeSpan.h"
 #include "catapult/plugins.h"
@@ -63,14 +64,14 @@ namespace catapult { namespace model {
 
 	public:
 		/// Creates a notification around \a address.
-		explicit AccountAddressNotification(const UnresolvedAddress& address)
+		explicit AccountAddressNotification(const ResolvableAddress& address)
 				: Notification(Notification_Type, sizeof(AccountAddressNotification))
 				, Address(address)
 		{}
 
 	public:
-		/// Address.
-		UnresolvedAddress Address;
+		/// Address (resolvable).
+		ResolvableAddress Address;
 	};
 
 	/// Notification of use of an account public key.
@@ -415,47 +416,27 @@ namespace catapult { namespace model {
 	/// Notification of a required mosaic.
 	struct MosaicRequiredNotification : public Notification {
 	public:
-		/// Mosaic types.
-		enum class MosaicType { Resolved, Unresolved };
-
-	public:
 		/// Matching notification type.
 		static constexpr auto Notification_Type = Core_Mosaic_Required_Notification;
 
 	public:
 		/// Creates a notification around \a owner, \a mosaicId and optional \a propertyFlagMask.
-		MosaicRequiredNotification(const Address& owner, MosaicId mosaicId, uint8_t propertyFlagMask = 0)
+		MosaicRequiredNotification(const ResolvableAddress& owner, const ResolvableMosaicId& mosaicId, uint8_t propertyFlagMask = 0)
 				: Notification(Notification_Type, sizeof(MosaicRequiredNotification))
 				, Owner(owner)
 				, MosaicId(mosaicId)
 				, PropertyFlagMask(propertyFlagMask)
-				, ProvidedMosaicType(MosaicType::Resolved)
-		{}
-
-		/// Creates a notification around \a owner, \a mosaicId and optional \a propertyFlagMask.
-		MosaicRequiredNotification(const Address& owner, UnresolvedMosaicId mosaicId, uint8_t propertyFlagMask = 0)
-				: Notification(Notification_Type, sizeof(MosaicRequiredNotification))
-				, Owner(owner)
-				, UnresolvedMosaicId(mosaicId)
-				, PropertyFlagMask(propertyFlagMask)
-				, ProvidedMosaicType(MosaicType::Unresolved)
 		{}
 
 	public:
-		/// Mosaic owner.
-		Address Owner;
+		/// Mosaic owner (resolvable).
+		ResolvableAddress Owner;
 
-		/// Mosaic id (resolved).
-		catapult::MosaicId MosaicId;
-
-		/// Mosaic id (unresolved).
-		catapult::UnresolvedMosaicId UnresolvedMosaicId;
+		/// Mosaic id (resolvable).
+		ResolvableMosaicId MosaicId;
 
 		/// Mask of required property flags that must be set on the mosaic.
 		uint8_t PropertyFlagMask;
-
-		/// Type of mosaic provided and attached to this notification.
-		MosaicType ProvidedMosaicType;
 	};
 
 	// endregion
