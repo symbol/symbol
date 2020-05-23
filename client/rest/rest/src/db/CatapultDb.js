@@ -209,10 +209,10 @@ class CatapultDb {
 			conditions.push({ [options.sortField]: { [1 === options.sortDirection ? '$gt' : '$lt']: new ObjectId(options.offset) } });
 
 		if (signerPublicKey)
-			conditions.push({ 'block.signerPublicKey': signerPublicKey });
+			conditions.push({ 'block.signerPublicKey': Buffer.from(signerPublicKey) });
 
 		if (beneficiaryPublicKey)
-			conditions.push({ 'block.beneficiaryPublicKey': beneficiaryPublicKey });
+			conditions.push({ 'block.beneficiaryPublicKey': Buffer.from(beneficiaryPublicKey) });
 
 		const sortConditions = { $sort: { [options.sortField]: options.sortDirection } };
 

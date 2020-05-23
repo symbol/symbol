@@ -161,7 +161,10 @@ describe('catapult db', () => {
 		const createBlock = (objectId, height, signerPublicKey, beneficiaryPublicKey) => ({
 			_id: createObjectId(objectId),
 			meta: { height },
-			block: { signerPublicKey, beneficiaryPublicKey }
+			block: {
+				signerPublicKey: signerPublicKey ? Buffer.from(signerPublicKey) : undefined,
+				beneficiaryPublicKey: beneficiaryPublicKey ? Buffer.from(beneficiaryPublicKey) : undefined
+			}
 		});
 
 		const runTestAndVerifyIds = (dbBlocks, dbQuery, expectedIds) => {
@@ -1559,11 +1562,11 @@ describe('catapult db', () => {
 			_id: createObjectId(objectId),
 			meta: {
 				height,
-				addresses: addresses.map(a => new Binary(a))
+				addresses: addresses.map(a => Buffer.from(a))
 			},
 			transaction: {
-				signerPublicKey,
-				recipientAddress,
+				signerPublicKey: signerPublicKey ? Buffer.from(signerPublicKey) : undefined,
+				recipientAddress: recipientAddress ? Buffer.from(recipientAddress) : undefined,
 				type
 			}
 		});
@@ -1572,8 +1575,8 @@ describe('catapult db', () => {
 			_id: createObjectId(objectId),
 			meta: { aggregateId: createObjectId(aggregateId) },
 			transaction: {
-				signerPublicKey,
-				recipientAddress,
+				signerPublicKey: signerPublicKey ? Buffer.from(signerPublicKey) : undefined,
+				recipientAddress: recipientAddress ? Buffer.from(recipientAddress) : undefined,
 				type
 			}
 		});

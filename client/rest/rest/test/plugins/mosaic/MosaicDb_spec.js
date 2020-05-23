@@ -46,7 +46,7 @@ describe('mosaic db', () => {
 
 		const createMosaic = (objectId, mosaicId, ownerAddress) => ({
 			_id: createObjectId(objectId),
-			mosaic: { id: mosaicId, ownerAddress }
+			mosaic: { id: mosaicId, ownerAddress: ownerAddress ? Buffer.from(ownerAddress) : undefined }
 		});
 
 		const runTestAndVerifyIds = (dbMosaics, dbQuery, expectedIds) => {
