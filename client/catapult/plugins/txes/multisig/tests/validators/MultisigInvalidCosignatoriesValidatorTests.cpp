@@ -52,8 +52,8 @@ namespace catapult { namespace validators {
 
 		void AssertMultisigAccountIsUnknown(
 				ValidationResult expectedResult,
-				const std::vector<Address>& addressAdditions,
-				const std::vector<Address>& addressDeletions) {
+				const std::vector<UnresolvedAddress>& addressAdditions,
+				const std::vector<UnresolvedAddress>& addressDeletions) {
 			// Arrange:
 			auto multisig = test::GenerateRandomByteArray<Address>();
 			auto notification = CreateNotification(multisig, addressAdditions, addressDeletions);
@@ -66,14 +66,14 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, CanAddCosignatoriesWhenAccountIsUnknown) {
-		AssertMultisigAccountIsUnknown(ValidationResult::Success, test::GenerateRandomDataVector<Address>(3), {});
+		AssertMultisigAccountIsUnknown(ValidationResult::Success, test::GenerateRandomDataVector<UnresolvedAddress>(3), {});
 	}
 
 	TEST(TEST_CLASS, CannotRemoveCosignatoryWhenAccountIsUnknown) {
 		AssertMultisigAccountIsUnknown(
 				Failure_Multisig_Unknown_Multisig_Account,
-				test::GenerateRandomDataVector<Address>(3),
-				test::GenerateRandomDataVector<Address>(1));
+				test::GenerateRandomDataVector<UnresolvedAddress>(3),
+				test::GenerateRandomDataVector<UnresolvedAddress>(1));
 	}
 
 	namespace {
@@ -89,17 +89,17 @@ namespace catapult { namespace validators {
 		};
 
 		void AssertCosignatoriesModifications(ValidationResult expectedResult, const std::vector<OperationAndType>& settings) {
-			// Arrange: first address is multisig account
-			auto addresses = test::GenerateRandomDataVector<Address>(1 + settings.size());
-			const auto& multisig = addresses[0];
+			// Arrange:
+			auto multisig = test::GenerateRandomByteArray<Address>();
+			auto addresses = test::GenerateRandomDataVector<UnresolvedAddress>(settings.size());
 
-			std::vector<Address> addressAdditions;
-			std::vector<Address> addressDeletions;
+			std::vector<UnresolvedAddress> addressAdditions;
+			std::vector<UnresolvedAddress> addressDeletions;
 			for (auto i = 0u; i < settings.size(); ++i) {
 				if (CosignatoryModificationAction::Add == settings[i].Operation)
-					addressAdditions.push_back(addresses[1 + i]);
+					addressAdditions.push_back(addresses[i]);
 				else
-					addressDeletions.push_back(addresses[1 + i]);
+					addressDeletions.push_back(addresses[i]);
 			}
 
 			auto notification = CreateNotification(multisig, addressAdditions, addressDeletions);
@@ -113,7 +113,7 @@ namespace catapult { namespace validators {
 				auto& cosignatories = multisigDelta.find(multisig).get().cosignatoryAddresses();
 				for (auto i = 0u; i < settings.size(); ++i) {
 					if (CosignatoryType::Existing == settings[i].Type)
-						cosignatories.insert(addresses[1 + i]);
+						cosignatories.insert(test::CreateResolverContextXor().resolve(addresses[i]));
 				}
 
 				cache.commit(Height(1));

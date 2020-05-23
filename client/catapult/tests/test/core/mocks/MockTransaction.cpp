@@ -90,8 +90,8 @@ namespace catapult { namespace mocks {
 		return pTransaction;
 	}
 
-	AddressSet ExtractAdditionalRequiredCosignatories(const EmbeddedMockTransaction& transaction) {
-		return { Address{ { 1 } }, GetRecipientAddress(transaction), Address{ { 2 } } };
+	UnresolvedAddressSet ExtractAdditionalRequiredCosignatories(const EmbeddedMockTransaction& transaction) {
+		return { UnresolvedAddress{ { 1 } }, GetRecipientAddress(transaction).copyTo<UnresolvedAddress>(), UnresolvedAddress{ { 2 } } };
 	}
 
 	bool IsPluginOptionFlagSet(PluginOptionFlags options, PluginOptionFlags flag) {
@@ -164,8 +164,8 @@ namespace catapult { namespace mocks {
 			{}
 
 		public:
-			AddressSet additionalRequiredCosignatories(const EmbeddedTransaction&) const override {
-				return AddressSet();
+			UnresolvedAddressSet additionalRequiredCosignatories(const EmbeddedTransaction&) const override {
+				return UnresolvedAddressSet();
 			}
 
 			void publish(

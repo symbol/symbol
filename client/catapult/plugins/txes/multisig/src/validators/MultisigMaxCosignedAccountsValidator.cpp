@@ -31,7 +31,7 @@ namespace catapult { namespace validators {
 				const Notification& notification,
 				const ValidatorContext& context) {
 			const auto& multisigCache = context.Cache.sub<cache::MultisigCache>();
-			auto multisigIter = multisigCache.find(notification.Cosignatory);
+			auto multisigIter = multisigCache.find(context.Resolvers.resolve(notification.Cosignatory));
 
 			if (!multisigIter.tryGet())
 				return ValidationResult::Success;

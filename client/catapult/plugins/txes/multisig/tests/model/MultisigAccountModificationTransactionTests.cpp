@@ -80,7 +80,7 @@ namespace catapult { namespace model {
 	namespace {
 		struct MultisigAccountModificationTransactionTraits {
 			static auto GenerateEntityWithAttachments(uint8_t numAdditions, uint8_t numDeletions) {
-				uint32_t entitySize = sizeof(TransactionType) + (numAdditions + numDeletions) * Address::Size;
+				uint32_t entitySize = sizeof(TransactionType) + (numAdditions + numDeletions) * UnresolvedAddress::Size;
 				auto pTransaction = utils::MakeUniqueWithSize<TransactionType>(entitySize);
 				pTransaction->Size = entitySize;
 				pTransaction->AddressAdditionsCount = numAdditions;
@@ -89,7 +89,7 @@ namespace catapult { namespace model {
 			}
 
 			static constexpr size_t GetAttachment1Size(uint8_t numAdditions) {
-				return numAdditions * Address::Size;
+				return numAdditions * UnresolvedAddress::Size;
 			}
 
 			template<typename TEntity>
@@ -121,7 +121,7 @@ namespace catapult { namespace model {
 		auto realSize = TransactionType::CalculateRealSize(transaction);
 
 		// Assert:
-		EXPECT_EQ(sizeof(TransactionType) + 11 * Address::Size, realSize);
+		EXPECT_EQ(sizeof(TransactionType) + 11 * UnresolvedAddress::Size, realSize);
 	}
 
 	TEST(TEST_CLASS, CalculateRealSizeDoesNotOverflowWithMaxValues) {
@@ -136,7 +136,7 @@ namespace catapult { namespace model {
 
 		// Assert:
 		ASSERT_EQ(0xFFFFFFFF, transaction.Size);
-		EXPECT_EQ(sizeof(TransactionType) + (0xFF + 0xFF) * Address::Size, realSize);
+		EXPECT_EQ(sizeof(TransactionType) + (0xFF + 0xFF) * UnresolvedAddress::Size, realSize);
 		EXPECT_GT(0xFFFFFFFF, realSize);
 	}
 
@@ -152,7 +152,7 @@ namespace catapult { namespace model {
 		auto additionalCosignatories = ExtractAdditionalRequiredCosignatories(*pTransaction);
 
 		// Assert:
-		EXPECT_EQ(AddressSet(), additionalCosignatories);
+		EXPECT_EQ(UnresolvedAddressSet(), additionalCosignatories);
 	}
 
 	TEST(TEST_CLASS, ExtractAdditionalRequiredCosignatories_AddModifications) {
@@ -164,7 +164,7 @@ namespace catapult { namespace model {
 
 		// Assert:
 		const auto* pAddressAdditions = pTransaction->AddressAdditionsPtr();
-		EXPECT_EQ(AddressSet({ pAddressAdditions[0], pAddressAdditions[1] }), additionalCosignatories);
+		EXPECT_EQ(UnresolvedAddressSet({ pAddressAdditions[0], pAddressAdditions[1] }), additionalCosignatories);
 	}
 
 	TEST(TEST_CLASS, ExtractAdditionalRequiredCosignatories_DelModifications) {
@@ -175,7 +175,7 @@ namespace catapult { namespace model {
 		auto additionalCosignatories = ExtractAdditionalRequiredCosignatories(*pTransaction);
 
 		// Assert:
-		EXPECT_EQ(AddressSet(), additionalCosignatories);
+		EXPECT_EQ(UnresolvedAddressSet(), additionalCosignatories);
 	}
 
 	TEST(TEST_CLASS, ExtractAdditionalRequiredCosignatories_AddAndDelModifications) {
@@ -187,7 +187,7 @@ namespace catapult { namespace model {
 
 		// Assert:
 		const auto* pAddressAdditions = pTransaction->AddressAdditionsPtr();
-		EXPECT_EQ(AddressSet({ pAddressAdditions[0], pAddressAdditions[1] }), additionalCosignatories);
+		EXPECT_EQ(UnresolvedAddressSet({ pAddressAdditions[0], pAddressAdditions[1] }), additionalCosignatories);
 	}
 
 	// endregion

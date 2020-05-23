@@ -137,7 +137,11 @@ namespace catapult { namespace model {
 		auto additionalCosignatories = pPlugin->additionalRequiredCosignatories(transaction);
 
 		// Assert: cosignatories are forwarded from ExtractAdditionalRequiredCosignatories
-		AddressSet expectedAdditionalCosignatories{ Address{ { 1 } }, Address{ { 2 } }, mocks::GetRecipientAddress(transaction) };
+		UnresolvedAddressSet expectedAdditionalCosignatories{
+			UnresolvedAddress{ { 1 } },
+			UnresolvedAddress{ { 2 } },
+			mocks::GetRecipientAddress(transaction).copyTo<UnresolvedAddress>()
+		};
 		EXPECT_EQ(expectedAdditionalCosignatories, additionalCosignatories);
 	}
 }}

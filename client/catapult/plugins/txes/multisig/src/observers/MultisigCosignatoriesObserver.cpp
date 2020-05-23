@@ -35,9 +35,13 @@ namespace catapult { namespace observers {
 
 		class MultisigAccountFacade {
 		public:
-			MultisigAccountFacade(cache::MultisigCacheDelta& multisigCache, const Address& multisig)
+			MultisigAccountFacade(
+					cache::MultisigCacheDelta& multisigCache,
+					const Address& multisig,
+					const model::ResolverContext& resolvers)
 					: m_multisigCache(multisigCache)
 					, m_multisig(multisig)
+					, m_resolvers(resolvers)
 					, m_multisigIter(GetMultisigEntry(m_multisigCache, m_multisig))
 					, m_multisigEntry(m_multisigIter.get())
 			{}
@@ -47,6 +51,15 @@ namespace catapult { namespace observers {
 			}
 
 		public:
+			void addCosignatory(const UnresolvedAddress& cosignatory) {
+				addCosignatory(m_resolvers.resolve(cosignatory));
+			}
+
+			void removeCosignatory(const UnresolvedAddress& cosignatory) {
+				removeCosignatory(m_resolvers.resolve(cosignatory));
+			}
+
+		private:
 			void addCosignatory(const Address& cosignatory) {
 				auto multisigIter = GetMultisigEntry(m_multisigCache, cosignatory);
 				multisigIter.get().multisigAddresses().insert(m_multisig);
@@ -63,7 +76,6 @@ namespace catapult { namespace observers {
 				removeIfEmpty(cosignatoryEntry, cosignatory);
 			}
 
-		private:
 			void removeIfEmpty(const state::MultisigEntry& entry, const Address& address) {
 				if (entry.cosignatoryAddresses().empty() && entry.multisigAddresses().empty())
 					m_multisigCache.remove(address);
@@ -72,11 +84,12 @@ namespace catapult { namespace observers {
 		private:
 			cache::MultisigCacheDelta& m_multisigCache;
 			const Address& m_multisig;
+			const model::ResolverContext& m_resolvers;
 			cache::MultisigCacheDelta::iterator m_multisigIter;
 			state::MultisigEntry& m_multisigEntry;
 		};
 
-		void AddAll(MultisigAccountFacade& multisigAccountFacade, const Address* pAddresses, uint8_t count, bool shouldAdd) {
+		void AddAll(MultisigAccountFacade& multisigAccountFacade, const UnresolvedAddress* pAddresses, uint8_t count, bool shouldAdd) {
 			for (auto i = 0u; i < count; ++i) {
 				const auto& cosignatory = pAddresses[i];
 				if (shouldAdd)
@@ -89,7 +102,7 @@ namespace catapult { namespace observers {
 
 	DEFINE_OBSERVER(MultisigCosignatories, Notification, [](const Notification& notification, const ObserverContext& context) {
 		auto& multisigCache = context.Cache.sub<cache::MultisigCache>();
-		MultisigAccountFacade multisigAccountFacade(multisigCache, notification.Multisig);
+		MultisigAccountFacade multisigAccountFacade(multisigCache, notification.Multisig, context.Resolvers);
 
 		auto isCommitMode = NotifyMode::Commit == context.Mode;
 		AddAll(multisigAccountFacade, notification.AddressAdditionsPtr, notification.AddressAdditionsCount, isCommitMode);

@@ -55,8 +55,8 @@ namespace catapult { namespace validators {
 				cache.commit(Height());
 			}
 
-			auto addressAdditions = test::GenerateRandomDataVector<Address>(numAdditions);
-			auto addressDeletions = test::GenerateRandomDataVector<Address>(numDeletions);
+			auto addressAdditions = test::GenerateRandomDataVector<UnresolvedAddress>(numAdditions);
+			auto addressDeletions = test::GenerateRandomDataVector<UnresolvedAddress>(numDeletions);
 			auto notification = test::CreateMultisigCosignatoriesNotification(multisig, addressAdditions, addressDeletions);
 			auto pValidator = CreateMultisigMaxCosignatoriesValidator(maxCosignatoriesPerAccount);
 

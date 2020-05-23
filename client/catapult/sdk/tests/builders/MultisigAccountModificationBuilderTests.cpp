@@ -39,11 +39,14 @@ namespace catapult { namespace builders {
 		public:
 			int8_t MinRemovalDelta;
 			int8_t MinApprovalDelta;
-			std::vector<Address> AddressAdditions;
-			std::vector<Address> AddressDeletions;
+			std::vector<UnresolvedAddress> AddressAdditions;
+			std::vector<UnresolvedAddress> AddressDeletions;
 		};
 
-		void AssertAddresses(const std::vector<Address>& expectedAddresses, const Address* pAddresses, uint16_t count) {
+		void AssertAddresses(
+				const std::vector<UnresolvedAddress>& expectedAddresses,
+				const UnresolvedAddress* pAddresses,
+				uint16_t count) {
 			ASSERT_EQ(expectedAddresses.size(), count);
 
 			auto i = 0u;
@@ -133,11 +136,11 @@ namespace catapult { namespace builders {
 	TRAITS_BASED_TEST(CanAddSingleAddressAddition) {
 		// Arrange:
 		auto expectedProperties = TransactionProperties();
-		expectedProperties.AddressAdditions = test::GenerateRandomDataVector<Address>(1);
+		expectedProperties.AddressAdditions = test::GenerateRandomDataVector<UnresolvedAddress>(1);
 		const auto& addressAdditions = expectedProperties.AddressAdditions;
 
 		// Assert:
-		AssertCanBuildTransaction<TTraits>(Address::Size, expectedProperties, [&addressAdditions](auto& builder) {
+		AssertCanBuildTransaction<TTraits>(UnresolvedAddress::Size, expectedProperties, [&addressAdditions](auto& builder) {
 			for (const auto& address : addressAdditions)
 				builder.addAddressAddition(address);
 		});
@@ -146,11 +149,11 @@ namespace catapult { namespace builders {
 	TRAITS_BASED_TEST(CanAddSingleAddressDeletion) {
 		// Arrange:
 		auto expectedProperties = TransactionProperties();
-		expectedProperties.AddressDeletions = test::GenerateRandomDataVector<Address>(1);
+		expectedProperties.AddressDeletions = test::GenerateRandomDataVector<UnresolvedAddress>(1);
 		const auto& addressDeletions = expectedProperties.AddressDeletions;
 
 		// Assert:
-		AssertCanBuildTransaction<TTraits>(Address::Size, expectedProperties, [&addressDeletions](auto& builder) {
+		AssertCanBuildTransaction<TTraits>(UnresolvedAddress::Size, expectedProperties, [&addressDeletions](auto& builder) {
 			for (const auto& address : addressDeletions)
 				builder.addAddressDeletion(address);
 		});
@@ -161,13 +164,14 @@ namespace catapult { namespace builders {
 		auto expectedProperties = TransactionProperties();
 		expectedProperties.MinRemovalDelta = -3;
 		expectedProperties.MinApprovalDelta = 3;
-		expectedProperties.AddressAdditions = test::GenerateRandomDataVector<Address>(4);
-		expectedProperties.AddressDeletions = test::GenerateRandomDataVector<Address>(2);
+		expectedProperties.AddressAdditions = test::GenerateRandomDataVector<UnresolvedAddress>(4);
+		expectedProperties.AddressDeletions = test::GenerateRandomDataVector<UnresolvedAddress>(2);
 		const auto& addressAdditions = expectedProperties.AddressAdditions;
 		const auto& addressDeletions = expectedProperties.AddressDeletions;
 
 		// Assert:
-		AssertCanBuildTransaction<TTraits>(6 * Address::Size, expectedProperties, [&addressAdditions, addressDeletions](auto& builder) {
+		AssertCanBuildTransaction<TTraits>(6 * UnresolvedAddress::Size, expectedProperties, [&addressAdditions, addressDeletions](
+				auto& builder) {
 			builder.setMinRemovalDelta(-3);
 			builder.setMinApprovalDelta(3);
 

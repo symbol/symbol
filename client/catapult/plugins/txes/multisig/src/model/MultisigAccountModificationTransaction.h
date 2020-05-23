@@ -53,10 +53,10 @@ namespace catapult { namespace model {
 		uint32_t MultisigAccountModificationTransactionBody_Reserved1;
 
 		// followed by additions data if AddressAdditionsCount != 0
-		DEFINE_TRANSACTION_VARIABLE_DATA_ACCESSORS(AddressAdditions, Address)
+		DEFINE_TRANSACTION_VARIABLE_DATA_ACCESSORS(AddressAdditions, UnresolvedAddress)
 
 		// followed by deletions data if AddressDeletionsCount != 0
-		DEFINE_TRANSACTION_VARIABLE_DATA_ACCESSORS(AddressDeletions, Address)
+		DEFINE_TRANSACTION_VARIABLE_DATA_ACCESSORS(AddressDeletions, UnresolvedAddress)
 
 	private:
 		template<typename T>
@@ -84,11 +84,10 @@ namespace catapult { namespace model {
 #pragma pack(pop)
 
 	/// Extracts addresses of additional accounts that must approve \a transaction.
-	inline AddressSet ExtractAdditionalRequiredCosignatories(const EmbeddedMultisigAccountModificationTransaction& transaction) {
-		AddressSet addedCosignatories;
-		const auto* pAddressAdditions = transaction.AddressAdditionsPtr();
+	inline UnresolvedAddressSet ExtractAdditionalRequiredCosignatories(const EmbeddedMultisigAccountModificationTransaction& transaction) {
+		UnresolvedAddressSet addedCosignatories;
 		for (auto i = 0u; i < transaction.AddressAdditionsCount; ++i)
-			addedCosignatories.insert(pAddressAdditions[i]);
+			addedCosignatories.insert(transaction.AddressAdditionsPtr()[i]);
 
 		return addedCosignatories;
 	}

@@ -56,9 +56,9 @@ namespace catapult { namespace model {
 		MultisigCosignatoriesNotification(
 				const Address& multisig,
 				uint8_t addressAdditionsCount,
-				const Address* pAddressAdditions,
+				const UnresolvedAddress* pAddressAdditions,
 				uint8_t addressDeletionsCount,
-				const Address* pAddressDeletions)
+				const UnresolvedAddress* pAddressDeletions)
 				: Notification(Notification_Type, sizeof(MultisigCosignatoriesNotification))
 				, Multisig(multisig)
 				, AddressAdditionsCount(addressAdditionsCount)
@@ -75,13 +75,13 @@ namespace catapult { namespace model {
 		uint8_t AddressAdditionsCount;
 
 		/// Const pointer to the first address to add as cosignatory.
-		const Address* AddressAdditionsPtr;
+		const UnresolvedAddress* AddressAdditionsPtr;
 
 		/// Number of cosignatory address deletions.
 		uint8_t AddressDeletionsCount;
 
 		/// Const pointer to the first address to remove as cosignatory.
-		const Address* AddressDeletionsPtr;
+		const UnresolvedAddress* AddressDeletionsPtr;
 	};
 
 	// endregion
@@ -96,7 +96,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Creates a notification around \a multisig and \a cosignatory.
-		MultisigNewCosignatoryNotification(const Address& multisig, const Address& cosignatory)
+		MultisigNewCosignatoryNotification(const Address& multisig, const UnresolvedAddress& cosignatory)
 				: Notification(Notification_Type, sizeof(MultisigNewCosignatoryNotification))
 				, Multisig(multisig)
 				, Cosignatory(cosignatory)
@@ -107,7 +107,7 @@ namespace catapult { namespace model {
 		Address Multisig;
 
 		/// New cosignatory account.
-		Address Cosignatory;
+		UnresolvedAddress Cosignatory;
 	};
 
 	// endregion

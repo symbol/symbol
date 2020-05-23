@@ -36,6 +36,14 @@ namespace catapult { namespace observers {
 
 		constexpr auto CreateNotification = test::CreateMultisigCosignatoriesNotification;
 
+		std::vector<UnresolvedAddress> ToUnresolvedAddresses(const std::vector<Address>& addresses) {
+			std::vector<UnresolvedAddress> unresolvedAddresses;
+			for (const auto& address : addresses)
+				unresolvedAddresses.push_back(test::UnresolveXor(address));
+
+			return unresolvedAddresses;
+		}
+
 		void LinkMultisigWithCosignatory(cache::MultisigCacheDelta& cache, const Address& multisig, const Address& cosignatory) {
 			if (!cache.contains(cosignatory))
 				cache.insert(state::MultisigEntry(cosignatory));
@@ -179,7 +187,6 @@ namespace catapult { namespace observers {
 					const Notification& notification,
 					const std::vector<size_t>& finalUnknownAccounts,
 					const std::vector<MultisigDescriptor>& finalMultisigAccounts) {
-
 				RunTest(
 						notification,
 						ObserverTestContext(NotifyMode::Commit, Height(777)),
@@ -201,7 +208,6 @@ namespace catapult { namespace observers {
 					const Notification& notification,
 					const std::vector<size_t>& finalUnknownAccounts,
 					const std::vector<MultisigDescriptor>& finalMultisigAccounts) {
-
 				RunTest(
 						notification,
 						ObserverTestContext(NotifyMode::Rollback, Height(777)),
@@ -226,31 +232,34 @@ namespace catapult { namespace observers {
 	NOTIFY_MODE_BASED_TRAITS(CanAddCosignatories) {
 		// Arrange:
 		auto addresses = test::GenerateRandomDataVector<Address>(10);
-		auto addressAdditions = std::vector<Address>{ addresses[1], addresses[2], addresses[3] };
-		auto notification = CreateNotification(addresses[0], addressAdditions, std::vector<Address>());
+		auto addressAdditions = ToUnresolvedAddresses({ addresses[1], addresses[2], addresses[3] });
+		auto addressDeletions = std::vector<UnresolvedAddress>();
+		auto notification = CreateNotification(addresses[0], addressAdditions, addressDeletions);
 
 		// Act + Assert:
-		TTraits::RunMultisigTest(addresses, { 0, 1, 2, 3 }, {}, notification, {}, {{ 0, { 1, 2, 3 } }});
+		TTraits::RunMultisigTest(addresses, { 0, 1, 2, 3 }, {}, notification, {}, { { 0, { 1, 2, 3 } } });
 	}
 
 	NOTIFY_MODE_BASED_TRAITS(CanConvertCosignatoryToMultisigAccount) {
 		// Arrange:
 		auto addresses = test::GenerateRandomDataVector<Address>(10);
-		auto addressAdditions = std::vector<Address>{ addresses[3], addresses[4] };
-		auto notification = CreateNotification(addresses[1], addressAdditions, std::vector<Address>());
+		auto addressAdditions = ToUnresolvedAddresses({ addresses[3], addresses[4] });
+		auto addressDeletions = std::vector<UnresolvedAddress>();
+		auto notification = CreateNotification(addresses[1], addressAdditions, addressDeletions);
 
 		// Act + Assert:
-		TTraits::RunMultisigTest(addresses, { 3, 4 }, {{ 0, { 1, 2 } }}, notification, {}, {{ 0, { 1, 2 } }, { 1, { 3, 4 } }, });
+		TTraits::RunMultisigTest(addresses, { 3, 4 }, { { 0, { 1, 2 } } }, notification, {}, { { 0, { 1, 2 } }, { 1, { 3, 4 } } });
 	}
 
 	NOTIFY_MODE_BASED_TRAITS(CanAddMultisigAccountAsACosignatory) {
 		// Arrange:
 		auto addresses = test::GenerateRandomDataVector<Address>(10);
-		auto addressAdditions = std::vector<Address>{ addresses[1], addresses[4] };
-		auto notification = CreateNotification(addresses[0], addressAdditions, std::vector<Address>());
+		auto addressAdditions = ToUnresolvedAddresses({ addresses[1], addresses[4] });
+		auto addressDeletions = std::vector<UnresolvedAddress>();
+		auto notification = CreateNotification(addresses[0], addressAdditions, addressDeletions);
 
 		// Act + Assert:
-		TTraits::RunMultisigTest(addresses, { 0, 4 }, {{ 1, { 2, 3 } }}, notification, {}, {{ 0, { 1, 4 } }, { 1, { 2, 3 } }, });
+		TTraits::RunMultisigTest(addresses, { 0, 4 }, { { 1, { 2, 3 } } }, notification, {}, { { 0, { 1, 4 } }, { 1, { 2, 3 } } });
 	}
 
 	// endregion
@@ -260,12 +269,12 @@ namespace catapult { namespace observers {
 	NOTIFY_MODE_BASED_TRAITS(CanAddAndRemoveCosignatories) {
 		// Arrange:
 		auto addresses = test::GenerateRandomDataVector<Address>(10);
-		auto addressAdditions = std::vector<Address>{ addresses[1], addresses[4] };
-		auto addressDeletions = std::vector<Address>{ addresses[2], addresses[3] };
+		auto addressAdditions = ToUnresolvedAddresses({ addresses[1], addresses[4] });
+		auto addressDeletions = ToUnresolvedAddresses({ addresses[2], addresses[3] });
 		auto notification = CreateNotification(addresses[0], addressAdditions, addressDeletions);
 
 		// Act + Assert:
-		TTraits::RunMultisigTest(addresses, { 1, 4 }, {{ 0, { 2, 3 } }}, notification, { 2, 3 }, {{ 0, { 1, 4 } }});
+		TTraits::RunMultisigTest(addresses, { 1, 4 }, { { 0, { 2, 3 } } }, notification, { 2, 3 }, { { 0, { 1, 4 } } });
 	}
 
 	// endregion
@@ -275,51 +284,56 @@ namespace catapult { namespace observers {
 	NOTIFY_MODE_BASED_TRAITS(RemovingCosignatory_RemovesCosignatoryWithNoLinks_RemovesMultisigAccountWithNoLinks) {
 		// Arrange:
 		auto addresses = test::GenerateRandomDataVector<Address>(10);
-		auto addressDeletions = std::vector<Address>{ addresses[1] };
-		auto notification = CreateNotification(addresses[0], std::vector<Address>(), addressDeletions);
+		auto addressAdditions = std::vector<UnresolvedAddress>();
+		auto addressDeletions = ToUnresolvedAddresses({ addresses[1] });
+		auto notification = CreateNotification(addresses[0], addressAdditions, addressDeletions);
 
 		// Act + Assert:
-		TTraits::RunMultisigTest(addresses, {}, {{ 0, { 1 } }}, notification, { 0, 1 }, {});
+		TTraits::RunMultisigTest(addresses, {}, { { 0, { 1 } } }, notification, { 0, 1 }, {});
 	}
 
 	NOTIFY_MODE_BASED_TRAITS(RemovingCosignatory_RemovesCosignatoryWithNoLinks_LeavesMultisigAccountWithCosignatories) {
 		// Arrange:
 		auto addresses = test::GenerateRandomDataVector<Address>(10);
-		auto addressDeletions = std::vector<Address>{ addresses[2] };
-		auto notification = CreateNotification(addresses[0], std::vector<Address>(), addressDeletions);
+		auto addressAdditions = std::vector<UnresolvedAddress>();
+		auto addressDeletions = ToUnresolvedAddresses({ addresses[2] });
+		auto notification = CreateNotification(addresses[0], addressAdditions, addressDeletions);
 
 		// Act + Assert:
-		TTraits::RunMultisigTest(addresses, {}, {{ 0, { 1, 2 } }}, notification, { 2 }, {{ 0, { 1 } }});
+		TTraits::RunMultisigTest(addresses, {}, { { 0, { 1, 2 } } }, notification, { 2 }, { { 0, { 1 } } });
 	}
 
 	NOTIFY_MODE_BASED_TRAITS(RemovingCosignatory_RemovesCosignatoryWithNoLinks_LeavesMultisigAccountWithMultisigAccounts) {
 		// Arrange:
 		auto addresses = test::GenerateRandomDataVector<Address>(10);
-		auto addressDeletions = std::vector<Address>{ addresses[2] };
-		auto notification = CreateNotification(addresses[1], std::vector<Address>(), addressDeletions);
+		auto addressAdditions = std::vector<UnresolvedAddress>();
+		auto addressDeletions = ToUnresolvedAddresses({ addresses[2] });
+		auto notification = CreateNotification(addresses[1], addressAdditions, addressDeletions);
 
 		// Act + Assert:
-		TTraits::RunMultisigTest(addresses, {}, {{ 0, { 1 } }, { 1, { 2 } }}, notification, { 2 }, {{ 0, { 1 } }});
+		TTraits::RunMultisigTest(addresses, {}, { { 0, { 1 } }, { 1, { 2 } } }, notification, { 2 }, { { 0, { 1 } } });
 	}
 
 	NOTIFY_MODE_BASED_TRAITS(RemovingCosignatory_LeavesCosignatoryWithCosignatories_RemovesMultisigAccountWitNoLinks) {
 		// Arrange:
 		auto addresses = test::GenerateRandomDataVector<Address>(10);
-		auto addressDeletions = std::vector<Address>{ addresses[1] };
-		auto notification = CreateNotification(addresses[0], std::vector<Address>(), addressDeletions);
+		auto addressAdditions = std::vector<UnresolvedAddress>();
+		auto addressDeletions = ToUnresolvedAddresses({ addresses[1] });
+		auto notification = CreateNotification(addresses[0], addressAdditions, addressDeletions);
 
 		// Act + Assert:
-		TTraits::RunMultisigTest(addresses, {}, {{ 0, { 1 } }, { 1, { 2 } }}, notification, { 0 }, {{ 1, { 2 } }});
+		TTraits::RunMultisigTest(addresses, {}, { { 0, { 1 } }, { 1, { 2 } } }, notification, { 0 }, { { 1, { 2 } } });
 	}
 
 	NOTIFY_MODE_BASED_TRAITS(RemovingCosignatory_LeavesCosignatoryWithMultisigAccounts_RemovesMultisigAccountWithNoLinks) {
 		// Arrange:
 		auto addresses = test::GenerateRandomDataVector<Address>(10);
-		auto addressDeletions = std::vector<Address>{ addresses[2] };
-		auto notification = CreateNotification(addresses[0], std::vector<Address>(), addressDeletions);
+		auto addressAdditions = std::vector<UnresolvedAddress>();
+		auto addressDeletions = ToUnresolvedAddresses({ addresses[2] });
+		auto notification = CreateNotification(addresses[0], addressAdditions, addressDeletions);
 
 		// Act + Assert:
-		TTraits::RunMultisigTest(addresses, {}, {{ 0, { 2 } }, { 1, { 2 } }}, notification, { 0 }, {{ 1, { 2 } }});
+		TTraits::RunMultisigTest(addresses, {}, { { 0, { 2 } }, { 1, { 2 } } }, notification, { 0 }, { { 1, { 2 } } });
 	}
 
 	// endregion

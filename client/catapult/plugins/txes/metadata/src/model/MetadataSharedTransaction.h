@@ -29,7 +29,7 @@ namespace catapult { namespace model {
 	template<typename THeader>
 	struct MetadataTransactionHeader : public THeader {
 		/// Metadata target address.
-		Address TargetAddress;
+		UnresolvedAddress TargetAddress;
 
 		/// Metadata key scoped to source, target and type.
 		uint64_t ScopedMetadataKey;

@@ -37,17 +37,9 @@ namespace catapult { namespace validators {
 	namespace {
 		constexpr auto Failure_Result = Failure_Aggregate_Ineligible_Cosignatories;
 
-		Address ToAddress(const Key& publicKey) {
-			return model::PublicKeyToAddress(publicKey, model::NetworkIdentifier::Zero);
-		}
-
-		std::vector<Address> ToAddresses(const std::vector<Key>& publicKeys) {
-			std::vector<Address> addresses;
-			for (const auto& publicKey : publicKeys)
-				addresses.push_back(ToAddress(publicKey));
-
-			return addresses;
-		}
+		constexpr auto ToAddress = test::NetworkAddressConversions<>::ToAddress;
+		constexpr auto ToAddresses = test::NetworkAddressConversions<>::ToAddresses;
+		constexpr auto ToUnresolvedAddresses = test::NetworkAddressConversions<>::ToUnresolvedAddresses;
 
 		auto CreateTransactionRegistry() {
 			// use a registry with mock and multilevel multisig transactions registered
@@ -309,8 +301,8 @@ namespace catapult { namespace validators {
 		auto publicKeyDeletions = test::GenerateRandomDataVector<Key>(2);
 		auto pTransaction = test::CreateMultisigAccountModificationTransaction(
 				signer,
-				ToAddresses(publicKeyAdditions),
-				ToAddresses(publicKeyDeletions));
+				ToUnresolvedAddresses(publicKeyAdditions),
+				ToUnresolvedAddresses(publicKeyDeletions));
 		auto cache = test::MultisigCacheFactory::Create();
 
 		// Assert: added accounts are eligible cosignatories even though they aren't in the multisig cache
@@ -328,8 +320,8 @@ namespace catapult { namespace validators {
 		auto publicKeyDeletions = test::GenerateRandomDataVector<Key>(2);
 		auto pTransaction = test::CreateMultisigAccountModificationTransaction(
 				signer,
-				ToAddresses(publicKeyAdditions),
-				ToAddresses(publicKeyDeletions));
+				ToUnresolvedAddresses(publicKeyAdditions),
+				ToUnresolvedAddresses(publicKeyDeletions));
 		auto cache = test::MultisigCacheFactory::Create();
 
 		// Assert: deleted accounts do not have any special eligibility privileges
@@ -344,7 +336,7 @@ namespace catapult { namespace validators {
 		// Arrange: delete the (original eligible) embedded tx signer
 		auto signer = test::GenerateRandomByteArray<Key>();
 		auto pTransaction = test::CreateMultisigAccountModificationTransaction(signer, 2, 2);
-		pTransaction->AddressDeletionsPtr()[0] = ToAddress(signer);
+		pTransaction->AddressDeletionsPtr()[0] = test::UnresolveXor(ToAddress(signer));
 		auto cache = test::MultisigCacheFactory::Create();
 
 		// Assert: existing eligibility is retained

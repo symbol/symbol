@@ -55,11 +55,11 @@ namespace catapult { namespace validators {
 					const Notification& notification,
 					const model::TransactionRegistry& transactionRegistry,
 					const cache::MultisigCache::CacheReadOnlyType& multisigCache,
-					model::NetworkIdentifier networkIdentifier)
+					const ValidatorContext& context)
 					: m_notification(notification)
 					, m_transactionRegistry(transactionRegistry)
 					, m_multisigCache(multisigCache)
-					, m_networkIdentifier(networkIdentifier) {
+					, m_context(context) {
 				m_cosignatories.emplace(toAddress(m_notification.SignerPublicKey));
 				for (auto i = 0u; i < m_notification.CosignaturesCount; ++i)
 					m_cosignatories.emplace(toAddress(m_notification.CosignaturesPtr[i].SignerPublicKey));
@@ -67,9 +67,7 @@ namespace catapult { namespace validators {
 
 		public:
 			bool hasSufficientCosignatories() {
-				const auto& transactionPlugin = m_transactionRegistry.findPlugin(m_notification.Transaction.Type)->embeddedPlugin();
-				auto requiredAddresses = transactionPlugin.additionalRequiredCosignatories(m_notification.Transaction);
-				requiredAddresses.emplace(toAddress(m_notification.Transaction.SignerPublicKey));
+				auto requiredAddresses = findRequiredAddresses();
 
 				auto operationType = GetOperationType(m_notification.Transaction);
 				return std::all_of(requiredAddresses.cbegin(), requiredAddresses.cend(), [this, operationType](const auto& address) {
@@ -79,7 +77,19 @@ namespace catapult { namespace validators {
 
 		private:
 			Address toAddress(const Key& publicKey) const {
-				return model::PublicKeyToAddress(publicKey, m_networkIdentifier);
+				return model::PublicKeyToAddress(publicKey, m_context.Network.Identifier);
+			}
+
+			model::AddressSet findRequiredAddresses() const {
+				const auto& transactionPlugin = m_transactionRegistry.findPlugin(m_notification.Transaction.Type)->embeddedPlugin();
+				auto requiredUnresolvedAddresses = transactionPlugin.additionalRequiredCosignatories(m_notification.Transaction);
+
+				model::AddressSet requiredAddresses;
+				requiredAddresses.emplace(toAddress(m_notification.Transaction.SignerPublicKey));
+				for (const auto& address : requiredUnresolvedAddresses)
+					requiredAddresses.emplace(m_context.Resolvers.resolve(address));
+
+				return requiredAddresses;
 			}
 
 			bool isSatisfied(const Address& address, OperationType operationType) {
@@ -106,7 +116,7 @@ namespace catapult { namespace validators {
 			const Notification& m_notification;
 			const model::TransactionRegistry& m_transactionRegistry;
 			const cache::MultisigCache::CacheReadOnlyType& m_multisigCache;
-			model::NetworkIdentifier m_networkIdentifier;
+			const ValidatorContext& m_context;
 			model::AddressSet m_cosignatories;
 		};
 	}
@@ -117,7 +127,7 @@ namespace catapult { namespace validators {
 				const Notification& notification,
 				const ValidatorContext& context) {
 			const auto& multisigCache = context.Cache.sub<cache::MultisigCache>();
-			AggregateCosignaturesChecker checker(notification, transactionRegistry, multisigCache, context.Network.Identifier);
+			AggregateCosignaturesChecker checker(notification, transactionRegistry, multisigCache, context);
 			return checker.hasSufficientCosignatories() ? ValidationResult::Success : Failure_Aggregate_Missing_Cosignatures;
 		});
 	}

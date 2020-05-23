@@ -34,7 +34,7 @@ namespace catapult { namespace plugins {
 
 	namespace {
 		template<typename TTransaction>
-		PartialMetadataKey ExtractPartialMetadataKey(const TTransaction& transaction, const PublishContext& context) {
+		UnresolvedPartialMetadataKey ExtractPartialMetadataKey(const TTransaction& transaction, const PublishContext& context) {
 			return { context.SignerAddress, transaction.TargetAddress, transaction.ScopedMetadataKey };
 		}
 

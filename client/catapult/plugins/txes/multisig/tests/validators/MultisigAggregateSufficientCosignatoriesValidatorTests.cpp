@@ -37,17 +37,9 @@ namespace catapult { namespace validators {
 	namespace {
 		constexpr auto Failure_Result = Failure_Aggregate_Missing_Cosignatures;
 
-		Address ToAddress(const Key& publicKey) {
-			return model::PublicKeyToAddress(publicKey, model::NetworkIdentifier::Zero);
-		}
-
-		std::vector<Address> ToAddresses(const std::vector<Key>& publicKeys) {
-			std::vector<Address> addresses;
-			for (const auto& publicKey : publicKeys)
-				addresses.push_back(ToAddress(publicKey));
-
-			return addresses;
-		}
+		constexpr auto ToAddress = test::NetworkAddressConversions<>::ToAddress;
+		constexpr auto ToAddresses = test::NetworkAddressConversions<>::ToAddresses;
+		constexpr auto ToUnresolvedAddresses = test::NetworkAddressConversions<>::ToUnresolvedAddresses;
 
 		void AssertValidationResult(
 				ValidationResult expectedResult,
@@ -344,8 +336,8 @@ namespace catapult { namespace validators {
 			auto publicKeyDeletions = test::GenerateRandomDataVector<Key>(numDeletions);
 			auto pSubTransaction = test::CreateMultisigAccountModificationTransaction(
 					embeddedSigner,
-					ToAddresses(publicKeyAdditions),
-					ToAddresses(publicKeyDeletions));
+					ToUnresolvedAddresses(publicKeyAdditions),
+					ToUnresolvedAddresses(publicKeyDeletions));
 
 			// - create the cache making the embedded signer a single level multisig
 			auto cache = CreateCacheWithSingleLevelMultisig(embeddedSigner, cosignatories, minApproval, minRemoval);
@@ -456,8 +448,8 @@ namespace catapult { namespace validators {
 			auto publicKeyDeletions = test::GenerateRandomDataVector<Key>(numDeletions);
 			auto pSubTransaction = test::CreateMultisigAccountModificationTransaction(
 					embeddedSigner,
-					ToAddresses(publicKeyAdditions),
-					ToAddresses(publicKeyDeletions));
+					ToUnresolvedAddresses(publicKeyAdditions),
+					ToUnresolvedAddresses(publicKeyDeletions));
 
 			// - create the cache making the embedded signer a single level multisig
 			auto cache = test::MultisigCacheFactory::Create();

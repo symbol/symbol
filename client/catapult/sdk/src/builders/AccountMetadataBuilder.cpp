@@ -30,7 +30,7 @@ namespace catapult { namespace builders {
 			, m_value()
 	{}
 
-	void AccountMetadataBuilder::setTargetAddress(const Address& targetAddress) {
+	void AccountMetadataBuilder::setTargetAddress(const UnresolvedAddress& targetAddress) {
 		m_targetAddress = targetAddress;
 	}
 

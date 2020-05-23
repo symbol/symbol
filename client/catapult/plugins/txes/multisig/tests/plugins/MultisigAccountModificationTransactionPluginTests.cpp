@@ -128,9 +128,9 @@ namespace catapult { namespace plugins {
 
 		for (auto i = 0u; i < 2; ++i) {
 			builder.template addExpectation<AccountAddressNotification>(i, [&transaction, i](const auto& notification) {
-				EXPECT_TRUE(notification.Address.isResolved());
+				EXPECT_FALSE(notification.Address.isResolved());
 
-				EXPECT_EQ(transaction.AddressAdditionsPtr()[i], notification.Address.resolved());
+				EXPECT_EQ(transaction.AddressAdditionsPtr()[i], notification.Address.unresolved());
 			});
 
 			builder.template addExpectation<MultisigNewCosignatoryNotification>(i, [&transaction, i](const auto& notification) {
@@ -151,8 +151,8 @@ namespace catapult { namespace plugins {
 			EXPECT_EQ(transaction.Type, notification.TransactionType);
 
 			model::UnresolvedAddressSet expectedParticipantsByAddress{
-				transaction.AddressAdditionsPtr()[0].template copyTo<UnresolvedAddress>(),
-				transaction.AddressAdditionsPtr()[1].template copyTo<UnresolvedAddress>()
+				transaction.AddressAdditionsPtr()[0],
+				transaction.AddressAdditionsPtr()[1]
 			};
 			EXPECT_EQ(expectedParticipantsByAddress, notification.ParticipantsByAddress);
 		});
@@ -228,9 +228,9 @@ namespace catapult { namespace plugins {
 
 		for (auto i = 0u; i < 2; ++i) {
 			builder.template addExpectation<AccountAddressNotification>(i, [&transaction, i](const auto& notification) {
-				EXPECT_TRUE(notification.Address.isResolved());
+				EXPECT_FALSE(notification.Address.isResolved());
 
-				EXPECT_EQ(transaction.AddressAdditionsPtr()[i], notification.Address.resolved());
+				EXPECT_EQ(transaction.AddressAdditionsPtr()[i], notification.Address.unresolved());
 			});
 
 			builder.template addExpectation<MultisigNewCosignatoryNotification>(i, [&transaction, i](const auto& notification) {
@@ -251,8 +251,8 @@ namespace catapult { namespace plugins {
 			EXPECT_EQ(transaction.Type, notification.TransactionType);
 
 			model::UnresolvedAddressSet expectedParticipantsByAddress{
-				transaction.AddressAdditionsPtr()[0].template copyTo<UnresolvedAddress>(),
-				transaction.AddressAdditionsPtr()[1].template copyTo<UnresolvedAddress>()
+				transaction.AddressAdditionsPtr()[0],
+				transaction.AddressAdditionsPtr()[1]
 			};
 			EXPECT_EQ(expectedParticipantsByAddress, notification.ParticipantsByAddress);
 		});
@@ -275,7 +275,7 @@ namespace catapult { namespace plugins {
 
 		// Assert:
 		const auto* pAddressAdditions = pTransaction->AddressAdditionsPtr();
-		EXPECT_EQ(AddressSet({ pAddressAdditions[0], pAddressAdditions[1] }), additionalCosignatories);
+		EXPECT_EQ(UnresolvedAddressSet({ pAddressAdditions[0], pAddressAdditions[1] }), additionalCosignatories);
 	}
 
 	// endregion

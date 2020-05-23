@@ -93,7 +93,7 @@ namespace catapult { namespace test {
 			targetId = UnresolveXor(MosaicId(targetId)).unwrap();
 
 		return model::MetadataValueNotification(
-				{ metadataKey.sourceAddress(), metadataKey.targetAddress(), metadataKey.scopedMetadataKey() },
+				{ metadataKey.sourceAddress(), UnresolveXor(metadataKey.targetAddress()), metadataKey.scopedMetadataKey() },
 				{ metadataKey.metadataType(), targetId },
 				valueSizeDelta,
 				valueSize,

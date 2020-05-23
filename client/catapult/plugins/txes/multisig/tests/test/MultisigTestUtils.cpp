@@ -41,17 +41,17 @@ namespace catapult { namespace test {
 			uint8_t numDeletions) {
 		return CreateMultisigAccountModificationTransaction(
 				signer,
-				GenerateRandomDataVector<Address>(numAdditions),
-				GenerateRandomDataVector<Address>(numDeletions));
+				GenerateRandomDataVector<UnresolvedAddress>(numAdditions),
+				GenerateRandomDataVector<UnresolvedAddress>(numDeletions));
 	}
 
 	std::unique_ptr<model::EmbeddedMultisigAccountModificationTransaction> CreateMultisigAccountModificationTransaction(
 			const Key& signer,
-			const std::vector<Address>& addressAdditions,
-			const std::vector<Address>& addressDeletions) {
+			const std::vector<UnresolvedAddress>& addressAdditions,
+			const std::vector<UnresolvedAddress>& addressDeletions) {
 		using TransactionType = model::EmbeddedMultisigAccountModificationTransaction;
 		uint32_t entitySize = sizeof(TransactionType);
-		entitySize += static_cast<uint32_t>((addressAdditions.size() + addressDeletions.size()) * Address::Size);
+		entitySize += static_cast<uint32_t>((addressAdditions.size() + addressDeletions.size()) * UnresolvedAddress::Size);
 
 		auto pTransaction = utils::MakeUniqueWithSize<TransactionType>(entitySize);
 		FillWithRandomData({ reinterpret_cast<uint8_t*>(pTransaction.get()), entitySize });
@@ -69,8 +69,8 @@ namespace catapult { namespace test {
 
 	model::MultisigCosignatoriesNotification CreateMultisigCosignatoriesNotification(
 			const Address& multisig,
-			const std::vector<Address>& addressAdditions,
-			const std::vector<Address>& addressDeletions) {
+			const std::vector<UnresolvedAddress>& addressAdditions,
+			const std::vector<UnresolvedAddress>& addressDeletions) {
 		return model::MultisigCosignatoriesNotification(
 				multisig,
 				static_cast<uint8_t>(addressAdditions.size()),

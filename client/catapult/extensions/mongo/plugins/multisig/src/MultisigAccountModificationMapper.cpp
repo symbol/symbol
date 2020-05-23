@@ -28,7 +28,7 @@ using namespace catapult::mongo::mappers;
 namespace catapult { namespace mongo { namespace plugins {
 
 	namespace {
-		void StreamAddresses(bson_stream::document& builder, const std::string& name, const Address* pAddresses, uint8_t count) {
+		void StreamAddresses(bson_stream::document& builder, const std::string& name, const UnresolvedAddress* pAddresses, uint8_t count) {
 			auto addressesArray = builder << name << bson_stream::open_array;
 			for (auto i = 0u; i < count; ++i)
 				addressesArray << ToBinary(pAddresses[i]);

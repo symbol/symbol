@@ -32,8 +32,8 @@ namespace catapult { namespace validators {
 	namespace {
 		void AssertValidationResult(
 				ValidationResult expectedResult,
-				const std::vector<Address>& addressAdditions,
-				const std::vector<Address>& addressDeletions) {
+				const std::vector<UnresolvedAddress>& addressAdditions,
+				const std::vector<UnresolvedAddress>& addressDeletions) {
 			// Arrange:
 			auto multisig = test::GenerateRandomByteArray<Address>();
 			auto notification = test::CreateMultisigCosignatoriesNotification(multisig, addressAdditions, addressDeletions);
@@ -53,7 +53,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, SuccessWhenSingleAddModificationIsPresent) {
 		// Arrange:
-		auto address = test::GenerateRandomByteArray<Address>();
+		auto address = test::GenerateRandomByteArray<UnresolvedAddress>();
 
 		// Assert:
 		AssertValidationResult(ValidationResult::Success, { address }, {});
@@ -61,7 +61,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, SuccessWhenSingleDelModificationIsPresent) {
 		// Arrange:
-		auto address = test::GenerateRandomByteArray<Address>();
+		auto address = test::GenerateRandomByteArray<UnresolvedAddress>();
 
 		// Assert:
 		AssertValidationResult(ValidationResult::Success, {}, { address });
@@ -71,8 +71,8 @@ namespace catapult { namespace validators {
 		void AssertResultWhenDifferentAccountsUsed(ValidationResult expectedResult, uint8_t numAdditions, uint8_t numDeletions) {
 			AssertValidationResult(
 					expectedResult,
-					test::GenerateRandomDataVector<Address>(numAdditions),
-					test::GenerateRandomDataVector<Address>(numDeletions));
+					test::GenerateRandomDataVector<UnresolvedAddress>(numAdditions),
+					test::GenerateRandomDataVector<UnresolvedAddress>(numDeletions));
 		}
 	}
 
@@ -90,13 +90,13 @@ namespace catapult { namespace validators {
 	namespace {
 		void AssertResultWhenSameAccountUsed(ValidationResult expectedResult, uint8_t numAdditions, uint8_t numDeletions) {
 			// Arrange:
-			auto address = test::GenerateRandomByteArray<Address>();
+			auto address = test::GenerateRandomByteArray<UnresolvedAddress>();
 
 			// Assert:
 			AssertValidationResult(
 					expectedResult,
-					std::vector<Address>(numAdditions, address),
-					std::vector<Address>(numDeletions, address));
+					std::vector<UnresolvedAddress>(numAdditions, address),
+					std::vector<UnresolvedAddress>(numDeletions, address));
 		}
 	}
 

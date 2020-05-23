@@ -194,13 +194,13 @@ namespace catapult { namespace model {
 		// Arrange:
 		typename TTraits::EmbeddedTransactionType transaction;
 		test::FillWithRandomData(transaction);
-		transaction.TargetAddress = GetSignerAddress(transaction);
+		transaction.TargetAddress = GetSignerAddress(transaction).template copyTo<UnresolvedAddress>();
 
 		// Act:
 		auto additionalCosignatories = ExtractAdditionalRequiredCosignatories(transaction);
 
 		// Assert:
-		EXPECT_EQ(AddressSet{ transaction.TargetAddress }, additionalCosignatories);
+		EXPECT_EQ(UnresolvedAddressSet{ transaction.TargetAddress }, additionalCosignatories);
 	}
 
 	METADATA_TYPE_BASED_TEST(ExtractAdditionalRequiredCosignatories_ExtractsTargetAddressWhenNotEqualToSigner) {
@@ -212,7 +212,7 @@ namespace catapult { namespace model {
 		auto additionalCosignatories = ExtractAdditionalRequiredCosignatories(transaction);
 
 		// Assert:
-		EXPECT_EQ(AddressSet{ transaction.TargetAddress }, additionalCosignatories);
+		EXPECT_EQ(UnresolvedAddressSet{ transaction.TargetAddress }, additionalCosignatories);
 	}
 
 	// endregion

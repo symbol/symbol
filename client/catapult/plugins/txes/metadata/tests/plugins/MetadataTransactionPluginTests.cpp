@@ -62,9 +62,9 @@ namespace catapult { namespace plugins {
 
 			static void AddCustomExpectations(PublishTestBuilder& builder, const TTransaction& transaction) {
 				builder.template addExpectation<AccountAddressNotification>([&transaction](const auto& notification) {
-					EXPECT_TRUE(notification.Address.isResolved());
+					EXPECT_FALSE(notification.Address.isResolved());
 
-					EXPECT_EQ(transaction.TargetAddress, notification.Address.resolved());
+					EXPECT_EQ(transaction.TargetAddress, notification.Address.unresolved());
 				});
 			}
 		};
@@ -93,10 +93,10 @@ namespace catapult { namespace plugins {
 
 			static void AddCustomExpectations(PublishTestBuilder& builder, const TTransaction& transaction) {
 				builder.template addExpectation<MosaicRequiredNotification>([&transaction](const auto& notification) {
-					EXPECT_TRUE(notification.Owner.isResolved());
+					EXPECT_FALSE(notification.Owner.isResolved());
 					EXPECT_FALSE(notification.MosaicId.isResolved());
 
-					EXPECT_EQ(transaction.TargetAddress, notification.Owner.resolved());
+					EXPECT_EQ(transaction.TargetAddress, notification.Owner.unresolved());
 					EXPECT_EQ(transaction.TargetMosaicId, notification.MosaicId.unresolved());
 					EXPECT_EQ(0u, notification.PropertyFlagMask);
 				});
@@ -127,9 +127,9 @@ namespace catapult { namespace plugins {
 
 			static void AddCustomExpectations(PublishTestBuilder& builder, const TTransaction& transaction) {
 				builder.template addExpectation<NamespaceRequiredNotification>([&transaction](const auto& notification) {
-					EXPECT_TRUE(notification.Owner.isResolved());
+					EXPECT_FALSE(notification.Owner.isResolved());
 
-					EXPECT_EQ(transaction.TargetAddress, notification.Owner.resolved());
+					EXPECT_EQ(transaction.TargetAddress, notification.Owner.unresolved());
 					EXPECT_EQ(transaction.TargetNamespaceId, notification.NamespaceId);
 				});
 			}
@@ -240,7 +240,7 @@ namespace catapult { namespace plugins {
 		auto additionalCosignatories = pPlugin->additionalRequiredCosignatories(transaction);
 
 		// Assert:
-		EXPECT_EQ(AddressSet{ transaction.TargetAddress }, additionalCosignatories);
+		EXPECT_EQ(UnresolvedAddressSet{ transaction.TargetAddress }, additionalCosignatories);
 	}
 
 	// endregion

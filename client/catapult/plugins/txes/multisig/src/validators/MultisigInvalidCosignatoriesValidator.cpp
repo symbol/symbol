@@ -36,12 +36,12 @@ namespace catapult { namespace validators {
 
 		const auto& multisigEntry = multisigIter.get();
 		for (auto i = 0u; i < notification.AddressAdditionsCount; ++i) {
-			if (multisigEntry.hasCosignatory(notification.AddressAdditionsPtr[i]))
+			if (multisigEntry.hasCosignatory(context.Resolvers.resolve(notification.AddressAdditionsPtr[i])))
 				return Failure_Multisig_Already_A_Cosignatory;
 		}
 
 		for (auto i = 0u; i < notification.AddressDeletionsCount; ++i) {
-			if (!multisigEntry.hasCosignatory(notification.AddressDeletionsPtr[i]))
+			if (!multisigEntry.hasCosignatory(context.Resolvers.resolve(notification.AddressDeletionsPtr[i])))
 				return Failure_Multisig_Not_A_Cosignatory;
 		}
 

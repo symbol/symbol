@@ -76,7 +76,7 @@ namespace catapult { namespace model {
 	class PLUGIN_API_DEPENDENCY EmbeddedTransactionPlugin : public TransactionPluginT<EmbeddedTransaction> {
 	public:
 		/// Extracts addresses of additional accounts that must approve \a transaction.
-		virtual AddressSet additionalRequiredCosignatories(const EmbeddedTransaction& transaction) const = 0;
+		virtual UnresolvedAddressSet additionalRequiredCosignatories(const EmbeddedTransaction& transaction) const = 0;
 
 		/// Sends all notifications from \a transaction with \a context to \a sub.
 		virtual void publish(const EmbeddedTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub) const = 0;

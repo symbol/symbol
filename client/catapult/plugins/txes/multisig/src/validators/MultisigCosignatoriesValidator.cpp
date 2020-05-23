@@ -27,14 +27,17 @@ namespace catapult { namespace validators {
 	using Notification = model::MultisigCosignatoriesNotification;
 
 	namespace {
-		utils::ArrayPointerSet<Address> ToSet(const Address* pAddresses, uint8_t count) {
-			utils::ArrayPointerSet<Address> addresses;
+		utils::ArrayPointerSet<UnresolvedAddress> ToSet(const UnresolvedAddress* pAddresses, uint8_t count) {
+			utils::ArrayPointerSet<UnresolvedAddress> addresses;
 			for (auto i = 0u; i < count; ++i)
 				addresses.insert(&pAddresses[i]);
 
 			return addresses;
 		}
 	}
+
+	// notice that redundant checks by this validator are not comprehensive and there is another validator that will
+	// check against current state and resolved addresses
 
 	DEFINE_STATELESS_VALIDATOR(MultisigCosignatories, [](const Notification& notification) {
 		if (1 < notification.AddressDeletionsCount)

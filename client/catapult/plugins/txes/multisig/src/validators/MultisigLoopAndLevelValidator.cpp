@@ -65,7 +65,7 @@ namespace catapult { namespace validators {
 					const Notification& notification,
 					const ValidatorContext& context) {
 			auto checker = LoopAndLevelChecker(context.Cache.sub<cache::MultisigCache>(), maxMultisigDepth);
-			return checker.validate(notification.Multisig, notification.Cosignatory);
+			return checker.validate(notification.Multisig, context.Resolvers.resolve(notification.Cosignatory));
 		});
 	}
 }}

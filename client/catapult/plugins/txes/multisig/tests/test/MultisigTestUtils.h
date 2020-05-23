@@ -21,8 +21,10 @@
 #pragma once
 #include "src/model/MultisigAccountModificationTransaction.h"
 #include "src/model/MultisigNotifications.h"
+#include "catapult/model/Address.h"
 #include "catapult/model/Cosignature.h"
 #include "catapult/utils/HexFormatter.h"
+#include "tests/test/core/ResolverTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult {
@@ -41,6 +43,34 @@ namespace catapult { namespace test {
 			EXPECT_CONTAINS(addresses, address);
 	}
 
+	/// Functions for performing network address conversions.
+	template<model::NetworkIdentifier Network_Identifier = model::NetworkIdentifier::Zero>
+	struct NetworkAddressConversions {
+	public:
+		/// Converts \a publicKey to an address.
+		static Address ToAddress(const Key& publicKey) {
+			return model::PublicKeyToAddress(publicKey, Network_Identifier);
+		}
+
+		/// Converts \a publicKeys to (resolved) addresses.
+		static std::vector<Address> ToAddresses(const std::vector<Key>& publicKeys) {
+			std::vector<Address> addresses;
+			for (const auto& publicKey : publicKeys)
+				addresses.push_back(ToAddress(publicKey));
+
+			return addresses;
+		}
+
+		/// Converts \a publicKeys to (unresolved) addresses.
+		static std::vector<UnresolvedAddress> ToUnresolvedAddresses(const std::vector<Key>& publicKeys) {
+			std::vector<UnresolvedAddress> addresses;
+			for (const auto& publicKey : publicKeys)
+				addresses.push_back(UnresolveXor(ToAddress(publicKey)));
+
+			return addresses;
+		}
+	};
+
 	/// Generates random cosignatures from \a cosignatories.
 	std::vector<model::Cosignature> GenerateCosignaturesFromCosignatories(const std::vector<Key>& cosignatories);
 
@@ -53,14 +83,14 @@ namespace catapult { namespace test {
 	/// Creates a multisig account modification transaction from \a signer with \a addressAdditions and \a addressDeletions.
 	std::unique_ptr<model::EmbeddedMultisigAccountModificationTransaction> CreateMultisigAccountModificationTransaction(
 			const Key& signer,
-			const std::vector<Address>& addressAdditions,
-			const std::vector<Address>& addressDeletions);
+			const std::vector<UnresolvedAddress>& addressAdditions,
+			const std::vector<UnresolvedAddress>& addressDeletions);
 
 	/// Creates a multisig cosignatories notification around \a multisig, \a addressAdditions and \a addressDeletions.
 	model::MultisigCosignatoriesNotification CreateMultisigCosignatoriesNotification(
 			const Address& multisig,
-			const std::vector<Address>& addressAdditions,
-			const std::vector<Address>& addressDeletions);
+			const std::vector<UnresolvedAddress>& addressAdditions,
+			const std::vector<UnresolvedAddress>& addressDeletions);
 
 	/// Makes \a multisig in \a cache a multisig account with \a cosignatories and required limits
 	/// \a minApproval and \a minRemoval.

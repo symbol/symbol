@@ -35,11 +35,11 @@ namespace catapult { namespace validators {
 					const Notification& notification,
 					const model::TransactionRegistry& transactionRegistry,
 					const cache::MultisigCache::CacheReadOnlyType& multisigCache,
-					model::NetworkIdentifier networkIdentifier)
+					const ValidatorContext& context)
 					: m_notification(notification)
 					, m_transactionRegistry(transactionRegistry)
 					, m_multisigCache(multisigCache)
-					, m_networkIdentifier(networkIdentifier) {
+					, m_context(context) {
 				m_cosignatories.emplace(toAddress(m_notification.SignerPublicKey), false);
 				for (auto i = 0u; i < m_notification.CosignaturesCount; ++i)
 					m_cosignatories.emplace(toAddress(m_notification.CosignaturesPtr[i].SignerPublicKey), false);
@@ -67,7 +67,11 @@ namespace catapult { namespace validators {
 
 		private:
 			Address toAddress(const Key& publicKey) const {
-				return model::PublicKeyToAddress(publicKey, m_networkIdentifier);
+				return model::PublicKeyToAddress(publicKey, m_context.Network.Identifier);
+			}
+
+			void findEligibleCosignatories(const UnresolvedAddress& address) {
+				findEligibleCosignatories(m_context.Resolvers.resolve(address));
 			}
 
 			void findEligibleCosignatories(const Address& address) {
@@ -100,7 +104,7 @@ namespace catapult { namespace validators {
 			const Notification& m_notification;
 			const model::TransactionRegistry& m_transactionRegistry;
 			const cache::MultisigCache::CacheReadOnlyType& m_multisigCache;
-			model::NetworkIdentifier m_networkIdentifier;
+			const ValidatorContext& m_context;
 			std::unordered_map<Address, bool, utils::ArrayHasher<Address>> m_cosignatories;
 		};
 	}
@@ -111,7 +115,7 @@ namespace catapult { namespace validators {
 				const Notification& notification,
 				const ValidatorContext& context) {
 			const auto& multisigCache = context.Cache.sub<cache::MultisigCache>();
-			AggregateCosignaturesChecker checker(notification, transactionRegistry, multisigCache, context.Network.Identifier);
+			AggregateCosignaturesChecker checker(notification, transactionRegistry, multisigCache, context);
 			return checker.hasIneligibleCosignatories() ? Failure_Aggregate_Ineligible_Cosignatories : ValidationResult::Success;
 		});
 	}

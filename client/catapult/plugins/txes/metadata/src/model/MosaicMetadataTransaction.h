@@ -46,7 +46,7 @@ namespace catapult { namespace model {
 #pragma pack(pop)
 
 	/// Extracts addresses of additional accounts that must approve \a transaction.
-	inline AddressSet ExtractAdditionalRequiredCosignatories(const EmbeddedMosaicMetadataTransaction& transaction) {
+	inline UnresolvedAddressSet ExtractAdditionalRequiredCosignatories(const EmbeddedMosaicMetadataTransaction& transaction) {
 		return { transaction.TargetAddress };
 	}
 }}

@@ -44,10 +44,10 @@ namespace catapult { namespace mongo { namespace plugins {
 			builder.setMinApprovalDelta(minApprovalDelta);
 
 			for (auto i = 0u; i < numAddressAdditions; ++i)
-				builder.addAddressAddition(test::GenerateRandomByteArray<Address>());
+				builder.addAddressAddition(test::GenerateRandomByteArray<UnresolvedAddress>());
 
 			for (auto i = 0u; i < numAddressDeletions; ++i)
-				builder.addAddressDeletion(test::GenerateRandomByteArray<Address>());
+				builder.addAddressDeletion(test::GenerateRandomByteArray<UnresolvedAddress>());
 
 			return builder;
 		}
@@ -55,14 +55,14 @@ namespace catapult { namespace mongo { namespace plugins {
 		void AssertEqualAddresses(
 				const bsoncxx::document::view& dbTransaction,
 				const std::string& name,
-				const Address* pAddresses,
+				const UnresolvedAddress* pAddresses,
 				uint8_t count) {
 			auto dbAddresses = dbTransaction[name].get_array().value;
 			ASSERT_EQ(count, test::GetFieldCount(dbAddresses));
 
 			auto dbAddressesIter = dbAddresses.cbegin();
 			for (auto i = 0u; i < count; ++i, ++dbAddressesIter) {
-				Address address;
+				UnresolvedAddress address;
 				mongo::mappers::DbBinaryToModelArray(address, dbAddressesIter->get_binary());
 				EXPECT_EQ(pAddresses[i], address) << name << " at " << i;
 			}

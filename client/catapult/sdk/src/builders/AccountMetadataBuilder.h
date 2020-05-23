@@ -37,7 +37,7 @@ namespace catapult { namespace builders {
 
 	public:
 		/// Sets the metadata target public key to \a targetAddress.
-		void setTargetAddress(const Address& targetAddress);
+		void setTargetAddress(const UnresolvedAddress& targetAddress);
 
 		/// Sets the metadata key scoped to source, target and type to \a scopedMetadataKey.
 		void setScopedMetadataKey(uint64_t scopedMetadataKey);
@@ -69,7 +69,7 @@ namespace catapult { namespace builders {
 		std::unique_ptr<TTransaction> buildImpl() const;
 
 	private:
-		Address m_targetAddress;
+		UnresolvedAddress m_targetAddress;
 		uint64_t m_scopedMetadataKey;
 		int16_t m_valueSizeDelta;
 		std::vector<uint8_t> m_value;

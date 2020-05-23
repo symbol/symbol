@@ -31,7 +31,7 @@ namespace catapult { namespace builders {
 			, m_value()
 	{}
 
-	void MosaicMetadataBuilder::setTargetAddress(const Address& targetAddress) {
+	void MosaicMetadataBuilder::setTargetAddress(const UnresolvedAddress& targetAddress) {
 		m_targetAddress = targetAddress;
 	}
 

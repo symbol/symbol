@@ -95,13 +95,13 @@ namespace catapult { namespace model {
 			{}
 
 		public:
-			AddressSet additionalRequiredCosignatories(const EmbeddedTransaction& transaction) const override {
+			UnresolvedAddressSet additionalRequiredCosignatories(const EmbeddedTransaction& transaction) const override {
 				if constexpr (TransactionPluginFactoryOptions::Default == Options) {
 #ifdef _MSC_VER
 					// suppress warning that transaction is unreferenced formal parameter
 					(transaction);
 #endif
-					return AddressSet();
+					return UnresolvedAddressSet();
 				} else {
 					return ExtractAdditionalRequiredCosignatories(static_cast<const TEmbeddedTransaction&>(transaction));
 				}

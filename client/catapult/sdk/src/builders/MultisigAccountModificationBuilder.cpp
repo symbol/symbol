@@ -38,11 +38,11 @@ namespace catapult { namespace builders {
 		m_minApprovalDelta = minApprovalDelta;
 	}
 
-	void MultisigAccountModificationBuilder::addAddressAddition(const Address& addressAddition) {
+	void MultisigAccountModificationBuilder::addAddressAddition(const UnresolvedAddress& addressAddition) {
 		m_addressAdditions.push_back(addressAddition);
 	}
 
-	void MultisigAccountModificationBuilder::addAddressDeletion(const Address& addressDeletion) {
+	void MultisigAccountModificationBuilder::addAddressDeletion(const UnresolvedAddress& addressDeletion) {
 		m_addressDeletions.push_back(addressDeletion);
 	}
 
@@ -62,8 +62,8 @@ namespace catapult { namespace builders {
 	size_t MultisigAccountModificationBuilder::sizeImpl() const {
 		// calculate transaction size
 		auto size = sizeof(TransactionType);
-		size += m_addressAdditions.size() * sizeof(Address);
-		size += m_addressDeletions.size() * sizeof(Address);
+		size += m_addressAdditions.size() * sizeof(UnresolvedAddress);
+		size += m_addressDeletions.size() * sizeof(UnresolvedAddress);
 		return size;
 	}
 

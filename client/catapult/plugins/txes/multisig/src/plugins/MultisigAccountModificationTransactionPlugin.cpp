@@ -41,8 +41,7 @@ namespace catapult { namespace plugins {
 				// - notify cosignatories' addresses in order to allow added cosignatories to get aggregate notifications
 				const auto* pAddressAdditions = transaction.AddressAdditionsPtr();
 				for (auto i = 0u; i < transaction.AddressAdditionsCount; ++i) {
-					auto unresolvedAddress = pAddressAdditions[i].template copyTo<UnresolvedAddress>();
-					addedCosignatories.insert(unresolvedAddress);
+					addedCosignatories.insert(pAddressAdditions[i]);
 
 					sub.notify(AccountAddressNotification(pAddressAdditions[i]));
 					sub.notify(MultisigNewCosignatoryNotification(context.SignerAddress, pAddressAdditions[i]));

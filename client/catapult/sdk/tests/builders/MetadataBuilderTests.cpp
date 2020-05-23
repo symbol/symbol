@@ -38,7 +38,7 @@ namespace catapult { namespace builders {
 			{}
 
 		public:
-			Address TargetAddress;
+			UnresolvedAddress TargetAddress;
 			uint64_t ScopedMetadataKey;
 			uint64_t RawTargetId;
 			int16_t ValueSizeDelta;

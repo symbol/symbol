@@ -181,7 +181,7 @@ namespace catapult { namespace mocks {
 	std::unique_ptr<MockTransaction> CreateMockTransactionWithSignerAndRecipient(const Key& signer, const Key& recipient);
 
 	/// Extracts addresses of additional accounts that must approve \a transaction.
-	model::AddressSet ExtractAdditionalRequiredCosignatories(const EmbeddedMockTransaction& transaction);
+	model::UnresolvedAddressSet ExtractAdditionalRequiredCosignatories(const EmbeddedMockTransaction& transaction);
 
 	/// Mock transaction plugin options.
 	enum class PluginOptionFlags : uint8_t {
