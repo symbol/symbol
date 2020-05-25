@@ -48,8 +48,8 @@ struct BlockHeader
 	# hash of the global chain state at this block
 	stateHash = Hash256
 
-	# beneficiary public key designated by harvester
-	beneficiaryPublicKey = Key
+	# beneficiary address designated by harvester
+	beneficiaryAddress = Address
 
 	# fee multiplier applied to block transactions
 	feeMultiplier = BlockFeeMultiplier

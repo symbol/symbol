@@ -6,8 +6,8 @@ struct RootNamespaceHistory
 	# id of the root namespace history
 	id = NamespaceId
 
-	# namespace owner public key
-	ownerPublicKey = Key
+	# namespace owner address
+	ownerAddress = Address
 
 	# lifetime in blocks
 	lifetime = NamespaceLifetime

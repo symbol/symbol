@@ -2,8 +2,8 @@ import "state/lock_info.cats"
 
 # binary layout for hash lock transaction info
 struct HashLockInfo
-	# sender public key
-	senderPublicKey = Key
+	# owner address
+	ownerAddress = Address
 
 	# mosaic associated with lock
 	mosaic = Mosaic

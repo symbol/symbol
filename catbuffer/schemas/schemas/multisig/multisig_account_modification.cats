@@ -8,20 +8,20 @@ struct MultisigAccountModificationTransactionBody
 	# relative change of the minimal number of cosignatories required when approving a transaction
 	minApprovalDelta = int8
 
-	# number of cosignatory public key additions
-	publicKeyAdditionsCount = uint8
+	# number of cosignatory address additions
+	addressAdditionsCount = uint8
 
-	# number of cosignatory public key deletions
-	publicKeyDeletionsCount = uint8
+	# number of cosignatory address deletions
+	addressDeletionsCount = uint8
 
-	# reserved padding to align publicKeyAdditions on 8-byte boundary
+	# reserved padding to align addressAdditions on 8-byte boundary
 	multisigAccountModificationTransactionBody_Reserved1 = uint32
 
-	# cosignatory public key additions
-	publicKeyAdditions = array(Key, publicKeyAdditionsCount)
+	# cosignatory address additions
+	addressAdditions = array(UnresolvedAddress, addressAdditionsCount)
 
-	# cosignatory public key deletions
-	publicKeyDeletions = array(Key, publicKeyDeletionsCount)
+	# cosignatory address deletions
+	addressDeletions = array(UnresolvedAddress, addressDeletionsCount)
 
 # binary layout for a non-embedded multisig account modification transaction
 struct MultisigAccountModificationTransaction

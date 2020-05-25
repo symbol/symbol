@@ -2,6 +2,9 @@ import "types.cats"
 
 # cosignature attached to an aggregate transaction
 struct Cosignature
+	# version
+	version = uint64
+
 	# cosigner public key
 	signerPublicKey = Key
 

@@ -8,17 +8,17 @@ struct MultisigEntry
 	# minimum approval for removal
 	minRemoval = uint32
 
-	# account public key
-	accountPublicKey = Key
+	# account address
+	accountAddress = Address
 
 	# number of cosignatories
-	cosignatoryPublicKeysCount = uint64
+	cosignatoryAddressesCount = uint64
 
 	# cosignatories for account
-	cosignatoryPublicKeys = array(Key, cosignatoryPublicKeysCount)
+	cosignatoryAddresses = array(Address, cosignatoryAddressesCount)
 
 	# number of other accounts for which the entry is cosignatory
-	multisigPublicKeysCount = uint64
+	multisigAddressesCount = uint64
 
 	# accounts for which the entry is cosignatory
-	multisigPublicKeys = array(Key, multisigPublicKeysCount)
+	multisigAddresses = array(Address, multisigAddressesCount)

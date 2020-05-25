@@ -3,8 +3,8 @@ import "transaction.cats"
 
 # binary layout for a namespace metadata transaction
 struct NamespaceMetadataTransactionBody
-	# metadata target public key
-	targetPublicKey = Key
+	# metadata target address
+	targetAddress = UnresolvedAddress
 
 	# metadata key scoped to source, target and type
 	scopedMetadataKey = uint64

@@ -70,8 +70,8 @@ struct BalanceTransferReceipt
 	# mosaic
 	mosaic = Mosaic
 
-	# mosaic sender public key
-	senderPublicKey = Key
+	# mosaic sender address
+	senderAddress = Address
 
 	# mosaic recipient address
 	recipientAddress = Address
@@ -83,8 +83,8 @@ struct BalanceChangeReceipt
 	# mosaic
 	mosaic = Mosaic
 
-	# account public key
-	targetPublicKey = Key
+	# account address
+	targetAddress = Address
 
 # binary layout for an inflation receipt
 struct InflationReceipt

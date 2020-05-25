@@ -3,11 +3,11 @@ import "namespace/namespace_types.cats"
 
 # binary layout of a metadata entry
 struct MetadataEntry
-	# metadata source public key (provider)
-	sourcePublicKey = Key
+	# metadata source address (provider)
+	sourceAddress = Address
 
-	# public key of the metadata target
-	targetPublicKey = Key
+	# metadata target address
+	targetAddress = Address
 
 	# metadata key scoped to source, target and type
 	scopedMetadataKey = ScopedMetadataKey

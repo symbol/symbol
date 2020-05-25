@@ -2,8 +2,8 @@ import "transaction.cats"
 
 # binary layout for a mosaic metadata transaction
 struct MosaicMetadataTransactionBody
-	# metadata target public key
-	targetPublicKey = Key
+	# metadata target address
+	targetAddress = UnresolvedAddress
 
 	# metadata key scoped to source, target and type
 	scopedMetadataKey = uint64

@@ -18,7 +18,7 @@ struct MosaicDefinition
 	startHeight = Height
 
 	# mosaic owner
-	ownerPublicKey = Key
+	ownerAddress = Address
 
 	# revision
 	revision = uint32

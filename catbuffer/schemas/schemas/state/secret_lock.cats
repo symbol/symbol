@@ -3,8 +3,8 @@ import "state/lock_info.cats"
 
 # binary layout for serialized lock transaction
 struct SecretLockInfo
-	# sender public key
-	senderPublicKey = Key
+	# owner address
+	ownerAddress = Address
 
 	# mosaic associated with lock
 	mosaic = Mosaic
