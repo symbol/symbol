@@ -51,9 +51,9 @@ namespace catapult { namespace builders {
 		class TestContext {
 		public:
 			explicit TestContext(size_t numTransactions)
-					: m_networkId(static_cast<model::NetworkIdentifier>(0x62))
+					: m_networkIdentifier(static_cast<model::NetworkIdentifier>(0x62))
 					, m_signer(test::GenerateRandomByteArray<Key>())
-					, m_builder(m_networkId, m_signer) {
+					, m_builder(m_networkIdentifier, m_signer) {
 				for (auto i = 0u; i < numTransactions; ++i)
 					m_transactions.push_back(mocks::CreateEmbeddedMockTransaction(static_cast<uint16_t>(31 + i)));
 			}
@@ -111,7 +111,7 @@ namespace catapult { namespace builders {
 			}
 
 		private:
-			const model::NetworkIdentifier m_networkId;
+			const model::NetworkIdentifier m_networkIdentifier;
 			const Key m_signer;
 			AggregateTransactionBuilder m_builder;
 			std::vector<std::unique_ptr<mocks::EmbeddedMockTransaction>> m_transactions;

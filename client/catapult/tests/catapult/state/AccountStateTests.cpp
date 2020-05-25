@@ -137,7 +137,7 @@ namespace catapult { namespace state {
 	}
 
 	namespace {
-		void MutateLinkedAccountKey(AccountState& accountState) {
+		void MutateLinkedPublicKey(AccountState& accountState) {
 			auto& accountKeys = accountState.SupplementalAccountKeys;
 
 			auto linkedPublicKey = accountKeys.linkedPublicKey().get();
@@ -148,20 +148,20 @@ namespace catapult { namespace state {
 		}
 	}
 
-	TEST(TEST_CLASS, RequireLinkedRemoteAndMainAccounts_ThrowsWhenRemoteAccountStateHasWrongLinkedAccountKey) {
+	TEST(TEST_CLASS, RequireLinkedRemoteAndMainAccounts_ThrowsWhenRemoteAccountStateHasWrongLinkedPublicKey) {
 		// Arrange:
 		PrepareRequireLinkedRemoteAndMainAccountsTest([](auto& remoteAccountState, const auto& mainAccountState) {
-			MutateLinkedAccountKey(remoteAccountState);
+			MutateLinkedPublicKey(remoteAccountState);
 
 			// Act + Assert:
 			EXPECT_THROW(RequireLinkedRemoteAndMainAccounts(remoteAccountState, mainAccountState), catapult_runtime_error);
 		});
 	}
 
-	TEST(TEST_CLASS, RequireLinkedRemoteAndMainAccounts_ThrowsWhenMainAccountStateHasWrongLinkedAccountKey) {
+	TEST(TEST_CLASS, RequireLinkedRemoteAndMainAccounts_ThrowsWhenMainAccountStateHasWrongLinkedPublicKey) {
 		// Arrange:
 		PrepareRequireLinkedRemoteAndMainAccountsTest([](const auto& remoteAccountState, auto& mainAccountState) {
-			MutateLinkedAccountKey(mainAccountState);
+			MutateLinkedPublicKey(mainAccountState);
 
 			// Act + Assert:
 			EXPECT_THROW(RequireLinkedRemoteAndMainAccounts(remoteAccountState, mainAccountState), catapult_runtime_error);

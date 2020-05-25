@@ -127,8 +127,8 @@ namespace catapult { namespace observers {
 
 		struct MultisigDescriptor {
 		public:
-			MultisigDescriptor(size_t accountId, const std::vector<size_t>& cosignatories)
-					: MultisigId(accountId)
+			MultisigDescriptor(size_t accountShortId, const std::vector<size_t>& cosignatories)
+					: MultisigId(accountShortId)
 					, CosignatoryIds(cosignatories)
 			{}
 

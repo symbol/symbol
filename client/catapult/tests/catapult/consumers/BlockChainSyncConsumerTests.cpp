@@ -873,17 +873,14 @@ namespace catapult { namespace consumers {
 	// region transaction notification
 
 	namespace {
-		template<typename TContainer, typename TKey>
-		bool Contains(const TContainer& container, const TKey& key) {
-			return container.cend() != container.find(key);
-		}
-
 		void AssertHashesAreEqual(const std::vector<Hash256>& expected, const HashSet& actual) {
 			EXPECT_EQ(expected.size(), actual.size());
 
 			auto i = 0u;
-			for (const auto& hash : expected)
-				EXPECT_TRUE(Contains(actual, hash)) << "hash at " << i++;
+			for (const auto& hash : expected) {
+				auto message = "hash at " + std::to_string(i++);
+				EXPECT_CONTAINS_MESSAGE(actual, hash, message);
+			}
 		}
 
 		class InputTransactionBuilder {

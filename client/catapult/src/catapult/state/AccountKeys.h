@@ -57,7 +57,7 @@ namespace catapult { namespace state {
 		// region KeyAccessor
 
 		/// Key accessor.
-		template<typename TKey>
+		template<typename TAccountPublicKey>
 		class KeyAccessor {
 		public:
 			/// Creates unset key.
@@ -81,17 +81,17 @@ namespace catapult { namespace state {
 			explicit operator bool() const;
 
 			/// Gets the underlying key or a zero key if unset.
-			TKey get() const;
+			TAccountPublicKey get() const;
 
 		public:
 			/// Sets the underlying key to \a key.
-			void set(const TKey& key);
+			void set(const TAccountPublicKey& key);
 
 			/// Unsets the underlying key.
 			void unset();
 
 		private:
-			std::shared_ptr<TKey> m_pKey;
+			std::shared_ptr<TAccountPublicKey> m_pKey;
 		};
 
 		// endregion

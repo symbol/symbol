@@ -43,6 +43,6 @@ namespace catapult { namespace test {
 	/// Sets all supplemental account keys specified in \a mask to random values in \a accountState.
 	void SetRandomSupplementalAccountKeys(state::AccountState& accountState, state::AccountKeys::KeyType mask);
 
-	/// Forcibly clears and sets linked account key in \a accountState to \a linkedAccountKey.
-	void ForceSetLinkedAccountKey(state::AccountState& accountState, const Key& linkedAccountKey);
+	/// Forcibly clears and sets linked public key in \a accountState to \a linkedPublicKey.
+	void ForceSetLinkedPublicKey(state::AccountState& accountState, const Key& linkedPublicKey);
 }}

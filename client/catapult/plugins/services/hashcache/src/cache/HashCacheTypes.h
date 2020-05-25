@@ -33,7 +33,7 @@ namespace catapult {
 		struct HashCachePrimarySerializer;
 		class HashCacheView;
 
-		template<typename TCache, typename TCacheDelta, typename TKey>
+		template<typename TCache, typename TCacheDelta, typename TCacheKey>
 		class ReadOnlySimpleCache;
 	}
 }

@@ -44,27 +44,27 @@ namespace catapult { namespace timesync {
 			};
 		}
 
-		template<typename TKey>
+		template<typename TAccountIdentifier>
 		void AddAccount(
 				cache::AccountStateCache& cache,
-				const TKey& key,
+				const TAccountIdentifier& accountIdentifier,
 				Importance importance,
 				model::ImportanceHeight importanceHeight) {
 			auto delta = cache.createDelta();
-			delta->addAccount(key, Height(100));
-			auto& accountState = delta->find(key).get();
+			delta->addAccount(accountIdentifier, Height(100));
+			auto& accountState = delta->find(accountIdentifier).get();
 			accountState.ImportanceSnapshots.set(importance, importanceHeight);
 			accountState.Balances.credit(Harvesting_Mosaic_Id, Amount(1000));
 			cache.commit();
 		}
 
-		template<typename TKey>
+		template<typename TAccountIdentifier>
 		void SeedAccountStateCache(
 				cache::AccountStateCache& cache,
-				const std::vector<TKey>& keys,
+				const std::vector<TAccountIdentifier>& accountIdentifiers,
 				const std::vector<Importance>& importances) {
-			for (auto i = 0u; i < keys.size(); ++i)
-				AddAccount(cache, keys[i], importances[i], model::ImportanceHeight(1));
+			for (auto i = 0u; i < accountIdentifiers.size(); ++i)
+				AddAccount(cache, accountIdentifiers[i], importances[i], model::ImportanceHeight(1));
 		}
 
 		std::vector<Address> ToAddresses(const std::vector<Key>& keys) {

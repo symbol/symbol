@@ -108,9 +108,9 @@ namespace catapult { namespace observers {
 				TCheckCacheFunc checkCache) {
 			// Arrange:
 			auto& accountStateCacheDelta = context.cache().template sub<cache::AccountStateCache>();
-			auto accountId = TTraits::DestinationAccount(lockInfo);
-			accountStateCacheDelta.addAccount(accountId, Height(1));
-			auto& accountState = accountStateCacheDelta.find(accountId).get();
+			auto accountIdentifier = TTraits::DestinationAccount(lockInfo);
+			accountStateCacheDelta.addAccount(accountIdentifier, Height(1));
+			auto& accountState = accountStateCacheDelta.find(accountIdentifier).get();
 
 			auto& lockInfoCacheDelta = context.cache().template sub<typename TTraits::BasicTraits::CacheType>();
 			seedCache(lockInfoCacheDelta, accountState);

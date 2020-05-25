@@ -191,10 +191,10 @@ namespace catapult { namespace state {
 				accountState.Balances.credit(pMosaic->MosaicId, pMosaic->Amount);
 		}
 
-		template<typename TKey>
-		size_t SetKeyFromData(AccountKeys::KeyAccessor<TKey>& keyAccessor, const uint8_t* pData) {
-			keyAccessor.set(reinterpret_cast<const TKey&>(*pData));
-			return TKey::Size;
+		template<typename TAccountPublicKey>
+		size_t SetKeyFromData(AccountKeys::KeyAccessor<TAccountPublicKey>& keyAccessor, const uint8_t* pData) {
+			keyAccessor.set(reinterpret_cast<const TAccountPublicKey&>(*pData));
+			return TAccountPublicKey::Size;
 		}
 
 		AccountState DeserializeNonHistoricalFromBuffer(const uint8_t* pData, uint8_t format) {
@@ -236,10 +236,10 @@ namespace catapult { namespace state {
 
 		// region account state => header utils
 
-		template<typename TKey>
-		size_t SetKeyInData(const AccountKeys::KeyAccessor<TKey>& keyAccessor, uint8_t* pData) {
-			reinterpret_cast<TKey&>(*pData) = keyAccessor.get();
-			return TKey::Size;
+		template<typename TAccountPublicKey>
+		size_t SetKeyInData(const AccountKeys::KeyAccessor<TAccountPublicKey>& keyAccessor, uint8_t* pData) {
+			reinterpret_cast<TAccountPublicKey&>(*pData) = keyAccessor.get();
+			return TAccountPublicKey::Size;
 		}
 
 		void SerializeNonHistoricalToBuffer(const AccountState& accountState, uint8_t format, std::vector<uint8_t>& buffer) {

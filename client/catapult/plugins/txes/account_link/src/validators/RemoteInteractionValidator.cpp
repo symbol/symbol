@@ -34,9 +34,8 @@ namespace catapult { namespace validators {
 			return resolvers.resolve(address);
 		}
 
-		template<typename TKey>
-		bool IsRemote(const cache::ReadOnlyAccountStateCache& cache, const TKey& key) {
-			auto accountStateIter = cache.find(key);
+		bool IsRemote(const cache::ReadOnlyAccountStateCache& cache, const Address& address) {
+			auto accountStateIter = cache.find(address);
 			return accountStateIter.tryGet() && state::IsRemote(accountStateIter.get().AccountType);
 		}
 	}
@@ -47,8 +46,8 @@ namespace catapult { namespace validators {
 
 		const auto& cache = context.Cache.sub<cache::AccountStateCache>();
 		const auto& addresses = notification.ParticipantsByAddress;
-		auto predicate = [&cache, &context](const auto& key) {
-			return IsRemote(cache, GetResolvedKey(key, context.Resolvers));
+		auto predicate = [&cache, &context](const auto& address) {
+			return IsRemote(cache, GetResolvedKey(address, context.Resolvers));
 		};
 		return std::any_of(addresses.cbegin(), addresses.cend(), predicate)
 				? Failure_AccountLink_Remote_Account_Participant_Prohibited

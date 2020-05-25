@@ -28,10 +28,10 @@ namespace catapult { namespace harvesting {
 	/// Identifiers of accounts processed by harvesting account observers.
 	struct HarvestingAffectedAccounts {
 		/// Affected addresses.
-		RefCountedAccountIds<Address> Addresses;
+		RefCountedAccountIdentifiers<Address> Addresses;
 
 		/// Affected public keys.
-		RefCountedAccountIds<Key> PublicKeys;
+		RefCountedAccountIdentifiers<Key> PublicKeys;
 	};
 
 	/// Updates \a accountStateCacheDelta to preserve all accounts referenced in \a accounts at \a height.

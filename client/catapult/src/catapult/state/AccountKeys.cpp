@@ -24,50 +24,50 @@ namespace catapult { namespace state {
 
 	// region KeyAccessor
 
-	template<typename TKey>
-	AccountKeys::KeyAccessor<TKey>::KeyAccessor() = default;
+	template<typename TAccountPublicKey>
+	AccountKeys::KeyAccessor<TAccountPublicKey>::KeyAccessor() = default;
 
-	template<typename TKey>
-	AccountKeys::KeyAccessor<TKey>::KeyAccessor(const KeyAccessor& keyAccessor) {
+	template<typename TAccountPublicKey>
+	AccountKeys::KeyAccessor<TAccountPublicKey>::KeyAccessor(const KeyAccessor& keyAccessor) {
 		*this = keyAccessor;
 	}
 
-	template<typename TKey>
-	AccountKeys::KeyAccessor<TKey>::KeyAccessor(KeyAccessor&&) = default;
+	template<typename TAccountPublicKey>
+	AccountKeys::KeyAccessor<TAccountPublicKey>::KeyAccessor(KeyAccessor&&) = default;
 
-	template<typename TKey>
-	AccountKeys::KeyAccessor<TKey>& AccountKeys::KeyAccessor<TKey>::operator=(const KeyAccessor& keyAccessor) {
+	template<typename TAccountPublicKey>
+	AccountKeys::KeyAccessor<TAccountPublicKey>& AccountKeys::KeyAccessor<TAccountPublicKey>::operator=(const KeyAccessor& keyAccessor) {
 		if (keyAccessor.m_pKey)
-			m_pKey = std::make_shared<TKey>(*keyAccessor.m_pKey);
+			m_pKey = std::make_shared<TAccountPublicKey>(*keyAccessor.m_pKey);
 		else
 			m_pKey.reset();
 
 		return *this;
 	}
 
-	template<typename TKey>
-	AccountKeys::KeyAccessor<TKey>& AccountKeys::KeyAccessor<TKey>::operator=(KeyAccessor&&) = default;
+	template<typename TAccountPublicKey>
+	AccountKeys::KeyAccessor<TAccountPublicKey>& AccountKeys::KeyAccessor<TAccountPublicKey>::operator=(KeyAccessor&&) = default;
 
-	template<typename TKey>
-	AccountKeys::KeyAccessor<TKey>::operator bool() const {
-		return m_pKey && TKey() != *m_pKey;
+	template<typename TAccountPublicKey>
+	AccountKeys::KeyAccessor<TAccountPublicKey>::operator bool() const {
+		return m_pKey && TAccountPublicKey() != *m_pKey;
 	}
 
-	template<typename TKey>
-	TKey AccountKeys::KeyAccessor<TKey>::get() const {
-		return m_pKey ? *m_pKey : TKey();
+	template<typename TAccountPublicKey>
+	TAccountPublicKey AccountKeys::KeyAccessor<TAccountPublicKey>::get() const {
+		return m_pKey ? *m_pKey : TAccountPublicKey();
 	}
 
-	template<typename TKey>
-	void AccountKeys::KeyAccessor<TKey>::set(const TKey& key) {
+	template<typename TAccountPublicKey>
+	void AccountKeys::KeyAccessor<TAccountPublicKey>::set(const TAccountPublicKey& key) {
 		if (m_pKey)
 			CATAPULT_THROW_INVALID_ARGUMENT("must call unset before resetting key with value");
 
-		m_pKey = std::make_shared<TKey>(key);
+		m_pKey = std::make_shared<TAccountPublicKey>(key);
 	}
 
-	template<typename TKey>
-	void AccountKeys::KeyAccessor<TKey>::unset() {
+	template<typename TAccountPublicKey>
+	void AccountKeys::KeyAccessor<TAccountPublicKey>::unset() {
 		m_pKey.reset();
 	}
 

@@ -105,19 +105,19 @@ namespace catapult { namespace builders {
 			public:
 				explicit TransactionProperties(model::LinkAction linkAction)
 						: LinkAction(linkAction)
-						, LinkedAccountKey()
+						, LinkedPublicKey()
 				{}
 
 			public:
 				model::LinkAction LinkAction;
-				typename TExpectedTraits::LinkedType LinkedAccountKey;
+				typename TExpectedTraits::LinkedType LinkedPublicKey;
 			};
 
 		public:
 			template<typename TTransaction>
 			static void AssertTransactionProperties(const TransactionProperties& expectedProperties, const TTransaction& transaction) {
 				EXPECT_EQ(expectedProperties.LinkAction, transaction.LinkAction);
-				EXPECT_EQ(expectedProperties.LinkedAccountKey, GetLinkedPublicKey(transaction));
+				EXPECT_EQ(expectedProperties.LinkedPublicKey, GetLinkedPublicKey(transaction));
 			}
 		};
 
@@ -181,15 +181,15 @@ namespace catapult { namespace builders {
 
 	// region settings
 
-	TRAITS_BASED_TEST(CanSetRemote) {
+	TRAITS_BASED_TEST(CanSetLinkedPublicKey) {
 		// Arrange:
 		auto expectedProperties = typename TTraits::TransactionProperties(model::LinkAction::Unlink);
-		test::FillWithRandomData(expectedProperties.LinkedAccountKey);
-		const auto& linkedAccountKey = expectedProperties.LinkedAccountKey;
+		test::FillWithRandomData(expectedProperties.LinkedPublicKey);
+		const auto& linkedPublicKey = expectedProperties.LinkedPublicKey;
 
 		// Assert:
-		AssertCanBuildTransaction<TTraits>(expectedProperties, [&linkedAccountKey](auto& builder) {
-			TTraits::SetKey(builder, linkedAccountKey);
+		AssertCanBuildTransaction<TTraits>(expectedProperties, [&linkedPublicKey](auto& builder) {
+			TTraits::SetKey(builder, linkedPublicKey);
 		});
 	}
 
@@ -203,16 +203,16 @@ namespace catapult { namespace builders {
 		});
 	}
 
-	TRAITS_BASED_TEST(CanSetRemoteAndAction) {
+	TRAITS_BASED_TEST(CanSetLinkedPublicKeyAndAction) {
 		// Arrange:
 		auto linkAction = static_cast<model::LinkAction>(0x45);
 		auto expectedProperties = typename TTraits::TransactionProperties(linkAction);
-		test::FillWithRandomData(expectedProperties.LinkedAccountKey);
-		const auto& linkedAccountKey = expectedProperties.LinkedAccountKey;
+		test::FillWithRandomData(expectedProperties.LinkedPublicKey);
+		const auto& linkedPublicKey = expectedProperties.LinkedPublicKey;
 
 		// Assert:
-		AssertCanBuildTransaction<TTraits>(expectedProperties, [linkAction, &linkedAccountKey](auto& builder) {
-			TTraits::SetKey(builder, linkedAccountKey);
+		AssertCanBuildTransaction<TTraits>(expectedProperties, [linkAction, &linkedPublicKey](auto& builder) {
+			TTraits::SetKey(builder, linkedPublicKey);
 			builder.setLinkAction(linkAction);
 		});
 	}

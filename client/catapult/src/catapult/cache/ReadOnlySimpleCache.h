@@ -24,7 +24,7 @@
 namespace catapult { namespace cache {
 
 	/// Read-only overlay on top of a cache that provides support for contains.
-	template<typename TCache, typename TCacheDelta, typename TKey>
+	template<typename TCache, typename TCacheDelta, typename TCacheKey>
 	class ReadOnlySimpleCache {
 	public:
 		/// Creates a read-only overlay on top of \a cache.
@@ -47,7 +47,7 @@ namespace catapult { namespace cache {
 
 		/// Searches for the given \a key in the cache.
 		/// Returns \c true if it is found or \c false otherwise.
-		bool contains(const TKey& key) const {
+		bool contains(const TCacheKey& key) const {
 			return m_pCache ? m_pCache->contains(key) : m_pCacheDelta->contains(key);
 		}
 

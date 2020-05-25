@@ -50,11 +50,11 @@ namespace catapult { namespace observers {
 			{}
 
 		public:
-			template<typename TKey>
-			auto addAccount(const TKey& key) {
+			template<typename TAccountIdentifier>
+			auto addAccount(const TAccountIdentifier& accountIdentifier) {
 				auto& accountStateCache = cache().sub<cache::AccountStateCache>();
-				accountStateCache.addAccount(key, Height(123));
-				return accountStateCache.find(key);
+				accountStateCache.addAccount(accountIdentifier, Height(123));
+				return accountStateCache.find(accountIdentifier);
 			}
 
 			auto setupRemote(const Key& mainPublicKey, const Key& remotePublicKey) {

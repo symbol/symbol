@@ -138,8 +138,8 @@ namespace catapult { namespace test {
 			accountState.SupplementalAccountKeys.nodePublicKey().set(test::GenerateRandomByteArray<Key>());
 	}
 
-	void ForceSetLinkedAccountKey(state::AccountState& accountState, const Key& linkedAccountKey) {
+	void ForceSetLinkedPublicKey(state::AccountState& accountState, const Key& linkedPublicKey) {
 		accountState.SupplementalAccountKeys.linkedPublicKey().unset();
-		accountState.SupplementalAccountKeys.linkedPublicKey().set(linkedAccountKey);
+		accountState.SupplementalAccountKeys.linkedPublicKey().set(linkedPublicKey);
 	}
 }}

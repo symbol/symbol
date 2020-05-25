@@ -25,12 +25,12 @@
 namespace catapult { namespace harvesting {
 
 	/// Reference counted account identifiers.
-	template<typename TAccountId>
-	using RefCountedAccountIds = std::unordered_map<TAccountId, size_t, utils::ArrayHasher<TAccountId>>;
+	template<typename TAccountIdentifier>
+	using RefCountedAccountIdentifiers = std::unordered_map<TAccountIdentifier, size_t, utils::ArrayHasher<TAccountIdentifier>>;
 
 	/// Observes account address changes and stores active addresses in \a addresses.
-	DECLARE_OBSERVER(HarvestingAccountAddress, model::AccountAddressNotification)(RefCountedAccountIds<Address>& addresses);
+	DECLARE_OBSERVER(HarvestingAccountAddress, model::AccountAddressNotification)(RefCountedAccountIdentifiers<Address>& addresses);
 
 	/// Observes account public key changes and stores active public keys in \a publicKeys.
-	DECLARE_OBSERVER(HarvestingAccountPublicKey, model::AccountPublicKeyNotification)(RefCountedAccountIds<Key>& publicKeys);
+	DECLARE_OBSERVER(HarvestingAccountPublicKey, model::AccountPublicKeyNotification)(RefCountedAccountIdentifiers<Key>& publicKeys);
 }}

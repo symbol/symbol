@@ -27,11 +27,14 @@
 namespace catapult { namespace test {
 
 	namespace {
-		template<typename TKey>
-		void SetCacheBalancesT(cache::CatapultCacheDelta& cache, const TKey& key, const BalanceTransfers& transfers) {
+		template<typename TAccountIdentifier>
+		void SetCacheBalancesT(
+				cache::CatapultCacheDelta& cache,
+				const TAccountIdentifier& accountIdentifier,
+				const BalanceTransfers& transfers) {
 			auto& accountStateCache = cache.sub<cache::AccountStateCache>();
-			accountStateCache.addAccount(key, Height(123));
-			auto accountStateIter = accountStateCache.find(key);
+			accountStateCache.addAccount(accountIdentifier, Height(123));
+			auto accountStateIter = accountStateCache.find(accountIdentifier);
 			auto& accountState = accountStateIter.get();
 			for (const auto& transfer : transfers)
 				accountState.Balances.credit(transfer.MosaicId, transfer.Amount);

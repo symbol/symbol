@@ -35,7 +35,7 @@ namespace catapult {
 		struct MultisigEntryPrimarySerializer;
 		class MultisigPatriciaTree;
 
-		template<typename TCache, typename TCacheDelta, typename TKey, typename TGetResult>
+		template<typename TCache, typename TCacheDelta, typename TCacheKey, typename TGetResult>
 		class ReadOnlyArtifactCache;
 	}
 }

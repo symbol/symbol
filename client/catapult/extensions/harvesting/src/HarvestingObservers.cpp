@@ -23,12 +23,14 @@
 namespace catapult { namespace harvesting {
 
 	namespace {
-		template<typename TAccountId>
+		template<typename TAccountIdentifier>
 		class CollectingAccountVisitor {
 		public:
-			CollectingAccountVisitor(const observers::ObserverContext& context, RefCountedAccountIds<TAccountId>& accountIds)
+			CollectingAccountVisitor(
+					const observers::ObserverContext& context,
+					RefCountedAccountIdentifiers<TAccountIdentifier>& accountIdentifiers)
 					: m_context(context)
-					, m_accountIds(accountIds)
+					, m_accountIdentifiers(accountIdentifiers)
 			{}
 
 		public:
@@ -41,12 +43,11 @@ namespace catapult { namespace harvesting {
 			}
 
 		private:
-			template<typename AccountId>
-			void notify(const AccountId& accountId) {
-				auto iter = m_accountIds.find(accountId);
+			void notify(const TAccountIdentifier& accountIdentifier) {
+				auto iter = m_accountIdentifiers.find(accountIdentifier);
 				if (observers::NotifyMode::Commit == m_context.Mode) {
-					if (m_accountIds.cend() == iter)
-						m_accountIds.emplace(accountId, 1);
+					if (m_accountIdentifiers.cend() == iter)
+						m_accountIdentifiers.emplace(accountIdentifier, 1);
 					else
 						++iter->second;
 
@@ -55,16 +56,16 @@ namespace catapult { namespace harvesting {
 
 				// rollback - so account must have been previously added
 				if (0 == --iter->second)
-					m_accountIds.erase(iter);
+					m_accountIdentifiers.erase(iter);
 			}
 
 		private:
 			const observers::ObserverContext& m_context;
-			RefCountedAccountIds<TAccountId>& m_accountIds;
+			RefCountedAccountIdentifiers<TAccountIdentifier>& m_accountIdentifiers;
 		};
 	}
 
-	DECLARE_OBSERVER(HarvestingAccountAddress, model::AccountAddressNotification)(RefCountedAccountIds<Address>& addresses) {
+	DECLARE_OBSERVER(HarvestingAccountAddress, model::AccountAddressNotification)(RefCountedAccountIdentifiers<Address>& addresses) {
 		return MAKE_OBSERVER(HarvestingAccountAddress, model::AccountAddressNotification, ([&addresses](
 				const model::AccountAddressNotification& notification,
 				const observers::ObserverContext& context) {
@@ -73,7 +74,7 @@ namespace catapult { namespace harvesting {
 		}));
 	}
 
-	DECLARE_OBSERVER(HarvestingAccountPublicKey, model::AccountPublicKeyNotification)(RefCountedAccountIds<Key>& publicKeys) {
+	DECLARE_OBSERVER(HarvestingAccountPublicKey, model::AccountPublicKeyNotification)(RefCountedAccountIdentifiers<Key>& publicKeys) {
 		return MAKE_OBSERVER(HarvestingAccountPublicKey, model::AccountPublicKeyNotification, ([&publicKeys](
 				const model::AccountPublicKeyNotification& notification,
 				const observers::ObserverContext& context) {

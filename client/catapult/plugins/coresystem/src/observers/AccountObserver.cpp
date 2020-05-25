@@ -39,13 +39,13 @@ namespace catapult { namespace observers {
 			}
 
 		private:
-			template<typename AccountId>
-			void notify(const AccountId& accountId) {
+			template<typename TAccountIdentifier>
+			void notify(const TAccountIdentifier& accountIdentifier) {
 				auto& accountStateCache = m_context.Cache.sub<cache::AccountStateCache>();
 				if (NotifyMode::Commit == m_context.Mode)
-					accountStateCache.addAccount(accountId, m_context.Height);
+					accountStateCache.addAccount(accountIdentifier, m_context.Height);
 				else
-					accountStateCache.queueRemove(accountId, m_context.Height);
+					accountStateCache.queueRemove(accountIdentifier, m_context.Height);
 			}
 
 		private:

@@ -117,8 +117,8 @@ namespace catapult { namespace cache {
 	}
 
 	namespace {
-		template<typename TContainer, typename TKey>
-		void AssertElementValue(const TContainer& container, const TKey& key, const std::string& value) {
+		template<typename TContainer, typename TContainerKey>
+		void AssertElementValue(const TContainer& container, const TContainerKey& key, const std::string& value) {
 			RdbDataIterator iter;
 			container.find(key, iter);
 			test::AssertIteratorValue(value, iter);

@@ -148,10 +148,10 @@ namespace catapult { namespace test {
 		const auto& accountStateCache = cacheView.sub<cache::AccountStateCache>();
 
 		for (const auto& expectedBalance : expectedBalances) {
-			const auto& address = accounts.getAddress(expectedBalance.AccountId);
+			const auto& address = accounts.getAddress(expectedBalance.AccountShortId);
 
 			std::ostringstream out;
-			out << "account id " << expectedBalance.AccountId << " (" << model::AddressToString(address) << ")";
+			out << "account id " << expectedBalance.AccountShortId << " (" << model::AddressToString(address) << ")";
 			auto message = out.str();
 
 			// Assert:

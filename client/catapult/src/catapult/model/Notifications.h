@@ -526,7 +526,7 @@ namespace catapult { namespace model {
 	};
 
 	/// Notification of a key link.
-	template<typename TKey, NotificationType Key_Link_Notification_Type>
+	template<typename TAccountPublicKey, NotificationType Key_Link_Notification_Type>
 	struct BasicKeyLinkNotification : public Notification {
 	public:
 		/// Matching notification type.
@@ -534,7 +534,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Creates a notification around \a mainAccountPublicKey, \a linkedPublicKey and \a linkAction.
-		BasicKeyLinkNotification(const Key& mainAccountPublicKey, const TKey& linkedPublicKey, model::LinkAction linkAction)
+		BasicKeyLinkNotification(const Key& mainAccountPublicKey, const TAccountPublicKey& linkedPublicKey, model::LinkAction linkAction)
 				: Notification(Notification_Type, sizeof(BasicKeyLinkNotification))
 				, MainAccountPublicKey(mainAccountPublicKey)
 				, LinkedPublicKey(linkedPublicKey)
@@ -546,7 +546,7 @@ namespace catapult { namespace model {
 		const Key& MainAccountPublicKey;
 
 		/// Linked public key.
-		const TKey& LinkedPublicKey;
+		const TAccountPublicKey& LinkedPublicKey;
 
 		/// Link action.
 		model::LinkAction LinkAction;

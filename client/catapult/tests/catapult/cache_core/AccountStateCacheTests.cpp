@@ -46,7 +46,7 @@ namespace catapult { namespace cache {
 
 			static constexpr auto Default_Height = Height(321);
 
-			static Type GenerateAccountId() {
+			static Type GenerateAccountIdentifier() {
 				return test::GenerateRandomAddress();
 			}
 
@@ -65,7 +65,7 @@ namespace catapult { namespace cache {
 
 			static constexpr auto Default_Height = Height(432);
 
-			static Type GenerateAccountId() {
+			static Type GenerateAccountIdentifier() {
 				return test::GenerateRandomByteArray<Key>();
 			}
 
@@ -103,16 +103,16 @@ namespace catapult { namespace cache {
 				return m_delta->size();
 			}
 
-			bool contains(const IdType& accountId) const {
-				return m_delta->contains(accountId);
+			bool contains(const IdType& accountIdentifier) const {
+				return m_delta->contains(accountIdentifier);
 			}
 
-			auto find(const IdType& accountId) {
-				return m_delta->find(accountId);
+			auto find(const IdType& accountIdentifier) {
+				return m_delta->find(accountIdentifier);
 			}
 
-			auto find(const IdType& accountId) const {
-				return m_delta->find(accountId);
+			auto find(const IdType& accountIdentifier) const {
+				return m_delta->find(accountIdentifier);
 			}
 
 			void insert(const state::AccountState& accountState) {
@@ -226,7 +226,7 @@ namespace catapult { namespace cache {
 
 	namespace {
 		Key GenerateRandomPublicKey() {
-			return PublicKeyTraits::GenerateAccountId();
+			return PublicKeyTraits::GenerateAccountIdentifier();
 		}
 
 		Address ToAddress(const Key& publicKey) {
@@ -250,9 +250,9 @@ namespace catapult { namespace cache {
 		}
 
 		template<typename TKeyTraits>
-		void AddAccountToCacheDelta(AccountStateCacheDelta& delta, const typename TKeyTraits::Type& key, Amount balance) {
-			delta.addAccount(key, TKeyTraits::Default_Height);
-			delta.find(key).get().Balances.credit(Harvesting_Mosaic_Id, balance);
+		void AddAccountToCacheDelta(AccountStateCacheDelta& delta, const typename TKeyTraits::Type& accountIdentifier, Amount balance) {
+			delta.addAccount(accountIdentifier, TKeyTraits::Default_Height);
+			delta.find(accountIdentifier).get().Balances.credit(Harvesting_Mosaic_Id, balance);
 		}
 
 		state::AccountState CreateAccountStateWithRandomAddressAndPublicKey() {
@@ -419,42 +419,42 @@ namespace catapult { namespace cache {
 		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		DefaultFillCache(cache, 10);
 		auto delta = cache.createDelta();
-		auto accountId = TTraits::GenerateAccountId();
+		auto accountIdentifier = TTraits::GenerateAccountIdentifier();
 
 		// Act:
-		delta->addAccount(accountId, TTraits::Default_Height);
+		delta->addAccount(accountIdentifier, TTraits::Default_Height);
 
 		// Assert:
 		EXPECT_EQ(11u, delta->size());
-		EXPECT_TRUE(!!delta->find(accountId).tryGet());
+		EXPECT_TRUE(!!delta->find(accountIdentifier).tryGet());
 	}
 
 	ID_BASED_TEST(AddAccountAutomaticallyOptimizesCurrencyMosaicAccess) {
 		// Arrange:
 		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		auto delta = cache.createDelta();
-		auto accountId = TTraits::GenerateAccountId();
+		auto accountIdentifier = TTraits::GenerateAccountIdentifier();
 
 		// Act:
-		delta->addAccount(accountId, TTraits::Default_Height);
-		AddThreeMosaicBalances(delta->find(accountId).get());
+		delta->addAccount(accountIdentifier, TTraits::Default_Height);
+		AddThreeMosaicBalances(delta->find(accountIdentifier).get());
 
 		// Assert:
-		EXPECT_EQ(Currency_Mosaic_Id, delta->find(accountId).get().Balances.begin()->first);
+		EXPECT_EQ(Currency_Mosaic_Id, delta->find(accountIdentifier).get().Balances.begin()->first);
 	}
 
 	ID_BASED_TEST(SubsequentAddAccountHasNoEffect) {
 		// Arrange:
 		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		auto delta = cache.createDelta();
-		auto accountId = TTraits::GenerateAccountId();
-		delta->addAccount(accountId, TTraits::Default_Height);
-		const auto& originalAddedAccountState = delta->find(accountId).get();
+		auto accountIdentifier = TTraits::GenerateAccountIdentifier();
+		delta->addAccount(accountIdentifier, TTraits::Default_Height);
+		const auto& originalAddedAccountState = delta->find(accountIdentifier).get();
 
 		// Act + Assert:
 		for (auto i = 0u; i < 10; ++i) {
-			delta->addAccount(accountId, Height(1235u + i));
-			const auto& addedAccountState = delta->find(accountId).get();
+			delta->addAccount(accountIdentifier, Height(1235u + i));
+			const auto& addedAccountState = delta->find(accountIdentifier).get();
 
 			// - only first added account should change the state (and subsequent adds do not change height)
 			EXPECT_EQ(&originalAddedAccountState, &addedAccountState);
@@ -466,7 +466,7 @@ namespace catapult { namespace cache {
 		// Arrange:
 		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		auto delta = cache.createDelta();
-		auto address = AddressTraits::GenerateAccountId();
+		auto address = AddressTraits::GenerateAccountIdentifier();
 		delta->addAccount(address, Height(1230));
 		cache.commit();
 
@@ -533,7 +533,7 @@ namespace catapult { namespace cache {
 		// Arrange:
 		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		auto delta = cache.createDelta();
-		auto address = AddressTraits::GenerateAccountId();
+		auto address = AddressTraits::GenerateAccountIdentifier();
 		delta->addAccount(address, Height(1230));
 		cache.commit();
 
@@ -672,39 +672,39 @@ namespace catapult { namespace cache {
 		// Arrange:
 		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		auto delta = cache.createDelta();
-		auto accountId = TTraits::GenerateAccountId();
-		delta->addAccount(accountId, TTraits::Default_Height);
+		auto accountIdentifier = TTraits::GenerateAccountIdentifier();
+		delta->addAccount(accountIdentifier, TTraits::Default_Height);
 
 		// Sanity:
 		EXPECT_EQ(1u, delta->size());
 
 		// Act:
-		delta->queueRemove(accountId, TTraits::Default_Height);
+		delta->queueRemove(accountIdentifier, TTraits::Default_Height);
 		delta->commitRemovals();
 
 		// Assert:
 		EXPECT_EQ(0u, delta->size());
-		EXPECT_FALSE(!!utils::as_const(delta)->find(accountId).tryGet());
+		EXPECT_FALSE(!!utils::as_const(delta)->find(accountIdentifier).tryGet());
 	}
 
 	ID_BASED_TEST(Remove_QueueRemoveDoesNotRemoveExistingAccountWhenHeightDoesNotMatch) {
 		// Arrange:
 		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		auto delta = cache.createDelta();
-		auto accountId = TTraits::GenerateAccountId();
-		delta->addAccount(accountId, TTraits::Default_Height);
-		const auto& expectedAccount = delta->find(accountId).get();
+		auto accountIdentifier = TTraits::GenerateAccountIdentifier();
+		delta->addAccount(accountIdentifier, TTraits::Default_Height);
+		const auto& expectedAccount = delta->find(accountIdentifier).get();
 
 		// Sanity:
 		EXPECT_EQ(1u, delta->size());
 
 		// Act:
-		delta->queueRemove(accountId, TTraits::Default_Height + Height(1));
+		delta->queueRemove(accountIdentifier, TTraits::Default_Height + Height(1));
 		delta->commitRemovals();
 
 		// Assert:
 		EXPECT_EQ(1u, delta->size());
-		EXPECT_EQ(&expectedAccount, TTraits::Find(*delta, accountId).tryGet());
+		EXPECT_EQ(&expectedAccount, TTraits::Find(*delta, accountIdentifier).tryGet());
 	}
 
 	ID_BASED_TEST(Remove_QueueRemoveCanBeCalledOnNonexistentAccount) {
@@ -712,13 +712,13 @@ namespace catapult { namespace cache {
 		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		DefaultFillCache(cache, 10);
 		auto delta = cache.createDelta();
-		auto accountId = TTraits::GenerateAccountId();
+		auto accountIdentifier = TTraits::GenerateAccountIdentifier();
 
 		// Sanity:
 		EXPECT_EQ(10u, delta->size());
 
 		// Act:
-		delta->queueRemove(accountId, Height(1236));
+		delta->queueRemove(accountIdentifier, Height(1236));
 		delta->commitRemovals();
 
 		// Assert:
@@ -729,67 +729,67 @@ namespace catapult { namespace cache {
 		// Arrange:
 		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		auto delta = cache.createDelta();
-		auto accountId = TTraits::GenerateAccountId();
-		delta->addAccount(accountId, TTraits::Default_Height);
-		const auto& expectedAccount = delta->find(accountId).get();
+		auto accountIdentifier = TTraits::GenerateAccountIdentifier();
+		delta->addAccount(accountIdentifier, TTraits::Default_Height);
+		const auto& expectedAccount = delta->find(accountIdentifier).get();
 
 		// Sanity:
 		EXPECT_EQ(1u, delta->size());
 
 		// Act:
-		delta->queueRemove(accountId, TTraits::Default_Height);
+		delta->queueRemove(accountIdentifier, TTraits::Default_Height);
 
 		// Assert: the account was not removed yet
 		EXPECT_EQ(1u, delta->size());
-		EXPECT_EQ(&expectedAccount, TTraits::Find(*delta, accountId).tryGet());
+		EXPECT_EQ(&expectedAccount, TTraits::Find(*delta, accountIdentifier).tryGet());
 	}
 
 	ID_BASED_TEST(Remove_ClearRemovePreventsRemovalOfAccountQueuedForRemovalWhenHeightMatches) {
 		// Arrange:
 		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		auto delta = cache.createDelta();
-		auto accountId = TTraits::GenerateAccountId();
-		delta->addAccount(accountId, TTraits::Default_Height);
-		const auto& expectedAccount = delta->find(accountId).get();
+		auto accountIdentifier = TTraits::GenerateAccountIdentifier();
+		delta->addAccount(accountIdentifier, TTraits::Default_Height);
+		const auto& expectedAccount = delta->find(accountIdentifier).get();
 
 		// Sanity:
 		EXPECT_EQ(1u, delta->size());
 
 		// Act:
-		delta->queueRemove(accountId, TTraits::Default_Height);
-		delta->clearRemove(accountId, TTraits::Default_Height);
+		delta->queueRemove(accountIdentifier, TTraits::Default_Height);
+		delta->clearRemove(accountIdentifier, TTraits::Default_Height);
 		delta->commitRemovals();
 
 		// Assert:
 		EXPECT_EQ(1u, delta->size());
-		EXPECT_EQ(&expectedAccount, TTraits::Find(*delta, accountId).tryGet());
+		EXPECT_EQ(&expectedAccount, TTraits::Find(*delta, accountIdentifier).tryGet());
 	}
 
 	ID_BASED_TEST(Remove_ClearRemoveDoesNotPreventRemovalOfAccountQueuedForRemovalWhenHeightDoesNotMatch) {
 		// Arrange:
 		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		auto delta = cache.createDelta();
-		auto accountId = TTraits::GenerateAccountId();
-		delta->addAccount(accountId, TTraits::Default_Height);
+		auto accountIdentifier = TTraits::GenerateAccountIdentifier();
+		delta->addAccount(accountIdentifier, TTraits::Default_Height);
 
 		// Sanity:
 		EXPECT_EQ(1u, delta->size());
 
 		// Act:
-		delta->queueRemove(accountId, TTraits::Default_Height);
-		delta->clearRemove(accountId, TTraits::Default_Height + Height(1));
+		delta->queueRemove(accountIdentifier, TTraits::Default_Height);
+		delta->clearRemove(accountIdentifier, TTraits::Default_Height + Height(1));
 		delta->commitRemovals();
 
 		// Assert:
 		EXPECT_EQ(0u, delta->size());
-		EXPECT_FALSE(!!utils::as_const(delta)->find(accountId).tryGet());
+		EXPECT_FALSE(!!utils::as_const(delta)->find(accountIdentifier).tryGet());
 	}
 
 	ID_BASED_TEST(Remove_CommitRemovalsDoesNothingWhenNoRemovalsHaveBeenQueued) {
 		// Arrange:
 		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		auto delta = cache.createDelta();
-		delta->addAccount(TTraits::GenerateAccountId(), TTraits::Default_Height);
+		delta->addAccount(TTraits::GenerateAccountIdentifier(), TTraits::Default_Height);
 
 		// Act:
 		delta->commitRemovals();
@@ -805,12 +805,12 @@ namespace catapult { namespace cache {
 
 		// Act: add 5 (0..4) accounts and queue removals of two (1, 3)
 		for (auto i = 0u; i < 5; ++i) {
-			auto accountId = TTraits::GenerateAccountId();
+			auto accountIdentifier = TTraits::GenerateAccountIdentifier();
 			auto height = TTraits::Default_Height + Height(i);
-			delta->addAccount(accountId, height);
+			delta->addAccount(accountIdentifier, height);
 
 			if (1u == i % 2)
-				delta->queueRemove(accountId, height);
+				delta->queueRemove(accountIdentifier, height);
 		}
 
 		// Sanity:

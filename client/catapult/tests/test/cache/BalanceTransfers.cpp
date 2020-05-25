@@ -27,11 +27,11 @@
 namespace catapult { namespace test {
 
 	namespace {
-		template<typename TCache, typename TKey>
-		void AssertBalancesT(const TCache& cache, const TKey& key, const BalanceTransfers& expectedBalances) {
+		template<typename TCache, typename TAccountIdentifier>
+		void AssertBalancesT(const TCache& cache, const TAccountIdentifier& accountIdentifier, const BalanceTransfers& expectedBalances) {
 			// Assert:
-			auto accountStateIter = cache.find(key);
-			ASSERT_TRUE(!!accountStateIter.tryGet()) << key;
+			auto accountStateIter = cache.find(accountIdentifier);
+			ASSERT_TRUE(!!accountStateIter.tryGet()) << accountIdentifier;
 
 			const auto& accountState = accountStateIter.get();
 			EXPECT_EQ(expectedBalances.size(), accountState.Balances.size());

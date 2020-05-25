@@ -43,11 +43,11 @@ namespace catapult { namespace cache {
 				return *m_pDelta;
 			}
 
-			template<typename TKey>
-			auto addAccount(const TKey& key) {
+			template<typename TAccountIdentifier>
+			auto addAccount(const TAccountIdentifier& accountIdentifier) {
 				auto& cacheDelta = cache();
-				cacheDelta.addAccount(key, Height(123));
-				return cacheDelta.find(key);
+				cacheDelta.addAccount(accountIdentifier, Height(123));
+				return cacheDelta.find(accountIdentifier);
 			}
 
 			void addAccount(const Key& mainPublicKey, state::AccountType accountType, const Key& remotePublicKey) {

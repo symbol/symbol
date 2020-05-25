@@ -98,7 +98,7 @@ namespace catapult { namespace test {
 	/// Expected balance.
 	struct ExpectedBalance {
 		/// Account identifier.
-		size_t AccountId;
+		size_t AccountShortId;
 
 		/// Expected account balance.
 		Amount Balance;

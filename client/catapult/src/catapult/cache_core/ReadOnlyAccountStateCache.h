@@ -37,8 +37,8 @@ namespace catapult { namespace cache {
 			: public ReadOnlyArtifactCache<BasicAccountStateCacheView, BasicAccountStateCacheDelta, Address, state::AccountState>
 			, public ReadOnlyArtifactCache<BasicAccountStateCacheView, BasicAccountStateCacheDelta, Key, state::AccountState> {
 	private:
-		template<typename TKey, typename TValue>
-		using ReadOnlySubCache = ReadOnlyArtifactCache<BasicAccountStateCacheView, BasicAccountStateCacheDelta, TKey, TValue>;
+		template<typename TCacheKey, typename TCacheValue>
+		using ReadOnlySubCache = ReadOnlyArtifactCache<BasicAccountStateCacheView, BasicAccountStateCacheDelta, TCacheKey, TCacheValue>;
 
 		using AddressBasedCache = ReadOnlySubCache<Address, state::AccountState>;
 		using KeyBasedCache = ReadOnlySubCache<Key, state::AccountState>;

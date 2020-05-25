@@ -30,17 +30,17 @@ namespace catapult { namespace state {
 	// region KeyAccessor - construction + assignment
 
 	namespace {
-		template<typename TKey>
-		using KeyAccessor = AccountKeys::KeyAccessor<TKey>;
+		template<typename TAccountPublicKey>
+		using KeyAccessor = AccountKeys::KeyAccessor<TAccountPublicKey>;
 
-		template<typename TKey>
-		void AssertUnset(const KeyAccessor<TKey>& keyAccessor) {
+		template<typename TAccountPublicKey>
+		void AssertUnset(const KeyAccessor<TAccountPublicKey>& keyAccessor) {
 			EXPECT_FALSE(!!keyAccessor);
-			EXPECT_EQ(TKey(), keyAccessor.get());
+			EXPECT_EQ(TAccountPublicKey(), keyAccessor.get());
 		}
 
-		template<typename TKey>
-		void AssertSet(const KeyAccessor<TKey>& keyAccessor, const TKey& expectedKey) {
+		template<typename TAccountPublicKey>
+		void AssertSet(const KeyAccessor<TAccountPublicKey>& keyAccessor, const TAccountPublicKey& expectedKey) {
 			EXPECT_TRUE(!!keyAccessor);
 			EXPECT_EQ(expectedKey, keyAccessor.get());
 		}

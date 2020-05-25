@@ -31,7 +31,7 @@ namespace catapult {
 		class BlockStatisticCacheDelta;
 		class BlockStatisticCacheView;
 
-		template<typename TCache, typename TCacheDelta, typename TKey>
+		template<typename TCache, typename TCacheDelta, typename TCacheKey>
 		class ReadOnlySimpleCache;
 	}
 }

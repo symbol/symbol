@@ -146,13 +146,13 @@ namespace catapult { namespace harvesting {
 			}
 
 		private:
-			template<typename TKey>
-			void addMainAccount(const TKey& accountKey, const Key& vrfPublicKey, Amount balance) {
+			template<typename TAccountIdentifier>
+			void addMainAccount(const TAccountIdentifier& accountIdentifier, const Key& vrfPublicKey, Amount balance) {
 				auto delta = m_cache.createDelta();
 				auto& accountStateCache = delta.sub<cache::AccountStateCache>();
 
-				accountStateCache.addAccount(accountKey, Height(100));
-				auto mainAccountStateIter = accountStateCache.find(accountKey);
+				accountStateCache.addAccount(accountIdentifier, Height(100));
+				auto mainAccountStateIter = accountStateCache.find(accountIdentifier);
 				mainAccountStateIter.get().Balances.credit(Harvesting_Mosaic_Id, balance);
 				mainAccountStateIter.get().ImportanceSnapshots.set(Importance(1000), model::ImportanceHeight(100));
 				mainAccountStateIter.get().SupplementalAccountKeys.vrfPublicKey().set(vrfPublicKey);
@@ -208,7 +208,7 @@ namespace catapult { namespace harvesting {
 
 		// region test utils
 
-		void ResetAccountKey(state::AccountKeys::KeyAccessor<Key>& keyAccessor) {
+		void SetRandom(state::AccountKeys::KeyAccessor<Key>& keyAccessor) {
 			keyAccessor.unset();
 			keyAccessor.set(test::GenerateRandomByteArray<Key>());
 		}
@@ -302,19 +302,19 @@ namespace catapult { namespace harvesting {
 
 	TEST(TEST_CLASS, UpdateBypassesInvalidAccount_MismatchedLinkedPublicKey) {
 		AssertUpdateBypasses([](auto& accountState) {
-			ResetAccountKey(accountState.SupplementalAccountKeys.linkedPublicKey());
+			SetRandom(accountState.SupplementalAccountKeys.linkedPublicKey());
 		});
 	}
 
 	TEST(TEST_CLASS, UpdateBypassesInvalidAccount_MismatchedVrfPublicKey) {
 		AssertUpdateBypasses([](auto& accountState) {
-			ResetAccountKey(accountState.SupplementalAccountKeys.vrfPublicKey());
+			SetRandom(accountState.SupplementalAccountKeys.vrfPublicKey());
 		});
 	}
 
 	TEST(TEST_CLASS, UpdateBypassesInvalidAccount_MismatchedNodePublicKey) {
 		AssertUpdateBypasses([](auto& accountState) {
-			ResetAccountKey(accountState.SupplementalAccountKeys.nodePublicKey());
+			SetRandom(accountState.SupplementalAccountKeys.nodePublicKey());
 		});
 	}
 
@@ -399,19 +399,19 @@ namespace catapult { namespace harvesting {
 	TEST(TEST_CLASS, UpdateSavePrunesMismatchedLinkedPublicKeyAccounts) {
 		// Assert: linkedPublicKey mismatch is fatal error raised by RequireLinkedRemoteAndMainAccounts indicating state corruption
 		EXPECT_THROW(AssertPruned([](auto& accountState) {
-			ResetAccountKey(accountState.SupplementalAccountKeys.linkedPublicKey());
+			SetRandom(accountState.SupplementalAccountKeys.linkedPublicKey());
 		}), catapult_runtime_error);
 	}
 
 	TEST(TEST_CLASS, UpdateSavePrunesMismatchedVrfPublicKeyAccounts) {
 		AssertPruned([](auto& accountState) {
-			ResetAccountKey(accountState.SupplementalAccountKeys.vrfPublicKey());
+			SetRandom(accountState.SupplementalAccountKeys.vrfPublicKey());
 		});
 	}
 
 	TEST(TEST_CLASS, UpdateSavePrunesMismatchedNodePublicKeyAccounts) {
 		AssertPruned([](auto& accountState) {
-			ResetAccountKey(accountState.SupplementalAccountKeys.nodePublicKey());
+			SetRandom(accountState.SupplementalAccountKeys.nodePublicKey());
 		});
 	}
 

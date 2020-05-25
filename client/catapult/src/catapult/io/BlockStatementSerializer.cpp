@@ -54,8 +54,8 @@ namespace catapult { namespace io {
 			}
 		}
 
-		template<typename TKey, typename TValue>
-		void WriteStatements(OutputStream& outputStream, const std::map<TKey, TValue>& statements) {
+		template<typename TStatementKey, typename TStatementValue>
+		void WriteStatements(OutputStream& outputStream, const std::map<TStatementKey, TStatementValue>& statements) {
 			Write32(outputStream, utils::checked_cast<size_t, uint32_t>(statements.size()));
 			for (const auto& pair : statements)
 				WriteStatement(outputStream, pair.first, pair.second);
@@ -112,8 +112,8 @@ namespace catapult { namespace io {
 			statements.emplace(key, std::move(statement));
 		}
 
-		template<typename TKey, typename TValue>
-		void ReadStatements(InputStream& inputStream, std::map<TKey, TValue>& statements) {
+		template<typename TStatementKey, typename TStatementValue>
+		void ReadStatements(InputStream& inputStream, std::map<TStatementKey, TStatementValue>& statements) {
 			auto numStatements = Read32(inputStream);
 			for (auto i = 0u; i < numStatements; ++i)
 				ReadStatement(inputStream, statements);

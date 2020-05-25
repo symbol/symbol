@@ -52,7 +52,7 @@ namespace catapult { namespace observers {
 				// explicitly mark the account as a main account (local harvesting when remote harvesting is enabled)
 				auto accountStateIter = UnlinkedAccountTraits::AddAccount(delta, publicKey, height);
 				accountStateIter.get().AccountType = state::AccountType::Main;
-				test::ForceSetLinkedAccountKey(accountStateIter.get(), test::GenerateRandomByteArray<Key>());
+				test::ForceSetLinkedPublicKey(accountStateIter.get(), test::GenerateRandomByteArray<Key>());
 				return accountStateIter;
 			}
 		};
@@ -63,12 +63,12 @@ namespace catapult { namespace observers {
 				auto mainAccountPublicKey = test::GenerateRandomByteArray<Key>();
 				auto mainAccountStateIter = UnlinkedAccountTraits::AddAccount(delta, mainAccountPublicKey, height);
 				mainAccountStateIter.get().AccountType = state::AccountType::Main;
-				test::ForceSetLinkedAccountKey(mainAccountStateIter.get(), publicKey);
+				test::ForceSetLinkedPublicKey(mainAccountStateIter.get(), publicKey);
 
 				// 2. add the remote account with specified key
 				auto accountStateIter = UnlinkedAccountTraits::AddAccount(delta, publicKey, height);
 				accountStateIter.get().AccountType = state::AccountType::Remote;
-				test::ForceSetLinkedAccountKey(accountStateIter.get(), mainAccountPublicKey);
+				test::ForceSetLinkedPublicKey(accountStateIter.get(), mainAccountPublicKey);
 				return mainAccountStateIter;
 			}
 		};
@@ -582,7 +582,7 @@ namespace catapult { namespace observers {
 	TEST(TEST_CLASS, FailureWhenLinkedAccountDoesNotReferenceRemoteAccount) {
 		AssertImproperLink([](auto& accountState) {
 			// Arrange: change the main account to point to a different account
-			test::ForceSetLinkedAccountKey(accountState, test::GenerateRandomByteArray<Key>());
+			test::ForceSetLinkedPublicKey(accountState, test::GenerateRandomByteArray<Key>());
 		});
 	}
 

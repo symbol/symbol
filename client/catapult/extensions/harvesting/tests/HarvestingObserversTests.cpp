@@ -37,8 +37,8 @@ namespace catapult { namespace harvesting {
 				return model::AccountAddressNotification(test::UnresolveXor(key));
 			}
 
-			static auto CreateObserver(RefCountedAccountIds<Address>& accountIds) {
-				return CreateHarvestingAccountAddressObserver(accountIds);
+			static auto CreateObserver(RefCountedAccountIdentifiers<Address>& accountIdentifiers) {
+				return CreateHarvestingAccountAddressObserver(accountIdentifiers);
 			}
 		};
 
@@ -51,8 +51,8 @@ namespace catapult { namespace harvesting {
 				return model::AccountPublicKeyNotification(key);
 			}
 
-			static auto CreateObserver(RefCountedAccountIds<Key>& accountIds) {
-				return CreateHarvestingAccountPublicKeyObserver(accountIds);
+			static auto CreateObserver(RefCountedAccountIdentifiers<Key>& accountIdentifiers) {
+				return CreateHarvestingAccountPublicKeyObserver(accountIdentifiers);
 			}
 		};
 	}
@@ -69,8 +69,8 @@ namespace catapult { namespace harvesting {
 
 	ACCOUNT_KEY_TEST(AccountObserverAddsAccountOnCommit) {
 		// Arrange:
-		auto accountIds = RefCountedAccountIds<decltype(TTraits::CreateKey())>();
-		auto pObserver = TTraits::CreateObserver(accountIds);
+		auto accountIdentifiers = RefCountedAccountIdentifiers<decltype(TTraits::CreateKey())>();
+		auto pObserver = TTraits::CreateObserver(accountIdentifiers);
 
 		auto key = TTraits::CreateKey();
 		auto notification = TTraits::CreateNotification(key);
@@ -80,17 +80,17 @@ namespace catapult { namespace harvesting {
 		test::ObserveNotification(*pObserver, notification, context);
 
 		// Assert: the account was captured
-		EXPECT_EQ(1u, accountIds.size());
+		EXPECT_EQ(1u, accountIdentifiers.size());
 
-		auto iter = accountIds.find(key);
-		ASSERT_NE(accountIds.end(), iter);
+		auto iter = accountIdentifiers.find(key);
+		ASSERT_NE(accountIdentifiers.end(), iter);
 		EXPECT_EQ(1u, iter->second);
 	}
 
 	ACCOUNT_KEY_TEST(AccountObserverAddsAccountOnEachCommit) {
 		// Arrange:
-		auto accountIds = RefCountedAccountIds<decltype(TTraits::CreateKey())>();
-		auto pObserver = TTraits::CreateObserver(accountIds);
+		auto accountIdentifiers = RefCountedAccountIdentifiers<decltype(TTraits::CreateKey())>();
+		auto pObserver = TTraits::CreateObserver(accountIdentifiers);
 
 		auto key = TTraits::CreateKey();
 		auto notification = TTraits::CreateNotification(key);
@@ -102,17 +102,17 @@ namespace catapult { namespace harvesting {
 		test::ObserveNotification(*pObserver, notification, context);
 
 		// Assert: the account was captured
-		EXPECT_EQ(1u, accountIds.size());
+		EXPECT_EQ(1u, accountIdentifiers.size());
 
-		auto iter = accountIds.find(key);
-		ASSERT_NE(accountIds.end(), iter);
+		auto iter = accountIdentifiers.find(key);
+		ASSERT_NE(accountIdentifiers.end(), iter);
 		EXPECT_EQ(3u, iter->second);
 	}
 
 	ACCOUNT_KEY_TEST(AccountObserverRemovesAccountWhenLastReferenceIsRemovedOnRollback) {
 		// Arrange:
-		auto accountIds = RefCountedAccountIds<decltype(TTraits::CreateKey())>();
-		auto pObserver = TTraits::CreateObserver(accountIds);
+		auto accountIdentifiers = RefCountedAccountIdentifiers<decltype(TTraits::CreateKey())>();
+		auto pObserver = TTraits::CreateObserver(accountIdentifiers);
 
 		auto key = TTraits::CreateKey();
 		auto notification = TTraits::CreateNotification(key);
@@ -121,20 +121,20 @@ namespace catapult { namespace harvesting {
 		test::ObserveNotification(*pObserver, notification, commitContext);
 
 		// Sanity:
-		EXPECT_EQ(1u, accountIds.size());
+		EXPECT_EQ(1u, accountIdentifiers.size());
 
 		// Act:
 		test::ObserverTestContext rollbackContext(observers::NotifyMode::Rollback);
 		test::ObserveNotification(*pObserver, notification, rollbackContext);
 
 		// Assert: the account was removed
-		EXPECT_EQ(0u, accountIds.size());
+		EXPECT_EQ(0u, accountIdentifiers.size());
 	}
 
 	ACCOUNT_KEY_TEST(AccountObserverDoesNotRemoveAccountWhenIntermediateReferenceIsRemovedOnRollback) {
 		// Arrange:
-		auto accountIds = RefCountedAccountIds<decltype(TTraits::CreateKey())>();
-		auto pObserver = TTraits::CreateObserver(accountIds);
+		auto accountIdentifiers = RefCountedAccountIdentifiers<decltype(TTraits::CreateKey())>();
+		auto pObserver = TTraits::CreateObserver(accountIdentifiers);
 
 		auto key = TTraits::CreateKey();
 		auto notification = TTraits::CreateNotification(key);
@@ -144,17 +144,17 @@ namespace catapult { namespace harvesting {
 		test::ObserveNotification(*pObserver, notification, commitContext);
 
 		// Sanity:
-		EXPECT_EQ(1u, accountIds.size());
+		EXPECT_EQ(1u, accountIdentifiers.size());
 
 		// Act:
 		test::ObserverTestContext rollbackContext(observers::NotifyMode::Rollback);
 		test::ObserveNotification(*pObserver, notification, rollbackContext);
 
 		// Assert: the account was not removed
-		EXPECT_EQ(1u, accountIds.size());
+		EXPECT_EQ(1u, accountIdentifiers.size());
 
-		auto iter = accountIds.find(key);
-		ASSERT_NE(accountIds.end(), iter);
+		auto iter = accountIdentifiers.find(key);
+		ASSERT_NE(accountIdentifiers.end(), iter);
 		EXPECT_EQ(1u, iter->second);
 	}
 

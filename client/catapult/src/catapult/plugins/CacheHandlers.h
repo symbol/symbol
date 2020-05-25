@@ -57,18 +57,18 @@ namespace catapult { namespace plugins {
 			static constexpr auto Diagnostic_Infos = static_cast<ionet::PacketType>(1200 + static_cast<uint8_t>(FacilityCode));
 		};
 
-		template<ionet::PacketType PacketType, typename TKey>
+		template<ionet::PacketType PacketType, typename TCacheKey>
 		struct StatePathRequestPacket : public ionet::Packet {
 			static constexpr ionet::PacketType Packet_Type = PacketType;
 
-			TKey Key;
+			TCacheKey Key;
 		};
 
-		template<ionet::PacketType PacketType, typename TKey>
+		template<ionet::PacketType PacketType, typename TCacheKey>
 		struct BatchHandlerFactoryTraits {
 			static constexpr ionet::PacketType Packet_Type = PacketType;
 
-			using RequestStructureType = TKey;
+			using RequestStructureType = TCacheKey;
 		};
 	};
 }}

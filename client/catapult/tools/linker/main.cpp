@@ -68,10 +68,10 @@ namespace catapult { namespace tools { namespace linker {
 				// 1. create transaction
 				auto signer = crypto::KeyPair::FromString(options["secret"].as<std::string>());
 				auto linkedPublicKey = options["linkedPublicKey"].as<std::string>();
-				auto networkId = config.BlockChain.Network.Identifier;
+				auto networkIdentifier = config.BlockChain.Network.Identifier;
 				auto pTransaction = options["type"].as<std::string>() == "voting"
-						? createVotingKeyLinkTransaction(networkId, signer.publicKey(), linkedPublicKey)
-						: createVrfKeyLinkTransaction(networkId, signer.publicKey(), linkedPublicKey);
+						? createVotingKeyLinkTransaction(networkIdentifier, signer.publicKey(), linkedPublicKey)
+						: createVrfKeyLinkTransaction(networkIdentifier, signer.publicKey(), linkedPublicKey);
 
 				// 2. sign it
 				pTransaction->Deadline = Timestamp(1);
@@ -101,20 +101,20 @@ namespace catapult { namespace tools { namespace linker {
 			}
 
 			std::shared_ptr<model::Transaction> createVotingKeyLinkTransaction(
-					model::NetworkIdentifier networkId,
+					model::NetworkIdentifier networkIdentifier,
 					const Key& publicKey,
 					const std::string& linkedPublicKey) {
-				builders::VotingKeyLinkBuilder builder(networkId, publicKey);
+				builders::VotingKeyLinkBuilder builder(networkIdentifier, publicKey);
 				builder.setLinkedPublicKey(utils::ParseByteArray<VotingKey>(linkedPublicKey));
 				builder.setLinkAction(model::LinkAction::Link);
 				return builder.build();
 			}
 
 			std::shared_ptr<model::Transaction> createVrfKeyLinkTransaction(
-					model::NetworkIdentifier networkId,
+					model::NetworkIdentifier networkIdentifier,
 					const Key& publicKey,
 					const std::string& linkedPublicKey) {
-				builders::VrfKeyLinkBuilder builder(networkId, publicKey);
+				builders::VrfKeyLinkBuilder builder(networkIdentifier, publicKey);
 				builder.setLinkedPublicKey(utils::ParseByteArray<Key>(linkedPublicKey));
 				builder.setLinkAction(model::LinkAction::Link);
 				return builder.build();

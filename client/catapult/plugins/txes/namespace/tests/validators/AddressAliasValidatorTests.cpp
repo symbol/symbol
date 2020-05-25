@@ -32,13 +32,13 @@ namespace catapult { namespace validators {
 	DEFINE_COMMON_VALIDATOR_TESTS(AddressAlias,)
 
 	namespace {
-		template<typename TKey>
-		auto CreateAndSeedCache(const TKey& key) {
+		template<typename TAccountIdentifier>
+		auto CreateAndSeedCache(const TAccountIdentifier& accountIdentifier) {
 			auto cache = test::CoreSystemCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
 			{
 				auto cacheDelta = cache.createDelta();
 				auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
-				accountStateCacheDelta.addAccount(key, Height());
+				accountStateCacheDelta.addAccount(accountIdentifier, Height());
 				cache.commit(Height());
 			}
 

@@ -36,14 +36,14 @@ namespace catapult { namespace validators {
 #define SUPPLY_CHANGE_TEST_CLASS SupplyChangeMaxMosaicsValidatorTests
 
 	namespace {
-		template<typename TKey>
-		auto CreateAndSeedCache(const TKey& key) {
+		template<typename TAccountIdentifier>
+		auto CreateAndSeedCache(const TAccountIdentifier& accountIdentifier) {
 			auto cache = test::CoreSystemCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
 			{
 				auto cacheDelta = cache.createDelta();
 				auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
-				accountStateCacheDelta.addAccount(key, Height());
-				auto& accountState = accountStateCacheDelta.find(key).get();
+				accountStateCacheDelta.addAccount(accountIdentifier, Height());
+				auto& accountState = accountStateCacheDelta.find(accountIdentifier).get();
 				for (auto i = 0u; i < 5; ++i)
 					accountState.Balances.credit(MosaicId(i + 1), Amount(1));
 

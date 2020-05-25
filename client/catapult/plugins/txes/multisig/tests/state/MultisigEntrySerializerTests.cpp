@@ -50,17 +50,17 @@ namespace catapult { namespace state {
 			}
 
 		public:
-			auto createEntry(size_t mainAccountId, size_t numCosignatories, size_t numMultisigAccounts) {
-				MultisigEntry entry(m_accountAddresses[mainAccountId]);
-				entry.setMinApproval(0x80000000 | static_cast<uint32_t>(mainAccountId + 23));
-				entry.setMinRemoval(0x00010000 | static_cast<uint32_t>(mainAccountId + 34));
+			auto createEntry(size_t mainAccountShortId, size_t numCosignatories, size_t numMultisigAccounts) {
+				MultisigEntry entry(m_accountAddresses[mainAccountShortId]);
+				entry.setMinApproval(0x80000000 | static_cast<uint32_t>(mainAccountShortId + 23));
+				entry.setMinRemoval(0x00010000 | static_cast<uint32_t>(mainAccountShortId + 34));
 
 				// add cosignatories
-				for (auto i = mainAccountId; i < mainAccountId + numCosignatories; ++i)
+				for (auto i = mainAccountShortId; i < mainAccountShortId + numCosignatories; ++i)
 					entry.cosignatoryAddresses().insert(m_accountAddresses[i]);
 
 				// add multisig accounts
-				auto firstMultisigId = mainAccountId + numCosignatories;
+				auto firstMultisigId = mainAccountShortId + numCosignatories;
 				for (auto i = firstMultisigId; i < firstMultisigId + numMultisigAccounts; ++i)
 					entry.multisigAddresses().insert(m_accountAddresses[i]);
 

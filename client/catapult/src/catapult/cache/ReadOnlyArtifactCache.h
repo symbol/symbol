@@ -25,8 +25,8 @@
 namespace catapult { namespace cache {
 
 	/// Read-only overlay on top of a cache that provides support for contains, get and isActive.
-	template<typename TCache, typename TCacheDelta, typename TKey, typename TValue>
-	class ReadOnlyArtifactCache : public ReadOnlySimpleCache<TCache, TCacheDelta, TKey> {
+	template<typename TCache, typename TCacheDelta, typename TCacheKey, typename TCacheValue>
+	class ReadOnlyArtifactCache : public ReadOnlySimpleCache<TCache, TCacheDelta, TCacheKey> {
 	public:
 		/// Find iterator returned by ReadOnlyArtifactCache::find.
 		template<typename TCacheIterator, typename TCacheDeltaIterator>
@@ -50,12 +50,12 @@ namespace catapult { namespace cache {
 
 		public:
 			/// Gets a const value.
-			const TValue& get() const {
+			const TCacheValue& get() const {
 				return m_hasCacheIter ? m_cacheIter.get() : m_cacheDeltaIter.get();
 			}
 
 			/// Tries to get a const value.
-			const TValue* tryGet() const {
+			const TCacheValue* tryGet() const {
 				return m_hasCacheIter ? m_cacheIter.tryGet() : m_cacheDeltaIter.tryGet();
 			}
 
@@ -68,28 +68,28 @@ namespace catapult { namespace cache {
 	public:
 		/// Creates a read-only overlay on top of \a cache.
 		explicit ReadOnlyArtifactCache(const TCache& cache)
-				: ReadOnlySimpleCache<TCache, TCacheDelta, TKey>(cache)
+				: ReadOnlySimpleCache<TCache, TCacheDelta, TCacheKey>(cache)
 				, m_pCache(&cache)
 				, m_pCacheDelta(nullptr)
 		{}
 
 		/// Creates a read-only overlay on top of \a cache.
 		explicit ReadOnlyArtifactCache(const TCacheDelta& cache)
-				: ReadOnlySimpleCache<TCache, TCacheDelta, TKey>(cache)
+				: ReadOnlySimpleCache<TCache, TCacheDelta, TCacheKey>(cache)
 				, m_pCache(nullptr)
 				, m_pCacheDelta(&cache)
 		{}
 
 	public:
 		/// Finds the cache value identified by \a key.
-		auto find(const TKey& key) const {
+		auto find(const TCacheKey& key) const {
 			// note: having alias within function instead of at class scope allows forward declaration of caches
 			using FindIterator = ReadOnlyFindIterator<decltype(m_pCache->find(key)), decltype(m_pCacheDelta->find(key))>;
 			return m_pCache ? FindIterator(m_pCache->find(key)) : FindIterator(m_pCacheDelta->find(key));
 		}
 
 		/// Gets a value indicating whether or not an artifact with \a key is active at \a height.
-		bool isActive(const TKey& key, Height height) const {
+		bool isActive(const TCacheKey& key, Height height) const {
 			return m_pCache ? m_pCache->isActive(key, height) : m_pCacheDelta->isActive(key, height);
 		}
 

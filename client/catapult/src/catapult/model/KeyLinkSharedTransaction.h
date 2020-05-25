@@ -27,17 +27,17 @@ namespace catapult { namespace model {
 #pragma pack(push, 1)
 
 	/// Binary layout for a key link transaction body.
-	template<typename THeader, typename TKey, EntityType Key_Link_Entity_Type>
+	template<typename THeader, typename TAccountPublicKey, EntityType Key_Link_Entity_Type>
 	struct BasicKeyLinkTransactionBody : public THeader {
 	private:
-		using TransactionType = BasicKeyLinkTransactionBody<THeader, TKey, Key_Link_Entity_Type>;
+		using TransactionType = BasicKeyLinkTransactionBody<THeader, TAccountPublicKey, Key_Link_Entity_Type>;
 
 	public:
 		DEFINE_TRANSACTION_CONSTANTS(Key_Link_Entity_Type, 1)
 
 	public:
 		/// Linked public key.
-		TKey LinkedPublicKey;
+		TAccountPublicKey LinkedPublicKey;
 
 		/// Link action.
 		model::LinkAction LinkAction;
