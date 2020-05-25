@@ -93,7 +93,7 @@ namespace catapult { namespace harvesting {
 					auto shouldPruneAccount = !view.canHarvest(address, height);
 
 					if (!shouldPruneAccount) {
-						auto remoteAccountStateIter = readOnlyAccountStateCache.find(descriptor.signingKeyPair().publicKey());
+						auto remoteAccountStateIter = readOnlyAccountStateCache.find(address);
 						if (state::AccountType::Remote == remoteAccountStateIter.get().AccountType) {
 							auto mainAccountStateIter = readOnlyAccountStateCache.find(GetLinkedPublicKey(remoteAccountStateIter.get()));
 							shouldPruneAccount = !isMainAccountEligibleForDelegation(mainAccountStateIter.get(), descriptor);
