@@ -664,6 +664,22 @@ namespace catapult { namespace cache {
 		});
 	}
 
+	TEST(TEST_CLASS, AddAccountAutomaticallyOverridesAnyExistingMosaicIdBalanceOptimization) {
+		// Arrange:
+		auto accountState = CreateAccountStateWithRandomAddressAndPublicKey();
+		AddThreeMosaicBalances(accountState);
+		accountState.Balances.optimize(test::GenerateRandomValue<MosaicId>());
+
+		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
+		auto delta = cache.createDelta();
+
+		// Act:
+		delta->addAccount(accountState);
+
+		// Assert:
+		EXPECT_EQ(Currency_Mosaic_Id, delta->find(accountState.Address).get().Balances.begin()->first);
+	}
+
 	// endregion
 
 	// region queueRemove / clearRemove / commitRemovals
