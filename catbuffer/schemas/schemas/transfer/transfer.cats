@@ -14,6 +14,9 @@ struct TransferTransactionBody
 	# reserved padding to align mosaics on 8-byte boundary
 	transferTransactionBody_Reserved1 = uint32
 
+	# reserved padding to align mosaics on 8-byte boundary
+	transferTransactionBody_Reserved2 = uint8
+
 	# attached mosaics
 	mosaics = array(UnresolvedMosaic, mosaicsCount, sort_key=mosaicId)
 
