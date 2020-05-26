@@ -30,14 +30,32 @@ namespace catapult { namespace cache {
 			io::Write64(output, addresses.size());
 			for (const auto& address : addresses)
 				output.write(address);
+		}
 
+		void WriteBalanceHistories(const AddressBalanceHistoryMap& balanceHistories, io::OutputStream& output) {
+			io::Write64(output, balanceHistories.size());
+			for (const auto& balanceHistoryPair : balanceHistories) {
+				output.write(balanceHistoryPair.first);
+
+				io::Write64(output, balanceHistoryPair.second.size());
+				for (auto height : balanceHistoryPair.second.heights()) {
+					io::Write(output, height);
+					io::Write(output, balanceHistoryPair.second.balance(height));
+				}
+			}
+		}
+
+		template<typename THighValueAccounts>
+		void WriteHighValueAccounts(const THighValueAccounts& accounts, io::OutputStream& output) {
+			WriteAddresses(accounts.addresses(), output);
+			WriteBalanceHistories(accounts.balanceHistories(), output);
 			output.flush();
 		}
 
 		model::AddressSet ReadAddresses(io::InputStream& input) {
-			auto numAddresses = io::Read64(input);
-
 			model::AddressSet addresses;
+
+			auto numAddresses = io::Read64(input);
 			for (auto i = 0u; i < numAddresses; ++i) {
 				Address address;
 				input.read(address);
@@ -45,6 +63,39 @@ namespace catapult { namespace cache {
 			}
 
 			return addresses;
+		}
+
+		state::BalanceHistory ReadBalanceHistory(io::InputStream& input) {
+			state::BalanceHistory balanceHistory;
+
+			auto numBalances = io::Read64(input);
+			for (auto i = 0u; i < numBalances; ++i) {
+				auto height = io::Read<Height>(input);
+				auto amount = io::Read<Amount>(input);
+				balanceHistory.add(height, amount);
+			}
+
+			return balanceHistory;
+		}
+
+		AddressBalanceHistoryMap ReadBalanceHistories(io::InputStream& input) {
+			AddressBalanceHistoryMap balanceHistories;
+
+			auto numBalanceHistories = io::Read64(input);
+			for (auto i = 0u; i < numBalanceHistories; ++i) {
+				Address address;
+				input.read(address);
+
+				balanceHistories.emplace(address, ReadBalanceHistory(input));
+			}
+
+			return balanceHistories;
+		}
+
+		HighValueAccounts ReadHighValueAccounts(io::InputStream& input) {
+			auto addresses = ReadAddresses(input);
+			auto balanceHistories = ReadBalanceHistories(input);
+			return HighValueAccounts(std::move(addresses), std::move(balanceHistories));
 		}
 
 		// endregion
@@ -61,11 +112,11 @@ namespace catapult { namespace cache {
 			}
 
 			void saveSummary(const CatapultCacheDelta& cacheDelta, io::OutputStream& output) const override {
-				WriteAddresses(cacheDelta.sub<AccountStateCache>().highValueAddresses().Current, output);
+				WriteHighValueAccounts(cacheDelta.sub<AccountStateCache>().highValueAccounts(), output);
 			}
 
 			void loadAll(io::InputStream& input, size_t) override {
-				cache().init(HighValueAccounts(ReadAddresses(input)));
+				cache().init(ReadHighValueAccounts(input));
 			}
 		};
 
@@ -91,7 +142,7 @@ namespace catapult { namespace cache {
 		public:
 			void saveAll(const CatapultCacheView& cacheView, io::OutputStream& output) const override {
 				m_pStorage->saveAll(cacheView, output);
-				WriteAddresses(cacheView.sub<AccountStateCache>().highValueAccounts().addresses(), output);
+				WriteHighValueAccounts(cacheView.sub<AccountStateCache>().highValueAccounts(), output);
 			}
 
 			void saveSummary(const CatapultCacheDelta& cacheDelta, io::OutputStream& output) const override {
@@ -100,7 +151,7 @@ namespace catapult { namespace cache {
 
 			void loadAll(io::InputStream& input, size_t batchSize) override {
 				m_pStorage->loadAll(input, batchSize);
-				m_cache.init(HighValueAccounts(ReadAddresses(input)));
+				m_cache.init(ReadHighValueAccounts(input));
 			}
 
 		private:

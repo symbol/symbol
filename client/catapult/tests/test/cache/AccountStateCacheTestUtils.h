@@ -20,6 +20,7 @@
 
 #pragma once
 #include "catapult/cache_core/AccountStateCacheTypes.h"
+#include "catapult/cache_core/HighValueAccounts.h"
 
 namespace catapult { namespace test {
 
@@ -42,4 +43,16 @@ namespace catapult { namespace test {
 	constexpr cache::AccountStateCacheTypes::Options CreateDefaultAccountStateCacheOptions() {
 		return CreateDefaultAccountStateCacheOptions(MosaicId(1111), MosaicId(2222));
 	}
+
+	/// Creates a balance history given the specified height and balance pairs (\a balancePairs).
+	state::BalanceHistory CreateBalanceHistory(const std::vector<std::pair<Height, Amount>>& balancePairs);
+
+	/// Seed data for generating an address balance history map.
+	using AddressBalanceHistorySeeds = std::vector<std::pair<Address, std::vector<std::pair<Height, Amount>>>>;
+
+	/// Generates an address balance history map from \a seeds.
+	cache::AddressBalanceHistoryMap GenerateBalanceHistories(const AddressBalanceHistorySeeds& seeds);
+
+	/// Asserts that \a expected and \a actual are equal.
+	void AssertEqual(const cache::AddressBalanceHistoryMap& expected, const cache::AddressBalanceHistoryMap& actual);
 }}

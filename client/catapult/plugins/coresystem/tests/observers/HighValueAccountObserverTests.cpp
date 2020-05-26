@@ -66,8 +66,8 @@ namespace catapult { namespace observers {
 			{}
 
 		public:
-			auto highValueAddresses() {
-				return cache().sub<cache::AccountStateCache>().highValueAddresses().Current;
+			const auto& highValueAddresses() {
+				return cache().sub<cache::AccountStateCache>().highValueAccounts().addresses();
 			}
 
 		public:

@@ -27,7 +27,7 @@ namespace catapult { namespace importance {
 		class RestoreImportanceCalculator final : public ImportanceCalculator {
 		public:
 			void recalculate(model::ImportanceHeight importanceHeight, cache::AccountStateCacheDelta& cache) const override {
-				auto highValueAddresses = cache.highValueAddresses().Current;
+				const auto& highValueAddresses = cache.highValueAccounts().addresses();
 				for (const auto& address : highValueAddresses) {
 					auto accountStateIter = cache.find(address);
 					auto& accountState = accountStateIter.get();

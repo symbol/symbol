@@ -21,8 +21,12 @@
 #pragma once
 #include "AccountStateCacheTypes.h"
 #include "catapult/model/ContainerTypes.h"
+#include "catapult/state/BalanceHistory.h"
 
 namespace catapult { namespace cache {
+
+	/// Map of addresses to balance histories.
+	using AddressBalanceHistoryMap = std::unordered_map<Address, state::BalanceHistory, utils::ArrayHasher<Address>>;
 
 	/// High value accounts container.
 	class HighValueAccounts {
@@ -30,18 +34,22 @@ namespace catapult { namespace cache {
 		/// Creates an empty container.
 		HighValueAccounts();
 
-		/// Creates a container around \a addresses.
-		explicit HighValueAccounts(const model::AddressSet& addresses);
+		/// Creates a container around \a addresses and \a balanceHistories.
+		HighValueAccounts(const model::AddressSet& addresses, const AddressBalanceHistoryMap& balanceHistories);
 
-		/// Creates a container around \a addresses.
-		explicit HighValueAccounts(model::AddressSet&& addresses);
+		/// Creates a container around \a addresses and \a balanceHistories.
+		HighValueAccounts(model::AddressSet&& addresses, AddressBalanceHistoryMap&& balanceHistories);
 
 	public:
-		/// Gets the high value addresses.
+		/// Gets the high value (harvester eligible) addresses.
 		const model::AddressSet& addresses() const;
+
+		/// Gets the high value (voter eligible) balance histories.
+		const AddressBalanceHistoryMap& balanceHistories() const;
 
 	private:
 		model::AddressSet m_addresses;
+		AddressBalanceHistoryMap m_balanceHistories;
 	};
 
 	/// High value accounts updater.
@@ -50,18 +58,21 @@ namespace catapult { namespace cache {
 		using MemorySetType = AccountStateCacheTypes::PrimaryTypes::BaseSetDeltaType::SetType::MemorySetType;
 
 	public:
-		/// Creates an updater around \a options and existing \a addresses.
-		HighValueAccountsUpdater(AccountStateCacheTypes::Options options, const model::AddressSet& addresses);
+		/// Creates an updater around \a options and existing \a accounts.
+		HighValueAccountsUpdater(const AccountStateCacheTypes::Options& options, const HighValueAccounts& accounts);
 
 	public:
 		/// Gets the height of the update operation.
 		Height height() const;
 
-		/// Gets the (current) high value addresses.
+		/// Gets the (current) high value (harvester eligible) addresses.
 		const model::AddressSet& addresses() const;
 
-		/// Gets the (removed) high value addresses relative to the initial addresses.
+		/// Gets the (removed) high value (harvester eligible) addresses relative to the initial addresses.
 		const model::AddressSet& removedAddresses() const;
+
+		/// Gets the high value (voter eligible) balance histories.
+		const AddressBalanceHistoryMap& balanceHistories() const;
 
 	public:
 		/// Sets the \a height of the update operation.
@@ -75,10 +86,15 @@ namespace catapult { namespace cache {
 		HighValueAccounts detachAccounts();
 
 	private:
+		void updateHarvestingAccounts(const deltaset::DeltaElements<MemorySetType>& deltas);
+		void updateVotingAccounts(const deltaset::DeltaElements<MemorySetType>& deltas);
+
+	private:
 		AccountStateCacheTypes::Options m_options;
 		const model::AddressSet& m_original;
 		model::AddressSet m_current;
 		model::AddressSet m_removed;
+		AddressBalanceHistoryMap m_balanceHistories;
 		Height m_height;
 	};
 }}

@@ -138,25 +138,8 @@ namespace catapult { namespace cache {
 		void commitRemovals();
 
 	public:
-		/// Tuple composed of information about high value addresses that is returned by highValueAddresses.
-		struct HighValueAddressesTuple {
-		public:
-			/// Creates a tuple around \a current and \a removed.
-			HighValueAddressesTuple(const model::AddressSet& current, const model::AddressSet& removed)
-					: Current(current)
-					, Removed(removed)
-			{}
-
-		public:
-			/// Addresses of accounts that are high value after application of all delta changes.
-			const model::AddressSet& Current;
-
-			/// Addresses of accounts that were high value but are no longer high value after application of all delta changes.
-			const model::AddressSet& Removed;
-		};
-
-		/// Gets all high value addresses.
-		HighValueAddressesTuple highValueAddresses() const;
+		/// Gets all (updated) high value accounts.
+		const HighValueAccountsUpdater& highValueAccounts() const;
 
 		/// Updates high value accounts at \a height.
 		void updateHighValueAccounts(Height height);

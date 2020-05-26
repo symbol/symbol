@@ -1080,9 +1080,9 @@ namespace catapult { namespace cache {
 			return view.highValueAccounts().addresses();
 		}
 
-		auto CalculateHighValueAddresses(AccountStateCacheDelta& delta) {
+		const auto& CalculateHighValueAccounts(AccountStateCacheDelta& delta) {
 			delta.updateHighValueAccounts(Height(1));
-			return delta.highValueAddresses();
+			return delta.highValueAccounts();
 		}
 
 		template<typename TDeltaAction, typename TViewAction>
@@ -1116,9 +1116,9 @@ namespace catapult { namespace cache {
 		// Arrange:
 		auto deltaAction = [](const auto&, auto& delta) {
 			// Act + Assert:
-			auto highValueAddresses = CalculateHighValueAddresses(*delta);
-			EXPECT_TRUE(highValueAddresses.Current.empty());
-			EXPECT_TRUE(highValueAddresses.Removed.empty());
+			const auto& highValueAccounts = CalculateHighValueAccounts(*delta);
+			EXPECT_TRUE(highValueAccounts.addresses().empty());
+			EXPECT_TRUE(highValueAccounts.removedAddresses().empty());
 		};
 		auto viewAction = [](const auto&, const auto& view) {
 			// Act + Assert:
@@ -1134,9 +1134,9 @@ namespace catapult { namespace cache {
 		// Arrange:
 		auto deltaAction = [](const auto& addresses, auto& delta) {
 			// Act + Assert:
-			auto highValueAddresses = CalculateHighValueAddresses(*delta);
-			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2] }), highValueAddresses.Current);
-			EXPECT_TRUE(highValueAddresses.Removed.empty());
+			const auto& highValueAccounts = CalculateHighValueAccounts(*delta);
+			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2] }), highValueAccounts.addresses());
+			EXPECT_TRUE(highValueAccounts.removedAddresses().empty());
 		};
 		auto viewAction = [](const auto& addresses, const auto& view) {
 			// Act + Assert:
@@ -1156,9 +1156,9 @@ namespace catapult { namespace cache {
 			auto addresses = AddAccountsWithBalances(*delta, balances);
 
 			// Act + Assert:
-			auto highValueAddresses = CalculateHighValueAddresses(*delta);
-			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2] }), highValueAddresses.Current);
-			EXPECT_TRUE(highValueAddresses.Removed.empty());
+			const auto& highValueAccounts = CalculateHighValueAccounts(*delta);
+			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2] }), highValueAccounts.addresses());
+			EXPECT_TRUE(highValueAccounts.removedAddresses().empty());
 		};
 		auto viewAction = [](const auto&, const auto& view) {
 			// Act + Assert:
@@ -1176,9 +1176,9 @@ namespace catapult { namespace cache {
 				delta->find(address).get().Balances.credit(Harvesting_Mosaic_Id, Amount(1));
 
 			// Act + Assert:
-			auto highValueAddresses = CalculateHighValueAddresses(*delta);
-			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2] }), highValueAddresses.Current);
-			EXPECT_TRUE(highValueAddresses.Removed.empty());
+			const auto& highValueAccounts = CalculateHighValueAccounts(*delta);
+			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2] }), highValueAccounts.addresses());
+			EXPECT_TRUE(highValueAccounts.removedAddresses().empty());
 		};
 		auto viewAction = [](const auto& addresses, const auto& view) {
 			// Act + Assert:
@@ -1199,9 +1199,9 @@ namespace catapult { namespace cache {
 			delta->commitRemovals();
 
 			// Act + Assert:
-			auto highValueAddresses = CalculateHighValueAddresses(*delta);
-			EXPECT_TRUE(highValueAddresses.Current.empty());
-			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2] }), highValueAddresses.Removed);
+			const auto& highValueAccounts = CalculateHighValueAccounts(*delta);
+			EXPECT_TRUE(highValueAccounts.addresses().empty());
+			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2] }), highValueAccounts.removedAddresses());
 		};
 		auto viewAction = [](const auto& addresses, const auto& view) {
 			// Act + Assert:
@@ -1229,9 +1229,9 @@ namespace catapult { namespace cache {
 			delta->commitRemovals();
 
 			// Act + Assert:
-			auto highValueAddresses = CalculateHighValueAddresses(*delta);
-			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[1], uncommittedAddresses[2] }), highValueAddresses.Current);
-			EXPECT_EQ(model::AddressSet({ addresses[2], addresses[4] }), highValueAddresses.Removed);
+			const auto& highValueAccounts = CalculateHighValueAccounts(*delta);
+			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[1], uncommittedAddresses[2] }), highValueAccounts.addresses());
+			EXPECT_EQ(model::AddressSet({ addresses[2], addresses[4] }), highValueAccounts.removedAddresses());
 		};
 		auto viewAction = [](const auto& addresses, const auto& view) {
 			// Act + Assert:
@@ -1282,9 +1282,9 @@ namespace catapult { namespace cache {
 		// Assert: only original accounts with highValue addresses are returned from new views
 		{
 			auto delta = cache.createDelta();
-			auto highValueAddresses = CalculateHighValueAddresses(*delta);
-			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2], addresses[4] }), highValueAddresses.Current);
-			EXPECT_TRUE(highValueAddresses.Removed.empty());
+			const auto& highValueAccounts = CalculateHighValueAccounts(*delta);
+			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2], addresses[4] }), highValueAccounts.addresses());
+			EXPECT_TRUE(highValueAccounts.removedAddresses().empty());
 		}
 
 		EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2], addresses[4] }), GetHighValueAddresses(*cache.createView()));
@@ -1305,13 +1305,13 @@ namespace catapult { namespace cache {
 		auto addresses = AddAccountsWithBalances(*delta, { Amount(1'100'000), Amount(900'000), Amount(1'000'000) });
 
 		// Sanity: before udpate, delta reports no addresses
-		EXPECT_TRUE(delta->highValueAddresses().Current.empty());
+		EXPECT_TRUE(delta->highValueAccounts().addresses().empty());
 
 		// Act:
 		delta->updateHighValueAccounts(Height(1));
 
 		// Assert:
-		EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2] }), delta->highValueAddresses().Current);
+		EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2] }), delta->highValueAccounts().addresses());
 	}
 
 	TEST(TEST_CLASS, DetachHighValueAccountsIsDestructive) {
@@ -1326,13 +1326,13 @@ namespace catapult { namespace cache {
 		delta->updateHighValueAccounts(Height(1));
 
 		// Sanity: before detach, delta reports correct addresses
-		EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2] }), delta->highValueAddresses().Current);
+		EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2] }), delta->highValueAccounts().addresses());
 
 		// Act:
 		auto detachedAccounts = delta->detachHighValueAccounts();
 
 		// Assert:
-		EXPECT_TRUE(delta->highValueAddresses().Current.empty());
+		EXPECT_TRUE(delta->highValueAccounts().addresses().empty());
 
 		EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2] }), detachedAccounts.addresses());
 	}
@@ -1348,7 +1348,7 @@ namespace catapult { namespace cache {
 		auto addressSet = model::AddressSet(addresses.cbegin(), addresses.cend());
 
 		// Act:
-		cache.init(HighValueAccounts(addressSet));
+		cache.init(HighValueAccounts(addressSet, AddressBalanceHistoryMap()));
 
 		// Assert:
 		auto view = cache.createView();
