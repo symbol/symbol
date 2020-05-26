@@ -12,12 +12,12 @@ function generate_batch {
 	do
 		echo "generating ${input}"
 		python_args=(
-			${folder}/main.py
-			--schema ${folder}/schemas/${input}.cats
-			--include ${folder}/schemas)
+			"${folder}/main.py"
+			--schema "${folder}/schemas/${input}.cats"
+			--include "${folder}/schemas")
 		if [ "$#" -ge 3 ]; then
 			python_args+=(
-				--output ${folder}/_generated
+				--output "${folder}/_generated"
 				--generator "$3"
 				--copyright "${folder}/HEADER.inc")
 		fi
