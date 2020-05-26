@@ -36,7 +36,7 @@ namespace catapult { namespace builders {
 		AccountMetadataBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
 
 	public:
-		/// Sets the metadata target public key to \a targetAddress.
+		/// Sets the metadata target address to \a targetAddress.
 		void setTargetAddress(const UnresolvedAddress& targetAddress);
 
 		/// Sets the metadata key scoped to source, target and type to \a scopedMetadataKey.
