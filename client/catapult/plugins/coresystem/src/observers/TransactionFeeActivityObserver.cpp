@@ -31,7 +31,7 @@ namespace catapult { namespace observers {
 			return;
 
 		importance::UpdateActivity(
-				notification.Signer,
+				notification.Sender,
 				context,
 				[fee](auto& bucket) { bucket.TotalFeesPaid = bucket.TotalFeesPaid + fee; },
 				[fee](auto& bucket) { bucket.TotalFeesPaid = bucket.TotalFeesPaid - fee; });

@@ -46,7 +46,7 @@ namespace catapult { namespace validators {
 
 		// mosaic has to be active
 		ActiveMosaicView::FindIterator mosaicIter;
-		auto result = view.tryGet(notification.MosaicId, context.Height, notification.Signer, mosaicIter);
+		auto result = view.tryGet(notification.MosaicId, context.Height, notification.Owner, mosaicIter);
 
 		// always allow a new mosaic
 		if (IsValidationResultFailure(result))

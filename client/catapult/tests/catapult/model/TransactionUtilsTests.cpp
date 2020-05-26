@@ -20,7 +20,6 @@
 
 #include "catapult/model/TransactionUtils.h"
 #include "sdk/src/extensions/ConversionExtensions.h"
-#include "catapult/model/Address.h"
 #include "catapult/model/NotificationPublisher.h"
 #include "catapult/model/NotificationSubscriber.h"
 #include "tests/test/core/mocks/MockTransaction.h"
@@ -31,8 +30,6 @@ namespace catapult { namespace model {
 #define TEST_CLASS TransactionUtilsTests
 
 	namespace {
-		constexpr auto Network_Identifier = NetworkIdentifier::Mijin_Test;
-
 		class MockNotificationPublisher : public NotificationPublisher {
 		public:
 			enum class Mode { Address, Public_Key, Other };
@@ -46,10 +43,8 @@ namespace catapult { namespace model {
 				const auto& transaction = entityInfo.cast<mocks::MockTransaction>().entity();
 
 				if (Mode::Address == m_mode) {
-					auto senderAddress = PublicKeyToAddress(transaction.SignerPublicKey, Network_Identifier);
-					auto recipientAddress = PublicKeyToAddress(transaction.RecipientPublicKey, Network_Identifier);
-					sub.notify(AccountAddressNotification(extensions::CopyToUnresolvedAddress(senderAddress)));
-					sub.notify(AccountAddressNotification(extensions::CopyToUnresolvedAddress(recipientAddress)));
+					sub.notify(AccountAddressNotification(GetSignerAddress(transaction)));
+					sub.notify(AccountAddressNotification(mocks::GetRecipientAddress(transaction)));
 				} else if (Mode::Public_Key == m_mode) {
 					sub.notify(AccountPublicKeyNotification(transaction.SignerPublicKey));
 					sub.notify(AccountPublicKeyNotification(transaction.RecipientPublicKey));
@@ -67,13 +62,8 @@ namespace catapult { namespace model {
 			auto pTransaction = mocks::CreateMockTransactionWithSignerAndRecipient(
 					test::GenerateRandomByteArray<Key>(),
 					test::GenerateRandomByteArray<Key>());
-			auto senderAddress = extensions::CopyToUnresolvedAddress(PublicKeyToAddress(
-					pTransaction->SignerPublicKey,
-					Network_Identifier));
-			auto recipientAddress = extensions::CopyToUnresolvedAddress(PublicKeyToAddress(
-					pTransaction->RecipientPublicKey,
-					Network_Identifier));
-
+			auto senderAddress = extensions::CopyToUnresolvedAddress(GetSignerAddress(*pTransaction));
+			auto recipientAddress = extensions::CopyToUnresolvedAddress(mocks::GetRecipientAddress(*pTransaction));
 			MockNotificationPublisher notificationPublisher(mode);
 
 			// Act:

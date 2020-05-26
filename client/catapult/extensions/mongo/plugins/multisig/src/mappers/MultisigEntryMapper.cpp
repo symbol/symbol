@@ -26,34 +26,29 @@ using namespace catapult::mongo::mappers;
 
 namespace catapult { namespace mongo { namespace plugins {
 
-	// region ToDbModel
-
 	namespace {
-		void StreamPublicKeys(bson_stream::document& builder, const std::string& keySetName, const utils::SortedKeySet& keys) {
-			auto keyArray = builder << keySetName << bson_stream::open_array;
-			for (const auto& key : keys)
-				keyArray << ToBinary(key);
+		void StreamAddresses(bson_stream::document& builder, const std::string& name, const state::SortedAddressSet& addresses) {
+			auto addressArray = builder << name << bson_stream::open_array;
+			for (const auto& address : addresses)
+				addressArray << ToBinary(address);
 
-			keyArray << bson_stream::close_array;
+			addressArray << bson_stream::close_array;
 		}
 	}
 
-	bsoncxx::document::value ToDbModel(const state::MultisigEntry& entry, const Address& accountAddress) {
+	bsoncxx::document::value ToDbModel(const state::MultisigEntry& entry) {
 		bson_stream::document builder;
 		auto doc = builder
 				<< "multisig" << bson_stream::open_document
-					<< "accountPublicKey" << ToBinary(entry.key())
-					<< "accountAddress" << ToBinary(accountAddress)
+					<< "accountAddress" << ToBinary(entry.address())
 					<< "minApproval" << static_cast<int32_t>(entry.minApproval())
 					<< "minRemoval" << static_cast<int32_t>(entry.minRemoval());
 
-		StreamPublicKeys(builder, "cosignatoryPublicKeys", entry.cosignatoryPublicKeys());
-		StreamPublicKeys(builder, "multisigPublicKeys", entry.multisigPublicKeys());
+		StreamAddresses(builder, "cosignatoryAddresses", entry.cosignatoryAddresses());
+		StreamAddresses(builder, "multisigAddresses", entry.multisigAddresses());
 
 		return doc
 				<< bson_stream::close_document
 				<< bson_stream::finalize;
 	}
-
-	// endregion
 }}}

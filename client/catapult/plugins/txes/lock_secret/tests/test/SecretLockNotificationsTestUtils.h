@@ -41,7 +41,7 @@ namespace catapult { namespace test {
 
 		/// Creates a notification.
 		auto notification() {
-			return model::SecretLockNotification(m_signer, m_mosaic, m_duration, m_hashAlgorithm, m_secret, m_recipient);
+			return model::SecretLockNotification(m_owner, m_mosaic, m_duration, m_hashAlgorithm, m_secret, m_recipient);
 		}
 
 		/// Prepares the builder using \a lockInfo.
@@ -51,7 +51,7 @@ namespace catapult { namespace test {
 		}
 
 	private:
-		Key m_signer;
+		Address m_owner;
 		model::UnresolvedMosaic m_mosaic;
 		BlockDuration m_duration;
 		model::LockHashAlgorithm m_hashAlgorithm;
@@ -71,7 +71,7 @@ namespace catapult { namespace test {
 		explicit ProofNotificationBuilder(Height notificationHeight)
 				: m_notificationHeight(notificationHeight)
 				, m_algorithm(model::LockHashAlgorithm::Op_Sha3_256) {
-			test::FillWithRandomData(m_signer);
+			test::FillWithRandomData(m_owner);
 			test::FillWithRandomData(m_secret);
 			test::FillWithRandomData(m_recipient);
 		}
@@ -79,7 +79,7 @@ namespace catapult { namespace test {
 	public:
 		/// Creates a notification.
 		auto notification() const {
-			return model::ProofPublicationNotification(m_signer, m_algorithm, m_secret, m_recipient);
+			return model::ProofPublicationNotification(m_owner, m_algorithm, m_secret, m_recipient);
 		}
 
 		/// Sets the notification \a height.
@@ -116,7 +116,7 @@ namespace catapult { namespace test {
 	private:
 		Height m_notificationHeight;
 		model::LockHashAlgorithm m_algorithm;
-		Key m_signer;
+		Address m_owner;
 		Hash256 m_secret;
 		UnresolvedAddress m_recipient;
 	};

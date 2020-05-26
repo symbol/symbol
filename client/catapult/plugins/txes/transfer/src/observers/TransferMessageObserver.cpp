@@ -46,7 +46,7 @@ namespace catapult { namespace observers {
 
 			io::FileQueueWriter writer(directory.str());
 			io::Write8(writer, NotifyMode::Commit == context.Mode ? 0 : 1);
-			writer.write(notification.Sender);
+			writer.write(notification.SenderPublicKey);
 			writer.write({ notification.MessagePtr + Marker_Size, notification.MessageSize - Marker_Size });
 			writer.flush();
 		}));

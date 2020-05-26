@@ -65,7 +65,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureWhenNamespaceIsUnknown) {
 		// Arrange:
-		auto owner = test::GenerateRandomByteArray<Key>();
+		auto owner = test::CreateRandomOwner();
 		NamespaceRequiredNotification notification(owner, Default_Namespace_Id);
 
 		// Assert:
@@ -74,7 +74,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureWhenOwnerDoesNotMatch) {
 		// Arrange:
-		auto owner = test::GenerateRandomByteArray<Key>();
+		auto owner = test::CreateRandomOwner();
 		NamespaceRequiredNotification notification(owner, Default_Namespace_Id);
 
 		// Assert:
@@ -88,7 +88,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureWhenNamespaceExpired) {
 		// Arrange:
-		auto owner = test::GenerateRandomByteArray<Key>();
+		auto owner = test::CreateRandomOwner();
 		NamespaceRequiredNotification notification(owner, Default_Namespace_Id);
 
 		// Assert: notification is at height 200, so limit lifetime to 175 (including grace period)
@@ -100,7 +100,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureWhenNamespaceInGracePeriod) {
 		// Arrange:
-		auto owner = test::GenerateRandomByteArray<Key>();
+		auto owner = test::CreateRandomOwner();
 		NamespaceRequiredNotification notification(owner, Default_Namespace_Id);
 
 		// Assert: notification is at height 200, so limit lifetime to 250 (including grace period)
@@ -112,8 +112,20 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, SuccessWhenNamespaceActiveAndOwnerMatches) {
 		// Arrange:
-		auto owner = test::GenerateRandomByteArray<Key>();
+		auto owner = test::CreateRandomOwner();
 		NamespaceRequiredNotification notification(owner, Default_Namespace_Id);
+
+		// Assert:
+		RunAvailabilityTest(ValidationResult::Success, notification, [&owner](auto& cache) {
+			auto lifetime = test::CreateLifetime(100, 300 + Grace_Period_Duration.unwrap());
+			cache.insert(state::RootNamespace(Default_Namespace_Id, owner, lifetime));
+		});
+	}
+
+	TEST(TEST_CLASS, SuccessWhenNamespaceActiveAndOwnerMatches_UnresolvedAddress) {
+		// Arrange:
+		auto owner = test::CreateRandomOwner();
+		NamespaceRequiredNotification notification(test::UnresolveXor(owner), Default_Namespace_Id);
 
 		// Assert:
 		RunAvailabilityTest(ValidationResult::Success, notification, [&owner](auto& cache) {

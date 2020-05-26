@@ -41,7 +41,7 @@ namespace catapult { namespace model {
 	FIELD(TransactionsHash) \
 	FIELD(ReceiptsHash) \
 	FIELD(StateHash) \
-	FIELD(BeneficiaryPublicKey) \
+	FIELD(BeneficiaryAddress) \
 	FIELD(FeeMultiplier)
 
 	TEST(TEST_CLASS, BlockHasExpectedSize) {
@@ -54,7 +54,7 @@ namespace catapult { namespace model {
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(BlockHeader));
-		EXPECT_EQ(112u + 4 + 268, sizeof(BlockHeader));
+		EXPECT_EQ(112u + 4 + 260, sizeof(BlockHeader));
 
 		using BlockAlias = Block; // use alias to bypass lint rule
 		EXPECT_EQ(sizeof(BlockHeader), sizeof(BlockAlias));

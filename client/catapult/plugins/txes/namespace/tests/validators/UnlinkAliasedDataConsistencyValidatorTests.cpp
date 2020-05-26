@@ -35,7 +35,7 @@ namespace catapult { namespace validators {
 			static constexpr auto Default_Namespace_Id = NamespaceId(123);
 
 			static auto CreateDefaultRootNamespace() {
-				auto owner = test::GenerateRandomByteArray<Key>();
+				auto owner = test::CreateRandomOwner();
 				return state::RootNamespace(Default_Namespace_Id, owner, test::CreateLifetime(10, 20));
 			}
 

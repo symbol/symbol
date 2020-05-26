@@ -35,7 +35,7 @@ namespace catapult { namespace test {
 	}
 
 	model::PartialMetadataKey GenerateRandomPartialMetadataKey(uint64_t scopedMetadataKey) {
-		return { GenerateRandomByteArray<Key>(), GenerateRandomByteArray<Key>(), scopedMetadataKey };
+		return { GenerateRandomByteArray<Address>(), GenerateRandomByteArray<Address>(), scopedMetadataKey };
 	}
 
 	// endregion
@@ -93,7 +93,7 @@ namespace catapult { namespace test {
 			targetId = UnresolveXor(MosaicId(targetId)).unwrap();
 
 		return model::MetadataValueNotification(
-				{ metadataKey.sourcePublicKey(), metadataKey.targetPublicKey(), metadataKey.scopedMetadataKey() },
+				{ metadataKey.sourceAddress(), UnresolveXor(metadataKey.targetAddress()), metadataKey.scopedMetadataKey() },
 				{ metadataKey.metadataType(), targetId },
 				valueSizeDelta,
 				valueSize,

@@ -31,9 +31,9 @@ namespace catapult { namespace validators {
 	DEFINE_COMMON_VALIDATOR_TESTS(MultisigLoopAndLevel, 0)
 
 	namespace {
-		constexpr auto Num_Network_Accounts = 14 + 4 + 2; // last two keys are unassigned (and not in multisig cache)
+		constexpr auto Num_Network_Accounts = 14 + 4 + 2; // last two addresses are unassigned (and not in multisig cache)
 
-		auto CreateCacheMultisigNetwork(const std::vector<Key>& keys) {
+		auto CreateCacheMultisigNetwork(const std::vector<Address>& addresses) {
 			auto cache = test::MultisigCacheFactory::Create();
 			auto cacheDelta = cache.createDelta();
 
@@ -42,22 +42,22 @@ namespace catapult { namespace validators {
 			// 1 - 4 /   \ 9       C |
 			//   \                   |
 			// 0 - 5                 |
-			test::MakeMultisig(cacheDelta, keys[13], { keys[4] });
-			test::MakeMultisig(cacheDelta, keys[1], { keys[4], keys[5] });
-			test::MakeMultisig(cacheDelta, keys[0], { keys[5] });
+			test::MakeMultisig(cacheDelta, addresses[13], { addresses[4] });
+			test::MakeMultisig(cacheDelta, addresses[1], { addresses[4], addresses[5] });
+			test::MakeMultisig(cacheDelta, addresses[0], { addresses[5] });
 
-			test::MakeMultisig(cacheDelta, keys[2], { keys[6] });
-			test::MakeMultisig(cacheDelta, keys[3], { keys[6] });
-			test::MakeMultisig(cacheDelta, keys[4], { keys[6] });
+			test::MakeMultisig(cacheDelta, addresses[2], { addresses[6] });
+			test::MakeMultisig(cacheDelta, addresses[3], { addresses[6] });
+			test::MakeMultisig(cacheDelta, addresses[4], { addresses[6] });
 
-			test::MakeMultisig(cacheDelta, keys[6], { keys[7], keys[8], keys[9] });
-			test::MakeMultisig(cacheDelta, keys[7], { keys[10] });
-			test::MakeMultisig(cacheDelta, keys[10], { keys[11], keys[12] });
+			test::MakeMultisig(cacheDelta, addresses[6], { addresses[7], addresses[8], addresses[9] });
+			test::MakeMultisig(cacheDelta, addresses[7], { addresses[10] });
+			test::MakeMultisig(cacheDelta, addresses[10], { addresses[11], addresses[12] });
 
 			// E - F - 10 |
 			//       \ 11 |
-			test::MakeMultisig(cacheDelta, keys[14], { keys[15] });
-			test::MakeMultisig(cacheDelta, keys[15], { keys[16], keys[17] });
+			test::MakeMultisig(cacheDelta, addresses[14], { addresses[15] });
+			test::MakeMultisig(cacheDelta, addresses[15], { addresses[16], addresses[17] });
 
 			cache.commit(Height());
 			return cache;
@@ -66,22 +66,22 @@ namespace catapult { namespace validators {
 		void AssertValidationResult(
 				ValidationResult expectedResult,
 				int8_t maxMultisigDepth,
-				size_t multisigAccountIndex,
-				size_t cosignatoryKeyIndex) {
+				size_t multisigIndex,
+				size_t cosignatoryIndex) {
 			// Arrange:
-			auto keys = test::GenerateKeys(Num_Network_Accounts);
-			auto cache = CreateCacheMultisigNetwork(keys);
+			auto addresses = test::GenerateRandomDataVector<Address>(Num_Network_Accounts);
+			auto cache = CreateCacheMultisigNetwork(addresses);
 
-			model::MultisigNewCosignatoryNotification notification(keys[multisigAccountIndex], keys[cosignatoryKeyIndex]);
+			model::MultisigNewCosignatoryNotification notification(
+					addresses[multisigIndex],
+					test::UnresolveXor(addresses[cosignatoryIndex]));
 			auto pValidator = CreateMultisigLoopAndLevelValidator(static_cast<uint8_t>(maxMultisigDepth));
 
 			// Act:
 			auto result = test::ValidateNotification(*pValidator, notification, cache);
 
 			// Assert:
-			EXPECT_EQ(expectedResult, result)
-					<< "multisigAccountIndex " << multisigAccountIndex
-					<< ", cosignatoryKeyIndex " << cosignatoryKeyIndex;
+			EXPECT_EQ(expectedResult, result) << "multisigIndex " << multisigIndex << ", cosignatoryIndex " << cosignatoryIndex;
 		}
 	}
 

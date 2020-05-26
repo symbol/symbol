@@ -34,9 +34,10 @@ namespace catapult { namespace plugins {
 		static void PublishBalanceTransfer(
 				const NamespaceRentalFeeConfiguration& config,
 				const TTransaction& transaction,
+				const PublishContext& context,
 				NotificationSubscriber& sub) {
 			// a. exempt the nemesis account
-			if (config.NemesisPublicKey == transaction.SignerPublicKey)
+			if (config.NemesisSignerPublicKey == transaction.SignerPublicKey)
 				return;
 
 			auto rentalFee = config.ChildFee;
@@ -49,36 +50,32 @@ namespace catapult { namespace plugins {
 			}
 
 			sub.notify(BalanceTransferNotification(
-					transaction.SignerPublicKey,
+					context.SignerAddress,
 					config.SinkAddress,
 					config.CurrencyMosaicId,
 					rentalFee,
 					BalanceTransferNotification::AmountType::Dynamic));
-			sub.notify(NamespaceRentalFeeNotification(
-					transaction.SignerPublicKey,
-					config.SinkAddress,
-					config.CurrencyMosaicId,
-					rentalFee));
+			sub.notify(NamespaceRentalFeeNotification(context.SignerAddress, config.SinkAddress, config.CurrencyMosaicId, rentalFee));
 		}
 
 		template<typename TTransaction>
 		auto CreatePublisher(const NamespaceRentalFeeConfiguration& config) {
-			return [config](const TTransaction& transaction, NotificationSubscriber& sub) {
+			return [config](const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub) {
 				// 1. sink account notification
-				sub.notify(AccountPublicKeyNotification(config.SinkPublicKey));
+				sub.notify(AccountAddressNotification(config.SinkAddress));
 
 				// 2. rental fee charge
-				PublishBalanceTransfer(config, transaction, sub);
+				PublishBalanceTransfer(config, transaction, context, sub);
 
 				// 3. registration notifications
 				sub.notify(NamespaceRegistrationNotification(transaction.RegistrationType));
 				auto parentId = Namespace_Base_Id;
 				if (transaction.IsRootRegistration()) {
 					using Notification = RootNamespaceNotification;
-					sub.notify(Notification(transaction.SignerPublicKey, transaction.Id, transaction.Duration));
+					sub.notify(Notification(context.SignerAddress, transaction.Id, transaction.Duration));
 				} else {
 					using Notification = ChildNamespaceNotification;
-					sub.notify(Notification(transaction.SignerPublicKey, transaction.Id, transaction.ParentId));
+					sub.notify(Notification(context.SignerAddress, transaction.Id, transaction.ParentId));
 					parentId = transaction.ParentId;
 				}
 

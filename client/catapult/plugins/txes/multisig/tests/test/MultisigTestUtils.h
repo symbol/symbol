@@ -21,8 +21,10 @@
 #pragma once
 #include "src/model/MultisigAccountModificationTransaction.h"
 #include "src/model/MultisigNotifications.h"
+#include "catapult/model/Address.h"
 #include "catapult/model/Cosignature.h"
 #include "catapult/utils/HexFormatter.h"
+#include "tests/test/core/ResolverTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult {
@@ -32,26 +34,42 @@ namespace catapult {
 
 namespace catapult { namespace test {
 
-	/// Asserts that all \a expectedKeys are contained within \a keys.
-	template<typename TExpectedKeys, typename TKeys>
-	void AssertContents(const TExpectedKeys& expectedKeys, const TKeys& keys) {
+	/// Asserts that all \a expectedAddresses are contained within \a addresses.
+	template<typename TExpectedAddresses, typename TAddresses>
+	void AssertContents(const TExpectedAddresses& expectedAddresses, const TAddresses& addresses) {
 		// Assert:
-		EXPECT_EQ(expectedKeys.size(), keys.size());
-		for (const auto& key : expectedKeys)
-			EXPECT_CONTAINS(keys, key);
+		EXPECT_EQ(expectedAddresses.size(), addresses.size());
+		for (const auto& address : expectedAddresses)
+			EXPECT_CONTAINS(addresses, address);
 	}
 
-	/// Asserts that all \a expectedKeys are contained within \a cache.
-	template<typename TExpectedKeys, typename TCache>
-	void AssertMultisigCacheContents(const TExpectedKeys& expectedKeys, const TCache& cache) {
-		// Assert:
-		EXPECT_EQ(expectedKeys.size(), cache.size());
-		for (const auto& key : expectedKeys)
-			EXPECT_TRUE(cache.contains(key)) << utils::HexFormat(key[0]);
-	}
+	/// Functions for performing network address conversions.
+	template<model::NetworkIdentifier Network_Identifier = model::NetworkIdentifier::Zero>
+	struct NetworkAddressConversions {
+	public:
+		/// Converts \a publicKey to an address.
+		static Address ToAddress(const Key& publicKey) {
+			return model::PublicKeyToAddress(publicKey, Network_Identifier);
+		}
 
-	/// Generates \a count random keys.
-	std::vector<Key> GenerateKeys(size_t count);
+		/// Converts \a publicKeys to (resolved) addresses.
+		static std::vector<Address> ToAddresses(const std::vector<Key>& publicKeys) {
+			std::vector<Address> addresses;
+			for (const auto& publicKey : publicKeys)
+				addresses.push_back(ToAddress(publicKey));
+
+			return addresses;
+		}
+
+		/// Converts \a publicKeys to (unresolved) addresses.
+		static std::vector<UnresolvedAddress> ToUnresolvedAddresses(const std::vector<Key>& publicKeys) {
+			std::vector<UnresolvedAddress> addresses;
+			for (const auto& publicKey : publicKeys)
+				addresses.push_back(UnresolveXor(ToAddress(publicKey)));
+
+			return addresses;
+		}
+	};
 
 	/// Generates random cosignatures from \a cosignatories.
 	std::vector<model::Cosignature> GenerateCosignaturesFromCosignatories(const std::vector<Key>& cosignatories);
@@ -62,18 +80,24 @@ namespace catapult { namespace test {
 			uint8_t numAdditions,
 			uint8_t numDeletions);
 
-	/// Creates a multisig cosignatories notification around \a signer, \a publicKeyAdditions and \a publicKeyDeletions.
-	model::MultisigCosignatoriesNotification CreateMultisigCosignatoriesNotification(
+	/// Creates a multisig account modification transaction from \a signer with \a addressAdditions and \a addressDeletions.
+	std::unique_ptr<model::EmbeddedMultisigAccountModificationTransaction> CreateMultisigAccountModificationTransaction(
 			const Key& signer,
-			const std::vector<Key>& publicKeyAdditions,
-			const std::vector<Key>& publicKeyDeletions);
+			const std::vector<UnresolvedAddress>& addressAdditions,
+			const std::vector<UnresolvedAddress>& addressDeletions);
 
-	/// Makes \a multisigKey in \a cache a multisig account with \a cosignatoryKeys as cosignatories and required limits
+	/// Creates a multisig cosignatories notification around \a multisig, \a addressAdditions and \a addressDeletions.
+	model::MultisigCosignatoriesNotification CreateMultisigCosignatoriesNotification(
+			const Address& multisig,
+			const std::vector<UnresolvedAddress>& addressAdditions,
+			const std::vector<UnresolvedAddress>& addressDeletions);
+
+	/// Makes \a multisig in \a cache a multisig account with \a cosignatories and required limits
 	/// \a minApproval and \a minRemoval.
 	void MakeMultisig(
 			cache::CatapultCacheDelta& cache,
-			const Key& multisigKey,
-			const std::vector<Key>& cosignatoryKeys,
+			const Address& multisig,
+			const std::vector<Address>& cosignatories,
 			uint32_t minApproval = 0,
 			uint32_t minRemoval = 0);
 

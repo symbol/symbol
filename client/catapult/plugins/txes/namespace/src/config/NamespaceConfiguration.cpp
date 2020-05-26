@@ -19,8 +19,11 @@
 **/
 
 #include "NamespaceConfiguration.h"
+#include "catapult/model/Address.h"
 #include "catapult/utils/ConfigurationBag.h"
 #include "catapult/utils/ConfigurationUtils.h"
+
+DEFINE_ADDRESS_CONFIGURATION_VALUE_SUPPORT
 
 namespace catapult { namespace config {
 
@@ -42,7 +45,7 @@ namespace catapult { namespace config {
 		LOAD_PROPERTY(NamespaceGracePeriodDuration);
 		LOAD_PROPERTY(ReservedRootNamespaceNames);
 
-		LOAD_PROPERTY(NamespaceRentalFeeSinkPublicKey);
+		LOAD_PROPERTY(NamespaceRentalFeeSinkAddress);
 		LOAD_PROPERTY(RootNamespaceRentalFeePerBlock);
 		LOAD_PROPERTY(ChildNamespaceRentalFee);
 

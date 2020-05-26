@@ -35,24 +35,24 @@ namespace catapult { namespace validators {
 				uint8_t initialCosignedAccounts,
 				uint8_t maxCosignedAccountsPerAccount) {
 			// Arrange:
-			auto multisigAccountKey = test::GenerateRandomByteArray<Key>();
-			auto cosignatoryKey = test::GenerateRandomByteArray<Key>();
+			auto multisig = test::GenerateRandomByteArray<Address>();
+			auto cosignatory = test::GenerateRandomByteArray<Address>();
 
 			// - setup cache
 			auto cache = test::MultisigCacheFactory::Create();
 			if (initialCosignedAccounts > 0) {
 				auto cacheDelta = cache.createDelta();
-				auto cosignatoryEntry = state::MultisigEntry(cosignatoryKey);
+				auto cosignatoryEntry = state::MultisigEntry(cosignatory);
 
 				// - add multisig accounts
 				for (auto i = 0; i < initialCosignedAccounts; ++i)
-					cosignatoryEntry.multisigPublicKeys().insert(test::GenerateRandomByteArray<Key>());
+					cosignatoryEntry.multisigAddresses().insert(test::GenerateRandomByteArray<Address>());
 
 				cacheDelta.sub<cache::MultisigCache>().insert(cosignatoryEntry);
 				cache.commit(Height());
 			}
 
-			model::MultisigNewCosignatoryNotification notification(multisigAccountKey, cosignatoryKey);
+			model::MultisigNewCosignatoryNotification notification(multisig, test::UnresolveXor(cosignatory));
 			auto pValidator = CreateMultisigMaxCosignedAccountsValidator(maxCosignedAccountsPerAccount);
 
 			// Act:

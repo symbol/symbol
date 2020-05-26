@@ -235,8 +235,11 @@ namespace catapult { namespace local {
 				auto totalFee = model::CalculateBlockTransactionsInfo(block).TotalFee;
 
 				model::BlockStatementBuilder blockStatementBuilder;
-				auto currencyMosaicId = test::Default_Currency_Mosaic_Id;
-				model::BalanceChangeReceipt receipt(model::Receipt_Type_Harvest_Fee, block.SignerPublicKey, currencyMosaicId, totalFee);
+				model::BalanceChangeReceipt receipt(
+						model::Receipt_Type_Harvest_Fee,
+						model::GetSignerAddress(block),
+						test::Default_Currency_Mosaic_Id,
+						totalFee);
 				blockStatementBuilder.addReceipt(receipt);
 
 				auto pStatement = blockStatementBuilder.build();

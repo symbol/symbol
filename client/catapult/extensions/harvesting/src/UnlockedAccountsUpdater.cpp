@@ -24,6 +24,7 @@
 #include "catapult/cache/CatapultCache.h"
 #include "catapult/cache_core/ImportanceView.h"
 #include "catapult/io/RawFile.h"
+#include "catapult/model/Address.h"
 
 namespace catapult { namespace harvesting {
 
@@ -85,10 +86,14 @@ namespace catapult { namespace harvesting {
 				m_unlockedAccounts.modifier().removeIf([this, height, &cacheView, &numPrunedAccounts](const auto& descriptor) {
 					auto readOnlyAccountStateCache = cache::ReadOnlyAccountStateCache(cacheView.sub<cache::AccountStateCache>());
 					cache::ImportanceView view(readOnlyAccountStateCache);
-					auto shouldPruneAccount = !view.canHarvest(descriptor.signingKeyPair().publicKey(), height);
+
+					auto address = model::PublicKeyToAddress(
+							descriptor.signingKeyPair().publicKey(),
+							readOnlyAccountStateCache.networkIdentifier());
+					auto shouldPruneAccount = !view.canHarvest(address, height);
 
 					if (!shouldPruneAccount) {
-						auto remoteAccountStateIter = readOnlyAccountStateCache.find(descriptor.signingKeyPair().publicKey());
+						auto remoteAccountStateIter = readOnlyAccountStateCache.find(address);
 						if (state::AccountType::Remote == remoteAccountStateIter.get().AccountType) {
 							auto mainAccountStateIter = readOnlyAccountStateCache.find(GetLinkedPublicKey(remoteAccountStateIter.get()));
 							shouldPruneAccount = !isMainAccountEligibleForDelegation(mainAccountStateIter.get(), descriptor);

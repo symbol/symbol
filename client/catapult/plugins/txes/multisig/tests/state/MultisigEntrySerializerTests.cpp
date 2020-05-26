@@ -37,7 +37,7 @@ namespace catapult { namespace state {
 		public:
 			explicit TestContext(size_t numAccounts = 10)
 					: m_stream(m_buffer)
-					, m_accountKeys(test::GenerateKeys(numAccounts))
+					, m_accountAddresses(test::GenerateRandomDataVector<Address>(numAccounts))
 			{}
 
 		public:
@@ -51,18 +51,18 @@ namespace catapult { namespace state {
 
 		public:
 			auto createEntry(size_t mainAccountId, size_t numCosignatories, size_t numMultisigAccounts) {
-				MultisigEntry entry(m_accountKeys[mainAccountId]);
+				MultisigEntry entry(m_accountAddresses[mainAccountId]);
 				entry.setMinApproval(0x80000000 | static_cast<uint32_t>(mainAccountId + 23));
 				entry.setMinRemoval(0x00010000 | static_cast<uint32_t>(mainAccountId + 34));
 
 				// add cosignatories
 				for (auto i = mainAccountId; i < mainAccountId + numCosignatories; ++i)
-					entry.cosignatoryPublicKeys().insert(m_accountKeys[i]);
+					entry.cosignatoryAddresses().insert(m_accountAddresses[i]);
 
 				// add multisig accounts
 				auto firstMultisigId = mainAccountId + numCosignatories;
 				for (auto i = firstMultisigId; i < firstMultisigId + numMultisigAccounts; ++i)
-					entry.multisigPublicKeys().insert(m_accountKeys[i]);
+					entry.multisigAddresses().insert(m_accountAddresses[i]);
 
 				return entry;
 			}
@@ -70,35 +70,36 @@ namespace catapult { namespace state {
 		private:
 			std::vector<uint8_t> m_buffer;
 			mocks::MockMemoryStream m_stream;
-			std::vector<Key> m_accountKeys;
+			std::vector<Address> m_accountAddresses;
 		};
 
 		// endregion
 
 		// region test utils
 
-		Key ExtractKey(const uint8_t* pData) {
-			Key key;
-			memcpy(key.data(), pData, Key::Size);
-			return key;
+		Address ExtractAddress(const uint8_t* pData) {
+			Address address;
+			memcpy(address.data(), pData, Address::Size);
+			return address;
 		}
 
-		void AssertAccountKeys(const utils::SortedKeySet& expectedKeys, const uint8_t* pData) {
+		void AssertAccountAddresses(const SortedAddressSet& expectedAddresses, const uint8_t* pData) {
 			// pData is not 8-byte aligned, so need to use memcpy
-			uint64_t numKeys;
-			std::memcpy(&numKeys, pData, sizeof(uint64_t));
+			uint64_t count;
+			std::memcpy(&count, pData, sizeof(uint64_t));
+			ASSERT_EQ(expectedAddresses.size(), count);
 			pData += sizeof(uint64_t);
 
-			std::set<Key> keys;
-			for (auto i = 0u; i < expectedKeys.size(); ++i) {
-				auto key = ExtractKey(pData);
-				pData += key.size();
-				keys.insert(key);
+			std::set<Address> addresses;
+			for (auto i = 0u; i < expectedAddresses.size(); ++i) {
+				auto address = ExtractAddress(pData);
+				pData += address.size();
+				addresses.insert(address);
 			}
 
-			EXPECT_EQ(expectedKeys.size(), keys.size());
-			for (const auto& expectedKey : expectedKeys)
-				EXPECT_CONTAINS(keys, expectedKey);
+			EXPECT_EQ(expectedAddresses.size(), addresses.size());
+			for (const auto& expectedAddress : expectedAddresses)
+				EXPECT_CONTAINS(addresses, expectedAddress);
 		}
 
 		void AssertEntryBuffer(const MultisigEntry& entry, const uint8_t* pData, size_t expectedSize) {
@@ -107,15 +108,15 @@ namespace catapult { namespace state {
 			EXPECT_EQ(entry.minRemoval(), reinterpret_cast<const uint32_t&>(pData[sizeof(uint32_t)]));
 			pData += 2 * sizeof(uint32_t);
 
-			auto accountKey = ExtractKey(pData);
-			EXPECT_EQ(entry.key(), accountKey);
-			pData += Key::Size;
+			auto accountAddress = ExtractAddress(pData);
+			EXPECT_EQ(entry.address(), accountAddress);
+			pData += Address::Size;
 
-			AssertAccountKeys(entry.cosignatoryPublicKeys(), pData);
-			pData += sizeof(uint64_t) + entry.cosignatoryPublicKeys().size() * Key::Size;
+			AssertAccountAddresses(entry.cosignatoryAddresses(), pData);
+			pData += sizeof(uint64_t) + entry.cosignatoryAddresses().size() * Address::Size;
 
-			AssertAccountKeys(entry.multisigPublicKeys(), pData);
-			pData += sizeof(uint64_t) + entry.multisigPublicKeys().size() * Key::Size;
+			AssertAccountAddresses(entry.multisigAddresses(), pData);
+			pData += sizeof(uint64_t) + entry.multisigAddresses().size() * Address::Size;
 
 			EXPECT_EQ(pExpectedEnd, pData);
 		}
@@ -134,7 +135,7 @@ namespace catapult { namespace state {
 		MultisigEntrySerializer::Save(entry, context.outputStream());
 
 		// Assert:
-		auto expectedSize = sizeof(uint32_t) * 2 + sizeof(Key) + 2 * sizeof(uint64_t);
+		auto expectedSize = sizeof(uint32_t) * 2 + Address::Size + 2 * sizeof(uint64_t);
 		ASSERT_EQ(expectedSize, context.buffer().size());
 		AssertEntryBuffer(entry, context.buffer().data(), expectedSize);
 	}
@@ -148,7 +149,7 @@ namespace catapult { namespace state {
 		MultisigEntrySerializer::Save(entry, context.outputStream());
 
 		// Assert:
-		auto expectedSize = sizeof(uint32_t) * 2 + sizeof(Key) + 2 * sizeof(uint64_t) + 3 * sizeof(Key) + 4 * sizeof(Key);
+		auto expectedSize = sizeof(uint32_t) * 2 + Address::Size + 2 * sizeof(uint64_t) + 3 * Address::Size + 4 * Address::Size;
 		ASSERT_EQ(expectedSize, context.buffer().size());
 		AssertEntryBuffer(entry, context.buffer().data(), expectedSize);
 	}
@@ -160,35 +161,35 @@ namespace catapult { namespace state {
 	namespace {
 		struct MultisigEntrySerializerOrderingTraits {
 		public:
-			using KeyType = Key;
+			using KeyType = Address;
 			using SerializerType = MultisigEntrySerializer;
 
 			static auto CreateEntry() {
-				return MultisigEntry(test::GenerateRandomByteArray<Key>());
+				return MultisigEntry(test::GenerateRandomByteArray<Address>());
 			}
 		};
 
 		struct CosignatoriesTraits : public MultisigEntrySerializerOrderingTraits {
 		public:
-			static void AddKeys(MultisigEntry& entry, const std::vector<Key>& keys) {
-				for (const auto& key : keys)
-					entry.cosignatoryPublicKeys().insert(key);
+			static void AddKeys(MultisigEntry& entry, const std::vector<Address>& addresses) {
+				for (const auto& address : addresses)
+					entry.cosignatoryAddresses().insert(address);
 			}
 
 			static constexpr size_t GetKeyStartBufferOffset() {
-				return 2u * sizeof(uint32_t) + Key::Size;
+				return 2u * sizeof(uint32_t) + Address::Size;
 			}
 		};
 
 		struct MultisigAccountsTraits : public MultisigEntrySerializerOrderingTraits {
 		public:
-			static void AddKeys(MultisigEntry& entry, const std::vector<Key>& keys) {
-				for (const auto& key : keys)
-					entry.multisigPublicKeys().insert(key);
+			static void AddKeys(MultisigEntry& entry, const std::vector<Address>& addresses) {
+				for (const auto& address : addresses)
+					entry.multisigAddresses().insert(address);
 			}
 
 			static constexpr size_t GetKeyStartBufferOffset() {
-				return 2u * sizeof(uint32_t) + Key::Size + sizeof(uint64_t);
+				return 2u * sizeof(uint32_t) + Address::Size + sizeof(uint64_t);
 			}
 		};
 	}
@@ -199,7 +200,7 @@ namespace catapult { namespace state {
 	TEST(TEST_CLASS, TEST_NAME##_MultisigAccounts) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MultisigAccountsTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-	ENTRY_TRAITS_BASED_TEST(SavedKeysAreOrdered) {
+	ENTRY_TRAITS_BASED_TEST(SavedAddressesAreOrdered) {
 		test::SerializerOrderingTests<TTraits>::AssertSaveOrdersEntriesByKey();
 	}
 

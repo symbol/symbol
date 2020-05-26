@@ -55,7 +55,11 @@ namespace catapult { namespace test {
 			auto totalFee = model::CalculateBlockTransactionsInfo(nemesisBlock).TotalFee;
 
 			auto feeMosaicId = Default_Currency_Mosaic_Id;
-			model::BalanceChangeReceipt receipt(model::Receipt_Type_Harvest_Fee, nemesisBlock.SignerPublicKey, feeMosaicId, totalFee);
+			model::BalanceChangeReceipt receipt(
+					model::Receipt_Type_Harvest_Fee,
+					model::GetSignerAddress(nemesisBlock),
+					feeMosaicId,
+					totalFee);
 			blockStatementBuilder.addReceipt(receipt);
 
 			// 2. add mosaic aliases (supply tx first uses alias, block mosaic order is deterministic)

@@ -21,6 +21,7 @@
 #include "src/validators/Validators.h"
 #include "src/model/MosaicIdGenerator.h"
 #include "catapult/utils/IntegerMath.h"
+#include "tests/test/MosaicTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -32,9 +33,9 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureWhenValidatingInvalidMosaicId) {
 		// Arrange:
-		auto signer = test::GenerateRandomByteArray<Key>();
+		auto owner = test::CreateRandomOwner();
 		auto pValidator = CreateMosaicIdValidator();
-		auto notification = model::MosaicNonceNotification(signer, MosaicNonce(), MosaicId());
+		auto notification = model::MosaicNonceNotification(owner, MosaicNonce(), MosaicId());
 
 		// Act:
 		auto result = test::ValidateNotification(*pValidator, notification);
@@ -46,18 +47,18 @@ namespace catapult { namespace validators {
 	// region nonce and id consistency
 
 	namespace {
-		auto CreateMosaicNonceIdNotification(const Key& signer) {
+		auto CreateMosaicNonceIdNotification(const Address& owner) {
 			auto nonce = test::GenerateRandomValue<MosaicNonce>();
-			auto mosaicId = model::GenerateMosaicId(signer, nonce);
-			return model::MosaicNonceNotification(signer, nonce, mosaicId);
+			auto mosaicId = model::GenerateMosaicId(owner, nonce);
+			return model::MosaicNonceNotification(owner, nonce, mosaicId);
 		}
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithMatchingId) {
 		// Arrange: note that CreateMosaicNonceIdNotification creates proper mosaic id
-		auto signer = test::GenerateRandomByteArray<Key>();
+		auto owner = test::CreateRandomOwner();
 		auto pValidator = CreateMosaicIdValidator();
-		auto notification = CreateMosaicNonceIdNotification(signer);
+		auto notification = CreateMosaicNonceIdNotification(owner);
 
 		// Act:
 		auto result = test::ValidateNotification(*pValidator, notification);
@@ -68,12 +69,12 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithMismatchedId) {
 		// Arrange:
-		auto signer = test::GenerateRandomByteArray<Key>();
+		auto owner = test::CreateRandomOwner();
 		auto pValidator = CreateMosaicIdValidator();
 
 		for (auto i = 0u; i < utils::GetNumBits<uint64_t>(); ++i) {
 			// - note that CreateMosaicNonceIdNotification creates proper mosaic id
-			auto notification = CreateMosaicNonceIdNotification(signer);
+			auto notification = CreateMosaicNonceIdNotification(owner);
 			auto mutatedId = notification.MosaicId.unwrap() ^ (1ull << i);
 			notification.MosaicId = MosaicId(mutatedId);
 

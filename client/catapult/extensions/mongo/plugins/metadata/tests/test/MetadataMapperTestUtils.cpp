@@ -32,8 +32,8 @@ namespace catapult { namespace test {
 		auto compositeHash = metadataEntry.key().uniqueKey();
 		EXPECT_EQ(compositeHash, GetHashValue(dbMetadataEntry, "compositeHash"));
 
-		EXPECT_EQ(key.sourcePublicKey(), GetKeyValue(dbMetadataEntry, "senderPublicKey"));
-		EXPECT_EQ(key.targetPublicKey(), GetKeyValue(dbMetadataEntry, "targetPublicKey"));
+		EXPECT_EQ(key.sourceAddress(), GetAddressValue(dbMetadataEntry, "sourceAddress"));
+		EXPECT_EQ(key.targetAddress(), GetAddressValue(dbMetadataEntry, "targetAddress"));
 		EXPECT_EQ(key.scopedMetadataKey(), GetUint64(dbMetadataEntry, "scopedMetadataKey"));
 		EXPECT_EQ(key.targetId(), GetUint64(dbMetadataEntry, "targetId"));
 		EXPECT_EQ(key.metadataType(), static_cast<model::MetadataType>(GetUint8(dbMetadataEntry, "metadataType")));

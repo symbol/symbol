@@ -43,4 +43,18 @@ namespace catapult { namespace model {
 	/// Gets a value indicating whether or not the given \a encoded address is valid for the
 	/// network identified by \a networkIdentifier.
 	bool IsValidEncodedAddress(const std::string& encoded, NetworkIdentifier networkIdentifier);
+
+	/// Tries to parse \a str into an Address (\a parsedValue).
+	bool TryParseValue(const std::string& str, Address& parsedValue);
 }}
+
+/// Defines support for Address as a configuration value and conditionally allows empty values based on \a ALLOW_EMPTY.
+#define DEFINE_ADDRESS_CONFIGURATION_VALUE_SUPPORT_ALLOW_EMPTY(ALLOW_EMPTY) \
+	namespace catapult { namespace utils { \
+		static bool TryParseValue(const std::string& str, Address& parsedValue) { \
+			return (ALLOW_EMPTY && str.empty()) || model::TryParseValue(str, parsedValue); \
+		} \
+	}}
+
+/// Defines support for Address as a configuration value and does not allow empty values.
+#define DEFINE_ADDRESS_CONFIGURATION_VALUE_SUPPORT DEFINE_ADDRESS_CONFIGURATION_VALUE_SUPPORT_ALLOW_EMPTY(false)

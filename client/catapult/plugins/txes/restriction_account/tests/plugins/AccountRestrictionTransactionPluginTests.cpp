@@ -114,7 +114,7 @@ namespace catapult { namespace plugins {
 			});
 			builder.template addExpectation<typename TTraits::ModifyAccountRestrictionsNotification>([&transaction](
 					const auto& notification) {
-				EXPECT_EQ(transaction.SignerPublicKey, notification.Key);
+				EXPECT_EQ(GetSignerAddress(transaction), notification.Address);
 				EXPECT_EQ(transaction.RestrictionFlags, notification.AccountRestrictionDescriptor.raw());
 				EXPECT_EQ(transaction.RestrictionAdditionsCount, notification.RestrictionAdditionsCount);
 				EXPECT_EQ(transaction.RestrictionAdditionsPtr(), notification.RestrictionAdditionsPtr);
@@ -182,20 +182,20 @@ namespace catapult { namespace plugins {
 			for (auto i = 0u; i < 3; ++i) {
 				builder.template addExpectation<typename TTraits::ModifyAccountRestrictionValueNotification>(i, [&transaction, i](
 						const auto& notification) {
-					EXPECT_EQ(transaction.SignerPublicKey, notification.Key);
+					EXPECT_EQ(GetSignerAddress(transaction), notification.Address);
 					EXPECT_EQ(transaction.RestrictionFlags, notification.AccountRestrictionDescriptor.raw());
 					EXPECT_EQ(transaction.RestrictionAdditionsPtr()[i], notification.RestrictionValue);
-					EXPECT_EQ(model::AccountRestrictionModificationAction::Add, notification.Action);
+					EXPECT_EQ(AccountRestrictionModificationAction::Add, notification.Action);
 				});
 			}
 
 			for (auto i = 0u; i < 2; ++i) {
 				builder.template addExpectation<typename TTraits::ModifyAccountRestrictionValueNotification>(3 + i, [&transaction, i](
 						const auto& notification) {
-					EXPECT_EQ(transaction.SignerPublicKey, notification.Key);
+					EXPECT_EQ(GetSignerAddress(transaction), notification.Address);
 					EXPECT_EQ(transaction.RestrictionFlags, notification.AccountRestrictionDescriptor.raw());
 					EXPECT_EQ(transaction.RestrictionDeletionsPtr()[i], notification.RestrictionValue);
-					EXPECT_EQ(model::AccountRestrictionModificationAction::Del, notification.Action);
+					EXPECT_EQ(AccountRestrictionModificationAction::Del, notification.Action);
 				});
 			}
 

@@ -25,29 +25,29 @@
 namespace catapult { namespace state {
 
 	namespace {
-		void SaveKeySet(io::OutputStream& output, const utils::SortedKeySet& keySet) {
-			io::Write64(output, keySet.size());
-			for (const auto& key : keySet)
-				output.write(key);
+		void SaveAddresses(io::OutputStream& output, const SortedAddressSet& addresses) {
+			io::Write64(output, addresses.size());
+			for (const auto& address : addresses)
+				output.write(address);
 		}
 	}
 
 	void MultisigEntrySerializer::Save(const MultisigEntry& entry, io::OutputStream& output) {
 		io::Write32(output, entry.minApproval());
 		io::Write32(output, entry.minRemoval());
-		output.write(entry.key());
+		output.write(entry.address());
 
-		SaveKeySet(output, entry.cosignatoryPublicKeys());
-		SaveKeySet(output, entry.multisigPublicKeys());
+		SaveAddresses(output, entry.cosignatoryAddresses());
+		SaveAddresses(output, entry.multisigAddresses());
 	}
 
 	namespace {
-		void LoadKeySet(io::InputStream& input, utils::SortedKeySet& keySet) {
-			auto numKeys = io::Read64(input);
-			while (numKeys--) {
-				Key key;
-				input.read(key);
-				keySet.insert(key);
+		void LoadAddresses(io::InputStream& input, SortedAddressSet& addresses) {
+			auto count = io::Read64(input);
+			while (count--) {
+				Address address;
+				input.read(address);
+				addresses.insert(address);
 			}
 		}
 	}
@@ -55,15 +55,15 @@ namespace catapult { namespace state {
 	MultisigEntry MultisigEntrySerializer::Load(io::InputStream& input) {
 		auto minApproval = io::Read32(input);
 		auto minRemoval = io::Read32(input);
-		Key key;
-		input.read(key);
+		Address address;
+		input.read(address);
 
-		auto entry = MultisigEntry(key);
+		auto entry = MultisigEntry(address);
 		entry.setMinApproval(minApproval);
 		entry.setMinRemoval(minRemoval);
 
-		LoadKeySet(input, entry.cosignatoryPublicKeys());
-		LoadKeySet(input, entry.multisigPublicKeys());
+		LoadAddresses(input, entry.cosignatoryAddresses());
+		LoadAddresses(input, entry.multisigAddresses());
 		return entry;
 	}
 }}

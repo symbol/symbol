@@ -52,6 +52,6 @@ namespace catapult { namespace validators {
 		if (!root.lifetime().isActive(height))
 			return ValidationResult::Success;
 
-		return root.ownerPublicKey() == notification.Signer ? ValidationResult::Success : Failure_Namespace_Owner_Conflict;
+		return root.ownerAddress() == notification.Owner ? ValidationResult::Success : Failure_Namespace_Owner_Conflict;
 	});
 }}

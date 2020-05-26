@@ -24,8 +24,8 @@
 
 namespace catapult { namespace test {
 
-	Key CreateRandomOwner() {
-		return GenerateRandomByteArray<Key>();
+	Address CreateRandomOwner() {
+		return GenerateRandomByteArray<Address>();
 	}
 
 	std::string GenerateValidName(size_t size) {

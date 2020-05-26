@@ -26,7 +26,7 @@ namespace catapult { namespace mongo {
 	namespace {
 		void StreamBalanceTransferReceipt(bsoncxx::builder::stream::document& builder, const model::BalanceTransferReceipt& receipt) {
 			builder
-					<< "senderPublicKey" << mappers::ToBinary(receipt.SenderPublicKey)
+					<< "senderAddress" << mappers::ToBinary(receipt.SenderAddress)
 					<< "recipientAddress" << mappers::ToBinary(receipt.RecipientAddress)
 					<< "mosaicId" << mappers::ToInt64(receipt.Mosaic.MosaicId)
 					<< "amount" << mappers::ToInt64(receipt.Mosaic.Amount);
@@ -34,7 +34,7 @@ namespace catapult { namespace mongo {
 
 		void StreamBalanceChangeReceipt(bsoncxx::builder::stream::document& builder, const model::BalanceChangeReceipt& receipt) {
 			builder
-					<< "targetPublicKey" << mappers::ToBinary(receipt.TargetPublicKey)
+					<< "targetAddress" << mappers::ToBinary(receipt.TargetAddress)
 					<< "mosaicId" << mappers::ToInt64(receipt.Mosaic.MosaicId)
 					<< "amount" << mappers::ToInt64(receipt.Mosaic.Amount);
 		}

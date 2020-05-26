@@ -31,7 +31,7 @@ namespace catapult { namespace builders {
 		using EmbeddedTransaction = model::EmbeddedAccountKeyLinkTransaction;
 
 	public:
-		/// Creates an account link builder for building an account key link transaction from \a signer
+		/// Creates an account key link builder for building an account key link transaction from \a signer
 		/// for the network specified by \a networkIdentifier.
 		AccountKeyLinkBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
 

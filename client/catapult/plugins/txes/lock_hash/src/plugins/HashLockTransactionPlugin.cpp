@@ -30,11 +30,11 @@ namespace catapult { namespace plugins {
 
 	namespace {
 		template<typename TTransaction>
-		void Publish(const TTransaction& transaction, NotificationSubscriber& sub) {
+		void Publish(const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub) {
 			sub.notify(HashLockDurationNotification(transaction.Duration));
 			sub.notify(HashLockMosaicNotification(transaction.Mosaic));
-			sub.notify(BalanceDebitNotification(transaction.SignerPublicKey, transaction.Mosaic.MosaicId, transaction.Mosaic.Amount));
-			sub.notify(HashLockNotification(transaction.SignerPublicKey, transaction.Mosaic, transaction.Duration, transaction.Hash));
+			sub.notify(BalanceDebitNotification(context.SignerAddress, transaction.Mosaic.MosaicId, transaction.Mosaic.Amount));
+			sub.notify(HashLockNotification(context.SignerAddress, transaction.Mosaic, transaction.Duration, transaction.Hash));
 		}
 	}
 

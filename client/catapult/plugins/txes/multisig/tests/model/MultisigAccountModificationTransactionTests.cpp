@@ -35,7 +35,7 @@ namespace catapult { namespace model {
 
 	// region size + alignment + properties
 
-#define TRANSACTION_FIELDS FIELD(MinRemovalDelta) FIELD(MinApprovalDelta) FIELD(PublicKeyAdditionsCount) FIELD(PublicKeyDeletionsCount)
+#define TRANSACTION_FIELDS FIELD(MinRemovalDelta) FIELD(MinApprovalDelta) FIELD(AddressAdditionsCount) FIELD(AddressDeletionsCount)
 
 	namespace {
 		template<typename T>
@@ -80,26 +80,26 @@ namespace catapult { namespace model {
 	namespace {
 		struct MultisigAccountModificationTransactionTraits {
 			static auto GenerateEntityWithAttachments(uint8_t numAdditions, uint8_t numDeletions) {
-				uint32_t entitySize = sizeof(TransactionType) + (numAdditions + numDeletions) * Key::Size;
+				uint32_t entitySize = sizeof(TransactionType) + (numAdditions + numDeletions) * UnresolvedAddress::Size;
 				auto pTransaction = utils::MakeUniqueWithSize<TransactionType>(entitySize);
 				pTransaction->Size = entitySize;
-				pTransaction->PublicKeyAdditionsCount = numAdditions;
-				pTransaction->PublicKeyDeletionsCount = numDeletions;
+				pTransaction->AddressAdditionsCount = numAdditions;
+				pTransaction->AddressDeletionsCount = numDeletions;
 				return pTransaction;
 			}
 
 			static constexpr size_t GetAttachment1Size(uint8_t numAdditions) {
-				return numAdditions * Key::Size;
+				return numAdditions * UnresolvedAddress::Size;
 			}
 
 			template<typename TEntity>
 			static auto GetAttachmentPointer1(TEntity& entity) {
-				return entity.PublicKeyAdditionsPtr();
+				return entity.AddressAdditionsPtr();
 			}
 
 			template<typename TEntity>
 			static auto GetAttachmentPointer2(TEntity& entity) {
-				return entity.PublicKeyDeletionsPtr();
+				return entity.AddressDeletionsPtr();
 			}
 		};
 	}
@@ -114,29 +114,29 @@ namespace catapult { namespace model {
 		// Arrange:
 		TransactionType transaction;
 		transaction.Size = 0;
-		transaction.PublicKeyAdditionsCount = 7;
-		transaction.PublicKeyDeletionsCount = 4;
+		transaction.AddressAdditionsCount = 7;
+		transaction.AddressDeletionsCount = 4;
 
 		// Act:
 		auto realSize = TransactionType::CalculateRealSize(transaction);
 
 		// Assert:
-		EXPECT_EQ(sizeof(TransactionType) + 11 * Key::Size, realSize);
+		EXPECT_EQ(sizeof(TransactionType) + 11 * UnresolvedAddress::Size, realSize);
 	}
 
 	TEST(TEST_CLASS, CalculateRealSizeDoesNotOverflowWithMaxValues) {
 		// Arrange:
 		TransactionType transaction;
 		test::SetMaxValue(transaction.Size);
-		test::SetMaxValue(transaction.PublicKeyAdditionsCount);
-		test::SetMaxValue(transaction.PublicKeyDeletionsCount);
+		test::SetMaxValue(transaction.AddressAdditionsCount);
+		test::SetMaxValue(transaction.AddressDeletionsCount);
 
 		// Act:
 		auto realSize = TransactionType::CalculateRealSize(transaction);
 
 		// Assert:
 		ASSERT_EQ(0xFFFFFFFF, transaction.Size);
-		EXPECT_EQ(sizeof(TransactionType) + (0xFF + 0xFF) * Key::Size, realSize);
+		EXPECT_EQ(sizeof(TransactionType) + (0xFF + 0xFF) * UnresolvedAddress::Size, realSize);
 		EXPECT_GT(0xFFFFFFFF, realSize);
 	}
 
@@ -152,7 +152,7 @@ namespace catapult { namespace model {
 		auto additionalCosignatories = ExtractAdditionalRequiredCosignatories(*pTransaction);
 
 		// Assert:
-		EXPECT_EQ(utils::KeySet(), additionalCosignatories);
+		EXPECT_EQ(UnresolvedAddressSet(), additionalCosignatories);
 	}
 
 	TEST(TEST_CLASS, ExtractAdditionalRequiredCosignatories_AddModifications) {
@@ -163,8 +163,8 @@ namespace catapult { namespace model {
 		auto additionalCosignatories = ExtractAdditionalRequiredCosignatories(*pTransaction);
 
 		// Assert:
-		const auto* pPublicKeyAdditions = pTransaction->PublicKeyAdditionsPtr();
-		EXPECT_EQ(utils::KeySet({ pPublicKeyAdditions[0], pPublicKeyAdditions[1] }), additionalCosignatories);
+		const auto* pAddressAdditions = pTransaction->AddressAdditionsPtr();
+		EXPECT_EQ(UnresolvedAddressSet({ pAddressAdditions[0], pAddressAdditions[1] }), additionalCosignatories);
 	}
 
 	TEST(TEST_CLASS, ExtractAdditionalRequiredCosignatories_DelModifications) {
@@ -175,7 +175,7 @@ namespace catapult { namespace model {
 		auto additionalCosignatories = ExtractAdditionalRequiredCosignatories(*pTransaction);
 
 		// Assert:
-		EXPECT_EQ(utils::KeySet(), additionalCosignatories);
+		EXPECT_EQ(UnresolvedAddressSet(), additionalCosignatories);
 	}
 
 	TEST(TEST_CLASS, ExtractAdditionalRequiredCosignatories_AddAndDelModifications) {
@@ -186,8 +186,8 @@ namespace catapult { namespace model {
 		auto additionalCosignatories = ExtractAdditionalRequiredCosignatories(*pTransaction);
 
 		// Assert:
-		const auto* pPublicKeyAdditions = pTransaction->PublicKeyAdditionsPtr();
-		EXPECT_EQ(utils::KeySet({ pPublicKeyAdditions[0], pPublicKeyAdditions[1] }), additionalCosignatories);
+		const auto* pAddressAdditions = pTransaction->AddressAdditionsPtr();
+		EXPECT_EQ(UnresolvedAddressSet({ pAddressAdditions[0], pAddressAdditions[1] }), additionalCosignatories);
 	}
 
 	// endregion

@@ -73,7 +73,7 @@ namespace catapult { namespace builders {
 		auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
 
 		// 2. set fixed transaction fields
-		pTransaction->Id = model::GenerateMosaicId(signerPublicKey(), m_nonce);
+		pTransaction->Id = model::GenerateMosaicId(model::GetSignerAddress(*pTransaction), m_nonce);
 		pTransaction->Duration = m_duration;
 		pTransaction->Nonce = m_nonce;
 		pTransaction->Flags = m_flags;

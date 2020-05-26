@@ -483,7 +483,7 @@ namespace catapult { namespace local {
 				// create empty blocks to simplify setup required for undo
 				auto pBlock = test::GenerateBlockWithTransactions(0, height);
 				pBlock->FeeMultiplier = BlockFeeMultiplier(0);
-				pBlock->BeneficiaryPublicKey = pBlock->SignerPublicKey;
+				pBlock->BeneficiaryAddress = model::GetSignerAddress(*pBlock);
 				storage.saveBlock(test::BlockToBlockElement(*pBlock, test::GenerateRandomByteArray<Hash256>()));
 			}
 		}

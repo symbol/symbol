@@ -35,17 +35,13 @@ namespace catapult { namespace test {
 		}
 	}
 
-	void AssertEqualMosaicData(
-			const state::MosaicEntry& mosaicEntry,
-			const Address& ownerAddress,
-			const bsoncxx::document::view& dbMosaicEntry) {
+	void AssertEqualMosaicData(const state::MosaicEntry& mosaicEntry, const bsoncxx::document::view& dbMosaicEntry) {
 		EXPECT_EQ(mosaicEntry.mosaicId(), MosaicId(GetUint64(dbMosaicEntry, "id")));
 		EXPECT_EQ(mosaicEntry.supply(), Amount(GetUint64(dbMosaicEntry, "supply")));
 
 		const auto& definition = mosaicEntry.definition();
 		EXPECT_EQ(definition.startHeight(), Height(GetUint64(dbMosaicEntry, "startHeight")));
-		EXPECT_EQ(definition.ownerPublicKey(), GetKeyValue(dbMosaicEntry, "ownerPublicKey"));
-		EXPECT_EQ(ownerAddress, GetAddressValue(dbMosaicEntry, "ownerAddress"));
+		EXPECT_EQ(definition.ownerAddress(), GetAddressValue(dbMosaicEntry, "ownerAddress"));
 		EXPECT_EQ(definition.revision(), GetUint32(dbMosaicEntry, "revision"));
 
 		AssertMosaicProperties(definition.properties(), dbMosaicEntry);

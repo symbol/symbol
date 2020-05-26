@@ -20,6 +20,7 @@
 
 #include "src/model/MosaicIdGenerator.h"
 #include "catapult/crypto/Hashes.h"
+#include "tests/test/MosaicTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace model {
@@ -30,51 +31,51 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, GenerateMosaicId_GeneratesCorrectId) {
 		// Arrange:
-		auto buffer = std::array<uint8_t, Key::Size + sizeof(uint32_t)>();
+		auto buffer = std::array<uint8_t, Address::Size + sizeof(uint32_t)>();
 		Hash256 zeroHash;
 		crypto::Sha3_256(buffer, zeroHash);
 		auto expected = reinterpret_cast<const uint64_t&>(zeroHash[0]) & 0x7FFF'FFFF'FFFF'FFFF;
 
 		// Assert:
-		EXPECT_EQ(MosaicId(expected), GenerateMosaicId(Key(), MosaicNonce()));
+		EXPECT_EQ(MosaicId(expected), GenerateMosaicId(Address(), MosaicNonce()));
 	}
 
 	namespace {
-		auto MutateKey(const Key& key) {
-			auto result = key;
+		auto MutateAddress(const Address& address) {
+			auto result = address;
 			result[0] ^= 0xFF;
 			return result;
 		}
 	}
 
-	TEST(TEST_CLASS, GenerateMosaicId_DifferentKeysProduceDifferentIds) {
+	TEST(TEST_CLASS, GenerateMosaicId_DifferentAddressesProduceDifferentIds) {
 		// Arrange:
-		auto key1 = test::GenerateRandomByteArray<Key>();
-		auto key2 = MutateKey(key1);
+		auto address1 = test::CreateRandomOwner();
+		auto address2 = MutateAddress(address1);
 
 		// Assert:
-		EXPECT_NE(GenerateMosaicId(key1, MosaicNonce()), GenerateMosaicId(key2, MosaicNonce()));
+		EXPECT_NE(GenerateMosaicId(address1, MosaicNonce()), GenerateMosaicId(address2, MosaicNonce()));
 	}
 
 	TEST(TEST_CLASS, GenerateMosaicId_DifferentNoncesProduceDifferentIds) {
 		// Arrange:
-		auto key = test::GenerateRandomByteArray<Key>();
+		auto address = test::CreateRandomOwner();
 		auto nonce1 = test::GenerateRandomValue<MosaicNonce>();
 		auto nonce2 = test::GenerateRandomValue<MosaicNonce>();
 
 		// Assert: (could be equal, but rather unlikely for random nonces)
-		EXPECT_NE(GenerateMosaicId(key, nonce1), GenerateMosaicId(key, nonce2));
+		EXPECT_NE(GenerateMosaicId(address, nonce1), GenerateMosaicId(address, nonce2));
 	}
 
 	TEST(TEST_CLASS, GenerateMosaicId_HasHighestBitCleared) {
 		for (auto i = 0u; i < 1000; ++i) {
 			// Act:
-			auto key = test::GenerateRandomByteArray<Key>();
+			auto address = test::CreateRandomOwner();
 			auto nonce = test::GenerateRandomValue<MosaicNonce>();
-			auto id = GenerateMosaicId(key, nonce);
+			auto id = GenerateMosaicId(address, nonce);
 
 			// Assert:
-			EXPECT_EQ(0u, id.unwrap() >> 63) << key << " " << nonce;
+			EXPECT_EQ(0u, id.unwrap() >> 63) << address << " " << nonce;
 		}
 	}
 

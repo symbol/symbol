@@ -90,7 +90,7 @@ namespace catapult { namespace test {
 		// Assert:
 		auto expectedFieldCount = TTransactionTraits::Expected_Field_Count;
 		EXPECT_EQ(0 == valueSize ? expectedFieldCount : expectedFieldCount + 1, GetFieldCount(view));
-		EXPECT_EQ(pTransaction->TargetPublicKey, GetKeyValue(view, "targetPublicKey"));
+		EXPECT_EQ(pTransaction->TargetAddress, GetUnresolvedAddressValue(view, "targetAddress"));
 		EXPECT_EQ(pTransaction->ScopedMetadataKey, GetUint64(view, "scopedMetadataKey"));
 		EXPECT_EQ(pTransaction->ValueSizeDelta, GetInt32(view, "valueSizeDelta"));
 		EXPECT_EQ(pTransaction->ValueSize, GetUint32(view, "valueSize"));

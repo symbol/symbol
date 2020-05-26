@@ -50,7 +50,7 @@ namespace catapult { namespace validators {
 			// Arrange: need to copy timestampedHash.Hash because it is an std::array, not a Hash256
 			auto pValidator = CreateUniqueTransactionHashValidator();
 			auto transactionHash = Hash256(timestampedHash.Hash);
-			auto notification = model::TransactionNotification(Key(), transactionHash, model::EntityType(), timestampedHash.Time);
+			auto notification = model::TransactionNotification(Address(), transactionHash, model::EntityType(), timestampedHash.Time);
 
 			// Act:
 			auto result = test::ValidateNotification(*pValidator, notification, cache);

@@ -31,14 +31,14 @@ namespace catapult { namespace builders {
 		struct TransactionProperties {
 		public:
 			TransactionProperties()
-					: TargetPublicKey()
+					: TargetAddress()
 					, ScopedMetadataKey()
 					, RawTargetId()
 					, ValueSizeDelta()
 			{}
 
 		public:
-			Key TargetPublicKey;
+			UnresolvedAddress TargetAddress;
 			uint64_t ScopedMetadataKey;
 			uint64_t RawTargetId;
 			int16_t ValueSizeDelta;
@@ -104,7 +104,7 @@ namespace catapult { namespace builders {
 
 		template<typename TTransaction>
 		void AssertTransactionProperties(const TransactionProperties& expectedProperties, const TTransaction& transaction) {
-			EXPECT_EQ(expectedProperties.TargetPublicKey, transaction.TargetPublicKey);
+			EXPECT_EQ(expectedProperties.TargetAddress, transaction.TargetAddress);
 			EXPECT_EQ(expectedProperties.ScopedMetadataKey, transaction.ScopedMetadataKey);
 			EXPECT_EQ(expectedProperties.ValueSizeDelta, transaction.ValueSizeDelta);
 			ASSERT_EQ(expectedProperties.Value.size(), transaction.ValueSize);
@@ -157,14 +157,14 @@ namespace catapult { namespace builders {
 
 	// region additional transaction fields
 
-	TRAITS_BASED_TEST(CanSetTargetPublicKey) {
+	TRAITS_BASED_TEST(CanSetTargetAddress) {
 		// Arrange:
 		auto expectedProperties = TransactionProperties();
-		test::FillWithRandomData(expectedProperties.TargetPublicKey);
+		test::FillWithRandomData(expectedProperties.TargetAddress);
 
 		// Assert:
-		AssertCanBuildTransaction<TTraits>(expectedProperties, [&targetPublicKey = expectedProperties.TargetPublicKey](auto& builder) {
-			builder.setTargetPublicKey(targetPublicKey);
+		AssertCanBuildTransaction<TTraits>(expectedProperties, [&targetAddress = expectedProperties.TargetAddress](auto& builder) {
+			builder.setTargetAddress(targetAddress);
 		});
 	}
 

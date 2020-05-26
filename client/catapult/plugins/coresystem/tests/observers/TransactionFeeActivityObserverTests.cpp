@@ -40,11 +40,11 @@ namespace catapult { namespace observers {
 			{}
 
 		public:
-			auto addAccount(const Key& publicKey, Amount totalFeesPaid) {
+			auto addAccount(const Address& address, Amount totalFeesPaid) {
 				auto& accountStateCache = cache().sub<cache::AccountStateCache>();
-				accountStateCache.addAccount(publicKey, Height(123));
+				accountStateCache.addAccount(address, Height(123));
 
-				auto accountStateIter = accountStateCache.find(publicKey);
+				auto accountStateIter = accountStateCache.find(address);
 				if (Amount(0) != totalFeesPaid) {
 					accountStateIter.get().ActivityBuckets.update(Importance_Height, [totalFeesPaid](auto& bucket) {
 						bucket.TotalFeesPaid = totalFeesPaid;
@@ -67,16 +67,16 @@ namespace catapult { namespace observers {
 			TestContext context(notifyMode);
 			auto pObserver = CreateTransactionFeeActivityObserver();
 
-			auto signerPublicKey = test::GenerateRandomByteArray<Key>();
-			auto signerAccountStateIter = context.addAccount(signerPublicKey, initialTotalFeesPaid);
+			auto sender = test::GenerateRandomByteArray<Address>();
+			auto senderAccountStateIter = context.addAccount(sender, initialTotalFeesPaid);
 
-			auto notification = model::TransactionFeeNotification(signerPublicKey, 0, fee, Amount(222));
+			auto notification = model::TransactionFeeNotification(sender, 0, fee, Amount(222));
 
 			// Act:
 			test::ObserveNotification(*pObserver, notification, context);
 
 			// Assert:
-			const auto& activityBucket = signerAccountStateIter.get().ActivityBuckets.get(Importance_Height);
+			const auto& activityBucket = senderAccountStateIter.get().ActivityBuckets.get(Importance_Height);
 			EXPECT_EQ(expectedTotalFeesPaid, activityBucket.TotalFeesPaid);
 		}
 	}
@@ -102,16 +102,16 @@ namespace catapult { namespace observers {
 		TestContext context(NotifyMode::Commit);
 		auto pObserver = CreateTransactionFeeActivityObserver();
 
-		auto signerPublicKey = test::GenerateRandomByteArray<Key>();
-		auto signerAccountStateIter = context.addAccount(signerPublicKey, Amount(0));
+		auto sender = test::GenerateRandomByteArray<Address>();
+		auto senderAccountStateIter = context.addAccount(sender, Amount(0));
 
-		auto notification = model::TransactionFeeNotification(signerPublicKey, 0, Amount(0), Amount(222));
+		auto notification = model::TransactionFeeNotification(sender, 0, Amount(0), Amount(222));
 
 		// Act:
 		test::ObserveNotification(*pObserver, notification, context);
 
 		// Assert: no bucket was created
-		const auto& activityBucket = signerAccountStateIter.get().ActivityBuckets.get(Importance_Height);
+		const auto& activityBucket = senderAccountStateIter.get().ActivityBuckets.get(Importance_Height);
 		EXPECT_EQ(model::ImportanceHeight(), activityBucket.StartHeight);
 	}
 }}

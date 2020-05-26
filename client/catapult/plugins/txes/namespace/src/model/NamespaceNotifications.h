@@ -121,17 +121,17 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = Namespace_Root_Registration_Notification;
 
 	public:
-		/// Creates a notification around \a signer, \a namespaceId and \a duration.
-		RootNamespaceNotification(const Key& signer, NamespaceId namespaceId, BlockDuration duration)
+		/// Creates a notification around \a owner, \a namespaceId and \a duration.
+		RootNamespaceNotification(const Address& owner, NamespaceId namespaceId, BlockDuration duration)
 				: Notification(Notification_Type, sizeof(RootNamespaceNotification))
-				, Signer(signer)
+				, Owner(owner)
 				, NamespaceId(namespaceId)
 				, Duration(duration)
 		{}
 
 	public:
-		/// Signer.
-		const Key& Signer;
+		/// Namespace owner.
+		Address Owner;
 
 		/// Id of the namespace.
 		catapult::NamespaceId NamespaceId;
@@ -151,17 +151,17 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = Namespace_Child_Registration_Notification;
 
 	public:
-		/// Creates a notification around \a signer, \a namespaceId and \a parentId.
-		ChildNamespaceNotification(const Key& signer, NamespaceId namespaceId, NamespaceId parentId)
+		/// Creates a notification around \a owner, \a namespaceId and \a parentId.
+		ChildNamespaceNotification(const Address& owner, NamespaceId namespaceId, NamespaceId parentId)
 				: Notification(Notification_Type, sizeof(ChildNamespaceNotification))
-				, Signer(signer)
+				, Owner(owner)
 				, NamespaceId(namespaceId)
 				, ParentId(parentId)
 		{}
 
 	public:
-		/// Signer.
-		const Key& Signer;
+		/// Namespace owner.
+		Address Owner;
 
 		/// Id of the namespace.
 		catapult::NamespaceId NamespaceId;
@@ -183,7 +183,7 @@ namespace catapult { namespace model {
 	public:
 		/// Creates a notification around \a sender, \a recipient, \a mosaicId and \a amount.
 		NamespaceRentalFeeNotification(
-				const Key& sender,
+				const Address& sender,
 				const UnresolvedAddress& recipient,
 				UnresolvedMosaicId mosaicId,
 				catapult::Amount amount)
@@ -207,16 +207,16 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = Namespace_Required_Notification;
 
 	public:
-		/// Creates a notification around \a signer and \a namespaceId.
-		NamespaceRequiredNotification(const Key& signer, NamespaceId namespaceId)
+		/// Creates a notification around \a owner and \a namespaceId.
+		NamespaceRequiredNotification(const ResolvableAddress& owner, NamespaceId namespaceId)
 				: Notification(Notification_Type, sizeof(NamespaceRequiredNotification))
-				, Signer(signer)
+				, Owner(owner)
 				, NamespaceId(namespaceId)
 		{}
 
 	public:
-		/// Signer.
-		const Key& Signer;
+		/// Namespace owner (resolvable).
+		ResolvableAddress Owner;
 
 		/// Namespace id.
 		catapult::NamespaceId NamespaceId;

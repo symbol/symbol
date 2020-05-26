@@ -56,24 +56,45 @@ namespace catapult { namespace mocks {
 	/// Hash notification raised on no channels.
 	DEFINE_MOCK_NOTIFICATION(Hash, 0xFFFD, None);
 
+	/// Address notification raised on no channels.
+	DEFINE_MOCK_NOTIFICATION(Address, 0xFFFC, None);
+
 #undef DEFINE_MOCK_NOTIFICATION
 
 	/// Notifies the arrival of a hash.
-	struct HashNotification : public model::Notification {
+	struct MockHashNotification : public model::Notification {
 	public:
 		/// Matching notification type.
 		static constexpr auto Notification_Type = Mock_Hash_Notification;
 
 	public:
 		/// Creates a hash notification around \a hash.
-		explicit HashNotification(const Hash256& hash)
-				: model::Notification(Notification_Type, sizeof(HashNotification))
+		explicit MockHashNotification(const Hash256& hash)
+				: model::Notification(Notification_Type, sizeof(MockHashNotification))
 				, Hash(hash)
 		{}
 
 	public:
 		/// Hash.
 		const Hash256& Hash;
+	};
+
+	/// Notifies the arrival of a (resolved) address.
+	struct MockAddressNotification : public model::Notification {
+	public:
+		/// Matching notification type.
+		static constexpr auto Notification_Type = Mock_Address_Notification;
+
+	public:
+		/// Creates an address notification around \a address.
+		explicit MockAddressNotification(const Address& address)
+				: model::Notification(Notification_Type, sizeof(MockAddressNotification))
+				, Address(address)
+		{}
+
+	public:
+		/// Address.
+		catapult::Address Address;
 	};
 
 	// endregion
@@ -139,6 +160,12 @@ namespace catapult { namespace mocks {
 
 	// endregion
 
+	/// Gets the address of the recipient of \a transaction.
+	Address GetRecipientAddress(const MockTransaction& transaction);
+
+	/// Gets the address of the recipient of \a transaction.
+	Address GetRecipientAddress(const EmbeddedMockTransaction& transaction);
+
 	/// Creates a mock transaction with variable data composed of \a dataSize random bytes.
 	std::unique_ptr<MockTransaction> CreateMockTransaction(uint16_t dataSize);
 
@@ -153,8 +180,8 @@ namespace catapult { namespace mocks {
 	/// Creates a mock transaction with \a signer and \a recipient.
 	std::unique_ptr<MockTransaction> CreateMockTransactionWithSignerAndRecipient(const Key& signer, const Key& recipient);
 
-	/// Extracts public keys of additional accounts that must approve \a transaction.
-	utils::KeySet ExtractAdditionalRequiredCosignatories(const EmbeddedMockTransaction& transaction);
+	/// Extracts addresses of additional accounts that must approve \a transaction.
+	model::UnresolvedAddressSet ExtractAdditionalRequiredCosignatories(const EmbeddedMockTransaction& transaction);
 
 	/// Mock transaction plugin options.
 	enum class PluginOptionFlags : uint8_t {

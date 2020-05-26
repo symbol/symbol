@@ -52,8 +52,8 @@ namespace catapult { namespace mongo { namespace plugins {
 				return plugins::ToDbModel(descriptor);
 			}
 
-			static auto MapToMongoModels(const state::RootNamespaceHistory& history, model::NetworkIdentifier networkIdentifier) {
-				return NamespaceDescriptorsFromHistory(history, networkIdentifier);
+			static auto MapToMongoModels(const state::RootNamespaceHistory& history, model::NetworkIdentifier) {
+				return NamespaceDescriptorsFromHistory(history);
 			}
 		};
 	}

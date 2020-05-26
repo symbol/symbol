@@ -24,15 +24,15 @@ namespace catapult { namespace builders {
 
 	NamespaceMetadataBuilder::NamespaceMetadataBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
 			: TransactionBuilder(networkIdentifier, signer)
-			, m_targetPublicKey()
+			, m_targetAddress()
 			, m_scopedMetadataKey()
 			, m_targetNamespaceId()
 			, m_valueSizeDelta()
 			, m_value()
 	{}
 
-	void NamespaceMetadataBuilder::setTargetPublicKey(const Key& targetPublicKey) {
-		m_targetPublicKey = targetPublicKey;
+	void NamespaceMetadataBuilder::setTargetAddress(const UnresolvedAddress& targetAddress) {
+		m_targetAddress = targetAddress;
 	}
 
 	void NamespaceMetadataBuilder::setScopedMetadataKey(uint64_t scopedMetadataKey) {
@@ -84,7 +84,7 @@ namespace catapult { namespace builders {
 		auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
 
 		// 2. set fixed transaction fields
-		pTransaction->TargetPublicKey = m_targetPublicKey;
+		pTransaction->TargetAddress = m_targetAddress;
 		pTransaction->ScopedMetadataKey = m_scopedMetadataKey;
 		pTransaction->TargetNamespaceId = m_targetNamespaceId;
 		pTransaction->ValueSizeDelta = m_valueSizeDelta;

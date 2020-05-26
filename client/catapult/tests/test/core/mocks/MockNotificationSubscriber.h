@@ -35,9 +35,9 @@ namespace catapult { namespace mocks {
 
 			// use if/else instead of switch to work around VS warning
 			if (model::Core_Register_Account_Address_Notification == notification.Type)
-				m_addresses.push_back(test::CastToDerivedNotification<model::AccountAddressNotification>(notification).Address);
+				addAccount(test::CastToDerivedNotification<model::AccountAddressNotification>(notification));
 			else if (model::Core_Register_Account_Public_Key_Notification == notification.Type)
-				m_keys.push_back(test::CastToDerivedNotification<model::AccountPublicKeyNotification>(notification).PublicKey);
+				addPublicKey(test::CastToDerivedNotification<model::AccountPublicKeyNotification>(notification));
 			else if (model::Core_Balance_Transfer_Notification == notification.Type)
 				addTransfer(test::CastToDerivedNotification<model::BalanceTransferNotification>(notification));
 		}
@@ -65,8 +65,10 @@ namespace catapult { namespace mocks {
 		}
 
 		/// Returns \c true if \a address was visited.
-		bool contains(const UnresolvedAddress& address) const {
-			return m_addresses.cend() != std::find(m_addresses.cbegin(), m_addresses.cend(), address);
+		bool contains(const model::ResolvableAddress& address) const {
+			return std::any_of(m_addresses.cbegin(), m_addresses.cend(), [&address](const auto& notifiedAddress) {
+				return address.isResolved() == notifiedAddress.isResolved() && address.unresolved() == notifiedAddress.unresolved();
+			});
 		}
 
 		/// Returns \c true if \a publicKey was visited.
@@ -75,6 +77,14 @@ namespace catapult { namespace mocks {
 		}
 
 	private:
+		void addAccount(const model::AccountAddressNotification& notification) {
+			m_addresses.push_back(notification.Address);
+		}
+
+		void addPublicKey(const model::AccountPublicKeyNotification& notification) {
+			m_keys.push_back(notification.PublicKey);
+		}
+
 		void addTransfer(const model::BalanceTransferNotification& notification) {
 			CATAPULT_LOG(debug) << "visited " << notification.MosaicId << " transfer of " << notification.Amount << " units";
 			m_transfers.push_back(Transfer(notification));
@@ -87,7 +97,7 @@ namespace catapult { namespace mocks {
 		}
 
 		/// Returns \c true if a transfer of \a amount units of \a mosaicId from \a sender to \a recipient was visited.
-		bool contains(const Key& sender, const UnresolvedAddress& recipient, UnresolvedMosaicId mosaicId, Amount amount) const {
+		bool contains(const Address& sender, const UnresolvedAddress& recipient, UnresolvedMosaicId mosaicId, Amount amount) const {
 			auto targetTransfer = Transfer(sender, recipient, mosaicId, amount);
 			return std::any_of(m_transfers.cbegin(), m_transfers.cend(), [&targetTransfer](const auto& transfer) {
 				return targetTransfer.Sender == transfer.Sender
@@ -104,7 +114,7 @@ namespace catapult { namespace mocks {
 					: Transfer(notification.Sender, notification.Recipient, notification.MosaicId, notification.Amount)
 			{}
 
-			Transfer(const Key& sender, const UnresolvedAddress& recipient, UnresolvedMosaicId mosaicId, Amount amount)
+			Transfer(const Address& sender, const UnresolvedAddress& recipient, UnresolvedMosaicId mosaicId, Amount amount)
 					: Sender(sender)
 					, Recipient(recipient)
 					, MosaicId(mosaicId)
@@ -112,7 +122,7 @@ namespace catapult { namespace mocks {
 			{}
 
 		public:
-			Key Sender;
+			Address Sender;
 			UnresolvedAddress Recipient;
 			UnresolvedMosaicId MosaicId;
 			catapult::Amount Amount;
@@ -120,7 +130,7 @@ namespace catapult { namespace mocks {
 
 	private:
 		std::vector<model::NotificationType> m_notificationTypes;
-		std::vector<UnresolvedAddress> m_addresses;
+		std::vector<model::ResolvableAddress> m_addresses;
 		std::vector<Key> m_keys;
 		std::vector<Transfer> m_transfers;
 	};

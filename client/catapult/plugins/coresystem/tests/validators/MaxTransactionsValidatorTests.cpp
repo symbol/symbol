@@ -34,8 +34,8 @@ namespace catapult { namespace validators {
 
 		void AssertValidationResult(ValidationResult expectedResult, uint32_t numTransactions) {
 			// Arrange:
-			auto signer = test::GenerateRandomByteArray<Key>();
-			auto notification = test::CreateBlockNotification(signer);
+			auto harvester = test::GenerateRandomByteArray<Address>();
+			auto notification = test::CreateBlockNotification(harvester);
 			notification.NumTransactions = numTransactions;
 			auto pValidator = CreateMaxTransactionsValidator(Max_Transactions);
 

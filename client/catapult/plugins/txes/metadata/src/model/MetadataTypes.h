@@ -37,16 +37,23 @@ namespace catapult { namespace model {
 	};
 
 	/// Partial metadata key shared by all types of metadata.
-	struct PartialMetadataKey {
-		/// Public key of the metadata source (provider).
-		Key SourcePublicKey;
+	template<typename TTargetAddress>
+	struct PartialMetadataKeyT {
+		/// Address of the metadata source (provider).
+		Address SourceAddress;
 
-		/// Public key of the metadata target.
-		Key TargetPublicKey;
+		/// Address of the metadata target.
+		TTargetAddress TargetAddress;
 
 		/// Metadata key scoped to source, target and type.
 		uint64_t ScopedMetadataKey;
 	};
+
+	/// Partial metadata key shared by all types of metadata.
+	using PartialMetadataKey = PartialMetadataKeyT<Address>;
+
+	/// Unresolved partial metadata key shared by all types of metadata.
+	using UnresolvedPartialMetadataKey = PartialMetadataKeyT<UnresolvedAddress>;
 
 	/// Metadata target.
 	struct MetadataTarget {

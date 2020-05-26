@@ -29,7 +29,7 @@ namespace catapult { namespace extensions {
 #define TEST_CLASS NemesisFundingObserverTests
 
 	namespace {
-		auto CreateBalanceTransferNotification(const Key& sender, UnresolvedMosaicId mosaicId, Amount amount) {
+		auto CreateBalanceTransferNotification(const Address& sender, UnresolvedMosaicId mosaicId, Amount amount) {
 			return model::BalanceTransferNotification(sender, test::GenerateRandomUnresolvedAddress(), mosaicId, amount);
 		}
 	}
@@ -40,7 +40,7 @@ namespace catapult { namespace extensions {
 		void AssertUnsupported(observers::NotifyMode notifyMode, Height height) {
 			// Arrange:
 			test::AccountObserverTestContext context(notifyMode, height);
-			auto sender = test::GenerateRandomByteArray<Key>();
+			auto sender = test::GenerateRandomByteArray<Address>();
 
 			NemesisFundingState fundingState;
 			auto pObserver = CreateNemesisFundingObserver(sender, fundingState);
@@ -62,8 +62,8 @@ namespace catapult { namespace extensions {
 	TEST(TEST_CLASS, ObserverFailsWhenTransferIsFromNonNemesisAccount) {
 		// Arrange:
 		test::AccountObserverTestContext context(observers::NotifyMode::Commit, Height(1));
-		auto nemesis = test::GenerateRandomByteArray<Key>();
-		auto sender = test::GenerateRandomByteArray<Key>();
+		auto nemesis = test::GenerateRandomByteArray<Address>();
+		auto sender = test::GenerateRandomByteArray<Address>();
 
 		NemesisFundingState fundingState;
 		auto pObserver = CreateNemesisFundingObserver(nemesis, fundingState);
@@ -84,7 +84,7 @@ namespace catapult { namespace extensions {
 
 		// - pre-fund account
 		test::AccountObserverTestContext context(observers::NotifyMode::Commit, Height(1));
-		auto sender = test::GenerateRandomByteArray<Key>();
+		auto sender = test::GenerateRandomByteArray<Address>();
 
 		auto& accountStateCache = context.cache().sub<cache::AccountStateCache>();
 		accountStateCache.addAccount(sender, Height(1));
@@ -129,7 +129,7 @@ namespace catapult { namespace extensions {
 
 		// - don't pre-fund account
 		test::AccountObserverTestContext context(observers::NotifyMode::Commit, Height(1));
-		auto sender = test::GenerateRandomByteArray<Key>();
+		auto sender = test::GenerateRandomByteArray<Address>();
 
 		NemesisFundingState fundingState;
 		auto pObserver = CreateNemesisFundingObserver(sender, fundingState);

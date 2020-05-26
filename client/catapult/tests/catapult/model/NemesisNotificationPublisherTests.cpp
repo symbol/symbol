@@ -33,27 +33,27 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, ExtractNemesisNotificationPublisherOptions_CanExtractWhenHarvestNetworkFeesAreDisabled) {
 		// Arrange:
 		auto config = BlockChainConfiguration::Uninitialized();
-		test::FillWithRandomData(config.HarvestNetworkFeeSinkPublicKey);
+		test::FillWithRandomData(config.HarvestNetworkFeeSinkAddress);
 
 		// Act:
 		auto options = ExtractNemesisNotificationPublisherOptions(config);
 
 		// Assert:
-		EXPECT_EQ(0u, options.SpecialAccountPublicKeys.size());
+		EXPECT_EQ(0u, options.SpecialAccountAddresses.size());
 	}
 
 	TEST(TEST_CLASS, ExtractNemesisNotificationPublisherOptions_CanExtractWhenHarvestNetworkFeesAreEnabled) {
 		// Arrange:
 		auto config = BlockChainConfiguration::Uninitialized();
 		config.HarvestNetworkPercentage = 15;
-		test::FillWithRandomData(config.HarvestNetworkFeeSinkPublicKey);
+		test::FillWithRandomData(config.HarvestNetworkFeeSinkAddress);
 
 		// Act:
 		auto options = ExtractNemesisNotificationPublisherOptions(config);
 
 		// Assert:
-		EXPECT_EQ(1u, options.SpecialAccountPublicKeys.size());
-		EXPECT_EQ(utils::KeySet{ config.HarvestNetworkFeeSinkPublicKey }, options.SpecialAccountPublicKeys);
+		EXPECT_EQ(1u, options.SpecialAccountAddresses.size());
+		EXPECT_EQ(AddressSet{ config.HarvestNetworkFeeSinkAddress }, options.SpecialAccountAddresses);
 	}
 
 	// endregion
@@ -61,10 +61,10 @@ namespace catapult { namespace model {
 	// region CreateNemesisNotificationPublisher
 
 	namespace {
-		void RunNemesisNotificationPublisherTest(const utils::KeySet& specialAccountPublicKeys) {
+		void RunNemesisNotificationPublisherTest(const AddressSet& specialAccountAddresses) {
 			// Arrange:
 			NemesisNotificationPublisherOptions options;
-			options.SpecialAccountPublicKeys = specialAccountPublicKeys;
+			options.SpecialAccountAddresses = specialAccountAddresses;
 
 			auto pMockPublisher = std::make_unique<mocks::MockNotificationPublisher>();
 			auto pMockPublisherRaw = pMockPublisher.get();
@@ -79,13 +79,13 @@ namespace catapult { namespace model {
 			EXPECT_EQ(1u, pMockPublisherRaw->numPublishCalls());
 
 			// - one notification was added for each special account
-			EXPECT_EQ(specialAccountPublicKeys.size(), pMockSubscriber->numNotifications());
+			EXPECT_EQ(specialAccountAddresses.size(), pMockSubscriber->numNotifications());
 			EXPECT_EQ(
-					std::vector<NotificationType>(specialAccountPublicKeys.size(), Core_Register_Account_Public_Key_Notification),
+					std::vector<NotificationType>(specialAccountAddresses.size(), Core_Register_Account_Address_Notification),
 					pMockSubscriber->notificationTypes());
 
-			for (const auto& publicKey : specialAccountPublicKeys)
-				EXPECT_TRUE(pMockSubscriber->contains(publicKey));
+			for (const auto& address : specialAccountAddresses)
+				EXPECT_TRUE(pMockSubscriber->contains(address));
 		}
 	}
 
@@ -94,14 +94,14 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, CreateNemesisNotificationPublisher_CanDecorateWithSingleSpecialAccount) {
-		RunNemesisNotificationPublisherTest({ test::GenerateRandomByteArray<Key>() });
+		RunNemesisNotificationPublisherTest({ test::GenerateRandomByteArray<Address>() });
 	}
 
 	TEST(TEST_CLASS, CreateNemesisNotificationPublisher_CanDecorateWithMultipleSpecialAccounts) {
 		RunNemesisNotificationPublisherTest({
-			test::GenerateRandomByteArray<Key>(),
-			test::GenerateRandomByteArray<Key>(),
-			test::GenerateRandomByteArray<Key>()
+			test::GenerateRandomByteArray<Address>(),
+			test::GenerateRandomByteArray<Address>(),
+			test::GenerateRandomByteArray<Address>()
 		});
 	}
 

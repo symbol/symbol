@@ -27,6 +27,22 @@ namespace catapult { namespace model {
 
 	/// Cosignature attached to an aggregate transaction.
 	struct Cosignature {
+	public:
+		/// Creates a default cosignature.
+		Cosignature() : Version(0)
+		{}
+
+		/// Creates a cosignature around \a signerPublicKey and \a signature.
+		Cosignature(const Key& signerPublicKey, const catapult::Signature& signature)
+				: Version(0)
+				, SignerPublicKey(signerPublicKey)
+				, Signature(signature)
+		{}
+
+	public:
+		/// Version.
+		uint64_t Version;
+
 		/// Cosignatory public key.
 		Key SignerPublicKey;
 
@@ -37,9 +53,15 @@ namespace catapult { namespace model {
 	/// Cosignature detached from an aggregate transaction.
 	struct DetachedCosignature : public Cosignature {
 	public:
-		/// Creates a detached cosignature around \a signer, \a signature and \a parentHash.
-		DetachedCosignature(const Key& signer, const catapult::Signature& signature, const Hash256& parentHash)
-				: Cosignature{ signer, signature }
+		/// Creates a detached cosignature around \a signerPublicKey, \a signature and \a parentHash.
+		DetachedCosignature(const Key& signerPublicKey, const catapult::Signature& signature, const Hash256& parentHash)
+				: Cosignature(signerPublicKey, signature)
+				, ParentHash(parentHash)
+		{}
+
+		/// Creates a detached cosignature around \a cosignature and \a parentHash.
+		DetachedCosignature(const Cosignature& cosignature, const Hash256& parentHash)
+				: Cosignature(cosignature)
 				, ParentHash(parentHash)
 		{}
 

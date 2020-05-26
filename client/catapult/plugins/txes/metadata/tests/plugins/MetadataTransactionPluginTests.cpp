@@ -56,13 +56,15 @@ namespace catapult { namespace plugins {
 			}
 
 			static const auto& AppendExpectedCustomNotificationTypes(std::vector<NotificationType>&& notificationTypes) {
-				notificationTypes.push_back(AccountPublicKeyNotification::Notification_Type);
+				notificationTypes.push_back(AccountAddressNotification::Notification_Type);
 				return notificationTypes;
 			}
 
 			static void AddCustomExpectations(PublishTestBuilder& builder, const TTransaction& transaction) {
-				builder.template addExpectation<AccountPublicKeyNotification>([&transaction](const auto& notification) {
-					EXPECT_EQ(transaction.TargetPublicKey, notification.PublicKey);
+				builder.template addExpectation<AccountAddressNotification>([&transaction](const auto& notification) {
+					EXPECT_FALSE(notification.Address.isResolved());
+
+					EXPECT_EQ(transaction.TargetAddress, notification.Address.unresolved());
 				});
 			}
 		};
@@ -91,11 +93,12 @@ namespace catapult { namespace plugins {
 
 			static void AddCustomExpectations(PublishTestBuilder& builder, const TTransaction& transaction) {
 				builder.template addExpectation<MosaicRequiredNotification>([&transaction](const auto& notification) {
-					EXPECT_EQ(transaction.TargetPublicKey, notification.Signer);
-					EXPECT_EQ(MosaicId(), notification.MosaicId);
-					EXPECT_EQ(transaction.TargetMosaicId, notification.UnresolvedMosaicId);
+					EXPECT_FALSE(notification.Owner.isResolved());
+					EXPECT_FALSE(notification.MosaicId.isResolved());
+
+					EXPECT_EQ(transaction.TargetAddress, notification.Owner.unresolved());
+					EXPECT_EQ(transaction.TargetMosaicId, notification.MosaicId.unresolved());
 					EXPECT_EQ(0u, notification.PropertyFlagMask);
-					EXPECT_EQ(MosaicRequiredNotification::MosaicType::Unresolved, notification.ProvidedMosaicType);
 				});
 			}
 		};
@@ -124,7 +127,9 @@ namespace catapult { namespace plugins {
 
 			static void AddCustomExpectations(PublishTestBuilder& builder, const TTransaction& transaction) {
 				builder.template addExpectation<NamespaceRequiredNotification>([&transaction](const auto& notification) {
-					EXPECT_EQ(transaction.TargetPublicKey, notification.Signer);
+					EXPECT_FALSE(notification.Owner.isResolved());
+
+					EXPECT_EQ(transaction.TargetAddress, notification.Owner.unresolved());
 					EXPECT_EQ(transaction.TargetNamespaceId, notification.NamespaceId);
 				});
 			}
@@ -194,8 +199,8 @@ namespace catapult { namespace plugins {
 		});
 		builder.template addExpectation<MetadataValueNotification>([&transaction](const auto& notification) {
 			// partial metadata key
-			EXPECT_EQ(transaction.SignerPublicKey, notification.PartialMetadataKey.SourcePublicKey);
-			EXPECT_EQ(transaction.TargetPublicKey, notification.PartialMetadataKey.TargetPublicKey);
+			EXPECT_EQ(GetSignerAddress(transaction), notification.PartialMetadataKey.SourceAddress);
+			EXPECT_EQ(transaction.TargetAddress, notification.PartialMetadataKey.TargetAddress);
 			EXPECT_EQ(transaction.ScopedMetadataKey, notification.PartialMetadataKey.ScopedMetadataKey);
 
 			// metadata target
@@ -235,7 +240,7 @@ namespace catapult { namespace plugins {
 		auto additionalCosignatories = pPlugin->additionalRequiredCosignatories(transaction);
 
 		// Assert:
-		EXPECT_EQ(utils::KeySet{ transaction.TargetPublicKey }, additionalCosignatories);
+		EXPECT_EQ(UnresolvedAddressSet{ transaction.TargetAddress }, additionalCosignatories);
 	}
 
 	// endregion

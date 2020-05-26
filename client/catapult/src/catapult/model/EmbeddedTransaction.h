@@ -68,6 +68,9 @@ namespace catapult { namespace model {
 	/// Insertion operator for outputting \a transaction to \a out.
 	std::ostream& operator<<(std::ostream& out, const EmbeddedTransaction& transaction);
 
+	/// Gets the address of the signer of \a transaction.
+	Address GetSignerAddress(const EmbeddedTransaction& transaction);
+
 	/// Checks the real size of \a transaction against its reported size and returns \c true if the sizes match.
 	/// \a registry contains all known transaction types.
 	bool IsSizeValid(const EmbeddedTransaction& transaction, const TransactionRegistry& registry);

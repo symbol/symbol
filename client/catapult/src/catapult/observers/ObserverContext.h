@@ -21,7 +21,7 @@
 #pragma once
 #include "ObserverStatementBuilder.h"
 #include "catapult/cache/CatapultCacheDelta.h"
-#include "catapult/model/ResolverContext.h"
+#include "catapult/model/NotificationContext.h"
 #include "catapult/state/CatapultState.h"
 #include <iosfwd>
 
@@ -72,24 +72,18 @@ namespace catapult { namespace observers {
 	// region ObserverContext
 
 	/// Context passed to all the observers.
-	struct ObserverContext {
+	struct ObserverContext : public model::NotificationContext {
 	public:
-		/// Creates an observer context around \a state at \a height with specified \a mode and \a resolvers.
+		/// Creates an observer context around \a notificationContext, \a state and \a mode.
 		/// \note \a state is const to enable more consise code even though it only contains non-const references.
-		ObserverContext(const ObserverState& state, Height height, NotifyMode mode, const model::ResolverContext& resolvers);
+		ObserverContext(const model::NotificationContext& notificationContext, const ObserverState& state, NotifyMode mode);
 
 	public:
 		/// Catapult cache.
 		cache::CatapultCacheDelta& Cache;
 
-		/// Current height.
-		const catapult::Height Height;
-
 		/// Notification mode.
 		const NotifyMode Mode;
-
-		/// Alias resolvers.
-		const model::ResolverContext Resolvers;
 
 	public:
 		/// Statement builder.

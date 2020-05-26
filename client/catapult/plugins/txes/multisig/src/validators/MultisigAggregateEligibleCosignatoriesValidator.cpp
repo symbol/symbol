@@ -20,6 +20,7 @@
 
 #include "Validators.h"
 #include "src/cache/MultisigCache.h"
+#include "catapult/model/Address.h"
 #include "catapult/model/TransactionPlugin.h"
 #include "catapult/validators/ValidatorContext.h"
 
@@ -33,13 +34,15 @@ namespace catapult { namespace validators {
 			AggregateCosignaturesChecker(
 					const Notification& notification,
 					const model::TransactionRegistry& transactionRegistry,
-					const cache::MultisigCache::CacheReadOnlyType& multisigCache)
+					const cache::MultisigCache::CacheReadOnlyType& multisigCache,
+					const ValidatorContext& context)
 					: m_notification(notification)
 					, m_transactionRegistry(transactionRegistry)
-					, m_multisigCache(multisigCache) {
-				m_cosignatories.emplace(&m_notification.Signer, false);
+					, m_multisigCache(multisigCache)
+					, m_context(context) {
+				m_cosignatories.emplace(toAddress(m_notification.SignerPublicKey), false);
 				for (auto i = 0u; i < m_notification.CosignaturesCount; ++i)
-					m_cosignatories.emplace(&m_notification.CosignaturesPtr[i].SignerPublicKey, false);
+					m_cosignatories.emplace(toAddress(m_notification.CosignaturesPtr[i].SignerPublicKey), false);
 			}
 
 		public:
@@ -47,7 +50,7 @@ namespace catapult { namespace validators {
 				// find all eligible cosignatories
 				const auto* pTransaction = m_notification.TransactionsPtr;
 				for (auto i = 0u; i < m_notification.TransactionsCount; ++i) {
-					findEligibleCosignatories(pTransaction->SignerPublicKey);
+					findEligibleCosignatories(toAddress(pTransaction->SignerPublicKey));
 
 					const auto& transactionPlugin = m_transactionRegistry.findPlugin(pTransaction->Type)->embeddedPlugin();
 					for (const auto& requiredCosignatory : transactionPlugin.additionalRequiredCosignatories(*pTransaction))
@@ -63,28 +66,36 @@ namespace catapult { namespace validators {
 			}
 
 		private:
-			void findEligibleCosignatories(const Key& publicKey) {
-				// if the account is unknown or not multisig, only the public key itself is eligible
-				if (!m_multisigCache.contains(publicKey)) {
-					markEligible(publicKey);
+			Address toAddress(const Key& publicKey) const {
+				return model::PublicKeyToAddress(publicKey, m_context.Network.Identifier);
+			}
+
+			void findEligibleCosignatories(const UnresolvedAddress& address) {
+				findEligibleCosignatories(m_context.Resolvers.resolve(address));
+			}
+
+			void findEligibleCosignatories(const Address& address) {
+				// if the account is unknown or not multisig, only the address itself is eligible
+				if (!m_multisigCache.contains(address)) {
+					markEligible(address);
 					return;
 				}
 
 				// if the account is a cosignatory only, treat it as non-multisig
-				auto multisigIter = m_multisigCache.find(publicKey);
+				auto multisigIter = m_multisigCache.find(address);
 				const auto& multisigEntry = multisigIter.get();
-				if (multisigEntry.cosignatoryPublicKeys().empty()) {
-					markEligible(publicKey);
+				if (multisigEntry.cosignatoryAddresses().empty()) {
+					markEligible(address);
 					return;
 				}
 
 				// if the account is multisig, only its cosignatories are eligible
-				for (const auto& cosignatoryPublicKey : multisigEntry.cosignatoryPublicKeys())
-					findEligibleCosignatories(cosignatoryPublicKey);
+				for (const auto& cosignatoryAddress : multisigEntry.cosignatoryAddresses())
+					findEligibleCosignatories(cosignatoryAddress);
 			}
 
-			void markEligible(const Key& key) {
-				auto iter = m_cosignatories.find(&key);
+			void markEligible(const Address& address) {
+				auto iter = m_cosignatories.find(address);
 				if (m_cosignatories.cend() != iter)
 					iter->second = true;
 			}
@@ -93,7 +104,8 @@ namespace catapult { namespace validators {
 			const Notification& m_notification;
 			const model::TransactionRegistry& m_transactionRegistry;
 			const cache::MultisigCache::CacheReadOnlyType& m_multisigCache;
-			utils::ArrayPointerFlagMap<Key> m_cosignatories;
+			const ValidatorContext& m_context;
+			std::unordered_map<Address, bool, utils::ArrayHasher<Address>> m_cosignatories;
 		};
 	}
 
@@ -102,7 +114,8 @@ namespace catapult { namespace validators {
 		return MAKE_STATEFUL_VALIDATOR(MultisigAggregateEligibleCosignatories, [&transactionRegistry](
 				const Notification& notification,
 				const ValidatorContext& context) {
-			AggregateCosignaturesChecker checker(notification, transactionRegistry, context.Cache.sub<cache::MultisigCache>());
+			const auto& multisigCache = context.Cache.sub<cache::MultisigCache>();
+			AggregateCosignaturesChecker checker(notification, transactionRegistry, multisigCache, context);
 			return checker.hasIneligibleCosignatories() ? Failure_Aggregate_Ineligible_Cosignatories : ValidationResult::Success;
 		});
 	}

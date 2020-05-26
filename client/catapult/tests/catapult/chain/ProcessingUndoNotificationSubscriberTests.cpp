@@ -47,7 +47,10 @@ namespace catapult { namespace chain {
 			explicit TestContext(observers::NotifyMode executeMode = observers::NotifyMode::Commit)
 					: m_cache({})
 					, m_cacheDelta(m_cache.createDelta())
-					, m_observerContext(observers::ObserverState(m_cacheDelta), Height(123), executeMode, CreateResolverContext())
+					, m_observerContext(
+							model::NotificationContext(Height(123), CreateResolverContext()),
+							observers::ObserverState(m_cacheDelta),
+							executeMode)
 					, m_sub(m_observer, m_observerContext) {
 				CATAPULT_LOG(debug) << "preparing test context with execute mode " << executeMode;
 			}
@@ -218,12 +221,12 @@ namespace catapult { namespace chain {
 	TEST(TEST_CLASS, CanUndoMultipleNotificationsWithVaryingSizesAndChannels) {
 		// Arrange:
 		TestContext context;
-		auto signer = test::GenerateRandomByteArray<Key>();
+		auto sender = test::GenerateRandomByteArray<Address>();
 		auto hash = test::GenerateRandomByteArray<Hash256>();
-		auto notification1 = model::AccountPublicKeyNotification(signer);
+		auto notification1 = model::AccountAddressNotification(sender);
 		auto notification2 = test::CreateNotification(Notification_Type_All);
 		auto notification3 = model::EntityNotification(model::NetworkIdentifier::Mijin_Test, 0, 0, 0);
-		auto notification4 = model::TransactionNotification(signer, hash, static_cast<model::EntityType>(22), Timestamp(11));
+		auto notification4 = model::TransactionNotification(sender, hash, static_cast<model::EntityType>(22), Timestamp(11));
 
 		// - process notifications
 		context.sub().notify(notification1);
@@ -239,7 +242,7 @@ namespace catapult { namespace chain {
 		// - notice that notification1 is observer-only
 		// - notice that notification3 is validator-only
 		context.assertUndoObserverCalls({
-			model::Core_Transaction_Notification, Notification_Type_All, model::Core_Register_Account_Public_Key_Notification
+			model::Core_Transaction_Notification, Notification_Type_All, model::Core_Register_Account_Address_Notification
 		});
 
 		// - check data integrity

@@ -22,6 +22,7 @@
 #include "mongo/src/mappers/MapperUtils.h"
 #include "plugins/txes/namespace/src/state/RootNamespace.h"
 #include "mongo/tests/test/MapperTestUtils.h"
+#include "plugins/txes/namespace/tests/test/NamespaceTestUtils.h"
 #include "tests/test/NamespaceMapperTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/TestHarness.h"
@@ -69,7 +70,7 @@ namespace catapult { namespace mongo { namespace plugins {
 			for (auto i = 0u; i < depth; ++i)
 				path.push_back(test::GenerateRandomValue<NamespaceId>());
 
-			auto owner = test::GenerateRandomByteArray<Key>();
+			auto owner = test::CreateRandomOwner();
 			auto pRoot = std::make_shared<state::RootNamespace>(path[0], owner, state::NamespaceLifetime(Height(123), Height(234)));
 			return NamespaceDescriptor(path, alias, pRoot, test::GenerateRandomAddress(), 321, NamespaceStatus::Active == status);
 		}
@@ -90,7 +91,7 @@ namespace catapult { namespace mongo { namespace plugins {
 			test::AssertEqualNamespaceMetadata(descriptor, metaView);
 
 			auto namespaceView = documentView["namespace"].get_document().view();
-			EXPECT_EQ(8u + depth, test::GetFieldCount(namespaceView));
+			EXPECT_EQ(7u + depth, test::GetFieldCount(namespaceView));
 			test::AssertEqualNamespaceData(descriptor, namespaceView);
 		}
 	}

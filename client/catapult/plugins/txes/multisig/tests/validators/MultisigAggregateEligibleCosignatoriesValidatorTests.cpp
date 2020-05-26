@@ -20,6 +20,7 @@
 
 #include "src/validators/Validators.h"
 #include "src/plugins/MultisigAccountModificationTransactionPlugin.h"
+#include "catapult/model/Address.h"
 #include "catapult/model/TransactionPlugin.h"
 #include "tests/test/MultisigCacheTestUtils.h"
 #include "tests/test/MultisigTestUtils.h"
@@ -35,6 +36,10 @@ namespace catapult { namespace validators {
 
 	namespace {
 		constexpr auto Failure_Result = Failure_Aggregate_Ineligible_Cosignatories;
+
+		constexpr auto ToAddress = test::NetworkAddressConversions<>::ToAddress;
+		constexpr auto ToAddresses = test::NetworkAddressConversions<>::ToAddresses;
+		constexpr auto ToUnresolvedAddresses = test::NetworkAddressConversions<>::ToUnresolvedAddresses;
 
 		auto CreateTransactionRegistry() {
 			// use a registry with mock and multilevel multisig transactions registered
@@ -94,7 +99,7 @@ namespace catapult { namespace validators {
 				auto cacheDelta = cache.createDelta();
 
 				// make the aggregate signer a cosignatory of a different account
-				test::MakeMultisig(cacheDelta, test::GenerateRandomByteArray<Key>(), { aggregateSigner });
+				test::MakeMultisig(cacheDelta, test::GenerateRandomByteArray<Address>(), { ToAddress(aggregateSigner) });
 
 				cache.commit(Height());
 				return cache;
@@ -177,7 +182,8 @@ namespace catapult { namespace validators {
 			auto cache = test::MultisigCacheFactory::Create();
 			auto cacheDelta = cache.createDelta();
 
-			test::MakeMultisig(cacheDelta, embeddedSigner, cosignatories, 3, 4); // make a 3-4-X multisig
+			// make a 3-4-X multisig
+			test::MakeMultisig(cacheDelta, ToAddress(embeddedSigner), ToAddresses(cosignatories), 3, 4);
 
 			cache.commit(Height());
 			return cache;
@@ -220,8 +226,11 @@ namespace catapult { namespace validators {
 			auto cache = test::MultisigCacheFactory::Create();
 			auto cacheDelta = cache.createDelta();
 
-			test::MakeMultisig(cacheDelta, embeddedSigner, cosignatories, 2, 3); // make a 2-3-X multisig
-			test::MakeMultisig(cacheDelta, cosignatories[1], secondLevelCosignatories, 3, 4); // make a 3-4-X multisig
+			// make a 2-3-X multisig
+			test::MakeMultisig(cacheDelta, ToAddress(embeddedSigner), ToAddresses(cosignatories), 2, 3);
+
+			// make a 3-4-X multisig
+			test::MakeMultisig(cacheDelta, ToAddress(cosignatories[1]), ToAddresses(secondLevelCosignatories), 3, 4);
 
 			cache.commit(Height());
 			return cache;
@@ -288,13 +297,17 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, MultisigAccountModificationAddedAccountsGainEligibility) {
 		// Arrange:
 		auto signer = test::GenerateRandomByteArray<Key>();
-		auto pTransaction = test::CreateMultisigAccountModificationTransaction(signer, 2, 2);
+		auto publicKeyAdditions = test::GenerateRandomDataVector<Key>(2);
+		auto publicKeyDeletions = test::GenerateRandomDataVector<Key>(2);
+		auto pTransaction = test::CreateMultisigAccountModificationTransaction(
+				signer,
+				ToUnresolvedAddresses(publicKeyAdditions),
+				ToUnresolvedAddresses(publicKeyDeletions));
 		auto cache = test::MultisigCacheFactory::Create();
 
 		// Assert: added accounts are eligible cosignatories even though they aren't in the multisig cache
 		auto i = 0u;
-		const auto* pPublicKeyAdditions = pTransaction->PublicKeyAdditionsPtr();
-		for (const auto& cosignatory : { signer, pPublicKeyAdditions[0], pPublicKeyAdditions[1] }) {
+		for (const auto& cosignatory : { signer, publicKeyAdditions[0], publicKeyAdditions[1] }) {
 			CATAPULT_LOG(debug) << "cosigning with cosignatory " << i++;
 			AssertValidationResult(ValidationResult::Success, cache, signer, *pTransaction, { cosignatory });
 		}
@@ -303,13 +316,17 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, MultisigAccountModificationDeletedAccountsDoNotGainEligibility) {
 		// Arrange:
 		auto signer = test::GenerateRandomByteArray<Key>();
-		auto pTransaction = test::CreateMultisigAccountModificationTransaction(signer, 2, 2);
+		auto publicKeyAdditions = test::GenerateRandomDataVector<Key>(2);
+		auto publicKeyDeletions = test::GenerateRandomDataVector<Key>(2);
+		auto pTransaction = test::CreateMultisigAccountModificationTransaction(
+				signer,
+				ToUnresolvedAddresses(publicKeyAdditions),
+				ToUnresolvedAddresses(publicKeyDeletions));
 		auto cache = test::MultisigCacheFactory::Create();
 
 		// Assert: deleted accounts do not have any special eligibility privileges
 		auto i = 0u;
-		const auto* pPublicKeyDeletions = pTransaction->PublicKeyDeletionsPtr();
-		for (const auto& cosignatory : { pPublicKeyDeletions[0], pPublicKeyDeletions[1] }) {
+		for (const auto& cosignatory : { publicKeyDeletions[0], publicKeyDeletions[1] }) {
 			CATAPULT_LOG(debug) << "cosigning with cosignatory " << i++;
 			AssertValidationResult(Failure_Result, cache, signer, *pTransaction, { cosignatory });
 		}
@@ -319,7 +336,7 @@ namespace catapult { namespace validators {
 		// Arrange: delete the (original eligible) embedded tx signer
 		auto signer = test::GenerateRandomByteArray<Key>();
 		auto pTransaction = test::CreateMultisigAccountModificationTransaction(signer, 2, 2);
-		pTransaction->PublicKeyDeletionsPtr()[0] = signer;
+		pTransaction->AddressDeletionsPtr()[0] = test::UnresolveXor(ToAddress(signer));
 		auto cache = test::MultisigCacheFactory::Create();
 
 		// Assert: existing eligibility is retained

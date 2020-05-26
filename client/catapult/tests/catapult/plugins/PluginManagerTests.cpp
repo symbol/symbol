@@ -21,7 +21,6 @@
 #include "catapult/plugins/PluginManager.h"
 #include "sdk/src/extensions/ConversionExtensions.h"
 #include "catapult/cache/CatapultCache.h"
-#include "catapult/model/Address.h"
 #include "tests/test/cache/SimpleCache.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/core/mocks/MockTransaction.h"
@@ -663,8 +662,8 @@ namespace catapult { namespace plugins {
 	}
 
 	TEST(TEST_CLASS, CanCreateDefaultNotificationPublisher) {
-		// Assert: 8 basic and 1 custom notifications should be raised
-		AssertCanCreateNotificationPublisher(8u + 1, [](const auto& manager) {
+		// Assert: 8 basic and 2 custom notifications should be raised
+		AssertCanCreateNotificationPublisher(8u + 2, [](const auto& manager) {
 			return manager.createNotificationPublisher();
 		});
 	}

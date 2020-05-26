@@ -76,7 +76,7 @@ namespace catapult { namespace model {
 	public:
 		/// Creates a notification around \a partialMetadataKey, \a metadataTarget, \a valueSizeDelta, \a valueSize and \a pValue.
 		MetadataValueNotification(
-				const model::PartialMetadataKey& partialMetadataKey,
+				const UnresolvedPartialMetadataKey& partialMetadataKey,
 				const model::MetadataTarget& metadataTarget,
 				int16_t valueSizeDelta,
 				uint16_t valueSize,
@@ -91,7 +91,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Partial metadata key.
-		model::PartialMetadataKey PartialMetadataKey;
+		UnresolvedPartialMetadataKey PartialMetadataKey;
 
 		/// Metadata target.
 		model::MetadataTarget MetadataTarget;

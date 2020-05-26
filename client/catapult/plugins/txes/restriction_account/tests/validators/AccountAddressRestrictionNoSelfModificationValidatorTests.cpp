@@ -19,8 +19,8 @@
 **/
 
 #include "src/validators/Validators.h"
-#include "sdk/src/extensions/ConversionExtensions.h"
 #include "catapult/model/Address.h"
+#include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -28,7 +28,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS AccountAddressRestrictionNoSelfModificationValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(AccountAddressRestrictionNoSelfModification, model::NetworkIdentifier::Zero)
+	DEFINE_COMMON_VALIDATOR_TESTS(AccountAddressRestrictionNoSelfModification,)
 
 	namespace {
 		constexpr auto Add = model::AccountRestrictionModificationAction::Add;
@@ -36,19 +36,19 @@ namespace catapult { namespace validators {
 
 		void AssertValidationResult(
 				ValidationResult expectedResult,
-				const Key& signer,
+				const Address& address,
 				model::AccountRestrictionModificationAction action,
-				UnresolvedAddress& restrictionValue) {
+				UnresolvedAddress restrictionValue) {
 			// Arrange:
 			model::ModifyAccountAddressRestrictionValueNotification notification(
-					signer,
+					address,
 					model::AccountRestrictionFlags::Address,
 					restrictionValue,
 					action);
-			auto pValidator = CreateAccountAddressRestrictionNoSelfModificationValidator(model::NetworkIdentifier::Zero);
+			auto pValidator = CreateAccountAddressRestrictionNoSelfModificationValidator();
 
 			// Act:
-			auto result = test::ValidateNotification(*pValidator, notification);
+			auto result = test::ValidateNotification(*pValidator, notification, test::CreateEmptyCatapultCache());
 
 			// Assert:
 			EXPECT_EQ(expectedResult, result);
@@ -56,23 +56,19 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, FailureWhenSignerIsValueInModification_Add) {
-		auto key = test::GenerateRandomByteArray<Key>();
-		auto address = model::PublicKeyToAddress(key, model::NetworkIdentifier::Zero);
-		auto unresolvedAddress = extensions::CopyToUnresolvedAddress(address);
-		AssertValidationResult(Failure_RestrictionAccount_Invalid_Modification_Address, key, Add, unresolvedAddress);
+		auto address = test::GenerateRandomByteArray<Address>();
+		auto unresolvedAddress = test::UnresolveXor(address);
+		AssertValidationResult(Failure_RestrictionAccount_Invalid_Modification_Address, address, Add, unresolvedAddress);
 	}
 
 	TEST(TEST_CLASS, FailureWhenSignerIsValueInModification_Del) {
-		auto key = test::GenerateRandomByteArray<Key>();
-		auto address = model::PublicKeyToAddress(key, model::NetworkIdentifier::Zero);
-		auto unresolvedAddress = extensions::CopyToUnresolvedAddress(address);
-		AssertValidationResult(Failure_RestrictionAccount_Invalid_Modification_Address, key, Del, unresolvedAddress);
+		auto address = test::GenerateRandomByteArray<Address>();
+		auto unresolvedAddress = test::UnresolveXor(address);
+		AssertValidationResult(Failure_RestrictionAccount_Invalid_Modification_Address, address, Del, unresolvedAddress);
 	}
 
 	TEST(TEST_CLASS, SuccessWhenSignerIsNotValueInModification) {
-		auto key = test::GenerateRandomByteArray<Key>();
 		auto address = test::GenerateRandomByteArray<Address>();
-		auto unresolvedAddress = extensions::CopyToUnresolvedAddress(address);
-		AssertValidationResult(ValidationResult::Success, key, Add, unresolvedAddress);
+		AssertValidationResult(ValidationResult::Success, address, Add, test::GenerateRandomByteArray<UnresolvedAddress>());
 	}
 }}

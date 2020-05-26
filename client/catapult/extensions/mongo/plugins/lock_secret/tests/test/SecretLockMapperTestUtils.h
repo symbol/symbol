@@ -29,6 +29,6 @@ namespace catapult { namespace state { struct SecretLockInfo; } }
 
 namespace catapult { namespace test {
 
-	/// Verifies that db lock info (\a dbLockInfo) is equivalent to model secret lock info (\a lockInfo) and \a address.
-	void AssertEqualLockInfoData(const state::SecretLockInfo& lockInfo, const Address& address, const bsoncxx::document::view& dbLockInfo);
+	/// Verifies that db lock info (\a dbLockInfo) is equivalent to model secret lock info (\a lockInfo).
+	void AssertEqualLockInfoData(const state::SecretLockInfo& lockInfo, const bsoncxx::document::view& dbLockInfo);
 }}

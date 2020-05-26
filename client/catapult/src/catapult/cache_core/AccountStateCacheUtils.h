@@ -32,12 +32,12 @@ namespace catapult {
 
 namespace catapult { namespace cache {
 
-	/// Forwards account state or linked account state found in \a cache associated with \a publicKey to \a action.
-	void ProcessForwardedAccountState(AccountStateCacheDelta& cache, const Key& publicKey, const consumer<state::AccountState&>& action);
+	/// Forwards account state or linked account state found in \a cache associated with \a address to \a action.
+	void ProcessForwardedAccountState(AccountStateCacheDelta& cache, const Address& address, const consumer<state::AccountState&>& action);
 
-	/// Forwards account state or linked account state found in \a cache associated with \a publicKey to \a action.
+	/// Forwards account state or linked account state found in \a cache associated with \a address to \a action.
 	void ProcessForwardedAccountState(
 			const ReadOnlyAccountStateCache& cache,
-			const Key& publicKey,
+			const Address& address,
 			const consumer<const state::AccountState&>& action);
 }}

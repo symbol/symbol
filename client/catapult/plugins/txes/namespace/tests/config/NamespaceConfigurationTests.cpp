@@ -19,6 +19,7 @@
 **/
 
 #include "src/config/NamespaceConfiguration.h"
+#include "catapult/model/Address.h"
 #include "catapult/utils/HexParser.h"
 #include "tests/test/nodeps/ConfigurationTestUtils.h"
 #include "tests/TestHarness.h"
@@ -26,7 +27,7 @@
 namespace catapult { namespace config {
 
 	namespace {
-		constexpr auto Namespace_Rental_Fee_Sink_Public_Key = "75D8BB873DA8F5CCA741435DE76A46AAA2840803EBBBB0E931195B048D77F88C";
+		constexpr auto Namespace_Rental_Fee_Sink_Address = "SDUAKZJ3WPKG6T7PYH54U2Y7SCXCAGV4EPPESHQ";
 
 		struct NamespaceConfigurationTraits {
 			using ConfigurationType = NamespaceConfiguration;
@@ -45,7 +46,7 @@ namespace catapult { namespace config {
 							{ "namespaceGracePeriodDuration", "20d" },
 							{ "reservedRootNamespaceNames", "alpha,omega" },
 
-							{ "namespaceRentalFeeSinkPublicKey", Namespace_Rental_Fee_Sink_Public_Key },
+							{ "namespaceRentalFeeSinkAddress", Namespace_Rental_Fee_Sink_Address },
 							{ "rootNamespaceRentalFeePerBlock", "78" },
 							{ "childNamespaceRentalFee", "11223322" }
 						}
@@ -68,7 +69,7 @@ namespace catapult { namespace config {
 				EXPECT_EQ(utils::BlockSpan(), config.NamespaceGracePeriodDuration);
 				EXPECT_EQ(std::unordered_set<std::string>(), config.ReservedRootNamespaceNames);
 
-				EXPECT_EQ(Key(), config.NamespaceRentalFeeSinkPublicKey);
+				EXPECT_EQ(Address(), config.NamespaceRentalFeeSinkAddress);
 				EXPECT_EQ(Amount(), config.RootNamespaceRentalFeePerBlock);
 				EXPECT_EQ(Amount(), config.ChildNamespaceRentalFee);
 			}
@@ -84,7 +85,7 @@ namespace catapult { namespace config {
 				EXPECT_EQ(utils::BlockSpan::FromDays(20), config.NamespaceGracePeriodDuration);
 				EXPECT_EQ((std::unordered_set<std::string>{ "alpha", "omega" }), config.ReservedRootNamespaceNames);
 
-				EXPECT_EQ(utils::ParseByteArray<Key>(Namespace_Rental_Fee_Sink_Public_Key), config.NamespaceRentalFeeSinkPublicKey);
+				EXPECT_EQ(model::StringToAddress(Namespace_Rental_Fee_Sink_Address), config.NamespaceRentalFeeSinkAddress);
 				EXPECT_EQ(Amount(78), config.RootNamespaceRentalFeePerBlock);
 				EXPECT_EQ(Amount(11223322), config.ChildNamespaceRentalFee);
 			}

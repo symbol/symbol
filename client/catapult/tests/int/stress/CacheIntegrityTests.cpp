@@ -20,7 +20,6 @@
 
 #include "plugins/services/hashcache/src/cache/HashCache.h"
 #include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/model/Address.h"
 #include "catapult/model/NetworkIdentifier.h"
 #include "catapult/utils/SpinLock.h"
 #include "tests/int/stress/test/StressThreadLogger.h"

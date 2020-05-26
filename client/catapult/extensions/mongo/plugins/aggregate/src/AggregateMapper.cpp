@@ -36,6 +36,7 @@ namespace catapult { namespace mongo { namespace plugins {
 			for (auto i = 0u; i < numCosignatures; ++i) {
 				cosignaturesArray
 						<< bson_stream::open_document
+							<< "version" << static_cast<int64_t>(pCosignature->Version)
 							<< "signerPublicKey" << ToBinary(pCosignature->SignerPublicKey)
 							<< "signature" << ToBinary(pCosignature->Signature)
 						<< bson_stream::close_document;

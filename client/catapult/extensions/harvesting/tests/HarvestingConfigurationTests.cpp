@@ -19,6 +19,7 @@
 **/
 
 #include "harvesting/src/HarvestingConfiguration.h"
+#include "catapult/model/Address.h"
 #include "tests/test/nodeps/ConfigurationTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -27,6 +28,8 @@ namespace catapult { namespace harvesting {
 #define TEST_CLASS HarvestingConfigurationTests
 
 	namespace {
+		constexpr auto Beneficiary_Address = "SCWHKRXVBV63IDBFN4X4KQM5LBN42SYEV42TB3A";
+
 		struct HarvestingConfigurationTraits {
 			using ConfigurationType = HarvestingConfiguration;
 
@@ -41,7 +44,7 @@ namespace catapult { namespace harvesting {
 							{ "enableAutoHarvesting", "true" },
 							{ "maxUnlockedAccounts", "2" },
 							{ "delegatePrioritizationPolicy", "Importance" },
-							{ "beneficiaryPublicKey", "beneficiary-key" }
+							{ "beneficiaryAddress", Beneficiary_Address }
 						}
 					}
 				};
@@ -59,7 +62,7 @@ namespace catapult { namespace harvesting {
 				EXPECT_FALSE(config.EnableAutoHarvesting);
 				EXPECT_EQ(0u, config.MaxUnlockedAccounts);
 				EXPECT_EQ(DelegatePrioritizationPolicy::Age, config.DelegatePrioritizationPolicy);
-				EXPECT_EQ("", config.BeneficiaryPublicKey);
+				EXPECT_EQ(Address(), config.BeneficiaryAddress);
 			}
 
 			static void AssertCustom(const HarvestingConfiguration& config) {
@@ -70,12 +73,31 @@ namespace catapult { namespace harvesting {
 				EXPECT_TRUE(config.EnableAutoHarvesting);
 				EXPECT_EQ(2u, config.MaxUnlockedAccounts);
 				EXPECT_EQ(DelegatePrioritizationPolicy::Importance, config.DelegatePrioritizationPolicy);
-				EXPECT_EQ("beneficiary-key", config.BeneficiaryPublicKey);
+				EXPECT_EQ(model::StringToAddress(Beneficiary_Address), config.BeneficiaryAddress);
 			}
 		};
 	}
 
 	DEFINE_CONFIGURATION_TESTS(HarvestingConfigurationTests, Harvesting)
+
+	// region custom parsing
+
+	TEST(TEST_CLASS, CanParseEmptyBeneficiaryAddress) {
+		// Arrange: clear beneficiary address
+		auto properties = HarvestingConfigurationTraits::CreateProperties();
+		for (auto& pair : properties["harvesting"]) {
+			if ("beneficiaryAddress" == pair.first)
+				pair.second = "";
+		}
+
+		// Act:
+		auto config = HarvestingConfiguration::LoadFromBag(utils::ConfigurationBag(std::move(properties)));
+
+		// Assert:
+		EXPECT_EQ(Address(), config.BeneficiaryAddress);
+	}
+
+	// endregion
 
 	// region file io
 
@@ -95,7 +117,7 @@ namespace catapult { namespace harvesting {
 		EXPECT_FALSE(config.EnableAutoHarvesting);
 		EXPECT_EQ(5u, config.MaxUnlockedAccounts);
 		EXPECT_EQ(DelegatePrioritizationPolicy::Importance, config.DelegatePrioritizationPolicy);
-		EXPECT_EQ("0000000000000000000000000000000000000000000000000000000000000000", config.BeneficiaryPublicKey);
+		EXPECT_EQ(Address(), config.BeneficiaryAddress);
 	}
 
 	// endregion

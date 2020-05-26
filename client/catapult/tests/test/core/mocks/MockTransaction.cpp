@@ -31,6 +31,21 @@ using namespace catapult::model;
 namespace catapult { namespace mocks {
 
 	namespace {
+		template<typename TTransaction>
+		Address GetRecipientAddressT(const TTransaction& mockTransaction) {
+			return PublicKeyToAddress(mockTransaction.RecipientPublicKey, mockTransaction.Network);
+		}
+	}
+
+	Address GetRecipientAddress(const MockTransaction& transaction) {
+		return GetRecipientAddressT(transaction);
+	}
+
+	Address GetRecipientAddress(const EmbeddedMockTransaction& transaction) {
+		return GetRecipientAddressT(transaction);
+	}
+
+	namespace {
 		template<typename TMockTransaction>
 		std::unique_ptr<TMockTransaction> CreateMockTransactionT(uint16_t dataSize) {
 			uint32_t entitySize = sizeof(TMockTransaction) + dataSize;
@@ -52,9 +67,7 @@ namespace catapult { namespace mocks {
 		return CreateMockTransactionT<EmbeddedMockTransaction>(dataSize);
 	}
 
-	std::unique_ptr<MockTransaction> CreateTransactionWithFeeAndTransfers(
-			Amount fee,
-			const std::vector<model::UnresolvedMosaic>& transfers) {
+	std::unique_ptr<MockTransaction> CreateTransactionWithFeeAndTransfers(Amount fee, const std::vector<UnresolvedMosaic>& transfers) {
 		auto pTransaction = CreateMockTransaction(static_cast<uint16_t>(transfers.size() * sizeof(Mosaic)));
 		pTransaction->MaxFee = fee;
 		pTransaction->Version = 0;
@@ -77,8 +90,8 @@ namespace catapult { namespace mocks {
 		return pTransaction;
 	}
 
-	utils::KeySet ExtractAdditionalRequiredCosignatories(const EmbeddedMockTransaction& transaction) {
-		return { Key{ { 1 } }, transaction.RecipientPublicKey, Key{ { 2 } } };
+	UnresolvedAddressSet ExtractAdditionalRequiredCosignatories(const EmbeddedMockTransaction& transaction) {
+		return { UnresolvedAddress{ { 1 } }, GetRecipientAddress(transaction).copyTo<UnresolvedAddress>(), UnresolvedAddress{ { 2 } } };
 	}
 
 	bool IsPluginOptionFlagSet(PluginOptionFlags options, PluginOptionFlags flag) {
@@ -87,8 +100,13 @@ namespace catapult { namespace mocks {
 
 	namespace {
 		template<typename TTransaction>
-		void Publish(const TTransaction& mockTransaction, PluginOptionFlags options, NotificationSubscriber& sub) {
+		void Publish(
+				const TTransaction& mockTransaction,
+				const PublishContext& context,
+				PluginOptionFlags options,
+				NotificationSubscriber& sub) {
 			sub.notify(AccountPublicKeyNotification(mockTransaction.RecipientPublicKey));
+			sub.notify(MockAddressNotification(context.SignerAddress));
 
 			if (IsPluginOptionFlagSet(options, PluginOptionFlags::Publish_Custom_Notifications)) {
 				sub.notify(test::CreateNotification(Mock_Observer_1_Notification));
@@ -104,12 +122,10 @@ namespace catapult { namespace mocks {
 
 			auto pMosaics = reinterpret_cast<const UnresolvedMosaic*>(mockTransaction.DataPtr());
 			for (auto i = 0u; i < mockTransaction.Data.Size / sizeof(UnresolvedMosaic); ++i) {
-				const auto& sender = mockTransaction.SignerPublicKey;
-
 				// forcibly XOR recipient even though PublicKeyToAddress always returns resolved address
 				// in order to force tests to use XOR resolver context with Publish_Transfers
-				auto recipient = PublicKeyToAddress(mockTransaction.RecipientPublicKey, NetworkIdentifier::Mijin_Test);
-				sub.notify(BalanceTransferNotification(sender, test::UnresolveXor(recipient), pMosaics[i].MosaicId, pMosaics[i].Amount));
+				auto recipient = test::UnresolveXor(GetRecipientAddress(mockTransaction));
+				sub.notify(BalanceTransferNotification(context.SignerAddress, recipient, pMosaics[i].MosaicId, pMosaics[i].Amount));
 			}
 		}
 
@@ -148,12 +164,15 @@ namespace catapult { namespace mocks {
 			{}
 
 		public:
-			utils::KeySet additionalRequiredCosignatories(const EmbeddedTransaction&) const override {
-				return utils::KeySet();
+			UnresolvedAddressSet additionalRequiredCosignatories(const EmbeddedTransaction&) const override {
+				return UnresolvedAddressSet();
 			}
 
-			void publish(const EmbeddedTransaction& transaction, NotificationSubscriber& sub) const override {
-				Publish(static_cast<const EmbeddedMockTransaction&>(transaction), m_options, sub);
+			void publish(
+					const EmbeddedTransaction& transaction,
+					const PublishContext& context,
+					NotificationSubscriber& sub) const override {
+				Publish(static_cast<const EmbeddedMockTransaction&>(transaction), context, m_options, sub);
 			}
 
 		private:
@@ -172,13 +191,16 @@ namespace catapult { namespace mocks {
 			}
 
 		public:
-			void publish(const WeakEntityInfoT<Transaction>& transactionInfo, NotificationSubscriber& sub) const override {
-				Publish(static_cast<const MockTransaction&>(transactionInfo.entity()), m_options, sub);
+			void publish(
+					const WeakEntityInfoT<Transaction>& transactionInfo,
+					const PublishContext& context,
+					NotificationSubscriber& sub) const override {
+				Publish(static_cast<const MockTransaction&>(transactionInfo.entity()), context, m_options, sub);
 
 				// raise a custom notification that includes the provided hash
 				// (this allows other tests to verify that the appropriate hash was passed down)
 				if (IsPluginOptionFlagSet(m_options, PluginOptionFlags::Publish_Custom_Notifications))
-					sub.notify(HashNotification(transactionInfo.hash()));
+					sub.notify(MockHashNotification(transactionInfo.hash()));
 			}
 
 			RawBuffer dataBuffer(const Transaction& transaction) const override {

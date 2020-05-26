@@ -29,9 +29,6 @@ namespace catapult { namespace plugins {
 
 	/// Namespace rental fee configuration.
 	struct NamespaceRentalFeeConfiguration {
-		/// Public key of the rental fee sink account.
-		Key SinkPublicKey;
-
 		/// Currency mosaic id.
 		UnresolvedMosaicId CurrencyMosaicId;
 
@@ -45,7 +42,7 @@ namespace catapult { namespace plugins {
 		Amount ChildFee;
 
 		/// Public key of the (exempt from fees) nemesis account.
-		Key NemesisPublicKey;
+		Key NemesisSignerPublicKey;
 	};
 
 	/// Creates a namespace registration transaction plugin given the rental fee configuration (\a config).

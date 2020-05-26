@@ -25,30 +25,25 @@
 
 namespace catapult { namespace test {
 
-	// region multisig entry related
-
 	namespace {
-		void AssertKeySet(const utils::SortedKeySet& keySet, const bsoncxx::document::view& dbKeySet) {
-			ASSERT_EQ(keySet.size(), test::GetFieldCount(dbKeySet));
+		void AssertAddressSet(const state::SortedAddressSet& addresses, const bsoncxx::document::view& dbAddresses) {
+			ASSERT_EQ(addresses.size(), test::GetFieldCount(dbAddresses));
 
-			for (auto dbIter = dbKeySet.cbegin(); dbKeySet.cend() != dbIter; ++dbIter) {
-				Key key;
-				mongo::mappers::DbBinaryToModelArray(key, dbIter->get_binary());
-				EXPECT_CONTAINS(keySet, key);
+			for (auto dbIter = dbAddresses.cbegin(); dbAddresses.cend() != dbIter; ++dbIter) {
+				Address address;
+				mongo::mappers::DbBinaryToModelArray(address, dbIter->get_binary());
+				EXPECT_CONTAINS(addresses, address);
 			}
 		}
 	}
 
-	void AssertEqualMultisigData(const state::MultisigEntry& entry, const Address& address, const bsoncxx::document::view& dbMultisig) {
-		EXPECT_EQ(address, test::GetAddressValue(dbMultisig, "accountAddress"));
+	void AssertEqualMultisigData(const state::MultisigEntry& entry, const bsoncxx::document::view& dbMultisig) {
 
-		EXPECT_EQ(entry.key(), GetKeyValue(dbMultisig, "accountPublicKey"));
+		EXPECT_EQ(entry.address(), GetAddressValue(dbMultisig, "accountAddress"));
 		EXPECT_EQ(entry.minApproval(), GetUint32(dbMultisig, "minApproval"));
 		EXPECT_EQ(entry.minRemoval(), GetUint32(dbMultisig, "minRemoval"));
 
-		AssertKeySet(entry.cosignatoryPublicKeys(), dbMultisig["cosignatoryPublicKeys"].get_array().value);
-		AssertKeySet(entry.multisigPublicKeys(), dbMultisig["multisigPublicKeys"].get_array().value);
+		AssertAddressSet(entry.cosignatoryAddresses(), dbMultisig["cosignatoryAddresses"].get_array().value);
+		AssertAddressSet(entry.multisigAddresses(), dbMultisig["multisigAddresses"].get_array().value);
 	}
-
-	// endregion
 }}

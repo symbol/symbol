@@ -24,6 +24,7 @@
 #include "LinkAction.h"
 #include "NetworkIdentifier.h"
 #include "NotificationType.h"
+#include "Resolvable.h"
 #include "catapult/utils/ArraySet.h"
 #include "catapult/utils/TimeSpan.h"
 #include "catapult/plugins.h"
@@ -63,14 +64,14 @@ namespace catapult { namespace model {
 
 	public:
 		/// Creates a notification around \a address.
-		explicit AccountAddressNotification(const UnresolvedAddress& address)
+		explicit AccountAddressNotification(const ResolvableAddress& address)
 				: Notification(Notification_Type, sizeof(AccountAddressNotification))
 				, Address(address)
 		{}
 
 	public:
-		/// Address.
-		UnresolvedAddress Address;
+		/// Address (resolvable).
+		ResolvableAddress Address;
 	};
 
 	/// Notification of use of an account public key.
@@ -100,7 +101,7 @@ namespace catapult { namespace model {
 	struct BasicBalanceNotification : public Notification {
 	public:
 		/// Creates a notification around \a sender, \a mosaicId and \a amount.
-		BasicBalanceNotification(const Key& sender, UnresolvedMosaicId mosaicId, Amount amount)
+		BasicBalanceNotification(const Address& sender, UnresolvedMosaicId mosaicId, Amount amount)
 				: Notification(TDerivedNotification::Notification_Type, sizeof(TDerivedNotification))
 				, Sender(sender)
 				, MosaicId(mosaicId)
@@ -109,7 +110,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Sender.
-		const Key& Sender;
+		Address Sender;
 
 		/// Mosaic id.
 		UnresolvedMosaicId MosaicId;
@@ -132,7 +133,7 @@ namespace catapult { namespace model {
 		/// Creates a notification around \a sender, \a recipient, \a mosaicId and \a amount
 		/// with optional amount type (\a transferAmountType) indicating interpretation of transfer amount.
 		BalanceTransferNotification(
-				const Key& sender,
+				const Address& sender,
 				const UnresolvedAddress& recipient,
 				UnresolvedMosaicId mosaicId,
 				catapult::Amount amount,
@@ -205,15 +206,15 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = Core_Block_Notification;
 
 	public:
-		/// Creates a block notification around \a signer, \a beneficiary, \a timestamp, \a difficulty and \a feeMultiplier.
+		/// Creates a block notification around \a harvester, \a beneficiary, \a timestamp, \a difficulty and \a feeMultiplier.
 		BlockNotification(
-				const Key& signer,
-				const Key& beneficiary,
+				const Address& harvester,
+				const Address& beneficiary,
 				Timestamp timestamp,
 				Difficulty difficulty,
 				BlockFeeMultiplier feeMultiplier)
 				: Notification(Notification_Type, sizeof(BlockNotification))
-				, Signer(signer)
+				, Harvester(harvester)
 				, Beneficiary(beneficiary)
 				, Timestamp(timestamp)
 				, Difficulty(difficulty)
@@ -222,11 +223,11 @@ namespace catapult { namespace model {
 		{}
 
 	public:
-		/// Block signer.
-		const Key& Signer;
+		/// Block harvester.
+		Address Harvester;
 
 		/// Block beneficiary.
-		const Key& Beneficiary;
+		Address Beneficiary;
 
 		/// Block timestamp.
 		catapult::Timestamp Timestamp;
@@ -255,18 +256,18 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = Core_Transaction_Notification;
 
 	public:
-		/// Creates a transaction notification around \a signer, \a transactionHash, \a transactionType and \a deadline.
-		TransactionNotification(const Key& signer, const Hash256& transactionHash, EntityType transactionType, Timestamp deadline)
+		/// Creates a transaction notification around \a sender, \a transactionHash, \a transactionType and \a deadline.
+		TransactionNotification(const Address& sender, const Hash256& transactionHash, EntityType transactionType, Timestamp deadline)
 				: Notification(Notification_Type, sizeof(TransactionNotification))
-				, Signer(signer)
+				, Sender(sender)
 				, TransactionHash(transactionHash)
 				, TransactionType(transactionType)
 				, Deadline(deadline)
 		{}
 
 	public:
-		/// Transaction signer.
-		const Key& Signer;
+		/// Transaction sender.
+		Address Sender;
 
 		/// Transaction hash.
 		const Hash256& TransactionHash;
@@ -308,18 +309,18 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = Core_Transaction_Fee_Notification;
 
 	public:
-		/// Creates a transaction fee notification around \a signer, \a transactionSize, \a fee and \a maxFee.
-		TransactionFeeNotification(const Key& signer, uint32_t transactionSize, Amount fee, Amount maxFee)
+		/// Creates a transaction fee notification around \a sender, \a transactionSize, \a fee and \a maxFee.
+		TransactionFeeNotification(const Address& sender, uint32_t transactionSize, Amount fee, Amount maxFee)
 				: Notification(Notification_Type, sizeof(TransactionFeeNotification))
-				, Signer(signer)
+				, Sender(sender)
 				, TransactionSize(transactionSize)
 				, Fee(fee)
 				, MaxFee(maxFee)
 		{}
 
 	public:
-		/// Transaction signer.
-		const Key& Signer;
+		/// Transaction sender.
+		Address Sender;
 
 		/// Transaction size.
 		uint32_t TransactionSize;
@@ -346,23 +347,23 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = Core_Signature_Notification;
 
 	public:
-		/// Creates a signature notification around \a signer, \a signature and \a data with optional replay protection mode
+		/// Creates a signature notification around \a signerPublicKey, \a signature and \a data with optional replay protection mode
 		/// (\a dataReplayProtectionMode) applied to data.
 		SignatureNotification(
-				const Key& signer,
+				const Key& signerPublicKey,
 				const Signature& signature,
 				const RawBuffer& data,
 				ReplayProtectionMode dataReplayProtectionMode = ReplayProtectionMode::Disabled)
 				: Notification(Notification_Type, sizeof(SignatureNotification))
-				, Signer(signer)
+				, SignerPublicKey(signerPublicKey)
 				, Signature(signature)
 				, Data(data)
 				, DataReplayProtectionMode(dataReplayProtectionMode)
 		{}
 
 	public:
-		/// Signer.
-		const Key& Signer;
+		/// Signer public key.
+		const Key& SignerPublicKey;
 
 		/// Signature.
 		const catapult::Signature& Signature;
@@ -387,35 +388,25 @@ namespace catapult { namespace model {
 
 	public:
 		/// Creates a notification around \a source, \a transactionType and \a participantsByAddress.
-		AddressInteractionNotification(const Key& source, EntityType transactionType, const UnresolvedAddressSet& participantsByAddress)
-				: AddressInteractionNotification(source, transactionType, participantsByAddress, {})
-		{}
-
-		/// Creates a notification around \a source, \a transactionType, \a participantsByAddress and \a participantsByKey.
 		AddressInteractionNotification(
-				const Key& source,
+				const Address& source,
 				EntityType transactionType,
-				const UnresolvedAddressSet& participantsByAddress,
-				const utils::KeySet& participantsByKey)
+				const UnresolvedAddressSet& participantsByAddress)
 				: Notification(Notification_Type, sizeof(AddressInteractionNotification))
 				, Source(source)
 				, TransactionType(transactionType)
 				, ParticipantsByAddress(participantsByAddress)
-				, ParticipantsByKey(participantsByKey)
 		{}
 
 	public:
 		/// Source.
-		Key Source;
+		Address Source;
 
 		/// Transaction type.
 		EntityType TransactionType;
 
 		/// Participants given by address.
 		UnresolvedAddressSet ParticipantsByAddress;
-
-		/// Participants given by public key.
-		utils::KeySet ParticipantsByKey;
 	};
 
 	// endregion
@@ -425,47 +416,27 @@ namespace catapult { namespace model {
 	/// Notification of a required mosaic.
 	struct MosaicRequiredNotification : public Notification {
 	public:
-		/// Mosaic types.
-		enum class MosaicType { Resolved, Unresolved };
-
-	public:
 		/// Matching notification type.
 		static constexpr auto Notification_Type = Core_Mosaic_Required_Notification;
 
 	public:
-		/// Creates a notification around \a signer, \a mosaicId and optional \a propertyFlagMask.
-		MosaicRequiredNotification(const Key& signer, MosaicId mosaicId, uint8_t propertyFlagMask = 0)
+		/// Creates a notification around \a owner, \a mosaicId and optional \a propertyFlagMask.
+		MosaicRequiredNotification(const ResolvableAddress& owner, const ResolvableMosaicId& mosaicId, uint8_t propertyFlagMask = 0)
 				: Notification(Notification_Type, sizeof(MosaicRequiredNotification))
-				, Signer(signer)
+				, Owner(owner)
 				, MosaicId(mosaicId)
 				, PropertyFlagMask(propertyFlagMask)
-				, ProvidedMosaicType(MosaicType::Resolved)
-		{}
-
-		/// Creates a notification around \a signer, \a mosaicId and optional \a propertyFlagMask.
-		MosaicRequiredNotification(const Key& signer, UnresolvedMosaicId mosaicId, uint8_t propertyFlagMask = 0)
-				: Notification(Notification_Type, sizeof(MosaicRequiredNotification))
-				, Signer(signer)
-				, UnresolvedMosaicId(mosaicId)
-				, PropertyFlagMask(propertyFlagMask)
-				, ProvidedMosaicType(MosaicType::Unresolved)
 		{}
 
 	public:
-		/// Signer.
-		const Key& Signer;
+		/// Mosaic owner (resolvable).
+		ResolvableAddress Owner;
 
-		/// Mosaic id (resolved).
-		catapult::MosaicId MosaicId;
-
-		/// Mosaic id (unresolved).
-		catapult::UnresolvedMosaicId UnresolvedMosaicId;
+		/// Mosaic id (resolvable).
+		ResolvableMosaicId MosaicId;
 
 		/// Mask of required property flags that must be set on the mosaic.
 		uint8_t PropertyFlagMask;
-
-		/// Type of mosaic provided and attached to this notification.
-		MosaicType ProvidedMosaicType;
 	};
 
 	// endregion

@@ -44,13 +44,13 @@ namespace catapult { namespace observers {
 				NotificationBuilder()
 						: m_entityType(model::Entity_Type_Aggregate_Bonded)
 						, m_deadline(test::GenerateRandomValue<Timestamp>()) {
-					test::FillWithRandomData(m_signer);
+					test::FillWithRandomData(m_sender);
 					test::FillWithRandomData(m_transactionHash);
 				}
 
 			public:
 				auto notification() {
-					return model::TransactionNotification(m_signer, m_transactionHash, m_entityType, m_deadline);
+					return model::TransactionNotification(m_sender, m_transactionHash, m_entityType, m_deadline);
 				}
 
 				void setType(model::EntityType type) {
@@ -64,7 +64,7 @@ namespace catapult { namespace observers {
 			private:
 				model::EntityType m_entityType;
 				Timestamp m_deadline;
-				Key m_signer;
+				Address m_sender;
 				Hash256 m_transactionHash;
 			};
 
@@ -77,7 +77,7 @@ namespace catapult { namespace observers {
 			}
 
 			static auto DestinationAccount(const BasicTraits::ValueType& lockInfo) {
-				return lockInfo.SenderPublicKey;
+				return lockInfo.OwnerAddress;
 			}
 		};
 

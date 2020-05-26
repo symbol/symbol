@@ -45,8 +45,8 @@ namespace catapult { namespace harvesting {
 		/// Delegate harvester prioritization policy.
 		harvesting::DelegatePrioritizationPolicy DelegatePrioritizationPolicy;
 
-		/// Public key of the account receiving part of the harvested fee.
-		std::string BeneficiaryPublicKey;
+		/// Address of the account receiving part of the harvested fee.
+		Address BeneficiaryAddress;
 
 	private:
 		HarvestingConfiguration() = default;

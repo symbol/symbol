@@ -65,7 +65,7 @@ namespace catapult { namespace test {
 			FillWithRandomData(block.TransactionsHash);
 			FillWithRandomData(block.ReceiptsHash);
 			FillWithRandomData(block.StateHash);
-			FillWithRandomData(block.BeneficiaryPublicKey);
+			FillWithRandomData(block.BeneficiaryAddress);
 		}
 
 		struct TestBlockOptions {
@@ -137,7 +137,7 @@ namespace catapult { namespace test {
 		pBlock->PreviousBlockHash = { { 123 } };
 		pBlock->ReceiptsHash = { { 55 } };
 		pBlock->StateHash = { { 242, 111 } };
-		pBlock->BeneficiaryPublicKey = { { 77, 99, 88 } };
+		pBlock->BeneficiaryAddress = { { 77, 99, 88 } };
 
 		auto generationHashSeed = utils::ParseByteArray<GenerationHashSeed>(test::Deterministic_Network_Generation_Hash_Seed_String);
 		extensions::BlockExtensions(generationHashSeed).signFullBlock(keyPair, *pBlock);

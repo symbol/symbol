@@ -27,26 +27,29 @@ namespace catapult { namespace validators {
 	using Notification = model::MultisigCosignatoriesNotification;
 
 	namespace {
-		utils::KeyPointerSet ToSet(const Key* pKeys, uint8_t numKeys) {
-			utils::KeyPointerSet keys;
-			for (auto i = 0u; i < numKeys; ++i)
-				keys.insert(&pKeys[i]);
+		utils::ArrayPointerSet<UnresolvedAddress> ToSet(const UnresolvedAddress* pAddresses, uint8_t count) {
+			utils::ArrayPointerSet<UnresolvedAddress> addresses;
+			for (auto i = 0u; i < count; ++i)
+				addresses.insert(&pAddresses[i]);
 
-			return keys;
+			return addresses;
 		}
 	}
 
+	// notice that redundant checks by this validator are not comprehensive and there is another validator that will
+	// check against current state and resolved addresses
+
 	DEFINE_STATELESS_VALIDATOR(MultisigCosignatories, [](const Notification& notification) {
-		if (1 < notification.PublicKeyDeletionsCount)
+		if (1 < notification.AddressDeletionsCount)
 			return Failure_Multisig_Multiple_Deletes;
 
-		auto publicKeyAdditions = ToSet(notification.PublicKeyAdditionsPtr, notification.PublicKeyAdditionsCount);
-		auto publicKeyDeletions = ToSet(notification.PublicKeyDeletionsPtr, notification.PublicKeyDeletionsCount);
-		if (notification.PublicKeyAdditionsCount != publicKeyAdditions.size())
+		auto addressAdditions = ToSet(notification.AddressAdditionsPtr, notification.AddressAdditionsCount);
+		auto addressDeletions = ToSet(notification.AddressDeletionsPtr, notification.AddressDeletionsCount);
+		if (notification.AddressAdditionsCount != addressAdditions.size())
 			return Failure_Multisig_Redundant_Modification;
 
-		for (const auto* pKey : publicKeyAdditions) {
-			if (publicKeyDeletions.cend() != publicKeyDeletions.find(pKey))
+		for (const auto* pAddress : addressAdditions) {
+			if (addressDeletions.cend() != addressDeletions.find(pAddress))
 				return Failure_Multisig_Account_In_Both_Sets;
 		}
 

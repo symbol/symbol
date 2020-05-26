@@ -32,8 +32,8 @@ namespace catapult { namespace state {
 #pragma pack(push, 1)
 
 		struct PackedUniqueKey {
-			Key SourcePublicKey;
-			Key TargetPublicKey;
+			Address SourceAddress;
+			Address TargetAddress;
 			uint64_t ScopedMetadataKey;
 			uint64_t TargetId;
 			model::MetadataType MetadataType;
@@ -50,8 +50,8 @@ namespace catapult { namespace state {
 				model::MetadataType metadataType,
 				uint64_t targetId) {
 			auto packedUniqueKey = PackedUniqueKey{
-				partialKey.SourcePublicKey,
-				partialKey.TargetPublicKey,
+				partialKey.SourceAddress,
+				partialKey.TargetAddress,
 				partialKey.ScopedMetadataKey,
 				targetId,
 				metadataType
@@ -76,8 +76,8 @@ namespace catapult { namespace state {
 		EXPECT_THROW(key.namespaceTarget(), catapult_invalid_argument);
 
 		// - shared properties
-		EXPECT_EQ(partialKey.SourcePublicKey, key.sourcePublicKey());
-		EXPECT_EQ(partialKey.TargetPublicKey, key.targetPublicKey());
+		EXPECT_EQ(partialKey.SourceAddress, key.sourceAddress());
+		EXPECT_EQ(partialKey.TargetAddress, key.targetAddress());
 		EXPECT_EQ(partialKey.ScopedMetadataKey, key.scopedMetadataKey());
 		EXPECT_EQ(0u, key.targetId());
 
@@ -100,8 +100,8 @@ namespace catapult { namespace state {
 			action(key);
 
 			// - shared properties
-			EXPECT_EQ(partialKey.SourcePublicKey, key.sourcePublicKey());
-			EXPECT_EQ(partialKey.TargetPublicKey, key.targetPublicKey());
+			EXPECT_EQ(partialKey.SourceAddress, key.sourceAddress());
+			EXPECT_EQ(partialKey.TargetAddress, key.targetAddress());
 			EXPECT_EQ(partialKey.ScopedMetadataKey, key.scopedMetadataKey());
 			EXPECT_EQ(targetId, TTargetIdentifier(key.targetId()));
 
@@ -133,21 +133,21 @@ namespace catapult { namespace state {
 
 	// endregion
 
-	// region ResolveMetadataKey
+	// region CreateMetadataKey
 
 	namespace {
 		template<typename TTargetIdChecker>
-		void AssertCanResolve(model::MetadataType metadataType, TTargetIdChecker targetIdChecker) {
+		void AssertCanCreateMetadataKey(model::MetadataType metadataType, TTargetIdChecker targetIdChecker) {
 			// Arrange:
 			auto partialKey = test::GenerateRandomPartialMetadataKey();
 			auto target = model::MetadataTarget{ metadataType, test::Random() };
 
 			// Act:
-			auto key = ResolveMetadataKey(partialKey, target, test::CreateResolverContextXor());
+			auto key = CreateMetadataKey(partialKey, target);
 
 			// Assert:
-			EXPECT_EQ(partialKey.SourcePublicKey, key.sourcePublicKey());
-			EXPECT_EQ(partialKey.TargetPublicKey, key.targetPublicKey());
+			EXPECT_EQ(partialKey.SourceAddress, key.sourceAddress());
+			EXPECT_EQ(partialKey.TargetAddress, key.targetAddress());
 			EXPECT_EQ(partialKey.ScopedMetadataKey, key.scopedMetadataKey());
 
 			EXPECT_EQ(metadataType, key.metadataType());
@@ -155,31 +155,86 @@ namespace catapult { namespace state {
 		}
 	}
 
-	TEST(TEST_CLASS, ResolveMetadataKey_CanResolveAccount) {
-		AssertCanResolve(model::MetadataType::Account, [](auto, auto keyTargetId) {
+	TEST(TEST_CLASS, CreateMetadataKey_CanCreateFromAccountTarget) {
+		AssertCanCreateMetadataKey(model::MetadataType::Account, [](auto, auto keyTargetId) {
 			EXPECT_EQ(0u, keyTargetId);
 		});
 	}
 
-	TEST(TEST_CLASS, ResolveMetadataKey_CanResolveMosaic) {
-		AssertCanResolve(model::MetadataType::Mosaic, [](auto seedTargetId, auto keyTargetId) {
-			EXPECT_EQ(UnresolvedMosaicId(seedTargetId), test::UnresolveXor(MosaicId(keyTargetId)));
-		});
-	}
-
-	TEST(TEST_CLASS, ResolveMetadataKey_CanResolveNamespace) {
-		AssertCanResolve(model::MetadataType::Namespace, [](auto seedTargetId, auto keyTargetId) {
+	TEST(TEST_CLASS, CreateMetadataKey_CanCreateFromMosaicTarget) {
+		AssertCanCreateMetadataKey(model::MetadataType::Mosaic, [](auto seedTargetId, auto keyTargetId) {
 			EXPECT_EQ(seedTargetId, keyTargetId);
 		});
 	}
 
-	TEST(TEST_CLASS, ResolveMetadataKey_CannotResolveOther) {
+	TEST(TEST_CLASS, CreateMetadataKey_CanCreateFromNamespaceTarget) {
+		AssertCanCreateMetadataKey(model::MetadataType::Namespace, [](auto seedTargetId, auto keyTargetId) {
+			EXPECT_EQ(seedTargetId, keyTargetId);
+		});
+	}
+
+	TEST(TEST_CLASS, CreateMetadataKey_CannotCreateFromOtherTarget) {
 		// Arrange:
 		auto partialKey = test::GenerateRandomPartialMetadataKey();
 		auto target = model::MetadataTarget{ static_cast<model::MetadataType>(0xFF), test::Random() };
 
 		// Act + Assert:
-		EXPECT_THROW(ResolveMetadataKey(partialKey, target, test::CreateResolverContextXor()), catapult_invalid_argument);
+		EXPECT_THROW(CreateMetadataKey(partialKey, target), catapult_invalid_argument);
+	}
+
+	// endregion
+
+	// region ResolveMetadataKey
+
+	namespace {
+		model::UnresolvedPartialMetadataKey UnresolveXor(const model::PartialMetadataKey& partialKey) {
+			return { partialKey.SourceAddress, test::UnresolveXor(partialKey.TargetAddress), partialKey.ScopedMetadataKey };
+		}
+
+		template<typename TTargetIdChecker>
+		void AssertCanResolveMetadataKey(model::MetadataType metadataType, TTargetIdChecker targetIdChecker) {
+			// Arrange:
+			auto partialKey = test::GenerateRandomPartialMetadataKey();
+			auto target = model::MetadataTarget{ metadataType, test::Random() };
+
+			// Act:
+			auto key = ResolveMetadataKey(UnresolveXor(partialKey), target, test::CreateResolverContextXor());
+
+			// Assert:
+			EXPECT_EQ(partialKey.SourceAddress, key.sourceAddress());
+			EXPECT_EQ(partialKey.TargetAddress, key.targetAddress());
+			EXPECT_EQ(partialKey.ScopedMetadataKey, key.scopedMetadataKey());
+
+			EXPECT_EQ(metadataType, key.metadataType());
+			targetIdChecker(target.Id, key.targetId());
+		}
+	}
+
+	TEST(TEST_CLASS, ResolveMetadataKey_CanResolveFromAccountTarget) {
+		AssertCanResolveMetadataKey(model::MetadataType::Account, [](auto, auto keyTargetId) {
+			EXPECT_EQ(0u, keyTargetId);
+		});
+	}
+
+	TEST(TEST_CLASS, ResolveMetadataKey_CanResolveFromMosaicTarget) {
+		AssertCanResolveMetadataKey(model::MetadataType::Mosaic, [](auto seedTargetId, auto keyTargetId) {
+			EXPECT_EQ(UnresolvedMosaicId(seedTargetId), test::UnresolveXor(MosaicId(keyTargetId)));
+		});
+	}
+
+	TEST(TEST_CLASS, ResolveMetadataKey_CanResolveFromNamespaceTarget) {
+		AssertCanResolveMetadataKey(model::MetadataType::Namespace, [](auto seedTargetId, auto keyTargetId) {
+			EXPECT_EQ(seedTargetId, keyTargetId);
+		});
+	}
+
+	TEST(TEST_CLASS, ResolveMetadataKey_CannotResolveFromOtherTarget) {
+		// Arrange:
+		auto partialKey = test::GenerateRandomPartialMetadataKey();
+		auto target = model::MetadataTarget{ static_cast<model::MetadataType>(0xFF), test::Random() };
+
+		// Act + Assert:
+		EXPECT_THROW(ResolveMetadataKey(UnresolveXor(partialKey), target, test::CreateResolverContextXor()), catapult_invalid_argument);
 	}
 
 	// endregion

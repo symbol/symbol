@@ -41,17 +41,17 @@ namespace catapult { namespace importance {
 			{}
 
 		public:
-			auto addAccount(const Key& publicKey, Amount harvestingBalance) {
+			auto addAccount(const Address& address, Amount harvestingBalance) {
 				auto& accountStateCache = cache().sub<cache::AccountStateCache>();
-				accountStateCache.addAccount(publicKey, Height(123));
+				accountStateCache.addAccount(address, Height(123));
 
-				auto accountStateIter = accountStateCache.find(publicKey);
+				auto accountStateIter = accountStateCache.find(address);
 				accountStateIter.get().Balances.credit(Harvesting_Mosaic_Id, harvestingBalance);
 				return accountStateIter;
 			}
 
 		public:
-			void update(const Key& publicKey) {
+			void update(const Address& address) {
 				auto commitAction = [](auto& bucket) {
 					bucket.BeneficiaryCount += 2;
 				};
@@ -59,7 +59,7 @@ namespace catapult { namespace importance {
 					bucket.BeneficiaryCount -= 2;
 				};
 
-				UpdateActivity(publicKey, observerContext(), commitAction, rollbackAction);
+				UpdateActivity(address, observerContext(), commitAction, rollbackAction);
 			}
 
 		private:
@@ -81,14 +81,14 @@ namespace catapult { namespace importance {
 		void AssertUpdateActivityBypassesUpdateOfAccountThatCannotHarvest(observers::NotifyMode notifyMode) {
 			// Arrange:
 			TestContext context(notifyMode, Amount(1000));
-			auto signerPublicKey = test::GenerateRandomByteArray<Key>();
-			auto signerAccountStateIter = context.addAccount(signerPublicKey, Amount(999));
+			auto sender = test::GenerateRandomByteArray<Address>();
+			auto senderAccountStateIter = context.addAccount(sender, Amount(999));
 
 			// Act:
-			context.update(signerPublicKey);
+			context.update(sender);
 
 			// Assert: no bucket was created
-			const auto& activityBucket = signerAccountStateIter.get().ActivityBuckets.get(Importance_Height);
+			const auto& activityBucket = senderAccountStateIter.get().ActivityBuckets.get(Importance_Height);
 			EXPECT_EQ(model::ImportanceHeight(), activityBucket.StartHeight);
 		}
 	}
@@ -109,17 +109,17 @@ namespace catapult { namespace importance {
 		void AssertUpdateActivityUpdatesExistingBucket(observers::NotifyMode notifyMode, uint32_t expectedBeneficiaryCount) {
 			// Arrange:
 			TestContext context(notifyMode, Amount(1000));
-			auto signerPublicKey = test::GenerateRandomByteArray<Key>();
-			auto signerAccountStateIter = context.addAccount(signerPublicKey, Amount(1000));
-			signerAccountStateIter.get().ActivityBuckets.update(Importance_Height, [](auto& bucket) {
+			auto sender = test::GenerateRandomByteArray<Address>();
+			auto senderAccountStateIter = context.addAccount(sender, Amount(1000));
+			senderAccountStateIter.get().ActivityBuckets.update(Importance_Height, [](auto& bucket) {
 				bucket.BeneficiaryCount = 100;
 			});
 
 			// Act:
-			context.update(signerPublicKey);
+			context.update(sender);
 
 			// Assert: bucket was updated
-			const auto& activityBucket = signerAccountStateIter.get().ActivityBuckets.get(Importance_Height);
+			const auto& activityBucket = senderAccountStateIter.get().ActivityBuckets.get(Importance_Height);
 			EXPECT_EQ(Importance_Height, activityBucket.StartHeight);
 			EXPECT_EQ(expectedBeneficiaryCount, activityBucket.BeneficiaryCount);
 		}
@@ -141,14 +141,14 @@ namespace catapult { namespace importance {
 		void AssertUpdateActivityDoesNotCreateNewBucket(observers::NotifyMode notifyMode) {
 			// Arrange:
 			TestContext context(notifyMode, Amount(1000));
-			auto signerPublicKey = test::GenerateRandomByteArray<Key>();
-			auto signerAccountStateIter = context.addAccount(signerPublicKey, Amount(1000));
+			auto sender = test::GenerateRandomByteArray<Address>();
+			auto senderAccountStateIter = context.addAccount(sender, Amount(1000));
 
 			// Act:
-			context.update(signerPublicKey);
+			context.update(sender);
 
 			// Assert: bucket was not created
-			const auto& activityBucket = signerAccountStateIter.get().ActivityBuckets.get(Importance_Height);
+			const auto& activityBucket = senderAccountStateIter.get().ActivityBuckets.get(Importance_Height);
 			EXPECT_EQ(model::ImportanceHeight(), activityBucket.StartHeight);
 		}
 	}
@@ -175,17 +175,17 @@ namespace catapult { namespace importance {
 		void AssertUpdateActivityDoesNotRemoveZeroBucket(observers::NotifyMode notifyMode, uint32_t initialBeneficiaryCount) {
 			// Arrange:
 			TestContext context(notifyMode, Amount(1000));
-			auto signerPublicKey = test::GenerateRandomByteArray<Key>();
-			auto signerAccountStateIter = context.addAccount(signerPublicKey, Amount(1000));
-			signerAccountStateIter.get().ActivityBuckets.update(Importance_Height, [initialBeneficiaryCount](auto& bucket) {
+			auto sender = test::GenerateRandomByteArray<Address>();
+			auto senderAccountStateIter = context.addAccount(sender, Amount(1000));
+			senderAccountStateIter.get().ActivityBuckets.update(Importance_Height, [initialBeneficiaryCount](auto& bucket) {
 				bucket.BeneficiaryCount = initialBeneficiaryCount;
 			});
 
 			// Act:
-			context.update(signerPublicKey);
+			context.update(sender);
 
 			// Assert: bucket was updated
-			const auto& activityBucket = signerAccountStateIter.get().ActivityBuckets.get(Importance_Height);
+			const auto& activityBucket = senderAccountStateIter.get().ActivityBuckets.get(Importance_Height);
 			EXPECT_EQ(Importance_Height, activityBucket.StartHeight);
 			EXPECT_EQ(0u, activityBucket.BeneficiaryCount);
 			EXPECT_EQ(0u, CountNonzeroFields(activityBucket));
@@ -209,18 +209,18 @@ namespace catapult { namespace importance {
 				const ActivityBucketConsumer& updateBucket) {
 			// Arrange:
 			TestContext context(notifyMode, Amount(1000));
-			auto signerPublicKey = test::GenerateRandomByteArray<Key>();
-			auto signerAccountStateIter = context.addAccount(signerPublicKey, Amount(1000));
-			signerAccountStateIter.get().ActivityBuckets.update(Importance_Height, [initialBeneficiaryCount, updateBucket](auto& bucket) {
+			auto sender = test::GenerateRandomByteArray<Address>();
+			auto senderAccountStateIter = context.addAccount(sender, Amount(1000));
+			senderAccountStateIter.get().ActivityBuckets.update(Importance_Height, [initialBeneficiaryCount, updateBucket](auto& bucket) {
 				bucket.BeneficiaryCount = initialBeneficiaryCount;
 				updateBucket(bucket);
 			});
 
 			// Act:
-			context.update(signerPublicKey);
+			context.update(sender);
 
 			// Assert: bucket was updated
-			const auto& activityBucket = signerAccountStateIter.get().ActivityBuckets.get(Importance_Height);
+			const auto& activityBucket = senderAccountStateIter.get().ActivityBuckets.get(Importance_Height);
 			EXPECT_EQ(Importance_Height, activityBucket.StartHeight) << message;
 			EXPECT_EQ(1u, CountNonzeroFields(activityBucket)) << message;
 		}

@@ -27,8 +27,8 @@ namespace catapult { namespace extensions {
 
 	/// Observer that observes balance transfers and:
 	/// 1. calculates information about the nemesis block in \a fundingState
-	/// 2. ensures all transfers are initiated by \a nemesisPublicKey
+	/// 2. ensures all transfers are initiated by \a nemesisAddress
 	/// 3. funds the nemesis account, if appropriate
 	/// \note This observer is stateful and can only be used in conjunction with NemesisBlockLoader.
-	DECLARE_OBSERVER(NemesisFunding, model::BalanceTransferNotification)(const Key& nemesisPublicKey, NemesisFundingState& fundingState);
+	DECLARE_OBSERVER(NemesisFunding, model::BalanceTransferNotification)(const Address& nemesisAddress, NemesisFundingState& fundingState);
 }}

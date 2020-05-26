@@ -43,11 +43,11 @@ namespace catapult { namespace builders {
 		/// Sets the relative change of the minimal number of cosignatories required when approving a transaction to \a minApprovalDelta.
 		void setMinApprovalDelta(int8_t minApprovalDelta);
 
-		/// Adds \a publicKeyAddition to cosignatory public key additions.
-		void addPublicKeyAddition(const Key& publicKeyAddition);
+		/// Adds \a addressAddition to cosignatory address additions.
+		void addAddressAddition(const UnresolvedAddress& addressAddition);
 
-		/// Adds \a publicKeyDeletion to cosignatory public key deletions.
-		void addPublicKeyDeletion(const Key& publicKeyDeletion);
+		/// Adds \a addressDeletion to cosignatory address deletions.
+		void addAddressDeletion(const UnresolvedAddress& addressDeletion);
 
 	public:
 		/// Gets the size of multisig account modification transaction.
@@ -70,7 +70,7 @@ namespace catapult { namespace builders {
 	private:
 		int8_t m_minRemovalDelta;
 		int8_t m_minApprovalDelta;
-		std::vector<Key> m_publicKeyAdditions;
-		std::vector<Key> m_publicKeyDeletions;
+		std::vector<UnresolvedAddress> m_addressAdditions;
+		std::vector<UnresolvedAddress> m_addressDeletions;
 	};
 }}

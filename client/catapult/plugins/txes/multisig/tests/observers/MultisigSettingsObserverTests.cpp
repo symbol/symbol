@@ -34,8 +34,8 @@ namespace catapult { namespace observers {
 		using ObserverTestContext = test::ObserverTestContextT<test::MultisigCacheFactory>;
 		using Notification = model::MultisigSettingsNotification;
 
-		auto CreateNotification(const Key& signer, int8_t minRemovalDelta, int8_t minApprovalDelta) {
-			return Notification(signer, minRemovalDelta, minApprovalDelta);
+		auto CreateNotification(const Address& multisig, int8_t minRemovalDelta, int8_t minApprovalDelta) {
+			return Notification(multisig, minRemovalDelta, minApprovalDelta);
 		}
 
 		struct MultisigSettings {
@@ -53,7 +53,7 @@ namespace catapult { namespace observers {
 
 		void RunTest(
 				ObserverTestContext&& context,
-				const Key& signer,
+				const Address& multisig,
 				const MultisigSettings& initialSettings,
 				const Notification& notification,
 				const MultisigSettings& expectedSettings) {
@@ -65,8 +65,8 @@ namespace catapult { namespace observers {
 
 			// - create multisig entry in cache
 			{
-				multisigCacheDelta.insert(state::MultisigEntry(signer));
-				auto& entry = multisigCacheDelta.find(signer).get();
+				multisigCacheDelta.insert(state::MultisigEntry(multisig));
+				auto& entry = multisigCacheDelta.find(multisig).get();
 				entry.setMinRemoval(initialSettings.Removal);
 				entry.setMinApproval(initialSettings.Approval);
 			}
@@ -75,7 +75,7 @@ namespace catapult { namespace observers {
 			test::ObserveNotification(*pObserver, notification, context);
 
 			// Assert: check the cache
-			const auto& entry = multisigCacheDelta.find(signer).get();
+			const auto& entry = multisigCacheDelta.find(multisig).get();
 			EXPECT_EQ(expectedSettings.Removal, entry.minRemoval()) << "initial: " << static_cast<int>(initialSettings.Removal);
 			EXPECT_EQ(expectedSettings.Approval, entry.minApproval()) << "initial: " << static_cast<int>(initialSettings.Approval);
 		}
@@ -86,13 +86,13 @@ namespace catapult { namespace observers {
 
 			static void AssertTestWithSettings(const TestSettings& removal, const TestSettings& approval) {
 				// Arrange:
-				auto signer = test::GenerateRandomByteArray<Key>();
-				auto notification = CreateNotification(signer, removal.Delta, approval.Delta);
+				auto multisig = test::GenerateRandomByteArray<Address>();
+				auto notification = CreateNotification(multisig, removal.Delta, approval.Delta);
 
 				// Act + Assert:
 				RunTest(
 						ObserverTestContext(Mode, Height(777)),
-						signer,
+						multisig,
 						{ removal.Current, approval.Current },
 						notification,
 						{ removal.Expected, approval.Expected });
@@ -105,13 +105,13 @@ namespace catapult { namespace observers {
 
 			static void AssertTestWithSettings(const TestSettings& removal, const TestSettings& approval) {
 				// Arrange:
-				auto signer = test::GenerateRandomByteArray<Key>();
-				auto notification = CreateNotification(signer, removal.Delta, approval.Delta);
+				auto multisig = test::GenerateRandomByteArray<Address>();
+				auto notification = CreateNotification(multisig, removal.Delta, approval.Delta);
 
 				// Act + Assert:
 				RunTest(
 						ObserverTestContext(Mode, Height(777)),
-						signer,
+						multisig,
 						{ removal.Expected, approval.Expected },
 						notification,
 						{ removal.Current, approval.Current });
@@ -154,8 +154,8 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, ObserverIgnoresNotificationWhenAccountIsUnknown_ModeCommit) {
 		// Arrange:
-		auto signer = test::GenerateRandomByteArray<Key>();
-		auto notification = CreateNotification(signer, -1, -2);
+		auto multisig = test::GenerateRandomByteArray<Address>();
+		auto notification = CreateNotification(multisig, -1, -2);
 
 		auto pObserver = CreateMultisigSettingsObserver();
 		ObserverTestContext context(NotifyMode::Commit, Height(777));
@@ -170,8 +170,8 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, ObserverAddsUnknownAccountToCacheAndProcessesDeltas_ModeRollback) {
 		// Arrange:
-		auto signer = test::GenerateRandomByteArray<Key>();
-		auto notification = CreateNotification(signer, -1, -2);
+		auto multisig = test::GenerateRandomByteArray<Address>();
+		auto notification = CreateNotification(multisig, -1, -2);
 
 		auto pObserver = CreateMultisigSettingsObserver();
 		ObserverTestContext context(NotifyMode::Rollback, Height(777));
@@ -183,15 +183,15 @@ namespace catapult { namespace observers {
 		const auto& multisigCache = context.cache().sub<cache::MultisigCache>();
 		EXPECT_EQ(1u, multisigCache.size());
 
-		auto multisigIter = multisigCache.find(signer);
+		auto multisigIter = multisigCache.find(multisig);
 		ASSERT_TRUE(!!multisigIter.tryGet());
 
 		const auto& multisigEntry = multisigIter.get();
-		EXPECT_EQ(signer, multisigEntry.key());
+		EXPECT_EQ(multisig, multisigEntry.address());
 		EXPECT_EQ(2u, multisigEntry.minApproval());
 		EXPECT_EQ(1u, multisigEntry.minRemoval());
-		EXPECT_TRUE(multisigEntry.cosignatoryPublicKeys().empty());
-		EXPECT_TRUE(multisigEntry.multisigPublicKeys().empty());
+		EXPECT_TRUE(multisigEntry.cosignatoryAddresses().empty());
+		EXPECT_TRUE(multisigEntry.multisigAddresses().empty());
 	}
 
 	// endregion

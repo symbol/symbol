@@ -33,8 +33,8 @@ namespace catapult { namespace validators {
 	DEFINE_COMMON_VALIDATOR_TESTS(MultisigInvalidSettings,)
 
 	namespace {
-		auto CreateNotification(const Key& signer, int8_t minRemovalDelta, int8_t minApprovalDelta) {
-			return model::MultisigSettingsNotification(signer, minRemovalDelta, minApprovalDelta);
+		auto CreateNotification(const Address& multisig, int8_t minRemovalDelta, int8_t minApprovalDelta) {
+			return model::MultisigSettingsNotification(multisig, minRemovalDelta, minApprovalDelta);
 		}
 
 		auto GetValidationResult(const cache::CatapultCache& cache, const model::MultisigSettingsNotification& notification) {
@@ -48,8 +48,8 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, SuccessWhenAccountIsUnknownAndDeltasAreSetToMinusOne) {
 		// Arrange:
-		auto signer = test::GenerateRandomByteArray<Key>();
-		auto notification = CreateNotification(signer, -1, -1);
+		auto multisig = test::GenerateRandomByteArray<Address>();
+		auto notification = CreateNotification(multisig, -1, -1);
 
 		auto cache = test::MultisigCacheFactory::Create();
 
@@ -62,11 +62,11 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureWhenAccountIsUnknownAndAtLeastOneDeltaIsNotSetToMinusOne) {
 		// Arrange:
-		auto signer = test::GenerateRandomByteArray<Key>();
+		auto multisig = test::GenerateRandomByteArray<Address>();
 		std::vector<model::MultisigSettingsNotification> notifications{
-			CreateNotification(signer, 0, 1),
-			CreateNotification(signer, 0, -1),
-			CreateNotification(signer, -1, 0)
+			CreateNotification(multisig, 0, 1),
+			CreateNotification(multisig, 0, -1),
+			CreateNotification(multisig, -1, 0)
 		};
 		std::vector<ValidationResult> results;
 
@@ -104,9 +104,9 @@ namespace catapult { namespace validators {
 				MultisigSettings removal,
 				MultisigSettings approval) {
 			// Arrange:
-			auto keys = test::GenerateKeys(1 + numCosignatories);
-			const auto& signer = keys[0];
-			auto notification = CreateNotification(signer, removal.Delta, approval.Delta);
+			auto addresses = test::GenerateRandomDataVector<Address>(1 + numCosignatories);
+			const auto& multisig = addresses[0];
+			auto notification = CreateNotification(multisig, removal.Delta, approval.Delta);
 
 			auto cache = test::MultisigCacheFactory::Create();
 			{
@@ -114,14 +114,13 @@ namespace catapult { namespace validators {
 
 				// - create multisig entry in cache
 				auto& multisigDelta = delta.sub<cache::MultisigCache>();
-				const auto& multisigAccountKey = keys[0];
-				multisigDelta.insert(state::MultisigEntry(multisigAccountKey));
-				auto& entry = multisigDelta.find(multisigAccountKey).get();
+				multisigDelta.insert(state::MultisigEntry(multisig));
+				auto& entry = multisigDelta.find(multisig).get();
 				entry.setMinRemoval(removal.Current);
 				entry.setMinApproval(approval.Current);
-				auto& cosignatories = entry.cosignatoryPublicKeys();
+				auto& cosignatories = entry.cosignatoryAddresses();
 				for (auto i = 0u; i < numCosignatories; ++i)
-					cosignatories.insert(keys[1 + i]);
+					cosignatories.insert(addresses[1 + i]);
 
 				cache.commit(Height(1));
 			}

@@ -20,8 +20,8 @@
 
 #pragma once
 #include "MultisigEntityType.h"
+#include "catapult/model/ContainerTypes.h"
 #include "catapult/model/Transaction.h"
-#include "catapult/utils/ArraySet.h"
 
 namespace catapult { namespace model {
 
@@ -43,39 +43,39 @@ namespace catapult { namespace model {
 		/// Relative change of the minimal number of cosignatories required when approving a transaction.
 		int8_t MinApprovalDelta;
 
-		/// Number of cosignatory public key additions.
-		uint8_t PublicKeyAdditionsCount;
+		/// Number of cosignatory address additions.
+		uint8_t AddressAdditionsCount;
 
-		/// Number of cosignatory public key deletions.
-		uint8_t PublicKeyDeletionsCount;
+		/// Number of cosignatory address deletions.
+		uint8_t AddressDeletionsCount;
 
-		/// Reserved padding to align PublicKeyAdditions on 8-byte boundary.
+		/// Reserved padding to align AddressAdditions on 8-byte boundary.
 		uint32_t MultisigAccountModificationTransactionBody_Reserved1;
 
-		// followed by additions data if PublicKeyAdditionsCount != 0
-		DEFINE_TRANSACTION_VARIABLE_DATA_ACCESSORS(PublicKeyAdditions, Key)
+		// followed by additions data if AddressAdditionsCount != 0
+		DEFINE_TRANSACTION_VARIABLE_DATA_ACCESSORS(AddressAdditions, UnresolvedAddress)
 
-		// followed by deletions data if PublicKeyDeletionsCount != 0
-		DEFINE_TRANSACTION_VARIABLE_DATA_ACCESSORS(PublicKeyDeletions, Key)
+		// followed by deletions data if AddressDeletionsCount != 0
+		DEFINE_TRANSACTION_VARIABLE_DATA_ACCESSORS(AddressDeletions, UnresolvedAddress)
 
 	private:
 		template<typename T>
-		static auto* PublicKeyAdditionsPtrT(T& transaction) {
-			return transaction.PublicKeyAdditionsCount ? THeader::PayloadStart(transaction) : nullptr;
+		static auto* AddressAdditionsPtrT(T& transaction) {
+			return transaction.AddressAdditionsCount ? THeader::PayloadStart(transaction) : nullptr;
 		}
 
 		template<typename T>
-		static auto* PublicKeyDeletionsPtrT(T& transaction) {
+		static auto* AddressDeletionsPtrT(T& transaction) {
 			auto* pPayloadStart = THeader::PayloadStart(transaction);
-			return transaction.PublicKeyDeletionsCount && pPayloadStart
-					? pPayloadStart + transaction.PublicKeyAdditionsCount * Key::Size
+			return transaction.AddressDeletionsCount && pPayloadStart
+					? pPayloadStart + transaction.AddressAdditionsCount * Address::Size
 					: nullptr;
 		}
 
 	public:
 		/// Calculates the real size of a multisig account modification \a transaction.
 		static constexpr uint64_t CalculateRealSize(const TransactionType& transaction) noexcept {
-			return sizeof(TransactionType) + (transaction.PublicKeyAdditionsCount + transaction.PublicKeyDeletionsCount) * Key::Size;
+			return sizeof(TransactionType) + (transaction.AddressAdditionsCount + transaction.AddressDeletionsCount) * Address::Size;
 		}
 	};
 
@@ -83,13 +83,12 @@ namespace catapult { namespace model {
 
 #pragma pack(pop)
 
-	/// Extracts public keys of additional accounts that must approve \a transaction.
-	inline utils::KeySet ExtractAdditionalRequiredCosignatories(const EmbeddedMultisigAccountModificationTransaction& transaction) {
-		utils::KeySet addedCosignatoryKeys;
-		const auto* pPublicKeyAdditions = transaction.PublicKeyAdditionsPtr();
-		for (auto i = 0u; i < transaction.PublicKeyAdditionsCount; ++i)
-			addedCosignatoryKeys.insert(pPublicKeyAdditions[i]);
+	/// Extracts addresses of additional accounts that must approve \a transaction.
+	inline UnresolvedAddressSet ExtractAdditionalRequiredCosignatories(const EmbeddedMultisigAccountModificationTransaction& transaction) {
+		UnresolvedAddressSet addedCosignatories;
+		for (auto i = 0u; i < transaction.AddressAdditionsCount; ++i)
+			addedCosignatories.insert(transaction.AddressAdditionsPtr()[i]);
 
-		return addedCosignatoryKeys;
+		return addedCosignatories;
 	}
 }}

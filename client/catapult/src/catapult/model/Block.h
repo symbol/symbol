@@ -77,8 +77,8 @@ namespace catapult { namespace model {
 		/// Hash of the global chain state at this block.
 		Hash256 StateHash;
 
-		/// Beneficiary public key designated by harvester.
-		Key BeneficiaryPublicKey;
+		/// Beneficiary address designated by harvester.
+		Address BeneficiaryAddress;
 
 		/// Fee multiplier applied to block transactions.
 		BlockFeeMultiplier FeeMultiplier;

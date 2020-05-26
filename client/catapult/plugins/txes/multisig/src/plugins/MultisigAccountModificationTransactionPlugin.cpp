@@ -21,7 +21,6 @@
 #include "MultisigAccountModificationTransactionPlugin.h"
 #include "src/model/MultisigAccountModificationTransaction.h"
 #include "src/model/MultisigNotifications.h"
-#include "catapult/model/Address.h"
 #include "catapult/model/NotificationSubscriber.h"
 #include "catapult/model/TransactionPluginFactory.h"
 
@@ -31,38 +30,36 @@ namespace catapult { namespace plugins {
 
 	namespace {
 		template<typename TTransaction>
-		void Publish(const TTransaction& transaction, NotificationSubscriber& sub) {
+		void Publish(const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub) {
 			// 1. basic
 			sub.notify(InternalPaddingNotification(transaction.MultisigAccountModificationTransactionBody_Reserved1));
 
 			// 2. cosig changes
-			utils::KeySet addedCosignatoryKeys;
-			if (0 < transaction.PublicKeyAdditionsCount || 0 < transaction.PublicKeyDeletionsCount) {
+			UnresolvedAddressSet addedCosignatories;
+			if (0 < transaction.AddressAdditionsCount || 0 < transaction.AddressDeletionsCount) {
 				// - raise new cosignatory notifications first because they are used for multisig loop detection
-				// - notify cosignatories' public keys in order to allow added cosignatories to get aggregate notifications
-				const auto* pPublicKeyAdditions = transaction.PublicKeyAdditionsPtr();
-				for (auto i = 0u; i < transaction.PublicKeyAdditionsCount; ++i) {
-					sub.notify(AccountPublicKeyNotification(pPublicKeyAdditions[i]));
-					sub.notify(MultisigNewCosignatoryNotification(transaction.SignerPublicKey, pPublicKeyAdditions[i]));
-					addedCosignatoryKeys.insert(pPublicKeyAdditions[i]);
+				// - notify cosignatories' addresses in order to allow added cosignatories to get aggregate notifications
+				const auto* pAddressAdditions = transaction.AddressAdditionsPtr();
+				for (auto i = 0u; i < transaction.AddressAdditionsCount; ++i) {
+					addedCosignatories.insert(pAddressAdditions[i]);
+
+					sub.notify(AccountAddressNotification(pAddressAdditions[i]));
+					sub.notify(MultisigNewCosignatoryNotification(context.SignerAddress, pAddressAdditions[i]));
 				}
 
 				sub.notify(MultisigCosignatoriesNotification(
-						transaction.SignerPublicKey,
-						transaction.PublicKeyAdditionsCount,
-						pPublicKeyAdditions,
-						transaction.PublicKeyDeletionsCount,
-						transaction.PublicKeyDeletionsPtr()));
+						context.SignerAddress,
+						transaction.AddressAdditionsCount,
+						pAddressAdditions,
+						transaction.AddressDeletionsCount,
+						transaction.AddressDeletionsPtr()));
 			}
 
-			if (!addedCosignatoryKeys.empty())
-				sub.notify(AddressInteractionNotification(transaction.SignerPublicKey, transaction.Type, {}, addedCosignatoryKeys));
+			if (!addedCosignatories.empty())
+				sub.notify(AddressInteractionNotification(context.SignerAddress, transaction.Type, addedCosignatories));
 
 			// 3. setting changes
-			sub.notify(MultisigSettingsNotification(
-					transaction.SignerPublicKey,
-					transaction.MinRemovalDelta,
-					transaction.MinApprovalDelta));
+			sub.notify(MultisigSettingsNotification(context.SignerAddress, transaction.MinRemovalDelta, transaction.MinApprovalDelta));
 		}
 	}
 

@@ -20,6 +20,7 @@
 
 #include "addressextraction/src/AddressExtractionPtChangeSubscriber.h"
 #include "addressextraction/tests/test/AddressExtractionSubscriberTestContext.h"
+#include "tests/test/core/TransactionTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace addressextraction {
@@ -42,10 +43,7 @@ namespace catapult { namespace addressextraction {
 
 	TEST(TEST_CLASS, NotifyAddCosignatureExtractsTransactionAddresses) {
 		TestContext().assertTransactionInfoExtractions([](auto& subscriber, const auto& transactionInfo) {
-			subscriber.notifyAddCosignature(
-					transactionInfo,
-					test::GenerateRandomByteArray<Key>(),
-					test::GenerateRandomByteArray<Signature>());
+			subscriber.notifyAddCosignature(transactionInfo, test::CreateRandomDetachedCosignature());
 		});
 	}
 

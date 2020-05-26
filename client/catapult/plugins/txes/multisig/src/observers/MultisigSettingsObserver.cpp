@@ -33,18 +33,20 @@ namespace catapult { namespace observers {
 
 	DEFINE_OBSERVER(MultisigSettings, Notification, [](const Notification& notification, const ObserverContext& context) {
 		auto& multisigCache = context.Cache.sub<cache::MultisigCache>();
-		auto isNotContained = !multisigCache.contains(notification.Signer);
+		auto multisigIter = multisigCache.find(notification.Multisig);
+
+		auto isNotContained = !multisigIter.tryGet();
 		if (isNotContained && observers::NotifyMode::Commit == context.Mode)
 			return;
 
 		// note that in case of a rollback the multisig entry needs to be restored to the original state, else the multisig settings
 		// validator will reject the (invalid) min approval / removal
-		if (isNotContained)
-			multisigCache.insert(state::MultisigEntry(notification.Signer));
+		if (isNotContained) {
+			multisigCache.insert(state::MultisigEntry(notification.Multisig));
+			multisigIter = multisigCache.find(notification.Multisig);
+		}
 
-		auto multisigIter = multisigCache.find(notification.Signer);
 		auto& multisigEntry = multisigIter.get();
-
 		auto direction = static_cast<int8_t>(NotifyMode::Commit == context.Mode ? 1 : -1);
 		multisigEntry.setMinApproval(AddDelta(multisigEntry.minApproval(), direction, notification.MinApprovalDelta));
 		multisigEntry.setMinRemoval(AddDelta(multisigEntry.minRemoval(), direction, notification.MinRemovalDelta));

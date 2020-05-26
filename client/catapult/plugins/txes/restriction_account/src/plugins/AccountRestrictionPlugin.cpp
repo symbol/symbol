@@ -49,11 +49,9 @@ namespace catapult { namespace plugins {
 			});
 		});
 
-		manager.addStatelessValidatorHook([networkIdentifier](auto& builder) {
+		manager.addStatelessValidatorHook([](auto& builder) {
 			builder
 				.add(validators::CreateAccountRestrictionFlagsValidator())
-
-				.add(validators::CreateAccountAddressRestrictionNoSelfModificationValidator(networkIdentifier))
 
 				.add(validators::CreateAccountOperationRestrictionModificationValuesValidator());
 		});
@@ -67,6 +65,7 @@ namespace catapult { namespace plugins {
 				.add(validators::CreateAccountAddressRestrictionValueModificationValidator())
 				.add(validators::CreateMaxAccountAddressRestrictionValuesValidator(maxAccountRestrictionValues))
 				.add(validators::CreateAddressInteractionValidator())
+				.add(validators::CreateAccountAddressRestrictionNoSelfModificationValidator())
 
 				.add(validators::CreateAccountMosaicRestrictionRedundantModificationValidator())
 				.add(validators::CreateAccountMosaicRestrictionValueModificationValidator())

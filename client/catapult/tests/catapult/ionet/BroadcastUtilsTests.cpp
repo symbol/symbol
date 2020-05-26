@@ -171,7 +171,7 @@ namespace catapult { namespace ionet {
 	TEST(TEST_CLASS, CanCreateBroadcastPayload_Cosignatures_Single) {
 		// Arrange:
 		std::vector<model::DetachedCosignature> cosignatures;
-		cosignatures.push_back(test::CreateRandomCosignature());
+		cosignatures.push_back(test::CreateRandomDetachedCosignature());
 
 		// Act:
 		auto payload = CreateBroadcastPayload(cosignatures);
@@ -184,7 +184,7 @@ namespace catapult { namespace ionet {
 		// Arrange:
 		std::vector<model::DetachedCosignature> cosignatures;
 		for (auto i = 0u; i < 5; ++i)
-			cosignatures.push_back(test::CreateRandomCosignature());
+			cosignatures.push_back(test::CreateRandomDetachedCosignature());
 
 		// Act:
 		auto payload = CreateBroadcastPayload(cosignatures);

@@ -81,17 +81,17 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = Mosaic_Definition_Notification;
 
 	public:
-		/// Creates a notification around \a signer, \a mosaicId and \a properties.
-		MosaicDefinitionNotification(const Key& signer, MosaicId mosaicId, const MosaicProperties& properties)
+		/// Creates a notification around \a owner, \a mosaicId and \a properties.
+		MosaicDefinitionNotification(const Address& owner, MosaicId mosaicId, const MosaicProperties& properties)
 				: Notification(Notification_Type, sizeof(MosaicDefinitionNotification))
-				, Signer(signer)
+				, Owner(owner)
 				, MosaicId(mosaicId)
 				, Properties(properties)
 		{}
 
 	public:
-		/// Signer.
-		const Key& Signer;
+		/// Mosaic owner.
+		Address Owner;
 
 		/// Id of the mosaic.
 		catapult::MosaicId MosaicId;
@@ -111,17 +111,17 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = Mosaic_Nonce_Notification;
 
 	public:
-		/// Creates a notification around \a signer, \a mosaicNonce and \a mosaicId.
-		MosaicNonceNotification(const Key& signer, MosaicNonce mosaicNonce, catapult::MosaicId mosaicId)
+		/// Creates a notification around \a owner, \a mosaicNonce and \a mosaicId.
+		MosaicNonceNotification(const Address& owner, MosaicNonce mosaicNonce, catapult::MosaicId mosaicId)
 				: Notification(Notification_Type, sizeof(MosaicNonceNotification))
-				, Signer(signer)
+				, Owner(owner)
 				, MosaicNonce(mosaicNonce)
 				, MosaicId(mosaicId)
 		{}
 
 	public:
-		/// Signer.
-		const Key& Signer;
+		/// Mosaic owner.
+		Address Owner;
 
 		/// Mosaic nonce.
 		catapult::MosaicNonce MosaicNonce;
@@ -141,18 +141,18 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = Mosaic_Supply_Change_Notification;
 
 	public:
-		/// Creates a notification around \a signer, \a mosaicId, \a action and \a delta.
-		MosaicSupplyChangeNotification(const Key& signer, UnresolvedMosaicId mosaicId, MosaicSupplyChangeAction action, Amount delta)
+		/// Creates a notification around \a owner, \a mosaicId, \a action and \a delta.
+		MosaicSupplyChangeNotification(const Address& owner, UnresolvedMosaicId mosaicId, MosaicSupplyChangeAction action, Amount delta)
 				: Notification(Notification_Type, sizeof(MosaicSupplyChangeNotification))
-				, Signer(signer)
+				, Owner(owner)
 				, MosaicId(mosaicId)
 				, Action(action)
 				, Delta(delta)
 		{}
 
 	public:
-		/// Signer.
-		const Key& Signer;
+		/// Mosaic owner.
+		Address Owner;
 
 		/// Id of the affected mosaic.
 		UnresolvedMosaicId MosaicId;
@@ -177,7 +177,7 @@ namespace catapult { namespace model {
 	public:
 		/// Creates a notification around \a sender, \a recipient, \a mosaicId and \a amount.
 		MosaicRentalFeeNotification(
-				const Key& sender,
+				const Address& sender,
 				const UnresolvedAddress& recipient,
 				UnresolvedMosaicId mosaicId,
 				catapult::Amount amount)

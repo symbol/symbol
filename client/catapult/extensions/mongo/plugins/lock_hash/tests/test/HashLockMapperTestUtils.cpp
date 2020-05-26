@@ -28,8 +28,8 @@ using namespace catapult::mongo::mappers;
 
 namespace catapult { namespace test {
 
-	void AssertEqualLockInfoData(const state::HashLockInfo& lockInfo, const Address& address, const bsoncxx::document::view& dbLockInfo) {
-		AssertEqualBaseLockInfoData(lockInfo, address, dbLockInfo);
+	void AssertEqualLockInfoData(const state::HashLockInfo& lockInfo, const bsoncxx::document::view& dbLockInfo) {
+		AssertEqualBaseLockInfoData(lockInfo, dbLockInfo);
 		EXPECT_EQ(lockInfo.Hash, GetHashValue(dbLockInfo, "hash"));
 	}
 }}

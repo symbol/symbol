@@ -64,16 +64,16 @@ namespace catapult { namespace cache {
 		}
 
 	public:
-		bool add(const Key& signer, const Signature& signature) {
-			if (weakCosignedTransactionInfo().hasCosignatory(signer))
+		bool add(const model::Cosignature& cosignature) {
+			if (weakCosignedTransactionInfo().hasCosignatory(cosignature.SignerPublicKey))
 				return false;
 
 			// insert cosignature into sorted vector
 			auto iter = m_cosignatures.begin();
-			while (m_cosignatures.end() != iter && iter->SignerPublicKey < signer)
+			while (m_cosignatures.end() != iter && iter->SignerPublicKey < cosignature.SignerPublicKey)
 				++iter;
 
-			m_cosignatures.insert(iter, { signer, signature });
+			m_cosignatures.insert(iter, cosignature);
 
 			// recalculate the cosignatures hash
 			crypto::Sha3_256(
@@ -85,7 +85,9 @@ namespace catapult { namespace cache {
 	private:
 		model::DetachedTransactionInfo m_transactionInfo;
 		Hash256 m_cosignaturesHash;
-		std::vector<model::Cosignature> m_cosignatures; // sorted by signer so that sets of cosignatures added in different order match
+
+		// sorted by SignerPublicKey so that sets of cosignatures added in different order match
+		std::vector<model::Cosignature> m_cosignatures;
 	};
 
 	// region MemoryPtCacheView
@@ -197,9 +199,9 @@ namespace catapult { namespace cache {
 				return true;
 			}
 
-			model::DetachedTransactionInfo add(const Hash256& parentHash, const Key& signer, const Signature& signature) override {
+			model::DetachedTransactionInfo add(const Hash256& parentHash, const model::Cosignature& cosignature) override {
 				auto iter = m_transactionDataContainer.find(parentHash);
-				return m_transactionDataContainer.cend() == iter || !iter->second.add(signer, signature)
+				return m_transactionDataContainer.cend() == iter || !iter->second.add(cosignature)
 						? model::DetachedTransactionInfo()
 						: ToTransactionInfo(*iter);
 			}

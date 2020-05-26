@@ -96,7 +96,7 @@ namespace catapult { namespace harvesting {
 
 				auto strategy = model::TransactionSelectionStrategy::Oldest;
 				auto blockGenerator = CreateHarvesterBlockGenerator(strategy, utFacadeFactory, m_transactionsCache);
-				m_pHarvester = std::make_unique<Harvester>(m_cache, m_config.BlockChain, Key(), m_unlockedAccounts, blockGenerator);
+				m_pHarvester = std::make_unique<Harvester>(m_cache, m_config.BlockChain, Address(), m_unlockedAccounts, blockGenerator);
 			}
 
 		public:
@@ -175,7 +175,10 @@ namespace catapult { namespace harvesting {
 				observers::NotificationObserverAdapter entityObserver(
 						m_pPluginManager->createObserver(),
 						m_pPluginManager->createNotificationPublisher());
-				auto observerContext = observers::ObserverContext(observerState, Height(1), notifyMode, resolverContext);
+				auto observerContext = observers::ObserverContext(
+						model::NotificationContext(Height(1), resolverContext),
+						observerState,
+						notifyMode);
 				entityObserver.notify(model::WeakEntityInfo(*transactionInfo.pEntity, transactionInfo.EntityHash), observerContext);
 				m_cache.commit(Height(1));
 			}

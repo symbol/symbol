@@ -111,7 +111,7 @@ namespace catapult { namespace test {
 		EXPECT_EQ(block.TransactionsHash, GetHashValue(dbBlock, "transactionsHash"));
 		EXPECT_EQ(block.ReceiptsHash, GetHashValue(dbBlock, "receiptsHash"));
 		EXPECT_EQ(block.StateHash, GetHashValue(dbBlock, "stateHash"));
-		EXPECT_EQ(block.BeneficiaryPublicKey, GetKeyValue(dbBlock, "beneficiaryPublicKey"));
+		EXPECT_EQ(block.BeneficiaryAddress, GetAddressValue(dbBlock, "beneficiaryAddress"));
 		EXPECT_EQ(block.FeeMultiplier, BlockFeeMultiplier(GetUint32(dbBlock, "feeMultiplier")));
 	}
 
@@ -255,6 +255,8 @@ namespace catapult { namespace test {
 		auto iter = dbCosignatures.cbegin();
 		for (const auto& expectedCosignature : expectedCosignatures) {
 			auto cosignatureView = iter->get_document().view();
+			EXPECT_EQ(3u, GetFieldCount(cosignatureView));
+			EXPECT_EQ(expectedCosignature.Version, GetUint64(cosignatureView, "version"));
 			EXPECT_EQ(expectedCosignature.SignerPublicKey, GetKeyValue(cosignatureView, "signerPublicKey"));
 			EXPECT_EQ(expectedCosignature.Signature, GetSignatureValue(cosignatureView, "signature"));
 			++iter;

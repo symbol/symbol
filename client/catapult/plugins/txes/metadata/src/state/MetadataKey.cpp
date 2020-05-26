@@ -51,12 +51,12 @@ namespace catapult { namespace state {
 		return m_uniqueKey;
 	}
 
-	const Key& MetadataKey::sourcePublicKey() const {
-		return m_partialKey.SourcePublicKey;
+	const Address& MetadataKey::sourceAddress() const {
+		return m_partialKey.SourceAddress;
 	}
 
-	const Key& MetadataKey::targetPublicKey() const {
-		return m_partialKey.TargetPublicKey;
+	const Address& MetadataKey::targetAddress() const {
+		return m_partialKey.TargetAddress;
 	}
 
 	uint64_t MetadataKey::scopedMetadataKey() const {
@@ -95,7 +95,7 @@ namespace catapult { namespace state {
 	Hash256 MetadataKey::generateUniqueKey() const {
 		crypto::Sha3_256_Builder builder;
 
-		for (const auto* pKey : { &m_partialKey.SourcePublicKey, &m_partialKey.TargetPublicKey })
+		for (const auto* pKey : { &m_partialKey.SourceAddress, &m_partialKey.TargetAddress })
 			builder.update(*pKey);
 
 		for (const auto value : { m_partialKey.ScopedMetadataKey, m_targetId })
@@ -108,21 +108,43 @@ namespace catapult { namespace state {
 		return uniqueKey;
 	}
 
+	namespace {
+		MetadataKey ResolveMetadataKey(
+				const model::PartialMetadataKey& partialKey,
+				const model::MetadataTarget& target,
+				const std::function<MosaicId (uint64_t)>& idToMosaicIdResolver) {
+			switch (target.Type) {
+			case model::MetadataType::Account:
+				return MetadataKey(partialKey);
+
+			case model::MetadataType::Mosaic:
+				return MetadataKey(partialKey, idToMosaicIdResolver(target.Id));
+
+			case model::MetadataType::Namespace:
+				return MetadataKey(partialKey, NamespaceId(target.Id));
+			}
+
+			CATAPULT_THROW_INVALID_ARGUMENT_1("cannot resolve metadata key with unsupported type", static_cast<uint16_t>(target.Type));
+		}
+	}
+
+	MetadataKey CreateMetadataKey(const model::PartialMetadataKey& partialKey, const model::MetadataTarget& target) {
+		return ResolveMetadataKey(partialKey, target, [](auto id) {
+			return MosaicId(id);
+		});
+	}
+
 	MetadataKey ResolveMetadataKey(
-			const model::PartialMetadataKey& partialKey,
+			const model::UnresolvedPartialMetadataKey& partialKey,
 			const model::MetadataTarget& target,
 			const model::ResolverContext& resolvers) {
-		switch (target.Type) {
-		case model::MetadataType::Account:
-			return MetadataKey(partialKey);
-
-		case model::MetadataType::Mosaic:
-			return MetadataKey(partialKey, resolvers.resolve(UnresolvedMosaicId(target.Id)));
-
-		case model::MetadataType::Namespace:
-			return MetadataKey(partialKey, NamespaceId(target.Id));
-		}
-
-		CATAPULT_THROW_INVALID_ARGUMENT_1("cannot resolve metadata key with unsupported type", static_cast<uint16_t>(target.Type));
+		auto resolvedPartialKey = model::PartialMetadataKey{
+			partialKey.SourceAddress,
+			resolvers.resolve(partialKey.TargetAddress),
+			partialKey.ScopedMetadataKey
+		};
+		return ResolveMetadataKey(resolvedPartialKey, target, [&resolvers](auto id) {
+			return resolvers.resolve(UnresolvedMosaicId(id));
+		});
 	}
 }}

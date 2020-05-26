@@ -27,15 +27,27 @@ namespace catapult { namespace state {
 	/// Represents a mosaic definition.
 	class MosaicDefinition {
 	public:
-		/// Creates a mosaic definition around \a startHeight, \a ownerPublicKey, mosaic \a revision and mosaic \a properties.
-		MosaicDefinition(Height startHeight, const Key& ownerPublicKey, uint32_t revision, const model::MosaicProperties& properties)
+		/// Creates a mosaic definition around \a startHeight, \a ownerAddress, mosaic \a revision and mosaic \a properties.
+		MosaicDefinition(Height startHeight, const Address& ownerAddress, uint32_t revision, const model::MosaicProperties& properties)
 				: m_startHeight(startHeight)
-				, m_ownerPublicKey(ownerPublicKey)
+				, m_ownerAddress(ownerAddress)
 				, m_revision(revision)
 				, m_properties(properties)
 		{}
 
 	public:
+		/// Gets the start height.
+		Height startHeight() const;
+
+		/// Gets the owner's address.
+		const Address& ownerAddress() const;
+
+		/// Gets the revision.
+		uint32_t revision() const;
+
+		/// Gets the mosaic properties.
+		const model::MosaicProperties& properties() const;
+
 		/// Returns \c true if the mosaic definition has eternal duration.
 		bool isEternal() const;
 
@@ -45,29 +57,9 @@ namespace catapult { namespace state {
 		/// Returns \c true if the mosaic definition is expired at \a height.
 		bool isExpired(Height height) const;
 
-		/// Gets the start height.
-		Height startHeight() const {
-			return m_startHeight;
-		}
-
-		/// Gets the owner's public key.
-		const Key& ownerPublicKey() const {
-			return m_ownerPublicKey;
-		}
-
-		/// Gets the revision.
-		uint32_t revision() const {
-			return m_revision;
-		}
-
-		/// Gets the mosaic properties.
-		const model::MosaicProperties& properties() const {
-			return m_properties;
-		}
-
 	private:
 		Height m_startHeight;
-		Key m_ownerPublicKey;
+		Address m_ownerAddress;
 		uint32_t m_revision;
 		model::MosaicProperties m_properties;
 	};

@@ -38,7 +38,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		}
 	}
 
-	bsoncxx::document::value ToDbModel(const state::MosaicEntry& mosaicEntry, const Address& ownerAddress) {
+	bsoncxx::document::value ToDbModel(const state::MosaicEntry& mosaicEntry) {
 		const auto& definition = mosaicEntry.definition();
 		bson_stream::document builder;
 		auto doc = builder
@@ -46,8 +46,7 @@ namespace catapult { namespace mongo { namespace plugins {
 					<< "id" << ToInt64(mosaicEntry.mosaicId())
 					<< "supply" << ToInt64(mosaicEntry.supply())
 					<< "startHeight" << ToInt64(definition.startHeight())
-					<< "ownerPublicKey" << ToBinary(definition.ownerPublicKey())
-					<< "ownerAddress" << ToBinary(ownerAddress)
+					<< "ownerAddress" << ToBinary(definition.ownerAddress())
 					<< "revision" << static_cast<int32_t>(definition.revision());
 
 		StreamProperties(builder, definition.properties());

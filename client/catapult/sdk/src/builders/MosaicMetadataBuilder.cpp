@@ -24,15 +24,15 @@ namespace catapult { namespace builders {
 
 	MosaicMetadataBuilder::MosaicMetadataBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
 			: TransactionBuilder(networkIdentifier, signer)
-			, m_targetPublicKey()
+			, m_targetAddress()
 			, m_scopedMetadataKey()
 			, m_targetMosaicId()
 			, m_valueSizeDelta()
 			, m_value()
 	{}
 
-	void MosaicMetadataBuilder::setTargetPublicKey(const Key& targetPublicKey) {
-		m_targetPublicKey = targetPublicKey;
+	void MosaicMetadataBuilder::setTargetAddress(const UnresolvedAddress& targetAddress) {
+		m_targetAddress = targetAddress;
 	}
 
 	void MosaicMetadataBuilder::setScopedMetadataKey(uint64_t scopedMetadataKey) {
@@ -84,7 +84,7 @@ namespace catapult { namespace builders {
 		auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
 
 		// 2. set fixed transaction fields
-		pTransaction->TargetPublicKey = m_targetPublicKey;
+		pTransaction->TargetAddress = m_targetAddress;
 		pTransaction->ScopedMetadataKey = m_scopedMetadataKey;
 		pTransaction->TargetMosaicId = m_targetMosaicId;
 		pTransaction->ValueSizeDelta = m_valueSizeDelta;

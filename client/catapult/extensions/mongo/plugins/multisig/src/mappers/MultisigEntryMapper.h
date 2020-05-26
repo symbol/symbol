@@ -24,6 +24,6 @@
 
 namespace catapult { namespace mongo { namespace plugins {
 
-	/// Maps a multisig \a entry and \a accountAddress to the corresponding db model value.
-	bsoncxx::document::value ToDbModel(const state::MultisigEntry& entry, const Address& accountAddress);
+	/// Maps a multisig \a entry to the corresponding db model value.
+	bsoncxx::document::value ToDbModel(const state::MultisigEntry& entry);
 }}}

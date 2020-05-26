@@ -64,7 +64,7 @@ namespace catapult { namespace validators {
 			if (model::MosaicSupplyChangeAction::Decrease == notification.Action)
 				return ValidationResult::Success;
 
-			return CheckAccount(maxMosaics, context.Resolvers.resolve(notification.MosaicId), notification.Signer, context);
+			return CheckAccount(maxMosaics, context.Resolvers.resolve(notification.MosaicId), notification.Owner, context);
 		});
 	}
 }}

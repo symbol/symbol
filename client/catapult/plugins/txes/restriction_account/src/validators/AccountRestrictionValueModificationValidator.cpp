@@ -38,7 +38,7 @@ namespace catapult { namespace validators {
 
 		template<typename TRestrictionValue, typename TNotification>
 		ValidationResult Validate(const TNotification& notification, const ValidatorContext& context) {
-			auto address = model::PublicKeyToAddress(notification.Key, context.Network.Identifier);
+			const auto& address = notification.Address;
 			const auto& cache = context.Cache.sub<cache::AccountRestrictionCache>();
 			if (!cache.contains(address))
 				return ValidationResult::Success;

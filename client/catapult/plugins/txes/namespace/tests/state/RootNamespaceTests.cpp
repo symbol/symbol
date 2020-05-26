@@ -44,7 +44,7 @@ namespace catapult { namespace state {
 
 		// Assert:
 		EXPECT_EQ(id, root.id());
-		EXPECT_EQ(owner, root.ownerPublicKey());
+		EXPECT_EQ(owner, root.ownerAddress());
 		EXPECT_EQ(test::CreateLifetime(234, 321), root.lifetime());
 		EXPECT_TRUE(root.empty());
 		EXPECT_EQ(0u, root.size());
@@ -68,7 +68,7 @@ namespace catapult { namespace state {
 
 		// Assert:
 		EXPECT_EQ(id, root.id());
-		EXPECT_EQ(owner, root.ownerPublicKey());
+		EXPECT_EQ(owner, root.ownerAddress());
 		EXPECT_EQ(test::CreateLifetime(234, 321), root.lifetime());
 		EXPECT_EQ(3u, root.size());
 		EXPECT_FALSE(root.empty());
@@ -91,7 +91,7 @@ namespace catapult { namespace state {
 
 		// Assert:
 		EXPECT_EQ(id, root.id());
-		EXPECT_EQ(owner, root.ownerPublicKey());
+		EXPECT_EQ(owner, root.ownerAddress());
 		EXPECT_EQ(test::CreateLifetime(234, 321), root.lifetime());
 		EXPECT_EQ(3u, root.size());
 		EXPECT_FALSE(root.empty());
@@ -103,11 +103,11 @@ namespace catapult { namespace state {
 	// endregion
 
 	namespace {
-		auto CreateDefaultRoot(const Key& owner, NamespaceId::ValueType id) {
+		auto CreateDefaultRoot(const Address& owner, NamespaceId::ValueType id) {
 			return RootNamespace(NamespaceId(id), owner, test::CreateLifetime(234, 321));
 		}
 
-		auto CreateDefaultRootWithChildren(const Key& owner) {
+		auto CreateDefaultRootWithChildren(const Address& owner) {
 			auto root = CreateDefaultRoot(owner, 123);
 			auto children = test::CreateChildren({
 				test::CreatePath({ 123, 357 }),
@@ -349,7 +349,7 @@ namespace catapult { namespace state {
 		EXPECT_EQ(root.id(), renewedRoot.id());
 		EXPECT_EQ(root, renewedRoot);
 		EXPECT_EQ(test::CreateLifetime(468, 579), renewedRoot.lifetime());
-		EXPECT_EQ(owner, renewedRoot.ownerPublicKey());
+		EXPECT_EQ(owner, renewedRoot.ownerAddress());
 		EXPECT_EQ(4u, root.size());
 		EXPECT_EQ(&root.children(), &renewedRoot.children());
 	}

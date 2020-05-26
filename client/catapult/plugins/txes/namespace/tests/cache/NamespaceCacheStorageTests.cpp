@@ -81,7 +81,7 @@ namespace catapult { namespace cache {
 
 			static void AssertCanLoadHistoryWithDepthOneWithoutChildren(
 					io::InputStream& inputStream,
-					const Key& owner,
+					const Address& owner,
 					const state::NamespaceAlias& alias) {
 				// Act:
 				CacheType cache;
@@ -110,7 +110,7 @@ namespace catapult { namespace cache {
 
 			static void AssertCanLoadHistoryWithDepthOneWithChildren(
 					io::InputStream& inputStream,
-					const Key& owner,
+					const Address& owner,
 					const std::vector<state::NamespaceAlias>& aliases) {
 				// Act:
 				CacheType cache;
@@ -139,7 +139,7 @@ namespace catapult { namespace cache {
 
 			static void AssertCanLoadHistoryWithDepthGreaterThanOneSameOwner(
 					io::InputStream& inputStream,
-					const Key& owner,
+					const Address& owner,
 					const std::vector<state::NamespaceAlias>& aliases) {
 				// Act:
 				CacheType cache;
@@ -183,9 +183,9 @@ namespace catapult { namespace cache {
 
 			static void AssertCanLoadHistoryWithDepthGreaterThanOneDifferentOwner(
 					io::InputStream& inputStream,
-					const Key& owner1,
-					const Key& owner2,
-					const Key& owner3,
+					const Address& owner1,
+					const Address& owner2,
+					const Address& owner3,
 					const std::vector<state::NamespaceAlias>& aliases) {
 				// Act:
 				CacheType cache;
@@ -242,7 +242,7 @@ namespace catapult { namespace cache {
 		public:
 			static void AssertCanLoadHistoryWithDepthOneWithoutChildren(
 					io::InputStream& inputStream,
-					const Key&,
+					const Address&,
 					const state::NamespaceAlias&) {
 				// Arrange:
 				CacheType cache;
@@ -257,7 +257,7 @@ namespace catapult { namespace cache {
 
 			static void AssertCanLoadHistoryWithDepthOneWithChildren(
 					io::InputStream& inputStream,
-					const Key&,
+					const Address&,
 					const std::vector<state::NamespaceAlias>&) {
 				// Arrange:
 				CacheType cache;
@@ -272,7 +272,7 @@ namespace catapult { namespace cache {
 
 			static void AssertCanLoadHistoryWithDepthGreaterThanOneSameOwner(
 					io::InputStream& inputStream,
-					const Key&,
+					const Address&,
 					const std::vector<state::NamespaceAlias>&) {
 				// Arrange:
 				CacheType cache;
@@ -287,9 +287,9 @@ namespace catapult { namespace cache {
 
 			static void AssertCanLoadHistoryWithDepthGreaterThanOneDifferentOwner(
 					io::InputStream& inputStream,
-					const Key&,
-					const Key&,
-					const Key&,
+					const Address&,
+					const Address&,
+					const Address&,
 					const std::vector<state::NamespaceAlias>&) {
 				// Arrange:
 				CacheType cache;
@@ -308,7 +308,7 @@ namespace catapult { namespace cache {
 				auto history = NamespaceCacheStorage::Load(inputStream);
 				{
 					auto delta = cache.createDelta();
-					auto owner = test::GenerateRandomByteArray<Key>();
+					auto owner = test::CreateRandomOwner();
 					delta->insert(state::RootNamespace(NamespaceId(987), owner, test::CreateLifetime(100, 200)));
 					NamespaceCacheStorage::LoadInto(history, *delta);
 					cache.commit();
@@ -343,7 +343,7 @@ namespace catapult { namespace cache {
 		PurgeTraits::CacheType cache;
 		{
 			auto delta = cache.createDelta();
-			delta->insert(state::RootNamespace(NamespaceId(987), test::GenerateRandomByteArray<Key>(), test::CreateLifetime(100, 200)));
+			delta->insert(state::RootNamespace(NamespaceId(987), test::CreateRandomOwner(), test::CreateLifetime(100, 200)));
 			cache.commit();
 		}
 

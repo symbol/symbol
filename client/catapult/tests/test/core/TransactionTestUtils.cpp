@@ -125,11 +125,31 @@ namespace catapult { namespace test {
 		return CreateEntityRange<model::Transaction>(transactions);
 	}
 
-	model::DetachedCosignature CreateRandomCosignature() {
-		return model::DetachedCosignature{
-			test::GenerateRandomByteArray<Key>(),
-			test::GenerateRandomByteArray<Signature>(),
-			test::GenerateRandomByteArray<Hash256>()
-		};
+	model::DetachedCosignature CreateRandomDetachedCosignature() {
+		auto cosignature = model::DetachedCosignature(
+				test::GenerateRandomByteArray<Key>(),
+				test::GenerateRandomByteArray<Signature>(),
+				test::GenerateRandomByteArray<Hash256>());
+		cosignature.Version = Random();
+		return cosignature;
+	}
+
+	void AssertCosignature(
+			const model::Cosignature& expectedCosignature,
+			const model::Cosignature& actualCosignature,
+			const std::string& message) {
+		EXPECT_EQ(expectedCosignature.Version, actualCosignature.Version) << message;
+		EXPECT_EQ(expectedCosignature.SignerPublicKey, actualCosignature.SignerPublicKey) << message;
+		EXPECT_EQ(expectedCosignature.Signature, actualCosignature.Signature) << message;
+	}
+
+	void AssertCosignatures(
+			const std::vector<model::Cosignature>& expectedCosignatures,
+			const std::vector<model::Cosignature>& actualCosignatures,
+			const std::string& message) {
+		ASSERT_EQ(expectedCosignatures.size(), actualCosignatures.size()) << message;
+
+		for (auto i = 0u; i < expectedCosignatures.size(); ++i)
+			AssertCosignature(expectedCosignatures[i], actualCosignatures[i], message + ", cosignature at " + std::to_string(i));
 	}
 }}

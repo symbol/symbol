@@ -58,10 +58,10 @@ namespace catapult { namespace state {
 			return history;
 		}
 
-		std::vector<Key> GetOwners(const RootNamespaceHistory& history) {
-			std::vector<Key> owners;
+		std::vector<Address> GetOwners(const RootNamespaceHistory& history) {
+			std::vector<Address> owners;
 			for (const auto& root : history)
-				owners.push_back(root.ownerPublicKey());
+				owners.push_back(root.ownerAddress());
 
 			return owners;
 		}
@@ -164,7 +164,7 @@ namespace catapult { namespace state {
 			EXPECT_EQ(3u, history.activeOwnerHistoryDepth());
 			EXPECT_EQ(0u, history.numActiveRootChildren());
 			EXPECT_EQ(0u, history.numAllHistoricalChildren());
-			EXPECT_EQ(std::vector<Key>({ owner, owner, owner }), GetOwners(history));
+			EXPECT_EQ(std::vector<Address>({ owner, owner, owner }), GetOwners(history));
 			EXPECT_EQ(std::vector<Height>({ Height(234), Height(235), Height(236) }), GetLifetimeStartHeights(history));
 
 			// - check (root) aliases
@@ -217,14 +217,14 @@ namespace catapult { namespace state {
 		EXPECT_EQ(3u, history.activeOwnerHistoryDepth());
 		EXPECT_EQ(3u, history.numActiveRootChildren());
 		EXPECT_EQ(9u, history.numAllHistoricalChildren());
-		EXPECT_EQ(std::vector<Key>({ owner, owner, owner }), GetOwners(history));
+		EXPECT_EQ(std::vector<Address>({ owner, owner, owner }), GetOwners(history));
 		EXPECT_EQ(std::vector<Height>({ Height(234), Height(235), Height(236) }), GetLifetimeStartHeights(history));
 		EXPECT_EQ(expectedChildIds, GetChildIdSets(history));
 	}
 
 	CONSTRUCTOR_TEST(CanConstructHistoryWithDifferentOwners_WithoutChildren) {
 		// Arrange:
-		auto owners = test::GenerateRandomDataVector<Key>(2);
+		auto owners = test::GenerateRandomDataVector<Address>(2);
 		RootNamespaceHistory original(NamespaceId(123));
 		for (auto i = 0u; i < 3; ++i)
 			original.push_back(owners[i % 2], test::CreateLifetime(234 + i, 321 + i));
@@ -239,13 +239,13 @@ namespace catapult { namespace state {
 		EXPECT_EQ(1u, history.activeOwnerHistoryDepth());
 		EXPECT_EQ(0u, history.numActiveRootChildren());
 		EXPECT_EQ(0u, history.numAllHistoricalChildren());
-		EXPECT_EQ(std::vector<Key>({ owners[0], owners[1], owners[0] }), GetOwners(history));
+		EXPECT_EQ(std::vector<Address>({ owners[0], owners[1], owners[0] }), GetOwners(history));
 		EXPECT_EQ(std::vector<Height>({ Height(234), Height(235), Height(236) }), GetLifetimeStartHeights(history));
 	}
 
 	CONSTRUCTOR_TEST(CanConstructHistoryWithDifferentOwners_WithChildren) {
 		// Arrange:
-		auto owners = test::GenerateRandomDataVector<Key>(2);
+		auto owners = test::GenerateRandomDataVector<Address>(2);
 		RootNamespaceHistory original(NamespaceId(123));
 
 		// - let the history have 2 roots that share the owner before the owner changes
@@ -272,7 +272,7 @@ namespace catapult { namespace state {
 		EXPECT_EQ(1u, history.activeOwnerHistoryDepth());
 		EXPECT_EQ(1u, history.numActiveRootChildren());
 		EXPECT_EQ(6u, history.numAllHistoricalChildren());
-		EXPECT_EQ(std::vector<Key>({ owners[0], owners[0], owners[1], owners[0] }), GetOwners(history));
+		EXPECT_EQ(std::vector<Address>({ owners[0], owners[0], owners[1], owners[0] }), GetOwners(history));
 		EXPECT_EQ(std::vector<Height>({ Height(100), Height(234), Height(235), Height(236) }), GetLifetimeStartHeights(history));
 		EXPECT_EQ(expectedChildIds, GetChildIdSets(history));
 	}
@@ -653,7 +653,7 @@ namespace catapult { namespace state {
 		// Arrange:
 		// - root1 expires at height 173
 		// - root2 expires at height 273
-		auto owner = test::GenerateRandomByteArray<Key>();
+		auto owner = test::GenerateRandomByteArray<Address>();
 		RootNamespaceHistory history(NamespaceId(123));
 		history.push_back(owner, test::CreateLifetime(123, 173, 50));
 		history.push_back(owner, test::CreateLifetime(173, 273, 50));

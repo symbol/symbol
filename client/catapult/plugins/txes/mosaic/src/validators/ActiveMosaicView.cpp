@@ -36,11 +36,11 @@ namespace catapult { namespace validators {
 				: ValidationResult::Success;
 	}
 
-	validators::ValidationResult ActiveMosaicView::tryGet(MosaicId id, Height height, const Key& owner, FindIterator& iter) const {
+	validators::ValidationResult ActiveMosaicView::tryGet(MosaicId id, Height height, const Address& owner, FindIterator& iter) const {
 		auto result = tryGet(id, height, iter);
 		if (!IsValidationResultSuccess(result))
 			return result;
 
-		return iter.get().definition().ownerPublicKey() != owner ? Failure_Mosaic_Owner_Conflict : ValidationResult::Success;
+		return iter.get().definition().ownerAddress() != owner ? Failure_Mosaic_Owner_Conflict : ValidationResult::Success;
 	}
 }}

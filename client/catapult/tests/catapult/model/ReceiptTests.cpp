@@ -55,7 +55,7 @@ namespace catapult { namespace model {
 
 	// region BalanceTransferReceipt
 
-#define RECEIPT_FIELDS FIELD(Mosaic) FIELD(SenderPublicKey) FIELD(RecipientAddress)
+#define RECEIPT_FIELDS FIELD(Mosaic) FIELD(SenderAddress) FIELD(RecipientAddress)
 
 	TEST(TEST_CLASS, BalanceTransferReceiptHasExpectedSize) {
 		// Arrange:
@@ -67,7 +67,7 @@ namespace catapult { namespace model {
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(BalanceTransferReceipt));
-		EXPECT_EQ(8u + 73, sizeof(BalanceTransferReceipt));
+		EXPECT_EQ(8u + 64, sizeof(BalanceTransferReceipt));
 	}
 
 	TEST(TEST_CLASS, BalanceTransferReceiptHasProperAlignment) {
@@ -80,7 +80,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCreateBalanceTransferReceipt) {
 		// Arrange:
-		auto sender = test::GenerateRandomByteArray<Key>();
+		auto sender = test::GenerateRandomByteArray<Address>();
 		auto recipient = test::GenerateRandomByteArray<Address>();
 
 		// Act:
@@ -92,7 +92,7 @@ namespace catapult { namespace model {
 		EXPECT_EQ(static_cast<ReceiptType>(123), receipt.Type);
 		EXPECT_EQ(MosaicId(88), receipt.Mosaic.MosaicId);
 		EXPECT_EQ(Amount(452), receipt.Mosaic.Amount);
-		EXPECT_EQ(sender, receipt.SenderPublicKey);
+		EXPECT_EQ(sender, receipt.SenderAddress);
 		EXPECT_EQ(recipient, receipt.RecipientAddress);
 	}
 
@@ -100,7 +100,7 @@ namespace catapult { namespace model {
 
 	// region BalanceChangeReceipt
 
-#define RECEIPT_FIELDS FIELD(Mosaic) FIELD(TargetPublicKey)
+#define RECEIPT_FIELDS FIELD(Mosaic) FIELD(TargetAddress)
 
 	TEST(TEST_CLASS, BalanceChangeReceiptHasExpectedSize) {
 		// Arrange:
@@ -112,7 +112,7 @@ namespace catapult { namespace model {
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(BalanceChangeReceipt));
-		EXPECT_EQ(8u + 48, sizeof(BalanceChangeReceipt));
+		EXPECT_EQ(8u + 40, sizeof(BalanceChangeReceipt));
 	}
 
 	TEST(TEST_CLASS, BalanceChangeReceiptHasProperAlignment) {
@@ -125,7 +125,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCreateBalanceChangeReceipt) {
 		// Arrange:
-		auto target = test::GenerateRandomByteArray<Key>();
+		auto target = test::GenerateRandomByteArray<Address>();
 
 		// Act:
 		BalanceChangeReceipt receipt(static_cast<ReceiptType>(124), target, MosaicId(88), Amount(452));
@@ -136,7 +136,7 @@ namespace catapult { namespace model {
 		EXPECT_EQ(static_cast<ReceiptType>(124), receipt.Type);
 		EXPECT_EQ(MosaicId(88), receipt.Mosaic.MosaicId);
 		EXPECT_EQ(Amount(452), receipt.Mosaic.Amount);
-		EXPECT_EQ(target, receipt.TargetPublicKey);
+		EXPECT_EQ(target, receipt.TargetAddress);
 	}
 
 	// endregion

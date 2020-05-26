@@ -66,7 +66,10 @@ namespace catapult { namespace plugins {
 						: std::numeric_limits<uint64_t>::max();
 			}
 
-			void publish(const WeakEntityInfoT<Transaction>& transactionInfo, NotificationSubscriber& sub) const override {
+			void publish(
+					const WeakEntityInfoT<Transaction>& transactionInfo,
+					const PublishContext&,
+					NotificationSubscriber& sub) const override {
 				const auto& aggregate = CastToDerivedType(transactionInfo.entity());
 
 				// publish aggregate notifications
@@ -92,7 +95,7 @@ namespace catapult { namespace plugins {
 					sub.notify(SourceChangeNotification(Relative, 0, Relative, 1));
 
 					// - signers and entity
-					model::PublishNotifications(subTransaction, sub);
+					PublishNotifications(subTransaction, sub);
 					const auto& plugin = m_transactionRegistry.findPlugin(subTransaction.Type)->embeddedPlugin();
 					auto subTransactionAttributes = plugin.attributes();
 
@@ -111,7 +114,9 @@ namespace catapult { namespace plugins {
 
 					// - specific sub-transaction notifications
 					//   (calculateRealSize would have failed if plugin is unknown or not embeddable)
-					plugin.publish(subTransaction, sub);
+					PublishContext subContext;
+					subContext.SignerAddress = GetSignerAddress(subTransaction);
+					plugin.publish(subTransaction, subContext, sub);
 				}
 
 				// publish all cosignatory information (as an optimization these are published with the source of the last sub-transaction)
@@ -120,6 +125,7 @@ namespace catapult { namespace plugins {
 					// - notice that all valid cosignatories must have been observed previously as part of either
 					//   (1) sub-transaction execution or (2) composite account setup
 					// - require the cosignatories to sign the aggregate indirectly via the hash of its data
+					sub.notify(InternalPaddingNotification(pCosignature->Version));
 					sub.notify(SignatureNotification(pCosignature->SignerPublicKey, pCosignature->Signature, transactionInfo.hash()));
 					++pCosignature;
 				}

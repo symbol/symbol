@@ -30,14 +30,14 @@ namespace catapult { namespace plugins {
 
 	namespace {
 		template<typename TTransaction>
-		void Publish(const TTransaction& transaction, NotificationSubscriber& sub) {
+		void Publish(const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub) {
 			sub.notify(AccountAddressNotification(transaction.RecipientAddress));
 			sub.notify(SecretLockDurationNotification(transaction.Duration));
 			sub.notify(SecretLockHashAlgorithmNotification(transaction.HashAlgorithm));
-			sub.notify(AddressInteractionNotification(transaction.SignerPublicKey, transaction.Type, { transaction.RecipientAddress }));
-			sub.notify(BalanceDebitNotification(transaction.SignerPublicKey, transaction.Mosaic.MosaicId, transaction.Mosaic.Amount));
+			sub.notify(AddressInteractionNotification(context.SignerAddress, transaction.Type, { transaction.RecipientAddress }));
+			sub.notify(BalanceDebitNotification(context.SignerAddress, transaction.Mosaic.MosaicId, transaction.Mosaic.Amount));
 			sub.notify(SecretLockNotification(
-					transaction.SignerPublicKey,
+					context.SignerAddress,
 					transaction.Mosaic,
 					transaction.Duration,
 					transaction.HashAlgorithm,
@@ -46,7 +46,7 @@ namespace catapult { namespace plugins {
 
 			// raise a zero-transfer notification in order to trigger all mosaic authorization validators
 			sub.notify(BalanceTransferNotification(
-					transaction.SignerPublicKey,
+					context.SignerAddress,
 					transaction.RecipientAddress,
 					transaction.Mosaic.MosaicId,
 					Amount(0)));

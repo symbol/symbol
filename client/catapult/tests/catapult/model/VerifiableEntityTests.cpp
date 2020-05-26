@@ -19,6 +19,7 @@
 **/
 
 #include "catapult/model/VerifiableEntity.h"
+#include "catapult/model/Address.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"
@@ -76,6 +77,26 @@ namespace catapult { namespace model {
 
 	// endregion
 
+	// region GetSignerAddress
+
+	TEST(TEST_CLASS, GetSignerAddressCalculatesCorrectSignerAddress) {
+		// Arrange:
+		VerifiableEntity entity;
+		test::FillWithRandomData(entity.SignerPublicKey);
+		entity.Network = static_cast<NetworkIdentifier>(test::RandomByte());
+
+		// Act:
+		auto signerAddress = GetSignerAddress(entity);
+
+		// Assert:
+		auto expectedSignerAddress = PublicKeyToAddress(entity.SignerPublicKey, entity.Network);
+		EXPECT_EQ(expectedSignerAddress, signerAddress);
+	}
+
+	// endregion
+
+	// region IsSizeValid - utils
+
 	namespace {
 		bool IsSizeValid(const VerifiableEntity& entity) {
 			auto registry = mocks::CreateDefaultTransactionRegistry();
@@ -108,6 +129,8 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, TEST_NAME##_EmptyBlock) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmptyBlockTraits>(); } \
 	TEST(TEST_CLASS, TEST_NAME##_BlockWithTransactions) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockWithTransactionsTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+	// endregion
 
 	// region IsSizeValid - basic tests
 

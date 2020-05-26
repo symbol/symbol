@@ -37,7 +37,7 @@ namespace catapult { namespace observers {
 			test::AccountObserverTestContext context(NotifyMode::Commit);
 			auto pObserver = CreateBalanceDebitObserver();
 
-			auto sender = test::GenerateRandomByteArray<Key>();
+			auto sender = test::GenerateRandomByteArray<Address>();
 			auto notification = TTraits::CreateNotification(sender);
 
 			test::SetCacheBalances(context.cache(), sender, TTraits::GetInitialSenderBalances());
@@ -55,7 +55,7 @@ namespace catapult { namespace observers {
 			test::AccountObserverTestContext context(NotifyMode::Rollback);
 			auto pObserver = CreateBalanceDebitObserver();
 
-			auto sender = test::GenerateRandomByteArray<Key>();
+			auto sender = test::GenerateRandomByteArray<Address>();
 			auto notification = TTraits::CreateNotification(sender);
 
 			test::SetCacheBalances(context.cache(), sender, TTraits::GetFinalSenderBalances());
@@ -78,7 +78,7 @@ namespace catapult { namespace observers {
 		constexpr auto Currency_Mosaic_Id = MosaicId(1234);
 
 		struct SingleMosaicTraits {
-			static auto CreateNotification(const Key& sender) {
+			static auto CreateNotification(const Address& sender) {
 				return model::BalanceDebitNotification(sender, test::UnresolveXor(Currency_Mosaic_Id), Amount(234));
 			}
 
@@ -100,7 +100,7 @@ namespace catapult { namespace observers {
 
 	namespace {
 		struct MultipleMosaicTraits {
-			static auto CreateNotification(const Key& sender) {
+			static auto CreateNotification(const Address& sender) {
 				return model::BalanceDebitNotification(sender, test::UnresolveXor(MosaicId(12)), Amount(234));
 			}
 

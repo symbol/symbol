@@ -40,14 +40,14 @@ namespace catapult { namespace state {
 
 	RootNamespaceHistory::RootNamespaceHistory(const RootNamespaceHistory& history) : RootNamespaceHistory(history.m_id) {
 		std::shared_ptr<RootNamespace::Children> pChildren;
-		auto owner = Key();
+		auto owner = Address();
 		for (const auto& root : history) {
-			if (owner != root.ownerPublicKey()) {
+			if (owner != root.ownerAddress()) {
 				pChildren = std::make_shared<RootNamespace::Children>(root.children());
-				owner = root.ownerPublicKey();
+				owner = root.ownerAddress();
 			}
 
-			m_rootHistory.emplace_back(root.id(), root.ownerPublicKey(), root.lifetime(), pChildren);
+			m_rootHistory.emplace_back(root.id(), root.ownerAddress(), root.lifetime(), pChildren);
 			m_rootHistory.back().setAlias(root.id(), root.alias(root.id()));
 		}
 	}
@@ -69,9 +69,9 @@ namespace catapult { namespace state {
 			return 0;
 
 		auto historyDepth = 0u;
-		const auto& activeOwner = m_rootHistory.back().ownerPublicKey();
+		const auto& activeOwner = m_rootHistory.back().ownerAddress();
 		for (auto iter = m_rootHistory.crbegin(); m_rootHistory.crend() != iter; ++iter) {
-			if (activeOwner != iter->ownerPublicKey())
+			if (activeOwner != iter->ownerAddress())
 				break;
 
 			++historyDepth;
@@ -88,10 +88,10 @@ namespace catapult { namespace state {
 		return utils::Sum(m_rootHistory, [](const auto& rootNamespace) { return rootNamespace.size(); });
 	}
 
-	void RootNamespaceHistory::push_back(const Key& owner, const NamespaceLifetime& lifetime) {
+	void RootNamespaceHistory::push_back(const Address& owner, const NamespaceLifetime& lifetime) {
 		if (!m_rootHistory.empty()) {
 			const auto& previousRootNamespace = back();
-			if (previousRootNamespace.ownerPublicKey() == owner) {
+			if (previousRootNamespace.ownerAddress() == owner) {
 				// since it is the same owner, inherit all children and aliases (child aliases are migrated automatically with children)
 				m_rootHistory.push_back(previousRootNamespace.renew(lifetime));
 				m_rootHistory.back().setAlias(previousRootNamespace.id(), previousRootNamespace.alias(previousRootNamespace.id()));

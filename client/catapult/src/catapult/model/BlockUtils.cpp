@@ -124,7 +124,6 @@ namespace catapult { namespace model {
 			pBlock->Size = size;
 
 			pBlock->SignerPublicKey = signerPublicKey;
-			pBlock->BeneficiaryPublicKey = signerPublicKey;
 
 			pBlock->Version = Block::Current_Version;
 			pBlock->Network = networkIdentifier;
@@ -133,6 +132,8 @@ namespace catapult { namespace model {
 			pBlock->Height = context.BlockHeight + Height(1);
 			pBlock->Difficulty = Difficulty();
 			pBlock->PreviousBlockHash = context.BlockHash;
+
+			pBlock->BeneficiaryAddress = GetSignerAddress(*pBlock);
 
 			// append all the transactions
 			auto* pDestination = reinterpret_cast<uint8_t*>(pBlock->TransactionsPtr());

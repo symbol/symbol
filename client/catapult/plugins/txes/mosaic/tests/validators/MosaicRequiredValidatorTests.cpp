@@ -21,13 +21,14 @@
 #include "src/validators/Validators.h"
 #include "catapult/model/BlockChainConfiguration.h"
 #include "tests/test/MosaicCacheTestUtils.h"
+#include "tests/test/MosaicTestUtils.h"
 #include "tests/test/core/ResolverTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace validators {
 
-#define TEST_CLASS RequiredMosaicValidatorTests
+#define TEST_CLASS MosaicRequiredValidatorTests
 
 	DEFINE_COMMON_VALIDATOR_TESTS(RequiredMosaic,)
 
@@ -40,7 +41,7 @@ namespace catapult { namespace validators {
 
 		struct UnresolvedMosaicTraits {
 			// custom resolver doubles unresolved mosaic ids
-			static constexpr auto Default_Id = UnresolvedMosaicId(55);
+			static constexpr auto Default_Id = UnresolvedMosaicId(110 ^ 0xFFFF'FFFF'FFFF'FFFF);
 		};
 	}
 
@@ -58,13 +59,13 @@ namespace catapult { namespace validators {
 				ValidationResult expectedResult,
 				TMosaicId affectedMosaicId,
 				Height height,
-				const Key& transactionSigner,
-				const Key& artifactOwner) {
+				const model::ResolvableAddress& notificationOwner,
+				const Address& artifactOwner) {
 			// Arrange:
 			auto pValidator = CreateRequiredMosaicValidator();
 
 			// - create the notification
-			model::MosaicRequiredNotification notification(transactionSigner, affectedMosaicId);
+			model::MosaicRequiredNotification notification(notificationOwner, affectedMosaicId);
 
 			// - create the validator context
 			auto cache = test::MosaicCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
@@ -73,9 +74,6 @@ namespace catapult { namespace validators {
 
 			auto readOnlyCache = delta.toReadOnly();
 			auto context = test::CreateValidatorContext(height, readOnlyCache);
-
-			// - set up a custom mosaic id resolver
-			const_cast<model::ResolverContext&>(context.Resolvers) = test::CreateResolverContextWithCustomDoublingMosaicResolver();
 
 			// Act:
 			auto result = test::ValidateNotification(*pValidator, notification, context);
@@ -86,8 +84,8 @@ namespace catapult { namespace validators {
 
 		template<typename TMosaicId>
 		void AssertValidationResult(ValidationResult expectedResult, TMosaicId affectedMosaicId, Height height) {
-			auto key = test::GenerateRandomByteArray<Key>();
-			AssertValidationResult(expectedResult, affectedMosaicId, height, key, key);
+			auto owner = test::CreateRandomOwner();
+			AssertValidationResult(expectedResult, affectedMosaicId, height, owner, owner);
 		}
 	}
 
@@ -101,13 +99,18 @@ namespace catapult { namespace validators {
 	}
 
 	MOSAIC_ID_TRAITS_BASED_TEST(FailureWhenMosaicOwnerDoesNotMatch) {
-		auto key1 = test::GenerateRandomByteArray<Key>();
-		auto key2 = test::GenerateRandomByteArray<Key>();
-		AssertValidationResult(Failure_Mosaic_Owner_Conflict, TTraits::Default_Id, Height(100), key1, key2);
+		auto owner1 = test::CreateRandomOwner();
+		auto owner2 = test::CreateRandomOwner();
+		AssertValidationResult(Failure_Mosaic_Owner_Conflict, TTraits::Default_Id, Height(100), owner1, owner2);
 	}
 
 	MOSAIC_ID_TRAITS_BASED_TEST(SuccessWhenMosaicIsActiveAndOwnerMatches) {
 		AssertValidationResult(ValidationResult::Success, TTraits::Default_Id, Height(100));
+	}
+
+	MOSAIC_ID_TRAITS_BASED_TEST(SuccessWhenMosaicIsActiveAndOwnerMatches_UnresolvedAddress) {
+		auto owner = test::CreateRandomOwner();
+		AssertValidationResult(ValidationResult::Success, TTraits::Default_Id, Height(100), test::UnresolveXor(owner), owner);
 	}
 
 	// endregion
@@ -125,8 +128,8 @@ namespace catapult { namespace validators {
 			auto pValidator = CreateRequiredMosaicValidator();
 
 			// - create the notification
-			auto signer = test::GenerateRandomByteArray<Key>();
-			model::MosaicRequiredNotification notification(signer, affectedMosaicId, notificationPropertyFlagMask);
+			auto owner = test::CreateRandomOwner();
+			model::MosaicRequiredNotification notification(owner, affectedMosaicId, notificationPropertyFlagMask);
 
 			// - create the validator context
 			auto height = Height(50);
@@ -138,15 +141,12 @@ namespace catapult { namespace validators {
 				auto& mosaicCacheDelta = delta.sub<cache::MosaicCache>();
 
 				model::MosaicProperties properties(static_cast<model::MosaicFlags>(mosaicPropertyFlagMask), 0, BlockDuration(100));
-				auto definition = state::MosaicDefinition(height, signer, 1, properties);
+				auto definition = state::MosaicDefinition(height, owner, 1, properties);
 				mosaicCacheDelta.insert(state::MosaicEntry(ResolvedMosaicTraits::Default_Id, definition));
 			}
 
 			auto readOnlyCache = delta.toReadOnly();
 			auto context = test::CreateValidatorContext(height, readOnlyCache);
-
-			// - set up a custom mosaic id resolver
-			const_cast<model::ResolverContext&>(context.Resolvers) = test::CreateResolverContextWithCustomDoublingMosaicResolver();
 
 			// Act:
 			auto result = test::ValidateNotification(*pValidator, notification, context);

@@ -61,7 +61,7 @@ namespace catapult { namespace test {
 			CATAPULT_THROW_RUNTIME_ERROR("notifyAddPartials - not supported in mock");
 		}
 
-		void notifyAddCosignature(const model::TransactionInfo&, const Key&, const Signature&) override {
+		void notifyAddCosignature(const model::TransactionInfo&, const model::Cosignature&) override {
 			CATAPULT_THROW_RUNTIME_ERROR("notifyAddCosignature - not supported in mock");
 		}
 

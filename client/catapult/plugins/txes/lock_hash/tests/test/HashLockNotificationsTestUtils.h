@@ -35,7 +35,7 @@ namespace catapult { namespace test {
 
 		/// Creates a notification.
 		auto notification() {
-			return model::HashLockNotification(m_signer, m_mosaic, m_duration, m_hash);
+			return model::HashLockNotification(m_owner, m_mosaic, m_duration, m_hash);
 		}
 
 		/// Prepares the builder using \a lockInfo.
@@ -44,7 +44,7 @@ namespace catapult { namespace test {
 		}
 
 	private:
-		Key m_signer;
+		Address m_owner;
 		model::UnresolvedMosaic m_mosaic;
 		BlockDuration m_duration;
 		Hash256 m_hash;

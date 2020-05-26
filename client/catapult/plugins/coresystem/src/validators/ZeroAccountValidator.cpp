@@ -30,8 +30,8 @@ namespace catapult { namespace validators {
 		auto zeroAddress = model::PublicKeyToAddress(Key(), networkIdentifier);
 		return MAKE_STATELESS_VALIDATOR_WITH_TYPE(ZeroAddress, Notification, [zeroAddress](const Notification& notification) {
 			// copy Address from unresolved to resolved in order to check it against (resolved) zeroAddress
-			// if it needs to be resolved, it will never match
-			return zeroAddress == model::ResolverContext().resolve(notification.Address)
+			// if it needs to be resolved, it will never match (due to different resolved bit flag)
+			return zeroAddress == notification.Address.resolved(model::ResolverContext())
 					? Failure_Core_Zero_Address
 					: ValidationResult::Success;
 		});

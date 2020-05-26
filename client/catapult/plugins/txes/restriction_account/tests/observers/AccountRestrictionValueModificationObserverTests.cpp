@@ -19,7 +19,6 @@
 **/
 
 #include "src/observers/Observers.h"
-#include "catapult/model/Address.h"
 #include "tests/test/AccountRestrictionCacheTestUtils.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
 #include "tests/TestHarness.h"
@@ -68,13 +67,11 @@ namespace catapult { namespace observers {
 				size_t expectedSize,
 				const cache::AccountRestrictionCacheDelta& delta,
 				NotifyMode notifyMode,
-				const Key& key,
+				const Address& address,
 				const typename TRestrictionValueTraits::ValueType& restrictionValue,
 				model::AccountRestrictionModificationAction action,
 				bool shouldContainCacheEntry) {
 			// Assert:
-			auto address = model::PublicKeyToAddress(key, model::NetworkIdentifier::Zero);
-
 			auto iter = delta.find(address);
 			if (!shouldContainCacheEntry) {
 				EXPECT_FALSE(!!iter.tryGet());
@@ -103,13 +100,13 @@ namespace catapult { namespace observers {
 			// Arrange:
 			ObserverTestContext context(notifyMode);
 			auto values = test::GenerateUniqueRandomDataVector<typename TRestrictionValueTraits::ValueType>(numInitialValues);
-			auto key = test::GenerateRandomByteArray<Key>();
-			test::PopulateCache<TRestrictionValueTraits, TOperationTraits>(context.cache(), key, values);
+			auto address = test::GenerateRandomByteArray<Address>();
+			test::PopulateCache<TRestrictionValueTraits, TOperationTraits>(context.cache(), address, values);
 
 			auto modification = modificationFactory(values);
 			auto unresolvedRestrictionValue = TRestrictionValueTraits::Unresolve(modification.second);
 			auto notification = test::CreateAccountRestrictionValueNotification<TRestrictionValueTraits, TOperationTraits>(
-					key,
+					address,
 					unresolvedRestrictionValue,
 					modification.first);
 			auto pObserver = TRestrictionValueTraits::CreateObserver();
@@ -122,7 +119,7 @@ namespace catapult { namespace observers {
 					expectedSize,
 					context.cache().sub<cache::AccountRestrictionCache>(),
 					notifyMode,
-					key,
+					address,
 					modification.second,
 					modification.first,
 					shouldContainCacheEntry);
@@ -140,13 +137,12 @@ namespace catapult { namespace observers {
 			ObserverTestContext context(notifyMode);
 			auto filteredAddress = test::GenerateRandomByteArray<Address>();
 			auto unresolvedFilteredAddress = AccountAddressRestrictionTraits::Unresolve(filteredAddress);
-			auto key = test::GenerateRandomByteArray<Key>();
+			auto address = test::GenerateRandomByteArray<Address>();
 			auto& restrictionCacheDelta = context.cache().sub<cache::AccountRestrictionCache>();
-			auto accountAddress = model::PublicKeyToAddress(key, model::NetworkIdentifier::Zero);
-			restrictionCacheDelta.insert(state::AccountRestrictions(accountAddress));
+			restrictionCacheDelta.insert(state::AccountRestrictions(address));
 
 			{
-				auto& restrictions = restrictionCacheDelta.find(accountAddress).get();
+				auto& restrictions = restrictionCacheDelta.find(address).get();
 				TOperationTraits::Add(restrictions.restriction(model::AccountRestrictionFlags::Address), state::ToVector(filteredAddress));
 				TOperationTraits::Add(
 						restrictions.restriction(model::AccountRestrictionFlags::MosaicId),
@@ -154,7 +150,7 @@ namespace catapult { namespace observers {
 			}
 
 			model::ModifyAccountAddressRestrictionValueNotification notification(
-					key,
+					address,
 					TOperationTraits::CompleteAccountRestrictionFlags(model::AccountRestrictionFlags::Address),
 					unresolvedFilteredAddress,
 					NotifyMode::Commit == notifyMode ? Del : Add);
@@ -164,7 +160,7 @@ namespace catapult { namespace observers {
 			test::ObserveNotification(*pObserver, notification, context);
 
 			// Assert:
-			auto iter = context.cache().sub<cache::AccountRestrictionCache>().find(accountAddress);
+			auto iter = context.cache().sub<cache::AccountRestrictionCache>().find(address);
 			ASSERT_TRUE(!!iter.tryGet());
 
 			const auto& restrictions = iter.get();
@@ -235,7 +231,7 @@ namespace catapult { namespace observers {
 	// region commit
 
 	TRAITS_BASED_TEST(ObserverAddsAccountRestrictionsInModeCommit) {
-		// Act: since cache is empty there is no account restriction for the provided key
+		// Act: since cache is empty there is no account restriction for the provided address
 		AssertObserverAddsAccountRestrictions<TOperationTraits, TRestrictionValueTraits>(NotifyMode::Commit);
 	}
 

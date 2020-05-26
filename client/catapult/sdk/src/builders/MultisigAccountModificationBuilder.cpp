@@ -26,8 +26,8 @@ namespace catapult { namespace builders {
 			: TransactionBuilder(networkIdentifier, signer)
 			, m_minRemovalDelta()
 			, m_minApprovalDelta()
-			, m_publicKeyAdditions()
-			, m_publicKeyDeletions()
+			, m_addressAdditions()
+			, m_addressDeletions()
 	{}
 
 	void MultisigAccountModificationBuilder::setMinRemovalDelta(int8_t minRemovalDelta) {
@@ -38,12 +38,12 @@ namespace catapult { namespace builders {
 		m_minApprovalDelta = minApprovalDelta;
 	}
 
-	void MultisigAccountModificationBuilder::addPublicKeyAddition(const Key& publicKeyAddition) {
-		m_publicKeyAdditions.push_back(publicKeyAddition);
+	void MultisigAccountModificationBuilder::addAddressAddition(const UnresolvedAddress& addressAddition) {
+		m_addressAdditions.push_back(addressAddition);
 	}
 
-	void MultisigAccountModificationBuilder::addPublicKeyDeletion(const Key& publicKeyDeletion) {
-		m_publicKeyDeletions.push_back(publicKeyDeletion);
+	void MultisigAccountModificationBuilder::addAddressDeletion(const UnresolvedAddress& addressDeletion) {
+		m_addressDeletions.push_back(addressDeletion);
 	}
 
 	size_t MultisigAccountModificationBuilder::size() const {
@@ -62,8 +62,8 @@ namespace catapult { namespace builders {
 	size_t MultisigAccountModificationBuilder::sizeImpl() const {
 		// calculate transaction size
 		auto size = sizeof(TransactionType);
-		size += m_publicKeyAdditions.size() * sizeof(Key);
-		size += m_publicKeyDeletions.size() * sizeof(Key);
+		size += m_addressAdditions.size() * sizeof(UnresolvedAddress);
+		size += m_addressDeletions.size() * sizeof(UnresolvedAddress);
 		return size;
 	}
 
@@ -75,13 +75,13 @@ namespace catapult { namespace builders {
 		// 2. set fixed transaction fields
 		pTransaction->MinRemovalDelta = m_minRemovalDelta;
 		pTransaction->MinApprovalDelta = m_minApprovalDelta;
-		pTransaction->PublicKeyAdditionsCount = utils::checked_cast<size_t, uint8_t>(m_publicKeyAdditions.size());
-		pTransaction->PublicKeyDeletionsCount = utils::checked_cast<size_t, uint8_t>(m_publicKeyDeletions.size());
+		pTransaction->AddressAdditionsCount = utils::checked_cast<size_t, uint8_t>(m_addressAdditions.size());
+		pTransaction->AddressDeletionsCount = utils::checked_cast<size_t, uint8_t>(m_addressDeletions.size());
 		pTransaction->MultisigAccountModificationTransactionBody_Reserved1 = 0;
 
 		// 3. set transaction attachments
-		std::copy(m_publicKeyAdditions.cbegin(), m_publicKeyAdditions.cend(), pTransaction->PublicKeyAdditionsPtr());
-		std::copy(m_publicKeyDeletions.cbegin(), m_publicKeyDeletions.cend(), pTransaction->PublicKeyDeletionsPtr());
+		std::copy(m_addressAdditions.cbegin(), m_addressAdditions.cend(), pTransaction->AddressAdditionsPtr());
+		std::copy(m_addressDeletions.cbegin(), m_addressDeletions.cend(), pTransaction->AddressDeletionsPtr());
 
 		return pTransaction;
 	}

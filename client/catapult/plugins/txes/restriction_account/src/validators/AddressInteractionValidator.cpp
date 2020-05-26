@@ -53,17 +53,9 @@ namespace catapult { namespace validators {
 	}
 
 	DEFINE_STATEFUL_VALIDATOR(AddressInteraction, [](const Notification& notification, const ValidatorContext& context) {
-		auto networkIdentifier = context.Network.Identifier;
-		auto sourceAddress = model::PublicKeyToAddress(notification.Source, networkIdentifier);
 		for (const auto& address : notification.ParticipantsByAddress) {
 			auto participant = context.Resolvers.resolve(address);
-			if (!IsInteractionAllowed(context.Cache, sourceAddress, participant))
-				return Failure_RestrictionAccount_Address_Interaction_Prohibited;
-		}
-
-		for (const auto& key : notification.ParticipantsByKey) {
-			auto participant = model::PublicKeyToAddress(key, networkIdentifier);
-			if (!IsInteractionAllowed(context.Cache, sourceAddress, participant))
+			if (!IsInteractionAllowed(context.Cache, notification.Source, participant))
 				return Failure_RestrictionAccount_Address_Interaction_Prohibited;
 		}
 

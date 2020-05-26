@@ -57,12 +57,12 @@ namespace catapult { namespace cache {
 			}
 
 			static state::RootNamespace CreateWithId(uint8_t id) {
-				// RootNamespaceHistory does not move correctly with Key()
-				return state::RootNamespace(MakeId(id), Key{ { 1 } }, test::CreateLifetime(234, 321));
+				// RootNamespaceHistory does not move correctly with Address()
+				return state::RootNamespace(MakeId(id), Address{ { 1 } }, test::CreateLifetime(234, 321));
 			}
 
 			static state::RootNamespace CreateWithIdAndExpiration(uint8_t id, Height height) {
-				return state::RootNamespace(MakeId(id), Key{ { 1 } }, test::CreateLifetime(0, height.unwrap()));
+				return state::RootNamespace(MakeId(id), Address{ { 1 } }, test::CreateLifetime(0, height.unwrap()));
 			}
 		};
 	}
@@ -85,7 +85,10 @@ namespace catapult { namespace cache {
 	// *** custom tests ***
 
 	namespace {
-		void AddRoots(LockedCacheDelta<NamespaceCacheDelta>& delta, const Key& rootOwner, const std::vector<NamespaceId::ValueType>& ids) {
+		void AddRoots(
+				LockedCacheDelta<NamespaceCacheDelta>& delta,
+				const Address& rootOwner,
+				const std::vector<NamespaceId::ValueType>& ids) {
 			for (auto id : ids)
 				delta->insert(state::RootNamespace(NamespaceId(id), rootOwner, test::CreateLifetime(234, 321)));
 		}
@@ -98,7 +101,7 @@ namespace catapult { namespace cache {
 				delta->insert(state::Namespace(test::CreatePath({ root.id().unwrap(), id })));
 		}
 
-		void PopulateCache(LockedCacheDelta<NamespaceCacheDelta>& delta, const Key& rootOwner) {
+		void PopulateCache(LockedCacheDelta<NamespaceCacheDelta>& delta, const Address& rootOwner) {
 			AddRoots(delta, rootOwner, { 1, 3, 5, 7, 9 });
 			AddChildren(delta, delta->find(NamespaceId(1)).get().root(), { 2, 4, 6, 8 });
 			AddChildren(delta, delta->find(NamespaceId(3)).get().root(), { 10 });
@@ -1046,7 +1049,7 @@ namespace catapult { namespace cache {
 	DEFINE_CACHE_PRUNE_TESTS(NamespaceCacheMixinTraits,)
 
 	namespace {
-		void SetupCacheForPruneTests(NamespaceCache& cache, const Key& rootOwner) {
+		void SetupCacheForPruneTests(NamespaceCache& cache, const Address& rootOwner) {
 			// 5 roots with id i and lifetime (10 * i, 10 * (i + 1)) for i = 0 ... 4 (each root has 2 children)
 			constexpr size_t Root_Count = 5;
 
@@ -1068,7 +1071,7 @@ namespace catapult { namespace cache {
 			cache.commit();
 		}
 
-		void RenewDifferentOwner(NamespaceCache& cache, const Key& diffOwner) {
+		void RenewDifferentOwner(NamespaceCache& cache, const Address& diffOwner) {
 			// renew namespace with id 4 having a different owner and add a child to it
 			// note that since it is a different owner, the previous two children of the namespace are 'hidden'
 			// and are not counted in activeSize()

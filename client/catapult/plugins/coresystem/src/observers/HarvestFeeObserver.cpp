@@ -37,10 +37,10 @@ namespace catapult { namespace observers {
 			{}
 
 		public:
-			void apply(const Key& publicKey, Amount amount) {
+			void apply(const Address& address, Amount amount) {
 				auto& cache = m_context.Cache.sub<cache::AccountStateCache>();
 				auto feeMosaic = model::Mosaic{ m_currencyMosaicId, amount };
-				cache::ProcessForwardedAccountState(cache, publicKey, [&feeMosaic, &context = m_context](auto& accountState) {
+				cache::ProcessForwardedAccountState(cache, address, [&feeMosaic, &context = m_context](auto& accountState) {
 					ApplyFee(accountState, context.Mode, feeMosaic, context.StatementBuilder());
 				});
 			}
@@ -60,7 +60,7 @@ namespace catapult { namespace observers {
 
 				// add fee receipt
 				auto receiptType = model::Receipt_Type_Harvest_Fee;
-				model::BalanceChangeReceipt receipt(receiptType, accountState.PublicKey, feeMosaic.MosaicId, feeMosaic.Amount);
+				model::BalanceChangeReceipt receipt(receiptType, accountState.Address, feeMosaic.MosaicId, feeMosaic.Amount);
 				statementBuilder.addReceipt(receipt);
 			}
 
@@ -69,8 +69,8 @@ namespace catapult { namespace observers {
 			ObserverContext& m_context;
 		};
 
-		bool ShouldShareFees(const Key& signer, const Key& harvesterBeneficiary, uint8_t harvestBeneficiaryPercentage) {
-			return 0u < harvestBeneficiaryPercentage && signer != harvesterBeneficiary;
+		bool ShouldShareFees(const Notification& notification, uint8_t harvestBeneficiaryPercentage) {
+			return 0u < harvestBeneficiaryPercentage && notification.Harvester != notification.Beneficiary;
 		}
 	}
 
@@ -80,18 +80,18 @@ namespace catapult { namespace observers {
 			auto totalAmount = notification.TotalFee + inflationAmount;
 
 			auto networkAmount = Amount(totalAmount.unwrap() * options.HarvestNetworkPercentage / 100);
-			auto beneficiaryAmount = ShouldShareFees(notification.Signer, notification.Beneficiary, options.HarvestBeneficiaryPercentage)
+			auto beneficiaryAmount = ShouldShareFees(notification, options.HarvestBeneficiaryPercentage)
 					? Amount(totalAmount.unwrap() * options.HarvestBeneficiaryPercentage / 100)
 					: Amount();
 			auto harvesterAmount = totalAmount - networkAmount - beneficiaryAmount;
 
 			// always create receipt for harvester
 			FeeApplier applier(options.CurrencyMosaicId, context);
-			applier.apply(notification.Signer, harvesterAmount);
+			applier.apply(notification.Harvester, harvesterAmount);
 
 			// only if amount is non-zero create receipt for network sink account
 			if (Amount() != networkAmount)
-				applier.apply(options.HarvestNetworkFeeSinkPublicKey, networkAmount);
+				applier.apply(options.HarvestNetworkFeeSinkAddress, networkAmount);
 
 			// only if amount is non-zero create receipt for beneficiary account
 			if (Amount() != beneficiaryAmount)

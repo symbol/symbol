@@ -67,6 +67,9 @@ namespace catapult { namespace validators {
 	/// Validation failed because internal padding is nonzero.
 	DEFINE_CORE_RESULT(Nonzero_Internal_Padding, 13);
 
+	/// Validation failed because an address collision is detected.
+	DEFINE_CORE_RESULT(Address_Collision, 14);
+
 	// region key link results
 
 	/// Validation failed because link action is invalid.

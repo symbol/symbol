@@ -20,7 +20,6 @@
 
 #include "src/storages/MongoMosaicCacheStorage.h"
 #include "mongo/src/mappers/MapperUtils.h"
-#include "catapult/model/Address.h"
 #include "mongo/tests/test/MongoFlatCacheStorageTests.h"
 #include "mongo/tests/test/MongoTestUtils.h"
 #include "plugins/txes/mosaic/tests/test/MosaicCacheTestUtils.h"
@@ -48,7 +47,7 @@ namespace catapult { namespace mongo { namespace plugins {
 			}
 
 			static ModelType GenerateRandomElement(uint32_t id) {
-				auto owner = test::GenerateRandomByteArray<Key>();
+				auto owner = test::CreateRandomOwner();
 				return test::CreateMosaicEntry(MosaicId(id), Height(345), owner, Amount(456), BlockDuration(567));
 			}
 
@@ -77,8 +76,7 @@ namespace catapult { namespace mongo { namespace plugins {
 			}
 
 			static void AssertEqual(const ModelType& mosaicEntry, const bsoncxx::document::view& view) {
-				auto ownerAddress = model::PublicKeyToAddress(mosaicEntry.definition().ownerPublicKey(), Network_Id);
-				test::AssertEqualMosaicData(mosaicEntry, ownerAddress, view["mosaic"].get_document().view());
+				test::AssertEqualMosaicData(mosaicEntry, view["mosaic"].get_document().view());
 			}
 		};
 	}

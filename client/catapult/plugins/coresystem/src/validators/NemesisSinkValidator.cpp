@@ -19,7 +19,6 @@
 **/
 
 #include "Validators.h"
-#include "catapult/model/NetworkIdentifier.h"
 #include "catapult/validators/ValidatorContext.h"
 
 namespace catapult { namespace validators {
@@ -28,7 +27,7 @@ namespace catapult { namespace validators {
 
 	DEFINE_STATEFUL_VALIDATOR(NemesisSink, [](const Notification& notification, const ValidatorContext& context) {
 		auto isBlockHeightOne = context.Height == Height(1);
-		auto isNemesisPublicKey = notification.Signer == context.Network.PublicKey;
+		auto isNemesisPublicKey = notification.SignerPublicKey == context.Network.NemesisSignerPublicKey;
 		return isBlockHeightOne || !isNemesisPublicKey
 				? ValidationResult::Success
 				: Failure_Core_Nemesis_Account_Signed_After_Nemesis_Block;

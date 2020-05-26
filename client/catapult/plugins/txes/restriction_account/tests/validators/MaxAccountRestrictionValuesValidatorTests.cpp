@@ -77,8 +77,8 @@ namespace catapult { namespace validators {
 			// Arrange:
 			auto initialValues = test::GenerateUniqueRandomDataVector<typename TRestrictionValueTraits::ValueType>(numInitialValues);
 			auto cache = test::AccountRestrictionCacheFactory::Create();
-			auto key = test::GenerateRandomByteArray<Key>();
-			test::PopulateCache<TRestrictionValueTraits>(cache, key, initialValues);
+			auto address = test::GenerateRandomByteArray<Address>();
+			test::PopulateCache<TRestrictionValueTraits>(cache, address, initialValues);
 
 			std::vector<typename TRestrictionValueTraits::UnresolvedValueType> restrictionAdditions;
 			for (auto i = 0u; i < numAdditions; ++i)
@@ -90,7 +90,7 @@ namespace catapult { namespace validators {
 
 			auto pValidator = TRestrictionValueTraits::CreateValidator(maxAccountRestrictionValues);
 			auto notification = test::CreateAccountRestrictionsNotification<TRestrictionValueTraits>(
-					key,
+					address,
 					restrictionAdditions,
 					restrictionDeletions);
 

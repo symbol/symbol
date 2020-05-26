@@ -41,14 +41,14 @@ namespace catapult { namespace validators {
 			auto cache = test::CreateEmptyCatapultCache();
 			auto cacheView = cache.createView();
 			auto readOnlyCache = cacheView.toReadOnly();
-			auto resolverContext = test::CreateResolverContextXor();
-			auto context = ValidatorContext(Height(123), Block_Time, model::NetworkInfo(), resolverContext, readOnlyCache);
+			auto notificationContext = model::NotificationContext(Height(123), test::CreateResolverContextXor());
+			auto validatorContext = ValidatorContext(notificationContext, Block_Time, model::NetworkInfo(), readOnlyCache);
 			auto pValidator = CreateDeadlineValidator(TimeSpanFromHours(2));
 
 			model::TransactionDeadlineNotification notification(deadline, maxCustomLifetime);
 
 			// Act:
-			auto result = test::ValidateNotification(*pValidator, notification, context);
+			auto result = test::ValidateNotification(*pValidator, notification, validatorContext);
 
 			// Assert:
 			EXPECT_EQ(expectedResult, result) << "deadline " << deadline << ", maxCustomLifetime " << maxCustomLifetime;

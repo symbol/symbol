@@ -31,7 +31,7 @@ namespace catapult { namespace observers {
 	class ExpiredLockInfoObserverTests {
 	public:
 		struct SeedTuple {
-			Key PublicKey;
+			Address OwnerAddress;
 			catapult::MosaicId MosaicId;
 			Amount InitialBalance;
 			Amount LockAmount;
@@ -42,12 +42,12 @@ namespace catapult { namespace observers {
 
 		static void RunBalanceTest(
 				NotifyMode mode,
-				const Key& blockSigner,
+				const Address& blockHarvester,
 				const std::vector<SeedTuple>& expiringSeeds,
 				const std::vector<SeedTuple>& expectedPostObserveBalances) {
 			// Arrange:
 			TestContext context(Height(55), mode);
-			context.addBlockSigner(blockSigner, MosaicId(500), Amount(200));
+			context.addBlockHarvester(blockHarvester, MosaicId(500), Amount(200));
 
 			// - add placeholder accounts that expire at other heights: 10, 20, ..., 100
 			auto seeds = GenerateSeeds(10);
@@ -57,7 +57,7 @@ namespace catapult { namespace observers {
 			context.addLockInfos(expiringSeeds, [](auto) { return Height(55); });
 
 			// Act:
-			context.observe(blockSigner);
+			context.observe(blockHarvester);
 
 			// Assert: each expiring lock info was touched
 			context.assertLockInfoTouches(expiringSeeds.size());
@@ -71,12 +71,12 @@ namespace catapult { namespace observers {
 
 		static void RunReceiptTest(
 				NotifyMode mode,
-				const Key& blockSigner,
+				const Address& blockHarvester,
 				const std::vector<SeedTuple>& expiringSeeds,
 				const std::vector<SeedTuple>& expectedReceipts) {
 			// Arrange:
 			TestContext context(Height(55), mode);
-			context.addBlockSigner(blockSigner, MosaicId(500), Amount(200));
+			context.addBlockHarvester(blockHarvester, MosaicId(500), Amount(200));
 
 			// - add placeholder accounts that expire at other heights: 10, 20, ..., 100
 			auto seeds = GenerateSeeds(10);
@@ -86,7 +86,7 @@ namespace catapult { namespace observers {
 			context.addLockInfos(expiringSeeds, [](auto) { return Height(55); });
 
 			// Act:
-			auto pStatement = context.observe(blockSigner);
+			auto pStatement = context.observe(blockHarvester);
 
 			// Assert:
 			if (expectedReceipts.empty()) {
@@ -109,7 +109,7 @@ namespace catapult { namespace observers {
 				EXPECT_EQ(TTraits::Receipt_Type, receipt.Type) << message;
 				EXPECT_EQ(expectedReceipt.MosaicId, receipt.Mosaic.MosaicId) << message;
 				EXPECT_EQ(expectedReceipt.LockAmount, receipt.Mosaic.Amount) << message;
-				EXPECT_EQ(expectedReceipt.PublicKey, receipt.TargetPublicKey) << message;
+				EXPECT_EQ(expectedReceipt.OwnerAddress, receipt.TargetAddress) << message;
 				++i;
 			}
 		}
@@ -122,7 +122,7 @@ namespace catapult { namespace observers {
 		static std::vector<SeedTuple> GenerateSeeds(size_t count) {
 			std::vector<SeedTuple> seeds;
 			for (auto i = 0u; i < count; ++i)
-				seeds.push_back({ test::GenerateRandomByteArray<Key>(), MosaicId(2 * (i + 1)), Amount(100 + i), Amount(i) });
+				seeds.push_back({ test::GenerateRandomByteArray<Address>(), MosaicId(2 * (i + 1)), Amount(100 + i), Amount(i) });
 
 			return seeds;
 		}
@@ -150,35 +150,34 @@ namespace catapult { namespace observers {
 					addLockInfo(seeds[i], heightGenerator(i));
 			}
 
-			Key addBlockSigner(const Key& signer, MosaicId mosaicId, Amount amount) {
+			void addBlockHarvester(const Address& harvester, MosaicId mosaicId, Amount amount) {
 				auto& accountStateCache = this->accountStateCache();
-				accountStateCache.addAccount(signer, Height(1));
-				accountStateCache.find(signer).get().Balances.credit(mosaicId, amount);
-				return signer;
+				accountStateCache.addAccount(harvester, Height(1));
+				accountStateCache.find(harvester).get().Balances.credit(mosaicId, amount);
 			}
 
 			void addLockInfo(const SeedTuple& seed, Height height) {
 				// lock info cache
 				auto& lockInfoCacheDelta = TTraits::SubCache(m_observerContext.cache());
 				auto lockInfo = TTraits::CreateLockInfo(height);
-				lockInfo.SenderPublicKey = seed.PublicKey;
+				lockInfo.OwnerAddress = seed.OwnerAddress;
 				lockInfo.MosaicId = seed.MosaicId;
 				lockInfo.Amount = seed.LockAmount;
 				lockInfoCacheDelta.insert(lockInfo);
 
 				// account state cache
 				auto& accountStateCache = this->accountStateCache();
-				if (!accountStateCache.contains(seed.PublicKey)) {
-					accountStateCache.addAccount(seed.PublicKey, Height(1));
-					accountStateCache.find(seed.PublicKey).get().Balances.credit(seed.MosaicId, seed.InitialBalance);
+				if (!accountStateCache.contains(seed.OwnerAddress)) {
+					accountStateCache.addAccount(seed.OwnerAddress, Height(1));
+					accountStateCache.find(seed.OwnerAddress).get().Balances.credit(seed.MosaicId, seed.InitialBalance);
 				}
 			}
 
 		public:
-			auto observe(const Key& blockSigner) {
+			auto observe(const Address& blockHarvester) {
 				// Arrange:
 				auto pObserver = TTraits::CreateObserver();
-				auto notification = test::CreateBlockNotification(blockSigner);
+				auto notification = test::CreateBlockNotification(blockHarvester);
 
 				// - commit all cache changes in order to detect changes triggered by observe
 				m_observerContext.commitCacheChanges();
@@ -200,7 +199,7 @@ namespace catapult { namespace observers {
 				auto i = 0u;
 				auto& accountStateCache = this->accountStateCache();
 				for (const auto& seed : seeds) {
-					const auto& balances = accountStateCache.find(seed.PublicKey).get().Balances;
+					const auto& balances = accountStateCache.find(seed.OwnerAddress).get().Balances;
 					EXPECT_EQ(1u, balances.size()) << message << " at " << i;
 					EXPECT_EQ(seed.InitialBalance, balances.get(seed.MosaicId)) << message << " at " << i;
 					++i;

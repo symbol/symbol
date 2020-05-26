@@ -26,13 +26,13 @@ namespace catapult { namespace validators {
 
 	using Notification = model::AccountAddressNotification;
 
-	DECLARE_STATEFUL_VALIDATOR(Address, Notification)(model::NetworkIdentifier networkIdentifier) {
-		return MAKE_STATEFUL_VALIDATOR(Address, [networkIdentifier](const Notification& notification, const ValidatorContext& context) {
-			if (utils::to_underlying_type(networkIdentifier) != (notification.Address[0] & 0xFE))
-				return Failure_Core_Invalid_Address;
+	DEFINE_STATEFUL_VALIDATOR(Address, [](const Notification& notification, const ValidatorContext& context) {
+		auto networkIdentifier = context.Network.Identifier;
+		auto address = notification.Address.resolved(context.Resolvers);
+		if (utils::to_underlying_type(networkIdentifier) != (address[0] & 0xFE))
+			return Failure_Core_Invalid_Address;
 
-			auto isValidAddress = IsValidAddress(context.Resolvers.resolve(notification.Address), networkIdentifier);
-			return isValidAddress ? ValidationResult::Success : Failure_Core_Invalid_Address;
-		});
-	}
+		auto isValidAddress = model::IsValidAddress(address, networkIdentifier);
+		return isValidAddress ? ValidationResult::Success : Failure_Core_Invalid_Address;
+	});
 }}

@@ -93,15 +93,15 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = LockSecret_Secret_Notification;
 
 	public:
-		/// Creates secret lock notification around \a signer, \a mosaic, \a duration, \a hashAlgorithm, \a secret and \a recipient.
+		/// Creates secret lock notification around \a owner, \a mosaic, \a duration, \a hashAlgorithm, \a secret and \a recipient.
 		SecretLockNotification(
-				const Key& signer,
+				const Address& owner,
 				const UnresolvedMosaic& mosaic,
 				BlockDuration duration,
 				LockHashAlgorithm hashAlgorithm,
 				const Hash256& secret,
 				const UnresolvedAddress& recipient)
-				: BaseLockNotification(signer, mosaic, duration)
+				: BaseLockNotification(owner, mosaic, duration)
 				, HashAlgorithm(hashAlgorithm)
 				, Secret(secret)
 				, Recipient(recipient)
@@ -159,22 +159,22 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = LockSecret_Proof_Publication_Notification;
 
 	public:
-		/// Creates proof publication notification around \a signer, \a hashAlgorithm, \a secret and \a recipient.
+		/// Creates proof publication notification around \a owner, \a hashAlgorithm, \a secret and \a recipient.
 		ProofPublicationNotification(
-				const Key& signer,
+				const Address& owner,
 				LockHashAlgorithm hashAlgorithm,
 				const Hash256& secret,
 				const UnresolvedAddress& recipient)
 				: Notification(Notification_Type, sizeof(ProofPublicationNotification))
-				, Signer(signer)
+				, Owner(owner)
 				, HashAlgorithm(hashAlgorithm)
 				, Secret(secret)
 				, Recipient(recipient)
 		{}
 
 	public:
-		/// Signer.
-		const Key& Signer;
+		/// Lock owner.
+		Address Owner;
 
 		/// Hash algorithm.
 		LockHashAlgorithm HashAlgorithm;

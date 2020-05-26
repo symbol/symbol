@@ -21,6 +21,7 @@
 #pragma once
 #include "MetadataEntityType.h"
 #include "MetadataSharedTransaction.h"
+#include "catapult/model/ContainerTypes.h"
 #include "catapult/utils/ArraySet.h"
 
 namespace catapult { namespace model {
@@ -37,9 +38,9 @@ namespace catapult { namespace model {
 
 #pragma pack(pop)
 
-	/// Extracts public keys of additional accounts that must approve \a transaction.
-	inline utils::KeySet ExtractAdditionalRequiredCosignatories(const EmbeddedAccountMetadataTransaction& transaction) {
-		return transaction.SignerPublicKey == transaction.TargetPublicKey ? utils::KeySet() : utils::KeySet{ transaction.TargetPublicKey };
+	/// Extracts addresses of additional accounts that must approve \a transaction.
+	inline UnresolvedAddressSet ExtractAdditionalRequiredCosignatories(const EmbeddedAccountMetadataTransaction& transaction) {
+		return { transaction.TargetAddress };
 	}
 }}
 

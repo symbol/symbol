@@ -48,7 +48,7 @@ namespace catapult { namespace builders {
 		template<typename TTransaction>
 		void AssertMosaicDefinitionName(const TTransaction& transaction, MosaicNonce nonce) {
 			// Assert: id matches
-			auto expectedId = model::GenerateMosaicId(transaction.SignerPublicKey, nonce);
+			auto expectedId = model::GenerateMosaicId(model::GetSignerAddress(transaction), nonce);
 			EXPECT_EQ(expectedId, transaction.Id);
 		}
 

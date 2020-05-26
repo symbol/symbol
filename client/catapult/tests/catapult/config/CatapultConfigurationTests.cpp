@@ -21,6 +21,7 @@
 #include "catapult/config/CatapultConfiguration.h"
 #include "catapult/config/CatapultKeys.h"
 #include "catapult/crypto/OpensslKeyUtils.h"
+#include "catapult/model/Address.h"
 #include "catapult/utils/HexParser.h"
 #include "tests/test/net/CertificateLocator.h"
 #include "tests/test/nodeps/Filesystem.h"
@@ -52,7 +53,7 @@ namespace catapult { namespace config {
 			EXPECT_EQ(model::NodeIdentityEqualityStrategy::Host, config.Network.NodeEqualityStrategy);
 			EXPECT_EQ(
 					utils::ParseByteArray<Key>("C67F465087EF681824805B7E9FF3B2728A4EE847DE044DE5D9FA415F7660B08E"),
-					config.Network.PublicKey);
+					config.Network.NemesisSignerPublicKey);
 			EXPECT_EQ(
 					utils::ParseByteArray<GenerationHashSeed>("57F7DA205008026C776CB6AED843393F04CD458E0AA2D9F1D5F31A402072B2D6"),
 					config.Network.GenerationHashSeed);
@@ -86,9 +87,7 @@ namespace catapult { namespace config {
 
 			EXPECT_EQ(10u, config.HarvestBeneficiaryPercentage);
 			EXPECT_EQ(5u, config.HarvestNetworkPercentage);
-			EXPECT_EQ(
-					utils::ParseByteArray<Key>("FF5563F1C5824EE0CD868799FBE8744B46D5549973FDA499939C952D951494E4"),
-					config.HarvestNetworkFeeSinkPublicKey);
+			EXPECT_EQ(model::StringToAddress("SBPJ3LE4SF7Y25RCEC6MA5BXBP6W2TGB2XKMIDY"), config.HarvestNetworkFeeSinkAddress);
 
 			EXPECT_EQ(360u, config.BlockPruneInterval);
 			EXPECT_EQ(200'000u, config.MaxTransactionsPerBlock);

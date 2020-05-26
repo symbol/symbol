@@ -27,19 +27,33 @@
 namespace catapult { namespace model {
 
 	namespace {
-		constexpr uint8_t Checksum_Size = 4;
-		constexpr size_t Address_Encoded_Size = 40;
+		constexpr uint8_t Checksum_Size = 3;
+		constexpr size_t Address_Encoded_Size = 39;
+
+		// notice that Base32 implementation only supports decoded data that is a multiple of Base32_Decoded_Block_Size
+		// so there is some (ugly) handling of forcing address to/from proper size multiple
+
+		struct PaddedAddress_tag { static constexpr size_t Size = 25; };
+		using PaddedAddress = utils::ByteArray<PaddedAddress_tag>;
+
+		std::string PadAddressString(const std::string& str) {
+			return str + "A";
+		}
 	}
 
 	Address StringToAddress(const std::string& str) {
 		if (Address_Encoded_Size != str.size())
 			CATAPULT_THROW_RUNTIME_ERROR_1("encoded address has wrong size", str.size());
 
-		return utils::Base32Decode<Address::Size>(str);
+		PaddedAddress paddedAddress;
+		utils::Base32Decode(PadAddressString(str), paddedAddress);
+		return paddedAddress.copyTo<Address>();
 	}
 
 	std::string AddressToString(const Address& address) {
-		return utils::Base32Encode(address);
+		auto str = utils::Base32Encode(address.copyTo<PaddedAddress>());
+		str.pop_back();
+		return str;
 	}
 
 	std::string PublicKeyToAddressString(const Key& publicKey, NetworkIdentifier networkIdentifier) {
@@ -77,11 +91,29 @@ namespace catapult { namespace model {
 		return std::equal(hash.begin(), hash.begin() + Checksum_Size, address.begin() + checksumBegin);
 	}
 
+	namespace {
+		bool IsValidEncodedAddress(
+				const std::string& encoded,
+				const std::function<NetworkIdentifier (uint8_t)>& networkIdentifierAccessor) {
+			if (Address_Encoded_Size != encoded.size())
+				return false;
+
+			PaddedAddress decoded;
+			return utils::TryBase32Decode(PadAddressString(encoded), decoded)
+					&& IsValidAddress(decoded.copyTo<Address>(), networkIdentifierAccessor(decoded[0]))
+					&& 0 == decoded[PaddedAddress::Size - 1];
+		}
+	}
+
 	bool IsValidEncodedAddress(const std::string& encoded, NetworkIdentifier networkIdentifier) {
-		if (Address_Encoded_Size != encoded.size())
+		return IsValidEncodedAddress(encoded, [networkIdentifier](auto) { return networkIdentifier; });
+	}
+
+	bool TryParseValue(const std::string& str, Address& parsedValue) {
+		if (!IsValidEncodedAddress(str, [](auto firstDecodedByte) { return static_cast<NetworkIdentifier>(firstDecodedByte); }))
 			return false;
 
-		Address decoded;
-		return utils::TryBase32Decode(encoded, decoded) && IsValidAddress(decoded, networkIdentifier);
+		parsedValue = StringToAddress(str);
+		return true;
 	}
 }}

@@ -22,7 +22,6 @@
 #include "src/mappers/MultisigEntryMapper.h"
 #include "mongo/src/storages/MongoCacheStorage.h"
 #include "plugins/txes/multisig/src/cache/MultisigCache.h"
-#include "catapult/model/Address.h"
 
 using namespace bsoncxx::builder::stream;
 
@@ -31,14 +30,14 @@ namespace catapult { namespace mongo { namespace plugins {
 	namespace {
 		struct MultisigCacheTraits : public storages::BasicMongoCacheStorageTraits<cache::MultisigCacheDescriptor> {
 			static constexpr auto Collection_Name = "multisigs";
-			static constexpr auto Id_Property_Name = "multisig.accountPublicKey";
+			static constexpr auto Id_Property_Name = "multisig.accountAddress";
 
 			static auto MapToMongoId(const KeyType& key) {
 				return mappers::ToBinary(key);
 			}
 
-			static auto MapToMongoDocument(const ModelType& entry, model::NetworkIdentifier networkIdentifier) {
-				return plugins::ToDbModel(entry, model::PublicKeyToAddress(entry.key(), networkIdentifier));
+			static auto MapToMongoDocument(const ModelType& entry, model::NetworkIdentifier) {
+				return plugins::ToDbModel(entry);
 			}
 		};
 	}

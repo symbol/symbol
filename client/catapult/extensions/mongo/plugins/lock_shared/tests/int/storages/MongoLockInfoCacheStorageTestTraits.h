@@ -21,7 +21,6 @@
 #pragma once
 #include "mongo/src/mappers/MapperUtils.h"
 #include "plugins/txes/lock_shared/src/state/LockInfo.h"
-#include "catapult/model/Address.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace mongo { namespace plugins {
@@ -63,8 +62,7 @@ namespace catapult { namespace mongo { namespace plugins {
 
 		/// Asserts that \a lockInfo and \a view are equal.
 		static void AssertEqual(const typename TLockInfoTraits::ModelType& lockInfo, const bsoncxx::document::view& view) {
-			auto address = model::PublicKeyToAddress(lockInfo.SenderPublicKey, Network_Id);
-			TLockInfoTraits::AssertEqualLockInfoData(lockInfo, address, view["lock"].get_document().view());
+			TLockInfoTraits::AssertEqualLockInfoData(lockInfo, view["lock"].get_document().view());
 		}
 	};
 }}}

@@ -34,7 +34,7 @@ namespace catapult { namespace validators {
 			if (maxAccountRestrictionValues < notification.RestrictionAdditionsCount + notification.RestrictionDeletionsCount)
 				return Failure_RestrictionAccount_Modification_Count_Exceeded;
 
-			auto address = model::PublicKeyToAddress(notification.Key, context.Network.Identifier);
+			const auto& address = notification.Address;
 			const auto& cache = context.Cache.sub<cache::AccountRestrictionCache>();
 			if (!cache.contains(address))
 				return ValidationResult::Success;

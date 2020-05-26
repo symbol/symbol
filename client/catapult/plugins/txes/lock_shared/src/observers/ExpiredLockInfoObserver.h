@@ -35,8 +35,8 @@ namespace catapult { namespace observers {
 		};
 
 		std::vector<std::unique_ptr<model::BalanceChangeReceipt>> receipts;
-		auto receiptAppender = [&receipts, receiptType](const auto& publicKey, auto mosaicId, auto amount) {
-			receipts.push_back(std::make_unique<model::BalanceChangeReceipt>(receiptType, publicKey, mosaicId, amount));
+		auto receiptAppender = [&receipts, receiptType](const auto& address, auto mosaicId, auto amount) {
+			receipts.push_back(std::make_unique<model::BalanceChangeReceipt>(receiptType, address, mosaicId, amount));
 		};
 
 		auto& lockInfoCache = context.Cache.template sub<TLockInfoCache>();
@@ -49,7 +49,7 @@ namespace catapult { namespace observers {
 			}
 
 			accountState.Balances.credit(lockInfo.MosaicId, lockInfo.Amount);
-			receiptAppender(accountState.PublicKey, lockInfo.MosaicId, lockInfo.Amount);
+			receiptAppender(accountState.Address, lockInfo.MosaicId, lockInfo.Amount);
 		});
 
 		// sort receipts in order to fulfill deterministic ordering requirement

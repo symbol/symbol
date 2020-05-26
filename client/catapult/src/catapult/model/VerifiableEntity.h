@@ -53,6 +53,9 @@ namespace catapult { namespace model {
 	/// Insertion operator for outputting \a entity to \a out.
 	std::ostream& operator<<(std::ostream& out, const VerifiableEntity& entity);
 
+	/// Gets the address of the signer of \a entity.
+	Address GetSignerAddress(const VerifiableEntity& entity);
+
 	/// Checks the real size of \a entity against its reported size and returns \c true if the sizes match.
 	/// \a registry contains all known transaction types.
 	bool IsSizeValid(const VerifiableEntity& entity, const TransactionRegistry& registry);

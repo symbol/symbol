@@ -19,8 +19,11 @@
 **/
 
 #include "BlockChainConfiguration.h"
+#include "Address.h"
 #include "catapult/utils/ConfigurationBag.h"
 #include "catapult/utils/ConfigurationUtils.h"
+
+DEFINE_ADDRESS_CONFIGURATION_VALUE_SUPPORT
 
 namespace catapult { namespace model {
 
@@ -44,7 +47,7 @@ namespace catapult { namespace model {
 
 		LOAD_NETWORK_PROPERTY(Identifier);
 		LOAD_NETWORK_PROPERTY(NodeEqualityStrategy);
-		LOAD_NETWORK_PROPERTY(PublicKey);
+		LOAD_NETWORK_PROPERTY(NemesisSignerPublicKey);
 		LOAD_NETWORK_PROPERTY(GenerationHashSeed);
 		LOAD_NETWORK_PROPERTY(EpochAdjustment);
 
@@ -81,7 +84,7 @@ namespace catapult { namespace model {
 
 		LOAD_CHAIN_PROPERTY(HarvestBeneficiaryPercentage);
 		LOAD_CHAIN_PROPERTY(HarvestNetworkPercentage);
-		LOAD_CHAIN_PROPERTY(HarvestNetworkFeeSinkPublicKey);
+		LOAD_CHAIN_PROPERTY(HarvestNetworkFeeSinkAddress);
 
 		LOAD_CHAIN_PROPERTY(BlockPruneInterval);
 		LOAD_CHAIN_PROPERTY(MaxTransactionsPerBlock);

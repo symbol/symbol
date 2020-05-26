@@ -81,6 +81,7 @@ namespace catapult { namespace builders {
 		pTransaction->MosaicsCount = utils::checked_cast<size_t, uint8_t>(m_mosaics.size());
 		pTransaction->MessageSize = utils::checked_cast<size_t, uint16_t>(m_message.size());
 		pTransaction->TransferTransactionBody_Reserved1 = 0;
+		pTransaction->TransferTransactionBody_Reserved2 = 0;
 
 		// 3. set transaction attachments
 		std::copy(m_mosaics.cbegin(), m_mosaics.cend(), pTransaction->MosaicsPtr());

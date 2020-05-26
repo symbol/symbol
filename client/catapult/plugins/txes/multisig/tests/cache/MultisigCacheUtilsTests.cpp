@@ -30,7 +30,7 @@ namespace catapult { namespace cache {
 	namespace {
 		constexpr auto Num_Tree_Accounts = 14;
 
-		auto CreateCacheMultisigTree(const std::vector<Key>& keys) {
+		auto CreateCacheMultisigTree(const std::vector<Address>& addresses) {
 			auto cache = test::MultisigCacheFactory::Create();
 			auto cacheDelta = cache.createDelta();
 
@@ -39,17 +39,17 @@ namespace catapult { namespace cache {
 			// 1 - 4 /   \ 9       C |
 			//   \                   |
 			// 0 - 5                 |
-			test::MakeMultisig(cacheDelta, keys[13], { keys[4] });
-			test::MakeMultisig(cacheDelta, keys[1], { keys[4], keys[5] });
-			test::MakeMultisig(cacheDelta, keys[0], { keys[5] });
+			test::MakeMultisig(cacheDelta, addresses[13], { addresses[4] });
+			test::MakeMultisig(cacheDelta, addresses[1], { addresses[4], addresses[5] });
+			test::MakeMultisig(cacheDelta, addresses[0], { addresses[5] });
 
-			test::MakeMultisig(cacheDelta, keys[2], { keys[6] });
-			test::MakeMultisig(cacheDelta, keys[3], { keys[6] });
-			test::MakeMultisig(cacheDelta, keys[4], { keys[6] });
+			test::MakeMultisig(cacheDelta, addresses[2], { addresses[6] });
+			test::MakeMultisig(cacheDelta, addresses[3], { addresses[6] });
+			test::MakeMultisig(cacheDelta, addresses[4], { addresses[6] });
 
-			test::MakeMultisig(cacheDelta, keys[6], { keys[7], keys[8], keys[9] });
-			test::MakeMultisig(cacheDelta, keys[7], { keys[10] });
-			test::MakeMultisig(cacheDelta, keys[10], { keys[11], keys[12] });
+			test::MakeMultisig(cacheDelta, addresses[6], { addresses[7], addresses[8], addresses[9] });
+			test::MakeMultisig(cacheDelta, addresses[7], { addresses[10] });
+			test::MakeMultisig(cacheDelta, addresses[10], { addresses[11], addresses[12] });
 
 			cache.commit(Height());
 			return cache;
@@ -57,18 +57,26 @@ namespace catapult { namespace cache {
 
 		template<typename TAction>
 		void RunMultisigTreeTest(TAction action) {
-			// Arrange: generate random keys but change the second byte of each to its index (for easier diagnosing of failures)
-			auto keys = test::GenerateKeys(Num_Tree_Accounts);
+			// Arrange: generate random addresses but change the second byte of each to its index (for easier diagnosing of failures)
+			auto addresses = test::GenerateRandomDataVector<Address>(Num_Tree_Accounts);
 			uint8_t id = 0;
-			for (auto& key : keys)
-				key[1] = id++;
+			for (auto& address : addresses)
+				address[1] = id++;
 
-			auto cache = CreateCacheMultisigTree(keys);
+			auto cache = CreateCacheMultisigTree(addresses);
 			auto cacheView = cache.createView();
 			auto readOnlyCache = cacheView.toReadOnly();
 
 			// Act:
-			action(readOnlyCache.sub<MultisigCache>(), keys);
+			action(readOnlyCache.sub<MultisigCache>(), addresses);
+		}
+
+		model::AddressSet Pick(const std::vector<Address>& addresses, std::initializer_list<size_t> indexes) {
+			model::AddressSet pickedAddresses;
+			for (auto index : indexes)
+				pickedAddresses.emplace(addresses[index]);
+
+			return pickedAddresses;
 		}
 	}
 
@@ -76,40 +84,40 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, LeafNodesDoNotHaveDescendants) {
 		// Arrange:
-		RunMultisigTreeTest([](const auto& cache, const auto& keys) {
+		RunMultisigTreeTest([](const auto& cache, const auto& addresses) {
 			// Act:
-			utils::KeySet descendantKeys;
-			auto numLevels = FindDescendants(cache, keys[11], descendantKeys);
+			model::AddressSet descendants;
+			auto numLevels = FindDescendants(cache, addresses[11], descendants);
 
 			// Assert:
 			EXPECT_EQ(0u, numLevels);
-			EXPECT_TRUE(descendantKeys.empty());
+			EXPECT_TRUE(descendants.empty());
 		});
 	}
 
 	TEST(TEST_CLASS, CanFindDirectDescendants) {
 		// Arrange:
-		RunMultisigTreeTest([](const auto& cache, const auto& keys) {
+		RunMultisigTreeTest([](const auto& cache, const auto& addresses) {
 			// Act:
-			utils::KeySet descendantKeys;
-			auto numLevels = FindDescendants(cache, keys[10], descendantKeys);
+			model::AddressSet descendants;
+			auto numLevels = FindDescendants(cache, addresses[10], descendants);
 
 			// Assert:
 			EXPECT_EQ(1u, numLevels);
-			EXPECT_EQ(utils::KeySet({ keys[11], keys[12] }), descendantKeys);
+			EXPECT_EQ(Pick(addresses, { 11, 12 }), descendants);
 		});
 	}
 
 	TEST(TEST_CLASS, CanFindAllDescendants) {
 		// Arrange:
-		RunMultisigTreeTest([](const auto& cache, const auto& keys) {
+		RunMultisigTreeTest([](const auto& cache, const auto& addresses) {
 			// Act:
-			utils::KeySet descendantKeys;
-			auto numLevels = FindDescendants(cache, keys[4], descendantKeys);
+			model::AddressSet descendants;
+			auto numLevels = FindDescendants(cache, addresses[4], descendants);
 
 			// Assert:
 			EXPECT_EQ(4u, numLevels);
-			EXPECT_EQ(utils::KeySet({ keys[6], keys[7], keys[8], keys[9], keys[10], keys[11], keys[12] }), descendantKeys);
+			EXPECT_EQ(Pick(addresses, { 6, 7, 8, 9, 10, 11, 12 }), descendants);
 		});
 	}
 
@@ -119,40 +127,40 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, RootNodesDoNotHaveAncestors) {
 		// Arrange:
-		RunMultisigTreeTest([](const auto& cache, const auto& keys) {
+		RunMultisigTreeTest([](const auto& cache, const auto& addresses) {
 			// Act:
-			utils::KeySet ancestorKeys;
-			auto numLevels = FindAncestors(cache, keys[1], ancestorKeys);
+			model::AddressSet ancestors;
+			auto numLevels = FindAncestors(cache, addresses[1], ancestors);
 
 			// Assert:
 			EXPECT_EQ(0u, numLevels);
-			EXPECT_TRUE(ancestorKeys.empty());
+			EXPECT_TRUE(ancestors.empty());
 		});
 	}
 
 	TEST(TEST_CLASS, CanFindDirectAncestors) {
 		// Arrange:
-		RunMultisigTreeTest([](const auto& cache, const auto& keys) {
+		RunMultisigTreeTest([](const auto& cache, const auto& addresses) {
 			// Act:
-			utils::KeySet ancestorKeys;
-			auto numLevels = FindAncestors(cache, keys[4], ancestorKeys);
+			model::AddressSet ancestors;
+			auto numLevels = FindAncestors(cache, addresses[4], ancestors);
 
 			// Assert:
 			EXPECT_EQ(1u, numLevels);
-			EXPECT_EQ(utils::KeySet({ keys[1], keys[13] }), ancestorKeys);
+			EXPECT_EQ(Pick(addresses, { 1, 13 }), ancestors);
 		});
 	}
 
 	TEST(TEST_CLASS, CanFindAllAncestors) {
 		// Arrange:
-		RunMultisigTreeTest([](const auto& cache, const auto& keys) {
+		RunMultisigTreeTest([](const auto& cache, const auto& addresses) {
 			// Act:
-			utils::KeySet ancestorKeys;
-			auto numLevels = FindAncestors(cache, keys[10], ancestorKeys);
+			model::AddressSet ancestors;
+			auto numLevels = FindAncestors(cache, addresses[10], ancestors);
 
 			// Assert:
 			EXPECT_EQ(4u, numLevels);
-			EXPECT_EQ(utils::KeySet({ keys[7], keys[6], keys[2], keys[3], keys[4], keys[1], keys[13] }), ancestorKeys);
+			EXPECT_EQ(Pick(addresses, { 7, 6, 2, 3, 4, 1, 13 }), ancestors);
 		});
 	}
 

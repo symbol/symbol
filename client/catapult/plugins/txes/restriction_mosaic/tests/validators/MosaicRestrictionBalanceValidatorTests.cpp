@@ -19,7 +19,6 @@
 **/
 
 #include "src/validators/Validators.h"
-#include "catapult/model/Address.h"
 #include "tests/test/MosaicRestrictionCacheTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
@@ -40,26 +39,24 @@ namespace catapult { namespace validators {
 		struct TransferSenderTraits {
 			static constexpr auto CreateValidator = CreateMosaicRestrictionBalanceTransferValidator;
 
-			static auto CreateNotification(const Key& publicKey1, const Key& publicKey2) {
-				auto recipient = test::UnresolveXor(model::PublicKeyToAddress(publicKey2, Network_Identifier));
-				return model::BalanceTransferNotification(publicKey1, recipient, UnresolvedMosaicId(), Amount());
+			static auto CreateNotification(const Address& address1, const Address& address2) {
+				return model::BalanceTransferNotification(address1, test::UnresolveXor(address2), UnresolvedMosaicId(), Amount());
 			}
 		};
 
 		struct TransferRecipientTraits {
 			static constexpr auto CreateValidator = CreateMosaicRestrictionBalanceTransferValidator;
 
-			static auto CreateNotification(const Key& publicKey1, const Key& publicKey2) {
-				auto recipient = test::UnresolveXor(model::PublicKeyToAddress(publicKey1, Network_Identifier));
-				return model::BalanceTransferNotification(publicKey2, recipient, UnresolvedMosaicId(), Amount());
+			static auto CreateNotification(const Address& address1, const Address& address2) {
+				return model::BalanceTransferNotification(address2, test::UnresolveXor(address1), UnresolvedMosaicId(), Amount());
 			}
 		};
 
 		struct DebitSenderTraits {
 			static constexpr auto CreateValidator = CreateMosaicRestrictionBalanceDebitValidator;
 
-			static auto CreateNotification(const Key& publicKey1, const Key&) {
-				return model::BalanceDebitNotification(publicKey1, UnresolvedMosaicId(), Amount());
+			static auto CreateNotification(const Address& address1, const Address&) {
+				return model::BalanceDebitNotification(address1, UnresolvedMosaicId(), Amount());
 			}
 		};
 	}
@@ -86,8 +83,8 @@ namespace catapult { namespace validators {
 
 		void SeedCacheForTests(
 				cache::MosaicRestrictionCacheDelta& delta,
-				const std::vector<Key>& validPublicKeys,
-				const std::vector<Key>& invalidPublicKeys) {
+				const std::vector<Address>& validAddresses,
+				const std::vector<Address>& invalidAddresses) {
 			// Arrange: invalid global restriction (self referential)
 			auto restriction1 = state::MosaicGlobalRestriction(Mosaic_Id_Invalid_Rule);
 			restriction1.set(200, { Mosaic_Id_Invalid_Rule, 777, model::MosaicRestrictionType::NE });
@@ -99,16 +96,14 @@ namespace catapult { namespace validators {
 			delta.insert(state::MosaicRestrictionEntry(restriction2));
 
 			// - valid addresses (EQ 888)
-			for (const auto& publicKey : validPublicKeys) {
-				auto address = model::PublicKeyToAddress(publicKey, Network_Identifier);
+			for (const auto& address : validAddresses) {
 				auto restriction = state::MosaicAddressRestriction(Mosaic_Id_Valid_Rule, address);
 				restriction.set(200, 888);
 				delta.insert(state::MosaicRestrictionEntry(restriction));
 			}
 
 			// - invalid addresses (NE 888)
-			for (const auto& publicKey : invalidPublicKeys) {
-				auto address = model::PublicKeyToAddress(publicKey, Network_Identifier);
+			for (const auto& address : invalidAddresses) {
 				auto restriction = state::MosaicAddressRestriction(Mosaic_Id_Valid_Rule, address);
 				restriction.set(200, 789);
 				delta.insert(state::MosaicRestrictionEntry(restriction));
@@ -120,16 +115,16 @@ namespace catapult { namespace validators {
 			// Arrange:
 			auto pValidator = TTraits::CreateValidator();
 
-			auto publicKey1 = test::GenerateRandomByteArray<Key>();
-			auto publicKey2 = test::GenerateRandomByteArray<Key>();
-			auto notification = TTraits::CreateNotification(publicKey1, publicKey2);
+			auto address1 = test::GenerateRandomByteArray<Address>();
+			auto address2 = test::GenerateRandomByteArray<Address>();
+			auto notification = TTraits::CreateNotification(address1, address2);
 			notification.MosaicId = test::UnresolveXor(mosaicId);
 			notification.Amount = Amount(100);
 
 			auto cache = test::MosaicRestrictionCacheFactory::Create(Network_Identifier);
 			{
 				auto delta = cache.createDelta();
-				seeder(delta.sub<cache::MosaicRestrictionCache>(), publicKey1, publicKey2);
+				seeder(delta.sub<cache::MosaicRestrictionCache>(), address1, address2);
 				cache.commit(Height());
 			}
 
@@ -150,29 +145,29 @@ namespace catapult { namespace validators {
 
 	ACCOUNT_BASED_TEST(FailureWhenInvalidMosaicRulesAreConfigured) {
 		auto expectedResult = Failure_RestrictionMosaic_Invalid_Global_Restriction;
-		RunTest<TTraits>(expectedResult, Mosaic_Id_Invalid_Rule, [](auto& cache, const auto& publicKey1, const auto& publicKey2) {
-			SeedCacheForTests(cache, { publicKey1, publicKey2 }, {});
+		RunTest<TTraits>(expectedResult, Mosaic_Id_Invalid_Rule, [](auto& cache, const auto& address1, const auto& address2) {
+			SeedCacheForTests(cache, { address1, address2 }, {});
 		});
 	}
 
 	ACCOUNT_BASED_TEST(FailureWhenValidMosaicRulesAreConfiguredButOneAccountIsUnauthorizedDueToInvalidValues) {
 		auto expectedResult = Failure_RestrictionMosaic_Account_Unauthorized;
-		RunTest<TTraits>(expectedResult, Mosaic_Id_Valid_Rule, [](auto& cache, const auto& publicKey1, const auto& publicKey2) {
-			SeedCacheForTests(cache, { publicKey2 }, { publicKey1 });
+		RunTest<TTraits>(expectedResult, Mosaic_Id_Valid_Rule, [](auto& cache, const auto& address1, const auto& address2) {
+			SeedCacheForTests(cache, { address2 }, { address1 });
 		});
 	}
 
 	ACCOUNT_BASED_TEST(FailureWhenValidMosaicRulesAreConfiguredButOneAccountIsUnauthorizedDueToUnsetValues) {
 		auto expectedResult = Failure_RestrictionMosaic_Account_Unauthorized;
-		RunTest<TTraits>(expectedResult, Mosaic_Id_Valid_Rule, [](auto& cache, const auto&, const auto& publicKey2) {
-			SeedCacheForTests(cache, { publicKey2 }, {});
+		RunTest<TTraits>(expectedResult, Mosaic_Id_Valid_Rule, [](auto& cache, const auto&, const auto& address2) {
+			SeedCacheForTests(cache, { address2 }, {});
 		});
 	}
 
 	ACCOUNT_BASED_TEST(SuccessWhenValidMosaicRulesAreConfiguredAndAllAccountsAreAuthorized) {
 		auto expectedResult = ValidationResult::Success;
-		RunTest<TTraits>(expectedResult, Mosaic_Id_Valid_Rule, [](auto& cache, const auto& publicKey1, const auto& publicKey2) {
-			SeedCacheForTests(cache, { publicKey1, publicKey2 }, {});
+		RunTest<TTraits>(expectedResult, Mosaic_Id_Valid_Rule, [](auto& cache, const auto& address1, const auto& address2) {
+			SeedCacheForTests(cache, { address1, address2 }, {});
 		});
 	}
 

@@ -37,30 +37,34 @@ namespace catapult { namespace mongo { namespace plugins {
 				const Key& signer,
 				int8_t minRemovalDelta,
 				int8_t minApprovalDelta,
-				uint8_t numKeyAdditions,
-				uint8_t numKeyDeletions) {
+				uint8_t numAddressAdditions,
+				uint8_t numAddressDeletions) {
 			builders::MultisigAccountModificationBuilder builder(model::NetworkIdentifier::Mijin_Test, signer);
 			builder.setMinRemovalDelta(minRemovalDelta);
 			builder.setMinApprovalDelta(minApprovalDelta);
 
-			for (auto i = 0u; i < numKeyAdditions; ++i)
-				builder.addPublicKeyAddition(test::GenerateRandomByteArray<Key>());
+			for (auto i = 0u; i < numAddressAdditions; ++i)
+				builder.addAddressAddition(test::GenerateRandomByteArray<UnresolvedAddress>());
 
-			for (auto i = 0u; i < numKeyDeletions; ++i)
-				builder.addPublicKeyDeletion(test::GenerateRandomByteArray<Key>());
+			for (auto i = 0u; i < numAddressDeletions; ++i)
+				builder.addAddressDeletion(test::GenerateRandomByteArray<UnresolvedAddress>());
 
 			return builder;
 		}
 
-		void AssertEqualKeys(const bsoncxx::document::view& dbTransaction, const std::string& name, const Key* pKeys, uint8_t numKeys) {
-			auto dbKeys = dbTransaction[name].get_array().value;
-			ASSERT_EQ(numKeys, test::GetFieldCount(dbKeys));
+		void AssertEqualAddresses(
+				const bsoncxx::document::view& dbTransaction,
+				const std::string& name,
+				const UnresolvedAddress* pAddresses,
+				uint8_t count) {
+			auto dbAddresses = dbTransaction[name].get_array().value;
+			ASSERT_EQ(count, test::GetFieldCount(dbAddresses));
 
-			auto dbKeysIter = dbKeys.cbegin();
-			for (auto i = 0u; i < numKeys; ++i, ++dbKeysIter) {
-				Key key;
-				mongo::mappers::DbBinaryToModelArray(key, dbKeysIter->get_binary());
-				EXPECT_EQ(pKeys[i], key) << name << " at " << i;
+			auto dbAddressesIter = dbAddresses.cbegin();
+			for (auto i = 0u; i < count; ++i, ++dbAddressesIter) {
+				UnresolvedAddress address;
+				mongo::mappers::DbBinaryToModelArray(address, dbAddressesIter->get_binary());
+				EXPECT_EQ(pAddresses[i], address) << name << " at " << i;
 			}
 		}
 
@@ -69,24 +73,24 @@ namespace catapult { namespace mongo { namespace plugins {
 			EXPECT_EQ(transaction.MinRemovalDelta, test::GetInt32(dbTransaction, "minRemovalDelta"));
 			EXPECT_EQ(transaction.MinApprovalDelta, test::GetInt32(dbTransaction, "minApprovalDelta"));
 
-			AssertEqualKeys(dbTransaction, "publicKeyAdditions", transaction.PublicKeyAdditionsPtr(), transaction.PublicKeyAdditionsCount);
-			AssertEqualKeys(dbTransaction, "publicKeyDeletions", transaction.PublicKeyDeletionsPtr(), transaction.PublicKeyDeletionsCount);
+			AssertEqualAddresses(dbTransaction, "addressAdditions", transaction.AddressAdditionsPtr(), transaction.AddressAdditionsCount);
+			AssertEqualAddresses(dbTransaction, "addressDeletions", transaction.AddressDeletionsPtr(), transaction.AddressDeletionsCount);
 		}
 
 		template<typename TTraits>
 		void AssertCanMapMultisigAccountModificationTransaction(
 				int8_t minRemovalDelta,
 				int8_t minApprovalDelta,
-				uint8_t numKeyAdditions,
-				uint8_t numKeyDeletions) {
+				uint8_t numAddressAdditions,
+				uint8_t numAddressDeletions) {
 			// Arrange:
 			auto signer = test::GenerateRandomByteArray<Key>();
 			auto pBuilder = CreateMultisigAccountModificationTransactionBuilder(
 					signer,
 					minRemovalDelta,
 					minApprovalDelta,
-					numKeyAdditions,
-					numKeyDeletions);
+					numAddressAdditions,
+					numAddressDeletions);
 			auto pTransaction = TTraits::Adapt(pBuilder);
 			auto pPlugin = TTraits::CreatePlugin();
 

@@ -24,6 +24,22 @@
 
 namespace catapult { namespace state {
 
+	Height MosaicDefinition::startHeight() const {
+		return m_startHeight;
+	}
+
+	const Address& MosaicDefinition::ownerAddress() const {
+		return m_ownerAddress;
+	}
+
+	uint32_t MosaicDefinition::revision() const {
+		return m_revision;
+	}
+
+	const model::MosaicProperties& MosaicDefinition::properties() const {
+		return m_properties;
+	}
+
 	bool MosaicDefinition::isEternal() const {
 		return Eternal_Artifact_Duration == m_properties.duration();
 	}

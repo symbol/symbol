@@ -19,8 +19,11 @@
 **/
 
 #include "MosaicConfiguration.h"
+#include "catapult/model/Address.h"
 #include "catapult/utils/ConfigurationBag.h"
 #include "catapult/utils/ConfigurationUtils.h"
+
+DEFINE_ADDRESS_CONFIGURATION_VALUE_SUPPORT
 
 namespace catapult { namespace config {
 
@@ -37,7 +40,7 @@ namespace catapult { namespace config {
 		LOAD_PROPERTY(MaxMosaicDuration);
 		LOAD_PROPERTY(MaxMosaicDivisibility);
 
-		LOAD_PROPERTY(MosaicRentalFeeSinkPublicKey);
+		LOAD_PROPERTY(MosaicRentalFeeSinkAddress);
 		LOAD_PROPERTY(MosaicRentalFee);
 
 #undef LOAD_PROPERTY

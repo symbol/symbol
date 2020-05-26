@@ -28,21 +28,19 @@ namespace catapult { namespace mongo { namespace plugins {
 
 #define TEST_CLASS MultisigEntryMapperTests
 
-	// region ToDbModel
-
 	namespace {
-		void InsertRandom(utils::SortedKeySet& keys, size_t count) {
+		void InsertRandom(state::SortedAddressSet& addresses, size_t count) {
 			for (auto i = 0u; i < count; ++i)
-				keys.insert(test::GenerateRandomByteArray<Key>());
+				addresses.insert(test::GenerateRandomByteArray<Address>());
 		}
 
 		state::MultisigEntry CreateMultisigEntry(uint8_t numCosignatories, uint8_t numMultisigAccounts) {
-			state::MultisigEntry entry(test::GenerateRandomByteArray<Key>());
+			state::MultisigEntry entry(test::GenerateRandomByteArray<Address>());
 			entry.setMinApproval(12);
 			entry.setMinRemoval(23);
 
-			InsertRandom(entry.cosignatoryPublicKeys(), numCosignatories);
-			InsertRandom(entry.multisigPublicKeys(), numMultisigAccounts);
+			InsertRandom(entry.cosignatoryAddresses(), numCosignatories);
+			InsertRandom(entry.multisigAddresses(), numMultisigAccounts);
 
 			return entry;
 		}
@@ -50,18 +48,17 @@ namespace catapult { namespace mongo { namespace plugins {
 		void AssertCanMapMultisigEntry(uint8_t numCosignatories, uint8_t numMultisigAccounts) {
 			// Arrange:
 			auto entry = CreateMultisigEntry(numCosignatories, numMultisigAccounts);
-			auto address = test::GenerateRandomByteArray<Address>();
 
 			// Act:
-			auto document = ToDbModel(entry, address);
+			auto document = ToDbModel(entry);
 			auto documentView = document.view();
 
 			// Assert:
 			EXPECT_EQ(1u, test::GetFieldCount(documentView));
 
 			auto multisigView = documentView["multisig"].get_document().view();
-			EXPECT_EQ(6u, test::GetFieldCount(multisigView));
-			test::AssertEqualMultisigData(entry, address, multisigView);
+			EXPECT_EQ(5u, test::GetFieldCount(multisigView));
+			test::AssertEqualMultisigData(entry, multisigView);
 		}
 	}
 
@@ -80,6 +77,4 @@ namespace catapult { namespace mongo { namespace plugins {
 	TEST(TEST_CLASS, CanMapMultisigEntryWithCosignatoriesAndWithMultisigAccounts_ModelToDbModel) {
 		AssertCanMapMultisigEntry(4, 5);
 	}
-
-	// endregion
 }}}

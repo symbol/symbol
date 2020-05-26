@@ -51,37 +51,37 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = Multisig_Cosignatories_Notification;
 
 	public:
-		/// Creates a notification around \a signer, \a publicKeyAdditionsCount, \a pPublicKeyAdditions, \a publicKeyDeletionsCount
-		/// and \a pPublicKeyDeletions.
+		/// Creates a notification around \a multisig, \a addressAdditionsCount, \a pAddressAdditions,
+		/// \a addressDeletionsCount and \a pAddressDeletions.
 		MultisigCosignatoriesNotification(
-				const Key& signer,
-				uint8_t publicKeyAdditionsCount,
-				const Key* pPublicKeyAdditions,
-				uint8_t publicKeyDeletionsCount,
-				const Key* pPublicKeyDeletions)
+				const Address& multisig,
+				uint8_t addressAdditionsCount,
+				const UnresolvedAddress* pAddressAdditions,
+				uint8_t addressDeletionsCount,
+				const UnresolvedAddress* pAddressDeletions)
 				: Notification(Notification_Type, sizeof(MultisigCosignatoriesNotification))
-				, Signer(signer)
-				, PublicKeyAdditionsCount(publicKeyAdditionsCount)
-				, PublicKeyAdditionsPtr(pPublicKeyAdditions)
-				, PublicKeyDeletionsCount(publicKeyDeletionsCount)
-				, PublicKeyDeletionsPtr(pPublicKeyDeletions)
+				, Multisig(multisig)
+				, AddressAdditionsCount(addressAdditionsCount)
+				, AddressAdditionsPtr(pAddressAdditions)
+				, AddressDeletionsCount(addressDeletionsCount)
+				, AddressDeletionsPtr(pAddressDeletions)
 		{}
 
 	public:
-		/// Signer.
-		const Key& Signer;
+		/// Multisig account.
+		Address Multisig;
 
-		/// Number of cosignatory public key additions.
-		uint8_t PublicKeyAdditionsCount;
+		/// Number of cosignatory address additions.
+		uint8_t AddressAdditionsCount;
 
-		/// Const pointer to the first public key to add as cosignatory.
-		const Key* PublicKeyAdditionsPtr;
+		/// Const pointer to the first address to add as cosignatory.
+		const UnresolvedAddress* AddressAdditionsPtr;
 
-		/// Number of cosignatory public key deletions.
-		uint8_t PublicKeyDeletionsCount;
+		/// Number of cosignatory address deletions.
+		uint8_t AddressDeletionsCount;
 
-		/// Const pointer to the first public key to remove as cosignatory.
-		const Key* PublicKeyDeletionsPtr;
+		/// Const pointer to the first address to remove as cosignatory.
+		const UnresolvedAddress* AddressDeletionsPtr;
 	};
 
 	// endregion
@@ -95,19 +95,19 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = Multisig_New_Cosignatory_Notification;
 
 	public:
-		/// Creates a notification around \a multisigAccountKey and \a cosignatoryKey.
-		MultisigNewCosignatoryNotification(const Key& multisigAccountKey, const Key& cosignatoryKey)
+		/// Creates a notification around \a multisig and \a cosignatory.
+		MultisigNewCosignatoryNotification(const Address& multisig, const UnresolvedAddress& cosignatory)
 				: Notification(Notification_Type, sizeof(MultisigNewCosignatoryNotification))
-				, MultisigAccountKey(multisigAccountKey)
-				, CosignatoryKey(cosignatoryKey)
+				, Multisig(multisig)
+				, Cosignatory(cosignatory)
 		{}
 
 	public:
-		/// Multisig account key.
-		const Key& MultisigAccountKey;
+		/// Multisig account.
+		Address Multisig;
 
-		/// New cosignatory key.
-		const Key& CosignatoryKey;
+		/// New cosignatory account.
+		UnresolvedAddress Cosignatory;
 	};
 
 	// endregion
@@ -121,17 +121,17 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = Multisig_Settings_Notification;
 
 	public:
-		/// Creates a notification around \a signer, \a minRemovalDelta and \a minApprovalDelta.
-		MultisigSettingsNotification(const Key& signer, int8_t minRemovalDelta, int8_t minApprovalDelta)
+		/// Creates a notification around \a multisig, \a minRemovalDelta and \a minApprovalDelta.
+		MultisigSettingsNotification(const Address& multisig, int8_t minRemovalDelta, int8_t minApprovalDelta)
 				: Notification(Notification_Type, sizeof(MultisigSettingsNotification))
-				, Signer(signer)
+				, Multisig(multisig)
 				, MinRemovalDelta(minRemovalDelta)
 				, MinApprovalDelta(minApprovalDelta)
 		{}
 
 	public:
-		/// Signer.
-		const Key& Signer;
+		/// Multisig account.
+		Address Multisig;
 
 		/// Relative change of cosigs needed to remove another cosig.
 		int8_t MinRemovalDelta;

@@ -46,8 +46,8 @@ namespace catapult { namespace plugins {
 		};
 
 		struct OperationTraits {
-			using UnresolvedValueType = model::EntityType;
-			using ResolvedValueType = model::EntityType;
+			using UnresolvedValueType = EntityType;
+			using ResolvedValueType = EntityType;
 			using ModifyAccountRestrictionsNotification = ModifyAccountOperationRestrictionsNotification;
 			using ModifyAccountRestrictionValueNotification = ModifyAccountOperationRestrictionValueNotification;
 		};
@@ -56,35 +56,38 @@ namespace catapult { namespace plugins {
 		void RaiseValueNotifications(
 				NotificationSubscriber& sub,
 				const TTransaction& transaction,
+				const PublishContext& context,
 				const TResolvedValue* pValues,
 				uint8_t numValues,
 				AccountRestrictionModificationAction action) {
 			for (auto i = 0u; i < numValues; ++i)
-				sub.notify(TValueNotification(transaction.SignerPublicKey, transaction.RestrictionFlags, pValues[i], action));
+				sub.notify(TValueNotification(context.SignerAddress, transaction.RestrictionFlags, pValues[i], action));
 		}
 
 		template<typename TTraits>
 		class Publisher {
 		public:
 			template<typename TTransaction>
-			static void Publish(const TTransaction& transaction, NotificationSubscriber& sub) {
+			static void Publish(const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub) {
 				sub.notify(InternalPaddingNotification(transaction.AccountRestrictionTransactionBody_Reserved1));
 				sub.notify(AccountRestrictionModificationNotification(
 						transaction.RestrictionFlags,
 						transaction.RestrictionAdditionsCount,
 						transaction.RestrictionDeletionsCount));
-				sub.notify(CreateAccountRestrictionModificationsNotification<TTransaction>(transaction));
+				sub.notify(CreateAccountRestrictionModificationsNotification<TTransaction>(transaction, context));
 
 				using ValueNotification = typename TTraits::ModifyAccountRestrictionValueNotification;
 				RaiseValueNotifications<ValueNotification>(
 						sub,
 						transaction,
+						context,
 						transaction.RestrictionAdditionsPtr(),
 						transaction.RestrictionAdditionsCount,
 						AccountRestrictionModificationAction::Add);
 				RaiseValueNotifications<ValueNotification>(
 						sub,
 						transaction,
+						context,
 						transaction.RestrictionDeletionsPtr(),
 						transaction.RestrictionDeletionsCount,
 						AccountRestrictionModificationAction::Del);
@@ -92,9 +95,9 @@ namespace catapult { namespace plugins {
 
 		private:
 			template<typename TTransaction>
-			static auto CreateAccountRestrictionModificationsNotification(const TTransaction& transaction) {
+			static auto CreateAccountRestrictionModificationsNotification(const TTransaction& transaction, const PublishContext& context) {
 				return typename TTraits::ModifyAccountRestrictionsNotification(
-						transaction.SignerPublicKey,
+						context.SignerAddress,
 						transaction.RestrictionFlags,
 						transaction.RestrictionAdditionsCount,
 						transaction.RestrictionAdditionsPtr(),

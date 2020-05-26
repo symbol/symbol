@@ -105,7 +105,7 @@ namespace catapult { namespace state {
 		void AssertRootHeader(
 				const std::vector<uint8_t>& buffer,
 				size_t offset,
-				const Key& owner,
+				const Address& owner,
 				Height lifetimeStart,
 				Height lifetimeEnd,
 				uint64_t numChildren,
@@ -593,7 +593,7 @@ namespace catapult { namespace state {
 
 			static void AssertCanLoadHistoryWithDepthOneWithoutChildren(
 					io::InputStream& inputStream,
-					const Key& owner,
+					const Address& owner,
 					const NamespaceAlias& alias) {
 				// Act:
 				auto history = TTraits::Serializer::Load(inputStream);
@@ -612,7 +612,7 @@ namespace catapult { namespace state {
 
 			static void AssertCanLoadHistoryWithDepthOneWithChildren(
 					io::InputStream& inputStream,
-					const Key& owner,
+					const Address& owner,
 					const std::vector<NamespaceAlias>& aliases) {
 				// Act:
 				auto history = TTraits::Serializer::Load(inputStream);
@@ -635,7 +635,7 @@ namespace catapult { namespace state {
 
 			static void AssertCanLoadHistoryWithDepthGreaterThanOneSameOwner(
 					io::InputStream& inputStream,
-					const Key& owner,
+					const Address& owner,
 					const std::vector<NamespaceAlias>& aliases) {
 				// Act:
 				auto history = TTraits::Serializer::Load(inputStream);
@@ -672,9 +672,9 @@ namespace catapult { namespace state {
 
 			static void AssertCanLoadHistoryWithDepthGreaterThanOneDifferentOwner(
 					io::InputStream& inputStream,
-					const Key& owner1,
-					const Key& owner2,
-					const Key& owner3,
+					const Address& owner1,
+					const Address& owner2,
+					const Address& owner3,
 					const std::vector<NamespaceAlias>& aliases) {
 				// Act:
 				auto history = TTraits::Serializer::Load(inputStream);

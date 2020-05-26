@@ -42,9 +42,9 @@ namespace catapult { namespace state {
 		LockInfo()
 		{}
 
-		/// Creates a lock info around \a senderPublicKey, \a mosaicId, \a amount and \a endHeight.
-		LockInfo(const Key& senderPublicKey, catapult::MosaicId mosaicId, catapult::Amount amount, Height endHeight)
-				: SenderPublicKey(senderPublicKey)
+		/// Creates a lock info around \a ownerAddress, \a mosaicId, \a amount and \a endHeight.
+		LockInfo(const Address& ownerAddress, catapult::MosaicId mosaicId, catapult::Amount amount, Height endHeight)
+				: OwnerAddress(ownerAddress)
 				, MosaicId(mosaicId)
 				, Amount(amount)
 				, EndHeight(endHeight)
@@ -52,8 +52,8 @@ namespace catapult { namespace state {
 		{}
 
 	public:
-		/// Sender public key.
-		Key SenderPublicKey;
+		/// Owner address.
+		Address OwnerAddress;
 
 		/// Mosaic id.
 		catapult::MosaicId MosaicId;

@@ -28,7 +28,7 @@ namespace catapult { namespace model {
 		NemesisNotificationPublisherOptions options;
 
 		if (0 < config.HarvestNetworkPercentage)
-			options.SpecialAccountPublicKeys.insert(config.HarvestNetworkFeeSinkPublicKey);
+			options.SpecialAccountAddresses.insert(config.HarvestNetworkFeeSinkAddress);
 
 		return options;
 	}
@@ -45,8 +45,8 @@ namespace catapult { namespace model {
 
 		public:
 			void publish(const WeakEntityInfo& entityInfo, NotificationSubscriber& sub) const {
-				for (const auto& publicKey : m_options.SpecialAccountPublicKeys)
-					sub.notify(AccountPublicKeyNotification(publicKey));
+				for (const auto& address : m_options.SpecialAccountAddresses)
+					sub.notify(AccountAddressNotification(address));
 
 				m_pPublisher->publish(entityInfo, sub);
 			}

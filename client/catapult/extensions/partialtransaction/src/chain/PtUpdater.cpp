@@ -261,7 +261,7 @@ namespace catapult { namespace chain {
 		CosignatureUpdateResult addCosignature(const model::DetachedCosignature& cosignature) {
 			{
 				auto modifier = m_transactionsCache.modifier();
-				if (!modifier.add(cosignature.ParentHash, cosignature.SignerPublicKey, cosignature.Signature))
+				if (!modifier.add(cosignature.ParentHash, cosignature))
 					return CosignatureUpdateResult::Redundant;
 			}
 
@@ -367,7 +367,7 @@ namespace catapult { namespace chain {
 
 			modifier.add(removedInfo);
 			for (const auto& cosignature : staleTransactionInfo.EligibleCosignatures)
-				modifier.add(staleTransactionInfo.AggregateHash, cosignature.SignerPublicKey, cosignature.Signature);
+				modifier.add(staleTransactionInfo.AggregateHash, cosignature);
 		}
 
 		PtValidator::Result<CosignatoriesValidationResult> validateCosignatories(

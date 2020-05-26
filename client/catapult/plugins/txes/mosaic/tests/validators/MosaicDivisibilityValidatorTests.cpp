@@ -20,6 +20,7 @@
 
 #include "src/validators/Validators.h"
 #include "tests/test/MosaicCacheTestUtils.h"
+#include "tests/test/MosaicTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -30,7 +31,7 @@ namespace catapult { namespace validators {
 	DEFINE_COMMON_VALIDATOR_TESTS(MosaicDivisibility, 0)
 
 	namespace {
-		void AddMosaic(cache::CatapultCache& cache, const Key& owner, MosaicId mosaicId, uint8_t divisibility) {
+		void AddMosaic(cache::CatapultCache& cache, const Address& owner, MosaicId mosaicId, uint8_t divisibility) {
 			auto properties = model::MosaicProperties(model::MosaicFlags::None, divisibility, BlockDuration());
 			auto definition = state::MosaicDefinition(Height(50), owner, 3, properties);
 			auto mosaicEntry = state::MosaicEntry(mosaicId, definition);
@@ -48,14 +49,14 @@ namespace catapult { namespace validators {
 			// Arrange:
 			auto pValidator = CreateMosaicDivisibilityValidator(maxDivisibility);
 
-			auto signer = test::GenerateRandomByteArray<Key>();
+			auto owner = test::CreateRandomOwner();
 			auto mosaicId = MosaicId(123);
 			auto properties = model::MosaicProperties(model::MosaicFlags::None, notificationDivisibility, BlockDuration());
-			auto notification = model::MosaicDefinitionNotification(signer, mosaicId, properties);
+			auto notification = model::MosaicDefinitionNotification(owner, mosaicId, properties);
 
 			auto cache = test::MosaicCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
 			if (0 < initialDivisibility)
-				AddMosaic(cache, signer, mosaicId, initialDivisibility);
+				AddMosaic(cache, owner, mosaicId, initialDivisibility);
 
 			// Act:
 			auto result = test::ValidateNotification(*pValidator, notification, cache);

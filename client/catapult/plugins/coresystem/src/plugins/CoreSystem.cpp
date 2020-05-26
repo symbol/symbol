@@ -147,7 +147,8 @@ namespace catapult { namespace plugins {
 
 		manager.addStatefulValidatorHook([&config](auto& builder) {
 			builder
-				.add(validators::CreateAddressValidator(config.Network.Identifier))
+				.add(validators::CreateAddressValidator())
+				.add(validators::CreatePublicKeyValidator())
 				.add(validators::CreateDeadlineValidator(config.MaxTransactionLifetime))
 				.add(validators::CreateNemesisSinkValidator())
 				.add(validators::CreateEligibleHarvesterValidator())
@@ -159,7 +160,7 @@ namespace catapult { namespace plugins {
 			config.CurrencyMosaicId,
 			config.HarvestBeneficiaryPercentage,
 			config.HarvestNetworkPercentage,
-			config.HarvestNetworkFeeSinkPublicKey
+			config.HarvestNetworkFeeSinkAddress
 		};
 		const auto& calculator = manager.inflationConfig().InflationCalculator;
 		manager.addObserverHook([harvestFeeOptions, &calculator](auto& builder) {

@@ -21,20 +21,17 @@
 #include "MongoNamespaceCacheStorageUtils.h"
 #include "src/mappers/NamespaceDescriptor.h"
 #include "plugins/txes/namespace/src/state/RootNamespaceHistory.h"
-#include "catapult/model/Address.h"
 
 namespace catapult { namespace mongo { namespace plugins {
 
-	std::vector<NamespaceDescriptor> NamespaceDescriptorsFromHistory(
-			const state::RootNamespaceHistory& history,
-			model::NetworkIdentifier networkIdentifier) {
+	std::vector<NamespaceDescriptor> NamespaceDescriptorsFromHistory(const state::RootNamespaceHistory& history) {
 		std::vector<NamespaceDescriptor> descriptors;
 		uint32_t index = 0;
 		state::Namespace::Path path;
 		path.push_back(history.id());
 		for (const auto& rootNamespace : history) {
 			auto isActive = index == history.historyDepth() - 1;
-			auto address = model::PublicKeyToAddress(rootNamespace.ownerPublicKey(), networkIdentifier);
+			auto address = rootNamespace.ownerAddress();
 			auto pRoot = std::shared_ptr<const state::RootNamespace>(&rootNamespace, [](auto) {});
 			auto rootAlias = rootNamespace.alias(rootNamespace.id());
 			descriptors.emplace_back(path, rootAlias, pRoot, address, index, isActive);

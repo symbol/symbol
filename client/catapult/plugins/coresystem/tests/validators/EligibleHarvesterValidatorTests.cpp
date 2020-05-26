@@ -53,14 +53,14 @@ namespace catapult { namespace validators {
 
 		void AddAccount(
 				cache::CatapultCache& cache,
-				const Key& publicKey,
+				const Address& harvester,
 				Importance importance,
 				model::ImportanceHeight importanceHeight,
 				Amount balance) {
 			auto delta = cache.createDelta();
 			auto& accountStateCache = delta.sub<cache::AccountStateCache>();
-			accountStateCache.addAccount(publicKey, Height(100));
-			auto& accountState = accountStateCache.find(publicKey).get();
+			accountStateCache.addAccount(harvester, Height(100));
+			auto& accountState = accountStateCache.find(harvester).get();
 			accountState.ImportanceSnapshots.set(importance, importanceHeight);
 			accountState.Balances.credit(Harvesting_Mosaic_Id, balance);
 			cache.commit(Height());
@@ -70,14 +70,14 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, FailureWhenAccountIsUnknown) {
 		// Arrange:
 		auto cache = CreateEmptyCatapultCache(Amount(0), Amount(100'000));
-		auto key = test::GenerateRandomByteArray<Key>();
+		auto otherAccountAddress = test::GenerateRandomByteArray<Address>();
 		auto height = Height(1000);
-		AddAccount(cache, key, Importance(1000), ConvertToImportanceHeight(height), Amount(9999));
+		AddAccount(cache, otherAccountAddress, Importance(1000), ConvertToImportanceHeight(height), Amount(9999));
 
 		auto pValidator = CreateEligibleHarvesterValidator();
 
-		auto signer = test::GenerateRandomByteArray<Key>();
-		auto notification = test::CreateBlockNotification(signer);
+		auto harvesterAddress = test::GenerateRandomByteArray<Address>();
+		auto notification = test::CreateBlockNotification(harvesterAddress);
 
 		// Act:
 		auto result = test::ValidateNotification(*pValidator, notification, cache, height);
@@ -95,12 +95,12 @@ namespace catapult { namespace validators {
 				Height blockHeight) {
 			// Arrange:
 			auto cache = CreateEmptyCatapultCache(Amount(1234), Amount(9876));
-			auto key = test::GenerateRandomByteArray<Key>();
+			auto harvesterAddress = test::GenerateRandomByteArray<Address>();
 			auto initialBalance = Amount(static_cast<Amount::ValueType>(1234 + minBalanceDelta));
-			AddAccount(cache, key, importance, importanceHeight, initialBalance);
+			AddAccount(cache, harvesterAddress, importance, importanceHeight, initialBalance);
 
 			auto pValidator = CreateEligibleHarvesterValidator();
-			auto notification = test::CreateBlockNotification(key);
+			auto notification = test::CreateBlockNotification(harvesterAddress);
 
 			// Act:
 			auto result = test::ValidateNotification(*pValidator, notification, cache, blockHeight);

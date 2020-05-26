@@ -46,15 +46,15 @@ namespace catapult { namespace model {
 	/// Binary layout for a balance transfer receipt.
 	struct BalanceTransferReceipt : public Receipt {
 	public:
-		/// Creates a receipt around \a receiptType, \a senderPublicKey, \a recipientAddress, \a mosaicId and \a amount.
+		/// Creates a receipt around \a receiptType, \a senderAddress, \a recipientAddress, \a mosaicId and \a amount.
 		BalanceTransferReceipt(
 				ReceiptType receiptType,
-				const Key& senderPublicKey,
+				const Address& senderAddress,
 				const Address& recipientAddress,
 				catapult::MosaicId mosaicId,
 				catapult::Amount amount)
 				: Mosaic({ mosaicId, amount })
-				, SenderPublicKey(senderPublicKey)
+				, SenderAddress(senderAddress)
 				, RecipientAddress(recipientAddress) {
 			Size = sizeof(BalanceTransferReceipt);
 			Version = 1;
@@ -65,8 +65,8 @@ namespace catapult { namespace model {
 		/// Mosaic.
 		model::Mosaic Mosaic;
 
-		/// Mosaic sender public key.
-		Key SenderPublicKey;
+		/// Mosaic sender address.
+		Address SenderAddress;
 
 		/// Mosaic recipient address.
 		Address RecipientAddress;
@@ -79,10 +79,10 @@ namespace catapult { namespace model {
 	/// Binary layout for a balance change receipt.
 	struct BalanceChangeReceipt : public Receipt {
 	public:
-		/// Creates a receipt around \a receiptType, \a targetPublicKey, \a mosaicId and \a amount.
-		BalanceChangeReceipt(ReceiptType receiptType, const Key& targetPublicKey, catapult::MosaicId mosaicId, catapult::Amount amount)
+		/// Creates a receipt around \a receiptType, \a targetAddress, \a mosaicId and \a amount.
+		BalanceChangeReceipt(ReceiptType receiptType, const Address& targetAddress, catapult::MosaicId mosaicId, catapult::Amount amount)
 				: Mosaic({ mosaicId, amount })
-				, TargetPublicKey(targetPublicKey) {
+				, TargetAddress(targetAddress) {
 			Size = sizeof(BalanceChangeReceipt);
 			Version = 1;
 			Type = receiptType;
@@ -92,8 +92,8 @@ namespace catapult { namespace model {
 		/// Mosaic.
 		model::Mosaic Mosaic;
 
-		/// Account public key.
-		Key TargetPublicKey;
+		/// Account address.
+		Address TargetAddress;
 	};
 
 	// endregion

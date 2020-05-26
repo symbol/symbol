@@ -30,8 +30,8 @@ namespace catapult { namespace model {
 
 	namespace {
 		constexpr auto Network_Identifier = NetworkIdentifier::Mijin_Test;
-		constexpr auto Encoded_Address = "SAAA244WMCB2JXGNQTQHQOS45TGBFF4V2MJBVOUI";
-		constexpr auto Decoded_Address = "90000D73966083A4DCCD84E0783A5CECCC129795D3121ABA88";
+		constexpr auto Encoded_Address = "SAAA244WMCB2JXGNQTQHQOS45TGBFF4V2MJBVOQ";
+		constexpr auto Decoded_Address = "90000D73966083A4DCCD84E0783A5CECCC129795D3121ABA";
 		constexpr auto Public_Key = "75D8BB873DA8F5CCA741435DE76A46AFC2840803EBF080E931195B048D77F88C";
 
 		void AssertCannotCreateAddress(const std::string& encoded) {
@@ -108,7 +108,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCreateAddressFromPublicKeyForWellKnownNetwork) {
 		// Arrange:
-		auto expected = utils::ParseByteArray<Address>("60000D73966083A4DCCD84E0783A5CECCC129795D32534F0A7");
+		auto expected = utils::ParseByteArray<Address>("60000D73966083A4DCCD84E0783A5CECCC129795D32534F0");
 		auto publicKey = utils::ParseByteArray<Key>(Public_Key);
 		auto networkIdentifier = NetworkIdentifier::Mijin;
 
@@ -123,7 +123,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCreateAddressFromPublicKeyForCustomNetwork) {
 		// Arrange:
-		auto expected = utils::ParseByteArray<Address>("7B000D73966083A4DCCD84E0783A5CECCC129795D3D6A7CE45");
+		auto expected = utils::ParseByteArray<Address>("7B000D73966083A4DCCD84E0783A5CECCC129795D3D6A7CE");
 		auto publicKey = utils::ParseByteArray<Key>(Public_Key);
 		auto networkIdentifier = static_cast<NetworkIdentifier>(123);
 
@@ -236,32 +236,87 @@ namespace catapult { namespace model {
 		EXPECT_FALSE(IsValidEncodedAddress(encoded, static_cast<NetworkIdentifier>(123)));
 	}
 
-	TEST(TEST_CLASS, IsValidEncodedAddressReturnsFalseForInvalidEncodedAddress) {
-		// Arrange: change last char of valid address
-		auto encoded = std::string(Encoded_Address);
-		++encoded.back();
+	namespace {
+		void AssertInvalidEncodedAddress(const consumer<std::string&>& mutate) {
+			// Arrange:
+			auto encoded = std::string(Encoded_Address);
+			mutate(encoded);
 
-		// Assert:
-		EXPECT_FALSE(IsValidEncodedAddress(encoded, Network_Identifier));
+			// Assert:
+			EXPECT_FALSE(IsValidEncodedAddress(encoded, Network_Identifier)) << encoded;
+		}
+	}
+
+	TEST(TEST_CLASS, IsValidEncodedAddressReturnsFalseForInvalidEncodedAddress) {
+		// Arrange: corrupt checksum
+		AssertInvalidEncodedAddress([](auto& encoded) { ++encoded[encoded.size() / 2]; });
+
+		// - nonzero trail padding byte
+		AssertInvalidEncodedAddress([](auto& encoded) { ++encoded.back(); });
 	}
 
 	TEST(TEST_CLASS, IsValidEncodedAddressReturnsFalseForEncodedAddressWithWrongLength) {
 		// Arrange: add additional characters to the end of a valid address
-		auto encoded = std::string(Encoded_Address);
-		encoded += "ABC";
-
-		// Assert:
-		EXPECT_FALSE(IsValidEncodedAddress(encoded, Network_Identifier));
+		AssertInvalidEncodedAddress([](auto& encoded) { encoded += "ABC"; });
 	}
 
-	TEST(TEST_CLASS, AddingLeadingOrTrailingWhiteSpaceInvalidatesEncodedAddress) {
+	TEST(TEST_CLASS, IsValidEncodedAddressReturnsFalseForEncodedStringWithLeadingOrTrailingWhiteSpace) {
+		AssertInvalidEncodedAddress([](auto& encoded) { encoded = "   \t    " + encoded; });
+		AssertInvalidEncodedAddress([](auto& encoded) { encoded = encoded + "   \t    "; });
+		AssertInvalidEncodedAddress([](auto& encoded) { encoded = "   \t    " + encoded + "   \t    "; });
+	}
+
+	// endregion
+
+	// region TryParseValue
+
+	TEST(TEST_CLASS, TryParseValueCanParseValidEncodedAddress) {
 		// Arrange:
-		auto encoded = std::string(Encoded_Address);
+		auto encoded = Encoded_Address;
+		Address decoded;
+
+		// Act:
+		auto result = TryParseValue(encoded, decoded);
 
 		// Assert:
-		EXPECT_FALSE(IsValidEncodedAddress("   \t    " + encoded, Network_Identifier));
-		EXPECT_FALSE(IsValidEncodedAddress(encoded + "   \t    ", Network_Identifier));
-		EXPECT_FALSE(IsValidEncodedAddress("   \t    " + encoded + "   \t    ", Network_Identifier));
+		EXPECT_TRUE(result);
+		EXPECT_EQ(utils::ParseByteArray<Address>(Decoded_Address), decoded);
+	}
+
+	namespace {
+		void AssertTryParseValueFailure(const consumer<std::string&>& mutate) {
+			// Arrange:
+			auto encoded = std::string(Encoded_Address);
+			Address decoded;
+
+			mutate(encoded);
+
+			// Act:
+			auto result = TryParseValue(encoded, decoded);
+
+			// Assert:
+			EXPECT_FALSE(result) << encoded;
+			EXPECT_EQ(Address(), decoded) << encoded;
+		}
+	}
+
+	TEST(TEST_CLASS, TryParseValueReturnsFalseForInvalidEncodedAddress) {
+		// Arrange: corrupt checksum
+		AssertTryParseValueFailure([](auto& encoded) { ++encoded[encoded.size() / 2]; });
+
+		// - nonzero trail padding byte
+		AssertTryParseValueFailure([](auto& encoded) { ++encoded.back(); });
+	}
+
+	TEST(TEST_CLASS, TryParseValueReturnsFalseForEncodedAddressWithWrongLength) {
+		// Arrange: add additional characters to the end of a valid address
+		AssertTryParseValueFailure([](auto& encoded) { encoded += "ABC"; });
+	}
+
+	TEST(TEST_CLASS, TryParseValueReturnsFalseForEncodedStringWithLeadingOrTrailingWhiteSpace) {
+		AssertTryParseValueFailure([](auto& encoded) { encoded = "   \t    " + encoded; });
+		AssertTryParseValueFailure([](auto& encoded) { encoded = encoded + "   \t    "; });
+		AssertTryParseValueFailure([](auto& encoded) { encoded = "   \t    " + encoded + "   \t    "; });
 	}
 
 	// endregion

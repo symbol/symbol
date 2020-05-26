@@ -32,28 +32,28 @@ namespace catapult { namespace model {
 		// Assert:
 		EXPECT_EQ(NetworkIdentifier::Zero, networkInfo.Identifier);
 		EXPECT_EQ(NodeIdentityEqualityStrategy::Key, networkInfo.NodeEqualityStrategy);
-		EXPECT_EQ(Key(), networkInfo.PublicKey);
+		EXPECT_EQ(Key(), networkInfo.NemesisSignerPublicKey);
 		EXPECT_EQ(GenerationHashSeed(), networkInfo.GenerationHashSeed);
 		EXPECT_EQ(utils::TimeSpan(), networkInfo.EpochAdjustment);
 	}
 
 	TEST(TEST_CLASS, CanCreateCustomNetwork) {
 		// Arrange:
-		auto publicKey = test::GenerateRandomByteArray<Key>();
+		auto nemesisSignerPublicKey = test::GenerateRandomByteArray<Key>();
 		auto generationHashSeed = test::GenerateRandomByteArray<GenerationHashSeed>();
 
 		// Act:
 		NetworkInfo networkInfo(
 				static_cast<NetworkIdentifier>(0xB9),
 				static_cast<NodeIdentityEqualityStrategy>(0xA7),
-				publicKey,
+				nemesisSignerPublicKey,
 				generationHashSeed,
 				utils::TimeSpan::FromHours(123));
 
 		// Assert:
 		EXPECT_EQ(static_cast<NetworkIdentifier>(0xB9), networkInfo.Identifier);
 		EXPECT_EQ(static_cast<NodeIdentityEqualityStrategy>(0xA7), networkInfo.NodeEqualityStrategy);
-		EXPECT_EQ(publicKey, networkInfo.PublicKey);
+		EXPECT_EQ(nemesisSignerPublicKey, networkInfo.NemesisSignerPublicKey);
 		EXPECT_EQ(generationHashSeed, networkInfo.GenerationHashSeed);
 		EXPECT_EQ(utils::TimeSpan::FromHours(123), networkInfo.EpochAdjustment);
 	}

@@ -229,6 +229,10 @@ namespace catapult { namespace cache {
 			return PublicKeyTraits::GenerateAccountId();
 		}
 
+		Address ToAddress(const Key& publicKey) {
+			return model::PublicKeyToAddress(publicKey, Network_Identifier);
+		}
+
 		Amount GetBalance(const state::AccountState& accountState) {
 			return accountState.Balances.get(Harvesting_Mosaic_Id);
 		}
@@ -253,7 +257,7 @@ namespace catapult { namespace cache {
 
 		state::AccountState CreateAccountStateWithRandomAddressAndPublicKey() {
 			auto publicKey = GenerateRandomPublicKey();
-			auto address = model::PublicKeyToAddress(publicKey, Network_Identifier);
+			auto address = ToAddress(publicKey);
 
 			auto accountState = state::AccountState(address, Height(123));
 			accountState.PublicKeyHeight = Height(124);
@@ -361,7 +365,7 @@ namespace catapult { namespace cache {
 	TEST(TEST_CLASS, FindByKeyReturnsEmptyIteratorForUnknownPublicKeyButKnownAddress_View) {
 		// Arrange:
 		auto publicKey = GenerateRandomPublicKey();
-		auto address = model::PublicKeyToAddress(publicKey, Network_Identifier);
+		auto address = ToAddress(publicKey);
 
 		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		{
@@ -383,7 +387,7 @@ namespace catapult { namespace cache {
 	TEST(TEST_CLASS, FindByKeyConstReturnsEmptyIteratorForUnknownPublicKeyButKnownAddress_Delta) {
 		// Arrange:
 		auto publicKey = GenerateRandomPublicKey();
-		auto address = model::PublicKeyToAddress(publicKey, Network_Identifier);
+		auto address = ToAddress(publicKey);
 
 		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		auto delta = cache.createDelta();
@@ -507,7 +511,7 @@ namespace catapult { namespace cache {
 		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		auto delta = cache.createDelta();
 		auto publicKey = GenerateRandomPublicKey();
-		auto address = model::PublicKeyToAddress(publicKey, Network_Identifier);
+		auto address = ToAddress(publicKey);
 		delta->addAccount(address, Height(1230));
 		cache.commit();
 
@@ -840,7 +844,7 @@ namespace catapult { namespace cache {
 		void AssertRemoveByKeyAtHeight(Height removalHeight) {
 			// Arrange:
 			auto publicKey = GenerateRandomPublicKey();
-			auto address = model::PublicKeyToAddress(publicKey, Network_Identifier);
+			auto address = ToAddress(publicKey);
 
 			AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 			auto delta = cache.createDelta();
@@ -862,7 +866,7 @@ namespace catapult { namespace cache {
 		void AssertRemoveByAddressAtHeight(Height removalHeight) {
 			// Arrange:
 			auto publicKey = GenerateRandomPublicKey();
-			auto address = model::PublicKeyToAddress(publicKey, Network_Identifier);
+			auto address = ToAddress(publicKey);
 
 			AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 			auto delta = cache.createDelta();
@@ -903,7 +907,7 @@ namespace catapult { namespace cache {
 	TEST(TEST_CLASS, CanQueueMultipleRemovalsOfSameAccount) {
 		// Arrange:
 		auto publicKey = GenerateRandomPublicKey();
-		auto address = model::PublicKeyToAddress(publicKey, Network_Identifier);
+		auto address = ToAddress(publicKey);
 
 		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		auto delta = cache.createDelta();

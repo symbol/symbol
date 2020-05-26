@@ -32,9 +32,10 @@ namespace catapult { namespace model {
 		constexpr auto Mock_Transaction_Type = static_cast<EntityType>(0x4FFF);
 
 		template<typename TTransaction>
-		void Publish(const TTransaction& transaction, NotificationSubscriber& sub) {
-			// raise a notification dependent on the transaction data
-			sub.notify(test::CreateBlockNotification(transaction.SignerPublicKey));
+		void Publish(const TTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub) {
+			// raise notifications dependent on the transaction and context data
+			sub.notify(AccountPublicKeyNotification(transaction.SignerPublicKey));
+			sub.notify(mocks::MockAddressNotification(context.SignerAddress));
 		}
 
 		template<TransactionPluginFactoryOptions Options>
@@ -72,21 +73,57 @@ namespace catapult { namespace model {
 	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, Default, _Default, Mock_Transaction_Type)
 	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS_ONLY_EMBEDDABLE(TEST_CLASS, OnlyEmbeddable, _OnlyEmbeddable, Mock_Transaction_Type)
 
-	PLUGIN_TEST_WITH_PREFIXED_TRAITS(CanPublishNotifications, Default, _Default) {
-		// Arrange:
-		auto pPlugin = TTraits::CreatePlugin();
+	namespace {
+		template<typename TTraits, typename TSubscriber, typename TCheckPublish>
+		void RunPublishTest(TCheckPublish checkPublish) {
+			// Arrange:
+			auto pPlugin = TTraits::CreatePlugin();
 
-		typename TTraits::TransactionType transaction;
-		test::FillWithRandomData(transaction);
-		mocks::MockTypedNotificationSubscriber<BlockNotification> sub;
+			typename TTraits::TransactionType transaction;
+			test::FillWithRandomData(transaction);
 
+			PublishContext context;
+			test::FillWithRandomData(context.SignerAddress);
+
+			TSubscriber sub;
+
+			// Act:
+			pPlugin->publish(transaction, context, sub);
+
+			// Assert:
+			ASSERT_EQ(2u, sub.numNotifications());
+			checkPublish(transaction, context, sub);
+		}
+	}
+
+	PLUGIN_TEST_WITH_PREFIXED_TRAITS(CanPublishAllNotifications, Default, _Default) {
 		// Act:
-		pPlugin->publish(transaction, sub);
+		using Subscriber = mocks::MockNotificationSubscriber;
+		RunPublishTest<TTraits, Subscriber>([](const auto&, const auto&, const auto& sub) {
+			// Assert:
+			EXPECT_EQ(AccountPublicKeyNotification::Notification_Type, sub.notificationTypes()[0]);
+			EXPECT_EQ(mocks::MockAddressNotification::Notification_Type, sub.notificationTypes()[1]);
+		});
+	}
 
-		// Assert:
-		EXPECT_EQ(1u, sub.numNotifications());
-		ASSERT_EQ(1u, sub.numMatchingNotifications());
-		EXPECT_EQ(transaction.SignerPublicKey, sub.matchingNotifications()[0].Signer);
+	PLUGIN_TEST_WITH_PREFIXED_TRAITS(CanPublishTransactionDependentNotifications, Default, _Default) {
+		// Act:
+		using Subscriber = mocks::MockTypedNotificationSubscriber<AccountPublicKeyNotification>;
+		RunPublishTest<TTraits, Subscriber>([](const auto& transaction, const auto&, const auto& sub) {
+			// Assert:
+			ASSERT_EQ(1u, sub.numMatchingNotifications());
+			EXPECT_EQ(transaction.SignerPublicKey, sub.matchingNotifications()[0].PublicKey);
+		});
+	}
+
+	PLUGIN_TEST_WITH_PREFIXED_TRAITS(CanPublishContextDependentNotifications, Default, _Default) {
+		// Act:
+		using Subscriber = mocks::MockTypedNotificationSubscriber<mocks::MockAddressNotification>;
+		RunPublishTest<TTraits, Subscriber>([](const auto&, const auto& context, const auto& sub) {
+			// Assert:
+			ASSERT_EQ(1u, sub.numMatchingNotifications());
+			EXPECT_EQ(context.SignerAddress, sub.matchingNotifications()[0].Address);
+		});
 	}
 
 	TEST(TEST_CLASS, PluginExposesCustomAdditionalRequiredCosignatories_OnlyEmbeddable) {
@@ -99,8 +136,12 @@ namespace catapult { namespace model {
 		// Act:
 		auto additionalCosignatories = pPlugin->additionalRequiredCosignatories(transaction);
 
-		// Assert:
-		utils::KeySet expectedAdditionalCosignatories{ Key{ { 1 } }, Key{ { 2 } }, transaction.RecipientPublicKey };
+		// Assert: cosignatories are forwarded from ExtractAdditionalRequiredCosignatories
+		UnresolvedAddressSet expectedAdditionalCosignatories{
+			UnresolvedAddress{ { 1 } },
+			UnresolvedAddress{ { 2 } },
+			mocks::GetRecipientAddress(transaction).copyTo<UnresolvedAddress>()
+		};
 		EXPECT_EQ(expectedAdditionalCosignatories, additionalCosignatories);
 	}
 }}

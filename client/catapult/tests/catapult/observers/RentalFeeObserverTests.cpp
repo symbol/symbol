@@ -35,7 +35,7 @@ namespace catapult { namespace observers {
 		struct MockRentalFeeNotification : public model::BalanceTransferNotification {
 		public:
 			MockRentalFeeNotification(
-					const Key& sender,
+					const Address& sender,
 					const UnresolvedAddress& recipient,
 					UnresolvedMosaicId mosaicId,
 					catapult::Amount amount)
@@ -53,9 +53,9 @@ namespace catapult { namespace observers {
 		void RunObserverTest(observers::NotifyMode mode, TAssert assertContext) {
 			// Arrange: create observer and notification
 			auto pObserver = CreateMockRentalFeeObserver();
-			auto signer = test::GenerateRandomByteArray<Key>();
+			auto sender = test::GenerateRandomByteArray<Address>();
 			auto recipient = test::GenerateRandomByteArray<Address>();
-			MockRentalFeeNotification notification(signer, test::UnresolveXor(recipient), test::UnresolveXor(MosaicId(345)), Amount(123));
+			MockRentalFeeNotification notification(sender, test::UnresolveXor(recipient), test::UnresolveXor(MosaicId(345)), Amount(123));
 
 			ObserverTestContext context(mode, Height(888));
 			context.state().DynamicFeeMultiplier = BlockFeeMultiplier(999);
@@ -64,7 +64,7 @@ namespace catapult { namespace observers {
 			test::ObserveNotification(*pObserver, notification, context);
 
 			// Assert:
-			assertContext(context, signer, recipient);
+			assertContext(context, sender, recipient);
 		}
 	}
 
@@ -77,7 +77,7 @@ namespace catapult { namespace observers {
 	}
 
 	TEST(TEST_CLASS, AddsReceiptOnCommit) {
-		RunObserverTest(observers::NotifyMode::Commit, [](auto& context, const auto& signer, const auto& recipient) {
+		RunObserverTest(observers::NotifyMode::Commit, [](auto& context, const auto& sender, const auto& recipient) {
 			// Assert:
 			auto pStatement = context.statementBuilder().build();
 			ASSERT_EQ(1u, pStatement->TransactionStatements.size());
@@ -90,7 +90,7 @@ namespace catapult { namespace observers {
 			EXPECT_EQ(Default_Receipt_Type, receipt.Type);
 			EXPECT_EQ(MosaicId(345), receipt.Mosaic.MosaicId);
 			EXPECT_EQ(Amount(123 * 999), receipt.Mosaic.Amount);
-			EXPECT_EQ(signer, receipt.SenderPublicKey);
+			EXPECT_EQ(sender, receipt.SenderAddress);
 			EXPECT_EQ(recipient, receipt.RecipientAddress);
 		});
 	}

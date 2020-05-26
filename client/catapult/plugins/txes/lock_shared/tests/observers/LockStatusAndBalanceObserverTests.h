@@ -61,7 +61,7 @@ namespace catapult { namespace observers {
 						EXPECT_EQ(TTraits::Receipt_Type, receipt.Type);
 						EXPECT_EQ(lockInfo.MosaicId, receipt.Mosaic.MosaicId);
 						EXPECT_EQ(lockInfo.Amount, receipt.Mosaic.Amount);
-						EXPECT_EQ(accountState.PublicKey, receipt.TargetPublicKey);
+						EXPECT_EQ(accountState.Address, receipt.TargetAddress);
 					});
 		}
 

@@ -24,6 +24,6 @@
 
 namespace catapult { namespace mongo { namespace plugins {
 
-	/// Maps \a secretLockInfo and \a senderAddress to the corresponding db model value.
-	bsoncxx::document::value ToDbModel(const state::SecretLockInfo& secretLockInfo, const Address& senderAddress);
+	/// Maps \a secretLockInfo to the corresponding db model value.
+	bsoncxx::document::value ToDbModel(const state::SecretLockInfo& secretLockInfo);
 }}}

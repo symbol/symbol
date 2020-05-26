@@ -53,7 +53,7 @@ namespace catapult { namespace observers {
 		}
 
 		BlockNotification CreateBlockNotification(const state::BlockStatistic& statistic) {
-			return BlockNotification(Key(), Key(), statistic.Timestamp, statistic.Difficulty, statistic.FeeMultiplier);
+			return BlockNotification(Address(), Address(), statistic.Timestamp, statistic.Difficulty, statistic.FeeMultiplier);
 		}
 	}
 

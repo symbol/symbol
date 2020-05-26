@@ -35,36 +35,33 @@ namespace catapult { namespace validators {
 	DEFINE_COMMON_VALIDATOR_TESTS(RemoteInteraction,)
 
 	namespace {
-		template<typename TKey>
-		void AddAccount(cache::CatapultCache& cache, const TKey& accountKey, state::AccountType accountType) {
+		void AddAccount(cache::CatapultCache& cache, const Address& address, state::AccountType accountType) {
 			auto cacheDelta = cache.createDelta();
 			auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
 
-			accountStateCacheDelta.addAccount(accountKey, Height(1));
-			auto accountStateIter = accountStateCacheDelta.find(accountKey);
+			accountStateCacheDelta.addAccount(address, Height(1));
+			auto accountStateIter = accountStateCacheDelta.find(address);
 			auto& accountState = accountStateIter.get();
 			accountState.AccountType = accountType;
 
 			cache.commit(Height(1));
 		}
 
-		template<typename TKey>
 		void AssertValidation(
 				ValidationResult expectedResult,
-				const Key& accountKey,
+				const Address& address,
 				state::AccountType accountType,
-				std::vector<TKey> additionalCacheKeys,
+				std::vector<Address> additionalCacheAddresses,
 				model::EntityType transactionType,
-				const model::UnresolvedAddressSet& participantsByAddress,
-				const utils::KeySet& participantsByKey) {
+				const model::UnresolvedAddressSet& participantsByAddress) {
 			// Arrange:
 			auto cache = test::CoreSystemCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
-			AddAccount(cache, accountKey, accountType);
-			for (const auto& key : additionalCacheKeys)
-				AddAccount(cache, key, state::AccountType::Main);
+			AddAccount(cache, address, accountType);
+			for (const auto& additionalAddress : additionalCacheAddresses)
+				AddAccount(cache, additionalAddress, state::AccountType::Main);
 
 			auto pValidator = CreateRemoteInteractionValidator();
-			auto notification = model::AddressInteractionNotification(Key(), transactionType, participantsByAddress, participantsByKey);
+			auto notification = model::AddressInteractionNotification(Address(), transactionType, participantsByAddress);
 
 			// Act:
 			auto result = test::ValidateNotification(*pValidator, notification, cache);
@@ -75,101 +72,73 @@ namespace catapult { namespace validators {
 
 		void AssertValidation(
 				ValidationResult expectedResult,
-				const Key& accountKey,
+				const Address& address,
 				state::AccountType accountType,
 				model::EntityType transactionType,
-				const model::UnresolvedAddressSet& participantsByAddress,
-				const utils::KeySet& participantsByKey) {
-			AssertValidation<Key>(expectedResult, accountKey, accountType, {}, transactionType, participantsByAddress, participantsByKey);
+				const model::UnresolvedAddressSet& participantsByAddress) {
+			AssertValidation(expectedResult, address, accountType, {}, transactionType, participantsByAddress);
 		}
 	}
 
 	TEST(TEST_CLASS, FailureWhenAccountIsRemoteAndContainedInParticipantsByAddress_SingleParticipant) {
 		// Arrange:
-		auto accountKey = test::GenerateRandomByteArray<Key>();
-		auto accountAddress = test::UnresolveXor(model::PublicKeyToAddress(accountKey, model::NetworkIdentifier::Zero));
 		constexpr auto Failure = Failure_AccountLink_Remote_Account_Participant_Prohibited;
 
-		// Assert:
-		AssertValidation(Failure, accountKey, state::AccountType::Remote, static_cast<model::EntityType>(0x4123), { accountAddress }, {});
-	}
-
-	TEST(TEST_CLASS, FailureWhenAccountIsRemoteAndContainedInParticipantsByKey_SingleParticipant) {
-		// Arrange:
-		auto accountKey = test::GenerateRandomByteArray<Key>();
-		constexpr auto Failure = Failure_AccountLink_Remote_Account_Participant_Prohibited;
+		auto address = test::GenerateRandomByteArray<Address>();
 
 		// Assert:
-		AssertValidation(Failure, accountKey, state::AccountType::Remote, static_cast<model::EntityType>(0x4123), {}, { accountKey });
+		AssertValidation(Failure, address, state::AccountType::Remote, static_cast<model::EntityType>(0x4123), {
+			test::UnresolveXor(address)
+		});
 	}
 
 	TEST(TEST_CLASS, FailureWhenAccountIsRemoteAndContainedInParticipantsByAddress_MultipleParticipants) {
 		// Arrange:
-		auto accountKey = test::GenerateRandomByteArray<Key>();
-		auto accountAddress = test::UnresolveXor(model::PublicKeyToAddress(accountKey, model::NetworkIdentifier::Zero));
+		constexpr auto Failure = Failure_AccountLink_Remote_Account_Participant_Prohibited;
+
+		auto address = test::GenerateRandomByteArray<Address>();
 		auto additionalParticipants = test::GenerateRandomDataVector<Address>(2);
-		constexpr auto Failure = Failure_AccountLink_Remote_Account_Participant_Prohibited;
 
 		// Assert:
-		AssertValidation(
-				Failure,
-				accountKey,
-				state::AccountType::Remote,
-				additionalParticipants,
-				static_cast<model::EntityType>(0x4123),
-				{ test::UnresolveXor(additionalParticipants[0]), accountAddress, test::UnresolveXor(additionalParticipants[1]) },
-				{});
-	}
-
-	TEST(TEST_CLASS, FailureWhenAccountIsRemoteAndContainedInParticipantsByKey_MultipleParticipants) {
-		// Arrange:
-		auto accountKey = test::GenerateRandomByteArray<Key>();
-		auto additionalParticipants = test::GenerateRandomDataVector<Key>(2);
-		constexpr auto Failure = Failure_AccountLink_Remote_Account_Participant_Prohibited;
-
-		// Assert:
-		AssertValidation(
-				Failure,
-				accountKey,
-				state::AccountType::Remote,
-				additionalParticipants,
-				static_cast<model::EntityType>(0x4123),
-				{},
-				{ additionalParticipants[0], accountKey, additionalParticipants[1] });
+		AssertValidation(Failure, address, state::AccountType::Remote, additionalParticipants, static_cast<model::EntityType>(0x4123), {
+			test::UnresolveXor(additionalParticipants[0]),
+			test::UnresolveXor(address),
+			test::UnresolveXor(additionalParticipants[1])
+		});
 	}
 
 	TEST(TEST_CLASS, SuccessWhenAccountIsRemoteAndTransactionHasTypeAccountLink) {
 		// Arrange:
-		auto accountKey = test::GenerateRandomByteArray<Key>();
-		auto accountAddress = test::UnresolveXor(model::PublicKeyToAddress(accountKey, model::NetworkIdentifier::Zero));
-		constexpr auto transactionType = model::AccountKeyLinkTransaction::Entity_Type;
+		constexpr auto Transaction_Type = model::AccountKeyLinkTransaction::Entity_Type;
 		constexpr auto Success = ValidationResult::Success;
 
+		auto address = test::GenerateRandomByteArray<Address>();
+
 		// Assert:
-		AssertValidation(Success, accountKey, state::AccountType::Remote, transactionType, { accountAddress }, { accountKey });
+		AssertValidation(Success, address, state::AccountType::Remote, Transaction_Type, { test::UnresolveXor(address) });
 	}
 
 	TEST(TEST_CLASS, SuccessWhenParticipantIsUnknown) {
 		// Arrange:
-		auto accountKey = test::GenerateRandomByteArray<Key>();
-		auto participantAddress = test::GenerateRandomUnresolvedAddress();
-		auto participantKey = test::GenerateRandomByteArray<Key>();
-		auto transactionType = static_cast<model::EntityType>(0x4123);
+		constexpr auto Transaction_Type = static_cast<model::EntityType>(0x4123);
 		constexpr auto Success = ValidationResult::Success;
 
+		auto address = test::GenerateRandomByteArray<Address>();
+		auto participantAddress = test::GenerateRandomByteArray<Address>();
+
 		// Assert:
-		AssertValidation(Success, accountKey, state::AccountType::Remote, transactionType, { participantAddress }, { participantKey });
+		AssertValidation(Success, address, state::AccountType::Remote, Transaction_Type, { test::UnresolveXor(participantAddress) });
 	}
 
 	TEST(TEST_CLASS, SuccessWhenAccountIsNotRemote) {
 		// Arrange:
-		auto accountKey = test::GenerateRandomByteArray<Key>();
-		auto accountAddress = test::UnresolveXor(model::PublicKeyToAddress(accountKey, model::NetworkIdentifier::Zero));
-		auto transactionType = static_cast<model::EntityType>(0x4123);
+		constexpr auto Transaction_Type = static_cast<model::EntityType>(0x4123);
 		constexpr auto Success = ValidationResult::Success;
 
+		auto address = test::GenerateRandomByteArray<Address>();
+
 		// Assert:
-		AssertValidation(Success, accountKey, state::AccountType::Main, transactionType, { accountAddress }, { accountKey });
-		AssertValidation(Success, accountKey, state::AccountType::Unlinked, transactionType, { accountAddress }, { accountKey });
+		AssertValidation(Success, address, state::AccountType::Main, Transaction_Type, { test::UnresolveXor(address) });
+		AssertValidation(Success, address, state::AccountType::Unlinked, Transaction_Type, { test::UnresolveXor(address) });
 	}
 }}

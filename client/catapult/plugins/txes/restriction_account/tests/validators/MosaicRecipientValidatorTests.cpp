@@ -54,7 +54,7 @@ namespace catapult { namespace validators {
 			auto cache = test::AccountRestrictionCacheFactory::Create();
 			PopulateCache<TOperationTraits>(cache, accountAddress, mosaicIds);
 			auto pValidator = CreateMosaicRecipientValidator();
-			auto sender = test::GenerateRandomByteArray<Key>();
+			auto sender = test::GenerateRandomByteArray<Address>();
 			auto notification = model::BalanceTransferNotification(sender, recipient, mosaicId, Amount(123));
 
 			// Act:

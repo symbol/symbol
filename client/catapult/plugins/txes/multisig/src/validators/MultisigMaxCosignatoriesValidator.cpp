@@ -30,16 +30,17 @@ namespace catapult { namespace validators {
 		return MAKE_STATEFUL_VALIDATOR(MultisigMaxCosignatories, [maxCosignatoriesPerAccount](
 				const Notification& notification,
 				const ValidatorContext& context) {
-			size_t numCosignatories = 0u;
 			const auto& multisigCache = context.Cache.sub<cache::MultisigCache>();
-			if (multisigCache.contains(notification.Signer)) {
-				auto multisigIter = multisigCache.find(notification.Signer);
+			auto multisigIter = multisigCache.find(notification.Multisig);
+
+			size_t numCosignatories = 0u;
+			if (multisigIter.tryGet()) {
 				const auto& multisigAccountEntry = multisigIter.get();
-				numCosignatories = multisigAccountEntry.cosignatoryPublicKeys().size();
+				numCosignatories = multisigAccountEntry.cosignatoryAddresses().size();
 			}
 
-			// cannot underflow because other validator checks that all keys being deleted exist
-			numCosignatories += notification.PublicKeyAdditionsCount - notification.PublicKeyDeletionsCount;
+			// cannot underflow because other validator checks that all addresses being deleted exist
+			numCosignatories += notification.AddressAdditionsCount - notification.AddressDeletionsCount;
 			return numCosignatories > maxCosignatoriesPerAccount ? Failure_Multisig_Max_Cosignatories : ValidationResult::Success;
 		});
 	}

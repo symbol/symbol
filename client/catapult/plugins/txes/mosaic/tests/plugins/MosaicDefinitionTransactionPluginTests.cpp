@@ -23,7 +23,6 @@
 #include "src/model/MosaicNotifications.h"
 #include "catapult/utils/MemoryUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
-#include "tests/test/core/ResolverTestUtils.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
 #include "tests/TestHarness.h"
@@ -41,7 +40,6 @@ namespace catapult { namespace plugins {
 
 		MosaicRentalFeeConfiguration CreateRentalFeeConfiguration(Amount fee) {
 			return {
-				test::GenerateRandomByteArray<Key>(),
 				UnresolvedMosaicId(1234),
 				test::GenerateRandomUnresolvedAddress(),
 				fee,
@@ -67,23 +65,25 @@ namespace catapult { namespace plugins {
 				typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder& builder,
 				const MosaicRentalFeeConfiguration& config,
 				const typename TTraits::TransactionType& transaction) {
-			builder.template addExpectation<AccountPublicKeyNotification>([&config](const auto& notification) {
-				EXPECT_EQ(config.SinkPublicKey, notification.PublicKey);
+			builder.template addExpectation<AccountAddressNotification>([&config](const auto& notification) {
+				EXPECT_FALSE(notification.Address.isResolved());
+
+				EXPECT_EQ(config.SinkAddress, notification.Address.unresolved());
 			});
 			builder.template addExpectation<MosaicNonceNotification>([&transaction](const auto& notification) {
-				EXPECT_EQ(transaction.SignerPublicKey, notification.Signer);
+				EXPECT_EQ(GetSignerAddress(transaction), notification.Owner);
 				EXPECT_EQ(transaction.Nonce, notification.MosaicNonce);
 				EXPECT_EQ(transaction.Id, notification.MosaicId);
 			});
 			builder.template addExpectation<MosaicPropertiesNotification>([&transaction](const auto& notification) {
-				auto expectedProperties = model::MosaicProperties(transaction.Flags, transaction.Divisibility, transaction.Duration);
+				auto expectedProperties = MosaicProperties(transaction.Flags, transaction.Divisibility, transaction.Duration);
 				EXPECT_EQ(expectedProperties, notification.Properties);
 			});
 			builder.template addExpectation<MosaicDefinitionNotification>([&transaction](const auto& notification) {
-				EXPECT_EQ(transaction.SignerPublicKey, notification.Signer);
+				EXPECT_EQ(GetSignerAddress(transaction), notification.Owner);
 				EXPECT_EQ(transaction.Id, notification.MosaicId);
 
-				auto expectedProperties = model::MosaicProperties(transaction.Flags, transaction.Divisibility, transaction.Duration);
+				auto expectedProperties = MosaicProperties(transaction.Flags, transaction.Divisibility, transaction.Duration);
 				EXPECT_EQ(expectedProperties, notification.Properties);
 			});
 		}
@@ -95,11 +95,11 @@ namespace catapult { namespace plugins {
 
 		typename TTraits::TransactionType transaction;
 		test::FillWithRandomData(transaction);
-		transaction.SignerPublicKey = config.NemesisPublicKey;
+		transaction.SignerPublicKey = config.NemesisSignerPublicKey;
 
 		// Act + Assert:
 		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
-			AccountPublicKeyNotification::Notification_Type,
+			AccountAddressNotification::Notification_Type,
 			MosaicNonceNotification::Notification_Type,
 			MosaicPropertiesNotification::Notification_Type,
 			MosaicDefinitionNotification::Notification_Type
@@ -112,7 +112,7 @@ namespace catapult { namespace plugins {
 
 		typename TTraits::TransactionType transaction;
 		test::FillWithRandomData(transaction);
-		transaction.SignerPublicKey = config.NemesisPublicKey;
+		transaction.SignerPublicKey = config.NemesisSignerPublicKey;
 
 		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
 		AddCommonExpectations<TTraits>(builder, config, transaction);
@@ -134,7 +134,7 @@ namespace catapult { namespace plugins {
 
 		// Act + Assert:
 		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
-			AccountPublicKeyNotification::Notification_Type,
+			AccountAddressNotification::Notification_Type,
 			BalanceTransferNotification::Notification_Type,
 			MosaicRentalFeeNotification::Notification_Type,
 			MosaicNonceNotification::Notification_Type,
@@ -153,14 +153,14 @@ namespace catapult { namespace plugins {
 		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
 		AddCommonExpectations<TTraits>(builder, config, transaction);
 		builder.template addExpectation<BalanceTransferNotification>([&config, &transaction](const auto& notification) {
-			EXPECT_EQ(transaction.SignerPublicKey, notification.Sender);
+			EXPECT_EQ(GetSignerAddress(transaction), notification.Sender);
 			EXPECT_EQ(config.SinkAddress, notification.Recipient);
 			EXPECT_EQ(config.CurrencyMosaicId, notification.MosaicId);
 			EXPECT_EQ(config.Fee, notification.Amount);
 			EXPECT_EQ(BalanceTransferNotification::AmountType::Dynamic, notification.TransferAmountType);
 		});
 		builder.template addExpectation<MosaicRentalFeeNotification>([&config, &transaction](const auto& notification) {
-			EXPECT_EQ(transaction.SignerPublicKey, notification.Sender);
+			EXPECT_EQ(GetSignerAddress(transaction), notification.Sender);
 			EXPECT_EQ(config.SinkAddress, notification.Recipient);
 			EXPECT_EQ(config.CurrencyMosaicId, notification.MosaicId);
 			EXPECT_EQ(config.Fee, notification.Amount);

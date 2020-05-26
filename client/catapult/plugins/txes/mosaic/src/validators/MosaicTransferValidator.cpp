@@ -32,7 +32,7 @@ namespace catapult { namespace validators {
 	namespace {
 		bool IsMosaicOwnerParticipant(
 				const cache::ReadOnlyCatapultCache& cache,
-				const Key& owner,
+				const Address& owner,
 				const Notification& notification,
 				const model::ResolverContext& resolvers) {
 			if (owner == notification.Sender)
@@ -66,7 +66,7 @@ namespace catapult { namespace validators {
 				return ValidationResult::Success;
 
 			// 3. if it's NOT transferable then owner must be either sender or recipient
-			if (!IsMosaicOwnerParticipant(context.Cache, mosaicEntry.definition().ownerPublicKey(), notification, context.Resolvers))
+			if (!IsMosaicOwnerParticipant(context.Cache, mosaicEntry.definition().ownerAddress(), notification, context.Resolvers))
 				return Failure_Mosaic_Non_Transferable;
 
 			return ValidationResult::Success;
