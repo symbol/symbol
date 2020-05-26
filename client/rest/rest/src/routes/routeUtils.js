@@ -25,7 +25,7 @@ const catapult = require('catapult-sdk');
 
 const { address } = catapult.model;
 const { buildAuditPath, indexOfLeafWithHash } = catapult.crypto.merkle;
-const { convert } = catapult.utils;
+const { convert, uint64 } = catapult.utils;
 const packetHeader = catapult.packet.header;
 const constants = {
 	sizes: {
@@ -52,6 +52,7 @@ const namedParserMap = {
 
 		return result;
 	},
+	uint64: str => uint64.fromHex(str),
 	address: str => {
 		if (constants.sizes.addressEncoded === str.length)
 			return address.stringToAddress(str);

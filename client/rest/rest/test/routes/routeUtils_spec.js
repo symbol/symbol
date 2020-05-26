@@ -159,6 +159,14 @@ describe('route utils', () => {
 			valid: [{ id: 'true', parsed: true }, { id: 'false', parsed: false }],
 			invalid: [{ id: 'abcd', error: 'must be boolean value \'true\' or \'false\'' }]
 		}));
+
+		describe('uint64', () => addParserTests({
+			parser: 'uint64',
+			valid: [
+				{ id: '0DC67FBE1CAD29E3', parsed: [481110499, 231112638] }
+			],
+			invalid: ['0DC67FBE', '0DC67FBE1CAD29E3245', '0DC67FBE1CAD29ER'].map(id => ({ id }))
+		}));
 	});
 
 	describe('parse argument array', () => {
