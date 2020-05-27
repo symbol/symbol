@@ -1,8 +1,12 @@
 type: object
 required:
+  - id
   - meta
   - transaction
 properties:
+  id:
+    type: string
+    description: Internal resource identifier.
   meta:
     $ref: "./TransactionMetaDTO.yml"
   transaction:
@@ -11,7 +15,7 @@ properties:
       - $ref: "../../../plugins/account_link/schemas/NodeKeyLinkTransactionDTO.yml"
       - $ref: "../../../plugins/coresystem/schemas/VrfKeyLinkTransactionDTO.yml"
       - $ref: "../../../plugins/coresystem/schemas/VotingKeyLinkTransactionDTO.yml"
-      - $ref: "../../../plugins/aggregate/schemas/AggregateTransactionDTO.yml"
+      - $ref: "../../../plugins/aggregate/schemas/AggregateTransactionExtendedDTO.yml"
       - $ref: "../../../plugins/lock_hash/schemas/HashLockTransactionDTO.yml"
       - $ref: "../../../plugins/lock_secret/schemas/SecretLockTransactionDTO.yml"
       - $ref: "../../../plugins/lock_secret/schemas/SecretProofTransactionDTO.yml"

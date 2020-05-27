@@ -1,0 +1,5 @@
+name: recipientAddress
+in: query
+description: Address of an account receiving the transaction.
+schema:
+  $ref: "../../schemas/AddressBase32.yml"

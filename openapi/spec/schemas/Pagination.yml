@@ -1,0 +1,15 @@
+type: object
+required:
+  - pageNumber
+  - pageSize
+  - totalEntries
+  - totalPages
+properties:
+  pageNumber:
+    type: integer
+  pageSize:
+    type: integer
+  totalEntries:
+    type: integer
+  totalPages:
+    type: integer

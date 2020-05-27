@@ -1,0 +1,5 @@
+name: beneficiaryPublicKey
+description: Filter by beneficiary public key.
+in: query
+schema:
+  $ref: "../../schemas/PublicKey.yml"

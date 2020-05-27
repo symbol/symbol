@@ -1,0 +1,12 @@
+type: object
+required:
+  - data
+  - pagination
+properties:
+  data:
+    type: array
+    description: Array of blocks.
+    items:
+      $ref: "./BlockInfoDTO.yml"
+  pagination:
+    $ref: "../../../schemas/Pagination.yml"

@@ -1,0 +1,5 @@
+name: signerPublicKey
+in: query
+description: Public key of the account signing the entity.
+schema:
+  $ref: "../../schemas/PublicKey.yml"

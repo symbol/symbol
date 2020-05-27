@@ -1,0 +1,4 @@
+name: orderBy
+in: query
+schema:
+  $ref: "../../core/block/schemas/BlockOrderByEnum.yml"

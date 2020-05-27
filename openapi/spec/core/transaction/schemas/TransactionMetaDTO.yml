@@ -4,7 +4,6 @@ required:
   - hash
   - merkleComponentHash
   - index
-  - id
 properties:
   height:
     $ref: "../../../schemas/Height.yml"
@@ -15,6 +14,3 @@ properties:
   index:
     type: integer
     description: Transaction index within the block.
-  id:
-    type: string
-    description: Identifier of the transaciton

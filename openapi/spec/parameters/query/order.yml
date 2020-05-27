@@ -1,0 +1,7 @@
+name: order
+in: query
+description: |
+  Sort responses in ascending or descending order based on the collection property set on the param ``orderBy``.
+  If the request does not specify ``orderBy``, REST returns the collection ordered by id.
+schema:
+  $ref: "../../schemas/Order.yml"

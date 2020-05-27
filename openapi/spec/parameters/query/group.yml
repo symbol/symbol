@@ -1,0 +1,5 @@
+name: group
+in: query
+schema:
+  $ref: "../../core/transaction/schemas/TransactionGroupSubsetEnum.yml"
+  default: confirmed

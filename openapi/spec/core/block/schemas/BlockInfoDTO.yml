@@ -3,6 +3,9 @@ required:
   - meta
   - block
 properties:
+  id:
+    type: string
+    description: Internal resource identifier.
   meta:
     $ref: "./BlockMetaDTO.yml"
   block:
