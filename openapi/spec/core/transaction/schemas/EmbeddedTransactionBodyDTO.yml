@@ -1,0 +1,9 @@
+type: object
+required: 
+  - transactions
+properties:
+  transactions:
+    type: array
+    description: Array of transactions initiated by different accounts.
+    items:
+      $ref: "../../../core/transaction/schemas/EmbeddedTransactionInfoDTO.yml"

@@ -1,6 +1,8 @@
 # Generic types
 Address:
   "$ref": "./Address.yml"
+AddressBase32:
+  "$ref": "./AddressBase32.yml"
 Amount:
   "$ref": "./Amount.yml"
 BlockDuration:
@@ -31,6 +33,10 @@ RestrictionKey:
   "$ref": "./RestrictionKey.yml"
 NamespaceId:
   "$ref": "./NamespaceId.yml"
+Order:
+  "$ref": "./Order.yml"
+Pagination:
+  "$ref": "./Pagination.yml"
 PublicKey:
   "$ref": "./PublicKey.yml"
 ProofGamma:
@@ -71,6 +77,8 @@ KeyTypeEnum:
   "$ref": "../core/account/schemas/KeyTypeEnum.yml"
 
 # Core - Block
+BlockOrderByEnum:
+  "$ref": "../core/block/schemas/BlockOrderByEnum.yml"
 PositionEnum:
   "$ref": "../core/block/schemas/PositionEnum.yml"
 BlockDTO:
@@ -79,6 +87,8 @@ BlockInfoDTO:
   "$ref": "../core/block/schemas/BlockInfoDTO.yml"
 BlockMetaDTO:
   "$ref": "../core/block/schemas/BlockMetaDTO.yml"
+BlockPage:
+  "$ref": "../core/block/schemas/BlockPage.yml"
 MerklePathItemDTO:
   "$ref": "../core/block/schemas/MerklePathItemDTO.yml"
 MerkleProofInfoDTO:
@@ -139,26 +149,34 @@ StorageInfoDTO:
   "$ref": "../core/node/schemas/StorageInfoDTO.yml"
 
 # Core - Transaction
-TransactionStateTypeEnum:
-  "$ref": "../core/transaction/schemas/TransactionStateTypeEnum.yml"
-TransactionStatusTypeEnum:
-  "$ref": "../core/transaction/schemas/TransactionStatusTypeEnum.yml"
+TransactionGroupEnum:
+  "$ref": "../core/transaction/schemas/TransactionGroupEnum.yml"
+TransactionGroupSubsetEnum:
+  "$ref": "../core/transaction/schemas/TransactionGroupSubsetEnum.yml"
+TransactionStatusEnum:
+  "$ref": "../core/transaction/schemas/TransactionStatusEnum.yml"
 TransactionTypeEnum:
   "$ref": "../core/transaction/schemas/TransactionTypeEnum.yml"
 AnnounceTransactionInfoDTO:
   "$ref": "../core/transaction/schemas/AnnounceTransactionInfoDTO.yml"
+EmbeddedTransactionBodyDTO:
+  "$ref": "../core/transaction/schemas/EmbeddedTransactionBodyDTO.yml"
 EmbeddedTransactionDTO:
   "$ref": "../core/transaction/schemas/EmbeddedTransactionDTO.yml"
 EmbeddedTransactionInfoDTO:
   "$ref": "../core/transaction/schemas/EmbeddedTransactionInfoDTO.yml"
 EmbeddedTransactionMetaDTO:
   "$ref": "../core/transaction/schemas/EmbeddedTransactionMetaDTO.yml"
+TransactionPage:
+  "$ref": "../core/transaction/schemas/TransactionPage.yml"
 TransactionBodyDTO:
   "$ref": "../core/transaction/schemas/TransactionBodyDTO.yml"
 TransactionDTO:
   "$ref": "../core/transaction/schemas/TransactionDTO.yml"
 TransactionInfoDTO:
   "$ref": "../core/transaction/schemas/TransactionInfoDTO.yml"
+TransactionInfoExtendedDTO:
+  "$ref": "../core/transaction/schemas/TransactionInfoExtendedDTO.yml"
 TransactionMetaDTO:
   "$ref": "../core/transaction/schemas/TransactionMetaDTO.yml"
 TransactionStatusDTO:
@@ -187,8 +205,12 @@ AggregateNetworkPropertiesDTO:
   "$ref": "../plugins/aggregate/schemas/AggregateNetworkPropertiesDTO.yml"
 AggregateTransactionBodyDTO:
   "$ref": "../plugins/aggregate/schemas/AggregateTransactionBodyDTO.yml"
+AggregateTransactionBodyExtendedDTO:
+  "$ref": "../plugins/aggregate/schemas/AggregateTransactionBodyExtendedDTO.yml"
 AggregateTransactionDTO:
   "$ref": "../plugins/aggregate/schemas/AggregateTransactionDTO.yml"
+AggregateTransactionExtendedDTO:
+  "$ref": "../plugins/aggregate/schemas/AggregateTransactionExtendedDTO.yml"
 CosignatureDTO:
   "$ref": "../plugins/aggregate/schemas/CosignatureDTO.yml"
 
@@ -288,8 +310,8 @@ MosaicInfoDTO:
   "$ref": "../plugins/mosaic/schemas/MosaicInfoDTO.yml"
 MosaicNetworkPropertiesDTO:
   "$ref": "../plugins/mosaic/schemas/MosaicNetworkPropertiesDTO.yml"
-MosaicsInfoDTO:
-  "$ref": "../plugins/mosaic/schemas/MosaicsInfoDTO.yml"
+MosaicPage:
+  "$ref": "../plugins/mosaic/schemas/MosaicPage.yml"
 MosaicSupplyChangeTransactionBodyDTO:
   "$ref": "../plugins/mosaic/schemas/MosaicSupplyChangeTransactionBodyDTO.yml"
 MosaicSupplyChangeTransactionDTO:

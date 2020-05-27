@@ -1,5 +1,4 @@
-# Todo: This filter will be deprecated in favor of offset.
-name: id
+name: offset
 in: query
 description: |
   Entry id at which to start pagination.
