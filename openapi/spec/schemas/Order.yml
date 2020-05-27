@@ -1,0 +1,9 @@
+type: string
+description: |
+  Indicates how to sort the results: 
+  * ``asc`` - ascending
+  * ``desc`` - descending
+enum:
+  - asc
+  - desc
+default: desc

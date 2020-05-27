@@ -6,8 +6,8 @@ operationId: getAccountMetadata
 parameters:
   - $ref: "../../../parameters/path/accountId.yml"
   - $ref: "../../../parameters/query/pageSize.yml"
+  - $ref: "../../../parameters/query/order.yml"
   - $ref: "../../../parameters/query/id.yml"
-  - $ref: "../../../parameters/query/ordering.yml"
 responses:
   "200":
     description: success

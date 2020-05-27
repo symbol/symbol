@@ -1,7 +1,7 @@
 name: type
 in: query
 description: |
-  Transaction type to filter by.
+  Filter by transaction type.
   To filter by multiple transaction types, add more filter query params like: ``type=16974&type=16718``.
 style: form
 explode: true

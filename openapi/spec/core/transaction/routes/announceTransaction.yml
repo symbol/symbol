@@ -3,7 +3,9 @@ tags:
 summary: Announce a new transaction
 description: |
   Announces a transaction to the network.
-  We recommended to use the Symbol-SDKs to announce transactions because they should be serialized.
+  The [catbuffer library](https://github.com/nemtech/catbuffer) defines the protocol to serialize and deserialize Symbol entities.
+  Catbuffers are integrated into [Symbol SDKs](https://nemtech.github.io/sdk.html). 
+  It's recommended to use SDKs instead of calling the API endpoint directly to announce transactions.
 operationId: announceTransaction
 requestBody:
   $ref: "../../../request_bodies/transactionPayload.yml"

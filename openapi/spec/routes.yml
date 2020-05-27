@@ -5,33 +5,15 @@
 /account:
   post:
     $ref: "./core/account/routes/getAccountsInfo.yml"
-"/account/{accountId}/transactions":
-  get:
-    $ref: "./core/account/routes/getAccountConfirmedTransactions.yml"
-"/account/{accountId}/transactions/incoming":
-  get:
-    $ref: "./core/account/routes/getAccountIncomingTransactions.yml"
-"/account/{accountId}/transactions/outgoing":
-  get:
-    $ref: "./core/account/routes/getAccountOutgoingTransactions.yml"
-"/account/{accountId}/transactions/unconfirmed":
-  get:
-    $ref: "./core/account/routes/getAccountUnconfirmedTransactions.yml"
-"/account/{accountId}/transactions/partial":
-  get:
-    $ref: "./core/account/routes/getAccountPartialTransactions.yml"
 
 # Core - Block
-"/block/{height}":
+"/blocks":
+  get:
+    $ref: "./core/block/routes/searchBlocks.yml"
+"/blocks/{height}":
   get:
     $ref: "./core/block/routes/getBlockByHeight.yml"
-"/blocks/{height}/limit/{limit}":
-  get:
-    $ref: "./core/block/routes/getBlocksByHeightWithLimit.yml"
-"/block/{height}/transactions":
-  get:
-    $ref: "./core/block/routes/getBlockTransactions.yml"
-"/block/{height}/transaction/{hash}/merkle":
+"/blocks/{height}/transactions/{hash}/merkle":
   get:
     $ref: "./core/block/routes/getMerkleTransaction.yml"
 
@@ -79,26 +61,28 @@
     $ref: "./core/node/routes/getServerInfo.yml"
 
 # Core - Transaction
-"/transaction/{transactionId}":
+/transactions:
   get:
-    $ref: "./core/transaction/routes/getTransaction.yml"
-/transaction:
+    $ref: "./core/transaction/routes/searchTransactions.yml"
   post:
-    $ref: "./core/transaction/routes/getTransactions.yml"
+    $ref: "./core/transaction/routes/getTransactionsById.yml"
   put:
     $ref: "./core/transaction/routes/announceTransaction.yml"
-"/transaction/{hash}/status":
+"/transactions/{transactionId}":
+  get:
+    $ref: "./core/transaction/routes/getTransaction.yml"
+"/transactions/{hash}/status":
   get:
     $ref: "./core/transaction/routes/getTransactionStatus.yml"
-/transaction/statuses:
+/transactions/statuses:
   post:
     $ref: "./core/transaction/routes/getTransactionStatuses.yml"
 
 # Plugin - Aggregate
-/transaction/partial:
+/transactions/partial:
   put:
     $ref: "./plugins/aggregate/routes/announcePartialTransaction.yml"
-/transaction/cosignature:
+/transactions/cosignature:
   put:
     $ref: "./plugins/aggregate/routes/announceCosignatureTransaction.yml"
 
@@ -132,18 +116,14 @@
     $ref: "./plugins/metadata/routes/getNamespaceMetadataByKeyAndSender.yml"
 
 # Plugin - Mosaic
-"/mosaic/{mosaicId}":
+"/mosaics/{mosaicId}":
   get:
     $ref: "./plugins/mosaic/routes/getMosaic.yml"
-/mosaic:
+/mosaics:
+  get:
+    $ref: "./plugins/mosaic/routes/searchMosaics.yml"
   post:
     $ref: "./plugins/mosaic/routes/getMosaics.yml"
-"/account/{accountId}/mosaics":
-  get:
-    $ref: "./plugins/mosaic/routes/getMosaicsFromAccount.yml"
-/account/mosaics:
-  post:
-    $ref: "./plugins/mosaic/routes/getMosaicsFromAccounts.yml"
 
 # Plugin - Multisig
 "/account/{accountId}/multisig":

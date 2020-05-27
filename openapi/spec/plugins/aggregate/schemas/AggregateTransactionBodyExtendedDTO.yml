@@ -1,0 +1,4 @@
+type: object
+allOf:
+  - $ref: "./AggregateTransactionBodyDTO.yml"
+  - $ref: "../../../core/transaction/schemas/EmbeddedTransactionBodyDTO.yml"

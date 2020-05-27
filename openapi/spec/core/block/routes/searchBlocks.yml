@@ -1,0 +1,22 @@
+tags:
+  - Block routes
+summary: Get blocks
+description: Gets an array of bocks.
+operationId: searchBlocks
+parameters:
+  - $ref: "../../../parameters/query/signerPublicKey.yml"
+  - $ref: "../../../parameters/query/beneficiaryPublicKey.yml"
+  - $ref: "../../../parameters/query/pageSize.yml"
+  - $ref: "../../../parameters/query/pageNumber.yml"
+  - $ref: "../../../parameters/query/offset.yml"
+  - $ref: "../../../parameters/query/order.yml"
+  - $ref: "../../../parameters/query/orderByBlock.yml"
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../schemas/BlockPage.yml"
+  "409":
+    $ref : "../../../responses/InvalidArgument.yml"

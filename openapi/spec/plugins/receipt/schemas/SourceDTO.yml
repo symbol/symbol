@@ -12,5 +12,5 @@ properties:
     type: integer
     description: |
       Transaction index within the aggregate transaction.
-      If the transaction is not an inner transaction, then the secondary id is set to 0.
+      If the transaction is not an embedded transaction, then the secondary id is set to 0.
     example: 0

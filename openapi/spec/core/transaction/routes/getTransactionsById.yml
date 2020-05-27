@@ -2,7 +2,7 @@ tags:
   - Transaction routes
 summary: Get transactions information
 description: Returns transactions information for a given array of transactionIds.
-operationId: getTransactions
+operationId: getTransactionsById
 requestBody:
   $ref: "../../../request_bodies/transactionIds.yml"
 responses:
@@ -14,7 +14,7 @@ responses:
           type: array
           description: Array of transactions information.
           items:
-            $ref: "../schemas/TransactionInfoDTO.yml"
+            $ref: "../schemas/TransactionInfoExtendedDTO.yml"
   "400":
     $ref: "../../../responses/InvalidContent.yml"
   "409":
