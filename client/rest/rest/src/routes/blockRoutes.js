@@ -42,9 +42,7 @@ module.exports = {
 				? routeUtils.parseArgument(params, 'beneficiaryPublicKey', 'publicKey')
 				: undefined;
 
-			const options = routeUtils.parsePaginationArguments(params, services.config.pageSize);
-			// force sort field to 'id' until this is indexed/decided/developed
-			options.sortField = '_id';
+			const options = routeUtils.parsePaginationArguments(params, services.config.pageSize, ['_id']);
 
 			return db.blocks(signerPublicKey, beneficiaryPublicKey, options)
 				.then(result => routeUtils.createSender(routeResultTypes.block).sendPage(res, next)(result));

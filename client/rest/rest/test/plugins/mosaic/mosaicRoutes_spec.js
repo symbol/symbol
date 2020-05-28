@@ -115,15 +115,17 @@ describe('mosaic routes', () => {
 				});
 			});
 
-			it('overrides sortField to _id', () => {
+			it('allowed sort fields are taken into account', () => {
 				// Arrange:
-				const req = { params: { sortField: 'duration' } };
+				const paginationParserSpy = sinon.spy(routeUtils, 'parsePaginationArguments');
+				const expectedAllowedSortFields = ['_id'];
 
 				// Act:
-				return mockServer.callRoute(route, req).then(() => {
+				return mockServer.callRoute(route, { params: {} }).then(() => {
 					// Assert:
-					expect(dbMosaicsFake.calledOnce).to.equal(true);
-					expect(dbMosaicsFake.firstCall.args[1].sortField).to.equal('_id');
+					expect(paginationParserSpy.calledOnce).to.equal(true);
+					expect(paginationParserSpy.firstCall.args[2]).to.deep.equal(expectedAllowedSortFields);
+					paginationParserSpy.restore();
 				});
 			});
 

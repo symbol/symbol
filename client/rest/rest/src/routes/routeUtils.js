@@ -161,12 +161,17 @@ const routeUtils = {
 	 * Parses pagination arguments and throws an invalid argument error if any is invalid.
 	 * @param {object} args Arguments to parse.
 	 * @param {object} optionsPageSize Page size options.
+	 * @param {object} allowedSortFields Sort fields this endpoint allows, will match provided `sortField` and throw if invalid. Must have
+	 * at least one value, and the first is treated as default if no `sortField` is provided.
 	 * @returns {object} Parsed pagination options.
 	 */
-	parsePaginationArguments: (args, optionsPageSize) => {
+	parsePaginationArguments: (args, optionsPageSize, allowedSortFields) => {
+		if (args.sortField && !allowedSortFields.includes(args.sortField))
+			throw errors.createInvalidArgumentError(`sorting by ${args.sortField} is not allowed`);
+
 		const parsedArgs = {
 			offset: args.offset,
-			sortField: args.sortField || 'id',
+			sortField: allowedSortFields.includes(args.sortField) ? args.sortField : allowedSortFields[0],
 			sortDirection: 'desc' === args.order ? -1 : 1
 		};
 

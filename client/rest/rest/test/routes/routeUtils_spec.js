@@ -262,7 +262,7 @@ describe('route utils', () => {
 
 		it('succeeds when no arguments are provided', () => {
 			// Act:
-			const options = routeUtils.parsePaginationArguments({}, servicesConfigPageSize);
+			const options = routeUtils.parsePaginationArguments({}, servicesConfigPageSize, ['id']);
 
 			// Assert:
 			expect(options).to.deep.equal({
@@ -276,7 +276,7 @@ describe('route utils', () => {
 
 		it('succeeds when valid page size is provided', () => {
 			// Act:
-			const options = routeUtils.parsePaginationArguments({ pageSize: '12' }, servicesConfigPageSize);
+			const options = routeUtils.parsePaginationArguments({ pageSize: '12' }, servicesConfigPageSize, ['id']);
 
 			// Assert:
 			expect(options).to.deep.equal({
@@ -292,7 +292,8 @@ describe('route utils', () => {
 			// Act:
 			const options = routeUtils.parsePaginationArguments(
 				{ pageSize: (servicesConfigPageSize.max + 1).toString() },
-				servicesConfigPageSize
+				servicesConfigPageSize,
+				['id']
 			);
 
 			// Assert:
@@ -309,7 +310,8 @@ describe('route utils', () => {
 			// Act:
 			const options = routeUtils.parsePaginationArguments(
 				{ pageSize: (servicesConfigPageSize.min - 1).toString() },
-				servicesConfigPageSize
+				servicesConfigPageSize,
+				['id']
 			);
 
 			// Assert:
@@ -324,7 +326,7 @@ describe('route utils', () => {
 
 		it('succeeds when valid page number is provided', () => {
 			// Act:
-			const options = routeUtils.parsePaginationArguments({ pageNumber: '5' }, servicesConfigPageSize);
+			const options = routeUtils.parsePaginationArguments({ pageNumber: '5' }, servicesConfigPageSize, ['id']);
 
 			// Assert:
 			expect(options).to.deep.equal({
@@ -338,7 +340,7 @@ describe('route utils', () => {
 
 		it('defaults page number to 1 when 0 is provided', () => {
 			// Act:
-			const options = routeUtils.parsePaginationArguments({ pageNumber: '0' }, servicesConfigPageSize);
+			const options = routeUtils.parsePaginationArguments({ pageNumber: '0' }, servicesConfigPageSize, ['id']);
 
 			// Assert:
 			expect(options).to.deep.equal({
@@ -352,7 +354,7 @@ describe('route utils', () => {
 
 		it('succeeds when valid sort field is provided', () => {
 			// Act:
-			const options = routeUtils.parsePaginationArguments({ sortField: 'hash' }, servicesConfigPageSize);
+			const options = routeUtils.parsePaginationArguments({ sortField: 'hash' }, servicesConfigPageSize, ['id', 'hash']);
 
 			// Assert:
 			expect(options).to.deep.equal({
@@ -364,11 +366,25 @@ describe('route utils', () => {
 			});
 		});
 
+		it('uses first allowed sort field as default', () => {
+			// Act:
+			const options = routeUtils.parsePaginationArguments({}, servicesConfigPageSize, ['address', 'key']);
+
+			// Assert:
+			expect(options).to.deep.equal({
+				pageSize: servicesConfigPageSize.default,
+				pageNumber: 1,
+				sortField: 'address',
+				sortDirection: 1,
+				offset: undefined
+			});
+		});
+
 		describe('succeeds when valid sort direction is provided', () => {
 			const runSortDirectionTest = (argName, order, expectedValue) => {
 				it(`sort argument: ${argName}`, () => {
 					// Act:
-					const options = routeUtils.parsePaginationArguments({ order }, servicesConfigPageSize);
+					const options = routeUtils.parsePaginationArguments({ order }, servicesConfigPageSize, ['id']);
 
 					// Assert:
 					expect(options).to.deep.equal({
@@ -391,7 +407,7 @@ describe('route utils', () => {
 			const offset = createObjectId(123).toString();
 
 			// Act:
-			const options = routeUtils.parsePaginationArguments({ offset }, servicesConfigPageSize);
+			const options = routeUtils.parsePaginationArguments({ offset }, servicesConfigPageSize, ['id']);
 
 			// Assert:
 			expect(options).to.deep.equal({
@@ -405,7 +421,7 @@ describe('route utils', () => {
 
 		it('succeeds when valid page size and page number are provided', () => {
 			// Act:
-			const options = routeUtils.parsePaginationArguments({ pageSize: '12', pageNumber: '5' }, servicesConfigPageSize);
+			const options = routeUtils.parsePaginationArguments({ pageSize: '12', pageNumber: '5' }, servicesConfigPageSize, ['id']);
 
 			// Assert:
 			expect(options).to.deep.equal({
@@ -424,7 +440,7 @@ describe('route utils', () => {
 				pageNumber: '5',
 				sortField: 'signerPublicKey',
 				order: 'desc'
-			}, servicesConfigPageSize);
+			}, servicesConfigPageSize, ['signerPublicKey']);
 
 			// Assert:
 			expect(options).to.deep.equal({
@@ -447,7 +463,7 @@ describe('route utils', () => {
 				sortField: 'signerPublicKey',
 				order: 'desc',
 				offset
-			}, servicesConfigPageSize);
+			}, servicesConfigPageSize, ['signerPublicKey']);
 
 			// Assert:
 			expect(options).to.deep.equal({
@@ -461,19 +477,25 @@ describe('route utils', () => {
 
 		it('fails when invalid page size is provided', () => {
 			// Act:
-			expect(() => routeUtils.parsePaginationArguments({ pageSize: '1Y2' }, servicesConfigPageSize))
+			expect(() => routeUtils.parsePaginationArguments({ pageSize: '1Y2' }, servicesConfigPageSize, ['id']))
 				.to.throw('pageSize is not a valid unsigned integer');
 		});
 
 		it('fails when invalid page number is provided', () => {
 			// Act:
-			expect(() => routeUtils.parsePaginationArguments({ pageNumber: '12aa' }, servicesConfigPageSize))
+			expect(() => routeUtils.parsePaginationArguments({ pageNumber: '12aa' }, servicesConfigPageSize, ['id']))
 				.to.throw('pageNumber is not a valid unsigned integer');
+		});
+
+		it('fails when invalid sort field is provided', () => {
+			// Act:
+			expect(() => routeUtils.parsePaginationArguments({ sortField: 'hash' }, servicesConfigPageSize, ['id', 'address']))
+				.to.throw('sorting by hash is not allowed');
 		});
 
 		it('fails when invalid offset is provided', () => {
 			// Act:
-			expect(() => routeUtils.parsePaginationArguments({ offset: '123' }, servicesConfigPageSize))
+			expect(() => routeUtils.parsePaginationArguments({ offset: '123' }, servicesConfigPageSize, ['id']))
 				.to.throw('offset is not a valid object id');
 		});
 	});

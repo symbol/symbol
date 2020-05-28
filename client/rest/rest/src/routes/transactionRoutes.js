@@ -94,9 +94,7 @@ module.exports = {
 				state: params.state
 			};
 
-			const options = routeUtils.parsePaginationArguments(params, services.config.pageSize);
-			// force sort field to 'id' until this is indexed/decided/developed
-			options.sortField = '_id';
+			const options = routeUtils.parsePaginationArguments(params, services.config.pageSize, ['_id']);
 
 			return db.transactions(filters, options)
 				.then(result => routeUtils.createSender(routeResultTypes.transaction).sendPage(res, next)(result));

@@ -30,9 +30,7 @@ module.exports = {
 		server.get('/mosaics', (req, res, next) => {
 			const ownerAddress = req.params.ownerAddress ? routeUtils.parseArgument(req.params, 'ownerAddress', 'address') : undefined;
 
-			const options = routeUtils.parsePaginationArguments(req.params, services.config.pageSize);
-			// force sort field to 'id' until this is indexed/decided/developed
-			options.sortField = '_id';
+			const options = routeUtils.parsePaginationArguments(req.params, services.config.pageSize, ['_id']);
 
 			return db.mosaics(ownerAddress, options)
 				.then(result => mosaicSender.sendPage(res, next)(result));

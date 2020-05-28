@@ -20,6 +20,7 @@
 
 const { MockServer, test } = require('./utils/routeTestUtils');
 const routeResultTypes = require('../../src/routes/routeResultTypes');
+const routeUtils = require('../../src/routes/routeUtils');
 const transactionRoutes = require('../../src/routes/transactionRoutes');
 const catapult = require('catapult-sdk');
 const { expect } = require('chai');
@@ -232,42 +233,31 @@ describe('transaction routes', () => {
 			});
 
 			describe('parses options', () => {
-				it('parses options correctly', () => {
-					const req = {
-						params: {
-							pageSize: '15', pageNumber: '5', sortField: 'id', order: 'desc'
-						}
-					};
+				it('parses and forwards paging options', () => {
+					// Arrange:
+					const pagingBag = 'fakePagingBagObject';
+					const paginationParser = sinon.stub(routeUtils, 'parsePaginationArguments').returns(pagingBag);
 
-					// Act + Assert
-					return mockServer.callRoute(route, req).then(() => {
-						expect(dbTransactionsFake.firstCall.args[1]).to.deep.equal({
-							pageSize: 15,
-							pageNumber: 5,
-							sortField: '_id',
-							sortDirection: -1,
-							offset: undefined
-						});
+					// Act:
+					return mockServer.callRoute(route, { params: {} }).then(() => {
+						// Assert:
+						expect(dbTransactionsFake.calledOnce).to.equal(true);
+						expect(dbTransactionsFake.firstCall.args[1]).to.deep.equal(pagingBag);
+						paginationParser.restore();
 					});
 				});
 
-				// force sort field to 'id' until this is indexed/decided/developed
-				it('always defaults sortField to id', () => {
-					const req = {
-						params: {
-							pageSize: '15', pageNumber: '1', sortField: 'meta.hash'
-						}
-					};
+				it('allowed sort fields are taken into account', () => {
+					// Arrange:
+					const paginationParserSpy = sinon.spy(routeUtils, 'parsePaginationArguments');
+					const expectedAllowedSortFields = ['_id'];
 
-					// Act + Assert
-					return mockServer.callRoute(route, req).then(() => {
-						expect(dbTransactionsFake.firstCall.args[1]).to.deep.equal({
-							pageSize: 15,
-							pageNumber: 1,
-							sortField: '_id',
-							sortDirection: 1,
-							offset: undefined
-						});
+					// Act:
+					return mockServer.callRoute(route, { params: {} }).then(() => {
+						// Assert:
+						expect(paginationParserSpy.calledOnce).to.equal(true);
+						expect(paginationParserSpy.firstCall.args[2]).to.deep.equal(expectedAllowedSortFields);
+						paginationParserSpy.restore();
 					});
 				});
 			});

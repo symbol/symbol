@@ -83,30 +83,28 @@ describe('block routes', () => {
 				dbBlocksFake.resetHistory();
 			});
 
-			describe('returns blocks', () => {
-				it('returns correct structure with blocks', () => {
-					const req = { params: {} };
+			it('returns correct structure with blocks', () => {
+				const req = { params: {} };
 
-					// Act:
-					return mockServer.callRoute(route, req).then(() => {
-						// Assert:
-						expect(mockServer.send.firstCall.args[0]).to.deep.equal({
-							payload: fakePaginatedBlock,
-							type: routeResultTypes.block,
-							structure: 'page'
-						});
-						expect(mockServer.next.calledOnce).to.equal(true);
+				// Act:
+				return mockServer.callRoute(route, req).then(() => {
+					// Assert:
+					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
+						payload: fakePaginatedBlock,
+						type: routeResultTypes.block,
+						structure: 'page'
 					});
+					expect(mockServer.next.calledOnce).to.equal(true);
 				});
 			});
 
-			describe('forwards signerPublicKey filter', () =>
+			it('forwards signerPublicKey filter', () =>
 				mockServer.callRoute(route, { params: { signerPublicKey: testPublickeyString } }).then(() => {
 					expect(dbBlocksFake.firstCall.args[0]).to.deep.equal(testPublickey);
 					expect(dbBlocksFake.firstCall.args[1]).to.deep.equal(undefined);
 				}));
 
-			describe('forwards beneficiaryPublicKey filter', () =>
+			it('forwards beneficiaryPublicKey filter', () =>
 				mockServer.callRoute(route, { params: { beneficiaryPublicKey: testPublickeyString } }).then(() => {
 					expect(dbBlocksFake.firstCall.args[0]).to.deep.equal(undefined);
 					expect(dbBlocksFake.firstCall.args[1]).to.deep.equal(testPublickey);
@@ -127,22 +125,17 @@ describe('block routes', () => {
 					});
 				});
 
-				it('overrides sortField to id', () => {
-					const req = {
-						params: {
-							pageSize: '15', pageNumber: '1', sortField: 'meta.hash'
-						}
-					};
+				it('allowed sort fields are taken into account', () => {
+					// Arrange:
+					const paginationParserSpy = sinon.spy(routeUtils, 'parsePaginationArguments');
+					const expectedAllowedSortFields = ['_id'];
 
-					// Act + Assert
-					return mockServer.callRoute(route, req).then(() => {
-						expect(dbBlocksFake.firstCall.args[2]).to.deep.equal({
-							pageSize: 15,
-							pageNumber: 1,
-							sortField: '_id',
-							sortDirection: 1,
-							offset: undefined
-						});
+					// Act:
+					return mockServer.callRoute(route, { params: {} }).then(() => {
+						// Assert:
+						expect(paginationParserSpy.calledOnce).to.equal(true);
+						expect(paginationParserSpy.firstCall.args[2]).to.deep.equal(expectedAllowedSortFields);
+						paginationParserSpy.restore();
 					});
 				});
 			});
