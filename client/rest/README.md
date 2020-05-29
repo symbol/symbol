@@ -18,13 +18,14 @@ Catapult REST gateway combines HTTP and WebSockets to perform read and write act
 
 | Parameter | Description | Example  |
 |-|-|-|
-| clientPrivateKey | REST client private key. | 000...000|
-| db.url | MongoDB [connection URL](https://github.com/nemtech/catapult-server/blob/master/resources/config-database.properties#L3). | mongodb://localhost:27017/ |
+| db.url | MongoDB connection URL. | mongodb://localhost:27017/ |
 | apiNode.host | API node connection host. | 127.0.0.1 |
-| apiNode.port | API node [connection port](https://github.com/nemtech/catapult-server/blob/master/resources/config-node.properties#L3). | 7900 |
-|api.publicKey | API node [public key](https://github.com/nemtech/catapult-server/blob/master/resources/config-user.properties#L4). | FFFF...FFF|
+| apiNode.port | API node connection port. | 7900 |
+| apiNode.tlsClientCertificatePath | API node TLS client certificate path. | /api-node-config/cert/node.crt.pem |
+| apiNode.tlsClientKeyPath | API node TLS client key certificate path.  | /api-node-config/cert/node.key.pem |
+| apiNode.tlsCaCertificatePath| API node TLS CA certificate path. | /api-node-config/cert/ca.cert.pem |
 | websocket.mq.host | ZeroMQ connection host. |  127.0.0.1 |
-| websocket.mq.port | ZeroMQ [connection port](https://github.com/nemtech/catapult-server/blob/master/resources/config-messaging.properties#L3). | 7902 |
+| websocket.mq.port | ZeroMQ connection port. |  7902 |
 
 > **Note:** catapult-rest has to reach the API node, ZeroMQ and MongoDB ports. If you are running catapult-server on a VPS, you can bind the ports to your local development environment creating an **SSH tunnel**: ``ssh -L 27017:localhost:27017 -L 7900:localhost:7900 -L 7902:localhost:7902 -p 2357 <USER>@<VPS_IP>``
 
@@ -38,6 +39,7 @@ Catapult REST gateway combines HTTP and WebSockets to perform read and write act
 
 ```
 cd rest
+yarn build
 yarn start resources/rest.json
 ```
 
@@ -53,8 +55,7 @@ Before contributing please [read this](CONTRIBUTING.md) and consider the followi
 - Split test scope areas with _Arrange/Act/Assert_ comments
 - Use spontaneous comments only when necessary
 - Follow linting rules - tests are set to fail if those aren't followed
-- Notify or update related API resources of accepted changes ([OpenApi](https://github.com/nemtech/nem2-openapi))
-
+- Notify or update related API resources of accepted changes ([OpenAPI](https://github.com/nemtech/symbol-openapi))
 
 ## License
 
