@@ -41,7 +41,7 @@ describe('account link plugin', () => {
 
 			// - accountLink
 			expect(Object.keys(modelSchema.accountLink).length).to.equal(Object.keys(modelSchema.transaction).length + 1);
-			expect(modelSchema.accountLink).to.contain.all.keys(['remotePublicKey']);
+			expect(modelSchema.accountLink).to.contain.all.keys(['linkedPublicKey']);
 
 			// - nodeKeyLink
 			expect(Object.keys(modelSchema.nodeKeyLink).length).to.equal(Object.keys(modelSchema.transaction).length + 1);
@@ -80,17 +80,17 @@ describe('account link plugin', () => {
 		});
 
 		describe('supports account link transaction', () => {
-			const remotePublicKey = Buffer.of(
+			const linkedPublicKey = Buffer.of(
 				0x77, 0xBE, 0xE1, 0xCA, 0xD0, 0x8E, 0x6E, 0x48, 0x95, 0xE8, 0x18, 0xB2, 0x7B, 0xD8, 0xFA, 0xC9,
 				0x47, 0x0D, 0xB8, 0xFD, 0x2D, 0x81, 0x47, 0x6A, 0xC5, 0x61, 0xA4, 0xCE, 0xE1, 0x81, 0x40, 0x83
 			);
 			test.binary.test.addAll(getCodecs()[EntityType.accountLink], 32 + 1, () => ({
 				buffer: Buffer.concat([
-					remotePublicKey,
+					linkedPublicKey,
 					Buffer.of(0x01)
 				]),
 				object: {
-					remotePublicKey,
+					linkedPublicKey,
 					linkAction: 0x01
 				}
 			}));
