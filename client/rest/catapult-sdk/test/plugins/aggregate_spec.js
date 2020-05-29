@@ -24,6 +24,7 @@ const ModelType = require('../../src/model/ModelType');
 const BinaryParser = require('../../src/parser/BinaryParser');
 const aggregate = require('../../src/plugins/aggregate');
 const BinarySerializer = require('../../src/serializer/BinarySerializer');
+const uint64 = require('../../src/utils/uint64');
 const test = require('../binaryTestUtils');
 const { expect } = require('chai');
 
@@ -33,7 +34,7 @@ const constants = {
 		aggregate: 128 + 32 + 4 + 4, // transaction header + transactionshash + payload size + aggregateTransactionHeader_Reserved1
 		transaction: 128,
 		embedded: 48 + 8,
-		cosignature: 96,
+		cosignature: 8 + 32 + 64, // version + signer public key + signature
 		transactionsHash: 32
 	}
 };
@@ -59,6 +60,7 @@ describe('aggregate plugin', () => {
 
 			// - cosignature
 			expect(modelSchema['aggregate.cosignature']).to.deep.equal({
+				version: ModelType.uint64,
 				signerPublicKey: ModelType.binary,
 				signature: ModelType.binary,
 				parentHash: ModelType.binary
@@ -199,6 +201,7 @@ describe('aggregate plugin', () => {
 		};
 
 		const addCosignature = generator => {
+			const Version_Buffer = Buffer.of(0x46, 0x8B, 0x15, 0x2D, 0x30, 0xE8, 0x50, 0x54);
 			const Signer_Buffer = Buffer.from(test.random.bytes(test.constants.sizes.signerPublicKey));
 			const Signature_Buffer = Buffer.from(test.random.bytes(test.constants.sizes.signature));
 
@@ -206,6 +209,7 @@ describe('aggregate plugin', () => {
 				const data = generator();
 				data.buffer = Buffer.concat([
 					data.buffer,
+					Version_Buffer,
 					Signer_Buffer,
 					Signature_Buffer
 				]);
@@ -214,6 +218,7 @@ describe('aggregate plugin', () => {
 					data.object.cosignatures = [];
 
 				data.object.cosignatures.push({
+					version: uint64.fromBytes(Version_Buffer),
 					signerPublicKey: Signer_Buffer,
 					signature: Signature_Buffer
 				});

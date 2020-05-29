@@ -88,6 +88,7 @@ describe('aggregate plugin', () => {
 
 			// Act:
 			const buffer = Buffer.concat([
+				Buffer.of(0x34, 0x54, 0x55, 0xFF, 0xFA, 0x0E, 0xCC, 0xB7),
 				Buffer.alloc(test.constants.sizes.signerPublicKey, 33),
 				Buffer.alloc(test.constants.sizes.signature, 44),
 				Buffer.alloc(test.constants.sizes.hash256, 55)
@@ -101,6 +102,7 @@ describe('aggregate plugin', () => {
 			expect(emitted[0]).to.deep.equal({
 				type: 'aggregate.cosignature',
 				payload: {
+					version: [4283782196, 3083603706],
 					signerPublicKey: Buffer.alloc(test.constants.sizes.signerPublicKey, 33),
 					signature: Buffer.alloc(test.constants.sizes.signature, 44),
 					parentHash: Buffer.alloc(test.constants.sizes.hash256, 55)
