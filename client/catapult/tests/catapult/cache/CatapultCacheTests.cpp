@@ -223,9 +223,37 @@ namespace catapult { namespace cache {
 		const auto& subCacheMerkleRoots = view.calculateStateHash(Height(123)).SubCacheMerkleRoots;
 		EXPECT_EQ(3u, subCacheMerkleRoots.size());
 
-		// - adjust expected hashes because SimpleCache updateMerkleRoot changes the first byte of the merkle root
+		// - adjust expected hashes because SimpleCache::updateMerkleRoot changes the first byte of the merkle root
 		for (auto& hash : hashes)
-			hash[0] = 123u;
+			hash[0] = 123;
+
+		EXPECT_EQ(hashes, subCacheMerkleRoots);
+	}
+
+	// endregion
+
+	// region prune
+
+	TEST(TEST_CLASS, CanPruneAllSubCachesAtHeight) {
+		// Arrange:
+		auto cache = CreateSimpleCatapultCacheForStateHashTests();
+		auto view = cache.createDelta();
+		auto hashes = test::GenerateRandomDataVector<Hash256>(3);
+		view.setSubCacheMerkleRoots(hashes);
+
+		// Act:
+		view.prune(Height(101));
+
+		// Assert:
+		const auto& subCacheMerkleRoots = view.calculateStateHash(Height(123)).SubCacheMerkleRoots;
+		EXPECT_EQ(3u, subCacheMerkleRoots.size());
+
+		// - adjust expected hashes because SimpleCache::updateMerkleRoot changes the first byte of the merkle root
+		//   and SimpleCache::prune changes the second
+		for (auto& hash : hashes) {
+			hash[0] = 123;
+			hash[1] = 101;
+		}
 
 		EXPECT_EQ(hashes, subCacheMerkleRoots);
 	}

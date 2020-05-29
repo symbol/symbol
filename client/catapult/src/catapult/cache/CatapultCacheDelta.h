@@ -70,6 +70,9 @@ namespace catapult { namespace cache {
 		/// Sets the merkle roots for all sub caches (\a subCacheMerkleRoots).
 		void setSubCacheMerkleRoots(const std::vector<Hash256>& subCacheMerkleRoots);
 
+		/// Prunes the cache at \a height.
+		void prune(Height height);
+
 	public:
 		/// Creates a read-only view of this delta.
 		ReadOnlyCatapultCache toReadOnly() const;

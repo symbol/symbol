@@ -32,7 +32,6 @@
 #include "catapult/keylink/KeyLinkObserver.h"
 #include "catapult/keylink/KeyLinkValidator.h"
 #include "catapult/model/BlockChainConfiguration.h"
-#include "catapult/observers/ObserverUtils.h"
 #include "catapult/plugins/CacheHandlers.h"
 #include "catapult/plugins/PluginManager.h"
 
@@ -182,11 +181,7 @@ namespace catapult { namespace plugins {
 					importance::CreateRestoreImportanceCalculator());
 			builder
 				.add(std::move(pRecalculateImportancesObserver))
-				.add(observers::CreateBlockStatisticObserver(config.MaxDifficultyBlocks, config.DefaultDynamicFeeMultiplier))
-				.add(observers::CreateCacheBlockPruningObserver<cache::BlockStatisticCache>(
-						"BlockStatistic",
-						config.BlockPruneInterval,
-						BlockDuration()));
+				.add(observers::CreateBlockStatisticObserver(config.MaxDifficultyBlocks, config.DefaultDynamicFeeMultiplier));
 		});
 
 		RegisterVotingKeyLinkTransaction(manager);

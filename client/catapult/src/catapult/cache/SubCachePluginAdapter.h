@@ -130,6 +130,12 @@ namespace catapult { namespace cache {
 				return MerkleRootMutator<UnderlyingViewType>();
 			}
 
+			auto pruneMutator() {
+				// need to dereference to get underlying view type from LockedCacheView
+				using UnderlyingViewType = std::remove_reference_t<decltype(*m_view)>;
+				return PruneMutator<UnderlyingViewType>();
+			}
+
 		public:
 			const SubCacheViewIdentifier& id() const override {
 				return m_id;
@@ -159,58 +165,72 @@ namespace catapult { namespace cache {
 				UpdateMerkleRoot(m_view, height, merkleRootMutator());
 			}
 
+			void prune(Height height) override {
+				Prune(m_view, height, pruneMutator());
+			}
+
 			const void* asReadOnly() const override {
 				return &m_view->asReadOnly();
 			}
 
 		private:
-			enum class MerkleRootType { Unsupported, Supported };
-			using UnsupportedMerkleRootFlag = std::integral_constant<MerkleRootType, MerkleRootType::Unsupported>;
-			using SupportedMerkleRootFlag = std::integral_constant<MerkleRootType, MerkleRootType::Supported>;
+			enum class FeatureType { Unsupported, Supported };
+			using UnsupportedFeatureFlag = std::integral_constant<FeatureType, FeatureType::Unsupported>;
+			using SupportedFeatureFlag = std::integral_constant<FeatureType, FeatureType::Supported>;
 
 			template<typename T, typename = void>
-			struct MerkleRootAccessor : public UnsupportedMerkleRootFlag {};
+			struct MerkleRootAccessor : public UnsupportedFeatureFlag {};
 
 			template<typename T>
 			struct MerkleRootAccessor<
 					T,
 					utils::traits::is_type_expression_t<decltype(reinterpret_cast<const T*>(0)->tryGetMerkleRoot())>>
-					: public SupportedMerkleRootFlag
+					: public SupportedFeatureFlag
 			{};
 
 			template<typename T, typename = void>
-			struct MerkleRootMutator : public UnsupportedMerkleRootFlag {};
+			struct MerkleRootMutator : public UnsupportedFeatureFlag {};
 
 			template<typename T>
 			struct MerkleRootMutator<
 					T,
 					utils::traits::is_type_expression_t<decltype(reinterpret_cast<T*>(0)->setMerkleRoot(Hash256()))>>
-					: public SupportedMerkleRootFlag
+					: public SupportedFeatureFlag
 			{};
 
-			static bool SupportsMerkleRoot(const TView&, UnsupportedMerkleRootFlag) {
+			template<typename T, typename = void>
+			struct PruneMutator : public UnsupportedFeatureFlag {};
+
+			template<typename T>
+			struct PruneMutator<
+					T,
+					utils::traits::is_type_expression_t<decltype(reinterpret_cast<T*>(0)->prune(Height()))>>
+					: public SupportedFeatureFlag
+			{};
+
+			static bool SupportsMerkleRoot(const TView&, UnsupportedFeatureFlag) {
 				return false;
 			}
 
-			static bool SupportsMerkleRoot(const TView& view, SupportedMerkleRootFlag) {
+			static bool SupportsMerkleRoot(const TView& view, SupportedFeatureFlag) {
 				return view->supportsMerkleRoot();
 			}
 
-			static bool TryGetMerkleRoot(const TView&, Hash256&, UnsupportedMerkleRootFlag) {
+			static bool TryGetMerkleRoot(const TView&, Hash256&, UnsupportedFeatureFlag) {
 				return false;
 			}
 
-			static bool TryGetMerkleRoot(const TView& view, Hash256& merkleRoot, SupportedMerkleRootFlag) {
+			static bool TryGetMerkleRoot(const TView& view, Hash256& merkleRoot, SupportedFeatureFlag) {
 				auto result = view->tryGetMerkleRoot();
 				merkleRoot = result.first;
 				return result.second;
 			}
 
-			static bool TrySetMerkleRoot(TView&, const Hash256&, UnsupportedMerkleRootFlag) {
+			static bool TrySetMerkleRoot(TView&, const Hash256&, UnsupportedFeatureFlag) {
 				return false;
 			}
 
-			static bool TrySetMerkleRoot(TView& view, const Hash256& merkleRoot, SupportedMerkleRootFlag) {
+			static bool TrySetMerkleRoot(TView& view, const Hash256& merkleRoot, SupportedFeatureFlag) {
 				if (!view->supportsMerkleRoot())
 					return false;
 
@@ -218,11 +238,18 @@ namespace catapult { namespace cache {
 				return true;
 			}
 
-			static void UpdateMerkleRoot(TView&, Height, UnsupportedMerkleRootFlag)
+			static void UpdateMerkleRoot(TView&, Height, UnsupportedFeatureFlag)
 			{}
 
-			static void UpdateMerkleRoot(TView& view, Height height, SupportedMerkleRootFlag) {
+			static void UpdateMerkleRoot(TView& view, Height height, SupportedFeatureFlag) {
 				view->updateMerkleRoot(height);
+			}
+
+			static void Prune(TView&, Height, UnsupportedFeatureFlag)
+			{}
+
+			static void Prune(TView& view, Height height, SupportedFeatureFlag) {
+				view->prune(height);
 			}
 
 		private:

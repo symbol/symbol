@@ -359,13 +359,22 @@ namespace catapult { namespace consumers {
 
 		struct ConsumerTestContext {
 		public:
-			ConsumerTestContext()
+			explicit ConsumerTestContext(uint32_t maxRollbackBlocks = Max_Rollback_Blocks)
 					: ConsumerTestContext(
+							maxRollbackBlocks,
 							std::make_unique<mocks::MockMemoryBlockStorage>(),
 							std::make_unique<mocks::MockMemoryBlockStorage>())
 			{}
 
 			ConsumerTestContext(std::unique_ptr<io::BlockStorage>&& pStorage, std::unique_ptr<io::PrunableBlockStorage>&& pStagingStorage)
+					: ConsumerTestContext(Max_Rollback_Blocks, std::move(pStorage), std::move(pStagingStorage))
+			{}
+
+		private:
+			ConsumerTestContext(
+					uint32_t maxRollbackBlocks,
+					std::unique_ptr<io::BlockStorage>&& pStorage,
+					std::unique_ptr<io::PrunableBlockStorage>&& pStagingStorage)
 					: Cache(test::CreateCatapultCacheWithMarkerAccount())
 					, Storage(std::move(pStorage), std::move(pStagingStorage)) {
 				{
@@ -397,7 +406,7 @@ namespace catapult { namespace consumers {
 					return CommitStep(step);
 				};
 
-				Consumer = CreateBlockChainSyncConsumer(Cache, Storage, Max_Rollback_Blocks, handlers);
+				Consumer = CreateBlockChainSyncConsumer(Cache, Storage, maxRollbackBlocks, handlers);
 			}
 
 		public:
@@ -682,13 +691,13 @@ namespace catapult { namespace consumers {
 
 	TEST(TEST_CLASS, RemoteChainWithHeightDifferenceEqualToMaxRollbackBlocksIsValidForRemotePullSource) {
 		// Assert: (this test only makes sense for Remote_Pull because it is the only source that allows multiple block rollbacks)
-		AssertValidHeight(Height(100), Height(100 - Max_Rollback_Blocks), 4, InputSource::Remote_Pull);
+		AssertValidHeight(Height(100), Height(100 - Max_Rollback_Blocks + 1), 4, InputSource::Remote_Pull);
 	}
 
 	TEST(TEST_CLASS, RemoteChainWithHeightDifferencGreaterThanMaxRollbackBlocksIsInvalidForRemotePullSource) {
 		// Assert: (this test only makes sense for Remote_Pull because it is the only source that allows multiple block rollbacks)
 		auto expectedResult = Failure_Consumer_Remote_Chain_Too_Far_Behind;
-		AssertInvalidHeightWithResult(Height(100), Height(100 - Max_Rollback_Blocks - 1), 4, InputSource::Remote_Pull, expectedResult);
+		AssertInvalidHeightWithResult(Height(100), Height(100 - Max_Rollback_Blocks), 4, InputSource::Remote_Pull, expectedResult);
 		AssertInvalidHeightWithResult(Height(100), Height(100 - Max_Rollback_Blocks - 10), 4, InputSource::Remote_Pull, expectedResult);
 	}
 
@@ -1150,6 +1159,40 @@ namespace catapult { namespace consumers {
 		ASSERT_EQ(2u, context.CommitStep.params().size());
 		EXPECT_EQ(CommitOperationStep::Blocks_Written, context.CommitStep.params()[0]);
 		EXPECT_EQ(CommitOperationStep::State_Written, context.CommitStep.params()[1]);
+	}
+
+	// endregion
+
+	// region pruning
+
+	TEST(TEST_CLASS, CommitAutomaticallyPrunesCache) {
+		// Arrange: create a local storage with blocks 1-7 and a remote storage with blocks 8-11
+		ConsumerTestContext context(2);
+		context.seedStorage(Height(7));
+		auto input = CreateInput(Height(8), 4);
+
+		// - seed the BlockStatisticCache with entries up to local storage height
+		{
+			auto cacheDelta = context.Cache.createDelta();
+			auto& blockStatisticCacheDelta = cacheDelta.sub<cache::BlockStatisticCache>();
+			for (auto height = Height(1); height <= Height(7); height = height + Height(1))
+				blockStatisticCacheDelta.insert(state::BlockStatistic(height));
+
+			context.Cache.commit(Height(1));
+		}
+
+		// Sanity:
+		EXPECT_EQ(7u, context.Cache.sub<cache::BlockStatisticCache>().createView()->size());
+
+		// Act:
+		auto result = context.Consumer(input);
+
+		// Assert:
+		test::AssertContinued(result);
+
+		// - pruning was triggered on the cache (lower_bound should cause heights less than 5 to be pruned, so { 5, 6, 7 } are preserved)
+		// - 7 (seeded entries); 0 (added entries, no real observer used); 5 (local finalized chain height)
+		EXPECT_EQ(3u, context.Cache.sub<cache::BlockStatisticCache>().createView()->size());
 	}
 
 	// endregion
