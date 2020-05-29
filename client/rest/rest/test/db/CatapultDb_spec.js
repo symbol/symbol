@@ -146,8 +146,14 @@ describe('catapult db', () => {
 	const stripExtraneousBlockInformation = block => stripBlockFields(block, ['transactionMerkleTree', 'statementMerkleTree']);
 
 	describe('blocks', () => {
-		const account1 = { publicKey: test.random.publicKey() };
-		const account2 = { publicKey: test.random.publicKey() };
+		const account1 = {
+			publicKey: test.random.publicKey(),
+			address: test.random.address()
+		};
+		const account2 = {
+			publicKey: test.random.publicKey(),
+			address: test.random.address()
+		};
 
 		const paginationOptions = {
 			pageSize: 10,
@@ -158,12 +164,12 @@ describe('catapult db', () => {
 
 		const { createObjectId } = test.db;
 
-		const createBlock = (objectId, height, signerPublicKey, beneficiaryPublicKey) => ({
+		const createBlock = (objectId, height, signerPublicKey, beneficiaryAddress) => ({
 			_id: createObjectId(objectId),
 			meta: { height },
 			block: {
 				signerPublicKey: signerPublicKey ? Buffer.from(signerPublicKey) : undefined,
-				beneficiaryPublicKey: beneficiaryPublicKey ? Buffer.from(beneficiaryPublicKey) : undefined
+				beneficiaryAddress: beneficiaryAddress ? Buffer.from(beneficiaryAddress) : undefined
 			}
 		});
 
@@ -184,7 +190,7 @@ describe('catapult db', () => {
 		it('returns expected structure', () => {
 			// Arrange:
 			const dbBlocks = [
-				createBlock(10, 100, account1.publicKey, account2.publicKey)
+				createBlock(10, 100, account1.publicKey, account2.address)
 			];
 
 			// Act + Assert:
@@ -203,7 +209,7 @@ describe('catapult db', () => {
 			const dbBlocks = [
 				createBlock(10, 1),
 				createBlock(20, 1, account1.publicKey),
-				createBlock(30, 1, account1.publicKey, account2.publicKey)
+				createBlock(30, 1, account1.publicKey, account2.address)
 			];
 
 			// Act + Assert:
@@ -215,11 +221,11 @@ describe('catapult db', () => {
 			const dbBlocks = [
 				createBlock(10, 1),
 				createBlock(20, 1, account1.publicKey),
-				createBlock(30, 1, account1.publicKey, account2.publicKey)
+				createBlock(30, 1, account1.publicKey, account2.address)
 			];
 
 			// Act + Assert:
-			return runTestAndVerifyIds(dbBlocks, db => db.blocks(account1.publicKey, account2.publicKey, paginationOptions), [30]);
+			return runTestAndVerifyIds(dbBlocks, db => db.blocks(account1.publicKey, account2.address, paginationOptions), [30]);
 		});
 
 		describe('respects offset', () => {
@@ -333,15 +339,15 @@ describe('catapult db', () => {
 				return runTestAndVerifyIds(dbBlocks, db => db.blocks(account1.publicKey, undefined, paginationOptions), [10]);
 			});
 
-			it('beneficiaryPublicKey', () => {
+			it('beneficiaryAddress', () => {
 				// Arrange:
 				const dbBlocks = [
-					createBlock(10, 1, account1.publicKey, account1.publicKey),
-					createBlock(20, 1, account1.publicKey, account2.publicKey)
+					createBlock(10, 1, account1.publicKey, account1.address),
+					createBlock(20, 1, account1.publicKey, account2.address)
 				];
 
 				// Act + Assert:
-				return runTestAndVerifyIds(dbBlocks, db => db.blocks(undefined, account1.publicKey, paginationOptions), [10]);
+				return runTestAndVerifyIds(dbBlocks, db => db.blocks(undefined, account1.address, paginationOptions), [10]);
 			});
 		});
 	});

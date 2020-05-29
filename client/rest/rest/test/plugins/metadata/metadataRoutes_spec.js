@@ -19,7 +19,6 @@
  */
 
 const metadataRoutes = require('../../../src/plugins/metadata/metadataRoutes');
-const routeUtils = require('../../../src/routes/routeUtils');
 const { MockServer } = require('../../routes/utils/routeTestUtils');
 const catapult = require('catapult-sdk');
 const { expect } = require('chai');
@@ -27,31 +26,26 @@ const MongoDb = require('mongodb');
 const sinon = require('sinon');
 
 const { address } = catapult.model;
-const { Binary, Long } = MongoDb;
-const { convert } = catapult.utils;
+const { Long } = MongoDb;
 const { metadata } = catapult.model;
 
 describe('metadata routes', () => {
-	const testPublicKey = '7DE16AEDF57EB9561D3E6EFA4AE66F27ABDA8AEC8BC020B6277360E31619DCE7';
-	const uint8TestPublicKey = convert.hexToUint8(testPublicKey);
-
 	const testAddress = 'SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXWV';
 	const uint8TestAddress = address.stringToAddress(testAddress);
 
-	const nonExistingTestAddress = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
-	const uint8NonExistingTestAddress = address.stringToAddress(nonExistingTestAddress);
-
 	const scopedMetadataKey = '0DC67FBE1CAD29E3';
 	const uInt64ScopedMetadataKey = [0x1CAD29E3, 0x0DC67FBE];
-	const senderPublicKey = '4A8876A9042FEB16670A119EB7264FE9C90A56DB64F90D4FEAF1320D0852F754';
-	const uint8SenderPublicKey = convert.hexToUint8(senderPublicKey);
+
+	const senderAddress = 'SAMZMPX33DFIIVOCNJYMF5KJTGLAEVNKHHFROLXD';
+	const uint8SenderAddress = address.stringToAddress(senderAddress);
+
 
 	const metadataEntry = {
 		id: {},
 		metadataEntry: {
 			compositeHash: '',
-			senderPublicKey: '',
-			targetPublicKey: '',
+			sourceAddress: '',
+			targetAddress: '',
 			scopedMetadataKey: '',
 			targetId: '',
 			metadataType: '',
@@ -69,14 +63,6 @@ describe('metadata routes', () => {
 
 	const mockServer = new MockServer();
 	const db = {
-		catapultDb: {
-			addressToPublicKey: searchedAddress => {
-				if (Buffer.from(searchedAddress).equals(Buffer.from(uint8NonExistingTestAddress)))
-					return Promise.reject(Error('account not found'));
-
-				return Promise.resolve({ account: { publicKey: new Binary(Buffer.from(uint8TestPublicKey)) } });
-			}
-		},
 		getMetadataWithPagination: dbGetMetadataWithPaginationFake,
 		getMetadataByKey: dbGetMetadataByKeyFake,
 		getMetadataByKeyAndSender: dbGetMetadataByKeyAndSenderFake
@@ -91,116 +77,12 @@ describe('metadata routes', () => {
 	});
 
 	describe('account metadata', () => {
-		describe('get account publicKey', () => {
-			const addressToPublicKeySpy = sinon.spy(routeUtils, 'addressToPublicKey');
-
-			beforeEach(() => addressToPublicKeySpy.resetHistory());
-
-			after(() => addressToPublicKeySpy.restore());
-
-			it('can get publicKey from address, getting metadata', () => {
-				// Arrange:
-				const accountFilter = { 'metadataEntry.targetPublicKey': uint8TestPublicKey };
-				const req = { params: { accountId: testAddress } };
-				const route = mockServer.getRoute('/metadata/account/:accountId').get();
-
-				// Act:
-				return mockServer.callRoute(route, req).then(() => {
-					// Assert:
-					expect(addressToPublicKeySpy.calledOnce).to.equal(true);
-					expect(addressToPublicKeySpy.firstCall.args[1]).to.deep.equal(uint8TestAddress);
-
-					expect(dbGetMetadataWithPaginationFake.calledOnce).to.equal(true);
-					expect(dbGetMetadataWithPaginationFake.firstCall.args[1]).to.deep.equal(accountFilter);
-				});
-			});
-
-			it('returns resource not found if address doesn\'t exist, getting metadata', () => {
-				// Arrange:
-				const req = { params: { accountId: nonExistingTestAddress } };
-				const route = mockServer.getRoute('/metadata/account/:accountId').get();
-
-				// Act:
-				return mockServer.callRoute(route, req).then(() => {
-					// Assert:
-					expect(mockServer.send.firstCall.args[0].body).to.deep.equal(
-						{ code: 'ResourceNotFound', message: `no resource exists with id '${nonExistingTestAddress}'` }
-					);
-					expect(mockServer.next.calledOnce).to.equal(true);
-				});
-			});
-
-			it('can get publicKey from address, getting metadata by key', () => {
-				// Arrange:
-				const accountFilter = { 'metadataEntry.targetPublicKey': uint8TestPublicKey };
-				const req = { params: { accountId: testAddress, key: scopedMetadataKey } };
-				const route = mockServer.getRoute('/metadata/account/:accountId/key/:key').get();
-
-				// Act:
-				return mockServer.callRoute(route, req).then(() => {
-					// Assert:
-					expect(addressToPublicKeySpy.calledOnce).to.equal(true);
-					expect(addressToPublicKeySpy.firstCall.args[1]).to.deep.equal(uint8TestAddress);
-
-					expect(dbGetMetadataByKeyFake.calledOnce).to.equal(true);
-					expect(dbGetMetadataByKeyFake.firstCall.args[1]).to.deep.equal(accountFilter);
-				});
-			});
-
-			it('returns resource not found if address doesn\'t exist, getting metadata by key', () => {
-				// Arrange:
-				const req = { params: { accountId: nonExistingTestAddress, key: scopedMetadataKey } };
-				const route = mockServer.getRoute('/metadata/account/:accountId/key/:key').get();
-
-				// Act:
-				return mockServer.callRoute(route, req).then(() => {
-					// Assert:
-					expect(mockServer.send.firstCall.args[0].body).to.deep.equal(
-						{ code: 'ResourceNotFound', message: `no resource exists with id '${nonExistingTestAddress}'` }
-					);
-					expect(mockServer.next.calledOnce).to.equal(true);
-				});
-			});
-
-			it('can get publicKey from address, getting metadata by key and sender', () => {
-				// Arrange:
-				const accountFilter = { 'metadataEntry.targetPublicKey': uint8TestPublicKey };
-				const req = { params: { accountId: testAddress, key: scopedMetadataKey, publicKey: senderPublicKey } };
-				const route = mockServer.getRoute('/metadata/account/:accountId/key/:key/sender/:publicKey').get();
-
-				// Act:
-				return mockServer.callRoute(route, req).then(() => {
-					// Assert:
-					expect(addressToPublicKeySpy.calledOnce).to.equal(true);
-					expect(addressToPublicKeySpy.firstCall.args[1]).to.deep.equal(uint8TestAddress);
-
-					expect(dbGetMetadataByKeyAndSenderFake.calledOnce).to.equal(true);
-					expect(dbGetMetadataByKeyAndSenderFake.firstCall.args[1]).to.deep.equal(accountFilter);
-				});
-			});
-
-			it('returns resource not found if address doesn\'t exist, getting metadata by key and sender', () => {
-				// Arrange:
-				const req = { params: { accountId: nonExistingTestAddress, key: scopedMetadataKey, publicKey: senderPublicKey } };
-				const route = mockServer.getRoute('/metadata/account/:accountId/key/:key/sender/:publicKey').get();
-
-				// Act:
-				return mockServer.callRoute(route, req).then(() => {
-					// Assert:
-					expect(mockServer.send.firstCall.args[0].body).to.deep.equal(
-						{ code: 'ResourceNotFound', message: `no resource exists with id '${nonExistingTestAddress}'` }
-					);
-					expect(mockServer.next.calledOnce).to.equal(true);
-				});
-			});
-		});
-
 		describe('get metadata', () => {
 			it('can get metadata', () => {
 				// Arrange:
-				const accountFilter = { 'metadataEntry.targetPublicKey': uint8TestPublicKey };
-				const req = { params: { accountId: testPublicKey } };
-				const route = mockServer.getRoute('/metadata/account/:accountId').get();
+				const accountFilter = { 'metadataEntry.targetAddress': uint8TestAddress };
+				const req = { params: { address: testAddress } };
+				const route = mockServer.getRoute('/metadata/account/:address').get();
 
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
@@ -216,17 +98,17 @@ describe('metadata routes', () => {
 
 			it('can get metadata with pagination', () => {
 				// Arrange:
-				const accountFilter = { 'metadataEntry.targetPublicKey': uint8TestPublicKey };
+				const accountFilter = { 'metadataEntry.targetAddress': uint8TestAddress };
 				const pagingId = '5b88a35e6e2a2b1801a857fa';
 				const req = {
 					params: {
-						accountId: testPublicKey,
+						address: testAddress,
 						id: pagingId,
 						pageSize: '10',
 						ordering: 'id'
 					}
 				};
-				const route = mockServer.getRoute('/metadata/account/:accountId').get();
+				const route = mockServer.getRoute('/metadata/account/:address').get();
 
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
@@ -247,9 +129,9 @@ describe('metadata routes', () => {
 		describe('get metadata by key', () => {
 			it('can get metadata by key', () => {
 				// Arrange:
-				const accountFilter = { 'metadataEntry.targetPublicKey': uint8TestPublicKey };
-				const req = { params: { accountId: testPublicKey, key: scopedMetadataKey } };
-				const route = mockServer.getRoute('/metadata/account/:accountId/key/:key').get();
+				const accountFilter = { 'metadataEntry.targetAddress': uint8TestAddress };
+				const req = { params: { address: testAddress, key: scopedMetadataKey } };
+				const route = mockServer.getRoute('/metadata/account/:address/key/:key').get();
 
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
@@ -267,9 +149,9 @@ describe('metadata routes', () => {
 		describe('get metadata by key and sender', () => {
 			it('can get metadata by key and sender', () => {
 				// Arrange:
-				const accountFilter = { 'metadataEntry.targetPublicKey': uint8TestPublicKey };
-				const req = { params: { accountId: testPublicKey, key: scopedMetadataKey, publicKey: senderPublicKey } };
-				const route = mockServer.getRoute('/metadata/account/:accountId/key/:key/sender/:publicKey').get();
+				const accountFilter = { 'metadataEntry.targetAddress': uint8TestAddress };
+				const req = { params: { address: testAddress, key: scopedMetadataKey, senderAddress } };
+				const route = mockServer.getRoute('/metadata/account/:address/key/:key/sender/:senderAddress').get();
 
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
@@ -278,7 +160,7 @@ describe('metadata routes', () => {
 					expect(dbGetMetadataByKeyAndSenderFake.firstCall.args[0]).to.equal(metadata.metadataType.account);
 					expect(dbGetMetadataByKeyAndSenderFake.firstCall.args[1]).to.deep.equal(accountFilter);
 					expect(dbGetMetadataByKeyAndSenderFake.firstCall.args[2]).to.deep.equal(uInt64ScopedMetadataKey);
-					expect(dbGetMetadataByKeyAndSenderFake.firstCall.args[3]).to.deep.equal(uint8SenderPublicKey);
+					expect(dbGetMetadataByKeyAndSenderFake.firstCall.args[3]).to.deep.equal(uint8SenderAddress);
 					expect(mockServer.send.firstCall.args[0]).to.deep.equal(expectedSingleMetadataOutput);
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});
@@ -363,8 +245,8 @@ describe('metadata routes', () => {
 			it('can get metadata by key and sender', () => {
 				// Arrange:
 				const mosaicFilter = { 'metadataEntry.targetId': longTypeMosaicId };
-				const req = { params: { mosaicId, key: scopedMetadataKey, publicKey: senderPublicKey } };
-				const route = mockServer.getRoute('/metadata/mosaic/:mosaicId/key/:key/sender/:publicKey').get();
+				const req = { params: { mosaicId, key: scopedMetadataKey, senderAddress } };
+				const route = mockServer.getRoute('/metadata/mosaic/:mosaicId/key/:key/sender/:senderAddress').get();
 
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
@@ -373,7 +255,7 @@ describe('metadata routes', () => {
 					expect(dbGetMetadataByKeyAndSenderFake.firstCall.args[0]).to.equal(metadata.metadataType.mosaic);
 					expect(dbGetMetadataByKeyAndSenderFake.firstCall.args[1]).to.deep.equal(mosaicFilter);
 					expect(dbGetMetadataByKeyAndSenderFake.firstCall.args[2]).to.deep.equal(uInt64ScopedMetadataKey);
-					expect(dbGetMetadataByKeyAndSenderFake.firstCall.args[3]).to.deep.equal(uint8SenderPublicKey);
+					expect(dbGetMetadataByKeyAndSenderFake.firstCall.args[3]).to.deep.equal(uint8SenderAddress);
 					expect(mockServer.send.firstCall.args[0]).to.deep.equal(expectedSingleMetadataOutput);
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});
@@ -458,8 +340,8 @@ describe('metadata routes', () => {
 			it('can get metadata by key and sender', () => {
 				// Arrange:
 				const namespaceFilter = { 'metadataEntry.targetId': longTypeNamespaceId };
-				const req = { params: { namespaceId, key: scopedMetadataKey, publicKey: senderPublicKey } };
-				const route = mockServer.getRoute('/metadata/namespace/:namespaceId/key/:key/sender/:publicKey').get();
+				const req = { params: { namespaceId, key: scopedMetadataKey, senderAddress } };
+				const route = mockServer.getRoute('/metadata/namespace/:namespaceId/key/:key/sender/:senderAddress').get();
 
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
@@ -468,7 +350,7 @@ describe('metadata routes', () => {
 					expect(dbGetMetadataByKeyAndSenderFake.firstCall.args[0]).to.equal(metadata.metadataType.namespace);
 					expect(dbGetMetadataByKeyAndSenderFake.firstCall.args[1]).to.deep.equal(namespaceFilter);
 					expect(dbGetMetadataByKeyAndSenderFake.firstCall.args[2]).to.deep.equal(uInt64ScopedMetadataKey);
-					expect(dbGetMetadataByKeyAndSenderFake.firstCall.args[3]).to.deep.equal(uint8SenderPublicKey);
+					expect(dbGetMetadataByKeyAndSenderFake.firstCall.args[3]).to.deep.equal(uint8SenderAddress);
 					expect(mockServer.send.firstCall.args[0]).to.deep.equal(expectedSingleMetadataOutput);
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});

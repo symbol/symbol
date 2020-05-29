@@ -26,6 +26,7 @@ const catapult = require('catapult-sdk');
 const { expect } = require('chai');
 const sinon = require('sinon');
 
+const { address } = catapult.model;
 const { PacketType, StatePathPacketTypes } = catapult.packet;
 const { convert } = catapult.utils;
 
@@ -50,6 +51,9 @@ describe('block routes', () => {
 		describe('get', () => {
 			const testPublickeyString = '7DE16AEDF57EB9561D3E6EFA4AE66F27ABDA8AEC8BC020B6277360E31619DCE7';
 			const testPublickey = convert.hexToUint8(testPublickeyString);
+
+			const testAddressString = 'SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXWV';
+			const testAddress = address.stringToAddress(testAddressString);
 
 			const fakeBlock = { id: 0, meta: { numTransactions: 0 }, block: { type: 33091 } };
 			const fakePaginatedBlock = {
@@ -104,10 +108,10 @@ describe('block routes', () => {
 					expect(dbBlocksFake.firstCall.args[1]).to.deep.equal(undefined);
 				}));
 
-			it('forwards beneficiaryPublicKey filter', () =>
-				mockServer.callRoute(route, { params: { beneficiaryPublicKey: testPublickeyString } }).then(() => {
+			it('forwards beneficiaryAddress filter', () =>
+				mockServer.callRoute(route, { params: { beneficiaryAddress: testAddressString } }).then(() => {
 					expect(dbBlocksFake.firstCall.args[0]).to.deep.equal(undefined);
-					expect(dbBlocksFake.firstCall.args[1]).to.deep.equal(testPublickey);
+					expect(dbBlocksFake.firstCall.args[1]).to.deep.equal(testAddress);
 				}));
 
 			describe('parses paging', () => {

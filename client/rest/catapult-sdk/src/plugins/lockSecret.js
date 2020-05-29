@@ -35,8 +35,7 @@ const lockSecretPlugin = {
 			lock: { type: ModelType.object, schemaName: 'secretLockInfo.lock' }
 		});
 		builder.addSchema('secretLockInfo.lock', {
-			senderPublicKey: ModelType.binary,
-			senderAddress: ModelType.binary,
+			ownerAddress: ModelType.binary,
 			mosaicId: ModelType.uint64HexIdentifier,
 			amount: ModelType.uint64,
 			endHeight: ModelType.uint64,

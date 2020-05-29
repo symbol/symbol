@@ -21,18 +21,15 @@
 const namespaceUtils = require('./namespaceUtils');
 const dbUtils = require('../../db/dbUtils');
 const routeUtils = require('../../routes/routeUtils');
-const errors = require('../../server/errors');
-const AccountType = require('../AccountType');
 const catapult = require('catapult-sdk');
 const MongoDb = require('mongodb');
 
-const { address, networkInfo } = catapult.model;
 const { Binary } = MongoDb;
 const { convertToLong } = dbUtils;
 const { uint64 } = catapult.utils;
 
 module.exports = {
-	register: (server, db, services) => {
+	register: (server, db) => {
 		const namespaceSender = routeUtils.createSender('namespaceDescriptor');
 
 		server.get('/namespace/:namespaceId', (req, res, next) => {
@@ -41,26 +38,19 @@ module.exports = {
 				.then(namespaceSender.sendOne(req.params.namespaceId, res, next));
 		});
 
-		server.get('/account/:accountId/namespaces', (req, res, next) => {
-			const [type, accountId] = routeUtils.parseArgument(req.params, 'accountId', 'accountId');
+		server.get('/account/:address/namespaces', (req, res, next) => {
+			const accountAddress = routeUtils.parseArgument(req.params, 'address', 'address');
 			const pagingOptions = routeUtils.parsePagingArguments(req.params);
 
-			return db.namespacesByOwners(type, [accountId], pagingOptions.id, pagingOptions.pageSize)
+			return db.namespacesByOwners([accountAddress], pagingOptions.id, pagingOptions.pageSize)
 				.then(namespaces => routeUtils.createSender('namespaces').sendOne('accountId', res, next)({ namespaces }));
 		});
 
 		server.post('/account/namespaces', (req, res, next) => {
-			if (req.params.publicKeys && req.params.addresses)
-				throw errors.createInvalidArgumentError('publicKeys and addresses cannot both be provided');
-
-			const idOptions = Array.isArray(req.params.publicKeys)
-				? { keyName: 'publicKeys', parserName: 'publicKey', type: AccountType.publicKey }
-				: { keyName: 'addresses', parserName: 'address', type: AccountType.address };
-
-			const accountIds = routeUtils.parseArgumentAsArray(req.params, idOptions.keyName, idOptions.parserName);
+			const accountAddresses = routeUtils.parseArgumentAsArray(req.params, 'addresses', 'address');
 			const pagingOptions = routeUtils.parsePagingArguments(req.params);
-			return db.namespacesByOwners(idOptions.type, accountIds, pagingOptions.id, pagingOptions.pageSize)
-				.then(namespaces => routeUtils.createSender('namespaces').sendOne(idOptions.keyName, res, next)({ namespaces }));
+			return db.namespacesByOwners(accountAddresses, pagingOptions.id, pagingOptions.pageSize)
+				.then(namespaces => routeUtils.createSender('namespaces').sendOne('addresses', res, next)({ namespaces }));
 		});
 
 		const collectNames = (namespaceNameTuples, namespaceIds) => {
@@ -108,27 +98,10 @@ module.exports = {
 			'mosaicNames'
 		));
 
-		const accountIdToAddress = (type, accountId) => ((AccountType.publicKey === type)
-			? address.publicKeyToAddress(accountId, networkInfo.networks[services.config.network.name].id)
-			: accountId);
-
-		const getParams = req => {
-			if (req.params.publicKeys && req.params.addresses)
-				throw errors.createInvalidArgumentError('publicKeys and addresses cannot both be provided');
-
-			const idOptions = Array.isArray(req.params.publicKeys)
-				? { keyName: 'publicKeys', parserName: 'publicKey', type: AccountType.publicKey }
-				: { keyName: 'addresses', parserName: 'address', type: AccountType.address };
-
-			const accountIds = routeUtils.parseArgumentAsArray(req.params, idOptions.keyName, idOptions.parserName);
-
-			return accountIds.map(accountId => accountIdToAddress(idOptions.type, accountId));
-		};
-
 		server.post('/account/names', namespaceUtils.aliasNamesRoutesProcessor(
 			db,
 			catapult.model.namespace.aliasType.address,
-			getParams,
+			req => routeUtils.parseArgumentAsArray(req.params, 'addresses', 'address'),
 			(namespace, id) => Buffer.from(namespace.namespace.alias.address.value())
 				.equals(Buffer.from(new Binary(Buffer.from(id)).value())),
 			'address',

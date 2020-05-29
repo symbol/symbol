@@ -129,7 +129,7 @@ describe('model formatter builder', () => {
 					transactionsHash: 0,
 					receiptsHash: 0,
 					stateHash: 0,
-					beneficiaryPublicKey: 0
+					beneficiaryAddress: 0
 				}
 			});
 
@@ -156,7 +156,7 @@ describe('model formatter builder', () => {
 					transactionsHash: 'binary',
 					receiptsHash: 'binary',
 					stateHash: 'binary',
-					beneficiaryPublicKey: 'binary'
+					beneficiaryAddress: 'binary'
 				}
 			});
 		});

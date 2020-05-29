@@ -38,13 +38,13 @@ module.exports = {
 			const { params } = req;
 
 			const signerPublicKey = params.signerPublicKey ? routeUtils.parseArgument(params, 'signerPublicKey', 'publicKey') : undefined;
-			const beneficiaryPublicKey = params.beneficiaryPublicKey
-				? routeUtils.parseArgument(params, 'beneficiaryPublicKey', 'publicKey')
+			const beneficiaryAddress = params.beneficiaryAddress
+				? routeUtils.parseArgument(params, 'beneficiaryAddress', 'address')
 				: undefined;
 
 			const options = routeUtils.parsePaginationArguments(params, services.config.pageSize, ['_id']);
 
-			return db.blocks(signerPublicKey, beneficiaryPublicKey, options)
+			return db.blocks(signerPublicKey, beneficiaryAddress, options)
 				.then(result => routeUtils.createSender(routeResultTypes.block).sendPage(res, next)(result));
 		});
 

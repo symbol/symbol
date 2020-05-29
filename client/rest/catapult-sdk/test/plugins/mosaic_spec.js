@@ -64,9 +64,9 @@ describe('mosaic plugin', () => {
 			expect(modelSchema.mosaicDescriptor).to.contain.all.keys(['id', 'mosaic']);
 
 			// - mosaic descriptor mosaic
-			expect(Object.keys(modelSchema['mosaicDescriptor.mosaic']).length).to.equal(6);
+			expect(Object.keys(modelSchema['mosaicDescriptor.mosaic']).length).to.equal(5);
 			expect(modelSchema['mosaicDescriptor.mosaic']).to.contain.all.keys([
-				'id', 'supply', 'startHeight', 'ownerPublicKey', 'ownerAddress', 'duration'
+				'id', 'supply', 'startHeight', 'ownerAddress', 'duration'
 			]);
 		});
 	});

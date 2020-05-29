@@ -48,16 +48,16 @@ describe('metadata plugin', () => {
 
 			// - accountMetadata
 			expect(Object.keys(modelSchema.accountMetadata).length).to.equal(Object.keys(modelSchema.transaction).length + 3);
-			expect(modelSchema.accountMetadata).to.contain.all.keys(['targetPublicKey', 'scopedMetadataKey', 'value']);
+			expect(modelSchema.accountMetadata).to.contain.all.keys(['targetAddress', 'scopedMetadataKey', 'value']);
 
 			// - mosaicMetadata
 			expect(Object.keys(modelSchema.mosaicMetadata).length).to.equal(Object.keys(modelSchema.transaction).length + 4);
-			expect(modelSchema.mosaicMetadata).to.contain.all.keys(['targetPublicKey', 'scopedMetadataKey', 'targetMosaicId', 'value']);
+			expect(modelSchema.mosaicMetadata).to.contain.all.keys(['targetAddress', 'scopedMetadataKey', 'targetMosaicId', 'value']);
 
 			// - namespaceMetadata
 			expect(Object.keys(modelSchema.namespaceMetadata).length).to.equal(Object.keys(modelSchema.transaction).length + 4);
 			expect(modelSchema.namespaceMetadata).to.contain.all.keys([
-				'targetPublicKey',
+				'targetAddress',
 				'scopedMetadataKey',
 				'targetNamespaceId',
 				'value'
@@ -75,8 +75,8 @@ describe('metadata plugin', () => {
 			expect(Object.keys(modelSchema['metadata.entry.element']).length).to.equal(6);
 			expect(modelSchema['metadata.entry.element']).to.contain.all.keys([
 				'compositeHash',
-				'senderPublicKey',
-				'targetPublicKey',
+				'sourceAddress',
+				'targetAddress',
 				'scopedMetadataKey',
 				'targetId',
 				'value'

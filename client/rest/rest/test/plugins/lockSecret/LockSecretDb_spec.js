@@ -19,7 +19,6 @@
  */
 
 const test = require('./lockSecretDbTestUtils');
-const AccountType = require('../../../src/plugins/AccountType');
 const testUtils = require('../../testUtils');
 const { expect } = require('chai');
 
@@ -60,7 +59,7 @@ describe('lock secret db', () => {
 				const allLocks = traits.createLockSecrets(3, createOwner());
 
 				// Assert:
-				return assertLocks([traits.type, ownerToDbApiIds(createOwner())], {
+				return assertLocks([ownerToDbApiIds(createOwner())], {
 					seed: allLocks,
 					expected: []
 				});
@@ -76,7 +75,7 @@ describe('lock secret db', () => {
 
 				// Assert:
 				return assertLocks(
-					[traits.type, ownerToDbApiIds(owner)],
+					[ownerToDbApiIds(owner)],
 					{ seed: seedLocks.concat(additionalLocks), expected: seedLocks.reverse() }
 				);
 			});
@@ -90,7 +89,7 @@ describe('lock secret db', () => {
 
 					// Assert:
 					return assertLocks(
-						[traits.type, ownerToDbApiIds(owner), seedLocks[7]._id.toString()],
+						[ownerToDbApiIds(owner), seedLocks[7]._id.toString()],
 						{ seed: seedLocks, expected: expectedLocks }
 					);
 				});
@@ -104,7 +103,7 @@ describe('lock secret db', () => {
 					// Assert:
 					expect(expectedSize).to.equal(expectedLocks.length);
 					return assertLocks(
-						[traits.type, ownerToDbApiIds(owner), undefined, pageSize],
+						[ownerToDbApiIds(owner), undefined, pageSize],
 						{ seed: seedLocks, expected: expectedLocks }
 					);
 				};
@@ -117,23 +116,12 @@ describe('lock secret db', () => {
 		};
 
 		describe('secretLocks by owners', () => {
-			describe('by publicKey', () => addLockSecretByAccountTests({
-				collectionName: 'secret',
-				dbMethodName: 'secretLocksByAccounts',
-				createRandomHash: testUtils.random.secret,
-				createLockSecret: test.db.createSecretLock,
-				createLockSecrets: test.db.createSecretLocks,
-				type: AccountType.publicKey,
-				toDbApiId: owner => owner.publicKey
-			}));
-
 			describe('by address', () => addLockSecretByAccountTests({
 				collectionName: 'secret',
 				dbMethodName: 'secretLocksByAccounts',
 				createRandomHash: testUtils.random.secret,
 				createLockSecret: test.db.createSecretLock,
 				createLockSecrets: test.db.createSecretLocks,
-				type: AccountType.address,
 				toDbApiId: owner => owner.address
 			}));
 		});

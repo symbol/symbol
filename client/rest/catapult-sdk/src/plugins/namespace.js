@@ -78,7 +78,6 @@ const namespacePlugin = {
 			alias: { type: ModelType.object, schemaName: entity => getAliasBasicType(entity.type) },
 
 			parentId: ModelType.uint64HexIdentifier,
-			ownerPublicKey: ModelType.binary,
 			ownerAddress: ModelType.binary,
 
 			startHeight: ModelType.uint64,

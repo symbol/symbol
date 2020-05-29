@@ -107,12 +107,12 @@ describe('receipts plugin', () => {
 
 			// - receipts.balanceChange
 			expect(Object.keys(modelSchema['receipts.balanceChange']).length).to.equal(3);
-			expect(modelSchema['receipts.balanceChange']).to.contain.all.keys(['targetPublicKey', 'mosaicId', 'amount']);
+			expect(modelSchema['receipts.balanceChange']).to.contain.all.keys(['targetAddress', 'mosaicId', 'amount']);
 
 			// - receipts.balanceTransfer
 			expect(Object.keys(modelSchema['receipts.balanceTransfer']).length).to.equal(4);
 			expect(modelSchema['receipts.balanceTransfer']).to.contain.all.keys([
-				'senderPublicKey',
+				'senderAddress',
 				'recipientAddress',
 				'mosaicId',
 				'amount'
@@ -177,7 +177,7 @@ describe('receipts plugin', () => {
 				const balanceChangeReceipt = {
 					version: 1,
 					type: 0x1000,
-					targetPublicKey: null,
+					targetAddress: null,
 					mosaicId: null,
 					amount: null
 				};
@@ -189,7 +189,7 @@ describe('receipts plugin', () => {
 				expect(formattedReceipt).to.contain.all.keys([
 					'version',
 					'type',
-					'targetPublicKey',
+					'targetAddress',
 					'mosaicId',
 					'amount'
 				]);
@@ -200,7 +200,7 @@ describe('receipts plugin', () => {
 				const balanceTransferReceipt = {
 					version: 1,
 					type: 0x2000,
-					senderPublicKey: null,
+					senderAddress: null,
 					recipientAddress: null,
 					mosaicId: null,
 					amount: null
@@ -213,7 +213,7 @@ describe('receipts plugin', () => {
 				expect(formattedReceipt).to.contain.all.keys([
 					'version',
 					'type',
-					'senderPublicKey',
+					'senderAddress',
 					'recipientAddress',
 					'mosaicId',
 					'amount'

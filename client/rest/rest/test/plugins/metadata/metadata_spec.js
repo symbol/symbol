@@ -34,11 +34,15 @@ describe('metadata plugin', () => {
 			const routes = [];
 			const server = test.setup.createCapturingMockServer('get', routes);
 			const registeredRoutes = [];
-			['account', 'mosaic', 'namespace'].forEach(entity => {
+			['mosaic', 'namespace'].forEach(entity => {
 				registeredRoutes.push(`/metadata/${entity}/:${entity}Id`);
 				registeredRoutes.push(`/metadata/${entity}/:${entity}Id/key/:key`);
-				registeredRoutes.push(`/metadata/${entity}/:${entity}Id/key/:key/sender/:publicKey`);
+				registeredRoutes.push(`/metadata/${entity}/:${entity}Id/key/:key/sender/:senderAddress`);
 			});
+
+			registeredRoutes.push('/metadata/account/:address');
+			registeredRoutes.push('/metadata/account/:address/key/:key');
+			registeredRoutes.push('/metadata/account/:address/key/:key/sender/:senderAddress');
 
 			// Act:
 			metadata.registerRoutes(server, {});

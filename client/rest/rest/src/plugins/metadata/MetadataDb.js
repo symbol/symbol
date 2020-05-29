@@ -81,15 +81,15 @@ class MetadataDb {
 	 * @param {int} metadataType Type of metadata.
 	 * @param {Uint8Array} targetFilter Target filter
 	 * @param {Array.<module:catapult.utils/uint64~uint64>} scopedMetadataKey Scoped metadata key.
-	 * @param {Uint8Array} senderPublicKey Sender public key.
+	 * @param {Uint8Array} sourceAddress Sender address.
 	 * @returns {Promise.<string>} Metadata value.
 	 */
-	getMetadataByKeyAndSender(metadataType, targetFilter, scopedMetadataKey, senderPublicKey) {
+	getMetadataByKeyAndSender(metadataType, targetFilter, scopedMetadataKey, sourceAddress) {
 		const conditions = {
 			$and: [
 				targetFilter,
 				{ 'metadataEntry.scopedMetadataKey': new Long(scopedMetadataKey[0], scopedMetadataKey[1]) },
-				{ 'metadataEntry.senderPublicKey': Buffer.from(senderPublicKey) },
+				{ 'metadataEntry.sourceAddress': Buffer.from(sourceAddress) },
 				{ 'metadataEntry.metadataType': metadataType }
 			]
 		};

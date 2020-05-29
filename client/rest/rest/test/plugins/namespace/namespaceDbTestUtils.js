@@ -38,7 +38,6 @@ const createAlias = id => {
 const createNamespace = (id, owner, namespaceType, parentIdOrDuration, path, lifetime, active, alias) => {
 	// namespace data
 	const namespace = {
-		ownerPublicKey: new Binary(owner.publicKey),
 		ownerAddress: new Binary(owner.address),
 		startHeight: Long.fromNumber(lifetime.start),
 		endHeight: Long.fromNumber(lifetime.end),

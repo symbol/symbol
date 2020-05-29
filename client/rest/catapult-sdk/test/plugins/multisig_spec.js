@@ -52,15 +52,15 @@ describe('multisig plugin', () => {
 
 			// - modify multisig account
 			expect(Object.keys(modelSchema.modifyMultisigAccount).length).to.equal(Object.keys(modelSchema.transaction).length + 2);
-			expect(modelSchema.modifyMultisigAccount).to.contain.all.keys(['publicKeyAdditions', 'publicKeyDeletions']);
+			expect(modelSchema.modifyMultisigAccount).to.contain.all.keys(['addressAdditions', 'addressDeletions']);
 
 			// - multisig entry
 			expect(Object.keys(modelSchema.multisigEntry).length).to.equal(1);
 			expect(modelSchema.multisigEntry).to.contain.all.keys(['multisig']);
 
-			expect(Object.keys(modelSchema['multisigEntry.multisig']).length).to.equal(4);
+			expect(Object.keys(modelSchema['multisigEntry.multisig']).length).to.equal(3);
 			expect(modelSchema['multisigEntry.multisig'])
-				.to.contain.all.keys(['accountPublicKey', 'accountAddress', 'multisigPublicKeys', 'cosignatoryPublicKeys']);
+				.to.contain.all.keys(['accountAddress', 'multisigAddresses', 'cosignatoryAddresses']);
 
 			// - multisig graph
 			expect(Object.keys(modelSchema.multisigGraph).length).to.equal(1);
@@ -91,8 +91,8 @@ describe('multisig plugin', () => {
 			buffer: Buffer.concat([
 				Buffer.of(0x2B), // minRemovalDelta 1b
 				Buffer.of(0x4D), // minApprovalDelta 1b
-				Buffer.of(0x00), // publicKeyAdditionsCount 1b
-				Buffer.of(0x00), // publicKeyDeletionsCount 1b
+				Buffer.of(0x00), // addressAdditionsCount 1b
+				Buffer.of(0x00), // addressDeletionsCount 1b
 				Buffer.of(0x00, 0x00, 0x00, 0x00) // multisig account modification transaction body reserved 1 4b
 			]),
 			object: {
@@ -122,8 +122,8 @@ describe('multisig plugin', () => {
 				const data = generator();
 				data.buffer = Buffer.concat([data.buffer, keyAddition1, keyAddition2, keyDeletion1]);
 
-				data.buffer.writeUInt8(2, 2); // publicKeyAdditionsCount, two additions at 2 bytes offset
-				data.buffer.writeUInt8(1, 3); // publicKeyDeletionsCount, one deletion at 3 bytes offset
+				data.buffer.writeUInt8(2, 2); // addressAdditionsCount, two additions at 2 bytes offset
+				data.buffer.writeUInt8(1, 3); // addressDeletionsCount, one deletion at 3 bytes offset
 
 				data.object.publicKeyAdditions = [keyAddition1, keyAddition2];
 				data.object.publicKeyDeletions = [keyDeletion1];
@@ -144,8 +144,8 @@ describe('multisig plugin', () => {
 					buffer: Buffer.concat([
 						Buffer.of(0xA2), // minRemovalDelta 1b
 						Buffer.of(0xC9), // minApprovalDelta 1b
-						Buffer.of(0x00), // publicKeyAdditionsCount 1b
-						Buffer.of(0x00), // publicKeyDeletionsCount 1b
+						Buffer.of(0x00), // addressAdditionsCount 1b
+						Buffer.of(0x00), // addressDeletionsCount 1b
 						Buffer.of(0x00, 0x00, 0x00, 0x00) // multisig account modification transaction body reserved 1 4b
 					]),
 					object: {

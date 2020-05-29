@@ -18,8 +18,6 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const AccountType = require('../AccountType');
-
 class LockSecretDb {
 	/**
 	 * Creates LockSecretDb around CatapultDb.
@@ -33,17 +31,15 @@ class LockSecretDb {
 
 	/**
 	 * Retrieves secret infos for given accounts.
-	 * @param {module:db/AccountType} type Type of account ids.
-	 * @param {array<object>} accountIds Account ids.
+	 * @param {array<{Uint8Array}>} addresses Account addresses.
 	 * @param {string} id Paging id.
 	 * @param {int} pageSize Page size.
 	 * @param {object} options Additional options.
 	 * @returns {Promise.<array>} Secret lock infos for all accounts.
 	 */
-	secretLocksByAccounts(type, accountIds, id, pageSize, options) {
-		const buffers = accountIds.map(accountId => Buffer.from(accountId));
-		const fieldName = (AccountType.publicKey === type) ? 'lock.senderPublicKey' : 'lock.senderAddress';
-		const conditions = { $and: [{ [fieldName]: { $in: buffers } }] };
+	secretLocksByAccounts(addresses, id, pageSize, options) {
+		const buffers = addresses.map(address => Buffer.from(address));
+		const conditions = { 'lock.ownerAddress': { $in: buffers } };
 		return this.catapultDb.queryPagedDocuments('secretLocks', conditions, id, pageSize, options)
 			.then(this.catapultDb.sanitizer.copyAndDeleteIds);
 	}

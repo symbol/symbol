@@ -29,8 +29,7 @@ const createLockHash = (id, owner, hashPropertyName, value) => ({
 	_id: dbTestUtils.db.createObjectId(id),
 	meta: {},
 	lock: {
-		senderPublicKey: new Binary(owner.publicKey),
-		senderAddress: new Binary(owner.address),
+		ownerAddress: new Binary(owner.address),
 		[hashPropertyName]: new Binary(value)
 	}
 });

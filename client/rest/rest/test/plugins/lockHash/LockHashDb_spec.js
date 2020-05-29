@@ -19,7 +19,6 @@
  */
 
 const test = require('./lockHashDbTestUtils');
-const AccountType = require('../../../src/plugins/AccountType');
 const testUtils = require('../../testUtils');
 const { expect } = require('chai');
 
@@ -60,7 +59,7 @@ describe('lock hash db', () => {
 				const allLocks = traits.createLockHashes(3, createOwner());
 
 				// Assert:
-				return assertLocks([traits.type, ownerToDbApiIds(createOwner())], {
+				return assertLocks([ownerToDbApiIds(createOwner())], {
 					seed: allLocks,
 					expected: []
 				});
@@ -76,7 +75,7 @@ describe('lock hash db', () => {
 
 				// Assert:
 				return assertLocks(
-					[traits.type, ownerToDbApiIds(owner)],
+					[ownerToDbApiIds(owner)],
 					{ seed: seedLocks.concat(additionalLocks), expected: seedLocks.reverse() }
 				);
 			});
@@ -90,7 +89,7 @@ describe('lock hash db', () => {
 
 					// Assert:
 					return assertLocks(
-						[traits.type, ownerToDbApiIds(owner), seedLocks[7]._id.toString()],
+						[ownerToDbApiIds(owner), seedLocks[7]._id.toString()],
 						{ seed: seedLocks, expected: expectedLocks }
 					);
 				});
@@ -104,7 +103,7 @@ describe('lock hash db', () => {
 					// Assert:
 					expect(expectedSize).to.equal(expectedLocks.length);
 					return assertLocks(
-						[traits.type, ownerToDbApiIds(owner), undefined, pageSize],
+						[ownerToDbApiIds(owner), undefined, pageSize],
 						{ seed: seedLocks, expected: expectedLocks }
 					);
 				};
@@ -130,7 +129,7 @@ describe('lock hash db', () => {
 				const additionalLocks = createRandomLocks(16, 5);
 
 				// Assert:
-				return assertLocks([traits.type, createAccountIds(owner1, owner2)], {
+				return assertLocks([createAccountIds(owner1, owner2)], {
 					seed: seedLocks1.concat(additionalLocks, seedLocks2),
 					expected: activeLocks1.concat(activeLocks2).reverse()
 				});
@@ -149,23 +148,12 @@ describe('lock hash db', () => {
 		};
 
 		describe('hashLocks by owners', () => {
-			describe('by publicKey', () => addLockHashByAccountTests({
-				collectionName: 'hash',
-				dbMethodName: 'hashLocksByAccounts',
-				createRandomHash: testUtils.random.hash,
-				createLockHash: test.db.createHashLock,
-				createLockHashes: test.db.createHashLocks,
-				type: AccountType.publicKey,
-				toDbApiId: owner => owner.publicKey
-			}));
-
 			describe('by address', () => addLockHashByAccountTests({
 				collectionName: 'hash',
 				dbMethodName: 'hashLocksByAccounts',
 				createRandomHash: testUtils.random.hash,
 				createLockHash: test.db.createHashLock,
 				createLockHashes: test.db.createHashLocks,
-				type: AccountType.address,
 				toDbApiId: owner => owner.address
 			}));
 		});

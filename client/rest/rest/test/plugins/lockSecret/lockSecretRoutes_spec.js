@@ -22,7 +22,7 @@ const lockSecretRoutes = require('../../../src/plugins/lockSecret/lockSecretRout
 const { test } = require('../../routes/utils/routeTestUtils');
 const catapult = require('catapult-sdk');
 
-const { addresses, publicKeys } = test.sets;
+const { addresses } = test.sets;
 const { address } = catapult.model;
 const { convert } = catapult.utils;
 
@@ -32,9 +32,9 @@ describe('lock secret routes', () => {
 			routes: lockSecretRoutes,
 			routeName,
 			createDb: (keyGroups, documents) => ({
-				[dbMethod]: (type, accountIds, pageId, pageSize) => {
+				[dbMethod]: (accountAddresses, pageId, pageSize) => {
 					keyGroups.push({
-						type, accountIds, pageId, pageSize
+						accountAddresses, pageId, pageSize
 					});
 					return Promise.resolve(documents);
 				}
@@ -47,35 +47,24 @@ describe('lock secret routes', () => {
 		describe('get by account', () => {
 			const addGetTests = traits => {
 				const pagingTestsFactory = test.setup.createPagingTestsFactory(
-					factory.createLockSecretPagingRouteInfo('/account/:accountId/lock/secret', 'get', 'secretLocksByAccounts'),
+					factory.createLockSecretPagingRouteInfo('/account/:address/lock/secret', 'get', 'secretLocksByAccounts'),
 					traits.valid.params,
 					traits.valid.expected,
 					'secretLockInfo'
 				);
 
 				pagingTestsFactory.addDefault();
-				pagingTestsFactory.addNonPagingParamFailureTest('accountId', traits.invalid.accountId);
+				pagingTestsFactory.addNonPagingParamFailureTest('address', traits.invalid.addresses);
 			};
 
 			describe('by address', () => addGetTests({
 				valid: {
-					params: { accountId: addresses.valid[0] },
-					expected: { type: 'address', accountIds: [address.stringToAddress(addresses.valid[0])] }
+					params: { address: addresses.valid[0] },
+					expected: { accountAddresses: [address.stringToAddress(addresses.valid[0])] }
 				},
 				invalid: {
-					accountId: addresses.invalid,
+					addresses: addresses.invalid,
 					error: 'illegal base32 character 1'
-				}
-			}));
-
-			describe('by publicKey', () => addGetTests({
-				valid: {
-					params: { accountId: publicKeys.valid[0] },
-					expected: { type: 'publicKey', accountIds: [convert.hexToUint8(publicKeys.valid[0])] }
-				},
-				invalid: {
-					accountId: publicKeys.invalid,
-					error: 'unrecognized hex char \'1G\''
 				}
 			}));
 		});

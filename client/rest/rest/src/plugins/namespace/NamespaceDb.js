@@ -19,7 +19,6 @@
  */
 
 const { convertToLong } = require('../../db/dbUtils');
-const AccountType = require('../AccountType');
 const catapult = require('catapult-sdk');
 const MongoDb = require('mongodb');
 
@@ -64,18 +63,16 @@ class NamespaceDb {
 
 	/**
 	 * Retrieves namespaces owned by specified owners.
-	 * @param {module:db/AccountType} type Type of account ids.
-	 * @param {array<object>} accountIds Account ids.
+	 * @param {array<{Uint8Array}>} addresses Account addresses.
 	 * @param {string} id Paging id.
 	 * @param {int} pageSize Page size.
 	 * @param {object} options Additional options.
 	 * @returns {Promise.<array>} Owned namespaces.
 	 */
-	namespacesByOwners(type, accountIds, id, pageSize, options) {
-		const buffers = accountIds.map(accountId => Buffer.from(accountId));
+	namespacesByOwners(addresses, id, pageSize, options) {
+		const buffers = addresses.map(address => Buffer.from(address));
 		const conditions = createActiveConditions();
-		const fieldName = (AccountType.publicKey === type) ? 'namespace.ownerPublicKey' : 'namespace.ownerAddress';
-		conditions.$and.push({ [fieldName]: { $in: buffers } });
+		conditions.$and.push({ 'namespace.ownerAddress': { $in: buffers } });
 
 		return this.catapultDb.queryPagedDocuments('namespaces', conditions, id, pageSize, options)
 			.then(this.catapultDb.sanitizer.copyAndDeleteIds);

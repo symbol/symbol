@@ -21,7 +21,6 @@
 const test = require('./namespaceDbTestUtils');
 const CatapultDb = require('../../../src/db/CatapultDb');
 const dbUtils = require('../../../src/db/dbUtils');
-const AccountType = require('../../../src/plugins/AccountType');
 const NamespaceDb = require('../../../src/plugins/namespace/NamespaceDb');
 const testDbOptions = require('../../db/utils/testDbOptions');
 const catapult = require('catapult-sdk');
@@ -133,7 +132,7 @@ describe('namespace db', () => {
 			const allNamespaces = test.db.createNamespaces(3, createOwner());
 
 			// Assert:
-			return traits.assertNamespaces([traits.type, ownerToDbApiIds(createOwner())], { seed: allNamespaces, expected: [] });
+			return traits.assertNamespaces([ownerToDbApiIds(createOwner())], { seed: allNamespaces, expected: [] });
 		});
 
 		it('returns all namespaces for single account with namespaces', () => {
@@ -147,7 +146,7 @@ describe('namespace db', () => {
 
 			// Assert:
 			return traits.assertNamespaces(
-				[traits.type, ownerToDbApiIds(owner)],
+				[ownerToDbApiIds(owner)],
 				{ seed: seedNamespaces.concat(additionalNamespaces), expected: activeNamespaces }
 			);
 		});
@@ -162,7 +161,7 @@ describe('namespace db', () => {
 
 				// Assert:
 				return traits.assertNamespaces(
-					[traits.type, ownerToDbApiIds(owner), activeNamespaces[7]._id.toString()],
+					[ownerToDbApiIds(owner), activeNamespaces[7]._id.toString()],
 					{ seed: seedNamespaces, expected: expectedNamespaces }
 				);
 			});
@@ -176,7 +175,7 @@ describe('namespace db', () => {
 				// Assert:
 				expect(expectedSize).to.equal(expectedNamespaces.length);
 				return traits.assertNamespaces(
-					[traits.type, ownerToDbApiIds(owner), undefined, pageSize],
+					[ownerToDbApiIds(owner), undefined, pageSize],
 					{ seed: seedNamespaces, expected: expectedNamespaces }
 				);
 			};
@@ -202,7 +201,7 @@ describe('namespace db', () => {
 			const additionalNamespaces = createRandomNamespaces(16, 5);
 
 			// Assert:
-			return assertNamespaces([traits.type, createAccountIds(owner1, owner2)], {
+			return assertNamespaces([createAccountIds(owner1, owner2)], {
 				seed: seedNamespaces1.concat(additionalNamespaces, seedNamespaces2),
 				expected: activeNamespaces1.concat(activeNamespaces2).reverse()
 			});
@@ -221,15 +220,8 @@ describe('namespace db', () => {
 	};
 
 	describe('namespaces by owners', () => {
-		describe('by publicKey', () => addNamespaceByOwnersTests({
-			assertNamespaces,
-			type: AccountType.publicKey,
-			toDbApiId: owner => owner.publicKey
-		}));
-
 		describe('by address', () => addNamespaceByOwnersTests({
 			assertNamespaces,
-			type: AccountType.address,
 			toDbApiId: owner => owner.address
 		}));
 	});

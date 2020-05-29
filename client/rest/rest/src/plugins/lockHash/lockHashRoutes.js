@@ -22,12 +22,12 @@ const routeUtils = require('../../routes/routeUtils');
 
 module.exports = {
 	register: (server, db) => {
-		server.get('/account/:accountId/lock/hash', (req, res, next) => {
-			const [type, accountId] = routeUtils.parseArgument(req.params, 'accountId', 'accountId');
+		server.get('/account/:address/lock/hash', (req, res, next) => {
+			const accountAddress = routeUtils.parseArgument(req.params, 'address', 'address');
 			const pagingOptions = routeUtils.parsePagingArguments(req.params);
 
-			return db.hashLocksByAccounts(type, [accountId], pagingOptions.id, pagingOptions.pageSize)
-				.then(routeUtils.createSender('hashLockInfo').sendArray('accountId', res, next));
+			return db.hashLocksByAccounts([accountAddress], pagingOptions.id, pagingOptions.pageSize)
+				.then(routeUtils.createSender('hashLockInfo').sendArray('address', res, next));
 		});
 
 		server.get('/lock/hash/:hash', (req, res, next) => {

@@ -39,7 +39,7 @@ describe('namespace plugin', () => {
 
 			// Assert:
 			test.assert.assertRoutes(routes, [
-				'/account/:accountId/namespaces',
+				'/account/:address/namespaces',
 				'/namespace/:namespaceId'
 			]);
 		});

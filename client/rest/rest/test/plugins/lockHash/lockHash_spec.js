@@ -39,7 +39,7 @@ describe('lock hash plugin', () => {
 
 			// Assert:
 			test.assert.assertRoutes(routes, [
-				'/account/:accountId/lock/hash',
+				'/account/:address/lock/hash',
 				'/lock/hash/:hash'
 			]);
 		});

@@ -19,7 +19,6 @@
  */
 
 const { convertToLong } = require('../../../src/db/dbUtils');
-const AccountType = require('../../../src/plugins/AccountType');
 const namespaceRoutes = require('../../../src/plugins/namespace/namespaceRoutes');
 const namespaceUtils = require('../../../src/plugins/namespace/namespaceUtils');
 const { MockServer } = require('../../routes/utils/routeTestUtils');
@@ -30,7 +29,6 @@ const MongoDb = require('mongodb');
 const sinon = require('sinon');
 
 const { Binary } = MongoDb;
-const { convert } = catapult.utils;
 const { address } = catapult.model;
 
 describe('namespace routes', () => {
@@ -52,8 +50,6 @@ describe('namespace routes', () => {
 
 	describe('by owner', () => {
 		const testAddress = 'SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXWV';
-		const testPublicKey = '7DE16AEDF57EB9561D3E6EFA4AE66F27ABDA8AEC8BC020B6277360E31619DCE7';
-		const nonExistingPublicKey = '75D8BB873DA8F5CCA741435DE76A46AFC2840803EBF080E931195B048D77F88C';
 		const nonExistingTestAddress = 'NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDFG';
 
 		const ownedNamespaceSample = {
@@ -61,14 +57,12 @@ describe('namespace routes', () => {
 				id: ''
 			},
 			namespace: {
-				ownerPublicKey: '',
 				ownerAddress: ''
 			}
 		};
 
-		const dbNamespacesByOwnersFake = sinon.fake((type, accountIds) => {
-			if (Buffer.from(accountIds[0]).equals(Buffer.from(address.stringToAddress(nonExistingTestAddress)))
-				|| Buffer.from(accountIds[0]).equals(Buffer.from(convert.hexToUint8(nonExistingPublicKey))))
+		const dbNamespacesByOwnersFake = sinon.fake(addresses => {
+			if (Buffer.from(addresses[0]).equals(Buffer.from(address.stringToAddress(nonExistingTestAddress))))
 				return Promise.resolve([]);
 
 			return Promise.resolve([ownedNamespaceSample]);
@@ -84,37 +78,17 @@ describe('namespace routes', () => {
 		});
 
 		describe('GET', () => {
-			const route = mockServer.getRoute('/account/:accountId/namespaces').get();
+			const route = mockServer.getRoute('/account/:address/namespaces').get();
 
 			it('returns empty if address not found', () => {
 				// Arrange:
-				const req = { params: { accountId: nonExistingTestAddress } };
+				const req = { params: { address: nonExistingTestAddress } };
 
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbNamespacesByOwnersFake.calledOnce).to.equal(true);
-					expect(dbNamespacesByOwnersFake.firstCall.args[0]).to.equal(AccountType.address);
-					expect(dbNamespacesByOwnersFake.firstCall.args[1]).to.deep.equal([address.stringToAddress(nonExistingTestAddress)]);
-
-					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
-						payload: { namespaces: [] },
-						type: 'namespaces'
-					});
-					expect(mockServer.next.calledOnce).to.equal(true);
-				});
-			});
-
-			it('returns empty if publicKey not found', () => {
-				// Arrange:
-				const req = { params: { accountId: nonExistingPublicKey } };
-
-				// Act:
-				return mockServer.callRoute(route, req).then(() => {
-					// Assert:
-					expect(dbNamespacesByOwnersFake.calledOnce).to.equal(true);
-					expect(dbNamespacesByOwnersFake.firstCall.args[0]).to.equal(AccountType.publicKey);
-					expect(dbNamespacesByOwnersFake.firstCall.args[1]).to.deep.equal([convert.hexToUint8(nonExistingPublicKey)]);
+					expect(dbNamespacesByOwnersFake.firstCall.args[0]).to.deep.equal([address.stringToAddress(nonExistingTestAddress)]);
 
 					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
 						payload: { namespaces: [] },
@@ -126,14 +100,14 @@ describe('namespace routes', () => {
 
 			it('parses and fordwards pagination params correctly', () => {
 				// Arrange:
-				const req = { params: { accountId: testAddress, id: '00123456789AABBBCCDDEEFF', pageSize: '25' } };
+				const req = { params: { address: testAddress, id: '00123456789AABBBCCDDEEFF', pageSize: '25' } };
 
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbNamespacesByOwnersFake.calledOnce).to.equal(true);
-					expect(dbNamespacesByOwnersFake.firstCall.args[2]).to.equal('00123456789AABBBCCDDEEFF');
-					expect(dbNamespacesByOwnersFake.firstCall.args[3]).to.equal(25);
+					expect(dbNamespacesByOwnersFake.firstCall.args[1]).to.equal('00123456789AABBBCCDDEEFF');
+					expect(dbNamespacesByOwnersFake.firstCall.args[2]).to.equal(25);
 
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});
@@ -141,14 +115,13 @@ describe('namespace routes', () => {
 
 			it('returns owned namespaces by address', () => {
 				// Arrange:
-				const req = { params: { accountId: testAddress } };
+				const req = { params: { address: testAddress } };
 
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbNamespacesByOwnersFake.calledOnce).to.equal(true);
-					expect(dbNamespacesByOwnersFake.firstCall.args[0]).to.equal(AccountType.address);
-					expect(dbNamespacesByOwnersFake.firstCall.args[1]).to.deep.equal([address.stringToAddress(testAddress)]);
+					expect(dbNamespacesByOwnersFake.firstCall.args[0]).to.deep.equal([address.stringToAddress(testAddress)]);
 
 					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
 						payload: { namespaces: [ownedNamespaceSample] },
@@ -158,31 +131,12 @@ describe('namespace routes', () => {
 				});
 			});
 
-			it('returns owned namespaces by publicKey', () => {
+			it('throws error if address is invalid', () => {
 				// Arrange:
-				const req = { params: { accountId: testPublicKey } };
-
-				// Act:
-				return mockServer.callRoute(route, req).then(() => {
-					// Assert:
-					expect(dbNamespacesByOwnersFake.calledOnce).to.equal(true);
-					expect(dbNamespacesByOwnersFake.firstCall.args[0]).to.equal(AccountType.publicKey);
-					expect(dbNamespacesByOwnersFake.firstCall.args[1]).to.deep.equal([convert.hexToUint8(testPublicKey)]);
-
-					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
-						payload: { namespaces: [ownedNamespaceSample] },
-						type: 'namespaces'
-					});
-					expect(mockServer.next.calledOnce).to.equal(true);
-				});
-			});
-
-			it('throws error if accountId is invalid', () => {
-				// Arrange:
-				const req = { params: { accountId: 'AB12345' } };
+				const req = { params: { address: 'AB12345' } };
 
 				// Act + Assert:
-				expect(() => mockServer.callRoute(route, req)).to.throw('accountId has an invalid format');
+				expect(() => mockServer.callRoute(route, req)).to.throw('address has an invalid format');
 			});
 		});
 
@@ -197,27 +151,7 @@ describe('namespace routes', () => {
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbNamespacesByOwnersFake.calledOnce).to.equal(true);
-					expect(dbNamespacesByOwnersFake.firstCall.args[0]).to.equal(AccountType.address);
-					expect(dbNamespacesByOwnersFake.firstCall.args[1]).to.deep.equal([address.stringToAddress(nonExistingTestAddress)]);
-
-					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
-						payload: { namespaces: [] },
-						type: 'namespaces'
-					});
-					expect(mockServer.next.calledOnce).to.equal(true);
-				});
-			});
-
-			it('returns empty if publicKey not found', () => {
-				// Arrange:
-				const req = { params: { publicKeys: [nonExistingPublicKey] } };
-
-				// Act:
-				return mockServer.callRoute(route, req).then(() => {
-					// Assert:
-					expect(dbNamespacesByOwnersFake.calledOnce).to.equal(true);
-					expect(dbNamespacesByOwnersFake.firstCall.args[0]).to.equal(AccountType.publicKey);
-					expect(dbNamespacesByOwnersFake.firstCall.args[1]).to.deep.equal([convert.hexToUint8(nonExistingPublicKey)]);
+					expect(dbNamespacesByOwnersFake.firstCall.args[0]).to.deep.equal([address.stringToAddress(nonExistingTestAddress)]);
 
 					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
 						payload: { namespaces: [] },
@@ -235,8 +169,8 @@ describe('namespace routes', () => {
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbNamespacesByOwnersFake.calledOnce).to.equal(true);
-					expect(dbNamespacesByOwnersFake.firstCall.args[2]).to.equal('00123456789AABBBCCDDEEFF');
-					expect(dbNamespacesByOwnersFake.firstCall.args[3]).to.equal(25);
+					expect(dbNamespacesByOwnersFake.firstCall.args[1]).to.equal('00123456789AABBBCCDDEEFF');
+					expect(dbNamespacesByOwnersFake.firstCall.args[2]).to.equal(25);
 
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});
@@ -250,8 +184,7 @@ describe('namespace routes', () => {
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbNamespacesByOwnersFake.calledOnce).to.equal(true);
-					expect(dbNamespacesByOwnersFake.firstCall.args[0]).to.equal(AccountType.address);
-					expect(dbNamespacesByOwnersFake.firstCall.args[1]).to.deep.equal([address.stringToAddress(testAddress)]);
+					expect(dbNamespacesByOwnersFake.firstCall.args[0]).to.deep.equal([address.stringToAddress(testAddress)]);
 
 					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
 						payload: { namespaces: [ownedNamespaceSample] },
@@ -259,33 +192,6 @@ describe('namespace routes', () => {
 					});
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});
-			});
-
-			it('returns owned namespaces by publicKey', () => {
-				// Arrange:
-				const req = { params: { publicKeys: [testPublicKey] } };
-
-				// Act:
-				return mockServer.callRoute(route, req).then(() => {
-					// Assert:
-					expect(dbNamespacesByOwnersFake.calledOnce).to.equal(true);
-					expect(dbNamespacesByOwnersFake.firstCall.args[0]).to.equal(AccountType.publicKey);
-					expect(dbNamespacesByOwnersFake.firstCall.args[1]).to.deep.equal([convert.hexToUint8(testPublicKey)]);
-
-					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
-						payload: { namespaces: [ownedNamespaceSample] },
-						type: 'namespaces'
-					});
-					expect(mockServer.next.calledOnce).to.equal(true);
-				});
-			});
-
-			it('does not support publicKeys and addresses provided at the same time', () => {
-				// Arrange:
-				const req = { params: { addresses: [''], publicKeys: [''] } };
-
-				// Act + Assert:
-				expect(() => mockServer.callRoute(route, req)).to.throw('publicKeys and addresses cannot both be provided');
 			});
 
 			it('throws error if addresses contains an invalid address', () => {
@@ -294,14 +200,6 @@ describe('namespace routes', () => {
 
 				// Act + Assert:
 				expect(() => mockServer.callRoute(route, req)).to.throw('element in array addresses has an invalid format');
-			});
-
-			it('throws error if publicKeys contains an invalid publicKey', () => {
-				// Arrange:
-				const req = { params: { publicKeys: [testPublicKey, 'AAAAAAAAAA'] } };
-
-				// Act + Assert:
-				expect(() => mockServer.callRoute(route, req)).to.throw('element in array publicKeys has an invalid format');
 			});
 		});
 	});
@@ -505,10 +403,6 @@ describe('namespace routes', () => {
 				one: 'SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXWV',
 				two: 'SCFZFP7N5C3P6EHP5D2UJ7GQD7Q7ZIENV4NZ6ELN'
 			};
-			const testPublicKey = {
-				one: '7DE16AEDF57EB9561D3E6EFA4AE66F27ABDA8AEC8BC020B6277360E31619DCE7',
-				two: 'E6B9584AA679CADAD6569F04CD624054C0946EC49057E7AE394CEB510B606467'
-			};
 
 			it('is called once for each endpoint using it with correct parameters', () => {
 				// Arrange:
@@ -531,31 +425,17 @@ describe('namespace routes', () => {
 				aliasNamesRoutesProcessorSpy.restore();
 			});
 
-			describe('getParams parses addresses and public keys correctly', () => {
+			describe('getParams parses addresses correctly', () => {
 				const aliasNamesRoutesProcessorSpy = sinon.spy(namespaceUtils, 'aliasNamesRoutesProcessor');
 				const routes = {};
 				const server = {
 					get: (path, handler) => { routes[path] = handler; },
 					post: (path, handler) => { routes[path] = handler; }
 				};
-				const services = {
-					config: { network: { name: 'mijinTest' } }
-				};
 
-				namespaceRoutes.register(server, {}, services);
+				namespaceRoutes.register(server, {});
 				const getParams = aliasNamesRoutesProcessorSpy.secondCall.args[2];
 				aliasNamesRoutesProcessorSpy.restore();
-
-				it('parses public keys correctly', () => {
-					// Arrange:
-					const req = { params: { publicKeys: [testPublicKey.one, testPublicKey.two] } };
-
-					// Act + Assert:
-					expect(getParams(req)).to.deep.equal([
-						address.stringToAddress(testAddress.one),
-						address.stringToAddress(testAddress.two)
-					]);
-				});
 
 				it('parses addresses correctly', () => {
 					// Arrange:
@@ -568,38 +448,12 @@ describe('namespace routes', () => {
 					]);
 				});
 
-				it('parses empty public keys list correctly', () => {
-					// Arrange:
-					const req = { params: { publicKeys: [] } };
-
-					// Act + Assert:
-					expect(getParams(req)).to.deep.equal([]);
-				});
-
 				it('parses empty addresses list correctly', () => {
 					// Arrange:
 					const req = { params: { addresses: [] } };
 
 					// Act + Assert:
 					expect(getParams(req)).to.deep.equal([]);
-				});
-
-				it('does not support publicKeys and addresses provided at the same time', () => {
-					// Arrange:
-					const req = { params: { publicKeys: [], addresses: [] } };
-
-					// Act + Assert:
-					expect(() => { getParams(req); })
-						.to.throw('publicKeys and addresses cannot both be provided');
-				});
-
-				it('returns 409 if public keys are invalid', () => {
-					// Arrange:
-					const req = { params: { publicKeys: [testPublicKey.one, '12345ABCDE'] } };
-
-					// Act + Assert:
-					expect(() => { getParams(req); })
-						.to.throw('element in array publicKeys has an invalid format');
 				});
 
 				it('returns 409 if addresses are invalid', () => {

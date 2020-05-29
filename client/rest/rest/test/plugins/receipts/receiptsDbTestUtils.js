@@ -45,8 +45,8 @@ const createTransactionStatement = height => ({
 			{
 				version: 1,
 				type: 8516,
-				senderPublicKey: new Binary(test.random.publicKey()),
-				recipientAddress: new Binary(test.random.publicKey()),
+				senderAddress: new Binary(test.random.address()),
+				recipientAddress: new Binary(test.random.address()),
 				mosaicId: Long.fromNumber(9212),
 				amount: Long.fromNumber(1314)
 			},

@@ -24,18 +24,18 @@ const catapult = require('catapult-sdk');
 const { expect } = require('chai');
 const MongoDb = require('mongodb');
 
-const { convert } = catapult.utils;
+const { address } = catapult.model;
 const { Binary, ObjectId, Long } = MongoDb;
 
 describe('metadata db', () => {
-	const testPublicKey = {
-		one: '7DE16AEDF57EB9561D3E6EFA4AE66F27ABDA8AEC8BC020B6277360E31619DCE7',
-		two: 'E6B9584AA679CADAD6569F04CD624054C0946EC49057E7AE394CEB510B606467'
+	const testAddress = {
+		one: 'SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXWV',
+		two: 'SAMZMPX33DFIIVOCNJYMF5KJTGLAEVNKHHFROLXD'
 	};
 
-	const senderPublicKey = {
-		one: '5AD98F5C983599634C9C9B1ECAA2B2B2B1AAB3F741D4C256CEE4D866EA5A92D1',
-		two: 'A966DA3D73BA18B55C83E64CE4C38ACB29E38CF38B4E6C1789E7C1B254E0CB89'
+	const senderTestAddress = {
+		one: 'SCFZFP7N5C3P6EHP5D2UJ7GQD7Q7ZIENV4NZ6ELN',
+		two: 'SAAM2O7SSJ2A7AU3DZJMSTTRFZT5TFDPQ3ZIIJX7'
 	};
 
 	const scopedMetadataKey = {
@@ -45,12 +45,12 @@ describe('metadata db', () => {
 
 	const createObjectId = id => new ObjectId(`${'00'.repeat(12)}${id}`.slice(-24));
 
-	const createMetadata = (id, metadataType, targetPublicKey, scopedKey, senderKey, value) => ({
+	const createMetadata = (id, metadataType, accountAddress, scopedKey, senderAddress, value) => ({
 		_id: -1 === id ? createObjectId(Math.floor(Math.random() * 100000)) : id,
 		metadataEntry: {
 			compositeHash: {},
-			senderPublicKey: undefined !== senderKey ? new Binary(Buffer.from(convert.hexToUint8(senderKey))) : '',
-			targetPublicKey: undefined !== targetPublicKey ? new Binary(Buffer.from(convert.hexToUint8(targetPublicKey))) : '',
+			sourceAddress: undefined !== senderAddress ? new Binary(Buffer.from(address.stringToAddress(senderAddress))) : '',
+			targetAddress: undefined !== accountAddress ? new Binary(Buffer.from(address.stringToAddress(accountAddress))) : '',
 			scopedMetadataKey: undefined !== scopedKey ? new Long(scopedKey[0], scopedKey[1]) : '',
 			targetId: 0,
 			metadataType: undefined !== metadataType ? metadataType : '',
@@ -59,7 +59,7 @@ describe('metadata db', () => {
 		}
 	});
 
-	const targetFilter = { 'metadataEntry.targetPublicKey': Buffer.from(convert.hexToUint8(testPublicKey.one)) };
+	const targetFilter = { 'metadataEntry.targetAddress': Buffer.from(address.stringToAddress(testAddress.one)) };
 
 	describe('get metadata with pagination', () => {
 		it('can get metadata with no pagination', () => {
@@ -68,9 +68,9 @@ describe('metadata db', () => {
 			const searchedMetadataType = 1;
 
 			const metadataDbEntities = [];
-			metadataDbEntities.push(createMetadata(searchedId, searchedMetadataType, testPublicKey.one));
-			metadataDbEntities.push(createMetadata(searchedId + 10, searchedMetadataType + 1, testPublicKey.one));
-			metadataDbEntities.push(createMetadata(searchedId + 20, searchedMetadataType, testPublicKey.two));
+			metadataDbEntities.push(createMetadata(searchedId, searchedMetadataType, testAddress.one));
+			metadataDbEntities.push(createMetadata(searchedId + 10, searchedMetadataType + 1, testAddress.one));
+			metadataDbEntities.push(createMetadata(searchedId + 20, searchedMetadataType, testAddress.two));
 
 			// Act + Assert:
 			return test.db.runDbTest(
@@ -93,7 +93,7 @@ describe('metadata db', () => {
 
 			const metadataDbEntities = [];
 			for (let index = 1; startingPageId + pageSize + 10 >= index; ++index)
-				metadataDbEntities.push(createMetadata(createObjectId(index), searchedMetadataType, testPublicKey.one));
+				metadataDbEntities.push(createMetadata(createObjectId(index), searchedMetadataType, testAddress.one));
 
 			const expectedPagedIds = [];
 			for (let i = startingPageId + 1; startingPageId + pageSize >= i; ++i)
@@ -119,7 +119,7 @@ describe('metadata db', () => {
 
 			const metadataDbEntities = [];
 			for (let index = 1; pageSize + 10 >= index; ++index)
-				metadataDbEntities.push(createMetadata(createObjectId(index), searchedMetadataType, testPublicKey.one));
+				metadataDbEntities.push(createMetadata(createObjectId(index), searchedMetadataType, testAddress.one));
 
 			const expectedPagedIds = [];
 			for (let i = 1; pageSize >= i; ++i)
@@ -160,11 +160,11 @@ describe('metadata db', () => {
 		it('gets metadata by key', () => {
 			// Arrange:
 			const metadataDbEntities = [];
-			metadataDbEntities.push(createMetadata(-1, 1, testPublicKey.one, scopedMetadataKey.one, senderPublicKey.one));
-			metadataDbEntities.push(createMetadata(-1, 1, testPublicKey.one, scopedMetadataKey.one, senderPublicKey.two));
-			metadataDbEntities.push(createMetadata(-1, 1, testPublicKey.one, scopedMetadataKey.two, senderPublicKey.one));
-			metadataDbEntities.push(createMetadata(-1, 2, testPublicKey.one, scopedMetadataKey.one, senderPublicKey.two));
-			metadataDbEntities.push(createMetadata(-1, 1, testPublicKey.two, scopedMetadataKey.one, senderPublicKey.one));
+			metadataDbEntities.push(createMetadata(-1, 1, testAddress.one, scopedMetadataKey.one, senderTestAddress.one));
+			metadataDbEntities.push(createMetadata(-1, 1, testAddress.one, scopedMetadataKey.one, senderTestAddress.two));
+			metadataDbEntities.push(createMetadata(-1, 1, testAddress.one, scopedMetadataKey.two, senderTestAddress.one));
+			metadataDbEntities.push(createMetadata(-1, 2, testAddress.one, scopedMetadataKey.one, senderTestAddress.two));
+			metadataDbEntities.push(createMetadata(-1, 1, testAddress.two, scopedMetadataKey.one, senderTestAddress.one));
 
 			// Act + Assert:
 			return test.db.runDbTest(
@@ -173,13 +173,13 @@ describe('metadata db', () => {
 				db => new MetadataDb(db),
 				db => db.getMetadataByKey(1, targetFilter, scopedMetadataKey.one),
 				entities => {
-					const expectedsenderPublicKeys = [
-						new Binary(Buffer.from(convert.hexToUint8(senderPublicKey.one))),
-						new Binary(Buffer.from(convert.hexToUint8(senderPublicKey.two)))
+					const expectedSenderAddresses = [
+						new Binary(Buffer.from(address.stringToAddress(senderTestAddress.one))),
+						new Binary(Buffer.from(address.stringToAddress(senderTestAddress.two)))
 					];
-					const senderPublicKeys = entities.map(e => e.metadataEntry.senderPublicKey);
+					const senderAddresses = entities.map(e => e.metadataEntry.sourceAddress);
 					expect(entities.length).to.equal(2);
-					expect(senderPublicKeys).to.deep.equal(expectedsenderPublicKeys);
+					expect(senderAddresses).to.deep.equal(expectedSenderAddresses);
 				}
 			);
 		});
@@ -187,9 +187,9 @@ describe('metadata db', () => {
 		it('returns empty when filter resolves to false', () => {
 			// Arrange:
 			const metadataDbEntities = [];
-			metadataDbEntities.push(createMetadata(-1, 1, testPublicKey.one, scopedMetadataKey.one));
-			metadataDbEntities.push(createMetadata(-1, 1, testPublicKey.one, scopedMetadataKey.one));
-			metadataDbEntities.push(createMetadata(-1, 1, testPublicKey.one, scopedMetadataKey.one));
+			metadataDbEntities.push(createMetadata(-1, 1, testAddress.one, scopedMetadataKey.one));
+			metadataDbEntities.push(createMetadata(-1, 1, testAddress.one, scopedMetadataKey.one));
+			metadataDbEntities.push(createMetadata(-1, 1, testAddress.one, scopedMetadataKey.one));
 
 			// Act + Assert:
 			return test.db.runDbTest(
@@ -206,8 +206,8 @@ describe('metadata db', () => {
 		it('returns empty when there are no metadata with supplied key', () => {
 			// Arrange:
 			const metadataDbEntities = [];
-			metadataDbEntities.push(createMetadata(-1, 1, testPublicKey.one, scopedMetadataKey.one, senderPublicKey.one));
-			metadataDbEntities.push(createMetadata(-1, 1, testPublicKey.one, scopedMetadataKey.one, senderPublicKey.one));
+			metadataDbEntities.push(createMetadata(-1, 1, testAddress.one, scopedMetadataKey.one, senderTestAddress.one));
+			metadataDbEntities.push(createMetadata(-1, 1, testAddress.one, scopedMetadataKey.one, senderTestAddress.one));
 
 			// Act + Assert:
 			return test.db.runDbTest(
@@ -227,11 +227,11 @@ describe('metadata db', () => {
 			// Arrange:
 			const metadataDbEntities = [];
 			const appleId = createObjectId(126);
-			metadataDbEntities.push(createMetadata(appleId, 1, testPublicKey.one, scopedMetadataKey.one, senderPublicKey.one, 'apple'));
-			metadataDbEntities.push(createMetadata(-1, 1, testPublicKey.one, scopedMetadataKey.one, senderPublicKey.two, 'banana'));
-			metadataDbEntities.push(createMetadata(-1, 1, testPublicKey.one, scopedMetadataKey.two, senderPublicKey.one, 'cherry'));
-			metadataDbEntities.push(createMetadata(-1, 2, testPublicKey.one, scopedMetadataKey.one, senderPublicKey.two, 'dates'));
-			metadataDbEntities.push(createMetadata(-1, 1, testPublicKey.two, scopedMetadataKey.one, senderPublicKey.one, 'entawak'));
+			metadataDbEntities.push(createMetadata(appleId, 1, testAddress.one, scopedMetadataKey.one, senderTestAddress.one, 'apple'));
+			metadataDbEntities.push(createMetadata(-1, 1, testAddress.one, scopedMetadataKey.one, senderTestAddress.two, 'banana'));
+			metadataDbEntities.push(createMetadata(-1, 1, testAddress.one, scopedMetadataKey.two, senderTestAddress.one, 'cherry'));
+			metadataDbEntities.push(createMetadata(-1, 2, testAddress.one, scopedMetadataKey.one, senderTestAddress.two, 'dates'));
+			metadataDbEntities.push(createMetadata(-1, 1, testAddress.two, scopedMetadataKey.one, senderTestAddress.one, 'entawak'));
 
 			// Act + Assert:
 			return test.db.runDbTest(
@@ -242,7 +242,7 @@ describe('metadata db', () => {
 					1,
 					targetFilter,
 					scopedMetadataKey.one,
-					Buffer.from(convert.hexToUint8(senderPublicKey.one))
+					Buffer.from(address.stringToAddress(senderTestAddress.one))
 				),
 				metadataEntry => {
 					expect(metadataEntry).to.deep.equal({
@@ -251,9 +251,9 @@ describe('metadata db', () => {
 							compositeHash: {},
 							metadataType: 1,
 							scopedMetadataKey: new Long(scopedMetadataKey.one[0], scopedMetadataKey.one[1]),
-							senderPublicKey: new Binary(Buffer.from(convert.hexToUint8(senderPublicKey.one))),
+							sourceAddress: new Binary(Buffer.from(address.stringToAddress(senderTestAddress.one))),
 							targetId: 0,
-							targetPublicKey: new Binary(Buffer.from(convert.hexToUint8(testPublicKey.one))),
+							targetAddress: new Binary(Buffer.from(address.stringToAddress(testAddress.one))),
 							value: new Binary('apple'),
 							valueSize: 5
 						}
@@ -265,9 +265,9 @@ describe('metadata db', () => {
 		it('returns undefined when filter resolves to false', () => {
 			// Arrange:
 			const metadataDbEntities = [];
-			metadataDbEntities.push(createMetadata(-1, 1, testPublicKey.one, scopedMetadataKey.one, senderPublicKey.one));
-			metadataDbEntities.push(createMetadata(-1, 1, testPublicKey.one, scopedMetadataKey.one, senderPublicKey.one));
-			metadataDbEntities.push(createMetadata(-1, 1, testPublicKey.one, scopedMetadataKey.one, senderPublicKey.one));
+			metadataDbEntities.push(createMetadata(-1, 1, testAddress.one, scopedMetadataKey.one, senderTestAddress.one));
+			metadataDbEntities.push(createMetadata(-1, 1, testAddress.one, scopedMetadataKey.one, senderTestAddress.one));
+			metadataDbEntities.push(createMetadata(-1, 1, testAddress.one, scopedMetadataKey.one, senderTestAddress.one));
 
 			// Act + Assert:
 			return test.db.runDbTest(
@@ -278,7 +278,7 @@ describe('metadata db', () => {
 					1,
 					{ 'metadataEntry.nonExistingField': '' },
 					scopedMetadataKey.one,
-					Buffer.from(convert.hexToUint8(senderPublicKey.one))
+					Buffer.from(address.stringToAddress(senderTestAddress.one))
 				),
 				entities => {
 					expect(entities).to.equal(undefined);
@@ -289,8 +289,8 @@ describe('metadata db', () => {
 		it('returns undefined when there are no metadata with supplied key', () => {
 			// Arrange:
 			const metadataDbEntities = [];
-			metadataDbEntities.push(createMetadata(-1, 1, testPublicKey.one, scopedMetadataKey.one, senderPublicKey.one, 'apple'));
-			metadataDbEntities.push(createMetadata(-1, 1, testPublicKey.one, scopedMetadataKey.one, senderPublicKey.one, 'banana'));
+			metadataDbEntities.push(createMetadata(-1, 1, testAddress.one, scopedMetadataKey.one, senderTestAddress.one, 'apple'));
+			metadataDbEntities.push(createMetadata(-1, 1, testAddress.one, scopedMetadataKey.one, senderTestAddress.one, 'banana'));
 
 			// Act + Assert:
 			return test.db.runDbTest(
@@ -301,7 +301,7 @@ describe('metadata db', () => {
 					1,
 					targetFilter,
 					scopedMetadataKey.two,
-					Buffer.from(convert.hexToUint8(senderPublicKey.one))
+					Buffer.from(address.stringToAddress(senderTestAddress.one))
 				),
 				metadataEntry => {
 					expect(metadataEntry).to.equal(undefined);
@@ -312,8 +312,8 @@ describe('metadata db', () => {
 		it('returns undefined when there are no metadata with supplied sender', () => {
 			// Arrange:
 			const metadataDbEntities = [];
-			metadataDbEntities.push(createMetadata(-1, 1, testPublicKey.one, scopedMetadataKey.one, senderPublicKey.one, 'apple'));
-			metadataDbEntities.push(createMetadata(-1, 1, testPublicKey.one, scopedMetadataKey.one, senderPublicKey.one, 'banana'));
+			metadataDbEntities.push(createMetadata(-1, 1, testAddress.one, scopedMetadataKey.one, senderTestAddress.one, 'apple'));
+			metadataDbEntities.push(createMetadata(-1, 1, testAddress.one, scopedMetadataKey.one, senderTestAddress.one, 'banana'));
 
 			// Act + Assert:
 			return test.db.runDbTest(
@@ -324,7 +324,7 @@ describe('metadata db', () => {
 					1,
 					targetFilter,
 					scopedMetadataKey.one,
-					Buffer.from(convert.hexToUint8(senderPublicKey.two))
+					Buffer.from(address.stringToAddress(senderTestAddress.two))
 				),
 				metadataEntry => {
 					expect(metadataEntry).to.equal(undefined);

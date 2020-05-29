@@ -195,12 +195,12 @@ class CatapultDb {
 	/**
 	 * Retrieves filtered and paginated blocks.
 	 * @param {Uint8Array} signerPublicKey Filters by signer public key
-	 * @param {Uint8Array} beneficiaryPublicKey Filters by beneficiary public key
+	 * @param {Uint8Array} beneficiaryAddress Filters by beneficiary address
 	 * @param {object} options Options for ordering and pagination. Can have an `offset`, and must contain the `sortField`, `sortDirection`,
 	 * `pageSize` and `pageNumber`.
 	 * @returns {Promise.<object>} Blocks page.
 	 */
-	blocks(signerPublicKey, beneficiaryPublicKey, options) {
+	blocks(signerPublicKey, beneficiaryAddress, options) {
 		const conditions = [];
 
 		// it is assumed that sortField will always be an `id` for now - this will need to be redesigned when it gets upgraded
@@ -211,8 +211,8 @@ class CatapultDb {
 		if (signerPublicKey)
 			conditions.push({ 'block.signerPublicKey': Buffer.from(signerPublicKey) });
 
-		if (beneficiaryPublicKey)
-			conditions.push({ 'block.beneficiaryPublicKey': Buffer.from(beneficiaryPublicKey) });
+		if (beneficiaryAddress)
+			conditions.push({ 'block.beneficiaryAddress': Buffer.from(beneficiaryAddress) });
 
 		const sortConditions = { $sort: { [options.sortField]: options.sortDirection } };
 

@@ -39,7 +39,7 @@ describe('lock secret plugin', () => {
 
 			// Assert:
 			test.assert.assertRoutes(routes, [
-				'/account/:accountId/lock/secret',
+				'/account/:address/lock/secret',
 				'/lock/secret/:secret'
 			]);
 		});

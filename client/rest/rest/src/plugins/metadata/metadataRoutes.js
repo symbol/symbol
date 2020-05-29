@@ -19,8 +19,6 @@
  */
 
 const routeUtils = require('../../routes/routeUtils');
-const errors = require('../../server/errors');
-const AccountType = require('../AccountType');
 const catapult = require('catapult-sdk');
 const MongoDb = require('mongodb');
 
@@ -30,15 +28,6 @@ const { uint64 } = catapult.utils;
 
 module.exports = {
 	register: (server, db) => {
-		const accountIdToPublicKey = (type, accountId) => {
-			if (AccountType.publicKey === type)
-				return Promise.resolve(accountId);
-
-			return routeUtils.addressToPublicKey(db.catapultDb, accountId);
-		};
-
-		const accountFilter = publicKey => ({ 'metadataEntry.targetPublicKey': Buffer.from(publicKey) });
-
 		const idFilter = id => ({ 'metadataEntry.targetId': new Long(id[0], id[1]) });
 
 		const addMetadataEndpointsFor = entity => {
@@ -65,69 +54,60 @@ module.exports = {
 						routeUtils.createSender('metadata').sendOne(scopedMetadataKey, res, next)({ metadataEntries }));
 			});
 
-			server.get(`/metadata/${entity}/:${entity}Id/key/:key/sender/:publicKey`, (req, res, next) => {
+			server.get(`/metadata/${entity}/:${entity}Id/key/:key/sender/:senderAddress`, (req, res, next) => {
 				const entityId = routeUtils.parseArgument(req.params, `${entity}Id`, uint64.fromHex);
 				const scopedMetadataKey = routeUtils.parseArgument(req.params, 'key', uint64.fromHex);
-				const senderPublicKey = routeUtils.parseArgument(req.params, 'publicKey', 'publicKey');
+				const sourceAddress = routeUtils.parseArgument(req.params, 'senderAddress', 'address');
 
-				return db.getMetadataByKeyAndSender(metadata.metadataType[entity], idFilter(entityId), scopedMetadataKey, senderPublicKey)
-					.then(metadataResult => routeUtils.createSender('metadata.entry').sendOne(senderPublicKey, res, next)(metadataResult));
+				return db.getMetadataByKeyAndSender(metadata.metadataType[entity], idFilter(entityId), scopedMetadataKey, sourceAddress)
+					.then(metadataResult => routeUtils.createSender('metadata.entry').sendOne(sourceAddress, res, next)(metadataResult));
 			});
 		};
 
 		// region account metadata
 
-		server.get('/metadata/account/:accountId', (req, res, next) => {
-			const [type, accountId] = routeUtils.parseArgument(req.params, 'accountId', 'accountId');
+		server.get('/metadata/account/:address', (req, res, next) => {
+			const accountAddress = routeUtils.parseArgument(req.params, 'address', 'address');
 			const pagingOptions = routeUtils.parsePagingArguments(req.params);
 			const ordering = routeUtils.parseArgument(req.params, 'ordering', input => ('id' === input ? 1 : -1));
 
-			return accountIdToPublicKey(type, accountId)
-				.then(publicKey =>
-					db.getMetadataWithPagination(
-						metadata.metadataType.account,
-						accountFilter(publicKey),
-						pagingOptions.id,
-						pagingOptions.pageSize,
-						ordering
-					).then(metadataEntries => routeUtils.createSender('metadata').sendOne(accountId, res, next)({ metadataEntries })))
-				.catch(() => {
-					res.send(errors.createNotFoundError(req.params.accountId));
-					return next();
-				});
+			return db.getMetadataWithPagination(
+				metadata.metadataType.account,
+				{ 'metadataEntry.targetAddress': Buffer.from(accountAddress) },
+				pagingOptions.id,
+				pagingOptions.pageSize,
+				ordering
+			).then(
+				metadataEntries => routeUtils.createSender('metadata').sendOne('address', res, next)({ metadataEntries })
+			);
 		});
 
-		server.get('/metadata/account/:accountId/key/:key', (req, res, next) => {
-			const [type, accountId] = routeUtils.parseArgument(req.params, 'accountId', 'accountId');
+		server.get('/metadata/account/:address/key/:key', (req, res, next) => {
+			const accountAddress = routeUtils.parseArgument(req.params, 'address', 'address');
 			const scopedMetadataKey = routeUtils.parseArgument(req.params, 'key', uint64.fromHex);
 
-			return accountIdToPublicKey(type, accountId)
-				.then(publicKey => db.getMetadataByKey(metadata.metadataType.account, accountFilter(publicKey), scopedMetadataKey)
-					.then(metadataEntries =>
-						routeUtils.createSender('metadata').sendOne(scopedMetadataKey, res, next)({ metadataEntries })))
-				.catch(() => {
-					res.send(errors.createNotFoundError(req.params.accountId));
-					return next();
-				});
+			return db.getMetadataByKey(
+				metadata.metadataType.account,
+				{ 'metadataEntry.targetAddress': Buffer.from(accountAddress) },
+				scopedMetadataKey
+			).then(
+				metadataEntries => routeUtils.createSender('metadata').sendOne(scopedMetadataKey, res, next)({ metadataEntries })
+			);
 		});
 
-		server.get('/metadata/account/:accountId/key/:key/sender/:publicKey', (req, res, next) => {
-			const [type, accountId] = routeUtils.parseArgument(req.params, 'accountId', 'accountId');
+		server.get('/metadata/account/:address/key/:key/sender/:senderAddress', (req, res, next) => {
+			const accountAddress = routeUtils.parseArgument(req.params, 'address', 'address');
 			const scopedMetadataKey = routeUtils.parseArgument(req.params, 'key', uint64.fromHex);
-			const senderPublicKey = routeUtils.parseArgument(req.params, 'publicKey', 'publicKey');
+			const sourceAddress = routeUtils.parseArgument(req.params, 'senderAddress', 'address');
 
-			return accountIdToPublicKey(type, accountId)
-				.then(publicKey =>
-					db.getMetadataByKeyAndSender(
-						metadata.metadataType.account,
-						accountFilter(publicKey),
-						scopedMetadataKey,
-						senderPublicKey
-					).then(metadataResult => routeUtils.createSender('metadata.entry').sendOne(senderPublicKey, res, next)(metadataResult)))
-				.catch(() => {
-					res.send(errors.createNotFoundError(req.params.accountId));
-					return next();
-				});
+			return db.getMetadataByKeyAndSender(
+				metadata.metadataType.account,
+				{ 'metadataEntry.targetAddress': Buffer.from(accountAddress) },
+				scopedMetadataKey,
+				sourceAddress
+			).then(
+				metadataResult => routeUtils.createSender('metadata.entry').sendOne(sourceAddress, res, next)(metadataResult)
+			);
 		});
 
 		// endregion
