@@ -46,9 +46,6 @@ struct AccountState
 	# activity buckets of the account
 	activityBuckets = HeightActivityBuckets if format equals highValue
 
-	# currency mosaic id
-	currencyMosaicId = MosaicId
-
 	# number of total balances (mosaics)
 	balancesCount = uint16
 
