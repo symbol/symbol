@@ -115,6 +115,14 @@ namespace catapult { namespace extensions {
 		});
 	}
 
+	TEST(TEST_CLASS, ProperFinalizedHeightAfterLoadingNemesisBlock) {
+		// Act:
+		RunNemesisBlockTest([](const auto& stateRef) {
+			// Assert:
+			EXPECT_EQ(Height(1), stateRef.Cache.createView().dependentState().LastFinalizedHeight);
+		});
+	}
+
 	TEST(TEST_CLASS, ProperNumTransactionsAfterLoadingNemesisBlock) {
 		// Act:
 		RunNemesisBlockTest([](const auto& stateRef) {

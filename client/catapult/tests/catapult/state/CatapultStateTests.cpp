@@ -31,6 +31,7 @@ namespace catapult { namespace state {
 
 		// Assert:
 		EXPECT_EQ(model::ImportanceHeight(0), state.LastRecalculationHeight);
+		EXPECT_EQ(Height(0), state.LastFinalizedHeight);
 		EXPECT_EQ(BlockFeeMultiplier(0), state.DynamicFeeMultiplier);
 		EXPECT_EQ(0u, state.NumTotalTransactions);
 	}

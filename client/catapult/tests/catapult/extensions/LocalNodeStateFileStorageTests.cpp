@@ -98,9 +98,7 @@ namespace catapult { namespace extensions {
 		cache::SupplementalData CreateDeterministicSupplementalData() {
 			cache::SupplementalData supplementalData;
 			supplementalData.ChainScore = model::ChainScore(0x1234567890ABCDEF, 0xFEDCBA0987654321);
-			supplementalData.State.LastRecalculationHeight = model::ImportanceHeight(12345);
-			supplementalData.State.DynamicFeeMultiplier = BlockFeeMultiplier(334455);
-			supplementalData.State.NumTotalTransactions = 7654321;
+			supplementalData.State = test::CreateDeterministicCatapultState();
 			return supplementalData;
 		}
 
@@ -227,6 +225,7 @@ namespace catapult { namespace extensions {
 		auto cacheView = loadedState.ref().Cache.createView();
 		auto expectedState = state::CatapultState();
 		expectedState.LastRecalculationHeight = model::ImportanceHeight(1);
+		expectedState.LastFinalizedHeight = Height(1);
 		expectedState.DynamicFeeMultiplier = BlockFeeMultiplier(1);
 		expectedState.NumTotalTransactions = 31 + 11;
 		test::AssertEqual(expectedState, cacheView.dependentState());

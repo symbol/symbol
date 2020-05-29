@@ -216,6 +216,7 @@ namespace catapult { namespace extensions {
 				? observers::ObserverState(m_cacheDelta, blockStatementBuilder)
 				: observers::ObserverState(m_cacheDelta);
 		chain::ExecuteBlock(nemesisBlockElement, { *m_pObserver, resolverContext, observerState });
+		m_cacheDelta.dependentState().LastFinalizedHeight = Height(1);
 
 		// 4. check the funded balances are reasonable
 		if (Verbosity::On == verbosity)

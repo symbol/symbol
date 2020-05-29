@@ -20,6 +20,7 @@
 
 #include "catapult/cache/SupplementalDataStorage.h"
 #include "catapult/cache/SupplementalData.h"
+#include "tests/test/core/StateTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/TestHarness.h"
 
@@ -28,7 +29,7 @@ namespace catapult { namespace cache {
 #define TEST_CLASS SupplementalDataStorageTests
 
 	namespace {
-		constexpr auto Data_Size = 5 * sizeof(uint64_t) + sizeof(uint32_t);
+		constexpr auto Data_Size = 6 * sizeof(uint64_t) + sizeof(uint32_t);
 	}
 
 	TEST(TEST_CLASS, CanSaveData) {
@@ -38,10 +39,8 @@ namespace catapult { namespace cache {
 
 		// - create random data
 		SupplementalData data;
-		data.State.LastRecalculationHeight = test::GenerateRandomValue<model::ImportanceHeight>();
-		data.State.DynamicFeeMultiplier = test::GenerateRandomValue<BlockFeeMultiplier>();
-		data.State.NumTotalTransactions = test::Random();
 		data.ChainScore = model::ChainScore(test::Random(), test::Random());
+		data.State = test::CreateRandomCatapultState();
 		auto chainHeight = test::GenerateRandomValue<Height>();
 
 		// Act:
@@ -55,8 +54,9 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(chainHeight, Height(pData64[0]));
 		EXPECT_EQ(data.ChainScore, model::ChainScore(pData64[1], pData64[2]));
 		EXPECT_EQ(data.State.LastRecalculationHeight, model::ImportanceHeight(pData64[3]));
-		EXPECT_EQ(data.State.NumTotalTransactions, pData64[4]);
-		EXPECT_EQ(data.State.DynamicFeeMultiplier, BlockFeeMultiplier(pData32[10]));
+		EXPECT_EQ(data.State.LastFinalizedHeight, Height(pData64[4]));
+		EXPECT_EQ(data.State.NumTotalTransactions, pData64[5]);
+		EXPECT_EQ(data.State.DynamicFeeMultiplier, BlockFeeMultiplier(pData32[12]));
 
 		EXPECT_EQ(1u, stream.numFlushes());
 	}
@@ -79,7 +79,8 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(Height(pData64[0]), chainHeight);
 		EXPECT_EQ(model::ChainScore(pData64[1], pData64[2]), data.ChainScore);
 		EXPECT_EQ(model::ImportanceHeight(pData64[3]), data.State.LastRecalculationHeight);
-		EXPECT_EQ(pData64[4], data.State.NumTotalTransactions);
-		EXPECT_EQ(BlockFeeMultiplier(pData32[10]), data.State.DynamicFeeMultiplier);
+		EXPECT_EQ(Height(pData64[4]), data.State.LastFinalizedHeight);
+		EXPECT_EQ(pData64[5], data.State.NumTotalTransactions);
+		EXPECT_EQ(BlockFeeMultiplier(pData32[12]), data.State.DynamicFeeMultiplier);
 	}
 }}
