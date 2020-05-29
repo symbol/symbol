@@ -51,6 +51,7 @@ const transferPlugin = {
 				const messageSize = parser.uint16();
 
 				transaction.transferTransactionBody_Reserved1 = parser.uint32();
+				transaction.transferTransactionBody_Reserved2 = parser.uint8();
 
 				if (0 < numMosaics) {
 					transaction.mosaics = [];
@@ -85,6 +86,7 @@ const transferPlugin = {
 				}
 
 				serializer.writeUint32(transaction.transferTransactionBody_Reserved1);
+				serializer.writeUint8(transaction.transferTransactionBody_Reserved2);
 
 				if (0 < numMosaics) {
 					transaction.mosaics.forEach(mosaic => {
