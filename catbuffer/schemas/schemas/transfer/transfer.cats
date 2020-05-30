@@ -5,11 +5,11 @@ struct TransferTransactionBody
 	# recipient address
 	recipientAddress = UnresolvedAddress
 
-	# number of attached mosaics
-	mosaicsCount = uint8
-
 	# size of attached message
 	messageSize = uint16
+
+	# number of attached mosaics
+	mosaicsCount = uint8
 
 	# reserved padding to align mosaics on 8-byte boundary
 	transferTransactionBody_Reserved1 = uint32
