@@ -110,12 +110,12 @@ describe('metadata plugin', () => {
 		const getCodec = entityType => getCodecs()[entityType];
 
 		describe('supports account metadata', () => {
-			const targetPublicKey = test.random.bytes(test.constants.sizes.signerPublicKey); // 32
+			const targetAddress = test.random.bytes(test.constants.sizes.addressDecoded); // 25
 			const valueBuffer = Buffer.of(0x6d, 0x65, 0x74, 0x61, 0x20, 0x69, 0x6e, 0x66, 0x6f, 0x72, 0x6d, 0x61, 0x74, 0x69, 0x6f, 0x6e);
 
-			test.binary.test.addAll(getCodec(EntityType.accountMetadata), 60, () => ({
+			test.binary.test.addAll(getCodec(EntityType.accountMetadata), 53, () => ({
 				buffer: Buffer.concat([
-					Buffer.from(targetPublicKey), // key 32b
+					Buffer.from(targetAddress), // address 25b
 					Buffer.of(0xF2, 0x26, 0x6C, 0x06, 0x40, 0x83, 0xB2, 0x92), // scopedMetadataKey 8b
 					Buffer.of(0x03, 0x00), // valueSizeDelta
 					Buffer.of(0x10, 0x00), // valueSize
@@ -123,7 +123,7 @@ describe('metadata plugin', () => {
 				]),
 
 				object: {
-					targetPublicKey,
+					targetAddress,
 					scopedMetadataKey: [0x066C26F2, 0x92B28340],
 					valueSizeDelta: 3,
 					value: valueBuffer
@@ -132,12 +132,12 @@ describe('metadata plugin', () => {
 		});
 
 		describe('supports mosaic metadata', () => {
-			const targetPublicKey = test.random.bytes(test.constants.sizes.signerPublicKey); // 32
+			const targetAddress = test.random.bytes(test.constants.sizes.addressDecoded); // 25
 			const valueBuffer = Buffer.of(0x6d, 0x65, 0x74, 0x61, 0x20, 0x69, 0x6e, 0x66, 0x6f, 0x72, 0x6d, 0x61, 0x74, 0x69, 0x6f, 0x6e);
 
-			test.binary.test.addAll(getCodec(EntityType.mosaicMetadata), 68, () => ({
+			test.binary.test.addAll(getCodec(EntityType.mosaicMetadata), 61, () => ({
 				buffer: Buffer.concat([
-					Buffer.from(targetPublicKey), // key 32b
+					Buffer.from(targetAddress), // address 25b
 					Buffer.of(0xF2, 0x26, 0x6C, 0x06, 0x40, 0x83, 0xB2, 0x92), // scopedMetadataKey 8b
 					Buffer.of(0x93, 0x53, 0xBB, 0x24, 0x12, 0xB1, 0xFF, 0x36), // targetMosaicId 8b
 					Buffer.of(0x05, 0x00), // valueSizeDelta
@@ -146,7 +146,7 @@ describe('metadata plugin', () => {
 				]),
 
 				object: {
-					targetPublicKey,
+					targetAddress,
 					scopedMetadataKey: [0x066C26F2, 0x92B28340],
 					targetMosaicId: [0x24BB5393, 0x36FFB112],
 					valueSizeDelta: 5,
@@ -156,12 +156,12 @@ describe('metadata plugin', () => {
 		});
 
 		describe('supports namespace metadata', () => {
-			const targetPublicKey = test.random.bytes(test.constants.sizes.signerPublicKey); // 32
+			const targetAddress = test.random.bytes(test.constants.sizes.addressDecoded); // 25
 			const valueBuffer = Buffer.of(0x6d, 0x65, 0x74, 0x61, 0x20, 0x69, 0x6e, 0x66, 0x6f, 0x72, 0x6d, 0x61, 0x74, 0x69, 0x6f, 0x6e);
 
-			test.binary.test.addAll(getCodec(EntityType.namespaceMetadata), 68, () => ({
+			test.binary.test.addAll(getCodec(EntityType.namespaceMetadata), 61, () => ({
 				buffer: Buffer.concat([
-					Buffer.from(targetPublicKey), // key 32b
+					Buffer.from(targetAddress), // address 25b
 					Buffer.of(0xF2, 0x26, 0x6C, 0x06, 0x40, 0x83, 0xB2, 0x92), // scopedMetadataKey 8b
 					Buffer.of(0xAA, 0x22, 0xC2, 0x32, 0x99, 0xBC, 0xDE, 0x63), // targetNamespaceId 8b
 					Buffer.of(0x12, 0x00), // valueSizeDelta
@@ -170,7 +170,7 @@ describe('metadata plugin', () => {
 				]),
 
 				object: {
-					targetPublicKey,
+					targetAddress,
 					scopedMetadataKey: [0x066C26F2, 0x92B28340],
 					targetNamespaceId: [0x32C222AA, 0x63DEBC99],
 					valueSizeDelta: 18,

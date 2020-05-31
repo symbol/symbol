@@ -212,9 +212,9 @@ describe('mosaic db', () => {
 	});
 
 	describe('mosaics by ids', () => {
-		const createMosaic = (id, mosaicId, ownerPublicKey, parentId) => {
+		const createMosaic = (id, mosaicId, ownerAddress, parentId) => {
 			const mosaic = {
-				ownerPublicKey: new Binary(ownerPublicKey),
+				ownerAddress: new Binary(ownerAddress),
 				id: Long.fromNumber(mosaicId),
 				namespaceId: Long.fromNumber(parentId)
 			};
@@ -226,13 +226,13 @@ describe('mosaic db', () => {
 		 * Creates mosaics with ids in the 1000s range, whereas namespace ids will be in the 2000s range
 		 */
 		const createMosaics = (numNamespaces, numMosaicsPerNamespace) => {
-			const ownerPublicKey = test.random.publicKey();
+			const ownerAddress = test.random.address();
 			const mosaics = [];
 			let dbId = 0;
 			let id = 10000;
 			for (let namespaceId = 0; namespaceId < numNamespaces; ++namespaceId) {
 				for (let i = 0; i < numMosaicsPerNamespace; ++i)
-					mosaics.push(createMosaic(dbId++, id++, ownerPublicKey, 20000 + namespaceId));
+					mosaics.push(createMosaic(dbId++, id++, ownerAddress, 20000 + namespaceId));
 			}
 
 			return mosaics;

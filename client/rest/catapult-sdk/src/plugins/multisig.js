@@ -57,18 +57,18 @@ const multisigPlugin = {
 				transaction.minRemovalDelta = convert.uint8ToInt8(parser.uint8());
 				transaction.minApprovalDelta = convert.uint8ToInt8(parser.uint8());
 
-				const publicKeyAdditionsCount = parser.uint8();
-				const publicKeyDeletionsCount = parser.uint8();
+				const addressAdditionsCount = parser.uint8();
+				const addressDeletionsCount = parser.uint8();
 
 				transaction.multisigAccountModificationTransactionBody_Reserved1 = parser.uint32();
 
-				transaction.publicKeyAdditions = [];
-				for (let i = 0; i < publicKeyAdditionsCount; ++i)
-					transaction.publicKeyAdditions.push(parser.buffer(constants.sizes.signerPublicKey));
+				transaction.addressAdditions = [];
+				for (let i = 0; i < addressAdditionsCount; ++i)
+					transaction.addressAdditions.push(parser.buffer(constants.sizes.addressDecoded));
 
-				transaction.publicKeyDeletions = [];
-				for (let i = 0; i < publicKeyDeletionsCount; ++i)
-					transaction.publicKeyDeletions.push(parser.buffer(constants.sizes.signerPublicKey));
+				transaction.addressDeletions = [];
+				for (let i = 0; i < addressDeletionsCount; ++i)
+					transaction.addressDeletions.push(parser.buffer(constants.sizes.addressDecoded));
 
 				return transaction;
 			},
@@ -76,13 +76,13 @@ const multisigPlugin = {
 			serialize: (transaction, serializer) => {
 				serializer.writeUint8(convert.int8ToUint8(transaction.minRemovalDelta));
 				serializer.writeUint8(convert.int8ToUint8(transaction.minApprovalDelta));
-				serializer.writeUint8(transaction.publicKeyAdditions.length);
-				serializer.writeUint8(transaction.publicKeyDeletions.length);
+				serializer.writeUint8(transaction.addressAdditions.length);
+				serializer.writeUint8(transaction.addressDeletions.length);
 				serializer.writeUint32(transaction.multisigAccountModificationTransactionBody_Reserved1);
-				transaction.publicKeyAdditions.forEach(key => {
+				transaction.addressAdditions.forEach(key => {
 					serializer.writeBuffer(key);
 				});
-				transaction.publicKeyDeletions.forEach(key => {
+				transaction.addressDeletions.forEach(key => {
 					serializer.writeBuffer(key);
 				});
 			}

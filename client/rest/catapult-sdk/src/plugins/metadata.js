@@ -75,7 +75,7 @@ const metadataPlugin = {
 		codecBuilder.addTransactionSupport(EntityType.accountMetadata, {
 			deserialize: parser => {
 				const transaction = {};
-				transaction.targetPublicKey = parser.buffer(constants.sizes.signerPublicKey);
+				transaction.targetAddress = parser.buffer(constants.sizes.addressDecoded);
 				transaction.scopedMetadataKey = parser.uint64();
 				transaction.valueSizeDelta = convert.uint16ToInt16(parser.uint16());
 
@@ -86,7 +86,7 @@ const metadataPlugin = {
 			},
 
 			serialize: (transaction, serializer) => {
-				serializer.writeBuffer(transaction.targetPublicKey);
+				serializer.writeBuffer(transaction.targetAddress);
 				serializer.writeUint64(transaction.scopedMetadataKey);
 				serializer.writeUint16(convert.int16ToUint16(transaction.valueSizeDelta));
 				serializer.writeUint16(transaction.value.length);
@@ -97,7 +97,7 @@ const metadataPlugin = {
 		codecBuilder.addTransactionSupport(EntityType.mosaicMetadata, {
 			deserialize: parser => {
 				const transaction = {};
-				transaction.targetPublicKey = parser.buffer(constants.sizes.signerPublicKey);
+				transaction.targetAddress = parser.buffer(constants.sizes.addressDecoded);
 				transaction.scopedMetadataKey = parser.uint64();
 				transaction.targetMosaicId = parser.uint64();
 				transaction.valueSizeDelta = convert.uint16ToInt16(parser.uint16());
@@ -109,7 +109,7 @@ const metadataPlugin = {
 			},
 
 			serialize: (transaction, serializer) => {
-				serializer.writeBuffer(transaction.targetPublicKey);
+				serializer.writeBuffer(transaction.targetAddress);
 				serializer.writeUint64(transaction.scopedMetadataKey);
 				serializer.writeUint64(transaction.targetMosaicId);
 				serializer.writeUint16(convert.int16ToUint16(transaction.valueSizeDelta));
@@ -121,7 +121,7 @@ const metadataPlugin = {
 		codecBuilder.addTransactionSupport(EntityType.namespaceMetadata, {
 			deserialize: parser => {
 				const transaction = {};
-				transaction.targetPublicKey = parser.buffer(constants.sizes.signerPublicKey);
+				transaction.targetAddress = parser.buffer(constants.sizes.addressDecoded);
 				transaction.scopedMetadataKey = parser.uint64();
 				transaction.targetNamespaceId = parser.uint64();
 				transaction.valueSizeDelta = convert.uint16ToInt16(parser.uint16());
@@ -133,7 +133,7 @@ const metadataPlugin = {
 			},
 
 			serialize: (transaction, serializer) => {
-				serializer.writeBuffer(transaction.targetPublicKey);
+				serializer.writeBuffer(transaction.targetAddress);
 				serializer.writeUint64(transaction.scopedMetadataKey);
 				serializer.writeUint64(transaction.targetNamespaceId);
 				serializer.writeUint16(convert.int16ToUint16(transaction.valueSizeDelta));
