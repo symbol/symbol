@@ -37,14 +37,12 @@ namespace catapult { namespace test {
 		}
 
 		void WriteCosignature(io::OutputStream& outputStream) {
-			auto signer = GenerateRandomByteArray<Key>();
-			auto signature = GenerateRandomByteArray<Signature>();
+			auto cosignature = CreateRandomDetachedCosignature();
 			auto transactionInfo = CreateRandomTransactionInfo();
 			transactionInfo.OptionalExtractedAddresses = GenerateRandomUnresolvedAddressSetPointer(Random() % 2 + 1);
 
 			io::Write8(outputStream, utils::to_underlying_type(subscribers::PtChangeOperationType::Add_Cosignature));
-			outputStream.write(signer);
-			outputStream.write(signature);
+			outputStream.write({ reinterpret_cast<const uint8_t*>(&cosignature), sizeof(model::Cosignature) });
 			io::WriteTransactionInfo(transactionInfo, outputStream);
 		}
 	}

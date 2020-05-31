@@ -44,8 +44,8 @@ namespace catapult { namespace subscribers {
 		void ForwardCosignature(io::InputStream& inputStream, cache::PtChangeSubscriber& subscriber) {
 			model::Cosignature cosignature;
 			model::TransactionInfo transactionInfo;
-			inputStream.read(cosignature.SignerPublicKey);
-			inputStream.read(cosignature.Signature);
+
+			inputStream.read({ reinterpret_cast<uint8_t*>(&cosignature), sizeof(model::Cosignature) });
 			io::ReadTransactionInfo(inputStream, transactionInfo);
 
 			subscriber.notifyAddCosignature(transactionInfo, cosignature);

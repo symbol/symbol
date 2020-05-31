@@ -22,6 +22,7 @@
 #include "catapult/io/PodIoUtils.h"
 #include "catapult/io/TransactionInfoSerializer.h"
 #include "catapult/subscribers/SubscriberOperationTypes.h"
+#include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/test/other/mocks/MockPtChangeSubscriber.h"
 #include "tests/TestHarness.h"
@@ -99,15 +100,13 @@ namespace catapult { namespace subscribers {
 
 	TEST(TEST_CLASS, CanReadCosignature) {
 		// Arrange:
-		auto signer = test::GenerateRandomByteArray<Key>();
-		auto signature = test::GenerateRandomByteArray<Signature>();
+		auto cosignature = test::CreateRandomDetachedCosignature();
 		auto transactionInfos = test::CreateTransactionInfosWithOptionalAddresses(1);
 
 		std::vector<uint8_t> buffer;
 		mocks::MockMemoryStream stream(buffer);
 		io::Write8(stream, utils::to_underlying_type(PtChangeOperationType::Add_Cosignature));
-		stream.write(signer);
-		stream.write(signature);
+		stream.write({ reinterpret_cast<const uint8_t*>(&cosignature), sizeof(model::Cosignature) });
 		io::WriteTransactionInfo(*transactionInfos.cbegin(), stream);
 
 		mocks::MockPtChangeSubscriber subscriber;
@@ -121,8 +120,7 @@ namespace catapult { namespace subscribers {
 		ASSERT_EQ(1u, subscriber.addedCosignatureInfos().size());
 
 		const auto& cosignatureInfo = subscriber.addedCosignatureInfos()[0];
-		EXPECT_EQ(signer, cosignatureInfo.second.SignerPublicKey);
-		EXPECT_EQ(signature, cosignatureInfo.second.Signature);
+		test::AssertCosignature(cosignature, cosignatureInfo.second);
 		test::AssertEqual(*transactionInfos.cbegin(), *cosignatureInfo.first);
 
 		EXPECT_EQ(0u, subscriber.flushInfos().size());
