@@ -81,6 +81,9 @@ namespace catapult { namespace cache {
 		/// Updates high value accounts based on changes described in \a deltas.
 		void update(const deltaset::DeltaElements<MemorySetType>& deltas);
 
+		/// Prunes all balances less than \a height.
+		void prune(Height height);
+
 	public:
 		/// Detaches the underlying data associated with this updater and converts it to a high value accounts container.
 		HighValueAccounts detachAccounts();

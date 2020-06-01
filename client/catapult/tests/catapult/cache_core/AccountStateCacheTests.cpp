@@ -1304,7 +1304,7 @@ namespace catapult { namespace cache {
 		auto delta = cache.createDelta();
 		auto addresses = AddAccountsWithBalances(*delta, { Amount(1'100'000), Amount(900'000), Amount(1'000'000) });
 
-		// Sanity: before udpate, delta reports no addresses
+		// Sanity: before update, delta reports no addresses
 		EXPECT_TRUE(delta->highValueAccounts().addresses().empty());
 
 		// Act:
@@ -1335,6 +1335,40 @@ namespace catapult { namespace cache {
 		EXPECT_TRUE(delta->highValueAccounts().addresses().empty());
 
 		EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2] }), detachedAccounts.addresses());
+	}
+
+	// endregion
+
+	// region prune
+
+	TEST(TEST_CLASS, CanPruneHighValueAccounts) {
+		// Arrange: set min voter balance to 1M
+		auto options = Default_Cache_Options;
+		options.MinVoterBalance = Amount(1'000'000);
+		AccountStateCache cache(CacheConfiguration(), options);
+
+		// - seed cache with 3/3 accounts with sufficient (voter) balance
+		std::vector<Address> addresses;
+		{
+			auto delta = cache.createDelta();
+			addresses = AddAccountsWithBalances(*delta, { Amount(1'100'000), Amount(1'200'000), Amount(1'000'000) });
+			delta->updateHighValueAccounts(Height(3));
+			cache.commit();
+		}
+
+		// - decrease the balance of one account below the threshold
+		auto delta = cache.createDelta();
+		delta->find(addresses[1]).get().Balances.debit(Harvesting_Mosaic_Id, Amount(300'000));
+		delta->updateHighValueAccounts(Height(4));
+
+		// Sanity: before pruning, all three accounts are still tracked
+		EXPECT_EQ(3u, delta->highValueAccounts().balanceHistories().size());
+
+		// Act:
+		delta->prune(Height(4));
+
+		// Assert: the account decreased below the threshold should be untracked
+		EXPECT_EQ(2u, delta->highValueAccounts().balanceHistories().size());
 	}
 
 	// endregion

@@ -147,6 +147,9 @@ namespace catapult { namespace cache {
 		/// Detaches high value accounts from this delta.
 		HighValueAccounts detachHighValueAccounts();
 
+		/// Prunes the cache at \a height.
+		void prune(Height height);
+
 	private:
 		Address getAddress(const Key& publicKey);
 

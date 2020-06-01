@@ -667,6 +667,170 @@ namespace catapult { namespace cache {
 
 	// endregion
 
+	// region updater - prune
+
+	namespace {
+		template<typename TAction>
+		void RunPruneTest(TAction action) {
+			// Arrange: add seven [5 match {0, 2, 4, 5, 6}]
+			test::DeltaElementsTestUtils::Wrapper<MemorySetType> deltas;
+			auto addedAddresses = AddAccountsWithBalances(deltas.Added, {
+				Amount(2'100'000),
+				Amount(900'000),
+				Amount(2'000'001),
+				Amount(800'000),
+				Amount(2'200'000),
+				Amount(2'400'000),
+				Amount(2'300'000)
+			});
+
+			auto accounts = CreateAccounts({});
+			HighValueAccountsUpdater updater(CreateOptions(), accounts);
+
+			// Act:
+			updater.setHeight(Height(3));
+			updater.update(deltas.deltas());
+
+			// - modify four [5 match {0, 1, 3, 4, 5}]
+			Credit(deltas.Copied.insert(*deltas.Added.find(addedAddresses[1])).first->second, Amount(1'200'000));
+			Debit(deltas.Copied.insert(*deltas.Added.find(addedAddresses[2])).first->second, Amount(2));
+			Credit(deltas.Copied.insert(*deltas.Added.find(addedAddresses[3])).first->second, Amount(1'250'000));
+			Debit(deltas.Copied.insert(*deltas.Added.find(addedAddresses[6])).first->second, Amount(300'001));
+
+			updater.setHeight(Height(4));
+			updater.update(deltas.deltas());
+
+			// - modify two [5 match {0, 1, 2, 4, 5}]
+			Credit(deltas.Copied.insert(*deltas.Added.find(addedAddresses[2])).first->second, Amount(1));
+			Debit(deltas.Copied.insert(*deltas.Added.find(addedAddresses[3])).first->second, Amount(2'000'000));
+
+			updater.setHeight(Height(5));
+			updater.update(deltas.deltas());
+
+			// - delete two [3 match {0, 2, 5}]
+			deltas.Removed.insert(*deltas.Added.find(addedAddresses[1]));
+			deltas.Removed.insert(*deltas.Added.find(addedAddresses[4]));
+
+			updater.setHeight(Height(6));
+			updater.update(deltas.deltas());
+
+			// Assert:
+			action(updater, addedAddresses);
+		}
+
+		void AssertPruneHasNoEffect(Height height) {
+			// Act:
+			RunPruneTest([height](auto& updater, const auto& addedAddresses) {
+				updater.prune(height);
+
+				// Assert:
+				auto expectedBalanceHistories = test::GenerateBalanceHistories({
+					{ addedAddresses[0], { { Height(3), Amount(2'100'000) } } },
+					{ addedAddresses[1], { { Height(4), Amount(2'100'000) }, { Height(6), Amount() } } },
+					{
+						addedAddresses[2],
+						{ { Height(3), Amount(2'000'001) }, { Height(4), Amount(1'999'999) }, { Height(5), Amount(2'000'000) } }
+					},
+					{ addedAddresses[3], { { Height(4), Amount(2'050'000) }, { Height(5), Amount(50'000) } } },
+					{ addedAddresses[4], { { Height(3), Amount(2'200'000) }, { Height(6), Amount() } } },
+					{ addedAddresses[5], { { Height(3), Amount(2'400'000) } } },
+					{ addedAddresses[6], { { Height(3), Amount(2'300'000) }, { Height(4), Amount(1'999'999) } } }
+				});
+
+				test::AssertEqual(expectedBalanceHistories, updater.balanceHistories());
+
+				// Sanity:
+				EXPECT_EQ(4u, updater.addresses().size());
+				EXPECT_TRUE(updater.removedAddresses().empty());
+			});
+		}
+	}
+
+	TEST(TEST_CLASS, Updater_PruneDoesNotAffectHistoriesWithHeightLargerThanPruneHeight) {
+		AssertPruneHasNoEffect(Height(2));
+	}
+
+	TEST(TEST_CLASS, Updater_PruneDoesNotAffectHistoriesWithHeightEqualToPruneHeight) {
+		AssertPruneHasNoEffect(Height(3));
+	}
+
+	TEST(TEST_CLASS, Updater_PruneDoesAffectHistoriesWithHeightLessThanPruneHeight_Height4) {
+		// Act:
+		RunPruneTest([](auto& updater, const auto& addedAddresses) {
+			updater.prune(Height(4));
+
+			// Assert:
+			auto expectedBalanceHistories = test::GenerateBalanceHistories({
+				{ addedAddresses[0], { { Height(4), Amount(2'100'000) } } },
+				{ addedAddresses[1], { { Height(4), Amount(2'100'000) }, { Height(6), Amount() } } },
+				{ addedAddresses[2], { { Height(4), Amount(1'999'999) }, { Height(5), Amount(2'000'000) } } },
+				{ addedAddresses[3], { { Height(4), Amount(2'050'000) }, { Height(5), Amount(50'000) } } },
+				{ addedAddresses[4], { { Height(4), Amount(2'200'000) }, { Height(6), Amount() } } },
+				{ addedAddresses[5], { { Height(4), Amount(2'400'000) } } }
+			});
+
+			test::AssertEqual(expectedBalanceHistories, updater.balanceHistories());
+
+			// Sanity: pruning doesn't affect addresses
+			EXPECT_EQ(4u, updater.addresses().size());
+			EXPECT_TRUE(updater.removedAddresses().empty());
+		});
+	}
+
+	TEST(TEST_CLASS, Updater_PruneDoesAffectHistoriesWithHeightLessThanPruneHeight_Height5) {
+		// Act:
+		RunPruneTest([](auto& updater, const auto& addedAddresses) {
+			updater.prune(Height(5));
+
+			// Assert:
+			auto expectedBalanceHistories = test::GenerateBalanceHistories({
+				{ addedAddresses[0], { { Height(5), Amount(2'100'000) } } },
+				{ addedAddresses[1], { { Height(5), Amount(2'100'000) }, { Height(6), Amount() } } },
+				{ addedAddresses[2], { { Height(5), Amount(2'000'000) } } },
+				{ addedAddresses[4], { { Height(5), Amount(2'200'000) }, { Height(6), Amount() } } },
+				{ addedAddresses[5], { { Height(5), Amount(2'400'000) } } }
+			});
+
+			test::AssertEqual(expectedBalanceHistories, updater.balanceHistories());
+
+			// Sanity: pruning doesn't affect addresses
+			EXPECT_EQ(4u, updater.addresses().size());
+			EXPECT_TRUE(updater.removedAddresses().empty());
+		});
+	}
+
+	namespace {
+		void AssertPruneTerminal(Height height) {
+			// Act:
+			RunPruneTest([height](auto& updater, const auto& addedAddresses) {
+				updater.prune(height);
+
+				// Assert:
+				auto expectedBalanceHistories = test::GenerateBalanceHistories({
+					{ addedAddresses[0], { { height, Amount(2'100'000) } } },
+					{ addedAddresses[2], { { height, Amount(2'000'000) } } },
+					{ addedAddresses[5], { { height, Amount(2'400'000) } } }
+				});
+
+				test::AssertEqual(expectedBalanceHistories, updater.balanceHistories());
+
+				// Sanity: pruning doesn't affect addresses
+				EXPECT_EQ(4u, updater.addresses().size());
+				EXPECT_TRUE(updater.removedAddresses().empty());
+			});
+		}
+	}
+
+	TEST(TEST_CLASS, Updater_PruneDoesAffectHistoriesWithHeightLessThanPruneHeight_Height6) {
+		AssertPruneTerminal(Height(6));
+	}
+
+	TEST(TEST_CLASS, Updater_PruneCanNeverPruneHistoriesHavingAtLeastMinBalance) {
+		AssertPruneTerminal(Height(101));
+	}
+
+	// endregion
+
 	// region updater - detachAccounts
 
 	TEST(TEST_CLASS, Updater_DetachAccountsReturnsExpectedHighValueAccounts) {

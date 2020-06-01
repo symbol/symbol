@@ -177,6 +177,13 @@ namespace catapult { namespace cache {
 		updateVotingAccounts(deltas);
 	}
 
+	void HighValueAccountsUpdater::prune(Height height) {
+		utils::map_erase_if(m_balanceHistories, [height, minBalance = m_options.MinVoterBalance](auto& pair) {
+			pair.second.prune(height);
+			return !pair.second.anyAtLeast(minBalance);
+		});
+	}
+
 	HighValueAccounts HighValueAccountsUpdater::detachAccounts() {
 		auto accounts = HighValueAccounts(std::move(m_current), std::move(m_balanceHistories));
 

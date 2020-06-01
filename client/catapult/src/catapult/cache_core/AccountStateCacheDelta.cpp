@@ -202,4 +202,8 @@ namespace catapult { namespace cache {
 	HighValueAccounts BasicAccountStateCacheDelta::detachHighValueAccounts() {
 		return m_highValueAccountsUpdater.detachAccounts();
 	}
+
+	void BasicAccountStateCacheDelta::prune(Height height) {
+		m_highValueAccountsUpdater.prune(height);
+	}
 }}
