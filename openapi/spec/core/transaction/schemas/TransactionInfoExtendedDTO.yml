@@ -8,7 +8,9 @@ properties:
     type: string
     description: Internal resource identifier.
   meta:
-    $ref: "./TransactionMetaDTO.yml"
+    anyOf:
+      - $ref: "./TransactionMetaDTO.yml"
+      - $ref: "./EmbeddedTransactionMetaDTO.yml"
   transaction:
     anyOf:
       - $ref: "../../../plugins/account_link/schemas/AccountKeyLinkTransactionDTO.yml"

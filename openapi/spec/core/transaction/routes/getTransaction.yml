@@ -11,7 +11,7 @@ responses:
     content:
       application/json:
         schema:
-          $ref: "../schemas/TransactionInfoDTO.yml"
+          $ref: "../schemas/TransactionInfoExtendedDTO.yml"
   "404":
     $ref: "../../../responses/ResourceNotFound.yml"
   "409":
