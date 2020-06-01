@@ -2,3 +2,4 @@
 node_modules
 _build/*
 !_build/template/*
+/symbol-openapi.iml
