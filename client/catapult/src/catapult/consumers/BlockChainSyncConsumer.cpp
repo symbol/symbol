@@ -96,9 +96,18 @@ namespace catapult { namespace consumers {
 			}
 
 			void commit(Height height) {
-				m_pCacheDelta->prune(m_localFinalizedChainHeight);
+				auto& lastFinalizedChainHeight = m_pCacheDelta->dependentState().LastFinalizedHeight;
+				pruneRange(lastFinalizedChainHeight, m_localFinalizedChainHeight);
+				lastFinalizedChainHeight = m_localFinalizedChainHeight;
+
 				m_pOriginalCache->commit(height);
 				m_pCacheDelta.reset(); // release the delta after commit so that the UT updater can acquire a lock
+			}
+
+		private:
+			void pruneRange(Height startHeight, Height endHeight) {
+				for (auto height = startHeight; height <= endHeight; height = height + Height(1))
+					m_pCacheDelta->prune(height);
 			}
 
 		private:

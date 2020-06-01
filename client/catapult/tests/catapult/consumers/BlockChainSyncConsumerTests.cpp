@@ -1182,6 +1182,7 @@ namespace catapult { namespace consumers {
 		}
 
 		// Sanity:
+		EXPECT_EQ(Height(0), context.Cache.createView().dependentState().LastFinalizedHeight);
 		EXPECT_EQ(7u, context.Cache.sub<cache::BlockStatisticCache>().createView()->size());
 
 		// Act:
@@ -1189,6 +1190,7 @@ namespace catapult { namespace consumers {
 
 		// Assert:
 		test::AssertContinued(result);
+		EXPECT_EQ(Height(5), context.Cache.createView().dependentState().LastFinalizedHeight);
 
 		// - pruning was triggered on the cache (lower_bound should cause heights less than 5 to be pruned, so { 5, 6, 7 } are preserved)
 		// - 7 (seeded entries); 0 (added entries, no real observer used); 5 (local finalized chain height)
