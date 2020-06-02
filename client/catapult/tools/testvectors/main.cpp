@@ -96,7 +96,7 @@ namespace catapult { namespace tools { namespace testvectors {
 		}
 
 		auto ParseAddress(const RawString& str, size_t testCaseNumber) {
-			constexpr size_t Address_Encoded_Size = 40;
+			constexpr size_t Address_Encoded_Size = 39;
 			AssertSize("address", Address_Encoded_Size, str, testCaseNumber);
 			return model::StringToAddress(std::string(str.pData, str.Size));
 		}
