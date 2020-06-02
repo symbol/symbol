@@ -87,7 +87,7 @@ namespace catapult { namespace cache {
 		/// Removes the namespace specified by its \a id from the cache.
 		void remove(NamespaceId id);
 
-		/// Prunes the namespace cache at \a height.
+		/// Prunes the cache at \a height.
 		CollectedIds prune(Height height);
 
 	private:

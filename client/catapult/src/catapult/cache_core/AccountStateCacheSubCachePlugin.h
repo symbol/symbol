@@ -21,30 +21,20 @@
 #pragma once
 #include "AccountStateCache.h"
 #include "AccountStateCacheStorage.h"
-#include "catapult/cache/SummaryAwareSubCachePluginAdapter.h"
+#include "catapult/cache/SubCachePluginAdapter.h"
 
 namespace catapult { namespace cache {
 
-	/// CacheStorage implementation for saving and loading summary account state cache data.
-	class AccountStateCacheSummaryCacheStorage : public SummaryCacheStorage<AccountStateCache> {
-	public:
-		using SummaryCacheStorage<AccountStateCache>::SummaryCacheStorage;
-
-	public:
-		void saveAll(const CatapultCacheView& cacheView, io::OutputStream& output) const override;
-
-		void saveSummary(const CatapultCacheDelta& cacheDelta, io::OutputStream& output) const override;
-
-		void loadAll(io::InputStream& input, size_t) override;
-	};
-
-	using BaseAccountStateCacheSubCachePlugin =
-		SummaryAwareSubCachePluginAdapter<AccountStateCache, AccountStateCacheStorage, AccountStateCacheSummaryCacheStorage>;
-
 	/// Specialized account state cache sub cache plugin.
-	class AccountStateCacheSubCachePlugin : public BaseAccountStateCacheSubCachePlugin {
+	class AccountStateCacheSubCachePlugin : public SubCachePluginAdapter<AccountStateCache, AccountStateCacheStorage> {
+	private:
+		using BaseType = SubCachePluginAdapter<AccountStateCache, AccountStateCacheStorage>;
+
 	public:
 		/// Creates a plugin around \a config and \a options.
 		AccountStateCacheSubCachePlugin(const CacheConfiguration& config, const AccountStateCacheTypes::Options& options);
+
+	public:
+		std::unique_ptr<CacheStorage> createStorage() override;
 	};
 }}

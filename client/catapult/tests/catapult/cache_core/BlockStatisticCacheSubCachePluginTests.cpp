@@ -46,18 +46,18 @@ namespace catapult { namespace cache {
 				EXPECT_EQ(numValues, delta.size());
 			}
 
-			cache::BlockStatisticCache cache(111);
-			cache::BlockStatisticCacheSummaryCacheStorage storage(cache);
+			BlockStatisticCacheSubCachePlugin plugin(111);
+			auto pStorage = plugin.createStorage();
 
 			// Act: serialize via saveAll
 			std::vector<uint8_t> bufferAll;
 			mocks::MockMemoryStream streamAll(bufferAll);
-			storage.saveAll(catapultCache.createView(), streamAll);
+			pStorage->saveAll(catapultCache.createView(), streamAll);
 
 			// - serialize via saveSummary
 			std::vector<uint8_t> bufferSummary;
 			mocks::MockMemoryStream streamSummary(bufferSummary);
-			storage.saveSummary(catapultCache.createDelta(), streamSummary);
+			pStorage->saveSummary(catapultCache.createDelta(), streamSummary);
 
 			// Assert:
 			EXPECT_EQ(bufferAll, bufferSummary);

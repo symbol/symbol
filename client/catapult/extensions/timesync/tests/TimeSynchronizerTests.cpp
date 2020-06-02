@@ -55,6 +55,7 @@ namespace catapult { namespace timesync {
 			auto& accountState = delta->find(accountIdentifier).get();
 			accountState.ImportanceSnapshots.set(importance, importanceHeight);
 			accountState.Balances.credit(Harvesting_Mosaic_Id, Amount(1000));
+			delta->updateHighValueAccounts(Height(1));
 			cache.commit();
 		}
 

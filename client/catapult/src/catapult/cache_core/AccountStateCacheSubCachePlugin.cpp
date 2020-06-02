@@ -19,39 +19,164 @@
 **/
 
 #include "AccountStateCacheSubCachePlugin.h"
+#include "catapult/cache/SummaryAwareSubCachePluginAdapter.h"
 
 namespace catapult { namespace cache {
 
-	void AccountStateCacheSummaryCacheStorage::saveAll(const CatapultCacheView&, io::OutputStream&) const {
-		CATAPULT_THROW_INVALID_ARGUMENT("AccountStateCacheSummaryCacheStorage does not support saveAll");
-	}
+	namespace {
+		// region serialization utils
 
-	void AccountStateCacheSummaryCacheStorage::saveSummary(const CatapultCacheDelta& cacheDelta, io::OutputStream& output) const {
-		const auto& delta = cacheDelta.sub<AccountStateCache>();
-		const auto& addresses = delta.highValueAddresses().Current;
-		io::Write64(output, addresses.size());
-		for (const auto& address : addresses)
-			output.write(address);
-
-		output.flush();
-	}
-
-	void AccountStateCacheSummaryCacheStorage::loadAll(io::InputStream& input, size_t) {
-		auto numAddresses = io::Read64(input);
-
-		model::AddressSet addresses;
-		for (auto i = 0u; i < numAddresses; ++i) {
-			Address address;
-			input.read(address);
-			addresses.insert(address);
+		void WriteAddresses(const model::AddressSet& addresses, io::OutputStream& output) {
+			io::Write64(output, addresses.size());
+			for (const auto& address : addresses)
+				output.write(address);
 		}
 
-		cache().init(std::move(addresses));
+		void WriteBalanceHistories(const AddressBalanceHistoryMap& balanceHistories, io::OutputStream& output) {
+			io::Write64(output, balanceHistories.size());
+			for (const auto& balanceHistoryPair : balanceHistories) {
+				output.write(balanceHistoryPair.first);
+
+				io::Write64(output, balanceHistoryPair.second.size());
+				for (auto height : balanceHistoryPair.second.heights()) {
+					io::Write(output, height);
+					io::Write(output, balanceHistoryPair.second.balance(height));
+				}
+			}
+		}
+
+		template<typename THighValueAccounts>
+		void WriteHighValueAccounts(const THighValueAccounts& accounts, io::OutputStream& output) {
+			WriteAddresses(accounts.addresses(), output);
+			WriteBalanceHistories(accounts.balanceHistories(), output);
+			output.flush();
+		}
+
+		model::AddressSet ReadAddresses(io::InputStream& input) {
+			model::AddressSet addresses;
+
+			auto numAddresses = io::Read64(input);
+			for (auto i = 0u; i < numAddresses; ++i) {
+				Address address;
+				input.read(address);
+				addresses.insert(address);
+			}
+
+			return addresses;
+		}
+
+		state::BalanceHistory ReadBalanceHistory(io::InputStream& input) {
+			state::BalanceHistory balanceHistory;
+
+			auto numBalances = io::Read64(input);
+			for (auto i = 0u; i < numBalances; ++i) {
+				auto height = io::Read<Height>(input);
+				auto amount = io::Read<Amount>(input);
+				balanceHistory.add(height, amount);
+			}
+
+			return balanceHistory;
+		}
+
+		AddressBalanceHistoryMap ReadBalanceHistories(io::InputStream& input) {
+			AddressBalanceHistoryMap balanceHistories;
+
+			auto numBalanceHistories = io::Read64(input);
+			for (auto i = 0u; i < numBalanceHistories; ++i) {
+				Address address;
+				input.read(address);
+
+				balanceHistories.emplace(address, ReadBalanceHistory(input));
+			}
+
+			return balanceHistories;
+		}
+
+		HighValueAccounts ReadHighValueAccounts(io::InputStream& input) {
+			auto addresses = ReadAddresses(input);
+			auto balanceHistories = ReadBalanceHistories(input);
+			return HighValueAccounts(std::move(addresses), std::move(balanceHistories));
+		}
+
+		// endregion
+
+		// region AccountStateCacheSummaryCacheStorage
+
+		class AccountStateCacheSummaryCacheStorage : public SummaryCacheStorage<AccountStateCache> {
+		public:
+			using SummaryCacheStorage<AccountStateCache>::SummaryCacheStorage;
+
+		public:
+			void saveAll(const CatapultCacheView&, io::OutputStream&) const override {
+				CATAPULT_THROW_INVALID_ARGUMENT("AccountStateCacheSummaryCacheStorage does not support saveAll");
+			}
+
+			void saveSummary(const CatapultCacheDelta& cacheDelta, io::OutputStream& output) const override {
+				WriteHighValueAccounts(cacheDelta.sub<AccountStateCache>().highValueAccounts(), output);
+			}
+
+			void loadAll(io::InputStream& input, size_t) override {
+				cache().init(ReadHighValueAccounts(input));
+			}
+		};
+
+		// endregion
+
+		// region AccountStateFullCacheStorage
+
+		// custom AccountStateFullCacheStorage is needed because historical balances are computed and cannot be directly
+		// calculated from AccountState since only cumulative balances are stored within
+
+		class AccountStateFullCacheStorage : public CacheStorage {
+		public:
+			AccountStateFullCacheStorage(std::unique_ptr<CacheStorage>&& pStorage, AccountStateCache& cache)
+					: m_pStorage(std::move(pStorage))
+					, m_cache(cache)
+			{}
+
+		public:
+			const std::string& name() const override {
+				return m_pStorage->name();
+			}
+
+		public:
+			void saveAll(const CatapultCacheView& cacheView, io::OutputStream& output) const override {
+				m_pStorage->saveAll(cacheView, output);
+				WriteHighValueAccounts(cacheView.sub<AccountStateCache>().highValueAccounts(), output);
+			}
+
+			void saveSummary(const CatapultCacheDelta& cacheDelta, io::OutputStream& output) const override {
+				m_pStorage->saveSummary(cacheDelta, output);
+			}
+
+			void loadAll(io::InputStream& input, size_t batchSize) override {
+				m_pStorage->loadAll(input, batchSize);
+				m_cache.init(ReadHighValueAccounts(input));
+			}
+
+		private:
+			std::unique_ptr<CacheStorage> m_pStorage;
+			AccountStateCache& m_cache;
+		};
+
+		// endregion
 	}
+
+	// region AccountStateCacheSubCachePlugin
 
 	AccountStateCacheSubCachePlugin::AccountStateCacheSubCachePlugin(
 			const CacheConfiguration& config,
 			const AccountStateCacheTypes::Options& options)
-			: BaseAccountStateCacheSubCachePlugin(std::make_unique<AccountStateCache>(config, options))
+			: BaseType(std::make_unique<AccountStateCache>(config, options))
 	{}
+
+	std::unique_ptr<CacheStorage> AccountStateCacheSubCachePlugin::createStorage() {
+		auto pStorage = BaseType::createStorage();
+		if (pStorage)
+			return std::make_unique<AccountStateFullCacheStorage>(std::move(pStorage), this->cache());
+
+		return std::make_unique<AccountStateCacheSummaryCacheStorage>(this->cache());
+	}
+
+	// endregion
 }}

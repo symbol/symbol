@@ -26,11 +26,11 @@ namespace catapult { namespace cache {
 	BasicAccountStateCacheView::BasicAccountStateCacheView(
 			const AccountStateCacheTypes::BaseSets& accountStateSets,
 			const AccountStateCacheTypes::Options& options,
-			const model::AddressSet& highValueAddresses)
+			const HighValueAccounts& highValueAccounts)
 			: BasicAccountStateCacheView(
 					accountStateSets,
 					options,
-					highValueAddresses,
+					highValueAccounts,
 					std::make_unique<AccountStateCacheViewMixins::KeyLookupAdapter>(
 							accountStateSets.KeyLookupMap,
 							accountStateSets.Primary))
@@ -39,7 +39,7 @@ namespace catapult { namespace cache {
 	BasicAccountStateCacheView::BasicAccountStateCacheView(
 			const AccountStateCacheTypes::BaseSets& accountStateSets,
 			const AccountStateCacheTypes::Options& options,
-			const model::AddressSet& highValueAddresses,
+			const HighValueAccounts& highValueAccounts,
 			std::unique_ptr<AccountStateCacheViewMixins::KeyLookupAdapter>&& pKeyLookupAdapter)
 			: AccountStateCacheViewMixins::Size(accountStateSets.Primary)
 			, AccountStateCacheViewMixins::ContainsAddress(accountStateSets.Primary)
@@ -49,7 +49,7 @@ namespace catapult { namespace cache {
 			, AccountStateCacheViewMixins::ConstAccessorKey(*pKeyLookupAdapter)
 			, AccountStateCacheViewMixins::PatriciaTreeView(accountStateSets.PatriciaTree.get())
 			, m_options(options)
-			, m_highValueAddresses(highValueAddresses)
+			, m_highValueAccounts(highValueAccounts)
 			, m_pKeyLookupAdapter(std::move(pKeyLookupAdapter))
 	{}
 
@@ -73,7 +73,7 @@ namespace catapult { namespace cache {
 		return m_options.HarvestingMosaicId;
 	}
 
-	const model::AddressSet& BasicAccountStateCacheView::highValueAddresses() const {
-		return m_highValueAddresses;
+	const HighValueAccounts& BasicAccountStateCacheView::highValueAccounts() const {
+		return m_highValueAccounts;
 	}
 }}

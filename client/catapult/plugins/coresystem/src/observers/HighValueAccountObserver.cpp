@@ -18,20 +18,29 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#pragma once
-#include "BlockStatisticCache.h"
-#include "BlockStatisticCacheStorage.h"
-#include "catapult/cache/SubCachePluginAdapter.h"
+#include "Observers.h"
+#include "catapult/cache_core/AccountStateCache.h"
 
-namespace catapult { namespace cache {
+namespace catapult { namespace observers {
 
-	/// Specialized block statistic cache sub cache plugin.
-	class BlockStatisticCacheSubCachePlugin : public SubCachePluginAdapter<BlockStatisticCache, BlockStatisticCacheStorage> {
-	public:
-		/// Creates a plugin around \a historySize.
-		explicit BlockStatisticCacheSubCachePlugin(uint64_t historySize);
+	namespace {
+		using Notification = model::BlockNotification;
 
-	public:
-		std::unique_ptr<CacheStorage> createStorage() override;
-	};
+		std::string GetObserverName(NotifyMode mode) {
+			std::string name("HighValueAccount");
+			name += NotifyMode::Commit == mode ? "Commit" : "Rollback";
+			name += "Observer";
+			return name;
+		}
+	}
+
+	DECLARE_OBSERVER(HighValueAccount, Notification)(NotifyMode mode) {
+		using ObserverType = observers::FunctionalNotificationObserverT<Notification>;
+		return std::make_unique<ObserverType>(GetObserverName(mode), [mode](const Notification&, ObserverContext& context) {
+			if (context.Mode != mode)
+				return;
+
+			context.Cache.sub<cache::AccountStateCache>().updateHighValueAccounts(context.Height);
+		});
+	}
 }}

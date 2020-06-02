@@ -21,6 +21,7 @@
 #pragma once
 #include "AccountStateBaseSets.h"
 #include "AccountStateCacheSerializers.h"
+#include "HighValueAccounts.h"
 #include "ReadOnlyAccountStateCache.h"
 #include "catapult/cache/CacheMixinAliases.h"
 #include "catapult/cache/ReadOnlyViewSupplier.h"
@@ -69,17 +70,17 @@ namespace catapult { namespace cache {
 		using ReadOnlyView = ReadOnlyAccountStateCache;
 
 	public:
-		/// Creates a delta around \a accountStateSets, \a options and \a highValueAddresses.
+		/// Creates a delta around \a accountStateSets, \a options and \a highValueAccounts.
 		BasicAccountStateCacheDelta(
 				const AccountStateCacheTypes::BaseSetDeltaPointers& accountStateSets,
 				const AccountStateCacheTypes::Options& options,
-				const model::AddressSet& highValueAddresses);
+				const HighValueAccounts& highValueAccounts);
 
 	private:
 		BasicAccountStateCacheDelta(
 				const AccountStateCacheTypes::BaseSetDeltaPointers& accountStateSets,
 				const AccountStateCacheTypes::Options& options,
-				const model::AddressSet& highValueAddresses,
+				const HighValueAccounts& highValueAccounts,
 				std::unique_ptr<AccountStateCacheDeltaMixins::KeyLookupAdapter>&& pKeyLookupAdapter);
 
 	public:
@@ -137,17 +138,17 @@ namespace catapult { namespace cache {
 		void commitRemovals();
 
 	public:
-		/// Tuple composed of information about high value addresses that is returned by highValueAddresses.
-		struct HighValueAddressesTuple {
-			/// Addresses of accounts that are high value after application of all delta changes.
-			model::AddressSet Current;
+		/// Gets all (updated) high value accounts.
+		const HighValueAccountsUpdater& highValueAccounts() const;
 
-			/// Addresses of accounts that were high value but are no longer high value after application of all delta changes.
-			model::AddressSet Removed;
-		};
+		/// Updates high value accounts at \a height.
+		void updateHighValueAccounts(Height height);
 
-		/// Gets all high value addresses.
-		HighValueAddressesTuple highValueAddresses() const;
+		/// Detaches high value accounts from this delta.
+		HighValueAccounts detachHighValueAccounts();
+
+		/// Prunes the cache at \a height.
+		void prune(Height height);
 
 	private:
 		Address getAddress(const Key& publicKey);
@@ -177,8 +178,8 @@ namespace catapult { namespace cache {
 		AccountStateCacheTypes::KeyLookupMapTypes::BaseSetDeltaPointerType m_pKeyToAddress;
 
 		const AccountStateCacheTypes::Options& m_options;
-		const model::AddressSet& m_highValueAddresses;
 		std::unique_ptr<AccountStateCacheDeltaMixins::KeyLookupAdapter> m_pKeyLookupAdapter;
+		HighValueAccountsUpdater m_highValueAccountsUpdater;
 
 		QueuedRemovalSet<Address> m_queuedRemoveByAddress;
 		QueuedRemovalSet<Key> m_queuedRemoveByPublicKey;
@@ -187,12 +188,12 @@ namespace catapult { namespace cache {
 	/// Delta on top of the account state cache.
 	class AccountStateCacheDelta : public ReadOnlyViewSupplier<BasicAccountStateCacheDelta> {
 	public:
-		/// Creates a delta around \a accountStateSets, \a options and \a highValueAddresses.
+		/// Creates a delta around \a accountStateSets, \a options and \a highValueAccounts.
 		AccountStateCacheDelta(
 				const AccountStateCacheTypes::BaseSetDeltaPointers& accountStateSets,
 				const AccountStateCacheTypes::Options& options,
-				const model::AddressSet& highValueAddresses)
-				: ReadOnlyViewSupplier(accountStateSets, options, highValueAddresses)
+				const HighValueAccounts& highValueAccounts)
+				: ReadOnlyViewSupplier(accountStateSets, options, highValueAccounts)
 		{}
 	};
 }}

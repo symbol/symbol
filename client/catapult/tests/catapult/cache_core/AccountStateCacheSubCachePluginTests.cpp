@@ -20,6 +20,7 @@
 
 #include "catapult/cache_core/AccountStateCacheSubCachePlugin.h"
 #include "catapult/model/BlockChainConfiguration.h"
+#include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/cache/SummaryAwareCacheStoragePluginTests.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
@@ -29,10 +30,18 @@ namespace catapult { namespace cache {
 
 #define TEST_CLASS AccountStateCacheSubCachePluginTests
 
-	// region AccountStateCacheSummaryCacheStorage - saveAll / saveSummary
+	// region test utils
 
 	namespace {
 		constexpr auto Harvesting_Mosaic_Id = MosaicId(9876);
+
+		auto CreateConfigurationFromOptions(const AccountStateCacheTypes::Options& options) {
+			auto blockChainConfig = model::BlockChainConfiguration::Uninitialized();
+			blockChainConfig.MinHarvesterBalance = options.MinHarvesterBalance;
+			blockChainConfig.MinVoterBalance = options.MinVoterBalance;
+			blockChainConfig.HarvestingMosaicId = options.HarvestingMosaicId;
+			return blockChainConfig;
+		}
 
 		std::vector<Address> AddAccountsWithBalances(AccountStateCacheDelta& delta, const std::vector<Amount>& balances) {
 			auto addresses = test::GenerateRandomDataVector<Address>(balances.size());
@@ -43,137 +52,250 @@ namespace catapult { namespace cache {
 
 			return addresses;
 		}
-
-		template<typename TAction>
-		void RunCacheStorageTest(Amount minHarvesterBalance, TAction action) {
-			// Arrange:
-			AccountStateCacheTypes::Options options;
-			options.MinHarvesterBalance = minHarvesterBalance;
-			options.HarvestingMosaicId = Harvesting_Mosaic_Id;
-			AccountStateCache cache(CacheConfiguration(), options);
-			AccountStateCacheSummaryCacheStorage storage(cache);
-
-			auto blockChainConfig = model::BlockChainConfiguration::Uninitialized();
-			blockChainConfig.MinHarvesterBalance = minHarvesterBalance;
-			blockChainConfig.HarvestingMosaicId = Harvesting_Mosaic_Id;
-
-			// Act + Assert:
-			action(storage, blockChainConfig, cache);
-		}
-
-		template<typename TAction>
-		void RunSummarySaveTest(Amount minHarvesterBalance, size_t numExpectedAccounts, TAction checkAddresses) {
-			// Arrange:
-			RunCacheStorageTest(minHarvesterBalance, [numExpectedAccounts, checkAddresses](
-					const auto& storage,
-					const auto& blockChainConfig,
-					const auto&) {
-				auto catapultCache = test::CoreSystemCacheFactory::Create(blockChainConfig);
-				auto cacheDelta = catapultCache.createDelta();
-				auto& delta = cacheDelta.template sub<AccountStateCache>();
-				auto balances = { Amount(1'000'000), Amount(500'000), Amount(750'000), Amount(1'250'000) };
-				auto addresses = AddAccountsWithBalances(delta, balances);
-
-				std::vector<uint8_t> buffer;
-				mocks::MockMemoryStream stream(buffer);
-
-				// Act:
-				storage.saveSummary(cacheDelta, stream);
-
-				// Assert: all addresses were saved
-				ASSERT_EQ(sizeof(uint64_t) + numExpectedAccounts * sizeof(Address), buffer.size());
-
-				auto numAddresses = reinterpret_cast<uint64_t&>(buffer[0]);
-				EXPECT_EQ(numExpectedAccounts, numAddresses);
-
-				model::AddressSet savedAddresses;
-				for (auto i = 0u; i < numAddresses; ++i)
-					savedAddresses.insert(reinterpret_cast<Address&>(buffer[sizeof(uint64_t) + i * sizeof(Address)]));
-
-				checkAddresses(addresses, savedAddresses);
-
-				// - there was a single flush
-				EXPECT_EQ(1u, stream.numFlushes());
-			});
-		}
 	}
 
-	TEST(TEST_CLASS, CannotSaveAll) {
-		// Arrange:
-		RunCacheStorageTest(Amount(2'000'000), [](const auto& storage, const auto& blockChainConfig, const auto&) {
-			auto catapultCache = test::CoreSystemCacheFactory::Create(blockChainConfig);
-			auto cacheView = catapultCache.createView();
+	// endregion
+
+	// region mismatch save calls
+
+	namespace {
+		template<typename TSaveFunc>
+		void PrepareCannotSaveTest(const CacheConfiguration& cacheConfig, TSaveFunc saveFunc) {
+			// Arrange:
+			AccountStateCacheTypes::Options options;
+			options.HarvestingMosaicId = Harvesting_Mosaic_Id;
+
+			AccountStateCacheSubCachePlugin plugin(cacheConfig, options);
+			auto pStorage = plugin.createStorage();
+
+			auto catapultCache = test::CoreSystemCacheFactory::Create(CreateConfigurationFromOptions(options));
 
 			std::vector<uint8_t> buffer;
 			mocks::MockMemoryStream stream(buffer);
+
+			// Act + Assert:
+			saveFunc(*pStorage, catapultCache, stream);
+		}
+	}
+
+	TEST(TEST_CLASS, Full_CannotSaveSummary) {
+		// Arrange:
+		PrepareCannotSaveTest(CacheConfiguration(), [](auto& storage, auto& catapultCache, auto& stream) {
+			auto cacheDelta = catapultCache.createDelta();
+
+			// Act + Assert:
+			EXPECT_THROW(storage.saveSummary(cacheDelta, stream), catapult_invalid_argument);
+		});
+	}
+
+	TEST(TEST_CLASS, Summary_CannotSaveAll) {
+		// Arrange:
+		test::TempDirectoryGuard dbDirGuard;
+		auto cacheConfig = CacheConfiguration(dbDirGuard.name(), utils::FileSize(), cache::PatriciaTreeStorageMode::Disabled);
+		PrepareCannotSaveTest(cacheConfig, [](auto& storage, auto& catapultCache, auto& stream) {
+			auto cacheView = catapultCache.createView();
 
 			// Act + Assert:
 			EXPECT_THROW(storage.saveAll(cacheView, stream), catapult_invalid_argument);
 		});
 	}
 
-	TEST(TEST_CLASS, CanSaveSummaryWithZeroHighValueAddresses) {
-		// Act:
-		RunSummarySaveTest(Amount(2'000'000), 0, [](const auto&, const auto& savedAddresses) {
-			// Assert:
-			EXPECT_TRUE(savedAddresses.empty());
-		});
+	// endregion
+
+	// region roundtrip - traits
+
+	namespace {
+		struct FullTraits {
+			static constexpr auto Should_Load_Accounts = true;
+
+			class CacheConfigurationFactory {
+			public:
+				CacheConfiguration create() {
+					return CacheConfiguration();
+				}
+			};
+
+			class Saver {
+			public:
+				explicit Saver(const CacheStorage& storage) : m_storage(storage)
+				{}
+
+			public:
+				bool save(const CatapultCacheDelta&, io::OutputStream&) {
+					return false;
+				}
+
+				void save(const CatapultCacheView& cacheView, io::OutputStream& output) {
+					m_storage.saveAll(cacheView, output);
+				}
+
+			private:
+				const CacheStorage& m_storage;
+			};
+		};
+
+		struct SummaryTraits {
+			static constexpr auto Should_Load_Accounts = false;
+
+			class CacheConfigurationFactory {
+			public:
+				CacheConfiguration create() {
+					return CacheConfiguration(m_dbDirGuard.name(), utils::FileSize(), cache::PatriciaTreeStorageMode::Disabled);
+				}
+
+			private:
+				test::TempDirectoryGuard m_dbDirGuard;
+			};
+
+			class Saver {
+			public:
+				explicit Saver(const CacheStorage& storage) : m_storage(storage)
+				{}
+
+			public:
+				bool save(const CatapultCacheDelta& cacheDelta, io::OutputStream& output) {
+					m_storage.saveSummary(cacheDelta, output);
+					return true;
+				}
+
+				void save(const CatapultCacheView&, io::OutputStream&)
+				{}
+
+			private:
+				const CacheStorage& m_storage;
+			};
+		};
 	}
 
-	TEST(TEST_CLASS, CanSaveSummaryWithSingleHighValueAddress) {
-		// Act:
-		RunSummarySaveTest(Amount(1'111'111), 1, [](const auto& originalAddresses, const auto& savedAddresses) {
-			// Assert:
-			EXPECT_EQ(model::AddressSet{ originalAddresses[3] }, savedAddresses);
-		});
-	}
-
-	TEST(TEST_CLASS, CanSaveSummaryWithMultipleHighValueAddresses) {
-		// Act:
-		RunSummarySaveTest(Amount(700'000), 3, [](const auto& originalAddresses, const auto& savedAddresses) {
-			// Assert:
-			EXPECT_EQ((model::AddressSet{ originalAddresses[0], originalAddresses[2], originalAddresses[3] }), savedAddresses);
-		});
-	}
+#define ROUNDTRIP_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, Full_##TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<FullTraits>(); } \
+	TEST(TEST_CLASS, Summary_##TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<SummaryTraits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 
-	// region AccountStateCacheSummaryCacheStorage - loadAll
+	// region roundtrip tests
 
 	namespace {
-		void RunSummaryLoadTest(size_t numAccounts) {
+		template<typename TTraits>
+		void RunRoundtripTest(
+				const AccountStateCacheTypes::Options& options,
+				const std::vector<Amount>& balances,
+				const std::function<model::AddressSet (const std::vector<Address>&)>& getExpectedAddresses,
+				const std::function<AddressBalanceHistoryMap (const std::vector<Address>&)>& getExpectedBalanceHistories) {
 			// Arrange:
-			auto config = CacheConfiguration();
-			AccountStateCache cache(config, AccountStateCacheTypes::Options());
-			AccountStateCacheSummaryCacheStorage storage(cache);
-
-			auto addresses = test::GenerateRandomDataVector<Address>(numAccounts);
+			typename TTraits::CacheConfigurationFactory cacheConfigFactory;
+			auto cacheConfig = cacheConfigFactory.create();
 
 			std::vector<uint8_t> buffer;
 			mocks::MockMemoryStream stream(buffer);
-			io::Write64(stream, numAccounts);
-			stream.write({ reinterpret_cast<const uint8_t*>(addresses.data()), numAccounts * sizeof(Address) });
 
 			// Act:
-			storage.loadAll(stream, 0);
+			std::vector<Address> addresses;
+			{
+				AccountStateCacheSubCachePlugin plugin(cacheConfig, options);
+				auto pStorage = plugin.createStorage();
+				typename TTraits::Saver saver(*pStorage);
 
-			// Assert: all addresses were saved
-			auto view = cache.createView();
-			EXPECT_EQ(numAccounts, view->highValueAddresses().size());
-			EXPECT_EQ(model::AddressSet(addresses.cbegin(), addresses.cend()), view->highValueAddresses());
+				auto catapultCache = test::CoreSystemCacheFactory::Create(CreateConfigurationFromOptions(options));
+				{
+					auto cacheDelta = catapultCache.createDelta();
+					auto& delta = cacheDelta.sub<AccountStateCache>();
+					addresses = AddAccountsWithBalances(delta, balances);
+					delta.updateHighValueAccounts(Height(3));
+
+					// Sanity:
+					EXPECT_EQ(getExpectedAddresses(addresses).size(), delta.highValueAccounts().addresses().size());
+					EXPECT_EQ(getExpectedBalanceHistories(addresses).size(), delta.highValueAccounts().balanceHistories().size());
+
+					// - save summary
+					if (!saver.save(cacheDelta, stream))
+						catapultCache.commit(Height(3));
+				}
+
+				// - save all
+				auto cacheView = catapultCache.createView();
+				saver.save(cacheView, stream);
+			}
+
+			// - reload to roundtrip
+			AccountStateCacheSubCachePlugin plugin(cacheConfig, options);
+			auto pStorage = plugin.createStorage();
+			pStorage->loadAll(stream, 1);
+
+			// Assert: all accounts were loaded as appropriate
+			auto& view = *plugin.cache().createView();
+			EXPECT_EQ(TTraits::Should_Load_Accounts ? balances.size() : 0u, view.size());
+
+			// - all high value account information was loaded
+			EXPECT_EQ(getExpectedAddresses(addresses), view.highValueAccounts().addresses());
+
+			test::AssertEqual(getExpectedBalanceHistories(addresses), view.highValueAccounts().balanceHistories());
 		}
 	}
 
-	TEST(TEST_CLASS, CanLoadSummaryZeroHighValueAddresses) {
-		RunSummaryLoadTest(0);
+	ROUNDTRIP_TEST(CanRoundtripHighValueAddressesOnly) {
+		// Arrange:
+		AccountStateCacheTypes::Options options;
+		options.MinHarvesterBalance = Amount(700'000);
+		options.MinVoterBalance = Amount(2'000'000);
+		options.HarvestingMosaicId = Harvesting_Mosaic_Id;
+
+		// Act + Assert:
+		RunRoundtripTest<TTraits>(
+				options,
+				{ Amount(1'000'000), Amount(500'000), Amount(750'000), Amount(1'250'000) },
+				[](const auto& addresses) {
+					return model::AddressSet({ addresses[0], addresses[2], addresses[3] });
+				},
+				[](const auto&) {
+					return AddressBalanceHistoryMap();
+				});
 	}
 
-	TEST(TEST_CLASS, CanLoadSummarySingleHighValueAddress) {
-		RunSummaryLoadTest(1);
+	ROUNDTRIP_TEST(CanRoundtripBalanceHistoriesOnly) {
+		// Arrange:
+		AccountStateCacheTypes::Options options;
+		options.MinHarvesterBalance = Amount(2'000'000);
+		options.MinVoterBalance = Amount(1'000'000);
+		options.HarvestingMosaicId = Harvesting_Mosaic_Id;
+
+		// Act + Assert:
+		RunRoundtripTest<TTraits>(
+				options,
+				{ Amount(1'000'000), Amount(500'000), Amount(750'000), Amount(1'250'000) },
+				[](const auto&) {
+					return model::AddressSet();
+				},
+				[](const auto& addresses) {
+					return test::GenerateBalanceHistories({
+						{ addresses[0], { { Height(3), Amount(1'000'000) } } },
+						{ addresses[3], { { Height(3), Amount(1'250'000) } } }
+					});
+				});
 	}
 
-	TEST(TEST_CLASS, CanLoadSummaryMultipleHighValueAddresses) {
-		RunSummaryLoadTest(3);
+	ROUNDTRIP_TEST(CanRoundtripHighValueAddressesAndBalanceHistories) {
+		// Arrange:
+		AccountStateCacheTypes::Options options;
+		options.MinHarvesterBalance = Amount(700'000);
+		options.MinVoterBalance = Amount(900'000);
+		options.HarvestingMosaicId = Harvesting_Mosaic_Id;
+
+		// Act + Assert:
+		RunRoundtripTest<TTraits>(
+				options,
+				{ Amount(1'000'000), Amount(500'000), Amount(750'000), Amount(1'250'000) },
+				[](const auto& addresses) {
+					return model::AddressSet({ addresses[0], addresses[2], addresses[3] });
+				},
+				[](const auto& addresses) {
+					return test::GenerateBalanceHistories({
+						{ addresses[0], { { Height(3), Amount(1'000'000) } } },
+						{ addresses[3], { { Height(3), Amount(1'250'000) } } }
+					});
+				});
 	}
 
 	// endregion

@@ -29,11 +29,11 @@ namespace catapult { namespace cache {
 	BasicAccountStateCacheDelta::BasicAccountStateCacheDelta(
 			const AccountStateCacheTypes::BaseSetDeltaPointers& accountStateSets,
 			const AccountStateCacheTypes::Options& options,
-			const model::AddressSet& highValueAddresses)
+			const HighValueAccounts& highValueAccounts)
 			: BasicAccountStateCacheDelta(
 					accountStateSets,
 					options,
-					highValueAddresses,
+					highValueAccounts,
 					std::make_unique<AccountStateCacheDeltaMixins::KeyLookupAdapter>(
 							*accountStateSets.pKeyLookupMap,
 							*accountStateSets.pPrimary))
@@ -42,7 +42,7 @@ namespace catapult { namespace cache {
 	BasicAccountStateCacheDelta::BasicAccountStateCacheDelta(
 			const AccountStateCacheTypes::BaseSetDeltaPointers& accountStateSets,
 			const AccountStateCacheTypes::Options& options,
-			const model::AddressSet& highValueAddresses,
+			const HighValueAccounts& highValueAccounts,
 			std::unique_ptr<AccountStateCacheDeltaMixins::KeyLookupAdapter>&& pKeyLookupAdapter)
 			: AccountStateCacheDeltaMixins::Size(*accountStateSets.pPrimary)
 			, AccountStateCacheDeltaMixins::ContainsAddress(*accountStateSets.pPrimary)
@@ -56,8 +56,8 @@ namespace catapult { namespace cache {
 			, m_pStateByAddress(accountStateSets.pPrimary)
 			, m_pKeyToAddress(accountStateSets.pKeyLookupMap)
 			, m_options(options)
-			, m_highValueAddresses(highValueAddresses)
 			, m_pKeyLookupAdapter(std::move(pKeyLookupAdapter))
+			, m_highValueAccountsUpdater(m_options, highValueAccounts)
 	{}
 
 	model::NetworkIdentifier BasicAccountStateCacheDelta::networkIdentifier() const {
@@ -190,62 +190,20 @@ namespace catapult { namespace cache {
 		m_queuedRemoveByPublicKey.clear();
 	}
 
-	namespace {
-		class HighValueAddressesUpdater {
-		private:
-			using DeltasSet = AccountStateCacheTypes::PrimaryTypes::BaseSetDeltaType::SetType::MemorySetType;
-
-		public:
-			HighValueAddressesUpdater(
-					const model::AddressSet& originalHighValueAddresses,
-					BasicAccountStateCacheDelta::HighValueAddressesTuple& highValueAddressesTuple)
-					: m_original(originalHighValueAddresses)
-					, m_current(highValueAddressesTuple.Current)
-					, m_removed(highValueAddressesTuple.Removed)
-			{}
-
-		public:
-			void update(const DeltasSet& source, const predicate<const state::AccountState&>& include) {
-				for (const auto& pair : source) {
-					const auto& accountState = pair.second;
-					const auto& address = accountState.Address;
-					if (include(accountState)) {
-						m_current.insert(address);
-
-						// don't need to modify m_removed because an element can't be in both Added and Copied
-					} else {
-						m_current.erase(address);
-
-						if (m_original.cend() != m_original.find(address))
-							m_removed.insert(address);
-					}
-				}
-			}
-
-		private:
-			const model::AddressSet& m_original;
-			model::AddressSet& m_current;
-			model::AddressSet& m_removed;
-		};
+	const HighValueAccountsUpdater& BasicAccountStateCacheDelta::highValueAccounts() const {
+		return m_highValueAccountsUpdater;
 	}
 
-	BasicAccountStateCacheDelta::HighValueAddressesTuple BasicAccountStateCacheDelta::highValueAddresses() const {
-		// 1. copy original high value addresses
-		HighValueAddressesTuple highValueAddresses;
-		highValueAddresses.Current = m_highValueAddresses;
+	void BasicAccountStateCacheDelta::updateHighValueAccounts(Height height) {
+		m_highValueAccountsUpdater.setHeight(height);
+		m_highValueAccountsUpdater.update(m_pStateByAddress->deltas());
+	}
 
-		// 2. update for changes
-		auto minBalance = m_options.MinHarvesterBalance;
-		auto harvestingMosaicId = m_options.HarvestingMosaicId;
-		auto hasHighValue = [minBalance, harvestingMosaicId](const auto& accountState) {
-			return accountState.Balances.get(harvestingMosaicId) >= minBalance;
-		};
+	HighValueAccounts BasicAccountStateCacheDelta::detachHighValueAccounts() {
+		return m_highValueAccountsUpdater.detachAccounts();
+	}
 
-		auto deltas = m_pStateByAddress->deltas();
-		HighValueAddressesUpdater updater(m_highValueAddresses, highValueAddresses);
-		updater.update(deltas.Added, hasHighValue);
-		updater.update(deltas.Copied, hasHighValue);
-		updater.update(deltas.Removed, [](const auto&) { return false; });
-		return highValueAddresses;
+	void BasicAccountStateCacheDelta::prune(Height height) {
+		m_highValueAccountsUpdater.prune(height);
 	}
 }}

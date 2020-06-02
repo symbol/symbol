@@ -77,6 +77,9 @@ namespace catapult { namespace observers {
 	/// Observes block notifications and counts transactions.
 	DECLARE_OBSERVER(TotalTransactions, model::BlockNotification)();
 
+	/// Observes block notifications and recalculates high value account information when \a mode matches.
+	DECLARE_OBSERVER(HighValueAccount, model::BlockNotification)(NotifyMode mode);
+
 	// endregion
 
 	// region Transaction

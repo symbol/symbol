@@ -38,6 +38,14 @@ namespace catapult { namespace test {
 		return extensions::CopyToUnresolvedAddress(GenerateRandomAddress());
 	}
 
+	std::vector<Address> GenerateRandomAddresses(size_t count) {
+		std::vector<Address> addresses;
+		for (auto i = 0u; i < count; ++i)
+			addresses.push_back(test::GenerateRandomAddress());
+
+		return addresses;
+	}
+
 	std::shared_ptr<model::UnresolvedAddressSet> GenerateRandomUnresolvedAddressSetPointer(size_t count) {
 		auto pAddresses = std::make_shared<model::UnresolvedAddressSet>();
 		for (auto i = 0u; i < count; ++i)
