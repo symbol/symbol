@@ -60,6 +60,13 @@ namespace catapult { namespace test {
 		}); \
 	}
 
+#define MAKE_COMPARISON_CUSTOM_FORMATTER_TEST(TEST_CLASS, TEST_NAME, INCREASING_VALUES, OPERATOR, FORMATTER) \
+	TEST(TEST_CLASS, TEST_NAME) { \
+		test::AssertOperatorBehaviorForIncreasingValues(INCREASING_VALUES, [](const auto& lhs, const auto& rhs) { \
+			return lhs OPERATOR rhs; \
+		}, FORMATTER); \
+	}
+
 /// Adds all comparison tests to the specified test class (\a TEST_CLASS) given \a INCREASING_VALUES.
 #define DEFINE_COMPARISON_TESTS(TEST_CLASS, INCREASING_VALUES) \
 	MAKE_COMPARISON_TEST(TEST_CLASS, OperatorLessThanReturnsTrueOnlyForSmallerValues, INCREASING_VALUES, <) \
@@ -70,10 +77,15 @@ namespace catapult { namespace test {
 /// Adds all equality tests to the specified test class (\a TEST_CLASS) given \a INCREASING_VALUES.
 #define DEFINE_EQUALITY_TESTS(TEST_CLASS, INCREASING_VALUES) \
 	MAKE_COMPARISON_TEST(TEST_CLASS, OperatorEqualReturnsTrueOnlyForEqualValues, INCREASING_VALUES, ==) \
-	MAKE_COMPARISON_TEST(TEST_CLASS, OperatorNotEqualReturnsTrueOnlyForUnequalValues, INCREASING_VALUES, !=) \
+	MAKE_COMPARISON_TEST(TEST_CLASS, OperatorNotEqualReturnsTrueOnlyForUnequalValues, INCREASING_VALUES, !=)
 
 /// Adds all comparison and equality tests to the specified test class (\a TEST_CLASS) given \a INCREASING_VALUES.
 #define DEFINE_EQUALITY_AND_COMPARISON_TESTS(TEST_CLASS, INCREASING_VALUES) \
 	DEFINE_EQUALITY_TESTS(TEST_CLASS, INCREASING_VALUES) \
 	DEFINE_COMPARISON_TESTS(TEST_CLASS, INCREASING_VALUES)
+
+/// Adds all equality tests to the specified test class (\a TEST_CLASS) given \a INCREASING_VALUES and \a FORMATTER.
+#define DEFINE_EQUALITY_TESTS_WITH_CUSTOM_FORMATTER(TEST_CLASS, INCREASING_VALUES, FORMATTER) \
+	MAKE_COMPARISON_CUSTOM_FORMATTER_TEST(TEST_CLASS, OperatorEqualReturnsTrueOnlyForEqualValues, INCREASING_VALUES, ==, FORMATTER) \
+	MAKE_COMPARISON_CUSTOM_FORMATTER_TEST(TEST_CLASS, OperatorNotEqualReturnsTrueOnlyForUnequalValues, INCREASING_VALUES, !=, FORMATTER)
 }}

@@ -31,6 +31,10 @@ namespace catapult { namespace crypto {
 	/// Represents a private key.
 	class PrivateKey final {
 	public:
+		/// Size of the underlying key data.
+		static constexpr size_t Size = Key::Size;
+
+	public:
 		/// Creates a private key.
 		PrivateKey() = default;
 

@@ -301,12 +301,22 @@ class NamespacesParser:
         return NextTokenBehavior.Skip
 
     def _operatorLessThan(self, nextToken):
-        # operator <<
-        if nextToken.type == 'OPEN_BRACKET':
+        # operator <<, <=
+        if nextToken.type == 'OPEN_BRACKET' or nextToken.type == 'EQUALS':
             self.nameStack.append(nextToken)
             return NextTokenBehavior.Pick
 
         # operator<
+        self.tok = nextToken
+        return NextTokenBehavior.Skip
+
+    def _operatorGreaterThan(self, nextToken):
+        # operator >=
+        if nextToken.type == 'EQUALS':
+            self.nameStack.append(nextToken)
+            return NextTokenBehavior.Pick
+
+        # operator>
         self.tok = nextToken
         return NextTokenBehavior.Skip
 
@@ -348,6 +358,8 @@ class NamespacesParser:
             return
         elif tok.type == 'OPEN_BRACKET':
             behavior = self._operatorLessThan(tok2)
+        elif tok.type == 'CLOSE_BRACKET':
+            behavior = self._operatorGreaterThan(tok2)
         else:
             self.quit(tok2)
 
