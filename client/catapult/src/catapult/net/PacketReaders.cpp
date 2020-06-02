@@ -114,13 +114,13 @@ namespace catapult { namespace net {
 				insertedReaderIter->second.pReader = pReader;
 
 				InsertOperation operation(true);
-				operation.Commit = [&lock = m_lock, pReader]() {
-					utils::SpinLockGuard guard2(lock);
-
+				operation.Commit = [pReader]() {
 					pReader->start();
 				};
 				operation.Abort = [this, qualifiedReaderId]() {
 					CATAPULT_LOG(warning) << "aborting incoming connection from " << qualifiedReaderId.first;
+
+					utils::SpinLockGuard guard2(m_lock);
 					closeSingle(qualifiedReaderId.first, qualifiedReaderId.second);
 				};
 
@@ -159,6 +159,7 @@ namespace catapult { namespace net {
 				pReader->stop();
 			}
 
+			// closeSingle needs to be called with lock
 			bool closeSingle(const model::NodeIdentity& identity, uint32_t id) {
 				auto iter = m_readers.find(std::make_pair(identity, id));
 				if (m_readers.end() == iter)
