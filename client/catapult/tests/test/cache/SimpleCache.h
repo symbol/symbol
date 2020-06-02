@@ -121,7 +121,7 @@ namespace catapult { namespace test {
 		{}
 	};
 
-	/// View extension that represents a default cache that supports merkle roots.
+	/// View extension that represents a default cache that supports optional features (merkle roots).
 	class SimpleCacheDefaultViewExtension {
 	public:
 		/// Creates a view extension around \a mode and \a state.
@@ -157,7 +157,7 @@ namespace catapult { namespace test {
 		const Hash256& m_merkleRoot;
 	};
 
-	/// Delta extension that represents a default cache that supports merkle roots.
+	/// Delta extension that represents a default cache that supports optional features (merkle roots and pruning).
 	class SimpleCacheDefaultDeltaExtension : public SimpleCacheDefaultViewExtension {
 	public:
 		/// Creates a delta extension around \a mode and \a state.
@@ -182,6 +182,12 @@ namespace catapult { namespace test {
 		/// \note There must not be any pending changes.
 		void setMerkleRoot(const Hash256& merkleRoot) {
 			*m_pMerkleRoot = merkleRoot;
+		}
+
+		/// Prunes the cache at \a height.
+		void prune(Height height) {
+			// change the second byte
+			(*m_pMerkleRoot)[1] = static_cast<uint8_t>(height.unwrap());
 		}
 
 	private:

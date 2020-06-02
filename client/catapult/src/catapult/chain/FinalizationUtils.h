@@ -18,21 +18,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/state/CatapultState.h"
-#include "tests/TestHarness.h"
+#pragma once
+#include "catapult/types.h"
 
-namespace catapult { namespace state {
+namespace catapult { namespace io { class BlockStorageView; } }
 
-#define TEST_CLASS CatapultStateTests
+namespace catapult { namespace chain {
 
-	TEST(TEST_CLASS, CanCreateDefaultState) {
-		// Act:
-		CatapultState state;
-
-		// Assert:
-		EXPECT_EQ(model::ImportanceHeight(0), state.LastRecalculationHeight);
-		EXPECT_EQ(Height(0), state.LastFinalizedHeight);
-		EXPECT_EQ(BlockFeeMultiplier(0), state.DynamicFeeMultiplier);
-		EXPECT_EQ(0u, state.NumTotalTransactions);
-	}
+	/// Gets the finalized chain height given \a storage and \a maxRollbackBlocks.
+	Height GetFinalizedChainHeight(const io::BlockStorageView& storage, uint32_t maxRollbackBlocks);
 }}

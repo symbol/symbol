@@ -82,7 +82,6 @@ namespace catapult { namespace plugins {
 				return {
 					"HashLockObserver",
 					"ExpiredHashLockInfoObserver",
-					"HashLockInfoPruningObserver",
 					"CompletedAggregateObserver"
 				};
 			}

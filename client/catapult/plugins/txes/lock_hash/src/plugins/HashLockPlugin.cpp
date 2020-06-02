@@ -25,7 +25,6 @@
 #include "src/observers/Observers.h"
 #include "src/plugins/HashLockTransactionPlugin.h"
 #include "src/validators/Validators.h"
-#include "catapult/observers/ObserverUtils.h"
 #include "catapult/plugins/CacheHandlers.h"
 #include "catapult/plugins/PluginManager.h"
 
@@ -67,7 +66,6 @@ namespace catapult { namespace plugins {
 			builder
 				.add(observers::CreateHashLockObserver())
 				.add(observers::CreateExpiredHashLockInfoObserver())
-				.add(observers::CreateCacheBlockPruningObserver<cache::HashLockInfoCache>("HashLockInfo", 1, maxRollbackBlocks))
 				.add(observers::CreateCompletedAggregateObserver());
 		});
 	}

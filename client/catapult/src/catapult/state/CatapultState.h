@@ -34,6 +34,9 @@ namespace catapult { namespace state {
 		/// Height at which importances were last recalculated.
 		model::ImportanceHeight LastRecalculationHeight;
 
+		/// Height of last finalized block.
+		Height LastFinalizedHeight;
+
 		/// Current dynamic fee multiplier.
 		BlockFeeMultiplier DynamicFeeMultiplier;
 

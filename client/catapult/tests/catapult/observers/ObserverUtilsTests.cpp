@@ -243,23 +243,6 @@ namespace catapult { namespace observers {
 			EXPECT_TRUE(subCache.touchHeights().empty()) << message;
 		}
 
-		void AssertBlockPruning(const PruningObserver& observer, NotifyMode mode, Height height, Height expectedPruneHeight) {
-			// Arrange:
-			auto cache = CreateSimpleCatapultCache();
-			auto cacheDelta = cache.createDelta();
-			ObserverContext context(CreateNotificationContext(height), ObserverState(cacheDelta), mode);
-
-			// Act:
-			NotifyBlock(observer, context);
-			const auto& subCache = cache.sub<PrunableCache>();
-
-			// Assert:
-			auto message = CreateMessage(mode, height);
-			EXPECT_EQ(std::vector<Height>({ expectedPruneHeight }), subCache.pruneHeights()) << message;
-			EXPECT_TRUE(subCache.pruneTimes().empty()) << message;
-			EXPECT_TRUE(subCache.touchHeights().empty()) << message;
-		}
-
 		void AssertTimePruning(const PruningObserver& observer, NotifyMode mode, Height height, Timestamp timestamp) {
 			// Arrange:
 			auto cache = CreateSimpleCatapultCache();
@@ -277,78 +260,6 @@ namespace catapult { namespace observers {
 			EXPECT_TRUE(subCache.touchHeights().empty()) << message;
 		}
 	}
-
-	// region CacheBlockPruningObserver
-
-	TEST(TEST_CLASS, CacheBlockPruningObserverIsCreatedWithCorrectName) {
-		// Act:
-		auto pObserver = CreateCacheBlockPruningObserver<PrunableCache>("Foo", 10, BlockDuration(7));
-
-		// Assert:
-		EXPECT_EQ("FooPruningObserver", pObserver->name());
-	}
-
-	TEST(TEST_CLASS, CacheBlockPruningObserverSkipsPruningWhenModeIsRollback) {
-		// Arrange:
-		auto pObserver = CreateCacheBlockPruningObserver<PrunableCache>("Foo", 10, BlockDuration(7));
-
-		// Act + Assert:
-		auto mode = NotifyMode::Rollback;
-		AssertNoPruning(*pObserver, mode, Height(1));
-		AssertNoPruning(*pObserver, mode, Height(7));
-		AssertNoPruning(*pObserver, mode, Height(10));
-		AssertNoPruning(*pObserver, mode, Height(19));
-		AssertNoPruning(*pObserver, mode, Height(20));
-		AssertNoPruning(*pObserver, mode, Height(21));
-		AssertNoPruning(*pObserver, mode, Height(30));
-	}
-
-	TEST(TEST_CLASS, CacheBlockPruningObserverSkipsPruningWhenHeightIsNotDivisibleByPruneInterval) {
-		// Arrange:
-		auto pObserver = CreateCacheBlockPruningObserver<PrunableCache>("Foo", 10, BlockDuration(7));
-
-		// Act + Assert:
-		auto mode = NotifyMode::Commit;
-		AssertNoPruning(*pObserver, mode, Height(11));
-		AssertNoPruning(*pObserver, mode, Height(19));
-		AssertNoPruning(*pObserver, mode, Height(21));
-		AssertNoPruning(*pObserver, mode, Height(29));
-	}
-
-	TEST(TEST_CLASS, CacheBlockPruningObserverSkipsPruningWhenHeightIsNotGreaterThanGracePeriod) {
-		// Arrange:
-		auto pObserver = CreateCacheBlockPruningObserver<PrunableCache>("Foo", 1, BlockDuration(7));
-
-		// Act + Assert:
-		auto mode = NotifyMode::Commit;
-		AssertNoPruning(*pObserver, mode, Height(1));
-		AssertNoPruning(*pObserver, mode, Height(4));
-		AssertNoPruning(*pObserver, mode, Height(7));
-	}
-
-	TEST(TEST_CLASS, CacheBlockPruningObserverPrunesWhenHeightIsGreaterThanGracePeriod) {
-		// Arrange:
-		auto pObserver = CreateCacheBlockPruningObserver<PrunableCache>("Foo", 1, BlockDuration(7));
-
-		// Act + Assert:
-		auto mode = NotifyMode::Commit;
-		AssertBlockPruning(*pObserver, mode, Height(8), Height(1));
-		AssertBlockPruning(*pObserver, mode, Height(9), Height(2));
-		AssertBlockPruning(*pObserver, mode, Height(10), Height(3));
-	}
-
-	TEST(TEST_CLASS, CacheBlockPruningObserverPrunesWhenHeightIsGreaterThanGracePeriodAndDivisibleByPruneInterval) {
-		// Arrange:
-		auto pObserver = CreateCacheBlockPruningObserver<PrunableCache>("Foo", 10, BlockDuration(7));
-
-		// Act + Assert:
-		auto mode = NotifyMode::Commit;
-		AssertBlockPruning(*pObserver, mode, Height(10), Height(3));
-		AssertBlockPruning(*pObserver, mode, Height(20), Height(13));
-		AssertBlockPruning(*pObserver, mode, Height(30), Height(23));
-	}
-
-	// endregion
 
 	// region CacheTimePruningObserver
 

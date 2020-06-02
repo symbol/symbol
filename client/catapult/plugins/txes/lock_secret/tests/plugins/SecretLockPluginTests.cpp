@@ -83,8 +83,7 @@ namespace catapult { namespace plugins {
 				return {
 					"SecretLockObserver",
 					"ExpiredSecretLockInfoObserver",
-					"ProofObserver",
-					"SecretLockInfoPruningObserver"
+					"ProofObserver"
 				};
 			}
 

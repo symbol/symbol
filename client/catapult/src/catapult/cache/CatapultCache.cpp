@@ -170,6 +170,15 @@ namespace catapult { namespace cache {
 		}
 	}
 
+	void CatapultCacheDelta::prune(Height height) {
+		for (const auto& pSubView : m_subViews) {
+			if (!pSubView)
+				continue;
+
+			pSubView->prune(height);
+		}
+	}
+
 	ReadOnlyCatapultCache CatapultCacheDelta::toReadOnly() const {
 		return ReadOnlyCatapultCache(*m_pDependentState, ExtractReadOnlyViews(m_subViews));
 	}

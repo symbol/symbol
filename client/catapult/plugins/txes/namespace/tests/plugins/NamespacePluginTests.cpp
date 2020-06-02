@@ -122,7 +122,6 @@ namespace catapult { namespace plugins {
 					"NamespaceRentalFeeObserver",
 					"NamespaceGracePeriodTouchObserver",
 					"NamespaceTouchObserver",
-					"NamespacePruningObserver",
 					"AliasedAddressObserver",
 					"AliasedMosaicIdObserver"
 				};

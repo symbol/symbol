@@ -92,6 +92,9 @@ namespace catapult { namespace cache {
 		/// Recalculates the merkle root given the specified chain \a height if supported.
 		virtual void updateMerkleRoot(Height height) = 0;
 
+		/// Prunes the cache at \a height.
+		virtual void prune(Height height) = 0;
+
 		/// Gets a read-only view of this view.
 		virtual const void* asReadOnly() const = 0;
 	};

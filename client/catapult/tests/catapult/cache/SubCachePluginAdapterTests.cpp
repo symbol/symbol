@@ -416,6 +416,51 @@ namespace catapult { namespace cache {
 
 	// endregion
 
+	// region prune
+
+	TEST(TEST_CLASS, CanPruneWhenSupportedAndDelta) {
+		// Arrange:
+		RunTestForMerkleRootSupportedAndEnabled([](auto& view, const auto& expectedMerkleRoot) {
+			auto expectedUpdatedMerkleRoot = expectedMerkleRoot;
+			expectedUpdatedMerkleRoot[1] = 3;
+
+			// Act:
+			view.prune(Height(3));
+
+			// Assert:
+			Hash256 merkleRoot;
+			EXPECT_TRUE(view.tryGetMerkleRoot(merkleRoot));
+			EXPECT_EQ(expectedUpdatedMerkleRoot, merkleRoot);
+		});
+	}
+
+	TEST(TEST_CLASS, CannotPruneWhenSupportedButView) {
+		// Arrange:
+		RunTestForMerkleRootSupportedAndEnabledView([](auto& view, const auto& expectedMerkleRoot) {
+			// Act: even if const is improperly casted away, operation should fail on const view
+			const_cast<SubCacheView&>(view).prune(Height(3));
+
+			// Assert:
+			Hash256 merkleRoot;
+			EXPECT_TRUE(view.tryGetMerkleRoot(merkleRoot));
+			EXPECT_EQ(expectedMerkleRoot, merkleRoot);
+		});
+	}
+
+	TEST(TEST_CLASS, CannotPruneWhenUnsupported) {
+		// Arrange:
+		RunTestForMerkleRootNotSupported([](auto& view) {
+			// Act:
+			view.prune(Height(3));
+
+			// Assert:
+			Hash256 merkleRoot;
+			EXPECT_FALSE(view.tryGetMerkleRoot(merkleRoot));
+		});
+	}
+
+	// endregion
+
 	// region createDetachedDelta
 
 	TEST(TEST_CLASS, CanAccessDetachedDelta) {

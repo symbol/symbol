@@ -284,7 +284,7 @@ namespace catapult { namespace local {
 		template<typename TTestContext>
 		NamespaceStateHashes RunPruneNamespaceTest(TTestContext& context) {
 			// Act:
-			return RunNamespaceStateChangeTest(context, Blocks_Before_Namespace_Prune - 1, 1);
+			return RunNamespaceStateChangeTest(context, Blocks_Before_Namespace_Prune, 1);
 		}
 	}
 

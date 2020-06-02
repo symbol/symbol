@@ -198,8 +198,7 @@ namespace catapult { namespace plugins {
 							"NamespaceGracePeriod",
 							model::Receipt_Type_Namespace_Expired,
 							gracePeriodDuration))
-					.add(observers::CreateCacheBlockTouchObserver<cache::NamespaceCache>("Namespace", expiryReceiptType))
-					.add(observers::CreateCacheBlockPruningObserver<cache::NamespaceCache>("Namespace", 1, maxRollbackBlocks));
+					.add(observers::CreateCacheBlockTouchObserver<cache::NamespaceCache>("Namespace", expiryReceiptType));
 			});
 		}
 

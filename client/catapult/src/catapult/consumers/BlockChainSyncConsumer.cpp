@@ -24,6 +24,7 @@
 #include "catapult/cache/CatapultCache.h"
 #include "catapult/chain/BlockScorer.h"
 #include "catapult/chain/ChainUtils.h"
+#include "catapult/chain/FinalizationUtils.h"
 #include "catapult/io/BlockStorageCache.h"
 #include "catapult/model/BlockUtils.h"
 #include "catapult/utils/Casting.h"
@@ -53,9 +54,10 @@ namespace catapult { namespace consumers {
 		public:
 			SyncState() = default;
 
-			explicit SyncState(cache::CatapultCache& cache)
+			SyncState(cache::CatapultCache& cache, Height localFinalizedChainHeight)
 					: m_pOriginalCache(&cache)
 					, m_pCacheDelta(std::make_unique<cache::CatapultCacheDelta>(cache.createDelta()))
+					, m_localFinalizedChainHeight(localFinalizedChainHeight)
 			{}
 
 		public:
@@ -94,13 +96,25 @@ namespace catapult { namespace consumers {
 			}
 
 			void commit(Height height) {
+				auto& lastFinalizedChainHeight = m_pCacheDelta->dependentState().LastFinalizedHeight;
+				pruneRange(lastFinalizedChainHeight, m_localFinalizedChainHeight);
+				lastFinalizedChainHeight = m_localFinalizedChainHeight;
+
 				m_pOriginalCache->commit(height);
 				m_pCacheDelta.reset(); // release the delta after commit so that the UT updater can acquire a lock
 			}
 
 		private:
+			void pruneRange(Height startHeight, Height endHeight) {
+				for (auto height = startHeight; height <= endHeight; height = height + Height(1))
+					m_pCacheDelta->prune(height);
+			}
+
+		private:
 			cache::CatapultCache* m_pOriginalCache;
 			std::unique_ptr<cache::CatapultCacheDelta> m_pCacheDelta; // unique_ptr to allow explicit release of lock in commit
+			Height m_localFinalizedChainHeight;
+
 			std::shared_ptr<const model::BlockElement> m_pCommonBlockElement;
 			model::ChainScore m_scoreDelta;
 			TransactionInfos m_removedTransactionInfos;
@@ -154,8 +168,8 @@ namespace catapult { namespace consumers {
 					return Abort(Failure_Consumer_Remote_Chain_Unlinked);
 
 				// 2. check that the remote chain is not too far behind the current chain
-				auto heightDifference = static_cast<int64_t>((localChainHeight - peerStartHeight).unwrap());
-				if (heightDifference > m_maxRollbackBlocks)
+				auto localFinalizedChainHeight = chain::GetFinalizedChainHeight(storageView, m_maxRollbackBlocks);
+				if (peerStartHeight <= localFinalizedChainHeight)
 					return Abort(Failure_Consumer_Remote_Chain_Too_Far_Behind);
 
 				// 3. check difficulties against difficulties in cache
@@ -164,7 +178,7 @@ namespace catapult { namespace consumers {
 					return Abort(Failure_Consumer_Remote_Chain_Difficulties_Mismatch);
 
 				// 4. unwind to the common block height and calculate the local chain score
-				syncState = SyncState(m_cache);
+				syncState = SyncState(m_cache, localFinalizedChainHeight);
 				auto commonBlockHeight = peerStartHeight - Height(1);
 				auto observerState = syncState.observerState();
 				auto unwindResult = unwindLocalChain(localChainHeight, commonBlockHeight, storageView, observerState);
