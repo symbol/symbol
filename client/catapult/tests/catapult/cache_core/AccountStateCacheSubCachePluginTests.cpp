@@ -225,13 +225,13 @@ namespace catapult { namespace cache {
 			pStorage->loadAll(stream, 1);
 
 			// Assert: all accounts were loaded as appropriate
-			auto& view = *plugin.cache().createView();
-			EXPECT_EQ(TTraits::Should_Load_Accounts ? balances.size() : 0u, view.size());
+			auto view = plugin.cache().createView();
+			EXPECT_EQ(TTraits::Should_Load_Accounts ? balances.size() : 0u, view->size());
 
 			// - all high value account information was loaded
-			EXPECT_EQ(getExpectedAddresses(addresses), view.highValueAccounts().addresses());
+			EXPECT_EQ(getExpectedAddresses(addresses), view->highValueAccounts().addresses());
 
-			test::AssertEqual(getExpectedBalanceHistories(addresses), view.highValueAccounts().balanceHistories());
+			test::AssertEqual(getExpectedBalanceHistories(addresses), view->highValueAccounts().balanceHistories());
 		}
 	}
 

@@ -37,6 +37,7 @@ namespace catapult { namespace chain {
 			MockFinalizedChainHeightBlockStorage(Height chainHeight, Height finalizedChainHeight)
 					: m_chainHeight(chainHeight)
 					, m_finalizedChainHeight(finalizedChainHeight)
+					, m_pMemoryBlockStorage(mocks::CreateMemoryBlockStorage(0))
 			{}
 
 		public:
@@ -50,20 +51,20 @@ namespace catapult { namespace chain {
 
 			// loadBlockElement needs to be implemented because BlockStorageCache loads the tail block into its cache
 			std::shared_ptr<const model::BlockElement> loadBlockElement(Height height) const override {
-				auto pStorage = mocks::CreateMemoryBlockStorage(0);
-
 				model::Block block;
 				block.Size = sizeof(model::BlockHeader);
 				block.Height = m_chainHeight;
-				pStorage->dropBlocksAfter(m_chainHeight - Height(1));
-				pStorage->saveBlock(test::BlockToBlockElement(block));
 
-				return pStorage->loadBlockElement(height);
+				// reset memory storage to only contain single block at height
+				m_pMemoryBlockStorage->dropBlocksAfter(m_chainHeight - Height(1));
+				m_pMemoryBlockStorage->saveBlock(test::BlockToBlockElement(block));
+				return m_pMemoryBlockStorage->loadBlockElement(height);
 			}
 
 		private:
 			Height m_chainHeight;
 			Height m_finalizedChainHeight;
+			std::shared_ptr<io::BlockStorage> m_pMemoryBlockStorage;
 		};
 
 		// endregion
