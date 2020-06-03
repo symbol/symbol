@@ -1,5 +1,6 @@
 type: object
 required:
+  - id
   - meta
   - block
 properties:
