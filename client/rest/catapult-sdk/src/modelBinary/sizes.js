@@ -34,7 +34,7 @@ const sizes = {
 	/**
 	 * @property {numeric} Size of a decoded address.
 	 */
-	addressDecoded: 25,
+	addressDecoded: 24,
 
 	/**
 	 * @property {numeric} Size of a transaction header.

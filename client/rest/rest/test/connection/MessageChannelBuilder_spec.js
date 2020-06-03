@@ -24,8 +24,8 @@ const { expect } = require('chai');
 
 describe('message channel builder', () => {
 	const addressTemplate = {
-		encoded: 'NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDFG',
-		decoded: Buffer.from('6823BB7C3C089D996585466380EDBDC19D4959184893E38CA6', 'hex')
+		encoded: 'NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA',
+		decoded: Buffer.from('6823BB7C3C089D996585466380EDBDC19D4959184893E38C', 'hex')
 	};
 
 	const createMockCodec = value => {

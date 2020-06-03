@@ -777,7 +777,7 @@ describe('server (bootstrapper)', () => {
 			Buffer.from(test.random.bytes(test.constants.sizes.hash256)), // transactionsHashBuffer 32b
 			Buffer.from(test.random.bytes(test.constants.sizes.hash256)), // receiptsHashBuffer 32b
 			Buffer.from(test.random.bytes(test.constants.sizes.hash256)), // stateHashBuffer 32b
-			test.random.bytes(test.constants.sizes.addressDecoded), // beneficiaryAddress 25b
+			test.random.bytes(test.constants.sizes.addressDecoded), // beneficiaryAddress 24b
 			Buffer.of(0x0A, 0x00, 0x00, 0x00), // fee feeMultiplierBuffer 4b
 			Buffer.of(0x00, 0x00, 0x00, 0x00) // reserved padding 4b
 		]);

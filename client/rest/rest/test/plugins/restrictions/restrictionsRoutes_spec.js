@@ -117,7 +117,7 @@ describe('restrictions routes', () => {
 	describe('mosaic restrictions', () => {
 		const testPublicKey = '7DE16AEDF57EB9561D3E6EFA4AE66F27ABDA8AEC8BC020B6277360E31619DCE7';
 
-		const testAddress = 'SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXWV';
+		const testAddress = 'SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ';
 		const uint8TestAddress = address.stringToAddress(testAddress);
 
 		const testMosaicIds = {

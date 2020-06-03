@@ -26,7 +26,7 @@ const { expect } = require('chai');
 const constants = {
 	knownTxType: 0x4123,
 	sizes: {
-		blockHeader: 377,
+		blockHeader: 376,
 		transactionHeader: 128,
 		transaction: 128 + 8 + 1
 	}
@@ -103,7 +103,7 @@ describe('model codec builder', () => {
 		const transactionsHashBuffer = Buffer.from(test.random.bytes(test.constants.sizes.hash256));
 		const receiptsHashBuffer = Buffer.from(test.random.bytes(test.constants.sizes.hash256));
 		const stateHashBuffer = Buffer.from(test.random.bytes(test.constants.sizes.hash256));
-		const beneficiaryAddress = test.random.bytes(test.constants.sizes.addressDecoded); // 25
+		const beneficiaryAddress = test.random.bytes(test.constants.sizes.addressDecoded); // 24
 		const feeMultiplierBuffer = Buffer.of(0x0A, 0x00, 0x00, 0x00);
 		const reservedPadding = Buffer.of(0x00, 0x00, 0x00, 0x00);
 
@@ -120,7 +120,7 @@ describe('model codec builder', () => {
 			transactionsHashBuffer, // 32b
 			receiptsHashBuffer, // 32b
 			stateHashBuffer, // 32b
-			Buffer.from(beneficiaryAddress), // address 25b
+			Buffer.from(beneficiaryAddress), // address 24b
 			feeMultiplierBuffer, // 4b
 			reservedPadding // 4b
 		]);

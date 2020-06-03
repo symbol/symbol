@@ -145,7 +145,7 @@ describe('zmq service', () => {
 				Buffer.from(test.random.hash()), // block transactions hash 32b
 				Buffer.from(test.random.hash()), // receiptsHashBuffer 32b
 				Buffer.from(test.random.hash()), // stateHashBuffer 32b
-				test.random.bytes(test.constants.sizes.addressDecoded), // beneficiaryAddress 25b
+				test.random.bytes(test.constants.sizes.addressDecoded), // beneficiaryAddress 24b
 				Buffer.of(0x0A, 0x00, 0x00, 0x00), // fee multiplier 4b
 				Buffer.of(0x00, 0x00, 0x00, 0x00) // reserved padding 4b
 			]),

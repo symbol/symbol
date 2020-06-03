@@ -27,7 +27,7 @@ const { expect } = require('chai');
 
 const constants = {
 	sizes: {
-		transfer: 33,
+		transfer: 32,
 		message: 0x70,
 		mosaics: 0x50
 	}

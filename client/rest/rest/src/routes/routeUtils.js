@@ -30,7 +30,7 @@ const packetHeader = catapult.packet.header;
 const constants = {
 	sizes: {
 		hexPublicKey: 64,
-		addressEncoded: 40,
+		addressEncoded: 39,
 		hash256: 32,
 		hash512: 64
 	}

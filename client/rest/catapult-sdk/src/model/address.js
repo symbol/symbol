@@ -27,10 +27,10 @@ const Ripemd160 = require('ripemd160');
 const constants = {
 	sizes: {
 		ripemd160: 20,
-		addressDecoded: 25,
-		addressEncoded: 40,
+		addressDecoded: 24,
+		addressEncoded: 39,
 		key: 32,
-		checksum: 4
+		checksum: 3
 	}
 };
 
@@ -41,11 +41,13 @@ const address = {
 	 * @param {string} encoded Encoded address string.
 	 * @returns {Uint8Array} Decoded address corresponding to the input.
 	 */
+
 	stringToAddress: encoded => {
 		if (constants.sizes.addressEncoded !== encoded.length)
 			throw Error(`${encoded} does not represent a valid encoded address`);
 
-		return base32.decode(encoded);
+		// base32 module cannot manage arbitrary size conversion so some ugly temporary padding is required
+		return base32.decode(`${encoded}A`).subarray(0, constants.sizes.addressDecoded);
 	},
 
 	/**
@@ -57,7 +59,10 @@ const address = {
 		if (constants.sizes.addressDecoded !== decoded.length)
 			throw Error(`${convert.uint8ToHex(decoded)} does not represent a valid decoded address`);
 
-		return base32.encode(decoded);
+		// base32 module cannot manage arbitrary size conversion so some ugly temporary padding is required
+		const paddedDecodedAddress = new Uint8Array(constants.sizes.addressDecoded + 1);
+		paddedDecodedAddress.set(decoded);
+		return base32.encode(paddedDecodedAddress).slice(0, -1);
 	},
 
 	/**
@@ -110,7 +115,11 @@ const address = {
 
 		try {
 			const decoded = address.stringToAddress(encoded);
-			return address.isValidAddress(decoded);
+			const paddedDecoded = base32.decode(`${encoded}A`);
+
+			// when decoding an address we will always get a valid address, however, when encoding an address the result may not always be
+			// correct, thus a two-way check is required to see that the original address was valid (padded with 0)
+			return address.isValidAddress(decoded) && 0 === paddedDecoded[constants.sizes.addressDecoded];
 		} catch (err) {
 			return false;
 		}

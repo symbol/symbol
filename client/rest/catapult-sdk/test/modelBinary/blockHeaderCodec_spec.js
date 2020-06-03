@@ -30,7 +30,7 @@ describe('block header codec', () => {
 		const transactionsHashBuffer = Buffer.from(test.random.bytes(test.constants.sizes.hash256));
 		const receiptsHashBuffer = Buffer.from(test.random.bytes(test.constants.sizes.hash256));
 		const stateHashBuffer = Buffer.from(test.random.bytes(test.constants.sizes.hash256));
-		const beneficiaryAddress = test.random.bytes(test.constants.sizes.addressDecoded); // 25
+		const beneficiaryAddress = test.random.bytes(test.constants.sizes.addressDecoded); // 24
 		const feeMultiplierBuffer = Buffer.of(0x0A, 0x00, 0x00, 0x00);
 
 		return {
@@ -45,7 +45,7 @@ describe('block header codec', () => {
 				transactionsHashBuffer, // 32b
 				receiptsHashBuffer, // 32b
 				stateHashBuffer, // 32b
-				Buffer.from(beneficiaryAddress), // address 25b
+				Buffer.from(beneficiaryAddress), // address 24b
 				feeMultiplierBuffer, // 4b
 				Buffer.of(0x00, 0x00, 0x00, 0x00) // block header reserved 1 4b
 			]),
@@ -67,5 +67,5 @@ describe('block header codec', () => {
 		};
 	};
 
-	test.binary.test.addAll(blockHeaderCodec, 265, generateBlockHeader);
+	test.binary.test.addAll(blockHeaderCodec, 264, generateBlockHeader);
 });

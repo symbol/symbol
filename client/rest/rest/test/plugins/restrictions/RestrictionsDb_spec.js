@@ -127,10 +127,10 @@ describe('restrictions db', () => {
 	describe('mosaic restrictions', () => {
 		const { address } = catapult.model;
 		const testAddress = {
-			one: address.stringToAddress('SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXWV'),
-			two: address.stringToAddress('NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDFG'),
-			three: address.stringToAddress('SAAM2O7SSJ2A7AU3DZJMSTTRFZT5TFDPQ3ZIIJX7'),
-			four: address.stringToAddress('SAMZMPX33DFIIVOCNJYMF5KJTGLAEVNKHHFROLXD')
+			one: address.stringToAddress('SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ'),
+			two: address.stringToAddress('NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA'),
+			three: address.stringToAddress('SAAAIBC7AM65HOFDLYGFUT46H44TROZ7MUWCW6I'),
+			four: address.stringToAddress('SAMZMPX33DFIIVOCNJYMF5KJTGLAEVNKHHFROLQ')
 		};
 
 		describe('mosaic restrictions by mosaic ids', () => {

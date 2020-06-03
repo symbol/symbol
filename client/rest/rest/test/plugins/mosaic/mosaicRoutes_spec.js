@@ -30,7 +30,7 @@ const { address } = catapult.model;
 
 describe('mosaic routes', () => {
 	describe('mosaics', () => {
-		const testAddress = 'SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXWV';
+		const testAddress = 'NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA';
 
 		const emptyPageSample = {
 			data: [],

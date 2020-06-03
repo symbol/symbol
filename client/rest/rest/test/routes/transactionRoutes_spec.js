@@ -120,7 +120,7 @@ describe('transaction routes', () => {
 
 	describe('transactions', () => {
 		describe('get', () => {
-			const testAddressString = 'SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXWV';
+			const testAddressString = 'SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ';
 			const testAddress = address.stringToAddress(testAddressString);
 
 			const testPublickeyString = '7DE16AEDF57EB9561D3E6EFA4AE66F27ABDA8AEC8BC020B6277360E31619DCE7';

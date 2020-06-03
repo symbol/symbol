@@ -30,13 +30,13 @@ const { Long } = MongoDb;
 const { metadata } = catapult.model;
 
 describe('metadata routes', () => {
-	const testAddress = 'SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXWV';
+	const testAddress = 'SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ';
 	const uint8TestAddress = address.stringToAddress(testAddress);
 
 	const scopedMetadataKey = '0DC67FBE1CAD29E3';
 	const uInt64ScopedMetadataKey = [0x1CAD29E3, 0x0DC67FBE];
 
-	const senderAddress = 'SAMZMPX33DFIIVOCNJYMF5KJTGLAEVNKHHFROLXD';
+	const senderAddress = 'SAMZMPX33DFIIVOCNJYMF5KJTGLAEVNKHHFROLQ';
 	const uint8SenderAddress = address.stringToAddress(senderAddress);
 
 

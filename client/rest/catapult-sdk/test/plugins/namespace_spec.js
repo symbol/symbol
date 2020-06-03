@@ -28,7 +28,7 @@ const { expect } = require('chai');
 
 const constants = {
 	sizes: {
-		aliasAddress: 34,
+		aliasAddress: 33,
 		aliasMosaic: 17,
 		namespaceName: 6,
 		registerNamespace: 18

@@ -23,7 +23,7 @@ const convert = require('../../src/utils/convert');
 const test = require('../testUtils');
 const { expect } = require('chai');
 
-const Address_Decoded_Size = 25;
+const Address_Decoded_Size = 24;
 const Network_Mijin_Identifier = 0x60;
 const Network_Public_Test_Identifier = 0x98;
 
@@ -36,8 +36,8 @@ describe('address', () => {
 
 		it('can create address from valid encoded address', () => {
 			// Arrange:
-			const encoded = 'NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDFG';
-			const expectedHex = '6823BB7C3C089D996585466380EDBDC19D4959184893E38CA6';
+			const encoded = 'NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA';
+			const expectedHex = '6823BB7C3C089D996585466380EDBDC19D4959184893E38C';
 
 			// Act:
 			const decoded = address.stringToAddress(encoded);
@@ -50,24 +50,24 @@ describe('address', () => {
 		it('cannot create address from encoded string with wrong length', () => {
 			// Assert:
 			assertCannotCreateAddress(
-				'NC5J5DI2URIC4H3T3IMXQS25PWQWZIPEV6EV7LASABCDEFGH',
-				'NC5J5DI2URIC4H3T3IMXQS25PWQWZIPEV6EV7LASABCDEFGH does not represent a valid encoded address'
+				'NC5J5DI2URIC4H3T3IMXQS25PWQWZIPEV6EV7LASABCDEFG',
+				'NC5J5DI2URIC4H3T3IMXQS25PWQWZIPEV6EV7LASABCDEFG does not represent a valid encoded address'
 			);
 		});
 
 		it('cannot create address from invalid encoded string', () => {
 			// Assert:
-			assertCannotCreateAddress('NC5(5DI2URIC4H3T3IMXQS25PWQWZIPEV6EV7LAS', 'illegal base32 character (');
-			assertCannotCreateAddress('NC5J1DI2URIC4H3T3IMXQS25PWQWZIPEV6EV7LAS', 'illegal base32 character 1');
-			assertCannotCreateAddress('NC5J5?I2URIC4H3T3IMXQS25PWQWZIPEV6EV7LAS', 'illegal base32 character ?');
+			assertCannotCreateAddress('NC5(5DI2URIC4H3T3IMXQS25PWQWZIPEV6EV7LA', 'illegal base32 character (');
+			assertCannotCreateAddress('NC5J1DI2URIC4H3T3IMXQS25PWQWZIPEV6EV7LA', 'illegal base32 character 1');
+			assertCannotCreateAddress('NC5J5?I2URIC4H3T3IMXQS25PWQWZIPEV6EV7LA', 'illegal base32 character ?');
 		});
 	});
 
 	describe('addressToString', () => {
 		it('can create encoded address from address', () => {
 			// Arrange:
-			const decodedHex = '6823BB7C3C089D996585466380EDBDC19D4959184893E38CA6';
-			const expected = 'NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDFG';
+			const decodedHex = '6823BB7C3C089D996585466380EDBDC19D4959184893E38C';
+			const expected = 'NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA';
 
 			// Act:
 			const encoded = address.addressToString(convert.hexToUint8(decodedHex));
@@ -79,8 +79,8 @@ describe('address', () => {
 		it('cannot create encoded address from invalid address', () => {
 			// Arrange:
 			const decodedHexStrings = [
-				'6823BB7C3C089D996585466380EDBDC19D4959184893E38C', // too short
-				'6823BB7C3C089D996585466380EDBDC19D4959184893E38CA678' // too long
+				'6823BB7C3C089D996585466380EDBDC19D4959184893E3', // too short
+				'6823BB7C3C089D996585466380EDBDC19D4959184893E38CA6' // too long
 			];
 
 			// Act + Assert:
@@ -94,7 +94,7 @@ describe('address', () => {
 	describe('publicKeyToAddress', () => {
 		it('can create address from public key for well known network', () => {
 			// Arrange:
-			const expectedHex = '6023BB7C3C089D996585466380EDBDC19D49591848B3727714';
+			const expectedHex = '6023BB7C3C089D996585466380EDBDC19D49591848B37277';
 			const publicKey = convert.hexToUint8('3485D98EFD7EB07ADAFCFD1A157D89DE2796A95E780813C0258AF3F5F84ED8CB');
 
 			// Act:
@@ -108,7 +108,7 @@ describe('address', () => {
 
 		it('can create address from public key for custom network', () => {
 			// Arrange:
-			const expectedHex = '9823BB7C3C089D996585466380EDBDC19D495918484BF7E997';
+			const expectedHex = '9823BB7C3C089D996585466380EDBDC19D495918484BF7E9';
 			const publicKey = convert.hexToUint8('3485D98EFD7EB07ADAFCFD1A157D89DE2796A95E780813C0258AF3F5F84ED8CB');
 
 			// Act:
@@ -166,7 +166,7 @@ describe('address', () => {
 	describe('isValidAddress', () => {
 		it('returns true for valid address', () => {
 			// Arrange:
-			const validHex = '6823BB7C3C089D996585466380EDBDC19D4959184893E38CA6';
+			const validHex = '6823BB7C3C089D996585466380EDBDC19D4959184893E38C';
 			const decoded = convert.hexToUint8(validHex);
 
 			// Assert:
@@ -175,7 +175,7 @@ describe('address', () => {
 
 		it('returns false for address with invalid checksum', () => {
 			// Arrange:
-			const validHex = '6823BB7C3C089D996585466380EDBDC19D4959184893E38CA6';
+			const validHex = '6823BB7C3C089D996585466380EDBDC19D4959184893E38C';
 			const decoded = convert.hexToUint8(validHex);
 			decoded[Address_Decoded_Size - 1] ^= 0xff; // ruin checksum
 
@@ -185,7 +185,7 @@ describe('address', () => {
 
 		it('returns false for address with invalid hash', () => {
 			// Arrange:
-			const validHex = '6823BB7C3C089D996585466380EDBDC19D4959184893E38CA6';
+			const validHex = '6823BB7C3C089D996585466380EDBDC19D4959184893E38C';
 			const decoded = convert.hexToUint8(validHex);
 			decoded[5] ^= 0xff; // ruin ripemd160 hash
 
@@ -197,7 +197,7 @@ describe('address', () => {
 	describe('isValidEncodedAddress', () => {
 		it('returns true for valid encoded address', () => {
 			// Arrange:
-			const encoded = 'NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDFG';
+			const encoded = 'NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA';
 
 			// Assert:
 			expect(address.isValidEncodedAddress(encoded)).to.equal(true);
@@ -206,8 +206,8 @@ describe('address', () => {
 		it('returns false for invalid encoded address', () => {
 			// Arrange:
 			const encodedAddresses = [
-				'NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDFH', // changed last char
-				'NAR3W7B4BCOZSZMFIZRYx3N5YGOUSWIYJCJ6HDFG' // non-base32 char ('x')
+				'NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDF', // changed last char
+				'NAR3W7B4BCOZSZMFIZRYx3N5YGOUSWIYJCJ6HDA' // non-base32 char ('x')
 			];
 
 			// Assert:
@@ -226,7 +226,7 @@ describe('address', () => {
 
 		it('adding leading or trailing white space invalidates encoded address', () => {
 			// Arrange:
-			const encoded = 'NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDFG';
+			const encoded = 'NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA';
 
 			// Assert:
 			expect(address.isValidEncodedAddress(`   \t    ${encoded}`)).to.equal(false);

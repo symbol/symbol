@@ -60,17 +60,17 @@ Vue.component('subscription-selection-control', {
 			'partialAdded', 'partialRemoved', 'cosignature'
 		],
 		wellKnownAddresses: [
-			{ name: 'host4', value: 'SAAAIBC7AM65HOFDLYGFUT46H44TROZ7MUWCW6MZ' },
-			{ name: 'host5', value: 'SAAA57DREOPYKUFX4OG7IQXKITMBWKD6KXTVBBQP' },
-			{ name: 'host6', value: 'SAAA467G4ZDNOEGLNXLGWUAXZKC6VAES74J7N34D' },
-			{ name: 'host7', value: 'SAAAMZYSPE5TRAVH7I3VSF7ZD542EVDLB7JT7Z4K' },
+			{ name: 'host4', value: 'SAAAIBC7AM65HOFDLYGFUT46H44TROZ7MUWCW6I' },
+			{ name: 'host5', value: 'SAAA57DREOPYKUFX4OG7IQXKITMBWKD6KXTVBBQ' },
+			{ name: 'host6', value: 'SAAA467G4ZDNOEGLNXLGWUAXZKC6VAES74J7N3Y' },
+			{ name: 'host7', value: 'SAAAMZYSPE5TRAVH7I3VSF7ZD542EVDLB7JT7ZY' },
 
-			{ name: 'BloodyRookie', value: 'SAAAZY5C3L6ONXRAPH2WYAPC3FKYFIPBBPFMLAS4' },
-			{ name: 'Jaguar0625', value: 'SDALCF7EXRBX2FH4ZJUKYA334MZJVB2TOAE5OKYG' },
-			{ name: 'gimre', value: 'SAAA66EEZKK3HGBRV57E6TOK335NK22BF2KGOEDS' }
+			{ name: 'BloodyRookie', value: 'SAAAZY5C3L6ONXRAPH2WYAPC3FKYFIPBBPFMLAQ' },
+			{ name: 'Jaguar0625', value: 'SDALCF7EXRBX2FH4ZJUKYA334MZJVB2TOAE5OKY' },
+			{ name: 'gimre', value: 'SAAA66EEZKK3HGBRV57E6TOK335NK22BF2KGOEA' }
 		],
 
-		address: 'SAAAIBC7AM65HOFDLYGFUT46H44TROZ7MUWCW6MZ', // host4
+		address: 'SAAAIBC7AM65HOFDLYGFUT46H44TROZ7MUWCW6I', // host4
 		selectedChannels: ['block'],
 
 		subscriptions: []

@@ -52,7 +52,7 @@ describe('block routes', () => {
 			const testPublickeyString = '7DE16AEDF57EB9561D3E6EFA4AE66F27ABDA8AEC8BC020B6277360E31619DCE7';
 			const testPublickey = convert.hexToUint8(testPublickeyString);
 
-			const testAddressString = 'SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXWV';
+			const testAddressString = 'SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ';
 			const testAddress = address.stringToAddress(testAddressString);
 
 			const fakeBlock = { id: 0, meta: { numTransactions: 0 }, block: { type: 33091 } };
