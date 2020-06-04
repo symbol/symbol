@@ -146,8 +146,8 @@ namespace catapult { namespace validators {
 	// region MapToLogLevel
 
 	TEST(TEST_CLASS, MapToLogLevelReturnsCorrectLevelBasedOnVerbosity) {
-		EXPECT_EQ(utils::LogLevel::Trace, MapToLogLevel(MakeValidationResult(ResultSeverity::Success, 0, 0, ResultFlags::Verbose)));
-		EXPECT_EQ(utils::LogLevel::Warning, MapToLogLevel(MakeValidationResult(ResultSeverity::Success, 0, 0, ResultFlags::None)));
+		EXPECT_EQ(utils::LogLevel::trace, MapToLogLevel(MakeValidationResult(ResultSeverity::Success, 0, 0, ResultFlags::Verbose)));
+		EXPECT_EQ(utils::LogLevel::warning, MapToLogLevel(MakeValidationResult(ResultSeverity::Success, 0, 0, ResultFlags::None)));
 	}
 
 	// endregion

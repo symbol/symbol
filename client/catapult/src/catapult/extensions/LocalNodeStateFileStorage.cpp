@@ -101,7 +101,7 @@ namespace catapult { namespace extensions {
 				return false;
 
 			// 1. load cache data
-			utils::StackLogger stopwatch("load state", utils::LogLevel::Warning);
+			utils::StackLogger stopwatch("load state", utils::LogLevel::important);
 			for (const auto& pStorage : cache.storages()) {
 				auto inputStream = OpenInputStream(directory, GetStorageFilename(*pStorage));
 				pStorage->loadAll(inputStream, Default_Loader_Batch_Size);

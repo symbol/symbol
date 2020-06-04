@@ -129,7 +129,7 @@ namespace catapult { namespace local {
 				CATAPULT_LOG(debug) << "registering counters";
 				registerCounters();
 
-				utils::StackLogger stackLogger("booting local node", utils::LogLevel::Info);
+				utils::StackLogger stackLogger("booting local node", utils::LogLevel::info);
 				auto isFirstBoot = executeAndNotifyNemesis();
 				loadStateFromDisk();
 
@@ -219,7 +219,7 @@ namespace catapult { namespace local {
 
 		public:
 			void shutdown() override {
-				utils::StackLogger stackLogger("shutting down local node", utils::LogLevel::Info);
+				utils::StackLogger stackLogger("shutting down local node", utils::LogLevel::info);
 
 				m_pBootstrapper->pool().shutdown();
 				saveStateToDisk();

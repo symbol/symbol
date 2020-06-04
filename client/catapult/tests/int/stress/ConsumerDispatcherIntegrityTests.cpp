@@ -39,7 +39,7 @@ namespace catapult { namespace disruptor {
 
 	NO_STRESS_TEST(TEST_CLASS, MultipleConsumersCanProcessAllPushedElements) {
 		// Arrange:
-		test::GlobalLogFilter testLogFilter(utils::LogLevel::Info);
+		test::GlobalLogFilter testLogFilter(utils::LogLevel::info);
 		auto numElementsPerInnerIteration = 1024 / GetAdjustmentDivisor();
 		auto numOuterIterations = 256u * 15 / GetAdjustmentDivisor();
 		auto defaultDisruptorSize = 16 * 1024 / GetAdjustmentDivisor();

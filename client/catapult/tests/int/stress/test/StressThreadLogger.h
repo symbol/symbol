@@ -29,7 +29,7 @@ namespace catapult { namespace test {
 		/// Creates a logger for a thread named \a threadName.
 		explicit StressThreadLogger(const std::string& threadName)
 				: m_threadName(threadName)
-				, m_pStackLogger(std::make_unique<utils::StackLogger>(m_threadName.c_str(), utils::LogLevel::Trace))
+				, m_pStackLogger(std::make_unique<utils::StackLogger>(m_threadName.c_str(), utils::LogLevel::trace))
 		{}
 
 	public:

@@ -125,7 +125,7 @@ namespace catapult { namespace harvesting {
 		if (!pHarvesterKeyPair)
 			return nullptr;
 
-		utils::StackLogger stackLogger("generating candidate block", utils::LogLevel::Debug);
+		utils::StackLogger stackLogger("generating candidate block", utils::LogLevel::debug);
 		auto networkIdentifier = m_config.Network.Identifier;
 		auto pBlockHeader = CreateUnsignedBlockHeader(context, networkIdentifier, pHarvesterKeyPair->publicKey(), m_beneficiary);
 		AddGenerationHashProof(*pBlockHeader, vrfProof);

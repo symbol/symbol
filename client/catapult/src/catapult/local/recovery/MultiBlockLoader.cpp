@@ -182,7 +182,7 @@ namespace catapult { namespace local {
 			Height startHeight) {
 		BlockChainLoader loader(observerFactory, pluginManager, stateRef, startHeight);
 
-		utils::StackLogger logger("load block chain", utils::LogLevel::Warning);
+		utils::StackLogger logger("load block chain", utils::LogLevel::important);
 		utils::StackTimer stopwatch;
 		return loader.loadAll(AnalyzeProgressLogger(stopwatch));
 	}

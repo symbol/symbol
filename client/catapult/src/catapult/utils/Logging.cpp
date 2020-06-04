@@ -32,12 +32,29 @@
 
 namespace catapult { namespace utils {
 
-	namespace {
-		using SinkPointer = boost::shared_ptr<boost::log::sinks::sink>;
-		using OverrideLevelsMap = std::vector<std::pair<const char*, LogLevel>>;
+	// region LogLevel
 
-		// define attributes used in filtering
-		BOOST_LOG_ATTRIBUTE_KEYWORD(subcomponent_tag, log::SubcomponentTraits::Name, log::SubcomponentTraits::Type)
+	namespace {
+		constexpr const char* Level_To_Name_Mapping[] = {
+			"trace",
+			"debug",
+			"info",
+			"important",
+			"warning",
+			"error",
+			"fatal"
+		};
+	}
+
+	std::ostream& operator<<(std::ostream& out, LogLevel level) {
+		out << Level_To_Name_Mapping[to_underlying_type(std::min(level, LogLevel::max))];
+		return out;
+	}
+
+	// endregion
+
+	namespace {
+		// region initialization
 
 		template<typename TTraits>
 		void AddGlobalAttributeFromTraits(const typename TTraits::Type& defaultValue) {
@@ -57,10 +74,9 @@ namespace catapult { namespace utils {
 			AddGlobalAttributeFromTraits<log::LineNumberTraits>(0);
 		}
 
-		template<typename TTraits>
-		auto ExpressionFromTraits() {
-			return boost::log::expressions::attr<typename TTraits::Type>(TTraits::Name);
-		}
+		// endregion
+
+		// region colorizing
 
 		enum class Colors : uint8_t {
 			None = 0,
@@ -76,13 +92,14 @@ namespace catapult { namespace utils {
 			Mode_Bright = 0x80
 		};
 
-		Colors ColorMappingFlags[] = {
-			/* trace   */ Colors::None,
-			/* debug   */ Colors::None,
-			/* info    */ Colors::None,
-			/* warning */ Colors::Fg_Yellow,
-			/* error   */ Colors::Fg_Red,
-			/* fatal   */ Colors::Fg_Red
+		constexpr Colors Color_Mapping_Flags[] = {
+			/* trace     */ Colors::Fg_Cyan,
+			/* debug     */ Colors::Fg_Cyan,
+			/* info      */ Colors::None,
+			/* important */ Colors::Fg_Magenta,
+			/* warning   */ Colors::Fg_Yellow,
+			/* error     */ Colors::Fg_Red,
+			/* fatal     */ Colors::Fg_Red
 		};
 
 		template<LogColorMode Mode>
@@ -100,16 +117,31 @@ namespace catapult { namespace utils {
 			stream << "\033[" << foreground << (LogColorMode::AnsiBold == Mode ? ";1" : "") << "m";
 		}
 
-		// operator used when putting the severity_level to log with a severity_color manipulator
+		// operator used when putting the LogLevel to log with a severity_color manipulator
 		template<LogColorMode Mode>
 		boost::log::formatting_ostream& operator<<(
 				boost::log::formatting_ostream& stream,
-				const boost::log::to_log_manip<boost::log::trivial::severity_level, severity_color<Mode>>& manipulator) {
+				const boost::log::to_log_manip<LogLevel, severity_color<Mode>>& manipulator) {
 			auto level = static_cast<std::size_t>(manipulator.get());
-			if (level < CountOf(ColorMappingFlags) && Colors::None != ColorMappingFlags[level])
-				OutputAnsiCode<Mode>(stream, ColorMappingFlags[level]);
+			if (level < CountOf(Color_Mapping_Flags) && Colors::None != Color_Mapping_Flags[level])
+				OutputAnsiCode<Mode>(stream, Color_Mapping_Flags[level]);
 
 			return stream;
+		}
+
+		// endregion
+
+		// region format and filtering
+
+		using OverrideLevelsMap = std::vector<std::pair<const char*, LogLevel>>;
+
+		// define attributes used in filtering
+		BOOST_LOG_ATTRIBUTE_KEYWORD(loglevel_tag, log::LogLevelTraits::Name, log::LogLevelTraits::Type)
+		BOOST_LOG_ATTRIBUTE_KEYWORD(subcomponent_tag, log::SubcomponentTraits::Name, log::SubcomponentTraits::Type)
+
+		template<typename TTraits>
+		auto ExpressionFromTraits() {
+			return boost::log::expressions::attr<typename TTraits::Type>(TTraits::Name);
 		}
 
 		std::string GetFormatSequence(LogColorMode colorMode) {
@@ -123,40 +155,36 @@ namespace catapult { namespace utils {
 		boost::log::formatter CreateLogFormatter(LogColorMode colorMode) {
 			namespace expr = boost::log::expressions;
 			namespace names = boost::log::aux::default_attribute_names;
-			using boost::log::trivial::severity_level;
 
 			auto formatter = expr::format(GetFormatSequence(colorMode))
 					% expr::format_date_time<boost::posix_time::ptime>(names::timestamp(), "%Y-%m-%d %H:%M:%S.%f")
 					% expr::attr<boost::log::attributes::current_thread_id::value_type>(names::thread_id())
-					% expr::attr<severity_level>(names::severity())
+					% ExpressionFromTraits<log::LogLevelTraits>()
 					% ExpressionFromTraits<log::SubcomponentTraits>()
 					% ExpressionFromTraits<log::FilenameTraits>()
 					% ExpressionFromTraits<log::LineNumberTraits>()
 					% expr::smessage;
 
 			if (LogColorMode::Ansi == colorMode)
-				return formatter % expr::attr<severity_level, severity_color<LogColorMode::Ansi>>(names::severity());
+				return formatter % expr::attr<LogLevel, severity_color<LogColorMode::Ansi>>(log::LogLevelTraits::Name);
 
-			return formatter % expr::attr<severity_level, severity_color<LogColorMode::AnsiBold>>(names::severity());
-		}
-
-		template<typename T>
-		bool ShouldLog(const T& severity, LogLevel level) {
-			return severity >= static_cast<boost::log::trivial::severity_level>(level);
+			return formatter % expr::attr<LogLevel, severity_color<LogColorMode::AnsiBold>>(log::LogLevelTraits::Name);
 		}
 
 		boost::log::filter CreateLogFilter(LogLevel defaultLevel, const OverrideLevelsMap& overrideLevels) {
-			return boost::phoenix::bind([defaultLevel, overrideLevels](const auto& severity, const auto& tag) {
+			return boost::phoenix::bind([defaultLevel, overrideLevels](const auto& levelRef, const auto& subcomponentRef) {
 				for (const auto& pair : overrideLevels) {
 					// override level is set for this tag, so use it
-					if (0 == strncmp(pair.first, tag->pData, tag->Size))
-						return ShouldLog(severity, pair.second);
+					if (0 == strncmp(pair.first, subcomponentRef->pData, subcomponentRef->Size))
+						return *levelRef >= pair.second;
 				}
 
 				// no overrides set for this tag, so use the default level
-				return ShouldLog(severity, defaultLevel);
-			}, boost::log::trivial::severity.or_throw(), subcomponent_tag.or_throw());
+				return *levelRef >= defaultLevel;
+			}, loglevel_tag.or_throw(), subcomponent_tag.or_throw());
 		}
+
+		// endregion
 	}
 
 	// region LogFilter::Impl
@@ -237,6 +265,7 @@ namespace catapult { namespace utils {
 		}
 
 	private:
+		using SinkPointer = boost::shared_ptr<boost::log::sinks::sink>;
 		std::vector<SinkPointer> m_sinks;
 	};
 
@@ -280,7 +309,11 @@ namespace catapult { namespace utils {
 
 	// endregion
 
+	// region static functions
+
 	void CatapultLogFlush() {
 		boost::log::core::get()->flush();
 	}
+
+	// endregion
 }}

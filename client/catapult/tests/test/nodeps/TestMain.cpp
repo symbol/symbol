@@ -63,7 +63,7 @@ namespace catapult { namespace test {
 #endif
 
 			auto pBootstrapper = std::make_shared<utils::LoggingBootstrapper>();
-			pBootstrapper->addConsoleLogger(options, utils::LogFilter(utils::LogLevel::Debug));
+			pBootstrapper->addConsoleLogger(options, utils::LogFilter(utils::LogLevel::debug));
 			return PORTABLE_MOVE(pBootstrapper);
 		}
 

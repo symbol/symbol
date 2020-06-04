@@ -199,7 +199,7 @@ namespace catapult { namespace mongo {
 		test::AssertCollectionSize(Transactions_Collection_Name, 0);
 
 		// Act:
-		utils::StackLogger stopwatch("InsertOneToOnePerformance", utils::LogLevel::Warning);
+		utils::StackLogger stopwatch("InsertOneToOnePerformance", utils::LogLevel::warning);
 		auto results = context.bulkWriter().bulkInsert<std::vector<model::TransactionElement>>(
 				Transactions_Collection_Name,
 				context.transactionElements(),
@@ -223,7 +223,7 @@ namespace catapult { namespace mongo {
 		test::AssertCollectionSize(Transactions_Collection_Name, 0);
 
 		// Act:
-		utils::StackLogger stopwatch("InsertOneToManyPerformance", utils::LogLevel::Warning);
+		utils::StackLogger stopwatch("InsertOneToManyPerformance", utils::LogLevel::warning);
 		auto results = context.bulkWriter().bulkInsert<std::vector<model::TransactionElement>>(
 				Transactions_Collection_Name,
 				context.transactionElements(),
@@ -254,7 +254,7 @@ namespace catapult { namespace mongo {
 
 		// Act:
 		ModifyAccounts(context.accountStates());
-		utils::StackLogger stopwatch("UpsertPerformance", utils::LogLevel::Warning);
+		utils::StackLogger stopwatch("UpsertPerformance", utils::LogLevel::warning);
 		auto results = context.bulkWriter().bulkUpsert<AccountStates>(
 				Accounts_Collection_Name,
 				context.accountStates(),
@@ -280,7 +280,7 @@ namespace catapult { namespace mongo {
 		test::AssertCollectionSize(Accounts_Collection_Name, static_cast<uint64_t>(GetDefaultEntityCount()));
 
 		// Act:
-		utils::StackLogger stopwatch("DeleteOneToOnePerformance", utils::LogLevel::Warning);
+		utils::StackLogger stopwatch("DeleteOneToOnePerformance", utils::LogLevel::warning);
 		auto results = context.bulkWriter().bulkDelete<AccountStates>(
 				Accounts_Collection_Name,
 				context.accountStates(),
@@ -306,7 +306,7 @@ namespace catapult { namespace mongo {
 
 		// Act: simulate a multi-delete by passing in a single element vector and a select all filter
 		//      the createFilter function is called once and returns a filter that matches all documents
-		utils::StackLogger stopwatch("DeleteOneToManyPerformance", utils::LogLevel::Warning);
+		utils::StackLogger stopwatch("DeleteOneToManyPerformance", utils::LogLevel::warning);
 		auto createSelectAllFilter = [](auto) { return document() << finalize; };
 		auto results = context.bulkWriter().bulkDelete<std::vector<int>>(Accounts_Collection_Name, { 1 }, createSelectAllFilter).get();
 

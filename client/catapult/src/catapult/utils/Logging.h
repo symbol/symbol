@@ -23,9 +23,11 @@
 #include <boost/log/attributes/constant.hpp>
 #include <boost/log/core.hpp>
 #include <boost/log/detail/light_rw_mutex.hpp>
+#include <boost/log/sources/basic_logger.hpp>
 #include <boost/log/sources/global_logger_storage.hpp>
+#include <boost/log/sources/record_ostream.hpp>
 #include <boost/log/sources/threading_models.hpp>
-#include <boost/log/trivial.hpp>
+#include <boost/log/utility/strictest_lock.hpp>
 #include <boost/thread/lock_guard.hpp>
 
 namespace catapult { namespace utils {
@@ -33,31 +35,38 @@ namespace catapult { namespace utils {
 	// region LogLevel
 
 	/// Catapult log levels.
+	/// \note For nicer CATAPULT_LOG construction, use severity_level names from boost::log::trivial.
 	enum class LogLevel {
 		/// Level for logging trace events.
-		Trace = boost::log::trivial::trace,
+		trace,
 
 		/// Level for logging debug events.
-		Debug = boost::log::trivial::debug,
+		debug,
 
 		/// Level for logging informational events.
-		Info = boost::log::trivial::info,
+		info,
+
+		/// Level for logging important informational events.
+		important,
 
 		/// Level for logging warning events.
-		Warning = boost::log::trivial::warning,
+		warning,
 
 		/// Level for logging error events.
-		Error = boost::log::trivial::error,
+		error,
 
 		/// Level for logging fatal events.
-		Fatal = boost::log::trivial::fatal,
+		fatal,
 
 		/// Minimum log level.
-		Min = Trace,
+		min = trace,
 
 		/// Maximum log level.
-		Max = Fatal
+		max = fatal
 	};
+
+	/// Insertion operator for outputting \a level to \a out.
+	std::ostream& operator<<(std::ostream& out, LogLevel level);
 
 	// endregion
 
@@ -272,10 +281,18 @@ namespace catapult { namespace utils {
 
 		/// Custom keywords that are used in associative arguments.
 		namespace keywords {
+			BOOST_PARAMETER_KEYWORD(tag, loglevel)
 			BOOST_PARAMETER_KEYWORD(tag, line)
 			BOOST_PARAMETER_KEYWORD(tag, file)
 			BOOST_PARAMETER_KEYWORD(tag, subcomponent)
 		}
+
+		/// Traits for attaching a log level to a log record.
+		struct LogLevelTraits {
+			using Type = LogLevel;
+			using TagType = keywords::tag::loglevel;
+			static constexpr auto Name = "LogLevel";
+		};
 
 		/// Traits for attaching a line number to a log record.
 		struct LineNumberTraits {
@@ -291,7 +308,7 @@ namespace catapult { namespace utils {
 			static constexpr auto Name = "File";
 		};
 
-		/// Traits for attaching a subcomponent tag to a log record.
+		/// Traits for attaching a subcomponent name to a log record.
 		struct SubcomponentTraits {
 			using Type = RawString;
 			using TagType = keywords::tag::subcomponent;
@@ -305,7 +322,7 @@ namespace catapult { namespace utils {
 						catapult_logger,
 						boost::log::sources::multi_thread_model<boost::log::aux::light_rw_mutex>,
 						boost::log::sources::features<
-								boost::log::sources::severity<boost::log::trivial::severity_level>,
+								custom_info_tagger<LogLevelTraits>,
 								custom_info_tagger<LineNumberTraits>,
 								custom_info_tagger<FilenameTraits>,
 								custom_info_tagger<SubcomponentTraits>>> {
@@ -326,7 +343,7 @@ namespace catapult { namespace utils {
 		(::catapult::utils::log::keywords::file = (::catapult::utils::ExtractFilename(__FILE__))) \
 		(::catapult::utils::log::keywords::line = (static_cast<unsigned int>(__LINE__))) \
 		(::catapult::utils::log::keywords::subcomponent = (TAG)) \
-		(::boost::log::keywords::severity = (static_cast<boost::log::trivial::severity_level>(LEVEL))))
+		(::catapult::utils::log::keywords::loglevel = (static_cast<::catapult::utils::LogLevel>(LEVEL))))
 
 /// Writes a log entry to \a LOGGER with \a LEVEL severity.
 #define CATAPULT_LOG_WITH_LOGGER_LEVEL(LOGGER, LEVEL) \
@@ -340,4 +357,4 @@ namespace catapult { namespace utils {
 #define CATAPULT_LOG(SEV) \
 	CATAPULT_LOG_WITH_LOGGER_LEVEL( \
 			::catapult::utils::log::global_logger::get(), \
-			(static_cast<::catapult::utils::LogLevel>(boost::log::trivial::SEV)))
+			(::catapult::utils::LogLevel::SEV))

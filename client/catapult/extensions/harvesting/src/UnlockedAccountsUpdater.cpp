@@ -33,7 +33,7 @@ namespace catapult { namespace harvesting {
 			auto signingPublicKey = descriptor.signingKeyPair().publicKey();
 			auto addResult = unlockedAccounts.modifier().add(std::move(descriptor));
 			if (UnlockedAccountsAddResult::Success_New == addResult) {
-				CATAPULT_LOG(info) << "added NEW account " << signingPublicKey;
+				CATAPULT_LOG(important) << "added NEW account " << signingPublicKey;
 				return true;
 			}
 

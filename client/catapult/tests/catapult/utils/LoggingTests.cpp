@@ -35,17 +35,19 @@ namespace catapult { namespace utils {
 			CATAPULT_LOG(info) << "foo info";
 			CATAPULT_LOG(debug) << "bob debug message";
 			CATAPULT_LOG(warning) << "bar warning";
+			CATAPULT_LOG(important) << "charlie important message!";
 			CATAPULT_LOG(fatal) << "fatal termination";
 			CATAPULT_LOG(error) << "baz error";
 		}
 
 		void LogAllLevelsWithExplicitLevelMacro() {
-			CATAPULT_LOG_LEVEL(LogLevel::Trace) << "alice trace message";
-			CATAPULT_LOG_LEVEL(LogLevel::Info) << "foo info";
-			CATAPULT_LOG_LEVEL(LogLevel::Debug) << "bob debug message";
-			CATAPULT_LOG_LEVEL(LogLevel::Warning) << "bar warning";
-			CATAPULT_LOG_LEVEL(LogLevel::Fatal) << "fatal termination";
-			CATAPULT_LOG_LEVEL(LogLevel::Error) << "baz error";
+			CATAPULT_LOG_LEVEL(LogLevel::trace) << "alice trace message";
+			CATAPULT_LOG_LEVEL(LogLevel::info) << "foo info";
+			CATAPULT_LOG_LEVEL(LogLevel::debug) << "bob debug message";
+			CATAPULT_LOG_LEVEL(LogLevel::warning) << "bar warning";
+			CATAPULT_LOG_LEVEL(LogLevel::important) << "charlie important message!";
+			CATAPULT_LOG_LEVEL(LogLevel::fatal) << "fatal termination";
+			CATAPULT_LOG_LEVEL(LogLevel::error) << "baz error";
 		}
 
 		void LogMessagesWithSubcomponentTag(const char* tag) {
@@ -55,15 +57,30 @@ namespace catapult { namespace utils {
 		LEVEL, \
 		RawString(tag, strlen(tag)))
 
-			CATAPULT_LOG_TAG(LogLevel::Trace) << "alice trace message";
-			CATAPULT_LOG_TAG(LogLevel::Info) << "foo info";
-			CATAPULT_LOG_TAG(LogLevel::Error) << "baz error";
+			CATAPULT_LOG_TAG(LogLevel::trace) << "alice trace message";
+			CATAPULT_LOG_TAG(LogLevel::info) << "foo info";
+			CATAPULT_LOG_TAG(LogLevel::error) << "baz error";
 #undef CATAPULT_LOG_TAG
 		}
 
 		void AddUnfilteredFileLogger(LoggingBootstrapper& bootstrapper) {
-			bootstrapper.addFileLogger(test::CreateTestFileLoggerOptions(), LogFilter(LogLevel::Min));
+			bootstrapper.addFileLogger(test::CreateTestFileLoggerOptions(), LogFilter(LogLevel::min));
 		}
+	}
+
+	TEST(TEST_CLASS, CanOutputLogLevel) {
+		EXPECT_EQ("trace", test::ToString(utils::LogLevel::trace));
+		EXPECT_EQ("debug", test::ToString(utils::LogLevel::debug));
+		EXPECT_EQ("info", test::ToString(utils::LogLevel::info));
+		EXPECT_EQ("important", test::ToString(utils::LogLevel::important));
+		EXPECT_EQ("warning", test::ToString(utils::LogLevel::warning));
+		EXPECT_EQ("error", test::ToString(utils::LogLevel::error));
+		EXPECT_EQ("fatal", test::ToString(utils::LogLevel::fatal));
+
+		EXPECT_EQ("trace", test::ToString(utils::LogLevel::min));
+		EXPECT_EQ("fatal", test::ToString(utils::LogLevel::max));
+
+		EXPECT_EQ("fatal", test::ToString(static_cast<utils::LogLevel>(0xFFFF)));
 	}
 
 	TEST(TEST_CLASS, CanWriteLogMessagesWithCatapultLogMacro) {
@@ -87,8 +104,9 @@ namespace catapult { namespace utils {
 			"<info> (utils::LoggingTests.cpp@35) foo info",
 			"<debug> (utils::LoggingTests.cpp@36) bob debug message",
 			"<warning> (utils::LoggingTests.cpp@37) bar warning",
-			"<fatal> (utils::LoggingTests.cpp@38) fatal termination",
-			"<error> (utils::LoggingTests.cpp@39) baz error"
+			"<important> (utils::LoggingTests.cpp@38) charlie important message!",
+			"<fatal> (utils::LoggingTests.cpp@39) fatal termination",
+			"<error> (utils::LoggingTests.cpp@40) baz error"
 		});
 	}
 
@@ -109,12 +127,13 @@ namespace catapult { namespace utils {
 		test::AssertTimestampsAreIncreasing(records);
 		test::AssertNumUniqueThreadIds(records, 1);
 		test::AssertMessages(records, {
-			"<trace> (utils::LoggingTests.cpp@43) alice trace message",
-			"<info> (utils::LoggingTests.cpp@44) foo info",
-			"<debug> (utils::LoggingTests.cpp@45) bob debug message",
-			"<warning> (utils::LoggingTests.cpp@46) bar warning",
-			"<fatal> (utils::LoggingTests.cpp@47) fatal termination",
-			"<error> (utils::LoggingTests.cpp@48) baz error"
+			"<trace> (utils::LoggingTests.cpp@44) alice trace message",
+			"<info> (utils::LoggingTests.cpp@45) foo info",
+			"<debug> (utils::LoggingTests.cpp@46) bob debug message",
+			"<warning> (utils::LoggingTests.cpp@47) bar warning",
+			"<important> (utils::LoggingTests.cpp@48) charlie important message!",
+			"<fatal> (utils::LoggingTests.cpp@49) fatal termination",
+			"<error> (utils::LoggingTests.cpp@50) baz error"
 		});
 	}
 
@@ -136,12 +155,12 @@ namespace catapult { namespace utils {
 		test::AssertTimestampsAreIncreasing(records);
 		test::AssertNumUniqueThreadIds(records, 1);
 		test::AssertMessages(records, {
-			"<trace> (foo::LoggingTests.cpp@58) alice trace message",
-			"<info> (foo::LoggingTests.cpp@59) foo info",
-			"<error> (foo::LoggingTests.cpp@60) baz error",
-			"<trace> (bar::LoggingTests.cpp@58) alice trace message",
-			"<info> (bar::LoggingTests.cpp@59) foo info",
-			"<error> (bar::LoggingTests.cpp@60) baz error"
+			"<trace> (foo::LoggingTests.cpp@60) alice trace message",
+			"<info> (foo::LoggingTests.cpp@61) foo info",
+			"<error> (foo::LoggingTests.cpp@62) baz error",
+			"<trace> (bar::LoggingTests.cpp@60) alice trace message",
+			"<info> (bar::LoggingTests.cpp@61) foo info",
+			"<error> (bar::LoggingTests.cpp@62) baz error"
 		});
 	}
 
@@ -151,7 +170,7 @@ namespace catapult { namespace utils {
 		{
 			// Arrange: add a file logger and filter out some messages
 			LoggingBootstrapper bootstrapper;
-			bootstrapper.addFileLogger(test::CreateTestFileLoggerOptions(), LogFilter(LogLevel::Info));
+			bootstrapper.addFileLogger(test::CreateTestFileLoggerOptions(), LogFilter(LogLevel::info));
 
 			// Act: log messages
 			LogAllLevelsWithDefaultMacro();
@@ -164,8 +183,9 @@ namespace catapult { namespace utils {
 		test::AssertMessages(records, {
 			"<info> (utils::LoggingTests.cpp@35) foo info",
 			"<warning> (utils::LoggingTests.cpp@37) bar warning",
-			"<fatal> (utils::LoggingTests.cpp@38) fatal termination",
-			"<error> (utils::LoggingTests.cpp@39) baz error"
+			"<important> (utils::LoggingTests.cpp@38) charlie important message!",
+			"<fatal> (utils::LoggingTests.cpp@39) fatal termination",
+			"<error> (utils::LoggingTests.cpp@40) baz error"
 		});
 	}
 
@@ -174,8 +194,8 @@ namespace catapult { namespace utils {
 
 		{
 			// Arrange: add a file logger and filter out some messages
-			LogFilter filter(LogLevel::Info);
-			filter.setLevel("foo", LogLevel::Error); // foo messages below error should not appear
+			LogFilter filter(LogLevel::info);
+			filter.setLevel("foo", LogLevel::error); // foo messages below error should not appear
 
 			LoggingBootstrapper bootstrapper;
 			bootstrapper.addFileLogger(test::CreateTestFileLoggerOptions(), filter);
@@ -190,9 +210,9 @@ namespace catapult { namespace utils {
 		test::AssertTimestampsAreIncreasing(records);
 		test::AssertNumUniqueThreadIds(records, 1);
 		test::AssertMessages(records, {
-			"<error> (foo::LoggingTests.cpp@60) baz error",
-			"<info> (bar::LoggingTests.cpp@59) foo info",
-			"<error> (bar::LoggingTests.cpp@60) baz error"
+			"<error> (foo::LoggingTests.cpp@62) baz error",
+			"<info> (bar::LoggingTests.cpp@61) foo info",
+			"<error> (bar::LoggingTests.cpp@62) baz error"
 		});
 	}
 
@@ -201,8 +221,8 @@ namespace catapult { namespace utils {
 
 		{
 			// Arrange: add a file logger and filter out some messages
-			LogFilter filter(LogLevel::Info);
-			filter.setLevel("foo", LogLevel::Min); // all foo messages should appear
+			LogFilter filter(LogLevel::info);
+			filter.setLevel("foo", LogLevel::min); // all foo messages should appear
 
 			LoggingBootstrapper bootstrapper;
 			bootstrapper.addFileLogger(test::CreateTestFileLoggerOptions(), filter);
@@ -217,11 +237,11 @@ namespace catapult { namespace utils {
 		test::AssertTimestampsAreIncreasing(records);
 		test::AssertNumUniqueThreadIds(records, 1);
 		test::AssertMessages(records, {
-			"<trace> (foo::LoggingTests.cpp@58) alice trace message",
-			"<info> (foo::LoggingTests.cpp@59) foo info",
-			"<error> (foo::LoggingTests.cpp@60) baz error",
-			"<info> (bar::LoggingTests.cpp@59) foo info",
-			"<error> (bar::LoggingTests.cpp@60) baz error"
+			"<trace> (foo::LoggingTests.cpp@60) alice trace message",
+			"<info> (foo::LoggingTests.cpp@61) foo info",
+			"<error> (foo::LoggingTests.cpp@62) baz error",
+			"<info> (bar::LoggingTests.cpp@61) foo info",
+			"<error> (bar::LoggingTests.cpp@62) baz error"
 		});
 	}
 
@@ -230,14 +250,14 @@ namespace catapult { namespace utils {
 
 		{
 			// Arrange: add a file logger and filter out some messages
-			LogFilter filter(LogLevel::Trace);
-			filter.setLevel("utils", LogLevel::Max); // filter out all non-fatal utils messages
+			LogFilter filter(LogLevel::trace);
+			filter.setLevel("utils", LogLevel::max); // filter out all non-fatal utils messages
 
 			LoggingBootstrapper bootstrapper;
 			bootstrapper.addFileLogger(test::CreateTestFileLoggerOptions(), filter);
 
 			// Act: use a stack logger to generate some logs
-			StackLogger stackLogger("test", LogLevel::Info);
+			StackLogger stackLogger("test", LogLevel::info);
 
 			// - log messages with custom tags
 			LogMessagesWithSubcomponentTag("bar");
@@ -248,9 +268,9 @@ namespace catapult { namespace utils {
 		test::AssertTimestampsAreIncreasing(records);
 		test::AssertNumUniqueThreadIds(records, 1);
 		test::AssertMessages(records, {
-			"<trace> (bar::LoggingTests.cpp@58) alice trace message",
-			"<info> (bar::LoggingTests.cpp@59) foo info",
-			"<error> (bar::LoggingTests.cpp@60) baz error"
+			"<trace> (bar::LoggingTests.cpp@60) alice trace message",
+			"<info> (bar::LoggingTests.cpp@61) foo info",
+			"<error> (bar::LoggingTests.cpp@62) baz error"
 		});
 	}
 
@@ -265,8 +285,8 @@ namespace catapult { namespace utils {
 				idStrings.push_back(std::to_string(i + 1));
 
 			// - add a file logger and filter out some messages
-			LogFilter filter(LogLevel::Info);
-			filter.setLevel("io", LogLevel::Max);
+			LogFilter filter(LogLevel::info);
+			filter.setLevel("io", LogLevel::max);
 
 			LoggingBootstrapper bootstrapper;
 			bootstrapper.addFileLogger(test::CreateTestFileLoggerOptions(), filter);
@@ -296,8 +316,8 @@ namespace catapult { namespace utils {
 			const auto& subcomponent = pair.second.back().Subcomponent;
 			test::AssertTimestampsAreIncreasing(pair.second);
 			AssertMessages(pair.second, {
-				"<info> (" + subcomponent + "::LoggingTests.cpp@59) foo info",
-				"<error> (" + subcomponent + "::LoggingTests.cpp@60) baz error"
+				"<info> (" + subcomponent + "::LoggingTests.cpp@61) foo info",
+				"<error> (" + subcomponent + "::LoggingTests.cpp@62) baz error"
 			});
 			subcomponents.insert(subcomponent);
 		}
@@ -316,12 +336,12 @@ namespace catapult { namespace utils {
 
 		{
 			// Arrange: add two file loggers with different filters
-			LogFilter secondaryLogFilter(LogLevel::Warning);
-			secondaryLogFilter.setLevel("foo", LogLevel::Min); // all foo messages should appear
-			secondaryLogFilter.setLevel("bar", LogLevel::Max); // no non-fatal bar messages should appear
+			LogFilter secondaryLogFilter(LogLevel::warning);
+			secondaryLogFilter.setLevel("foo", LogLevel::min); // all foo messages should appear
+			secondaryLogFilter.setLevel("bar", LogLevel::max); // no non-fatal bar messages should appear
 
 			LoggingBootstrapper bootstrapper;
-			bootstrapper.addFileLogger(test::CreateTestFileLoggerOptions(), LogFilter(LogLevel::Info));
+			bootstrapper.addFileLogger(test::CreateTestFileLoggerOptions(), LogFilter(LogLevel::info));
 			bootstrapper.addFileLogger(test::CreateTestFileLoggerOptions("CatapultLoggingTests_Secondary"), secondaryLogFilter);
 
 			// Act: log messages with custom tags
@@ -336,10 +356,10 @@ namespace catapult { namespace utils {
 			test::AssertTimestampsAreIncreasing(primaryRecords);
 			test::AssertNumUniqueThreadIds(primaryRecords, 1);
 			test::AssertMessages(primaryRecords, {
-				"<info> (foo::LoggingTests.cpp@59) foo info",
-				"<error> (foo::LoggingTests.cpp@60) baz error",
-				"<info> (bar::LoggingTests.cpp@59) foo info",
-				"<error> (bar::LoggingTests.cpp@60) baz error"
+				"<info> (foo::LoggingTests.cpp@61) foo info",
+				"<error> (foo::LoggingTests.cpp@62) baz error",
+				"<info> (bar::LoggingTests.cpp@61) foo info",
+				"<error> (bar::LoggingTests.cpp@62) baz error"
 			});
 		}
 
@@ -350,9 +370,9 @@ namespace catapult { namespace utils {
 			test::AssertTimestampsAreIncreasing(secondaryRecords);
 			test::AssertNumUniqueThreadIds(secondaryRecords, 1);
 			test::AssertMessages(secondaryRecords, {
-				"<trace> (foo::LoggingTests.cpp@58) alice trace message",
-				"<info> (foo::LoggingTests.cpp@59) foo info",
-				"<error> (foo::LoggingTests.cpp@60) baz error"
+				"<trace> (foo::LoggingTests.cpp@60) alice trace message",
+				"<info> (foo::LoggingTests.cpp@61) foo info",
+				"<error> (foo::LoggingTests.cpp@62) baz error"
 			});
 		}
 	}

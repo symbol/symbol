@@ -48,7 +48,7 @@ namespace catapult { namespace extensions {
 			auto networkIdentifier = blockElement.Block.Network;
 			const auto& publicKey = blockElement.Block.SignerPublicKey;
 			const auto& generationHash = blockElement.GenerationHash;
-			CATAPULT_LOG(info)
+			CATAPULT_LOG(important)
 					<< std::endl << "      nemesis network id: " << networkIdentifier
 					<< std::endl << "      nemesis public key: " << publicKey
 					<< std::endl << " nemesis generation hash: " << generationHash;

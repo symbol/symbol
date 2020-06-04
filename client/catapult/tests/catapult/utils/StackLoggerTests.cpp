@@ -54,11 +54,11 @@ namespace catapult { namespace utils {
 			{
 				// Arrange: add a file logger
 				LoggingBootstrapper bootstrapper;
-				bootstrapper.addFileLogger(test::CreateTestFileLoggerOptions(), LogFilter(LogLevel::Min));
+				bootstrapper.addFileLogger(test::CreateTestFileLoggerOptions(), LogFilter(LogLevel::min));
 
 				// Act: log messages by creating and destroying a stack logger
 				{
-					StackLogger stackLogger("test", LogLevel::Warning);
+					StackLogger stackLogger("test", LogLevel::warning);
 
 					// - wait
 					test::Sleep(Sleep_Millis);
@@ -97,12 +97,12 @@ namespace catapult { namespace utils {
 			{
 				// Arrange: add a file logger
 				LoggingBootstrapper bootstrapper;
-				bootstrapper.addFileLogger(test::CreateTestFileLoggerOptions(), LogFilter(LogLevel::Min));
+				bootstrapper.addFileLogger(test::CreateTestFileLoggerOptions(), LogFilter(LogLevel::min));
 
 				// Act: no messages should be logged because threshold is greater than wait
 				{
 					auto threshold = utils::TimeSpan::FromMilliseconds(10 * Sleep_Millis);
-					SlowOperationLogger slowOperationLogger("test", LogLevel::Warning, threshold);
+					SlowOperationLogger slowOperationLogger("test", LogLevel::warning, threshold);
 
 					// - wait
 					test::Sleep(Sleep_Millis);
@@ -127,12 +127,12 @@ namespace catapult { namespace utils {
 			{
 				// Arrange: add a file logger
 				LoggingBootstrapper bootstrapper;
-				bootstrapper.addFileLogger(test::CreateTestFileLoggerOptions(), LogFilter(LogLevel::Min));
+				bootstrapper.addFileLogger(test::CreateTestFileLoggerOptions(), LogFilter(LogLevel::min));
 
 				// Act: messages should be logged because threshold is less than wait
 				{
 					auto threshold = utils::TimeSpan::FromMilliseconds(Sleep_Millis);
-					SlowOperationLogger slowOperationLogger("test", LogLevel::Warning, threshold);
+					SlowOperationLogger slowOperationLogger("test", LogLevel::warning, threshold);
 
 					// - wait
 					test::Sleep(10 * Sleep_Millis);

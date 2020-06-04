@@ -80,7 +80,7 @@ namespace catapult { namespace cache {
 
 		template<typename TSubCacheViews, typename TUpdateMerkleRoot>
 		StateHashInfo CalculateStateHashInfo(const TSubCacheViews& subViews, TUpdateMerkleRoot updateMerkleRoot) {
-			utils::SlowOperationLogger logger("CalculateStateHashInfo", utils::LogLevel::Warning);
+			utils::SlowOperationLogger logger("CalculateStateHashInfo", utils::LogLevel::warning);
 
 			StateHashInfo stateHashInfo;
 			stateHashInfo.SubCacheMerkleRoots = CollectSubCacheMerkleRoots(subViews, updateMerkleRoot);

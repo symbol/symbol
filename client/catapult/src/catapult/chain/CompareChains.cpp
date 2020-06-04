@@ -104,7 +104,7 @@ namespace catapult { namespace chain {
 
 				const auto& localScore = localInfo.Score;
 				const auto& remoteScore = remoteInfo.Score;
-				CATAPULT_LOG_LEVEL(localScore == remoteScore ? utils::LogLevel::Trace : utils::LogLevel::Debug)
+				CATAPULT_LOG_LEVEL(localScore == remoteScore ? utils::LogLevel::trace : utils::LogLevel::debug)
 						<< "comparing chain scores: " << localScore << " (local) vs " << remoteScore << " (remote)";
 
 				if (remoteScore > localScore) {

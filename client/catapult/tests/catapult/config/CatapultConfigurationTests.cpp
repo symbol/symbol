@@ -173,11 +173,11 @@ namespace catapult { namespace config {
 		void AssertDefaultLoggingConfiguration(
 				const LoggingConfiguration& config,
 				const std::string& expectedLogFilePattern,
-				utils::LogLevel expectedFileLogLevel = utils::LogLevel::Info) {
+				utils::LogLevel expectedFileLogLevel = utils::LogLevel::info) {
 			// Assert:
 			// - console (basic)
 			EXPECT_EQ(utils::LogSinkType::Sync, config.Console.SinkType);
-			EXPECT_EQ(utils::LogLevel::Info, config.Console.Level);
+			EXPECT_EQ(utils::LogLevel::info, config.Console.Level);
 			EXPECT_TRUE(config.Console.ComponentLevels.empty());
 
 			// - console (specific)
@@ -303,7 +303,7 @@ namespace catapult { namespace config {
 		// Assert:
 		AssertDefaultBlockChainConfiguration(config.BlockChain);
 		AssertDefaultNodeConfiguration(config.Node);
-		AssertDefaultLoggingConfiguration(config.Logging, "catapult_recovery%4N.log", utils::LogLevel::Debug);
+		AssertDefaultLoggingConfiguration(config.Logging, "catapult_recovery%4N.log", utils::LogLevel::debug);
 		AssertDefaultUserConfiguration(config.User);
 		AssertDefaultExtensionsConfiguration(config.Extensions, { "extension.hashcache" });
 		AssertDefaultInflationConfiguration(config.Inflation);

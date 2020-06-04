@@ -207,7 +207,7 @@ namespace catapult { namespace cache {
 		writeOptions.sync = true;
 
 		auto directory = m_settings.DatabaseDirectory + "/";
-		utils::SlowOperationLogger logger(utils::ExtractDirectoryName(directory.c_str()).pData, utils::LogLevel::Warning);
+		utils::SlowOperationLogger logger(utils::ExtractDirectoryName(directory.c_str()).pData, utils::LogLevel::warning);
 		auto status = m_pDb->Write(writeOptions, m_pWriteBatch.get());
 		if (!status.ok())
 			CATAPULT_THROW_RUNTIME_ERROR_1("could not store batch in db", status.ToString());

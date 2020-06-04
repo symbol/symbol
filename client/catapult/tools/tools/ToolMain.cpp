@@ -52,7 +52,7 @@ namespace catapult { namespace tools {
 
 			auto config = config::LoggingConfiguration::Uninitialized();
 			config.Console.SinkType = utils::LogSinkType::Sync;
-			config.Console.Level = utils::LogLevel::Debug;
+			config.Console.Level = utils::LogLevel::debug;
 			return config;
 		}
 

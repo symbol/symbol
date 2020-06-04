@@ -97,7 +97,7 @@ namespace catapult { namespace tools { namespace benchmark {
 					thread::IoThreadPool& pool,
 					std::vector<BenchmarkEntry>& entries,
 					TAction action) const {
-				utils::StackLogger logger(testName, utils::LogLevel::Info);
+				utils::StackLogger logger(testName, utils::LogLevel::info);
 				utils::StackTimer stopwatch;
 				thread::ParallelFor(pool.ioContext(), entries, m_numPartitions, [action](auto& entry, auto) {
 					action(entry);

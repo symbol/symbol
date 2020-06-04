@@ -61,7 +61,7 @@ namespace catapult { namespace harvesting {
 
 			// unlock configured account if it's eligible to harvest the next block
 			auto unlockResult = pUnlockedAccounts->modifier().add(std::move(harvesterDescriptor));
-			CATAPULT_LOG(info)
+			CATAPULT_LOG(important)
 					<< std::endl << "Unlocked harvesting account with result " << unlockResult
 					<< std::endl << "+ Signing " << harvesterSigningPublicKey
 					<< std::endl << "+ VRF     " << harvesterVrfPublicKey;

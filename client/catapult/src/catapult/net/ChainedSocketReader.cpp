@@ -28,7 +28,7 @@ namespace catapult { namespace net {
 
 	namespace {
 		constexpr utils::LogLevel MapToLogLevel(ionet::SocketOperationCode code) {
-			return ionet::SocketOperationCode::Closed == code ? utils::LogLevel::Debug : utils::LogLevel::Warning;
+			return ionet::SocketOperationCode::Closed == code ? utils::LogLevel::debug : utils::LogLevel::warning;
 		}
 
 		class DefaultChainedSocketReader

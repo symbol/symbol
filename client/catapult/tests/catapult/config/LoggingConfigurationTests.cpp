@@ -78,7 +78,7 @@ namespace catapult { namespace config {
 			static void AssertZero(const BasicLoggerConfiguration& config) {
 				// Assert:
 				EXPECT_EQ(utils::LogSinkType::Sync, config.SinkType);
-				EXPECT_EQ(utils::LogLevel::Trace, config.Level);
+				EXPECT_EQ(utils::LogLevel::trace, config.Level);
 				EXPECT_TRUE(config.ComponentLevels.empty());
 			}
 
@@ -100,20 +100,20 @@ namespace catapult { namespace config {
 			static void AssertCustom(const LoggingConfiguration& config) {
 				// Arrange:
 				ComponentLevelsMap expectedConsoleComponentLevels = {
-					{ "net", utils::LogLevel::Trace },
-					{ "random", utils::LogLevel::Fatal }
+					{ "net", utils::LogLevel::trace },
+					{ "random", utils::LogLevel::fatal }
 				};
 
 				ComponentLevelsMap expectedFileComponentLevels = {
-					{ "io", utils::LogLevel::Info },
-					{ "net", utils::LogLevel::Warning },
-					{ "?", utils::LogLevel::Info }
+					{ "io", utils::LogLevel::info },
+					{ "net", utils::LogLevel::warning },
+					{ "?", utils::LogLevel::info }
 				};
 
 				// Assert:
 				// - console (basic)
 				EXPECT_EQ(utils::LogSinkType::Async, config.Console.SinkType);
-				EXPECT_EQ(utils::LogLevel::Warning, config.Console.Level);
+				EXPECT_EQ(utils::LogLevel::warning, config.Console.Level);
 				EXPECT_EQ(expectedConsoleComponentLevels, config.Console.ComponentLevels);
 
 				// - console (specific)
@@ -121,7 +121,7 @@ namespace catapult { namespace config {
 
 				// - file (basic)
 				EXPECT_EQ(utils::LogSinkType::Sync, config.File.SinkType);
-				EXPECT_EQ(utils::LogLevel::Fatal, config.File.Level);
+				EXPECT_EQ(utils::LogLevel::fatal, config.File.Level);
 				EXPECT_EQ(expectedFileComponentLevels, config.File.ComponentLevels);
 
 				// - file (specific)

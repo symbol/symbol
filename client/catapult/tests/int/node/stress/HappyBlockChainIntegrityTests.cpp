@@ -304,7 +304,7 @@ namespace catapult { namespace local {
 		template<typename TNetworkTraits, typename TVerifyTraits>
 		void AssertMultiNodeNetworkCanReachConsensus(TVerifyTraits&& verifyTraits, size_t networkSize) {
 			// Arrange: create nodes
-			test::GlobalLogFilter testLogFilter(utils::LogLevel::Debug);
+			test::GlobalLogFilter testLogFilter(utils::LogLevel::debug);
 			auto networkNodes = CreateNodes(networkSize);
 
 			// Act: boot all nodes

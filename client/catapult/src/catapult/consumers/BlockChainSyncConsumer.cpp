@@ -255,7 +255,7 @@ namespace catapult { namespace consumers {
 			}
 
 			void commitAll(const BlockElements& elements, SyncState& syncState) const {
-				utils::SlowOperationLogger logger("BlockChainSyncConsumer::commitAll", utils::LogLevel::Warning);
+				utils::SlowOperationLogger logger("BlockChainSyncConsumer::commitAll", utils::LogLevel::warning);
 
 				// 1. save the peer chain into storage
 				auto storageModifier = m_storage.modifier();

@@ -64,7 +64,7 @@ namespace catapult { namespace chain {
 			// (pRemoteApi is a pointer so that the reference taken by action is valid throughout the entire asynchronous action)
 			return action(*pRemoteApi).then([pRemoteApi, packetIoPair, operationName = m_operationName](auto&& resultFuture) {
 				auto result = resultFuture.get();
-				CATAPULT_LOG_LEVEL(ionet::NodeInteractionResultCode::Neutral == result ? utils::LogLevel::Trace : utils::LogLevel::Info)
+				CATAPULT_LOG_LEVEL(ionet::NodeInteractionResultCode::Neutral == result ? utils::LogLevel::trace : utils::LogLevel::info)
 						<< "completed '" << operationName << "' (" << packetIoPair.node() << ") with result " << result;
 				return ionet::NodeInteractionResult(packetIoPair.node().identity(), result);
 			});

@@ -123,18 +123,19 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, CanParseValidLogLevel) {
 		using T = LogLevel;
-		AssertSuccessfulParse("Trace", T::Trace);
-		AssertSuccessfulParse("Debug", T::Debug);
-		AssertSuccessfulParse("Info", T::Info);
-		AssertSuccessfulParse("Warning", T::Warning);
-		AssertSuccessfulParse("Error", T::Error);
-		AssertSuccessfulParse("Fatal", T::Fatal);
-		AssertSuccessfulParse("Min", T::Min);
-		AssertSuccessfulParse("Max", T::Max);
+		AssertSuccessfulParse("Trace", T::trace);
+		AssertSuccessfulParse("Debug", T::debug);
+		AssertSuccessfulParse("Info", T::info);
+		AssertSuccessfulParse("Important", T::important);
+		AssertSuccessfulParse("Warning", T::warning);
+		AssertSuccessfulParse("Error", T::error);
+		AssertSuccessfulParse("Fatal", T::fatal);
+		AssertSuccessfulParse("Min", T::min);
+		AssertSuccessfulParse("Max", T::max);
 	}
 
 	TEST(TEST_CLASS, CannotParseInvalidLogLevel) {
-		AssertEnumParseFailure("Warning", LogLevel::Info);
+		AssertEnumParseFailure("Warning", LogLevel::info);
 	}
 
 	TEST(TEST_CLASS, CanParseValidLogSinkType) {

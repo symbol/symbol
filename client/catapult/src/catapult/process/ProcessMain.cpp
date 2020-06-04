@@ -76,7 +76,7 @@ namespace catapult { namespace process {
 		void Run(config::CatapultConfiguration&& config, ProcessOptions processOptions, const CreateProcessHost& createProcessHost) {
 			auto catapultKeys = config::CatapultKeys(config.User.CertificateDirectory);
 
-			CATAPULT_LOG(info)
+			CATAPULT_LOG(important)
 					<< "booting process with keys:"
 					<< std::endl << " -   CA " << catapultKeys.caPublicKey()
 					<< std::endl << " - NODE " << catapultKeys.nodeKeyPair().publicKey();

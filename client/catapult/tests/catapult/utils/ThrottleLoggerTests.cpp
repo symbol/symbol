@@ -153,7 +153,7 @@ namespace catapult { namespace utils {
 			{
 				// Arrange: add a file logger
 				LoggingBootstrapper bootstrapper;
-				bootstrapper.addFileLogger(test::CreateTestFileLoggerOptions(), LogFilter(LogLevel::Min));
+				bootstrapper.addFileLogger(test::CreateTestFileLoggerOptions(), LogFilter(LogLevel::min));
 
 				// Act: log messages using a throttle logger and sleeps (same rationale as LogsAreAllowedOutsideOfThrottlePeriod)
 				{

@@ -30,7 +30,7 @@ namespace catapult { namespace timesync {
 
 	namespace {
 		constexpr utils::LogLevel MapToLogLevel(int64_t warningThresholdMillis, int64_t offset) {
-			return warningThresholdMillis > offset ? utils::LogLevel::Trace : utils::LogLevel::Warning;
+			return warningThresholdMillis > offset ? utils::LogLevel::trace : utils::LogLevel::warning;
 		}
 
 		double GetCoupling(NodeAge nodeAge) {

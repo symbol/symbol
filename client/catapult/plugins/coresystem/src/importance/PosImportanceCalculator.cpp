@@ -39,7 +39,7 @@ namespace catapult { namespace importance {
 
 		public:
 			void recalculate(model::ImportanceHeight importanceHeight, cache::AccountStateCacheDelta& cache) const override {
-				utils::StackLogger stopwatch("PosImportanceCalculator::recalculate", utils::LogLevel::Debug);
+				utils::StackLogger stopwatch("PosImportanceCalculator::recalculate", utils::LogLevel::debug);
 
 				// 1. get high value accounts (notice two step lookup because only const iteration is supported)
 				const auto& highValueAccounts = cache.highValueAccounts();

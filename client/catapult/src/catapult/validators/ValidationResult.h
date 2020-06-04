@@ -98,7 +98,7 @@ namespace catapult { namespace validators {
 
 	/// Maps validation \a result to an appropriate logging level.
 	constexpr utils::LogLevel MapToLogLevel(ValidationResult result) {
-		return IsSet(result, ResultFlags::Verbose) ? utils::LogLevel::Trace : utils::LogLevel::Warning;
+		return IsSet(result, ResultFlags::Verbose) ? utils::LogLevel::trace : utils::LogLevel::warning;
 	}
 
 	/// Insertion operator for outputting \a result to \a out.

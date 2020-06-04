@@ -61,13 +61,13 @@ namespace catapult { namespace local {
 				CATAPULT_LOG(debug) << "initializing cache";
 				m_catapultCache = m_pluginManager.createCache();
 
-				utils::StackLogger stackLogger("booting broker", utils::LogLevel::Info);
+				utils::StackLogger stackLogger("booting broker", utils::LogLevel::info);
 				startIngestion();
 			}
 
 		public:
 			void shutdown() override {
-				utils::StackLogger stackLogger("shutting down broker", utils::LogLevel::Info);
+				utils::StackLogger stackLogger("shutting down broker", utils::LogLevel::info);
 
 				m_pBootstrapper->pool().shutdown();
 			}

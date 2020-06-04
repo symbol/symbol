@@ -87,10 +87,10 @@ namespace catapult { namespace extensions {
 		constexpr utils::LogLevel MapToLogLevel(net::PeerConnectCode connectCode) {
 			switch (connectCode) {
 			case net::PeerConnectCode::Accepted:
-				return utils::LogLevel::Info;
+				return utils::LogLevel::info;
 
 			default:
-				return utils::LogLevel::Warning;
+				return utils::LogLevel::warning;
 			}
 		}
 

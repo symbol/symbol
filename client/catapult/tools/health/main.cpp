@@ -101,20 +101,20 @@ namespace catapult { namespace tools { namespace health {
 
 		utils::LogLevel MapRelativeHeightToLogLevel(Height height, Height maxChainHeight) {
 			return Height() == height
-					? utils::LogLevel::Error
-					: maxChainHeight > height ? utils::LogLevel::Warning : utils::LogLevel::Info;
+					? utils::LogLevel::error
+					: maxChainHeight > height ? utils::LogLevel::warning : utils::LogLevel::info;
 		}
 
 		size_t GetLevelLeftPadding(utils::LogLevel level) {
 			// add left padding in order to align all level names with longest level name (warning)
 			switch (level) {
-			case utils::LogLevel::Error:
-			case utils::LogLevel::Debug:
-			case utils::LogLevel::Trace:
-			case utils::LogLevel::Fatal:
+			case utils::LogLevel::error:
+			case utils::LogLevel::debug:
+			case utils::LogLevel::trace:
+			case utils::LogLevel::fatal:
 				return 2;
 
-			case utils::LogLevel::Info:
+			case utils::LogLevel::info:
 				return 3;
 
 			default:
