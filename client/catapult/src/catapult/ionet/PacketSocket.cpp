@@ -121,13 +121,16 @@ namespace catapult { namespace ionet {
 				}
 
 				m_socket.async_shutdown(wrap([](const auto& ec) {
-					CATAPULT_LOG(debug) << "async_shutdown completed " << ec.message();
+					if (ec && boost::asio::error::operation_aborted != ec && boost::asio::error::bad_descriptor != ec)
+						CATAPULT_LOG(warning) << "async_shutdown returned an error: " << ec.message();
 				}));
 
 				// write must be of non-zero length to avoid asio optimization to no-op
 				auto asioBuffer = boost::asio::buffer(&m_sentinelByte, 1);
 				boost::asio::async_write(m_socket, asioBuffer, wrap([this](const auto& ec, auto) {
-					CATAPULT_LOG(debug) << "async_write completed " << ec.message();
+					if (ec && !IsProtocolShutdown(ec))
+						CATAPULT_LOG(warning) << "async_write returned an error: " << ec.message();
+
 					abort();
 				}));
 			}
@@ -135,6 +138,11 @@ namespace catapult { namespace ionet {
 			void abort() {
 				boost::system::error_code ignoredEc;
 				m_socket.lowest_layer().close(ignoredEc);
+			}
+
+		private:
+			static bool IsProtocolShutdown(const boost::system::error_code& ec) {
+				return boost::asio::error::get_ssl_category() == ec.category() && SSL_R_PROTOCOL_IS_SHUTDOWN == ERR_GET_REASON(ec.value());
 			}
 
 		private:
