@@ -177,9 +177,8 @@ namespace catapult { namespace tools { namespace network {
 				builder.add("---", "---");
 
 				// output partner host and roles
-				std::ostringstream keyOut;
-				keyOut << GetName(identityNameMap, partnerNode) << " [" << partnerNode.endpoint().Host << "]";
-				builder.add(keyOut.str(), partnerNode.metadata().Roles);
+				builder.add(partnerNode.endpoint().Host, partnerNode.identity().PublicKey);
+				builder.add(GetName(identityNameMap, partnerNode), partnerNode.metadata().Roles);
 
 				// get detailed partner information
 				const auto* pPartnerNodeInfo = TryFindPartnerNodeInfo(partnerNode.identity(), nodeInfo.PartnerNodeInfos);

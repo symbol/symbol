@@ -32,6 +32,7 @@ namespace catapult { namespace ionet {
 				: Node(node)
 				, NodeInfo(source)
 				, NodeId(nodeId)
+				, HasIdentityUpdateInProgress(false)
 		{}
 
 	public:
@@ -43,6 +44,11 @@ namespace catapult { namespace ionet {
 
 		/// Local node identifier.
 		size_t NodeId;
+
+		/// \c true if part one of a two phase identity update has been detected.
+		/// \note Any identity change will require a two phase update where phase one is triggered by an accepted incoming connection,
+		///       which will likely have a lower NodeSource.
+		bool HasIdentityUpdateInProgress;
 	};
 
 	/// Container of nodes and associated data.

@@ -54,22 +54,38 @@ namespace catapult { namespace ionet {
 	namespace {
 		enum class CanUpdateIdentityResult { Equal, Allowed, Disallowed };
 
-		CanUpdateIdentityResult CanUpdateIdentity(const NodeData& nodeData, const model::NodeIdentity& newIdentity) {
+		bool IsSourceDowngrade(const NodeData& nodeData, NodeSource source) {
+			return nodeData.NodeInfo.source() > source;
+		}
+
+		CanUpdateIdentityResult CanUpdateIdentity(NodeData& nodeData, const model::NodeIdentity& newIdentity, NodeSource newSource) {
 			auto strictIdentityEquality = model::NodeIdentityEquality(model::NodeIdentityEqualityStrategy::Key_And_Host);
 			if (strictIdentityEquality(newIdentity, nodeData.Node.identity()))
 				return CanUpdateIdentityResult::Equal;
 
-			if (!nodeData.NodeInfo.hasActiveConnection() && NodeSource::Local != nodeData.NodeInfo.source())
+			auto canUpdate = NodeSource::Local != nodeData.NodeInfo.source();
+			auto isSourceDowngrade = IsSourceDowngrade(nodeData, newSource);
+			if (canUpdate) {
+				if (!nodeData.NodeInfo.hasActiveConnection()) {
+					// if there are no active connections, identity updates are always allowed
+					// if there is a downgrade, set the HasIdentityUpdateInProgress flag to allow the next update
+					if (isSourceDowngrade)
+						nodeData.HasIdentityUpdateInProgress = true;
+				} else {
+					// if there are active connections and the HasIdentityUpdateInProgress flag is set,
+					// allow the update if and only if it can be committed
+					canUpdate = nodeData.HasIdentityUpdateInProgress && !isSourceDowngrade;
+					nodeData.HasIdentityUpdateInProgress = false;
+				}
+			}
+
+			if (canUpdate)
 				return CanUpdateIdentityResult::Allowed;
 
 			CATAPULT_LOG(warning)
 					<< "rejecting new host (" << newIdentity
 					<< ") with in use identity key (" << nodeData.Node.identity() << ")";
 			return CanUpdateIdentityResult::Disallowed;
-		}
-
-		bool IsSourceDowngrade(const NodeData& nodeData, NodeSource source) {
-			return nodeData.NodeInfo.source() > source;
 		}
 	}
 
@@ -78,20 +94,24 @@ namespace catapult { namespace ionet {
 			NodeSource source) {
 		auto* pNodeData = tryGet(identity);
 
-		if (pNodeData && CanUpdateIdentityResult::Disallowed == CanUpdateIdentity(*pNodeData, identity))
-			return std::make_pair(nullptr, NodeDataContainer::PrepareInsertCode::Conflict);
+		if (pNodeData && CanUpdateIdentityResult::Disallowed == CanUpdateIdentity(*pNodeData, identity, source))
+			return std::make_pair(nullptr, PrepareInsertCode::Conflict);
 
 		if (model::NodeIdentityEqualityStrategy::Host == m_equalityStrategy) {
 			auto keyHostIter = m_keyHostMap.find(identity.PublicKey);
 			if (m_keyHostMap.cend() != keyHostIter) {
 				auto keyHostNodeIdentity = model::NodeIdentity{ keyHostIter->first, keyHostIter->second };
 				auto nodeIter = m_nodeMap.find(keyHostNodeIdentity);
-				auto canUpdateIdentityResult = CanUpdateIdentity(nodeIter->second, identity);
+				auto canUpdateIdentityResult = CanUpdateIdentity(nodeIter->second, identity, source);
 
 				if (CanUpdateIdentityResult::Equal != canUpdateIdentityResult) {
-					// fail if migration is disallowed or would require effective source downgrade
-					if (CanUpdateIdentityResult::Disallowed == canUpdateIdentityResult || IsSourceDowngrade(nodeIter->second, source))
-						return std::make_pair(nullptr, NodeDataContainer::PrepareInsertCode::Conflict);
+					// fail if migration is disallowed
+					if (CanUpdateIdentityResult::Disallowed == canUpdateIdentityResult)
+						return std::make_pair(nullptr, PrepareInsertCode::Conflict);
+
+					// if an allowable identity change is detected, but it can't be committed, short-circuit before updating container
+					if (IsSourceDowngrade(nodeIter->second, source))
+						return std::make_pair(pNodeData, pNodeData ? PrepareInsertCode::Redundant : PrepareInsertCode::Allowed);
 
 					if (!pNodeData) {
 						// host is not previously seen but key is, so migrate data associated with key to new host
@@ -106,9 +126,9 @@ namespace catapult { namespace ionet {
 		}
 
 		if (pNodeData && IsSourceDowngrade(*pNodeData, source))
-			return std::make_pair(pNodeData, NodeDataContainer::PrepareInsertCode::Redundant);
+			return std::make_pair(pNodeData, PrepareInsertCode::Redundant);
 
-		return std::make_pair(pNodeData, NodeDataContainer::PrepareInsertCode::Allowed);
+		return std::make_pair(pNodeData, PrepareInsertCode::Allowed);
 	}
 
 	NodeData* NodeDataContainer::insert(const NodeData& nodeData) {
@@ -116,7 +136,9 @@ namespace catapult { namespace ionet {
 		if (model::NodeIdentityEqualityStrategy::Host == m_equalityStrategy)
 			m_keyHostMap.emplace(identity.PublicKey, identity.Host);
 
-		return &m_nodeMap.emplace(identity, nodeData).first->second;
+		auto* pNewNodeData = &m_nodeMap.emplace(identity, nodeData).first->second;
+		pNewNodeData->HasIdentityUpdateInProgress = false;
+		return pNewNodeData;
 	}
 
 	void NodeDataContainer::erase(const model::NodeIdentity& identity) {
