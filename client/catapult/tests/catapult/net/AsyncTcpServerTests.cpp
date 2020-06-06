@@ -622,8 +622,8 @@ namespace catapult { namespace net {
 		ClientService clientService2(2, 1);
 		clientService2.wait();
 
-		WAIT_FOR_ONE_EXPR(server.asyncServer().numPendingAccepts());
 		WAIT_FOR_VALUE_EXPR(2u, server.asyncServer().numLifetimeConnections());
+		WAIT_FOR_ONE_EXPR(server.asyncServer().numPendingAccepts());
 
 		// Assert: no workers should have been killed and there should still be a pending accept
 		//         (additionally, all client connections should be async blocked in the accept handler)
