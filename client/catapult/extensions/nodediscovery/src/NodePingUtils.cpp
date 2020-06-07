@@ -56,12 +56,22 @@ namespace catapult { namespace nodediscovery {
 	}
 
 	ionet::NodeSet SelectUnknownNodes(const ionet::NodeContainerView& view, const ionet::NodeSet& nodes) {
-		ionet::NodeSet unknownNodes;
-		for (const auto& node : nodes) {
-			if (!view.contains(node.identity()))
-				unknownNodes.emplace(node);
-		}
+		std::unordered_map<Key, ionet::Node, utils::ArrayHasher<Key>> identityKeyToNodeMap;
+		for (const auto& node : nodes)
+			identityKeyToNodeMap.emplace(node.identity().PublicKey, node);
 
+		// filter nodes based on identity key because they will not have identity host set
+		view.forEach([&identityKeyToNodeMap](const auto& node, const auto&) {
+			auto mapIter = identityKeyToNodeMap.find(node.identity().PublicKey);
+			if (identityKeyToNodeMap.cend() != mapIter)
+				identityKeyToNodeMap.erase(mapIter);
+		});
+
+		ionet::NodeSet unknownNodes;
+		for (const auto& pair : identityKeyToNodeMap)
+			unknownNodes.emplace(pair.second);
+
+		CATAPULT_LOG(debug) << "reduced " << nodes.size() << " candidates to " << unknownNodes.size();
 		return unknownNodes;
 	}
 }}

@@ -201,10 +201,11 @@ namespace catapult { namespace nodediscovery {
 			return nodes;
 		}
 
+		template<typename TTraits>
 		void AddNodes(ionet::NodeContainer& nodeContainer, const ionet::NodeSet& nodesToAdd) {
 			auto modifier = nodeContainer.modifier();
 			for (const auto& node : nodesToAdd)
-				modifier.add(node, ionet::NodeSource::Dynamic);
+				modifier.add(TTraits::Transform(node), ionet::NodeSource::Dynamic);
 		}
 
 		const ionet::Node& GetNodeAt(const ionet::NodeSet& nodes, int index) {
@@ -212,14 +213,33 @@ namespace catapult { namespace nodediscovery {
 			std::advance(iter, index);
 			return *iter;
 		}
+
+		struct KeyAndHostMatchTraits {
+			static ionet::Node Transform(const ionet::Node& node) {
+				return node;
+			}
+		};
+
+		struct KeyMatchTraits {
+			static ionet::Node Transform(const ionet::Node& node) {
+				// this more closely simulates production behavior where nodes from peers requests don't include identity hosts
+				return ionet::Node({ node.identity().PublicKey, "" }, node.endpoint(), node.metadata());
+			}
+		};
 	}
 
-	TEST(TEST_CLASS, SelectUnknownNodesReturnsEmptySetWhenAllNodesAreKnown) {
+#define SELECT_UNKNOWN_NODES_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, SelectUnknownNodes##TEST_NAME##_KeyAndHost) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<KeyAndHostMatchTraits>(); } \
+	TEST(TEST_CLASS, SelectUnknownNodes##TEST_NAME##_Key) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<KeyMatchTraits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+	SELECT_UNKNOWN_NODES_TEST(ReturnsEmptySetWhenAllNodesAreKnown) {
 		// Arrange: add all input nodes to the container
 		auto inputNodes = CreateNodes(5);
 		ionet::NodeContainer nodeContainer;
-		AddNodes(nodeContainer, CreateNodes(5));
-		AddNodes(nodeContainer, inputNodes);
+		AddNodes<TTraits>(nodeContainer, CreateNodes(5));
+		AddNodes<TTraits>(nodeContainer, inputNodes);
 
 		// Act:
 		auto unknownNodes = SelectUnknownNodes(nodeContainer.view(), inputNodes);
@@ -228,12 +248,12 @@ namespace catapult { namespace nodediscovery {
 		EXPECT_TRUE(unknownNodes.empty());
 	}
 
-	TEST(TEST_CLASS, SelectUnknownNodesReturnsInputSubsetWhenSomeNodesAreKnown) {
+	SELECT_UNKNOWN_NODES_TEST(ReturnsInputSubsetWhenSomeNodesAreKnown) {
 		// Arrange: add some input nodes to the container
 		auto inputNodes = CreateNodes(5);
 		ionet::NodeContainer nodeContainer;
-		AddNodes(nodeContainer, CreateNodes(5));
-		AddNodes(nodeContainer, { GetNodeAt(inputNodes, 0), GetNodeAt(inputNodes, 2), GetNodeAt(inputNodes, 4) });
+		AddNodes<TTraits>(nodeContainer, CreateNodes(5));
+		AddNodes<TTraits>(nodeContainer, { GetNodeAt(inputNodes, 0), GetNodeAt(inputNodes, 2), GetNodeAt(inputNodes, 4) });
 
 		// Act:
 		auto unknownNodes = SelectUnknownNodes(nodeContainer.view(), inputNodes);
@@ -243,11 +263,11 @@ namespace catapult { namespace nodediscovery {
 		test::AssertEqualNodes(ionet::NodeSet({ GetNodeAt(inputNodes, 1), GetNodeAt(inputNodes, 3) }), unknownNodes);
 	}
 
-	TEST(TEST_CLASS, SelectUnknownNodesReturnsInputSetWhenAllNodesAreUnknown) {
+	SELECT_UNKNOWN_NODES_TEST(ReturnsInputSetWhenAllNodesAreUnknown) {
 		// Arrange: add no input nodes to the container
 		auto inputNodes = CreateNodes(5);
 		ionet::NodeContainer nodeContainer;
-		AddNodes(nodeContainer, CreateNodes(5));
+		AddNodes<TTraits>(nodeContainer, CreateNodes(5));
 
 		// Act:
 		auto unknownNodes = SelectUnknownNodes(nodeContainer.view(), inputNodes);

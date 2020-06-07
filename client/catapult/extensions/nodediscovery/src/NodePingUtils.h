@@ -40,5 +40,6 @@ namespace catapult { namespace nodediscovery {
 	bool IsNodeCompatible(const ionet::Node& node, const model::UniqueNetworkFingerprint& networkFingerprint, const Key& identityKey);
 
 	/// Filters \a nodes by returning all nodes not contained in \a view.
+	/// \note \a nodes is expected to be the result of a peers request and, thus, will not have identity host set.
 	ionet::NodeSet SelectUnknownNodes(const ionet::NodeContainerView& view, const ionet::NodeSet& nodes);
 }}
