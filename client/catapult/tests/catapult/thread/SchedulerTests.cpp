@@ -65,13 +65,13 @@ namespace catapult { namespace thread {
 
 		class PoolSchedulerPair {
 		public:
-			explicit PoolSchedulerPair(const std::shared_ptr<IoThreadPool>& pPool)
-					: m_pPool(pPool)
-					, m_pScheduler(CreateScheduler(pPool))
+			explicit PoolSchedulerPair(std::unique_ptr<IoThreadPool>&& pPool)
+					: m_pPool(std::move(pPool))
+					, m_pScheduler(CreateScheduler(*m_pPool))
 			{}
 
 			~PoolSchedulerPair() {
-				if (m_pPool) stopAll();
+				stopAll();
 			}
 
 		public:
@@ -94,7 +94,7 @@ namespace catapult { namespace thread {
 			}
 
 		private:
-			std::shared_ptr<IoThreadPool> m_pPool;
+			std::unique_ptr<IoThreadPool> m_pPool;
 			std::shared_ptr<Scheduler> m_pScheduler;
 		};
 

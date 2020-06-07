@@ -149,9 +149,8 @@ namespace catapult { namespace thread {
 				: public Scheduler
 				, public std::enable_shared_from_this<DefaultScheduler> {
 		public:
-			explicit DefaultScheduler(const std::shared_ptr<IoThreadPool>& pPool)
-					: m_pPool(pPool)
-					, m_ioContext(pPool->ioContext())
+			explicit DefaultScheduler(IoThreadPool& pool)
+					: m_ioContext(pool.ioContext())
 					, m_numExecutingTaskCallbacks(0)
 					, m_isStopped(false)
 					, m_tasks([](auto& task) { task.stop(); })
@@ -201,7 +200,6 @@ namespace catapult { namespace thread {
 			}
 
 		private:
-			std::shared_ptr<const IoThreadPool> m_pPool;
 			boost::asio::io_context& m_ioContext;
 
 			std::atomic<uint32_t> m_numExecutingTaskCallbacks;
@@ -210,8 +208,8 @@ namespace catapult { namespace thread {
 		};
 	}
 
-	std::shared_ptr<Scheduler> CreateScheduler(const std::shared_ptr<IoThreadPool>& pPool) {
-		auto pScheduler = std::make_shared<DefaultScheduler>(pPool);
+	std::shared_ptr<Scheduler> CreateScheduler(IoThreadPool& pool) {
+		auto pScheduler = std::make_shared<DefaultScheduler>(pool);
 		return PORTABLE_MOVE(pScheduler);
 	}
 }}

@@ -342,7 +342,7 @@ namespace catapult { namespace chain {
 								// notice that transaction.Deadline is used as transaction marker
 								m_failedTransactionStatuses.emplace_back(hash, transaction.Deadline, utils::to_underlying_type(result));
 							},
-							m_pPool))
+							*m_pPool))
 			{}
 
 			~UpdaterTestContext() {
@@ -459,7 +459,7 @@ namespace catapult { namespace chain {
 			MockPtValidator* m_pValidator;
 			std::vector<std::unique_ptr<model::Transaction>> m_completedTransactions;
 
-			std::shared_ptr<thread::IoThreadPool> m_pPool;
+			std::unique_ptr<thread::IoThreadPool> m_pPool;
 			std::unique_ptr<PtUpdater> m_pUpdater; // unique_ptr for destroyUpdater
 
 			std::vector<model::TransactionStatus> m_failedTransactionStatuses;

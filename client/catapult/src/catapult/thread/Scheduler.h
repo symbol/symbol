@@ -46,6 +46,6 @@ namespace catapult { namespace thread {
 		virtual void shutdown() = 0;
 	};
 
-	/// Creates a scheduler around the specified thread pool (\a pPool).
-	std::shared_ptr<Scheduler> CreateScheduler(const std::shared_ptr<IoThreadPool>& pPool);
+	/// Creates a scheduler around the specified thread \a pool.
+	std::shared_ptr<Scheduler> CreateScheduler(IoThreadPool& pool);
 }}

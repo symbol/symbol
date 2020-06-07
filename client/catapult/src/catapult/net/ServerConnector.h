@@ -59,10 +59,10 @@ namespace catapult { namespace net {
 		virtual void shutdown() = 0;
 	};
 
-	/// Creates a server connector for a server with specified \a serverPublicKey using \a pPool and configured with \a settings.
+	/// Creates a server connector for a server with specified \a serverPublicKey using \a pool and configured with \a settings.
 	/// Optional friendly \a name can be provided to tag logs.
 	std::shared_ptr<ServerConnector> CreateServerConnector(
-			const std::shared_ptr<thread::IoThreadPool>& pPool,
+			thread::IoThreadPool& pool,
 			const Key& serverPublicKey,
 			const ConnectionSettings& settings,
 			const char* name = nullptr);

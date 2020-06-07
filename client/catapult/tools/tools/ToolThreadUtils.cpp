@@ -24,9 +24,9 @@
 
 namespace catapult { namespace tools {
 
-	std::shared_ptr<thread::IoThreadPool> CreateStartedThreadPool(uint32_t numThreads) {
+	std::unique_ptr<thread::IoThreadPool> CreateStartedThreadPool(uint32_t numThreads) {
 		auto pPool = thread::CreateIoThreadPool(numThreads);
 		pPool->start();
-		return PORTABLE_MOVE(pPool);
+		return pPool;
 	}
 }}

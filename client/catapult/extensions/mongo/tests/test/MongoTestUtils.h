@@ -33,6 +33,9 @@ namespace catapult {
 
 namespace catapult { namespace test {
 
+	/// Number of default mongo test thread pool threads.
+	constexpr uint32_t Num_Default_Mongo_Test_Pool_Threads = 8;
+
 	/// Gets the database name for tests.
 	std::string DatabaseName();
 
@@ -53,8 +56,8 @@ namespace catapult { namespace test {
 	/// Creates a filter for the given \a pAccountState.
 	bsoncxx::document::value CreateFilter(const std::shared_ptr<state::AccountState>& pAccountState);
 
-	/// Creates a default mongo storage context for database \a dbName.
-	std::unique_ptr<mongo::MongoStorageContext> CreateDefaultMongoStorageContext(const std::string& dbName);
+	/// Creates a default mongo storage context for database \a dbName using \a pool
+	std::unique_ptr<mongo::MongoStorageContext> CreateDefaultMongoStorageContext(const std::string& dbName, thread::IoThreadPool& pool);
 
 	/// Creates a default mongo transaction registry that supports mock transactions.
 	mongo::MongoTransactionRegistry CreateDefaultMongoTransactionRegistry();
@@ -108,12 +111,13 @@ namespace catapult { namespace test {
 		else if (test::DbInitializationType::Prepare == dbInitializationType)
 			PrepareDatabase(DatabaseName());
 
-		auto pWriter = mongo::MongoBulkWriter::Create(DefaultDbUri(), DatabaseName(), CreateStartedIoThreadPool(8));
+		auto pPool = utils::UniqueToShared(CreateStartedIoThreadPool(Num_Default_Mongo_Test_Pool_Threads));
+		auto pWriter = mongo::MongoBulkWriter::Create(DefaultDbUri(), DatabaseName(), *pPool);
 		auto pMongoContext = std::make_shared<mongo::MongoStorageContext>(DefaultDbUri(), DatabaseName(), pWriter, errorPolicyMode);
 
 		auto pRegistry = std::make_shared<mongo::MongoTransactionRegistry>();
 		pRegistry->registerPlugin(std::move(pTransactionPlugin));
 		auto pStorage = utils::UniqueToShared(storageFactory(*pMongoContext, *pRegistry));
-		return decltype(pStorage)(pStorage.get(), [pMongoContext, pRegistry, pStorage](const auto*) {});
+		return decltype(pStorage)(pStorage.get(), [pPool, pMongoContext, pRegistry, pStorage](const auto*) {});
 	}
 }}

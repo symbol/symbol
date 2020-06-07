@@ -39,7 +39,7 @@ namespace catapult { namespace net {
 					, ClientPublicKey(test::GenerateRandomByteArray<Key>())
 					, pPool(test::CreateStartedIoThreadPool())
 					, IoContext(pPool->ioContext())
-					, pConnector(CreateClientConnector(pPool, ServerPublicKey, settings))
+					, pConnector(CreateClientConnector(*pPool, ServerPublicKey, settings))
 			{}
 
 			~ConnectorTestContext() {
@@ -51,7 +51,7 @@ namespace catapult { namespace net {
 		public:
 			Key ServerPublicKey;
 			Key ClientPublicKey;
-			std::shared_ptr<thread::IoThreadPool> pPool;
+			std::unique_ptr<thread::IoThreadPool> pPool;
 			boost::asio::io_context& IoContext;
 			std::shared_ptr<ClientConnector> pConnector;
 		};
@@ -145,7 +145,7 @@ namespace catapult { namespace net {
 	TEST(TEST_CLASS, CanCreateConnectorWithDefaultName) {
 		// Act:
 		auto pPool = test::CreateStartedIoThreadPool();
-		auto pConnector = CreateClientConnector(std::move(pPool), Key(), ConnectionSettings());
+		auto pConnector = CreateClientConnector(*pPool, Key(), ConnectionSettings());
 
 		// Assert:
 		EXPECT_EQ(0u, pConnector->numActiveConnections());
@@ -155,7 +155,7 @@ namespace catapult { namespace net {
 	TEST(TEST_CLASS, CanCreateConnectorWithCustomName) {
 		// Act:
 		auto pPool = test::CreateStartedIoThreadPool();
-		auto pConnector = CreateClientConnector(std::move(pPool), Key(), ConnectionSettings(), "Crazy Amazing");
+		auto pConnector = CreateClientConnector(*pPool, Key(), ConnectionSettings(), "Crazy Amazing");
 
 		// Assert:
 		EXPECT_EQ(0u, pConnector->numActiveConnections());

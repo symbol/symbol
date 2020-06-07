@@ -278,13 +278,10 @@ namespace catapult { namespace net {
 				: public PacketWriters
 				, public std::enable_shared_from_this<DefaultPacketWriters> {
 		public:
-			DefaultPacketWriters(
-					const std::shared_ptr<thread::IoThreadPool>& pPool,
-					const Key& serverPublicKey,
-					const ConnectionSettings& settings)
-					: m_pPool(pPool)
-					, m_pClientConnector(CreateClientConnector(m_pPool, serverPublicKey, settings, "writers"))
-					, m_pServerConnector(CreateServerConnector(m_pPool, serverPublicKey, settings, "writers"))
+			DefaultPacketWriters(thread::IoThreadPool& pool, const Key& serverPublicKey, const ConnectionSettings& settings)
+					: m_ioContext(pool.ioContext())
+					, m_pClientConnector(CreateClientConnector(pool, serverPublicKey, settings, "writers"))
+					, m_pServerConnector(CreateServerConnector(pool, serverPublicKey, settings, "writers"))
 					, m_writers(settings.NodeIdentityEqualityStrategy)
 			{}
 
@@ -353,7 +350,7 @@ namespace catapult { namespace net {
 					pThis->makeWriterAvailable(pSocket);
 				};
 
-				auto pTimedCompletionHandler = thread::MakeTimedCallback(m_pPool->ioContext(), completionHandler, false);
+				auto pTimedCompletionHandler = thread::MakeTimedCallback(m_ioContext, completionHandler, false);
 				pTimedCompletionHandler->setTimeout(ioDuration);
 				pTimedCompletionHandler->setTimeoutHandler([errorHandler]() {
 					CATAPULT_LOG(warning) << "calling error handler due to timeout";
@@ -416,7 +413,7 @@ namespace catapult { namespace net {
 			}
 
 		private:
-			std::shared_ptr<thread::IoThreadPool> m_pPool;
+			boost::asio::io_context& m_ioContext;
 			std::shared_ptr<ClientConnector> m_pClientConnector;
 			std::shared_ptr<ServerConnector> m_pServerConnector;
 			WriterContainer m_writers;
@@ -424,9 +421,9 @@ namespace catapult { namespace net {
 	}
 
 	std::shared_ptr<PacketWriters> CreatePacketWriters(
-			const std::shared_ptr<thread::IoThreadPool>& pPool,
+			thread::IoThreadPool& pool,
 			const Key& serverPublicKey,
 			const ConnectionSettings& settings) {
-		return std::make_shared<DefaultPacketWriters>(pPool, serverPublicKey, settings);
+		return std::make_shared<DefaultPacketWriters>(pool, serverPublicKey, settings);
 	}
 }}

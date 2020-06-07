@@ -41,9 +41,9 @@ namespace catapult { namespace mongo {
 
 		using TransactionStatusesMap = std::unordered_map<Hash256, model::TransactionStatus, utils::ArrayHasher<Hash256>>;
 
-		auto ResetDatabaseAndCreateMongoContext() {
+		auto ResetDatabaseAndCreateMongoContext(thread::IoThreadPool& pool) {
 			test::ResetDatabase(test::DatabaseName());
-			return test::CreateDefaultMongoStorageContext(test::DatabaseName());
+			return test::CreateDefaultMongoStorageContext(test::DatabaseName(), pool);
 		}
 
 		auto CreateTransactionStatuses(size_t count) {
@@ -57,7 +57,8 @@ namespace catapult { namespace mongo {
 		class TransactionStatusSubscriberContext {
 		public:
 			explicit TransactionStatusSubscriberContext(size_t numTransactionStatuses)
-					: m_pMongoContext(ResetDatabaseAndCreateMongoContext())
+					: m_pPool(test::CreateStartedIoThreadPool(test::Num_Default_Mongo_Test_Pool_Threads))
+					, m_pMongoContext(ResetDatabaseAndCreateMongoContext(*m_pPool))
 					, m_pSubscriber(CreateMongoTransactionStatusStorage(*m_pMongoContext))
 					, m_statuses(CreateTransactionStatuses(numTransactionStatuses))
 			{}
@@ -85,6 +86,7 @@ namespace catapult { namespace mongo {
 			}
 
 		private:
+			std::unique_ptr<thread::IoThreadPool> m_pPool;
 			std::unique_ptr<MongoStorageContext> m_pMongoContext;
 			std::unique_ptr<subscribers::TransactionStatusSubscriber> m_pSubscriber;
 			std::vector<model::TransactionStatus> m_statuses;

@@ -60,7 +60,7 @@ namespace catapult { namespace net {
 					, pPool(test::CreateStartedIoThreadPool())
 					, IoContext(pPool->ioContext())
 					, Handlers(handlers)
-					, pReaders(CreatePacketReaders(pPool, Handlers, ServerPublicKey, connectionSettings, maxConnectionsPerIdentity)) {
+					, pReaders(CreatePacketReaders(*pPool, Handlers, ServerPublicKey, connectionSettings, maxConnectionsPerIdentity)) {
 				for (auto i = 0u; i < numClientPublicKeys; ++i) {
 					ClientPublicKeys.push_back(test::GenerateRandomByteArray<Key>());
 					Hosts.push_back(std::to_string(i));
@@ -77,7 +77,7 @@ namespace catapult { namespace net {
 			Key ServerPublicKey; // the server hosting the PacketReaders instance
 			std::vector<Key> ClientPublicKeys; // accepted clients forwarded to the server
 			std::vector<std::string> Hosts;
-			std::shared_ptr<thread::IoThreadPool> pPool;
+			std::unique_ptr<thread::IoThreadPool> pPool;
 			boost::asio::io_context& IoContext;
 			ionet::ServerPacketHandlers Handlers;
 			std::shared_ptr<PacketReaders> pReaders;
@@ -167,15 +167,15 @@ namespace catapult { namespace net {
 	// region accept failure
 
 	namespace {
-		auto CreateDefaultPacketReaders() {
-			auto pPool = utils::UniqueToShared(test::CreateStartedIoThreadPool());
-			return CreatePacketReaders(pPool, ionet::ServerPacketHandlers(), Key(), ConnectionSettings(), 1);
+		auto CreateDefaultPacketReaders(thread::IoThreadPool& pool) {
+			return CreatePacketReaders(pool, ionet::ServerPacketHandlers(), Key(), ConnectionSettings(), 1);
 		}
 	}
 
 	TEST(TEST_CLASS, InitiallyNoConnectionsAreActive) {
 		// Act:
-		auto pReaders = CreateDefaultPacketReaders();
+		auto pPool = test::CreateStartedIoThreadPool();
+		auto pReaders = CreateDefaultPacketReaders(*pPool);
 
 		// Assert:
 		EXPECT_NUM_ACTIVE_READERS(0u, *pReaders);
@@ -183,7 +183,8 @@ namespace catapult { namespace net {
 
 	TEST(TEST_CLASS, AcceptFailsOnAcceptError) {
 		// Arrange:
-		auto pReaders = CreateDefaultPacketReaders();
+		auto pPool = test::CreateStartedIoThreadPool();
+		auto pReaders = CreateDefaultPacketReaders(*pPool);
 
 		// Act: on an accept error, the server will pass nullptr
 		PeerConnectResult result;

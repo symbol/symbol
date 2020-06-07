@@ -31,19 +31,15 @@ namespace catapult { namespace tools { namespace ssl {
 	/// Ssl client.
 	class SslClient {
 	public:
-		/// Creates ssl client around \a pPool, \a caKeyPair, \a certificateDirectory and \a scenarioId.
-		SslClient(
-				const std::shared_ptr<thread::IoThreadPool>& pPool,
-				crypto::KeyPair&& caKeyPair,
-				const std::string& certificateDirectory,
-				ScenarioId scenarioId);
+		/// Creates ssl client around \a pool, \a caKeyPair, \a certificateDirectory and \a scenarioId.
+		SslClient(thread::IoThreadPool& pool, crypto::KeyPair&& caKeyPair, const std::string& certificateDirectory, ScenarioId scenarioId);
 
 	public:
 		/// Connects to \a nodeEndpoint and retrieves chain info.
 		api::ChainInfo connect(const ionet::NodeEndpoint& nodeEndpoint);
 
 	private:
-		std::shared_ptr<thread::IoThreadPool> m_pPool;
+		thread::IoThreadPool& m_pool;
 		std::shared_ptr<boost::asio::ssl::context> m_pSslContext;
 	};
 }}}

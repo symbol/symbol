@@ -69,7 +69,7 @@ namespace catapult { namespace net {
 					: ServerPublicKey(serverPublicKey)
 					, pPool(test::CreateStartedIoThreadPool())
 					, IoContext(pPool->ioContext())
-					, pWriters(CreatePacketWriters(pPool, ServerPublicKey, SetRealVerifyCallback(connectionSettings))) {
+					, pWriters(CreatePacketWriters(*pPool, ServerPublicKey, SetRealVerifyCallback(connectionSettings))) {
 				for (auto i = 0u; i < numClientPublicKeys; ++i) {
 					ClientKeyPairs.push_back(test::GenerateKeyPair());
 					ClientPublicKeys.push_back(ClientKeyPairs.back().publicKey());
@@ -99,7 +99,7 @@ namespace catapult { namespace net {
 			std::vector<Key> ClientPublicKeys; // accepted clients forwarded to the server AND/OR connections initiated by server
 			std::vector<crypto::KeyPair> ClientKeyPairs;
 			std::vector<std::string> Hosts;
-			std::shared_ptr<thread::IoThreadPool> pPool;
+			std::unique_ptr<thread::IoThreadPool> pPool;
 			boost::asio::io_context& IoContext;
 			std::shared_ptr<PacketWriters> pWriters;
 
@@ -244,14 +244,15 @@ namespace catapult { namespace net {
 	// region connect failure
 
 	namespace {
-		auto CreateDefaultPacketWriters() {
-			return CreatePacketWriters(test::CreateStartedIoThreadPool(), Key(), ConnectionSettings());
+		auto CreateDefaultPacketWriters(thread::IoThreadPool& pool) {
+			return CreatePacketWriters(pool, Key(), ConnectionSettings());
 		}
 	}
 
 	TEST(TEST_CLASS, InitiallyNoConnectionsAreActive) {
 		// Act:
-		auto pWriters = CreateDefaultPacketWriters();
+		auto pPool = test::CreateStartedIoThreadPool();
+		auto pWriters = CreateDefaultPacketWriters(*pPool);
 
 		// Assert:
 		EXPECT_NUM_ACTIVE_WRITERS(0u, *pWriters);

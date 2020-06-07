@@ -89,11 +89,8 @@ namespace catapult { namespace thread {
 			utils::SpinLock m_lock;
 		};
 
-		static std::shared_ptr<FooService> CreateFooService(
-				const std::shared_ptr<IoThreadPool>& pPool,
-				size_t id,
-				ShutdownIds& shutdownIds) {
-			return std::make_shared<FooService>(pPool->name(), id, shutdownIds);
+		static std::shared_ptr<FooService> CreateFooService(IoThreadPool& pool, size_t id, ShutdownIds& shutdownIds) {
+			return std::make_shared<FooService>(pool.name(), id, shutdownIds);
 		}
 
 		void AssertService(const FooService& service, const std::string& expectedThreadPoolName, size_t expectedId) {
@@ -137,10 +134,10 @@ namespace catapult { namespace thread {
 		// Arrange:
 		ShutdownIds shutdownIds;
 		MultiServicePool pool("foo", 3);
-		auto pExternalPool = utils::UniqueToShared(test::CreateStartedIoThreadPool(1));
+		auto pExternalPool = test::CreateStartedIoThreadPool(1);
 
 		// Act:
-		auto pService = pool.pushServiceGroup("beta")->registerService(CreateFooService(pExternalPool, 7u, shutdownIds));
+		auto pService = pool.pushServiceGroup("beta")->registerService(CreateFooService(*pExternalPool, 7u, shutdownIds));
 
 		// Assert:
 		EXPECT_EQ(3u, pool.numWorkerThreads());
@@ -198,15 +195,15 @@ namespace catapult { namespace thread {
 			MultiServicePool pool("foo", 3);
 
 			// Act:
-			auto pPool = createIsolatedPool(pool, "pool");
+			auto* pIsolatedPool = createIsolatedPool(pool, "pool");
 
 			// Assert:
 			EXPECT_EQ(3u + expectedNumWorkerThreads, pool.numWorkerThreads());
 			EXPECT_EQ(0u, pool.numServiceGroups());
 			EXPECT_EQ(1u, pool.numServices());
 
-			EXPECT_EQ(expectedNumWorkerThreads, pPool->numWorkerThreads());
-			EXPECT_EQ("pool", pPool->name());
+			EXPECT_EQ(expectedNumWorkerThreads, pIsolatedPool->numWorkerThreads());
+			EXPECT_EQ("pool", pIsolatedPool->name());
 		}
 
 		void AssertCanAddSingleIsolatedPoolWithExplicitThreads(size_t numWorkerThreads, size_t expectedNumWorkerThreads) {
@@ -218,12 +215,10 @@ namespace catapult { namespace thread {
 	}
 
 	TEST(TEST_CLASS, CanAddSingleIsolatedPoolWithCustomNumberOfThreads) {
-		// Assert
 		AssertCanAddSingleIsolatedPoolWithExplicitThreads(2, 2);
 	}
 
 	TEST(TEST_CLASS, CanAddSingleIsolatedPoolWithDefaultNumberOfThreads_Explicit) {
-		// Assert
 		AssertCanAddSingleIsolatedPoolWithExplicitThreads(MultiServicePool::DefaultPoolConcurrency(), std::thread::hardware_concurrency());
 	}
 
@@ -274,21 +269,21 @@ namespace catapult { namespace thread {
 		// Arrange:
 		ShutdownIds shutdownIds;
 		MultiServicePool pool("foo", 3);
-		auto pExternalPool = utils::UniqueToShared(test::CreateStartedIoThreadPool(1));
+		auto pExternalPool = test::CreateStartedIoThreadPool(1);
 
 		// Act:
 		auto pGroup1 = pool.pushServiceGroup("alpha");
-		auto pPool1 = pool.pushIsolatedPool("pool 1", 2 );
+		auto* pPool1 = pool.pushIsolatedPool("pool 1", 2 );
 		auto pGroup2 = pool.pushServiceGroup("beta");
-		auto pPool2 = pool.pushIsolatedPool("pool 2", 4);
+		auto* pPool2 = pool.pushIsolatedPool("pool 2", 4);
 
 		auto pService1 = pGroup1->pushService(CreateFooService, 7u, shutdownIds);
-		auto pService2 = pGroup1->registerService(CreateFooService(pExternalPool, 9u, shutdownIds));
+		auto pService2 = pGroup1->registerService(CreateFooService(*pExternalPool, 9u, shutdownIds));
 		auto pService3 = pGroup2->pushService(CreateFooService, 11u, shutdownIds);
 		auto pService4 = pGroup2->pushService(CreateFooService, 77u, shutdownIds);
 		auto pService5 = pGroup1->pushService(CreateFooService, 82u, shutdownIds);
 		auto pService6 = pGroup2->pushService(CreateFooService, 22u, shutdownIds);
-		auto pService7 = pGroup1->registerService(CreateFooService(pExternalPool, 99u, shutdownIds));
+		auto pService7 = pGroup1->registerService(CreateFooService(*pExternalPool, 99u, shutdownIds));
 
 		// Assert:
 		EXPECT_EQ(9u, pool.numWorkerThreads());
@@ -325,7 +320,7 @@ namespace catapult { namespace thread {
 			// Arrange:
 			ShutdownIds shutdownIds;
 			MultiServicePool pool("foo", 3);
-			auto pExternalPool = utils::UniqueToShared(test::CreateStartedIoThreadPool(1));
+			auto pExternalPool = test::CreateStartedIoThreadPool(1);
 
 			// - add services
 			auto pGroup1 = pool.pushServiceGroup("alpha");
@@ -334,12 +329,12 @@ namespace catapult { namespace thread {
 			pool.pushIsolatedPool("pool 2", 4);
 
 			pGroup1->pushService(CreateFooService, 7u, shutdownIds);
-			pGroup1->registerService(CreateFooService(pExternalPool, 9u, shutdownIds));
+			pGroup1->registerService(CreateFooService(*pExternalPool, 9u, shutdownIds));
 			pGroup2->pushService(CreateFooService, 11u, shutdownIds);
 			pGroup2->pushService(CreateFooService, 77u, shutdownIds);
 			pGroup1->pushService(CreateFooService, 82u, shutdownIds);
 			pGroup2->pushService(CreateFooService, 22u, shutdownIds);
-			pGroup1->registerService(CreateFooService(pExternalPool, 99u, shutdownIds));
+			pGroup1->registerService(CreateFooService(*pExternalPool, 99u, shutdownIds));
 
 			// - release groups
 			pGroup1.reset();
@@ -430,11 +425,10 @@ namespace catapult { namespace thread {
 	}
 
 	TEST(TEST_CLASS, ShutdownWaitsForOutstandingExternalServices) {
-		AssertShutdownWaitsForOutstandingServices([](auto& pool, auto id, auto& shutdownIds) {
-			auto pExternalPool = utils::UniqueToShared(test::CreateStartedIoThreadPool(1));
-
+		auto pExternalPool = test::CreateStartedIoThreadPool(1);
+		AssertShutdownWaitsForOutstandingServices([&externalPool = *pExternalPool](auto& pool, auto id, auto& shutdownIds) {
 			auto pServiceGroup = pool.pushServiceGroup("zeta");
-			return pServiceGroup->registerService(CreateFooService(pExternalPool, id, shutdownIds));
+			return pServiceGroup->registerService(CreateFooService(externalPool, id, shutdownIds));
 		});
 	}
 
@@ -445,84 +439,6 @@ namespace catapult { namespace thread {
 			pool.pushServiceGroup("epsilon")->pushService(CreateFooService, id, shutdownIds);
 			return pServiceGroup;
 		});
-	}
-
-	TEST(TEST_CLASS, ShutdownWaitsForOutstandingIsolatedPools) {
-		AssertShutdownWaitsForOutstandingServices([](auto& pool, auto id, auto& shutdownIds) {
-			// Arrange: add an extra service because isolated pools do not have ids
-			auto pPool = pool.pushIsolatedPool("pool", 1);
-			pool.pushServiceGroup("epsilon")->pushService(CreateFooService, id, shutdownIds);
-			return pPool;
-		});
-	}
-
-	TEST(TEST_CLASS, ShutdownWaitsForOutstandingPrimaryThreadPool) {
-		// Arrange: create a pool with three services and a simulated subservice
-		//          this test ensures correct shutdown when a service passes the primary pool to a subservice that can outlive it
-		//          the multi service pool must wait for all references to its primary pool to be released before shutting down
-		ShutdownIds shutdownIds;
-		MultiServicePool pool("foo", 3);
-		std::shared_ptr<IoThreadPool> pSimulatedSubService;
-		pool.pushServiceGroup("alpha")->pushService(CreateFooService, 7u, shutdownIds);
-		pool.pushServiceGroup("epsilon")->pushService([&pSimulatedSubService, &shutdownIds](const auto& pPool) {
-			pSimulatedSubService = pPool;
-			return CreateFooService(pPool, 11u, shutdownIds);
-		});
-		pool.pushServiceGroup("beta")->pushService(CreateFooService, 10u, shutdownIds);
-
-		// Act: keep the subservice alive on another thread
-		std::thread([&pool, &shutdownIds, pService = std::move(pSimulatedSubService)] {
-			WAIT_FOR_ZERO_EXPR(pool.numServiceGroups());
-
-			// Assert: all services have been shutdown but the subservice has not
-			std::vector<size_t> expectedShutdownIds{ 10, 11, 7 };
-			EXPECT_EQ(expectedShutdownIds, shutdownIds.toVector());
-			EXPECT_TRUE(!!pService);
-		}).detach();
-
-		// - shutdown and wait for all services to complete
-		pool.shutdown();
-		WAIT_FOR_ZERO_EXPR(pool.numWorkerThreads());
-
-		// Assert: the services and pool are destroyed when the thread that called shutdown has
-		//         the last outstanding service and primary pool references
-		AssertPoolIsShutdown(pool);
-
-		std::vector<size_t> expectedShutdownIds{ 10, 11, 7 };
-		EXPECT_EQ(expectedShutdownIds, shutdownIds.toVector());
-	}
-
-	TEST(TEST_CLASS, ShutdownShutsDownAllServicesBeforeMergedSubPool) {
-		// Arrange: create a pool with two services and a sub-pool and extend the life of the sub-pool
-		ShutdownIds shutdownIds;
-		MultiServicePool pool("foo", 3, MultiServicePool::IsolatedPoolMode::Disabled);
-		pool.pushServiceGroup("alpha")->pushService(CreateFooService, 7u, shutdownIds);
-		auto pSubPool = pool.pushIsolatedPool("pool", 1);
-		pool.pushServiceGroup("beta")->pushService(CreateFooService, 10u, shutdownIds);
-
-		// Act: keep the "isolated" pool alive on another thread
-		std::thread([&shutdownIds, pSubPool = std::move(pSubPool)] {
-			WAIT_FOR_VALUE_EXPR(2u, shutdownIds.toVector().size());
-			// - wait to see if additional services shutdown erroneously
-			test::Pause();
-
-			// Assert: all services have been shutdown and destroyed
-			//         in merged mode, there is only a single pool, so isolated pools have no effect on shutdown (and cannot block it)
-			std::vector<size_t> expectedShutdownIds{ 10, 7 };
-			EXPECT_EQ(expectedShutdownIds, shutdownIds.toVector());
-			EXPECT_TRUE(!!pSubPool);
-		}).detach();
-
-		// - shutdown and wait for all services to complete
-		pool.shutdown();
-		WAIT_FOR_ZERO_EXPR(pool.numWorkerThreads());
-
-		// Assert: the services and pool are destroyed when the thread that called shutdown has
-		//         the last outstanding service references
-		AssertPoolIsShutdown(pool);
-
-		std::vector<size_t> expectedShutdownIds{ 10, 7 };
-		EXPECT_EQ(expectedShutdownIds, shutdownIds.toVector());
 	}
 
 	// endregion

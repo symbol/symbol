@@ -37,12 +37,11 @@ namespace catapult { namespace net {
 				, public std::enable_shared_from_this<DefaultClientConnector> {
 		public:
 			DefaultClientConnector(
-					const std::shared_ptr<thread::IoThreadPool>& pPool,
+					thread::IoThreadPool&,
 					const Key& serverPublicKey,
 					const ConnectionSettings& settings,
 					const std::string& name)
-					: m_pPool(pPool)
-					, m_serverPublicKey(serverPublicKey)
+					: m_serverPublicKey(serverPublicKey)
 					, m_settings(settings)
 					, m_name(name)
 					, m_tag(m_name.empty() ? std::string() : " (" + m_name + ")")
@@ -79,7 +78,6 @@ namespace catapult { namespace net {
 			}
 
 		private:
-			std::shared_ptr<thread::IoThreadPool> m_pPool;
 			Key m_serverPublicKey;
 			ConnectionSettings m_settings;
 
@@ -91,10 +89,10 @@ namespace catapult { namespace net {
 	}
 
 	std::shared_ptr<ClientConnector> CreateClientConnector(
-			const std::shared_ptr<thread::IoThreadPool>& pPool,
+			thread::IoThreadPool& pool,
 			const Key& serverPublicKey,
 			const ConnectionSettings& settings,
 			const char* name) {
-		return std::make_shared<DefaultClientConnector>(pPool, serverPublicKey, settings, name ? std::string(name) : std::string());
+		return std::make_shared<DefaultClientConnector>(pool, serverPublicKey, settings, name ? std::string(name) : std::string());
 	}
 }}

@@ -109,9 +109,9 @@ namespace catapult { namespace consumers {
 			const GenerationHashSeed& generationHashSeed,
 			const crypto::RandomFiller& randomFiller,
 			const std::shared_ptr<const model::NotificationPublisher>& pPublisher,
-			const std::shared_ptr<thread::IoThreadPool>& pPool,
+			thread::IoThreadPool& pool,
 			const RequiresValidationPredicate& requiresValidationPredicate) {
-		return MakeBlockValidationConsumer(requiresValidationPredicate, [generationHashSeed, randomFiller, pPublisher, pPool](
+		return MakeBlockValidationConsumer(requiresValidationPredicate, [&pool, generationHashSeed, randomFiller, pPublisher](
 				const auto& entityInfos) {
 			// find all signature notifications
 			auto inputs = ExtractAllSignatureNotifications(generationHashSeed, *pPublisher, entityInfos)->inputs();
@@ -124,7 +124,7 @@ namespace catapult { namespace consumers {
 					validators::AggregateValidationResult(aggregateResult, Failure_Consumer_Batch_Signature_Not_Verifiable);
 			};
 
-			thread::ParallelForPartition(pPool->ioContext(), inputs, pPool->numWorkerThreads(), partitionCallback).get();
+			thread::ParallelForPartition(pool.ioContext(), inputs, pool.numWorkerThreads(), partitionCallback).get();
 			return aggregateResult.load();
 		});
 	}
@@ -133,9 +133,9 @@ namespace catapult { namespace consumers {
 			const GenerationHashSeed& generationHashSeed,
 			const crypto::RandomFiller& randomFiller,
 			const std::shared_ptr<const model::NotificationPublisher>& pPublisher,
-			const std::shared_ptr<thread::IoThreadPool>& pPool,
+			thread::IoThreadPool& pool,
 			const chain::FailedTransactionSink& failedTransactionSink) {
-		return MakeTransactionValidationConsumer(failedTransactionSink, [generationHashSeed, randomFiller, pPublisher, pPool](
+		return MakeTransactionValidationConsumer(failedTransactionSink, [&pool, generationHashSeed, randomFiller, pPublisher](
 				const auto& entityInfos) {
 			// find all signature notifications
 			auto pSub = ExtractAllSignatureNotifications(generationHashSeed, *pPublisher, entityInfos);
@@ -159,7 +159,7 @@ namespace catapult { namespace consumers {
 				}
 			};
 
-			thread::ParallelForPartition(pPool->ioContext(), pSub->inputs(), pPool->numWorkerThreads(), partitionCallback).get();
+			thread::ParallelForPartition(pool.ioContext(), pSub->inputs(), pool.numWorkerThreads(), partitionCallback).get();
 
 			return MapNotificationResultsToEntityResults(entityInfos.size(), pSub->notificationToEntityIndexMap(), notificationResults);
 		});

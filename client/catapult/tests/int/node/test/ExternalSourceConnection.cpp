@@ -44,7 +44,7 @@ namespace catapult { namespace test {
 			: m_pPool(CreateStartedIoThreadPool(1))
 			, m_caKeyPair(crypto::KeyPair::FromPrivate(GenerateRandomPrivateKey()))
 			, m_tempDirectoryGuard(ToString(m_caKeyPair.publicKey()))
-			, m_pConnector(net::CreateServerConnector(m_pPool, m_caKeyPair.publicKey(), createConnectionSettings(), "external source"))
+			, m_pConnector(net::CreateServerConnector(*m_pPool, m_caKeyPair.publicKey(), createConnectionSettings(), "external source"))
 			, m_localNode(node)
 	{}
 

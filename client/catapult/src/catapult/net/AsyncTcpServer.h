@@ -70,10 +70,9 @@ namespace catapult { namespace net {
 		virtual void shutdown() = 0;
 	};
 
-	/// Creates an async tcp server listening on \a endpoint with the specified \a settings using the specified
-	/// thread pool (\a pPool).
+	/// Creates an async tcp server listening on \a endpoint with the specified \a settings using the specified thread \a pool.
 	std::shared_ptr<AsyncTcpServer> CreateAsyncTcpServer(
-			const std::shared_ptr<thread::IoThreadPool>& pPool,
+			thread::IoThreadPool& pool,
 			const boost::asio::ip::tcp::endpoint& endpoint,
 			const AsyncTcpServerSettings& settings);
 }}

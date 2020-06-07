@@ -123,13 +123,10 @@ namespace catapult { namespace validators {
 
 		class DefaultParallelValidationPolicy final : public ParallelValidationPolicy {
 		public:
-			DefaultParallelValidationPolicy(
-					const std::shared_ptr<thread::IoThreadPool>& pPool,
-					const std::shared_ptr<const StatelessEntityValidator>& pValidator)
-					: m_pPool(pPool)
-					, m_pValidator(pValidator)
-					, m_ioContext(pPool->ioContext()) {
-				CATAPULT_LOG(trace) << "DefaultParallelValidationPolicy created with " << pPool->numWorkerThreads() << " worker threads";
+			DefaultParallelValidationPolicy(thread::IoThreadPool& pool, const std::shared_ptr<const StatelessEntityValidator>& pValidator)
+					: m_pool(pool)
+					, m_pValidator(pValidator) {
+				CATAPULT_LOG(trace) << "DefaultParallelValidationPolicy created with " << m_pool.numWorkerThreads() << " worker threads";
 			}
 
 		private:
@@ -140,13 +137,13 @@ namespace catapult { namespace validators {
 				auto workProcessItemCallback = [pWork](const auto& entityInfo, auto index) {
 					return pWork->validateEntity(entityInfo, index);
 				};
-				auto workCompleteCallback = [pWork, pPool = m_pPool](const auto&) {
+				auto workCompleteCallback = [pWork](const auto&) {
 					pWork->complete();
 					return pWork->future();
 				};
 
 				return thread::compose(
-						thread::ParallelFor(m_ioContext, pWork->entityInfos(), m_pPool->numWorkerThreads(), workProcessItemCallback),
+						thread::ParallelFor(m_pool.ioContext(), pWork->entityInfos(), m_pool.numWorkerThreads(), workProcessItemCallback),
 						workCompleteCallback);
 			}
 
@@ -160,15 +157,14 @@ namespace catapult { namespace validators {
 			}
 
 		private:
-			std::shared_ptr<const thread::IoThreadPool> m_pPool;
+			thread::IoThreadPool& m_pool;
 			std::shared_ptr<const StatelessEntityValidator> m_pValidator;
-			boost::asio::io_context& m_ioContext;
 		};
 	}
 
 	std::shared_ptr<const ParallelValidationPolicy> CreateParallelValidationPolicy(
-			const std::shared_ptr<thread::IoThreadPool>& pPool,
+			thread::IoThreadPool& pool,
 			const std::shared_ptr<const StatelessEntityValidator>& pValidator) {
-		return std::make_shared<const DefaultParallelValidationPolicy>(pPool, pValidator);
+		return std::make_shared<const DefaultParallelValidationPolicy>(pool, pValidator);
 	}
 }}

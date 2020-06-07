@@ -176,14 +176,14 @@ namespace catapult { namespace consumers {
 								GenerationHashSeed,
 								CreateRandomFiller(),
 								pPublisher,
-								pPool,
+								*pPool,
 								requiresValidationPredicate))
 				{}
 
 			public:
 				catapult::GenerationHashSeed GenerationHashSeed;
 				std::shared_ptr<MockSignatureNotificationPublisher> pPublisher;
-				std::shared_ptr<thread::IoThreadPool> pPool;
+				std::unique_ptr<thread::IoThreadPool> pPool;
 
 				disruptor::ConstBlockConsumer Consumer;
 			};
@@ -287,7 +287,7 @@ namespace catapult { namespace consumers {
 								GenerationHashSeed,
 								CreateRandomFiller(),
 								pPublisher,
-								pPool,
+								*pPool,
 								[this](const auto& transaction, const auto& hash, auto result) {
 									// notice that transaction.Deadline is used as transaction marker
 									FailedTransactionStatuses.emplace_back(hash, transaction.Deadline, utils::to_underlying_type(result));
@@ -297,7 +297,7 @@ namespace catapult { namespace consumers {
 			public:
 				catapult::GenerationHashSeed GenerationHashSeed;
 				std::shared_ptr<MockSignatureNotificationPublisher> pPublisher;
-				std::shared_ptr<thread::IoThreadPool> pPool;
+				std::unique_ptr<thread::IoThreadPool> pPool;
 
 				std::vector<model::TransactionStatus> FailedTransactionStatuses;
 				disruptor::TransactionConsumer Consumer;

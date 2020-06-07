@@ -64,7 +64,7 @@ namespace catapult { namespace test {
 		static model::TransactionRegistry CreateTransactionRegistry();
 
 	private:
-		std::shared_ptr<thread::IoThreadPool> m_pPool;
+		std::unique_ptr<thread::IoThreadPool> m_pPool;
 		crypto::KeyPair m_caKeyPair;
 		TempDirectoryGuard m_tempDirectoryGuard;
 		std::shared_ptr<net::ServerConnector> m_pConnector;

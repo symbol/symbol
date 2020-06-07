@@ -99,7 +99,7 @@ namespace catapult { namespace thread {
 			}
 
 		private:
-			std::shared_ptr<IoThreadPool> m_pPool;
+			std::unique_ptr<IoThreadPool> m_pPool;
 			std::shared_ptr<TimedCallback> m_pTimedCallback;
 			TimedCallbackResult m_result;
 		};

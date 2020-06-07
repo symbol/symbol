@@ -61,10 +61,10 @@ namespace catapult { namespace net {
 		virtual void shutdown() = 0;
 	};
 
-	/// Creates a packet writers container for a server with specified \a serverPublicKey using \a pPool and configured with
+	/// Creates a packet writers container for a server with specified \a serverPublicKey using \a pool and configured with
 	/// \a settings.
 	std::shared_ptr<PacketWriters> CreatePacketWriters(
-			const std::shared_ptr<thread::IoThreadPool>& pPool,
+			thread::IoThreadPool& pool,
 			const Key& serverPublicKey,
 			const ConnectionSettings& settings);
 }}

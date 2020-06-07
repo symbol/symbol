@@ -215,13 +215,13 @@ namespace catapult { namespace net {
 		class DefaultPacketReaders : public PacketReaders, public std::enable_shared_from_this<DefaultPacketReaders> {
 		public:
 			DefaultPacketReaders(
-					const std::shared_ptr<thread::IoThreadPool>& pPool,
+					thread::IoThreadPool& pool,
 					const ionet::ServerPacketHandlers& handlers,
 					const Key& serverPublicKey,
 					const ConnectionSettings& settings,
 					uint32_t maxConnectionsPerIdentity)
 					: m_handlers(handlers)
-					, m_pClientConnector(CreateClientConnector(pPool, serverPublicKey, settings, "readers"))
+					, m_pClientConnector(CreateClientConnector(pool, serverPublicKey, settings, "readers"))
 					, m_readers(maxConnectionsPerIdentity, settings.NodeIdentityEqualityStrategy)
 			{}
 
@@ -308,11 +308,11 @@ namespace catapult { namespace net {
 	}
 
 	std::shared_ptr<PacketReaders> CreatePacketReaders(
-			const std::shared_ptr<thread::IoThreadPool>& pPool,
+			thread::IoThreadPool& pool,
 			const ionet::ServerPacketHandlers& handlers,
 			const Key& serverPublicKey,
 			const ConnectionSettings& settings,
 			uint32_t maxConnectionsPerIdentity) {
-		return std::make_shared<DefaultPacketReaders>(pPool, handlers, serverPublicKey, settings, maxConnectionsPerIdentity);
+		return std::make_shared<DefaultPacketReaders>(pool, handlers, serverPublicKey, settings, maxConnectionsPerIdentity);
 	}
 }}

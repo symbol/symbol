@@ -59,12 +59,12 @@ namespace catapult { namespace net {
 		class NodeRequest {
 		public:
 			NodeRequest(
+					boost::asio::io_context& ioContext,
 					const ionet::Node& requestNode,
-					const std::shared_ptr<thread::IoThreadPool>& pPool,
 					const TResponseCompatibilityChecker& compatibilityChecker,
 					const CallbackType& callback)
-					: m_requestNode(requestNode)
-					, m_pPool(pPool)
+					: m_ioContext(ioContext)
+					, m_requestNode(requestNode)
 					, m_compatibilityChecker(compatibilityChecker)
 					, m_callback(callback)
 			{}
@@ -72,7 +72,7 @@ namespace catapult { namespace net {
 		public:
 			void setTimeout(const utils::TimeSpan& timeout, const std::shared_ptr<ionet::PacketSocket>& pSocket) {
 				auto pTimedCallback = thread::MakeTimedCallback(
-						m_pPool->ioContext(),
+						m_ioContext,
 						m_callback,
 						NodeRequestResult::Failure_Timeout,
 						ResponseType());
@@ -122,8 +122,8 @@ namespace catapult { namespace net {
 			}
 
 		private:
+			boost::asio::io_context& m_ioContext;
 			ionet::Node m_requestNode;
-			std::shared_ptr<thread::IoThreadPool> m_pPool;
 			TResponseCompatibilityChecker m_compatibilityChecker;
 			CallbackType m_callback;
 		};
@@ -131,17 +131,17 @@ namespace catapult { namespace net {
 		// endregion
 
 	public:
-		/// Creates a server requestor for a server with specified \a serverPublicKey using \a pPool and configured with \a settings
+		/// Creates a server requestor for a server with specified \a serverPublicKey using \a pool and configured with \a settings
 		/// and a custom response compatibility checker (\a responseCompatibilityChecker).
 		BriefServerRequestor(
-				const std::shared_ptr<thread::IoThreadPool>& pPool,
+				thread::IoThreadPool& pool,
 				const Key& serverPublicKey,
 				const ConnectionSettings& settings,
 				const TResponseCompatibilityChecker& responseCompatibilityChecker)
-				: m_pPool(pPool)
+				: m_ioContext(pool.ioContext())
 				, m_responseCompatibilityChecker(responseCompatibilityChecker)
 				, m_requestTimeout(settings.Timeout)
-				, m_pConnector(CreateServerConnector(pPool, serverPublicKey, settings, TRequestPolicy::Friendly_Name))
+				, m_pConnector(CreateServerConnector(pool, serverPublicKey, settings, TRequestPolicy::Friendly_Name))
 				, m_numTotalRequests(0)
 				, m_numSuccessfulRequests(0)
 		{}
@@ -173,7 +173,7 @@ namespace catapult { namespace net {
 				callback(result, response);
 			};
 
-			auto pRequest = std::make_shared<NodeRequest>(node, m_pPool, m_responseCompatibilityChecker, wrappedCallback);
+			auto pRequest = std::make_shared<NodeRequest>(m_ioContext, node, m_responseCompatibilityChecker, wrappedCallback);
 			m_pConnector->connect(node, [pRequest, requestTimeout = m_requestTimeout](auto connectCode, const auto& socketInfo) {
 				auto pSocket = socketInfo.socket();
 				pRequest->setTimeout(requestTimeout, pSocket);
@@ -193,7 +193,7 @@ namespace catapult { namespace net {
 		}
 
 	private:
-		std::shared_ptr<thread::IoThreadPool> m_pPool;
+		boost::asio::io_context& m_ioContext;
 		TResponseCompatibilityChecker m_responseCompatibilityChecker;
 		utils::TimeSpan m_requestTimeout;
 		std::shared_ptr<ServerConnector> m_pConnector;

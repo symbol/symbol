@@ -33,7 +33,8 @@ namespace catapult { namespace test {
 		// - windows requires the caller to explicitly create a mongocxx instance before certain operations
 		//   like creating a mongocxx::pool (via MongoStorageContext)
 		mongocxx::instance::current();
-		auto pMongoContext = CreateDefaultMongoStorageContext(DatabaseName());
+		auto pPool = CreateStartedIoThreadPool(Num_Default_Mongo_Test_Pool_Threads);
+		auto pMongoContext = CreateDefaultMongoStorageContext(DatabaseName(), *pPool);
 		mongo::MongoPluginManager manager(*pMongoContext, model::NetworkIdentifier::Zero);
 		registerSubsystem(manager);
 

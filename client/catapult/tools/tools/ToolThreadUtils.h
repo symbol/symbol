@@ -41,5 +41,5 @@ namespace catapult { namespace tools {
 	}
 
 	/// Creates a started thread pool with \a numThreads threads.
-	std::shared_ptr<thread::IoThreadPool> CreateStartedThreadPool(uint32_t numThreads = 1);
+	std::unique_ptr<thread::IoThreadPool> CreateStartedThreadPool(uint32_t numThreads = 1);
 }}

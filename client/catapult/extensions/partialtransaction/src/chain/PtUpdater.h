@@ -90,13 +90,13 @@ namespace catapult { namespace chain {
 
 	public:
 		/// Creates an updater around \a transactionsCache, \a pValidator, \a completedTransactionSink and \a failedTransactionSink
-		/// using \a pPool for parallelization.
+		/// using \a pool for parallelization.
 		PtUpdater(
 				cache::MemoryPtCacheProxy& transactionsCache,
 				std::unique_ptr<const PtValidator>&& pValidator,
 				const CompletedTransactionSink& completedTransactionSink,
 				const FailedTransactionSink& failedTransactionSink,
-				const std::shared_ptr<thread::IoThreadPool>& pPool);
+				thread::IoThreadPool& pool);
 
 		/// Destroys the updater.
 		~PtUpdater();

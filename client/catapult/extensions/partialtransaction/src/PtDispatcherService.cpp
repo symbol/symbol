@@ -216,7 +216,7 @@ namespace catapult { namespace partialtransaction {
 		}
 
 		std::unique_ptr<chain::PtUpdater> CreateAndRegisterPtUpdater(cache::MemoryPtCacheProxy& ptCache, extensions::ServiceState& state) {
-			auto pUpdaterPool = state.pool().pushIsolatedPool("ptUpdater");
+			auto* pUpdaterPool = state.pool().pushIsolatedPool("ptUpdater");
 
 			// validator needs to be created here because bootstrapper does not have cache nor all validators registered
 			auto pValidator = chain::CreatePtValidator(state.cache(), state.timeSupplier(), state.pluginManager());
@@ -230,7 +230,7 @@ namespace catapult { namespace partialtransaction {
 						consumer(model::TransactionRange::FromEntity(std::move(pTransaction)));
 					},
 					extensions::SubscriberToSink(state.transactionStatusSubscriber()),
-					pUpdaterPool);
+					*pUpdaterPool);
 		}
 
 		class PtDispatcherServiceRegistrar : public extensions::ServiceRegistrar {

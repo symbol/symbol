@@ -91,12 +91,8 @@ namespace catapult { namespace mongo {
 			// create mongo writer
 			// keep the minimum high enough in order to avoid deadlock while waiting for mongo operations due to blocking io threads
 			auto numWriterThreads = std::max(4u, std::min(std::thread::hardware_concurrency(), dbConfig.MaxWriterThreads));
-			auto pBulkWriterPool = bootstrapper.pool().pushIsolatedPool("bulk writer", numWriterThreads);
-			auto pMongoBulkWriter = MongoBulkWriter::Create(
-					dbUri,
-					dbName,
-					// pass in a non-owning shared_ptr so that the writer does not keep the bulk writer pool alive during shutdown
-					std::shared_ptr<thread::IoThreadPool>(pBulkWriterPool.get(), [](const auto*) {}));
+			auto* pBulkWriterPool = bootstrapper.pool().pushIsolatedPool("bulk writer", numWriterThreads);
+			auto pMongoBulkWriter = MongoBulkWriter::Create(dbUri, dbName, *pBulkWriterPool);
 
 			// create transaction registry
 			const auto& config = bootstrapper.config();

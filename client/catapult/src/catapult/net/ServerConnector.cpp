@@ -36,11 +36,11 @@ namespace catapult { namespace net {
 				, public std::enable_shared_from_this<DefaultServerConnector> {
 		public:
 			DefaultServerConnector(
-					const std::shared_ptr<thread::IoThreadPool>& pPool,
+					thread::IoThreadPool& pool,
 					const Key& serverPublicKey,
 					const ConnectionSettings& settings,
 					const std::string& name)
-					: m_pPool(pPool)
+					: m_ioContext(pool.ioContext())
 					, m_serverPublicKey(serverPublicKey)
 					, m_settings(settings)
 					, m_name(name)
@@ -65,13 +65,12 @@ namespace catapult { namespace net {
 					return callback(PeerConnectCode::Self_Connection_Error, ionet::PacketSocketInfo());
 				}
 
-				auto& ioContext = m_pPool->ioContext();
-				auto pRequest = thread::MakeTimedCallback(ioContext, callback, PeerConnectCode::Timed_Out, ionet::PacketSocketInfo());
+				auto pRequest = thread::MakeTimedCallback(m_ioContext, callback, PeerConnectCode::Timed_Out, ionet::PacketSocketInfo());
 				pRequest->setTimeout(m_settings.Timeout);
 
 				auto socketOptions = m_settings.toSocketOptions();
 				const auto& endpoint = node.endpoint();
-				auto cancel = ionet::Connect(ioContext, socketOptions, endpoint, [pThis = shared_from_this(), identityKey, pRequest](
+				auto cancel = ionet::Connect(m_ioContext, socketOptions, endpoint, [pThis = shared_from_this(), identityKey, pRequest](
 						auto result,
 						const auto& connectedSocketInfo) {
 					if (ionet::ConnectResult::Connected != result)
@@ -110,7 +109,7 @@ namespace catapult { namespace net {
 			}
 
 		private:
-			std::shared_ptr<thread::IoThreadPool> m_pPool;
+			boost::asio::io_context& m_ioContext;
 			Key m_serverPublicKey;
 			ConnectionSettings m_settings;
 
@@ -122,10 +121,10 @@ namespace catapult { namespace net {
 	}
 
 	std::shared_ptr<ServerConnector> CreateServerConnector(
-			const std::shared_ptr<thread::IoThreadPool>& pPool,
+			thread::IoThreadPool& pool,
 			const Key& serverPublicKey,
 			const ConnectionSettings& settings,
 			const char* name) {
-		return std::make_shared<DefaultServerConnector>(pPool, serverPublicKey, settings, name ? std::string(name) : std::string());
+		return std::make_shared<DefaultServerConnector>(pool, serverPublicKey, settings, name ? std::string(name) : std::string());
 	}
 }}

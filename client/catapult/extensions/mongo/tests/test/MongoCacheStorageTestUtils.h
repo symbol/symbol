@@ -35,7 +35,8 @@ namespace catapult { namespace test {
 		class CacheStorageWrapper : public PrepareDatabaseMixin {
 		public:
 			CacheStorageWrapper()
-					: m_pMongoContext(CreateDefaultMongoStorageContext(DatabaseName()))
+					: m_pPool(CreateStartedIoThreadPool(Num_Default_Mongo_Test_Pool_Threads))
+					, m_pMongoContext(CreateDefaultMongoStorageContext(DatabaseName(), *m_pPool))
 					, m_pCacheStorage(TTraits::CreateCacheStorage(*m_pMongoContext, TTraits::Network_Id))
 			{}
 
@@ -45,6 +46,7 @@ namespace catapult { namespace test {
 			}
 
 		private:
+			std::unique_ptr<thread::IoThreadPool> m_pPool;
 			std::unique_ptr<mongo::MongoStorageContext> m_pMongoContext;
 			std::unique_ptr<mongo::ExternalCacheStorage> m_pCacheStorage;
 		};

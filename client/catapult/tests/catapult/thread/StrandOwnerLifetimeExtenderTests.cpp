@@ -52,7 +52,7 @@ namespace catapult { namespace thread {
 
 		struct TestContext {
 		public:
-			std::shared_ptr<IoThreadPool> pPool;
+			std::unique_ptr<IoThreadPool> pPool;
 			boost::asio::io_context::strand Strand;
 			std::shared_ptr<Owner> pOwner;
 			ExtenderType Extender;

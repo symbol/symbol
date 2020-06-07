@@ -50,14 +50,14 @@ namespace catapult { namespace consumers {
 			const std::shared_ptr<const validators::ParallelValidationPolicy>& pValidationPolicy,
 			const chain::FailedTransactionSink& failedTransactionSink);
 
-	/// Creates a consumer that runs batch signature validation using \a pPublisher and \a pPool for the network with the specified
+	/// Creates a consumer that runs batch signature validation using \a pPublisher and \a pool for the network with the specified
 	/// generation hash seed (\a generationHashSeed) and calls \a failedTransactionSink for each failure.
 	/// \a randomFiller is used to generate random bytes.
 	disruptor::TransactionConsumer CreateTransactionBatchSignatureConsumer(
 			const GenerationHashSeed& generationHashSeed,
 			const crypto::RandomFiller& randomFiller,
 			const std::shared_ptr<const model::NotificationPublisher>& pPublisher,
-			const std::shared_ptr<thread::IoThreadPool>& pPool,
+			thread::IoThreadPool& pool,
 			const chain::FailedTransactionSink& failedTransactionSink);
 
 	/// Prototype for a function that is called with new transactions.

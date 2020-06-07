@@ -23,10 +23,10 @@
 namespace catapult { namespace timesync {
 
 	std::shared_ptr<NodeNetworkTimeRequestor> CreateNodeNetworkTimeRequestor(
-			const std::shared_ptr<thread::IoThreadPool>& pPool,
+			thread::IoThreadPool& pool,
 			const Key& serverPublicKey,
 			const net::ConnectionSettings& settings) {
 		using ResponseCompatibilityChecker = net::detail::AlwaysCompatibleResponseCompatibilityChecker;
-		return std::make_shared<NodeNetworkTimeRequestor>(pPool, serverPublicKey, settings, ResponseCompatibilityChecker());
+		return std::make_shared<NodeNetworkTimeRequestor>(pool, serverPublicKey, settings, ResponseCompatibilityChecker());
 	}
 }}

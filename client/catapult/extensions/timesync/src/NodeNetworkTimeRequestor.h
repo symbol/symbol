@@ -39,10 +39,10 @@ namespace catapult { namespace timesync {
 	/// Brief server requestor for requesting node network time information.
 	using NodeNetworkTimeRequestor = net::BriefServerRequestor<NodeNetworkTimeRequestPolicy>;
 
-	/// Creates a node network time requestor for a server with specified \a serverPublicKey using \a pPool and configured
+	/// Creates a node network time requestor for a server with specified \a serverPublicKey using \a pool and configured
 	/// with \a settings.
 	std::shared_ptr<NodeNetworkTimeRequestor> CreateNodeNetworkTimeRequestor(
-			const std::shared_ptr<thread::IoThreadPool>& pPool,
+			thread::IoThreadPool& pool,
 			const Key& serverPublicKey,
 			const net::ConnectionSettings& settings);
 }}

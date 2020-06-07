@@ -46,11 +46,11 @@ namespace catapult { namespace net {
 		class PoolServerPair {
 		public:
 			PoolServerPair(
-					const std::shared_ptr<thread::IoThreadPool>& pPool,
+					std::unique_ptr<thread::IoThreadPool>&& pPool,
 					const boost::asio::ip::tcp::endpoint& endpoint,
 					const AsyncTcpServerSettings& settings)
-					: m_pPool(pPool) {
-				m_pServer = CreateAsyncTcpServer(pPool, endpoint, settings);
+					: m_pPool(std::move(pPool)) {
+				m_pServer = CreateAsyncTcpServer(*m_pPool, endpoint, settings);
 			}
 
 			~PoolServerPair() {
@@ -89,7 +89,7 @@ namespace catapult { namespace net {
 			}
 
 		private:
-			std::shared_ptr<thread::IoThreadPool> m_pPool;
+			std::unique_ptr<thread::IoThreadPool> m_pPool;
 			std::shared_ptr<AsyncTcpServer> m_pServer;
 
 		public:

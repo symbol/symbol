@@ -37,10 +37,11 @@ namespace catapult { namespace mongo {
 		class TestContext final : public test::PrepareDatabaseMixin {
 		public:
 			explicit TestContext(MongoErrorPolicy::Mode errorPolicyMode = MongoErrorPolicy::Mode::Strict)
-					: m_mongoContext(
+					: m_pPool(test::CreateStartedIoThreadPool(test::Num_Default_Mongo_Test_Pool_Threads))
+					, m_mongoContext(
 							test::DefaultDbUri(),
 							test::DatabaseName(),
-							MongoBulkWriter::Create(test::DefaultDbUri(), test::DatabaseName(), test::CreateStartedIoThreadPool(8)),
+							MongoBulkWriter::Create(test::DefaultDbUri(), test::DatabaseName(), *m_pPool),
 							errorPolicyMode)
 					, m_pScoreProvider(CreateMongoChainScoreProvider(m_mongoContext))
 			{}
@@ -51,6 +52,7 @@ namespace catapult { namespace mongo {
 			}
 
 		private:
+			std::unique_ptr<thread::IoThreadPool> m_pPool;
 			MongoStorageContext m_mongoContext;
 			std::unique_ptr<ChainScoreProvider> m_pScoreProvider;
 		};

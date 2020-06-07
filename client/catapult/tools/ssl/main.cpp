@@ -82,7 +82,7 @@ namespace catapult { namespace tools { namespace ssl {
 				auto keyPair = GetHarvestingKeyPair(options["resources"].as<std::string>());
 				bool isSuccess = true;
 				try {
-					SslClient sslClient(pPool, std::move(keyPair), m_tempCertificateDirectory, scenarioId);
+					SslClient sslClient(*pPool, std::move(keyPair), m_tempCertificateDirectory, scenarioId);
 					auto chainInfo = sslClient.connect(ionet::NodeEndpoint{ m_host, m_port });
 
 					CATAPULT_LOG(info) << " height: " << chainInfo.Height;

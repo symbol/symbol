@@ -26,11 +26,11 @@
 namespace catapult { namespace tools { namespace ssl {
 
 	SslClient::SslClient(
-			const std::shared_ptr<thread::IoThreadPool>& pPool,
+			thread::IoThreadPool& pool,
 			crypto::KeyPair&& caKeyPair,
 			const std::string& certificateDirectory,
 			ScenarioId scenarioId)
-			: m_pPool(pPool)
+			: m_pool(pool)
 			, m_pSslContext(std::make_shared<boost::asio::ssl::context>(boost::asio::ssl::context::tlsv13)) {
 		GenerateCertificateDirectory(std::move(caKeyPair), certificateDirectory, scenarioId);
 
@@ -64,7 +64,7 @@ namespace catapult { namespace tools { namespace ssl {
 		model::NodeIdentity nodeIdentity;
 		ionet::NodeMetadata nodeMetadata;
 		ionet::Node node(nodeIdentity, nodeEndpoint, nodeMetadata);
-		auto connectFuture = ConnectToNode(connectionSettings, node, m_pPool);
+		auto connectFuture = ConnectToNode(connectionSettings, node, m_pool);
 		auto chainInfoFuture = thread::compose(std::move(connectFuture), [node](auto&& ioFuture) {
 			try {
 				auto pIo = ioFuture.get();

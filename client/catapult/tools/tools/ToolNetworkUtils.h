@@ -37,24 +37,15 @@ namespace catapult { namespace tools {
 	/// Future that returns a packet io shared pointer.
 	using PacketIoFuture = thread::future<std::shared_ptr<ionet::PacketIo>>;
 
-	/// Connects to localhost as a client with certificates in \a certificateDirectory using \a pPool.
+	/// Connects to localhost as a client with certificates in \a certificateDirectory using \a pool.
 	/// Localhost is expected to have identity \a serverPublicKey.
-	PacketIoFuture ConnectToLocalNode(
-			const std::string& certificateDirectory,
-			const Key& serverPublicKey,
-			const std::shared_ptr<thread::IoThreadPool>& pPool);
+	PacketIoFuture ConnectToLocalNode(const std::string& certificateDirectory, const Key& serverPublicKey, thread::IoThreadPool& pool);
 
-	/// Connects to \a node as a client with certificates in \a certificateDirectory using \a pPool.
-	PacketIoFuture ConnectToNode(
-			const std::string& certificateDirectory,
-			const ionet::Node& node,
-			const std::shared_ptr<thread::IoThreadPool>& pPool);
+	/// Connects to \a node as a client with certificates in \a certificateDirectory using \a pool.
+	PacketIoFuture ConnectToNode(const std::string& certificateDirectory, const ionet::Node& node, thread::IoThreadPool& pool);
 
-	/// Connects to \a node as a client with \a connectionSettings using \a pPool.
-	PacketIoFuture ConnectToNode(
-			const net::ConnectionSettings& connectionSettings,
-			const ionet::Node& node,
-			const std::shared_ptr<thread::IoThreadPool>& pPool);
+	/// Connects to \a node as a client with \a connectionSettings using \a pool.
+	PacketIoFuture ConnectToNode(const net::ConnectionSettings& connectionSettings, const ionet::Node& node, thread::IoThreadPool& pool);
 
 	/// Creates tool connection settings around certificates in \a certificateDirectory.
 	net::ConnectionSettings CreateToolConnectionSettings(const std::string& certificateDirectory);
@@ -78,6 +69,6 @@ namespace catapult { namespace tools {
 
 	private:
 		std::string m_certificateDirectory;
-		std::shared_ptr<thread::IoThreadPool> m_pPool;
+		std::unique_ptr<thread::IoThreadPool> m_pPool;
 	};
 }}

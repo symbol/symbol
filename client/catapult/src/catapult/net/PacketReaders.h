@@ -48,10 +48,10 @@ namespace catapult { namespace net {
 		virtual void shutdown() = 0;
 	};
 
-	/// Creates a packet readers container for a server with specified \a serverPublicKey using \a pPool and \a handlers,
+	/// Creates a packet readers container for a server with specified \a serverPublicKey using \a pool and \a handlers,
 	/// configured with \a settings and allowing \a maxConnectionsPerIdentity.
 	std::shared_ptr<PacketReaders> CreatePacketReaders(
-			const std::shared_ptr<thread::IoThreadPool>& pPool,
+			thread::IoThreadPool& pool,
 			const ionet::ServerPacketHandlers& handlers,
 			const Key& serverPublicKey,
 			const ConnectionSettings& settings,
