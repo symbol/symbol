@@ -34,17 +34,26 @@ namespace catapult { namespace test {
 		CATAPULT_LOG(debug) << " >>>> starting push";
 		std::atomic_bool isWriteFinished(false);
 		connection.connect([&isWriteFinished, &payload](const auto& pPacketSocket) {
-			CATAPULT_LOG(debug) << "writing entity";
-			pPacketSocket->write(payload, [&isWriteFinished](auto code) {
-				CATAPULT_LOG(debug) << "write result: " << code;
+			auto pBufferedIo = pPacketSocket->buffered();
 
-				// give server enough time for ssl handshake
-				test::Sleep(500);
+			CATAPULT_LOG(debug) << "writing entity";
+			pBufferedIo->write(payload, [&isWriteFinished](auto code) {
+				CATAPULT_LOG(debug) << "write result: " << code;
 				isWriteFinished = true;
+			});
+
+			// perform a chain info (request / response) to ensure socket is not closed until ssl handshake is completed
+			api::CreateRemoteChainApiWithoutRegistry(*pBufferedIo)->chainInfo().then([](auto&& chainInfoFuture) {
+				try {
+					CATAPULT_LOG(debug) << "received height from remote after pushing payload: " << chainInfoFuture.get().Height;
+				} catch (const api::catapult_api_error& ex) {
+					CATAPULT_LOG(warning) << "could not receive height from remote after pushing payload: " << ex.what();
+				}
 			});
 		});
 
 		WAIT_FOR(isWriteFinished);
+
 		CATAPULT_LOG(debug) << " <<< push finished";
 		return connection.io();
 	}
@@ -99,6 +108,10 @@ namespace catapult { namespace test {
 
 	// region height
 
+	namespace {
+		constexpr auto Long_Wait_Seconds = 15u;
+	}
+
 	Height GetLocalNodeHeightViaApi(ExternalSourceConnection& connection) {
 		struct ChainInfoResult {
 		public:
@@ -118,7 +131,7 @@ namespace catapult { namespace test {
 			});
 		});
 
-		WAIT_FOR(pChainInfoResult->IsHeightReceived);
+		WAIT_FOR_VALUE_SECONDS(true, pChainInfoResult->IsHeightReceived, Long_Wait_Seconds);
 		return Height(pChainInfoResult->Height);
 	}
 
@@ -135,8 +148,7 @@ namespace catapult { namespace test {
 			return currentHeight;
 		};
 
-		WAIT_FOR_VALUE_EXPR_SECONDS(height, heightSupplierWithBackoff(), 15);
-
+		WAIT_FOR_VALUE_EXPR_SECONDS(height, heightSupplierWithBackoff(), Long_Wait_Seconds);
 	}
 
 	// endregion

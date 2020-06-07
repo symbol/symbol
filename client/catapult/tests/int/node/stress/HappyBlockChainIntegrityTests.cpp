@@ -101,14 +101,15 @@ namespace catapult { namespace local {
 			pt::read_ini(configFilePath, properties);
 
 			// 1. reconnect more rapidly so nodes have a better chance to find each other
-			properties.put("static node refresh task.startDelay", "5ms");
-			properties.put("static node refresh task.minDelay", "500ms");
-			properties.put("connect peers task for service Sync.startDelay", "1s");
-			properties.put("connect peers task for service Sync.repeatDelay", "500ms");
+			properties.put("static node refresh task.startDelay", "125ms");
+			properties.put("static node refresh task.minDelay", "300ms");
+			properties.put("static node refresh task.maxDelay", "2000ms");
+			properties.put("connect peers task for service Sync.startDelay", "250ms");
+			properties.put("connect peers task for service Sync.repeatDelay", "300ms");
 
 			// 2. run far more frequent sync rounds
-			properties.put("synchronizer task.startDelay", "1s");
-			properties.put("synchronizer task.repeatDelay", "500ms");
+			properties.put("synchronizer task.startDelay", "500ms");
+			properties.put("synchronizer task.repeatDelay", "300ms");
 
 			pt::write_ini(configFilePath, properties);
 		}

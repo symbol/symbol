@@ -51,7 +51,7 @@ namespace catapult { namespace test {
 				if (static_cast<size_t>(elapsedSeconds) > timeoutSeconds)
 					return false;
 
-				Sleep(1);
+				Sleep(10);
 			}
 
 			return true;

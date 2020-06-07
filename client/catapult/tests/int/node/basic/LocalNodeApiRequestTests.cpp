@@ -46,12 +46,6 @@ namespace catapult { namespace local {
 			test::LocalNodeTestContext<test::LocalNodeApiTraits> m_context;
 		};
 
-		void AssertReaderConnection(const test::BasicLocalNodeStats& stats) {
-			// Assert: the external reader connection is still active
-			EXPECT_EQ(1u, stats.NumActiveReaders);
-			EXPECT_EQ(1u, stats.NumActiveWriters);
-		}
-
 		void AssertNoReaderConnection(const test::BasicLocalNodeStats& stats) {
 			// Assert: the external reader connection is not active
 			EXPECT_EQ(0u, stats.NumActiveReaders);
@@ -98,8 +92,9 @@ namespace catapult { namespace local {
 		EXPECT_EQ(0u, stats.NumAddedBlockElements);
 		EXPECT_EQ(1u, stats.NumAddedTransactionElements);
 
-		// - the connection is still active
-		AssertReaderConnection(stats);
+		// - the connection is no longer active because after sending the transaction, PushPayload (called by PushValidTransaction)
+		//   initiates a Chain_Info request, which is not supported and causes the connection to be closed
+		AssertNoReaderConnection(stats);
 	}
 
 	// endregion
