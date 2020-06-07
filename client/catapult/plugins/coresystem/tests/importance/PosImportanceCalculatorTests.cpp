@@ -79,15 +79,21 @@ namespace catapult { namespace importance {
 		};
 
 		class CacheHolder {
+		private:
+			using LockedAccountStateCacheDelta = cache::LockedCacheDelta<cache::AccountStateCacheDelta>;
+
 		public:
-			explicit CacheHolder(Amount minBalance)
-					: m_cache(cache::CacheConfiguration(), CreateAccountStateCacheOptions(minBalance))
-					, m_delta(m_cache.createDelta())
-			{}
+			explicit CacheHolder(Amount minBalance) : m_cache(cache::CacheConfiguration(), CreateAccountStateCacheOptions(minBalance)) {
+				resetDelta();
+			}
 
 		public:
 			auto& delta() {
-				return *m_delta;
+				return *(*m_pDelta);
+			}
+
+			state::AccountState& get(const Key& publicKey) {
+				return delta().find(publicKey).get();
 			}
 
 		public:
@@ -95,8 +101,8 @@ namespace catapult { namespace importance {
 				uint8_t i = 0;
 				for (auto accountData : accountSeeds) {
 					auto key = Key{ { ++i } };
-					m_delta->addAccount(key, Height(importanceHeight.unwrap()));
-					auto& accountState = m_delta->find(key).get();
+					delta().addAccount(key, Height(importanceHeight.unwrap()));
+					auto& accountState = get(key);
 					accountState.Balances.credit(Harvesting_Mosaic_Id, accountData.Amount);
 					for (const auto& dataBucket : accountData.Buckets) {
 						accountState.ActivityBuckets.update(dataBucket.StartHeight, [&dataBucket](auto& bucket) {
@@ -108,23 +114,19 @@ namespace catapult { namespace importance {
 
 			void commit() {
 				// recalculate high value accounts before commit
-				m_delta->updateHighValueAccounts(Height(1));
+				delta().updateHighValueAccounts(Height(1));
 
 				m_cache.commit();
 
 				// reset delta because commit is destructive
-				m_delta = cache::LockedCacheDelta<cache::AccountStateCacheDelta>(nullptr);
-				m_delta = m_cache.createDelta();
-			}
-
-		public:
-			state::AccountState& get(const Key& publicKey) {
-				return m_delta->find(publicKey).get();
+				resetDelta();
 			}
 
 		private:
-			cache::AccountStateCache m_cache;
-			cache::LockedCacheDelta<cache::AccountStateCacheDelta> m_delta;
+			void resetDelta() {
+				m_pDelta.reset();
+				m_pDelta = std::make_unique<LockedAccountStateCacheDelta>(m_cache.createDelta());
+			}
 
 		private:
 			static cache::AccountStateCacheTypes::Options CreateAccountStateCacheOptions(Amount minBalance) {
@@ -132,6 +134,10 @@ namespace catapult { namespace importance {
 				options.MinHarvesterBalance = minBalance;
 				return options;
 			}
+
+		private:
+			cache::AccountStateCache m_cache;
+			std::unique_ptr<LockedAccountStateCacheDelta> m_pDelta;
 		};
 
 		template<typename TTraits>
