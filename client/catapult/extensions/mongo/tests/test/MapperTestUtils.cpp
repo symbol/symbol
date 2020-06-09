@@ -66,6 +66,7 @@ namespace catapult { namespace test {
 	}
 
 	void AssertEqualVerifiableEntityData(const model::VerifiableEntity& entity, const bsoncxx::document::view& dbEntity) {
+		EXPECT_EQ(entity.Size, GetUint32(dbEntity, "size"));
 		EXPECT_EQ(entity.Signature, GetSignatureValue(dbEntity, "signature"));
 		AssertEqualEntityData(entity, dbEntity);
 	}
@@ -95,8 +96,8 @@ namespace catapult { namespace test {
 	}
 
 	void AssertEqualBlockData(const model::Block& block, const bsoncxx::document::view& dbBlock) {
-		// - 5 fields from VerifiableEntity, 12 fields from Block
-		EXPECT_EQ(17u, GetFieldCount(dbBlock));
+		// - 6 fields from VerifiableEntity, 12 fields from Block
+		EXPECT_EQ(18u, GetFieldCount(dbBlock));
 		AssertEqualVerifiableEntityData(block, dbBlock);
 
 		EXPECT_EQ(block.Height, Height(GetUint64(dbBlock, "height")));

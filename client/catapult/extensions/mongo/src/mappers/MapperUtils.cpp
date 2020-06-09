@@ -84,7 +84,9 @@ namespace catapult { namespace mongo { namespace mappers {
 	}
 
 	bson_stream::document& StreamVerifiableEntity(bson_stream::document& builder, const model::VerifiableEntity& entity) {
-		builder << "signature" << ToBinary(entity.Signature);
+		builder
+				<< "size" << static_cast<int32_t>(entity.Size)
+				<< "signature" << ToBinary(entity.Signature);
 		return StreamBasicEntity(builder, entity);
 	}
 

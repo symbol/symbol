@@ -350,7 +350,7 @@ namespace catapult { namespace mongo { namespace mappers {
 		auto view = builder.view();
 
 		// Assert:
-		EXPECT_EQ(5u, test::GetFieldCount(view));
+		EXPECT_EQ(6u, test::GetFieldCount(view));
 		test::AssertEqualVerifiableEntityData(entity, view);
 	}
 
