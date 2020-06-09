@@ -82,8 +82,13 @@ namespace catapult { namespace test {
 		std::string logLine;
 		std::vector<SimpleLogRecord> records;
 		auto logFile = std::fstream(logFilename);
-		while (std::getline(logFile, logLine))
-			records.push_back(ParseRecord(logLine));
+		while (std::getline(logFile, logLine)) {
+			// interpret leading space as line continuation
+			if (!logLine.empty() && ' ' == logLine[0])
+				records.back().Message += "\n" + logLine;
+			else
+				records.push_back(ParseRecord(logLine));
+		}
 
 		return records;
 	}

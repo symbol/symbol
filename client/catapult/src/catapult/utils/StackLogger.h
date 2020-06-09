@@ -22,6 +22,7 @@
 #include "Logging.h"
 #include "StackTimer.h"
 #include "TimeSpan.h"
+#include <sstream>
 
 namespace catapult { namespace utils {
 
@@ -60,8 +61,25 @@ namespace catapult { namespace utils {
 		/// Destructor.
 		~SlowOperationLogger() {
 			auto elapsedMillis = m_timer.millis();
-			if (TimeSpan::FromMilliseconds(elapsedMillis) > m_threshold)
-				CATAPULT_LOG_LEVEL(m_level) << "slow operation detected: '" << m_message << "' (" << elapsedMillis << "ms)";
+			if (TimeSpan::FromMilliseconds(elapsedMillis) <= m_threshold)
+				return;
+
+			std::ostringstream out;
+			out << "slow operation detected: '" << m_message << "' (" << elapsedMillis << "ms)";
+			for (auto i = 0u; i < m_subOperations.size(); ++i) {
+				const auto& pair = m_subOperations[i];
+				auto endMillis = (i == m_subOperations.size() - 1) ? elapsedMillis : m_subOperations[i + 1].second;
+
+				out << std::endl << " + " << pair.second << "ms: '" << pair.first << "' (" << endMillis - pair.second << "ms)";
+			}
+
+			CATAPULT_LOG_LEVEL(m_level) << out.str();
+		}
+
+	public:
+		/// Adds a sub operation with \a name for tracking.
+		void addSubOperation(const char* name) {
+			m_subOperations.emplace_back(name, m_timer.millis());
 		}
 
 	private:
@@ -69,5 +87,6 @@ namespace catapult { namespace utils {
 		LogLevel m_level;
 		TimeSpan m_threshold;
 		StackTimer m_timer;
+		std::vector<std::pair<const char*, uint64_t>> m_subOperations;
 	};
 }}

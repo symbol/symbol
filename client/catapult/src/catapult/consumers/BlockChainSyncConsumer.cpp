@@ -258,12 +258,14 @@ namespace catapult { namespace consumers {
 				utils::SlowOperationLogger logger("BlockChainSyncConsumer::commitAll", utils::LogLevel::warning);
 
 				// 1. save the peer chain into storage
+				logger.addSubOperation("save the peer chain into storage");
 				auto storageModifier = m_storage.modifier();
 				storageModifier.dropBlocksAfter(syncState.commonBlockHeight());
 				storageModifier.saveBlocks(elements);
 				m_handlers.CommitStep(CommitOperationStep::Blocks_Written);
 
 				// 2. indicate a state change
+				logger.addSubOperation("indicate a state change");
 				auto newHeight = elements.back().Block.Height;
 				m_handlers.StateChange({ cache::CacheChanges(syncState.cacheDelta()), syncState.scoreDelta(), newHeight });
 				m_handlers.PreStateWritten(syncState.cacheDelta(), newHeight);
@@ -274,11 +276,15 @@ namespace catapult { namespace consumers {
 				// - broker process is not yet able to consume changes (all changes are consumable after step 3)
 
 				// 3. commit changes to the in-memory cache and primary block chain storage
+				logger.addSubOperation("commit changes to the in-memory cache");
 				syncState.commit(newHeight);
+
+				logger.addSubOperation("commit changes to the primary block chain storage");
 				storageModifier.commit();
 				m_handlers.CommitStep(CommitOperationStep::All_Updated);
 
 				// 4. update the unconfirmed transactions
+				logger.addSubOperation("update the unconfirmed transactions");
 				auto peerTransactionHashes = ExtractTransactionHashes(elements);
 				auto revertedTransactionInfos = CollectRevertedTransactionInfos(
 						peerTransactionHashes,
