@@ -47,8 +47,8 @@ const transferPlugin = {
 				const transaction = {};
 				transaction.recipientAddress = parser.buffer(constants.sizes.addressDecoded);
 
-				const numMosaics = parser.uint8();
 				const messageSize = parser.uint16();
+				const numMosaics = parser.uint8();
 
 				transaction.transferTransactionBody_Reserved1 = parser.uint32();
 				transaction.transferTransactionBody_Reserved2 = parser.uint8();
@@ -74,9 +74,6 @@ const transferPlugin = {
 			serialize: (transaction, serializer) => {
 				serializer.writeBuffer(transaction.recipientAddress);
 
-				const numMosaics = transaction.mosaics ? transaction.mosaics.length : 0;
-				serializer.writeUint8(numMosaics);
-
 				let payloadSize = 0;
 				if (transaction.message) {
 					payloadSize = transaction.message.payload.length;
@@ -84,6 +81,9 @@ const transferPlugin = {
 				} else {
 					serializer.writeUint16(0);
 				}
+
+				const numMosaics = transaction.mosaics ? transaction.mosaics.length : 0;
+				serializer.writeUint8(numMosaics);
 
 				serializer.writeUint32(transaction.transferTransactionBody_Reserved1);
 				serializer.writeUint8(transaction.transferTransactionBody_Reserved2);
