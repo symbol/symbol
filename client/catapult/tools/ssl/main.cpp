@@ -65,7 +65,7 @@ namespace catapult { namespace tools { namespace ssl {
 						OptionsValue<std::string>(m_tempCertificateDirectory),
 						"directory with generated certificate files (will be wiped)");
 
-				optionsBuilder("host,h", OptionsValue<std::string>(m_host)->default_value("127.0.0.1"), "ssl host");
+				optionsBuilder("host,s", OptionsValue<std::string>(m_host)->default_value("127.0.0.1"), "ssl host");
 				optionsBuilder("port,p", OptionsValue<uint16_t>(m_port)->default_value(7900), "ssl port");
 
 				optionsBuilder("expected", OptionsValue<std::string>(m_expectedResult), "expected result (failure|success)");
