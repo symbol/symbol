@@ -1052,35 +1052,42 @@ namespace catapult { namespace net {
 	}
 
 	TEST(TEST_CLASS, CanBroadcastPacketOnlyToAvailablePeers) {
-		// Arrange: establish multiple connections
+		// Arrange: keep numReads alive because counter is incremented during writers destruction by reads queued for unavailable peers
 		constexpr auto Num_Connections = 5u;
-		PacketWritersTestContext context(Num_Connections);
-		auto& writers = *context.pWriters;
-		auto state = SetupMultiConnectionTest(context);
-		MultiConnectionStateGuard stateGuard(writers, state);
-
-		// Act: check out a few peers (0, 1)
-		auto pIo1 = writers.pickOne(Default_Timeout).io();
-		auto pIo2 = writers.pickOne(Default_Timeout).io();
-
-		// - broadcast a random packet
-		auto buffer = test::GenerateRandomPacketBuffer(95);
-		writers.broadcast(test::BufferToPacketPayload(buffer));
-
-		// Assert: the broadcast packet was only sent to available peers
-		//         the checked out peers received no packets
-		auto i = 0u;
 		auto numReads = std::atomic<size_t>(0);
-		for (const auto& pSocket : state.ServerSockets) {
-			pSocket->read(HandleSocketReadInSendTests(numReads, buffer, i > 1));
-			++i;
+
+		{
+			// - establish multiple connections
+			PacketWritersTestContext context(Num_Connections);
+			auto& writers = *context.pWriters;
+			auto state = SetupMultiConnectionTest(context);
+			MultiConnectionStateGuard stateGuard(writers, state);
+
+			// Act: check out a few peers (0, 1)
+			auto pIo1 = writers.pickOne(Default_Timeout).io();
+			auto pIo2 = writers.pickOne(Default_Timeout).io();
+
+			// - broadcast a random packet
+			auto buffer = test::GenerateRandomPacketBuffer(95);
+			writers.broadcast(test::BufferToPacketPayload(buffer));
+
+			// Assert: the broadcast packet was only sent to available peers
+			//         the checked out peers received no packets
+			auto i = 0u;
+			for (const auto& pSocket : state.ServerSockets) {
+				pSocket->read(HandleSocketReadInSendTests(numReads, buffer, i > 1));
+				++i;
+			}
+
+			// - note that nothing is written to the checked out sockets so they do not update the read counter
+			WAIT_FOR_VALUE(Num_Connections - 2, numReads);
+
+			// - all connections are still open but two peers are checked out
+			EXPECT_NUM_ACTIVE_AVAILABLE_WRITERS(Num_Connections, Num_Connections - 2, writers);
 		}
 
-		// - note that nothing is written to the checked out sockets so they do not update the read counter
-		WAIT_FOR_VALUE(Num_Connections - 2, numReads);
-
-		// - all connections are still open but two peers are checked out
-		EXPECT_NUM_ACTIVE_AVAILABLE_WRITERS(Num_Connections, Num_Connections - 2, writers);
+		// Sanity:
+		WAIT_FOR_VALUE(Num_Connections, numReads);
 	}
 
 	TEST(TEST_CLASS, BroadcastDoesNotInvalidateCheckedOutPeers) {
