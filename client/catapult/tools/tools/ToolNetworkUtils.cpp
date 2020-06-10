@@ -28,19 +28,6 @@
 
 namespace catapult { namespace tools {
 
-	namespace {
-		ionet::Node CreateLocalNode(const Key& serverPublicKey) {
-			return ionet::Node(
-					{ serverPublicKey, "127.0.0.1" },
-					{ "127.0.0.1", 7900 },
-					{ model::UniqueNetworkFingerprint(), "tool endpoint" });
-		}
-	}
-
-	PacketIoFuture ConnectToLocalNode(const std::string& certificateDirectory, const Key& serverPublicKey, thread::IoThreadPool& pool) {
-		return ConnectToNode(certificateDirectory, CreateLocalNode(serverPublicKey), pool);
-	}
-
 	net::ConnectionSettings CreateToolConnectionSettings(const std::string& certificateDirectory) {
 		auto settings = net::ConnectionSettings();
 		settings.NetworkIdentifier = model::NetworkIdentifier::Mijin_Test;

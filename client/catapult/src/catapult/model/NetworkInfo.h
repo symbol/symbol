@@ -70,4 +70,9 @@ namespace catapult { namespace model {
 		/// Nemesis epoch time adjustment.
 		utils::TimeSpan EpochAdjustment;
 	};
+
+	/// Gets the unique network fingerprint for \a networkInfo.
+	inline UniqueNetworkFingerprint GetUniqueNetworkFingerprint(const NetworkInfo& networkInfo) {
+		return UniqueNetworkFingerprint(networkInfo.Identifier, networkInfo.GenerationHashSeed);
+	}
 }}

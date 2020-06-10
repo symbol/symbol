@@ -37,10 +37,6 @@ namespace catapult { namespace tools {
 	/// Future that returns a packet io shared pointer.
 	using PacketIoFuture = thread::future<std::shared_ptr<ionet::PacketIo>>;
 
-	/// Connects to localhost as a client with certificates in \a certificateDirectory using \a pool.
-	/// Localhost is expected to have identity \a serverPublicKey.
-	PacketIoFuture ConnectToLocalNode(const std::string& certificateDirectory, const Key& serverPublicKey, thread::IoThreadPool& pool);
-
 	/// Connects to \a node as a client with certificates in \a certificateDirectory using \a pool.
 	PacketIoFuture ConnectToNode(const std::string& certificateDirectory, const ionet::Node& node, thread::IoThreadPool& pool);
 

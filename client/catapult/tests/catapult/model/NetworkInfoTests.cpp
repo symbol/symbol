@@ -57,4 +57,21 @@ namespace catapult { namespace model {
 		EXPECT_EQ(generationHashSeed, networkInfo.GenerationHashSeed);
 		EXPECT_EQ(utils::TimeSpan::FromHours(123), networkInfo.EpochAdjustment);
 	}
+
+	TEST(TEST_CLASS, CanGetUniqueNetworkFingerprintForNetwork) {
+		// Arrange:
+		NetworkInfo networkInfo(
+				static_cast<NetworkIdentifier>(0xB9),
+				static_cast<NodeIdentityEqualityStrategy>(0xA7),
+				test::GenerateRandomByteArray<Key>(),
+				test::GenerateRandomByteArray<GenerationHashSeed>(),
+				utils::TimeSpan::FromHours(123));
+
+		// Act:
+		auto fingerprint = GetUniqueNetworkFingerprint(networkInfo);
+
+		// Assert:
+		EXPECT_EQ(static_cast<NetworkIdentifier>(0xB9), fingerprint.Identifier);
+		EXPECT_EQ(networkInfo.GenerationHashSeed, fingerprint.GenerationHashSeed);
+	}
 }}
