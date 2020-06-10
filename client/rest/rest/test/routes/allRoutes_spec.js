@@ -45,7 +45,7 @@ describe('all routes', () => {
 
 			'/blocks',
 			'/blocks/:height',
-			'/blocks/:height/transaction/:hash/merkle',
+			'/blocks/:height/transactions/:hash/merkle',
 			'/state/:state/hash/:hash/merkle',
 
 			'/chain/height',

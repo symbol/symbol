@@ -57,7 +57,7 @@ module.exports = {
 		});
 
 		server.get(
-			'/blocks/:height/transaction/:hash/merkle',
+			'/blocks/:height/transactions/:hash/merkle',
 			routeUtils.blockRouteMerkleProcessor(db, 'numTransactions', 'transactionMerkleTree')
 		);
 
