@@ -12,6 +12,21 @@ Catapult REST gateway combines HTTP and WebSockets to perform read and write act
 - [catapult-server][catapult-server] configured as an [API node][api-node].
 - MongoDb 4.2
 
+## Versioning
+
+Make sure you choose a [version compatible](COMPATIBILITY.md) with the [catapult-server][catapult-server] node you want to use it with.
+
+Version number is described as follows:
+
+`v1.X.Y.Z`
+
+- The first numer is symbolic for pre-release and should not be taken into consideration.
+- X: This serves to lock for compatibility with `catapult-server`, thus it is safe to update by keeping this number without REST
+losing server compatibility. Additionally, any breaking change to the server should require to upgrade this number.
+- Y: This serves to lock on safe updates to this project, thus it is safe to update by keeping this number without worrying about
+introducing breaking changes.
+- Z: Represents minor changes progress, used to identify specific versions when reporting bugs, or to get extensions to the code.
+
 ## Installation
 
 1. Edit ``rest/resources/rest.json`` configuration:
