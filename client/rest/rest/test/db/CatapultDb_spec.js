@@ -1696,7 +1696,7 @@ describe('catapult db', () => {
 				return runTestAndVerifyIds(dbTransactions, filters, paginationOptions, [10, 40]);
 			});
 
-			describe('state', () => {
+			describe('group', () => {
 				// Arrange:
 				const dbTransactions = () => ({
 					transactions: [createTransaction(10, [], 1)],
@@ -1704,13 +1704,13 @@ describe('catapult db', () => {
 					unconfirmedTransactions: [createTransaction(30, [], 1)]
 				});
 
-				const runStateTest = (state, expectedIds) => {
-					it(`state: ${state}`, () => {
+				const runGroupTest = (group, expectedIds) => {
+					it(`group: ${group}`, () => {
 						const expectedObjectIds = expectedIds.map(id => createObjectId(id));
 
 						return runDbTest(
 							dbTransactions(),
-							db => db.transactions({ state }, paginationOptions),
+							db => db.transactions({ group }, paginationOptions),
 							transactionsPage => {
 								const returnedIds = transactionsPage.data.map(t => t.id);
 								expect(transactionsPage.data.length).to.equal(expectedObjectIds.length);
@@ -1720,9 +1720,9 @@ describe('catapult db', () => {
 					});
 				};
 
-				runStateTest('confirmed', [10]);
-				runStateTest('partial', [20]);
-				runStateTest('unconfirmed', [30]);
+				runGroupTest('confirmed', [10]);
+				runGroupTest('partial', [20]);
+				runGroupTest('unconfirmed', [30]);
 
 				it('defaults to confirmed', () =>
 					// Act + Assert:

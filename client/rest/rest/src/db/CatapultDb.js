@@ -365,10 +365,9 @@ class CatapultDb {
 	/**
 	 * Retrieves filtered and paginated transactions.
 	 * @param {object} filters Filters to be applied: `address` for an involved address in the query, `signerPublicKey`, `recipientAddress`,
-	 * `state`, `height`, `embedded`, `transactionTypes` array of uint. If `address` is provided, other account related filters are omitted.
+	 * `group`, `height`, `embedded`, `transactionTypes` array of uint. If `address` is provided, other account related filters are omitted.
 	 * @param {object} options Options for ordering and pagination. Can have an `offset`, and must contain the `sortField`, `sortDirection`,
-	 * `pageSize`.
-	 * and `pageNumber`.
+	 * `pageSize` and `pageNumber`.
 	 * @returns {Promise.<object>} Transactions page.
 	 */
 	transactions(filters, options) {
@@ -380,7 +379,7 @@ class CatapultDb {
 			};
 			return collectionNames[transactionStatus];
 		};
-		const collectionName = getCollectionName(filters.state);
+		const collectionName = getCollectionName(filters.group);
 
 		const buildAccountConditions = () => {
 			if (filters.address)

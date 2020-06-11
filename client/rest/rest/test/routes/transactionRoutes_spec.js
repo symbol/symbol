@@ -187,7 +187,7 @@ describe('transaction routes', () => {
 							height: undefined,
 							recipientAddress: undefined,
 							signerPublicKey: undefined,
-							state: undefined,
+							group: undefined,
 							embedded: undefined,
 							transactionTypes: undefined
 						};
@@ -207,7 +207,7 @@ describe('transaction routes', () => {
 					{ filter: 'signerPublicKey', param: testPublickeyString, value: testPublickey },
 					{ filter: 'recipientAddress', param: testAddressString, value: testAddress },
 					{ filter: 'embedded', param: 'true', value: true },
-					{ filter: 'state', param: 'confirmed', value: 'confirmed' }
+					{ filter: 'group', param: 'confirmed', value: 'confirmed' }
 				];
 
 				testCases.forEach(testCase => {
@@ -224,7 +224,7 @@ describe('transaction routes', () => {
 							height: undefined,
 							recipientAddress: undefined,
 							signerPublicKey: undefined,
-							state: undefined,
+							group: undefined,
 							embedded: undefined,
 							transactionTypes: [1, 5, 25]
 						});
@@ -284,32 +284,32 @@ describe('transaction routes', () => {
 				});
 			});
 
-			describe('checks correct state is provided', () => {
-				const runValidStateTest = state => {
-					it(state, () =>
+			describe('checks correct group is provided', () => {
+				const runValidGroupTest = group => {
+					it(group, () =>
 						// Act + Assert
-						mockServer.callRoute(route, { params: { state } }).then(() => {
+						mockServer.callRoute(route, { params: { group } }).then(() => {
 							expect(dbTransactionsFake.firstCall.args[0]).to.deep.equal({
 								address: undefined,
 								height: undefined,
 								recipientAddress: undefined,
 								signerPublicKey: undefined,
-								state,
+								group,
 								embedded: undefined,
 								transactionTypes: undefined
 							});
 						}));
 				};
 
-				['confirmed', 'unconfirmed', 'partial'].forEach(state => runValidStateTest(state));
+				['confirmed', 'unconfirmed', 'partial'].forEach(group => runValidGroupTest(group));
 
 				it('invalid', () => {
 					const req = {
-						params: { state: 'nonsenseSatate' }
+						params: { group: 'nonsenseGroup' }
 					};
 
 					// Act + Assert
-					expect(() => mockServer.callRoute(route, req)).to.throw('invalid transaction state provided');
+					expect(() => mockServer.callRoute(route, req)).to.throw('invalid transaction group provided');
 				});
 			});
 		});

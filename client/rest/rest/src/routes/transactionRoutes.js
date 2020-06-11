@@ -81,8 +81,8 @@ module.exports = {
 				);
 			}
 
-			if (params.state && !['confirmed', 'unconfirmed', 'partial'].includes(params.state))
-				throw errors.createInvalidArgumentError('invalid transaction state provided');
+			if (params.group && !['confirmed', 'unconfirmed', 'partial'].includes(params.group))
+				throw errors.createInvalidArgumentError('invalid transaction group provided');
 
 			const filters = {
 				height: params.height ? parseHeight(params) : undefined,
@@ -91,7 +91,7 @@ module.exports = {
 				recipientAddress: params.recipientAddress ? routeUtils.parseArgument(params, 'recipientAddress', 'address') : undefined,
 				transactionTypes: params.type ? routeUtils.parseArgumentAsArray(params, 'type', 'uint') : undefined,
 				embedded: params.embedded ? routeUtils.parseArgument(params, 'embedded', 'boolean') : undefined,
-				state: params.state
+				group: params.group
 			};
 
 			const options = routeUtils.parsePaginationArguments(params, services.config.pageSize, ['_id']);
