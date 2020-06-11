@@ -175,8 +175,6 @@ TransactionDTO:
   "$ref": "../core/transaction/schemas/TransactionDTO.yml"
 TransactionInfoDTO:
   "$ref": "../core/transaction/schemas/TransactionInfoDTO.yml"
-TransactionInfoExtendedDTO:
-  "$ref": "../core/transaction/schemas/TransactionInfoExtendedDTO.yml"
 TransactionMetaDTO:
   "$ref": "../core/transaction/schemas/TransactionMetaDTO.yml"
 TransactionStatusDTO:
