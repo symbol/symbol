@@ -150,7 +150,7 @@ describe('lock hash db', () => {
 		describe('hashLocks by owners', () => {
 			describe('by address', () => addLockHashByAccountTests({
 				collectionName: 'hash',
-				dbMethodName: 'hashLocksByAccounts',
+				dbMethodName: 'hashLocksByAddresses',
 				createRandomHash: testUtils.random.hash,
 				createLockHash: test.db.createHashLock,
 				createLockHashes: test.db.createHashLocks,

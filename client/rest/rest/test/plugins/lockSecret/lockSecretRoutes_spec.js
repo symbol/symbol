@@ -43,11 +43,11 @@ describe('lock secret routes', () => {
 		})
 	};
 
-	describe('get secret lock infos by account', () => {
-		describe('get by account', () => {
+	describe('get secret lock infos by address', () => {
+		describe('get by address', () => {
 			const addGetTests = traits => {
 				const pagingTestsFactory = test.setup.createPagingTestsFactory(
-					factory.createLockSecretPagingRouteInfo('/account/:address/lock/secret', 'get', 'secretLocksByAccounts'),
+					factory.createLockSecretPagingRouteInfo('/account/:address/lock/secret', 'get', 'secretLocksByAddresses'),
 					traits.valid.params,
 					traits.valid.expected,
 					'secretLockInfo'

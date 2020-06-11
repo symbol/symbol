@@ -30,14 +30,14 @@ class LockHashDb {
 	// region lock retrieval
 
 	/**
-	 * Retrieves hash infos for given accounts.
+	 * Retrieves hash infos for given addresses.
 	 * @param {array<{Uint8Array}>} addresses Account addresses.
 	 * @param {string} id Paging id.
 	 * @param {int} pageSize Page size.
 	 * @param {object} options Additional options.
 	 * @returns {Promise.<array>} Hash lock infos for all accounts.
 	 */
-	hashLocksByAccounts(addresses, id, pageSize, options) {
+	hashLocksByAddresses(addresses, id, pageSize, options) {
 		const buffers = addresses.map(address => Buffer.from(address));
 		const conditions = { 'lock.ownerAddress': { $in: buffers } };
 		return this.catapultDb.queryPagedDocuments('hashLocks', conditions, id, pageSize, options)

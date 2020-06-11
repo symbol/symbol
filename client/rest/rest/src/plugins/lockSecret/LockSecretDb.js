@@ -37,7 +37,7 @@ class LockSecretDb {
 	 * @param {object} options Additional options.
 	 * @returns {Promise.<array>} Secret lock infos for all accounts.
 	 */
-	secretLocksByAccounts(addresses, id, pageSize, options) {
+	secretLocksByAddresses(addresses, id, pageSize, options) {
 		const buffers = addresses.map(address => Buffer.from(address));
 		const conditions = { 'lock.ownerAddress': { $in: buffers } };
 		return this.catapultDb.queryPagedDocuments('secretLocks', conditions, id, pageSize, options)

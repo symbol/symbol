@@ -118,7 +118,7 @@ describe('lock secret db', () => {
 		describe('secretLocks by owners', () => {
 			describe('by address', () => addLockSecretByAccountTests({
 				collectionName: 'secret',
-				dbMethodName: 'secretLocksByAccounts',
+				dbMethodName: 'secretLocksByAddresses',
 				createRandomHash: testUtils.random.secret,
 				createLockSecret: test.db.createSecretLock,
 				createLockSecrets: test.db.createSecretLocks,

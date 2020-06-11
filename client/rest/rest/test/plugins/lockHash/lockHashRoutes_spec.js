@@ -44,10 +44,10 @@ describe('lock hash routes', () => {
 	};
 
 	describe('get hash lock infos', () => {
-		describe('get by account', () => {
+		describe('get by address', () => {
 			const addGetTests = traits => {
 				const pagingTestsFactory = test.setup.createPagingTestsFactory(
-					factory.createLockHashPagingRouteInfo('/account/:address/lock/hash', 'get', 'hashLocksByAccounts'),
+					factory.createLockHashPagingRouteInfo('/account/:address/lock/hash', 'get', 'hashLocksByAddresses'),
 					traits.valid.params,
 					traits.valid.expected,
 					'hashLockInfo'

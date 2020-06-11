@@ -26,7 +26,7 @@ module.exports = {
 			const accountAddress = routeUtils.parseArgument(req.params, 'address', 'address');
 			const pagingOptions = routeUtils.parsePagingArguments(req.params);
 
-			return db.secretLocksByAccounts([accountAddress], pagingOptions.id, pagingOptions.pageSize)
+			return db.secretLocksByAddresses([accountAddress], pagingOptions.id, pagingOptions.pageSize)
 				.then(routeUtils.createSender('secretLockInfo').sendArray('address', res, next));
 		});
 

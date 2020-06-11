@@ -26,7 +26,7 @@ module.exports = {
 			const accountAddress = routeUtils.parseArgument(req.params, 'address', 'address');
 			const pagingOptions = routeUtils.parsePagingArguments(req.params);
 
-			return db.hashLocksByAccounts([accountAddress], pagingOptions.id, pagingOptions.pageSize)
+			return db.hashLocksByAddresses([accountAddress], pagingOptions.id, pagingOptions.pageSize)
 				.then(routeUtils.createSender('hashLockInfo').sendArray('address', res, next));
 		});
 
