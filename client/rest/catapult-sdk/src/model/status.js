@@ -46,6 +46,7 @@ const toStringInternal = code => {
 	case 0x80530001: return 'Failure_Signature_Not_Verifiable';
 	case 0x804C0001: return 'Failure_AccountLink_Link_Already_Exists';
 	case 0x804C0002: return 'Failure_AccountLink_Inconsistent_Unlink_Data';
+	case 0x804C0003: return 'Failure_AccountLink_Unknown_Link';
 	case 0x804C0004: return 'Failure_AccountLink_Remote_Account_Ineligible';
 	case 0x804C0005: return 'Failure_AccountLink_Remote_Account_Signer_Prohibited';
 	case 0x804C0006: return 'Failure_AccountLink_Remote_Account_Participant_Prohibited';
