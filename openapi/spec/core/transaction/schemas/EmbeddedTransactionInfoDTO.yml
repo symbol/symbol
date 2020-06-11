@@ -1,8 +1,12 @@
 type: object
 required:
+  - id
   - meta
   - transaction
 properties:
+  id:
+    type: string
+    description: Internal resource identifier.
   meta:
     $ref: "./EmbeddedTransactionMetaDTO.yml"
   transaction:
