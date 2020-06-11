@@ -134,6 +134,8 @@ const createDbBlock = height => {
 	return { meta, block };
 };
 
+const createDbBlockWithId = (id, height) => Object.assign({ _id: createObjectId(id) }, createDbBlock(height));
+
 const createDbTransaction = (id, signerPublicKey, recipientAddress, options) => {
 	// meta data
 	const meta = {
@@ -269,6 +271,7 @@ const dbTestUtils = {
 		createObjectId,
 		createAccounts,
 		createDbBlock,
+		createDbBlockWithId,
 		createDbTransaction,
 		createDbTransactions,
 		createChainStatistic,

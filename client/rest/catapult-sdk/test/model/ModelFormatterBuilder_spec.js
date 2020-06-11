@@ -68,7 +68,6 @@ describe('model formatter builder', () => {
 			// Act:
 			const result = formatter.transactionWithMetadata.format({
 				meta: {
-					id: 0,
 					height: 0,
 					hash: 0
 				},
@@ -86,7 +85,6 @@ describe('model formatter builder', () => {
 			// Assert:
 			expect(result).to.deep.equal({
 				meta: {
-					id: 'objectId',
 					height: 'uint64',
 					hash: 'binary'
 				},

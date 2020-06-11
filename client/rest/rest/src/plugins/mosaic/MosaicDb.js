@@ -66,7 +66,7 @@ class MosaicDb {
 		return collection.find(conditions)
 			.sort({ _id: -1 })
 			.toArray()
-			.then(entities => Promise.resolve(this.catapultDb.sanitizer.deleteIds(entities)));
+			.then(entities => Promise.resolve(this.catapultDb.sanitizer.renameIds(entities)));
 	}
 }
 

@@ -83,7 +83,6 @@ class ModelSchemaBuilder {
 			transactionMetadata: {
 				aggregateHash: ModelType.binary,
 				aggregateId: ModelType.objectId,
-				id: ModelType.objectId,
 				height: ModelType.uint64,
 				hash: ModelType.binary,
 				merkleComponentHash: ModelType.binary

@@ -277,7 +277,6 @@ describe('model schema builder', () => {
 			expect(matchingProperties).to.deep.equal([
 				'blockHeaderWithMetadata.id',
 				'transactionMetadata.aggregateId',
-				'transactionMetadata.id',
 				'transactionWithMetadata.id'
 			]);
 		});

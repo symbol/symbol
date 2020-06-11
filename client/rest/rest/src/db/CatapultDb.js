@@ -62,6 +62,23 @@ const createSanitizer = () => ({
 			delete dbObject._id;
 		});
 		return dbObjects;
+	},
+
+	renameId: dbObject => {
+		if (dbObject) {
+			dbObject.id = dbObject._id;
+			delete dbObject._id;
+		}
+
+		return dbObject;
+	},
+
+	renameIds: dbObjects => {
+		dbObjects.forEach(dbObject => {
+			dbObject.id = dbObject._id;
+			delete dbObject._id;
+		});
+		return dbObjects;
 	}
 });
 
@@ -143,7 +160,7 @@ class CatapultDb {
 		return collection.find(conditions)
 			.project(options.projection)
 			.toArray()
-			.then(this.sanitizer.copyAndDeleteIds);
+			.then(this.sanitizer.renameIds);
 	}
 
 	queryPagedDocuments(collectionName, conditions, id, pageSize, options = {}) {
@@ -224,7 +241,7 @@ class CatapultDb {
 			'blocks',
 			{ 'block.height': convertToLong(height) },
 			{ 'meta.transactionMerkleTree': 0, 'meta.statementMerkleTree': 0 }
-		).then(this.sanitizer.deleteId);
+		).then(this.sanitizer.renameId);
 	}
 
 	blockWithMerkleTreeAtHeight(height, merkleTreeName) {
@@ -276,41 +293,6 @@ class CatapultDb {
 			return Promise.resolve([]);
 
 		return this.queryDocumentsAndCopyIds(collectionName, { 'meta.aggregateId': { $in: aggregateIds } });
-	}
-
-	queryTransactions(conditions, id, pageSize, options) {
-		// don't expose private meta.addresses field
-		const optionsWithProjection = Object.assign({ projection: { 'meta.addresses': 0 } }, options);
-
-		// filter out dependent documents
-		const collectionName = (options || {}).collectionName || 'transactions';
-		const transactionConditions = { $and: [{ 'meta.aggregateId': { $exists: false } }, conditions] };
-
-		return this.queryPagedDocuments(collectionName, transactionConditions, id, pageSize, optionsWithProjection)
-			.then(this.sanitizer.copyAndDeleteIds)
-			.then(transactions => {
-				const aggregateIds = [];
-				const aggregateIdToTransactionMap = {};
-				transactions
-					.filter(isAggregateType)
-					.forEach(document => {
-						const aggregateId = document.meta.id;
-						aggregateIds.push(aggregateId);
-						aggregateIdToTransactionMap[aggregateId.toString()] = document.transaction;
-					});
-
-				return this.queryDependentDocuments(collectionName, aggregateIds).then(dependentDocuments => {
-					dependentDocuments.forEach(dependentDocument => {
-						const transaction = aggregateIdToTransactionMap[dependentDocument.meta.aggregateId];
-						if (!transaction.transactions)
-							transaction.transactions = [];
-
-						transaction.transactions.push(dependentDocument);
-					});
-
-					return transactions;
-				});
-			});
 	}
 
 	/**
@@ -458,7 +440,7 @@ class CatapultDb {
 				if (!document || !isAggregateType(document))
 					return document;
 
-				return this.queryDependentDocuments(collectionName, [document.meta.id]).then(dependentDocuments => {
+				return this.queryDependentDocuments(collectionName, [document.id]).then(dependentDocuments => {
 					dependentDocuments.forEach(dependentDocument => {
 						if (!document.transaction.transactions)
 							document.transaction.transactions = [];
