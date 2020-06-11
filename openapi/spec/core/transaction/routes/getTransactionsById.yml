@@ -14,7 +14,7 @@ responses:
           type: array
           description: Array of transactions information.
           items:
-            $ref: "../schemas/TransactionInfoExtendedDTO.yml"
+            $ref: "../schemas/TransactionInfoDTO.yml"
   "400":
     $ref: "../../../responses/InvalidContent.yml"
   "409":
