@@ -4,7 +4,6 @@ required:
   - aggregateHash
   - aggregateId
   - index
-  - id
 properties:
   height:
     $ref: "../../../schemas/Height.yml"
@@ -16,6 +15,3 @@ properties:
   index:
     type: integer
     description: Transaction index within the aggregate.
-  id:
-    type: string
-    description: Identifier of the transaction.
