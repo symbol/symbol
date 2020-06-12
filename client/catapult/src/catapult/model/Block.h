@@ -31,18 +31,6 @@ namespace catapult { namespace model {
 
 #pragma pack(push, 1)
 
-	/// VRF proof for the verifiable random function.
-	struct PackedVrfProof {
-		/// Gamma.
-		crypto::ProofGamma Gamma;
-
-		/// Verification hash.
-		crypto::ProofVerificationHash VerificationHash;
-
-		/// Scalar.
-		crypto::ProofScalar Scalar;
-	};
-
 	/// Binary layout for a block header.
 	struct BlockHeader : public VerifiableEntity {
 	public:
@@ -63,7 +51,7 @@ namespace catapult { namespace model {
 		catapult::Difficulty Difficulty;
 
 		/// Generation hash proof.
-		PackedVrfProof GenerationHashProof;
+		crypto::VrfProof GenerationHashProof;
 
 		/// Previous block hash.
 		Hash256 PreviousBlockHash;

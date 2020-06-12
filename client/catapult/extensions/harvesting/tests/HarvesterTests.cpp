@@ -390,10 +390,6 @@ namespace catapult { namespace harvesting {
 	}
 
 	namespace {
-		crypto::VrfProof UnpackVrfProof(const model::PackedVrfProof& proof) {
-			return { proof.Gamma, proof.VerificationHash, proof.Scalar };
-		}
-
 		void AssertHarvestedBlockHasExpectedProperties(
 				const Address& beneficiary,
 				const std::function<Address (const Key&)>& expectedBeneficiaryAccessor) {
@@ -430,7 +426,7 @@ namespace catapult { namespace harvesting {
 				EXPECT_TRUE(model::VerifyBlockHeaderSignature(*pBlock));
 				EXPECT_TRUE(model::IsSizeValid(*pBlock, model::TransactionRegistry()));
 
-				auto vrfProof = UnpackVrfProof(pBlock->GenerationHashProof);
+				const auto& vrfProof = pBlock->GenerationHashProof;
 				auto verifyResult = crypto::VerifyVrfProof(vrfProof, context.LastBlockElement.GenerationHash, bestHarvester.VrfPublicKey);
 				EXPECT_NE(Hash512(), verifyResult);
 				return true;

@@ -22,6 +22,18 @@
 
 namespace catapult { namespace crypto {
 
+	// region ots options
+
+	bool OtsOptions::operator==(const OtsOptions& rhs) const {
+		return MaxRounds == rhs.MaxRounds && MaxSubRounds == rhs.MaxSubRounds;
+	}
+
+	bool OtsOptions::operator!=(const OtsOptions& rhs) const {
+		return !(*this == rhs);
+	}
+
+	// endregion
+
 	// region step identifier
 
 	bool StepIdentifier::operator==(const StepIdentifier& rhs) const {
@@ -53,18 +65,6 @@ namespace catapult { namespace crypto {
 	std::ostream& operator<<(std::ostream& out, const StepIdentifier& stepIdentifier) {
 		out << "(" << stepIdentifier.Point << ", " << stepIdentifier.Round << ", " << stepIdentifier.SubRound << ")";
 		return out;
-	}
-
-	// endregion
-
-	// region ots options
-
-	bool OtsOptions::operator==(const OtsOptions& rhs) const {
-		return MaxRounds == rhs.MaxRounds && MaxSubRounds == rhs.MaxSubRounds;
-	}
-
-	bool OtsOptions::operator!=(const OtsOptions& rhs) const {
-		return !(*this == rhs);
 	}
 
 	// endregion

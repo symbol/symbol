@@ -23,12 +23,42 @@
 #include "catapult/crypto/SharedKey.h"
 #include "catapult/utils/HexParser.h"
 #include "tests/test/crypto/CurveUtils.h"
+#include "tests/test/nodeps/Alignment.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace crypto {
 
 #define TEST_CLASS VrfTests
+
+	// region size + alignment
+
+#define VRF_PROOF_FIELDS FIELD(Gamma) FIELD(VerificationHash) FIELD(Scalar)
+
+	TEST(TEST_CLASS, VrfProofHasExpectedSize) {
+		// Arrange:
+		auto expectedSize = 0u;
+
+#define FIELD(X) expectedSize += sizeof(VrfProof::X);
+		VRF_PROOF_FIELDS
+#undef FIELD
+
+		// Assert:
+		EXPECT_EQ(expectedSize, sizeof(VrfProof));
+		EXPECT_EQ(80u, sizeof(VrfProof));
+	}
+
+	TEST(TEST_CLASS, VrfProofHasProperAlignment) {
+#define FIELD(X) EXPECT_ALIGNED(VrfProof, X);
+		VRF_PROOF_FIELDS
+#undef FIELD
+
+		EXPECT_EQ(0u, sizeof(VrfProof) % 8);
+	}
+
+#undef VRF_PROOF_FIELDS
+
+	// endregion
 
 	// region test vectors
 

@@ -26,6 +26,28 @@ namespace catapult { namespace crypto {
 	using OtsPublicKey = Key;
 	using OtsSignature = Signature;
 
+	// region ots options
+
+	/// Ots tree options.
+	struct OtsOptions {
+		/// Max rounds.
+		uint64_t MaxRounds;
+
+		/// Max sub rounds.
+		uint64_t MaxSubRounds;
+
+	public:
+		/// Returns \c true if these options are equal to \a rhs.
+		bool operator==(const OtsOptions& rhs) const;
+
+		/// Returns \c true if these options are not equal to \a rhs.
+		bool operator!=(const OtsOptions& rhs) const;
+	};
+
+	// endregion
+
+#pragma pack(push, 1)
+
 	// region step identifier
 
 	/// Finalization step identifier.
@@ -64,27 +86,7 @@ namespace catapult { namespace crypto {
 
 	// endregion
 
-	// region ots options
-
-	/// Ots tree options.
-	struct OtsOptions {
-		/// Max rounds.
-		uint64_t MaxRounds;
-
-		/// Max sub rounds.
-		uint64_t MaxSubRounds;
-
-	public:
-		/// Returns \c true if these options are equal to \a rhs.
-		bool operator==(const OtsOptions& rhs) const;
-
-		/// Returns \c true if these options are not equal to \a rhs.
-		bool operator!=(const OtsOptions& rhs) const;
-	};
-
-	// endregion
-
-#pragma pack(push, 1)
+	// region public key signature pair
 
 	/// Signature pair.
 	struct OtsParentPublicKeySignaturePair {
@@ -94,6 +96,8 @@ namespace catapult { namespace crypto {
 		/// Signature.
 		OtsSignature Signature;
 	};
+
+	// endregion
 
 	// region ots tree signature
 

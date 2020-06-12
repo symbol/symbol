@@ -19,40 +19,13 @@
 **/
 
 #include "catapult/crypto_voting/OtsTypes.h"
+#include "tests/test/nodeps/Alignment.h"
 #include "tests/test/nodeps/Comparison.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace crypto {
 
-	// region step identifier operators
-
-	namespace {
-		std::vector<StepIdentifier> GenerateIncreasingStepIdValues() {
-			return {
-					{ 5, 0, 0 },
-					{ 10, 0, 0 },
-					{ 11, 0, 0 },
-					{ 11, 1, 0 },
-					{ 11, 4, 0 },
-					{ 11, 4, 5 }
-			};
-		}
-	}
-
-	DEFINE_EQUALITY_AND_COMPARISON_TESTS(StepIdentifierTests, GenerateIncreasingStepIdValues())
-
-	TEST(TEST_CLASS, CanOutputStepIdentifier) {
-		// Arrange:
-		StepIdentifier stepdIdentifier{ 11, 5, 215 };
-
-		// Act:
-		auto str = test::ToString(stepdIdentifier);
-
-		// Assert:
-		EXPECT_EQ("(11, 5, 215)", str);
-	}
-
-	// endregion
+#define TEST_CLASS OtsTypesTests
 
 	// region ots options operators
 
@@ -73,7 +46,70 @@ namespace catapult { namespace crypto {
 		}
 	}
 
-	DEFINE_EQUALITY_TESTS_WITH_CUSTOM_FORMATTER(OtsOptionsTests, GenerateIncreasingOtsOptionsValues(), OtsOptionsToString)
+	DEFINE_EQUALITY_TESTS_WITH_CUSTOM_FORMATTER_WITH_PREFIX(
+			TEST_CLASS,
+			GenerateIncreasingOtsOptionsValues(),
+			OtsOptionsToString,
+			OtsOptions_)
+
+	// endregion
+
+	// region step identifier operators
+
+	namespace {
+		std::vector<StepIdentifier> GenerateIncreasingStepIdValues() {
+			return {
+					{ 5, 0, 0 },
+					{ 10, 0, 0 },
+					{ 11, 0, 0 },
+					{ 11, 1, 0 },
+					{ 11, 4, 0 },
+					{ 11, 4, 5 }
+			};
+		}
+	}
+
+	DEFINE_EQUALITY_AND_COMPARISON_TESTS_WITH_PREFIX(TEST_CLASS, GenerateIncreasingStepIdValues(), StepIdentifier_)
+
+	TEST(TEST_CLASS, StepIdentifier_CanOutputStepIdentifier) {
+		// Arrange:
+		StepIdentifier stepdIdentifier{ 11, 5, 215 };
+
+		// Act:
+		auto str = test::ToString(stepdIdentifier);
+
+		// Assert:
+		EXPECT_EQ("(11, 5, 215)", str);
+	}
+
+	// endregion
+
+	// region step identifier size + alignment
+
+#define STEP_IDENTIFIER_FIELDS FIELD(Point) FIELD(Round) FIELD(SubRound)
+
+	TEST(TEST_CLASS, StepIdentifierHasExpectedSize) {
+		// Arrange:
+		auto expectedSize = 0u;
+
+#define FIELD(X) expectedSize += sizeof(StepIdentifier::X);
+		STEP_IDENTIFIER_FIELDS
+#undef FIELD
+
+		// Assert:
+		EXPECT_EQ(expectedSize, sizeof(StepIdentifier));
+		EXPECT_EQ(24u, sizeof(StepIdentifier));
+	}
+
+	TEST(TEST_CLASS, StepIdentifierHasProperAlignment) {
+#define FIELD(X) EXPECT_ALIGNED(StepIdentifier, X);
+		STEP_IDENTIFIER_FIELDS
+#undef FIELD
+
+		EXPECT_EQ(0u, sizeof(StepIdentifier) % 8);
+	}
+
+#undef STEP_IDENTIFIER_FIELDS
 
 	// endregion
 
@@ -121,7 +157,65 @@ namespace catapult { namespace crypto {
 		}
 	}
 
-	DEFINE_EQUALITY_TESTS_WITH_CUSTOM_FORMATTER(OtsTreeSignatureTests, GenerateIncreasingOtsTreeSignatureValues(), SignatureToString)
+	DEFINE_EQUALITY_TESTS_WITH_CUSTOM_FORMATTER_WITH_PREFIX(
+			TEST_CLASS,
+			GenerateIncreasingOtsTreeSignatureValues(),
+			SignatureToString,
+			OtsTreeSignature_)
+
+	// endregion
+
+	// region ots tree signature size + alignment
+
+#define PUBLIC_KEY_SIGNATURE_PAIR_FIELDS FIELD(ParentPublicKey) FIELD(Signature)
+
+	TEST(TEST_CLASS, OtsParentPublicKeySignaturePairHasExpectedSize) {
+		// Arrange:
+		auto expectedSize = 0u;
+
+#define FIELD(X) expectedSize += sizeof(OtsParentPublicKeySignaturePair::X);
+		PUBLIC_KEY_SIGNATURE_PAIR_FIELDS
+#undef FIELD
+
+		// Assert:
+		EXPECT_EQ(expectedSize, sizeof(OtsParentPublicKeySignaturePair));
+		EXPECT_EQ(96u, sizeof(OtsParentPublicKeySignaturePair));
+	}
+
+	TEST(TEST_CLASS, OtsParentPublicKeySignaturePairHasProperAlignment) {
+#define FIELD(X) EXPECT_ALIGNED(OtsParentPublicKeySignaturePair, X);
+		PUBLIC_KEY_SIGNATURE_PAIR_FIELDS
+#undef FIELD
+
+		EXPECT_EQ(0u, sizeof(OtsParentPublicKeySignaturePair) % 8);
+	}
+
+#undef PUBLIC_KEY_SIGNATURE_PAIR_FIELDS
+
+#define OTS_TREE_SIGNATURE_FIELDS FIELD(Root) FIELD(Top) FIELD(Middle) FIELD(Bottom)
+
+	TEST(TEST_CLASS, OtsTreeSignatureHasExpectedSize) {
+		// Arrange:
+		auto expectedSize = 0u;
+
+#define FIELD(X) expectedSize += sizeof(OtsTreeSignature::X);
+		OTS_TREE_SIGNATURE_FIELDS
+#undef FIELD
+
+		// Assert:
+		EXPECT_EQ(expectedSize, sizeof(OtsTreeSignature));
+		EXPECT_EQ(384u, sizeof(OtsTreeSignature));
+	}
+
+	TEST(TEST_CLASS, OtsTreeSignatureHasProperAlignment) {
+#define FIELD(X) EXPECT_ALIGNED(OtsTreeSignature, X);
+		OTS_TREE_SIGNATURE_FIELDS
+#undef FIELD
+
+		EXPECT_EQ(0u, sizeof(OtsTreeSignature) % 8);
+	}
+
+#undef OTS_TREE_SIGNATURE_FIELDS
 
 	// endregion
 }}

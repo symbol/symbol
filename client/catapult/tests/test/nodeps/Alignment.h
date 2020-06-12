@@ -49,6 +49,12 @@ namespace catapult { namespace test {
 		return sizeof(uint64_t);
 	}
 
+	/// Gets the desired alignment for type Hash512.
+	template<>
+	constexpr size_t GetRequiredAlignment<Hash512>() {
+		return sizeof(uint64_t);
+	}
+
 	/// Gets the desired alignment for type Signature.
 	template<>
 	constexpr size_t GetRequiredAlignment<Signature>() {

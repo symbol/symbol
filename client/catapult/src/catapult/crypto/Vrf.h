@@ -37,6 +37,8 @@ namespace catapult { namespace crypto {
 	struct ProofScalar_tag { static constexpr size_t Size = 32; };
 	using ProofScalar = utils::ByteArray<ProofScalar_tag>;
 
+#pragma pack(push, 1)
+
 	/// VRF proof for the verifiable random function.
 	struct VrfProof {
 		/// Gamma.
@@ -48,6 +50,8 @@ namespace catapult { namespace crypto {
 		/// Scalar.
 		ProofScalar Scalar;
 	};
+
+#pragma pack(pop)
 
 	/// Generates a verifiable random function proof from \a alpha and \a keyPair.
 	VrfProof GenerateVrfProof(const RawBuffer& alpha, const KeyPair& keyPair);
