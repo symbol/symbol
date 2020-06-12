@@ -25,7 +25,7 @@ namespace catapult { namespace crypto {
 	// region step identifier
 
 	bool StepIdentifier::operator==(const StepIdentifier& rhs) const {
-		return Height == rhs.Height && Round == rhs.Round && SubRound == rhs.SubRound;
+		return Point == rhs.Point && Round == rhs.Round && SubRound == rhs.SubRound;
 	}
 
 	bool StepIdentifier::operator!=(const StepIdentifier& rhs) const {
@@ -33,9 +33,9 @@ namespace catapult { namespace crypto {
 	}
 
 	bool StepIdentifier::operator<(const StepIdentifier& rhs) const {
-		return Height < rhs.Height
-				|| (Height == rhs.Height && Round < rhs.Round)
-				|| (Height == rhs.Height && Round == rhs.Round && SubRound < rhs.SubRound);
+		return Point < rhs.Point
+				|| (Point == rhs.Point && Round < rhs.Round)
+				|| (Point == rhs.Point && Round == rhs.Round && SubRound < rhs.SubRound);
 	}
 
 	bool StepIdentifier::operator<=(const StepIdentifier& rhs) const {
@@ -51,7 +51,7 @@ namespace catapult { namespace crypto {
 	}
 
 	std::ostream& operator<<(std::ostream& out, const StepIdentifier& stepIdentifier) {
-		out << "(" << stepIdentifier.Height << ", " << stepIdentifier.Round << ", " << stepIdentifier.SubRound << ")";
+		out << "(" << stepIdentifier.Point << ", " << stepIdentifier.Round << ", " << stepIdentifier.SubRound << ")";
 		return out;
 	}
 

@@ -34,13 +34,13 @@ namespace catapult { namespace crypto {
 		constexpr auto Level_Header_Size = OtsPublicKey::Size + sizeof(uint64_t) + sizeof(uint64_t);
 		constexpr auto Level_Entry = OtsPrivateKey_Size + sizeof(OtsSignature);
 
-		// height used, 30-40 - inclusive on both ends so 11 keys
-		constexpr auto Start_Height = 30u;
-		constexpr auto End_Height = 40u;
-		constexpr auto Num_Heights = End_Height - Start_Height + 1;
+		// finalization points used 30-40 - inclusive on both ends so 11 keys
+		constexpr auto Start_Point = 30u;
+		constexpr auto End_Point = 40u;
+		constexpr auto Num_Finalization_Points = End_Point - Start_Point + 1;
 		constexpr OtsOptions Default_Options{ 10, 8 };
 
-		constexpr auto L1_Size = Level_Header_Size + Num_Heights * Level_Entry;
+		constexpr auto L1_Size = Level_Header_Size + Num_Finalization_Points * Level_Entry;
 		constexpr auto L2_Size = Level_Header_Size + Default_Options.MaxRounds * Level_Entry;
 
 		OtsKeyPairType GenerateKeyPair() {
@@ -155,7 +155,12 @@ namespace catapult { namespace crypto {
 		class TestContext {
 		public:
 			TestContext()
-					: m_tree(OtsTree::Create(GenerateKeyPair(), m_storage, Height(Start_Height), Height(End_Height), Default_Options))
+					: m_tree(OtsTree::Create(
+							GenerateKeyPair(),
+							m_storage,
+							FinalizationPoint(Start_Point),
+							FinalizationPoint(End_Point),
+							Default_Options))
 					, m_messageBuffer(test::GenerateRandomArray<10>())
 			{}
 
@@ -200,7 +205,7 @@ namespace catapult { namespace crypto {
 
 	// region can sign tests
 
-	TEST(TEST_CLASS, CanSignReturnsFalseWhenHeightIsBelowRange) {
+	TEST(TEST_CLASS, CanSignReturnsFalseWhenFinalizationPointIsBelowRange) {
 		// Arrange:
 		BreadcrumbTestContext context;
 
@@ -208,7 +213,7 @@ namespace catapult { namespace crypto {
 		EXPECT_FALSE(context.tree().canSign({ 29, 0, 0 }));
 	}
 
-	TEST(TEST_CLASS, CanSignReturnsFalseWhenHeightIsAboveRange) {
+	TEST(TEST_CLASS, CanSignReturnsFalseWhenFinalizationPointIsAboveRange) {
 		// Arrange:
 		BreadcrumbTestContext context;
 
@@ -236,10 +241,10 @@ namespace catapult { namespace crypto {
 		// Arrange:
 		BreadcrumbTestContext context;
 		std::vector<StepIdentifier> stepIdentifiers{
-			{ Start_Height, 0, 0 },
-			{ End_Height, 0, 0 },
-			{ End_Height, Default_Options.MaxRounds - 1, 0 },
-			{ End_Height, Default_Options.MaxRounds - 1, Default_Options.MaxSubRounds - 1 }
+			{ Start_Point, 0, 0 },
+			{ End_Point, 0, 0 },
+			{ End_Point, Default_Options.MaxRounds - 1, 0 },
+			{ End_Point, Default_Options.MaxRounds - 1, Default_Options.MaxSubRounds - 1 }
 		};
 
 		// Act + Assert:
@@ -258,7 +263,12 @@ namespace catapult { namespace crypto {
 		BreadcrumbStorage storage;
 
 		// Act:
-		auto tree = OtsTree::Create(std::move(rootKeyPair), storage, Height(Start_Height), Height(End_Height), Default_Options);
+		auto tree = OtsTree::Create(
+				std::move(rootKeyPair),
+				storage,
+				FinalizationPoint(Start_Point),
+				FinalizationPoint(End_Point),
+				Default_Options);
 
 		// Assert:
 		EXPECT_EQ(expectedPublicKey, tree.rootPublicKey());
@@ -271,10 +281,10 @@ namespace catapult { namespace crypto {
 	TEST(TEST_CLASS, SignForValuesNearBoundaries) {
 		// Arrange:
 		std::vector<StepIdentifier> stepIdentifiers{
-			{ Start_Height, 0, 0 },
-			{ End_Height, 0, 0 },
-			{ End_Height, Default_Options.MaxRounds - 1, 0 },
-			{ End_Height, Default_Options.MaxRounds - 1, Default_Options.MaxSubRounds - 1 }
+			{ Start_Point, 0, 0 },
+			{ End_Point, 0, 0 },
+			{ End_Point, Default_Options.MaxRounds - 1, 0 },
+			{ End_Point, Default_Options.MaxRounds - 1, Default_Options.MaxSubRounds - 1 }
 		};
 
 		// Act: create new context for every run
@@ -305,7 +315,7 @@ namespace catapult { namespace crypto {
 		EXPECT_THROW(context.sign({ 32, Default_Options.MaxRounds, 4 }), catapult_runtime_error);
 	}
 
-	TEST(TEST_CLASS, AccessingHeightBelowRangeThrows) {
+	TEST(TEST_CLASS, AccessingFinalizationPointBelowRangeThrows) {
 		// Arrange:
 		BreadcrumbTestContext context;
 
@@ -313,7 +323,7 @@ namespace catapult { namespace crypto {
 		EXPECT_THROW(context.sign({ 29, 2, 4 }), catapult_runtime_error);
 	}
 
-	TEST(TEST_CLASS, AccessingHeightAboveRangeThrows) {
+	TEST(TEST_CLASS, AccessingFinalizationPointAboveRangeThrows) {
 		// Arrange:
 		BreadcrumbTestContext context;
 
@@ -444,17 +454,17 @@ namespace catapult { namespace crypto {
 		// Assert:
 		StorageChecker checker(context.storage().Breadcrumbs);
 		checker.assertTreeHeader();
-		checker.assertSaveLevel(0, Num_Heights);
+		checker.assertSaveLevel(0, Num_Finalization_Points);
 		checker.assertFinished();
 	}
 
 	namespace {
 		void VerifyFull(StorageChecker& checker, const StepIdentifier& stepIdentifier) {
 			// first level
-			auto heightId = stepIdentifier.Height - Start_Height;
+			auto pointId = stepIdentifier.Point - Start_Point;
 			checker.assertTreeHeader();
-			checker.assertSaveLevel(0, Num_Heights);
-			checker.assertWipePrivateKey(0, Num_Heights, heightId, heightId);
+			checker.assertSaveLevel(0, Num_Finalization_Points);
+			checker.assertWipePrivateKey(0, Num_Finalization_Points, pointId, pointId);
 
 			// second level
 			checker.assertSaveLevel(L1_Size, Default_Options.MaxRounds);
@@ -546,7 +556,7 @@ namespace catapult { namespace crypto {
 		checker.assertFinished();
 	}
 
-	TEST(TEST_CLASS, AccessingDifferentHeightKeyGeneratesNewRoundAndSubroundKeys) {
+	TEST(TEST_CLASS, AccessingDifferentFinalizationPointsKeyGeneratesNewRoundAndSubroundKeys) {
 		// Arrange:
 		BreadcrumbTestContext context;
 		context.sign({ 32, 2, 4 });
@@ -560,7 +570,7 @@ namespace catapult { namespace crypto {
 
 		// Arrange:
 		// - get key 35, build round keys, due to the way tracking works, key 32 will be wiped again, so total = 3
-		checker.assertWipePrivateKey(0, Num_Heights, 5, 3);
+		checker.assertWipePrivateKey(0, Num_Finalization_Points, 5, 3);
 		checker.assertSaveLevel(L1_Size, Default_Options.MaxRounds);
 
 		// - get the key at {35,0}
@@ -602,9 +612,9 @@ namespace catapult { namespace crypto {
 
 		// Assert: signatures are different, but all top level keys should match
 		EXPECT_EQ(originalContext.tree().rootPublicKey(), context.tree().rootPublicKey());
-		for (auto height = Start_Height; height <= End_Height; ++height) {
-			auto originalSignature = originalContext.sign({ height, 0, 0 });
-			auto signature = context.sign({ height, 0, 0 });
+		for (auto point = Start_Point; point <= End_Point; ++point) {
+			auto originalSignature = originalContext.sign({ point, 0, 0 });
+			auto signature = context.sign({ point, 0, 0 });
 			EXPECT_TRUE(SingleLevelMatch(originalSignature, signature));
 			EXPECT_FALSE(TwoLevelMatch(originalSignature, signature));
 		}

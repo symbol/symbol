@@ -30,8 +30,8 @@ namespace catapult { namespace crypto {
 
 	/// Finalization step identifier.
 	struct StepIdentifier {
-		/// Height.
-		uint64_t Height;
+		/// Finalization point.
+		uint64_t Point;
 
 		/// Round.
 		uint64_t Round;

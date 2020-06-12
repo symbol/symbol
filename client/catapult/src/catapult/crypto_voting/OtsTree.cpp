@@ -222,7 +222,7 @@ namespace catapult { namespace crypto {
 
 		StepIdentifier LoadStep(io::InputStream& input) {
 			StepIdentifier stepIdentifier;
-			stepIdentifier.Height = io::Read64(input);
+			stepIdentifier.Point = io::Read64(input);
 			stepIdentifier.Round = io::Read64(input);
 			stepIdentifier.SubRound = io::Read64(input);
 			return stepIdentifier;
@@ -234,7 +234,7 @@ namespace catapult { namespace crypto {
 		}
 
 		void SaveStep(io::OutputStream& output, const StepIdentifier& stepIdentifier) {
-			io::Write64(output, stepIdentifier.Height);
+			io::Write64(output, stepIdentifier.Point);
 			io::Write64(output, stepIdentifier.Round);
 			io::Write64(output, stepIdentifier.SubRound);
 		}
@@ -259,10 +259,10 @@ namespace catapult { namespace crypto {
 		// FromStream loads whole level, used keys are zeroed. wipeUntil() is used to have consistent view.
 		tree.m_lastStep = LoadStep(input);
 		tree.m_levels[Layer_Top] = std::make_unique<OtsLevel>(OtsLevel::FromStream(input));
-		tree.m_levels[Layer_Top]->wipeUntil(tree.m_lastStep.Height);
+		tree.m_levels[Layer_Top]->wipeUntil(tree.m_lastStep.Point);
 
 		// if any sign() was issued prior to saving, load subsequent levels
-		if (tree.m_lastStep.Height) {
+		if (tree.m_lastStep.Point) {
 			tree.m_levels[Layer_Mid] = std::make_unique<OtsLevel>(OtsLevel::FromStream(input));
 			tree.m_levels[Layer_Mid]->wipeUntil(tree.m_lastStep.Round);
 			tree.m_levels[Layer_Low] = std::make_unique<OtsLevel>(OtsLevel::FromStream(input));
@@ -275,12 +275,12 @@ namespace catapult { namespace crypto {
 	OtsTree OtsTree::Create(
 			OtsKeyPairType&& keyPair,
 			SeekableOutputStream& storage,
-			Height startHeight,
-			Height endHeight,
+			FinalizationPoint startPoint,
+			FinalizationPoint endPoint,
 			const OtsOptions& options) {
 		OtsTree tree(storage, options);
 		SaveHeader(tree.m_storage, tree.m_options, tree.m_lastStep);
-		tree.createLevel(Layer_Top, std::move(keyPair), startHeight.unwrap(), endHeight.unwrap());
+		tree.createLevel(Layer_Top, std::move(keyPair), startPoint.unwrap(), endPoint.unwrap());
 		return tree;
 	}
 
@@ -291,10 +291,10 @@ namespace catapult { namespace crypto {
 	}
 
 	bool OtsTree::canSign(const StepIdentifier& stepIdentifier) const {
-		if (0 != m_lastStep.Height && stepIdentifier <= m_lastStep)
+		if (0 != m_lastStep.Point && stepIdentifier <= m_lastStep)
 			return false;
 
-		if (stepIdentifier.Height < m_levels[Layer_Top]->startIdentifier() || stepIdentifier.Height > m_levels[Layer_Top]->endIdentifier())
+		if (stepIdentifier.Point < m_levels[Layer_Top]->startIdentifier() || stepIdentifier.Point > m_levels[Layer_Top]->endIdentifier())
 			return false;
 
 		if (stepIdentifier.Round >= m_options.MaxRounds)
@@ -310,8 +310,8 @@ namespace catapult { namespace crypto {
 		if (!canSign(stepIdentifier))
 			CATAPULT_THROW_RUNTIME_ERROR_1("sign called with invalid step identifier", stepIdentifier);
 
-		if (m_lastStep.Height != stepIdentifier.Height) {
-			createLevel(Layer_Mid, detachKeyPair(Layer_Top, stepIdentifier.Height), 0, m_options.MaxRounds - 1);
+		if (m_lastStep.Point != stepIdentifier.Point) {
+			createLevel(Layer_Mid, detachKeyPair(Layer_Top, stepIdentifier.Point), 0, m_options.MaxRounds - 1);
 			createLevel(Layer_Low, detachKeyPair(Layer_Mid, stepIdentifier.Round), 0, m_options.MaxSubRounds - 1);
 		} else if (m_lastStep.Round != stepIdentifier.Round) {
 			createLevel(Layer_Low, detachKeyPair(Layer_Mid, stepIdentifier.Round), 0, m_options.MaxSubRounds - 1);
@@ -326,7 +326,7 @@ namespace catapult { namespace crypto {
 		SaveStep(m_storage, m_lastStep);
 
 		return {
-			m_levels[Layer_Top]->publicKeySignature(stepIdentifier.Height),
+			m_levels[Layer_Top]->publicKeySignature(stepIdentifier.Point),
 			m_levels[Layer_Mid]->publicKeySignature(stepIdentifier.Round),
 			m_levels[Layer_Low]->publicKeySignature(stepIdentifier.SubRound),
 			{ subKeyPair.publicKey(), msgSignature }
@@ -380,7 +380,7 @@ namespace catapult { namespace crypto {
 	}
 
 	bool Verify(const OtsTreeSignature& signature, const StepIdentifier& stepIdentifier, const RawBuffer& buffer) {
-		if (!VerifyBoundSignature(signature.Root, signature.Top.ParentPublicKey, stepIdentifier.Height))
+		if (!VerifyBoundSignature(signature.Root, signature.Top.ParentPublicKey, stepIdentifier.Point))
 			return false;
 
 		if (!VerifyBoundSignature(signature.Top, signature.Middle.ParentPublicKey, stepIdentifier.Round))
