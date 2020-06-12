@@ -68,6 +68,7 @@ namespace catapult { namespace plugins {
 					"EntityVersionValidator",
 					"TransactionFeeValidator",
 					"KeyLinkActionValidator",
+					"VotingKeyLinkRangeValidator",
 					"ZeroInternalPaddingValidator"
 				};
 			}

@@ -81,6 +81,9 @@ namespace catapult { namespace validators {
 	/// Validation failed because unlink data is not consistent with existing account link.
 	DEFINE_CORE_RESULT(Inconsistent_Unlink_Data, 103);
 
+	/// Validation failed because link range is invalid.
+	DEFINE_CORE_RESULT(Invalid_Link_Range, 104);
+
 	// endregion
 
 #ifndef CUSTOM_RESULT_DEFINITION

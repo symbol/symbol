@@ -95,7 +95,7 @@ namespace catapult { namespace builders {
 		};
 
 		template<typename TExpectedTraits, typename TTransactionTraits>
-		struct LinkTraits : public TExpectedTraits {
+		struct KeyLinkTraits : public TExpectedTraits {
 		public:
 			using Builder = typename TExpectedTraits::BuilderType;
 			using TransactionTraits = TTransactionTraits;
@@ -121,14 +121,45 @@ namespace catapult { namespace builders {
 			}
 		};
 
-		using AccountKeyLinkRegularTraits = LinkTraits<AccountKeyLinkTestTraits, AccountKeyLinkTransactionTraits::Regular>;
-		using AccountKeyLinkEmbeddedTraits = LinkTraits<AccountKeyLinkTestTraits, AccountKeyLinkTransactionTraits::Embedded>;
-		using NodeKeyLinkRegularTraits = LinkTraits<NodeKeyLinkTestTraits, NodeKeyLinkTransactionTraits::Regular>;
-		using NodeKeyLinkEmbeddedTraits = LinkTraits<NodeKeyLinkTestTraits, NodeKeyLinkTransactionTraits::Embedded>;
-		using VotingKeyLinkRegularTraits = LinkTraits<VotingKeyLinkTestTraits, VotingKeyLinkTransactionTraits::Regular>;
-		using VotingKeyLinkEmbeddedTraits = LinkTraits<VotingKeyLinkTestTraits, VotingKeyLinkTransactionTraits::Embedded>;
-		using VrfKeyLinkRegularTraits = LinkTraits<VrfKeyLinkTestTraits, VrfKeyLinkTransactionTraits::Regular>;
-		using VrfKeyLinkEmbeddedTraits = LinkTraits<VrfKeyLinkTestTraits, VrfKeyLinkTransactionTraits::Embedded>;
+		template<typename TTransactionTraits>
+		struct VotingKeyLinkTraits : public VotingKeyLinkTestTraits {
+		public:
+			using Builder = typename VotingKeyLinkTestTraits::BuilderType;
+			using TransactionTraits = TTransactionTraits;
+			using AssertTraits = KeyLinkTraits<VotingKeyLinkTestTraits, TTransactionTraits>;
+
+		public:
+			struct TransactionProperties : public AssertTraits::TransactionProperties {
+			public:
+				explicit TransactionProperties(model::LinkAction linkAction)
+						: AssertTraits::TransactionProperties(linkAction)
+						, StartPoint()
+						, EndPoint()
+				{}
+
+			public:
+				FinalizationPoint StartPoint;
+				FinalizationPoint EndPoint;
+			};
+
+		public:
+			template<typename TTransaction>
+			static void AssertTransactionProperties(const TransactionProperties& expectedProperties, const TTransaction& transaction) {
+				AssertTraits::AssertTransactionProperties(expectedProperties, transaction);
+				EXPECT_EQ(expectedProperties.StartPoint, transaction.StartPoint);
+				EXPECT_EQ(expectedProperties.EndPoint, transaction.EndPoint);
+			}
+		};
+
+		using AccountKeyLinkRegularTraits = KeyLinkTraits<AccountKeyLinkTestTraits, AccountKeyLinkTransactionTraits::Regular>;
+		using AccountKeyLinkEmbeddedTraits = KeyLinkTraits<AccountKeyLinkTestTraits, AccountKeyLinkTransactionTraits::Embedded>;
+		using NodeKeyLinkRegularTraits = KeyLinkTraits<NodeKeyLinkTestTraits, NodeKeyLinkTransactionTraits::Regular>;
+		using NodeKeyLinkEmbeddedTraits = KeyLinkTraits<NodeKeyLinkTestTraits, NodeKeyLinkTransactionTraits::Embedded>;
+		using VrfKeyLinkRegularTraits = KeyLinkTraits<VrfKeyLinkTestTraits, VrfKeyLinkTransactionTraits::Regular>;
+		using VrfKeyLinkEmbeddedTraits = KeyLinkTraits<VrfKeyLinkTestTraits, VrfKeyLinkTransactionTraits::Embedded>;
+
+		using VotingKeyLinkRegularTraits = VotingKeyLinkTraits<VotingKeyLinkTransactionTraits::Regular>;
+		using VotingKeyLinkEmbeddedTraits = VotingKeyLinkTraits<VotingKeyLinkTransactionTraits::Embedded>;
 
 		template<typename TTraits>
 		void AssertCanBuildTransaction(
@@ -161,10 +192,10 @@ namespace catapult { namespace builders {
 	TEST(TEST_CLASS, TEST_NAME##_Account_Embedded) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountKeyLinkEmbeddedTraits>(); } \
 	TEST(TEST_CLASS, TEST_NAME##_Node_Regular) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NodeKeyLinkRegularTraits>(); } \
 	TEST(TEST_CLASS, TEST_NAME##_Node_Embedded) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NodeKeyLinkEmbeddedTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Voting_Regular) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VotingKeyLinkRegularTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Voting_Embedded) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VotingKeyLinkEmbeddedTraits>(); } \
 	TEST(TEST_CLASS, TEST_NAME##_Vrf_Regular) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VrfKeyLinkRegularTraits>(); } \
 	TEST(TEST_CLASS, TEST_NAME##_Vrf_Embedded) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VrfKeyLinkEmbeddedTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Voting_Regular) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VotingKeyLinkRegularTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Voting_Embedded) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VotingKeyLinkEmbeddedTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// region constructor
@@ -214,6 +245,38 @@ namespace catapult { namespace builders {
 		AssertCanBuildTransaction<TTraits>(expectedProperties, [linkAction, &linkedPublicKey](auto& builder) {
 			TTraits::SetKey(builder, linkedPublicKey);
 			builder.setLinkAction(linkAction);
+		});
+	}
+
+	// endregion
+
+	// region voting key link builder tests
+
+#define VOTING_KEY_LINK_BUILDER_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Voting_Regular) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VotingKeyLinkRegularTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Voting_Embedded) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VotingKeyLinkEmbeddedTraits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+	VOTING_KEY_LINK_BUILDER_TEST(CanSetStartPoint) {
+		// Arrange:
+		auto expectedProperties = typename TTraits::TransactionProperties(model::LinkAction::Unlink);
+		expectedProperties.StartPoint = FinalizationPoint(0x12345);
+
+		// Assert:
+		AssertCanBuildTransaction<TTraits>(expectedProperties, [](auto& builder) {
+			builder.setStartPoint(FinalizationPoint(0x12345));
+		});
+	}
+
+	VOTING_KEY_LINK_BUILDER_TEST(CanSetEndPoint) {
+		// Arrange:
+		auto expectedProperties = typename TTraits::TransactionProperties(model::LinkAction::Unlink);
+		expectedProperties.EndPoint = FinalizationPoint(0x54321);
+
+		// Assert:
+		AssertCanBuildTransaction<TTraits>(expectedProperties, [](auto& builder) {
+			builder.setEndPoint(FinalizationPoint(0x54321));
 		});
 	}
 

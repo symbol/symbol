@@ -141,6 +141,7 @@ namespace catapult { namespace plugins {
 				.add(validators::CreateEntityVersionValidator())
 				.add(validators::CreateTransactionFeeValidator())
 				.add(validators::CreateKeyLinkActionValidator())
+				.add(validators::CreateVotingKeyLinkRangeValidator(config.MinVotingKeyLifetime, config.MaxVotingKeyLifetime))
 				.add(validators::CreateZeroInternalPaddingValidator());
 		});
 

@@ -27,7 +27,32 @@ namespace catapult { namespace model {
 
 	/// Binary layout for a voting key link transaction body.
 	template<typename THeader>
-	struct VotingKeyLinkTransactionBody : public BasicKeyLinkTransactionBody<THeader, VotingKey, Entity_Type_Voting_Key_Link> {};
+	struct VotingKeyLinkTransactionBody : public THeader {
+	private:
+		using TransactionType = VotingKeyLinkTransactionBody<THeader>;
+
+	public:
+		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Voting_Key_Link, 1)
+
+	public:
+		/// Linked public key.
+		VotingKey LinkedPublicKey;
+
+		/// Start point.
+		FinalizationPoint StartPoint;
+
+		/// End point.
+		FinalizationPoint EndPoint;
+
+		/// Link action.
+		model::LinkAction LinkAction;
+
+	public:
+		/// Calculates the real size of key link \a transaction.
+		static constexpr uint64_t CalculateRealSize(const TransactionType&) noexcept {
+			return sizeof(TransactionType);
+		}
+	};
 
 	DEFINE_EMBEDDABLE_TRANSACTION(VotingKeyLink)
 
