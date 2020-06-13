@@ -18,8 +18,6 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const AccountType = require('../AccountType');
-
 class MultisigDb {
 	/**
 	 * Creates MultisigDb around CatapultDb.
@@ -32,15 +30,13 @@ class MultisigDb {
 	// region multisig retrieval
 
 	/**
-	 * Retrieves the multisig entries for given accounts.
-	 * @param {module:db/AccountType} type Type of account ids.
-	 * @param {array<object>} accountIds Account ids.
-	 * @returns {Promise.<array>} Multisig entries for all accounts.
+	 * Retrieves the multisig entries for given account addresses.
+	 * @param {array<{Uint8Array}>} addresses Addresses.
+	 * @returns {Promise.<array>} Multisig entries for all addresses.
 	 */
-	multisigsByAccounts(type, accountIds) {
-		const buffers = accountIds.map(accountId => Buffer.from(accountId));
-		const fieldName = (AccountType.publicKey === type) ? 'multisig.accountPublicKey' : 'multisig.accountAddress';
-		return this.catapultDb.queryDocuments('multisigs', { [fieldName]: { $in: buffers } });
+	multisigsByAddresses(addresses) {
+		const buffers = addresses.map(address => Buffer.from(address));
+		return this.catapultDb.queryDocuments('multisigs', { 'multisig.accountAddress': { $in: buffers } });
 	}
 
 	// endregion

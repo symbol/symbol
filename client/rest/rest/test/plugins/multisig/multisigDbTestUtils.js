@@ -29,10 +29,9 @@ const createMultisigEntry = (id, owner) => ({
 	// simulated account is multisig with two cosigners and cosigns one multisig account
 	_id: dbTestUtils.db.createObjectId(id),
 	multisig: {
-		accountPublicKey: new Binary(owner.publicKey),
 		accountAddress: new Binary(owner.address),
-		cosignatoryPublicKeys: [new Binary(test.random.publicKey()), new Binary(test.random.publicKey())],
-		multisigPublicKeys: [new Binary(test.random.publicKey())]
+		cosignatoryAddresses: [new Binary(test.random.address()), new Binary(test.random.address())],
+		multisigAddresses: [new Binary(test.random.address())]
 	}
 });
 

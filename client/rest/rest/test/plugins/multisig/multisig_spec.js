@@ -39,8 +39,8 @@ describe('multisig plugin', () => {
 
 			// Assert:
 			test.assert.assertRoutes(routes, [
-				'/account/:accountId/multisig',
-				'/account/:accountId/multisig/graph'
+				'/account/:address/multisig',
+				'/account/:address/multisig/graph'
 			]);
 		});
 	});

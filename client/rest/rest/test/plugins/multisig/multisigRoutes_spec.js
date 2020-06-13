@@ -18,39 +18,37 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const routeAccountIdGetTestUtils = require('./routeAccountIdGetTestUtils');
+const routeAddressGetTestUtils = require('./routeAddressGetTestUtils');
 const multisigRoutes = require('../../../src/plugins/multisig/multisigRoutes');
 const { test } = require('../../routes/utils/routeTestUtils');
 const catapult = require('catapult-sdk');
 const { expect } = require('chai');
 
-const { convert } = catapult.utils;
-
 describe('multisig routes', () => {
 	describe('get by account', () => {
-		routeAccountIdGetTestUtils.addDefaultTests({
+		routeAddressGetTestUtils.addDefaultTests({
 			registerRoutes: multisigRoutes.register,
-			route: '/account/:accountId/multisig',
-			dbApiName: 'multisigsByAccounts',
+			route: '/account/:address/multisig',
+			dbApiName: 'multisigsByAddresses',
 			dbType: 'multisigEntry'
 		});
 	});
 
 	describe('get multisig graph by account', () => {
-		const createRouteDescriptor = routeAccountIdGetTestUtils.routeDescriptorFactory({
+		const createRouteDescriptor = routeAddressGetTestUtils.routeDescriptorFactory({
 			registerRoutes: multisigRoutes.register,
-			route: '/account/:accountId/multisig/graph',
-			dbApiName: 'multisigsByAccounts',
+			route: '/account/:address/multisig/graph',
+			dbApiName: 'multisigsByAddresses',
 			dbType: 'multisigGraph'
 		});
 
 		const addGetTests = dataTraits => {
 			const routeDescriptor = createRouteDescriptor(dataTraits);
 			routeDescriptor.extendDb = db => {
-				(originalMultisigsByAccounts => {
-					db.multisigsByAccounts = (...args) => originalMultisigsByAccounts(...args)
+				(originalMultisigsByAddresses => {
+					db.multisigsByAddresses = (...args) => originalMultisigsByAddresses(...args)
 						.then(result => (undefined === result ? [] : result));
-				})(db.multisigsByAccounts);
+				})(db.multisigsByAddresses);
 			};
 			const getDocumentRouteTests = test.route.document.prepareGetDocumentRouteTests(multisigRoutes.register, routeDescriptor);
 			getDocumentRouteTests.addNotFoundInputTest(routeDescriptor.inputs.valid);
@@ -59,77 +57,78 @@ describe('multisig routes', () => {
 
 		// note: multisig/graph has complicated "valid" tests (below), so instead of using
 		// addDefaultTests, use addGetDocumentTests to run only invalid tests.
-		routeAccountIdGetTestUtils.addGetDocumentTests(addGetTests);
+		routeAddressGetTestUtils.addGetDocumentTests(addGetTests);
 
 		const createMultisigEntry = (marker, upstreamCount, downstreamCount) => {
 			const upstreamArray = [];
 			for (let i = 0; i < upstreamCount; ++i) {
-				const publicKey = test.random.publicKey();
-				publicKey[0] = marker - 1;
-				upstreamArray.push({ buffer: publicKey });
+				const address = test.random.address();
+				address[0] = marker - 1;
+				upstreamArray.push({ buffer: address });
 			}
 
 			const downstreamArray = [];
 			for (let i = 0; i < downstreamCount; ++i) {
-				const publicKey = test.random.publicKey();
-				publicKey[0] = marker + 1;
-				downstreamArray.push({ buffer: publicKey });
+				const address = test.random.address();
+				address[0] = marker + 1;
+				downstreamArray.push({ buffer: address });
 			}
 
 			return {
 				multisig: {
-					accountPublicKey: { buffer: test.random.publicKey() },
-					multisigPublicKeys: upstreamArray,
-					cosignatoryPublicKeys: downstreamArray
+					accountAddress: { buffer: test.random.address() },
+					multisigAddresses: upstreamArray,
+					cosignatoryAddresses: downstreamArray
 				}
 			};
 		};
 
-		const extractPublicKeys = (multisigEntryArray, fieldname) => {
-			const publicKeys = [];
-			multisigEntryArray.forEach(multisigEntry => multisigEntry.multisig[fieldname].forEach(publicKey => {
-				publicKeys.push(publicKey.buffer);
+		const extractAddresses = (multisigEntryArray, fieldname) => {
+			const addresses = [];
+			multisigEntryArray.forEach(multisigEntry => multisigEntry.multisig[fieldname].forEach(address => {
+				addresses.push(address.buffer);
 			}));
 
-			return publicKeys;
+			return addresses;
 		};
 
-		const createPublicKeyWithMarker = marker => {
-			const publicKey = new Uint8Array(test.random.publicKey());
-			publicKey[0] = marker;
-			return publicKey;
+		const createAddressWithMarker = marker => {
+			const address = new Uint8Array(test.random.address());
+			address[0] = marker;
+			return address;
 		};
 
-		const runTest = (publicKeyParam, multisigEntriesArray, expectedParams) => {
+		const runTest = (accountAddress, multisigEntriesArray, expectedParams) => {
 			// Arrange:
-			// Note that the first byte of each public key is used as index into the  multisigEntriesArray
-			const multisigsByAccountsParams = [];
+			// Note that the first byte of each address is used as index into the multisigEntriesArray
+			const multisigsByAddressesParams = [];
 			const db = {
-				multisigsByAccounts: (type, accountIds) => {
-					multisigsByAccountsParams.push(accountIds);
-					if (0 === accountIds.length)
+				multisigsByAddresses: addresses => {
+					multisigsByAddressesParams.push(addresses);
+					if (0 === addresses.length)
 						return Promise.resolve([]);
 
-					return Promise.resolve(multisigEntriesArray[accountIds[0][0]]);
+					return Promise.resolve(multisigEntriesArray[addresses[0][0]]);
 				}
 			};
 
 			// Act:
 			return test.route.executeSingle(
 				multisigRoutes.register,
-				'/account/:accountId/multisig/graph',
+				'/account/:address/multisig/graph',
 				'get',
-				{ accountId: convert.uint8ToHex(publicKeyParam) },
+				{ address: catapult.model.address.addressToString(accountAddress) },
+
 				db,
 				undefined,
 				response => {
 					// Assert: parameters passed to db functions are correct
 					// note that sort is needed since the upstream and downstream operations run concurrently resulting in
 					// indeterminate call order of the db function
-					expect(multisigsByAccountsParams.sort()).to.deep.equal(expectedParams.sort());
+					expect(multisigsByAddressesParams.sort()).to.deep.equal(expectedParams.sort());
 
-					// check response (publicKeyParam[0] is index, which is negative of level)
-					let level = 0 - publicKeyParam[0];
+					// check response (accountAddress[0] is index, which is negative of level)
+					let level = 0 - accountAddress[0];
 					const expectedPayload = multisigEntriesArray.map(multisigEntries => ({ level: level++, multisigEntries }));
 
 					expect(response).to.deep.equal({ payload: expectedPayload, type: 'multisigGraph' });
@@ -140,11 +139,11 @@ describe('multisig routes', () => {
 		it('returns correct graph if multisig account has neither upstream nor downstream accounts', () => {
 			// Arrange:
 			const multisigEntriesArray = [[createMultisigEntry(0, 0, 0)]];
-			const publicKey = createPublicKeyWithMarker(0);
-			const expectedParams = [[publicKey], [], []];
+			const address = createAddressWithMarker(0);
+			const expectedParams = [[address], [], []];
 
 			// Act + Assert:
-			return runTest(publicKey, multisigEntriesArray, expectedParams);
+			return runTest(address, multisigEntriesArray, expectedParams);
 		});
 
 		it('returns correct graph if multisig account has only upstream accounts', () => {
@@ -157,16 +156,16 @@ describe('multisig routes', () => {
 				[createMultisigEntry(1, 1, 1), createMultisigEntry(1, 1, 1)],
 				[createMultisigEntry(2, 2, 0)]
 			];
-			const publicKey = createPublicKeyWithMarker(2);
+			const address = createAddressWithMarker(2);
 			const expectedParams = [
-				[publicKey],
-				extractPublicKeys(multisigEntriesArray[2], 'multisigPublicKeys'),
-				extractPublicKeys(multisigEntriesArray[1], 'multisigPublicKeys'),
-				extractPublicKeys(multisigEntriesArray[0], 'multisigPublicKeys'),
+				[address],
+				extractAddresses(multisigEntriesArray[2], 'multisigAddresses'),
+				extractAddresses(multisigEntriesArray[1], 'multisigAddresses'),
+				extractAddresses(multisigEntriesArray[0], 'multisigAddresses'),
 				[]];
 
 			// Act + Assert:
-			return runTest(publicKey, multisigEntriesArray, expectedParams);
+			return runTest(address, multisigEntriesArray, expectedParams);
 		});
 
 		it('returns correct graph if multisig account has only downstream accounts', () => {
@@ -179,16 +178,16 @@ describe('multisig routes', () => {
 				[createMultisigEntry(1, 1, 1), createMultisigEntry(1, 1, 1)],
 				[createMultisigEntry(1, 1, 0), createMultisigEntry(1, 1, 0)]
 			];
-			const publicKey = createPublicKeyWithMarker(0);
+			const address = createAddressWithMarker(0);
 			const expectedParams = [
-				[publicKey],
+				[address],
 				[],
-				extractPublicKeys(multisigEntriesArray[0], 'cosignatoryPublicKeys'),
-				extractPublicKeys(multisigEntriesArray[1], 'cosignatoryPublicKeys'),
-				extractPublicKeys(multisigEntriesArray[2], 'cosignatoryPublicKeys')];
+				extractAddresses(multisigEntriesArray[0], 'cosignatoryAddresses'),
+				extractAddresses(multisigEntriesArray[1], 'cosignatoryAddresses'),
+				extractAddresses(multisigEntriesArray[2], 'cosignatoryAddresses')];
 
 			// Act + Assert:
-			return runTest(publicKey, multisigEntriesArray, expectedParams);
+			return runTest(address, multisigEntriesArray, expectedParams);
 		});
 
 		it('returns correct graph if multisig account has upstream and downstream accounts', () => {
@@ -202,17 +201,17 @@ describe('multisig routes', () => {
 				[createMultisigEntry(2, 2, 2)],
 				[createMultisigEntry(3, 1, 0), createMultisigEntry(3, 1, 0)]
 			];
-			const publicKey = createPublicKeyWithMarker(2);
+			const address = createAddressWithMarker(2);
 			const expectedParams = [
-				[publicKey],
-				extractPublicKeys(multisigEntriesArray[2], 'multisigPublicKeys'),
-				extractPublicKeys(multisigEntriesArray[1], 'multisigPublicKeys'),
+				[address],
+				extractAddresses(multisigEntriesArray[2], 'multisigAddresses'),
+				extractAddresses(multisigEntriesArray[1], 'multisigAddresses'),
 				[],
-				extractPublicKeys(multisigEntriesArray[2], 'cosignatoryPublicKeys'),
+				extractAddresses(multisigEntriesArray[2], 'cosignatoryAddresses'),
 				[]];
 
 			// Act + Assert:
-			return runTest(publicKey, multisigEntriesArray, expectedParams);
+			return runTest(address, multisigEntriesArray, expectedParams);
 		});
 	});
 });

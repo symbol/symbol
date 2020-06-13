@@ -19,31 +19,30 @@
  */
 
 const routeUtils = require('../../routes/routeUtils');
-const AccountType = require('../AccountType');
 
 module.exports = {
 	register: (server, db) => {
-		server.get('/account/:accountId/multisig', (req, res, next) => {
-			const [type, accountId] = routeUtils.parseArgument(req.params, 'accountId', 'accountId');
+		server.get('/account/:address/multisig', (req, res, next) => {
+			const accountAddress = routeUtils.parseArgument(req.params, 'address', 'address');
 
-			return db.multisigsByAccounts(type, [accountId])
-				.then(routeUtils.createSender('multisigEntry').sendOne(req.params.accountId, res, next));
+			return db.multisigsByAddresses([accountAddress])
+				.then(routeUtils.createSender('multisigEntry').sendOne(req.params.address, res, next));
 		});
 
 		const getMultisigEntries = (multisigEntries, fieldName) => {
-			const publicKeys = new Set();
-			multisigEntries.forEach(multisigEntry => multisigEntry.multisig[fieldName].forEach(publicKey => {
-				publicKeys.add(publicKey.buffer);
+			const addresses = new Set();
+			multisigEntries.forEach(multisigEntry => multisigEntry.multisig[fieldName].forEach(address => {
+				addresses.add(address.buffer);
 			}));
 
-			return db.multisigsByAccounts(AccountType.publicKey, Array.from(publicKeys));
+			return db.multisigsByAddresses(Array.from(addresses));
 		};
 
-		server.get('/account/:accountId/multisig/graph', (req, res, next) => {
-			const [type, accountId] = routeUtils.parseArgument(req.params, 'accountId', 'accountId');
+		server.get('/account/:address/multisig/graph', (req, res, next) => {
+			const accountAddress = routeUtils.parseArgument(req.params, 'address', 'address');
 
 			const multisigLevels = [];
-			return db.multisigsByAccounts(type, [accountId])
+			return db.multisigsByAddresses([accountAddress])
 				.then(multisigEntries => {
 					if (0 === multisigEntries.length)
 						return Promise.resolve(undefined);
@@ -59,7 +58,7 @@ module.exports = {
 					if (undefined === multisigEntry)
 						return Promise.resolve(undefined);
 
-					const handleUpstream = (level, multisigEntries) => getMultisigEntries(multisigEntries, 'multisigPublicKeys')
+					const handleUpstream = (level, multisigEntries) => getMultisigEntries(multisigEntries, 'multisigAddresses')
 						.then(entries => {
 							if (0 === entries.length)
 								return Promise.resolve();
@@ -68,7 +67,7 @@ module.exports = {
 							return handleUpstream(level - 1, entries);
 						});
 
-					const handleDownstream = (level, multisigEntries) => getMultisigEntries(multisigEntries, 'cosignatoryPublicKeys')
+					const handleDownstream = (level, multisigEntries) => getMultisigEntries(multisigEntries, 'cosignatoryAddresses')
 						.then(entries => {
 							if (0 === entries.length)
 								return Promise.resolve();
@@ -85,8 +84,8 @@ module.exports = {
 				.then(response => {
 					const sender = routeUtils.createSender('multisigGraph');
 					return undefined === response
-						? sender.sendOne(req.params.accountId, res, next)(response)
-						: sender.sendArray(req.params.accountId, res, next)(response);
+						? sender.sendOne(req.params.address, res, next)(response)
+						: sender.sendArray(req.params.address, res, next)(response);
 				});
 		});
 	}
