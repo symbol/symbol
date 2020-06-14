@@ -32,15 +32,16 @@ namespace catapult { namespace cache {
 				output.write(address);
 		}
 
-		void WriteBalanceHistories(const AddressBalanceHistoryMap& balanceHistories, io::OutputStream& output) {
-			io::Write64(output, balanceHistories.size());
-			for (const auto& balanceHistoryPair : balanceHistories) {
-				output.write(balanceHistoryPair.first);
+		void WriteAccountHistories(const AddressAccountHistoryMap& accountHistories, io::OutputStream& output) {
+			io::Write64(output, accountHistories.size());
+			for (const auto& accountHistoryPair : accountHistories) {
+				output.write(accountHistoryPair.first);
 
-				io::Write64(output, balanceHistoryPair.second.size());
-				for (auto height : balanceHistoryPair.second.heights()) {
+				const auto& balanceHistory = accountHistoryPair.second.balances();
+				io::Write64(output, balanceHistory.size());
+				for (auto height : balanceHistory.heights()) {
 					io::Write(output, height);
-					io::Write(output, balanceHistoryPair.second.balance(height));
+					io::Write(output, balanceHistory.get(height));
 				}
 			}
 		}
@@ -48,7 +49,7 @@ namespace catapult { namespace cache {
 		template<typename THighValueAccounts>
 		void WriteHighValueAccounts(const THighValueAccounts& accounts, io::OutputStream& output) {
 			WriteAddresses(accounts.addresses(), output);
-			WriteBalanceHistories(accounts.balanceHistories(), output);
+			WriteAccountHistories(accounts.accountHistories(), output);
 			output.flush();
 		}
 
@@ -65,37 +66,37 @@ namespace catapult { namespace cache {
 			return addresses;
 		}
 
-		state::BalanceHistory ReadBalanceHistory(io::InputStream& input) {
-			state::BalanceHistory balanceHistory;
+		state::AccountHistory ReadAccountHistory(io::InputStream& input) {
+			state::AccountHistory accountHistory;
 
 			auto numBalances = io::Read64(input);
 			for (auto i = 0u; i < numBalances; ++i) {
 				auto height = io::Read<Height>(input);
 				auto amount = io::Read<Amount>(input);
-				balanceHistory.add(height, amount);
+				accountHistory.add(height, amount);
 			}
 
-			return balanceHistory;
+			return accountHistory;
 		}
 
-		AddressBalanceHistoryMap ReadBalanceHistories(io::InputStream& input) {
-			AddressBalanceHistoryMap balanceHistories;
+		AddressAccountHistoryMap ReadAccountHistories(io::InputStream& input) {
+			AddressAccountHistoryMap accountHistories;
 
-			auto numBalanceHistories = io::Read64(input);
-			for (auto i = 0u; i < numBalanceHistories; ++i) {
+			auto numAccountHistories = io::Read64(input);
+			for (auto i = 0u; i < numAccountHistories; ++i) {
 				Address address;
 				input.read(address);
 
-				balanceHistories.emplace(address, ReadBalanceHistory(input));
+				accountHistories.emplace(address, ReadAccountHistory(input));
 			}
 
-			return balanceHistories;
+			return accountHistories;
 		}
 
 		HighValueAccounts ReadHighValueAccounts(io::InputStream& input) {
 			auto addresses = ReadAddresses(input);
-			auto balanceHistories = ReadBalanceHistories(input);
-			return HighValueAccounts(std::move(addresses), std::move(balanceHistories));
+			auto accountHistories = ReadAccountHistories(input);
+			return HighValueAccounts(std::move(addresses), std::move(accountHistories));
 		}
 
 		// endregion

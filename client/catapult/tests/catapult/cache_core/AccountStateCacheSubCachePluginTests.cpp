@@ -185,7 +185,7 @@ namespace catapult { namespace cache {
 				const AccountStateCacheTypes::Options& options,
 				const std::vector<Amount>& balances,
 				const std::function<model::AddressSet (const std::vector<Address>&)>& getExpectedAddresses,
-				const std::function<AddressBalanceHistoryMap (const std::vector<Address>&)>& getExpectedBalanceHistories) {
+				const std::function<AddressAccountHistoryMap (const std::vector<Address>&)>& getExpectedAccountHistories) {
 			// Arrange:
 			typename TTraits::CacheConfigurationFactory cacheConfigFactory;
 			auto cacheConfig = cacheConfigFactory.create();
@@ -209,7 +209,7 @@ namespace catapult { namespace cache {
 
 					// Sanity:
 					EXPECT_EQ(getExpectedAddresses(addresses).size(), delta.highValueAccounts().addresses().size());
-					EXPECT_EQ(getExpectedBalanceHistories(addresses).size(), delta.highValueAccounts().balanceHistories().size());
+					EXPECT_EQ(getExpectedAccountHistories(addresses).size(), delta.highValueAccounts().accountHistories().size());
 
 					// - save summary
 					if (!saver.save(cacheDelta, stream))
@@ -233,7 +233,7 @@ namespace catapult { namespace cache {
 			// - all high value account information was loaded
 			EXPECT_EQ(getExpectedAddresses(addresses), view->highValueAccounts().addresses());
 
-			test::AssertEqual(getExpectedBalanceHistories(addresses), view->highValueAccounts().balanceHistories());
+			test::AssertEqual(getExpectedAccountHistories(addresses), view->highValueAccounts().accountHistories());
 		}
 	}
 
@@ -252,11 +252,11 @@ namespace catapult { namespace cache {
 					return model::AddressSet({ addresses[0], addresses[2], addresses[3] });
 				},
 				[](const auto&) {
-					return AddressBalanceHistoryMap();
+					return AddressAccountHistoryMap();
 				});
 	}
 
-	ROUNDTRIP_TEST(CanRoundtripBalanceHistoriesOnly) {
+	ROUNDTRIP_TEST(CanRoundtripAccountHistoriesOnly) {
 		// Arrange:
 		AccountStateCacheTypes::Options options;
 		options.MinHarvesterBalance = Amount(2'000'000);
@@ -271,14 +271,14 @@ namespace catapult { namespace cache {
 					return model::AddressSet();
 				},
 				[](const auto& addresses) {
-					return test::GenerateBalanceHistories({
+					return test::GenerateAccountHistories({
 						{ addresses[0], { { Height(3), Amount(1'000'000) } } },
 						{ addresses[3], { { Height(3), Amount(1'250'000) } } }
 					});
 				});
 	}
 
-	ROUNDTRIP_TEST(CanRoundtripHighValueAddressesAndBalanceHistories) {
+	ROUNDTRIP_TEST(CanRoundtripHighValueAddressesAndAccountHistories) {
 		// Arrange:
 		AccountStateCacheTypes::Options options;
 		options.MinHarvesterBalance = Amount(700'000);
@@ -293,7 +293,7 @@ namespace catapult { namespace cache {
 					return model::AddressSet({ addresses[0], addresses[2], addresses[3] });
 				},
 				[](const auto& addresses) {
-					return test::GenerateBalanceHistories({
+					return test::GenerateAccountHistories({
 						{ addresses[0], { { Height(3), Amount(1'000'000) } } },
 						{ addresses[3], { { Height(3), Amount(1'250'000) } } }
 					});

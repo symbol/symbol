@@ -61,8 +61,8 @@ namespace catapult { namespace cache {
 			accountState.Balances.debit(Harvesting_Mosaic_Id, amount);
 		}
 
-		AddressBalanceHistoryMap CreateThreeBalanceHistories() {
-			return test::GenerateBalanceHistories({
+		AddressAccountHistoryMap CreateThreeAccountHistories() {
+			return test::GenerateAccountHistories({
 				{ { { 1 } }, { { Height(2), RelVoterAmount(1) }, { Height(4), RelVoterAmount(9) }, { Height(7), RelVoterAmount(-1) } } },
 				{ { { 2 } }, { { Height(2), RelVoterAmount(0) }, { Height(6), RelVoterAmount(-100) } } },
 				{ { { 3 } }, { { Height(3), RelVoterAmount(9) }, { Height(4), RelVoterAmount(-9) }, { Height(7), RelVoterAmount(8) } } }
@@ -81,31 +81,31 @@ namespace catapult { namespace cache {
 		// Assert:
 		EXPECT_TRUE(accounts.addresses().empty());
 
-		EXPECT_TRUE(accounts.balanceHistories().empty());
+		EXPECT_TRUE(accounts.accountHistories().empty());
 	}
 
 	TEST(TEST_CLASS, Accounts_CanCreateAroundInputs) {
 		// Act:
 		auto addresses = GenerateRandomAddresses(4);
-		auto balanceHistories = CreateThreeBalanceHistories();
-		HighValueAccounts accounts(addresses, balanceHistories);
+		auto accountHistories = CreateThreeAccountHistories();
+		HighValueAccounts accounts(addresses, accountHistories);
 
 		// Assert:
 		EXPECT_EQ(addresses, accounts.addresses());
 
-		test::AssertEqual(balanceHistories, accounts.balanceHistories());
+		test::AssertEqual(accountHistories, accounts.accountHistories());
 	}
 
 	TEST(TEST_CLASS, Accounts_CanCreateAroundMovedInputs) {
 		// Act:
 		auto addresses = GenerateRandomAddresses(4);
 		auto addressesCopy = addresses;
-		HighValueAccounts accounts(std::move(addresses), CreateThreeBalanceHistories());
+		HighValueAccounts accounts(std::move(addresses), CreateThreeAccountHistories());
 
 		// Assert:
 		EXPECT_EQ(addressesCopy, accounts.addresses());
 
-		test::AssertEqual(CreateThreeBalanceHistories(), accounts.balanceHistories());
+		test::AssertEqual(CreateThreeAccountHistories(), accounts.accountHistories());
 	}
 
 	// endregion
@@ -114,13 +114,13 @@ namespace catapult { namespace cache {
 
 	namespace {
 		HighValueAccounts CreateAccounts(const model::AddressSet& addresses) {
-			return HighValueAccounts(addresses, AddressBalanceHistoryMap());
+			return HighValueAccounts(addresses, AddressAccountHistoryMap());
 		}
 	}
 
 	TEST(TEST_CLASS, Updater_CanCreateAroundAccounts) {
 		// Act:
-		auto accounts = HighValueAccounts(GenerateRandomAddresses(4), CreateThreeBalanceHistories());
+		auto accounts = HighValueAccounts(GenerateRandomAddresses(4), CreateThreeAccountHistories());
 		HighValueAccountsUpdater updater(CreateOptions(), accounts);
 
 		// Assert:
@@ -129,7 +129,7 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(accounts.addresses(), updater.addresses());
 		EXPECT_TRUE(updater.removedAddresses().empty());
 
-		test::AssertEqual(accounts.balanceHistories(), updater.balanceHistories());
+		test::AssertEqual(accounts.accountHistories(), updater.accountHistories());
 	}
 
 	// endregion
@@ -150,7 +150,7 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(accounts.addresses(), updater.addresses());
 		EXPECT_TRUE(updater.removedAddresses().empty());
 
-		EXPECT_TRUE(updater.balanceHistories().empty());
+		EXPECT_TRUE(updater.accountHistories().empty());
 	}
 
 	// endregion
@@ -221,7 +221,7 @@ namespace catapult { namespace cache {
 			EXPECT_TRUE(updater.removedAddresses().empty());
 
 			// Sanity:
-			EXPECT_EQ(1u, updater.balanceHistories().size());
+			EXPECT_EQ(1u, updater.accountHistories().size());
 		}
 
 		template<typename TSetSelector>
@@ -241,7 +241,7 @@ namespace catapult { namespace cache {
 			EXPECT_EQ(Pick(addedAddresses, { 1, 3 }), updater.removedAddresses());
 
 			// Sanity:
-			EXPECT_EQ(1u, updater.balanceHistories().size());
+			EXPECT_EQ(1u, updater.accountHistories().size());
 		}
 	}
 
@@ -277,7 +277,7 @@ namespace catapult { namespace cache {
 		EXPECT_TRUE(updater.removedAddresses().empty());
 
 		// Sanity:
-		EXPECT_TRUE(updater.balanceHistories().empty());
+		EXPECT_TRUE(updater.accountHistories().empty());
 	}
 
 	TEST(TEST_CLASS, Updater_HarvesterEligible_CanProcessRemovedWhenSomeExist) {
@@ -296,7 +296,7 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(Pick(addedAddresses, { 0, 1, 2, 3 }), updater.removedAddresses());
 
 		// Sanity:
-		EXPECT_TRUE(updater.balanceHistories().empty());
+		EXPECT_TRUE(updater.accountHistories().empty());
 	}
 
 	TEST(TEST_CLASS, Updater_HarvesterEligible_CanProcessMixedViaSingleUpdate) {
@@ -327,7 +327,7 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(Pick(addedAddresses, { 1, 2 }), updater.removedAddresses());
 
 		// Sanity:
-		EXPECT_TRUE(updater.balanceHistories().empty());
+		EXPECT_TRUE(updater.accountHistories().empty());
 	}
 
 	TEST(TEST_CLASS, Updater_HarvesterEligible_CanProcessMixedViaMultipleUpdates) {
@@ -360,7 +360,7 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(Pick(addedAddresses, { 1, 2 }), updater.removedAddresses());
 
 		// Sanity:
-		EXPECT_TRUE(updater.balanceHistories().empty());
+		EXPECT_TRUE(updater.accountHistories().empty());
 	}
 
 	// endregion
@@ -393,12 +393,12 @@ namespace catapult { namespace cache {
 			updater.update(deltas.deltas());
 
 			// Assert:
-			auto expectedBalanceHistories = test::GenerateBalanceHistories({
+			auto expectedAccountHistories = test::GenerateAccountHistories({
 				{ addedAddresses[1], { { Height(3), Min_Voter_Balance } } },
 				{ addedAddresses[3], { { Height(3), Min_Voter_Balance + Amount(100'000) } } }
 			});
 
-			test::AssertEqual(expectedBalanceHistories, updater.balanceHistories());
+			test::AssertEqual(expectedAccountHistories, updater.accountHistories());
 
 			// Sanity:
 			EXPECT_EQ(4u, updater.addresses().size());
@@ -436,14 +436,14 @@ namespace catapult { namespace cache {
 			}
 
 			// Assert:
-			auto expectedBalanceHistories = test::GenerateBalanceHistories({
+			auto expectedAccountHistories = test::GenerateAccountHistories({
 				{ addedAddresses[0], { { Height(5), Min_Voter_Balance + Amount(1) } } },
 				{ addedAddresses[1], { { Height(3), Min_Voter_Balance }, { Height(5), Min_Voter_Balance + Amount(2) } } },
 				{ addedAddresses[2], { { Height(5), Min_Voter_Balance + Amount(3) } } },
 				{ addedAddresses[3], { { Height(3), Min_Voter_Balance + Amount(100'000) }, { Height(5), Min_Voter_Balance + Amount(4) } } }
 			});
 
-			test::AssertEqual(expectedBalanceHistories, updater.balanceHistories());
+			test::AssertEqual(expectedAccountHistories, updater.accountHistories());
 
 			// Sanity:
 			EXPECT_EQ(4u, updater.addresses().size());
@@ -481,12 +481,12 @@ namespace catapult { namespace cache {
 			}
 
 			// Assert:
-			auto expectedBalanceHistories = test::GenerateBalanceHistories({
+			auto expectedAccountHistories = test::GenerateAccountHistories({
 				{ addedAddresses[1], { { Height(3), Min_Voter_Balance }, { Height(5), Amount() } } },
 				{ addedAddresses[3], { { Height(3), Min_Voter_Balance + Amount(100'000) }, { Height(5), Amount() } } }
 			});
 
-			test::AssertEqual(expectedBalanceHistories, updater.balanceHistories());
+			test::AssertEqual(expectedAccountHistories, updater.accountHistories());
 
 			// Sanity:
 			EXPECT_EQ(4u, updater.addresses().size());
@@ -531,7 +531,7 @@ namespace catapult { namespace cache {
 		updater.update(deltas.deltas());
 
 		// Assert:
-		EXPECT_TRUE(updater.balanceHistories().empty());
+		EXPECT_TRUE(updater.accountHistories().empty());
 
 		// Sanity:
 		EXPECT_TRUE(updater.addresses().empty());
@@ -568,12 +568,12 @@ namespace catapult { namespace cache {
 		}
 
 		// Assert:
-		auto expectedBalanceHistories = test::GenerateBalanceHistories({
+		auto expectedAccountHistories = test::GenerateAccountHistories({
 			{ addedAddresses[1], { { Height(3), Min_Voter_Balance }, { Height(5), Amount() } } },
 			{ addedAddresses[3], { { Height(3), Min_Voter_Balance + Amount(100'000) }, { Height(5), Amount() } } }
 		});
 
-		test::AssertEqual(expectedBalanceHistories, updater.balanceHistories());
+		test::AssertEqual(expectedAccountHistories, updater.accountHistories());
 
 		// Sanity:
 		EXPECT_TRUE(updater.addresses().empty());
@@ -605,13 +605,13 @@ namespace catapult { namespace cache {
 		updater.update(deltas.deltas());
 
 		// Assert:
-		auto expectedBalanceHistories = test::GenerateBalanceHistories({
+		auto expectedAccountHistories = test::GenerateAccountHistories({
 			{ addedAddresses[0], { { Height(3), Amount(2'100'000) } } },
 			{ addedAddresses[3], { { Height(3), Amount(2'050'000) } } },
 			{ addedAddresses[5], { { Height(3), Amount(2'400'000) } } }
 		});
 
-		test::AssertEqual(expectedBalanceHistories, updater.balanceHistories());
+		test::AssertEqual(expectedAccountHistories, updater.accountHistories());
 
 		// Sanity:
 		EXPECT_EQ(5u, updater.addresses().size());
@@ -649,7 +649,7 @@ namespace catapult { namespace cache {
 		updater.update(deltas.deltas());
 
 		// Assert:
-		auto expectedBalanceHistories = test::GenerateBalanceHistories({
+		auto expectedAccountHistories = test::GenerateAccountHistories({
 			{ addedAddresses[0], { { Height(3), Amount(2'100'000) } } },
 			{ addedAddresses[1], { { Height(4), Amount(2'100'000) }, { Height(5), Amount() } } },
 			{ addedAddresses[2], { { Height(3), Amount(2'000'000) }, { Height(4), Amount() } } },
@@ -659,7 +659,7 @@ namespace catapult { namespace cache {
 			{ addedAddresses[6], { { Height(3), Amount(2'300'000) }, { Height(4), Amount() } } }
 		});
 
-		test::AssertEqual(expectedBalanceHistories, updater.balanceHistories());
+		test::AssertEqual(expectedAccountHistories, updater.accountHistories());
 
 		// Sanity:
 		EXPECT_EQ(5u, updater.addresses().size());
@@ -686,12 +686,12 @@ namespace catapult { namespace cache {
 		updater.update(deltas.deltas());
 
 		// Assert: second account is not included because it is not configured for voting
-		auto expectedBalanceHistories = test::GenerateBalanceHistories({
+		auto expectedAccountHistories = test::GenerateAccountHistories({
 			{ addedAddresses[0], { { Height(3), Amount(2'100'000) } } },
 			{ addedAddresses[2], { { Height(3), Amount(2'300'000) } } }
 		});
 
-		test::AssertEqual(expectedBalanceHistories, updater.balanceHistories());
+		test::AssertEqual(expectedAccountHistories, updater.accountHistories());
 
 		// Sanity:
 		EXPECT_EQ(3u, updater.addresses().size());
@@ -727,13 +727,13 @@ namespace catapult { namespace cache {
 		updater.update(deltas.deltas());
 
 		// Assert: second account is only included when it has voting key set
-		auto expectedBalanceHistories = test::GenerateBalanceHistories({
+		auto expectedAccountHistories = test::GenerateAccountHistories({
 			{ addedAddresses[0], { { Height(3), Amount(2'100'000) } } },
 			{ addedAddresses[1], { { Height(4), Amount(2'200'000) }, { Height(5), Amount() } } },
 			{ addedAddresses[2], { { Height(3), Amount(2'300'000) } } }
 		});
 
-		test::AssertEqual(expectedBalanceHistories, updater.balanceHistories());
+		test::AssertEqual(expectedAccountHistories, updater.accountHistories());
 
 		// Sanity:
 		EXPECT_EQ(3u, updater.addresses().size());
@@ -799,7 +799,7 @@ namespace catapult { namespace cache {
 				updater.prune(height);
 
 				// Assert:
-				auto expectedBalanceHistories = test::GenerateBalanceHistories({
+				auto expectedAccountHistories = test::GenerateAccountHistories({
 					{ addedAddresses[0], { { Height(3), Amount(2'100'000) } } },
 					{ addedAddresses[1], { { Height(4), Amount(2'100'000) }, { Height(6), Amount() } } },
 					{
@@ -812,7 +812,7 @@ namespace catapult { namespace cache {
 					{ addedAddresses[6], { { Height(3), Amount(2'300'000) }, { Height(4), Amount() } } }
 				});
 
-				test::AssertEqual(expectedBalanceHistories, updater.balanceHistories());
+				test::AssertEqual(expectedAccountHistories, updater.accountHistories());
 
 				// Sanity:
 				EXPECT_EQ(4u, updater.addresses().size());
@@ -835,7 +835,7 @@ namespace catapult { namespace cache {
 			updater.prune(Height(4));
 
 			// Assert:
-			auto expectedBalanceHistories = test::GenerateBalanceHistories({
+			auto expectedAccountHistories = test::GenerateAccountHistories({
 				{ addedAddresses[0], { { Height(4), Amount(2'100'000) } } },
 				{ addedAddresses[1], { { Height(4), Amount(2'100'000) }, { Height(6), Amount() } } },
 				{ addedAddresses[2], { { Height(5), Amount(2'000'000) } } },
@@ -844,7 +844,7 @@ namespace catapult { namespace cache {
 				{ addedAddresses[5], { { Height(4), Amount(2'400'000) } } }
 			});
 
-			test::AssertEqual(expectedBalanceHistories, updater.balanceHistories());
+			test::AssertEqual(expectedAccountHistories, updater.accountHistories());
 
 			// Sanity: pruning doesn't affect addresses
 			EXPECT_EQ(4u, updater.addresses().size());
@@ -858,7 +858,7 @@ namespace catapult { namespace cache {
 			updater.prune(Height(5));
 
 			// Assert:
-			auto expectedBalanceHistories = test::GenerateBalanceHistories({
+			auto expectedAccountHistories = test::GenerateAccountHistories({
 				{ addedAddresses[0], { { Height(5), Amount(2'100'000) } } },
 				{ addedAddresses[1], { { Height(5), Amount(2'100'000) }, { Height(6), Amount() } } },
 				{ addedAddresses[2], { { Height(5), Amount(2'000'000) } } },
@@ -866,7 +866,7 @@ namespace catapult { namespace cache {
 				{ addedAddresses[5], { { Height(5), Amount(2'400'000) } } }
 			});
 
-			test::AssertEqual(expectedBalanceHistories, updater.balanceHistories());
+			test::AssertEqual(expectedAccountHistories, updater.accountHistories());
 
 			// Sanity: pruning doesn't affect addresses
 			EXPECT_EQ(4u, updater.addresses().size());
@@ -881,13 +881,13 @@ namespace catapult { namespace cache {
 				updater.prune(height);
 
 				// Assert:
-				auto expectedBalanceHistories = test::GenerateBalanceHistories({
+				auto expectedAccountHistories = test::GenerateAccountHistories({
 					{ addedAddresses[0], { { height, Amount(2'100'000) } } },
 					{ addedAddresses[2], { { height, Amount(2'000'000) } } },
 					{ addedAddresses[5], { { height, Amount(2'400'000) } } }
 				});
 
-				test::AssertEqual(expectedBalanceHistories, updater.balanceHistories());
+				test::AssertEqual(expectedAccountHistories, updater.accountHistories());
 
 				// Sanity: pruning doesn't affect addresses
 				EXPECT_EQ(4u, updater.addresses().size());
@@ -915,7 +915,7 @@ namespace catapult { namespace cache {
 
 		auto originalAccounts = HighValueAccounts(
 				model::AddressSet(addedAddresses.cbegin(), addedAddresses.cbegin() + 3),
-				CreateThreeBalanceHistories());
+				CreateThreeAccountHistories());
 		HighValueAccountsUpdater updater(CreateOptions(), originalAccounts);
 		updater.setHeight(Height(3));
 		updater.update(deltas.deltas());
@@ -927,15 +927,15 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(Pick(addedAddresses, { 0, 2, 4, 5 }), accounts.addresses());
 
 		// - notice that GetHarvesterEligibleTestBalances includes one account with min voter balance
-		auto expectedBalanceHistories = CreateThreeBalanceHistories();
-		expectedBalanceHistories.emplace(addedAddresses[5], test::CreateBalanceHistory({ { Height(3), Min_Voter_Balance } }));
-		test::AssertEqual(expectedBalanceHistories, accounts.balanceHistories());
+		auto expectedAccountHistories = CreateThreeAccountHistories();
+		expectedAccountHistories.emplace(addedAddresses[5], test::CreateAccountHistory({ { Height(3), Min_Voter_Balance } }));
+		test::AssertEqual(expectedAccountHistories, accounts.accountHistories());
 
 		// - updater is cleared
 		EXPECT_TRUE(updater.addresses().empty());
 		EXPECT_TRUE(updater.removedAddresses().empty());
 
-		EXPECT_TRUE(updater.balanceHistories().empty());
+		EXPECT_TRUE(updater.accountHistories().empty());
 	}
 
 	// endregion

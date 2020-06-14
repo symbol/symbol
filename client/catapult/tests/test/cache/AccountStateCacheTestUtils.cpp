@@ -23,26 +23,26 @@
 
 namespace catapult { namespace test {
 
-	state::BalanceHistory CreateBalanceHistory(const std::vector<std::pair<Height, Amount>>& balancePairs) {
-		state::BalanceHistory history;
+	state::AccountHistory CreateAccountHistory(const std::vector<std::pair<Height, Amount>>& balancePairs) {
+		state::AccountHistory history;
 		for (const auto& pair : balancePairs)
 			history.add(pair.first, pair.second);
 
 		// Sanity: all pairs were added
-		EXPECT_EQ(balancePairs.size(), history.size());
+		EXPECT_EQ(balancePairs.size(), history.balances().size());
 		return history;
 	}
 
-	cache::AddressBalanceHistoryMap GenerateBalanceHistories(const AddressBalanceHistorySeeds& seeds) {
-		cache::AddressBalanceHistoryMap map;
+	cache::AddressAccountHistoryMap GenerateAccountHistories(const AddressBalanceHistorySeeds& seeds) {
+		cache::AddressAccountHistoryMap map;
 
 		for (const auto& seed : seeds)
-			map.emplace(Address{ { seed.first } }, CreateBalanceHistory(seed.second));
+			map.emplace(Address{ { seed.first } }, CreateAccountHistory(seed.second));
 
 		return map;
 	}
 
-	void AssertEqual(const cache::AddressBalanceHistoryMap& expected, const cache::AddressBalanceHistoryMap& actual) {
+	void AssertEqual(const cache::AddressAccountHistoryMap& expected, const cache::AddressAccountHistoryMap& actual) {
 		EXPECT_EQ(expected.size(), actual.size());
 
 		for (const auto& pair : expected) {
@@ -52,12 +52,12 @@ namespace catapult { namespace test {
 				continue;
 			}
 
-			const auto& expectedBalanceHistory = pair.second;
-			const auto& actualBalanceHistory = actualIter->second;
+			const auto& expectedBalanceHistory = pair.second.balances();
+			const auto& actualBalanceHistory = actualIter->second.balances();
 			EXPECT_EQ(expectedBalanceHistory.heights(), actualBalanceHistory.heights()) << "address = " << pair.first;
 
 			for (auto height : expectedBalanceHistory.heights()) {
-				EXPECT_EQ(expectedBalanceHistory.balance(height), actualBalanceHistory.balance(height))
+				EXPECT_EQ(expectedBalanceHistory.get(height), actualBalanceHistory.get(height))
 						<< "address = " << pair.first << ", height = " << height;
 			}
 		}

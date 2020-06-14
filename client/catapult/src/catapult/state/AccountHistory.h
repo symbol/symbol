@@ -18,38 +18,30 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "BalanceHistory.h"
-#include <algorithm>
+#pragma once
+#include "HeightIndexedHistoryMap.h"
 
 namespace catapult { namespace state {
 
-	size_t BalanceHistory::size() const {
-		return m_heightBalanceMap.size();
-	}
+	/// Represents an account history.
+	/// \note This is required for finalization voting.
+	class AccountHistory {
+	public:
+		/// Gets the balance history.
+		const HeightIndexedHistoryMap<Amount>& balances() const;
 
-	std::vector<Height> BalanceHistory::heights() const {
-		return m_heightBalanceMap.heights();
-	}
+		/// Returns \c true if any historical balance is at least \a minAmount.
+		bool anyAtLeast(Amount minAmount) const;
 
-	Amount BalanceHistory::balance() const {
-		return m_heightBalanceMap.get();
-	}
+	public:
+		/// Adds \a balance at \a height.
+		void add(Height height, Amount balance);
 
-	Amount BalanceHistory::balance(Height height) const {
-		return m_heightBalanceMap.get(height);
-	}
+		/// Prunes all balances less than \a height.
+		/// \note Prune will never change the result of balance queries at or after \a height.
+		void prune(Height height);
 
-	bool BalanceHistory::anyAtLeast(Amount minAmount) const {
-		return m_heightBalanceMap.anyOf([minAmount](auto amount) {
-			return minAmount <= amount;
-		});
-	}
-
-	void BalanceHistory::add(Height height, Amount balance) {
-		m_heightBalanceMap.add(height, balance);
-	}
-
-	void BalanceHistory::prune(Height height) {
-		m_heightBalanceMap.prune(height);
-	}
+	private:
+		HeightIndexedHistoryMap<Amount> m_heightBalanceMap;
+	};
 }}

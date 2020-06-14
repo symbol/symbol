@@ -21,12 +21,12 @@
 #pragma once
 #include "AccountStateCacheTypes.h"
 #include "catapult/model/ContainerTypes.h"
-#include "catapult/state/BalanceHistory.h"
+#include "catapult/state/AccountHistory.h"
 
 namespace catapult { namespace cache {
 
-	/// Map of addresses to balance histories.
-	using AddressBalanceHistoryMap = std::unordered_map<Address, state::BalanceHistory, utils::ArrayHasher<Address>>;
+	/// Map of addresses to account histories.
+	using AddressAccountHistoryMap = std::unordered_map<Address, state::AccountHistory, utils::ArrayHasher<Address>>;
 
 	/// High value accounts container.
 	class HighValueAccounts {
@@ -34,22 +34,22 @@ namespace catapult { namespace cache {
 		/// Creates an empty container.
 		HighValueAccounts();
 
-		/// Creates a container around \a addresses and \a balanceHistories.
-		HighValueAccounts(const model::AddressSet& addresses, const AddressBalanceHistoryMap& balanceHistories);
+		/// Creates a container around \a addresses and \a accountHistories.
+		HighValueAccounts(const model::AddressSet& addresses, const AddressAccountHistoryMap& accountHistories);
 
-		/// Creates a container around \a addresses and \a balanceHistories.
-		HighValueAccounts(model::AddressSet&& addresses, AddressBalanceHistoryMap&& balanceHistories);
+		/// Creates a container around \a addresses and \a accountHistories.
+		HighValueAccounts(model::AddressSet&& addresses, AddressAccountHistoryMap&& accountHistories);
 
 	public:
 		/// Gets the high value (harvester eligible) addresses.
 		const model::AddressSet& addresses() const;
 
-		/// Gets the high value (voter eligible) balance histories.
-		const AddressBalanceHistoryMap& balanceHistories() const;
+		/// Gets the high value (voter eligible) account histories.
+		const AddressAccountHistoryMap& accountHistories() const;
 
 	private:
 		model::AddressSet m_addresses;
-		AddressBalanceHistoryMap m_balanceHistories;
+		AddressAccountHistoryMap m_accountHistories;
 	};
 
 	/// High value accounts updater.
@@ -71,8 +71,8 @@ namespace catapult { namespace cache {
 		/// Gets the (removed) high value (harvester eligible) addresses relative to the initial addresses.
 		const model::AddressSet& removedAddresses() const;
 
-		/// Gets the high value (voter eligible) balance histories.
-		const AddressBalanceHistoryMap& balanceHistories() const;
+		/// Gets the high value (voter eligible) account histories.
+		const AddressAccountHistoryMap& accountHistories() const;
 
 	public:
 		/// Sets the \a height of the update operation.
@@ -97,7 +97,7 @@ namespace catapult { namespace cache {
 		const model::AddressSet& m_original;
 		model::AddressSet m_current;
 		model::AddressSet m_removed;
-		AddressBalanceHistoryMap m_balanceHistories;
+		AddressAccountHistoryMap m_accountHistories;
 		Height m_height;
 	};
 }}

@@ -1363,13 +1363,13 @@ namespace catapult { namespace cache {
 		delta->updateHighValueAccounts(Height(4));
 
 		// Sanity: before pruning, all three accounts are still tracked
-		EXPECT_EQ(3u, delta->highValueAccounts().balanceHistories().size());
+		EXPECT_EQ(3u, delta->highValueAccounts().accountHistories().size());
 
 		// Act:
 		delta->prune(Height(4));
 
 		// Assert: the account decreased below the threshold should be untracked
-		EXPECT_EQ(2u, delta->highValueAccounts().balanceHistories().size());
+		EXPECT_EQ(2u, delta->highValueAccounts().accountHistories().size());
 	}
 
 	// endregion
@@ -1383,7 +1383,7 @@ namespace catapult { namespace cache {
 		auto addressSet = model::AddressSet(addresses.cbegin(), addresses.cend());
 
 		// Act:
-		cache.init(HighValueAccounts(addressSet, AddressBalanceHistoryMap()));
+		cache.init(HighValueAccounts(addressSet, AddressAccountHistoryMap()));
 
 		// Assert:
 		auto view = cache.createView();
