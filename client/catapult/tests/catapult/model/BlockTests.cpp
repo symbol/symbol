@@ -34,9 +34,7 @@ namespace catapult { namespace model {
 	FIELD(Height) \
 	FIELD(Timestamp) \
 	FIELD(Difficulty) \
-	FIELD(GenerationHashProof.Gamma) \
-	FIELD(GenerationHashProof.VerificationHash) \
-	FIELD(GenerationHashProof.Scalar) \
+	FIELD(GenerationHashProof) \
 	FIELD(PreviousBlockHash) \
 	FIELD(TransactionsHash) \
 	FIELD(ReceiptsHash) \

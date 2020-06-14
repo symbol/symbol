@@ -19,8 +19,6 @@
 **/
 
 #pragma once
-#include "catapult/crypto/Vrf.h"
-#include "catapult/model/Mosaic.h"
 #include "catapult/types.h"
 
 namespace catapult { namespace test {
@@ -28,37 +26,10 @@ namespace catapult { namespace test {
 	/// Gets the desired alignment for type T.
 	template<typename T>
 	constexpr size_t GetRequiredAlignment() {
-		return sizeof(T);
-	}
-
-	/// Gets the desired alignment for type Key.
-	template<>
-	constexpr size_t GetRequiredAlignment<Key>() {
-		return sizeof(uint64_t);
-	}
-
-	/// Gets the desired alignment for type VotingKey.
-	template<>
-	constexpr size_t GetRequiredAlignment<VotingKey>() {
-		return sizeof(uint64_t);
-	}
-
-	/// Gets the desired alignment for type Hash256.
-	template<>
-	constexpr size_t GetRequiredAlignment<Hash256>() {
-		return sizeof(uint64_t);
-	}
-
-	/// Gets the desired alignment for type Hash512.
-	template<>
-	constexpr size_t GetRequiredAlignment<Hash512>() {
-		return sizeof(uint64_t);
-	}
-
-	/// Gets the desired alignment for type Signature.
-	template<>
-	constexpr size_t GetRequiredAlignment<Signature>() {
-		return sizeof(uint64_t);
+		if constexpr (utils::traits::is_scalar_v<T>)
+			return sizeof(T); // require scalars to be aligned on their natural boundaries
+		else
+			return sizeof(uint64_t); // require non-scalars to be aligned on 64-bit boundaries
 	}
 
 	/// Gets the desired alignment for type Address.
@@ -71,42 +42,6 @@ namespace catapult { namespace test {
 	template<>
 	constexpr size_t GetRequiredAlignment<UnresolvedAddress>() {
 		return sizeof(uint8_t);
-	}
-
-	/// Gets the desired alignment for type Mosaic.
-	template<>
-	constexpr size_t GetRequiredAlignment<model::Mosaic>() {
-		return sizeof(uint64_t);
-	}
-
-	/// Gets the desired alignment for type UnresolvedMosaic.
-	template<>
-	constexpr size_t GetRequiredAlignment<model::UnresolvedMosaic>() {
-		return sizeof(uint64_t);
-	}
-
-	/// Gets the desired alignment for type GenerationHashSeed.
-	template<>
-	constexpr size_t GetRequiredAlignment<GenerationHashSeed>() {
-		return sizeof(uint64_t);
-	}
-
-	/// Gets the desired alignment for type ProofGamma.
-	template<>
-	constexpr size_t GetRequiredAlignment<crypto::ProofGamma>() {
-		return sizeof(uint64_t);
-	}
-
-	/// Gets the desired alignment for type ProofVerificationHash.
-	template<>
-	constexpr size_t GetRequiredAlignment<crypto::ProofVerificationHash>() {
-		return sizeof(uint64_t);
-	}
-
-	/// Gets the desired alignment for type ProofScalar.
-	template<>
-	constexpr size_t GetRequiredAlignment<crypto::ProofScalar>() {
-		return sizeof(uint64_t);
 	}
 }}
 
