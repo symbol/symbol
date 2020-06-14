@@ -28,47 +28,28 @@ namespace catapult { namespace state {
 	}
 
 	std::vector<Height> BalanceHistory::heights() const {
-		auto heights = std::vector<Height>();
-		for (auto iter = m_heightBalanceMap.crbegin(); m_heightBalanceMap.crend() != iter; ++iter)
-			heights.push_back(iter->first);
-
-		return heights;
+		return m_heightBalanceMap.heights();
 	}
 
 	Amount BalanceHistory::balance() const {
-		return m_heightBalanceMap.empty() ? Amount() : (m_heightBalanceMap.cbegin())->second;
+		return m_heightBalanceMap.get();
 	}
 
 	Amount BalanceHistory::balance(Height height) const {
-		auto iter = m_heightBalanceMap.lower_bound(height);
-		return m_heightBalanceMap.cend() == iter ? Amount() : iter->second;
+		return m_heightBalanceMap.get(height);
 	}
 
-	bool BalanceHistory::anyAtLeast(Amount amount) const {
-		return std::any_of(m_heightBalanceMap.cbegin(), m_heightBalanceMap.cend(), [amount](const auto& pair) {
-			return amount <= pair.second;
+	bool BalanceHistory::anyAtLeast(Amount minAmount) const {
+		return m_heightBalanceMap.anyOf([minAmount](auto amount) {
+			return minAmount <= amount;
 		});
 	}
 
 	void BalanceHistory::add(Height height, Amount balance) {
-		auto iter = m_heightBalanceMap.insert_or_assign(height, balance).first;
-
-		// delete larger height entry with same balance
-		if (m_heightBalanceMap.cbegin() != iter && (--iter)->second == balance)
-			m_heightBalanceMap.erase(iter);
-
-		// delete new height entry if smaller height entry with same balance exists
-		if (this->balance(height - Height(1)) == balance)
-			m_heightBalanceMap.erase(height);
+		m_heightBalanceMap.add(height, balance);
 	}
 
 	void BalanceHistory::prune(Height height) {
-		auto iter = m_heightBalanceMap.lower_bound(height);
-		if (m_heightBalanceMap.end() == iter)
-			return;
-
-		auto balanceAtPruneHeight = iter->second;
-		m_heightBalanceMap.erase(iter, m_heightBalanceMap.end());
-		add(height, balanceAtPruneHeight);
+		m_heightBalanceMap.prune(height);
 	}
 }}

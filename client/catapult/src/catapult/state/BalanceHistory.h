@@ -19,8 +19,7 @@
 **/
 
 #pragma once
-#include "catapult/types.h"
-#include <map>
+#include "HeightIndexedHistoryMap.h"
 
 namespace catapult { namespace state {
 
@@ -39,8 +38,8 @@ namespace catapult { namespace state {
 		/// Gets the balance at \a height.
 		Amount balance(Height height) const;
 
-		/// Returns \c true if any historical balance is at least \a amount.
-		bool anyAtLeast(Amount amount) const;
+		/// Returns \c true if any historical balance is at least \a minAmount.
+		bool anyAtLeast(Amount minAmount) const;
 
 	public:
 		/// Adds \a balance at \a height.
@@ -51,6 +50,6 @@ namespace catapult { namespace state {
 		void prune(Height height);
 
 	private:
-		std::map<Height, Amount, std::greater<Height>> m_heightBalanceMap;
+		HeightIndexedHistoryMap<Amount> m_heightBalanceMap;
 	};
 }}
