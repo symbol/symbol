@@ -18,11 +18,13 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const CatapultDb = require('../../../src/db/CatapultDb');
 const MosaicDb = require('../../../src/plugins/mosaic/MosaicDb');
 const test = require('../../db/utils/dbTestUtils');
 const catapult = require('catapult-sdk');
 const { expect } = require('chai');
 const MongoDb = require('mongodb');
+const sinon = require('sinon');
 
 const { Binary, Long } = MongoDb;
 const { address } = catapult.model;
@@ -40,7 +42,7 @@ describe('mosaic db', () => {
 		const paginationOptions = {
 			pageSize: 10,
 			pageNumber: 1,
-			sortField: '_id',
+			sortField: 'id',
 			sortDirection: -1
 		};
 
@@ -123,7 +125,7 @@ describe('mosaic db', () => {
 				const options = {
 					pageSize: 10,
 					pageNumber: 1,
-					sortField: '_id',
+					sortField: 'id',
 					sortDirection: 1
 				};
 
@@ -143,7 +145,7 @@ describe('mosaic db', () => {
 				const options = {
 					pageSize: 10,
 					pageNumber: 1,
-					sortField: '_id',
+					sortField: 'id',
 					sortDirection: -1
 				};
 
@@ -160,10 +162,11 @@ describe('mosaic db', () => {
 			});
 
 			it('sort field', () => {
+				const queryPagedDocumentsSpy = sinon.spy(CatapultDb.prototype, 'queryPagedDocuments_2');
 				const options = {
 					pageSize: 10,
 					pageNumber: 1,
-					sortField: 'mosaic.id',
+					sortField: 'id',
 					sortDirection: 1
 				};
 
@@ -171,10 +174,10 @@ describe('mosaic db', () => {
 				return runMosaicsDbTest(
 					dbMosaics(),
 					db => db.mosaics(undefined, options),
-					page => {
-						expect(page.data[0].id).to.deep.equal(createObjectId(30));
-						expect(page.data[1].id).to.deep.equal(createObjectId(10));
-						expect(page.data[2].id).to.deep.equal(createObjectId(20));
+					() => {
+						expect(queryPagedDocumentsSpy.calledOnce).to.equal(true);
+						expect(Object.keys(queryPagedDocumentsSpy.firstCall.args[2].$sort)[0]).to.equal('_id');
+						queryPagedDocumentsSpy.restore();
 					}
 				);
 			});
@@ -190,9 +193,9 @@ describe('mosaic db', () => {
 			const options = {
 				pageSize: 10,
 				pageNumber: 1,
-				sortField: '_id',
+				sortField: 'id',
 				sortDirection: 1,
-				offset: createObjectId(20).toString()
+				offset: createObjectId(20)
 			};
 
 			it('gt', () => {

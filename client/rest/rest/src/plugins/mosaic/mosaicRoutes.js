@@ -30,7 +30,7 @@ module.exports = {
 		server.get('/mosaics', (req, res, next) => {
 			const ownerAddress = req.params.ownerAddress ? routeUtils.parseArgument(req.params, 'ownerAddress', 'address') : undefined;
 
-			const options = routeUtils.parsePaginationArguments(req.params, services.config.pageSize, ['_id']);
+			const options = routeUtils.parsePaginationArguments(req.params, services.config.pageSize, { id: 'objectId' });
 
 			return db.mosaics(ownerAddress, options)
 				.then(result => mosaicSender.sendPage(res, next)(result));

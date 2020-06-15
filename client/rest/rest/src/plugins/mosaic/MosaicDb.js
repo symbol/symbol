@@ -20,7 +20,7 @@
 
 const MongoDb = require('mongodb');
 
-const { Long, ObjectId } = MongoDb;
+const { Long } = MongoDb;
 
 
 class MosaicDb {
@@ -36,21 +36,21 @@ class MosaicDb {
 	 * Retrieves filtered and paginated mosaics.
 	 * @param {Uint8Array} ownerAddress Mosaic owner address
 	 * @param {object} options Options for ordering and pagination. Can have an `offset`, and must contain the `sortField`, `sortDirection`,
-	 * `pageSize` and `pageNumber`.
+	 * `pageSize` and `pageNumber`. 'sortField' must be within allowed 'sortingOptions'.
 	 * @returns {Promise.<object>} Mosaics page.
 	 */
 	mosaics(ownerAddress, options) {
+		const sortingOptions = { id: '_id' };
+
 		const conditions = [];
 
-		// it is assumed that sortField will always be an `id` for now - this will need to be redesigned when it gets upgraded
-		// in fact, offset logic should be moved to `queryPagedDocuments`
 		if (options.offset)
-			conditions.push({ [options.sortField]: { [1 === options.sortDirection ? '$gt' : '$lt']: new ObjectId(options.offset) } });
+			conditions.push({ [sortingOptions[options.sortField]]: { [1 === options.sortDirection ? '$gt' : '$lt']: options.offset } });
 
 		if (ownerAddress)
 			conditions.push({ 'mosaic.ownerAddress': Buffer.from(ownerAddress) });
 
-		const sortConditions = { $sort: { [options.sortField]: options.sortDirection } };
+		const sortConditions = { $sort: { [sortingOptions[options.sortField]]: options.sortDirection } };
 		return this.catapultDb.queryPagedDocuments_2(conditions, [], sortConditions, 'mosaics', options);
 	}
 

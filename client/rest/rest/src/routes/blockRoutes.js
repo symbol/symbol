@@ -42,7 +42,11 @@ module.exports = {
 				? routeUtils.parseArgument(params, 'beneficiaryAddress', 'address')
 				: undefined;
 
-			const options = routeUtils.parsePaginationArguments(params, services.config.pageSize, ['_id']);
+			const offsetParsers = {
+				id: 'objectId',
+				height: 'uint64'
+			};
+			const options = routeUtils.parsePaginationArguments(params, services.config.pageSize, offsetParsers);
 
 			return db.blocks(signerPublicKey, beneficiaryAddress, options)
 				.then(result => routeUtils.createSender(routeResultTypes.block).sendPage(res, next)(result));

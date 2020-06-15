@@ -132,7 +132,10 @@ describe('block routes', () => {
 				it('allowed sort fields are taken into account', () => {
 					// Arrange:
 					const paginationParserSpy = sinon.spy(routeUtils, 'parsePaginationArguments');
-					const expectedAllowedSortFields = ['_id'];
+					const expectedAllowedSortFields = {
+						id: 'objectId',
+						height: 'uint64'
+					};
 
 					// Act:
 					return mockServer.callRoute(route, { params: {} }).then(() => {

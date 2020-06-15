@@ -161,17 +161,17 @@ const routeUtils = {
 	 * Parses pagination arguments and throws an invalid argument error if any is invalid.
 	 * @param {object} args Arguments to parse.
 	 * @param {object} optionsPageSize Page size options.
-	 * @param {object} allowedSortFields Sort fields this endpoint allows, will match provided `sortField` and throw if invalid. Must have
-	 * at least one value, and the first is treated as default if no `sortField` is provided.
+	 * @param {object} offsetParsers Sort fields with the related offset parser this endpoint allows, will match provided `sortField` and
+	 * throw if invalid. Must have at least one entry, and `id` is treated as default if no `sortField` is provided.
 	 * @returns {object} Parsed pagination options.
 	 */
-	parsePaginationArguments: (args, optionsPageSize, allowedSortFields) => {
-		if (args.sortField && !allowedSortFields.includes(args.sortField))
-			throw errors.createInvalidArgumentError(`sorting by ${args.sortField} is not allowed`);
+	parsePaginationArguments: (args, optionsPageSize, offsetParsers) => {
+		const allowedSortFields = Object.keys(offsetParsers);
+		if (args.orderBy && !allowedSortFields.includes(args.orderBy))
+			throw errors.createInvalidArgumentError(`sorting by ${args.orderBy} is not allowed`);
 
 		const parsedArgs = {
-			offset: args.offset,
-			sortField: allowedSortFields.includes(args.sortField) ? args.sortField : allowedSortFields[0],
+			sortField: allowedSortFields.includes(args.orderBy) ? args.orderBy : 'id',
 			sortDirection: 'desc' === args.order ? -1 : 1
 		};
 
@@ -194,8 +194,8 @@ const routeUtils = {
 		}
 		parsedArgs.pageNumber = 0 < parsedArgs.pageNumber ? parsedArgs.pageNumber : 1;
 
-		if (args.offset && !isObjectId(args.offset))
-			throw errors.createInvalidArgumentError('offset is not a valid object id');
+		if (args.offset)
+			parsedArgs.offset = routeUtils.parseArgument(args, 'offset', offsetParsers[parsedArgs.sortField]);
 
 		return parsedArgs;
 	},

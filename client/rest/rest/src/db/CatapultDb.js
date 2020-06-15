@@ -214,16 +214,19 @@ class CatapultDb {
 	 * @param {Uint8Array} signerPublicKey Filters by signer public key
 	 * @param {Uint8Array} beneficiaryAddress Filters by beneficiary address
 	 * @param {object} options Options for ordering and pagination. Can have an `offset`, and must contain the `sortField`, `sortDirection`,
-	 * `pageSize` and `pageNumber`.
+	 * `pageSize` and `pageNumber`. 'sortField' must be within allowed 'sortingOptions'.
 	 * @returns {Promise.<object>} Blocks page.
 	 */
 	blocks(signerPublicKey, beneficiaryAddress, options) {
+		const sortingOptions = {
+			id: '_id',
+			height: 'block.height'
+		};
+
 		const conditions = [];
 
-		// it is assumed that sortField will always be an `id` for now - this will need to be redesigned when it gets upgraded
-		// in fact, offset logic should be moved to `queryPagedDocuments`
 		if (options.offset)
-			conditions.push({ [options.sortField]: { [1 === options.sortDirection ? '$gt' : '$lt']: new ObjectId(options.offset) } });
+			conditions.push({ [sortingOptions[options.sortField]]: { [1 === options.sortDirection ? '$gt' : '$lt']: options.offset } });
 
 		if (signerPublicKey)
 			conditions.push({ 'block.signerPublicKey': Buffer.from(signerPublicKey) });
@@ -231,7 +234,7 @@ class CatapultDb {
 		if (beneficiaryAddress)
 			conditions.push({ 'block.beneficiaryAddress': Buffer.from(beneficiaryAddress) });
 
-		const sortConditions = { $sort: { [options.sortField]: options.sortDirection } };
+		const sortConditions = { $sort: { [sortingOptions[options.sortField]]: options.sortDirection } };
 
 		return this.queryPagedDocuments_2(conditions, [], sortConditions, 'blocks', options);
 	}
@@ -367,10 +370,12 @@ class CatapultDb {
 	 * @param {object} filters Filters to be applied: `address` for an involved address in the query, `signerPublicKey`, `recipientAddress`,
 	 * `group`, `height`, `embedded`, `transactionTypes` array of uint. If `address` is provided, other account related filters are omitted.
 	 * @param {object} options Options for ordering and pagination. Can have an `offset`, and must contain the `sortField`, `sortDirection`,
-	 * `pageSize` and `pageNumber`.
+	 * `pageSize` and `pageNumber`. 'sortField' must be within allowed 'sortingOptions'.
 	 * @returns {Promise.<object>} Transactions page.
 	 */
 	transactions(filters, options) {
+		const sortingOptions = { id: '_id' };
+
 		const getCollectionName = (transactionStatus = 'confirmed') => {
 			const collectionNames = {
 				confirmed: 'transactions',
@@ -405,10 +410,8 @@ class CatapultDb {
 		const buildConditions = () => {
 			const conditions = [];
 
-			// it is assumed that sortField will always be an `id` for now - this will need to be redesigned when it gets upgraded
-			// in fact, offset logic should be moved to `queryPagedDocuments`
 			if (options.offset)
-				conditions.push({ [options.sortField]: { [1 === options.sortDirection ? '$gt' : '$lt']: new ObjectId(options.offset) } });
+				conditions.push({ [sortingOptions[options.sortField]]: { [1 === options.sortDirection ? '$gt' : '$lt']: options.offset } });
 
 			if (filters.height)
 				conditions.push({ 'meta.height': convertToLong(filters.height) });
@@ -427,7 +430,7 @@ class CatapultDb {
 		};
 
 		const removedFields = ['meta.addresses'];
-		const sortConditions = { $sort: { [options.sortField]: options.sortDirection } };
+		const sortConditions = { $sort: { [sortingOptions[options.sortField]]: options.sortDirection } };
 		const conditions = buildConditions();
 
 		return this.queryPagedDocuments_2(conditions, removedFields, sortConditions, collectionName, options);
