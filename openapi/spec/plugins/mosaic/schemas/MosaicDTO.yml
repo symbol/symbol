@@ -3,7 +3,6 @@ required:
   - id
   - supply
   - startHeight
-  - ownerPublicKey
   - ownerAddress
   - revision
   - flags
@@ -16,8 +15,6 @@ properties:
     $ref: "../../../schemas/Amount.yml"
   startHeight:
     $ref: "../../../schemas/Height.yml"
-  ownerPublicKey:
-    $ref: "../../../schemas/PublicKey.yml"
   ownerAddress:
     $ref: "../../../schemas/Address.yml"
   revision:

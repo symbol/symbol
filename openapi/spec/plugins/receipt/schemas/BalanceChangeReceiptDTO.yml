@@ -6,11 +6,11 @@ allOf:
     required:
       - mosaicId
       - amount
-      - targetPublicKey
+      - targetAddress
     properties:
       mosaicId:
         $ref: "../../../schemas/MosaicId.yml"
       amount:
         $ref: "../../../schemas/Amount.yml"
-      targetPublicKey:
-        $ref: "../../../schemas/PublicKey.yml"
+      targetAddress:
+        $ref: "../../../schemas/Address.yml"

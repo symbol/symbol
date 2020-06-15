@@ -1,4 +1,6 @@
 # path
+address:
+  $ref: './path/address.yml'
 accountIdPath:
   $ref: './path/accountId.yml'
 heightPath:
@@ -15,6 +17,8 @@ publicKeyPath:
   $ref: './path/publicKey.yml'
 receiptHashPath:
   $ref: './path/receiptHash.yml'
+sourceAddressPath:
+  $ref: './path/sourceAddress.yml'
 transactionHashPath:
   $ref: './path/transactionHash.yml'
 transactionIdPath:
@@ -22,8 +26,8 @@ transactionIdPath:
 # query
 addressQuery:
   $ref: './query/address.yml'
-beneficiaryPublicKeyQuery:
-  $ref: './query/beneficiaryPublicKey.yml'
+beneficiaryAddressQuery:
+  $ref: './query/beneficiaryAddress.yml'
 embedded:
   $ref: './query/embedded.yml'
 groupQuery:

@@ -23,6 +23,7 @@ enum:
   - Failure_Signature_Not_Verifiable
   - Failure_AccountLink_Link_Already_Exists
   - Failure_AccountLink_Inconsistent_Unlink_Data
+  - Failure_AccountLink_Unknown_Link
   - Failure_AccountLink_Remote_Account_Ineligible
   - Failure_AccountLink_Remote_Account_Signer_Prohibited
   - Failure_AccountLink_Remote_Account_Participant_Prohibited
@@ -176,6 +177,7 @@ description: |
   * Failure_Signature_Not_Verifiable - Validation failed because the verification of the signature failed.
   * Failure_AccountLink_Link_Already_Exists - Validation failed because main account is already linked to another account.
   * Failure_AccountLink_Inconsistent_Unlink_Data - Validation failed because unlink data is not consistent with existing account link.
+  * Failure_AccountLink_Unknown_Link - Validation failed because main account is not linked to another account.
   * Failure_AccountLink_Remote_Account_Ineligible - Validation failed because link is attempting to convert ineligible account to remote.
   * Failure_AccountLink_Remote_Account_Signer_Prohibited - Validation failed because remote is not allowed to sign a transaction.
   * Failure_AccountLink_Remote_Account_Participant_Prohibited - Validation failed because remote is not allowed to participate in the transaction.

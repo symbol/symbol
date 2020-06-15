@@ -4,7 +4,7 @@ summary: Get multisig account graph information
 description: Returns the multisig account graph.
 operationId: getAccountMultisigGraph
 parameters:
-  - $ref: "../../../parameters/path/accountId.yml"
+  - $ref: "../../../parameters/path/address.yml"
 responses:
   "200":
     description: success

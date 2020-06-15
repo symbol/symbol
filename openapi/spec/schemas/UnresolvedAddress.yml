@@ -2,4 +2,4 @@ type: string
 description: |
   Address expressed in hexadecimal base. If the bit 0 of byte 0 is not set (like in 0x90), then it is a
   regular address. Else (e.g. 0x91) it represents a namespace id which starts at byte 1.
-example: 9081FCCB41F8C8409A9B99E485E0E28D23BD6304EF7215E01A
+example: 90340017CFF3DD2BCF3B2670CDCB9FC8C75754E2325F297C
