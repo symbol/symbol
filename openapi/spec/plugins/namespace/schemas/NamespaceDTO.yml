@@ -5,7 +5,6 @@ required:
   - level0
   - alias
   - parentId
-  - ownerPublicKey
   - ownerAddress
   - startHeight
   - endHeight
@@ -26,8 +25,6 @@ properties:
     $ref: "./AliasDTO.yml"
   parentId:
     $ref: "../../../schemas/NamespaceId.yml"
-  ownerPublicKey:
-    $ref: "../../../schemas/PublicKey.yml"
   ownerAddress:
     $ref: "../../../schemas/Address.yml"
   startHeight:

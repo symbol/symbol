@@ -4,6 +4,10 @@ allOf:
   - type: object
     required:
       - signerPublicKey
+      - version
     properties:
+      version:
+        type: string
+        description: Entity version.
       signerPublicKey:
         $ref: "../../../schemas/PublicKey.yml"

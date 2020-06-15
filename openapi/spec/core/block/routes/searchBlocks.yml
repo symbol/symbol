@@ -5,7 +5,7 @@ description: Gets an array of bocks.
 operationId: searchBlocks
 parameters:
   - $ref: "../../../parameters/query/signerPublicKey.yml"
-  - $ref: "../../../parameters/query/beneficiaryPublicKey.yml"
+  - $ref: "../../../parameters/query/beneficiaryAddress.yml"
   - $ref: "../../../parameters/query/pageSize.yml"
   - $ref: "../../../parameters/query/pageNumber.yml"
   - $ref: "../../../parameters/query/offset.yml"
