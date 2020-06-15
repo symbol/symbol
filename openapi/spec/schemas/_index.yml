@@ -153,8 +153,6 @@ StorageInfoDTO:
 # Core - Transaction
 TransactionGroupEnum:
   "$ref": "../core/transaction/schemas/TransactionGroupEnum.yml"
-TransactionGroupSubsetEnum:
-  "$ref": "../core/transaction/schemas/TransactionGroupSubsetEnum.yml"
 TransactionStatusEnum:
   "$ref": "../core/transaction/schemas/TransactionStatusEnum.yml"
 TransactionTypeEnum:

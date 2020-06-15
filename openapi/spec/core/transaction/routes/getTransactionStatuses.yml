@@ -1,8 +1,8 @@
 tags:
-  - Transaction routes
-summary: Get transactions status
+  - Transaction status routes
+summary: Get transaction statuses
 description: Returns an array of transaction statuses for a given array of transaction hashes.
-operationId: getTransactionsStatuses
+operationId: getTransactionStatuses
 requestBody:
   $ref: "../../../request_bodies/transactionHashes.yml"
 responses:

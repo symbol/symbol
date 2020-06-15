@@ -1,8 +1,8 @@
 tags:
   - Transaction routes
 summary: Get transaction information
-description: Returns transaction information given a transactionId or hash.
-operationId: getTransaction
+description: Returns partial transaction information given a transactionId or hash.
+operationId: getPartialTransaction
 parameters:
   - $ref: "../../../parameters/path/transactionId.yml"
 responses:
