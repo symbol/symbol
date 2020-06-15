@@ -30,8 +30,6 @@ beneficiaryAddressQuery:
   $ref: './query/beneficiaryAddress.yml'
 embedded:
   $ref: './query/embedded.yml'
-groupQuery:
-  $ref: './query/group.yml'
 heightQuery:
   $ref: './query/height.yml'
 idQuery:

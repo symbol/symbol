@@ -1,5 +1,5 @@
 tags:
-  - Transaction routes
+  - Transaction status routes
 summary: Get transaction status
 description: Returns the transaction status for a given hash.
 operationId: getTransactionStatus

@@ -1,0 +1,25 @@
+tags:
+  - Transaction routes
+summary: Get transactions
+description: Returns an array of partial transactions.
+operationId: searchPartialTransactions
+parameters:
+  - $ref: "../../../parameters/query/address.yml"
+  - $ref: "../../../parameters/query/recipientAddress.yml"
+  - $ref: "../../../parameters/query/signerPublicKey.yml"
+  - $ref: "../../../parameters/query/height.yml"
+  - $ref: "../../../parameters/query/transactionTypes.yml"
+  - $ref: "../../../parameters/query/embedded.yml"
+  - $ref: "../../../parameters/query/pageSize.yml"
+  - $ref: "../../../parameters/query/pageNumber.yml"
+  - $ref: "../../../parameters/query/offset.yml"
+  - $ref: "../../../parameters/query/order.yml"
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../schemas/TransactionPage.yml"
+  "409":
+    $ref : "../../../responses/InvalidArgument.yml"

@@ -62,26 +62,40 @@
 
 # Core - Transaction
 /transactions:
-  get:
-    $ref: "./core/transaction/routes/searchTransactions.yml"
-  post:
-    $ref: "./core/transaction/routes/getTransactionsById.yml"
   put:
     $ref: "./core/transaction/routes/announceTransaction.yml"
-"/transactions/{transactionId}":
+"/transactions/confirmed":
   get:
-    $ref: "./core/transaction/routes/getTransaction.yml"
-"/transactions/{hash}/status":
+    $ref: "./core/transaction/routes/searchConfirmedTransactions.yml"
+  post:
+    $ref: "./core/transaction/routes/getTransactionsById.yml"
+"/transactions/confirmed/{transactionId}":
   get:
-    $ref: "./core/transaction/routes/getTransactionStatus.yml"
-/transactions/statuses:
+    $ref: "./core/transaction/routes/getConfirmedTransaction.yml"
+"/transactions/unconfirmed":
+  get:
+    $ref: "./core/transaction/routes/searchUnconfirmedTransactions.yml"
+"/transactions/unconfirmed/{transactionId}":
+  get:
+    $ref: "./core/transaction/routes/getUnconfirmedTransaction.yml"
+
+# Core - Transaction Status
+/transactionStatus:
   post:
     $ref: "./core/transaction/routes/getTransactionStatuses.yml"
+"/transactionStatus/{hash}":
+  get:
+    $ref: "./core/transaction/routes/getTransactionStatus.yml"
 
 # Plugin - Aggregate
 /transactions/partial:
+  get:
+    $ref: "./core/transaction/routes/searchPartialTransactions.yml"
   put:
     $ref: "./plugins/aggregate/routes/announcePartialTransaction.yml"
+"/transactions/partial/{transactionId}":
+  get:
+    $ref: "./core/transaction/routes/getPartialTransaction.yml"
 /transactions/cosignature:
   put:
     $ref: "./plugins/aggregate/routes/announceCosignatureTransaction.yml"
