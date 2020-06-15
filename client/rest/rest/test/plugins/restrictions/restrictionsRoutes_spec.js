@@ -25,23 +25,17 @@ const catapult = require('catapult-sdk');
 const { expect } = require('chai');
 const sinon = require('sinon');
 
-const { address, networkInfo, restriction } = catapult.model;
-const { addresses, publicKeys } = test.sets;
-const { convert } = catapult.utils;
+const { address, restriction } = catapult.model;
+const { addresses } = test.sets;
 
 describe('restrictions routes', () => {
 	describe('account restrictions', () => {
-		const publicKeyToAddress = publicKey =>
-			address.publicKeyToAddress(convert.hexToUint8(publicKey), networkInfo.networks.mijinTest.id);
-
-		const config = { network: { name: 'mijinTest' } };
-
 		describe('get by address', () => {
 			test.route.document.addGetPostDocumentRouteTests(restrictionsRoutes.register, {
-				routes: { singular: '/restrictions/account/:accountId', plural: '/restrictions/account' },
+				routes: { singular: '/restrictions/account/:address', plural: '/restrictions/account' },
 				inputs: {
 					valid: {
-						object: { accountId: addresses.valid[0] },
+						object: { address: addresses.valid[0] },
 						parsed: [address.stringToAddress(addresses.valid[0])],
 						printable: addresses.valid[0]
 					},
@@ -50,8 +44,8 @@ describe('restrictions routes', () => {
 						parsed: addresses.valid.map(address.stringToAddress)
 					},
 					invalid: {
-						object: { accountId: addresses.invalid },
-						error: 'accountId has an invalid format'
+						object: { address: addresses.invalid },
+						error: 'address has an invalid format'
 					},
 					invalidMultiple: {
 						object: { addresses: [addresses.valid[0], '12345', addresses.valid[1]] },
@@ -59,64 +53,12 @@ describe('restrictions routes', () => {
 					}
 				},
 				dbApiName: 'accountRestrictionsByAddresses',
-				type: 'accountRestrictions',
-				config
+				type: 'accountRestrictions'
 			});
-		});
-
-		describe('get by public key', () => {
-			test.route.document.addGetPostDocumentRouteTests(restrictionsRoutes.register, {
-				routes: { singular: '/restrictions/account/:accountId', plural: '/restrictions/account' },
-				inputs: {
-					valid: {
-						object: { accountId: publicKeys.valid[0] },
-						parsed: [publicKeyToAddress(publicKeys.valid[0])],
-						printable: publicKeys.valid[0]
-					},
-					validMultiple: {
-						object: { publicKeys: publicKeys.valid },
-						parsed: publicKeys.valid.map(publicKey =>
-							publicKeyToAddress(publicKey))
-					},
-					invalid: {
-						object: { accountId: publicKeys.invalid },
-						error: 'accountId has an invalid format'
-					},
-					invalidMultiple: {
-						object: { publicKeys: [publicKeys.valid[0], '12345', publicKeys.valid[1]] },
-						error: 'element in array publicKeys has an invalid format'
-					}
-				},
-				dbApiName: 'accountRestrictionsByAddresses',
-				type: 'accountRestrictions',
-				config
-			});
-		});
-
-		it('does not support publicKeys and addresses provided at the same time', () => {
-			// Arrange:
-			const keyGroups = [];
-			const db = test.setup.createCapturingDb('accountRestrictionsByAddresses', keyGroups, [{ value: 'this is nonsense' }]);
-
-			// Act:
-			const registerRoutes = restrictionsRoutes.register;
-			const errorMessage = 'publicKeys and addresses cannot both be provided';
-			return test.route.executeThrows(
-				registerRoutes,
-				'/restrictions/account',
-				'post',
-				{ addresses: addresses.valid, publicKeys: publicKeys.valid },
-				db,
-				{ transactionStates: [] },
-				errorMessage,
-				409
-			);
 		});
 	});
 
 	describe('mosaic restrictions', () => {
-		const testPublicKey = '7DE16AEDF57EB9561D3E6EFA4AE66F27ABDA8AEC8BC020B6277360E31619DCE7';
-
 		const testAddress = 'SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ';
 		const uint8TestAddress = address.stringToAddress(testAddress);
 
@@ -231,24 +173,11 @@ describe('restrictions routes', () => {
 
 		describe('mosaic address restrictions', () => {
 			describe('can get mosaic address restrictions (GET)', () => {
-				const route = mockServer.getRoute('/restrictions/mosaic/:mosaicId/address/:accountId').get();
-
-				it('can get from publicKey', () => {
-					// Arrange:
-					const req = { params: { mosaicId: testMosaicIds.one.id, accountId: testPublicKey } };
-
-					// Act:
-					return mockServer.callRoute(route, req).then(() => {
-						// Assert:
-						expect(dbMosaicAddressRestrictionsFake.calledOnce).to.equal(true);
-						expect(dbMosaicAddressRestrictionsFake.firstCall.args[0]).to.deep.equal(testMosaicIds.one.uInt64);
-						expect(dbMosaicAddressRestrictionsFake.firstCall.args[1]).to.deep.equal([uint8TestAddress]);
-					});
-				});
+				const route = mockServer.getRoute('/restrictions/mosaic/:mosaicId/address/:targetAddress').get();
 
 				it('can get from address', () => {
 					// Arrange:
-					const req = { params: { mosaicId: testMosaicIds.one.id, accountId: testAddress } };
+					const req = { params: { mosaicId: testMosaicIds.one.id, targetAddress: testAddress } };
 
 					// Act:
 					return mockServer.callRoute(route, req).then(() => {
@@ -261,7 +190,7 @@ describe('restrictions routes', () => {
 
 				it('can get mosaic address restrictions', () => {
 					// Arrange:
-					const req = { params: { mosaicId: testMosaicIds.one.id, accountId: testPublicKey } };
+					const req = { params: { mosaicId: testMosaicIds.one.id, targetAddress: testAddress } };
 
 					// Act:
 					return mockServer.callRoute(route, req).then(() => {
@@ -278,19 +207,6 @@ describe('restrictions routes', () => {
 			describe('can get mosaic address restrictions (POST)', () => {
 				const route = mockServer.getRoute('/restrictions/mosaic/:mosaicId').post();
 
-				it('can get from publicKey', () => {
-					// Arrange:
-					const req = { params: { mosaicId: testMosaicIds.one.id, publicKeys: [testPublicKey, testPublicKey] } };
-
-					// Act:
-					return mockServer.callRoute(route, req).then(() => {
-						// Assert:
-						expect(dbMosaicAddressRestrictionsFake.calledOnce).to.equal(true);
-						expect(dbMosaicAddressRestrictionsFake.firstCall.args[0]).to.deep.equal(testMosaicIds.one.uInt64);
-						expect(dbMosaicAddressRestrictionsFake.firstCall.args[1]).to.deep.equal([uint8TestAddress, uint8TestAddress]);
-					});
-				});
-
 				it('can get from address', () => {
 					// Arrange:
 					const req = { params: { mosaicId: testMosaicIds.one.id, addresses: [testAddress, testAddress] } };
@@ -306,7 +222,7 @@ describe('restrictions routes', () => {
 
 				it('can get mosaic address restrictions', () => {
 					// Arrange:
-					const req = { params: { mosaicId: testMosaicIds.one.id, publicKeys: [testPublicKey, testPublicKey] } };
+					const req = { params: { mosaicId: testMosaicIds.one.id, addresses: [testAddress, testAddress] } };
 
 					// Act:
 					return mockServer.callRoute(route, req).then(() => {
@@ -317,17 +233,6 @@ describe('restrictions routes', () => {
 						});
 						expect(mockServer.next.calledOnce).to.equal(true);
 					});
-				});
-			});
-
-			describe('does not support publicKeys and addresses provided at the same time', () => {
-				it('does not support publicKeys and addresses provided at the same time', () => {
-					// Arrange:
-					const req = { params: { mosaicId: testMosaicIds.one.id, publicKeys: [''], addresses: [''] } };
-					const route = mockServer.getRoute('/restrictions/mosaic/:mosaicId').post();
-
-					// Act + Assert:
-					expect(() => mockServer.callRoute(route, req)).to.throw('publicKeys and addresses cannot both be provided');
 				});
 			});
 		});

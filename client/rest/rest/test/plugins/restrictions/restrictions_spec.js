@@ -39,9 +39,9 @@ describe('restrictions plugin', () => {
 
 			// Assert:
 			test.assert.assertRoutes(routes, [
-				'/restrictions/account/:accountId',
+				'/restrictions/account/:address',
 				'/restrictions/mosaic/:mosaicId',
-				'/restrictions/mosaic/:mosaicId/address/:accountId'
+				'/restrictions/mosaic/:mosaicId/address/:targetAddress'
 			]);
 		});
 
