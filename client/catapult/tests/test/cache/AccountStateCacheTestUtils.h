@@ -44,15 +44,18 @@ namespace catapult { namespace test {
 		return CreateDefaultAccountStateCacheOptions(MosaicId(1111), MosaicId(2222));
 	}
 
-	/// Creates a balance history given the specified height and balance pairs (\a balancePairs).
-	state::BalanceHistory CreateBalanceHistory(const std::vector<std::pair<Height, Amount>>& balancePairs);
+	/// Creates an account history given the specified height and balance pairs (\a balancePairs).
+	state::AccountHistory CreateAccountHistory(const std::vector<std::pair<Height, Amount>>& balancePairs);
 
-	/// Seed data for generating an address balance history map.
+	/// Balance seed data for generating an address account history map.
 	using AddressBalanceHistorySeeds = std::vector<std::pair<Address, std::vector<std::pair<Height, Amount>>>>;
 
-	/// Generates an address balance history map from \a seeds.
-	cache::AddressBalanceHistoryMap GenerateBalanceHistories(const AddressBalanceHistorySeeds& seeds);
+	/// Generates an address account history map from balance \a seeds.
+	cache::AddressAccountHistoryMap GenerateAccountHistories(const AddressBalanceHistorySeeds& seeds);
 
 	/// Asserts that \a expected and \a actual are equal.
-	void AssertEqual(const cache::AddressBalanceHistoryMap& expected, const cache::AddressBalanceHistoryMap& actual);
+	void AssertEqual(const cache::AddressAccountHistoryMap& expected, const cache::AddressAccountHistoryMap& actual);
+
+	/// Asserts that \a expected and \a actual have equal balance histories only.
+	void AssertEqualBalanceHistoryOnly(const cache::AddressAccountHistoryMap& expected, const cache::AddressAccountHistoryMap& actual);
 }}

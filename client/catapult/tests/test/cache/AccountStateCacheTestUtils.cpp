@@ -23,43 +23,71 @@
 
 namespace catapult { namespace test {
 
-	state::BalanceHistory CreateBalanceHistory(const std::vector<std::pair<Height, Amount>>& balancePairs) {
-		state::BalanceHistory history;
+	state::AccountHistory CreateAccountHistory(const std::vector<std::pair<Height, Amount>>& balancePairs) {
+		state::AccountHistory history;
 		for (const auto& pair : balancePairs)
 			history.add(pair.first, pair.second);
 
 		// Sanity: all pairs were added
-		EXPECT_EQ(balancePairs.size(), history.size());
+		EXPECT_EQ(balancePairs.size(), history.balances().size());
 		return history;
 	}
 
-	cache::AddressBalanceHistoryMap GenerateBalanceHistories(const AddressBalanceHistorySeeds& seeds) {
-		cache::AddressBalanceHistoryMap map;
+	cache::AddressAccountHistoryMap GenerateAccountHistories(const AddressBalanceHistorySeeds& seeds) {
+		cache::AddressAccountHistoryMap map;
 
 		for (const auto& seed : seeds)
-			map.emplace(Address{ { seed.first } }, CreateBalanceHistory(seed.second));
+			map.emplace(Address{ { seed.first } }, CreateAccountHistory(seed.second));
 
 		return map;
 	}
 
-	void AssertEqual(const cache::AddressBalanceHistoryMap& expected, const cache::AddressBalanceHistoryMap& actual) {
-		EXPECT_EQ(expected.size(), actual.size());
+	namespace {
+		enum class AccountHistoryEqualityPolicy { All, Balance_Only };
 
-		for (const auto& pair : expected) {
-			auto actualIter = actual.find(pair.first);
-			if (actual.cend() == actualIter) {
-				EXPECT_NE(actual.cend(), actualIter) << pair.first << " in expected but not in actual";
-				continue;
-			}
+		template<typename TValue>
+		void AssertEqual(
+				const state::HeightIndexedHistoryMap<TValue>& expected,
+				const state::HeightIndexedHistoryMap<TValue>& actual,
+				const std::string& message) {
+			EXPECT_EQ(expected.heights(), actual.heights()) << message;
 
-			const auto& expectedBalanceHistory = pair.second;
-			const auto& actualBalanceHistory = actualIter->second;
-			EXPECT_EQ(expectedBalanceHistory.heights(), actualBalanceHistory.heights()) << "address = " << pair.first;
+			for (auto height : expected.heights())
+				EXPECT_EQ(expected.get(height), actual.get(height)) << message << ", height = " << height;
+		}
 
-			for (auto height : expectedBalanceHistory.heights()) {
-				EXPECT_EQ(expectedBalanceHistory.balance(height), actualBalanceHistory.balance(height))
-						<< "address = " << pair.first << ", height = " << height;
+		void AssertEqual(
+				AccountHistoryEqualityPolicy equalityPolicy,
+				const cache::AddressAccountHistoryMap& expected,
+				const cache::AddressAccountHistoryMap& actual) {
+			EXPECT_EQ(expected.size(), actual.size());
+
+			for (const auto& pair : expected) {
+				auto actualIter = actual.find(pair.first);
+				if (actual.cend() == actualIter) {
+					EXPECT_NE(actual.cend(), actualIter) << pair.first << " in expected but not in actual";
+					continue;
+				}
+
+				std::ostringstream messagePostfixStream;
+				messagePostfixStream << " address = " << pair.first;
+				auto messagePostfix = messagePostfixStream.str();
+
+				AssertEqual(pair.second.balances(), actualIter->second.balances(), "balances" + messagePostfix);
+				if (AccountHistoryEqualityPolicy::Balance_Only == equalityPolicy)
+					continue;
+
+				AssertEqual(pair.second.vrfPublicKeys(), actualIter->second.vrfPublicKeys(), "vrfPublicKeys" + messagePostfix);
+				AssertEqual(pair.second.votingPublicKeys(), actualIter->second.votingPublicKeys(), "votingPublicKeys" + messagePostfix);
 			}
 		}
+	}
+
+	void AssertEqual(const cache::AddressAccountHistoryMap& expected, const cache::AddressAccountHistoryMap& actual) {
+		AssertEqual(AccountHistoryEqualityPolicy::All, expected, actual);
+	}
+
+	void AssertEqualBalanceHistoryOnly(const cache::AddressAccountHistoryMap& expected, const cache::AddressAccountHistoryMap& actual) {
+		AssertEqual(AccountHistoryEqualityPolicy::Balance_Only, expected, actual);
 	}
 }}

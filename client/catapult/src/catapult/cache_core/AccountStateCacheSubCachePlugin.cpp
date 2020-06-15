@@ -24,7 +24,7 @@
 namespace catapult { namespace cache {
 
 	namespace {
-		// region serialization utils
+		// region serialization utils (write)
 
 		void WriteAddresses(const model::AddressSet& addresses, io::OutputStream& output) {
 			io::Write64(output, addresses.size());
@@ -32,25 +32,48 @@ namespace catapult { namespace cache {
 				output.write(address);
 		}
 
-		void WriteBalanceHistories(const AddressBalanceHistoryMap& balanceHistories, io::OutputStream& output) {
-			io::Write64(output, balanceHistories.size());
-			for (const auto& balanceHistoryPair : balanceHistories) {
-				output.write(balanceHistoryPair.first);
+		void WriteHistoryMapValue(io::OutputStream& output, Amount amount) {
+			io::Write(output, amount);
+		}
 
-				io::Write64(output, balanceHistoryPair.second.size());
-				for (auto height : balanceHistoryPair.second.heights()) {
-					io::Write(output, height);
-					io::Write(output, balanceHistoryPair.second.balance(height));
-				}
+		void WriteHistoryMapValue(io::OutputStream& output, const Key& key) {
+			output.write(key);
+		}
+
+		void WriteHistoryMapValue(io::OutputStream& output, const VotingKey& key) {
+			output.write(key);
+		}
+
+		template<typename TValue>
+		void WriteHistoryMap(const state::HeightIndexedHistoryMap<TValue>& historyMap, io::OutputStream& output) {
+			io::Write64(output, historyMap.size());
+			for (auto height : historyMap.heights()) {
+				io::Write(output, height);
+				WriteHistoryMapValue(output, historyMap.get(height));
+			}
+		}
+
+		void WriteAccountHistories(const AddressAccountHistoryMap& accountHistories, io::OutputStream& output) {
+			io::Write64(output, accountHistories.size());
+			for (const auto& accountHistoryPair : accountHistories) {
+				output.write(accountHistoryPair.first);
+
+				WriteHistoryMap(accountHistoryPair.second.balances(), output);
+				WriteHistoryMap(accountHistoryPair.second.vrfPublicKeys(), output);
+				WriteHistoryMap(accountHistoryPair.second.votingPublicKeys(), output);
 			}
 		}
 
 		template<typename THighValueAccounts>
 		void WriteHighValueAccounts(const THighValueAccounts& accounts, io::OutputStream& output) {
 			WriteAddresses(accounts.addresses(), output);
-			WriteBalanceHistories(accounts.balanceHistories(), output);
+			WriteAccountHistories(accounts.accountHistories(), output);
 			output.flush();
 		}
+
+		// endregion
+
+		// region serialization utils (read)
 
 		model::AddressSet ReadAddresses(io::InputStream& input) {
 			model::AddressSet addresses;
@@ -65,37 +88,53 @@ namespace catapult { namespace cache {
 			return addresses;
 		}
 
-		state::BalanceHistory ReadBalanceHistory(io::InputStream& input) {
-			state::BalanceHistory balanceHistory;
-
-			auto numBalances = io::Read64(input);
-			for (auto i = 0u; i < numBalances; ++i) {
-				auto height = io::Read<Height>(input);
-				auto amount = io::Read<Amount>(input);
-				balanceHistory.add(height, amount);
-			}
-
-			return balanceHistory;
+		void ReadHistoryMapValue(io::InputStream& input, Amount& amount) {
+			amount = io::Read<Amount>(input);
 		}
 
-		AddressBalanceHistoryMap ReadBalanceHistories(io::InputStream& input) {
-			AddressBalanceHistoryMap balanceHistories;
+		void ReadHistoryMapValue(io::InputStream& input, Key& key) {
+			input.read(key);
+		}
 
-			auto numBalanceHistories = io::Read64(input);
-			for (auto i = 0u; i < numBalanceHistories; ++i) {
+		void ReadHistoryMapValue(io::InputStream& input, VotingKey& key) {
+			input.read(key);
+		}
+
+		template<typename TValue>
+		void ReadHistoryMap(io::InputStream& input, state::AccountHistory& accountHistory) {
+			auto numValues = io::Read64(input);
+			for (auto i = 0u; i < numValues; ++i) {
+				auto height = io::Read<Height>(input);
+
+				TValue value;
+				ReadHistoryMapValue(input, value);
+
+				accountHistory.add(height, value);
+			}
+		}
+
+		AddressAccountHistoryMap ReadAccountHistories(io::InputStream& input) {
+			AddressAccountHistoryMap accountHistories;
+
+			auto numAccountHistories = io::Read64(input);
+			for (auto i = 0u; i < numAccountHistories; ++i) {
 				Address address;
 				input.read(address);
 
-				balanceHistories.emplace(address, ReadBalanceHistory(input));
+				state::AccountHistory accountHistory;
+				ReadHistoryMap<Amount>(input, accountHistory);
+				ReadHistoryMap<Key>(input, accountHistory);
+				ReadHistoryMap<VotingKey>(input, accountHistory);
+				accountHistories.emplace(address, accountHistory);
 			}
 
-			return balanceHistories;
+			return accountHistories;
 		}
 
 		HighValueAccounts ReadHighValueAccounts(io::InputStream& input) {
 			auto addresses = ReadAddresses(input);
-			auto balanceHistories = ReadBalanceHistories(input);
-			return HighValueAccounts(std::move(addresses), std::move(balanceHistories));
+			auto accountHistories = ReadAccountHistories(input);
+			return HighValueAccounts(std::move(addresses), std::move(accountHistories));
 		}
 
 		// endregion

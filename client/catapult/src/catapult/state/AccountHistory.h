@@ -19,38 +19,43 @@
 **/
 
 #pragma once
-#include "catapult/types.h"
-#include <map>
+#include "HeightIndexedHistoryMap.h"
 
 namespace catapult { namespace state {
 
-	/// Represents the balance history of an account.
-	class BalanceHistory {
+	/// Represents an account history.
+	/// \note This is required for finalization voting.
+	class AccountHistory {
 	public:
-		/// Gets the number of history entries.
-		size_t size() const;
+		/// Gets the balance history.
+		const HeightIndexedHistoryMap<Amount>& balances() const;
 
-		/// Gets the heights at which there is a balance change.
-		std::vector<Height> heights() const;
+		/// Gets the vrf public key history.
+		const HeightIndexedHistoryMap<Key>& vrfPublicKeys() const;
 
-		/// Gets the current balance.
-		Amount balance() const;
+		/// Gets the voting public key history.
+		const HeightIndexedHistoryMap<VotingKey>& votingPublicKeys() const;
 
-		/// Gets the balance at \a height.
-		Amount balance(Height height) const;
-
-		/// Returns \c true if any historical balance is at least \a amount.
-		bool anyAtLeast(Amount amount) const;
+		/// Returns \c true if any historical balance is at least \a minAmount.
+		bool anyAtLeast(Amount minAmount) const;
 
 	public:
 		/// Adds \a balance at \a height.
 		void add(Height height, Amount balance);
+
+		/// Adds \a vrfPublicKey at \a height.
+		void add(Height height, const Key& vrfPublicKey);
+
+		/// Adds \a votingPublicKey at \a height.
+		void add(Height height, const VotingKey& votingPublicKey);
 
 		/// Prunes all balances less than \a height.
 		/// \note Prune will never change the result of balance queries at or after \a height.
 		void prune(Height height);
 
 	private:
-		std::map<Height, Amount, std::greater<Height>> m_heightBalanceMap;
+		HeightIndexedHistoryMap<Amount> m_heightBalanceMap;
+		HeightIndexedHistoryMap<Key> m_heightVrfPublicKeyMap;
+		HeightIndexedHistoryMap<VotingKey> m_heightVotingPublicKeyMap;
 	};
 }}

@@ -43,11 +43,18 @@ namespace catapult { namespace cache {
 			return blockChainConfig;
 		}
 
-		std::vector<Address> AddAccountsWithBalances(AccountStateCacheDelta& delta, const std::vector<Amount>& balances) {
+		std::vector<Address> AddAccountsWithBalances(
+				AccountStateCacheDelta& delta,
+				const std::vector<Amount>& balances,
+				const std::vector<Key>& vrfPublicKeys,
+				const std::vector<VotingKey>& votingPublicKeys) {
 			auto addresses = test::GenerateRandomDataVector<Address>(balances.size());
 			for (auto i = 0u; i < balances.size(); ++i) {
 				delta.addAccount(addresses[i], Height(1));
-				delta.find(addresses[i]).get().Balances.credit(Harvesting_Mosaic_Id, balances[i]);
+				auto& accountState = delta.find(addresses[i]).get();
+				accountState.SupplementalAccountKeys.vrfPublicKey().set(vrfPublicKeys[i]);
+				accountState.SupplementalAccountKeys.votingPublicKey().set(votingPublicKeys[i]);
+				accountState.Balances.credit(Harvesting_Mosaic_Id, balances[i]);
 			}
 
 			return addresses;
@@ -183,7 +190,7 @@ namespace catapult { namespace cache {
 				const AccountStateCacheTypes::Options& options,
 				const std::vector<Amount>& balances,
 				const std::function<model::AddressSet (const std::vector<Address>&)>& getExpectedAddresses,
-				const std::function<AddressBalanceHistoryMap (const std::vector<Address>&)>& getExpectedBalanceHistories) {
+				const std::function<AddressAccountHistoryMap (const std::vector<Address>&)>& getExpectedAccountHistories) {
 			// Arrange:
 			typename TTraits::CacheConfigurationFactory cacheConfigFactory;
 			auto cacheConfig = cacheConfigFactory.create();
@@ -193,6 +200,8 @@ namespace catapult { namespace cache {
 
 			// Act:
 			std::vector<Address> addresses;
+			auto vrfPublicKeys = test::GenerateRandomDataVector<Key>(balances.size() + 1);
+			auto votingPublicKeys = test::GenerateRandomDataVector<VotingKey>(balances.size() + 1);
 			{
 				AccountStateCacheSubCachePlugin plugin(cacheConfig, options);
 				auto pStorage = plugin.createStorage();
@@ -202,12 +211,30 @@ namespace catapult { namespace cache {
 				{
 					auto cacheDelta = catapultCache.createDelta();
 					auto& delta = cacheDelta.sub<AccountStateCache>();
-					addresses = AddAccountsWithBalances(delta, balances);
+					addresses = AddAccountsWithBalances(delta, balances, vrfPublicKeys, votingPublicKeys);
 					delta.updateHighValueAccounts(Height(3));
+
+					// - change the first account balance
+					// - this shows (a) balance and key histories are independent (b) deep balance history is stored
+					delta.find(addresses.front()).get().Balances.credit(Harvesting_Mosaic_Id, Amount(100'000));
+					delta.updateHighValueAccounts(Height(4));
+
+					// - change the last account keys
+					// - this shows (a) balance and key histories are independent (b) deep key history is stored
+					{
+						auto& accountKeys = delta.find(addresses.back()).get().SupplementalAccountKeys;
+						accountKeys.vrfPublicKey().unset();
+						accountKeys.vrfPublicKey().set(vrfPublicKeys.back());
+
+						accountKeys.votingPublicKey().unset();
+						accountKeys.votingPublicKey().set(votingPublicKeys.back());
+					}
+
+					delta.updateHighValueAccounts(Height(5));
 
 					// Sanity:
 					EXPECT_EQ(getExpectedAddresses(addresses).size(), delta.highValueAccounts().addresses().size());
-					EXPECT_EQ(getExpectedBalanceHistories(addresses).size(), delta.highValueAccounts().balanceHistories().size());
+					EXPECT_EQ(getExpectedAccountHistories(addresses).size(), delta.highValueAccounts().accountHistories().size());
 
 					// - save summary
 					if (!saver.save(cacheDelta, stream))
@@ -231,7 +258,25 @@ namespace catapult { namespace cache {
 			// - all high value account information was loaded
 			EXPECT_EQ(getExpectedAddresses(addresses), view->highValueAccounts().addresses());
 
-			test::AssertEqual(getExpectedBalanceHistories(addresses), view->highValueAccounts().balanceHistories());
+			// - augment expected account (balance) histories with expected key histories
+			auto expectedAccountHistories = getExpectedAccountHistories(addresses);
+			for (auto& accountHistoryPair : expectedAccountHistories) {
+				// - augment with original expected public keys
+				for (auto i = 0u; i < addresses.size(); ++i) {
+					if (addresses[i] == accountHistoryPair.first) {
+						accountHistoryPair.second.add(Height(3), vrfPublicKeys[i]);
+						accountHistoryPair.second.add(Height(3), votingPublicKeys[i]);
+					}
+				}
+
+				// - augment with modified expected public keys
+				if (addresses.back() == accountHistoryPair.first) {
+					accountHistoryPair.second.add(Height(5), vrfPublicKeys.back());
+					accountHistoryPair.second.add(Height(5), votingPublicKeys.back());
+				}
+			}
+
+			test::AssertEqual(expectedAccountHistories, view->highValueAccounts().accountHistories());
 		}
 	}
 
@@ -250,11 +295,11 @@ namespace catapult { namespace cache {
 					return model::AddressSet({ addresses[0], addresses[2], addresses[3] });
 				},
 				[](const auto&) {
-					return AddressBalanceHistoryMap();
+					return AddressAccountHistoryMap();
 				});
 	}
 
-	ROUNDTRIP_TEST(CanRoundtripBalanceHistoriesOnly) {
+	ROUNDTRIP_TEST(CanRoundtripAccountHistoriesOnly) {
 		// Arrange:
 		AccountStateCacheTypes::Options options;
 		options.MinHarvesterBalance = Amount(2'000'000);
@@ -269,14 +314,14 @@ namespace catapult { namespace cache {
 					return model::AddressSet();
 				},
 				[](const auto& addresses) {
-					return test::GenerateBalanceHistories({
-						{ addresses[0], { { Height(3), Amount(1'000'000) } } },
+					return test::GenerateAccountHistories({
+						{ addresses[0], { { Height(3), Amount(1'000'000) }, { Height(4), Amount(1'100'000) } } },
 						{ addresses[3], { { Height(3), Amount(1'250'000) } } }
 					});
 				});
 	}
 
-	ROUNDTRIP_TEST(CanRoundtripHighValueAddressesAndBalanceHistories) {
+	ROUNDTRIP_TEST(CanRoundtripHighValueAddressesAndAccountHistories) {
 		// Arrange:
 		AccountStateCacheTypes::Options options;
 		options.MinHarvesterBalance = Amount(700'000);
@@ -291,8 +336,8 @@ namespace catapult { namespace cache {
 					return model::AddressSet({ addresses[0], addresses[2], addresses[3] });
 				},
 				[](const auto& addresses) {
-					return test::GenerateBalanceHistories({
-						{ addresses[0], { { Height(3), Amount(1'000'000) } } },
+					return test::GenerateAccountHistories({
+						{ addresses[0], { { Height(3), Amount(1'000'000) }, { Height(4), Amount(1'100'000) } } },
 						{ addresses[3], { { Height(3), Amount(1'250'000) } } }
 					});
 				});
