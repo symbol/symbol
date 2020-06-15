@@ -55,4 +55,7 @@ namespace catapult { namespace test {
 
 	/// Asserts that \a expected and \a actual are equal.
 	void AssertEqual(const cache::AddressAccountHistoryMap& expected, const cache::AddressAccountHistoryMap& actual);
+
+	/// Asserts that \a expected and \a actual have equal balance histories only.
+	void AssertEqualBalanceHistoryOnly(const cache::AddressAccountHistoryMap& expected, const cache::AddressAccountHistoryMap& actual);
 }}

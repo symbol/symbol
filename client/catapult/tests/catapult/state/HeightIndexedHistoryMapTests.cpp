@@ -146,6 +146,21 @@ namespace catapult { namespace state {
 		EXPECT_EQ(Timestamp(22), history.get(Height(11)));
 	}
 
+	TEST(TEST_CLASS, CanAddSingleZeroValue) {
+		// Arrange:
+		HistoryMap history;
+
+		// Act:
+		history.add(Height(11), Timestamp(0));
+
+		// Assert: due to coalescing, no value was actually added
+		EXPECT_EQ(0u, history.size());
+		EXPECT_EQ(std::vector<Height>(), history.heights());
+		EXPECT_EQ(Timestamp(0), history.get());
+
+		EXPECT_EQ(Timestamp(0), history.get(Height(11)));
+	}
+
 	TEST(TEST_CLASS, CanAddMultipleValues) {
 		// Arrange:
 		HistoryMap history;

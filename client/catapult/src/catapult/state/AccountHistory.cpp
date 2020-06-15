@@ -27,6 +27,14 @@ namespace catapult { namespace state {
 		return m_heightBalanceMap;
 	}
 
+	const HeightIndexedHistoryMap<Key>& AccountHistory::vrfPublicKeys() const {
+		return m_heightVrfPublicKeyMap;
+	}
+
+	const HeightIndexedHistoryMap<VotingKey>& AccountHistory::votingPublicKeys() const {
+		return m_heightVotingPublicKeyMap;
+	}
+
 	bool AccountHistory::anyAtLeast(Amount minAmount) const {
 		return m_heightBalanceMap.anyOf([minAmount](auto amount) {
 			return minAmount <= amount;
@@ -37,7 +45,17 @@ namespace catapult { namespace state {
 		m_heightBalanceMap.add(height, balance);
 	}
 
+	void AccountHistory::add(Height height, const Key& vrfPublicKey) {
+		m_heightVrfPublicKeyMap.add(height, vrfPublicKey);
+	}
+
+	void AccountHistory::add(Height height, const VotingKey& votingPublicKey) {
+		m_heightVotingPublicKeyMap.add(height, votingPublicKey);
+	}
+
 	void AccountHistory::prune(Height height) {
 		m_heightBalanceMap.prune(height);
+		m_heightVrfPublicKeyMap.prune(height);
+		m_heightVotingPublicKeyMap.prune(height);
 	}
 }}

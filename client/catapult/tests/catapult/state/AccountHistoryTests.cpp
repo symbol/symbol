@@ -25,6 +25,49 @@ namespace catapult { namespace state {
 
 #define TEST_CLASS AccountHistoryTests
 
+	// region traits
+
+	namespace {
+		struct BalanceTraits {
+			static Amount ToValue(uint8_t seed) {
+				return Amount(seed);
+			}
+
+			static const auto& GetValueHistory(const AccountHistory& history) {
+				return history.balances();
+			}
+		};
+
+		struct VrfPublicKeyTraits {
+			static Key ToValue(uint8_t seed) {
+				return Key{ { seed } };
+			}
+
+			static const auto& GetValueHistory(const AccountHistory& history) {
+				return history.vrfPublicKeys();
+			}
+		};
+
+		struct VotingPublicKeyTraits {
+			static VotingKey ToValue(uint8_t seed) {
+				return VotingKey{ { seed } };
+			}
+
+			static const auto& GetValueHistory(const AccountHistory& history) {
+				return history.votingPublicKeys();
+			}
+		};
+	}
+
+#define HISTORY_VALUE_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Balance) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BalanceTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_VrfPublicKey) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VrfPublicKeyTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_VotingPublicKey) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VotingPublicKeyTraits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+	// endregion
+
 	// region constructor
 
 	TEST(TEST_CLASS, CanCreateEmpty) {
@@ -33,6 +76,8 @@ namespace catapult { namespace state {
 
 		// Assert:
 		EXPECT_EQ(0u, history.balances().size());
+		EXPECT_EQ(0u, history.vrfPublicKeys().size());
+		EXPECT_EQ(0u, history.votingPublicKeys().size());
 	}
 
 	// endregion
@@ -72,40 +117,86 @@ namespace catapult { namespace state {
 
 	// region add
 
-	TEST(TEST_CLASS, CanAddSingleBalance) {
+	HISTORY_VALUE_TEST(CanAddSingleValue) {
 		// Arrange:
 		AccountHistory history;
-		const auto& balanceHistory = history.balances();
+		const auto& valueHistory = TTraits::GetValueHistory(history);
 
 		// Act:
-		history.add(Height(11), Amount(22));
+		history.add(Height(11), TTraits::ToValue(22));
 
 		// Assert:
-		EXPECT_EQ(1u, balanceHistory.size());
-		EXPECT_EQ(std::vector<Height>({ Height(11) }), balanceHistory.heights());
-		EXPECT_EQ(Amount(22), balanceHistory.get());
+		EXPECT_EQ(1u, valueHistory.size());
+		EXPECT_EQ(std::vector<Height>({ Height(11) }), valueHistory.heights());
+		EXPECT_EQ(TTraits::ToValue(22), valueHistory.get());
 
-		EXPECT_EQ(Amount(22), balanceHistory.get(Height(11)));
+		EXPECT_EQ(TTraits::ToValue(22), valueHistory.get(Height(11)));
 	}
 
-	TEST(TEST_CLASS, CanAddMultipleBalances) {
+	HISTORY_VALUE_TEST(CanAddMultipleHomogenousValues) {
 		// Arrange:
 		AccountHistory history;
-		const auto& balanceHistory = history.balances();
+		const auto& valueHistory = TTraits::GetValueHistory(history);
+
+		// Act:
+		history.add(Height(11), TTraits::ToValue(12));
+		history.add(Height(22), TTraits::ToValue(98));
+		history.add(Height(33), TTraits::ToValue(67));
+
+		// Assert:
+		EXPECT_EQ(3u, valueHistory.size());
+		EXPECT_EQ(std::vector<Height>({ Height(11), Height(22), Height(33) }), valueHistory.heights());
+		EXPECT_EQ(TTraits::ToValue(67), valueHistory.get());
+
+		EXPECT_EQ(TTraits::ToValue(12), valueHistory.get(Height(11)));
+		EXPECT_EQ(TTraits::ToValue(98), valueHistory.get(Height(22)));
+		EXPECT_EQ(TTraits::ToValue(67), valueHistory.get(Height(33)));
+	}
+
+	TEST(TEST_CLASS, CanAddMultipleHeterogenousValues) {
+		// Arrange:
+		AccountHistory history;
 
 		// Act:
 		history.add(Height(11), Amount(12));
 		history.add(Height(22), Amount(98));
 		history.add(Height(33), Amount(67));
 
-		// Assert:
-		EXPECT_EQ(3u, balanceHistory.size());
-		EXPECT_EQ(std::vector<Height>({ Height(11), Height(22), Height(33) }), balanceHistory.heights());
-		EXPECT_EQ(Amount(67), balanceHistory.get());
+		history.add(Height(12), Key{ { 100 } });
 
-		EXPECT_EQ(Amount(12), balanceHistory.get(Height(11)));
-		EXPECT_EQ(Amount(98), balanceHistory.get(Height(22)));
-		EXPECT_EQ(Amount(67), balanceHistory.get(Height(33)));
+		history.add(Height(22), VotingKey{ { 75 } });
+		history.add(Height(44), VotingKey{ { 200 } });
+
+		// Assert:
+		{
+			const auto& valueHistory = history.balances();
+			EXPECT_EQ(3u, valueHistory.size());
+			EXPECT_EQ(std::vector<Height>({ Height(11), Height(22), Height(33) }), valueHistory.heights());
+			EXPECT_EQ(Amount(67), valueHistory.get());
+
+			EXPECT_EQ(Amount(12), valueHistory.get(Height(11)));
+			EXPECT_EQ(Amount(98), valueHistory.get(Height(22)));
+			EXPECT_EQ(Amount(67), valueHistory.get(Height(33)));
+		}
+
+		{
+			const auto& valueHistory = history.vrfPublicKeys();
+			EXPECT_EQ(1u, valueHistory.size());
+			EXPECT_EQ(std::vector<Height>({ Height(12) }), valueHistory.heights());
+			EXPECT_EQ(Key{ { 100 } }, valueHistory.get());
+
+			EXPECT_EQ(Key{ { 100 } }, valueHistory.get(Height(12)));
+		}
+
+		{
+			const auto& valueHistory = history.votingPublicKeys();
+			EXPECT_EQ(2u, valueHistory.size());
+			EXPECT_EQ(std::vector<Height>({ Height(22), Height(44) }), valueHistory.heights());
+			EXPECT_EQ(VotingKey{ { 200 } }, valueHistory.get());
+
+			EXPECT_EQ(VotingKey{ { 75 } }, valueHistory.get(Height(22)));
+			EXPECT_EQ(VotingKey{ { 200 } }, valueHistory.get(Height(44)));
+		}
 	}
 
 	// endregion
@@ -113,12 +204,13 @@ namespace catapult { namespace state {
 	// region prune
 
 	namespace {
+		template<typename TTraits>
 		void RunPruneTest(Height pruneHeight, const consumer<const AccountHistory&>& checkHistory) {
 			// Arrange:
 			AccountHistory history;
-			history.add(Height(11), Amount(12));
-			history.add(Height(22), Amount(98));
-			history.add(Height(33), Amount(67));
+			history.add(Height(11), TTraits::ToValue(12));
+			history.add(Height(22), TTraits::ToValue(98));
+			history.add(Height(33), TTraits::ToValue(67));
 
 			// Act:
 			history.prune(pruneHeight);
@@ -128,22 +220,68 @@ namespace catapult { namespace state {
 		}
 	}
 
-	TEST(TEST_CLASS, CanPrune) {
+	HISTORY_VALUE_TEST(CanPrune) {
 		// Act:
-		RunPruneTest(Height(22), [](const auto& history) {
-			const auto& balanceHistory = history.balances();
+		RunPruneTest<TTraits>(Height(22), [](const auto& history) {
+			const auto& valueHistory = TTraits::GetValueHistory(history);
 
 			// Assert:
-			EXPECT_EQ(2u, balanceHistory.size());
-			EXPECT_EQ(std::vector<Height>({ Height(22), Height(33) }), balanceHistory.heights());
-			EXPECT_EQ(Amount(67), balanceHistory.get());
+			EXPECT_EQ(2u, valueHistory.size());
+			EXPECT_EQ(std::vector<Height>({ Height(22), Height(33) }), valueHistory.heights());
+			EXPECT_EQ(TTraits::ToValue(67), valueHistory.get());
 
-			EXPECT_EQ(Amount(0), balanceHistory.get(Height(11)));
-			EXPECT_EQ(Amount(0), balanceHistory.get(Height(21)));
-			EXPECT_EQ(Amount(98), balanceHistory.get(Height(22)));
-			EXPECT_EQ(Amount(98), balanceHistory.get(Height(23)));
-			EXPECT_EQ(Amount(67), balanceHistory.get(Height(33)));
+			EXPECT_EQ(TTraits::ToValue(0), valueHistory.get(Height(11)));
+			EXPECT_EQ(TTraits::ToValue(0), valueHistory.get(Height(21)));
+			EXPECT_EQ(TTraits::ToValue(98), valueHistory.get(Height(22)));
+			EXPECT_EQ(TTraits::ToValue(98), valueHistory.get(Height(23)));
+			EXPECT_EQ(TTraits::ToValue(67), valueHistory.get(Height(33)));
 		});
+	}
+
+	TEST(TEST_CLASS, CanPruneHeterogenousValues) {
+		// Arrange:
+		AccountHistory history;
+
+		history.add(Height(11), Amount(12));
+		history.add(Height(22), Amount(98));
+		history.add(Height(33), Amount(67));
+
+		history.add(Height(12), Key{ { 100 } });
+
+		history.add(Height(22), VotingKey{ { 75 } });
+		history.add(Height(44), VotingKey{ { 200 } });
+
+		// Act:
+		history.prune(Height(33));
+
+		// Assert:
+		{
+			const auto& valueHistory = history.balances();
+			EXPECT_EQ(1u, valueHistory.size());
+			EXPECT_EQ(std::vector<Height>({ Height(33) }), valueHistory.heights());
+			EXPECT_EQ(Amount(67), valueHistory.get());
+
+			EXPECT_EQ(Amount(67), valueHistory.get(Height(33)));
+		}
+
+		{
+			const auto& valueHistory = history.vrfPublicKeys();
+			EXPECT_EQ(1u, valueHistory.size());
+			EXPECT_EQ(std::vector<Height>({ Height(33) }), valueHistory.heights());
+			EXPECT_EQ(Key{ { 100 } }, valueHistory.get());
+
+			EXPECT_EQ(Key{ { 100 } }, valueHistory.get(Height(33)));
+		}
+
+		{
+			const auto& valueHistory = history.votingPublicKeys();
+			EXPECT_EQ(2u, valueHistory.size());
+			EXPECT_EQ(std::vector<Height>({ Height(33), Height(44) }), valueHistory.heights());
+			EXPECT_EQ(VotingKey{ { 200 } }, valueHistory.get());
+
+			EXPECT_EQ(VotingKey{ { 75 } }, valueHistory.get(Height(33)));
+			EXPECT_EQ(VotingKey{ { 200 } }, valueHistory.get(Height(44)));
+		}
 	}
 
 	// endregion

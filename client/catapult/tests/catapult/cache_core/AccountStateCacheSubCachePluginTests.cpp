@@ -43,12 +43,17 @@ namespace catapult { namespace cache {
 			return blockChainConfig;
 		}
 
-		std::vector<Address> AddAccountsWithBalances(AccountStateCacheDelta& delta, const std::vector<Amount>& balances) {
+		std::vector<Address> AddAccountsWithBalances(
+				AccountStateCacheDelta& delta,
+				const std::vector<Amount>& balances,
+				const std::vector<Key>& vrfPublicKeys,
+				const std::vector<VotingKey>& votingPublicKeys) {
 			auto addresses = test::GenerateRandomDataVector<Address>(balances.size());
 			for (auto i = 0u; i < balances.size(); ++i) {
 				delta.addAccount(addresses[i], Height(1));
 				auto& accountState = delta.find(addresses[i]).get();
-				accountState.SupplementalAccountKeys.votingPublicKey().set(test::GenerateRandomByteArray<VotingKey>());
+				accountState.SupplementalAccountKeys.vrfPublicKey().set(vrfPublicKeys[i]);
+				accountState.SupplementalAccountKeys.votingPublicKey().set(votingPublicKeys[i]);
 				accountState.Balances.credit(Harvesting_Mosaic_Id, balances[i]);
 			}
 
@@ -195,6 +200,8 @@ namespace catapult { namespace cache {
 
 			// Act:
 			std::vector<Address> addresses;
+			auto vrfPublicKeys = test::GenerateRandomDataVector<Key>(balances.size() + 1);
+			auto votingPublicKeys = test::GenerateRandomDataVector<VotingKey>(balances.size() + 1);
 			{
 				AccountStateCacheSubCachePlugin plugin(cacheConfig, options);
 				auto pStorage = plugin.createStorage();
@@ -204,8 +211,26 @@ namespace catapult { namespace cache {
 				{
 					auto cacheDelta = catapultCache.createDelta();
 					auto& delta = cacheDelta.sub<AccountStateCache>();
-					addresses = AddAccountsWithBalances(delta, balances);
+					addresses = AddAccountsWithBalances(delta, balances, vrfPublicKeys, votingPublicKeys);
 					delta.updateHighValueAccounts(Height(3));
+
+					// - change the first account balance
+					// - this shows (a) balance and key histories are independent (b) deep balance history is stored
+					delta.find(addresses.front()).get().Balances.credit(Harvesting_Mosaic_Id, Amount(100'000));
+					delta.updateHighValueAccounts(Height(4));
+
+					// - change the last account keys
+					// - this shows (a) balance and key histories are independent (b) deep key history is stored
+					{
+						auto& accountKeys = delta.find(addresses.back()).get().SupplementalAccountKeys;
+						accountKeys.vrfPublicKey().unset();
+						accountKeys.vrfPublicKey().set(vrfPublicKeys.back());
+
+						accountKeys.votingPublicKey().unset();
+						accountKeys.votingPublicKey().set(votingPublicKeys.back());
+					}
+
+					delta.updateHighValueAccounts(Height(5));
 
 					// Sanity:
 					EXPECT_EQ(getExpectedAddresses(addresses).size(), delta.highValueAccounts().addresses().size());
@@ -233,7 +258,25 @@ namespace catapult { namespace cache {
 			// - all high value account information was loaded
 			EXPECT_EQ(getExpectedAddresses(addresses), view->highValueAccounts().addresses());
 
-			test::AssertEqual(getExpectedAccountHistories(addresses), view->highValueAccounts().accountHistories());
+			// - augment expected account (balance) histories with expected key histories
+			auto expectedAccountHistories = getExpectedAccountHistories(addresses);
+			for (auto& accountHistoryPair : expectedAccountHistories) {
+				// - augment with original expected public keys
+				for (auto i = 0u; i < addresses.size(); ++i) {
+					if (addresses[i] == accountHistoryPair.first) {
+						accountHistoryPair.second.add(Height(3), vrfPublicKeys[i]);
+						accountHistoryPair.second.add(Height(3), votingPublicKeys[i]);
+					}
+				}
+
+				// - augment with modified expected public keys
+				if (addresses.back() == accountHistoryPair.first) {
+					accountHistoryPair.second.add(Height(5), vrfPublicKeys.back());
+					accountHistoryPair.second.add(Height(5), votingPublicKeys.back());
+				}
+			}
+
+			test::AssertEqual(expectedAccountHistories, view->highValueAccounts().accountHistories());
 		}
 	}
 
@@ -272,7 +315,7 @@ namespace catapult { namespace cache {
 				},
 				[](const auto& addresses) {
 					return test::GenerateAccountHistories({
-						{ addresses[0], { { Height(3), Amount(1'000'000) } } },
+						{ addresses[0], { { Height(3), Amount(1'000'000) }, { Height(4), Amount(1'100'000) } } },
 						{ addresses[3], { { Height(3), Amount(1'250'000) } } }
 					});
 				});
@@ -294,7 +337,7 @@ namespace catapult { namespace cache {
 				},
 				[](const auto& addresses) {
 					return test::GenerateAccountHistories({
-						{ addresses[0], { { Height(3), Amount(1'000'000) } } },
+						{ addresses[0], { { Height(3), Amount(1'000'000) }, { Height(4), Amount(1'100'000) } } },
 						{ addresses[3], { { Height(3), Amount(1'250'000) } } }
 					});
 				});

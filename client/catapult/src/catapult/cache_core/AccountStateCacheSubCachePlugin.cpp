@@ -24,7 +24,7 @@
 namespace catapult { namespace cache {
 
 	namespace {
-		// region serialization utils
+		// region serialization utils (write)
 
 		void WriteAddresses(const model::AddressSet& addresses, io::OutputStream& output) {
 			io::Write64(output, addresses.size());
@@ -32,17 +32,35 @@ namespace catapult { namespace cache {
 				output.write(address);
 		}
 
+		void WriteHistoryMapValue(io::OutputStream& output, Amount amount) {
+			io::Write(output, amount);
+		}
+
+		void WriteHistoryMapValue(io::OutputStream& output, const Key& key) {
+			output.write(key);
+		}
+
+		void WriteHistoryMapValue(io::OutputStream& output, const VotingKey& key) {
+			output.write(key);
+		}
+
+		template<typename TValue>
+		void WriteHistoryMap(const state::HeightIndexedHistoryMap<TValue>& historyMap, io::OutputStream& output) {
+			io::Write64(output, historyMap.size());
+			for (auto height : historyMap.heights()) {
+				io::Write(output, height);
+				WriteHistoryMapValue(output, historyMap.get(height));
+			}
+		}
+
 		void WriteAccountHistories(const AddressAccountHistoryMap& accountHistories, io::OutputStream& output) {
 			io::Write64(output, accountHistories.size());
 			for (const auto& accountHistoryPair : accountHistories) {
 				output.write(accountHistoryPair.first);
 
-				const auto& balanceHistory = accountHistoryPair.second.balances();
-				io::Write64(output, balanceHistory.size());
-				for (auto height : balanceHistory.heights()) {
-					io::Write(output, height);
-					io::Write(output, balanceHistory.get(height));
-				}
+				WriteHistoryMap(accountHistoryPair.second.balances(), output);
+				WriteHistoryMap(accountHistoryPair.second.vrfPublicKeys(), output);
+				WriteHistoryMap(accountHistoryPair.second.votingPublicKeys(), output);
 			}
 		}
 
@@ -52,6 +70,10 @@ namespace catapult { namespace cache {
 			WriteAccountHistories(accounts.accountHistories(), output);
 			output.flush();
 		}
+
+		// endregion
+
+		// region serialization utils (read)
 
 		model::AddressSet ReadAddresses(io::InputStream& input) {
 			model::AddressSet addresses;
@@ -66,17 +88,29 @@ namespace catapult { namespace cache {
 			return addresses;
 		}
 
-		state::AccountHistory ReadAccountHistory(io::InputStream& input) {
-			state::AccountHistory accountHistory;
+		void ReadHistoryMapValue(io::InputStream& input, Amount& amount) {
+			amount = io::Read<Amount>(input);
+		}
 
-			auto numBalances = io::Read64(input);
-			for (auto i = 0u; i < numBalances; ++i) {
+		void ReadHistoryMapValue(io::InputStream& input, Key& key) {
+			input.read(key);
+		}
+
+		void ReadHistoryMapValue(io::InputStream& input, VotingKey& key) {
+			input.read(key);
+		}
+
+		template<typename TValue>
+		void ReadHistoryMap(io::InputStream& input, state::AccountHistory& accountHistory) {
+			auto numValues = io::Read64(input);
+			for (auto i = 0u; i < numValues; ++i) {
 				auto height = io::Read<Height>(input);
-				auto amount = io::Read<Amount>(input);
-				accountHistory.add(height, amount);
-			}
 
-			return accountHistory;
+				TValue value;
+				ReadHistoryMapValue(input, value);
+
+				accountHistory.add(height, value);
+			}
 		}
 
 		AddressAccountHistoryMap ReadAccountHistories(io::InputStream& input) {
@@ -87,7 +121,11 @@ namespace catapult { namespace cache {
 				Address address;
 				input.read(address);
 
-				accountHistories.emplace(address, ReadAccountHistory(input));
+				state::AccountHistory accountHistory;
+				ReadHistoryMap<Amount>(input, accountHistory);
+				ReadHistoryMap<Key>(input, accountHistory);
+				ReadHistoryMap<VotingKey>(input, accountHistory);
+				accountHistories.emplace(address, accountHistory);
 			}
 
 			return accountHistories;

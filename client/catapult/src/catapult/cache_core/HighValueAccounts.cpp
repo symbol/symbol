@@ -112,7 +112,7 @@ namespace catapult { namespace cache {
 		public:
 			void update(const MemorySetType& source, const EffectiveBalanceCalculator& effectiveBalanceCalculator) {
 				for (const auto& pair : source)
-					updateOne(pair.second.Address, effectiveBalanceCalculator(pair.second));
+					updateOne(pair.second, effectiveBalanceCalculator(pair.second));
 			}
 
 			void prune(Amount minBalance) {
@@ -122,16 +122,19 @@ namespace catapult { namespace cache {
 			}
 
 		private:
-			void updateOne(const Address& address, const std::pair<Amount, bool>& effectiveBalancePair) {
-				auto accountHistoriesIter = m_accountHistories.find(address);
+			void updateOne(const state::AccountState& accountState, const std::pair<Amount, bool>& effectiveBalancePair) {
+				auto accountHistoriesIter = m_accountHistories.find(accountState.Address);
 
-				// if this address has a newly high balance, start tracking it
+				// if this account has a newly high balance, start tracking it
 				if (m_accountHistories.cend() == accountHistoriesIter && effectiveBalancePair.second)
-					accountHistoriesIter = m_accountHistories.emplace(address, state::AccountHistory()).first;
+					accountHistoriesIter = m_accountHistories.emplace(accountState.Address, state::AccountHistory()).first;
 
-				// if this address is tracked, add balance
-				if (m_accountHistories.cend() != accountHistoriesIter)
+				// if this account is tracked, add tracked values
+				if (m_accountHistories.cend() != accountHistoriesIter) {
 					accountHistoriesIter->second.add(m_height, effectiveBalancePair.first);
+					accountHistoriesIter->second.add(m_height, accountState.SupplementalAccountKeys.vrfPublicKey().get());
+					accountHistoriesIter->second.add(m_height, accountState.SupplementalAccountKeys.votingPublicKey().get());
+				}
 			}
 
 		private:
