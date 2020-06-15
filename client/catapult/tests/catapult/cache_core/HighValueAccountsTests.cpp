@@ -174,6 +174,7 @@ namespace catapult { namespace cache {
 		void AddAccountsWithBalances(MemorySetType& set, const std::vector<Address>& addresses, const std::vector<Amount>& balances) {
 			for (auto i = 0u; i < balances.size(); ++i) {
 				auto accountState = state::AccountState(addresses[i], Height(1));
+				accountState.SupplementalAccountKeys.votingPublicKey().set(test::GenerateRandomByteArray<VotingKey>());
 				accountState.Balances.credit(Harvesting_Mosaic_Id, balances[i]);
 				set.emplace(accountState.Address, accountState);
 			}
@@ -364,7 +365,7 @@ namespace catapult { namespace cache {
 
 	// endregion
 
-	// region updater - harvester eligible accounts
+	// region updater - voter eligible accounts
 
 	namespace {
 		std::vector<Amount> GetVoterEligibleTestBalances() {
@@ -481,8 +482,8 @@ namespace catapult { namespace cache {
 
 			// Assert:
 			auto expectedBalanceHistories = test::GenerateBalanceHistories({
-				{ addedAddresses[1], { { Height(3), Min_Voter_Balance }, { Height(5), Min_Voter_Balance - Amount(2) } } },
-				{ addedAddresses[3], { { Height(3), Min_Voter_Balance + Amount(100'000) }, { Height(5), Min_Voter_Balance - Amount(4) } } }
+				{ addedAddresses[1], { { Height(3), Min_Voter_Balance }, { Height(5), Amount() } } },
+				{ addedAddresses[3], { { Height(3), Min_Voter_Balance + Amount(100'000) }, { Height(5), Amount() } } }
 			});
 
 			test::AssertEqual(expectedBalanceHistories, updater.balanceHistories());
@@ -651,17 +652,91 @@ namespace catapult { namespace cache {
 		auto expectedBalanceHistories = test::GenerateBalanceHistories({
 			{ addedAddresses[0], { { Height(3), Amount(2'100'000) } } },
 			{ addedAddresses[1], { { Height(4), Amount(2'100'000) }, { Height(5), Amount() } } },
-			{ addedAddresses[2], { { Height(3), Amount(2'000'000) }, { Height(4), Amount(1'999'999) } } },
+			{ addedAddresses[2], { { Height(3), Amount(2'000'000) }, { Height(4), Amount() } } },
 			{ addedAddresses[3], { { Height(4), Amount(2'050'000) } } },
 			{ addedAddresses[4], { { Height(3), Amount(2'200'000) }, { Height(5), Amount() } } },
 			{ addedAddresses[5], { { Height(3), Amount(2'400'000) } } },
-			{ addedAddresses[6], { { Height(3), Amount(2'300'000) }, { Height(4), Amount(1'999'999) } } }
+			{ addedAddresses[6], { { Height(3), Amount(2'300'000) }, { Height(4), Amount() } } }
 		});
 
 		test::AssertEqual(expectedBalanceHistories, updater.balanceHistories());
 
 		// Sanity:
 		EXPECT_EQ(5u, updater.addresses().size());
+		EXPECT_TRUE(updater.removedAddresses().empty());
+	}
+
+	// endregion
+
+	// region updater - voter eligible accounts (voting key requirement)
+
+	TEST(TEST_CLASS, Updater_VoterEligible_AccountMustHaveVotingKeySet) {
+		// Arrange:
+		test::DeltaElementsTestUtils::Wrapper<MemorySetType> deltas;
+		auto addedAddresses = AddAccountsWithBalances(deltas.Added, { Amount(2'100'000), Amount(2'200'000), Amount(2'300'000) });
+
+		// - clear second account voting key
+		deltas.Added.find(addedAddresses[1])->second.SupplementalAccountKeys.votingPublicKey().unset();
+
+		auto accounts = CreateAccounts({});
+		HighValueAccountsUpdater updater(CreateOptions(), accounts);
+
+		// Act:
+		updater.setHeight(Height(3));
+		updater.update(deltas.deltas());
+
+		// Assert: second account is not included because it is not configured for voting
+		auto expectedBalanceHistories = test::GenerateBalanceHistories({
+			{ addedAddresses[0], { { Height(3), Amount(2'100'000) } } },
+			{ addedAddresses[2], { { Height(3), Amount(2'300'000) } } }
+		});
+
+		test::AssertEqual(expectedBalanceHistories, updater.balanceHistories());
+
+		// Sanity:
+		EXPECT_EQ(3u, updater.addresses().size());
+		EXPECT_TRUE(updater.removedAddresses().empty());
+	}
+
+	TEST(TEST_CLASS, Updater_VoterEligible_AccountVotingKeyStatusIsCheckedDynamically) {
+		// Arrange:
+		test::DeltaElementsTestUtils::Wrapper<MemorySetType> deltas;
+		auto addedAddresses = AddAccountsWithBalances(deltas.Added, { Amount(2'100'000), Amount(2'200'000), Amount(2'300'000) });
+
+		// - clear second account voting key
+		deltas.Added.find(addedAddresses[1])->second.SupplementalAccountKeys.votingPublicKey().unset();
+
+		auto accounts = CreateAccounts({});
+		HighValueAccountsUpdater updater(CreateOptions(), accounts);
+
+		// Act:
+		updater.setHeight(Height(3));
+		updater.update(deltas.deltas());
+
+		// - set second account voting key
+		auto newVotingKey = test::GenerateRandomByteArray<VotingKey>();
+		deltas.Added.find(addedAddresses[1])->second.SupplementalAccountKeys.votingPublicKey().set(newVotingKey);
+
+		updater.setHeight(Height(4));
+		updater.update(deltas.deltas());
+
+		// - clear second account voting key
+		deltas.Added.find(addedAddresses[1])->second.SupplementalAccountKeys.votingPublicKey().unset();
+
+		updater.setHeight(Height(5));
+		updater.update(deltas.deltas());
+
+		// Assert: second account is only included when it has voting key set
+		auto expectedBalanceHistories = test::GenerateBalanceHistories({
+			{ addedAddresses[0], { { Height(3), Amount(2'100'000) } } },
+			{ addedAddresses[1], { { Height(4), Amount(2'200'000) }, { Height(5), Amount() } } },
+			{ addedAddresses[2], { { Height(3), Amount(2'300'000) } } }
+		});
+
+		test::AssertEqual(expectedBalanceHistories, updater.balanceHistories());
+
+		// Sanity:
+		EXPECT_EQ(3u, updater.addresses().size());
 		EXPECT_TRUE(updater.removedAddresses().empty());
 	}
 
@@ -729,12 +804,12 @@ namespace catapult { namespace cache {
 					{ addedAddresses[1], { { Height(4), Amount(2'100'000) }, { Height(6), Amount() } } },
 					{
 						addedAddresses[2],
-						{ { Height(3), Amount(2'000'001) }, { Height(4), Amount(1'999'999) }, { Height(5), Amount(2'000'000) } }
+						{ { Height(3), Amount(2'000'001) }, { Height(4), Amount() }, { Height(5), Amount(2'000'000) } }
 					},
-					{ addedAddresses[3], { { Height(4), Amount(2'050'000) }, { Height(5), Amount(50'000) } } },
+					{ addedAddresses[3], { { Height(4), Amount(2'050'000) }, { Height(5), Amount() } } },
 					{ addedAddresses[4], { { Height(3), Amount(2'200'000) }, { Height(6), Amount() } } },
 					{ addedAddresses[5], { { Height(3), Amount(2'400'000) } } },
-					{ addedAddresses[6], { { Height(3), Amount(2'300'000) }, { Height(4), Amount(1'999'999) } } }
+					{ addedAddresses[6], { { Height(3), Amount(2'300'000) }, { Height(4), Amount() } } }
 				});
 
 				test::AssertEqual(expectedBalanceHistories, updater.balanceHistories());
@@ -763,8 +838,8 @@ namespace catapult { namespace cache {
 			auto expectedBalanceHistories = test::GenerateBalanceHistories({
 				{ addedAddresses[0], { { Height(4), Amount(2'100'000) } } },
 				{ addedAddresses[1], { { Height(4), Amount(2'100'000) }, { Height(6), Amount() } } },
-				{ addedAddresses[2], { { Height(4), Amount(1'999'999) }, { Height(5), Amount(2'000'000) } } },
-				{ addedAddresses[3], { { Height(4), Amount(2'050'000) }, { Height(5), Amount(50'000) } } },
+				{ addedAddresses[2], { { Height(5), Amount(2'000'000) } } },
+				{ addedAddresses[3], { { Height(4), Amount(2'050'000) }, { Height(5), Amount() } } },
 				{ addedAddresses[4], { { Height(4), Amount(2'200'000) }, { Height(6), Amount() } } },
 				{ addedAddresses[5], { { Height(4), Amount(2'400'000) } } }
 			});

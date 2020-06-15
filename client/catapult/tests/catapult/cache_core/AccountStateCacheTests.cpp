@@ -1070,6 +1070,7 @@ namespace catapult { namespace cache {
 			for (auto i = 0u; i < balances.size(); ++i) {
 				delta.addAccount(addresses[i], Height(1));
 				auto& accountState = delta.find(addresses[i]).get();
+				accountState.SupplementalAccountKeys.votingPublicKey().set(test::GenerateRandomByteArray<VotingKey>());
 				accountState.Balances.credit(Harvesting_Mosaic_Id, balances[i]);
 			}
 

@@ -195,23 +195,19 @@ namespace catapult { namespace cache {
 	}
 
 	namespace {
-		EffectiveBalanceCalculator CreateEffectiveBalanceCalculator(MosaicId harvestingMosaicId, Amount minBalance) {
-			return [harvestingMosaicId, minBalance](const auto& accountState) {
-				auto balance = accountState.Balances.get(harvestingMosaicId);
-				return std::make_pair(balance, balance >= minBalance);
-			};
-		}
-
-		predicate<const state::AccountState&> CreateHasHighValuePredicate(MosaicId harvestingMosaicId, Amount minBalance) {
-			auto effectiveBalanceCalculator = CreateEffectiveBalanceCalculator(harvestingMosaicId, minBalance);
-			return [effectiveBalanceCalculator](const auto& accountState) {
-				return effectiveBalanceCalculator(accountState).second;
-			};
+		EffectiveBalanceCalculator::result_type EffectiveBalanceRetriever(
+				const state::AccountState& accountState,
+				MosaicId harvestingMosaicId,
+				Amount minBalance) {
+			auto balance = accountState.Balances.get(harvestingMosaicId);
+			return std::make_pair(balance, balance >= minBalance);
 		}
 	}
 
 	void HighValueAccountsUpdater::updateHarvestingAccounts(const deltaset::DeltaElements<MemorySetType>& deltas) {
-		auto hasHighValue = CreateHasHighValuePredicate(m_options.HarvestingMosaicId, m_options.MinHarvesterBalance);
+		auto hasHighValue = [&options = m_options](const auto& accountState) {
+			return EffectiveBalanceRetriever(accountState, options.HarvestingMosaicId, options.MinHarvesterBalance).second;
+		};
 
 		HighValueAddressesUpdater updater(m_original, m_current, m_removed);
 		updater.update(deltas.Added, hasHighValue);
@@ -220,7 +216,15 @@ namespace catapult { namespace cache {
 	}
 
 	void HighValueAccountsUpdater::updateVotingAccounts(const deltaset::DeltaElements<MemorySetType>& deltas) {
-		auto effectiveBalanceCalculator = CreateEffectiveBalanceCalculator(m_options.HarvestingMosaicId, m_options.MinVoterBalance);
+		auto effectiveBalanceCalculator = [&options = m_options](const auto& accountState) {
+			if (accountState.SupplementalAccountKeys.votingPublicKey()) {
+				auto balancePair = EffectiveBalanceRetriever(accountState, options.HarvestingMosaicId, options.MinVoterBalance);
+				if (balancePair.second)
+					return balancePair;
+			}
+
+			return std::make_pair(Amount(), false);
+		};
 
 		HighValueBalancesUpdater updater(m_balanceHistories, m_height);
 		updater.update(deltas.Added, effectiveBalanceCalculator);
