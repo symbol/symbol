@@ -1,0 +1,18 @@
+tags:
+  - Transaction routes
+summary: Get transaction information
+description: Returns confirmed transaction information given a transactionId or hash.
+operationId: getConfirmedTransaction
+parameters:
+  - $ref: "../../../parameters/path/transactionId.yml"
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../schemas/TransactionInfoDTO.yml"
+  "404":
+    $ref: "../../../responses/ResourceNotFound.yml"
+  "409":
+    $ref: "../../../responses/InvalidArgument.yml"
