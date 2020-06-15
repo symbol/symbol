@@ -1,11 +1,11 @@
 tags:
   - Restriction Mosaic routes
-summary: Get mosaic address restrictions for a given mosaic and account identifier.
+summary: Get mosaic address restrictions for a given mosaic and account address.
 description: Get mosaic address restriction.
 operationId: getMosaicAddressRestriction
 parameters:
   - $ref: "../../../parameters/path/mosaicId.yml"
-  - $ref: "../../../parameters/path/accountId.yml"
+  - $ref: "../../../parameters/path/address.yml"
 responses:
   "200":
     description: success

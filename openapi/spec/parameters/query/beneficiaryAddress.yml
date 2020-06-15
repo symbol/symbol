@@ -1,0 +1,5 @@
+name: beneficiaryAddress
+description: Filter by beneficiary address.
+in: query
+schema:
+  $ref: "../../schemas/AddressBase32.yml"

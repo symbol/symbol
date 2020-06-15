@@ -1,4 +1,4 @@
 type: string
 format: hex
 description: Address expressed in hexadecimal base.
-example: 9081FCCB41F8C8409A9B99E485E0E28D23BD6304EF7215E01A
+example: 9081FCCB41F8C8409A9B99E485E0E28D23BD6304EF7215E0

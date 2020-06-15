@@ -4,9 +4,9 @@ summary: Get account metadata
 description: Returns the account metadata given an account id, a key, and a sender.
 operationId: getAccountMetadataByKeyAndSender
 parameters:
-  - $ref: "../../../parameters/path/accountId.yml"
+  - $ref: "../../../parameters/path/address.yml"
   - $ref: "../../../parameters/path/metadataKey.yml"
-  - $ref: "../../../parameters/path/publicKey.yml"
+  - $ref: "../../../parameters/path/sourceAddress.yml"
 responses:
   "200":
     description: success

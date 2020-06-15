@@ -109,6 +109,8 @@ NetworkTypeEnum:
   "$ref": "../core/entity/schemas/NetworkTypeEnum.yml"
 EntityDTO:
   "$ref": "../core/entity/schemas/EntityDTO.yml"
+SizePrefixedEntityDTO:
+  "$ref": "../core/entity/schemas/SizePrefixedEntityDTO.yml"
 VerifiableEntityDTO:
   "$ref": "../core/entity/schemas/VerifiableEntityDTO.yml"
 

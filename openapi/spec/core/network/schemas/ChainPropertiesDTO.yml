@@ -12,11 +12,11 @@ properties:
   currencyMosaicId:
     type: string
     description: Mosaic id used as primary chain currency.
-    example: 0x621E'C5B4'0385'6FC2
+    example: 0x24F4'26B8'D549'3D4B
   harvestingMosaicId:
     type: string
     description: Mosaic id used to provide harvesting ability.
-    example: 0x4291'ED23'000A'037A
+    example: 0x1D9C'DC7E'218C'A88D
   blockGenerationTargetTime:
     type: string # utils::TimeSpan
     description: Targeted time between blocks.
@@ -89,10 +89,10 @@ properties:
     type: string
     description: Percentage of the harvested fee that is collected by the network.
     example: "5"
-  harvestNetworkFeeSinkPublicKey:
-    type: string
-    description: Public key of the harvest network fee sink account.
-    example: "FF5563F1C5824EE0CD868799FBE8744B46D5549973FDA499939C952D951494E4"
+  harvestNetworkFeeSinkAddress:
+    $ref: "../../../schemas/AddressBase32.yml"
+    description: Address of the harvest network fee sink account.
+    example: "SDKDPA36TE53BO24FD4KA6OPGOUSEVOU3O5SIFI"
   blockPruneInterval:
     type: string # uint32
     description: Number of blocks between cache pruning.

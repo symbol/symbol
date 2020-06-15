@@ -1,18 +1,18 @@
 type: object
 required:
   - compositeHash
-  - senderPublicKey
-  - targetPublicKey
+  - sourceAddress
+  - targetAddress
   - scopedMetadataKey
   - metadataType
   - value
 properties:
   compositeHash:
     $ref: "../../../schemas/Hash256.yml"
-  senderPublicKey:
-    $ref: "../../../schemas/PublicKey.yml"
-  targetPublicKey:
-    $ref: "../../../schemas/PublicKey.yml"
+  sourceAddress:
+    $ref: "../../../schemas/Address.yml"
+  targetAddress:
+    $ref: "../../../schemas/Address.yml"
   scopedMetadataKey:
     $ref: "../../../schemas/MetadataKey.yml"
   targetId:

@@ -1,13 +1,13 @@
 type: object
 required:
-  - targetPublicKey
+  - targetAddress
   - scopedMetadataKey
   - valueSizeDelta
   - valueSize
   - value
 properties:
-  targetPublicKey:
-    $ref: "../../../schemas/PublicKey.yml"
+  targetAddress:
+    $ref: "../../../schemas/UnresolvedAddress.yml"
   scopedMetadataKey:
     $ref: "../../../schemas/MetadataKey.yml"
   valueSizeDelta:

@@ -2,8 +2,8 @@ type: object
 required:
   - minRemovalDelta
   - minApprovalDelta
-  - publicKeyAdditions
-  - publicKeyDeletions
+  - addressAdditions
+  - addressDeletions
 properties:
   minRemovalDelta:
     type: integer
@@ -17,13 +17,13 @@ properties:
       Number of signatures needed to approve a transaction.
       If we are modifying an existing multisig account, this indicates the relative change of the minimum cosignatories.
     example: 1
-  publicKeyAdditions:
+  addressAdditions:
     type: array
     description: Array of cosignatory accounts to add.
     items:
-      $ref: "../../../schemas/PublicKey.yml"
-  publicKeyDeletions:
+      $ref: "../../../schemas/UnresolvedAddress.yml"
+  addressDeletions:
     type: array
     description: Array of cosignatory accounts to delete.
     items:
-      $ref: "../../../schemas/PublicKey.yml"
+      $ref: "../../../schemas/UnresolvedAddress.yml"

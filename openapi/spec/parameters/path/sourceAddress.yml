@@ -1,0 +1,6 @@
+name: sourceAddress
+in: path
+description: Account address.
+required: true
+schema:
+  $ref: "../../schemas/AddressBase32.yml"

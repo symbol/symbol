@@ -6,7 +6,7 @@ operationId: getMosaicMetadataByKeyAndSender
 parameters:
   - $ref: "../../../parameters/path/mosaicId.yml"
   - $ref: "../../../parameters/path/metadataKey.yml"
-  - $ref: "../../../parameters/path/publicKey.yml"
+  - $ref: "../../../parameters/path/sourceAddress.yml"
 responses:
   "200":
     description: success
