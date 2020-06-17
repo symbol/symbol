@@ -23,7 +23,7 @@
 #include "PtUtils.h"
 #include "partialtransaction/src/chain/PtUpdater.h"
 #include "partialtransaction/src/chain/PtValidator.h"
-#include "partialtransaction/src/handlers/CosignatureHandler.h"
+#include "partialtransaction/src/handlers/CosignatureHandlers.h"
 #include "partialtransaction/src/handlers/PtHandlers.h"
 #include "catapult/cache_tx/MemoryPtCache.h"
 #include "catapult/consumers/RecentHashCache.h"

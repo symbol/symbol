@@ -18,7 +18,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "CosignatureHandler.h"
+#include "CosignatureHandlers.h"
 #include "catapult/handlers/HandlerUtils.h"
 #include "catapult/ionet/PacketEntityUtils.h"
 

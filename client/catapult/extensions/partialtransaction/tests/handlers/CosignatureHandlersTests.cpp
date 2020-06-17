@@ -18,14 +18,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "partialtransaction/src/handlers/CosignatureHandler.h"
-#include "catapult/model/TransactionPlugin.h"
+#include "partialtransaction/src/handlers/CosignatureHandlers.h"
 #include "tests/test/core/PushHandlerTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace handlers {
 
-#define TEST_CLASS CosignatureHandlerTests
+#define TEST_CLASS CosignatureHandlersTests
 
 	namespace {
 		struct PushCosignaturesTraits {

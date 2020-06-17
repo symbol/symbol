@@ -79,8 +79,7 @@ namespace catapult { namespace handlers {
 		reinterpret_cast<model::VerifiableEntity&>(buffer.buffer()[dataOffset + tx1Size]).Type = mocks::MockTransaction::Entity_Type;
 
 		// Act:
-		test::PushHandlerTests<PushPtTraits>::RunPushTransactionsHandlerTest(PushPtTraits::RegisterHandler, buffer.packet(), [](
-				const auto& counters) {
+		test::PushHandlerTests<PushPtTraits>::RunPushHandlerTest(PushPtTraits::RegisterHandler, buffer.packet(), [](const auto& counters) {
 			// Assert:
 			EXPECT_TRUE(counters.empty());
 		});
