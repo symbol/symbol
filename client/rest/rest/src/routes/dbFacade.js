@@ -70,7 +70,7 @@ const dbFacade = {
 			.then(objs => objs.map(status => status.status))	// removes wrapping property
 			.then(objs => objs.map(status => Object.assign(status, { group: 'failed' }))));
 		transactionStates.forEach(state => {
-			const dbPromise = db[`transactionsByHashes${state.dbPostfix}`](hashes);
+			const dbPromise = db.transactionsByHashes(state.friendlyName, hashes);
 			promises.push(dbPromise.then(objs => objs.map(transaction => extractFromMetadata(state.friendlyName, transaction))));
 		});
 

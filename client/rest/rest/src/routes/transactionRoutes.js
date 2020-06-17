@@ -88,8 +88,8 @@ module.exports = {
 
 			const transactionId = routeUtils.parseArgument(params, 'transactionId', 'id' === paramType ? 'objectId' : 'hash256');
 
-			const dbTransactionsRetriever = 'id' === paramType ? db.transactionsByIds : db.transactionsByHashes;
-			return dbTransactionsRetriever(params.group, [transactionId]).then(sender.sendOne(params.transactionId, res, next));
+			const dbTransactionsRetriever = 'id' === paramType ? 'transactionsByIds' : 'transactionsByHashes';
+			return db[dbTransactionsRetriever](params.group, [transactionId]).then(sender.sendOne(params.transactionId, res, next));
 		});
 
 		server.post('/transactions/:group', (req, res, next) => {
@@ -105,8 +105,8 @@ module.exports = {
 				? routeUtils.parseArgumentAsArray(params, 'transactionIds', 'objectId')
 				: routeUtils.parseArgumentAsArray(params, 'hashes', 'hash256');
 
-			const dbTransactionsRetriever = params.transactionIds ? db.transactionsByIds : db.transactionsByHashes;
-			return dbTransactionsRetriever(params.group, transactionIds)
+			const dbTransactionsRetriever = params.transactionIds ? 'transactionsByIds' : 'transactionsByHashes';
+			return db[dbTransactionsRetriever](params.group, transactionIds)
 				.then(sender.sendArray(params.transactionIds || params.hashes, res, next));
 		});
 	}

@@ -18,8 +18,13 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const CatapultDb = require('../../src/db/CatapultDb');
 const dbFacade = require('../../src/routes/dbFacade');
+const testDbOptions = require('../db/utils/testDbOptions');
 const { expect } = require('chai');
+const sinon = require('sinon');
+
+const Mijin_Test_Network = testDbOptions.networkId;
 
 describe('db facade', () => {
 	describe('run height dependent operation', () => {
@@ -43,36 +48,27 @@ describe('db facade', () => {
 	});
 
 	describe('transaction statuses by hashes', () => {
-		const createHandler = (dbApiName, db, collected, traits) => {
-			collected[dbApiName] = [];
-			db[dbApiName] = hashes => {
-				collected[dbApiName].push(hashes);
-				return Promise.resolve(traits);
-			};
-		};
-
 		const addTransactionStatusesByHashesTest = traits => {
 			// Arrange:
-			const collected = {};
-			const db = {};
-			createHandler('transactionsByHashesFailed', db, collected, traits.failed || []);
-			createHandler('transactionsByHashesUnconfirmed', db, collected, traits.unconfirmed || []);
-			createHandler('transactionsByHashes', db, collected, traits.confirmed || []);
-			createHandler('transactionsByHashesCustom', db, collected, traits.custom || []);
+			const transactionsByHashesFailedStub = sinon.stub(CatapultDb.prototype, 'transactionsByHashesFailed')
+				.returns(Promise.resolve(traits.failed || []));
+			const transactionsByHashesStub = sinon.stub(CatapultDb.prototype, 'transactionsByHashes')
+				.callsFake(group => Promise.resolve(traits[group] || []));
 
 			// Act:
 			const hashes = [1, 2, 3, 4];
 			const transactionStates = [{ dbPostfix: 'Custom', friendlyName: 'custom' }];
+			const db = new CatapultDb({ networkId: Mijin_Test_Network });
 			return dbFacade.transactionStatusesByHashes(db, hashes, transactionStates).then(result => {
-				// Assert:
-				Object.keys(collected).forEach(name => {
-					const capturedHashes = collected[name];
-					expect(capturedHashes.length, `${name} handler collected invalid number of elements`).to.equal(1);
-					// note: copying hashes would be unexpected, so deliberately make a shallow comparison
-					expect(capturedHashes[0], `${name} handler collected invalid hashes`).to.equal(hashes);
-				});
+				expect(transactionsByHashesFailedStub.withArgs(hashes).callCount).to.equal(1);
+				expect(transactionsByHashesStub.withArgs('confirmed', hashes).callCount).to.equal(1);
+				expect(transactionsByHashesStub.withArgs('unconfirmed', hashes).callCount).to.equal(1);
+				expect(transactionsByHashesStub.withArgs('custom', hashes).callCount).to.equal(1);
 
 				expect(result).to.deep.equal(traits.expected);
+
+				transactionsByHashesFailedStub.restore();
+				transactionsByHashesStub.restore();
 			});
 		};
 
