@@ -101,6 +101,12 @@ module.exports = {
 			if ((req.params.transactionIds && req.params.hashes) || (!params.transactionIds && !params.hashes))
 				throw errors.createInvalidArgumentError('either ids or hashes must be provided');
 
+			// normalize ids arg to be either in the transcationIds object or hashes (this is expected to change in the near future)
+			if (params.transactionIds && constants.sizes.hash === params.transactionIds[0]) {
+				params.hashes = params.transactionIds;
+				delete params.transactionIds;
+			}
+
 			const transactionIds = params.transactionIds
 				? routeUtils.parseArgumentAsArray(params, 'transactionIds', 'objectId')
 				: routeUtils.parseArgumentAsArray(params, 'hashes', 'hash256');
