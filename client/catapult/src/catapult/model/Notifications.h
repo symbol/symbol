@@ -546,7 +546,7 @@ namespace catapult { namespace model {
 		const Key& MainAccountPublicKey;
 
 		/// Linked public key.
-		const TAccountPublicKey& LinkedPublicKey;
+		TAccountPublicKey LinkedPublicKey; // TODO: change back to reference after VotingKeyLinkTransaction is updated
 
 		/// Link action.
 		model::LinkAction LinkAction;

@@ -217,14 +217,14 @@ namespace catapult { namespace state {
 		// Act + Assert:
 		EXPECT_EQ(Key(), GetLinkedPublicKey(accountState));
 		EXPECT_EQ(Key(), GetVrfPublicKey(accountState));
-		EXPECT_EQ(VotingKey(), GetVotingPublicKey(accountState));
+		EXPECT_EQ(PinnedVotingKey(), GetVotingPublicKey(accountState));
 	}
 
 	TEST(TEST_CLASS, CanRetrieveSupplementalAccountKeysViaAccessorsWhenSet) {
 		// Arrange:
 		auto linkedPublicKey = test::GenerateRandomByteArray<Key>();
 		auto vrfPublicKey = test::GenerateRandomByteArray<Key>();
-		auto votingPublicKey = test::GenerateRandomByteArray<VotingKey>();
+		auto votingPublicKey = test::GenerateRandomPackedStruct<PinnedVotingKey>();
 		auto nodePublicKey = test::GenerateRandomByteArray<Key>();
 
 		AccountState accountState(test::GenerateRandomAddress(), Height(123));

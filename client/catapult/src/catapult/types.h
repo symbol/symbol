@@ -103,6 +103,37 @@ namespace catapult {
 
 	// endregion
 
+#pragma pack(push, 1)
+
+	/// Pinned voting key.
+	struct PinnedVotingKey {
+	public:
+		static constexpr auto Size = catapult::VotingKey::Size + sizeof(FinalizationPoint) * 2;
+
+	public:
+		/// Voting key.
+		catapult::VotingKey VotingKey;
+
+		/// Start finalization point.
+		FinalizationPoint StartPoint;
+
+		/// End finalization point.
+		FinalizationPoint EndPoint;
+
+	public:
+		/// Returns \c true if this root voting key is equal to \a rhs.
+		bool operator==(const PinnedVotingKey& rhs) const {
+			return VotingKey == rhs.VotingKey;
+		}
+
+		/// Returns \c true if this root voting key is not equal to \a rhs.
+		bool operator!=(const PinnedVotingKey& rhs) const {
+			return !(*this == rhs);
+		}
+	};
+
+#pragma pack(pop)
+
 	using utils::RawBuffer;
 	using utils::MutableRawBuffer;
 	using utils::RawString;

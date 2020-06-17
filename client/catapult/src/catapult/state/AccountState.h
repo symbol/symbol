@@ -94,7 +94,7 @@ namespace catapult { namespace state {
 	Key GetVrfPublicKey(const AccountState& accountState);
 
 	/// Gets the voting public key associated with \a accountState or a zero key.
-	VotingKey GetVotingPublicKey(const AccountState& accountState);
+	PinnedVotingKey GetVotingPublicKey(const AccountState& accountState);
 
 	/// Gets the node public key associated with \a accountState or a zero key.
 	Key GetNodePublicKey(const AccountState& accountState);

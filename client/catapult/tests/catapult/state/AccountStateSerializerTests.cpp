@@ -332,7 +332,7 @@ namespace catapult { namespace state {
 				std::vector<std::pair<AccountKeys::KeyType, size_t>> keySizes{
 					{ AccountKeys::KeyType::Linked, Key::Size },
 					{ AccountKeys::KeyType::VRF, Key::Size },
-					{ AccountKeys::KeyType::Voting, VotingKey::Size },
+					{ AccountKeys::KeyType::Voting, PinnedVotingKey::Size },
 					{ AccountKeys::KeyType::Node, Key::Size }
 				};
 

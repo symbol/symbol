@@ -31,7 +31,7 @@ namespace catapult { namespace state {
 		return m_heightVrfPublicKeyMap;
 	}
 
-	const HeightIndexedHistoryMap<VotingKey>& AccountHistory::votingPublicKeys() const {
+	const HeightIndexedHistoryMap<PinnedVotingKey>& AccountHistory::votingPublicKeys() const {
 		return m_heightVotingPublicKeyMap;
 	}
 
@@ -49,7 +49,7 @@ namespace catapult { namespace state {
 		m_heightVrfPublicKeyMap.add(height, vrfPublicKey);
 	}
 
-	void AccountHistory::add(Height height, const VotingKey& votingPublicKey) {
+	void AccountHistory::add(Height height, const PinnedVotingKey& votingPublicKey) {
 		m_heightVotingPublicKeyMap.add(height, votingPublicKey);
 	}
 

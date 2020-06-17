@@ -86,7 +86,7 @@ namespace catapult { namespace state {
 		return accountState.SupplementalAccountKeys.vrfPublicKey().get();
 	}
 
-	VotingKey GetVotingPublicKey(const AccountState& accountState) {
+	PinnedVotingKey GetVotingPublicKey(const AccountState& accountState) {
 		return accountState.SupplementalAccountKeys.votingPublicKey().get();
 	}
 

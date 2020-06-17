@@ -47,7 +47,7 @@ namespace catapult { namespace cache {
 				AccountStateCacheDelta& delta,
 				const std::vector<Amount>& balances,
 				const std::vector<Key>& vrfPublicKeys,
-				const std::vector<VotingKey>& votingPublicKeys) {
+				const std::vector<PinnedVotingKey>& votingPublicKeys) {
 			auto addresses = test::GenerateRandomDataVector<Address>(balances.size());
 			for (auto i = 0u; i < balances.size(); ++i) {
 				delta.addAccount(addresses[i], Height(1));
@@ -201,7 +201,7 @@ namespace catapult { namespace cache {
 			// Act:
 			std::vector<Address> addresses;
 			auto vrfPublicKeys = test::GenerateRandomDataVector<Key>(balances.size() + 1);
-			auto votingPublicKeys = test::GenerateRandomDataVector<VotingKey>(balances.size() + 1);
+			auto votingPublicKeys = test::GenerateRandomDataVector<PinnedVotingKey>(balances.size() + 1);
 			{
 				AccountStateCacheSubCachePlugin plugin(cacheConfig, options);
 				auto pStorage = plugin.createStorage();

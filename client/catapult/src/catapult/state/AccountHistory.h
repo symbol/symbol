@@ -34,7 +34,7 @@ namespace catapult { namespace state {
 		const HeightIndexedHistoryMap<Key>& vrfPublicKeys() const;
 
 		/// Gets the voting public key history.
-		const HeightIndexedHistoryMap<VotingKey>& votingPublicKeys() const;
+		const HeightIndexedHistoryMap<PinnedVotingKey>& votingPublicKeys() const;
 
 		/// Returns \c true if any historical balance is at least \a minAmount.
 		bool anyAtLeast(Amount minAmount) const;
@@ -47,7 +47,7 @@ namespace catapult { namespace state {
 		void add(Height height, const Key& vrfPublicKey);
 
 		/// Adds \a votingPublicKey at \a height.
-		void add(Height height, const VotingKey& votingPublicKey);
+		void add(Height height, const PinnedVotingKey& votingPublicKey);
 
 		/// Prunes all balances less than \a height.
 		/// \note Prune will never change the result of balance queries at or after \a height.
@@ -56,6 +56,6 @@ namespace catapult { namespace state {
 	private:
 		HeightIndexedHistoryMap<Amount> m_heightBalanceMap;
 		HeightIndexedHistoryMap<Key> m_heightVrfPublicKeyMap;
-		HeightIndexedHistoryMap<VotingKey> m_heightVotingPublicKeyMap;
+		HeightIndexedHistoryMap<PinnedVotingKey> m_heightVotingPublicKeyMap;
 	};
 }}

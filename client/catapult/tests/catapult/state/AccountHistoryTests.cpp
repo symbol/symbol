@@ -49,8 +49,8 @@ namespace catapult { namespace state {
 		};
 
 		struct VotingPublicKeyTraits {
-			static VotingKey ToValue(uint8_t seed) {
-				return VotingKey{ { seed } };
+			static PinnedVotingKey ToValue(uint8_t seed) {
+				return PinnedVotingKey{ { { seed } }, FinalizationPoint(seed), FinalizationPoint(seed * 2) };
 			}
 
 			static const auto& GetValueHistory(const AccountHistory& history) {
@@ -164,8 +164,8 @@ namespace catapult { namespace state {
 
 		history.add(Height(12), Key{ { 100 } });
 
-		history.add(Height(22), VotingKey{ { 75 } });
-		history.add(Height(44), VotingKey{ { 200 } });
+		history.add(Height(22), VotingPublicKeyTraits::ToValue(75));
+		history.add(Height(44), VotingPublicKeyTraits::ToValue(200));
 
 		// Assert:
 		{
@@ -192,10 +192,10 @@ namespace catapult { namespace state {
 			const auto& valueHistory = history.votingPublicKeys();
 			EXPECT_EQ(2u, valueHistory.size());
 			EXPECT_EQ(std::vector<Height>({ Height(22), Height(44) }), valueHistory.heights());
-			EXPECT_EQ(VotingKey{ { 200 } }, valueHistory.get());
+			EXPECT_EQ(VotingPublicKeyTraits::ToValue(200), valueHistory.get());
 
-			EXPECT_EQ(VotingKey{ { 75 } }, valueHistory.get(Height(22)));
-			EXPECT_EQ(VotingKey{ { 200 } }, valueHistory.get(Height(44)));
+			EXPECT_EQ(VotingPublicKeyTraits::ToValue(75), valueHistory.get(Height(22)));
+			EXPECT_EQ(VotingPublicKeyTraits::ToValue(200), valueHistory.get(Height(44)));
 		}
 	}
 
@@ -248,8 +248,8 @@ namespace catapult { namespace state {
 
 		history.add(Height(12), Key{ { 100 } });
 
-		history.add(Height(22), VotingKey{ { 75 } });
-		history.add(Height(44), VotingKey{ { 200 } });
+		history.add(Height(22), VotingPublicKeyTraits::ToValue(75));
+		history.add(Height(44), VotingPublicKeyTraits::ToValue(200));
 
 		// Act:
 		history.prune(Height(33));
@@ -277,10 +277,10 @@ namespace catapult { namespace state {
 			const auto& valueHistory = history.votingPublicKeys();
 			EXPECT_EQ(2u, valueHistory.size());
 			EXPECT_EQ(std::vector<Height>({ Height(33), Height(44) }), valueHistory.heights());
-			EXPECT_EQ(VotingKey{ { 200 } }, valueHistory.get());
+			EXPECT_EQ(VotingPublicKeyTraits::ToValue(200), valueHistory.get());
 
-			EXPECT_EQ(VotingKey{ { 75 } }, valueHistory.get(Height(33)));
-			EXPECT_EQ(VotingKey{ { 200 } }, valueHistory.get(Height(44)));
+			EXPECT_EQ(VotingPublicKeyTraits::ToValue(75), valueHistory.get(Height(33)));
+			EXPECT_EQ(VotingPublicKeyTraits::ToValue(200), valueHistory.get(Height(44)));
 		}
 	}
 

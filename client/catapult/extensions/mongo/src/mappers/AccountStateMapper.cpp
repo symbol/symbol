@@ -44,6 +44,24 @@ namespace catapult { namespace mongo { namespace mappers {
 					<< bson_stream::close_document;
 		}
 
+		template<>
+		void StreamPublicKey(
+				bson_stream::array_context& context,
+				state::AccountKeys::KeyType mask,
+				state::AccountKeys::KeyType keyType,
+				const state::AccountKeys::KeyAccessor<PinnedVotingKey>& keyAccessor) {
+			if (!HasFlag(keyType, mask))
+				return;
+
+			context
+					<< bson_stream::open_document
+						<< "keyType" << utils::to_underlying_type(keyType)
+						<< "key" << ToBinary(keyAccessor.get().VotingKey)
+						<< "startPoint" << ToInt64(keyAccessor.get().StartPoint)
+						<< "endPoint" << ToInt64(keyAccessor.get().EndPoint)
+					<< bson_stream::close_document;
+		}
+
 		void StreamAccountKeys(bson_stream::document& builder, const state::AccountKeys& accountKeys) {
 			auto keysArray = builder << "supplementalAccountKeys" << bson_stream::open_array;
 

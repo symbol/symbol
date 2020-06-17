@@ -126,6 +126,7 @@ CORE_FIRSTINCLUDES = {
     'tests/catapult/utils/CatapultTypesTests.cpp': 'catapult/types.h',
     'tests/catapult/utils/CountOfTests.cpp': 'catapult/types.h',
     'tests/catapult/utils/MacroBasedEnumTests.cpp': 'catapult/utils/MacroBasedEnumIncludes.h',
+    'tests/catapult/utils/PinnedVotingKeyTests.cpp': 'catapult/types.h',
     'tests/catapult/utils/TraitsTests.cpp': 'catapult/utils/traits/Traits.h',
     'tests/catapult/utils/StlTraitsTests.cpp': 'catapult/utils/traits/StlTraits.h'
 }

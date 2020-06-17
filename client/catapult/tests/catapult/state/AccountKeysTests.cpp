@@ -347,7 +347,7 @@ namespace catapult { namespace state {
 
 	TEST(TEST_CLASS, CanSetVotingPublicKey) {
 		// Arrange:
-		auto key = test::GenerateRandomByteArray<VotingKey>();
+		auto key = test::GenerateRandomPackedStruct<PinnedVotingKey>();
 		AccountKeys keys;
 
 		// Act:
@@ -389,7 +389,7 @@ namespace catapult { namespace state {
 		// Arrange:
 		auto linkedPublicKey = test::GenerateRandomByteArray<Key>();
 		auto vrfPublicKey = test::GenerateRandomByteArray<Key>();
-		auto votingPublicKey = test::GenerateRandomByteArray<VotingKey>();
+		auto votingPublicKey = test::GenerateRandomPackedStruct<PinnedVotingKey>();
 		auto nodePublicKey = test::GenerateRandomByteArray<Key>();
 		AccountKeys keys;
 

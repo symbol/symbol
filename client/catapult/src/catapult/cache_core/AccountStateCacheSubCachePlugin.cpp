@@ -40,8 +40,8 @@ namespace catapult { namespace cache {
 			output.write(key);
 		}
 
-		void WriteHistoryMapValue(io::OutputStream& output, const VotingKey& key) {
-			output.write(key);
+		void WriteHistoryMapValue(io::OutputStream& output, const PinnedVotingKey& key) {
+			output.write({ reinterpret_cast<const uint8_t*>(&key), PinnedVotingKey::Size });
 		}
 
 		template<typename TValue>
@@ -96,8 +96,8 @@ namespace catapult { namespace cache {
 			input.read(key);
 		}
 
-		void ReadHistoryMapValue(io::InputStream& input, VotingKey& key) {
-			input.read(key);
+		void ReadHistoryMapValue(io::InputStream& input, PinnedVotingKey& key) {
+			input.read({ reinterpret_cast<uint8_t*>(&key), PinnedVotingKey::Size });
 		}
 
 		template<typename TValue>
@@ -124,7 +124,7 @@ namespace catapult { namespace cache {
 				state::AccountHistory accountHistory;
 				ReadHistoryMap<Amount>(input, accountHistory);
 				ReadHistoryMap<Key>(input, accountHistory);
-				ReadHistoryMap<VotingKey>(input, accountHistory);
+				ReadHistoryMap<PinnedVotingKey>(input, accountHistory);
 				accountHistories.emplace(address, accountHistory);
 			}
 

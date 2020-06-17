@@ -113,10 +113,10 @@ namespace catapult { namespace state {
 		KeyAccessor<Key>& vrfPublicKey();
 
 		/// Gets the (const) voting public key.
-		const KeyAccessor<VotingKey>& votingPublicKey() const;
+		const KeyAccessor<PinnedVotingKey>& votingPublicKey() const;
 
 		/// Gets the voting public key.
-		KeyAccessor<VotingKey>& votingPublicKey();
+		KeyAccessor<PinnedVotingKey>& votingPublicKey();
 
 		/// Gets the (const) node public key.
 		const KeyAccessor<Key>& nodePublicKey() const;
@@ -127,12 +127,12 @@ namespace catapult { namespace state {
 	private:
 		KeyAccessor<Key> m_linkedPublicKey;
 		KeyAccessor<Key> m_vrfPublicKey;
-		KeyAccessor<VotingKey> m_votingPublicKey;
+		KeyAccessor<PinnedVotingKey> m_votingPublicKey;
 		KeyAccessor<Key> m_nodePublicKey;
 	};
 
 	MAKE_BITWISE_ENUM(AccountKeys::KeyType)
 
 	extern template class AccountKeys::KeyAccessor<Key>;
-	extern template class AccountKeys::KeyAccessor<VotingKey>;
+	extern template class AccountKeys::KeyAccessor<PinnedVotingKey>;
 }}

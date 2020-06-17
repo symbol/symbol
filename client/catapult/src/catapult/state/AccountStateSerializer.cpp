@@ -129,8 +129,10 @@ namespace catapult { namespace state {
 			if (HasFlag(AccountKeys::KeyType::VRF, accountKeys.mask()))
 				output.write(accountKeys.vrfPublicKey().get());
 
-			if (HasFlag(AccountKeys::KeyType::Voting, accountKeys.mask()))
-				output.write(accountKeys.votingPublicKey().get());
+			if (HasFlag(AccountKeys::KeyType::Voting, accountKeys.mask())) {
+				auto pinnedVotingKey = accountKeys.votingPublicKey().get();
+				output.write({ reinterpret_cast<const uint8_t*>(&pinnedVotingKey), PinnedVotingKey::Size });
+			}
 
 			if (HasFlag(AccountKeys::KeyType::Node, accountKeys.mask()))
 				output.write(accountKeys.nodePublicKey().get());
@@ -188,10 +190,20 @@ namespace catapult { namespace state {
 	}
 
 	namespace {
+		template<typename TKeyType>
+		MutableRawBuffer ToBuffer(TKeyType& key) {
+			return key;
+		}
+
+		template<>
+		MutableRawBuffer ToBuffer(PinnedVotingKey& key) {
+			return { reinterpret_cast<uint8_t*>(&key), PinnedVotingKey::Size };
+		}
+
 		template<typename TAccountPublicKey>
 		void ReadSupplementalPublicKey(io::InputStream& input, AccountKeys::KeyAccessor<TAccountPublicKey>& keyAccessor) {
 			TAccountPublicKey key;
-			input.read(key);
+			input.read(ToBuffer(key));
 			keyAccessor.set(key);
 		}
 

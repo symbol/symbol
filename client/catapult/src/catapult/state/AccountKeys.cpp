@@ -72,7 +72,7 @@ namespace catapult { namespace state {
 	}
 
 	template class AccountKeys::KeyAccessor<Key>;
-	template class AccountKeys::KeyAccessor<VotingKey>;
+	template class AccountKeys::KeyAccessor<PinnedVotingKey>;
 
 	// endregion
 
@@ -103,11 +103,11 @@ namespace catapult { namespace state {
 		return m_vrfPublicKey;
 	}
 
-	const AccountKeys::KeyAccessor<VotingKey>& AccountKeys::votingPublicKey() const {
+	const AccountKeys::KeyAccessor<PinnedVotingKey>& AccountKeys::votingPublicKey() const {
 		return m_votingPublicKey;
 	}
 
-	AccountKeys::KeyAccessor<VotingKey>& AccountKeys::votingPublicKey() {
+	AccountKeys::KeyAccessor<PinnedVotingKey>& AccountKeys::votingPublicKey() {
 		return m_votingPublicKey;
 	}
 

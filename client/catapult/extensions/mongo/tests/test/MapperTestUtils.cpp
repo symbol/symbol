@@ -144,6 +144,12 @@ namespace catapult { namespace test {
 			keyType = static_cast<state::AccountKeys::KeyType>(utils::to_underlying_type(keyType) << 1);
 		}
 
+		void AssertEqualPinnedVotingKey(const PinnedVotingKey& votingKey, const bsoncxx::document::view& accountKeyView) {
+			EXPECT_EQ(votingKey.VotingKey, GetVotingKeyValue(accountKeyView, "key"));
+			EXPECT_EQ(votingKey.StartPoint, FinalizationPoint(GetUint64(accountKeyView, "startPoint")));
+			EXPECT_EQ(votingKey.EndPoint, FinalizationPoint(GetUint64(accountKeyView, "endPoint")));
+		}
+
 		void AssertEqualAccountKeys(const state::AccountKeys& accountKeys, const bsoncxx::document::view& dbAccountKeys) {
 			auto dbIter = dbAccountKeys.cbegin();
 			for (auto keyType = state::AccountKeys::KeyType::Linked; keyType <= state::AccountKeys::KeyType::All; Advance(keyType)) {
@@ -163,7 +169,7 @@ namespace catapult { namespace test {
 					break;
 
 				case state::AccountKeys::KeyType::Voting:
-					EXPECT_EQ(accountKeys.votingPublicKey().get(), GetVotingKeyValue(accountKeyDocument.view(), "key"));
+					AssertEqualPinnedVotingKey(accountKeys.votingPublicKey().get(), accountKeyDocument.view());
 					break;
 
 				case state::AccountKeys::KeyType::Node:
