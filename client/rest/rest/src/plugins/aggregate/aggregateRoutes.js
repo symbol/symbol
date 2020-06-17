@@ -21,11 +21,12 @@
 const routeUtils = require('../../routes/routeUtils');
 const catapult = require('catapult-sdk');
 
-const { convert } = catapult.utils;
+const { convert, uint64 } = catapult.utils;
 const { PacketType } = catapult.packet;
 
 module.exports = {
 	register: (server, db, services) => {
+		const parseUint64StringToUint8Buffer = numericString => convert.hexToUint8(uint64.toHex(uint64.fromString(numericString)));
 		const parseHexParam = (params, key) => routeUtils.parseArgument(params, key, convert.hexToUint8);
 
 		routeUtils.addPutPacketRoute(
@@ -39,7 +40,11 @@ module.exports = {
 			server,
 			services.connections,
 			{ routeName: '/transactions/cosignature', packetType: PacketType.pushDetachedCosignatures },
-			params => Buffer.concat(['signerPublicKey', 'signature', 'parentHash'].map(key => parseHexParam(params, key)))
+			params => Buffer.concat(
+				[parseUint64StringToUint8Buffer(params.version)].concat(
+					['signerPublicKey', 'signature', 'parentHash'].map(key => parseHexParam(params, key))
+				)
+			)
 		);
 	}
 };
