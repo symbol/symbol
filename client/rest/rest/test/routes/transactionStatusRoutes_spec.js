@@ -41,13 +41,9 @@ describe('transaction status routes', () => {
 		const services = { config: { transactionStates: [] } };
 
 		const routeInfo = {
-			base: '/transactions',
+			base: '/transactionStatus',
 			singular: 'hash',
-			plural: 'hashes',
-			postfixes: {
-				singular: 'status',
-				plural: 'statuses'
-			}
+			plural: 'hashes'
 		};
 
 		let addGetPostDocumentRoutesSpy = null;

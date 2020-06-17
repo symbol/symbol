@@ -38,6 +38,12 @@ const DefaultPagingOptions = {
 	pageSizeDefault: 20
 };
 
+const TransactionGroups = {
+	confirmed: 'confirmed',
+	unconfirmed: 'unconfirmed',
+	partial: 'partial'
+};
+
 describe('catapult db', () => {
 	const deleteIds = dbEntities => {
 		test.collection.names.forEach(collectionName => {
@@ -823,28 +829,28 @@ describe('catapult db', () => {
 				addTestsWithId(traits, {
 					convertToId: test.db.createObjectId,
 					collectionName: 'transactions',
-					transactionsByIds: (db, ids) => db.transactionsByIds(ids)
+					transactionsByIds: (db, ids) => db.transactionsByIds(TransactionGroups.confirmed, ids)
 				}));
 
 			describe('by transaction hash', () =>
 				addTestsWithId(traits, {
 					convertToId: createTransactionHash,
 					collectionName: 'transactions',
-					transactionsByIds: (db, ids) => db.transactionsByHashes(ids)
+					transactionsByIds: (db, ids) => db.transactionsByHashes(TransactionGroups.confirmed, ids)
 				}));
 
 			describe('by transaction hash (unconfirmed)', () =>
 				addTestsWithId(traits, {
 					convertToId: createTransactionHash,
 					collectionName: 'unconfirmedTransactions',
-					transactionsByIds: (db, ids) => db.transactionsByHashesUnconfirmed(ids)
+					transactionsByIds: (db, ids) => db.transactionsByHashes(TransactionGroups.unconfirmed, ids)
 				}));
 
 			describe('by transaction hash (partial)', () =>
 				addTestsWithId(traits, {
 					convertToId: createTransactionHash,
 					collectionName: 'partialTransactions',
-					transactionsByIds: (db, ids) => db.transactionsByHashesPartial(ids)
+					transactionsByIds: (db, ids) => db.transactionsByHashes(TransactionGroups.partial, ids)
 				}));
 		};
 
@@ -891,9 +897,47 @@ describe('catapult db', () => {
 				// Act + Assert:
 				return runTransactionsDbTest(
 					{ transactions: seedTransactions },
-					db => db.transactionsByIds([documentId]),
+					db => db.transactionsByIds(TransactionGroups.confirmed, [documentId]),
 					transactions => assertEqualDocuments([renameId(seedTransactions[4])], transactions)
 				);
+			});
+		});
+
+		describe('translates group to collection name', () => {
+			const validObjectId = test.db.createObjectId(10);
+			const validHash = '112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF00';
+
+			const runTransactionsByIdTest = (dbCall, param, group, collection) => {
+				it(group, () => {
+					// Arrange:
+					const transactionsByIdsImplStub = sinon.stub(CatapultDb.prototype, 'transactionsByIdsImpl').returns('');
+					const db = new CatapultDb(Object.assign({ networkId: Mijin_Test_Network }, DefaultPagingOptions));
+
+					// Act
+					db[dbCall](group, [param]);
+
+					// Assert
+					expect(transactionsByIdsImplStub.calledOnce).to.equal(true);
+					expect(transactionsByIdsImplStub.firstCall.args[0]).to.equal(collection);
+					transactionsByIdsImplStub.restore();
+				});
+			};
+
+			const groupToCollectionName = {
+				confirmed: 'transactions',
+				unconfirmed: 'unconfirmedTransactions',
+				partial: 'partialTransactions'
+			};
+
+			describe('transactions by ids', () => {
+				Object.keys(groupToCollectionName).forEach(group => {
+					runTransactionsByIdTest('transactionsByIds', validObjectId, group, groupToCollectionName[group]);
+				});
+			});
+			describe('transactions by hashes', () => {
+				Object.keys(groupToCollectionName).forEach(group => {
+					runTransactionsByIdTest('transactionsByHashes', validHash, group, groupToCollectionName[group]);
+				});
 			});
 		});
 	});
@@ -1367,7 +1411,7 @@ describe('catapult db', () => {
 
 			return runDbTest(
 				{ transactions: dbTransactions },
-				db => db.transactions(filters, options),
+				db => db.transactions(TransactionGroups.confirmed, filters, options),
 				transactionsPage => {
 					const returnedIds = transactionsPage.data.map(t => t.id);
 					expect(transactionsPage.data.length).to.equal(expectedObjectIds.length);
@@ -1385,7 +1429,7 @@ describe('catapult db', () => {
 			// Act + Assert:
 			return runDbTest(
 				{ transactions: dbTransactions },
-				db => db.transactions({}, paginationOptions),
+				db => db.transactions(TransactionGroups.confirmed, {}, paginationOptions),
 				page => {
 					const expected_keys = ['meta', 'transaction', 'id'];
 					expect(Object.keys(page.data[0]).sort()).to.deep.equal(expected_keys.sort());
@@ -1402,7 +1446,7 @@ describe('catapult db', () => {
 			// Act + Assert:
 			return runDbTest(
 				{ transactions: dbTransactions },
-				db => db.transactions({}, paginationOptions),
+				db => db.transactions(TransactionGroups.confirmed, {}, paginationOptions),
 				transactionsPage => {
 					expect(transactionsPage.data[0].meta.addresses).to.equal(undefined);
 				}
@@ -1537,7 +1581,7 @@ describe('catapult db', () => {
 				// Act + Assert:
 				return runDbTest(
 					{ transactions: dbTransactions() },
-					db => db.transactions([], options),
+					db => db.transactions(TransactionGroups.confirmed, [], options),
 					transactionsPage => {
 						expect(transactionsPage.data[0].id).to.deep.equal(createObjectId(10));
 						expect(transactionsPage.data[1].id).to.deep.equal(createObjectId(20));
@@ -1557,7 +1601,7 @@ describe('catapult db', () => {
 				// Act + Assert:
 				return runDbTest(
 					{ transactions: dbTransactions() },
-					db => db.transactions([], options),
+					db => db.transactions(TransactionGroups.confirmed, [], options),
 					transactionsPage => {
 						expect(transactionsPage.data[0].id).to.deep.equal(createObjectId(30));
 						expect(transactionsPage.data[1].id).to.deep.equal(createObjectId(20));
@@ -1578,7 +1622,7 @@ describe('catapult db', () => {
 				// Act + Assert:
 				return runDbTest(
 					{ transactions: dbTransactions() },
-					db => db.transactions([], options),
+					db => db.transactions(TransactionGroups.confirmed, [], options),
 					() => {
 						expect(queryPagedDocumentsSpy.calledOnce).to.equal(true);
 						expect(Object.keys(queryPagedDocumentsSpy.firstCall.args[2].$sort)[0]).to.equal('_id');
@@ -1714,7 +1758,7 @@ describe('catapult db', () => {
 
 						return runDbTest(
 							dbTransactions(),
-							db => db.transactions({ group }, paginationOptions),
+							db => db.transactions(group, {}, paginationOptions),
 							transactionsPage => {
 								const returnedIds = transactionsPage.data.map(t => t.id);
 								expect(transactionsPage.data.length).to.equal(expectedObjectIds.length);
@@ -1724,15 +1768,15 @@ describe('catapult db', () => {
 					});
 				};
 
-				runGroupTest('confirmed', [10]);
-				runGroupTest('partial', [20]);
-				runGroupTest('unconfirmed', [30]);
+				runGroupTest(TransactionGroups.confirmed, [10]);
+				runGroupTest(TransactionGroups.partial, [20]);
+				runGroupTest(TransactionGroups.unconfirmed, [30]);
 
 				it('defaults to confirmed', () =>
 					// Act + Assert:
 					runDbTest(
 						dbTransactions(),
-						db => db.transactions({}, paginationOptions),
+						db => db.transactions(TransactionGroups.confirmed, {}, paginationOptions),
 						transactionsPage => {
 							expect(transactionsPage.data.length).to.equal(1);
 							expect(transactionsPage.data[0].id).to.deep.equal(createObjectId(10));

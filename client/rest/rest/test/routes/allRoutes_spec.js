@@ -62,9 +62,9 @@ describe('all routes', () => {
 			'/node/storage',
 			'/node/time',
 
-			'/transactions/:transactionId',
-			'/transactions/:hash/status',
-			'/transactions'
+			'/transactions/:group/:transactionId',
+			'/transactions/:group',
+			'/transactionStatus/:hash'
 		]);
 	});
 
@@ -79,8 +79,8 @@ describe('all routes', () => {
 		// Assert:
 		test.assert.assertRoutes(routes, [
 			'/account',
-			'/transactions',
-			'/transactions/statuses'
+			'/transactions/:group',
+			'/transactionStatus'
 		]);
 	});
 

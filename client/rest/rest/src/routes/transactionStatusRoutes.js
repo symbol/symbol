@@ -31,9 +31,7 @@ module.exports = {
 		routeUtils.addGetPostDocumentRoutes(
 			server,
 			routeUtils.createSender(routeResultTypes.transactionStatus),
-			{
-				base: '/transactions', singular: 'hash', plural: 'hashes', postfixes: { singular: 'status', plural: 'statuses' }
-			},
+			{ base: '/transactionStatus', singular: 'hash', plural: 'hashes' },
 			params => dbFacade.transactionStatusesByHashes(db, params, services.config.transactionStates),
 			hash => {
 				if (2 * constants.sizes.hash256 === hash.length)
