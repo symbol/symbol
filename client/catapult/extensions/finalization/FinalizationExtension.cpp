@@ -18,7 +18,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "src/FinalizationBootstrapperService.h"
 #include "src/FinalizationConfiguration.h"
+#include "src/FinalizationSyncSourceService.h"
 #include "catapult/config/ConfigurationFileLoader.h"
 #include "catapult/extensions/ProcessBootstrapper.h"
 
@@ -28,6 +30,11 @@ namespace catapult { namespace finalization {
 		void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
 			const auto& resourcesPath = bootstrapper.resourcesPath();
 			/* auto config = */ FinalizationConfiguration::LoadFromPath(resourcesPath);
+
+			// register other services
+			auto& extensionManager = bootstrapper.extensionManager();
+			extensionManager.addServiceRegistrar(CreateFinalizationBootstrapperServiceRegistrar());
+			extensionManager.addServiceRegistrar(CreateFinalizationSyncSourceServiceRegistrar());
 		}
 	}
 }}
