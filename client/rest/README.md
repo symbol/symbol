@@ -16,11 +16,10 @@ Catapult REST gateway combines HTTP and WebSockets to perform read and write act
 
 Make sure you choose a [version compatible](COMPATIBILITY.md) with the [catapult-server][catapult-server] node you want to use it with.
 
-Version number is described as follows:
+Starting on `v1.1.0`, version numbers are described as follows:
 
-`v1.X.Y.Z`
+`vX.Y.Z`
 
-- The first numer is symbolic for pre-release and should not be taken into consideration.
 - X: This serves to lock for compatibility with `catapult-server`, thus it is safe to update by keeping this number without REST
 losing server compatibility. Additionally, any breaking change to the server should require to upgrade this number.
 - Y: This serves to lock on safe updates to this project, thus it is safe to update by keeping this number without worrying about
