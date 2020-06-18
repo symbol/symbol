@@ -102,7 +102,7 @@ module.exports = {
 				throw errors.createInvalidArgumentError('either ids or hashes must be provided');
 
 			// normalize ids arg to be either in the transcationIds object or hashes (this is expected to change in the near future)
-			if (params.transactionIds && constants.sizes.hash === params.transactionIds[0]) {
+			if (params.transactionIds && constants.sizes.hash === params.transactionIds[0].length) {
 				params.hashes = params.transactionIds;
 				delete params.transactionIds;
 			}

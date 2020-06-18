@@ -502,6 +502,24 @@ describe('transaction routes', () => {
 						expect(mockServer.next.calledOnce).to.equal(true);
 					});
 				});
+
+				it('hash params (provisional test until params are split into transactionIds/hashes)', () => {
+					// Arrange
+					const req = { params: { group: TransactionGroups.confirmed, transactionIds: [validHash] } };
+
+					// Act:
+					return mockServer.callRoute(route, req).then(() => {
+						// Assert:
+						expect(dbTransactionsByHashesFake.calledOnce).to.equal(true);
+						expect(dbTransactionsByHashesFake.firstCall.args[1]).to.deep.equal([convert.hexToUint8(validHash)]);
+
+						expect(mockServer.send.firstCall.args[0]).to.deep.equal({
+							payload: fakeTransactions,
+							type: routeResultTypes.transaction
+						});
+						expect(mockServer.next.calledOnce).to.equal(true);
+					});
+				});
 			});
 		});
 
