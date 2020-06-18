@@ -83,8 +83,7 @@ namespace catapult { namespace test {
 		template<typename TLoadTraits>
 		static void AssertCanLoadValue() {
 			// Arrange:
-			std::vector<uint8_t> buffer(TTraits::Value_Size);
-			test::FillWithRandomData(buffer);
+			auto buffer = test::GenerateRandomVector(TTraits::Value_Size);
 			mocks::MockMemoryStream inputStream(buffer);
 			const auto& originalValue = reinterpret_cast<const ValueType&>(buffer[0]);
 

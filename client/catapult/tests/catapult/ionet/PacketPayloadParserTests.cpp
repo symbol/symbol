@@ -288,8 +288,7 @@ namespace catapult { namespace ionet {
 
 		void AssertCannotCountFixedSizeStructuresFromBufferWithSize(uint32_t size) {
 			// Arrange:
-			ByteBuffer buffer(size);
-			test::FillWithRandomData(buffer);
+			auto buffer = test::GenerateRandomVector(size);
 
 			// Act:
 			auto numStructures = CountFixedSizeStructures<FixedSizeStructure>({ buffer.data(), size });
@@ -309,8 +308,7 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, CanExtractSingleStructure_CountFixedSizeStructures) {
 		// Arrange: create a buffer containing a single fixed size structure
-		ByteBuffer buffer(Fixed_Size);
-		test::FillWithRandomData(buffer);
+		auto buffer = test::GenerateRandomVector(Fixed_Size);
 
 		// Act:
 		auto numStructures = CountFixedSizeStructures<FixedSizeStructure>(buffer);
@@ -321,8 +319,7 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, CanExtractMultipleStructures_CountFixedSizeStructures) {
 		// Arrange: create a buffer containing three fixed size structures
-		ByteBuffer buffer(3 * Fixed_Size);
-		test::FillWithRandomData(buffer);
+		auto buffer = test::GenerateRandomVector(3 * Fixed_Size);
 
 		// Act:
 		auto numStructures = CountFixedSizeStructures<FixedSizeStructure>(buffer);

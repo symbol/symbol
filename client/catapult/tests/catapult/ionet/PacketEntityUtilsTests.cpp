@@ -430,8 +430,7 @@ namespace catapult { namespace ionet {
 
 		void AssertCannotExtractFixedSizeStructuresFromPacketWithSize(uint32_t size) {
 			// Arrange:
-			ByteBuffer buffer(size);
-			test::FillWithRandomData(buffer);
+			auto buffer = test::GenerateRandomVector(size);
 			auto& packet = reinterpret_cast<Packet&>(buffer[0]);
 			packet.Size = size;
 
@@ -454,8 +453,7 @@ namespace catapult { namespace ionet {
 	TEST(TEST_CLASS, CanExtractSingleStructure_FixedSizeStructures) {
 		// Arrange: create a packet containing a single fixed size structure
 		constexpr auto Packet_Size = sizeof(Packet) + Fixed_Size;
-		ByteBuffer buffer(Packet_Size);
-		test::FillWithRandomData(buffer);
+		auto buffer = test::GenerateRandomVector(Packet_Size);
 		auto& packet = reinterpret_cast<Packet&>(buffer[0]);
 		packet.Size = Packet_Size;
 
@@ -471,8 +469,7 @@ namespace catapult { namespace ionet {
 	TEST(TEST_CLASS, CanExtractMultipleStructures_FixedSizeStructures) {
 		// Arrange: create a packet containing three fixed size structures
 		constexpr auto Packet_Size = sizeof(Packet) + 3 * Fixed_Size;
-		ByteBuffer buffer(Packet_Size);
-		test::FillWithRandomData(buffer);
+		auto buffer = test::GenerateRandomVector(Packet_Size);
 		auto& packet = reinterpret_cast<Packet&>(buffer[0]);
 		packet.Size = Packet_Size;
 

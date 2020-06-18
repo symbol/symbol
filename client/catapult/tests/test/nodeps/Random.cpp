@@ -40,6 +40,8 @@ namespace catapult { namespace test {
 		}
 	}
 
+	// region random suppliers
+
 	uint64_t Random() {
 		return utils::LowEntropyRandomGenerator()();
 	}
@@ -47,6 +49,26 @@ namespace catapult { namespace test {
 	uint8_t RandomByte() {
 		return static_cast<uint8_t>(Random());
 	}
+
+	// endregion
+
+	// region fill with random data
+
+	void FillWithRandomData(std::vector<uint8_t>& vec) {
+		RandomFill(vec);
+	}
+
+	void FillWithRandomData(const MutableRawBuffer& dataBuffer) {
+		std::generate_n(dataBuffer.pData, dataBuffer.Size, RandomByte);
+	}
+
+	void FillWithRandomData(UnresolvedAddress& unresolvedAddress) {
+		FillWithRandomData({ reinterpret_cast<uint8_t*>(unresolvedAddress.data()), unresolvedAddress.size() });
+	}
+
+	// endregion
+
+	// region generate random objects
 
 	std::string GenerateRandomString(size_t size) {
 		return GenerateRandomContainer<std::string>(size);
@@ -63,18 +85,8 @@ namespace catapult { namespace test {
 	}
 
 	std::vector<uint8_t> GenerateRandomVector(size_t size) {
-		return GenerateRandomContainer<std::vector<uint8_t>>(size);
+		return GenerateRandomDataVector<uint8_t>(size);
 	}
 
-	void FillWithRandomData(std::vector<uint8_t>& vec) {
-		RandomFill(vec);
-	}
-
-	void FillWithRandomData(const MutableRawBuffer& dataBuffer) {
-		std::generate_n(dataBuffer.pData, dataBuffer.Size, RandomByte);
-	}
-
-	void FillWithRandomData(UnresolvedAddress& unresolvedAddress) {
-		FillWithRandomData({ reinterpret_cast<uint8_t*>(unresolvedAddress.data()), unresolvedAddress.size() });
-	}
+	// endregion
 }}

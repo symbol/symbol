@@ -79,8 +79,7 @@ namespace catapult { namespace validators {
 				txBufferSize += txSize + utils::GetPaddingSize(txSize, 8);
 			}
 
-			std::vector<uint8_t> txBuffer(txBufferSize);
-			test::FillWithRandomData(txBuffer);
+			auto txBuffer = test::GenerateRandomVector(txBufferSize);
 
 			// - correct sizes and calculate hashes
 			size_t txOffset = 0;

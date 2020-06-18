@@ -142,8 +142,7 @@ namespace catapult { namespace io {
 		void PrepareOnlyHomogenousStatementsTest(bool shouldOrder, TAction action, TSetSizes setSizes) {
 			// Arrange:
 			size_t statementsSize = sizeof(TZeroEntryStatement) + 2 * sizeof(TTwoEntryStatement);
-			std::vector<uint8_t> buffer(3 * sizeof(uint32_t) + statementsSize);
-			test::FillWithRandomData(buffer);
+			auto buffer = test::GenerateRandomVector(3 * sizeof(uint32_t) + statementsSize);
 			auto offset = setSizes(buffer, statementsSize);
 
 			// - fix up sizes and generate expected block statement

@@ -98,9 +98,7 @@ namespace catapult { namespace consumers {
 			if (0 < numTransactionsPerBlock)
 				numBytesPerBlock += (numTransactionsPerBlock - 1) * txPaddingSize;
 
-			std::vector<uint8_t> buffer(numBlocks * numBytesPerBlock);
-			test::FillWithRandomData(buffer);
-
+			auto buffer = test::GenerateRandomVector(numBlocks * numBytesPerBlock);
 			std::vector<size_t> offsets;
 			for (auto i = 0u; i < numBlocks; ++i) {
 				offsets.push_back(i * numBytesPerBlock);
@@ -257,9 +255,7 @@ namespace catapult { namespace consumers {
 
 	namespace {
 		ConsumerInput CreateTransactionConsumerInput(uint32_t numTransactions) {
-			std::vector<uint8_t> buffer(numTransactions * Transaction_Size);
-			test::FillWithRandomData(buffer);
-
+			auto buffer = test::GenerateRandomVector(numTransactions * Transaction_Size);
 			std::vector<size_t> offsets;
 			for (auto i = 0u; i < numTransactions; ++i) {
 				auto txOffset = i * Transaction_Size;

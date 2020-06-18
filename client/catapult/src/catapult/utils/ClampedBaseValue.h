@@ -56,9 +56,12 @@ namespace catapult { namespace utils {
 		using Unclamped = typename Traits::UnclampedType;
 
 	public:
+		/// Creates a clamped base value from a default value.
+		constexpr ClampedBaseValue() : ClampedBaseValue(TRange::Default_Value)
+		{}
+
 		/// Creates a clamped base value from a raw \a value.
-		constexpr explicit ClampedBaseValue(TValue value = TRange::Default_Value)
-				: Traits::ClampedBaseType(Clamp(value))
+		constexpr explicit ClampedBaseValue(TValue value) : Traits::ClampedBaseType(Clamp(value))
 		{}
 
 	private:

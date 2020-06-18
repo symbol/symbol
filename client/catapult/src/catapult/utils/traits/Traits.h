@@ -98,4 +98,37 @@ namespace catapult { namespace utils { namespace traits {
 	using is_type_expression_t = typename is_type_expression<T, Enable>::type;
 
 	// endregion
+
+	// region is_template_specialization
+
+	/// If T is a specialization of TBase, this struct will provide the member constant value equal to \c true.
+	/// For any other type, value is \c false.
+	/// \note In order for detection to work, T must not have any const/volatile qualifiers.
+	template<typename T, template<typename...> typename TBase>
+	struct is_template_specialization : std::false_type {};
+
+	template<template<typename...> typename TBase, typename... Args>
+	struct is_template_specialization<TBase<Args...>, TBase> : std::true_type {};
+
+	/// \c true if T is a specialization of TBase, \c false otherwise.
+	template<typename T, template<typename...> typename TBase>
+	inline constexpr bool is_template_specialization_v = is_template_specialization<T, TBase>::value;
+
+	// endregion
+
+	// region is_container
+
+	/// If T is a container type, this struct will provide the member constant value equal to \c true.
+	/// For any other type, value is \c false.
+	template<typename T, typename = void>
+	struct is_container : std::false_type {};
+
+	template<typename T>
+	struct is_container<T, is_type_expression_t<typename T::const_iterator>> : std::true_type {};
+
+	/// \c true if T is a container type, \c false otherwise.
+	template<typename T>
+	inline constexpr bool is_container_v = is_container<T>::value;
+
+	// endregion
 }}}

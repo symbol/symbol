@@ -48,8 +48,7 @@ namespace catapult { namespace test {
 		template<typename TResolutionStatement>
 		void RandomFillStatement(TResolutionStatement& statement, size_t numResolutions) {
 			for (auto i = 0u; i < numResolutions; ++i) {
-				typename TResolutionStatement::ResolutionEntry entry;
-				test::FillWithRandomData({ reinterpret_cast<uint8_t*>(&entry), sizeof(typename TResolutionStatement::ResolutionEntry) });
+				auto entry = test::GenerateRandomPackedStruct<typename TResolutionStatement::ResolutionEntry>();
 				entry.Source.PrimaryId = i + 1; // needs to be in ascending order
 				statement.addResolution(entry.ResolvedValue, entry.Source);
 			}

@@ -66,8 +66,7 @@ namespace catapult { namespace cache {
 		SupplementalData data;
 		Height chainHeight;
 
-		std::vector<uint8_t> buffer(Data_Size);
-		test::FillWithRandomData(buffer);
+		auto buffer = test::GenerateRandomVector(Data_Size);
 		mocks::MockMemoryStream stream(buffer);
 
 		// Act:

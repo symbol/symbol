@@ -32,8 +32,7 @@ namespace catapult { namespace parsers {
 		std::vector<uint8_t> PrepareBlockElementBuffer(size_t numTransactions, size_t bufferPadding = 0) {
 			// plus 1 because block metadata is composed of two hashes too
 			auto pBlock = test::GenerateBlockWithTransactions(numTransactions);
-			std::vector<uint8_t> buffer(pBlock->Size + (1 + numTransactions) * 2 * Hash256::Size + bufferPadding);
-			test::FillWithRandomData(buffer);
+			auto buffer = test::GenerateRandomVector(pBlock->Size + (1 + numTransactions) * 2 * Hash256::Size + bufferPadding);
 			memcpy(buffer.data(), pBlock.get(), pBlock->Size);
 			return buffer;
 		}
