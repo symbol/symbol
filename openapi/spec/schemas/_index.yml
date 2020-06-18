@@ -9,6 +9,8 @@ BlockDuration:
   "$ref": "./BlockDuration.yml"
 BlockFeeMultiplier:
   "$ref": "./BlockFeeMultiplier.yml"
+CosignatureVersion:
+  "$ref": "./CosignatureVersion.yml"
 Difficulty:
   "$ref": "./Difficulty.yml"
 Hash256:

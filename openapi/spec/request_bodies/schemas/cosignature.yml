@@ -6,3 +6,5 @@ properties:
     $ref: "../../schemas/Signature.yml"
   signerPublicKey:
     $ref: "../../schemas/PublicKey.yml"
+  version:
+    $ref: "../../schemas/CosignatureVersion.yml"

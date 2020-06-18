@@ -7,7 +7,6 @@ allOf:
       - version
     properties:
       version:
-        type: string
-        description: Entity version.
+        $ref: "../../../schemas/CosignatureVersion.yml"
       signerPublicKey:
         $ref: "../../../schemas/PublicKey.yml"
