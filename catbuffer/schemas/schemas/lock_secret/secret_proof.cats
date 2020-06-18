@@ -3,6 +3,9 @@ import "transaction.cats"
 
 # binary layout for a secret proof transaction
 struct SecretProofTransactionBody
+	# locked mosaic recipient address
+	recipientAddress = UnresolvedAddress
+
 	# secret
 	secret = Hash256
 
@@ -11,9 +14,6 @@ struct SecretProofTransactionBody
 
 	# hash algorithm
 	hashAlgorithm = LockHashAlgorithm
-
-	# locked mosaic recipient address
-	recipientAddress = UnresolvedAddress
 
 	# proof data
 	proof = array(byte, proofSize)
