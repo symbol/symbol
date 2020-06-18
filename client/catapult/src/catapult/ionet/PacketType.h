@@ -31,7 +31,7 @@ namespace catapult { namespace ionet {
 	/* Undefined packet type. */ \
 	ENUM_VALUE(Undefined, 0) \
 	\
-	/* p2p packets have types [1, 500) */ \
+	/* p2p packets have types [1, 0x100) */ \
 	\
 	/* Challenge from a server to a client. */ \
 	ENUM_VALUE(Server_Challenge, 1) \
@@ -66,108 +66,115 @@ namespace catapult { namespace ionet {
 	/* Sub cache merkle roots have been requested. */ \
 	ENUM_VALUE(Sub_Cache_Merkle_Roots, 12) \
 	\
-	/* api only packets have types [500, 600) */ \
+	/* partial transactions packets have types [0x100, 0x110) */ \
 	\
 	/* Partial aggregate transactions have been pushed by an api-node. */ \
-	ENUM_VALUE(Push_Partial_Transactions, 500) \
+	ENUM_VALUE(Push_Partial_Transactions, 0x100) \
 	\
 	/* Detached cosignatures have been pushed by an api-node. */ \
-	ENUM_VALUE(Push_Detached_Cosignatures, 501) \
+	ENUM_VALUE(Push_Detached_Cosignatures, 0x101) \
 	\
 	/* Partial transaction infos have been requested by an api-node. */ \
-	ENUM_VALUE(Pull_Partial_Transaction_Infos, 502) \
+	ENUM_VALUE(Pull_Partial_Transaction_Infos, 0x102) \
 	\
-	/* node discovery packets have types [600, 700) */ \
+	/* node discovery packets have types [0x110, 0x120) */ \
 	\
 	/* Node information has been pushed by a peer. */ \
-	ENUM_VALUE(Node_Discovery_Push_Ping, 600) \
+	ENUM_VALUE(Node_Discovery_Push_Ping, 0x110) \
 	\
 	/* Node information has been requested by a peer. */ \
-	ENUM_VALUE(Node_Discovery_Pull_Ping, 601) \
+	ENUM_VALUE(Node_Discovery_Pull_Ping, 0x111) \
 	\
 	/* Peers information has been pushed by a peer. */ \
-	ENUM_VALUE(Node_Discovery_Push_Peers, 602) \
+	ENUM_VALUE(Node_Discovery_Push_Peers, 0x112) \
 	\
 	/* Peers information has been requested by a peer. */ \
-	ENUM_VALUE(Node_Discovery_Pull_Peers, 603) \
+	ENUM_VALUE(Node_Discovery_Pull_Peers, 0x113) \
 	\
-	/* time sync packets have types [700, 710) */ \
+	/* time sync packets have types [0x120, 0x130) */ \
 	\
 	/* Network time information has been requested by a peer. */ \
-	ENUM_VALUE(Time_Sync_Network_Time, 700) \
+	ENUM_VALUE(Time_Sync_Network_Time, 0x120) \
 	\
-	/* state path packets have types [800, 1100) - ordered by facility code name */ \
+	/* finalization packets have types [0x130, 0x140) */ \
+	\
+	/* Finalization messages have been pushed by a peer. */ \
+	ENUM_VALUE(Push_Finalization_Messages, 0x130) \
+	\
+	/* state path packets have types [0x200, 0x300) - ordered by facility code name */ \
 	\
 	/* Account state path has been requested by a client. */ \
-	ENUM_VALUE(Account_State_Path, FACILITY_BASED_CODE(800, Core)) \
+	ENUM_VALUE(Account_State_Path, FACILITY_BASED_CODE(0x200, Core)) \
 	\
 	/* Hash lock state path has been requested by a client. */ \
-	ENUM_VALUE(Hash_Lock_State_Path, FACILITY_BASED_CODE(800, LockHash)) \
+	ENUM_VALUE(Hash_Lock_State_Path, FACILITY_BASED_CODE(0x200, LockHash)) \
 	\
 	/* Secret lock state path has been requested by a client. */ \
-	ENUM_VALUE(Secret_Lock_State_Path, FACILITY_BASED_CODE(800, LockSecret)) \
+	ENUM_VALUE(Secret_Lock_State_Path, FACILITY_BASED_CODE(0x200, LockSecret)) \
 	\
 	/* Metadata state path has been requested by a client. */ \
-	ENUM_VALUE(Metadata_State_Path, FACILITY_BASED_CODE(800, Metadata)) \
+	ENUM_VALUE(Metadata_State_Path, FACILITY_BASED_CODE(0x200, Metadata)) \
 	\
 	/* Mosaic state path has been requested by a client. */ \
-	ENUM_VALUE(Mosaic_State_Path, FACILITY_BASED_CODE(800, Mosaic)) \
+	ENUM_VALUE(Mosaic_State_Path, FACILITY_BASED_CODE(0x200, Mosaic)) \
 	\
 	/* Multisig state path has been requested by a client. */ \
-	ENUM_VALUE(Multisig_State_Path, FACILITY_BASED_CODE(800, Multisig)) \
+	ENUM_VALUE(Multisig_State_Path, FACILITY_BASED_CODE(0x200, Multisig)) \
 	\
 	/* Namespace state path has been requested by a client. */ \
-	ENUM_VALUE(Namespace_State_Path, FACILITY_BASED_CODE(800, Namespace)) \
+	ENUM_VALUE(Namespace_State_Path, FACILITY_BASED_CODE(0x200, Namespace)) \
 	\
 	/* Account restrictions state path has been requested by a client. */ \
-	ENUM_VALUE(Account_Restrictions_State_Path, FACILITY_BASED_CODE(800, RestrictionAccount)) \
+	ENUM_VALUE(Account_Restrictions_State_Path, FACILITY_BASED_CODE(0x200, RestrictionAccount)) \
 	\
 	/* Mosaic restrictions state path has been requested by a client. */ \
-	ENUM_VALUE(Mosaic_Restrictions_State_Path, FACILITY_BASED_CODE(800, RestrictionMosaic)) \
+	ENUM_VALUE(Mosaic_Restrictions_State_Path, FACILITY_BASED_CODE(0x200, RestrictionMosaic)) \
 	\
-	/* diagnostic packets have types [1100, 2000) - ordered by facility code name */ \
+	/* diagnostic packets have types [0x300, 0x400) */ \
 	\
 	/* Request for the current diagnostic counter values. */ \
-	ENUM_VALUE(Diagnostic_Counters, 1100) \
+	ENUM_VALUE(Diagnostic_Counters, 0x300) \
 	\
 	/* Request from a client to confirm timestamped hashes. */ \
-	ENUM_VALUE(Confirm_Timestamped_Hashes, 1101) \
+	ENUM_VALUE(Confirm_Timestamped_Hashes, 0x301) \
 	\
 	/* Node infos for active nodes have been requested. */ \
-	ENUM_VALUE(Active_Node_Infos, 1102) \
+	ENUM_VALUE(Active_Node_Infos, 0x302) \
 	\
 	/* Block statement has been requested by a client. */ \
-	ENUM_VALUE(Block_Statement, 1103) \
+	ENUM_VALUE(Block_Statement, 0x303) \
 	\
 	/* Unlocked accounts have been requested by a client. */ \
-	ENUM_VALUE(Unlocked_Accounts, 1104) \
+	ENUM_VALUE(Unlocked_Accounts, 0x304) \
+	\
+	/* diagnostic info packets have types [0x400, 0x500) - ordered by facility code name */ \
 	\
 	/* Account infos have been requested by a client. */ \
-	ENUM_VALUE(Account_Infos, FACILITY_BASED_CODE(1200, Core)) \
+	ENUM_VALUE(Account_Infos, FACILITY_BASED_CODE(0x400, Core)) \
 	\
 	/* Hash lock infos have been requested by a client. */ \
-	ENUM_VALUE(Hash_Lock_Infos, FACILITY_BASED_CODE(1200, LockHash)) \
+	ENUM_VALUE(Hash_Lock_Infos, FACILITY_BASED_CODE(0x400, LockHash)) \
 	\
 	/* Secret lock infos have been requested by a client. */ \
-	ENUM_VALUE(Secret_Lock_Infos, FACILITY_BASED_CODE(1200, LockSecret)) \
+	ENUM_VALUE(Secret_Lock_Infos, FACILITY_BASED_CODE(0x400, LockSecret)) \
 	\
 	/* Metadata infos have been requested by a client. */ \
-	ENUM_VALUE(Metadata_Infos, FACILITY_BASED_CODE(1200, Metadata)) \
+	ENUM_VALUE(Metadata_Infos, FACILITY_BASED_CODE(0x400, Metadata)) \
 	\
 	/* Mosaic infos have been requested by a client. */ \
-	ENUM_VALUE(Mosaic_Infos, FACILITY_BASED_CODE(1200, Mosaic)) \
+	ENUM_VALUE(Mosaic_Infos, FACILITY_BASED_CODE(0x400, Mosaic)) \
 	\
 	/* Multisig infos have been requested by a client. */ \
-	ENUM_VALUE(Multisig_Infos, FACILITY_BASED_CODE(1200, Multisig)) \
+	ENUM_VALUE(Multisig_Infos, FACILITY_BASED_CODE(0x400, Multisig)) \
 	\
 	/* Namespace infos have been requested by a client. */ \
-	ENUM_VALUE(Namespace_Infos, FACILITY_BASED_CODE(1200, Namespace)) \
+	ENUM_VALUE(Namespace_Infos, FACILITY_BASED_CODE(0x400, Namespace)) \
 	\
 	/* Account restrictions infos have been requested by a client. */ \
-	ENUM_VALUE(Account_Restrictions_Infos, FACILITY_BASED_CODE(1200, RestrictionAccount)) \
+	ENUM_VALUE(Account_Restrictions_Infos, FACILITY_BASED_CODE(0x400, RestrictionAccount)) \
 	\
 	/* Mosaic restrictions infos have been requested by a client. */ \
-	ENUM_VALUE(Mosaic_Restrictions_Infos, FACILITY_BASED_CODE(1200, RestrictionMosaic))
+	ENUM_VALUE(Mosaic_Restrictions_Infos, FACILITY_BASED_CODE(0x400, RestrictionMosaic))
 
 #define ENUM_VALUE(LABEL, VALUE) LABEL = VALUE,
 	/// Enumeration of known packet types.

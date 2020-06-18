@@ -67,7 +67,7 @@ namespace catapult { namespace plugins {
 
 			// Assert:
 			EXPECT_EQ(1u, packetHandlers.size());
-			EXPECT_TRUE(packetHandlers.canProcess(static_cast<ionet::PacketType>(800 + 123)));
+			EXPECT_TRUE(packetHandlers.canProcess(static_cast<ionet::PacketType>(0x200 + 123)));
 		});
 	}
 
@@ -79,7 +79,7 @@ namespace catapult { namespace plugins {
 
 			// Assert:
 			EXPECT_EQ(1u, packetHandlers.size());
-			EXPECT_TRUE(packetHandlers.canProcess(static_cast<ionet::PacketType>(1200 + 123)));
+			EXPECT_TRUE(packetHandlers.canProcess(static_cast<ionet::PacketType>(0x400 + 123)));
 		});
 	}
 }}
