@@ -36,7 +36,8 @@ if [ "$TRAVIS_BRANCH" = "$RELEASE_BRANCH" ]; then
   echo "$CURRENT_VERSION"
   echo ""
 
-  yaml set spec/info.yml version $CURRENT_VERSION > spec/info.yml
+  yaml set spec/info.yml version $CURRENT_VERSION > spec/info-patched.yml
+  mv spec/info-patched.yml spec/info.yml
 
   git add .
   git commit -m "Creating new version $CURRENT_VERSION"
