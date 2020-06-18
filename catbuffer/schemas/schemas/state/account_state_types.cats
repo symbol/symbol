@@ -15,8 +15,8 @@ enum AccountType : uint8
 	# \note this allows an account that has previously been used as remote to be reused as a remote
 	remoteUnlinked = 3
 
-# enumeration of account key flags
-enum AccountKeyFlags : uint8
+# enumeration of account key type flags
+enum AccountKeyTypeFlags : uint8
 	# unset key
 	unset = 0x00
 
@@ -24,14 +24,11 @@ enum AccountKeyFlags : uint8
 	# \note this can be either a remote or main account public key depending on context
 	linked = 0x01
 
-	# VRF public key
-	vrf = 0x02
-
-	# voting public key
-	voting = 0x04
-
 	# node public key on which remote is allowed to harvest
-	node = 0x08
+	node = 0x02
+
+	# VRF public key
+	vrf = 0x04
 
 # enumeration of account state formats
 enum AccountStateFormat : uint8
@@ -40,6 +37,17 @@ enum AccountStateFormat : uint8
 
 	# high value account eligible to harvest
 	highValue = 1
+
+# pinned voting key
+struct PinnedVotingKey
+	# voting key
+	votingKey = VotingKey
+
+	# start finalization point
+	startPoint = FinalizationPoint
+
+	# end finalization point
+	endPoint = FinalizationPoint
 
 # temporal importance information
 struct ImportanceSnapshot

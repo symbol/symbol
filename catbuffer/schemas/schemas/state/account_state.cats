@@ -25,20 +25,23 @@ struct AccountState
 	# account format
 	format = AccountStateFormat
 
-	# mask of supplemental account key flags
-	supplementalAccountKeysMask = AccountKeyFlags
+	# mask of supplemental public key flags
+	supplementalPublicKeysMask = AccountKeyTypeFlags
+
+	# number of voting public keys
+	votingPublicKeysCount = uint8
 
 	# linked account public key
-	linkedPublicKey = Key if supplementalAccountKeysMask has linked
-
-	# vrf public key
-	vrfPublicKey = Key if supplementalAccountKeysMask has vrf
-
-	# voting public key
-	votingPublicKey = VotingKey if supplementalAccountKeysMask has voting
+	linkedPublicKey = Key if supplementalPublicKeysMask has linked
 
 	# node public key
-	nodePublicKey = Key if supplementalAccountKeysMask has node
+	nodePublicKey = Key if supplementalPublicKeysMask has node
+
+	# vrf public key
+	vrfPublicKey = Key if supplementalPublicKeysMask has vrf
+
+	# voting public keys
+	votingPublicKeys = array(PinnedVotingKey, votingPublicKeysCount)
 
 	# current importance snapshot of the account
 	importanceSnapshots = ImportanceSnapshot if format equals highValue
