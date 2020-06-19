@@ -79,18 +79,18 @@ namespace catapult { namespace state {
 	}
 
 	Key GetLinkedPublicKey(const AccountState& accountState) {
-		return accountState.SupplementalAccountKeys.linkedPublicKey().get();
-	}
-
-	Key GetVrfPublicKey(const AccountState& accountState) {
-		return accountState.SupplementalAccountKeys.vrfPublicKey().get();
-	}
-
-	PinnedVotingKey GetVotingPublicKey(const AccountState& accountState) {
-		return accountState.SupplementalAccountKeys.votingPublicKey().get();
+		return accountState.SupplementalPublicKeys.linked().get();
 	}
 
 	Key GetNodePublicKey(const AccountState& accountState) {
-		return accountState.SupplementalAccountKeys.nodePublicKey().get();
+		return accountState.SupplementalPublicKeys.node().get();
+	}
+
+	Key GetVrfPublicKey(const AccountState& accountState) {
+		return accountState.SupplementalPublicKeys.vrf().get();
+	}
+
+	PinnedVotingKey GetVotingPublicKey(const AccountState& accountState) {
+		return accountState.SupplementalPublicKeys.voting().get();
 	}
 }}

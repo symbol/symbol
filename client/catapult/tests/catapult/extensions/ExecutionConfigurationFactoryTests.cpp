@@ -50,8 +50,8 @@ namespace catapult { namespace extensions {
 			"HarvestFeeObserver",
 			"TotalTransactionsObserver",
 			"HighValueAccountCommitObserver",
-			"VotingKeyLinkObserver",
 			"VrfKeyLinkObserver",
+			"VotingKeyLinkObserver",
 			"RecalculateImportancesObserver",
 			"HighValueAccountRollbackObserver",
 			"BlockStatisticObserver"
@@ -66,8 +66,8 @@ namespace catapult { namespace extensions {
 			"EligibleHarvesterValidator",
 			"BalanceDebitValidator",
 			"BalanceTransferValidator",
-			"VotingKeyLinkValidator",
-			"VrfKeyLinkValidator"
+			"VrfKeyLinkValidator",
+			"VotingKeyLinkValidator"
 		};
 		EXPECT_EQ(expectedValidatorNames, config.pValidator->names());
 	}

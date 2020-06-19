@@ -99,7 +99,7 @@ namespace catapult { namespace sync {
 			accountStateCache.addAccount(signer.publicKey(), Height(1));
 			auto& accountState = accountStateCache.find(signer.publicKey()).get();
 			accountState.ImportanceSnapshots.set(Importance(1'000'000'000), model::ImportanceHeight(1));
-			accountState.SupplementalAccountKeys.vrfPublicKey().set(vrfPublicKey);
+			accountState.SupplementalPublicKeys.vrf().set(vrfPublicKey);
 
 			// commit all changes
 			cache.commit(Height(1));

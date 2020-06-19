@@ -34,7 +34,7 @@ namespace catapult { namespace test {
 		auto mainAccountStateIter = accountStateCacheDelta.find(mainAccountPublicKey);
 
 		if (Key() != linkedPublicKey)
-			mainAccountStateIter.get().SupplementalAccountKeys.linkedPublicKey().set(linkedPublicKey);
+			mainAccountStateIter.get().SupplementalPublicKeys.linked().set(linkedPublicKey);
 
 		return mainAccountPublicKey;
 	}

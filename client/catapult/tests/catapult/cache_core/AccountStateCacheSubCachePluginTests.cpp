@@ -52,8 +52,8 @@ namespace catapult { namespace cache {
 			for (auto i = 0u; i < balances.size(); ++i) {
 				delta.addAccount(addresses[i], Height(1));
 				auto& accountState = delta.find(addresses[i]).get();
-				accountState.SupplementalAccountKeys.vrfPublicKey().set(vrfPublicKeys[i]);
-				accountState.SupplementalAccountKeys.votingPublicKey().set(votingPublicKeys[i]);
+				accountState.SupplementalPublicKeys.vrf().set(vrfPublicKeys[i]);
+				accountState.SupplementalPublicKeys.voting().set(votingPublicKeys[i]);
 				accountState.Balances.credit(Harvesting_Mosaic_Id, balances[i]);
 			}
 
@@ -214,20 +214,20 @@ namespace catapult { namespace cache {
 					addresses = AddAccountsWithBalances(delta, balances, vrfPublicKeys, votingPublicKeys);
 					delta.updateHighValueAccounts(Height(3));
 
-					// - change the first account balance
+					// - change the first account's balance
 					// - this shows (a) balance and key histories are independent (b) deep balance history is stored
 					delta.find(addresses.front()).get().Balances.credit(Harvesting_Mosaic_Id, Amount(100'000));
 					delta.updateHighValueAccounts(Height(4));
 
-					// - change the last account keys
+					// - change the last account's supplemental public keys
 					// - this shows (a) balance and key histories are independent (b) deep key history is stored
 					{
-						auto& accountKeys = delta.find(addresses.back()).get().SupplementalAccountKeys;
-						accountKeys.vrfPublicKey().unset();
-						accountKeys.vrfPublicKey().set(vrfPublicKeys.back());
+						auto& accountPublicKeys = delta.find(addresses.back()).get().SupplementalPublicKeys;
+						accountPublicKeys.vrf().unset();
+						accountPublicKeys.vrf().set(vrfPublicKeys.back());
 
-						accountKeys.votingPublicKey().unset();
-						accountKeys.votingPublicKey().set(votingPublicKeys.back());
+						accountPublicKeys.voting().unset();
+						accountPublicKeys.voting().set(votingPublicKeys.back());
 					}
 
 					delta.updateHighValueAccounts(Height(5));

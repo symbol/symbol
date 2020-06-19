@@ -105,10 +105,10 @@ namespace catapult { namespace observers {
 			auto mainAccountPublicKey = mainAccountState.PublicKey;
 			auto linkedPublicKey = remoteAccountState.PublicKey;
 
-			mainAccountState.SupplementalAccountKeys.linkedPublicKey().set(linkedPublicKey);
+			mainAccountState.SupplementalPublicKeys.linked().set(linkedPublicKey);
 			mainAccountState.AccountType = state::AccountType::Main;
 
-			remoteAccountState.SupplementalAccountKeys.linkedPublicKey().set(mainAccountPublicKey);
+			remoteAccountState.SupplementalPublicKeys.linked().set(mainAccountPublicKey);
 			remoteAccountState.AccountType = state::AccountType::Remote;
 
 			auto notification = model::RemoteAccountKeyLinkNotification(mainAccountPublicKey, linkedPublicKey, TTraits::Remove_Link);

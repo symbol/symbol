@@ -40,8 +40,8 @@ namespace catapult { namespace test {
 	/// Creates \a count account states with successive public keys starting at \c 1.
 	AccountStates CreateAccountStates(size_t count);
 
-	/// Sets all supplemental account keys specified in \a mask to random values in \a accountState.
-	void SetRandomSupplementalAccountKeys(state::AccountState& accountState, state::AccountKeys::KeyType mask);
+	/// Sets all supplemental public keys specified in \a mask to random values in \a accountState.
+	void SetRandomSupplementalPublicKeys(state::AccountState& accountState, state::AccountPublicKeys::KeyType mask);
 
 	/// Forcibly clears and sets linked public key in \a accountState to \a linkedPublicKey.
 	void ForceSetLinkedPublicKey(state::AccountState& accountState, const Key& linkedPublicKey);

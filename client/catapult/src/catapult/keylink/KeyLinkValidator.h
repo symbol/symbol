@@ -37,12 +37,12 @@ namespace catapult { namespace keylink {
 			auto accountStateIter = cache.find(notification.MainAccountPublicKey);
 			const auto& accountState = accountStateIter.get();
 
-			const auto& keyAccessor = TAccessor::Get(accountState);
+			const auto& publicKeyAccessor = TAccessor::Get(accountState);
 			if (model::LinkAction::Link == notification.LinkAction) {
-				if (keyAccessor)
+				if (publicKeyAccessor)
 					return TAccessor::Failure_Link_Already_Exists;
 			} else {
-				if (!keyAccessor || notification.LinkedPublicKey != keyAccessor.get())
+				if (!publicKeyAccessor || notification.LinkedPublicKey != publicKeyAccessor.get())
 					return TAccessor::Failure_Inconsistent_Unlink_Data;
 			}
 

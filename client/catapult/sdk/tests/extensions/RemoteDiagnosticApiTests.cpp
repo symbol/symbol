@@ -229,10 +229,10 @@ namespace catapult { namespace extensions {
 				EXPECT_TRUE(ionet::IsPacketValid(packet, Packet_Type));
 			}
 
-			static void ValidateResponse(const ionet::Packet&, const model::EntityRange<Key>& unlockedAccountKeys) {
-				ASSERT_EQ(static_cast<uint32_t>(Num_Unlocked_Accounts), unlockedAccountKeys.size());
+			static void ValidateResponse(const ionet::Packet&, const model::EntityRange<Key>& unlockedAccountPublicKeys) {
+				ASSERT_EQ(static_cast<uint32_t>(Num_Unlocked_Accounts), unlockedAccountPublicKeys.size());
 
-				auto iter = unlockedAccountKeys.cbegin();
+				auto iter = unlockedAccountPublicKeys.cbegin();
 				AssertKey(0x11, *iter);
 
 				++iter;

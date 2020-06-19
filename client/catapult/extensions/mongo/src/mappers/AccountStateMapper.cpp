@@ -31,46 +31,47 @@ namespace catapult { namespace mongo { namespace mappers {
 		template<typename TAccountPublicKey>
 		void StreamPublicKey(
 				bson_stream::array_context& context,
-				state::AccountKeys::KeyType mask,
-				state::AccountKeys::KeyType keyType,
-				const state::AccountKeys::KeyAccessor<TAccountPublicKey>& keyAccessor) {
+				state::AccountPublicKeys::KeyType mask,
+				state::AccountPublicKeys::KeyType keyType,
+				const state::AccountPublicKeys::PublicKeyAccessor<TAccountPublicKey>& publicKeyAccessor) {
 			if (!HasFlag(keyType, mask))
 				return;
 
 			context
 					<< bson_stream::open_document
 						<< "keyType" << utils::to_underlying_type(keyType)
-						<< "key" << ToBinary(keyAccessor.get())
+						<< "key" << ToBinary(publicKeyAccessor.get())
 					<< bson_stream::close_document;
 		}
 
 		template<>
 		void StreamPublicKey(
 				bson_stream::array_context& context,
-				state::AccountKeys::KeyType mask,
-				state::AccountKeys::KeyType keyType,
-				const state::AccountKeys::KeyAccessor<PinnedVotingKey>& keyAccessor) {
+				state::AccountPublicKeys::KeyType mask,
+				state::AccountPublicKeys::KeyType keyType,
+				const state::AccountPublicKeys::PublicKeyAccessor<PinnedVotingKey>& publicKeyAccessor) {
 			if (!HasFlag(keyType, mask))
 				return;
 
 			context
 					<< bson_stream::open_document
 						<< "keyType" << utils::to_underlying_type(keyType)
-						<< "key" << ToBinary(keyAccessor.get().VotingKey)
-						<< "startPoint" << ToInt64(keyAccessor.get().StartPoint)
-						<< "endPoint" << ToInt64(keyAccessor.get().EndPoint)
+						<< "key" << ToBinary(publicKeyAccessor.get().VotingKey)
+						<< "startPoint" << ToInt64(publicKeyAccessor.get().StartPoint)
+						<< "endPoint" << ToInt64(publicKeyAccessor.get().EndPoint)
 					<< bson_stream::close_document;
 		}
 
-		void StreamAccountKeys(bson_stream::document& builder, const state::AccountKeys& accountKeys) {
-			auto keysArray = builder << "supplementalAccountKeys" << bson_stream::open_array;
+		void StreamAccountPublicKeys(bson_stream::document& builder, const state::AccountPublicKeys& accountPublicKeys) {
+			auto publicKeysArray = builder << "supplementalPublicKeys" << bson_stream::open_array;
 
-			StreamPublicKey(keysArray, accountKeys.mask(), state::AccountKeys::KeyType::Linked, accountKeys.linkedPublicKey());
-			StreamPublicKey(keysArray, accountKeys.mask(), state::AccountKeys::KeyType::VRF, accountKeys.vrfPublicKey());
-			StreamPublicKey(keysArray, accountKeys.mask(), state::AccountKeys::KeyType::Voting, accountKeys.votingPublicKey());
-			StreamPublicKey(keysArray, accountKeys.mask(), state::AccountKeys::KeyType::Node, accountKeys.nodePublicKey());
+			auto mask = accountPublicKeys.mask();
+			StreamPublicKey(publicKeysArray, mask, state::AccountPublicKeys::KeyType::Linked, accountPublicKeys.linked());
+			StreamPublicKey(publicKeysArray, mask, state::AccountPublicKeys::KeyType::Node, accountPublicKeys.node());
+			StreamPublicKey(publicKeysArray, mask, state::AccountPublicKeys::KeyType::VRF, accountPublicKeys.vrf());
+			StreamPublicKey(publicKeysArray, mask, state::AccountPublicKeys::KeyType::Voting, accountPublicKeys.voting());
 
-			keysArray << bson_stream::close_array;
+			publicKeysArray << bson_stream::close_array;
 		}
 
 		void StreamAccountImportanceSnapshots(bson_stream::document& builder, const state::AccountImportanceSnapshots& snapshots) {
@@ -126,7 +127,7 @@ namespace catapult { namespace mongo { namespace mappers {
 					<< "publicKeyHeight" << ToInt64(accountState.PublicKeyHeight)
 					<< "accountType" << utils::to_underlying_type(accountState.AccountType);
 
-		StreamAccountKeys(builder, accountState.SupplementalAccountKeys);
+		StreamAccountPublicKeys(builder, accountState.SupplementalPublicKeys);
 		StreamAccountImportanceSnapshots(builder, accountState.ImportanceSnapshots);
 		StreamAccountActivityBuckets(builder, accountState.ActivityBuckets);
 		StreamAccountBalances(builder, accountState.Balances);

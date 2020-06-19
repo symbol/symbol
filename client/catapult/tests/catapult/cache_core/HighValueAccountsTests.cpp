@@ -174,7 +174,7 @@ namespace catapult { namespace cache {
 		void AddAccountsWithBalances(MemorySetType& set, const std::vector<Address>& addresses, const std::vector<Amount>& balances) {
 			for (auto i = 0u; i < balances.size(); ++i) {
 				auto accountState = state::AccountState(addresses[i], Height(1));
-				accountState.SupplementalAccountKeys.votingPublicKey().set(test::GenerateRandomPackedStruct<PinnedVotingKey>());
+				accountState.SupplementalPublicKeys.voting().set(test::GenerateRandomPackedStruct<PinnedVotingKey>());
 				accountState.Balances.credit(Harvesting_Mosaic_Id, balances[i]);
 				set.emplace(accountState.Address, accountState);
 			}
@@ -674,7 +674,7 @@ namespace catapult { namespace cache {
 		auto addedAddresses = AddAccountsWithBalances(deltas.Added, { Amount(2'100'000), Amount(2'200'000), Amount(2'300'000) });
 
 		// - clear second account voting public key
-		deltas.Added.find(addedAddresses[1])->second.SupplementalAccountKeys.votingPublicKey().unset();
+		deltas.Added.find(addedAddresses[1])->second.SupplementalPublicKeys.voting().unset();
 
 		auto accounts = CreateAccounts({});
 		HighValueAccountsUpdater updater(CreateOptions(), accounts);
@@ -702,7 +702,7 @@ namespace catapult { namespace cache {
 		auto addedAddresses = AddAccountsWithBalances(deltas.Added, { Amount(2'100'000), Amount(2'200'000), Amount(2'300'000) });
 
 		// - clear second account voting public key
-		deltas.Added.find(addedAddresses[1])->second.SupplementalAccountKeys.votingPublicKey().unset();
+		deltas.Added.find(addedAddresses[1])->second.SupplementalPublicKeys.voting().unset();
 
 		auto accounts = CreateAccounts({});
 		HighValueAccountsUpdater updater(CreateOptions(), accounts);
@@ -713,13 +713,13 @@ namespace catapult { namespace cache {
 
 		// - set second account voting public key
 		auto newVotingPublicKey = test::GenerateRandomPackedStruct<PinnedVotingKey>();
-		deltas.Added.find(addedAddresses[1])->second.SupplementalAccountKeys.votingPublicKey().set(newVotingPublicKey);
+		deltas.Added.find(addedAddresses[1])->second.SupplementalPublicKeys.voting().set(newVotingPublicKey);
 
 		updater.setHeight(Height(4));
 		updater.update(deltas.deltas());
 
 		// - clear second account voting public key
-		deltas.Added.find(addedAddresses[1])->second.SupplementalAccountKeys.votingPublicKey().unset();
+		deltas.Added.find(addedAddresses[1])->second.SupplementalPublicKeys.voting().unset();
 
 		updater.setHeight(Height(5));
 		updater.update(deltas.deltas());
@@ -748,9 +748,9 @@ namespace catapult { namespace cache {
 				const test::DeltaElementsTestUtils::Wrapper<MemorySetType>& deltas,
 				Height height) {
 			for (auto& accountHistoryPair : accountHistories) {
-				const auto& accountKeys = deltas.Added.find(accountHistoryPair.first)->second.SupplementalAccountKeys;
-				accountHistoryPair.second.add(height, accountKeys.vrfPublicKey().get());
-				accountHistoryPair.second.add(height, accountKeys.votingPublicKey().get());
+				const auto& accountPublicKeys = deltas.Added.find(accountHistoryPair.first)->second.SupplementalPublicKeys;
+				accountHistoryPair.second.add(height, accountPublicKeys.vrf().get());
+				accountHistoryPair.second.add(height, accountPublicKeys.voting().get());
 			}
 		}
 	}
@@ -760,7 +760,7 @@ namespace catapult { namespace cache {
 		test::DeltaElementsTestUtils::Wrapper<MemorySetType> deltas;
 		auto addedAddresses = AddAccountsWithBalances(deltas.Added, { Amount(2'100'000), Amount(2'200'000), Amount(2'300'000) });
 		for (const auto& address : addedAddresses)
-			deltas.Added.find(address)->second.SupplementalAccountKeys.vrfPublicKey().set(test::GenerateRandomByteArray<Key>());
+			deltas.Added.find(address)->second.SupplementalPublicKeys.vrf().set(test::GenerateRandomByteArray<Key>());
 
 		auto accounts = CreateAccounts({});
 		HighValueAccountsUpdater updater(CreateOptions(), accounts);
@@ -773,7 +773,7 @@ namespace catapult { namespace cache {
 		Key originalVrfPublicKey;
 		auto newVrfPublicKey = test::GenerateRandomByteArray<Key>();
 		{
-			auto& vrfPublicKeyAccessor = deltas.Added.find(addedAddresses[1])->second.SupplementalAccountKeys.vrfPublicKey();
+			auto& vrfPublicKeyAccessor = deltas.Added.find(addedAddresses[1])->second.SupplementalPublicKeys.vrf();
 			originalVrfPublicKey = vrfPublicKeyAccessor.get();
 			vrfPublicKeyAccessor.unset();
 			vrfPublicKeyAccessor.set(newVrfPublicKey);
@@ -815,7 +815,7 @@ namespace catapult { namespace cache {
 		PinnedVotingKey originalVotingPublicKey;
 		auto newVotingPublicKey = test::GenerateRandomPackedStruct<PinnedVotingKey>();
 		{
-			auto& votingPublicKeyAccessor = deltas.Added.find(addedAddresses[1])->second.SupplementalAccountKeys.votingPublicKey();
+			auto& votingPublicKeyAccessor = deltas.Added.find(addedAddresses[1])->second.SupplementalPublicKeys.voting();
 			originalVotingPublicKey = votingPublicKeyAccessor.get();
 			votingPublicKeyAccessor.unset();
 			votingPublicKeyAccessor.set(newVotingPublicKey);

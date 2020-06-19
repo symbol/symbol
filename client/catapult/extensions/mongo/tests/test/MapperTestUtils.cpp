@@ -140,8 +140,8 @@ namespace catapult { namespace test {
 	}
 
 	namespace {
-		void Advance(state::AccountKeys::KeyType& keyType) {
-			keyType = static_cast<state::AccountKeys::KeyType>(utils::to_underlying_type(keyType) << 1);
+		void Advance(state::AccountPublicKeys::KeyType& keyType) {
+			keyType = static_cast<state::AccountPublicKeys::KeyType>(utils::to_underlying_type(keyType) << 1);
 		}
 
 		void AssertEqualPinnedVotingKey(const PinnedVotingKey& votingKey, const bsoncxx::document::view& accountKeyView) {
@@ -150,30 +150,34 @@ namespace catapult { namespace test {
 			EXPECT_EQ(votingKey.EndPoint, FinalizationPoint(GetUint64(accountKeyView, "endPoint")));
 		}
 
-		void AssertEqualAccountKeys(const state::AccountKeys& accountKeys, const bsoncxx::document::view& dbAccountKeys) {
-			auto dbIter = dbAccountKeys.cbegin();
-			for (auto keyType = state::AccountKeys::KeyType::Linked; keyType <= state::AccountKeys::KeyType::All; Advance(keyType)) {
-				if (!HasFlag(keyType, accountKeys.mask()))
+		void AssertEqualAccountPublicKeys(
+				const state::AccountPublicKeys& accountPublicKeys,
+				const bsoncxx::document::view& dbAccountPublicKeys) {
+			using KeyType = state::AccountPublicKeys::KeyType;
+
+			auto dbIter = dbAccountPublicKeys.cbegin();
+			for (auto keyType = KeyType::Linked; keyType <= KeyType::All; Advance(keyType)) {
+				if (!HasFlag(keyType, accountPublicKeys.mask()))
 					continue;
 
 				auto accountKeyDocument = dbIter->get_document();
-				EXPECT_EQ(keyType, static_cast<state::AccountKeys::KeyType>(GetUint32(accountKeyDocument.view(), "keyType")));
+				EXPECT_EQ(keyType, static_cast<KeyType>(GetUint32(accountKeyDocument.view(), "keyType")));
 
 				switch (keyType) {
-				case state::AccountKeys::KeyType::Linked:
-					EXPECT_EQ(accountKeys.linkedPublicKey().get(), GetKeyValue(accountKeyDocument.view(), "key"));
+				case KeyType::Linked:
+					EXPECT_EQ(accountPublicKeys.linked().get(), GetKeyValue(accountKeyDocument.view(), "key"));
 					break;
 
-				case state::AccountKeys::KeyType::VRF:
-					EXPECT_EQ(accountKeys.vrfPublicKey().get(), GetKeyValue(accountKeyDocument.view(), "key"));
+				case KeyType::Node:
+					EXPECT_EQ(accountPublicKeys.node().get(), GetKeyValue(accountKeyDocument.view(), "key"));
 					break;
 
-				case state::AccountKeys::KeyType::Voting:
-					AssertEqualPinnedVotingKey(accountKeys.votingPublicKey().get(), accountKeyDocument.view());
+				case KeyType::VRF:
+					EXPECT_EQ(accountPublicKeys.vrf().get(), GetKeyValue(accountKeyDocument.view(), "key"));
 					break;
 
-				case state::AccountKeys::KeyType::Node:
-					EXPECT_EQ(accountKeys.nodePublicKey().get(), GetKeyValue(accountKeyDocument.view(), "key"));
+				case KeyType::Voting:
+					AssertEqualPinnedVotingKey(accountPublicKeys.voting().get(), accountKeyDocument.view());
 					break;
 
 				default:
@@ -184,7 +188,7 @@ namespace catapult { namespace test {
 				++dbIter;
 			}
 
-			EXPECT_EQ(dbAccountKeys.cend(), dbIter);
+			EXPECT_EQ(dbAccountPublicKeys.cend(), dbIter);
 		}
 
 		void AssertEqualAccountImportanceSnapshots(
@@ -236,7 +240,7 @@ namespace catapult { namespace test {
 
 		EXPECT_EQ(accountState.AccountType, static_cast<state::AccountType>(GetInt32(dbAccount, "accountType")));
 
-		AssertEqualAccountKeys(accountState.SupplementalAccountKeys, dbAccount["supplementalAccountKeys"].get_array().value);
+		AssertEqualAccountPublicKeys(accountState.SupplementalPublicKeys, dbAccount["supplementalPublicKeys"].get_array().value);
 		AssertEqualAccountImportanceSnapshots(accountState.ImportanceSnapshots, dbAccount["importances"].get_array().value);
 		AssertEqualAccountActivityBuckets(accountState.ActivityBuckets, dbAccount["activityBuckets"].get_array().value);
 

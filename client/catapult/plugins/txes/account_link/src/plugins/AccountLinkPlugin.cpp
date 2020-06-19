@@ -36,7 +36,7 @@ namespace catapult { namespace plugins {
 
 			template<typename TAccountState>
 			static auto& Get(TAccountState& accountState) {
-				return accountState.SupplementalAccountKeys.nodePublicKey();
+				return accountState.SupplementalPublicKeys.node();
 			}
 		};
 	}

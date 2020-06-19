@@ -33,11 +33,11 @@ namespace catapult { namespace keylink {
 			auto accountStateIter = cache.find(notification.MainAccountPublicKey);
 			auto& accountState = accountStateIter.get();
 
-			auto& keyAccessor = TAccessor::Get(accountState);
+			auto& publicKeyAccessor = TAccessor::Get(accountState);
 			if (observers::ShouldLink(notification.LinkAction, context.Mode))
-				keyAccessor.set(notification.LinkedPublicKey);
+				publicKeyAccessor.set(notification.LinkedPublicKey);
 			else
-				keyAccessor.unset();
+				publicKeyAccessor.unset();
 		});
 	}
 }}

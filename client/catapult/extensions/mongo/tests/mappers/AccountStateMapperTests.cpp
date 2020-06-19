@@ -37,7 +37,7 @@ namespace catapult { namespace mongo { namespace mappers {
 		auto CreateAccountState(
 				Height publicKeyHeight,
 				std::initializer_list<model::Mosaic> mosaics,
-				state::AccountKeys::KeyType supplementalAccountKeysMask) {
+				state::AccountPublicKeys::KeyType accountPublicKeysMask) {
 			state::AccountState accountState(test::GenerateRandomAddress(), Height(123));
 			if (Height(0) != publicKeyHeight) {
 				accountState.PublicKeyHeight = publicKeyHeight;
@@ -45,7 +45,7 @@ namespace catapult { namespace mongo { namespace mappers {
 			}
 
 			accountState.AccountType = static_cast<state::AccountType>(34);
-			test::SetRandomSupplementalAccountKeys(accountState, supplementalAccountKeysMask);
+			test::SetRandomSupplementalPublicKeys(accountState, accountPublicKeysMask);
 
 			auto numImportanceSnapshots = 1u + test::Random() % Importance_History_Size;
 			for (auto i = 0u; i < numImportanceSnapshots; ++i)
@@ -69,9 +69,9 @@ namespace catapult { namespace mongo { namespace mappers {
 		void AssertCanMapAccountState(
 				Height publicKeyHeight,
 				std::initializer_list<model::Mosaic> mosaics,
-				state::AccountKeys::KeyType supplementalAccountKeysMask = state::AccountKeys::KeyType::Unset) {
+				state::AccountPublicKeys::KeyType accountPublicKeysMask = state::AccountPublicKeys::KeyType::Unset) {
 			// Arrange:
-			auto accountState = CreateAccountState(publicKeyHeight, mosaics, supplementalAccountKeysMask);
+			auto accountState = CreateAccountState(publicKeyHeight, mosaics, accountPublicKeysMask);
 
 			// Act:
 			auto dbAccount = ToDbModel(accountState);
@@ -114,15 +114,15 @@ namespace catapult { namespace mongo { namespace mappers {
 				{ { MosaicId(1234), Amount(234) }, { MosaicId(1357), Amount(345) }, { MosaicId(31), Amount(45) } });
 	}
 
-	TEST(TEST_CLASS, CanMapAccountStateWithoutSupplementalAccountKeys) {
+	TEST(TEST_CLASS, CanMapAccountStateWithoutSupplementalPublicKeys) {
 		// Arrange:
-		std::vector<state::AccountKeys::KeyType> keyTypeMasks{
-			state::AccountKeys::KeyType::Linked,
-			state::AccountKeys::KeyType::VRF,
-			state::AccountKeys::KeyType::Voting,
-			state::AccountKeys::KeyType::Node,
-			state::AccountKeys::KeyType::Linked | state::AccountKeys::KeyType::Voting,
-			state::AccountKeys::KeyType::All
+		std::vector<state::AccountPublicKeys::KeyType> keyTypeMasks{
+			state::AccountPublicKeys::KeyType::Linked,
+			state::AccountPublicKeys::KeyType::Node,
+			state::AccountPublicKeys::KeyType::VRF,
+			state::AccountPublicKeys::KeyType::Voting,
+			state::AccountPublicKeys::KeyType::Linked | state::AccountPublicKeys::KeyType::Voting,
+			state::AccountPublicKeys::KeyType::All
 		};
 
 		// Act + Assert:

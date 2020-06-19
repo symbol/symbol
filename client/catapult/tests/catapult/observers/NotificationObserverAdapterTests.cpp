@@ -87,10 +87,10 @@ namespace catapult { namespace observers {
 			};
 			EXPECT_EQ(expectedNotificationTypes, observer.notificationTypes());
 
-			// - spot check the account keys as a proxy for verifying data integrity
-			ASSERT_EQ(2u, observer.accountKeys().size());
-			EXPECT_EQ(pTransaction->SignerPublicKey, observer.accountKeys()[0]);
-			EXPECT_EQ(pTransaction->RecipientPublicKey, observer.accountKeys()[1]);
+			// - spot check the account public keys as a proxy for verifying data integrity
+			ASSERT_EQ(2u, observer.accountPublicKeys().size());
+			EXPECT_EQ(pTransaction->SignerPublicKey, observer.accountPublicKeys()[0]);
+			EXPECT_EQ(pTransaction->RecipientPublicKey, observer.accountPublicKeys()[1]);
 		});
 	}
 

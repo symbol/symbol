@@ -26,12 +26,12 @@ namespace catapult { namespace observers {
 
 	namespace {
 		void ClearLink(state::AccountState& accountState, state::AccountType accountType) {
-			accountState.SupplementalAccountKeys.linkedPublicKey().unset();
+			accountState.SupplementalPublicKeys.linked().unset();
 			accountState.AccountType = accountType;
 		}
 
 		void SetLink(state::AccountState& accountState, const Key& linkedPublicKey, state::AccountType accountType) {
-			accountState.SupplementalAccountKeys.linkedPublicKey().set(linkedPublicKey);
+			accountState.SupplementalPublicKeys.linked().set(linkedPublicKey);
 			accountState.AccountType = accountType;
 		}
 	}

@@ -401,7 +401,7 @@ class TypoChecker(SimpleValidator):
             re.compile(r'\S \(\)[^>]'): 'remove space before ()',
             re.compile(r'(etwork|ccount)Ids?\d*\b'): 'use Identifier instead of Id',
             re.compile(r'typename T?AccountKey'): 'use TAccountIdentifier',
-            re.compile(r'ccountKey\b'): 'qualify with public or private',
+            re.compile(r'ccountKeys?\b|ccount keys'): 'qualify with public or private',
             re.compile(r'shared_ptr<(thread::)?IoThreadPool'): 'use unique_ptr instead'
         }
 

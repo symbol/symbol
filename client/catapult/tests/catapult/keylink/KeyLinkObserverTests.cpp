@@ -35,7 +35,7 @@ namespace catapult { namespace keylink {
 
 		struct Accessor {
 			static auto& Get(state::AccountState& accountState) {
-				return accountState.SupplementalAccountKeys.linkedPublicKey();
+				return accountState.SupplementalPublicKeys.linked();
 			}
 		};
 

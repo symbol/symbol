@@ -282,10 +282,10 @@ namespace catapult { namespace consumers {
 					accountStateCacheDelta.addAccount(mainPublicKey, remoteAccountStateIter.get().AddressHeight);
 					auto mainAccountStateIter = accountStateCacheDelta.find(mainPublicKey);
 
-					remoteAccountStateIter.get().SupplementalAccountKeys.linkedPublicKey().set(mainPublicKey);
+					remoteAccountStateIter.get().SupplementalPublicKeys.linked().set(mainPublicKey);
 					remoteAccountStateIter.get().AccountType = state::AccountType::Remote;
 
-					mainAccountStateIter.get().SupplementalAccountKeys.linkedPublicKey().set(signerPublicKey);
+					mainAccountStateIter.get().SupplementalPublicKeys.linked().set(signerPublicKey);
 					mainAccountStateIter.get().AccountType = state::AccountType::Main;
 				}
 
@@ -295,7 +295,7 @@ namespace catapult { namespace consumers {
 					auto vrfPublicKey = PrepareAccountMode::Wrong_Vrf_Public_Key < prepareAccountMode
 							? vrfKeyPair.publicKey()
 							: test::GenerateRandomByteArray<Key>();
-					accountStateIter.get().SupplementalAccountKeys.vrfPublicKey().set(vrfPublicKey);
+					accountStateIter.get().SupplementalPublicKeys.vrf().set(vrfPublicKey);
 				}
 
 				return vrfKeyPair;
