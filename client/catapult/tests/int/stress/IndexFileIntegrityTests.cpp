@@ -29,7 +29,12 @@ namespace catapult { namespace io {
 
 	namespace {
 		uint64_t GetNumIterations() {
-			return test::GetStressIterationCount() ? 5'000 : 500;
+			return test::GetStressIterationCount() ? 15'000 : 1'500;
+		}
+
+		uint64_t ReadIndexFileValue(const std::string& indexFilename) {
+			IndexFile indexFile(indexFilename, LockMode::None);
+			return indexFile.get();
 		}
 
 		void AssertMixedOperationsDoNotCauseCrash(const consumer<IndexFile&, uint64_t>& operation) {
@@ -46,22 +51,19 @@ namespace catapult { namespace io {
 			threads.create_thread([&tempFile, operation] {
 				for (auto i = 0u; i < GetNumIterations(); ++i) {
 					IndexFile indexFile(tempFile.name(), LockMode::None);
-					operation(indexFile, i);
+					operation(indexFile, i + 1);
 				}
 			});
 
 			// - reader thread
-			uint64_t sum = 0;
 			uint64_t lastValue = 0;
 			bool isAnyDecreasing = false;
-			threads.create_thread([&tempFile, &sum, &lastValue, &isAnyDecreasing] {
+			threads.create_thread([&tempFile, &lastValue, &isAnyDecreasing] {
 				for (auto i = 0u; i < GetNumIterations(); ++i) {
-					IndexFile indexFile(tempFile.name(), LockMode::None);
-					auto value = indexFile.get();
+					auto value = ReadIndexFileValue(tempFile.name());
 					if (lastValue > value)
 						isAnyDecreasing = true;
 
-					sum += value;
 					lastValue = value;
 				}
 			});
@@ -71,7 +73,7 @@ namespace catapult { namespace io {
 
 			// Assert:
 			EXPECT_FALSE(isAnyDecreasing);
-			EXPECT_LE(GetNumIterations(), sum);
+			EXPECT_LE(GetNumIterations(), ReadIndexFileValue(tempFile.name()));
 		}
 	}
 
