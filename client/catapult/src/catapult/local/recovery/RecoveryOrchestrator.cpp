@@ -27,6 +27,7 @@
 #include "StateChangeRepairingSubscriber.h"
 #include "StorageStart.h"
 #include "catapult/cache/ReadOnlyCatapultCache.h"
+#include "catapult/cache_core/BlockStatisticCache.h"
 #include "catapult/chain/BlockExecutor.h"
 #include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/extensions/LocalNodeChainScore.h"
@@ -238,6 +239,13 @@ namespace catapult { namespace local {
 						m_pluginManager.createNotificationPublisher());
 				chain::BlockExecutionContext executionContext{ observer, resolverContext, observerState };
 
+				// reapplyBlocks is only called when EnableVerifiableState is true.
+				// non rocksdb backed caches (e.g. BlockStatisticCache) are loaded initially from "state" directory
+				// but are not updated / reloaded after copying "state.tmp" to "state".
+				// of these, only BlockStatisticCache is problematic because it has strict bounds checking.
+				// as a workaround, fill it with statistics up to the new chain height.
+				FillBlockStatisticCache(cacheDelta.sub<cache::BlockStatisticCache>(), chainHeight);
+
 				CATAPULT_LOG(debug) << " - rolling back blocks";
 				for (auto height = chainHeight; height >= startHeight; height = height - Height(1))
 					chain::RollbackBlock(*m_pBlockStorage->loadBlockElement(height), executionContext);
@@ -249,6 +257,17 @@ namespace catapult { namespace local {
 				}
 
 				stateRef().Cache.commit(chainHeight);
+			}
+
+		private:
+			static void FillBlockStatisticCache(cache::BlockStatisticCacheDelta& blockStatisticCacheDelta, Height newHeight) {
+				auto originalHeight = newHeight;
+				while (!blockStatisticCacheDelta.contains(state::BlockStatistic(originalHeight)))
+					originalHeight = originalHeight - Height(1);
+
+				// these statistics are placeholders and don't need to reflect the block exactly as long as the height is correct
+				for (auto height = originalHeight + Height(1); height <= newHeight; height = height + Height(1))
+					blockStatisticCacheDelta.insert(state::BlockStatistic(height));
 			}
 
 		public:

@@ -28,6 +28,7 @@
 #include "catapult/extensions/NemesisBlockLoader.h"
 #include "catapult/extensions/ProcessBootstrapper.h"
 #include "catapult/local/server/FileStateChangeStorage.h"
+#include "catapult/model/Address.h"
 #include "catapult/subscribers/SubscriberOperationTypes.h"
 #include "tests/catapult/local/recovery/test/FilechainTestUtils.h"
 #include "tests/test/core/BlockStorageTestUtils.h"
@@ -39,7 +40,10 @@
 #include "tests/test/local/LocalNodeTestState.h"
 #include "tests/test/local/LocalTestUtils.h"
 #include "tests/test/local/MessageIngestionTestContext.h"
+#include "tests/test/local/RealTransactionFactory.h"
 #include "tests/test/nemesis/NemesisCompatibleConfiguration.h"
+#include "tests/test/nodeps/MijinConstants.h"
+#include "tests/test/nodeps/TestConstants.h"
 #include "tests/test/other/mocks/MockBlockChangeSubscriber.h"
 #include "tests/test/other/mocks/MockBlockHeightCapturingNotificationObserver.h"
 #include "tests/TestHarness.h"
@@ -167,6 +171,7 @@ namespace catapult { namespace local {
 					, m_cacheHeight(cacheHeight)
 					, m_enableBlockChangeSubscriber(false)
 					, m_enableBlockHeightsObserver(false)
+					, m_importanceGrouping(0)
 			{}
 
 		public:
@@ -176,6 +181,10 @@ namespace catapult { namespace local {
 
 			void enableBlockHeightsObserver() {
 				m_enableBlockHeightsObserver = true;
+			}
+
+			void setImportanceGrouping(uint64_t importanceGrouping) {
+				m_importanceGrouping = importanceGrouping;
 			}
 
 			bool commitStepFileExists() const {
@@ -220,6 +229,9 @@ namespace catapult { namespace local {
 				auto config = test::CreateCatapultConfigurationWithNemesisPluginExtensions(dataDirectory().rootDir().str());
 				if (m_useCacheDatabaseStorage) {
 					const_cast<model::BlockChainConfiguration&>(config.BlockChain).EnableVerifiableState = true;
+					if (0 != m_importanceGrouping)
+						const_cast<model::BlockChainConfiguration&>(config.BlockChain).ImportanceGrouping = m_importanceGrouping;
+
 					const_cast<config::NodeConfiguration&>(config.Node).EnableCacheDatabaseStorage = true;
 				}
 
@@ -283,6 +295,24 @@ namespace catapult { namespace local {
 				m_pRecoveryOrchestrator.reset();
 			}
 
+		public:
+			std::vector<std::pair<Hash256, bool>> searchAccountStateCachePatriciaTree(const std::vector<Hash256>& hashes) {
+				// 1. create an RDB container for accessing AccountStateCache::patricia_tree
+				auto database = cache::CacheDatabase(cache::CacheDatabaseSettings(
+						dataDirectory().dir("statedb").file("AccountStateCache"),
+						{ "default", "key_lookup", "patricia_tree" },
+						utils::FileSize::FromMegabytes(5),
+						cache::FilterPruningMode::Disabled));
+				auto container = cache::PatriciaTreeContainer(database, 2);
+
+				// 2. lookup all hashes
+				std::vector<std::pair<Hash256, bool>> resultPairs;
+				for (const auto& hash : hashes)
+					resultPairs.emplace_back(hash, container.cend() != container.find(hash));
+
+				return resultPairs;
+			}
+
 		private:
 			void prepareSavedStorage(const config::CatapultConfiguration& config) {
 				m_blockScores = PrepareRandomBlocks(dataDirectory().rootDir(), m_storageHeight.unwrap() - 1);
@@ -299,6 +329,8 @@ namespace catapult { namespace local {
 			Height m_cacheHeight;
 			bool m_enableBlockChangeSubscriber;
 			bool m_enableBlockHeightsObserver;
+			uint64_t m_importanceGrouping;
+
 			std::vector<uint64_t> m_blockScores;
 			std::vector<Height> m_blockHeights;
 			std::vector<state::CatapultState> m_blockStates;
@@ -465,42 +497,137 @@ namespace catapult { namespace local {
 	// region state recovery - blocks
 
 	namespace {
-		void SetStorageHeight(const std::string& directory, Height startHeight, Height endHeight) {
-			test::PrepareStorageWithoutNemesis(directory);
-			test::FakeHeight(directory, startHeight.unwrap());
+		class MoveBlocksTestPreparer {
+		private:
+			static constexpr auto Amount_Multiplier = 1000u;
 
-			io::FileBlockStorage storage(directory);
-			for (auto height = startHeight; height <= endHeight; height = height + Height(1)) {
-				// create empty blocks to simplify setup required for undo
-				auto pBlock = test::GenerateBlockWithTransactions(0, height);
-				pBlock->FeeMultiplier = BlockFeeMultiplier(0);
-				pBlock->BeneficiaryAddress = model::GetSignerAddress(*pBlock);
-				storage.saveBlock(test::BlockToBlockElement(*pBlock, test::GenerateRandomByteArray<Hash256>()));
+		public:
+			MoveBlocksTestPreparer(Height startHeight, Height endHeight)
+					: m_startHeight(startHeight)
+					, m_endHeight(endHeight)
+					// m_transactionSignerKeyPair needs to have a balance in the nemesis block because it makes a transfer in block 2
+					, m_transactionSignerKeyPair(crypto::KeyPair::FromString(test::Mijin_Test_Private_Keys[0]))
+					// m_transactionRecipientAddress and m_beneficiarySinkAddress are fixed accounts for easier debugging
+					, m_transactionRecipientAddress(model::StringToAddress("SDJKL7LWR4EKR3PFRHZJJ5FKSQJNGNO5GQFGJWY"))
+					, m_beneficiarySinkAddress(model::StringToAddress("SDIMYHBW6FKLYUKFALFFDHNQIFXCBZL2VRDBSAQ"))
+			{}
+
+		public:
+			void prepareBlockStorage(const std::string& directory) {
+				test::PrepareStorageWithoutNemesis(directory);
+				test::FakeHeight(directory, m_startHeight.unwrap());
+
+				io::FileBlockStorage storage(directory);
+				for (auto height = m_startHeight; height <= m_endHeight; height = height + Height(1)) {
+					auto pBlock = test::GenerateBlockWithTransactions(createTransactionsForBlock(height));
+					pBlock->SignerPublicKey = m_transactionSignerKeyPair.publicKey();
+					pBlock->Height = height;
+					pBlock->BeneficiaryAddress = m_beneficiarySinkAddress;
+					pBlock->FeeMultiplier = BlockFeeMultiplier(0);
+					storage.saveBlock(test::BlockToBlockElement(*pBlock, test::GenerateRandomByteArray<Hash256>()));
+				}
 			}
-		}
 
-		void PrepareStateChanges(const RecoveryOrchestratorTestContext& context, Height startHeight, Height endHeight) {
-			auto pPluginManager = test::CreatePluginManagerWithRealPlugins(context.createConfig());
-			auto catapultCache = pPluginManager->createCache();
-			auto cacheDelta = catapultCache.createDelta();
-
-			// 1. add all block signers to account state cache
-			io::FileBlockStorage blockStorage(context.spoolDir("block_sync").generic_string());
-			for (auto height = startHeight; height <= endHeight; height = height + Height(1)) {
-				auto pBlockElement = blockStorage.loadBlockElement(height);
-				cacheDelta.sub<cache::AccountStateCache>().addAccount(pBlockElement->Block.SignerPublicKey, height);
+		private:
+			test::ConstTransactions createTransactionsForBlock(Height height) {
+				test::ConstTransactions transactions;
+				transactions.push_back(test::CreateTransferTransaction(
+						m_transactionSignerKeyPair,
+						m_transactionRecipientAddress.copyTo<UnresolvedAddress>(),
+						Amount(Amount_Multiplier * height.unwrap())));
+				return transactions;
 			}
 
-			// 2. add statistics for all blocks
-			PopulateBlockStatisticCache(cacheDelta.sub<cache::BlockStatisticCache>(), startHeight, endHeight);
+		public:
+			void prepareStateChanges(const RecoveryOrchestratorTestContext& context) {
+				// 1. load the sender account state
+				auto senderAccountState = loadNemesisSenderAccountState(context);
 
-			// 3. save all changes to spool directory
-			auto pStateChangeStorage = CreateFileStateChangeStorage(
-					std::make_unique<io::FileQueueWriter>(context.spoolDir("state_change").generic_string(), "index_server.dat"),
-					[&catapultCache]() { return catapultCache.changesStorages(); });
-			io::IndexFile((context.spoolDir("state_change") / "index.dat").generic_string()).set(0);
-			pStateChangeStorage->notifyStateChange({ cache::CacheChanges(cacheDelta), model::ChainScore(100), endHeight });
-		}
+				// 2. create a representative catapult cache
+				auto pPluginManager = test::CreatePluginManagerWithRealPlugins(context.createConfig());
+
+				test::LocalNodeTestState state(pPluginManager->createCache());
+				auto cacheDelta = state.ref().Cache.createDelta();
+
+				// 3. update the caches
+				// - seed the sender account (this is the only nemesis account modified by this test and needs to be part of changes)
+				auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
+				accountStateCacheDelta.addAccount(senderAccountState);
+				prepareAccountStateCacheChanges(accountStateCacheDelta);
+
+				// - only add statistics for *original* blocks (pre application) in order to simulate the load from *original* state
+				PopulateBlockStatisticCache(cacheDelta.sub<cache::BlockStatisticCache>(), m_startHeight, m_startHeight);
+
+				// 4. save all changes to spool directory
+				auto pStateChangeStorage = CreateFileStateChangeStorage(
+						std::make_unique<io::FileQueueWriter>(context.spoolDir("state_change").generic_string(), "index_server.dat"),
+						[&catapultCache = state.ref().Cache]() { return catapultCache.changesStorages(); });
+				io::IndexFile((context.spoolDir("state_change") / "index.dat").generic_string()).set(0);
+				pStateChangeStorage->notifyStateChange({ cache::CacheChanges(cacheDelta), model::ChainScore(100), m_endHeight });
+			}
+
+			std::vector<Hash256> calculateAccountStateCacheHashes(const RecoveryOrchestratorTestContext& context) {
+				// 1. create a representative catapult cache
+				auto pPluginManager = test::CreatePluginManagerWithRealPlugins(context.createConfig());
+
+				test::LocalNodeTestState state(pPluginManager->createCache());
+				auto cacheDelta = state.ref().Cache.createDelta();
+
+				// 2. load the nemesis block (this is necessary in order to be able to correctly calculate the state hashes)
+				extensions::NemesisBlockLoader loader(cacheDelta, *pPluginManager, pPluginManager->createObserver());
+				loader.execute(state.ref(), extensions::StateHashVerification::Disabled);
+
+				// 3. calculated expected hashes
+				return prepareAccountStateCacheChanges(cacheDelta.sub<cache::AccountStateCache>());
+			}
+
+		private:
+			state::AccountState loadNemesisSenderAccountState(const RecoveryOrchestratorTestContext& context) {
+				// 1. create a representative catapult cache
+				auto pPluginManager = test::CreatePluginManagerWithRealPlugins(context.createConfig());
+
+				test::LocalNodeTestState state(pPluginManager->createCache());
+				auto cacheDelta = state.ref().Cache.createDelta();
+
+				// 2. load the nemesis block (this is necessary in order to be able to correctly calculate the state hashes)
+				extensions::NemesisBlockLoader loader(cacheDelta, *pPluginManager, pPluginManager->createObserver());
+				loader.execute(state.ref(), extensions::StateHashVerification::Disabled);
+
+				// 3. return sender account state
+				return cacheDelta.sub<cache::AccountStateCache>().find(m_transactionSignerKeyPair.publicKey()).get();
+			}
+
+			std::vector<Hash256> prepareAccountStateCacheChanges(cache::AccountStateCacheDelta& accountStateCacheDelta) {
+				// 1. save original state hash (pre application)
+				std::vector<Hash256> accountStateCacheHashes;
+				accountStateCacheHashes.push_back(accountStateCacheDelta.tryGetMerkleRoot().first);
+
+				// 2. add the well known addresses to the cache
+				accountStateCacheDelta.addAccount(m_transactionRecipientAddress, m_startHeight);
+				accountStateCacheDelta.addAccount(m_beneficiarySinkAddress, m_startHeight);
+
+				// 3. adjust expected balances, capturing state hashes for each new block
+				auto senderAccountStateIter = accountStateCacheDelta.find(m_transactionSignerKeyPair.publicKey());
+				auto recipientAccountStateIter = accountStateCacheDelta.find(m_transactionRecipientAddress);
+				for (auto height = m_startHeight; height <= m_endHeight; height = height + Height(1)) {
+					auto amount = Amount(Amount_Multiplier * height.unwrap());
+					senderAccountStateIter.get().Balances.debit(test::Default_Currency_Mosaic_Id, amount);
+					recipientAccountStateIter.get().Balances.credit(test::Default_Currency_Mosaic_Id, amount);
+
+					accountStateCacheDelta.updateMerkleRoot(height);
+					accountStateCacheHashes.push_back(accountStateCacheDelta.tryGetMerkleRoot().first);
+				}
+
+				return accountStateCacheHashes;
+			}
+
+		private:
+			Height m_startHeight;
+			Height m_endHeight;
+			crypto::KeyPair m_transactionSignerKeyPair;
+			Address m_transactionRecipientAddress;
+			Address m_beneficiarySinkAddress;
+		};
 
 		void PrepareSupplementalDataFile(const config::CatapultDirectory& directory) {
 			boost::filesystem::create_directories(directory.path());
@@ -509,21 +636,33 @@ namespace catapult { namespace local {
 					io::OpenMode::Read_Write));
 
 			cache::SupplementalData supplementalData;
+			supplementalData.State.LastRecalculationHeight = model::ImportanceHeight(1);
 			supplementalData.State.NumTotalTransactions = 998877;
 			cache::SaveSupplementalData(supplementalData, Height(), supplementalDataStream);
 		}
 
+		struct MoveBlocksTestResult {
+			std::vector<Height> BlockHeights;
+			std::vector<uint64_t> TransactionCounts;
+			std::vector<std::pair<Hash256, bool>> AccountStateCacheRootHashPairs;
+		};
+
 		auto RunCanMoveBlocksTest(consumers::CommitOperationStep commitStep, Height expectedHeight) {
 			// Arrange: seed nemesis block
+			// - don't allow importance recalculations within move blocks range in order to simplify independent state recalculation
+			// - for emphasis, this is not a source limitation but only a test simplification
 			RecoveryOrchestratorTestContext context;
 			context.enableBlockHeightsObserver();
+			context.setImportanceGrouping(10);
 			context.setCommitStepFile(commitStep);
 
-			// - seed four pending blocks
-			SetStorageHeight(context.spoolDir("block_sync").generic_string(), Height(2), Height(5));
+			// - seed six pending blocks with one transfer transaction each
+			MoveBlocksTestPreparer preparer(Height(2), Height(7));
+			preparer.prepareBlockStorage(context.spoolDir("block_sync").generic_string());
 
 			// - prepare cache state changes
-			PrepareStateChanges(context, Height(2), Height(5));
+			auto accountStateCacheHashes = preparer.calculateAccountStateCacheHashes(context);
+			preparer.prepareStateChanges(context);
 
 			// - prepare supplemental data
 			PrepareSupplementalDataFile(context.subDir("state.tmp"));
@@ -541,40 +680,73 @@ namespace catapult { namespace local {
 			EXPECT_EQ(0u, context.countMessageFiles("block_sync"));
 			EXPECT_EQ(expectedHeight, context.storageHeight());
 
-			// - catapult state is loaded from supplemental data (using NumTotalTransactions as sentinel)
-			// - first state corresponds to nemesis, which is processed *BEFORE* loading supplemental data
-			EXPECT_FALSE(context.blockStates().empty());
+			// - prepare result
+			MoveBlocksTestResult result;
+			result.BlockHeights = context.blockHeights();
 
-			auto i = 0u;
-			for (const auto& state : context.blockStates()) {
-				EXPECT_EQ(0 == i ? 0u : 998877u, state.NumTotalTransactions);
-				++i;
-			}
+			for (const auto& state : context.blockStates())
+				result.TransactionCounts.push_back(state.NumTotalTransactions);
 
-			return context.blockHeights();
+			// - destroy orchestrator to drop rocksdb cache lock and check existence of all historical AccountStateCache root hashes
+			context.reset();
+			result.AccountStateCacheRootHashPairs = context.searchAccountStateCachePatriciaTree(accountStateCacheHashes);
+			return result;
 		}
 	}
 
 	TEST(TEST_CLASS, BlocksAreMovedFromBlockSyncWhenStepIsStateWritten) {
 		// Act:
-		auto heights = RunCanMoveBlocksTest(consumers::CommitOperationStep::State_Written, Height(5));
+		auto result = RunCanMoveBlocksTest(consumers::CommitOperationStep::State_Written, Height(7));
 
 		// Assert: nemesis was executed and then all blocks were undone and reapplied
+		//        (this reapplication ensures consistent state trees at every height across all nodes)
 		auto expectedHeights = std::vector<Height>{
 			Height(1),
-			Height(5), Height(4), Height(3), Height(2),
-			Height(2), Height(3), Height(4), Height(5)
+			Height(7), Height(6), Height(5), Height(4), Height(3), Height(2),
+			Height(2), Height(3), Height(4), Height(5), Height(6), Height(7)
 		};
-		EXPECT_EQ(expectedHeights, heights);
+		EXPECT_EQ(expectedHeights, result.BlockHeights);
+
+		// - first state corresponds to nemesis, which is processed *BEFORE* loading supplemental data
+		// - catapult state is loaded from supplemental data (using NumTotalTransactions as sentinel)
+		auto expectedTransactionCounts = std::vector<uint64_t>{
+			0,
+			998876, 998875, 998874, 998873, 998872, 998871,
+			998871, 998872, 998873, 998874, 998875, 998876
+		};
+		EXPECT_EQ(expectedTransactionCounts, result.TransactionCounts);
+
+		// - check hashes
+		EXPECT_EQ(7u, result.AccountStateCacheRootHashPairs.size());
+		for (auto i = 0u; i < result.AccountStateCacheRootHashPairs.size(); ++i) {
+			const auto& pair = result.AccountStateCacheRootHashPairs[i];
+			EXPECT_TRUE(pair.second) << pair.first << " at " << i;
+		}
 	}
 
 	TEST(TEST_CLASS, BlocksAreNotMovedFromBlockSyncWhenStepIsBlocksWritten) {
 		// Act:
-		auto heights = RunCanMoveBlocksTest(consumers::CommitOperationStep::Blocks_Written, Height(1));
+		auto result = RunCanMoveBlocksTest(consumers::CommitOperationStep::Blocks_Written, Height(1));
 
 		// Assert: only nemesis was executed
 		auto expectedHeights = std::vector<Height>{ Height(1) };
-		EXPECT_EQ(expectedHeights, heights);
+		EXPECT_EQ(expectedHeights, result.BlockHeights);
+
+		// - first state corresponds to nemesis, which is processed *BEFORE* loading supplemental data
+		auto expectedTransactionCounts = std::vector<uint64_t>{ 0 };
+		EXPECT_EQ(expectedTransactionCounts, result.TransactionCounts);
+
+		// - check hashes (only first one, representing initial state, should be present in rocksdb)
+		EXPECT_EQ(7u, result.AccountStateCacheRootHashPairs.size());
+		{
+			const auto& pair = result.AccountStateCacheRootHashPairs[0];
+			EXPECT_TRUE(pair.second) << pair.first << " at " << 0;
+		}
+
+		for (auto i = 1u; i < result.AccountStateCacheRootHashPairs.size(); ++i) {
+			const auto& pair = result.AccountStateCacheRootHashPairs[i];
+			EXPECT_FALSE(pair.second) << pair.first << " at " << i;
+		}
 	}
 
 	// endregion
