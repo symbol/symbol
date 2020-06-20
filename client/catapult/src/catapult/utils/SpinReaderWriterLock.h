@@ -45,12 +45,47 @@ namespace catapult { namespace utils {
 		static constexpr uint16_t Pending_Writer_Increment = 0x0100;
 
 	private:
-#pragma push_macro("Yield")
-#undef Yield
-		static void Yield() {
-			std::this_thread::yield();
-		}
-#pragma pop_macro("Yield")
+		// region YieldStepper
+
+		class YieldStepper {
+		private:
+			static constexpr uint32_t MIN_WAIT = 0;
+			static constexpr uint32_t MAX_WAIT = 256;
+			static constexpr uint32_t NUM_ATTEMPTS_PER_WAIT = 100;
+			static constexpr uint32_t MULTIPLIER = 4;
+
+		public:
+			YieldStepper()
+					: m_waitMillis(MIN_WAIT)
+					, m_numRemaining(NUM_ATTEMPTS_PER_WAIT)
+			{}
+
+		public:
+			void yield() {
+				if (0 == m_waitMillis)
+					std::this_thread::yield();
+				else
+					std::this_thread::sleep_for(std::chrono::milliseconds(m_waitMillis));
+
+				if (0 == --m_numRemaining)
+					moveToNextWait();
+			}
+
+		private:
+			void moveToNextWait() {
+				m_numRemaining = NUM_ATTEMPTS_PER_WAIT;
+				if (MAX_WAIT <= m_waitMillis)
+					return;
+
+				m_waitMillis = 0 == m_waitMillis ? 1 : m_waitMillis * MULTIPLIER;
+			}
+
+		private:
+			uint32_t m_waitMillis;
+			uint32_t m_numRemaining;
+		};
+
+		// endregion
 
 	private:
 		// region LockGuard
@@ -191,11 +226,13 @@ namespace catapult { namespace utils {
 	public:
 		/// Blocks until a reader lock can be acquired.
 		inline ReaderLockGuard acquireReader() {
+			YieldStepper stepper;
+
 			uint16_t current = m_value;
 			for (;;) {
 				// wait for any pending writes to complete
 				if (0 != (current & Pending_Writer_Mask)) {
-					Yield();
+					stepper.yield();
 					current = m_value;
 					continue;
 				}
@@ -205,7 +242,7 @@ namespace catapult { namespace utils {
 				if (m_value.compare_exchange_strong(current, desired))
 					break;
 
-				Yield();
+				stepper.yield();
 			}
 
 			return ReaderLockGuard(m_value, *this);
@@ -223,10 +260,12 @@ namespace catapult { namespace utils {
 
 	private:
 		static void AcquireWriter(std::atomic<uint16_t>& value) {
+			YieldStepper stepper;
+
 			// wait for exclusive access (when there is no active writer and no readers)
 			uint16_t expected = value & Pending_Writer_Mask;
 			while (!value.compare_exchange_strong(expected, expected | Active_Writer_Flag)) {
-				Yield();
+				stepper.yield();
 				expected = value & Pending_Writer_Mask;
 			}
 		}
