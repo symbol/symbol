@@ -22,22 +22,24 @@
 
 namespace catapult { namespace state {
 
+#define PUBLIC_KEY_ACCESSOR_T AccountPublicKeys::PublicKeyAccessor<TAccountPublicKey>
+#define PUBLIC_KEYS_ACCESSOR_T AccountPublicKeys::PublicKeysAccessor<TPinnedAccountPublicKey>
+
 	// region PublicKeyAccessor
 
 	template<typename TAccountPublicKey>
-	AccountPublicKeys::PublicKeyAccessor<TAccountPublicKey>::PublicKeyAccessor() = default;
+	PUBLIC_KEY_ACCESSOR_T::PublicKeyAccessor() = default;
 
 	template<typename TAccountPublicKey>
-	AccountPublicKeys::PublicKeyAccessor<TAccountPublicKey>::PublicKeyAccessor(const PublicKeyAccessor& accessor) {
+	PUBLIC_KEY_ACCESSOR_T::PublicKeyAccessor(const PublicKeyAccessor& accessor) {
 		*this = accessor;
 	}
 
 	template<typename TAccountPublicKey>
-	AccountPublicKeys::PublicKeyAccessor<TAccountPublicKey>::PublicKeyAccessor(PublicKeyAccessor&&) = default;
+	PUBLIC_KEY_ACCESSOR_T::PublicKeyAccessor(PublicKeyAccessor&&) = default;
 
 	template<typename TAccountPublicKey>
-	AccountPublicKeys::PublicKeyAccessor<TAccountPublicKey>& AccountPublicKeys::PublicKeyAccessor<TAccountPublicKey>::operator=(
-			const PublicKeyAccessor& accessor) {
+	PUBLIC_KEY_ACCESSOR_T& PUBLIC_KEY_ACCESSOR_T::operator=(const PublicKeyAccessor& accessor) {
 		if (accessor.m_pKey)
 			m_pKey = std::make_shared<TAccountPublicKey>(*accessor.m_pKey);
 		else
@@ -47,21 +49,20 @@ namespace catapult { namespace state {
 	}
 
 	template<typename TAccountPublicKey>
-	AccountPublicKeys::PublicKeyAccessor<TAccountPublicKey>& AccountPublicKeys::PublicKeyAccessor<TAccountPublicKey>::operator=(
-			PublicKeyAccessor&&) = default;
+	PUBLIC_KEY_ACCESSOR_T& PUBLIC_KEY_ACCESSOR_T::operator=(PublicKeyAccessor&&) = default;
 
 	template<typename TAccountPublicKey>
-	AccountPublicKeys::PublicKeyAccessor<TAccountPublicKey>::operator bool() const {
+	PUBLIC_KEY_ACCESSOR_T::operator bool() const {
 		return m_pKey && TAccountPublicKey() != *m_pKey;
 	}
 
 	template<typename TAccountPublicKey>
-	TAccountPublicKey AccountPublicKeys::PublicKeyAccessor<TAccountPublicKey>::get() const {
+	TAccountPublicKey PUBLIC_KEY_ACCESSOR_T::get() const {
 		return m_pKey ? *m_pKey : TAccountPublicKey();
 	}
 
 	template<typename TAccountPublicKey>
-	void AccountPublicKeys::PublicKeyAccessor<TAccountPublicKey>::set(const TAccountPublicKey& key) {
+	void PUBLIC_KEY_ACCESSOR_T::set(const TAccountPublicKey& key) {
 		if (m_pKey)
 			CATAPULT_THROW_INVALID_ARGUMENT("must call unset before resetting key with value");
 
@@ -69,12 +70,111 @@ namespace catapult { namespace state {
 	}
 
 	template<typename TAccountPublicKey>
-	void AccountPublicKeys::PublicKeyAccessor<TAccountPublicKey>::unset() {
+	void PUBLIC_KEY_ACCESSOR_T::unset() {
 		m_pKey.reset();
 	}
 
 	template class AccountPublicKeys::PublicKeyAccessor<Key>;
 	template class AccountPublicKeys::PublicKeyAccessor<PinnedVotingKey>;
+
+	// endregion
+
+	// region PublicKeysAccessor
+
+	template<typename TPinnedAccountPublicKey>
+	PUBLIC_KEYS_ACCESSOR_T::PublicKeysAccessor() = default;
+
+	template<typename TPinnedAccountPublicKey>
+	PUBLIC_KEYS_ACCESSOR_T::PublicKeysAccessor(const PublicKeysAccessor& accessor) {
+		*this = accessor;
+	}
+
+	template<typename TPinnedAccountPublicKey>
+	PUBLIC_KEYS_ACCESSOR_T::PublicKeysAccessor(PublicKeysAccessor&&) = default;
+
+	template<typename TPinnedAccountPublicKey>
+	PUBLIC_KEYS_ACCESSOR_T& PUBLIC_KEYS_ACCESSOR_T::operator=(const PublicKeysAccessor& accessor) {
+		if (accessor.m_pKeys)
+			m_pKeys = std::make_shared<std::vector<TPinnedAccountPublicKey>>(*accessor.m_pKeys);
+		else
+			m_pKeys.reset();
+
+		return *this;
+	}
+
+	template<typename TPinnedAccountPublicKey>
+	PUBLIC_KEYS_ACCESSOR_T& PUBLIC_KEYS_ACCESSOR_T::operator=(PublicKeysAccessor&&) = default;
+
+	template<typename TPinnedAccountPublicKey>
+	size_t PUBLIC_KEYS_ACCESSOR_T::size() const {
+		return m_pKeys ? m_pKeys->size() : 0;
+	}
+
+	template<typename TPinnedAccountPublicKey>
+	FinalizationPoint PUBLIC_KEYS_ACCESSOR_T::upperBound() const {
+		return m_pKeys ? m_pKeys->back().EndPoint : FinalizationPoint();
+	}
+
+	template<typename TPinnedAccountPublicKey>
+	std::pair<size_t, bool> PUBLIC_KEYS_ACCESSOR_T::contains(FinalizationPoint point) const {
+		if (!m_pKeys)
+			return std::make_pair(std::numeric_limits<size_t>::max(), false);
+
+		auto iter = std::find_if(m_pKeys->cbegin(), m_pKeys->cend(), [point](const auto& key) {
+			return key.StartPoint <= point && point <= key.EndPoint;
+		});
+		return m_pKeys->cend() == iter
+				? std::make_pair(std::numeric_limits<size_t>::max(), false)
+				: std::make_pair(static_cast<size_t>(std::distance(m_pKeys->cbegin(), iter)), true);
+	}
+
+	template<typename TPinnedAccountPublicKey>
+	bool PUBLIC_KEYS_ACCESSOR_T::containsExact(const TPinnedAccountPublicKey& key) const {
+		return m_pKeys && m_pKeys->cend() != findExact(key);
+	}
+
+	template<typename TPinnedAccountPublicKey>
+	const TPinnedAccountPublicKey& PUBLIC_KEYS_ACCESSOR_T::get(size_t index) const {
+		return (*m_pKeys)[index];
+	}
+
+	template<typename TPinnedAccountPublicKey>
+	void PUBLIC_KEYS_ACCESSOR_T::add(const TPinnedAccountPublicKey& key) {
+		if (upperBound() >= key.StartPoint)
+			CATAPULT_THROW_INVALID_ARGUMENT("cannot add out of order public key");
+
+		if (!m_pKeys)
+			m_pKeys = std::make_shared<std::vector<TPinnedAccountPublicKey>>();
+
+		m_pKeys->push_back(key);
+	}
+
+	template<typename TPinnedAccountPublicKey>
+	bool PUBLIC_KEYS_ACCESSOR_T::remove(const TPinnedAccountPublicKey& key) {
+		if (!m_pKeys)
+			return false;
+
+		auto iter = findExact(key);
+		if (m_pKeys->cend() == iter)
+			return false;
+
+		m_pKeys->erase(iter);
+		if (m_pKeys->empty())
+			m_pKeys.reset();
+
+		return true;
+	}
+
+	template<typename TPinnedAccountPublicKey>
+	typename PUBLIC_KEYS_ACCESSOR_T::const_iterator PUBLIC_KEYS_ACCESSOR_T::findExact(const TPinnedAccountPublicKey& key) const {
+		return std::find_if(m_pKeys->cbegin(), m_pKeys->cend(), [&key](const auto& existingKey) {
+			return key.VotingKey == existingKey.VotingKey
+					&& key.StartPoint == existingKey.StartPoint
+					&& key.EndPoint == existingKey.EndPoint;
+		});
+	}
+
+	template class AccountPublicKeys::PublicKeysAccessor<PinnedVotingKey>;
 
 	// endregion
 
@@ -119,6 +219,15 @@ namespace catapult { namespace state {
 
 	AccountPublicKeys::PublicKeyAccessor<PinnedVotingKey>& AccountPublicKeys::voting() {
 		return m_votingPublicKeyAccessor;
+	}
+
+	// TODO: remove these - they are a temporary measure to allow example PublicKeysAccessor observer + validator
+	const AccountPublicKeys::PublicKeysAccessor<PinnedVotingKey>& AccountPublicKeys::temp() const {
+		return m_tempPublicKeysAccessor;
+	}
+
+	AccountPublicKeys::PublicKeysAccessor<PinnedVotingKey>& AccountPublicKeys::temp() {
+		return m_tempPublicKeysAccessor;
 	}
 
 	// endregion

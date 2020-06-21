@@ -134,7 +134,6 @@ namespace catapult { namespace keylink {
 
 		// Assert:
 		EXPECT_EQ(notificationLinkedPublicKey, finalLinkedPublicKey);
-
 	}
 
 	// endregion

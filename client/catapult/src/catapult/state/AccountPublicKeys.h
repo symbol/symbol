@@ -96,6 +96,63 @@ namespace catapult { namespace state {
 
 		// endregion
 
+		// region PublicKeysAccessor
+
+		/// Accessor for multiple (pinned) public keys.
+		template<typename TPinnedAccountPublicKey>
+		class PublicKeysAccessor {
+		private:
+			using const_iterator = typename std::vector<TPinnedAccountPublicKey>::const_iterator;
+
+		public:
+			/// Creates unset key.
+			PublicKeysAccessor();
+
+			/// Copy constructor that makes a deep copy of \a accessor.
+			PublicKeysAccessor(const PublicKeysAccessor& accessor);
+
+			/// Move constructor that move constructs a key accessor from \a accessor.
+			PublicKeysAccessor(PublicKeysAccessor&& accessor);
+
+		public:
+			/// Assignment operator that makes a deep copy of \a accessor.
+			PublicKeysAccessor& operator=(const PublicKeysAccessor& accessor);
+
+			/// Move assignment operator that assigns \a accessor.
+			PublicKeysAccessor& operator=(PublicKeysAccessor&& accessor);
+
+		public:
+			/// Gets the number of public keys
+			size_t size() const;
+
+			/// Gets the largest finalization point for which a public key is associated.
+			FinalizationPoint upperBound() const;
+
+			/// Returns \c true if a public key is associated with \a point.
+			std::pair<size_t, bool> contains(FinalizationPoint point) const;
+
+			/// Returns \c true if the specified public \a key is exactly contained.
+			bool containsExact(const TPinnedAccountPublicKey& key) const;
+
+			/// Gets the public key at \a index.
+			const TPinnedAccountPublicKey& get(size_t index) const;
+
+		public:
+			/// Adds the specified public \a key to the container.
+			void add(const TPinnedAccountPublicKey& key);
+
+			/// Removes the underlying public key matching \a key.
+			bool remove(const TPinnedAccountPublicKey& key);
+
+		private:
+			const_iterator findExact(const TPinnedAccountPublicKey& key) const;
+
+		private:
+			std::shared_ptr<std::vector<TPinnedAccountPublicKey>> m_pKeys;
+		};
+
+		// endregion
+
 	public:
 		/// Gets the mask of set keys.
 		KeyType mask() const;
@@ -124,15 +181,23 @@ namespace catapult { namespace state {
 		/// Gets the voting public key accessor.
 		PublicKeyAccessor<PinnedVotingKey>& voting();
 
+		// TODO: remove these - they are a temporary measure to allow example PublicKeysAccessor observer + validator
+		const PublicKeysAccessor<PinnedVotingKey>& temp() const;
+		PublicKeysAccessor<PinnedVotingKey>& temp();
+
 	private:
 		PublicKeyAccessor<Key> m_linkedPublicKeyAccessor;
 		PublicKeyAccessor<Key> m_nodePublicKeyAccessor;
 		PublicKeyAccessor<Key> m_vrfPublicKeyAccessor;
 		PublicKeyAccessor<PinnedVotingKey> m_votingPublicKeyAccessor;
+
+		// TODO: remove this too
+		PublicKeysAccessor<PinnedVotingKey> m_tempPublicKeysAccessor;
 	};
 
 	MAKE_BITWISE_ENUM(AccountPublicKeys::KeyType)
 
 	extern template class AccountPublicKeys::PublicKeyAccessor<Key>;
 	extern template class AccountPublicKeys::PublicKeyAccessor<PinnedVotingKey>;
+	extern template class AccountPublicKeys::PublicKeysAccessor<PinnedVotingKey>;
 }}

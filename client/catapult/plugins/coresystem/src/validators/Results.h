@@ -84,6 +84,9 @@ namespace catapult { namespace validators {
 	/// Validation failed because link range is invalid.
 	DEFINE_CORE_RESULT(Invalid_Link_Range, 104);
 
+	/// Validation failed because main account has too many links of the specified type.
+	DEFINE_CORE_RESULT(Too_Many_Links, 105);
+
 	// endregion
 
 #ifndef CUSTOM_RESULT_DEFINITION
