@@ -28,50 +28,60 @@ namespace catapult { namespace mongo { namespace mappers {
 	// region ToDbModel
 
 	namespace {
-		template<typename TAccountPublicKey>
+		using PublicKeyType = state::AccountPublicKeys::KeyType;
+		using bson_subdocument = bsoncxx::v_noabi::builder::stream::key_context<
+			bsoncxx::v_noabi::builder::stream::key_context<bsoncxx::v_noabi::builder::stream::closed_context>
+		>;
+
 		void StreamPublicKey(
-				bson_stream::array_context& context,
-				state::AccountPublicKeys::KeyType mask,
-				state::AccountPublicKeys::KeyType keyType,
-				const state::AccountPublicKeys::PublicKeyAccessor<TAccountPublicKey>& publicKeyAccessor) {
+				bson_subdocument& builder,
+				const std::string& name,
+				PublicKeyType mask,
+				PublicKeyType keyType,
+				const state::AccountPublicKeys::PublicKeyAccessor<Key>& publicKeyAccessor) {
 			if (!HasFlag(keyType, mask))
 				return;
 
-			context
-					<< bson_stream::open_document
-						<< "keyType" << utils::to_underlying_type(keyType)
-						<< "key" << ToBinary(publicKeyAccessor.get())
+			builder
+					<< name << bson_stream::open_document
+						<< "publicKey" << ToBinary(publicKeyAccessor.get())
 					<< bson_stream::close_document;
 		}
 
-		template<>
-		void StreamPublicKey(
-				bson_stream::array_context& context,
-				state::AccountPublicKeys::KeyType mask,
-				state::AccountPublicKeys::KeyType keyType,
-				const state::AccountPublicKeys::PublicKeyAccessor<model::PinnedVotingKey>& publicKeyAccessor) {
-			if (!HasFlag(keyType, mask))
+		void StreamPublicKeys(
+				bson_subdocument& builder,
+				const std::string& name,
+				const state::AccountPublicKeys::PublicKeysAccessor<model::PinnedVotingKey>& publicKeysAccessor) {
+			if (0 == publicKeysAccessor.size())
 				return;
 
-			context
-					<< bson_stream::open_document
-						<< "keyType" << utils::to_underlying_type(keyType)
-						<< "key" << ToBinary(publicKeyAccessor.get().VotingKey)
-						<< "startPoint" << ToInt64(publicKeyAccessor.get().StartPoint)
-						<< "endPoint" << ToInt64(publicKeyAccessor.get().EndPoint)
-					<< bson_stream::close_document;
+			builder << name << bson_stream::open_document;
+			auto publicKeysArray = builder << "publicKeys" << bson_stream::open_array;
+
+			for (auto i = 0u; i < publicKeysAccessor.size(); ++i) {
+				const auto& pinnedPublicKey = publicKeysAccessor.get(i);
+				publicKeysArray
+						<< bson_stream::open_document
+							<< "publicKey" << ToBinary(pinnedPublicKey.VotingKey)
+							<< "startPoint" << ToInt64(pinnedPublicKey.StartPoint)
+							<< "endPoint" << ToInt64(pinnedPublicKey.EndPoint)
+						<< bson_stream::close_document;
+			}
+
+			publicKeysArray << bson_stream::close_array;
+			builder << bson_stream::close_document;
 		}
 
 		void StreamAccountPublicKeys(bson_stream::document& builder, const state::AccountPublicKeys& accountPublicKeys) {
-			auto publicKeysArray = builder << "supplementalPublicKeys" << bson_stream::open_array;
+			auto publicKeysDocument = builder << "supplementalPublicKeys" << bson_stream::open_document;
 
 			auto mask = accountPublicKeys.mask();
-			StreamPublicKey(publicKeysArray, mask, state::AccountPublicKeys::KeyType::Linked, accountPublicKeys.linked());
-			StreamPublicKey(publicKeysArray, mask, state::AccountPublicKeys::KeyType::Node, accountPublicKeys.node());
-			StreamPublicKey(publicKeysArray, mask, state::AccountPublicKeys::KeyType::VRF, accountPublicKeys.vrf());
-			StreamPublicKey(publicKeysArray, mask, state::AccountPublicKeys::KeyType::Voting, accountPublicKeys.voting());
+			StreamPublicKey(publicKeysDocument, "linked", mask, PublicKeyType::Linked, accountPublicKeys.linked());
+			StreamPublicKey(publicKeysDocument, "node", mask, PublicKeyType::Node, accountPublicKeys.node());
+			StreamPublicKey(publicKeysDocument, "vrf", mask, PublicKeyType::VRF, accountPublicKeys.vrf());
+			StreamPublicKeys(publicKeysDocument, "voting", accountPublicKeys.voting());
 
-			publicKeysArray << bson_stream::close_array;
+			publicKeysDocument << bson_stream::close_document;
 		}
 
 		void StreamAccountImportanceSnapshots(bson_stream::document& builder, const state::AccountImportanceSnapshots& snapshots) {

@@ -122,6 +122,7 @@ namespace catapult { namespace state {
 
 		void WriteSupplementalPublicKeys(io::OutputStream& output, const AccountPublicKeys& accountPublicKeys) {
 			io::Write8(output, utils::to_underlying_type(accountPublicKeys.mask()));
+			io::Write8(output, static_cast<uint8_t>(accountPublicKeys.voting().size()));
 
 			if (HasFlag(AccountPublicKeys::KeyType::Linked, accountPublicKeys.mask()))
 				output.write(accountPublicKeys.linked().get());
@@ -132,8 +133,8 @@ namespace catapult { namespace state {
 			if (HasFlag(AccountPublicKeys::KeyType::VRF, accountPublicKeys.mask()))
 				output.write(accountPublicKeys.vrf().get());
 
-			if (HasFlag(AccountPublicKeys::KeyType::Voting, accountPublicKeys.mask())) {
-				auto pinnedVotingKey = accountPublicKeys.voting().get();
+			for (auto i = 0u; i < accountPublicKeys.voting().size(); ++i) {
+				const auto& pinnedVotingKey = accountPublicKeys.voting().get(i);
 				output.write({ reinterpret_cast<const uint8_t*>(&pinnedVotingKey), model::PinnedVotingKey::Size });
 			}
 		}
@@ -190,27 +191,23 @@ namespace catapult { namespace state {
 	}
 
 	namespace {
-		template<typename TKeyType>
-		MutableRawBuffer ToBuffer(TKeyType& key) {
-			return key;
+		void ReadSupplementalPublicKey(io::InputStream& input, AccountPublicKeys::PublicKeyAccessor<Key>& publicKeyAccessor) {
+			Key key;
+			input.read(key);
+			publicKeyAccessor.set(key);
 		}
 
-		template<>
-		MutableRawBuffer ToBuffer(model::PinnedVotingKey& key) {
-			return { reinterpret_cast<uint8_t*>(&key), model::PinnedVotingKey::Size };
-		}
-
-		template<typename TAccountPublicKey>
 		void ReadSupplementalPublicKey(
 				io::InputStream& input,
-				AccountPublicKeys::PublicKeyAccessor<TAccountPublicKey>& publicKeyAccessor) {
-			TAccountPublicKey key;
-			input.read(ToBuffer(key));
-			publicKeyAccessor.set(key);
+				AccountPublicKeys::PublicKeysAccessor<model::PinnedVotingKey>& publicKeysAccessor) {
+			model::PinnedVotingKey key;
+			input.read({ reinterpret_cast<uint8_t*>(&key), model::PinnedVotingKey::Size });
+			publicKeysAccessor.add(key);
 		}
 
 		void ReadSupplementalPublicKeys(io::InputStream& input, AccountPublicKeys& accountPublicKeys) {
 			auto accountPublicKeysMask = static_cast<AccountPublicKeys::KeyType>(io::Read8(input));
+			auto numVotingKeys = io::Read8(input);
 
 			if (HasFlag(AccountPublicKeys::KeyType::Linked, accountPublicKeysMask))
 				ReadSupplementalPublicKey(input, accountPublicKeys.linked());
@@ -221,7 +218,7 @@ namespace catapult { namespace state {
 			if (HasFlag(AccountPublicKeys::KeyType::VRF, accountPublicKeysMask))
 				ReadSupplementalPublicKey(input, accountPublicKeys.vrf());
 
-			if (HasFlag(AccountPublicKeys::KeyType::Voting, accountPublicKeysMask))
+			for (auto i = 0u; i < numVotingKeys; ++i)
 				ReadSupplementalPublicKey(input, accountPublicKeys.voting());
 		}
 

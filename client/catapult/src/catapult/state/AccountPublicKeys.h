@@ -46,11 +46,8 @@ namespace catapult { namespace state {
 			/// VRF public key.
 			VRF = 0x04,
 
-			/// Voting public key.
-			Voting = 0x08,
-
 			/// All valid keys.
-			All = Linked | Node | VRF | Voting
+			All = Linked | Node | VRF
 		};
 
 		// endregion
@@ -138,6 +135,9 @@ namespace catapult { namespace state {
 			/// Gets the public key at \a index.
 			const TPinnedAccountPublicKey& get(size_t index) const;
 
+			/// Gets all public keys.
+			std::vector<TPinnedAccountPublicKey> getAll() const;
+
 		public:
 			/// Adds the specified public \a key to the container.
 			void add(const TPinnedAccountPublicKey& key);
@@ -155,7 +155,7 @@ namespace catapult { namespace state {
 		// endregion
 
 	public:
-		/// Gets the mask of set keys.
+		/// Gets the mask of set (non-voting) public keys.
 		KeyType mask() const;
 
 		/// Gets the (const) linked public key accessor.
@@ -176,29 +176,21 @@ namespace catapult { namespace state {
 		/// Gets the vrf public key accessor.
 		PublicKeyAccessor<Key>& vrf();
 
-		/// Gets the (const) voting public key accessor.
-		const PublicKeyAccessor<model::PinnedVotingKey>& voting() const;
+		/// Gets the (const) voting public keys accessor.
+		const PublicKeysAccessor<model::PinnedVotingKey>& voting() const;
 
-		/// Gets the voting public key accessor.
-		PublicKeyAccessor<model::PinnedVotingKey>& voting();
-
-		// TODO: remove these - they are a temporary measure to allow example PublicKeysAccessor observer + validator
-		const PublicKeysAccessor<model::PinnedVotingKey>& temp() const;
-		PublicKeysAccessor<model::PinnedVotingKey>& temp();
+		/// Gets the voting public keys accessor.
+		PublicKeysAccessor<model::PinnedVotingKey>& voting();
 
 	private:
 		PublicKeyAccessor<Key> m_linkedPublicKeyAccessor;
 		PublicKeyAccessor<Key> m_nodePublicKeyAccessor;
 		PublicKeyAccessor<Key> m_vrfPublicKeyAccessor;
-		PublicKeyAccessor<model::PinnedVotingKey> m_votingPublicKeyAccessor;
-
-		// TODO: remove this too
-		PublicKeysAccessor<model::PinnedVotingKey> m_tempPublicKeysAccessor;
+		PublicKeysAccessor<model::PinnedVotingKey> m_votingPublicKeysAccessor;
 	};
 
 	MAKE_BITWISE_ENUM(AccountPublicKeys::KeyType)
 
 	extern template class AccountPublicKeys::PublicKeyAccessor<Key>;
-	extern template class AccountPublicKeys::PublicKeyAccessor<model::PinnedVotingKey>;
 	extern template class AccountPublicKeys::PublicKeysAccessor<model::PinnedVotingKey>;
 }}

@@ -80,6 +80,8 @@ namespace catapult { namespace model {
 							{ "minHarvesterBalance", "4'000'000'000" },
 							{ "maxHarvesterBalance", "9'000'000'000" },
 							{ "minVoterBalance", "2'000'000'000" },
+
+							{ "maxVotingKeysPerAccount", "36" },
 							{ "minVotingKeyLifetime", "21" },
 							{ "maxVotingKeyLifetime", "123" },
 
@@ -145,6 +147,8 @@ namespace catapult { namespace model {
 				EXPECT_EQ(Amount(0), config.MinHarvesterBalance);
 				EXPECT_EQ(Amount(0), config.MaxHarvesterBalance);
 				EXPECT_EQ(Amount(0), config.MinVoterBalance);
+
+				EXPECT_EQ(0u, config.MaxVotingKeysPerAccount);
 				EXPECT_EQ(0u, config.MinVotingKeyLifetime);
 				EXPECT_EQ(0u, config.MaxVotingKeyLifetime);
 
@@ -192,6 +196,8 @@ namespace catapult { namespace model {
 				EXPECT_EQ(Amount(4'000'000'000), config.MinHarvesterBalance);
 				EXPECT_EQ(Amount(9'000'000'000), config.MaxHarvesterBalance);
 				EXPECT_EQ(Amount(2'000'000'000), config.MinVoterBalance);
+
+				EXPECT_EQ(36u, config.MaxVotingKeysPerAccount);
 				EXPECT_EQ(21u, config.MinVotingKeyLifetime);
 				EXPECT_EQ(123u, config.MaxVotingKeyLifetime);
 

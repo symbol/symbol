@@ -133,7 +133,7 @@ namespace catapult { namespace cache {
 				if (m_accountHistories.cend() != accountHistoriesIter) {
 					accountHistoriesIter->second.add(m_height, effectiveBalancePair.first);
 					accountHistoriesIter->second.add(m_height, accountState.SupplementalPublicKeys.vrf().get());
-					accountHistoriesIter->second.add(m_height, accountState.SupplementalPublicKeys.voting().get());
+					accountHistoriesIter->second.add(m_height, accountState.SupplementalPublicKeys.voting().getAll());
 				}
 			}
 
@@ -220,7 +220,7 @@ namespace catapult { namespace cache {
 
 	void HighValueAccountsUpdater::updateVotingAccounts(const deltaset::DeltaElements<MemorySetType>& deltas) {
 		auto effectiveBalanceCalculator = [&options = m_options](const auto& accountState) {
-			if (accountState.SupplementalPublicKeys.voting()) {
+			if (0 != accountState.SupplementalPublicKeys.voting().size()) {
 				auto balancePair = EffectiveBalanceRetriever(accountState, options.HarvestingMosaicId, options.MinVoterBalance);
 				if (balancePair.second)
 					return balancePair;

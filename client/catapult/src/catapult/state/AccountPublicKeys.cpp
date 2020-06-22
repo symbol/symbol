@@ -75,7 +75,6 @@ namespace catapult { namespace state {
 	}
 
 	template class AccountPublicKeys::PublicKeyAccessor<Key>;
-	template class AccountPublicKeys::PublicKeyAccessor<model::PinnedVotingKey>;
 
 	// endregion
 
@@ -139,6 +138,11 @@ namespace catapult { namespace state {
 	}
 
 	template<typename TPinnedAccountPublicKey>
+	std::vector<TPinnedAccountPublicKey> PUBLIC_KEYS_ACCESSOR_T::getAll() const {
+		return m_pKeys ? *m_pKeys : std::vector<TPinnedAccountPublicKey>();
+	}
+
+	template<typename TPinnedAccountPublicKey>
 	void PUBLIC_KEYS_ACCESSOR_T::add(const TPinnedAccountPublicKey& key) {
 		if (upperBound() >= key.StartPoint)
 			CATAPULT_THROW_INVALID_ARGUMENT("cannot add out of order public key");
@@ -185,7 +189,6 @@ namespace catapult { namespace state {
 		keyType |= m_linkedPublicKeyAccessor ? KeyType::Linked : KeyType::Unset;
 		keyType |= m_nodePublicKeyAccessor ? KeyType::Node : KeyType::Unset;
 		keyType |= m_vrfPublicKeyAccessor ? KeyType::VRF : KeyType::Unset;
-		keyType |= m_votingPublicKeyAccessor ? KeyType::Voting : KeyType::Unset;
 		return keyType;
 	}
 
@@ -213,21 +216,12 @@ namespace catapult { namespace state {
 		return m_vrfPublicKeyAccessor;
 	}
 
-	const AccountPublicKeys::PublicKeyAccessor<model::PinnedVotingKey>& AccountPublicKeys::voting() const {
-		return m_votingPublicKeyAccessor;
+	const AccountPublicKeys::PublicKeysAccessor<model::PinnedVotingKey>& AccountPublicKeys::voting() const {
+		return m_votingPublicKeysAccessor;
 	}
 
-	AccountPublicKeys::PublicKeyAccessor<model::PinnedVotingKey>& AccountPublicKeys::voting() {
-		return m_votingPublicKeyAccessor;
-	}
-
-	// TODO: remove these - they are a temporary measure to allow example PublicKeysAccessor observer + validator
-	const AccountPublicKeys::PublicKeysAccessor<model::PinnedVotingKey>& AccountPublicKeys::temp() const {
-		return m_tempPublicKeysAccessor;
-	}
-
-	AccountPublicKeys::PublicKeysAccessor<model::PinnedVotingKey>& AccountPublicKeys::temp() {
-		return m_tempPublicKeysAccessor;
+	AccountPublicKeys::PublicKeysAccessor<model::PinnedVotingKey>& AccountPublicKeys::voting() {
+		return m_votingPublicKeysAccessor;
 	}
 
 	// endregion

@@ -64,6 +64,7 @@ namespace catapult { namespace state {
 			state::AccountType AccountType;
 			uint8_t Format;
 			AccountPublicKeys::KeyType SupplementalPublicKeysMask;
+			uint8_t NumVotingKeys;
 		};
 
 		struct HighValueImportanceHeader {
@@ -93,6 +94,7 @@ namespace catapult { namespace state {
 
 		struct RandomSeed {
 			AccountPublicKeys::KeyType SupplementalPublicKeysMask = AccountPublicKeys::KeyType::Unset;
+			uint8_t NumVotingKeys = 0;
 			bool ShouldConstrainOptimizedMosaicId = false;
 		};
 
@@ -102,7 +104,7 @@ namespace catapult { namespace state {
 			accountState.PublicKeyHeight = Height(234);
 
 			accountState.AccountType = static_cast<AccountType>(33);
-			test::SetRandomSupplementalPublicKeys(accountState, seed.SupplementalPublicKeysMask);
+			test::SetRandomSupplementalPublicKeys(accountState, seed.SupplementalPublicKeysMask, seed.NumVotingKeys);
 
 			test::RandomFillAccountData(1, accountState, numMosaics);
 			if (seed.ShouldConstrainOptimizedMosaicId) {
@@ -204,10 +206,16 @@ namespace catapult { namespace state {
 			}
 		}
 
-		template<typename TAccountPublicKey>
-		size_t SetPublicKeyFromData(AccountPublicKeys::PublicKeyAccessor<TAccountPublicKey>& publicKeyAccessor, const uint8_t* pData) {
-			publicKeyAccessor.set(reinterpret_cast<const TAccountPublicKey&>(*pData));
-			return TAccountPublicKey::Size;
+		size_t SetPublicKeyFromData(AccountPublicKeys::PublicKeyAccessor<Key>& publicKeyAccessor, const uint8_t* pData) {
+			publicKeyAccessor.set(reinterpret_cast<const Key&>(*pData));
+			return Key::Size;
+		}
+
+		size_t AddPublicKeyFromData(
+				AccountPublicKeys::PublicKeysAccessor<model::PinnedVotingKey>& publicKeysAccessor,
+				const uint8_t* pData) {
+			publicKeysAccessor.add(reinterpret_cast<const model::PinnedVotingKey&>(*pData));
+			return model::PinnedVotingKey::Size;
 		}
 
 		AccountState DeserializeNonHistoricalFromBuffer(const uint8_t* pData, uint8_t format) {
@@ -225,8 +233,8 @@ namespace catapult { namespace state {
 			if (HasFlag(AccountPublicKeys::KeyType::VRF, accountStateHeader.SupplementalPublicKeysMask))
 				pData += SetPublicKeyFromData(accountState.SupplementalPublicKeys.vrf(), pData);
 
-			if (HasFlag(AccountPublicKeys::KeyType::Voting, accountStateHeader.SupplementalPublicKeysMask))
-				pData += SetPublicKeyFromData(accountState.SupplementalPublicKeys.voting(), pData);
+			for (auto i = 0u; i < accountStateHeader.NumVotingKeys; ++i)
+				pData += AddPublicKeyFromData(accountState.SupplementalPublicKeys.voting(), pData);
 
 			if (High_Value_Format_Tag == format) {
 				// 2. process HighValueImportanceHeader
@@ -249,10 +257,20 @@ namespace catapult { namespace state {
 
 		// region account state => header utils
 
-		template<typename TAccountPublicKey>
-		size_t SetPublicKeyInData(const AccountPublicKeys::PublicKeyAccessor<TAccountPublicKey>& publicKeyAccessor, uint8_t* pData) {
-			reinterpret_cast<TAccountPublicKey&>(*pData) = publicKeyAccessor.get();
-			return TAccountPublicKey::Size;
+		size_t SetPublicKeyInData(const AccountPublicKeys::PublicKeyAccessor<Key>& publicKeyAccessor, uint8_t* pData) {
+			reinterpret_cast<Key&>(*pData) = publicKeyAccessor.get();
+			return Key::Size;
+		}
+
+		size_t SetPublicKeysInData(
+				const AccountPublicKeys::PublicKeysAccessor<model::PinnedVotingKey>& publicKeysAccessor,
+				uint8_t* pData) {
+			for (auto i = 0u; i < publicKeysAccessor.size(); ++i) {
+				reinterpret_cast<model::PinnedVotingKey&>(*pData) = publicKeysAccessor.get(i);
+				pData += model::PinnedVotingKey::Size;
+			}
+
+			return publicKeysAccessor.size() * model::PinnedVotingKey::Size;
 		}
 
 		void SerializeNonHistoricalToBuffer(const AccountState& accountState, uint8_t format, std::vector<uint8_t>& buffer) {
@@ -266,6 +284,7 @@ namespace catapult { namespace state {
 			accountStateHeader.AccountType = accountState.AccountType;
 			accountStateHeader.Format = format;
 			accountStateHeader.SupplementalPublicKeysMask = accountState.SupplementalPublicKeys.mask();
+			accountStateHeader.NumVotingKeys = static_cast<uint8_t>(accountState.SupplementalPublicKeys.voting().size());
 			pData += sizeof(AccountStateHeader);
 
 			if (HasFlag(AccountPublicKeys::KeyType::Linked, accountStateHeader.SupplementalPublicKeysMask))
@@ -277,8 +296,7 @@ namespace catapult { namespace state {
 			if (HasFlag(AccountPublicKeys::KeyType::VRF, accountStateHeader.SupplementalPublicKeysMask))
 				pData += SetPublicKeyInData(accountState.SupplementalPublicKeys.vrf(), pData);
 
-			if (HasFlag(AccountPublicKeys::KeyType::Voting, accountStateHeader.SupplementalPublicKeysMask))
-				pData += SetPublicKeyInData(accountState.SupplementalPublicKeys.voting(), pData);
+			pData += SetPublicKeysInData(accountState.SupplementalPublicKeys.voting(), pData);
 
 			if (High_Value_Format_Tag == format) {
 				auto& importanceHeader = reinterpret_cast<HighValueImportanceHeader&>(*pData);
@@ -332,8 +350,7 @@ namespace catapult { namespace state {
 				std::vector<std::pair<AccountPublicKeys::KeyType, size_t>> keySizes{
 					{ AccountPublicKeys::KeyType::Linked, Key::Size },
 					{ AccountPublicKeys::KeyType::Node, Key::Size },
-					{ AccountPublicKeys::KeyType::VRF, Key::Size },
-					{ AccountPublicKeys::KeyType::Voting, model::PinnedVotingKey::Size }
+					{ AccountPublicKeys::KeyType::VRF, Key::Size }
 				};
 
 				for (const auto& keySizePair : keySizes) {
@@ -341,6 +358,7 @@ namespace catapult { namespace state {
 						size += keySizePair.second;
 				}
 
+				size += accountState.SupplementalPublicKeys.voting().size() * sizeof(model::PinnedVotingKey);
 				return size;
 			}
 
@@ -542,18 +560,20 @@ namespace catapult { namespace state {
 				AccountPublicKeys::KeyType::Linked,
 				AccountPublicKeys::KeyType::Node,
 				AccountPublicKeys::KeyType::VRF,
-				AccountPublicKeys::KeyType::Voting,
-				AccountPublicKeys::KeyType::Linked | AccountPublicKeys::KeyType::Voting,
+				AccountPublicKeys::KeyType::Linked | AccountPublicKeys::KeyType::Node,
 				AccountPublicKeys::KeyType::All
 			};
 
 			for (auto keyType : accountPublicKeysMasks) {
-				for (auto optimizedMosaicIdConstraint : { true, false }) {
-					CATAPULT_LOG(debug)
-							<< "key type mask: " << static_cast<uint16_t>(keyType)
-							<< ", should constrain optimized mosaic id: " << optimizedMosaicIdConstraint;
+				for (auto numVotingKeys : std::initializer_list<uint8_t>{ 0, 3 }) {
+					for (auto optimizedMosaicIdConstraint : { true, false }) {
+						CATAPULT_LOG(debug)
+								<< "key type mask: " << static_cast<uint16_t>(keyType)
+								<< ", num voting keys: " << static_cast<uint16_t>(numVotingKeys)
+								<< ", should constrain optimized mosaic id: " << optimizedMosaicIdConstraint;
 
-					action({ keyType, optimizedMosaicIdConstraint });
+						action({ keyType, numVotingKeys, optimizedMosaicIdConstraint });
+					}
 				}
 			}
 		}

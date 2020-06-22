@@ -99,6 +99,9 @@ namespace catapult { namespace model {
 		/// Minimum number of harvesting mosaic atomic units needed for an account to be eligible for voting.
 		Amount MinVoterBalance;
 
+		/// Maximum number of voting keys that can be registered at once per account.
+		uint8_t MaxVotingKeysPerAccount;
+
 		/// Minimum number of finalization rounds for which voting key can be registered.
 		uint32_t MinVotingKeyLifetime;
 

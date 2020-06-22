@@ -52,7 +52,9 @@ namespace catapult { namespace test {
 			EXPECT_EQ(expected.node().get(), actual.node().get()) << message;
 			EXPECT_EQ(expected.vrf().get(), actual.vrf().get()) << message;
 
-			EXPECT_EQ(expected.voting().get(), actual.voting().get()) << message;
+			ASSERT_EQ(expected.voting().size(), actual.voting().size()) << message;
+			for (auto i = 0u; i < expected.voting().size(); ++i)
+				EXPECT_EQ(expected.voting().get(i), actual.voting().get(i)) << message << " at " << i;
 		}
 
 		void AssertEqual(
@@ -125,7 +127,10 @@ namespace catapult { namespace test {
 		return accountStates;
 	}
 
-	void SetRandomSupplementalPublicKeys(state::AccountState& accountState, state::AccountPublicKeys::KeyType mask) {
+	void SetRandomSupplementalPublicKeys(
+			state::AccountState& accountState,
+			state::AccountPublicKeys::KeyType mask,
+			uint8_t numVotingKeys) {
 		if (HasFlag(state::AccountPublicKeys::KeyType::Linked, mask))
 			accountState.SupplementalPublicKeys.linked().set(test::GenerateRandomByteArray<Key>());
 
@@ -135,8 +140,13 @@ namespace catapult { namespace test {
 		if (HasFlag(state::AccountPublicKeys::KeyType::VRF, mask))
 			accountState.SupplementalPublicKeys.vrf().set(test::GenerateRandomByteArray<Key>());
 
-		if (HasFlag(state::AccountPublicKeys::KeyType::Voting, mask))
-			accountState.SupplementalPublicKeys.voting().set(test::GenerateRandomPackedStruct<model::PinnedVotingKey>());
+		for (auto i = 0u; i < numVotingKeys; ++i) {
+			accountState.SupplementalPublicKeys.voting().add({
+				test::GenerateRandomByteArray<VotingKey>(),
+				FinalizationPoint((i + 1) * 100),
+				FinalizationPoint((i + 1) * 100 + 49)
+			});
+		}
 	}
 
 	void ForceSetLinkedPublicKey(state::AccountState& accountState, const Key& linkedPublicKey) {

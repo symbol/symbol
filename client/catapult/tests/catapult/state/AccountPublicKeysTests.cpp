@@ -175,7 +175,7 @@ namespace catapult { namespace state {
 		PublicKeyAccessor accessor;
 		accessor.set(Key());
 
-		// Act + Assert
+		// Act + Assert:
 		EXPECT_FALSE(!!accessor);
 	}
 
@@ -184,7 +184,7 @@ namespace catapult { namespace state {
 		PublicKeyAccessor accessor;
 		accessor.set(Key());
 
-		// Act + Assert
+		// Act + Assert:
 		EXPECT_EQ(Key(), accessor.get());
 	}
 
@@ -531,7 +531,7 @@ namespace catapult { namespace state {
 
 	// endregion
 
-	// region PublicKeysAccessor - get
+	// region PublicKeysAccessor - get / getAll
 
 	PUBLIC_KEYS_ACCESSOR_TEST(GetReturnsKeyAtIndex) {
 		// Arrange:
@@ -540,17 +540,45 @@ namespace catapult { namespace state {
 		accessor.add({ { { 0x32 } }, FP(200), FP(299) });
 
 		// Act:
-		auto pinnedKey0 = accessor.get(0);
-		auto pinnedKey1 = accessor.get(1);
+		auto pinnedPublicKey0 = accessor.get(0);
+		auto pinnedPublicKey1 = accessor.get(1);
 
-		// Act + Assert
-		EXPECT_EQ(model::PinnedVotingKey({ { { 0x44 } }, FP(100), FP(149) }), pinnedKey0);
-		EXPECT_EQ(model::PinnedVotingKey({ { { 0x32 } }, FP(200), FP(299) }), pinnedKey1);
+		// Assert:
+		EXPECT_EQ(model::PinnedVotingKey({ { { 0x44 } }, FP(100), FP(149) }), pinnedPublicKey0);
+		EXPECT_EQ(model::PinnedVotingKey({ { { 0x32 } }, FP(200), FP(299) }), pinnedPublicKey1);
+	}
+
+	PUBLIC_KEYS_ACCESSOR_TEST(GetAllReturnsNoKeysWhenEmpty) {
+		// Arrange:
+		PublicKeysAccessor accessor;
+
+		// Act:
+		auto pinnedPublicKeys = accessor.getAll();
+
+		// Assert:
+		EXPECT_TRUE(pinnedPublicKeys.empty());
+	}
+
+	PUBLIC_KEYS_ACCESSOR_TEST(GetAllReturnsAllKeysWhenNotEmpty) {
+		// Arrange:
+		PublicKeysAccessor accessor;
+		accessor.add({ { { 0x44 } }, FP(100), FP(149) });
+		accessor.add({ { { 0x32 } }, FP(200), FP(299) });
+
+		// Act:
+		auto pinnedPublicKeys = accessor.getAll();
+
+		// Assert:
+		std::vector<model::PinnedVotingKey> expectedPinnedPublicKeys{
+			{ { { 0x44 } }, FP(100), FP(149) },
+			{ { { 0x32 } }, FP(200), FP(299) }
+		};
+		EXPECT_EQ(expectedPinnedPublicKeys, pinnedPublicKeys);
 	}
 
 	// endregion
 
-	// region PublicKeysAccessor - add remove
+	// region PublicKeysAccessor - add / remove
 
 	PUBLIC_KEYS_ACCESSOR_TEST(CanAddMultipleKeys) {
 		// Arrange:
@@ -691,7 +719,7 @@ namespace catapult { namespace state {
 		EXPECT_FALSE(!!keys.linked());
 		EXPECT_FALSE(!!keys.node());
 		EXPECT_FALSE(!!keys.vrf());
-		EXPECT_FALSE(!!keys.voting());
+		EXPECT_EQ(0u, keys.voting().size());
 
 		// - const and non-const accessors reference same objects
 		EXPECT_EQ(&keys.linked(), &const_cast<const AccountPublicKeys&>(keys).linked());
@@ -733,7 +761,7 @@ namespace catapult { namespace state {
 		EXPECT_TRUE(!!keys.linked());
 		EXPECT_FALSE(!!keys.node());
 		EXPECT_FALSE(!!keys.vrf());
-		EXPECT_FALSE(!!keys.voting());
+		EXPECT_EQ(0u, keys.voting().size());
 
 		EXPECT_EQ(key, keys.linked().get());
 	}
@@ -753,7 +781,7 @@ namespace catapult { namespace state {
 		EXPECT_FALSE(!!keys.linked());
 		EXPECT_TRUE(!!keys.node());
 		EXPECT_FALSE(!!keys.vrf());
-		EXPECT_FALSE(!!keys.voting());
+		EXPECT_EQ(0u, keys.voting().size());
 
 		EXPECT_EQ(key, keys.node().get());
 	}
@@ -773,7 +801,7 @@ namespace catapult { namespace state {
 		EXPECT_FALSE(!!keys.linked());
 		EXPECT_FALSE(!!keys.node());
 		EXPECT_TRUE(!!keys.vrf());
-		EXPECT_FALSE(!!keys.voting());
+		EXPECT_EQ(0u, keys.voting().size());
 
 		EXPECT_EQ(key, keys.vrf().get());
 	}
@@ -784,18 +812,18 @@ namespace catapult { namespace state {
 		AccountPublicKeys keys;
 
 		// Act:
-		keys.voting().set(key);
+		keys.voting().add(key);
 
 		// Assert:
-		EXPECT_EQ(AccountPublicKeys::KeyType::Voting, keys.mask());
+		EXPECT_EQ(AccountPublicKeys::KeyType::Unset, keys.mask());
 
 		// - one key is set
 		EXPECT_FALSE(!!keys.linked());
 		EXPECT_FALSE(!!keys.node());
 		EXPECT_FALSE(!!keys.vrf());
-		EXPECT_TRUE(!!keys.voting());
 
-		EXPECT_EQ(key, keys.voting().get());
+		ASSERT_EQ(1u, keys.voting().size());
+		EXPECT_EQ(key, keys.voting().get(0));
 	}
 
 	TEST(TEST_CLASS, CanSetAllKeys) {
@@ -810,7 +838,7 @@ namespace catapult { namespace state {
 		keys.linked().set(linkedPublicKey);
 		keys.node().set(nodePublicKey);
 		keys.vrf().set(vrfPublicKey);
-		keys.voting().set(votingPublicKey);
+		keys.voting().add(votingPublicKey);
 
 		// Assert:
 		EXPECT_EQ(AccountPublicKeys::KeyType::All, keys.mask());
@@ -819,12 +847,13 @@ namespace catapult { namespace state {
 		EXPECT_TRUE(!!keys.linked());
 		EXPECT_TRUE(!!keys.node());
 		EXPECT_TRUE(!!keys.vrf());
-		EXPECT_TRUE(!!keys.voting());
 
 		EXPECT_EQ(linkedPublicKey, keys.linked().get());
 		EXPECT_EQ(nodePublicKey, keys.node().get());
 		EXPECT_EQ(vrfPublicKey, keys.vrf().get());
-		EXPECT_EQ(votingPublicKey, keys.voting().get());
+
+		ASSERT_EQ(1u, keys.voting().size());
+		EXPECT_EQ(votingPublicKey, keys.voting().get(0));
 	}
 
 	// endregion

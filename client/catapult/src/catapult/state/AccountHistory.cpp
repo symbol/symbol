@@ -23,16 +23,16 @@
 
 namespace catapult { namespace state {
 
-	const HeightIndexedHistoryMap<Amount>& AccountHistory::balances() const {
+	const HeightIndexedHistoryMap<Amount>& AccountHistory::balance() const {
 		return m_heightBalanceMap;
 	}
 
-	const HeightIndexedHistoryMap<Key>& AccountHistory::vrfPublicKeys() const {
+	const HeightIndexedHistoryMap<Key>& AccountHistory::vrfPublicKey() const {
 		return m_heightVrfPublicKeyMap;
 	}
 
-	const HeightIndexedHistoryMap<model::PinnedVotingKey>& AccountHistory::votingPublicKeys() const {
-		return m_heightVotingPublicKeyMap;
+	const HeightIndexedHistoryMap<std::vector<model::PinnedVotingKey>>& AccountHistory::votingPublicKeys() const {
+		return m_heightVotingPublicKeysMap;
 	}
 
 	bool AccountHistory::anyAtLeast(Amount minAmount) const {
@@ -49,13 +49,13 @@ namespace catapult { namespace state {
 		m_heightVrfPublicKeyMap.add(height, vrfPublicKey);
 	}
 
-	void AccountHistory::add(Height height, const model::PinnedVotingKey& votingPublicKey) {
-		m_heightVotingPublicKeyMap.add(height, votingPublicKey);
+	void AccountHistory::add(Height height, const std::vector<model::PinnedVotingKey>& votingPublicKeys) {
+		m_heightVotingPublicKeysMap.add(height, votingPublicKeys);
 	}
 
 	void AccountHistory::prune(Height height) {
 		m_heightBalanceMap.prune(height);
 		m_heightVrfPublicKeyMap.prune(height);
-		m_heightVotingPublicKeyMap.prune(height);
+		m_heightVotingPublicKeysMap.prune(height);
 	}
 }}

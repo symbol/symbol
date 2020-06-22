@@ -40,8 +40,11 @@ namespace catapult { namespace cache {
 			output.write(key);
 		}
 
-		void WriteHistoryMapValue(io::OutputStream& output, const model::PinnedVotingKey& key) {
-			output.write({ reinterpret_cast<const uint8_t*>(&key), model::PinnedVotingKey::Size });
+		void WriteHistoryMapValue(io::OutputStream& output, const std::vector<model::PinnedVotingKey>& keys) {
+			auto count = static_cast<uint8_t>(keys.size());
+			io::Write8(output, count);
+
+			output.write({ reinterpret_cast<const uint8_t*>(keys.data()), count * model::PinnedVotingKey::Size });
 		}
 
 		template<typename TValue>
@@ -58,8 +61,8 @@ namespace catapult { namespace cache {
 			for (const auto& accountHistoryPair : accountHistories) {
 				output.write(accountHistoryPair.first);
 
-				WriteHistoryMap(accountHistoryPair.second.balances(), output);
-				WriteHistoryMap(accountHistoryPair.second.vrfPublicKeys(), output);
+				WriteHistoryMap(accountHistoryPair.second.balance(), output);
+				WriteHistoryMap(accountHistoryPair.second.vrfPublicKey(), output);
 				WriteHistoryMap(accountHistoryPair.second.votingPublicKeys(), output);
 			}
 		}
@@ -96,8 +99,11 @@ namespace catapult { namespace cache {
 			input.read(key);
 		}
 
-		void ReadHistoryMapValue(io::InputStream& input, model::PinnedVotingKey& key) {
-			input.read({ reinterpret_cast<uint8_t*>(&key), model::PinnedVotingKey::Size });
+		void ReadHistoryMapValue(io::InputStream& input, std::vector<model::PinnedVotingKey>& keys) {
+			auto count = io::Read8(input);
+
+			keys.resize(count);
+			input.read({ reinterpret_cast<uint8_t*>(keys.data()), count * model::PinnedVotingKey::Size });
 		}
 
 		template<typename TValue>
@@ -124,7 +130,7 @@ namespace catapult { namespace cache {
 				state::AccountHistory accountHistory;
 				ReadHistoryMap<Amount>(input, accountHistory);
 				ReadHistoryMap<Key>(input, accountHistory);
-				ReadHistoryMap<model::PinnedVotingKey>(input, accountHistory);
+				ReadHistoryMap<std::vector<model::PinnedVotingKey>>(input, accountHistory);
 				accountHistories.emplace(address, accountHistory);
 			}
 

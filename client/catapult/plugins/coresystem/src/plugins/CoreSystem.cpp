@@ -31,6 +31,8 @@
 #include "catapult/cache_core/BlockStatisticCacheSubCachePlugin.h"
 #include "catapult/keylink/KeyLinkObserver.h"
 #include "catapult/keylink/KeyLinkValidator.h"
+#include "catapult/keylink/MultiKeyLinkObserver.h"
+#include "catapult/keylink/MultiKeyLinkValidator.h"
 #include "catapult/model/BlockChainConfiguration.h"
 #include "catapult/plugins/CacheHandlers.h"
 #include "catapult/plugins/PluginManager.h"
@@ -85,6 +87,7 @@ namespace catapult { namespace plugins {
 		struct BasicKeyAccessor {
 			static constexpr auto Failure_Link_Already_Exists = validators::Failure_Core_Link_Already_Exists;
 			static constexpr auto Failure_Inconsistent_Unlink_Data = validators::Failure_Core_Inconsistent_Unlink_Data;
+			static constexpr auto Failure_Too_Many_Links = validators::Failure_Core_Too_Many_Links;
 		};
 
 		struct VrfKeyAccessor : public BasicKeyAccessor {
@@ -114,14 +117,22 @@ namespace catapult { namespace plugins {
 		}
 
 		void RegisterVotingKeyLinkTransaction(PluginManager& manager) {
+			const auto& config = manager.config();
+
 			manager.addTransactionSupport(CreateVotingKeyLinkTransactionPlugin());
 
-			manager.addStatefulValidatorHook([](auto& builder) {
-				builder.add(keylink::CreateKeyLinkValidator<model::VotingKeyLinkNotification, VotingKeyAccessor>("Voting"));
+			manager.addStatelessValidatorHook([&config](auto& builder) {
+				builder.add(validators::CreateVotingKeyLinkRangeValidator(config.MinVotingKeyLifetime, config.MaxVotingKeyLifetime));
+			});
+
+			manager.addStatefulValidatorHook([&config](auto& builder) {
+				builder.add(keylink::CreateMultiKeyLinkValidator<model::VotingKeyLinkNotification, VotingKeyAccessor>(
+						"Voting",
+						config.MaxVotingKeysPerAccount));
 			});
 
 			manager.addObserverHook([](auto& builder) {
-				builder.add(keylink::CreateKeyLinkObserver<model::VotingKeyLinkNotification, VotingKeyAccessor>("Voting"));
+				builder.add(keylink::CreateMultiKeyLinkObserver<model::VotingKeyLinkNotification, VotingKeyAccessor>("Voting"));
 			});
 		}
 	}
@@ -141,7 +152,6 @@ namespace catapult { namespace plugins {
 				.add(validators::CreateEntityVersionValidator())
 				.add(validators::CreateTransactionFeeValidator())
 				.add(validators::CreateKeyLinkActionValidator())
-				.add(validators::CreateVotingKeyLinkRangeValidator(config.MinVotingKeyLifetime, config.MaxVotingKeyLifetime))
 				.add(validators::CreateZeroInternalPaddingValidator());
 		});
 

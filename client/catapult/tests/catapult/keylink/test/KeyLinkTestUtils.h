@@ -50,7 +50,7 @@ namespace catapult { namespace test {
 		auto mainAccountStateIter = accountStateCacheDelta.find(mainAccountPublicKey);
 
 		for (const auto& publicKey : publicKeys)
-			mainAccountStateIter.get().SupplementalPublicKeys.temp().add(publicKey);
+			mainAccountStateIter.get().SupplementalPublicKeys.voting().add(publicKey);
 
 		return mainAccountPublicKey;
 	}

@@ -53,7 +53,7 @@ namespace catapult { namespace cache {
 				delta.addAccount(addresses[i], Height(1));
 				auto& accountState = delta.find(addresses[i]).get();
 				accountState.SupplementalPublicKeys.vrf().set(vrfPublicKeys[i]);
-				accountState.SupplementalPublicKeys.voting().set(votingPublicKeys[i]);
+				accountState.SupplementalPublicKeys.voting().add(votingPublicKeys[i]);
 				accountState.Balances.credit(Harvesting_Mosaic_Id, balances[i]);
 			}
 
@@ -185,6 +185,11 @@ namespace catapult { namespace cache {
 	// region roundtrip tests
 
 	namespace {
+		void SetFinalizationPoints(model::PinnedVotingKey& pinnedPublicKey, uint64_t startPoint, uint64_t endPoint) {
+			pinnedPublicKey.StartPoint = FinalizationPoint(startPoint);
+			pinnedPublicKey.EndPoint = FinalizationPoint(endPoint);
+		}
+
 		template<typename TTraits>
 		void RunRoundtripTest(
 				const AccountStateCacheTypes::Options& options,
@@ -202,6 +207,8 @@ namespace catapult { namespace cache {
 			std::vector<Address> addresses;
 			auto vrfPublicKeys = test::GenerateRandomDataVector<Key>(balances.size() + 1);
 			auto votingPublicKeys = test::GenerateRandomDataVector<model::PinnedVotingKey>(balances.size() + 1);
+			SetFinalizationPoints(votingPublicKeys[balances.size() - 1], 200, 400);
+			SetFinalizationPoints(votingPublicKeys.back(), 600, 900);
 			{
 				AccountStateCacheSubCachePlugin plugin(cacheConfig, options);
 				auto pStorage = plugin.createStorage();
@@ -226,8 +233,7 @@ namespace catapult { namespace cache {
 						accountPublicKeys.vrf().unset();
 						accountPublicKeys.vrf().set(vrfPublicKeys.back());
 
-						accountPublicKeys.voting().unset();
-						accountPublicKeys.voting().set(votingPublicKeys.back());
+						accountPublicKeys.voting().add(votingPublicKeys.back());
 					}
 
 					delta.updateHighValueAccounts(Height(5));
@@ -265,14 +271,14 @@ namespace catapult { namespace cache {
 				for (auto i = 0u; i < addresses.size(); ++i) {
 					if (addresses[i] == accountHistoryPair.first) {
 						accountHistoryPair.second.add(Height(3), vrfPublicKeys[i]);
-						accountHistoryPair.second.add(Height(3), votingPublicKeys[i]);
+						accountHistoryPair.second.add(Height(3), { votingPublicKeys[i] });
 					}
 				}
 
 				// - augment with modified expected public keys
 				if (addresses.back() == accountHistoryPair.first) {
 					accountHistoryPair.second.add(Height(5), vrfPublicKeys.back());
-					accountHistoryPair.second.add(Height(5), votingPublicKeys.back());
+					accountHistoryPair.second.add(Height(5), { votingPublicKeys[balances.size() - 1], votingPublicKeys.back() });
 				}
 			}
 

@@ -35,20 +35,12 @@ namespace catapult { namespace keylink {
 
 		struct Accessor {
 			static auto& Get(state::AccountState& accountState) {
-				return accountState.SupplementalPublicKeys.temp();
+				return accountState.SupplementalPublicKeys.voting();
 			}
 		};
 
 		auto CreateKeyLinkObserver(const std::string& name) {
 			return keylink::CreateMultiKeyLinkObserver<Notification, Accessor>(name);
-		}
-
-		auto ExtractAll(const state::AccountPublicKeys::PublicKeysAccessor<model::PinnedVotingKey>& publicKeysAccessor) {
-			std::vector<model::PinnedVotingKey> keys;
-			for (auto i = 0u; i < publicKeysAccessor.size(); ++i)
-				keys.push_back(publicKeysAccessor.get(i));
-
-			return keys;
 		}
 
 		auto RunKeyLinkObserverTest(
@@ -68,7 +60,7 @@ namespace catapult { namespace keylink {
 
 			// Assert:
 			auto& accountStateCache = context.cache().sub<cache::AccountStateCache>();
-			return ExtractAll(Accessor::Get(accountStateCache.find(mainAccountPublicKey).get()));
+			return Accessor::Get(accountStateCache.find(mainAccountPublicKey).get()).getAll();
 		}
 
 		model::PinnedVotingKey CreatePinnedVotingKey(FinalizationPoint::ValueType startPoint, FinalizationPoint::ValueType endPoint) {

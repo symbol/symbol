@@ -34,7 +34,7 @@ namespace catapult { namespace state {
 			}
 
 			static const auto& GetValueHistory(const AccountHistory& history) {
-				return history.balances();
+				return history.balance();
 			}
 		};
 
@@ -44,13 +44,16 @@ namespace catapult { namespace state {
 			}
 
 			static const auto& GetValueHistory(const AccountHistory& history) {
-				return history.vrfPublicKeys();
+				return history.vrfPublicKey();
 			}
 		};
 
-		struct VotingPublicKeyTraits {
-			static model::PinnedVotingKey ToValue(uint8_t seed) {
-				return { { { seed } }, FinalizationPoint(seed), FinalizationPoint(seed * 2) };
+		struct VotingPublicKeysTraits {
+			static std::vector<model::PinnedVotingKey> ToValue(uint8_t seed) {
+				return {
+					{ { { seed } }, FinalizationPoint(seed + 100), FinalizationPoint(seed + 150) },
+					{ { { static_cast<uint8_t>(seed * seed) } }, FinalizationPoint(seed + 151), FinalizationPoint(seed + 175) }
+				};
 			}
 
 			static const auto& GetValueHistory(const AccountHistory& history) {
@@ -63,7 +66,7 @@ namespace catapult { namespace state {
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	TEST(TEST_CLASS, TEST_NAME##_Balance) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BalanceTraits>(); } \
 	TEST(TEST_CLASS, TEST_NAME##_VrfPublicKey) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VrfPublicKeyTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_VotingPublicKey) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VotingPublicKeyTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_VotingPublicKeys) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VotingPublicKeysTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
@@ -75,8 +78,8 @@ namespace catapult { namespace state {
 		AccountHistory history;
 
 		// Assert:
-		EXPECT_EQ(0u, history.balances().size());
-		EXPECT_EQ(0u, history.vrfPublicKeys().size());
+		EXPECT_EQ(0u, history.balance().size());
+		EXPECT_EQ(0u, history.vrfPublicKey().size());
 		EXPECT_EQ(0u, history.votingPublicKeys().size());
 	}
 
@@ -164,12 +167,12 @@ namespace catapult { namespace state {
 
 		history.add(Height(12), Key{ { 100 } });
 
-		history.add(Height(22), VotingPublicKeyTraits::ToValue(75));
-		history.add(Height(44), VotingPublicKeyTraits::ToValue(200));
+		history.add(Height(22), VotingPublicKeysTraits::ToValue(75));
+		history.add(Height(44), VotingPublicKeysTraits::ToValue(200));
 
 		// Assert:
 		{
-			const auto& valueHistory = history.balances();
+			const auto& valueHistory = history.balance();
 			EXPECT_EQ(3u, valueHistory.size());
 			EXPECT_EQ(std::vector<Height>({ Height(11), Height(22), Height(33) }), valueHistory.heights());
 			EXPECT_EQ(Amount(67), valueHistory.get());
@@ -180,7 +183,7 @@ namespace catapult { namespace state {
 		}
 
 		{
-			const auto& valueHistory = history.vrfPublicKeys();
+			const auto& valueHistory = history.vrfPublicKey();
 			EXPECT_EQ(1u, valueHistory.size());
 			EXPECT_EQ(std::vector<Height>({ Height(12) }), valueHistory.heights());
 			EXPECT_EQ(Key{ { 100 } }, valueHistory.get());
@@ -192,10 +195,10 @@ namespace catapult { namespace state {
 			const auto& valueHistory = history.votingPublicKeys();
 			EXPECT_EQ(2u, valueHistory.size());
 			EXPECT_EQ(std::vector<Height>({ Height(22), Height(44) }), valueHistory.heights());
-			EXPECT_EQ(VotingPublicKeyTraits::ToValue(200), valueHistory.get());
+			EXPECT_EQ(VotingPublicKeysTraits::ToValue(200), valueHistory.get());
 
-			EXPECT_EQ(VotingPublicKeyTraits::ToValue(75), valueHistory.get(Height(22)));
-			EXPECT_EQ(VotingPublicKeyTraits::ToValue(200), valueHistory.get(Height(44)));
+			EXPECT_EQ(VotingPublicKeysTraits::ToValue(75), valueHistory.get(Height(22)));
+			EXPECT_EQ(VotingPublicKeysTraits::ToValue(200), valueHistory.get(Height(44)));
 		}
 	}
 
@@ -218,6 +221,11 @@ namespace catapult { namespace state {
 			// Assert:
 			checkHistory(history);
 		}
+
+		template<typename TTraits>
+		auto ZeroValue() {
+			return decltype(TTraits::ToValue(0))();
+		}
 	}
 
 	HISTORY_VALUE_TEST(CanPrune) {
@@ -230,8 +238,8 @@ namespace catapult { namespace state {
 			EXPECT_EQ(std::vector<Height>({ Height(22), Height(33) }), valueHistory.heights());
 			EXPECT_EQ(TTraits::ToValue(67), valueHistory.get());
 
-			EXPECT_EQ(TTraits::ToValue(0), valueHistory.get(Height(11)));
-			EXPECT_EQ(TTraits::ToValue(0), valueHistory.get(Height(21)));
+			EXPECT_EQ(ZeroValue<TTraits>(), valueHistory.get(Height(11)));
+			EXPECT_EQ(ZeroValue<TTraits>(), valueHistory.get(Height(21)));
 			EXPECT_EQ(TTraits::ToValue(98), valueHistory.get(Height(22)));
 			EXPECT_EQ(TTraits::ToValue(98), valueHistory.get(Height(23)));
 			EXPECT_EQ(TTraits::ToValue(67), valueHistory.get(Height(33)));
@@ -248,15 +256,15 @@ namespace catapult { namespace state {
 
 		history.add(Height(12), Key{ { 100 } });
 
-		history.add(Height(22), VotingPublicKeyTraits::ToValue(75));
-		history.add(Height(44), VotingPublicKeyTraits::ToValue(200));
+		history.add(Height(22), VotingPublicKeysTraits::ToValue(75));
+		history.add(Height(44), VotingPublicKeysTraits::ToValue(200));
 
 		// Act:
 		history.prune(Height(33));
 
 		// Assert:
 		{
-			const auto& valueHistory = history.balances();
+			const auto& valueHistory = history.balance();
 			EXPECT_EQ(1u, valueHistory.size());
 			EXPECT_EQ(std::vector<Height>({ Height(33) }), valueHistory.heights());
 			EXPECT_EQ(Amount(67), valueHistory.get());
@@ -265,7 +273,7 @@ namespace catapult { namespace state {
 		}
 
 		{
-			const auto& valueHistory = history.vrfPublicKeys();
+			const auto& valueHistory = history.vrfPublicKey();
 			EXPECT_EQ(1u, valueHistory.size());
 			EXPECT_EQ(std::vector<Height>({ Height(33) }), valueHistory.heights());
 			EXPECT_EQ(Key{ { 100 } }, valueHistory.get());
@@ -277,10 +285,10 @@ namespace catapult { namespace state {
 			const auto& valueHistory = history.votingPublicKeys();
 			EXPECT_EQ(2u, valueHistory.size());
 			EXPECT_EQ(std::vector<Height>({ Height(33), Height(44) }), valueHistory.heights());
-			EXPECT_EQ(VotingPublicKeyTraits::ToValue(200), valueHistory.get());
+			EXPECT_EQ(VotingPublicKeysTraits::ToValue(200), valueHistory.get());
 
-			EXPECT_EQ(VotingPublicKeyTraits::ToValue(75), valueHistory.get(Height(33)));
-			EXPECT_EQ(VotingPublicKeyTraits::ToValue(200), valueHistory.get(Height(44)));
+			EXPECT_EQ(VotingPublicKeysTraits::ToValue(75), valueHistory.get(Height(33)));
+			EXPECT_EQ(VotingPublicKeysTraits::ToValue(200), valueHistory.get(Height(44)));
 		}
 	}
 

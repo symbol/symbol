@@ -40,7 +40,7 @@ namespace catapult { namespace keylink {
 			static constexpr auto Failure_Too_Many_Links = static_cast<validators::ValidationResult>(0x80000000 + 3);
 
 			static const auto& Get(const state::AccountState& accountState) {
-				return accountState.SupplementalPublicKeys.temp();
+				return accountState.SupplementalPublicKeys.voting();
 			}
 		};
 
