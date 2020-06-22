@@ -97,5 +97,5 @@ namespace catapult { namespace state {
 	Key GetVrfPublicKey(const AccountState& accountState);
 
 	/// Gets the voting public key associated with \a accountState or a zero key.
-	PinnedVotingKey GetVotingPublicKey(const AccountState& accountState);
+	model::PinnedVotingKey GetVotingPublicKey(const AccountState& accountState);
 }}

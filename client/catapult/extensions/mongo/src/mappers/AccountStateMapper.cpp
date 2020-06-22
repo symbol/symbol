@@ -49,7 +49,7 @@ namespace catapult { namespace mongo { namespace mappers {
 				bson_stream::array_context& context,
 				state::AccountPublicKeys::KeyType mask,
 				state::AccountPublicKeys::KeyType keyType,
-				const state::AccountPublicKeys::PublicKeyAccessor<PinnedVotingKey>& publicKeyAccessor) {
+				const state::AccountPublicKeys::PublicKeyAccessor<model::PinnedVotingKey>& publicKeyAccessor) {
 			if (!HasFlag(keyType, mask))
 				return;
 

@@ -40,7 +40,7 @@ namespace catapult { namespace state {
 
 		struct VrfPublicKeyTraits {
 			static Key ToValue(uint8_t seed) {
-				return Key{ { seed } };
+				return { { seed } };
 			}
 
 			static const auto& GetValueHistory(const AccountHistory& history) {
@@ -49,8 +49,8 @@ namespace catapult { namespace state {
 		};
 
 		struct VotingPublicKeyTraits {
-			static PinnedVotingKey ToValue(uint8_t seed) {
-				return PinnedVotingKey{ { { seed } }, FinalizationPoint(seed), FinalizationPoint(seed * 2) };
+			static model::PinnedVotingKey ToValue(uint8_t seed) {
+				return { { { seed } }, FinalizationPoint(seed), FinalizationPoint(seed * 2) };
 			}
 
 			static const auto& GetValueHistory(const AccountHistory& history) {

@@ -20,6 +20,7 @@
 
 #pragma once
 #include "catapult/model/Notifications.h"
+#include "catapult/model/PinnedVotingKey.h"
 
 namespace catapult { namespace model {
 

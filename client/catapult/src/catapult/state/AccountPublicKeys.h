@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "catapult/model/PinnedVotingKey.h"
 #include "catapult/utils/BitwiseEnum.h"
 #include "catapult/types.h"
 #include <memory>
@@ -176,28 +177,28 @@ namespace catapult { namespace state {
 		PublicKeyAccessor<Key>& vrf();
 
 		/// Gets the (const) voting public key accessor.
-		const PublicKeyAccessor<PinnedVotingKey>& voting() const;
+		const PublicKeyAccessor<model::PinnedVotingKey>& voting() const;
 
 		/// Gets the voting public key accessor.
-		PublicKeyAccessor<PinnedVotingKey>& voting();
+		PublicKeyAccessor<model::PinnedVotingKey>& voting();
 
 		// TODO: remove these - they are a temporary measure to allow example PublicKeysAccessor observer + validator
-		const PublicKeysAccessor<PinnedVotingKey>& temp() const;
-		PublicKeysAccessor<PinnedVotingKey>& temp();
+		const PublicKeysAccessor<model::PinnedVotingKey>& temp() const;
+		PublicKeysAccessor<model::PinnedVotingKey>& temp();
 
 	private:
 		PublicKeyAccessor<Key> m_linkedPublicKeyAccessor;
 		PublicKeyAccessor<Key> m_nodePublicKeyAccessor;
 		PublicKeyAccessor<Key> m_vrfPublicKeyAccessor;
-		PublicKeyAccessor<PinnedVotingKey> m_votingPublicKeyAccessor;
+		PublicKeyAccessor<model::PinnedVotingKey> m_votingPublicKeyAccessor;
 
 		// TODO: remove this too
-		PublicKeysAccessor<PinnedVotingKey> m_tempPublicKeysAccessor;
+		PublicKeysAccessor<model::PinnedVotingKey> m_tempPublicKeysAccessor;
 	};
 
 	MAKE_BITWISE_ENUM(AccountPublicKeys::KeyType)
 
 	extern template class AccountPublicKeys::PublicKeyAccessor<Key>;
-	extern template class AccountPublicKeys::PublicKeyAccessor<PinnedVotingKey>;
-	extern template class AccountPublicKeys::PublicKeysAccessor<PinnedVotingKey>;
+	extern template class AccountPublicKeys::PublicKeyAccessor<model::PinnedVotingKey>;
+	extern template class AccountPublicKeys::PublicKeysAccessor<model::PinnedVotingKey>;
 }}

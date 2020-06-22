@@ -144,7 +144,7 @@ namespace catapult { namespace test {
 			keyType = static_cast<state::AccountPublicKeys::KeyType>(utils::to_underlying_type(keyType) << 1);
 		}
 
-		void AssertEqualPinnedVotingKey(const PinnedVotingKey& votingKey, const bsoncxx::document::view& accountKeyView) {
+		void AssertEqualPinnedVotingKey(const model::PinnedVotingKey& votingKey, const bsoncxx::document::view& accountKeyView) {
 			EXPECT_EQ(votingKey.VotingKey, GetVotingKeyValue(accountKeyView, "key"));
 			EXPECT_EQ(votingKey.StartPoint, FinalizationPoint(GetUint64(accountKeyView, "startPoint")));
 			EXPECT_EQ(votingKey.EndPoint, FinalizationPoint(GetUint64(accountKeyView, "endPoint")));

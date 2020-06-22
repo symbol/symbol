@@ -20,6 +20,7 @@
 
 #pragma once
 #include "HeightIndexedHistoryMap.h"
+#include "catapult/model/PinnedVotingKey.h"
 
 namespace catapult { namespace state {
 
@@ -34,7 +35,7 @@ namespace catapult { namespace state {
 		const HeightIndexedHistoryMap<Key>& vrfPublicKeys() const;
 
 		/// Gets the voting public key history.
-		const HeightIndexedHistoryMap<PinnedVotingKey>& votingPublicKeys() const;
+		const HeightIndexedHistoryMap<model::PinnedVotingKey>& votingPublicKeys() const;
 
 		/// Returns \c true if any historical balance is at least \a minAmount.
 		bool anyAtLeast(Amount minAmount) const;
@@ -47,7 +48,7 @@ namespace catapult { namespace state {
 		void add(Height height, const Key& vrfPublicKey);
 
 		/// Adds \a votingPublicKey at \a height.
-		void add(Height height, const PinnedVotingKey& votingPublicKey);
+		void add(Height height, const model::PinnedVotingKey& votingPublicKey);
 
 		/// Prunes all balances less than \a height.
 		/// \note Prune will never change the result of balance queries at or after \a height.
@@ -56,6 +57,6 @@ namespace catapult { namespace state {
 	private:
 		HeightIndexedHistoryMap<Amount> m_heightBalanceMap;
 		HeightIndexedHistoryMap<Key> m_heightVrfPublicKeyMap;
-		HeightIndexedHistoryMap<PinnedVotingKey> m_heightVotingPublicKeyMap;
+		HeightIndexedHistoryMap<model::PinnedVotingKey> m_heightVotingPublicKeyMap;
 	};
 }}

@@ -333,7 +333,7 @@ namespace catapult { namespace state {
 					{ AccountPublicKeys::KeyType::Linked, Key::Size },
 					{ AccountPublicKeys::KeyType::Node, Key::Size },
 					{ AccountPublicKeys::KeyType::VRF, Key::Size },
-					{ AccountPublicKeys::KeyType::Voting, PinnedVotingKey::Size }
+					{ AccountPublicKeys::KeyType::Voting, model::PinnedVotingKey::Size }
 				};
 
 				for (const auto& keySizePair : keySizes) {

@@ -134,7 +134,7 @@ namespace catapult { namespace state {
 
 			if (HasFlag(AccountPublicKeys::KeyType::Voting, accountPublicKeys.mask())) {
 				auto pinnedVotingKey = accountPublicKeys.voting().get();
-				output.write({ reinterpret_cast<const uint8_t*>(&pinnedVotingKey), PinnedVotingKey::Size });
+				output.write({ reinterpret_cast<const uint8_t*>(&pinnedVotingKey), model::PinnedVotingKey::Size });
 			}
 		}
 
@@ -196,8 +196,8 @@ namespace catapult { namespace state {
 		}
 
 		template<>
-		MutableRawBuffer ToBuffer(PinnedVotingKey& key) {
-			return { reinterpret_cast<uint8_t*>(&key), PinnedVotingKey::Size };
+		MutableRawBuffer ToBuffer(model::PinnedVotingKey& key) {
+			return { reinterpret_cast<uint8_t*>(&key), model::PinnedVotingKey::Size };
 		}
 
 		template<typename TAccountPublicKey>

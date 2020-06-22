@@ -218,7 +218,7 @@ namespace catapult { namespace state {
 		EXPECT_EQ(Key(), GetLinkedPublicKey(accountState));
 		EXPECT_EQ(Key(), GetNodePublicKey(accountState));
 		EXPECT_EQ(Key(), GetVrfPublicKey(accountState));
-		EXPECT_EQ(PinnedVotingKey(), GetVotingPublicKey(accountState));
+		EXPECT_EQ(model::PinnedVotingKey(), GetVotingPublicKey(accountState));
 	}
 
 	TEST(TEST_CLASS, CanRetrieveSupplementalPublicKeysViaAccessorsWhenSet) {
@@ -226,7 +226,7 @@ namespace catapult { namespace state {
 		auto linkedPublicKey = test::GenerateRandomByteArray<Key>();
 		auto nodePublicKey = test::GenerateRandomByteArray<Key>();
 		auto vrfPublicKey = test::GenerateRandomByteArray<Key>();
-		auto votingPublicKey = test::GenerateRandomPackedStruct<PinnedVotingKey>();
+		auto votingPublicKey = test::GenerateRandomPackedStruct<model::PinnedVotingKey>();
 
 		AccountState accountState(test::GenerateRandomAddress(), Height(123));
 		accountState.SupplementalPublicKeys.linked().set(linkedPublicKey);

@@ -75,7 +75,7 @@ namespace catapult { namespace state {
 	}
 
 	template class AccountPublicKeys::PublicKeyAccessor<Key>;
-	template class AccountPublicKeys::PublicKeyAccessor<PinnedVotingKey>;
+	template class AccountPublicKeys::PublicKeyAccessor<model::PinnedVotingKey>;
 
 	// endregion
 
@@ -174,7 +174,7 @@ namespace catapult { namespace state {
 		});
 	}
 
-	template class AccountPublicKeys::PublicKeysAccessor<PinnedVotingKey>;
+	template class AccountPublicKeys::PublicKeysAccessor<model::PinnedVotingKey>;
 
 	// endregion
 
@@ -213,20 +213,20 @@ namespace catapult { namespace state {
 		return m_vrfPublicKeyAccessor;
 	}
 
-	const AccountPublicKeys::PublicKeyAccessor<PinnedVotingKey>& AccountPublicKeys::voting() const {
+	const AccountPublicKeys::PublicKeyAccessor<model::PinnedVotingKey>& AccountPublicKeys::voting() const {
 		return m_votingPublicKeyAccessor;
 	}
 
-	AccountPublicKeys::PublicKeyAccessor<PinnedVotingKey>& AccountPublicKeys::voting() {
+	AccountPublicKeys::PublicKeyAccessor<model::PinnedVotingKey>& AccountPublicKeys::voting() {
 		return m_votingPublicKeyAccessor;
 	}
 
 	// TODO: remove these - they are a temporary measure to allow example PublicKeysAccessor observer + validator
-	const AccountPublicKeys::PublicKeysAccessor<PinnedVotingKey>& AccountPublicKeys::temp() const {
+	const AccountPublicKeys::PublicKeysAccessor<model::PinnedVotingKey>& AccountPublicKeys::temp() const {
 		return m_tempPublicKeysAccessor;
 	}
 
-	AccountPublicKeys::PublicKeysAccessor<PinnedVotingKey>& AccountPublicKeys::temp() {
+	AccountPublicKeys::PublicKeysAccessor<model::PinnedVotingKey>& AccountPublicKeys::temp() {
 		return m_tempPublicKeysAccessor;
 	}
 

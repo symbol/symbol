@@ -261,23 +261,17 @@ namespace catapult { namespace state {
 
 	namespace {
 		using FP = FinalizationPoint;
-		using PublicKeysAccessor = AccountPublicKeys::PublicKeysAccessor<PinnedVotingKey>;
+		using PublicKeysAccessor = AccountPublicKeys::PublicKeysAccessor<model::PinnedVotingKey>;
 
 		void AssertUnset(const PublicKeysAccessor& accessor) {
 			EXPECT_EQ(0u, accessor.size());
 		}
 
-		void AssertSet(const PublicKeysAccessor& accessor, const std::vector<PinnedVotingKey>& expectedKeys) {
+		void AssertSet(const PublicKeysAccessor& accessor, const std::vector<model::PinnedVotingKey>& expectedKeys) {
 			ASSERT_EQ(expectedKeys.size(), accessor.size());
 
-			for (auto i = 0u; i < expectedKeys.size(); ++i) {
-				const auto& expectedKey = expectedKeys[i];
-				const auto& actualKey = accessor.get(i);
-
-				EXPECT_EQ(expectedKey.VotingKey, actualKey.VotingKey) << "at " << i;
-				EXPECT_EQ(expectedKey.StartPoint, actualKey.StartPoint) << "at " << i;
-				EXPECT_EQ(expectedKey.EndPoint, actualKey.EndPoint) << "at " << i;
-			}
+			for (auto i = 0u; i < expectedKeys.size(); ++i)
+				EXPECT_EQ(expectedKeys[i], accessor.get(i)) << "at " << i;
 		}
 
 		void AssertCopied(const PublicKeysAccessor& accessor, const PublicKeysAccessor& accessorCopy) {
@@ -550,13 +544,8 @@ namespace catapult { namespace state {
 		auto pinnedKey1 = accessor.get(1);
 
 		// Act + Assert
-		EXPECT_EQ(VotingKey{ { 0x44 } }, pinnedKey0.VotingKey);
-		EXPECT_EQ(FP(100), pinnedKey0.StartPoint);
-		EXPECT_EQ(FP(149), pinnedKey0.EndPoint);
-
-		EXPECT_EQ(VotingKey{ { 0x32 } }, pinnedKey1.VotingKey);
-		EXPECT_EQ(FP(200), pinnedKey1.StartPoint);
-		EXPECT_EQ(FP(299), pinnedKey1.EndPoint);
+		EXPECT_EQ(model::PinnedVotingKey({ { { 0x44 } }, FP(100), FP(149) }), pinnedKey0);
+		EXPECT_EQ(model::PinnedVotingKey({ { { 0x32 } }, FP(200), FP(299) }), pinnedKey1);
 	}
 
 	// endregion
@@ -637,7 +626,7 @@ namespace catapult { namespace state {
 	}
 
 	namespace {
-		void AssertCannotRemove(const PinnedVotingKey& key) {
+		void AssertCannotRemove(const model::PinnedVotingKey& key) {
 			// Arrange:
 			PublicKeysAccessor accessor;
 			accessor.add({ { { 0x44 } }, FP(100), FP(149) });
@@ -791,7 +780,7 @@ namespace catapult { namespace state {
 
 	TEST(TEST_CLASS, CanSetVotingPublicKey) {
 		// Arrange:
-		auto key = test::GenerateRandomPackedStruct<PinnedVotingKey>();
+		auto key = test::GenerateRandomPackedStruct<model::PinnedVotingKey>();
 		AccountPublicKeys keys;
 
 		// Act:
@@ -814,7 +803,7 @@ namespace catapult { namespace state {
 		auto linkedPublicKey = test::GenerateRandomByteArray<Key>();
 		auto nodePublicKey = test::GenerateRandomByteArray<Key>();
 		auto vrfPublicKey = test::GenerateRandomByteArray<Key>();
-		auto votingPublicKey = test::GenerateRandomPackedStruct<PinnedVotingKey>();
+		auto votingPublicKey = test::GenerateRandomPackedStruct<model::PinnedVotingKey>();
 		AccountPublicKeys keys;
 
 		// Act:

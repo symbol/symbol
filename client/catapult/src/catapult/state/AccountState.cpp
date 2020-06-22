@@ -90,7 +90,7 @@ namespace catapult { namespace state {
 		return accountState.SupplementalPublicKeys.vrf().get();
 	}
 
-	PinnedVotingKey GetVotingPublicKey(const AccountState& accountState) {
+	model::PinnedVotingKey GetVotingPublicKey(const AccountState& accountState) {
 		return accountState.SupplementalPublicKeys.voting().get();
 	}
 }}

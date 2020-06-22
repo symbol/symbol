@@ -46,22 +46,13 @@ namespace catapult { namespace test {
 	}
 
 	namespace {
-		void AssertEqualPinnedVotingKey(
-				const PinnedVotingKey& expectedVotingKey,
-				const PinnedVotingKey& votingKey,
-				const std::string& message) {
-			EXPECT_EQ(expectedVotingKey.VotingKey, votingKey.VotingKey) << message;
-			EXPECT_EQ(expectedVotingKey.StartPoint, votingKey.StartPoint) << message;
-			EXPECT_EQ(expectedVotingKey.EndPoint, votingKey.EndPoint) << message;
-		}
-
 		void AssertEqual(const state::AccountPublicKeys& expected, const state::AccountPublicKeys& actual, const std::string& message) {
 			EXPECT_EQ(expected.mask(), actual.mask()) << message;
 			EXPECT_EQ(expected.linked().get(), actual.linked().get()) << message;
 			EXPECT_EQ(expected.node().get(), actual.node().get()) << message;
 			EXPECT_EQ(expected.vrf().get(), actual.vrf().get()) << message;
 
-			AssertEqualPinnedVotingKey(expected.voting().get(), actual.voting().get(), message);
+			EXPECT_EQ(expected.voting().get(), actual.voting().get()) << message;
 		}
 
 		void AssertEqual(
@@ -145,7 +136,7 @@ namespace catapult { namespace test {
 			accountState.SupplementalPublicKeys.vrf().set(test::GenerateRandomByteArray<Key>());
 
 		if (HasFlag(state::AccountPublicKeys::KeyType::Voting, mask))
-			accountState.SupplementalPublicKeys.voting().set(test::GenerateRandomPackedStruct<PinnedVotingKey>());
+			accountState.SupplementalPublicKeys.voting().set(test::GenerateRandomPackedStruct<model::PinnedVotingKey>());
 	}
 
 	void ForceSetLinkedPublicKey(state::AccountState& accountState, const Key& linkedPublicKey) {

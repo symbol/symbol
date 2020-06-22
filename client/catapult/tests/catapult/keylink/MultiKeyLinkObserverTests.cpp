@@ -31,7 +31,7 @@ namespace catapult { namespace keylink {
 	// region test utils
 
 	namespace {
-		using Notification = model::BasicKeyLinkNotification<PinnedVotingKey, static_cast<model::NotificationType>(0)>;
+		using Notification = model::BasicKeyLinkNotification<model::PinnedVotingKey, static_cast<model::NotificationType>(0)>;
 
 		struct Accessor {
 			static auto& Get(state::AccountState& accountState) {
@@ -43,8 +43,8 @@ namespace catapult { namespace keylink {
 			return keylink::CreateMultiKeyLinkObserver<Notification, Accessor>(name);
 		}
 
-		auto ExtractAll(const state::AccountPublicKeys::PublicKeysAccessor<PinnedVotingKey>& publicKeysAccessor) {
-			std::vector<PinnedVotingKey> keys;
+		auto ExtractAll(const state::AccountPublicKeys::PublicKeysAccessor<model::PinnedVotingKey>& publicKeysAccessor) {
+			std::vector<model::PinnedVotingKey> keys;
 			for (auto i = 0u; i < publicKeysAccessor.size(); ++i)
 				keys.push_back(publicKeysAccessor.get(i));
 
@@ -54,8 +54,8 @@ namespace catapult { namespace keylink {
 		auto RunKeyLinkObserverTest(
 				observers::NotifyMode notifyMode,
 				model::LinkAction linkAction,
-				const std::vector<PinnedVotingKey>& cacheLinkedPublicKeys,
-				const PinnedVotingKey& notificationLinkedPublicKey) {
+				const std::vector<model::PinnedVotingKey>& cacheLinkedPublicKeys,
+				const model::PinnedVotingKey& notificationLinkedPublicKey) {
 			// Arrange:
 			test::AccountObserverTestContext context(notifyMode);
 			auto mainAccountPublicKey = test::AddAccountWithMultiVotingLinks(context.cache(), cacheLinkedPublicKeys);
@@ -71,7 +71,7 @@ namespace catapult { namespace keylink {
 			return ExtractAll(Accessor::Get(accountStateCache.find(mainAccountPublicKey).get()));
 		}
 
-		PinnedVotingKey CreatePinnedVotingKey(FinalizationPoint::ValueType startPoint, FinalizationPoint::ValueType endPoint) {
+		model::PinnedVotingKey CreatePinnedVotingKey(FinalizationPoint::ValueType startPoint, FinalizationPoint::ValueType endPoint) {
 			return { test::GenerateRandomByteArray<VotingKey>(), FinalizationPoint(startPoint), FinalizationPoint(endPoint) };
 		}
 	}
@@ -97,7 +97,7 @@ namespace catapult { namespace keylink {
 		constexpr auto Mode = observers::NotifyMode::Commit;
 
 		// Act:
-		auto pinnedVotingKeys = std::vector<PinnedVotingKey>{ CreatePinnedVotingKey(100, 150), CreatePinnedVotingKey(200, 250) };
+		auto pinnedVotingKeys = std::vector<model::PinnedVotingKey>{ CreatePinnedVotingKey(100, 150), CreatePinnedVotingKey(200, 250) };
 		auto finalPinnedVotingKeys = RunKeyLinkObserverTest(Mode, model::LinkAction::Link, { pinnedVotingKeys[0] }, pinnedVotingKeys[1]);
 
 		// Assert:
@@ -109,11 +109,11 @@ namespace catapult { namespace keylink {
 		constexpr auto Mode = observers::NotifyMode::Rollback;
 
 		// Act:
-		auto pinnedVotingKeys = std::vector<PinnedVotingKey>{ CreatePinnedVotingKey(100, 150), CreatePinnedVotingKey(200, 250) };
+		auto pinnedVotingKeys = std::vector<model::PinnedVotingKey>{ CreatePinnedVotingKey(100, 150), CreatePinnedVotingKey(200, 250) };
 		auto finalPinnedVotingKeys = RunKeyLinkObserverTest(Mode, model::LinkAction::Link, pinnedVotingKeys, pinnedVotingKeys[0]);
 
 		// Assert:
-		EXPECT_EQ(std::vector<PinnedVotingKey>{ pinnedVotingKeys[1] }, finalPinnedVotingKeys);
+		EXPECT_EQ(std::vector<model::PinnedVotingKey>{ pinnedVotingKeys[1] }, finalPinnedVotingKeys);
 	}
 
 	// endregion
@@ -125,11 +125,11 @@ namespace catapult { namespace keylink {
 		constexpr auto Mode = observers::NotifyMode::Commit;
 
 		// Act:
-		auto pinnedVotingKeys = std::vector<PinnedVotingKey>{ CreatePinnedVotingKey(100, 150), CreatePinnedVotingKey(200, 250) };
+		auto pinnedVotingKeys = std::vector<model::PinnedVotingKey>{ CreatePinnedVotingKey(100, 150), CreatePinnedVotingKey(200, 250) };
 		auto finalPinnedVotingKeys = RunKeyLinkObserverTest(Mode, model::LinkAction::Unlink, pinnedVotingKeys, pinnedVotingKeys[0]);
 
 		// Assert:
-		EXPECT_EQ(std::vector<PinnedVotingKey>{ pinnedVotingKeys[1] }, finalPinnedVotingKeys);
+		EXPECT_EQ(std::vector<model::PinnedVotingKey>{ pinnedVotingKeys[1] }, finalPinnedVotingKeys);
 	}
 
 	TEST(TEST_CLASS, UnlinkRollbackAddsLink) {
@@ -137,7 +137,7 @@ namespace catapult { namespace keylink {
 		constexpr auto Mode = observers::NotifyMode::Rollback;
 
 		// Act:
-		auto pinnedVotingKeys = std::vector<PinnedVotingKey>{ CreatePinnedVotingKey(100, 150), CreatePinnedVotingKey(200, 250) };
+		auto pinnedVotingKeys = std::vector<model::PinnedVotingKey>{ CreatePinnedVotingKey(100, 150), CreatePinnedVotingKey(200, 250) };
 		auto finalPinnedVotingKeys = RunKeyLinkObserverTest(Mode, model::LinkAction::Unlink, { pinnedVotingKeys[0] }, pinnedVotingKeys[1]);
 
 		// Assert:

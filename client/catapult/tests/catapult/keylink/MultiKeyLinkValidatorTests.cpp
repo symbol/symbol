@@ -32,7 +32,7 @@ namespace catapult { namespace keylink {
 	// region test utils
 
 	namespace {
-		using Notification = model::BasicKeyLinkNotification<PinnedVotingKey, static_cast<model::NotificationType>(0)>;
+		using Notification = model::BasicKeyLinkNotification<model::PinnedVotingKey, static_cast<model::NotificationType>(0)>;
 
 		struct Accessor {
 			static constexpr auto Failure_Link_Already_Exists = static_cast<validators::ValidationResult>(0x80000000 + 1);
@@ -50,8 +50,8 @@ namespace catapult { namespace keylink {
 
 		void AssertValidation(
 				validators::ValidationResult expectedResult,
-				const std::vector<PinnedVotingKey>& cacheLinkedPublicKeys,
-				const PinnedVotingKey& notificationLinkedPublicKey,
+				const std::vector<model::PinnedVotingKey>& cacheLinkedPublicKeys,
+				const model::PinnedVotingKey& notificationLinkedPublicKey,
 				model::LinkAction linkAction) {
 			// Arrange:
 			Key mainAccountPublicKey;
@@ -72,12 +72,12 @@ namespace catapult { namespace keylink {
 			EXPECT_EQ(expectedResult, result);
 		}
 
-		PinnedVotingKey CreatePinnedVotingKey(FinalizationPoint::ValueType startPoint, FinalizationPoint::ValueType endPoint) {
+		model::PinnedVotingKey CreatePinnedVotingKey(FinalizationPoint::ValueType startPoint, FinalizationPoint::ValueType endPoint) {
 			return { test::GenerateRandomByteArray<VotingKey>(), FinalizationPoint(startPoint), FinalizationPoint(endPoint) };
 		}
 
 		auto CreatePinnedVotingKeys(size_t count) {
-			std::vector<PinnedVotingKey> pinnedVotingKeys;
+			std::vector<model::PinnedVotingKey> pinnedVotingKeys;
 			for (auto i = 0u; i < count; ++i)
 				pinnedVotingKeys.push_back(CreatePinnedVotingKey((i + 1) * 100, (i + 1) * 100 + 50));
 

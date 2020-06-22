@@ -40,7 +40,9 @@ namespace catapult { namespace test {
 	}
 
 	/// Adds a random account to \a cacheDelta with specified voting public keys (\a publicKeys).
-	inline Key AddAccountWithMultiVotingLinks(cache::CatapultCacheDelta& cacheDelta, const std::vector<PinnedVotingKey>& publicKeys) {
+	inline Key AddAccountWithMultiVotingLinks(
+			cache::CatapultCacheDelta& cacheDelta,
+			const std::vector<model::PinnedVotingKey>& publicKeys) {
 		auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
 
 		auto mainAccountPublicKey = GenerateRandomByteArray<Key>();
@@ -51,12 +53,5 @@ namespace catapult { namespace test {
 			mainAccountStateIter.get().SupplementalPublicKeys.temp().add(publicKey);
 
 		return mainAccountPublicKey;
-	}
-
-	/// Asserts that \a expectedPinnedKey is equal to \a actualPinnedKey.
-	inline void AssertEqualPinned(const PinnedVotingKey& expectedPinnedKey, const PinnedVotingKey& actualPinnedKey) {
-		EXPECT_EQ(expectedPinnedKey.VotingKey, actualPinnedKey.VotingKey);
-		EXPECT_EQ(expectedPinnedKey.StartPoint, actualPinnedKey.StartPoint);
-		EXPECT_EQ(expectedPinnedKey.EndPoint, actualPinnedKey.EndPoint);
 	}
 }}

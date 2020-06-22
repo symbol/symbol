@@ -174,7 +174,7 @@ namespace catapult { namespace cache {
 		void AddAccountsWithBalances(MemorySetType& set, const std::vector<Address>& addresses, const std::vector<Amount>& balances) {
 			for (auto i = 0u; i < balances.size(); ++i) {
 				auto accountState = state::AccountState(addresses[i], Height(1));
-				accountState.SupplementalPublicKeys.voting().set(test::GenerateRandomPackedStruct<PinnedVotingKey>());
+				accountState.SupplementalPublicKeys.voting().set(test::GenerateRandomPackedStruct<model::PinnedVotingKey>());
 				accountState.Balances.credit(Harvesting_Mosaic_Id, balances[i]);
 				set.emplace(accountState.Address, accountState);
 			}
@@ -712,7 +712,7 @@ namespace catapult { namespace cache {
 		updater.update(deltas.deltas());
 
 		// - set second account voting public key
-		auto newVotingPublicKey = test::GenerateRandomPackedStruct<PinnedVotingKey>();
+		auto newVotingPublicKey = test::GenerateRandomPackedStruct<model::PinnedVotingKey>();
 		deltas.Added.find(addedAddresses[1])->second.SupplementalPublicKeys.voting().set(newVotingPublicKey);
 
 		updater.setHeight(Height(4));
@@ -812,8 +812,8 @@ namespace catapult { namespace cache {
 		updater.update(deltas.deltas());
 
 		// - change second account voting public key
-		PinnedVotingKey originalVotingPublicKey;
-		auto newVotingPublicKey = test::GenerateRandomPackedStruct<PinnedVotingKey>();
+		model::PinnedVotingKey originalVotingPublicKey;
+		auto newVotingPublicKey = test::GenerateRandomPackedStruct<model::PinnedVotingKey>();
 		{
 			auto& votingPublicKeyAccessor = deltas.Added.find(addedAddresses[1])->second.SupplementalPublicKeys.voting();
 			originalVotingPublicKey = votingPublicKeyAccessor.get();
