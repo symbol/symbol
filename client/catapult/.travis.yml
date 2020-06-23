@@ -1,0 +1,7 @@
+language: python
+sudo: false
+
+install: pip3 install ply
+script:
+  - mkdir logs
+  - python3 scripts/lint/checkProjectStructure.py --text --depCheckDir src --depCheckDir extensions --depCheckDir plugins --destDir logs
