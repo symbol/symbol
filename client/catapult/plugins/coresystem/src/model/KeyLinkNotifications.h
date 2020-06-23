@@ -20,11 +20,12 @@
 
 #pragma once
 #include "catapult/model/Notifications.h"
+#include "catapult/model/PinnedVotingKey.h"
 
 namespace catapult { namespace model {
 
 	/// Notification of a voting key link.
-	using VotingKeyLinkNotification = BasicKeyLinkNotification<VotingKey, Core_Voting_Key_Link_Notification>;
+	using VotingKeyLinkNotification = BasicKeyLinkNotification<PinnedVotingKey, Core_Voting_Key_Link_Notification>;
 
 	/// Notification of a vrf key link.
 	using VrfKeyLinkNotification = BasicKeyLinkNotification<Key, Core_Vrf_Key_Link_Notification>;

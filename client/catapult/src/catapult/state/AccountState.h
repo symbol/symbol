@@ -22,7 +22,7 @@
 #include "AccountActivityBuckets.h"
 #include "AccountBalances.h"
 #include "AccountImportanceSnapshots.h"
-#include "AccountKeys.h"
+#include "AccountPublicKeys.h"
 #include "catapult/model/Mosaic.h"
 
 namespace catapult { namespace state {
@@ -65,8 +65,8 @@ namespace catapult { namespace state {
 		/// Type of account.
 		state::AccountType AccountType;
 
-		/// Supplemental account keys.
-		AccountKeys SupplementalAccountKeys;
+		/// Supplemental public keys.
+		AccountPublicKeys SupplementalPublicKeys;
 
 		/// Importance snapshots of the account.
 		AccountImportanceSnapshots ImportanceSnapshots;
@@ -90,12 +90,9 @@ namespace catapult { namespace state {
 	/// Gets the linked public key associated with \a accountState or a zero key.
 	Key GetLinkedPublicKey(const AccountState& accountState);
 
-	/// Gets the vrf public key associated with \a accountState or a zero key.
-	Key GetVrfPublicKey(const AccountState& accountState);
-
-	/// Gets the voting public key associated with \a accountState or a zero key.
-	VotingKey GetVotingPublicKey(const AccountState& accountState);
-
 	/// Gets the node public key associated with \a accountState or a zero key.
 	Key GetNodePublicKey(const AccountState& accountState);
+
+	/// Gets the vrf public key associated with \a accountState or a zero key.
+	Key GetVrfPublicKey(const AccountState& accountState);
 }}

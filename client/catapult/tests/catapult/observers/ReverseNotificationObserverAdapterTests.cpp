@@ -88,10 +88,10 @@ namespace catapult { namespace observers {
 			std::reverse(expectedNotificationTypes.begin(), expectedNotificationTypes.end());
 			EXPECT_EQ(expectedNotificationTypes, observer.notificationTypes());
 
-			// - spot check the account keys as a proxy for verifying data integrity
-			ASSERT_EQ(2u, observer.accountKeys().size());
-			EXPECT_EQ(pTransaction->SignerPublicKey, observer.accountKeys()[1]);
-			EXPECT_EQ(pTransaction->RecipientPublicKey, observer.accountKeys()[0]);
+			// - spot check the account public keys as a proxy for verifying data integrity
+			ASSERT_EQ(2u, observer.accountPublicKeys().size());
+			EXPECT_EQ(pTransaction->SignerPublicKey, observer.accountPublicKeys()[1]);
+			EXPECT_EQ(pTransaction->RecipientPublicKey, observer.accountPublicKeys()[0]);
 		});
 	}
 

@@ -29,7 +29,7 @@ namespace catapult { namespace test {
 			history.add(pair.first, pair.second);
 
 		// Sanity: all pairs were added
-		EXPECT_EQ(balancePairs.size(), history.balances().size());
+		EXPECT_EQ(balancePairs.size(), history.balance().size());
 		return history;
 	}
 
@@ -73,11 +73,11 @@ namespace catapult { namespace test {
 				messagePostfixStream << " address = " << pair.first;
 				auto messagePostfix = messagePostfixStream.str();
 
-				AssertEqual(pair.second.balances(), actualIter->second.balances(), "balances" + messagePostfix);
+				AssertEqual(pair.second.balance(), actualIter->second.balance(), "balance" + messagePostfix);
 				if (AccountHistoryEqualityPolicy::Balance_Only == equalityPolicy)
 					continue;
 
-				AssertEqual(pair.second.vrfPublicKeys(), actualIter->second.vrfPublicKeys(), "vrfPublicKeys" + messagePostfix);
+				AssertEqual(pair.second.vrfPublicKey(), actualIter->second.vrfPublicKey(), "vrfPublicKey" + messagePostfix);
 				AssertEqual(pair.second.votingPublicKeys(), actualIter->second.votingPublicKeys(), "votingPublicKeys" + messagePostfix);
 			}
 		}

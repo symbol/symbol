@@ -102,6 +102,12 @@ namespace catapult { namespace validators {
 	/// - link action is valid
 	DECLARE_STATELESS_VALIDATOR(KeyLinkAction, model::KeyLinkActionNotification)();
 
+	/// Validator that applies to voting key link notifications and validates that:
+	/// - start point is prior to end point
+	/// - range is longer than \a minRange
+	/// - range is shorter than \a maxRange
+	DECLARE_STATELESS_VALIDATOR(VotingKeyLinkRange, model::VotingKeyLinkNotification)(uint32_t minRange, uint32_t maxRange);
+
 	// endregion
 
 	// region Other

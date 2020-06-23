@@ -25,11 +25,21 @@ namespace catapult { namespace builders {
 	VotingKeyLinkBuilder::VotingKeyLinkBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
 			: TransactionBuilder(networkIdentifier, signer)
 			, m_linkedPublicKey()
+			, m_startPoint()
+			, m_endPoint()
 			, m_linkAction()
 	{}
 
 	void VotingKeyLinkBuilder::setLinkedPublicKey(const VotingKey& linkedPublicKey) {
 		m_linkedPublicKey = linkedPublicKey;
+	}
+
+	void VotingKeyLinkBuilder::setStartPoint(FinalizationPoint startPoint) {
+		m_startPoint = startPoint;
+	}
+
+	void VotingKeyLinkBuilder::setEndPoint(FinalizationPoint endPoint) {
+		m_endPoint = endPoint;
 	}
 
 	void VotingKeyLinkBuilder::setLinkAction(model::LinkAction linkAction) {
@@ -62,6 +72,8 @@ namespace catapult { namespace builders {
 
 		// 2. set fixed transaction fields
 		pTransaction->LinkedPublicKey = m_linkedPublicKey;
+		pTransaction->StartPoint = m_startPoint;
+		pTransaction->EndPoint = m_endPoint;
 		pTransaction->LinkAction = m_linkAction;
 
 		return pTransaction;

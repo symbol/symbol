@@ -60,12 +60,12 @@ namespace catapult { namespace observers {
 			auto setupRemote(const Key& mainPublicKey, const Key& remotePublicKey) {
 				auto remoteAccountStateIter = addAccount(remotePublicKey);
 				remoteAccountStateIter.get().AccountType = state::AccountType::Remote;
-				remoteAccountStateIter.get().SupplementalAccountKeys.linkedPublicKey().set(mainPublicKey);
+				remoteAccountStateIter.get().SupplementalPublicKeys.linked().set(mainPublicKey);
 
 				auto& accountStateCache = cache().sub<cache::AccountStateCache>();
 				auto accountStateIter = accountStateCache.find(mainPublicKey);
 				accountStateIter.get().AccountType = state::AccountType::Main;
-				accountStateIter.get().SupplementalAccountKeys.linkedPublicKey().set(remotePublicKey);
+				accountStateIter.get().SupplementalPublicKeys.linked().set(remotePublicKey);
 
 				return remoteAccountStateIter;
 			}

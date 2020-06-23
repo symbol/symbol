@@ -28,31 +28,60 @@ namespace catapult { namespace mongo { namespace mappers {
 	// region ToDbModel
 
 	namespace {
-		template<typename TAccountPublicKey>
+		using PublicKeyType = state::AccountPublicKeys::KeyType;
+		using bson_subdocument = bsoncxx::v_noabi::builder::stream::key_context<
+			bsoncxx::v_noabi::builder::stream::key_context<bsoncxx::v_noabi::builder::stream::closed_context>
+		>;
+
 		void StreamPublicKey(
-				bson_stream::array_context& context,
-				state::AccountKeys::KeyType mask,
-				state::AccountKeys::KeyType keyType,
-				const state::AccountKeys::KeyAccessor<TAccountPublicKey>& keyAccessor) {
+				bson_subdocument& builder,
+				const std::string& name,
+				PublicKeyType mask,
+				PublicKeyType keyType,
+				const state::AccountPublicKeys::PublicKeyAccessor<Key>& publicKeyAccessor) {
 			if (!HasFlag(keyType, mask))
 				return;
 
-			context
-					<< bson_stream::open_document
-						<< "keyType" << utils::to_underlying_type(keyType)
-						<< "key" << ToBinary(keyAccessor.get())
+			builder
+					<< name << bson_stream::open_document
+						<< "publicKey" << ToBinary(publicKeyAccessor.get())
 					<< bson_stream::close_document;
 		}
 
-		void StreamAccountKeys(bson_stream::document& builder, const state::AccountKeys& accountKeys) {
-			auto keysArray = builder << "supplementalAccountKeys" << bson_stream::open_array;
+		void StreamPublicKeys(
+				bson_subdocument& builder,
+				const std::string& name,
+				const state::AccountPublicKeys::PublicKeysAccessor<model::PinnedVotingKey>& publicKeysAccessor) {
+			if (0 == publicKeysAccessor.size())
+				return;
 
-			StreamPublicKey(keysArray, accountKeys.mask(), state::AccountKeys::KeyType::Linked, accountKeys.linkedPublicKey());
-			StreamPublicKey(keysArray, accountKeys.mask(), state::AccountKeys::KeyType::VRF, accountKeys.vrfPublicKey());
-			StreamPublicKey(keysArray, accountKeys.mask(), state::AccountKeys::KeyType::Voting, accountKeys.votingPublicKey());
-			StreamPublicKey(keysArray, accountKeys.mask(), state::AccountKeys::KeyType::Node, accountKeys.nodePublicKey());
+			builder << name << bson_stream::open_document;
+			auto publicKeysArray = builder << "publicKeys" << bson_stream::open_array;
 
-			keysArray << bson_stream::close_array;
+			for (auto i = 0u; i < publicKeysAccessor.size(); ++i) {
+				const auto& pinnedPublicKey = publicKeysAccessor.get(i);
+				publicKeysArray
+						<< bson_stream::open_document
+							<< "publicKey" << ToBinary(pinnedPublicKey.VotingKey)
+							<< "startPoint" << ToInt64(pinnedPublicKey.StartPoint)
+							<< "endPoint" << ToInt64(pinnedPublicKey.EndPoint)
+						<< bson_stream::close_document;
+			}
+
+			publicKeysArray << bson_stream::close_array;
+			builder << bson_stream::close_document;
+		}
+
+		void StreamAccountPublicKeys(bson_stream::document& builder, const state::AccountPublicKeys& accountPublicKeys) {
+			auto publicKeysDocument = builder << "supplementalPublicKeys" << bson_stream::open_document;
+
+			auto mask = accountPublicKeys.mask();
+			StreamPublicKey(publicKeysDocument, "linked", mask, PublicKeyType::Linked, accountPublicKeys.linked());
+			StreamPublicKey(publicKeysDocument, "node", mask, PublicKeyType::Node, accountPublicKeys.node());
+			StreamPublicKey(publicKeysDocument, "vrf", mask, PublicKeyType::VRF, accountPublicKeys.vrf());
+			StreamPublicKeys(publicKeysDocument, "voting", accountPublicKeys.voting());
+
+			publicKeysDocument << bson_stream::close_document;
 		}
 
 		void StreamAccountImportanceSnapshots(bson_stream::document& builder, const state::AccountImportanceSnapshots& snapshots) {
@@ -108,7 +137,7 @@ namespace catapult { namespace mongo { namespace mappers {
 					<< "publicKeyHeight" << ToInt64(accountState.PublicKeyHeight)
 					<< "accountType" << utils::to_underlying_type(accountState.AccountType);
 
-		StreamAccountKeys(builder, accountState.SupplementalAccountKeys);
+		StreamAccountPublicKeys(builder, accountState.SupplementalPublicKeys);
 		StreamAccountImportanceSnapshots(builder, accountState.ImportanceSnapshots);
 		StreamAccountActivityBuckets(builder, accountState.ActivityBuckets);
 		StreamAccountBalances(builder, accountState.Balances);

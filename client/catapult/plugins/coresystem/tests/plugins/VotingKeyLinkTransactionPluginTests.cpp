@@ -53,7 +53,9 @@ namespace catapult { namespace plugins {
 			});
 			builder.template addExpectation<VotingKeyLinkNotification>([&transaction](const auto& notification) {
 				EXPECT_EQ(transaction.SignerPublicKey, notification.MainAccountPublicKey);
-				EXPECT_EQ(transaction.LinkedPublicKey, notification.LinkedPublicKey);
+				EXPECT_EQ(transaction.LinkedPublicKey, notification.LinkedPublicKey.VotingKey);
+				EXPECT_EQ(transaction.StartPoint, notification.LinkedPublicKey.StartPoint);
+				EXPECT_EQ(transaction.EndPoint, notification.LinkedPublicKey.EndPoint);
 				EXPECT_EQ(transaction.LinkAction, notification.LinkAction);
 			});
 		}

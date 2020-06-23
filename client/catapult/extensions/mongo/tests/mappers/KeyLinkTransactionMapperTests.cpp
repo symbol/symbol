@@ -66,13 +66,17 @@ namespace catapult { namespace mongo { namespace mappers {
 		auto view = builder.view();
 
 		// Assert:
-		EXPECT_EQ(2u, test::GetFieldCount(view));
-		EXPECT_EQ(model::LinkAction::Unlink, static_cast<model::LinkAction>(test::GetUint32(view, "linkAction")));
-
-		if constexpr (std::is_same_v<VotingKey, decltype(transaction.LinkedPublicKey)>)
+		if constexpr (std::is_same_v<VotingKey, decltype(transaction.LinkedPublicKey)>) {
+			EXPECT_EQ(4u, test::GetFieldCount(view));
+			EXPECT_EQ(model::LinkAction::Unlink, static_cast<model::LinkAction>(test::GetUint32(view, "linkAction")));
 			EXPECT_EQ(transaction.LinkedPublicKey, test::GetVotingKeyValue(view, "linkedPublicKey"));
-		else
+			EXPECT_EQ(transaction.StartPoint, FinalizationPoint(test::GetUint64(view, "startPoint")));
+			EXPECT_EQ(transaction.EndPoint, FinalizationPoint(test::GetUint64(view, "endPoint")));
+		} else {
+			EXPECT_EQ(2u, test::GetFieldCount(view));
+			EXPECT_EQ(model::LinkAction::Unlink, static_cast<model::LinkAction>(test::GetUint32(view, "linkAction")));
 			EXPECT_EQ(transaction.LinkedPublicKey, test::GetKeyValue(view, "linkedPublicKey"));
+		}
 	}
 
 	// endregion

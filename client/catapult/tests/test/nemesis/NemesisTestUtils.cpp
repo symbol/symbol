@@ -102,14 +102,14 @@ namespace catapult { namespace test {
 				EXPECT_EQ(publicKey, accountState.PublicKey) << message;
 
 				auto expectedVrfPublicKey = crypto::KeyPair::FromString(Mijin_Test_Vrf_Private_Keys[index]).publicKey();
-				EXPECT_EQ(state::AccountKeys::KeyType::VRF, accountState.SupplementalAccountKeys.mask());
+				EXPECT_EQ(state::AccountPublicKeys::KeyType::VRF, accountState.SupplementalPublicKeys.mask());
 				EXPECT_EQ(expectedVrfPublicKey, GetVrfPublicKey(accountState));
 			} else {
 				// recipient public key is unknown (public key height is zero)
 				EXPECT_EQ(Height(0), accountState.PublicKeyHeight) << message;
 				EXPECT_EQ(Key(), accountState.PublicKey) << message;
 
-				EXPECT_EQ(state::AccountKeys::KeyType::Unset, accountState.SupplementalAccountKeys.mask());
+				EXPECT_EQ(state::AccountPublicKeys::KeyType::Unset, accountState.SupplementalPublicKeys.mask());
 			}
 
 			auto expectedImportance = GetNemesisImportance(publicKey);

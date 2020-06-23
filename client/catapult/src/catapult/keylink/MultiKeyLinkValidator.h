@@ -24,25 +24,32 @@
 
 namespace catapult { namespace keylink {
 
-	/// Creates a stateful key link validator with \a name that validates:
-	/// - no link exists when linking
+	/// Creates a stateful multi key link validator with \a name that validates:
+	/// - no conflicting link exists when linking and no more than (\a maxLinks) links
 	/// - matching link exists when unlinking
 	template<typename TNotification, typename TAccessor>
-	validators::stateful::NotificationValidatorPointerT<TNotification> CreateKeyLinkValidator(const std::string& name) {
+	validators::stateful::NotificationValidatorPointerT<TNotification> CreateMultiKeyLinkValidator(
+			const std::string& name,
+			uint8_t maxLinks) {
 		using ValidatorType = validators::stateful::FunctionalNotificationValidatorT<TNotification>;
-		return std::make_unique<ValidatorType>(name + "KeyLinkValidator", [](
+		return std::make_unique<ValidatorType>(name + "MultiKeyLinkValidator", [maxLinks](
 				const TNotification& notification,
 				const validators::ValidatorContext& context) {
 			const auto& cache = context.Cache.sub<cache::AccountStateCache>();
 			auto accountStateIter = cache.find(notification.MainAccountPublicKey);
 			const auto& accountState = accountStateIter.get();
 
-			const auto& publicKeyAccessor = TAccessor::Get(accountState);
+			// TODO: need to check if StartPoint < CURRENT FinalizationPoint (this probably needs to be stored in context)
+
+			const auto& publicKeysAccessor = TAccessor::Get(accountState);
 			if (model::LinkAction::Link == notification.LinkAction) {
-				if (publicKeyAccessor)
+				if (maxLinks == publicKeysAccessor.size())
+					return TAccessor::Failure_Too_Many_Links;
+
+				if (publicKeysAccessor.upperBound() >= notification.LinkedPublicKey.StartPoint)
 					return TAccessor::Failure_Link_Already_Exists;
 			} else {
-				if (!publicKeyAccessor || notification.LinkedPublicKey != publicKeyAccessor.get())
+				if (!publicKeysAccessor.containsExact(notification.LinkedPublicKey))
 					return TAccessor::Failure_Inconsistent_Unlink_Data;
 			}
 

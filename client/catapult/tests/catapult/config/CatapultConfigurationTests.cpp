@@ -85,6 +85,10 @@ namespace catapult { namespace config {
 			EXPECT_EQ(Amount(4'000'000), config.MaxHarvesterBalance);
 			EXPECT_EQ(Amount(50'000), config.MinVoterBalance);
 
+			EXPECT_EQ(3u, config.MaxVotingKeysPerAccount);
+			EXPECT_EQ(72u, config.MinVotingKeyLifetime);
+			EXPECT_EQ(72u * 365, config.MaxVotingKeyLifetime);
+
 			EXPECT_EQ(10u, config.HarvestBeneficiaryPercentage);
 			EXPECT_EQ(5u, config.HarvestNetworkPercentage);
 			EXPECT_EQ(model::StringToAddress("SBPJ3LE4SF7Y25RCEC6MA5BXBP6W2TGB2XKMIDY"), config.HarvestNetworkFeeSinkAddress);

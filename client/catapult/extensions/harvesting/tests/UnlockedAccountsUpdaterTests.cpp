@@ -155,8 +155,8 @@ namespace catapult { namespace harvesting {
 				auto mainAccountStateIter = accountStateCache.find(accountIdentifier);
 				mainAccountStateIter.get().Balances.credit(Harvesting_Mosaic_Id, balance);
 				mainAccountStateIter.get().ImportanceSnapshots.set(Importance(1000), model::ImportanceHeight(100));
-				mainAccountStateIter.get().SupplementalAccountKeys.vrfPublicKey().set(vrfPublicKey);
-				mainAccountStateIter.get().SupplementalAccountKeys.nodePublicKey().set(m_keyPair.publicKey());
+				mainAccountStateIter.get().SupplementalPublicKeys.node().set(m_keyPair.publicKey());
+				mainAccountStateIter.get().SupplementalPublicKeys.vrf().set(vrfPublicKey);
 
 				m_cache.commit(Height(100));
 			}
@@ -169,12 +169,12 @@ namespace catapult { namespace harvesting {
 				auto& accountStateCache = delta.sub<cache::AccountStateCache>();
 				auto mainAccountStateIter = accountStateCache.find(mainAccountPublicKey);
 				mainAccountStateIter.get().AccountType = state::AccountType::Main;
-				mainAccountStateIter.get().SupplementalAccountKeys.linkedPublicKey().set(signingPublicKey);
+				mainAccountStateIter.get().SupplementalPublicKeys.linked().set(signingPublicKey);
 
 				accountStateCache.addAccount(signingPublicKey, Height(100));
 				auto remoteAccountStateIter = accountStateCache.find(signingPublicKey);
 				remoteAccountStateIter.get().AccountType = state::AccountType::Remote;
-				remoteAccountStateIter.get().SupplementalAccountKeys.linkedPublicKey().set(mainAccountPublicKey);
+				remoteAccountStateIter.get().SupplementalPublicKeys.linked().set(mainAccountPublicKey);
 
 				m_cache.commit(Height(100));
 
@@ -208,9 +208,9 @@ namespace catapult { namespace harvesting {
 
 		// region test utils
 
-		void SetRandom(state::AccountKeys::KeyAccessor<Key>& keyAccessor) {
-			keyAccessor.unset();
-			keyAccessor.set(test::GenerateRandomByteArray<Key>());
+		void SetRandom(state::AccountPublicKeys::PublicKeyAccessor<Key>& publicKeyAccessor) {
+			publicKeyAccessor.unset();
+			publicKeyAccessor.set(test::GenerateRandomByteArray<Key>());
 		}
 
 		// endregion
@@ -302,19 +302,19 @@ namespace catapult { namespace harvesting {
 
 	TEST(TEST_CLASS, UpdateBypassesInvalidAccount_MismatchedLinkedPublicKey) {
 		AssertUpdateBypasses([](auto& accountState) {
-			SetRandom(accountState.SupplementalAccountKeys.linkedPublicKey());
-		});
-	}
-
-	TEST(TEST_CLASS, UpdateBypassesInvalidAccount_MismatchedVrfPublicKey) {
-		AssertUpdateBypasses([](auto& accountState) {
-			SetRandom(accountState.SupplementalAccountKeys.vrfPublicKey());
+			SetRandom(accountState.SupplementalPublicKeys.linked());
 		});
 	}
 
 	TEST(TEST_CLASS, UpdateBypassesInvalidAccount_MismatchedNodePublicKey) {
 		AssertUpdateBypasses([](auto& accountState) {
-			SetRandom(accountState.SupplementalAccountKeys.nodePublicKey());
+			SetRandom(accountState.SupplementalPublicKeys.node());
+		});
+	}
+
+	TEST(TEST_CLASS, UpdateBypassesInvalidAccount_MismatchedVrfPublicKey) {
+		AssertUpdateBypasses([](auto& accountState) {
+			SetRandom(accountState.SupplementalPublicKeys.vrf());
 		});
 	}
 
@@ -399,19 +399,19 @@ namespace catapult { namespace harvesting {
 	TEST(TEST_CLASS, UpdateSavePrunesMismatchedLinkedPublicKeyAccounts) {
 		// Assert: linkedPublicKey mismatch is fatal error raised by RequireLinkedRemoteAndMainAccounts indicating state corruption
 		EXPECT_THROW(AssertPruned([](auto& accountState) {
-			SetRandom(accountState.SupplementalAccountKeys.linkedPublicKey());
+			SetRandom(accountState.SupplementalPublicKeys.linked());
 		}), catapult_runtime_error);
-	}
-
-	TEST(TEST_CLASS, UpdateSavePrunesMismatchedVrfPublicKeyAccounts) {
-		AssertPruned([](auto& accountState) {
-			SetRandom(accountState.SupplementalAccountKeys.vrfPublicKey());
-		});
 	}
 
 	TEST(TEST_CLASS, UpdateSavePrunesMismatchedNodePublicKeyAccounts) {
 		AssertPruned([](auto& accountState) {
-			SetRandom(accountState.SupplementalAccountKeys.nodePublicKey());
+			SetRandom(accountState.SupplementalPublicKeys.node());
+		});
+	}
+
+	TEST(TEST_CLASS, UpdateSavePrunesMismatchedVrfPublicKeyAccounts) {
+		AssertPruned([](auto& accountState) {
+			SetRandom(accountState.SupplementalPublicKeys.vrf());
 		});
 	}
 

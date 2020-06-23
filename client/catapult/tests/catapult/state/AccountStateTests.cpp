@@ -44,7 +44,7 @@ namespace catapult { namespace state {
 		EXPECT_EQ(Height(0), state.PublicKeyHeight);
 
 		EXPECT_EQ(AccountType::Unlinked, state.AccountType);
-		EXPECT_EQ(AccountKeys::KeyType::Unset, state.SupplementalAccountKeys.mask());
+		EXPECT_EQ(AccountPublicKeys::KeyType::Unset, state.SupplementalPublicKeys.mask());
 
 		for (const auto& snapshot : state.ImportanceSnapshots) {
 			EXPECT_EQ(Importance(0), snapshot.Importance);
@@ -92,8 +92,8 @@ namespace catapult { namespace state {
 			test::FillWithRandomData(mainAccountState.PublicKey);
 			mainAccountState.AccountType = AccountType::Main;
 
-			remoteAccountState.SupplementalAccountKeys.linkedPublicKey().set(mainAccountState.PublicKey);
-			mainAccountState.SupplementalAccountKeys.linkedPublicKey().set(remoteAccountState.PublicKey);
+			remoteAccountState.SupplementalPublicKeys.linked().set(mainAccountState.PublicKey);
+			mainAccountState.SupplementalPublicKeys.linked().set(remoteAccountState.PublicKey);
 
 			// Act + Assert:
 			action(remoteAccountState, mainAccountState);
@@ -138,13 +138,13 @@ namespace catapult { namespace state {
 
 	namespace {
 		void MutateLinkedPublicKey(AccountState& accountState) {
-			auto& accountKeys = accountState.SupplementalAccountKeys;
+			auto& accountPublicKeys = accountState.SupplementalPublicKeys;
 
-			auto linkedPublicKey = accountKeys.linkedPublicKey().get();
+			auto linkedPublicKey = accountPublicKeys.linked().get();
 			linkedPublicKey[0] ^= 0xFF;
 
-			accountKeys.linkedPublicKey().unset();
-			accountKeys.linkedPublicKey().set(linkedPublicKey);
+			accountPublicKeys.linked().unset();
+			accountPublicKeys.linked().set(linkedPublicKey);
 		}
 	}
 
@@ -210,34 +210,31 @@ namespace catapult { namespace state {
 
 	// region account key accessors
 
-	TEST(TEST_CLASS, CanRetrieveSupplementalAccountKeysViaAccessorsWhenUnset) {
+	TEST(TEST_CLASS, CanRetrieveSupplementalPublicKeysViaAccessorsWhenUnset) {
 		// Arrange:
 		AccountState accountState(test::GenerateRandomAddress(), Height(123));
 
 		// Act + Assert:
 		EXPECT_EQ(Key(), GetLinkedPublicKey(accountState));
+		EXPECT_EQ(Key(), GetNodePublicKey(accountState));
 		EXPECT_EQ(Key(), GetVrfPublicKey(accountState));
-		EXPECT_EQ(VotingKey(), GetVotingPublicKey(accountState));
 	}
 
-	TEST(TEST_CLASS, CanRetrieveSupplementalAccountKeysViaAccessorsWhenSet) {
+	TEST(TEST_CLASS, CanRetrieveSupplementalPublicKeysViaAccessorsWhenSet) {
 		// Arrange:
 		auto linkedPublicKey = test::GenerateRandomByteArray<Key>();
-		auto vrfPublicKey = test::GenerateRandomByteArray<Key>();
-		auto votingPublicKey = test::GenerateRandomByteArray<VotingKey>();
 		auto nodePublicKey = test::GenerateRandomByteArray<Key>();
+		auto vrfPublicKey = test::GenerateRandomByteArray<Key>();
 
 		AccountState accountState(test::GenerateRandomAddress(), Height(123));
-		accountState.SupplementalAccountKeys.linkedPublicKey().set(linkedPublicKey);
-		accountState.SupplementalAccountKeys.vrfPublicKey().set(vrfPublicKey);
-		accountState.SupplementalAccountKeys.votingPublicKey().set(votingPublicKey);
-		accountState.SupplementalAccountKeys.nodePublicKey().set(nodePublicKey);
+		accountState.SupplementalPublicKeys.linked().set(linkedPublicKey);
+		accountState.SupplementalPublicKeys.node().set(nodePublicKey);
+		accountState.SupplementalPublicKeys.vrf().set(vrfPublicKey);
 
 		// Act + Assert:
 		EXPECT_EQ(linkedPublicKey, GetLinkedPublicKey(accountState));
-		EXPECT_EQ(vrfPublicKey, GetVrfPublicKey(accountState));
-		EXPECT_EQ(votingPublicKey, GetVotingPublicKey(accountState));
 		EXPECT_EQ(nodePublicKey, GetNodePublicKey(accountState));
+		EXPECT_EQ(vrfPublicKey, GetVrfPublicKey(accountState));
 	}
 
 	// endregion

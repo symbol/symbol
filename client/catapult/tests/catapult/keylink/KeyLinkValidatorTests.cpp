@@ -39,7 +39,7 @@ namespace catapult { namespace keylink {
 			static constexpr auto Failure_Inconsistent_Unlink_Data = static_cast<validators::ValidationResult>(0x80000000 + 2);
 
 			static const auto& Get(const state::AccountState& accountState) {
-				return accountState.SupplementalAccountKeys.linkedPublicKey();
+				return accountState.SupplementalPublicKeys.linked();
 			}
 		};
 

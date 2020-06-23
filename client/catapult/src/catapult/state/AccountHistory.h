@@ -20,6 +20,8 @@
 
 #pragma once
 #include "HeightIndexedHistoryMap.h"
+#include "catapult/model/PinnedVotingKey.h"
+#include <vector>
 
 namespace catapult { namespace state {
 
@@ -28,13 +30,13 @@ namespace catapult { namespace state {
 	class AccountHistory {
 	public:
 		/// Gets the balance history.
-		const HeightIndexedHistoryMap<Amount>& balances() const;
+		const HeightIndexedHistoryMap<Amount>& balance() const;
 
 		/// Gets the vrf public key history.
-		const HeightIndexedHistoryMap<Key>& vrfPublicKeys() const;
+		const HeightIndexedHistoryMap<Key>& vrfPublicKey() const;
 
-		/// Gets the voting public key history.
-		const HeightIndexedHistoryMap<VotingKey>& votingPublicKeys() const;
+		/// Gets the voting public keys history.
+		const HeightIndexedHistoryMap<std::vector<model::PinnedVotingKey>>& votingPublicKeys() const;
 
 		/// Returns \c true if any historical balance is at least \a minAmount.
 		bool anyAtLeast(Amount minAmount) const;
@@ -46,8 +48,8 @@ namespace catapult { namespace state {
 		/// Adds \a vrfPublicKey at \a height.
 		void add(Height height, const Key& vrfPublicKey);
 
-		/// Adds \a votingPublicKey at \a height.
-		void add(Height height, const VotingKey& votingPublicKey);
+		/// Adds \a votingPublicKeys at \a height.
+		void add(Height height, const std::vector<model::PinnedVotingKey>& votingPublicKeys);
 
 		/// Prunes all balances less than \a height.
 		/// \note Prune will never change the result of balance queries at or after \a height.
@@ -56,6 +58,6 @@ namespace catapult { namespace state {
 	private:
 		HeightIndexedHistoryMap<Amount> m_heightBalanceMap;
 		HeightIndexedHistoryMap<Key> m_heightVrfPublicKeyMap;
-		HeightIndexedHistoryMap<VotingKey> m_heightVotingPublicKeyMap;
+		HeightIndexedHistoryMap<std::vector<model::PinnedVotingKey>> m_heightVotingPublicKeysMap;
 	};
 }}

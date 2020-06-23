@@ -46,12 +46,15 @@ namespace catapult { namespace test {
 	}
 
 	namespace {
-		void AssertEqual(const state::AccountKeys& expected, const state::AccountKeys& actual, const std::string& message) {
+		void AssertEqual(const state::AccountPublicKeys& expected, const state::AccountPublicKeys& actual, const std::string& message) {
 			EXPECT_EQ(expected.mask(), actual.mask()) << message;
-			EXPECT_EQ(expected.linkedPublicKey().get(), actual.linkedPublicKey().get()) << message;
-			EXPECT_EQ(expected.vrfPublicKey().get(), actual.vrfPublicKey().get()) << message;
-			EXPECT_EQ(expected.votingPublicKey().get(), actual.votingPublicKey().get()) << message;
-			EXPECT_EQ(expected.nodePublicKey().get(), actual.nodePublicKey().get()) << message;
+			EXPECT_EQ(expected.linked().get(), actual.linked().get()) << message;
+			EXPECT_EQ(expected.node().get(), actual.node().get()) << message;
+			EXPECT_EQ(expected.vrf().get(), actual.vrf().get()) << message;
+
+			ASSERT_EQ(expected.voting().size(), actual.voting().size()) << message;
+			for (auto i = 0u; i < expected.voting().size(); ++i)
+				EXPECT_EQ(expected.voting().get(i), actual.voting().get(i)) << message << " at " << i;
 		}
 
 		void AssertEqual(
@@ -96,7 +99,7 @@ namespace catapult { namespace test {
 
 		EXPECT_EQ(expected.AccountType, actual.AccountType) << message;
 
-		AssertEqual(expected.SupplementalAccountKeys, actual.SupplementalAccountKeys, message + ": supplemental account keys");
+		AssertEqual(expected.SupplementalPublicKeys, actual.SupplementalPublicKeys, message + ": supplemental public keys");
 		AssertEqual(expected.ImportanceSnapshots, actual.ImportanceSnapshots, message + ": importance snapshot");
 		AssertEqual(expected.ActivityBuckets, actual.ActivityBuckets, message + ": activity bucket");
 
@@ -124,22 +127,30 @@ namespace catapult { namespace test {
 		return accountStates;
 	}
 
-	void SetRandomSupplementalAccountKeys(state::AccountState& accountState, state::AccountKeys::KeyType mask) {
-		if (HasFlag(state::AccountKeys::KeyType::Linked, mask))
-			accountState.SupplementalAccountKeys.linkedPublicKey().set(test::GenerateRandomByteArray<Key>());
+	void SetRandomSupplementalPublicKeys(
+			state::AccountState& accountState,
+			state::AccountPublicKeys::KeyType mask,
+			uint8_t numVotingKeys) {
+		if (HasFlag(state::AccountPublicKeys::KeyType::Linked, mask))
+			accountState.SupplementalPublicKeys.linked().set(test::GenerateRandomByteArray<Key>());
 
-		if (HasFlag(state::AccountKeys::KeyType::VRF, mask))
-			accountState.SupplementalAccountKeys.vrfPublicKey().set(test::GenerateRandomByteArray<Key>());
+		if (HasFlag(state::AccountPublicKeys::KeyType::Node, mask))
+			accountState.SupplementalPublicKeys.node().set(test::GenerateRandomByteArray<Key>());
 
-		if (HasFlag(state::AccountKeys::KeyType::Voting, mask))
-			accountState.SupplementalAccountKeys.votingPublicKey().set(test::GenerateRandomByteArray<VotingKey>());
+		if (HasFlag(state::AccountPublicKeys::KeyType::VRF, mask))
+			accountState.SupplementalPublicKeys.vrf().set(test::GenerateRandomByteArray<Key>());
 
-		if (HasFlag(state::AccountKeys::KeyType::Node, mask))
-			accountState.SupplementalAccountKeys.nodePublicKey().set(test::GenerateRandomByteArray<Key>());
+		for (auto i = 0u; i < numVotingKeys; ++i) {
+			accountState.SupplementalPublicKeys.voting().add({
+				test::GenerateRandomByteArray<VotingKey>(),
+				FinalizationPoint((i + 1) * 100),
+				FinalizationPoint((i + 1) * 100 + 49)
+			});
+		}
 	}
 
 	void ForceSetLinkedPublicKey(state::AccountState& accountState, const Key& linkedPublicKey) {
-		accountState.SupplementalAccountKeys.linkedPublicKey().unset();
-		accountState.SupplementalAccountKeys.linkedPublicKey().set(linkedPublicKey);
+		accountState.SupplementalPublicKeys.linked().unset();
+		accountState.SupplementalPublicKeys.linked().set(linkedPublicKey);
 	}
 }}

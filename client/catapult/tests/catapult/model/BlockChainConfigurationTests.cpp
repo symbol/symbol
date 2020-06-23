@@ -81,6 +81,10 @@ namespace catapult { namespace model {
 							{ "maxHarvesterBalance", "9'000'000'000" },
 							{ "minVoterBalance", "2'000'000'000" },
 
+							{ "maxVotingKeysPerAccount", "36" },
+							{ "minVotingKeyLifetime", "21" },
+							{ "maxVotingKeyLifetime", "123" },
+
 							{ "harvestBeneficiaryPercentage", "56" },
 							{ "harvestNetworkPercentage", "21" },
 							{ "harvestNetworkFeeSinkAddress", Harvest_Network_Fee_Sink_Address },
@@ -144,6 +148,10 @@ namespace catapult { namespace model {
 				EXPECT_EQ(Amount(0), config.MaxHarvesterBalance);
 				EXPECT_EQ(Amount(0), config.MinVoterBalance);
 
+				EXPECT_EQ(0u, config.MaxVotingKeysPerAccount);
+				EXPECT_EQ(0u, config.MinVotingKeyLifetime);
+				EXPECT_EQ(0u, config.MaxVotingKeyLifetime);
+
 				EXPECT_EQ(0u, config.HarvestBeneficiaryPercentage);
 				EXPECT_EQ(0u, config.HarvestNetworkPercentage);
 				EXPECT_EQ(Address(), config.HarvestNetworkFeeSinkAddress);
@@ -188,6 +196,10 @@ namespace catapult { namespace model {
 				EXPECT_EQ(Amount(4'000'000'000), config.MinHarvesterBalance);
 				EXPECT_EQ(Amount(9'000'000'000), config.MaxHarvesterBalance);
 				EXPECT_EQ(Amount(2'000'000'000), config.MinVoterBalance);
+
+				EXPECT_EQ(36u, config.MaxVotingKeysPerAccount);
+				EXPECT_EQ(21u, config.MinVotingKeyLifetime);
+				EXPECT_EQ(123u, config.MaxVotingKeyLifetime);
 
 				EXPECT_EQ(56u, config.HarvestBeneficiaryPercentage);
 				EXPECT_EQ(21, config.HarvestNetworkPercentage);

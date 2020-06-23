@@ -140,45 +140,74 @@ namespace catapult { namespace test {
 	}
 
 	namespace {
-		void Advance(state::AccountKeys::KeyType& keyType) {
-			keyType = static_cast<state::AccountKeys::KeyType>(utils::to_underlying_type(keyType) << 1);
+		using PublicKeyType = state::AccountPublicKeys::KeyType;
+
+		void Advance(PublicKeyType& keyType) {
+			keyType = static_cast<PublicKeyType>(utils::to_underlying_type(keyType) << 1);
 		}
 
-		void AssertEqualAccountKeys(const state::AccountKeys& accountKeys, const bsoncxx::document::view& dbAccountKeys) {
-			auto dbIter = dbAccountKeys.cbegin();
-			for (auto keyType = state::AccountKeys::KeyType::Linked; keyType <= state::AccountKeys::KeyType::All; Advance(keyType)) {
-				if (!HasFlag(keyType, accountKeys.mask()))
+		void AssertPublicKeySubDocument(
+				const bsoncxx::document::view& dbAccountPublicKeys,
+				const std::string& name,
+				const state::AccountPublicKeys::PublicKeyAccessor<Key>& expectedPublicKeyAccessor) {
+			auto dbPublicKeyDocument = dbAccountPublicKeys[name].get_document();
+			EXPECT_EQ(1u, GetFieldCount(dbPublicKeyDocument.view()));
+			EXPECT_EQ(expectedPublicKeyAccessor.get(), GetKeyValue(dbPublicKeyDocument.view(), "publicKey"));
+		}
+
+		void AssertPublicKeysSubDocument(
+				const bsoncxx::document::view& dbAccountPublicKeys,
+				const std::string& name,
+				const state::AccountPublicKeys::PublicKeysAccessor<model::PinnedVotingKey>& expectedPublicKeysAccessor) {
+			auto dbPublicKeysDocument = dbAccountPublicKeys[name].get_document();
+			EXPECT_EQ(1u, GetFieldCount(dbPublicKeysDocument.view()));
+
+			auto i = 0u;
+			for (const auto& dbPublicKeyDocument : dbPublicKeysDocument.view()["publicKeys"].get_array().value) {
+				const auto& expectedPublicKey = expectedPublicKeysAccessor.get(i);
+				EXPECT_EQ(expectedPublicKey.VotingKey, GetVotingKeyValue(dbPublicKeyDocument, "publicKey")) << "at " << i;
+				EXPECT_EQ(expectedPublicKey.StartPoint, FinalizationPoint(GetUint64(dbPublicKeyDocument, "startPoint"))) << "at " << i;
+				EXPECT_EQ(expectedPublicKey.EndPoint, FinalizationPoint(GetUint64(dbPublicKeyDocument, "endPoint"))) << "at " << i;
+				++i;
+			}
+
+			EXPECT_EQ(i, expectedPublicKeysAccessor.size());
+		}
+
+		void AssertEqualAccountPublicKeys(
+				const state::AccountPublicKeys& accountPublicKeys,
+				const bsoncxx::document::view& dbAccountPublicKeys) {
+			size_t numExpectedFields = 0u;
+			for (auto keyType = PublicKeyType::Linked; keyType <= PublicKeyType::All; Advance(keyType)) {
+				if (!HasFlag(keyType, accountPublicKeys.mask()))
 					continue;
 
-				auto accountKeyDocument = dbIter->get_document();
-				EXPECT_EQ(keyType, static_cast<state::AccountKeys::KeyType>(GetUint32(accountKeyDocument.view(), "keyType")));
-
 				switch (keyType) {
-				case state::AccountKeys::KeyType::Linked:
-					EXPECT_EQ(accountKeys.linkedPublicKey().get(), GetKeyValue(accountKeyDocument.view(), "key"));
+				case PublicKeyType::Linked:
+					AssertPublicKeySubDocument(dbAccountPublicKeys, "linked", accountPublicKeys.linked());
 					break;
 
-				case state::AccountKeys::KeyType::VRF:
-					EXPECT_EQ(accountKeys.vrfPublicKey().get(), GetKeyValue(accountKeyDocument.view(), "key"));
+				case PublicKeyType::Node:
+					AssertPublicKeySubDocument(dbAccountPublicKeys, "node", accountPublicKeys.node());
 					break;
 
-				case state::AccountKeys::KeyType::Voting:
-					EXPECT_EQ(accountKeys.votingPublicKey().get(), GetVotingKeyValue(accountKeyDocument.view(), "key"));
-					break;
-
-				case state::AccountKeys::KeyType::Node:
-					EXPECT_EQ(accountKeys.nodePublicKey().get(), GetKeyValue(accountKeyDocument.view(), "key"));
+				case PublicKeyType::VRF:
+					AssertPublicKeySubDocument(dbAccountPublicKeys, "vrf", accountPublicKeys.vrf());
 					break;
 
 				default:
-					CATAPULT_THROW_INVALID_ARGUMENT_1("unexpected keyType in mongo", static_cast<uint16_t>(keyType));
-					break;
+					CATAPULT_THROW_INVALID_ARGUMENT_1("unexpected key type in AccountPublicKeys", static_cast<uint16_t>(keyType));
 				}
 
-				++dbIter;
+				++numExpectedFields;
 			}
 
-			EXPECT_EQ(dbAccountKeys.cend(), dbIter);
+			if (0 != accountPublicKeys.voting().size()){
+				AssertPublicKeysSubDocument(dbAccountPublicKeys, "voting", accountPublicKeys.voting());
+				++numExpectedFields;
+			}
+
+			EXPECT_EQ(numExpectedFields, GetFieldCount(dbAccountPublicKeys));
 		}
 
 		void AssertEqualAccountImportanceSnapshots(
@@ -230,7 +259,7 @@ namespace catapult { namespace test {
 
 		EXPECT_EQ(accountState.AccountType, static_cast<state::AccountType>(GetInt32(dbAccount, "accountType")));
 
-		AssertEqualAccountKeys(accountState.SupplementalAccountKeys, dbAccount["supplementalAccountKeys"].get_array().value);
+		AssertEqualAccountPublicKeys(accountState.SupplementalPublicKeys, dbAccount["supplementalPublicKeys"].get_document());
 		AssertEqualAccountImportanceSnapshots(accountState.ImportanceSnapshots, dbAccount["importances"].get_array().value);
 		AssertEqualAccountActivityBuckets(accountState.ActivityBuckets, dbAccount["activityBuckets"].get_array().value);
 

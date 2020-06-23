@@ -34,10 +34,12 @@ namespace catapult { namespace mongo { namespace mappers {
 	// region ToDbModel
 
 	namespace {
-		auto CreateAccountState(
-				Height publicKeyHeight,
-				std::initializer_list<model::Mosaic> mosaics,
-				state::AccountKeys::KeyType supplementalAccountKeysMask) {
+		struct RandomSeed {
+			state::AccountPublicKeys::KeyType SupplementalPublicKeysMask = state::AccountPublicKeys::KeyType::Unset;
+			uint8_t NumVotingKeys = 0;
+		};
+
+		auto CreateAccountState(Height publicKeyHeight, std::initializer_list<model::Mosaic> mosaics, const RandomSeed& seed) {
 			state::AccountState accountState(test::GenerateRandomAddress(), Height(123));
 			if (Height(0) != publicKeyHeight) {
 				accountState.PublicKeyHeight = publicKeyHeight;
@@ -45,7 +47,7 @@ namespace catapult { namespace mongo { namespace mappers {
 			}
 
 			accountState.AccountType = static_cast<state::AccountType>(34);
-			test::SetRandomSupplementalAccountKeys(accountState, supplementalAccountKeysMask);
+			test::SetRandomSupplementalPublicKeys(accountState, seed.SupplementalPublicKeysMask, seed.NumVotingKeys);
 
 			auto numImportanceSnapshots = 1u + test::Random() % Importance_History_Size;
 			for (auto i = 0u; i < numImportanceSnapshots; ++i)
@@ -69,9 +71,9 @@ namespace catapult { namespace mongo { namespace mappers {
 		void AssertCanMapAccountState(
 				Height publicKeyHeight,
 				std::initializer_list<model::Mosaic> mosaics,
-				state::AccountKeys::KeyType supplementalAccountKeysMask = state::AccountKeys::KeyType::Unset) {
+				const RandomSeed& seed = RandomSeed()) {
 			// Arrange:
-			auto accountState = CreateAccountState(publicKeyHeight, mosaics, supplementalAccountKeysMask);
+			auto accountState = CreateAccountState(publicKeyHeight, mosaics, seed);
 
 			// Act:
 			auto dbAccount = ToDbModel(accountState);
@@ -114,22 +116,35 @@ namespace catapult { namespace mongo { namespace mappers {
 				{ { MosaicId(1234), Amount(234) }, { MosaicId(1357), Amount(345) }, { MosaicId(31), Amount(45) } });
 	}
 
-	TEST(TEST_CLASS, CanMapAccountStateWithoutSupplementalAccountKeys) {
-		// Arrange:
-		std::vector<state::AccountKeys::KeyType> keyTypeMasks{
-			state::AccountKeys::KeyType::Linked,
-			state::AccountKeys::KeyType::VRF,
-			state::AccountKeys::KeyType::Voting,
-			state::AccountKeys::KeyType::Node,
-			state::AccountKeys::KeyType::Linked | state::AccountKeys::KeyType::Voting,
-			state::AccountKeys::KeyType::All
-		};
+	namespace {
+		void ForEachRandomSeed(const consumer<const RandomSeed&>& action) {
+			auto accountPublicKeysMasks = std::initializer_list<state::AccountPublicKeys::KeyType>{
+				state::AccountPublicKeys::KeyType::Unset,
+				state::AccountPublicKeys::KeyType::Linked,
+				state::AccountPublicKeys::KeyType::Node,
+				state::AccountPublicKeys::KeyType::VRF,
+				state::AccountPublicKeys::KeyType::Linked | state::AccountPublicKeys::KeyType::Node,
+				state::AccountPublicKeys::KeyType::All
+			};
 
-		// Act + Assert:
-		for (auto keyType : keyTypeMasks) {
-			CATAPULT_LOG(debug) << "key type mask: " << static_cast<uint16_t>(keyType);
-			AssertCanMapAccountState(Height(456), { { MosaicId(1234), Amount(234) } }, keyType);
+			for (auto keyType : accountPublicKeysMasks) {
+				for (auto numVotingKeys : std::initializer_list<uint8_t>{ 0, 3 }) {
+					CATAPULT_LOG(debug)
+							<< "key type mask: " << static_cast<uint16_t>(keyType)
+							<< ", num voting keys: " << static_cast<uint16_t>(numVotingKeys);
+
+					action({ keyType, numVotingKeys });
+				}
+			}
 		}
+	}
+
+	TEST(TEST_CLASS, CanMapAccountStateWithSupplementalPublicKeys) {
+		// Arrange:
+		ForEachRandomSeed([](const auto& seed) {
+			// Act + Assert:
+			AssertCanMapAccountState(Height(456), { { MosaicId(1234), Amount(234) } }, seed);
+		});
 	}
 
 	// endregion

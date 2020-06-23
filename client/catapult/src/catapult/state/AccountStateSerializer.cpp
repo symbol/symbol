@@ -120,20 +120,23 @@ namespace catapult { namespace state {
 			}
 		}
 
-		void WriteSupplementalAccountKeys(io::OutputStream& output, const AccountKeys& accountKeys) {
-			io::Write8(output, utils::to_underlying_type(accountKeys.mask()));
+		void WriteSupplementalPublicKeys(io::OutputStream& output, const AccountPublicKeys& accountPublicKeys) {
+			io::Write8(output, utils::to_underlying_type(accountPublicKeys.mask()));
+			io::Write8(output, static_cast<uint8_t>(accountPublicKeys.voting().size()));
 
-			if (HasFlag(AccountKeys::KeyType::Linked, accountKeys.mask()))
-				output.write(accountKeys.linkedPublicKey().get());
+			if (HasFlag(AccountPublicKeys::KeyType::Linked, accountPublicKeys.mask()))
+				output.write(accountPublicKeys.linked().get());
 
-			if (HasFlag(AccountKeys::KeyType::VRF, accountKeys.mask()))
-				output.write(accountKeys.vrfPublicKey().get());
+			if (HasFlag(AccountPublicKeys::KeyType::Node, accountPublicKeys.mask()))
+				output.write(accountPublicKeys.node().get());
 
-			if (HasFlag(AccountKeys::KeyType::Voting, accountKeys.mask()))
-				output.write(accountKeys.votingPublicKey().get());
+			if (HasFlag(AccountPublicKeys::KeyType::VRF, accountPublicKeys.mask()))
+				output.write(accountPublicKeys.vrf().get());
 
-			if (HasFlag(AccountKeys::KeyType::Node, accountKeys.mask()))
-				output.write(accountKeys.nodePublicKey().get());
+			for (auto i = 0u; i < accountPublicKeys.voting().size(); ++i) {
+				const auto& pinnedVotingKey = accountPublicKeys.voting().get(i);
+				output.write({ reinterpret_cast<const uint8_t*>(&pinnedVotingKey), model::PinnedVotingKey::Size });
+			}
 		}
 
 		void WriteSnapshots(io::OutputStream& output, const AccountImportanceSnapshots& snapshots, size_t start, size_t count) {
@@ -170,8 +173,8 @@ namespace catapult { namespace state {
 		auto format = GetFormat(accountState);
 		io::Write8(output, utils::to_underlying_type(format));
 
-		// write supplemental account keys
-		WriteSupplementalAccountKeys(output, accountState.SupplementalAccountKeys);
+		// write supplemental public keys
+		WriteSupplementalPublicKeys(output, accountState.SupplementalPublicKeys);
 
 		// write importance information for high value accounts
 		if (AccountStateFormat::High_Value == format) {
@@ -188,27 +191,35 @@ namespace catapult { namespace state {
 	}
 
 	namespace {
-		template<typename TAccountPublicKey>
-		void ReadSupplementalPublicKey(io::InputStream& input, AccountKeys::KeyAccessor<TAccountPublicKey>& keyAccessor) {
-			TAccountPublicKey key;
+		void ReadSupplementalPublicKey(io::InputStream& input, AccountPublicKeys::PublicKeyAccessor<Key>& publicKeyAccessor) {
+			Key key;
 			input.read(key);
-			keyAccessor.set(key);
+			publicKeyAccessor.set(key);
 		}
 
-		void ReadSupplementalAccountKeys(io::InputStream& input, AccountKeys& accountKeys) {
-			auto supplementalAccountKeysMask = static_cast<AccountKeys::KeyType>(io::Read8(input));
+		void ReadSupplementalPublicKey(
+				io::InputStream& input,
+				AccountPublicKeys::PublicKeysAccessor<model::PinnedVotingKey>& publicKeysAccessor) {
+			model::PinnedVotingKey key;
+			input.read({ reinterpret_cast<uint8_t*>(&key), model::PinnedVotingKey::Size });
+			publicKeysAccessor.add(key);
+		}
 
-			if (HasFlag(AccountKeys::KeyType::Linked, supplementalAccountKeysMask))
-				ReadSupplementalPublicKey(input, accountKeys.linkedPublicKey());
+		void ReadSupplementalPublicKeys(io::InputStream& input, AccountPublicKeys& accountPublicKeys) {
+			auto accountPublicKeysMask = static_cast<AccountPublicKeys::KeyType>(io::Read8(input));
+			auto numVotingKeys = io::Read8(input);
 
-			if (HasFlag(AccountKeys::KeyType::VRF, supplementalAccountKeysMask))
-				ReadSupplementalPublicKey(input, accountKeys.vrfPublicKey());
+			if (HasFlag(AccountPublicKeys::KeyType::Linked, accountPublicKeysMask))
+				ReadSupplementalPublicKey(input, accountPublicKeys.linked());
 
-			if (HasFlag(AccountKeys::KeyType::Voting, supplementalAccountKeysMask))
-				ReadSupplementalPublicKey(input, accountKeys.votingPublicKey());
+			if (HasFlag(AccountPublicKeys::KeyType::Node, accountPublicKeysMask))
+				ReadSupplementalPublicKey(input, accountPublicKeys.node());
 
-			if (HasFlag(AccountKeys::KeyType::Node, supplementalAccountKeysMask))
-				ReadSupplementalPublicKey(input, accountKeys.nodePublicKey());
+			if (HasFlag(AccountPublicKeys::KeyType::VRF, accountPublicKeysMask))
+				ReadSupplementalPublicKey(input, accountPublicKeys.vrf());
+
+			for (auto i = 0u; i < numVotingKeys; ++i)
+				ReadSupplementalPublicKey(input, accountPublicKeys.voting());
 		}
 
 		AccountState LoadAccountStateWithoutHistory(io::InputStream& input, ImportanceReader& importanceReader) {
@@ -226,8 +237,8 @@ namespace catapult { namespace state {
 			accountState.AccountType = static_cast<AccountType>(io::Read8(input));
 			auto format = static_cast<AccountStateFormat>(io::Read8(input));
 
-			// read supplemental account keys
-			ReadSupplementalAccountKeys(input, accountState.SupplementalAccountKeys);
+			// read supplemental public keys
+			ReadSupplementalPublicKeys(input, accountState.SupplementalPublicKeys);
 
 			// read importance information for high value accounts
 			if (AccountStateFormat::High_Value == format) {

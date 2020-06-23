@@ -68,7 +68,8 @@ namespace catapult { namespace plugins {
 					"EntityVersionValidator",
 					"TransactionFeeValidator",
 					"KeyLinkActionValidator",
-					"ZeroInternalPaddingValidator"
+					"ZeroInternalPaddingValidator",
+					"VotingKeyLinkRangeValidator"
 				};
 			}
 
@@ -83,8 +84,8 @@ namespace catapult { namespace plugins {
 					"BalanceTransferValidator",
 
 					// key link transactions
-					"VotingKeyLinkValidator",
-					"VrfKeyLinkValidator"
+					"VrfKeyLinkValidator",
+					"VotingMultiKeyLinkValidator"
 				};
 			}
 
@@ -112,8 +113,8 @@ namespace catapult { namespace plugins {
 					"HighValueAccountCommitObserver",
 
 					// key link transactions
-					"VotingKeyLinkObserver",
-					"VrfKeyLinkObserver"
+					"VrfKeyLinkObserver",
+					"VotingMultiKeyLinkObserver"
 				};
 			}
 		};

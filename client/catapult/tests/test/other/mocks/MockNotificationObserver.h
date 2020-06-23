@@ -47,7 +47,7 @@ namespace catapult { namespace mocks {
 			m_notificationTypes.push_back(notification.Type);
 
 			if (model::Core_Register_Account_Public_Key_Notification == notification.Type)
-				m_accountKeys.push_back(static_cast<const model::AccountPublicKeyNotification&>(notification).PublicKey);
+				m_accountPublicKeys.push_back(static_cast<const model::AccountPublicKeyNotification&>(notification).PublicKey);
 
 			m_contexts.push_back(context);
 			m_contextPointers.push_back(&context);
@@ -64,9 +64,9 @@ namespace catapult { namespace mocks {
 			return m_notificationTypes;
 		}
 
-		/// Gets the collected account keys.
-		const auto& accountKeys() const {
-			return m_accountKeys;
+		/// Gets the collected account public keys.
+		const auto& accountPublicKeys() const {
+			return m_accountPublicKeys;
 		}
 
 		/// Gets the collected contexts.
@@ -83,7 +83,7 @@ namespace catapult { namespace mocks {
 		std::string m_name;
 		mutable std::vector<Hash256> m_notificationHashes;
 		mutable std::vector<model::NotificationType> m_notificationTypes;
-		mutable std::vector<Key> m_accountKeys;
+		mutable std::vector<Key> m_accountPublicKeys;
 		mutable std::vector<observers::ObserverContext> m_contexts;
 		mutable std::vector<const observers::ObserverContext*> m_contextPointers;
 	};

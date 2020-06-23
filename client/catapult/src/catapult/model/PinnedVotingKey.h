@@ -19,42 +19,45 @@
 **/
 
 #pragma once
-#include "catapult/model/KeyLinkSharedTransaction.h"
+#include "catapult/types.h"
+#include <iosfwd>
 
 namespace catapult { namespace model {
 
 #pragma pack(push, 1)
 
-	/// Binary layout for a voting key link transaction body.
-	template<typename THeader>
-	struct VotingKeyLinkTransactionBody : public THeader {
-	private:
-		using TransactionType = VotingKeyLinkTransactionBody<THeader>;
+	/// Pinned voting key.
+	struct PinnedVotingKey {
+	public:
+		static constexpr auto Size = catapult::VotingKey::Size + 2 * sizeof(FinalizationPoint);
 
 	public:
-		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Voting_Key_Link, 1)
+		/// Voting key.
+		catapult::VotingKey VotingKey;
 
-	public:
-		/// Linked public key.
-		VotingKey LinkedPublicKey;
-
-		/// Start point.
+		/// Start finalization point.
 		FinalizationPoint StartPoint;
 
-		/// End point.
+		/// End finalization point.
 		FinalizationPoint EndPoint;
 
-		/// Link action.
-		model::LinkAction LinkAction;
-
 	public:
-		/// Calculates the real size of key link \a transaction.
-		static constexpr uint64_t CalculateRealSize(const TransactionType&) noexcept {
-			return sizeof(TransactionType);
+		/// Returns \c true if this root voting key is equal to \a rhs.
+		bool operator==(const PinnedVotingKey& rhs) const {
+			return VotingKey == rhs.VotingKey && StartPoint == rhs.StartPoint && EndPoint == rhs.EndPoint;
+		}
+
+		/// Returns \c true if this root voting key is not equal to \a rhs.
+		bool operator!=(const PinnedVotingKey& rhs) const {
+			return !(*this == rhs);
+		}
+
+		/// Insertion operator for outputting \a key to \a out.
+		friend std::ostream& operator<<(std::ostream& out, const PinnedVotingKey& key) {
+			out << key.VotingKey << " @ [" << key.StartPoint << ", " << key.EndPoint << "]";
+			return out;
 		}
 	};
-
-	DEFINE_EMBEDDABLE_TRANSACTION(VotingKeyLink)
 
 #pragma pack(pop)
 }}

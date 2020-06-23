@@ -32,7 +32,10 @@ namespace catapult { namespace plugins {
 		template<typename TTransaction>
 		void Publish(const TTransaction& transaction, const PublishContext&, NotificationSubscriber& sub) {
 			sub.notify(KeyLinkActionNotification(transaction.LinkAction));
-			sub.notify(VotingKeyLinkNotification(transaction.SignerPublicKey, transaction.LinkedPublicKey, transaction.LinkAction));
+			sub.notify(VotingKeyLinkNotification(
+					transaction.SignerPublicKey,
+					{ transaction.LinkedPublicKey, transaction.StartPoint, transaction.EndPoint },
+					transaction.LinkAction));
 		}
 	}
 
