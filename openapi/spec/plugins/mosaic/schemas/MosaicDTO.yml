@@ -18,7 +18,7 @@ properties:
   ownerAddress:
     $ref: "../../../schemas/Address.yml"
   revision:
-    type: integer
+    $ref: "../../../schemas/UInt32.yml"
     description: Number of definitions for the same mosaic.
     example: 1
   flags:

@@ -53,6 +53,8 @@ Signature:
   "$ref": "./Signature.yml"
 Timestamp:
   "$ref": "./Timestamp.yml"
+UInt32:
+  "$ref": "./UInt32.yml"
 UnresolvedAddress:
   "$ref": "./UnresolvedAddress.yml"
 UnresolvedMosaicId:

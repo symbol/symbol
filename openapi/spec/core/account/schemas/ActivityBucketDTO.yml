@@ -15,7 +15,7 @@ properties:
     $ref: "../../../schemas/Amount.yml"
     description: Fees paid by the account for this bucket.
   beneficiaryCount:
-    type: integer
+    $ref: "../../../schemas/UInt32.yml"
     description: Number of times the account has been a beneficiary for this bucket.
   rawScore:
     $ref: "../../../schemas/Importance.yml"
