@@ -1,0 +1,4 @@
+type: integer
+format: int64
+description: A number that allows uint 32 values.
+example: 2222212828

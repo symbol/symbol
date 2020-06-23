@@ -9,12 +9,12 @@ properties:
   accountAddress:
     $ref: "../../../schemas/Address.yml"
   minApproval:
-    type: integer
+    $ref: "../../../schemas/UInt32.yml"
     description: Number of signatures needed to approve a transaction.
     example: 2
   minRemoval:
     description: Number of signatures needed to remove a cosignatory.
-    type: integer
+    $ref: "../../../schemas/UInt32.yml"
     example: 1
   cosignatoryAddresses:
     type: array

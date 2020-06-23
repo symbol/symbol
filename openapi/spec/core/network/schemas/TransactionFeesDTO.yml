@@ -6,11 +6,11 @@ required:
   - lowestFeeMultiplier
 properties:
   averageFeeMultiplier:
-    type: integer
+    $ref: "../../../schemas/BlockFeeMultiplier.yml"
     description: Average fee multiplier over the last "numBlocksTransactionFeeStats".
     example: 1
   medianFeeMultiplier:
-    type: integer
+    $ref: "../../../schemas/BlockFeeMultiplier.yml"
     description: Median fee multiplier over the last "numBlocksTransactionFeeStats".
     example: 1
   highestFeeMultiplier:
