@@ -20,7 +20,7 @@
 
 /** @module packet/PacketType */
 
-const statePathBaseType = 800;
+const statePathBaseType = 0x200;
 
 /**
  * Packet types.
@@ -40,19 +40,19 @@ const PacketType = {
 	pushTransactions: 9,
 
 	/** Partial aggregate transactions have been pushed by an api-node. */
-	pushPartialTransactions: 500,
+	pushPartialTransactions: 0x100,
 
 	/** Detached cosignatures have been pushed by an api-node. */
-	pushDetachedCosignatures: 501,
+	pushDetachedCosignatures: 0x101,
 
 	/** Node information has been requested by a peer. */
-	nodeDiscoveryPullPing: 601,
+	nodeDiscoveryPullPing: 0x111,
 
 	/** Node peers had been requested by a peer. */
-	nodeDiscoveryPullPeers: 603,
+	nodeDiscoveryPullPeers: 0x113,
 
 	/** Node time information has been requested by a peer. */
-	timeSyncNodeTime: 700,
+	timeSyncNodeTime: 0x120,
 
 	/** State path has been requested by a peer. */
 	accountStatePath: statePathBaseType + 0x43,

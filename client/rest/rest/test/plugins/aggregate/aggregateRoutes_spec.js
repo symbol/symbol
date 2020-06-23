@@ -20,18 +20,24 @@
 
 const aggregateRoutes = require('../../../src/plugins/aggregate/aggregateRoutes');
 const { test } = require('../../routes/utils/routeTestUtils');
+const catapult = require('catapult-sdk');
+
+const { PacketType } = catapult.packet;
 
 describe('aggregate routes', () => {
 	describe('PUT transaction partial', () => {
+		const packetTypeBuffer = Buffer.alloc(4);
+		packetTypeBuffer.writeUInt32LE(PacketType.pushPartialTransactions, 0);
+
 		test.route.packet.addPutPacketRouteTests(aggregateRoutes.register, {
 			routeName: '/transactions/partial',
-			packetType: '500',
+			packetType: PacketType.pushPartialTransactions,
 			inputs: {
 				valid: {
 					params: { payload: '123456' },
 					parsed: Buffer.of(
 						0x0B, 0x00, 0x00, 0x00, // size (header)
-						0xF4, 0x01, 0x00, 0x00, // type (header)
+						...packetTypeBuffer, // type (header)
 						0x12, 0x34, 0x56 // payload
 					)
 				},
@@ -44,9 +50,12 @@ describe('aggregate routes', () => {
 	});
 
 	describe('PUT transaction cosignature', () => {
+		const packetTypeBuffer = Buffer.alloc(4);
+		packetTypeBuffer.writeUInt32LE(PacketType.pushDetachedCosignatures, 0);
+
 		test.route.packet.addPutPacketRouteTests(aggregateRoutes.register, {
 			routeName: '/transactions/cosignature',
-			packetType: '501',
+			packetType: PacketType.pushDetachedCosignatures,
 			inputs: {
 				valid: {
 					params: {
@@ -58,7 +67,7 @@ describe('aggregate routes', () => {
 					parsed: Buffer.of(
 						// header
 						0x18, 0x00, 0x00, 0x00, // size
-						0xF5, 0x01, 0x00, 0x00, // type
+						...packetTypeBuffer, // type
 
 						// payload
 						0x00, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, // version
