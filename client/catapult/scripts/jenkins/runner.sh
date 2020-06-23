@@ -6,8 +6,8 @@ rm -rf catapult-src/internal
 
 branchName="$(echo "${GIT_BRANCH}" | sed 's/origin\///;')"
 
-# pick master as default
-internalBranchName="master"
+# pick main as default
+internalBranchName="main"
 
 # if there's corresponding internal branch to main repo branch pick it instead
 hasInternal=$(GIT_SSH_COMMAND="ssh -i ${CREDS_KEYFILE}" git ls-remote --heads "${INTERNAL_REPO}" "refs/heads/${branchName}" | wc -l)
