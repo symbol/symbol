@@ -4,6 +4,6 @@ required:
   - key
 properties:
   keyType:
-    $ref: "./KeyTypeEnum.yml"
+    $ref: "./AccountKeyTypeFlagsEnum.yml"
   key:
     type: string

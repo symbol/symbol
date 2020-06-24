@@ -1,9 +1,15 @@
 type: object
 required:
   - linkedPublicKey
+  - startPoint
+  - endPoint
   - linkAction
 properties:
   linkedPublicKey:
     $ref: "../../../schemas/VotingKey.yml"
+  startPoint:
+    $ref: "../../../schemas/FinalizationPoint.yml"
+  endPoint:
+    $ref: "../../../schemas/FinalizationPoint.yml"
   linkAction:
     $ref: "../../../schemas/LinkActionEnum.yml"
