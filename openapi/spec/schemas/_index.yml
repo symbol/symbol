@@ -13,6 +13,8 @@ CosignatureVersion:
   "$ref": "./CosignatureVersion.yml"
 Difficulty:
   "$ref": "./Difficulty.yml"
+FinalizationPoint:
+  "$ref": "./FinalizationPoint.yml"
 Hash256:
   "$ref": "./Hash256.yml"
 Height:
@@ -77,8 +79,8 @@ ActivityBucketDTO:
   "$ref": "../core/account/schemas/ActivityBucketDTO.yml"
 AccountKeyDTO:
   "$ref": "../core/account/schemas/AccountKeyDTO.yml"
-KeyTypeEnum:
-  "$ref": "../core/account/schemas/KeyTypeEnum.yml"
+AccountKeyTypeFlagsEnum:
+  "$ref": "../core/account/schemas/AccountKeyTypeFlagsEnum.yml"
 
 # Core - Block
 BlockOrderByEnum:
