@@ -33,7 +33,6 @@
 namespace catapult { namespace io {
 
 	namespace {
-		static constexpr uint64_t Unset_Directory_Id = std::numeric_limits<uint64_t>::max();
 		static constexpr uint32_t Files_Per_Directory = 65536u;
 		static constexpr auto Block_File_Extension = ".dat";
 		static constexpr auto Block_Statement_File_Extension = ".stmt";
@@ -66,12 +65,6 @@ namespace catapult { namespace io {
 			return path;
 		}
 
-		boost::filesystem::path GetHashFilePath(const std::string& baseDirectory, Height height) {
-			auto path = GetDirectoryPath(baseDirectory, height);
-			path /= "hashes.dat";
-			return path;
-		}
-
 		boost::filesystem::path GetBlockStatementPath(const std::string& baseDirectory, Height height) {
 			return GetBlockPath(baseDirectory, height, Block_Statement_File_Extension);
 		}
@@ -86,86 +79,23 @@ namespace catapult { namespace io {
 
 		auto OpenBlockFile(const std::string& baseDirectory, Height height, OpenMode mode = OpenMode::Read_Only) {
 			auto blockPath = GetBlockPath(baseDirectory, height, Block_File_Extension);
-			return std::make_unique<RawFile>(blockPath.generic_string().c_str(), mode);
+			return std::make_unique<RawFile>(blockPath.generic_string(), mode);
 		}
 
 		auto OpenBlockStatementFile(const std::string& baseDirectory, Height height, OpenMode mode = OpenMode::Read_Only) {
 			auto blockStatementPath = GetBlockStatementPath(baseDirectory, height);
-			return RawFile(blockStatementPath.generic_string().c_str(), mode);
+			return RawFile(blockStatementPath.generic_string(), mode);
 		}
 
 		// endregion
 	}
-
-	// region FileBlockStorage::HashFile
-
-	FileBlockStorage::HashFile::HashFile(const std::string& dataDirectory)
-			: m_dataDirectory(dataDirectory)
-			, m_cachedDirectoryId(Unset_Directory_Id)
-	{}
-
-	namespace {
-		std::unique_ptr<RawFile> OpenHashFile(const std::string& baseDirectory, Height height, OpenMode openMode) {
-			auto hashFilePath = GetHashFilePath(baseDirectory, height);
-			auto pHashFile = std::make_unique<RawFile>(hashFilePath.generic_string().c_str(), openMode, LockMode::None);
-			// check that first hash file has at least two hashes inside.
-			if (height.unwrap() < Files_Per_Directory && Hash256::Size * 2 > pHashFile->size())
-				CATAPULT_THROW_RUNTIME_ERROR_1("hashes.dat has invalid size", pHashFile->size());
-
-			return pHashFile;
-		}
-
-		void SeekHashFile(RawFile& hashFile, Height height) {
-			auto index = height.unwrap() % Files_Per_Directory;
-			hashFile.seek(index * Hash256::Size);
-		}
-	}
-
-	model::HashRange FileBlockStorage::HashFile::loadHashesFrom(Height height, size_t numHashes) const {
-		uint8_t* pData = nullptr;
-		auto range = model::HashRange::PrepareFixed(numHashes, &pData);
-
-		while (numHashes) {
-			auto pHashFile = OpenHashFile(m_dataDirectory, height, OpenMode::Read_Only);
-			SeekHashFile(*pHashFile, height);
-
-			auto count = Files_Per_Directory - (height.unwrap() % Files_Per_Directory);
-			count = std::min<size_t>(numHashes, count);
-
-			pHashFile->read(MutableRawBuffer(pData, count * Hash256::Size));
-
-			pData += count * Hash256::Size;
-			numHashes -= count;
-			height = height + Height(count);
-		}
-
-		return range;
-	}
-
-	void FileBlockStorage::HashFile::save(Height height, const Hash256& hash) {
-		auto currentId = height.unwrap() / Files_Per_Directory;
-		if (m_cachedDirectoryId != currentId) {
-			m_pCachedHashFile = OpenHashFile(m_dataDirectory, height, OpenMode::Read_Append);
-			m_cachedDirectoryId = currentId;
-		}
-
-		SeekHashFile(*m_pCachedHashFile, height);
-		m_pCachedHashFile->write(hash);
-	}
-
-	void FileBlockStorage::HashFile::reset() {
-		m_cachedDirectoryId = Unset_Directory_Id;
-		m_pCachedHashFile.reset();
-	}
-
-	// endregion
 
 	// region ctor
 
 	FileBlockStorage::FileBlockStorage(const std::string& dataDirectory, FileBlockStorageMode mode)
 			: m_dataDirectory(dataDirectory)
 			, m_mode(mode)
-			, m_hashFile(m_dataDirectory)
+			, m_hashFile(m_dataDirectory, "hashes")
 			, m_indexFile((boost::filesystem::path(m_dataDirectory) / "index.dat").generic_string())
 	{}
 
@@ -209,7 +139,7 @@ namespace catapult { namespace io {
 
 		auto numAvailableHashes = static_cast<size_t>((currentHeight - height).unwrap() + 1);
 		auto numHashes = std::min(maxHashes, numAvailableHashes);
-		return m_hashFile.loadHashesFrom(height, numHashes);
+		return m_hashFile.loadRangeFrom(height, numHashes);
 	}
 
 	void FileBlockStorage::saveBlock(const model::BlockElement& blockElement) {

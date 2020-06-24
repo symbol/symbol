@@ -20,6 +20,7 @@
 
 #pragma once
 #include "BlockStorage.h"
+#include "FixedSizeValueStorage.h"
 #include "IndexFile.h"
 #include "RawFile.h"
 #include <string>
@@ -61,22 +62,6 @@ namespace catapult { namespace io {
 		void requireHeight(Height height, const char* description) const;
 
 	private:
-		class HashFile final {
-		public:
-			explicit HashFile(const std::string& dataDirectory);
-
-			model::HashRange loadHashesFrom(Height height, size_t numHashes) const;
-			void save(Height height, const Hash256& hash);
-			void reset();
-
-		private:
-			const std::string& m_dataDirectory;
-
-			// used for caching inside save()
-			uint64_t m_cachedDirectoryId;
-			std::unique_ptr<RawFile> m_pCachedHashFile;
-		};
-
 		std::string m_dataDirectory;
 		FileBlockStorageMode m_mode;
 
