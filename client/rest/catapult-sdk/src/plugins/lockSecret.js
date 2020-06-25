@@ -45,11 +45,11 @@ const lockSecretPlugin = {
 		});
 
 		builder.addTransactionSupport(EntityType.secretLock, {
+			recipientAddress: ModelType.binary,
 			secret: ModelType.binary,
 			mosaicId: ModelType.uint64HexIdentifier,
 			amount: ModelType.uint64,
-			duration: ModelType.uint64,
-			recipientAddress: ModelType.binary
+			duration: ModelType.uint64
 		});
 		builder.addTransactionSupport(EntityType.secretProof, {
 			secret: ModelType.binary,
@@ -62,41 +62,41 @@ const lockSecretPlugin = {
 		codecBuilder.addTransactionSupport(EntityType.secretLock, {
 			deserialize: parser => {
 				const transaction = {};
+				transaction.recipientAddress = parser.buffer(constants.sizes.addressDecoded);
 				transaction.secret = parser.buffer(constants.sizes.hash256);
 				transaction.mosaicId = parser.uint64();
 				transaction.amount = parser.uint64();
 				transaction.duration = parser.uint64();
 				transaction.hashAlgorithm = parser.uint8();
-				transaction.recipientAddress = parser.buffer(constants.sizes.addressDecoded);
 				return transaction;
 			},
 
 			serialize: (transaction, serializer) => {
+				serializer.writeBuffer(transaction.recipientAddress);
 				serializer.writeBuffer(transaction.secret);
 				serializer.writeUint64(transaction.mosaicId);
 				serializer.writeUint64(transaction.amount);
 				serializer.writeUint64(transaction.duration);
 				serializer.writeUint8(transaction.hashAlgorithm);
-				serializer.writeBuffer(transaction.recipientAddress);
 			}
 		});
 
 		codecBuilder.addTransactionSupport(EntityType.secretProof, {
 			deserialize: parser => {
 				const transaction = {};
+				transaction.recipientAddress = parser.buffer(constants.sizes.addressDecoded);
 				transaction.secret = parser.buffer(constants.sizes.hash256);
 				const proofSize = parser.uint16();
 				transaction.hashAlgorithm = parser.uint8();
-				transaction.recipientAddress = parser.buffer(constants.sizes.addressDecoded);
 				transaction.proof = parser.buffer(proofSize);
 				return transaction;
 			},
 
 			serialize: (transaction, serializer) => {
+				serializer.writeBuffer(transaction.recipientAddress);
 				serializer.writeBuffer(transaction.secret);
 				serializer.writeUint16(transaction.proof.length);
 				serializer.writeUint8(transaction.hashAlgorithm);
-				serializer.writeBuffer(transaction.recipientAddress);
 				serializer.writeBuffer(transaction.proof);
 			}
 		});
