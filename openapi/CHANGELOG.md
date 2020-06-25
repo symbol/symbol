@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.9.3] - 25-Jun-2020
+
+Targets catapult-rest 1.1.2
+
+### Added
+
+- Account state accountKeys changed to publicKeys.
+- VotingAccountLinkTransaction finalization points.
+
+### Fixed
+
+- Long numbers support for Java code generators.
+
 ## [0.9.2] - 18-Jun-2020
 
 Targets catapult-rest 1.1.0
@@ -110,3 +123,13 @@ Targets catapult-rest 1.0.20.19
 
 - ``type`` query params validation with ``TransactionTypeEnum``.
 -  Project was renamed to ``symbol-openapi``.
+
+[0.9.3]: https://github.com/nemtech/symbol-openapi/releases/tag/v0.9.2...v0.9.3
+[0.9.2]: https://github.com/nemtech/symbol-openapi/releases/tag/v0.8.11...v0.9.2
+[0.8.11]: https://github.com/nemtech/symbol-openapi/releases/tag/v0.8.10...v0.8.11
+[0.8.10]: https://github.com/nemtech/symbol-openapi/releases/tag/v0.8.9...v0.8.10
+[0.8.9]: https://github.com/nemtech/symbol-openapi/releases/tag/v0.8.7...v0.8.9
+[0.8.7]: https://github.com/nemtech/symbol-openapi/releases/tag/v0.8.6...v0.8.7
+[0.8.6]: https://github.com/nemtech/symbol-openapi/releases/tag/v0.8.5...v0.8.6
+[0.8.5]: https://github.com/nemtech/symbol-openapi/releases/tag/v0.8.5
+
