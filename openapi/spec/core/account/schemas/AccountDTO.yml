@@ -5,7 +5,7 @@ required:
   - publicKey
   - publicKeyHeight
   - accountType
-  - supplementalAccountKeys
+  - supplementalPublicKeys
   - activityBuckets
   - mosaics
   - importance
@@ -21,7 +21,7 @@ properties:
     $ref: "../../../schemas/Height.yml"
   accountType:
     $ref: "./AccountTypeEnum.yml"
-  supplementalAccountKeys:
+  supplementalPublicKeys:
     type: array
     items:
       $ref: "./AccountKeyDTO.yml"
