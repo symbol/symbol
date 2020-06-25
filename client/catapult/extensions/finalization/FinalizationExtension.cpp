@@ -20,6 +20,7 @@
 
 #include "src/FinalizationBootstrapperService.h"
 #include "src/FinalizationConfiguration.h"
+#include "src/FinalizationService.h"
 #include "src/FinalizationSyncSourceService.h"
 #include "catapult/config/ConfigurationFileLoader.h"
 #include "catapult/extensions/ProcessBootstrapper.h"
@@ -34,6 +35,7 @@ namespace catapult { namespace finalization {
 			// register other services
 			auto& extensionManager = bootstrapper.extensionManager();
 			extensionManager.addServiceRegistrar(CreateFinalizationBootstrapperServiceRegistrar());
+			extensionManager.addServiceRegistrar(CreateFinalizationServiceRegistrar());
 			extensionManager.addServiceRegistrar(CreateFinalizationSyncSourceServiceRegistrar());
 		}
 	}
