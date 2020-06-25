@@ -40,7 +40,9 @@ const accountLinkPlugin = {
 		});
 
 		builder.addTransactionSupport(EntityType.votingKeyLink, {
-			linkedPublicKey: ModelType.binary
+			linkedPublicKey: ModelType.binary,
+			startPoint: ModelType.uint64,
+			endPoint: ModelType.uint64
 		});
 
 		builder.addTransactionSupport(EntityType.vrfKeyLink, {
