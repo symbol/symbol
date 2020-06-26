@@ -83,12 +83,16 @@ const accountLinkPlugin = {
 			deserialize: parser => {
 				const transaction = {};
 				transaction.linkedPublicKey = parser.buffer(constants.sizes.votingKey);
+				transaction.startPoint = parser.uint64();
+				transaction.endPoint = parser.uint64();
 				transaction.linkAction = parser.uint8();
 				return transaction;
 			},
 
 			serialize: (transaction, serializer) => {
 				serializer.writeBuffer(transaction.linkedPublicKey);
+				serializer.writeUint64(transaction.startPoint);
+				serializer.writeUint64(transaction.endPoint);
 				serializer.writeUint8(transaction.linkAction);
 			}
 		});
