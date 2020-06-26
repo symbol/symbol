@@ -1,0 +1,21 @@
+tags:
+  - Transaction routes
+summary: Get transactions information
+description: Returns unconfirmed transactions information for a given array of transactionIds.
+operationId: getUnconfirmedTransactions
+requestBody:
+  $ref: "../../../request_bodies/transactionIds.yml"
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          type: array
+          description: Array of transactions information.
+          items:
+            $ref: "../schemas/TransactionInfoDTO.yml"
+  "400":
+    $ref: "../../../responses/InvalidContent.yml"
+  "409":
+    $ref: "../../../responses/InvalidArgument.yml"

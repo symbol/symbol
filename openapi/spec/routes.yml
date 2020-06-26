@@ -68,13 +68,15 @@
   get:
     $ref: "./core/transaction/routes/searchConfirmedTransactions.yml"
   post:
-    $ref: "./core/transaction/routes/getTransactionsById.yml"
+    $ref: "./core/transaction/routes/getConfirmedTransactions.yml"
 "/transactions/confirmed/{transactionId}":
   get:
     $ref: "./core/transaction/routes/getConfirmedTransaction.yml"
 "/transactions/unconfirmed":
   get:
     $ref: "./core/transaction/routes/searchUnconfirmedTransactions.yml"
+  post:
+    $ref: "./core/transaction/routes/getUnconfirmedTransactions.yml"
 "/transactions/unconfirmed/{transactionId}":
   get:
     $ref: "./core/transaction/routes/getUnconfirmedTransaction.yml"
@@ -93,6 +95,8 @@
     $ref: "./core/transaction/routes/searchPartialTransactions.yml"
   put:
     $ref: "./plugins/aggregate/routes/announcePartialTransaction.yml"
+  post:
+    $ref: "./core/transaction/routes/getPartialTransactions.yml"
 "/transactions/partial/{transactionId}":
   get:
     $ref: "./core/transaction/routes/getPartialTransaction.yml"
