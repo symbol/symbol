@@ -39,9 +39,12 @@ const toStringInternal = code => {
 	case 0x8043000B: return 'Failure_Core_Zero_Address';
 	case 0x8043000C: return 'Failure_Core_Zero_Public_Key';
 	case 0x8043000D: return 'Failure_Core_Nonzero_Internal_Padding';
+	case 0x8043000E: return 'Failure_Core_Address_Collision';
 	case 0x80430065: return 'Failure_Core_Invalid_Link_Action';
 	case 0x80430066: return 'Failure_Core_Link_Already_Exists';
 	case 0x80430067: return 'Failure_Core_Inconsistent_Unlink_Data';
+	case 0x80430068: return 'Failure_Core_Invalid_Link_Range';
+	case 0x80430069: return 'Failure_Core_Too_Many_Links';
 	case 0x81490001: return 'Failure_Hash_Already_Exists';
 	case 0x80530001: return 'Failure_Signature_Not_Verifiable';
 	case 0x804C0001: return 'Failure_AccountLink_Link_Already_Exists';
