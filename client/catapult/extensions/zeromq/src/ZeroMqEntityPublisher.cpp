@@ -143,7 +143,7 @@ namespace catapult { namespace zeromq {
 
 		zmq::multipart_t multipart;
 		auto marker = BlockMarker::Block_Marker;
-		multipart.addmem(&marker, sizeof(marker));
+		multipart.addmem(&marker, sizeof(BlockMarker));
 		multipart.addmem(static_cast<const void*>(&blockElement.Block), sizeof(model::BlockHeader));
 		multipart.addmem(static_cast<const void*>(&blockElement.EntityHash), Hash256::Size);
 		multipart.addmem(static_cast<const void*>(&blockElement.GenerationHash), Hash256::Size);
@@ -156,7 +156,7 @@ namespace catapult { namespace zeromq {
 
 		zmq::multipart_t multipart;
 		auto marker = BlockMarker::Drop_Blocks_Marker;
-		multipart.addmem(&marker, sizeof(marker));
+		multipart.addmem(&marker, sizeof(BlockMarker));
 		multipart.addmem(static_cast<const void*>(&height), sizeof(Height));
 		pMessageGroup->add(std::move(multipart));
 		m_pSynchronizedPublisher->queue(std::move(pMessageGroup));
@@ -210,7 +210,7 @@ namespace catapult { namespace zeromq {
 		auto topicMarker = TransactionMarker::Transaction_Status_Marker;
 		model::TransactionStatus transactionStatus(hash, transaction.Deadline, status);
 		publish("transaction status", topicMarker, WeakTransactionInfo(transaction, hash), [&transactionStatus](auto& multipart) {
-			multipart.addmem(static_cast<const void*>(&transactionStatus), sizeof(transactionStatus));
+			multipart.addmem(static_cast<const void*>(&transactionStatus), sizeof(model::TransactionStatus));
 		});
 	}
 
@@ -220,7 +220,7 @@ namespace catapult { namespace zeromq {
 		auto topicMarker = TransactionMarker::Cosignature_Marker;
 		model::DetachedCosignature detachedCosignature(cosignature, parentTransactionInfo.EntityHash);
 		publish("detached cosignature", topicMarker, WeakTransactionInfo(parentTransactionInfo), [&detachedCosignature](auto& multipart) {
-			multipart.addmem(static_cast<const void*>(&detachedCosignature), sizeof(detachedCosignature));
+			multipart.addmem(static_cast<const void*>(&detachedCosignature), sizeof(model::DetachedCosignature));
 		});
 	}
 

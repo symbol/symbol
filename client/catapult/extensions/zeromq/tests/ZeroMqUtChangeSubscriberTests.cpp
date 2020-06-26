@@ -83,6 +83,7 @@ namespace catapult { namespace zeromq {
 		uint64_t topic(0x12345678);
 		MqSubscriberContext context;
 		context.subscribe(topic);
+
 		auto transactionInfo = test::CreateRandomTransactionInfo();
 
 		// Act:

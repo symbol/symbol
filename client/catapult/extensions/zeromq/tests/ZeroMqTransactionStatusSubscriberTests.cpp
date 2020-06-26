@@ -50,16 +50,6 @@ namespace catapult { namespace zeromq {
 			void flush() {
 				subscriber().flush();
 			}
-
-		public:
-			void subscribeAll(TransactionMarker topicMarker, const std::vector<model::TransactionInfo>& transactionInfos) {
-				for (const auto& transactionInfo : transactionInfos) {
-					auto addresses = test::ExtractAddresses(test::ToMockTransaction(*transactionInfo.pEntity));
-					test::SubscribeForAddresses(zmqSocket(), topicMarker, addresses);
-				}
-
-				waitForReceiveSuccess();
-			}
 		};
 	}
 
@@ -70,6 +60,7 @@ namespace catapult { namespace zeromq {
 		uint8_t topic(0x12);
 		MqSubscriberContext context;
 		context.subscribe(topic);
+
 		auto pTransaction = test::GenerateTransactionWithDeadline(Timestamp(123));
 
 		// Act:
@@ -84,7 +75,6 @@ namespace catapult { namespace zeromq {
 	// region notifyStatus
 
 	namespace {
-		constexpr size_t Num_Transactions = 5;
 		constexpr TransactionMarker Marker = TransactionMarker::Transaction_Status_Marker;
 
 		std::vector<model::TransactionInfo> CreateTransactionInfos(size_t count) {
@@ -111,30 +101,6 @@ namespace catapult { namespace zeromq {
 		test::AssertMessages(context.zmqSocket(), Marker, addresses, [&transactionStatus](const auto& message, const auto& topic) {
 			test::AssertTransactionStatusMessage(message, topic, transactionStatus);
 		});
-
-		test::AssertNoPendingMessages(context.zmqSocket());
-	}
-
-	TEST(TEST_CLASS, CanAddMultipleTransactionStatuses) {
-		// Arrange:
-		MqSubscriberContext context;
-		auto transactionInfos = CreateTransactionInfos(Num_Transactions);
-		context.subscribeAll(Marker, transactionInfos);
-
-		// Act:
-		auto i = 0u;
-		for (const auto& transactionInfo : transactionInfos)
-			context.notifyStatus(*transactionInfo.pEntity, transactionInfo.EntityHash, i++);
-
-		// Assert:
-		i = 0u;
-		for (const auto& transactionInfo : transactionInfos) {
-			model::TransactionStatus transactionStatus(transactionInfo.EntityHash, transactionInfo.pEntity->Deadline, i++);
-			auto addresses = test::ExtractAddresses(test::ToMockTransaction(*transactionInfo.pEntity));
-			test::AssertMessages(context.zmqSocket(), Marker, addresses, [&transactionStatus](const auto& message, const auto& topic) {
-				test::AssertTransactionStatusMessage(message, topic, transactionStatus);
-			});
-		}
 
 		test::AssertNoPendingMessages(context.zmqSocket());
 	}

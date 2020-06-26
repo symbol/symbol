@@ -56,6 +56,7 @@ namespace catapult { namespace zeromq {
 		uint64_t topic(0x12345678);
 		MqSubscriberContext context;
 		context.subscribe(topic);
+
 		auto pBlock = test::GenerateEmptyRandomBlock();
 		auto blockElement = test::BlockToBlockElement(*pBlock);
 
@@ -74,6 +75,7 @@ namespace catapult { namespace zeromq {
 		// Arrange:
 		MqSubscriberContext context;
 		context.subscribe(BlockMarker::Block_Marker);
+
 		auto pBlock = test::GenerateEmptyRandomBlock();
 		auto blockElement = test::BlockToBlockElement(*pBlock);
 
@@ -85,29 +87,6 @@ namespace catapult { namespace zeromq {
 		test::ZmqReceive(message, context.zmqSocket());
 
 		test::AssertBlockHeaderMessage(message, blockElement);
-		test::AssertNoPendingMessages(context.zmqSocket());
-	}
-
-	TEST(TEST_CLASS, CanNotifyMultipleBlockHeaders) {
-		// Arrange:
-		MqSubscriberContext context;
-		context.subscribe(BlockMarker::Block_Marker);
-		std::vector<std::unique_ptr<model::Block>> blocks;
-		for (auto i = 0u; i < 3; ++i)
-			blocks.push_back(test::GenerateEmptyRandomBlock());
-
-		// Act:
-		for (const auto& pBlock : blocks)
-			context.notifyBlock(test::BlockToBlockElement(*pBlock));
-
-		for (auto i = 0u; i < blocks.size(); ++i) {
-			// Assert:
-			zmq::multipart_t message;
-			test::ZmqReceive(message, context.zmqSocket());
-
-			test::AssertBlockHeaderMessage(message, test::BlockToBlockElement(*blocks[i]));
-		}
-
 		test::AssertNoPendingMessages(context.zmqSocket());
 	}
 

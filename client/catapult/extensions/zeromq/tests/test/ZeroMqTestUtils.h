@@ -164,7 +164,7 @@ namespace catapult { namespace test {
 		void waitForReceiveSuccess() {
 			constexpr uint8_t Max_Attempts = 20;
 			auto marker = zeromq::BlockMarker::Drop_Blocks_Marker;
-			m_zmqSocket.setsockopt(ZMQ_SUBSCRIBE, &marker, sizeof(marker));
+			m_zmqSocket.setsockopt(ZMQ_SUBSCRIBE, &marker, sizeof(zeromq::BlockMarker));
 			auto receiveSuccess = false;
 			auto counter = 0u;
 			zmq::multipart_t message;

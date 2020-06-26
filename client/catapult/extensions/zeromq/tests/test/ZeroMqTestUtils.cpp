@@ -101,7 +101,7 @@ namespace catapult { namespace test {
 		ASSERT_EQ(4u, message.size());
 
 		auto marker = zeromq::BlockMarker::Block_Marker;
-		AssertMessagePart(message[0], &marker, sizeof(marker));
+		AssertMessagePart(message[0], &marker, sizeof(zeromq::BlockMarker));
 		AssertMessagePart(message[1], &blockElement.Block, sizeof(model::BlockHeader));
 		AssertMessagePart(message[2], &blockElement.EntityHash, Hash256::Size);
 		AssertMessagePart(message[3], &blockElement.GenerationHash, Hash256::Size);
@@ -111,7 +111,7 @@ namespace catapult { namespace test {
 		ASSERT_EQ(2u, message.size());
 
 		auto marker = zeromq::BlockMarker::Drop_Blocks_Marker;
-		AssertMessagePart(message[0], &marker, sizeof(marker));
+		AssertMessagePart(message[0], &marker, sizeof(zeromq::BlockMarker));
 		AssertMessagePart(message[1], &height, sizeof(Height));
 	}
 
@@ -159,7 +159,7 @@ namespace catapult { namespace test {
 		ASSERT_EQ(2u, message.size());
 
 		AssertMessagePart(message[0], topic.data(), topic.size());
-		AssertMessagePart(message[1], &transactionStatus, sizeof(transactionStatus));
+		AssertMessagePart(message[1], &transactionStatus, sizeof(model::TransactionStatus));
 	}
 
 	void AssertDetachedCosignatureMessage(
@@ -169,7 +169,7 @@ namespace catapult { namespace test {
 		ASSERT_EQ(2u, message.size());
 
 		AssertMessagePart(message[0], topic.data(), topic.size());
-		AssertMessagePart(message[1], &detachedCosignature, sizeof(detachedCosignature));
+		AssertMessagePart(message[1], &detachedCosignature, sizeof(model::DetachedCosignature));
 	}
 
 	void AssertMessages(

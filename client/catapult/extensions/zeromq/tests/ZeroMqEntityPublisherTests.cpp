@@ -93,10 +93,9 @@ namespace catapult { namespace zeromq {
 		// Arrange:
 		EntityPublisherContext context;
 		context.subscribe(BlockMarker::Drop_Blocks_Marker);
-		Height height(123);
 
 		// Act + Assert:
-		context.publishDropBlocks(height);
+		context.publishDropBlocks(Height(123));
 		context.destroyPublisher();
 	}
 
@@ -108,6 +107,7 @@ namespace catapult { namespace zeromq {
 		// Arrange:
 		EntityPublisherContext context;
 		context.subscribe(BlockMarker::Block_Marker);
+
 		auto pBlock = test::GenerateEmptyRandomBlock();
 		auto blockElement = test::BlockToBlockElement(*pBlock);
 
@@ -129,16 +129,15 @@ namespace catapult { namespace zeromq {
 		// Arrange:
 		EntityPublisherContext context;
 		context.subscribe(BlockMarker::Drop_Blocks_Marker);
-		Height height(123);
 
 		// Act:
-		context.publishDropBlocks(height);
+		context.publishDropBlocks(Height(123));
 
 		// Assert:
 		zmq::multipart_t message;
 		test::ZmqReceive(message, context.zmqSocket());
 
-		test::AssertDropBlocksMessage(message, height);
+		test::AssertDropBlocksMessage(message, Height(123));
 	}
 
 	// endregion

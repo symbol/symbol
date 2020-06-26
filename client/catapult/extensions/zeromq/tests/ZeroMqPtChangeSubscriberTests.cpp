@@ -88,6 +88,7 @@ namespace catapult { namespace zeromq {
 		uint64_t topic(0x12345678);
 		MqSubscriberContext context;
 		context.subscribe(topic);
+
 		auto transactionInfo = test::CreateRandomTransactionInfo();
 
 		// Act:
@@ -154,36 +155,6 @@ namespace catapult { namespace zeromq {
 		test::AssertMessages(context.zmqSocket(), marker, addresses, [&detachedCosignature](const auto& message, const auto& topic) {
 			test::AssertDetachedCosignatureMessage(message, topic, detachedCosignature);
 		});
-
-		test::AssertNoPendingMessages(context.zmqSocket());
-	}
-
-	TEST(TEST_CLASS, CanAddMultipleCosignatures) {
-		// Arrange:
-		MqSubscriberContext context;
-		auto marker = TransactionMarker::Cosignature_Marker;
-		auto transactionInfos = test::RemoveExtractedAddresses(test::CreateTransactionInfos(Num_Transactions));
-		auto cosignatures = test::GenerateRandomDataVector<model::Cosignature>(Num_Transactions);
-		context.subscribeAll(TransactionMarker::Cosignature_Marker, transactionInfos);
-
-		// Act:
-		auto i = 0u;
-		for (const auto& transactionInfo : transactionInfos) {
-			context.notifyAddCosignature(transactionInfo, cosignatures[i]);
-			++i;
-		}
-
-		// Assert:
-		i = 0u;
-		for (const auto& transactionInfo : transactionInfos) {
-			auto addresses = test::ExtractAddresses(test::ToMockTransaction(*transactionInfo.pEntity));
-			model::DetachedCosignature detachedCosignature(cosignatures[i], transactionInfo.EntityHash);
-			test::AssertMessages(context.zmqSocket(), marker, addresses, [&detachedCosignature](const auto& message, const auto& topic) {
-				test::AssertDetachedCosignatureMessage(message, topic, detachedCosignature);
-			});
-
-			++i;
-		}
 
 		test::AssertNoPendingMessages(context.zmqSocket());
 	}
