@@ -76,7 +76,7 @@ namespace catapult { namespace mocks {
 		const uint32_t Reason;
 	};
 
-	/// Mock noop node subscriber implementation.
+	/// Mock node subscriber implementation.
 	class MockNodeSubscriber : public subscribers::NodeSubscriber {
 	public:
 		/// Creates a mock subscriber.

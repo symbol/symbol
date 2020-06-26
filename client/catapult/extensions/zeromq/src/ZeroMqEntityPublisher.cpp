@@ -162,6 +162,19 @@ namespace catapult { namespace zeromq {
 		m_pSynchronizedPublisher->queue(std::move(pMessageGroup));
 	}
 
+	void ZeroMqEntityPublisher::publishFinalizedBlock(Height height, const Hash256& hash, FinalizationPoint point) {
+		auto pMessageGroup = std::make_unique<MessageGroup>(CreateHeightMessageGenerator("finalized block", height));
+
+		zmq::multipart_t multipart;
+		auto marker = BlockMarker::Finalized_Block_Marker;
+		multipart.addmem(&marker, sizeof(BlockMarker));
+		multipart.addmem(static_cast<const void*>(&height), sizeof(Height));
+		multipart.addmem(static_cast<const void*>(&point), sizeof(FinalizationPoint));
+		multipart.addmem(static_cast<const void*>(&hash), Hash256::Size);
+		pMessageGroup->add(std::move(multipart));
+		m_pSynchronizedPublisher->queue(std::move(pMessageGroup));
+	}
+
 	namespace {
 		auto CreateHashMessageGenerator(const std::string& topicName, const Hash256& hash) {
 			return [topicName, hash]() {

@@ -27,6 +27,8 @@
 
 namespace catapult { namespace mongo { namespace mappers {
 
+	// region ToDbModel (block)
+
 	namespace {
 		void StreamHashArray(bson_stream::document& builder, const std::string& name, const std::vector<Hash256>& hashes) {
 			auto hashArray = builder << name << bson_stream::open_array;
@@ -94,4 +96,21 @@ namespace catapult { namespace mongo { namespace mappers {
 		builder << bson_stream::close_document;
 		return builder << bson_stream::finalize;
 	}
+
+	// endregion
+
+	// region ToDbModel (finalized block)
+
+	bsoncxx::document::value ToDbModel(Height height, const Hash256& hash, FinalizationPoint point) {
+		bson_stream::document builder;
+		return builder
+				<< "block" << bson_stream::open_document
+					<< "height" << ToInt64(height)
+					<< "hash" << ToBinary(hash)
+					<< "finalizationPoint" << ToInt64(point)
+				<< bson_stream::close_document
+				<< bson_stream::finalize;
+	}
+
+	// endregion
 }}}

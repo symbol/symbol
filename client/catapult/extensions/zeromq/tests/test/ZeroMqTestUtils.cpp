@@ -115,6 +115,16 @@ namespace catapult { namespace test {
 		AssertMessagePart(message[1], &height, sizeof(Height));
 	}
 
+	void AssertFinalizedBlockMessage(const zmq::multipart_t& message, Height height, const Hash256& hash, FinalizationPoint point) {
+		ASSERT_EQ(4u, message.size());
+
+		auto marker = zeromq::BlockMarker::Finalized_Block_Marker;
+		AssertMessagePart(message[0], &marker, sizeof(zeromq::BlockMarker));
+		AssertMessagePart(message[1], &height, sizeof(Height));
+		AssertMessagePart(message[2], &point, sizeof(FinalizationPoint));
+		AssertMessagePart(message[3], &hash, Hash256::Size);
+	}
+
 	void AssertTransactionElementMessage(
 			const zmq::multipart_t& message,
 			const std::vector<uint8_t>& topic,

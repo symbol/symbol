@@ -19,7 +19,6 @@
 **/
 
 #pragma once
-#include "catapult/validators/ValidationResult.h"
 #include "catapult/plugins.h"
 #include "catapult/types.h"
 

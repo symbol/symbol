@@ -98,16 +98,17 @@ namespace catapult { namespace local {
 							m_pBootstrapper->subscriptionManager().createBlockStorage(m_pBlockChangeSubscriber),
 							CreateStagingBlockStorage(m_dataDirectory))
 					, m_pUtCache(m_pBootstrapper->subscriptionManager().createUtCache(extensions::GetUtCacheOptions(m_config.Node)))
-					, m_pTransactionStatusSubscriber(m_pBootstrapper->subscriptionManager().createTransactionStatusSubscriber())
-					, m_pStateChangeSubscriber(CreateStateChangeSubscriber(
-							m_pBootstrapper->subscriptionManager(),
-							m_catapultCache,
-							m_dataDirectory))
+					, m_pFinalizationSubscriber(m_pBootstrapper->subscriptionManager().createFinalizationSubscriber())
 					, m_pNodeSubscriber(CreateNodeSubscriber(
 							m_pBootstrapper->subscriptionManager(),
 							m_nodes,
 							m_config.Node.LocalNetworks,
 							m_bannedNodeIdentitySink))
+					, m_pStateChangeSubscriber(CreateStateChangeSubscriber(
+							m_pBootstrapper->subscriptionManager(),
+							m_catapultCache,
+							m_dataDirectory))
+					, m_pTransactionStatusSubscriber(m_pBootstrapper->subscriptionManager().createTransactionStatusSubscriber())
 					, m_pluginManager(m_pBootstrapper->pluginManager())
 					, m_isBooted(false) {
 				ValidateNodes(m_pBootstrapper->staticNodes());
@@ -144,9 +145,10 @@ namespace catapult { namespace local {
 						m_score,
 						*m_pUtCache,
 						extensionManager.networkTimeSupplier(m_config.BlockChain.Network.EpochAdjustment),
-						*m_pTransactionStatusSubscriber,
-						*m_pStateChangeSubscriber,
+						*m_pFinalizationSubscriber,
 						*m_pNodeSubscriber,
+						*m_pStateChangeSubscriber,
+						*m_pTransactionStatusSubscriber,
 						m_counters,
 						m_pluginManager,
 						m_pBootstrapper->pool());
@@ -278,9 +280,10 @@ namespace catapult { namespace local {
 			extensions::LocalNodeChainScore m_score;
 			std::unique_ptr<cache::MemoryUtCacheProxy> m_pUtCache;
 
-			std::unique_ptr<subscribers::TransactionStatusSubscriber> m_pTransactionStatusSubscriber;
-			std::unique_ptr<subscribers::StateChangeSubscriber> m_pStateChangeSubscriber;
+			std::unique_ptr<subscribers::FinalizationSubscriber> m_pFinalizationSubscriber;
 			std::unique_ptr<subscribers::NodeSubscriber> m_pNodeSubscriber;
+			std::unique_ptr<subscribers::StateChangeSubscriber> m_pStateChangeSubscriber;
+			std::unique_ptr<subscribers::TransactionStatusSubscriber> m_pTransactionStatusSubscriber;
 
 			plugins::PluginManager& m_pluginManager;
 			std::vector<utils::DiagnosticCounter> m_counters;

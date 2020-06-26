@@ -21,6 +21,7 @@
 #include "src/MessagingConfiguration.h"
 #include "src/ZeroMqBlockChangeSubscriber.h"
 #include "src/ZeroMqEntityPublisher.h"
+#include "src/ZeroMqFinalizationSubscriber.h"
 #include "src/ZeroMqPtChangeSubscriber.h"
 #include "src/ZeroMqTransactionStatusSubscriber.h"
 #include "src/ZeroMqUtChangeSubscriber.h"
@@ -46,8 +47,9 @@ namespace catapult { namespace zeromq {
 			// register subscriptions
 			auto& subscriptionManager = bootstrapper.subscriptionManager();
 			subscriptionManager.addBlockChangeSubscriber(CreateZeroMqBlockChangeSubscriber(*pZeroEntityPublisher));
-			subscriptionManager.addUtChangeSubscriber(CreateZeroMqUtChangeSubscriber(*pZeroEntityPublisher));
 			subscriptionManager.addPtChangeSubscriber(CreateZeroMqPtChangeSubscriber(*pZeroEntityPublisher));
+			subscriptionManager.addUtChangeSubscriber(CreateZeroMqUtChangeSubscriber(*pZeroEntityPublisher));
+			subscriptionManager.addFinalizationSubscriber(CreateZeroMqFinalizationSubscriber(*pZeroEntityPublisher));
 			subscriptionManager.addTransactionStatusSubscriber(CreateZeroMqTransactionStatusSubscriber(*pZeroEntityPublisher));
 		}
 	}

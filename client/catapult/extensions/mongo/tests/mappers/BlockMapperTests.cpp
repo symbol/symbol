@@ -19,7 +19,6 @@
 **/
 
 #include "mongo/src/mappers/BlockMapper.h"
-#include "mongo/src/mappers/MapperUtils.h"
 #include "catapult/model/BlockUtils.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/MongoReceiptTestUtils.h"
@@ -30,7 +29,7 @@ namespace catapult { namespace mongo { namespace mappers {
 
 #define TEST_CLASS BlockMapperTests
 
-	// region ToDbModel
+	// region ToDbModel (block)
 
 	namespace {
 		void AssertCanMapBlock(const model::Block& block, Amount totalFee, uint32_t numTransactions, uint32_t numStatements) {
@@ -97,6 +96,29 @@ namespace catapult { namespace mongo { namespace mappers {
 
 		// Assert:
 		AssertCanMapBlock(*pBlock, totalFee, 5, Num_Statements);
+	}
+
+	// endregion
+
+	// region ToDbModel (finalized block)
+
+	TEST(TEST_CLASS, CanMapFinalizedBlock) {
+		// Arrange:
+		auto hash = test::GenerateRandomByteArray<Hash256>();
+
+		// Act:
+		auto document = ToDbModel(Height(321), hash, FinalizationPoint(97));
+		auto documentView = document.view();
+
+		// Assert:
+		EXPECT_EQ(1u, test::GetFieldCount(documentView));
+
+		auto statusView = documentView["block"].get_document().view();
+		EXPECT_EQ(3u, test::GetFieldCount(statusView));
+
+		EXPECT_EQ(321u, test::GetUint64(statusView, "height"));
+		EXPECT_EQ(hash, test::GetHashValue(statusView, "hash"));
+		EXPECT_EQ(97u, test::GetUint64(statusView, "finalizationPoint"));
 	}
 
 	// endregion

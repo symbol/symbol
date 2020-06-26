@@ -26,6 +26,7 @@
 #include "catapult/thread/MultiServicePool.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
 #include "tests/test/local/LocalTestUtils.h"
+#include "tests/test/other/mocks/MockFinalizationSubscriber.h"
 #include "tests/test/other/mocks/MockNodeSubscriber.h"
 #include "tests/test/other/mocks/MockStateChangeSubscriber.h"
 #include "tests/test/other/mocks/MockTransactionStatusSubscriber.h"
@@ -55,9 +56,10 @@ namespace catapult { namespace extensions {
 			return Timestamp(111);
 		};
 
-		mocks::MockTransactionStatusSubscriber transactionStatusSubscriber;
-		mocks::MockStateChangeSubscriber stateChangeSubscriber;
+		mocks::MockFinalizationSubscriber finalizationSubscriber;
 		mocks::MockNodeSubscriber nodeSubscriber;
+		mocks::MockStateChangeSubscriber stateChangeSubscriber;
+		mocks::MockTransactionStatusSubscriber transactionStatusSubscriber;
 
 		std::vector<utils::DiagnosticCounter> counters;
 		auto pluginManager = test::CreatePluginManager(config.BlockChain);
@@ -72,9 +74,10 @@ namespace catapult { namespace extensions {
 				score,
 				*pUtCache,
 				timeSupplier,
-				transactionStatusSubscriber,
-				stateChangeSubscriber,
+				finalizationSubscriber,
 				nodeSubscriber,
+				stateChangeSubscriber,
+				transactionStatusSubscriber,
 				counters,
 				pluginManager,
 				pool);
@@ -90,9 +93,10 @@ namespace catapult { namespace extensions {
 		EXPECT_EQ(&pUtCache->get(), &const_cast<const ServiceState&>(state).utCache());
 		EXPECT_EQ(&pUtCache->get(), &state.utCache());
 
-		EXPECT_EQ(&transactionStatusSubscriber, &state.transactionStatusSubscriber());
-		EXPECT_EQ(&stateChangeSubscriber, &state.stateChangeSubscriber());
+		EXPECT_EQ(&finalizationSubscriber, &state.finalizationSubscriber());
 		EXPECT_EQ(&nodeSubscriber, &state.nodeSubscriber());
+		EXPECT_EQ(&stateChangeSubscriber, &state.stateChangeSubscriber());
+		EXPECT_EQ(&transactionStatusSubscriber, &state.transactionStatusSubscriber());
 
 		EXPECT_EQ(&counters, &state.counters());
 		EXPECT_EQ(&pluginManager, &state.pluginManager());

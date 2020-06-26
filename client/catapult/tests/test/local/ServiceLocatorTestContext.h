@@ -31,6 +31,7 @@
 #include "tests/test/core/SchedulerTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
+#include "tests/test/other/mocks/MockFinalizationSubscriber.h"
 #include "tests/test/other/mocks/MockNodeSubscriber.h"
 #include "tests/test/other/mocks/MockStateChangeSubscriber.h"
 #include "tests/test/other/mocks/MockTransactionStatusSubscriber.h"
@@ -70,9 +71,10 @@ namespace catapult { namespace test {
 						m_score,
 						*m_pUtCache,
 						timeSupplier,
-						m_transactionStatusSubscriber,
-						m_stateChangeSubscriber,
+						m_finalizationSubscriber,
 						m_nodeSubscriber,
+						m_stateChangeSubscriber,
+						m_transactionStatusSubscriber,
 						m_counters,
 						m_pluginManager,
 						m_pool)
@@ -90,14 +92,9 @@ namespace catapult { namespace test {
 			return m_config;
 		}
 
-		/// Gets the transaction status subscriber.
-		const auto& transactionStatusSubscriber() const {
-			return m_transactionStatusSubscriber;
-		}
-
-		/// Gets the state change subscriber.
-		const auto& stateChangeSubscriber() const {
-			return m_stateChangeSubscriber;
+		/// Gets the finalization subscriber.
+		const auto& finalizationSubscriber() const {
+			return m_finalizationSubscriber;
 		}
 
 		/// Gets the node subscriber.
@@ -108,6 +105,16 @@ namespace catapult { namespace test {
 		/// Gets the node subscriber.
 		auto& nodeSubscriber() {
 			return m_nodeSubscriber;
+		}
+
+		/// Gets the state change subscriber.
+		const auto& stateChangeSubscriber() const {
+			return m_stateChangeSubscriber;
+		}
+
+		/// Gets the transaction status subscriber.
+		const auto& transactionStatusSubscriber() const {
+			return m_transactionStatusSubscriber;
 		}
 
 		/// Gets the counters.
@@ -139,9 +146,10 @@ namespace catapult { namespace test {
 		extensions::LocalNodeChainScore m_score;
 		std::unique_ptr<cache::MemoryUtCacheProxy> m_pUtCache;
 
-		mocks::MockTransactionStatusSubscriber m_transactionStatusSubscriber;
-		mocks::MockStateChangeSubscriber m_stateChangeSubscriber;
+		mocks::MockFinalizationSubscriber m_finalizationSubscriber;
 		mocks::MockNodeSubscriber m_nodeSubscriber;
+		mocks::MockStateChangeSubscriber m_stateChangeSubscriber;
+		mocks::MockTransactionStatusSubscriber m_transactionStatusSubscriber;
 
 		std::vector<utils::DiagnosticCounter> m_counters;
 		plugins::PluginManager m_pluginManager;

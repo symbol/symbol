@@ -18,16 +18,28 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#pragma once
-#include "MapperInclude.h"
+#include "ZeroMqFinalizationSubscriber.h"
+#include "ZeroMqEntityPublisher.h"
 
-namespace catapult { namespace model { struct BlockElement; } }
+namespace catapult { namespace zeromq {
 
-namespace catapult { namespace mongo { namespace mappers {
+	namespace {
+		class ZeroMqFinalizationSubscriber : public subscribers::FinalizationSubscriber {
+		public:
+			explicit ZeroMqFinalizationSubscriber(ZeroMqEntityPublisher& publisher) : m_publisher(publisher)
+			{}
 
-	/// Maps \a blockElement to the corresponding db model value.
-	bsoncxx::document::value ToDbModel(const model::BlockElement& blockElement);
+		public:
+			void notifyFinalizedBlock(Height height, const Hash256& hash, FinalizationPoint point) override {
+				m_publisher.publishFinalizedBlock(height, hash, point);
+			}
 
-	/// Maps a finalized block with \a height and \a hash at finalization \a point to to the corresponding db model value.
-	bsoncxx::document::value ToDbModel(Height height, const Hash256& hash, FinalizationPoint point);
-}}}
+		private:
+			ZeroMqEntityPublisher& m_publisher;
+		};
+	}
+
+	std::unique_ptr<subscribers::FinalizationSubscriber> CreateZeroMqFinalizationSubscriber(ZeroMqEntityPublisher& publisher) {
+		return std::make_unique<ZeroMqFinalizationSubscriber>(publisher);
+	}
+}}

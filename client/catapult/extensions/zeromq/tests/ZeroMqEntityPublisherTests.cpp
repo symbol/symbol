@@ -60,6 +60,10 @@ namespace catapult { namespace zeromq {
 				publisher().publishDropBlocks(height);
 			}
 
+			void publishFinalizedBlock(Height height, const Hash256& hash, FinalizationPoint point) {
+				publisher().publishFinalizedBlock(height, hash, point);
+			}
+
 			void publishTransaction(TransactionMarker topicMarker, const model::TransactionInfo& transactionInfo, Height height) {
 				publisher().publishTransaction(topicMarker, transactionInfo, height);
 			}
@@ -82,7 +86,6 @@ namespace catapult { namespace zeromq {
 		};
 
 		std::shared_ptr<model::UnresolvedAddressSet> GenerateRandomExtractedAddresses() {
-			// Arrange: generate three random addresses
 			return test::GenerateRandomUnresolvedAddressSetPointer(3);
 		}
 	}
@@ -138,6 +141,27 @@ namespace catapult { namespace zeromq {
 		test::ZmqReceive(message, context.zmqSocket());
 
 		test::AssertDropBlocksMessage(message, Height(123));
+	}
+
+	// endregion
+
+	// region publishFinalizedBlock
+
+	TEST(TEST_CLASS, CanPublishFinalizedBlock) {
+		// Arrange:
+		EntityPublisherContext context;
+		context.subscribe(BlockMarker::Finalized_Block_Marker);
+
+		auto hash = test::GenerateRandomByteArray<Hash256>();
+
+		// Act:
+		context.publishFinalizedBlock(Height(123), hash, FinalizationPoint(55));
+
+		// Assert:
+		zmq::multipart_t message;
+		test::ZmqReceive(message, context.zmqSocket());
+
+		test::AssertFinalizedBlockMessage(message, Height(123), hash, FinalizationPoint(55));
 	}
 
 	// endregion

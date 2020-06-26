@@ -57,7 +57,7 @@ namespace catapult { namespace mocks {
 		uint32_t Status;
 	};
 
-	/// Mock noop transaction status subscriber implementation.
+	/// Mock transaction status subscriber implementation.
 	class MockTransactionStatusSubscriber
 			: public subscribers::TransactionStatusSubscriber
 			, public test::ParamsCapture<TransactionStatusSubscriberStatusParams> {

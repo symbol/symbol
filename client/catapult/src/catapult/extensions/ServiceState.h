@@ -37,6 +37,7 @@ namespace catapult {
 	namespace ionet { class NodeContainer; }
 	namespace plugins { class PluginManager; }
 	namespace subscribers {
+		class FinalizationSubscriber;
 		class NodeSubscriber;
 		class StateChangeSubscriber;
 		class TransactionStatusSubscriber;
@@ -51,7 +52,8 @@ namespace catapult { namespace extensions {
 	class ServiceState {
 	public:
 		/// Creates service state around \a config, \a nodes, \a cache, \a storage, \a score, \a utCache, \a timeSupplier
-		/// \a transactionStatusSubscriber, \a stateChangeSubscriber, \a nodeSubscriber, \a counters, \a pluginManager and \a pool.
+		/// \a finalizationSubscriber, \a nodeSubscriber, \a stateChangeSubscriber, \a transactionStatusSubscriber,
+		/// \a counters, \a pluginManager and \a pool.
 		ServiceState(
 				const config::CatapultConfiguration& config,
 				ionet::NodeContainer& nodes,
@@ -60,9 +62,10 @@ namespace catapult { namespace extensions {
 				LocalNodeChainScore& score,
 				cache::MemoryUtCacheProxy& utCache,
 				const supplier<Timestamp>& timeSupplier,
-				subscribers::TransactionStatusSubscriber& transactionStatusSubscriber,
-				subscribers::StateChangeSubscriber& stateChangeSubscriber,
+				subscribers::FinalizationSubscriber& finalizationSubscriber,
 				subscribers::NodeSubscriber& nodeSubscriber,
+				subscribers::StateChangeSubscriber& stateChangeSubscriber,
+				subscribers::TransactionStatusSubscriber& transactionStatusSubscriber,
 				const std::vector<utils::DiagnosticCounter>& counters,
 				const plugins::PluginManager& pluginManager,
 				thread::MultiServicePool& pool)
@@ -80,9 +83,10 @@ namespace catapult { namespace extensions {
 				, m_readWriteUtCache(const_cast<const cache::MemoryUtCacheProxy&>(utCache).get())
 				, m_utCache(utCache.get())
 				, m_timeSupplier(timeSupplier)
-				, m_transactionStatusSubscriber(transactionStatusSubscriber)
-				, m_stateChangeSubscriber(stateChangeSubscriber)
+				, m_finalizationSubscriber(finalizationSubscriber)
 				, m_nodeSubscriber(nodeSubscriber)
+				, m_stateChangeSubscriber(stateChangeSubscriber)
+				, m_transactionStatusSubscriber(transactionStatusSubscriber)
 				, m_counters(counters)
 				, m_pluginManager(pluginManager)
 				, m_pool(pool)
@@ -130,9 +134,14 @@ namespace catapult { namespace extensions {
 			return m_timeSupplier;
 		}
 
-		/// Gets the transaction status subscriber.
-		auto& transactionStatusSubscriber() const {
-			return m_transactionStatusSubscriber;
+		/// Gets the finalization subscriber.
+		auto& finalizationSubscriber() const {
+			return m_finalizationSubscriber;
+		}
+
+		/// Gets the node subscriber.
+		auto& nodeSubscriber() const {
+			return m_nodeSubscriber;
 		}
 
 		/// Gets the state change subscriber.
@@ -140,9 +149,9 @@ namespace catapult { namespace extensions {
 			return m_stateChangeSubscriber;
 		}
 
-		/// Gets the node subscriber.
-		auto& nodeSubscriber() const {
-			return m_nodeSubscriber;
+		/// Gets the transaction status subscriber.
+		auto& transactionStatusSubscriber() const {
+			return m_transactionStatusSubscriber;
 		}
 
 		/// Gets the (basic) counters.
@@ -197,9 +206,10 @@ namespace catapult { namespace extensions {
 		cache::UtCache& m_utCache;
 		supplier<Timestamp> m_timeSupplier;
 
-		subscribers::TransactionStatusSubscriber& m_transactionStatusSubscriber;
-		subscribers::StateChangeSubscriber& m_stateChangeSubscriber;
+		subscribers::FinalizationSubscriber& m_finalizationSubscriber;
 		subscribers::NodeSubscriber& m_nodeSubscriber;
+		subscribers::StateChangeSubscriber& m_stateChangeSubscriber;
+		subscribers::TransactionStatusSubscriber& m_transactionStatusSubscriber;
 
 		const std::vector<utils::DiagnosticCounter>& m_counters;
 		const plugins::PluginManager& m_pluginManager;

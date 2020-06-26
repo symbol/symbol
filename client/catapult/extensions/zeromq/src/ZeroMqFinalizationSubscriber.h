@@ -19,15 +19,13 @@
 **/
 
 #pragma once
-#include "MapperInclude.h"
+#include "catapult/subscribers/FinalizationSubscriber.h"
+#include <memory>
 
-namespace catapult { namespace model { struct BlockElement; } }
+namespace catapult { namespace zeromq { class ZeroMqEntityPublisher; } }
 
-namespace catapult { namespace mongo { namespace mappers {
+namespace catapult { namespace zeromq {
 
-	/// Maps \a blockElement to the corresponding db model value.
-	bsoncxx::document::value ToDbModel(const model::BlockElement& blockElement);
-
-	/// Maps a finalized block with \a height and \a hash at finalization \a point to to the corresponding db model value.
-	bsoncxx::document::value ToDbModel(Height height, const Hash256& hash, FinalizationPoint point);
-}}}
+	/// Creates a zeromq finalization subscriber around an entity \a publisher.
+	std::unique_ptr<subscribers::FinalizationSubscriber> CreateZeroMqFinalizationSubscriber(ZeroMqEntityPublisher& publisher);
+}}

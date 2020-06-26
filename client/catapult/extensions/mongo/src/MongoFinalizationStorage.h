@@ -19,15 +19,12 @@
 **/
 
 #pragma once
-#include "MapperInclude.h"
+#include "MongoStorageContext.h"
+#include "catapult/subscribers/FinalizationSubscriber.h"
+#include <memory>
 
-namespace catapult { namespace model { struct BlockElement; } }
+namespace catapult { namespace mongo {
 
-namespace catapult { namespace mongo { namespace mappers {
-
-	/// Maps \a blockElement to the corresponding db model value.
-	bsoncxx::document::value ToDbModel(const model::BlockElement& blockElement);
-
-	/// Maps a finalized block with \a height and \a hash at finalization \a point to to the corresponding db model value.
-	bsoncxx::document::value ToDbModel(Height height, const Hash256& hash, FinalizationPoint point);
-}}}
+	/// Creates a mongodb finalization storage around \a context.
+	std::unique_ptr<subscribers::FinalizationSubscriber> CreateMongoFinalizationStorage(MongoStorageContext& context);
+}}

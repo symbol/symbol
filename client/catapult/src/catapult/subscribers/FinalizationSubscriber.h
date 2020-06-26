@@ -19,15 +19,18 @@
 **/
 
 #pragma once
-#include "MapperInclude.h"
+#include "catapult/plugins.h"
+#include "catapult/types.h"
 
-namespace catapult { namespace model { struct BlockElement; } }
+namespace catapult { namespace subscribers {
 
-namespace catapult { namespace mongo { namespace mappers {
+	/// Finalization subscriber.
+	class PLUGIN_API_DEPENDENCY FinalizationSubscriber {
+	public:
+		virtual ~FinalizationSubscriber() = default;
 
-	/// Maps \a blockElement to the corresponding db model value.
-	bsoncxx::document::value ToDbModel(const model::BlockElement& blockElement);
-
-	/// Maps a finalized block with \a height and \a hash at finalization \a point to to the corresponding db model value.
-	bsoncxx::document::value ToDbModel(Height height, const Hash256& hash, FinalizationPoint point);
-}}}
+	public:
+		/// Indicates a finalized block with \a height and \a hash at finalization \a point.
+		virtual void notifyFinalizedBlock(Height height, const Hash256& hash, FinalizationPoint point) = 0;
+	};
+}}
