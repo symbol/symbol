@@ -1,0 +1,8 @@
+type: object
+required:
+  - publicKeys
+properties:
+  publicKeys:
+    type: array
+    items:
+      $ref: "./AccountLinkVotingKeyDTO.yml"

@@ -1,0 +1,12 @@
+type: object
+required:
+  - publicKey
+  - startPoint
+  - endPoint
+properties:
+  publicKey:
+    type: string
+  startPoint:
+    type: string
+  endPoint:
+    type: string
