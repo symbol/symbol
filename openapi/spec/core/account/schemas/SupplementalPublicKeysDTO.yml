@@ -1,0 +1,10 @@
+type: object
+properties:
+  linked:
+    $ref: "./AccountLinkPublicKeyDTO.yml"
+  node:
+    $ref: "./AccountLinkPublicKeyDTO.yml"
+  vrf:
+    $ref: "./AccountLinkPublicKeyDTO.yml"
+  voting:
+    $ref: "./AccountLinkVotingKeysDTO.yml"

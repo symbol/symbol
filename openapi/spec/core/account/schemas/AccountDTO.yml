@@ -22,9 +22,7 @@ properties:
   accountType:
     $ref: "./AccountTypeEnum.yml"
   supplementalPublicKeys:
-    type: array
-    items:
-      $ref: "./AccountKeyDTO.yml"
+    $ref: "./SupplementalPublicKeysDTO.yml"
   activityBuckets:
     type: array
     items:

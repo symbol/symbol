@@ -1,9 +1,0 @@
-type: object
-required:
-  - keyType
-  - key
-properties:
-  keyType:
-    $ref: "./AccountKeyTypeFlagsEnum.yml"
-  key:
-    type: string

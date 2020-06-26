@@ -77,8 +77,14 @@ AccountInfoDTO:
   "$ref": "../core/account/schemas/AccountInfoDTO.yml"
 ActivityBucketDTO:
   "$ref": "../core/account/schemas/ActivityBucketDTO.yml"
-AccountKeyDTO:
-  "$ref": "../core/account/schemas/AccountKeyDTO.yml"
+AccountLinkPublicKeyDTO:
+  "$ref": "../core/account/schemas/AccountLinkPublicKeyDTO.yml"
+AccountLinkVotingKeysDTO:
+  "$ref": "../core/account/schemas/AccountLinkVotingKeysDTO.yml"
+AccountLinkVotingKeyDTO:
+  "$ref": "../core/account/schemas/AccountLinkVotingKeyDTO.yml"
+SupplementalPublicKeysDTO:
+  "$ref": "../core/account/schemas/SupplementalPublicKeysDTO.yml"
 AccountKeyTypeFlagsEnum:
   "$ref": "../core/account/schemas/AccountKeyTypeFlagsEnum.yml"
 
