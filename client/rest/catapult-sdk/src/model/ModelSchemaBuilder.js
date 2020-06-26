@@ -118,14 +118,17 @@ class ModelSchemaBuilder {
 				addressHeight: ModelType.uint64,
 				publicKey: ModelType.binary,
 				publicKeyHeight: ModelType.uint64,
-				supplementalPublicKeys: { type: ModelType.array, schemaName: 'supplementalPublicKey' },
+				supplementalPublicKeys: { type: ModelType.object, schemaName: 'supplementalPublicKey' },
 				importance: ModelType.uint64,
 				importanceHeight: ModelType.uint64,
 				activityBuckets: { type: ModelType.array, schemaName: 'activityBucket' },
 				mosaics: { type: ModelType.array, schemaName: 'mosaic' }
 			},
 			supplementalPublicKey: {
-				key: ModelType.binary
+				linked: { type: ModelType.object, schemaName: 'accountLinkPublicKey' },
+				node: { type: ModelType.object, schemaName: 'accountLinkPublicKey' },
+				vrf: { type: ModelType.object, schemaName: 'accountLinkPublicKey' },
+				voting: { type: ModelType.object, schemaName: 'accountLinkPublicKey.voting' }
 			},
 			activityBucket: {
 				startHeight: ModelType.uint64,
@@ -141,6 +144,17 @@ class ModelSchemaBuilder {
 			accountWithMetadata: {
 				meta: { type: ModelType.object, schemaName: 'accountMeta' },
 				account: { type: ModelType.object, schemaName: 'account' }
+			},
+			accountLinkPublicKey: {
+				publicKey: ModelType.binary
+			},
+			'accountLinkPublicKey.voting': {
+				publicKeys: { type: ModelType.array, schemaName: 'votingPublicKey' }
+			},
+			votingPublicKey: {
+				publicKey: ModelType.binary,
+				startPoint: ModelType.uint64,
+				endPoint: ModelType.uint64
 			},
 
 			// endregion

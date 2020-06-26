@@ -87,6 +87,9 @@ describe('model schema builder', () => {
 				'mosaic',
 				'accountMeta',
 				'accountWithMetadata',
+				'accountLinkPublicKey',
+				'accountLinkPublicKey.voting',
+				'votingPublicKey',
 
 				'chainStatistic',
 				'chainStatisticCurrent',
@@ -152,6 +155,11 @@ describe('model schema builder', () => {
 				'transactionWithMetadata.meta',
 				'transactionWithMetadata.transaction',
 
+				'account.supplementalPublicKeys',
+				'supplementalPublicKey.linked',
+				'supplementalPublicKey.node',
+				'supplementalPublicKey.vrf',
+				'supplementalPublicKey.voting',
 				'accountWithMetadata.meta',
 				'accountWithMetadata.account',
 
@@ -169,9 +177,9 @@ describe('model schema builder', () => {
 			expect(matchingProperties).to.deep.equal([
 				'blockHeaderMetadata.stateHashSubCacheMerkleRoots',
 				'merkleProofInfo.merklePath',
-				'account.supplementalPublicKeys',
 				'account.activityBuckets',
 				'account.mosaics',
+				'accountLinkPublicKey.voting.publicKeys',
 				'stateTree.tree'
 			]);
 		});
@@ -215,7 +223,8 @@ describe('model schema builder', () => {
 
 				'account.address',
 				'account.publicKey',
-				'supplementalPublicKey.key',
+				'accountLinkPublicKey.publicKey',
+				'votingPublicKey.publicKey',
 
 				'nodeInfo.publicKey',
 				'nodeInfo.networkGenerationHashSeed',
@@ -249,6 +258,8 @@ describe('model schema builder', () => {
 				'activityBucket.totalFeesPaid',
 				'activityBucket.rawScore',
 				'mosaic.amount',
+				'votingPublicKey.startPoint',
+				'votingPublicKey.endPoint',
 
 				'chainStatisticCurrent.height',
 				'chainStatisticCurrent.scoreLow',
