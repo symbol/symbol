@@ -107,6 +107,9 @@ describe('mosaic routes', () => {
 				// Act:
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
+					expect(paginationParser.firstCall.args[0]).to.deep.equal(req.params);
+					expect(paginationParser.firstCall.args[2]).to.deep.equal({ id: 'objectId' });
+
 					expect(dbMosaicsFake.calledOnce).to.equal(true);
 					expect(dbMosaicsFake.firstCall.args[1]).to.deep.equal(pagingBag);
 					paginationParser.restore();

@@ -288,8 +288,12 @@ describe('transaction routes', () => {
 						const paginationParser = sinon.stub(routeUtils, 'parsePaginationArguments').returns(pagingBag);
 
 						// Act:
-						return mockServer.callRoute(route, { params: { group: TransactionGroups.confirmed } }).then(() => {
+						const req = { params: { group: TransactionGroups.confirmed } };
+						return mockServer.callRoute(route, req).then(() => {
 							// Assert:
+							expect(paginationParser.firstCall.args[0]).to.deep.equal(req.params);
+							expect(paginationParser.firstCall.args[2]).to.deep.equal({ id: 'objectId' });
+
 							expect(dbTransactionsFake.calledOnce).to.equal(true);
 							expect(dbTransactionsFake.firstCall.args[2]).to.deep.equal(pagingBag);
 							paginationParser.restore();

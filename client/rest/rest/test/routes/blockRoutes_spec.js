@@ -121,8 +121,12 @@ describe('block routes', () => {
 					const paginationParser = sinon.stub(routeUtils, 'parsePaginationArguments').returns(pagingBag);
 
 					// Act:
-					return mockServer.callRoute(route, { params: {} }).then(() => {
+					const req = { params: {} };
+					return mockServer.callRoute(route, req).then(() => {
 						// Assert:
+						expect(paginationParser.firstCall.args[0]).to.deep.equal(req.params);
+						expect(paginationParser.firstCall.args[2]).to.deep.equal({ id: 'objectId', height: 'uint64' });
+
 						expect(dbBlocksFake.calledOnce).to.equal(true);
 						expect(dbBlocksFake.firstCall.args[2]).to.deep.equal(pagingBag);
 						paginationParser.restore();
