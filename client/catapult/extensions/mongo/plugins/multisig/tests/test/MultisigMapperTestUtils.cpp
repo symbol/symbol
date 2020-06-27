@@ -30,8 +30,7 @@ namespace catapult { namespace test {
 			ASSERT_EQ(addresses.size(), test::GetFieldCount(dbAddresses));
 
 			for (auto dbIter = dbAddresses.cbegin(); dbAddresses.cend() != dbIter; ++dbIter) {
-				Address address;
-				mongo::mappers::DbBinaryToModelArray(address, dbIter->get_binary());
+				auto address = test::GetByteArrayFromMongoSource<Address>(*dbIter);
 				EXPECT_CONTAINS(addresses, address);
 			}
 		}

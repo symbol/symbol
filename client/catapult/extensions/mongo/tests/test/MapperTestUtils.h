@@ -149,6 +149,14 @@ namespace catapult { namespace test {
 		return extensions::CopyToUnresolvedAddress(GetAddressValue(doc, name));
 	}
 
+	/// Converts binary \a source to a byte array.
+	template<typename TByteArray, typename TMongoContainer>
+	TByteArray GetByteArrayFromMongoSource(const TMongoContainer& source) {
+		TByteArray byteArray;
+		std::memcpy(byteArray.data(), source.get_binary().bytes, byteArray.size());
+		return byteArray;
+	}
+
 	// endregion
 
 	// region asserts

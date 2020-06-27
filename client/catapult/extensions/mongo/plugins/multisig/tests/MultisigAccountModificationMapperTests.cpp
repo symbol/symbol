@@ -62,8 +62,7 @@ namespace catapult { namespace mongo { namespace plugins {
 
 			auto dbAddressesIter = dbAddresses.cbegin();
 			for (auto i = 0u; i < count; ++i, ++dbAddressesIter) {
-				UnresolvedAddress address;
-				mongo::mappers::DbBinaryToModelArray(address, dbAddressesIter->get_binary());
+				auto address = test::GetByteArrayFromMongoSource<UnresolvedAddress>(*dbAddressesIter);
 				EXPECT_EQ(pAddresses[i], address) << name << " at " << i;
 			}
 		}

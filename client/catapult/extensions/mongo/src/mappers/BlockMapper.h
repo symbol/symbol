@@ -25,6 +25,6 @@ namespace catapult { namespace model { struct BlockElement; } }
 
 namespace catapult { namespace mongo { namespace mappers {
 
-	/// Maps \a blockElement to the corresponding db model entity.
+	/// Maps \a blockElement to the corresponding db model value.
 	bsoncxx::document::value ToDbModel(const model::BlockElement& blockElement);
 }}}

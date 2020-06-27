@@ -36,8 +36,7 @@ namespace catapult { namespace mongo {
 		auto CreateFilter(const std::string& fieldName) {
 			return [fieldName](const auto& status) {
 				auto filter = document()
-						<< fieldName
-						<< open_document
+						<< fieldName << open_document
 							<< "$eq" << mongo::mappers::ToBinary(status.Hash)
 						<< close_document
 						<< finalize;

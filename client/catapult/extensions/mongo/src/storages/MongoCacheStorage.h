@@ -176,8 +176,7 @@ namespace catapult { namespace mongo { namespace storages {
 
 			document doc;
 			auto array = doc
-					<< std::string(TCacheTraits::Id_Property_Name)
-					<< open_document
+					<< std::string(TCacheTraits::Id_Property_Name) << open_document
 						<< "$in"
 						<< open_array;
 

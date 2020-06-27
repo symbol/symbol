@@ -39,6 +39,8 @@ namespace catapult { namespace mongo {
 		constexpr size_t Num_Transaction_Statuses = 10;
 		constexpr auto Collection_Name = "transactionStatuses";
 
+		// region test utils
+
 		using TransactionStatusesMap = std::unordered_map<Hash256, model::TransactionStatus, utils::ArrayHasher<Hash256>>;
 
 		auto ResetDatabaseAndCreateMongoContext(thread::IoThreadPool& pool) {
@@ -48,11 +50,38 @@ namespace catapult { namespace mongo {
 
 		auto CreateTransactionStatuses(size_t count) {
 			std::vector<model::TransactionStatus> statuses;
-			for (auto i = 0u; i < count; ++i)
+			for (auto i = 1u; i <= count; ++i)
 				statuses.emplace_back(test::GenerateRandomByteArray<Hash256>(), Timestamp(i * i), i);
 
 			return statuses;
 		}
+
+		void AssertTransactionStatuses(const TransactionStatusesMap& expectedTransactionStatuses) {
+			auto connection = test::CreateDbConnection();
+			auto database = connection[test::DatabaseName()];
+			auto collection = database[Collection_Name];
+
+			// Assert: check collection size
+			EXPECT_EQ(expectedTransactionStatuses.size(), static_cast<size_t>(collection.count_documents({})));
+
+			auto txCursor = collection.find({});
+			for (const auto& view : txCursor) {
+				auto statusView = view["status"].get_document().view();
+
+				auto dbHash = test::GetHashValue(statusView, "hash");
+				auto expectedIter = expectedTransactionStatuses.find(dbHash);
+				ASSERT_TRUE(expectedTransactionStatuses.cend() != expectedIter);
+
+				const auto& status = expectedIter->second;
+				EXPECT_EQ(status.Hash, dbHash);
+				EXPECT_EQ(status.Status, test::GetUint32(statusView, "code"));
+				EXPECT_EQ(status.Deadline, Timestamp(test::GetUint64(statusView, "deadline")));
+			}
+		}
+
+		// endregion
+
+		// region TransactionStatusSubscriberContext
 
 		class TransactionStatusSubscriberContext {
 		public:
@@ -72,7 +101,7 @@ namespace catapult { namespace mongo {
 				return m_statuses;
 			}
 
-			TransactionStatusesMap toMap() {
+			TransactionStatusesMap toMap() const {
 				TransactionStatusesMap map;
 				for (const auto& status : m_statuses)
 					map.emplace(status.Hash, status);
@@ -80,6 +109,7 @@ namespace catapult { namespace mongo {
 				return map;
 			}
 
+		public:
 			void saveTransactionStatus(const model::TransactionStatus& status) {
 				m_pSubscriber->notifyStatus(*test::GenerateTransactionWithDeadline(status.Deadline), status.Hash, status.Status);
 				m_pSubscriber->flush();
@@ -92,29 +122,7 @@ namespace catapult { namespace mongo {
 			std::vector<model::TransactionStatus> m_statuses;
 		};
 
-		void AssertTransactionStatuses(const TransactionStatusesMap& expectedTransactionStatuses) {
-			auto connection = test::CreateDbConnection();
-			auto database = connection[test::DatabaseName()];
-			auto collection = database[Collection_Name];
-
-			// Assert: check collection size
-			EXPECT_EQ(expectedTransactionStatuses.size(), static_cast<size_t>(collection.count_documents({})));
-
-			auto txCursor = collection.find({});
-			for (const auto& view : txCursor) {
-				auto statusView = view["status"].get_document().view();
-
-				Hash256 dbHash;
-				mappers::DbBinaryToModelArray(dbHash, statusView["hash"].get_binary());
-				auto expectedIter = expectedTransactionStatuses.find(dbHash);
-				ASSERT_TRUE(expectedTransactionStatuses.cend() != expectedIter);
-
-				const auto& status = expectedIter->second;
-				EXPECT_EQ(status.Hash, dbHash);
-				EXPECT_EQ(status.Status, test::GetUint32(statusView, "code"));
-				EXPECT_EQ(status.Deadline, Timestamp(test::GetUint64(statusView, "deadline")));
-			}
-		}
+		// endregion
 	}
 
 	// region notifyStatus

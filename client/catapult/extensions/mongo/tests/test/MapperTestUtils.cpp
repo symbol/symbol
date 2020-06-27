@@ -53,8 +53,7 @@ namespace catapult { namespace test {
 
 			auto i = 0u;
 			for (const auto& dbHash : dbHashes) {
-				Hash256 hash;
-				mongo::mappers::DbBinaryToModelArray(hash, dbHash.get_binary());
+				auto hash = GetByteArrayFromMongoSource<Hash256>(dbHash);
 				EXPECT_EQ(hashes[i], hash);
 				++i;
 			}
