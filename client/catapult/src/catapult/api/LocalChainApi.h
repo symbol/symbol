@@ -26,8 +26,10 @@ namespace catapult { namespace io { class BlockStorageCache; } }
 
 namespace catapult { namespace api {
 
-	/// Creates a chain api around the specified \a storage and chain score supplier (\a chainScoreSupplier).
+	/// Creates a chain api around the specified \a storage, chain score supplier (\a chainScoreSupplier)
+	/// and finalized height supplier (\a finalizedHeightSupplier).
 	std::unique_ptr<ChainApi> CreateLocalChainApi(
 			const io::BlockStorageCache& storage,
-			const model::ChainScoreSupplier& chainScoreSupplier);
+			const model::ChainScoreSupplier& chainScoreSupplier,
+			const supplier<Height>& finalizedHeightSupplier);
 }}

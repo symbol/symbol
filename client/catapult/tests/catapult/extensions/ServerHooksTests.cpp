@@ -260,49 +260,86 @@ namespace catapult { namespace extensions {
 
 	// endregion
 
-	// region chainSyncedPredicate
+	// region localFinalizedHeightSupplier / chainSyncedPredicate
 
-	TEST(TEST_CLASS, UnsetChainSyncedPredicateReturnsTrue) {
+	namespace {
+		struct LocalFinalizedHeightSupplierTraits {
+			static constexpr auto Default_Value = Height(1);
+			static constexpr auto Custom_Value = Height(101);
+
+			static auto Get(const ServerHooks& hooks) {
+				return hooks.localFinalizedHeightSupplier();
+			}
+
+			static void Set(ServerHooks& hooks, const LocalFinalizedHeightSupplier& supplier) {
+				hooks.setLocalFinalizedHeightSupplier(supplier);
+			}
+		};
+
+		struct ChainSyncedPredicateTraits {
+			static constexpr auto Default_Value = true;
+			static constexpr auto Custom_Value = false;
+
+			static auto Get(const ServerHooks& hooks) {
+				return hooks.chainSyncedPredicate();
+			}
+
+			static void Set(ServerHooks& hooks, const ChainSyncedPredicate& supplier) {
+				hooks.setChainSyncedPredicate(supplier);
+			}
+		};
+	}
+
+#define SUPPLIER_TEST_ENTRY(TEST_NAME, CONSUMER_FACTORY_NAME) \
+	TEST(TEST_CLASS, TEST_NAME##_##CONSUMER_FACTORY_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME##2)<CONSUMER_FACTORY_NAME##Traits>(); }
+
+#define SUPPLIER_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME##2)(); \
+	SUPPLIER_TEST_ENTRY(TEST_NAME, LocalFinalizedHeightSupplier) \
+	SUPPLIER_TEST_ENTRY(TEST_NAME, ChainSyncedPredicate) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME##2)()
+
+	SUPPLIER_TEST(UnsetReturnsDefaultValue) {
 		// Arrange:
 		ServerHooks hooks;
 
 		// Act:
-		auto predicate = hooks.chainSyncedPredicate();
-		ASSERT_TRUE(!!predicate);
+		auto supplier = TTraits::Get(hooks);
+		ASSERT_TRUE(!!supplier);
 
-		auto isSynced = predicate();
+		auto result = supplier();
 
 		// Assert:
-		EXPECT_TRUE(isSynced);
+		EXPECT_EQ(TTraits::Default_Value, result);
 	}
 
-	TEST(TEST_CLASS, CanSetOnce_ChainSyncedPredicate) {
+	SUPPLIER_TEST(CanSetOnce) {
 		// Arrange:
 		auto numCalls = 0u;
 		ServerHooks hooks;
-		hooks.setChainSyncedPredicate([&numCalls]() {
+		TTraits::Set(hooks, [&numCalls]() {
 			++numCalls;
-			return false;
+			return TTraits::Custom_Value;
 		});
 
 		// Act:
-		auto predicate = hooks.chainSyncedPredicate();
-		ASSERT_TRUE(!!predicate);
+		auto supplier = TTraits::Get(hooks);
+		ASSERT_TRUE(!!supplier);
 
-		auto isSynced = predicate();
+		auto result = supplier();
 
 		// Assert:
 		EXPECT_EQ(1u, numCalls);
-		EXPECT_FALSE(isSynced);
+		EXPECT_EQ(TTraits::Custom_Value, result);
 	}
 
-	TEST(TEST_CLASS, CannotSetMultipleTimes_ChainSyncedPredicate) {
+	SUPPLIER_TEST(CannotSetMultipleTimes) {
 		// Arrange:
 		ServerHooks hooks;
-		hooks.setChainSyncedPredicate([]() { return false; });
+		TTraits::Set(hooks, []() { return TTraits::Custom_Value; });
 
 		// Act + Assert:
-		EXPECT_THROW(hooks.setChainSyncedPredicate([]() { return false; }), catapult_invalid_argument);
+		EXPECT_THROW(TTraits::Set(hooks, []() { return TTraits::Custom_Value; }), catapult_invalid_argument);
 	}
 
 	// endregion

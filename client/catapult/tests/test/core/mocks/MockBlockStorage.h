@@ -32,10 +32,6 @@ namespace catapult { namespace mocks {
 			CATAPULT_THROW_RUNTIME_ERROR("chainHeight - not supported in mock");
 		}
 
-		Height finalizedChainHeight() const override {
-			CATAPULT_THROW_RUNTIME_ERROR("finalizedChainHeight - not supported in mock");
-		}
-
 		model::HashRange loadHashesFrom(Height, size_t) const override {
 			CATAPULT_THROW_RUNTIME_ERROR("loadHashesFrom - not supported in mock");
 		}

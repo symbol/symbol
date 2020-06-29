@@ -39,9 +39,6 @@ namespace catapult { namespace io {
 		/// Gets the number of blocks.
 		Height chainHeight() const;
 
-		/// Gets the number of finalized blocks.
-		Height finalizedChainHeight() const;
-
 		/// Gets a range of at most \a maxHashes hashes starting at \a height.
 		model::HashRange loadHashesFrom(Height height, size_t maxHashes) const;
 

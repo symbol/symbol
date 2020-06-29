@@ -36,9 +36,6 @@ namespace catapult { namespace io {
 		/// Gets the number of blocks.
 		virtual Height chainHeight() const = 0;
 
-		/// Gets the number of finalized blocks.
-		virtual Height finalizedChainHeight() const = 0;
-
 		/// Gets a range of at most \a maxHashes hashes starting at \a height.
 		virtual model::HashRange loadHashesFrom(Height height, size_t maxHashes) const = 0;
 

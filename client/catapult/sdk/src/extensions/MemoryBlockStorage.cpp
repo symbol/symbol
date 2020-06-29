@@ -39,10 +39,6 @@ namespace catapult { namespace extensions {
 		return m_height;
 	}
 
-	Height MemoryBlockStorage::finalizedChainHeight() const {
-		return chainHeight() > Height(0) ? Height(1) : Height(0);
-	}
-
 	model::HashRange MemoryBlockStorage::loadHashesFrom(Height height, size_t maxHashes) const {
 		auto currentHeight = chainHeight();
 		if (Height(0) == height || currentHeight < height)

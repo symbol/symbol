@@ -82,10 +82,6 @@ namespace catapult { namespace io {
 		return m_cachedData.height();
 	}
 
-	Height BlockStorageView::finalizedChainHeight() const {
-		return m_storage.finalizedChainHeight();
-	}
-
 	model::HashRange BlockStorageView::loadHashesFrom(Height height, size_t maxHashes) const {
 		return m_storage.loadHashesFrom(height, maxHashes);
 	}

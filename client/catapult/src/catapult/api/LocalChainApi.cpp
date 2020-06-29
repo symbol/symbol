@@ -28,23 +28,22 @@ namespace catapult { namespace api {
 			return catapult_api_error(message) << exception_detail::Make<Height>::From(height);
 		}
 
-		void SetHeights(ChainInfo& chainInfo, io::BlockStorageView&& storageView) {
-			chainInfo.Height = storageView.chainHeight();
-			chainInfo.FinalizedHeight = storageView.finalizedChainHeight();
-		}
-
 		class LocalChainApi : public ChainApi {
 		public:
-			LocalChainApi(const io::BlockStorageCache& storage, const model::ChainScoreSupplier& chainScoreSupplier)
+			LocalChainApi(
+					const io::BlockStorageCache& storage,
+					const model::ChainScoreSupplier& chainScoreSupplier,
+					const supplier<Height>& finalizedHeightSupplier)
 					: m_storage(storage)
 					, m_chainScoreSupplier(chainScoreSupplier)
+					, m_finalizedHeightSupplier(finalizedHeightSupplier)
 			{}
 
 		public:
 			thread::future<ChainInfo> chainInfo() const override {
 				auto chainInfo = ChainInfo();
-				SetHeights(chainInfo, m_storage.view());
-
+				chainInfo.Height = m_storage.view().chainHeight();
+				chainInfo.FinalizedHeight = m_finalizedHeightSupplier();
 				chainInfo.Score = m_chainScoreSupplier();
 				return thread::make_ready_future(std::move(chainInfo));
 			}
@@ -62,12 +61,14 @@ namespace catapult { namespace api {
 		private:
 			const io::BlockStorageCache& m_storage;
 			model::ChainScoreSupplier m_chainScoreSupplier;
+			supplier<Height> m_finalizedHeightSupplier;
 		};
 	}
 
 	std::unique_ptr<ChainApi> CreateLocalChainApi(
 			const io::BlockStorageCache& storage,
-			const model::ChainScoreSupplier& chainScoreSupplier) {
-		return std::make_unique<LocalChainApi>(storage, chainScoreSupplier);
+			const model::ChainScoreSupplier& chainScoreSupplier,
+			const supplier<Height>& finalizedHeightSupplier) {
+		return std::make_unique<LocalChainApi>(storage, chainScoreSupplier, finalizedHeightSupplier);
 	}
 }}

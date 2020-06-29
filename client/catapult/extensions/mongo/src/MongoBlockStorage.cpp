@@ -171,10 +171,6 @@ namespace catapult { namespace mongo {
 				return Height(heightValue);
 			}
 
-			Height finalizedChainHeight() const override {
-				return chainHeight() > Height(0) ? Height(1) : Height(0);
-			}
-
 			model::HashRange loadHashesFrom(Height height, size_t maxHashes) const override {
 				auto dbHeight = chainHeight();
 				if (Height(0) == height || dbHeight < height)

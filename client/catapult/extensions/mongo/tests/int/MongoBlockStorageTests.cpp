@@ -371,7 +371,7 @@ namespace catapult { namespace mongo {
 
 	// DEFINE_BLOCK_STORAGE_TESTS cannot be used because it assumes BlockStorage but MongoBlockStorage only implements LightBlockStorage
 
-	// region chainHeight / finalizedChainHeight
+	// region chainHeight
 
 	TEST(TEST_CLASS, ChainHeightIsInitiallyUnset) {
 		// Arrange:
@@ -379,11 +379,9 @@ namespace catapult { namespace mongo {
 
 		// Act:
 		auto chainHeight = context.storage().chainHeight();
-		auto finalizedChainHeight = context.storage().finalizedChainHeight();
 
 		// Assert:
 		EXPECT_EQ(Height(), chainHeight);
-		EXPECT_EQ(Height(), finalizedChainHeight);
 	}
 
 	TEST(TEST_CLASS, ChainHeightIsSetToBlockCountOnSave) {
@@ -393,11 +391,9 @@ namespace catapult { namespace mongo {
 
 		// Act:
 		auto chainHeight = context.storage().chainHeight();
-		auto finalizedChainHeight = context.storage().finalizedChainHeight();
 
 		// Assert:
 		EXPECT_EQ(Height(Multiple_Blocks_Count), chainHeight);
-		EXPECT_EQ(Height(1), finalizedChainHeight);
 	}
 
 	// endregion

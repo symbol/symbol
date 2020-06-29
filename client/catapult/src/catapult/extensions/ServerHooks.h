@@ -52,21 +52,27 @@ namespace catapult { namespace extensions {
 	/// Function signature for delivering a block range to a consumer.
 	using BlockRangeConsumerFunc = handlers::BlockRangeHandler;
 
-	/// Factory for creating a BlockRangeConsumerFunc bound to an input source.
-	using BlockRangeConsumerFactoryFunc = std::function<BlockRangeConsumerFunc (disruptor::InputSource)>;
-
-	/// Factory for creating a CompletionAwareBlockRangeConsumerFunc bound to an input source.
-	using CompletionAwareBlockRangeConsumerFactoryFunc =
-			std::function<chain::CompletionAwareBlockRangeConsumerFunc (disruptor::InputSource)>;
-
 	/// Function signature for delivering a transaction range to a consumer.
 	using TransactionRangeConsumerFunc = handlers::TransactionRangeHandler;
 
+	/// Factory for creating a range consumer function bound to an input source.
+	template<typename TConsumer>
+	using RangeConsumerFactoryFunc = std::function<TConsumer (disruptor::InputSource)>;
+
+	/// Factory for creating a BlockRangeConsumerFunc bound to an input source.
+	using BlockRangeConsumerFactoryFunc = RangeConsumerFactoryFunc<BlockRangeConsumerFunc>;
+
+	/// Factory for creating a CompletionAwareBlockRangeConsumerFunc bound to an input source.
+	using CompletionAwareBlockRangeConsumerFactoryFunc = RangeConsumerFactoryFunc<chain::CompletionAwareBlockRangeConsumerFunc>;
+
 	/// Factory for creating a TransactionRangeConsumerFunc bound to an input source.
-	using TransactionRangeConsumerFactoryFunc = std::function<TransactionRangeConsumerFunc (disruptor::InputSource)>;
+	using TransactionRangeConsumerFactoryFunc = RangeConsumerFactoryFunc<TransactionRangeConsumerFunc>;
 
 	/// Retriever that returns the network chain heights for a number of peers.
 	using RemoteChainHeightsRetriever = std::function<thread::future<std::vector<Height>> (size_t)>;
+
+	/// Supplier for retrieving the local finalized height.
+	using LocalFinalizedHeightSupplier = supplier<Height>;
 
 	/// Predicate for determining if a chain is synced.
 	using ChainSyncedPredicate = predicate<>;
@@ -124,9 +130,14 @@ namespace catapult { namespace extensions {
 			SetOnce(m_transactionRangeConsumerFactory, factory);
 		}
 
-		/// Sets the remote heights chain \a retriever.
+		/// Sets the remote chain heights \a retriever.
 		void setRemoteChainHeightsRetriever(const RemoteChainHeightsRetriever& retriever) {
 			SetOnce(m_remoteChainHeightsRetriever, retriever);
+		}
+
+		/// Sets the local finalized height \a supplier.
+		void setLocalFinalizedHeightSupplier(const LocalFinalizedHeightSupplier& supplier) {
+			SetOnce(m_localFinalizedHeightSupplier, supplier);
 		}
 
 		/// Sets the chain synced \a predicate.
@@ -190,6 +201,11 @@ namespace catapult { namespace extensions {
 			return Require(m_remoteChainHeightsRetriever);
 		}
 
+		/// Gets the local finalized height \a supplier.
+		auto localFinalizedHeightSupplier() const {
+			return m_localFinalizedHeightSupplier ? m_localFinalizedHeightSupplier : []() { return Height(1); };
+		}
+
 		/// Gets the chain synced predicate.
 		auto chainSyncedPredicate() const {
 			return m_chainSyncedPredicate ? m_chainSyncedPredicate : []() { return true; };
@@ -223,6 +239,7 @@ namespace catapult { namespace extensions {
 		TransactionRangeConsumerFactoryFunc m_transactionRangeConsumerFactory;
 
 		RemoteChainHeightsRetriever m_remoteChainHeightsRetriever;
+		LocalFinalizedHeightSupplier m_localFinalizedHeightSupplier;
 		ChainSyncedPredicate m_chainSyncedPredicate;
 		std::vector<KnownHashPredicate> m_knownHashPredicates;
 	};

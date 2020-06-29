@@ -44,6 +44,8 @@ namespace catapult { namespace consumers {
 	namespace {
 		constexpr auto Base_Difficulty = Difficulty().unwrap();
 		constexpr auto Max_Rollback_Blocks = 25u;
+		constexpr auto Explicit_Finalized_Height = Height(15);
+
 		constexpr model::ImportanceHeight Initial_Last_Recalculation_Height(1234);
 		constexpr model::ImportanceHeight Modified_Last_Recalculation_Height(7777);
 		const Key Sentinel_Processor_Public_Key = test::GenerateRandomByteArray<Key>();
@@ -387,6 +389,9 @@ namespace catapult { namespace consumers {
 				handlers.DifficultyChecker = [this](const auto& blocks, const auto& cache) {
 					return DifficultyChecker(blocks, cache);
 				};
+				handlers.LocalFinalizedHeightSupplier = []() {
+					return Explicit_Finalized_Height;
+				};
 				handlers.UndoBlock = [this](const auto& block, auto& state, auto undoBlockType) {
 					return UndoBlock(block, state, undoBlockType);
 				};
@@ -592,14 +597,15 @@ namespace catapult { namespace consumers {
 	// region height check
 
 	namespace {
-		void AssertInvalidHeightWithResult(
+		void AssertInvalidHeight(
 				Height localHeight,
 				Height remoteHeight,
 				uint32_t numRemoteBlocks,
 				InputSource source,
-				ValidationResult expectedResult) {
+				ValidationResult expectedResult = Failure_Consumer_Remote_Chain_Unlinked,
+				uint32_t maxRollbackBlocks = Max_Rollback_Blocks) {
 			// Arrange:
-			ConsumerTestContext context;
+			ConsumerTestContext context(maxRollbackBlocks);
 			context.seedStorage(localHeight);
 			auto input = CreateInput(remoteHeight, numRemoteBlocks, source);
 
@@ -614,14 +620,14 @@ namespace catapult { namespace consumers {
 			context.assertNoStorageChanges();
 		}
 
-		void AssertInvalidHeight(Height localHeight, Height remoteHeight, uint32_t numRemoteBlocks, InputSource source) {
-			// Assert:
-			AssertInvalidHeightWithResult(localHeight, remoteHeight, numRemoteBlocks, source, Failure_Consumer_Remote_Chain_Unlinked);
-		}
-
-		void AssertValidHeight(Height localHeight, Height remoteHeight, uint32_t numRemoteBlocks, InputSource source) {
+		void AssertValidHeight(
+				Height localHeight,
+				Height remoteHeight,
+				uint32_t numRemoteBlocks,
+				InputSource source,
+				uint32_t maxRollbackBlocks = Max_Rollback_Blocks) {
 			// Arrange:
-			ConsumerTestContext context;
+			ConsumerTestContext context(maxRollbackBlocks);
 			context.seedStorage(localHeight);
 			auto input = CreateInput(remoteHeight, numRemoteBlocks, source);
 
@@ -672,9 +678,13 @@ namespace catapult { namespace consumers {
 			LogInputSource(source);
 
 			// Act + Assert:
-			auto assertFunc = InputSource::Remote_Pull == source ? AssertValidHeight : AssertInvalidHeight;
-			assertFunc(Height(100), Height(99), 1, source);
-			assertFunc(Height(100), Height(90), 1, source);
+			if (InputSource::Remote_Pull == source) {
+				AssertValidHeight(Height(100), Height(99), 1, source);
+				AssertValidHeight(Height(100), Height(90), 1, source);
+			} else {
+				AssertInvalidHeight(Height(100), Height(99), 1, source);
+				AssertInvalidHeight(Height(100), Height(90), 1, source);
+			}
 		}
 	}
 
@@ -689,16 +699,50 @@ namespace catapult { namespace consumers {
 		}
 	}
 
-	TEST(TEST_CLASS, RemoteChainWithHeightDifferenceEqualToMaxRollbackBlocksIsValidForRemotePullSource) {
-		// Assert: (this test only makes sense for Remote_Pull because it is the only source that allows multiple block rollbacks)
-		AssertValidHeight(Height(100), Height(100 - Max_Rollback_Blocks + 1), 4, InputSource::Remote_Pull);
+	// the following tests only make sense for Remote_Pull because it is the only source that allows multiple block rollbacks
+
+	namespace {
+		void AssertDeepUnwindAllowed(Height localHeight, Height maxRemoteHeight, uint32_t maxRollbackBlocks) {
+			// Arrange:
+			for (auto remoteHeight : { maxRemoteHeight + Height(10), maxRemoteHeight + Height(1), maxRemoteHeight }) {
+				CATAPULT_LOG(debug) << "remoteHeight = " << remoteHeight;
+
+				// Assert:
+				AssertValidHeight(localHeight, remoteHeight, 4, InputSource::Remote_Pull, maxRollbackBlocks);
+			}
+		}
+
+		void AssertDeepUnwindNotAllowed(Height localHeight, Height maxRemoteHeight, uint32_t maxRollbackBlocks) {
+			// Arrange:
+			auto expectedResult = Failure_Consumer_Remote_Chain_Too_Far_Behind;
+			for (auto remoteHeight : { maxRemoteHeight - Height(1), maxRemoteHeight - Height(10) }) {
+				CATAPULT_LOG(debug) << "remoteHeight = " << remoteHeight;
+
+				// Assert:
+				AssertInvalidHeight(localHeight, remoteHeight, 4, InputSource::Remote_Pull, expectedResult, maxRollbackBlocks);
+			}
+		}
 	}
 
-	TEST(TEST_CLASS, RemoteChainWithHeightDifferencGreaterThanMaxRollbackBlocksIsInvalidForRemotePullSource) {
-		// Assert: (this test only makes sense for Remote_Pull because it is the only source that allows multiple block rollbacks)
-		auto expectedResult = Failure_Consumer_Remote_Chain_Too_Far_Behind;
-		AssertInvalidHeightWithResult(Height(100), Height(100 - Max_Rollback_Blocks), 4, InputSource::Remote_Pull, expectedResult);
-		AssertInvalidHeightWithResult(Height(100), Height(100 - Max_Rollback_Blocks - 10), 4, InputSource::Remote_Pull, expectedResult);
+	TEST(TEST_CLASS, RemoteChainFromRemotePullSourceCanUnwindAllUnfinalizedBlocksWhenOnlyNemesisIsFinalized_FinalizationDisabled) {
+		AssertDeepUnwindAllowed(Height(Max_Rollback_Blocks / 2), Height(2), Max_Rollback_Blocks);
+		AssertDeepUnwindAllowed(Height(Max_Rollback_Blocks), Height(2), Max_Rollback_Blocks);
+	}
+
+	TEST(TEST_CLASS, RemoteChainFromRemotePullSourceCanUnwindAllUnfinalizedBlocks_FinalizationDisabled) {
+		AssertDeepUnwindAllowed(Height(100), Height(100 - Max_Rollback_Blocks + 1), Max_Rollback_Blocks);
+	}
+
+	TEST(TEST_CLASS, RemoteChainFromRemotePullSourceCannotUnwindAnyFinalizedBlocks_FinalizationDisabled) {
+		AssertDeepUnwindNotAllowed(Height(100), Height(100 - Max_Rollback_Blocks + 1), Max_Rollback_Blocks);
+	}
+
+	TEST(TEST_CLASS, RemoteChainFromRemotePullSourceCanUnwindAllUnfinalizedBlocks_FinalizationEnabled) {
+		AssertDeepUnwindAllowed(Height(100), Explicit_Finalized_Height + Height(1), 0);
+	}
+
+	TEST(TEST_CLASS, RemoteChainFromRemotePullSourceCannotUnwindAnyFinalizedBlocks_FinalizationEnabled) {
+		AssertDeepUnwindNotAllowed(Height(100), Explicit_Finalized_Height + Height(1), 0);
 	}
 
 	// endregion
@@ -1193,7 +1237,7 @@ namespace catapult { namespace consumers {
 		EXPECT_EQ(Height(5), context.Cache.createView().dependentState().LastFinalizedHeight);
 
 		// - pruning was triggered on the cache (lower_bound should cause heights less than 5 to be pruned, so { 5, 6, 7 } are preserved)
-		// - 7 (seeded entries); 0 (added entries, no real observer used); 5 (local finalized chain height)
+		// - 7 (seeded entries); 0 (added entries, no real observer used); 5 (local finalized height)
 		EXPECT_EQ(3u, context.Cache.sub<cache::BlockStatisticCache>().createView()->size());
 	}
 

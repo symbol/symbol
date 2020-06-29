@@ -58,12 +58,13 @@ namespace catapult { namespace syncsource {
 		void RegisterAllHandlers(
 				ionet::ServerPacketHandlers& handlers,
 				const io::BlockStorageCache& storage,
+				const extensions::ServerHooks& hooks,
 				const model::TransactionRegistry& registry,
 				const HandlersConfiguration& config) {
 			handlers::RegisterPushBlockHandler(handlers, registry, config.PushBlockCallback);
 			handlers::RegisterPullBlockHandler(handlers, storage);
 
-			handlers::RegisterChainInfoHandler(handlers, storage, config.ChainScoreSupplier);
+			handlers::RegisterChainInfoHandler(handlers, storage, config.ChainScoreSupplier, hooks.localFinalizedHeightSupplier());
 			handlers::RegisterBlockHashesHandler(handlers, storage, static_cast<uint32_t>(config.BlocksHandlerConfig.MaxBlocks));
 			handlers::RegisterPullBlocksHandler(handlers, storage, config.BlocksHandlerConfig);
 
@@ -85,6 +86,7 @@ namespace catapult { namespace syncsource {
 				RegisterAllHandlers(
 						state.packetHandlers(),
 						state.storage(),
+						state.hooks(),
 						state.pluginManager().transactionRegistry(),
 						CreateHandlersConfiguration(state));
 			}

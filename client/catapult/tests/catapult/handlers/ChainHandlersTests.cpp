@@ -167,7 +167,8 @@ namespace catapult { namespace handlers {
 		RegisterChainInfoHandler(
 				handlers,
 				*pStorage,
-				[]() { return model::ChainScore(0x7890ABCDEF012345, 0x7711BBCC00DD99AA); });
+				[]() { return model::ChainScore(0x7890ABCDEF012345, 0x7711BBCC00DD99AA); },
+				[]() { return Height(7); });
 
 		// - malform the packet
 		auto pPacket = ionet::CreateSharedPacket<ionet::Packet>();
@@ -189,7 +190,8 @@ namespace catapult { namespace handlers {
 		RegisterChainInfoHandler(
 				handlers,
 				*pStorage,
-				[]() { return model::ChainScore(0x7890ABCDEF012345, 0x7711BBCC00DD99AA); });
+				[]() { return model::ChainScore(0x7890ABCDEF012345, 0x7711BBCC00DD99AA); },
+				[]() { return Height(7); });
 
 		// - create a valid request
 		auto pPacket = ionet::CreateSharedPacket<ionet::Packet>();
@@ -204,7 +206,7 @@ namespace catapult { namespace handlers {
 
 		const auto* pResponse = reinterpret_cast<const uint64_t*>(test::GetSingleBufferData(handlerContext));
 		EXPECT_EQ(12u, pResponse[0]); // height
-		EXPECT_EQ(1u, pResponse[1]); // finalized height
+		EXPECT_EQ(7u, pResponse[1]); // finalized height
 		EXPECT_EQ(0x7890ABCDEF012345u, pResponse[2]); // score high
 		EXPECT_EQ(0x7711BBCC00DD99AAu, pResponse[3]); // score low
 	}

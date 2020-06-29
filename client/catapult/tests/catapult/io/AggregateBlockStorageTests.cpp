@@ -109,29 +109,6 @@ namespace catapult { namespace io {
 		EXPECT_EQ(Height(123), height);
 	}
 
-	TEST(TEST_CLASS, FinalizedChainHeightDelegatesToStorage) {
-		// Arrange:
-		class MockBlockStorage : public UnsupportedBlockStorage {
-		public:
-			mutable size_t NumCalls = 0;
-
-		public:
-			Height finalizedChainHeight() const override {
-				++NumCalls;
-				return Height(123);
-			}
-		};
-
-		TestContext<MockBlockStorage> context;
-
-		// Act:
-		auto height = context.aggregate().finalizedChainHeight();
-
-		// Assert:
-		EXPECT_EQ(1u, context.storage().NumCalls);
-		EXPECT_EQ(Height(123), height);
-	}
-
 	TEST(TEST_CLASS, LoadHashesFromDelegatesToStorage) {
 		// Arrange:
 		class MockBlockStorage : public UnsupportedBlockStorage {

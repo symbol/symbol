@@ -199,10 +199,6 @@ namespace catapult { namespace io {
 		return m_indexFile.exists() ? Height(m_indexFile.get()) : Height(0);
 	}
 
-	Height FileBlockStorage::finalizedChainHeight() const {
-		return chainHeight() > Height(0) ? Height(1) : Height(0);
-	}
-
 	model::HashRange FileBlockStorage::loadHashesFrom(Height height, size_t maxHashes) const {
 		if (FileBlockStorageMode::Hash_Index != m_mode)
 			CATAPULT_THROW_INVALID_ARGUMENT("loadHashesFrom is not supported when Hash_Index mode is disabled");

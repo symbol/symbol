@@ -29,7 +29,7 @@ namespace catapult { namespace api {
 
 	namespace {
 		std::unique_ptr<ChainApi> CreateLocalChainApi(const io::BlockStorageCache& storage) {
-			return api::CreateLocalChainApi(storage, []() { return model::ChainScore(1); });
+			return api::CreateLocalChainApi(storage, []() { return model::ChainScore(1); }, []() { return Height(1); });
 		}
 	}
 
@@ -37,22 +37,28 @@ namespace catapult { namespace api {
 
 	TEST(TEST_CLASS, CanRetrieveChainInfo) {
 		// Arrange:
-		auto numSupplierCalls = 0u;
+		auto numSupplierCalls = std::make_pair<size_t, size_t>(0, 0);
 		auto chainScoreSupplier = [&numSupplierCalls]() {
-			++numSupplierCalls;
+			++numSupplierCalls.first;
 			return model::ChainScore(12345);
+		};
+		auto finalizedHeightSupplier = [&numSupplierCalls]() {
+			++numSupplierCalls.second;
+			return Height(7);
 		};
 
 		auto pStorage = mocks::CreateMemoryBlockStorageCache(12);
-		auto pApi = api::CreateLocalChainApi(*pStorage, chainScoreSupplier);
+		auto pApi = api::CreateLocalChainApi(*pStorage, chainScoreSupplier, finalizedHeightSupplier);
 
 		// Act:
 		auto chainInfo = pApi->chainInfo().get();
 
 		// Assert:
-		EXPECT_EQ(1u, numSupplierCalls);
+		EXPECT_EQ(1u, numSupplierCalls.first);
+		EXPECT_EQ(1u, numSupplierCalls.second);
+
 		EXPECT_EQ(Height(12), chainInfo.Height);
-		EXPECT_EQ(Height(1), chainInfo.FinalizedHeight);
+		EXPECT_EQ(Height(7), chainInfo.FinalizedHeight);
 		EXPECT_EQ(model::ChainScore(12345), chainInfo.Score);
 	}
 

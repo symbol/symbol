@@ -39,7 +39,6 @@ namespace catapult { namespace extensions {
 	public:
 		// LightBlockStorage
 		Height chainHeight() const override;
-		Height finalizedChainHeight() const override;
 		model::HashRange loadHashesFrom(Height height, size_t maxHashes) const override;
 		void saveBlock(const model::BlockElement& blockElement) override;
 		void dropBlocksAfter(Height height) override;

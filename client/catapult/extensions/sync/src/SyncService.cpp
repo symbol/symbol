@@ -62,9 +62,10 @@ namespace catapult { namespace sync {
 		thread::Task CreateSynchronizerTask(const extensions::ServiceState& state, net::PacketWriters& packetWriters) {
 			const auto& config = state.config();
 			auto chainSynchronizer = chain::CreateChainSynchronizer(
-					api::CreateLocalChainApi(state.storage(), [&score = state.score()]() {
-						return score.get();
-					}),
+					api::CreateLocalChainApi(
+							state.storage(),
+							[&score = state.score()]() { return score.get(); },
+							state.hooks().localFinalizedHeightSupplier()),
 					CreateChainSynchronizerConfiguration(config),
 					state.hooks().completionAwareBlockRangeConsumerFactory()(Sync_Source));
 
