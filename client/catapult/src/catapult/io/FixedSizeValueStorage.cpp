@@ -19,41 +19,13 @@
 **/
 
 #include "FixedSizeValueStorage.h"
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem.hpp>
-#include <inttypes.h>
+#include "catapult/config/CatapultDataDirectory.h"
 
 namespace catapult { namespace io {
 
 	namespace {
 		static constexpr uint64_t Unset_Directory_Id = std::numeric_limits<uint64_t>::max();
-		static constexpr uint32_t Files_Per_Directory = 65536u;
-
-#ifdef _MSC_VER
-#define SPRINTF sprintf_s
-#else
-#define SPRINTF sprintf
-#endif
-
-		boost::filesystem::path GetDirectoryPath(const std::string& baseDirectory, uint64_t identifier) {
-			char subDirectory[16];
-			(SPRINTF(subDirectory, "%05" PRId64, identifier / Files_Per_Directory));
-			boost::filesystem::path path = baseDirectory;
-			path /= subDirectory;
-			if (!boost::filesystem::exists(path))
-				boost::filesystem::create_directory(path);
-
-			return path;
-		}
-
-		boost::filesystem::path GetFixedSizeValueStoragePath(
-				const std::string& baseDirectory,
-				const std::string& prefix,
-				uint64_t identifier) {
-			auto path = GetDirectoryPath(baseDirectory, identifier);
-			path /= prefix + ".dat";
-			return path;
-		}
+		static constexpr auto Fixed_Size_Value_Storage_Extension = ".dat";
 	}
 
 	template<typename TKey, typename TValue>
@@ -71,7 +43,7 @@ namespace catapult { namespace io {
 			auto pFixedSizeValueStorage = openStorageFile(key, OpenMode::Read_Only);
 			seekStorageFile(*pFixedSizeValueStorage, key);
 
-			auto count = Files_Per_Directory - (key.unwrap() % Files_Per_Directory);
+			auto count = Files_Per_Storage_Directory - (key.unwrap() % Files_Per_Storage_Directory);
 			count = std::min<size_t>(numValues, count);
 
 			pFixedSizeValueStorage->read(MutableRawBuffer(pData, count * TValue::Size));
@@ -86,7 +58,7 @@ namespace catapult { namespace io {
 
 	template<typename TKey, typename TValue>
 	void FixedSizeValueStorage<TKey, TValue>::save(TKey key, const TValue& value) {
-		auto currentId = key.unwrap() / Files_Per_Directory;
+		auto currentId = key.unwrap() / Files_Per_Storage_Directory;
 		if (m_cachedDirectoryId != currentId) {
 			m_pCachedStorageFile = openStorageFile(key, OpenMode::Read_Append);
 			m_cachedDirectoryId = currentId;
@@ -104,19 +76,20 @@ namespace catapult { namespace io {
 
 	template<typename TKey, typename TValue>
 	std::unique_ptr<RawFile> FixedSizeValueStorage<TKey, TValue>::openStorageFile(TKey key, OpenMode openMode) const {
-		auto filePath = GetFixedSizeValueStoragePath(m_dataDirectory, m_prefix, key.unwrap());
-		auto pStorageFile = std::make_unique<RawFile>(filePath.generic_string(), openMode, LockMode::None);
+		auto storageDir = config::CatapultStorageDirectoryPreparer::Prepare(m_dataDirectory, key);
+		auto filePath = storageDir.indexFile(m_prefix, Fixed_Size_Value_Storage_Extension);
+		auto pStorageFile = std::make_unique<RawFile>(filePath, openMode, LockMode::None);
 
 		// check that first storage file has at least two values inside
-		if (key.unwrap() < Files_Per_Directory && TValue::Size * 2 > pStorageFile->size())
-			CATAPULT_THROW_RUNTIME_ERROR_2("storage file has invalid size", filePath.generic_string(), pStorageFile->size());
+		if (key.unwrap() < Files_Per_Storage_Directory && TValue::Size * 2 > pStorageFile->size())
+			CATAPULT_THROW_RUNTIME_ERROR_2("storage file has invalid size", filePath, pStorageFile->size());
 
 		return pStorageFile;
 	}
 
 	template<typename TKey, typename TValue>
 	void FixedSizeValueStorage<TKey, TValue>::seekStorageFile(RawFile& hashFile, TKey key) const {
-		auto index = key.unwrap() % Files_Per_Directory;
+		auto index = key.unwrap() % Files_Per_Storage_Directory;
 		hashFile.seek(index * TValue::Size);
 	}
 

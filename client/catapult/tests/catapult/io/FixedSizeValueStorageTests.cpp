@@ -20,6 +20,7 @@
 
 #include "catapult/io/FixedSizeValueStorage.h"
 #include "catapult/io/BufferedFileStream.h"
+#include "catapult/constants.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
 #include <boost/filesystem/path.hpp>
@@ -35,7 +36,6 @@ namespace catapult { namespace io {
 
 	namespace {
 		using ValueType = Hash256;
-		static constexpr uint32_t Files_Per_Directory = 65536u;
 
 		ValueType ToValue(uint64_t seed) {
 			ValueType taggedValue;
@@ -71,7 +71,7 @@ namespace catapult { namespace io {
 				size_t valuesWritten = 0;
 				while (numValues) {
 					auto subDirectoryName = std::string("0000") + static_cast<char>('0' + fileIndex);
-					auto count = std::min<size_t>(Files_Per_Directory, numValues);
+					auto count = std::min<size_t>(Files_Per_Storage_Directory, numValues);
 					seedFile(subDirectoryName, valuesWritten, count);
 
 					valuesWritten = valuesWritten + count;
@@ -110,7 +110,7 @@ namespace catapult { namespace io {
 		EXPECT_FALSE(context.storageExists("00001"));
 
 		// Act:
-		context.hashFile().save(Height(Files_Per_Directory), value);
+		context.hashFile().save(Height(Files_Per_Storage_Directory), value);
 
 		// Assert:
 		EXPECT_TRUE(context.storageExists("00001"));
@@ -201,7 +201,7 @@ namespace catapult { namespace io {
 	TEST(TEST_CLASS, StorageCanLoadValuesSpanningMultipleFiles) {
 		// Arrange: seed at least 3 files
 		TestContext context;
-		context.seed(Files_Per_Directory * 2 + 10'000);
+		context.seed(Files_Per_Storage_Directory * 2 + 10'000);
 
 		// Sanity:
 		EXPECT_TRUE(context.storageExists("00000"));
@@ -209,10 +209,10 @@ namespace catapult { namespace io {
 		EXPECT_TRUE(context.storageExists("00002"));
 
 		// Act: read values spanning multiple files
-		auto values = context.hashFile().loadRangeFrom(Height(Files_Per_Directory - 5), Files_Per_Directory + 10);
+		auto values = context.hashFile().loadRangeFrom(Height(Files_Per_Storage_Directory - 5), Files_Per_Storage_Directory + 10);
 
 		// Assert:
-		AssertValues(values, Files_Per_Directory - 5, Files_Per_Directory + 10);
+		AssertValues(values, Files_Per_Storage_Directory - 5, Files_Per_Storage_Directory + 10);
 	}
 
 	// endregion

@@ -24,49 +24,25 @@
 #include "BufferedFileStream.h"
 #include "FilesystemUtils.h"
 #include "PodIoUtils.h"
+#include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/utils/MemoryUtils.h"
 #include "catapult/preprocessor.h"
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem.hpp>
-#include <inttypes.h>
 
 namespace catapult { namespace io {
 
 	namespace {
-		static constexpr uint32_t Files_Per_Directory = 65536u;
 		static constexpr auto Block_File_Extension = ".dat";
 		static constexpr auto Block_Statement_File_Extension = ".stmt";
 
 		// region path utils
 
-#ifdef _MSC_VER
-#define SPRINTF sprintf_s
-#else
-#define SPRINTF sprintf
-#endif
-
-		boost::filesystem::path GetDirectoryPath(const std::string& baseDirectory, Height height) {
-			char subDirectory[16];
-			SPRINTF(subDirectory, "%05" PRId64, height.unwrap() / Files_Per_Directory);
-			boost::filesystem::path path = baseDirectory;
-			path /= subDirectory;
-			if (!boost::filesystem::exists(path))
-				boost::filesystem::create_directory(path);
-
-			return path;
+		auto GetStorageDirectory(const std::string& baseDirectory, Height height) {
+			return config::CatapultStorageDirectoryPreparer::Prepare(baseDirectory, height);
 		}
 
-		boost::filesystem::path GetBlockPath(const std::string& baseDirectory, Height height, const char* extension) {
-			auto path = GetDirectoryPath(baseDirectory, height);
-			char filename[16];
-			SPRINTF(filename, "%05" PRId64, height.unwrap() % Files_Per_Directory);
-			path /= filename;
-			path += extension;
-			return path;
-		}
-
-		boost::filesystem::path GetBlockStatementPath(const std::string& baseDirectory, Height height) {
-			return GetBlockPath(baseDirectory, height, Block_Statement_File_Extension);
+		std::string GetBlockStatementPath(const std::string& baseDirectory, Height height) {
+			auto storageDir = GetStorageDirectory(baseDirectory, height);
+			return storageDir.storageFile(Block_Statement_File_Extension);
 		}
 
 		// endregion
@@ -78,13 +54,14 @@ namespace catapult { namespace io {
 		}
 
 		auto OpenBlockFile(const std::string& baseDirectory, Height height, OpenMode mode = OpenMode::Read_Only) {
-			auto blockPath = GetBlockPath(baseDirectory, height, Block_File_Extension);
-			return std::make_unique<RawFile>(blockPath.generic_string(), mode);
+			auto storageDir = GetStorageDirectory(baseDirectory, height);
+			auto blockPath = storageDir.storageFile(Block_File_Extension);
+			return std::make_unique<RawFile>(blockPath, mode);
 		}
 
 		auto OpenBlockStatementFile(const std::string& baseDirectory, Height height, OpenMode mode = OpenMode::Read_Only) {
 			auto blockStatementPath = GetBlockStatementPath(baseDirectory, height);
-			return RawFile(blockStatementPath.generic_string(), mode);
+			return RawFile(blockStatementPath, mode);
 		}
 
 		// endregion

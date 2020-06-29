@@ -39,4 +39,7 @@ namespace catapult {
 
 	/// Duration of eternal artifact.
 	constexpr BlockDuration Eternal_Artifact_Duration(0);
+
+	/// Number of files per storage subdirectory.
+	constexpr size_t Files_Per_Storage_Directory = 10'000;
 }
