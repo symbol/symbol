@@ -32,6 +32,7 @@ const constants = { sizes };
 const lockSecretPlugin = {
 	registerSchema: builder => {
 		builder.addSchema('secretLockInfo', {
+			id: ModelType.objectId,
 			lock: { type: ModelType.object, schemaName: 'secretLockInfo.lock' }
 		});
 		builder.addSchema('secretLockInfo.lock', {

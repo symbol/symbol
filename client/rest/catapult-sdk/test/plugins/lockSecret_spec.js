@@ -47,6 +47,9 @@ describe('lock secret plugin', () => {
 				'secretProof'
 			]);
 
+			// - secret lock
+			assertSchema(modelSchema.secretLockInfo, 2, 'id', 'lock');
+
 			// - secret lock infos
 			assertSchema(modelSchema['secretLockInfo.lock'], 7,
 				'ownerAddress', 'mosaicId', 'amount', 'endHeight', 'secret', 'recipientAddress', 'compositeHash');

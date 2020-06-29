@@ -21,13 +21,13 @@
 const routeUtils = require('../../routes/routeUtils');
 
 module.exports = {
-	register: (server, db) => {
+	register: (server, db, services) => {
 		server.get('/account/:address/lock/secret', (req, res, next) => {
 			const accountAddress = routeUtils.parseArgument(req.params, 'address', 'address');
-			const pagingOptions = routeUtils.parsePagingArguments(req.params);
+			const options = routeUtils.parsePaginationArguments(req.params, services.config.pageSize, { id: 'objectId' });
 
-			return db.secretLocksByAddresses([accountAddress], pagingOptions.id, pagingOptions.pageSize)
-				.then(routeUtils.createSender('secretLockInfo').sendArray('address', res, next));
+			return db.secretLocks([accountAddress], options)
+				.then(result => routeUtils.createSender('secretLockInfo').sendPage(res, next)(result));
 		});
 
 		server.get('/lock/secret/:secret', (req, res, next) => {
