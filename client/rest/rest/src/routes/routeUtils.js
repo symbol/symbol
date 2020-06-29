@@ -52,7 +52,8 @@ const namedParserMap = {
 
 		return result;
 	},
-	uint64: str => uint64.fromHex(str),
+	uint64: str => uint64.fromString(str),
+	uint64hex: str => uint64.fromHex(str),
 	address: str => {
 		if (constants.sizes.addressEncoded === str.length)
 			return address.stringToAddress(str);

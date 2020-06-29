@@ -44,7 +44,7 @@ module.exports = {
 
 			const offsetParsers = {
 				id: 'objectId',
-				height: 'uint64'
+				height: 'uint64hex'
 			};
 			const options = routeUtils.parsePaginationArguments(params, services.config.pageSize, offsetParsers);
 
