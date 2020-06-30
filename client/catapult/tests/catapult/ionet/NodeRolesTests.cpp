@@ -29,6 +29,7 @@ namespace catapult { namespace ionet {
 	TEST(TEST_CLASS, CanParseValidNodeRoles) {
 		test::AssertParse("Peer", NodeRoles::Peer, TryParseValue);
 		test::AssertParse("Api", NodeRoles::Api, TryParseValue);
+		test::AssertParse("Voting", NodeRoles::Voting, TryParseValue);
 		test::AssertParse("Peer,Api", NodeRoles::Peer | NodeRoles::Api, TryParseValue);
 	}
 }}

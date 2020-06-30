@@ -33,7 +33,10 @@ namespace catapult { namespace ionet {
 		Peer = 0x01,
 
 		/// Api node.
-		Api = 0x02
+		Api = 0x02,
+
+		/// Voting node.
+		Voting = 0x04
 	};
 
 	MAKE_BITWISE_ENUM(NodeRoles)
