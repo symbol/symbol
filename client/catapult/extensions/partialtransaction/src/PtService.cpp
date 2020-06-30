@@ -35,7 +35,7 @@
 namespace catapult { namespace partialtransaction {
 
 	namespace {
-		constexpr auto Service_Name = "api.partial";
+		constexpr auto Service_Name = "pt.writers";
 		constexpr auto Service_Id = ionet::ServiceIdentifier(0x50415254);
 
 		thread::Task CreateConnectPeersTask(extensions::ServiceState& state, net::PacketWriters& packetWriters) {

@@ -50,7 +50,7 @@ namespace catapult { namespace partialtransaction {
 		constexpr auto Num_Expected_Counters = 2u;
 		constexpr auto Num_Expected_Tasks = 1u;
 
-		constexpr auto Service_Name = "api.partial";
+		constexpr auto Service_Name = "pt.writers";
 		constexpr auto Counter_Name = "PT ELEM TOT";
 		constexpr auto Active_Counter_Name = "PT ELEM ACT";
 		constexpr auto Sentinel_Counter_Value = extensions::ServiceLocator::Sentinel_Counter_Value;

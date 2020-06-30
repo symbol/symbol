@@ -38,13 +38,10 @@ namespace catapult { namespace partialtransaction {
 		struct PtServiceTraits {
 			static constexpr auto Counter_Name = "PT WRITERS";
 			static constexpr auto Num_Expected_Services = 3u; // writers (1) + dependent services (2)
+			static constexpr auto CreateRegistrar = CreatePtServiceRegistrar;
 
 			static auto GetWriters(const extensions::ServiceLocator& locator) {
-				return locator.service<net::PacketWriters>("api.partial");
-			}
-
-			static auto CreateRegistrar() {
-				return CreatePtServiceRegistrar();
+				return locator.service<net::PacketWriters>("pt.writers");
 			}
 		};
 

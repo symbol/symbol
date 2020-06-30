@@ -339,4 +339,26 @@ namespace catapult { namespace consumers {
 	}
 
 	// endregion
+
+	// region SynchronizedRecentHashCache - add
+
+	TEST(TEST_CLASS, SynchronizedRecentHashCache_AddBehaviorIsConsistentWithNonSynchronizedCache) {
+		// Arrange:
+		auto cache = SynchronizedRecentHashCache(DefaultTimeSupplier(), Default_Options);
+		auto hashes = test::GenerateRandomDataVector<Hash256>(3);
+
+		// Act:
+		auto result1 = cache.add(hashes[0]);
+		auto result2 = cache.add(hashes[1]);
+		auto result3 = cache.add(hashes[0]); // duplicate
+		auto result4 = cache.add(hashes[2]);
+
+		// Assert:
+		EXPECT_TRUE(result1);
+		EXPECT_TRUE(result2);
+		EXPECT_FALSE(result3);
+		EXPECT_TRUE(result4);
+	}
+
+	// endregion
 }}

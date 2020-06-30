@@ -47,7 +47,7 @@ namespace catapult { namespace mocks {
 			m_errorEntryPoint = entryPoint;
 		}
 
-		/// Gets the vector of short hash pair ranges that were passed to the partial transaction infos requests.
+		/// Gets a vector of short hash pair ranges that were passed to the partial transaction infos requests.
 		const std::vector<cache::ShortHashPairRange>& transactionInfosRequests() const {
 			return m_transactionInfosRequests;
 		}

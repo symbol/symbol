@@ -24,6 +24,8 @@
 
 namespace catapult { namespace consumers {
 
+	// region RecentHashCache
+
 	RecentHashCache::RecentHashCache(const chain::TimeSupplier& timeSupplier, const HashCheckOptions& options)
 			: m_timeSupplier(timeSupplier)
 			, m_options(options)
@@ -78,4 +80,19 @@ namespace catapult { namespace consumers {
 		if (m_options.MaxCacheSize == m_cache.size())
 			CATAPULT_LOG(warning) << "short lived hash check cache is full";
 	}
+
+	// endregion
+
+	// region SynchronizedRecentHashCache
+
+	SynchronizedRecentHashCache::SynchronizedRecentHashCache(const chain::TimeSupplier& timeSupplier, const HashCheckOptions& options)
+			: m_recentHashCache(timeSupplier, options)
+	{}
+
+	bool SynchronizedRecentHashCache::add(const Hash256& hash) {
+		utils::SpinLockGuard guard(m_lock);
+		return m_recentHashCache.add(hash);
+	}
+
+	// endregion
 }}
