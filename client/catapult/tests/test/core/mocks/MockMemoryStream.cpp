@@ -22,6 +22,8 @@
 
 namespace catapult { namespace mocks {
 
+	// region MockMemoryStream
+
 	MockMemoryStream::MockMemoryStream(std::vector<uint8_t>& buffer)
 			: MemoryStream(buffer)
 			, m_flushCount(0)
@@ -34,4 +36,42 @@ namespace catapult { namespace mocks {
 	size_t MockMemoryStream::numFlushes() const {
 		return m_flushCount;
 	}
+
+	// endregion
+
+	// region MockSeekableMemoryStream
+
+	MockSeekableMemoryStream::MockSeekableMemoryStream() : m_position(0)
+	{}
+
+	void MockSeekableMemoryStream::write(const RawBuffer& buffer) {
+		m_buffer.resize(std::max<size_t>(m_buffer.size(), m_position + buffer.Size));
+		std::memcpy(&m_buffer[m_position], buffer.pData, buffer.Size);
+		m_position += buffer.Size;
+	}
+
+	void MockSeekableMemoryStream::flush()
+	{}
+
+	void MockSeekableMemoryStream::seek(uint64_t position) {
+		m_position = position;
+	}
+
+	uint64_t MockSeekableMemoryStream::position() const {
+		return m_position;
+	}
+
+	bool MockSeekableMemoryStream::eof() const {
+		return m_position == m_buffer.size();
+	}
+
+	void MockSeekableMemoryStream::read(const MutableRawBuffer& buffer) {
+		if (m_position + buffer.Size > m_buffer.size())
+			CATAPULT_THROW_RUNTIME_ERROR("invalid read()");
+
+		std::memcpy(buffer.pData, &m_buffer[m_position], buffer.Size);
+		m_position += buffer.Size;
+	}
+
+	// endregion
 }}

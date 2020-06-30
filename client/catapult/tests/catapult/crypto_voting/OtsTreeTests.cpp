@@ -20,6 +20,7 @@
 
 #include "catapult/crypto_voting/OtsTree.h"
 #include "catapult/utils/RandomGenerator.h"
+#include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -105,50 +106,6 @@ namespace catapult { namespace crypto {
 
 		// endregion
 
-		// region mock storage
-
-		class MockStorage : public SeekableOutputStream, public io::InputStream {
-		public:
-			MockStorage() : m_position(0)
-			{}
-
-		public:
-			void write(const RawBuffer& buffer) override {
-				m_buffer.resize(std::max<size_t>(m_buffer.size(), m_position + buffer.Size));
-				std::memcpy(&m_buffer[m_position], buffer.pData, buffer.Size);
-				m_position += buffer.Size;
-			}
-
-			void flush() override
-			{}
-
-			void seek(uint64_t position) override {
-				m_position = position;
-			}
-
-			uint64_t position() const override {
-				return m_position;
-			}
-
-			bool eof() const override {
-				return false;
-			}
-
-			void read(const MutableRawBuffer& buffer) override {
-				if (m_position + buffer.Size > m_buffer.size())
-					CATAPULT_THROW_RUNTIME_ERROR("invalid read()");
-
-				std::memcpy(buffer.pData, &m_buffer[m_position], buffer.Size);
-				m_position += buffer.Size;
-			}
-
-		private:
-			std::vector<uint8_t> m_buffer;
-			uint64_t m_position;
-		};
-
-		// endregion
-
 		// region test context
 
 		template<typename TStorage>
@@ -198,7 +155,7 @@ namespace catapult { namespace crypto {
 		};
 
 		using BreadcrumbTestContext = TestContext<BreadcrumbStorage>;
-		using MockTestContext = TestContext<MockStorage>;
+		using MockTestContext = TestContext<mocks::MockSeekableMemoryStream>;
 
 		// endregion
 	}

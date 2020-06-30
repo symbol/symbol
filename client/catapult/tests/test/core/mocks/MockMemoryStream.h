@@ -20,8 +20,11 @@
 
 #pragma once
 #include "sdk/src/extensions/MemoryStream.h"
+#include "catapult/crypto_voting/SeekableOutputStream.h"
 
 namespace catapult { namespace mocks {
+
+	// region MockMemoryStream
 
 	/// Memory-based implementation of input and output stream.
 	class MockMemoryStream final : public extensions::MemoryStream {
@@ -39,4 +42,32 @@ namespace catapult { namespace mocks {
 	private:
 		size_t m_flushCount;
 	};
+
+	// endregion
+
+	// region MockSeekableMemoryStream
+
+	/// Memory-based implementation of input and seekable output stream.
+	class MockSeekableMemoryStream : public crypto::SeekableOutputStream, public io::InputStream {
+	public:
+		/// Creates an empty memory stream.
+		MockSeekableMemoryStream();
+
+	public:
+		// SeekableOutputStream
+		void write(const RawBuffer& buffer) override;
+		void flush() override;
+		void seek(uint64_t position) override;
+		uint64_t position() const override;
+
+		// InputStream
+		bool eof() const override;
+		void read(const MutableRawBuffer& buffer) override;
+
+	private:
+		std::vector<uint8_t> m_buffer;
+		uint64_t m_position;
+	};
+
+	// endregion
 }}
