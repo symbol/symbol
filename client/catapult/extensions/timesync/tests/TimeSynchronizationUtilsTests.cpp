@@ -119,17 +119,6 @@ namespace catapult { namespace timesync {
 			return filters::AggregateSynchronizationFilter({});
 		}
 
-		cache::CatapultCache CreateCache(Importance totalChainImportance) {
-			auto blockChainConfig = model::BlockChainConfiguration::Uninitialized();
-			blockChainConfig.ImportanceGrouping = 123;
-			blockChainConfig.TotalChainImportance = totalChainImportance;
-			return test::CoreSystemCacheFactory::Create(blockChainConfig);
-		}
-
-		cache::CatapultCache CreateCache() {
-			return CreateCache(Importance());
-		}
-
 		struct TestContext {
 		public:
 			explicit TestContext(
@@ -154,6 +143,18 @@ namespace catapult { namespace timesync {
 			test::ServiceTestState ServiceTestState;
 			std::shared_ptr<TimeSynchronizationState> pTimeSyncState;
 			SimpleNetworkTimeSupplier NetworkTimeSupplier;
+
+		private:
+			static cache::CatapultCache CreateCache(Importance totalChainImportance) {
+				auto blockChainConfig = model::BlockChainConfiguration::Uninitialized();
+				blockChainConfig.ImportanceGrouping = 123;
+				blockChainConfig.TotalChainImportance = totalChainImportance;
+				return test::CoreSystemCacheFactory::Create(blockChainConfig);
+			}
+
+			static cache::CatapultCache CreateCache() {
+				return CreateCache(Importance());
+			}
 		};
 
 		thread::Task CreateTimeSyncTask(TestContext& context) {

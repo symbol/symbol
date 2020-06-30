@@ -66,7 +66,7 @@ namespace catapult { namespace test {
 		"E42F880981CBAC41399E908C8E8C6175D4CC2E8791CBF01E54BC0D790594FD60"
 	};
 
-	// public keys
+	// addresses
 	constexpr auto Namespace_Rental_Fee_Sink_Address = "SDTZ23JBJZP3GTKKM2P6FYCMXS6RQYPB6R477TQ";
 	constexpr auto Mosaic_Rental_Fee_Sink_Address = "SDKDPA36TE53BO24FD4KA6OPGOUSEVOU3O5SIFI";
 
