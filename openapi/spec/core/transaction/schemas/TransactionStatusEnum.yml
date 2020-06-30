@@ -16,9 +16,12 @@ enum:
   - Failure_Core_Zero_Address
   - Failure_Core_Zero_Public_Key
   - Failure_Core_Nonzero_Internal_Padding
+  - Failure_Core_Address_Collision
   - Failure_Core_Invalid_Link_Action
   - Failure_Core_Link_Already_Exists
   - Failure_Core_Inconsistent_Unlink_Data
+  - Failure_Core_Invalid_Link_Range
+  - Failure_Core_Too_Many_Links
   - Failure_Hash_Already_Exists
   - Failure_Signature_Not_Verifiable
   - Failure_AccountLink_Link_Already_Exists
@@ -170,9 +173,12 @@ description: |
   * Failure_Core_Zero_Address - Validation failed because an address is zero.
   * Failure_Core_Zero_Public_Key - Validation failed because a public key is zero.
   * Failure_Core_Nonzero_Internal_Padding - Validation failed because internal padding is nonzero.
+  * Failure_Core_Address_Collision - Validation failed because an address collision is detected.
   * Failure_Core_Invalid_Link_Action - Validation failed because link action is invalid.
   * Failure_Core_Link_Already_Exists - Validation failed because main account is already linked to another account.
   * Failure_Core_Inconsistent_Unlink_Data - Validation failed because unlink data is not consistent with existing account link.
+  * Failure_Core_Invalid_Link_Range - Validation failed because link range is invalid.
+  * Failure_Core_Too_Many_Links - Validation failed because main account has too many links of the specified type.
   * Failure_Hash_Already_Exists
   * Failure_Signature_Not_Verifiable - Validation failed because the verification of the signature failed.
   * Failure_AccountLink_Link_Already_Exists - Validation failed because main account is already linked to another account.
