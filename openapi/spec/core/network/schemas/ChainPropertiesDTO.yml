@@ -81,6 +81,18 @@ properties:
     type: string # Amount
     description: Minimum number of harvesting mosaic atomic units needed for an account to be eligible for voting.
     example: 50'000
+  maxVotingKeysPerAccount:
+    type: string
+    description: Maximum number of voting keys that can be registered at once per account.
+    example: "3"
+  minVotingKeyLifetime:
+    type: string # uint32
+    description: Minimum number of finalization rounds for which voting key can be registered.
+    example: "72"
+  maxVotingKeyLifetime:
+    type: string # uint32
+    description: Maximum number of finalization rounds for which voting key can be registered.
+    example: "26280"
   harvestBeneficiaryPercentage:
     type: string
     description: Percentage of the harvested fee that is collected by the beneficiary account.
