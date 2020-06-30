@@ -18,185 +18,244 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const test = require('./lockHashDbTestUtils');
-const testUtils = require('../../testUtils');
+const CatapultDb = require('../../../src/db/CatapultDb');
+const HashLocksDb = require('../../../src/plugins/lockHash/LockHashDb');
+const test = require('../../db/utils/dbTestUtils');
 const { expect } = require('chai');
+const sinon = require('sinon');
 
-describe('lock hash db', () => {
-	const createOwner = testUtils.random.account;
+describe('hash locks db', () => {
+	const ownerAddressTest1 = test.random.address();
+	const ownerAddressTest2 = test.random.address();
+	const ownerAddressTest3 = test.random.address();
+	const hashTest01 = test.random.hash();
+	const hashTest02 = test.random.hash();
 
-	describe('fetch locks hash by account', () => {
-		const addLockHashByAccountTests = traits => {
-			const assertLocks = (dbCallParams, lockGroups) =>
-				// Assert:
-				test.db.runDbTest(
-					traits.collectionName,
-					lockGroups.seed,
-					db => db[traits.dbMethodName](...dbCallParams),
-					locks => {
-						// Assert:
-						const expectedLocks = lockGroups.expected;
-						const expectedIds = expectedLocks.map(lock => lock._id);
+	const { createObjectId } = test.db;
 
-						const ids = locks.map(lock => lock._id);
-						expect(locks.length).to.equal(expectedLocks.length);
-						expect(ids).to.deep.equal(expectedIds);
-						expect(locks).to.deep.equal(expectedLocks);
-					}
-				);
+	const runHashLocksDbTest = (dbEntities, issueDbCommand, assertDbCommandResult) =>
+		test.db.runDbTest(dbEntities, 'hashLocks', db => new HashLocksDb(db), issueDbCommand, assertDbCommandResult);
 
-			const createRandomLocks = (startId, count) => {
-				const locks = [];
-				for (let id = startId; id < startId + count; ++id)
-					locks.push(traits.createLockHash(id, createOwner(), traits.createRandomHash()));
-				return locks;
-			};
+	const createHashLock = (objectId, ownerAddress, hash) => ({
+		_id: createObjectId(objectId),
+		lock: {
+			ownerAddress: ownerAddress ? Buffer.from(ownerAddress) : undefined,
+			mosaicId: '',
+			amount: '',
+			endHeight: '',
+			status: '',
+			hash: hash || undefined
+		}
+	});
 
-			const ownerToDbApiIds = owner => [traits.toDbApiId(owner)];
+	describe('hashLocks', () => {
+		const paginationOptions = {
+			pageSize: 10,
+			pageNumber: 1,
+			sortField: 'id',
+			sortDirection: -1
+		};
 
-			it('returns empty array for account with no locks', () => {
-				// Arrange: create 3 locks
-				const allLocks = traits.createLockHashes(3, createOwner());
+		const runTestAndVerifyIds = (dbHashLocks, dbQuery, expectedIds) => {
+			const expectedObjectIds = expectedIds.map(id => createObjectId(id));
 
-				// Assert:
-				return assertLocks([ownerToDbApiIds(createOwner())], {
-					seed: allLocks,
-					expected: []
-				});
-			});
-
-			it('returns all locks for single account with locks', () => {
-				// Arrange: create 10 locks
-				const owner = createOwner();
-				const seedLocks = traits.createLockHashes(10, owner);
-
-				// - create additional 5 locks with random owner
-				const additionalLocks = createRandomLocks(20, 5);
-
-				// Assert:
-				return assertLocks(
-					[ownerToDbApiIds(owner)],
-					{ seed: seedLocks.concat(additionalLocks), expected: seedLocks.reverse() }
-				);
-			});
-
-			describe('paging', () => {
-				it('query respects supplied document id', () => {
-					// Arrange: create 10 locks
-					const owner = createOwner();
-					const seedLocks = traits.createLockHashes(10, owner).reverse();
-					const expectedLocks = seedLocks.slice(8);
-
-					// Assert:
-					return assertLocks(
-						[ownerToDbApiIds(owner), seedLocks[7]._id.toString()],
-						{ seed: seedLocks, expected: expectedLocks }
-					);
-				});
-
-				const assertPageSize = (pageSize, expectedSize) => {
-					// Arrange: create 200 locks
-					const owner = createOwner();
-					const seedLocks = traits.createLockHashes(200, owner);
-					const expectedLocks = seedLocks.slice(0, 200).reverse().slice(0, expectedSize);
-
-					// Assert:
-					expect(expectedSize).to.equal(expectedLocks.length);
-					return assertLocks(
-						[ownerToDbApiIds(owner), undefined, pageSize],
-						{ seed: seedLocks, expected: expectedLocks }
-					);
-				};
-
-				// minimum and maximum values are set in CatapultDb ctor
-				it('query respects page size', () => assertPageSize(12, 12));
-				it('query ensures minimum page size', () => assertPageSize(5, 10));
-				it('query ensures maximum page size', () => assertPageSize(150, 100));
-			});
-
-			const runMultiOwnerTest = createAccountIds => {
-				// Arrange: create 5 locks and 5 inactive locks with known owner
-				const owner1 = createOwner();
-				const seedLocks1 = traits.createLockHashes(5, owner1);
-				const activeLocks1 = seedLocks1.slice(0, 5);
-
-				// - create 3 locks and 3 inactive locks with (other) known owner
-				const owner2 = createOwner();
-				const seedLocks2 = traits.createLockHashes(3, owner2, 10);
-				const activeLocks2 = seedLocks2.slice(0, 3);
-
-				// - create additional 5 locks with random owner
-				const additionalLocks = createRandomLocks(16, 5);
-
-				// Assert:
-				return assertLocks([createAccountIds(owner1, owner2)], {
-					seed: seedLocks1.concat(additionalLocks, seedLocks2),
-					expected: activeLocks1.concat(activeLocks2).reverse()
-				});
-			};
-
-			it(
-				'returns all hashLocks for multiple accounts with hashLocks',
-				() => runMultiOwnerTest((owner1, owner2) => [owner1, owner2].map(traits.toDbApiId))
-			);
-
-			it(
-				'returns all hashLocks for multiple accounts with hashLocks and ignores accounts with no hashLocks ',
-				() => runMultiOwnerTest((owner1, owner2) =>
-					[owner1, createOwner(), createOwner(), owner2].map(traits.toDbApiId))
+			return runHashLocksDbTest(
+				dbHashLocks,
+				dbQuery,
+				page => {
+					const returnedIds = page.data.map(t => t.id);
+					expect(page.data.length).to.equal(expectedObjectIds.length);
+					expect(returnedIds.sort()).to.deep.equal(expectedObjectIds.sort());
+				}
 			);
 		};
 
-		describe('hashLocks by owners', () => {
-			describe('by address', () => addLockHashByAccountTests({
-				collectionName: 'hash',
-				dbMethodName: 'hashLocksByAddresses',
-				createRandomHash: testUtils.random.hash,
-				createLockHash: test.db.createHashLock,
-				createLockHashes: test.db.createHashLocks,
-				toDbApiId: owner => owner.address
-			}));
+		it('returns expected structure', () => {
+			// Arrange:
+			const dbHashLocks = [createHashLock(10, ownerAddressTest1)];
+
+			// Act + Assert:
+			return runHashLocksDbTest(
+				dbHashLocks,
+				db => db.hashLocks([ownerAddressTest1], paginationOptions),
+				page => {
+					const expected_keys = ['id', 'lock'];
+					expect(Object.keys(page.data[0]).sort()).to.deep.equal(expected_keys.sort());
+				}
+			);
+		});
+
+		it('returns empty array for unknown address', () => {
+			// Arrange:
+			const dbHashLocks = [
+				createHashLock(10, ownerAddressTest1),
+				createHashLock(20, ownerAddressTest1)
+			];
+
+			// Act + Assert:
+			return runTestAndVerifyIds(dbHashLocks, db => db.hashLocks([ownerAddressTest2], paginationOptions), []);
+		});
+
+		it('returns filtered hash locks by owner address', () => {
+			// Arrange:
+			const dbHashLocks = [
+				createHashLock(10, ownerAddressTest1),
+				createHashLock(20, ownerAddressTest2)
+			];
+
+			// Act + Assert:
+			return runTestAndVerifyIds(dbHashLocks, db => db.hashLocks([ownerAddressTest2], paginationOptions), [20]);
+		});
+
+		it('returns filtered hash locks by owner address, multiple addresses', () => {
+			// Arrange:
+			const dbHashLocks = [
+				createHashLock(10, ownerAddressTest1),
+				createHashLock(20, ownerAddressTest2),
+				createHashLock(30, ownerAddressTest3)
+			];
+
+			// Act + Assert:
+			return runTestAndVerifyIds(
+				dbHashLocks,
+				db => db.hashLocks([ownerAddressTest1, ownerAddressTest2], paginationOptions),
+				[10, 20]
+			);
+		});
+
+		describe('respects sort conditions', () => {
+			// Arrange:
+			const dbHashLocks = () => [
+				createHashLock(10, ownerAddressTest1),
+				createHashLock(20, ownerAddressTest1),
+				createHashLock(30, ownerAddressTest1)
+			];
+
+			it('direction ascending', () => {
+				const options = {
+					pageSize: 10,
+					pageNumber: 1,
+					sortField: 'id',
+					sortDirection: 1
+				};
+
+				// Act + Assert:
+				return runHashLocksDbTest(
+					dbHashLocks(),
+					db => db.hashLocks([ownerAddressTest1], options),
+					page => {
+						expect(page.data[0].id).to.deep.equal(createObjectId(10));
+						expect(page.data[1].id).to.deep.equal(createObjectId(20));
+						expect(page.data[2].id).to.deep.equal(createObjectId(30));
+					}
+				);
+			});
+
+			it('direction descending', () => {
+				const options = {
+					pageSize: 10,
+					pageNumber: 1,
+					sortField: 'id',
+					sortDirection: -1
+				};
+
+				// Act + Assert:
+				return runHashLocksDbTest(
+					dbHashLocks(),
+					db => db.hashLocks([ownerAddressTest1], options),
+					page => {
+						expect(page.data[0].id).to.deep.equal(createObjectId(30));
+						expect(page.data[1].id).to.deep.equal(createObjectId(20));
+						expect(page.data[2].id).to.deep.equal(createObjectId(10));
+					}
+				);
+			});
+
+			it('sort field', () => {
+				const queryPagedDocumentsSpy = sinon.spy(CatapultDb.prototype, 'queryPagedDocuments_2');
+				const options = {
+					pageSize: 10,
+					pageNumber: 1,
+					sortField: 'id',
+					sortDirection: 1
+				};
+
+				// Act + Assert:
+				return runHashLocksDbTest(
+					dbHashLocks(),
+					db => db.hashLocks([ownerAddressTest1], options),
+					() => {
+						expect(queryPagedDocumentsSpy.calledOnce).to.equal(true);
+						expect(Object.keys(queryPagedDocumentsSpy.firstCall.args[2].$sort)[0]).to.equal('_id');
+						queryPagedDocumentsSpy.restore();
+					}
+				);
+			});
+		});
+
+		describe('respects offset', () => {
+			// Arrange:
+			const dbHashLocks = () => [
+				createHashLock(10, ownerAddressTest1),
+				createHashLock(20, ownerAddressTest1),
+				createHashLock(30, ownerAddressTest1)
+			];
+
+			const options = {
+				pageSize: 10,
+				pageNumber: 1,
+				sortField: 'id',
+				sortDirection: 1,
+				offset: createObjectId(20)
+			};
+
+			it('gt', () => {
+				options.sortDirection = 1;
+
+				// Act + Assert:
+				return runTestAndVerifyIds(dbHashLocks(), db => db.hashLocks([ownerAddressTest1], options), [30]);
+			});
+
+			it('lt', () => {
+				options.sortDirection = -1;
+
+				// Act + Assert:
+				return runTestAndVerifyIds(dbHashLocks(), db => db.hashLocks([ownerAddressTest1], options), [10]);
+			});
 		});
 	});
 
-	describe('fetch individual', () => {
-		const addTests = traits => {
-			it('returns undefined', () => {
-				// Arrange: create lock hash info
-				const hash = traits.createRandomHash();
-				const lockInfo = traits.createLockHash(0, createOwner(), hash);
+	describe('hashLockByHash', () => {
+		it('returns undefined for unknown hash', () => {
+			// Arrange:
+			const dbHashLocks = [createHashLock(10, ownerAddressTest1, hashTest01)];
 
-				// Assert:
-				return test.db.runDbTest(
-					traits.type,
-					lockInfo,
-					db => db[traits.dbFunctionName](traits.createRandomHash()),
-					entity => { expect(entity).to.equal(undefined); }
-				);
-			});
+			// Assert:
+			return runHashLocksDbTest(
+				dbHashLocks,
+				db => db.hashLockByHash(hashTest02),
+				hashLock => { expect(hashLock).to.equal(undefined); }
+			);
+		});
 
-			it('returns an entity', () => {
-				// Arrange: create lock hash info
-				const hash = traits.createRandomHash();
-				const lockInfo = traits.createLockHash(0, createOwner(), hash);
+		it('returns matching hash lock', () => {
+			// Arrange:
+			const dbHashLocks = [
+				createHashLock(10, ownerAddressTest1, hashTest01),
+				createHashLock(20, ownerAddressTest1, hashTest02),
+				createHashLock(30, ownerAddressTest1, hashTest01)
+			];
 
-				// Assert:
-				return test.db.runDbTest(
-					traits.type,
-					lockInfo,
-					db => db[traits.dbFunctionName](hash),
-					entity => {
-						expect(entity).to.deep.equal(lockInfo);
-					}
-				);
-			});
-		};
-
-		describe('hash lock by hash', () => addTests({
-			createRandomHash: testUtils.random.hash,
-			createLockHash: test.db.createHashLock,
-			type: 'hash',
-			dbFunctionName: 'hashLockByHash'
-		}));
+			// Assert:
+			return runHashLocksDbTest(
+				dbHashLocks,
+				db => db.hashLockByHash(hashTest02),
+				hashLock => {
+					expect(hashLock.id).to.deep.equal(createObjectId(20));
+					expect(hashLock.lock.ownerAddress.buffer).to.deep.equal(ownerAddressTest1);
+					expect(hashLock.lock.hash.buffer).to.deep.equal(hashTest02);
+				}
+			);
+		});
 	});
 });

@@ -30,18 +30,22 @@ class LockHashDb {
 	// region lock retrieval
 
 	/**
-	 * Retrieves hash infos for given addresses.
+	 * Retrieves hash lock infos for given accounts filtered and paginated.
 	 * @param {array<{Uint8Array}>} addresses Account addresses.
-	 * @param {string} id Paging id.
-	 * @param {int} pageSize Page size.
-	 * @param {object} options Additional options.
+	 * @param {object} options Options for ordering and pagination. Can have an `offset`, and must contain the `sortField`, `sortDirection`,
+	 * `pageSize` and `pageNumber`. 'sortField' must be within allowed 'sortingOptions'.
 	 * @returns {Promise.<array>} Hash lock infos for all accounts.
 	 */
-	hashLocksByAddresses(addresses, id, pageSize, options) {
+	hashLocks(addresses, options) {
+		const sortingOptions = { id: '_id' };
 		const buffers = addresses.map(address => Buffer.from(address));
-		const conditions = { 'lock.ownerAddress': { $in: buffers } };
-		return this.catapultDb.queryPagedDocuments('hashLocks', conditions, id, pageSize, options)
-			.then(this.catapultDb.sanitizer.copyAndDeleteIds);
+		const conditions = [{ 'lock.ownerAddress': { $in: buffers } }];
+
+		if (options.offset)
+			conditions.push({ [sortingOptions[options.sortField]]: { [1 === options.sortDirection ? '$gt' : '$lt']: options.offset } });
+
+		const sortConditions = { $sort: { [sortingOptions[options.sortField]]: options.sortDirection } };
+		return this.catapultDb.queryPagedDocuments_2(conditions, [], sortConditions, 'hashLocks', options);
 	}
 
 	/**
@@ -51,7 +55,7 @@ class LockHashDb {
 	 */
 	hashLockByHash(hash) {
 		return this.catapultDb.queryDocument('hashLocks', { 'lock.hash': Buffer.from(hash) })
-			.then(this.catapultDb.sanitizer.copyAndDeleteId);
+			.then(this.catapultDb.sanitizer.renameId);
 	}
 
 	// endregion

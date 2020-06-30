@@ -21,13 +21,13 @@
 const routeUtils = require('../../routes/routeUtils');
 
 module.exports = {
-	register: (server, db) => {
+	register: (server, db, services) => {
 		server.get('/account/:address/lock/hash', (req, res, next) => {
 			const accountAddress = routeUtils.parseArgument(req.params, 'address', 'address');
-			const pagingOptions = routeUtils.parsePagingArguments(req.params);
+			const options = routeUtils.parsePaginationArguments(req.params, services.config.pageSize, { id: 'objectId' });
 
-			return db.hashLocksByAddresses([accountAddress], pagingOptions.id, pagingOptions.pageSize)
-				.then(routeUtils.createSender('hashLockInfo').sendArray('address', res, next));
+			return db.hashLocks([accountAddress], options)
+				.then(result => routeUtils.createSender('hashLockInfo').sendPage(res, next)(result));
 		});
 
 		server.get('/lock/hash/:hash', (req, res, next) => {

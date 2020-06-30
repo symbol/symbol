@@ -32,6 +32,7 @@ const constants = { sizes };
 const lockHashPlugin = {
 	registerSchema: builder => {
 		builder.addSchema('hashLockInfo', {
+			id: ModelType.objectId,
 			lock: { type: ModelType.object, schemaName: 'hashLockInfo.lock' }
 		});
 		builder.addSchema('hashLockInfo.lock', {
