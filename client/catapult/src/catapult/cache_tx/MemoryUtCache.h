@@ -63,7 +63,7 @@ namespace catapult { namespace cache {
 		void forEach(const TransactionInfoConsumer& consumer) const;
 
 		/// Gets a range of short hashes of all transactions in the cache.
-		/// Each short hash consists of the first 4 bytes of the complete hash.
+		/// \note Each short hash consists of the first 4 bytes of the complete hash.
 		model::ShortHashRange shortHashes() const;
 
 		/// Gets a vector of all transactions in the cache that have a fee multiplier at least \a minFeeMultiplier

@@ -56,7 +56,7 @@ namespace catapult { namespace cache {
 		model::WeakCosignedTransactionInfo find(const Hash256& hash) const;
 
 		/// Gets a range of short hash pairs of all transactions in the cache.
-		/// Each short hash pair consists of the first 4 bytes of the transaction hash and the first 4 bytes of the cosignature hash.
+		/// \note Each short hash pair consists of the first 4 bytes of the transaction hash and the first 4 bytes of the cosignature hash.
 		ShortHashPairRange shortHashPairs() const;
 
 		/// Gets a vector of all unknown transaction infos in the cache that do not have a short hash pair in \a knownShortHashPairs.

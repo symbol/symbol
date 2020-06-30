@@ -34,10 +34,10 @@ namespace catapult { namespace mocks {
 		};
 
 	public:
-		/// Creates a transaction api around a range of \a transactions.
-		explicit MockTransactionApi(const model::TransactionRange& transactions)
+		/// Creates a transaction api around a range of transactions (\a transactionRange).
+		explicit MockTransactionApi(const model::TransactionRange& transactionRange)
 				: api::RemoteTransactionApi({ test::GenerateRandomByteArray<Key>(), "fake-host-from-mock-transaction-api" })
-				, m_transactions(model::TransactionRange::CopyRange(transactions))
+				, m_transactionRange(model::TransactionRange::CopyRange(transactionRange))
 				, m_errorEntryPoint(EntryPoint::None)
 		{}
 
@@ -58,11 +58,11 @@ namespace catapult { namespace mocks {
 		thread::future<model::TransactionRange> unconfirmedTransactions(
 				BlockFeeMultiplier minFeeMultiplier,
 				model::ShortHashRange&& knownShortHashes) const override {
-			m_utRequests.push_back(std::make_pair(minFeeMultiplier, std::move(knownShortHashes)));
+			m_utRequests.emplace_back(minFeeMultiplier, std::move(knownShortHashes));
 			if (shouldRaiseException(EntryPoint::Unconfirmed_Transactions))
 				return CreateFutureException<model::TransactionRange>("unconfirmed transactions error has been set");
 
-			return thread::make_ready_future(model::TransactionRange::CopyRange(m_transactions));
+			return thread::make_ready_future(model::TransactionRange::CopyRange(m_transactionRange));
 		}
 
 	private:
@@ -76,7 +76,7 @@ namespace catapult { namespace mocks {
 		}
 
 	private:
-		model::TransactionRange m_transactions;
+		model::TransactionRange m_transactionRange;
 		EntryPoint m_errorEntryPoint;
 		mutable std::vector<std::pair<BlockFeeMultiplier, model::ShortHashRange>> m_utRequests;
 	};

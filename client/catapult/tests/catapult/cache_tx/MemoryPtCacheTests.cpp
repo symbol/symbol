@@ -596,7 +596,7 @@ namespace catapult { namespace cache {
 		}
 	}
 
-	TEST(TEST_CLASS, ShortHashesReturnsAllShortHashesForTransactionsWithoutCosignatures) {
+	TEST(TEST_CLASS, ShortHashPairsReturnsAllShortHashesForTransactionsWithoutCosignatures) {
 		// Arrange:
 		MemoryPtCache cache(Default_Options);
 		auto transactionInfos = test::CreateTransactionInfos(10);
@@ -609,7 +609,7 @@ namespace catapult { namespace cache {
 		ValidateShortHashPairs(transactionInfos, shortHashPairs, [](const auto&) { return utils::ShortHash(); });
 	}
 
-	TEST(TEST_CLASS, ShortHashesReturnAppropriateShortHashForTransactionWithCosignatures) {
+	TEST(TEST_CLASS, ShortHashPairsReturnsAppropriateShortHashesForTransactionsWithCosignatures) {
 		// Arrange:
 		MemoryPtCache cache(Default_Options);
 		auto transactionInfos = test::CreateTransactionInfos(3);
@@ -635,7 +635,7 @@ namespace catapult { namespace cache {
 		ValidateShortHashPairs(transactionInfos, shortHashPairs, getExpectedCosignaturesShortHash);
 	}
 
-	TEST(TEST_CLASS, ShortHashesReturnOrderIndependentCosignaturesShortHash) {
+	TEST(TEST_CLASS, ShortHashPairsReturnsOrderIndependentCosignaturesShortHashes) {
 		// Arrange:
 		MemoryPtCache cache(Default_Options);
 		auto transactionInfos = test::CreateTransactionInfos(3);

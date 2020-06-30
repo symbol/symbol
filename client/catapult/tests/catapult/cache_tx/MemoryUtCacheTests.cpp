@@ -507,7 +507,7 @@ namespace catapult { namespace cache {
 
 	// region shortHashes
 
-	TEST(TEST_CLASS, ShortHashesReturnsAllShortHashes) {
+	TEST(TEST_CLASS, ShortHashesReturnsShortHashesForAllTransactions) {
 		// Arrange:
 		MemoryUtCache cache(Default_Options);
 		auto transactionInfos = test::CreateTransactionInfos(10);

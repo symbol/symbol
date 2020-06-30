@@ -37,12 +37,14 @@ namespace catapult { namespace api {
 			test::FillWithRandomData({ pPacket->Data(), payloadSize });
 
 			auto pData = pPacket->Data();
-			for (uint16_t i = 0u; i < numTransactions; ++i, pData += sizeof(TransactionType) + i) {
+			for (uint16_t i = 0u; i < numTransactions; ++i) {
 				auto& transaction = reinterpret_cast<TransactionType&>(*pData);
 				transaction.Size = sizeof(TransactionType) + i + 1;
 				transaction.Type = TransactionType::Entity_Type;
 				transaction.Deadline = Timestamp(5 * i);
 				transaction.Data.Size = i + 1;
+
+				pData += transaction.Size;
 			}
 
 			return pPacket;
@@ -52,12 +54,12 @@ namespace catapult { namespace api {
 			static constexpr uint32_t Request_Data_Header_Size = sizeof(BlockFeeMultiplier);
 			static constexpr uint32_t Request_Data_Size = 3 * sizeof(utils::ShortHash);
 
-			static std::vector<uint32_t> KnownHashesValues() {
+			static std::vector<uint32_t> KnownShortHashValues() {
 				return { 123, 234, 345 };
 			}
 
 			static model::ShortHashRange KnownShortHashes() {
-				return model::ShortHashRange::CopyFixed(reinterpret_cast<uint8_t*>(KnownHashesValues().data()), 3);
+				return model::ShortHashRange::CopyFixed(reinterpret_cast<uint8_t*>(KnownShortHashValues().data()), 3);
 			}
 
 			static auto Invoke(const RemoteTransactionApi& api) {
@@ -81,7 +83,7 @@ namespace catapult { namespace api {
 				EXPECT_EQ(ionet::PacketType::Pull_Transactions, packet.Type);
 				ASSERT_EQ(sizeof(ionet::Packet) + Request_Data_Header_Size + Request_Data_Size, packet.Size);
 				EXPECT_EQ(BlockFeeMultiplier(17), reinterpret_cast<const BlockFeeMultiplier&>(*packet.Data()));
-				EXPECT_EQ_MEMORY(packet.Data() + sizeof(BlockFeeMultiplier), KnownHashesValues().data(), Request_Data_Size);
+				EXPECT_EQ_MEMORY(packet.Data() + Request_Data_Header_Size, KnownShortHashValues().data(), Request_Data_Size);
 			}
 
 			static void ValidateResponse(const ionet::Packet& response, const model::TransactionRange& transactions) {
@@ -90,7 +92,7 @@ namespace catapult { namespace api {
 				const auto* pExpectedData = response.Data();
 				auto parsedIter = transactions.cbegin();
 				for (auto i = 0u; i < transactions.size(); ++i, ++parsedIter) {
-					std::string message = "comparing transactions at " + std::to_string(i);
+					std::string message = "comparing transaction at " + std::to_string(i);
 					const auto& actualTransaction = *parsedIter;
 
 					// `response` is the (unprocessed) response Packet, which contains unaligned data
