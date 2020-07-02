@@ -62,8 +62,6 @@ namespace catapult { namespace cache {
 			, public AccountStateCacheDeltaMixins::ContainsKey
 			, public AccountStateCacheDeltaMixins::ConstAccessorAddress
 			, public AccountStateCacheDeltaMixins::ConstAccessorKey
-			, public AccountStateCacheDeltaMixins::MutableAccessorAddress
-			, public AccountStateCacheDeltaMixins::MutableAccessorKey
 			, public AccountStateCacheDeltaMixins::PatriciaTreeDelta
 			, public AccountStateCacheDeltaMixins::DeltaElements {
 	public:
@@ -89,8 +87,6 @@ namespace catapult { namespace cache {
 
 		using AccountStateCacheDeltaMixins::ConstAccessorAddress::find;
 		using AccountStateCacheDeltaMixins::ConstAccessorKey::find;
-		using AccountStateCacheDeltaMixins::MutableAccessorAddress::find;
-		using AccountStateCacheDeltaMixins::MutableAccessorKey::find;
 
 	public:
 		/// Gets the network identifier.
@@ -109,12 +105,18 @@ namespace catapult { namespace cache {
 		MosaicId harvestingMosaicId() const;
 
 	public:
-		/// If not present, adds an account to the cache at given height (\a addressHeight) using \a address.
-		void addAccount(const Address& address, Height addressHeight);
+		/// Finds the cache value identified by \a address.
+		AccountStateCacheDeltaMixins::MutableAccessorAddress::iterator find(const Address& address);
 
-		/// If not present, adds an account to the cache using \a publicKey.
-		/// If public key has not been known earlier, its height is set to \a publicKeyHeight.
-		void addAccount(const Key& publicKey, Height publicKeyHeight);
+		/// Finds the cache value identified by \a key.
+		AccountStateCacheDeltaMixins::MutableAccessorKey::iterator find(const Key& key);
+
+	public:
+		/// If not present, adds an account to the cache with the specified \a address at \a height.
+		void addAccount(const Address& address, Height height);
+
+		/// If not present, adds an account to the cache with the specified public key (\a publicKey) at \a height.
+		void addAccount(const Key& publicKey, Height height);
 
 		/// If not present, adds an account to the cache using information in \a accountState.
 		void addAccount(const state::AccountState& accountState);

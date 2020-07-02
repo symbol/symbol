@@ -49,8 +49,6 @@ namespace catapult { namespace cache {
 			, AccountStateCacheDeltaMixins::ContainsKey(*accountStateSets.pKeyLookupMap)
 			, AccountStateCacheDeltaMixins::ConstAccessorAddress(*accountStateSets.pPrimary)
 			, AccountStateCacheDeltaMixins::ConstAccessorKey(*pKeyLookupAdapter)
-			, AccountStateCacheDeltaMixins::MutableAccessorAddress(*accountStateSets.pPrimary)
-			, AccountStateCacheDeltaMixins::MutableAccessorKey(*pKeyLookupAdapter)
 			, AccountStateCacheDeltaMixins::PatriciaTreeDelta(*accountStateSets.pPrimary, accountStateSets.pPatriciaTree)
 			, AccountStateCacheDeltaMixins::DeltaElements(*accountStateSets.pPrimary)
 			, m_pStateByAddress(accountStateSets.pPrimary)
@@ -80,15 +78,25 @@ namespace catapult { namespace cache {
 		return m_options.HarvestingMosaicId;
 	}
 
-	Address BasicAccountStateCacheDelta::getAddress(const Key& publicKey) {
-		auto keyToAddressIter = m_pKeyToAddress->find(publicKey);
-		const auto* pPair = keyToAddressIter.get();
-		if (pPair)
-			return pPair->second;
+	namespace {
+		template<typename TIterator>
+		TIterator PrepareMutableIterator(TIterator&& iter, const AccountStateCacheTypes::Options& options) {
+			// in order to guarantee deterministic sorting of mosaics, CurrencyMosaicId always needs to be set as the optimized mosaic id
+			// before the iterator is returned because that information is lost during serialization when the AccountState doesn't
+			// contain any CurrencyMosaicId balance
+			if (iter.tryGet())
+				iter.get().Balances.optimize(options.CurrencyMosaicId);
 
-		auto address = model::PublicKeyToAddress(publicKey, m_options.NetworkIdentifier);
-		m_pKeyToAddress->emplace(publicKey, address);
-		return address;
+			return std::move(iter);
+		}
+	}
+
+	AccountStateCacheDeltaMixins::MutableAccessorAddress::iterator BasicAccountStateCacheDelta::find(const Address& address) {
+		return PrepareMutableIterator(AccountStateCacheDeltaMixins::MutableAccessorAddress(*m_pStateByAddress).find(address), m_options);
+	}
+
+	AccountStateCacheDeltaMixins::MutableAccessorKey::iterator BasicAccountStateCacheDelta::find(const Key& key) {
+		return PrepareMutableIterator(AccountStateCacheDeltaMixins::MutableAccessorKey(*m_pKeyLookupAdapter).find(key), m_options);
 	}
 
 	void BasicAccountStateCacheDelta::addAccount(const Address& address, Height height) {
@@ -123,44 +131,6 @@ namespace catapult { namespace cache {
 
 		m_pStateByAddress->insert(accountState);
 		m_pStateByAddress->find(accountState.Address).get()->Balances.optimize(m_options.CurrencyMosaicId);
-	}
-
-	void BasicAccountStateCacheDelta::remove(const Address& address, Height height) {
-		auto accountStateIter = this->find(address);
-		if (!accountStateIter.tryGet())
-			return;
-
-		const auto& accountState = accountStateIter.get();
-		if (height != accountState.AddressHeight)
-			return;
-
-		// note: we can only remove the entry from m_pKeyToAddress if the account state's public key is valid
-		if (Height(0) != accountState.PublicKeyHeight)
-			m_pKeyToAddress->remove(accountState.PublicKey);
-
-		m_pStateByAddress->remove(address);
-	}
-
-	void BasicAccountStateCacheDelta::remove(const Key& publicKey, Height height) {
-		auto accountStateIter = this->find(publicKey);
-		if (!accountStateIter.tryGet())
-			return;
-
-		auto& accountState = accountStateIter.get();
-		if (height != accountState.PublicKeyHeight)
-			return;
-
-		m_pKeyToAddress->remove(accountState.PublicKey);
-
-		// if same height, remove address entry too
-		if (accountState.PublicKeyHeight == accountState.AddressHeight) {
-			m_pStateByAddress->remove(accountState.Address);
-			return;
-		}
-
-		// safe, as the account is still in m_pStateByAddress
-		accountState.PublicKeyHeight = Height(0);
-		accountState.PublicKey = Key();
 	}
 
 	void BasicAccountStateCacheDelta::queueRemove(const Address& address, Height height) {
@@ -206,4 +176,54 @@ namespace catapult { namespace cache {
 	void BasicAccountStateCacheDelta::prune(Height height) {
 		m_highValueAccountsUpdater.prune(height);
 	}
+
+	Address BasicAccountStateCacheDelta::getAddress(const Key& publicKey) {
+		auto keyToAddressIter = m_pKeyToAddress->find(publicKey);
+		const auto* pPair = keyToAddressIter.get();
+		if (pPair)
+			return pPair->second;
+
+		auto address = model::PublicKeyToAddress(publicKey, m_options.NetworkIdentifier);
+		m_pKeyToAddress->emplace(publicKey, address);
+		return address;
+	}
+
+	void BasicAccountStateCacheDelta::remove(const Address& address, Height height) {
+		auto accountStateIter = this->find(address);
+		if (!accountStateIter.tryGet())
+			return;
+
+		const auto& accountState = accountStateIter.get();
+		if (height != accountState.AddressHeight)
+			return;
+
+		// note: we can only remove the entry from m_pKeyToAddress if the account state's public key is valid
+		if (Height(0) != accountState.PublicKeyHeight)
+			m_pKeyToAddress->remove(accountState.PublicKey);
+
+		m_pStateByAddress->remove(address);
+	}
+
+	void BasicAccountStateCacheDelta::remove(const Key& publicKey, Height height) {
+		auto accountStateIter = this->find(publicKey);
+		if (!accountStateIter.tryGet())
+			return;
+
+		auto& accountState = accountStateIter.get();
+		if (height != accountState.PublicKeyHeight)
+			return;
+
+		m_pKeyToAddress->remove(accountState.PublicKey);
+
+		// if same height, remove address entry too
+		if (accountState.PublicKeyHeight == accountState.AddressHeight) {
+			m_pStateByAddress->remove(accountState.Address);
+			return;
+		}
+
+		// safe, as the account is still in m_pStateByAddress
+		accountState.PublicKeyHeight = Height(0);
+		accountState.PublicKey = Key();
+	}
+
 }}

@@ -27,6 +27,7 @@
 #include "tests/test/cache/DeltaElementsMixinTests.h"
 #include "tests/test/core/AccountStateTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
+#include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace cache {
@@ -404,15 +405,93 @@ namespace catapult { namespace cache {
 
 	// endregion
 
-	// region addAccount (basic)
+	// region find (optimizedMosaicId bug regression)
 
 	namespace {
 		void AddThreeMosaicBalances(state::AccountState& accountState) {
-			accountState.Balances.credit(MosaicId(1), Amount(2));
-			accountState.Balances.credit(Harvesting_Mosaic_Id, Amount(3));
-			accountState.Balances.credit(Currency_Mosaic_Id, Amount(1));
+			accountState.Balances.credit(MosaicId(1), Amount(10));
+			accountState.Balances.credit(Harvesting_Mosaic_Id, Amount(20));
+			accountState.Balances.credit(Currency_Mosaic_Id, Amount(30));
+		}
+
+		std::vector<MosaicId> GetMosaicIdsWithBalance(const state::AccountState& accountState) {
+			std::vector<MosaicId> mosaicIds;
+			for (const auto& pair : accountState.Balances)
+				mosaicIds.push_back(pair.first);
+
+			return mosaicIds;
 		}
 	}
+
+	ID_BASED_TEST(FindByMutableAutomaticallyOptimizesCurrencyMosaicAccessWhenPresent) {
+		// Arrange:
+		test::TempDirectoryGuard dbDirGuard;
+		auto cacheConfig = cache::CacheConfiguration(dbDirGuard.name(), utils::FileSize(), cache::PatriciaTreeStorageMode::Enabled);
+
+		AccountStateCache cache(cacheConfig, Default_Cache_Options);
+		auto accountIdentifier = TTraits::GenerateAccountIdentifier();
+
+		std::vector<MosaicId> mosaicIdsFromDelta;
+		{
+			// - add an account with three mosaics
+			auto delta = cache.createDelta();
+			delta->addAccount(accountIdentifier, TTraits::Default_Height);
+			AddThreeMosaicBalances(delta->find(accountIdentifier).get());
+			mosaicIdsFromDelta = GetMosaicIdsWithBalance(delta->find(accountIdentifier).get());
+
+			cache.commit();
+		}
+
+		// Act:
+		auto mosaicIdsFromView = GetMosaicIdsWithBalance(cache.createView()->find(accountIdentifier).get());
+
+		// Assert: mosaics are ordered with currency mosaic id first
+		EXPECT_EQ(3u, mosaicIdsFromDelta.size());
+		EXPECT_EQ(std::vector<MosaicId>({ Currency_Mosaic_Id, MosaicId(1), Harvesting_Mosaic_Id }), mosaicIdsFromDelta);
+
+		EXPECT_EQ(3u, mosaicIdsFromView.size());
+		EXPECT_EQ(std::vector<MosaicId>({ Currency_Mosaic_Id, MosaicId(1), Harvesting_Mosaic_Id }), mosaicIdsFromView);
+	}
+
+	ID_BASED_TEST(FindByMutableAutomaticallyOptimizesCurrencyMosaicAccessWhenNotPresent) {
+		// Arrange: this test needs to use rocksdb because it serializes / deserializes account states for each delta
+		test::TempDirectoryGuard dbDirGuard;
+		auto cacheConfig = cache::CacheConfiguration(dbDirGuard.name(), utils::FileSize(), cache::PatriciaTreeStorageMode::Enabled);
+
+		AccountStateCache cache(cacheConfig, Default_Cache_Options);
+		auto accountIdentifier = TTraits::GenerateAccountIdentifier();
+
+		std::vector<MosaicId> mosaicIdsFromDelta;
+		{
+			// - add an account without any mosaics
+			auto delta = cache.createDelta();
+			delta->addAccount(accountIdentifier, TTraits::Default_Height);
+			cache.commit();
+		}
+
+		{
+			// - add three mosaics to same account
+			auto delta = cache.createDelta();
+			AddThreeMosaicBalances(delta->find(accountIdentifier).get());
+			mosaicIdsFromDelta = GetMosaicIdsWithBalance(delta->find(accountIdentifier).get());
+
+			cache.commit();
+		}
+
+		// Act:
+		auto mosaicIdsFromView = GetMosaicIdsWithBalance(cache.createView()->find(accountIdentifier).get());
+
+		// Assert: mosaics are ordered with currency mosaic id first
+		EXPECT_EQ(3u, mosaicIdsFromDelta.size());
+		EXPECT_EQ(std::vector<MosaicId>({ Currency_Mosaic_Id, MosaicId(1), Harvesting_Mosaic_Id }), mosaicIdsFromDelta);
+
+		EXPECT_EQ(3u, mosaicIdsFromView.size());
+		EXPECT_EQ(std::vector<MosaicId>({ Currency_Mosaic_Id, MosaicId(1), Harvesting_Mosaic_Id }), mosaicIdsFromView);
+	}
+
+	// endregion
+
+	// region addAccount (basic)
 
 	ID_BASED_TEST(AddAccountChangesSizeOfCache) {
 		// Arrange:
