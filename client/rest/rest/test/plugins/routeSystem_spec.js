@@ -75,7 +75,7 @@ describe('route system', () => {
 			routeSystem.configure(['namespace'], server, db, servicesTemplate);
 
 			// Assert:
-			expect(routes).to.include('/namespace/:namespaceId');
+			expect(routes).to.include('/namespaces/:namespaceId');
 		});
 
 		it('can register multiple extensions', () => {
@@ -88,7 +88,7 @@ describe('route system', () => {
 			routeSystem.configure(['namespace', 'transfer'], server, db, servicesTemplate);
 
 			// Assert:
-			expect(routes).to.include('/namespace/:namespaceId');
+			expect(routes).to.include('/namespaces/:namespaceId');
 		});
 
 		it('can register single extension with service dependencies', () => {

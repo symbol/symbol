@@ -29,28 +29,27 @@ const { convertToLong } = dbUtils;
 const { uint64 } = catapult.utils;
 
 module.exports = {
-	register: (server, db) => {
+	register: (server, db, services) => {
 		const namespaceSender = routeUtils.createSender('namespaceDescriptor');
 
-		server.get('/namespace/:namespaceId', (req, res, next) => {
+		server.get('/namespaces', (req, res, next) => {
+			const { params } = req;
+
+			const ownerAddress = params.ownerAddress ? routeUtils.parseArgument(params, 'ownerAddress', 'address') : undefined;
+			const registrationType = params.registrationType ? routeUtils.parseArgument(params, 'registrationType', 'uint') : undefined;
+			const level0 = params.level0 ? routeUtils.parseArgument(req.params, 'level0', uint64.fromHex) : undefined;
+			const aliasType = params.aliasType ? routeUtils.parseArgument(params, 'aliasType', 'uint') : undefined;
+
+			const options = routeUtils.parsePaginationArguments(req.params, services.config.pageSize, { id: 'objectId' });
+
+			return db.namespaces(aliasType, level0, ownerAddress, registrationType, options)
+				.then(result => namespaceSender.sendPage(res, next)(result));
+		});
+
+		server.get('/namespaces/:namespaceId', (req, res, next) => {
 			const namespaceId = routeUtils.parseArgument(req.params, 'namespaceId', uint64.fromHex);
 			return db.namespaceById(namespaceId)
 				.then(namespaceSender.sendOne(req.params.namespaceId, res, next));
-		});
-
-		server.get('/account/:address/namespaces', (req, res, next) => {
-			const accountAddress = routeUtils.parseArgument(req.params, 'address', 'address');
-			const pagingOptions = routeUtils.parsePagingArguments(req.params);
-
-			return db.namespacesByOwners([accountAddress], pagingOptions.id, pagingOptions.pageSize)
-				.then(namespaces => routeUtils.createSender('namespaces').sendOne('accountId', res, next)({ namespaces }));
-		});
-
-		server.post('/account/namespaces', (req, res, next) => {
-			const accountAddresses = routeUtils.parseArgumentAsArray(req.params, 'addresses', 'address');
-			const pagingOptions = routeUtils.parsePagingArguments(req.params);
-			return db.namespacesByOwners(accountAddresses, pagingOptions.id, pagingOptions.pageSize)
-				.then(namespaces => routeUtils.createSender('namespaces').sendOne('addresses', res, next)({ namespaces }));
 		});
 
 		const collectNames = (namespaceNameTuples, namespaceIds) => {
@@ -72,7 +71,7 @@ module.exports = {
 				});
 		};
 
-		server.post('/namespace/names', (req, res, next) => {
+		server.post('/namespaces/names', (req, res, next) => {
 			const namespaceIds = routeUtils.parseArgumentAsArray(req.params, 'namespaceIds', uint64.fromHex);
 			const nameTuplesFuture = new Promise(resolve => {
 				const namespaceNameTuples = [];
@@ -89,7 +88,7 @@ module.exports = {
 			return nameTuplesFuture.then(routeUtils.createSender('namespaceNameTuple').sendArray('namespaceIds', res, next));
 		});
 
-		server.post('/mosaic/names', namespaceUtils.aliasNamesRoutesProcessor(
+		server.post('/namespaces/mosaic/names', namespaceUtils.aliasNamesRoutesProcessor(
 			db,
 			catapult.model.namespace.aliasType.mosaic,
 			req => routeUtils.parseArgumentAsArray(req.params, 'mosaicIds', uint64.fromHex).map(convertToLong),
@@ -98,7 +97,7 @@ module.exports = {
 			'mosaicNames'
 		));
 
-		server.post('/account/names', namespaceUtils.aliasNamesRoutesProcessor(
+		server.post('/namespaces/account/names', namespaceUtils.aliasNamesRoutesProcessor(
 			db,
 			catapult.model.namespace.aliasType.address,
 			req => routeUtils.parseArgumentAsArray(req.params, 'addresses', 'address'),

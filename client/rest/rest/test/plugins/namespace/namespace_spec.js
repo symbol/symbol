@@ -39,8 +39,8 @@ describe('namespace plugin', () => {
 
 			// Assert:
 			test.assert.assertRoutes(routes, [
-				'/account/:address/namespaces',
-				'/namespace/:namespaceId'
+				'/namespaces',
+				'/namespaces/:namespaceId'
 			]);
 		});
 
@@ -54,10 +54,9 @@ describe('namespace plugin', () => {
 
 			// Assert:
 			test.assert.assertRoutes(routes, [
-				'/account/namespaces',
-				'/namespace/names',
-				'/mosaic/names',
-				'/account/names'
+				'/namespaces/names',
+				'/namespaces/mosaic/names',
+				'/namespaces/account/names'
 			]);
 		});
 	});

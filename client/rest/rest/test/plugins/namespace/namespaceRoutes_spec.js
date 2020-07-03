@@ -21,6 +21,7 @@
 const { convertToLong } = require('../../../src/db/dbUtils');
 const namespaceRoutes = require('../../../src/plugins/namespace/namespaceRoutes');
 const namespaceUtils = require('../../../src/plugins/namespace/namespaceUtils');
+const routeUtils = require('../../../src/routes/routeUtils');
 const { MockServer } = require('../../routes/utils/routeTestUtils');
 const { test } = require('../../routes/utils/routeTestUtils');
 const catapult = require('catapult-sdk');
@@ -29,13 +30,283 @@ const MongoDb = require('mongodb');
 const sinon = require('sinon');
 
 const { Binary } = MongoDb;
+const { uint64 } = catapult.utils;
 const { address } = catapult.model;
 
 describe('namespace routes', () => {
+	describe('namespaces', () => {
+		const emptyPageSample = {
+			data: [],
+			pagination: {
+				pageNumber: 1,
+				pageSize: 10,
+				totalEntries: 0,
+				totalPages: 0
+			}
+		};
+
+		const pageSample = {
+			data: [
+				{
+					id: '5EBA7BE8DA85166BB0545CF7',
+					meta: {
+						active: true,
+						index: 0
+					},
+					namespace: {
+						registrationType: 0,
+						depth: 1,
+						level0: 'B1497F5FBA651B4F',
+						alias: {
+							type: 0
+						},
+						parentId: '0000000000000000',
+						ownerAddress: '9022D031CAFB3993B57FEE5ADC0BD4033A431FBFA1010BF51C',
+						startHeight: '1',
+						endHeight: '18446744073709551615'
+					}
+				},
+				{
+					id: '5EBA7BE8DA85166BB0545CF8',
+					meta: {
+						active: true,
+						index: 0
+					},
+					namespace: {
+						registrationType: 1,
+						depth: 2,
+						level0: 'B1497F5FBA651B4F',
+						level1: '941299B2B7E1291C',
+						alias: {
+							type: 1,
+							mosaicId: '4291ED23000A037A'
+						},
+						parentId: 'B1497F5FBA651B4F',
+						ownerAddress: '9022D031CAFB3993B57FEE5ADC0BD4033A431FBFA1010BF51C',
+						startHeight: '1',
+						endHeight: '18446744073709551615'
+					}
+				}
+			],
+			pagination: {
+				pageNumber: 1,
+				pageSize: 10,
+				totalEntries: 2,
+				totalPages: 1
+			}
+		};
+
+		const dbNamespacesFake = sinon.fake((aliasType, level0, ownerAddress, registrationType) => {
+			if (aliasType || ownerAddress || registrationType)
+				return Promise.resolve(emptyPageSample);
+
+			return Promise.resolve(pageSample);
+		});
+
+		const services = {
+			config: {
+				pageSize: {
+					min: 10,
+					max: 100,
+					default: 20
+				}
+			}
+		};
+
+		const mockServer = new MockServer();
+		const db = { namespaces: dbNamespacesFake };
+		namespaceRoutes.register(mockServer.server, db, services);
+
+		beforeEach(() => {
+			mockServer.resetStats();
+			dbNamespacesFake.resetHistory();
+		});
+
+		describe('GET', () => {
+			const route = mockServer.getRoute('/namespaces').get();
+
+			it('parses and forwards paging options', () => {
+				// Arrange:
+				const pagingBag = 'fakePagingBagObject';
+				const paginationParser = sinon.stub(routeUtils, 'parsePaginationArguments').returns(pagingBag);
+				const req = { params: {} };
+
+				// Act:
+				return mockServer.callRoute(route, req).then(() => {
+					// Assert:
+					expect(paginationParser.firstCall.args[0]).to.deep.equal(req.params);
+					expect(paginationParser.firstCall.args[2]).to.deep.equal({ id: 'objectId' });
+
+					expect(dbNamespacesFake.calledOnce).to.equal(true);
+					expect(dbNamespacesFake.firstCall.args[4]).to.deep.equal(pagingBag);
+					paginationParser.restore();
+				});
+			});
+
+			it('allowed sort fields are taken into account', () => {
+				// Arrange:
+				const paginationParserSpy = sinon.spy(routeUtils, 'parsePaginationArguments');
+				const expectedAllowedSortFields = { id: 'objectId' };
+				const req = { params: {} };
+
+				// Act:
+				return mockServer.callRoute(route, req).then(() => {
+					// Assert:
+					expect(paginationParserSpy.calledOnce).to.equal(true);
+					expect(paginationParserSpy.firstCall.args[2]).to.deep.equal(expectedAllowedSortFields);
+					paginationParserSpy.restore();
+				});
+			});
+
+			it('returns empty page if no namespaces found', () => {
+				// Arrange:
+				const req = { params: { aliasType: '2' } };
+
+				// Act:
+				return mockServer.callRoute(route, req).then(() => {
+					// Assert:
+					expect(dbNamespacesFake.calledOnce).to.equal(true);
+
+					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
+						payload: emptyPageSample,
+						type: 'namespaceDescriptor',
+						structure: 'page'
+					});
+					expect(mockServer.next.calledOnce).to.equal(true);
+				});
+			});
+
+			it('forwards query without params if not provided', () => {
+				// Arrange:
+				const req = { params: {} };
+
+				// Act:
+				return mockServer.callRoute(route, req).then(() => {
+					// Assert:
+					expect(dbNamespacesFake.calledOnce).to.equal(true);
+					expect(dbNamespacesFake.firstCall.args[0]).to.deep.equal(undefined);
+					expect(dbNamespacesFake.firstCall.args[1]).to.deep.equal(undefined);
+					expect(dbNamespacesFake.firstCall.args[2]).to.deep.equal(undefined);
+					expect(dbNamespacesFake.firstCall.args[3]).to.deep.equal(undefined);
+
+					expect(mockServer.next.calledOnce).to.equal(true);
+				});
+			});
+
+			it('forwards aliasType', () => {
+				// Arrange:
+				const aliasType = 2;
+				const req = { params: { aliasType: aliasType.toString() } };
+
+				// Act:
+				return mockServer.callRoute(route, req).then(() => {
+					// Assert:
+					expect(dbNamespacesFake.calledOnce).to.equal(true);
+					expect(dbNamespacesFake.firstCall.args[0]).to.equal(aliasType);
+
+					expect(mockServer.next.calledOnce).to.equal(true);
+				});
+			});
+
+			it('forwards level0', () => {
+				// Arrange:
+				const level0 = '85BBEA6CC462B244';
+				const req = { params: { level0 } };
+
+				// Act:
+				return mockServer.callRoute(route, req).then(() => {
+					// Assert:
+					expect(dbNamespacesFake.calledOnce).to.equal(true);
+					expect(dbNamespacesFake.firstCall.args[1]).to.deep.equal(uint64.fromHex(level0));
+
+					expect(mockServer.next.calledOnce).to.equal(true);
+				});
+			});
+
+			it('forwards ownerAddress', () => {
+				// Arrange:
+				const ownerAddress = 'SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ';
+				const req = { params: { ownerAddress } };
+
+				// Act:
+				return mockServer.callRoute(route, req).then(() => {
+					// Assert:
+					expect(dbNamespacesFake.calledOnce).to.equal(true);
+					expect(dbNamespacesFake.firstCall.args[2]).to.deep.equal(address.stringToAddress(ownerAddress));
+
+					expect(mockServer.next.calledOnce).to.equal(true);
+				});
+			});
+
+			it('forwards registrationType', () => {
+				// Arrange:
+				const registrationType = 1;
+				const req = { params: { registrationType: registrationType.toString() } };
+
+				// Act:
+				return mockServer.callRoute(route, req).then(() => {
+					// Assert:
+					expect(dbNamespacesFake.calledOnce).to.equal(true);
+					expect(dbNamespacesFake.firstCall.args[3]).to.equal(registrationType);
+
+					expect(mockServer.next.calledOnce).to.equal(true);
+				});
+			});
+
+			it('returns page with results', () => {
+				// Arrange:
+				const req = { params: {} };
+
+				// Act:
+				return mockServer.callRoute(route, req).then(() => {
+					// Assert:
+					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
+						payload: pageSample,
+						type: 'namespaceDescriptor',
+						structure: 'page'
+					});
+					expect(mockServer.next.calledOnce).to.equal(true);
+				});
+			});
+
+			it('throws error if aliasType is invalid', () => {
+				// Arrange:
+				const req = { params: { aliasType: 'ABC' } };
+
+				// Act + Assert:
+				expect(() => mockServer.callRoute(route, req)).to.throw('aliasType has an invalid format');
+			});
+
+			it('throws error if level0 is invalid', () => {
+				// Arrange:
+				const req = { params: { level0: '12345678' } };
+
+				// Act + Assert:
+				expect(() => mockServer.callRoute(route, req)).to.throw('level0 has an invalid format');
+			});
+
+			it('throws error if ownerAddress is invalid', () => {
+				// Arrange:
+				const req = { params: { ownerAddress: 'AB12345' } };
+
+				// Act + Assert:
+				expect(() => mockServer.callRoute(route, req)).to.throw('ownerAddress has an invalid format');
+			});
+
+			it('throws error if registrationType is invalid', () => {
+				// Arrange:
+				const req = { params: { registrationType: 'ABC' } };
+
+				// Act + Assert:
+				expect(() => mockServer.callRoute(route, req)).to.throw('registrationType has an invalid format');
+			});
+		});
+	});
+
 	describe('get by id', () => {
 		const namespaceId = '1234567890ABCDEF';
 		test.route.document.addGetDocumentRouteTests(namespaceRoutes.register, {
-			route: '/namespace/:namespaceId',
+			route: '/namespaces/:namespaceId',
 			inputs: {
 				valid: { object: { namespaceId }, parsed: [[0x90ABCDEF, 0x12345678]], printable: namespaceId },
 				invalid: {
@@ -45,162 +316,6 @@ describe('namespace routes', () => {
 			},
 			dbApiName: 'namespaceById',
 			type: 'namespaceDescriptor'
-		});
-	});
-
-	describe('by owner', () => {
-		const testAddress = 'SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ';
-		const nonExistingTestAddress = 'NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA';
-
-		const ownedNamespaceSample = {
-			meta: {
-				id: ''
-			},
-			namespace: {
-				ownerAddress: ''
-			}
-		};
-
-		const dbNamespacesByOwnersFake = sinon.fake(addresses => {
-			if (Buffer.from(addresses[0]).equals(Buffer.from(address.stringToAddress(nonExistingTestAddress))))
-				return Promise.resolve([]);
-
-			return Promise.resolve([ownedNamespaceSample]);
-		});
-
-		const mockServer = new MockServer();
-		const db = { namespacesByOwners: dbNamespacesByOwnersFake };
-		namespaceRoutes.register(mockServer.server, db);
-
-		beforeEach(() => {
-			mockServer.resetStats();
-			dbNamespacesByOwnersFake.resetHistory();
-		});
-
-		describe('GET', () => {
-			const route = mockServer.getRoute('/account/:address/namespaces').get();
-
-			it('returns empty if address not found', () => {
-				// Arrange:
-				const req = { params: { address: nonExistingTestAddress } };
-
-				// Act:
-				return mockServer.callRoute(route, req).then(() => {
-					// Assert:
-					expect(dbNamespacesByOwnersFake.calledOnce).to.equal(true);
-					expect(dbNamespacesByOwnersFake.firstCall.args[0]).to.deep.equal([address.stringToAddress(nonExistingTestAddress)]);
-
-					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
-						payload: { namespaces: [] },
-						type: 'namespaces'
-					});
-					expect(mockServer.next.calledOnce).to.equal(true);
-				});
-			});
-
-			it('parses and fordwards pagination params correctly', () => {
-				// Arrange:
-				const req = { params: { address: testAddress, id: '00123456789AABBBCCDDEEFF', pageSize: '25' } };
-
-				// Act:
-				return mockServer.callRoute(route, req).then(() => {
-					// Assert:
-					expect(dbNamespacesByOwnersFake.calledOnce).to.equal(true);
-					expect(dbNamespacesByOwnersFake.firstCall.args[1]).to.equal('00123456789AABBBCCDDEEFF');
-					expect(dbNamespacesByOwnersFake.firstCall.args[2]).to.equal(25);
-
-					expect(mockServer.next.calledOnce).to.equal(true);
-				});
-			});
-
-			it('returns owned namespaces by address', () => {
-				// Arrange:
-				const req = { params: { address: testAddress } };
-
-				// Act:
-				return mockServer.callRoute(route, req).then(() => {
-					// Assert:
-					expect(dbNamespacesByOwnersFake.calledOnce).to.equal(true);
-					expect(dbNamespacesByOwnersFake.firstCall.args[0]).to.deep.equal([address.stringToAddress(testAddress)]);
-
-					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
-						payload: { namespaces: [ownedNamespaceSample] },
-						type: 'namespaces'
-					});
-					expect(mockServer.next.calledOnce).to.equal(true);
-				});
-			});
-
-			it('throws error if address is invalid', () => {
-				// Arrange:
-				const req = { params: { address: 'AB12345' } };
-
-				// Act + Assert:
-				expect(() => mockServer.callRoute(route, req)).to.throw('address has an invalid format');
-			});
-		});
-
-		describe('POST', () => {
-			const route = mockServer.getRoute('/account/namespaces').post();
-
-			it('returns empty if address not found', () => {
-				// Arrange:
-				const req = { params: { addresses: [nonExistingTestAddress] } };
-
-				// Act:
-				return mockServer.callRoute(route, req).then(() => {
-					// Assert:
-					expect(dbNamespacesByOwnersFake.calledOnce).to.equal(true);
-					expect(dbNamespacesByOwnersFake.firstCall.args[0]).to.deep.equal([address.stringToAddress(nonExistingTestAddress)]);
-
-					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
-						payload: { namespaces: [] },
-						type: 'namespaces'
-					});
-					expect(mockServer.next.calledOnce).to.equal(true);
-				});
-			});
-
-			it('parses and fordwards pagination params correctly', () => {
-				// Arrange:
-				const req = { params: { addresses: [testAddress], id: '00123456789AABBBCCDDEEFF', pageSize: '25' } };
-
-				// Act:
-				return mockServer.callRoute(route, req).then(() => {
-					// Assert:
-					expect(dbNamespacesByOwnersFake.calledOnce).to.equal(true);
-					expect(dbNamespacesByOwnersFake.firstCall.args[1]).to.equal('00123456789AABBBCCDDEEFF');
-					expect(dbNamespacesByOwnersFake.firstCall.args[2]).to.equal(25);
-
-					expect(mockServer.next.calledOnce).to.equal(true);
-				});
-			});
-
-			it('returns owned namespaces by address', () => {
-				// Arrange:
-				const req = { params: { addresses: [testAddress] } };
-
-				// Act:
-				return mockServer.callRoute(route, req).then(() => {
-					// Assert:
-					expect(dbNamespacesByOwnersFake.calledOnce).to.equal(true);
-					expect(dbNamespacesByOwnersFake.firstCall.args[0]).to.deep.equal([address.stringToAddress(testAddress)]);
-
-					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
-						payload: { namespaces: [ownedNamespaceSample] },
-						type: 'namespaces'
-					});
-					expect(mockServer.next.calledOnce).to.equal(true);
-				});
-			});
-
-			it('throws error if addresses contains an invalid address', () => {
-				// Arrange:
-				const req = { params: { addresses: [testAddress, 'AAAAAAAAAA'] } };
-
-				// Act + Assert:
-				expect(() => mockServer.callRoute(route, req)).to.throw('element in array addresses has an invalid format');
-			});
 		});
 	});
 
@@ -235,7 +350,7 @@ describe('namespace routes', () => {
 			// Act:
 			return test.route.executeSingle(
 				namespaceRoutes.register,
-				'/namespace/names',
+				'/namespaces/names',
 				'post',
 				{ namespaceIds: Valid_Hex_String_Namespace_Ids },
 				db,

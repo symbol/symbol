@@ -41,6 +41,42 @@ class NamespaceDb {
 	// region namespace retrieval
 
 	/**
+	 * Retrieves filtered and paginated namespaces.
+	 * @param {Uint32} aliasType Namespace alias type
+	 * @param {module:catapult.utils/uint64~uint64} level0 Namespace level0
+	 * @param {Uint8Array} ownerAddress Namespace owner address
+	 * @param {Uint32} registrationType Namespace registration type
+	 * @param {object} options Options for ordering and pagination. Can have an `offset`, and must contain the `sortField`, `sortDirection`,
+	 * `pageSize` and `pageNumber`. 'sortField' must be within allowed 'sortingOptions'.
+	 * @returns {Promise.<object>} Namespaces page.
+	 */
+	namespaces(aliasType, level0, ownerAddress, registrationType, options) {
+		const sortingOptions = { id: '_id' };
+		const conditions = [];
+
+		if (options.offset)
+			conditions.push({ [sortingOptions[options.sortField]]: { [1 === options.sortDirection ? '$gt' : '$lt']: options.offset } });
+
+		if (aliasType)
+			conditions.push({ 'namespace.alias.type': aliasType });
+
+		if (level0)
+			conditions.push({ 'namespace.level0': new Long(level0[0], level0[1]) });
+
+		if (ownerAddress)
+			conditions.push({ 'namespace.ownerAddress': Buffer.from(ownerAddress) });
+
+		if (registrationType)
+			conditions.push({ 'namespace.registrationType': registrationType });
+
+		// Returning only active namespaces
+		conditions.push({ 'meta.active': true });
+
+		const sortConditions = { $sort: { [sortingOptions[options.sortField]]: options.sortDirection } };
+		return this.catapultDb.queryPagedDocuments_2(conditions, [], sortConditions, 'namespaces', options);
+	}
+
+	/**
 	 * Retrieves a namespace.
 	 * @param {module:catapult.utils/uint64~uint64} id Namespace id.
 	 * @returns {Promise.<object>} Namespace.
@@ -58,24 +94,7 @@ class NamespaceDb {
 		}
 
 		return this.catapultDb.queryDocument('namespaces', conditions)
-			.then(this.catapultDb.sanitizer.copyAndDeleteId);
-	}
-
-	/**
-	 * Retrieves namespaces owned by specified owners.
-	 * @param {array<{Uint8Array}>} addresses Account addresses.
-	 * @param {string} id Paging id.
-	 * @param {int} pageSize Page size.
-	 * @param {object} options Additional options.
-	 * @returns {Promise.<array>} Owned namespaces.
-	 */
-	namespacesByOwners(addresses, id, pageSize, options) {
-		const buffers = addresses.map(address => Buffer.from(address));
-		const conditions = createActiveConditions();
-		conditions.$and.push({ 'namespace.ownerAddress': { $in: buffers } });
-
-		return this.catapultDb.queryPagedDocuments('namespaces', conditions, id, pageSize, options)
-			.then(this.catapultDb.sanitizer.copyAndDeleteIds);
+			.then(this.catapultDb.sanitizer.renameId);
 	}
 
 	/**
