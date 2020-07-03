@@ -444,17 +444,25 @@ namespace catapult { namespace thread {
 	// region delay timing
 
 	namespace {
+		using CounterPointer = std::shared_ptr<std::atomic<uint32_t>>;
+
+		CounterPointer CreateCounterPointer() {
+			return std::make_shared<std::atomic<uint32_t>>(0);
+		}
+
 		template<typename TSleep>
 		Task CreateContinuousTaskWithCounterAndSleep(
 				uint32_t startDelayMs,
 				uint32_t repeatDelayMs,
-				std::atomic<uint32_t>& counter,
+				const CounterPointer& pCounter,
 				TSleep sleep) {
 			return {
 				utils::TimeSpan::FromMilliseconds(startDelayMs),
 				CreateUniformDelayGenerator(utils::TimeSpan::FromMilliseconds(repeatDelayMs)),
-				[&counter, sleep]() {
-					++counter;
+				[pCounter, sleep]() {
+					// counter needs to be shared because tests are non-deterministic and it's possible that a failed iteration
+					// has sufficient delay to unwind the counter before the increment below.
+					++*pCounter;
 					return sleep();
 				},
 				"task with counter"
@@ -465,8 +473,8 @@ namespace catapult { namespace thread {
 				uint32_t startDelayMs,
 				uint32_t repeatDelayMs,
 				uint32_t callbackDelayMs,
-				std::atomic<uint32_t>& counter) {
-			return CreateContinuousTaskWithCounterAndSleep(startDelayMs, repeatDelayMs, counter, [callbackDelayMs]() {
+				const CounterPointer& pCounter) {
+			return CreateContinuousTaskWithCounterAndSleep(startDelayMs, repeatDelayMs, pCounter, [callbackDelayMs]() {
 				test::Sleep(callbackDelayMs);
 				return make_ready_future(TaskResult::Continue);
 			});
@@ -477,9 +485,9 @@ namespace catapult { namespace thread {
 				uint32_t startDelayMs,
 				uint32_t repeatDelayMs,
 				uint32_t callbackDelayMs,
-				std::atomic<uint32_t>& counter) {
+				const CounterPointer& pCounter) {
 			auto pTimer = std::make_shared<boost::asio::steady_timer>(ioContext);
-			return CreateContinuousTaskWithCounterAndSleep(startDelayMs, repeatDelayMs, counter, [callbackDelayMs, pTimer]() {
+			return CreateContinuousTaskWithCounterAndSleep(startDelayMs, repeatDelayMs, pCounter, [callbackDelayMs, pTimer]() {
 				auto pPromise = std::make_shared<promise<TaskResult>>();
 				pTimer->expires_from_now(std::chrono::milliseconds(callbackDelayMs));
 				pTimer->async_wait([pPromise](const auto&) {
@@ -499,18 +507,18 @@ namespace catapult { namespace thread {
 			// Arrange: create a scheduler and add a single task to it
 			auto timeUnit = test::GetTimeUnitForIteration(i);
 			auto pScheduler = CreateScheduler();
-			std::atomic<uint32_t> counter(0);
-			pScheduler->addTask(CreateContinuousTaskWithCounter(2 * timeUnit, 20 * timeUnit, 0, counter));
+			auto pCounter = CreateCounterPointer();
+			pScheduler->addTask(CreateContinuousTaskWithCounter(2 * timeUnit, 20 * timeUnit, 0, pCounter));
 
 			// Assert: after sleeping 0.5x the initial delay, no tasks should have run
 			test::Sleep(timeUnit);
-			if (!EXPECT_EQ_RETRY(0u, counter))
+			if (!EXPECT_EQ_RETRY(0u, *pCounter))
 				return false;
 
 			// Assert: after sleeping 1.5x the initial delay, one task should have run and
 			//         the task should still be scheduled
 			test::Sleep(2 * timeUnit);
-			if (!EXPECT_EQ_RETRY(1u, counter))
+			if (!EXPECT_EQ_RETRY(1u, *pCounter))
 				return false;
 
 			EXPECT_EQ(1u, pScheduler->numScheduledTasks());
@@ -524,12 +532,12 @@ namespace catapult { namespace thread {
 			// Arrange: create a scheduler and add a single task to it
 			auto timeUnit = test::GetTimeUnitForIteration(i);
 			auto pScheduler = CreateScheduler();
-			std::atomic<uint32_t> counter(0);
-			pScheduler->addTask(CreateContinuousTaskWithCounter(timeUnit, 2 * timeUnit, 0, counter));
+			auto pCounter = CreateCounterPointer();
+			pScheduler->addTask(CreateContinuousTaskWithCounter(timeUnit, 2 * timeUnit, 0, pCounter));
 
 			// Assert: after sleeping 6x, the timer should have fired at 1, 3, 5
 			test::Sleep(6 * timeUnit);
-			if (!EXPECT_EQ_RETRY(3u, counter))
+			if (!EXPECT_EQ_RETRY(3u, *pCounter))
 				return false;
 
 			EXPECT_EQ(1u, pScheduler->numScheduledTasks());
@@ -543,11 +551,11 @@ namespace catapult { namespace thread {
 			// Arrange: create a scheduler and add a single task to it
 			auto timeUnit = test::GetTimeUnitForIteration(i);
 			auto pScheduler = CreateScheduler();
-			std::atomic<uint32_t> counter(0);
+			auto pCounter = CreateCounterPointer();
 
 			// - configure the delays to be: 1 (start), 4, 1, 2, 10
 			size_t delayCounter = 0;
-			auto task = CreateContinuousTaskWithCounter(timeUnit, 4 * timeUnit, 0, counter);
+			auto task = CreateContinuousTaskWithCounter(timeUnit, 4 * timeUnit, 0, pCounter);
 			task.NextDelay = [delayCounter, timeUnit]() mutable {
 				std::vector<uint32_t> delays{ 4, 1, 2, 10 };
 				auto delay = delays[std::min(delayCounter++, delays.size() - 1)];
@@ -557,7 +565,7 @@ namespace catapult { namespace thread {
 
 			// Assert: after sleeping 9x, the timer should have fired at 1, 5, 6, 8
 			test::Sleep(9 * timeUnit);
-			if (!EXPECT_EQ_RETRY(4u, counter))
+			if (!EXPECT_EQ_RETRY(4u, *pCounter))
 				return false;
 
 			EXPECT_EQ(1u, pScheduler->numScheduledTasks());
@@ -573,12 +581,12 @@ namespace catapult { namespace thread {
 				// Arrange: create a scheduler and add a single task to it
 				auto timeUnit = test::GetTimeUnitForIteration(i);
 				auto pScheduler = CreateScheduler();
-				std::atomic<uint32_t> counter(0);
-				pScheduler->addTask(createTask(0u, 2u * timeUnit, 3u * timeUnit, counter));
+				auto pCounter = CreateCounterPointer();
+				pScheduler->addTask(createTask(0u, 2u * timeUnit, 3u * timeUnit, pCounter));
 
 				// Assert: after sleeping 6x, the timer should have fired at 0, 5
 				test::Sleep(6 * timeUnit);
-				if (!EXPECT_EQ_RETRY(2u, counter))
+				if (!EXPECT_EQ_RETRY(2u, *pCounter))
 					return false;
 
 				EXPECT_EQ(1u, pScheduler->numScheduledTasks());
