@@ -21,6 +21,7 @@
 #pragma once
 #include "RawFile.h"
 #include "catapult/model/EntityRange.h"
+#include "catapult/model/HeightHashPair.h"
 
 namespace catapult { namespace io {
 
@@ -58,22 +59,9 @@ namespace catapult { namespace io {
 		std::unique_ptr<RawFile> m_pCachedStorageFile;
 	};
 
-	/// Height hash pair.
-	struct HeightHashPair {
-	public:
-		static constexpr auto Size = sizeof(catapult::Height) + Hash256::Size;
-
-	public:
-		/// Height.
-		catapult::Height Height;
-
-		/// Hash.
-		Hash256 Hash;
-	};
-
 	using HashFile = FixedSizeValueStorage<Height, Hash256>;
 	extern template class FixedSizeValueStorage<Height, Hash256>;
 
-	using FinalizationPointHashFile = FixedSizeValueStorage<FinalizationPoint, HeightHashPair>;
-	extern template class FixedSizeValueStorage<FinalizationPoint, HeightHashPair>;
+	using FinalizationPointHashFile = FixedSizeValueStorage<FinalizationPoint, model::HeightHashPair>;
+	extern template class FixedSizeValueStorage<FinalizationPoint, model::HeightHashPair>;
 }}

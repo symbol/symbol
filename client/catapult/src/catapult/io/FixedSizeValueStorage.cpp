@@ -95,5 +95,5 @@ namespace catapult { namespace io {
 
 	// instantiation
 	template class FixedSizeValueStorage<Height, Hash256>;
-	template class FixedSizeValueStorage<FinalizationPoint, HeightHashPair>;
+	template class FixedSizeValueStorage<FinalizationPoint, model::HeightHashPair>;
 }}
