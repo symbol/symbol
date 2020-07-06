@@ -19,6 +19,7 @@
  */
 
 const CatapultDb = require('../../src/db/CatapultDb');
+const { convertToLong } = require('../../src/db/dbUtils');
 const dbFacade = require('../../src/routes/dbFacade');
 const testDbOptions = require('../db/utils/testDbOptions');
 const { expect } = require('chai');
@@ -30,7 +31,7 @@ describe('db facade', () => {
 	describe('run height dependent operation', () => {
 		const runHeightDependentOperationTest = (requestHeight, chainHeight, isRequestValid) => {
 			// Arrange:
-			const db = { chainStatisticCurrent: () => Promise.resolve({ height: chainHeight }) };
+			const db = { chainStatisticCurrent: () => Promise.resolve({ height: convertToLong(chainHeight) }) };
 
 			// Act:
 			return dbFacade.runHeightDependentOperation(db, requestHeight, () => Promise.resolve(17))

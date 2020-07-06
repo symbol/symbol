@@ -19,6 +19,7 @@
  */
 
 const { test } = require('./utils/routeTestUtils');
+const { convertToLong } = require('../../src/db/dbUtils');
 const routeUtils = require('../../src/routes/routeUtils');
 const catapult = require('catapult-sdk');
 const { expect } = require('chai');
@@ -750,7 +751,7 @@ describe('route utils', () => {
 		blockInfoMockData.meta[blockMetaTreeField] = merkleTree;
 
 		const db = {
-			chainStatisticCurrent: () => Promise.resolve({ height: highestHeight }),
+			chainStatisticCurrent: () => Promise.resolve({ height: convertToLong(highestHeight) }),
 			blockWithMerkleTreeAtHeight: () => Promise.resolve(blockInfoMockData)
 		};
 

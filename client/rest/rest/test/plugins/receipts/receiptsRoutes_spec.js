@@ -18,6 +18,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const { convertToLong } = require('../../../src/db/dbUtils');
 const receiptsRoutes = require('../../../src/plugins/receipts/receiptsRoutes');
 const routeUtils = require('../../../src/routes/routeUtils');
 const { MockServer } = require('../../routes/utils/routeTestUtils');
@@ -44,7 +45,7 @@ describe('receipts routes', () => {
 
 		receiptsRoutes.register(mockServer.server, {
 			catapultDb: {
-				chainStatisticCurrent: () => Promise.resolve({ height: highestHeight })
+				chainStatisticCurrent: () => Promise.resolve({ height: convertToLong(highestHeight) })
 			},
 			statementsAtHeight: statementsFake
 		});

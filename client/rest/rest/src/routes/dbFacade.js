@@ -18,6 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const { convertToLong } = require('../db/dbUtils');
+
 const extractFromMetadata = (group, transaction) => ({
 	group,
 	code: 0,
@@ -43,7 +45,7 @@ const dbFacade = {
 
 		return Promise.all([chainStatisticPromise, operationPromise]).then(results => {
 			const chainStatistic = results[0];
-			const isRequestValid = height <= chainStatistic.height;
+			const isRequestValid = convertToLong(height).lessThanOrEqual(chainStatistic.height);
 			return {
 				isRequestValid,
 				payload: isRequestValid ? results[1] : undefined
