@@ -1,0 +1,23 @@
+tags:
+  - Namespace routes
+summary: Get namespaces
+description: Gets an array of namespaces.
+operationId: searchNamespaces
+parameters:
+  - $ref: "../../../parameters/query/ownerAddress.yml"
+  - $ref: "../../../parameters/query/registrationType.yml"
+  - $ref: "../../../parameters/query/level0.yml"
+  - $ref: "../../../parameters/query/aliasType.yml"
+  - $ref: "../../../parameters/query/pageSize.yml"
+  - $ref: "../../../parameters/query/pageNumber.yml"
+  - $ref: "../../../parameters/query/offset.yml"
+  - $ref: "../../../parameters/query/order.yml"
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../schemas/NamespacePage.yml"
+  "409":
+    $ref : "../../../responses/InvalidArgument.yml"

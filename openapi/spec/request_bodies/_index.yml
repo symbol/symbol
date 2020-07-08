@@ -1,5 +1,7 @@
 accountIds:
   $ref: './accountIds.yml'
+addresses:
+  $ref: './addresses.yml'
 cosignature:
   $ref: './cosignature.yml'
 mosaicIds:

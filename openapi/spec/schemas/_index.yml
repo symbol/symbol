@@ -384,12 +384,12 @@ NamespaceNameDTO:
   "$ref": "../plugins/namespace/schemas/NamespaceNameDTO.yml"
 NamespaceNetworkPropertiesDTO:
   "$ref": "../plugins/namespace/schemas/NamespaceNetworkPropertiesDTO.yml"
+NamespacePage:
+  "$ref": "../plugins/namespace/schemas/NamespacePage.yml"
 NamespaceRegistrationTransactionBodyDTO:
   "$ref": "../plugins/namespace/schemas/NamespaceRegistrationTransactionBodyDTO.yml"
 NamespaceRegistrationTransactionDTO:
   "$ref": "../plugins/namespace/schemas/NamespaceRegistrationTransactionDTO.yml"
-NamespacesInfoDTO:
-  "$ref": "../plugins/namespace/schemas/NamespacesInfoDTO.yml"
 
 # Plugin - Receipt
 ReceiptTypeEnum:
