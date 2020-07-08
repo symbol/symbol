@@ -1,8 +1,12 @@
 type: object
 required:
+  - id
   - meta
   - namespace
 properties:
+  id:
+    type: string
+    description: Internal resource identifier.
   meta:
     $ref: "./NamespaceMetaDTO.yml"
   namespace:

@@ -4,7 +4,7 @@ summary: Get readable names for a set of accountIds
 description: Returns friendly names for accounts.
 operationId: getAccountsNames
 requestBody:
-  $ref: "../../../request_bodies/accountIds.yml"
+  $ref: "../../../request_bodies/addresses.yml"
 responses:
   "200":
     description: success
