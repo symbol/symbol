@@ -1,4 +1,4 @@
-# Todo: This filter will be deprecated in favor of offset.
+# Todo: This filter will be deprecated in favor of offset once all pagiantion changes are applied.
 name: id
 in: query
 description: |

@@ -152,24 +152,21 @@
     $ref: "./plugins/multisig/routes/getAccountMultisigGraph.yml"
 
 # Plugin - Namespace
-"/namespace/{namespaceId}":
+"/namespaces":
+  get:
+    $ref: "./plugins/namespace/routes/searchNamespaces.yml"
+"/namespaces/{namespaceId}":
   get:
     $ref: "./plugins/namespace/routes/getNamespace.yml"
-"/account/{accountId}/namespaces":
-  get:
-    $ref: "./plugins/namespace/routes/getNamespacesFromAccount.yml"
-/account/namespaces:
-  post:
-    $ref: "./plugins/namespace/routes/getNamespacesFromAccounts.yml"
-/account/names:
-  post:
-    $ref: "./plugins/namespace/routes/getAccountsNames.yml"
-/mosaic/names:
-  post:
-    $ref: "./plugins/namespace/routes/getMosaicsNames.yml"
-/namespace/names:
+/namespaces/names:
   post:
     $ref: "./plugins/namespace/routes/getNamespacesNames.yml"
+/namespaces/account/names:
+  post:
+    $ref: "./plugins/namespace/routes/getAccountsNames.yml"
+/namespaces/mosaic/names:
+  post:
+    $ref: "./plugins/namespace/routes/getMosaicsNames.yml"
 
 # Plugin - Receipt
 "/block/{height}/receipts":

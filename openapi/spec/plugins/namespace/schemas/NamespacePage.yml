@@ -1,0 +1,12 @@
+type: object
+required:
+  - data
+  - pagination
+properties:
+  data:
+    type: array
+    description: Array of namespaces.
+    items:
+      $ref: "./NamespaceInfoDTO.yml"
+  pagination:
+    $ref: "../../../schemas/Pagination.yml"
