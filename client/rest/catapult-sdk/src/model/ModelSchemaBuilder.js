@@ -113,6 +113,10 @@ class ModelSchemaBuilder {
 
 			// region account
 
+			accountWithMetadata: {
+				id: ModelType.objectId,
+				account: { type: ModelType.object, schemaName: 'account' }
+			},
 			account: {
 				address: ModelType.binary,
 				addressHeight: ModelType.uint64,
@@ -138,12 +142,6 @@ class ModelSchemaBuilder {
 			mosaic: {
 				id: ModelType.uint64HexIdentifier,
 				amount: ModelType.uint64
-			},
-			accountMeta: {
-			},
-			accountWithMetadata: {
-				meta: { type: ModelType.object, schemaName: 'accountMeta' },
-				account: { type: ModelType.object, schemaName: 'account' }
 			},
 			accountLinkPublicKey: {
 				publicKey: ModelType.binary

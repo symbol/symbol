@@ -1019,6 +1019,83 @@ describe('catapult db', () => {
 	});
 
 	describe('queryPagedDocuments 2', () => {
+		describe('calls queryPagedDocumentsWithConditions with', () => {
+			const sortConditions = { $sort: { _id: 1 } };
+			const options = { pageSize: 10, pageNumber: 1 };
+
+			const commonExpectedConditions = [
+				{ $sort: { _id: 1 } },
+				{
+					$facet: {
+						data: [
+							{ $skip: 0 },
+							{ $limit: options.pageSize },
+							{ $set: { id: '$_id' } },
+							{ $unset: ['_id'] }
+						],
+						pagination: [
+							{ $count: 'totalEntries' },
+							{ $set: { pageNumber: options.pageNumber, pageSize: options.pageSize } }
+						]
+					}
+				}
+			];
+
+			it('no conditions', () => {
+				const queryPagedDocumentsWithConditionsSpy = sinon.spy(CatapultDb.prototype, 'queryPagedDocumentsWithConditions');
+				const conditions = [];
+
+				// Act + Assert:
+				return runDbTest(
+					{},
+					db => db.queryPagedDocuments_2(conditions, [], sortConditions, 'accounts', options),
+					() => {
+						expect(queryPagedDocumentsWithConditionsSpy.calledOnce).to.equal(true);
+						expect(queryPagedDocumentsWithConditionsSpy.firstCall.args[0]).to.deep.equal([...commonExpectedConditions]);
+						queryPagedDocumentsWithConditionsSpy.restore();
+					}
+				);
+			});
+
+			it('single condition', () => {
+				const queryPagedDocumentsWithConditionsSpy = sinon.spy(CatapultDb.prototype, 'queryPagedDocumentsWithConditions');
+				const conditions = [{ height: 10 }];
+
+				// Act + Assert:
+				return runDbTest(
+					{},
+					db => db.queryPagedDocuments_2(conditions, [], sortConditions, 'accounts', options),
+					() => {
+						expect(queryPagedDocumentsWithConditionsSpy.calledOnce).to.equal(true);
+						expect(queryPagedDocumentsWithConditionsSpy.firstCall.args[0]).to.deep.equal([
+							{ $match: conditions[0] }, ...commonExpectedConditions
+						]);
+						queryPagedDocumentsWithConditionsSpy.restore();
+					}
+				);
+			});
+
+			it('multiple conditions', () => {
+				const queryPagedDocumentsWithConditionsSpy = sinon.spy(CatapultDb.prototype, 'queryPagedDocumentsWithConditions');
+				const conditions = [{ height: 10 }, { type: 100 }];
+
+				// Act + Assert:
+				return runDbTest(
+					{},
+					db => db.queryPagedDocuments_2(conditions, [], sortConditions, 'accounts', options),
+					() => {
+						expect(queryPagedDocumentsWithConditionsSpy.calledOnce).to.equal(true);
+						expect(queryPagedDocumentsWithConditionsSpy.firstCall.args[0]).to.deep.equal([
+							{ $match: { $and: [conditions[0], conditions[1]] } }, ...commonExpectedConditions
+						]);
+						queryPagedDocumentsWithConditionsSpy.restore();
+					}
+				);
+			});
+		});
+	});
+
+	describe('query paged documents with conditions', () => {
 		const account1 = {
 			publicKey: test.random.publicKey(),
 			address: keyToAddress(test.random.publicKey())
@@ -1039,7 +1116,7 @@ describe('catapult db', () => {
 				// Act + Assert:
 				return runDbTest(
 					{},
-					db => db.queryPagedDocuments_2(conditions, [], sortConditions, 'accounts', options),
+					db => db.queryPagedDocumentsWithConditions(conditions, [], sortConditions, 'accounts', options),
 					page => {
 						expect(page.data).to.deep.equal([]);
 						expect(page.pagination).to.deep.equal({
@@ -1055,12 +1132,12 @@ describe('catapult db', () => {
 					{ _id: createObjectId(10), account: { addressHeight: 10 } },
 					{ _id: createObjectId(30), account: { addressHeight: 30 } }
 				];
-				const conditions = [{ 'account.addressHeight': 20 }];
+				const conditions = [{ $match: { 'account.addressHeight': 20 } }];
 
 				// Act + Assert:
 				return runDbTest(
 					{ accounts: dbAccounts() },
-					db => db.queryPagedDocuments_2(conditions, [], sortConditions, 'accounts', options),
+					db => db.queryPagedDocumentsWithConditions(conditions, [], sortConditions, 'accounts', options),
 					page => {
 						expect(page.data).to.deep.equal([]);
 						expect(page.pagination).to.deep.equal({
@@ -1085,7 +1162,7 @@ describe('catapult db', () => {
 				// Act + Assert:
 				return runDbTest(
 					{ accounts: accounts() },
-					db => db.queryPagedDocuments_2(conditions, [], sortConditions, 'accounts', options),
+					db => db.queryPagedDocumentsWithConditions(conditions, [], sortConditions, 'accounts', options),
 					page => {
 						expect(page.data.length).to.equal(3);
 						expect(page.data[0].id).to.deep.equal(createObjectId(10));
@@ -1096,12 +1173,12 @@ describe('catapult db', () => {
 			});
 
 			it('one condition', () => {
-				const conditions = [{ 'account.addressHeight': 20 }];
+				const conditions = [{ $match: { 'account.addressHeight': 20 } }];
 
 				// Act + Assert:
 				return runDbTest(
 					{ accounts: accounts() },
-					db => db.queryPagedDocuments_2(conditions, [], sortConditions, 'accounts', options),
+					db => db.queryPagedDocumentsWithConditions(conditions, [], sortConditions, 'accounts', options),
 					page => {
 						expect(page.data.length).to.equal(1);
 						expect(page.data[0].id).to.deep.equal(createObjectId(20));
@@ -1110,15 +1187,19 @@ describe('catapult db', () => {
 			});
 
 			it('multiple conditions', () => {
-				const conditions = [
-					{ 'account.address': account2.address },
-					{ 'account.addressHeight': { $gt: 20 } }
-				];
+				const conditions = [{
+					$match: {
+						$and: [
+							{ 'account.address': account2.address },
+							{ 'account.addressHeight': { $gt: 20 } }
+						]
+					}
+				}];
 
 				// Act + Assert:
 				return runDbTest(
 					{ accounts: accounts() },
-					db => db.queryPagedDocuments_2(conditions, [], sortConditions, 'accounts', options),
+					db => db.queryPagedDocumentsWithConditions(conditions, [], sortConditions, 'accounts', options),
 					page => {
 						expect(page.data.length).to.equal(1);
 						expect(page.data[0].id).to.deep.equal(createObjectId(30));
@@ -1147,7 +1228,7 @@ describe('catapult db', () => {
 				// Act + Assert:
 				runDbTest(
 					{ blocks: blocks() },
-					db => db.queryPagedDocuments_2([], [], sortConditions, 'blocks', options),
+					db => db.queryPagedDocumentsWithConditions([], [], sortConditions, 'blocks', options),
 					page => {
 						expect(page.data[0]._id).to.equal(undefined);
 						expect(page.data[0].id).to.deep.equal(createObjectId(10));
@@ -1158,7 +1239,7 @@ describe('catapult db', () => {
 				// Act + Assert:
 				runDbTest(
 					{ blocks: blocks() },
-					db => db.queryPagedDocuments_2([], ['id'], sortConditions, 'blocks', options),
+					db => db.queryPagedDocumentsWithConditions([], ['id'], sortConditions, 'blocks', options),
 					page => {
 						expect(page.data[0]._id).to.equal(undefined);
 						expect(page.data[0].id).to.equal(undefined);
@@ -1188,7 +1269,7 @@ describe('catapult db', () => {
 				// Act + Assert:
 				return runDbTest(
 					{ blocks: blocks() },
-					db => db.queryPagedDocuments_2([], removedFields, sortConditions, 'blocks', options),
+					db => db.queryPagedDocumentsWithConditions([], removedFields, sortConditions, 'blocks', options),
 					page => {
 						expect(page.data.length).to.equal(1);
 						expect(page.data[0]).to.deep.equal({
@@ -1206,7 +1287,7 @@ describe('catapult db', () => {
 				// Act + Assert:
 				return runDbTest(
 					{ blocks: blocks() },
-					db => db.queryPagedDocuments_2([], removedFields, sortConditions, 'blocks', options),
+					db => db.queryPagedDocumentsWithConditions([], removedFields, sortConditions, 'blocks', options),
 					page => {
 						expect(page.data.length).to.equal(1);
 						expect(page.data[0]).to.deep.equal({
@@ -1231,7 +1312,7 @@ describe('catapult db', () => {
 				// Act + Assert:
 				runDbTest(
 					{ blocks: blocks() },
-					db => db.queryPagedDocuments_2([], [], { $sort: { _id: 1 } }, 'blocks', options),
+					db => db.queryPagedDocumentsWithConditions([], [], { $sort: { _id: 1 } }, 'blocks', options),
 					page => {
 						expect(page.data.length).to.equal(3);
 						expect(page.data[0].id).to.deep.equal(createObjectId(10));
@@ -1244,7 +1325,7 @@ describe('catapult db', () => {
 				// Act + Assert:
 				runDbTest(
 					{ blocks: blocks() },
-					db => db.queryPagedDocuments_2([], [], { $sort: { _id: -1 } }, 'blocks', options),
+					db => db.queryPagedDocumentsWithConditions([], [], { $sort: { _id: -1 } }, 'blocks', options),
 					page => {
 						expect(page.data.length).to.equal(3);
 						expect(page.data[0].id).to.deep.equal(createObjectId(30));
@@ -1257,7 +1338,7 @@ describe('catapult db', () => {
 				// Act + Assert:
 				runDbTest(
 					{ blocks: blocks() },
-					db => db.queryPagedDocuments_2([], [], { $sort: { 'block.type': 1 } }, 'blocks', options),
+					db => db.queryPagedDocumentsWithConditions([], [], { $sort: { 'block.type': 1 } }, 'blocks', options),
 					page => {
 						expect(page.data.length).to.equal(3);
 						expect(page.data[0].id).to.deep.equal(createObjectId(20));
@@ -1277,7 +1358,7 @@ describe('catapult db', () => {
 				// Act + Assert:
 				runDbTest(
 					{ accounts: accounts(), blocks: blocks(), transactions: transactions() },
-					db => db.queryPagedDocuments_2([], [], sortConditions, 'blocks', options),
+					db => db.queryPagedDocumentsWithConditions([], [], sortConditions, 'blocks', options),
 					page => {
 						expect(page.data.length).to.equal(1);
 						expect(page.data[0].id).to.deep.equal(createObjectId(20));
@@ -1301,7 +1382,7 @@ describe('catapult db', () => {
 					// Act + Assert:
 					return runDbTest(
 						{ blocks: blocks(25 + 10) },
-						db => db.queryPagedDocuments_2([], [], { $sort: { id: 1 } }, 'blocks', { pageSize, pageNumber: 1 }),
+						db => db.queryPagedDocumentsWithConditions([], [], { $sort: { id: 1 } }, 'blocks', { pageSize, pageNumber: 1 }),
 						page => {
 							expect(page.data.length).to.equal(25);
 							expect(page.pagination).to.deep.equal({
@@ -1317,7 +1398,7 @@ describe('catapult db', () => {
 					// Act + Assert:
 					return runDbTest(
 						{ blocks: blocks(10) },
-						db => db.queryPagedDocuments_2([], [], { $sort: { id: 1 } }, 'blocks', { pageSize, pageNumber: 1 }),
+						db => db.queryPagedDocumentsWithConditions([], [], { $sort: { id: 1 } }, 'blocks', { pageSize, pageNumber: 1 }),
 						page => {
 							expect(page.data.length).to.equal(10);
 							expect(page.pagination).to.deep.equal({
@@ -1334,7 +1415,13 @@ describe('catapult db', () => {
 						// Act + Assert:
 						runDbTest(
 							{ blocks: blocks(12) },
-							db => db.queryPagedDocuments_2([], [], { $sort: { id: 1 } }, 'blocks', { pageSize: 10, pageNumber }),
+							db => db.queryPagedDocumentsWithConditions(
+								[],
+								[],
+								{ $sort: { id: 1 } },
+								'blocks',
+								{ pageSize: 10, pageNumber }
+							),
 							page => {
 								expect(page.data.length).to.equal(expectedNumberOfElements);
 								expect(page.pagination).to.deep.equal({
@@ -1358,7 +1445,7 @@ describe('catapult db', () => {
 				// Act + Assert:
 				runDbTest(
 					{ blocks: blocks() },
-					db => db.queryPagedDocuments_2([], [], sortConditions, 'blocks', options),
+					db => db.queryPagedDocumentsWithConditions([], [], sortConditions, 'blocks', options),
 					page => {
 						expect(page.data[0].block.height instanceof Long).to.be.equal(true);
 					}
@@ -1810,16 +1897,418 @@ describe('catapult db', () => {
 		});
 	});
 
-	describe('account get', () => {
+	describe('accounts', () => {
+		const addressTest1 = address.stringToAddress('SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ');
+		const addressTest2 = address.stringToAddress('NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA');
+		const addressTest3 = address.stringToAddress('SAAM2O7SSJ2A7AU3DZJMSTTRFZT5TFDPQ3ZIIJX');
+		const addressTest4 = address.stringToAddress('SAMZMPX33DFIIVOCNJYMF5KJTGLAEVNKHHFROLX');
+		const mosaicIdTest1 = Long.fromNumber(12345678);
+		const mosaicIdTest2 = Long.fromNumber(87654321);
+
+		const paginationOptions = {
+			pageSize: 10,
+			pageNumber: 1,
+			sortField: 'id',
+			sortDirection: -1
+		};
+
+		const { createObjectId } = test.db;
+
+		const createAccount = (objectId, accountAddress, mosaics) => ({
+			_id: createObjectId(objectId),
+			account: {
+				address: accountAddress ? Buffer.from(accountAddress) : undefined,
+				mosaics
+			}
+		});
+
+		const runTestAndVerifyIds = (dbAccounts, accountAddress, mosaicId, options, expectedIds) => {
+			const expectedObjectIds = expectedIds.map(id => createObjectId(id));
+
+			return runDbTest(
+				{ accounts: dbAccounts },
+				db => db.accounts(accountAddress, mosaicId, options),
+				page => {
+					const returnedIds = page.data.map(t => t.id);
+					expect(page.data.length).to.equal(expectedObjectIds.length);
+					expect(returnedIds.sort()).to.deep.equal(expectedObjectIds.sort());
+				}
+			);
+		};
+
+		const runAccountsFilteredByAddressTest = pagination => {
+			it('returns accounts filtered by accountAddress', () => {
+				// Arrange:
+				const dbAccounts = [
+					createAccount(10, addressTest1, [{ id: mosaicIdTest1, amount: Long.fromNumber(1) }]),
+					createAccount(20, addressTest2, [{ id: mosaicIdTest1, amount: Long.fromNumber(1) }]),
+					createAccount(30, addressTest3, [])
+				];
+
+				// Act + Assert:
+				return runTestAndVerifyIds(dbAccounts, addressTest2, undefined, pagination, [20]);
+			});
+		};
+
+		const runAccountsFilteredByMosaicIdTest = pagination => {
+			it('returns accounts filtered by mosaicId', () => {
+				// Arrange:
+				const dbAccounts = [
+					createAccount(10, addressTest1, [{ id: mosaicIdTest1, amount: Long.fromNumber(1) }]),
+					createAccount(20, addressTest1, [{ id: mosaicIdTest2, amount: Long.fromNumber(1) }])
+				];
+
+				// Act + Assert:
+				return runTestAndVerifyIds(dbAccounts, undefined, mosaicIdTest2, pagination, [20]);
+			});
+		};
+
+		it('returns expected structure', () => {
+			// Arrange:
+			const dbAccounts = [createAccount(10, addressTest1, [])];
+
+			// Act + Assert:
+			return runDbTest(
+				{ accounts: dbAccounts },
+				db => db.accounts(undefined, undefined, paginationOptions),
+				page => {
+					const expected_keys = ['id', 'account'];
+					expect(Object.keys(page.data[0]).sort()).to.deep.equal(expected_keys.sort());
+				}
+			);
+		});
+
+		it('returns empty for unknown accountAddress', () => {
+			// Arrange:
+			const dbAccounts = [createAccount(10, addressTest1, [])];
+
+			// Act + Assert:
+			return runTestAndVerifyIds(dbAccounts, addressTest2, undefined, paginationOptions, []);
+		});
+
+		it('returns empty for unknown mosaicId', () => {
+			// Arrange:
+			const dbAccounts = [
+				createAccount(10, addressTest1, [
+					{ id: mosaicIdTest1, amount: Long.fromNumber(1) }
+				])
+			];
+
+			// Act + Assert:
+			return runTestAndVerifyIds(dbAccounts, undefined, mosaicIdTest2, paginationOptions, []);
+		});
+
+		runAccountsFilteredByAddressTest(paginationOptions);
+
+		runAccountsFilteredByMosaicIdTest(paginationOptions);
+
+		it('returns all accounts if no accountAddress or mosaicId are provided', () => {
+			// Arrange:
+			const dbAccounts = [
+				createAccount(10, addressTest1, [{ id: mosaicIdTest1, amount: Long.fromNumber(1) }]),
+				createAccount(20, addressTest2, [{ id: mosaicIdTest2, amount: Long.fromNumber(1) }]),
+				createAccount(30, addressTest3, [{ id: mosaicIdTest1, amount: Long.fromNumber(1) }]),
+				createAccount(40, addressTest4, [{ id: mosaicIdTest2, amount: Long.fromNumber(1) }])
+			];
+
+			// Act + Assert:
+			return runTestAndVerifyIds(dbAccounts, undefined, undefined, paginationOptions, [10, 20, 30, 40]);
+		});
+
+		describe('respects offset', () => {
+			// Arrange:
+			const dbAccounts = () => ([
+				createAccount(10, addressTest1, [{ id: mosaicIdTest1, amount: Long.fromNumber(1) }]),
+				createAccount(20, addressTest2, [{ id: mosaicIdTest1, amount: Long.fromNumber(2) }]),
+				createAccount(30, addressTest3, [{ id: mosaicIdTest1, amount: Long.fromNumber(3) }])
+			]);
+			const options = {
+				pageSize: 10,
+				pageNumber: 1,
+				sortField: 'id',
+				sortDirection: 1,
+				offset: createObjectId(20)
+			};
+
+			it('gt', () => {
+				options.sortDirection = 1;
+
+				// Act + Assert:
+				return runTestAndVerifyIds(dbAccounts(), undefined, undefined, options, [30]);
+			});
+
+			it('lt', () => {
+				options.sortDirection = -1;
+
+				// Act + Assert:
+				return runTestAndVerifyIds(dbAccounts(), undefined, undefined, options, [10]);
+			});
+		});
+
+		describe('respects sort conditions', () => {
+			// Arrange:
+			const dbAccounts = () => ([
+				createAccount(10, addressTest1, [{ id: mosaicIdTest1, amount: Long.fromNumber(1) }]),
+				createAccount(20, addressTest1, [{ id: mosaicIdTest2, amount: Long.fromNumber(1) }]),
+				createAccount(30, addressTest2, [{ id: mosaicIdTest1, amount: Long.fromNumber(1) }])
+			]);
+
+			it('direction ascending', () => {
+				const options = {
+					pageSize: 10,
+					pageNumber: 1,
+					sortField: 'id',
+					sortDirection: 1
+				};
+
+				// Act + Assert:
+				return runDbTest(
+					{ accounts: dbAccounts() },
+					db => db.accounts(undefined, undefined, options),
+					page => {
+						expect(page.data[0].id).to.deep.equal(createObjectId(10));
+						expect(page.data[1].id).to.deep.equal(createObjectId(20));
+						expect(page.data[2].id).to.deep.equal(createObjectId(30));
+					}
+				);
+			});
+
+			it('direction descending', () => {
+				const options = {
+					pageSize: 10,
+					pageNumber: 1,
+					sortField: 'id',
+					sortDirection: -1
+				};
+
+				// Act + Assert:
+				return runDbTest(
+					{ accounts: dbAccounts() },
+					db => db.accounts(undefined, undefined, options),
+					page => {
+						expect(page.data[0].id).to.deep.equal(createObjectId(30));
+						expect(page.data[1].id).to.deep.equal(createObjectId(20));
+						expect(page.data[2].id).to.deep.equal(createObjectId(10));
+					}
+				);
+			});
+
+			it('sort field', () => {
+				const queryPagedDocumentsSpy = sinon.spy(CatapultDb.prototype, 'queryPagedDocuments_2');
+				const options = {
+					pageSize: 10,
+					pageNumber: 1,
+					sortField: 'id',
+					sortDirection: 1
+				};
+
+				// Act + Assert:
+				return runDbTest(
+					{ accounts: dbAccounts() },
+					db => db.accounts(undefined, undefined, options),
+					() => {
+						expect(queryPagedDocumentsSpy.calledOnce).to.equal(true);
+						expect(Object.keys(queryPagedDocumentsSpy.firstCall.args[2].$sort)[0]).to.equal('_id');
+						queryPagedDocumentsSpy.restore();
+					}
+				);
+			});
+		});
+
+		describe('when sorting by balance', () => {
+			const paginationOptionsBalanceSorting = {
+				pageSize: 10,
+				pageNumber: 1,
+				sortField: 'balance',
+				sortDirection: -1
+			};
+
+			it('returns expected structure', () => {
+				// Arrange:
+				const dbAccounts = [createAccount(10, addressTest1, [{ id: mosaicIdTest1, amount: Long.fromNumber(1) }])];
+
+				// Act + Assert:
+				return runDbTest(
+					{ accounts: dbAccounts },
+					db => db.accounts(undefined, undefined, paginationOptionsBalanceSorting),
+					page => {
+						const expected_keys = ['id', 'account'];
+						expect(Object.keys(page.data[0]).sort()).to.deep.equal(expected_keys.sort());
+					}
+				);
+			});
+
+			it('returns empty for unknown accountAddress', () => {
+				// Arrange:
+				const dbAccounts = [createAccount(10, addressTest1, [])];
+
+				// Act + Assert:
+				return runTestAndVerifyIds(dbAccounts, addressTest2, undefined, paginationOptionsBalanceSorting, []);
+			});
+
+			it('returns empty for unknown mosaicId', () => {
+				// Arrange:
+				const dbAccounts = [
+					createAccount(10, addressTest1, [
+						{ id: mosaicIdTest1, amount: Long.fromNumber(1) }
+					])
+				];
+
+				// Act + Assert:
+				return runTestAndVerifyIds(dbAccounts, undefined, mosaicIdTest2, paginationOptionsBalanceSorting, []);
+			});
+
+			runAccountsFilteredByAddressTest(paginationOptionsBalanceSorting);
+
+			runAccountsFilteredByMosaicIdTest(paginationOptionsBalanceSorting);
+
+			it('returns all accounts if no accountAddress or mosaicId are provided', () => {
+				// Arrange:
+				const dbAccounts = [
+					createAccount(10, addressTest1, [{ id: mosaicIdTest1, amount: Long.fromNumber(1) }]),
+					createAccount(20, addressTest2, [{ id: mosaicIdTest2, amount: Long.fromNumber(1) }]),
+					createAccount(30, addressTest3, [{ id: mosaicIdTest1, amount: Long.fromNumber(1) }]),
+					createAccount(40, addressTest4, [{ id: mosaicIdTest2, amount: Long.fromNumber(1) }])
+				];
+
+				// Act + Assert:
+				return runTestAndVerifyIds(dbAccounts, undefined, undefined, paginationOptionsBalanceSorting, [10, 20, 30, 40]);
+			});
+
+			describe('respects offset', () => {
+				// Arrange:
+				const dbAccounts = () => ([
+					createAccount(10, addressTest1, [{ id: mosaicIdTest1, amount: Long.fromNumber(1) }]),
+					createAccount(20, addressTest2, [{ id: mosaicIdTest1, amount: Long.fromNumber(2) }]),
+					createAccount(30, addressTest3, [{ id: mosaicIdTest1, amount: Long.fromNumber(3) }])
+				]);
+				const options = {
+					pageSize: 10,
+					pageNumber: 1,
+					sortField: 'balance',
+					sortDirection: 1,
+					offset: Long.fromNumber(2)
+				};
+
+				it('gt', () => {
+					options.sortDirection = 1;
+
+					// Act + Assert:
+					return runTestAndVerifyIds(dbAccounts(), undefined, mosaicIdTest1, options, [30]);
+				});
+
+				it('lt', () => {
+					options.sortDirection = -1;
+
+					// Act + Assert:
+					return runTestAndVerifyIds(dbAccounts(), undefined, mosaicIdTest1, options, [10]);
+				});
+			});
+
+			describe('sorts by correct mosaic', () => {
+				const seedAccounts = [];
+				seedAccounts.push(createAccount(
+					1,
+					test.random.address(),
+					[
+						{ id: Long.fromNumber(22), amount: Long.fromNumber(1) },
+						{ id: Long.fromNumber(33), amount: Long.fromNumber(5) },
+						{ id: Long.fromNumber(44), amount: Long.fromNumber(3) }
+					]
+				));
+				seedAccounts.push(createAccount(
+					2,
+					test.random.address(),
+					[
+						{ id: Long.fromNumber(22), amount: Long.fromNumber(7) }
+					]
+				));
+				seedAccounts.push(createAccount(
+					3,
+					test.random.address(),
+					[
+						{ id: Long.fromNumber(33), amount: Long.fromNumber(8) }
+					]
+				));
+				seedAccounts.push(createAccount(
+					4,
+					test.random.address(),
+					[
+						{ id: Long.fromNumber(44), amount: Long.fromNumber(9) }
+					]
+				));
+				seedAccounts.push(createAccount(
+					5,
+					test.random.address(),
+					[
+						{ id: Long.fromNumber(22), amount: Long.fromNumber(4) },
+						{ id: Long.fromNumber(33), amount: Long.fromNumber(2) },
+						{ id: Long.fromNumber(44), amount: Long.fromNumber(6) }
+					]
+				));
+
+				const mosaicAmountEquals = (accountsPage, accountIndex, mosaicId, amount) =>
+					accountsPage.data[accountIndex].account.mosaics
+						.find(mosaic => mosaic.id.equals(Long.fromNumber(mosaicId))).amount.equals(Long.fromNumber(amount));
+
+				it('asc', () =>
+					runDbTest(
+						{ accounts: seedAccounts },
+						db => db.accounts(undefined, 33, {
+							sortField: 'balance',
+							sortDirection: 1,
+							pageNumber: 1,
+							pageSize: 10
+						}),
+						accountsPage => {
+							expect(mosaicAmountEquals(accountsPage, 0, 33, 2)).to.equal(true);
+							expect(mosaicAmountEquals(accountsPage, 1, 33, 5)).to.equal(true);
+							expect(mosaicAmountEquals(accountsPage, 2, 33, 8)).to.equal(true);
+						}
+					));
+
+				it('desc', () =>
+					runDbTest(
+						{ accounts: seedAccounts },
+						db => db.accounts(undefined, 33, {
+							sortField: 'balance',
+							sortDirection: -1,
+							pageNumber: 1,
+							pageSize: 10
+						}),
+						accountsPage => {
+							expect(mosaicAmountEquals(accountsPage, 0, 33, 8)).to.equal(true);
+							expect(mosaicAmountEquals(accountsPage, 1, 33, 5)).to.equal(true);
+							expect(mosaicAmountEquals(accountsPage, 2, 33, 2)).to.equal(true);
+						}
+					));
+			});
+		});
+	});
+
+	describe('accounts by ids', () => {
 		const publicKey = test.random.publicKey();
 		const decodedAddress = keyToAddress(publicKey);
 		const publicKeyUnknown = test.random.publicKey();
 		const decodedAddressUnknown = keyToAddress(publicKeyUnknown);
 
+		const runAccountByIdsDbTest = (dbEntities, issueDbCommand, assertDbCommandResult) => {
+			// Arrange:
+			const db = new CatapultDb(Object.assign({ networkId: Mijin_Test_Network }, DefaultPagingOptions));
+
+			// Act + Assert:
+			return db.connect(testDbOptions.url, 'test')
+				.then(() => test.db.populateDatabase(db, dbEntities))
+				.then(() => issueDbCommand(db))
+				.then(assertDbCommandResult)
+				.then(() => db.close());
+		};
+
 		const transformDbAccount = (dbAccountDocument, numImportances) => {
 			// the db call should replace importances with the most recent importance and importance height,
 			// so update the expected object to match
-			const accountWithMetadata = Object.assign({}, dbAccountDocument);
+			const accountWithMetadata = Object.assign({ id: dbAccountDocument._id }, dbAccountDocument);
+			delete accountWithMetadata._id;
 			const { account } = accountWithMetadata;
 			account.importance = Long.fromNumber(numImportances);
 			account.importanceHeight = Long.fromNumber(numImportances * numImportances);
@@ -1836,7 +2325,7 @@ describe('catapult db', () => {
 				const seedAccounts = test.db.createAccounts(publicKey, options);
 
 				// Assert:
-				return runDbTest(
+				return runAccountByIdsDbTest(
 					{ accounts: seedAccounts },
 					db => db.accountsByIds([accountId]),
 					accounts => {
@@ -1923,7 +2412,7 @@ describe('catapult db', () => {
 
 			it('returns multiple matching accounts', () =>
 				// Arrange:
-				runMultipleAccountsByIdsTests((seedAccounts, publicKeys) => runDbTest(
+				runMultipleAccountsByIdsTests((seedAccounts, publicKeys) => runAccountByIdsDbTest(
 					{ accounts: seedAccounts },
 					db => db.accountsByIds([
 						{ publicKey: publicKeys[1] },
@@ -1935,7 +2424,7 @@ describe('catapult db', () => {
 
 			it('returns only known matching accounts', () =>
 				// Arrange:
-				runMultipleAccountsByIdsTests((seedAccounts, publicKeys) => runDbTest(
+				runMultipleAccountsByIdsTests((seedAccounts, publicKeys) => runAccountByIdsDbTest(
 					{ accounts: seedAccounts },
 					db => db.accountsByIds([
 						{ publicKey: publicKeys[1] },

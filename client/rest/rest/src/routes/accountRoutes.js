@@ -24,15 +24,33 @@ const AccountType = require('../plugins/AccountType');
 const errors = require('../server/errors');
 
 module.exports = {
-	register: (server, db) => {
-		server.get('/account/:accountId', (req, res, next) => {
+	register: (server, db, services) => {
+		const sender = routeUtils.createSender(routeResultTypes.account);
+
+		server.get('/accounts', (req, res, next) => {
+			const address = req.params.address ? routeUtils.parseArgument(req.params, 'address', 'address') : undefined;
+			const mosaicId = req.params.mosaicId ? routeUtils.parseArgument(req.params, 'mosaicId', 'uint64hex') : undefined;
+
+			const offsetParsers = {
+				id: 'objectId',
+				balance: 'uint64'
+			};
+			const options = routeUtils.parsePaginationArguments(req.params, services.config.pageSize, offsetParsers);
+
+			if ('balance' === options.sortField && !mosaicId)
+				throw errors.createInvalidArgumentError('mosaicId must be provided when sorting by balance');
+
+			return db.accounts(address, mosaicId, options)
+				.then(result => sender.sendPage(res, next)(result));
+		});
+
+		server.get('/accounts/:accountId', (req, res, next) => {
 			const [type, accountId] = routeUtils.parseArgument(req.params, 'accountId', 'accountId');
-			const sender = routeUtils.createSender(routeResultTypes.account);
 			return db.accountsByIds([{ [type]: accountId }])
 				.then(sender.sendOne(req.params.accountId, res, next));
 		});
 
-		server.post('/account', (req, res, next) => {
+		server.post('/accounts', (req, res, next) => {
 			if (req.params.publicKeys && req.params.addresses)
 				throw errors.createInvalidArgumentError('publicKeys and addresses cannot both be provided');
 
@@ -41,7 +59,6 @@ module.exports = {
 				: { keyName: 'addresses', parserName: 'address', type: AccountType.address };
 
 			const accountIds = routeUtils.parseArgumentAsArray(req.params, idOptions.keyName, idOptions.parserName);
-			const sender = routeUtils.createSender(routeResultTypes.account);
 
 			return db.accountsByIds(accountIds.map(accountId => ({ [idOptions.type]: accountId })))
 				.then(sender.sendArray(idOptions.keyName, res, next));

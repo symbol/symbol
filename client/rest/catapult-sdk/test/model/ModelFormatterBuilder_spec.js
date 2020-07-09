@@ -165,8 +165,7 @@ describe('model formatter builder', () => {
 
 			// Act:
 			const result = formatter.accountWithMetadata.format({
-				meta: {
-				},
+				id: 0,
 				account: {
 					address: 0,
 					addressHeight: 0,
@@ -183,8 +182,7 @@ describe('model formatter builder', () => {
 
 			// Assert:
 			expect(result).to.deep.equal({
-				meta: {
-				},
+				id: 'objectId',
 				account: {
 					address: 'binary',
 					addressHeight: 'uint64',

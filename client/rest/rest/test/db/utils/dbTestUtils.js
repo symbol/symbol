@@ -61,7 +61,7 @@ const createImportances = count => {
 	return importances.reverse();
 };
 
-const createAccount = (publicKey, savePublicKey, mosaics, importances) => {
+const createAccount = (objectId, publicKey, savePublicKey, mosaics, importances) => {
 	const decoded = Buffer.from(address.publicKeyToAddress(publicKey, testDbOptions.networkId));
 	const account = {
 		address: new Binary(decoded),
@@ -78,7 +78,7 @@ const createAccount = (publicKey, savePublicKey, mosaics, importances) => {
 		account.publicKeyHeight = Long.fromNumber(0);
 	}
 
-	return { meta: {}, account };
+	return { _id: createObjectId(objectId), account };
 };
 
 const createAccounts = (publicKey, options) => {
@@ -88,6 +88,7 @@ const createAccounts = (publicKey, options) => {
 
 	// note: the first account in the array is not random since it is used in tests
 	accounts.push(createAccount(
+		1,
 		publicKey,
 		options.savePublicKey,
 		createMosaics(options.numMosaics),
@@ -96,6 +97,7 @@ const createAccounts = (publicKey, options) => {
 
 	for (let i = 0; i < options.numAccounts; ++i) {
 		accounts.push(createAccount(
+			i + 2,
 			test.random.publicKey(),
 			0 === i % 2 || options.saveRandomPublicKey,
 			createMosaics(options.numMosaics),

@@ -41,7 +41,8 @@ describe('all routes', () => {
 
 		// Assert:
 		test.assert.assertRoutes(routes, [
-			'/account/:accountId',
+			'/accounts',
+			'/accounts/:accountId',
 
 			'/blocks',
 			'/blocks/:height',
@@ -78,7 +79,7 @@ describe('all routes', () => {
 
 		// Assert:
 		test.assert.assertRoutes(routes, [
-			'/account',
+			'/accounts',
 			'/transactions/:group',
 			'/transactionStatus'
 		]);

@@ -81,12 +81,11 @@ describe('model schema builder', () => {
 
 				'transactionStatus',
 
+				'accountWithMetadata',
 				'account',
 				'supplementalPublicKey',
 				'activityBucket',
 				'mosaic',
-				'accountMeta',
-				'accountWithMetadata',
 				'accountLinkPublicKey',
 				'accountLinkPublicKey.voting',
 				'votingPublicKey',
@@ -155,13 +154,12 @@ describe('model schema builder', () => {
 				'transactionWithMetadata.meta',
 				'transactionWithMetadata.transaction',
 
+				'accountWithMetadata.account',
 				'account.supplementalPublicKeys',
 				'supplementalPublicKey.linked',
 				'supplementalPublicKey.node',
 				'supplementalPublicKey.vrf',
 				'supplementalPublicKey.voting',
-				'accountWithMetadata.meta',
-				'accountWithMetadata.account',
 
 				'chainStatistic.current',
 
@@ -288,7 +286,8 @@ describe('model schema builder', () => {
 			expect(matchingProperties).to.deep.equal([
 				'blockHeaderWithMetadata.id',
 				'transactionMetadata.aggregateId',
-				'transactionWithMetadata.id'
+				'transactionWithMetadata.id',
+				'accountWithMetadata.id'
 			]);
 		});
 

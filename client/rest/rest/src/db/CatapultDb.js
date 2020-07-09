@@ -318,8 +318,11 @@ class CatapultDb {
 		const conditions = [];
 		if (queryConditions.length)
 			conditions.push(1 === queryConditions.length ? { $match: queryConditions[0] } : { $match: { $and: queryConditions } });
+		return this.queryPagedDocumentsWithConditions(conditions, removedFields, sortConditions, collectionName, options);
+	}
 
-		conditions.push(sortConditions);
+	queryPagedDocumentsWithConditions(builtConditions, removedFields, sortConditions, collectionName, options) {
+		builtConditions.push(sortConditions);
 
 		const { pageSize } = options;
 		const pageIndex = options.pageNumber - 1;
@@ -336,7 +339,7 @@ class CatapultDb {
 		if (0 < Object.keys(removedFields).length)
 			facet.push({ $unset: removedFields });
 
-		conditions.push({
+		builtConditions.push({
 			$facet: {
 				data: facet,
 				pagination: [
@@ -352,7 +355,7 @@ class CatapultDb {
 		});
 
 		return this.database.collection(collectionName)
-			.aggregate(conditions, { promoteLongs: false })
+			.aggregate(builtConditions, { promoteLongs: false })
 			.toArray()
 			.then(result => {
 				const formattedResult = result[0];
@@ -494,11 +497,63 @@ class CatapultDb {
 
 	// region account retrieval
 
+	/**
+	 * Retrieves filtered and paginated accounts
+	 * @param {Uint8Array} address Filters by address
+	 * @param {uint64} mosaicId Filters by accounts with some mosaicId balance. Required if provided `sortField` is `balance`
+	 * @param {object} options Options for ordering and pagination. Can have an `offset`, and must contain the `sortField`, `sortDirection`,
+	 * `pageSize` and `pageNumber`. 'sortField' must be within allowed 'sortingOptions'.
+	 * @returns {Promise.<object>} Accounts page.
+	 */
+	accounts(address, mosaicId, options) {
+		const sortingOptions = { id: '_id', balance: 'account.mosaics.amount' };
+		const conditions = [];
+
+		if (options.offset)
+			conditions.push({ [sortingOptions[options.sortField]]: { [1 === options.sortDirection ? '$gt' : '$lt']: options.offset } });
+
+		if (address)
+			conditions.push({ 'account.address': Buffer.from(address) });
+
+		if (mosaicId)
+			conditions.push({ 'account.mosaics.id': convertToLong(mosaicId) });
+
+		const sortConditions = { $sort: { [sortingOptions[options.sortField]]: options.sortDirection } };
+
+		const builtConditions = [{ $unwind: '$account.mosaics' }];
+		if (conditions.length)
+			builtConditions.push(1 === conditions.length ? { $match: conditions[0] } : { $match: { $and: conditions } });
+
+		if ('balance' === options.sortField) {
+			// fetch result sorted by specific mosaic amount, this unwinds mosaics and only returns matching mosaics (incomplete response)
+			return this.queryPagedDocumentsWithConditions(builtConditions, [], sortConditions, 'accounts', options)
+				.then(accountsPage => {
+					const accountIds = accountsPage.data.map(account => account.id);
+					conditions.push({ _id: { $in: accountIds } });
+
+					// repeat the response with the found and sorted account ids, so that the result can be complete with all the mosaics
+					return this.queryPagedDocuments_2(conditions, [], sortConditions, 'accounts', options)
+						.then(fullAccountsPage => {
+							// $in results do not preserve query order
+							fullAccountsPage.data.sort((account1, account2) =>
+								accountIds.findIndex(accountId => accountId.equals(account1.id))
+								- accountIds.findIndex(accountId => accountId.equals(account2.id)));
+							return fullAccountsPage;
+						});
+				});
+		}
+
+		return this.queryPagedDocuments_2(conditions, [], sortConditions, 'accounts', options);
+	}
+
 	accountsByIds(ids) {
 		// id will either have address property or publicKey property set; in the case of publicKey, convert it to address
 		const buffers = ids.map(id => Buffer.from((id.publicKey
 			? catapult.model.address.publicKeyToAddress(id.publicKey, this.networkId) : id.address)));
-		return this.queryDocuments('accounts', { 'account.address': { $in: buffers } })
+		return this.database.collection('accounts')
+			.find({ 'account.address': { $in: buffers } })
+			.toArray()
+			.then(this.sanitizer.renameIds)
 			.then(entities => entities.map(accountWithMetadata => {
 				const { account } = accountWithMetadata;
 				if (0 < account.importances.length) {
