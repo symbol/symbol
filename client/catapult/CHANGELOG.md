@@ -3,6 +3,11 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.9.6.3] - 10-Jul-2020
+
+### Fixed:
+ - bugfix: mosaics inside Balances not correctly ordered after removing optimizedId in 0.9.6.2
+
 ## [0.9.6.2] - 23-Jun-2020
 
 ### Added
@@ -260,6 +265,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Added
 - Initial code release.
 
+[0.9.6.3]: https://github.com/nemtech/catapult-server/compare/v0.9.6.2...v0.9.6.3
 [0.9.6.2]: https://github.com/nemtech/catapult-server/compare/v0.9.5.1...v0.9.6.2
 [0.9.5.1]: https://github.com/nemtech/catapult-server/compare/v0.9.4.1...v0.9.5.1
 [0.9.4.1]: https://github.com/nemtech/catapult-server/compare/v0.9.3.2...v0.9.4.1
