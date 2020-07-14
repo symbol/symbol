@@ -36,14 +36,13 @@ describe('metadata plugin', () => {
 			const modelSchema = builder.build();
 
 			// Assert:
-			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 6);
+			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 5);
 			expect(modelSchema).to.contain.all.keys([
 				'accountMetadata',
 				'mosaicMetadata',
 				'namespaceMetadata',
 				'metadata',
-				'metadata.entry',
-				'metadata.entry.element'
+				'metadataEntry'
 			]);
 
 			// - accountMetadata
@@ -64,16 +63,12 @@ describe('metadata plugin', () => {
 			]);
 
 			// - metadata
-			expect(Object.keys(modelSchema.metadata).length).to.equal(1);
-			expect(modelSchema.metadata).to.contain.all.keys(['metadataEntries']);
+			expect(Object.keys(modelSchema.metadata).length).to.equal(2);
+			expect(modelSchema.metadata).to.contain.all.keys(['metadataEntry', 'id']);
 
-			// - metadata.entry
-			expect(Object.keys(modelSchema['metadata.entry']).length).to.equal(2);
-			expect(modelSchema['metadata.entry']).to.contain.all.keys(['metadataEntry', 'id']);
-
-			// - metadata.entry.element
-			expect(Object.keys(modelSchema['metadata.entry.element']).length).to.equal(6);
-			expect(modelSchema['metadata.entry.element']).to.contain.all.keys([
+			// - metadataEntry
+			expect(Object.keys(modelSchema.metadataEntry).length).to.equal(6);
+			expect(modelSchema.metadataEntry).to.contain.all.keys([
 				'compositeHash',
 				'sourceAddress',
 				'targetAddress',

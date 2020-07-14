@@ -25,7 +25,6 @@ const EntityType = require('./model/EntityType');
 const ModelType = require('./model/ModelType');
 const address = require('./model/address');
 const idReducer = require('./model/idReducer');
-const metadata = require('./model/metadata');
 const namespace = require('./model/namespace');
 const networkInfo = require('./model/networkInfo');
 const restriction = require('./model/restriction');
@@ -65,7 +64,6 @@ const catapultSdk = {
 		address,
 		EntityType,
 		idReducer,
-		metadata,
 		ModelType,
 		restriction,
 		namespace,

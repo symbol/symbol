@@ -18,9 +18,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const MongoDb = require('mongodb');
-
-const { Long } = MongoDb;
+const { convertToLong } = require('../../db/dbUtils');
 
 class MetadataDb {
 	/**
@@ -32,76 +30,41 @@ class MetadataDb {
 	}
 
 	/**
-	 * Retrieves paginated metadata entries based on metadata type and id.
-	 * @param {int} metadataType Type of metadata.
-	 * @param {object} targetFilter Target filter
-	 * @param {string} pagingId Paging id.
-	 * @param {int} pageSize Page size.
-	 * @param {object} ordering Page ordering.
-	 * @returns {Promise.<array>} Metadata entries.
+	 * Retrieves filtered and paginated metadata.
+	 * @param {Uint8Array} sourceAddress Metadata source address
+	 * @param {Uint8Array} targetAddress Metadata target address
+	 * @param {Uint64} scopedMetadataKey Metadata scoped key
+	 * @param {Uint64} targetId Metadata target id
+	 * @param {Uint32} metadataType Metadata type
+	 * @param {object} options Options for ordering and pagination. Can have an `offset`, and must contain the `sortField`, `sortDirection`,
+	 * `pageSize` and `pageNumber`. 'sortField' must be within allowed 'sortingOptions'.
+	 * @returns {Promise.<object>} Metadata page.
 	 */
-	getMetadataWithPagination(metadataType, targetFilter, pagingId, pageSize, ordering) {
-		const conditions = { $and: [targetFilter, { 'metadataEntry.metadataType': metadataType }] };
-		const options = { sortOrder: ordering };
+	metadata(sourceAddress, targetAddress, scopedMetadataKey, targetId, metadataType, options) {
+		const sortingOptions = { id: '_id' };
 
-		return this.catapultDb.queryPagedDocuments('metadata', conditions, pagingId, pageSize, options)
-			.then(metadataEntries => metadataEntries.map(metadataEntry => {
-				metadataEntry.id = metadataEntry._id;
-				delete metadataEntry._id;
-				return metadataEntry;
-			}));
-	}
+		const conditions = [];
 
-	/**
-	 * Retrieves metadata key values based on metadata type, id and scopedMetadataKey.
-	 * @param {int} metadataType Type of metadata.
-	 * @param {Uint8Array} targetFilter Target filter
-	 * @param {Array.<module:catapult.utils/uint64~uint64>} scopedMetadataKey Scoped metadata key.
-	 * @returns {Promise.<array>} Metadata entries.
-	 */
-	getMetadataByKey(metadataType, targetFilter, scopedMetadataKey) {
-		const conditions = {
-			$and: [
-				targetFilter,
-				{ 'metadataEntry.scopedMetadataKey': new Long(scopedMetadataKey[0], scopedMetadataKey[1]) },
-				{ 'metadataEntry.metadataType': metadataType }
-			]
-		};
+		if (options.offset)
+			conditions.push({ [sortingOptions[options.sortField]]: { [1 === options.sortDirection ? '$gt' : '$lt']: options.offset } });
 
-		return this.catapultDb.queryRawDocuments('metadata', conditions)
-			.then(metadataEntries => metadataEntries.map(metadataEntry => {
-				metadataEntry.id = metadataEntry._id;
-				delete metadataEntry._id;
-				return metadataEntry;
-			}));
-	}
+		if (sourceAddress)
+			conditions.push({ 'metadataEntry.sourceAddress': Buffer.from(sourceAddress) });
 
-	/**
-	 * Retrieves metadata key value based on metadata type, id, scopedMetadataKey and sender.
-	 * @param {int} metadataType Type of metadata.
-	 * @param {Uint8Array} targetFilter Target filter
-	 * @param {Array.<module:catapult.utils/uint64~uint64>} scopedMetadataKey Scoped metadata key.
-	 * @param {Uint8Array} sourceAddress Sender address.
-	 * @returns {Promise.<string>} Metadata value.
-	 */
-	getMetadataByKeyAndSender(metadataType, targetFilter, scopedMetadataKey, sourceAddress) {
-		const conditions = {
-			$and: [
-				targetFilter,
-				{ 'metadataEntry.scopedMetadataKey': new Long(scopedMetadataKey[0], scopedMetadataKey[1]) },
-				{ 'metadataEntry.sourceAddress': Buffer.from(sourceAddress) },
-				{ 'metadataEntry.metadataType': metadataType }
-			]
-		};
+		if (targetAddress)
+			conditions.push({ 'metadataEntry.targetAddress': Buffer.from(targetAddress) });
 
-		return this.catapultDb.queryDocument('metadata', conditions)
-			.then(metadata => {
-				if (metadata) {
-					metadata.id = metadata._id;
-					delete metadata._id;
-				}
-				return metadata;
-			});
+		if (scopedMetadataKey)
+			conditions.push({ 'metadataEntry.scopedMetadataKey': convertToLong(scopedMetadataKey) });
+
+		if (targetId)
+			conditions.push({ 'metadataEntry.targetId': convertToLong(targetId) });
+
+		if (metadataType)
+			conditions.push({ 'metadataEntry.metadataType': metadataType });
+
+		const sortConditions = { $sort: { [sortingOptions[options.sortField]]: options.sortDirection } };
+		return this.catapultDb.queryPagedDocuments(conditions, [], sortConditions, 'metadata', options);
 	}
 }
 

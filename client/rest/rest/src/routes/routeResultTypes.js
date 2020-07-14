@@ -28,6 +28,7 @@ module.exports = {
 	chainStatistic: 'chainStatistic',
 	chainStatisticCurrent: 'chainStatisticCurrent',
 	merkleProofInfo: 'merkleProofInfo',
+	metadata: 'metadata',
 	receipts: 'receipts',
 	stateTree: 'stateTree',
 	transactionStatus: 'transactionStatus',

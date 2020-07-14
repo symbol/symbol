@@ -53,15 +53,11 @@ const metadataPlugin = {
 		});
 
 		builder.addSchema('metadata', {
-			metadataEntries: { type: ModelType.array, schemaName: 'metadata.entry' }
-		});
-
-		builder.addSchema('metadata.entry', {
 			id: ModelType.objectId,
-			metadataEntry: { type: ModelType.object, schemaName: 'metadata.entry.element' }
+			metadataEntry: { type: ModelType.object, schemaName: 'metadataEntry' }
 		});
 
-		builder.addSchema('metadata.entry.element', {
+		builder.addSchema('metadataEntry', {
 			compositeHash: ModelType.binary,
 			sourceAddress: ModelType.binary,
 			targetAddress: ModelType.binary,

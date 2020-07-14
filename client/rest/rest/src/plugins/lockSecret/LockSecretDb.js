@@ -45,7 +45,7 @@ class LockSecretDb {
 			conditions.push({ [sortingOptions[options.sortField]]: { [1 === options.sortDirection ? '$gt' : '$lt']: options.offset } });
 
 		const sortConditions = { $sort: { [sortingOptions[options.sortField]]: options.sortDirection } };
-		return this.catapultDb.queryPagedDocuments_2(conditions, [], sortConditions, 'secretLocks', options);
+		return this.catapultDb.queryPagedDocuments(conditions, [], sortConditions, 'secretLocks', options);
 	}
 
 	/**

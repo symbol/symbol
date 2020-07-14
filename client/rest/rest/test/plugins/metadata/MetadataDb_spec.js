@@ -18,318 +18,259 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const CatapultDb = require('../../../src/db/CatapultDb');
+const { convertToLong } = require('../../../src/db/dbUtils');
 const MetadataDb = require('../../../src/plugins/metadata/MetadataDb');
 const test = require('../../db/utils/dbTestUtils');
 const catapult = require('catapult-sdk');
 const { expect } = require('chai');
-const MongoDb = require('mongodb');
+const sinon = require('sinon');
 
 const { address } = catapult.model;
-const { Binary, ObjectId, Long } = MongoDb;
 
 describe('metadata db', () => {
-	const testAddress = {
-		one: 'SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ',
-		two: 'SAMZMPX33DFIIVOCNJYMF5KJTGLAEVNKHHFROLQ'
-	};
+	const { createObjectId } = test.db;
 
-	const senderTestAddress = {
-		one: 'SCFZFP7N5C3P6EHP5D2UJ7GQD7Q7ZIENV4NZ6EI',
-		two: 'SAAM2O7SSJ2A7AU3DZJMSTTRFZT5TFDPQ3ZIIJQ'
-	};
+	const runMetadataDbTest = (dbEntities, issueDbCommand, assertDbCommandResult) =>
+		test.db.runDbTest(dbEntities, 'metadata', db => new MetadataDb(db), issueDbCommand, assertDbCommandResult);
 
-	const scopedMetadataKey = {
-		one: [0xBAF454E1, 0xCC7676F3],
-		two: [0xC345AA21, 0xB4512EE0]
-	};
+	describe('metadata', () => {
+		const testAddress1 = address.stringToAddress('SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ');
+		const testAddress2 = address.stringToAddress('NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA');
 
-	const createObjectId = id => new ObjectId(`${'00'.repeat(12)}${id}`.slice(-24));
+		const paginationOptions = {
+			pageSize: 10,
+			pageNumber: 1,
+			sortField: 'id',
+			sortDirection: -1
+		};
 
-	const createMetadata = (id, metadataType, accountAddress, scopedKey, senderAddress, value) => ({
-		_id: -1 === id ? createObjectId(Math.floor(Math.random() * 100000)) : id,
-		metadataEntry: {
-			compositeHash: {},
-			sourceAddress: undefined !== senderAddress ? new Binary(Buffer.from(address.stringToAddress(senderAddress))) : '',
-			targetAddress: undefined !== accountAddress ? new Binary(Buffer.from(address.stringToAddress(accountAddress))) : '',
-			scopedMetadataKey: undefined !== scopedKey ? new Long(scopedKey[0], scopedKey[1]) : '',
-			targetId: 0,
-			metadataType: undefined !== metadataType ? metadataType : '',
-			valueSize: undefined === value ? 0 : value.length,
-			value: undefined !== value ? new Binary(value) : ''
-		}
-	});
+		const createMetadata = (objectId, sourceAddress, targetAddress, scopedMetadataKey, targetId, metadataType) => ({
+			_id: createObjectId(objectId),
+			metadataEntry: {
+				sourceAddress: sourceAddress ? Buffer.from(sourceAddress) : undefined,
+				targetAddress: targetAddress ? Buffer.from(targetAddress) : undefined,
+				scopedMetadataKey: scopedMetadataKey ? convertToLong(scopedMetadataKey) : undefined,
+				targetId: targetId ? convertToLong(targetId) : undefined,
+				metadataType: undefined !== metadataType ? metadataType : undefined
+			}
+		});
 
-	const targetFilter = { 'metadataEntry.targetAddress': Buffer.from(address.stringToAddress(testAddress.one)) };
+		const runTestAndVerifyIds = (dbMetadata, dbQuery, expectedIds) => {
+			const expectedObjectIds = expectedIds.map(id => createObjectId(id));
 
-	describe('get metadata with pagination', () => {
-		it('can get metadata with no pagination', () => {
+			return runMetadataDbTest(
+				dbMetadata,
+				dbQuery,
+				metadataPage => {
+					const returnedIds = metadataPage.data.map(t => t.id);
+					expect(metadataPage.data.length).to.equal(expectedObjectIds.length);
+					expect(returnedIds.sort()).to.deep.equal(expectedObjectIds.sort());
+				}
+			);
+		};
+
+		it('returns expected structure', () => {
 			// Arrange:
-			const searchedId = 100;
-			const searchedMetadataType = 1;
-
-			const metadataDbEntities = [];
-			metadataDbEntities.push(createMetadata(searchedId, searchedMetadataType, testAddress.one));
-			metadataDbEntities.push(createMetadata(searchedId + 10, searchedMetadataType + 1, testAddress.one));
-			metadataDbEntities.push(createMetadata(searchedId + 20, searchedMetadataType, testAddress.two));
+			const dbMetadata = [createMetadata(10)];
 
 			// Act + Assert:
-			return test.db.runDbTest(
-				metadataDbEntities,
-				'metadata',
-				db => new MetadataDb(db),
-				db => db.getMetadataWithPagination(searchedMetadataType, targetFilter),
-				entities => {
-					expect(entities.length).to.equal(1);
-					expect(entities[0].id).to.equal(searchedId);
+			return runMetadataDbTest(
+				dbMetadata,
+				db => db.metadata(undefined, undefined, undefined, undefined, undefined, paginationOptions),
+				page => {
+					const expected_keys = ['id', 'metadataEntry'];
+					expect(Object.keys(page.data[0]).sort()).to.deep.equal(expected_keys.sort());
 				}
 			);
 		});
 
-		it('can get metadata with pagination', () => {
+		it('returns filtered metadata by sourceAddress', () => {
 			// Arrange:
-			const searchedMetadataType = 1;
-			const startingPageId = 10;
-			const pageSize = 20;
-
-			const metadataDbEntities = [];
-			for (let index = 1; startingPageId + pageSize + 10 >= index; ++index)
-				metadataDbEntities.push(createMetadata(createObjectId(index), searchedMetadataType, testAddress.one));
-
-			const expectedPagedIds = [];
-			for (let i = startingPageId + 1; startingPageId + pageSize >= i; ++i)
-				expectedPagedIds.push(createObjectId(i));
+			const dbMetadata = [
+				createMetadata(10, testAddress1),
+				createMetadata(20, testAddress2)
+			];
 
 			// Act + Assert:
-			return test.db.runDbTest(
-				metadataDbEntities,
-				'metadata',
-				db => new MetadataDb(db),
-				db => db.getMetadataWithPagination(searchedMetadataType, targetFilter, createObjectId(startingPageId), pageSize, 1),
-				entities => {
-					const pagedIds = entities.map(e => e.id);
-					expect(pagedIds).to.deep.equal(expectedPagedIds);
-				}
+			return runTestAndVerifyIds(
+				dbMetadata,
+				db => db.metadata(testAddress2, undefined, undefined, undefined, undefined, paginationOptions), [20]
 			);
 		});
 
-		it('can get metadata with pagination, no pageId first time', () => {
+		it('returns filtered metadata by targetAddress', () => {
 			// Arrange:
-			const searchedMetadataType = 1;
-			const pageSize = 20;
-
-			const metadataDbEntities = [];
-			for (let index = 1; pageSize + 10 >= index; ++index)
-				metadataDbEntities.push(createMetadata(createObjectId(index), searchedMetadataType, testAddress.one));
-
-			const expectedPagedIds = [];
-			for (let i = 1; pageSize >= i; ++i)
-				expectedPagedIds.push(createObjectId(i));
+			const dbMetadata = [
+				createMetadata(10, undefined, testAddress1),
+				createMetadata(20, undefined, testAddress2)
+			];
 
 			// Act + Assert:
-			return test.db.runDbTest(
-				metadataDbEntities,
-				'metadata',
-				db => new MetadataDb(db),
-				db => db.getMetadataWithPagination(searchedMetadataType, targetFilter, undefined, pageSize, 1),
-				entities => {
-					const pagedIds = entities.map(e => e.id);
-					expect(pagedIds).to.deep.equal(expectedPagedIds);
-				}
+			return runTestAndVerifyIds(
+				dbMetadata,
+				db => db.metadata(undefined, testAddress2, undefined, undefined, undefined, paginationOptions), [20]
 			);
 		});
 
-		it('returns empty when filter resolves to false', () => {
+		it('returns filtered metadata by scopedMetadataKey', () => {
 			// Arrange:
-			const metadataDbEntities = [];
-			metadataDbEntities.push(createMetadata(-1));
-			metadataDbEntities.push(createMetadata(-1));
-			metadataDbEntities.push(createMetadata(-1));
+			const dbMetadata = [
+				createMetadata(10, undefined, undefined, [0x1CAD29E3, 0x0DC67FBE]),
+				createMetadata(20, undefined, undefined, [0xAAAD29AA, 0xAAC67FAA])
+			];
 
 			// Act + Assert:
-			return test.db.runDbTest(
-				metadataDbEntities,
-				'metadata',
-				db => new MetadataDb(db),
-				db => db.getMetadataWithPagination(1, { 'metadataEntry.nonExistingField': '' }),
-				entities => { expect(entities).to.deep.equal([]); }
-			);
-		});
-	});
-
-	describe('get metadata by key', () => {
-		it('gets metadata by key', () => {
-			// Arrange:
-			const metadataDbEntities = [];
-			metadataDbEntities.push(createMetadata(-1, 1, testAddress.one, scopedMetadataKey.one, senderTestAddress.one));
-			metadataDbEntities.push(createMetadata(-1, 1, testAddress.one, scopedMetadataKey.one, senderTestAddress.two));
-			metadataDbEntities.push(createMetadata(-1, 1, testAddress.one, scopedMetadataKey.two, senderTestAddress.one));
-			metadataDbEntities.push(createMetadata(-1, 2, testAddress.one, scopedMetadataKey.one, senderTestAddress.two));
-			metadataDbEntities.push(createMetadata(-1, 1, testAddress.two, scopedMetadataKey.one, senderTestAddress.one));
-
-			// Act + Assert:
-			return test.db.runDbTest(
-				metadataDbEntities,
-				'metadata',
-				db => new MetadataDb(db),
-				db => db.getMetadataByKey(1, targetFilter, scopedMetadataKey.one),
-				entities => {
-					const expectedSenderAddresses = [
-						new Binary(Buffer.from(address.stringToAddress(senderTestAddress.one))),
-						new Binary(Buffer.from(address.stringToAddress(senderTestAddress.two)))
-					];
-					const senderAddresses = entities.map(e => e.metadataEntry.sourceAddress);
-					expect(entities.length).to.equal(2);
-					expect(senderAddresses).to.deep.equal(expectedSenderAddresses);
-				}
+			return runTestAndVerifyIds(
+				dbMetadata,
+				db => db.metadata(undefined, undefined, [0x1CAD29E3, 0x0DC67FBE], undefined, undefined, paginationOptions), [10]
 			);
 		});
 
-		it('returns empty when filter resolves to false', () => {
+		it('returns filtered metadata by targetId', () => {
 			// Arrange:
-			const metadataDbEntities = [];
-			metadataDbEntities.push(createMetadata(-1, 1, testAddress.one, scopedMetadataKey.one));
-			metadataDbEntities.push(createMetadata(-1, 1, testAddress.one, scopedMetadataKey.one));
-			metadataDbEntities.push(createMetadata(-1, 1, testAddress.one, scopedMetadataKey.one));
+			const dbMetadata = [
+				createMetadata(10, undefined, undefined, undefined, [0xAAAD29AA, 0xAAC67FAA]),
+				createMetadata(20, undefined, undefined, undefined, [0x1CAD29E3, 0x0DC67FBE])
+			];
 
 			// Act + Assert:
-			return test.db.runDbTest(
-				metadataDbEntities,
-				'metadata',
-				db => new MetadataDb(db),
-				db => db.getMetadataByKey(1, { 'metadataEntry.nonExistingField': '' }, scopedMetadataKey.one),
-				entities => {
-					expect(entities).to.deep.equal([]);
-				}
+			return runTestAndVerifyIds(
+				dbMetadata,
+				db => db.metadata(undefined, undefined, undefined, [0xAAAD29AA, 0xAAC67FAA], undefined, paginationOptions), [10]
 			);
 		});
 
-		it('returns empty when there are no metadata with supplied key', () => {
+		it('returns filtered metadata by metadataType', () => {
 			// Arrange:
-			const metadataDbEntities = [];
-			metadataDbEntities.push(createMetadata(-1, 1, testAddress.one, scopedMetadataKey.one, senderTestAddress.one));
-			metadataDbEntities.push(createMetadata(-1, 1, testAddress.one, scopedMetadataKey.one, senderTestAddress.one));
+			const dbMetadata = [
+				createMetadata(10, undefined, undefined, undefined, undefined, 45),
+				createMetadata(20, undefined, undefined, undefined, undefined, 87)
+			];
 
 			// Act + Assert:
-			return test.db.runDbTest(
-				metadataDbEntities,
-				'metadata',
-				db => new MetadataDb(db),
-				db => db.getMetadataByKey(1, targetFilter, scopedMetadataKey.two),
-				entities => {
-					expect(entities).to.deep.equal([]);
-				}
-			);
-		});
-	});
-
-	describe('get metadata by key and sender', () => {
-		it('gets metadata by key and sender', () => {
-			// Arrange:
-			const metadataDbEntities = [];
-			const appleId = createObjectId(126);
-			metadataDbEntities.push(createMetadata(appleId, 1, testAddress.one, scopedMetadataKey.one, senderTestAddress.one, 'apple'));
-			metadataDbEntities.push(createMetadata(-1, 1, testAddress.one, scopedMetadataKey.one, senderTestAddress.two, 'banana'));
-			metadataDbEntities.push(createMetadata(-1, 1, testAddress.one, scopedMetadataKey.two, senderTestAddress.one, 'cherry'));
-			metadataDbEntities.push(createMetadata(-1, 2, testAddress.one, scopedMetadataKey.one, senderTestAddress.two, 'dates'));
-			metadataDbEntities.push(createMetadata(-1, 1, testAddress.two, scopedMetadataKey.one, senderTestAddress.one, 'entawak'));
-
-			// Act + Assert:
-			return test.db.runDbTest(
-				metadataDbEntities,
-				'metadata',
-				db => new MetadataDb(db),
-				db => db.getMetadataByKeyAndSender(
-					1,
-					targetFilter,
-					scopedMetadataKey.one,
-					Buffer.from(address.stringToAddress(senderTestAddress.one))
-				),
-				metadataEntry => {
-					expect(metadataEntry).to.deep.equal({
-						id: appleId,
-						metadataEntry: {
-							compositeHash: {},
-							metadataType: 1,
-							scopedMetadataKey: new Long(scopedMetadataKey.one[0], scopedMetadataKey.one[1]),
-							sourceAddress: new Binary(Buffer.from(address.stringToAddress(senderTestAddress.one))),
-							targetId: 0,
-							targetAddress: new Binary(Buffer.from(address.stringToAddress(testAddress.one))),
-							value: new Binary('apple'),
-							valueSize: 5
-						}
-					});
-				}
+			return runTestAndVerifyIds(
+				dbMetadata,
+				db => db.metadata(undefined, undefined, undefined, undefined, 87, paginationOptions), [20]
 			);
 		});
 
-		it('returns undefined when filter resolves to false', () => {
+		it('returns all the metadata if no filters provided', () => {
 			// Arrange:
-			const metadataDbEntities = [];
-			metadataDbEntities.push(createMetadata(-1, 1, testAddress.one, scopedMetadataKey.one, senderTestAddress.one));
-			metadataDbEntities.push(createMetadata(-1, 1, testAddress.one, scopedMetadataKey.one, senderTestAddress.one));
-			metadataDbEntities.push(createMetadata(-1, 1, testAddress.one, scopedMetadataKey.one, senderTestAddress.one));
+			const dbMetadata = [
+				createMetadata(10),
+				createMetadata(20)
+			];
 
 			// Act + Assert:
-			return test.db.runDbTest(
-				metadataDbEntities,
-				'metadata',
-				db => new MetadataDb(db),
-				db => db.getMetadataByKeyAndSender(
-					1,
-					{ 'metadataEntry.nonExistingField': '' },
-					scopedMetadataKey.one,
-					Buffer.from(address.stringToAddress(senderTestAddress.one))
-				),
-				entities => {
-					expect(entities).to.equal(undefined);
-				}
+			return runTestAndVerifyIds(
+				dbMetadata,
+				db => db.metadata(undefined, undefined, undefined, undefined, undefined, paginationOptions), [10, 20]
 			);
 		});
 
-		it('returns undefined when there are no metadata with supplied key', () => {
+		describe('respects sort conditions', () => {
 			// Arrange:
-			const metadataDbEntities = [];
-			metadataDbEntities.push(createMetadata(-1, 1, testAddress.one, scopedMetadataKey.one, senderTestAddress.one, 'apple'));
-			metadataDbEntities.push(createMetadata(-1, 1, testAddress.one, scopedMetadataKey.one, senderTestAddress.one, 'banana'));
+			const dbMetadata = () => [
+				createMetadata(10),
+				createMetadata(20),
+				createMetadata(30)
+			];
 
-			// Act + Assert:
-			return test.db.runDbTest(
-				metadataDbEntities,
-				'metadata',
-				db => new MetadataDb(db),
-				db => db.getMetadataByKeyAndSender(
-					1,
-					targetFilter,
-					scopedMetadataKey.two,
-					Buffer.from(address.stringToAddress(senderTestAddress.one))
-				),
-				metadataEntry => {
-					expect(metadataEntry).to.equal(undefined);
-				}
-			);
+			it('direction ascending', () => {
+				const options = {
+					pageSize: 10,
+					pageNumber: 1,
+					sortField: 'id',
+					sortDirection: 1
+				};
+
+				// Act + Assert:
+				return runMetadataDbTest(
+					dbMetadata(),
+					db => db.metadata(undefined, undefined, undefined, undefined, undefined, options),
+					page => {
+						expect(page.data[0].id).to.deep.equal(createObjectId(10));
+						expect(page.data[1].id).to.deep.equal(createObjectId(20));
+						expect(page.data[2].id).to.deep.equal(createObjectId(30));
+					}
+				);
+			});
+
+			it('direction descending', () => {
+				const options = {
+					pageSize: 10,
+					pageNumber: 1,
+					sortField: 'id',
+					sortDirection: -1
+				};
+
+				// Act + Assert:
+				return runMetadataDbTest(
+					dbMetadata(),
+					db => db.metadata(undefined, undefined, undefined, undefined, undefined, options),
+					page => {
+						expect(page.data[0].id).to.deep.equal(createObjectId(30));
+						expect(page.data[1].id).to.deep.equal(createObjectId(20));
+						expect(page.data[2].id).to.deep.equal(createObjectId(10));
+					}
+				);
+			});
+
+			it('sort field', () => {
+				const queryPagedDocumentsSpy = sinon.spy(CatapultDb.prototype, 'queryPagedDocuments');
+				const options = {
+					pageSize: 10,
+					pageNumber: 1,
+					sortField: 'id',
+					sortDirection: 1
+				};
+
+				// Act + Assert:
+				return runMetadataDbTest(
+					dbMetadata(),
+					db => db.metadata(undefined, undefined, undefined, undefined, undefined, options),
+					() => {
+						expect(queryPagedDocumentsSpy.calledOnce).to.equal(true);
+						expect(Object.keys(queryPagedDocumentsSpy.firstCall.args[2].$sort)[0]).to.equal('_id');
+						queryPagedDocumentsSpy.restore();
+					}
+				);
+			});
 		});
 
-		it('returns undefined when there are no metadata with supplied sender', () => {
+		describe('respects offset', () => {
 			// Arrange:
-			const metadataDbEntities = [];
-			metadataDbEntities.push(createMetadata(-1, 1, testAddress.one, scopedMetadataKey.one, senderTestAddress.one, 'apple'));
-			metadataDbEntities.push(createMetadata(-1, 1, testAddress.one, scopedMetadataKey.one, senderTestAddress.one, 'banana'));
+			const dbMetadata = () => [
+				createMetadata(10),
+				createMetadata(20),
+				createMetadata(30)
+			];
+			const options = {
+				pageSize: 10,
+				pageNumber: 1,
+				sortField: 'id',
+				sortDirection: 1,
+				offset: createObjectId(20)
+			};
 
-			// Act + Assert:
-			return test.db.runDbTest(
-				metadataDbEntities,
-				'metadata',
-				db => new MetadataDb(db),
-				db => db.getMetadataByKeyAndSender(
-					1,
-					targetFilter,
-					scopedMetadataKey.one,
-					Buffer.from(address.stringToAddress(senderTestAddress.two))
-				),
-				metadataEntry => {
-					expect(metadataEntry).to.equal(undefined);
-				}
-			);
+			it('gt', () => {
+				options.sortDirection = 1;
+
+				// Act + Assert:
+				return runTestAndVerifyIds(
+					dbMetadata(), db => db.metadata(undefined, undefined, undefined, undefined, undefined, options), [30]
+				);
+			});
+
+			it('lt', () => {
+				options.sortDirection = -1;
+
+				// Act + Assert:
+				return runTestAndVerifyIds(
+					dbMetadata(), db => db.metadata(undefined, undefined, undefined, undefined, undefined, options), [10]
+				);
+			});
 		});
 	});
 });

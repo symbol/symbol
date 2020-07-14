@@ -18,104 +18,24 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const routeResultTypes = require('../../routes/routeResultTypes');
 const routeUtils = require('../../routes/routeUtils');
-const catapult = require('catapult-sdk');
-const MongoDb = require('mongodb');
-
-const { Long } = MongoDb;
-const { metadata } = catapult.model;
-const { uint64 } = catapult.utils;
 
 module.exports = {
-	register: (server, db) => {
-		const idFilter = id => ({ 'metadataEntry.targetId': new Long(id[0], id[1]) });
+	register: (server, db, services) => {
+		server.get('/metadata', (req, res, next) => {
+			const { params } = req;
+			const sourceAddress = params.sourceAddress ? routeUtils.parseArgument(params, 'sourceAddress', 'address') : undefined;
+			const targetAddress = params.targetAddress ? routeUtils.parseArgument(params, 'targetAddress', 'address') : undefined;
+			const scopedMetadataKey = params.scopedMetadataKey
+				? routeUtils.parseArgument(params, 'scopedMetadataKey', 'uint64hex') : undefined;
+			const targetId = params.targetId ? routeUtils.parseArgument(params, 'targetId', 'uint64hex') : undefined;
+			const metadataType = params.metadataType ? routeUtils.parseArgument(params, 'metadataType', 'uint') : undefined;
 
-		const addMetadataEndpointsFor = entity => {
-			server.get(`/metadata/${entity}/:${entity}Id`, (req, res, next) => {
-				const entityId = routeUtils.parseArgument(req.params, `${entity}Id`, uint64.fromHex);
-				const pagingOptions = routeUtils.parsePagingArguments(req.params);
-				const ordering = routeUtils.parseArgument(req.params, 'ordering', input => ('id' === input ? 1 : -1));
+			const options = routeUtils.parsePaginationArguments(params, services.config.pageSize, { id: 'objectId' });
 
-				return db.getMetadataWithPagination(
-					metadata.metadataType[entity],
-					idFilter(entityId),
-					pagingOptions.id,
-					pagingOptions.pageSize,
-					ordering
-				).then(metadataEntries => routeUtils.createSender('metadata').sendOne(entityId, res, next)({ metadataEntries }));
-			});
-
-			server.get(`/metadata/${entity}/:${entity}Id/key/:key`, (req, res, next) => {
-				const entityId = routeUtils.parseArgument(req.params, `${entity}Id`, uint64.fromHex);
-				const scopedMetadataKey = routeUtils.parseArgument(req.params, 'key', uint64.fromHex);
-
-				return db.getMetadataByKey(metadata.metadataType[entity], idFilter(entityId), scopedMetadataKey)
-					.then(metadataEntries =>
-						routeUtils.createSender('metadata').sendOne(scopedMetadataKey, res, next)({ metadataEntries }));
-			});
-
-			server.get(`/metadata/${entity}/:${entity}Id/key/:key/sender/:senderAddress`, (req, res, next) => {
-				const entityId = routeUtils.parseArgument(req.params, `${entity}Id`, uint64.fromHex);
-				const scopedMetadataKey = routeUtils.parseArgument(req.params, 'key', uint64.fromHex);
-				const sourceAddress = routeUtils.parseArgument(req.params, 'senderAddress', 'address');
-
-				return db.getMetadataByKeyAndSender(metadata.metadataType[entity], idFilter(entityId), scopedMetadataKey, sourceAddress)
-					.then(metadataResult => routeUtils.createSender('metadata.entry').sendOne(sourceAddress, res, next)(metadataResult));
-			});
-		};
-
-		// region account metadata
-
-		server.get('/metadata/account/:address', (req, res, next) => {
-			const accountAddress = routeUtils.parseArgument(req.params, 'address', 'address');
-			const pagingOptions = routeUtils.parsePagingArguments(req.params);
-			const ordering = routeUtils.parseArgument(req.params, 'ordering', input => ('id' === input ? 1 : -1));
-
-			return db.getMetadataWithPagination(
-				metadata.metadataType.account,
-				{ 'metadataEntry.targetAddress': Buffer.from(accountAddress) },
-				pagingOptions.id,
-				pagingOptions.pageSize,
-				ordering
-			).then(
-				metadataEntries => routeUtils.createSender('metadata').sendOne('address', res, next)({ metadataEntries })
-			);
+			return db.metadata(sourceAddress, targetAddress, scopedMetadataKey, targetId, metadataType, options)
+				.then(result => routeUtils.createSender(routeResultTypes.metadata).sendPage(res, next)(result));
 		});
-
-		server.get('/metadata/account/:address/key/:key', (req, res, next) => {
-			const accountAddress = routeUtils.parseArgument(req.params, 'address', 'address');
-			const scopedMetadataKey = routeUtils.parseArgument(req.params, 'key', uint64.fromHex);
-
-			return db.getMetadataByKey(
-				metadata.metadataType.account,
-				{ 'metadataEntry.targetAddress': Buffer.from(accountAddress) },
-				scopedMetadataKey
-			).then(
-				metadataEntries => routeUtils.createSender('metadata').sendOne(scopedMetadataKey, res, next)({ metadataEntries })
-			);
-		});
-
-		server.get('/metadata/account/:address/key/:key/sender/:senderAddress', (req, res, next) => {
-			const accountAddress = routeUtils.parseArgument(req.params, 'address', 'address');
-			const scopedMetadataKey = routeUtils.parseArgument(req.params, 'key', uint64.fromHex);
-			const sourceAddress = routeUtils.parseArgument(req.params, 'senderAddress', 'address');
-
-			return db.getMetadataByKeyAndSender(
-				metadata.metadataType.account,
-				{ 'metadataEntry.targetAddress': Buffer.from(accountAddress) },
-				scopedMetadataKey,
-				sourceAddress
-			).then(
-				metadataResult => routeUtils.createSender('metadata.entry').sendOne(sourceAddress, res, next)(metadataResult)
-			);
-		});
-
-		// endregion
-
-		// mosaic metadata
-		addMetadataEndpointsFor('mosaic');
-
-		// namespace metadata
-		addMetadataEndpointsFor('namespace');
 	}
 };

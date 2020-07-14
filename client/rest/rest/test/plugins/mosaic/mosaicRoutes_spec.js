@@ -45,24 +45,30 @@ describe('mosaic routes', () => {
 		const pageSample = {
 			data: [
 				{
-					id: 'random1',
-					supply: 1,
-					startHeight: '',
-					ownerAddress: '',
-					revision: 1,
-					flags: 3,
-					divisibility: 3,
-					duration: ''
+					id: '',
+					mosaic: {
+						id: 'random1',
+						supply: 1,
+						startHeight: '',
+						ownerAddress: '',
+						revision: 1,
+						flags: 3,
+						divisibility: 3,
+						duration: ''
+					}
 				},
 				{
-					id: 'random2',
-					supply: 1,
-					startHeight: '',
-					ownerAddress: '',
-					revision: 1,
-					flags: 3,
-					divisibility: 3,
-					duration: ''
+					id: '',
+					mosaic: {
+						id: 'random2',
+						supply: 1,
+						startHeight: '',
+						ownerAddress: '',
+						revision: 1,
+						flags: 3,
+						divisibility: 3,
+						duration: ''
+					}
 				}
 			],
 			pagination: {

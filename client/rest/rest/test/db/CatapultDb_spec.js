@@ -324,7 +324,7 @@ describe('catapult db', () => {
 			});
 
 			it('sort field', () => {
-				const queryPagedDocumentsSpy = sinon.spy(CatapultDb.prototype, 'queryPagedDocuments_2');
+				const queryPagedDocumentsSpy = sinon.spy(CatapultDb.prototype, 'queryPagedDocuments');
 				const options = {
 					pageSize: 10,
 					pageNumber: 1,
@@ -1048,7 +1048,7 @@ describe('catapult db', () => {
 				// Act + Assert:
 				return runDbTest(
 					{},
-					db => db.queryPagedDocuments_2(conditions, [], sortConditions, 'accounts', options),
+					db => db.queryPagedDocuments(conditions, [], sortConditions, 'accounts', options),
 					() => {
 						expect(queryPagedDocumentsWithConditionsSpy.calledOnce).to.equal(true);
 						expect(queryPagedDocumentsWithConditionsSpy.firstCall.args[0]).to.deep.equal([...commonExpectedConditions]);
@@ -1064,7 +1064,7 @@ describe('catapult db', () => {
 				// Act + Assert:
 				return runDbTest(
 					{},
-					db => db.queryPagedDocuments_2(conditions, [], sortConditions, 'accounts', options),
+					db => db.queryPagedDocuments(conditions, [], sortConditions, 'accounts', options),
 					() => {
 						expect(queryPagedDocumentsWithConditionsSpy.calledOnce).to.equal(true);
 						expect(queryPagedDocumentsWithConditionsSpy.firstCall.args[0]).to.deep.equal([
@@ -1082,7 +1082,7 @@ describe('catapult db', () => {
 				// Act + Assert:
 				return runDbTest(
 					{},
-					db => db.queryPagedDocuments_2(conditions, [], sortConditions, 'accounts', options),
+					db => db.queryPagedDocuments(conditions, [], sortConditions, 'accounts', options),
 					() => {
 						expect(queryPagedDocumentsWithConditionsSpy.calledOnce).to.equal(true);
 						expect(queryPagedDocumentsWithConditionsSpy.firstCall.args[0]).to.deep.equal([
@@ -1698,7 +1698,7 @@ describe('catapult db', () => {
 			});
 
 			it('sort field', () => {
-				const queryPagedDocumentsSpy = sinon.spy(CatapultDb.prototype, 'queryPagedDocuments_2');
+				const queryPagedDocumentsSpy = sinon.spy(CatapultDb.prototype, 'queryPagedDocuments');
 				const options = {
 					pageSize: 10,
 					pageNumber: 1,
@@ -2094,7 +2094,7 @@ describe('catapult db', () => {
 			});
 
 			it('sort field', () => {
-				const queryPagedDocumentsSpy = sinon.spy(CatapultDb.prototype, 'queryPagedDocuments_2');
+				const queryPagedDocumentsSpy = sinon.spy(CatapultDb.prototype, 'queryPagedDocuments');
 				const options = {
 					pageSize: 10,
 					pageNumber: 1,

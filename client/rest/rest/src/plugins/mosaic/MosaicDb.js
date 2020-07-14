@@ -51,7 +51,7 @@ class MosaicDb {
 			conditions.push({ 'mosaic.ownerAddress': Buffer.from(ownerAddress) });
 
 		const sortConditions = { $sort: { [sortingOptions[options.sortField]]: options.sortDirection } };
-		return this.catapultDb.queryPagedDocuments_2(conditions, [], sortConditions, 'mosaics', options);
+		return this.catapultDb.queryPagedDocuments(conditions, [], sortConditions, 'mosaics', options);
 	}
 
 	/**

@@ -73,7 +73,7 @@ class NamespaceDb {
 		conditions.push({ 'meta.active': true });
 
 		const sortConditions = { $sort: { [sortingOptions[options.sortField]]: options.sortDirection } };
-		return this.catapultDb.queryPagedDocuments_2(conditions, [], sortConditions, 'namespaces', options);
+		return this.catapultDb.queryPagedDocuments(conditions, [], sortConditions, 'namespaces', options);
 	}
 
 	/**

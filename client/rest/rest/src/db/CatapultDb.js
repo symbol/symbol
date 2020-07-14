@@ -96,9 +96,6 @@ const buildBlocksFromOptions = (height, numBlocks, chainHeight) => {
 	return { startHeight, endHeight, numBlocks: endHeight.subtract(startHeight).toNumber() };
 };
 
-const getBoundedPageSize = (pageSize, pagingOptions) =>
-	Math.max(pagingOptions.pageSizeMin, Math.min(pagingOptions.pageSizeMax, pageSize || pagingOptions.pageSizeDefault));
-
 const TransactionGroup = Object.freeze({
 	confirmed: 'transactions',
 	unconfirmed: 'unconfirmedTransactions',
@@ -157,37 +154,12 @@ class CatapultDb {
 			.then(this.sanitizer.deleteIds);
 	}
 
-	queryRawDocuments(collectionName, conditions) {
-		return this.database.collection(collectionName).find(conditions).toArray();
-	}
-
 	queryDocumentsAndCopyIds(collectionName, conditions, options = {}) {
 		const collection = this.database.collection(collectionName);
 		return collection.find(conditions)
 			.project(options.projection)
 			.toArray()
 			.then(this.sanitizer.renameIds);
-	}
-
-	queryPagedDocuments(collectionName, conditions, id, pageSize, options = {}) {
-		const sortOrder = options.sortOrder || -1;
-		let allConditions = conditions;
-
-		if (id) {
-			allConditions = {
-				$and: [
-					conditions,
-					{ _id: { [0 > sortOrder ? '$lt' : '$gt']: new ObjectId(id) } }
-				]
-			};
-		}
-
-		const collection = this.database.collection(collectionName);
-		return collection.find(allConditions)
-			.project(options.projection)
-			.sort({ _id: sortOrder })
-			.limit(getBoundedPageSize(pageSize, this.pagingOptions))
-			.toArray();
 	}
 
 	// endregion
@@ -242,7 +214,7 @@ class CatapultDb {
 
 		const sortConditions = { $sort: { [sortingOptions[options.sortField]]: options.sortDirection } };
 
-		return this.queryPagedDocuments_2(conditions, [], sortConditions, 'blocks', options);
+		return this.queryPagedDocuments(conditions, [], sortConditions, 'blocks', options);
 	}
 
 	blockAtHeight(height) {
@@ -314,7 +286,7 @@ class CatapultDb {
 	 * @returns {Promise.<object>} Page result, contains the attributes `data` with the actual results, and `paging` with pagination
 	 * metadata - which is comprised of: `totalEntries`, `pageNumber`, and `pageSize`.
 	 */
-	queryPagedDocuments_2(queryConditions, removedFields, sortConditions, collectionName, options) {
+	queryPagedDocuments(queryConditions, removedFields, sortConditions, collectionName, options) {
 		const conditions = [];
 		if (queryConditions.length)
 			conditions.push(1 === queryConditions.length ? { $match: queryConditions[0] } : { $match: { $and: queryConditions } });
@@ -433,7 +405,7 @@ class CatapultDb {
 		const sortConditions = { $sort: { [sortingOptions[options.sortField]]: options.sortDirection } };
 		const conditions = buildConditions();
 
-		return this.queryPagedDocuments_2(conditions, removedFields, sortConditions, TransactionGroup[group], options);
+		return this.queryPagedDocuments(conditions, removedFields, sortConditions, TransactionGroup[group], options);
 	}
 
 	transactionsByIdsImpl(collectionName, conditions) {
@@ -532,7 +504,7 @@ class CatapultDb {
 					conditions.push({ _id: { $in: accountIds } });
 
 					// repeat the response with the found and sorted account ids, so that the result can be complete with all the mosaics
-					return this.queryPagedDocuments_2(conditions, [], sortConditions, 'accounts', options)
+					return this.queryPagedDocuments(conditions, [], sortConditions, 'accounts', options)
 						.then(fullAccountsPage => {
 							// $in results do not preserve query order
 							fullAccountsPage.data.sort((account1, account2) =>
@@ -543,7 +515,7 @@ class CatapultDb {
 				});
 		}
 
-		return this.queryPagedDocuments_2(conditions, [], sortConditions, 'accounts', options);
+		return this.queryPagedDocuments(conditions, [], sortConditions, 'accounts', options);
 	}
 
 	accountsByIds(ids) {
