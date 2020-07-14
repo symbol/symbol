@@ -19,33 +19,51 @@
 **/
 
 #pragma once
-#include "catapult/plugins/PluginManager.h"
-#include "catapult/plugins/PluginModule.h"
+#include "catapult/model/NotificationPublisher.h"
+#include "catapult/model/TransactionPlugin.h"
+#include <memory>
 
-namespace catapult { namespace config { class CatapultConfiguration; } }
+namespace catapult {
+	namespace config { class CatapultConfiguration; }
+	namespace plugins { class PluginManager; }
+}
 
 namespace catapult { namespace tools { namespace nemgen {
+
+	/// Possible cache database cleanup modes.
+	enum class CacheDatabaseCleanupMode {
+		/// Perform no cleanup.
+		None,
+
+		/// Purge after execution.
+		Purge
+	};
 
 	/// Loads plugins into a plugin manager.
 	class PluginLoader {
 	public:
-		/// Creates a loader around \a config.
-		explicit PluginLoader(const config::CatapultConfiguration& config);
+		/// Creates a loader around \a config with specified database cleanup mode (\a databaseCleanupMode).
+		PluginLoader(const config::CatapultConfiguration& config, CacheDatabaseCleanupMode databaseCleanupMode);
+
+		/// Destroys the loader.
+		~PluginLoader();
 
 	public:
 		/// Gets the plugin manager.
 		plugins::PluginManager& manager();
+
+		/// Gets the transaction registry.
+		const model::TransactionRegistry& transactionRegistry() const;
+
+		/// Creates a notification publisher.
+		std::unique_ptr<const model::NotificationPublisher> createNotificationPublisher() const;
 
 	public:
 		/// Loads all configured plugins.
 		void loadAll();
 
 	private:
-		void loadPlugin(const std::string& pluginName);
-
-	private:
-		const config::CatapultConfiguration& m_config;
-		std::vector<plugins::PluginModule> m_pluginModules;
-		plugins::PluginManager m_pluginManager;
+		class Impl;
+		std::unique_ptr<Impl> m_pImpl;
 	};
 }}}

@@ -92,4 +92,7 @@ namespace catapult { namespace tools { namespace nemgen {
 		/// Loads a nemesis configuration from \a bag.
 		static NemesisConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
 	};
+
+	/// Gets the nemesis signer address from \a config.
+	Address GetNemesisSignerAddress(const NemesisConfiguration& config);
 }}}

@@ -19,14 +19,70 @@
 **/
 
 #include "AdditionalTransactions.h"
+#include "NemesisConfiguration.h"
 #include "catapult/io/PodIoUtils.h"
 #include "catapult/io/RawFile.h"
+#include "catapult/model/AggregateEntityType.h"
+#include "catapult/model/AggregateNotifications.h"
+#include "catapult/model/NotificationPublisher.h"
+#include "catapult/model/NotificationSubscriber.h"
+#include "catapult/model/TransferEntityType.h"
 #include "catapult/utils/MemoryUtils.h"
 #include <boost/filesystem.hpp>
 
 namespace catapult { namespace tools { namespace nemgen {
 
 	namespace {
+		// region AdditionalTransactionNotificationSubscriber
+
+		class AdditionalTransactionNotificationSubscriber : public model::NotificationSubscriber {
+		public:
+			AdditionalTransactionNotificationSubscriber(const NemesisConfiguration& config, std::vector<std::string>& violations)
+					: m_violations(violations)
+					, m_nemesisSignerAddress(GetNemesisSignerAddress(config))
+			{}
+
+		public:
+			void notify(const model::Notification& notification) override {
+				if (model::Core_Transaction_Notification == notification.Type) {
+					using NotificationType = model::TransactionNotification;
+					checkTransactionType(static_cast<const NotificationType&>(notification).TransactionType);
+				}
+
+				if (model::Aggregate_Embedded_Transaction_Notification == notification.Type) {
+					using NotificationType = model::AggregateEmbeddedTransactionNotification;
+					checkTransactionType(static_cast<const NotificationType&>(notification).Transaction.Type);
+				}
+
+				if (model::Core_Balance_Transfer_Notification == notification.Type) {
+					using NotificationType = model::BalanceTransferNotification;
+					checkSender(static_cast<const NotificationType&>(notification).Sender);
+				}
+			}
+
+		private:
+			void checkTransactionType(model::EntityType transactionType) {
+				if (model::Entity_Type_Transfer == transactionType)
+					m_violations.push_back("Transfer is not supported as additional transaction");
+
+				if (model::Entity_Type_Aggregate_Bonded == transactionType)
+					m_violations.push_back("Aggregate_Bonded is not supported as additional transaction");
+			}
+
+			void checkSender(const Address& senderAddress) {
+				if (m_nemesisSignerAddress == senderAddress)
+					m_violations.push_back("Nemesis Signer cannot sign any additional transaction");
+			}
+
+		private:
+			std::vector<std::string>& m_violations;
+			Address m_nemesisSignerAddress;
+		};
+
+		// endregion
+
+		// region utils
+
 		auto GetSortedPathNames(const std::string& directoryPath) {
 			std::vector<std::string> pathNames;
 
@@ -55,31 +111,53 @@ namespace catapult { namespace tools { namespace nemgen {
 			return pTransaction;
 		}
 
-		bool IsSupportedTransactionType(model::EntityType entityType) {
-			return model::Entity_Type_Voting_Key_Link == entityType || model::Entity_Type_Vrf_Key_Link == entityType;
-		}
-
-		void ValidateTransaction(const model::Transaction& transaction, const std::string& filePath) {
+		std::vector<std::string> ValidateAdditionalTransaction(
+				const NemesisConfiguration& config,
+				const model::NotificationPublisher& notificationPublisher,
+				const model::Transaction& transaction) {
+			std::vector<std::string> violations;
 			if (Timestamp(1) != transaction.Deadline)
-				CATAPULT_THROW_RUNTIME_ERROR_1("nemesis transactions need to have deadline set to 1", filePath);
+				violations.push_back("nemesis transactions need to have deadline set to 1");
 
 			if (Amount(0) != transaction.MaxFee)
-				CATAPULT_THROW_RUNTIME_ERROR_1("nemesis transactions need to have max fee set to 0", filePath);
+				violations.push_back("nemesis transactions need to have max fee set to 0");
 
-			if (!IsSupportedTransactionType(transaction.Type))
-				CATAPULT_THROW_RUNTIME_ERROR_1("currently only link transactions are supported", filePath);
+			AdditionalTransactionNotificationSubscriber subscriber(config, violations);
+			notificationPublisher.publish(transaction, subscriber);
+			return violations;
 		}
+
+		std::string FormatViolations(const std::vector<std::string>& violations, const std::string& filePath) {
+			std::ostringstream out;
+			out << "found violations for " << filePath;
+			for (const auto& violation : violations)
+				out << std::endl << " + " << violation;
+
+			return out.str();
+		}
+
+		// endregion
 	}
 
-	std::vector<std::shared_ptr<const model::Transaction>> LoadAndValidateAdditionalTransactions(
-			const std::string& transactionsDirectory) {
-		std::vector<std::shared_ptr<const model::Transaction>> transactions;
-		auto pathNames = GetSortedPathNames(transactionsDirectory);
+	model::Transactions LoadAndValidateAdditionalTransactions(
+			const NemesisConfiguration& config,
+			const model::NotificationPublisher& notificationPublisher) {
+		bool hasViolations = false;
+		model::Transactions transactions;
+		auto pathNames = GetSortedPathNames(config.TransactionsDirectory);
 		for (const auto& filePath : pathNames) {
 			auto pTransaction = LoadTransaction(filePath);
-			ValidateTransaction(*pTransaction, filePath);
 			transactions.push_back(std::move(pTransaction));
+
+			auto violations = ValidateAdditionalTransaction(config, notificationPublisher, *transactions.back());
+			if (!violations.empty()) {
+				CATAPULT_LOG(warning) << FormatViolations(violations, filePath);
+				hasViolations = true;
+			}
 		}
+
+		if (hasViolations)
+			CATAPULT_THROW_RUNTIME_ERROR("one or more additional transactions failed validation");
 
 		CATAPULT_LOG(info) << "loaded " << transactions.size() << " additional transactions";
 		return transactions;

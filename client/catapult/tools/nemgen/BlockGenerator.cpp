@@ -19,16 +19,13 @@
 **/
 
 #include "BlockGenerator.h"
-#include "AdditionalTransactions.h"
 #include "NemesisConfiguration.h"
 #include "NemesisExecutionHasher.h"
-#include "TransactionRegistryFactory.h"
 #include "catapult/builders/MosaicAliasBuilder.h"
 #include "catapult/builders/MosaicDefinitionBuilder.h"
 #include "catapult/builders/MosaicSupplyChangeBuilder.h"
 #include "catapult/builders/NamespaceRegistrationBuilder.h"
 #include "catapult/builders/TransferBuilder.h"
-#include "catapult/crypto/KeyPair.h"
 #include "catapult/extensions/BlockExtensions.h"
 #include "catapult/extensions/ConversionExtensions.h"
 #include "catapult/extensions/IdGenerator.h"
@@ -36,7 +33,6 @@
 #include "catapult/model/Address.h"
 #include "catapult/model/BlockUtils.h"
 #include "catapult/model/EntityHasher.h"
-#include "catapult/utils/HexParser.h"
 
 namespace catapult { namespace tools { namespace nemgen {
 
@@ -165,12 +161,9 @@ namespace catapult { namespace tools { namespace nemgen {
 		}
 	}
 
-	std::unique_ptr<model::Block> CreateNemesisBlock(const NemesisConfiguration& config) {
+	std::unique_ptr<model::Block> CreateNemesisBlock(const NemesisConfiguration& config, model::Transactions&& additionalTransactions) {
 		auto signer = crypto::KeyPair::FromString(config.NemesisSignerPrivateKey);
 		NemesisTransactions transactions(config.NetworkIdentifier, config.NemesisGenerationHashSeed, signer);
-
-		// - load and validate additional transactions
-		auto additionalTransactions = LoadAndValidateAdditionalTransactions(config.TransactionsDirectory);
 
 		// - namespace creation
 		for (const auto& rootPair : config.RootNamespaces) {
@@ -248,10 +241,12 @@ namespace catapult { namespace tools { namespace nemgen {
 		return model::CalculateHash(block);
 	}
 
-	model::BlockElement CreateNemesisBlockElement(const NemesisConfiguration& config, const model::Block& block) {
-		auto registry = CreateTransactionRegistry();
+	model::BlockElement CreateNemesisBlockElement(
+			const NemesisConfiguration& config,
+			const model::TransactionRegistry& transactionRegistry,
+			const model::Block& block) {
 		auto proofHash = crypto::GenerateVrfProofHash(block.GenerationHashProof.Gamma);
-		return extensions::BlockExtensions(config.NemesisGenerationHashSeed, registry)
+		return extensions::BlockExtensions(config.NemesisGenerationHashSeed, transactionRegistry)
 				.convertBlockToBlockElement(block, proofHash.copyTo<GenerationHash>());
 	}
 }}}

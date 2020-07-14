@@ -19,10 +19,17 @@
 **/
 
 #pragma once
-#include "catapult/model/Transaction.h"
+#include "catapult/model/BlockUtils.h"
+
+namespace catapult {
+	namespace model { class NotificationPublisher; }
+	namespace tools { namespace nemgen { struct NemesisConfiguration; } }
+}
 
 namespace catapult { namespace tools { namespace nemgen {
 
-	/// Loads and validates additional transactions from \a transactionsDirectory.
-	std::vector<std::shared_ptr<const model::Transaction>> LoadAndValidateAdditionalTransactions(const std::string& transactionsDirectory);
+	/// Loads and validates additional transactions given \a config and \a notificationPublisher.
+	model::Transactions LoadAndValidateAdditionalTransactions(
+			const NemesisConfiguration& config,
+			const model::NotificationPublisher& notificationPublisher);
 }}}

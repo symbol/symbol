@@ -19,11 +19,12 @@
 **/
 
 #pragma once
-#include "catapult/model/Block.h"
+#include "catapult/model/BlockUtils.h"
 #include "catapult/model/Elements.h"
 #include <memory>
 
 namespace catapult {
+	namespace model { class TransactionRegistry; }
 	namespace tools {
 		namespace nemgen {
 			struct NemesisConfiguration;
@@ -34,15 +35,18 @@ namespace catapult {
 
 namespace catapult { namespace tools { namespace nemgen {
 
-	/// Creates a nemesis block according to \a config.
-	std::unique_ptr<model::Block> CreateNemesisBlock(const NemesisConfiguration& config);
+	/// Creates a nemesis block containing the specified additional transactions (\a additionalTransactions) given \a config.
+	std::unique_ptr<model::Block> CreateNemesisBlock(const NemesisConfiguration& config, model::Transactions&& additionalTransactions);
 
-	/// Updates nemesis \a block according to \a config with \a executionHashesDescriptor.
+	/// Updates a nemesis \a block given \a config and \a executionHashesDescriptor.
 	Hash256 UpdateNemesisBlock(
 			const NemesisConfiguration& config,
 			model::Block& block,
 			NemesisExecutionHashesDescriptor& executionHashesDescriptor);
 
-	/// Wraps a block element around \a block according to \a config.
-	model::BlockElement CreateNemesisBlockElement(const NemesisConfiguration& config, const model::Block& block);
+	/// Wraps a block element around \a block given \a config and \a transactionRegistry.
+	model::BlockElement CreateNemesisBlockElement(
+			const NemesisConfiguration& config,
+			const model::TransactionRegistry& transactionRegistry,
+			const model::Block& block);
 }}}

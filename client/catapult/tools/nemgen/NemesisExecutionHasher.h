@@ -26,15 +26,6 @@ namespace catapult { namespace config { class CatapultConfiguration; } }
 
 namespace catapult { namespace tools { namespace nemgen {
 
-	/// Possible cache database cleanup modes.
-	enum class CacheDatabaseCleanupMode {
-		/// Perform no cleanup.
-		None,
-
-		/// Purge after execution.
-		Purge
-	};
-
 	/// Nemesis block execution dependent hashes information.
 	struct NemesisExecutionHashesDescriptor : public BlockExecutionHashesInfo {
 		/// Textual summary including sub cache hashes.
@@ -42,9 +33,9 @@ namespace catapult { namespace tools { namespace nemgen {
 	};
 
 	/// Calculates and logs the nemesis block execution dependent hashes after executing nemesis \a blockElement
-	/// for network configured with \a config with specified cache database cleanup mode (\a databaseCleanupMode).
+	/// for network configured with \a config and \a pluginManager.
 	NemesisExecutionHashesDescriptor CalculateAndLogNemesisExecutionHashes(
 			const model::BlockElement& blockElement,
 			const config::CatapultConfiguration& config,
-			CacheDatabaseCleanupMode databaseCleanupMode);
+			plugins::PluginManager& pluginManager);
 }}}

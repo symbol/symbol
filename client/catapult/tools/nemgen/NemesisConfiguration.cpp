@@ -200,8 +200,7 @@ namespace catapult { namespace tools { namespace nemgen {
 #undef LOAD_OUTPUT_PROPERTY
 
 		// the nemesis account owns all namespaces and mosaic definitions in the configuration
-		auto ownerPublicKey = crypto::KeyPair::FromString(config.NemesisSignerPrivateKey).publicKey();
-		auto owner = model::PublicKeyToAddress(ownerPublicKey, config.NetworkIdentifier);
+		auto owner = GetNemesisSignerAddress(config);
 
 		// load namespace information
 		auto numNamespaceProperties = LoadNamespaces(bag, config, owner);
@@ -213,5 +212,10 @@ namespace catapult { namespace tools { namespace nemgen {
 
 		utils::VerifyBagSizeLte(bag, 7 + numNamespaceProperties + numMosaicProperties);
 		return config;
+	}
+
+	Address GetNemesisSignerAddress(const NemesisConfiguration& config) {
+		auto publicKey = crypto::KeyPair::FromString(config.NemesisSignerPrivateKey).publicKey();
+		return model::PublicKeyToAddress(publicKey, config.NetworkIdentifier);
 	}
 }}}

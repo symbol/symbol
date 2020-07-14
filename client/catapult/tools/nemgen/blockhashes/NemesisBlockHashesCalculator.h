@@ -23,11 +23,12 @@
 #include <vector>
 
 namespace catapult {
-	namespace config { class CatapultConfiguration; }
 	namespace model {
+		struct BlockChainConfiguration;
 		struct BlockElement;
 		struct BlockStatement;
 	}
+	namespace plugins { class PluginManager; }
 }
 
 namespace catapult { namespace tools { namespace nemgen {
@@ -47,8 +48,10 @@ namespace catapult { namespace tools { namespace nemgen {
 		std::unique_ptr<model::BlockStatement> pBlockStatement;
 	};
 
-	/// Calculates the block execution dependent hashes after executing nemesis \a blockElement for network configured with \a config.
+	/// Calculates the block execution dependent hashes after executing nemesis \a blockElement for network configured with \a config
+	/// and \a pluginManager.
 	BlockExecutionHashesInfo CalculateNemesisBlockExecutionHashes(
 			const model::BlockElement& blockElement,
-			const config::CatapultConfiguration& config);
+			const model::BlockChainConfiguration& config,
+			plugins::PluginManager& pluginManager);
 }}}
