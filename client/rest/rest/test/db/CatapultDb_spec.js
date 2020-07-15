@@ -1918,7 +1918,8 @@ describe('catapult db', () => {
 			_id: createObjectId(objectId),
 			account: {
 				address: accountAddress ? Buffer.from(accountAddress) : undefined,
-				mosaics
+				mosaics,
+				importances: []
 			}
 		});
 

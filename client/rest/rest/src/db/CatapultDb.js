@@ -96,6 +96,20 @@ const buildBlocksFromOptions = (height, numBlocks, chainHeight) => {
 	return { startHeight, endHeight, numBlocks: endHeight.subtract(startHeight).toNumber() };
 };
 
+const pickTopImportance = wrappedAccount => {
+	const { account } = wrappedAccount;
+	if (0 < account.importances.length) {
+		const importanceSnapshot = account.importances.shift();
+		account.importance = importanceSnapshot.value;
+		account.importanceHeight = importanceSnapshot.height;
+	} else {
+		account.importance = convertToLong(0);
+		account.importanceHeight = convertToLong(0);
+	}
+	delete account.importances;
+	return wrappedAccount;
+};
+
 const TransactionGroup = Object.freeze({
 	confirmed: 'transactions',
 	unconfirmed: 'unconfirmedTransactions',
@@ -496,9 +510,10 @@ class CatapultDb {
 		if (conditions.length)
 			builtConditions.push(1 === conditions.length ? { $match: conditions[0] } : { $match: { $and: conditions } });
 
+		let queryPromise;
 		if ('balance' === options.sortField) {
 			// fetch result sorted by specific mosaic amount, this unwinds mosaics and only returns matching mosaics (incomplete response)
-			return this.queryPagedDocumentsWithConditions(builtConditions, [], sortConditions, 'accounts', options)
+			queryPromise = this.queryPagedDocumentsWithConditions(builtConditions, [], sortConditions, 'accounts', options)
 				.then(accountsPage => {
 					const accountIds = accountsPage.data.map(account => account.id);
 					conditions.push({ _id: { $in: accountIds } });
@@ -513,9 +528,14 @@ class CatapultDb {
 							return fullAccountsPage;
 						});
 				});
+		} else {
+			queryPromise = this.queryPagedDocuments(conditions, [], sortConditions, 'accounts', options);
 		}
 
-		return this.queryPagedDocuments(conditions, [], sortConditions, 'accounts', options);
+		return queryPromise.then(accountsPage => {
+			accountsPage.data.map(pickTopImportance);
+			return accountsPage;
+		});
 	}
 
 	accountsByIds(ids) {
@@ -526,20 +546,7 @@ class CatapultDb {
 			.find({ 'account.address': { $in: buffers } })
 			.toArray()
 			.then(this.sanitizer.renameIds)
-			.then(entities => entities.map(accountWithMetadata => {
-				const { account } = accountWithMetadata;
-				if (0 < account.importances.length) {
-					const importanceSnapshot = account.importances.shift();
-					account.importance = importanceSnapshot.value;
-					account.importanceHeight = importanceSnapshot.height;
-				} else {
-					account.importance = convertToLong(0);
-					account.importanceHeight = convertToLong(0);
-				}
-
-				delete account.importances;
-				return accountWithMetadata;
-			}));
+			.then(entities => entities.map(pickTopImportance));
 	}
 
 	// endregion
