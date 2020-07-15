@@ -69,6 +69,10 @@ RestrictionValue:
   "$ref": "./RestrictionValue.yml"
 
 # Core - Account
+AccountOrderByEnum:
+  "$ref": "../core/account/schemas/AccountOrderByEnum.yml"
+AccountPage:
+  "$ref": "../core/account/schemas/AccountPage.yml"
 AccountTypeEnum:
   "$ref": "../core/account/schemas/AccountTypeEnum.yml"
 AccountDTO:
@@ -502,6 +506,8 @@ TransferTransactionDTO:
 # Request bodies
 accountIds:
   "$ref": "../request_bodies/schemas/accountIds.yml"
+addresses:
+  "$ref": "../request_bodies/schemas/addresses.yml"
 cosignature:
   "$ref": "../request_bodies/schemas/cosignature.yml"
 mosaicIds:
