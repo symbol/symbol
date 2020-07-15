@@ -30,8 +30,6 @@ const packetHeader = catapult.packet.header;
 const { StatePathPacketTypes } = catapult.packet;
 const { BinaryParser } = catapult.parser;
 
-const parseHeight = params => routeUtils.parseArgument(params, 'height', 'uint');
-
 module.exports = {
 	register: (server, db, services) => {
 		server.get('/blocks', (req, res, next) => {
@@ -53,7 +51,7 @@ module.exports = {
 		});
 
 		server.get('/blocks/:height', (req, res, next) => {
-			const height = parseHeight(req.params);
+			const height = routeUtils.parseArgument(req.params, 'height', 'uint');
 
 			return dbFacade.runHeightDependentOperation(db, height, () => db.blockAtHeight(height))
 				.then(result => result.payload)

@@ -36,15 +36,14 @@ describe('receipts plugin', () => {
 			const modelSchema = builder.build();
 
 			// Assert:
-			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 14);
+			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 13);
 			expect(modelSchema).to.contain.all.keys([
-				'receipts',
-				'receipts.addressResolutionStatement',
-				'receipts.addressResolutionStatement.statement',
-				'receipts.mosaicResolutionStatement',
-				'receipts.mosaicResolutionStatement.statement',
-				'receipts.transactionStatement',
-				'receipts.transactionStatement.statement',
+				'addressResolutionStatement',
+				'addressResolutionStatement.statement',
+				'mosaicResolutionStatement',
+				'mosaicResolutionStatement.statement',
+				'transactionStatement',
+				'transactionStatement.statement',
 				'receipts.balanceChange',
 				'receipts.balanceTransfer',
 				'receipts.artifactExpiry',
@@ -54,41 +53,33 @@ describe('receipts plugin', () => {
 				'receipts.unknown'
 			]);
 
-			// -  receipts
-			expect(Object.keys(modelSchema.receipts).length).to.equal(3);
-			expect(modelSchema.receipts).to.contain.all.keys([
-				'addressResolutionStatements',
-				'mosaicResolutionStatements',
-				'transactionStatements'
-			]);
-
-			// - receipts.addressResolutionStatement
-			// - receipts.mosaicResolutionStatement
-			// - receipts.transactionStatement
+			// - addressResolutionStatement
+			// - mosaicResolutionStatement
+			// - transactionStatement
 			['addressResolution', 'mosaicResolution', 'transaction'].forEach(statementType => {
-				expect(Object.keys(modelSchema[`receipts.${statementType}Statement`]).length).to.equal(1);
-				expect(modelSchema[`receipts.${statementType}Statement`]).to.contain.all.keys(['statement']);
+				expect(Object.keys(modelSchema[`${statementType}Statement`]).length).to.equal(2);
+				expect(modelSchema[`${statementType}Statement`]).to.contain.all.keys(['statement']);
 			});
 
-			// - receipts.addressResolutionStatement.statement
-			expect(Object.keys(modelSchema['receipts.addressResolutionStatement.statement']).length).to.equal(3);
-			expect(modelSchema['receipts.addressResolutionStatement.statement']).to.contain.all.keys([
+			// - addressResolutionStatement.statement
+			expect(Object.keys(modelSchema['addressResolutionStatement.statement']).length).to.equal(3);
+			expect(modelSchema['addressResolutionStatement.statement']).to.contain.all.keys([
 				'height',
 				'unresolved',
 				'resolutionEntries'
 			]);
 
-			// - receipts.mosaicResolutionStatement
-			expect(Object.keys(modelSchema['receipts.mosaicResolutionStatement.statement']).length).to.equal(3);
-			expect(modelSchema['receipts.mosaicResolutionStatement.statement']).to.contain.all.keys([
+			// - mosaicResolutionStatement
+			expect(Object.keys(modelSchema['mosaicResolutionStatement.statement']).length).to.equal(3);
+			expect(modelSchema['mosaicResolutionStatement.statement']).to.contain.all.keys([
 				'height',
 				'unresolved',
 				'resolutionEntries'
 			]);
 
-			// - receipts.transactionStatement
-			expect(Object.keys(modelSchema['receipts.transactionStatement.statement']).length).to.equal(2);
-			expect(modelSchema['receipts.transactionStatement.statement']).to.contain.all.keys([
+			// - transactionStatement
+			expect(Object.keys(modelSchema['transactionStatement.statement']).length).to.equal(2);
+			expect(modelSchema['transactionStatement.statement']).to.contain.all.keys([
 				'height',
 				'receipts'
 			]);
@@ -160,7 +151,7 @@ describe('receipts plugin', () => {
 				const modelSchema = builder.build();
 				const unwrappedFormattedEntity = schemaFormatter.format(
 					transactionStatement,
-					modelSchema['receipts.transactionStatement'],
+					modelSchema.transactionStatement,
 					modelSchema,
 					formattingRules
 				).statement;

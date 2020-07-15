@@ -18,94 +18,515 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { convertToLong } = require('../../../src/db/dbUtils');
 const receiptsRoutes = require('../../../src/plugins/receipts/receiptsRoutes');
 const routeUtils = require('../../../src/routes/routeUtils');
 const { MockServer } = require('../../routes/utils/routeTestUtils');
+const catapult = require('catapult-sdk');
 const { expect } = require('chai');
 const sinon = require('sinon');
 
+const { address } = catapult.model;
+
 describe('receipts routes', () => {
-	describe('get transaction statements by height', () => {
-		const endpointUnderTest = '/block/:height/receipts';
+	describe('transaction statements', () => {
+		const testAddress = 'NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA';
 
-		const highestHeight = 50;
-		const correctQueriedHeight = highestHeight - 10;
+		const emptyPageSample = {
+			data: [],
+			pagination: {
+				pageNumber: 1,
+				pageSize: 10,
+				totalEntries: 0,
+				totalPages: 0
+			}
+		};
 
-		const transactionStatementData = ['dummyStatement'];
-		const addressResolutionStatementData = ['dummyStatement', 'dummyStatement'];
-		const mosaicResolutionStatementData = ['dummyStatement'];
-		const statementsFake = sinon.stub();
-		const orderedStatementsCollections = ['transactionStatements', 'addressResolutionStatements', 'mosaicResolutionStatements'];
-		statementsFake.withArgs(correctQueriedHeight, orderedStatementsCollections[1]).returns(addressResolutionStatementData);
-		statementsFake.withArgs(correctQueriedHeight, orderedStatementsCollections[2]).returns(mosaicResolutionStatementData);
-		statementsFake.withArgs(correctQueriedHeight, orderedStatementsCollections[0]).returns(transactionStatementData);
+		const pageSample = {
+			data: [
+				{
+					id: '',
+					statement: {
+						height: '',
+						source: {
+							primaryId: 0,
+							secondaryId: 0
+						},
+						receipts: [
+							{
+								version: 1,
+								type: 8515,
+								targetAddress: '',
+								mosaicId: '',
+								amount: ''
+							},
+							{
+								version: 1,
+								type: 8515,
+								targetAddress: '',
+								mosaicId: '',
+								amount: ''
+							},
+							{
+								version: 1,
+								type: 20803,
+								mosaicId: '',
+								amount: ''
+							}
+						]
+					}
+				},
+				{
+					id: '',
+					statement: {
+						height: '',
+						source: {
+							primaryId: 0,
+							secondaryId: 0
+						},
+						receipts: [
+							{
+								version: 1,
+								type: 8515,
+								targetAddress: '',
+								mosaicId: '',
+								amount: ''
+							},
+							{
+								version: 1,
+								type: 8515,
+								targetAddress: '',
+								mosaicId: '',
+								amount: ''
+							},
+							{
+								version: 1,
+								type: 20803,
+								mosaicId: '',
+								amount: ''
+							}
+						]
+					}
+				}
+			],
+			pagination: {
+				pageNumber: 1,
+				pageSize: 10,
+				totalEntries: 2,
+				totalPages: 1
+			}
+		};
+
+		const dbTransactionStatementsFake = sinon.fake(filters =>
+			(666 === filters.height ? Promise.resolve(emptyPageSample) : Promise.resolve(pageSample)));
+
+		const services = {
+			config: {
+				pageSize: {
+					min: 10,
+					max: 100,
+					default: 20
+				}
+			}
+		};
 
 		const mockServer = new MockServer();
+		const db = { transactionStatements: dbTransactionStatementsFake };
+		receiptsRoutes.register(mockServer.server, db, services);
 
-		receiptsRoutes.register(mockServer.server, {
-			catapultDb: {
-				chainStatisticCurrent: () => Promise.resolve({ height: convertToLong(highestHeight) })
-			},
-			statementsAtHeight: statementsFake
+		beforeEach(() => {
+			mockServer.resetStats();
+			dbTransactionStatementsFake.resetHistory();
 		});
 
-		beforeEach(() => statementsFake.resetHistory());
-		beforeEach(() => mockServer.resetStats());
+		describe('GET', () => {
+			const route = mockServer.getRoute('/statements/transaction').get();
 
-		it('returns result if provided height is valid', () => {
-			// Arrange:
-			const req = { params: { height: correctQueriedHeight.toString() } };
+			it('parses and forwards paging options', () => {
+				// Arrange:
+				const pagingBag = 'fakePagingBagObject';
+				const paginationParser = sinon.stub(routeUtils, 'parsePaginationArguments').returns(pagingBag);
+				const req = { params: {} };
 
-			// Act:
-			const route = mockServer.getRoute(endpointUnderTest).get();
-			return mockServer.callRoute(route, req).then(() => {
-				// Assert:
-				expect(statementsFake.calledThrice).to.equal(true);
-				orderedStatementsCollections.forEach((statementCollection, index) => expect(
-					statementsFake.calledWith(correctQueriedHeight, statementCollection),
-					`failed at index ${index}`
-				).to.equal(true));
+				// Act:
+				return mockServer.callRoute(route, req).then(() => {
+					// Assert:
+					expect(paginationParser.firstCall.args[0]).to.deep.equal(req.params);
+					expect(paginationParser.firstCall.args[2]).to.deep.equal({ id: 'objectId' });
 
-				expect(mockServer.send.firstCall.args[0]).to.deep.equal({
-					payload: {
-						addressResolutionStatements: addressResolutionStatementData,
-						mosaicResolutionStatements: mosaicResolutionStatementData,
-						transactionStatements: transactionStatementData
-					},
-					type: 'receipts'
+					expect(dbTransactionStatementsFake.calledOnce).to.equal(true);
+					expect(dbTransactionStatementsFake.firstCall.args[1]).to.deep.equal(pagingBag);
+					paginationParser.restore();
+				});
+			});
+
+			it('allowed sort fields are taken into account', () => {
+				// Arrange:
+				const paginationParserSpy = sinon.spy(routeUtils, 'parsePaginationArguments');
+				const expectedAllowedSortFields = { id: 'objectId' };
+
+				// Act:
+				return mockServer.callRoute(route, { params: {} }).then(() => {
+					// Assert:
+					expect(paginationParserSpy.calledOnce).to.equal(true);
+					expect(paginationParserSpy.firstCall.args[2]).to.deep.equal(expectedAllowedSortFields);
+					paginationParserSpy.restore();
+				});
+			});
+
+			it('returns empty page if no statements found', () => {
+				// Arrange:
+				const req = { params: { height: '666' } };
+
+				// Act:
+				return mockServer.callRoute(route, req).then(() => {
+					// Assert:
+					expect(dbTransactionStatementsFake.calledOnce).to.equal(true);
+
+					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
+						payload: emptyPageSample,
+						type: 'transactionStatement',
+						structure: 'page'
+					});
+					expect(mockServer.next.calledOnce).to.equal(true);
+				});
+			});
+
+			it('forwards height', () => {
+				// Arrange:
+				const req = { params: { height: '123' } };
+
+				// Act:
+				return mockServer.callRoute(route, req).then(() => {
+					// Assert:
+					expect(dbTransactionStatementsFake.calledOnce).to.equal(true);
+					expect(dbTransactionStatementsFake.firstCall.args[0].height).to.equal(123);
+
+					expect(mockServer.next.calledOnce).to.equal(true);
+				});
+			});
+
+			it('forwards receiptType', () => {
+				// Arrange:
+				const req = { params: { receiptType: '456' } };
+
+				// Act:
+				return mockServer.callRoute(route, req).then(() => {
+					// Assert:
+					expect(dbTransactionStatementsFake.calledOnce).to.equal(true);
+					expect(dbTransactionStatementsFake.firstCall.args[0].receiptType).to.equal(456);
+
+					expect(mockServer.next.calledOnce).to.equal(true);
+				});
+			});
+
+			it('forwards recipientAddress', () => {
+				// Arrange:
+				const req = { params: { recipientAddress: testAddress } };
+
+				// Act:
+				return mockServer.callRoute(route, req).then(() => {
+					// Assert:
+					expect(dbTransactionStatementsFake.calledOnce).to.equal(true);
+					expect(dbTransactionStatementsFake.firstCall.args[0].recipientAddress)
+						.to.deep.equal(address.stringToAddress(testAddress));
+
+					expect(mockServer.next.calledOnce).to.equal(true);
+				});
+			});
+
+			it('forwards senderAddress', () => {
+				// Arrange:
+				const req = { params: { senderAddress: testAddress } };
+
+				// Act:
+				return mockServer.callRoute(route, req).then(() => {
+					// Assert:
+					expect(dbTransactionStatementsFake.calledOnce).to.equal(true);
+					expect(dbTransactionStatementsFake.firstCall.args[0].senderAddress).to.deep.equal(address.stringToAddress(testAddress));
+
+					expect(mockServer.next.calledOnce).to.equal(true);
+				});
+			});
+
+			it('forwards targetAddress', () => {
+				// Arrange:
+				const req = { params: { targetAddress: testAddress } };
+
+				// Act:
+				return mockServer.callRoute(route, req).then(() => {
+					// Assert:
+					expect(dbTransactionStatementsFake.calledOnce).to.equal(true);
+					expect(dbTransactionStatementsFake.firstCall.args[0].targetAddress).to.deep.equal(address.stringToAddress(testAddress));
+
+					expect(mockServer.next.calledOnce).to.equal(true);
+				});
+			});
+
+			it('forwards artifactId', () => {
+				// Arrange:
+				const req = { params: { artifactId: '0DC67FBE1CAD29E3' } };
+
+				// Act:
+				return mockServer.callRoute(route, req).then(() => {
+					// Assert:
+					expect(dbTransactionStatementsFake.calledOnce).to.equal(true);
+					expect(dbTransactionStatementsFake.firstCall.args[0].artifactId).to.deep.equal([0x1CAD29E3, 0x0DC67FBE]);
+
+					expect(mockServer.next.calledOnce).to.equal(true);
+				});
+			});
+
+			it('returns page with statement results', () => {
+				// Arrange:
+				const req = { params: {} };
+
+				// Act:
+				return mockServer.callRoute(route, req).then(() => {
+					// Assert:
+					expect(dbTransactionStatementsFake.calledOnce).to.equal(true);
+
+					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
+						payload: pageSample,
+						type: 'transactionStatement',
+						structure: 'page'
+					});
+					expect(mockServer.next.calledOnce).to.equal(true);
 				});
 			});
 		});
+	});
 
-		it('returns 404 if not found in the database', () => {
-			// Arrange:
-			const queriedHeight = highestHeight + 10;
-			const req = { params: { height: queriedHeight.toString() } };
+	describe('artifact resolution statements', () => {
+		const emptyPageSample = {
+			data: [],
+			pagination: {
+				pageNumber: 1,
+				pageSize: 10,
+				totalEntries: 0,
+				totalPages: 0
+			}
+		};
 
-			// Act:
-			const route = mockServer.getRoute(endpointUnderTest).get();
-			return mockServer.callRoute(route, req).then(() => {
-				// Assert:
-				expect(statementsFake.calledThrice).to.equal(true);
-				expect(mockServer.send.firstCall.args[0].statusCode).to.equal(404);
-				expect(mockServer.send.firstCall.args[0].message).to.equal(`no resource exists with id '${highestHeight + 10}'`);
-			});
+		const pageSample = {
+			data: [
+				{
+					id: '',
+					statement: {
+						height: '',
+						unresolved: '',
+						resolutionEntries: [
+							{
+								source: {
+									primaryId: 2,
+									secondaryId: 0
+								},
+								resolved: ''
+							}
+						]
+					}
+				},
+				{
+					id: '',
+					statement: {
+						height: '',
+						unresolved: '',
+						resolutionEntries: [
+							{
+								source: {
+									primaryId: 2,
+									secondaryId: 0
+								},
+								resolved: ''
+							}
+						]
+					}
+				}
+			],
+			pagination: {
+				pageNumber: 1,
+				pageSize: 10,
+				totalEntries: 2,
+				totalPages: 1
+			}
+		};
+
+		const dbArtifactStatementsFake = sinon.fake(height =>
+			(666 === height ? Promise.resolve(emptyPageSample) : Promise.resolve(pageSample)));
+
+		const services = {
+			config: {
+				pageSize: {
+					min: 10,
+					max: 100,
+					default: 20
+				}
+			}
+		};
+
+		const mockServer = new MockServer();
+		const db = { artifactStatements: dbArtifactStatementsFake };
+		receiptsRoutes.register(mockServer.server, db, services);
+
+		beforeEach(() => {
+			mockServer.resetStats();
+			dbArtifactStatementsFake.resetHistory();
 		});
 
-		it('returns 409 if height is invalid', () => {
-			// Arrange:
-			const req = { params: { height: '10A' } };
+		describe('GET', () => {
+			const route = mockServer.getRoute('/statements/resolutions/:artifact').get();
 
-			// Act:
-			const route = mockServer.getRoute(endpointUnderTest).get();
-			const apiResponse = expect(() => mockServer.callRoute(route, req).then(() => {})).to;
+			it('parses and forwards paging options', () => {
+				// Arrange:
+				const pagingBag = 'fakePagingBagObject';
+				const paginationParser = sinon.stub(routeUtils, 'parsePaginationArguments').returns(pagingBag);
+				const req = { params: { artifact: 'address' } };
 
-			// Assert:
-			apiResponse.throw('height has an invalid format');
-			apiResponse.with.property('statusCode', 409);
-			apiResponse.with.property('message', 'height has an invalid format');
-			expect(statementsFake.notCalled).to.equal(true);
+				// Act:
+				return mockServer.callRoute(route, req).then(() => {
+					// Assert:
+					expect(paginationParser.firstCall.args[0]).to.deep.equal(req.params);
+					expect(paginationParser.firstCall.args[2]).to.deep.equal({ id: 'objectId' });
+
+					expect(dbArtifactStatementsFake.calledOnce).to.equal(true);
+					expect(dbArtifactStatementsFake.firstCall.args[2]).to.deep.equal(pagingBag);
+					paginationParser.restore();
+				});
+			});
+
+			it('allowed sort fields are taken into account', () => {
+				// Arrange:
+				const paginationParserSpy = sinon.spy(routeUtils, 'parsePaginationArguments');
+				const expectedAllowedSortFields = { id: 'objectId' };
+
+				// Act:
+				return mockServer.callRoute(route, { params: { artifact: 'address' } }).then(() => {
+					// Assert:
+					expect(paginationParserSpy.calledOnce).to.equal(true);
+					expect(paginationParserSpy.firstCall.args[2]).to.deep.equal(expectedAllowedSortFields);
+					paginationParserSpy.restore();
+				});
+			});
+
+			it('returns empty address statements page if no statements found', () => {
+				// Arrange:
+				const req = { params: { artifact: 'address', height: '666' } };
+
+				// Act:
+				return mockServer.callRoute(route, req).then(() => {
+					// Assert:
+					expect(dbArtifactStatementsFake.calledOnce).to.equal(true);
+
+					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
+						payload: emptyPageSample,
+						type: 'addressResolutionStatement',
+						structure: 'page'
+					});
+					expect(mockServer.next.calledOnce).to.equal(true);
+				});
+			});
+
+			it('returns empty mosaic statements page if no statements found', () => {
+				// Arrange:
+				const req = { params: { artifact: 'mosaic', height: '666' } };
+
+				// Act:
+				return mockServer.callRoute(route, req).then(() => {
+					// Assert:
+					expect(dbArtifactStatementsFake.calledOnce).to.equal(true);
+
+					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
+						payload: emptyPageSample,
+						type: 'mosaicResolutionStatement',
+						structure: 'page'
+					});
+					expect(mockServer.next.calledOnce).to.equal(true);
+				});
+			});
+
+			it('forwards height', () => {
+				// Arrange:
+				const req = { params: { artifact: 'address', height: '123' } };
+
+				// Act:
+				return mockServer.callRoute(route, req).then(() => {
+					// Assert:
+					expect(dbArtifactStatementsFake.calledOnce).to.equal(true);
+					expect(dbArtifactStatementsFake.firstCall.args[0]).to.equal(123);
+
+					expect(mockServer.next.calledOnce).to.equal(true);
+				});
+			});
+
+			it('forwards address artifact', () => {
+				// Arrange:
+				const req = { params: { artifact: 'address' } };
+
+				// Act:
+				return mockServer.callRoute(route, req).then(() => {
+					// Assert:
+					expect(dbArtifactStatementsFake.calledOnce).to.equal(true);
+					expect(dbArtifactStatementsFake.firstCall.args[1]).to.equal('address');
+
+					expect(mockServer.next.calledOnce).to.equal(true);
+				});
+			});
+
+			it('forwards mosaic artifact', () => {
+				// Arrange:
+				const req = { params: { artifact: 'mosaic' } };
+
+				// Act:
+				return mockServer.callRoute(route, req).then(() => {
+					// Assert:
+					expect(dbArtifactStatementsFake.calledOnce).to.equal(true);
+					expect(dbArtifactStatementsFake.firstCall.args[1]).to.equal('mosaic');
+
+					expect(mockServer.next.calledOnce).to.equal(true);
+				});
+			});
+
+			it('fails for invalid artifact', () => {
+				// Arrange:
+				const req = { params: { artifact: 'namespace' } };
+
+				// Act:
+				mockServer.callRoute(route, req);
+
+				// Assert:
+				expect(mockServer.next.calledOnce).to.equal(true);
+				expect(mockServer.next.firstCall.args[0].statusCode).to.equal(404);
+			});
+
+			it('fails if no artifact provided', () => {
+				// Arrange:
+				const req = { params: {} };
+
+				// Act:
+				mockServer.callRoute(route, req);
+
+				// Assert:
+				expect(mockServer.next.calledOnce).to.equal(true);
+				expect(mockServer.next.firstCall.args[0].statusCode).to.equal(404);
+			});
+
+			it('returns page with results', () => {
+				// Arrange:
+				const req = { params: { artifact: 'address' } };
+
+				// Act:
+				return mockServer.callRoute(route, req).then(() => {
+					// Assert:
+					expect(dbArtifactStatementsFake.calledOnce).to.equal(true);
+					expect(dbArtifactStatementsFake.firstCall.args[0]).to.deep.equal(undefined);
+
+					expect(mockServer.send.firstCall.args[0]).to.deep.equal({
+						payload: pageSample,
+						type: 'addressResolutionStatement',
+						structure: 'page'
+					});
+					expect(mockServer.next.calledOnce).to.equal(true);
+				});
+			});
 		});
 	});
 

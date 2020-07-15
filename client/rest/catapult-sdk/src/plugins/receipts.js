@@ -37,14 +37,10 @@ const getBasicReceiptType = type => ReceiptType[(type & 0xF000) >> 12] || 'recei
  */
 const receiptsPlugin = {
 	registerSchema: builder => {
-		builder.addSchema('receipts', {
-			addressResolutionStatements: { type: ModelType.array, schemaName: 'receipts.addressResolutionStatement' },
-			mosaicResolutionStatements: { type: ModelType.array, schemaName: 'receipts.mosaicResolutionStatement' },
-			transactionStatements: { type: ModelType.array, schemaName: 'receipts.transactionStatement' }
-		});
 		const addStatementSchema = (statementType, schema) => {
-			const schemaName = `receipts.${statementType}Statement`;
+			const schemaName = `${statementType}Statement`;
 			builder.addSchema(schemaName, {
+				id: ModelType.objectId,
 				statement: { type: ModelType.object, schemaName: `${schemaName}.statement` }
 			});
 			builder.addSchema(`${schemaName}.statement`, schema);

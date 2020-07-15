@@ -19,6 +19,11 @@
  */
 
 const { convertToLong } = require('../../db/dbUtils');
+const catapult = require('catapult-sdk');
+
+const { convert, uint64 } = catapult.utils;
+
+const isNamespaceId = id => 0 !== (0x80 & convert.hexToUint8(uint64.toHex(id))[0]);
 
 class ReceiptsDb {
 	/**
@@ -30,13 +35,62 @@ class ReceiptsDb {
 	}
 
 	/**
-	* Retrieves all the statements in a given collection and block.
-	* @param {module:catapult.utils/uint64~uint64} height Given block height.
-	* @param {string} statementsCollection Statements collection.
-	* @returns {Promise.<array>} Statements from a collection in a block.
-	*/
-	statementsAtHeight(height, statementsCollection) {
-		return this.catapultDb.queryDocuments(statementsCollection, { 'statement.height': convertToLong(height) });
+	 * Retrieves filtered and paginated transaction statements.
+	 * @param {object} filters Filters to be applied: `height`, `receiptType`, `recipientAddress`, `senderAddress`, `targetAddress`,
+	 * `artifactId`.
+	 * @param {object} options Options for ordering and pagination. Can have an `offset`, and must contain the `sortField`, `sortDirection`,
+	 * `pageSize` and `pageNumber`. 'sortField' must be within allowed 'sortingOptions'.
+	 * @returns {Promise.<object>} Transaction statements page.
+	 */
+	transactionStatements(filters, options) {
+		const sortingOptions = { id: '_id' };
+
+		const conditions = [];
+
+		if (options.offset)
+			conditions.push({ [sortingOptions[options.sortField]]: { [1 === options.sortDirection ? '$gt' : '$lt']: options.offset } });
+
+		if (filters.height)
+			conditions.push({ 'statement.height': convertToLong(filters.height) });
+		if (filters.receiptType)
+			conditions.push({ 'statement.receipts.type': filters.receiptType });
+		if (filters.recipientAddress)
+			conditions.push({ 'statement.receipts.recipientAddress': Buffer.from(filters.recipientAddress) });
+		if (filters.senderAddress)
+			conditions.push({ 'statement.receipts.senderAddress': Buffer.from(filters.senderAddress) });
+		if (filters.targetAddress)
+			conditions.push({ 'statement.receipts.targetAddress': Buffer.from(filters.targetAddress) });
+		if (filters.artifactId) {
+			const artifactIdType = isNamespaceId(filters.artifactId) ? 'namespaceId' : 'mosaicId';
+			conditions.push({ [`statement.receipts.${artifactIdType}`]: convertToLong(filters.artifactId) });
+		}
+
+		const sortConditions = { $sort: { [sortingOptions[options.sortField]]: options.sortDirection } };
+		return this.catapultDb.queryPagedDocuments(conditions, [], sortConditions, 'transactionStatements', options);
+	}
+
+	/**
+	 * Retrieves filtered and paginated artifact resolution statements.
+	 * @param {numeric} height Statement height.
+	 * @param {Uint8Array} artifact Must be provided, determines the type of statements that are being fetched. May be `address`, or
+	 * `mosaic`.
+	 * @param {object} options Options for ordering and pagination. Can have an `offset`, and must contain the `sortField`, `sortDirection`,
+	 * `pageSize` and `pageNumber`. 'sortField' must be within allowed 'sortingOptions'.
+	 * @returns {Promise.<object>} Artifact statements page.
+	 */
+	artifactStatements(height, artifact, options) {
+		const sortingOptions = { id: '_id' };
+
+		const conditions = [];
+
+		if (options.offset)
+			conditions.push({ [sortingOptions[options.sortField]]: { [1 === options.sortDirection ? '$gt' : '$lt']: options.offset } });
+
+		if (height)
+			conditions.push({ 'statement.height': convertToLong(height) });
+
+		const sortConditions = { $sort: { [sortingOptions[options.sortField]]: options.sortDirection } };
+		return this.catapultDb.queryPagedDocuments(conditions, [], sortConditions, `${artifact}ResolutionStatements`, options);
 	}
 }
 

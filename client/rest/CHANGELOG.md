@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [v1.2.0] - 16-Jul-2020
+### Added
+- TLS installation notes.
+
+### Changed
+- Reviewed hash lock, secret lock, namespace, account, metadata, and receipt endpoints.
+
+### Fixed
+- Height comparison towards current chain height, for height related endpoints.
+
 ## [v1.1.3] - 27-Jun-2020
 ### Changed (since v1.0.20.50)
 - New project versioning that allows pinning on compatible core server versions and makes it easier to track REST changes.

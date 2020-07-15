@@ -18,54 +18,43 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const dbFacade = require('../../routes/dbFacade');
 const routeResultTypes = require('../../routes/routeResultTypes');
 const routeUtils = require('../../routes/routeUtils');
-const errors = require('../../server/errors');
-
-const parseHeight = params => routeUtils.parseArgument(params, 'height', 'uint');
-
-const getStatementsPromise = (db, height, statementsCollection) =>
-	dbFacade.runHeightDependentOperation(db.catapultDb, height, () => db.statementsAtHeight(height, statementsCollection));
+const { NotFoundError } = require('restify-errors');
 
 module.exports = {
-	register: (server, db) => {
-		server.get('/block/:height/receipts', (req, res, next) => {
-			const height = parseHeight(req.params);
+	register: (server, db, services) => {
+		server.get('/statements/transaction', (req, res, next) => {
+			const { params } = req;
+			const filters = {
+				height: params.height ? routeUtils.parseArgument(params, 'height', 'uint') : undefined,
+				receiptType: params.receiptType ? routeUtils.parseArgument(params, 'receiptType', 'uint') : undefined,
+				recipientAddress: params.recipientAddress ? routeUtils.parseArgument(params, 'recipientAddress', 'address') : undefined,
+				senderAddress: params.senderAddress ? routeUtils.parseArgument(params, 'senderAddress', 'address') : undefined,
+				targetAddress: params.targetAddress ? routeUtils.parseArgument(params, 'targetAddress', 'address') : undefined,
+				artifactId: params.artifactId ? routeUtils.parseArgument(params, 'artifactId', 'uint64hex') : undefined
+			};
 
-			return Promise.all([
-				getStatementsPromise(db, height, 'addressResolutionStatements'),
-				getStatementsPromise(db, height, 'mosaicResolutionStatements'),
-				getStatementsPromise(db, height, 'transactionStatements')
-			]).then(results => {
-				const [
-					addressResolutionStatementsInfo,
-					mosaicResolutionStatementsInfo,
-					transactionStatementsInfo
-				] = results;
+			const options = routeUtils.parsePaginationArguments(req.params, services.config.pageSize, { id: 'objectId' });
 
-				if (results.some(result => !result.isRequestValid)) {
-					res.send(errors.createNotFoundError(height));
-					return next();
-				}
+			return db.transactionStatements(filters, options)
+				.then(result => routeUtils.createSender(routeResultTypes.transactionStatement).sendPage(res, next)(result));
+		});
 
-				const result = {
-					addressResolutionStatements: addressResolutionStatementsInfo.payload,
-					mosaicResolutionStatements: mosaicResolutionStatementsInfo.payload,
-					transactionStatements: transactionStatementsInfo.payload
-				};
+		server.get('/statements/resolutions/:artifact', (req, res, next) => {
+			const { artifact } = req.params;
+			if (!artifact || !['address', 'mosaic'].includes(artifact))
+				return next(new NotFoundError());
 
-				res.send({
-					payload: result,
-					type: routeResultTypes.receipts
-				});
+			const height = req.params.height ? routeUtils.parseArgument(req.params, 'height', 'uint') : undefined;
+			const options = routeUtils.parsePaginationArguments(req.params, services.config.pageSize, { id: 'objectId' });
 
-				return next();
-			});
+			return db.artifactStatements(height, artifact, options)
+				.then(result => routeUtils.createSender(routeResultTypes[`${artifact}ResolutionStatement`]).sendPage(res, next)(result));
 		});
 
 		server.get(
-			'/block/:height/receipt/:hash/merkle',
+			'/block/:height/statements/:hash/merkle',
 			routeUtils.blockRouteMerkleProcessor(db.catapultDb, 'numStatements', 'statementMerkleTree')
 		);
 	}
