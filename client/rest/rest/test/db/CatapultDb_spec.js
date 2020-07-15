@@ -1914,12 +1914,12 @@ describe('catapult db', () => {
 
 		const { createObjectId } = test.db;
 
-		const createAccount = (objectId, accountAddress, mosaics) => ({
+		const createAccount = (objectId, accountAddress, mosaics, importances) => ({
 			_id: createObjectId(objectId),
 			account: {
 				address: accountAddress ? Buffer.from(accountAddress) : undefined,
 				mosaics,
-				importances: []
+				importances: importances || []
 			}
 		});
 
@@ -1963,6 +1963,17 @@ describe('catapult db', () => {
 				return runTestAndVerifyIds(dbAccounts, undefined, mosaicIdTest2, pagination, [20]);
 			});
 		};
+
+		const runImportancesDbTest = (dbAccounts, pagination, value, height) =>
+			runDbTest(
+				{ accounts: dbAccounts },
+				db => db.accounts(undefined, undefined, pagination),
+				page => {
+					expect(page.data[0].account.importance).to.deep.equal(Long.fromNumber(value));
+					expect(page.data[0].account.importanceHeight).to.deep.equal(Long.fromNumber(height));
+					expect(page.data[0].account.importances).to.equal(undefined);
+				}
+			);
 
 		it('returns expected structure', () => {
 			// Arrange:
@@ -2014,6 +2025,39 @@ describe('catapult db', () => {
 
 			// Act + Assert:
 			return runTestAndVerifyIds(dbAccounts, undefined, undefined, paginationOptions, [10, 20, 30, 40]);
+		});
+
+		describe('picks top importance', () => {
+			it('no importances', () => {
+				// Arrange:
+				const dbAccounts = [createAccount(10, addressTest1, [], [])];
+
+				// Act + Assert:
+				return runImportancesDbTest(dbAccounts, paginationOptions, 0, 0);
+			});
+
+			it('one importance', () => {
+				// Arrange:
+				const importances = [
+					{ value: Long.fromNumber(100), height: Long.fromNumber(10) }
+				];
+				const dbAccounts = [createAccount(10, addressTest1, [], importances)];
+
+				// Act + Assert:
+				return runImportancesDbTest(dbAccounts, paginationOptions, 100, 10);
+			});
+
+			it('multiple importances', () => {
+				// Arrange:
+				const importances = [
+					{ value: Long.fromNumber(100), height: Long.fromNumber(10) },
+					{ value: Long.fromNumber(200), height: Long.fromNumber(20) }
+				];
+				const dbAccounts = [createAccount(10, addressTest1, [], importances)];
+
+				// Act + Assert:
+				return runImportancesDbTest(dbAccounts, paginationOptions, 100, 10);
+			});
 		});
 
 		describe('respects offset', () => {
@@ -2174,6 +2218,39 @@ describe('catapult db', () => {
 
 				// Act + Assert:
 				return runTestAndVerifyIds(dbAccounts, undefined, undefined, paginationOptionsBalanceSorting, [10, 20, 30, 40]);
+			});
+
+			describe('picks top importance', () => {
+				it('no importances', () => {
+					// Arrange:
+					const dbAccounts = [createAccount(10, addressTest1, [{ id: mosaicIdTest1, amount: Long.fromNumber(1) }], [])];
+
+					// Act + Assert:
+					return runImportancesDbTest(dbAccounts, paginationOptionsBalanceSorting, 0, 0);
+				});
+
+				it('one importance', () => {
+					// Arrange:
+					const importances = [
+						{ value: Long.fromNumber(100), height: Long.fromNumber(10) }
+					];
+					const dbAccounts = [createAccount(10, addressTest1, [{ id: mosaicIdTest1, amount: Long.fromNumber(1) }], importances)];
+
+					// Act + Assert:
+					return runImportancesDbTest(dbAccounts, paginationOptionsBalanceSorting, 100, 10);
+				});
+
+				it('multiple importances', () => {
+					// Arrange:
+					const importances = [
+						{ value: Long.fromNumber(100), height: Long.fromNumber(10) },
+						{ value: Long.fromNumber(200), height: Long.fromNumber(20) }
+					];
+					const dbAccounts = [createAccount(10, addressTest1, [{ id: mosaicIdTest1, amount: Long.fromNumber(1) }], importances)];
+
+					// Act + Assert:
+					return runImportancesDbTest(dbAccounts, paginationOptionsBalanceSorting, 100, 10);
+				});
 			});
 
 			describe('respects offset', () => {
@@ -2387,12 +2464,44 @@ describe('catapult db', () => {
 
 		describe('account from decoded address', () => {
 			addAccountsByIdsTestsForSingleAccountLookup({ address: decodedAddress }, { address: decodedAddressUnknown });
+
+			it('picks top importance', () => {
+				const numImportances = 2;
+				const seedAccounts = test.db.createAccounts(publicKey, { savePublicKey: true, numMosaics: 1, numImportances });
+
+				// Assert:
+				return runAccountByIdsDbTest(
+					{ accounts: seedAccounts },
+					db => db.accountsByIds([{ address: decodedAddress }]),
+					accounts => {
+						expect(accounts[0].account.importance).to.deep.equal(Long.fromNumber(numImportances));
+						expect(accounts[0].account.importanceHeight).to.deep.equal(Long.fromNumber(numImportances * numImportances));
+						expect(accounts[0].account.importances).to.equal(undefined);
+					}
+				);
+			});
 		});
 
 		describe('account from public key', () => {
 			// note: even if public key is not known in the accounts collection, the call to accountsByIds()
 			//       will succeed since the public key is converted to a decoded address.
 			addAccountsByIdsTestsForSingleAccountLookup({ publicKey }, { publicKey: publicKeyUnknown });
+
+			it('picks top importance', () => {
+				const numImportances = 2;
+				const seedAccounts = test.db.createAccounts(publicKey, { savePublicKey: true, numMosaics: 1, numImportances });
+
+				// Assert:
+				return runAccountByIdsDbTest(
+					{ accounts: seedAccounts },
+					db => db.accountsByIds([{ publicKey }]),
+					accounts => {
+						expect(accounts[0].account.importance).to.deep.equal(Long.fromNumber(numImportances));
+						expect(accounts[0].account.importanceHeight).to.deep.equal(Long.fromNumber(numImportances * numImportances));
+						expect(accounts[0].account.importances).to.equal(undefined);
+					}
+				);
+			});
 		});
 
 		describe('multiple accounts', () => {
@@ -2435,6 +2544,32 @@ describe('catapult db', () => {
 					]),
 					accounts => expect(accounts).to.deep.equal([1, 3].map(index => transformDbAccount(seedAccounts[index], 1)))
 				)));
+
+			it('picks top importance', () => {
+				const publicKey1 = test.random.publicKey();
+				const publicKey2 = test.random.publicKey();
+
+				const importanceValue = Long.fromNumber(100);
+				const importanceHeight = Long.fromNumber(10);
+
+				const seedAccounts = [
+					test.db.createAccount(1, publicKey1, true, [], [{ value: importanceValue, height: importanceHeight }, {}]),
+					test.db.createAccount(2, publicKey2, true, [], [{ value: importanceValue, height: importanceHeight }, {}])
+				];
+
+				// Assert:
+				return runAccountByIdsDbTest(
+					{ accounts: seedAccounts },
+					db => db.accountsByIds([{ publicKey: publicKey1 }, { publicKey: publicKey2 }]),
+					accounts => {
+						accounts.forEach(account => {
+							expect(account.account.importance).to.deep.equal(importanceValue);
+							expect(account.account.importanceHeight).to.deep.equal(importanceHeight);
+							expect(account.account.importances).to.equal(undefined);
+						});
+					}
+				);
+			});
 		});
 	});
 
