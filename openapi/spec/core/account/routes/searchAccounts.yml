@@ -1,0 +1,21 @@
+tags:
+  - Account routes
+summary: Get accounts
+description: Gets an array of accounts.
+operationId: searchAccounts
+parameters:
+  - $ref: "../../../parameters/query/pageSize.yml"
+  - $ref: "../../../parameters/query/pageNumber.yml"
+  - $ref: "../../../parameters/query/offset.yml"
+  - $ref: "../../../parameters/query/order.yml"
+  - $ref: "../../../parameters/query/orderByAccount.yml"
+  - $ref: "../../../parameters/query/mosaicId.yml"
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../schemas/AccountPage.yml"
+  "409":
+    $ref : "../../../responses/InvalidArgument.yml"

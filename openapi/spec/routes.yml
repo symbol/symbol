@@ -1,10 +1,12 @@
 # Core - Account
-"/account/{accountId}":
+"/accounts":
   get:
-    $ref: "./core/account/routes/getAccountInfo.yml"
-/account:
+    $ref: "./core/account/routes/searchAccounts.yml"
   post:
     $ref: "./core/account/routes/getAccountsInfo.yml"
+"/accounts/{accountId}":
+  get:
+    $ref: "./core/account/routes/getAccountInfo.yml"
 
 # Core - Block
 "/blocks":
