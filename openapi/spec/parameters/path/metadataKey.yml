@@ -1,7 +1,0 @@
-name: key
-in: path
-description: Metadata key.
-required: true
-schema:
-  $ref: "../../schemas/MetadataKey.yml"
-
