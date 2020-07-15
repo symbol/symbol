@@ -1,0 +1,12 @@
+type: object
+required:
+  - data
+  - pagination
+properties:
+  data:
+    type: array
+    description: Array of accounts.
+    items:
+      $ref: "./AccountInfoDTO.yml"
+  pagination:
+    $ref: "../../../schemas/Pagination.yml"

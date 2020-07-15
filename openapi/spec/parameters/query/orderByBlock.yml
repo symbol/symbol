@@ -1,4 +1,6 @@
 name: orderBy
 in: query
+description: |
+  Sort responses by the property set.
 schema:
   $ref: "../../core/block/schemas/BlockOrderByEnum.yml"
