@@ -1,9 +1,0 @@
-type: object
-required:
-  - metadataEntries
-properties:
-  metadataEntries:
-    type: array
-    description: Array of account metadata.
-    items:
-      $ref: "./MetadataDTO.yml"

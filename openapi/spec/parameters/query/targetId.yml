@@ -1,0 +1,8 @@
+name: targetId
+in: query
+description: Filter by namespace or mosaic id.
+schema:
+  # anyOf: MosaicId or NamespaceId
+  type: string
+  format: hex
+  example: 0DC67FBE1CAD29E3
