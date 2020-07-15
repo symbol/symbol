@@ -3,6 +3,11 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [v1.1.3] - 27-Jun-2020
+### Changed (since v1.0.20.50)
+- New project versioning that allows pinning on compatible core server versions and makes it easier to track REST changes.
+- Resized addresses from 25 to 24 bytes.
+
 ## [0.7.14] - 27-Mar-2019
 ### Added
 -  Receipts, AccountProperties, and AccountLink plugins were activated.
