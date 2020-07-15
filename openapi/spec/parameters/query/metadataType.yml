@@ -1,0 +1,5 @@
+name: metadataType
+in: query
+description: Filter by metadata type.
+schema:
+  $ref: "../../plugins/metadata/schemas/MetadataTypeEnum.yml"

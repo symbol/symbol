@@ -288,14 +288,14 @@ EmbeddedMosaicMetadataTransactionDTO:
   "$ref": "../plugins/metadata/schemas/EmbeddedMosaicMetadataTransactionDTO.yml"
 EmbeddedNamespaceMetadataTransactionDTO:
   "$ref": "../plugins/metadata/schemas/EmbeddedNamespaceMetadataTransactionDTO.yml"
-MetadataDTO:
-  "$ref": "../plugins/metadata/schemas/MetadataDTO.yml"
-MetadataEntriesDTO:
-  "$ref": "../plugins/metadata/schemas/MetadataEntriesDTO.yml"
 MetadataEntryDTO:
   "$ref": "../plugins/metadata/schemas/MetadataEntryDTO.yml"
+MetadataInfoDTO:
+  "$ref": "../plugins/metadata/schemas/MetadataInfoDTO.yml"
 MetadataNetworkPropertiesDTO:
   "$ref": "../plugins/metadata/schemas/MetadataNetworkPropertiesDTO.yml"
+MetadataPage:
+  "$ref": "../plugins/metadata/schemas/MetadataPage.yml"
 MosaicMetadataTransactionBodyDTO:
   "$ref": "../plugins/metadata/schemas/MosaicMetadataTransactionBodyDTO.yml"
 MosaicMetadataTransactionDTO:
