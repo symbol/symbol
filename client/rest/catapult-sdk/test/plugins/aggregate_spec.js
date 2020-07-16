@@ -246,14 +246,21 @@ describe('aggregate plugin', () => {
 
 				describe('with multiple transactions', () => {
 					// use extraSize to emulate transactions of varying sizes within a single aggregate
+					const extraSize1 = 1;
+					const extraSize2 = 4;
+					const extraSize3 = 2;
+
 					addAll(
-						constants.sizes.aggregate + (3 * constants.sizes.embedded) + (1 + 4 + 2) + 7 + 4 + 6, // extra sizes + their padding
+						constants.sizes.aggregate + (3 * constants.sizes.embedded) + (extraSize1 + extraSize2 + extraSize3)
+							+ (innerAggregateTxPaddingSize(constants.sizes.aggregate + extraSize1)
+								+ innerAggregateTxPaddingSize(constants.sizes.aggregate + extraSize2)
+								+ innerAggregateTxPaddingSize(constants.sizes.aggregate + extraSize3)),
 						addTransaction(
 							addTransaction(
-								addTransaction(generateAggregate, { extraSize: 1 }),
-								{ extraSize: 4 }
+								addTransaction(generateAggregate, { extraSize: extraSize1 }),
+								{ extraSize: extraSize2 }
 							),
-							{ extraSize: 2 }
+							{ extraSize: extraSize3 }
 						)
 					);
 				});
