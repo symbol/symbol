@@ -33,8 +33,9 @@ namespace catapult { namespace extensions {
 			if (observers::NotifyMode::Commit != context.Mode || Height(1) != context.Height)
 				CATAPULT_THROW_INVALID_ARGUMENT("NemesisFundingObserver only supports commit mode for nemesis block");
 
+			// never fund non-nemesis accounts
 			if (nemesisAddress != notification.Sender)
-				CATAPULT_THROW_INVALID_ARGUMENT_1("unexpected nemesis transfer from account", notification.Sender);
+				return;
 
 			auto& cache = context.Cache.sub<cache::AccountStateCache>();
 			cache.addAccount(notification.Sender, context.Height);

@@ -59,7 +59,11 @@ namespace catapult { namespace extensions {
 		AssertUnsupported(observers::NotifyMode::Commit, Height(2));
 	}
 
-	TEST(TEST_CLASS, ObserverFailsWhenTransferIsFromNonNemesisAccount) {
+	// endregion
+
+	// region non-nemesis account
+
+	TEST(TEST_CLASS, ObserverDoesNotFundNonNemesisAccount) {
 		// Arrange:
 		test::AccountObserverTestContext context(observers::NotifyMode::Commit, Height(1));
 		auto nemesis = test::GenerateRandomByteArray<Address>();
@@ -69,8 +73,15 @@ namespace catapult { namespace extensions {
 		auto pObserver = CreateNemesisFundingObserver(nemesis, fundingState);
 		auto notification = CreateBalanceTransferNotification(sender, UnresolvedMosaicId(9876), Amount(12));
 
-		// Act + Assert:
-		EXPECT_THROW(test::ObserveNotification(*pObserver, notification, context.observerContext()), catapult_invalid_argument);
+		// Act:
+		test::ObserveNotification(*pObserver, notification, context.observerContext());
+
+		// Assert: nothing was funded
+		EXPECT_EQ(NemesisFundingType::Unknown, fundingState.FundingType);
+		EXPECT_EQ(0u, fundingState.TotalFundedMosaics.size());
+
+		const auto& accountStateCache = context.cache().sub<cache::AccountStateCache>();
+		EXPECT_EQ(0u, accountStateCache.size());
 	}
 
 	// endregion
