@@ -22,6 +22,7 @@
 #include "src/cache/HashLockInfoCache.h"
 #include "src/model/HashLockReceiptType.h"
 #include "plugins/txes/lock_shared/src/observers/ExpiredLockInfoObserver.h"
+#include "catapult/cache_core/AccountStateCacheUtils.h"
 #include "catapult/observers/ObserverUtils.h"
 
 namespace catapult { namespace observers {
@@ -29,8 +30,13 @@ namespace catapult { namespace observers {
 	DEFINE_OBSERVER(ExpiredHashLockInfo, model::BlockNotification, [](
 			const model::BlockNotification& notification,
 			ObserverContext& context) {
-		ExpiredLockInfoObserver<cache::HashLockInfoCache>(context, model::Receipt_Type_LockHash_Expired, [&notification](const auto&) {
-			return notification.Harvester;
+		ExpiredLockInfoObserver<cache::HashLockInfoCache>(context, model::Receipt_Type_LockHash_Expired, [&notification](
+				auto& accountStateCache,
+				const auto&,
+				auto accountStateConsumer) {
+			cache::ProcessForwardedAccountState(accountStateCache, notification.Harvester, [accountStateConsumer](auto& accountState) {
+				accountStateConsumer(accountState);
+			});
 		});
 	});
 }}

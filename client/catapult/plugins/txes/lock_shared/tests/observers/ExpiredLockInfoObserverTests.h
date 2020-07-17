@@ -30,6 +30,8 @@ namespace catapult { namespace observers {
 	template<typename TTraits>
 	class ExpiredLockInfoObserverTests {
 	public:
+		enum class HarvesterType { Main, Remote };
+
 		struct SeedTuple {
 			Address OwnerAddress;
 			catapult::MosaicId MosaicId;
@@ -42,12 +44,13 @@ namespace catapult { namespace observers {
 
 		static void RunBalanceTest(
 				NotifyMode mode,
-				const Address& blockHarvester,
+				HarvesterType harvesterType,
+				const Key& harvesterPublicKey,
 				const std::vector<SeedTuple>& expiringSeeds,
 				const std::vector<SeedTuple>& expectedPostObserveBalances) {
 			// Arrange:
 			TestContext context(Height(55), mode);
-			context.addBlockHarvester(blockHarvester, MosaicId(500), Amount(200));
+			auto notificationBlockHarvester = context.addBlockHarvester(harvesterType, harvesterPublicKey, MosaicId(500), Amount(200));
 
 			// - add placeholder accounts that expire at other heights: 10, 20, ..., 100
 			auto seeds = GenerateSeeds(10);
@@ -57,7 +60,7 @@ namespace catapult { namespace observers {
 			context.addLockInfos(expiringSeeds, [](auto) { return Height(55); });
 
 			// Act:
-			context.observe(blockHarvester);
+			context.observe(notificationBlockHarvester);
 
 			// Assert: each expiring lock info was touched
 			context.assertLockInfoTouches(expiringSeeds.size());
@@ -71,12 +74,13 @@ namespace catapult { namespace observers {
 
 		static void RunReceiptTest(
 				NotifyMode mode,
-				const Address& blockHarvester,
+				HarvesterType harvesterType,
+				const Key& harvesterPublicKey,
 				const std::vector<SeedTuple>& expiringSeeds,
 				const std::vector<SeedTuple>& expectedReceipts) {
 			// Arrange:
 			TestContext context(Height(55), mode);
-			context.addBlockHarvester(blockHarvester, MosaicId(500), Amount(200));
+			auto notificationBlockHarvester = context.addBlockHarvester(harvesterType, harvesterPublicKey, MosaicId(500), Amount(200));
 
 			// - add placeholder accounts that expire at other heights: 10, 20, ..., 100
 			auto seeds = GenerateSeeds(10);
@@ -86,7 +90,7 @@ namespace catapult { namespace observers {
 			context.addLockInfos(expiringSeeds, [](auto) { return Height(55); });
 
 			// Act:
-			auto pStatement = context.observe(blockHarvester);
+			auto pStatement = context.observe(notificationBlockHarvester);
 
 			// Assert:
 			if (expectedReceipts.empty()) {
@@ -150,10 +154,27 @@ namespace catapult { namespace observers {
 					addLockInfo(seeds[i], heightGenerator(i));
 			}
 
-			void addBlockHarvester(const Address& harvester, MosaicId mosaicId, Amount amount) {
+			Address addBlockHarvester(HarvesterType harvesterType, const Key& harvesterPublicKey, MosaicId mosaicId, Amount amount) {
 				auto& accountStateCache = this->accountStateCache();
-				accountStateCache.addAccount(harvester, Height(1));
-				accountStateCache.find(harvester).get().Balances.credit(mosaicId, amount);
+				accountStateCache.addAccount(harvesterPublicKey, Height(1));
+
+				auto harvesterAccountStateIter = accountStateCache.find(harvesterPublicKey);
+				harvesterAccountStateIter.get().Balances.credit(mosaicId, amount);
+
+				if (HarvesterType::Main == harvesterType)
+					return harvesterAccountStateIter.get().Address;
+
+				// HarvesterType::Remote - interpret harvesterPublicKey as a main account and link it to a remote account
+				auto remotePublicKey = test::GenerateRandomByteArray<Key>();
+				accountStateCache.addAccount(remotePublicKey, Height(1));
+
+				harvesterAccountStateIter.get().AccountType = state::AccountType::Main;
+				harvesterAccountStateIter.get().SupplementalPublicKeys.linked().set(remotePublicKey);
+
+				auto remoteAccountStateIter = accountStateCache.find(remotePublicKey);
+				remoteAccountStateIter.get().AccountType = state::AccountType::Remote;
+				remoteAccountStateIter.get().SupplementalPublicKeys.linked().set(harvesterPublicKey);
+				return remoteAccountStateIter.get().Address;
 			}
 
 			void addLockInfo(const SeedTuple& seed, Height height) {

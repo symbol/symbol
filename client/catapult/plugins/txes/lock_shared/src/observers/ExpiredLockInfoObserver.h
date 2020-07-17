@@ -26,30 +26,30 @@ namespace catapult { namespace observers {
 	/// On commit, credits the expiration account(s) of expired locks and creates receipts of \a receiptType.
 	/// On rollback, debits the expiration account(s) of expired locks.
 	/// Uses the observer \a context to determine notification direction and access caches.
-	/// Uses \a ownerAccountIdSupplier to retrieve the lock owner's account identifier.
-	template<typename TLockInfoCache, typename TAccountIdSupplier>
-	void ExpiredLockInfoObserver(ObserverContext& context, model::ReceiptType receiptType, TAccountIdSupplier ownerAccountIdSupplier) {
-		auto& accountStateCache = context.Cache.sub<cache::AccountStateCache>();
-		auto accountStateSupplier = [&accountStateCache, ownerAccountIdSupplier](const auto& lockInfo) {
-			return accountStateCache.find(ownerAccountIdSupplier(lockInfo));
-		};
-
+	/// Uses \a ownerAccountStateDispatcher to retrieve the lock owner's account state.
+	template<typename TLockInfoCache, typename TAccountStateDispatcher>
+	void ExpiredLockInfoObserver(
+			ObserverContext& context,
+			model::ReceiptType receiptType,
+			TAccountStateDispatcher ownerAccountStateDispatcher) {
 		std::vector<std::unique_ptr<model::BalanceChangeReceipt>> receipts;
 		auto receiptAppender = [&receipts, receiptType](const auto& address, auto mosaicId, auto amount) {
 			receipts.push_back(std::make_unique<model::BalanceChangeReceipt>(receiptType, address, mosaicId, amount));
 		};
 
 		auto& lockInfoCache = context.Cache.template sub<TLockInfoCache>();
-		lockInfoCache.processUnusedExpiredLocks(context.Height, [&context, accountStateSupplier, receiptAppender](const auto& lockInfo) {
-			auto accountStateIter = accountStateSupplier(lockInfo);
-			auto& accountState = accountStateIter.get();
-			if (NotifyMode::Rollback == context.Mode) {
-				accountState.Balances.debit(lockInfo.MosaicId, lockInfo.Amount);
-				return;
-			}
+		lockInfoCache.processUnusedExpiredLocks(context.Height, [&context, ownerAccountStateDispatcher, receiptAppender](
+				const auto& lockInfo) {
+			auto& accountStateCache = context.Cache.sub<cache::AccountStateCache>();
+			ownerAccountStateDispatcher(accountStateCache, lockInfo, [&context, &lockInfo, receiptAppender](auto& accountState) {
+				if (NotifyMode::Rollback == context.Mode) {
+					accountState.Balances.debit(lockInfo.MosaicId, lockInfo.Amount);
+					return;
+				}
 
-			accountState.Balances.credit(lockInfo.MosaicId, lockInfo.Amount);
-			receiptAppender(accountState.Address, lockInfo.MosaicId, lockInfo.Amount);
+				accountState.Balances.credit(lockInfo.MosaicId, lockInfo.Amount);
+				receiptAppender(accountState.Address, lockInfo.MosaicId, lockInfo.Amount);
+			});
 		});
 
 		// sort receipts in order to fulfill deterministic ordering requirement
