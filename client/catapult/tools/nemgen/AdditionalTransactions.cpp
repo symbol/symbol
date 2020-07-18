@@ -122,8 +122,9 @@ namespace catapult { namespace tools { namespace nemgen {
 			if (Amount(0) != transaction.MaxFee)
 				violations.push_back("nemesis transactions need to have max fee set to 0");
 
+			Hash256 zeroHash;
 			AdditionalTransactionNotificationSubscriber subscriber(config, violations);
-			notificationPublisher.publish(transaction, subscriber);
+			notificationPublisher.publish({ transaction, zeroHash }, subscriber);
 			return violations;
 		}
 
