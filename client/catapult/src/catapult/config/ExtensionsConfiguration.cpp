@@ -37,7 +37,7 @@ namespace catapult { namespace config {
 		auto extensionsPair = utils::ExtractSectionAsOrderedVector(bag, "extensions");
 		config.Names = extensionsPair.first;
 
-		utils::VerifyBagSizeLte(bag, extensionsPair.second);
+		utils::VerifyBagSizeExact(bag, extensionsPair.second);
 		return config;
 	}
 }}

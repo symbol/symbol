@@ -351,7 +351,7 @@ namespace catapult { namespace model {
 				BetaConfiguration config;
 				utils::LoadIniProperty(bag, "", "Bar", config.Bar);
 				utils::LoadIniProperty(bag, "", "Baz", config.Baz);
-				utils::VerifyBagSizeLte(bag, 2);
+				utils::VerifyBagSizeExact(bag, 2);
 				return config;
 			}
 		};

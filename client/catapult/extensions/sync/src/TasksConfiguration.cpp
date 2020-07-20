@@ -39,7 +39,7 @@ namespace catapult { namespace sync {
 		LOAD_PROPERTY(StartDelay);
 		LOAD_PROPERTY(RepeatDelay);
 
-		utils::VerifyBagSizeLte(bag, 2);
+		utils::VerifyBagSizeExact(bag, 2);
 		return config;
 	}
 
@@ -60,7 +60,7 @@ namespace catapult { namespace sync {
 		LOAD_PROPERTY(NumPhaseOneRounds);
 		LOAD_PROPERTY(NumTransitionRounds);
 
-		utils::VerifyBagSizeLte(bag, 5);
+		utils::VerifyBagSizeExact(bag, 5);
 		return config;
 	}
 

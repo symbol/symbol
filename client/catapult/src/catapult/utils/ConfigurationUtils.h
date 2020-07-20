@@ -35,8 +35,8 @@ namespace catapult { namespace utils {
 		value = bag.get<T>(ConfigurationKey(section, GetIniPropertyName(cppVariableName).c_str()));
 	}
 
-	/// Verifies that the number of properties in \a bag is no greater than \a expectedSize.
-	void VerifyBagSizeLte(const ConfigurationBag& bag, size_t expectedSize);
+	/// Verifies that the number of properties in \a bag is exactly equal to \a expectedSize.
+	void VerifyBagSizeExact(const ConfigurationBag& bag, size_t expectedSize);
 
 	/// Extracts all \a section properties from \a bag into a new bag with a single section with a default (empty string) name.
 	ConfigurationBag ExtractSectionAsBag(const ConfigurationBag& bag, const char* section);

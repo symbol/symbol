@@ -36,7 +36,7 @@ namespace catapult { namespace zeromq {
 
 		LOAD_PROPERTY(SubscriberPort);
 
-		utils::VerifyBagSizeLte(bag, 1);
+		utils::VerifyBagSizeExact(bag, 1);
 		return config;
 	}
 

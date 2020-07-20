@@ -40,7 +40,7 @@ namespace catapult { namespace networkheight {
 
 #undef LOAD_NETWORKHEIGHT_PROPERTY
 
-		utils::VerifyBagSizeLte(bag, 1);
+		utils::VerifyBagSizeExact(bag, 1);
 		return config;
 	}
 

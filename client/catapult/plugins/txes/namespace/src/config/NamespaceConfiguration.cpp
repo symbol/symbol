@@ -51,7 +51,7 @@ namespace catapult { namespace config {
 
 #undef LOAD_PROPERTY
 
-		utils::VerifyBagSizeLte(bag, 10);
+		utils::VerifyBagSizeExact(bag, 10);
 		return config;
 	}
 }}

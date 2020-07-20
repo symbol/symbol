@@ -58,7 +58,7 @@ namespace catapult { namespace config {
 			lastHeight = height;
 		}
 
-		utils::VerifyBagSizeLte(bag, config.InflationCalculator.size());
+		utils::VerifyBagSizeExact(bag, config.InflationCalculator.size());
 		return config;
 	}
 }}

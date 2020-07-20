@@ -31,7 +31,7 @@ namespace catapult { namespace config {
 	TransferConfiguration TransferConfiguration::LoadFromBag(const utils::ConfigurationBag& bag) {
 		TransferConfiguration config;
 		utils::LoadIniProperty(bag, "", "MaxMessageSize", config.MaxMessageSize);
-		utils::VerifyBagSizeLte(bag, 1);
+		utils::VerifyBagSizeExact(bag, 1);
 		return config;
 	}
 }}

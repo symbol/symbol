@@ -55,7 +55,7 @@ namespace catapult { namespace config {
 		config.Console.ComponentLevels = bag.getAll<utils::LogLevel>("console.component.levels");
 		config.File.ComponentLevels = bag.getAll<utils::LogLevel>("file.component.levels");
 
-		utils::VerifyBagSizeLte(bag, 10 + config.Console.ComponentLevels.size() + config.File.ComponentLevels.size());
+		utils::VerifyBagSizeExact(bag, 10 + config.Console.ComponentLevels.size() + config.File.ComponentLevels.size());
 		return config;
 	}
 

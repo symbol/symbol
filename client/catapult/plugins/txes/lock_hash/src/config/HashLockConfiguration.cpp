@@ -36,7 +36,7 @@ namespace catapult { namespace config {
 		LOAD_PROPERTY(MaxHashLockDuration);
 #undef LOAD_PROPERTY
 
-		utils::VerifyBagSizeLte(bag, 2);
+		utils::VerifyBagSizeExact(bag, 2);
 		return config;
 	}
 }}

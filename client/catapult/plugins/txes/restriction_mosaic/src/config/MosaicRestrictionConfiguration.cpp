@@ -35,7 +35,7 @@ namespace catapult { namespace config {
 		LOAD_PROPERTY(MaxMosaicRestrictionValues);
 #undef LOAD_PROPERTY
 
-		utils::VerifyBagSizeLte(bag, 1);
+		utils::VerifyBagSizeExact(bag, 1);
 		return config;
 	}
 }}

@@ -210,7 +210,7 @@ namespace catapult { namespace tools { namespace nemgen {
 
 		LOAD_PROPERTY("transactions", TransactionsDirectory);
 
-		utils::VerifyBagSizeLte(bag, 7 + numNamespaceProperties + numMosaicProperties);
+		utils::VerifyBagSizeExact(bag, 7 + numNamespaceProperties + numMosaicProperties);
 		return config;
 	}
 

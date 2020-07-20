@@ -49,7 +49,7 @@ namespace catapult { namespace harvesting {
 
 #undef LOAD_HARVESTING_PROPERTY
 
-		utils::VerifyBagSizeLte(bag, 6);
+		utils::VerifyBagSizeExact(bag, 6);
 		return config;
 	}
 

@@ -41,7 +41,7 @@ namespace catapult { namespace timesync {
 
 #undef LOAD_TIMESYNC_PROPERTY
 
-		utils::VerifyBagSizeLte(bag, 2);
+		utils::VerifyBagSizeExact(bag, 2);
 		return config;
 	}
 

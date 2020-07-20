@@ -37,7 +37,7 @@ namespace catapult { namespace partialtransaction {
 		LOAD_PROPERTY(CacheMaxResponseSize);
 		LOAD_PROPERTY(CacheMaxSize);
 
-		utils::VerifyBagSizeLte(bag, 2);
+		utils::VerifyBagSizeExact(bag, 2);
 		return config;
 	}
 

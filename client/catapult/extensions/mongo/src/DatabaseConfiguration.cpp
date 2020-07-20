@@ -45,7 +45,7 @@ namespace catapult { namespace mongo {
 		auto pluginsPair = utils::ExtractSectionAsUnorderedSet(bag, "plugins");
 		config.Plugins = pluginsPair.first;
 
-		utils::VerifyBagSizeLte(bag, 3 + pluginsPair.second);
+		utils::VerifyBagSizeExact(bag, 3 + pluginsPair.second);
 		return config;
 	}
 

@@ -41,7 +41,7 @@ namespace catapult { namespace config {
 		LOAD_PROPERTY(MaxBondedTransactionLifetime);
 #undef LOAD_PROPERTY
 
-		utils::VerifyBagSizeLte(bag, 5);
+		utils::VerifyBagSizeExact(bag, 5);
 		return config;
 	}
 }}

@@ -35,9 +35,12 @@ namespace catapult { namespace utils {
 		return static_cast<char>(std::tolower(firstChar)) + std::string(&cppVariableName[1]);
 	}
 
-	void VerifyBagSizeLte(const ConfigurationBag& bag, size_t expectedSize) {
-		if (bag.size() > expectedSize)
-			CATAPULT_THROW_INVALID_ARGUMENT_1("configuration bag contains too many properties", bag.size());
+	void VerifyBagSizeExact(const ConfigurationBag& bag, size_t expectedSize) {
+		if (expectedSize == bag.size())
+			return;
+
+		constexpr auto Error_Message = "configuration bag has unexpected number of properties (expected, actual)";
+		CATAPULT_THROW_INVALID_ARGUMENT_2(Error_Message, expectedSize, bag.size());
 	}
 
 	ConfigurationBag ExtractSectionAsBag(const ConfigurationBag& bag, const char* section) {
