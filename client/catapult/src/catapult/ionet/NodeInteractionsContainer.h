@@ -91,6 +91,8 @@ namespace catapult { namespace ionet {
 		void pruneBuckets(Timestamp timestamp);
 
 	private:
+		bool shouldCreateNewBucket(Timestamp timestamp) const;
+
 		void addInteraction(Timestamp timestamp, const consumer<NodeInteractionsBucket&>& consumer);
 
 	private:
