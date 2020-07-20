@@ -88,7 +88,7 @@ namespace catapult { namespace io {
 		constexpr auto New_File_Create_Truncate_Flags = _O_CREAT | _O_TRUNC;
 		constexpr auto New_File_Create_Flags = _O_CREAT;
 		constexpr auto New_File_Permissions = _S_IWRITE | _S_IREAD;
-		constexpr auto File_Binary_Flag = _O_BINARY;
+		constexpr auto Open_Flags = _O_BINARY;
 		constexpr auto File_Locking_Exclusive = _SH_DENYRW;
 		constexpr auto File_Locking_Shared_Read = _SH_DENYWR;
 		constexpr auto File_Locking_None = _SH_DENYNO;
@@ -136,7 +136,7 @@ namespace catapult { namespace io {
 		constexpr auto New_File_Create_Truncate_Flags = O_CREAT | O_TRUNC;
 		constexpr auto New_File_Create_Flags = O_CREAT;
 		constexpr auto New_File_Permissions = S_IWUSR | S_IRUSR;
-		constexpr auto File_Binary_Flag = 0;
+		constexpr auto Open_Flags = O_CLOEXEC;
 		constexpr auto File_Locking_Exclusive = LOCK_NB | LOCK_EX;
 		constexpr auto File_Locking_Shared_Read = LOCK_NB | LOCK_SH;
 		constexpr auto File_Locking_None = 0;
@@ -236,7 +236,7 @@ namespace catapult { namespace io {
 					? ((flags & Flag_Read_Write) ? File_Locking_Exclusive : File_Locking_Shared_Read)
 					: File_Locking_None;
 
-			return open(fd, name, File_Binary_Flag | flags | createFlag, lockingFlags, New_File_Permissions);
+			return open(fd, name, Open_Flags | flags | createFlag, lockingFlags, New_File_Permissions);
 		}
 
 		// endregion
