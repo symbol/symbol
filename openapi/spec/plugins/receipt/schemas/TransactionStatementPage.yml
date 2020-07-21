@@ -1,0 +1,12 @@
+type: object
+required:
+  - data
+  - pagination
+properties:
+  data:
+    type: array
+    description: Array of transaction statements.
+    items:
+      $ref: "./TransactionStatementInfoDTO.yml"
+  pagination:
+    $ref: "../../../schemas/Pagination.yml"

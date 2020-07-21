@@ -1,5 +1,5 @@
 tags:
-  - Receipt routes
+  - Block routes
 summary: Get the merkle path for a given a receipt statement hash and block
 description: |
   Returns the merkle path for a receipt statement or resolution linked to a block.
