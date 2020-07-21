@@ -1,0 +1,13 @@
+type: object
+required:
+  - id
+  - statement
+description: |
+  A resolution statement keeps the relation between a namespace alias used in a transaction
+  and the real address or mosaicId.
+properties:
+  id:
+    type: string
+    description: Internal resource identifier.
+  statement:
+    $ref: "./ResolutionStatementDTO.yml"

@@ -1,0 +1,5 @@
+name: senderAddress
+in: query
+description: Filter by address sending mosaics.
+schema:
+  $ref: "../../schemas/AddressBase32.yml"

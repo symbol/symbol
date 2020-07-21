@@ -1,7 +1,20 @@
 type: object
-description: Collection of receipts related to a transaction.
 required:
-  - statement
+  - height
+  - source
+  - receipts
 properties:
-  statement:
-    $ref: "./TransactionStatementBodyDTO.yml"
+  height:
+    $ref: "../../../schemas/Height.yml"
+  source:
+    $ref: "./SourceDTO.yml"
+  receipts:
+    type: array
+    description: Array of receipts.
+    items:
+      anyOf:
+        - $ref: "./BalanceTransferReceiptDTO.yml"
+        - $ref: "./BalanceChangeReceiptDTO.yml"
+        - $ref: "./NamespaceExpiryReceiptDTO.yml"
+        - $ref: "./MosaicExpiryReceiptDTO.yml"
+        - $ref: "./InflationReceiptDTO.yml"
