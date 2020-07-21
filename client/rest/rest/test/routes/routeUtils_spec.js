@@ -647,7 +647,6 @@ describe('route utils', () => {
 				});
 			});
 
-
 			it('sends error when object is not a page', () => {
 				// Act:
 				send({ alpha: 7 }, 'foo', response => {

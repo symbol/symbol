@@ -24,7 +24,6 @@ const { expect } = require('chai');
 const sinon = require('sinon');
 const tls = require('tls');
 
-
 describe('connection service', () => {
 	const sockets = [];
 	let tlsConnectStub;
@@ -68,7 +67,6 @@ describe('connection service', () => {
 
 		return leasePromise;
 	});
-
 
 	it('connection close is forwarded', () => {
 		// Act:

@@ -24,7 +24,6 @@ const errors = require('../server/errors');
 const catapult = require('catapult-sdk');
 const { NotFoundError } = require('restify-errors');
 
-
 const { convert } = catapult.utils;
 const { PacketType } = catapult.packet;
 

@@ -31,7 +31,6 @@ const { Binary, Long } = MongoDb;
 const { address } = catapult.model;
 const { uint64 } = catapult.utils;
 
-
 describe('receipts db', () => {
 	const { createObjectId } = test.db;
 

@@ -360,7 +360,6 @@ describe('namespace db', () => {
 			.catch(() => Promise.resolve())
 			.then(() => db.database.collection(collectionName)[Array.isArray(entities) ? 'insertMany' : 'insertOne'](entities));
 
-
 	describe('activeNamespacesWithAlias', () => {
 		const aliasTypeMosaic = catapult.model.namespace.aliasType.mosaic;
 		const aliasTypeAddress = catapult.model.namespace.aliasType.address;

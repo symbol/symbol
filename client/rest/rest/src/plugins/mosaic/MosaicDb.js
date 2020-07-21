@@ -22,7 +22,6 @@ const MongoDb = require('mongodb');
 
 const { Long } = MongoDb;
 
-
 class MosaicDb {
 	/**
 	 * Creates MosaicDb around CatapultDb.

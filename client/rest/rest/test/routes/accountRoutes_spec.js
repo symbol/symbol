@@ -111,7 +111,6 @@ describe('account routes', () => {
 
 			const route = mockServer.getRoute('/accounts').get();
 
-
 			it('parses and forwards paging options', () => {
 				// Arrange:
 				const pagingBag = 'fakePagingBagObject';

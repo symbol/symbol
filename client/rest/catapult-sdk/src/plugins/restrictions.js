@@ -137,7 +137,6 @@ const restrictionsPlugin = {
 		});
 		builder.addSchema('accountRestriction.fallback', {});
 
-
 		/**
 		 * Mosaic restrictions scope
 		 */

@@ -265,7 +265,6 @@ class CatapultDb {
 		});
 	}
 
-
 	/**
 	 * Retrieves the fee multiplier for the last (higher on the chain) numBlocks blocks
 	 * @param {int} numBlocks Number of blocks to retrieve.

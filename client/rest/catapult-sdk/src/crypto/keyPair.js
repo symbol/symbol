@@ -22,7 +22,6 @@
 const convert = require('../utils/convert');
 const tweetnacl = require('tweetnacl');
 
-
 // region exported functions
 
 /**

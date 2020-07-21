@@ -23,7 +23,6 @@ const convert = require('../../src/utils/convert');
 const test = require('../testUtils');
 const { expect } = require('chai');
 
-
 describe('key pair', () => {
 	const Private_Key_Size = 32;
 	const Signature_Size = 64;
