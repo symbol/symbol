@@ -44,10 +44,10 @@ class MosaicDb {
 
 		const conditions = [];
 
-		if (options.offset)
+		if (undefined !== options.offset)
 			conditions.push({ [sortingOptions[options.sortField]]: { [1 === options.sortDirection ? '$gt' : '$lt']: options.offset } });
 
-		if (ownerAddress)
+		if (undefined !== ownerAddress)
 			conditions.push({ 'mosaic.ownerAddress': Buffer.from(ownerAddress) });
 
 		const sortConditions = { $sort: { [sortingOptions[options.sortField]]: options.sortDirection } };

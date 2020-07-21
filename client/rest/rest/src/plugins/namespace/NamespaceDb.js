@@ -54,19 +54,19 @@ class NamespaceDb {
 		const sortingOptions = { id: '_id' };
 		const conditions = [];
 
-		if (options.offset)
+		if (undefined !== options.offset)
 			conditions.push({ [sortingOptions[options.sortField]]: { [1 === options.sortDirection ? '$gt' : '$lt']: options.offset } });
 
-		if (aliasType)
+		if (undefined !== aliasType)
 			conditions.push({ 'namespace.alias.type': aliasType });
 
-		if (level0)
+		if (undefined !== level0)
 			conditions.push({ 'namespace.level0': new Long(level0[0], level0[1]) });
 
-		if (ownerAddress)
+		if (undefined !== ownerAddress)
 			conditions.push({ 'namespace.ownerAddress': Buffer.from(ownerAddress) });
 
-		if (registrationType)
+		if (undefined !== registrationType)
 			conditions.push({ 'namespace.registrationType': registrationType });
 
 		// Returning only active namespaces

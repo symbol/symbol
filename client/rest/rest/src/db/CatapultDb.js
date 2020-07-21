@@ -217,13 +217,13 @@ class CatapultDb {
 
 		const conditions = [];
 
-		if (options.offset)
+		if (undefined !== options.offset)
 			conditions.push({ [sortingOptions[options.sortField]]: { [1 === options.sortDirection ? '$gt' : '$lt']: options.offset } });
 
-		if (signerPublicKey)
+		if (undefined !== signerPublicKey)
 			conditions.push({ 'block.signerPublicKey': Buffer.from(signerPublicKey) });
 
-		if (beneficiaryAddress)
+		if (undefined !== beneficiaryAddress)
 			conditions.push({ 'block.beneficiaryAddress': Buffer.from(beneficiaryAddress) });
 
 		const sortConditions = { $sort: { [sortingOptions[options.sortField]]: options.sortDirection } };
@@ -373,16 +373,16 @@ class CatapultDb {
 		const sortingOptions = { id: '_id' };
 
 		const buildAccountConditions = () => {
-			if (filters.address)
+			if (undefined !== filters.address)
 				return { 'meta.addresses': Buffer.from(filters.address) };
 
 			const accountConditions = [];
-			if (filters.signerPublicKey) {
+			if (undefined !== filters.signerPublicKey) {
 				const signerPublicKeyCondition = { 'transaction.signerPublicKey': Buffer.from(filters.signerPublicKey) };
 				accountConditions.push(signerPublicKeyCondition);
 			}
 
-			if (filters.recipientAddress) {
+			if (undefined !== filters.recipientAddress) {
 				const recipientAddressCondition = { 'transaction.recipientAddress': Buffer.from(filters.recipientAddress) };
 				accountConditions.push(recipientAddressCondition);
 			}
@@ -396,10 +396,10 @@ class CatapultDb {
 		const buildConditions = () => {
 			const conditions = [];
 
-			if (options.offset)
+			if (undefined !== options.offset)
 				conditions.push({ [sortingOptions[options.sortField]]: { [1 === options.sortDirection ? '$gt' : '$lt']: options.offset } });
 
-			if (filters.height)
+			if (undefined !== filters.height)
 				conditions.push({ 'meta.height': convertToLong(filters.height) });
 
 			if (!filters.embedded)
@@ -495,13 +495,13 @@ class CatapultDb {
 		const sortingOptions = { id: '_id', balance: 'account.mosaics.amount' };
 		const conditions = [];
 
-		if (options.offset)
+		if (undefined !== options.offset)
 			conditions.push({ [sortingOptions[options.sortField]]: { [1 === options.sortDirection ? '$gt' : '$lt']: options.offset } });
 
-		if (address)
+		if (undefined !== address)
 			conditions.push({ 'account.address': Buffer.from(address) });
 
-		if (mosaicId)
+		if (undefined !== mosaicId)
 			conditions.push({ 'account.mosaics.id': convertToLong(mosaicId) });
 
 		const sortConditions = { $sort: { [sortingOptions[options.sortField]]: options.sortDirection } };

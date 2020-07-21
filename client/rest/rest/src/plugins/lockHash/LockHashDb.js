@@ -41,7 +41,7 @@ class LockHashDb {
 		const buffers = addresses.map(address => Buffer.from(address));
 		const conditions = [{ 'lock.ownerAddress': { $in: buffers } }];
 
-		if (options.offset)
+		if (undefined !== options.offset)
 			conditions.push({ [sortingOptions[options.sortField]]: { [1 === options.sortDirection ? '$gt' : '$lt']: options.offset } });
 
 		const sortConditions = { $sort: { [sortingOptions[options.sortField]]: options.sortDirection } };
