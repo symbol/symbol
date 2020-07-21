@@ -116,8 +116,12 @@ describe('receipts routes', () => {
 			}
 		};
 
-		const dbTransactionStatementsFake = sinon.fake(filters =>
-			(666 === filters.height ? Promise.resolve(emptyPageSample) : Promise.resolve(pageSample)));
+		const dbTransactionStatementsFake = sinon.fake(filters => {
+			if (filters.height && 666 === filters.height[0])
+				return Promise.resolve(emptyPageSample);
+
+			return Promise.resolve(pageSample);
+		});
 
 		const services = {
 			config: {
@@ -199,7 +203,7 @@ describe('receipts routes', () => {
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbTransactionStatementsFake.calledOnce).to.equal(true);
-					expect(dbTransactionStatementsFake.firstCall.args[0].height).to.equal(123);
+					expect(dbTransactionStatementsFake.firstCall.args[0].height).to.deep.equal([123, 0]);
 
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});
@@ -350,8 +354,12 @@ describe('receipts routes', () => {
 			}
 		};
 
-		const dbArtifactStatementsFake = sinon.fake(height =>
-			(666 === height ? Promise.resolve(emptyPageSample) : Promise.resolve(pageSample)));
+		const dbArtifactStatementsFake = sinon.fake(height => {
+			if (height && 666 === height[0])
+				return Promise.resolve(emptyPageSample);
+
+			return Promise.resolve(pageSample);
+		});
 
 		const services = {
 			config: {
@@ -451,7 +459,7 @@ describe('receipts routes', () => {
 				return mockServer.callRoute(route, req).then(() => {
 					// Assert:
 					expect(dbArtifactStatementsFake.calledOnce).to.equal(true);
-					expect(dbArtifactStatementsFake.firstCall.args[0]).to.equal(123);
+					expect(dbArtifactStatementsFake.firstCall.args[0]).to.deep.equal([123, 0]);
 
 					expect(mockServer.next.calledOnce).to.equal(true);
 				});

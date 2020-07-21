@@ -335,19 +335,21 @@ const routeUtils = {
 	 * @returns {Function} Restify response function to process merkle path requests.
 	 */
 	blockRouteMerkleProcessor: (db, blockMetaCountField, blockMetaTreeField) => (req, res, next) => {
-		const height = routeUtils.parseArgument(req.params, 'height', 'uint');
+		const height = routeUtils.parseArgument(req.params, 'height', 'uint64');
 		const hash = routeUtils.parseArgument(req.params, 'hash', 'hash256');
 
 		return dbFacade.runHeightDependentOperation(db, height, () => db.blockWithMerkleTreeAtHeight(height, blockMetaTreeField))
 			.then(result => {
 				if (!result.isRequestValid) {
-					res.send(errors.createNotFoundError(height));
+					res.send(errors.createNotFoundError(uint64.toString(height)));
 					return next();
 				}
 
 				const block = result.payload;
 				if (!block.meta[blockMetaCountField]) {
-					res.send(errors.createInvalidArgumentError(`hash '${req.params.hash}' not included in block height '${height}'`));
+					res.send(errors.createInvalidArgumentError(
+						`hash '${req.params.hash}' not included in block height '${uint64.toString(height)}'`
+					));
 					return next();
 				}
 
@@ -357,7 +359,9 @@ const routeUtils = {
 				};
 
 				if (0 > indexOfLeafWithHash(hash, merkleTree)) {
-					res.send(errors.createInvalidArgumentError(`hash '${req.params.hash}' not included in block height '${height}'`));
+					res.send(errors.createInvalidArgumentError(
+						`hash '${req.params.hash}' not included in block height '${uint64.toString(height)}'`
+					));
 					return next();
 				}
 

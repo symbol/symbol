@@ -27,7 +27,7 @@ module.exports = {
 		server.get('/statements/transaction', (req, res, next) => {
 			const { params } = req;
 			const filters = {
-				height: params.height ? routeUtils.parseArgument(params, 'height', 'uint') : undefined,
+				height: params.height ? routeUtils.parseArgument(params, 'height', 'uint64') : undefined,
 				receiptType: params.receiptType ? routeUtils.parseArgument(params, 'receiptType', 'uint') : undefined,
 				recipientAddress: params.recipientAddress ? routeUtils.parseArgument(params, 'recipientAddress', 'address') : undefined,
 				senderAddress: params.senderAddress ? routeUtils.parseArgument(params, 'senderAddress', 'address') : undefined,
@@ -46,7 +46,7 @@ module.exports = {
 			if (!artifact || !['address', 'mosaic'].includes(artifact))
 				return next(new NotFoundError());
 
-			const height = req.params.height ? routeUtils.parseArgument(req.params, 'height', 'uint') : undefined;
+			const height = req.params.height ? routeUtils.parseArgument(req.params, 'height', 'uint64') : undefined;
 			const options = routeUtils.parsePaginationArguments(req.params, services.config.pageSize, { id: 'objectId' });
 
 			return db.artifactStatements(height, artifact, options)

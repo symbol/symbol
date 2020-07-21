@@ -253,7 +253,7 @@ describe('transaction routes', () => {
 					};
 
 					const testCases = [
-						{ filter: 'height', param: '15', value: 15 },
+						{ filter: 'height', param: '15', value: [15, 0] },
 						{ filter: 'address', param: testAddressString, value: testAddress },
 						{ filter: 'signerPublicKey', param: testPublickeyString, value: testPublickey },
 						{ filter: 'recipientAddress', param: testAddressString, value: testAddress },

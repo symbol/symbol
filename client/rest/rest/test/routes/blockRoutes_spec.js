@@ -126,7 +126,7 @@ describe('block routes', () => {
 					return mockServer.callRoute(route, req).then(() => {
 						// Assert:
 						expect(paginationParser.firstCall.args[0]).to.deep.equal(req.params);
-						expect(paginationParser.firstCall.args[2]).to.deep.equal({ id: 'objectId', height: 'uint64hex' });
+						expect(paginationParser.firstCall.args[2]).to.deep.equal({ id: 'objectId', height: 'uint64' });
 
 						expect(dbBlocksFake.calledOnce).to.equal(true);
 						expect(dbBlocksFake.firstCall.args[2]).to.deep.equal(pagingBag);
@@ -139,7 +139,7 @@ describe('block routes', () => {
 					const paginationParserSpy = sinon.spy(routeUtils, 'parsePaginationArguments');
 					const expectedAllowedSortFields = {
 						id: 'objectId',
-						height: 'uint64hex'
+						height: 'uint64'
 					};
 
 					// Act:
@@ -163,10 +163,10 @@ describe('block routes', () => {
 			config: routeConfig
 		});
 		builder.addDefault({
-			valid: { object: { height: '3' }, parsed: [3], printable: '3' },
+			valid: { object: { height: '3' }, parsed: [[3, 0]], printable: '3' },
 			invalid: { object: { height: '10A' }, error: 'height has an invalid format' }
 		});
-		builder.addNotFoundInputTest({ object: { height: '11' }, parsed: [11], printable: '11' }, 'chain height is too small');
+		builder.addNotFoundInputTest({ object: { height: '11' }, parsed: [[11, 0]], printable: '11' }, 'chain height is too small');
 	});
 
 	describe('block with merkle tree', () => {

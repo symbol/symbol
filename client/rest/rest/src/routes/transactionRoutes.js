@@ -61,7 +61,7 @@ module.exports = {
 			}
 
 			const filters = {
-				height: params.height ? routeUtils.parseArgument(params, 'height', 'uint') : undefined,
+				height: params.height ? routeUtils.parseArgument(params, 'height', 'uint64') : undefined,
 				address: params.address ? routeUtils.parseArgument(params, 'address', 'address') : undefined,
 				signerPublicKey: params.signerPublicKey ? routeUtils.parseArgument(params, 'signerPublicKey', 'publicKey') : undefined,
 				recipientAddress: params.recipientAddress ? routeUtils.parseArgument(params, 'recipientAddress', 'address') : undefined,
