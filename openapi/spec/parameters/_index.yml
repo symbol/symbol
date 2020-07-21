@@ -24,6 +24,8 @@ transactionIdPath:
 # query
 addressQuery:
   $ref: './query/address.yml'
+artifactIdQuery:
+  $ref: './query/artifactId.yml'
 mosaicIdQuery:
   $ref: './query/mosaicId.yml'
 aliasTypeQuery:
@@ -54,8 +56,12 @@ pageNumberQuery:
   $ref: './query/pageNumber.yml'
 pageSizeQuery:
   $ref: './query/pageSize.yml'
+receiptTypeQuery:
+  $ref: './query/receiptType.yml'
 recipientAddressQuery:
   $ref: './query/recipientAddress.yml'
+senderAddressQuery:
+  $ref: './query/senderAddress.yml'
 scopedMetadataKeyQuery:
   $ref: './query/scopedMetadataKey.yml'
 sourceAddressQuery:

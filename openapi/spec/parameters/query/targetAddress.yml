@@ -1,5 +1,5 @@
 name: targetAddress
 in: query
-description: Filter by address of the account receiving the metadata entry.
+description: Filter by target address.
 schema:
   $ref: "../../schemas/AddressBase32.yml"

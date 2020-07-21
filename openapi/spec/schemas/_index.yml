@@ -412,18 +412,20 @@ ReceiptDTO:
   "$ref": "../plugins/receipt/schemas/ReceiptDTO.yml"
 ResolutionEntryDTO:
   "$ref": "../plugins/receipt/schemas/ResolutionEntryDTO.yml"
-ResolutionStatementBodyDTO:
-  "$ref": "../plugins/receipt/schemas/ResolutionStatementBodyDTO.yml"
 ResolutionStatementDTO:
   "$ref": "../plugins/receipt/schemas/ResolutionStatementDTO.yml"
+ResolutionStatementInfoDTO:
+  "$ref": "../plugins/receipt/schemas/ResolutionStatementInfoDTO.yml"
+ResolutionStatementPage:
+  "$ref": "../plugins/receipt/schemas/ResolutionStatementPage.yml"
 SourceDTO:
   "$ref": "../plugins/receipt/schemas/SourceDTO.yml"
-StatementsDTO:
-  "$ref": "../plugins/receipt/schemas/StatementsDTO.yml"
-TransactionStatementBodyDTO:
-  "$ref": "../plugins/receipt/schemas/TransactionStatementBodyDTO.yml"
 TransactionStatementDTO:
   "$ref": "../plugins/receipt/schemas/TransactionStatementDTO.yml"
+TransactionStatementInfoDTO:
+  "$ref": "../plugins/receipt/schemas/TransactionStatementInfoDTO.yml"
+TransactionStatementPage:
+  "$ref": "../plugins/receipt/schemas/TransactionStatementPage.yml"
 
 # Plugin - RestrictionAccount
 AccountRestrictionFlagsEnum:

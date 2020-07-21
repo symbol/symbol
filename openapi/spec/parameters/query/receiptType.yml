@@ -1,0 +1,4 @@
+name: receiptType
+in: query
+schema:
+  $ref: "../../plugins/receipt/schemas/ReceiptTypeEnum.yml"

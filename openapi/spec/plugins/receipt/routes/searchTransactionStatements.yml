@@ -1,0 +1,27 @@
+tags:
+  - Receipt routes
+summary: Get receipts
+description: Gets an array of transaction statements.
+operationId: searchReceipts
+parameters:
+  - $ref: "../../../parameters/query/height.yml"
+  - $ref: "../../../parameters/query/receiptType.yml"
+  - $ref: "../../../parameters/query/recipientAddress.yml"
+  - $ref: "../../../parameters/query/senderAddress.yml"
+  - $ref: "../../../parameters/query/targetAddress.yml"
+  - $ref: "../../../parameters/query/artifactId.yml"
+  - $ref: "../../../parameters/query/pageSize.yml"
+  - $ref: "../../../parameters/query/pageNumber.yml"
+  - $ref: "../../../parameters/query/offset.yml"
+  - $ref: "../../../parameters/query/order.yml"
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../schemas/TransactionStatementPage.yml"
+  "404":
+    $ref: "../../../responses/ResourceNotFound.yml"
+  "409":
+    $ref: "../../../responses/InvalidArgument.yml"

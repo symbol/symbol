@@ -1,9 +1,20 @@
 type: object
-description: |
-  A resolution statement keeps the relation between a namespace alias used in a transaction
-  and the real address or mosaicId.
 required:
-  - statement
+  - height
+  - unresolved
+  - resolutionEntries
 properties:
-  statement:
-    $ref: "./ResolutionStatementBodyDTO.yml"
+  height:
+    $ref: "../../../schemas/Height.yml"
+  unresolved:
+    anyOf:
+      - $ref: "../../../schemas/UnresolvedMosaicId.yml"
+      - $ref: "../../../schemas/UnresolvedAddress.yml"
+  resolutionEntries:
+    type: array
+    description: |
+      Array of resolution entries linked to the unresolved namespaceId.
+      It is an array instead of a single resolution entry since
+      within one block the resolution might change for different sources due to alias related transactions.
+    items:
+      $ref: "./ResolutionEntryDTO.yml"

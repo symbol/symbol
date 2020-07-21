@@ -18,6 +18,9 @@
 "/blocks/{height}/transactions/{hash}/merkle":
   get:
     $ref: "./core/block/routes/getMerkleTransaction.yml"
+"/blocks/{height}/statements/{hash}/merkle":
+  get:
+    $ref: "./core/block/routes/getMerkleReceipts.yml"
 
 # Core - Chain
 /chain/height:
@@ -64,6 +67,7 @@
 
 # Core - Transaction
 /transactions:
+
   put:
     $ref: "./core/transaction/routes/announceTransaction.yml"
 "/transactions/confirmed":
@@ -147,12 +151,15 @@
     $ref: "./plugins/namespace/routes/getMosaicsNames.yml"
 
 # Plugin - Receipt
-"/block/{height}/receipts":
+"/statements/transaction":
   get:
-    $ref: "./plugins/receipt/routes/getBlockReceipts.yml"
-"/block/{height}/receipt/{hash}/merkle":
+    $ref: "./plugins/receipt/routes/searchTransactionStatements.yml"
+"/statements/resolutions/address":
   get:
-    $ref: "./plugins/receipt/routes/getMerkleReceipts.yml"
+    $ref: "./plugins/receipt/routes/searchAddressResolutionStatements.yml"
+"/statements/resolutions/mosaic":
+  get:
+    $ref: "./plugins/receipt/routes/searchMosaicResolutionStatements.yml"
 
 # Plugin - RestrictionAccount
 "/restrictions/account/{accountId}":

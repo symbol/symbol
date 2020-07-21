@@ -1,0 +1,5 @@
+name: artifactId
+in: query
+description: Mosaic or namespace identifier
+schema:
+  type: string
