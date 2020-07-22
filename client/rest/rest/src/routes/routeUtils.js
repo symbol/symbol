@@ -137,28 +137,6 @@ const routeUtils = {
 	},
 
 	/**
-	 * Parses optional paging arguments and throws an invalid argument error if any is invalid.
-	 * @param {object} args Arguments to parse.
-	 * @returns {object} Parsed paging options.
-	 */
-	parsePagingArguments: args => {
-		const parsedOptions = { id: undefined, pageSize: 0 };
-		const parsers = {
-			id: { tryParse: str => (isObjectId(str) ? str : undefined), type: 'object id' },
-			pageSize: { tryParse: convert.tryParseUint, type: 'unsigned integer' }
-		};
-
-		Object.keys(parsedOptions).filter(key => args[key]).forEach(key => {
-			const parser = parsers[key];
-			parsedOptions[key] = parser.tryParse(args[key]);
-			if (!parsedOptions[key])
-				throw errors.createInvalidArgumentError(`${key} is not a valid ${parser.type}`);
-		});
-
-		return parsedOptions;
-	},
-
-	/**
 	 * Parses pagination arguments and throws an invalid argument error if any is invalid.
 	 * @param {object} args Arguments to parse.
 	 * @param {object} optionsPageSize Page size options.

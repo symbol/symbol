@@ -212,54 +212,6 @@ describe('route utils', () => {
 		});
 	});
 
-	describe('parse paging arguments', () => {
-		it('succeeds when no arguments are provided', () => {
-			// Act:
-			const options = routeUtils.parsePagingArguments({});
-
-			// Assert:
-			expect(options).to.deep.equal({ id: undefined, pageSize: 0 });
-		});
-
-		it('succeeds when valid id is provided', () => {
-			// Act:
-			const options = routeUtils.parsePagingArguments({ id: '112233445566778899AABBCC' });
-
-			// Assert:
-			expect(options).to.deep.equal({ id: '112233445566778899AABBCC', pageSize: 0 });
-		});
-
-		it('succeeds when valid page size is provided', () => {
-			// Act:
-			const options = routeUtils.parsePagingArguments({ pageSize: '12' });
-
-			// Assert:
-			expect(options).to.deep.equal({ id: undefined, pageSize: 12 });
-		});
-
-		it('succeeds when valid id and page size are provided', () => {
-			// Act:
-			const options = routeUtils.parsePagingArguments({ id: '112233445566778899AABBCC', pageSize: '12' });
-
-			// Assert:
-			expect(options).to.deep.equal({ id: '112233445566778899AABBCC', pageSize: 12 });
-		});
-
-		it('fails when invalid id is provided', () => {
-			// Act:
-			invalidObjectIdStrings.forEach(str => {
-				expect(() => routeUtils.parsePagingArguments({ id: str, pageSize: '12' }), `id ${str}`)
-					.to.throw('id is not a valid object id');
-			});
-		});
-
-		it('fails when invalid page size is provided', () => {
-			// Act:
-			expect(() => routeUtils.parsePagingArguments({ id: '112233445566778899AABBCC', pageSize: '1Y2' }))
-				.to.throw('pageSize is not a valid unsigned integer');
-		});
-	});
-
 	describe('parse pagination arguments', () => {
 		const servicesConfigPageSize = {
 			min: 10,
