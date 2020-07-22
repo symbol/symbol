@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.9.5] - 22-Jul-2020
+
+Targets catapult-rest 1.2.0
+
+### Added
+
+- statement pagination endpoints.
+- metadata pagination endpoints.
+- account pagination endpoints.
+- namespace pagination endpoints.
+
+### Removed 
+
+- ``/block/{height}/receipts`` endpoint.
+- ``/metadata/mosaic/{mosaicId}/*`` endpoints.
+- ``/metadata/namespace/{namespaceId}/*`` endpoints.
+- ``/metadata/account/{address}/*`` endpoints.
+
 ## [0.9.4] - 30-Jun-2020
 
 Targets catapult-rest 1.1.3
@@ -133,6 +151,7 @@ Targets catapult-rest 1.0.20.19
 - ``type`` query params validation with ``TransactionTypeEnum``.
 -  Project was renamed to ``symbol-openapi``.
 
+[0.9.5]: https://github.com/nemtech/symbol-openapi/releases/tag/v0.9.4...v0.9.5
 [0.9.4]: https://github.com/nemtech/symbol-openapi/releases/tag/v0.9.3...v0.9.4
 [0.9.3]: https://github.com/nemtech/symbol-openapi/releases/tag/v0.9.2...v0.9.3
 [0.9.2]: https://github.com/nemtech/symbol-openapi/releases/tag/v0.8.11...v0.9.2
