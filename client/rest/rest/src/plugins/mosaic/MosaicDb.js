@@ -18,6 +18,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const { buildOffsetCondition } = require('../../db/dbUtils');
 const MongoDb = require('mongodb');
 
 const { Long } = MongoDb;
@@ -43,8 +44,9 @@ class MosaicDb {
 
 		const conditions = [];
 
-		if (undefined !== options.offset)
-			conditions.push({ [sortingOptions[options.sortField]]: { [1 === options.sortDirection ? '$gt' : '$lt']: options.offset } });
+		const offsetCondition = buildOffsetCondition(options, sortingOptions);
+		if (offsetCondition)
+			conditions.push(offsetCondition);
 
 		if (undefined !== ownerAddress)
 			conditions.push({ 'mosaic.ownerAddress': Buffer.from(ownerAddress) });

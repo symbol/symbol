@@ -18,7 +18,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { convertToLong } = require('../../db/dbUtils');
+const { convertToLong, buildOffsetCondition } = require('../../db/dbUtils');
 const catapult = require('catapult-sdk');
 const MongoDb = require('mongodb');
 
@@ -54,8 +54,9 @@ class NamespaceDb {
 		const sortingOptions = { id: '_id' };
 		const conditions = [];
 
-		if (undefined !== options.offset)
-			conditions.push({ [sortingOptions[options.sortField]]: { [1 === options.sortDirection ? '$gt' : '$lt']: options.offset } });
+		const offsetCondition = buildOffsetCondition(options, sortingOptions);
+		if (offsetCondition)
+			conditions.push(offsetCondition);
 
 		if (undefined !== aliasType)
 			conditions.push({ 'namespace.alias.type': aliasType });

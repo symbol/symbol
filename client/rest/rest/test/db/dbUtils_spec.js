@@ -19,8 +19,11 @@
  */
 
 const dbUtils = require('../../src/db/dbUtils');
+const { convertToLong } = require('../../src/db/dbUtils');
 const { expect } = require('chai');
 const MongoDb = require('mongodb');
+
+const { ObjectId } = MongoDb;
 
 describe('db utils', () => {
 	describe('convertToLong', () => {
@@ -84,6 +87,65 @@ describe('db utils', () => {
 		it('throws error if value not long', () => {
 			// Act + Assert:
 			expect(() => dbUtils.longToUint64('abc')).to.throw('abc has an invalid format: not long');
+		});
+	});
+
+	describe('buildOffsetCondition', () => {
+		it('undefined offset', () => {
+			// Arrange
+			const options = { offset: undefined };
+			const sortFieldDbRelation = { id: '_id' };
+
+			// Act + Assert
+			expect(dbUtils.buildOffsetCondition(options, sortFieldDbRelation)).to.equal(undefined);
+		});
+
+		it('can create object id offset condition', () => {
+			// Arrange
+			const options = {
+				offset: '112233445566778899AABBCC',
+				offsetType: 'objectId',
+				sortField: 'id',
+				sortDirection: 'desc'
+			};
+			const sortFieldDbRelation = { id: '_id' };
+
+			// Act + Assert
+			expect(dbUtils.buildOffsetCondition(options, sortFieldDbRelation)).to.deep.equal({
+				_id: { $lt: new ObjectId('112233445566778899AABBCC') }
+			});
+		});
+
+		it('can create uint64 offset condition', () => {
+			// Arrange
+			const options = {
+				offset: [1234, 5678],
+				offsetType: 'uint64',
+				sortField: 'height',
+				sortDirection: 'desc'
+			};
+			const sortFieldDbRelation = { height: 'height' };
+
+			// Act + Assert
+			expect(dbUtils.buildOffsetCondition(options, sortFieldDbRelation)).to.deep.equal({
+				height: { $lt: convertToLong([1234, 5678]) }
+			});
+		});
+
+		it('can create uint64Hex offset condition', () => {
+			// Arrange
+			const options = {
+				offset: [1234, 5678],
+				offsetType: 'uint64Hex',
+				sortField: 'id',
+				sortDirection: 'desc'
+			};
+			const sortFieldDbRelation = { id: '_id' };
+
+			// Act + Assert
+			expect(dbUtils.buildOffsetCondition(options, sortFieldDbRelation)).to.deep.equal({
+				_id: { $lt: convertToLong([1234, 5678]) }
+			});
 		});
 	});
 });

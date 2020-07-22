@@ -371,7 +371,8 @@ describe('route utils', () => {
 				pageNumber: 1,
 				sortField: 'id',
 				sortDirection: 1,
-				offset
+				offset,
+				offsetType: 'objectId'
 			});
 		});
 
@@ -429,7 +430,8 @@ describe('route utils', () => {
 				pageNumber: 5,
 				sortField: 'signerPublicKey',
 				sortDirection: -1,
-				offset: convert.hexToUint8(offset)
+				offset: convert.hexToUint8(offset),
+				offsetType: 'publicKey'
 			});
 		});
 

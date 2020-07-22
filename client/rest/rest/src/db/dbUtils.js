@@ -21,7 +21,21 @@
 const errors = require('../server/errors');
 const MongoDb = require('mongodb');
 
-const { Long } = MongoDb;
+const { Long, ObjectId } = MongoDb;
+
+const convertToLong = value => {
+	if (Number.isInteger(value))
+		return Long.fromNumber(value);
+
+	// if value is an array, assume it is a uint64
+	if (Array.isArray(value))
+		return new Long(value[0], value[1]);
+
+	if (value instanceof Long)
+		return value;
+
+	throw errors.createInvalidArgumentError(`${value} has an invalid format: not integer or uint64`);
+};
 
 const dbUtils = {
 	/**
@@ -29,19 +43,7 @@ const dbUtils = {
 	 * @param {object} value Value to convert.
 	 * @returns {MongoDb.Long} Converted value.
 	 */
-	convertToLong: value => {
-		if (Number.isInteger(value))
-			return Long.fromNumber(value);
-
-		// if value is an array, assume it is a uint64
-		if (Array.isArray(value))
-			return new Long(value[0], value[1]);
-
-		if (value instanceof Long)
-			return value;
-
-		throw errors.createInvalidArgumentError(`${value} has an invalid format: not integer or uint64`);
-	},
+	convertToLong,
 
 	/**
 	 * Converts long to uint64.
@@ -53,6 +55,27 @@ const dbUtils = {
 			return [value.getLowBitsUnsigned(), value.getHighBits() >>> 0];
 
 		throw errors.createInvalidArgumentError(`${value} has an invalid format: not long`);
+	},
+
+	/**
+	 * Generates an offset condition depending on the offset type, and sorting options provided.
+	 * @param {object} options Sorting options, must contain `offset`, `offsetType`, `sortField`, and `sortDirection`.
+	 * @param {object} sortFieldDbRelation Determines the database path of the provided sort field.
+	 * @returns {object} Offset condition if offset was provided, otherwise returns undefined.
+	 */
+	buildOffsetCondition: (options, sortFieldDbRelation) => {
+		const offsetTypeToDbObject = {
+			objectId: objectIdString => new ObjectId(objectIdString),
+			uint64: convertToLong,
+			uint64Hex: convertToLong
+		};
+
+		if (undefined !== options.offset) {
+			const offsetRequiresParsing = Object.keys(offsetTypeToDbObject).includes(options.offsetType);
+			const offset = offsetRequiresParsing ? offsetTypeToDbObject[options.offsetType](options.offset) : options.offset;
+			return { [sortFieldDbRelation[options.sortField]]: { [1 === options.sortDirection ? '$gt' : '$lt']: offset } };
+		}
+		return undefined;
 	}
 };
 

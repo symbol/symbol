@@ -21,7 +21,7 @@
 /** @module db/CatapultDb */
 
 const connector = require('./connector');
-const { convertToLong } = require('./dbUtils');
+const { convertToLong, buildOffsetCondition } = require('./dbUtils');
 const catapult = require('catapult-sdk');
 const MongoDb = require('mongodb');
 
@@ -217,8 +217,9 @@ class CatapultDb {
 
 		const conditions = [];
 
-		if (undefined !== options.offset)
-			conditions.push({ [sortingOptions[options.sortField]]: { [1 === options.sortDirection ? '$gt' : '$lt']: options.offset } });
+		const offsetCondition = buildOffsetCondition(options, sortingOptions);
+		if (offsetCondition)
+			conditions.push(offsetCondition);
 
 		if (undefined !== signerPublicKey)
 			conditions.push({ 'block.signerPublicKey': Buffer.from(signerPublicKey) });
@@ -395,8 +396,9 @@ class CatapultDb {
 		const buildConditions = () => {
 			const conditions = [];
 
-			if (undefined !== options.offset)
-				conditions.push({ [sortingOptions[options.sortField]]: { [1 === options.sortDirection ? '$gt' : '$lt']: options.offset } });
+			const offsetCondition = buildOffsetCondition(options, sortingOptions);
+			if (offsetCondition)
+				conditions.push(offsetCondition);
 
 			if (undefined !== filters.height)
 				conditions.push({ 'meta.height': convertToLong(filters.height) });
@@ -494,8 +496,9 @@ class CatapultDb {
 		const sortingOptions = { id: '_id', balance: 'account.mosaics.amount' };
 		const conditions = [];
 
-		if (undefined !== options.offset)
-			conditions.push({ [sortingOptions[options.sortField]]: { [1 === options.sortDirection ? '$gt' : '$lt']: options.offset } });
+		const offsetCondition = buildOffsetCondition(options, sortingOptions);
+		if (offsetCondition)
+			conditions.push(offsetCondition);
 
 		if (undefined !== address)
 			conditions.push({ 'account.address': Buffer.from(address) });

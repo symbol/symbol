@@ -18,6 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const { buildOffsetCondition } = require('../../db/dbUtils');
+
 class LockHashDb {
 	/**
 	 * Creates LockHashDb around CatapultDb.
@@ -41,8 +43,9 @@ class LockHashDb {
 		const buffers = addresses.map(address => Buffer.from(address));
 		const conditions = [{ 'lock.ownerAddress': { $in: buffers } }];
 
-		if (undefined !== options.offset)
-			conditions.push({ [sortingOptions[options.sortField]]: { [1 === options.sortDirection ? '$gt' : '$lt']: options.offset } });
+		const offsetCondition = buildOffsetCondition(options, sortingOptions);
+		if (offsetCondition)
+			conditions.push(offsetCondition);
 
 		const sortConditions = { $sort: { [sortingOptions[options.sortField]]: options.sortDirection } };
 		return this.catapultDb.queryPagedDocuments(conditions, [], sortConditions, 'hashLocks', options);
