@@ -45,7 +45,7 @@ if [ "$TRAVIS_BRANCH" = "$RELEASE_BRANCH" ]; then
   echo "Pushing code to $REMOTE_NAME $POST_RELEASE_BRANCH"
   git push --set-upstream $REMOTE_NAME $RELEASE_BRANCH:$POST_RELEASE_BRANCH
   echo "Pushing tags to $REMOTE_NAME"
-  git push --tags $REMOTE_NAME
+  git push -f --tags $REMOTE_NAME
 else
   echo "Release is disabled"
 fi
