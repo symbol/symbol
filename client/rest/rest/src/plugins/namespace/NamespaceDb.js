@@ -20,9 +20,6 @@
 
 const { convertToLong, buildOffsetCondition } = require('../../db/dbUtils');
 const catapult = require('catapult-sdk');
-const MongoDb = require('mongodb');
-
-const { Long } = MongoDb;
 
 const createActiveConditions = () => {
 	const conditions = { $and: [{ 'meta.active': true }] };
@@ -62,7 +59,7 @@ class NamespaceDb {
 			conditions.push({ 'namespace.alias.type': aliasType });
 
 		if (undefined !== level0)
-			conditions.push({ 'namespace.level0': new Long(level0[0], level0[1]) });
+			conditions.push({ 'namespace.level0': convertToLong(level0) });
 
 		if (undefined !== ownerAddress)
 			conditions.push({ 'namespace.ownerAddress': Buffer.from(ownerAddress) });
@@ -83,12 +80,11 @@ class NamespaceDb {
 	 * @returns {Promise.<object>} Namespace.
 	 */
 	namespaceById(id) {
-		const namespaceId = new Long(id[0], id[1]);
 		const conditions = { $or: [] };
 
 		for (let level = 0; 3 > level; ++level) {
 			const conjunction = createActiveConditions();
-			conjunction.$and.push({ [`namespace.level${level}`]: namespaceId });
+			conjunction.$and.push({ [`namespace.level${level}`]: convertToLong(id) });
 			conjunction.$and.push({ 'namespace.depth': level + 1 });
 
 			conditions.$or.push(conjunction);
