@@ -367,6 +367,51 @@ namespace catapult { namespace cache {
 		EXPECT_TRUE(updater.accountHistories().empty());
 	}
 
+	TEST(TEST_CLASS, Updater_HarvesterEligible_CanProcessMixedViaMultipleUpdates_SingleAccount) {
+		// Arrange: { 0, 1 } are treated as original accounts whereas { 2, 3 } are treated as added accounts
+		test::DeltaElementsTestUtils::Wrapper<MemorySetType> deltas;
+		auto addedAddresses = AddAccountsWithBalances(deltas.Added, {
+			Amount(1'100'000), Amount(900'000), Amount(1'000'000), Amount(800'000)
+		});
+
+		auto accounts = CreateAccounts(model::AddressSet(addedAddresses.cbegin(), addedAddresses.cbegin() + 2));
+		HighValueAccountsUpdater updater(CreateOptions(), accounts);
+
+		// Act:
+		updater.update(deltas.deltas());
+
+		// Assert:
+		EXPECT_EQ(Pick(addedAddresses, { 0, 2 }), updater.addresses());
+		EXPECT_EQ(Pick(addedAddresses, { 1 }), updater.removedAddresses());
+
+		// Act: modify all
+		Debit(deltas.Copied.insert(*deltas.Added.find(addedAddresses[0])).first->second, Amount(200'000));
+		Credit(deltas.Copied.insert(*deltas.Added.find(addedAddresses[1])).first->second, Amount(300'000));
+		Debit(deltas.Copied.insert(*deltas.Added.find(addedAddresses[2])).first->second, Amount(1));
+		Credit(deltas.Copied.insert(*deltas.Added.find(addedAddresses[3])).first->second, Amount(200'000));
+
+		updater.update(deltas.deltas());
+
+		// Assert:
+		EXPECT_EQ(Pick(addedAddresses, { 1, 3 }), updater.addresses());
+		EXPECT_EQ(Pick(addedAddresses, { 0 }), updater.removedAddresses());
+
+		// Act: revert all
+		Credit(deltas.Copied.insert(*deltas.Added.find(addedAddresses[0])).first->second, Amount(200'000));
+		Debit(deltas.Copied.insert(*deltas.Added.find(addedAddresses[1])).first->second, Amount(300'000));
+		Credit(deltas.Copied.insert(*deltas.Added.find(addedAddresses[2])).first->second, Amount(1));
+		Debit(deltas.Copied.insert(*deltas.Added.find(addedAddresses[3])).first->second, Amount(200'000));
+
+		updater.update(deltas.deltas());
+
+		// Assert:
+		EXPECT_EQ(Pick(addedAddresses, { 0, 2 }), updater.addresses());
+		EXPECT_EQ(Pick(addedAddresses, { 1 }), updater.removedAddresses());
+
+		// Sanity:
+		EXPECT_TRUE(updater.accountHistories().empty());
+	}
+
 	// endregion
 
 	// region updater - voter eligible accounts

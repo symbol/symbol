@@ -76,7 +76,8 @@ namespace catapult { namespace cache {
 				if (shouldInclude) {
 					m_current.insert(address);
 
-					// don't need to modify m_removed because an element can't be in both Added and Copied
+					// needed for multiblock syncs when original account is removed and then readded
+					m_removed.erase(address);
 				} else {
 					m_current.erase(address);
 
