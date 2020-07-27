@@ -3,6 +3,19 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.9.6.4] - 27-Jul-2020
+
+### Fixed:
+ - bugfix: credit main account not remote when hash lock expires
+ - bugfix, Trail-of-Bits: UB in container access
+ - bugfix, Trail-of-Bits: missing `O_CLOEXEC` flag
+ - bugfix: high value addresses tracking
+
+### Changed:
+ - 
+ - allow nemesis block to contain balance transfers from non-nemesis account
+ - nemgen enhancements to support public network
+
 ## [0.9.6.3] - 10-Jul-2020
 
 ### Fixed:
@@ -265,6 +278,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Added
 - Initial code release.
 
+[0.9.6.4]: https://github.com/nemtech/catapult-server/compare/v0.9.6.3...v0.9.6.4
 [0.9.6.3]: https://github.com/nemtech/catapult-server/compare/v0.9.6.2...v0.9.6.3
 [0.9.6.2]: https://github.com/nemtech/catapult-server/compare/v0.9.5.1...v0.9.6.2
 [0.9.5.1]: https://github.com/nemtech/catapult-server/compare/v0.9.4.1...v0.9.5.1
