@@ -127,9 +127,6 @@ namespace catapult { namespace config {
 		/// Maximum number of nodes to track in memory.
 		uint32_t MaxTrackedNodes;
 
-		/// Source of random numbers used in batch verification.
-		std::string BatchVerificationRandomSource;
-
 		/// Trusted hosts that are allowed to execute protected API calls on this node.
 		std::unordered_set<std::string> TrustedHosts;
 

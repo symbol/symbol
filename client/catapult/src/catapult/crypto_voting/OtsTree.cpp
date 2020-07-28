@@ -19,9 +19,9 @@
 **/
 
 #include "OtsTree.h"
+#include "catapult/crypto/SecureRandomGenerator.h"
 #include "catapult/crypto/Signer.h"
 #include "catapult/io/PodIoUtils.h"
-#include "catapult/utils/RandomGenerator.h"
 #include "catapult/exceptions.h"
 #include <type_traits>
 
@@ -33,8 +33,7 @@ namespace catapult { namespace crypto {
 		// region signed key pair
 
 		OtsPrivateKeyType GeneratePrivateKey() {
-			// TODO: consider using openssl-based generator instead.
-			utils::HighEntropyRandomGenerator generator;
+			SecureRandomGenerator generator;
 			return OtsPrivateKeyType::Generate([&generator]() { return static_cast<uint8_t>(generator()); });
 		}
 

@@ -38,6 +38,7 @@
 #include "catapult/consumers/ReclaimMemoryInspector.h"
 #include "catapult/consumers/TransactionConsumers.h"
 #include "catapult/consumers/UndoBlock.h"
+#include "catapult/crypto/SecureRandomGenerator.h"
 #include "catapult/disruptor/BatchRangeDispatcher.h"
 #include "catapult/extensions/CommitStepHandler.h"
 #include "catapult/extensions/DispatcherUtils.h"
@@ -55,7 +56,6 @@
 #include "catapult/subscribers/StateChangeSubscriber.h"
 #include "catapult/subscribers/TransactionStatusSubscriber.h"
 #include "catapult/thread/MultiServicePool.h"
-#include "catapult/utils/RandomGenerator.h"
 #include <boost/filesystem.hpp>
 
 using namespace catapult::consumers;
@@ -66,9 +66,9 @@ namespace catapult { namespace sync {
 	namespace {
 		// region utils
 
-		crypto::RandomFiller CreateRandomFiller(const std::string& token) {
-			return [token](auto* pOut, auto count) {
-				utils::HighEntropyRandomGenerator(token).fill(pOut, count);
+		crypto::RandomFiller CreateRandomFiller() {
+			return [](auto* pOut, auto count) {
+				crypto::SecureRandomGenerator().fill(pOut, count);
 			};
 		}
 
@@ -235,7 +235,7 @@ namespace catapult { namespace sync {
 						requiresValidationPredicate));
 				m_consumers.push_back(CreateBlockBatchSignatureConsumer(
 						m_state.config().BlockChain.Network.GenerationHashSeed,
-						CreateRandomFiller(m_state.config().Node.BatchVerificationRandomSource),
+						CreateRandomFiller(),
 						m_state.pluginManager().createNotificationPublisher(),
 						validatorPool,
 						requiresValidationPredicate));
@@ -321,7 +321,7 @@ namespace catapult { namespace sync {
 						failedTransactionSink));
 				m_consumers.push_back(CreateTransactionBatchSignatureConsumer(
 						m_state.config().BlockChain.Network.GenerationHashSeed,
-						CreateRandomFiller(m_state.config().Node.BatchVerificationRandomSource),
+						CreateRandomFiller(),
 						m_state.pluginManager().createNotificationPublisher(),
 						validatorPool,
 						failedTransactionSink));

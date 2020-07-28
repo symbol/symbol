@@ -77,8 +77,6 @@ namespace catapult { namespace config {
 							{ "maxCacheDatabaseWriteBatchSize", "17KB" },
 							{ "maxTrackedNodes", "222" },
 
-							{ "batchVerificationRandomSource", "/dev/random" },
-
 							{ "trustedHosts", "foo,BAR" },
 							{ "localNetworks", "1.2.3.4,9.8.7.6" }
 						}
@@ -175,8 +173,6 @@ namespace catapult { namespace config {
 				EXPECT_EQ(utils::FileSize::FromMegabytes(0), config.MaxCacheDatabaseWriteBatchSize);
 				EXPECT_EQ(0u, config.MaxTrackedNodes);
 
-				EXPECT_EQ("", config.BatchVerificationRandomSource);
-
 				EXPECT_TRUE(config.TrustedHosts.empty());
 				EXPECT_TRUE(config.LocalNetworks.empty());
 
@@ -249,8 +245,6 @@ namespace catapult { namespace config {
 
 				EXPECT_EQ(utils::FileSize::FromKilobytes(17), config.MaxCacheDatabaseWriteBatchSize);
 				EXPECT_EQ(222u, config.MaxTrackedNodes);
-
-				EXPECT_EQ("/dev/random", config.BatchVerificationRandomSource);
 
 				EXPECT_EQ(std::unordered_set<std::string>({ "foo", "BAR" }), config.TrustedHosts);
 				EXPECT_EQ(std::unordered_set<std::string>({ "1.2.3.4", "9.8.7.6" }), config.LocalNetworks);

@@ -18,23 +18,13 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/RandomGenerator.h"
+#include "catapult/crypto/SecureRandomGenerator.h"
 #include "tests/test/nodeps/RandomnessTestUtils.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace utils {
+namespace catapult { namespace crypto {
 
-#define TEST_CLASS RandomGeneratorTests
+#define TEST_CLASS SecureRandomGeneratorTests
 
-	namespace {
-		class HighEntropyRandomGeneratorCustomToken : public HighEntropyRandomGenerator {
-		public:
-			HighEntropyRandomGeneratorCustomToken() : HighEntropyRandomGenerator("/dev/urandom")
-			{}
-		};
-	}
-
-	DEFINE_RANDOMNESS_UINT64_TESTS(HighEntropyRandomGenerator)
-	DEFINE_RANDOMNESS_UINT64_TESTS(HighEntropyRandomGeneratorCustomToken)
-	DEFINE_RANDOMNESS_UINT64_TESTS(LowEntropyRandomGenerator)
+	DEFINE_RANDOMNESS_UINT64_TESTS(SecureRandomGenerator)
 }}

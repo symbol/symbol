@@ -18,23 +18,29 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/RandomGenerator.h"
-#include "tests/test/nodeps/RandomnessTestUtils.h"
-#include "tests/TestHarness.h"
+#include "SecureRandomGenerator.h"
+#include "catapult/exceptions.h"
 
-namespace catapult { namespace utils {
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wold-style-cast"
+#pragma clang diagnostic ignored "-Wreserved-id-macro"
+#endif
+#include <openssl/rand.h>
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
-#define TEST_CLASS RandomGeneratorTests
+namespace catapult { namespace crypto {
 
-	namespace {
-		class HighEntropyRandomGeneratorCustomToken : public HighEntropyRandomGenerator {
-		public:
-			HighEntropyRandomGeneratorCustomToken() : HighEntropyRandomGenerator("/dev/urandom")
-			{}
-		};
+	SecureRandomGenerator::result_type SecureRandomGenerator::operator()() {
+		SecureRandomGenerator::result_type result = 0;
+		fill(reinterpret_cast<uint8_t*>(&result), sizeof(SecureRandomGenerator::result_type));
+		return result;
 	}
 
-	DEFINE_RANDOMNESS_UINT64_TESTS(HighEntropyRandomGenerator)
-	DEFINE_RANDOMNESS_UINT64_TESTS(HighEntropyRandomGeneratorCustomToken)
-	DEFINE_RANDOMNESS_UINT64_TESTS(LowEntropyRandomGenerator)
+	void SecureRandomGenerator::fill(uint8_t* pOut, size_t count) {
+		if (!RAND_bytes(pOut, static_cast<int>(count)))
+			CATAPULT_THROW_RUNTIME_ERROR("unable to generate secure random numbers");
+	}
 }}

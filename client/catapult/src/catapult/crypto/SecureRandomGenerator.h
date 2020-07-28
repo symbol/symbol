@@ -18,23 +18,34 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/utils/RandomGenerator.h"
-#include "tests/test/nodeps/RandomnessTestUtils.h"
-#include "tests/TestHarness.h"
+#pragma once
+#include <cstring>
+#include <limits>
+#include <stdint.h>
 
-namespace catapult { namespace utils {
+namespace catapult { namespace crypto {
 
-#define TEST_CLASS RandomGeneratorTests
+	/// Cryptographically secure generator for random numbers.
+	class SecureRandomGenerator {
+	public:
+		using result_type = uint64_t;
 
-	namespace {
-		class HighEntropyRandomGeneratorCustomToken : public HighEntropyRandomGenerator {
-		public:
-			HighEntropyRandomGeneratorCustomToken() : HighEntropyRandomGenerator("/dev/urandom")
-			{}
-		};
-	}
+	public:
+		/// Gets the mininmum generated value.
+		static constexpr result_type min() {
+			return std::numeric_limits<result_type>::min();
+		}
 
-	DEFINE_RANDOMNESS_UINT64_TESTS(HighEntropyRandomGenerator)
-	DEFINE_RANDOMNESS_UINT64_TESTS(HighEntropyRandomGeneratorCustomToken)
-	DEFINE_RANDOMNESS_UINT64_TESTS(LowEntropyRandomGenerator)
+		/// Gets the maximum generated value.
+		static constexpr result_type max() {
+			return std::numeric_limits<result_type>::max();
+		}
+
+	public:
+		/// Generates a random value.
+		result_type operator()();
+
+		/// Generates \a count random bytes into \a pOut.
+		void fill(uint8_t* pOut, size_t count);
+	};
 }}

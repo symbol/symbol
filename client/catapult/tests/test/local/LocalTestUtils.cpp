@@ -69,8 +69,6 @@ namespace catapult { namespace test {
 			config.MaxCacheDatabaseWriteBatchSize = utils::FileSize::FromMegabytes(5);
 			config.MaxTrackedNodes = 5'000;
 
-			config.BatchVerificationRandomSource = "/dev/urandom";
-
 			config.Local.Host = "127.0.0.1";
 			config.Local.FriendlyName = "LOCAL";
 			config.Local.Roles = ionet::NodeRoles::Peer;
