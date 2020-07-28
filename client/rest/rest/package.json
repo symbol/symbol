@@ -28,7 +28,7 @@
     "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-react": "^7.19.0",
     "eslint-plugin-react-hooks": "^2.5.0",
-    "hippie": "^0.5.2",
+    "hippie": "^0.6.1",
     "minimist": "^1.2.0",
     "mocha": "^6.1.4",
     "mocha-jenkins-reporter": "^0.4.3",
