@@ -58,6 +58,29 @@ namespace catapult { namespace state {
 		EXPECT_EQ(Amount(432 + 321), entry.supply());
 	}
 
+	TEST(TEST_CLASS, CanIncreaseSupplyToMax) {
+		// Arrange:
+		auto definition = test::CreateMosaicDefinition(Height(123));
+		auto entry = MosaicEntry(MosaicId(225), definition);
+		entry.increaseSupply(Amount(432));
+
+		// Act:
+		entry.increaseSupply(Amount(std::numeric_limits<uint64_t>::max() - 432));
+
+		// Assert:
+		EXPECT_EQ(Amount(std::numeric_limits<uint64_t>::max()), entry.supply());
+	}
+
+	TEST(TEST_CLASS, CannotIncreaseSupplyAboveMax) {
+		// Arrange:
+		auto definition = test::CreateMosaicDefinition(Height(123));
+		auto entry = MosaicEntry(MosaicId(225), definition);
+		entry.increaseSupply(Amount(432));
+
+		// Act + Assert:
+		EXPECT_THROW(entry.increaseSupply(Amount(std::numeric_limits<uint64_t>::max() - 431)), catapult_invalid_argument);
+	}
+
 	TEST(TEST_CLASS, CanDecreaseSupply) {
 		// Arrange:
 		auto definition = test::CreateMosaicDefinition(Height(123));

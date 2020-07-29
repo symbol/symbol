@@ -118,6 +118,14 @@ namespace catapult { namespace model {
 		EXPECT_EQ(0x7C6B'3981'0265'43BBu, scoreArray[1]);
 	}
 
+	TEST(TEST_CLASS, CannotAddToChainScoreResultingInOverflow) {
+		// Arrange:
+		ChainScore score(0x8FDE'4267'9C23'D678, 0x7A6B'3481'0235'43B6);
+
+		// Act + Assert:
+		EXPECT_THROW(score += ChainScore(0x8000'0002'F000'0010, 0x0200'0500'0030'0005), std::overflow_error);
+	}
+
 	TEST(TEST_CLASS, CanSubtractFromChainScore) {
 		// Arrange:
 		ChainScore score(0x8FDE'4267'9C23'D678, 0x7A6B'3481'0235'43B6);
@@ -130,6 +138,14 @@ namespace catapult { namespace model {
 		EXPECT_EQ(&score, &result);
 		EXPECT_EQ(0x7FDE'4264'AC23'D668u, scoreArray[0]);
 		EXPECT_EQ(0x786B'2F81'0205'43B1u, scoreArray[1]);
+	}
+
+	TEST(TEST_CLASS, CannotSubtractFromChainScoreResultingInUnderflow) {
+		// Arrange:
+		ChainScore score(0x8FDE'4267'9C23'D678, 0x7A6B'3481'0235'43B6);
+
+		// Act + Assert:
+		EXPECT_THROW(score -= ChainScore(0x9000'0002'F000'0010, 0x0200'0500'0030'0005), std::range_error);
 	}
 
 	// endregion

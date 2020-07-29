@@ -19,6 +19,7 @@
 **/
 
 #include "MosaicEntry.h"
+#include "catapult/utils/IntegerMath.h"
 
 namespace catapult { namespace state {
 
@@ -29,7 +30,8 @@ namespace catapult { namespace state {
 	}
 
 	void MosaicEntrySupplyMixin::increaseSupply(Amount delta) {
-		m_supply = m_supply + delta;
+		if (!utils::CheckedAdd(m_supply, delta))
+			CATAPULT_THROW_INVALID_ARGUMENT_2("cannot increase mosaic supply above max (supply, delta)", m_supply, delta);
 	}
 
 	void MosaicEntrySupplyMixin::decreaseSupply(Amount delta) {

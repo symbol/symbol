@@ -23,15 +23,32 @@
 #include <limits>
 #include <type_traits>
 
+namespace catapult {
+	namespace utils {
+		template<typename TValue, typename TTag>
+		class BaseValue;
+	}
+}
+
 namespace catapult { namespace utils {
 
 	/// Adds \a delta to \a value if and only if there is no overflow.
-	template<typename T>
+	template<typename T, typename X = std::enable_if_t<std::is_unsigned_v<T>>>
 	bool CheckedAdd(T& value, T delta) {
 		if (value > std::numeric_limits<T>::max() - delta)
 			return false;
 
 		value += delta;
+		return true;
+	}
+
+	/// Adds \a delta to \a value if and only if there is no overflow.
+	template<typename TValue, typename TTag>
+	bool CheckedAdd(BaseValue<TValue, TTag>& value, BaseValue<TValue, TTag> delta) {
+		if (value > BaseValue<TValue, TTag>(std::numeric_limits<TValue>::max()) - delta)
+			return false;
+
+		value = value + delta;
 		return true;
 	}
 

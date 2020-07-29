@@ -47,8 +47,8 @@ namespace catapult { namespace utils {
 				auto isAddSuccess = CheckedAdd(value, example.Delta);
 
 				// Assert:
-				EXPECT_TRUE(isAddSuccess) << utils::HexFormat(example.Value);
-				EXPECT_EQ(example.ExpectedValue, value) << utils::HexFormat(example.Value);
+				EXPECT_TRUE(isAddSuccess) << HexFormat(example.Value);
+				EXPECT_EQ(example.ExpectedValue, value) << HexFormat(example.Value);
 			}
 		}
 
@@ -62,13 +62,16 @@ namespace catapult { namespace utils {
 				auto isAddSuccess = CheckedAdd(value, example.Delta);
 
 				// Assert:
-				EXPECT_FALSE(isAddSuccess) << utils::HexFormat(example.Value);
-				EXPECT_EQ(example.Value, value) << utils::HexFormat(example.Value);
+				EXPECT_FALSE(isAddSuccess) << HexFormat(example.Value);
+				EXPECT_EQ(example.Value, value) << HexFormat(example.Value);
 			}
 		}
+
+		struct TwoByteValue_tag {};
+		using TwoByteValue = BaseValue<uint16_t, TwoByteValue_tag>;
 	}
 
-	TEST(TEST_CLASS, CheckedAddCanAddValuesBelowMax) {
+	TEST(TEST_CLASS, CheckedAddCanAddValuesBelowMax_Uint32) {
 		AssertCheckedAddCanAdd<uint32_t>({
 			{ 0xFFFF'FFFE, 0x0000'0000, 0xFFFF'FFFE },
 			{ 0xFFFF'FFFD, 0x0000'0001, 0xFFFF'FFFE },
@@ -76,7 +79,9 @@ namespace catapult { namespace utils {
 			{ 0xABCD'9876, 0x0000'1230, 0xABCD'AAA6 },
 			{ 0xFFFF'0000, 0x0000'FFFE, 0xFFFF'FFFE }
 		});
+	}
 
+	TEST(TEST_CLASS, CheckedAddCanAddValuesBelowMax_Uint16) {
 		AssertCheckedAddCanAdd<uint16_t>({
 			{ 0xFFFE, 0x0000, 0xFFFE },
 			{ 0xFFFD, 0x0001, 0xFFFE },
@@ -86,7 +91,17 @@ namespace catapult { namespace utils {
 		});
 	}
 
-	TEST(TEST_CLASS, CheckedAddCanAddValuesUpToMax) {
+	TEST(TEST_CLASS, CheckedAddCanAddValuesBelowMax_BaseValue) {
+		AssertCheckedAddCanAdd<TwoByteValue>({
+			{ TwoByteValue(0xFFFE), TwoByteValue(0x0000), TwoByteValue(0xFFFE) },
+			{ TwoByteValue(0xFFFD), TwoByteValue(0x0001), TwoByteValue(0xFFFE) },
+			{ TwoByteValue(0x0000), TwoByteValue(0xFFFE), TwoByteValue(0xFFFE) },
+			{ TwoByteValue(0xABCD), TwoByteValue(0x1111), TwoByteValue(0xBCDE) },
+			{ TwoByteValue(0xFF00), TwoByteValue(0x00FE), TwoByteValue(0xFFFE) }
+		});
+	}
+
+	TEST(TEST_CLASS, CheckedAddCanAddValuesUpToMax_Uint32) {
 		AssertCheckedAddCanAdd<uint32_t>({
 			{ 0xFFFF'FFFF, 0x0000'0000, 0xFFFF'FFFF },
 			{ 0xFFFF'FFFE, 0x0000'0001, 0xFFFF'FFFF },
@@ -94,7 +109,9 @@ namespace catapult { namespace utils {
 			{ 0xABCD'9876, 0x5432'6789, 0xFFFF'FFFF },
 			{ 0xFFFF'0000, 0x0000'FFFF, 0xFFFF'FFFF }
 		});
+	}
 
+	TEST(TEST_CLASS, CheckedAddCanAddValuesUpToMax_Uint16) {
 		AssertCheckedAddCanAdd<uint16_t>({
 			{ 0xFFFF, 0x0000, 0xFFFF },
 			{ 0xFFFE, 0x0001, 0xFFFF },
@@ -104,7 +121,17 @@ namespace catapult { namespace utils {
 		});
 	}
 
-	TEST(TEST_CLASS, CheckedAddCannotAddValuesAboveMax) {
+	TEST(TEST_CLASS, CheckedAddCanAddValuesUpToMax_BaseValue) {
+		AssertCheckedAddCanAdd<TwoByteValue>({
+			{ TwoByteValue(0xFFFF), TwoByteValue(0x0000), TwoByteValue(0xFFFF) },
+			{ TwoByteValue(0xFFFE), TwoByteValue(0x0001), TwoByteValue(0xFFFF) },
+			{ TwoByteValue(0x0000), TwoByteValue(0xFFFF), TwoByteValue(0xFFFF) },
+			{ TwoByteValue(0xABCD), TwoByteValue(0x5432), TwoByteValue(0xFFFF) },
+			{ TwoByteValue(0xFF00), TwoByteValue(0x00FF), TwoByteValue(0xFFFF) }
+		});
+	}
+
+	TEST(TEST_CLASS, CheckedAddCannotAddValuesAboveMax_Uint32) {
 		// Arrange: third value is ignored
 		AssertCheckedAddCannotAdd<uint32_t>({
 			{ 0xFFFF'FFFF, 0x0000'0001, 0 },
@@ -113,13 +140,27 @@ namespace catapult { namespace utils {
 			{ 0xFFFF'0001, 0x0000'FFFF, 0 },
 			{ 0xFFFF'FFFE, 0xFFFF'FFFE, 0 }
 		});
+	}
 
+	TEST(TEST_CLASS, CheckedAddCannotAddValuesAboveMax_Uint16) {
+		// Arrange: third value is ignored
 		AssertCheckedAddCannotAdd<uint16_t>({
 			{ 0xFFFF, 0x0001, 0 },
 			{ 0x0001, 0xFFFF, 0 },
 			{ 0xABCD, 0x5433, 0 },
 			{ 0xFF01, 0x00FF, 0 },
 			{ 0xFFFE, 0xFFFE, 0 }
+		});
+	}
+
+	TEST(TEST_CLASS, CheckedAddCannotAddValuesAboveMax_BaseValue) {
+		// Arrange: third value is ignored
+		AssertCheckedAddCannotAdd<TwoByteValue>({
+			{ TwoByteValue(0xFFFF), TwoByteValue(0x0001), TwoByteValue() },
+			{ TwoByteValue(0x0001), TwoByteValue(0xFFFF), TwoByteValue() },
+			{ TwoByteValue(0xABCD), TwoByteValue(0x5433), TwoByteValue() },
+			{ TwoByteValue(0xFF01), TwoByteValue(0x00FF), TwoByteValue() },
+			{ TwoByteValue(0xFFFE), TwoByteValue(0xFFFE), TwoByteValue() }
 		});
 	}
 

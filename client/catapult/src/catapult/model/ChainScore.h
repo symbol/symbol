@@ -113,7 +113,7 @@ namespace catapult { namespace model {
 		}
 
 	private:
-		boost::multiprecision::uint128_t m_score;
+		boost::multiprecision::checked_uint128_t m_score;
 	};
 
 	/// Prototype for a function that returns a chain score.
