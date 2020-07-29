@@ -476,7 +476,7 @@ class CatapultDb {
 		};
 
 		const collection = this.database.collection('transactions');
-		return collection.aggregate([conditions, grouping])
+		return collection.aggregate([conditions, grouping], { promoteLongs: false })
 			.sort({ _id: -1 })
 			.toArray()
 			.then(this.sanitizer.deleteIds);

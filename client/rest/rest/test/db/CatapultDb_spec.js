@@ -984,9 +984,9 @@ describe('catapult db', () => {
 		);
 
 		const createExpected = (parentId, markerId) => ({
-			markerId,
+			markerId: Long.fromNumber(markerId),
 			markerName: `marker-${markerId}`,
-			parentMarkerId: parentId
+			parentMarkerId: Long.fromNumber(parentId)
 		});
 
 		it('returns empty array for unknown ids', () =>
@@ -1016,9 +1016,26 @@ describe('catapult db', () => {
 
 			return assertTransactions(expected, [[20003, 0], [123, 456], [20008, 0]]);
 		});
+
+		it('does not promote MongoDb.Long to regular `number` for small enough numbers and ends up returning Long always', () => {
+			const dbEntity = {
+				transactions: [{
+					_id: test.db.createObjectId(55),
+					meta: {},
+					transaction: { id: Long.fromNumber(23), type: 0x12345, parentId: Long.fromNumber(10) }
+				}]
+			};
+			return runDbTest(
+				dbEntity,
+				db => db.findNamesByIds([23], 0x12345, { id: 'id', name: 'name', parentId: 'parentId' }),
+				tuples => {
+					expect(tuples[0].parentId instanceof Long).to.be.equal(true);
+				}
+			);
+		});
 	});
 
-	describe('queryPagedDocuments 2', () => {
+	describe('queryPagedDocuments', () => {
 		describe('calls queryPagedDocumentsWithConditions with', () => {
 			const sortConditions = { $sort: { _id: 1 } };
 			const options = { pageSize: 10, pageNumber: 1 };
