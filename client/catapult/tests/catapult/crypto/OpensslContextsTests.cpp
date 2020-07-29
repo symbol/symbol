@@ -19,7 +19,7 @@
 **/
 
 #include "catapult/crypto/OpensslContexts.h"
-#include "catapult/crypto/AesCbcDecrypt.h"
+#include "catapult/crypto/AesDecrypt.h"
 #include "tests/test/nodeps/Equality.h"
 #include "tests/TestHarness.h"
 
@@ -59,36 +59,42 @@ namespace catapult { namespace crypto {
 
 	// region OpensslCipherContext
 
+	namespace {
+		class AesCbc256 {
+		public:
+			struct IV_tag { static constexpr size_t Size = 16; };
+			using IV = utils::ByteArray<IV_tag>;
+		};
+	}
+
 	TEST(TEST_CLASS, Cipher_CanDispatchSuccess) {
 		// Arrange:
 		OpensslCipherContext context;
 		SharedKey key;
-		AesInitializationVector initializationVector;
+		AesCbc256::IV iv;
 
 		// Act + Assert:
-		EXPECT_NO_THROW(context.dispatch(EVP_DecryptInit_ex, EVP_aes_256_cbc(), nullptr, key.data(), initializationVector.data()));
+		EXPECT_NO_THROW(context.dispatch(EVP_DecryptInit_ex, EVP_aes_256_cbc(), nullptr, key.data(), iv.data()));
 	}
 
 	TEST(TEST_CLASS, Cipher_CanDispatchFailure) {
 		// Arrange:
 		OpensslCipherContext context;
 		SharedKey key;
-		AesInitializationVector initializationVector;
+		AesCbc256::IV iv;
 
 		// Act + Assert:
-		EXPECT_THROW(
-				context.dispatch(EVP_DecryptInit_ex, nullptr, nullptr, key.data(), initializationVector.data()),
-				catapult_runtime_error);
+		EXPECT_THROW(context.dispatch(EVP_DecryptInit_ex, nullptr, nullptr, key.data(), iv.data()), catapult_runtime_error);
 	}
 
 	TEST(TEST_CLASS, Cipher_CanTryDispatchSuccess) {
 		// Arrange:
 		OpensslCipherContext context;
 		SharedKey key;
-		AesInitializationVector initializationVector;
+		AesCbc256::IV iv;
 
 		// Act:
-		auto result = context.tryDispatch(EVP_DecryptInit_ex, EVP_aes_256_cbc(), nullptr, key.data(), initializationVector.data());
+		auto result = context.tryDispatch(EVP_DecryptInit_ex, EVP_aes_256_cbc(), nullptr, key.data(), iv.data());
 
 		// Assert:
 		EXPECT_TRUE(result);
@@ -98,10 +104,10 @@ namespace catapult { namespace crypto {
 		// Arrange:
 		OpensslCipherContext context;
 		SharedKey key;
-		AesInitializationVector initializationVector;
+		AesCbc256::IV iv;
 
 		// Act:
-		auto result = context.tryDispatch(EVP_DecryptInit_ex, nullptr, nullptr, key.data(), initializationVector.data());
+		auto result = context.tryDispatch(EVP_DecryptInit_ex, nullptr, nullptr, key.data(), iv.data());
 
 		// Assert:
 		EXPECT_FALSE(result);

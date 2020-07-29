@@ -19,7 +19,7 @@
 **/
 
 #include "tools/ToolMain.h"
-#include "catapult/crypto/AesCbcDecrypt.h"
+#include "catapult/crypto/AesDecrypt.h"
 #include "catapult/crypto/Hashes.h"
 #include "catapult/crypto/SharedKey.h"
 #include "catapult/crypto/Signer.h"
@@ -119,10 +119,6 @@ namespace catapult { namespace tools { namespace testvectors {
 			return ParseByteArray<crypto::SharedKey>("sharedKey", str, testCaseNumber);
 		}
 
-		auto ParseAesInitializationVector(const RawString& str, size_t testCaseNumber) {
-			return ParseByteArray<crypto::AesInitializationVector>("iv (initialization vector)", str, testCaseNumber);
-		}
-
 		// endregion
 
 		auto CreateHashTester(const consumer<const RawBuffer&, Hash256&>& hashFunc) {
@@ -209,13 +205,16 @@ namespace catapult { namespace tools { namespace testvectors {
 			return expectedSharedKey == sharedKey;
 		}
 
-		auto Concatenate(const crypto::AesInitializationVector& initializationVector, const std::vector<uint8_t>& encryptedPayload) {
+		auto Concatenate(
+				const crypto::AesGcm256::Tag& tag,
+				const crypto::AesGcm256::IV& iv,
+				const std::vector<uint8_t>& encryptedPayload) {
 			std::vector<uint8_t> result;
-			result.resize(initializationVector.size() + encryptedPayload.size());
+			result.resize(tag.size() + iv.size() + encryptedPayload.size());
 
-			std::memcpy(result.data(), initializationVector.data(), initializationVector.size());
-			std::memcpy(result.data() + initializationVector.size(), encryptedPayload.data(), encryptedPayload.size());
-
+			std::memcpy(result.data(), tag.data(), tag.size());
+			std::memcpy(result.data() + tag.size(), iv.data(), iv.size());
+			std::memcpy(result.data() + tag.size() + iv.size(), encryptedPayload.data(), encryptedPayload.size());
 			return result;
 		}
 
@@ -226,17 +225,18 @@ namespace catapult { namespace tools { namespace testvectors {
 			auto keyPair = crypto::KeyPair::FromPrivate(std::move(privateKey));
 			auto sharedKey = crypto::DeriveSharedKey(keyPair, otherPublicKey);
 
-			auto iv = ParseAesInitializationVector(Get<>(testCase, "iv"), testCaseNumber);
+			auto tag = ParseByteArray<crypto::AesGcm256::Tag>("tag", Get<>(testCase, "tag"), testCaseNumber);
+			auto iv = ParseByteArray<crypto::AesGcm256::IV>("iv", Get<>(testCase, "iv"), testCaseNumber);
 			auto cipherTextStr = Get<>(testCase, "cipherText");
 			auto cipherText = ParseVector(cipherTextStr, testCaseNumber, cipherTextStr.size() / 2);
 			auto clearTextStr = Get<>(testCase, "clearText");
 			auto clearText = ParseVector(clearTextStr, testCaseNumber, clearTextStr.size() / 2);
 
-			auto encrypted = Concatenate(iv, cipherText);
+			auto encrypted = Concatenate(tag, iv, cipherText);
 
 			// Act:
 			std::vector<uint8_t> decrypted;
-			auto decryptionResult = TryAesCbcDecrypt(sharedKey, encrypted, decrypted);
+			auto decryptionResult = crypto::AesGcm256::TryDecrypt(sharedKey, encrypted, decrypted);
 
 			// Assert:
 			return decryptionResult && clearText == decrypted;
@@ -288,7 +288,7 @@ namespace catapult { namespace tools { namespace testvectors {
 				RunTest(parseJsonFile("1.test-address"), "address conversion", AddressConversionTester);
 				RunTest(parseJsonFile("2.test-sign"), "signing", SigningTester);
 				RunTest(parseJsonFile("3.test-derive"), "shared key derive", DeriveTester);
-				RunTest(parseJsonFile("4.test-cipher"), "aes-cbc decryption", DecryptTester);
+				RunTest(parseJsonFile("4.test-cipher"), "aes-gcm decryption", DecryptTester);
 				RunTest(parseJsonFile("5.test-mosaic-id"), "mosaic id derivation", MosaicIdDerivationTester);
 				return 0;
 			}

@@ -31,7 +31,7 @@ namespace catapult { namespace harvesting {
 	}
 
 	TEST(TEST_CLASS, CanGetEncryptedPayloadSize) {
-		EXPECT_EQ(32u + 16 + 32 + 32 + 16, HarvestRequest::EncryptedPayloadSize());
+		EXPECT_EQ(32u + 16 + 12 + 32 + 32, HarvestRequest::EncryptedPayloadSize());
 		EXPECT_EQ(test::HarvestRequestEncryptedPayload::Size, HarvestRequest::EncryptedPayloadSize());
 	}
 

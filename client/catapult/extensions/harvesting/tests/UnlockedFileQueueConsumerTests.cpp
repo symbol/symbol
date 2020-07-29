@@ -41,10 +41,10 @@ namespace catapult { namespace harvesting {
 			// Arrange:
 			auto clearText = test::GenerateRandomVector(dataSize);
 			auto recipientKeyPair = test::GenerateKeyPair();
-			auto encryptedWithKey = test::GenerateEphemeralAndEncrypt(clearText, recipientKeyPair.publicKey());
+			auto publicKeyPrefixedEncryptedPayload = test::GenerateEphemeralAndEncrypt(clearText, recipientKeyPair.publicKey());
 
 			// Act:
-			auto decryptedPair = TryDecryptBlockGeneratorAccountDescriptor(encryptedWithKey, recipientKeyPair);
+			auto decryptedPair = TryDecryptBlockGeneratorAccountDescriptor(publicKeyPrefixedEncryptedPayload, recipientKeyPair);
 
 			// Assert:
 			EXPECT_FALSE(decryptedPair.second);
@@ -63,10 +63,10 @@ namespace catapult { namespace harvesting {
 		// Arrange:
 		auto clearText = test::GenerateRandomVector(Encrypted_Data_Size);
 		auto recipientKeyPair = test::GenerateKeyPair();
-		auto encryptedWithKey = test::GenerateEphemeralAndEncrypt(clearText, recipientKeyPair.publicKey());
+		auto publicKeyPrefixedEncryptedPayload = test::GenerateEphemeralAndEncrypt(clearText, recipientKeyPair.publicKey());
 
 		// Act:
-		auto decryptedPair = TryDecryptBlockGeneratorAccountDescriptor(encryptedWithKey, recipientKeyPair);
+		auto decryptedPair = TryDecryptBlockGeneratorAccountDescriptor(publicKeyPrefixedEncryptedPayload, recipientKeyPair);
 
 		// Assert:
 		ASSERT_TRUE(decryptedPair.second);
@@ -137,15 +137,12 @@ namespace catapult { namespace harvesting {
 			}
 
 		public:
-			enum class InvalidMessageFlag { Invalid_Padding, Invalid_Decrypted_Data_Size };
+			enum class InvalidMessageFlag { Invalid_Tag, Invalid_Decrypted_Data_Size };
 			enum class Sizes { Underflow, Normal, Overflow };
 
-			auto prepareMessage(const BlockGeneratorAccountDescriptor& descriptor, test::EncryptionMutationFlag encryptionMutationFlag) {
+			auto prepareMessage(const BlockGeneratorAccountDescriptor& descriptor) {
 				auto clearText = test::ToClearTextBuffer(descriptor);
-				auto encryptedPayload = test::PrepareHarvestRequestEncryptedPayload(
-						m_keyPair.publicKey(),
-						clearText,
-						encryptionMutationFlag);
+				auto encryptedPayload = test::PrepareHarvestRequestEncryptedPayload(m_keyPair.publicKey(), clearText);
 				return EncryptedPayloadToMessage(encryptedPayload);
 			}
 
@@ -158,7 +155,7 @@ namespace catapult { namespace harvesting {
 				std::vector<std::vector<uint8_t>> messages;
 				auto i = 0u;
 				for (auto messageDelta : messageDeltas) {
-					auto buffer = prepareMessage(descriptors[i], test::EncryptionMutationFlag::None);
+					auto buffer = prepareMessage(descriptors[i]);
 					if (Sizes::Underflow == messageDelta)
 						buffer.resize(buffer.size() - 1);
 					else if (Sizes::Overflow == messageDelta)
@@ -172,11 +169,14 @@ namespace catapult { namespace harvesting {
 			}
 
 			auto prepareInvalidMessage(const BlockGeneratorAccountDescriptor& descriptor, InvalidMessageFlag invalidMessageFlag) {
-				if (InvalidMessageFlag::Invalid_Padding == invalidMessageFlag)
-					return prepareMessage(descriptor, test::EncryptionMutationFlag::Mutate_Padding);
+				if (InvalidMessageFlag::Invalid_Tag == invalidMessageFlag) {
+					auto messageBuffer = prepareMessage(descriptor);
+					messageBuffer[Key::Size + 1] ^= 0xFF;
+					return messageBuffer;
+				}
 
 				auto clearText = test::ToClearTextBuffer(descriptor);
-				clearText.resize(clearText.size() + 1);
+				clearText.resize(clearText.size() - 1);
 				auto encryptedPayload = test::PrepareHarvestRequestEncryptedPayload(m_keyPair.publicKey(), clearText);
 				return EncryptedPayloadToMessage(encryptedPayload);
 			}
@@ -250,9 +250,9 @@ namespace catapult { namespace harvesting {
 			TestContext context;
 			auto descriptors = test::GenerateRandomAccountDescriptors(3);
 			std::vector<std::vector<uint8_t>> messages;
-			messages.emplace_back(context.prepareMessage(descriptors[0], test::EncryptionMutationFlag::None));
+			messages.emplace_back(context.prepareMessage(descriptors[0]));
 			messages.emplace_back(context.prepareInvalidMessage(descriptors[1], invalidMessageFlag));
-			messages.emplace_back(context.prepareMessage(descriptors[2], test::EncryptionMutationFlag::None));
+			messages.emplace_back(context.prepareMessage(descriptors[2]));
 			context.write(messages);
 
 			// Act + Assert:
@@ -261,10 +261,10 @@ namespace catapult { namespace harvesting {
 	}
 
 	TEST(TEST_CLASS, ConsumerFiltersMessagesThatCannotBeDecrypted) {
-		AssertConsumerFiltersMessages(TestContext::InvalidMessageFlag::Invalid_Padding);
+		AssertConsumerFiltersMessages(TestContext::InvalidMessageFlag::Invalid_Tag);
 	}
 
-	TEST(TEST_CLASS, ConsumerFiltersMessagesThatHaveDecrytedDataOfInvalidSize) {
+	TEST(TEST_CLASS, ConsumerFiltersMessagesThatHaveDecryptedDataOfInvalidSize) {
 		AssertConsumerFiltersMessages(TestContext::InvalidMessageFlag::Invalid_Decrypted_Data_Size);
 	}
 

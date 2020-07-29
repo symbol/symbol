@@ -33,7 +33,7 @@ namespace catapult { namespace test {
 	struct HarvestRequestEncryptedPayload {
 	public:
 		/// Encrypted payload size.
-		static constexpr size_t Size = 32u + 16 + 32 + 32 + 16;
+		static constexpr size_t Size = 32u + 16 + 12 + 32 + 32;
 
 	public:
 		/// Encrypted data memory buffer.
@@ -55,28 +55,14 @@ namespace catapult { namespace test {
 	/// Insertion operator for outputting \a encryptedPayload to \a out.
 	std::ostream& operator<<(std::ostream& out, const HarvestRequestEncryptedPayload& encryptedPayload);
 
-	/// Encryption mutation to apply when creating an encypted payload.
-	enum class EncryptionMutationFlag {
-		/// No mutation.
-		None,
+	/// Creates an encrypted payload around \a clearTextBuffer using \a recipientPublicKey.
+	HarvestRequestEncryptedPayload PrepareHarvestRequestEncryptedPayload(const Key& recipientPublicKey, const RawBuffer& clearTextBuffer);
 
-		/// Mutate aes-cbc encryption padding.
-		Mutate_Padding
-	};
-
-	/// Creates an encrypted payload around \a clearTextBuffer using \a recipientPublicKey with \a encryptionMutationFlag.
-	HarvestRequestEncryptedPayload PrepareHarvestRequestEncryptedPayload(
-			const Key& recipientPublicKey,
-			const RawBuffer& clearTextBuffer,
-			EncryptionMutationFlag encryptionMutationFlag = EncryptionMutationFlag::None);
-
-	/// Creates an encrypted payload around \a clearTextBuffer using \a ephemeralKeyPair and \a recipientPublicKey
-	/// with \a encryptionMutationFlag.
+	/// Creates an encrypted payload around \a clearTextBuffer using \a ephemeralKeyPair and \a recipientPublicKey.
 	HarvestRequestEncryptedPayload PrepareHarvestRequestEncryptedPayload(
 			const crypto::KeyPair& ephemeralKeyPair,
 			const Key& recipientPublicKey,
-			const RawBuffer& clearTextBuffer,
-			EncryptionMutationFlag encryptionMutationFlag = EncryptionMutationFlag::None);
+			const RawBuffer& clearTextBuffer);
 
 	/// Copes \a encryptedPayload to a new buffer.
 	std::vector<uint8_t> CopyHarvestRequestEncryptedPayloadToBuffer(const HarvestRequestEncryptedPayload& encryptedPayload);

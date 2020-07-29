@@ -27,19 +27,6 @@
 
 namespace catapult { namespace test {
 
-	namespace {
-		void AesPkcs7MalformedPaddingScheme(std::vector<uint8_t>& buffer) {
-			// apply normal padding first
-			AesPkcs7PaddingScheme(buffer);
-
-			auto paddingSize = buffer.back();
-
-			// malform all pad bytes except last one
-			for (auto i = 0u; i < static_cast<uint8_t>(paddingSize - 1); ++i)
-				buffer[buffer.size() - paddingSize + i] ^= 0xFF;
-		}
-	}
-
 	harvesting::HarvestRequestIdentifier GetRequestIdentifier(const HarvestRequestEncryptedPayload& encryptedPayload) {
 		harvesting::HarvestRequestIdentifier requestIdentifier;
 		std::memcpy(requestIdentifier.data(), encryptedPayload.Data.data(), requestIdentifier.size());
@@ -53,28 +40,20 @@ namespace catapult { namespace test {
 		return out;
 	}
 
-	HarvestRequestEncryptedPayload PrepareHarvestRequestEncryptedPayload(
-			const Key& recipientPublicKey,
-			const RawBuffer& clearTextBuffer,
-			EncryptionMutationFlag encryptionMutationFlag) {
-		return PrepareHarvestRequestEncryptedPayload(GenerateKeyPair(), recipientPublicKey, clearTextBuffer, encryptionMutationFlag);
+	HarvestRequestEncryptedPayload PrepareHarvestRequestEncryptedPayload(const Key& recipientPublicKey, const RawBuffer& clearTextBuffer) {
+		return PrepareHarvestRequestEncryptedPayload(GenerateKeyPair(), recipientPublicKey, clearTextBuffer);
 	}
 
 	HarvestRequestEncryptedPayload PrepareHarvestRequestEncryptedPayload(
 			const crypto::KeyPair& ephemeralKeyPair,
 			const Key& recipientPublicKey,
-			const RawBuffer& clearTextBuffer,
-			EncryptionMutationFlag encryptionMutationFlag) {
+			const RawBuffer& clearTextBuffer) {
 		HarvestRequestEncryptedPayload encryptedPayload;
 		auto sharedKey = crypto::DeriveSharedKey(ephemeralKeyPair, recipientPublicKey);
-		auto initializationVector = GenerateRandomByteArray<crypto::AesInitializationVector>();
+		auto iv = GenerateRandomByteArray<crypto::AesGcm256::IV>();
 
 		std::vector<uint8_t> encrypted;
-		const auto& paddingScheme =
-				EncryptionMutationFlag::None == encryptionMutationFlag
-				? AesPkcs7PaddingScheme
-				: AesPkcs7MalformedPaddingScheme;
-		AesCbcEncrypt(sharedKey, initializationVector, clearTextBuffer, encrypted, paddingScheme);
+		AesGcmEncrypt(sharedKey, iv, clearTextBuffer, encrypted);
 
 		std::memcpy(encryptedPayload.Data.data(), ephemeralKeyPair.publicKey().data(), Key::Size);
 		std::memcpy(encryptedPayload.Data.data() + Key::Size, encrypted.data(), encrypted.size());

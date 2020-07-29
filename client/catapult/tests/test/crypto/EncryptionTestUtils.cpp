@@ -38,8 +38,6 @@
 namespace catapult { namespace test {
 
 	namespace {
-		constexpr auto Aes_Pkcs7_Padding_Size = 16u;
-
 		void Prepend(std::vector<uint8_t>& buffer, RawBuffer prefix) {
 			buffer.resize(buffer.size() + prefix.Size);
 			std::memmove(buffer.data() + prefix.Size, buffer.data(), buffer.size() - prefix.Size);
@@ -48,49 +46,44 @@ namespace catapult { namespace test {
 		}
 	}
 
-	void AesPkcs7PaddingScheme(std::vector<uint8_t>& buffer) {
-		auto size = buffer.size();
-		auto paddingSize = Aes_Pkcs7_Padding_Size;
-		if (size % Aes_Pkcs7_Padding_Size)
-			paddingSize = Aes_Pkcs7_Padding_Size - (size % Aes_Pkcs7_Padding_Size);
-
-		buffer.resize(size + paddingSize);
-		for (auto i = 0u; i < paddingSize; ++i)
-			buffer[buffer.size() - paddingSize + i] = static_cast<uint8_t>(paddingSize);
-	}
-
-	void AesCbcEncrypt(
+	void AesGcmEncrypt(
 			const crypto::SharedKey& encryptionKey,
-			const crypto::AesInitializationVector& initializationVector,
+			const crypto::AesGcm256::IV& iv,
 			const RawBuffer& input,
-			std::vector<uint8_t>& output,
-			const consumer<std::vector<uint8_t>&>& applyPaddingScheme) {
-		// initializationVector || data || padding
+			std::vector<uint8_t>& output) {
+		// encrypt input into output
 		output.resize(input.Size);
-		applyPaddingScheme(output);
-		Prepend(output, initializationVector);
-		utils::memcpy_cond(output.data() + initializationVector.size(), input.pData, input.Size);
-
-		auto* pOutputDataStart = output.data() + initializationVector.size();
-		auto outputSize = static_cast<int>(output.size() - initializationVector.size());
+		auto outputSize = static_cast<int>(output.size());
+		utils::memcpy_cond(output.data(), input.pData, input.Size);
 
 		crypto::OpensslCipherContext cipherContext;
-		cipherContext.dispatch(EVP_EncryptInit_ex, EVP_aes_256_cbc(), nullptr, encryptionKey.data(), initializationVector.data());
-		cipherContext.dispatch(EVP_EncryptUpdate, pOutputDataStart, &outputSize, pOutputDataStart, outputSize);
-		// skip EVP_EncryptFinal_ex because it always adds padding and padding (possibly corrupted) was explicitly added above
+		cipherContext.dispatch(EVP_EncryptInit_ex, EVP_aes_256_gcm(), nullptr, encryptionKey.data(), iv.data());
+
+		if (0 != outputSize)
+			cipherContext.dispatch(EVP_EncryptUpdate, output.data(), &outputSize, output.data(), outputSize);
+
+		cipherContext.dispatch(EVP_EncryptFinal_ex, output.data() + outputSize, &outputSize);
+
+		// get tag
+		crypto::AesGcm256::Tag tag;
+		cipherContext.dispatch(EVP_CIPHER_CTX_ctrl, EVP_CTRL_GCM_GET_TAG, 16, tag.data());
+
+		// tag || iv || data
+		Prepend(output, iv);
+		Prepend(output, tag);
 	}
 
 	std::vector<uint8_t> GenerateEphemeralAndEncrypt(const RawBuffer& clearText, const Key& recipientPublicKey) {
 		auto ephemeralKeyPair = test::GenerateKeyPair();
 		auto sharedKey = DeriveSharedKey(ephemeralKeyPair, recipientPublicKey);
-		auto initializationVector = GenerateRandomByteArray<crypto::AesInitializationVector>();
+		auto iv = GenerateRandomByteArray<crypto::AesGcm256::IV>();
 
 		std::vector<uint8_t> encrypted;
-		AesCbcEncrypt(sharedKey, initializationVector, clearText, encrypted);
+		AesGcmEncrypt(sharedKey, iv, clearText, encrypted);
 
-		std::vector<uint8_t> encryptedWithKey(Key::Size + encrypted.size());
-		std::memcpy(encryptedWithKey.data(), ephemeralKeyPair.publicKey().data(), Key::Size);
-		std::memcpy(encryptedWithKey.data() + Key::Size, encrypted.data(), encrypted.size());
-		return encryptedWithKey;
+		std::vector<uint8_t> publicKeyPrefixedEncryptedPayload(Key::Size + encrypted.size());
+		std::memcpy(publicKeyPrefixedEncryptedPayload.data(), ephemeralKeyPair.publicKey().data(), Key::Size);
+		std::memcpy(publicKeyPrefixedEncryptedPayload.data() + Key::Size, encrypted.data(), encrypted.size());
+		return publicKeyPrefixedEncryptedPayload;
 	}
 }}

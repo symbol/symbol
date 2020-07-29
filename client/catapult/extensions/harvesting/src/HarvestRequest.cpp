@@ -19,14 +19,10 @@
 **/
 
 #include "HarvestRequest.h"
-#include "catapult/crypto/AesCbcDecrypt.h"
+#include "catapult/crypto/AesDecrypt.h"
 #include <cstring>
 
 namespace catapult { namespace harvesting {
-
-	namespace {
-		constexpr auto Aes_Pkcs7_Padding_Size = 16;
-	}
 
 	size_t HarvestRequest::DecryptedPayloadSize() {
 		// encrypted harvester signing private key | encrypted harvester vrf private key
@@ -34,10 +30,10 @@ namespace catapult { namespace harvesting {
 	}
 
 	size_t HarvestRequest::EncryptedPayloadSize() {
-		return Key::Size //                                ephemeral public key
-				+ crypto::AesInitializationVector::Size // aes cbc initialization vector
-				+ DecryptedPayloadSize() //                decrypted payload
-				+ Aes_Pkcs7_Padding_Size; //               padding
+		return Key::Size //                       ephemeral public key
+				+ crypto::AesGcm256::Tag::Size // aes gcm tag
+				+ crypto::AesGcm256::IV::Size //  aes gcm initialization vector
+				+ DecryptedPayloadSize(); //      decrypted payload
 	}
 
 	HarvestRequestIdentifier GetRequestIdentifier(const HarvestRequest& request) {

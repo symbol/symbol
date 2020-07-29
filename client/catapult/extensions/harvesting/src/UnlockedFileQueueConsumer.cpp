@@ -20,7 +20,7 @@
 
 #include "UnlockedFileQueueConsumer.h"
 #include "catapult/config/CatapultDataDirectory.h"
-#include "catapult/crypto/AesCbcDecrypt.h"
+#include "catapult/crypto/AesDecrypt.h"
 #include "catapult/io/FileQueue.h"
 #include "catapult/io/RawFile.h"
 #include "catapult/utils/Logging.h"
@@ -43,10 +43,10 @@ namespace catapult { namespace harvesting {
 	}
 
 	std::pair<BlockGeneratorAccountDescriptor, bool> TryDecryptBlockGeneratorAccountDescriptor(
-			const RawBuffer& encryptedWithKey,
+			const RawBuffer& publicKeyPrefixedEncryptedPayload,
 			const crypto::KeyPair& encryptionKeyPair) {
 		std::vector<uint8_t> decrypted;
-		auto isDecryptSuccessful = crypto::TryDecryptEd25199BlockCipher(encryptedWithKey, encryptionKeyPair, decrypted);
+		auto isDecryptSuccessful = crypto::TryDecryptEd25199BlockCipher(publicKeyPrefixedEncryptedPayload, encryptionKeyPair, decrypted);
 		if (!isDecryptSuccessful || HarvestRequest::DecryptedPayloadSize() != decrypted.size())
 			return std::make_pair(BlockGeneratorAccountDescriptor(), false);
 

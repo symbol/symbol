@@ -32,9 +32,9 @@ namespace catapult {
 
 namespace catapult { namespace harvesting {
 
-	/// Decrypts \a encryptedWithKey using \a encryptionKeyPair.
+	/// Decrypts \a publicKeyPrefixedEncryptedPayload using \a encryptionKeyPair.
 	std::pair<BlockGeneratorAccountDescriptor, bool> TryDecryptBlockGeneratorAccountDescriptor(
-			const RawBuffer& encryptedWithKey,
+			const RawBuffer& publicKeyPrefixedEncryptedPayload,
 			const crypto::KeyPair& encryptionKeyPair);
 
 	/// Reads (encrypted) harvest requests from \a directory, validates using \a encryptionKeyPair
