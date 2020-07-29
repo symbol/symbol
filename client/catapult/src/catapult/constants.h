@@ -42,4 +42,7 @@ namespace catapult {
 
 	/// Number of files per storage subdirectory.
 	constexpr size_t Files_Per_Storage_Directory = 10'000;
+
+	/// Default maximum packet data size when not explicitly specified.
+	constexpr uint32_t Default_Max_Packet_Data_Size = 100 * 1024 * 1024;
 }

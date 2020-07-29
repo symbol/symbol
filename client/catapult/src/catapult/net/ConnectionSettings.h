@@ -24,6 +24,7 @@
 #include "catapult/model/NodeIdentity.h"
 #include "catapult/utils/FileSize.h"
 #include "catapult/utils/TimeSpan.h"
+#include "catapult/constants.h"
 
 namespace catapult { namespace net {
 
@@ -37,7 +38,7 @@ namespace catapult { namespace net {
 				, Timeout(utils::TimeSpan::FromSeconds(10))
 				, SocketWorkingBufferSize(utils::FileSize::FromKilobytes(4))
 				, SocketWorkingBufferSensitivity(0) // memory reclamation disabled
-				, MaxPacketDataSize(utils::FileSize::FromMegabytes(100))
+				, MaxPacketDataSize(utils::FileSize::FromBytes(Default_Max_Packet_Data_Size))
 				, AllowIncomingSelfConnections(true)
 				, AllowOutgoingSelfConnections(false)
 		{}

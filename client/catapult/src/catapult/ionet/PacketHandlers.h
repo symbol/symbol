@@ -22,6 +22,7 @@
 #include "IoTypes.h"
 #include "PacketPayload.h"
 #include "catapult/utils/NonCopyable.h"
+#include "catapult/constants.h"
 #include "catapult/functions.h"
 #include "catapult/types.h"
 #include <unordered_set>
@@ -76,7 +77,7 @@ namespace catapult { namespace ionet {
 
 	public:
 		/// Creates packet handlers with a max packet data size (\a maxPacketDataSize).
-		explicit ServerPacketHandlers(uint32_t maxPacketDataSize = std::numeric_limits<uint32_t>::max());
+		explicit ServerPacketHandlers(uint32_t maxPacketDataSize = Default_Max_Packet_Data_Size);
 
 	public:
 		/// Gets the number of registered handlers.

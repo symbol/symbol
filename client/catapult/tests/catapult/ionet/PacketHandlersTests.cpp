@@ -165,7 +165,7 @@ namespace catapult { namespace ionet {
 
 		// Assert:
 		EXPECT_EQ(0u, handlers.size());
-		EXPECT_EQ(0xFFFF'FFFFu, handlers.maxPacketDataSize());
+		EXPECT_EQ(Default_Max_Packet_Data_Size, handlers.maxPacketDataSize());
 	}
 
 	TEST(TEST_CLASS, CanCreateHandlersWithCustomOptions) {
