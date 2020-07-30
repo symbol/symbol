@@ -38,7 +38,7 @@ namespace catapult { namespace utils {
 		if (value > std::numeric_limits<T>::max() - delta)
 			return false;
 
-		value += delta;
+		value = static_cast<T>(value + delta);
 		return true;
 	}
 

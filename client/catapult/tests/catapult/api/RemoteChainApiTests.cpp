@@ -29,7 +29,7 @@ namespace catapult { namespace api {
 
 	namespace {
 		std::shared_ptr<ionet::Packet> CreatePacketWithBlocks(uint32_t numBlocks, Height startHeight) {
-			uint32_t payloadSize = numBlocks * sizeof(model::BlockHeader);
+			uint32_t payloadSize = numBlocks * SizeOf32<model::BlockHeader>();
 			auto pPacket = ionet::CreateSharedPacket<ionet::Packet>(payloadSize);
 			test::FillWithRandomData({ pPacket->Data(), payloadSize });
 

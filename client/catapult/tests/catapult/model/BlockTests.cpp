@@ -46,7 +46,7 @@ namespace catapult { namespace model {
 		// Arrange:
 		auto expectedSize = sizeof(VerifiableEntity) + Block::Footer_Size;
 
-#define FIELD(X) expectedSize += sizeof(Block::X);
+#define FIELD(X) expectedSize += SizeOf32<decltype(Block::X)>();
 		BLOCK_FIELDS
 #undef FIELD
 
@@ -225,7 +225,7 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, SizeInvalidWhenAnyTransactionHasUnknownType) {
 		// Arrange:
 		auto pBlock = CreateBlockWithTransactions();
-		GetSecondTransaction(*pBlock).Type = static_cast<EntityType>(-1);
+		GetSecondTransaction(*pBlock).Type = static_cast<EntityType>(std::numeric_limits<uint16_t>::max());
 
 		// Act + Assert:
 		EXPECT_FALSE(IsSizeValid(*pBlock));

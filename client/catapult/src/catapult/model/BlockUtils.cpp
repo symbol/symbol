@@ -118,7 +118,7 @@ namespace catapult { namespace model {
 				NetworkIdentifier networkIdentifier,
 				const Key& signerPublicKey,
 				const TContainer& transactions) {
-			uint32_t size = sizeof(BlockHeader) + CalculateTotalSize(transactions);
+			uint32_t size = SizeOf32<BlockHeader>() + CalculateTotalSize(transactions);
 			auto pBlock = utils::MakeUniqueWithSize<Block>(size);
 			std::memset(static_cast<void*>(pBlock.get()), 0, sizeof(BlockHeader));
 			pBlock->Size = size;

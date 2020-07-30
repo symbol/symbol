@@ -35,7 +35,7 @@ namespace catapult { namespace crypto {
 
 		uint8_t IsNegative(int8_t b) {
 			auto x = static_cast<uint8_t>(b);
-			x >>= 7;
+			x = static_cast<uint8_t>(x >> 7);
 			return x;
 		}
 
@@ -44,7 +44,7 @@ namespace catapult { namespace crypto {
 			auto uc = static_cast<uint8_t>(c);
 			auto x = static_cast<uint8_t>(ub ^ uc);
 			x = static_cast<uint8_t>(x - 1);
-			x >>= 7;
+			x = static_cast<uint8_t>(x >> 7);
 			return x;
 		}
 
@@ -58,13 +58,13 @@ namespace catapult { namespace crypto {
 
 			int8_t carry = 0;
 			for (auto i = 0u; i < 63; ++i) {
-				e[i] += carry;
-				carry = e[i] + 8;
-				carry >>= 4;
-				e[i] -= carry * (static_cast<int8_t>(1) << 4);
+				e[i] = static_cast<int8_t>(e[i] + carry);
+				carry = static_cast<int8_t>(e[i] + 8);
+				carry = static_cast<int8_t>(carry >> 4);
+				e[i] = static_cast<int8_t>(e[i] - carry * (static_cast<int8_t>(1) << 4));
 			}
 
-			e[63] += carry;
+			e[63] = static_cast<int8_t>(e[63] + carry);
 		}
 
 		// endregion
@@ -214,7 +214,8 @@ namespace catapult { namespace crypto {
 			SetZero(H);
 			for (auto i = 63; 0 <= i; --i) {
 				if (0 != q[i]) {
-					ge25519_pnielsadd_p1p1(&R, &H, &precomputedTable[abs(q[i]) - 1], static_cast<uint8_t>(q[i]) >> 7);
+					auto signbit = static_cast<uint8_t>(static_cast<uint8_t>(q[i]) >> 7);
+					ge25519_pnielsadd_p1p1(&R, &H, &precomputedTable[abs(q[i]) - 1], signbit);
 					ge25519_p1p1_to_full(&H, &R);
 				}
 

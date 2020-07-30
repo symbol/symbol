@@ -54,7 +54,7 @@ namespace catapult { namespace test {
 	struct MockNotification : public model::Notification {
 	public:
 		MockNotification(const Hash256& hash, uint64_t id)
-				: Notification(static_cast<model::NotificationType>(-1), sizeof(MockNotification))
+				: Notification(static_cast<model::NotificationType>(std::numeric_limits<uint32_t>::max()), sizeof(MockNotification))
 				, Hash(hash)
 				, Id(id)
 		{}

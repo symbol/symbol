@@ -34,7 +34,7 @@ namespace catapult { namespace extensions {
 			using ResponseType = state::TimestampedHashRange;
 
 			static constexpr auto Packet_Type = ionet::PacketType::Confirm_Timestamped_Hashes;
-			static constexpr auto Request_Entity_Size = sizeof(state::TimestampedHash);
+			static constexpr auto Request_Entity_Size = SizeOf32<state::TimestampedHash>();
 			static constexpr auto Response_Entity_Size = Request_Entity_Size;
 
 			static auto CreateResponsePacket(uint32_t numTimestampedHashes) {
@@ -257,8 +257,8 @@ namespace catapult { namespace extensions {
 			using ResponseType = model::EntityRange<EntityType>;
 
 			static constexpr auto Packet_Type = PacketType;
-			static constexpr auto Response_Entity_Data_Size = 10u;
-			static constexpr auto Response_Entity_Size = sizeof(EntityType) + Response_Entity_Data_Size;
+			static constexpr auto Response_Entity_Data_Size = static_cast<uint32_t>(10);
+			static constexpr auto Response_Entity_Size = SizeOf32<EntityType>() + Response_Entity_Data_Size;
 
 		public:
 			static auto CreateResponsePacket(uint32_t numInfos) {

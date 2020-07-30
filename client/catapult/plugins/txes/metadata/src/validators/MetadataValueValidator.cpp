@@ -40,7 +40,7 @@ namespace catapult { namespace validators {
 		const auto& metadataValue = metadataIter.get().value();
 		auto expectedCacheValueSize = notification.ValueSize;
 		if (notification.ValueSizeDelta > 0)
-			expectedCacheValueSize -= notification.ValueSizeDelta;
+			expectedCacheValueSize = static_cast<uint16_t>(expectedCacheValueSize - notification.ValueSizeDelta);
 
 		if (expectedCacheValueSize != metadataValue.size())
 			return Failure_Metadata_Value_Size_Delta_Mismatch;

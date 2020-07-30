@@ -41,7 +41,7 @@ namespace catapult { namespace plugins {
 		template<typename TTraits>
 		auto CreateTransactionWithMosaics(uint8_t numMosaics, uint16_t messageSize = 0) {
 			using TransactionType = typename TTraits::TransactionType;
-			uint32_t entitySize = sizeof(TransactionType) + numMosaics * sizeof(Mosaic) + messageSize;
+			uint32_t entitySize = SizeOf32<TransactionType>() + numMosaics * SizeOf32<UnresolvedMosaic>() + messageSize;
 			auto pTransaction = utils::MakeUniqueWithSize<TransactionType>(entitySize);
 			test::FillWithRandomData({ reinterpret_cast<uint8_t*>(pTransaction.get()), entitySize });
 

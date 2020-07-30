@@ -113,4 +113,10 @@ namespace catapult {
 	constexpr size_t CountOf(T const (&)[N]) noexcept {
 		return N;
 	}
+
+	/// Gets the size of the specified type as an unsigned 32 bit value.
+	template<typename T>
+	constexpr uint32_t SizeOf32() {
+		return static_cast<uint32_t>(sizeof(T));
+	}
 }

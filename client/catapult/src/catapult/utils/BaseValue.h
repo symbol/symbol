@@ -107,12 +107,12 @@ namespace catapult { namespace utils {
 	public:
 		/// Adds \a rhs and this value and returns a new value.
 		constexpr BaseValue operator+(BaseValue rhs) const {
-			return BaseValue(this->unwrap() + rhs.unwrap());
+			return BaseValue(static_cast<TValue>(this->unwrap() + rhs.unwrap()));
 		}
 
 		/// Subtracts \a rhs from this value and returns a new value.
 		constexpr BaseValue operator-(BaseValue rhs) const {
-			return BaseValue(this->unwrap() - rhs.unwrap());
+			return BaseValue(static_cast<TValue>(this->unwrap() - rhs.unwrap()));
 		}
 	};
 }}

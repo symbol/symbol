@@ -37,7 +37,7 @@ namespace catapult { namespace chain {
 
 	namespace {
 		constexpr auto Num_Comparison_Functions = 2;
-		constexpr auto Incomplete_Chain_Comparison_Code = static_cast<ChainComparisonCode>(-1);
+		constexpr auto Incomplete_Chain_Comparison_Code = static_cast<ChainComparisonCode>(std::numeric_limits<uint32_t>::max());
 
 		class CompareChainsContext : public std::enable_shared_from_this<CompareChainsContext> {
 		public:

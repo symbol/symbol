@@ -81,7 +81,7 @@ namespace catapult { namespace model {
 			uint32_t size = sizeof(ContainerHeader);
 			uint32_t lastPaddingSize = 0;
 			for (auto attachmentExtraSize : attachmentExtraSizes) {
-				uint32_t attachmentSize = sizeof(ContainerComponent) + attachmentExtraSize;
+				uint32_t attachmentSize = SizeOf32<ContainerComponent>() + attachmentExtraSize;
 				lastPaddingSize = utils::GetPaddingSize(attachmentSize, 8);
 
 				size += attachmentSize + lastPaddingSize;
@@ -98,7 +98,7 @@ namespace catapult { namespace model {
 
 			auto* pData = reinterpret_cast<uint8_t*>(pContainer.get() + 1);
 			for (auto attachmentExtraSize : attachmentExtraSizes) {
-				uint32_t attachmentSize = sizeof(ContainerComponent) + attachmentExtraSize;
+				uint32_t attachmentSize = SizeOf32<ContainerComponent>() + attachmentExtraSize;
 				reinterpret_cast<ContainerComponent*>(pData)->Size = attachmentSize;
 				pData += attachmentSize + utils::GetPaddingSize(attachmentSize, 8);
 			}

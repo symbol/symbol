@@ -111,7 +111,7 @@ namespace catapult { namespace config {
 		auto dispatch = [](auto check, uint8_t percentage) {
 			check(percentage, 0);
 			check(0, percentage);
-			check(percentage / 2, percentage / 2 + (0 == percentage % 2 ? 0 : 1));
+			check(static_cast<uint8_t>(percentage / 2), static_cast<uint8_t>(percentage / 2 + (0 == percentage % 2 ? 0 : 1)));
 		};
 
 		// Act + Assert:

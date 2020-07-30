@@ -48,7 +48,7 @@ namespace catapult { namespace mocks {
 	namespace {
 		template<typename TMockTransaction>
 		std::unique_ptr<TMockTransaction> CreateMockTransactionT(uint16_t dataSize) {
-			uint32_t entitySize = sizeof(TMockTransaction) + dataSize;
+			uint32_t entitySize = SizeOf32<TMockTransaction>() + dataSize;
 			auto pTransaction = utils::MakeUniqueWithSize<TMockTransaction>(entitySize);
 
 			test::FillWithRandomData({ reinterpret_cast<uint8_t*>(pTransaction.get()), entitySize });

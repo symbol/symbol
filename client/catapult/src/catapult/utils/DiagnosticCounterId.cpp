@@ -53,7 +53,7 @@ namespace catapult { namespace utils {
 				break;
 
 			auto byte = value % Counter_Name_Alphabet_Size;
-			m_name.insert(m_name.begin(), 0 == byte ? ' ' : static_cast<char>(byte - 1) + 'A');
+			m_name.insert(m_name.begin(), 0 == byte ? ' ' : static_cast<char>(byte - 1 + 'A'));
 			value /= Counter_Name_Alphabet_Size;
 		}
 

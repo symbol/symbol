@@ -70,7 +70,7 @@ namespace catapult { namespace model {
 			// Arrange:
 			auto expectedSize = baseSize + sizeof(uint32_t);
 
-#define FIELD(X) expectedSize += sizeof(T::X);
+#define FIELD(X) expectedSize += SizeOf32<decltype(T::X)>();
 			TRANSACTION_FIELDS
 #undef FIELD
 
@@ -109,10 +109,10 @@ namespace catapult { namespace model {
 	namespace {
 		template<typename TTraits>
 		struct AccountRestrictionTransactionTraits {
-			static constexpr auto Restriction_Size = sizeof(typename TTraits::RestrictionType);
+			static constexpr auto Restriction_Size = SizeOf32<typename TTraits::RestrictionType>();
 
 			static auto GenerateEntityWithAttachments(uint8_t numAdditions, uint8_t numDeletions) {
-				uint32_t entitySize = sizeof(typename TTraits::TransactionType) + (numAdditions + numDeletions) * Restriction_Size;
+				uint32_t entitySize = SizeOf32<typename TTraits::TransactionType>() + (numAdditions + numDeletions) * Restriction_Size;
 				auto pTransaction = utils::MakeUniqueWithSize<typename TTraits::TransactionType>(entitySize);
 				pTransaction->Size = entitySize;
 				pTransaction->RestrictionAdditionsCount = numAdditions;

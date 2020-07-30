@@ -26,7 +26,7 @@ namespace catapult { namespace ionet {
 #define TEST_CLASS WorkingBufferTests
 
 	namespace {
-		constexpr size_t Default_Capacity = 4 * 1024;
+		constexpr uint32_t Default_Capacity = 4 * 1024;
 
 		WorkingBuffer CreateWorkingBuffer(size_t sensitivity = 10) {
 			PacketSocketOptions options;

@@ -32,17 +32,17 @@ namespace catapult { namespace api {
 		std::shared_ptr<ionet::Packet> CreatePacketWithTransactions(uint16_t numTransactions) {
 			// Arrange: create transactions with variable (incrementing) sizes
 			uint32_t variableDataSize = numTransactions * (numTransactions + 1) / 2;
-			uint32_t payloadSize = numTransactions * sizeof(TransactionType) + variableDataSize;
+			uint32_t payloadSize = numTransactions * SizeOf32<TransactionType>() + variableDataSize;
 			auto pPacket = ionet::CreateSharedPacket<ionet::Packet>(payloadSize);
 			test::FillWithRandomData({ pPacket->Data(), payloadSize });
 
 			auto pData = pPacket->Data();
 			for (uint16_t i = 0u; i < numTransactions; ++i) {
 				auto& transaction = reinterpret_cast<TransactionType&>(*pData);
-				transaction.Size = sizeof(TransactionType) + i + 1;
+				transaction.Size = SizeOf32<TransactionType>() + i + 1;
 				transaction.Type = TransactionType::Entity_Type;
 				transaction.Deadline = Timestamp(5 * i);
-				transaction.Data.Size = i + 1;
+				transaction.Data.Size = static_cast<uint16_t>(i + 1);
 
 				pData += transaction.Size;
 			}

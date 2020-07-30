@@ -98,7 +98,7 @@ namespace catapult { namespace tree {
 
 		public:
 			void addNibble(uint8_t nibble) {
-				m_path[m_index / 2] |= 0 != m_index % 2 ? (nibble & 0x0F) : static_cast<uint8_t>(nibble << 4);
+				m_path[m_index / 2] = static_cast<uint8_t>(m_path[m_index / 2] | (0 != m_index % 2 ? (nibble & 0x0F) : (nibble << 4)));
 				++m_index;
 			}
 

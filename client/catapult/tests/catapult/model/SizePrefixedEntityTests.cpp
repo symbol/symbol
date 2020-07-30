@@ -36,7 +36,7 @@ namespace catapult { namespace model {
 		// Arrange:
 		auto expectedSize = 0u;
 
-#define FIELD(X) expectedSize += sizeof(SizePrefixedEntity::X);
+#define FIELD(X) expectedSize += SizeOf32<decltype(SizePrefixedEntity::X)>();
 		SIZE_PREFIXED_ENTITY_FIELDS
 #undef FIELD
 

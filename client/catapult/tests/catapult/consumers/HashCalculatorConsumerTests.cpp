@@ -93,7 +93,7 @@ namespace catapult { namespace consumers {
 				const model::TransactionRegistry& registry,
 				uint32_t numBlocks,
 				uint32_t numTransactionsPerBlock) {
-			uint32_t numBytesPerBlock = sizeof(model::BlockHeader) + numTransactionsPerBlock * Transaction_Size;
+			uint32_t numBytesPerBlock = SizeOf32<model::BlockHeader>() + numTransactionsPerBlock * Transaction_Size;
 			auto txPaddingSize = utils::GetPaddingSize(Transaction_Size, 8);
 			if (0 < numTransactionsPerBlock)
 				numBytesPerBlock += (numTransactionsPerBlock - 1) * txPaddingSize;

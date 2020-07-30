@@ -38,7 +38,7 @@ namespace catapult { namespace model {
 		// Arrange:
 		auto expectedSize = sizeof(SizePrefixedEntity) + 2 * sizeof(uint32_t);
 
-#define FIELD(X) expectedSize += sizeof(VerifiableEntity::X);
+#define FIELD(X) expectedSize += SizeOf32<decltype(VerifiableEntity::X)>();
 		VERIFIABLE_ENTITY_FIELDS
 #undef FIELD
 

@@ -92,7 +92,7 @@ namespace catapult { namespace crypto {
 		// Arrange:
 		auto expectedSize = 0u;
 
-#define FIELD(X) expectedSize += sizeof(StepIdentifier::X);
+#define FIELD(X) expectedSize += SizeOf32<decltype(StepIdentifier::X)>();
 		STEP_IDENTIFIER_FIELDS
 #undef FIELD
 
@@ -173,7 +173,7 @@ namespace catapult { namespace crypto {
 		// Arrange:
 		auto expectedSize = 0u;
 
-#define FIELD(X) expectedSize += sizeof(OtsParentPublicKeySignaturePair::X);
+#define FIELD(X) expectedSize += SizeOf32<decltype(OtsParentPublicKeySignaturePair::X)>();
 		PUBLIC_KEY_SIGNATURE_PAIR_FIELDS
 #undef FIELD
 
@@ -198,7 +198,7 @@ namespace catapult { namespace crypto {
 		// Arrange:
 		auto expectedSize = 0u;
 
-#define FIELD(X) expectedSize += sizeof(OtsTreeSignature::X);
+#define FIELD(X) expectedSize += SizeOf32<decltype(OtsTreeSignature::X)>();
 		OTS_TREE_SIGNATURE_FIELDS
 #undef FIELD
 

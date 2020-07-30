@@ -41,7 +41,7 @@ namespace catapult { namespace consumers {
 			versions.push_back(seed); // block should be processed after all transactions, so it should be undone first
 
 			for (uint8_t i = 0u; i < numTransactions; ++i)
-				versions.push_back(seed + numTransactions - i);
+				versions.push_back(static_cast<uint8_t>(seed + numTransactions - i));
 
 			return versions;
 		}

@@ -242,7 +242,7 @@ namespace catapult { namespace sync {
 				auto indexFile = io::IndexFile((tempPath() / "commit_step.dat").generic_string());
 				return indexFile.exists()
 						? std::make_pair(static_cast<consumers::CommitOperationStep>(indexFile.get()), true)
-						: std::make_pair(static_cast<consumers::CommitOperationStep>(-1), false);
+						: std::make_pair(static_cast<consumers::CommitOperationStep>(std::numeric_limits<uint16_t>::max()), false);
 			}
 
 		public:

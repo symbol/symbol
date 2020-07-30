@@ -37,7 +37,7 @@ namespace catapult { namespace model {
 		// Arrange:
 		auto expectedSize = sizeof(VerifiableEntity);
 
-#define FIELD(X) expectedSize += sizeof(Transaction::X);
+#define FIELD(X) expectedSize += SizeOf32<decltype(Transaction::X)>();
 		TRANSACTION_FIELDS
 #undef FIELD
 
@@ -74,7 +74,7 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, SizeIsInvalidForTransactionWithUnknownType) {
 		// Arrange:
 		Transaction transaction;
-		transaction.Type = static_cast<EntityType>(-1);
+		transaction.Type = static_cast<EntityType>(std::numeric_limits<uint16_t>::max());
 		transaction.Size = sizeof(Transaction);
 
 		// Act + Assert:

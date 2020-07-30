@@ -71,7 +71,7 @@ namespace catapult { namespace model {
 			// Arrange:
 			auto expectedSize = baseSize + expectedTargetIdSize;
 
-#define FIELD(X) expectedSize += sizeof(T::X);
+#define FIELD(X) expectedSize += SizeOf32<decltype(T::X)>();
 			TRANSACTION_FIELDS
 #undef FIELD
 
@@ -136,7 +136,7 @@ namespace catapult { namespace model {
 		template<typename TTraits>
 		struct MetadataTransactionTraits {
 			static auto GenerateEntityWithAttachments(uint8_t count) {
-				uint32_t entitySize = sizeof(typename TTraits::TransactionType) + count;
+				uint32_t entitySize = SizeOf32<typename TTraits::TransactionType>() + count;
 				auto pTransaction = utils::MakeUniqueWithSize<typename TTraits::TransactionType>(entitySize);
 				pTransaction->Size = entitySize;
 				pTransaction->ValueSize = count;

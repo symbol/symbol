@@ -38,7 +38,7 @@ namespace catapult { namespace model {
 		// Arrange:
 		auto expectedSize = sizeof(SizePrefixedEntity) + 2 * sizeof(uint32_t);
 
-#define FIELD(X) expectedSize += sizeof(EmbeddedTransaction::X);
+#define FIELD(X) expectedSize += SizeOf32<decltype(EmbeddedTransaction::X)>();
 		EMBEDDED_TRANSACTION_FIELDS
 #undef FIELD
 
@@ -108,7 +108,7 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, SizeIsInvalidForTransactionWithUnknownType) {
 		// Arrange:
 		EmbeddedTransaction transaction;
-		transaction.Type = static_cast<EntityType>(-1);
+		transaction.Type = static_cast<EntityType>(std::numeric_limits<uint16_t>::max());
 		transaction.Size = sizeof(EmbeddedTransaction);
 
 		// Act + Assert:

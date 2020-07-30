@@ -27,7 +27,7 @@ namespace catapult { namespace test {
 	template<typename TTraits>
 	auto CreateRandomSecretProofTransaction(uint16_t proofSize) {
 		using TransactionType = typename TTraits::TransactionType;
-		uint32_t entitySize = sizeof(TransactionType) + proofSize;
+		uint32_t entitySize = SizeOf32<TransactionType>() + proofSize;
 		auto pTransaction = utils::MakeUniqueWithSize<TransactionType>(entitySize);
 		test::FillWithRandomData({ reinterpret_cast<uint8_t*>(pTransaction.get()), entitySize });
 		pTransaction->Size = entitySize;

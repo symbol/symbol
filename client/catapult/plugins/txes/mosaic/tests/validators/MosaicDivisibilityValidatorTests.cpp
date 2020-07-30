@@ -95,19 +95,19 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, SuccessWhenValidatingDivisibilityEqualToMax_Existing) {
 		AssertDivisibilityValidationResultRange([](auto divisibility) {
-			AssertDivisibilityValidationResult(ValidationResult::Success, 10 ^ divisibility, divisibility, 10);
+			AssertDivisibilityValidationResult(ValidationResult::Success, static_cast<uint8_t>(10 ^ divisibility), divisibility, 10);
 		});
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingDivisibilityGreaterThanMax_New) {
 		AssertDivisibilityValidationResultRange([](auto divisibility) {
-			AssertDivisibilityValidationResult(Failure_Mosaic_Invalid_Divisibility, 0, 11 + divisibility, 10);
+			AssertDivisibilityValidationResult(Failure_Mosaic_Invalid_Divisibility, 0, static_cast<uint8_t>(11 + divisibility), 10);
 		});
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingDivisibilityGreaterThanMax_Existing) {
 		AssertDivisibilityValidationResultRange([](auto divisibility) {
-			AssertDivisibilityValidationResult(Failure_Mosaic_Invalid_Divisibility, 3, 3 ^ (11 + divisibility), 10);
+			AssertDivisibilityValidationResult(Failure_Mosaic_Invalid_Divisibility, 3, static_cast<uint8_t>(3 ^ (11 + divisibility)), 10);
 		});
 	}
 }}

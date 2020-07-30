@@ -34,7 +34,7 @@ namespace catapult { namespace model {
 		// Arrange:
 		auto expectedSize = sizeof(SizePrefixedEntity);
 
-#define FIELD(X) expectedSize += sizeof(Receipt::X);
+#define FIELD(X) expectedSize += SizeOf32<decltype(Receipt::X)>();
 		RECEIPT_FIELDS
 #undef FIELD
 
@@ -61,7 +61,7 @@ namespace catapult { namespace model {
 		// Arrange:
 		auto expectedSize = sizeof(Receipt);
 
-#define FIELD(X) expectedSize += sizeof(BalanceTransferReceipt::X);
+#define FIELD(X) expectedSize += SizeOf32<decltype(BalanceTransferReceipt::X)>();
 		RECEIPT_FIELDS
 #undef FIELD
 
@@ -106,7 +106,7 @@ namespace catapult { namespace model {
 		// Arrange:
 		auto expectedSize = sizeof(Receipt);
 
-#define FIELD(X) expectedSize += sizeof(BalanceChangeReceipt::X);
+#define FIELD(X) expectedSize += SizeOf32<decltype(BalanceChangeReceipt::X)>();
 		RECEIPT_FIELDS
 #undef FIELD
 
@@ -149,7 +149,7 @@ namespace catapult { namespace model {
 		// Arrange:
 		auto expectedSize = sizeof(Receipt);
 
-#define FIELD(X) expectedSize += sizeof(InflationReceipt::X);
+#define FIELD(X) expectedSize += SizeOf32<decltype(InflationReceipt::X)>();
 		RECEIPT_FIELDS
 #undef FIELD
 
@@ -188,7 +188,7 @@ namespace catapult { namespace model {
 		// Arrange:
 		auto expectedSize = sizeof(Receipt);
 
-#define FIELD(X) expectedSize += sizeof(ArtifactExpiryReceipt<uint64_t>::X);
+#define FIELD(X) expectedSize += SizeOf32<decltype(ArtifactExpiryReceipt<uint64_t>::X)>();
 		RECEIPT_FIELDS
 #undef FIELD
 

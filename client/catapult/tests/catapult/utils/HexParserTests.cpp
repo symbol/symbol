@@ -134,7 +134,7 @@ namespace catapult { namespace utils {
 				uint8_t byte = TTraits::Parse(pair1.first, pair2.first);
 
 				// Assert:
-				uint8_t expected = pair1.second * 16 + pair2.second;
+				auto expected = static_cast<uint8_t>(pair1.second * 16 + pair2.second);
 				EXPECT_EQ(expected, byte) << "input: " << pair1.first << pair2.first;
 				++numTests;
 			}

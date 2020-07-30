@@ -36,7 +36,7 @@ namespace catapult { namespace test {
 	std::unique_ptr<ionet::NetworkNode> CreateNetworkNode(const std::string& host, const std::string& name) {
 		auto hostSize = static_cast<uint8_t>(host.size());
 		auto nameSize = static_cast<uint8_t>(name.size());
-		uint32_t size = sizeof(ionet::NetworkNode) + hostSize + nameSize;
+		uint32_t size = SizeOf32<ionet::NetworkNode>() + hostSize + nameSize;
 
 		auto pNetworkNode = utils::MakeUniqueWithSize<ionet::NetworkNode>(size);
 		FillWithRandomData({ reinterpret_cast<uint8_t*>(pNetworkNode.get()), size });
@@ -55,7 +55,7 @@ namespace catapult { namespace test {
 
 		auto hostSize = static_cast<uint8_t>(host.size());
 		auto nameSize = static_cast<uint8_t>(name.size());
-		uint32_t payloadSize = sizeof(ionet::NetworkNode) + hostSize + nameSize;
+		uint32_t payloadSize = SizeOf32<ionet::NetworkNode>() + hostSize + nameSize;
 		auto pPacket = test::CreateRandomPacket(payloadSize, ionet::PacketType::Node_Discovery_Push_Ping);
 		auto& networkNode = reinterpret_cast<ionet::NetworkNode&>(*pPacket->Data());
 		networkNode.Size = payloadSize;

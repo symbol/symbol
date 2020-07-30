@@ -57,7 +57,7 @@ namespace catapult { namespace plugins {
 			uint32_t transactionSize = sizeof(mocks::EmbeddedMockTransaction);
 			uint32_t txPaddingSize = utils::GetPaddingSize(transactionSize, 8);
 			uint32_t payloadSize = numTransactions * (transactionSize + txPaddingSize);
-			uint32_t entitySize = sizeof(TransactionType) + payloadSize + numCosignatures * sizeof(Cosignature);
+			uint32_t entitySize = SizeOf32<TransactionType>() + payloadSize + numCosignatures * SizeOf32<Cosignature>();
 
 			AggregateTransactionWrapper wrapper;
 			auto pTransaction = utils::MakeUniqueWithSize<TransactionType>(entitySize);
@@ -73,7 +73,7 @@ namespace catapult { namespace plugins {
 
 				pSubTransaction->Size = transactionSize;
 				pSubTransaction->Data.Size = 0;
-				pSubTransaction->Version = (i + 1) * 2;
+				pSubTransaction->Version = static_cast<uint8_t>((i + 1) * 2);
 				pSubTransaction->Network = static_cast<NetworkIdentifier>(100 + i);
 				pSubTransaction->Type = mocks::EmbeddedMockTransaction::Entity_Type;
 				test::FillWithRandomData(pSubTransaction->SignerPublicKey);
@@ -182,7 +182,7 @@ namespace catapult { namespace plugins {
 		uint32_t embeddedTransactionSize = sizeof(mocks::EmbeddedMockTransaction);
 		uint32_t expectedSize = sizeof(AggregateTransaction);
 		expectedSize += 3 * (embeddedTransactionSize + utils::GetPaddingSize(embeddedTransactionSize, 8));
-		expectedSize += 4 * sizeof(Cosignature);
+		expectedSize += 4 * SizeOf32<Cosignature>();
 		EXPECT_EQ(expectedSize, realSize);
 	}
 

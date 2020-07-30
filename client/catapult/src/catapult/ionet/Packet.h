@@ -22,6 +22,7 @@
 #include "PacketHeader.h"
 #include "catapult/utils/MemoryUtils.h"
 #include "catapult/utils/NonCopyable.h"
+#include "catapult/types.h"
 #include <memory>
 
 namespace catapult { namespace ionet {
@@ -47,7 +48,7 @@ namespace catapult { namespace ionet {
 	/// Creates a packet of the specified type (\a TPacket) with the specified payload size.
 	template<typename TPacket>
 	std::shared_ptr<TPacket> CreateSharedPacket(uint32_t payloadSize = 0) {
-		uint32_t packetSize = sizeof(TPacket) + payloadSize;
+		uint32_t packetSize = SizeOf32<TPacket>() + payloadSize;
 		auto pPacket = utils::MakeSharedWithSize<TPacket>(packetSize);
 		pPacket->Size = packetSize;
 		pPacket->Type = TPacket::Packet_Type;
@@ -56,7 +57,7 @@ namespace catapult { namespace ionet {
 
 	template<>
 	inline std::shared_ptr<Packet> CreateSharedPacket(uint32_t payloadSize) {
-		uint32_t packetSize = sizeof(Packet) + payloadSize;
+		uint32_t packetSize = SizeOf32<Packet>() + payloadSize;
 		auto pPacket = utils::MakeSharedWithSize<Packet>(packetSize);
 		pPacket->Size = packetSize;
 		pPacket->Type = PacketType::Undefined;

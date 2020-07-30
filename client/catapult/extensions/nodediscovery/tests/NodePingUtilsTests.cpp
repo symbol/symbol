@@ -35,7 +35,7 @@ namespace catapult { namespace nodediscovery {
 		// Arrange: change the packet size so it looks like it contains two nodes
 		auto identityKey = test::GenerateRandomByteArray<Key>();
 		auto pPacket = test::CreateNodePushPingPacket(identityKey, ionet::NodeVersion(1234), "alice.com", "xyz");
-		pPacket->Size += pPacket->Size - sizeof(ionet::Packet);
+		pPacket->Size += pPacket->Size - SizeOf32<ionet::Packet>();
 
 		// Act:
 		ionet::Node node;

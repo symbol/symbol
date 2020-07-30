@@ -182,7 +182,7 @@ namespace catapult { namespace test {
 
 			// EncodeKey should be able to return an unrelated type
 			static int16_t EncodeKey(const KeyType& key) {
-				return 10 + static_cast<int16_t>(key);
+				return static_cast<int16_t>(10 + key);
 			}
 
 			// EncodeValue must return Hash256

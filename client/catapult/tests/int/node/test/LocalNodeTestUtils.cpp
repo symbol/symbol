@@ -72,9 +72,10 @@ namespace catapult { namespace test {
 	// region partner nodes
 
 	ionet::Node CreateLocalPartnerNode(const Key& publicKey) {
+		auto endpoint = CreateLocalHostNodeEndpoint(static_cast<unsigned short>(GetLocalHostPort() + 10));
 		auto metadata = ionet::NodeMetadata(model::UniqueNetworkFingerprint(), "PARTNER");
 		metadata.Roles = ionet::NodeRoles::Api | ionet::NodeRoles::Peer;
-		return ionet::Node({ publicKey, "127.0.0.1" }, CreateLocalHostNodeEndpoint(GetLocalHostPort() + 10), metadata);
+		return ionet::Node({ publicKey, "127.0.0.1" }, endpoint, metadata);
 	}
 
 	std::unique_ptr<local::LocalNode> BootLocalPartnerNode(
@@ -82,7 +83,7 @@ namespace catapult { namespace test {
 			const config::CatapultKeys& keys,
 			NodeFlag nodeFlag) {
 		// partner node is a P2P node on offset ports
-		const_cast<uint16_t&>(config.Node.Port) += 10;
+		const_cast<uint16_t&>(config.Node.Port) = static_cast<uint16_t>(config.Node.Port + 10);
 
 		// make additional configuration modifications
 		PrepareCatapultConfiguration(config, AddSimplePartnerPluginExtensions, nodeFlag);

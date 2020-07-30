@@ -44,7 +44,7 @@ namespace catapult { namespace ionet {
 		// Arrange:
 		auto expectedSize = 0u;
 
-#define FIELD(X) expectedSize += sizeof(NetworkNode::X);
+#define FIELD(X) expectedSize += SizeOf32<decltype(NetworkNode::X)>();
 		NODE_FIELDS
 #undef FIELD
 

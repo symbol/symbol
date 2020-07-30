@@ -148,7 +148,7 @@ namespace catapult { namespace mocks {
 	private:
 		static std::shared_ptr<ionet::Packet> PayloadToPacket(const ionet::PacketPayload& payload) {
 			const auto& header = payload.header();
-			auto pPacket = ionet::CreateSharedPacket<ionet::Packet>(header.Size - sizeof(ionet::Packet));
+			auto pPacket = ionet::CreateSharedPacket<ionet::Packet>(header.Size - SizeOf32<ionet::Packet>());
 			pPacket->Type = header.Type;
 
 			size_t dataOffset = 0;

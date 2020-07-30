@@ -27,7 +27,7 @@ namespace catapult { namespace ionet {
 
 	namespace {
 		uint32_t Default_Max_Packet_Data_Size = 150 * 1024;
-		uint32_t Default_Max_Packet_Size = Default_Max_Packet_Data_Size + sizeof(PacketHeader);
+		uint32_t Default_Max_Packet_Size = Default_Max_Packet_Data_Size + SizeOf32<PacketHeader>();
 
 		PacketExtractor CreateExtractor(ByteBuffer& buffer, size_t maxPacketDataSize = Default_Max_Packet_Data_Size) {
 			return PacketExtractor(buffer, maxPacketDataSize);

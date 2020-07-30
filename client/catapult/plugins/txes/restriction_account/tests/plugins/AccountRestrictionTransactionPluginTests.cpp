@@ -87,11 +87,11 @@ namespace catapult { namespace plugins {
 	private:
 		// region test utils
 
-		static constexpr auto Modification_Size = sizeof(decltype(*typename TTraits::TransactionType().RestrictionAdditionsPtr()));
+		static constexpr auto Modification_Size = SizeOf32<decltype(*typename TTraits::TransactionType().RestrictionAdditionsPtr())>();
 
 		static auto CreateTransactionWithModifications(uint8_t numAdditions, uint8_t numDeletions) {
 			using TransactionType = typename TTraits::TransactionType;
-			uint32_t entitySize = sizeof(TransactionType) + (numAdditions + numDeletions) * Modification_Size;
+			uint32_t entitySize = SizeOf32<TransactionType>() + (numAdditions + numDeletions) * Modification_Size;
 			auto pTransaction = utils::MakeUniqueWithSize<TransactionType>(entitySize);
 			test::FillWithRandomData({ reinterpret_cast<uint8_t*>(pTransaction.get()), entitySize });
 

@@ -44,7 +44,7 @@ namespace catapult { namespace chain {
 				return pAggregateTransaction;
 
 			// copy the transaction data without cosignatures
-			uint32_t truncatedSize = sizeof(model::AggregateTransaction) + pAggregateTransaction->PayloadSize;
+			uint32_t truncatedSize = SizeOf32<model::AggregateTransaction>() + pAggregateTransaction->PayloadSize;
 			auto pTransactionWithoutCosignatures = utils::MakeSharedWithSize<model::AggregateTransaction>(truncatedSize);
 			std::memcpy(static_cast<void*>(pTransactionWithoutCosignatures.get()), pAggregateTransaction.get(), truncatedSize);
 			pTransactionWithoutCosignatures->Size = truncatedSize;

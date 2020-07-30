@@ -50,7 +50,7 @@ namespace catapult { namespace chain {
 				std::vector<uint8_t> versions;
 
 				for (uint8_t i = 0u; i < numTransactions; ++i)
-					versions.push_back(seed + i + 1);
+					versions.push_back(static_cast<uint8_t>(seed + i + 1));
 
 				// block should be processed after all transactions
 				versions.push_back(seed);

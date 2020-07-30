@@ -64,7 +64,7 @@ namespace catapult { namespace test {
 	public:
 		size_t calculateHash() {
 			auto raw = Name + std::to_string(Value);
-			auto checksum = 0u;
+			size_t checksum = 0;
 			for (auto ch : raw)
 				checksum += static_cast<size_t>(ch);
 

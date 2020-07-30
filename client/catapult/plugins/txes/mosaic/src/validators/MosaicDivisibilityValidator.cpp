@@ -35,7 +35,7 @@ namespace catapult { namespace validators {
 			const auto& cache = context.Cache.sub<cache::MosaicCache>();
 			auto mosaicIter = cache.find(notification.MosaicId);
 			if (mosaicIter.tryGet())
-				newDivisibility ^= mosaicIter.get().definition().properties().divisibility();
+				newDivisibility = static_cast<uint8_t>(newDivisibility ^ mosaicIter.get().definition().properties().divisibility());
 
 			return newDivisibility > maxDivisibility ? Failure_Mosaic_Invalid_Divisibility : ValidationResult::Success;
 		});

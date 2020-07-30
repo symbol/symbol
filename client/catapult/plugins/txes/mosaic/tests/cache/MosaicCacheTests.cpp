@@ -108,7 +108,7 @@ namespace catapult { namespace cache {
 
 		void PopulateCache(LockedCacheDelta<MosaicCacheDelta>& delta) {
 			for (uint8_t i = 0; i < Default_Cache_Size; ++i)
-				delta->insert(MosaicCacheMixinTraits::CreateWithIdAndExpiration(i + 1, Height(i + 1)));
+				delta->insert(MosaicCacheMixinTraits::CreateWithIdAndExpiration(static_cast<uint8_t>(i + 1), Height(i + 1)));
 		}
 	}
 

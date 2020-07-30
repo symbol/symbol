@@ -238,7 +238,7 @@ namespace catapult { namespace utils {
 				}
 
 				// try to increment the number of readers by one
-				uint16_t desired = current + Active_Reader_Increment;
+				auto desired = static_cast<uint16_t>(current + Active_Reader_Increment);
 				if (m_value.compare_exchange_strong(current, desired))
 					break;
 

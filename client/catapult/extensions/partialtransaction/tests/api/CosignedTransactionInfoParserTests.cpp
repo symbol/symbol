@@ -273,7 +273,7 @@ namespace catapult { namespace api {
 		AssertParseFailure([](auto& builder) {
 			// Arrange: transaction is expected but only header (size) is present
 			builder.appendValue(static_cast<uint64_t>(0x8000));
-			builder.appendValue(static_cast<uint32_t>(sizeof(model::Transaction)));
+			builder.appendValue(SizeOf32<model::Transaction>());
 		});
 	}
 

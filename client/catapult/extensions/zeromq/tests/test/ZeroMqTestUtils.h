@@ -198,7 +198,7 @@ namespace catapult { namespace test {
 
 	private:
 		static unsigned short GetDefaultLocalHostZmqPort() {
-			return GetLocalHostPort() + 2;
+			return static_cast<unsigned short>(GetLocalHostPort() + 2);
 		}
 
 	private:

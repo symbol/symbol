@@ -77,7 +77,7 @@ namespace catapult { namespace handlers {
 		struct PullTransactionsTraits {
 			static constexpr auto Data_Header_Size = sizeof(BlockFeeMultiplier);
 			static constexpr auto Packet_Type = ionet::PacketType::Pull_Transactions;
-			static constexpr auto Valid_Request_Payload_Size = sizeof(utils::ShortHash);
+			static constexpr auto Valid_Request_Payload_Size = SizeOf32<utils::ShortHash>();
 
 			using ResponseType = UnconfirmedTransactions;
 			using RetrieverParamType = utils::ShortHashesSet;
@@ -113,7 +113,7 @@ namespace catapult { namespace handlers {
 		public:
 			explicit PullResponseContext(size_t numResponseTransactions) {
 				for (uint16_t i = 0u; i < numResponseTransactions; ++i)
-					m_transactions.push_back(mocks::CreateMockTransaction(i + 1));
+					m_transactions.push_back(mocks::CreateMockTransaction(static_cast<uint16_t>(i + 1)));
 			}
 
 		public:
@@ -142,7 +142,8 @@ namespace catapult { namespace handlers {
 		void AssertPullResponseIsSetWhenPacketIsValid(uint32_t numRequestHashes, uint32_t numResponseTransactions) {
 			// Arrange:
 			auto packetType = PullTransactionsTraits::Packet_Type;
-			auto pPacket = test::CreateRandomPacket(sizeof(BlockFeeMultiplier) + numRequestHashes * sizeof(utils::ShortHash), packetType);
+			auto shortHashesSize = numRequestHashes * SizeOf32<utils::ShortHash>();
+			auto pPacket = test::CreateRandomPacket(SizeOf32<BlockFeeMultiplier>() + shortHashesSize, packetType);
 			ionet::ServerPacketHandlers handlers;
 			size_t counter = 0;
 

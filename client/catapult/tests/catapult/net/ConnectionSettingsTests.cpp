@@ -62,7 +62,7 @@ namespace catapult { namespace net {
 	TEST(TEST_CLASS, CanConvertToPacketSocketOptions_SslOptions) {
 		// Arrange:
 		auto settings = ConnectionSettings();
-		uint16_t callbackMask = 0x0000;
+		uint32_t callbackMask = 0x0000;
 		settings.SslOptions.ContextSupplier = [&callbackMask]() -> boost::asio::ssl::context& {
 			callbackMask += 0x01;
 			CATAPULT_THROW_RUNTIME_ERROR("context supplier error");

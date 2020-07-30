@@ -126,7 +126,7 @@ namespace catapult { namespace test {
 			auto totalAliasDataSize = 0u;
 			auto* pData = buffer.data() + offset;
 			for (const auto& seed : seeds) {
-				*pData++ = (NamespaceId() != seed.Part1 ? 1 : 0) + (NamespaceId() != seed.Part2 ? 1 : 0);
+				*pData++ = static_cast<uint8_t>((NamespaceId() != seed.Part1 ? 1 : 0) + (NamespaceId() != seed.Part2 ? 1 : 0));
 
 				if (NamespaceId() != seed.Part1) {
 					reinterpret_cast<NamespaceId&>(*pData) = seed.Part1;

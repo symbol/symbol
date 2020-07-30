@@ -87,7 +87,7 @@ namespace catapult { namespace extensions {
 				auto& transactions = m_heightToTransactions[height];
 
 				for (uint8_t i = startAccountShortId; i < startAccountShortId + numAccounts; ++i) {
-					uint8_t multiplier = i - startAccountShortId + 1;
+					auto multiplier = static_cast<uint8_t>(i - startAccountShortId + 1);
 					auto pTransaction = mocks::CreateTransactionWithFeeAndTransfers(Amount(), {
 						{ test::UnresolveXor(Harvesting_Mosaic_Id), Amount(multiplier * baseUnit * 1'000'000) }
 					});
@@ -241,7 +241,7 @@ namespace catapult { namespace extensions {
 
 			void assertImportances(const AssertOptions& options, const std::function<Importance (uint8_t)>& getImportanceFromMultiplier) {
 				for (uint8_t i = options.StartAccountShortId; i < options.StartAccountShortId + options.NumAccounts; ++i) {
-					uint8_t multiplier = options.StartAdjustment + i - options.StartAccountShortId + 1;
+					auto multiplier = static_cast<uint8_t>(options.StartAdjustment + i - options.StartAccountShortId + 1);
 					assertSingleImportance(i, options.ImportanceHeight, getImportanceFromMultiplier(multiplier));
 				}
 			}

@@ -42,7 +42,7 @@ namespace catapult { namespace model {
 			// Arrange:
 			auto expectedSize = baseSize;
 
-#define FIELD(X) expectedSize += sizeof(T::X);
+#define FIELD(X) expectedSize += SizeOf32<decltype(T::X)>();
 			TRANSACTION_FIELDS
 #undef FIELD
 
@@ -77,7 +77,7 @@ namespace catapult { namespace model {
 	namespace {
 		struct SecretProofTransactionTraits {
 			static auto GenerateEntityWithAttachments(uint16_t proofSize) {
-				uint32_t entitySize = sizeof(TransactionType) + proofSize;
+				uint32_t entitySize = SizeOf32<TransactionType>() + proofSize;
 				auto pTransaction = utils::MakeUniqueWithSize<TransactionType>(entitySize);
 				pTransaction->Size = entitySize;
 				pTransaction->ProofSize = proofSize;

@@ -43,7 +43,7 @@ namespace catapult { namespace mongo { namespace plugins {
 			uint32_t transactionSize = sizeof(EmbeddedTransactionType);
 			uint32_t payloadSize = numTransactions * (transactionSize + utils::GetPaddingSize(transactionSize, 8));
 
-			uint32_t entitySize = sizeof(TransactionType) + payloadSize + numCosignatures * sizeof(model::Cosignature);
+			uint32_t entitySize = SizeOf32<TransactionType>() + payloadSize + numCosignatures * SizeOf32<model::Cosignature>();
 			auto pTransaction = utils::MakeUniqueWithSize<TransactionType>(entitySize);
 			pTransaction->Size = entitySize;
 			pTransaction->PayloadSize = payloadSize;

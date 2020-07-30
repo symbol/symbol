@@ -115,7 +115,7 @@ namespace catapult { namespace local {
 		}
 
 		uint8_t RandomByteClamped(uint8_t max) {
-			return test::RandomByte() * max / std::numeric_limits<uint8_t>::max();
+			return static_cast<uint8_t>(test::RandomByte() * max / std::numeric_limits<uint8_t>::max());
 		}
 
 		struct ChainStatistics {

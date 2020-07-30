@@ -39,7 +39,7 @@ namespace catapult { namespace crypto {
 		// Arrange:
 		auto expectedSize = 0u;
 
-#define FIELD(X) expectedSize += sizeof(VrfProof::X);
+#define FIELD(X) expectedSize += SizeOf32<decltype(VrfProof::X)>();
 		VRF_PROOF_FIELDS
 #undef FIELD
 

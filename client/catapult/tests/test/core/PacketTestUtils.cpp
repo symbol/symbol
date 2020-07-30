@@ -136,7 +136,7 @@ namespace catapult { namespace test {
 		packet.Type = ionet::PacketType::Push_Block;
 
 		// set the block after the packet if Size and Type fit in the buffer
-		uint32_t entitySize = packet.Size - sizeof(ionet::Packet);
+		uint32_t entitySize = packet.Size - SizeOf32<ionet::Packet>();
 		SetBlockAt(buffer, sizeof(ionet::Packet), entitySize);
 		return packet;
 	}

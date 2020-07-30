@@ -32,7 +32,7 @@ namespace catapult { namespace mocks {
 #define DEFINE_MOCK_NOTIFICATION(DESCRIPTION, CODE, CHANNEL) \
 	constexpr auto Mock_##DESCRIPTION##_Notification = model::MakeNotificationType( \
 			(model::NotificationChannel::CHANNEL), \
-			(static_cast<model::FacilityCode>(-1)), \
+			(static_cast<model::FacilityCode>(std::numeric_limits<uint8_t>::max())), \
 			CODE)
 
 	/// Mock notification raised on the observer channel.

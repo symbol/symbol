@@ -884,16 +884,16 @@ namespace catapult { namespace cache {
 	}
 
 	TEST(TEST_CLASS, UnknownTransactionsReturnsTransactionsWithTotalSizeOfAtMostMaxResponseSize_OnlyTransactions) {
-		RunMaxResponseSizeTest(sizeof(Hash256) + GetTransactionSize(), AssertMaxResponseSizeIsRespectedOnlyTransactions);
+		RunMaxResponseSizeTest(SizeOf32<Hash256>() + GetTransactionSize(), AssertMaxResponseSizeIsRespectedOnlyTransactions);
 	}
 
 	TEST(TEST_CLASS, UnknownTransactionsReturnsTransactionsWithTotalSizeOfAtMostMaxResponseSize_OnlyCosignatures) {
-		RunMaxResponseSizeTest(sizeof(Hash256) + 3 * sizeof(model::Cosignature), AssertMaxResponseSizeIsRespectedOnlyCosignatures);
+		RunMaxResponseSizeTest(SizeOf32<Hash256>() + 3 * sizeof(model::Cosignature), AssertMaxResponseSizeIsRespectedOnlyCosignatures);
 	}
 
 	TEST(TEST_CLASS, UnknownTransactionsReturnsTransactionsWithTotalSizeOfAtMostMaxResponseSize_TransactionsWithCosignatures) {
 		RunMaxResponseSizeTest(
-				sizeof(Hash256) + GetTransactionSize() + 3 * sizeof(model::Cosignature),
+				SizeOf32<Hash256>() + GetTransactionSize() + 3 * SizeOf32<model::Cosignature>(),
 				AssertMaxResponseSizeIsRespectedTransactionsWithCosignatures);
 	}
 

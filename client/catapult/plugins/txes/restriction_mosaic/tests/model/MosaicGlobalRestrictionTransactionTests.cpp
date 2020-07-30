@@ -44,7 +44,7 @@ namespace catapult { namespace model {
 			// Arrange:
 			auto expectedSize = baseSize;
 
-#define FIELD(X) expectedSize += sizeof(T::X);
+#define FIELD(X) expectedSize += SizeOf32<decltype(T::X)>();
 			TRANSACTION_FIELDS
 #undef FIELD
 

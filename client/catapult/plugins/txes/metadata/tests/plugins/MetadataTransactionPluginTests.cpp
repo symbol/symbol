@@ -165,7 +165,7 @@ namespace catapult { namespace plugins {
 		template<typename TTraits>
 		auto CreateTransactionWithValue(uint16_t valueSize) {
 			using TransactionType = typename TTraits::TransactionType;
-			uint32_t entitySize = sizeof(TransactionType) + valueSize;
+			uint32_t entitySize = SizeOf32<TransactionType>() + valueSize;
 			auto pTransaction = utils::MakeUniqueWithSize<TransactionType>(entitySize);
 			test::FillWithRandomData({ reinterpret_cast<uint8_t*>(pTransaction.get()), entitySize });
 

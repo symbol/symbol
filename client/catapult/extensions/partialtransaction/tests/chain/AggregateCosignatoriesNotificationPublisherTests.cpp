@@ -61,7 +61,7 @@ namespace catapult { namespace chain {
 
 		// - make the transaction look like it has a cosignature
 		//   (since the transactions are not iterated before the check, only the first transaction needs to be valid)
-		wrapper.pTransaction->PayloadSize -= sizeof(Cosignature);
+		wrapper.pTransaction->PayloadSize -= SizeOf32<Cosignature>();
 
 		// Act + Assert: aggregate must not have any cosignatures
 		EXPECT_THROW(publisher.publish(transactionInfo, sub), catapult_invalid_argument);

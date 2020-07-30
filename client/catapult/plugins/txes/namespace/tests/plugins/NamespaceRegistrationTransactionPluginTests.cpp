@@ -52,7 +52,7 @@ namespace catapult { namespace plugins {
 		template<typename TTraits>
 		auto CreateTransactionWithName(uint8_t nameSize) {
 			using TransactionType = typename TTraits::TransactionType;
-			uint32_t entitySize = sizeof(TransactionType) + nameSize;
+			uint32_t entitySize = SizeOf32<TransactionType>() + nameSize;
 			auto pTransaction = utils::MakeUniqueWithSize<TransactionType>(entitySize);
 			pTransaction->Size = entitySize;
 			pTransaction->NameSize = nameSize;

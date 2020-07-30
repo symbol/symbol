@@ -58,7 +58,7 @@ namespace catapult { namespace io {
 			auto expectedSize = 2u * Hash256::Size + sizeof(uint64_t) + expectedAddressSize + 132;
 			ASSERT_EQ(expectedSize, buffer.size());
 
-			auto offset = 0u;
+			size_t offset = 0;
 			EXPECT_EQ(transactionInfo.EntityHash, reinterpret_cast<const Hash256&>(buffer[offset]));
 			offset += Hash256::Size;
 
@@ -108,7 +108,7 @@ namespace catapult { namespace io {
 			auto pTransaction = test::GenerateRandomTransactionWithSize(140);
 
 			std::vector<uint8_t> buffer(2 * Hash256::Size + sizeof(uint64_t) + addresses.size() * Address::Size + 140);
-			auto offset = 0u;
+			size_t offset = 0;
 			std::memcpy(buffer.data() + offset, &entityHash, Hash256::Size);
 			offset += Hash256::Size;
 

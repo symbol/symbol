@@ -91,27 +91,27 @@ namespace catapult { namespace validators {
 		void RunMaxMultisigDepthTests(ValidationResult expectedResult, int8_t offset) {
 			// Assert: basic tests (note that all indexes below in comments are hex)
 			//   0 - 5 => E - F - 10 => 4 levels
-			AssertValidationResult(expectedResult, 4 + offset, 5, 14);
+			AssertValidationResult(expectedResult, static_cast<int8_t>(4 + offset), 5, 14);
 
 			//   E - F - 10 => 0 - 5 => 4 levels
-			AssertValidationResult(expectedResult, 4 + offset, 16, 0);
+			AssertValidationResult(expectedResult, static_cast<int8_t>(4 + offset), 16, 0);
 
 			//   E - F - 10 => D - 4 - 6 - 7 - A - B => 8 levels
-			AssertValidationResult(expectedResult, 8 + offset, 16, 13);
+			AssertValidationResult(expectedResult, static_cast<int8_t>(8 + offset), 16, 13);
 
 			// - single nodes (in cache)
 			//  D => E - F - 10 => 3 levels
-			AssertValidationResult(expectedResult, 3 + offset, 13, 14);
+			AssertValidationResult(expectedResult, static_cast<int8_t>(3 + offset), 13, 14);
 
 			//  E - F - 10 => C => 3 levels
-			AssertValidationResult(expectedResult, 3 + offset, 16, 12);
+			AssertValidationResult(expectedResult, static_cast<int8_t>(3 + offset), 16, 12);
 
 			// - single nodes (not in cache)
 			//  12 => E - F - 10 => 3 levels
-			AssertValidationResult(expectedResult, 3 + offset, 18, 14);
+			AssertValidationResult(expectedResult, static_cast<int8_t>(3 + offset), 18, 14);
 
 			//  E - F - 10 => 12 => 3 levels
-			AssertValidationResult(expectedResult, 3 + offset, 16, 18);
+			AssertValidationResult(expectedResult, static_cast<int8_t>(3 + offset), 16, 18);
 		}
 	}
 

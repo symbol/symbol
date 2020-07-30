@@ -63,17 +63,17 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithValueSizeDeltaMagnitudeLessThanValueSize) {
 		for (auto multiplier : std::initializer_list<int16_t>{ -1, 1 })
-			AssertValidationResult(ValidationResult::Success, multiplier * 99, 100, 1234);
+			AssertValidationResult(ValidationResult::Success, static_cast<int16_t>(multiplier * 99), 100, 1234);
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithValueSizeDeltaMagnitudeEqualToValueSize) {
 		for (auto multiplier : std::initializer_list<int16_t>{ -1, 1 })
-			AssertValidationResult(ValidationResult::Success, multiplier * 100, 100, 1234);
+			AssertValidationResult(ValidationResult::Success, static_cast<int16_t>(multiplier * 100), 100, 1234);
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithValueSizeDeltaMagnitudeGreaterThanValueSize) {
 		for (auto multiplier : std::initializer_list<int16_t>{ -1, 1 })
-			AssertValidationResult(Failure_Metadata_Value_Size_Delta_Too_Large, multiplier * 101, 100, 1234);
+			AssertValidationResult(Failure_Metadata_Value_Size_Delta_Too_Large, static_cast<int16_t>(multiplier * 101), 100, 1234);
 
 		AssertValidationResult(Failure_Metadata_Value_Size_Delta_Too_Large, std::numeric_limits<int16_t>::min(), 100, 1234);
 	}

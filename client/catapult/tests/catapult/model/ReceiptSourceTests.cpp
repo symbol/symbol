@@ -35,7 +35,7 @@ namespace catapult { namespace model {
 		// Arrange:
 		auto expectedSize = 0u;
 
-#define FIELD(X) expectedSize += sizeof(ReceiptSource::X);
+#define FIELD(X) expectedSize += SizeOf32<decltype(ReceiptSource::X)>();
 		RECEIPT_SOURCE_FIELDS
 #undef FIELD
 

@@ -48,7 +48,7 @@ namespace catapult { namespace test {
 				pBlock->Size = size;
 				pBlock->Height = Height(i);
 				pBlock->Difficulty = Difficulty::Min() + Difficulty::Unclamped(1000 + i);
-				pBlock->TransactionsPtr()->Size = size - sizeof(model::BlockHeader);
+				pBlock->TransactionsPtr()->Size = size - SizeOf32<model::BlockHeader>();
 				storageModifier.saveBlock(test::BlockToBlockElement(*pBlock, test::GenerateRandomByteArray<Hash256>()));
 			}
 

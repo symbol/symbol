@@ -32,7 +32,7 @@ namespace catapult { namespace handlers {
 			using RequestStructureType = state::TimestampedHash;
 			using ResponseType = UnconfirmedTimestampedHashes;
 			static constexpr auto Packet_Type = ionet::PacketType::Confirm_Timestamped_Hashes;
-			static constexpr auto Valid_Request_Payload_Size = sizeof(state::TimestampedHash);
+			static constexpr auto Valid_Request_Payload_Size = SizeOf32<state::TimestampedHash>();
 			static constexpr auto Message = "timestamped hash at ";
 
 		public:

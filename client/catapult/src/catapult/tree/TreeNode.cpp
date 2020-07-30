@@ -33,8 +33,8 @@ namespace catapult { namespace tree {
 			auto i = 0u;
 			encodedKey[0] = isLeaf ? 0x20 : 0; // set leaf flag
 			if (1 == numPathNibbles % 2) {
-				encodedKey[0] |= 0x10; // set odd flag
-				encodedKey[0] |= path.nibbleAt(0); // merge in first nibble
+				// set odd flag and merge in first nibble
+				encodedKey[0] = static_cast<uint8_t>(encodedKey[0] | 0x10 | path.nibbleAt(0));
 				++i;
 			}
 

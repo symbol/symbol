@@ -94,7 +94,7 @@ namespace catapult { namespace handlers {
 			static constexpr auto Data_Header_Size = 0u;
 			static constexpr auto Packet_Type = ionet::PacketType::Pull_Partial_Transaction_Infos;
 			static constexpr auto RegisterHandler = RegisterPullPartialTransactionInfosHandler;
-			static constexpr auto Valid_Request_Payload_Size = sizeof(cache::ShortHashPair);
+			static constexpr auto Valid_Request_Payload_Size = SizeOf32<cache::ShortHashPair>();
 
 			using ResponseType = CosignedTransactionInfos;
 			using RetrieverParamType = cache::ShortHashPairMap;
@@ -202,7 +202,7 @@ namespace catapult { namespace handlers {
 		void AssertPullResponseIsSetWhenPacketIsValid(uint32_t numRequestHashPairs, uint32_t numResponseTransactions) {
 			// Arrange:
 			auto packetType = PullTransactionsTraits::Packet_Type;
-			auto pPacket = test::CreateRandomPacket(numRequestHashPairs * sizeof(cache::ShortHashPair), packetType);
+			auto pPacket = test::CreateRandomPacket(numRequestHashPairs * SizeOf32<cache::ShortHashPair>(), packetType);
 			ionet::ServerPacketHandlers handlers;
 			size_t counter = 0;
 

@@ -38,7 +38,7 @@ namespace catapult { namespace model {
 		// Arrange:
 		auto expectedSize = sizeof(Transaction) + sizeof(uint32_t);
 
-#define FIELD(X) expectedSize += sizeof(AggregateTransaction::X);
+#define FIELD(X) expectedSize += SizeOf32<decltype(AggregateTransaction::X)>();
 		TRANSACTION_FIELDS
 #undef FIELD
 
@@ -70,9 +70,9 @@ namespace catapult { namespace model {
 		using EmbeddedTransactionType = mocks::EmbeddedMockTransaction;
 
 		uint32_t CalculateAggregateTransactionSize(uint32_t extraSize, std::initializer_list<uint16_t> attachmentExtraSizes) {
-			uint32_t size = sizeof(AggregateTransaction) + extraSize;
+			uint32_t size = SizeOf32<AggregateTransaction>() + extraSize;
 			for (auto attachmentExtraSize : attachmentExtraSizes) {
-				uint32_t attachmentSize = sizeof(EmbeddedTransactionType) + attachmentExtraSize;
+				uint32_t attachmentSize = SizeOf32<EmbeddedTransactionType>() + attachmentExtraSize;
 				uint32_t paddingSize = utils::GetPaddingSize(attachmentSize, 8);
 				size += attachmentSize + paddingSize;
 			}
@@ -87,12 +87,12 @@ namespace catapult { namespace model {
 
 			auto pTransaction = utils::MakeUniqueWithSize<AggregateTransaction>(size);
 			pTransaction->Size = size;
-			pTransaction->PayloadSize = size - (sizeof(AggregateTransaction) + extraSize);
+			pTransaction->PayloadSize = size - (SizeOf32<AggregateTransaction>() + extraSize);
 
 			auto* pData = reinterpret_cast<uint8_t*>(pTransaction.get() + 1);
 			for (auto attachmentExtraSize : attachmentExtraSizes) {
 				auto pEmbeddedTransaction = reinterpret_cast<EmbeddedTransactionType*>(pData);
-				pEmbeddedTransaction->Size = sizeof(EmbeddedTransactionType) + attachmentExtraSize;
+				pEmbeddedTransaction->Size = SizeOf32<EmbeddedTransactionType>() + attachmentExtraSize;
 				pEmbeddedTransaction->Type = EmbeddedTransactionType::Entity_Type;
 				pEmbeddedTransaction->Data.Size = attachmentExtraSize;
 				pData += pEmbeddedTransaction->Size + utils::GetPaddingSize(pEmbeddedTransaction->Size, 8);
@@ -319,7 +319,7 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, SizeInvalidWhenAnyTransactionHasUnknownType) {
 		// Arrange:
 		auto pTransaction = CreateAggregateTransaction(0, { 1, 2, 3 });
-		GetSecondTransaction(*pTransaction).Type = static_cast<EntityType>(-1);
+		GetSecondTransaction(*pTransaction).Type = static_cast<EntityType>(std::numeric_limits<uint16_t>::max());
 
 		// Act + Assert:
 		EXPECT_FALSE(IsSizeValid(*pTransaction));
@@ -362,7 +362,7 @@ namespace catapult { namespace model {
 		// Arrange:
 		for (auto extraSize : { 1u, 3u, static_cast<uint32_t>(sizeof(Cosignature) - 1) }) {
 			// - add extra bytes, which will cause space to not be multiple of cosignature size
-			auto pTransaction = CreateAggregateTransaction(2 * sizeof(Cosignature) + extraSize, { 1, 2, 3 });
+			auto pTransaction = CreateAggregateTransaction(2 * SizeOf32<Cosignature>() + extraSize, { 1, 2, 3 });
 
 			// Act + Assert:
 			EXPECT_FALSE(IsSizeValid(*pTransaction)) << "extra size: " << extraSize;
@@ -385,7 +385,7 @@ namespace catapult { namespace model {
 		// Arrange:
 		for (auto numCosignatures : { 1u, 3u }) {
 			// Arrange:
-			auto pTransaction = CreateAggregateTransaction(numCosignatures * sizeof(Cosignature), { 1, 2, 3 });
+			auto pTransaction = CreateAggregateTransaction(numCosignatures * SizeOf32<Cosignature>(), { 1, 2, 3 });
 
 			// Act + Assert:
 			EXPECT_TRUE(IsSizeValid(*pTransaction)) << "num cosignatures: " << numCosignatures;

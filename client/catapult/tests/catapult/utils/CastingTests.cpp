@@ -79,7 +79,7 @@ namespace catapult { namespace utils {
 
 				// Assert: the values are the same
 				EXPECT_EQ(expected, rawValue) << "has same value " << message;
-				expected += 2;
+				expected = static_cast<TUnderlyingType>(expected + 2);
 			}
 		}
 
