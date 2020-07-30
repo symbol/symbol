@@ -162,16 +162,17 @@ describe('receipts db', () => {
 					createTransactionStatement(10, 100, [createReceipt({ type: 1 }), createReceipt({ type: 2 })]),
 					createTransactionStatement(20, 110, [createReceipt({ type: 2 }), createReceipt({ type: 3 })]),
 					createTransactionStatement(30, 120, [createReceipt({ type: 4 }), createReceipt({ type: 4 })]),
-					createTransactionStatement(40, 130, [])
+					createTransactionStatement(40, 120, [createReceipt({ type: 5 })]),
+					createTransactionStatement(50, 130, [])
 				];
-				const filters = { receiptType: 2 };
+				const filters = { receiptType: [2, 5] };
 
 				// Act + Assert:
 				return runTestAndVerifyIds(
 					dbReceipts,
 					collectionName,
 					db => db.transactionStatements(filters, paginationOptions),
-					[10, 20]
+					[10, 20, 40]
 				);
 			});
 

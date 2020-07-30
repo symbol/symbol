@@ -55,7 +55,7 @@ class ReceiptsDb {
 			conditions.push({ 'statement.height': convertToLong(filters.height) });
 
 		if (undefined !== filters.receiptType)
-			conditions.push({ 'statement.receipts.type': filters.receiptType });
+			conditions.push({ 'statement.receipts.type': { $in: filters.receiptType } });
 
 		if (undefined !== filters.recipientAddress)
 			conditions.push({ 'statement.receipts.recipientAddress': Buffer.from(filters.recipientAddress) });

@@ -209,17 +209,33 @@ describe('receipts routes', () => {
 				});
 			});
 
-			it('forwards receiptType', () => {
-				// Arrange:
-				const req = { params: { receiptType: '456' } };
+			describe('forwards receiptType', () => {
+				it('one element', () => {
+					// Arrange:
+					const req = { params: { receiptType: '456' } };
 
-				// Act:
-				return mockServer.callRoute(route, req).then(() => {
-					// Assert:
-					expect(dbTransactionStatementsFake.calledOnce).to.equal(true);
-					expect(dbTransactionStatementsFake.firstCall.args[0].receiptType).to.equal(456);
+					// Act:
+					return mockServer.callRoute(route, req).then(() => {
+						// Assert:
+						expect(dbTransactionStatementsFake.calledOnce).to.equal(true);
+						expect(dbTransactionStatementsFake.firstCall.args[0].receiptType).to.deep.equal([456]);
 
-					expect(mockServer.next.calledOnce).to.equal(true);
+						expect(mockServer.next.calledOnce).to.equal(true);
+					});
+				});
+
+				it('multiple elements', () => {
+					// Arrange:
+					const req = { params: { receiptType: ['456', '457'] } };
+
+					// Act:
+					return mockServer.callRoute(route, req).then(() => {
+						// Assert:
+						expect(dbTransactionStatementsFake.calledOnce).to.equal(true);
+						expect(dbTransactionStatementsFake.firstCall.args[0].receiptType).to.deep.equal([456, 457]);
+
+						expect(mockServer.next.calledOnce).to.equal(true);
+					});
 				});
 			});
 
