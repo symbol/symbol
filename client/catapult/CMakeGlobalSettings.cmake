@@ -116,9 +116,6 @@ elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
 	# -Wstrict-aliasing=1 perform most paranoid strict aliasing checks
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Wconversion -Wformat-security -Werror -Wstrict-aliasing=1")
 
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
-
 	# - Wno-maybe-uninitialized: false positives where gcc isn't sure if an uninitialized variable is used or not
 	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -Wno-maybe-uninitialized -g1 -fno-omit-frame-pointer")
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wno-maybe-uninitialized")
@@ -143,14 +140,38 @@ elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
 		-Wno-switch-enum \
 		-Wno-weak-vtables")
 
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
-
 	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -g1")
 endif()
 
-# set runpath for built binaries on linux
-if(("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU") OR ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang" AND "${CMAKE_SYSTEM_NAME}" MATCHES "Linux"))
+if(NOT MSVC)
+	# set visibility flags
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
+endif()
+
+if(CATAPULT_BUILD_RELEASE)
+	set(ENABLE_HARDENING ON)
+endif()
+
+if("${CMAKE_SYSTEM_NAME}" MATCHES "Linux")
+	# set hardening flags
+	if(ENABLE_HARDENING)
+		set(HARDENING_FLAGS "-fstack-protector-all -D_FORTIFY_SOURCE=2")
+		if("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
+			set(HARDENING_FLAGS "${HARDENING_FLAGS} -fstack-clash-protection")
+		else()
+			set(HARDENING_FLAGS "${HARDENING_FLAGS} -fsanitize=safe-stack")
+		endif()
+
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${HARDENING_FLAGS}")
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${HARDENING_FLAGS}")
+
+		set(LINKER_HARDENING_FLAGS "-Wl,-z,noexecstack,-z,relro,-z,now")
+		set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${LINKER_HARDENING_FLAGS}")
+		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LINKER_HARDENING_FLAGS}")
+	endif()
+
+	# set runpath for built binaries on linux
 	file(MAKE_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/boost")
 	set(CMAKE_SKIP_BUILD_RPATH FALSE)
 
