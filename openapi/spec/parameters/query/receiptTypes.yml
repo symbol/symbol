@@ -1,0 +1,11 @@
+name: receiptType
+in: query
+description: |
+  Filter by receipt type.
+  To filter by multiple receipt types, add more filter query params like: ``receiptType=8515&receiptType=20803``.
+style: form
+explode: true
+schema:
+  type: array
+  items:
+    $ref: "../../plugins/receipt/schemas/ReceiptTypeEnum.yml"

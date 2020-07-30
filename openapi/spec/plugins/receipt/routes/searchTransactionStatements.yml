@@ -5,7 +5,7 @@ description: Gets an array of transaction statements.
 operationId: searchReceipts
 parameters:
   - $ref: "../../../parameters/query/height.yml"
-  - $ref: "../../../parameters/query/receiptType.yml"
+  - $ref: "../../../parameters/query/receiptTypes.yml"
   - $ref: "../../../parameters/query/recipientAddress.yml"
   - $ref: "../../../parameters/query/senderAddress.yml"
   - $ref: "../../../parameters/query/targetAddress.yml"
