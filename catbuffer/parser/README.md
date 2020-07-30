@@ -1,10 +1,10 @@
 # catbuffer
 
-[![Build Status](https://api.travis-ci.com/nemtech/catbuffer.svg?branch=master)](https://travis-ci.com/nemtech/catbuffer)
+[![Build Status](https://api.travis-ci.com/nemtech/catbuffer.svg?branch=main)](https://travis-ci.com/nemtech/catbuffer)
 
-The catbuffer library defines the protocol to serialize and deserialize Catapult entities.
+The catbuffer library defines the protocol to serialize and deserialize Symbol entities.
 
-In combination with the [catbuffer-generators](https://github.com/nemtech/catbuffer-generators) project, developers can generate builder classes for a given set of programming languages. For example, the [NEM2-SDK](https://nemtech.github.io/sdk) uses the generated code to operate with the entities in binary form before announcing them to the network.
+In combination with the [catbuffer-generators](https://github.com/nemtech/catbuffer-generators) project, developers can generate builder classes for a given set of programming languages. For example, the [Symbol SDKs](https://nemtech.github.io/sdk) use the generated code to operate with the entities in binary form before announcing them to the network.
 
 ## Requirements
 
@@ -33,7 +33,7 @@ python main.py [OPTIONS]
 | -s, --schema TEXT    | input CATS file                                         |               |
 | -o, --output TEXT    | output directory                                        | _generated    |
 | -i, --include TEXT   | schema root directory                                   | ./schemas     |
-| -g, --generator TEXT | generator to use to produce output files. See the [available generators](https://github.com/nemtech/catbuffer-generators/blob/master/generators/All.py#L4).|               |
+| -g, --generator TEXT | generator to use to produce output files. See the [available generators](https://github.com/nemtech/catbuffer-generators/blob/main/generators/All.py#L4).|               |
 | -c, --copyright TEXT | file containing copyright data to use with output files | ../HEADER.inc |
 
 ## Generate transaction builders
