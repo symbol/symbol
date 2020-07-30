@@ -1,0 +1,16 @@
+Dockerfile
+.dockerignore
+docker.sh
+
+.idea
+.vscode
+.git
+.gitignore
+.travis.yml
+
+*/node_modules
+*/_build
+
+**/npm-*.log
+**/yarn-*.log
+**/catapult-*.log

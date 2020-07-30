@@ -7,6 +7,7 @@
     "clean": "rimraf _build && mkdir _build",
     "build": "ncp src/ _build",
     "rebuild": "npm run clean && npm run build",
+    "version": "echo $npm_package_version",
     "start": "node _build/index.js",
     "start:debug": "node src/index.js",
     "test": "mocha --full-trace --recursive",

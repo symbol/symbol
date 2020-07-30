@@ -2,7 +2,8 @@ language: node_js
 
 node_js:
   - "12"
-
+services:
+  - docker
 addons:
   apt:
     sources:
@@ -29,4 +30,17 @@ before_script:
 - sudo systemctl start mongod
 - sh yarn_setup.sh
 
-script: cd ${SUBPROJECT} && yarn run lint && yarn run test:travis
+script: cd ${SUBPROJECT} && yarn run lint && yarn run test:travis && cd ..
+
+jobs:
+  include:
+    - stage: docker alpha deploy
+      env:
+        - SUBPROJECT=rest
+      script: /bin/sh docker.sh
+      if: branch = master AND type != pull_request
+    - stage: docker release deploy
+      env:
+        - SUBPROJECT=rest
+      script: /bin/sh docker.sh --release
+      if: tag IS present
