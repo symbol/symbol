@@ -30,5 +30,5 @@ namespace catapult { namespace validators {
 				notification.RestrictionType,
 				model::MosaicRestrictionType::GE,
 				Failure_RestrictionMosaic_Invalid_Restriction_Type);
-	});
+	})
 }}

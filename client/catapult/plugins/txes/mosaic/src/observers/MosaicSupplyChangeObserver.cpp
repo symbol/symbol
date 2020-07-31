@@ -51,5 +51,5 @@ namespace catapult { namespace observers {
 			accountState.Balances.debit(mosaicId, notification.Delta);
 			mosaicEntry.decreaseSupply(notification.Delta);
 		}
-	});
+	})
 }}

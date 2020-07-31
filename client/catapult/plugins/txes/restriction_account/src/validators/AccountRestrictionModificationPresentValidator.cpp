@@ -28,5 +28,5 @@ namespace catapult { namespace validators {
 		return 0 < notification.RestrictionAdditionsCount || 0 < notification.RestrictionDeletionsCount
 				? ValidationResult::Success
 				: Failure_RestrictionAccount_No_Modifications;
-	});
+	})
 }}

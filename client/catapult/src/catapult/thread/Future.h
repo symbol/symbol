@@ -69,8 +69,8 @@ namespace catapult { namespace thread {
 
 				return future<TResultType>(pResultState);
 			} else {
-				return then([continuation](auto&& future) {
-					continuation(std::move(future));
+				return then([continuation](auto&& nextFuture) {
+					continuation(std::move(nextFuture));
 					return true;
 				});
 			}

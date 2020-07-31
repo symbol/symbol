@@ -24,6 +24,11 @@
 
 namespace catapult { namespace model {
 
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshadow" // MetadataType::Mosaic shadows model::Mosaic
+#endif
+
 	/// Metadata type.
 	enum class MetadataType : uint8_t {
 		/// Account metadata.
@@ -35,6 +40,10 @@ namespace catapult { namespace model {
 		/// Namespace metadata.
 		Namespace
 	};
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
 	/// Partial metadata key shared by all types of metadata.
 	template<typename TTargetAddress>

@@ -65,10 +65,10 @@ namespace catapult { namespace deltaset {
 	}
 
 // base (mutable)
-DEFINE_MUTABLE_BASE_SET_TESTS_FOR(OrderedSetMutable);
+DEFINE_MUTABLE_BASE_SET_TESTS_FOR(OrderedSetMutable)
 
 // base (immutable)
-DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(OrderedSetImmutable);
+DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(OrderedSetImmutable)
 
 #define MAKE_ORDERED_SET_TEST(TEST_NAME, TYPE) \
 	TEST(BaseOrderedSet##TYPE##Tests, TEST_NAME) { \

@@ -59,7 +59,7 @@ namespace catapult { namespace validators {
 			const NAME##NotificationFacade::NotificationType& notification, \
 			const ValidatorContext& context) { \
 		return MosaicRestrictionModificationValidator<NAME##NotificationFacade>(notification, context); \
-	}));
+	}))
 
 	DEFINE_MOSAIC_RESTRICTION_MODIFICATION_VALIDATOR(Global)
 	DEFINE_MOSAIC_RESTRICTION_MODIFICATION_VALIDATOR(Address)

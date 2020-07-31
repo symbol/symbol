@@ -40,5 +40,5 @@ namespace catapult { namespace observers {
 			newSource.SecondaryId += currentSource.SecondaryId;
 
 		statementBuilder.setSource(newSource);
-	});
+	})
 }}

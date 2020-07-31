@@ -27,5 +27,5 @@ namespace catapult { namespace validators {
 
 	DEFINE_STATELESS_VALIDATOR(AliasAction, [](const Notification& notification) {
 		return ValidateLessThanOrEqual(notification.AliasAction, model::AliasAction::Link, Failure_Namespace_Alias_Invalid_Action);
-	});
+	})
 }}

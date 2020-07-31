@@ -60,5 +60,5 @@ namespace catapult { namespace validators {
 		}
 
 		return ValidationResult::Success;
-	});
+	})
 }}

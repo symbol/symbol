@@ -72,5 +72,5 @@ namespace catapult { namespace observers {
 		auto lifetime = CalculateLifetime(cache, notification, context.Height);
 		auto root = state::RootNamespace(notification.NamespaceId, notification.Owner, lifetime);
 		cache.insert(root);
-	});
+	})
 }}

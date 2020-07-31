@@ -40,5 +40,5 @@ namespace catapult { namespace validators {
 			return Failure_Namespace_Unknown_Alias;
 
 		return ValidationResult::Success;
-	});
+	})
 }}

@@ -32,5 +32,5 @@ namespace catapult { namespace validators {
 		return !remoteAccountStateIter.tryGet() || state::AccountType::Remote_Unlinked == remoteAccountStateIter.get().AccountType
 				? ValidationResult::Success
 				: Failure_AccountLink_Remote_Account_Ineligible;
-	});
+	})
 }}

@@ -31,5 +31,5 @@ namespace catapult { namespace validators {
 		return isBlockHeightOne || !isNemesisPublicKey
 				? ValidationResult::Success
 				: Failure_Core_Nemesis_Account_Signed_After_Nemesis_Block;
-	});
+	})
 }}

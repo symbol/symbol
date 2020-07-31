@@ -64,7 +64,7 @@ namespace catapult { namespace observers {
 			const ObserverContext& context) { \
 		using NotificationFacade = state::Mosaic##NAME##RestrictionNotificationFacade<NAME##MODE##Notification::Notification_Type>; \
 		ObserveNotification<NotificationFacade>(NotifyMode::MODE, notification, context); \
-	}));
+	}))
 
 	DEFINE_MOSAIC_RESTRICTION_MODIFICATION_OBSERVER(Global, Commit)
 	DEFINE_MOSAIC_RESTRICTION_MODIFICATION_OBSERVER(Global, Rollback)

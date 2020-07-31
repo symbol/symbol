@@ -57,5 +57,5 @@ namespace catapult { namespace validators {
 			return Failure_Multisig_Min_Setting_Larger_Than_Num_Cosignatories;
 
 		return ValidationResult::Success;
-	});
+	})
 }}

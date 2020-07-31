@@ -34,5 +34,5 @@ namespace catapult { namespace validators {
 
 		auto isValidAddress = model::IsValidAddress(address, networkIdentifier);
 		return isValidAddress ? ValidationResult::Success : Failure_Core_Invalid_Address;
-	});
+	})
 }}

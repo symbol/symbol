@@ -50,5 +50,5 @@ namespace catapult { namespace observers {
 		auto direction = static_cast<int8_t>(NotifyMode::Commit == context.Mode ? 1 : -1);
 		multisigEntry.setMinApproval(AddDelta(multisigEntry.minApproval(), direction, notification.MinApprovalDelta));
 		multisigEntry.setMinRemoval(AddDelta(multisigEntry.minRemoval(), direction, notification.MinRemovalDelta));
-	});
+	})
 }}

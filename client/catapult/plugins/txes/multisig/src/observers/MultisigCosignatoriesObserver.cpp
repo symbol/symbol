@@ -107,5 +107,5 @@ namespace catapult { namespace observers {
 		auto isCommitMode = NotifyMode::Commit == context.Mode;
 		AddAll(multisigAccountFacade, notification.AddressAdditionsPtr, notification.AddressAdditionsCount, isCommitMode);
 		AddAll(multisigAccountFacade, notification.AddressDeletionsPtr, notification.AddressDeletionsCount, !isCommitMode);
-	});
+	})
 }}

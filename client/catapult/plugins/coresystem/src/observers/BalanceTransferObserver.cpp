@@ -49,5 +49,5 @@ namespace catapult { namespace observers {
 			Transfer(senderState, recipientState, mosaicId, effectiveAmount);
 		else
 			Transfer(recipientState, senderState, mosaicId, effectiveAmount);
-	});
+	})
 }}

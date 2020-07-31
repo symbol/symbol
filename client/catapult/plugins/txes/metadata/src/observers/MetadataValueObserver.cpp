@@ -57,5 +57,5 @@ namespace catapult { namespace observers {
 
 		auto metadataKey = state::ResolveMetadataKey(notification.PartialMetadataKey, notification.MetadataTarget, context.Resolvers);
 		UpdateCache(cache, metadataKey, { notification.ValuePtr, static_cast<size_t>(valueSize) });
-	});
+	})
 }}

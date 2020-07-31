@@ -30,5 +30,5 @@ namespace catapult { namespace validators {
 				notification.RegistrationType,
 				model::NamespaceRegistrationType::Child,
 				Failure_Namespace_Invalid_Registration_Type);
-	});
+	})
 }}

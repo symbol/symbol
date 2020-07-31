@@ -38,5 +38,5 @@ namespace catapult { namespace observers {
 				accountStateConsumer(accountState);
 			});
 		});
-	});
+	})
 }}

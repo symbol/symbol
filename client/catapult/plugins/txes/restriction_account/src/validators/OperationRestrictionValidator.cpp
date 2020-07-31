@@ -36,5 +36,5 @@ namespace catapult { namespace validators {
 
 		auto isTransferAllowed = view.isAllowed(Restriction_Flags, notification.TransactionType);
 		return isTransferAllowed ? ValidationResult::Success : Failure_RestrictionAccount_Operation_Type_Prohibited;
-	});
+	})
 }}

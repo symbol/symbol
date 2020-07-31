@@ -61,5 +61,5 @@ namespace catapult { namespace validators {
 			const Notification& notification,
 			const ValidatorContext& context) {
 		return Validate(notification, context) ? ValidationResult::Success : Failure_RestrictionAccount_Invalid_Modification;
-	});
+	})
 }}

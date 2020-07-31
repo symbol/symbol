@@ -54,5 +54,5 @@ namespace catapult { namespace validators {
 		return std::all_of(cosignatories.cbegin(), cosignatories.cend(), [](const auto& pair) { return pair.second; })
 				? hasMissingCosignatures ? Failure_Aggregate_Missing_Cosignatures : ValidationResult::Success
 				: Failure_Aggregate_Ineligible_Cosignatories;
-	});
+	})
 }}

@@ -33,5 +33,5 @@ namespace catapult { namespace validators {
 		return notification.MaxFee.unwrap() > Max_Raw_Block_Fee_Multiplier * notification.TransactionSize
 				? Failure_Core_Invalid_Transaction_Fee
 				: ValidationResult::Success;
-	});
+	})
 }}

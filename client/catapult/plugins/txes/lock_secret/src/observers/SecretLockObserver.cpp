@@ -60,5 +60,5 @@ namespace catapult { namespace observers {
 		} else {
 			cache.remove(model::CalculateSecretLockInfoHash(notification.Secret, context.Resolvers.resolve(notification.Recipient)));
 		}
-	});
+	})
 }}

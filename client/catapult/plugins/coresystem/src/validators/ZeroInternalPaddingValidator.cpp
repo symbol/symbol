@@ -26,5 +26,5 @@ namespace catapult { namespace validators {
 
 	DEFINE_STATELESS_VALIDATOR(ZeroInternalPadding, [](const Notification& notification) {
 		return 0 == notification.Padding ? ValidationResult::Success : Failure_Core_Nonzero_Internal_Padding;
-	});
+	})
 }}

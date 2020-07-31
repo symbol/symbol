@@ -23,6 +23,11 @@
 
 namespace catapult { namespace model {
 
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshadow" // FacilityCode::Mosaic shadows model::Mosaic
+#endif
+
 	/// Possible facility codes.
 	enum class FacilityCode : uint8_t {
 		/// Account link facility code.
@@ -61,4 +66,8 @@ namespace catapult { namespace model {
 		/// Transfer facility code.
 		Transfer = 0x54
 	};
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 }}

@@ -33,5 +33,5 @@ namespace catapult { namespace observers {
 			cache.insert(timestampedHash);
 		else
 			cache.remove(timestampedHash);
-	});
+	})
 }}

@@ -55,5 +55,5 @@ namespace catapult { namespace validators {
 		return expectedTransactionsHash == notification.TransactionsHash
 				? ValidationResult::Success
 				: Failure_Aggregate_Transactions_Hash_Mismatch;
-	});
+	})
 }}

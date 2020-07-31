@@ -76,7 +76,7 @@ namespace catapult { namespace observers {
 			const model::ModifyAccount##RESTRICTION_VALUE_NAME##Notification& notification, \
 			const ObserverContext& context) { \
 		ObserveNotification<model::ModifyAccount##RESTRICTION_VALUE_NAME##Notification>(notification, context); \
-	});
+	})
 
 	DEFINE_ACCOUNT_RESTRICTION_MODIFICATION_OBSERVER(AddressRestrictionValue)
 	DEFINE_ACCOUNT_RESTRICTION_MODIFICATION_OBSERVER(MosaicRestrictionValue)

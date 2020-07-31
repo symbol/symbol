@@ -72,5 +72,5 @@ namespace catapult { namespace observers {
 			auto definition = state::MosaicDefinition(context.Height, notification.Owner, 1, notification.Properties);
 			mosaicCache.insert(state::MosaicEntry(notification.MosaicId, definition));
 		}
-	});
+	})
 }}

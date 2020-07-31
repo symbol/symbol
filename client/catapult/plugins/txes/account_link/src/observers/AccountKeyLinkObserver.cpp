@@ -54,5 +54,5 @@ namespace catapult { namespace observers {
 			ClearLink(mainAccountState, state::AccountType::Unlinked);
 			ClearLink(remoteAccountState, state::AccountType::Remote_Unlinked);
 		}
-	});
+	})
 }}

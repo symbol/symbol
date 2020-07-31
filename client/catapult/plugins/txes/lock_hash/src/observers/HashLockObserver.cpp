@@ -46,5 +46,5 @@ namespace catapult { namespace observers {
 		} else {
 			cache.remove(notification.Hash);
 		}
-	});
+	})
 }}

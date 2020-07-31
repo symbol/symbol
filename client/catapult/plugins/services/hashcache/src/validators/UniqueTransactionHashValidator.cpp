@@ -32,5 +32,5 @@ namespace catapult { namespace validators {
 		return hashCache.contains(state::TimestampedHash(notification.Deadline, notification.TransactionHash))
 				? Failure_Hash_Already_Exists
 				: ValidationResult::Success;
-	});
+	})
 }}

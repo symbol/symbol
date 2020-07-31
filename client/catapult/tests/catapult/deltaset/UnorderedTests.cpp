@@ -32,16 +32,16 @@ namespace catapult { namespace deltaset {
 	}
 
 // base (mutable)
-DEFINE_MUTABLE_BASE_SET_TESTS_FOR(UnorderedMutable);
+DEFINE_MUTABLE_BASE_SET_TESTS_FOR(UnorderedMutable)
 
 // base (immutable)
-DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(UnorderedImmutable);
+DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(UnorderedImmutable)
 
 // delta (mutable)
-DEFINE_MUTABLE_BASE_SET_DELTA_TESTS_FOR(UnorderedMutable);
+DEFINE_MUTABLE_BASE_SET_DELTA_TESTS_FOR(UnorderedMutable)
 
 // delta (immutable)
-DEFINE_IMMUTABLE_BASE_SET_DELTA_TESTS_FOR(UnorderedImmutable);
+DEFINE_IMMUTABLE_BASE_SET_DELTA_TESTS_FOR(UnorderedImmutable)
 
 /* hasher tests only use unordered delta variants */
 #define TEST_CLASS UnorderedTests

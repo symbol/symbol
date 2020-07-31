@@ -30,5 +30,5 @@ namespace catapult { namespace validators {
 		return notification.Address != context.Resolvers.resolve(notification.RestrictionValue)
 				? ValidationResult::Success
 				: Failure_RestrictionAccount_Invalid_Modification_Address;
-	});
+	})
 }}

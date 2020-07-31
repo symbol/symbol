@@ -41,5 +41,5 @@ namespace catapult { namespace validators {
 		return GlobalRestrictionExists(notification, context)
 				? ValidationResult::Success
 				: Failure_RestrictionMosaic_Unknown_Global_Restriction;
-	}));
+	}))
 }}

@@ -40,5 +40,5 @@ namespace catapult { namespace validators {
 	DEFINE_STATELESS_VALIDATOR_WITH_TYPE(ZeroPublicKey, model::AccountPublicKeyNotification, [](
 			const model::AccountPublicKeyNotification& notification) {
 		return Key() == notification.PublicKey ? Failure_Core_Zero_Public_Key : ValidationResult::Success;
-	});
+	})
 }}

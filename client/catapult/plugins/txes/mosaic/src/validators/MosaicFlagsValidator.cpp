@@ -27,5 +27,5 @@ namespace catapult { namespace validators {
 
 	DEFINE_STATELESS_VALIDATOR(MosaicFlags, [](const Notification& notification) {
 		return ValidateLessThanOrEqual(notification.Properties.flags(), model::MosaicFlags::All, Failure_Mosaic_Invalid_Flags);
-	});
+	})
 }}

@@ -33,5 +33,5 @@ namespace catapult { namespace observers {
 				auto accountStateConsumer) {
 			accountStateConsumer(accountStateCache.find(lockInfo.OwnerAddress).get());
 		});
-	});
+	})
 }}

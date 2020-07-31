@@ -30,5 +30,5 @@ namespace catapult { namespace validators {
 				notification.HashAlgorithm,
 				model::LockHashAlgorithm::Op_Hash_256,
 				Failure_LockSecret_Invalid_Hash_Algorithm);
-	});
+	})
 }}

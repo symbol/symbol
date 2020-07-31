@@ -60,5 +60,5 @@ namespace catapult { namespace validators {
 		// require mosaic supply to be zero because else, when rolling back, the definition observer does not know
 		// what the supply was before
 		return Amount() != mosaicEntry.supply() ? Failure_Mosaic_Modification_Disallowed : ValidationResult::Success;
-	});
+	})
 }}

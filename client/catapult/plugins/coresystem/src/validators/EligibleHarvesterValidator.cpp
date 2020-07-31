@@ -32,5 +32,5 @@ namespace catapult { namespace validators {
 		return view.canHarvest(notification.Harvester, context.Height)
 				? ValidationResult::Success
 				: Failure_Core_Block_Harvester_Ineligible;
-	});
+	})
 }}

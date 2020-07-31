@@ -30,5 +30,5 @@ namespace catapult { namespace observers {
 			numTotalTransactions += notification.NumTransactions;
 		else
 			numTotalTransactions -= notification.NumTransactions;
-	});
+	})
 }}

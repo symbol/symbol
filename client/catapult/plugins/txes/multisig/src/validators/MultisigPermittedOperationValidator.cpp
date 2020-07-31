@@ -34,5 +34,5 @@ namespace catapult { namespace validators {
 		return !multisigIter.tryGet() || multisigIter.get().cosignatoryAddresses().empty()
 				? ValidationResult::Success
 				: Failure_Multisig_Operation_Prohibited_By_Account;
-	});
+	})
 }}

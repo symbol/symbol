@@ -36,5 +36,5 @@ namespace catapult { namespace validators {
 		return AreAllAccountRestrictionValuesValid(notification.RestrictionAdditionsPtr, notification.RestrictionAdditionsCount)
 				? ValidationResult::Success
 				: Failure_RestrictionAccount_Invalid_Value;
-	});
+	})
 }}

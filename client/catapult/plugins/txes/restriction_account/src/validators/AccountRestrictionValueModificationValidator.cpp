@@ -68,7 +68,7 @@ namespace catapult { namespace validators {
 			const NOTIFICATION_TYPE& notification, \
 			const ValidatorContext& context) { \
 		return Validate<RESTRICTION_VALUE_TYPE, NOTIFICATION_TYPE>(notification, context); \
-	}));
+	}))
 
 	DEFINE_ACCOUNT_RESTRICTION_MODIFICATION_VALIDATOR(
 			AccountAddressRestrictionValueModification,

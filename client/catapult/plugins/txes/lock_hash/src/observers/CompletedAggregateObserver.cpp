@@ -50,5 +50,5 @@ namespace catapult { namespace observers {
 			return;
 
 		LockStatusAccountBalanceObserver<HashTraits>(notification, context);
-	});
+	})
 }}

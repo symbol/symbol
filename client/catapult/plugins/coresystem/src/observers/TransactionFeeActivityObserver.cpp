@@ -35,5 +35,5 @@ namespace catapult { namespace observers {
 				context,
 				[fee](auto& bucket) { bucket.TotalFeesPaid = bucket.TotalFeesPaid + fee; },
 				[fee](auto& bucket) { bucket.TotalFeesPaid = bucket.TotalFeesPaid - fee; });
-	}));
+	}))
 }}

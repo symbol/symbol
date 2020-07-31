@@ -39,5 +39,5 @@ namespace catapult { namespace observers {
 		auto childPath = parentEntry.ns().path();
 		childPath.push_back(notification.NamespaceId);
 		cache.insert(state::Namespace(childPath));
-	});
+	})
 }}

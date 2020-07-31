@@ -41,5 +41,5 @@ namespace catapult { namespace validators {
 		return root.ownerAddress() == notification.Owner.resolved(context.Resolvers)
 				? ValidationResult::Success
 				: Failure_Namespace_Owner_Conflict;
-	});
+	})
 }}

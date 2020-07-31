@@ -49,5 +49,5 @@ namespace catapult { namespace validators {
 		return IsValidAccountRestrictionFlags(notification.RestrictionFlags)
 				? ValidationResult::Success
 				: Failure_RestrictionAccount_Invalid_Restriction_Flags;
-	});
+	})
 }}

@@ -58,12 +58,12 @@ namespace catapult { namespace observers {
 			const ObserverContext& context) {
 		AccountStateCacheVisitor visitor(context);
 		visitor.visit(notification.Address);
-	});
+	})
 
 	DEFINE_OBSERVER(AccountPublicKey, model::AccountPublicKeyNotification, [](
 			const model::AccountPublicKeyNotification& notification,
 			const ObserverContext& context) {
 		AccountStateCacheVisitor visitor(context);
 		visitor.visit(notification.PublicKey);
-	});
+	})
 }}

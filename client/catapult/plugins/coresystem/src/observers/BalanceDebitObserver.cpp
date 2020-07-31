@@ -35,5 +35,5 @@ namespace catapult { namespace observers {
 			senderState.Balances.debit(mosaicId, notification.Amount);
 		else
 			senderState.Balances.credit(mosaicId, notification.Amount);
-	});
+	})
 }}

@@ -52,5 +52,5 @@ namespace catapult { namespace validators {
 		return std::any_of(addresses.cbegin(), addresses.cend(), predicate)
 				? Failure_AccountLink_Remote_Account_Participant_Prohibited
 				: ValidationResult::Success;
-	}));
+	}))
 }}

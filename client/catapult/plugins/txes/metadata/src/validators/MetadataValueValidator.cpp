@@ -52,5 +52,5 @@ namespace catapult { namespace validators {
 		return metadataValue.canTrim({ notification.ValuePtr, notification.ValueSize }, requiredTrimCount)
 				? ValidationResult::Success
 				: Failure_Metadata_Value_Change_Irreversible;
-	}));
+	}))
 }}
