@@ -21,6 +21,7 @@
 /** @module plugins/receipts */
 const ModelType = require('../model/ModelType');
 
+// types 2 (balanceCredit), and 3 (balanceDebit) share the schema `receipts.balanceChange`
 const ReceiptType = {
 	1: 'receipts.balanceTransfer',
 	2: 'receipts.balanceChange',
