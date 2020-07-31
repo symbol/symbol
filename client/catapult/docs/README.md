@@ -22,6 +22,7 @@ Make sure that the server's host is accessible from the internet and that the po
 
 ## Building catapult-server
 
+ * [Build using CONAN recipes](BUILD-conan.md)
  * [Linux instructions](BUILDLIN.md)
  * [Windows instructions](BUILDWIN.md)
 
