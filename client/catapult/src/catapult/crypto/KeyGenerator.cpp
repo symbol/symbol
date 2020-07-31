@@ -21,19 +21,7 @@
 #include "KeyGenerator.h"
 #include "CryptoUtils.h"
 #include "PrivateKey.h"
-
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-function"
-#endif
-
-extern "C" {
-#include <donna/ed25519.h>
-}
-
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
+#include <donna/catapult.h>
 
 namespace catapult { namespace crypto {
 

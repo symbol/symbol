@@ -24,39 +24,7 @@
 #include "catapult/utils/HexParser.h"
 #include "catapult/utils/RandomGenerator.h"
 #include "tests/TestHarness.h"
-
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wold-style-cast"
-#pragma clang diagnostic ignored "-Wcast-align"
-#pragma clang diagnostic ignored "-Wcast-qual"
-#pragma clang diagnostic ignored "-Wimplicit-fallthrough"
-#pragma clang diagnostic ignored "-Wsign-conversion"
-#pragma clang diagnostic ignored "-Wunused-function"
-#pragma clang diagnostic ignored "-Wreserved-id-macro"
-#pragma clang diagnostic ignored "-Wdocumentation"
-#elif defined(__GNUC__)
-#pragma GCC diagnostic ignored "-Wunused-function"
-#pragma GCC diagnostic ignored "-Wstrict-aliasing"
-#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
-#elif defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable : 4324) /* ed25519 structs use __declspec(align()) */
-#pragma warning(disable : 4388) /* signed/unsigned mismatch */
-#pragma warning(disable : 4505) /* unreferenced local function has been removed */
-#endif
-
-extern "C" {
-#include <donna/ed25519-donna.h>
-}
-
-#ifdef __clang__
-#pragma clang diagnostic pop
-#elif defined(__GNUC__)
-#pragma GCC diagnostic pop
-#elif defined(_MSC_VER)
-#pragma warning(pop)
-#endif
+#include <donna/catapult.h>
 
 namespace catapult { namespace crypto {
 
