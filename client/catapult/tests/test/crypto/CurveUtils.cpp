@@ -28,7 +28,7 @@ namespace catapult { namespace test {
 		auto groupOrder = test::HexStringToVector("EDD3F55C1A631258D69CF7A2DEF9DE1400000000000000000000000000000010");
 		uint8_t r = 0;
 		for (auto i = 0u; i < groupOrder.size(); ++i) {
-			auto t = static_cast<uint16_t>(scalar[i]) + static_cast<uint16_t>(groupOrder[i]);
+			auto t = static_cast<uint16_t>(scalar[i] + groupOrder[i]);
 			scalar[i] = static_cast<uint8_t>(scalar[i] + groupOrder[i] + r);
 			r = static_cast<uint8_t>(t >> 8);
 		}

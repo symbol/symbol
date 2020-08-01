@@ -360,7 +360,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, SizeInvalidWhenSpaceForCosignaturesIsNotMultipleOfCosignatureSize) {
 		// Arrange:
-		for (auto extraSize : { 1u, 3u, static_cast<uint32_t>(sizeof(Cosignature) - 1) }) {
+		for (auto extraSize : { 1u, 3u, SizeOf32<Cosignature>() - 1 }) {
 			// - add extra bytes, which will cause space to not be multiple of cosignature size
 			auto pTransaction = CreateAggregateTransaction(2 * SizeOf32<Cosignature>() + extraSize, { 1, 2, 3 });
 

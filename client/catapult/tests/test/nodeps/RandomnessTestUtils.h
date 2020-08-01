@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "catapult/utils/Casting.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {
@@ -47,7 +48,7 @@ namespace catapult { namespace test {
 				maxValue = std::max(observedValue, maxValue);
 
 				auto difference = observedValue - expectedValue;
-				chiSquare += static_cast<double>(difference * difference) / static_cast<double>(expectedValue);
+				chiSquare += utils::to_ratio(difference * difference, expectedValue);
 			}
 
 			CATAPULT_LOG(debug) << "chiSquare = " << chiSquare << ", min = " << minValue << ", max = " << maxValue;

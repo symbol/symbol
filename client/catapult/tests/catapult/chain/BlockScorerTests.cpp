@@ -128,7 +128,7 @@ namespace catapult { namespace chain {
 				// Act:
 				auto hit = CalculateHit(generationHash);
 				auto oldHit = CalculateHitWithDoubles(generationHash);
-				auto ratio = static_cast<double>(hit) / static_cast<double>(oldHit);
+				auto ratio = utils::to_ratio(hit, oldHit);
 
 				// Assert:
 				auto message = "at index " + std::to_string(i) + ", value = " + std::to_string(value);

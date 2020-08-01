@@ -32,6 +32,12 @@ namespace catapult { namespace utils {
 		return ref;
 	}
 
+	/// Creates a ratio from \a numerator and \a denominator.
+	template<typename T>
+	double to_ratio(T numerator, T denominator) {
+		return static_cast<double>(numerator) / static_cast<double>(denominator);
+	}
+
 	/// Converts a strongly typed enumeration \a value to its underlying integral value.
 	template<typename TEnum>
 	constexpr std::underlying_type_t<TEnum> to_underlying_type(TEnum value) {

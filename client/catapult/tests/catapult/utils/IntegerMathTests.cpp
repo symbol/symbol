@@ -301,28 +301,6 @@ namespace catapult { namespace utils {
 
 	// endregion
 
-	// region Pow2
-
-	TEST(TEST_CLASS, Pow2ReturnsCorrectValueForInRangeResults) {
-		EXPECT_EQ(0x01u, Pow2<uint8_t>(0));
-		EXPECT_EQ(0x04u, Pow2<uint8_t>(2));
-		EXPECT_EQ(0x80u, Pow2<uint8_t>(7));
-
-		EXPECT_EQ(0x00000001u, Pow2<uint32_t>(0));
-		EXPECT_EQ(0x00020000u, Pow2<uint32_t>(17));
-		EXPECT_EQ(0x80000000u, Pow2<uint32_t>(31));
-	}
-
-	TEST(TEST_CLASS, Pow2ReturnsZeroForOutOfRangeResults) {
-		EXPECT_EQ(0u, Pow2<uint8_t>(8));
-		EXPECT_EQ(0u, Pow2<uint8_t>(18));
-
-		EXPECT_EQ(0u, Pow2<uint32_t>(32));
-		EXPECT_EQ(0u, Pow2<uint32_t>(70));
-	}
-
-	// endregion
-
 	// region DivideAndGetRemainder
 
 	namespace {

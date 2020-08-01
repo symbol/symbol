@@ -30,7 +30,7 @@ namespace catapult { namespace test {
 	struct VariableSizedBlockChain {
 		/// Gets the block size at \a height.
 		static constexpr uint32_t GetBlockSizeAtHeight(Height height) {
-			return static_cast<uint32_t>(sizeof(model::BlockHeader) + height.unwrap() * 100);
+			return SizeOf32<model::BlockHeader>() + static_cast<uint32_t>(height.unwrap() * 100);
 		}
 
 		/// Creates storage for a chain with \a numBlocks variable sized blocks.

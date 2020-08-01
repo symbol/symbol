@@ -61,7 +61,7 @@ namespace catapult { namespace crypto {
 				e[i] = static_cast<int8_t>(e[i] + carry);
 				carry = static_cast<int8_t>(e[i] + 8);
 				carry = static_cast<int8_t>(carry >> 4);
-				e[i] = static_cast<int8_t>(e[i] - carry * (static_cast<int8_t>(1) << 4));
+				e[i] = static_cast<int8_t>(e[i] - carry * (1 << 4));
 			}
 
 			e[63] = static_cast<int8_t>(e[63] + carry);
@@ -214,7 +214,7 @@ namespace catapult { namespace crypto {
 			SetZero(H);
 			for (auto i = 63; 0 <= i; --i) {
 				if (0 != q[i]) {
-					auto signbit = static_cast<uint8_t>(static_cast<uint8_t>(q[i]) >> 7);
+					auto signbit = static_cast<uint8_t>((q[i] & 0xFF) >> 7);
 					ge25519_pnielsadd_p1p1(&R, &H, &precomputedTable[abs(q[i]) - 1], signbit);
 					ge25519_p1p1_to_full(&H, &R);
 				}

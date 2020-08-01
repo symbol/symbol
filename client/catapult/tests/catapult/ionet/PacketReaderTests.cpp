@@ -55,7 +55,7 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, CannotCreateReaderAroundPacketWithSizeTooSmall) {
 		// Arrange:
-		for (auto size : { static_cast<uint32_t>(0), static_cast<uint32_t>(sizeof(PacketHeader) - 1) }) {
+		for (auto size : { static_cast<uint32_t>(0), SizeOf32<PacketHeader>() - 1 }) {
 			auto pPacket = test::CreateRandomPacket(0, PacketType::Undefined);
 			pPacket->Size = size;
 

@@ -39,8 +39,8 @@ namespace catapult { namespace sync {
 
 		size_t GetMaxTransactions(size_t cacheSize, size_t maxCacheSize, Importance effectiveImportance, Importance totalImportance) {
 			auto slotsLeft = static_cast<double>(maxCacheSize - cacheSize);
-			auto scaleFactor = std::exp(-3.0 * static_cast<double>(cacheSize) / static_cast<double>(maxCacheSize));
-			auto importancePercentage = static_cast<double>(effectiveImportance.unwrap()) / static_cast<double>(totalImportance.unwrap());
+			auto scaleFactor = std::exp(-3.0 * utils::to_ratio(cacheSize, maxCacheSize));
+			auto importancePercentage = utils::to_ratio(effectiveImportance.unwrap(), totalImportance.unwrap());
 
 			// the value 100 is empirical and thus has no special meaning
 			return static_cast<size_t>(scaleFactor * importancePercentage * 100.0 * slotsLeft);

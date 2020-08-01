@@ -19,6 +19,7 @@
 **/
 
 #include "Sortition.h"
+#include "catapult/utils/Casting.h"
 
 #ifdef _MSC_VER
 #pragma warning(push)
@@ -57,7 +58,7 @@ namespace catapult { namespace crypto {
 		auto hit = static_cast<double>(num) / std::pow(2.0, 64);
 
 		// 2. calculate number of votes
-		auto rate = static_cast<double>(tau) / static_cast<double>(totalPower.unwrap());
+		auto rate = utils::to_ratio(tau, totalPower.unwrap());
 		auto numVotes = InverseCdf(static_cast<double>(stake.unwrap()), rate, hit);
 		return numVotes;
 	}
