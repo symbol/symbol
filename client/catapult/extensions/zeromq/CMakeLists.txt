@@ -3,8 +3,10 @@ cmake_minimum_required(VERSION 3.14)
 message("--- locating zeromq dependencies ---")
 find_package(cppzmq REQUIRED)
 
+message("zeromq    ver: ${ZeroMQ_VERSION}")
 message("zeromq    inc: ${ZeroMQ_INCLUDE_DIR}")
 message("zeromq    lib: ${ZeroMQ_LIBRARY}")
+message("cppzmq    ver: ${cppzmq_VERSION}")
 message("cppzmq    inc: ${cppzmq_INCLUDE_DIR}")
 
 ### find and set zeromq includes and libraries

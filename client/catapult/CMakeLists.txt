@@ -16,25 +16,35 @@ message(STATUS "CMAKE_PREFIX_PATH:     ${CMAKE_PREFIX_PATH}")
 message(STATUS "CMAKE_MODULE_PATH:     ${CMAKE_MODULE_PATH}")
 message(STATUS "CMAKE_BUILD_TYPE:      ${CMAKE_BUILD_TYPE}")
 
-message("--- locating boost dependencies ---")
-message("boost    root: ${BOOST_ROOT}")
-message("boost     inc: ${Boost_INCLUDE_DIR}")
-message("boost    libs: ${Boost_LIBRARIES}")
-
 set(CORE_CATAPULT_LIBS catapult.io catapult.ionet catapult.model catapult.thread catapult.utils)
 
+# finds the imported location of TARGET_NAME and assigns it to OUTPUT_LIBRARY_PATH
+function(get_library_path OUTPUT_LIBRARY_PATH TARGET_NAME)
+	get_property(LIBRARY_PATH TARGET ${TARGET_NAME} PROPERTY IMPORTED_LOCATION_RELEASE)
+	if(NOT LIBRARY_PATH)
+		get_property(LIBRARY_PATH TARGET ${TARGET_NAME} PROPERTY IMPORTED_LOCATION_RELWITHDEBINFO)
+	endif()
+
+	set("${OUTPUT_LIBRARY_PATH}" "${LIBRARY_PATH}" PARENT_SCOPE)
+endfunction()
+
 ### setup boost
+message("--- locating boost dependencies ---")
 find_package(Boost COMPONENTS ${CATAPULT_BOOST_COMPONENTS} REQUIRED)
 include_directories(SYSTEM ${Boost_INCLUDE_DIR})
+
+message("boost     ver: ${Boost_VERSION}")
+message("boost     inc: ${Boost_INCLUDE_DIR}")
+message("boost    libs: ${Boost_LIBRARIES}")
 
 ### setup openssl
 message("--- locating openssl dependencies ---")
 
 find_package(OpenSSL REQUIRED)
-message("OpenSSL  root: ${OPENSSL_ROOT_DIR}")
 message("OpenSSL   ver: ${OPENSSL_VERSION}")
+message("OpenSSL  root: ${OPENSSL_ROOT_DIR}")
 message("OpenSSL   inc: ${OPENSSL_INCLUDE_DIR}")
-message("OpenSSL  libs: ${OpenSSL_LIBRARIES}")
+message("OpenSSL  libs: ${OPENSSL_LIBRARIES}")
 
 # used to add openssl dependencies to a target
 function(catapult_add_openssl_dependencies TARGET_NAME)
@@ -44,46 +54,23 @@ endfunction()
 
 ### setup rocksdb
 message("--- locating rocksdb dependencies ---")
-if(USE_CONAN)
-	find_package(RocksDB REQUIRED)
+find_package(RocksDB REQUIRED)
 
-	if(WIN32)
-		set(ROCKSDB_LIBRARY RocksDB::rocksdb)
-	else()
-		set(ROCKSDB_LIBRARY RocksDB::rocksdb-shared)
-	endif()
-
-	get_property(propval TARGET ${ROCKSDB_LIBRARY} PROPERTY IMPORTED_LOCATION_RELEASE)
-	message("rocksdb   lib: ${propval}")
-	get_property(propval TARGET ${ROCKSDB_LIBRARY} PROPERTY INTERFACE_INCLUDE_DIRECTORIES)
-	message("rocksdb   inc: ${propval}")
+if(WIN32)
+	set(RocksDB_LIBRARY RocksDB::rocksdb)
 else()
-	if(WIN32)
-		find_package(RocksDB REQUIRED)
-	else()
-		find_path(ROCKSDB_ROOT_DIR NAMES include/rocksdb/db.h)
-		find_library(ROCKSDB_LIBRARIES NAMES rocksdb HINTS ${ROCKSDB_ROOT_DIR})
-		find_path(ROCKSDB_INCLUDE_DIRS NAMES rocksdb/db.h HINTS ${ROCKSDB_ROOT_DIR}/include)
-	endif()
-
-	message("rocksdb   lib: ${ROCKSDB_LIBRARIES}")
-	message("rocksdb   inc: ${ROCKSDB_INCLUDE_DIRS}")
+	set(RocksDB_LIBRARY RocksDB::rocksdb-shared)
 endif()
+
+message("rocksdb   ver: ${RocksDB_VERSION}")
+get_property(RocksDB_INCLUDE_DIRS TARGET ${RocksDB_LIBRARY} PROPERTY INTERFACE_INCLUDE_DIRECTORIES)
+message("rocksdb   inc: ${RocksDB_INCLUDE_DIRS}")
+get_library_path("RocksDB_LIBRARY_PATH" ${RocksDB_LIBRARY})
+message("rocksdb   lib: ${RocksDB_LIBRARY_PATH}")
 
 # used to add rocksdb dependencies to a target
 function(catapult_add_rocksdb_dependencies TARGET_NAME)
-	if(USE_CONAN)
-		if(WIN32)
-			target_link_libraries(${TARGET_NAME} RocksDB::rocksdb)
-		else()
-			target_link_libraries(${TARGET_NAME} RocksDB::rocksdb-shared)
-		endif()
-	elseif(WIN32)
-		target_link_libraries(${TARGET_NAME} RocksDB::rocksdb)
-	else()
-		include_directories(SYSTEM ${ROCKSDB_INCLUDE_DIRS})
-		target_link_libraries(${TARGET_NAME} ${ROCKSDB_LIBRARIES})
-	endif()
+	target_link_libraries(${TARGET_NAME} ${RocksDB_LIBRARY})
 endfunction()
 
 # cmake grouping targets
