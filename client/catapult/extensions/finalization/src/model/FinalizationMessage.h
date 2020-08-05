@@ -19,7 +19,6 @@
 **/
 
 #pragma once
-#include "catapult/crypto/Vrf.h"
 #include "catapult/crypto_voting/OtsTypes.h"
 #include "catapult/model/RangeTypes.h"
 #include "catapult/model/TrailingVariableDataLayout.h"
@@ -53,9 +52,6 @@ namespace catapult { namespace model {
 
 		/// Block height corresponding to the the first hash.
 		catapult::Height Height;
-
-		/// Sortition hash proof.
-		crypto::VrfProof SortitionHashProof;
 
 	public:
 		/// Gets a const pointer to the first hash contained in this message.
@@ -91,11 +87,10 @@ namespace catapult { namespace model {
 
 	// region PrepareMessage
 
-	/// Prepares a finalization message given \a otsTree, \a vrfKeyPair, \a stepIdentifier, \a height, \a hashes and \a context.
+	/// Prepares a finalization message given \a otsTree, \a stepIdentifier, \a height, \a hashes and \a context.
 	/// \note If parameters don't yield a voting selection, \c nullptr will be returned.
 	std::unique_ptr<FinalizationMessage> PrepareMessage(
 			crypto::OtsTree& otsTree,
-			const crypto::KeyPair& vrfKeyPair,
 			const crypto::StepIdentifier& stepIdentifier,
 			Height height,
 			const HashRange& hashes,
@@ -111,12 +106,6 @@ namespace catapult { namespace model {
 	\
 	/* Invalid voter. */ \
 	ENUM_VALUE(Failure_Voter) \
-	\
-	/* Invalid sortition hash proof. */ \
-	ENUM_VALUE(Failure_Sortition_Hash_Proof) \
-	\
-	/* Invalid selection. */ \
-	ENUM_VALUE(Failure_Selection) \
 	\
 	/* Processing succeeded. */ \
 	ENUM_VALUE(Success)

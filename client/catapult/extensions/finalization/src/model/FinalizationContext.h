@@ -32,9 +32,6 @@ namespace catapult { namespace model {
 	struct FinalizationAccountView {
 		/// Finalization weight.
 		Amount Weight;
-
-		/// VRF public key.
-		Key VrfPublicKey;
 	};
 
 	/// Contextual information for finalizing blocks.

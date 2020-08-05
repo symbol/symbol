@@ -50,7 +50,6 @@ namespace catapult { namespace model {
 
 			auto accountView = FinalizationAccountView();
 			accountView.Weight = balance;
-			accountView.VrfPublicKey = accountHistory.vrfPublicKey().get(m_height);
 
 			m_accounts.emplace(Find(accountHistory.votingPublicKeys().get(m_height), point), accountView);
 			m_weight = m_weight + balance;

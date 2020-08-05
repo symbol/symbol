@@ -123,10 +123,8 @@ namespace catapult { namespace io {
 			stream.write({ reinterpret_cast<const uint8_t*>(&header), sizeof(model::PackedFinalizationProof) });
 
 			// write vote proofs
-			for (const auto& pMessage : proof) {
+			for (const auto& pMessage : proof)
 				stream.write({ reinterpret_cast<const uint8_t*>(&pMessage->Signature), sizeof(crypto::OtsTreeSignature) });
-				stream.write({ reinterpret_cast<const uint8_t*>(&pMessage->SortitionHashProof), sizeof(crypto::VrfProof) });
-			}
 
 			stream.flush();
 		}

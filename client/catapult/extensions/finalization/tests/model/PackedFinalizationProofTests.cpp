@@ -31,7 +31,7 @@ namespace catapult { namespace model {
 
 	// region VoteProof (size + alignment)
 
-#define VOTE_FIELDS FIELD(Signature) FIELD(SortitionHashProof)
+#define VOTE_FIELDS FIELD(Signature)
 
 	TEST(TEST_CLASS, VoteProofHasExpectedSize) {
 		// Arrange:
@@ -43,7 +43,7 @@ namespace catapult { namespace model {
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(VoteProof));
-		EXPECT_EQ(464u, sizeof(VoteProof));
+		EXPECT_EQ(384u, sizeof(VoteProof));
 	}
 
 	TEST(TEST_CLASS, VoteProofHasProperAlignment) {

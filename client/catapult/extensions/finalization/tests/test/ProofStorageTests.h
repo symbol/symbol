@@ -122,9 +122,6 @@ namespace catapult { namespace test {
 
 		static void AssertVoteProof(const model::FinalizationMessage& expectedMessage, const model::VoteProof& voteProof) {
 			EXPECT_EQ(expectedMessage.Signature, voteProof.Signature);
-			EXPECT_EQ(expectedMessage.SortitionHashProof.Gamma, voteProof.SortitionHashProof.Gamma);
-			EXPECT_EQ(expectedMessage.SortitionHashProof.VerificationHash, voteProof.SortitionHashProof.VerificationHash);
-			EXPECT_EQ(expectedMessage.SortitionHashProof.Scalar, voteProof.SortitionHashProof.Scalar);
 		}
 
 		static void AssertSerializedProof(

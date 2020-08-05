@@ -19,7 +19,6 @@
 **/
 
 #pragma once
-#include "catapult/crypto/Vrf.h"
 #include "catapult/crypto_voting/OtsTypes.h"
 #include "catapult/model/TrailingVariableDataLayout.h"
 
@@ -32,9 +31,6 @@ namespace catapult { namespace model {
 	public:
 		/// Vote message signature.
 		crypto::OtsTreeSignature Signature;
-
-		/// Sortition hash proof.
-		crypto::VrfProof SortitionHashProof;
 	};
 
 	/// Packed finalization proof.

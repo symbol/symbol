@@ -57,7 +57,6 @@ namespace catapult { namespace model {
 		ExtendedFinalizationAccountView GenerateRandomAccountView(Amount balance) {
 			ExtendedFinalizationAccountView accountView;
 			accountView.Weight = balance;
-			test::FillWithRandomData(accountView.VrfPublicKey);
 			test::FillWithRandomData(accountView.Address);
 			test::FillWithRandomData(accountView.VotingPublicKey1);
 			test::FillWithRandomData(accountView.VotingPublicKey2);
@@ -77,7 +76,6 @@ namespace catapult { namespace model {
 
 				delta->addAccount(accountView.Address, height);
 				auto& accountState = delta->find(accountView.Address).get();
-				accountState.SupplementalPublicKeys.vrf().set(accountView.VrfPublicKey);
 				accountState.SupplementalPublicKeys.voting().add({ accountView.VotingPublicKey1, FP(1), FP(100) });
 				accountState.SupplementalPublicKeys.voting().add({ accountView.VotingPublicKey2, FP(151), FP(200) });
 				accountState.Balances.credit(Harvesting_Mosaic_Id, balance);
@@ -226,12 +224,10 @@ namespace catapult { namespace model {
 	namespace {
 		void AssertEqual(const FinalizationAccountView& expected, const FinalizationAccountView& actual) {
 			EXPECT_EQ(expected.Weight, actual.Weight);
-			EXPECT_EQ(expected.VrfPublicKey, actual.VrfPublicKey);
 		}
 
 		void AssertZero(const FinalizationAccountView& accountView) {
 			EXPECT_EQ(Amount(), accountView.Weight);
-			EXPECT_EQ(Key(), accountView.VrfPublicKey);
 		}
 	}
 

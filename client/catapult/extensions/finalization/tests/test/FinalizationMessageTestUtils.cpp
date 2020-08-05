@@ -61,7 +61,6 @@ namespace catapult { namespace test {
 		pMessage->StepIdentifier = stepIdentifier;
 
 		FillWithRandomData(pMessage->Signature);
-		FillWithRandomData(pMessage->SortitionHashProof);
 		*pMessage->HashesPtr() = hash;
 		return pMessage;
 	}
@@ -70,20 +69,17 @@ namespace catapult { namespace test {
 			const crypto::StepIdentifier& stepIdentifier,
 			const Hash256& hash,
 			const AccountKeyPairDescriptor& keyPairDescriptor) {
-		auto nemesisGenerationHash = model::CalculateGenerationHash(GetNemesisBlock().GenerationHashProof.Gamma);
-		return CreateValidMessage(stepIdentifier, Height(2), hash, nemesisGenerationHash, keyPairDescriptor);
+		return CreateValidMessage(stepIdentifier, Height(2), hash, keyPairDescriptor);
 	}
 
 	std::unique_ptr<model::FinalizationMessage> CreateValidMessage(
 			const crypto::StepIdentifier& stepIdentifier,
 			Height height,
 			const Hash256& hash,
-			const GenerationHash& lastFinalizedGenerationHash,
 			const AccountKeyPairDescriptor& keyPairDescriptor) {
 		auto pMessage = CreateMessage(stepIdentifier, hash);
 		pMessage->Height = height;
 
-		SetMessageSortitionHashProof(*pMessage, keyPairDescriptor.VrfKeyPair, lastFinalizedGenerationHash);
 		SignMessage(*pMessage, keyPairDescriptor.VotingKeyPair);
 		return pMessage;
 	}
@@ -91,17 +87,6 @@ namespace catapult { namespace test {
 	// endregion
 
 	// region message utils
-
-	void SetMessageSortitionHashProof(
-			model::FinalizationMessage& message,
-			const crypto::KeyPair& vrfKeyPair,
-			const GenerationHash& generationHash) {
-		std::vector<uint8_t> sortitionVrfInputBuffer(sizeof(crypto::StepIdentifier) + GenerationHash::Size);
-		std::memcpy(&sortitionVrfInputBuffer[0], &generationHash, GenerationHash::Size);
-		std::memcpy(&sortitionVrfInputBuffer[GenerationHash::Size], &message.StepIdentifier, sizeof(crypto::StepIdentifier));
-
-		message.SortitionHashProof = crypto::GenerateVrfProof(sortitionVrfInputBuffer, vrfKeyPair);
-	}
 
 	void SignMessage(model::FinalizationMessage& message, const crypto::KeyPair& votingKeyPair) {
 		auto storage = mocks::MockSeekableMemoryStream();
@@ -136,12 +121,11 @@ namespace catapult { namespace test {
 			const std::vector<Amount>& balances) {
 		std::vector<AccountKeyPairDescriptor> keyPairDescriptors;
 		for (auto balance : balances) {
-			keyPairDescriptors.emplace_back(GenerateKeyPair(), GenerateKeyPair());
+			keyPairDescriptors.emplace_back(GenerateKeyPair());
 
 			auto address = GenerateRandomByteArray<Address>();
 			accountStateCacheDelta.addAccount(address, height);
 			auto& accountState = accountStateCacheDelta.find(address).get();
-			accountState.SupplementalPublicKeys.vrf().set(keyPairDescriptors.back().VrfPublicKey);
 			accountState.SupplementalPublicKeys.voting().add({
 				keyPairDescriptors.back().VotingPublicKey,
 				FinalizationPoint(1),

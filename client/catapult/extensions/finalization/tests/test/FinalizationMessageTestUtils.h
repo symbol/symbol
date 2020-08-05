@@ -53,23 +53,16 @@ namespace catapult { namespace test {
 			const AccountKeyPairDescriptor& keyPairDescriptor);
 
 	/// Creates a valid finalization message with \a stepIdentifier and one \a hash at \a height for the account
-	/// specified by \a keyPairDescriptor given the last finalized generation hash (\a lastFinalizedGenerationHash).
+	/// specified by \a keyPairDescriptor.
 	std::unique_ptr<model::FinalizationMessage> CreateValidMessage(
 			const crypto::StepIdentifier& stepIdentifier,
 			Height height,
 			const Hash256& hash,
-			const GenerationHash& lastFinalizedGenerationHash,
 			const AccountKeyPairDescriptor& keyPairDescriptor);
 
 	// endregion
 
 	// region message utils
-
-	/// Sets the sortition hash proof in \a message given \a vrfKeyPair and \a generationHash.
-	void SetMessageSortitionHashProof(
-			model::FinalizationMessage& message,
-			const crypto::KeyPair& vrfKeyPair,
-			const GenerationHash& generationHash);
 
 	/// Signs \a message with \a votingKeyPair.
 	void SignMessage(model::FinalizationMessage& message, const crypto::KeyPair& votingKeyPair);
@@ -84,26 +77,18 @@ namespace catapult { namespace test {
 
 	// region account state cache utils
 
-	/// Account descriptor that contains VRF and voting key pairs.
+	/// Account descriptor that contains voting key pairs.
 	struct AccountKeyPairDescriptor {
 	public:
-		/// Creates a descriptor around \a vrfKeyPair and \a votingKeyPair.
-		AccountKeyPairDescriptor(crypto::KeyPair&& vrfKeyPair, crypto::KeyPair&& votingKeyPair)
-				: VrfKeyPair(std::move(vrfKeyPair))
-				, VotingKeyPair(std::move(votingKeyPair))
-				, VrfPublicKey(VrfKeyPair.publicKey())
+		/// Creates a descriptor around \a votingKeyPair.
+		explicit AccountKeyPairDescriptor(crypto::KeyPair&& votingKeyPair)
+				: VotingKeyPair(std::move(votingKeyPair))
 				, VotingPublicKey(VotingKeyPair.publicKey().copyTo<VotingKey>())
 		{}
 
 	public:
-		/// VRF key pair.
-		crypto::KeyPair VrfKeyPair;
-
 		/// Voting key pair.
 		crypto::KeyPair VotingKeyPair;
-
-		/// VRF public key.
-		Key VrfPublicKey;
 
 		/// Voting public key.
 		VotingKey VotingPublicKey;

@@ -49,7 +49,7 @@ namespace catapult { namespace model {
 
 	// region FinalizationMessage (size + alignment)
 
-#define MESSAGE_FIELDS FIELD(HashesCount) FIELD(Signature) FIELD(StepIdentifier) FIELD(Height) FIELD(SortitionHashProof)
+#define MESSAGE_FIELDS FIELD(HashesCount) FIELD(Signature) FIELD(StepIdentifier) FIELD(Height)
 
 	TEST(TEST_CLASS, FinalizationMessageHasExpectedSize) {
 		// Arrange:
@@ -61,7 +61,7 @@ namespace catapult { namespace model {
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(FinalizationMessage));
-		EXPECT_EQ(4 + 500u, sizeof(FinalizationMessage));
+		EXPECT_EQ(4 + 420u, sizeof(FinalizationMessage));
 	}
 
 	TEST(TEST_CLASS, FinalizationMessageHasProperAlignment) {
@@ -185,9 +185,7 @@ namespace catapult { namespace model {
 
 		enum class VoterType : uint32_t { Small, Large, Ineligible };
 
-		constexpr auto Num_Expected_Large_Votes = 1'200u;
-		constexpr auto Num_Expected_Large_Votes_Lower_Bound = Num_Expected_Large_Votes - Num_Expected_Large_Votes / 5;
-		constexpr auto Num_Expected_Large_Votes_Upper_Bound = Num_Expected_Large_Votes + Num_Expected_Large_Votes / 5;
+		constexpr auto Expected_Large_Weight = 4'000'000'000'000u;
 
 		template<typename TAction>
 		void RunFinalizationContextTest(TAction action) {
@@ -197,7 +195,7 @@ namespace catapult { namespace model {
 
 			cache::AccountStateCache cache(cache::CacheConfiguration(), CreateOptions());
 			auto keyPairDescriptors = AddAccountsWithBalances(cache, Height(123), {
-				Amount(2'000'000), Amount(4'000'000'000'000), Amount(1'000'000), Amount(6'000'000'000'000)
+				Amount(2'000'000), Amount(Expected_Large_Weight), Amount(1'000'000), Amount(6'000'000'000'000)
 			});
 
 			FinalizationContext context(FinalizationPoint(50), Height(123), generationHash, config, *cache.createView());
@@ -230,7 +228,7 @@ namespace catapult { namespace model {
 				auto hashes = test::GenerateRandomHashes(numHashes);
 
 				// Act:
-				auto pMessage = PrepareMessage(otsTree, keyPairDescriptor.VrfKeyPair, stepIdentifier, Height(987), hashes, context);
+				auto pMessage = PrepareMessage(otsTree, stepIdentifier, Height(987), hashes, context);
 
 				// Assert:
 				action(pMessage, context, hashes);
@@ -243,24 +241,6 @@ namespace catapult { namespace model {
 		RunPrepareMessageTest(VoterType::Ineligible, 3, [](const auto& pMessage, const auto&, const auto&) {
 			// Assert:
 			EXPECT_FALSE(!!pMessage);
-		});
-	}
-
-	TEST(TEST_CLASS, PrepareMessage_FailsWhenVoterIsNotSelected) {
-		// Arrange: sortition is probabilistic
-		test::RunNonDeterministicTest("voter is not selected", []() {
-			auto isTestSuccess = true;
-			RunPrepareMessageTest(VoterType::Small, 3, [&isTestSuccess](const auto& pMessage, const auto&, const auto&) {
-				if (pMessage) {
-					isTestSuccess = false;
-					return;
-				}
-
-				// Assert:
-				EXPECT_FALSE(!!pMessage);
-			});
-
-			return isTestSuccess;
 		});
 	}
 
@@ -288,8 +268,7 @@ namespace catapult { namespace model {
 			// - check that votes are within 1% of expected value
 			auto processResultPair = ProcessMessage(*pMessage, context);
 			EXPECT_EQ(ProcessMessageResult::Success, processResultPair.first);
-			EXPECT_LT(Num_Expected_Large_Votes_Lower_Bound, processResultPair.second);
-			EXPECT_GT(Num_Expected_Large_Votes_Upper_Bound, processResultPair.second);
+			EXPECT_EQ(Expected_Large_Weight, processResultPair.second);
 		});
 	}
 
@@ -311,8 +290,7 @@ namespace catapult { namespace model {
 			// - check that votes are within 1% of expected value
 			auto processResultPair = ProcessMessage(*pMessage, context);
 			EXPECT_EQ(ProcessMessageResult::Success, processResultPair.first);
-			EXPECT_LT(Num_Expected_Large_Votes_Lower_Bound, processResultPair.second);
-			EXPECT_GT(Num_Expected_Large_Votes_Upper_Bound, processResultPair.second);
+			EXPECT_EQ(Expected_Large_Weight, processResultPair.second);
 		});
 	}
 
@@ -331,7 +309,6 @@ namespace catapult { namespace model {
 				auto pMessage = CreateMessage(numHashes);
 				pMessage->StepIdentifier = { 3, 4, 5 };
 				pMessage->Height = Height(987);
-				test::SetMessageSortitionHashProof(*pMessage, keyPairDescriptor.VrfKeyPair, context.generationHash());
 				test::SignMessage(*pMessage, keyPairDescriptor.VotingKeyPair);
 
 				// Act + Assert:
@@ -367,45 +344,6 @@ namespace catapult { namespace model {
 		});
 	}
 
-	TEST(TEST_CLASS, ProcessMessage_FailsWhenSortitionHashProofIsInvalid) {
-		// Arrange:
-		RunProcessMessageTest(VoterType::Large, 3, [](const auto& context, const auto& keyPairDescriptor, auto& message) {
-			// - corrupt proof and resign
-			test::FillWithRandomData(message.SortitionHashProof.Gamma);
-			test::SignMessage(message, keyPairDescriptor.VotingKeyPair);
-
-			// Act:
-			auto processResultPair = ProcessMessage(message, context);
-
-			// Assert:
-			EXPECT_EQ(ProcessMessageResult::Failure_Sortition_Hash_Proof, processResultPair.first);
-			EXPECT_EQ(0u, processResultPair.second);
-		});
-	}
-
-	TEST(TEST_CLASS, ProcessMessage_FailsWhenVoterIsNotSelected) {
-		// Arrange: sortition is probabilistic
-		test::RunNonDeterministicTest("voter is not selected", []() {
-			auto isTestSuccess = true;
-			RunProcessMessageTest(VoterType::Small, 3, [&isTestSuccess](const auto& context, const auto&, const auto& message) {
-				// Act:
-				auto processResultPair = ProcessMessage(message, context);
-
-				// - probabilistically, votes can be nonzero, but, if they're much higher than expected, fail the test
-				if (0 < processResultPair.second && processResultPair.second < 10) {
-					isTestSuccess = false;
-					return;
-				}
-
-				// Assert:
-				EXPECT_EQ(ProcessMessageResult::Failure_Selection, processResultPair.first);
-				EXPECT_EQ(0u, processResultPair.second);
-			});
-
-			return isTestSuccess;
-		});
-	}
-
 	TEST(TEST_CLASS, ProcessMessage_CanProcessValidMessageWithoutHashes) {
 		// Arrange:
 		RunProcessMessageTest(VoterType::Large, 0, [](const auto& context, const auto&, const auto& message) {
@@ -414,8 +352,7 @@ namespace catapult { namespace model {
 
 			// Assert: check that votes are within 1% of expected value
 			EXPECT_EQ(ProcessMessageResult::Success, processResultPair.first);
-			EXPECT_LT(Num_Expected_Large_Votes_Lower_Bound, processResultPair.second);
-			EXPECT_GT(Num_Expected_Large_Votes_Upper_Bound, processResultPair.second);
+			EXPECT_EQ(Expected_Large_Weight, processResultPair.second);
 
 			// Sanity:
 			EXPECT_EQ(0u, message.HashesCount);
@@ -430,8 +367,7 @@ namespace catapult { namespace model {
 
 			// Assert: check that votes are within 1% of expected value
 			EXPECT_EQ(ProcessMessageResult::Success, processResultPair.first);
-			EXPECT_LT(Num_Expected_Large_Votes_Lower_Bound, processResultPair.second);
-			EXPECT_GT(Num_Expected_Large_Votes_Upper_Bound, processResultPair.second);
+			EXPECT_EQ(Expected_Large_Weight, processResultPair.second);
 
 			// Sanity:
 			EXPECT_EQ(3u, message.HashesCount);
