@@ -30,7 +30,7 @@ namespace catapult { namespace io {
 	namespace {
 		// region BlockStorageCacheToBlockStorageAdapter
 
-		// wraps a BlockStorageCache in a BlockStorage so that it can be tested via the tests in ChainStorageTests.h
+		// wraps a BlockStorageCache in a BlockStorage so that it can be tested via the tests in BlockStorageTests.h
 		class BlockStorageCacheToBlockStorageAdapter : public BlockStorage {
 		public:
 			explicit BlockStorageCacheToBlockStorageAdapter(std::unique_ptr<BlockStorage>&& pStorage)
