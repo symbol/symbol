@@ -3,15 +3,21 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [v1.2.0] - 16-Jul-2020
+## [v1.2.0] - 6-Aug-2020
 ### Added
 - TLS installation notes.
+- Dockerfile.
+- Automatic Travis to DockerHub releases.
+- Transaction statements endpoint now accepts multiple filtered `receitpType`s.
 
 ### Changed
 - Reviewed hash lock, secret lock, namespace, account, metadata, and receipt endpoints.
+- Renamed the `master` branch to `main`.
 
 ### Fixed
 - Height comparison towards current chain height, for height related endpoints.
+- Pagination offsets sometimes were being ignored.
+- `namespaces/names` endpoint did not work for some provided addresses.
 
 ## [v1.1.3] - 27-Jun-2020
 ### Changed (since v1.0.20.50)
