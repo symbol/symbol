@@ -28,7 +28,10 @@ module.exports = {
 	[ModelType.binary]: value => convert.uint8ToHex(value),
 	[ModelType.statusCode]: status.toString,
 	[ModelType.string]: value => value.toString(),
+	[ModelType.uint]: value => value,
 	[ModelType.uint16]: value => value,
 	[ModelType.uint64]: value => uint64.toString(value),
-	[ModelType.uint64HexIdentifier]: value => uint64.toHex(value)
+	[ModelType.uint64HexIdentifier]: value => uint64.toHex(value),
+	[ModelType.int]: value => value,
+	[ModelType.boolean]: value => value
 };

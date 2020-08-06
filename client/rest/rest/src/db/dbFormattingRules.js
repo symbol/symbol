@@ -25,17 +25,27 @@ const { Binary } = require('mongodb');
 const { ModelType, status } = catapult.model;
 const { convert, uint64 } = catapult.utils;
 
-const rawUint64ToUint64 = value => (value instanceof Binary ? uint64.fromBytes(value.buffer) : longToUint64(value));
+/**
+ * Some of the formatters here may be branched depending on whether the received data comes from MongoDb or simple JavaScript. This happens
+ * because those formatters take data from the database and expose it to the API, and in some uncommon cases, data is fabricated outside of
+ * the database environment, and is then exposed to the API, however, the underlying types are not those of the databse. This architecture
+ * couples the database and the API a great deal, and this would probably need to be decoupled into two stages/layers (database parsing, and
+ * internal objects parsing). However, since the vast majority of times data is streamed directly untouched from the database to the API,
+ * this has not been decoupled yet.
+ */
 
 module.exports = {
 	[ModelType.none]: value => value,
-	// `binary` should support both mongo binary buffers and intermediate js buffers
 	[ModelType.binary]: value => (convert.uint8ToHex(value.buffer instanceof ArrayBuffer ? value : value.buffer)),
 	[ModelType.objectId]: value => (undefined === value ? '' : value.toHexString().toUpperCase()),
 	[ModelType.statusCode]: value => status.toString(value >>> 0),
 	[ModelType.string]: value => value.toString(),
-	// `uint16` adds support to uint16 arraybuffers in addition to basic uint16
+	[ModelType.uint]: value => convert.int32ToUint32(value),
+	// `uint16` required solely because accountRestrictions->restrictionAdditions array has uint16 provided as binary
 	[ModelType.uint16]: value => (value instanceof Binary ? Buffer.from(value.buffer).readInt16LE(0) : value),
-	[ModelType.uint64]: value => uint64.toString(rawUint64ToUint64(value)),
-	[ModelType.uint64HexIdentifier]: value => uint64.toHex(rawUint64ToUint64(value))
+	[ModelType.uint64]: value => uint64.toString(longToUint64(value)),
+	// `uint64HexIdentifier` requires branching accountRestrictions->restrictionAdditions provides uint64 as binary
+	[ModelType.uint64HexIdentifier]: value => uint64.toHex(value instanceof Binary ? uint64.fromBytes(value.buffer) : longToUint64(value)),
+	[ModelType.int]: value => value.valueOf(),
+	[ModelType.boolean]: value => value
 };

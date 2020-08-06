@@ -23,7 +23,7 @@ const { convertToLong } = require('../../src/db/dbUtils');
 const test = require('../testUtils');
 const catapult = require('catapult-sdk');
 const { expect } = require('chai');
-const { Binary } = require('mongodb');
+const { Binary, Int32 } = require('mongodb');
 
 const { ModelType } = catapult.model;
 
@@ -94,6 +94,27 @@ describe('db formatting rules', () => {
 		expect(result).to.equal('catapult');
 	});
 
+	describe('can format uint type', () => {
+		const testCases = [
+			{ name: 'uint value 0 (min)', value: new Int32(0), formated: 0 },
+			{ name: 'uint8 value 255', value: new Int32(255), formated: 255 },
+			{ name: 'uint16 value 65535', value: new Int32(65535), formated: 65535 },
+			{ name: 'uint32 value 4294967295 (max)', value: new Int32(-1), formated: 4294967295 },
+			{ name: 'uint32 value 2147483647', value: new Int32(2147483647), formated: 2147483647 },
+			{ name: 'uint32 value 2147483648', value: new Int32(-2147483648), formated: 2147483648 }
+		];
+
+		testCases.forEach(testCase => {
+			it(testCase.name, () => {
+				// Arrange + Act:
+				const result = formattingRules[ModelType.uint](testCase.value);
+
+				// Assert:
+				expect(result).to.equal(testCase.formated);
+			});
+		});
+	});
+
 	it('can format uint16 type', () => {
 		// Act:
 		const result = formattingRules[ModelType.uint16](17434);
@@ -126,20 +147,6 @@ describe('db formatting rules', () => {
 		expect(result).to.equal('8589934593');
 	});
 
-	it('can format uint64 type from Binary', () => {
-		// Arrange:
-		const buffer = Buffer.alloc(8, 0);
-		buffer.writeUInt32LE(0x00ABCDEF, 0);
-		buffer.writeUInt32LE(0x000FDFFF, 4);
-		const object = new Binary(buffer);
-
-		// Act:
-		const result = formattingRules[ModelType.uint64](object);
-
-		// Assert:
-		expect(result).to.equal('4468410971573743');
-	});
-
 	it('can format uint64HexIdentifier type from Long', () => {
 		// Arrange:
 		const object = convertToLong([1, 2]);
@@ -163,5 +170,43 @@ describe('db formatting rules', () => {
 
 		// Assert:
 		expect(result).to.equal('000FDFFF00ABCDEF');
+	});
+
+	describe('can format int type', () => {
+		const testCases = [
+			{ name: 'int value 0', value: new Int32(0), formated: 0 },
+			{ name: 'int8 value 255', value: new Int32(255), formated: 255 },
+			{ name: 'int16 value 65535', value: new Int32(65535), formated: 65535 },
+			{ name: 'int32 value -1', value: new Int32(-1), formated: -1 },
+			{ name: 'int32 value -2147483648 (min)', value: new Int32(-2147483648), formated: -2147483648 },
+			{ name: 'int32 value 2147483647 (max)', value: new Int32(2147483647), formated: 2147483647 }
+		];
+
+		testCases.forEach(testCase => {
+			it(testCase.name, () => {
+				// Arrange + Act:
+				const result = formattingRules[ModelType.int](testCase.value);
+
+				// Assert:
+				expect(result).to.equal(testCase.formated);
+			});
+		});
+	});
+
+	describe('can format boolean type', () => {
+		const testCases = [
+			{ name: 'boolean true', value: true, formated: true },
+			{ name: 'boolean false', value: false, formated: false }
+		];
+
+		testCases.forEach(testCase => {
+			it(testCase.name, () => {
+				// Arrange + Act:
+				const result = formattingRules[ModelType.boolean](testCase.value);
+
+				// Assert:
+				expect(result).to.equal(testCase.formated);
+			});
+		});
 	});
 });

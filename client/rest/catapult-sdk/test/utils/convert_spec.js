@@ -371,4 +371,68 @@ describe('convert', () => {
 			});
 		});
 	});
+
+	describe('signed <-> unsigned 32bits integer', () => {
+		const testCases = [
+			{ signed: -2147483648, unsigned: 0x80000000, description: 'min negative' },
+			{ signed: -2147483647, unsigned: 0x80000001, description: 'min negative plus one' },
+			{ signed: -2877657, unsigned: 0xFFD41727, description: 'negative' },
+			{ signed: -1, unsigned: 0xFFFFFFFF, description: 'negative one' },
+			{ signed: 0, unsigned: 0, description: 'zero' },
+			{ signed: 1, unsigned: 0x01, description: 'positive one' },
+			{ signed: 4565655, unsigned: 0x0045AA97, description: 'positive' },
+			{ signed: 2147483646, unsigned: 0x7FFFFFFE, description: 'max positive minus one' },
+			{ signed: 2147483647, unsigned: 0x7FFFFFFF, description: 'max positive' }
+		];
+
+		describe('uint32ToInt32', () => {
+			const failureTestCases = [
+				{ input: 4294967296, description: 'one too large' },
+				{ input: 100000000000, description: 'very large' }
+			];
+
+			failureTestCases.forEach(testCase => {
+				it(`cannot convert number that is ${testCase.description}`, () => {
+					// Assert:
+					expect(() => convert.uint32ToInt32(testCase.input)).to.throw(`input '${testCase.input}' is out of range`);
+				});
+			});
+
+			testCases.forEach(testCase => {
+				it(`can convert ${testCase.description}`, () => {
+					// Act:
+					const value = convert.uint32ToInt32(testCase.unsigned);
+
+					// Assert:
+					expect(value).to.equal(testCase.signed);
+				});
+			});
+		});
+
+		describe('int32ToUint32', () => {
+			const failureTestCases = [
+				{ input: -100000000000, description: 'very small' },
+				{ input: -2147483649, description: 'one too small' },
+				{ input: 4294967296, description: 'one too large' },
+				{ input: 100000000000, description: 'very large' }
+			];
+
+			failureTestCases.forEach(testCase => {
+				it(`cannot convert number that is ${testCase.description}`, () => {
+					// Assert:
+					expect(() => convert.int32ToUint32(testCase.input)).to.throw(`input '${testCase.input}' is out of range`);
+				});
+			});
+
+			testCases.forEach(testCase => {
+				it(`can convert ${testCase.description}`, () => {
+					// Act:
+					const value = convert.int32ToUint32(testCase.signed);
+
+					// Assert:
+					expect(value).to.equal(testCase.unsigned);
+				});
+			});
+		});
+	});
 });

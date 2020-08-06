@@ -190,6 +190,28 @@ const convert = {
 			throw Error(`input '${input}' is out of range`);
 
 		return input & 0xFFFF;
+	},
+
+	/** Converts an unsigned 32bits integer to a signed 32bits integer with the same binary representation.
+	 * @param {Numeric} input An unsigned 32bits integer.
+	 * @returns {Numeric} A signed 32bits integer with the same binary representation as the input.
+	 */
+	uint32ToInt32: input => {
+		if (0xFFFFFFFF < input)
+			throw Error(`input '${input}' is out of range`);
+
+		return input << 96 >> 96;
+	},
+
+	/** Converts a signed 32bits integer to an unsigned 32bits integer with the same binary representation.
+	 * @param {Numeric} input A signed 32bits integer.
+	 * @returns {Numeric} An unsigned 32bits integer with the same binary representation as the input.
+	 */
+	int32ToUint32: input => {
+		if (2147483647 < input || -2147483648 > input)
+			throw Error(`input '${input}' is out of range`);
+
+		return (input & 0xFFFFFFFF) >>> 0;
 	}
 };
 

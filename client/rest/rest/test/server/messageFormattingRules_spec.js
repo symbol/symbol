@@ -75,6 +75,17 @@ describe('message formatting rules', () => {
 		expect(result).to.equal('catapult');
 	});
 
+	it('can format uint type', () => {
+		// Arrange:
+		const object = 12345678;
+
+		// Act:
+		const result = formattingRules[ModelType.uint](object);
+
+		// Assert:
+		expect(result).to.deep.equal(12345678);
+	});
+
 	it('can format uint16 type', () => {
 		// Arrange:
 		const object = 56;
@@ -97,6 +108,17 @@ describe('message formatting rules', () => {
 		expect(result).to.equal('8589934593');
 	});
 
+	it('can format int type', () => {
+		// Arrange:
+		const object = 12345678;
+
+		// Act:
+		const result = formattingRules[ModelType.int](object);
+
+		// Assert:
+		expect(result).to.deep.equal(12345678);
+	});
+
 	it('can format uint64HexIdentifier type', () => {
 		// Arrange:
 		const object = [1, 2];
@@ -106,5 +128,16 @@ describe('message formatting rules', () => {
 
 		// Assert:
 		expect(result).to.equal('0000000200000001');
+	});
+
+	it('can format boolean type', () => {
+		// Arrange:
+		const object = true;
+
+		// Act:
+		const result = formattingRules[ModelType.boolean](object);
+
+		// Assert:
+		expect(result).to.deep.equal(true);
 	});
 });
