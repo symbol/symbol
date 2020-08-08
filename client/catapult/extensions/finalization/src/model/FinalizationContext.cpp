@@ -38,7 +38,8 @@ namespace catapult { namespace model {
 			const GenerationHash& generationHash,
 			const finalization::FinalizationConfiguration& config,
 			const cache::AccountStateCacheView& accountStateCacheView)
-			: m_height(height)
+			: m_point(point)
+			, m_height(height)
 			, m_generationHash(generationHash)
 			, m_config(config) {
 		const auto& highValueAccounts = accountStateCacheView.highValueAccounts();
@@ -51,9 +52,13 @@ namespace catapult { namespace model {
 			auto accountView = FinalizationAccountView();
 			accountView.Weight = balance;
 
-			m_accounts.emplace(Find(accountHistory.votingPublicKeys().get(m_height), point), accountView);
+			m_accounts.emplace(Find(accountHistory.votingPublicKeys().get(m_height), m_point), accountView);
 			m_weight = m_weight + balance;
 		}
+	}
+
+	FinalizationPoint FinalizationContext::point() const {
+		return m_point;
 	}
 
 	Height FinalizationContext::height() const {

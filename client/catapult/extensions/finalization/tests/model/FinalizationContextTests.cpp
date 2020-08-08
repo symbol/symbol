@@ -132,6 +132,7 @@ namespace catapult { namespace model {
 		FinalizationContext context(FP(50), Height(123), generationHash, config, *cache.createView());
 
 		// Assert:
+		EXPECT_EQ(FP(50), context.point());
 		EXPECT_EQ(Height(123), context.height());
 		EXPECT_EQ(generationHash, context.generationHash());
 		EXPECT_EQ(9876u, context.config().Size);
@@ -152,6 +153,7 @@ namespace catapult { namespace model {
 		FinalizationContext context(FP(50), Height(123), generationHash, config, *cache.createView());
 
 		// Assert:
+		EXPECT_EQ(FP(50), context.point());
 		EXPECT_EQ(Height(123), context.height());
 		EXPECT_EQ(generationHash, context.generationHash());
 		EXPECT_EQ(9876u, context.config().Size);
@@ -162,6 +164,7 @@ namespace catapult { namespace model {
 		// Arrange:
 		RunNineAccountTest([](const auto& context, const auto& generationHash, const auto&, const auto&, const auto&) {
 			// Assert: should include accounts from both views 1 and 2 but not 3
+			EXPECT_EQ(FP(50), context.point());
 			EXPECT_EQ(Height(123), context.height());
 			EXPECT_EQ(generationHash, context.generationHash());
 			EXPECT_EQ(9876u, context.config().Size);
@@ -184,6 +187,7 @@ namespace catapult { namespace model {
 		FinalizationContext context(FP(50), Height(123), generationHash, config, *cache.createView());
 
 		// Assert:
+		EXPECT_EQ(FP(50), context.point());
 		EXPECT_EQ(Height(123), context.height());
 		EXPECT_EQ(generationHash, context.generationHash());
 		EXPECT_EQ(9876u, context.config().Size);
@@ -208,6 +212,7 @@ namespace catapult { namespace model {
 		FinalizationContext context(FP(50), Height(123), generationHash, config, *cache.createView());
 
 		// Assert:
+		EXPECT_EQ(FP(50), context.point());
 		EXPECT_EQ(Height(123), context.height());
 		EXPECT_EQ(generationHash, context.generationHash());
 		EXPECT_EQ(9876u, context.config().Size);

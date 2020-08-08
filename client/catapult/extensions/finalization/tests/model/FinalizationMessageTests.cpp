@@ -140,7 +140,7 @@ namespace catapult { namespace model {
 		EXPECT_NE(messageHash1, messageHash2);
 	}
 
-	TEST(TEST_CLASS, CalculateMessageHash_ProducesSameHashForMessagesWithDifferentHeaderContents) {
+	TEST(TEST_CLASS, CalculateMessageHash_ProducesDifferentHashesForMessagesWithDifferentHeaderContents) {
 		// Arrange:
 		auto pMessage1 = CreateMessage(3);
 		auto pMessage2 = test::CopyEntity(*pMessage1);
@@ -151,7 +151,7 @@ namespace catapult { namespace model {
 		auto messageHash2 = CalculateMessageHash(*pMessage2);
 
 		// Assert:
-		EXPECT_EQ(messageHash1, messageHash2);
+		EXPECT_NE(messageHash1, messageHash2);
 	}
 
 	// endregion
@@ -185,7 +185,7 @@ namespace catapult { namespace model {
 
 		enum class VoterType : uint32_t { Small, Large, Ineligible };
 
-		constexpr auto Expected_Large_Weight = 4'000'000'000'000u;
+		constexpr auto Expected_Large_Weight = 4'000'000u;
 
 		template<typename TAction>
 		void RunFinalizationContextTest(TAction action) {
@@ -195,7 +195,7 @@ namespace catapult { namespace model {
 
 			cache::AccountStateCache cache(cache::CacheConfiguration(), CreateOptions());
 			auto keyPairDescriptors = AddAccountsWithBalances(cache, Height(123), {
-				Amount(2'000'000), Amount(Expected_Large_Weight), Amount(1'000'000), Amount(6'000'000'000'000)
+				Amount(2'000'000), Amount(Expected_Large_Weight), Amount(1'000'000), Amount(6'000'000)
 			});
 
 			FinalizationContext context(FinalizationPoint(50), Height(123), generationHash, config, *cache.createView());

@@ -44,7 +44,7 @@ namespace catapult { namespace model {
 
 	Hash256 CalculateMessageHash(const FinalizationMessage& message) {
 		Hash256 messageHash;
-		crypto::Sha3_256(ToBuffer(message), messageHash);
+		crypto::Sha3_256({ reinterpret_cast<const uint8_t*>(&message), message.Size }, messageHash);
 		return messageHash;
 	}
 

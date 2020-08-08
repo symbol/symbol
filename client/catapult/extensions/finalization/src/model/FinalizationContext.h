@@ -47,6 +47,9 @@ namespace catapult { namespace model {
 				const cache::AccountStateCacheView& accountStateCacheView);
 
 	public:
+		/// Gets the finalization point.
+		FinalizationPoint point() const;
+
 		/// Gets the height of the last finalized block.
 		Height height() const;
 
@@ -63,6 +66,7 @@ namespace catapult { namespace model {
 		FinalizationAccountView lookup(const VotingKey& votingPublicKey) const;
 
 	private:
+		FinalizationPoint m_point;
 		Height m_height;
 		GenerationHash m_generationHash;
 		finalization::FinalizationConfiguration m_config;
