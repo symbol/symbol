@@ -33,6 +33,9 @@ namespace catapult { namespace crypto {
 	class OtsTree {
 	private:
 		OtsTree(io::SeekableStream& storage, const OtsOptions& options);
+
+	public:
+		/// Move constructor.
 		OtsTree(OtsTree&& tree);
 
 	public:

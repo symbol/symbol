@@ -41,7 +41,8 @@ namespace catapult { namespace finalization {
 							{ "shortLivedCacheMessageDuration", "53m" },
 							{ "messageSynchronizationMaxResponseSize", "234KB" },
 
-							{ "maxHashesPerPoint", "123" }
+							{ "maxHashesPerPoint", "123" },
+							{ "prevoteBlocksMultiple", "7" }
 						}
 					}
 				};
@@ -60,6 +61,7 @@ namespace catapult { namespace finalization {
 				EXPECT_EQ(utils::FileSize(), config.MessageSynchronizationMaxResponseSize);
 
 				EXPECT_EQ(0u, config.MaxHashesPerPoint);
+				EXPECT_EQ(0u, config.PrevoteBlocksMultiple);
 			}
 
 			static void AssertCustom(const FinalizationConfiguration& config) {
@@ -71,6 +73,7 @@ namespace catapult { namespace finalization {
 				EXPECT_EQ(utils::FileSize::FromKilobytes(234), config.MessageSynchronizationMaxResponseSize);
 
 				EXPECT_EQ(123u, config.MaxHashesPerPoint);
+				EXPECT_EQ(7u, config.PrevoteBlocksMultiple);
 			}
 		};
 	}
@@ -96,6 +99,7 @@ namespace catapult { namespace finalization {
 		EXPECT_EQ(utils::FileSize::FromMegabytes(20), config.MessageSynchronizationMaxResponseSize);
 
 		EXPECT_EQ(256u, config.MaxHashesPerPoint);
+		EXPECT_EQ(4u, config.PrevoteBlocksMultiple);
 	}
 
 	// endregion

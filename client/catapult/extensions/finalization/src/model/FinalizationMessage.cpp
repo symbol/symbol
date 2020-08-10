@@ -50,16 +50,16 @@ namespace catapult { namespace model {
 
 	// TODO: FinalizationContext::lookup expects BLS key, but, for now, interpret it as ED25519 key
 
+	bool IsEligibleVoter(const crypto::OtsTree& otsTree, const FinalizationContext& context) {
+		auto accountView = context.lookup(otsTree.rootPublicKey().copyTo<VotingKey>());
+		return Amount() != accountView.Weight;
+	}
+
 	std::unique_ptr<FinalizationMessage> PrepareMessage(
 			crypto::OtsTree& otsTree,
 			const crypto::StepIdentifier& stepIdentifier,
 			Height height,
-			const HashRange& hashes,
-			const FinalizationContext& context) {
-		auto accountView = context.lookup(otsTree.rootPublicKey().copyTo<VotingKey>());
-		if (Amount() == accountView.Weight)
-			return nullptr;
-
+			const HashRange& hashes) {
 		// 1. create message and copy hashes
 		auto numHashes = static_cast<uint32_t>(hashes.size());
 		uint32_t messageSize = SizeOf32<FinalizationMessage>() + numHashes * static_cast<uint32_t>(Hash256::Size);

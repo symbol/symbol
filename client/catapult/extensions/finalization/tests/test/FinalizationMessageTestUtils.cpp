@@ -46,7 +46,7 @@ namespace catapult { namespace test {
 	std::unique_ptr<model::FinalizationMessage> CreateMessage(Height height, uint32_t numHashes) {
 		uint32_t messageSize = SizeOf32<model::FinalizationMessage>() + numHashes * static_cast<uint32_t>(Hash256::Size);
 		auto pMessage = utils::MakeUniqueWithSize<model::FinalizationMessage>(messageSize);
-		test::FillWithRandomData({ reinterpret_cast<uint8_t*>(pMessage.get()), messageSize });
+		FillWithRandomData({ reinterpret_cast<uint8_t*>(pMessage.get()), messageSize });
 		pMessage->Size = messageSize;
 		pMessage->HashesCount = numHashes;
 		pMessage->Height = height;
@@ -136,6 +136,41 @@ namespace catapult { namespace test {
 
 		accountStateCacheDelta.updateHighValueAccounts(height);
 		return keyPairDescriptors;
+	}
+
+	// endregion
+
+	// region finalization context utils
+
+	namespace {
+		constexpr auto Harvesting_Mosaic_Id = MosaicId(9876);
+
+		std::vector<AccountKeyPairDescriptor> AddAccountsWithBalances(
+				cache::AccountStateCache& cache,
+				Height height,
+				const std::vector<Amount>& balances) {
+			auto delta = cache.createDelta();
+			auto keyPairDescriptors = test::AddAccountsWithBalances(*delta, height, Harvesting_Mosaic_Id, balances);
+			cache.commit();
+			return keyPairDescriptors;
+		}
+	}
+
+	std::pair<model::FinalizationContext, std::vector<AccountKeyPairDescriptor>> CreateFinalizationContext(
+			const finalization::FinalizationConfiguration& config,
+			FinalizationPoint point,
+			Height height,
+			const std::vector<Amount>& balances) {
+		auto accountStateCacheOptions = CreateDefaultAccountStateCacheOptions(MosaicId(1111), Harvesting_Mosaic_Id);
+		accountStateCacheOptions.MinVoterBalance = Amount(2'000'000);
+
+		cache::AccountStateCache accountStateCache(cache::CacheConfiguration(), accountStateCacheOptions);
+		auto keyPairDescriptors = AddAccountsWithBalances(accountStateCache, height, balances);
+
+		auto generationHash = GenerateRandomByteArray<GenerationHash>();
+		auto finalizationContext = model::FinalizationContext(point, height, generationHash, config, *accountStateCache.createView());
+
+		return std::make_pair(std::move(finalizationContext), std::move(keyPairDescriptors));
 	}
 
 	// endregion

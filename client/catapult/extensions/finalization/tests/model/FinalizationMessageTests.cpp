@@ -19,11 +19,8 @@
 **/
 
 #include "finalization/src/model/FinalizationMessage.h"
-#include "finalization/src/model/FinalizationContext.h"
-#include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/crypto_voting/OtsTree.h"
 #include "finalization/tests/test/FinalizationMessageTestUtils.h"
-#include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/core/HashTestUtils.h"
 #include "tests/test/core/VariableSizedEntityTestUtils.h"
@@ -159,53 +156,59 @@ namespace catapult { namespace model {
 	namespace {
 		// region test utils - FinalizationContext
 
-		constexpr auto Harvesting_Mosaic_Id = MosaicId(9876);
-
-		cache::AccountStateCacheTypes::Options CreateOptions() {
-			auto options = test::CreateDefaultAccountStateCacheOptions(MosaicId(1111), Harvesting_Mosaic_Id);
-			options.MinVoterBalance = Amount(2'000'000);
-			return options;
-		}
-
-		finalization::FinalizationConfiguration CreateConfigurationWithSize(uint32_t size) {
-			auto config = finalization::FinalizationConfiguration::Uninitialized();
-			config.Size = size;
-			return config;
-		}
-
-		std::vector<test::AccountKeyPairDescriptor> AddAccountsWithBalances(
-				cache::AccountStateCache& cache,
-				Height height,
-				const std::vector<Amount>& balances) {
-			auto delta = cache.createDelta();
-			auto keyPairDescriptors = test::AddAccountsWithBalances(*delta, height, Harvesting_Mosaic_Id, balances);
-			cache.commit();
-			return keyPairDescriptors;
-		}
-
 		enum class VoterType : uint32_t { Small, Large, Ineligible };
 
 		constexpr auto Expected_Large_Weight = 4'000'000u;
 
 		template<typename TAction>
 		void RunFinalizationContextTest(TAction action) {
-			// Arrange: create context
-			auto generationHash = test::GenerateRandomByteArray<GenerationHash>();
-			auto config = CreateConfigurationWithSize(3'000);
-
-			cache::AccountStateCache cache(cache::CacheConfiguration(), CreateOptions());
-			auto keyPairDescriptors = AddAccountsWithBalances(cache, Height(123), {
+			// Arrange:
+			auto config = finalization::FinalizationConfiguration::Uninitialized();
+			auto finalizationContextPair = test::CreateFinalizationContext(config, FinalizationPoint(50), Height(123), {
 				Amount(2'000'000), Amount(Expected_Large_Weight), Amount(1'000'000), Amount(6'000'000)
 			});
 
-			FinalizationContext context(FinalizationPoint(50), Height(123), generationHash, config, *cache.createView());
-
 			// Act + Assert:
-			action(context, keyPairDescriptors);
+			action(finalizationContextPair.first, finalizationContextPair.second);
 		}
 
 		// endregion
 	}
+
+	// region IsEligibleVoter
+
+	namespace {
+		void RunIsEligibleVoterTest(bool expectedResult, VoterType voterType) {
+			// Arrange:
+			RunFinalizationContextTest([expectedResult, voterType](const auto& context, const auto& keyPairDescriptors) {
+				const auto& keyPairDescriptor = keyPairDescriptors[utils::to_underlying_type(voterType)];
+
+				auto storage = mocks::MockSeekableMemoryStream();
+				auto otsTree = crypto::OtsTree::Create(
+						test::CopyKeyPair(keyPairDescriptor.VotingKeyPair),
+						storage,
+						FinalizationPoint(1),
+						FinalizationPoint(20),
+						{ 20, 20 });
+
+				// Act:
+				auto isEligibleVoter = IsEligibleVoter(otsTree, context);
+
+				// Assert:
+				EXPECT_EQ(expectedResult, isEligibleVoter);
+			});
+		}
+	}
+
+	TEST(TEST_CLASS, IsEligibleVoterReturnsFalseWhenVoterIsNotEligible) {
+		RunIsEligibleVoterTest(false, VoterType::Ineligible);
+	}
+
+	TEST(TEST_CLASS, IsEligibleVoterReturnsTrueWhenVoterIsEligible) {
+		RunIsEligibleVoterTest(true, VoterType::Large);
+	}
+
+	// endregion
 
 	// region PrepareMessage
 
@@ -228,23 +231,13 @@ namespace catapult { namespace model {
 				auto hashes = test::GenerateRandomHashes(numHashes);
 
 				// Act:
-				auto pMessage = PrepareMessage(otsTree, stepIdentifier, Height(987), hashes, context);
+				auto pMessage = PrepareMessage(otsTree, stepIdentifier, Height(987), hashes);
 
 				// Assert:
 				action(pMessage, context, hashes);
 			});
 		}
-	}
 
-	TEST(TEST_CLASS, PrepareMessage_FailsWhenAccountIsNotVotingEligible) {
-		// Arrange:
-		RunPrepareMessageTest(VoterType::Ineligible, 3, [](const auto& pMessage, const auto&, const auto&) {
-			// Assert:
-			EXPECT_FALSE(!!pMessage);
-		});
-	}
-
-	namespace {
 		HashRange ExtractHashes(const FinalizationMessage& message) {
 			return HashRange::CopyFixed(reinterpret_cast<const uint8_t*>(message.HashesPtr()), message.HashesCount);
 		}
@@ -265,7 +258,6 @@ namespace catapult { namespace model {
 			EXPECT_EQ(0u, FindFirstDifferenceIndex(hashes, ExtractHashes(*pMessage)));
 
 			// - check that the message is valid and can be processed
-			// - check that votes are within 1% of expected value
 			auto processResultPair = ProcessMessage(*pMessage, context);
 			EXPECT_EQ(ProcessMessageResult::Success, processResultPair.first);
 			EXPECT_EQ(Expected_Large_Weight, processResultPair.second);
@@ -287,10 +279,30 @@ namespace catapult { namespace model {
 			EXPECT_EQ(3u, FindFirstDifferenceIndex(hashes, ExtractHashes(*pMessage)));
 
 			// - check that the message is valid and can be processed
-			// - check that votes are within 1% of expected value
 			auto processResultPair = ProcessMessage(*pMessage, context);
 			EXPECT_EQ(ProcessMessageResult::Success, processResultPair.first);
 			EXPECT_EQ(Expected_Large_Weight, processResultPair.second);
+		});
+	}
+
+	TEST(TEST_CLASS, PrepareMessage_CanPrepareValidMessageWithHashesForIneligibleVoter) {
+		// Arrange:
+		RunPrepareMessageTest(VoterType::Ineligible, 3, [](const auto& pMessage, const auto& context, const auto& hashes) {
+			// Assert:
+			ASSERT_TRUE(!!pMessage);
+
+			// - check a few fields
+			EXPECT_EQ(sizeof(FinalizationMessage) + 3 * Hash256::Size, pMessage->Size);
+			EXPECT_EQ(3u, pMessage->HashesCount);
+
+			EXPECT_EQ(crypto::StepIdentifier({ 3, 4, 5 }), pMessage->StepIdentifier);
+			EXPECT_EQ(Height(987), pMessage->Height);
+			EXPECT_EQ(3u, FindFirstDifferenceIndex(hashes, ExtractHashes(*pMessage)));
+
+			// - check that the message signer is not a valid voter
+			auto processResultPair = ProcessMessage(*pMessage, context);
+			EXPECT_EQ(ProcessMessageResult::Failure_Voter, processResultPair.first);
+			EXPECT_EQ(0u, processResultPair.second);
 		});
 	}
 
@@ -350,7 +362,7 @@ namespace catapult { namespace model {
 			// Act:
 			auto processResultPair = ProcessMessage(message, context);
 
-			// Assert: check that votes are within 1% of expected value
+			// Assert:
 			EXPECT_EQ(ProcessMessageResult::Success, processResultPair.first);
 			EXPECT_EQ(Expected_Large_Weight, processResultPair.second);
 
@@ -365,7 +377,7 @@ namespace catapult { namespace model {
 			// Act:
 			auto processResultPair = ProcessMessage(message, context);
 
-			// Assert: check that votes are within 1% of expected value
+			// Assert:
 			EXPECT_EQ(ProcessMessageResult::Success, processResultPair.first);
 			EXPECT_EQ(Expected_Large_Weight, processResultPair.second);
 

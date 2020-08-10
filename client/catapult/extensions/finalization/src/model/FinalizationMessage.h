@@ -78,23 +78,25 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region CalculateMessageHash
+	// region CalculateMessageHash / IsEligibleVoter
 
 	/// Calculates a hash for \a message.
 	Hash256 CalculateMessageHash(const FinalizationMessage& message);
+
+	/// Determines if the voter associated with \a otsTree is eligible for participating in the finalization procedure
+	/// represented by \a context.
+	bool IsEligibleVoter(const crypto::OtsTree& otsTree, const FinalizationContext& context);
 
 	// endregion
 
 	// region PrepareMessage
 
-	/// Prepares a finalization message given \a otsTree, \a stepIdentifier, \a height, \a hashes and \a context.
-	/// \note If parameters don't yield a voting selection, \c nullptr will be returned.
+	/// Prepares a finalization message given \a otsTree, \a stepIdentifier, \a height and \a hashes.
 	std::unique_ptr<FinalizationMessage> PrepareMessage(
 			crypto::OtsTree& otsTree,
 			const crypto::StepIdentifier& stepIdentifier,
 			Height height,
-			const HashRange& hashes,
-			const FinalizationContext& context);
+			const HashRange& hashes);
 
 	// endregion
 

@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "finalization/src/model/FinalizationContext.h"
 #include "finalization/src/model/FinalizationMessage.h"
 #include "catapult/crypto/KeyPair.h"
 #include <memory>
@@ -99,6 +100,17 @@ namespace catapult { namespace test {
 			cache::AccountStateCacheDelta& accountStateCacheDelta,
 			Height height,
 			MosaicId mosaicId,
+			const std::vector<Amount>& balances);
+
+	// endregion
+
+	// region finalization context utils
+
+	/// Creates a finalization context for \a point at \a height with specified account \a balances given \a config.
+	std::pair<model::FinalizationContext, std::vector<AccountKeyPairDescriptor>> CreateFinalizationContext(
+			const finalization::FinalizationConfiguration& config,
+			FinalizationPoint point,
+			Height height,
 			const std::vector<Amount>& balances);
 
 	// endregion

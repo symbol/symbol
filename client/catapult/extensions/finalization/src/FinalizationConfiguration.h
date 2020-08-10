@@ -45,6 +45,9 @@ namespace catapult { namespace finalization {
 		/// Maximum number of hashes to finalize per finalization point.
 		uint32_t MaxHashesPerPoint;
 
+		/// Height multiple of the last block in a prevote hash chain.
+		uint16_t PrevoteBlocksMultiple;
+
 	private:
 		FinalizationConfiguration() = default;
 

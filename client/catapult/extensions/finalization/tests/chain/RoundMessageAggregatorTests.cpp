@@ -20,11 +20,8 @@
 
 #include "finalization/src/chain/RoundMessageAggregator.h"
 #include "finalization/src/chain/RoundContext.h"
-#include "finalization/src/model/FinalizationContext.h"
-#include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/utils/MemoryUtils.h"
 #include "finalization/tests/test/FinalizationMessageTestUtils.h"
-#include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/nodeps/LockTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -44,9 +41,6 @@ namespace catapult { namespace chain {
 		};
 
 		class TestContext {
-		private:
-			static constexpr auto Harvesting_Mosaic_Id = MosaicId(9876);
-
 		public:
 			TestContext(uint32_t size, uint32_t threshold) : TestContext(size, threshold, TestContextOptions())
 			{}
@@ -58,15 +52,13 @@ namespace catapult { namespace chain {
 				config.MaxHashesPerPoint = options.MaxHashesPerPoint;
 
 				// 15/20M voting eligible
-				cache::AccountStateCache cache(cache::CacheConfiguration(), CreateOptions());
-				m_keyPairDescriptors = AddAccountsWithBalances(cache, Last_Finalized_Height, {
+				auto finalizationContextPair = test::CreateFinalizationContext(config, Finalization_Point, Last_Finalized_Height, {
 					Amount(4'000'000), Amount(2'000'000), Amount(1'000'000), Amount(2'000'000), Amount(3'000'000), Amount(4'000'000),
 					Amount(1'000'000), Amount(1'000'000), Amount(1'000'000), Amount(1'000'000)
 				});
 
-				m_pAggregator = std::make_unique<RoundMessageAggregator>(
-						options.MaxResponseSize,
-						CreateFinalizationContext(config, cache));
+				m_keyPairDescriptors = std::move(finalizationContextPair.second);
+				m_pAggregator = std::make_unique<RoundMessageAggregator>(options.MaxResponseSize, finalizationContextPair.first);
 			}
 
 		public:
@@ -82,32 +74,6 @@ namespace catapult { namespace chain {
 		public:
 			auto detach() {
 				return std::move(m_pAggregator);
-			}
-
-		private:
-			static cache::AccountStateCacheTypes::Options CreateOptions() {
-				auto options = test::CreateDefaultAccountStateCacheOptions(MosaicId(1111), Harvesting_Mosaic_Id);
-				options.MinVoterBalance = Amount(2'000'000);
-				return options;
-			}
-
-			static std::vector<test::AccountKeyPairDescriptor> AddAccountsWithBalances(
-					cache::AccountStateCache& cache,
-					Height height,
-					const std::vector<Amount>& balances) {
-				auto delta = cache.createDelta();
-				auto keyPairDescriptors = test::AddAccountsWithBalances(*delta, height, Harvesting_Mosaic_Id, balances);
-				cache.commit();
-				return keyPairDescriptors;
-			}
-
-			model::FinalizationContext CreateFinalizationContext(
-					const finalization::FinalizationConfiguration& config,
-					const cache::AccountStateCache& cache) {
-				auto point = Finalization_Point;
-				auto height = Last_Finalized_Height;
-				auto generationHash = test::GenerateRandomByteArray<GenerationHash>();
-				return model::FinalizationContext(point, height, generationHash, config, *cache.createView());
 			}
 
 		private:

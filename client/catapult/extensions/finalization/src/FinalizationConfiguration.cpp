@@ -41,8 +41,9 @@ namespace catapult { namespace finalization {
 		LOAD_PROPERTY(MessageSynchronizationMaxResponseSize);
 
 		LOAD_PROPERTY(MaxHashesPerPoint);
+		LOAD_PROPERTY(PrevoteBlocksMultiple);
 
-		utils::VerifyBagSizeExact(bag, 5);
+		utils::VerifyBagSizeExact(bag, 6);
 		return config;
 	}
 
