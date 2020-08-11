@@ -43,8 +43,9 @@ namespace catapult { namespace finalization {
 
 		LOAD_PROPERTY(MaxHashesPerPoint);
 		LOAD_PROPERTY(PrevoteBlocksMultiple);
+		LOAD_PROPERTY(OtsKeyDilution);
 
-		utils::VerifyBagSizeExact(bag, 7);
+		utils::VerifyBagSizeExact(bag, 8);
 		return config;
 	}
 

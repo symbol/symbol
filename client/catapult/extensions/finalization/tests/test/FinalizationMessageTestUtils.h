@@ -46,19 +46,14 @@ namespace catapult { namespace test {
 	std::unique_ptr<model::FinalizationMessage> CreateMessage(Height height, uint32_t numHashes);
 
 	/// Creates a finalization message with \a stepIdentifier and one \a hash.
-	std::unique_ptr<model::FinalizationMessage> CreateMessage(const crypto::StepIdentifier& stepIdentifier, const Hash256& hash);
-
-	/// Creates a valid finalization message with \a stepIdentifier and one \a hash at \a height for the account
-	/// specified by \a keyPairDescriptor.
-	std::unique_ptr<model::FinalizationMessage> CreateValidMessage(
-			const crypto::StepIdentifier& stepIdentifier,
-			Height height,
-			const Hash256& hash,
-			const AccountKeyPairDescriptor& keyPairDescriptor);
+	std::unique_ptr<model::FinalizationMessage> CreateMessage(const model::StepIdentifier& stepIdentifier, const Hash256& hash);
 
 	// endregion
 
 	// region message utils
+
+	/// Signs \a message with \a votingKeyPair using \a dilution.
+	void SignMessage(model::FinalizationMessage& message, const crypto::KeyPair& votingKeyPair, uint64_t dilution);
 
 	/// Signs \a message with \a votingKeyPair.
 	void SignMessage(model::FinalizationMessage& message, const crypto::KeyPair& votingKeyPair);

@@ -43,7 +43,8 @@ namespace catapult { namespace finalization {
 							{ "messageSynchronizationMaxResponseSize", "234KB" },
 
 							{ "maxHashesPerPoint", "123" },
-							{ "prevoteBlocksMultiple", "7" }
+							{ "prevoteBlocksMultiple", "7" },
+							{ "otsKeyDilution", "357" }
 						}
 					}
 				};
@@ -64,6 +65,7 @@ namespace catapult { namespace finalization {
 
 				EXPECT_EQ(0u, config.MaxHashesPerPoint);
 				EXPECT_EQ(0u, config.PrevoteBlocksMultiple);
+				EXPECT_EQ(0u, config.OtsKeyDilution);
 			}
 
 			static void AssertCustom(const FinalizationConfiguration& config) {
@@ -77,6 +79,7 @@ namespace catapult { namespace finalization {
 
 				EXPECT_EQ(123u, config.MaxHashesPerPoint);
 				EXPECT_EQ(7u, config.PrevoteBlocksMultiple);
+				EXPECT_EQ(357u, config.OtsKeyDilution);
 			}
 		};
 	}
@@ -104,6 +107,7 @@ namespace catapult { namespace finalization {
 
 		EXPECT_EQ(256u, config.MaxHashesPerPoint);
 		EXPECT_EQ(4u, config.PrevoteBlocksMultiple);
+		EXPECT_EQ(32u, config.OtsKeyDilution);
 	}
 
 	// endregion

@@ -57,7 +57,7 @@ namespace catapult { namespace model {
 
 	std::unique_ptr<FinalizationMessage> PrepareMessage(
 			crypto::OtsTree& otsTree,
-			const crypto::StepIdentifier& stepIdentifier,
+			const StepIdentifier& stepIdentifier,
 			Height height,
 			const HashRange& hashes) {
 		// 1. create message and copy hashes
@@ -75,7 +75,8 @@ namespace catapult { namespace model {
 			*pHash++ = hash;
 
 		// 2. sign
-		pMessage->Signature = otsTree.sign(pMessage->StepIdentifier, ToBuffer(*pMessage));
+		auto keyIdentifier = StepIdentifierToOtsKeyIdentifier(pMessage->StepIdentifier, otsTree.options().Dilution);
+		pMessage->Signature = otsTree.sign(keyIdentifier, ToBuffer(*pMessage));
 		return pMessage;
 	}
 
@@ -84,7 +85,8 @@ namespace catapult { namespace model {
 		if (Amount() == accountView.Weight)
 			return std::make_pair(ProcessMessageResult::Failure_Voter, 0);
 
-		if (!crypto::Verify(message.Signature, message.StepIdentifier, ToBuffer(message)))
+		auto keyIdentifier = StepIdentifierToOtsKeyIdentifier(message.StepIdentifier, context.config().OtsKeyDilution);
+		if (!crypto::Verify(message.Signature, keyIdentifier, ToBuffer(message)))
 			return std::make_pair(ProcessMessageResult::Failure_Message_Signature, 0);
 
 		return std::make_pair(ProcessMessageResult::Success, accountView.Weight.unwrap());

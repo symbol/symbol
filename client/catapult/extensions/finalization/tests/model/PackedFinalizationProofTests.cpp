@@ -43,7 +43,7 @@ namespace catapult { namespace model {
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(VoteProof));
-		EXPECT_EQ(384u, sizeof(VoteProof));
+		EXPECT_EQ(288u, sizeof(VoteProof));
 	}
 
 	TEST(TEST_CLASS, VoteProofHasProperAlignment) {

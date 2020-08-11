@@ -42,6 +42,8 @@ namespace catapult { namespace finalization {
 		using VoterType = test::FinalizationBootstrapperServiceTestUtils::VoterType;
 
 		struct FinalizationMessageProcessingServiceTraits {
+			static constexpr auto Ots_Key_Dilution = 3u;
+
 			static auto CreateRegistrar() {
 				auto config = FinalizationConfiguration::Uninitialized();
 				config.ShortLivedCacheMessageDuration = utils::TimeSpan::FromMinutes(1);

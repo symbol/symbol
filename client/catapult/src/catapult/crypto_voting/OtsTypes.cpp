@@ -22,48 +22,34 @@
 
 namespace catapult { namespace crypto {
 
-	// region ots options
+	// region ots key identifier
 
-	bool OtsOptions::operator==(const OtsOptions& rhs) const {
-		return MaxRounds == rhs.MaxRounds && MaxSubRounds == rhs.MaxSubRounds;
+	bool OtsKeyIdentifier::operator==(const OtsKeyIdentifier& rhs) const {
+		return BatchId == rhs.BatchId && KeyId == rhs.KeyId;
 	}
 
-	bool OtsOptions::operator!=(const OtsOptions& rhs) const {
+	bool OtsKeyIdentifier::operator!=(const OtsKeyIdentifier& rhs) const {
 		return !(*this == rhs);
 	}
 
-	// endregion
-
-	// region step identifier
-
-	bool StepIdentifier::operator==(const StepIdentifier& rhs) const {
-		return Point == rhs.Point && Round == rhs.Round && SubRound == rhs.SubRound;
+	bool OtsKeyIdentifier::operator<(const OtsKeyIdentifier& rhs) const {
+		return BatchId < rhs.BatchId || (BatchId == rhs.BatchId && KeyId < rhs.KeyId);
 	}
 
-	bool StepIdentifier::operator!=(const StepIdentifier& rhs) const {
-		return !(*this == rhs);
-	}
-
-	bool StepIdentifier::operator<(const StepIdentifier& rhs) const {
-		return Point < rhs.Point
-				|| (Point == rhs.Point && Round < rhs.Round)
-				|| (Point == rhs.Point && Round == rhs.Round && SubRound < rhs.SubRound);
-	}
-
-	bool StepIdentifier::operator<=(const StepIdentifier& rhs) const {
+	bool OtsKeyIdentifier::operator<=(const OtsKeyIdentifier& rhs) const {
 		return *this < rhs || *this == rhs;
 	}
 
-	bool StepIdentifier::operator>(const StepIdentifier& rhs) const {
+	bool OtsKeyIdentifier::operator>(const OtsKeyIdentifier& rhs) const {
 		return !(*this <= rhs);
 	}
 
-	bool StepIdentifier::operator>=(const StepIdentifier& rhs) const {
+	bool OtsKeyIdentifier::operator>=(const OtsKeyIdentifier& rhs) const {
 		return !(*this < rhs);
 	}
 
-	std::ostream& operator<<(std::ostream& out, const StepIdentifier& stepIdentifier) {
-		out << "(" << stepIdentifier.Point << ", " << stepIdentifier.Round << ", " << stepIdentifier.SubRound << ")";
+	std::ostream& operator<<(std::ostream& out, const OtsKeyIdentifier& keyIdentifier) {
+		out << "(" << keyIdentifier.BatchId << ", " << keyIdentifier.KeyId << ")";
 		return out;
 	}
 

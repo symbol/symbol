@@ -37,6 +37,9 @@ namespace catapult { namespace chain {
 	namespace {
 		class TestContext {
 		public:
+			static constexpr auto Ots_Key_Dilution = 13u;
+
+		public:
 			TestContext(FinalizationPoint point, Height height)
 					: TestContext(point, height, 10, finalization::FinalizationConfiguration::Uninitialized())
 			{}
@@ -68,7 +71,12 @@ namespace catapult { namespace chain {
 
 		private:
 			static crypto::OtsTree CreateOtsTree(io::SeekableStream& storage, FinalizationPoint point) {
-				return crypto::OtsTree::Create(test::GenerateKeyPair(), storage, point, point + FinalizationPoint(20), { 20, 20 });
+				auto startKeyIdentifier = model::StepIdentifierToOtsKeyIdentifier({ point.unwrap(), 0, 0 }, Ots_Key_Dilution);
+				auto endKeyIdentifier = model::StepIdentifierToOtsKeyIdentifier({ point.unwrap() + 20, 1, 0 }, Ots_Key_Dilution);
+				return crypto::OtsTree::Create(
+						test::GenerateKeyPair(),
+						storage,
+						{ Ots_Key_Dilution, startKeyIdentifier, endKeyIdentifier });
 			}
 
 		private:
@@ -81,7 +89,9 @@ namespace catapult { namespace chain {
 		};
 
 		bool IsSigned(const model::FinalizationMessage& message) {
-			return crypto::Verify(message.Signature, message.StepIdentifier, {
+			auto dilution = TestContext::Ots_Key_Dilution;
+			auto keyIdentifier = model::StepIdentifierToOtsKeyIdentifier(message.StepIdentifier, dilution);
+			return crypto::Verify(message.Signature, keyIdentifier, {
 				reinterpret_cast<const uint8_t*>(&message) + model::FinalizationMessage::Header_Size,
 				message.Size - model::FinalizationMessage::Header_Size
 			});
@@ -112,7 +122,7 @@ namespace catapult { namespace chain {
 			EXPECT_EQ(sizeof(model::FinalizationMessage) + expectedHashesCount * Hash256::Size, pMessage->Size);
 			ASSERT_EQ(expectedHashesCount, pMessage->HashesCount);
 
-			EXPECT_EQ(crypto::StepIdentifier({ 12, 1, 1 }), pMessage->StepIdentifier);
+			EXPECT_EQ(model::StepIdentifier({ 12, 1, 1 }), pMessage->StepIdentifier);
 			EXPECT_EQ(Height(8), pMessage->Height);
 			for (auto i = 0u; i < expectedHashesCount; ++i)
 				EXPECT_EQ(context.blockHashAt(Height(8 + i)), pMessage->HashesPtr()[i]);
@@ -136,7 +146,7 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(sizeof(model::FinalizationMessage) + Hash256::Size, pMessage->Size);
 		ASSERT_EQ(1u, pMessage->HashesCount);
 
-		EXPECT_EQ(crypto::StepIdentifier({ 12, 1, 1 }), pMessage->StepIdentifier);
+		EXPECT_EQ(model::StepIdentifier({ 12, 1, 1 }), pMessage->StepIdentifier);
 		EXPECT_EQ(Height(8), pMessage->Height);
 		EXPECT_EQ(context.lastFinalizedHash(), pMessage->HashesPtr()[0]);
 
@@ -184,7 +194,7 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(sizeof(model::FinalizationMessage) + Hash256::Size, pMessage->Size);
 		ASSERT_EQ(1u, pMessage->HashesCount);
 
-		EXPECT_EQ(crypto::StepIdentifier({ 12, 2, 1 }), pMessage->StepIdentifier);
+		EXPECT_EQ(model::StepIdentifier({ 12, 2, 1 }), pMessage->StepIdentifier);
 		EXPECT_EQ(Height(35), pMessage->Height);
 		EXPECT_EQ(hash, pMessage->HashesPtr()[0]);
 

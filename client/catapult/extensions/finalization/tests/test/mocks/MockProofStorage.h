@@ -32,7 +32,7 @@ namespace catapult { namespace mocks {
 			catapult::Height Height;
 
 			/// Proof step identifier.
-			crypto::StepIdentifier StepIdentifier;
+			model::StepIdentifier StepIdentifier;
 		};
 
 	public:
@@ -93,7 +93,7 @@ namespace catapult { namespace mocks {
 		}
 
 		void saveProof(Height height, const io::FinalizationProof& proof) override {
-			auto stepIdentifier = crypto::StepIdentifier();
+			auto stepIdentifier = model::StepIdentifier();
 			if (!proof.empty()) {
 				const auto& message = *proof.back();
 				stepIdentifier = message.StepIdentifier;

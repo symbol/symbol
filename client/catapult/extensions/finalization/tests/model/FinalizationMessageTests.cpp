@@ -58,7 +58,7 @@ namespace catapult { namespace model {
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(FinalizationMessage));
-		EXPECT_EQ(4 + 420u, sizeof(FinalizationMessage));
+		EXPECT_EQ(4 + 324u, sizeof(FinalizationMessage));
 	}
 
 	TEST(TEST_CLASS, FinalizationMessageHasProperAlignment) {
@@ -164,6 +164,8 @@ namespace catapult { namespace model {
 		void RunFinalizationContextTest(TAction action) {
 			// Arrange:
 			auto config = finalization::FinalizationConfiguration::Uninitialized();
+			config.OtsKeyDilution = 13u;
+
 			auto finalizationContextPair = test::CreateFinalizationContext(config, FinalizationPoint(50), Height(123), {
 				Amount(2'000'000), Amount(Expected_Large_Weight), Amount(1'000'000), Amount(6'000'000)
 			});
@@ -187,9 +189,7 @@ namespace catapult { namespace model {
 				auto otsTree = crypto::OtsTree::Create(
 						test::CopyKeyPair(keyPairDescriptor.VotingKeyPair),
 						storage,
-						FinalizationPoint(1),
-						FinalizationPoint(20),
-						{ 20, 20 });
+						{ context.config().OtsKeyDilution, { 0, 2 }, { 15, 1 } });
 
 				// Act:
 				auto isEligibleVoter = IsEligibleVoter(otsTree, context);
@@ -223,11 +223,9 @@ namespace catapult { namespace model {
 				auto otsTree = crypto::OtsTree::Create(
 						test::CopyKeyPair(keyPairDescriptor.VotingKeyPair),
 						storage,
-						FinalizationPoint(1),
-						FinalizationPoint(20),
-						{ 20, 20 });
+						{ context.config().OtsKeyDilution, { 0, 2 }, { 15, 1 } });
 
-				auto stepIdentifier = crypto::StepIdentifier{ 3, 4, 5 };
+				auto stepIdentifier = StepIdentifier{ 3, 4, 5 };
 				auto hashes = test::GenerateRandomHashes(numHashes);
 
 				// Act:
@@ -253,7 +251,7 @@ namespace catapult { namespace model {
 			EXPECT_EQ(sizeof(FinalizationMessage), pMessage->Size);
 			EXPECT_EQ(0u, pMessage->HashesCount);
 
-			EXPECT_EQ(crypto::StepIdentifier({ 3, 4, 5 }), pMessage->StepIdentifier);
+			EXPECT_EQ(StepIdentifier({ 3, 4, 5 }), pMessage->StepIdentifier);
 			EXPECT_EQ(Height(987), pMessage->Height);
 			EXPECT_EQ(0u, FindFirstDifferenceIndex(hashes, ExtractHashes(*pMessage)));
 
@@ -274,7 +272,7 @@ namespace catapult { namespace model {
 			EXPECT_EQ(sizeof(FinalizationMessage) + 3 * Hash256::Size, pMessage->Size);
 			EXPECT_EQ(3u, pMessage->HashesCount);
 
-			EXPECT_EQ(crypto::StepIdentifier({ 3, 4, 5 }), pMessage->StepIdentifier);
+			EXPECT_EQ(StepIdentifier({ 3, 4, 5 }), pMessage->StepIdentifier);
 			EXPECT_EQ(Height(987), pMessage->Height);
 			EXPECT_EQ(3u, FindFirstDifferenceIndex(hashes, ExtractHashes(*pMessage)));
 
@@ -295,7 +293,7 @@ namespace catapult { namespace model {
 			EXPECT_EQ(sizeof(FinalizationMessage) + 3 * Hash256::Size, pMessage->Size);
 			EXPECT_EQ(3u, pMessage->HashesCount);
 
-			EXPECT_EQ(crypto::StepIdentifier({ 3, 4, 5 }), pMessage->StepIdentifier);
+			EXPECT_EQ(StepIdentifier({ 3, 4, 5 }), pMessage->StepIdentifier);
 			EXPECT_EQ(Height(987), pMessage->Height);
 			EXPECT_EQ(3u, FindFirstDifferenceIndex(hashes, ExtractHashes(*pMessage)));
 

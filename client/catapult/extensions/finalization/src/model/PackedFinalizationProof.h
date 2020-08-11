@@ -19,7 +19,7 @@
 **/
 
 #pragma once
-#include "catapult/crypto_voting/OtsTypes.h"
+#include "StepIdentifier.h"
 #include "catapult/model/TrailingVariableDataLayout.h"
 
 namespace catapult { namespace model {
@@ -45,7 +45,7 @@ namespace catapult { namespace model {
 		Height FinalizedHeight;
 
 		/// Finalization step.
-		crypto::StepIdentifier StepIdentifier;
+		model::StepIdentifier StepIdentifier;
 
 	public:
 		/// Gets a const pointer to the first vote contained in this proof.

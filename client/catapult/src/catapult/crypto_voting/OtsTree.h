@@ -46,23 +46,21 @@ namespace catapult { namespace crypto {
 		/// Creates a tree around \a storage, loading stored data from \a input.
 		static OtsTree FromStream(io::InputStream& input, io::SeekableStream& storage);
 
-		/// Creates a tree around \a keyPair, \a storage, \a startPoint, \a endPoint and \a options.
-		static OtsTree Create(
-				OtsKeyPairType&& keyPair,
-				io::SeekableStream& storage,
-				FinalizationPoint startPoint,
-				FinalizationPoint endPoint,
-				const OtsOptions& options);
+		/// Creates a tree around \a keyPair, \a storage and \a options.
+		static OtsTree Create(OtsKeyPairType&& keyPair, io::SeekableStream& storage, const OtsOptions& options);
 
 	public:
 		/// Gets the root public key.
 		const OtsPublicKey& rootPublicKey() const;
 
-		/// Returns \c true if can sign at \a stepIdentifier.
-		bool canSign(const StepIdentifier& stepIdentifier) const;
+		/// Gets the options.
+		const OtsOptions& options() const;
 
-		/// Creates the signature for \a dataBuffer at \a stepIdentifier.
-		OtsTreeSignature sign(const StepIdentifier& stepIdentifier, const RawBuffer& dataBuffer);
+		/// Returns \c true if can sign at \a keyIdentifier.
+		bool canSign(const OtsKeyIdentifier& keyIdentifier) const;
+
+		/// Creates the signature for \a dataBuffer at \a keyIdentifier.
+		OtsTreeSignature sign(const OtsKeyIdentifier& keyIdentifier, const RawBuffer& dataBuffer);
 
 	private:
 		class OtsLevel;
@@ -77,9 +75,9 @@ namespace catapult { namespace crypto {
 		OtsOptions m_options;
 
 		std::array<std::unique_ptr<OtsLevel>, 3> m_levels;
-		StepIdentifier m_lastStep;
+		OtsKeyIdentifier m_lastKeyIdentifier;
 	};
 
-	/// Verifies \a signature of \a buffer at \a stepIdentifier.
-	bool Verify(const OtsTreeSignature& signature, const StepIdentifier& stepIdentifier, const RawBuffer& buffer);
+	/// Verifies \a signature of \a buffer at \a keyIdentifier.
+	bool Verify(const OtsTreeSignature& signature, const OtsKeyIdentifier& keyIdentifier, const RawBuffer& buffer);
 }}

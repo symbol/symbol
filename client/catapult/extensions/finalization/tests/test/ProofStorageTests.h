@@ -94,7 +94,7 @@ namespace catapult { namespace test {
 			io::FinalizationProof proof;
 
 			auto hash = GenerateRandomByteArray<Hash256>();
-			crypto::StepIdentifier stepIdentifier = { finalizationPoint.unwrap(), 123, 456 };
+			model::StepIdentifier stepIdentifier = { finalizationPoint.unwrap(), 123, 456 };
 			for (auto i = 0u; i < numVotes; ++i)
 				proof.push_back(CreateMessage(stepIdentifier, hash));
 
@@ -237,7 +237,7 @@ namespace catapult { namespace test {
 			AssertStorageIndexes(*pStorage, FinalizationPoint(11), Height(123));
 			EXPECT_EQ(hash1, pProof->FinalizedHash);
 			EXPECT_EQ(Height(123), pProof->FinalizedHeight);
-			EXPECT_EQ(crypto::StepIdentifier({ 11, 78, 654 }), pProof->StepIdentifier);
+			EXPECT_EQ(model::StepIdentifier({ 11, 78, 654 }), pProof->StepIdentifier);
 
 			const auto* pVoteProof = pProof->VoteProofsPtr();
 			for (const auto& pMessage : proof)

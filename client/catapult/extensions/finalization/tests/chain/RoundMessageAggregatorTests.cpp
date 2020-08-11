@@ -40,6 +40,9 @@ namespace catapult { namespace chain {
 		};
 
 		class TestContext {
+		private:
+			static constexpr auto Ots_Key_Dilution = 7u;
+
 		public:
 			TestContext(uint32_t size, uint32_t threshold) : TestContext(size, threshold, TestContextOptions())
 			{}
@@ -49,6 +52,7 @@ namespace catapult { namespace chain {
 				config.Size = size;
 				config.Threshold = threshold;
 				config.MaxHashesPerPoint = options.MaxHashesPerPoint;
+				config.OtsKeyDilution = Ots_Key_Dilution;
 
 				// 15/20M voting eligible
 				auto finalizationContextPair = test::CreateFinalizationContext(config, Finalization_Point, Last_Finalized_Height, {
@@ -67,7 +71,7 @@ namespace catapult { namespace chain {
 
 		public:
 			void signMessage(model::FinalizationMessage& message, size_t signerIndex) const {
-				test::SignMessage(message, m_keyPairDescriptors[signerIndex].VotingKeyPair);
+				test::SignMessage(message, m_keyPairDescriptors[signerIndex].VotingKeyPair, Ots_Key_Dilution);
 			}
 
 		private:

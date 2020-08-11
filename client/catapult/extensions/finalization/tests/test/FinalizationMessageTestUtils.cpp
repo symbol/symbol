@@ -57,7 +57,7 @@ namespace catapult { namespace test {
 		return pMessage;
 	}
 
-	std::unique_ptr<model::FinalizationMessage> CreateMessage(const crypto::StepIdentifier& stepIdentifier, const Hash256& hash) {
+	std::unique_ptr<model::FinalizationMessage> CreateMessage(const model::StepIdentifier& stepIdentifier, const Hash256& hash) {
 		uint32_t messageSize = SizeOf32<model::FinalizationMessage>() + static_cast<uint32_t>(Hash256::Size);
 		auto pMessage = utils::MakeUniqueWithSize<model::FinalizationMessage>(messageSize);
 		pMessage->Size = messageSize;
@@ -69,34 +69,24 @@ namespace catapult { namespace test {
 		return pMessage;
 	}
 
-	std::unique_ptr<model::FinalizationMessage> CreateValidMessage(
-			const crypto::StepIdentifier& stepIdentifier,
-			Height height,
-			const Hash256& hash,
-			const AccountKeyPairDescriptor& keyPairDescriptor) {
-		auto pMessage = CreateMessage(stepIdentifier, hash);
-		pMessage->Height = height;
-
-		SignMessage(*pMessage, keyPairDescriptor.VotingKeyPair);
-		return pMessage;
-	}
-
 	// endregion
 
 	// region message utils
 
-	void SignMessage(model::FinalizationMessage& message, const crypto::KeyPair& votingKeyPair) {
+	void SignMessage(model::FinalizationMessage& message, const crypto::KeyPair& votingKeyPair, uint64_t dilution) {
 		auto storage = mocks::MockSeekableMemoryStream();
-		auto otsTree = crypto::OtsTree::Create(
-				CopyKeyPair(votingKeyPair),
-				storage,
-				FinalizationPoint(1),
-				FinalizationPoint(20),
-				{ 20, 20 });
-		message.Signature = otsTree.sign(message.StepIdentifier, {
+		auto otsOptions = crypto::OtsOptions{ dilution, { 0, 2 }, { 15, 1 } };
+		auto otsTree = crypto::OtsTree::Create(CopyKeyPair(votingKeyPair), storage, otsOptions);
+
+		auto keyIdentifier = model::StepIdentifierToOtsKeyIdentifier(message.StepIdentifier, otsTree.options().Dilution);
+		message.Signature = otsTree.sign(keyIdentifier, {
 			reinterpret_cast<const uint8_t*>(&message) + model::FinalizationMessage::Header_Size,
 			message.Size - model::FinalizationMessage::Header_Size
 		});
+	}
+
+	void SignMessage(model::FinalizationMessage& message, const crypto::KeyPair& votingKeyPair) {
+		SignMessage(message, votingKeyPair, 13);
 	}
 
 	void AssertEqualMessage(

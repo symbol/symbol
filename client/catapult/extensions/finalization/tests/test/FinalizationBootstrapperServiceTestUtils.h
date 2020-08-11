@@ -106,11 +106,14 @@ namespace catapult { namespace test {
 		/// specified by \a voterType.
 		std::shared_ptr<model::FinalizationMessage> createMessage(
 				TestUtils::VoterType voterType,
-				const crypto::StepIdentifier& stepIdentifier,
+				const model::StepIdentifier& stepIdentifier,
 				Height height,
 				const Hash256& hash) const {
 			const auto& keyPairDescriptor = m_keyPairDescriptors[utils::to_underlying_type(voterType)];
-			return CreateValidMessage(stepIdentifier, height, hash, keyPairDescriptor);
+			auto pMessage = CreateMessage(stepIdentifier, hash);
+			pMessage->Height = height;
+			SignMessage(*pMessage, keyPairDescriptor.VotingKeyPair, TTraits::Ots_Key_Dilution);
+			return PORTABLE_MOVE(pMessage);
 		}
 
 	private:

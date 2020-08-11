@@ -19,7 +19,7 @@
 **/
 
 #pragma once
-#include "catapult/crypto_voting/OtsTypes.h"
+#include "StepIdentifier.h"
 #include "catapult/model/RangeTypes.h"
 #include "catapult/model/TrailingVariableDataLayout.h"
 
@@ -48,7 +48,7 @@ namespace catapult { namespace model {
 		crypto::OtsTreeSignature Signature;
 
 		/// Step identifer.
-		crypto::StepIdentifier StepIdentifier;
+		model::StepIdentifier StepIdentifier;
 
 		/// Block height corresponding to the the first hash.
 		catapult::Height Height;
@@ -94,7 +94,7 @@ namespace catapult { namespace model {
 	/// Prepares a finalization message given \a otsTree, \a stepIdentifier, \a height and \a hashes.
 	std::unique_ptr<FinalizationMessage> PrepareMessage(
 			crypto::OtsTree& otsTree,
-			const crypto::StepIdentifier& stepIdentifier,
+			const StepIdentifier& stepIdentifier,
 			Height height,
 			const HashRange& hashes);
 

@@ -31,21 +31,25 @@ namespace catapult { namespace crypto {
 	namespace {
 		constexpr auto OtsPrivateKey_Size = PrivateKey::Size;
 
-		constexpr auto File_Header_Size = sizeof(OtsOptions) + sizeof(StepIdentifier);
+		constexpr auto File_Header_Size = sizeof(OtsOptions) + sizeof(OtsKeyIdentifier);
 		constexpr auto Level_Header_Size = OtsPublicKey::Size + sizeof(uint64_t) + sizeof(uint64_t);
 		constexpr auto Level_Entry = OtsPrivateKey_Size + sizeof(OtsSignature);
 
-		// finalization points used 30-40 - inclusive on both ends so 11 keys
-		constexpr auto Start_Point = 30u;
-		constexpr auto End_Point = 40u;
-		constexpr auto Num_Finalization_Points = End_Point - Start_Point + 1;
-		constexpr OtsOptions Default_Options{ 10, 8 };
+		constexpr auto Start_Key = OtsKeyIdentifier{ 8, 4 };
+		constexpr auto End_Key = OtsKeyIdentifier{ 13, 5 };
+		constexpr auto Num_Batches = End_Key.BatchId - Start_Key.BatchId + 1;
+		constexpr OtsOptions Default_Options{ 7, Start_Key, End_Key };
 
-		constexpr auto L1_Size = Level_Header_Size + Num_Finalization_Points * Level_Entry;
-		constexpr auto L2_Size = Level_Header_Size + Default_Options.MaxRounds * Level_Entry;
+		constexpr auto L1_Size = Level_Header_Size + Num_Batches * Level_Entry;
 
 		OtsKeyPairType GenerateKeyPair() {
 			return test::GenerateKeyPair();
+		}
+
+		void AssertOptions(const OtsOptions& expected, const OtsOptions& actual) {
+			EXPECT_EQ(expected.Dilution, actual.Dilution);
+			EXPECT_EQ(expected.StartKeyIdentifier, actual.StartKeyIdentifier);
+			EXPECT_EQ(expected.EndKeyIdentifier, actual.EndKeyIdentifier);
 		}
 
 		// region breadcrumb storage
@@ -121,12 +125,7 @@ namespace catapult { namespace crypto {
 		class TestContext {
 		public:
 			TestContext()
-					: m_tree(OtsTree::Create(
-							GenerateKeyPair(),
-							m_storage,
-							FinalizationPoint(Start_Point),
-							FinalizationPoint(End_Point),
-							Default_Options))
+					: m_tree(OtsTree::Create(GenerateKeyPair(), m_storage, Default_Options))
 					, m_messageBuffer(test::GenerateRandomArray<10>())
 			{}
 
@@ -153,8 +152,8 @@ namespace catapult { namespace crypto {
 				m_storage.seek(0);
 			}
 
-			auto sign(const StepIdentifier& stepIdentifier) {
-				return m_tree.sign(stepIdentifier, m_messageBuffer);
+			auto sign(const OtsKeyIdentifier& keyIdentifier) {
+				return m_tree.sign(keyIdentifier, m_messageBuffer);
 			}
 
 		private:
@@ -171,73 +170,50 @@ namespace catapult { namespace crypto {
 
 	// region can sign tests
 
-	TEST(TEST_CLASS, CanSignReturnsFalseWhenFinalizationPointIsBelowRange) {
+	TEST(TEST_CLASS, CanSignReturnsFalseWhenKeyIdentifierIsBelowRange) {
 		// Arrange:
 		BreadcrumbTestContext context;
 
 		// Act + Assert:
-		EXPECT_FALSE(context.tree().canSign({ 29, 0, 0 }));
+		EXPECT_FALSE(context.tree().canSign({ Start_Key.BatchId - 1, Start_Key.KeyId }));
+		EXPECT_FALSE(context.tree().canSign({ Start_Key.BatchId, Start_Key.KeyId - 1 }));
 	}
 
-	TEST(TEST_CLASS, CanSignReturnsFalseWhenFinalizationPointIsAboveRange) {
+	TEST(TEST_CLASS, CanSignReturnsFalseWhenKeyIdentifierIsAboveRange) {
 		// Arrange:
 		BreadcrumbTestContext context;
 
 		// Act + Assert:
-		EXPECT_FALSE(context.tree().canSign({ 41, 0, 0 }));
-	}
-
-	TEST(TEST_CLASS, CanSignReturnsFalseWhenRoundIsOutsideRange) {
-		// Arrange:
-		BreadcrumbTestContext context;
-
-		// Act + Assert:
-		EXPECT_FALSE(context.tree().canSign({ 35, Default_Options.MaxRounds, 0 }));
-	}
-
-	TEST(TEST_CLASS, CanSignReturnsFalseWhenSubRoundIsOutsideRange) {
-		// Arrange:
-		BreadcrumbTestContext context;
-
-		// Act + Assert:
-		EXPECT_FALSE(context.tree().canSign({ 35, 0, Default_Options.MaxSubRounds }));
+		EXPECT_FALSE(context.tree().canSign({ End_Key.BatchId + 1, End_Key.KeyId }));
+		EXPECT_FALSE(context.tree().canSign({ End_Key.BatchId, End_Key.KeyId + 1 }));
 	}
 
 	TEST(TEST_CLASS, CanSignReturnsTrueForValuesNearBoundaries) {
 		// Arrange:
 		BreadcrumbTestContext context;
-		std::vector<StepIdentifier> stepIdentifiers{
-			{ Start_Point, 0, 0 },
-			{ End_Point, 0, 0 },
-			{ End_Point, Default_Options.MaxRounds - 1, 0 },
-			{ End_Point, Default_Options.MaxRounds - 1, Default_Options.MaxSubRounds - 1 }
-		};
+		std::vector<OtsKeyIdentifier> keyIdentifiers{ Start_Key, End_Key };
 
 		// Act + Assert:
-		for (const auto& stepIdentifier : stepIdentifiers)
-			EXPECT_TRUE(context.tree().canSign(stepIdentifier)) << stepIdentifier;
+		for (const auto& keyIdentifier : keyIdentifiers)
+			EXPECT_TRUE(context.tree().canSign(keyIdentifier)) << keyIdentifier;
 	}
 
 	// endregion
 
 	// region ctor
 
-	TEST(TEST_CLASS, EmptyTreeHasProperRootPublicKey) {
+	TEST(TEST_CLASS, EmptyTreeHasProperRootPublicKeyAndOptions) {
 		// Arrange:
 		auto rootKeyPair = GenerateKeyPair();
 		auto expectedPublicKey = rootKeyPair.publicKey();
 		BreadcrumbStorage storage;
 
 		// Act:
-		auto tree = OtsTree::Create(
-				std::move(rootKeyPair),
-				storage,
-				FinalizationPoint(Start_Point),
-				FinalizationPoint(End_Point),
-				Default_Options);
+		auto tree = OtsTree::Create(std::move(rootKeyPair), storage, Default_Options);
 
 		// Assert:
 		EXPECT_EQ(expectedPublicKey, tree.rootPublicKey());
+		AssertOptions(Default_Options, tree.options());
 	}
 
 	// endregion
@@ -246,55 +222,43 @@ namespace catapult { namespace crypto {
 
 	TEST(TEST_CLASS, SignForValuesNearBoundaries) {
 		// Arrange:
-		std::vector<StepIdentifier> stepIdentifiers{
-			{ Start_Point, 0, 0 },
-			{ End_Point, 0, 0 },
-			{ End_Point, Default_Options.MaxRounds - 1, 0 },
-			{ End_Point, Default_Options.MaxRounds - 1, Default_Options.MaxSubRounds - 1 }
-		};
+		std::vector<OtsKeyIdentifier> keyIdentifiers{ Start_Key, End_Key };
 
 		// Act: create new context for every run
-		for (const auto& stepIdentifier : stepIdentifiers) {
+		for (const auto& keyIdentifier : keyIdentifiers) {
 			BreadcrumbTestContext context;
-			auto signature = context.sign(stepIdentifier);
+			auto signature = context.sign(keyIdentifier);
 
 			// Assert:
-			EXPECT_TRUE(Verify(signature, stepIdentifier, context.buffer()));
+			EXPECT_TRUE(Verify(signature, keyIdentifier, context.buffer()));
 		}
 	}
 
-	TEST(TEST_CLASS, AccessingSubroundOutsideRangeThrows) {
+	TEST(TEST_CLASS, AccessingKeyIdentifierOutsideRangeThrows) {
 		// Arrange:
 		BreadcrumbTestContext context;
 
 		// Act:
-		EXPECT_NO_THROW(context.sign({ 32, 2, Default_Options.MaxSubRounds - 1 }));
-		EXPECT_THROW(context.sign({ 32, 2, Default_Options.MaxSubRounds }), catapult_runtime_error);
+		EXPECT_NO_THROW(context.sign({ 10, Default_Options.Dilution - 1 }));
+		EXPECT_THROW(context.sign({ 10, Default_Options.Dilution }), catapult_runtime_error);
 	}
 
-	TEST(TEST_CLASS, AccessingRoundOutsideRangeThrows) {
+	TEST(TEST_CLASS, AccessingKeyIdentifierBelowRangeThrows) {
 		// Arrange:
 		BreadcrumbTestContext context;
 
 		// Act:
-		EXPECT_NO_THROW(context.sign({ 32, Default_Options.MaxRounds - 1, 4 }));
-		EXPECT_THROW(context.sign({ 32, Default_Options.MaxRounds, 4 }), catapult_runtime_error);
+		EXPECT_THROW(context.sign({ Start_Key.BatchId - 1, Start_Key.KeyId }), catapult_runtime_error);
+		EXPECT_THROW(context.sign({ Start_Key.BatchId, Start_Key.KeyId - 1 }), catapult_runtime_error);
 	}
 
-	TEST(TEST_CLASS, AccessingFinalizationPointBelowRangeThrows) {
+	TEST(TEST_CLASS, AccessingKeyIdentifierAboveRangeThrows) {
 		// Arrange:
 		BreadcrumbTestContext context;
 
 		// Act:
-		EXPECT_THROW(context.sign({ 29, 2, 4 }), catapult_runtime_error);
-	}
-
-	TEST(TEST_CLASS, AccessingFinalizationPointAboveRangeThrows) {
-		// Arrange:
-		BreadcrumbTestContext context;
-
-		// Act:
-		EXPECT_THROW(context.sign({ 41, 0, 0 }), catapult_runtime_error);
+		EXPECT_THROW(context.sign({ End_Key.BatchId + 1, End_Key.KeyId }), catapult_runtime_error);
+		EXPECT_THROW(context.sign({ End_Key.BatchId, End_Key.KeyId + 1 }), catapult_runtime_error);
 	}
 
 	TEST(TEST_CLASS, GeneratedSignaturesAreValid) {
@@ -302,20 +266,18 @@ namespace catapult { namespace crypto {
 		BreadcrumbTestContext context;
 
 		// Act:
-		auto signature1 = context.sign({ 32, 2, 4 });
-		auto signature2 = context.sign({ 32, 3, 4 });
-		auto signature3 = context.sign({ 32, 3, 6 });
-		auto signature4 = context.sign({ 32, 3, 7 });
-		auto signature5 = context.sign({ 35, 0, 0 });
-		auto signature6 = context.sign({ 35, 0, 7 });
+		auto signature1 = context.sign({ 8, 4 });
+		auto signature2 = context.sign({ 8, 5 }); // KeyId incremenent
+		auto signature3 = context.sign({ 9, 0 }); // BatchId increment
+		auto signature4 = context.sign({ 11, 0 }); // BatchId skip
+		auto signature5 = context.sign({ 13, 3 }); // BatchId and KeyId skip
 
 		// Assert:
-		EXPECT_TRUE(Verify(signature1, { 32, 2, 4 }, context.buffer()));
-		EXPECT_TRUE(Verify(signature2, { 32, 3, 4 }, context.buffer()));
-		EXPECT_TRUE(Verify(signature3, { 32, 3, 6 }, context.buffer()));
-		EXPECT_TRUE(Verify(signature4, { 32, 3, 7 }, context.buffer()));
-		EXPECT_TRUE(Verify(signature5, { 35, 0, 0 }, context.buffer()));
-		EXPECT_TRUE(Verify(signature6, { 35, 0, 7 }, context.buffer()));
+		EXPECT_TRUE(Verify(signature1, { 8, 4 }, context.buffer()));
+		EXPECT_TRUE(Verify(signature2, { 8, 5 }, context.buffer()));
+		EXPECT_TRUE(Verify(signature3, { 9, 0 }, context.buffer()));
+		EXPECT_TRUE(Verify(signature4, { 11, 0 }, context.buffer()));
+		EXPECT_TRUE(Verify(signature5, { 13, 3 }, context.buffer()));
 	}
 
 	// endregion
@@ -325,8 +287,8 @@ namespace catapult { namespace crypto {
 
 		class StorageChecker {
 		private:
-			static constexpr auto Num_Step_Identifier_Values = 3;
-			static constexpr auto Num_Property_Values = 2;
+			static constexpr auto Num_Key_Identifier_Values = 2;
+			static constexpr auto Num_Property_Values = 1 + 2 * Num_Key_Identifier_Values; // dilution, start, end
 
 		public:
 			explicit StorageChecker(const std::vector<Operation>& breadcrumbs)
@@ -336,8 +298,8 @@ namespace catapult { namespace crypto {
 
 		public:
 			void assertTreeHeader() {
-				checkSize(Num_Step_Identifier_Values + Num_Property_Values);
-				for (auto i = 0u; i < Num_Step_Identifier_Values + Num_Property_Values; ++i)
+				checkSize(Num_Key_Identifier_Values + Num_Property_Values);
+				for (auto i = 0u; i < Num_Key_Identifier_Values + Num_Property_Values; ++i)
 					EXPECT_EQ(Operation::Write(sizeof(uint64_t)), m_operations[m_index++]);
 			}
 
@@ -357,8 +319,8 @@ namespace catapult { namespace crypto {
 				checkSize(1);
 				EXPECT_EQ(Operation::Seek(sizeof(OtsOptions)), m_operations[m_index++]);
 
-				checkSize(Num_Step_Identifier_Values);
-				for (auto i = 0u; i < Num_Step_Identifier_Values; ++i)
+				checkSize(Num_Key_Identifier_Values);
+				for (auto i = 0u; i < Num_Key_Identifier_Values; ++i)
 					EXPECT_EQ(Operation::Write(sizeof(uint64_t)), m_operations[m_index++]);
 			}
 
@@ -420,29 +382,25 @@ namespace catapult { namespace crypto {
 		// Assert:
 		StorageChecker checker(context.storage().Breadcrumbs);
 		checker.assertTreeHeader();
-		checker.assertSaveLevel(0, Num_Finalization_Points);
+		checker.assertSaveLevel(0, Num_Batches);
 		checker.assertFinished();
 	}
 
 	namespace {
-		void VerifyFull(StorageChecker& checker, const StepIdentifier& stepIdentifier) {
+		void VerifyFull(StorageChecker& checker, const OtsKeyIdentifier& keyIdentifier) {
 			// first level
-			auto pointId = stepIdentifier.Point - Start_Point;
+			auto relativeBatchId = keyIdentifier.BatchId - Start_Key.BatchId;
 			checker.assertTreeHeader();
-			checker.assertSaveLevel(0, Num_Finalization_Points);
-			checker.assertWipePrivateKey(0, Num_Finalization_Points, pointId, pointId);
+			checker.assertSaveLevel(0, Num_Batches);
+			checker.assertWipePrivateKey(0, Num_Batches, relativeBatchId, relativeBatchId);
 
 			// second level
-			checker.assertSaveLevel(L1_Size, Default_Options.MaxRounds);
-			checker.assertWipePrivateKey(L1_Size, Default_Options.MaxRounds, stepIdentifier.Round, stepIdentifier.Round);
+			// tree saves only starting at subId, so keys < subId aren't created/stored,
+			// so only wiped key is the one that is == subId, that's why 0, 0 is passed below
+			auto numEntriesLevel2 = Default_Options.Dilution - keyIdentifier.KeyId;
+			checker.assertSaveLevel(L1_Size, numEntriesLevel2);
+			checker.assertWipePrivateKey(L1_Size, numEntriesLevel2, 0, 0);
 
-			// third level
-			checker.assertSaveLevel(L1_Size + L2_Size, Default_Options.MaxSubRounds);
-			checker.assertWipePrivateKey(
-					L1_Size + L2_Size,
-					Default_Options.MaxSubRounds,
-					stepIdentifier.SubRound,
-					stepIdentifier.SubRound);
 			checker.assertLastStep();
 		}
 	}
@@ -452,28 +410,31 @@ namespace catapult { namespace crypto {
 		BreadcrumbTestContext context;
 
 		// Act:
-		context.sign({ 32, 7, 3 });
+		context.sign({ 9, 2 });
 
 		// Assert:
 		StorageChecker checker(context.storage().Breadcrumbs);
-		VerifyFull(checker, { 32, 7, 3});
+		VerifyFull(checker, { 9, 2 });
 		checker.assertFinished();
 	}
 
 	TEST(TEST_CLASS, AccessingSubsequentKeyDoesSingleAdditionalWipe) {
 		// Arrange:
 		BreadcrumbTestContext context;
-		context.sign({ 32, 7, 3 });
+		context.sign({ 9, 2 });
 
 		// Sanity:
 		StorageChecker checker(context.storage().Breadcrumbs);
-		VerifyFull(checker, { 32, 7, 3});
+		VerifyFull(checker, { 9, 2 });
 
 		// Act:
-		context.sign({ 32, 7, 4 });
+		context.sign({ 9, 3 });
 
-		// Arrange: get key at 4, keys 0,1,2,3 has been wiped, due to the way tracking works, key 3 will be wiped again
-		checker.assertWipePrivateKey(L1_Size + L2_Size, Default_Options.MaxSubRounds, 4, 1);
+		// Assert:
+		// - keys (9, 0), (9, 1) weren't saved
+		// - keys (9, 2), (9, 3) have been wiped
+		// - due to the way tracking works, key (9, 2) will be wiped again
+		checker.assertWipePrivateKey(L1_Size, Default_Options.Dilution - 2, 1, 1);
 		checker.assertLastStep();
 
 		checker.assertFinished();
@@ -482,69 +443,48 @@ namespace catapult { namespace crypto {
 	TEST(TEST_CLASS, AccessingFurtherKeyWipesProperKeys) {
 		// Arrange:
 		BreadcrumbTestContext context;
-		context.sign({ 32, 7, 3 });
+		context.sign({ 9, 2 });
 
 		// Sanity:
 		StorageChecker checker(context.storage().Breadcrumbs);
-		VerifyFull(checker, { 32, 7, 3});
+		VerifyFull(checker, { 9, 2 });
 
 		// Act:
-		context.sign({ 32, 7, 5 });
+		context.sign({ 9, 5 });
 
-		// Arrange: get key at 5, additional keys that will be wiped are 3,4
-		checker.assertWipePrivateKey(L1_Size + L2_Size, Default_Options.MaxSubRounds, 5, 2);
+		// Assert:
+		// - keys (9, 0), (9, 1) weren't saved
+		// - keys (9, 2), (9, 3), (9, 4), (9, 5) have been wiped
+		// - due to the way tracking works, key (9, 2) will be wiped again
+		checker.assertWipePrivateKey(L1_Size, Default_Options.Dilution - 2, 3, 3);
 		checker.assertLastStep();
 
 		checker.assertFinished();
 	}
 
-	TEST(TEST_CLASS, AccessingDifferentRoundKeyGeneratesNewSubroundKeys) {
+	TEST(TEST_CLASS, AccessingDifferentBatchIdGeneratesNewSubKeys) {
 		// Arrange:
 		BreadcrumbTestContext context;
-		context.sign({ 32, 2, 4 });
+		context.sign({ 9, 2 });
 
 		// Sanity:
 		StorageChecker checker(context.storage().Breadcrumbs);
-		VerifyFull(checker, { 32, 2, 4 });
+		VerifyFull(checker, { 9, 2 });
 
 		// Act:
-		context.sign({ 32, 3, 4 });
+		context.sign({ 13, 2 });
 
-		// Arrange:
-		// - get key {32,3} build subround, due to the way tracking works, key {32,2} will be wiped again
-		checker.assertWipePrivateKey(L1_Size, Default_Options.MaxRounds, 3, 1);
-		checker.assertSaveLevel(L1_Size + L2_Size, Default_Options.MaxSubRounds);
+		// Assert:
+		// - top level keys will be wiped (9,) (10,) (11,) (12,)
+		// - (13,) has index 5, in top level there are keys (8, 9, ... 12, 13)
+		checker.assertWipePrivateKey(0, Num_Batches, 5, 4);
 
-		// - get the key at {32,3,4}
-		checker.assertWipePrivateKey(L1_Size + L2_Size, Default_Options.MaxSubRounds, 4, 4);
-		checker.assertLastStep();
+		// - 13 is last batch id, it should contain only keys 2-5, (0 and 1 will be skipped)
+		constexpr auto Num_Lower_Level_Keys = 4;
+		checker.assertSaveLevel(L1_Size, Num_Lower_Level_Keys);
 
-		checker.assertFinished();
-	}
-
-	TEST(TEST_CLASS, AccessingDifferentFinalizationPointsKeyGeneratesNewRoundAndSubroundKeys) {
-		// Arrange:
-		BreadcrumbTestContext context;
-		context.sign({ 32, 2, 4 });
-
-		// Sanity:
-		StorageChecker checker(context.storage().Breadcrumbs);
-		VerifyFull(checker, { 32, 2, 4 });
-
-		// Act:
-		context.sign({ 35, 0, 0 });
-
-		// Arrange:
-		// - get key 35, build round keys, due to the way tracking works, key 32 will be wiped again, so total = 3
-		checker.assertWipePrivateKey(0, Num_Finalization_Points, 5, 3);
-		checker.assertSaveLevel(L1_Size, Default_Options.MaxRounds);
-
-		// - get the key at {35,0}
-		checker.assertWipePrivateKey(L1_Size, Default_Options.MaxRounds, 0, 0);
-		checker.assertSaveLevel(L1_Size + L2_Size, Default_Options.MaxSubRounds);
-
-		// - get the key at {35,0,0}
-		checker.assertWipePrivateKey(L1_Size + L2_Size, Default_Options.MaxSubRounds, 0, 0);
+		// - get the key at (13, 2)
+		checker.assertWipePrivateKey(L1_Size, Num_Lower_Level_Keys, 0, 0);
 		checker.assertLastStep();
 
 		checker.assertFinished();
@@ -560,12 +500,6 @@ namespace catapult { namespace crypto {
 					&& lhs.Root.Signature == rhs.Root.Signature
 					&& lhs.Top.ParentPublicKey == rhs.Top.ParentPublicKey;
 		}
-
-		constexpr bool TwoLevelMatch(const OtsTreeSignature& lhs, const OtsTreeSignature& rhs) {
-			return SingleLevelMatch(lhs, rhs)
-					&& lhs.Top.Signature == rhs.Top.Signature
-					&& lhs.Middle.ParentPublicKey == rhs.Middle.ParentPublicKey;
-		}
 	}
 
 	TEST(TEST_CLASS, RoundtripTestSingleLevelTree) {
@@ -577,20 +511,23 @@ namespace catapult { namespace crypto {
 		MockTestContext context(originalContext);
 
 		// Assert: signatures are different, but all top level keys should match
+		// '4' is used as KeyId, as it will be present in every BatchId
 		EXPECT_EQ(originalContext.tree().rootPublicKey(), context.tree().rootPublicKey());
-		for (auto point = Start_Point; point <= End_Point; ++point) {
-			auto originalSignature = originalContext.sign({ point, 0, 0 });
-			auto signature = context.sign({ point, 0, 0 });
+		AssertOptions(originalContext.tree().options(), context.tree().options());
+
+		for (auto batchId = Start_Key.BatchId; batchId <= End_Key.BatchId; ++batchId) {
+			auto originalSignature = originalContext.sign({ batchId, 4 });
+			auto signature = context.sign({ batchId, 4 });
 			EXPECT_TRUE(SingleLevelMatch(originalSignature, signature));
-			EXPECT_FALSE(TwoLevelMatch(originalSignature, signature));
+			EXPECT_NE(originalSignature, signature);
 		}
 	}
 
 	TEST(TEST_CLASS, RoundtripTestAccessingUsedKeyThrows) {
 		// Arrange:
 		MockTestContext originalContext;
-		StepIdentifier usedIdentifier{ 32, 4, 2 };
-		StepIdentifier unusedIdentifier{ 32, 4, 3 };
+		OtsKeyIdentifier usedIdentifier{ 9, 2 };
+		OtsKeyIdentifier unusedIdentifier{ 9, 3 };
 		originalContext.sign(usedIdentifier);
 		originalContext.seekToBegin();
 
@@ -610,24 +547,26 @@ namespace catapult { namespace crypto {
 	TEST(TEST_CLASS, RoundtripTestMultiLevelTree) {
 		// Arrange:
 		MockTestContext originalContext;
-		originalContext.sign({ 32, 4, 2 });
+		originalContext.sign({ 9, 2 });
 		originalContext.seekToBegin();
 
 		// Act: reload tree from storage
 		MockTestContext context(originalContext);
 
-		// Assert: signatures on bottom level from both trees should match
-		for (auto subRound = 3u; subRound < Default_Options.MaxSubRounds; ++subRound) {
-			auto expectedSignature = originalContext.sign({ 32, 4, subRound });
-			auto signature = context.sign({ 32, 4, subRound });
+		// Assert:
+		// - signatures on bottom level from both trees should match
+		// - all signatures using keys (9, 3) - (9, 6) should match
+		for (auto keyId = 3u; keyId < Default_Options.Dilution; ++keyId) {
+			auto expectedSignature = originalContext.sign({ 9, keyId });
+			auto signature = context.sign({ 9, keyId });
 			EXPECT_EQ(expectedSignature, signature);
 		}
 
-		// - signature at different round will match only partially.
-		auto expectedSignature = originalContext.sign({ 32, 5, 0 });
-		auto signature = context.sign({ 32, 5, 0 });
+		// - signature at different batch id will match only partially
+		auto expectedSignature = originalContext.sign({ 10, 0 });
+		auto signature = context.sign({ 10, 0 });
 		EXPECT_NE(expectedSignature, signature);
-		EXPECT_TRUE(TwoLevelMatch(expectedSignature, signature));
+		EXPECT_TRUE(SingleLevelMatch(expectedSignature, signature));
 	}
 
 	// endregion

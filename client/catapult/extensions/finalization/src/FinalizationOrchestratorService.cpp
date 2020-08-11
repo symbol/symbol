@@ -113,12 +113,14 @@ namespace catapult { namespace finalization {
 		private:
 			// TODO: gimre - how do you imagine this working?
 			static crypto::OtsTree CreateOtsTree(SeekableMemoryStream& storage) {
+				auto dilution = 13u;
+				auto startKeyIdentifier = model::StepIdentifierToOtsKeyIdentifier({ 1, 0, 0 }, dilution);
+				auto endKeyIdentifier = model::StepIdentifierToOtsKeyIdentifier({ 100, 1, 0 }, dilution);
+
 				return crypto::OtsTree::Create(
 						crypto::KeyPair::FromString("934B1829665F7324362380E844CBEDA2C103AAEFD3A2C4645DC1715AC29E52E6"),
 						storage,
-						FinalizationPoint(1),
-						FinalizationPoint(20),
-						{ 20, 20 });
+						{ dilution, startKeyIdentifier, endKeyIdentifier });
 			}
 
 		private:

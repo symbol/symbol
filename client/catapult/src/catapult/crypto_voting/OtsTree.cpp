@@ -201,85 +201,81 @@ namespace catapult { namespace crypto {
 	namespace {
 		enum : size_t {
 			Layer_Top,
-			Layer_Mid,
 			Layer_Low
 		};
 
-		constexpr auto Tree_Header_Size = sizeof(OtsOptions) + sizeof(StepIdentifier);
+		constexpr auto Tree_Header_Size = sizeof(OtsOptions) + sizeof(OtsKeyIdentifier);
 		constexpr auto Layer_Header_Size = OtsPublicKey::Size + sizeof(uint64_t) + sizeof(uint64_t);
+		constexpr auto Invalid_Batch_Id = 0xFFFF'FFFF'FFFF'FFFF;
 
 		uint64_t IndexToOffset(uint64_t index) {
 			return Layer_Header_Size + index * SignedPrivateKey::Entry_Size;
 		}
 
+		OtsKeyIdentifier LoadKeyIdentifier(io::InputStream& input) {
+			OtsKeyIdentifier keyIdentifier;
+			keyIdentifier.BatchId = io::Read64(input);
+			keyIdentifier.KeyId = io::Read64(input);
+			return keyIdentifier;
+		}
+
 		OtsOptions LoadOptions(io::InputStream& input) {
 			OtsOptions options;
-			options.MaxRounds = io::Read64(input);
-			options.MaxSubRounds = io::Read64(input);
+			options.Dilution = io::Read64(input);
+			options.StartKeyIdentifier = LoadKeyIdentifier(input);
+			options.EndKeyIdentifier = LoadKeyIdentifier(input);
 			return options;
 		}
 
-		StepIdentifier LoadStep(io::InputStream& input) {
-			StepIdentifier stepIdentifier;
-			stepIdentifier.Point = io::Read64(input);
-			stepIdentifier.Round = io::Read64(input);
-			stepIdentifier.SubRound = io::Read64(input);
-			return stepIdentifier;
+		void SaveKeyIdentifier(io::OutputStream& output, const OtsKeyIdentifier& keyIdentifier) {
+			io::Write64(output, keyIdentifier.BatchId);
+			io::Write64(output, keyIdentifier.KeyId);
 		}
 
 		void SaveOptions(io::OutputStream& output, const OtsOptions& options) {
-			io::Write64(output, options.MaxRounds);
-			io::Write64(output, options.MaxSubRounds);
+			io::Write64(output, options.Dilution);
+			SaveKeyIdentifier(output, options.StartKeyIdentifier);
+			SaveKeyIdentifier(output, options.EndKeyIdentifier);
 		}
 
-		void SaveStep(io::OutputStream& output, const StepIdentifier& stepIdentifier) {
-			io::Write64(output, stepIdentifier.Point);
-			io::Write64(output, stepIdentifier.Round);
-			io::Write64(output, stepIdentifier.SubRound);
-		}
-
-		void SaveHeader(io::OutputStream& output, const OtsOptions& options, const StepIdentifier& stepIdentifier) {
+		void SaveHeader(io::OutputStream& output, const OtsOptions& options, const OtsKeyIdentifier& lastKeyIdentifier) {
 			SaveOptions(output, options);
-			SaveStep(output, stepIdentifier);
+			SaveKeyIdentifier(output, lastKeyIdentifier);
 		}
 	}
 
 	OtsTree::OtsTree(io::SeekableStream& storage, const OtsOptions& options)
 			: m_storage(storage)
 			, m_options(options)
-			, m_lastStep()
+			, m_lastKeyIdentifier({ Invalid_Batch_Id, 0 })
 	{}
 
 	OtsTree::OtsTree(OtsTree&&) = default;
 
 	OtsTree OtsTree::FromStream(io::InputStream& input, io::SeekableStream& storage) {
-		OtsTree tree(storage, LoadOptions(input));
+		auto options = LoadOptions(input);
+		OtsTree tree(storage, options);
 
 		// FromStream loads whole level, used keys are zeroed. wipeUntil() is used to have consistent view.
-		tree.m_lastStep = LoadStep(input);
+		tree.m_lastKeyIdentifier = LoadKeyIdentifier(input);
+
 		tree.m_levels[Layer_Top] = std::make_unique<OtsLevel>(OtsLevel::FromStream(input));
-		tree.m_levels[Layer_Top]->wipeUntil(tree.m_lastStep.Point);
 
 		// if any sign() was issued prior to saving, load subsequent levels
-		if (tree.m_lastStep.Point) {
-			tree.m_levels[Layer_Mid] = std::make_unique<OtsLevel>(OtsLevel::FromStream(input));
-			tree.m_levels[Layer_Mid]->wipeUntil(tree.m_lastStep.Round);
+		if (Invalid_Batch_Id != tree.m_lastKeyIdentifier.BatchId) {
+			tree.m_levels[Layer_Top]->wipeUntil(tree.m_lastKeyIdentifier.BatchId);
+
 			tree.m_levels[Layer_Low] = std::make_unique<OtsLevel>(OtsLevel::FromStream(input));
-			tree.m_levels[Layer_Low]->wipeUntil(tree.m_lastStep.SubRound);
+			tree.m_levels[Layer_Low]->wipeUntil(tree.m_lastKeyIdentifier.KeyId);
 		}
 
 		return tree;
 	}
 
-	OtsTree OtsTree::Create(
-			OtsKeyPairType&& keyPair,
-			io::SeekableStream& storage,
-			FinalizationPoint startPoint,
-			FinalizationPoint endPoint,
-			const OtsOptions& options) {
+	OtsTree OtsTree::Create(OtsKeyPairType&& keyPair, io::SeekableStream& storage, const OtsOptions& options) {
 		OtsTree tree(storage, options);
-		SaveHeader(tree.m_storage, tree.m_options, tree.m_lastStep);
-		tree.createLevel(Layer_Top, std::move(keyPair), startPoint.unwrap(), endPoint.unwrap());
+		SaveHeader(tree.m_storage, tree.m_options, tree.m_lastKeyIdentifier);
+		tree.createLevel(Layer_Top, std::move(keyPair), options.StartKeyIdentifier.BatchId, options.EndKeyIdentifier.BatchId);
 		return tree;
 	}
 
@@ -289,45 +285,45 @@ namespace catapult { namespace crypto {
 		return m_levels[Layer_Top]->publicKey();
 	}
 
-	bool OtsTree::canSign(const StepIdentifier& stepIdentifier) const {
-		if (0 != m_lastStep.Point && stepIdentifier <= m_lastStep)
+	const OtsOptions& OtsTree::options() const {
+		return m_options;
+	}
+
+	bool OtsTree::canSign(const OtsKeyIdentifier& keyIdentifier) const {
+		if (Invalid_Batch_Id != m_lastKeyIdentifier.BatchId && keyIdentifier <= m_lastKeyIdentifier)
 			return false;
 
-		if (stepIdentifier.Point < m_levels[Layer_Top]->startIdentifier() || stepIdentifier.Point > m_levels[Layer_Top]->endIdentifier())
+		if (keyIdentifier < m_options.StartKeyIdentifier || keyIdentifier > m_options.EndKeyIdentifier)
 			return false;
 
-		if (stepIdentifier.Round >= m_options.MaxRounds)
-			return false;
-
-		if (stepIdentifier.SubRound >= m_options.MaxSubRounds)
+		if (keyIdentifier.KeyId >= m_options.Dilution)
 			return false;
 
 		return true;
 	}
 
-	OtsTreeSignature OtsTree::sign(const StepIdentifier& stepIdentifier, const RawBuffer& dataBuffer) {
-		if (!canSign(stepIdentifier))
-			CATAPULT_THROW_RUNTIME_ERROR_1("sign called with invalid step identifier", stepIdentifier);
+	OtsTreeSignature OtsTree::sign(const OtsKeyIdentifier& keyIdentifier, const RawBuffer& dataBuffer) {
+		if (!canSign(keyIdentifier))
+			CATAPULT_THROW_RUNTIME_ERROR_1("sign called with invalid key identifier", keyIdentifier);
 
-		if (m_lastStep.Point != stepIdentifier.Point) {
-			createLevel(Layer_Mid, detachKeyPair(Layer_Top, stepIdentifier.Point), 0, m_options.MaxRounds - 1);
-			createLevel(Layer_Low, detachKeyPair(Layer_Mid, stepIdentifier.Round), 0, m_options.MaxSubRounds - 1);
-		} else if (m_lastStep.Round != stepIdentifier.Round) {
-			createLevel(Layer_Low, detachKeyPair(Layer_Mid, stepIdentifier.Round), 0, m_options.MaxSubRounds - 1);
+		if (m_lastKeyIdentifier.BatchId != keyIdentifier.BatchId) {
+			auto endKeyId = m_options.EndKeyIdentifier.BatchId == keyIdentifier.BatchId
+					? m_options.EndKeyIdentifier.KeyId
+					: m_options.Dilution - 1;
+			createLevel(Layer_Low, detachKeyPair(Layer_Top, keyIdentifier.BatchId), keyIdentifier.KeyId, endKeyId);
 		}
 
-		auto subKeyPair = detachKeyPair(Layer_Low, stepIdentifier.SubRound);
+		auto subKeyPair = detachKeyPair(Layer_Low, keyIdentifier.KeyId);
 		OtsSignature msgSignature;
 		crypto::Sign(subKeyPair, dataBuffer, msgSignature);
 
-		m_lastStep = stepIdentifier;
+		m_lastKeyIdentifier = keyIdentifier;
 		m_storage.seek(sizeof(OtsOptions));
-		SaveStep(m_storage, m_lastStep);
+		SaveKeyIdentifier(m_storage, m_lastKeyIdentifier);
 
 		return {
-			m_levels[Layer_Top]->publicKeySignature(stepIdentifier.Point),
-			m_levels[Layer_Mid]->publicKeySignature(stepIdentifier.Round),
-			m_levels[Layer_Low]->publicKeySignature(stepIdentifier.SubRound),
+			m_levels[Layer_Top]->publicKeySignature(keyIdentifier.BatchId),
+			m_levels[Layer_Low]->publicKeySignature(keyIdentifier.KeyId),
 			{ subKeyPair.publicKey(), msgSignature }
 		};
 	}
@@ -378,14 +374,11 @@ namespace catapult { namespace crypto {
 		}
 	}
 
-	bool Verify(const OtsTreeSignature& signature, const StepIdentifier& stepIdentifier, const RawBuffer& buffer) {
-		if (!VerifyBoundSignature(signature.Root, signature.Top.ParentPublicKey, stepIdentifier.Point))
+	bool Verify(const OtsTreeSignature& signature, const OtsKeyIdentifier& keyIdentifier, const RawBuffer& buffer) {
+		if (!VerifyBoundSignature(signature.Root, signature.Top.ParentPublicKey, keyIdentifier.BatchId))
 			return false;
 
-		if (!VerifyBoundSignature(signature.Top, signature.Middle.ParentPublicKey, stepIdentifier.Round))
-			return false;
-
-		if (!VerifyBoundSignature(signature.Middle, signature.Bottom.ParentPublicKey, stepIdentifier.SubRound))
+		if (!VerifyBoundSignature(signature.Top, signature.Bottom.ParentPublicKey, keyIdentifier.KeyId))
 			return false;
 
 		if (!crypto::Verify(signature.Bottom.ParentPublicKey, buffer, signature.Bottom.Signature))

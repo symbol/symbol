@@ -27,89 +27,89 @@ namespace catapult { namespace crypto {
 
 #define TEST_CLASS OtsTypesTests
 
-	// region ots options operators
+	// region ots key identifier operators
 
 	namespace {
-		std::vector<OtsOptions> GenerateIncreasingOtsOptionsValues() {
+		std::vector<OtsKeyIdentifier> GenerateIncreasingOtsKeyIdentifierValues() {
 			return {
-					{ 0, 0 },
-					{ 1, 0 },
-					{ 4, 0 },
-					{ 4, 5 }
-			};
-		}
-
-		std::string OtsOptionsToString(const OtsOptions& options) {
-			std::stringstream out;
-			out << "(" << options.MaxRounds << ", " << options.MaxSubRounds << ")";
-			return out.str();
-		}
-	}
-
-	DEFINE_EQUALITY_TESTS_WITH_CUSTOM_FORMATTER_WITH_PREFIX(
-			TEST_CLASS,
-			GenerateIncreasingOtsOptionsValues(),
-			OtsOptionsToString,
-			OtsOptions_)
-
-	// endregion
-
-	// region step identifier operators
-
-	namespace {
-		std::vector<StepIdentifier> GenerateIncreasingStepIdValues() {
-			return {
-					{ 5, 0, 0 },
-					{ 10, 0, 0 },
-					{ 11, 0, 0 },
-					{ 11, 1, 0 },
-					{ 11, 4, 0 },
-					{ 11, 4, 5 }
+					{ 5, 0 },
+					{ 10, 0 },
+					{ 10, 1 },
+					{ 10, 4 }
 			};
 		}
 	}
 
-	DEFINE_EQUALITY_AND_COMPARISON_TESTS_WITH_PREFIX(TEST_CLASS, GenerateIncreasingStepIdValues(), StepIdentifier_)
+	DEFINE_EQUALITY_AND_COMPARISON_TESTS_WITH_PREFIX(TEST_CLASS, GenerateIncreasingOtsKeyIdentifierValues(), OtsKeyIdentifier_)
 
-	TEST(TEST_CLASS, StepIdentifier_CanOutputStepIdentifier) {
+	TEST(TEST_CLASS, OtsKeyIdentifier_CanOutput) {
 		// Arrange:
-		StepIdentifier stepdIdentifier{ 11, 5, 215 };
+		OtsKeyIdentifier keyIdentifier{ 11, 5 };
 
 		// Act:
-		auto str = test::ToString(stepdIdentifier);
+		auto str = test::ToString(keyIdentifier);
 
 		// Assert:
-		EXPECT_EQ("(11, 5, 215)", str);
+		EXPECT_EQ("(11, 5)", str);
 	}
 
 	// endregion
 
-	// region step identifier size + alignment
+	// region ots key identifier size + alignment
 
-#define STEP_IDENTIFIER_FIELDS FIELD(Point) FIELD(Round) FIELD(SubRound)
+#define OTS_KEY_IDENTIFIER_FIELDS FIELD(BatchId) FIELD(KeyId)
 
-	TEST(TEST_CLASS, StepIdentifierHasExpectedSize) {
+	TEST(TEST_CLASS, OtsKeyIdentifierHasExpectedSize) {
 		// Arrange:
 		auto expectedSize = 0u;
 
-#define FIELD(X) expectedSize += SizeOf32<decltype(StepIdentifier::X)>();
-		STEP_IDENTIFIER_FIELDS
+#define FIELD(X) expectedSize += SizeOf32<decltype(OtsKeyIdentifier::X)>();
+		OTS_KEY_IDENTIFIER_FIELDS
 #undef FIELD
 
 		// Assert:
-		EXPECT_EQ(expectedSize, sizeof(StepIdentifier));
-		EXPECT_EQ(24u, sizeof(StepIdentifier));
+		EXPECT_EQ(expectedSize, sizeof(OtsKeyIdentifier));
+		EXPECT_EQ(16u, sizeof(OtsKeyIdentifier));
 	}
 
-	TEST(TEST_CLASS, StepIdentifierHasProperAlignment) {
-#define FIELD(X) EXPECT_ALIGNED(StepIdentifier, X);
-		STEP_IDENTIFIER_FIELDS
+	TEST(TEST_CLASS, OtsKeyIdentifierHasProperAlignment) {
+#define FIELD(X) EXPECT_ALIGNED(OtsKeyIdentifier, X);
+		OTS_KEY_IDENTIFIER_FIELDS
 #undef FIELD
 
-		EXPECT_EQ(0u, sizeof(StepIdentifier) % 8);
+		EXPECT_EQ(0u, sizeof(OtsKeyIdentifier) % 8);
 	}
 
-#undef STEP_IDENTIFIER_FIELDS
+#undef OTS_KEY_IDENTIFIER_FIELDS
+
+	// endregion
+
+	// region ots options size + alignment
+
+#define OTS_OPTIONS_FIELDS FIELD(Dilution) FIELD(StartKeyIdentifier) FIELD(EndKeyIdentifier)
+
+	TEST(TEST_CLASS, OtsOptionsHasExpectedSize) {
+		// Arrange:
+		auto expectedSize = 0u;
+
+#define FIELD(X) expectedSize += SizeOf32<decltype(OtsOptions::X)>();
+		OTS_OPTIONS_FIELDS
+#undef FIELD
+
+		// Assert:
+		EXPECT_EQ(expectedSize, sizeof(OtsOptions));
+		EXPECT_EQ(40u, sizeof(OtsOptions));
+	}
+
+	TEST(TEST_CLASS, OtsOptionsHasProperAlignment) {
+#define FIELD(X) EXPECT_ALIGNED(OtsOptions, X);
+		OTS_OPTIONS_FIELDS
+#undef FIELD
+
+		EXPECT_EQ(0u, sizeof(OtsOptions) % 8);
+	}
+
+#undef OTS_OPTIONS_FIELDS
 
 	// endregion
 
@@ -127,15 +127,14 @@ namespace catapult { namespace crypto {
 		OtsTreeSignature GenerateOtsTreeSignature(uint8_t flags) {
 			auto signature = OtsTreeSignature();
 			MutatePair(signature.Root, flags & 3);
-			MutatePair(signature.Middle, (flags >> 2) & 3);
-			MutatePair(signature.Top, (flags >> 4) & 3);
-			MutatePair(signature.Bottom, (flags >> 6) & 3);
+			MutatePair(signature.Top, (flags >> 2) & 3);
+			MutatePair(signature.Bottom, (flags >> 4) & 3);
 			return signature;
 		}
 
 		std::vector<OtsTreeSignature> GenerateIncreasingOtsTreeSignatureValues() {
 			std::vector<OtsTreeSignature> signatures;
-			for (auto flags = 0u; flags < 256; ++flags)
+			for (auto flags = 0u; flags < 64; ++flags)
 				signatures.push_back(GenerateOtsTreeSignature(static_cast<uint8_t>(flags)));
 
 			return signatures;
@@ -151,7 +150,6 @@ namespace catapult { namespace crypto {
 			out << "signature{ ";
 			Format(out, signature.Root) << ";";
 			Format(out, signature.Top) << ";";
-			Format(out, signature.Middle) << ";";
 			Format(out, signature.Bottom) << " }";
 			return out.str();
 		}
@@ -192,7 +190,7 @@ namespace catapult { namespace crypto {
 
 #undef PUBLIC_KEY_SIGNATURE_PAIR_FIELDS
 
-#define OTS_TREE_SIGNATURE_FIELDS FIELD(Root) FIELD(Top) FIELD(Middle) FIELD(Bottom)
+#define OTS_TREE_SIGNATURE_FIELDS FIELD(Root) FIELD(Top) FIELD(Bottom)
 
 	TEST(TEST_CLASS, OtsTreeSignatureHasExpectedSize) {
 		// Arrange:
@@ -204,7 +202,7 @@ namespace catapult { namespace crypto {
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(OtsTreeSignature));
-		EXPECT_EQ(384u, sizeof(OtsTreeSignature));
+		EXPECT_EQ(288u, sizeof(OtsTreeSignature));
 	}
 
 	TEST(TEST_CLASS, OtsTreeSignatureHasProperAlignment) {
