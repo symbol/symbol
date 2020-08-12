@@ -1,6 +1,6 @@
 tags:
   - Transaction routes
-summary: Get transactions
+summary: Search unconfirmed transactions
 description: Returns an array of unconfirmed transactions.
 operationId: searchUnconfirmedTransactions
 parameters:

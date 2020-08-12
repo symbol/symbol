@@ -1,6 +1,6 @@
 tags:
   - Transaction routes
-summary: Get transactions
+summary: Search confirmed transactions
 description: Returns an array of confirmed transactions.
 operationId: searchConfirmedTransactions
 parameters:
