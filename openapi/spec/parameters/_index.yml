@@ -34,6 +34,8 @@ beneficiaryAddressQuery:
   $ref: './query/beneficiaryAddress.yml'
 embedded:
   $ref: './query/embedded.yml'
+hashQuery:
+  $ref: './query/hash.yml'
 heightQuery:
   $ref: './query/height.yml'
 idQuery:

@@ -1,0 +1,12 @@
+type: object
+required:
+  - data
+  - pagination
+properties:
+  data:
+    type: array
+    description: Array of hash locks.
+    items:
+      $ref: "./HashLockInfoDTO.yml"
+  pagination:
+    $ref: "../../../schemas/Pagination.yml"

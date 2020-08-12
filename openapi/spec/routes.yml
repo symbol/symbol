@@ -110,6 +110,15 @@
   put:
     $ref: "./plugins/aggregate/routes/announceCosignatureTransaction.yml"
 
+# Plugin - LockHash
+"/account/{address}/lock/hash":
+  get:
+    $ref: "./plugins/lock_hash/routes/searchLockHash.yml"
+
+"/lock/hash/{hash}":
+  get:
+    $ref: "./plugins/lock_hash/routes/getLockHash.yml"
+
 # Plugin - Metadata
 "/metadata":
   get:
