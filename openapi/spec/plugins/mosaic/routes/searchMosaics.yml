@@ -1,6 +1,6 @@
 tags:
   - Mosaic routes
-summary: Get mosaics
+summary: Search mosaics
 description: Gets an array of mosaics.
 operationId: searchMosaics
 parameters:

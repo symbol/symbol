@@ -1,6 +1,6 @@
 tags:
   - Metadata routes
-summary: Get metadata entries
+summary: Search metadata entries
 description: Returns an array of metadata.
 operationId: searchMetadataEntries
 parameters:

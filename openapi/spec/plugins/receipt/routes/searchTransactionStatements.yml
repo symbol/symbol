@@ -1,6 +1,6 @@
 tags:
   - Receipt routes
-summary: Get receipts
+summary: Search transaction statements
 description: Gets an array of transaction statements.
 operationId: searchReceipts
 parameters:

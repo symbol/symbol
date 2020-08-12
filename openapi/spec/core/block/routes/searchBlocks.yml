@@ -1,6 +1,6 @@
 tags:
   - Block routes
-summary: Get blocks
+summary: Search blocks
 description: Gets an array of bocks.
 operationId: searchBlocks
 parameters:

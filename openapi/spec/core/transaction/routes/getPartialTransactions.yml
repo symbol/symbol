@@ -1,6 +1,6 @@
 tags:
   - Transaction routes
-summary: Get transactions information
+summary: Get partial trasactions information
 description: Returns partial transactions information for a given array of transactionIds.
 operationId: getPartialTransactions
 requestBody:

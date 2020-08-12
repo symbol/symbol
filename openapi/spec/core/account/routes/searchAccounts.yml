@@ -1,6 +1,6 @@
 tags:
   - Account routes
-summary: Get accounts
+summary: Search accounts
 description: Gets an array of accounts.
 operationId: searchAccounts
 parameters:

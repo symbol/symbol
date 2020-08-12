@@ -1,6 +1,6 @@
 tags:
   - Namespace routes
-summary: Get namespaces
+summary: Search namespaces
 description: Gets an array of namespaces.
 operationId: searchNamespaces
 parameters:

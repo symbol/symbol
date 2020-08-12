@@ -1,6 +1,6 @@
 tags:
   - Transaction routes
-summary: Get transaction information
+summary: Get confirmed transaction information
 description: Returns confirmed transaction information given a transactionId or hash.
 operationId: getConfirmedTransaction
 parameters:

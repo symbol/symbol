@@ -1,6 +1,6 @@
 tags:
   - Transaction routes
-summary: Get transactions
+summary: Search partial transactions
 description: Returns an array of partial transactions.
 operationId: searchPartialTransactions
 parameters:
