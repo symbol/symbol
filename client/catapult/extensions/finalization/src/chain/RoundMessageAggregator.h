@@ -21,15 +21,11 @@
 #pragma once
 #include "RoundMessageAggregatorAddResult.h"
 #include "catapult/model/RangeTypes.h"
-#include "catapult/utils/SpinReaderWriterLock.h"
 #include <memory>
 #include <vector>
 
 namespace catapult {
-	namespace chain {
-		class RoundContext;
-		struct RoundMessageAggregatorState;
-	}
+	namespace chain { class RoundContext; }
 	namespace model {
 		class FinalizationContext;
 		struct FinalizationMessage;
@@ -38,83 +34,39 @@ namespace catapult {
 
 namespace catapult { namespace chain {
 
-	// region RoundMessageAggregatorView
-
-	/// Read only view on top of round message aggregator.
-	class RoundMessageAggregatorView : utils::MoveOnly {
-	private:
+	/// Aggregates finalization messages for a single finalization point.
+	class RoundMessageAggregator {
+	public:
 		using UnknownMessages = std::vector<std::shared_ptr<const model::FinalizationMessage>>;
 
 	public:
-		/// Creates a view around \a state with lock context \a readLock.
-		RoundMessageAggregatorView(const RoundMessageAggregatorState& state, utils::SpinReaderWriterLock::ReaderLockGuard&& readLock);
+		virtual ~RoundMessageAggregator() = default;
 
 	public:
 		/// Gets the number of messages.
-		size_t size() const;
+		virtual size_t size() const = 0;
 
 		/// Gets the finalization context.
-		const model::FinalizationContext& finalizationContext() const;
+		virtual const model::FinalizationContext& finalizationContext() const = 0;
 
 		/// Gets the round context.
-		const RoundContext& roundContext() const;
+		virtual const RoundContext& roundContext() const = 0;
 
 		/// Gets a range of short hashes of all messages in the cache.
 		/// \note Each short hash consists of the first 4 bytes of the complete hash.
-		model::ShortHashRange shortHashes() const;
+		virtual model::ShortHashRange shortHashes() const = 0;
 
-		/// Gets all finalization messages associated with \a point that do not have a short hash in \a knownShortHashes.
-		UnknownMessages unknownMessages(FinalizationPoint point, const utils::ShortHashesSet& knownShortHashes) const;
-
-	private:
-		const RoundMessageAggregatorState& m_state;
-		utils::SpinReaderWriterLock::ReaderLockGuard m_readLock;
-	};
-
-	// endregion
-
-	// region RoundMessageAggregatorModifier
-
-	/// Write only view on top of round message aggregator.
-	class RoundMessageAggregatorModifier : utils::MoveOnly {
-	public:
-		/// Creates a view around \a state with lock context \a writeLock.
-		RoundMessageAggregatorModifier(RoundMessageAggregatorState& state, utils::SpinReaderWriterLock::WriterLockGuard&& writeLock);
+		/// Gets all finalization messages that do not have a short hash in \a knownShortHashes.
+		virtual UnknownMessages unknownMessages(const utils::ShortHashesSet& knownShortHashes) const = 0;
 
 	public:
 		/// Adds a finalization message (\a pMessage) to the aggregator.
 		/// \note Message is a shared_ptr because it is detached from an EntityRange and is kept alive with its associated step.
-		RoundMessageAggregatorAddResult add(const std::shared_ptr<model::FinalizationMessage>& pMessage);
-
-	private:
-		RoundMessageAggregatorState& m_state;
-		utils::SpinReaderWriterLock::WriterLockGuard m_writeLock;
+		virtual RoundMessageAggregatorAddResult add(const std::shared_ptr<model::FinalizationMessage>& pMessage) = 0;
 	};
 
-	// endregion
-
-	// region RoundMessageAggregator
-
-	/// Aggregates finalization messages for a single finalization point.
-	class RoundMessageAggregator {
-	public:
-		/// Creates an aggregator around \a maxResponseSize and \a finalizationContext.
-		RoundMessageAggregator(uint64_t maxResponseSize, const model::FinalizationContext& finalizationContext);
-
-		/// Destroys the aggregator.
-		~RoundMessageAggregator();
-
-	public:
-		/// Gets a read only view of the aggregator.
-		RoundMessageAggregatorView view() const;
-
-		/// Gets a write only view of the aggregator.
-		RoundMessageAggregatorModifier modifier();
-
-	private:
-		std::unique_ptr<RoundMessageAggregatorState> m_pState;
-		mutable utils::SpinReaderWriterLock m_lock;
-	};
-
-	// endregion
+	/// Creates a round message aggregator around \a maxResponseSize and \a finalizationContext.
+	std::unique_ptr<RoundMessageAggregator> CreateRoundMessageAggregator(
+			uint64_t maxResponseSize,
+			const model::FinalizationContext& finalizationContext);
 }}

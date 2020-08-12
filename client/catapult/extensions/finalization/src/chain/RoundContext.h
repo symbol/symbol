@@ -55,6 +55,9 @@ namespace catapult { namespace chain {
 		/// Finds the estimated finalization candidate, if any.
 		std::pair<model::HeightHashPair, bool> tryFindEstimate() const;
 
+		/// Returns \c true if \a childKey descends from \a parentKey, inclusive.
+		bool isDescendant(const model::HeightHashPair& parentKey, const model::HeightHashPair& childKey) const;
+
 		/// Returns \c true if the round is completable.
 		bool isCompletable() const;
 

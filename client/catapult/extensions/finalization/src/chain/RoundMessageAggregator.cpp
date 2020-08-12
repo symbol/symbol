@@ -33,9 +33,9 @@ namespace catapult { namespace chain {
 #undef ENUM_LIST
 #undef DEFINE_ENUM
 
-	// region RoundMessageAggregatorState
-
 	namespace {
+		// region utils
+
 		using MessageKey = std::pair<Key, bool>;
 
 		struct MessageDescriptor {
@@ -61,154 +61,117 @@ namespace catapult { namespace chain {
 		uint64_t CalculateWeightedThreshold(const model::FinalizationContext& finalizationContext) {
 			return finalizationContext.weight().unwrap() * finalizationContext.config().Threshold / finalizationContext.config().Size;
 		}
-	}
 
-	struct RoundMessageAggregatorState {
-	public:
-		RoundMessageAggregatorState(uint64_t maxResponseSize, const model::FinalizationContext& finalizationContext)
-				: MaxResponseSize(maxResponseSize)
-				, FinalizationContext(finalizationContext)
-				, RoundContext(FinalizationContext.weight().unwrap(), CalculateWeightedThreshold(FinalizationContext))
-		{}
-
-	public:
-		uint64_t MaxResponseSize;
-		model::FinalizationContext FinalizationContext; // TODO: review if this should be reference after higher layer is written
-		chain::RoundContext RoundContext;
-		std::unordered_map<MessageKey, MessageDescriptor, MessageKeyHasher> Messages;
-	};
-
-	// endregion
-
-	// region RoundMessageAggregatorView
-
-	RoundMessageAggregatorView::RoundMessageAggregatorView(
-			const RoundMessageAggregatorState& state,
-			utils::SpinReaderWriterLock::ReaderLockGuard&& readLock)
-			: m_state(state)
-			, m_readLock(std::move(readLock))
-	{}
-
-	size_t RoundMessageAggregatorView::size() const {
-		return m_state.Messages.size();
-	}
-
-	const model::FinalizationContext& RoundMessageAggregatorView::finalizationContext() const {
-		return m_state.FinalizationContext;
-	}
-
-	const RoundContext& RoundMessageAggregatorView::roundContext() const {
-		return m_state.RoundContext;
-	}
-
-	model::ShortHashRange RoundMessageAggregatorView::shortHashes() const {
-		auto shortHashes = model::EntityRange<utils::ShortHash>::PrepareFixed(m_state.Messages.size());
-		auto shortHashesIter = shortHashes.begin();
-		for (const auto& messagePair : m_state.Messages)
-			*shortHashesIter++ = messagePair.second.ShortHash;
-
-		return shortHashes;
-	}
-
-	RoundMessageAggregatorView::UnknownMessages RoundMessageAggregatorView::unknownMessages(
-			FinalizationPoint point,
-			const utils::ShortHashesSet& knownShortHashes) const {
-		UnknownMessages messages;
-		if (m_state.FinalizationContext.point() != point)
-			return messages;
-
-		uint64_t totalSize = 0;
-		for (const auto& messagePair : m_state.Messages) {
-			const auto& pMessage = messagePair.second.pMessage;
-			auto iter = knownShortHashes.find(messagePair.second.ShortHash);
-			if (knownShortHashes.cend() == iter) {
-				totalSize += pMessage->Size;
-				if (totalSize > m_state.MaxResponseSize)
-					return messages;
-
-				messages.push_back(pMessage);
-			}
-		}
-
-		return messages;
-	}
-
-	// endregion
-
-	// region RoundMessageAggregatorModifier
-
-	namespace {
 		constexpr bool IsPrevote(const model::FinalizationMessage& message) {
 			return 1 == message.StepIdentifier.Round;
 		}
+
+		// endregion
+
+		// region DefaultRoundMessageAggregator
+
+		class DefaultRoundMessageAggregator : public RoundMessageAggregator {
+		public:
+			DefaultRoundMessageAggregator(uint64_t maxResponseSize, const model::FinalizationContext& finalizationContext)
+					: m_maxResponseSize(maxResponseSize)
+					, m_finalizationContext(finalizationContext)
+					, m_roundContext(m_finalizationContext.weight().unwrap(), CalculateWeightedThreshold(m_finalizationContext))
+			{}
+
+		public:
+			size_t size() const override {
+				return m_messages.size();
+			}
+
+			const model::FinalizationContext& finalizationContext() const override {
+				return m_finalizationContext;
+			}
+
+			const RoundContext& roundContext() const override {
+				return m_roundContext;
+			}
+
+			model::ShortHashRange shortHashes() const override {
+				auto shortHashes = model::EntityRange<utils::ShortHash>::PrepareFixed(m_messages.size());
+				auto shortHashesIter = shortHashes.begin();
+				for (const auto& messagePair : m_messages)
+					*shortHashesIter++ = messagePair.second.ShortHash;
+
+				return shortHashes;
+			}
+
+			RoundMessageAggregator::UnknownMessages unknownMessages(const utils::ShortHashesSet& knownShortHashes) const override {
+				uint64_t totalSize = 0;
+				UnknownMessages messages;
+				for (const auto& messagePair : m_messages) {
+					const auto& pMessage = messagePair.second.pMessage;
+					auto iter = knownShortHashes.find(messagePair.second.ShortHash);
+					if (knownShortHashes.cend() == iter) {
+						totalSize += pMessage->Size;
+						if (totalSize > m_maxResponseSize)
+							return messages;
+
+						messages.push_back(pMessage);
+					}
+				}
+
+				return messages;
+			}
+
+		public:
+			RoundMessageAggregatorAddResult add(const std::shared_ptr<model::FinalizationMessage>& pMessage) override {
+				if (0 == pMessage->HashesCount || pMessage->HashesCount > m_finalizationContext.config().MaxHashesPerPoint)
+					return RoundMessageAggregatorAddResult::Failure_Invalid_Hashes;
+
+				if (m_finalizationContext.point() != FinalizationPoint(pMessage->StepIdentifier.Point))
+					return RoundMessageAggregatorAddResult::Failure_Invalid_Point;
+
+				auto isPrevote = IsPrevote(*pMessage);
+				if (!isPrevote && 1 != pMessage->HashesCount)
+					return RoundMessageAggregatorAddResult::Failure_Invalid_Hashes;
+
+				// only consider messages that have at least one hash at or after the last finalized height
+				if (m_finalizationContext.height() > pMessage->Height + Height(pMessage->HashesCount - 1))
+					return RoundMessageAggregatorAddResult::Failure_Invalid_Height;
+
+				auto messageKey = std::make_pair(pMessage->Signature.Root.ParentPublicKey, isPrevote);
+				auto messageIter = m_messages.find(messageKey);
+				if (m_messages.cend() != messageIter) {
+					return messageIter->second.Hash == model::CalculateMessageHash(*pMessage)
+							? RoundMessageAggregatorAddResult::Neutral_Redundant
+							: RoundMessageAggregatorAddResult::Failure_Conflicting;
+				}
+
+				auto processResultPair = model::ProcessMessage(*pMessage, m_finalizationContext);
+				if (model::ProcessMessageResult::Success != processResultPair.first) {
+					CATAPULT_LOG(warning) << "rejecting finalization message with result " << processResultPair.first;
+					return RoundMessageAggregatorAddResult::Failure_Processing;
+				}
+
+				m_messages.emplace(messageKey, CreateMessageDescriptor(pMessage));
+
+				if (isPrevote) {
+					m_roundContext.acceptPrevote(pMessage->Height, pMessage->HashesPtr(), pMessage->HashesCount, processResultPair.second);
+					return RoundMessageAggregatorAddResult::Success_Prevote;
+				} else {
+					m_roundContext.acceptPrecommit(pMessage->Height, *pMessage->HashesPtr(), processResultPair.second);
+					return RoundMessageAggregatorAddResult::Success_Precommit;
+				}
+			}
+
+		private:
+			uint64_t m_maxResponseSize;
+			model::FinalizationContext m_finalizationContext; // TODO: review if this should be reference after higher layer is written
+			chain::RoundContext m_roundContext;
+			std::unordered_map<MessageKey, MessageDescriptor, MessageKeyHasher> m_messages;
+		};
+
+		// endregion
 	}
 
-	RoundMessageAggregatorModifier::RoundMessageAggregatorModifier(
-			RoundMessageAggregatorState& state,
-			utils::SpinReaderWriterLock::WriterLockGuard&& writeLock)
-			: m_state(state)
-			, m_writeLock(std::move(writeLock))
-	{}
-
-	RoundMessageAggregatorAddResult RoundMessageAggregatorModifier::add(const std::shared_ptr<model::FinalizationMessage>& pMessage) {
-		if (0 == pMessage->HashesCount || pMessage->HashesCount > m_state.FinalizationContext.config().MaxHashesPerPoint)
-			return RoundMessageAggregatorAddResult::Failure_Invalid_Hashes;
-
-		if (m_state.FinalizationContext.point() != FinalizationPoint(pMessage->StepIdentifier.Point))
-			return RoundMessageAggregatorAddResult::Failure_Invalid_Point;
-
-		auto isPrevote = IsPrevote(*pMessage);
-		if (!isPrevote && 1 != pMessage->HashesCount)
-			return RoundMessageAggregatorAddResult::Failure_Invalid_Hashes;
-
-		// only consider messages that have at least one hash at or after the last finalized height
-		if (m_state.FinalizationContext.height() > pMessage->Height + Height(pMessage->HashesCount - 1))
-			return RoundMessageAggregatorAddResult::Failure_Invalid_Height;
-
-		auto messageKey = std::make_pair(pMessage->Signature.Root.ParentPublicKey, isPrevote);
-		auto messageIter = m_state.Messages.find(messageKey);
-		if (m_state.Messages.cend() != messageIter) {
-			return messageIter->second.Hash == model::CalculateMessageHash(*pMessage)
-					? RoundMessageAggregatorAddResult::Neutral_Redundant
-					: RoundMessageAggregatorAddResult::Failure_Conflicting;
-		}
-
-		auto processResultPair = model::ProcessMessage(*pMessage, m_state.FinalizationContext);
-		if (model::ProcessMessageResult::Success != processResultPair.first) {
-			CATAPULT_LOG(warning) << "rejecting finalization message with result " << processResultPair.first;
-			return RoundMessageAggregatorAddResult::Failure_Processing;
-		}
-
-		m_state.Messages.emplace(messageKey, CreateMessageDescriptor(pMessage));
-
-		if (isPrevote) {
-			m_state.RoundContext.acceptPrevote(pMessage->Height, pMessage->HashesPtr(), pMessage->HashesCount, processResultPair.second);
-			return RoundMessageAggregatorAddResult::Success_Prevote;
-		} else {
-			m_state.RoundContext.acceptPrecommit(pMessage->Height, *pMessage->HashesPtr(), processResultPair.second);
-			return RoundMessageAggregatorAddResult::Success_Precommit;
-		}
+	std::unique_ptr<RoundMessageAggregator> CreateRoundMessageAggregator(
+			uint64_t maxResponseSize,
+			const model::FinalizationContext& finalizationContext) {
+		return std::make_unique<DefaultRoundMessageAggregator>(maxResponseSize, finalizationContext);
 	}
-
-	// endregion
-
-	// region RoundMessageAggregator
-
-	RoundMessageAggregator::RoundMessageAggregator(uint64_t maxResponseSize, const model::FinalizationContext& finalizationContext)
-			: m_pState(std::make_unique<RoundMessageAggregatorState>(maxResponseSize, finalizationContext))
-	{}
-
-	RoundMessageAggregator::~RoundMessageAggregator() = default;
-
-	RoundMessageAggregatorView RoundMessageAggregator::view() const {
-		auto readLock = m_lock.acquireReader();
-		return RoundMessageAggregatorView(*m_pState, std::move(readLock));
-	}
-
-	RoundMessageAggregatorModifier RoundMessageAggregator::modifier() {
-		auto writeLock = m_lock.acquireWriter();
-		return RoundMessageAggregatorModifier(*m_pState, std::move(writeLock));
-	}
-
-	// endregion
 }}

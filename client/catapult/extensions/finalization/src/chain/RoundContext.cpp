@@ -65,6 +65,10 @@ namespace catapult { namespace chain {
 		return tryFindEstimate(bestPrevoteResultPair.first);
 	}
 
+	bool RoundContext::isDescendant(const model::HeightHashPair& parentKey, const model::HeightHashPair& childKey) const {
+		return m_tree.isDescendant(parentKey, childKey);
+	}
+
 	bool RoundContext::isCompletable() const {
 		auto bestPrevoteResultPair = tryFindBestPrevote();
 		if (!bestPrevoteResultPair.second)

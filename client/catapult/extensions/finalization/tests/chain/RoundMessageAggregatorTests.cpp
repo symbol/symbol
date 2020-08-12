@@ -22,7 +22,6 @@
 #include "finalization/src/chain/RoundContext.h"
 #include "catapult/utils/MemoryUtils.h"
 #include "finalization/tests/test/FinalizationMessageTestUtils.h"
-#include "tests/test/nodeps/LockTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace chain {
@@ -58,7 +57,7 @@ namespace catapult { namespace chain {
 				});
 
 				m_keyPairDescriptors = std::move(finalizationContextPair.second);
-				m_pAggregator = std::make_unique<RoundMessageAggregator>(options.MaxResponseSize, finalizationContextPair.first);
+				m_pAggregator = CreateRoundMessageAggregator(options.MaxResponseSize, finalizationContextPair.first);
 			}
 
 		public:
@@ -69,11 +68,6 @@ namespace catapult { namespace chain {
 		public:
 			void signMessage(model::FinalizationMessage& message, size_t signerIndex) const {
 				test::SignMessage(message, m_keyPairDescriptors[signerIndex].VotingKeyPair);
-			}
-
-		public:
-			auto detach() {
-				return std::move(m_pAggregator);
 			}
 
 		private:
@@ -91,14 +85,13 @@ namespace catapult { namespace chain {
 		TestContext context(1000, 700);
 
 		// Assert:
-		auto view = context.aggregator().view();
-		EXPECT_EQ(0u, view.size());
+		EXPECT_EQ(0u, context.aggregator().size());
 
-		EXPECT_EQ(Finalization_Point, view.finalizationContext().point());
-		EXPECT_EQ(Last_Finalized_Height, view.finalizationContext().height());
-		EXPECT_EQ(Amount(15'000'000), view.finalizationContext().weight());
+		EXPECT_EQ(Finalization_Point, context.aggregator().finalizationContext().point());
+		EXPECT_EQ(Last_Finalized_Height, context.aggregator().finalizationContext().height());
+		EXPECT_EQ(Amount(15'000'000), context.aggregator().finalizationContext().weight());
 
-		EXPECT_EQ(0u, view.roundContext().size());
+		EXPECT_EQ(0u, context.aggregator().roundContext().size());
 	}
 
 	// endregion
@@ -144,11 +137,11 @@ namespace catapult { namespace chain {
 			context.signMessage(*pMessage, 0);
 
 			// Act:
-			auto result = context.aggregator().modifier().add(std::move(pMessage));
+			auto result = context.aggregator().add(std::move(pMessage));
 
 			// Assert:
 			EXPECT_EQ(expectedResult, result);
-			EXPECT_EQ(0u, context.aggregator().view().size());
+			EXPECT_EQ(0u, context.aggregator().size());
 		}
 	}
 
@@ -181,13 +174,13 @@ namespace catapult { namespace chain {
 		context.signMessage(*pMessage, 0);
 
 		// Act:
-		auto result1 = context.aggregator().modifier().add(pMessage);
-		auto result2 = context.aggregator().modifier().add(pMessage);
+		auto result1 = context.aggregator().add(pMessage);
+		auto result2 = context.aggregator().add(pMessage);
 
 		// Assert:
 		EXPECT_EQ(TTraits::Success_Result, result1);
 		EXPECT_EQ(RoundMessageAggregatorAddResult::Neutral_Redundant, result2);
-		EXPECT_EQ(1u, context.aggregator().view().size());
+		EXPECT_EQ(1u, context.aggregator().size());
 	}
 
 	PREVOTE_PRECOMIT_TEST(CannotAddMultipleMessagesFromSameSigner) {
@@ -203,13 +196,13 @@ namespace catapult { namespace chain {
 		context.signMessage(*pMessage2, 0);
 
 		// Act:
-		auto result1 = context.aggregator().modifier().add(std::move(pMessage1));
-		auto result2 = context.aggregator().modifier().add(std::move(pMessage2));
+		auto result1 = context.aggregator().add(std::move(pMessage1));
+		auto result2 = context.aggregator().add(std::move(pMessage2));
 
 		// Assert:
 		EXPECT_EQ(TTraits::Success_Result, result1);
 		EXPECT_EQ(RoundMessageAggregatorAddResult::Failure_Conflicting, result2);
-		EXPECT_EQ(1u, context.aggregator().view().size());
+		EXPECT_EQ(1u, context.aggregator().size());
 	}
 
 	PREVOTE_PRECOMIT_TEST(CannotAddMessageWithIneligibleSigner) {
@@ -221,11 +214,11 @@ namespace catapult { namespace chain {
 		context.signMessage(*pMessage, 2);
 
 		// Act:
-		auto result = context.aggregator().modifier().add(std::move(pMessage));
+		auto result = context.aggregator().add(std::move(pMessage));
 
 		// Assert:
 		EXPECT_EQ(RoundMessageAggregatorAddResult::Failure_Processing, result);
-		EXPECT_EQ(0u, context.aggregator().view().size());
+		EXPECT_EQ(0u, context.aggregator().size());
 	}
 
 	PREVOTE_PRECOMIT_TEST(CannotAddMessageWithInvalidSignature) {
@@ -240,11 +233,11 @@ namespace catapult { namespace chain {
 		pMessage->HashesPtr()[0][0] ^= 0xFF;
 
 		// Act:
-		auto result = context.aggregator().modifier().add(std::move(pMessage));
+		auto result = context.aggregator().add(std::move(pMessage));
 
 		// Assert:
 		EXPECT_EQ(RoundMessageAggregatorAddResult::Failure_Processing, result);
-		EXPECT_EQ(0u, context.aggregator().view().size());
+		EXPECT_EQ(0u, context.aggregator().size());
 	}
 
 	namespace {
@@ -302,11 +295,11 @@ namespace catapult { namespace chain {
 			context.signMessage(*pMessage, 0);
 
 			// Act:
-			auto result = context.aggregator().modifier().add(std::move(pMessage));
+			auto result = context.aggregator().add(std::move(pMessage));
 
 			// Assert:
 			EXPECT_EQ(TTraits::Success_Result, result);
-			EXPECT_EQ(1u, context.aggregator().view().size());
+			EXPECT_EQ(1u, context.aggregator().size());
 		}
 	}
 
@@ -347,13 +340,13 @@ namespace catapult { namespace chain {
 		context.signMessage(*pMessage2, 0);
 
 		// Act:
-		auto result1 = context.aggregator().modifier().add(std::move(pMessage1));
-		auto result2 = context.aggregator().modifier().add(std::move(pMessage2));
+		auto result1 = context.aggregator().add(std::move(pMessage1));
+		auto result2 = context.aggregator().add(std::move(pMessage2));
 
 		// Assert:
 		EXPECT_EQ(PrevoteTraits::Success_Result, result1);
 		EXPECT_EQ(PrecommitTraits::Success_Result, result2);
-		EXPECT_EQ(2u, context.aggregator().view().size());
+		EXPECT_EQ(2u, context.aggregator().size());
 	}
 
 	TEST(TEST_CLASS, CanAcceptPrecommitThenPrevoteMessageFromSameSigner) {
@@ -369,13 +362,13 @@ namespace catapult { namespace chain {
 		context.signMessage(*pMessage2, 0);
 
 		// Act:
-		auto result1 = context.aggregator().modifier().add(std::move(pMessage1));
-		auto result2 = context.aggregator().modifier().add(std::move(pMessage2));
+		auto result1 = context.aggregator().add(std::move(pMessage1));
+		auto result2 = context.aggregator().add(std::move(pMessage2));
 
 		// Assert:
 		EXPECT_EQ(PrecommitTraits::Success_Result, result1);
 		EXPECT_EQ(PrevoteTraits::Success_Result, result2);
-		EXPECT_EQ(2u, context.aggregator().view().size());
+		EXPECT_EQ(2u, context.aggregator().size());
 	}
 
 	// endregion
@@ -429,27 +422,25 @@ namespace catapult { namespace chain {
 
 		// - add all but one prevote message
 		for (auto i = 0u; i < prevoteMessages.size() - 1; ++i)
-			context.aggregator().modifier().add(prevoteMessages[i]);
+			context.aggregator().add(prevoteMessages[i]);
 
 		// Sanity:
-		EXPECT_FALSE(context.aggregator().view().roundContext().tryFindBestPrevote().second);
+		EXPECT_FALSE(context.aggregator().roundContext().tryFindBestPrevote().second);
 
 		// Act:
-		auto result = context.aggregator().modifier().add(prevoteMessages.back());
+		auto result = context.aggregator().add(prevoteMessages.back());
 
 		// Assert:
 		EXPECT_EQ(PrevoteTraits::Success_Result, result);
+		EXPECT_EQ(4u, context.aggregator().size());
 
-		auto view = context.aggregator().view();
-		EXPECT_EQ(4u, view.size());
-
-		const auto& bestPrevoteResultPair = view.roundContext().tryFindBestPrevote();
+		const auto& bestPrevoteResultPair = context.aggregator().roundContext().tryFindBestPrevote();
 		EXPECT_TRUE(bestPrevoteResultPair.second);
 		EXPECT_EQ(model::HeightHashPair({ Last_Finalized_Height + Height(6), prevoteHashes[5] }), bestPrevoteResultPair.first);
 
-		EXPECT_FALSE(view.roundContext().tryFindBestPrecommit().second);
+		EXPECT_FALSE(context.aggregator().roundContext().tryFindBestPrecommit().second);
 
-		EXPECT_FALSE(view.roundContext().isCompletable());
+		EXPECT_FALSE(context.aggregator().roundContext().isCompletable());
 	}
 
 	TEST(TEST_CLASS, CanDiscoverBestPrecommitFromAcceptedMessages) {
@@ -472,34 +463,32 @@ namespace catapult { namespace chain {
 
 		// - add all prevote messages
 		for (const auto& pMessage : prevoteMessages)
-			context.aggregator().modifier().add(pMessage);
+			context.aggregator().add(pMessage);
 
 		// - add all but one precommit message
 		for (auto i = 0u; i < precommitMessages.size() - 1; ++i)
-			context.aggregator().modifier().add(precommitMessages[i]);
+			context.aggregator().add(precommitMessages[i]);
 
 		// Sanity:
-		EXPECT_TRUE(context.aggregator().view().roundContext().tryFindBestPrevote().second);
-		EXPECT_FALSE(context.aggregator().view().roundContext().tryFindBestPrecommit().second);
+		EXPECT_TRUE(context.aggregator().roundContext().tryFindBestPrevote().second);
+		EXPECT_FALSE(context.aggregator().roundContext().tryFindBestPrecommit().second);
 
 		// Act:
-		auto result = context.aggregator().modifier().add(precommitMessages.back());
+		auto result = context.aggregator().add(precommitMessages.back());
 
 		// Assert:
 		EXPECT_EQ(PrecommitTraits::Success_Result, result);
+		EXPECT_EQ(8u, context.aggregator().size());
 
-		auto view = context.aggregator().view();
-		EXPECT_EQ(8u, view.size());
-
-		const auto& bestPrevoteResultPair = view.roundContext().tryFindBestPrevote();
+		const auto& bestPrevoteResultPair = context.aggregator().roundContext().tryFindBestPrevote();
 		EXPECT_TRUE(bestPrevoteResultPair.second);
 		EXPECT_EQ(model::HeightHashPair({ Last_Finalized_Height + Height(6), prevoteHashes[5] }), bestPrevoteResultPair.first);
 
-		const auto& bestPrecommitResultPair = view.roundContext().tryFindBestPrecommit();
+		const auto& bestPrecommitResultPair = context.aggregator().roundContext().tryFindBestPrecommit();
 		EXPECT_TRUE(bestPrecommitResultPair.second);
 		EXPECT_EQ(model::HeightHashPair({ Last_Finalized_Height + Height(3), prevoteHashes[2] }), bestPrecommitResultPair.first);
 
-		EXPECT_TRUE(view.roundContext().isCompletable());
+		EXPECT_TRUE(context.aggregator().roundContext().isCompletable());
 	}
 
 	// endregion
@@ -527,12 +516,12 @@ namespace catapult { namespace chain {
 			// - add the messages
 			std::vector<utils::ShortHash> shortHashes;
 			for (const auto& pMessage : prevoteMessages) {
-				context.aggregator().modifier().add(pMessage);
+				context.aggregator().add(pMessage);
 				shortHashes.push_back(utils::ToShortHash(model::CalculateMessageHash(*pMessage)));
 			}
 
 			for (const auto& pMessage : precommitMessages) {
-				context.aggregator().modifier().add(pMessage);
+				context.aggregator().add(pMessage);
 				shortHashes.push_back(utils::ToShortHash(model::CalculateMessageHash(*pMessage)));
 			}
 
@@ -549,7 +538,7 @@ namespace catapult { namespace chain {
 		TestContext context(1000, 700);
 
 		// Act:
-		auto shortHashes = context.aggregator().view().shortHashes();
+		auto shortHashes = context.aggregator().shortHashes();
 
 		// Assert:
 		EXPECT_TRUE(shortHashes.empty());
@@ -559,7 +548,7 @@ namespace catapult { namespace chain {
 		// Arrange:
 		RunSeededAggregatorTest([](const auto& aggregator, const auto& seededShortHashes) {
 			// Act:
-			auto shortHashes = aggregator.view().shortHashes();
+			auto shortHashes = aggregator.shortHashes();
 
 			// Assert:
 			EXPECT_EQ(7u, shortHashes.size());
@@ -588,7 +577,7 @@ namespace catapult { namespace chain {
 		TestContext context(1000, 700);
 
 		// Act:
-		auto unknownMessages = context.aggregator().view().unknownMessages(Finalization_Point, {});
+		auto unknownMessages = context.aggregator().unknownMessages({});
 
 		// Assert:
 		EXPECT_TRUE(unknownMessages.empty());
@@ -598,7 +587,7 @@ namespace catapult { namespace chain {
 		// Arrange:
 		RunSeededAggregatorTest([](const auto& aggregator, const auto& seededShortHashes) {
 			// Act:
-			auto unknownMessages = aggregator.view().unknownMessages(Finalization_Point, {});
+			auto unknownMessages = aggregator.unknownMessages({});
 
 			// Assert:
 			EXPECT_EQ(7u, unknownMessages.size());
@@ -610,9 +599,9 @@ namespace catapult { namespace chain {
 		// Arrange:
 		RunSeededAggregatorTest([](const auto& aggregator, const auto& seededShortHashes) {
 			// Act:
-			auto unknownMessages = aggregator.view().unknownMessages(
-					Finalization_Point,
-					{ seededShortHashes[0], seededShortHashes[1], seededShortHashes[4], seededShortHashes[6] });
+			auto unknownMessages = aggregator.unknownMessages({
+				seededShortHashes[0], seededShortHashes[1], seededShortHashes[4], seededShortHashes[6]
+			});
 
 			// Assert:
 			EXPECT_EQ(3u, unknownMessages.size());
@@ -626,26 +615,11 @@ namespace catapult { namespace chain {
 		// Arrange:
 		RunSeededAggregatorTest([](const auto& aggregator, const auto& seededShortHashes) {
 			// Act:
-			auto unknownMessages = aggregator.view().unknownMessages(
-					Finalization_Point,
-					utils::ShortHashesSet(seededShortHashes.cbegin(), seededShortHashes.cend()));
+			auto unknownMessages = aggregator.unknownMessages(utils::ShortHashesSet(seededShortHashes.cbegin(), seededShortHashes.cend()));
 
 			// Assert:
 			EXPECT_TRUE(unknownMessages.empty());
 		});
-	}
-
-	TEST(TEST_CLASS, UnknownMessagesReturnsNoMessagesWhenPointFilterDoesNotMatch) {
-		// Arrange:
-		for (auto point : CreateValues(Finalization_Point.unwrap(), { -2, -1, 1, 10 })) {
-			RunSeededAggregatorTest([point](const auto& aggregator, const auto&) {
-				// Act:
-				auto unknownMessages = aggregator.view().unknownMessages(FinalizationPoint(point), {});
-
-				// Assert:
-				EXPECT_TRUE(unknownMessages.empty());
-			});
-		}
 	}
 
 	namespace {
@@ -679,12 +653,12 @@ namespace catapult { namespace chain {
 			// - add all messages and capture short hashes
 			utils::ShortHashesSet seededShortHashes;
 			for (const auto& pMessage : messages) {
-				context.aggregator().modifier().add(pMessage);
+				context.aggregator().add(pMessage);
 				seededShortHashes.insert(utils::ToShortHash(model::CalculateMessageHash(*pMessage)));
 			}
 
 			// Act:
-			auto unknownMessages = context.aggregator().view().unknownMessages(Finalization_Point, {});
+			auto unknownMessages = context.aggregator().unknownMessages({});
 
 			// Assert:
 			EXPECT_EQ(numExpectedMessages, unknownMessages.size());
@@ -694,21 +668,9 @@ namespace catapult { namespace chain {
 				EXPECT_CONTAINS(seededShortHashes, shortHash);
 
 			// Sanity:
-			EXPECT_GT(context.aggregator().view().size(), numExpectedMessages);
+			EXPECT_GT(context.aggregator().size(), numExpectedMessages);
 		});
 	}
-
-	// endregion
-
-	// region synchronization
-
-	namespace {
-		auto CreateLockProvider() {
-			return TestContext(1000, 700).detach();
-		}
-	}
-
-	DEFINE_LOCK_PROVIDER_TESTS(TEST_CLASS)
 
 	// endregion
 }}

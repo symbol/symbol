@@ -383,6 +383,33 @@ namespace catapult { namespace chain {
 
 	// endregion
 
+	// region isDescendant
+
+	TEST(TEST_CLASS, IsDescendantDelegatesToFinalizationHashTree) {
+		// Arrange:
+		//  7 - 8 - 9 - 10      |
+		//     ||| |||          |
+		//      8   9 - 10 - 11 |
+		auto hashes1 = test::GenerateRandomDataVector<Hash256>(4);
+		auto hashes2 = test::GenerateRandomDataVector<Hash256>(4);
+		hashes2[0] = hashes1[1];
+		hashes2[1] = hashes1[2];
+
+		RoundContext context(1000, 670);
+		context.acceptPrevote(Height(7), hashes1.data(), hashes1.size(), 250);
+		context.acceptPrevote(Height(8), hashes2.data(), hashes2.size(), 200);
+
+		// Act + Assert:
+		EXPECT_FALSE(context.isDescendant({ Height(11), hashes2[3] }, { Height(9), hashes1[2] })); // ancestor
+		EXPECT_TRUE(context.isDescendant({ Height(9), hashes1[2] }, { Height(9), hashes1[2] })); // self
+		EXPECT_TRUE(context.isDescendant({ Height(9), hashes1[2] }, { Height(11), hashes2[3] })); // descendant
+
+		EXPECT_FALSE(context.isDescendant({ Height(9), hashes1[0] }, { Height(11), hashes2[3] })); // unknown parent
+		EXPECT_FALSE(context.isDescendant({ Height(9), hashes1[2] }, { Height(11), hashes2[0] })); // unknown child
+	}
+
+	// endregion
+
 	// region isCompletable
 
 	TEST(TEST_CLASS, NotCompletableWhenThereIsNoBestPrevote) {
