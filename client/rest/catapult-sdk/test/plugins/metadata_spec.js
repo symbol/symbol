@@ -46,19 +46,25 @@ describe('metadata plugin', () => {
 			]);
 
 			// - accountMetadata
-			expect(Object.keys(modelSchema.accountMetadata).length).to.equal(Object.keys(modelSchema.transaction).length + 3);
-			expect(modelSchema.accountMetadata).to.contain.all.keys(['targetAddress', 'scopedMetadataKey', 'value']);
+			expect(Object.keys(modelSchema.accountMetadata).length).to.equal(Object.keys(modelSchema.transaction).length + 5);
+			expect(modelSchema.accountMetadata).to.contain.all.keys([
+				'targetAddress', 'scopedMetadataKey', 'valueSizeDelta', 'valueSize', 'value'
+			]);
 
 			// - mosaicMetadata
-			expect(Object.keys(modelSchema.mosaicMetadata).length).to.equal(Object.keys(modelSchema.transaction).length + 4);
-			expect(modelSchema.mosaicMetadata).to.contain.all.keys(['targetAddress', 'scopedMetadataKey', 'targetMosaicId', 'value']);
+			expect(Object.keys(modelSchema.mosaicMetadata).length).to.equal(Object.keys(modelSchema.transaction).length + 6);
+			expect(modelSchema.mosaicMetadata).to.contain.all.keys([
+				'targetAddress', 'scopedMetadataKey', 'targetMosaicId', 'valueSizeDelta', 'valueSize', 'value'
+			]);
 
 			// - namespaceMetadata
-			expect(Object.keys(modelSchema.namespaceMetadata).length).to.equal(Object.keys(modelSchema.transaction).length + 4);
+			expect(Object.keys(modelSchema.namespaceMetadata).length).to.equal(Object.keys(modelSchema.transaction).length + 6);
 			expect(modelSchema.namespaceMetadata).to.contain.all.keys([
 				'targetAddress',
 				'scopedMetadataKey',
 				'targetNamespaceId',
+				'valueSizeDelta',
+				'valueSize',
 				'value'
 			]);
 
@@ -67,13 +73,15 @@ describe('metadata plugin', () => {
 			expect(modelSchema.metadata).to.contain.all.keys(['metadataEntry', 'id']);
 
 			// - metadataEntry
-			expect(Object.keys(modelSchema.metadataEntry).length).to.equal(6);
+			expect(Object.keys(modelSchema.metadataEntry).length).to.equal(8);
 			expect(modelSchema.metadataEntry).to.contain.all.keys([
 				'compositeHash',
 				'sourceAddress',
 				'targetAddress',
 				'scopedMetadataKey',
 				'targetId',
+				'metadataType',
+				'valueSize',
 				'value'
 			]);
 		});

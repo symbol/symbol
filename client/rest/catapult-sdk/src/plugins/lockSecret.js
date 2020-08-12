@@ -40,6 +40,8 @@ const lockSecretPlugin = {
 			mosaicId: ModelType.uint64HexIdentifier,
 			amount: ModelType.uint64,
 			endHeight: ModelType.uint64,
+			status: ModelType.int,
+			hashAlgorithm: ModelType.int,
 			secret: ModelType.binary,
 			recipientAddress: ModelType.binary,
 			compositeHash: ModelType.binary
@@ -50,12 +52,14 @@ const lockSecretPlugin = {
 			secret: ModelType.binary,
 			mosaicId: ModelType.uint64HexIdentifier,
 			amount: ModelType.uint64,
-			duration: ModelType.uint64
+			duration: ModelType.uint64,
+			hashAlgorithm: ModelType.int
 		});
 		builder.addTransactionSupport(EntityType.secretProof, {
 			secret: ModelType.binary,
 			recipientAddress: ModelType.binary,
-			proof: ModelType.binary
+			proof: ModelType.binary,
+			hashAlgorithm: ModelType.int
 		});
 	},
 

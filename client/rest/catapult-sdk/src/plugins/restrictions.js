@@ -107,12 +107,14 @@ const restrictionsPlugin = {
 		accountRestrictionTypeDescriptors.forEach(restrictionTypeDescriptor => {
 			// transaction schemas
 			builder.addTransactionSupport(restrictionTypeDescriptor.entityType, {
+				restrictionFlags: ModelType.int,
 				restrictionAdditions: { type: ModelType.array, schemaName: restrictionTypeDescriptor.valueType },
 				restrictionDeletions: { type: ModelType.array, schemaName: restrictionTypeDescriptor.valueType }
 			});
 
 			// aggregated account restriction subschemas
 			builder.addSchema(`accountRestriction.${restrictionTypeDescriptor.schemaPrefix}AccountRestriction`, {
+				restrictionFlags: ModelType.int,
 				values: { type: ModelType.array, schemaName: restrictionTypeDescriptor.valueType }
 			});
 		});
@@ -140,7 +142,7 @@ const restrictionsPlugin = {
 		/**
 		 * Mosaic restrictions scope
 		 */
-		// transaction schema
+		// MosaicAddressRestrictionTransaction transaction schema
 		builder.addTransactionSupport(EntityType.mosaicRestrictionAddress, {
 			mosaicId: ModelType.uint64HexIdentifier,
 			restrictionKey: ModelType.uint64HexIdentifier,
@@ -149,31 +151,15 @@ const restrictionsPlugin = {
 			newRestrictionValue: ModelType.uint64
 		});
 
-		// mosaic global restrictions
+		// MosaicGlobalRestrictionTransaction transaction schema
 		builder.addTransactionSupport(EntityType.mosaicRestrictionGlobal, {
 			mosaicId: ModelType.uint64HexIdentifier,
 			referenceMosaicId: ModelType.uint64HexIdentifier,
 			restrictionKey: ModelType.uint64HexIdentifier,
 			previousRestrictionValue: ModelType.uint64,
-			newRestrictionValue: ModelType.uint64
-		});
-
-		// mosaic global restrictions
-		builder.addSchema('mosaicRestriction.mosaicGlobalRestriction', {
-			mosaicRestrictionEntry: { type: ModelType.object, schemaName: 'mosaicGlobalRestriction.entry' }
-		});
-		builder.addSchema('mosaicGlobalRestriction.entry', {
-			compositeHash: ModelType.binary,
-			mosaicId: ModelType.uint64HexIdentifier,
-			restrictions: { type: ModelType.array, schemaName: 'mosaicGlobalRestriction.entry.restriction' }
-		});
-		builder.addSchema('mosaicGlobalRestriction.entry.restriction', {
-			key: ModelType.uint64,
-			restriction: { type: ModelType.object, schemaName: 'mosaicGlobalRestriction.entry.restriction.restriction' }
-		});
-		builder.addSchema('mosaicGlobalRestriction.entry.restriction.restriction', {
-			referenceMosaicId: ModelType.uint64HexIdentifier,
-			restrictionValue: ModelType.uint64
+			newRestrictionValue: ModelType.uint64,
+			previousRestrictionType: ModelType.int,
+			newRestrictionType: ModelType.int
 		});
 
 		// mosaic address restrictions
@@ -189,6 +175,26 @@ const restrictionsPlugin = {
 		builder.addSchema('mosaicAddressRestriction.entry.restriction', {
 			key: ModelType.uint64,
 			value: ModelType.uint64
+		});
+
+		// mosaic global restrictions
+		builder.addSchema('mosaicRestriction.mosaicGlobalRestriction', {
+			mosaicRestrictionEntry: { type: ModelType.object, schemaName: 'mosaicGlobalRestriction.entry' }
+		});
+		builder.addSchema('mosaicGlobalRestriction.entry', {
+			compositeHash: ModelType.binary,
+			entryType: ModelType.int,
+			mosaicId: ModelType.uint64HexIdentifier,
+			restrictions: { type: ModelType.array, schemaName: 'mosaicGlobalRestriction.entry.restriction' }
+		});
+		builder.addSchema('mosaicGlobalRestriction.entry.restriction', {
+			key: ModelType.uint64,
+			restriction: { type: ModelType.object, schemaName: 'mosaicGlobalRestriction.entry.restriction.restriction' }
+		});
+		builder.addSchema('mosaicGlobalRestriction.entry.restriction.restriction', {
+			referenceMosaicId: ModelType.uint64HexIdentifier,
+			restrictionValue: ModelType.uint64,
+			restrictionType: ModelType.int
 		});
 	},
 

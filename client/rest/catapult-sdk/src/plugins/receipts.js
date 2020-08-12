@@ -46,6 +46,7 @@ const receiptsPlugin = {
 			});
 			builder.addSchema(`${schemaName}.statement`, schema);
 		};
+
 		addStatementSchema('addressResolution', {
 			height: ModelType.uint64,
 			unresolved: ModelType.binary,
@@ -58,24 +59,34 @@ const receiptsPlugin = {
 		});
 		addStatementSchema('transaction', {
 			height: ModelType.uint64,
+			source: { type: ModelType.object, schemaName: 'receipts.source' },
 			receipts: { type: ModelType.array, schemaName: entity => getBasicReceiptType(entity.type) }
 		});
 
+		// addressResolution statements
 		builder.addSchema('receipts.entry.address', {
+			source: { type: ModelType.object, schemaName: 'receipts.source' },
 			resolved: ModelType.binary
 		});
 
+		// mosaicResolution statements
 		builder.addSchema('receipts.entry.mosaic', {
+			source: { type: ModelType.object, schemaName: 'receipts.source' },
 			resolved: ModelType.uint64HexIdentifier
 		});
 
+		// transaction statements
 		builder.addSchema('receipts.balanceChange', {
+			version: ModelType.int,
+			type: ModelType.int,
 			targetAddress: ModelType.binary,
 			mosaicId: ModelType.uint64HexIdentifier,
 			amount: ModelType.uint64
 		});
 
 		builder.addSchema('receipts.balanceTransfer', {
+			version: ModelType.int,
+			type: ModelType.int,
 			senderAddress: ModelType.binary,
 			recipientAddress: ModelType.binary,
 			mosaicId: ModelType.uint64HexIdentifier,
@@ -83,15 +94,28 @@ const receiptsPlugin = {
 		});
 
 		builder.addSchema('receipts.artifactExpiry', {
+			version: ModelType.int,
+			type: ModelType.int,
 			artifactId: ModelType.uint64HexIdentifier
 		});
 
 		builder.addSchema('receipts.inflation', {
+			version: ModelType.int,
+			type: ModelType.int,
 			mosaicId: ModelType.uint64HexIdentifier,
 			amount: ModelType.uint64
 		});
 
-		builder.addSchema('receipts.unknown', {});
+		builder.addSchema('receipts.unknown', {
+			version: ModelType.int,
+			type: ModelType.int
+		});
+
+		// receipts source schema
+		builder.addSchema('receipts.source', {
+			primaryId: ModelType.int,
+			secondaryId: ModelType.int
+		});
 	},
 
 	registerCodecs: () => {}

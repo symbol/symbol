@@ -36,7 +36,7 @@ describe('receipts plugin', () => {
 			const modelSchema = builder.build();
 
 			// Assert:
-			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 13);
+			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 14);
 			expect(modelSchema).to.contain.all.keys([
 				'addressResolutionStatement',
 				'addressResolutionStatement.statement',
@@ -50,7 +50,8 @@ describe('receipts plugin', () => {
 				'receipts.inflation',
 				'receipts.entry.address',
 				'receipts.entry.mosaic',
-				'receipts.unknown'
+				'receipts.unknown',
+				'receipts.source'
 			]);
 
 			// - addressResolutionStatement
@@ -78,50 +79,58 @@ describe('receipts plugin', () => {
 			]);
 
 			// - transactionStatement
-			expect(Object.keys(modelSchema['transactionStatement.statement']).length).to.equal(2);
+			expect(Object.keys(modelSchema['transactionStatement.statement']).length).to.equal(3);
 			expect(modelSchema['transactionStatement.statement']).to.contain.all.keys([
-				'height',
-				'receipts'
+				'height', 'source', 'receipts'
 			]);
 
 			// - receipts.entry.address
-			expect(Object.keys(modelSchema['receipts.entry.address']).length).to.equal(1);
+			expect(Object.keys(modelSchema['receipts.entry.address']).length).to.equal(2);
 			expect(modelSchema['receipts.entry.address']).to.contain.all.keys([
-				'resolved'
+				'source', 'resolved'
 			]);
 
 			// - receipts.entry.mosaic
-			expect(Object.keys(modelSchema['receipts.entry.mosaic']).length).to.equal(1);
+			expect(Object.keys(modelSchema['receipts.entry.mosaic']).length).to.equal(2);
 			expect(modelSchema['receipts.entry.mosaic']).to.contain.all.keys([
-				'resolved'
+				'source', 'resolved'
 			]);
 
 			// - receipts.balanceChange
-			expect(Object.keys(modelSchema['receipts.balanceChange']).length).to.equal(3);
-			expect(modelSchema['receipts.balanceChange']).to.contain.all.keys(['targetAddress', 'mosaicId', 'amount']);
+			expect(Object.keys(modelSchema['receipts.balanceChange']).length).to.equal(5);
+			expect(modelSchema['receipts.balanceChange']).to.contain.all.keys([
+				'version', 'type', 'targetAddress', 'mosaicId', 'amount'
+			]);
 
 			// - receipts.balanceTransfer
-			expect(Object.keys(modelSchema['receipts.balanceTransfer']).length).to.equal(4);
+			expect(Object.keys(modelSchema['receipts.balanceTransfer']).length).to.equal(6);
 			expect(modelSchema['receipts.balanceTransfer']).to.contain.all.keys([
-				'senderAddress',
-				'recipientAddress',
-				'mosaicId',
-				'amount'
+				'version', 'type', 'senderAddress', 'recipientAddress', 'mosaicId', 'amount'
 			]);
 
 			// - receipts.artifactExpiry
-			expect(Object.keys(modelSchema['receipts.artifactExpiry']).length).to.equal(1);
-			expect(modelSchema['receipts.artifactExpiry']).to.contain.all.keys(['artifactId']);
+			expect(Object.keys(modelSchema['receipts.artifactExpiry']).length).to.equal(3);
+			expect(modelSchema['receipts.artifactExpiry']).to.contain.all.keys([
+				'version', 'type', 'artifactId'
+			]);
 
 			// - receipts.inflation
-			expect(Object.keys(modelSchema['receipts.inflation']).length).to.equal(2);
+			expect(Object.keys(modelSchema['receipts.inflation']).length).to.equal(4);
 			expect(modelSchema['receipts.inflation']).to.contain.all.keys([
-				'mosaicId',
-				'amount'
+				'version', 'type', 'mosaicId', 'amount'
 			]);
 
 			// - receipts.unknown
-			expect(Object.keys(modelSchema['receipts.unknown']).length).to.equal(0);
+			expect(Object.keys(modelSchema['receipts.unknown']).length).to.equal(2);
+			expect(modelSchema['receipts.unknown']).to.contain.all.keys([
+				'version', 'type'
+			]);
+
+			// - receipts.source
+			expect(Object.keys(modelSchema['receipts.source']).length).to.equal(2);
+			expect(modelSchema['receipts.source']).to.contain.all.keys([
+				'primaryId', 'secondaryId'
+			]);
 		});
 	});
 
@@ -135,7 +144,8 @@ describe('receipts plugin', () => {
 					[ModelType.uint64]: () => 'uint64',
 					[ModelType.uint64HexIdentifier]: () => 'uint64HexIdentifier',
 					[ModelType.objectId]: () => 'objectId',
-					[ModelType.string]: () => 'string'
+					[ModelType.string]: () => 'string',
+					[ModelType.int]: () => 'int'
 				};
 				const transactionStatement = {
 					statement: {

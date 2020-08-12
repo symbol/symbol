@@ -42,6 +42,10 @@ class ModelSchemaBuilder {
 
 			// region block
 			blockHeader: {
+				size: ModelType.int,
+				version: ModelType.int,
+				network: ModelType.int,
+				type: ModelType.int,
 				height: ModelType.uint64,
 				timestamp: ModelType.uint64,
 				difficulty: ModelType.uint64,
@@ -52,13 +56,16 @@ class ModelSchemaBuilder {
 				transactionsHash: ModelType.binary,
 				receiptsHash: ModelType.binary,
 				stateHash: ModelType.binary,
-				beneficiaryAddress: ModelType.binary
+				beneficiaryAddress: ModelType.binary,
+				feeMultiplier: ModelType.int
 			},
 			blockHeaderMetadata: {
 				hash: ModelType.binary,
 				generationHash: ModelType.binary,
 				totalFee: ModelType.uint64,
-				stateHashSubCacheMerkleRoots: { type: ModelType.array, schemaName: ModelType.binary }
+				stateHashSubCacheMerkleRoots: { type: ModelType.array, schemaName: ModelType.binary },
+				numTransactions: ModelType.int,
+				numStatements: ModelType.int
 			},
 			blockHeaderWithMetadata: {
 				id: ModelType.objectId,
@@ -77,6 +84,10 @@ class ModelSchemaBuilder {
 			// region transaction
 
 			transaction: {
+				size: ModelType.int,
+				version: ModelType.int,
+				network: ModelType.int,
+				type: ModelType.int,
 				deadline: ModelType.uint64,
 				maxFee: ModelType.uint64
 			},
@@ -85,7 +96,8 @@ class ModelSchemaBuilder {
 				aggregateId: ModelType.objectId,
 				height: ModelType.uint64,
 				hash: ModelType.binary,
-				merkleComponentHash: ModelType.binary
+				merkleComponentHash: ModelType.binary,
+				index: ModelType.int
 			},
 			transactionWithMetadata: {
 				id: ModelType.objectId,
@@ -122,6 +134,7 @@ class ModelSchemaBuilder {
 				addressHeight: ModelType.uint64,
 				publicKey: ModelType.binary,
 				publicKeyHeight: ModelType.uint64,
+				accountType: ModelType.int,
 				supplementalPublicKeys: { type: ModelType.object, schemaName: 'supplementalPublicKey' },
 				importance: ModelType.uint64,
 				importanceHeight: ModelType.uint64,
@@ -137,6 +150,7 @@ class ModelSchemaBuilder {
 			activityBucket: {
 				startHeight: ModelType.uint64,
 				totalFeesPaid: ModelType.uint64,
+				beneficiaryCount: ModelType.int,
 				rawScore: ModelType.uint64
 			},
 			mosaic: {
@@ -170,6 +184,10 @@ class ModelSchemaBuilder {
 			nodeHealth: {
 			},
 			nodeInfo: {
+				version: ModelType.int,
+				roles: ModelType.int,
+				port: ModelType.int,
+				networkIdentifier: ModelType.int,
 				friendlyName: ModelType.string,
 				host: ModelType.string,
 				publicKey: ModelType.binary,
@@ -188,6 +206,9 @@ class ModelSchemaBuilder {
 				tree: { type: ModelType.array, schemaName: ModelType.binary }
 			},
 			storageInfo: {
+				numBlocks: ModelType.int,
+				numTransactions: ModelType.int,
+				numAccounts: ModelType.int
 			}
 
 			// endregion

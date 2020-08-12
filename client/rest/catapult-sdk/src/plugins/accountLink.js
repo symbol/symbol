@@ -32,21 +32,25 @@ const constants = { sizes };
 const accountLinkPlugin = {
 	registerSchema: builder => {
 		builder.addTransactionSupport(EntityType.accountLink, {
-			linkedPublicKey: ModelType.binary
+			linkedPublicKey: ModelType.binary,
+			linkAction: ModelType.int
 		});
 
 		builder.addTransactionSupport(EntityType.nodeKeyLink, {
-			linkedPublicKey: ModelType.binary
+			linkedPublicKey: ModelType.binary,
+			linkAction: ModelType.int
 		});
 
 		builder.addTransactionSupport(EntityType.votingKeyLink, {
 			linkedPublicKey: ModelType.binary,
 			startPoint: ModelType.uint64,
-			endPoint: ModelType.uint64
+			endPoint: ModelType.uint64,
+			linkAction: ModelType.int
 		});
 
 		builder.addTransactionSupport(EntityType.vrfKeyLink, {
-			linkedPublicKey: ModelType.binary
+			linkedPublicKey: ModelType.binary,
+			linkAction: ModelType.int
 		});
 	},
 

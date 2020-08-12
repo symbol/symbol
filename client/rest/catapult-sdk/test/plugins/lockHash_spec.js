@@ -48,8 +48,8 @@ describe('lock hash plugin', () => {
 
 			// - hash lock infos
 			assertSchema(modelSchema.hashLockInfo, 2, 'id', 'lock');
-			assertSchema(modelSchema['hashLockInfo.lock'], 5,
-				'ownerAddress', 'mosaicId', 'amount', 'endHeight', 'hash');
+			assertSchema(modelSchema['hashLockInfo.lock'], 6,
+				'ownerAddress', 'mosaicId', 'amount', 'endHeight', 'status', 'hash');
 
 			// - hash lock transaction
 			const transactionSchemaSize = Object.keys(modelSchema.transaction).length;

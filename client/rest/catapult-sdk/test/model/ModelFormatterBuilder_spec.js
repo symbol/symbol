@@ -30,7 +30,8 @@ const formattingRules = {
 	[ModelType.uint64]: () => 'uint64',
 	[ModelType.uint64HexIdentifier]: () => 'uint64HexIdentifier',
 	[ModelType.objectId]: () => 'objectId',
-	[ModelType.string]: () => 'string'
+	[ModelType.string]: () => 'string',
+	[ModelType.int]: () => 'int'
 };
 
 describe('model formatter builder', () => {
@@ -69,12 +70,14 @@ describe('model formatter builder', () => {
 			const result = formatter.transactionWithMetadata.format({
 				meta: {
 					height: 0,
-					hash: 0
+					hash: 0,
+					index: 0
 				},
 				transaction: {
 					signature: 0,
 					signerPublicKey: 0,
 					version: 0,
+					network: 0,
 					type: 0,
 
 					maxFee: 0,
@@ -86,13 +89,15 @@ describe('model formatter builder', () => {
 			expect(result).to.deep.equal({
 				meta: {
 					height: 'uint64',
-					hash: 'binary'
+					hash: 'binary',
+					index: 'int'
 				},
 				transaction: {
 					signature: 'binary',
 					signerPublicKey: 'binary',
-					version: 'none',
-					type: 'none',
+					version: 'int',
+					network: 'int',
+					type: 'int',
 
 					maxFee: 'uint64',
 					deadline: 'uint64'
@@ -118,6 +123,7 @@ describe('model formatter builder', () => {
 					signature: 0,
 					signerPublicKey: 0,
 					version: 0,
+					network: 0,
 					type: 0,
 
 					height: 0,
@@ -138,14 +144,15 @@ describe('model formatter builder', () => {
 					hash: 'binary',
 					generationHash: 'binary',
 					totalFee: 'uint64',
-					numTransactions: 'none',
+					numTransactions: 'int',
 					stateHashSubCacheMerkleRoots: ['binary']
 				},
 				block: {
 					signature: 'binary',
 					signerPublicKey: 'binary',
-					version: 'none',
-					type: 'none',
+					version: 'int',
+					network: 'int',
+					type: 'int',
 
 					height: 'uint64',
 					timestamp: 'uint64',
@@ -171,6 +178,7 @@ describe('model formatter builder', () => {
 					addressHeight: 0,
 					publicKey: 0,
 					publicKeyHeight: 0,
+					accountType: 0,
 					importance: 0,
 					importanceHeight: 0,
 					mosaics: [
@@ -188,6 +196,7 @@ describe('model formatter builder', () => {
 					addressHeight: 'uint64',
 					publicKey: 'binary',
 					publicKeyHeight: 'uint64',
+					accountType: 'int',
 					importance: 'uint64',
 					importanceHeight: 'uint64',
 					mosaics: [
@@ -234,9 +243,9 @@ describe('model formatter builder', () => {
 
 			// Assert:
 			expect(result).to.deep.equal({
-				numBlocks: 'none',
-				numTransactions: 'none',
-				numAccounts: 'none'
+				numBlocks: 'int',
+				numTransactions: 'int',
+				numAccounts: 'int'
 			});
 		});
 	});

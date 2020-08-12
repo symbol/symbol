@@ -41,20 +41,20 @@ describe('account link plugin', () => {
 			expect(modelSchema).to.contain.all.keys(['accountLink', 'nodeKeyLink', 'votingKeyLink', 'vrfKeyLink']);
 
 			// - accountLink
-			expect(Object.keys(modelSchema.accountLink).length).to.equal(Object.keys(modelSchema.transaction).length + 1);
-			expect(modelSchema.accountLink).to.contain.all.keys(['linkedPublicKey']);
+			expect(Object.keys(modelSchema.accountLink).length).to.equal(Object.keys(modelSchema.transaction).length + 2);
+			expect(modelSchema.accountLink).to.contain.all.keys(['linkedPublicKey', 'linkAction']);
 
 			// - nodeKeyLink
-			expect(Object.keys(modelSchema.nodeKeyLink).length).to.equal(Object.keys(modelSchema.transaction).length + 1);
-			expect(modelSchema.nodeKeyLink).to.contain.all.keys(['linkedPublicKey']);
+			expect(Object.keys(modelSchema.nodeKeyLink).length).to.equal(Object.keys(modelSchema.transaction).length + 2);
+			expect(modelSchema.nodeKeyLink).to.contain.all.keys(['linkedPublicKey', 'linkAction']);
 
 			// - votingKeyLink
-			expect(Object.keys(modelSchema.votingKeyLink).length).to.equal(Object.keys(modelSchema.transaction).length + 3);
-			expect(modelSchema.votingKeyLink).to.contain.all.keys(['linkedPublicKey', 'startPoint', 'endPoint']);
+			expect(Object.keys(modelSchema.votingKeyLink).length).to.equal(Object.keys(modelSchema.transaction).length + 4);
+			expect(modelSchema.votingKeyLink).to.contain.all.keys(['linkedPublicKey', 'startPoint', 'endPoint', 'linkAction']);
 
 			// - vrfKeyLink
-			expect(Object.keys(modelSchema.vrfKeyLink).length).to.equal(Object.keys(modelSchema.transaction).length + 1);
-			expect(modelSchema.vrfKeyLink).to.contain.all.keys(['linkedPublicKey']);
+			expect(Object.keys(modelSchema.vrfKeyLink).length).to.equal(Object.keys(modelSchema.transaction).length + 2);
+			expect(modelSchema.vrfKeyLink).to.contain.all.keys(['linkedPublicKey', 'linkAction']);
 		});
 	});
 

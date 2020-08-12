@@ -37,6 +37,7 @@ const transferPlugin = {
 			mosaics: { type: ModelType.array, schemaName: 'mosaic' }
 		});
 		builder.addSchema('transfer.message', {
+			type: ModelType.int,
 			payload: ModelType.binary
 		});
 	},

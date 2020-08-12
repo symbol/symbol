@@ -52,16 +52,18 @@ describe('multisig plugin', () => {
 			]);
 
 			// - modify multisig account
-			expect(Object.keys(modelSchema.modifyMultisigAccount).length).to.equal(Object.keys(modelSchema.transaction).length + 2);
-			expect(modelSchema.modifyMultisigAccount).to.contain.all.keys(['addressAdditions', 'addressDeletions']);
+			expect(Object.keys(modelSchema.modifyMultisigAccount).length).to.equal(Object.keys(modelSchema.transaction).length + 4);
+			expect(modelSchema.modifyMultisigAccount).to.contain.all.keys(
+				['minRemovalDelta', 'minApprovalDelta', 'addressAdditions', 'addressDeletions']
+			);
 
 			// - multisig entry
 			expect(Object.keys(modelSchema.multisigEntry).length).to.equal(1);
 			expect(modelSchema.multisigEntry).to.contain.all.keys(['multisig']);
 
-			expect(Object.keys(modelSchema['multisigEntry.multisig']).length).to.equal(3);
+			expect(Object.keys(modelSchema['multisigEntry.multisig']).length).to.equal(5);
 			expect(modelSchema['multisigEntry.multisig'])
-				.to.contain.all.keys(['accountAddress', 'multisigAddresses', 'cosignatoryAddresses']);
+				.to.contain.all.keys(['accountAddress', 'minApproval', 'minRemoval', 'multisigAddresses', 'cosignatoryAddresses']);
 
 			// - multisig graph
 			expect(Object.keys(modelSchema.multisigGraph).length).to.equal(1);

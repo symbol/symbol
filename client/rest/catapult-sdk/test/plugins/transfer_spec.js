@@ -58,6 +58,7 @@ describe('transfer plugin', () => {
 
 			// - message
 			expect(modelSchema['transfer.message']).to.deep.equal({
+				type: ModelType.int,
 				payload: ModelType.binary
 			});
 		});

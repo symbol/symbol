@@ -40,6 +40,7 @@ const lockHashPlugin = {
 			mosaicId: ModelType.uint64HexIdentifier,
 			amount: ModelType.uint64,
 			endHeight: ModelType.uint64,
+			status: ModelType.int,
 			hash: ModelType.binary
 		});
 
