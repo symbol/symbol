@@ -41,6 +41,27 @@ namespace catapult { namespace chain {
 			cache::UtCacheModifierProxy& Modifier;
 			cache::CatapultCacheDelta& UnconfirmedCatapultCache;
 		};
+
+		class TransactionInfoFormatter {
+		public:
+			explicit TransactionInfoFormatter(const model::TransactionInfo& transactionInfo) : m_transactionInfo(transactionInfo)
+			{}
+
+		public:
+			friend std::ostream& operator<<(std::ostream& out, const TransactionInfoFormatter& formatter) {
+				const auto& transaction = *formatter.m_transactionInfo.pEntity;
+				out
+						<< "{ EntityHash " << formatter.m_transactionInfo.EntityHash
+						<< ", Type " << transaction.Type
+						<< ", Version " << static_cast<uint16_t>(transaction.Version)
+						<< ", SignerPublicKey " << transaction.SignerPublicKey
+						<< " }";
+				return out;
+			}
+
+		private:
+			const model::TransactionInfo& m_transactionInfo;
+		};
 	}
 
 	class UtUpdater::Impl final {
@@ -133,7 +154,7 @@ namespace catapult { namespace chain {
 					// don't log reverted transactions that could have been included by harvester with lower min fee multiplier
 					if (TransactionSource::New == transactionSource) {
 						CATAPULT_LOG(debug)
-								<< "dropping transaction " << entityHash << " with max fee " << entity.MaxFee
+								<< "dropping transaction " << TransactionInfoFormatter(utInfo) << " with max fee " << entity.MaxFee
 								<< " because min fee is " << minTransactionFee;
 					}
 
@@ -141,7 +162,7 @@ namespace catapult { namespace chain {
 				}
 
 				if (throttle(utInfo, transactionSource, applyState, validatorContext.Cache)) {
-					CATAPULT_LOG(warning) << "dropping transaction " << entityHash << " due to throttle";
+					CATAPULT_LOG(warning) << "dropping transaction " << TransactionInfoFormatter(utInfo) << " due to throttle";
 					m_failedTransactionSink(entity, entityHash, Failure_Chain_Unconfirmed_Cache_Too_Full);
 					continue;
 				}
@@ -158,7 +179,7 @@ namespace catapult { namespace chain {
 				m_executionConfig.pNotificationPublisher->publish(entityInfo, sub);
 				if (!IsValidationResultSuccess(sub.result())) {
 					CATAPULT_LOG_LEVEL(validators::MapToLogLevel(sub.result()))
-							<< "dropping transaction " << entityHash << ": " << sub.result();
+							<< "dropping transaction " << TransactionInfoFormatter(utInfo) << ": " << sub.result();
 
 					// only forward failure (not neutral) results
 					if (IsValidationResultFailure(sub.result()))
