@@ -1,0 +1,20 @@
+tags:
+  - Lock hash routes
+summary: Get hash lock entries
+description: Returns an array of hash locks.
+operationId: searchLockHash
+parameters:
+  - $ref: "../../../parameters/query/ownerAddress.yml"
+  - $ref: "../../../parameters/query/pageSize.yml"
+  - $ref: "../../../parameters/query/pageNumber.yml"
+  - $ref: "../../../parameters/query/offset.yml"
+  - $ref: "../../../parameters/query/order.yml"
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../schemas/HashLockPage.yml"
+  "409":
+    $ref : "../../../responses/InvalidArgument.yml"
