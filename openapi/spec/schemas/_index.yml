@@ -258,8 +258,8 @@ HashLockNetworkPropertiesDTO:
   "$ref": "../plugins/lock_hash/schemas/HashLockNetworkPropertiesDTO.yml"
 
 # Plugin - LockSecret
-LockHashAlgorithmEnum:
-  "$ref": "../plugins/lock_secret/schemas/LockHashAlgorithmEnum.yml"
+SecretHashAlgorithmEnum.:
+  "$ref": "../plugins/lock_secret/schemas/SecretHashAlgorithmEnum.yml"
 EmbeddedSecretLockTransactionDTO:
   "$ref": "../plugins/lock_secret/schemas/EmbeddedSecretLockTransactionDTO.yml"
 EmbeddedSecretProofTransactionDTO:
