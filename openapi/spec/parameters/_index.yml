@@ -3,6 +3,8 @@ address:
   $ref: './path/address.yml'
 accountIdPath:
   $ref: './path/accountId.yml'
+hashPath:
+  $ref: './path/hash.yml'
 heightPath:
   $ref: './path/height.yml'
 limitPath:
@@ -15,6 +17,8 @@ publicKeyPath:
   $ref: './path/publicKey.yml'
 receiptHashPath:
   $ref: './path/receiptHash.yml'
+secretPath:
+  $ref: './path/secret.yml'
 sourceAddressPath:
   $ref: './path/sourceAddress.yml'
 transactionHashPath:
@@ -34,8 +38,6 @@ beneficiaryAddressQuery:
   $ref: './query/beneficiaryAddress.yml'
 embedded:
   $ref: './query/embedded.yml'
-hashQuery:
-  $ref: './query/hash.yml'
 heightQuery:
   $ref: './query/height.yml'
 idQuery:

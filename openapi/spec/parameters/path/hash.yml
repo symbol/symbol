@@ -1,5 +1,6 @@
 name: hash
-in: query
+in: path
 description: Filter by hash.
+required: true
 schema:
   $ref: "../../schemas/Hash256.yml"
