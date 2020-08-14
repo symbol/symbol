@@ -65,13 +65,6 @@ namespace catapult { namespace test {
 		return pMessage;
 	}
 
-	std::unique_ptr<model::FinalizationMessage> CreateValidNemesisMessage(
-			const crypto::StepIdentifier& stepIdentifier,
-			const Hash256& hash,
-			const AccountKeyPairDescriptor& keyPairDescriptor) {
-		return CreateValidMessage(stepIdentifier, Height(2), hash, keyPairDescriptor);
-	}
-
 	std::unique_ptr<model::FinalizationMessage> CreateValidMessage(
 			const crypto::StepIdentifier& stepIdentifier,
 			Height height,

@@ -161,7 +161,7 @@ namespace catapult { namespace chain {
 
 		private:
 			uint64_t m_maxResponseSize;
-			model::FinalizationContext m_finalizationContext; // TODO: review if this should be reference after higher layer is written
+			model::FinalizationContext m_finalizationContext;
 			chain::RoundContext m_roundContext;
 			std::unordered_map<MessageKey, MessageDescriptor, MessageKeyHasher> m_messages;
 		};

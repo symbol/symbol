@@ -51,7 +51,7 @@ namespace catapult { namespace api {
 		}
 
 		struct MessagesTraits {
-			static constexpr auto Request_Data_Header_Size = SizeOf32<crypto::StepIdentifier>();
+			static constexpr auto Request_Data_Header_Size = SizeOf32<FinalizationPoint>();
 			static constexpr auto Request_Data_Size = 3 * SizeOf32<utils::ShortHash>();
 
 			static std::vector<uint32_t> KnownShortHashValues() {
@@ -63,7 +63,7 @@ namespace catapult { namespace api {
 			}
 
 			static auto Invoke(const RemoteFinalizationApi& api) {
-				return api.messages({ 11, 22, 33 }, KnownShortHashes());
+				return api.messages(FinalizationPoint(22), KnownShortHashes());
 			}
 
 			static auto CreateValidResponsePacket() {
@@ -82,7 +82,7 @@ namespace catapult { namespace api {
 			static void ValidateRequest(const ionet::Packet& packet) {
 				EXPECT_EQ(ionet::PacketType::Pull_Finalization_Messages, packet.Type);
 				ASSERT_EQ(sizeof(ionet::Packet) + Request_Data_Header_Size + Request_Data_Size, packet.Size);
-				EXPECT_EQ(crypto::StepIdentifier({ 11, 22, 33 }), reinterpret_cast<const crypto::StepIdentifier&>(*packet.Data()));
+				EXPECT_EQ(FinalizationPoint(22), reinterpret_cast<const FinalizationPoint&>(*packet.Data()));
 				EXPECT_EQ_MEMORY(packet.Data() + Request_Data_Header_Size, KnownShortHashValues().data(), Request_Data_Size);
 			}
 

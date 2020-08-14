@@ -36,10 +36,10 @@ namespace catapult { namespace api {
 		{}
 
 	public:
-		/// Gets all finalization messages from the remote starting at \a stepIdentifier excluding those with all hashes
-		/// in \a knownShortHashes.
+		/// Gets all finalization messages from the remote with a finalization point no greater than \a point excluding those with
+		/// hashes in \a knownShortHashes.
 		virtual thread::future<model::FinalizationMessageRange> messages(
-				const crypto::StepIdentifier& stepIdentifier,
+				FinalizationPoint point,
 				model::ShortHashRange&& knownShortHashes) const = 0;
 	};
 

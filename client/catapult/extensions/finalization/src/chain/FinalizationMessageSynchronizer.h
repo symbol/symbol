@@ -28,7 +28,7 @@ namespace catapult { namespace api { class RemoteFinalizationApi; } }
 namespace catapult { namespace chain {
 
 	/// Function signature for supplying a step identifier and short hashes pair.
-	using FinalizationMessageSynchronizerFilterSupplier = supplier<std::pair<crypto::StepIdentifier, model::ShortHashRange>>;
+	using FinalizationMessageSynchronizerFilterSupplier = supplier<std::pair<FinalizationPoint, model::ShortHashRange>>;
 
 	/// Creates a finalization message synchronizer around a message filter supplier (\a messageFilterSupplier)
 	/// and message range consumer (\a messageRangeConsumer).

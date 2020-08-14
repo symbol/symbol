@@ -18,8 +18,10 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "finalization/src/io/FileProofStorage.h"
 #include "src/FinalizationBootstrapperService.h"
 #include "src/FinalizationConfiguration.h"
+#include "src/FinalizationMessageProcessingService.h"
 #include "src/FinalizationService.h"
 #include "src/FinalizationSyncSourceService.h"
 #include "catapult/config/ConfigurationFileLoader.h"
@@ -30,11 +32,14 @@ namespace catapult { namespace finalization {
 	namespace {
 		void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
 			const auto& resourcesPath = bootstrapper.resourcesPath();
-			/* auto config = */ FinalizationConfiguration::LoadFromPath(resourcesPath);
+			auto config = FinalizationConfiguration::LoadFromPath(resourcesPath);
+
+			auto pProofStorage = std::make_unique<io::FileProofStorage>(bootstrapper.config().User.DataDirectory);
 
 			// register other services
 			auto& extensionManager = bootstrapper.extensionManager();
-			extensionManager.addServiceRegistrar(CreateFinalizationBootstrapperServiceRegistrar());
+			extensionManager.addServiceRegistrar(CreateFinalizationBootstrapperServiceRegistrar(config, std::move(pProofStorage)));
+			extensionManager.addServiceRegistrar(CreateFinalizationMessageProcessingServiceRegistrar(config));
 			extensionManager.addServiceRegistrar(CreateFinalizationServiceRegistrar());
 			extensionManager.addServiceRegistrar(CreateFinalizationSyncSourceServiceRegistrar());
 		}

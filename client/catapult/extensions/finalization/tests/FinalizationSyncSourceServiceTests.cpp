@@ -19,8 +19,7 @@
 **/
 
 #include "finalization/src/FinalizationSyncSourceService.h"
-#include "finalization/src/FinalizationBootstrapperService.h"
-#include "tests/test/local/ServiceLocatorTestContext.h"
+#include "finalization/tests/test/FinalizationBootstrapperServiceTestUtils.h"
 #include "tests/test/local/ServiceTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -33,18 +32,7 @@ namespace catapult { namespace finalization {
 			static constexpr auto CreateRegistrar = CreateFinalizationSyncSourceServiceRegistrar;
 		};
 
-		class TestContext : public test::ServiceLocatorTestContext<FinalizationSyncSourceServiceTraits> {
-		public:
-			TestContext() {
-				// Arrange: register service dependencies
-				auto pBootstrapperRegistrar = CreateFinalizationBootstrapperServiceRegistrar();
-				pBootstrapperRegistrar->registerServices(locator(), testState().state());
-
-				// - register hook dependencies
-				auto& hooks = GetFinalizationServerHooks(locator());
-				hooks.setMessageRangeConsumer([](auto&&) {});
-			}
-		};
+		using TestContext = test::MessageRangeConsumerDependentServiceLocatorTestContext<FinalizationSyncSourceServiceTraits>;
 	}
 
 	// region basic
@@ -59,7 +47,7 @@ namespace catapult { namespace finalization {
 		context.boot();
 
 		// Assert: only dependency services are registered
-		EXPECT_EQ(1u, context.locator().numServices());
+		EXPECT_EQ(test::FinalizationBootstrapperServiceTestUtils::Num_Bootstrapper_Services, context.locator().numServices());
 		EXPECT_EQ(0u, context.locator().counters().size());
 	}
 

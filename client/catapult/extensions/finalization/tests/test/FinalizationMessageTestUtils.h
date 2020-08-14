@@ -47,14 +47,6 @@ namespace catapult { namespace test {
 
 	/// Creates a valid finalization message with \a stepIdentifier and one \a hash at \a height for the account
 	/// specified by \a keyPairDescriptor.
-	/// \note This function assumes that the nemesis block is the last finalized block.
-	std::unique_ptr<model::FinalizationMessage> CreateValidNemesisMessage(
-			const crypto::StepIdentifier& stepIdentifier,
-			const Hash256& hash,
-			const AccountKeyPairDescriptor& keyPairDescriptor);
-
-	/// Creates a valid finalization message with \a stepIdentifier and one \a hash at \a height for the account
-	/// specified by \a keyPairDescriptor.
 	std::unique_ptr<model::FinalizationMessage> CreateValidMessage(
 			const crypto::StepIdentifier& stepIdentifier,
 			Height height,

@@ -72,7 +72,7 @@ namespace catapult { namespace chain {
 				}
 
 				void checkAdditionalRequestParameters() {
-					EXPECT_EQ(crypto::StepIdentifier({ 11, 23, 67 }), m_pFinalizationApi->messagesRequests()[0].first);
+					EXPECT_EQ(FinalizationPoint(23), m_pFinalizationApi->messagesRequests()[0].first);
 				}
 
 			private:
@@ -106,7 +106,7 @@ namespace catapult { namespace chain {
 					const ShortHashesSupplier& shortHashesSupplier,
 					const handlers::MessageRangeHandler& messageRangeConsumer) {
 				auto messageFilterSupplier = [shortHashesSupplier] {
-					return std::make_pair(crypto::StepIdentifier{ 11, 23, 67 }, shortHashesSupplier());
+					return std::make_pair(FinalizationPoint(23), shortHashesSupplier());
 				};
 				return CreateFinalizationMessageSynchronizer(messageFilterSupplier, messageRangeConsumer);
 			}

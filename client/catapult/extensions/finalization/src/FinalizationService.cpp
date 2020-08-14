@@ -22,6 +22,7 @@
 #include "FinalizationBootstrapperService.h"
 #include "finalization/src/api/RemoteFinalizationApi.h"
 #include "finalization/src/chain/FinalizationMessageSynchronizer.h"
+#include "finalization/src/chain/MultiRoundMessageAggregator.h"
 #include "catapult/config/CatapultKeys.h"
 #include "catapult/extensions/NetworkUtils.h"
 #include "catapult/extensions/PeersConnectionTasks.h"
@@ -62,11 +63,13 @@ namespace catapult { namespace finalization {
 				extensions::ServiceLocator& locator,
 				const extensions::ServiceState& state,
 				net::PacketWriters& packetWriters) {
+			const auto& messageAggregator = GetMultiRoundMessageAggregator(locator);
 			const auto& serverHooks = GetFinalizationServerHooks(locator);
 			auto finalizationMessageSynchronizer = chain::CreateFinalizationMessageSynchronizer(
-					// TODO: retreive realistic values for these; this implies MultiStepAggregator needs RW semantics either directly
-					//       or indirectly (via a BlockStorageCache-like wrapper)
-					[]() { return std::make_pair(crypto::StepIdentifier(), model::ShortHashRange()); },
+					[&messageAggregator]() {
+						auto messageAggregatorView = messageAggregator.view();
+						return std::make_pair(messageAggregatorView.maxFinalizationPoint(), messageAggregatorView.shortHashes());
+					},
 					serverHooks.messageRangeConsumer());
 
 			thread::Task task;

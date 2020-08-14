@@ -35,11 +35,9 @@ namespace catapult { namespace api {
 			static constexpr auto Packet_Type = ionet::PacketType::Pull_Finalization_Messages;
 			static constexpr auto Friendly_Name = "pull finalization messages";
 
-			static auto CreateRequestPacketPayload(
-					const crypto::StepIdentifier& stepIdentifier,
-					model::ShortHashRange&& knownShortHashes) {
+			static auto CreateRequestPacketPayload(FinalizationPoint point, model::ShortHashRange&& knownShortHashes) {
 				ionet::PacketPayloadBuilder builder(Packet_Type);
-				builder.appendValue(stepIdentifier);
+				builder.appendValue(point);
 				builder.appendRange(std::move(knownShortHashes));
 				return builder.build();
 			}
@@ -68,10 +66,8 @@ namespace catapult { namespace api {
 			{}
 
 		public:
-			FutureType<MessagesTraits> messages(
-					const crypto::StepIdentifier& stepIdentifier,
-					model::ShortHashRange&& knownShortHashes) const override {
-				return m_impl.dispatch(MessagesTraits(), stepIdentifier, std::move(knownShortHashes));
+			FutureType<MessagesTraits> messages(FinalizationPoint point, model::ShortHashRange&& knownShortHashes) const override {
+				return m_impl.dispatch(MessagesTraits(), point, std::move(knownShortHashes));
 			}
 
 		private:
