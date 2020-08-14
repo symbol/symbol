@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.9.6] - 14-Aug-2020
+
+Targets catapult-rest 1.2.0
+
+### Added
+
+- allowing filtering by multiple receipt types in transaction statement search
+- improved doc
+
 ## [0.9.5] - 22-Jul-2020
 
 Targets catapult-rest 1.2.0
