@@ -1,6 +1,6 @@
 {
   "name": "symbol-openapi",
-  "version": "0.9.6",
+  "version": "0.9.7",
   "description": "OpenAPI Specification of catapult-rest",
   "main": "index.js",
   "scripts": {
