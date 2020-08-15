@@ -19,12 +19,12 @@
 **/
 
 #pragma once
-#include "finalization/src/FinalizationConfiguration.h"
 #include "finalization/src/model/FinalizationMessage.h"
-#include "catapult/crypto_voting/OtsTree.h"
 #include <memory>
 
 namespace catapult {
+	namespace crypto { class OtsTree; }
+	namespace finalization { struct FinalizationConfiguration; }
 	namespace io {
 		class BlockStorageCache;
 		class ProofStorageCache;
@@ -36,24 +36,20 @@ namespace catapult { namespace chain {
 	/// Factory for creating finalization messages.
 	class FinalizationMessageFactory {
 	public:
-		/// Creates a factory around \a config, \a blockStorage, \a proofStorage and \a otsTree.
-		FinalizationMessageFactory(
-				const finalization::FinalizationConfiguration& config,
-				const io::BlockStorageCache& blockStorage,
-				const io::ProofStorageCache& proofStorage,
-				crypto::OtsTree&& otsTree);
+		virtual ~FinalizationMessageFactory() = default;
 
 	public:
 		/// Creates a prevote message.
-		std::unique_ptr<model::FinalizationMessage> createPrevote();
+		virtual std::unique_ptr<model::FinalizationMessage> createPrevote() = 0;
 
 		/// Creates a precommit message for the specified \a height and \a hash.
-		std::unique_ptr<model::FinalizationMessage> createPrecommit(Height height, const Hash256& hash);
-
-	private:
-		finalization::FinalizationConfiguration m_config;
-		const io::BlockStorageCache& m_blockStorage;
-		const io::ProofStorageCache& m_proofStorage;
-		crypto::OtsTree m_otsTree;
+		virtual std::unique_ptr<model::FinalizationMessage> createPrecommit(Height height, const Hash256& hash) = 0;
 	};
+
+	/// Creates a factory around \a config, \a blockStorage, \a proofStorage and \a otsTree.
+	std::unique_ptr<FinalizationMessageFactory> CreateFinalizationMessageFactory(
+			const finalization::FinalizationConfiguration& config,
+			const io::BlockStorageCache& blockStorage,
+			const io::ProofStorageCache& proofStorage,
+			crypto::OtsTree&& otsTree);
 }}

@@ -91,15 +91,20 @@ namespace catapult { namespace chain {
 		return m_state.PreviousFinalizedHeightHashPair;
 	}
 
-	std::pair<model::HeightHashPair, bool> MultiRoundMessageAggregatorView::tryFindBestPrecommit() const {
+	BestPrecommitDescriptor MultiRoundMessageAggregatorView::tryFindBestPrecommit() const {
 		const auto& roundMessageAggregators = m_state.RoundMessageAggregators;
 		for (auto iter = roundMessageAggregators.crbegin(); roundMessageAggregators.crend() != iter; ++iter) {
 			auto bestPrecommitResultPair = iter->second->roundContext().tryFindBestPrecommit();
-			if (bestPrecommitResultPair.second)
-				return bestPrecommitResultPair;
+			if (bestPrecommitResultPair.second) {
+				BestPrecommitDescriptor descriptor;
+				descriptor.Point = iter->first;
+				descriptor.Target = bestPrecommitResultPair.first;
+				descriptor.Proof = iter->second->unknownMessages({});
+				return descriptor;
+			}
 		}
 
-		return std::make_pair(model::HeightHashPair(), false);
+		return BestPrecommitDescriptor();
 	}
 
 	model::ShortHashRange MultiRoundMessageAggregatorView::shortHashes() const {

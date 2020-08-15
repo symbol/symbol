@@ -27,6 +27,22 @@ namespace catapult { namespace chain { struct MultiRoundMessageAggregatorState; 
 
 namespace catapult { namespace chain {
 
+	// region BestPrecommitDescriptor
+
+	/// Describes the best precommit.
+	struct BestPrecommitDescriptor {
+		/// Finalization point that is completed.
+		FinalizationPoint Point;
+
+		/// Height hash pair corresponding to the block that can be finalized.
+		model::HeightHashPair Target;
+
+		/// Proof of the finalization.
+		std::vector<std::shared_ptr<const model::FinalizationMessage>> Proof;
+	};
+
+	// endregion
+
 	// region MultiRoundMessageAggregatorView
 
 	/// Read only view on top of multi round message aggregator.
@@ -54,7 +70,7 @@ namespace catapult { namespace chain {
 		model::HeightHashPair findEstimate(FinalizationPoint point) const;
 
 		/// Finds the candidate with the largest height that has at least threshold prevotes and precommits, if any.
-		std::pair<model::HeightHashPair, bool> tryFindBestPrecommit() const;
+		BestPrecommitDescriptor tryFindBestPrecommit() const;
 
 		/// Gets a range of short hashes of all messages in the cache.
 		/// \note Each short hash consists of the first 4 bytes of the complete hash.

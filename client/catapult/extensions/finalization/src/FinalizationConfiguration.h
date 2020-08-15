@@ -36,6 +36,9 @@ namespace catapult { namespace finalization {
 		/// Finalization threshold.
 		uint64_t Threshold;
 
+		/// Duration of a finalization step.
+		utils::TimeSpan StepDuration;
+
 		/// Duration of a finalization message in the short lived cache.
 		utils::TimeSpan ShortLivedCacheMessageDuration;
 

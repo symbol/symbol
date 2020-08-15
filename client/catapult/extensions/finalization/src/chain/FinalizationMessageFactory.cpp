@@ -19,12 +19,16 @@
 **/
 
 #include "FinalizationMessageFactory.h"
+#include "finalization/src/FinalizationConfiguration.h"
 #include "finalization/src/io/ProofStorageCache.h"
+#include "catapult/crypto_voting/OtsTree.h"
 #include "catapult/io/BlockStorageCache.h"
 
 namespace catapult { namespace chain {
 
 	namespace {
+		// region utils
+
 		uint64_t Clamp(uint64_t value, uint16_t multiple, uint16_t adjustment) {
 			return 0 == value % multiple ? value : ((value / multiple + adjustment) * multiple);
 		}
@@ -59,34 +63,58 @@ namespace catapult { namespace chain {
 		model::HashRange ToHashRange(const Hash256& hash) {
 			return model::HashRange::CopyFixed(reinterpret_cast<const uint8_t*>(&hash), 1);
 		}
+
+		// endregion
+
+		// region DefaultFinalizationMessageFactory
+
+		class DefaultFinalizationMessageFactory : public FinalizationMessageFactory {
+		public:
+			DefaultFinalizationMessageFactory(
+					const finalization::FinalizationConfiguration& config,
+					const io::BlockStorageCache& blockStorage,
+					const io::ProofStorageCache& proofStorage,
+					crypto::OtsTree&& otsTree)
+					: m_config(config)
+					, m_blockStorage(blockStorage)
+					, m_proofStorage(proofStorage)
+					, m_otsTree(std::move(otsTree))
+			{}
+
+		public:
+			std::unique_ptr<model::FinalizationMessage> createPrevote() override {
+				auto finalizationState = LoadFinalizationState(m_proofStorage);
+				auto hashRange = LoadPrevoteHashChain(m_config, finalizationState.second, m_blockStorage);
+				if (hashRange.empty())
+					hashRange = ToHashRange(LoadLastFinalizedHash(m_proofStorage));
+
+				auto stepIdentifier = crypto::StepIdentifier{ finalizationState.first.unwrap() + 1, 1, 1 };
+				return model::PrepareMessage(m_otsTree, stepIdentifier, finalizationState.second, hashRange);
+			}
+
+			std::unique_ptr<model::FinalizationMessage> createPrecommit(Height height, const Hash256& hash) override {
+				auto finalizationState = LoadFinalizationState(m_proofStorage);
+				auto hashRange = ToHashRange(hash);
+
+				auto stepIdentifier = crypto::StepIdentifier{ finalizationState.first.unwrap() + 1, 2, 1 };
+				return model::PrepareMessage(m_otsTree, stepIdentifier, height, hashRange);
+			}
+
+		private:
+			finalization::FinalizationConfiguration m_config;
+			const io::BlockStorageCache& m_blockStorage;
+			const io::ProofStorageCache& m_proofStorage;
+			crypto::OtsTree m_otsTree;
+		};
+
+		// endregion
 	}
 
-	FinalizationMessageFactory::FinalizationMessageFactory(
+	std::unique_ptr<FinalizationMessageFactory> CreateFinalizationMessageFactory(
 			const finalization::FinalizationConfiguration& config,
 			const io::BlockStorageCache& blockStorage,
 			const io::ProofStorageCache& proofStorage,
-			crypto::OtsTree&& otsTree)
-			: m_config(config)
-			, m_blockStorage(blockStorage)
-			, m_proofStorage(proofStorage)
-			, m_otsTree(std::move(otsTree))
-	{}
-
-	std::unique_ptr<model::FinalizationMessage> FinalizationMessageFactory::createPrevote() {
-		auto finalizationState = LoadFinalizationState(m_proofStorage);
-		auto hashRange = LoadPrevoteHashChain(m_config, finalizationState.second, m_blockStorage);
-		if (hashRange.empty())
-			hashRange = ToHashRange(LoadLastFinalizedHash(m_proofStorage));
-
-		auto stepIdentifier = crypto::StepIdentifier{ finalizationState.first.unwrap() + 1, 1, 1 };
-		return model::PrepareMessage(m_otsTree, stepIdentifier, finalizationState.second, hashRange);
-	}
-
-	std::unique_ptr<model::FinalizationMessage> FinalizationMessageFactory::createPrecommit(Height height, const Hash256& hash) {
-		auto finalizationState = LoadFinalizationState(m_proofStorage);
-		auto hashRange = ToHashRange(hash);
-
-		auto stepIdentifier = crypto::StepIdentifier{ finalizationState.first.unwrap() + 1, 2, 1 };
-		return model::PrepareMessage(m_otsTree, stepIdentifier, height, hashRange);
+			crypto::OtsTree&& otsTree) {
+		return std::make_unique<DefaultFinalizationMessageFactory>(config, blockStorage, proofStorage, std::move(otsTree));
 	}
 }}

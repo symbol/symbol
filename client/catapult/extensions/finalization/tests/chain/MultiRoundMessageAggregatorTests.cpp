@@ -21,6 +21,7 @@
 #include "finalization/src/chain/MultiRoundMessageAggregator.h"
 #include "finalization/src/chain/RoundContext.h"
 #include "finalization/tests/test/FinalizationMessageTestUtils.h"
+#include "finalization/tests/test/mocks/MockRoundMessageAggregator.h"
 #include "tests/test/nodeps/LockTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -34,89 +35,6 @@ namespace catapult { namespace chain {
 
 		constexpr auto Last_Finalized_Height = Height(123);
 
-		// region MockRoundMessageAggregator
-
-		class MockRoundMessageAggregator : public RoundMessageAggregator {
-		public:
-			explicit MockRoundMessageAggregator(FinalizationPoint point)
-					: m_point(point)
-					, m_numAddCalls(0)
-					, m_roundContext(1000, 700)
-					, m_addResult(static_cast<RoundMessageAggregatorAddResult>(-1))
-			{}
-
-		public:
-			FinalizationPoint point() const {
-				return m_point;
-			}
-
-			size_t numAddCalls() const {
-				return m_numAddCalls;
-			}
-
-			auto& roundContext() {
-				return m_roundContext;
-			}
-
-		public:
-			void setShortHashes(model::ShortHashRange&& shortHashes) {
-				m_shortHashes = std::move(shortHashes);
-			}
-
-			void setMessages(UnknownMessages&& messages) {
-				m_messages = std::move(messages);
-			}
-
-			void setAddResult(RoundMessageAggregatorAddResult result) {
-				m_addResult = result;
-			}
-
-		public:
-			size_t size() const override {
-				CATAPULT_THROW_RUNTIME_ERROR("size - not supported in mock");
-			}
-
-			const model::FinalizationContext& finalizationContext() const override {
-				CATAPULT_THROW_RUNTIME_ERROR("finalizationContext - not supported in mock");
-			}
-
-			const RoundContext& roundContext() const override {
-				return m_roundContext;
-			}
-
-			model::ShortHashRange shortHashes() const override {
-				return model::ShortHashRange::CopyRange(m_shortHashes);
-			}
-
-			UnknownMessages unknownMessages(const utils::ShortHashesSet& knownShortHashes) const override {
-				UnknownMessages filteredMessages;
-				for (const auto& pMessage : m_messages) {
-					auto shortHash = utils::ToShortHash(model::CalculateMessageHash(*pMessage));
-					if (knownShortHashes.cend() == knownShortHashes.find(shortHash))
-						filteredMessages.push_back(pMessage);
-				}
-
-				return filteredMessages;
-			}
-
-		public:
-			RoundMessageAggregatorAddResult add(const std::shared_ptr<model::FinalizationMessage>&) override {
-				++m_numAddCalls;
-				return m_addResult;
-			}
-
-		private:
-			FinalizationPoint m_point;
-			size_t m_numAddCalls;
-			RoundContext m_roundContext;
-
-			model::ShortHashRange m_shortHashes;
-			UnknownMessages m_messages;
-			RoundMessageAggregatorAddResult m_addResult;
-		};
-
-		// endregion
-
 		// region TestContext
 
 		struct TestContextOptions {
@@ -125,7 +43,7 @@ namespace catapult { namespace chain {
 
 		class TestContext {
 		private:
-			using RoundMessageAggregatorInitializer = consumer<MockRoundMessageAggregator&>;
+			using RoundMessageAggregatorInitializer = consumer<mocks::MockRoundMessageAggregator&>;
 
 		public:
 			TestContext() : TestContext(Default_Min_FP)
@@ -141,7 +59,7 @@ namespace catapult { namespace chain {
 						point,
 						model::HeightHashPair{ Last_Finalized_Height, m_lastFinalizedHash },
 						[this](auto roundPoint) {
-							auto pRoundMessageAggregator = std::make_unique<MockRoundMessageAggregator>(roundPoint);
+							auto pRoundMessageAggregator = std::make_unique<mocks::MockRoundMessageAggregator>(roundPoint);
 							if (m_roundMessageAggregatorInitializer)
 								m_roundMessageAggregatorInitializer(*pRoundMessageAggregator);
 
@@ -176,7 +94,7 @@ namespace catapult { namespace chain {
 			Hash256 m_lastFinalizedHash;
 			RoundMessageAggregatorInitializer m_roundMessageAggregatorInitializer;
 
-			std::vector<MockRoundMessageAggregator*> m_pRoundMessageAggregators;
+			std::vector<mocks::MockRoundMessageAggregator*> m_pRoundMessageAggregators;
 			std::unique_ptr<MultiRoundMessageAggregator> m_pAggregator;
 		};
 
@@ -511,14 +429,23 @@ namespace catapult { namespace chain {
 	// region tryFindBestPrecommit
 
 	namespace {
-		void AssertUnset(const std::pair<model::HeightHashPair, bool>& pair) {
-			EXPECT_FALSE(pair.second);
-			EXPECT_EQ(model::HeightHashPair(), pair.first);
+		void AssertUnset(const BestPrecommitDescriptor& descriptor) {
+			EXPECT_EQ(FinalizationPoint(0), descriptor.Point);
+			EXPECT_EQ(model::HeightHashPair(), descriptor.Target);
+			EXPECT_TRUE(descriptor.Proof.empty());
 		}
 
-		void AssertSet(const model::HeightHashPair& expected, const std::pair<model::HeightHashPair, bool>& pair) {
-			EXPECT_TRUE(pair.second);
-			EXPECT_EQ(expected, pair.first);
+		void AssertSet(
+				const BestPrecommitDescriptor& descriptor,
+				FinalizationPoint expectedPointDelta,
+				const model::HeightHashPair& expectedTarget,
+				size_t expectedNumProofMessages) {
+			EXPECT_EQ(Default_Min_FP + expectedPointDelta, descriptor.Point);
+			EXPECT_EQ(expectedTarget, descriptor.Target);
+			EXPECT_EQ(expectedNumProofMessages, descriptor.Proof.size());
+
+			for (const auto& pMessage : descriptor.Proof)
+				EXPECT_EQ(Default_Min_FP + expectedPointDelta, FinalizationPoint(pMessage->StepIdentifier.Point));
 		}
 	}
 
@@ -550,12 +477,18 @@ namespace catapult { namespace chain {
 			auto height = Height(roundMessageAggregator.point().unwrap() * 100);
 			roundMessageAggregator.roundContext().acceptPrevote(height, &hash, 1, 750);
 			roundMessageAggregator.roundContext().acceptPrecommit(height, hash, 750);
+
+			RoundMessageAggregator::UnknownMessages messages;
+			for (auto i = 0u; i < 3; ++i)
+				messages.push_back(CreateMessage(roundMessageAggregator.point()));
+
+			roundMessageAggregator.setMessages(std::move(messages));
 		});
 
 		AddRoundMessageAggregators(context, { FinalizationPoint(0), FinalizationPoint(5), FinalizationPoint(10) });
 
 		// Act + Assert:
-		AssertSet({ Height(1300), hashes[2] }, context.aggregator().view().tryFindBestPrecommit());
+		AssertSet(context.aggregator().view().tryFindBestPrecommit(), FinalizationPoint(10), { Height(1300), hashes[2] }, 3);
 	}
 
 	TEST(TEST_CLASS, BestPrecommitExistsWhenAnyPreviousRoundHasBestPrecommit) {
@@ -564,16 +497,25 @@ namespace catapult { namespace chain {
 		TestContext context;
 		context.setRoundMessageAggregatorInitializer([&hash](auto& roundMessageAggregator) {
 			// - set precommit for first aggregator only
+			auto numMessages = 3u;
 			if (Default_Min_FP == roundMessageAggregator.point()) {
 				roundMessageAggregator.roundContext().acceptPrevote(Height(222), &hash, 1, 750);
 				roundMessageAggregator.roundContext().acceptPrecommit(Height(222), hash, 750);
+
+				numMessages = 4;
 			}
+
+			RoundMessageAggregator::UnknownMessages messages;
+			for (auto i = 0u; i < numMessages; ++i)
+				messages.push_back(CreateMessage(roundMessageAggregator.point()));
+
+			roundMessageAggregator.setMessages(std::move(messages));
 		});
 
 		AddRoundMessageAggregators(context, { FinalizationPoint(0), FinalizationPoint(5), FinalizationPoint(10) });
 
 		// Act + Assert:
-		AssertSet({ Height(222), hash }, context.aggregator().view().tryFindBestPrecommit());
+		AssertSet(context.aggregator().view().tryFindBestPrecommit(), FinalizationPoint(0), { Height(222), hash }, 4);
 	}
 
 	// endregion

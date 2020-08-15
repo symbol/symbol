@@ -20,6 +20,7 @@
 
 #include "finalization/src/chain/FinalizationMessageFactory.h"
 #include "finalization/src/io/ProofStorageCache.h"
+#include "catapult/crypto_voting/OtsTree.h"
 #include "finalization/tests/test/FinalizationMessageTestUtils.h"
 #include "finalization/tests/test/mocks/MockProofStorage.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
@@ -44,12 +45,16 @@ namespace catapult { namespace chain {
 					: m_lastFinalizedHash(test::GenerateRandomByteArray<Hash256>())
 					, m_pBlockStorage(mocks::CreateMemoryBlockStorageCache(numBlocks))
 					, m_proofStorage(std::make_unique<mocks::MockProofStorage>(point, height, m_lastFinalizedHash))
-					, m_factory(config, *m_pBlockStorage, m_proofStorage, CreateOtsTree(m_otsTreeStream, point))
+					, m_pFactory(CreateFinalizationMessageFactory(
+							config,
+							*m_pBlockStorage,
+							m_proofStorage,
+							CreateOtsTree(m_otsTreeStream, point)))
 			{}
 
 		public:
 			auto& factory() {
-				return m_factory;
+				return *m_pFactory;
 			}
 
 		public:
@@ -72,7 +77,7 @@ namespace catapult { namespace chain {
 			io::ProofStorageCache m_proofStorage;
 			mocks::MockSeekableMemoryStream m_otsTreeStream;
 
-			FinalizationMessageFactory m_factory;
+			std::unique_ptr<FinalizationMessageFactory> m_pFactory;
 		};
 
 		bool IsSigned(const model::FinalizationMessage& message) {
