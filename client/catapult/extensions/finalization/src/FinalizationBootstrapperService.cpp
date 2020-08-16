@@ -190,4 +190,8 @@ namespace catapult { namespace finalization {
 	FinalizationServerHooks& GetFinalizationServerHooks(const extensions::ServiceLocator& locator) {
 		return *locator.service<FinalizationServerHooks>(Hooks_Service_Name);
 	}
+
+	io::ProofStorageCache& GetProofStorageCache(const extensions::ServiceLocator& locator) {
+		return *locator.service<io::ProofStorageCache>(Storage_Service_Name);
+	}
 }}

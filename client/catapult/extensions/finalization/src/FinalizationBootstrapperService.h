@@ -28,6 +28,7 @@
 namespace catapult {
 	namespace chain { class MultiRoundMessageAggregator; }
 	namespace finalization { struct FinalizationConfiguration; }
+	namespace io { class ProofStorageCache; }
 }
 
 namespace catapult { namespace finalization {
@@ -65,4 +66,7 @@ namespace catapult { namespace finalization {
 
 	/// Gets the finalization server hooks stored in \a locator.
 	FinalizationServerHooks& GetFinalizationServerHooks(const extensions::ServiceLocator& locator);
+
+	/// Gets the proof storage cache stored in \a locator.
+	io::ProofStorageCache& GetProofStorageCache(const extensions::ServiceLocator& locator);
 }}

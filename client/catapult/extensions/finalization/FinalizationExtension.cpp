@@ -22,6 +22,7 @@
 #include "src/FinalizationBootstrapperService.h"
 #include "src/FinalizationConfiguration.h"
 #include "src/FinalizationMessageProcessingService.h"
+#include "src/FinalizationOrchestratorService.h"
 #include "src/FinalizationService.h"
 #include "src/FinalizationSyncSourceService.h"
 #include "catapult/config/ConfigurationFileLoader.h"
@@ -40,6 +41,7 @@ namespace catapult { namespace finalization {
 			auto& extensionManager = bootstrapper.extensionManager();
 			extensionManager.addServiceRegistrar(CreateFinalizationBootstrapperServiceRegistrar(config, std::move(pProofStorage)));
 			extensionManager.addServiceRegistrar(CreateFinalizationMessageProcessingServiceRegistrar(config));
+			extensionManager.addServiceRegistrar(CreateFinalizationOrchestratorServiceRegistrar(config));
 			extensionManager.addServiceRegistrar(CreateFinalizationServiceRegistrar());
 			extensionManager.addServiceRegistrar(CreateFinalizationSyncSourceServiceRegistrar());
 		}

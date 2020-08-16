@@ -93,8 +93,18 @@ namespace catapult { namespace mocks {
 		}
 
 		void saveProof(Height height, const io::FinalizationProof& proof) override {
-			auto descriptor = SavedProofDescriptor{ height, proof.empty() ? crypto::StepIdentifier() : proof[0]->StepIdentifier };
-			m_savedProofDescriptors.push_back(descriptor);
+			auto stepIdentifier = crypto::StepIdentifier();
+			if (!proof.empty()) {
+				const auto& message = *proof.back();
+				stepIdentifier = message.StepIdentifier;
+				m_point = FinalizationPoint(stepIdentifier.Point);
+				m_height = message.Height;
+
+				if (0 < message.HashesCount)
+					m_hash = message.HashesPtr()[0];
+			}
+
+			m_savedProofDescriptors.push_back(SavedProofDescriptor{ height, stepIdentifier });
 		}
 
 	private:

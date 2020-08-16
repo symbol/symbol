@@ -19,14 +19,11 @@
 **/
 
 #include "finalization/src/FinalizationBootstrapperService.h"
-#include "finalization/src/FinalizationConfiguration.h"
 #include "finalization/src/chain/MultiRoundMessageAggregator.h"
-#include "finalization/src/io/ProofStorageCache.h"
 #include "finalization/tests/test/FinalizationBootstrapperServiceTestUtils.h"
 #include "finalization/tests/test/mocks/MockProofStorage.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/local/ServiceTestUtils.h"
-#include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace finalization {
@@ -213,7 +210,7 @@ namespace catapult { namespace finalization {
 		EXPECT_EQ(Num_Services, context.locator().numServices());
 
 		// - service (get does not throw)
-		context.locator().service<io::ProofStorageCache>("fin.proof.storage");
+		GetProofStorageCache(context.locator());
 	}
 
 	// endregion
@@ -221,22 +218,11 @@ namespace catapult { namespace finalization {
 	// region FinalizationBootstrapperService - multi round message aggregator
 
 	namespace {
-		void SeedBlocks(io::BlockStorageModifier&& blockStorage, size_t numBlocks) {
-			for (auto i = 2u; i <= numBlocks; ++i) {
-				model::Block block;
-				block.Size = sizeof(model::BlockHeader);
-				block.Height = Height(i);
-				blockStorage.saveBlock(test::BlockToBlockElement(block));
-			}
-
-			blockStorage.commit();
-		}
-
 		template<typename TAction>
 		void RunMultiRoundMessageAggregatorServiceTest(TAction action) {
 			// Arrange:
 			TestContext context;
-			SeedBlocks(context.testState().state().storage().modifier(), 25);
+			mocks::SeedStorageWithFixedSizeBlocks(context.testState().state().storage(), 25);
 
 			auto lastFinalizedHash = test::GenerateRandomByteArray<Hash256>();
 			context.boot(FinalizationPoint(12), Height(20), lastFinalizedHash);
