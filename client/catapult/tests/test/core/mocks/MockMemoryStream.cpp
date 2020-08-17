@@ -19,6 +19,7 @@
 **/
 
 #include "MockMemoryStream.h"
+#include "catapult/exceptions.h"
 
 namespace catapult { namespace mocks {
 
@@ -41,36 +42,16 @@ namespace catapult { namespace mocks {
 
 	// region MockSeekableMemoryStream
 
-	MockSeekableMemoryStream::MockSeekableMemoryStream() : m_position(0)
-	{}
-
-	void MockSeekableMemoryStream::write(const RawBuffer& buffer) {
-		m_buffer.resize(std::max<size_t>(m_buffer.size(), m_position + buffer.Size));
-		std::memcpy(&m_buffer[m_position], buffer.pData, buffer.Size);
-		m_position += buffer.Size;
+	MockSeekableMemoryStream::MockSeekableMemoryStream() : extensions::MemoryStream(m_buffer) {
+		m_buffer.reserve(1024);
 	}
-
-	void MockSeekableMemoryStream::flush()
-	{}
 
 	void MockSeekableMemoryStream::seek(uint64_t position) {
-		m_position = position;
-	}
-
-	uint64_t MockSeekableMemoryStream::position() const {
-		return m_position;
-	}
-
-	bool MockSeekableMemoryStream::eof() const {
-		return m_position == m_buffer.size();
-	}
-
-	void MockSeekableMemoryStream::read(const MutableRawBuffer& buffer) {
-		if (m_position + buffer.Size > m_buffer.size())
-			CATAPULT_THROW_RUNTIME_ERROR("invalid read()");
-
-		std::memcpy(buffer.pData, &m_buffer[m_position], buffer.Size);
-		m_position += buffer.Size;
+		try {
+			extensions::MemoryStream::seek(position);
+		} catch (const catapult_file_io_error&) {
+			// suppress
+		}
 	}
 
 	// endregion

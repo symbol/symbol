@@ -83,6 +83,7 @@ namespace catapult { namespace io {
 
 			// Act:
 			TTraits::Write(stream);
+			stream.seek(0);
 
 			// Sanity:
 			EXPECT_EQ(sizeof(TTraits::Value), buffer.size());
@@ -142,6 +143,7 @@ namespace catapult { namespace io {
 
 			// Act:
 			WriteTraits::template Write(stream, source);
+			stream.seek(0);
 			return TReadTraits::template Read<T>(stream);
 		}
 	}

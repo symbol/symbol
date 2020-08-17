@@ -18,32 +18,31 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/extensions/MemoryStream.h"
-#include "tests/catapult/io/test/StreamTests.h"
-#include "tests/TestHarness.h"
+#pragma once
+#include "RawFile.h"
+#include "SeekableStream.h"
 
-namespace catapult { namespace extensions {
+namespace catapult { namespace io {
 
-#define TEST_CLASS MemoryStreamTests
+	/// File-based implementation of input and output stream.
+	class FileStream : public SeekableStream {
+	public:
+		/// Creates a file stream around \a rawFile.
+		explicit FileStream(RawFile&& rawFile);
 
-	namespace {
-		class MemoryStreamContext {
-		public:
-			explicit MemoryStreamContext(const char*)
-			{}
+	public:
+		void write(const RawBuffer& buffer) override;
+		void flush() override;
 
-			auto outputStream() {
-				return std::make_unique<MemoryStream>(m_buffer);
-			}
+	public:
+		bool eof() const override;
+		void read(const MutableRawBuffer& buffer) override;
 
-			auto inputStream() {
-				return std::make_unique<MemoryStream>(m_buffer);
-			}
+	public:
+		void seek(uint64_t position) override;
+		uint64_t position() const override;
 
-		private:
-			std::vector<uint8_t> m_buffer;
-		};
-	}
-
-	DEFINE_SEEKABLE_STREAM_TESTS(MemoryStreamContext)
+	private:
+		RawFile m_rawFile;
+	};
 }}

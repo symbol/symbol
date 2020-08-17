@@ -75,7 +75,7 @@ namespace catapult { namespace crypto {
 			uint64_t Value;
 		};
 
-		class BreadcrumbStorage : public SeekableOutputStream {
+		class BreadcrumbStorage : public io::SeekableStream {
 		public:
 			BreadcrumbStorage() : m_position(0)
 			{}
@@ -88,6 +88,15 @@ namespace catapult { namespace crypto {
 
 			void flush() override
 			{}
+
+		public:
+			bool eof() const override {
+				CATAPULT_THROW_RUNTIME_ERROR("eof - not supported");
+			}
+
+			void read(const MutableRawBuffer&) override {
+				CATAPULT_THROW_RUNTIME_ERROR("read - not supported");
+			}
 
 		public:
 			void seek(uint64_t position) override {

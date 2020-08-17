@@ -50,6 +50,7 @@ namespace catapult { namespace subscribers {
 		std::vector<uint8_t> buffer;
 		mocks::MockMemoryStream stream(buffer);
 		test::WriteTransactionStatusNotification(stream, notification);
+		stream.seek(0);
 
 		mocks::MockTransactionStatusSubscriber subscriber;
 

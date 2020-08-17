@@ -156,11 +156,12 @@ namespace catapult { namespace state {
 	METADATA_TRAITS_BASED_TEST(CannotLoadWithInvalidMetadataType) {
 		// Arrange:
 		std::vector<uint8_t> buffer;
-		mocks::MockMemoryStream outputStream(buffer);
+		mocks::MockMemoryStream stream(buffer);
 
 		auto entry = CreateRandomMetadataEntry<TTraits>(std::vector<uint8_t>());
 
-		MetadataEntrySerializer::Save(entry, outputStream);
+		MetadataEntrySerializer::Save(entry, stream);
+		stream.seek(0);
 
 		// Sanity:
 		ASSERT_EQ(sizeof(MetadataEntryHeader), buffer.size());
@@ -170,7 +171,7 @@ namespace catapult { namespace state {
 		header.MetadataType = static_cast<model::MetadataType>(3);
 
 		// Act + Assert:
-		EXPECT_THROW(MetadataEntrySerializer::Load(outputStream), catapult_invalid_argument);
+		EXPECT_THROW(MetadataEntrySerializer::Load(stream), catapult_invalid_argument);
 	}
 
 	// endregion

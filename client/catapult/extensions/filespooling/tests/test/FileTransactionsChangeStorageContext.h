@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "catapult/io/BufferInputStreamAdapter.h"
 #include "catapult/io/PodIoUtils.h"
 #include "catapult/io/TransactionInfoSerializer.h"
 #include "tests/test/core/NonOwningOutputStream.h"

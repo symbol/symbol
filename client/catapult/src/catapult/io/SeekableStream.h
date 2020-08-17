@@ -19,12 +19,12 @@
 **/
 
 #pragma once
-#include "catapult/io/Stream.h"
+#include "Stream.h"
 
-namespace catapult { namespace crypto {
+namespace catapult { namespace io {
 
-	/// Seekable output stream.
-	class SeekableOutputStream : public io::OutputStream {
+	/// Seekable stream.
+	class SeekableStream : public InputStream, public OutputStream {
 	public:
 		/// Seeks to \a position.
 		virtual void seek(uint64_t position) = 0;

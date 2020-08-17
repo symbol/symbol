@@ -20,8 +20,8 @@
 
 #pragma once
 #include "OtsTypes.h"
-#include "SeekableOutputStream.h"
 #include "catapult/crypto/KeyPair.h"
+#include "catapult/io/SeekableStream.h"
 #include <array>
 #include <memory>
 
@@ -32,7 +32,7 @@ namespace catapult { namespace crypto {
 	/// One time signature tree.
 	class OtsTree {
 	private:
-		OtsTree(SeekableOutputStream& storage, const OtsOptions& options);
+		OtsTree(io::SeekableStream& storage, const OtsOptions& options);
 		OtsTree(OtsTree&& tree);
 
 	public:
@@ -41,12 +41,12 @@ namespace catapult { namespace crypto {
 
 	public:
 		/// Creates a tree around \a storage, loading stored data from \a input.
-		static OtsTree FromStream(io::InputStream& input, SeekableOutputStream& storage);
+		static OtsTree FromStream(io::InputStream& input, io::SeekableStream& storage);
 
 		/// Creates a tree around \a keyPair, \a storage, \a startPoint, \a endPoint and \a options.
 		static OtsTree Create(
 				OtsKeyPairType&& keyPair,
-				SeekableOutputStream& storage,
+				io::SeekableStream& storage,
 				FinalizationPoint startPoint,
 				FinalizationPoint endPoint,
 				const OtsOptions& options);
@@ -70,7 +70,7 @@ namespace catapult { namespace crypto {
 		void createLevel(size_t depth, KeyPair&& keyPair, uint64_t startIdentifier, uint64_t endIdentifier);
 
 	private:
-		SeekableOutputStream& m_storage;
+		io::SeekableStream& m_storage;
 		OtsOptions m_options;
 
 		std::array<std::unique_ptr<OtsLevel>, 3> m_levels;

@@ -19,6 +19,7 @@
 **/
 
 #include "catapult/io/TransactionInfoSerializer.h"
+#include "catapult/io/BufferInputStreamAdapter.h"
 #include "catapult/io/PodIoUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/core/SerializerTestUtils.h"

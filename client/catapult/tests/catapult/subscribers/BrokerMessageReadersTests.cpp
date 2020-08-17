@@ -134,6 +134,7 @@ namespace catapult { namespace subscribers {
 		std::vector<uint8_t> buffer;
 		mocks::MockMemoryStream stream(buffer);
 		WriteNotificationBuffer(stream, notificationBuffer);
+		stream.seek(0);
 
 		typename TTraits::SubscriberType subscriber;
 
@@ -159,6 +160,7 @@ namespace catapult { namespace subscribers {
 		WriteNotificationBuffer(stream, notificationBuffer1);
 		WriteNotificationBuffer(stream, notificationBuffer2);
 		WriteNotificationBuffer(stream, notificationBuffer3);
+		stream.seek(0);
 
 		typename TTraits::SubscriberType subscriber;
 

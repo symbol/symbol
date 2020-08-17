@@ -38,7 +38,6 @@ namespace catapult { namespace io {
 
 	public:
 		void write(const RawBuffer& buffer) override;
-
 		void flush() override;
 
 	private:
@@ -59,7 +58,6 @@ namespace catapult { namespace io {
 
 	public:
 		bool eof() const override;
-
 		void read(const MutableRawBuffer& buffer) override;
 
 	private:

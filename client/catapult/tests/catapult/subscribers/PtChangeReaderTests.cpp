@@ -52,6 +52,7 @@ namespace catapult { namespace subscribers {
 			std::vector<uint8_t> buffer;
 			mocks::MockMemoryStream stream(buffer);
 			Write(stream, operationType, transactionInfos);
+			stream.seek(0);
 
 			mocks::MockPtChangeSubscriber subscriber;
 
@@ -108,6 +109,7 @@ namespace catapult { namespace subscribers {
 		io::Write8(stream, utils::to_underlying_type(PtChangeOperationType::Add_Cosignature));
 		stream.write({ reinterpret_cast<const uint8_t*>(&cosignature), sizeof(model::Cosignature) });
 		io::WriteTransactionInfo(*transactionInfos.cbegin(), stream);
+		stream.seek(0);
 
 		mocks::MockPtChangeSubscriber subscriber;
 
@@ -132,6 +134,7 @@ namespace catapult { namespace subscribers {
 		mocks::MockMemoryStream stream(buffer);
 		io::Write8(stream, 0xFF);
 		io::Write32(stream, 0);
+		stream.seek(0);
 
 		mocks::MockPtChangeSubscriber subscriber;
 

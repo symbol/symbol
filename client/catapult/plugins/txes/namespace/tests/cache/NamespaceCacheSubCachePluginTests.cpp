@@ -100,6 +100,7 @@ namespace catapult { namespace cache {
 			mocks::MockMemoryStream stream(buffer);
 			io::Write64(stream, 7);
 			io::Write64(stream, 11);
+			stream.seek(0);
 
 			// Act:
 			storage.loadAll(stream, 0);

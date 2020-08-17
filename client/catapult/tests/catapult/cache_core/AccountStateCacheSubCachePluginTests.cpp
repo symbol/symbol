@@ -255,6 +255,7 @@ namespace catapult { namespace cache {
 			// - reload to roundtrip
 			AccountStateCacheSubCachePlugin plugin(cacheConfig, options);
 			auto pStorage = plugin.createStorage();
+			stream.seek(0);
 			pStorage->loadAll(stream, 1);
 
 			// Assert: all accounts were loaded as appropriate

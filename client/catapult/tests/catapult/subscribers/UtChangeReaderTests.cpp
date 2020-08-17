@@ -51,6 +51,7 @@ namespace catapult { namespace subscribers {
 			std::vector<uint8_t> buffer;
 			mocks::MockMemoryStream stream(buffer);
 			Write(stream, operationType, transactionInfos);
+			stream.seek(0);
 
 			mocks::MockUtChangeSubscriber subscriber;
 
@@ -98,6 +99,7 @@ namespace catapult { namespace subscribers {
 		mocks::MockMemoryStream stream(buffer);
 		io::Write8(stream, 0xFF);
 		io::Write32(stream, 0);
+		stream.seek(0);
 
 		mocks::MockUtChangeSubscriber subscriber;
 

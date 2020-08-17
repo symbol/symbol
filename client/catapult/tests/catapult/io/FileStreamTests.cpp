@@ -18,32 +18,42 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/extensions/MemoryStream.h"
+#include "catapult/io/FileStream.h"
 #include "tests/catapult/io/test/StreamTests.h"
+#include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace extensions {
+namespace catapult { namespace io {
 
-#define TEST_CLASS MemoryStreamTests
+#define TEST_CLASS FileStreamTests
 
 	namespace {
-		class MemoryStreamContext {
+		class FileStreamContext {
 		public:
-			explicit MemoryStreamContext(const char*)
+			explicit FileStreamContext(const char* name) : m_guard(name)
 			{}
 
-			auto outputStream() {
-				return std::make_unique<MemoryStream>(m_buffer);
+			auto outputStream() const {
+				return MakeStream(OpenMode::Read_Write);
 			}
 
-			auto inputStream() {
-				return std::make_unique<MemoryStream>(m_buffer);
+			auto inputStream() const {
+				return MakeStream(OpenMode::Read_Only);
+			}
+
+			std::string filename() const {
+				return m_guard.name();
 			}
 
 		private:
-			std::vector<uint8_t> m_buffer;
+			std::unique_ptr<FileStream> MakeStream(OpenMode mode) const {
+				return std::make_unique<FileStream>(RawFile(filename(), mode));
+			}
+
+		private:
+			test::TempFileGuard m_guard;
 		};
 	}
 
-	DEFINE_SEEKABLE_STREAM_TESTS(MemoryStreamContext)
+	DEFINE_SEEKABLE_STREAM_TESTS(FileStreamContext)
 }}

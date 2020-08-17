@@ -244,7 +244,7 @@ namespace catapult { namespace crypto {
 		}
 	}
 
-	OtsTree::OtsTree(SeekableOutputStream& storage, const OtsOptions& options)
+	OtsTree::OtsTree(io::SeekableStream& storage, const OtsOptions& options)
 			: m_storage(storage)
 			, m_options(options)
 			, m_lastStep()
@@ -252,7 +252,7 @@ namespace catapult { namespace crypto {
 
 	OtsTree::OtsTree(OtsTree&&) = default;
 
-	OtsTree OtsTree::FromStream(io::InputStream& input, SeekableOutputStream& storage) {
+	OtsTree OtsTree::FromStream(io::InputStream& input, io::SeekableStream& storage) {
 		OtsTree tree(storage, LoadOptions(input));
 
 		// FromStream loads whole level, used keys are zeroed. wipeUntil() is used to have consistent view.
@@ -273,7 +273,7 @@ namespace catapult { namespace crypto {
 
 	OtsTree OtsTree::Create(
 			OtsKeyPairType&& keyPair,
-			SeekableOutputStream& storage,
+			io::SeekableStream& storage,
 			FinalizationPoint startPoint,
 			FinalizationPoint endPoint,
 			const OtsOptions& options) {

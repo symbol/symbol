@@ -122,7 +122,6 @@ namespace catapult { namespace test {
 
 		// endregion
 
-	public:
 		// region read/write policies
 
 		struct SingleWritePolicy {
@@ -163,9 +162,8 @@ namespace catapult { namespace test {
 
 		// endregion
 
-		// region read tests
+		// region read/write (multiple streams) tests
 
-	public:
 		template<typename TWritePolicy, typename TReadPolicy>
 		static void RunRoundtripTest() {
 			// Arrange:
@@ -190,7 +188,6 @@ namespace catapult { namespace test {
 			EXPECT_EQ(expected, buffer);
 		}
 
-	public:
 		static void AssertCannotReadMoreThanWritten() {
 			// Arrange:
 			TContext context("test.dat");
@@ -206,6 +203,141 @@ namespace catapult { namespace test {
 			// Act + Assert:
 			auto pInput = context.inputStream();
 			EXPECT_THROW(pInput->read(buffer), catapult_file_io_error);
+		}
+
+		// endregion
+
+		// region position/seek tests
+
+		static void AssertPositionIsInitiallyZero() {
+			// Arrange:
+			TContext context("test.dat");
+			auto pStream = context.outputStream();
+
+			// Act + Assert:
+			EXPECT_EQ(0u, pStream->position());
+			EXPECT_TRUE(pStream->eof());
+		}
+
+		static void AssertCanSeekToArbitraryLocation() {
+			// Arrange:
+			TContext context("test.dat");
+			auto pStream = context.outputStream();
+			pStream->write(test::GenerateRandomVector(257));
+
+			// Act:
+			pStream->seek(198);
+
+			// Assert:
+			EXPECT_EQ(198u, pStream->position());
+			EXPECT_FALSE(pStream->eof());
+		}
+
+		static void AssertCanSeekToEof() {
+			// Arrange:
+			TContext context("test.dat");
+			auto pStream = context.outputStream();
+			pStream->write(test::GenerateRandomVector(257));
+			pStream->seek(198);
+
+			// Act:
+			pStream->seek(257);
+
+			// Assert:
+			EXPECT_EQ(257u, pStream->position());
+			EXPECT_TRUE(pStream->eof());
+		}
+
+		static void AssertCannotSeekPastEof() {
+			// Arrange:
+			TContext context("test.dat");
+			auto pStream = context.outputStream();
+			pStream->write(test::GenerateRandomVector(257));
+			pStream->seek(198);
+
+			// Act + Assert:
+			EXPECT_THROW(pStream->seek(258), catapult_file_io_error);
+		}
+
+		static void AssertWriteAdvancesPosition() {
+			// Arrange:
+			TContext context("test.dat");
+			auto pStream = context.outputStream();
+
+			// Act: write some data
+			auto buffer = test::GenerateRandomVector(27);
+			pStream->write(buffer);
+
+			// Assert: stream is at EOF
+			EXPECT_EQ(27u, pStream->position());
+			EXPECT_TRUE(pStream->eof());
+		}
+
+		static void AssertReadAdvancesPosition() {
+			// Arrange:
+			TContext context("test.dat");
+			auto pStream = context.outputStream();
+
+			// - write some data and seek back
+			auto buffer = test::GenerateRandomVector(27);
+			pStream->write(buffer);
+			pStream->seek(10);
+
+			// Act: read some data
+			std::vector<uint8_t> part(12);
+			pStream->read(part);
+
+			// Assert: stream is not at EOF
+			EXPECT_EQ(22u, pStream->position());
+			EXPECT_FALSE(pStream->eof());
+		}
+
+		// endregion
+
+		// region read/write/seek (single stream)
+
+		static void AssertCanReadAfterSeek() {
+			// Arrange:
+			auto buffer = test::GenerateRandomVector(123);
+			TContext context("test.dat");
+			auto pStream = context.outputStream();
+			pStream->write(buffer);
+
+			// Act: seek and read
+			std::vector<uint8_t> readBuffer(50);
+			pStream->seek(10);
+			pStream->read(readBuffer);
+
+			// Assert:
+			EXPECT_EQ(60u, pStream->position());
+			EXPECT_FALSE(pStream->eof());
+
+			EXPECT_EQ_MEMORY(buffer.data() + 10, readBuffer.data(), readBuffer.size());
+		}
+
+		static void AssertCanWriteAfterSeek() {
+			// Arrange:
+			auto buffer1 = test::GenerateRandomVector(123);
+			TContext context("test.dat");
+			auto pStream = context.outputStream();
+			pStream->write(buffer1);
+
+			// Act: seek and write
+			auto buffer2 = test::GenerateRandomVector(123);
+			pStream->seek(30);
+			pStream->write(buffer2);
+
+			// Assert:
+			EXPECT_EQ(153u, pStream->position());
+			EXPECT_TRUE(pStream->eof());
+
+			// - read part of buffer
+			std::vector<uint8_t> readBuffer(40);
+			pStream->seek(20);
+			pStream->read(readBuffer);
+
+			EXPECT_EQ_MEMORY(buffer1.data() + 20, readBuffer.data(), 10);
+			EXPECT_EQ_MEMORY(buffer2.data(), readBuffer.data() + 10, 30);
 		}
 
 		// endregion
@@ -235,4 +367,18 @@ namespace catapult { namespace test {
 	MAKE_STREAM_ROUNDTRIP_TEST(TRAITS_NAME, ChunkedWritePolicy, ChunkedReadPolicy) \
 	\
 	MAKE_STREAM_TEST(TRAITS_NAME, CannotReadMoreThanWritten)
+
+/// Adds all seekable stream tests for the specified stream traits (\a TRAITS_NAME).
+#define DEFINE_SEEKABLE_STREAM_TESTS(TRAITS_NAME) \
+	DEFINE_STREAM_TESTS(TRAITS_NAME) \
+	\
+	MAKE_STREAM_TEST(TRAITS_NAME, PositionIsInitiallyZero) \
+	MAKE_STREAM_TEST(TRAITS_NAME, CanSeekToArbitraryLocation) \
+	MAKE_STREAM_TEST(TRAITS_NAME, CanSeekToEof) \
+	MAKE_STREAM_TEST(TRAITS_NAME, CannotSeekPastEof) \
+	MAKE_STREAM_TEST(TRAITS_NAME, WriteAdvancesPosition) \
+	MAKE_STREAM_TEST(TRAITS_NAME, ReadAdvancesPosition) \
+	\
+	MAKE_STREAM_TEST(TRAITS_NAME, CanReadAfterSeek) \
+	MAKE_STREAM_TEST(TRAITS_NAME, CanWriteAfterSeek)
 }}
