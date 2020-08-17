@@ -33,6 +33,10 @@ namespace catapult { namespace test {
 
 	// region message factories
 
+	std::unique_ptr<model::FinalizationMessage> CreateMessage(FinalizationPoint point) {
+		return CreateMessage({ point.unwrap(), 0, 0 }, GenerateRandomByteArray<Hash256>());
+	}
+
 	std::unique_ptr<model::FinalizationMessage> CreateMessage(const Hash256& hash) {
 		return CreateMessage(GenerateRandomValue<Height>(), hash);
 	}

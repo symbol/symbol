@@ -89,7 +89,7 @@ namespace catapult { namespace finalization {
 								pRoundMessageAggregator->roundContext().acceptPrecommit(Height(247), m_hashes[2], 400);
 							}
 
-							auto pMessage = CreateMessage(pRoundMessageAggregator->point());
+							auto pMessage = test::CreateMessage(pRoundMessageAggregator->point());
 							pMessage->Height = Height(246);
 
 							chain::RoundMessageAggregator::UnknownMessages messages;
@@ -123,12 +123,7 @@ namespace catapult { namespace finalization {
 			}
 
 			void initialize() {
-				m_pAggregator->modifier().add(CreateMessage(FinalizationPoint(8)));
-			}
-
-		private:
-			static std::unique_ptr<model::FinalizationMessage> CreateMessage(FinalizationPoint point) {
-				return test::CreateMessage({ point.unwrap(), 0, 0 }, test::GenerateRandomByteArray<Hash256>());
+				m_pAggregator->modifier().add(test::CreateMessage(FinalizationPoint(8)));
 			}
 
 		private:
@@ -228,7 +223,7 @@ namespace catapult { namespace finalization {
 			EXPECT_EQ(expectedHash, subscriberParams[0].Hash);
 			EXPECT_EQ(FinalizationPoint(8), subscriberParams[0].Point);
 
-			// - storage was called (proof step identifier comes from TestContext::CreateMessage)
+			// - storage was called (proof step identifier comes from test::CreateMessage)
 			const auto& savedProofDescriptors = storage.savedProofDescriptors();
 			ASSERT_EQ(1u, savedProofDescriptors.size());
 			EXPECT_EQ(Height(246), savedProofDescriptors[0].Height);

@@ -98,16 +98,12 @@ namespace catapult { namespace chain {
 			std::unique_ptr<MultiRoundMessageAggregator> m_pAggregator;
 		};
 
-		std::unique_ptr<model::FinalizationMessage> CreateMessage(FinalizationPoint point) {
-			return test::CreateMessage({ point.unwrap(), 1, 1 }, test::GenerateRandomByteArray<Hash256>());
-		}
-
 		void AddRoundMessageAggregators(TestContext& context, const std::vector<FinalizationPoint>& pointDeltas) {
 			// Arrange:
 			context.aggregator().modifier().setMaxFinalizationPoint(Default_Max_FP);
 
 			for (auto pointDelta : pointDeltas)
-				context.aggregator().modifier().add(CreateMessage(Default_Min_FP + pointDelta));
+				context.aggregator().modifier().add(test::CreateMessage(Default_Min_FP + pointDelta));
 
 			// Sanity:
 			EXPECT_EQ(3u, context.aggregator().view().size());
@@ -182,7 +178,7 @@ namespace catapult { namespace chain {
 			context.aggregator().modifier().setMaxFinalizationPoint(Default_Max_FP);
 
 			// Act:
-			auto result = context.aggregator().modifier().add(CreateMessage(point));
+			auto result = context.aggregator().modifier().add(test::CreateMessage(point));
 
 			// Assert:
 			EXPECT_EQ(RoundMessageAggregatorAddResult::Failure_Invalid_Point, result);
@@ -199,7 +195,7 @@ namespace catapult { namespace chain {
 			});
 
 			// Act:
-			auto result = context.aggregator().modifier().add(CreateMessage(point));
+			auto result = context.aggregator().modifier().add(test::CreateMessage(point));
 
 			// Assert:
 			EXPECT_EQ(expectedAddResult, result);
@@ -247,7 +243,7 @@ namespace catapult { namespace chain {
 
 		// Act:
 		for (auto i = 0u; i < 3; ++i)
-			context.aggregator().modifier().add(CreateMessage(Default_Min_FP + FinalizationPoint(5)));
+			context.aggregator().modifier().add(test::CreateMessage(Default_Min_FP + FinalizationPoint(5)));
 
 		// Assert:
 		EXPECT_EQ(1u, context.aggregator().view().size());
@@ -480,7 +476,7 @@ namespace catapult { namespace chain {
 
 			RoundMessageAggregator::UnknownMessages messages;
 			for (auto i = 0u; i < 3; ++i)
-				messages.push_back(CreateMessage(roundMessageAggregator.point()));
+				messages.push_back(test::CreateMessage(roundMessageAggregator.point()));
 
 			roundMessageAggregator.setMessages(std::move(messages));
 		});
@@ -507,7 +503,7 @@ namespace catapult { namespace chain {
 
 			RoundMessageAggregator::UnknownMessages messages;
 			for (auto i = 0u; i < numMessages; ++i)
-				messages.push_back(CreateMessage(roundMessageAggregator.point()));
+				messages.push_back(test::CreateMessage(roundMessageAggregator.point()));
 
 			roundMessageAggregator.setMessages(std::move(messages));
 		});
@@ -574,7 +570,7 @@ namespace catapult { namespace chain {
 			context.setRoundMessageAggregatorInitializer([&shortHashes](auto& roundMessageAggregator) {
 				RoundMessageAggregator::UnknownMessages messages;
 				for (auto i = 0u; i < 3; ++i) {
-					messages.push_back(CreateMessage(roundMessageAggregator.point()));
+					messages.push_back(test::CreateMessage(roundMessageAggregator.point()));
 					shortHashes.push_back(utils::ToShortHash(model::CalculateMessageHash(*messages.back())));
 				}
 
@@ -668,7 +664,7 @@ namespace catapult { namespace chain {
 		template<typename TAction>
 		void RunMaxResponseSizeTests(TAction action) {
 			// Arrange: determine message size from a generated message
-			auto messageSize = CreateMessage(Default_Min_FP)->Size;
+			auto messageSize = test::CreateMessage(Default_Min_FP)->Size;
 
 			// Assert:
 			action(2, 3 * messageSize - 1);

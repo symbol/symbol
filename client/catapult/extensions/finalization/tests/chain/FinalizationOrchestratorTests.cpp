@@ -448,10 +448,6 @@ namespace catapult { namespace chain {
 	namespace {
 		// region CreateFinalizerTestContext
 
-		std::unique_ptr<model::FinalizationMessage> CreateMessage(FinalizationPoint point) {
-			return test::CreateMessage({ point.unwrap(), 1, 1 }, test::GenerateRandomByteArray<Hash256>());
-		}
-
 		class CreateFinalizerTestContext {
 		private:
 			using RoundMessageAggregatorInitializer = consumer<mocks::MockRoundMessageAggregator&>;
@@ -506,7 +502,7 @@ namespace catapult { namespace chain {
 				modifier.setMaxFinalizationPoint(maxPoint);
 
 				for (auto point = minPoint; point <= maxPoint; point = point + FinalizationPoint(1))
-					modifier.add(CreateMessage(point));
+					modifier.add(test::CreateMessage(point));
 			}
 
 		private:
@@ -588,7 +584,7 @@ namespace catapult { namespace chain {
 			roundMessageAggregator.roundContext().acceptPrecommit(Height(246), hash, 750);
 
 			RoundMessageAggregator::UnknownMessages messages;
-			messages.push_back(CreateMessage(roundMessageAggregator.point()));
+			messages.push_back(test::CreateMessage(roundMessageAggregator.point()));
 			roundMessageAggregator.setMessages(std::move(messages));
 		});
 
@@ -610,11 +606,11 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(hashes[3], subscriberParams[0].Hash);
 		EXPECT_EQ(FinalizationPoint(10), subscriberParams[0].Point);
 
-		// - storage was called
+		// - storage was called (proof step identifier comes from test::CreateMessage)
 		const auto& savedProofDescriptors = context.proofStorage().savedProofDescriptors();
 		ASSERT_EQ(1u, savedProofDescriptors.size());
 		EXPECT_EQ(Height(246), savedProofDescriptors[0].Height);
-		EXPECT_EQ(crypto::StepIdentifier({ 10, 1, 1 }), savedProofDescriptors[0].StepIdentifier);
+		EXPECT_EQ(crypto::StepIdentifier({ 10, 0, 0 }), savedProofDescriptors[0].StepIdentifier);
 	}
 
 	TEST(TEST_CLASS, CreateFinalizer_FinalizesBlockWhenPreviousRoundHasBestPrecommit) {
@@ -629,7 +625,7 @@ namespace catapult { namespace chain {
 				roundMessageAggregator.roundContext().acceptPrecommit(Height(246), hash, 750);
 
 			RoundMessageAggregator::UnknownMessages messages;
-			messages.push_back(CreateMessage(roundMessageAggregator.point()));
+			messages.push_back(test::CreateMessage(roundMessageAggregator.point()));
 			roundMessageAggregator.setMessages(std::move(messages));
 		});
 
@@ -651,11 +647,11 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(hashes[1], subscriberParams[0].Hash);
 		EXPECT_EQ(FinalizationPoint(8), subscriberParams[0].Point);
 
-		// - storage was called
+		// - storage was called (proof step identifier comes from test::CreateMessage)
 		const auto& savedProofDescriptors = context.proofStorage().savedProofDescriptors();
 		ASSERT_EQ(1u, savedProofDescriptors.size());
 		EXPECT_EQ(Height(246), savedProofDescriptors[0].Height);
-		EXPECT_EQ(crypto::StepIdentifier({ 8, 1, 1 }), savedProofDescriptors[0].StepIdentifier);
+		EXPECT_EQ(crypto::StepIdentifier({ 8, 0, 0 }), savedProofDescriptors[0].StepIdentifier);
 	}
 
 	// endregion

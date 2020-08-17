@@ -33,6 +33,9 @@ namespace catapult { namespace test {
 
 	// region message factories
 
+	/// Creates a finalization message with one hash for \a point.
+	std::unique_ptr<model::FinalizationMessage> CreateMessage(FinalizationPoint point);
+
 	/// Creates a finalization message around one \a hash.
 	std::unique_ptr<model::FinalizationMessage> CreateMessage(const Hash256& hash);
 
