@@ -31,14 +31,7 @@ namespace catapult { namespace model {
 
 	namespace {
 		std::vector<StepIdentifier> GenerateIncreasingStepIdentifierValues() {
-			return {
-					{ 5, 0, 0 },
-					{ 10, 0, 0 },
-					{ 11, 0, 0 },
-					{ 11, 1, 0 },
-					{ 11, 4, 0 },
-					{ 11, 4, 5 }
-			};
+			return { { 5, 0 }, { 10, 0 }, { 11, 0 }, { 11, 1 }, { 11, 4 } };
 		}
 	}
 
@@ -46,20 +39,20 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, StepIdentifier_CanOutput) {
 		// Arrange:
-		StepIdentifier stepIdentifier{ 11, 5, 215 };
+		StepIdentifier stepIdentifier{ 11, 5 };
 
 		// Act:
 		auto str = test::ToString(stepIdentifier);
 
 		// Assert:
-		EXPECT_EQ("(11, 5, 215)", str);
+		EXPECT_EQ("(11, 5)", str);
 	}
 
 	// endregion
 
 	// region step identifier size + alignment
 
-#define STEP_IDENTIFIER_FIELDS FIELD(Point) FIELD(Round) FIELD(SubRound)
+#define STEP_IDENTIFIER_FIELDS FIELD(Point) FIELD(Round)
 
 	TEST(TEST_CLASS, StepIdentifierHasExpectedSize) {
 		// Arrange:
@@ -71,7 +64,7 @@ namespace catapult { namespace model {
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(StepIdentifier));
-		EXPECT_EQ(24u, sizeof(StepIdentifier));
+		EXPECT_EQ(16u, sizeof(StepIdentifier));
 	}
 
 	TEST(TEST_CLASS, StepIdentifierHasProperAlignment) {
@@ -90,13 +83,7 @@ namespace catapult { namespace model {
 
 	namespace {
 		std::vector<StepIdentifier> GenerateValidStepIdentifierValues() {
-			return {
-					{ 5, 1, 0 },
-					{ 10, 1, 0 },
-					{ 10, 2, 0 },
-					{ 11, 1, 0 },
-					{ 11, 2, 0 }
-			};
+			return { { 5, 1 }, { 10, 1 }, { 10, 2 }, { 11, 1 }, { 11, 2 } };
 		}
 	}
 
@@ -118,8 +105,8 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, StepIdentifierToOtsKeyIdentifierProducesConflictingValuesForInvalidStepIdentifiers) {
 		// Arrange: invalid, because round is greater than number of stages
-		auto validIdentifier = StepIdentifier{ 10, 1, 0 };
-		auto invalidIdentifier = StepIdentifier{ 8, 5, 0};
+		auto validIdentifier = StepIdentifier{ 10, 1 };
+		auto invalidIdentifier = StepIdentifier{ 8, 5 };
 
 		// Act:
 		auto validKeyIdentifier = StepIdentifierToOtsKeyIdentifier(validIdentifier, 7);

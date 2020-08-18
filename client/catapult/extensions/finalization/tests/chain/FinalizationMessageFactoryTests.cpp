@@ -71,8 +71,8 @@ namespace catapult { namespace chain {
 
 		private:
 			static crypto::OtsTree CreateOtsTree(io::SeekableStream& storage, FinalizationPoint point) {
-				auto startKeyIdentifier = model::StepIdentifierToOtsKeyIdentifier({ point.unwrap(), 0, 0 }, Ots_Key_Dilution);
-				auto endKeyIdentifier = model::StepIdentifierToOtsKeyIdentifier({ point.unwrap() + 20, 1, 0 }, Ots_Key_Dilution);
+				auto startKeyIdentifier = model::StepIdentifierToOtsKeyIdentifier({ point.unwrap(), 0 }, Ots_Key_Dilution);
+				auto endKeyIdentifier = model::StepIdentifierToOtsKeyIdentifier({ point.unwrap() + 20, 1 }, Ots_Key_Dilution);
 				return crypto::OtsTree::Create(
 						test::GenerateKeyPair(),
 						storage,
@@ -122,7 +122,7 @@ namespace catapult { namespace chain {
 			EXPECT_EQ(sizeof(model::FinalizationMessage) + expectedHashesCount * Hash256::Size, pMessage->Size);
 			ASSERT_EQ(expectedHashesCount, pMessage->HashesCount);
 
-			EXPECT_EQ(model::StepIdentifier({ 12, 1, 1 }), pMessage->StepIdentifier);
+			EXPECT_EQ(model::StepIdentifier({ 12, 1 }), pMessage->StepIdentifier);
 			EXPECT_EQ(Height(8), pMessage->Height);
 			for (auto i = 0u; i < expectedHashesCount; ++i)
 				EXPECT_EQ(context.blockHashAt(Height(8 + i)), pMessage->HashesPtr()[i]);
@@ -146,7 +146,7 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(sizeof(model::FinalizationMessage) + Hash256::Size, pMessage->Size);
 		ASSERT_EQ(1u, pMessage->HashesCount);
 
-		EXPECT_EQ(model::StepIdentifier({ 12, 1, 1 }), pMessage->StepIdentifier);
+		EXPECT_EQ(model::StepIdentifier({ 12, 1 }), pMessage->StepIdentifier);
 		EXPECT_EQ(Height(8), pMessage->Height);
 		EXPECT_EQ(context.lastFinalizedHash(), pMessage->HashesPtr()[0]);
 
@@ -194,7 +194,7 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(sizeof(model::FinalizationMessage) + Hash256::Size, pMessage->Size);
 		ASSERT_EQ(1u, pMessage->HashesCount);
 
-		EXPECT_EQ(model::StepIdentifier({ 12, 2, 1 }), pMessage->StepIdentifier);
+		EXPECT_EQ(model::StepIdentifier({ 12, 2 }), pMessage->StepIdentifier);
 		EXPECT_EQ(Height(35), pMessage->Height);
 		EXPECT_EQ(hash, pMessage->HashesPtr()[0]);
 

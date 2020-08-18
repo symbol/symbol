@@ -227,12 +227,12 @@ namespace catapult { namespace finalization {
 			const auto& savedProofDescriptors = storage.savedProofDescriptors();
 			ASSERT_EQ(1u, savedProofDescriptors.size());
 			EXPECT_EQ(Height(246), savedProofDescriptors[0].Height);
-			EXPECT_EQ(model::StepIdentifier({ 8, 0, 0 }), savedProofDescriptors[0].StepIdentifier);
+			EXPECT_EQ(model::StepIdentifier({ 8, 0 }), savedProofDescriptors[0].StepIdentifier);
 
 			// - two messages were sent
 			ASSERT_EQ(2u, messages.size());
-			EXPECT_EQ(model::StepIdentifier({ 8, 1, 1 }), messages[0]->StepIdentifier);
-			EXPECT_EQ(model::StepIdentifier({ 8, 2, 1 }), messages[1]->StepIdentifier);
+			EXPECT_EQ(model::StepIdentifier({ 8, 1 }), messages[0]->StepIdentifier);
+			EXPECT_EQ(model::StepIdentifier({ 8, 2 }), messages[1]->StepIdentifier);
 		});
 	}
 

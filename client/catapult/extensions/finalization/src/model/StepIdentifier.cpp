@@ -25,7 +25,7 @@ namespace catapult { namespace model {
 	// region step identifier
 
 	bool StepIdentifier::operator==(const StepIdentifier& rhs) const {
-		return Point == rhs.Point && Round == rhs.Round && SubRound == rhs.SubRound;
+		return Point == rhs.Point && Round == rhs.Round;
 	}
 
 	bool StepIdentifier::operator!=(const StepIdentifier& rhs) const {
@@ -33,9 +33,7 @@ namespace catapult { namespace model {
 	}
 
 	bool StepIdentifier::operator<(const StepIdentifier& rhs) const {
-		return Point < rhs.Point
-				|| (Point == rhs.Point && Round < rhs.Round)
-				|| (Point == rhs.Point && Round == rhs.Round && SubRound < rhs.SubRound);
+		return Point < rhs.Point || (Point == rhs.Point && Round < rhs.Round);
 	}
 
 	bool StepIdentifier::operator<=(const StepIdentifier& rhs) const {
@@ -51,7 +49,7 @@ namespace catapult { namespace model {
 	}
 
 	std::ostream& operator<<(std::ostream& out, const StepIdentifier& stepIdentifier) {
-		out << "(" << stepIdentifier.Point << ", " << stepIdentifier.Round << ", " << stepIdentifier.SubRound << ")";
+		out << "(" << stepIdentifier.Point << ", " << stepIdentifier.Round << ")";
 		return out;
 	}
 

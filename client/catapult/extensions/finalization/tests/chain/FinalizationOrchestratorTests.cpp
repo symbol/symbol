@@ -610,7 +610,7 @@ namespace catapult { namespace chain {
 		const auto& savedProofDescriptors = context.proofStorage().savedProofDescriptors();
 		ASSERT_EQ(1u, savedProofDescriptors.size());
 		EXPECT_EQ(Height(246), savedProofDescriptors[0].Height);
-		EXPECT_EQ(model::StepIdentifier({ 10, 0, 0 }), savedProofDescriptors[0].StepIdentifier);
+		EXPECT_EQ(model::StepIdentifier({ 10, 0 }), savedProofDescriptors[0].StepIdentifier);
 	}
 
 	TEST(TEST_CLASS, CreateFinalizer_FinalizesBlockWhenPreviousRoundHasBestPrecommit) {
@@ -651,7 +651,7 @@ namespace catapult { namespace chain {
 		const auto& savedProofDescriptors = context.proofStorage().savedProofDescriptors();
 		ASSERT_EQ(1u, savedProofDescriptors.size());
 		EXPECT_EQ(Height(246), savedProofDescriptors[0].Height);
-		EXPECT_EQ(model::StepIdentifier({ 8, 0, 0 }), savedProofDescriptors[0].StepIdentifier);
+		EXPECT_EQ(model::StepIdentifier({ 8, 0 }), savedProofDescriptors[0].StepIdentifier);
 	}
 
 	// endregion

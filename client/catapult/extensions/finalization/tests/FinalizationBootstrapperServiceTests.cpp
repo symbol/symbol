@@ -242,7 +242,7 @@ namespace catapult { namespace finalization {
 		RunMultiRoundMessageAggregatorServiceTest([](auto& aggregator, const auto& context, const auto& lastFinalizedHash) {
 			// Act:
 			auto hash = test::GenerateRandomByteArray<Hash256>();
-			aggregator.modifier().add(context.createMessage(VoterType::Large1, { 12, 1, 0 }, Height(22), hash));
+			aggregator.modifier().add(context.createMessage(VoterType::Large1, { 12, 1 }, Height(22), hash));
 
 			// Assert:
 			AssertAggregatorCounters(context, FinalizationPoint(12), FinalizationPoint(12), Height(20), Height(20));
@@ -260,8 +260,8 @@ namespace catapult { namespace finalization {
 
 			// Act:
 			auto hash = test::GenerateRandomByteArray<Hash256>();
-			aggregator.modifier().add(context.createMessage(VoterType::Large1, { 12, 1, 0 }, Height(22), hash));
-			aggregator.modifier().add(context.createMessage(VoterType::Large1, { 15, 1, 0 }, Height(24), hash));
+			aggregator.modifier().add(context.createMessage(VoterType::Large1, { 12, 1 }, Height(22), hash));
+			aggregator.modifier().add(context.createMessage(VoterType::Large1, { 15, 1 }, Height(24), hash));
 
 			// Assert:
 			AssertAggregatorCounters(context, FinalizationPoint(12), FinalizationPoint(15), Height(20), Height(20));
@@ -279,12 +279,12 @@ namespace catapult { namespace finalization {
 
 			// Act:
 			auto hash1 = test::GenerateRandomByteArray<Hash256>();
-			aggregator.modifier().add(context.createMessage(VoterType::Large1, { 12, 1, 0 }, Height(22), hash1));
-			aggregator.modifier().add(context.createMessage(VoterType::Large2, { 12, 1, 0 }, Height(22), hash1));
+			aggregator.modifier().add(context.createMessage(VoterType::Large1, { 12, 1 }, Height(22), hash1));
+			aggregator.modifier().add(context.createMessage(VoterType::Large2, { 12, 1 }, Height(22), hash1));
 
 			auto hash2 = test::GenerateRandomByteArray<Hash256>();
-			aggregator.modifier().add(context.createMessage(VoterType::Large1, { 15, 1, 0 }, Height(24), hash2));
-			aggregator.modifier().add(context.createMessage(VoterType::Large2, { 15, 1, 0 }, Height(24), hash2));
+			aggregator.modifier().add(context.createMessage(VoterType::Large1, { 15, 1 }, Height(24), hash2));
+			aggregator.modifier().add(context.createMessage(VoterType::Large2, { 15, 1 }, Height(24), hash2));
 
 			// Assert:
 			AssertAggregatorCounters(context, FinalizationPoint(12), FinalizationPoint(15), Height(22), Height(24));

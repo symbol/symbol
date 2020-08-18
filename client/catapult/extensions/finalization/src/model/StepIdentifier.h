@@ -36,9 +36,6 @@ namespace catapult { namespace model {
 		/// Round.
 		uint64_t Round;
 
-		/// Sub round.
-		uint64_t SubRound;
-
 	public:
 		/// Returns \c true if this step identifier is equal to \a rhs.
 		bool operator==(const StepIdentifier& rhs) const;

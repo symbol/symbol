@@ -94,7 +94,7 @@ namespace catapult { namespace test {
 			io::FinalizationProof proof;
 
 			auto hash = GenerateRandomByteArray<Hash256>();
-			model::StepIdentifier stepIdentifier = { finalizationPoint.unwrap(), 123, 456 };
+			model::StepIdentifier stepIdentifier = { finalizationPoint.unwrap(), 123 };
 			for (auto i = 0u; i < numVotes; ++i)
 				proof.push_back(CreateMessage(stepIdentifier, hash));
 
@@ -225,8 +225,8 @@ namespace catapult { namespace test {
 			auto hash2 = GenerateRandomByteArray<Hash256>();
 
 			io::FinalizationProof proof;
-			proof.push_back(CreateMessage({ 11, 78, 654 }, hash1));
-			proof.push_back(CreateMessage({ 42, 90, 321 }, hash2));
+			proof.push_back(CreateMessage({ 11, 78 }, hash1));
+			proof.push_back(CreateMessage({ 42, 90 }, hash2));
 
 			// Act:
 			pStorage->saveProof(Height(123), proof);
@@ -237,7 +237,7 @@ namespace catapult { namespace test {
 			AssertStorageIndexes(*pStorage, FinalizationPoint(11), Height(123));
 			EXPECT_EQ(hash1, pProof->FinalizedHash);
 			EXPECT_EQ(Height(123), pProof->FinalizedHeight);
-			EXPECT_EQ(model::StepIdentifier({ 11, 78, 654 }), pProof->StepIdentifier);
+			EXPECT_EQ(model::StepIdentifier({ 11, 78 }), pProof->StepIdentifier);
 
 			const auto* pVoteProof = pProof->VoteProofsPtr();
 			for (const auto& pMessage : proof)
