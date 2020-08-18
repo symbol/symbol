@@ -43,8 +43,8 @@ namespace catapult { namespace crypto {
 		~OtsTree();
 
 	public:
-		/// Creates a tree around \a storage, loading stored data from \a input.
-		static OtsTree FromStream(io::InputStream& input, io::SeekableStream& storage);
+		/// Creates a tree around \a storage.
+		static OtsTree FromStream(io::SeekableStream& storage);
 
 		/// Creates a tree around \a keyPair, \a storage and \a options.
 		static OtsTree Create(OtsKeyPairType&& keyPair, io::SeekableStream& storage, const OtsOptions& options);

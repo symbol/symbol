@@ -46,12 +46,8 @@ namespace catapult { namespace mocks {
 		m_buffer.reserve(1024);
 	}
 
-	void MockSeekableMemoryStream::seek(uint64_t position) {
-		try {
-			extensions::MemoryStream::seek(position);
-		} catch (const catapult_file_io_error&) {
-			// suppress
-		}
+	void MockSeekableMemoryStream::copyTo(MockSeekableMemoryStream& dest) const {
+		dest.m_buffer = m_buffer;
 	}
 
 	// endregion

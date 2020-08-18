@@ -252,20 +252,20 @@ namespace catapult { namespace crypto {
 
 	OtsTree::OtsTree(OtsTree&&) = default;
 
-	OtsTree OtsTree::FromStream(io::InputStream& input, io::SeekableStream& storage) {
-		auto options = LoadOptions(input);
+	OtsTree OtsTree::FromStream(io::SeekableStream& storage) {
+		auto options = LoadOptions(storage);
 		OtsTree tree(storage, options);
 
 		// FromStream loads whole level, used keys are zeroed. wipeUntil() is used to have consistent view.
-		tree.m_lastKeyIdentifier = LoadKeyIdentifier(input);
+		tree.m_lastKeyIdentifier = LoadKeyIdentifier(storage);
 
-		tree.m_levels[Layer_Top] = std::make_unique<OtsLevel>(OtsLevel::FromStream(input));
+		tree.m_levels[Layer_Top] = std::make_unique<OtsLevel>(OtsLevel::FromStream(storage));
 
 		// if any sign() was issued prior to saving, load subsequent levels
 		if (Invalid_Batch_Id != tree.m_lastKeyIdentifier.BatchId) {
 			tree.m_levels[Layer_Top]->wipeUntil(tree.m_lastKeyIdentifier.BatchId);
 
-			tree.m_levels[Layer_Low] = std::make_unique<OtsLevel>(OtsLevel::FromStream(input));
+			tree.m_levels[Layer_Low] = std::make_unique<OtsLevel>(OtsLevel::FromStream(storage));
 			tree.m_levels[Layer_Low]->wipeUntil(tree.m_lastKeyIdentifier.KeyId);
 		}
 

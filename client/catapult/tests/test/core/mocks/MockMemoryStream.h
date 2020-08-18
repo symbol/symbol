@@ -53,7 +53,8 @@ namespace catapult { namespace mocks {
 		MockSeekableMemoryStream();
 
 	public:
-		void seek(uint64_t position) override;
+		/// Copies the contents of this stream into \a dest.
+		void copyTo(MockSeekableMemoryStream& dest) const;
 
 	private:
 		std::vector<uint8_t> m_buffer;

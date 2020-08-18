@@ -130,7 +130,7 @@ namespace catapult { namespace crypto {
 			{}
 
 			TestContext(TestContext& originalContext)
-					: m_tree(OtsTree::FromStream(originalContext.m_storage, m_storage))
+					: m_tree(OtsTree::FromStream(CopyInto(originalContext.m_storage, m_storage)))
 					, m_messageBuffer(originalContext.m_messageBuffer)
 			{}
 
@@ -148,12 +148,14 @@ namespace catapult { namespace crypto {
 			}
 
 		public:
-			auto seekToBegin() {
-				m_storage.seek(0);
-			}
-
 			auto sign(const OtsKeyIdentifier& keyIdentifier) {
 				return m_tree.sign(keyIdentifier, m_messageBuffer);
+			}
+
+		private:
+			static TStorage& CopyInto(const TStorage& source, TStorage& dest) {
+				source.copyTo(dest);
+				return dest;
 			}
 
 		private:
@@ -505,7 +507,6 @@ namespace catapult { namespace crypto {
 	TEST(TEST_CLASS, RoundtripTestSingleLevelTree) {
 		// Arrange:
 		MockTestContext originalContext;
-		originalContext.seekToBegin();
 
 		// Act: reload single level tree from storage
 		MockTestContext context(originalContext);
@@ -529,7 +530,6 @@ namespace catapult { namespace crypto {
 		OtsKeyIdentifier usedIdentifier{ 9, 2 };
 		OtsKeyIdentifier unusedIdentifier{ 9, 3 };
 		originalContext.sign(usedIdentifier);
-		originalContext.seekToBegin();
 
 		// Act: reload tree from storage
 		MockTestContext context(originalContext);
@@ -548,7 +548,6 @@ namespace catapult { namespace crypto {
 		// Arrange:
 		MockTestContext originalContext;
 		originalContext.sign({ 9, 2 });
-		originalContext.seekToBegin();
 
 		// Act: reload tree from storage
 		MockTestContext context(originalContext);
