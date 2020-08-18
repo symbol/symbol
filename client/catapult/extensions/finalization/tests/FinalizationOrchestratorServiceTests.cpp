@@ -23,11 +23,15 @@
 #include "finalization/src/FinalizationConfiguration.h"
 #include "finalization/src/chain/MultiRoundMessageAggregator.h"
 #include "finalization/src/io/ProofStorageCache.h"
+#include "catapult/config/CatapultDataDirectory.h"
+#include "catapult/crypto_voting/OtsTree.h"
+#include "catapult/io/FileStream.h"
 #include "finalization/tests/test/FinalizationMessageTestUtils.h"
 #include "finalization/tests/test/mocks/MockProofStorage.h"
 #include "finalization/tests/test/mocks/MockRoundMessageAggregator.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"
 #include "tests/test/local/ServiceTestUtils.h"
+#include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/nodeps/TimeSupplier.h"
 #include "tests/TestHarness.h"
 
@@ -59,6 +63,9 @@ namespace catapult { namespace finalization {
 			TestContext()
 					: m_createCompletedRound(false)
 					, m_hashes(test::GenerateRandomDataVector<Hash256>(3)) {
+				// set up filesystem
+				SeedOtsTree(testState().state().config().User, m_directoryGuard.name());
+
 				// register hooks
 				auto pHooks = std::make_shared<FinalizationServerHooks>();
 				pHooks->setMessageRangeConsumer([&messages = m_messages](auto&& messageRange) {
@@ -127,12 +134,27 @@ namespace catapult { namespace finalization {
 			}
 
 		private:
+			static void SeedOtsTree(const config::UserConfiguration& userConfig, const std::string& dataDirectory) {
+				const_cast<std::string&>(userConfig.DataDirectory) = dataDirectory;
+
+				auto votingOtsTreeFilename = config::CatapultDataDirectory(userConfig.DataDirectory).rootDir().file("voting_ots_tree.dat");
+				io::FileStream otsStream(io::RawFile(votingOtsTreeFilename, io::OpenMode::Read_Write));
+
+				auto dilution = 13u;
+				auto startKeyIdentifier = model::StepIdentifierToOtsKeyIdentifier({ 1, 0 }, dilution);
+				auto endKeyIdentifier = model::StepIdentifierToOtsKeyIdentifier({ 100, 1 }, dilution);
+				crypto::OtsTree::Create(test::GenerateKeyPair(), otsStream, { dilution, startKeyIdentifier, endKeyIdentifier });
+			}
+
+		private:
 			bool m_createCompletedRound;
 			std::vector<Hash256> m_hashes;
 
 			mocks::MockProofStorage* m_pProofStorageRaw;
 			std::shared_ptr<chain::MultiRoundMessageAggregator> m_pAggregator;
 			std::vector<std::shared_ptr<model::FinalizationMessage>> m_messages;
+
+			test::TempDirectoryGuard m_directoryGuard;
 		};
 	}
 
