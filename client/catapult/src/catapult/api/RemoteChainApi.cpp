@@ -29,11 +29,11 @@ namespace catapult { namespace api {
 	namespace {
 		// region traits
 
-		struct ChainInfoTraits {
+		struct ChainStatisticsTraits {
 		public:
-			using ResultType = ChainInfo;
-			static constexpr auto Packet_Type = ionet::PacketType::Chain_Info;
-			static constexpr auto Friendly_Name = "chain info";
+			using ResultType = ChainStatistics;
+			static constexpr auto Packet_Type = ionet::PacketType::Chain_Statistics;
+			static constexpr auto Friendly_Name = "chain statistics";
 
 			static auto CreateRequestPacketPayload() {
 				return ionet::PacketPayload(Packet_Type);
@@ -41,7 +41,7 @@ namespace catapult { namespace api {
 
 		public:
 			bool tryParseResult(const ionet::Packet& packet, ResultType& result) const {
-				const auto* pResponse = ionet::CoercePacket<ChainInfoResponse>(&packet);
+				const auto* pResponse = ionet::CoercePacket<ChainStatisticsResponse>(&packet);
 				if (!pResponse)
 					return false;
 
@@ -134,8 +134,8 @@ namespace catapult { namespace api {
 			{}
 
 		public:
-			FutureType<ChainInfoTraits> chainInfo() const override {
-				return m_impl.dispatch(ChainInfoTraits());
+			FutureType<ChainStatisticsTraits> chainStatistics() const override {
+				return m_impl.dispatch(ChainStatisticsTraits());
 			}
 
 			FutureType<HashesFromTraits> hashesFrom(Height height, uint32_t maxHashes) const override {

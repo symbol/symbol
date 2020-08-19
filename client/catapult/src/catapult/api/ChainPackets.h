@@ -26,9 +26,9 @@ namespace catapult { namespace api {
 
 #pragma pack(push, 1)
 
-	/// Chain info response.
-	struct ChainInfoResponse : public ionet::Packet {
-		static constexpr ionet::PacketType Packet_Type = ionet::PacketType::Chain_Info;
+	/// Chain statistics response.
+	struct ChainStatisticsResponse : public ionet::Packet {
+		static constexpr ionet::PacketType Packet_Type = ionet::PacketType::Chain_Statistics;
 
 		/// Chain height.
 		catapult::Height Height;

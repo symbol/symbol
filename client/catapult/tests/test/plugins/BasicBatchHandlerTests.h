@@ -79,7 +79,7 @@ namespace catapult { namespace test {
 		/// Asserts that a packet with the wrong type is rejected.
 		static void AssertPacketWithWrongTypeIsRejected() {
 			// Assert: wrong packet type
-			AssertPacketIsRejected(TTraits::Valid_Request_Payload_Size, ionet::PacketType::Chain_Info, false);
+			AssertPacketIsRejected(TTraits::Valid_Request_Payload_Size, ionet::PacketType::Chain_Statistics, false);
 		}
 
 		/// Asserts that a packet with an invalid payload size is rejected.

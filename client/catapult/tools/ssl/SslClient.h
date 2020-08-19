@@ -35,8 +35,8 @@ namespace catapult { namespace tools { namespace ssl {
 		SslClient(thread::IoThreadPool& pool, crypto::KeyPair&& caKeyPair, const std::string& certificateDirectory, ScenarioId scenarioId);
 
 	public:
-		/// Connects to \a nodeEndpoint and retrieves chain info.
-		api::ChainInfo connect(const ionet::NodeEndpoint& nodeEndpoint);
+		/// Connects to \a nodeEndpoint and retrieves chain statistics.
+		api::ChainStatistics connect(const ionet::NodeEndpoint& nodeEndpoint);
 
 	private:
 		thread::IoThreadPool& m_pool;

@@ -40,12 +40,12 @@ namespace catapult { namespace api {
 			{}
 
 		public:
-			thread::future<ChainInfo> chainInfo() const override {
-				auto chainInfo = ChainInfo();
-				chainInfo.Height = m_storage.view().chainHeight();
-				chainInfo.FinalizedHeight = m_finalizedHeightSupplier();
-				chainInfo.Score = m_chainScoreSupplier();
-				return thread::make_ready_future(std::move(chainInfo));
+			thread::future<ChainStatistics> chainStatistics() const override {
+				auto chainStatistics = ChainStatistics();
+				chainStatistics.Height = m_storage.view().chainHeight();
+				chainStatistics.FinalizedHeight = m_finalizedHeightSupplier();
+				chainStatistics.Score = m_chainScoreSupplier();
+				return thread::make_ready_future(std::move(chainStatistics));
 			}
 
 			thread::future<model::HashRange> hashesFrom(Height height, uint32_t maxHashes) const override {

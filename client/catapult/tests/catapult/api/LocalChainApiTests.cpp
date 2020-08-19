@@ -33,9 +33,9 @@ namespace catapult { namespace api {
 		}
 	}
 
-	// region chainInfo
+	// region chainStatistics
 
-	TEST(TEST_CLASS, CanRetrieveChainInfo) {
+	TEST(TEST_CLASS, CanRetrieveChainStatistics) {
 		// Arrange:
 		auto numSupplierCalls = std::make_pair<size_t, size_t>(0, 0);
 		auto chainScoreSupplier = [&numSupplierCalls]() {
@@ -51,15 +51,15 @@ namespace catapult { namespace api {
 		auto pApi = api::CreateLocalChainApi(*pStorage, chainScoreSupplier, finalizedHeightSupplier);
 
 		// Act:
-		auto chainInfo = pApi->chainInfo().get();
+		auto chainStatistics = pApi->chainStatistics().get();
 
 		// Assert:
 		EXPECT_EQ(1u, numSupplierCalls.first);
 		EXPECT_EQ(1u, numSupplierCalls.second);
 
-		EXPECT_EQ(Height(12), chainInfo.Height);
-		EXPECT_EQ(Height(7), chainInfo.FinalizedHeight);
-		EXPECT_EQ(model::ChainScore(12345), chainInfo.Score);
+		EXPECT_EQ(Height(12), chainStatistics.Height);
+		EXPECT_EQ(Height(7), chainStatistics.FinalizedHeight);
+		EXPECT_EQ(model::ChainScore(12345), chainStatistics.Score);
 	}
 
 	// endregion

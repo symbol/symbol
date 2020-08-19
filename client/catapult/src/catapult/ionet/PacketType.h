@@ -45,8 +45,8 @@ namespace catapult { namespace ionet {
 	/* Block has been requested by a peer. */ \
 	ENUM_VALUE(Pull_Block, 4) \
 	\
-	/* Chain information has been requested by a peer. */ \
-	ENUM_VALUE(Chain_Info, 5) \
+	/* Chain statistics have been requested by a peer. */ \
+	ENUM_VALUE(Chain_Statistics, 5) \
 	\
 	/* Block hashes have been requested by a peer. */ \
 	ENUM_VALUE(Block_Hashes, 7) \

@@ -93,7 +93,7 @@ namespace catapult { namespace local {
 		EXPECT_EQ(1u, stats.NumAddedTransactionElements);
 
 		// - the connection is no longer active because after sending the transaction, PushPayload (called by PushValidTransaction)
-		//   initiates a Chain_Info request, which is not supported and causes the connection to be closed
+		//   initiates a Chain_Statistics request, which is not supported and causes the connection to be closed
 		AssertNoReaderConnection(stats);
 	}
 

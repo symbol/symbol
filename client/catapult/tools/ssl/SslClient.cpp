@@ -49,7 +49,7 @@ namespace catapult { namespace tools { namespace ssl {
 		SSL_CTX_set1_groups(m_pSslContext->native_handle(), curves.data(), static_cast<long>(curves.size()));
 	}
 
-	api::ChainInfo SslClient::connect(const ionet::NodeEndpoint& nodeEndpoint) {
+	api::ChainStatistics SslClient::connect(const ionet::NodeEndpoint& nodeEndpoint) {
 		auto connectionSettings = net::ConnectionSettings();
 		connectionSettings.AllowOutgoingSelfConnections = true;
 		connectionSettings.SslOptions.ContextSupplier = [pSslContext = m_pSslContext]() -> boost::asio::ssl::context& {
@@ -65,18 +65,18 @@ namespace catapult { namespace tools { namespace ssl {
 		ionet::NodeMetadata nodeMetadata;
 		ionet::Node node(nodeIdentity, nodeEndpoint, nodeMetadata);
 		auto connectFuture = ConnectToNode(connectionSettings, node, m_pool);
-		auto chainInfoFuture = thread::compose(std::move(connectFuture), [node](auto&& ioFuture) {
+		auto chainStatisticsFuture = thread::compose(std::move(connectFuture), [node](auto&& ioFuture) {
 			try {
 				auto pIo = ioFuture.get();
 				auto pApi = api::CreateRemoteChainApiWithoutRegistry(*pIo);
-				return pApi->chainInfo();
+				return pApi->chainStatistics();
 			} catch (...) {
 				// suppress
 				CATAPULT_LOG(error) << node << " appears to be offline";
-				return thread::make_ready_future(api::ChainInfo());
+				return thread::make_ready_future(api::ChainStatistics());
 			}
 		});
 
-		return chainInfoFuture.get();
+		return chainStatisticsFuture.get();
 	}
 }}}

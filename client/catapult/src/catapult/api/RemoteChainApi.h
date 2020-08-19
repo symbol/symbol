@@ -49,7 +49,7 @@ namespace catapult { namespace api {
 		uint32_t NumBytes;
 	};
 
-	/// Api for retrieving chain information from a remote node.
+	/// Api for retrieving chain statistics from a remote node.
 	class RemoteChainApi : public RemoteApi, public ChainApi {
 	protected:
 		/// Creates a remote api for the node with specified \a remoteIdentity.

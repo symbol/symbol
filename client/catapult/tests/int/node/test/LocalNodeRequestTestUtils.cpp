@@ -42,10 +42,10 @@ namespace catapult { namespace test {
 				isWriteFinished = true;
 			});
 
-			// perform a chain info (request / response) to ensure socket is not closed until ssl handshake is completed
-			api::CreateRemoteChainApiWithoutRegistry(*pBufferedIo)->chainInfo().then([](auto&& chainInfoFuture) {
+			// perform a chain statistics (request / response) to ensure socket is not closed until ssl handshake is completed
+			api::CreateRemoteChainApiWithoutRegistry(*pBufferedIo)->chainStatistics().then([](auto&& chainStatisticsFuture) {
 				try {
-					CATAPULT_LOG(debug) << "received height from remote after pushing payload: " << chainInfoFuture.get().Height;
+					CATAPULT_LOG(debug) << "received height from remote after pushing payload: " << chainStatisticsFuture.get().Height;
 				} catch (const api::catapult_api_error& ex) {
 					CATAPULT_LOG(warning) << "could not receive height from remote after pushing payload: " << ex.what();
 				}
@@ -113,9 +113,9 @@ namespace catapult { namespace test {
 	}
 
 	Height GetLocalNodeHeightViaApi(ExternalSourceConnection& connection) {
-		struct ChainInfoResult {
+		struct ChainStatisticsResult {
 		public:
-			ChainInfoResult() : IsHeightReceived(false)
+			ChainStatisticsResult() : IsHeightReceived(false)
 			{}
 
 		public:
@@ -123,16 +123,16 @@ namespace catapult { namespace test {
 			std::atomic_bool IsHeightReceived;
 		};
 
-		auto pChainInfoResult = std::make_shared<ChainInfoResult>();
-		connection.apiCall([pChainInfoResult](const auto& pRemoteChainApi) {
-			pRemoteChainApi->chainInfo().then([pChainInfoResult](auto&& infoFuture) {
-				pChainInfoResult->Height = infoFuture.get().Height;
-				pChainInfoResult->IsHeightReceived = true;
+		auto pChainStatisticsResult = std::make_shared<ChainStatisticsResult>();
+		connection.apiCall([pChainStatisticsResult](const auto& pRemoteChainApi) {
+			pRemoteChainApi->chainStatistics().then([pChainStatisticsResult](auto&& chainStatisticsFuture) {
+				pChainStatisticsResult->Height = chainStatisticsFuture.get().Height;
+				pChainStatisticsResult->IsHeightReceived = true;
 			});
 		});
 
-		WAIT_FOR_VALUE_SECONDS(true, pChainInfoResult->IsHeightReceived, Long_Wait_Seconds);
-		return Height(pChainInfoResult->Height);
+		WAIT_FOR_VALUE_SECONDS(true, pChainStatisticsResult->IsHeightReceived, Long_Wait_Seconds);
+		return Height(pChainStatisticsResult->Height);
 	}
 
 	void WaitForLocalNodeHeight(ExternalSourceConnection& connection, Height height) {

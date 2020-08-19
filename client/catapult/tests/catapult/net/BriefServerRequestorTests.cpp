@@ -30,42 +30,43 @@ namespace catapult { namespace net {
 #define TEST_CLASS BriefServerRequestorTests
 
 	namespace {
-		// region ChainInfoRequestor
+		// region ChainStatisticsRequestor
 
-		// use chain info requests to test BriefServerRequestor
-		struct ChainInfoRequestPolicy {
-			using ResponseType = api::ChainInfo;
+		// use chain statistics requests to test BriefServerRequestor
+		struct ChainStatisticsRequestPolicy {
+			using ResponseType = api::ChainStatistics;
 
-			static constexpr auto Friendly_Name = "chain info";
+			static constexpr auto Friendly_Name = "chain statistics";
 
 			static thread::future<ResponseType> CreateFuture(ionet::PacketIo& packetIo, const std::string& host) {
 				// Sanity:
 				EXPECT_EQ("127.0.0.1", host);
 
 				// Act: create future
-				return api::CreateRemoteChainApiWithoutRegistry(packetIo)->chainInfo();
+				return api::CreateRemoteChainApiWithoutRegistry(packetIo)->chainStatistics();
 			}
 		};
 
-		// checker that requires chain info responses to have non-zero height
-		class ChainInfoResponseCompatibilityChecker {
+		// checker that requires chain statistics responses to have non-zero height
+		class ChainStatisticsResponseCompatibilityChecker {
 		public:
-			constexpr bool isResponseCompatible(const ionet::Node&, const api::ChainInfo& chainInfo) const {
-				return Height() != chainInfo.Height;
+			constexpr bool isResponseCompatible(const ionet::Node&, const api::ChainStatistics& chainStatistics) const {
+				return Height() != chainStatistics.Height;
 			}
 		};
 
 		template<typename TResponseCompatibilityChecker>
-		using ChainInfoRequestor = BriefServerRequestor<ChainInfoRequestPolicy, TResponseCompatibilityChecker>;
+		using ChainStatisticsRequestor = BriefServerRequestor<ChainStatisticsRequestPolicy, TResponseCompatibilityChecker>;
 
 		// endregion
 
 		// region RequestorTestContext
 
-		template<typename TResponseCompatibilityChecker = ChainInfoResponseCompatibilityChecker>
-		struct RequestorTestContext : public test::BriefServerRequestorTestContext<ChainInfoRequestor<TResponseCompatibilityChecker>> {
+		template<typename TResponseCompatibilityChecker = ChainStatisticsResponseCompatibilityChecker>
+		struct RequestorTestContext
+				: public test::BriefServerRequestorTestContext<ChainStatisticsRequestor<TResponseCompatibilityChecker>> {
 		private:
-			using BaseType = test::BriefServerRequestorTestContext<ChainInfoRequestor<TResponseCompatibilityChecker>>;
+			using BaseType = test::BriefServerRequestorTestContext<ChainStatisticsRequestor<TResponseCompatibilityChecker>>;
 
 		public:
 			explicit RequestorTestContext(const utils::TimeSpan& timeout = utils::TimeSpan::FromMinutes(1))
@@ -74,7 +75,7 @@ namespace catapult { namespace net {
 
 		public:
 			std::shared_ptr<ionet::Packet> createResponsePacket(Height height) const {
-				auto pPacket = ionet::CreateSharedPacket<api::ChainInfoResponse>();
+				auto pPacket = ionet::CreateSharedPacket<api::ChainStatisticsResponse>();
 				pPacket->Height = height;
 				return PORTABLE_MOVE(pPacket);
 			}
@@ -98,7 +99,9 @@ namespace catapult { namespace net {
 		}
 
 		template<typename TResponseCompatibilityChecker>
-		void AssertFailedConnection(const ChainInfoRequestor<TResponseCompatibilityChecker>& requestor, const api::ChainInfo& response) {
+		void AssertFailedConnection(
+				const ChainStatisticsRequestor<TResponseCompatibilityChecker>& requestor,
+				const api::ChainStatistics& response) {
 			// Assert:
 			test::AssertBriefServerRequestorFailedConnection(requestor);
 			EXPECT_EQ(Height(), response.Height);
@@ -125,7 +128,7 @@ namespace catapult { namespace net {
 		// Arrange: create an invalid packet (no payload)
 		RequestorTestContext<> context;
 		auto pPacket = ionet::CreateSharedPacket<ionet::Packet>();
-		pPacket->Type = api::ChainInfoResponse::Packet_Type;
+		pPacket->Type = api::ChainStatisticsResponse::Packet_Type;
 
 		// Act:
 		RunConnectedTest<MemberBeginRequestPolicy>(context, pPacket, [](const auto& requestor, auto result, const auto& response) {
@@ -269,7 +272,7 @@ namespace catapult { namespace net {
 		// Arrange: create an invalid packet (no payload)
 		RequestorTestContext<> context;
 		auto pPacket = ionet::CreateSharedPacket<ionet::Packet>();
-		pPacket->Type = api::ChainInfoResponse::Packet_Type;
+		pPacket->Type = api::ChainStatisticsResponse::Packet_Type;
 
 		// Act:
 		RunConnectedTest<BeginRequestFuturePolicy>(context, pPacket, [](const auto& requestor, auto result, const auto& response) {

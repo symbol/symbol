@@ -83,10 +83,10 @@ namespace catapult { namespace tools { namespace ssl {
 				bool isSuccess = true;
 				try {
 					SslClient sslClient(*pPool, std::move(keyPair), m_tempCertificateDirectory, scenarioId);
-					auto chainInfo = sslClient.connect(ionet::NodeEndpoint{ m_host, m_port });
+					auto chainStatistics = sslClient.connect(ionet::NodeEndpoint{ m_host, m_port });
 
-					CATAPULT_LOG(info) << " height: " << chainInfo.Height;
-					CATAPULT_LOG(info) << "  score: " << chainInfo.Score;
+					CATAPULT_LOG(info) << " height: " << chainStatistics.Height;
+					CATAPULT_LOG(info) << "  score: " << chainStatistics.Score;
 
 					pPool->join();
 				} catch (const std::exception& e) {

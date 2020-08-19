@@ -64,7 +64,7 @@ namespace catapult { namespace syncsource {
 			handlers::RegisterPushBlockHandler(handlers, registry, config.PushBlockCallback);
 			handlers::RegisterPullBlockHandler(handlers, storage);
 
-			handlers::RegisterChainInfoHandler(handlers, storage, config.ChainScoreSupplier, hooks.localFinalizedHeightSupplier());
+			handlers::RegisterChainStatisticsHandler(handlers, storage, config.ChainScoreSupplier, hooks.localFinalizedHeightSupplier());
 			handlers::RegisterBlockHashesHandler(handlers, storage, static_cast<uint32_t>(config.BlocksHandlerConfig.MaxBlocks));
 			handlers::RegisterPullBlocksHandler(handlers, storage, config.BlocksHandlerConfig);
 

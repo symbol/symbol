@@ -46,7 +46,7 @@ namespace catapult { namespace chain {
 					, m_remote(remote)
 					, m_options(options)
 					, m_nextFunctionId(0) {
-				m_comparisonFunctions[0] = [](auto& context) { return context.compareChainInfos(); };
+				m_comparisonFunctions[0] = [](auto& context) { return context.compareChainStatistics(); };
 				m_comparisonFunctions[1] = [](auto& context) { return context.compareHashes(); };
 				// note that the last comparison function is guaranteed to complete
 			}
@@ -85,30 +85,32 @@ namespace catapult { namespace chain {
 				}
 			}
 
-			thread::future<ChainComparisonCode> compareChainInfos() {
-				return thread::when_all(m_local.chainInfo(), m_remote.chainInfo()).then([pThis = shared_from_this()](
+			thread::future<ChainComparisonCode> compareChainStatistics() {
+				return thread::when_all(m_local.chainStatistics(), m_remote.chainStatistics()).then([pThis = shared_from_this()](
 						auto&& aggregateFuture) {
-					auto infoFutures = aggregateFuture.get();
-					auto localInfo = infoFutures[0].get();
-					auto remoteInfo = infoFutures[1].get();
-					return pThis->compareChainInfos(localInfo, remoteInfo);
+					auto chainStatisticsFutures = aggregateFuture.get();
+					auto localChainStatistics = chainStatisticsFutures[0].get();
+					auto remoteChainStatistics = chainStatisticsFutures[1].get();
+					return pThis->compareChainStatistics(localChainStatistics, remoteChainStatistics);
 				});
 			}
 
-			ChainComparisonCode compareChainInfos(const api::ChainInfo& localInfo, const api::ChainInfo& remoteInfo) {
-				if (model::ChainScore(0) == localInfo.Score)
+			ChainComparisonCode compareChainStatistics(
+					const api::ChainStatistics& localChainStatistics,
+					const api::ChainStatistics& remoteChainStatistics) {
+				if (model::ChainScore(0) == localChainStatistics.Score)
 					return ChainComparisonCode::Local_Chain_Score_Zero;
 
-				if (isRemoteTooFarBehind(localInfo.Height, remoteInfo.Height))
+				if (isRemoteTooFarBehind(localChainStatistics.Height, remoteChainStatistics.Height))
 					return ChainComparisonCode::Remote_Is_Too_Far_Behind;
 
-				const auto& localScore = localInfo.Score;
-				const auto& remoteScore = remoteInfo.Score;
+				const auto& localScore = localChainStatistics.Score;
+				const auto& remoteScore = remoteChainStatistics.Score;
 				CATAPULT_LOG_LEVEL(localScore == remoteScore ? utils::LogLevel::trace : utils::LogLevel::debug)
 						<< "comparing chain scores: " << localScore << " (local) vs " << remoteScore << " (remote)";
 
 				if (remoteScore > localScore) {
-					m_localHeight = localInfo.Height;
+					m_localHeight = localChainStatistics.Height;
 					return Incomplete_Chain_Comparison_Code;
 				}
 

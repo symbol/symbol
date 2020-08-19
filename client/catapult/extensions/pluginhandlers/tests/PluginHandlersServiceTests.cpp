@@ -54,7 +54,7 @@ namespace catapult { namespace pluginhandlers {
 			// - capture params and register a handler
 			capture.pHandlers = &handlers;
 			capture.pCache = &cache;
-			handlers.registerHandler(ionet::PacketType::Chain_Info, [](const auto&, const auto&) {});
+			handlers.registerHandler(ionet::PacketType::Chain_Statistics, [](const auto&, const auto&) {});
 		});
 
 		// Act:
@@ -63,7 +63,7 @@ namespace catapult { namespace pluginhandlers {
 
 		// Assert:
 		EXPECT_EQ(1u, packetHandlers.size());
-		EXPECT_TRUE(packetHandlers.canProcess(ionet::PacketType::Chain_Info)); // the handler hook registered above
+		EXPECT_TRUE(packetHandlers.canProcess(ionet::PacketType::Chain_Statistics)); // the handler hook registered above
 
 		// - correct params were forwarded to callback
 		EXPECT_EQ(&packetHandlers, capture.pHandlers);

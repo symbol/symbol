@@ -59,7 +59,7 @@ namespace catapult { namespace chain {
 
 	// endregion
 
-	// region chain info
+	// region chain statistics
 
 	namespace {
 		void AssertLocalChainExceptionPropagation(MockChainApi::EntryPoint entryPoint) {
@@ -88,7 +88,7 @@ namespace catapult { namespace chain {
 			EXPECT_THROW(CompareChains(local, remote, { 1000, 1000 }).get(), catapult_runtime_error);
 		}
 
-		void AssertDefaultChainInformation(const CompareChainsResult& result) {
+		void AssertDefaultChainStatistics(const CompareChainsResult& result) {
 			// Assert:
 			EXPECT_EQ(Height(static_cast<Height::ValueType>(-1)), result.CommonBlockHeight);
 			EXPECT_EQ(0u, result.ForkDepth);
@@ -114,7 +114,7 @@ namespace catapult { namespace chain {
 
 		// Assert:
 		EXPECT_EQ(ChainComparisonCode::Local_Chain_Score_Zero, result.Code);
-		AssertDefaultChainInformation(result);
+		AssertDefaultChainStatistics(result);
 	}
 
 	TEST(TEST_CLASS, RemoteReportedLowerChainScoreWhenRemoteChainScoreIsLessThanLocalChainScore) {
@@ -127,7 +127,7 @@ namespace catapult { namespace chain {
 
 		// Assert:
 		EXPECT_EQ(ChainComparisonCode::Remote_Reported_Lower_Chain_Score, result.Code);
-		AssertDefaultChainInformation(result);
+		AssertDefaultChainStatistics(result);
 	}
 
 	TEST(TEST_CLASS, RemoteReportedEqualChainScoreWhenRemoteChainScoreIsEqualToLocalChainScore) {
@@ -140,15 +140,15 @@ namespace catapult { namespace chain {
 
 		// Assert:
 		EXPECT_EQ(ChainComparisonCode::Remote_Reported_Equal_Chain_Score, result.Code);
-		AssertDefaultChainInformation(result);
+		AssertDefaultChainStatistics(result);
 	}
 
-	TEST(TEST_CLASS, LocalChainInfoExceptionIsPropagated) {
-		AssertLocalChainExceptionPropagation(MockChainApi::EntryPoint::Chain_Info);
+	TEST(TEST_CLASS, LocalChainStatisticsExceptionIsPropagated) {
+		AssertLocalChainExceptionPropagation(MockChainApi::EntryPoint::Chain_Statistics);
 	}
 
-	TEST(TEST_CLASS, RemoteChainInfoExceptionIsPropagated) {
-		AssertRemoteChainExceptionPropagation(MockChainApi::EntryPoint::Chain_Info);
+	TEST(TEST_CLASS, RemoteChainStatisticsExceptionIsPropagated) {
+		AssertRemoteChainExceptionPropagation(MockChainApi::EntryPoint::Chain_Statistics);
 	}
 
 	namespace {
@@ -167,7 +167,7 @@ namespace catapult { namespace chain {
 			else
 				EXPECT_NE(ChainComparisonCode::Remote_Is_Too_Far_Behind, result.Code);
 
-			AssertDefaultChainInformation(result);
+			AssertDefaultChainStatistics(result);
 		}
 	}
 
@@ -203,7 +203,7 @@ namespace catapult { namespace chain {
 			else
 				EXPECT_NE(ChainComparisonCode::Remote_Returned_Too_Many_Hashes, result.Code);
 
-			AssertDefaultChainInformation(result);
+			AssertDefaultChainStatistics(result);
 		}
 	}
 
@@ -241,7 +241,7 @@ namespace catapult { namespace chain {
 
 		// Assert:
 		EXPECT_EQ(ChainComparisonCode::Remote_Is_Forked, result.Code);
-		AssertDefaultChainInformation(result);
+		AssertDefaultChainStatistics(result);
 	}
 
 	TEST(TEST_CLASS, RemoteLiedAboutChainScoreWhenLocalIsSameSizeAsRemoteChainAndContainsAllHashesInRemoteChain) {
@@ -255,7 +255,7 @@ namespace catapult { namespace chain {
 
 		// Assert:
 		EXPECT_EQ(ChainComparisonCode::Remote_Lied_About_Chain_Score, result.Code);
-		AssertDefaultChainInformation(result);
+		AssertDefaultChainStatistics(result);
 	}
 
 	TEST(TEST_CLASS, RemoteLiedAboutChainScoreWhenRemoteChainIsSubsetOfLocalChainButRemoteReportedHigherScore) {
@@ -270,7 +270,7 @@ namespace catapult { namespace chain {
 
 		// Assert:
 		EXPECT_EQ(ChainComparisonCode::Remote_Lied_About_Chain_Score, result.Code);
-		AssertDefaultChainInformation(result);
+		AssertDefaultChainStatistics(result);
 	}
 
 	TEST(TEST_CLASS, RemoteIsNotSyncedWhenLocalIsSmallerThanRemoteChainAndContainsAllHashesInRemoteChain) {

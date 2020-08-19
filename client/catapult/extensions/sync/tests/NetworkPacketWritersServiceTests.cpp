@@ -167,7 +167,7 @@ namespace catapult { namespace sync {
 			//   (this must be after the connections are picked in order to prevent unexpected data errors)
 			auto i = 1u;
 			for (const auto& pSocket : serverSockets) {
-				auto pPacket = ionet::CreateSharedPacket<api::ChainInfoResponse>();
+				auto pPacket = ionet::CreateSharedPacket<api::ChainStatisticsResponse>();
 				pPacket->Height = Height(i + (0 == i % 2 ? 100u : 0));
 				pSocket->write(ionet::PacketPayload(pPacket), [](auto) {});
 				++i;

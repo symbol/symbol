@@ -50,19 +50,24 @@ namespace catapult { namespace tools { namespace health {
 
 		// region futures
 
-		thread::future<bool> CreateChainInfoFuture(thread::IoThreadPool& pool, ionet::PacketIo& io, NodeInfo& nodeInfo) {
-			thread::future<api::ChainInfo> chainInfoFuture;
+		thread::future<api::ChainStatistics> StartChainStatisticsFuture(
+				thread::IoThreadPool& pool,
+				ionet::PacketIo& io,
+				NodeInfo& nodeInfo) {
 			if (!HasFlag(ionet::NodeRoles::Peer, nodeInfo.Node.metadata().Roles)) {
-				chainInfoFuture = CreateApiNodeChainInfoFuture(pool, nodeInfo.Node);
+				return CreateApiNodeChainStatisticsFuture(pool, nodeInfo.Node);
 			} else {
 				auto pApi = api::CreateRemoteChainApiWithoutRegistry(io);
-				chainInfoFuture = pApi->chainInfo();
+				return pApi->chainStatistics();
 			}
+		}
 
-			return chainInfoFuture.then([&nodeInfo](auto&& infoFuture) {
-				return UnwrapFutureAndSuppressErrors("querying chain info", std::move(infoFuture), [&nodeInfo](const auto& info) {
-					nodeInfo.ChainHeight = info.Height;
-					nodeInfo.ChainScore = info.Score;
+		thread::future<bool> CreateChainStatisticsFuture(thread::IoThreadPool& pool, ionet::PacketIo& io, NodeInfo& nodeInfo) {
+			return StartChainStatisticsFuture(pool, io, nodeInfo).then([&nodeInfo](auto&& chainStatisticsFuture) {
+				return UnwrapFutureAndSuppressErrors("querying chain statistics", std::move(chainStatisticsFuture), [&nodeInfo](
+						const auto& chainStatistics) {
+					nodeInfo.ChainHeight = chainStatistics.Height;
+					nodeInfo.ChainScore = chainStatistics.Score;
 				});
 			});
 		}
@@ -192,7 +197,7 @@ namespace catapult { namespace tools { namespace health {
 					ionet::PacketIo& io,
 					NodeInfo& nodeInfo) override {
 				std::vector<thread::future<bool>> infoFutures;
-				infoFutures.emplace_back(CreateChainInfoFuture(pool, io, nodeInfo));
+				infoFutures.emplace_back(CreateChainStatisticsFuture(pool, io, nodeInfo));
 				infoFutures.emplace_back(CreateDiagnosticCountersFuture(io, nodeInfo));
 				return infoFutures;
 			}

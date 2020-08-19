@@ -61,7 +61,7 @@ namespace catapult { namespace diagnostics {
 			// - capture params and register a handler
 			capture.pHandlers = &handlers;
 			capture.pCache = &cache;
-			handlers.registerHandler(ionet::PacketType::Chain_Info, [](const auto&, const auto&) {});
+			handlers.registerHandler(ionet::PacketType::Chain_Statistics, [](const auto&, const auto&) {});
 		});
 
 		// Act:
@@ -73,7 +73,7 @@ namespace catapult { namespace diagnostics {
 		EXPECT_TRUE(packetHandlers.canProcess(ionet::PacketType::Diagnostic_Counters)); // the default (counters) diagnostic handler
 		EXPECT_TRUE(packetHandlers.canProcess(ionet::PacketType::Active_Node_Infos)); // the default (nodes) diagnostic handler
 		EXPECT_TRUE(packetHandlers.canProcess(ionet::PacketType::Block_Statement)); // the default (statements) diagnostic handler
-		EXPECT_TRUE(packetHandlers.canProcess(ionet::PacketType::Chain_Info)); // the diagnostic handler hook registered above
+		EXPECT_TRUE(packetHandlers.canProcess(ionet::PacketType::Chain_Statistics)); // the diagnostic handler hook registered above
 
 		// - correct params were forwarded to callback
 		EXPECT_EQ(&packetHandlers, capture.pHandlers);

@@ -200,7 +200,7 @@ namespace catapult { namespace chain {
 	TEST(TEST_CLASS, FailedInteractionWhenCompareChainsReturnsException) {
 		// Arrange:
 		TestContext context(ChainScore(10), ChainScore(11));
-		context.pChainApi->setError(MockChainApi::EntryPoint::Chain_Info);
+		context.pChainApi->setError(MockChainApi::EntryPoint::Chain_Statistics);
 		auto synchronizer = CreateSynchronizer(context);
 
 		// Act:
@@ -657,7 +657,7 @@ namespace catapult { namespace chain {
 
 	TEST(TEST_CLASS, CanRecoverAfterFailedCompareChainsOperation) {
 		// Assert: only one blocks-from request was made because the chain comparison failed
-		AssertSyncRecoverablityAfterChainApiException(MockChainApi::EntryPoint::Chain_Info, { Default_Height });
+		AssertSyncRecoverablityAfterChainApiException(MockChainApi::EntryPoint::Chain_Statistics, { Default_Height });
 	}
 
 	TEST(TEST_CLASS, CanRecoverAfterFailedBlocksFromOperation) {

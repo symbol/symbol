@@ -24,16 +24,16 @@
 
 namespace catapult { namespace test {
 
-	/// Chain info api traits.
-	struct ChainInfoApiTraits {
-		using ResultType = api::ChainInfo;
-		using RequestType = decltype(std::declval<api::RemoteChainApi>().chainInfo());
+	/// Chain statistics api traits.
+	struct ChainStatisticsApiTraits {
+		using ResultType = api::ChainStatistics;
+		using RequestType = decltype(std::declval<api::RemoteChainApi>().chainStatistics());
 
 		/// Initiates a valid request using \a remoteChainApi.
 		static RequestType InitiateValidRequest(const api::RemoteChainApi& remoteChainApi);
 
-		/// Verifies the result \a info.
-		static void VerifyResult(const ResultType& info);
+		/// Verifies the result \a chainStatistics.
+		static void VerifyResult(const ResultType& chainStatistics);
 	};
 
 	/// Hashes from api traits.
@@ -98,7 +98,7 @@ namespace catapult { namespace test {
 /// Adds \a TEST_NAME test for all chain apis.
 #define CHAIN_API_INT_VALID_TRAITS_BASED_TEST(TEST_NAME) \
 	template<typename TApiTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	CHAIN_API_INT_ADD_API_TEST(TEST_CLASS, TEST_NAME, ChainInfo) \
+	CHAIN_API_INT_ADD_API_TEST(TEST_CLASS, TEST_NAME, ChainStatistics) \
 	CHAIN_API_INT_ADD_API_TEST(TEST_CLASS, TEST_NAME, HashesFrom) \
 	CHAIN_API_INT_ADD_API_TEST(TEST_CLASS, TEST_NAME, BlockAt) \
 	CHAIN_API_INT_ADD_API_TEST(TEST_CLASS, TEST_NAME, BlockLast) \

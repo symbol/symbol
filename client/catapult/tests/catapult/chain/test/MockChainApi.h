@@ -34,7 +34,7 @@ namespace catapult { namespace mocks {
 	class MockChainApi : public api::RemoteChainApi {
 	public:
 		enum class EntryPoint {
-			Chain_Info,
+			Chain_Statistics,
 			Hashes_From,
 			Last_Block,
 			Block_At,
@@ -113,15 +113,15 @@ namespace catapult { namespace mocks {
 		}
 
 	public:
-		/// Gets the configured chain info and throws if the error entry point is set to Chain_Info.
-		thread::future<api::ChainInfo> chainInfo() const override {
-			if (shouldRaiseException(EntryPoint::Chain_Info))
-				return CreateFutureException<api::ChainInfo>("chain info error has been set");
+		/// Gets the configured chain statistics and throws if the error entry point is set to Chain_Statistics.
+		thread::future<api::ChainStatistics> chainStatistics() const override {
+			if (shouldRaiseException(EntryPoint::Chain_Statistics))
+				return CreateFutureException<api::ChainStatistics>("chain statistics error has been set");
 
-			auto info = api::ChainInfo();
-			info.Height = chainHeight();
-			info.Score = m_score;
-			return CreateFutureResponse(std::move(info));
+			auto chainStatistics = api::ChainStatistics();
+			chainStatistics.Height = chainHeight();
+			chainStatistics.Score = m_score;
+			return CreateFutureResponse(std::move(chainStatistics));
 		}
 
 		/// Gets the configured hashes from \a height and throws if the error entry point is set to Hashes_From.

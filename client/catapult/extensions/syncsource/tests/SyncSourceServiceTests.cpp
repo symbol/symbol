@@ -79,7 +79,7 @@ namespace catapult { namespace syncsource {
 		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Push_Block));
 		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Pull_Block));
 
-		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Chain_Info));
+		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Chain_Statistics));
 		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Block_Hashes));
 		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Pull_Blocks));
 

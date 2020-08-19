@@ -121,11 +121,11 @@ namespace catapult { namespace ionet {
 		transactionInfos.push_back(CreateRandomTransactionInfo());
 
 		// Act:
-		auto payload = CreateBroadcastPayload(transactionInfos, PacketType::Chain_Info);
+		auto payload = CreateBroadcastPayload(transactionInfos, PacketType::Chain_Statistics);
 
 		// Assert:
 		const auto& entity = *transactionInfos[0].pEntity;
-		test::AssertPacketHeader(payload, sizeof(PacketHeader) + entity.Size, PacketType::Chain_Info);
+		test::AssertPacketHeader(payload, sizeof(PacketHeader) + entity.Size, PacketType::Chain_Statistics);
 		ASSERT_EQ(1u, payload.buffers().size());
 
 		// - the buffer contains the correct data and points to the original entity

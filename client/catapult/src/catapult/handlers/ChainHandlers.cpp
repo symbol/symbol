@@ -59,12 +59,12 @@ namespace catapult { namespace handlers {
 	}
 
 	namespace {
-		auto CreateChainInfoHandler(
+		auto CreateChainStatisticsHandler(
 				const io::BlockStorageCache& storage,
 				const model::ChainScoreSupplier& chainScoreSupplier,
 				const supplier<Height>& finalizedHeightSupplier) {
 			return [&storage, chainScoreSupplier, finalizedHeightSupplier](const auto& packet, auto& context) {
-				using RequestType = api::ChainInfoResponse;
+				using RequestType = api::ChainStatisticsResponse;
 				if (!ionet::IsPacketValid(packet, RequestType::Packet_Type))
 					return;
 
@@ -80,14 +80,14 @@ namespace catapult { namespace handlers {
 		}
 	}
 
-	void RegisterChainInfoHandler(
+	void RegisterChainStatisticsHandler(
 			ionet::ServerPacketHandlers& handlers,
 			const io::BlockStorageCache& storage,
 			const model::ChainScoreSupplier& chainScoreSupplier,
 			const supplier<Height>& finalizedHeightSupplier) {
 		handlers.registerHandler(
-				ionet::PacketType::Chain_Info,
-				CreateChainInfoHandler(storage, chainScoreSupplier, finalizedHeightSupplier));
+				ionet::PacketType::Chain_Statistics,
+				CreateChainStatisticsHandler(storage, chainScoreSupplier, finalizedHeightSupplier));
 	}
 
 	namespace {

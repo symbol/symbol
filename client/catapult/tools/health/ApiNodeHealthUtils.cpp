@@ -307,16 +307,16 @@ namespace catapult { namespace tools { namespace health {
 		// endregion
 	}
 
-	thread::future<api::ChainInfo> CreateApiNodeChainInfoFuture(thread::IoThreadPool& pool, const ionet::Node& node) {
+	thread::future<api::ChainStatistics> CreateApiNodeChainStatisticsFuture(thread::IoThreadPool& pool, const ionet::Node& node) {
 		auto apiUris = std::vector<std::string>{ "/chain/height", "/chain/score" };
 		auto pRetriever = std::make_shared<MultiHttpGetRetriever>(pool.ioContext(), node.endpoint().Host, Rest_Api_Port, apiUris);
 		pRetriever->start();
 		return pRetriever->future().then([pRetriever](auto&& valuesMapFuture) {
 			auto valuesMap = valuesMapFuture.get();
-			api::ChainInfo chainInfo;
-			chainInfo.Height = Height(valuesMap["height"]);
-			chainInfo.Score = model::ChainScore(valuesMap["scoreHigh"], valuesMap["scoreLow"]);
-			return chainInfo;
+			api::ChainStatistics chainStatistics;
+			chainStatistics.Height = Height(valuesMap["height"]);
+			chainStatistics.Score = model::ChainScore(valuesMap["scoreHigh"], valuesMap["scoreLow"]);
+			return chainStatistics;
 		});
 	}
 }}}
