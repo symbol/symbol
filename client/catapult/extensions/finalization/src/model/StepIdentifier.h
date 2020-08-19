@@ -31,7 +31,7 @@ namespace catapult { namespace model {
 	/// Finalization step identifier.
 	struct StepIdentifier {
 		/// Finalization point.
-		uint64_t Point;
+		FinalizationPoint Point;
 
 		/// Round.
 		uint64_t Round;

@@ -213,6 +213,8 @@ namespace catapult { namespace model {
 	// region PrepareMessage
 
 	namespace {
+		constexpr auto Default_Step_Identifier = StepIdentifier{ FinalizationPoint(3), 4 };
+
 		template<typename TAction>
 		void RunPrepareMessageTest(VoterType voterType, uint32_t numHashes, TAction action) {
 			// Arrange:
@@ -225,11 +227,10 @@ namespace catapult { namespace model {
 						storage,
 						{ context.config().OtsKeyDilution, { 0, 2 }, { 15, 1 } });
 
-				auto stepIdentifier = StepIdentifier{ 3, 4 };
 				auto hashes = test::GenerateRandomHashes(numHashes);
 
 				// Act:
-				auto pMessage = PrepareMessage(otsTree, stepIdentifier, Height(987), hashes);
+				auto pMessage = PrepareMessage(otsTree, Default_Step_Identifier, Height(987), hashes);
 
 				// Assert:
 				action(pMessage, context, hashes);
@@ -251,7 +252,7 @@ namespace catapult { namespace model {
 			EXPECT_EQ(sizeof(FinalizationMessage), pMessage->Size);
 			EXPECT_EQ(0u, pMessage->HashesCount);
 
-			EXPECT_EQ(StepIdentifier({ 3, 4 }), pMessage->StepIdentifier);
+			EXPECT_EQ(Default_Step_Identifier, pMessage->StepIdentifier);
 			EXPECT_EQ(Height(987), pMessage->Height);
 			EXPECT_EQ(0u, FindFirstDifferenceIndex(hashes, ExtractHashes(*pMessage)));
 
@@ -272,7 +273,7 @@ namespace catapult { namespace model {
 			EXPECT_EQ(sizeof(FinalizationMessage) + 3 * Hash256::Size, pMessage->Size);
 			EXPECT_EQ(3u, pMessage->HashesCount);
 
-			EXPECT_EQ(StepIdentifier({ 3, 4 }), pMessage->StepIdentifier);
+			EXPECT_EQ(Default_Step_Identifier, pMessage->StepIdentifier);
 			EXPECT_EQ(Height(987), pMessage->Height);
 			EXPECT_EQ(3u, FindFirstDifferenceIndex(hashes, ExtractHashes(*pMessage)));
 
@@ -293,7 +294,7 @@ namespace catapult { namespace model {
 			EXPECT_EQ(sizeof(FinalizationMessage) + 3 * Hash256::Size, pMessage->Size);
 			EXPECT_EQ(3u, pMessage->HashesCount);
 
-			EXPECT_EQ(StepIdentifier({ 3, 4 }), pMessage->StepIdentifier);
+			EXPECT_EQ(Default_Step_Identifier, pMessage->StepIdentifier);
 			EXPECT_EQ(Height(987), pMessage->Height);
 			EXPECT_EQ(3u, FindFirstDifferenceIndex(hashes, ExtractHashes(*pMessage)));
 
@@ -317,7 +318,7 @@ namespace catapult { namespace model {
 
 				// - create message
 				auto pMessage = CreateMessage(numHashes);
-				pMessage->StepIdentifier = { 3, 4 };
+				pMessage->StepIdentifier = Default_Step_Identifier;
 				pMessage->Height = Height(987);
 				test::SignMessage(*pMessage, keyPairDescriptor.VotingKeyPair);
 

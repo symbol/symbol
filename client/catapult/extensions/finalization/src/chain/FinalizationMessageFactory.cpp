@@ -88,7 +88,7 @@ namespace catapult { namespace chain {
 				if (hashRange.empty())
 					hashRange = ToHashRange(LoadLastFinalizedHash(m_proofStorage));
 
-				auto stepIdentifier = model::StepIdentifier{ finalizationState.first.unwrap() + 1, 1 };
+				auto stepIdentifier = model::StepIdentifier{ finalizationState.first + FinalizationPoint(1), 1 };
 				return model::PrepareMessage(m_otsTree, stepIdentifier, finalizationState.second, hashRange);
 			}
 
@@ -96,7 +96,7 @@ namespace catapult { namespace chain {
 				auto finalizationState = LoadFinalizationState(m_proofStorage);
 				auto hashRange = ToHashRange(hash);
 
-				auto stepIdentifier = model::StepIdentifier{ finalizationState.first.unwrap() + 1, 2 };
+				auto stepIdentifier = model::StepIdentifier{ finalizationState.first + FinalizationPoint(1), 2 };
 				return model::PrepareMessage(m_otsTree, stepIdentifier, height, hashRange);
 			}
 

@@ -30,8 +30,18 @@ namespace catapult { namespace model {
 	// region step identifier operators
 
 	namespace {
+		auto CreateStepIdentifier(uint64_t point, uint64_t round) {
+			return StepIdentifier{ FinalizationPoint(point), round };
+		}
+
 		std::vector<StepIdentifier> GenerateIncreasingStepIdentifierValues() {
-			return { { 5, 0 }, { 10, 0 }, { 11, 0 }, { 11, 1 }, { 11, 4 } };
+			return {
+				CreateStepIdentifier(5, 0),
+				CreateStepIdentifier(10, 0),
+				CreateStepIdentifier(11, 0),
+				CreateStepIdentifier(11, 1),
+				CreateStepIdentifier(11, 4)
+			};
 		}
 	}
 
@@ -39,7 +49,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, StepIdentifier_CanOutput) {
 		// Arrange:
-		StepIdentifier stepIdentifier{ 11, 5 };
+		auto stepIdentifier = CreateStepIdentifier(11, 5);
 
 		// Act:
 		auto str = test::ToString(stepIdentifier);
@@ -83,7 +93,13 @@ namespace catapult { namespace model {
 
 	namespace {
 		std::vector<StepIdentifier> GenerateValidStepIdentifierValues() {
-			return { { 5, 1 }, { 10, 1 }, { 10, 2 }, { 11, 1 }, { 11, 2 } };
+			return {
+				CreateStepIdentifier(5, 1),
+				CreateStepIdentifier(10, 1),
+				CreateStepIdentifier(10, 2),
+				CreateStepIdentifier(11, 1),
+				CreateStepIdentifier(11, 2)
+			};
 		}
 	}
 
@@ -105,8 +121,8 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, StepIdentifierToOtsKeyIdentifierProducesConflictingValuesForInvalidStepIdentifiers) {
 		// Arrange: invalid, because round is greater than number of stages
-		auto validIdentifier = StepIdentifier{ 10, 1 };
-		auto invalidIdentifier = StepIdentifier{ 8, 5 };
+		auto validIdentifier = CreateStepIdentifier(10, 1);
+		auto invalidIdentifier = CreateStepIdentifier(8, 5);
 
 		// Act:
 		auto validKeyIdentifier = StepIdentifierToOtsKeyIdentifier(validIdentifier, 7);

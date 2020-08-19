@@ -141,8 +141,8 @@ namespace catapult { namespace finalization {
 				io::FileStream otsStream(io::RawFile(votingOtsTreeFilename, io::OpenMode::Read_Write));
 
 				auto dilution = 13u;
-				auto startKeyIdentifier = model::StepIdentifierToOtsKeyIdentifier({ 1, 0 }, dilution);
-				auto endKeyIdentifier = model::StepIdentifierToOtsKeyIdentifier({ 100, 1 }, dilution);
+				auto startKeyIdentifier = model::StepIdentifierToOtsKeyIdentifier({ FinalizationPoint(1), 1 }, dilution);
+				auto endKeyIdentifier = model::StepIdentifierToOtsKeyIdentifier({ FinalizationPoint(100), 2 }, dilution);
 				crypto::OtsTree::Create(test::GenerateKeyPair(), otsStream, { dilution, startKeyIdentifier, endKeyIdentifier });
 			}
 
@@ -249,12 +249,12 @@ namespace catapult { namespace finalization {
 			const auto& savedProofDescriptors = storage.savedProofDescriptors();
 			ASSERT_EQ(1u, savedProofDescriptors.size());
 			EXPECT_EQ(Height(246), savedProofDescriptors[0].Height);
-			EXPECT_EQ(model::StepIdentifier({ 8, 0 }), savedProofDescriptors[0].StepIdentifier);
+			EXPECT_EQ(model::StepIdentifier({ FinalizationPoint(8), 0 }), savedProofDescriptors[0].StepIdentifier);
 
 			// - two messages were sent
 			ASSERT_EQ(2u, messages.size());
-			EXPECT_EQ(model::StepIdentifier({ 8, 1 }), messages[0]->StepIdentifier);
-			EXPECT_EQ(model::StepIdentifier({ 8, 2 }), messages[1]->StepIdentifier);
+			EXPECT_EQ(model::StepIdentifier({ FinalizationPoint(8), 1 }), messages[0]->StepIdentifier);
+			EXPECT_EQ(model::StepIdentifier({ FinalizationPoint(8), 2 }), messages[1]->StepIdentifier);
 		});
 	}
 

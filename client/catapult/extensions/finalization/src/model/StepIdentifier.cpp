@@ -60,7 +60,7 @@ namespace catapult { namespace model {
 	crypto::OtsKeyIdentifier StepIdentifierToOtsKeyIdentifier(const StepIdentifier& stepIdentifier, uint64_t dilution) {
 		// assume: Dilution < 1 is not allowed
 		constexpr auto Num_Stages = 2u;
-		auto identifier = stepIdentifier.Point * Num_Stages + (stepIdentifier.Round - 1);
+		auto identifier = stepIdentifier.Point.unwrap() * Num_Stages + (stepIdentifier.Round - 1);
 
 		crypto::OtsKeyIdentifier keyIdentifier;
 		keyIdentifier.BatchId = identifier / dilution;
