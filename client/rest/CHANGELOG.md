@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [v1.2.1] - 21-Aug-2020
+### Changed
+- Removed `topic` (address) from transactionStatus WS responses.
+- Removed `channelName` from WS transaction metadata.
+- Wrapped WS responses so that the `topic` the client subscribed to is also returned.
+
 ## [v1.2.0] - 6-Aug-2020
 ### Added
 - TLS installation notes.

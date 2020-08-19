@@ -784,8 +784,11 @@ describe('server (bootstrapper)', () => {
 
 		// notice that the formatter only returns height and signerPublicKey
 		const createFormattedBlock = tag => ({
-			height: [0x0E458797, 0x62B66C00 | (tag || 0xE1)],
-			signerPublicKey: 'A4C656B45C02A02DEF64F15DD781DD5AF29698A353F414FAAA9CDB364A09F98F'
+			topic: 'block',
+			data: {
+				height: [0x0E458797, 0x62B66C00 | (tag || 0xE1)],
+				signerPublicKey: 'A4C656B45C02A02DEF64F15DD781DD5AF29698A353F414FAAA9CDB364A09F98F'
+			}
 		});
 
 		const registerRoute = (server, route) => {

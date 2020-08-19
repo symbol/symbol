@@ -43,7 +43,7 @@ describe('websocketUtils', () => {
 		describe('send', () => {
 			it('does nothing when there are no subscribers', () => {
 				// Arrange:
-				const multisender = websocketUtils.createMultisender([], value => ({ str: value.toString(), value }));
+				const multisender = websocketUtils.createMultisender('topicName', [], value => ({ str: value.toString(), value }));
 
 				// Act + Assert: no exceptions
 				multisender.send(123);
@@ -52,7 +52,7 @@ describe('websocketUtils', () => {
 			it('forwards formatted data to single subscriber', () => {
 				// Arrange:
 				const sender = createMockSender();
-				const multisender = websocketUtils.createMultisender([sender], value => ({ str: value.toString(), value }));
+				const multisender = websocketUtils.createMultisender('topicName', [sender], value => ({ str: value.toString(), value }));
 
 				// Act:
 				multisender.send(123);
@@ -65,7 +65,7 @@ describe('websocketUtils', () => {
 			it('forwards formatted data to multiple subscribers', () => {
 				// Arrange:
 				const senders = [createMockSender(), createMockSender(), createMockSender()];
-				const multisender = websocketUtils.createMultisender(senders, value => ({ str: value.toString(), value }));
+				const multisender = websocketUtils.createMultisender('topicName', senders, value => ({ str: value.toString(), value }));
 
 				// Act:
 				multisender.send(123);
@@ -81,7 +81,7 @@ describe('websocketUtils', () => {
 			it('closes subscriber on send error', () => {
 				// Arrange:
 				const senders = [createMockSender(), createMockSender({ raiseSendError: true }), createMockSender()];
-				const multisender = websocketUtils.createMultisender(senders, value => ({ str: value.toString(), value }));
+				const multisender = websocketUtils.createMultisender('topicName', senders, value => ({ str: value.toString(), value }));
 
 				// Act:
 				multisender.send(123);
@@ -98,7 +98,7 @@ describe('websocketUtils', () => {
 		describe('close', () => {
 			it('does nothing when there are no subscribers', () => {
 				// Arrange:
-				const multisender = websocketUtils.createMultisender([]);
+				const multisender = websocketUtils.createMultisender('topicName', []);
 
 				// Act + Assert: no exceptions
 				multisender.close();
@@ -107,7 +107,7 @@ describe('websocketUtils', () => {
 			it('closes all subscribers when there is single subscriber', () => {
 				// Arrange:
 				const sender = createMockSender();
-				const multisender = websocketUtils.createMultisender([sender]);
+				const multisender = websocketUtils.createMultisender('topicName', [sender]);
 
 				// Act:
 				multisender.close();
@@ -119,7 +119,7 @@ describe('websocketUtils', () => {
 			it('closes all subscribers when there are multiple subscribers', () => {
 				// Arrange:
 				const senders = [createMockSender(), createMockSender(), createMockSender()];
-				const multisender = websocketUtils.createMultisender(senders);
+				const multisender = websocketUtils.createMultisender('topicName', senders);
 
 				// Act:
 				multisender.close();

@@ -25,12 +25,19 @@ const { formatArray, formatPage } = catapult.utils.formattingUtils;
 const isCatapultObject = body => body && body.payload && body.type;
 
 const formatBody = (modelFormatter, body) => {
-	const formatCatapultObject = (payload, type, structure) => {
+	const formatCatapultObject = (payload, type, structure, wsTopic) => {
 		if (Array.isArray(payload))
 			return formatArray(modelFormatter[type], payload);
 
 		if ('page' === structure)
 			return formatPage(modelFormatter[type], payload);
+
+		if (wsTopic) {
+			return {
+				topic: wsTopic,
+				data: modelFormatter[type].format(payload)
+			};
+		}
 
 		return modelFormatter[type].format(payload);
 	};
@@ -42,7 +49,7 @@ const formatBody = (modelFormatter, body) => {
 		statusCode = body.statusCode || 500;
 		view = body.body ? body.body : { message: body.message };
 	} else if (isCatapultObject(body)) {
-		view = formatCatapultObject(body.payload, body.type, body.structure);
+		view = formatCatapultObject(body.payload, body.type, body.structure, body.topic);
 	}
 
 	return {

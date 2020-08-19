@@ -18,6 +18,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const { ServerMessageHandler } = require('../../../src/connection/serverMessageHandlers');
 const aggregate = require('../../../src/plugins/aggregate/aggregate');
 const { test } = require('../../routes/utils/routeTestUtils');
 const pluginTest = require('../utils/pluginTestUtils');
@@ -61,7 +62,7 @@ describe('aggregate plugin', () => {
 			const descriptor = registerAndExtractChannelDescriptor('partialAdded');
 
 			// Assert:
-			expect(descriptor).to.deep.equal({ name: 'partialAdded', markerChar: 'p', handler: 'transaction' });
+			expect(descriptor).to.deep.equal({ name: 'partialAdded', markerChar: 'p', handler: ServerMessageHandler.transaction });
 		});
 
 		it('registers partialRemoved', () => {
@@ -69,7 +70,7 @@ describe('aggregate plugin', () => {
 			const descriptor = registerAndExtractChannelDescriptor('partialRemoved');
 
 			// Assert:
-			expect(descriptor).to.deep.equal({ name: 'partialRemoved', markerChar: 'q', handler: 'transactionHash' });
+			expect(descriptor).to.deep.equal({ name: 'partialRemoved', markerChar: 'q', handler: ServerMessageHandler.transactionHash });
 		});
 
 		it('registers cosignature', () => {

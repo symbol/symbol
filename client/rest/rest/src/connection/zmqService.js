@@ -55,6 +55,8 @@ module.exports.createZmqConnectionService = (zmqConfig, codec, channelDescriptor
 		const subscriptionInfo = findSubscriptionInfo(key, emitter, codec, channelDescriptors);
 
 		const zsocket = createZmqSocket(key, zmqConfig, logger);
+		// the second param (handler) gets called with the provided args in the message, which vary depending on the defined handler type
+		// (block, transaction, transactionStatus...)
 		zsocket.subscribe(subscriptionInfo.filter);
 		zsocket.on('message', subscriptionInfo.handler);
 		return zsocket;

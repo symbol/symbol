@@ -221,7 +221,6 @@ describe('model schema builder', () => {
 				'transactionMetadata.merkleComponentHash',
 
 				'transactionStatus.hash',
-				'transactionStatus.address',
 
 				'account.address',
 				'account.publicKey',

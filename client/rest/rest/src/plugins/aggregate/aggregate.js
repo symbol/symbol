@@ -20,6 +20,7 @@
 
 /** @module plugins/aggregate */
 const aggregateRoutes = require('./aggregateRoutes');
+const { ServerMessageHandler } = require('../../connection/serverMessageHandlers');
 const catapult = require('catapult-sdk');
 
 const { BinaryParser } = catapult.parser;
@@ -36,8 +37,8 @@ module.exports = {
 	},
 
 	registerMessageChannels: builder => {
-		builder.add('partialAdded', 'p', 'transaction');
-		builder.add('partialRemoved', 'q', 'transactionHash');
+		builder.add('partialAdded', 'p', ServerMessageHandler.transaction);
+		builder.add('partialRemoved', 'q', ServerMessageHandler.transactionHash);
 		builder.add('cosignature', 'c', (codec, emit) => (topic, buffer) => {
 			const parser = new BinaryParser();
 			parser.push(buffer);

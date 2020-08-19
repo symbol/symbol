@@ -27,16 +27,18 @@ const { base32 } = catapult.utils;
 module.exports = {
 	/**
 	 * Creates an aggregate subscriber composed of all websocket subscribers to a single topic.
+	 * @param {string} topic Subscribed topic from which the data was received.
 	 * @param {array<WebSocket>} subscribers Websocket subscribers.
 	 * @param {function} formatter Formatter for formatting data before sending.
 	 * @returns {function} Aggregate subscriber.
 	 */
-	createMultisender: (subscribers, formatter) => ({
+	createMultisender: (topic, subscribers, formatter) => ({
 		/**
 		 * Sends data to all subscribers.
 		 * @param {object} data Unformatted data.
 		 */
 		send: data => {
+			data.topic = topic;
 			const view = formatter(data);
 			subscribers.forEach(client => {
 				winston.debug(`websocket ${client.uid}: multisender.send sending data to client`);

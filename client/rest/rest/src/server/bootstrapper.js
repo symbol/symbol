@@ -194,7 +194,7 @@ module.exports = {
 		promiseAwareServer.ws = (route, callbacks) => {
 			const subscriptionManager = new SubscriptionManager(Object.assign({}, callbacks, {
 				newChannel: (channel, subscribers) =>
-					callbacks.newChannel(channel, websocketUtils.createMultisender(subscribers, formatters.ws))
+					callbacks.newChannel(channel, websocketUtils.createMultisender(channel, subscribers, formatters.ws))
 			}));
 
 			const clients = new Set();

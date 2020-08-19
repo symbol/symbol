@@ -18,16 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const { ServerMessageHandler } = require('./serverMessageHandlers');
 const catapult = require('catapult-sdk');
-
-const { BinaryParser } = catapult.parser;
-const { uint64 } = catapult.utils;
-
-const parserFromData = binaryData => {
-	const parser = new catapult.parser.BinaryParser();
-	parser.push(binaryData);
-	return parser;
-};
 
 const createBlockDescriptor = () => ({
 	filter: topicParam => {
@@ -37,10 +29,7 @@ const createBlockDescriptor = () => ({
 		return Buffer.of(0x49, 0x6A, 0xCA, 0x80, 0xE4, 0xD8, 0xF2, 0x9F);
 	},
 
-	handler: (codec, emit) => (topic, binaryBlock, hash, generationHash) => {
-		const block = codec.deserialize(parserFromData(binaryBlock));
-		emit({ type: 'blockHeaderWithMetadata', payload: { block, meta: { hash, generationHash } } });
-	}
+	handler: ServerMessageHandler.block
 });
 
 const createPolicyBasedAddressFilter = (markerByte, emptyAddressHandler) => topicParam => {
@@ -48,20 +37,6 @@ const createPolicyBasedAddressFilter = (markerByte, emptyAddressHandler) => topi
 		return emptyAddressHandler(markerByte);
 
 	return Buffer.concat([Buffer.of(markerByte), Buffer.from(catapult.model.address.stringToAddress(topicParam))]);
-};
-
-const handlers = {
-	transaction: channelName => (codec, emit) => (topic, binaryTransaction, hash, merkleComponentHash, height) => {
-		const transaction = codec.deserialize(parserFromData(binaryTransaction));
-		const meta = {
-			hash, merkleComponentHash, height: uint64.fromBytes(height), channelName
-		};
-		emit({ type: 'transactionWithMetadata', payload: { transaction, meta } });
-	},
-
-	transactionHash: channelName => (codec, emit) => (topic, hash) => {
-		emit({ type: 'transactionWithMetadata', payload: { meta: { hash, channelName } } });
-	}
 };
 
 /**
@@ -83,28 +58,12 @@ class MessageChannelBuilder {
 
 		// add basic descriptors
 		this.descriptors.block = createBlockDescriptor();
-		this.add('confirmedAdded', 'a', 'transaction');
-		this.add('unconfirmedAdded', 'u', 'transaction');
-		this.add('unconfirmedRemoved', 'r', 'transactionHash');
+		this.add('confirmedAdded', 'a', ServerMessageHandler.transaction);
+		this.add('unconfirmedAdded', 'u', ServerMessageHandler.transaction);
+		this.add('unconfirmedRemoved', 'r', ServerMessageHandler.transactionHash);
 		this.descriptors.status = {
 			filter: this.createAddressFilter('s'),
-			handler: (codec, emit) => (topic, buffer) => {
-				const parser = new BinaryParser();
-				parser.push(buffer);
-
-				const hash = parser.buffer(catapult.constants.sizes.hash256);
-				const deadline = parser.uint64();
-				const code = parser.uint32();
-
-				// removing the markerChart from topic
-				const address = topic.subarray(1);
-				emit({
-					type: 'transactionStatus',
-					payload: {
-						hash, address, code, deadline
-					}
-				});
-			}
+			handler: ServerMessageHandler.transactionStatus
 		};
 	}
 
@@ -124,15 +83,7 @@ class MessageChannelBuilder {
 		if (markerChar in this.channelMarkers)
 			throw Error(`'${markerChar}' channel marker has already been registered`);
 
-		let channelHandler = handler;
-		if ('string' === typeof handler) {
-			if (!(handler in handlers))
-				throw Error(`cannot register channel '${name}' with unknown handler '${handler}'`);
-
-			channelHandler = handlers[handler](name);
-		}
-
-		this.descriptors[name] = { filter: this.createAddressFilter(markerChar), handler: channelHandler };
+		this.descriptors[name] = { filter: this.createAddressFilter(markerChar), handler };
 		this.channelMarkers[markerChar] = 1;
 	}
 
