@@ -106,6 +106,9 @@ namespace catapult { namespace model {
 	/* Invalid message signature. */ \
 	ENUM_VALUE(Failure_Message_Signature) \
 	\
+	/* Invalid stage. */ \
+	ENUM_VALUE(Failure_Stage) \
+	\
 	/* Invalid voter. */ \
 	ENUM_VALUE(Failure_Voter) \
 	\

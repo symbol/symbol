@@ -105,6 +105,8 @@ namespace catapult { namespace finalization {
 	namespace {
 		using FinalizationMessages = std::vector<std::shared_ptr<const model::FinalizationMessage>>;
 
+		constexpr auto Stage = model::FinalizationStage::Prevote;
+
 		ionet::PacketPayload CreateBroadcastPayload(const FinalizationMessages& messages) {
 			return ionet::PacketPayloadFactory::FromEntities(ionet::PacketType::Push_Finalization_Messages, messages);
 		}
@@ -130,7 +132,7 @@ namespace catapult { namespace finalization {
 
 		// - prepare message(s)
 		const auto& hash = test::GenerateRandomByteArray<Hash256>();
-		auto pMessage = context.createMessage(VoterType::Large1, { FinalizationPoint(12), 1 }, Height(10), hash);
+		auto pMessage = context.createMessage(VoterType::Large1, { FinalizationPoint(12), Stage }, Height(10), hash);
 
 		// Act:
 		hooks.messageRangeConsumer()(CreateMessageRange({ pMessage }));
@@ -158,11 +160,11 @@ namespace catapult { namespace finalization {
 
 		// - prepare message(s)
 		const auto& hash = test::GenerateRandomByteArray<Hash256>();
-		auto pMessage1 = context.createMessage(VoterType::Large1, { FinalizationPoint(12), 1 }, Height(9), hash);
-		auto pMessage2 = context.createMessage(VoterType::Large1, { FinalizationPoint(11), 1 }, Height(8), hash);
-		auto pMessage3 = context.createMessage(VoterType::Large1, { FinalizationPoint(10), 1 }, Height(7), hash);
-		auto pMessage4 = context.createMessage(VoterType::Large1, { FinalizationPoint(9), 1 }, Height(6), hash);
-		auto pMessage5 = context.createMessage(VoterType::Large1, { FinalizationPoint(8), 1 }, Height(5), hash);
+		auto pMessage1 = context.createMessage(VoterType::Large1, { FinalizationPoint(12), Stage }, Height(9), hash);
+		auto pMessage2 = context.createMessage(VoterType::Large1, { FinalizationPoint(11), Stage }, Height(8), hash);
+		auto pMessage3 = context.createMessage(VoterType::Large1, { FinalizationPoint(10), Stage }, Height(7), hash);
+		auto pMessage4 = context.createMessage(VoterType::Large1, { FinalizationPoint(9), Stage }, Height(6), hash);
+		auto pMessage5 = context.createMessage(VoterType::Large1, { FinalizationPoint(8), Stage }, Height(5), hash);
 
 		// Act:
 		hooks.messageRangeConsumer()(CreateMessageRange({ pMessage1, pMessage3, pMessage5 }));
@@ -192,9 +194,9 @@ namespace catapult { namespace finalization {
 
 		// - prepare message(s)
 		const auto& hash = test::GenerateRandomByteArray<Hash256>();
-		auto pMessage1 = context.createMessage(VoterType::Large1, { FinalizationPoint(12), 1 }, Height(9), hash);
-		auto pMessage2 = context.createMessage(VoterType::Large1, { FinalizationPoint(11), 1 }, Height(8), hash);
-		auto pMessage3 = context.createMessage(VoterType::Large1, { FinalizationPoint(10), 1 }, Height(7), hash);
+		auto pMessage1 = context.createMessage(VoterType::Large1, { FinalizationPoint(12), Stage }, Height(9), hash);
+		auto pMessage2 = context.createMessage(VoterType::Large1, { FinalizationPoint(11), Stage }, Height(8), hash);
+		auto pMessage3 = context.createMessage(VoterType::Large1, { FinalizationPoint(10), Stage }, Height(7), hash);
 
 		// - send first range
 		hooks.messageRangeConsumer()(CreateMessageRange({ pMessage2 }));
@@ -230,9 +232,9 @@ namespace catapult { namespace finalization {
 
 		// - prepare message(s)
 		const auto& hash = test::GenerateRandomByteArray<Hash256>();
-		auto pMessage1 = context.createMessage(VoterType::Large1, { FinalizationPoint(12), 1 }, Height(9), hash);
-		auto pMessage2 = context.createMessage(VoterType::Large1, { FinalizationPoint(11), 1 }, Height(8), hash);
-		auto pMessage3 = context.createMessage(VoterType::Large1, { FinalizationPoint(10), 1 }, Height(7), hash);
+		auto pMessage1 = context.createMessage(VoterType::Large1, { FinalizationPoint(12), Stage }, Height(9), hash);
+		auto pMessage2 = context.createMessage(VoterType::Large1, { FinalizationPoint(11), Stage }, Height(8), hash);
+		auto pMessage3 = context.createMessage(VoterType::Large1, { FinalizationPoint(10), Stage }, Height(7), hash);
 
 		// - send first range
 		hooks.messageRangeConsumer()(CreateMessageRange({ pMessage1, pMessage2, pMessage3 }));
@@ -266,10 +268,10 @@ namespace catapult { namespace finalization {
 
 		// - prepare message(s)
 		const auto& hash = test::GenerateRandomByteArray<Hash256>();
-		auto pMessage1 = context.createMessage(VoterType::Large1, { FinalizationPoint(10), 1 }, Height(9), hash);
-		auto pMessage2 = context.createMessage(VoterType::Large1, { FinalizationPoint(9), 1 }, Height(8), hash);
-		auto pMessage3 = context.createMessage(VoterType::Large1, { FinalizationPoint(12), 1 }, Height(9), hash);
-		auto pMessage4 = context.createMessage(VoterType::Large1, { FinalizationPoint(13), 1 }, Height(10), hash);
+		auto pMessage1 = context.createMessage(VoterType::Large1, { FinalizationPoint(10), Stage }, Height(9), hash);
+		auto pMessage2 = context.createMessage(VoterType::Large1, { FinalizationPoint(9), Stage }, Height(8), hash);
+		auto pMessage3 = context.createMessage(VoterType::Large1, { FinalizationPoint(12), Stage }, Height(9), hash);
+		auto pMessage4 = context.createMessage(VoterType::Large1, { FinalizationPoint(13), Stage }, Height(10), hash);
 
 		// Act:
 		hooks.messageRangeConsumer()(CreateMessageRange({ pMessage1, pMessage2, pMessage3, pMessage4 }));
@@ -297,10 +299,10 @@ namespace catapult { namespace finalization {
 
 		// - prepare message(s)
 		const auto& hash = test::GenerateRandomByteArray<Hash256>();
-		auto pMessage1 = context.createMessage(VoterType::Large1, { FinalizationPoint(11), 1 }, Height(8), hash);
-		auto pMessage2 = context.createMessage(VoterType::Large1, { FinalizationPoint(12), 1 }, Height(9), hash);
-		auto pMessage3 = context.createMessage(VoterType::Large1, { FinalizationPoint(10), 1 }, Height(7), hash);
-		auto pMessage4 = context.createMessage(VoterType::Large1, { FinalizationPoint(9), 1 }, Height(6), hash);
+		auto pMessage1 = context.createMessage(VoterType::Large1, { FinalizationPoint(11), Stage }, Height(8), hash);
+		auto pMessage2 = context.createMessage(VoterType::Large1, { FinalizationPoint(12), Stage }, Height(9), hash);
+		auto pMessage3 = context.createMessage(VoterType::Large1, { FinalizationPoint(10), Stage }, Height(7), hash);
+		auto pMessage4 = context.createMessage(VoterType::Large1, { FinalizationPoint(9), Stage }, Height(6), hash);
 
 		// - send the range
 		hooks.messageRangeConsumer()(CreateMessageRange({ pMessage1, pMessage2, pMessage3, pMessage4 }));

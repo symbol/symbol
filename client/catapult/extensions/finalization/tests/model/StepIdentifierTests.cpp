@@ -30,17 +30,13 @@ namespace catapult { namespace model {
 	// region step identifier operators
 
 	namespace {
-		auto CreateStepIdentifier(uint64_t point, uint64_t round) {
-			return StepIdentifier{ FinalizationPoint(point), round };
-		}
-
 		std::vector<StepIdentifier> GenerateIncreasingStepIdentifierValues() {
 			return {
-				CreateStepIdentifier(5, 0),
-				CreateStepIdentifier(10, 0),
-				CreateStepIdentifier(11, 0),
-				CreateStepIdentifier(11, 1),
-				CreateStepIdentifier(11, 4)
+				{ FinalizationPoint(5), FinalizationStage::Prevote },
+				{ FinalizationPoint(10), FinalizationStage::Prevote },
+				{ FinalizationPoint(11), FinalizationStage::Prevote },
+				{ FinalizationPoint(11), FinalizationStage::Precommit },
+				{ FinalizationPoint(11), static_cast<FinalizationStage>(4) }
 			};
 		}
 	}
@@ -49,7 +45,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, StepIdentifier_CanOutput) {
 		// Arrange:
-		auto stepIdentifier = CreateStepIdentifier(11, 5);
+		auto stepIdentifier = StepIdentifier{ FinalizationPoint(11), static_cast<FinalizationStage>(5) };
 
 		// Act:
 		auto str = test::ToString(stepIdentifier);
@@ -62,7 +58,7 @@ namespace catapult { namespace model {
 
 	// region step identifier size + alignment
 
-#define STEP_IDENTIFIER_FIELDS FIELD(Point) FIELD(Round)
+#define STEP_IDENTIFIER_FIELDS FIELD(Point) FIELD(Stage)
 
 	TEST(TEST_CLASS, StepIdentifierHasExpectedSize) {
 		// Arrange:
@@ -94,11 +90,11 @@ namespace catapult { namespace model {
 	namespace {
 		std::vector<StepIdentifier> GenerateValidStepIdentifierValues() {
 			return {
-				CreateStepIdentifier(5, 1),
-				CreateStepIdentifier(10, 1),
-				CreateStepIdentifier(10, 2),
-				CreateStepIdentifier(11, 1),
-				CreateStepIdentifier(11, 2)
+				{ FinalizationPoint(5), FinalizationStage::Prevote },
+				{ FinalizationPoint(10), FinalizationStage::Prevote },
+				{ FinalizationPoint(10), FinalizationStage::Precommit },
+				{ FinalizationPoint(11), FinalizationStage::Prevote },
+				{ FinalizationPoint(11), FinalizationStage::Precommit }
 			};
 		}
 	}
@@ -121,8 +117,8 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, StepIdentifierToOtsKeyIdentifierProducesConflictingValuesForInvalidStepIdentifiers) {
 		// Arrange: invalid, because round is greater than number of stages
-		auto validIdentifier = CreateStepIdentifier(10, 1);
-		auto invalidIdentifier = CreateStepIdentifier(8, 5);
+		auto validIdentifier = StepIdentifier{ FinalizationPoint(10), FinalizationStage::Precommit };
+		auto invalidIdentifier = StepIdentifier{ FinalizationPoint(8), static_cast<FinalizationStage>(5) };
 
 		// Act:
 		auto validKeyIdentifier = StepIdentifierToOtsKeyIdentifier(validIdentifier, 7);

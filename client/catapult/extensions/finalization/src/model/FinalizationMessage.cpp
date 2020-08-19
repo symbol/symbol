@@ -81,6 +81,9 @@ namespace catapult { namespace model {
 	}
 
 	std::pair<ProcessMessageResult, size_t> ProcessMessage(const FinalizationMessage& message, const FinalizationContext& context) {
+		if (message.StepIdentifier.Stage >= FinalizationStage::Count)
+			return std::make_pair(ProcessMessageResult::Failure_Stage, 0);
+
 		auto accountView = context.lookup(message.Signature.Root.ParentPublicKey.copyTo<VotingKey>());
 		if (Amount() == accountView.Weight)
 			return std::make_pair(ProcessMessageResult::Failure_Voter, 0);

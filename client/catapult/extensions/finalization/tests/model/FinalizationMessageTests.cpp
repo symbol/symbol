@@ -127,7 +127,7 @@ namespace catapult { namespace model {
 		// Arrange:
 		auto pMessage1 = CreateMessage(3);
 		auto pMessage2 = test::CopyEntity(*pMessage1);
-		++pMessage2->StepIdentifier.Round;
+		pMessage2->StepIdentifier.Point = pMessage2->StepIdentifier.Point + FinalizationPoint(1);
 
 		// Act:
 		auto messageHash1 = CalculateMessageHash(*pMessage1);
@@ -213,7 +213,7 @@ namespace catapult { namespace model {
 	// region PrepareMessage
 
 	namespace {
-		constexpr auto Default_Step_Identifier = StepIdentifier{ FinalizationPoint(3), 4 };
+		constexpr auto Default_Step_Identifier = StepIdentifier{ FinalizationPoint(3), FinalizationStage::Prevote };
 
 		template<typename TAction>
 		void RunPrepareMessageTest(VoterType voterType, uint32_t numHashes, TAction action) {
@@ -311,20 +311,27 @@ namespace catapult { namespace model {
 
 	namespace {
 		template<typename TAction>
-		void RunProcessMessageTest(VoterType voterType, uint32_t numHashes, TAction action) {
+		void RunProcessMessageTest(VoterType voterType, const StepIdentifier& stepIdentifier, uint32_t numHashes, TAction action) {
 			// Arrange:
-			RunFinalizationContextTest([voterType, numHashes, action](const auto& context, const auto& keyPairDescriptors) {
+			RunFinalizationContextTest([&stepIdentifier, voterType, numHashes, action](
+					const auto& context,
+					const auto& keyPairDescriptors) {
 				const auto& keyPairDescriptor = keyPairDescriptors[utils::to_underlying_type(voterType)];
 
 				// - create message
 				auto pMessage = CreateMessage(numHashes);
-				pMessage->StepIdentifier = Default_Step_Identifier;
+				pMessage->StepIdentifier = stepIdentifier;
 				pMessage->Height = Height(987);
 				test::SignMessage(*pMessage, keyPairDescriptor.VotingKeyPair);
 
 				// Act + Assert:
 				action(context, keyPairDescriptor, *pMessage);
 			});
+		}
+
+		template<typename TAction>
+		void RunProcessMessageTest(VoterType voterType, uint32_t numHashes, TAction action) {
+			RunProcessMessageTest(voterType, Default_Step_Identifier, numHashes, action);
 		}
 	}
 
@@ -341,6 +348,22 @@ namespace catapult { namespace model {
 			EXPECT_EQ(ProcessMessageResult::Failure_Message_Signature, processResultPair.first);
 			EXPECT_EQ(0u, processResultPair.second);
 		});
+	}
+
+	TEST(TEST_CLASS, ProcessMessage_FailsWhenStageIsInvalid) {
+		// Arrange:
+		for (auto stage : std::initializer_list<uint64_t>{ 2, 10 }) {
+			auto stepIdentifier = Default_Step_Identifier;
+			stepIdentifier.Stage = static_cast<FinalizationStage>(stage);
+			RunProcessMessageTest(VoterType::Large, stepIdentifier, 3, [](const auto& context, const auto&, const auto& message) {
+				// Act:
+				auto processResultPair = ProcessMessage(message, context);
+
+				// Assert:
+				EXPECT_EQ(ProcessMessageResult::Failure_Stage, processResultPair.first);
+				EXPECT_EQ(0u, processResultPair.second);
+			});
+		}
 	}
 
 	TEST(TEST_CLASS, ProcessMessage_FailsWhenAccountIsNotVotingEligible) {

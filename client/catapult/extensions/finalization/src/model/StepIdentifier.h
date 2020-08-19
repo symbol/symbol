@@ -28,13 +28,25 @@ namespace catapult { namespace model {
 
 	// region step identifier
 
+	/// Finalization stages.
+	enum class FinalizationStage : uint64_t {
+		/// Prevote stage.
+		Prevote,
+
+		/// Precommit stage.
+		Precommit,
+
+		/// Number of stages.
+		Count
+	};
+
 	/// Finalization step identifier.
 	struct StepIdentifier {
 		/// Finalization point.
 		FinalizationPoint Point;
 
-		/// Round.
-		uint64_t Round;
+		/// Finalization stage.
+		FinalizationStage Stage;
 
 	public:
 		/// Returns \c true if this step identifier is equal to \a rhs.

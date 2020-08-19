@@ -63,7 +63,7 @@ namespace catapult { namespace chain {
 		}
 
 		constexpr bool IsPrevote(const model::FinalizationMessage& message) {
-			return 1 == message.StepIdentifier.Round;
+			return model::FinalizationStage::Prevote == message.StepIdentifier.Stage;
 		}
 
 		// endregion

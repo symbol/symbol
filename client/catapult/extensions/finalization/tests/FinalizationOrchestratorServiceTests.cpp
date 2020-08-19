@@ -141,8 +141,12 @@ namespace catapult { namespace finalization {
 				io::FileStream otsStream(io::RawFile(votingOtsTreeFilename, io::OpenMode::Read_Write));
 
 				auto dilution = 13u;
-				auto startKeyIdentifier = model::StepIdentifierToOtsKeyIdentifier({ FinalizationPoint(1), 1 }, dilution);
-				auto endKeyIdentifier = model::StepIdentifierToOtsKeyIdentifier({ FinalizationPoint(100), 2 }, dilution);
+				auto startKeyIdentifier = model::StepIdentifierToOtsKeyIdentifier(
+						{ FinalizationPoint(1), model::FinalizationStage::Prevote },
+						dilution);
+				auto endKeyIdentifier = model::StepIdentifierToOtsKeyIdentifier(
+						{ FinalizationPoint(100), model::FinalizationStage::Precommit },
+						dilution);
 				crypto::OtsTree::Create(test::GenerateKeyPair(), otsStream, { dilution, startKeyIdentifier, endKeyIdentifier });
 			}
 
@@ -184,6 +188,8 @@ namespace catapult { namespace finalization {
 	// region task
 
 	namespace {
+		constexpr auto Storage_Message_Stage = model::FinalizationStage::Count; // sentinel Stage value set by test::CreateMessage
+
 		template<typename TCheckState>
 		void RunFinalizationTaskTest(TestContext& context, TCheckState checkState) {
 			// Arrange:
@@ -249,12 +255,12 @@ namespace catapult { namespace finalization {
 			const auto& savedProofDescriptors = storage.savedProofDescriptors();
 			ASSERT_EQ(1u, savedProofDescriptors.size());
 			EXPECT_EQ(Height(246), savedProofDescriptors[0].Height);
-			EXPECT_EQ(model::StepIdentifier({ FinalizationPoint(8), 0 }), savedProofDescriptors[0].StepIdentifier);
+			EXPECT_EQ(model::StepIdentifier({ FinalizationPoint(8), Storage_Message_Stage }), savedProofDescriptors[0].StepIdentifier);
 
 			// - two messages were sent
 			ASSERT_EQ(2u, messages.size());
-			EXPECT_EQ(model::StepIdentifier({ FinalizationPoint(8), 1 }), messages[0]->StepIdentifier);
-			EXPECT_EQ(model::StepIdentifier({ FinalizationPoint(8), 2 }), messages[1]->StepIdentifier);
+			EXPECT_EQ(model::StepIdentifier({ FinalizationPoint(8), model::FinalizationStage::Prevote }), messages[0]->StepIdentifier);
+			EXPECT_EQ(model::StepIdentifier({ FinalizationPoint(8), model::FinalizationStage::Precommit }), messages[1]->StepIdentifier);
 		});
 	}
 

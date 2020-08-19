@@ -34,7 +34,7 @@ namespace catapult { namespace test {
 	// region message factories
 
 	std::unique_ptr<model::FinalizationMessage> CreateMessage(FinalizationPoint point) {
-		return CreateMessage({ point, 0 }, GenerateRandomByteArray<Hash256>());
+		return CreateMessage({ point, model::FinalizationStage::Count }, GenerateRandomByteArray<Hash256>());
 	}
 
 	std::unique_ptr<model::FinalizationMessage> CreateMessage(const Hash256& hash) {
@@ -42,7 +42,7 @@ namespace catapult { namespace test {
 	}
 
 	std::unique_ptr<model::FinalizationMessage> CreateMessage(Height height, const Hash256& hash) {
-		auto pMessage = CreateMessage({ FinalizationPoint(Random()), Random() }, hash);
+		auto pMessage = CreateMessage({ FinalizationPoint(Random()), static_cast<model::FinalizationStage>(Random()) }, hash);
 		pMessage->Height = height;
 		return pMessage;
 	}

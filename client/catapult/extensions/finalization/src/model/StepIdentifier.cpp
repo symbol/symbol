@@ -19,13 +19,14 @@
 **/
 
 #include "StepIdentifier.h"
+#include "catapult/utils/Casting.h"
 
 namespace catapult { namespace model {
 
 	// region step identifier
 
 	bool StepIdentifier::operator==(const StepIdentifier& rhs) const {
-		return Point == rhs.Point && Round == rhs.Round;
+		return Point == rhs.Point && Stage == rhs.Stage;
 	}
 
 	bool StepIdentifier::operator!=(const StepIdentifier& rhs) const {
@@ -33,7 +34,7 @@ namespace catapult { namespace model {
 	}
 
 	bool StepIdentifier::operator<(const StepIdentifier& rhs) const {
-		return Point < rhs.Point || (Point == rhs.Point && Round < rhs.Round);
+		return Point < rhs.Point || (Point == rhs.Point && Stage < rhs.Stage);
 	}
 
 	bool StepIdentifier::operator<=(const StepIdentifier& rhs) const {
@@ -49,7 +50,7 @@ namespace catapult { namespace model {
 	}
 
 	std::ostream& operator<<(std::ostream& out, const StepIdentifier& stepIdentifier) {
-		out << "(" << stepIdentifier.Point << ", " << stepIdentifier.Round << ")";
+		out << "(" << stepIdentifier.Point << ", " << utils::to_underlying_type(stepIdentifier.Stage) << ")";
 		return out;
 	}
 
@@ -59,8 +60,8 @@ namespace catapult { namespace model {
 
 	crypto::OtsKeyIdentifier StepIdentifierToOtsKeyIdentifier(const StepIdentifier& stepIdentifier, uint64_t dilution) {
 		// assume: Dilution < 1 is not allowed
-		constexpr auto Num_Stages = 2u;
-		auto identifier = stepIdentifier.Point.unwrap() * Num_Stages + (stepIdentifier.Round - 1);
+		constexpr auto Num_Stages = utils::to_underlying_type(FinalizationStage::Count);
+		auto identifier = stepIdentifier.Point.unwrap() * Num_Stages + utils::to_underlying_type(stepIdentifier.Stage);
 
 		crypto::OtsKeyIdentifier keyIdentifier;
 		keyIdentifier.BatchId = identifier / dilution;
