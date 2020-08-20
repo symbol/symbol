@@ -65,8 +65,8 @@ namespace catapult { namespace test {
 		networkNode.Version = version;
 		networkNode.HostSize = hostSize;
 		networkNode.FriendlyNameSize = nameSize;
-		memcpy(pPacket->Data() + sizeof(ionet::NetworkNode), host.data(), hostSize);
-		memcpy(pPacket->Data() + sizeof(ionet::NetworkNode) + hostSize, name.data(), nameSize);
+		std::memcpy(pPacket->Data() + sizeof(ionet::NetworkNode), host.data(), hostSize);
+		std::memcpy(pPacket->Data() + sizeof(ionet::NetworkNode) + hostSize, name.data(), nameSize);
 		return pPacket;
 	}
 
@@ -83,7 +83,7 @@ namespace catapult { namespace test {
 
 		auto* pData = pPacket->Data();
 		for (const auto& pNetworkNode : networkNodes) {
-			memcpy(pData, pNetworkNode.get(), pNetworkNode->Size);
+			std::memcpy(pData, pNetworkNode.get(), pNetworkNode->Size);
 			pData += pNetworkNode->Size;
 		}
 

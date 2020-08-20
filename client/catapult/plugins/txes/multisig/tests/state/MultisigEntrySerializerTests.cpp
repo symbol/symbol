@@ -79,7 +79,7 @@ namespace catapult { namespace state {
 
 		Address ExtractAddress(const uint8_t* pData) {
 			Address address;
-			memcpy(address.data(), pData, Address::Size);
+			std::memcpy(address.data(), pData, Address::Size);
 			return address;
 		}
 

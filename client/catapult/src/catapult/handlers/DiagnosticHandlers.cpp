@@ -136,7 +136,7 @@ namespace catapult { namespace handlers {
 				auto packetSize = utils::checked_cast<size_t, uint32_t>(blockStatementPair.first.size());
 				auto pResponsePacket = ionet::CreateSharedPacket<ionet::Packet>(packetSize);
 				pResponsePacket->Type = RequestType::Packet_Type;
-				memcpy(pResponsePacket->Data(), blockStatementPair.first.data(), blockStatementPair.first.size());
+				std::memcpy(pResponsePacket->Data(), blockStatementPair.first.data(), blockStatementPair.first.size());
 				context.response(ionet::PacketPayload(pResponsePacket));
 			};
 		}
