@@ -68,6 +68,11 @@ namespace catapult { namespace mocks {
 			m_hash = hash;
 		}
 
+		/// Sets the last finalization proof to \a pProof.
+		void setLastFinalizationProof(const std::shared_ptr<const model::PackedFinalizationProof>& pProof) {
+			m_pProof = pProof;
+		}
+
 	public:
 		FinalizationPoint finalizationPoint() const override {
 			return m_point;
@@ -92,12 +97,18 @@ namespace catapult { namespace mocks {
 			return model::HeightHashPairRange::CopyFixed(reinterpret_cast<const uint8_t*>(&heightHashPair), 1);
 		}
 
-		std::shared_ptr<const model::PackedFinalizationProof> loadProof(FinalizationPoint) const override {
-			CATAPULT_THROW_RUNTIME_ERROR("loadProof(point) - not supported in mock");
+		std::shared_ptr<const model::PackedFinalizationProof> loadProof(FinalizationPoint point) const override {
+			if (FinalizationPoint() == point || point > m_point)
+				CATAPULT_THROW_INVALID_ARGUMENT("point must be nonzero and no greater than finalizationPoint");
+
+			return m_point == point ? m_pProof : nullptr;
 		}
 
-		std::shared_ptr<const model::PackedFinalizationProof> loadProof(Height) const override {
-			CATAPULT_THROW_RUNTIME_ERROR("loadProof(height) - not supported in mock");
+		std::shared_ptr<const model::PackedFinalizationProof> loadProof(Height height) const override {
+			if (Height() == height || height > m_height)
+				CATAPULT_THROW_INVALID_ARGUMENT("height must be nonzero and no greater than finalizedHeight");
+
+			return m_height == height ? m_pProof : nullptr;
 		}
 
 		void saveProof(Height height, const io::FinalizationProof& proof) override {
@@ -120,6 +131,7 @@ namespace catapult { namespace mocks {
 		Height m_height;
 		Hash256 m_hash;
 
+		std::shared_ptr<const model::PackedFinalizationProof> m_pProof;
 		std::vector<SavedProofDescriptor> m_savedProofDescriptors;
 	};
 }}

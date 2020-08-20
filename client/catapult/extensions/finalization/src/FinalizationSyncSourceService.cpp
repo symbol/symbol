@@ -21,6 +21,7 @@
 #include "FinalizationSyncSourceService.h"
 #include "FinalizationBootstrapperService.h"
 #include "finalization/src/handlers/FinalizationHandlers.h"
+#include "finalization/src/handlers/ProofHandlers.h"
 #include "catapult/extensions/ServiceState.h"
 
 namespace catapult { namespace finalization {
@@ -38,9 +39,14 @@ namespace catapult { namespace finalization {
 
 			void registerServices(extensions::ServiceLocator& locator, extensions::ServiceState& state) override {
 				const auto& hooks = GetFinalizationServerHooks(locator);
+				const auto& proofStorage = GetProofStorageCache(locator);
 
 				// register handlers
 				handlers::RegisterPushMessagesHandler(state.packetHandlers(), hooks.messageRangeConsumer());
+
+				handlers::RegisterFinalizationStatisticsHandler(state.packetHandlers(), proofStorage);
+				handlers::RegisterFinalizationProofAtPointHandler(state.packetHandlers(), proofStorage);
+				handlers::RegisterFinalizationProofAtHeightHandler(state.packetHandlers(), proofStorage);
 			}
 		};
 	}
