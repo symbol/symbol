@@ -37,12 +37,20 @@ namespace catapult { namespace io {
 		return m_storage.finalizedHeight();
 	}
 
+	model::FinalizationStatistics ProofStorageView::statistics() const {
+		return m_storage.statistics();
+	}
+
 	model::HeightHashPairRange ProofStorageView::loadFinalizedHashesFrom(FinalizationPoint point, size_t maxHashes) const {
 		return m_storage.loadFinalizedHashesFrom(point, maxHashes);
 	}
 
 	std::shared_ptr<const model::PackedFinalizationProof> ProofStorageView::loadProof(FinalizationPoint point) const {
 		return m_storage.loadProof(point);
+	}
+
+	std::shared_ptr<const model::PackedFinalizationProof> ProofStorageView::loadProof(Height height) const {
+		return m_storage.loadProof(height);
 	}
 
 	// endregion
