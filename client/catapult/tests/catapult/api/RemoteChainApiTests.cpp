@@ -33,7 +33,7 @@ namespace catapult { namespace api {
 			auto pPacket = ionet::CreateSharedPacket<ionet::Packet>(payloadSize);
 			test::FillWithRandomData({ pPacket->Data(), payloadSize });
 
-			auto pData = pPacket->Data();
+			auto* pData = pPacket->Data();
 			for (auto i = 0u; i < numBlocks; ++i, pData += sizeof(model::BlockHeader)) {
 				auto& block = reinterpret_cast<model::Block&>(*pData);
 				block.Size = sizeof(model::BlockHeader);
@@ -195,7 +195,7 @@ namespace catapult { namespace api {
 			static void ValidateResponse(const ionet::Packet& response, const model::BlockRange& blocks) {
 				ASSERT_EQ(3u, blocks.size());
 
-				auto pData = response.Data();
+				const auto* pData = response.Data();
 				auto iter = blocks.cbegin();
 				for (auto i = 0u; i < blocks.size(); ++i) {
 					std::string message = "comparing blocks at " + std::to_string(i);

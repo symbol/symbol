@@ -56,7 +56,7 @@ namespace catapult { namespace builders {
 				pTransaction->Data.Size = Additional_Data_Size;
 
 				// 2. set data
-				auto pData = pTransaction->DataPtr();
+				auto* pData = pTransaction->DataPtr();
 				std::iota(pData, pData + Additional_Data_Size, static_cast<uint8_t>(0));
 				return pTransaction;
 			}

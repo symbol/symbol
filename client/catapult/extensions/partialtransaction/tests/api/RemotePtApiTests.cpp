@@ -41,7 +41,7 @@ namespace catapult { namespace api {
 			auto pPacket = ionet::CreateSharedPacket<ionet::Packet>(payloadSize);
 			test::FillWithRandomData({ pPacket->Data(), payloadSize });
 
-			auto pData = pPacket->Data();
+			auto* pData = pPacket->Data();
 			for (uint16_t i = 0u; i < numTransactions; ++i) {
 				// - tag (transaction and no cosignatures)
 				reinterpret_cast<uint64_t&>(*pData) = 0x8000;

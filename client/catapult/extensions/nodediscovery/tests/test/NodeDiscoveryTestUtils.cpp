@@ -81,7 +81,7 @@ namespace catapult { namespace test {
 		auto pPacket = ionet::CreateSharedPacket<ionet::Packet>(payloadSize);
 		pPacket->Type = ionet::PacketType::Node_Discovery_Push_Peers;
 
-		auto pData = pPacket->Data();
+		auto* pData = pPacket->Data();
 		for (const auto& pNetworkNode : networkNodes) {
 			memcpy(pData, pNetworkNode.get(), pNetworkNode->Size);
 			pData += pNetworkNode->Size;

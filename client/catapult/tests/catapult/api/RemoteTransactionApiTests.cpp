@@ -36,7 +36,7 @@ namespace catapult { namespace api {
 			auto pPacket = ionet::CreateSharedPacket<ionet::Packet>(payloadSize);
 			test::FillWithRandomData({ pPacket->Data(), payloadSize });
 
-			auto pData = pPacket->Data();
+			auto* pData = pPacket->Data();
 			for (uint16_t i = 0u; i < numTransactions; ++i) {
 				auto& transaction = reinterpret_cast<TransactionType&>(*pData);
 				transaction.Size = SizeOf32<TransactionType>() + i + 1;

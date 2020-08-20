@@ -85,10 +85,10 @@ namespace catapult { namespace mongo {
 		/// \note Concurrent writes are performed using the specified thread \a pool.
 		static std::shared_ptr<MongoBulkWriter> Create(const mongocxx::uri& uri, const std::string& dbName, thread::IoThreadPool& pool) {
 			// cannot use make_shared with private constructor
-			auto pData = utils::MakeUniqueWithSize<uint8_t>(sizeof(MongoBulkWriter));
-			auto pWriterRaw = new (pData.get()) MongoBulkWriter(uri, dbName, pool);
+			auto pBackingMemory = utils::MakeUniqueWithSize<uint8_t>(sizeof(MongoBulkWriter));
+			auto pWriterRaw = new (pBackingMemory.get()) MongoBulkWriter(uri, dbName, pool);
 			auto pWriter = std::shared_ptr<MongoBulkWriter>(pWriterRaw);
-			pData.release();
+			pBackingMemory.release();
 			return pWriter;
 		}
 

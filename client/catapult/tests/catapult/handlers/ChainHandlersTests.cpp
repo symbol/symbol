@@ -252,7 +252,7 @@ namespace catapult { namespace handlers {
 			auto expectedSize = sizeof(ionet::PacketHeader) + sizeof(Hash256) * expectedHeights.size();
 			test::AssertPacketHeader(handlerContext, expectedSize, ionet::PacketType::Block_Hashes);
 
-			auto pData = test::GetSingleBufferData(handlerContext);
+			const auto* pData = test::GetSingleBufferData(handlerContext);
 			auto storageView = pStorage->view();
 			for (auto i = 0u; i < expectedHeights.size(); ++i) {
 				// - calculate the expected hash

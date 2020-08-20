@@ -110,7 +110,7 @@ namespace catapult { namespace handlers {
 	namespace {
 		auto ExtractFromPacket(const ionet::Packet& packet, size_t numRequestHashPairs) {
 			cache::ShortHashPairMap extractedMap;
-			auto pData = reinterpret_cast<const cache::ShortHashPair*>(packet.Data());
+			const auto* pData = reinterpret_cast<const cache::ShortHashPair*>(packet.Data());
 			for (auto i = 0u; i < numRequestHashPairs; ++i) {
 				extractedMap.emplace(pData->TransactionShortHash, pData->CosignaturesShortHash);
 				++pData;

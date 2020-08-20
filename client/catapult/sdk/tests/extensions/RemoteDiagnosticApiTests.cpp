@@ -42,7 +42,7 @@ namespace catapult { namespace extensions {
 				auto pPacket = ionet::CreateSharedPacket<ionet::Packet>(payloadSize);
 				test::FillWithRandomData({ pPacket->Data(), payloadSize });
 
-				auto pData = pPacket->Data();
+				auto* pData = pPacket->Data();
 				for (auto i = 0u; i < numTimestampedHashes; ++i, pData += Response_Entity_Size) {
 					auto& timestampedHash = reinterpret_cast<state::TimestampedHash&>(*pData);
 					timestampedHash.Time = Timestamp(5 * i);
@@ -266,7 +266,7 @@ namespace catapult { namespace extensions {
 				auto pPacket = ionet::CreateSharedPacket<ionet::Packet>(payloadSize);
 				test::FillWithRandomData({ pPacket->Data(), payloadSize });
 
-				auto pData = pPacket->Data();
+				auto* pData = pPacket->Data();
 				for (auto i = 0u; i < numInfos; ++i, pData += Response_Entity_Size) {
 					auto& info = reinterpret_cast<EntityType&>(*pData);
 					info.Size = Response_Entity_Size;

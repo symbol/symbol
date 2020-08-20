@@ -74,7 +74,7 @@ namespace catapult { namespace test {
 			size_t counter = 0;
 
 			std::vector<RequestStructureType> extractedRequestStructures;
-			auto pData = reinterpret_cast<const RequestStructureType*>(pPacket->Data());
+			const auto* pData = reinterpret_cast<const RequestStructureType*>(pPacket->Data());
 			for (auto i = 0u; i < numRequestStructures; ++i)
 				extractedRequestStructures.push_back(*pData++);
 
