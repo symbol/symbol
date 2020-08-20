@@ -43,7 +43,6 @@ namespace catapult { namespace api {
 			}
 
 		public:
-
 			bool tryParseResult(const ionet::Packet& packet, ResultType& result) const {
 				result = ionet::ExtractEntitiesFromPacket<model::FinalizationMessage>(
 						packet,
