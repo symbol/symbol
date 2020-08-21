@@ -61,4 +61,17 @@ namespace catapult { namespace model {
 	};
 
 #pragma pack(pop)
+
+/// Defines \a NAME variable data accessors around a similarly named templated untyped data accessor.
+/// \a SIZE_POSTFIX specifies the postfix of the corresponding size or count field.
+#define DEFINE_TRAILING_VARIABLE_DATA_LAYOUT_ACCESSORS(NAME, SIZE_POSTFIX) \
+	/* Returns a const pointer to the typed data contained in this entity. */ \
+	const auto* NAME##Ptr() const { \
+		return NAME##SIZE_POSTFIX ? ToTypedPointer(PayloadStart(*this)) : nullptr; \
+	} \
+	\
+	/* Returns a pointer to the typed data contained in this entity. */ \
+	auto* NAME##Ptr() { \
+		return NAME##SIZE_POSTFIX ? ToTypedPointer(PayloadStart(*this)) : nullptr; \
+	}
 }}

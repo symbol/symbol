@@ -88,17 +88,7 @@ namespace catapult { namespace ionet {
 		uint8_t PackedNodeInfo_Reserved1[7];
 
 		// followed by connection states if ConnectionStatesCount != 0
-
-	public:
-		/// Gets a const pointer to the first connection state contained in this node info.
-		const PackedConnectionState* ConnectionStatesPtr() const {
-			return ConnectionStatesCount ? ToTypedPointer(PayloadStart(*this)) : nullptr;
-		}
-
-		/// Gets a pointer to the first connection state contained in this node info.
-		PackedConnectionState* ConnectionStatesPtr() {
-			return ConnectionStatesCount ? ToTypedPointer(PayloadStart(*this)) : nullptr;
-		}
+		DEFINE_TRAILING_VARIABLE_DATA_LAYOUT_ACCESSORS(ConnectionStates, Count)
 
 	public:
 		/// Calculates the real size of \a nodeInfo.

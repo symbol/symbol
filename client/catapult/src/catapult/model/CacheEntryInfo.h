@@ -45,17 +45,7 @@ namespace catapult { namespace model {
 		TIdentifier Id;
 
 		// followed by data if DataSize > 0
-
-	public:
-		/// Gets a const pointer to the first data byte in this cache entry info.
-		const uint8_t* DataPtr() const {
-			return DataSize ? ToTypedPointer(PayloadStart(*this)) : nullptr;
-		}
-
-		/// Gets a pointer to the first data byte in this cache entry info.
-		uint8_t* DataPtr() {
-			return DataSize ? ToTypedPointer(PayloadStart(*this)) : nullptr;
-		}
+		DEFINE_TRAILING_VARIABLE_DATA_LAYOUT_ACCESSORS(Data, Size)
 
 	public:
 		/// Returns \c true if data is available.

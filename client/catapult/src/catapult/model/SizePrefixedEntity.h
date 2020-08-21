@@ -54,4 +54,16 @@ namespace catapult { namespace model {
 	};
 
 #pragma pack(pop)
+
+/// Defines \a NAME (\a TYPE typed) variable data accessors around a similarly named templated untyped data accessor.
+#define DEFINE_SIZE_PREFIXED_ENTITY_VARIABLE_DATA_ACCESSORS(NAME, TYPE) \
+	/* Returns a const pointer to the typed data contained in this entity. */ \
+	const TYPE* NAME##Ptr() const { \
+		return reinterpret_cast<const TYPE*>(NAME##PtrT(*this)); \
+	} \
+	\
+	/* Returns a pointer to the typed data contained in this entity. */ \
+	TYPE* NAME##Ptr() { \
+		return reinterpret_cast<TYPE*>(NAME##PtrT(*this)); \
+	}
 }}
