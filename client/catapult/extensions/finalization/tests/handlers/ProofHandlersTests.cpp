@@ -84,16 +84,15 @@ namespace catapult { namespace handlers {
 
 	namespace {
 		auto CreateProof() {
-			auto pProof = std::make_shared<model::PackedFinalizationProof>();
-			test::FillWithRandomData({ reinterpret_cast<uint8_t*>(pProof.get()), sizeof(model::PackedFinalizationProof) });
+			auto pProof = std::make_shared<model::FinalizationProof>();
+			test::FillWithRandomData({ reinterpret_cast<uint8_t*>(pProof.get()), sizeof(model::FinalizationProof) });
 
-			pProof->Size = SizeOf32<model::PackedFinalizationProof>();
-			pProof->VoteProofsCount = 0;
-			pProof->FinalizedHeight = Height(246);
+			pProof->Size = SizeOf32<model::FinalizationProof>();
+			pProof->Height = Height(246);
 			return pProof;
 		}
 
-		auto CreateProofStorageCacheWithProof(const std::shared_ptr<model::PackedFinalizationProof>& pProof) {
+		auto CreateProofStorageCacheWithProof(const std::shared_ptr<model::FinalizationProof>& pProof) {
 			auto hash = test::GenerateRandomByteArray<Hash256>();
 			auto pProofStorage = std::make_unique<mocks::MockProofStorage>(FinalizationPoint(8), Height(246), hash);
 			pProofStorage->setLastFinalizationProof(pProof);
@@ -207,7 +206,7 @@ namespace catapult { namespace handlers {
 		// Assert: only a payload header is written
 		test::AssertPacketHeader(
 				handlerContext,
-				sizeof(ionet::PacketHeader) + sizeof(model::PackedFinalizationProof),
+				sizeof(ionet::PacketHeader) + sizeof(model::FinalizationProof),
 				ionet::PacketType::Pull_Finalization_Proof);
 		EXPECT_EQ_MEMORY(&*pProof, test::GetSingleBufferData(handlerContext), pProof->Size);
 	}

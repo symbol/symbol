@@ -20,15 +20,12 @@
 
 #pragma once
 #include "finalization/src/model/FinalizationMessage.h"
+#include "finalization/src/model/FinalizationProof.h"
 #include "finalization/src/model/FinalizationStatistics.h"
-#include "finalization/src/model/PackedFinalizationProof.h"
 #include "catapult/model/HeightHashPair.h"
 #include <memory>
 
 namespace catapult { namespace io {
-
-	/// Finalization proof.
-	using FinalizationProof = std::vector<std::shared_ptr<const model::FinalizationMessage>>;
 
 	/// Interface for saving and loading finalization proofs.
 	class ProofStorage {
@@ -40,12 +37,12 @@ namespace catapult { namespace io {
 		virtual model::FinalizationStatistics statistics() const = 0;
 
 		/// Gets the finalization proof at \a point.
-		virtual std::shared_ptr<const model::PackedFinalizationProof> loadProof(FinalizationPoint point) const = 0;
+		virtual std::shared_ptr<const model::FinalizationProof> loadProof(FinalizationPoint point) const = 0;
 
 		/// Gets the first finalization proof at \a height.
-		virtual std::shared_ptr<const model::PackedFinalizationProof> loadProof(Height height) const = 0;
+		virtual std::shared_ptr<const model::FinalizationProof> loadProof(Height height) const = 0;
 
-		/// Saves finalization \a proof of block at \a height.
-		virtual void saveProof(Height height, const FinalizationProof& proof) = 0;
+		/// Saves finalization \a proof.
+		virtual void saveProof(const model::FinalizationProof& proof) = 0;
 	};
 }}

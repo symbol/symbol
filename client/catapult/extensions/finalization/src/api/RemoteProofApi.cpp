@@ -53,14 +53,12 @@ namespace catapult { namespace api {
 
 		struct BasicProofAtTraits {
 		public:
-			using ResultType = std::shared_ptr<const model::PackedFinalizationProof>;
+			using ResultType = std::shared_ptr<const model::FinalizationProof>;
 			static constexpr auto Packet_Type = ionet::PacketType::Pull_Finalization_Proof;
 
 		public:
 			bool tryParseResult(const ionet::Packet& packet, ResultType& result) const {
-				result = ionet::ExtractEntityFromPacket<model::PackedFinalizationProof>(
-						packet,
-						ionet::IsSizeValid<model::PackedFinalizationProof>);
+				result = ionet::ExtractEntityFromPacket<model::FinalizationProof>(packet, model::IsSizeValid);
 				return !!result;
 			}
 		};

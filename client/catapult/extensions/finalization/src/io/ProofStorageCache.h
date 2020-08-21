@@ -35,10 +35,10 @@ namespace catapult { namespace io {
 		model::FinalizationStatistics statistics() const;
 
 		/// Gets the finalization proof at \a point.
-		std::shared_ptr<const model::PackedFinalizationProof> loadProof(FinalizationPoint point) const;
+		std::shared_ptr<const model::FinalizationProof> loadProof(FinalizationPoint point) const;
 
 		/// Gets the first finalization proof at \a height.
-		std::shared_ptr<const model::PackedFinalizationProof> loadProof(Height height) const;
+		std::shared_ptr<const model::FinalizationProof> loadProof(Height height) const;
 
 	private:
 		const ProofStorage& m_storage;
@@ -52,8 +52,8 @@ namespace catapult { namespace io {
 		ProofStorageModifier(ProofStorage& storage, utils::SpinReaderWriterLock::WriterLockGuard&& writeLock);
 
 	public:
-		/// Saves finalization \a proof of block at \a height.
-		void saveProof(Height height, const FinalizationProof& proof);
+		/// Saves finalization \a proof.
+		void saveProof(const model::FinalizationProof& proof);
 
 	private:
 		ProofStorage& m_storage;

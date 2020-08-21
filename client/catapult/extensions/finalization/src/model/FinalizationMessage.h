@@ -54,15 +54,7 @@ namespace catapult { namespace model {
 		catapult::Height Height;
 
 	public:
-		/// Gets a const pointer to the first hash contained in this message.
-		const Hash256* HashesPtr() const {
-			return HashesCount ? ToTypedPointer(PayloadStart(*this)) : nullptr;
-		}
-
-		/// Gets a pointer to the first hash contained in this message.
-		Hash256* HashesPtr() {
-			return HashesCount ? ToTypedPointer(PayloadStart(*this)) : nullptr;
-		}
+		DEFINE_TRAILING_VARIABLE_DATA_LAYOUT_ACCESSORS(Hashes, Count)
 
 	public:
 		/// Calculates the real size of \a message.

@@ -85,15 +85,14 @@ namespace catapult { namespace api {
 		template<typename TInvoker>
 		struct ProofAtTraitsT : public TInvoker {
 			static auto CreateValidResponsePacket() {
-				uint32_t payloadSize = SizeOf32<model::PackedFinalizationProof>();
+				uint32_t payloadSize = SizeOf32<model::FinalizationProof>();
 				auto pResponsePacket = ionet::CreateSharedPacket<ionet::Packet>(payloadSize);
 				pResponsePacket->Type = ionet::PacketType::Pull_Finalization_Proof;
 				test::FillWithRandomData({ pResponsePacket->Data(), payloadSize });
 
-				auto& proof = reinterpret_cast<model::PackedFinalizationProof&>(*pResponsePacket->Data());
+				auto& proof = reinterpret_cast<model::FinalizationProof&>(*pResponsePacket->Data());
 				proof.Size = payloadSize;
-				proof.VoteProofsCount = 0;
-				proof.FinalizedHeight = Height(777);
+				proof.Height = Height(777);
 				return pResponsePacket;
 			}
 
@@ -104,12 +103,10 @@ namespace catapult { namespace api {
 				return pResponsePacket;
 			}
 
-			static void ValidateResponse(
-					const ionet::Packet& response,
-					const std::shared_ptr<const model::PackedFinalizationProof>& pProof) {
+			static void ValidateResponse(const ionet::Packet& response, const std::shared_ptr<const model::FinalizationProof>& pProof) {
 				ASSERT_EQ(response.Size - sizeof(ionet::Packet), pProof->Size);
-				ASSERT_EQ(sizeof(model::PackedFinalizationProof), pProof->Size);
-				EXPECT_EQ(Height(777), pProof->FinalizedHeight);
+				ASSERT_EQ(sizeof(model::FinalizationProof), pProof->Size);
+				EXPECT_EQ(Height(777), pProof->Height);
 				EXPECT_EQ_MEMORY(response.Data(), pProof.get(), pProof->Size);
 			}
 		};

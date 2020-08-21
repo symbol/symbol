@@ -80,31 +80,21 @@ namespace catapult { namespace io {
 			auto storageDir = config::CatapultStorageDirectoryPreparer::Prepare(baseDirectory, point);
 			return std::make_unique<RawFile>(storageDir.storageFile(Proof_File_Extension), mode);
 		}
-
-		auto PrepareHeader(size_t proofSize, const model::FinalizationMessage& message, Height finalizedHeight) {
-			model::PackedFinalizationProof header;
-			header.VoteProofsCount = utils::checked_cast<size_t, uint32_t>(proofSize);
-			header.Size = utils::checked_cast<size_t, uint32_t>(model::PackedFinalizationProof::CalculateRealSize(header));
-			header.FinalizedHash = *message.HashesPtr();
-			header.FinalizedHeight = finalizedHeight;
-			header.StepIdentifier = message.StepIdentifier;
-			return header;
-		}
 	}
 
 	namespace {
-		std::shared_ptr<model::PackedFinalizationProof> ReadPackedFinalizationProof(RawFile& proofFile) {
+		std::shared_ptr<model::FinalizationProof> ReadFinalizationProof(RawFile& proofFile) {
 			auto size = Read32(proofFile);
 			proofFile.seek(0);
 
-			auto pProof = utils::MakeSharedWithSize<model::PackedFinalizationProof>(size);
+			auto pProof = utils::MakeSharedWithSize<model::FinalizationProof>(size);
 			pProof->Size = size;
 			proofFile.read({ reinterpret_cast<uint8_t*>(pProof.get()), size });
 			return pProof;
 		}
 	}
 
-	std::shared_ptr<const model::PackedFinalizationProof> FileProofStorage::loadProof(FinalizationPoint point) const {
+	std::shared_ptr<const model::FinalizationProof> FileProofStorage::loadProof(FinalizationPoint point) const {
 		if (FinalizationPoint() == point)
 			CATAPULT_THROW_INVALID_ARGUMENT("loadProof called with point 0");
 
@@ -116,10 +106,10 @@ namespace catapult { namespace io {
 		}
 
 		auto pProofFile = OpenProofFile(m_dataDirectory, point);
-		return ReadPackedFinalizationProof(*pProofFile);
+		return ReadFinalizationProof(*pProofFile);
 	}
 
-	std::shared_ptr<const model::PackedFinalizationProof> FileProofStorage::loadProof(Height height) const {
+	std::shared_ptr<const model::FinalizationProof> FileProofStorage::loadProof(Height height) const {
 		if (Height() == height)
 			CATAPULT_THROW_INVALID_ARGUMENT("loadProof called with height 0");
 
@@ -135,45 +125,32 @@ namespace catapult { namespace io {
 			return nullptr;
 
 		auto pProofFile = OpenProofFile(m_dataDirectory, point);
-		return ReadPackedFinalizationProof(*pProofFile);
+		return ReadFinalizationProof(*pProofFile);
 	}
 
-	void FileProofStorage::saveProof(Height height, const FinalizationProof& proof) {
-		if (proof.empty())
-			CATAPULT_THROW_INVALID_ARGUMENT("cannot save empty proof");
-
+	void FileProofStorage::saveProof(const model::FinalizationProof& proof) {
 		auto currentStatistics = statistics();
-		const auto& firstMessage = *proof.front();
-		auto messagePoint = firstMessage.StepIdentifier.Point;
-		if (messagePoint != currentStatistics.Point + FinalizationPoint(1)) {
+		if (proof.Point != currentStatistics.Point + FinalizationPoint(1)) {
 			std::ostringstream out;
-			out << "cannot save proof with point " << messagePoint << " when storage point is " << currentStatistics.Point;
+			out << "cannot save proof with point " << proof.Point << " when storage point is " << currentStatistics.Point;
 			CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
 		}
 
-		if (currentStatistics.Height > height) {
+		if (currentStatistics.Height > proof.Height) {
 			std::ostringstream out;
-			out << "cannot save proof with height " << height << " when storage height is " << currentStatistics.Height;
+			out << "cannot save proof with height " << proof.Height << " when storage height is " << currentStatistics.Height;
 			CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
 		}
 
 		{
-			auto pProofFile = OpenProofFile(m_dataDirectory, messagePoint, OpenMode::Read_Write);
+			auto pProofFile = OpenProofFile(m_dataDirectory, proof.Point, OpenMode::Read_Write);
 			BufferedOutputFileStream stream(std::move(*pProofFile));
-
-			// write header
-			auto header = PrepareHeader(proof.size(), firstMessage, height);
-			stream.write({ reinterpret_cast<const uint8_t*>(&header), sizeof(model::PackedFinalizationProof) });
-
-			// write vote proofs
-			for (const auto& pMessage : proof)
-				stream.write({ reinterpret_cast<const uint8_t*>(&pMessage->Signature), sizeof(crypto::OtsTreeSignature) });
-
+			stream.write({ reinterpret_cast<const uint8_t*>(&proof), proof.Size });
 			stream.flush();
 		}
 
-		m_pointHeightMapping.save(messagePoint, height);
-		m_indexFile.set({ messagePoint, height, *firstMessage.HashesPtr() });
+		m_pointHeightMapping.save(proof.Point, proof.Height);
+		m_indexFile.set({ proof.Point, proof.Height, proof.Hash });
 	}
 
 	FinalizationPoint FileProofStorage::findPointForHeight(Height height) const {

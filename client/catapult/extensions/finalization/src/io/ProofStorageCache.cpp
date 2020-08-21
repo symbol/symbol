@@ -33,11 +33,11 @@ namespace catapult { namespace io {
 		return m_storage.statistics();
 	}
 
-	std::shared_ptr<const model::PackedFinalizationProof> ProofStorageView::loadProof(FinalizationPoint point) const {
+	std::shared_ptr<const model::FinalizationProof> ProofStorageView::loadProof(FinalizationPoint point) const {
 		return m_storage.loadProof(point);
 	}
 
-	std::shared_ptr<const model::PackedFinalizationProof> ProofStorageView::loadProof(Height height) const {
+	std::shared_ptr<const model::FinalizationProof> ProofStorageView::loadProof(Height height) const {
 		return m_storage.loadProof(height);
 	}
 
@@ -50,8 +50,8 @@ namespace catapult { namespace io {
 			, m_writeLock(std::move(writeLock))
 	{}
 
-	void ProofStorageModifier::saveProof(Height height, const FinalizationProof& proof) {
-		m_storage.saveProof(height, proof);
+	void ProofStorageModifier::saveProof(const model::FinalizationProof& proof) {
+		m_storage.saveProof(proof);
 	}
 
 	// endregion

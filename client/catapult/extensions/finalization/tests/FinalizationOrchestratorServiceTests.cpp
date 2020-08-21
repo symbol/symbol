@@ -188,8 +188,6 @@ namespace catapult { namespace finalization {
 	// region task
 
 	namespace {
-		constexpr auto Storage_Message_Stage = model::FinalizationStage::Count; // sentinel Stage value set by test::CreateMessage
-
 		template<typename TCheckState>
 		void RunFinalizationTaskTest(TestContext& context, TCheckState checkState) {
 			// Arrange:
@@ -255,7 +253,8 @@ namespace catapult { namespace finalization {
 			const auto& savedProofDescriptors = storage.savedProofDescriptors();
 			ASSERT_EQ(1u, savedProofDescriptors.size());
 			EXPECT_EQ(Height(246), savedProofDescriptors[0].Height);
-			EXPECT_EQ(model::StepIdentifier({ FinalizationPoint(8), Storage_Message_Stage }), savedProofDescriptors[0].StepIdentifier);
+			EXPECT_EQ(expectedHash, savedProofDescriptors[0].Hash);
+			EXPECT_EQ(FinalizationPoint(8), savedProofDescriptors[0].Point);
 
 			// - two messages were sent
 			ASSERT_EQ(2u, messages.size());

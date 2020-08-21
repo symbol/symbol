@@ -39,16 +39,16 @@ namespace catapult { namespace io {
 				return m_cache.view().statistics();
 			}
 
-			std::shared_ptr<const model::PackedFinalizationProof> loadProof(FinalizationPoint point) const override {
+			std::shared_ptr<const model::FinalizationProof> loadProof(FinalizationPoint point) const override {
 				return m_cache.view().loadProof(point);
 			}
 
-			std::shared_ptr<const model::PackedFinalizationProof> loadProof(Height height) const override {
+			std::shared_ptr<const model::FinalizationProof> loadProof(Height height) const override {
 				return m_cache.view().loadProof(height);
 			}
 
-			void saveProof(Height height, const FinalizationProof& proof) override {
-				m_cache.modifier().saveProof(height, proof);
+			void saveProof(const model::FinalizationProof& proof) override {
+				m_cache.modifier().saveProof(proof);
 			}
 
 		private:

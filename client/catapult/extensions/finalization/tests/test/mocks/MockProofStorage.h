@@ -26,16 +26,6 @@ namespace catapult { namespace mocks {
 	/// Mock proof storage.
 	class MockProofStorage : public io::ProofStorage {
 	public:
-		/// Describes a saved proof.
-		struct SavedProofDescriptor {
-			/// Proof height.
-			catapult::Height Height;
-
-			/// Proof step identifier.
-			model::StepIdentifier StepIdentifier;
-		};
-
-	public:
 		/// Creates a proof storage initialized with a nemesis proof.
 		MockProofStorage() : MockProofStorage(FinalizationPoint(1), Height(1))
 		{}
@@ -69,7 +59,7 @@ namespace catapult { namespace mocks {
 		}
 
 		/// Sets the last finalization proof to \a pProof.
-		void setLastFinalizationProof(const std::shared_ptr<const model::PackedFinalizationProof>& pProof) {
+		void setLastFinalizationProof(const std::shared_ptr<const model::FinalizationProof>& pProof) {
 			m_pProof = pProof;
 		}
 
@@ -78,33 +68,26 @@ namespace catapult { namespace mocks {
 			return { m_point, m_height, m_hash };
 		}
 
-		std::shared_ptr<const model::PackedFinalizationProof> loadProof(FinalizationPoint point) const override {
+		std::shared_ptr<const model::FinalizationProof> loadProof(FinalizationPoint point) const override {
 			if (FinalizationPoint() == point || point > m_point)
 				CATAPULT_THROW_INVALID_ARGUMENT("point must be nonzero and no greater than finalizationPoint");
 
 			return m_point == point ? m_pProof : nullptr;
 		}
 
-		std::shared_ptr<const model::PackedFinalizationProof> loadProof(Height height) const override {
+		std::shared_ptr<const model::FinalizationProof> loadProof(Height height) const override {
 			if (Height() == height || height > m_height)
 				CATAPULT_THROW_INVALID_ARGUMENT("height must be nonzero and no greater than finalizedHeight");
 
 			return m_height == height ? m_pProof : nullptr;
 		}
 
-		void saveProof(Height height, const io::FinalizationProof& proof) override {
-			auto stepIdentifier = model::StepIdentifier();
-			if (!proof.empty()) {
-				const auto& message = *proof.back();
-				stepIdentifier = message.StepIdentifier;
-				m_point = stepIdentifier.Point;
-				m_height = message.Height;
+		void saveProof(const model::FinalizationProof& proof) override {
+			m_point = proof.Point;
+			m_height = proof.Height;
+			m_hash = proof.Hash;
 
-				if (0 < message.HashesCount)
-					m_hash = message.HashesPtr()[0];
-			}
-
-			m_savedProofDescriptors.push_back(SavedProofDescriptor{ height, stepIdentifier });
+			m_savedProofDescriptors.push_back(model::FinalizationStatistics{ m_point, m_height, m_hash });
 		}
 
 	private:
@@ -112,7 +95,7 @@ namespace catapult { namespace mocks {
 		Height m_height;
 		Hash256 m_hash;
 
-		std::shared_ptr<const model::PackedFinalizationProof> m_pProof;
-		std::vector<SavedProofDescriptor> m_savedProofDescriptors;
+		std::shared_ptr<const model::FinalizationProof> m_pProof;
+		std::vector<model::FinalizationStatistics> m_savedProofDescriptors;
 	};
 }}

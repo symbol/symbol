@@ -19,8 +19,8 @@
 **/
 
 #pragma once
+#include "finalization/src/model/FinalizationProof.h"
 #include "finalization/src/model/FinalizationStatistics.h"
-#include "finalization/src/model/PackedFinalizationProof.h"
 #include "catapult/api/RemoteApi.h"
 #include "catapult/thread/Future.h"
 
@@ -40,10 +40,10 @@ namespace catapult { namespace api {
 		virtual thread::future<model::FinalizationStatistics> finalizationStatistics() const = 0;
 
 		/// Gets the finalization proof at \a point.
-		virtual thread::future<std::shared_ptr<const model::PackedFinalizationProof>> proofAt(FinalizationPoint point) const = 0;
+		virtual thread::future<std::shared_ptr<const model::FinalizationProof>> proofAt(FinalizationPoint point) const = 0;
 
 		/// Gets the finalization proof at \a height.
-		virtual thread::future<std::shared_ptr<const model::PackedFinalizationProof>> proofAt(Height height) const = 0;
+		virtual thread::future<std::shared_ptr<const model::FinalizationProof>> proofAt(Height height) const = 0;
 	};
 
 	/// Creates a proof api for interacting with a remote node with the specified \a io and \a remoteIdentity.

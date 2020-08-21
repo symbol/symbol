@@ -21,6 +21,7 @@
 #include "FinalizationOrchestrator.h"
 #include "MultiRoundMessageAggregator.h"
 #include "finalization/src/io/ProofStorageCache.h"
+#include "finalization/src/model/FinalizationProofUtils.h"
 #include "catapult/subscribers/FinalizationSubscriber.h"
 
 namespace catapult { namespace chain {
@@ -89,7 +90,10 @@ namespace catapult { namespace chain {
 			if (proofStorage.view().statistics().Height == bestPrecommitDescriptor.Target.Height)
 				return;
 
-			proofStorage.modifier().saveProof(bestPrecommitDescriptor.Target.Height, bestPrecommitDescriptor.Proof);
+			auto pProof = CreateFinalizationProof(
+					{ bestPrecommitDescriptor.Point, bestPrecommitDescriptor.Target.Height, bestPrecommitDescriptor.Target.Hash },
+					bestPrecommitDescriptor.Proof);
+			proofStorage.modifier().saveProof(*pProof);
 			subscriber.notifyFinalizedBlock(
 					bestPrecommitDescriptor.Target.Height,
 					bestPrecommitDescriptor.Target.Hash,

@@ -34,9 +34,9 @@ namespace catapult { namespace io {
 
 	public:
 		model::FinalizationStatistics statistics() const override;
-		std::shared_ptr<const model::PackedFinalizationProof> loadProof(FinalizationPoint point) const override;
-		std::shared_ptr<const model::PackedFinalizationProof> loadProof(Height point) const override;
-		void saveProof(Height height, const FinalizationProof& proof) override;
+		std::shared_ptr<const model::FinalizationProof> loadProof(FinalizationPoint point) const override;
+		std::shared_ptr<const model::FinalizationProof> loadProof(Height point) const override;
+		void saveProof(const model::FinalizationProof& proof) override;
 
 	private:
 		FinalizationPoint findPointForHeight(Height height) const;
