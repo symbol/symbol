@@ -74,7 +74,7 @@ namespace catapult { namespace finalization {
 		private:
 			StorageContext loadStorageContext() const {
 				auto proofStorageView = m_proofStorage.view();
-				auto height = proofStorageView.finalizedHeight();
+				auto height = proofStorageView.statistics().Height;
 
 				auto generationHash = m_storage.view().loadBlockElement(height)->GenerationHash;
 				return { height, generationHash };
@@ -91,10 +91,6 @@ namespace catapult { namespace finalization {
 
 		// region CreateMultiRoundMessageAggregator
 
-		model::HeightHashPair LoadLastFinalizedHeightHashPair(const io::ProofStorageView& proofStorageView) {
-			return *proofStorageView.loadFinalizedHashesFrom(proofStorageView.finalizationPoint() - FinalizationPoint(1), 1).cbegin();
-		}
-
 		auto CreateMultiRoundMessageAggregator(
 				const FinalizationConfiguration& config,
 				const io::ProofStorageCache& proofStorage,
@@ -107,10 +103,11 @@ namespace catapult { namespace finalization {
 					proofStorage);
 
 			auto proofStorageView = proofStorage.view();
+			auto finalizationStatistics = proofStorageView.statistics();
 			return std::make_shared<chain::MultiRoundMessageAggregator>(
 					maxResponseSize,
-					proofStorageView.finalizationPoint(),
-					LoadLastFinalizedHeightHashPair(proofStorageView),
+					finalizationStatistics.Point,
+					model::HeightHashPair{ finalizationStatistics.Height, finalizationStatistics.Hash },
 					[maxResponseSize, finalizationContextFactory](auto roundPoint) {
 						// TODO: will need update when we figure out voting sets o0
 						return chain::CreateRoundMessageAggregator(maxResponseSize, finalizationContextFactory.create(roundPoint));

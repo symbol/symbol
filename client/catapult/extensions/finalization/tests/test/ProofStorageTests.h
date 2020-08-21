@@ -58,23 +58,25 @@ namespace catapult { namespace test {
 					const std::string nemesisDirectory = "/00000";
 					boost::filesystem::create_directories(destination + nemesisDirectory);
 
-					FakeFinalizationPoint(destination, 2);
-					SetIndexFinalizationPoint(destination, 1);
+					FakeFinalizationHeightMapping(destination, 2);
+					SetIndexFinalizationPoint(destination, FinalizationPoint(1));
 				}
 
 				return TTraits::CreateStorage(destination);
 			}
 
-			static void SetIndexFinalizationPoint(const std::string& destination, uint64_t finalizationPoint) {
+			static void SetIndexFinalizationPoint(const std::string& destination, FinalizationPoint finalizationPoint) {
 				io::RawFile indexFile(destination + "/proof.index.dat", io::OpenMode::Read_Write);
-				io::Write64(indexFile, finalizationPoint);
+				io::Write64(indexFile, finalizationPoint.unwrap());
+				io::Write64(indexFile, 0);
+				indexFile.write(Hash256());
 			}
 
-			static void FakeFinalizationPoint(const std::string& destination, uint64_t numFinalizationPoints) {
+			static void FakeFinalizationHeightMapping(const std::string& destination, uint64_t numFinalizationPoints) {
 				const std::string nemesisDirectory = "/00000";
-				const std::string nemesisHashFilename = destination + nemesisDirectory + "/proof.hashes.dat";
+				const std::string nemesisHashFilename = destination + nemesisDirectory + "/proof.heights.dat";
 
-				std::vector<uint8_t> hashesBuffer(numFinalizationPoints * model::HeightHashPair::Size);
+				std::vector<uint8_t> hashesBuffer(numFinalizationPoints * sizeof(Height));
 				{
 					io::RawFile file(nemesisHashFilename, io::OpenMode::Read_Write);
 					file.write(hashesBuffer);
@@ -116,11 +118,10 @@ namespace catapult { namespace test {
 		// region assert helpers
 
 		static void AssertStorageStatistics(const io::ProofStorage& storage, const model::FinalizationStatistics& statistics) {
-			EXPECT_EQ(statistics.Point, storage.finalizationPoint());
-			EXPECT_EQ(statistics.Height, storage.finalizedHeight());
-
 			auto storageStatistics = storage.statistics();
-			EXPECT_EQ_MEMORY(&statistics, &storageStatistics, sizeof(model::FinalizationStatistics));
+			EXPECT_EQ(statistics.Point, storageStatistics.Point);
+			EXPECT_EQ(statistics.Height, storageStatistics.Height);
+			EXPECT_EQ(statistics.Hash, storageStatistics.Hash);
 		}
 
 		static void AssertVoteProof(const model::FinalizationMessage& expectedMessage, const model::VoteProof& voteProof) {
@@ -143,45 +144,10 @@ namespace catapult { namespace test {
 				AssertVoteProof(*pMessage, *pVoteProof++);
 		}
 
-		static void AssertHashes(
-				const model::HeightHashPairRange& heightHashPairRange,
-				std::initializer_list<model::HeightHashPair> expectedHeightHashPairs) {
-			ASSERT_EQ(expectedHeightHashPairs.size(), heightHashPairRange.size());
-
-			auto iter = heightHashPairRange.cbegin();
-			for (const auto& expectedPair : expectedHeightHashPairs) {
-				EXPECT_EQ(expectedPair.Height, iter->Height);
-				EXPECT_EQ(expectedPair.Hash, iter->Hash);
-				++iter;
-			}
-		}
-
 		// endregion
 
 	public:
-		// region finalizationPoint + finalizedHeight
-
-		static void AssertFinalizatationPointReturnsZeroWhenIndexDoesNotExist() {
-			// Arrange:
-			StorageContext pStorage(PreparationMode::None);
-
-			// Act:
-			auto finalizationPoint = pStorage->finalizationPoint();
-
-			// Assert:
-			EXPECT_EQ(FinalizationPoint(), finalizationPoint);
-		}
-
-		static void AssertFinalizedHeightReturnsZeroWhenIndexDoesNotExist() {
-			// Arrange:
-			StorageContext pStorage(PreparationMode::None);
-
-			// Act:
-			auto height = pStorage->finalizedHeight();
-
-			// Assert:
-			EXPECT_EQ(Height(), height);
-		}
+		// region statistics
 
 		static void AssertStatisticsReturnsEmptyStatisticsWhenIndexDoesNotExist() {
 			// Arrange:
@@ -221,12 +187,10 @@ namespace catapult { namespace test {
 			pStorage->saveProof(Height(123), newProof);
 
 			auto pProof = pStorage->loadProof(FinalizationPoint(11));
-			auto hashes = pStorage->loadFinalizedHashesFrom(FinalizationPoint(11), 100);
 
 			// Assert:
 			AssertStorageStatistics(*pStorage, { FinalizationPoint(11), Height(123), *newProof[0]->HashesPtr() });
 			AssertSerializedProof(newProof, Height(123), *pProof);
-			AssertHashes(hashes, { { Height(123), *newProof.front()->HashesPtr() } });
 		}
 
 		static void AssertSaveProofUsesDataFromFirstMessage() {
@@ -310,41 +274,15 @@ namespace catapult { namespace test {
 			AssertCannotSaveProofAtFinalizationPoint(FinalizationPoint(110));
 		}
 
-		static void AssertCannotSaveProofWithHeightLessOrEqualToCurrentHeight() {
+		static void AssertCannotSaveProofWithHeightLessThanCurrentHeight() {
 			AssertCannotSaveProofAtHeight(Height(109));
-			AssertCannotSaveProofAtHeight(Height(120));
+			AssertCannotSaveProofAtHeight(Height(119));
 		}
 
-		static void AssertCanSaveProofWithHeightGreaterThanCurrentHeight() {
-			AssertCanSaveProofAtHeight(Height(121));
+		static void AssertCanSaveProofWithHeightGreaterOrEqualToCurrentHeight() {
+			AssertCanSaveProofAtHeight(Height(120));
 			AssertCanSaveProofAtHeight(Height(125));
 			AssertCanSaveProofAtHeight(Height(150));
-		}
-
-		// endregion
-
-		// region loadFinalizedHashesFrom
-
-		static void AssertCanLoadHashesAtFinalizationPointGreaterThanCurrentFinalizationPoint() {
-			// Arrange:
-			auto pStorage = PrepareStorageWithProofs(10);
-
-			// Act:
-			auto hashes = pStorage->loadFinalizedHashesFrom(FinalizationPoint(11), 100);
-
-			// Assert:
-			AssertHashes(hashes, {});
-		}
-
-		static void AssertLoadingHashesAtFinalizationPointZeroReturnsEmptyRange() {
-			// Arrange:
-			auto pStorage = PrepareStorageWithProofs(10);
-
-			// Act:
-			auto hashes = pStorage->loadFinalizedHashesFrom(FinalizationPoint(0), 100);
-
-			// Assert:
-			AssertHashes(hashes, {});
 		}
 
 		// endregion
@@ -397,16 +335,11 @@ namespace catapult { namespace test {
 			// Act:
 			auto pLoadedProof1 = pStorage->loadProof(FinalizationPoint(11));
 			auto pLoadedProof2 = pStorage->loadProof(FinalizationPoint(12));
-			auto hashes = pStorage->loadFinalizedHashesFrom(FinalizationPoint(11), 100);
 
 			// Assert:
 			AssertStorageStatistics(*pStorage, { FinalizationPoint(12), Height(125), *proof2[0]->HashesPtr() });
 			AssertSerializedProof(proof1, Height(123), *pLoadedProof1);
 			AssertSerializedProof(proof2, Height(125), *pLoadedProof2);
-			AssertHashes(hashes, {
-				{ Height(123), *proof1.front()->HashesPtr() },
-				{ Height(125), *proof2.front()->HashesPtr() }
-			});
 		}
 
 		// endregion
@@ -444,6 +377,27 @@ namespace catapult { namespace test {
 			// Assert: finalized proof is proof2, but requested proof is correctly loaded
 			AssertStorageStatistics(*pStorage, { FinalizationPoint(12), Height(125), *proof2[0]->HashesPtr() });
 			AssertSerializedProof(proof1, Height(123), *pProof);
+		}
+
+		static void AssertLoadProofAtHeightLoadsMostRecentProof() {
+			// Arrange:
+			auto pStorage = PrepareStorageWithProofs(10);
+
+			auto proof1 = GenerateProof(3, FinalizationPoint(11));
+			pStorage->saveProof(Height(123), proof1);
+
+			auto proof2 = GenerateProof(3, FinalizationPoint(12));
+			pStorage->saveProof(Height(123), proof2);
+
+			auto proof3 = GenerateProof(3, FinalizationPoint(13));
+			pStorage->saveProof(Height(123), proof3);
+
+			// Act:
+			auto pProof = pStorage->loadProof(Height(123));
+
+			// Assert:
+			AssertStorageStatistics(*pStorage, { FinalizationPoint(13), Height(123), *proof3[0]->HashesPtr() });
+			AssertSerializedProof(proof3, Height(123), *pProof);
 		}
 
 		static void AssertCannotLoadProofAtHeightZero() {
@@ -516,8 +470,6 @@ namespace catapult { namespace test {
 	TEST(TEST_CLASS, TEST_NAME) { test::ProofStorageTests<TRAITS_NAME>::Assert##TEST_NAME(); }
 
 #define DEFINE_PROOF_STORAGE_TESTS(TRAITS_NAME) \
-	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, FinalizatationPointReturnsZeroWhenIndexDoesNotExist) \
-	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, FinalizedHeightReturnsZeroWhenIndexDoesNotExist) \
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, StatisticsReturnsEmptyStatisticsWhenIndexDoesNotExist) \
 	\
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, SavingProofWithFinalizationPointHigherThanCurrentFinalizationPointAltersFinalizationIndexes) \
@@ -527,11 +479,8 @@ namespace catapult { namespace test {
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotSaveEmptyProof) \
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotSaveProofWithFinalizationPointLessThanCurrentFinalizationPoint) \
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotSaveProofMoreThanOneFinalizationPointBeyondCurrentFinalizationPoint) \
-	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotSaveProofWithHeightLessOrEqualToCurrentHeight) \
-	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CanSaveProofWithHeightGreaterThanCurrentHeight) \
-	\
-	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CanLoadHashesAtFinalizationPointGreaterThanCurrentFinalizationPoint) \
-	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, LoadingHashesAtFinalizationPointZeroReturnsEmptyRange) \
+	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotSaveProofWithHeightLessThanCurrentHeight) \
+	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CanSaveProofWithHeightGreaterOrEqualToCurrentHeight) \
 	\
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CanLoadProofAtFinalizationPointLessThanCurrentFinalizationPoint) \
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotLoadProofAtFinalizationPointZero) \
@@ -540,6 +489,7 @@ namespace catapult { namespace test {
 	\
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CanLoadProofAtFinalizedHeight) \
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CanLoadProofAtHeightLessThanCurrentFinalizedHeight) \
+	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, LoadProofAtHeightLoadsMostRecentProof) \
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotLoadProofAtHeightZero) \
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotLoadProofAtHeightGreaterThanCurrentFinalizedHeight) \
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotLoadProofAtHeightWithoutProof) \

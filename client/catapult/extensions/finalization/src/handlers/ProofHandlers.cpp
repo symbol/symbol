@@ -52,7 +52,7 @@ namespace catapult { namespace handlers {
 			using RequestType = api::ProofAtPointRequest;
 
 			static auto LoadProof(const io::ProofStorageView& proofStorageView, const RequestType& request) {
-				return FinalizationPoint() == request.Point || request.Point > proofStorageView.finalizationPoint()
+				return FinalizationPoint() == request.Point || request.Point > proofStorageView.statistics().Point
 						? nullptr
 						: proofStorageView.loadProof(request.Point);
 			}
@@ -62,7 +62,7 @@ namespace catapult { namespace handlers {
 			using RequestType = api::ProofAtHeightRequest;
 
 			static auto LoadProof(const io::ProofStorageView& proofStorageView, const RequestType& request) {
-				return Height() == request.Height || request.Height > proofStorageView.finalizedHeight()
+				return Height() == request.Height || request.Height > proofStorageView.statistics().Height
 						? nullptr
 						: proofStorageView.loadProof(request.Height);
 			}

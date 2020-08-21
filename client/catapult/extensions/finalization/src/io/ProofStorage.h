@@ -36,17 +36,8 @@ namespace catapult { namespace io {
 		virtual ~ProofStorage() = default;
 
 	public:
-		/// Gets the number of finalized proofs.
-		virtual FinalizationPoint finalizationPoint() const = 0;
-
-		/// Gets the last finalized height.
-		virtual Height finalizedHeight() const = 0;
-
 		/// Gets the statistics of the last finalized block.
 		virtual model::FinalizationStatistics statistics() const = 0;
-
-		/// Gets a range of at most \a maxHashes height-hash pairs starting at \a point.
-		virtual model::HeightHashPairRange loadFinalizedHashesFrom(FinalizationPoint point, size_t maxHashes) const = 0;
 
 		/// Gets the finalization proof at \a point.
 		virtual std::shared_ptr<const model::PackedFinalizationProof> loadProof(FinalizationPoint point) const = 0;

@@ -29,20 +29,8 @@ namespace catapult { namespace io {
 			, m_readLock(std::move(readLock))
 	{}
 
-	FinalizationPoint ProofStorageView::finalizationPoint() const {
-		return m_storage.finalizationPoint();
-	}
-
-	Height ProofStorageView::finalizedHeight() const {
-		return m_storage.finalizedHeight();
-	}
-
 	model::FinalizationStatistics ProofStorageView::statistics() const {
 		return m_storage.statistics();
-	}
-
-	model::HeightHashPairRange ProofStorageView::loadFinalizedHashesFrom(FinalizationPoint point, size_t maxHashes) const {
-		return m_storage.loadFinalizedHashesFrom(point, maxHashes);
 	}
 
 	std::shared_ptr<const model::PackedFinalizationProof> ProofStorageView::loadProof(FinalizationPoint point) const {

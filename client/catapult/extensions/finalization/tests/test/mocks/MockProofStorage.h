@@ -74,27 +74,8 @@ namespace catapult { namespace mocks {
 		}
 
 	public:
-		FinalizationPoint finalizationPoint() const override {
-			return m_point;
-		}
-
-		Height finalizedHeight() const override {
-			return m_height;
-		}
-
 		model::FinalizationStatistics statistics() const override {
 			return { m_point, m_height, m_hash };
-		}
-
-		model::HeightHashPairRange loadFinalizedHashesFrom(FinalizationPoint point, size_t maxHashes) const override {
-			if (point >= m_point)
-				CATAPULT_THROW_RUNTIME_ERROR("loadFinalizedHashesFrom - point must be less than finalizationPoint");
-
-			if (1 != maxHashes)
-				CATAPULT_THROW_RUNTIME_ERROR("loadFinalizedHashesFrom - maxHashes must be 1");
-
-			auto heightHashPair = model::HeightHashPair{ m_height, m_hash };
-			return model::HeightHashPairRange::CopyFixed(reinterpret_cast<const uint8_t*>(&heightHashPair), 1);
 		}
 
 		std::shared_ptr<const model::PackedFinalizationProof> loadProof(FinalizationPoint point) const override {

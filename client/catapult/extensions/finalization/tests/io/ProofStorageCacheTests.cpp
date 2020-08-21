@@ -35,20 +35,8 @@ namespace catapult { namespace io {
 			{}
 
 		public:
-			FinalizationPoint finalizationPoint() const override {
-				return m_cache.view().finalizationPoint();
-			}
-
-			Height finalizedHeight() const override {
-				return m_cache.view().finalizedHeight();
-			}
-
 			model::FinalizationStatistics statistics() const override {
 				return m_cache.view().statistics();
-			}
-
-			model::HeightHashPairRange loadFinalizedHashesFrom(FinalizationPoint point, size_t maxHashes) const override {
-				return m_cache.view().loadFinalizedHashesFrom(point, maxHashes);
 			}
 
 			std::shared_ptr<const model::PackedFinalizationProof> loadProof(FinalizationPoint point) const override {

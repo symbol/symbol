@@ -33,18 +33,38 @@ namespace catapult { namespace io {
 		explicit FileProofStorage(const std::string& dataDirectory);
 
 	public:
-		FinalizationPoint finalizationPoint() const override;
-		Height finalizedHeight() const override;
 		model::FinalizationStatistics statistics() const override;
-		model::HeightHashPairRange loadFinalizedHashesFrom(FinalizationPoint point, size_t maxHashes) const override;
 		std::shared_ptr<const model::PackedFinalizationProof> loadProof(FinalizationPoint point) const override;
 		std::shared_ptr<const model::PackedFinalizationProof> loadProof(Height point) const override;
 		void saveProof(Height height, const FinalizationProof& proof) override;
 
 	private:
+		FinalizationPoint findPointForHeight(Height height) const;
+
+	private:
+		class FinalizationIndexFile {
+		public:
+			explicit FinalizationIndexFile(const std::string& filename, LockMode lockMode = LockMode::File);
+
+		public:
+			bool exists() const;
+
+			model::FinalizationStatistics get() const;
+
+		public:
+			void set(const model::FinalizationStatistics& finalizationStatistics);
+
+		private:
+			RawFile open(OpenMode mode) const;
+
+		private:
+			std::string m_filename;
+			LockMode m_lockMode;
+		};
+
+	private:
 		std::string m_dataDirectory;
-		FinalizationPointHashFile m_hashFile;
-		IndexFile m_indexFile;
-		IndexFile m_heightIndexFile;
+		FinalizationPointHeightFile m_pointHeightMapping;
+		FinalizationIndexFile m_indexFile;
 	};
 }}

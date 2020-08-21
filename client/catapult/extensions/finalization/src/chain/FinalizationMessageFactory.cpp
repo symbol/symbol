@@ -35,12 +35,13 @@ namespace catapult { namespace chain {
 
 		std::pair<FinalizationPoint, Height> LoadFinalizationState(const io::ProofStorageCache& proofStorage) {
 			auto view = proofStorage.view();
-			return std::make_pair(view.finalizationPoint(), view.finalizedHeight());
+			auto finalizationStatistics = view.statistics();
+			return std::make_pair(finalizationStatistics.Point, finalizationStatistics.Height);
 		}
 
 		Hash256 LoadLastFinalizedHash(const io::ProofStorageCache& proofStorage) {
 			auto view = proofStorage.view();
-			return view.loadFinalizedHashesFrom(view.finalizationPoint() - FinalizationPoint(1), 1).cbegin()->Hash;
+			return view.statistics().Hash;
 		}
 
 		model::HashRange LoadPrevoteHashChain(

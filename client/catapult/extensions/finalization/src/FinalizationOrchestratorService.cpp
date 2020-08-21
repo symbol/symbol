@@ -51,7 +51,7 @@ namespace catapult { namespace finalization {
 					, m_proofStorage(GetProofStorageCache(locator))
 					, m_otsStream(io::RawFile(GetOtsTreeFilename(state), io::OpenMode::Read_Append))
 					, m_orchestrator(
-							m_proofStorage.view().finalizationPoint() + FinalizationPoint(1),
+							m_proofStorage.view().statistics().Point + FinalizationPoint(1),
 							[stepDuration = config.StepDuration, &messageAggregator = m_messageAggregator](auto point, auto time) {
 								return chain::CreateFinalizationStageAdvancer(point, time, stepDuration, messageAggregator);
 							},

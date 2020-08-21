@@ -46,9 +46,9 @@ namespace catapult { namespace io {
 			auto count = Files_Per_Storage_Directory - (key.unwrap() % Files_Per_Storage_Directory);
 			count = std::min<size_t>(numValues, count);
 
-			pFixedSizeValueStorage->read(MutableRawBuffer(pData, count * TValue::Size));
+			pFixedSizeValueStorage->read(MutableRawBuffer(pData, count * sizeof(TValue)));
 
-			pData += count * TValue::Size;
+			pData += count * sizeof(TValue);
 			numValues -= count;
 			key = key + TKey(count);
 		}
@@ -65,7 +65,7 @@ namespace catapult { namespace io {
 		}
 
 		seekStorageFile(*m_pCachedStorageFile, key);
-		m_pCachedStorageFile->write({ reinterpret_cast<const uint8_t*>(&value), TValue::Size });
+		m_pCachedStorageFile->write({ reinterpret_cast<const uint8_t*>(&value), sizeof(TValue) });
 	}
 
 	template<typename TKey, typename TValue>
@@ -81,7 +81,7 @@ namespace catapult { namespace io {
 		auto pStorageFile = std::make_unique<RawFile>(filePath, openMode, LockMode::None);
 
 		// check that first storage file has at least two values inside
-		if (key.unwrap() < Files_Per_Storage_Directory && TValue::Size * 2 > pStorageFile->size())
+		if (key.unwrap() < Files_Per_Storage_Directory && sizeof(TValue) * 2 > pStorageFile->size())
 			CATAPULT_THROW_RUNTIME_ERROR_2("storage file has invalid size", filePath, pStorageFile->size());
 
 		return pStorageFile;
@@ -90,10 +90,10 @@ namespace catapult { namespace io {
 	template<typename TKey, typename TValue>
 	void FixedSizeValueStorage<TKey, TValue>::seekStorageFile(RawFile& hashFile, TKey key) const {
 		auto index = key.unwrap() % Files_Per_Storage_Directory;
-		hashFile.seek(index * TValue::Size);
+		hashFile.seek(index * sizeof(TValue));
 	}
 
 	// instantiation
 	template class FixedSizeValueStorage<Height, Hash256>;
-	template class FixedSizeValueStorage<FinalizationPoint, model::HeightHashPair>;
+	template class FixedSizeValueStorage<FinalizationPoint, Height>;
 }}

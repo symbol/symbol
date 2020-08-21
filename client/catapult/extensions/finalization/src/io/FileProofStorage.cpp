@@ -25,29 +25,52 @@
 
 namespace catapult { namespace io {
 
-	FileProofStorage::FileProofStorage(const std::string& dataDirectory)
-			: m_dataDirectory(dataDirectory)
-			, m_hashFile(m_dataDirectory, "proof.hashes")
-			, m_indexFile((boost::filesystem::path(m_dataDirectory) / "proof.index.dat").generic_string())
-			, m_heightIndexFile((boost::filesystem::path(m_dataDirectory) / "proof.height.dat").generic_string())
+	// region FinalizationIndexFile
+
+	FileProofStorage::FinalizationIndexFile::FinalizationIndexFile(const std::string& filename, LockMode lockMode)
+			: m_filename(filename)
+			, m_lockMode(lockMode)
 	{}
 
-	FinalizationPoint FileProofStorage::finalizationPoint() const {
-		return m_indexFile.exists() ? FinalizationPoint(m_indexFile.get()) : FinalizationPoint();
+	bool FileProofStorage::FinalizationIndexFile::exists() const {
+		return boost::filesystem::is_regular_file(m_filename);
 	}
 
-	Height FileProofStorage::finalizedHeight() const {
-		return m_heightIndexFile.exists() ? Height(m_heightIndexFile.get()) : Height();
+	model::FinalizationStatistics FileProofStorage::FinalizationIndexFile::get() const {
+		auto indexFile = open(OpenMode::Read_Only);
+		model::FinalizationStatistics finalizationStatistics;
+		if (sizeof(model::FinalizationStatistics) != indexFile.size())
+			return model::FinalizationStatistics();
+
+		indexFile.read({ reinterpret_cast<uint8_t*>(&finalizationStatistics), sizeof(model::FinalizationStatistics) });
+		return finalizationStatistics;
 	}
+
+	void FileProofStorage::FinalizationIndexFile::set(const model::FinalizationStatistics& finalizationStatistics) {
+		auto indexFile = open(OpenMode::Read_Append);
+		indexFile.seek(0);
+		indexFile.write({ reinterpret_cast<const uint8_t*>(&finalizationStatistics), sizeof(model::FinalizationStatistics) });
+	}
+
+	RawFile FileProofStorage::FinalizationIndexFile::open(OpenMode mode) const {
+		return RawFile(m_filename, mode, m_lockMode);
+	}
+
+	// endregion
+
+	// region FileProofStorage
+
+	FileProofStorage::FileProofStorage(const std::string& dataDirectory)
+			: m_dataDirectory(dataDirectory)
+			, m_pointHeightMapping(m_dataDirectory, "proof.heights")
+			, m_indexFile((boost::filesystem::path(m_dataDirectory) / "proof.index.dat").generic_string())
+	{}
 
 	model::FinalizationStatistics FileProofStorage::statistics() const {
 		if (!m_indexFile.exists())
 			return model::FinalizationStatistics();
 
-		auto point = finalizationPoint();
-		auto height = finalizedHeight();
-		auto hashRange = m_hashFile.loadRangeFrom(point, 1);
-		return { point, height, hashRange.cbegin()->Hash };
+		return m_indexFile.get();
 	}
 
 	namespace {
@@ -69,16 +92,6 @@ namespace catapult { namespace io {
 		}
 	}
 
-	model::HeightHashPairRange FileProofStorage::loadFinalizedHashesFrom(FinalizationPoint point, size_t maxHashes) const {
-		auto currentPoint = finalizationPoint();
-		if (FinalizationPoint() == point || currentPoint < point)
-			return model::HeightHashPairRange();
-
-		auto numAvailableHashes = static_cast<size_t>((currentPoint - point).unwrap() + 1);
-		auto numHashes = std::min(maxHashes, numAvailableHashes);
-		return m_hashFile.loadRangeFrom(point, numHashes);
-	}
-
 	namespace {
 		std::shared_ptr<model::PackedFinalizationProof> ReadPackedFinalizationProof(RawFile& proofFile) {
 			auto size = Read32(proofFile);
@@ -92,11 +105,10 @@ namespace catapult { namespace io {
 	}
 
 	std::shared_ptr<const model::PackedFinalizationProof> FileProofStorage::loadProof(FinalizationPoint point) const {
-		auto currentPoint = finalizationPoint();
-
 		if (FinalizationPoint() == point)
 			CATAPULT_THROW_INVALID_ARGUMENT("loadProof called with point 0");
 
+		auto currentPoint = statistics().Point;
 		if (currentPoint < point) {
 			std::ostringstream out;
 			out << "cannot load proof with point " << point << " when storage point is " << currentPoint;
@@ -107,50 +119,18 @@ namespace catapult { namespace io {
 		return ReadPackedFinalizationProof(*pProofFile);
 	}
 
-	namespace {
-		bool HeightOnlyLessThenComparator(const model::HeightHashPair& lhs, const model::HeightHashPair& rhs) {
-			return lhs.Height < rhs.Height;
-		}
-
-		FinalizationPoint FindPointForHeight(const FileProofStorage& storage, Height height) {
-			constexpr auto Max_Points_In_Batch = FinalizationPoint(100);
-			auto currentPoint = storage.finalizationPoint();
-
-			while (true) {
-				auto rangeBeginPoint = currentPoint > Max_Points_In_Batch ? (currentPoint - Max_Points_In_Batch) : FinalizationPoint(1);
-				auto numHashes = currentPoint > Max_Points_In_Batch ? Max_Points_In_Batch.unwrap() : currentPoint.unwrap();
-				auto hashes = storage.loadFinalizedHashesFrom(rangeBeginPoint, numHashes);
-
-				// height is definitely not present in this 'batch', load next one
-				if (!hashes.empty() && hashes.cbegin()->Height > height) {
-					currentPoint = rangeBeginPoint;
-					continue;
-				}
-
-				auto heightHashPair = model::HeightHashPair{ height, Hash256() };
-				auto iter = std::lower_bound(hashes.cbegin(), hashes.cend(), heightHashPair, HeightOnlyLessThenComparator);
-				if (iter != hashes.cend() && height == iter->Height)
-					return rangeBeginPoint + FinalizationPoint(static_cast<uint64_t>(std::distance(hashes.cbegin(), iter)));
-
-				CATAPULT_LOG(debug) << "element not found, was looking for " << height << ", closest one: " << *iter;
-				return FinalizationPoint();
-			}
-		}
-	}
-
 	std::shared_ptr<const model::PackedFinalizationProof> FileProofStorage::loadProof(Height height) const {
-		auto currentHeight = finalizedHeight();
-
 		if (Height() == height)
 			CATAPULT_THROW_INVALID_ARGUMENT("loadProof called with height 0");
 
+		auto currentHeight = statistics().Height;
 		if (currentHeight < height) {
 			std::ostringstream out;
 			out << "cannot load proof with height " << height << " when storage height is " << currentHeight;
 			CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
 		}
 
-		auto point = FindPointForHeight(*this, height);
+		auto point = findPointForHeight(height);
 		if (FinalizationPoint() == point)
 			return nullptr;
 
@@ -162,19 +142,18 @@ namespace catapult { namespace io {
 		if (proof.empty())
 			CATAPULT_THROW_INVALID_ARGUMENT("cannot save empty proof");
 
-		auto currentPoint = finalizationPoint();
+		auto currentStatistics = statistics();
 		const auto& firstMessage = *proof.front();
 		auto messagePoint = FinalizationPoint(firstMessage.StepIdentifier.Point);
-		if (messagePoint != currentPoint + FinalizationPoint(1)) {
+		if (messagePoint != currentStatistics.Point + FinalizationPoint(1)) {
 			std::ostringstream out;
-			out << "cannot save proof with point " << messagePoint << " when storage point is " << currentPoint;
+			out << "cannot save proof with point " << messagePoint << " when storage point is " << currentStatistics.Point;
 			CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
 		}
 
-		auto currentHeight = finalizedHeight();
-		if (currentHeight >= height) {
+		if (currentStatistics.Height > height) {
 			std::ostringstream out;
-			out << "cannot save proof with height " << height << " when storage height is " << currentHeight;
+			out << "cannot save proof with height " << height << " when storage height is " << currentStatistics.Height;
 			CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
 		}
 
@@ -193,9 +172,33 @@ namespace catapult { namespace io {
 			stream.flush();
 		}
 
-		m_hashFile.save(messagePoint, { height, *firstMessage.HashesPtr() });
-
-		m_heightIndexFile.set(height.unwrap());
-		m_indexFile.set(messagePoint.unwrap());
+		m_pointHeightMapping.save(messagePoint, height);
+		m_indexFile.set({ messagePoint, height, *firstMessage.HashesPtr() });
 	}
+
+	FinalizationPoint FileProofStorage::findPointForHeight(Height height) const {
+		constexpr auto Max_Points_In_Batch = FinalizationPoint(100);
+		auto currentPoint = statistics().Point;
+
+		while (true) {
+			auto rangeBeginPoint = currentPoint > Max_Points_In_Batch ? (currentPoint - Max_Points_In_Batch) : FinalizationPoint(1);
+			auto numHeights = currentPoint > Max_Points_In_Batch ? Max_Points_In_Batch.unwrap() : currentPoint.unwrap();
+			auto heights = m_pointHeightMapping.loadRangeFrom(rangeBeginPoint, numHeights);
+
+			// heights are in ascending order, so if height is not present in this 'batch', load next one
+			if (!heights.empty() && *heights.cbegin() > height) {
+				currentPoint = rangeBeginPoint;
+				continue;
+			}
+
+			auto iter = std::upper_bound(heights.cbegin(), heights.cend(), height);
+			if (height == *--iter)
+				return rangeBeginPoint + FinalizationPoint(static_cast<uint64_t>(std::distance(heights.cbegin(), iter)));
+
+			CATAPULT_LOG(debug) << "element not found, was looking for " << height;
+			return FinalizationPoint();
+		}
+	}
+
+	// endregion
 }}

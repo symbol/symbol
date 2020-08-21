@@ -31,17 +31,8 @@ namespace catapult { namespace io {
 		ProofStorageView(const ProofStorage& storage, utils::SpinReaderWriterLock::ReaderLockGuard&& readLock);
 
 	public:
-		/// Gets the number of finalized proofs.
-		FinalizationPoint finalizationPoint() const;
-
-		/// Gets the last finalized height.
-		Height finalizedHeight() const;
-
 		/// Gets the statistics of the last finalized block.
 		model::FinalizationStatistics statistics() const;
-
-		/// Gets a range of at most \a maxHashes height-hash pairs starting at \a point.
-		model::HeightHashPairRange loadFinalizedHashesFrom(FinalizationPoint point, size_t maxHashes) const;
 
 		/// Gets the finalization proof at \a point.
 		std::shared_ptr<const model::PackedFinalizationProof> loadProof(FinalizationPoint point) const;

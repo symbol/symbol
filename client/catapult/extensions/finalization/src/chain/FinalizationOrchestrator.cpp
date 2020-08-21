@@ -86,7 +86,7 @@ namespace catapult { namespace chain {
 			if (FinalizationPoint(0) == bestPrecommitDescriptor.Point)
 				return;
 
-			if (proofStorage.view().finalizedHeight() == bestPrecommitDescriptor.Target.Height)
+			if (proofStorage.view().statistics().Height == bestPrecommitDescriptor.Target.Height)
 				return;
 
 			proofStorage.modifier().saveProof(bestPrecommitDescriptor.Target.Height, bestPrecommitDescriptor.Proof);

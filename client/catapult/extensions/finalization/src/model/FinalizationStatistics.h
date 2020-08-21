@@ -23,6 +23,8 @@
 
 namespace catapult { namespace model {
 
+#pragma pack(push, 1)
+
 	/// Finalization statistics.
 	struct FinalizationStatistics {
 		/// Finalization point.
@@ -34,4 +36,6 @@ namespace catapult { namespace model {
 		/// Finalization hash.
 		Hash256 Hash;
 	};
+
+#pragma pack(pop)
 }}
