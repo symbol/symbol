@@ -104,6 +104,18 @@ namespace catapult { namespace ionet {
 	/* Finalization messages have been requested by a peer. */ \
 	ENUM_VALUE(Pull_Finalization_Messages, 0x131) \
 	\
+	/* Finalization statistics have been requested by a peer. */ \
+	ENUM_VALUE(Finalization_Statistics, 0x132) \
+	\
+	/* Finalization proof has been requested at a specific finalization point. */ \
+	ENUM_VALUE(Finalization_Proof_At_Point, 0x133) \
+	\
+	/* Finalization proof has been requested at a specific finalization height. */ \
+	ENUM_VALUE(Finalization_Proof_At_Height, 0x134) \
+	\
+	/* Finalization proof has been requested by a peer. */ \
+	ENUM_VALUE(Pull_Finalization_Proof, 0x135) \
+	\
 	/* state path packets have types [0x200, 0x300) - ordered by facility code name */ \
 	\
 	/* Account state path has been requested by a client. */ \
