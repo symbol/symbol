@@ -20,7 +20,7 @@
 
 #include "catapult/model/Block.h"
 #include "tests/test/core/BlockTestUtils.h"
-#include "tests/test/core/TransactionContainerTestUtils.h"
+#include "tests/test/core/SizePrefixedEntityContainerTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/nodeps/Alignment.h"
 
@@ -114,7 +114,7 @@ namespace catapult { namespace model {
 
 		// Act + Assert:
 		EXPECT_FALSE(!!accessor.TransactionsPtr());
-		EXPECT_EQ(0u, test::CountTransactions(accessor.Transactions()));
+		EXPECT_EQ(0u, test::CountContainerEntities(accessor.Transactions()));
 	}
 
 	DATA_POINTER_TEST(TransactionsAreAccessibleWhenBlockHasTransactions) {
@@ -125,7 +125,7 @@ namespace catapult { namespace model {
 
 		// Act + Assert:
 		EXPECT_EQ(pBlockEnd, accessor.TransactionsPtr());
-		EXPECT_EQ(3u, test::CountTransactions(accessor.Transactions()));
+		EXPECT_EQ(3u, test::CountContainerEntities(accessor.Transactions()));
 	}
 
 	// endregion

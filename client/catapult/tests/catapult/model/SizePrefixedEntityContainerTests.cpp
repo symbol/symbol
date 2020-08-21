@@ -18,15 +18,15 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/TransactionContainer.h"
+#include "catapult/model/SizePrefixedEntityContainer.h"
 #include "catapult/utils/IntegerMath.h"
 #include "catapult/utils/MemoryUtils.h"
-#include "tests/test/core/TransactionContainerTestUtils.h"
+#include "tests/test/core/SizePrefixedEntityContainerTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace model {
 
-#define TEST_CLASS TransactionContainerTests
+#define TEST_CLASS SizePrefixedEntityContainerTests
 
 	namespace {
 		// region Block (implicit size) emulation
@@ -136,7 +136,7 @@ namespace catapult { namespace model {
 
 		// Act + Assert:
 		EXPECT_FALSE(!!accessor.TransactionsPtr());
-		EXPECT_EQ(0u, test::CountTransactions(accessor.Transactions()));
+		EXPECT_EQ(0u, test::CountContainerEntities(accessor.Transactions()));
 	}
 
 	IMPLICIT_DATA_POINTER_TEST(TransactionsAreAccessibleWhenContainerHasTransactionsWithSizesEqualToPayloadSize_ImplicitSize) {
@@ -147,7 +147,7 @@ namespace catapult { namespace model {
 
 		// Act + Assert:
 		EXPECT_EQ(pContainerEnd, accessor.TransactionsPtr());
-		EXPECT_EQ(3u, test::CountTransactions(accessor.Transactions()));
+		EXPECT_EQ(3u, test::CountContainerEntities(accessor.Transactions()));
 	}
 
 	IMPLICIT_DATA_POINTER_TEST(TransactionsAreInaccessibleWhenReportedSizeIsLessThanContainerHeaderSize_ImplicitSize) {
@@ -158,7 +158,7 @@ namespace catapult { namespace model {
 
 		// Act + Assert:
 		EXPECT_FALSE(!!accessor.TransactionsPtr());
-		EXPECT_EQ(0u, test::CountTransactions(accessor.Transactions()));
+		EXPECT_EQ(0u, test::CountContainerEntities(accessor.Transactions()));
 	}
 
 	IMPLICIT_DATA_POINTER_TEST(TransactionsArePartiallyAccessibleWhenContainerHasTransactionsWithSizesNotEqualToPayloadSize_ImplicitSize) {
@@ -169,8 +169,8 @@ namespace catapult { namespace model {
 
 		// Act + Assert:
 		EXPECT_TRUE(!!accessor.TransactionsPtr());
-		EXPECT_EQ(2u, test::CountTransactions(accessor.Transactions(EntityContainerErrorPolicy::Suppress)));
-		EXPECT_THROW(test::CountTransactions(accessor.Transactions()), catapult_runtime_error);
+		EXPECT_EQ(2u, test::CountContainerEntities(accessor.Transactions(EntityContainerErrorPolicy::Suppress)));
+		EXPECT_THROW(test::CountContainerEntities(accessor.Transactions()), catapult_runtime_error);
 	}
 
 	// endregion
@@ -188,7 +188,7 @@ namespace catapult { namespace model {
 
 		// Act + Assert:
 		EXPECT_FALSE(!!accessor.TransactionsPtr());
-		EXPECT_EQ(0u, test::CountTransactions(accessor.Transactions()));
+		EXPECT_EQ(0u, test::CountContainerEntities(accessor.Transactions()));
 	}
 
 	EXPLICIT_DATA_POINTER_TEST(TransactionsAreAccessibleWhenContainerHasTransactionsWithSizesEqualToPayloadSize_ExplicitSize) {
@@ -201,7 +201,7 @@ namespace catapult { namespace model {
 
 		// Act + Assert:
 		EXPECT_EQ(pContainerEnd, accessor.TransactionsPtr());
-		EXPECT_EQ(3u, test::CountTransactions(accessor.Transactions()));
+		EXPECT_EQ(3u, test::CountContainerEntities(accessor.Transactions()));
 	}
 
 	EXPLICIT_DATA_POINTER_TEST(TransactionsAreInaccessibleWhenReportedSizeIsLessThanContainerHeaderSize_ExplicitSize) {
@@ -213,7 +213,7 @@ namespace catapult { namespace model {
 
 		// Act + Assert:
 		EXPECT_FALSE(!!accessor.TransactionsPtr());
-		EXPECT_EQ(0u, test::CountTransactions(accessor.Transactions()));
+		EXPECT_EQ(0u, test::CountContainerEntities(accessor.Transactions()));
 	}
 
 	EXPLICIT_DATA_POINTER_TEST(TransactionsArePartiallyAccessibleWhenContainerHasTransactionsWithSizesNotEqualToPayloadSize_ExplicitSize) {
@@ -225,8 +225,8 @@ namespace catapult { namespace model {
 
 		// Act + Assert:
 		EXPECT_TRUE(!!accessor.TransactionsPtr());
-		EXPECT_EQ(2u, test::CountTransactions(accessor.Transactions(EntityContainerErrorPolicy::Suppress)));
-		EXPECT_THROW(test::CountTransactions(accessor.Transactions()), catapult_runtime_error);
+		EXPECT_EQ(2u, test::CountContainerEntities(accessor.Transactions(EntityContainerErrorPolicy::Suppress)));
+		EXPECT_THROW(test::CountContainerEntities(accessor.Transactions()), catapult_runtime_error);
 	}
 
 	// endregion

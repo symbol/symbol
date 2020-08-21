@@ -22,8 +22,8 @@
 #include "AggregateEntityType.h"
 #include "catapult/model/Cosignature.h"
 #include "catapult/model/EntityType.h"
+#include "catapult/model/SizePrefixedEntityContainer.h"
 #include "catapult/model/Transaction.h"
-#include "catapult/model/TransactionContainer.h"
 
 namespace catapult { namespace model {
 

@@ -19,8 +19,8 @@
 **/
 
 #pragma once
+#include "SizePrefixedEntityContainer.h"
 #include "Transaction.h"
-#include "TransactionContainer.h"
 #include "VerifiableEntity.h"
 #include "catapult/crypto/Vrf.h"
 #include "catapult/types.h"

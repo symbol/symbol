@@ -20,7 +20,7 @@
 
 #include "src/model/AggregateTransaction.h"
 #include "catapult/utils/MemoryUtils.h"
-#include "tests/test/core/TransactionContainerTestUtils.h"
+#include "tests/test/core/SizePrefixedEntityContainerTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/nodeps/Alignment.h"
@@ -134,7 +134,7 @@ namespace catapult { namespace model {
 		auto& accessor = TTraits::GetAccessor(*pTransaction);
 
 		// Act + Assert:
-		EXPECT_EQ(0u, test::CountTransactions(accessor.Transactions()));
+		EXPECT_EQ(0u, test::CountContainerEntities(accessor.Transactions()));
 		EXPECT_FALSE(!!accessor.TransactionsPtr());
 
 		EXPECT_EQ(0u, accessor.CosignaturesCount());
@@ -148,7 +148,7 @@ namespace catapult { namespace model {
 		auto& accessor = TTraits::GetAccessor(*pTransaction);
 
 		// Act + Assert:
-		EXPECT_EQ(3u, test::CountTransactions(accessor.Transactions()));
+		EXPECT_EQ(3u, test::CountContainerEntities(accessor.Transactions()));
 		EXPECT_EQ(pAggregateEnd, accessor.TransactionsPtr());
 
 		EXPECT_EQ(0u, accessor.CosignaturesCount());
@@ -163,7 +163,7 @@ namespace catapult { namespace model {
 		auto& accessor = TTraits::GetAccessor(*pTransaction);
 
 		// Act + Assert:
-		EXPECT_EQ(0u, test::CountTransactions(accessor.Transactions()));
+		EXPECT_EQ(0u, test::CountContainerEntities(accessor.Transactions()));
 		EXPECT_FALSE(!!accessor.TransactionsPtr());
 
 		EXPECT_EQ(2u, accessor.CosignaturesCount());
@@ -181,7 +181,7 @@ namespace catapult { namespace model {
 		auto& accessor = TTraits::GetAccessor(*pTransaction);
 
 		// Act + Assert:
-		EXPECT_EQ(3u, test::CountTransactions(accessor.Transactions()));
+		EXPECT_EQ(3u, test::CountContainerEntities(accessor.Transactions()));
 		EXPECT_EQ(test::AsVoidPointer(pAggregateEnd), accessor.TransactionsPtr());
 
 		EXPECT_EQ(1u, accessor.CosignaturesCount());

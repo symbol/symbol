@@ -19,15 +19,16 @@
 **/
 
 #pragma once
+#include "catapult/model/ContiguousEntityContainer.h"
 #include <type_traits>
 
 namespace catapult { namespace test {
 
-	/// Gets the number of transactions in \a transactions.
-	template<typename TContainer>
-	size_t CountTransactions(TContainer transactions) {
+	/// Gets the number of entities in \a container.
+	template<typename TEntity>
+	size_t CountContainerEntities(model::BasicContiguousEntityContainer<TEntity>&& container) {
 		size_t count = 0;
-		for (auto iter = transactions.begin(); transactions.end() != iter; ++iter)
+		for (auto iter = container.begin(); container.end() != iter; ++iter)
 			++count;
 
 		return count;
