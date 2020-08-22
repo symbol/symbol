@@ -245,7 +245,7 @@ namespace catapult { namespace test {
 
 	/// Extracts a task named \a taskName from \a context, which is expected to contain \a numExpectedTasks tasks,
 	/// and forwards it to \a action.
-	/// \note Context is expected to be booted.
+	/// \note \a context is expected to be booted.
 	template<typename TTestContext, typename TAction>
 	void RunTaskTestPostBoot(TTestContext& context, size_t numExpectedTasks, const std::string& taskName, TAction action) {
 		// Sanity: expected number of tasks should be registered
@@ -274,13 +274,34 @@ namespace catapult { namespace test {
 		RunTaskTestPostBoot(context, numExpectedTasks, taskName, std::move(action));
 	}
 
-	/// Asserts a task named \a taskName is registered by \a context, which is expected to contain \a numExpectedTasks tasks.
+	/// Asserts that the named tasks (\a expectedTaskNames) exactly match the tasks registered in \a context.
+	/// \note \a context is expected to be booted.
 	template<typename TTestContext>
-	void AssertRegisteredTask(TTestContext&& context, size_t numExpectedTasks, const std::string& taskName) {
+	void AssertRegisteredTasksPostBoot(TTestContext&& context, const std::unordered_set<std::string>& expectedTaskNames) {
+		// Sanity: expected number of tasks should be registered
+		const auto& tasks = context.testState().state().tasks();
+		EXPECT_EQ(expectedTaskNames.size(), tasks.size());
+
 		// Act:
-		test::RunTaskTest(context, numExpectedTasks, taskName, [&taskName](const auto& task) {
-			// Assert:
-			AssertUnscheduledTask(task, taskName);
-		});
+		std::unordered_set<std::string> actualTaskNames;
+		for (const auto& task : tasks) {
+			actualTaskNames.insert(task.Name);
+
+			// Sanity: check non-name properties
+			AssertUnscheduledTask(task, task.Name);
+		}
+
+		// Assert:
+		EXPECT_EQ(expectedTaskNames, actualTaskNames);
+	}
+
+	/// Asserts that the named tasks (\a expectedTaskNames) exactly match the tasks registered in \a context.
+	template<typename TTestContext>
+	void AssertRegisteredTasks(TTestContext&& context, const std::unordered_set<std::string>& expectedTaskNames) {
+		// Arrange:
+		context.boot();
+
+		// Act + Assert:
+		AssertRegisteredTasksPostBoot(context, expectedTaskNames);
 	}
 }}

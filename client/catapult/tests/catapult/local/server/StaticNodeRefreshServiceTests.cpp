@@ -132,8 +132,8 @@ namespace catapult { namespace local {
 		}
 	}
 
-	TEST(TEST_CLASS, RefreshTaskIsScheduled) {
-		test::AssertRegisteredTask(TestContext(), 1, Task_Name);
+	TEST(TEST_CLASS, TasksAreRegistered) {
+		test::AssertRegisteredTasks(TestContext(), { Task_Name });
 	}
 
 	TEST(TEST_CLASS, RefreshSucceedsWhenThereAreNoStaticNodes) {

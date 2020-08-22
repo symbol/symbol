@@ -187,8 +187,8 @@ namespace catapult { namespace networkheight {
 		}
 	}
 
-	TEST(TEST_CLASS, NetworkChainHeightDetectionTaskIsScheduled) {
-		test::AssertRegisteredTask(TestContext(), 1, Task_Name);
+	TEST(TEST_CLASS, TasksAreRegistered) {
+		test::AssertRegisteredTasks(TestContext(), { Task_Name });
 	}
 
 	TEST(TEST_CLASS, MedianIsCalculatedAsExpected) {

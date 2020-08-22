@@ -324,11 +324,15 @@ namespace catapult { namespace nodediscovery {
 
 	// endregion
 
-	// region ping task
+	// region tasks
 
-	TEST(TEST_CLASS, PingTaskIsScheduled) {
-		test::AssertRegisteredTask(TestContext(), Num_Expected_Tasks, Ping_Task_Name);
+	TEST(TEST_CLASS, TasksAreRegistered) {
+		test::AssertRegisteredTasks(TestContext(), { Ping_Task_Name, Peers_Task_Name });
 	}
+
+	// endregion
+
+	// region ping task
 
 	TEST(TEST_CLASS, PingTaskBroadcastsLocalNetworkNode) {
 		// Arrange:
@@ -413,10 +417,6 @@ namespace catapult { namespace nodediscovery {
 				assertFunc(context, partnerKey, nodeIdentity);
 			});
 		}
-	}
-
-	TEST(TEST_CLASS, PeersTaskIsScheduled) {
-		test::AssertRegisteredTask(TestContext(), Num_Expected_Tasks, Peers_Task_Name);
 	}
 
 	TEST(TEST_CLASS, PeersTaskHasNoEffectWhenNoPacketIosAreAvailable) {

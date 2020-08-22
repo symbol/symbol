@@ -493,8 +493,8 @@ namespace catapult { namespace harvesting {
 		}
 	}
 
-	TEST(TEST_CLASS, HarvestingTaskIsScheduled) {
-		test::AssertRegisteredTask(TestContext(), 1, Task_Name);
+	TEST(TEST_CLASS, TasksAreRegistered) {
+		test::AssertRegisteredTasks(TestContext(), { Task_Name });
 	}
 
 	// endregion

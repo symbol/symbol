@@ -210,8 +210,8 @@ namespace catapult { namespace packetserver {
 
 	// region tasks
 
-	TEST(TEST_CLASS, AgePeersTaskIsScheduled) {
-		test::AssertRegisteredTask(TestContext(), 1, "age peers task for service Readers");
+	TEST(TEST_CLASS, TasksAreRegistered) {
+		test::AssertRegisteredTasks(TestContext(), { "age peers task for service Readers" });
 	}
 
 	// endregion

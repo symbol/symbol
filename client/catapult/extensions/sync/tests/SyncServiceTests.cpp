@@ -31,8 +31,6 @@ namespace catapult { namespace sync {
 #define TEST_CLASS SyncServiceTests
 
 	namespace {
-		constexpr auto Num_Expected_Tasks = 3u;
-
 		struct SyncServiceTraits {
 			static constexpr auto CreateRegistrar = CreateSyncServiceRegistrar;
 		};
@@ -57,16 +55,12 @@ namespace catapult { namespace sync {
 
 	// region tasks
 
-	TEST(TEST_CLASS, ConnectPeersTaskIsScheduled) {
-		test::AssertRegisteredTask(TestContext(), Num_Expected_Tasks, "connect peers task for service Sync");
-	}
-
-	TEST(TEST_CLASS, SynchronizerTaskIsScheduled) {
-		test::AssertRegisteredTask(TestContext(), Num_Expected_Tasks, "synchronizer task");
-	}
-
-	TEST(TEST_CLASS, PullUtTaskIsScheduled) {
-		test::AssertRegisteredTask(TestContext(), Num_Expected_Tasks, "pull unconfirmed transactions task");
+	TEST(TEST_CLASS, TasksAreRegistered) {
+		test::AssertRegisteredTasks(TestContext(), {
+			"connect peers task for service Sync",
+			"synchronizer task",
+			"pull unconfirmed transactions task"
+		});
 	}
 
 	// endregion
