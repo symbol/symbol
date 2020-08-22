@@ -120,6 +120,8 @@ namespace catapult { namespace test {
 		config.MinHarvesterBalance = Amount(500'000);
 		config.MaxHarvesterBalance = config.InitialCurrencyAtomicUnits;
 
+		config.VotingSetGrouping = 1;
+
 		config.BlockPruneInterval = 360;
 		config.MaxTransactionsPerBlock = 200'000;
 		return config;

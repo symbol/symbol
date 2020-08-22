@@ -44,6 +44,7 @@ namespace catapult { namespace plugins {
 			return {
 				config.Network.Identifier,
 				config.ImportanceGrouping,
+				config.VotingSetGrouping,
 				config.MinHarvesterBalance,
 				config.MaxHarvesterBalance,
 				config.MinVoterBalance,

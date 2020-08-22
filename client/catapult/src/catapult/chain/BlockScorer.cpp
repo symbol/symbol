@@ -20,7 +20,7 @@
 
 #include "BlockScorer.h"
 #include "catapult/model/Block.h"
-#include "catapult/model/ImportanceHeight.h"
+#include "catapult/model/HeightGrouping.h"
 #include "catapult/utils/IntegerMath.h"
 
 namespace catapult { namespace chain {

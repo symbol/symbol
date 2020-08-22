@@ -174,7 +174,7 @@ namespace catapult { namespace cache {
 	}
 
 	void BasicAccountStateCacheDelta::prune(Height height) {
-		m_highValueAccountsUpdater.prune(height);
+		m_highValueAccountsUpdater.prune(model::CalculateGroupedHeight<Height>(height, m_options.VotingSetGrouping));
 	}
 
 	Address BasicAccountStateCacheDelta::getAddress(const Key& publicKey) {

@@ -18,12 +18,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/model/ImportanceHeight.h"
+#include "catapult/model/HeightGrouping.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace model {
 
-#define TEST_CLASS ImportanceHeightTests
+#define TEST_CLASS HeightGroupingTests
 
 	namespace {
 		using RawHeightToRawHeightMap = std::map<uint64_t, uint64_t>;

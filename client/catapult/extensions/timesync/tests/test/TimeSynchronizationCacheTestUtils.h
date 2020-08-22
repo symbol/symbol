@@ -19,7 +19,7 @@
 **/
 
 #pragma once
-#include "catapult/model/ImportanceHeight.h"
+#include "catapult/model/HeightGrouping.h"
 
 namespace catapult {
 	namespace cache { class AccountStateCacheDelta; }

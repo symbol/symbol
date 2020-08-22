@@ -56,9 +56,6 @@ namespace catapult { namespace model {
 		/// \note This can lower security because it will increase the influence of time relative to importance.
 		uint32_t BlockTimeSmoothingFactor;
 
-		/// Number of blocks between successive finalization attempts.
-		uint32_t BlockFinalizationInterval;
-
 		/// Number of blocks that should be treated as a group for importance purposes.
 		/// \note Importances will only be calculated at blocks that are multiples of this grouping number.
 		uint64_t ImportanceGrouping;
@@ -98,6 +95,10 @@ namespace catapult { namespace model {
 
 		/// Minimum number of harvesting mosaic atomic units needed for an account to be eligible for voting.
 		Amount MinVoterBalance;
+
+		/// Number of blocks that should be treated as a group for voting set purposes.
+		/// \note Voting sets will only be calculated at blocks that are multiples of this grouping number.
+		uint64_t VotingSetGrouping;
 
 		/// Maximum number of voting keys that can be registered at once per account.
 		uint8_t MaxVotingKeysPerAccount;

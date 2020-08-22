@@ -22,7 +22,7 @@
 #include "CalculatorUtils.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/model/BlockChainConfiguration.h"
-#include "catapult/model/ImportanceHeight.h"
+#include "catapult/model/HeightGrouping.h"
 #include "catapult/state/AccountImportanceSnapshots.h"
 #include "catapult/utils/StackLogger.h"
 #include <boost/multiprecision/cpp_int.hpp>

@@ -79,6 +79,7 @@ namespace catapult { namespace sync {
 			// importance grouping must be non-zero
 			auto config = model::BlockChainConfiguration::Uninitialized();
 			config.ImportanceGrouping = 1;
+			config.VotingSetGrouping = 1;
 
 			// create the cache
 			return test::CreateEmptyCatapultCache<test::CoreSystemCacheFactory>(config);

@@ -38,6 +38,7 @@ namespace catapult { namespace test {
 			return {
 				config.Network.Identifier,
 				config.ImportanceGrouping,
+				config.VotingSetGrouping,
 				config.MinHarvesterBalance,
 				config.MaxHarvesterBalance,
 				config.MinVoterBalance,
@@ -80,7 +81,9 @@ namespace catapult { namespace test {
 	// region CreateEmptyCatapultCache
 
 	cache::CatapultCache CreateEmptyCatapultCache() {
-		return CreateEmptyCatapultCache(model::BlockChainConfiguration::Uninitialized());
+		auto config = model::BlockChainConfiguration::Uninitialized();
+		config.VotingSetGrouping = 1;
+		return CreateEmptyCatapultCache(config);
 	}
 
 	cache::CatapultCache CreateEmptyCatapultCache(const model::BlockChainConfiguration& config) {

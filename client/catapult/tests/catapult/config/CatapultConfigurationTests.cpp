@@ -66,7 +66,6 @@ namespace catapult { namespace config {
 
 			EXPECT_EQ(utils::TimeSpan::FromSeconds(30), config.BlockGenerationTargetTime);
 			EXPECT_EQ(3000u, config.BlockTimeSmoothingFactor);
-			EXPECT_EQ(30u, config.BlockFinalizationInterval);
 
 			EXPECT_EQ(39u, config.ImportanceGrouping);
 			EXPECT_EQ(5u, config.ImportanceActivityPercentage);
@@ -85,6 +84,7 @@ namespace catapult { namespace config {
 			EXPECT_EQ(Amount(4'000'000), config.MaxHarvesterBalance);
 			EXPECT_EQ(Amount(50'000), config.MinVoterBalance);
 
+			EXPECT_EQ(100u, config.VotingSetGrouping);
 			EXPECT_EQ(3u, config.MaxVotingKeysPerAccount);
 			EXPECT_EQ(72u, config.MinVotingKeyLifetime);
 			EXPECT_EQ(72u * 365, config.MaxVotingKeyLifetime);

@@ -83,6 +83,9 @@ namespace catapult { namespace cache {
 			/// Importance grouping.
 			uint64_t ImportanceGrouping;
 
+			/// Voting set grouping.
+			uint64_t VotingSetGrouping;
+
 			/// Minimum harvester balance.
 			/// \note This doubles as the minimum balance of tracked high value accounts.
 			Amount MinHarvesterBalance;

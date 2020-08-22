@@ -63,7 +63,6 @@ namespace catapult { namespace model {
 
 		LOAD_CHAIN_PROPERTY(BlockGenerationTargetTime);
 		LOAD_CHAIN_PROPERTY(BlockTimeSmoothingFactor);
-		LOAD_CHAIN_PROPERTY(BlockFinalizationInterval);
 
 		LOAD_CHAIN_PROPERTY(ImportanceGrouping);
 		LOAD_CHAIN_PROPERTY(ImportanceActivityPercentage);
@@ -82,6 +81,7 @@ namespace catapult { namespace model {
 		LOAD_CHAIN_PROPERTY(MaxHarvesterBalance);
 		LOAD_CHAIN_PROPERTY(MinVoterBalance);
 
+		LOAD_CHAIN_PROPERTY(VotingSetGrouping);
 		LOAD_CHAIN_PROPERTY(MaxVotingKeysPerAccount);
 		LOAD_CHAIN_PROPERTY(MinVotingKeyLifetime);
 		LOAD_CHAIN_PROPERTY(MaxVotingKeyLifetime);

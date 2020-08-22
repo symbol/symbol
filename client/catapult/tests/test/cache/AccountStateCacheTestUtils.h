@@ -30,7 +30,8 @@ namespace catapult { namespace test {
 			MosaicId harvestingMosaicId) {
 		return {
 			model::NetworkIdentifier::Mijin_Test,
-			543,
+			333,
+			222,
 			Amount(),
 			Amount(std::numeric_limits<Amount::ValueType>::max()),
 			Amount(),

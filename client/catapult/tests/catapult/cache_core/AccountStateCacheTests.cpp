@@ -1421,34 +1421,59 @@ namespace catapult { namespace cache {
 
 	// region prune
 
-	TEST(TEST_CLASS, CanPruneHighValueAccounts) {
-		// Arrange: set min voter balance to 1M
-		auto options = Default_Cache_Options;
-		options.MinVoterBalance = Amount(1'000'000);
-		AccountStateCache cache(CacheConfiguration(), options);
+	namespace {
+		void RunPruneTest(uint64_t grouping, Height pruneHeight, size_t expectedSizeAfterPrune) {
+			// Arrange: set min voter balance to 1M
+			auto options = Default_Cache_Options;
+			options.VotingSetGrouping = grouping;
+			options.MinVoterBalance = Amount(1'000'000);
+			AccountStateCache cache(CacheConfiguration(), options);
 
-		// - seed cache with 3/3 accounts with sufficient (voter) balance
-		std::vector<Address> addresses;
-		{
+			// - seed cache with 3/3 accounts with sufficient (voter) balance
+			std::vector<Address> addresses;
+			{
+				auto delta = cache.createDelta();
+				addresses = AddAccountsWithBalances(*delta, { Amount(1'100'000), Amount(1'200'000), Amount(1'000'000) });
+				delta->updateHighValueAccounts(Height(3));
+				cache.commit();
+			}
+
+			// - decrease the balance of two accounts below the threshold
 			auto delta = cache.createDelta();
-			addresses = AddAccountsWithBalances(*delta, { Amount(1'100'000), Amount(1'200'000), Amount(1'000'000) });
-			delta->updateHighValueAccounts(Height(3));
-			cache.commit();
+			delta->find(addresses[0]).get().Balances.debit(Harvesting_Mosaic_Id, Amount(300'000));
+			delta->updateHighValueAccounts(Height(4));
+
+			delta->find(addresses[2]).get().Balances.debit(Harvesting_Mosaic_Id, Amount(300'000));
+			delta->updateHighValueAccounts(Height(6));
+
+			// Sanity: before pruning, all three accounts are still tracked
+			EXPECT_EQ(3u, delta->highValueAccounts().accountHistories().size());
+
+			// Act:
+			delta->prune(pruneHeight);
+
+			// Assert: the account(s) decreased below the threshold should be untracked
+			EXPECT_EQ(expectedSizeAfterPrune, delta->highValueAccounts().accountHistories().size())
+					<< "grouping = " << grouping << ", pruneHeight " << pruneHeight;
 		}
+	}
 
-		// - decrease the balance of one account below the threshold
-		auto delta = cache.createDelta();
-		delta->find(addresses[1]).get().Balances.debit(Harvesting_Mosaic_Id, Amount(300'000));
-		delta->updateHighValueAccounts(Height(4));
+	TEST(TEST_CLASS, CanPruneHighValueAccounts) {
+		RunPruneTest(1, Height(4), 3); // prune <= 3
+		RunPruneTest(1, Height(5), 2); // prune <= 4
+		RunPruneTest(1, Height(6), 2); // prune <= 5
+		RunPruneTest(1, Height(7), 1); // prune <= 6
+		RunPruneTest(1, Height(8), 1); // prune <= 7
+		RunPruneTest(1, Height(9), 1); // prune <= 8
+	}
 
-		// Sanity: before pruning, all three accounts are still tracked
-		EXPECT_EQ(3u, delta->highValueAccounts().accountHistories().size());
-
-		// Act:
-		delta->prune(Height(4));
-
-		// Assert: the account decreased below the threshold should be untracked
-		EXPECT_EQ(2u, delta->highValueAccounts().accountHistories().size());
+	TEST(TEST_CLASS, CanPruneHighValueAccounts_CustomGrouping) {
+		RunPruneTest(4, Height(4), 3); // prune <= 1
+		RunPruneTest(4, Height(5), 2); // prune <= 4
+		RunPruneTest(4, Height(6), 2); // prune <= 4
+		RunPruneTest(4, Height(7), 2); // prune <= 4
+		RunPruneTest(4, Height(8), 2); // prune <= 4
+		RunPruneTest(4, Height(9), 1); // prune <= 8
 	}
 
 	// endregion

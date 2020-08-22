@@ -18,22 +18,30 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "ImportanceHeight.h"
+#pragma once
 #include "catapult/exceptions.h"
+#include "catapult/types.h"
 
 namespace catapult { namespace model {
 
-	namespace {
-		void CheckImportanceGrouping(Height::ValueType grouping) {
-			if (0 == grouping)
-				CATAPULT_THROW_INVALID_ARGUMENT_1("importance grouping must be non-zero", grouping);
-		}
-	}
+	/// Calculates the grouped height from the supplied \a height and \a grouping (the number of blocks that should be treated as a group
+	/// for calculation purposes).
+	template<typename TGroupedHeight>
+	TGroupedHeight CalculateGroupedHeight(Height height, Height::ValueType grouping) {
+		if (0 == grouping)
+			CATAPULT_THROW_INVALID_ARGUMENT_1("grouping must be non-zero", grouping);
 
-	ImportanceHeight ConvertToImportanceHeight(Height height, Height::ValueType grouping) {
-		CheckImportanceGrouping(grouping);
 		Height::ValueType previousHeight = height.unwrap() - 1;
 		Height::ValueType groupedHeight = (previousHeight / grouping) * grouping;
-		return ImportanceHeight(groupedHeight < 1 ? 1 : groupedHeight);
+		return TGroupedHeight(groupedHeight < 1 ? 1 : groupedHeight);
 	}
+
+	struct ImportanceHeight_tag {};
+
+	/// Represents a height at which importance is calculated.
+	using ImportanceHeight = utils::BaseValue<Height::ValueType, ImportanceHeight_tag>;
+
+	/// Calculates the importance height from the supplied \a height and \a grouping (the number of blocks that should be
+	/// treated as a group for importance purposes).
+	constexpr auto ConvertToImportanceHeight = CalculateGroupedHeight<ImportanceHeight>;
 }}

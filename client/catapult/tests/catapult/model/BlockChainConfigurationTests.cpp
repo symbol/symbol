@@ -62,7 +62,6 @@ namespace catapult { namespace model {
 
 							{ "blockGenerationTargetTime", "10m" },
 							{ "blockTimeSmoothingFactor", "765" },
-							{ "blockFinalizationInterval", "512" },
 
 							{ "importanceGrouping", "444" },
 							{ "importanceActivityPercentage", "15" },
@@ -81,6 +80,7 @@ namespace catapult { namespace model {
 							{ "maxHarvesterBalance", "9'000'000'000" },
 							{ "minVoterBalance", "2'000'000'000" },
 
+							{ "votingSetGrouping", "234" },
 							{ "maxVotingKeysPerAccount", "36" },
 							{ "minVotingKeyLifetime", "21" },
 							{ "maxVotingKeyLifetime", "123" },
@@ -129,7 +129,6 @@ namespace catapult { namespace model {
 
 				EXPECT_EQ(utils::TimeSpan::FromMinutes(0), config.BlockGenerationTargetTime);
 				EXPECT_EQ(0u, config.BlockTimeSmoothingFactor);
-				EXPECT_EQ(0u, config.BlockFinalizationInterval);
 
 				EXPECT_EQ(0u, config.ImportanceGrouping);
 				EXPECT_EQ(0u, config.ImportanceActivityPercentage);
@@ -148,6 +147,7 @@ namespace catapult { namespace model {
 				EXPECT_EQ(Amount(0), config.MaxHarvesterBalance);
 				EXPECT_EQ(Amount(0), config.MinVoterBalance);
 
+				EXPECT_EQ(0u, config.VotingSetGrouping);
 				EXPECT_EQ(0u, config.MaxVotingKeysPerAccount);
 				EXPECT_EQ(0u, config.MinVotingKeyLifetime);
 				EXPECT_EQ(0u, config.MaxVotingKeyLifetime);
@@ -178,7 +178,6 @@ namespace catapult { namespace model {
 
 				EXPECT_EQ(utils::TimeSpan::FromMinutes(10), config.BlockGenerationTargetTime);
 				EXPECT_EQ(765u, config.BlockTimeSmoothingFactor);
-				EXPECT_EQ(512u, config.BlockFinalizationInterval);
 
 				EXPECT_EQ(444u, config.ImportanceGrouping);
 				EXPECT_EQ(15u, config.ImportanceActivityPercentage);
@@ -197,6 +196,7 @@ namespace catapult { namespace model {
 				EXPECT_EQ(Amount(9'000'000'000), config.MaxHarvesterBalance);
 				EXPECT_EQ(Amount(2'000'000'000), config.MinVoterBalance);
 
+				EXPECT_EQ(234u, config.VotingSetGrouping);
 				EXPECT_EQ(36u, config.MaxVotingKeysPerAccount);
 				EXPECT_EQ(21u, config.MinVotingKeyLifetime);
 				EXPECT_EQ(123u, config.MaxVotingKeyLifetime);
