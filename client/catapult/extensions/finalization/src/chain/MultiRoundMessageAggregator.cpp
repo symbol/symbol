@@ -155,15 +155,15 @@ namespace catapult { namespace chain {
 	}
 
 	RoundMessageAggregatorAddResult MultiRoundMessageAggregatorModifier::add(const std::shared_ptr<model::FinalizationMessage>& pMessage) {
-		auto messageFinalizationPoint = FinalizationPoint(pMessage->StepIdentifier.Point);
-		if (m_state.MinFinalizationPoint > messageFinalizationPoint || m_state.MaxFinalizationPoint < messageFinalizationPoint)
+		auto messagePoint = FinalizationPoint(pMessage->StepIdentifier.Point);
+		if (m_state.MinFinalizationPoint > messagePoint || m_state.MaxFinalizationPoint < messagePoint)
 			return RoundMessageAggregatorAddResult::Failure_Invalid_Point;
 
-		auto iter = m_state.RoundMessageAggregators.find(messageFinalizationPoint);
+		auto iter = m_state.RoundMessageAggregators.find(messagePoint);
 		if (m_state.RoundMessageAggregators.cend() == iter) {
 			iter = m_state.RoundMessageAggregators.emplace(
-					messageFinalizationPoint,
-					m_state.RoundMessageAggregatorFactory(messageFinalizationPoint)).first;
+					messagePoint,
+					m_state.RoundMessageAggregatorFactory(messagePoint, pMessage->Height)).first;
 		}
 
 		return iter->second->add(pMessage);

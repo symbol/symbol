@@ -218,6 +218,22 @@ namespace catapult { namespace finalization {
 
 	// endregion
 
+	// region FinalizationBootstrapperService - hooks
+
+	TEST(TEST_CLASS, LocalFinalizedHeightSupplierHookIsRegistered) {
+		// Arrange:
+		TestContext context;
+		context.boot(FinalizationPoint(11), Height(123), Hash256());
+
+		// Act:
+		auto height = context.testState().state().hooks().localFinalizedHeightSupplier()();
+
+		// Assert:
+		EXPECT_EQ(Height(123), height);
+	}
+
+	// endregion
+
 	// region FinalizationBootstrapperService - multi round message aggregator
 
 	namespace {

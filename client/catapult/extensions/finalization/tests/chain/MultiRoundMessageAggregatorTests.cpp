@@ -58,8 +58,8 @@ namespace catapult { namespace chain {
 						options.MaxResponseSize,
 						point,
 						model::HeightHashPair{ Last_Finalized_Height, m_lastFinalizedHash },
-						[this](auto roundPoint) {
-							auto pRoundMessageAggregator = std::make_unique<mocks::MockRoundMessageAggregator>(roundPoint);
+						[this](auto roundPoint, auto height) {
+							auto pRoundMessageAggregator = std::make_unique<mocks::MockRoundMessageAggregator>(roundPoint, height);
 							if (m_roundMessageAggregatorInitializer)
 								m_roundMessageAggregatorInitializer(*pRoundMessageAggregator);
 
@@ -102,8 +102,11 @@ namespace catapult { namespace chain {
 			// Arrange:
 			context.aggregator().modifier().setMaxFinalizationPoint(Default_Max_FP);
 
-			for (auto pointDelta : pointDeltas)
-				context.aggregator().modifier().add(test::CreateMessage(Default_Min_FP + pointDelta));
+			auto i = 1u;
+			for (auto pointDelta : pointDeltas) {
+				context.aggregator().modifier().add(test::CreateMessage(Default_Min_FP + pointDelta, Height(100 + i * 50)));
+				++i;
+			}
 
 			// Sanity:
 			EXPECT_EQ(3u, context.aggregator().view().size());
@@ -178,7 +181,7 @@ namespace catapult { namespace chain {
 			context.aggregator().modifier().setMaxFinalizationPoint(Default_Max_FP);
 
 			// Act:
-			auto result = context.aggregator().modifier().add(test::CreateMessage(point));
+			auto result = context.aggregator().modifier().add(test::CreateMessage(point, Height(222)));
 
 			// Assert:
 			EXPECT_EQ(RoundMessageAggregatorAddResult::Failure_Invalid_Point, result);
@@ -195,7 +198,7 @@ namespace catapult { namespace chain {
 			});
 
 			// Act:
-			auto result = context.aggregator().modifier().add(test::CreateMessage(point));
+			auto result = context.aggregator().modifier().add(test::CreateMessage(point, Height(222)));
 
 			// Assert:
 			EXPECT_EQ(expectedAddResult, result);
@@ -203,6 +206,7 @@ namespace catapult { namespace chain {
 			ASSERT_EQ(1u, context.roundMessageAggregators().size());
 
 			EXPECT_EQ(point, context.roundMessageAggregators()[0]->point());
+			EXPECT_EQ(Height(222), context.roundMessageAggregators()[0]->height());
 			EXPECT_EQ(1u, context.roundMessageAggregators()[0]->numAddCalls());
 		}
 
@@ -242,14 +246,15 @@ namespace catapult { namespace chain {
 		context.aggregator().modifier().setMaxFinalizationPoint(Default_Max_FP);
 
 		// Act:
-		for (auto i = 0u; i < 3; ++i)
-			context.aggregator().modifier().add(test::CreateMessage(Default_Min_FP + FinalizationPoint(5)));
+		for (auto i = 1u; i <= 3; ++i)
+			context.aggregator().modifier().add(test::CreateMessage(Default_Min_FP + FinalizationPoint(5), Height(100 + i * 50)));
 
 		// Assert:
 		EXPECT_EQ(1u, context.aggregator().view().size());
 		ASSERT_EQ(1u, context.roundMessageAggregators().size());
 
 		EXPECT_EQ(Default_Min_FP + FinalizationPoint(5), context.roundMessageAggregators()[0]->point());
+		EXPECT_EQ(Height(150), context.roundMessageAggregators()[0]->height());
 		EXPECT_EQ(3u, context.roundMessageAggregators()[0]->numAddCalls());
 	}
 
@@ -267,6 +272,7 @@ namespace catapult { namespace chain {
 		auto i = 0u;
 		for (auto pointDelta : { FinalizationPoint(0), FinalizationPoint(5), FinalizationPoint(10) }) {
 			EXPECT_EQ(Default_Min_FP + pointDelta, context.roundMessageAggregators()[i]->point()) << i;
+			EXPECT_EQ(Height(100 + (i + 1) * 50), context.roundMessageAggregators()[i]->height()) << i;
 			EXPECT_EQ(1u, context.roundMessageAggregators()[i]->numAddCalls()) << i;
 			++i;
 		}
@@ -287,6 +293,7 @@ namespace catapult { namespace chain {
 		auto i = 0u;
 		for (auto pointDelta : { FinalizationPoint(5), FinalizationPoint(0), FinalizationPoint(10) }) {
 			EXPECT_EQ(Default_Min_FP + pointDelta, context.roundMessageAggregators()[i]->point()) << i;
+			EXPECT_EQ(Height(100 + (i + 1) * 50), context.roundMessageAggregators()[i]->height()) << i;
 			EXPECT_EQ(FinalizationPoint(10) == pointDelta ? 1u : 2u, context.roundMessageAggregators()[i]->numAddCalls()) << i;
 			++i;
 		}

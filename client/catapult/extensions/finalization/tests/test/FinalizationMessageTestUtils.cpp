@@ -37,6 +37,12 @@ namespace catapult { namespace test {
 		return CreateMessage({ point, model::FinalizationStage::Count }, GenerateRandomByteArray<Hash256>());
 	}
 
+	std::unique_ptr<model::FinalizationMessage> CreateMessage(FinalizationPoint point, Height height) {
+		auto pMessage = CreateMessage(point);
+		pMessage->Height = height;
+		return pMessage;
+	}
+
 	std::unique_ptr<model::FinalizationMessage> CreateMessage(const Hash256& hash) {
 		return CreateMessage(GenerateRandomValue<Height>(), hash);
 	}

@@ -88,15 +88,15 @@ namespace catapult { namespace finalization {
 						10'000'000,
 						FinalizationPoint(8),
 						lastFinalizedHeightHashPair,
-						[this](auto roundPoint) {
-							auto pRoundMessageAggregator = std::make_unique<mocks::MockRoundMessageAggregator>(roundPoint);
+						[this](auto roundPoint, auto height) {
+							auto pRoundMessageAggregator = std::make_unique<mocks::MockRoundMessageAggregator>(roundPoint, height);
 							if (m_createCompletedRound) {
 								pRoundMessageAggregator->roundContext().acceptPrevote(Height(245), m_hashes.data(), m_hashes.size(), 750);
 								pRoundMessageAggregator->roundContext().acceptPrecommit(Height(246), m_hashes[1], 400);
 								pRoundMessageAggregator->roundContext().acceptPrecommit(Height(247), m_hashes[2], 400);
 							}
 
-							auto pMessage = test::CreateMessage(pRoundMessageAggregator->point());
+							auto pMessage = test::CreateMessage(roundPoint);
 							pMessage->Height = Height(246);
 
 							chain::RoundMessageAggregator::UnknownMessages messages;

@@ -42,49 +42,32 @@ namespace catapult { namespace finalization {
 		class FinalizationContextFactory {
 		public:
 			FinalizationContextFactory(
+					uint64_t votingSetGrouping,
 					const FinalizationConfiguration& config,
 					const cache::AccountStateCache& accountStateCache,
-					const io::BlockStorageCache& storage,
-					const io::ProofStorageCache& proofStorage)
-					: m_config(config)
+					const io::BlockStorageCache& storage)
+					: m_votingSetGrouping(votingSetGrouping)
+					, m_config(config)
 					, m_accountStateCache(accountStateCache)
 					, m_storage(storage)
-					, m_proofStorage(proofStorage)
 			{}
 
 		public:
-			model::FinalizationContext create(FinalizationPoint roundPoint) const {
-				// TODO: FinalizationContext construction, especially usage of storageContext, will need to change with voting sets
-				auto storageContext = loadStorageContext();
-				auto accountStateCacheView = m_accountStateCache.createView();
+			model::FinalizationContext create(FinalizationPoint roundPoint, Height height) const {
+				auto votingSetHeight = model::CalculateGroupedHeight<Height>(height, m_votingSetGrouping);
 				return model::FinalizationContext(
 						roundPoint,
-						storageContext.LastFinalizedHeight,
-						storageContext.LastFinalizedGenerationHash,
+						votingSetHeight,
+						m_storage.view().loadBlockElement(votingSetHeight)->GenerationHash,
 						m_config,
-						*accountStateCacheView);
+						*m_accountStateCache.createView());
 			}
 
 		private:
-			struct StorageContext {
-				Height LastFinalizedHeight;
-				GenerationHash LastFinalizedGenerationHash;
-			};
-
-		private:
-			StorageContext loadStorageContext() const {
-				auto proofStorageView = m_proofStorage.view();
-				auto height = proofStorageView.statistics().Height;
-
-				auto generationHash = m_storage.view().loadBlockElement(height)->GenerationHash;
-				return { height, generationHash };
-			}
-
-		private:
+			uint64_t m_votingSetGrouping;
 			FinalizationConfiguration m_config;
 			const cache::AccountStateCache& m_accountStateCache;
 			const io::BlockStorageCache& m_storage;
-			const io::ProofStorageCache& m_proofStorage;
 		};
 
 		// endregion
@@ -97,10 +80,10 @@ namespace catapult { namespace finalization {
 				extensions::ServiceState& state) {
 			auto maxResponseSize = config.MessageSynchronizationMaxResponseSize.bytes();
 			FinalizationContextFactory finalizationContextFactory(
+					state.config().BlockChain.VotingSetGrouping,
 					config,
 					state.cache().sub<cache::AccountStateCache>(),
-					state.storage(),
-					proofStorage);
+					state.storage());
 
 			auto proofStorageView = proofStorage.view();
 			auto finalizationStatistics = proofStorageView.statistics();
@@ -108,9 +91,8 @@ namespace catapult { namespace finalization {
 					maxResponseSize,
 					finalizationStatistics.Point,
 					model::HeightHashPair{ finalizationStatistics.Height, finalizationStatistics.Hash },
-					[maxResponseSize, finalizationContextFactory](auto roundPoint) {
-						// TODO: will need update when we figure out voting sets o0
-						return chain::CreateRoundMessageAggregator(maxResponseSize, finalizationContextFactory.create(roundPoint));
+					[maxResponseSize, finalizationContextFactory](auto roundPoint, auto height) {
+						return chain::CreateRoundMessageAggregator(maxResponseSize, finalizationContextFactory.create(roundPoint, height));
 					});
 		}
 
@@ -157,6 +139,11 @@ namespace catapult { namespace finalization {
 			}
 
 			void registerServices(extensions::ServiceLocator& locator, extensions::ServiceState& state) override {
+				// register hooks
+				state.hooks().setLocalFinalizedHeightSupplier([&proofStorage = *m_pProofStorageCache]() {
+					return proofStorage.view().statistics().Height;
+				});
+
 				// register services
 				locator.registerRootedService(Hooks_Service_Name, std::make_shared<FinalizationServerHooks>());
 

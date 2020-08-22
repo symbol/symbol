@@ -122,8 +122,7 @@ namespace catapult { namespace chain {
 	/// Aggregates finalization messages across multiple finalization points.
 	class MultiRoundMessageAggregator {
 	public:
-		// TODO: this probably will need to change to work with dynamic voter sets
-		using RoundMessageAggregatorFactory = std::function<std::unique_ptr<RoundMessageAggregator> (FinalizationPoint)>;
+		using RoundMessageAggregatorFactory = std::function<std::unique_ptr<RoundMessageAggregator> (FinalizationPoint, Height)>;
 
 	public:
 		/// Creates an aggregator around \a maxResponseSize, the current finalization point (\a finalizationPoint),

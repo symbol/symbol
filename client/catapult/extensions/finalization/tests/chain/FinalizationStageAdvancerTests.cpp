@@ -45,8 +45,8 @@ namespace catapult { namespace chain {
 						10'000'000,
 						minPoint,
 						model::HeightHashPair(),
-						[this](auto roundPoint) {
-							auto pRoundMessageAggregator = std::make_unique<mocks::MockRoundMessageAggregator>(roundPoint);
+						[this](auto roundPoint, auto height) {
+							auto pRoundMessageAggregator = std::make_unique<mocks::MockRoundMessageAggregator>(roundPoint, height);
 							if (m_roundMessageAggregatorInitializer)
 								m_roundMessageAggregatorInitializer(*pRoundMessageAggregator);
 
