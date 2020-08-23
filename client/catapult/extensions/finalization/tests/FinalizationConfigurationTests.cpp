@@ -35,6 +35,8 @@ namespace catapult { namespace finalization {
 					{
 						"finalization",
 						{
+							{ "enableVoting", "true" },
+
 							{ "size", "987" },
 							{ "threshold", "579" },
 							{ "stepDuration", "12s" },
@@ -56,6 +58,8 @@ namespace catapult { namespace finalization {
 
 			static void AssertZero(const FinalizationConfiguration& config) {
 				// Assert:
+				EXPECT_FALSE(config.EnableVoting);
+
 				EXPECT_EQ(0u, config.Size);
 				EXPECT_EQ(0u, config.Threshold);
 				EXPECT_EQ(utils::TimeSpan(), config.StepDuration);
@@ -70,6 +74,8 @@ namespace catapult { namespace finalization {
 
 			static void AssertCustom(const FinalizationConfiguration& config) {
 				// Assert:
+				EXPECT_TRUE(config.EnableVoting);
+
 				EXPECT_EQ(987u, config.Size);
 				EXPECT_EQ(579u, config.Threshold);
 				EXPECT_EQ(utils::TimeSpan::FromSeconds(12), config.StepDuration);
@@ -98,6 +104,8 @@ namespace catapult { namespace finalization {
 		auto config = FinalizationConfiguration::LoadFromPath("../resources");
 
 		// Assert:
+		EXPECT_TRUE(config.EnableVoting);
+
 		EXPECT_EQ(10'000u, config.Size);
 		EXPECT_EQ(7'750u, config.Threshold);
 		EXPECT_EQ(utils::TimeSpan::FromMinutes(2), config.StepDuration);

@@ -34,6 +34,8 @@ namespace catapult { namespace finalization {
 	FinalizationConfiguration FinalizationConfiguration::LoadFromBag(const utils::ConfigurationBag& bag) {
 		FinalizationConfiguration config;
 
+		LOAD_PROPERTY(EnableVoting);
+
 		LOAD_PROPERTY(Size);
 		LOAD_PROPERTY(Threshold);
 		LOAD_PROPERTY(StepDuration);
@@ -45,7 +47,7 @@ namespace catapult { namespace finalization {
 		LOAD_PROPERTY(PrevoteBlocksMultiple);
 		LOAD_PROPERTY(OtsKeyDilution);
 
-		utils::VerifyBagSizeExact(bag, 8);
+		utils::VerifyBagSizeExact(bag, 9);
 		return config;
 	}
 

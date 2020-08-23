@@ -23,7 +23,7 @@
 
 namespace catapult { namespace finalization {
 
-	/// Creates a registrar for a finalization sync source service.
+	/// Creates a registrar for a finalization sync source service with voting optionally enabled (\a enableVoting).
 	/// \note This service is responsible for making the node a finalization sync partner.
-	DECLARE_SERVICE_REGISTRAR(FinalizationSyncSource)();
+	DECLARE_SERVICE_REGISTRAR(FinalizationSyncSource)(bool enableVoting);
 }}

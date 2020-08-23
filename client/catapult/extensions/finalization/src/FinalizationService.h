@@ -23,7 +23,7 @@
 
 namespace catapult { namespace finalization {
 
-	/// Creates a registrar for a finalization service.
+	/// Creates a registrar for a finalization service with voting optionally enabled (\a enableVoting).
 	/// \note This service is responsible for sending messages between voting nodes.
-	DECLARE_SERVICE_REGISTRAR(Finalization)();
+	DECLARE_SERVICE_REGISTRAR(Finalization)(bool enableVoting);
 }}

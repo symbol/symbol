@@ -29,7 +29,13 @@ namespace catapult { namespace finalization {
 
 	namespace {
 		struct FinalizationSyncSourceServiceTraits {
-			static constexpr auto CreateRegistrar = CreateFinalizationSyncSourceServiceRegistrar;
+			static auto CreateRegistrar(bool enableVoting) {
+				return CreateFinalizationSyncSourceServiceRegistrar(enableVoting);
+			}
+
+			static auto CreateRegistrar() {
+				return CreateRegistrar(true);
+			}
 		};
 
 		using TestContext = test::MessageRangeConsumerDependentServiceLocatorTestContext<FinalizationSyncSourceServiceTraits>;
@@ -51,17 +57,32 @@ namespace catapult { namespace finalization {
 		EXPECT_EQ(0u, context.locator().counters().size());
 	}
 
-	TEST(TEST_CLASS, PacketHandlersAreRegistered) {
+	TEST(TEST_CLASS, PacketHandlersAreRegistered_WithVotingEnabled) {
 		// Arrange:
 		TestContext context;
 
 		// Act:
-		context.boot();
+		context.boot(true);
 		const auto& handlers = context.testState().state().packetHandlers();
 
 		// Assert:
 		EXPECT_EQ(4u, handlers.size());
+		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Finalization_Statistics));
+		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Finalization_Proof_At_Point));
+		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Finalization_Proof_At_Height));
 		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Push_Finalization_Messages));
+	}
+
+	TEST(TEST_CLASS, PacketHandlersAreRegistered_WithVotingDisabled) {
+		// Arrange:
+		TestContext context;
+
+		// Act:
+		context.boot(false);
+		const auto& handlers = context.testState().state().packetHandlers();
+
+		// Assert:
+		EXPECT_EQ(3u, handlers.size());
 		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Finalization_Statistics));
 		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Finalization_Proof_At_Point));
 		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Finalization_Proof_At_Height));

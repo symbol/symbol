@@ -85,6 +85,10 @@ namespace catapult { namespace finalization {
 
 		class FinalizationServiceRegistrar : public extensions::ServiceRegistrar {
 		public:
+			explicit FinalizationServiceRegistrar(bool enableVoting) : m_enableVoting(enableVoting)
+			{}
+
+		public:
 			extensions::ServiceRegistrarInfo info() const override {
 				return { "Finalization", extensions::ServiceRegistrarPhase::Post_Extended_Range_Consumers };
 			}
@@ -108,12 +112,17 @@ namespace catapult { namespace finalization {
 
 				// add tasks
 				state.tasks().push_back(CreateConnectPeersTask(state, *pWriters));
-				state.tasks().push_back(CreatePullFinalizationTask(locator, state, *pWriters));
+
+				if (m_enableVoting)
+					state.tasks().push_back(CreatePullFinalizationTask(locator, state, *pWriters));
 			}
+
+		private:
+			bool m_enableVoting;
 		};
 	}
 
-	DECLARE_SERVICE_REGISTRAR(Finalization)() {
-		return std::make_unique<FinalizationServiceRegistrar>();
+	DECLARE_SERVICE_REGISTRAR(Finalization)(bool enableVoting) {
+		return std::make_unique<FinalizationServiceRegistrar>(enableVoting);
 	}
 }}

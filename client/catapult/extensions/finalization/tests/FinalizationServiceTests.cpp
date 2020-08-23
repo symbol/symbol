@@ -37,10 +37,17 @@ namespace catapult { namespace finalization {
 		struct FinalizationServiceTraits {
 			static constexpr auto Counter_Name = "FIN WRITERS";
 			static constexpr auto Num_Expected_Services = 1 + Num_Dependent_Services; // writers (1) + dependent services
-			static constexpr auto CreateRegistrar = CreateFinalizationServiceRegistrar;
 
 			static auto GetWriters(const extensions::ServiceLocator& locator) {
 				return locator.service<net::PacketWriters>("fin.writers");
+			}
+
+			static auto CreateRegistrar(bool enableVoting) {
+				return CreateFinalizationServiceRegistrar(enableVoting);
+			}
+
+			static auto CreateRegistrar() {
+				return CreateRegistrar(true);
 			}
 		};
 
@@ -83,11 +90,25 @@ namespace catapult { namespace finalization {
 
 	// region tasks
 
-	TEST(TEST_CLASS, TasksAreRegistered) {
-		test::AssertRegisteredTasks(TestContext(), {
+	TEST(TEST_CLASS, TasksAreRegistered_WithVotingEnabled) {
+		// Arrange:
+		TestContext context;
+		context.boot(true);
+
+		// Act + Assert:
+		test::AssertRegisteredTasksPostBoot(context, {
 			"connect peers task for service Finalization",
 			"pull finalization messages task"
 		});
+	}
+
+	TEST(TEST_CLASS, TasksAreRegistered_WithVotingDisabled) {
+		// Arrange:
+		TestContext context;
+		context.boot(false);
+
+		// Act + Assert:
+		test::AssertRegisteredTasksPostBoot(context, { "connect peers task for service Finalization" });
 	}
 
 	// endregion

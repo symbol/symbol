@@ -29,6 +29,10 @@ namespace catapult { namespace finalization {
 	namespace {
 		class FinalizationSyncSourceServiceRegistrar : public extensions::ServiceRegistrar {
 		public:
+			explicit FinalizationSyncSourceServiceRegistrar(bool enableVoting) : m_enableVoting(enableVoting)
+			{}
+
+		public:
 			extensions::ServiceRegistrarInfo info() const override {
 				return { "FinalizationSyncSource", extensions::ServiceRegistrarPhase::Post_Extended_Range_Consumers };
 			}
@@ -42,16 +46,20 @@ namespace catapult { namespace finalization {
 				const auto& proofStorage = GetProofStorageCache(locator);
 
 				// register handlers
-				handlers::RegisterPushMessagesHandler(state.packetHandlers(), hooks.messageRangeConsumer());
-
 				handlers::RegisterFinalizationStatisticsHandler(state.packetHandlers(), proofStorage);
 				handlers::RegisterFinalizationProofAtPointHandler(state.packetHandlers(), proofStorage);
 				handlers::RegisterFinalizationProofAtHeightHandler(state.packetHandlers(), proofStorage);
+
+				if (m_enableVoting)
+					handlers::RegisterPushMessagesHandler(state.packetHandlers(), hooks.messageRangeConsumer());
 			}
+
+		private:
+			bool m_enableVoting;
 		};
 	}
 
-	DECLARE_SERVICE_REGISTRAR(FinalizationSyncSource)() {
-		return std::make_unique<FinalizationSyncSourceServiceRegistrar>();
+	DECLARE_SERVICE_REGISTRAR(FinalizationSyncSource)(bool enableVoting) {
+		return std::make_unique<FinalizationSyncSourceServiceRegistrar>(enableVoting);
 	}
 }}

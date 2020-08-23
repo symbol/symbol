@@ -30,6 +30,9 @@ namespace catapult { namespace finalization {
 	/// Finalization configuration settings.
 	struct FinalizationConfiguration {
 	public:
+		/// \c true if this node should participate in voting.
+		bool EnableVoting;
+
 		/// Finalization size.
 		uint64_t Size;
 

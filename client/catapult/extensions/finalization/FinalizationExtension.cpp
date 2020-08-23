@@ -40,10 +40,13 @@ namespace catapult { namespace finalization {
 			// register other services
 			auto& extensionManager = bootstrapper.extensionManager();
 			extensionManager.addServiceRegistrar(CreateFinalizationBootstrapperServiceRegistrar(config, std::move(pProofStorage)));
-			extensionManager.addServiceRegistrar(CreateFinalizationMessageProcessingServiceRegistrar(config));
-			extensionManager.addServiceRegistrar(CreateFinalizationOrchestratorServiceRegistrar(config));
-			extensionManager.addServiceRegistrar(CreateFinalizationServiceRegistrar());
-			extensionManager.addServiceRegistrar(CreateFinalizationSyncSourceServiceRegistrar());
+			extensionManager.addServiceRegistrar(CreateFinalizationServiceRegistrar(config.EnableVoting));
+			extensionManager.addServiceRegistrar(CreateFinalizationSyncSourceServiceRegistrar(config.EnableVoting));
+
+			if (config.EnableVoting) {
+				extensionManager.addServiceRegistrar(CreateFinalizationMessageProcessingServiceRegistrar(config));
+				extensionManager.addServiceRegistrar(CreateFinalizationOrchestratorServiceRegistrar(config));
+			}
 		}
 	}
 }}
