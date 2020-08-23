@@ -97,7 +97,7 @@ namespace catapult { namespace mocks {
 			if (!proof.empty()) {
 				const auto& message = *proof.back();
 				stepIdentifier = message.StepIdentifier;
-				m_point = FinalizationPoint(stepIdentifier.Point);
+				m_point = stepIdentifier.Point;
 				m_height = message.Height;
 
 				if (0 < message.HashesCount)

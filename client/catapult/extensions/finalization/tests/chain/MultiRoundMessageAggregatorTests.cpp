@@ -448,7 +448,7 @@ namespace catapult { namespace chain {
 			EXPECT_EQ(expectedNumProofMessages, descriptor.Proof.size());
 
 			for (const auto& pMessage : descriptor.Proof)
-				EXPECT_EQ(Default_Min_FP + expectedPointDelta, FinalizationPoint(pMessage->StepIdentifier.Point));
+				EXPECT_EQ(Default_Min_FP + expectedPointDelta, pMessage->StepIdentifier.Point);
 		}
 	}
 

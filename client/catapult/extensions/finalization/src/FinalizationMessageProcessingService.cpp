@@ -91,7 +91,7 @@ namespace catapult { namespace finalization {
 					FinalizationPointChecker finalizationPointChecker(messageAggregator);
 					for (const auto& pMessage : extractedMessages) {
 						// ignore messages associated with an out of range finalization point
-						if (!finalizationPointChecker.isInRange(FinalizationPoint(pMessage->StepIdentifier.Point)))
+						if (!finalizationPointChecker.isInRange(pMessage->StepIdentifier.Point))
 							continue;
 
 						auto messageHash = model::CalculateMessageHash(*pMessage);

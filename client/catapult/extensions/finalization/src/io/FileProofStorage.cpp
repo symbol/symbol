@@ -144,7 +144,7 @@ namespace catapult { namespace io {
 
 		auto currentStatistics = statistics();
 		const auto& firstMessage = *proof.front();
-		auto messagePoint = FinalizationPoint(firstMessage.StepIdentifier.Point);
+		auto messagePoint = firstMessage.StepIdentifier.Point;
 		if (messagePoint != currentStatistics.Point + FinalizationPoint(1)) {
 			std::ostringstream out;
 			out << "cannot save proof with point " << messagePoint << " when storage point is " << currentStatistics.Point;
