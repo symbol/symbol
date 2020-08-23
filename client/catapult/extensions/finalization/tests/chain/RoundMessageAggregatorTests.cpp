@@ -74,6 +74,13 @@ namespace catapult { namespace chain {
 				test::SignMessage(message, m_keyPairDescriptors[signerIndex].VotingKeyPair, Ots_Key_Dilution);
 			}
 
+			void signAllMessages(
+					std::vector<std::shared_ptr<model::FinalizationMessage>>& messages,
+					const std::vector<size_t>& signerIndexes) const {
+				for (auto i = 0u; i < messages.size(); ++i)
+					signMessage(*messages[i], signerIndexes[i]);
+			}
+
 		private:
 			std::unique_ptr<RoundMessageAggregator> m_pAggregator;
 			std::vector<test::AccountKeyPairDescriptor> m_keyPairDescriptors;
@@ -382,35 +389,11 @@ namespace catapult { namespace chain {
 
 	namespace {
 		auto CreatePrevoteMessages(size_t numMessages, const Hash256* pHashes, size_t numHashes) {
-			std::vector<std::shared_ptr<model::FinalizationMessage>> messages;
-			for (auto i = 0u; i < numMessages; ++i) {
-				auto pMessage = test::CreateMessage(Last_Finalized_Height + Height(1), static_cast<uint32_t>(numHashes));
-				pMessage->StepIdentifier = { Finalization_Point, PrevoteTraits::Stage };
-				std::copy(pHashes, pHashes + numHashes, pMessage->HashesPtr());
-				messages.push_back(std::move(pMessage));
-			}
-
-			return messages;
+			return test::CreatePrevoteMessages(Finalization_Point, Last_Finalized_Height + Height(1), numMessages, pHashes, numHashes);
 		}
 
 		auto CreatePrecommitMessages(size_t numMessages, const Hash256* pHashes, size_t index) {
-			std::vector<std::shared_ptr<model::FinalizationMessage>> messages;
-			for (auto i = 0u; i < numMessages; ++i) {
-				auto pMessage = test::CreateMessage(Last_Finalized_Height + Height(1 + index), 1);
-				pMessage->StepIdentifier = { Finalization_Point, PrecommitTraits::Stage };
-				*pMessage->HashesPtr() = pHashes[index];
-				messages.push_back(std::move(pMessage));
-			}
-
-			return messages;
-		}
-
-		void SignAllMessages(
-				const TestContext& context,
-				const std::vector<size_t>& signerIndexes,
-				std::vector<std::shared_ptr<model::FinalizationMessage>>& messages) {
-			for (auto i = 0u; i < messages.size(); ++i)
-				context.signMessage(*messages[i], signerIndexes[i]);
+			return test::CreatePrecommitMessages(Finalization_Point, Last_Finalized_Height + Height(1), numMessages, pHashes, index);
 		}
 	}
 
@@ -423,7 +406,7 @@ namespace catapult { namespace chain {
 
 		// - sign with weights { 4M, 2M, 3M, 4M } (13M) > 15M * 0.7 (10.5M)
 		TestContext context(1000, 700);
-		SignAllMessages(context, { 5, 1, 4, 0 }, prevoteMessages);
+		context.signAllMessages(prevoteMessages, { 5, 1, 4, 0 });
 
 		// - add all but one prevote message
 		for (auto i = 0u; i < prevoteMessages.size() - 1; ++i)
@@ -463,8 +446,8 @@ namespace catapult { namespace chain {
 		// - sign prevotes with weights { 4M, 2M, 3M, 4M } (13M) > 15M * 0.7 (10.5M)
 		// - sign precommits with weights { 2M, 2M, 4M, 3M } (11M) > 15M * 0.7 (10.5M)
 		TestContext context(1000, 700);
-		SignAllMessages(context, { 5, 1, 4, 0 }, prevoteMessages);
-		SignAllMessages(context, { 3, 1, 0, 4 }, precommitMessages);
+		context.signAllMessages(prevoteMessages, { 5, 1, 4, 0 });
+		context.signAllMessages(precommitMessages, { 3, 1, 0, 4 });
 
 		// - add all prevote messages
 		for (const auto& pMessage : prevoteMessages)
@@ -515,8 +498,8 @@ namespace catapult { namespace chain {
 
 			// - sign the messages
 			TestContext context(1000, 900);
-			SignAllMessages(context, { 5, 1, 4, 0 }, prevoteMessages);
-			SignAllMessages(context, { 3, 1, 0 }, precommitMessages);
+			context.signAllMessages(prevoteMessages, { 5, 1, 4, 0 });
+			context.signAllMessages(precommitMessages, { 3, 1, 0 });
 
 			// - add the messages
 			std::vector<utils::ShortHash> shortHashes;
@@ -653,7 +636,7 @@ namespace catapult { namespace chain {
 
 			auto hashes = test::GenerateRandomDataVector<Hash256>(3);
 			auto messages = CreatePrecommitMessages(5, hashes.data(), 2);
-			SignAllMessages(context, { 3, 1, 0, 4, 5 }, messages);
+			context.signAllMessages(messages, { 3, 1, 0, 4, 5 });
 
 			// - add all messages and capture short hashes
 			utils::ShortHashesSet seededShortHashes;

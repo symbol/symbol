@@ -77,6 +77,44 @@ namespace catapult { namespace test {
 
 	// endregion
 
+	// region multi-message factories
+
+	std::vector<std::shared_ptr<model::FinalizationMessage>> CreatePrevoteMessages(
+			FinalizationPoint point,
+			Height height,
+			size_t numMessages,
+			const Hash256* pHashes,
+			size_t numHashes) {
+		std::vector<std::shared_ptr<model::FinalizationMessage>> messages;
+		for (auto i = 0u; i < numMessages; ++i) {
+			auto pMessage = CreateMessage(height, static_cast<uint32_t>(numHashes));
+			pMessage->StepIdentifier = { point, model::FinalizationStage::Prevote };
+			std::copy(pHashes, pHashes + numHashes, pMessage->HashesPtr());
+			messages.push_back(std::move(pMessage));
+		}
+
+		return messages;
+	}
+
+	std::vector<std::shared_ptr<model::FinalizationMessage>> CreatePrecommitMessages(
+			FinalizationPoint point,
+			Height height,
+			size_t numMessages,
+			const Hash256* pHashes,
+			size_t index) {
+		std::vector<std::shared_ptr<model::FinalizationMessage>> messages;
+		for (auto i = 0u; i < numMessages; ++i) {
+			auto pMessage = CreateMessage(height + Height(index), 1);
+			pMessage->StepIdentifier = { point, model::FinalizationStage::Precommit };
+			*pMessage->HashesPtr() = pHashes[index];
+			messages.push_back(std::move(pMessage));
+		}
+
+		return messages;
+	}
+
+	// endregion
+
 	// region message utils
 
 	void SignMessage(model::FinalizationMessage& message, const crypto::KeyPair& votingKeyPair, uint64_t dilution) {
