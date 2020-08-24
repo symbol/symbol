@@ -37,6 +37,7 @@ namespace catapult { namespace chain {
 		struct TestContextOptions {
 			uint64_t MaxResponseSize = 10'000'000;
 			uint32_t MaxHashesPerPoint = 100;
+			uint64_t VotingSetGrouping = 500;
 		};
 
 		class TestContext {
@@ -51,8 +52,10 @@ namespace catapult { namespace chain {
 				auto config = finalization::FinalizationConfiguration::Uninitialized();
 				config.Size = size;
 				config.Threshold = threshold;
+				config.MessageSynchronizationMaxResponseSize = utils::FileSize::FromBytes(options.MaxResponseSize);
 				config.MaxHashesPerPoint = options.MaxHashesPerPoint;
 				config.OtsKeyDilution = Ots_Key_Dilution;
+				config.VotingSetGrouping = options.VotingSetGrouping;
 
 				// 15/20M voting eligible
 				auto finalizationContextPair = test::CreateFinalizationContext(config, Finalization_Point, Last_Finalized_Height, {
@@ -61,7 +64,7 @@ namespace catapult { namespace chain {
 				});
 
 				m_keyPairDescriptors = std::move(finalizationContextPair.second);
-				m_pAggregator = CreateRoundMessageAggregator(options.MaxResponseSize, finalizationContextPair.first);
+				m_pAggregator = CreateRoundMessageAggregator(finalizationContextPair.first);
 			}
 
 		public:
@@ -143,9 +146,10 @@ namespace catapult { namespace chain {
 
 		void AssertCannotAddMessage(
 				RoundMessageAggregatorAddResult expectedResult,
-				std::unique_ptr<model::FinalizationMessage>&& pMessage) {
+				std::unique_ptr<model::FinalizationMessage>&& pMessage,
+				const TestContextOptions& options = TestContextOptions()) {
 			// Arrange:
-			TestContext context(1000, 700);
+			TestContext context(1000, 700, options);
 			context.signMessage(*pMessage, 0);
 
 			// Act:
@@ -292,18 +296,31 @@ namespace catapult { namespace chain {
 		AssertCannotAddMessage(RoundMessageAggregatorAddResult::Failure_Invalid_Hashes, std::move(pMessage));
 	}
 
+	TEST(TEST_CLASS, CannotAddMessageWithHashesSpanningVotingSetGroups_Prevote) {
+		// Arrange: hashes in [124, 131]
+		auto pMessage = test::CreateMessage(Last_Finalized_Height + Height(1), 8);
+		pMessage->StepIdentifier = { Finalization_Point, PrevoteTraits::Stage };
+
+		// - next group starts at height 131
+		TestContextOptions options;
+		options.VotingSetGrouping = 130;
+
+		// Act + Assert:
+		AssertCannotAddMessage(RoundMessageAggregatorAddResult::Failure_Invalid_Hashes, std::move(pMessage), options);
+	}
+
 	// endregion
 
 	// region add -success
 
 	namespace {
 		template<typename TTraits>
-		void AssertBasicAddSuccess(uint32_t numHashes, Height height) {
+		void AssertBasicAddSuccess(uint32_t numHashes, Height height, const TestContextOptions& options = TestContextOptions()) {
 			// Arrange:
 			auto pMessage = test::CreateMessage(height, numHashes);
 			pMessage->StepIdentifier = { Finalization_Point, TTraits::Stage };
 
-			TestContext context(1000, 700);
+			TestContext context(1000, 700, options);
 			context.signMessage(*pMessage, 0);
 
 			// Act:
@@ -333,6 +350,15 @@ namespace catapult { namespace chain {
 
 	TEST(TEST_CLASS, CanAddMessageWithExactlyMaxHashes_Prevote) {
 		AssertBasicAddSuccess<PrevoteTraits>(TestContextOptions().MaxHashesPerPoint, Last_Finalized_Height + Height(1));
+	}
+
+	TEST(TEST_CLASS, CanAddMessageWithHashesEndingAtVotingSetGrouping_Prevote) {
+		// Arrange: next group starts at height 131
+		TestContextOptions options;
+		options.VotingSetGrouping = 130;
+
+		// Act + Assert: hashes in [124, 130]
+		AssertBasicAddSuccess<PrevoteTraits>(7, Last_Finalized_Height + Height(1), options);
 	}
 
 	TEST(TEST_CLASS, CanAddMessageWithLargerHeight_Precommit) {

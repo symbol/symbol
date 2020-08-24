@@ -78,7 +78,6 @@ namespace catapult { namespace finalization {
 				const FinalizationConfiguration& config,
 				const io::ProofStorageCache& proofStorage,
 				extensions::ServiceState& state) {
-			auto maxResponseSize = config.MessageSynchronizationMaxResponseSize.bytes();
 			FinalizationContextFactory finalizationContextFactory(
 					state.config().BlockChain.VotingSetGrouping,
 					config,
@@ -88,11 +87,11 @@ namespace catapult { namespace finalization {
 			auto proofStorageView = proofStorage.view();
 			auto finalizationStatistics = proofStorageView.statistics();
 			return std::make_shared<chain::MultiRoundMessageAggregator>(
-					maxResponseSize,
+					config.MessageSynchronizationMaxResponseSize.bytes(),
 					finalizationStatistics.Point,
 					model::HeightHashPair{ finalizationStatistics.Height, finalizationStatistics.Hash },
-					[maxResponseSize, finalizationContextFactory](auto roundPoint, auto height) {
-						return chain::CreateRoundMessageAggregator(maxResponseSize, finalizationContextFactory.create(roundPoint, height));
+					[finalizationContextFactory](auto roundPoint, auto height) {
+						return chain::CreateRoundMessageAggregator(finalizationContextFactory.create(roundPoint, height));
 					});
 		}
 

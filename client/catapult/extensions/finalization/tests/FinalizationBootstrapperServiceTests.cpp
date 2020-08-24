@@ -114,6 +114,7 @@ namespace catapult { namespace finalization {
 				config.Threshold = 2000;
 				config.MaxHashesPerPoint = 64;
 				config.OtsKeyDilution = Ots_Key_Dilution;
+				config.VotingSetGrouping = 500;
 				return CreateFinalizationBootstrapperServiceRegistrar(config, std::move(pProofStorage));
 			}
 

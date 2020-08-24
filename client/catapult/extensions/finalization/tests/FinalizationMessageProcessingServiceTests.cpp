@@ -59,7 +59,7 @@ namespace catapult { namespace finalization {
 			explicit TestContext(FinalizationPoint point)
 					: m_pWriters(std::make_shared<mocks::BroadcastAwareMockPacketWriters>()) {
 				// use Height(1) so that storage doesn't need to be seeded
-				const_cast<uint64_t&>(testState().state().config().BlockChain.VotingSetGrouping) = 100;
+				const_cast<uint64_t&>(testState().state().config().BlockChain.VotingSetGrouping) = 500;
 				test::FinalizationBootstrapperServiceTestUtils::Register(
 						locator(),
 						testState().state(),

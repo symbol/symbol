@@ -44,6 +44,7 @@ namespace catapult { namespace chain {
 				config.Threshold = 700;
 				config.MaxHashesPerPoint = 100;
 				config.OtsKeyDilution = Ots_Key_Dilution;
+				config.VotingSetGrouping = 500;
 
 				// 15/20M voting eligible
 				auto finalizationContextPair = test::CreateFinalizationContext(config, Finalization_Point, Last_Finalized_Height, {

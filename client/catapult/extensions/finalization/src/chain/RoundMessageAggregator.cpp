@@ -22,6 +22,7 @@
 #include "RoundContext.h"
 #include "finalization/src/model/FinalizationContext.h"
 #include "finalization/src/model/FinalizationMessage.h"
+#include "catapult/model/HeightGrouping.h"
 #include "catapult/utils/MacroBasedEnumIncludes.h"
 #include <unordered_map>
 
@@ -72,9 +73,9 @@ namespace catapult { namespace chain {
 
 		class DefaultRoundMessageAggregator : public RoundMessageAggregator {
 		public:
-			DefaultRoundMessageAggregator(uint64_t maxResponseSize, const model::FinalizationContext& finalizationContext)
-					: m_maxResponseSize(maxResponseSize)
-					, m_finalizationContext(finalizationContext)
+			explicit DefaultRoundMessageAggregator(const model::FinalizationContext& finalizationContext)
+					: m_finalizationContext(finalizationContext)
+					, m_maxResponseSize(m_finalizationContext.config().MessageSynchronizationMaxResponseSize.bytes())
 					, m_roundContext(m_finalizationContext.weight().unwrap(), CalculateWeightedThreshold(m_finalizationContext))
 			{}
 
@@ -127,11 +128,20 @@ namespace catapult { namespace chain {
 					return RoundMessageAggregatorAddResult::Failure_Invalid_Point;
 
 				auto isPrevote = IsPrevote(*pMessage);
-				if (!isPrevote && 1 != pMessage->HashesCount)
-					return RoundMessageAggregatorAddResult::Failure_Invalid_Hashes;
+				auto lastHashHeight = pMessage->Height + Height(pMessage->HashesCount - 1);
+				if (isPrevote) {
+					auto votingSetGrouping = m_finalizationContext.config().VotingSetGrouping;
+					auto startVotingSetHeight = model::CalculateGroupedHeight<Height>(pMessage->Height, votingSetGrouping);
+					auto endVotingSetHeight = model::CalculateGroupedHeight<Height>(lastHashHeight, votingSetGrouping);
+					if (startVotingSetHeight != endVotingSetHeight)
+						return RoundMessageAggregatorAddResult::Failure_Invalid_Hashes;
+				} else {
+					if (1 != pMessage->HashesCount)
+						return RoundMessageAggregatorAddResult::Failure_Invalid_Hashes;
+				}
 
 				// only consider messages that have at least one hash at or after the last finalized height
-				if (m_finalizationContext.height() > pMessage->Height + Height(pMessage->HashesCount - 1))
+				if (m_finalizationContext.height() > lastHashHeight)
 					return RoundMessageAggregatorAddResult::Failure_Invalid_Height;
 
 				auto messageKey = std::make_pair(pMessage->Signature.Root.ParentPublicKey, isPrevote);
@@ -160,8 +170,8 @@ namespace catapult { namespace chain {
 			}
 
 		private:
-			uint64_t m_maxResponseSize;
 			model::FinalizationContext m_finalizationContext;
+			uint64_t m_maxResponseSize;
 			chain::RoundContext m_roundContext;
 			std::unordered_map<MessageKey, MessageDescriptor, MessageKeyHasher> m_messages;
 		};
@@ -169,9 +179,7 @@ namespace catapult { namespace chain {
 		// endregion
 	}
 
-	std::unique_ptr<RoundMessageAggregator> CreateRoundMessageAggregator(
-			uint64_t maxResponseSize,
-			const model::FinalizationContext& finalizationContext) {
-		return std::make_unique<DefaultRoundMessageAggregator>(maxResponseSize, finalizationContext);
+	std::unique_ptr<RoundMessageAggregator> CreateRoundMessageAggregator(const model::FinalizationContext& finalizationContext) {
+		return std::make_unique<DefaultRoundMessageAggregator>(finalizationContext);
 	}
 }}

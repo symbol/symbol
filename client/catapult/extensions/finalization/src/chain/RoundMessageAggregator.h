@@ -65,8 +65,6 @@ namespace catapult { namespace chain {
 		virtual RoundMessageAggregatorAddResult add(const std::shared_ptr<model::FinalizationMessage>& pMessage) = 0;
 	};
 
-	/// Creates a round message aggregator around \a maxResponseSize and \a finalizationContext.
-	std::unique_ptr<RoundMessageAggregator> CreateRoundMessageAggregator(
-			uint64_t maxResponseSize,
-			const model::FinalizationContext& finalizationContext);
+	/// Creates a round message aggregator around \a finalizationContext.
+	std::unique_ptr<RoundMessageAggregator> CreateRoundMessageAggregator(const model::FinalizationContext& finalizationContext);
 }}

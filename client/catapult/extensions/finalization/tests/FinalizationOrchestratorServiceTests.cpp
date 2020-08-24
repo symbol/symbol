@@ -51,6 +51,7 @@ namespace catapult { namespace finalization {
 				config.StepDuration = utils::TimeSpan::FromSeconds(10);
 				config.MaxHashesPerPoint = 64;
 				config.PrevoteBlocksMultiple = 5;
+				config.VotingSetGrouping = 500;
 				return CreateFinalizationOrchestratorServiceRegistrar(config);
 			}
 		};

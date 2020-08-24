@@ -57,6 +57,10 @@ namespace catapult { namespace finalization {
 		/// Ots key dilution.
 		uint16_t OtsKeyDilution;
 
+		/// Number of blocks that should be treated as a group for voting set purposes.
+		/// \note This is copied from BlockChainConfiguration for easy access.
+		uint64_t VotingSetGrouping;
+
 	private:
 		FinalizationConfiguration() = default;
 

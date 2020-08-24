@@ -58,7 +58,7 @@ namespace catapult { namespace chain {
 		if (proof.Point != context.point())
 			return VerifyFinalizationProofResult::Failure_Invalid_Point;
 
-		auto pMessageAggregator = CreateRoundMessageAggregator(0, context);
+		auto pMessageAggregator = CreateRoundMessageAggregator(context);
 		for (const auto& messageGroup : proof.MessageGroups()) {
 			auto pTemplateMessage = CreateTemplateMessage(proof.Point, messageGroup);
 			for (auto i = 0u; i < messageGroup.SignaturesCount; ++i) {

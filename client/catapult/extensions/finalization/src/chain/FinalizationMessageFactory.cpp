@@ -23,6 +23,7 @@
 #include "finalization/src/io/ProofStorageCache.h"
 #include "catapult/crypto_voting/OtsTree.h"
 #include "catapult/io/BlockStorageCache.h"
+#include "catapult/model/HeightGrouping.h"
 
 namespace catapult { namespace chain {
 
@@ -49,7 +50,14 @@ namespace catapult { namespace chain {
 				Height startHeight,
 				const io::BlockStorageCache& blockStorage) {
 			auto view = blockStorage.view();
-			auto clampedChainHeight = Height(Clamp(view.chainHeight().unwrap(), config.PrevoteBlocksMultiple, 0));
+			auto maxPrevoteHashHeight = view.chainHeight();
+
+			auto votingSetGrouping = config.VotingSetGrouping;
+			auto nextVotingSetHeight = model::CalculateGroupedHeight<Height>(startHeight + Height(votingSetGrouping), votingSetGrouping);
+			if (maxPrevoteHashHeight > nextVotingSetHeight)
+				maxPrevoteHashHeight = nextVotingSetHeight;
+
+			auto clampedChainHeight = Height(Clamp(maxPrevoteHashHeight.unwrap(), config.PrevoteBlocksMultiple, 0));
 
 			auto numHashes = clampedChainHeight > startHeight
 					? (clampedChainHeight - startHeight).unwrap() + 1

@@ -33,6 +33,7 @@ namespace catapult { namespace finalization {
 
 	FinalizationConfiguration FinalizationConfiguration::LoadFromBag(const utils::ConfigurationBag& bag) {
 		FinalizationConfiguration config;
+		config.VotingSetGrouping = 0;
 
 		LOAD_PROPERTY(EnableVoting);
 

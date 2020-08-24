@@ -107,7 +107,24 @@ namespace catapult { namespace chain {
 	// region createPrevote
 
 	namespace {
-		void RunCreatePrevoteTest(
+		void AssertPrevote(
+				const model::FinalizationMessage& message,
+				const TestContext& context,
+				FinalizationPoint expectedPoint,
+				Height expectedStartHeight,
+				uint32_t expectedHashesCount) {
+			EXPECT_EQ(sizeof(model::FinalizationMessage) + expectedHashesCount * Hash256::Size, message.Size);
+			ASSERT_EQ(expectedHashesCount, message.HashesCount);
+
+			EXPECT_EQ(model::StepIdentifier({ expectedPoint, model::FinalizationStage::Prevote }), message.StepIdentifier);
+			EXPECT_EQ(expectedStartHeight, message.Height);
+			for (auto i = 0u; i < expectedHashesCount; ++i)
+				EXPECT_EQ(context.blockHashAt(expectedStartHeight + Height(i)), message.HashesPtr()[i]);
+
+			EXPECT_TRUE(IsSigned(message));
+		}
+
+		void AssertCanCreatePrevote(
 				uint32_t numBlocks,
 				uint32_t maxHashesPerPoint,
 				uint16_t prevoteBlocksMultiple,
@@ -116,6 +133,7 @@ namespace catapult { namespace chain {
 			auto config = finalization::FinalizationConfiguration::Uninitialized();
 			config.MaxHashesPerPoint = maxHashesPerPoint;
 			config.PrevoteBlocksMultiple = prevoteBlocksMultiple;
+			config.VotingSetGrouping = 500;
 
 			TestContext context(FinalizationPoint(11), Height(8), numBlocks, config);
 
@@ -123,15 +141,7 @@ namespace catapult { namespace chain {
 			auto pMessage = context.factory().createPrevote();
 
 			// Assert:
-			EXPECT_EQ(sizeof(model::FinalizationMessage) + expectedHashesCount * Hash256::Size, pMessage->Size);
-			ASSERT_EQ(expectedHashesCount, pMessage->HashesCount);
-
-			EXPECT_EQ(model::StepIdentifier({ FinalizationPoint(12), model::FinalizationStage::Prevote }), pMessage->StepIdentifier);
-			EXPECT_EQ(Height(8), pMessage->Height);
-			for (auto i = 0u; i < expectedHashesCount; ++i)
-				EXPECT_EQ(context.blockHashAt(Height(8 + i)), pMessage->HashesPtr()[i]);
-
-			EXPECT_TRUE(IsSigned(*pMessage));
+			AssertPrevote(*pMessage, context, FinalizationPoint(12), Height(8), expectedHashesCount);
 		}
 	}
 
@@ -140,6 +150,7 @@ namespace catapult { namespace chain {
 		auto config = finalization::FinalizationConfiguration::Uninitialized();
 		config.MaxHashesPerPoint = 10;
 		config.PrevoteBlocksMultiple = 2;
+		config.VotingSetGrouping = 500;
 
 		TestContext context(FinalizationPoint(11), Height(8), 6, config);
 
@@ -158,28 +169,71 @@ namespace catapult { namespace chain {
 	}
 
 	TEST(TEST_CLASS, CanCreatePrevoteWhenChainIsFullyFinalized_OnMultiple) {
-		RunCreatePrevoteTest(8, 10, 2, 1);
+		AssertCanCreatePrevote(8, 10, 2, 1);
 	}
 
 	TEST(TEST_CLASS, CanCreatePrevoteWhenChainIsFullyFinalized_NotOnMultiple) {
 		// Assert: even with multiple of 5, hash of last finalized block should be returned
-		RunCreatePrevoteTest(8, 10, 5, 1);
+		AssertCanCreatePrevote(8, 10, 5, 1);
 	}
 
 	TEST(TEST_CLASS, CanCreatePrevoteWhenChainHasUnfinalizedBlocks_OnMultiple) {
-		RunCreatePrevoteTest(12, 10, 2, 5);
+		AssertCanCreatePrevote(12, 10, 2, 5);
 	}
 
 	TEST(TEST_CLASS, CanCreatePrevoteWhenChainHasUnfinalizedBlocks_NotOnMultiple) {
-		RunCreatePrevoteTest(12, 10, 5, 3);
+		AssertCanCreatePrevote(12, 10, 5, 3);
 	}
 
 	TEST(TEST_CLASS, CanCreatePrevoteWhenChainHasGreaterThanMaxUnfinalizedBlocks_OnMultiple) {
-		RunCreatePrevoteTest(22, 10, 1, 10);
+		AssertCanCreatePrevote(22, 10, 1, 10);
 	}
 
 	TEST(TEST_CLASS, CanCreatePrevoteWhenChainHasGreaterThanMaxUnfinalizedBlocks_NotOnMultiple) {
-		RunCreatePrevoteTest(22, 10, 5, 8);
+		AssertCanCreatePrevote(22, 10, 5, 8);
+	}
+
+	// endregion
+
+	// region createPrevote - VotingSetGrouping
+
+	namespace {
+		void AssertCanCreatePrevoteHonorsVotingSetGrouping(Height height, uint32_t expectedHashesCount) {
+			// Arrange:
+			auto config = finalization::FinalizationConfiguration::Uninitialized();
+			config.MaxHashesPerPoint = 400;
+			config.PrevoteBlocksMultiple = 1;
+			config.VotingSetGrouping = 50;
+
+			TestContext context(FinalizationPoint(11), height, 200, config);
+
+			// Act:
+			auto pMessage = context.factory().createPrevote();
+
+			// Assert:
+			AssertPrevote(*pMessage, context, FinalizationPoint(12), height, expectedHashesCount);
+		}
+	}
+
+	TEST(TEST_CLASS, CanCreatePrevoteContainingAllVotingSetGroupHashes) {
+		// Assert: message is limited to hashes in a single voting set
+		AssertCanCreatePrevoteHonorsVotingSetGrouping(Height(1), 50);
+		AssertCanCreatePrevoteHonorsVotingSetGrouping(Height(51), 50);
+		AssertCanCreatePrevoteHonorsVotingSetGrouping(Height(101), 50);
+	}
+
+	TEST(TEST_CLASS, CanCreatePrevoteContainingPartialVotingSetGroupHashes) {
+		// Assert: message is limited to hashes in a single voting set
+		AssertCanCreatePrevoteHonorsVotingSetGrouping(Height(26), 25);
+		AssertCanCreatePrevoteHonorsVotingSetGrouping(Height(76), 25);
+		AssertCanCreatePrevoteHonorsVotingSetGrouping(Height(126), 25);
+	}
+
+	TEST(TEST_CLASS, CanCreatePrevoteContainingOnlyLastVotingSetGroupHash) {
+		// Assert: message is limited to hashes in a single voting set
+		AssertCanCreatePrevoteHonorsVotingSetGrouping(Height(50), 1);
+		AssertCanCreatePrevoteHonorsVotingSetGrouping(Height(100), 1);
+		AssertCanCreatePrevoteHonorsVotingSetGrouping(Height(150), 1);
 	}
 
 	// endregion
