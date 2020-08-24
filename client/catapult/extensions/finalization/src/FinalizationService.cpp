@@ -20,8 +20,12 @@
 
 #include "FinalizationService.h"
 #include "FinalizationBootstrapperService.h"
+#include "FinalizationContextFactory.h"
 #include "finalization/src/api/RemoteFinalizationApi.h"
+#include "finalization/src/api/RemoteProofApi.h"
 #include "finalization/src/chain/FinalizationMessageSynchronizer.h"
+#include "finalization/src/chain/FinalizationProofSynchronizer.h"
+#include "finalization/src/chain/FinalizationProofVerifier.h"
 #include "finalization/src/chain/MultiRoundMessageAggregator.h"
 #include "catapult/config/CatapultKeys.h"
 #include "catapult/extensions/NetworkUtils.h"
@@ -38,6 +42,26 @@ namespace catapult { namespace finalization {
 		constexpr auto Service_Name = "fin.writers";
 		constexpr auto Service_Id = ionet::ServiceIdentifier(0x50415254);
 
+		// region shims for CreateChainSyncAwareSynchronizerTaskCallback
+
+		std::unique_ptr<api::RemoteFinalizationApi> CreateRemoteFinalizationApi(
+				ionet::PacketIo& io,
+				const model::NodeIdentity& remoteIdentity,
+				const model::TransactionRegistry&) {
+			return api::CreateRemoteFinalizationApi(io, remoteIdentity);
+		}
+
+		std::unique_ptr<api::RemoteProofApi> CreateRemoteProofApi(
+				ionet::PacketIo& io,
+				const model::NodeIdentity& remoteIdentity,
+				const model::TransactionRegistry&) {
+			return api::CreateRemoteProofApi(io, remoteIdentity);
+		}
+
+		// endregion
+
+		// region tasks
+
 		thread::Task CreateConnectPeersTask(extensions::ServiceState& state, net::PacketWriters& packetWriters) {
 			auto settings = extensions::SelectorSettings(
 					state.cache(),
@@ -51,15 +75,7 @@ namespace catapult { namespace finalization {
 			return task;
 		}
 
-		// shim to allow RemoteFinalizationApi to be used with CreateChainSyncAwareSynchronizerTaskCallback
-		std::unique_ptr<api::RemoteFinalizationApi> CreateRemoteFinalizationApi(
-				ionet::PacketIo& io,
-				const model::NodeIdentity& remoteIdentity,
-				const model::TransactionRegistry&) {
-			return api::CreateRemoteFinalizationApi(io, remoteIdentity);
-		}
-
-		thread::Task CreatePullFinalizationTask(
+		thread::Task CreatePullMessagesTask(
 				extensions::ServiceLocator& locator,
 				const extensions::ServiceState& state,
 				net::PacketWriters& packetWriters) {
@@ -83,9 +99,44 @@ namespace catapult { namespace finalization {
 			return task;
 		}
 
+		thread::Task CreatePullProofTask(
+				const FinalizationConfiguration& config,
+				extensions::ServiceLocator& locator,
+				const extensions::ServiceState& state,
+				net::PacketWriters& packetWriters) {
+			FinalizationContextFactory finalizationContextFactory(config, state);
+			auto finalizationProofSynchronizer = chain::CreateFinalizationProofSynchronizer(
+					state.config().BlockChain.VotingSetGrouping,
+					state.storage(),
+					GetProofStorageCache(locator),
+					[finalizationContextFactory](const auto& proof) {
+						auto result = chain::VerifyFinalizationProof(proof, finalizationContextFactory.create(proof.Point, proof.Height));
+						if (chain::VerifyFinalizationProofResult::Success != result) {
+							CATAPULT_LOG(warning)
+									<< "proof for point " << proof.Point << " at height " << proof.Height
+									<< " failed verification with " << result;
+							return false;
+						}
+
+						return true;
+					});
+
+			thread::Task task;
+			task.Name = "pull finalization proof task";
+			task.Callback = CreateChainSyncAwareSynchronizerTaskCallback(
+					std::move(finalizationProofSynchronizer),
+					CreateRemoteProofApi,
+					packetWriters,
+					state,
+					task.Name);
+			return task;
+		}
+
+		// endregion
+
 		class FinalizationServiceRegistrar : public extensions::ServiceRegistrar {
 		public:
-			explicit FinalizationServiceRegistrar(bool enableVoting) : m_enableVoting(enableVoting)
+			explicit FinalizationServiceRegistrar(const FinalizationConfiguration& config) : m_config(config)
 			{}
 
 		public:
@@ -112,17 +163,18 @@ namespace catapult { namespace finalization {
 
 				// add tasks
 				state.tasks().push_back(CreateConnectPeersTask(state, *pWriters));
+				state.tasks().push_back(CreatePullProofTask(m_config, locator, state, *pWriters));
 
-				if (m_enableVoting)
-					state.tasks().push_back(CreatePullFinalizationTask(locator, state, *pWriters));
+				if (m_config.EnableVoting)
+					state.tasks().push_back(CreatePullMessagesTask(locator, state, *pWriters));
 			}
 
 		private:
-			bool m_enableVoting;
+			FinalizationConfiguration m_config;
 		};
 	}
 
-	DECLARE_SERVICE_REGISTRAR(Finalization)(bool enableVoting) {
-		return std::make_unique<FinalizationServiceRegistrar>(enableVoting);
+	DECLARE_SERVICE_REGISTRAR(Finalization)(const FinalizationConfiguration& config) {
+		return std::make_unique<FinalizationServiceRegistrar>(config);
 	}
 }}

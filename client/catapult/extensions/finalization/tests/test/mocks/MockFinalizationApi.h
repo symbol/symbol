@@ -24,7 +24,7 @@
 
 namespace catapult { namespace mocks {
 
-	/// Mock finaliztion api that can be configured to return predefined data for requests, capture function parameters
+	/// Mock finalization api that can be configured to return predefined data for requests, capture function parameters
 	/// and throw exceptions at specified entry points.
 	class MockFinalizationApi : public api::RemoteFinalizationApi {
 	public:

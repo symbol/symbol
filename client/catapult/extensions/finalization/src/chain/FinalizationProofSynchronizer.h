@@ -19,13 +19,24 @@
 **/
 
 #pragma once
-#include "catapult/extensions/ServiceRegistrar.h"
+#include "catapult/chain/RemoteNodeSynchronizer.h"
 
-namespace catapult { namespace finalization { struct FinalizationConfiguration; } }
+namespace catapult {
+	namespace api { class RemoteProofApi; }
+	namespace io {
+		class BlockStorageCache;
+		class ProofStorageCache;
+	}
+	namespace model { struct FinalizationProof; }
+}
 
-namespace catapult { namespace finalization {
+namespace catapult { namespace chain {
 
-	/// Creates a registrar for a finalization service around \a config.
-	/// \note This service is responsible for sending messages between voting nodes.
-	DECLARE_SERVICE_REGISTRAR(Finalization)(const FinalizationConfiguration& config);
+	/// Creates a finalization proof synchronizer around block storage (\a blockStorage) and proof storage (\a proofStorage)
+	/// given \a votingSetGrouping and \a proofValidator.
+	RemoteNodeSynchronizer<api::RemoteProofApi> CreateFinalizationProofSynchronizer(
+			uint64_t votingSetGrouping,
+			const io::BlockStorageCache& blockStorage,
+			io::ProofStorageCache& proofStorage,
+			const predicate<const model::FinalizationProof&>& proofValidator);
 }}

@@ -19,15 +19,12 @@
 **/
 
 #include "FinalizationBootstrapperService.h"
+#include "FinalizationContextFactory.h"
 #include "finalization/src/chain/MultiRoundMessageAggregator.h"
 #include "finalization/src/io/ProofStorageCache.h"
-#include "finalization/src/model/FinalizationContext.h"
-#include "catapult/cache/CatapultCache.h"
-#include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/extensions/ConfigurationUtils.h"
 #include "catapult/extensions/ServiceLocator.h"
 #include "catapult/extensions/ServiceState.h"
-#include "catapult/io/BlockStorageCache.h"
 #include "catapult/subscribers/FinalizationSubscriber.h"
 
 namespace catapult { namespace finalization {
@@ -37,52 +34,13 @@ namespace catapult { namespace finalization {
 		constexpr auto Storage_Service_Name = "fin.proof.storage";
 		constexpr auto Aggregator_Service_Name = "fin.aggregator.multiround";
 
-		// region FinalizationContextFactory
-
-		class FinalizationContextFactory {
-		public:
-			FinalizationContextFactory(
-					uint64_t votingSetGrouping,
-					const FinalizationConfiguration& config,
-					const cache::AccountStateCache& accountStateCache,
-					const io::BlockStorageCache& storage)
-					: m_votingSetGrouping(votingSetGrouping)
-					, m_config(config)
-					, m_accountStateCache(accountStateCache)
-					, m_storage(storage)
-			{}
-
-		public:
-			model::FinalizationContext create(FinalizationPoint roundPoint, Height height) const {
-				auto votingSetHeight = model::CalculateGroupedHeight<Height>(height, m_votingSetGrouping);
-				return model::FinalizationContext(
-						roundPoint,
-						votingSetHeight,
-						m_storage.view().loadBlockElement(votingSetHeight)->GenerationHash,
-						m_config,
-						*m_accountStateCache.createView());
-			}
-
-		private:
-			uint64_t m_votingSetGrouping;
-			FinalizationConfiguration m_config;
-			const cache::AccountStateCache& m_accountStateCache;
-			const io::BlockStorageCache& m_storage;
-		};
-
-		// endregion
-
 		// region CreateMultiRoundMessageAggregator
 
 		auto CreateMultiRoundMessageAggregator(
 				const FinalizationConfiguration& config,
 				const io::ProofStorageCache& proofStorage,
 				extensions::ServiceState& state) {
-			FinalizationContextFactory finalizationContextFactory(
-					state.config().BlockChain.VotingSetGrouping,
-					config,
-					state.cache().sub<cache::AccountStateCache>(),
-					state.storage());
+			FinalizationContextFactory finalizationContextFactory(config, state);
 
 			auto proofStorageView = proofStorage.view();
 			auto finalizationStatistics = proofStorageView.statistics();

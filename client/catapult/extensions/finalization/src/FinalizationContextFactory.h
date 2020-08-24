@@ -19,13 +19,30 @@
 **/
 
 #pragma once
-#include "catapult/extensions/ServiceRegistrar.h"
+#include "FinalizationConfiguration.h"
+#include "finalization/src/model/FinalizationContext.h"
 
-namespace catapult { namespace finalization { struct FinalizationConfiguration; } }
+namespace catapult {
+	namespace cache { class AccountStateCache; }
+	namespace extensions { class ServiceState; }
+	namespace io { class BlockStorageCache; }
+}
 
 namespace catapult { namespace finalization {
 
-	/// Creates a registrar for a finalization service around \a config.
-	/// \note This service is responsible for sending messages between voting nodes.
-	DECLARE_SERVICE_REGISTRAR(Finalization)(const FinalizationConfiguration& config);
+	/// Factory for creating finalization contexts.
+	class FinalizationContextFactory {
+	public:
+		/// Creates a factory given \a config and \a state.
+		FinalizationContextFactory(const FinalizationConfiguration& config, const extensions::ServiceState& state);
+
+	public:
+		/// Creates a finalization context for \a point at \a height.
+		model::FinalizationContext create(FinalizationPoint point, Height height) const;
+
+	private:
+		FinalizationConfiguration m_config;
+		const cache::AccountStateCache& m_accountStateCache;
+		const io::BlockStorageCache& m_blockStorage;
+	};
 }}

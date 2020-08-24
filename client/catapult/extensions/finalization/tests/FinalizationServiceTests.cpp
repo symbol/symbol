@@ -43,7 +43,9 @@ namespace catapult { namespace finalization {
 			}
 
 			static auto CreateRegistrar(bool enableVoting) {
-				return CreateFinalizationServiceRegistrar(enableVoting);
+				auto config = FinalizationConfiguration::Uninitialized();
+				config.EnableVoting = enableVoting;
+				return CreateFinalizationServiceRegistrar(config);
 			}
 
 			static auto CreateRegistrar() {
@@ -98,6 +100,7 @@ namespace catapult { namespace finalization {
 		// Act + Assert:
 		test::AssertRegisteredTasksPostBoot(context, {
 			"connect peers task for service Finalization",
+			"pull finalization proof task",
 			"pull finalization messages task"
 		});
 	}
@@ -108,7 +111,10 @@ namespace catapult { namespace finalization {
 		context.boot(false);
 
 		// Act + Assert:
-		test::AssertRegisteredTasksPostBoot(context, { "connect peers task for service Finalization" });
+		test::AssertRegisteredTasksPostBoot(context, {
+			"connect peers task for service Finalization",
+			"pull finalization proof task"
+		});
 	}
 
 	// endregion
