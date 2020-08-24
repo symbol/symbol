@@ -1,0 +1,18 @@
+tags:
+  - Block routes
+summary: Get finalization proof information
+description: Gets finalization proof information at the given point.
+operationId: getFinalizationProofAtPoint
+parameters:
+  - $ref: "../../../parameters/path/finalizationPoint.yml"
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../schemas/FinalizationProofDTO.yml"
+  "404":
+    $ref: "../../../responses/ResourceNotFound.yml"
+  "409":
+    $ref: "../../../responses/InvalidArgument.yml"

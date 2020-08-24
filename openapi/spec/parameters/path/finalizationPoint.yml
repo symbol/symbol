@@ -1,0 +1,7 @@
+name: finalizationPoint
+in: path
+description: Finalization point.
+required: true
+schema:
+  $ref: "../../schemas/FinalizationPoint.yml"
+

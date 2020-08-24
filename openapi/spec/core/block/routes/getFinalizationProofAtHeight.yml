@@ -1,0 +1,18 @@
+tags:
+  - Block routes
+summary: Get finalization proof information
+description: Gets the first finalization proof information (if any) at the given height.
+operationId: getFinalizationProofAtHeight
+parameters:
+  - $ref: "../../../parameters/path/height.yml"
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../schemas/FinalizationProofDTO.yml"
+  "404":
+    $ref: "../../../responses/ResourceNotFound.yml"
+  "409":
+    $ref: "../../../responses/InvalidArgument.yml"
