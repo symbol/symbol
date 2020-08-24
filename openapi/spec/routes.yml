@@ -21,6 +21,12 @@
 "/blocks/{height}/statements/{hash}/merkle":
   get:
     $ref: "./core/block/routes/getMerkleReceipts.yml"
+"/finalizationProof/point/{finalizationPoint}":
+  get:
+    $ref: "./core/block/routes/getFinalizationProofAtPoint.yml"
+"/finalizationProof/height/{height}":
+  get:
+    $ref: "./core/block/routes/getFinalizationProofAtHeight.yml"
 
 # Core - Chain
 /chain/info:
