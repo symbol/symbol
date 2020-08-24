@@ -508,12 +508,12 @@ class CatapultDb {
 
 		const sortConditions = { $sort: { [sortingOptions[options.sortField]]: options.sortDirection } };
 
-		const builtConditions = [{ $unwind: '$account.mosaics' }];
-		if (conditions.length)
-			builtConditions.push(1 === conditions.length ? { $match: conditions[0] } : { $match: { $and: conditions } });
-
 		let queryPromise;
 		if ('balance' === options.sortField) {
+			const builtConditions = [{ $unwind: '$account.mosaics' }];
+			if (conditions.length)
+				builtConditions.push(1 === conditions.length ? { $match: conditions[0] } : { $match: { $and: conditions } });
+
 			// fetch result sorted by specific mosaic amount, this unwinds mosaics and only returns matching mosaics (incomplete response)
 			queryPromise = this.queryPagedDocumentsWithConditions(builtConditions, [], sortConditions, 'accounts', options)
 				.then(accountsPage => {
