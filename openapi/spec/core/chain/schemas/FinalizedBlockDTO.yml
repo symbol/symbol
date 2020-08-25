@@ -1,16 +1,12 @@
 type: object
 required:
-  - finalizationEpoch
-  - finalizationPoint
   - height
   - hash
+  - finalizationPoint
 properties:
-  finalizationEpoch:
-    $ref: "../../../schemas/FinalizationEpoch.yml"
-  finalizationPoint:
-    $ref: "../../../schemas/FinalizationPoint.yml"
   height:
     $ref: "../../../schemas/Height.yml"
   hash:
     $ref: "../../../schemas/Hash256.yml"
-  
+  finalizationPoint:
+    $ref: "../../../schemas/FinalizationPoint.yml"
