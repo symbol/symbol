@@ -117,10 +117,8 @@ MerkleProofInfoDTO:
   "$ref": "../core/block/schemas/MerkleProofInfoDTO.yml"
 
 # Core - Chain
-ChainScoreDTO:
-  "$ref": "../core/chain/schemas/ChainScoreDTO.yml"
-HeightInfoDTO:
-  "$ref": "../core/chain/schemas/HeightInfoDTO.yml"
+ChainInfoDTO:
+  "$ref": "../core/chain/schemas/ChainInfoDTO.yml"
 
 # Core - Entity
 RentalFeesDTO:

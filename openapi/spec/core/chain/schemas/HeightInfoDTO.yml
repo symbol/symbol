@@ -1,6 +1,0 @@
-type: object
-required:
-  - height
-properties:
-  height:
-    $ref: "../../../schemas/Height.yml"
