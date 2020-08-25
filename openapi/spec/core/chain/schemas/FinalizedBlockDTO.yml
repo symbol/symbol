@@ -1,0 +1,12 @@
+type: object
+required:
+  - height
+  - hash
+  - finalizationPoint
+properties:
+  height:
+    $ref: "../../../schemas/Height.yml"
+  hash:
+    $ref: "../../../schemas/Hash256.yml"
+  finalizationPoint:
+    $ref: "../../../schemas/FinalizationPoint.yml"

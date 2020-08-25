@@ -23,12 +23,9 @@
     $ref: "./core/block/routes/getMerkleReceipts.yml"
 
 # Core - Chain
-/chain/height:
+/chain/info:
   get:
-    $ref: "./core/chain/routes/getChainHeight.yml"
-/chain/score:
-  get:
-    $ref: "./core/chain/routes/getChainScore.yml"
+    $ref: "./core/chain/routes/getChainInfo.yml"
 
 # Core - Network
 /network:
