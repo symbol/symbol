@@ -196,6 +196,15 @@ namespace catapult { namespace test {
 			EXPECT_THROW(pStorage->saveProof(*pProof), catapult_invalid_argument);
 		}
 
+		static void AssertCanSaveProofAtFinalizationPoint(FinalizationPoint newFinalizationPoint) {
+			// Arrange:
+			auto pStorage = PrepareStorageWithProofs(10);
+			auto pProof = GenerateProof(3, newFinalizationPoint, Height(123));
+
+			// Act + Assert:
+			EXPECT_NO_THROW(pStorage->saveProof(*pProof));
+		}
+
 		static void AssertCannotSaveProofAtHeight(Height newFinalizedHeight) {
 			// Arrange: prepare storage with proofs for heights 104-120
 			auto pStorage = PrepareStorageWithProofs(10);
@@ -215,14 +224,17 @@ namespace catapult { namespace test {
 		}
 
 	public:
-		static void AssertCannotSaveProofWithFinalizationPointLessThanCurrentFinalizationPoint() {
+		static void AssertCannotSaveProofWithFinalizationPointLessThanOrEqualToCurrentFinalizationPoint() {
 			AssertCannotSaveProofAtFinalizationPoint(FinalizationPoint(1));
 			AssertCannotSaveProofAtFinalizationPoint(FinalizationPoint(9));
+			AssertCannotSaveProofAtFinalizationPoint(FinalizationPoint(10));
 		}
 
-		static void AssertCannotSaveProofMoreThanOneFinalizationPointBeyondCurrentFinalizationPoint() {
-			AssertCannotSaveProofAtFinalizationPoint(FinalizationPoint(12));
-			AssertCannotSaveProofAtFinalizationPoint(FinalizationPoint(110));
+		static void AssertCanSaveProofWithFinalizationPointGreaterThanCurrentFinalizationPoint() {
+			AssertCanSaveProofAtFinalizationPoint(FinalizationPoint(11));
+			AssertCanSaveProofAtFinalizationPoint(FinalizationPoint(12));
+			AssertCanSaveProofAtFinalizationPoint(FinalizationPoint(110));
+			AssertCanSaveProofAtFinalizationPoint(FinalizationPoint(150));
 		}
 
 		static void AssertCannotSaveProofWithHeightLessThanCurrentHeight() {
@@ -230,7 +242,7 @@ namespace catapult { namespace test {
 			AssertCannotSaveProofAtHeight(Height(119));
 		}
 
-		static void AssertCanSaveProofWithHeightGreaterOrEqualToCurrentHeight() {
+		static void AssertCanSaveProofWithHeightGreaterThanOrEqualToCurrentHeight() {
 			AssertCanSaveProofAtHeight(Height(120));
 			AssertCanSaveProofAtHeight(Height(125));
 			AssertCanSaveProofAtHeight(Height(150));
@@ -426,10 +438,10 @@ namespace catapult { namespace test {
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, SavingProofWithFinalizationPointHigherThanCurrentFinalizationPointAltersFinalizationIndexes) \
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CanLoadNewlySavedProof) \
 	\
-	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotSaveProofWithFinalizationPointLessThanCurrentFinalizationPoint) \
-	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotSaveProofMoreThanOneFinalizationPointBeyondCurrentFinalizationPoint) \
+	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotSaveProofWithFinalizationPointLessThanOrEqualToCurrentFinalizationPoint) \
+	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CanSaveProofWithFinalizationPointGreaterThanCurrentFinalizationPoint) \
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotSaveProofWithHeightLessThanCurrentHeight) \
-	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CanSaveProofWithHeightGreaterOrEqualToCurrentHeight) \
+	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CanSaveProofWithHeightGreaterThanOrEqualToCurrentHeight) \
 	\
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CanLoadProofAtFinalizationPointLessThanCurrentFinalizationPoint) \
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotLoadProofAtFinalizationPointZero) \

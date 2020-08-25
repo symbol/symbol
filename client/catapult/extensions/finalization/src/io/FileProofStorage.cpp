@@ -130,7 +130,7 @@ namespace catapult { namespace io {
 
 	void FileProofStorage::saveProof(const model::FinalizationProof& proof) {
 		auto currentStatistics = statistics();
-		if (proof.Point != currentStatistics.Point + FinalizationPoint(1)) {
+		if (currentStatistics.Point >= proof.Point) {
 			std::ostringstream out;
 			out << "cannot save proof with point " << proof.Point << " when storage point is " << currentStatistics.Point;
 			CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
@@ -149,7 +149,10 @@ namespace catapult { namespace io {
 			stream.flush();
 		}
 
-		m_pointHeightMapping.save(proof.Point, proof.Height);
+		// fill gaps in mapping file - this works because loadProof(Height) returns latest proof with matching height
+		for (auto point = currentStatistics.Point + FinalizationPoint(1); point <= proof.Point; point = point + FinalizationPoint(1))
+			m_pointHeightMapping.save(point, proof.Height);
+
 		m_indexFile.set({ proof.Point, proof.Height, proof.Hash });
 	}
 
