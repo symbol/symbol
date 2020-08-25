@@ -176,7 +176,7 @@ def publish_all():
     publisher = Publisher(args.root, args.publish)
     publisher.set_verbose(args.verbose)
 
-    for component in ['api', 'config', 'crypto', 'io', 'ionet', 'model', 'net', 'state', 'thread', 'utils', 'version']:
+    for component in ['api', 'config', 'crypto', 'crypto_voting', 'io', 'ionet', 'model', 'net', 'state', 'thread', 'utils', 'version']:
         publisher.publish_component(component)
 
     transactions = [
