@@ -31,11 +31,11 @@ namespace catapult { namespace model {
 
 	// region size + alignment
 
-#define PROOF_FIELDS FIELD(Point) FIELD(Height) FIELD(Hash)
+#define PROOF_FIELDS FIELD(Version) FIELD(Point) FIELD(Height) FIELD(Hash)
 
 	TEST(TEST_CLASS, ProofHasExpectedSize) {
 		// Arrange:
-		auto expectedSize = sizeof(SizePrefixedEntity) + 4u;
+		auto expectedSize = sizeof(SizePrefixedEntity);
 
 #define FIELD(X) expectedSize += SizeOf32<decltype(FinalizationProof::X)>();
 		PROOF_FIELDS
@@ -43,7 +43,7 @@ namespace catapult { namespace model {
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(FinalizationProofHeader));
-		EXPECT_EQ(4u + 4 + 48, sizeof(FinalizationProofHeader));
+		EXPECT_EQ(4u + 52, sizeof(FinalizationProofHeader));
 
 		EXPECT_EQ(sizeof(FinalizationProofHeader), sizeof(FinalizationProof));
 	}

@@ -55,6 +55,9 @@ namespace catapult { namespace chain {
 	VerifyFinalizationProofResult VerifyFinalizationProof(
 			const model::FinalizationProof& proof,
 			const model::FinalizationContext& context) {
+		if (model::FinalizationProofHeader::Current_Version != proof.Version)
+			return VerifyFinalizationProofResult::Failure_Invalid_Version;
+
 		if (proof.Point != context.point())
 			return VerifyFinalizationProofResult::Failure_Invalid_Point;
 

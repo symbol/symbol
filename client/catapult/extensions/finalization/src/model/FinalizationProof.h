@@ -28,8 +28,13 @@ namespace catapult { namespace model {
 
 	/// Binary layout for a finalization proof header.
 	struct FinalizationProofHeader : public SizePrefixedEntity {
-		/// Reserved padding to align Point on 8-byte boundary.
-		uint32_t FinalizationProofHeader_Reserved1;
+	public:
+		/// Proof format version.
+		static constexpr uint8_t Current_Version = 1;
+
+	public:
+		/// Proof version.
+		uint32_t Version;
 
 		/// Finalization point.
 		FinalizationPoint Point;

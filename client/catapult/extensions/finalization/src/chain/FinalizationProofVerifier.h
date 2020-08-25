@@ -33,6 +33,9 @@ namespace catapult { namespace chain {
 	// region VerifyFinalizationProofResult
 
 #define VERIFY_FINALIZATION_PROOF_RESULT_LIST \
+	/* Proof version is not supported. */ \
+	ENUM_VALUE(Failure_Invalid_Version) \
+	\
 	/* Proof point does not match context. */ \
 	ENUM_VALUE(Failure_Invalid_Point) \
 	\

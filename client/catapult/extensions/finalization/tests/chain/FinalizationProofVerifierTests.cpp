@@ -147,6 +147,23 @@ namespace catapult { namespace chain {
 
 	// region failure
 
+	TEST(TEST_CLASS, VerifyFailsWhenProofHasUnsupportedVersion) {
+		// Arrange:
+		RunTest([](const auto& context, const auto& prevoteHashes, const auto& prevoteMessages, const auto& precommitMessages) {
+			auto statistics = model::FinalizationStatistics{ Finalization_Point, Last_Finalized_Height + Height(3), prevoteHashes[2] };
+			auto pProof = model::CreateFinalizationProof(statistics, MergeMessages(prevoteMessages, precommitMessages));
+
+			// - change version
+			++pProof->Version;
+
+			// Act: verify it
+			auto result = context.verify(*pProof);
+
+			// Assert:
+			EXPECT_EQ(VerifyFinalizationProofResult::Failure_Invalid_Version, result);
+		});
+	}
+
 	TEST(TEST_CLASS, VerifyFailsWhenProofPointDoesNotMatchContextPoint) {
 		RunModifiedStatisticsTest(VerifyFinalizationProofResult::Failure_Invalid_Point, [](auto& statistics) {
 			statistics.Point = statistics.Point + FinalizationPoint(1);

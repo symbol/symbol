@@ -40,6 +40,8 @@ namespace catapult { namespace model {
 			EXPECT_EQ(expectedStatistics.Point, proof.Point);
 			EXPECT_EQ(expectedStatistics.Height, proof.Height);
 			EXPECT_EQ(expectedStatistics.Hash, proof.Hash);
+
+			EXPECT_EQ(1u, proof.Version);
 		}
 
 		void AssertMessageGroup(

@@ -113,6 +113,7 @@ namespace catapult { namespace model {
 			auto pProof = utils::MakeUniqueWithSize<FinalizationProof>(size);
 			std::memset(static_cast<void*>(pProof.get()), 0, sizeof(FinalizationProofHeader));
 			pProof->Size = size;
+			pProof->Version = FinalizationProofHeader::Current_Version;
 
 			// append all the message groups
 			auto* pDestination = reinterpret_cast<uint8_t*>(pProof->MessageGroupsPtr());
