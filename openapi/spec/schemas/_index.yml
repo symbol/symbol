@@ -13,16 +13,12 @@ CosignatureVersion:
   "$ref": "./CosignatureVersion.yml"
 Difficulty:
   "$ref": "./Difficulty.yml"
-FinalizationEpoch:
-  "$ref": "./FinalizationEpoch.yml"
 FinalizationPoint:
   "$ref": "./FinalizationPoint.yml"
 Hash256:
   "$ref": "./Hash256.yml"
 Height:
   "$ref": "./Height.yml"
-FinalizedHeight:
-  "$ref": "./FinalizedHeight.yml"
 Importance:
   "$ref": "./Importance.yml"
 LinkActionEnum:
@@ -121,8 +117,6 @@ MerkleProofInfoDTO:
 # Core - Chain
 ChainInfoDTO:
   "$ref": "../core/chain/schemas/ChainInfoDTO.yml"
-FinalizedBlockDTO:
-  "$ref": "../core/chain/schemas/FinalizedBlockDTO.yml"
 
 # Core - Entity
 RentalFeesDTO:
