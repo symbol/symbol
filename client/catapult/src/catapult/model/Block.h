@@ -35,7 +35,7 @@ namespace catapult { namespace model {
 	struct BlockHeader : public VerifiableEntity {
 	public:
 		/// Block format version.
-		static constexpr int Current_Version = 1;
+		static constexpr uint8_t Current_Version = 1;
 
 		/// Size of the footer that can be skipped when signing/verifying.
 		static constexpr size_t Footer_Size = sizeof(uint32_t);
