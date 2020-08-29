@@ -233,7 +233,7 @@ namespace catapult { namespace handlers {
 		}
 	}
 
-	DEFINE_PULL_HANDLER_REQUEST_RESPONSE_TESTS(TEST_CLASS, AssertPullResponseIsSetWhenPacketIsValid)
+	DEFINE_PULL_HANDLER_REQUEST_RESPONSE_TESTS(TEST_CLASS, PullTransactions, AssertPullResponseIsSetWhenPacketIsValid)
 
 	// endregion
 }}

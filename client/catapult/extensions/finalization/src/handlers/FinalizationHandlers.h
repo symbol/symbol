@@ -24,6 +24,15 @@
 
 namespace catapult { namespace handlers {
 
+	/// Prototype for a function that retrieves messages given a set of short hashes.
+	using MessagesRetriever = std::function<std::vector<std::shared_ptr<const model::FinalizationMessage>> (
+			FinalizationPoint,
+			const utils::ShortHashesSet&)>;
+
 	/// Registers a push messages handler in \a handlers that forwards messages to \a messageRangeHandler.
 	void RegisterPushMessagesHandler(ionet::ServerPacketHandlers& handlers, const MessageRangeHandler& messageRangeHandler);
+
+	/// Registers a pull transactions handler in \a handlers that responds with messages
+	/// returned by the retriever (\a messagesRetriever).
+	void RegisterPullMessagesHandler(ionet::ServerPacketHandlers& handlers, const MessagesRetriever& messagesRetriever);
 }}

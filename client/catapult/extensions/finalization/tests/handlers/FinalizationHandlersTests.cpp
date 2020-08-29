@@ -19,12 +19,17 @@
 **/
 
 #include "finalization/src/handlers/FinalizationHandlers.h"
+#include "finalization/tests/test/FinalizationMessageTestUtils.h"
+#include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/core/PushHandlerTestUtils.h"
+#include "tests/test/plugins/PullHandlerTests.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace handlers {
 
 #define TEST_CLASS FinalizationHandlersTests
+
+	// region PushMessagesHandler
 
 	namespace {
 		void SetMessageAt(ionet::ByteBuffer& buffer, size_t offset, size_t size) {
@@ -69,4 +74,80 @@ namespace catapult { namespace handlers {
 	}
 
 	DEFINE_PUSH_HANDLER_TESTS(TEST_CLASS, PushMessages)
+
+	// endregion
+
+	// region PullMessagesHandler - basic edge case tests
+
+	namespace {
+		struct PullMessagesTraits {
+			static constexpr auto Data_Header_Size = sizeof(FinalizationPoint);
+			static constexpr auto Packet_Type = ionet::PacketType::Pull_Finalization_Messages;
+			static constexpr auto Valid_Request_Payload_Size = SizeOf32<utils::ShortHash>();
+
+			using ResponseType = std::vector<std::shared_ptr<const model::FinalizationMessage>>;
+			using RetrieverParamType = utils::ShortHashesSet;
+
+			using MessagesRetrieverAdapter = std::function<ResponseType (const utils::ShortHashesSet&)>;
+			static auto RegisterHandler(ionet::ServerPacketHandlers& handlers, const MessagesRetrieverAdapter& messagesRetriever) {
+				handlers::RegisterPullMessagesHandler(handlers, [messagesRetriever](auto, const auto& knownShortHashes){
+					return messagesRetriever(knownShortHashes);
+				});
+			}
+		};
+
+		DEFINE_PULL_HANDLER_EDGE_CASE_TESTS(TEST_CLASS, PullMessages)
+	}
+
+	// endregion
+
+	// region PullMessagesHandler - request + response tests
+
+	namespace {
+		struct PullMessagesRequestResponseTraits {
+			static constexpr auto Packet_Type = ionet::PacketType::Pull_Finalization_Messages;
+			static constexpr auto RegisterHandler = handlers::RegisterPullMessagesHandler;
+
+			using FilterType = FinalizationPoint;
+
+			class PullResponseContext {
+			public:
+				explicit PullResponseContext(size_t numResponseMessages) {
+					for (uint16_t i = 0u; i < numResponseMessages; ++i)
+						m_messages.push_back(test::CreateMessage(Height(100 + i), i));
+				}
+
+			public:
+				const auto& response() const {
+					return m_messages;
+				}
+
+				auto responseSize() const {
+					return test::TotalSize(m_messages);
+				}
+
+				void assertPayload(const ionet::PacketPayload& payload) {
+					ASSERT_EQ(m_messages.size(), payload.buffers().size());
+
+					auto i = 0u;
+					for (const auto& pExpectedMessage : m_messages) {
+						const auto& message = reinterpret_cast<const model::FinalizationMessage&>(*payload.buffers()[i].pData);
+						ASSERT_EQ(pExpectedMessage->Size, message.Size) << "message at " << i;
+						EXPECT_EQ_MEMORY(pExpectedMessage.get(), &message, pExpectedMessage->Size);
+						++i;
+					}
+				}
+
+			private:
+				std::vector<std::shared_ptr<const model::FinalizationMessage>> m_messages;
+			};
+		};
+	}
+
+	DEFINE_PULL_HANDLER_REQUEST_RESPONSE_TESTS(
+			TEST_CLASS,
+			PullMessages,
+			test::PullEntitiesHandlerAssertAdapter<PullMessagesRequestResponseTraits>::AssertFunc)
+
+	// endregion
 }}

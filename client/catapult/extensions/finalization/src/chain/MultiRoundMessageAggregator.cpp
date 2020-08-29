@@ -108,11 +108,13 @@ namespace catapult { namespace chain {
 	}
 
 	model::ShortHashRange MultiRoundMessageAggregatorView::shortHashes() const {
-		std::vector<model::ShortHashRange> shortHashRanges;
-		for (const auto& pair : m_state.RoundMessageAggregators)
-			shortHashRanges.push_back(pair.second->shortHashes());
+		std::vector<utils::ShortHash> shortHashes;
+		for (const auto& pair : m_state.RoundMessageAggregators) {
+			auto roundShortHashes = pair.second->shortHashes();
+			shortHashes.insert(shortHashes.end(), roundShortHashes.cbegin(), roundShortHashes.cend());
+		}
 
-		return model::ShortHashRange::MergeRanges(std::move(shortHashRanges));
+		return model::ShortHashRange::CopyFixed(reinterpret_cast<const uint8_t*>(shortHashes.data()), shortHashes.size());
 	}
 
 	RoundMessageAggregator::UnknownMessages MultiRoundMessageAggregatorView::unknownMessages(

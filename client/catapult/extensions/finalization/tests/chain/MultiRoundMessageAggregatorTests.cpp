@@ -557,6 +557,9 @@ namespace catapult { namespace chain {
 		// Assert:
 		EXPECT_EQ(15u + Default_Min_FP.unwrap() * 3, shortHashes.size());
 		EXPECT_EQ(seededShortHashes, utils::ShortHashesSet(shortHashes.cbegin(), shortHashes.cend()));
+
+		// - returned range is contiguous (due to limitation in PacketPayloadBuilder)
+		EXPECT_NO_THROW(shortHashes.data());
 	}
 
 	// endregion

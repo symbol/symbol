@@ -20,6 +20,7 @@
 
 #include "FinalizationSyncSourceService.h"
 #include "FinalizationBootstrapperService.h"
+#include "finalization/src/chain/MultiRoundMessageAggregator.h"
 #include "finalization/src/handlers/FinalizationHandlers.h"
 #include "finalization/src/handlers/ProofHandlers.h"
 #include "catapult/extensions/ServiceState.h"
@@ -42,16 +43,22 @@ namespace catapult { namespace finalization {
 			}
 
 			void registerServices(extensions::ServiceLocator& locator, extensions::ServiceState& state) override {
+				const auto& messageAggregator = GetMultiRoundMessageAggregator(locator);
 				const auto& hooks = GetFinalizationServerHooks(locator);
 				const auto& proofStorage = GetProofStorageCache(locator);
 
 				// register handlers
-				handlers::RegisterFinalizationStatisticsHandler(state.packetHandlers(), proofStorage);
-				handlers::RegisterFinalizationProofAtPointHandler(state.packetHandlers(), proofStorage);
-				handlers::RegisterFinalizationProofAtHeightHandler(state.packetHandlers(), proofStorage);
+				auto& packetHandlers = state.packetHandlers();
+				handlers::RegisterFinalizationStatisticsHandler(packetHandlers, proofStorage);
+				handlers::RegisterFinalizationProofAtPointHandler(packetHandlers, proofStorage);
+				handlers::RegisterFinalizationProofAtHeightHandler(packetHandlers, proofStorage);
 
-				if (m_enableVoting)
-					handlers::RegisterPushMessagesHandler(state.packetHandlers(), hooks.messageRangeConsumer());
+				if (m_enableVoting) {
+					handlers::RegisterPushMessagesHandler(packetHandlers, hooks.messageRangeConsumer());
+					handlers::RegisterPullMessagesHandler(packetHandlers, [&messageAggregator](auto point, const auto& shortHashes) {
+						return messageAggregator.view().unknownMessages(point, shortHashes);
+					});
+				}
 			}
 
 		private:

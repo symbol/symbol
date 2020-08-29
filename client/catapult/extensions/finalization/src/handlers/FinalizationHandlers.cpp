@@ -20,7 +20,6 @@
 
 #include "FinalizationHandlers.h"
 #include "catapult/handlers/HandlerUtils.h"
-#include "catapult/ionet/PacketEntityUtils.h"
 
 namespace catapult { namespace handlers {
 
@@ -43,5 +42,10 @@ namespace catapult { namespace handlers {
 
 	void RegisterPushMessagesHandler(ionet::ServerPacketHandlers& handlers, const MessageRangeHandler& messageRangeHandler) {
 		handlers.registerHandler(ionet::PacketType::Push_Finalization_Messages, CreatePushMessagesHandler(messageRangeHandler));
+	}
+
+	void RegisterPullMessagesHandler(ionet::ServerPacketHandlers& handlers, const MessagesRetriever& messagesRetriever) {
+		constexpr auto Packet_Type = ionet::PacketType::Pull_Finalization_Messages;
+		handlers.registerHandler(Packet_Type, PullEntitiesHandler<FinalizationPoint>::Create(Packet_Type, messagesRetriever));
 	}
 }}

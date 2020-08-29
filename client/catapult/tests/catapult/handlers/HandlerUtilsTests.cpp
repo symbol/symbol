@@ -21,6 +21,7 @@
 #include "catapult/handlers/HandlerUtils.h"
 #include "catapult/model/Block.h"
 #include "catapult/model/TransactionPlugin.h"
+#include "tests/test/core/PacketPayloadTestUtils.h"
 #include "tests/test/core/PacketTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -100,6 +101,135 @@ namespace catapult { namespace handlers {
 
 		// Assert:
 		AssertCreatePushEntityHandlerForwarding(packet, 1);
+	}
+
+	// endregion
+
+	// region PullEntitiesHandler::Create
+
+	namespace {
+		auto Min_Pull_Packet_Size = SizeOf32<ionet::PacketHeader>() + SizeOf32<Height>(); // use Height as filter in tests
+		auto Test_Pull_Packet_Type = static_cast<ionet::PacketType>(123);
+
+		struct TestPullEntity : model::SizePrefixedEntity {
+			Height FilterHeight;
+			utils::ShortHash ShortHash;
+		};
+
+		ionet::Packet& CoerceToPullPacket(ionet::ByteBuffer& buffer) {
+			auto& packet = reinterpret_cast<ionet::Packet&>(buffer[0]);
+			packet.Size = Min_Pull_Packet_Size;
+			packet.Type = Test_Pull_Packet_Type;
+			return packet;
+		}
+
+		template<typename TCheckContext>
+		void RunCreatePullEntitiesHandlerTest(const ionet::Packet& packet, size_t numExpectedRetrieverCalls, TCheckContext checkContext) {
+			// Arrange:
+			auto numRetrieverCalls = 0u;
+			auto handler = PullEntitiesHandler<Height>::Create(Test_Pull_Packet_Type, [&numRetrieverCalls](
+					auto filterHeight,
+					const auto& shortHashes) {
+				++numRetrieverCalls;
+
+				std::vector<std::shared_ptr<const model::SizePrefixedEntity>> entities;
+				for (const auto& shortHash : shortHashes) {
+					auto pEntity = std::make_shared<TestPullEntity>();
+					pEntity->Size = sizeof(TestPullEntity);
+					pEntity->FilterHeight = filterHeight;
+					pEntity->ShortHash = shortHash;
+					entities.push_back(pEntity);
+				}
+
+				return entities;
+			});
+
+			// Act:
+			auto sourcePublicKey = test::GenerateRandomByteArray<Key>();
+			auto sourceHost = std::string("11.22.33.44");
+			auto context = ionet::ServerPacketHandlerContext(sourcePublicKey, sourceHost);
+			handler(packet, context);
+
+			// Assert:
+			EXPECT_EQ(numExpectedRetrieverCalls, numRetrieverCalls);
+			checkContext(context);
+		}
+	}
+
+	TEST(TEST_CLASS, CreatePullEntitiesHandler_DoesNotRespondWhenRequestPacketIsTooSmall) {
+		// Arrange:
+		ionet::ByteBuffer buffer(Min_Pull_Packet_Size);
+		auto& packet = CoerceToPullPacket(buffer);
+		--packet.Size;
+
+		// Act:
+		RunCreatePullEntitiesHandlerTest(packet, 0, [](const auto& context) {
+			// Assert:
+			EXPECT_FALSE(context.hasResponse());
+		});
+	}
+
+	TEST(TEST_CLASS, CreatePullEntitiesHandler_RespondsWhenRequestPacketHasNoShortHashes) {
+		// Arrange:
+		ionet::ByteBuffer buffer(Min_Pull_Packet_Size);
+		auto& packet = CoerceToPullPacket(buffer);
+
+		// Act:
+		RunCreatePullEntitiesHandlerTest(packet, 1, [](const auto& context) {
+			// Assert:
+			test::AssertPacketHeader(context, sizeof(ionet::PacketHeader), Test_Pull_Packet_Type);
+		});
+	}
+
+	TEST(TEST_CLASS, CreatePullEntitiesHandler_DoesNotRespondWhenRequestPacketHasCorruptShortHashes) {
+		// Arrange:
+		ionet::ByteBuffer buffer(Min_Pull_Packet_Size + 3 * sizeof(utils::ShortHash));
+		test::FillWithRandomData(buffer);
+
+		auto& packet = CoerceToPullPacket(buffer);
+		packet.Size += 3 * SizeOf32<utils::ShortHash>() - 1;
+
+		// Act:
+		RunCreatePullEntitiesHandlerTest(packet, 0, [](const auto& context) {
+			// Assert:
+			EXPECT_FALSE(context.hasResponse());
+		});
+	}
+
+	TEST(TEST_CLASS, CreatePullEntitiesHandler_RespondsWhenRequestPacketHasShortHashes) {
+		// Arrange:
+		ionet::ByteBuffer buffer(Min_Pull_Packet_Size + 3 * sizeof(utils::ShortHash));
+		test::FillWithRandomData(buffer);
+
+		auto& packet = CoerceToPullPacket(buffer);
+		packet.Size += 3 * SizeOf32<utils::ShortHash>();
+
+		// Act:
+		RunCreatePullEntitiesHandlerTest(packet, 1, [&packet](const auto& context) {
+			// Assert:
+			test::AssertPacketHeader(context, sizeof(ionet::PacketHeader) + 3 * sizeof(TestPullEntity), Test_Pull_Packet_Type);
+			ASSERT_EQ(3u, context.response().buffers().size());
+
+			auto i = 0u;
+			utils::ShortHashesSet requestShortHashes;
+			utils::ShortHashesSet responseShortHashes;
+
+			auto requestFilterHeight = reinterpret_cast<const Height&>(*packet.Data());
+			const auto* pRequestShortHashes = reinterpret_cast<const utils::ShortHash*>(packet.Data() + sizeof(Height));
+			for (const auto& responseBuffer : context.response().buffers()) {
+				const auto& entity = reinterpret_cast<const TestPullEntity&>(*responseBuffer.pData);
+
+				ASSERT_EQ(sizeof(TestPullEntity), entity.Size) << "entity at " << i;
+				EXPECT_EQ(requestFilterHeight, entity.FilterHeight) << "entity at " << i;
+
+				requestShortHashes.insert(pRequestShortHashes[i]);
+				responseShortHashes.insert(entity.ShortHash);
+				++i;
+			}
+
+			// - request hashes are parsed into unordered_set, so order is not deterministic
+			EXPECT_EQ(requestShortHashes, responseShortHashes);
+		});
 	}
 
 	// endregion

@@ -66,11 +66,12 @@ namespace catapult { namespace finalization {
 		const auto& handlers = context.testState().state().packetHandlers();
 
 		// Assert:
-		EXPECT_EQ(4u, handlers.size());
+		EXPECT_EQ(5u, handlers.size());
 		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Finalization_Statistics));
 		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Finalization_Proof_At_Point));
 		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Finalization_Proof_At_Height));
 		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Push_Finalization_Messages));
+		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Pull_Finalization_Messages));
 	}
 
 	TEST(TEST_CLASS, PacketHandlersAreRegistered_WithVotingDisabled) {
