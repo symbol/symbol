@@ -138,10 +138,10 @@ namespace catapult { namespace chain {
 			TestContext context(FinalizationPoint(11), Height(8), numBlocks, config);
 
 			// Act:
-			auto pMessage = context.factory().createPrevote();
+			auto pMessage = context.factory().createPrevote(FinalizationPoint(20));
 
 			// Assert:
-			AssertPrevote(*pMessage, context, FinalizationPoint(12), Height(8), expectedHashesCount);
+			AssertPrevote(*pMessage, context, FinalizationPoint(20), Height(8), expectedHashesCount);
 		}
 	}
 
@@ -155,13 +155,13 @@ namespace catapult { namespace chain {
 		TestContext context(FinalizationPoint(11), Height(8), 6, config);
 
 		// Act:
-		auto pMessage = context.factory().createPrevote();
+		auto pMessage = context.factory().createPrevote(FinalizationPoint(20));
 
 		// Assert:
 		EXPECT_EQ(sizeof(model::FinalizationMessage) + Hash256::Size, pMessage->Size);
 		ASSERT_EQ(1u, pMessage->HashesCount);
 
-		EXPECT_EQ(model::StepIdentifier({ FinalizationPoint(12), model::FinalizationStage::Prevote }), pMessage->StepIdentifier);
+		EXPECT_EQ(model::StepIdentifier({ FinalizationPoint(20), model::FinalizationStage::Prevote }), pMessage->StepIdentifier);
 		EXPECT_EQ(Height(8), pMessage->Height);
 		EXPECT_EQ(context.lastFinalizedHash(), pMessage->HashesPtr()[0]);
 
@@ -208,10 +208,10 @@ namespace catapult { namespace chain {
 			TestContext context(FinalizationPoint(11), height, 200, config);
 
 			// Act:
-			auto pMessage = context.factory().createPrevote();
+			auto pMessage = context.factory().createPrevote(FinalizationPoint(20));
 
 			// Assert:
-			AssertPrevote(*pMessage, context, FinalizationPoint(12), height, expectedHashesCount);
+			AssertPrevote(*pMessage, context, FinalizationPoint(20), height, expectedHashesCount);
 		}
 	}
 
@@ -246,13 +246,13 @@ namespace catapult { namespace chain {
 		TestContext context(FinalizationPoint(11), Height(7));
 
 		// Act:
-		auto pMessage = context.factory().createPrecommit(Height(35), hash);
+		auto pMessage = context.factory().createPrecommit(FinalizationPoint(20), Height(35), hash);
 
 		// Assert:
 		EXPECT_EQ(sizeof(model::FinalizationMessage) + Hash256::Size, pMessage->Size);
 		ASSERT_EQ(1u, pMessage->HashesCount);
 
-		EXPECT_EQ(model::StepIdentifier({ FinalizationPoint(12), model::FinalizationStage::Precommit }), pMessage->StepIdentifier);
+		EXPECT_EQ(model::StepIdentifier({ FinalizationPoint(20), model::FinalizationStage::Precommit }), pMessage->StepIdentifier);
 		EXPECT_EQ(Height(35), pMessage->Height);
 		EXPECT_EQ(hash, pMessage->HashesPtr()[0]);
 

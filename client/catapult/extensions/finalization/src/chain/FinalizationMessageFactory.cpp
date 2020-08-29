@@ -73,10 +73,6 @@ namespace catapult { namespace chain {
 			return model::HashRange::CopyFixed(reinterpret_cast<const uint8_t*>(&hash), 1);
 		}
 
-		FinalizationPoint AddOne(FinalizationPoint point) {
-			return point + FinalizationPoint(1);
-		}
-
 		// endregion
 
 		// region DefaultFinalizationMessageFactory
@@ -95,21 +91,23 @@ namespace catapult { namespace chain {
 			{}
 
 		public:
-			std::unique_ptr<model::FinalizationMessage> createPrevote() override {
+			std::unique_ptr<model::FinalizationMessage> createPrevote(FinalizationPoint point) override {
 				auto finalizationState = LoadFinalizationState(m_proofStorage);
 				auto hashRange = LoadPrevoteHashChain(m_config, finalizationState.second, m_blockStorage);
 				if (hashRange.empty())
 					hashRange = ToHashRange(LoadLastFinalizedHash(m_proofStorage));
 
-				auto stepIdentifier = model::StepIdentifier{ AddOne(finalizationState.first), model::FinalizationStage::Prevote };
+				auto stepIdentifier = model::StepIdentifier{ point, model::FinalizationStage::Prevote };
 				return model::PrepareMessage(m_otsTree, stepIdentifier, finalizationState.second, hashRange);
 			}
 
-			std::unique_ptr<model::FinalizationMessage> createPrecommit(Height height, const Hash256& hash) override {
-				auto finalizationState = LoadFinalizationState(m_proofStorage);
+			std::unique_ptr<model::FinalizationMessage> createPrecommit(
+					FinalizationPoint point,
+					Height height,
+					const Hash256& hash) override {
 				auto hashRange = ToHashRange(hash);
 
-				auto stepIdentifier = model::StepIdentifier{ AddOne(finalizationState.first), model::FinalizationStage::Precommit };
+				auto stepIdentifier = model::StepIdentifier{ point, model::FinalizationStage::Precommit };
 				return model::PrepareMessage(m_otsTree, stepIdentifier, height, hashRange);
 			}
 

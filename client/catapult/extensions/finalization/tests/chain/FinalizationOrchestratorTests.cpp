@@ -43,26 +43,35 @@ namespace catapult { namespace chain {
 			}
 
 		public:
-			std::unique_ptr<model::FinalizationMessage> createPrevote() override {
+			std::unique_ptr<model::FinalizationMessage> createPrevote(FinalizationPoint point) override {
 				m_messageTypes.push_back(MessageType::Prevote);
-				return test::CreateMessage(Height(0), test::GenerateRandomByteArray<Hash256>());
+				auto pMessage = test::CreateMessage(Height(0), test::GenerateRandomByteArray<Hash256>());
+				pMessage->StepIdentifier.Point = point;
+				return pMessage;
 			}
 
 		public:
-			std::unique_ptr<model::FinalizationMessage> createPrecommit(Height height, const Hash256& hash) override {
+			std::unique_ptr<model::FinalizationMessage> createPrecommit(
+					FinalizationPoint point,
+					Height height,
+					const Hash256& hash) override {
 				m_messageTypes.push_back(MessageType::Precommit);
-				return test::CreateMessage(height, hash);
+				auto pMessage = test::CreateMessage(height, hash);
+				pMessage->StepIdentifier.Point = point;
+				return pMessage;
 			}
 
 		private:
 			std::vector<MessageType> m_messageTypes;
 		};
 
-		void AssertPrevote(const model::FinalizationMessage& message) {
+		void AssertPrevote(const model::FinalizationMessage& message, FinalizationPoint point) {
+			EXPECT_EQ(point, message.StepIdentifier.Point);
 			EXPECT_EQ(Height(0), message.Height);
 		}
 
-		void AssertPrecommit(const model::FinalizationMessage& message, Height height, const Hash256& hash) {
+		void AssertPrecommit(const model::FinalizationMessage& message, FinalizationPoint point, Height height, const Hash256& hash) {
+			EXPECT_EQ(point, message.StepIdentifier.Point);
 			EXPECT_EQ(height, message.Height);
 			EXPECT_EQ(hash, *message.HashesPtr());
 		}
@@ -317,7 +326,7 @@ namespace catapult { namespace chain {
 
 			EXPECT_EQ(std::vector<MessageType>({ MessageType::Prevote }), context.messageFactory().messageTypes());
 			ASSERT_EQ(1u, context.messages().size());
-			AssertPrevote(*context.messages()[0]);
+			AssertPrevote(*context.messages()[0], FinalizationPoint(3));
 
 			ASSERT_EQ(1u, context.stageAdvancers().size());
 			EXPECT_EQ(FinalizationPoint(3), context.stageAdvancers().back()->point());
@@ -369,8 +378,8 @@ namespace catapult { namespace chain {
 
 			EXPECT_EQ(std::vector<MessageType>({ MessageType::Prevote, MessageType::Precommit }), context.messageFactory().messageTypes());
 			ASSERT_EQ(2u, context.messages().size());
-			AssertPrevote(*context.messages()[0]);
-			AssertPrecommit(*context.messages()[1], Height(123), precommitHash);
+			AssertPrevote(*context.messages()[0], FinalizationPoint(3));
+			AssertPrecommit(*context.messages()[1], FinalizationPoint(3), Height(123), precommitHash);
 
 			ASSERT_EQ(1u, context.stageAdvancers().size());
 			EXPECT_EQ(FinalizationPoint(3), context.stageAdvancers().back()->point());
@@ -434,8 +443,8 @@ namespace catapult { namespace chain {
 
 		EXPECT_EQ(std::vector<MessageType>({ MessageType::Prevote, MessageType::Precommit }), context.messageFactory().messageTypes());
 		ASSERT_EQ(2u, context.messages().size());
-		AssertPrevote(*context.messages()[0]);
-		AssertPrecommit(*context.messages()[1], Height(123), hash);
+		AssertPrevote(*context.messages()[0], FinalizationPoint(3));
+		AssertPrecommit(*context.messages()[1], FinalizationPoint(3), Height(123), hash);
 
 		ASSERT_EQ(2u, context.stageAdvancers().size());
 		EXPECT_EQ(FinalizationPoint(4), context.stageAdvancers().back()->point());

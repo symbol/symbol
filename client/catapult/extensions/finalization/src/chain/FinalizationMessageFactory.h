@@ -39,11 +39,14 @@ namespace catapult { namespace chain {
 		virtual ~FinalizationMessageFactory() = default;
 
 	public:
-		/// Creates a prevote message.
-		virtual std::unique_ptr<model::FinalizationMessage> createPrevote() = 0;
+		/// Creates a prevote message for the specified \a point.
+		virtual std::unique_ptr<model::FinalizationMessage> createPrevote(FinalizationPoint point) = 0;
 
-		/// Creates a precommit message for the specified \a height and \a hash.
-		virtual std::unique_ptr<model::FinalizationMessage> createPrecommit(Height height, const Hash256& hash) = 0;
+		/// Creates a precommit message for the specified \a point, \a height and \a hash.
+		virtual std::unique_ptr<model::FinalizationMessage> createPrecommit(
+				FinalizationPoint point,
+				Height height,
+				const Hash256& hash) = 0;
 	};
 
 	/// Creates a factory around \a config, \a blockStorage, \a proofStorage and \a otsTree.
