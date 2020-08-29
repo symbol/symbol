@@ -53,6 +53,7 @@ namespace catapult { namespace sync {
 
 		chain::ChainSynchronizerConfiguration CreateChainSynchronizerConfiguration(const config::CatapultConfiguration& config) {
 			chain::ChainSynchronizerConfiguration chainSynchronizerConfig;
+			chainSynchronizerConfig.MaxHashesPerSyncAttempt = config.Node.MaxHashesPerSyncAttempt;
 			chainSynchronizerConfig.MaxBlocksPerSyncAttempt = config.Node.MaxBlocksPerSyncAttempt;
 			chainSynchronizerConfig.MaxChainBytesPerSyncAttempt = config.Node.MaxChainBytesPerSyncAttempt.bytes32();
 			chainSynchronizerConfig.MaxRollbackBlocks = config.BlockChain.MaxRollbackBlocks;
@@ -67,6 +68,7 @@ namespace catapult { namespace sync {
 							[&score = state.score()]() { return score.get(); },
 							state.hooks().localFinalizedHeightSupplier()),
 					CreateChainSynchronizerConfiguration(config),
+					extensions::CreateLocalFinalizedHeightSupplier(state),
 					state.hooks().completionAwareBlockRangeConsumerFactory()(Sync_Source));
 
 			thread::Task task;

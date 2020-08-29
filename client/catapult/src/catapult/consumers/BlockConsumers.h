@@ -77,13 +77,11 @@ namespace catapult { namespace consumers {
 
 	/// Creates a consumer that attempts to synchronize a remote chain with the local chain, which is composed of
 	/// state (in \a cache) and blocks (in \a storage).
-	/// \a maxRollbackBlocks The maximum number of blocks that can be rolled back.
 	/// \a handlers are used to customize the sync process.
 	/// \note This consumer is non-const because it updates the element generation hashes.
 	disruptor::DisruptorConsumer CreateBlockChainSyncConsumer(
 			cache::CatapultCache& cache,
 			io::BlockStorageCache& storage,
-			uint32_t maxRollbackBlocks,
 			const BlockChainSyncHandlers& handlers);
 
 	/// Creates a consumer that cleans up temporary state produced by the block chain sync consumer given \a dataDirectory.

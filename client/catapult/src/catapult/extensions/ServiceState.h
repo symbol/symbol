@@ -48,6 +48,8 @@ namespace catapult {
 
 namespace catapult { namespace extensions {
 
+	// region ServiceState
+
 	/// State that is used as part of service registration.
 	class ServiceState {
 	public:
@@ -221,4 +223,13 @@ namespace catapult { namespace extensions {
 		ServerHooks m_hooks;
 		net::PacketIoPickerContainer m_packetIoPickers;
 	};
+
+	// endregion
+
+	// region utils
+
+	/// Creates and returns a local finalized height supplier based on \a state.
+	supplier<Height> CreateLocalFinalizedHeightSupplier(const ServiceState& state);
+
+	// endregion
 }}

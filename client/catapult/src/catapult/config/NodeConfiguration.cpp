@@ -46,6 +46,7 @@ namespace catapult { namespace config {
 		LOAD_NODE_PROPERTY(EnableTransactionSpamThrottling);
 		LOAD_NODE_PROPERTY(TransactionSpamThrottlingMaxBoostFee);
 
+		LOAD_NODE_PROPERTY(MaxHashesPerSyncAttempt);
 		LOAD_NODE_PROPERTY(MaxBlocksPerSyncAttempt);
 		LOAD_NODE_PROPERTY(MaxChainBytesPerSyncAttempt);
 
@@ -123,7 +124,7 @@ namespace catapult { namespace config {
 
 #undef LOAD_BANNING_PROPERTY
 
-		utils::VerifyBagSizeExact(bag, 33 + 4 + 4 + 5 + 7);
+		utils::VerifyBagSizeExact(bag, 34 + 4 + 4 + 5 + 7);
 		return config;
 	}
 

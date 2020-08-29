@@ -27,26 +27,12 @@ namespace catapult { namespace chain {
 
 	/// Options for comparing two chains.
 	struct CompareChainsOptions {
-		/// Creates compare-chains options.
-		CompareChainsOptions() : CompareChainsOptions(0, 0)
-		{}
+		/// Number of hashes to pull per batch.
+		uint32_t HashesPerBatch;
 
-		/// Creates compare-chains options from a maximum number of blocks to analyze (\a maxBlocksToAnalyze)
-		/// and a maximum number of blocks to rewrite (\a maxBlocksToRewrite).
-		CompareChainsOptions(uint32_t maxBlocksToAnalyze, uint32_t maxBlocksToRewrite)
-				: MaxBlocksToAnalyze(maxBlocksToAnalyze)
-				, MaxBlocksToRewrite(maxBlocksToRewrite)
-		{}
-
-		/// Maximum number of blocks to analyze.
-		uint32_t MaxBlocksToAnalyze;
-
-		/// Maximum number of blocks to rewrite.
-		uint32_t MaxBlocksToRewrite;
+		/// Finalized height supplier.
+		supplier<Height> FinalizedHeightSupplier;
 	};
-
-	/// Gets the maximum number of hashes to analyze.
-	uint32_t CalculateMaxHashesToAnalyze(const CompareChainsOptions& options);
 
 	/// Result of a chain comparison operation.
 	struct CompareChainsResult {

@@ -170,7 +170,7 @@ namespace catapult { namespace sync {
 				return blocks.size() == result;
 			};
 
-			syncHandlers.LocalFinalizedHeightSupplier = state.hooks().localFinalizedHeightSupplier();
+			syncHandlers.LocalFinalizedHeightSupplier = extensions::CreateLocalFinalizedHeightSupplier(state);
 
 			auto pUndoObserver = utils::UniqueToShared(extensions::CreateUndoEntityObserver(pluginManager));
 			syncHandlers.UndoBlock = [&rollbackInfo, &pluginManager, pUndoObserver](
@@ -244,7 +244,6 @@ namespace catapult { namespace sync {
 				disruptorConsumers.push_back(CreateBlockChainSyncConsumer(
 						m_state.cache(),
 						m_state.storage(),
-						m_state.config().BlockChain.MaxRollbackBlocks,
 						CreateBlockChainSyncHandlers(m_state, rollbackInfo)));
 
 				if (m_state.config().Node.EnableAutoSyncCleanup)

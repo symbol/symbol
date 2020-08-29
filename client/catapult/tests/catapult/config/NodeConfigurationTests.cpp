@@ -46,6 +46,7 @@ namespace catapult { namespace config {
 							{ "enableTransactionSpamThrottling", "true" },
 							{ "transactionSpamThrottlingMaxBoostFee", "54'123" },
 
+							{ "maxHashesPerSyncAttempt", "74" },
 							{ "maxBlocksPerSyncAttempt", "50" },
 							{ "maxChainBytesPerSyncAttempt", "2MB" },
 
@@ -142,6 +143,7 @@ namespace catapult { namespace config {
 				EXPECT_FALSE(config.EnableTransactionSpamThrottling);
 				EXPECT_EQ(Amount(), config.TransactionSpamThrottlingMaxBoostFee);
 
+				EXPECT_EQ(0u, config.MaxHashesPerSyncAttempt);
 				EXPECT_EQ(0u, config.MaxBlocksPerSyncAttempt);
 				EXPECT_EQ(utils::FileSize::FromMegabytes(0), config.MaxChainBytesPerSyncAttempt);
 
@@ -215,6 +217,7 @@ namespace catapult { namespace config {
 				EXPECT_TRUE(config.EnableTransactionSpamThrottling);
 				EXPECT_EQ(Amount(54'123), config.TransactionSpamThrottlingMaxBoostFee);
 
+				EXPECT_EQ(74u, config.MaxHashesPerSyncAttempt);
 				EXPECT_EQ(50u, config.MaxBlocksPerSyncAttempt);
 				EXPECT_EQ(utils::FileSize::FromMegabytes(2), config.MaxChainBytesPerSyncAttempt);
 

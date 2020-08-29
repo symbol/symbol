@@ -43,8 +43,6 @@ namespace catapult { namespace consumers {
 
 	namespace {
 		constexpr auto Base_Difficulty = Difficulty().unwrap();
-		constexpr auto Max_Rollback_Blocks = 25u;
-		constexpr auto Explicit_Finalized_Height = Height(15);
 
 		constexpr model::ImportanceHeight Initial_Last_Recalculation_Height(1234);
 		constexpr model::ImportanceHeight Modified_Last_Recalculation_Height(7777);
@@ -361,24 +359,16 @@ namespace catapult { namespace consumers {
 
 		struct ConsumerTestContext {
 		public:
-			explicit ConsumerTestContext(uint32_t maxRollbackBlocks = Max_Rollback_Blocks)
+			ConsumerTestContext()
 					: ConsumerTestContext(
-							maxRollbackBlocks,
 							std::make_unique<mocks::MockMemoryBlockStorage>(),
 							std::make_unique<mocks::MockMemoryBlockStorage>())
 			{}
 
 			ConsumerTestContext(std::unique_ptr<io::BlockStorage>&& pStorage, std::unique_ptr<io::PrunableBlockStorage>&& pStagingStorage)
-					: ConsumerTestContext(Max_Rollback_Blocks, std::move(pStorage), std::move(pStagingStorage))
-			{}
-
-		private:
-			ConsumerTestContext(
-					uint32_t maxRollbackBlocks,
-					std::unique_ptr<io::BlockStorage>&& pStorage,
-					std::unique_ptr<io::PrunableBlockStorage>&& pStagingStorage)
 					: Cache(test::CreateCatapultCacheWithMarkerAccount())
-					, Storage(std::move(pStorage), std::move(pStagingStorage)) {
+					, Storage(std::move(pStorage), std::move(pStagingStorage))
+					, LastFinalizedHeight(Height(1)) {
 				{
 					auto cacheDelta = Cache.createDelta();
 					cacheDelta.dependentState().LastRecalculationHeight = Initial_Last_Recalculation_Height;
@@ -389,8 +379,8 @@ namespace catapult { namespace consumers {
 				handlers.DifficultyChecker = [this](const auto& blocks, const auto& cache) {
 					return DifficultyChecker(blocks, cache);
 				};
-				handlers.LocalFinalizedHeightSupplier = []() {
-					return Explicit_Finalized_Height;
+				handlers.LocalFinalizedHeightSupplier = [this]() {
+					return LastFinalizedHeight;
 				};
 				handlers.UndoBlock = [this](const auto& block, auto& state, auto undoBlockType) {
 					return UndoBlock(block, state, undoBlockType);
@@ -411,12 +401,13 @@ namespace catapult { namespace consumers {
 					return CommitStep(step);
 				};
 
-				Consumer = CreateBlockChainSyncConsumer(Cache, Storage, maxRollbackBlocks, handlers);
+				Consumer = CreateBlockChainSyncConsumer(Cache, Storage, handlers);
 			}
 
 		public:
 			cache::CatapultCache Cache;
 			io::BlockStorageCache Storage;
+			Height LastFinalizedHeight;
 			std::vector<std::shared_ptr<model::Block>> OriginalBlocks; // original stored blocks (excluding nemesis)
 
 			MockDifficultyChecker DifficultyChecker;
@@ -603,10 +594,11 @@ namespace catapult { namespace consumers {
 				uint32_t numRemoteBlocks,
 				InputSource source,
 				ValidationResult expectedResult = Failure_Consumer_Remote_Chain_Unlinked,
-				uint32_t maxRollbackBlocks = Max_Rollback_Blocks) {
+				Height lastFinalizedHeight = Height(1)) {
 			// Arrange:
-			ConsumerTestContext context(maxRollbackBlocks);
+			ConsumerTestContext context;
 			context.seedStorage(localHeight);
+			context.LastFinalizedHeight = lastFinalizedHeight;
 			auto input = CreateInput(remoteHeight, numRemoteBlocks, source);
 
 			// Act:
@@ -625,10 +617,11 @@ namespace catapult { namespace consumers {
 				Height remoteHeight,
 				uint32_t numRemoteBlocks,
 				InputSource source,
-				uint32_t maxRollbackBlocks = Max_Rollback_Blocks) {
+				Height lastFinalizedHeight = Height(1)) {
 			// Arrange:
-			ConsumerTestContext context(maxRollbackBlocks);
+			ConsumerTestContext context;
 			context.seedStorage(localHeight);
+			context.LastFinalizedHeight = lastFinalizedHeight;
 			auto input = CreateInput(remoteHeight, numRemoteBlocks, source);
 
 			// Act:
@@ -702,47 +695,39 @@ namespace catapult { namespace consumers {
 	// the following tests only make sense for Remote_Pull because it is the only source that allows multiple block rollbacks
 
 	namespace {
-		void AssertDeepUnwindAllowed(Height localHeight, Height maxRemoteHeight, uint32_t maxRollbackBlocks) {
+		void AssertDeepUnwindAllowed(Height localHeight, Height maxRemoteHeight, Height lastFinalizedHeight) {
 			// Arrange:
 			for (auto remoteHeight : { maxRemoteHeight + Height(10), maxRemoteHeight + Height(1), maxRemoteHeight }) {
 				CATAPULT_LOG(debug) << "remoteHeight = " << remoteHeight;
 
 				// Assert:
-				AssertValidHeight(localHeight, remoteHeight, 4, InputSource::Remote_Pull, maxRollbackBlocks);
+				AssertValidHeight(localHeight, remoteHeight, 4, InputSource::Remote_Pull, lastFinalizedHeight);
 			}
 		}
 
-		void AssertDeepUnwindNotAllowed(Height localHeight, Height maxRemoteHeight, uint32_t maxRollbackBlocks) {
+		void AssertDeepUnwindNotAllowed(Height localHeight, Height maxRemoteHeight, Height lastFinalizedHeight) {
 			// Arrange:
 			auto expectedResult = Failure_Consumer_Remote_Chain_Too_Far_Behind;
 			for (auto remoteHeight : { maxRemoteHeight - Height(1), maxRemoteHeight - Height(10) }) {
 				CATAPULT_LOG(debug) << "remoteHeight = " << remoteHeight;
 
 				// Assert:
-				AssertInvalidHeight(localHeight, remoteHeight, 4, InputSource::Remote_Pull, expectedResult, maxRollbackBlocks);
+				AssertInvalidHeight(localHeight, remoteHeight, 4, InputSource::Remote_Pull, expectedResult, lastFinalizedHeight);
 			}
 		}
 	}
 
-	TEST(TEST_CLASS, RemoteChainFromRemotePullSourceCanUnwindAllUnfinalizedBlocksWhenOnlyNemesisIsFinalized_FinalizationDisabled) {
-		AssertDeepUnwindAllowed(Height(Max_Rollback_Blocks / 2), Height(2), Max_Rollback_Blocks);
-		AssertDeepUnwindAllowed(Height(Max_Rollback_Blocks), Height(2), Max_Rollback_Blocks);
+	TEST(TEST_CLASS, RemoteChainFromRemotePullSourceCanUnwindAllUnfinalizedBlocksWhenOnlyNemesisIsFinalized) {
+		AssertDeepUnwindAllowed(Height(100), Height(2), Height(1));
 	}
 
-	TEST(TEST_CLASS, RemoteChainFromRemotePullSourceCanUnwindAllUnfinalizedBlocks_FinalizationDisabled) {
-		AssertDeepUnwindAllowed(Height(100), Height(100 - Max_Rollback_Blocks + 1), Max_Rollback_Blocks);
+	TEST(TEST_CLASS, RemoteChainFromRemotePullSourceCanUnwindAllUnfinalizedBlocks) {
+		AssertDeepUnwindAllowed(Height(100), Height(51), Height(50));
 	}
 
-	TEST(TEST_CLASS, RemoteChainFromRemotePullSourceCannotUnwindAnyFinalizedBlocks_FinalizationDisabled) {
-		AssertDeepUnwindNotAllowed(Height(100), Height(100 - Max_Rollback_Blocks + 1), Max_Rollback_Blocks);
-	}
-
-	TEST(TEST_CLASS, RemoteChainFromRemotePullSourceCanUnwindAllUnfinalizedBlocks_FinalizationEnabled) {
-		AssertDeepUnwindAllowed(Height(100), Explicit_Finalized_Height + Height(1), 0);
-	}
-
-	TEST(TEST_CLASS, RemoteChainFromRemotePullSourceCannotUnwindAnyFinalizedBlocks_FinalizationEnabled) {
-		AssertDeepUnwindNotAllowed(Height(100), Explicit_Finalized_Height + Height(1), 0);
+	TEST(TEST_CLASS, RemoteChainFromRemotePullSourceCannotUnwindAnyFinalizedBlocks) {
+		AssertDeepUnwindNotAllowed(Height(100), Height(50), Height(50));
+		AssertDeepUnwindNotAllowed(Height(100), Height(30), Height(50));
 	}
 
 	// endregion
@@ -1211,8 +1196,9 @@ namespace catapult { namespace consumers {
 
 	TEST(TEST_CLASS, CommitAutomaticallyPrunesCache) {
 		// Arrange: create a local storage with blocks 1-7 and a remote storage with blocks 8-11
-		ConsumerTestContext context(2);
+		ConsumerTestContext context;
 		context.seedStorage(Height(7));
+		context.LastFinalizedHeight = Height(5);
 		auto input = CreateInput(Height(8), 4);
 
 		// - seed the BlockStatisticCache with entries up to local storage height

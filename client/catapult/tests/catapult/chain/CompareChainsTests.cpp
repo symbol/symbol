@@ -21,10 +21,8 @@
 #include "catapult/chain/CompareChains.h"
 #include "catapult/model/BlockUtils.h"
 #include "tests/catapult/chain/test/MockChainApi.h"
-#include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/HashTestUtils.h"
 #include "tests/TestHarness.h"
-#include <map>
 
 using catapult::model::ChainScore;
 using catapult::mocks::MockChainApi;
@@ -33,46 +31,31 @@ namespace catapult { namespace chain {
 
 #define TEST_CLASS CompareChainsTests
 
-	// region CalculateMaxHashesToAnalyze
-
 	namespace {
-		void AssertMaxHashesToAnalyze(uint32_t expected, uint32_t maxBlocksToAnalyze, uint32_t maxBlocksToRewrite) {
-			// Act:
-			auto result = CalculateMaxHashesToAnalyze({ maxBlocksToAnalyze, maxBlocksToRewrite });
+		// region test utils
 
-			// Assert:
-			EXPECT_EQ(expected, result);
+		CompareChainsOptions CreateCompareChainsOptions(uint32_t hashesPerBatch, Height::ValueType finalizedHeight) {
+			CompareChainsOptions options;
+			options.HashesPerBatch = hashesPerBatch;
+			options.FinalizedHeightSupplier = [finalizedHeight]() { return Height(finalizedHeight); };
+			return options;
 		}
-	}
 
-	TEST(TEST_CLASS, CalculateMaxHashesToAnalyzeReturnsMaxBlocksWhenLargerThanRewriteLimitPlusTwo) {
-		AssertMaxHashesToAnalyze(20, 20, 10);
-		AssertMaxHashesToAnalyze(20, 20, 15);
-		AssertMaxHashesToAnalyze(20, 20, 18);
-	}
-
-	TEST(TEST_CLASS, CalculateMaxHashesToAnalyzeReturnsMaxRewriteLimitPlusTwoWhenLargerThanMaxBlocks) {
-		AssertMaxHashesToAnalyze(21, 20, 19);
-		AssertMaxHashesToAnalyze(22, 20, 20);
-		AssertMaxHashesToAnalyze(32, 20, 30);
-	}
-
-	// endregion
-
-	// region chain statistics
-
-	namespace {
 		void AssertLocalChainExceptionPropagation(MockChainApi::EntryPoint entryPoint) {
 			// Arrange:
 			auto commonHashes = test::GenerateRandomHashes(3);
 			auto localHashes = test::ConcatHashes(commonHashes, test::GenerateRandomHashes(1));
 			auto remoteHashes = test::ConcatHashes(commonHashes, test::GenerateRandomHashes(1));
-			MockChainApi local(ChainScore(10), Height(4), localHashes);
-			MockChainApi remote(ChainScore(11), Height(4), remoteHashes);
+
+			MockChainApi local(ChainScore(10), Height(4));
+			local.setHashes(Height(1), localHashes);
 			local.setError(entryPoint);
 
+			MockChainApi remote(ChainScore(11), Height(4));
+			remote.setHashes(Height(1), remoteHashes);
+
 			// Act + Assert:
-			EXPECT_THROW(CompareChains(local, remote, { 1000, 1000 }).get(), catapult_runtime_error);
+			EXPECT_THROW(CompareChains(local, remote, CreateCompareChainsOptions(1000, 1)).get(), catapult_runtime_error);
 		}
 
 		void AssertRemoteChainExceptionPropagation(MockChainApi::EntryPoint entryPoint) {
@@ -80,12 +63,16 @@ namespace catapult { namespace chain {
 			auto commonHashes = test::GenerateRandomHashes(3);
 			auto localHashes = test::ConcatHashes(commonHashes, test::GenerateRandomHashes(1));
 			auto remoteHashes = test::ConcatHashes(commonHashes, test::GenerateRandomHashes(1));
-			MockChainApi local(ChainScore(10), Height(4), localHashes);
-			MockChainApi remote(ChainScore(11), Height(4), remoteHashes);
+
+			MockChainApi local(ChainScore(10), Height(4));
+			local.setHashes(Height(1), localHashes);
+
+			MockChainApi remote(ChainScore(11), Height(4));
+			remote.setHashes(Height(1), remoteHashes);
 			remote.setError(entryPoint);
 
 			// Act + Assert:
-			EXPECT_THROW(CompareChains(local, remote, { 1000, 1000 }).get(), catapult_runtime_error);
+			EXPECT_THROW(CompareChains(local, remote, CreateCompareChainsOptions(1000, 1)).get(), catapult_runtime_error);
 		}
 
 		void AssertDefaultChainStatistics(const CompareChainsResult& result) {
@@ -94,28 +81,10 @@ namespace catapult { namespace chain {
 			EXPECT_EQ(0u, result.ForkDepth);
 		}
 
-		bool AreChainsConsistent(size_t numLocalHashes, Height commonBlockHeight, Height hashesFromHeight) {
-			// if consistent, the common block height will be equal to the local chain height
-			// note that the common block height needs to be adjusted by the height of the hashes from request
-			// in order to get the difference index relative to the local hashes
-			auto differenceIndex = (commonBlockHeight - hashesFromHeight + Height(1)).unwrap();
-			CATAPULT_LOG(debug) << "numLocalHashes = " << numLocalHashes << ", differenceIndex = " << differenceIndex;
-			return numLocalHashes == differenceIndex;
-		}
+		// endregion
 	}
 
-	TEST(TEST_CLASS, LocalChainScoreZeroBypassesSync) {
-		// Arrange:
-		MockChainApi local(ChainScore(0), Height(20));
-		MockChainApi remote(ChainScore(9), Height(20));
-
-		// Act:
-		auto result = CompareChains(local, remote, { 1000, 1000 }).get();
-
-		// Assert:
-		EXPECT_EQ(ChainComparisonCode::Local_Chain_Score_Zero, result.Code);
-		AssertDefaultChainStatistics(result);
-	}
+	// region chain statistics
 
 	TEST(TEST_CLASS, RemoteReportedLowerChainScoreWhenRemoteChainScoreIsLessThanLocalChainScore) {
 		// Arrange:
@@ -123,7 +92,7 @@ namespace catapult { namespace chain {
 		MockChainApi remote(ChainScore(9), Height(20));
 
 		// Act:
-		auto result = CompareChains(local, remote, { 1000, 1000 }).get();
+		auto result = CompareChains(local, remote, CreateCompareChainsOptions(1000, 1)).get();
 
 		// Assert:
 		EXPECT_EQ(ChainComparisonCode::Remote_Reported_Lower_Chain_Score, result.Code);
@@ -136,11 +105,44 @@ namespace catapult { namespace chain {
 		MockChainApi remote(ChainScore(10), Height(20));
 
 		// Act:
-		auto result = CompareChains(local, remote, { 1000, 1000 }).get();
+		auto result = CompareChains(local, remote, CreateCompareChainsOptions(1000, 1)).get();
 
 		// Assert:
 		EXPECT_EQ(ChainComparisonCode::Remote_Reported_Equal_Chain_Score, result.Code);
 		AssertDefaultChainStatistics(result);
+	}
+
+	namespace {
+		void AssertIsTooFarBehind(Height localHeight, Height remoteHeight, Height localFinalizedHeight, bool isErrorExpected) {
+			// Arrange:
+			MockChainApi local(ChainScore(10), localHeight);
+			local.setHashes(localFinalizedHeight, model::HashRange());
+
+			MockChainApi remote(ChainScore(11), remoteHeight);
+			remote.setHashes(localFinalizedHeight, model::HashRange());
+
+			// Act:
+			auto result = CompareChains(local, remote, CreateCompareChainsOptions(1000, localFinalizedHeight.unwrap())).get();
+
+			// Assert:
+			if (isErrorExpected)
+				EXPECT_EQ(ChainComparisonCode::Remote_Is_Too_Far_Behind, result.Code);
+			else
+				EXPECT_NE(ChainComparisonCode::Remote_Is_Too_Far_Behind, result.Code);
+
+			AssertDefaultChainStatistics(result);
+		}
+	}
+
+	TEST(TEST_CLASS, RemoteIsTooFarBehindWhenRemoteHeightIsLessThanOrEqualToLocalFinalizedHeight) {
+		AssertIsTooFarBehind(Height(18), Height(2), Height(7), true);
+		AssertIsTooFarBehind(Height(18), Height(6), Height(7), true);
+		AssertIsTooFarBehind(Height(18), Height(7), Height(7), true);
+	}
+
+	TEST(TEST_CLASS, RemoteIsNotTooFarBehindWhenRemoteHeightIsGreaterThanLocalFinalizedHeight) {
+		AssertIsTooFarBehind(Height(18), Height(8), Height(7), false);
+		AssertIsTooFarBehind(Height(18), Height(200), Height(7), false);
 	}
 
 	TEST(TEST_CLASS, LocalChainStatisticsExceptionIsPropagated) {
@@ -151,54 +153,81 @@ namespace catapult { namespace chain {
 		AssertRemoteChainExceptionPropagation(MockChainApi::EntryPoint::Chain_Statistics);
 	}
 
+	// endregion
+
+	// region hash traits
+
 	namespace {
-		void AssertIsTooFarBehind(Height localHeight, Height remoteHeight, uint32_t rewriteLimit, bool expected) {
-			// Arrange:
-			MockChainApi local(ChainScore(10), localHeight);
-			MockChainApi remote(ChainScore(11), remoteHeight);
-			CompareChainsOptions options{ 1000, rewriteLimit };
+		auto GenerateDeterministicHashes(uint32_t count, uint8_t seed = 1) {
+			auto hashes = test::GenerateRandomHashes(count);
 
-			// Act:
-			auto result = CompareChains(local, remote, options).get();
+			auto i = 0u;
+			for (auto& hash : hashes)
+				hash = { { static_cast<uint8_t>(i++ * seed) } };
 
-			// Assert:
-			if (expected)
-				EXPECT_EQ(ChainComparisonCode::Remote_Is_Too_Far_Behind, result.Code);
-			else
-				EXPECT_NE(ChainComparisonCode::Remote_Is_Too_Far_Behind, result.Code);
-
-			AssertDefaultChainStatistics(result);
+			return hashes;
 		}
+
+		struct OneBatchTraits {
+			static constexpr uint32_t Prepare_Adjustment = 0;
+
+			static void PrepareTooManyHashes(MockChainApi& chainApi, uint32_t numHashes, uint32_t) {
+				chainApi.setHashes(Height(1), test::GenerateRandomHashes(numHashes));
+			}
+
+			static size_t Prepare(MockChainApi& chainApi, const model::HashRange& hashes, uint32_t, Height height = Height(1)) {
+				chainApi.setHashes(height, hashes);
+				return hashes.size();
+			}
+		};
+
+		struct MultiBatchTraits {
+			static constexpr uint32_t Prepare_Adjustment = 40;
+
+			static void PrepareTooManyHashes(MockChainApi& chainApi, uint32_t numHashes, uint32_t hashesPerBatch) {
+				chainApi.setHashes(Height(1), GenerateDeterministicHashes(hashesPerBatch, 1));
+				chainApi.setHashes(Height(1 + hashesPerBatch), GenerateDeterministicHashes(numHashes, 2));
+				chainApi.setHashes(Height(1 + 2 * hashesPerBatch), GenerateDeterministicHashes(hashesPerBatch, 3));
+			}
+
+			static size_t Prepare(
+					MockChainApi& chainApi,
+					const model::HashRange& hashes,
+					uint32_t hashesPerBatch,
+					Height height = Height(1)) {
+				chainApi.setHashes(height, GenerateDeterministicHashes(hashesPerBatch, 1));
+				chainApi.setHashes(height + Height(hashesPerBatch), GenerateDeterministicHashes(hashesPerBatch, 2));
+				chainApi.setHashes(height + Height(2 * hashesPerBatch), hashes);
+				return 2 * hashesPerBatch + hashes.size();
+			}
+		};
 	}
 
-	TEST(TEST_CLASS, RemoteIsTooFarBehindWhenRemoteIsMoreThanMaxBlocksToRewriteBehindLocal) {
-		AssertIsTooFarBehind(Height(18), Height(7), 10, true);
-	}
-
-	TEST(TEST_CLASS, RemoteIsNotTooFarBehindWhenRemoteIsMaxBlocksToRewriteBehindLocal) {
-		AssertIsTooFarBehind(Height(17), Height(7), 10, false);
-	}
-
-	TEST(TEST_CLASS, LocalCanBeMoreThanMaxBlocksToRewriteBehindRemote) {
-		AssertIsTooFarBehind(Height(7), Height(18), 10, false);
-	}
+#define HASH_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_OneBatch) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<OneBatchTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_MultiBatch) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MultiBatchTraits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion
 
-	// region hash
+	// region hash - common
 
 	namespace {
-		void AssertRemoteReturnedTooManyHashes(uint32_t numHashes, uint32_t analyzeLimit, uint32_t rewriteLimit, bool expected) {
+		template<typename TTraits>
+		void AssertRemoteReturnedTooManyHashes(uint32_t numHashes, uint32_t hashesPerBatch, bool isErrorExpected) {
 			// Arrange:
-			MockChainApi local(ChainScore(10), Height(numHashes));
-			MockChainApi remote(ChainScore(11), Height(numHashes), numHashes);
-			CompareChainsOptions options{ analyzeLimit, rewriteLimit };
+			MockChainApi local(ChainScore(10), Height(3 * hashesPerBatch));
+			TTraits::PrepareTooManyHashes(local, hashesPerBatch, hashesPerBatch);
+
+			MockChainApi remote(ChainScore(11), Height(2 * hashesPerBatch + numHashes));
+			TTraits::PrepareTooManyHashes(remote, numHashes, hashesPerBatch);
 
 			// Act:
-			auto result = CompareChains(local, remote, options).get();
+			auto result = CompareChains(local, remote, CreateCompareChainsOptions(hashesPerBatch, 1)).get();
 
 			// Assert:
-			if (expected)
+			if (isErrorExpected)
 				EXPECT_EQ(ChainComparisonCode::Remote_Returned_Too_Many_Hashes, result.Code);
 			else
 				EXPECT_NE(ChainComparisonCode::Remote_Returned_Too_Many_Hashes, result.Code);
@@ -207,25 +236,196 @@ namespace catapult { namespace chain {
 		}
 	}
 
-	TEST(TEST_CLASS, RemoteReturnedTooManyHashesWhenItReturnedMoreThanMaxBlocksToAnalyze) {
-		AssertRemoteReturnedTooManyHashes(21, 20, 10, true);
+	HASH_TEST(RemoteReturnedTooManyHashesWhenItReturnsMoreThanHashesPerBatch) {
+		AssertRemoteReturnedTooManyHashes<TTraits>(21, 20, true);
+		AssertRemoteReturnedTooManyHashes<TTraits>(100, 20, true);
 	}
 
-	TEST(TEST_CLASS, RemoteDidNotReturnTooManyHashesWhenItReturnedExactlyMaxBlocksToAnalyze) {
-		AssertRemoteReturnedTooManyHashes(20, 20, 10, false);
+	HASH_TEST(RemoteDidNotReturnTooManyHashesWhenItReturnsLessThanHashesPerBatch) {
+		AssertRemoteReturnedTooManyHashes<TTraits>(19, 20, false);
+		AssertRemoteReturnedTooManyHashes<TTraits>(10, 20, false);
 	}
 
-	TEST(TEST_CLASS, RemoteDidNotReturnTooManyHashesWhenItReturnedLessThanRewriteLimit) {
-		AssertRemoteReturnedTooManyHashes(21, 20, 30, false);
+	HASH_TEST(RemoteLiedAboutChainScoreWhenLocalIsSameSizeAsRemoteChainAndContainsAllHashesInRemoteChain) {
+		// Arrange: Local { ... A, B, C }, Remote { ... A, B, C }
+		auto adjustment = TTraits::Prepare_Adjustment;
+		auto commonHashes = test::GenerateRandomHashes(3);
+
+		MockChainApi local(ChainScore(10), Height(adjustment + 3));
+		TTraits::Prepare(local, commonHashes, 20);
+
+		MockChainApi remote(ChainScore(11), Height(adjustment + 3));
+		TTraits::Prepare(remote, commonHashes, 20);
+
+		// Act:
+		auto result = CompareChains(local, remote, CreateCompareChainsOptions(20, 1)).get();
+
+		// Assert:
+		EXPECT_EQ(ChainComparisonCode::Remote_Lied_About_Chain_Score, result.Code);
+		AssertDefaultChainStatistics(result);
 	}
 
-	TEST(TEST_CLASS, RemoteDidNotReturnTooManyHashesWhenItMatchesRewriteLimit) {
-		AssertRemoteReturnedTooManyHashes(32, 20, 30, false);
+	HASH_TEST(RemoteLiedAboutChainScoreWhenRemoteChainIsSubsetOfLocalChainButRemoteReportedHigherScore) {
+		// Arrange: Local { ... A, B, C }, Remote { ... A, B }
+		auto adjustment = TTraits::Prepare_Adjustment;
+		auto localHashes = test::GenerateRandomHashes(3);
+		auto remoteHashes = test::GenerateRandomHashesSubset(localHashes, 2);
+
+		MockChainApi local(ChainScore(10), Height(adjustment + 3));
+		TTraits::Prepare(local, localHashes, 20);
+
+		MockChainApi remote(ChainScore(11), Height(adjustment + 2));
+		TTraits::Prepare(remote, remoteHashes, 20);
+
+		// Act:
+		auto result = CompareChains(local, remote, CreateCompareChainsOptions(20, 1)).get();
+
+		// Assert:
+		EXPECT_EQ(ChainComparisonCode::Remote_Lied_About_Chain_Score, result.Code);
+		AssertDefaultChainStatistics(result);
 	}
 
-	TEST(TEST_CLASS, RemoteReturnedTooManyHashesWhenItReturnedMoreThanRewriteLimit) {
-		AssertRemoteReturnedTooManyHashes(33, 20, 30, true);
+	HASH_TEST(RemoteIsNotPunishedWhenLocalHeightIncreasesDuringChainCompare) {
+		// Arrange: simulate the scenario where the local height increases in-between the height and hashes requests
+		// - 1. report local height as X + 8
+		// - 2. return X + 13 local hashes
+		// - 3. return X + 13 remote hashes so that the remote still has a better score
+		auto adjustment = TTraits::Prepare_Adjustment;
+		auto commonHashes = test::GenerateRandomHashes(13);
+
+		MockChainApi local(ChainScore(10), Height(adjustment + 8));
+		TTraits::Prepare(local, commonHashes, 20);
+
+		MockChainApi remote(ChainScore(11), Height(adjustment + 13));
+		TTraits::Prepare(remote, commonHashes, 20);
+
+		// Act:
+		auto result = CompareChains(local, remote, CreateCompareChainsOptions(20, 1)).get();
+
+		// Assert: remote was not punished
+		EXPECT_EQ(ChainComparisonCode::Local_Height_Updated, result.Code);
+		AssertDefaultChainStatistics(result);
 	}
+
+	HASH_TEST(RemoteIsNotSyncedWhenLocalIsSmallerThanRemoteChainAndContainsAllHashesInRemoteChain) {
+		// Arrange: Local { ... A, B }, Remote { ... A, B, C }
+		auto adjustment = TTraits::Prepare_Adjustment;
+		auto remoteHashes = test::GenerateRandomHashes(3);
+		auto localHashes = test::GenerateRandomHashesSubset(remoteHashes, 2);
+
+		MockChainApi local(ChainScore(10), Height(adjustment + 2));
+		auto numLocalHashes = TTraits::Prepare(local, localHashes, 20);
+
+		MockChainApi remote(ChainScore(11), Height(adjustment + 3));
+		TTraits::Prepare(remote, remoteHashes, 20);
+
+		// Act:
+		auto result = CompareChains(local, remote, CreateCompareChainsOptions(20, 1)).get();
+
+		// Assert:
+		EXPECT_EQ(ChainComparisonCode::Remote_Is_Not_Synced, result.Code);
+		EXPECT_EQ(Height(numLocalHashes), result.CommonBlockHeight);
+		EXPECT_EQ(0u, result.ForkDepth);
+	}
+
+	HASH_TEST(RemoteIsNotSyncedWhenLocalIsSmallerThanRemoteChainAndContainsAllHashesInRemoteChainButReturnsMoreHashesThanExpected) {
+		// Arrange: simulate the scenario where the local height increases in-between the height and hashes requests
+		// - 1. report local height as X + 8
+		// - 2. return X + 12 local hashes
+		// - 3. return X + 13 remote hashes so that the remote still has a better score
+		auto adjustment = TTraits::Prepare_Adjustment;
+		auto remoteHashes = test::GenerateRandomHashes(13);
+		auto localHashes = test::GenerateRandomHashesSubset(remoteHashes, 12);
+
+		MockChainApi local(ChainScore(10), Height(adjustment + 8));
+		auto numLocalHashes = TTraits::Prepare(local, localHashes, 20);
+
+		MockChainApi remote(ChainScore(11), Height(adjustment + 13));
+		TTraits::Prepare(remote, remoteHashes, 20);
+
+		// Act:
+		auto result = CompareChains(local, remote, CreateCompareChainsOptions(20, 1)).get();
+
+		// Assert:
+		EXPECT_EQ(ChainComparisonCode::Remote_Is_Not_Synced, result.Code);
+		EXPECT_EQ(Height(numLocalHashes), result.CommonBlockHeight);
+		EXPECT_EQ(0u, result.ForkDepth);
+	}
+
+	HASH_TEST(RemoteIsNotSyncedWhenLocalIsSmallerThanRemoteChainAndContainsAllHashesInRemoteChainButReturnsFewerHashesThanExpected) {
+		// Arrange: simulate the scenario where the local height decreases in-between the height and hashes requests
+		// - 1. report local height as X + 8
+		// - 2. return X + 6 local hashes
+		// - 3. return X + 13 remote hashes so that the remote still has a better score
+		auto adjustment = TTraits::Prepare_Adjustment;
+		auto remoteHashes = test::GenerateRandomHashes(13);
+		auto localHashes = test::GenerateRandomHashesSubset(remoteHashes, 6);
+
+		MockChainApi local(ChainScore(10), Height(adjustment + 8));
+		auto numLocalHashes = TTraits::Prepare(local, localHashes, 20);
+
+		MockChainApi remote(ChainScore(11), Height(adjustment + 13));
+		TTraits::Prepare(remote, remoteHashes, 20);
+
+		// Act:
+		auto result = CompareChains(local, remote, CreateCompareChainsOptions(20, 1)).get();
+
+		// Assert:
+		EXPECT_EQ(ChainComparisonCode::Remote_Is_Not_Synced, result.Code);
+		EXPECT_EQ(Height(numLocalHashes), result.CommonBlockHeight);
+		EXPECT_EQ(0u, result.ForkDepth);
+	}
+
+	namespace {
+		template<typename TTraits>
+		void AssertRemoteIsNotSynced(
+				Height localFinalizedHeight,
+				uint32_t adjustment,
+				const std::vector<std::pair<Height, uint32_t>>& expectedHashesFromRequests) {
+			// Arrange: Local { ..., A, B, C, D }, Remote { ..., A, B, C, E }
+			auto commonHashes = test::GenerateRandomHashes(10 - localFinalizedHeight.unwrap());
+			auto localHashes = test::ConcatHashes(commonHashes, test::GenerateRandomHashes(1));
+			auto remoteHashes = test::ConcatHashes(commonHashes, test::GenerateRandomHashes(1));
+
+			MockChainApi local(ChainScore(10), localFinalizedHeight + Height(adjustment + 11));
+			TTraits::Prepare(local, localHashes, 20, localFinalizedHeight);
+
+			MockChainApi remote(ChainScore(11), localFinalizedHeight + Height(adjustment + 11));
+			TTraits::Prepare(remote, remoteHashes, 20, localFinalizedHeight);
+
+			// Act:
+			auto result = CompareChains(local, remote, CreateCompareChainsOptions(20, localFinalizedHeight.unwrap())).get();
+
+			// Assert:
+			EXPECT_EQ(ChainComparisonCode::Remote_Is_Not_Synced, result.Code);
+			EXPECT_EQ(Height(adjustment + 9), result.CommonBlockHeight);
+			EXPECT_EQ(1u, result.ForkDepth);
+
+			// - check requests
+			EXPECT_EQ(expectedHashesFromRequests, local.hashesFromRequests());
+			EXPECT_EQ(expectedHashesFromRequests, remote.hashesFromRequests());
+		}
+	}
+
+	TEST(TEST_CLASS, RemoteIsNotSyncedWhenChainsDivergeAndRemoteHasHigherScore_OneBatch) {
+		AssertRemoteIsNotSynced<OneBatchTraits>(Height(1), 0, { { Height(1), 20 } });
+	}
+
+	TEST(TEST_CLASS, RemoteIsNotSyncedWhenChainsDivergeAndRemoteHasHigherScoreAndLastFinalizedBlockIsNotNemesis_OneBatch) {
+		AssertRemoteIsNotSynced<OneBatchTraits>(Height(7), 0, { { Height(7), 20 } });
+	}
+
+	TEST(TEST_CLASS, RemoteIsNotSyncedWhenChainsDivergeAndRemoteHasHigherScore_MultiBatch) {
+		AssertRemoteIsNotSynced<MultiBatchTraits>(Height(1), 40, { { Height(1), 20 }, { Height(21), 20 }, { Height(41), 20 } });
+	}
+
+	TEST(TEST_CLASS, RemoteIsNotSyncedWhenChainsDivergeAndRemoteHasHigherScoreAndLastFinalizedBlockIsNotNemesis_MultiBatch) {
+		AssertRemoteIsNotSynced<MultiBatchTraits>(Height(7), 40, { { Height(7), 20 }, { Height(27), 20 }, { Height(47), 20 } });
+	}
+
+	// endregion
+
+	// region hash (one batch)
 
 	TEST(TEST_CLASS, RemoteIsForkedWhenTheFirstLocalAndRemoteHashesDoNotMatch) {
 		// Arrange: Local { A, B, C }, Remote { D, B, C }
@@ -233,85 +433,45 @@ namespace catapult { namespace chain {
 		auto remoteHashes = test::GenerateRandomHashes(3);
 		*--remoteHashes.end() = *--localHashes.cend();
 		*----remoteHashes.end() = *----localHashes.cend();
-		MockChainApi local(ChainScore(10), Height(3), localHashes);
-		MockChainApi remote(ChainScore(11), Height(3), remoteHashes);
+
+		MockChainApi local(ChainScore(10), Height(3));
+		local.setHashes(Height(1), localHashes);
+
+		MockChainApi remote(ChainScore(11), Height(3));
+		remote.setHashes(Height(1), remoteHashes);
 
 		// Act:
-		auto result = CompareChains(local, remote, { 1000, 1000 }).get();
+		auto result = CompareChains(local, remote, CreateCompareChainsOptions(1000, 1)).get();
 
 		// Assert:
 		EXPECT_EQ(ChainComparisonCode::Remote_Is_Forked, result.Code);
 		AssertDefaultChainStatistics(result);
 	}
 
-	TEST(TEST_CLASS, RemoteLiedAboutChainScoreWhenLocalIsSameSizeAsRemoteChainAndContainsAllHashesInRemoteChain) {
-		// Arrange: Local { A, B, C }, Remote { A, B, C }
-		auto commonHashes = test::GenerateRandomHashes(3);
-		MockChainApi local(ChainScore(10), Height(3), commonHashes);
-		MockChainApi remote(ChainScore(11), Height(3), commonHashes);
+	TEST(TEST_CLASS, RemoteIsNotSyncedWhenLocalAndRemoteContainExactlyOneBatchWithDifferentLastHash) {
+		// Arrange: Local { ..., A, B, C, D || }, Remote { ..., A, B, C, E || }; where || indicates end of batch
+		auto commonHashes = test::GenerateRandomHashes(19);
+		auto localHashes = test::ConcatHashes(commonHashes, test::GenerateRandomHashes(1));
+		auto remoteHashes = test::ConcatHashes(commonHashes, test::GenerateRandomHashes(1));
+
+		MockChainApi local(ChainScore(10), Height(3 + 19));
+		local.setHashes(Height(3), localHashes);
+
+		MockChainApi remote(ChainScore(11), Height(3 + 19));
+		remote.setHashes(Height(3), remoteHashes);
 
 		// Act:
-		auto result = CompareChains(local, remote, { 1000, 1000 }).get();
-
-		// Assert:
-		EXPECT_EQ(ChainComparisonCode::Remote_Lied_About_Chain_Score, result.Code);
-		AssertDefaultChainStatistics(result);
-	}
-
-	TEST(TEST_CLASS, RemoteLiedAboutChainScoreWhenRemoteChainIsSubsetOfLocalChainButRemoteReportedHigherScore) {
-		// Arrange: Local { A, B, C }, Remote { A, B }
-		auto localHashes = test::GenerateRandomHashes(3);
-		auto remoteHashes = test::GenerateRandomHashesSubset(localHashes, 2);
-		MockChainApi local(ChainScore(10), Height(3), localHashes);
-		MockChainApi remote(ChainScore(11), Height(2), remoteHashes);
-
-		// Act:
-		auto result = CompareChains(local, remote, { 1000, 1000 }).get();
-
-		// Assert:
-		EXPECT_EQ(ChainComparisonCode::Remote_Lied_About_Chain_Score, result.Code);
-		AssertDefaultChainStatistics(result);
-	}
-
-	TEST(TEST_CLASS, RemoteIsNotSyncedWhenLocalIsSmallerThanRemoteChainAndContainsAllHashesInRemoteChain) {
-		// Arrange: Local { A, B }, Remote { A, B, C }
-		auto remoteHashes = test::GenerateRandomHashes(3);
-		auto localHashes = test::GenerateRandomHashesSubset(remoteHashes, 2);
-		MockChainApi local(ChainScore(10), Height(2), localHashes);
-		MockChainApi remote(ChainScore(11), Height(3), remoteHashes);
-		remote.addBlock(test::GenerateBlockWithTransactions(0, Height(3)));
-
-		// Act:
-		auto result = CompareChains(local, remote, { 1000, 1000 }).get();
+		auto result = CompareChains(local, remote, CreateCompareChainsOptions(20, 3)).get();
 
 		// Assert:
 		EXPECT_EQ(ChainComparisonCode::Remote_Is_Not_Synced, result.Code);
-		EXPECT_EQ(Height(2), result.CommonBlockHeight);
-		EXPECT_EQ(0u, result.ForkDepth);
-		EXPECT_TRUE(AreChainsConsistent(localHashes.size(), result.CommonBlockHeight, Height(1)));
-	}
+		EXPECT_EQ(Height(21), result.CommonBlockHeight);
+		EXPECT_EQ(1u, result.ForkDepth);
 
-	TEST(TEST_CLASS, RemoteIsNotSyncedWhenLocalIsSmallerThanRemoteChainAndContainsAllHashesInRemoteChainButReturnsMoreHashesThanExpected) {
-		// Arrange: simulate the scenario where the local height increases in-between the height and hashes requests
-		//   1. report local height as 8
-		//   2. return 12 local hashes (12 > 8)
-		//   3. return 13 remote hashes so that the remote still has a better score
-		//   (notice that this is only exploitable when local height < MaxBlocksToRewrite because even if local height grows in-between
-		//   (1) and (2) at most MaxBlocksToRewrite will be returned)
-		auto remoteHashes = test::GenerateRandomHashes(13);
-		auto localHashes = test::GenerateRandomHashesSubset(remoteHashes, 12);
-		MockChainApi local(ChainScore(10), Height(8), localHashes);
-		MockChainApi remote(ChainScore(11), Height(13), remoteHashes);
-		remote.addBlock(test::GenerateBlockWithTransactions(0, Height(3)));
-
-		// Act:
-		auto result = CompareChains(local, remote, { 1000, 1000 }).get();
-
-		// Assert: common block height is greater than initial local height
-		EXPECT_EQ(ChainComparisonCode::Remote_Is_Not_Synced, result.Code);
-		EXPECT_EQ(Height(12), result.CommonBlockHeight);
-		EXPECT_EQ(0u, result.ForkDepth);
-		EXPECT_TRUE(AreChainsConsistent(localHashes.size(), result.CommonBlockHeight, Height(1)));
+		// - check requests
+		auto expectedHashesFromRequests = std::vector<std::pair<Height, uint32_t>>{ { Height(3), 20 } };
+		EXPECT_EQ(expectedHashesFromRequests, local.hashesFromRequests());
+		EXPECT_EQ(expectedHashesFromRequests, remote.hashesFromRequests());
 	}
 
 	TEST(TEST_CLASS, LocalHashesFromExceptionIsPropagated) {
@@ -324,48 +484,68 @@ namespace catapult { namespace chain {
 
 	// endregion
 
-	// region rewrite limit
+	// region hash (multiple batches)
 
 	namespace {
-		void AssertParam(Height expectedHeight, uint32_t expectedNumHashes, const std::vector<std::pair<Height, uint32_t>>& requests) {
-			ASSERT_EQ(1u, requests.size());
+		void AssertRemoteIsNotSyncedWhenLocalContainsExactlyFirstBatchButRemoteHasMultipleBatches(uint64_t adjustment) {
+			// Arrange: Local { ..., A, B, C || }, Remote { ..., A, B, C || D }; where || indicates end of batch
+			auto commonHashes = test::GenerateRandomHashes(20);
+			auto remoteHashes = test::GenerateRandomHashes(1);
 
-			const auto& params = requests[0];
-			EXPECT_EQ(expectedHeight, params.first);
-			EXPECT_EQ(expectedNumHashes, params.second);
-		}
+			MockChainApi local(ChainScore(10), Height(3 + 19 - adjustment));
+			local.setHashes(Height(3), commonHashes);
 
-		void AssertRemoteIsNotSynced(uint32_t rewriteLimit, Height expectedHashesFromHeight, Height expectedCommonBlockHeight) {
-			// Arrange: Local { ..., A, B, C, D }, Remote { ..., A, B, C, E }
-			auto commonHashes = test::GenerateRandomHashes(20 - expectedHashesFromHeight.unwrap());
-			auto localHashes = test::ConcatHashes(commonHashes, test::GenerateRandomHashes(1));
-			auto remoteHashes = test::ConcatHashes(commonHashes, test::GenerateRandomHashes(1));
-			MockChainApi local(ChainScore(10), Height(20), localHashes);
-			MockChainApi remote(ChainScore(11), Height(20), remoteHashes);
+			MockChainApi remote(ChainScore(11), Height(3 + 20));
+			remote.setHashes(Height(3), commonHashes);
 
 			// Act:
-			auto result = CompareChains(local, remote, { 1000, rewriteLimit }).get();
+			auto result = CompareChains(local, remote, CreateCompareChainsOptions(20, 3)).get();
 
 			// Assert:
 			EXPECT_EQ(ChainComparisonCode::Remote_Is_Not_Synced, result.Code);
-			EXPECT_EQ(expectedCommonBlockHeight, result.CommonBlockHeight);
-			EXPECT_EQ(20u - expectedCommonBlockHeight.unwrap(), result.ForkDepth);
-			EXPECT_FALSE(AreChainsConsistent(localHashes.size(), result.CommonBlockHeight, expectedHashesFromHeight));
+			EXPECT_EQ(Height(22), result.CommonBlockHeight);
+			EXPECT_EQ(0u, result.ForkDepth);
 
-			auto expectedNumHashes = std::max(1000u, rewriteLimit + 2);
-			AssertParam(expectedHashesFromHeight, expectedNumHashes, local.hashesFromRequests());
-			AssertParam(expectedHashesFromHeight, expectedNumHashes, remote.hashesFromRequests());
+			// - check requests
+			auto expectedHashesFromRequests = std::vector<std::pair<Height, uint32_t>>{ { Height(3), 20 } };
+			EXPECT_EQ(expectedHashesFromRequests, local.hashesFromRequests());
+			EXPECT_EQ(expectedHashesFromRequests, remote.hashesFromRequests());
 		}
 	}
 
-	TEST(TEST_CLASS, RemoteIsNotSyncedWhenChainsDivergeAndRemoteHasHigherScore) {
-		// Assert: note chain height is 20 < 1000
-		AssertRemoteIsNotSynced(1000, Height(1), Height(19));
+	TEST(TEST_CLASS, RemoteIsNotSyncedWhenLocalContainsExactlyFirstBatchButRemoteHasMultipleBatches) {
+		AssertRemoteIsNotSyncedWhenLocalContainsExactlyFirstBatchButRemoteHasMultipleBatches(0);
 	}
 
-	TEST(TEST_CLASS, CommonBlockHeightIsInfluencedByRewriteLimit) {
-		// Assert: note chain height is 20 > 15
-		AssertRemoteIsNotSynced(5, Height(15), Height(19));
+	TEST(TEST_CLASS, RemoteIsNotSyncedWhenLocalContainsExactlyFirstBatchWithMisreportedSizeButRemoteHasMultipleBatches) {
+		AssertRemoteIsNotSyncedWhenLocalContainsExactlyFirstBatchButRemoteHasMultipleBatches(1);
+	}
+
+	TEST(TEST_CLASS, RemoteLiedAboutChainScoreWhenSecondBatchContainsUnexpectedNumberofHashes) {
+		// Arrange: remote returns too few hashes in the second batch
+		auto commonHashes1 = test::GenerateRandomHashes(20);
+		auto commonHashes2 = test::GenerateRandomHashes(20);
+		auto commonHashes3 = test::GenerateRandomHashes(20);
+
+		auto localHashes3 = test::GenerateRandomHashesSubset(commonHashes3, 19);
+		auto remoteHashes2 = test::GenerateRandomHashesSubset(commonHashes2, 19);
+
+		MockChainApi local(ChainScore(10), Height(3 + 59));
+		local.setHashes(Height(3), commonHashes1);
+		local.setHashes(Height(23), commonHashes2);
+		local.setHashes(Height(43), localHashes3);
+
+		MockChainApi remote(ChainScore(11), Height(3 + 59));
+		remote.setHashes(Height(3), commonHashes1);
+		remote.setHashes(Height(23), remoteHashes2);
+		remote.setHashes(Height(43), commonHashes3);
+
+		// Act:
+		auto result = CompareChains(local, remote, CreateCompareChainsOptions(20, 3)).get();
+
+		// Assert:
+		EXPECT_EQ(ChainComparisonCode::Remote_Lied_About_Chain_Score, result.Code);
+		AssertDefaultChainStatistics(result);
 	}
 
 	// endregion

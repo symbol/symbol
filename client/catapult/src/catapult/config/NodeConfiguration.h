@@ -57,6 +57,9 @@ namespace catapult { namespace config {
 		/// Maximum fee that will boost a transaction through the spam throttle when spam throttling is enabled.
 		Amount TransactionSpamThrottlingMaxBoostFee;
 
+		/// Maximum number of hashes per sync attempt.
+		uint32_t MaxHashesPerSyncAttempt;
+
 		/// Maximum number of blocks per sync attempt.
 		uint32_t MaxBlocksPerSyncAttempt;
 

@@ -50,7 +50,8 @@ namespace catapult { namespace test {
 
 			config.EnableAddressReuse = true;
 
-			config.MaxBlocksPerSyncAttempt = 4 * 100;
+			config.MaxHashesPerSyncAttempt = 4 * 100;
+			config.MaxBlocksPerSyncAttempt = 2 * 100;
 			config.MaxChainBytesPerSyncAttempt = utils::FileSize::FromKilobytes(8 * 512);
 
 			config.ShortLivedCacheMaxSize = 10;

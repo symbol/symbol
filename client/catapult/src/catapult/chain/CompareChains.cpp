@@ -26,30 +26,20 @@
 
 namespace catapult { namespace chain {
 
-	// in order for node to sync properly:
-	// a) local must request at least maxHashesToAnalyze
-	// b) remote must return at least maxHashesToAnalyze
-	// where maxHashesToAnalyze must be at least `rewrite-limit + 2`
-	// (one common hash, rewrite-limit hopefully equal hashes and at least one additional hash)
-	uint32_t CalculateMaxHashesToAnalyze(const CompareChainsOptions& options) {
-		return std::max(options.MaxBlocksToAnalyze, options.MaxBlocksToRewrite + 2);
-	}
-
 	namespace {
-		constexpr auto Num_Comparison_Functions = 2;
 		constexpr auto Incomplete_Chain_Comparison_Code = static_cast<ChainComparisonCode>(std::numeric_limits<uint32_t>::max());
 
 		class CompareChainsContext : public std::enable_shared_from_this<CompareChainsContext> {
+		private:
+			using ComparisonFunction = thread::future<ChainComparisonCode> (*)(CompareChainsContext& context);
+
 		public:
 			CompareChainsContext(const api::ChainApi& local, const api::ChainApi& remote, const CompareChainsOptions& options)
 					: m_local(local)
 					, m_remote(remote)
 					, m_options(options)
-					, m_nextFunctionId(0) {
-				m_comparisonFunctions[0] = [](auto& context) { return context.compareChainStatistics(); };
-				m_comparisonFunctions[1] = [](auto& context) { return context.compareHashes(); };
-				// note that the last comparison function is guaranteed to complete
-			}
+					, m_nextFutureId(0)
+			{}
 
 		public:
 			thread::future<CompareChainsResult> compare() {
@@ -59,7 +49,15 @@ namespace catapult { namespace chain {
 
 		private:
 			void startNextCompare() {
-				m_comparisonFunctions[m_nextFunctionId++](*this).then([pThis = shared_from_this()](auto&& future) {
+				ComparisonFunction nextFunc;
+				if (0 == m_nextFutureId++) {
+					nextFunc = [](auto& context) { return context.compareChainStatistics(); };
+					m_nextHashesHeight = m_options.FinalizedHeightSupplier();
+				} else {
+					nextFunc = [](auto& context) { return context.compareHashes(); };
+				}
+
+				nextFunc(*this).then([pThis = shared_from_this()](auto&& future) {
 					if (pThis->isFutureChainComplete(future))
 						return;
 
@@ -98,10 +96,7 @@ namespace catapult { namespace chain {
 			ChainComparisonCode compareChainStatistics(
 					const api::ChainStatistics& localChainStatistics,
 					const api::ChainStatistics& remoteChainStatistics) {
-				if (model::ChainScore(0) == localChainStatistics.Score)
-					return ChainComparisonCode::Local_Chain_Score_Zero;
-
-				if (isRemoteTooFarBehind(localChainStatistics.Height, remoteChainStatistics.Height))
+				if (isRemoteTooFarBehind(remoteChainStatistics.Height))
 					return ChainComparisonCode::Remote_Is_Too_Far_Behind;
 
 				const auto& localScore = localChainStatistics.Score;
@@ -119,17 +114,14 @@ namespace catapult { namespace chain {
 						: ChainComparisonCode::Remote_Reported_Lower_Chain_Score;
 			}
 
-			bool isRemoteTooFarBehind(Height localHeight, Height remoteHeight) const {
-				auto heightDifference = static_cast<int64_t>((localHeight - remoteHeight).unwrap());
-				return heightDifference > m_options.MaxBlocksToRewrite;
+			bool isRemoteTooFarBehind(Height remoteHeight) const {
+				return remoteHeight <= m_options.FinalizedHeightSupplier();
 			}
 
 			thread::future<ChainComparisonCode> compareHashes() {
-				auto localHeight = m_localHeight.unwrap();
-				auto startingHeight = Height(localHeight > m_options.MaxBlocksToRewrite
-						? localHeight - m_options.MaxBlocksToRewrite
-						: 1);
-				auto maxHashes = CalculateMaxHashesToAnalyze(m_options);
+				auto startingHeight = m_nextHashesHeight;
+				auto maxHashes = m_options.HashesPerBatch;
+
 				return thread::when_all(m_local.hashesFrom(startingHeight, maxHashes), m_remote.hashesFrom(startingHeight, maxHashes))
 					.then([pThis = shared_from_this(), startingHeight](auto&& aggregateFuture) {
 						auto hashesFuture = aggregateFuture.get();
@@ -143,33 +135,62 @@ namespace catapult { namespace chain {
 					Height startingHeight,
 					const model::HashRange& localHashes,
 					const model::HashRange& remoteHashes) {
-				auto maxHashesToAnalyze = CalculateMaxHashesToAnalyze(m_options);
-				if (remoteHashes.size() > maxHashesToAnalyze)
+				if (remoteHashes.size() > m_options.HashesPerBatch)
 					return ChainComparisonCode::Remote_Returned_Too_Many_Hashes;
 
 				// at least the first compared block should be the same; if not, the remote is a liar or on a fork
 				auto firstDifferenceIndex = FindFirstDifferenceIndex(localHashes, remoteHashes);
-				if (0 == firstDifferenceIndex)
+				if (isProcessingFirstBatchOfHashes() && 0 == firstDifferenceIndex)
 					return ChainComparisonCode::Remote_Is_Forked;
 
-				// if all the hashes match, the remote node lied because it can't have a higher score
-				if (remoteHashes.size() == firstDifferenceIndex)
-					return ChainComparisonCode::Remote_Lied_About_Chain_Score;
+				auto commonBlockHeight = startingHeight + Height(firstDifferenceIndex - 1);
+				auto localHeightDerivedFromHashes = startingHeight + Height(localHashes.size() - 1);
 
-				m_commonBlockHeight = Height(startingHeight.unwrap() + firstDifferenceIndex - 1);
-				m_localHeight = startingHeight + Height(localHashes.size() - 1);
+				// if all the hashes match, check if there is another batch that needs to be processed
+				if (remoteHashes.size() == firstDifferenceIndex) {
+					auto code = compareHashesWhenAllRemoteHashesMatch(localHeightDerivedFromHashes, remoteHashes.size());
+					if (ChainComparisonCode::Remote_Is_Not_Synced != code)
+						return code;
+				}
+
+				m_commonBlockHeight = commonBlockHeight;
+				m_localHeight = localHeightDerivedFromHashes;
 				return ChainComparisonCode::Remote_Is_Not_Synced;
+			}
+
+			bool isProcessingFirstBatchOfHashes() const {
+				return 2 == m_nextFutureId;
+			}
+
+			ChainComparisonCode compareHashesWhenAllRemoteHashesMatch(Height localHeightDerivedFromHashes, size_t numRemoteHashes) {
+				// allow an additional batch only if the remote returned a full batch of hashes and there are unprocessed local hashes
+				if (m_options.HashesPerBatch == numRemoteHashes) {
+					if (localHeightDerivedFromHashes >= m_localHeight) {
+						// if all local hashes have been checked and the hashes end on a boundary, allow a sync with the remote since
+						// it reported a higher score
+						return ChainComparisonCode::Remote_Is_Not_Synced;
+					} else {
+						// pull the next batch from the remote
+						m_nextHashesHeight = localHeightDerivedFromHashes + Height(1);
+						return Incomplete_Chain_Comparison_Code;
+					}
+				}
+
+				// if all hashes match and the local height is unchanged, the remote lied because it can't have a higher score
+				return m_localHeight < localHeightDerivedFromHashes
+						? ChainComparisonCode::Local_Height_Updated
+						: ChainComparisonCode::Remote_Lied_About_Chain_Score;
 			}
 
 		private:
 			const api::ChainApi& m_local;
 			const api::ChainApi& m_remote;
 			CompareChainsOptions m_options;
-			thread::promise<CompareChainsResult> m_promise;
 
-			using ComparisonFunction = thread::future<ChainComparisonCode> (*)(CompareChainsContext& context);
-			ComparisonFunction m_comparisonFunctions[Num_Comparison_Functions];
-			size_t m_nextFunctionId;
+			size_t m_nextFutureId;
+			Height m_nextHashesHeight;
+
+			thread::promise<CompareChainsResult> m_promise;
 
 			Height m_localHeight;
 			Height m_commonBlockHeight;

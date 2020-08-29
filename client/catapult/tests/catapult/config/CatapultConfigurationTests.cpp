@@ -112,6 +112,7 @@ namespace catapult { namespace config {
 			EXPECT_TRUE(config.EnableTransactionSpamThrottling);
 			EXPECT_EQ(Amount(10'000'000), config.TransactionSpamThrottlingMaxBoostFee);
 
+			EXPECT_EQ(84u, config.MaxHashesPerSyncAttempt);
 			EXPECT_EQ(42u, config.MaxBlocksPerSyncAttempt);
 			EXPECT_EQ(utils::FileSize::FromMegabytes(100), config.MaxChainBytesPerSyncAttempt);
 

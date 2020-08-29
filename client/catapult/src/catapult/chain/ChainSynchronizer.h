@@ -44,6 +44,9 @@ namespace catapult { namespace chain {
 
 	/// Configuration for customizing a chain synchronizer.
 	struct ChainSynchronizerConfiguration {
+		/// Maximum number of hashes per sync attempt.
+		uint32_t MaxHashesPerSyncAttempt;
+
 		/// Maximum number of blocks per sync attempt.
 		uint32_t MaxBlocksPerSyncAttempt;
 
@@ -54,10 +57,11 @@ namespace catapult { namespace chain {
 		uint32_t MaxRollbackBlocks;
 	};
 
-	/// Creates a chain synchronizer around the specified local chain api (\a pLocalChainApi), a block chain \a config and
-	/// a block range consumer (\a blockRangeConsumer).
+	/// Creates a chain synchronizer around the specified local chain api (\a pLocalChainApi), block chain \a config,
+	/// local finalized height supplier (\a localFinalizedHeightSupplier) and block range consumer (\a blockRangeConsumer).
 	RemoteNodeSynchronizer<api::RemoteChainApi> CreateChainSynchronizer(
 			const std::shared_ptr<const api::ChainApi>& pLocalChainApi,
 			const ChainSynchronizerConfiguration& config,
+			const supplier<Height>& localFinalizedHeightSupplier,
 			const CompletionAwareBlockRangeConsumerFunc& blockRangeConsumer);
 }}

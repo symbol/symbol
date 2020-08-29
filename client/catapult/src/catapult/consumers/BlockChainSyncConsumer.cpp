@@ -121,14 +121,9 @@ namespace catapult { namespace consumers {
 
 		class BlockChainSyncConsumer {
 		public:
-			BlockChainSyncConsumer(
-					cache::CatapultCache& cache,
-					io::BlockStorageCache& storage,
-					uint32_t maxRollbackBlocks,
-					const BlockChainSyncHandlers& handlers)
+			BlockChainSyncConsumer(cache::CatapultCache& cache, io::BlockStorageCache& storage, const BlockChainSyncHandlers& handlers)
 					: m_cache(cache)
 					, m_storage(storage)
-					, m_maxRollbackBlocks(maxRollbackBlocks)
 					, m_handlers(handlers)
 			{}
 
@@ -166,10 +161,7 @@ namespace catapult { namespace consumers {
 					return Abort(Failure_Consumer_Remote_Chain_Unlinked);
 
 				// 2. check that the remote chain is not too far behind the current chain
-				auto localFinalizedHeight = 0 == m_maxRollbackBlocks
-						? m_handlers.LocalFinalizedHeightSupplier()
-						: calculateFinalizedHeightFromStorage(storageView);
-
+				auto localFinalizedHeight = m_handlers.LocalFinalizedHeightSupplier();
 				if (peerStartHeight <= localFinalizedHeight)
 					return Abort(Failure_Consumer_Remote_Chain_Too_Far_Behind);
 
@@ -199,11 +191,6 @@ namespace catapult { namespace consumers {
 				peerScore -= localScore; // calculate the score delta
 				syncState.update(std::move(pCommonBlockElement), std::move(peerScore), std::move(unwindResult.TransactionInfos));
 				return Continue();
-			}
-
-			Height calculateFinalizedHeightFromStorage(const io::BlockStorageView& storageView) const {
-				auto chainHeight = storageView.chainHeight();
-				return chainHeight.unwrap() <= m_maxRollbackBlocks ? Height(1) : Height(chainHeight.unwrap() - m_maxRollbackBlocks);
 			}
 
 			UnwindResult unwindLocalChain(
@@ -302,7 +289,6 @@ namespace catapult { namespace consumers {
 		private:
 			cache::CatapultCache& m_cache;
 			io::BlockStorageCache& m_storage;
-			uint32_t m_maxRollbackBlocks;
 			BlockChainSyncHandlers m_handlers;
 		};
 	}
@@ -310,8 +296,7 @@ namespace catapult { namespace consumers {
 	disruptor::DisruptorConsumer CreateBlockChainSyncConsumer(
 			cache::CatapultCache& cache,
 			io::BlockStorageCache& storage,
-			uint32_t maxRollbackBlocks,
 			const BlockChainSyncHandlers& handlers) {
-		return BlockChainSyncConsumer(cache, storage, maxRollbackBlocks, handlers);
+		return BlockChainSyncConsumer(cache, storage, handlers);
 	}
 }}

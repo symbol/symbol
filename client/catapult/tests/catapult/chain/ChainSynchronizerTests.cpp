@@ -39,7 +39,8 @@ namespace catapult { namespace chain {
 #define TEST_CLASS ChainSynchronizerTests
 
 	namespace {
-		constexpr Height Default_Height(20);
+		constexpr auto Default_Height = Height(20);
+		constexpr auto Last_Finalized_Height = Height(11);
 
 		// region test context
 
@@ -62,10 +63,11 @@ namespace catapult { namespace chain {
 					: LocalScore(localScore)
 					, LocalHashes(HashRange::CopyRange(localHashes))
 					, pIo(std::make_shared<MockPacketIo>())
-					, pChainApi(std::make_shared<MockChainApi>(remoteScore, std::move(pRemoteLastBlock), remoteHashes))
+					, pChainApi(std::make_shared<MockChainApi>(remoteScore, std::move(pRemoteLastBlock)))
 					, BlockRangeConsumerCalls(0)
-					, Config(CreateConfiguration())
-			{}
+					, Config(CreateConfiguration()) {
+				pChainApi->setHashes(Last_Finalized_Height, remoteHashes);
+			}
 
 		public:
 			void assertNoCalls() const {
@@ -75,9 +77,9 @@ namespace catapult { namespace chain {
 		private:
 			static ChainSynchronizerConfiguration CreateConfiguration() {
 				auto config = ChainSynchronizerConfiguration();
+				config.MaxHashesPerSyncAttempt = 4 * 100;
 				config.MaxBlocksPerSyncAttempt = 4 * 100;
 				config.MaxChainBytesPerSyncAttempt = utils::FileSize::FromKilobytes(8 * 512).bytes32();
-				config.MaxRollbackBlocks = 360;
 				return config;
 			}
 
@@ -100,7 +102,10 @@ namespace catapult { namespace chain {
 
 		RemoteNodeSynchronizer<api::RemoteChainApi> CreateSynchronizer(TestContext& context, ConsumerMode mode = ConsumerMode::Normal) {
 			auto pVerifiableBlock = test::GenerateBlockWithTransactions(0, Default_Height);
-			auto pLocal = std::make_shared<MockChainApi>(context.LocalScore, std::move(pVerifiableBlock), context.LocalHashes);
+			auto pLocal = std::make_shared<MockChainApi>(context.LocalScore, std::move(pVerifiableBlock));
+			pLocal->setHashes(Last_Finalized_Height, context.LocalHashes);
+
+			auto finalizedHeightSupplier = []() { return Last_Finalized_Height; };
 
 			auto blockRangeConsumer = [mode, &context](const auto& range, const auto& processingComplete) {
 				++context.BlockRangeConsumerCalls;
@@ -109,7 +114,7 @@ namespace catapult { namespace chain {
 				return ConsumerMode::Normal == mode ? context.BlockRangeConsumerCalls : 0;
 			};
 
-			return CreateChainSynchronizer(pLocal, context.Config, blockRangeConsumer);
+			return CreateChainSynchronizer(pLocal, context.Config, finalizedHeightSupplier, blockRangeConsumer);
 		}
 
 		disruptor::ConsumerCompletionResult CreateContinueResult() {
@@ -228,7 +233,7 @@ namespace catapult { namespace chain {
 					remoteHashes,
 					test::GenerateBlockWithTransactions(0, Default_Height));
 			context.pChainApi->setNumBlocksPerBlocksFromRequest({ 2 });
-			context.Config.MaxRollbackBlocks = 9;
+			context.Config.MaxHashesPerSyncAttempt = 10;
 			context.Config.MaxBlocksPerSyncAttempt = 5;
 			context.Config.MaxChainBytesPerSyncAttempt = 23;
 			return context;
@@ -238,7 +243,7 @@ namespace catapult { namespace chain {
 			// Assert:
 			ASSERT_EQ(1u, chainApi.blocksFromRequests().size());
 			const auto& params = chainApi.blocksFromRequests()[0];
-			EXPECT_EQ(Default_Height, params.first); // localHeight - maxRollback + firstDifferenceIndex
+			EXPECT_EQ(Default_Height, params.first);
 			EXPECT_EQ(5u, params.second.NumBlocks); // maxBlocksPerSyncAttempt
 			EXPECT_EQ(23u, params.second.NumBytes);
 		}
@@ -287,9 +292,10 @@ namespace catapult { namespace chain {
 
 	TEST(TEST_CLASS, SuccessfulInteractionWithMultiplePulls) {
 		// Arrange:
-		// - last block has height 20, rewrite limit is 9
-		// - common block has height 14 = 20 - 9 + 4 - 1 (fork depth 6)
+		// - common block has height 10 + 4 (fork depth 6)
 		// - pulls 2 blocks at time: 3 attempts needed to pull 6 blocks
+		constexpr auto Common_Block_Height = Height(14);
+
 		auto context = CreateTestContextWithHashes(4, 10, 6);
 		auto synchronizer = CreateSynchronizer(context);
 
@@ -299,7 +305,11 @@ namespace catapult { namespace chain {
 		// Assert:
 		EXPECT_EQ(ionet::NodeInteractionResultCode::Success, code);
 		AssertSync(context, 1);
-		AssertDefaultMultiplePullRequest(*context.pChainApi, { Height(15), Height(17), Height(19) });
+		AssertDefaultMultiplePullRequest(*context.pChainApi, {
+			Common_Block_Height + Height(1),
+			Common_Block_Height + Height(3),
+			Common_Block_Height + Height(5)
+		});
 	}
 
 	TEST(TEST_CLASS, NeutralInteractionWhenRemoteDoesNotHaveBlocksAtRequestedHeight) {
@@ -319,10 +329,11 @@ namespace catapult { namespace chain {
 
 	TEST(TEST_CLASS, SuccessfulInteractionWithMultiplePullsWhenRemoteRunsOutOfBlocks) {
 		// Arrange:
-		// - last block has height 20, rewrite limit is 9
-		// - common block has height 12 = 20 - 9 + 2 - 1 (fork depth 8)
+		// - common block has height 10 + 2 (fork depth 8)
 		// - pulls 2 blocks at time: 4 attempts needed to pull 8 blocks but blocks are only returned twice
 		//   (third attempt returns no blocks, so subsequent attempts are bypassed)
+		constexpr auto Common_Block_Height = Height(12);
+
 		auto context = CreateTestContextWithHashes(2, 10, 8);
 		context.pChainApi->setNumBlocksPerBlocksFromRequest({ 2, 2, 0 });
 		auto synchronizer = CreateSynchronizer(context);
@@ -333,7 +344,11 @@ namespace catapult { namespace chain {
 		// Assert:
 		EXPECT_EQ(ionet::NodeInteractionResultCode::Success, code);
 		AssertSync(context, 1);
-		AssertDefaultMultiplePullRequest(*context.pChainApi, { Height(13), Height(15), Height(17) });
+		AssertDefaultMultiplePullRequest(*context.pChainApi, {
+			Common_Block_Height + Height(1),
+			Common_Block_Height + Height(3),
+			Common_Block_Height + Height(5)
+		});
 	}
 
 	TEST(TEST_CLASS, FailedInteractionWhenBlocksFromReturnsException) {
@@ -387,7 +402,6 @@ namespace catapult { namespace chain {
 					remoteHashes,
 					test::GenerateBlockWithTransactions(0, Default_Height));
 			context.pChainApi->setNumBlocksPerBlocksFromRequest({ 2 });
-			context.Config.MaxRollbackBlocks = 9;
 			return context;
 		}
 

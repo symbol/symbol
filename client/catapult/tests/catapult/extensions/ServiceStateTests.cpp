@@ -26,6 +26,7 @@
 #include "catapult/thread/MultiServicePool.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
 #include "tests/test/local/LocalTestUtils.h"
+#include "tests/test/local/ServiceLocatorTestContext.h"
 #include "tests/test/other/mocks/MockFinalizationSubscriber.h"
 #include "tests/test/other/mocks/MockNodeSubscriber.h"
 #include "tests/test/other/mocks/MockStateChangeSubscriber.h"
@@ -36,6 +37,8 @@
 namespace catapult { namespace extensions {
 
 #define TEST_CLASS ServiceStateTests
+
+	// region ServiceState
 
 	TEST(TEST_CLASS, CanCreateServiceState) {
 		// Arrange:
@@ -115,4 +118,43 @@ namespace catapult { namespace extensions {
 		EXPECT_TRUE(state.hooks().chainSyncedPredicate()); // just check that hooks is valid and default predicate can be called
 		EXPECT_TRUE(state.packetIoPickers().pickMatching(utils::TimeSpan::FromSeconds(1), ionet::NodeRoles::None).empty());
 	}
+
+	// endregion
+
+	// region CreateLocalFinalizedHeightSupplier
+
+	namespace {
+		void AssertLocalFinalizedHeightSupplier(uint32_t maxRollbackBlocks, uint32_t numBlocks, Height expectedHeight) {
+			// Arrange:
+			test::ServiceTestState testState;
+			const_cast<uint32_t&>(testState.state().config().BlockChain.MaxRollbackBlocks) = maxRollbackBlocks;
+
+			mocks::SeedStorageWithFixedSizeBlocks(testState.state().storage(), numBlocks);
+
+			testState.state().hooks().setLocalFinalizedHeightSupplier([]() {
+				return Height(7);
+			});
+
+			// Act:
+			auto supplier = CreateLocalFinalizedHeightSupplier(testState.state());
+
+			// Assert:
+			EXPECT_EQ(expectedHeight, supplier()) << "maxRollbackBlocks = " << maxRollbackBlocks << ", numBlocks = " << numBlocks;
+		}
+	}
+
+	TEST(TEST_CLASS, CreateLocalFinalizedHeightSupplier_ReturnsRegisteredSupplierWhenMaxRollbackBlocksIsZero) {
+		AssertLocalFinalizedHeightSupplier(0, 4, Height(7));
+		AssertLocalFinalizedHeightSupplier(0, 20, Height(7));
+	}
+
+	TEST(TEST_CLASS, CreateLocalFinalizedHeightSupplier_ReturnsStorageBasedSupplierWhenMaxRollbackBlocksIsNonzero) {
+		AssertLocalFinalizedHeightSupplier(5, 4, Height(1));
+		AssertLocalFinalizedHeightSupplier(5, 5, Height(1));
+		AssertLocalFinalizedHeightSupplier(5, 6, Height(1));
+		AssertLocalFinalizedHeightSupplier(5, 7, Height(2));
+		AssertLocalFinalizedHeightSupplier(5, 20, Height(15));
+	}
+
+	// endregion
 }}
