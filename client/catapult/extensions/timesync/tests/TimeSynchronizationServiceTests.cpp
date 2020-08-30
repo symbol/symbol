@@ -150,16 +150,7 @@ namespace catapult { namespace timesync {
 	}
 
 	TEST(TEST_CLASS, TasksAreRegistered) {
-		// Arrange:
-		TestContext context(CreateCache());
-
-		// Act:
-		context.boot();
-		const auto& tasks = context.testState().state().tasks();
-
-		// Assert:
-		EXPECT_EQ(1u, tasks.size());
-		EXPECT_EQ(Task_Name, tasks.cbegin()->Name);
+		test::AssertRegisteredTasks(TestContext(CreateCache()), { Task_Name });
 	}
 
 	TEST(TEST_CLASS, ServiceUsesNetworkTime) {

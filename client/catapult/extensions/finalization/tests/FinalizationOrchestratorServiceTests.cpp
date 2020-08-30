@@ -184,6 +184,10 @@ namespace catapult { namespace finalization {
 		context.locator().service<void>("fin.orchestrator");
 	}
 
+	TEST(TEST_CLASS, TasksAreRegistered) {
+		test::AssertRegisteredTasks(TestContext(), { "finalization task" });
+	}
+
 	// endregion
 
 	// region task
