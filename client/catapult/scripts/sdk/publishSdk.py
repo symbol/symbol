@@ -40,6 +40,7 @@ def force_empty(directory):
 def fix_includes(path):
     for line in FileInput(path, inplace=True):
         line = re.sub(r'#include "src/', '#include "catapult/', line.rstrip())
+        line = re.sub(r'#include ".*/src/', '#include "catapult/', line.rstrip())
         line = re.sub(r'#include "plugins/.*/src/', '#include "catapult/', line.rstrip())
         print(line)
 
@@ -190,6 +191,9 @@ def publish_all():
 
     for service in ['hashcache']:
         publisher.publish_plugin('services', service, ['state'])
+
+    for extension in ['finalization']:
+        publisher.publish_extension(extension, ['api', 'io', 'model'])
 
     for extension in ['nodediscovery']:
         publisher.publish_extension(extension, ['api'])

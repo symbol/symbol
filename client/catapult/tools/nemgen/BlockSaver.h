@@ -29,4 +29,7 @@ namespace catapult { namespace tools { namespace nemgen {
 
 	/// Saves nemesis \a blockElement according to \a config.
 	void SaveNemesisBlockElement(const model::BlockElement& blockElement, const NemesisConfiguration& config);
+
+	/// Finalizes nemesis \a blockElement according to \a config.
+	void FinalizeNemesisBlockElement(const model::BlockElement& blockElement, const NemesisConfiguration& config);
 }}}

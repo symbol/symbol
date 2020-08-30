@@ -36,6 +36,11 @@ namespace catapult { namespace tools { namespace nemgen {
 			file.write({ reinterpret_cast<const uint8_t*>(content.data()), content.size() });
 		}
 
+		bool IsExtensionEnabled(const config::ExtensionsConfiguration& extensionsConfig, const std::string& name) {
+			const auto& names = extensionsConfig.Names;
+			return names.cend() != std::find(names.cbegin(), names.cend(), name);
+		}
+
 		class NemGenTool : public Tool {
 		public:
 			std::string name() const override {
@@ -103,6 +108,12 @@ namespace catapult { namespace tools { namespace nemgen {
 
 				// 5. save the nemesis block element
 				SaveNemesisBlockElement(blockElement, nemesisConfig);
+
+				if (IsExtensionEnabled(config.Extensions, "extension.finalization")) {
+					CATAPULT_LOG(info) << "finalizing nemesis to storage";
+					FinalizeNemesisBlockElement(blockElement, nemesisConfig);
+				}
+
 				return 0;
 			}
 
