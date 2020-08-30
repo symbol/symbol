@@ -611,7 +611,7 @@ namespace catapult { namespace chain {
 		TestContext context;
 
 		// Act:
-		auto unknownMessages = context.aggregator().view().unknownMessages(Default_Max_FP, {});
+		auto unknownMessages = context.aggregator().view().unknownMessages(Default_Min_FP, {});
 
 		// Assert:
 		EXPECT_TRUE(unknownMessages.empty());
@@ -621,7 +621,7 @@ namespace catapult { namespace chain {
 		// Arrange:
 		RunSeededAggregatorTest([](const auto& aggregator, const auto& seededShortHashes) {
 			// Act:
-			auto unknownMessages = aggregator.unknownMessages(Default_Max_FP, {});
+			auto unknownMessages = aggregator.unknownMessages(Default_Min_FP, {});
 
 			// Assert:
 			EXPECT_EQ(9u, unknownMessages.size());
@@ -635,9 +635,9 @@ namespace catapult { namespace chain {
 			// Act:
 			auto unknownMessages = aggregator.unknownMessages(Default_Min_FP + FinalizationPoint(5), {});
 
-			// Assert: should return messages from points { +0, +5 } only
+			// Assert: should return messages from points { +5, +10 } only
 			EXPECT_EQ(6u, unknownMessages.size());
-			EXPECT_EQ(utils::ShortHashesSet(seededShortHashes.cbegin(), seededShortHashes.cbegin() + 6), ToShortHashes(unknownMessages));
+			EXPECT_EQ(utils::ShortHashesSet(seededShortHashes.cbegin() + 3, seededShortHashes.cend()), ToShortHashes(unknownMessages));
 		});
 	}
 
@@ -645,7 +645,7 @@ namespace catapult { namespace chain {
 		// Arrange:
 		RunSeededAggregatorTest([](const auto& aggregator, const auto& seededShortHashes) {
 			// Act:
-			auto unknownMessages = aggregator.unknownMessages(Default_Max_FP, {
+			auto unknownMessages = aggregator.unknownMessages(Default_Min_FP, {
 				seededShortHashes[0], seededShortHashes[1], seededShortHashes[4], seededShortHashes[6], seededShortHashes[7]
 			});
 
@@ -662,7 +662,7 @@ namespace catapult { namespace chain {
 		RunSeededAggregatorTest([](const auto& aggregator, const auto& seededShortHashes) {
 			// Act:
 			auto unknownMessages = aggregator.unknownMessages(
-					Default_Max_FP,
+					Default_Min_FP,
 					utils::ShortHashesSet(seededShortHashes.cbegin(), seededShortHashes.cend()));
 
 			// Assert:
@@ -697,7 +697,7 @@ namespace catapult { namespace chain {
 			AddRoundMessageAggregators(context, { FinalizationPoint(0), FinalizationPoint(5), FinalizationPoint(10) });
 
 			// Act:
-			auto unknownMessages = context.aggregator().view().unknownMessages(Default_Max_FP, {});
+			auto unknownMessages = context.aggregator().view().unknownMessages(Default_Min_FP, {});
 
 			// Assert:
 			EXPECT_EQ(numExpectedMessages, unknownMessages.size());
@@ -711,6 +711,16 @@ namespace catapult { namespace chain {
 
 	// region prune
 
+	namespace {
+		void AssertMinMaxFinalizationPoints(
+				const MultiRoundMessageAggregatorView& view,
+				FinalizationPoint expectedMinPoint,
+				FinalizationPoint expectedMaxPoint) {
+			EXPECT_EQ(expectedMinPoint, view.minFinalizationPoint());
+			EXPECT_EQ(expectedMaxPoint, view.maxFinalizationPoint());
+		}
+	}
+
 	TEST(TEST_CLASS, PruneHasNoEffectWhenEmpty) {
 		// Arrange:
 		TestContext context;
@@ -722,6 +732,8 @@ namespace catapult { namespace chain {
 		// Assert:
 		EXPECT_EQ(0u, context.aggregator().view().size());
 		EXPECT_EQ(model::HeightHashPair({ Last_Finalized_Height, context.lastFinalizedHash() }), estimate);
+
+		AssertMinMaxFinalizationPoints(context.aggregator().view(), Default_Min_FP, Default_Min_FP);
 	}
 
 	TEST(TEST_CLASS, PruneHasNoEffectWhenNoRoundHasBestPrecommit) {
@@ -736,6 +748,8 @@ namespace catapult { namespace chain {
 		// Assert:
 		EXPECT_EQ(3u, context.aggregator().view().size());
 		EXPECT_EQ(model::HeightHashPair({ Last_Finalized_Height, context.lastFinalizedHash() }), estimate);
+
+		AssertMinMaxFinalizationPoints(context.aggregator().view(), Default_Min_FP, Default_Max_FP);
 	}
 
 	TEST(TEST_CLASS, PruneHasEffectWhenAllRoundsHaveBestPrecommit) {
@@ -760,6 +774,8 @@ namespace catapult { namespace chain {
 		// Assert:
 		EXPECT_EQ(1u, context.aggregator().view().size());
 		EXPECT_EQ(model::HeightHashPair({ Height(800), hashes[1] }), estimate);
+
+		AssertMinMaxFinalizationPoints(context.aggregator().view(), Default_Max_FP, Default_Max_FP);
 	}
 
 	TEST(TEST_CLASS, PruneHasEffectWhenCurrentRoundHasBestPrecommitAndAllPreviousRoundsHaveEstimate) {
@@ -788,6 +804,8 @@ namespace catapult { namespace chain {
 		// Assert:
 		EXPECT_EQ(1u, context.aggregator().view().size());
 		EXPECT_EQ(model::HeightHashPair({ Height(800), hashes[1] }), estimate);
+
+		AssertMinMaxFinalizationPoints(context.aggregator().view(), Default_Max_FP, Default_Max_FP);
 	}
 
 	TEST(TEST_CLASS, PruneHasEffectWhenCurrentRoundHasBestPrecommitAndSinglePreviousRoundHasEstimate) {
@@ -817,6 +835,8 @@ namespace catapult { namespace chain {
 		// Assert:
 		EXPECT_EQ(1u, context.aggregator().view().size());
 		EXPECT_EQ(model::HeightHashPair({ Height(300), hashes[0] }), estimate);
+
+		AssertMinMaxFinalizationPoints(context.aggregator().view(), Default_Max_FP, Default_Max_FP);
 	}
 
 	TEST(TEST_CLASS, PruneHasEffectWhenCurrentRoundHasBestPrecommitAndNoPreviousRoundHasEstimate) {
@@ -842,6 +862,8 @@ namespace catapult { namespace chain {
 		// Assert:
 		EXPECT_EQ(1u, context.aggregator().view().size());
 		EXPECT_EQ(model::HeightHashPair({ Last_Finalized_Height, context.lastFinalizedHash() }), estimate);
+
+		AssertMinMaxFinalizationPoints(context.aggregator().view(), Default_Max_FP, Default_Max_FP);
 	}
 
 	TEST(TEST_CLASS, PruneHasEffectWhenPreviousRoundHasBestPrecommit) {
@@ -870,6 +892,8 @@ namespace catapult { namespace chain {
 		// Assert:
 		EXPECT_EQ(2u, context.aggregator().view().size());
 		EXPECT_EQ(model::HeightHashPair({ Height(800), hashes[1] }), estimate);
+
+		AssertMinMaxFinalizationPoints(context.aggregator().view(), Default_Min_FP + FinalizationPoint(5), Default_Max_FP);
 	}
 
 	// endregion

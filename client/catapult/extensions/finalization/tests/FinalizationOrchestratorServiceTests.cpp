@@ -274,7 +274,7 @@ namespace catapult { namespace finalization {
 					const auto& storage,
 					const auto& messages) {
 				// Assert: check aggregator
-				EXPECT_EQ(FinalizationPoint(5), aggregator.view().minFinalizationPoint());
+				EXPECT_EQ(FinalizationPoint(8), aggregator.view().minFinalizationPoint());
 				EXPECT_EQ(expectedMaxFinalizationPoint, aggregator.view().maxFinalizationPoint());
 
 				// - subscriber was called

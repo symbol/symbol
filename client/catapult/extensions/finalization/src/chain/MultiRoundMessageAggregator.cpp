@@ -123,8 +123,8 @@ namespace catapult { namespace chain {
 		uint64_t totalSize = 0;
 		RoundMessageAggregator::UnknownMessages allMessages;
 		for (const auto& pair : m_state.RoundMessageAggregators) {
-			if (pair.first > point)
-				break;
+			if (pair.first < point)
+				continue;
 
 			for (const auto& pMessage : pair.second->unknownMessages(knownShortHashes)) {
 				totalSize += pMessage->Size;
@@ -195,6 +195,7 @@ namespace catapult { namespace chain {
 		}
 
 		roundMessageAggregators.erase(roundMessageAggregators.cbegin(), lastMatchingIter);
+		m_state.MinFinalizationPoint = lastMatchingIter->first;
 	}
 
 	// endregion
