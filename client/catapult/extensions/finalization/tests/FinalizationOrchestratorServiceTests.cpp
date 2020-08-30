@@ -21,6 +21,7 @@
 #include "finalization/src/FinalizationOrchestratorService.h"
 #include "finalization/src/FinalizationBootstrapperService.h"
 #include "finalization/src/FinalizationConfiguration.h"
+#include "finalization/src/VotingStatusFile.h"
 #include "finalization/src/chain/MultiRoundMessageAggregator.h"
 #include "finalization/src/io/ProofStorageCache.h"
 #include "catapult/config/CatapultDataDirectory.h"
@@ -43,6 +44,8 @@ namespace catapult { namespace finalization {
 
 	namespace {
 		constexpr auto Num_Dependent_Services = 3u;
+		constexpr auto Prevote_Stage = model::FinalizationStage::Prevote;
+		constexpr auto Precommit_Stage = model::FinalizationStage::Precommit;
 
 		struct FinalizationOrchestratorServiceTraits {
 			static auto CreateRegistrar() {
@@ -64,8 +67,13 @@ namespace catapult { namespace finalization {
 			TestContext()
 					: m_createCompletedRound(false)
 					, m_hashes(test::GenerateRandomDataVector<Hash256>(3)) {
+				// note: current voting round (8) is ahead of last round resulting in finalization (5)
+
 				// set up filesystem
-				SeedOtsTree(testState().state().config().User, m_directoryGuard.name());
+				const auto& userConfig = testState().state().config().User;
+				const_cast<std::string&>(userConfig.DataDirectory) = m_directoryGuard.name();
+				SeedOtsTree(userConfig);
+				SeedVotingStatus(userConfig, FinalizationPoint(8));
 
 				// register hooks
 				auto pHooks = std::make_shared<FinalizationServerHooks>();
@@ -78,7 +86,7 @@ namespace catapult { namespace finalization {
 				// register storage
 				auto lastFinalizedHeightHashPair = model::HeightHashPair{ Height(245), m_hashes[0] };
 				auto pProofStorage = std::make_unique<mocks::MockProofStorage>(
-						FinalizationPoint(7),
+						FinalizationPoint(5),
 						lastFinalizedHeightHashPair.Height,
 						lastFinalizedHeightHashPair.Hash);
 				m_pProofStorageRaw = pProofStorage.get();
@@ -87,7 +95,7 @@ namespace catapult { namespace finalization {
 				// register aggregator
 				m_pAggregator = std::make_shared<chain::MultiRoundMessageAggregator>(
 						10'000'000,
-						FinalizationPoint(8),
+						FinalizationPoint(5),
 						lastFinalizedHeightHashPair,
 						[this](auto roundPoint, auto height) {
 							auto pRoundMessageAggregator = std::make_unique<mocks::MockRoundMessageAggregator>(roundPoint, height);
@@ -125,30 +133,38 @@ namespace catapult { namespace finalization {
 				return m_messages;
 			}
 
+			auto votingStatus() {
+				const auto& userConfig = testState().state().config().User;
+				auto votingStatusFilename = config::CatapultDataDirectory(userConfig.DataDirectory).rootDir().file("voting_status.dat");
+				return VotingStatusFile(votingStatusFilename).load();
+			}
+
 		public:
 			void createCompletedRound() {
 				m_createCompletedRound = true;
 			}
 
 			void initialize() {
-				m_pAggregator->modifier().add(test::CreateMessage(FinalizationPoint(8)));
+				auto votingPoint = FinalizationPoint(8);
+				auto aggregatorModifier = m_pAggregator->modifier();
+				aggregatorModifier.setMaxFinalizationPoint(votingPoint);
+				aggregatorModifier.add(test::CreateMessage(votingPoint));
 			}
 
 		private:
-			static void SeedOtsTree(const config::UserConfiguration& userConfig, const std::string& dataDirectory) {
-				const_cast<std::string&>(userConfig.DataDirectory) = dataDirectory;
-
+			static void SeedOtsTree(const config::UserConfiguration& userConfig) {
 				auto votingOtsTreeFilename = config::CatapultDataDirectory(userConfig.DataDirectory).rootDir().file("voting_ots_tree.dat");
 				io::FileStream otsStream(io::RawFile(votingOtsTreeFilename, io::OpenMode::Read_Write));
 
 				auto dilution = 13u;
-				auto startKeyIdentifier = model::StepIdentifierToOtsKeyIdentifier(
-						{ FinalizationPoint(1), model::FinalizationStage::Prevote },
-						dilution);
-				auto endKeyIdentifier = model::StepIdentifierToOtsKeyIdentifier(
-						{ FinalizationPoint(100), model::FinalizationStage::Precommit },
-						dilution);
+				auto startKeyIdentifier = model::StepIdentifierToOtsKeyIdentifier({ FinalizationPoint(1), Prevote_Stage }, dilution);
+				auto endKeyIdentifier = model::StepIdentifierToOtsKeyIdentifier({ FinalizationPoint(100), Precommit_Stage }, dilution);
 				crypto::OtsTree::Create(test::GenerateKeyPair(), otsStream, { dilution, startKeyIdentifier, endKeyIdentifier });
+			}
+
+			static void SeedVotingStatus(const config::UserConfiguration& userConfig, FinalizationPoint point) {
+				auto votingStatusFilename = config::CatapultDataDirectory(userConfig.DataDirectory).rootDir().file("voting_status.dat");
+				VotingStatusFile(votingStatusFilename).save({ point, false, false });
 			}
 
 		private:
@@ -194,20 +210,21 @@ namespace catapult { namespace finalization {
 
 	namespace {
 		template<typename TCheckState>
-		void RunFinalizationTaskTest(TestContext& context, TCheckState checkState) {
+		void RunFinalizationTaskTest(TestContext& context, size_t numRepetitions, TCheckState checkState) {
 			// Arrange:
 			mocks::SeedStorageWithFixedSizeBlocks(context.testState().state().storage(), 25);
 			context.initialize();
 			context.boot();
 
-			test::RunTaskTestPostBoot(context, 1, "finalization task", [&context, checkState](const auto& task) {
-				// Act: run task multiple times because results should be idempotent
-				auto result1 = task.Callback().get();
-				auto result2 = task.Callback().get();
+			test::RunTaskTestPostBoot(context, 1, "finalization task", [&context, numRepetitions, checkState](const auto& task) {
+				// Act: run task multiple times
+				std::vector<thread::TaskResult> taskResults;
+				for (auto i = 0u; i < numRepetitions; ++i)
+					taskResults.push_back(task.Callback().get());
 
 				// Assert:
-				EXPECT_EQ(thread::TaskResult::Continue, result1);
-				EXPECT_EQ(thread::TaskResult::Continue, result2);
+				for (auto i = 0u; i < numRepetitions; ++i)
+					EXPECT_EQ(thread::TaskResult::Continue, taskResults[i]) << "result at " << i;
 
 				checkState(context.aggregator(), context.testState().finalizationSubscriber(), context.proofStorage(), context.messages());
 			});
@@ -218,9 +235,13 @@ namespace catapult { namespace finalization {
 		// Arrange:
 		TestContext context;
 
-		RunFinalizationTaskTest(context, [](const auto& aggregator, const auto& subscriber, const auto& storage, const auto& messages) {
+		RunFinalizationTaskTest(context, 5, [&context](
+				const auto& aggregator,
+				const auto& subscriber,
+				const auto& storage,
+				const auto& messages) {
 			// Assert: check aggregator
-			EXPECT_EQ(FinalizationPoint(8), aggregator.view().minFinalizationPoint());
+			EXPECT_EQ(FinalizationPoint(5), aggregator.view().minFinalizationPoint());
 			EXPECT_EQ(FinalizationPoint(8), aggregator.view().maxFinalizationPoint());
 
 			// - subscriber and storage weren't called
@@ -229,43 +250,68 @@ namespace catapult { namespace finalization {
 
 			// - no messages were sent
 			EXPECT_TRUE(messages.empty());
+
+			// - voting status wasn't changed
+			auto votingStatus = context.votingStatus();
+			EXPECT_EQ(FinalizationPoint(8), votingStatus.Point);
+			EXPECT_FALSE(votingStatus.HasSentPrevote);
+			EXPECT_FALSE(votingStatus.HasSentPrecommit);
 		});
 	}
 
-	TEST(TEST_CLASS, CanRunFinalizationTaskWhenThereArePendingFinalizedBlocks) {
-		// Arrange:
-		TestContext context;
-		context.createCompletedRound();
+	namespace {
+		void AssertCanRunFinalizationTaskWhenThereArePendingFinalizedBlocks(
+				size_t numRepetitions,
+				FinalizationPoint expectedMaxFinalizationPoint) {
+			// Arrange:
+			TestContext context;
+			context.createCompletedRound();
 
-		const auto& expectedHash = context.hashes()[1];
-		RunFinalizationTaskTest(context, [expectedHash](
-				const auto& aggregator,
-				const auto& subscriber,
-				const auto& storage,
-				const auto& messages) {
-			// Assert: check aggregator
-			EXPECT_EQ(FinalizationPoint(8), aggregator.view().minFinalizationPoint());
-			EXPECT_EQ(FinalizationPoint(9), aggregator.view().maxFinalizationPoint());
+			const auto& expectedHash = context.hashes()[1];
+			RunFinalizationTaskTest(context, numRepetitions, [&context, expectedMaxFinalizationPoint, expectedHash](
+					const auto& aggregator,
+					const auto& subscriber,
+					const auto& storage,
+					const auto& messages) {
+				// Assert: check aggregator
+				EXPECT_EQ(FinalizationPoint(5), aggregator.view().minFinalizationPoint());
+				EXPECT_EQ(expectedMaxFinalizationPoint, aggregator.view().maxFinalizationPoint());
 
-			// - subscriber was called
-			const auto& subscriberParams = subscriber.finalizedBlockParams().params();
-			ASSERT_EQ(1u, subscriberParams.size());
-			EXPECT_EQ(Height(246), subscriberParams[0].Height);
-			EXPECT_EQ(expectedHash, subscriberParams[0].Hash);
-			EXPECT_EQ(FinalizationPoint(8), subscriberParams[0].Point);
+				// - subscriber was called
+				const auto& subscriberParams = subscriber.finalizedBlockParams().params();
+				ASSERT_EQ(1u, subscriberParams.size());
+				EXPECT_EQ(Height(246), subscriberParams[0].Height);
+				EXPECT_EQ(expectedHash, subscriberParams[0].Hash);
+				EXPECT_EQ(FinalizationPoint(8), subscriberParams[0].Point);
 
-			// - storage was called (proof step identifier comes from test::CreateMessage)
-			const auto& savedProofDescriptors = storage.savedProofDescriptors();
-			ASSERT_EQ(1u, savedProofDescriptors.size());
-			EXPECT_EQ(Height(246), savedProofDescriptors[0].Height);
-			EXPECT_EQ(expectedHash, savedProofDescriptors[0].Hash);
-			EXPECT_EQ(FinalizationPoint(8), savedProofDescriptors[0].Point);
+				// - storage was called (proof step identifier comes from test::CreateMessage)
+				const auto& savedProofDescriptors = storage.savedProofDescriptors();
+				ASSERT_EQ(1u, savedProofDescriptors.size());
+				EXPECT_EQ(Height(246), savedProofDescriptors[0].Height);
+				EXPECT_EQ(expectedHash, savedProofDescriptors[0].Hash);
+				EXPECT_EQ(FinalizationPoint(8), savedProofDescriptors[0].Point);
 
-			// - two messages were sent
-			ASSERT_EQ(2u, messages.size());
-			EXPECT_EQ(model::StepIdentifier({ FinalizationPoint(8), model::FinalizationStage::Prevote }), messages[0]->StepIdentifier);
-			EXPECT_EQ(model::StepIdentifier({ FinalizationPoint(8), model::FinalizationStage::Precommit }), messages[1]->StepIdentifier);
-		});
+				// - two messages were sent
+				ASSERT_EQ(2u, messages.size());
+				EXPECT_EQ(model::StepIdentifier({ FinalizationPoint(8), Prevote_Stage }), messages[0]->StepIdentifier);
+				EXPECT_EQ(model::StepIdentifier({ FinalizationPoint(8), Precommit_Stage }), messages[1]->StepIdentifier);
+
+				// - voting status was changed
+				auto votingStatus = context.votingStatus();
+				EXPECT_EQ(FinalizationPoint(9), votingStatus.Point);
+				EXPECT_FALSE(votingStatus.HasSentPrevote);
+				EXPECT_FALSE(votingStatus.HasSentPrecommit);
+			});
+		}
+	}
+
+	TEST(TEST_CLASS, CanRunFinalizationTaskWhenThereArePendingFinalizedBlocks_OnePoll) {
+		AssertCanRunFinalizationTaskWhenThereArePendingFinalizedBlocks(1, FinalizationPoint(8));
+	}
+
+	TEST(TEST_CLASS, CanRunFinalizationTaskWhenThereArePendingFinalizedBlocks_MultiplePolls) {
+		// Assert: maxFinalizationPoint is updated at beginning of second task execution
+		AssertCanRunFinalizationTaskWhenThereArePendingFinalizedBlocks(5, FinalizationPoint(9));
 	}
 
 	// endregion

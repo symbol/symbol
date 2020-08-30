@@ -21,7 +21,7 @@
 #include "FinalizationOrchestratorService.h"
 #include "FinalizationBootstrapperService.h"
 #include "FinalizationConfiguration.h"
-#include "finalization/src/chain/FinalizationOrchestrator.h"
+#include "VotingStatusFile.h"
 #include "finalization/src/chain/MultiRoundMessageAggregator.h"
 #include "finalization/src/io/ProofStorageCache.h"
 #include "catapult/config/CatapultDataDirectory.h"
@@ -49,9 +49,10 @@ namespace catapult { namespace finalization {
 					: m_messageAggregator(GetMultiRoundMessageAggregator(locator))
 					, m_hooks(GetFinalizationServerHooks(locator))
 					, m_proofStorage(GetProofStorageCache(locator))
-					, m_otsStream(io::RawFile(GetOtsTreeFilename(state), io::OpenMode::Read_Append))
+					, m_otsStream(io::RawFile(QualifyFilename(state, "voting_ots_tree.dat"), io::OpenMode::Read_Append))
+					, m_votingStatusFile(QualifyFilename(state, "voting_status.dat"))
 					, m_orchestrator(
-							m_proofStorage.view().statistics().Point + FinalizationPoint(1),
+							m_votingStatusFile.load(),
 							[stepDuration = config.StepDuration, &messageAggregator = m_messageAggregator](auto point, auto time) {
 								return chain::CreateFinalizationStageAdvancer(point, time, stepDuration, messageAggregator);
 							},
@@ -64,17 +65,17 @@ namespace catapult { namespace finalization {
 
 		public:
 			void poll(Timestamp time) {
-				m_orchestrator.poll(time);
-
 				if (m_orchestrator.point() > m_messageAggregator.view().maxFinalizationPoint())
 					m_messageAggregator.modifier().setMaxFinalizationPoint(m_orchestrator.point());
 
+				m_orchestrator.poll(time);
+				m_votingStatusFile.save({ m_orchestrator.point(), m_orchestrator.hasSentPrevote(), m_orchestrator.hasSentPrecommit() });
 				m_finalizer();
 			}
 
 		private:
-			static std::string GetOtsTreeFilename(const extensions::ServiceState& state) {
-				return config::CatapultDataDirectory(state.config().User.DataDirectory).rootDir().file("voting_ots_tree.dat");
+			static std::string QualifyFilename(const extensions::ServiceState& state, const std::string& name) {
+				return config::CatapultDataDirectory(state.config().User.DataDirectory).rootDir().file(name);
 			}
 
 		private:
@@ -83,6 +84,7 @@ namespace catapult { namespace finalization {
 			io::ProofStorageCache& m_proofStorage;
 
 			io::FileStream m_otsStream;
+			VotingStatusFile m_votingStatusFile;
 			chain::FinalizationOrchestrator m_orchestrator;
 			action m_finalizer;
 		};

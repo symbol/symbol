@@ -130,7 +130,7 @@ namespace catapult { namespace io {
 
 	void FileProofStorage::saveProof(const model::FinalizationProof& proof) {
 		auto currentStatistics = statistics();
-		if (currentStatistics.Point >= proof.Point) {
+		if (currentStatistics.Point > proof.Point) {
 			std::ostringstream out;
 			out << "cannot save proof with point " << proof.Point << " when storage point is " << currentStatistics.Point;
 			CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());

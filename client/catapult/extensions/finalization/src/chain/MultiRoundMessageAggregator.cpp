@@ -210,8 +210,9 @@ namespace catapult { namespace chain {
 					maxResponseSize,
 					finalizationPoint,
 					previousFinalizedHeightHashPair,
-					roundMessageAggregatorFactory))
-	{}
+					roundMessageAggregatorFactory)) {
+		CATAPULT_LOG(debug) << "creating multi round message aggregator starting at point " << finalizationPoint;
+	}
 
 	MultiRoundMessageAggregator::~MultiRoundMessageAggregator() = default;
 

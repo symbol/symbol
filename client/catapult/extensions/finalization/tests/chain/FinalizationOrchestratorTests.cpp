@@ -148,11 +148,14 @@ namespace catapult { namespace chain {
 
 		class TestContext {
 		public:
-			explicit TestContext(FinalizationPoint point)
+			explicit TestContext(FinalizationPoint point) : TestContext({ point, false, false })
+			{}
+
+			explicit TestContext(const VotingStatus& votingStatus)
 					: m_pMessageFactory(std::make_unique<MockFinalizationMessageFactory>())
 					, m_pMessageFactoryRaw(m_pMessageFactory.get())
 					, m_orchestrator(
-							point,
+							votingStatus,
 							[this](auto stageAdvancerPoint, auto time) {
 								auto pStageAdvancer = std::make_unique<MockFinalizationStageAdvancer>(stageAdvancerPoint, time);
 								m_stageAdvancers.push_back(pStageAdvancer.get());
@@ -445,6 +448,55 @@ namespace catapult { namespace chain {
 		ASSERT_EQ(2u, context.messages().size());
 		AssertPrevote(*context.messages()[0], FinalizationPoint(3));
 		AssertPrecommit(*context.messages()[1], FinalizationPoint(3), Height(123), hash);
+
+		ASSERT_EQ(2u, context.stageAdvancers().size());
+		EXPECT_EQ(FinalizationPoint(4), context.stageAdvancers().back()->point());
+		EXPECT_EQ(Timestamp(100), context.stageAdvancers().back()->time());
+		EXPECT_EQ(std::vector<Timestamp>(), context.stageAdvancers().back()->times());
+	}
+
+	TEST(TEST_CLASS, PollCanProgressThroughEntireRoundInOneCall_PreviouslySentPrevote) {
+		// Arrange:
+		TestContext context({ FinalizationPoint(3), true, false });
+
+		auto hash = test::GenerateRandomByteArray<Hash256>();
+		context.createCompletedStageAdvancer({ Height(123), hash });
+
+		// Act:
+		context.orchestrator().poll(Timestamp(100));
+
+		// Assert:
+		EXPECT_EQ(FinalizationPoint(4), context.orchestrator().point());
+		EXPECT_FALSE(context.orchestrator().hasSentPrevote());
+		EXPECT_FALSE(context.orchestrator().hasSentPrecommit());
+
+		EXPECT_EQ(std::vector<MessageType>({ MessageType::Precommit }), context.messageFactory().messageTypes());
+		ASSERT_EQ(1u, context.messages().size());
+		AssertPrecommit(*context.messages()[0], FinalizationPoint(3), Height(123), hash);
+
+		ASSERT_EQ(2u, context.stageAdvancers().size());
+		EXPECT_EQ(FinalizationPoint(4), context.stageAdvancers().back()->point());
+		EXPECT_EQ(Timestamp(100), context.stageAdvancers().back()->time());
+		EXPECT_EQ(std::vector<Timestamp>(), context.stageAdvancers().back()->times());
+	}
+
+	TEST(TEST_CLASS, PollCanProgressThroughEntireRoundInOneCall_PreviouslySentPrecommit) {
+		// Arrange:
+		TestContext context({ FinalizationPoint(3), true, true });
+
+		auto hash = test::GenerateRandomByteArray<Hash256>();
+		context.createCompletedStageAdvancer({ Height(123), hash });
+
+		// Act:
+		context.orchestrator().poll(Timestamp(100));
+
+		// Assert:
+		EXPECT_EQ(FinalizationPoint(4), context.orchestrator().point());
+		EXPECT_FALSE(context.orchestrator().hasSentPrevote());
+		EXPECT_FALSE(context.orchestrator().hasSentPrecommit());
+
+		EXPECT_EQ(std::vector<MessageType>(), context.messageFactory().messageTypes());
+		ASSERT_EQ(0u, context.messages().size());
 
 		ASSERT_EQ(2u, context.stageAdvancers().size());
 		EXPECT_EQ(FinalizationPoint(4), context.stageAdvancers().back()->point());

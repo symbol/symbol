@@ -30,6 +30,18 @@ namespace catapult {
 
 namespace catapult { namespace chain {
 
+	/// Voting status information.
+	struct VotingStatus {
+		/// Current finalization point.
+		FinalizationPoint Point;
+
+		/// \c true if prevote has been sent for current point.
+		bool HasSentPrevote = false;
+
+		/// \c true if precommit has been sent for current point.
+		bool HasSentPrecommit = false;
+	};
+
 	/// Orchestrates finalization progress.
 	class FinalizationOrchestrator {
 	private:
@@ -37,9 +49,9 @@ namespace catapult { namespace chain {
 		using MessageSink = consumer<std::unique_ptr<model::FinalizationMessage>&&>;
 
 	public:
-		/// Creates an orchestrator around \a point, \a stageAdvancerFactory, \a messageSink and \a pMessageFactory.
+		/// Creates an orchestrator around \a votingStatus, \a stageAdvancerFactory, \a messageSink and \a pMessageFactory.
 		FinalizationOrchestrator(
-				FinalizationPoint point,
+				const VotingStatus& votingStatus,
 				const StageAdvancerFactory& stageAdvancerFactory,
 				const MessageSink& messageSink,
 				std::unique_ptr<FinalizationMessageFactory>&& pMessageFactory);

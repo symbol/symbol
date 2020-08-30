@@ -27,17 +27,21 @@
 namespace catapult { namespace chain {
 
 	FinalizationOrchestrator::FinalizationOrchestrator(
-			FinalizationPoint point,
+			const VotingStatus& votingStatus,
 			const StageAdvancerFactory& stageAdvancerFactory,
 			const MessageSink& messageSink,
 			std::unique_ptr<FinalizationMessageFactory>&& pMessageFactory)
-			: m_pointRaw(point.unwrap())
+			: m_pointRaw(votingStatus.Point.unwrap())
 			, m_stageAdvancerFactory(stageAdvancerFactory)
 			, m_messageSink(messageSink)
 			, m_pMessageFactory(std::move(pMessageFactory))
-			, m_hasSentPrevote(false)
-			, m_hasSentPrecommit(false)
-	{}
+			, m_hasSentPrevote(votingStatus.HasSentPrevote)
+			, m_hasSentPrecommit(votingStatus.HasSentPrecommit) {
+		CATAPULT_LOG(debug)
+				<< "creating finalization orchestrator starting at point " << m_pointRaw
+				<< " (has sent prevote? " << m_hasSentPrevote << ")"
+				<< " (has sent precommit? " << m_hasSentPrecommit << ")";
+	}
 
 	FinalizationPoint FinalizationOrchestrator::point() const {
 		return FinalizationPoint(m_pointRaw);
@@ -52,8 +56,9 @@ namespace catapult { namespace chain {
 	}
 
 	void FinalizationOrchestrator::poll(Timestamp time) {
+		// on first call to poll, don't call startRound in order to use original values for m_hasSentPrevote and m_hasSentPrecommit
 		if (!m_pStageAdvancer)
-			startRound(time);
+			m_pStageAdvancer = m_stageAdvancerFactory(point(), time);
 
 		if (!m_hasSentPrevote && m_pStageAdvancer->canSendPrevote(time)) {
 			m_messageSink(m_pMessageFactory->createPrevote(FinalizationPoint(m_pointRaw)));

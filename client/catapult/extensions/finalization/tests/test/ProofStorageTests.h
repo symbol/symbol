@@ -224,15 +224,15 @@ namespace catapult { namespace test {
 		}
 
 	public:
-		static void AssertCannotSaveProofWithFinalizationPointLessThanOrEqualToCurrentFinalizationPoint() {
+		static void AssertCannotSaveProofWithFinalizationPointLessThanCurrentFinalizationPoint() {
 			AssertCannotSaveProofAtFinalizationPoint(FinalizationPoint(1));
+			AssertCannotSaveProofAtFinalizationPoint(FinalizationPoint(8));
 			AssertCannotSaveProofAtFinalizationPoint(FinalizationPoint(9));
-			AssertCannotSaveProofAtFinalizationPoint(FinalizationPoint(10));
 		}
 
-		static void AssertCanSaveProofWithFinalizationPointGreaterThanCurrentFinalizationPoint() {
+		static void AssertCanSaveProofWithFinalizationPointGreaterThanOrEqualToCurrentFinalizationPoint() {
+			AssertCanSaveProofAtFinalizationPoint(FinalizationPoint(10));
 			AssertCanSaveProofAtFinalizationPoint(FinalizationPoint(11));
-			AssertCanSaveProofAtFinalizationPoint(FinalizationPoint(12));
 			AssertCanSaveProofAtFinalizationPoint(FinalizationPoint(110));
 			AssertCanSaveProofAtFinalizationPoint(FinalizationPoint(150));
 		}
@@ -438,8 +438,8 @@ namespace catapult { namespace test {
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, SavingProofWithFinalizationPointHigherThanCurrentFinalizationPointAltersFinalizationIndexes) \
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CanLoadNewlySavedProof) \
 	\
-	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotSaveProofWithFinalizationPointLessThanOrEqualToCurrentFinalizationPoint) \
-	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CanSaveProofWithFinalizationPointGreaterThanCurrentFinalizationPoint) \
+	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotSaveProofWithFinalizationPointLessThanCurrentFinalizationPoint) \
+	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CanSaveProofWithFinalizationPointGreaterThanOrEqualToCurrentFinalizationPoint) \
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotSaveProofWithHeightLessThanCurrentHeight) \
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CanSaveProofWithHeightGreaterThanOrEqualToCurrentHeight) \
 	\
