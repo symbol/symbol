@@ -6,7 +6,7 @@ required:
   - rawScore
 description: |
   Supplementary data stored for importance recalculation.
-  At each importance recalculation, existing buckets are shifted, the working bucket is finalized and a new working bucketis created.
+  At each importance recalculation, existing buckets are shifted, the working bucket is finalized and a new working bucket is created.
   Each bucket influences at most five importance recalculations.
 properties:
   startHeight:
@@ -20,4 +20,3 @@ properties:
   rawScore:
     $ref: "../../../schemas/Importance.yml"
     description: Importance score for this bucket. This is taken into account to calculate the latest account importance.
-    

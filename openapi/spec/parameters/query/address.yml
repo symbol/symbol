@@ -1,8 +1,8 @@
 name: address
 in: query
-description: | 
+description: |
   Filter by address involved in the transaction. 
-  An account's address is consider to be involved in the transaction when the account is the sender, recipient, or it is required to cosign the transaction.
+  An account's address is considered to be involved in the transaction when the account is the sender, recipient, or it is required to cosign the transaction.
   This filter cannot be combined with ``recipientAddress`` and ``signerPublicKey`` query params.
 schema:
   $ref: "../../schemas/AddressBase32.yml"
