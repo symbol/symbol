@@ -27,5 +27,6 @@ module.exports = {
 		const mongoHost = args.mongoHost || '127.0.0.1';
 		return `mongodb://${mongoHost}:27017/`;
 	})(),
-	networkId: catapult.model.networkInfo.networks.mijinTest.id
+	networkId: catapult.model.networkInfo.networks.mijinTest.id,
+	connectionPoolSize: 5
 };

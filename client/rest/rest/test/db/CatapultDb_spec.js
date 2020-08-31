@@ -68,7 +68,7 @@ describe('catapult db', () => {
 		const db = new CatapultDb(Object.assign({ networkId: Mijin_Test_Network }, DefaultPagingOptions));
 
 		// Act + Assert:
-		return db.connect(testDbOptions.url, 'test')
+		return db.connect(testDbOptions.url, 'test', testDbOptions.connectionPoolSize)
 			.then(() => test.db.populateDatabase(db, dbEntities))
 			.then(() => deleteIds(dbEntities))
 			.then(() => issueDbCommand(db))
@@ -373,7 +373,7 @@ describe('catapult db', () => {
 	describe('block at height', () => {
 		const runBlockAtHeightDbTest = (dbEntities, issueDbCommand, assertDbCommandResult) => {
 			const db = new CatapultDb(Object.assign({ networkId: Mijin_Test_Network }, DefaultPagingOptions));
-			return db.connect(testDbOptions.url, 'test')
+			return db.connect(testDbOptions.url, 'test', testDbOptions.connectionPoolSize)
 				.then(() => test.db.populateDatabase(db, dbEntities))
 				.then(() => issueDbCommand(db))
 				.then(assertDbCommandResult)
@@ -760,7 +760,7 @@ describe('catapult db', () => {
 			const db = new CatapultDb(Object.assign({ networkId: Mijin_Test_Network }, DefaultPagingOptions));
 
 			// Act + Assert:
-			return db.connect(testDbOptions.url, 'test')
+			return db.connect(testDbOptions.url, 'test', testDbOptions.connectionPoolSize)
 				.then(() => test.db.populateDatabase(db, dbEntities))
 				.then(() => issueDbCommand(db))
 				.then(assertDbCommandResult)
@@ -2392,7 +2392,7 @@ describe('catapult db', () => {
 			const db = new CatapultDb(Object.assign({ networkId: Mijin_Test_Network }, DefaultPagingOptions));
 
 			// Act + Assert:
-			return db.connect(testDbOptions.url, 'test')
+			return db.connect(testDbOptions.url, 'test', testDbOptions.connectionPoolSize)
 				.then(() => test.db.populateDatabase(db, dbEntities))
 				.then(() => issueDbCommand(db))
 				.then(assertDbCommandResult)

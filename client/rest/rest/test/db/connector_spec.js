@@ -35,7 +35,7 @@ describe('connector', () => {
 
 	it('can connect to database', () =>
 		// Act:
-		connector.connectToDatabase(testDbOptions.url, 'tokyo')
+		connector.connectToDatabase(testDbOptions.url, 'tokyo', testDbOptions.connectionPoolSize)
 			.then(client => {
 				connections.push(client);
 

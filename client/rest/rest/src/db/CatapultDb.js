@@ -132,8 +132,8 @@ class CatapultDb {
 		this.sanitizer = createSanitizer();
 	}
 
-	connect(url, dbName) {
-		return connector.connectToDatabase(url, dbName)
+	connect(url, dbName, connectionPoolSize) {
+		return connector.connectToDatabase(url, dbName, connectionPoolSize)
 			.then(client => {
 				this.client = client;
 				this.database = client.db();
