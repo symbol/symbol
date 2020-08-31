@@ -137,7 +137,7 @@ namespace catapult { namespace test {
 							<< "transaction" << open_document << "i" << i << close_document
 							<< finalize;
 
-					collection.insert_one(dependentDocument.view()).value();
+					collection.insert_one(dependentDocument.view());
 				}
 			}
 

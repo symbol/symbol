@@ -26,7 +26,18 @@
 #include <boost/log/detail/default_attribute_names.hpp>
 #include <boost/log/expressions.hpp>
 #include <boost/log/sinks.hpp>
+
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4244) /* possible loss of data */
+#endif
+
 #include <boost/log/support/date_time.hpp>
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+
 #include <boost/phoenix.hpp>
 #include <unordered_map>
 
