@@ -189,7 +189,7 @@ describe('secret locks db', () => {
 					db => db.secretLocks([ownerAddressTest1], options),
 					() => {
 						expect(queryPagedDocumentsSpy.calledOnce).to.equal(true);
-						expect(Object.keys(queryPagedDocumentsSpy.firstCall.args[2].$sort)[0]).to.equal('_id');
+						expect(Object.keys(queryPagedDocumentsSpy.firstCall.args[2])[0]).to.equal('_id');
 						queryPagedDocumentsSpy.restore();
 					}
 				);

@@ -35,9 +35,7 @@ describe('receipts routes', () => {
 			data: [],
 			pagination: {
 				pageNumber: 1,
-				pageSize: 10,
-				totalEntries: 0,
-				totalPages: 0
+				pageSize: 10
 			}
 		};
 
@@ -110,9 +108,7 @@ describe('receipts routes', () => {
 			],
 			pagination: {
 				pageNumber: 1,
-				pageSize: 10,
-				totalEntries: 2,
-				totalPages: 1
+				pageSize: 10
 			}
 		};
 
@@ -321,9 +317,7 @@ describe('receipts routes', () => {
 			data: [],
 			pagination: {
 				pageNumber: 1,
-				pageSize: 10,
-				totalEntries: 0,
-				totalPages: 0
+				pageSize: 10
 			}
 		};
 
@@ -364,9 +358,7 @@ describe('receipts routes', () => {
 			],
 			pagination: {
 				pageNumber: 1,
-				pageSize: 10,
-				totalEntries: 2,
-				totalPages: 1
+				pageSize: 10
 			}
 		};
 

@@ -183,9 +183,7 @@ describe('transaction routes', () => {
 					data: [fakeTransaction],
 					pagination: {
 						pageNumber: 1,
-						pageSize: 10,
-						totalEntries: 1,
-						totalPages: 1
+						pageSize: 10
 					}
 				};
 				const dbTransactionsFake = sinon.fake.resolves(fakePaginatedTransaction);

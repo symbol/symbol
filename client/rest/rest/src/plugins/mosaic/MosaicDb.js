@@ -42,16 +42,16 @@ class MosaicDb {
 	mosaics(ownerAddress, options) {
 		const sortingOptions = { id: '_id' };
 
-		const conditions = [];
+		let conditions = {};
 
 		const offsetCondition = buildOffsetCondition(options, sortingOptions);
 		if (offsetCondition)
-			conditions.push(offsetCondition);
+			conditions = Object.assign(conditions, offsetCondition);
 
 		if (undefined !== ownerAddress)
-			conditions.push({ 'mosaic.ownerAddress': Buffer.from(ownerAddress) });
+			conditions['mosaic.ownerAddress'] = Buffer.from(ownerAddress);
 
-		const sortConditions = { $sort: { [sortingOptions[options.sortField]]: options.sortDirection } };
+		const sortConditions = { [sortingOptions[options.sortField]]: options.sortDirection };
 		return this.catapultDb.queryPagedDocuments(conditions, [], sortConditions, 'mosaics', options);
 	}
 

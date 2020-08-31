@@ -61,9 +61,7 @@ describe('block routes', () => {
 				data: [fakeBlock],
 				pagination: {
 					pageNumber: 1,
-					pageSize: 10,
-					totalEntries: 1,
-					totalPages: 1
+					pageSize: 10
 				}
 			};
 			const dbBlocksFake = sinon.fake.resolves(fakePaginatedBlock);

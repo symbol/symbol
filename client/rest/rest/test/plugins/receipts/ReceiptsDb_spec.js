@@ -364,7 +364,7 @@ describe('receipts db', () => {
 					db => db.transactionStatements({}, options),
 					() => {
 						expect(queryPagedDocumentsSpy.calledOnce).to.equal(true);
-						expect(Object.keys(queryPagedDocumentsSpy.firstCall.args[2].$sort)[0]).to.equal('_id');
+						expect(Object.keys(queryPagedDocumentsSpy.firstCall.args[2])[0]).to.equal('_id');
 						queryPagedDocumentsSpy.restore();
 					}
 				);
@@ -559,7 +559,7 @@ describe('receipts db', () => {
 							db => db.artifactStatements(undefined, artifact.type, options),
 							() => {
 								expect(queryPagedDocumentsSpy.calledOnce).to.equal(true);
-								expect(Object.keys(queryPagedDocumentsSpy.firstCall.args[2].$sort)[0]).to.equal('_id');
+								expect(Object.keys(queryPagedDocumentsSpy.firstCall.args[2])[0]).to.equal('_id');
 								queryPagedDocumentsSpy.restore();
 							}
 						);

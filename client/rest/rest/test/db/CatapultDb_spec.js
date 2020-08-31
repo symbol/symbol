@@ -338,7 +338,7 @@ describe('catapult db', () => {
 					db => db.blocks(undefined, undefined, options),
 					() => {
 						expect(queryPagedDocumentsSpy.calledOnce).to.equal(true);
-						expect(Object.keys(queryPagedDocumentsSpy.firstCall.args[2].$sort)[0]).to.equal('block.height');
+						expect(Object.keys(queryPagedDocumentsSpy.firstCall.args[2])[0]).to.equal('block.height');
 						queryPagedDocumentsSpy.restore();
 					}
 				);
@@ -502,137 +502,6 @@ describe('catapult db', () => {
 				block => expect(block).to.deep.equal(stripBlockFields(seedBlock, ['statementMerkleTree']))
 			);
 		});
-	});
-
-	describe('blocks from height', () => {
-		const createBlocks = (height, numBlocks) => {
-			const blocks = [];
-			// the blocks are created in descending height order
-			// in order to make later comparisons easier using .slice()
-			for (let i = 0; i < numBlocks; ++i)
-				blocks.push(test.db.createDbBlock(height + numBlocks - 1 - i));
-
-			return blocks;
-		};
-
-		const createDbEntities = numBlocks => ({
-			chainStatistic: test.db.createChainStatistic(Default_Height + numBlocks - 1, 0, 0),
-			blocks: createBlocks(Default_Height, numBlocks)
-		});
-
-		it('returns empty array for unknown height', () =>
-			// Assert:
-			runDbTest(
-				createDbEntities(1),
-				db => db.blocksFrom(Long.fromNumber(Default_Height + 1), 10),
-				blocks => expect(blocks).to.deep.equal([])
-			));
-
-		const assertBlocks = (actualBlocks, dbEntities, startHeight, numBlocks) => {
-			// Assert: actual blocks should contain `numBlocks` blocks from `startHeight`.
-			// dbEntities.blocks are sorted in descending order, so:
-			// 1. inside the expected list find the index of element with height `startHeight`,
-			// 2. go back numBlocks elements to find element with largest height.
-			const endElement = dbEntities.blocks.findIndex(entity => entity.block.height.toNumber() === startHeight) + 1;
-			const startElement = endElement - numBlocks;
-			expect(actualBlocks.length).to.equal(numBlocks);
-			expect(actualBlocks).to.deep.equal(dbEntities.blocks.slice(startElement, endElement).map(block =>
-				stripExtraneousBlockInformation(block)));
-		};
-
-		it('returns at most available blocks', () => {
-			// Arrange:
-			const dbEntities = createDbEntities(5);
-
-			// Assert:
-			return runDbTest(
-				dbEntities,
-				db => db.blocksFrom(Default_Height + 2, 10),
-				blocks => assertBlocks(blocks, dbEntities, Default_Height + 2, 3)
-			);
-		});
-
-		it('respects requested number of blocks', () => {
-			// Arrange:
-			const dbEntities = createDbEntities(10);
-
-			// Assert:
-			return runDbTest(
-				dbEntities,
-				db => db.blocksFrom(Default_Height + 4, 3),
-				blocks => assertBlocks(blocks, dbEntities, Default_Height + 4, 3)
-			);
-		});
-
-		it('returns empty array when requesting 0 blocks', () =>
-			// Arrange:
-			runDbTest(
-				createDbEntities(10),
-				db => db.blocksFrom(Default_Height + 4, 0),
-				blocks => expect(blocks).to.deep.equal([])
-			));
-
-		it('returns top blocks when requesting from "0" height', () => {
-			// Arrange:
-			const dbEntities = createDbEntities(34);
-
-			// Assert:
-			return runDbTest(
-				dbEntities,
-				db => db.blocksFrom(0, 10),
-				blocks => assertBlocks(blocks, dbEntities, Default_Height + 24, 10)
-			);
-		});
-
-		it('returns top blocks when requesting from "0" height even if more blocks are in the database', () => {
-			// Arrange: set height to 4
-			const dbEntities = {
-				chainStatistic: test.db.createChainStatistic(4, 0, 0),
-				blocks: createBlocks(1, 10)
-			};
-
-			// Assert:
-			return runDbTest(
-				dbEntities,
-				db => db.blocksFrom(0, 10),
-				blocks => assertBlocks(blocks, dbEntities, 1, 4)
-			);
-		});
-
-		it('returns last block when requesting from "0" height with alignment 1', () => {
-			// Arrange: set height to 134
-			const dbEntities = {
-				chainStatistic: test.db.createChainStatistic(134, 0, 0),
-				blocks: createBlocks(120, 15)
-			};
-
-			// Assert:
-			return runDbTest(
-				dbEntities,
-				db => db.blocksFrom(0, 1),
-				blocks => assertBlocks(blocks, dbEntities, 134, 1)
-			);
-		});
-
-		it('returns blocks sorted in descending order', () =>
-			// Arrange: try to insert in random order
-			runDbTest(
-				{
-					chainStatistic: test.db.createChainStatistic(Default_Height + 2, 0, 0),
-					blocks: [
-						test.db.createDbBlock(Default_Height + 2),
-						test.db.createDbBlock(Default_Height),
-						test.db.createDbBlock(Default_Height + 1)
-					]
-				},
-				db => db.blocksFrom(Default_Height, 5),
-				// Assert: blocks are returned in proper order - descending by height
-				blocks => {
-					expect(blocks.length).to.equal(3);
-					for (let i = 0; 3 > i; ++i)
-						expect(blocks[i].block.height).to.deep.equal(Long.fromNumber(Default_Height + 2 - i));
-				}
-			));
 	});
 
 	describe('latest blocks fee multiplier', () => {
@@ -1035,84 +904,7 @@ describe('catapult db', () => {
 		});
 	});
 
-	describe('queryPagedDocuments', () => {
-		describe('calls queryPagedDocumentsWithConditions with', () => {
-			const sortConditions = { $sort: { _id: 1 } };
-			const options = { pageSize: 10, pageNumber: 1 };
-
-			const commonExpectedConditions = [
-				{ $sort: { _id: 1 } },
-				{
-					$facet: {
-						data: [
-							{ $skip: 0 },
-							{ $limit: options.pageSize },
-							{ $set: { id: '$_id' } },
-							{ $unset: ['_id'] }
-						],
-						pagination: [
-							{ $count: 'totalEntries' },
-							{ $set: { pageNumber: options.pageNumber, pageSize: options.pageSize } }
-						]
-					}
-				}
-			];
-
-			it('no conditions', () => {
-				const queryPagedDocumentsWithConditionsSpy = sinon.spy(CatapultDb.prototype, 'queryPagedDocumentsWithConditions');
-				const conditions = [];
-
-				// Act + Assert:
-				return runDbTest(
-					{},
-					db => db.queryPagedDocuments(conditions, [], sortConditions, 'accounts', options),
-					() => {
-						expect(queryPagedDocumentsWithConditionsSpy.calledOnce).to.equal(true);
-						expect(queryPagedDocumentsWithConditionsSpy.firstCall.args[0]).to.deep.equal([...commonExpectedConditions]);
-						queryPagedDocumentsWithConditionsSpy.restore();
-					}
-				);
-			});
-
-			it('single condition', () => {
-				const queryPagedDocumentsWithConditionsSpy = sinon.spy(CatapultDb.prototype, 'queryPagedDocumentsWithConditions');
-				const conditions = [{ height: 10 }];
-
-				// Act + Assert:
-				return runDbTest(
-					{},
-					db => db.queryPagedDocuments(conditions, [], sortConditions, 'accounts', options),
-					() => {
-						expect(queryPagedDocumentsWithConditionsSpy.calledOnce).to.equal(true);
-						expect(queryPagedDocumentsWithConditionsSpy.firstCall.args[0]).to.deep.equal([
-							{ $match: conditions[0] }, ...commonExpectedConditions
-						]);
-						queryPagedDocumentsWithConditionsSpy.restore();
-					}
-				);
-			});
-
-			it('multiple conditions', () => {
-				const queryPagedDocumentsWithConditionsSpy = sinon.spy(CatapultDb.prototype, 'queryPagedDocumentsWithConditions');
-				const conditions = [{ height: 10 }, { type: 100 }];
-
-				// Act + Assert:
-				return runDbTest(
-					{},
-					db => db.queryPagedDocuments(conditions, [], sortConditions, 'accounts', options),
-					() => {
-						expect(queryPagedDocumentsWithConditionsSpy.calledOnce).to.equal(true);
-						expect(queryPagedDocumentsWithConditionsSpy.firstCall.args[0]).to.deep.equal([
-							{ $match: { $and: [conditions[0], conditions[1]] } }, ...commonExpectedConditions
-						]);
-						queryPagedDocumentsWithConditionsSpy.restore();
-					}
-				);
-			});
-		});
-	});
-
-	describe('query paged documents with conditions', () => {
+	describe('query paged documents', () => {
 		const account1 = {
 			publicKey: test.random.publicKey(),
 			address: keyToAddress(test.random.publicKey())
@@ -1122,23 +914,21 @@ describe('catapult db', () => {
 			address: keyToAddress(test.random.publicKey())
 		};
 		const { createObjectId } = test.db;
-		const sortConditions = { $sort: { _id: 1 } };
+		const sortConditions = { _id: 1 };
 		const options = { pageSize: 10, pageNumber: 1 };
 
 		describe('can return empty result', () => {
 			it('empty db', () => {
 				// Arrange
-				const conditions = [];
+				const conditions = {};
 
 				// Act + Assert:
 				return runDbTest(
 					{},
-					db => db.queryPagedDocumentsWithConditions(conditions, [], sortConditions, 'accounts', options),
+					db => db.queryPagedDocuments(conditions, [], sortConditions, 'accounts', options),
 					page => {
 						expect(page.data).to.deep.equal([]);
-						expect(page.pagination).to.deep.equal({
-							totalEntries: 0, pageNumber: 1, pageSize: options.pageSize, totalPages: 0
-						});
+						expect(page.pagination).to.deep.equal({ pageNumber: 1, pageSize: options.pageSize });
 					}
 				);
 			});
@@ -1149,17 +939,15 @@ describe('catapult db', () => {
 					{ _id: createObjectId(10), account: { addressHeight: 10 } },
 					{ _id: createObjectId(30), account: { addressHeight: 30 } }
 				];
-				const conditions = [{ $match: { 'account.addressHeight': 20 } }];
+				const conditions = { 'account.addressHeight': 20 };
 
 				// Act + Assert:
 				return runDbTest(
 					{ accounts: dbAccounts() },
-					db => db.queryPagedDocumentsWithConditions(conditions, [], sortConditions, 'accounts', options),
+					db => db.queryPagedDocuments(conditions, [], sortConditions, 'accounts', options),
 					page => {
 						expect(page.data).to.deep.equal([]);
-						expect(page.pagination).to.deep.equal({
-							totalEntries: 0, pageNumber: 1, pageSize: options.pageSize, totalPages: 0
-						});
+						expect(page.pagination).to.deep.equal({ pageNumber: 1, pageSize: options.pageSize });
 					}
 				);
 			});
@@ -1174,12 +962,12 @@ describe('catapult db', () => {
 			]);
 
 			it('no conditions', () => {
-				const conditions = [];
+				const conditions = {};
 
 				// Act + Assert:
 				return runDbTest(
 					{ accounts: accounts() },
-					db => db.queryPagedDocumentsWithConditions(conditions, [], sortConditions, 'accounts', options),
+					db => db.queryPagedDocuments(conditions, [], sortConditions, 'accounts', options),
 					page => {
 						expect(page.data.length).to.equal(3);
 						expect(page.data[0].id).to.deep.equal(createObjectId(10));
@@ -1190,12 +978,12 @@ describe('catapult db', () => {
 			});
 
 			it('one condition', () => {
-				const conditions = [{ $match: { 'account.addressHeight': 20 } }];
+				const conditions = { 'account.addressHeight': 20 };
 
 				// Act + Assert:
 				return runDbTest(
 					{ accounts: accounts() },
-					db => db.queryPagedDocumentsWithConditions(conditions, [], sortConditions, 'accounts', options),
+					db => db.queryPagedDocuments(conditions, [], sortConditions, 'accounts', options),
 					page => {
 						expect(page.data.length).to.equal(1);
 						expect(page.data[0].id).to.deep.equal(createObjectId(20));
@@ -1204,19 +992,15 @@ describe('catapult db', () => {
 			});
 
 			it('multiple conditions', () => {
-				const conditions = [{
-					$match: {
-						$and: [
-							{ 'account.address': account2.address },
-							{ 'account.addressHeight': { $gt: 20 } }
-						]
-					}
-				}];
+				const conditions = {
+					'account.address': account2.address,
+					'account.addressHeight': { $gt: 20 }
+				};
 
 				// Act + Assert:
 				return runDbTest(
 					{ accounts: accounts() },
-					db => db.queryPagedDocumentsWithConditions(conditions, [], sortConditions, 'accounts', options),
+					db => db.queryPagedDocuments(conditions, [], sortConditions, 'accounts', options),
 					page => {
 						expect(page.data.length).to.equal(1);
 						expect(page.data[0].id).to.deep.equal(createObjectId(30));
@@ -1245,18 +1029,18 @@ describe('catapult db', () => {
 				// Act + Assert:
 				runDbTest(
 					{ blocks: blocks() },
-					db => db.queryPagedDocumentsWithConditions([], [], sortConditions, 'blocks', options),
+					db => db.queryPagedDocuments({}, [], sortConditions, 'blocks', options),
 					page => {
 						expect(page.data[0]._id).to.equal(undefined);
 						expect(page.data[0].id).to.deep.equal(createObjectId(10));
 					}
 				));
 
-			it('id is used when is removed instead of _id', () =>
+			it('_id is gone when explicitly removed and id isn\'t present in the result either', () =>
 				// Act + Assert:
 				runDbTest(
 					{ blocks: blocks() },
-					db => db.queryPagedDocumentsWithConditions([], ['id'], sortConditions, 'blocks', options),
+					db => db.queryPagedDocuments({}, ['_id'], sortConditions, 'blocks', options),
 					page => {
 						expect(page.data[0]._id).to.equal(undefined);
 						expect(page.data[0].id).to.equal(undefined);
@@ -1286,7 +1070,7 @@ describe('catapult db', () => {
 				// Act + Assert:
 				return runDbTest(
 					{ blocks: blocks() },
-					db => db.queryPagedDocumentsWithConditions([], removedFields, sortConditions, 'blocks', options),
+					db => db.queryPagedDocuments({}, removedFields, sortConditions, 'blocks', options),
 					page => {
 						expect(page.data.length).to.equal(1);
 						expect(page.data[0]).to.deep.equal({
@@ -1304,7 +1088,7 @@ describe('catapult db', () => {
 				// Act + Assert:
 				return runDbTest(
 					{ blocks: blocks() },
-					db => db.queryPagedDocumentsWithConditions([], removedFields, sortConditions, 'blocks', options),
+					db => db.queryPagedDocuments({}, removedFields, sortConditions, 'blocks', options),
 					page => {
 						expect(page.data.length).to.equal(1);
 						expect(page.data[0]).to.deep.equal({
@@ -1329,7 +1113,7 @@ describe('catapult db', () => {
 				// Act + Assert:
 				runDbTest(
 					{ blocks: blocks() },
-					db => db.queryPagedDocumentsWithConditions([], [], { $sort: { _id: 1 } }, 'blocks', options),
+					db => db.queryPagedDocuments({}, [], { _id: 1 }, 'blocks', options),
 					page => {
 						expect(page.data.length).to.equal(3);
 						expect(page.data[0].id).to.deep.equal(createObjectId(10));
@@ -1342,7 +1126,7 @@ describe('catapult db', () => {
 				// Act + Assert:
 				runDbTest(
 					{ blocks: blocks() },
-					db => db.queryPagedDocumentsWithConditions([], [], { $sort: { _id: -1 } }, 'blocks', options),
+					db => db.queryPagedDocuments({}, [], { _id: -1 }, 'blocks', options),
 					page => {
 						expect(page.data.length).to.equal(3);
 						expect(page.data[0].id).to.deep.equal(createObjectId(30));
@@ -1355,7 +1139,7 @@ describe('catapult db', () => {
 				// Act + Assert:
 				runDbTest(
 					{ blocks: blocks() },
-					db => db.queryPagedDocumentsWithConditions([], [], { $sort: { 'block.type': 1 } }, 'blocks', options),
+					db => db.queryPagedDocuments({}, [], { 'block.type': 1 }, 'blocks', options),
 					page => {
 						expect(page.data.length).to.equal(3);
 						expect(page.data[0].id).to.deep.equal(createObjectId(20));
@@ -1375,7 +1159,7 @@ describe('catapult db', () => {
 				// Act + Assert:
 				runDbTest(
 					{ accounts: accounts(), blocks: blocks(), transactions: transactions() },
-					db => db.queryPagedDocumentsWithConditions([], [], sortConditions, 'blocks', options),
+					db => db.queryPagedDocuments({}, [], sortConditions, 'blocks', options),
 					page => {
 						expect(page.data.length).to.equal(1);
 						expect(page.data[0].id).to.deep.equal(createObjectId(20));
@@ -1399,12 +1183,10 @@ describe('catapult db', () => {
 					// Act + Assert:
 					return runDbTest(
 						{ blocks: blocks(25 + 10) },
-						db => db.queryPagedDocumentsWithConditions([], [], { $sort: { id: 1 } }, 'blocks', { pageSize, pageNumber: 1 }),
+						db => db.queryPagedDocuments({}, [], { id: 1 }, 'blocks', { pageSize, pageNumber: 1 }),
 						page => {
 							expect(page.data.length).to.equal(25);
-							expect(page.pagination).to.deep.equal({
-								totalEntries: 25 + 10, pageNumber: 1, pageSize: 25, totalPages: 2
-							});
+							expect(page.pagination).to.deep.equal({ pageNumber: 1, pageSize: 25 });
 						}
 					);
 				});
@@ -1415,12 +1197,10 @@ describe('catapult db', () => {
 					// Act + Assert:
 					return runDbTest(
 						{ blocks: blocks(10) },
-						db => db.queryPagedDocumentsWithConditions([], [], { $sort: { id: 1 } }, 'blocks', { pageSize, pageNumber: 1 }),
+						db => db.queryPagedDocuments({}, [], { id: 1 }, 'blocks', { pageSize, pageNumber: 1 }),
 						page => {
 							expect(page.data.length).to.equal(10);
-							expect(page.pagination).to.deep.equal({
-								totalEntries: 10, pageNumber: 1, pageSize: 25, totalPages: 1
-							});
+							expect(page.pagination).to.deep.equal({ pageNumber: 1, pageSize: 25 });
 						}
 					);
 				});
@@ -1432,18 +1212,16 @@ describe('catapult db', () => {
 						// Act + Assert:
 						runDbTest(
 							{ blocks: blocks(12) },
-							db => db.queryPagedDocumentsWithConditions(
+							db => db.queryPagedDocuments(
+								{},
 								[],
-								[],
-								{ $sort: { id: 1 } },
+								{ id: 1 },
 								'blocks',
 								{ pageSize: 10, pageNumber }
 							),
 							page => {
 								expect(page.data.length).to.equal(expectedNumberOfElements);
-								expect(page.pagination).to.deep.equal({
-									totalEntries: 12, pageNumber, pageSize: 10, totalPages: 2
-								});
+								expect(page.pagination).to.deep.equal({ pageNumber, pageSize: 10 });
 							}
 						));
 				};
@@ -1462,7 +1240,7 @@ describe('catapult db', () => {
 				// Act + Assert:
 				runDbTest(
 					{ blocks: blocks() },
-					db => db.queryPagedDocumentsWithConditions([], [], sortConditions, 'blocks', options),
+					db => db.queryPagedDocuments({}, [], sortConditions, 'blocks', options),
 					page => {
 						expect(page.data[0].block.height instanceof Long).to.be.equal(true);
 					}
@@ -1729,7 +1507,7 @@ describe('catapult db', () => {
 					db => db.transactions(TransactionGroups.confirmed, [], options),
 					() => {
 						expect(queryPagedDocumentsSpy.calledOnce).to.equal(true);
-						expect(Object.keys(queryPagedDocumentsSpy.firstCall.args[2].$sort)[0]).to.equal('_id');
+						expect(Object.keys(queryPagedDocumentsSpy.firstCall.args[2])[0]).to.equal('_id');
 						queryPagedDocumentsSpy.restore();
 					}
 				);
@@ -2170,7 +1948,7 @@ describe('catapult db', () => {
 					db => db.accounts(undefined, undefined, options),
 					() => {
 						expect(queryPagedDocumentsSpy.calledOnce).to.equal(true);
-						expect(Object.keys(queryPagedDocumentsSpy.firstCall.args[2].$sort)[0]).to.equal('_id');
+						expect(Object.keys(queryPagedDocumentsSpy.firstCall.args[2])[0]).to.equal('_id');
 						queryPagedDocumentsSpy.restore();
 					}
 				);

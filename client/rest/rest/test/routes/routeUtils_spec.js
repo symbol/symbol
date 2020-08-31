@@ -571,9 +571,7 @@ describe('route utils', () => {
 					data: [{}],
 					pagination: {
 						pageNumber: 1,
-						pageSize: 10,
-						totalEntries: 1,
-						totalPages: 1
+						pageSize: 10
 					}
 				};
 
@@ -589,9 +587,7 @@ describe('route utils', () => {
 					data: [],
 					pagination: {
 						pageNumber: 1,
-						pageSize: 10,
-						totalEntries: 0,
-						totalPages: 0
+						pageSize: 10
 					}
 				};
 

@@ -42,9 +42,7 @@ describe('account routes', () => {
 				data: [],
 				pagination: {
 					pageNumber: 1,
-					pageSize: 10,
-					totalEntries: 0,
-					totalPages: 0
+					pageSize: 10
 				}
 			};
 
@@ -81,9 +79,7 @@ describe('account routes', () => {
 				],
 				pagination: {
 					pageNumber: 1,
-					pageSize: 10,
-					totalEntries: 2,
-					totalPages: 1
+					pageSize: 10
 				}
 			};
 

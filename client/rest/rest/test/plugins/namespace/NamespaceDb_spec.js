@@ -244,7 +244,7 @@ describe('namespace db', () => {
 					db => db.namespaces(undefined, undefined, undefined, undefined, options),
 					() => {
 						expect(queryPagedDocumentsSpy.calledOnce).to.equal(true);
-						expect(Object.keys(queryPagedDocumentsSpy.firstCall.args[2].$sort)[0]).to.equal('_id');
+						expect(Object.keys(queryPagedDocumentsSpy.firstCall.args[2])[0]).to.equal('_id');
 						queryPagedDocumentsSpy.restore();
 					}
 				);

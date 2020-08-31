@@ -45,33 +45,33 @@ class ReceiptsDb {
 	transactionStatements(filters, options) {
 		const sortingOptions = { id: '_id' };
 
-		const conditions = [];
+		let conditions = {};
 
 		const offsetCondition = buildOffsetCondition(options, sortingOptions);
 		if (offsetCondition)
-			conditions.push(offsetCondition);
+			conditions = Object.assign(conditions, offsetCondition);
 
 		if (undefined !== filters.height)
-			conditions.push({ 'statement.height': convertToLong(filters.height) });
+			conditions['statement.height'] = convertToLong(filters.height);
 
 		if (undefined !== filters.receiptType)
-			conditions.push({ 'statement.receipts.type': { $in: filters.receiptType } });
+			conditions['statement.receipts.type'] = { $in: filters.receiptType };
 
 		if (undefined !== filters.recipientAddress)
-			conditions.push({ 'statement.receipts.recipientAddress': Buffer.from(filters.recipientAddress) });
+			conditions['statement.receipts.recipientAddress'] = Buffer.from(filters.recipientAddress);
 
 		if (undefined !== filters.senderAddress)
-			conditions.push({ 'statement.receipts.senderAddress': Buffer.from(filters.senderAddress) });
+			conditions['statement.receipts.senderAddress'] = Buffer.from(filters.senderAddress);
 
 		if (undefined !== filters.targetAddress)
-			conditions.push({ 'statement.receipts.targetAddress': Buffer.from(filters.targetAddress) });
+			conditions['statement.receipts.targetAddress'] = Buffer.from(filters.targetAddress);
 
 		if (undefined !== filters.artifactId) {
 			const artifactIdType = isNamespaceId(filters.artifactId) ? 'namespaceId' : 'mosaicId';
-			conditions.push({ [`statement.receipts.${artifactIdType}`]: convertToLong(filters.artifactId) });
+			conditions[[`statement.receipts.${artifactIdType}`]] = convertToLong(filters.artifactId);
 		}
 
-		const sortConditions = { $sort: { [sortingOptions[options.sortField]]: options.sortDirection } };
+		const sortConditions = { [sortingOptions[options.sortField]]: options.sortDirection };
 		return this.catapultDb.queryPagedDocuments(conditions, [], sortConditions, 'transactionStatements', options);
 	}
 
@@ -87,16 +87,16 @@ class ReceiptsDb {
 	artifactStatements(height, artifact, options) {
 		const sortingOptions = { id: '_id' };
 
-		const conditions = [];
+		let conditions = {};
 
 		const offsetCondition = buildOffsetCondition(options, sortingOptions);
 		if (offsetCondition)
-			conditions.push(offsetCondition);
+			conditions = Object.assign(conditions, offsetCondition);
 
 		if (undefined !== height)
-			conditions.push({ 'statement.height': convertToLong(height) });
+			conditions['statement.height'] = convertToLong(height);
 
-		const sortConditions = { $sort: { [sortingOptions[options.sortField]]: options.sortDirection } };
+		const sortConditions = { [sortingOptions[options.sortField]]: options.sortDirection };
 		return this.catapultDb.queryPagedDocuments(conditions, [], sortConditions, `${artifact}ResolutionStatements`, options);
 	}
 }

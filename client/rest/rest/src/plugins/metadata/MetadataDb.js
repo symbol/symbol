@@ -43,28 +43,28 @@ class MetadataDb {
 	metadata(sourceAddress, targetAddress, scopedMetadataKey, targetId, metadataType, options) {
 		const sortingOptions = { id: '_id' };
 
-		const conditions = [];
+		let conditions = {};
 
 		const offsetCondition = buildOffsetCondition(options, sortingOptions);
 		if (offsetCondition)
-			conditions.push(offsetCondition);
+			conditions = Object.assign(conditions, offsetCondition);
 
 		if (undefined !== sourceAddress)
-			conditions.push({ 'metadataEntry.sourceAddress': Buffer.from(sourceAddress) });
+			conditions['metadataEntry.sourceAddress'] = Buffer.from(sourceAddress);
 
 		if (undefined !== targetAddress)
-			conditions.push({ 'metadataEntry.targetAddress': Buffer.from(targetAddress) });
+			conditions['metadataEntry.targetAddress'] = Buffer.from(targetAddress);
 
 		if (undefined !== scopedMetadataKey)
-			conditions.push({ 'metadataEntry.scopedMetadataKey': convertToLong(scopedMetadataKey) });
+			conditions['metadataEntry.scopedMetadataKey'] = convertToLong(scopedMetadataKey);
 
 		if (undefined !== targetId)
-			conditions.push({ 'metadataEntry.targetId': convertToLong(targetId) });
+			conditions['metadataEntry.targetId'] = convertToLong(targetId);
 
 		if (undefined !== metadataType)
-			conditions.push({ 'metadataEntry.metadataType': metadataType });
+			conditions['metadataEntry.metadataType'] = metadataType;
 
-		const sortConditions = { $sort: { [sortingOptions[options.sortField]]: options.sortDirection } };
+		const sortConditions = { [sortingOptions[options.sortField]]: options.sortDirection };
 		return this.catapultDb.queryPagedDocuments(conditions, [], sortConditions, 'metadata', options);
 	}
 }

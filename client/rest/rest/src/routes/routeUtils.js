@@ -97,8 +97,7 @@ const namedParserMap = {
 const getBoundedPageSize = (pageSize, optionsPageSize) =>
 	Math.max(optionsPageSize.min, Math.min(optionsPageSize.max, pageSize || optionsPageSize.default));
 
-const isPage = page => undefined !== page.data && undefined !== page.pagination.totalEntries && undefined !== page.pagination.pageNumber
-	&& undefined !== page.pagination.pageSize && undefined !== page.pagination.totalPages;
+const isPage = page => undefined !== page.data && undefined !== page.pagination.pageNumber && undefined !== page.pagination.pageSize;
 
 const routeUtils = {
 	/**

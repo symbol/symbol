@@ -49,28 +49,28 @@ class NamespaceDb {
 	 */
 	namespaces(aliasType, level0, ownerAddress, registrationType, options) {
 		const sortingOptions = { id: '_id' };
-		const conditions = [];
+		let conditions = {};
 
 		const offsetCondition = buildOffsetCondition(options, sortingOptions);
 		if (offsetCondition)
-			conditions.push(offsetCondition);
+			conditions = Object.assign(conditions, offsetCondition);
 
 		if (undefined !== aliasType)
-			conditions.push({ 'namespace.alias.type': aliasType });
+			conditions['namespace.alias.type'] = aliasType;
 
 		if (undefined !== level0)
-			conditions.push({ 'namespace.level0': convertToLong(level0) });
+			conditions['namespace.level0'] = convertToLong(level0);
 
 		if (undefined !== ownerAddress)
-			conditions.push({ 'namespace.ownerAddress': Buffer.from(ownerAddress) });
+			conditions['namespace.ownerAddress'] = Buffer.from(ownerAddress);
 
 		if (undefined !== registrationType)
-			conditions.push({ 'namespace.registrationType': registrationType });
+			conditions['namespace.registrationType'] = registrationType;
 
 		// Returning only active namespaces
-		conditions.push({ 'meta.active': true });
+		conditions['meta.active'] = true;
 
-		const sortConditions = { $sort: { [sortingOptions[options.sortField]]: options.sortDirection } };
+		const sortConditions = { [sortingOptions[options.sortField]]: options.sortDirection };
 		return this.catapultDb.queryPagedDocuments(conditions, [], sortConditions, 'namespaces', options);
 	}
 
