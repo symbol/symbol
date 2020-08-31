@@ -1,8 +1,8 @@
 name: embedded
 in: query
-description: | 
+description: |
   When true, the endpoint also returns all the embedded aggregate transactions.
-  Otherwise, only top-level transactions used to calcualate the block transactionsHash are returned.
+  Otherwise, only top-level transactions used to calculate the block transactionsHash are returned.
 schema:
   type: boolean
   default: false
