@@ -657,8 +657,8 @@ namespace catapult { namespace chain {
 		// Act:
 		context.finalize();
 
-		// Assert: aggregator was pruned
-		EXPECT_EQ(1u, context.aggregator().view().size());
+		// Assert: aggregator was not pruned
+		EXPECT_EQ(4u, context.aggregator().view().size());
 
 		// - subscriber was called
 		const auto& subscriberParams = context.subscriber().finalizedBlockParams().params();
@@ -699,8 +699,8 @@ namespace catapult { namespace chain {
 		// Act:
 		context.finalize();
 
-		// Assert: aggregator was pruned
-		EXPECT_EQ(3u, context.aggregator().view().size());
+		// Assert: aggregator was not pruned
+		EXPECT_EQ(4u, context.aggregator().view().size());
 
 		// - subscriber was called
 		const auto& subscriberParams = context.subscriber().finalizedBlockParams().params();

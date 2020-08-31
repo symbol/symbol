@@ -103,7 +103,9 @@ namespace catapult { namespace chain {
 					bestPrecommitDescriptor.Target.Height,
 					bestPrecommitDescriptor.Target.Hash,
 					bestPrecommitDescriptor.Point);
-			messageAggregator.modifier().prune();
+
+			// TODO: prune messages here
+			// messageAggregator.modifier().prune();
 		};
 	}
 }}
