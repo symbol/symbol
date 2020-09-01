@@ -36,4 +36,7 @@ namespace catapult { namespace mocks {
 
 	/// Creates a memory based block storage cache composed of \a numBlocks.
 	std::unique_ptr<io::BlockStorageCache> CreateMemoryBlockStorageCache(uint32_t numBlocks);
+
+	/// Seeds \a storage with \a numBlocks.
+	void SeedStorageWithFixedSizeBlocks(io::BlockStorageCache& storage, uint32_t numBlocks);
 }}
