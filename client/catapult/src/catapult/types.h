@@ -81,6 +81,9 @@ namespace catapult {
 	struct Height_tag {};
 	using Height = utils::BaseValue<uint64_t, Height_tag>;
 
+	struct FinalizationEpoch_tag {};
+	using FinalizationEpoch = utils::BaseValue<uint64_t, FinalizationEpoch_tag>;
+
 	struct FinalizationPoint_tag {};
 	using FinalizationPoint = utils::BaseValue<uint64_t, FinalizationPoint_tag>;
 
