@@ -116,6 +116,11 @@ namespace catapult { namespace finalization {
 				locator().registerRootedService("fin.aggregator.multiround", m_pAggregator);
 			}
 
+			~TestContext() {
+				// destroy service, which holds open voting_ots_tree.dat file handle, before removing temp directory
+				destroy();
+			}
+
 		public:
 			const auto& hashes() const {
 				return m_hashes;
