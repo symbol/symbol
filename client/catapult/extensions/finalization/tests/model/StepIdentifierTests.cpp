@@ -32,11 +32,13 @@ namespace catapult { namespace model {
 	namespace {
 		std::vector<StepIdentifier> GenerateIncreasingStepIdentifierValues() {
 			return {
-				{ FinalizationPoint(5), FinalizationStage::Prevote },
-				{ FinalizationPoint(10), FinalizationStage::Prevote },
-				{ FinalizationPoint(11), FinalizationStage::Prevote },
-				{ FinalizationPoint(11), FinalizationStage::Precommit },
-				{ FinalizationPoint(11), static_cast<FinalizationStage>(4) }
+				{ FinalizationEpoch(7), FinalizationPoint(5), FinalizationStage::Prevote },
+				{ FinalizationEpoch(7), FinalizationPoint(10), FinalizationStage::Prevote },
+				{ FinalizationEpoch(7), FinalizationPoint(11), FinalizationStage::Prevote },
+				{ FinalizationEpoch(7), FinalizationPoint(11), FinalizationStage::Precommit },
+				{ FinalizationEpoch(7), FinalizationPoint(11), static_cast<FinalizationStage>(4) },
+				{ FinalizationEpoch(8), FinalizationPoint(11), FinalizationStage::Prevote },
+				{ FinalizationEpoch(8), FinalizationPoint(11), FinalizationStage::Precommit}
 			};
 		}
 	}
@@ -45,20 +47,20 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, StepIdentifier_CanOutput) {
 		// Arrange:
-		auto stepIdentifier = StepIdentifier{ FinalizationPoint(11), static_cast<FinalizationStage>(5) };
+		auto stepIdentifier = StepIdentifier{ FinalizationEpoch(7), FinalizationPoint(11), static_cast<FinalizationStage>(5) };
 
 		// Act:
 		auto str = test::ToString(stepIdentifier);
 
 		// Assert:
-		EXPECT_EQ("(11, 5)", str);
+		EXPECT_EQ("(7, 11, 5)", str);
 	}
 
 	// endregion
 
 	// region step identifier size + alignment
 
-#define STEP_IDENTIFIER_FIELDS FIELD(Point) FIELD(Stage)
+#define STEP_IDENTIFIER_FIELDS FIELD(Epoch) FIELD(Point) FIELD(Stage)
 
 	TEST(TEST_CLASS, StepIdentifierHasExpectedSize) {
 		// Arrange:
@@ -70,7 +72,7 @@ namespace catapult { namespace model {
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(StepIdentifier));
-		EXPECT_EQ(16u, sizeof(StepIdentifier));
+		EXPECT_EQ(24u, sizeof(StepIdentifier));
 	}
 
 	TEST(TEST_CLASS, StepIdentifierHasProperAlignment) {
@@ -90,11 +92,11 @@ namespace catapult { namespace model {
 	namespace {
 		std::vector<StepIdentifier> GenerateValidStepIdentifierValues() {
 			return {
-				{ FinalizationPoint(5), FinalizationStage::Prevote },
-				{ FinalizationPoint(10), FinalizationStage::Prevote },
-				{ FinalizationPoint(10), FinalizationStage::Precommit },
-				{ FinalizationPoint(11), FinalizationStage::Prevote },
-				{ FinalizationPoint(11), FinalizationStage::Precommit }
+				{ FinalizationEpoch(), FinalizationPoint(5), FinalizationStage::Prevote },
+				{ FinalizationEpoch(), FinalizationPoint(10), FinalizationStage::Prevote },
+				{ FinalizationEpoch(), FinalizationPoint(10), FinalizationStage::Precommit },
+				{ FinalizationEpoch(), FinalizationPoint(11), FinalizationStage::Prevote },
+				{ FinalizationEpoch(), FinalizationPoint(11), FinalizationStage::Precommit }
 			};
 		}
 	}
@@ -117,8 +119,8 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, StepIdentifierToOtsKeyIdentifierProducesConflictingValuesForInvalidStepIdentifiers) {
 		// Arrange: invalid, because round is greater than number of stages
-		auto validIdentifier = StepIdentifier{ FinalizationPoint(10), FinalizationStage::Precommit };
-		auto invalidIdentifier = StepIdentifier{ FinalizationPoint(8), static_cast<FinalizationStage>(5) };
+		auto validIdentifier = StepIdentifier{ FinalizationEpoch(), FinalizationPoint(10), FinalizationStage::Precommit };
+		auto invalidIdentifier = StepIdentifier{ FinalizationEpoch(), FinalizationPoint(8), static_cast<FinalizationStage>(5) };
 
 		// Act:
 		auto validKeyIdentifier = StepIdentifierToOtsKeyIdentifier(validIdentifier, 7);

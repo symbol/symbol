@@ -62,7 +62,7 @@ namespace catapult { namespace io {
 
 	FileProofStorage::FileProofStorage(const std::string& dataDirectory)
 			: m_dataDirectory(dataDirectory)
-			, m_pointHeightMapping(m_dataDirectory, "proof.heights")
+			, m_epochHeightMapping(m_dataDirectory, "proof.heights")
 			, m_indexFile((boost::filesystem::path(m_dataDirectory) / "proof.index.dat").generic_string())
 	{}
 
@@ -76,8 +76,8 @@ namespace catapult { namespace io {
 	namespace {
 		static constexpr auto Proof_File_Extension = ".proof";
 
-		auto OpenProofFile(const std::string& baseDirectory, FinalizationPoint point, OpenMode mode = OpenMode::Read_Only) {
-			auto storageDir = config::CatapultStorageDirectoryPreparer::Prepare(baseDirectory, point);
+		auto OpenProofFile(const std::string& baseDirectory, FinalizationEpoch epoch, OpenMode mode = OpenMode::Read_Only) {
+			auto storageDir = config::CatapultStorageDirectoryPreparer::Prepare(baseDirectory, epoch);
 			return std::make_unique<RawFile>(storageDir.storageFile(Proof_File_Extension), mode);
 		}
 	}
@@ -94,18 +94,18 @@ namespace catapult { namespace io {
 		}
 	}
 
-	std::shared_ptr<const model::FinalizationProof> FileProofStorage::loadProof(FinalizationPoint point) const {
-		if (FinalizationPoint() == point)
-			CATAPULT_THROW_INVALID_ARGUMENT("loadProof called with point 0");
+	std::shared_ptr<const model::FinalizationProof> FileProofStorage::loadProof(FinalizationEpoch epoch) const {
+		if (FinalizationEpoch() == epoch)
+			CATAPULT_THROW_INVALID_ARGUMENT("loadProof called with epoch 0");
 
-		auto currentPoint = statistics().Point;
-		if (currentPoint < point) {
+		auto currentEpoch = statistics().Round.Epoch;
+		if (currentEpoch < epoch) {
 			std::ostringstream out;
-			out << "cannot load proof with point " << point << " when storage point is " << currentPoint;
+			out << "cannot load proof with epoch " << epoch << " when storage epoch is " << currentEpoch;
 			CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
 		}
 
-		auto pProofFile = OpenProofFile(m_dataDirectory, point);
+		auto pProofFile = OpenProofFile(m_dataDirectory, epoch);
 		return ReadFinalizationProof(*pProofFile);
 	}
 
@@ -120,19 +120,19 @@ namespace catapult { namespace io {
 			CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
 		}
 
-		auto point = findPointForHeight(height);
-		if (FinalizationPoint() == point)
+		auto epoch = findEpochForHeight(height);
+		if (FinalizationEpoch() == epoch)
 			return nullptr;
 
-		auto pProofFile = OpenProofFile(m_dataDirectory, point);
+		auto pProofFile = OpenProofFile(m_dataDirectory, epoch);
 		return ReadFinalizationProof(*pProofFile);
 	}
 
 	void FileProofStorage::saveProof(const model::FinalizationProof& proof) {
 		auto currentStatistics = statistics();
-		if (currentStatistics.Point > proof.Point) {
+		if (currentStatistics.Round > proof.Round || proof.Round.Epoch > currentStatistics.Round.Epoch + FinalizationEpoch(1)) {
 			std::ostringstream out;
-			out << "cannot save proof with point " << proof.Point << " when storage point is " << currentStatistics.Point;
+			out << "cannot save proof with round " << proof.Round << " when storage round is " << currentStatistics.Round;
 			CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
 		}
 
@@ -143,40 +143,38 @@ namespace catapult { namespace io {
 		}
 
 		{
-			auto pProofFile = OpenProofFile(m_dataDirectory, proof.Point, OpenMode::Read_Write);
+			auto pProofFile = OpenProofFile(m_dataDirectory, proof.Round.Epoch, OpenMode::Read_Write);
 			BufferedOutputFileStream stream(std::move(*pProofFile));
 			stream.write({ reinterpret_cast<const uint8_t*>(&proof), proof.Size });
 			stream.flush();
 		}
 
-		// fill gaps in mapping file - this works because loadProof(Height) returns latest proof with matching height
-		for (auto point = currentStatistics.Point + FinalizationPoint(1); point <= proof.Point; point = point + FinalizationPoint(1))
-			m_pointHeightMapping.save(point, proof.Height);
+		m_epochHeightMapping.save(proof.Round.Epoch, proof.Height);
 
-		m_indexFile.set({ proof.Point, proof.Height, proof.Hash });
+		m_indexFile.set({ proof.Round, proof.Height, proof.Hash });
 	}
 
-	FinalizationPoint FileProofStorage::findPointForHeight(Height height) const {
-		constexpr auto Max_Points_In_Batch = FinalizationPoint(100);
-		auto currentPoint = statistics().Point;
+	FinalizationEpoch FileProofStorage::findEpochForHeight(Height height) const {
+		constexpr auto Max_Epochs_In_Batch = FinalizationEpoch(100);
+		auto currentEpoch = statistics().Round.Epoch;
 
 		while (true) {
-			auto rangeBeginPoint = currentPoint > Max_Points_In_Batch ? (currentPoint - Max_Points_In_Batch) : FinalizationPoint(1);
-			auto numHeights = currentPoint > Max_Points_In_Batch ? Max_Points_In_Batch.unwrap() : currentPoint.unwrap();
-			auto heights = m_pointHeightMapping.loadRangeFrom(rangeBeginPoint, numHeights);
+			auto rangeBeginEpoch = currentEpoch > Max_Epochs_In_Batch ? (currentEpoch - Max_Epochs_In_Batch) : FinalizationEpoch(1);
+			auto numHeights = currentEpoch > Max_Epochs_In_Batch ? Max_Epochs_In_Batch.unwrap() : currentEpoch.unwrap();
+			auto heights = m_epochHeightMapping.loadRangeFrom(rangeBeginEpoch, numHeights);
 
 			// heights are in ascending order, so if height is not present in this 'batch', load next one
 			if (!heights.empty() && *heights.cbegin() > height) {
-				currentPoint = rangeBeginPoint;
+				currentEpoch = rangeBeginEpoch;
 				continue;
 			}
 
 			auto iter = std::upper_bound(heights.cbegin(), heights.cend(), height);
 			if (height == *--iter)
-				return rangeBeginPoint + FinalizationPoint(static_cast<uint64_t>(std::distance(heights.cbegin(), iter)));
+				return rangeBeginEpoch + FinalizationEpoch(static_cast<uint64_t>(std::distance(heights.cbegin(), iter)));
 
 			CATAPULT_LOG(debug) << "element not found, was looking for " << height;
-			return FinalizationPoint();
+			return FinalizationEpoch();
 		}
 	}
 

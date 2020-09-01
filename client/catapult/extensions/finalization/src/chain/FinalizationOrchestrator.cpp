@@ -31,7 +31,7 @@ namespace catapult { namespace chain {
 			const StageAdvancerFactory& stageAdvancerFactory,
 			const MessageSink& messageSink,
 			std::unique_ptr<FinalizationMessageFactory>&& pMessageFactory)
-			: m_pointRaw(votingStatus.Point.unwrap())
+			: m_pointRaw(votingStatus.Round.Point.unwrap()) // TODO: use epoch here too
 			, m_stageAdvancerFactory(stageAdvancerFactory)
 			, m_messageSink(messageSink)
 			, m_pMessageFactory(std::move(pMessageFactory))
@@ -83,26 +83,30 @@ namespace catapult { namespace chain {
 		m_pStageAdvancer = m_stageAdvancerFactory(point(), time);
 	}
 
+	namespace {
+		model::FinalizationStatistics ToFinalizationStatistics(const BestPrecommitDescriptor& bestPrecommitDescriptor) {
+			return { bestPrecommitDescriptor.Round, bestPrecommitDescriptor.Target.Height, bestPrecommitDescriptor.Target.Hash };
+		}
+	}
+
 	action CreateFinalizer(
 			MultiRoundMessageAggregator& messageAggregator,
 			subscribers::FinalizationSubscriber& subscriber,
 			io::ProofStorageCache& proofStorage) {
 		return [&messageAggregator, &subscriber, &proofStorage]() {
 			auto bestPrecommitDescriptor = messageAggregator.view().tryFindBestPrecommit();
-			if (FinalizationPoint(0) == bestPrecommitDescriptor.Point)
+			if (model::FinalizationRound() == bestPrecommitDescriptor.Round)
 				return;
 
 			if (proofStorage.view().statistics().Height == bestPrecommitDescriptor.Target.Height)
 				return;
 
-			auto pProof = CreateFinalizationProof(
-					{ bestPrecommitDescriptor.Point, bestPrecommitDescriptor.Target.Height, bestPrecommitDescriptor.Target.Hash },
-					bestPrecommitDescriptor.Proof);
+			auto pProof = CreateFinalizationProof(ToFinalizationStatistics(bestPrecommitDescriptor), bestPrecommitDescriptor.Proof);
 			proofStorage.modifier().saveProof(*pProof);
 			subscriber.notifyFinalizedBlock(
+					bestPrecommitDescriptor.Round,
 					bestPrecommitDescriptor.Target.Height,
-					bestPrecommitDescriptor.Target.Hash,
-					bestPrecommitDescriptor.Point);
+					bestPrecommitDescriptor.Target.Hash);
 
 			// TODO: prune messages here
 			// messageAggregator.modifier().prune();

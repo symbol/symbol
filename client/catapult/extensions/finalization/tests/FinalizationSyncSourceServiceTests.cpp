@@ -68,7 +68,7 @@ namespace catapult { namespace finalization {
 		// Assert:
 		EXPECT_EQ(5u, handlers.size());
 		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Finalization_Statistics));
-		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Finalization_Proof_At_Point));
+		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Finalization_Proof_At_Epoch));
 		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Finalization_Proof_At_Height));
 		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Push_Finalization_Messages));
 		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Pull_Finalization_Messages));
@@ -85,7 +85,7 @@ namespace catapult { namespace finalization {
 		// Assert:
 		EXPECT_EQ(3u, handlers.size());
 		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Finalization_Statistics));
-		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Finalization_Proof_At_Point));
+		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Finalization_Proof_At_Epoch));
 		EXPECT_TRUE(handlers.canProcess(ionet::PacketType::Finalization_Proof_At_Height));
 	}
 

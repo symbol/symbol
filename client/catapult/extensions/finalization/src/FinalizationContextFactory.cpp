@@ -32,10 +32,12 @@ namespace catapult { namespace finalization {
 			, m_blockStorage(state.storage())
 	{}
 
-	model::FinalizationContext FinalizationContextFactory::create(FinalizationPoint point, Height height) const {
-		auto votingSetHeight = model::CalculateGroupedHeight<Height>(height, m_config.VotingSetGrouping);
+	model::FinalizationContext FinalizationContextFactory::create(const model::FinalizationRound& round) const {
+		auto votingSetHeight = FinalizationEpoch(1) >= round.Epoch
+				? Height(1)
+				: Height((round.Epoch.unwrap() - 1) * m_config.VotingSetGrouping);
 		return model::FinalizationContext(
-				point,
+				round.Point, // TODO: this can be epoch
 				votingSetHeight,
 				m_blockStorage.view().loadBlockElement(votingSetHeight)->GenerationHash,
 				m_config,

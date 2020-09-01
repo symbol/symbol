@@ -18,40 +18,36 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "finalization/src/model/FinalizationStatistics.h"
-#include "tests/test/nodeps/Alignment.h"
-#include "tests/TestHarness.h"
+#include "FinalizationRound.h"
 
 namespace catapult { namespace model {
 
-#define TEST_CLASS FinalizationStatisticsTests
-
-	// region FinalizationStatistics (size + alignment)
-
-#define STATISTICS_FIELDS FIELD(Round) FIELD(Height) FIELD(Hash)
-
-	TEST(TEST_CLASS, FinalizationStatisticsHasExpectedSize) {
-		// Arrange:
-		auto expectedSize = 0u;
-
-#define FIELD(X) expectedSize += SizeOf32<decltype(FinalizationStatistics::X)>();
-		STATISTICS_FIELDS
-#undef FIELD
-
-		// Assert:
-		EXPECT_EQ(expectedSize, sizeof(FinalizationStatistics));
-		EXPECT_EQ(56u, sizeof(FinalizationStatistics));
+	bool FinalizationRound::operator==(const FinalizationRound& rhs) const {
+		return Epoch == rhs.Epoch && Point == rhs.Point;
 	}
 
-	TEST(TEST_CLASS, FinalizationStatisticsHasProperAlignment) {
-#define FIELD(X) EXPECT_ALIGNED(FinalizationStatistics, X);
-		STATISTICS_FIELDS
-#undef FIELD
-
-		EXPECT_EQ(0u, sizeof(FinalizationStatistics) % 8);
+	bool FinalizationRound::operator!=(const FinalizationRound& rhs) const {
+		return !(*this == rhs);
 	}
 
-#undef STATISTICS_FIELDS
+	bool FinalizationRound::operator<(const FinalizationRound& rhs) const {
+		return Epoch != rhs.Epoch ? Epoch < rhs.Epoch : Point < rhs.Point;
+	}
 
-	// endregion
+	bool FinalizationRound::operator<=(const FinalizationRound& rhs) const {
+		return *this < rhs || *this == rhs;
+	}
+
+	bool FinalizationRound::operator>(const FinalizationRound& rhs) const {
+		return !(*this <= rhs);
+	}
+
+	bool FinalizationRound::operator>=(const FinalizationRound& rhs) const {
+		return !(*this < rhs);
+	}
+
+	std::ostream& operator<<(std::ostream& out, const FinalizationRound& round) {
+		out << "(" << round.Epoch << ", " << round.Point << ")";
+		return out;
+	}
 }}

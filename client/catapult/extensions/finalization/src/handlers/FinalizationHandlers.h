@@ -21,12 +21,13 @@
 #pragma once
 #include "FinalizationHandlerTypes.h"
 #include "catapult/ionet/PacketHandlers.h"
+#include "catapult/model/FinalizationRound.h"
 
 namespace catapult { namespace handlers {
 
 	/// Prototype for a function that retrieves messages given a set of short hashes.
 	using MessagesRetriever = std::function<std::vector<std::shared_ptr<const model::FinalizationMessage>> (
-			FinalizationPoint,
+			const model::FinalizationRound&,
 			const utils::ShortHashesSet&)>;
 
 	/// Registers a push messages handler in \a handlers that forwards messages to \a messageRangeHandler.

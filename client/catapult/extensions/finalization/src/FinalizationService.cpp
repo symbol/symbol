@@ -84,7 +84,10 @@ namespace catapult { namespace finalization {
 			auto finalizationMessageSynchronizer = chain::CreateFinalizationMessageSynchronizer(
 					[&messageAggregator]() {
 						auto messageAggregatorView = messageAggregator.view();
-						return std::make_pair(messageAggregatorView.minFinalizationPoint(), messageAggregatorView.shortHashes());
+						// TODO: read epoch from aggregator
+						return std::make_pair(
+							model::FinalizationRound{ FinalizationEpoch(), messageAggregatorView.minFinalizationPoint() },
+							messageAggregatorView.shortHashes());
 					},
 					serverHooks.messageRangeConsumer());
 
@@ -110,10 +113,10 @@ namespace catapult { namespace finalization {
 					state.storage(),
 					GetProofStorageCache(locator),
 					[finalizationContextFactory](const auto& proof) {
-						auto result = chain::VerifyFinalizationProof(proof, finalizationContextFactory.create(proof.Point, proof.Height));
+						auto result = chain::VerifyFinalizationProof(proof, finalizationContextFactory.create(proof.Round));
 						if (chain::VerifyFinalizationProofResult::Success != result) {
 							CATAPULT_LOG(warning)
-									<< "proof for point " << proof.Point << " at height " << proof.Height
+									<< "proof for round " << proof.Round << " at height " << proof.Height
 									<< " failed verification with " << result;
 							return false;
 						}

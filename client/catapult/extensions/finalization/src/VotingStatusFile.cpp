@@ -30,10 +30,11 @@ namespace catapult { namespace finalization {
 	chain::VotingStatus VotingStatusFile::load() const {
 		chain::VotingStatus status;
 		if (!boost::filesystem::is_regular_file(m_filename)) {
-			status.Point = FinalizationPoint(1);
+			status.Round = { FinalizationEpoch(1), FinalizationPoint(1) };
 		} else {
 			auto rawFile = open(io::OpenMode::Read_Only);
-			status.Point = FinalizationPoint(io::Read64(rawFile));
+			status.Round.Epoch = FinalizationEpoch(io::Read64(rawFile));
+			status.Round.Point = FinalizationPoint(io::Read64(rawFile));
 			status.HasSentPrevote = !!io::Read8(rawFile);
 			status.HasSentPrecommit = !!io::Read8(rawFile);
 		}
@@ -43,7 +44,8 @@ namespace catapult { namespace finalization {
 
 	void VotingStatusFile::save(const chain::VotingStatus& status) {
 		auto rawFile = open(io::OpenMode::Read_Write);
-		io::Write64(rawFile, status.Point.unwrap());
+		io::Write64(rawFile, status.Round.Epoch.unwrap());
+		io::Write64(rawFile, status.Round.Point.unwrap());
 		io::Write8(rawFile, status.HasSentPrevote ? 1 : 0);
 		io::Write8(rawFile, status.HasSentPrecommit ? 1 : 0);
 	}

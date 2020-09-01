@@ -20,6 +20,7 @@
 
 #include "finalization/src/api/RemoteFinalizationApi.h"
 #include "finalization/src/model/FinalizationMessage.h"
+#include "finalization/tests/test/FinalizationMessageTestUtils.h"
 #include "tests/test/other/RemoteApiFactory.h"
 #include "tests/test/other/RemoteApiTestUtils.h"
 #include "tests/TestHarness.h"
@@ -51,7 +52,7 @@ namespace catapult { namespace api {
 		}
 
 		struct MessagesTraits {
-			static constexpr auto Request_Data_Header_Size = SizeOf32<FinalizationPoint>();
+			static constexpr auto Request_Data_Header_Size = SizeOf32<model::FinalizationRound>();
 			static constexpr auto Request_Data_Size = 3 * SizeOf32<utils::ShortHash>();
 
 			static std::vector<uint32_t> KnownShortHashValues() {
@@ -63,7 +64,7 @@ namespace catapult { namespace api {
 			}
 
 			static auto Invoke(const RemoteFinalizationApi& api) {
-				return api.messages(FinalizationPoint(22), KnownShortHashes());
+				return api.messages({ FinalizationEpoch(11), FinalizationPoint(23) }, KnownShortHashes());
 			}
 
 			static auto CreateValidResponsePacket() {
@@ -82,7 +83,7 @@ namespace catapult { namespace api {
 			static void ValidateRequest(const ionet::Packet& packet) {
 				EXPECT_EQ(ionet::PacketType::Pull_Finalization_Messages, packet.Type);
 				ASSERT_EQ(sizeof(ionet::Packet) + Request_Data_Header_Size + Request_Data_Size, packet.Size);
-				EXPECT_EQ(FinalizationPoint(22), reinterpret_cast<const FinalizationPoint&>(*packet.Data()));
+				EXPECT_EQ(test::CreateFinalizationRound(11, 23), reinterpret_cast<const model::FinalizationRound&>(*packet.Data()));
 				EXPECT_EQ_MEMORY(packet.Data() + Request_Data_Header_Size, KnownShortHashValues().data(), Request_Data_Size);
 			}
 

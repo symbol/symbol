@@ -31,7 +31,7 @@ namespace catapult { namespace mocks {
 		enum class EntryPoint {
 			None,
 			Finalization_Statistics,
-			Proof_At_Point,
+			Proof_At_Epoch,
 			Proof_At_Height
 		};
 
@@ -48,9 +48,9 @@ namespace catapult { namespace mocks {
 			m_errorEntryPoint = entryPoint;
 		}
 
-		/// Gets a vector of parameters that were passed to the proof at point requests.
-		const auto& proofPoints() const {
-			return m_proofPoints;
+		/// Gets a vector of parameters that were passed to the proof at epoch requests.
+		const auto& proofEpochs() const {
+			return m_proofEpochs;
 		}
 
 		/// Gets a vector of parameters that were passed to the proof at height requests.
@@ -78,12 +78,12 @@ namespace catapult { namespace mocks {
 			return thread::make_ready_future(decltype(m_finalizationStatistics)(m_finalizationStatistics));
 		}
 
-		/// Gets the configured proof and throws if the error entry point is set to Proof_At_Point.
-		/// \note The \a point parameter is captured.
-		thread::future<std::shared_ptr<const model::FinalizationProof>> proofAt(FinalizationPoint point) const override {
-			m_proofPoints.push_back(point);
-			if (shouldRaiseException(EntryPoint::Proof_At_Point))
-				return CreateFutureException<std::shared_ptr<const model::FinalizationProof>>("proof at point error has been set");
+		/// Gets the configured proof and throws if the error entry point is set to Proof_At_Epoch.
+		/// \note The \a epoch parameter is captured.
+		thread::future<std::shared_ptr<const model::FinalizationProof>> proofAt(FinalizationEpoch epoch) const override {
+			m_proofEpochs.push_back(epoch);
+			if (shouldRaiseException(EntryPoint::Proof_At_Epoch))
+				return CreateFutureException<std::shared_ptr<const model::FinalizationProof>>("proof at epoch error has been set");
 
 			return thread::make_ready_future(decltype(m_pProof)(m_pProof));
 		}
@@ -113,7 +113,7 @@ namespace catapult { namespace mocks {
 		std::shared_ptr<const model::FinalizationProof> m_pProof;
 
 		EntryPoint m_errorEntryPoint;
-		mutable std::vector<FinalizationPoint> m_proofPoints;
+		mutable std::vector<FinalizationEpoch> m_proofEpochs;
 		mutable std::vector<Height> m_proofHeights;
 	};
 }}

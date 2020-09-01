@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "catapult/model/FinalizationRound.h"
 #include "catapult/plugins.h"
 #include "catapult/types.h"
 
@@ -30,7 +31,7 @@ namespace catapult { namespace subscribers {
 		virtual ~FinalizationSubscriber() = default;
 
 	public:
-		/// Indicates a finalized block with \a height and \a hash at finalization \a point.
-		virtual void notifyFinalizedBlock(Height height, const Hash256& hash, FinalizationPoint point) = 0;
+		/// Indicates a finalized block with \a height and \a hash at finalization \a round.
+		virtual void notifyFinalizedBlock(const model::FinalizationRound& round, Height height, const Hash256& hash) = 0;
 	};
 }}

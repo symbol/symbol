@@ -28,6 +28,7 @@ namespace catapult { namespace chain {
 #define TEST_CLASS FinalizationProofVerifierTests
 
 	namespace {
+		constexpr auto Finalization_Epoch = FinalizationEpoch(4);
 		constexpr auto Finalization_Point = FinalizationPoint(3);
 		constexpr auto Last_Finalized_Height = Height(123);
 
@@ -80,12 +81,22 @@ namespace catapult { namespace chain {
 
 		using MutableMessages = std::vector<std::shared_ptr<model::FinalizationMessage>>;
 
+		model::FinalizationStatistics CreateFinalizationStatistics(Height heightDelta, const Hash256& hash) {
+			return { { Finalization_Epoch, Finalization_Point }, Last_Finalized_Height + heightDelta, hash };
+		}
+
 		auto CreatePrevoteMessages(size_t numMessages, const Hash256* pHashes, size_t numHashes) {
-			return test::CreatePrevoteMessages(Finalization_Point, Last_Finalized_Height + Height(1), numMessages, pHashes, numHashes);
+			auto epoch = Finalization_Epoch;
+			auto point = Finalization_Point;
+			auto height = Last_Finalized_Height + Height(1);
+			return test::CreatePrevoteMessages(epoch, point, height, numMessages, pHashes, numHashes);
 		}
 
 		auto CreatePrecommitMessages(size_t numMessages, const Hash256* pHashes, size_t index) {
-			return test::CreatePrecommitMessages(Finalization_Point, Last_Finalized_Height + Height(1), numMessages, pHashes, index);
+			auto epoch = Finalization_Epoch;
+			auto point = Finalization_Point;
+			auto height = Last_Finalized_Height + Height(1);
+			return test::CreatePrecommitMessages(epoch, point, height, numMessages, pHashes, index);
 		}
 
 		auto MergeMessages(const MutableMessages& lhs, const MutableMessages& rhs) {
@@ -130,7 +141,7 @@ namespace catapult { namespace chain {
 					const auto& prevoteHashes,
 					const auto& prevoteMessages,
 					const auto& precommitMessages) {
-				auto statistics = model::FinalizationStatistics{ Finalization_Point, Last_Finalized_Height + Height(3), prevoteHashes[2] };
+				auto statistics = CreateFinalizationStatistics(Height(3), prevoteHashes[2]);
 				modifyStatistics(statistics);
 				auto pProof = model::CreateFinalizationProof(statistics, MergeMessages(prevoteMessages, precommitMessages));
 
@@ -150,7 +161,7 @@ namespace catapult { namespace chain {
 	TEST(TEST_CLASS, VerifyFailsWhenProofHasUnsupportedVersion) {
 		// Arrange:
 		RunTest([](const auto& context, const auto& prevoteHashes, const auto& prevoteMessages, const auto& precommitMessages) {
-			auto statistics = model::FinalizationStatistics{ Finalization_Point, Last_Finalized_Height + Height(3), prevoteHashes[2] };
+			auto statistics = CreateFinalizationStatistics(Height(3), prevoteHashes[2]);
 			auto pProof = model::CreateFinalizationProof(statistics, MergeMessages(prevoteMessages, precommitMessages));
 
 			// - change version
@@ -165,8 +176,9 @@ namespace catapult { namespace chain {
 	}
 
 	TEST(TEST_CLASS, VerifyFailsWhenProofPointDoesNotMatchContextPoint) {
+		// TODO: change to Epoch when context contains Epoch
 		RunModifiedStatisticsTest(VerifyFinalizationProofResult::Failure_Invalid_Point, [](auto& statistics) {
-			statistics.Point = statistics.Point + FinalizationPoint(1);
+			statistics.Round.Point = statistics.Round.Point + FinalizationPoint(1);
 		});
 	}
 
@@ -188,7 +200,7 @@ namespace catapult { namespace chain {
 			// - drop precommit message
 			precommitMessages.pop_back();
 
-			auto statistics = model::FinalizationStatistics{ Finalization_Point, Last_Finalized_Height + Height(3), prevoteHashes[2] };
+			auto statistics = CreateFinalizationStatistics(Height(3), prevoteHashes[2]);
 			auto pProof = model::CreateFinalizationProof(statistics, MergeMessages(prevoteMessages, precommitMessages));
 
 			// Act: verify it
@@ -210,7 +222,7 @@ namespace catapult { namespace chain {
 					const auto& precommitMessages) {
 				modifyPrevoteMessages(prevoteMessages);
 
-				auto statistics = model::FinalizationStatistics{ Finalization_Point, Last_Finalized_Height + Height(3), prevoteHashes[2] };
+				auto statistics = CreateFinalizationStatistics(Height(3), prevoteHashes[2]);
 				auto pProof = model::CreateFinalizationProof(statistics, MergeMessages(prevoteMessages, precommitMessages));
 
 				// Act: verify it

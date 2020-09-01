@@ -21,6 +21,7 @@
 #pragma once
 #include "FinalizationConfiguration.h"
 #include "finalization/src/model/FinalizationContext.h"
+#include "catapult/model/FinalizationRound.h"
 
 namespace catapult {
 	namespace cache { class AccountStateCache; }
@@ -37,8 +38,8 @@ namespace catapult { namespace finalization {
 		FinalizationContextFactory(const FinalizationConfiguration& config, const extensions::ServiceState& state);
 
 	public:
-		/// Creates a finalization context for \a point at \a height.
-		model::FinalizationContext create(FinalizationPoint point, Height height) const;
+		/// Creates a finalization context for \a round.
+		model::FinalizationContext create(const model::FinalizationRound& round) const;
 
 	private:
 		FinalizationConfiguration m_config;

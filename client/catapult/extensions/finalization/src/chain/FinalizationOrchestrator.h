@@ -21,6 +21,7 @@
 #pragma once
 #include "FinalizationMessageFactory.h"
 #include "FinalizationStageAdvancer.h"
+#include "catapult/model/FinalizationRound.h"
 
 namespace catapult {
 	namespace chain { class MultiRoundMessageAggregator; }
@@ -32,13 +33,13 @@ namespace catapult { namespace chain {
 
 	/// Voting status information.
 	struct VotingStatus {
-		/// Current finalization point.
-		FinalizationPoint Point;
+		/// Current finalization round.
+		model::FinalizationRound Round;
 
-		/// \c true if prevote has been sent for current point.
+		/// \c true if prevote has been sent for current round.
 		bool HasSentPrevote = false;
 
-		/// \c true if precommit has been sent for current point.
+		/// \c true if precommit has been sent for current round.
 		bool HasSentPrecommit = false;
 	};
 

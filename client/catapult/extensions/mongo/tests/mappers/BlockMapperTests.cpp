@@ -20,6 +20,7 @@
 
 #include "mongo/src/mappers/BlockMapper.h"
 #include "catapult/model/BlockUtils.h"
+#include "catapult/model/FinalizationRound.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/MongoReceiptTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
@@ -107,18 +108,19 @@ namespace catapult { namespace mongo { namespace mappers {
 		auto hash = test::GenerateRandomByteArray<Hash256>();
 
 		// Act:
-		auto document = ToDbModel(Height(321), hash, FinalizationPoint(97));
+		auto document = ToDbModel({ FinalizationEpoch(23), FinalizationPoint(97) }, Height(321), hash);
 		auto documentView = document.view();
 
 		// Assert:
 		EXPECT_EQ(1u, test::GetFieldCount(documentView));
 
 		auto statusView = documentView["block"].get_document().view();
-		EXPECT_EQ(3u, test::GetFieldCount(statusView));
+		EXPECT_EQ(4u, test::GetFieldCount(statusView));
 
+		EXPECT_EQ(23u, test::GetUint64(statusView, "finalizationEpoch"));
+		EXPECT_EQ(97u, test::GetUint64(statusView, "finalizationPoint"));
 		EXPECT_EQ(321u, test::GetUint64(statusView, "height"));
 		EXPECT_EQ(hash, test::GetHashValue(statusView, "hash"));
-		EXPECT_EQ(97u, test::GetUint64(statusView, "finalizationPoint"));
 	}
 
 	// endregion

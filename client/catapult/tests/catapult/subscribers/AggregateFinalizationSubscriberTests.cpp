@@ -37,13 +37,14 @@ namespace catapult { namespace subscribers {
 	TEST(TEST_CLASS, NotifyFinalizedBlockForwardsToAllSubscribers) {
 		// Arrange:
 		TestContext<mocks::MockFinalizationSubscriber> context;
+		auto round = model::FinalizationRound{ FinalizationEpoch(23), FinalizationPoint(17) };
 		auto hash = test::GenerateRandomByteArray<Hash256>();
 
 		// Sanity:
 		EXPECT_EQ(3u, context.subscribers().size());
 
 		// Act:
-		context.aggregate().notifyFinalizedBlock(Height(82), hash, FinalizationPoint(17));
+		context.aggregate().notifyFinalizedBlock(round, Height(82), hash);
 
 		// Assert:
 		auto i = 0u;
@@ -51,9 +52,9 @@ namespace catapult { namespace subscribers {
 			auto message = "subscriber at " + std::to_string(i++);
 			const auto& capturedParams = pSubscriber->finalizedBlockParams().params();
 			ASSERT_EQ(1u, capturedParams.size()) << message;
+			EXPECT_EQ(round, capturedParams[0].Round) << message;
 			EXPECT_EQ(Height(82), capturedParams[0].Height) << message;
 			EXPECT_EQ(hash, capturedParams[0].Hash) << message;
-			EXPECT_EQ(FinalizationPoint(17), capturedParams[0].Point) << message;
 		}
 	}
 }}

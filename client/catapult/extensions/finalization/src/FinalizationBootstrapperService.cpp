@@ -46,10 +46,11 @@ namespace catapult { namespace finalization {
 			auto finalizationStatistics = proofStorageView.statistics();
 			return std::make_shared<chain::MultiRoundMessageAggregator>(
 					config.MessageSynchronizationMaxResponseSize.bytes(),
-					finalizationStatistics.Point,
+					finalizationStatistics.Round.Point, // TODO: needs to be round
 					model::HeightHashPair{ finalizationStatistics.Height, finalizationStatistics.Hash },
-					[finalizationContextFactory](auto roundPoint, auto height) {
-						return chain::CreateRoundMessageAggregator(finalizationContextFactory.create(roundPoint, height));
+					[finalizationContextFactory](auto roundPoint, auto) {
+						// TODO: lookup epoch
+						return chain::CreateRoundMessageAggregator(finalizationContextFactory.create({ FinalizationEpoch(), roundPoint }));
 					});
 		}
 
@@ -59,8 +60,9 @@ namespace catapult { namespace finalization {
 
 		namespace {
 			Height GetEstimateHeight(const chain::MultiRoundMessageAggregator& aggregator, FinalizationPoint delta) {
+				// TODO: get epoch from aggregator
 				auto view = aggregator.view();
-				return view.findEstimate(view.maxFinalizationPoint() - delta).Height;
+				return view.findEstimate({ FinalizationEpoch(), view.maxFinalizationPoint() - delta }).Height;
 			}
 		}
 

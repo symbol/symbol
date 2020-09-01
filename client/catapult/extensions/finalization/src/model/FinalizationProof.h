@@ -20,6 +20,7 @@
 
 #pragma once
 #include "FinalizationMessageGroup.h"
+#include "catapult/model/FinalizationRound.h"
 #include "catapult/model/SizePrefixedEntityContainer.h"
 
 namespace catapult { namespace model {
@@ -36,8 +37,8 @@ namespace catapult { namespace model {
 		/// Proof version.
 		uint32_t Version;
 
-		/// Finalization point.
-		FinalizationPoint Point;
+		/// Finalization round.
+		model::FinalizationRound Round;
 
 		/// Finalization height.
 		catapult::Height Height;

@@ -30,7 +30,7 @@ namespace catapult { namespace finalization {
 #define TEST_CLASS FinalizationContextFactoryTests
 
 	namespace {
-		void AssertCanCreateFinalizationContext(Height height, Height groupedHeight) {
+		void AssertCanCreateFinalizationContext(FinalizationEpoch epoch, Height groupedHeight) {
 			// Arrange: setup config
 			auto config = finalization::FinalizationConfiguration::Uninitialized();
 			config.Size = 9876;
@@ -49,11 +49,11 @@ namespace catapult { namespace finalization {
 				test::AddAccountsWithBalances(accountStateCacheDelta, groupedHeight, blockChainConfig.HarvestingMosaicId, {
 					Amount(4'000'000), Amount(2'000'000), Amount(1'000'000), Amount(2'000'000), Amount(3'000'000), Amount(4'000'000)
 				});
-				test::AddAccountsWithBalances(accountStateCacheDelta, height, blockChainConfig.HarvestingMosaicId, {
+				test::AddAccountsWithBalances(accountStateCacheDelta, groupedHeight + Height(1), blockChainConfig.HarvestingMosaicId, {
 					Amount(4'000'000), Amount(2'000'000), Amount(1'000'000), Amount(2'000'000), Amount(3'000'000)
 				});
 
-				catapultCache.commit(height);
+				catapultCache.commit(groupedHeight + Height(1));
 			}
 
 			test::ServiceTestState testState(std::move(catapultCache));
@@ -61,7 +61,7 @@ namespace catapult { namespace finalization {
 
 			// Act:
 			FinalizationContextFactory factory(config, testState.state());
-			auto context = factory.create(FinalizationPoint(12), height);
+			auto context = factory.create({ epoch, FinalizationPoint(12) });
 
 			// Assert: context should be seeded with data from groupedHeight, not height
 			auto expectedGenerationHash = testState.state().storage().view().loadBlockElement(groupedHeight)->GenerationHash;
@@ -74,15 +74,17 @@ namespace catapult { namespace finalization {
 		}
 	}
 
-	TEST(TEST_CLASS, CanCreateFinalizationContextAtVotingSetGroupStart) {
-		AssertCanCreateFinalizationContext(Height(51), Height(50));
+	TEST(TEST_CLASS, CanCreateFinalizationContextFromZeroEpoch) {
+		AssertCanCreateFinalizationContext(FinalizationEpoch(0), Height(1));
 	}
 
-	TEST(TEST_CLASS, CanCreateFinalizationContextAtVotingSetGroupMiddle) {
-		AssertCanCreateFinalizationContext(Height(76), Height(50));
+	TEST(TEST_CLASS, CanCreateFinalizationContextFromFirstEpoch) {
+		AssertCanCreateFinalizationContext(FinalizationEpoch(1), Height(1));
 	}
 
-	TEST(TEST_CLASS, CanCreateFinalizationContextAtVotingSetGroupEnd) {
-		AssertCanCreateFinalizationContext(Height(100), Height(50));
+	TEST(TEST_CLASS, CanCreateFinalizationContextAtSubsequentEpoch) {
+		AssertCanCreateFinalizationContext(FinalizationEpoch(2), Height(50));
+		AssertCanCreateFinalizationContext(FinalizationEpoch(3), Height(100));
+		AssertCanCreateFinalizationContext(FinalizationEpoch(9), Height(400));
 	}
 }}

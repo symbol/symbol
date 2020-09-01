@@ -33,8 +33,8 @@ namespace catapult { namespace io {
 		return m_storage.statistics();
 	}
 
-	std::shared_ptr<const model::FinalizationProof> ProofStorageView::loadProof(FinalizationPoint point) const {
-		return m_storage.loadProof(point);
+	std::shared_ptr<const model::FinalizationProof> ProofStorageView::loadProof(FinalizationEpoch epoch) const {
+		return m_storage.loadProof(epoch);
 	}
 
 	std::shared_ptr<const model::FinalizationProof> ProofStorageView::loadProof(Height height) const {

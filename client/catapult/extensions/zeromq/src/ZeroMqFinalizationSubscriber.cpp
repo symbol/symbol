@@ -30,8 +30,8 @@ namespace catapult { namespace zeromq {
 			{}
 
 		public:
-			void notifyFinalizedBlock(Height height, const Hash256& hash, FinalizationPoint point) override {
-				m_publisher.publishFinalizedBlock(height, hash, point);
+			void notifyFinalizedBlock(const model::FinalizationRound& round, Height height, const Hash256& hash) override {
+				m_publisher.publishFinalizedBlock(round, height, hash);
 			}
 
 		private:

@@ -30,6 +30,10 @@ namespace catapult { namespace model {
 	namespace {
 		// region test utils
 
+		model::FinalizationStatistics CreateFinalizationStatistics(uint64_t epoch, uint64_t point, uint64_t height) {
+			return { { FinalizationEpoch(epoch), FinalizationPoint(point) }, Height(height), test::GenerateRandomByteArray<Hash256>() };
+		}
+
 		size_t CalculateMessageGroupsSize(size_t numMessageGroups, size_t numHashes, size_t numSignatures) {
 			return numMessageGroups * sizeof(FinalizationMessageGroup)
 					+ numHashes * Hash256::Size
@@ -37,7 +41,7 @@ namespace catapult { namespace model {
 		}
 
 		void AssertEqualStatistics(const FinalizationStatistics& expectedStatistics, const FinalizationProof& proof) {
-			EXPECT_EQ(expectedStatistics.Point, proof.Point);
+			EXPECT_EQ(expectedStatistics.Round, proof.Round);
 			EXPECT_EQ(expectedStatistics.Height, proof.Height);
 			EXPECT_EQ(expectedStatistics.Hash, proof.Hash);
 
@@ -72,7 +76,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCreateFinalizationProofWithNoMessages) {
 		// Arrange:
-		auto statistics = FinalizationStatistics{ FinalizationPoint(9), Height(111), test::GenerateRandomByteArray<Hash256>() };
+		auto statistics = CreateFinalizationStatistics(3, 9, 111);
 
 		// Act:
 		auto pProof = CreateFinalizationProof(statistics, {});
@@ -84,10 +88,10 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCreateFinalizationProofWithSingleMessage) {
 		// Arrange:
-		auto statistics = FinalizationStatistics{ FinalizationPoint(9), Height(111), test::GenerateRandomByteArray<Hash256>() };
+		auto statistics = CreateFinalizationStatistics(3, 9, 111);
 
 		auto pMessage = utils::UniqueToShared(test::CreateMessage(Height(11), 3));
-		pMessage->StepIdentifier = { FinalizationPoint(9), FinalizationStage::Prevote };
+		pMessage->StepIdentifier = { FinalizationEpoch(3), FinalizationPoint(9), FinalizationStage::Prevote };
 
 		// Act:
 		auto pProof = CreateFinalizationProof(statistics, { pMessage });
@@ -113,10 +117,10 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCreateFinalizationProofWithMultipleMessages_DifferentSignature) {
 		// Arrange:
-		auto statistics = FinalizationStatistics{ FinalizationPoint(9), Height(111), test::GenerateRandomByteArray<Hash256>() };
+		auto statistics = CreateFinalizationStatistics(3, 9, 111);
 
 		auto pMessage1 = utils::UniqueToShared(test::CreateMessage(Height(11), 3));
-		pMessage1->StepIdentifier = { FinalizationPoint(9), FinalizationStage::Prevote };
+		pMessage1->StepIdentifier = { FinalizationEpoch(3), FinalizationPoint(9), FinalizationStage::Prevote };
 
 		auto pMessage2 = utils::UniqueToShared(test::CopyEntity(*pMessage1));
 		test::FillWithRandomData(pMessage2->Signature);
@@ -145,10 +149,10 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCreateFinalizationProofWithMultipleMessages_DifferentStage) {
 		// Arrange:
-		auto statistics = FinalizationStatistics{ FinalizationPoint(9), Height(111), test::GenerateRandomByteArray<Hash256>() };
+		auto statistics = CreateFinalizationStatistics(3, 9, 111);
 
 		auto pMessage1 = utils::UniqueToShared(test::CreateMessage(Height(11), 3));
-		pMessage1->StepIdentifier = { FinalizationPoint(9), FinalizationStage::Prevote };
+		pMessage1->StepIdentifier = { FinalizationEpoch(3), FinalizationPoint(9), FinalizationStage::Prevote };
 
 		auto pMessage2 = utils::UniqueToShared(test::CopyEntity(*pMessage1));
 		pMessage2->StepIdentifier.Stage = FinalizationStage::Precommit;
@@ -183,10 +187,10 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCreateFinalizationProofWithMultipleMessages_DifferentHeight) {
 		// Arrange:
-		auto statistics = FinalizationStatistics{ FinalizationPoint(9), Height(111), test::GenerateRandomByteArray<Hash256>() };
+		auto statistics = CreateFinalizationStatistics(3, 9, 111);
 
 		auto pMessage1 = utils::UniqueToShared(test::CreateMessage(Height(11), 3));
-		pMessage1->StepIdentifier = { FinalizationPoint(9), FinalizationStage::Prevote };
+		pMessage1->StepIdentifier = { FinalizationEpoch(3), FinalizationPoint(9), FinalizationStage::Prevote };
 
 		auto pMessage2 = utils::UniqueToShared(test::CopyEntity(*pMessage1));
 		pMessage2->Height = Height(22);
@@ -221,10 +225,10 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCreateFinalizationProofWithMultipleMessages_DifferentHashesContents) {
 		// Arrange:
-		auto statistics = FinalizationStatistics{ FinalizationPoint(9), Height(111), test::GenerateRandomByteArray<Hash256>() };
+		auto statistics = CreateFinalizationStatistics(3, 9, 111);
 
 		auto pMessage1 = utils::UniqueToShared(test::CreateMessage(Height(11), 3));
-		pMessage1->StepIdentifier = { FinalizationPoint(9), FinalizationStage::Prevote };
+		pMessage1->StepIdentifier = { FinalizationEpoch(3), FinalizationPoint(9), FinalizationStage::Prevote };
 		pMessage1->HashesPtr()[2] = { { 1 } };
 
 		auto pMessage2 = utils::UniqueToShared(test::CopyEntity(*pMessage1));
@@ -260,10 +264,10 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCreateFinalizationProofWithMultipleMessages_DifferentHashesNumber) {
 		// Arrange:
-		auto statistics = FinalizationStatistics{ FinalizationPoint(9), Height(111), test::GenerateRandomByteArray<Hash256>() };
+		auto statistics = CreateFinalizationStatistics(3, 9, 111);
 
 		auto pMessage1 = utils::UniqueToShared(test::CreateMessage(Height(11), 3));
-		pMessage1->StepIdentifier = { FinalizationPoint(9), FinalizationStage::Prevote };
+		pMessage1->StepIdentifier = { FinalizationEpoch(3), FinalizationPoint(9), FinalizationStage::Prevote };
 
 		auto pMessage2 = utils::UniqueToShared(test::CopyEntity(*pMessage1));
 		pMessage1->Size = static_cast<uint32_t>(pMessage1->Size - Hash256::Size);
@@ -301,12 +305,45 @@ namespace catapult { namespace model {
 
 	// region multiple messages
 
-	TEST(TEST_CLASS, CanFilterFinalizationProofMessagesWithDifferentPoints) {
+	TEST(TEST_CLASS, CanFilterFinalizationProofMessagesWithDifferentEpochs) {
 		// Arrange:
-		auto statistics = FinalizationStatistics{ FinalizationPoint(9), Height(111), test::GenerateRandomByteArray<Hash256>() };
+		auto statistics = CreateFinalizationStatistics(3, 9, 111);
 
 		auto pMessage1 = utils::UniqueToShared(test::CreateMessage(Height(11), 3));
-		pMessage1->StepIdentifier = { FinalizationPoint(8), FinalizationStage::Prevote };
+		pMessage1->StepIdentifier = { FinalizationEpoch(2), FinalizationPoint(9), FinalizationStage::Prevote };
+
+		auto pMessage2 = utils::UniqueToShared(test::CopyEntity(*pMessage1));
+		test::FillWithRandomData(pMessage2->Signature);
+		pMessage2->StepIdentifier.Epoch = FinalizationEpoch(3);
+
+		auto pMessage3 = utils::UniqueToShared(test::CopyEntity(*pMessage1));
+		test::FillWithRandomData(pMessage3->Signature);
+		pMessage3->StepIdentifier.Epoch = FinalizationEpoch(4);
+
+		// Act:
+		auto pProof = CreateFinalizationProof(statistics, { pMessage1, pMessage2, pMessage3 });
+
+		// Assert:
+		ASSERT_EQ(sizeof(FinalizationProof) + CalculateMessageGroupsSize(1, 3, 1), pProof->Size);
+		AssertEqualStatistics(statistics, *pProof);
+
+		auto messageGroups = pProof->MessageGroups();
+		auto messageGroupsIter = messageGroups.cbegin();
+		AssertMessageGroup(
+				*messageGroupsIter,
+				FinalizationStage::Prevote,
+				Height(11),
+				{ pMessage1->HashesPtr()[0], pMessage1->HashesPtr()[1], pMessage1->HashesPtr()[2] },
+				{ pMessage2->Signature },
+				"group 1");
+	}
+
+	TEST(TEST_CLASS, CanFilterFinalizationProofMessagesWithDifferentPoints) {
+		// Arrange:
+		auto statistics = CreateFinalizationStatistics(3, 9, 111);
+
+		auto pMessage1 = utils::UniqueToShared(test::CreateMessage(Height(11), 3));
+		pMessage1->StepIdentifier = { FinalizationEpoch(3), FinalizationPoint(8), FinalizationStage::Prevote };
 
 		auto pMessage2 = utils::UniqueToShared(test::CopyEntity(*pMessage1));
 		test::FillWithRandomData(pMessage2->Signature);
@@ -336,10 +373,10 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCreateFinalizationProofWithMultipleMessages) {
 		// Arrange:
-		auto statistics = FinalizationStatistics{ FinalizationPoint(9), Height(111), test::GenerateRandomByteArray<Hash256>() };
+		auto statistics = CreateFinalizationStatistics(3, 9, 111);
 
 		auto pMessage1 = utils::UniqueToShared(test::CreateMessage(Height(11), 3));
-		pMessage1->StepIdentifier = { FinalizationPoint(9), FinalizationStage::Prevote };
+		pMessage1->StepIdentifier = { FinalizationEpoch(3), FinalizationPoint(9), FinalizationStage::Prevote };
 
 		auto pMessage2 = utils::UniqueToShared(test::CopyEntity(*pMessage1));
 		test::FillWithRandomData(pMessage2->Signature);

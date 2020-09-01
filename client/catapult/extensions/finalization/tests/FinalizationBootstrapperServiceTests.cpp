@@ -129,6 +129,10 @@ namespace catapult { namespace finalization {
 
 		using TestContext = test::VoterSeededCacheDependentServiceLocatorTestContext<FinalizationBootstrapperServiceTraits>;
 
+		model::FinalizationRound PointToRound(FinalizationPoint point) {
+			return { FinalizationEpoch(), point };
+		}
+
 		void AssertAggregatorProperties(
 				const chain::MultiRoundMessageAggregatorView& aggregator,
 				FinalizationPoint minPoint,
@@ -137,8 +141,8 @@ namespace catapult { namespace finalization {
 				const model::HeightHashPair& currentEstimate) {
 			EXPECT_EQ(minPoint, aggregator.minFinalizationPoint());
 			EXPECT_EQ(maxPoint, aggregator.maxFinalizationPoint());
-			EXPECT_EQ(previousEstimate, aggregator.findEstimate(aggregator.maxFinalizationPoint() - FinalizationPoint(1)));
-			EXPECT_EQ(currentEstimate, aggregator.findEstimate(aggregator.maxFinalizationPoint()));
+			EXPECT_EQ(previousEstimate, aggregator.findEstimate(PointToRound(aggregator.maxFinalizationPoint() - FinalizationPoint(1))));
+			EXPECT_EQ(currentEstimate, aggregator.findEstimate(PointToRound(aggregator.maxFinalizationPoint())));
 		}
 
 		void AssertAggregatorProperties(
@@ -238,7 +242,9 @@ namespace catapult { namespace finalization {
 	// region FinalizationBootstrapperService - multi round message aggregator
 
 	namespace {
-		constexpr auto Stage = model::FinalizationStage::Prevote;
+		model::StepIdentifier CreateStepIdentifier(uint64_t point) {
+			return test::CreateStepIdentifier(0, point, model::FinalizationStage::Prevote);
+		}
 
 		template<typename TAction>
 		void RunMultiRoundMessageAggregatorServiceTest(TAction action) {
@@ -261,7 +267,7 @@ namespace catapult { namespace finalization {
 		RunMultiRoundMessageAggregatorServiceTest([](auto& aggregator, const auto& context, const auto& lastFinalizedHash) {
 			// Act:
 			auto hash = test::GenerateRandomByteArray<Hash256>();
-			aggregator.modifier().add(context.createMessage(VoterType::Large1, { FinalizationPoint(12), Stage }, Height(22), hash));
+			aggregator.modifier().add(context.createMessage(VoterType::Large1, CreateStepIdentifier(12), Height(22), hash));
 
 			// Assert:
 			AssertAggregatorCounters(context, FinalizationPoint(12), FinalizationPoint(12), Height(20), Height(20));
@@ -279,8 +285,8 @@ namespace catapult { namespace finalization {
 
 			// Act:
 			auto hash = test::GenerateRandomByteArray<Hash256>();
-			aggregator.modifier().add(context.createMessage(VoterType::Large1, { FinalizationPoint(12), Stage }, Height(22), hash));
-			aggregator.modifier().add(context.createMessage(VoterType::Large1, { FinalizationPoint(15), Stage }, Height(24), hash));
+			aggregator.modifier().add(context.createMessage(VoterType::Large1, CreateStepIdentifier(12), Height(22), hash));
+			aggregator.modifier().add(context.createMessage(VoterType::Large1, CreateStepIdentifier(15), Height(24), hash));
 
 			// Assert:
 			AssertAggregatorCounters(context, FinalizationPoint(12), FinalizationPoint(15), Height(20), Height(20));
@@ -298,12 +304,12 @@ namespace catapult { namespace finalization {
 
 			// Act:
 			auto hash1 = test::GenerateRandomByteArray<Hash256>();
-			aggregator.modifier().add(context.createMessage(VoterType::Large1, { FinalizationPoint(12), Stage }, Height(22), hash1));
-			aggregator.modifier().add(context.createMessage(VoterType::Large2, { FinalizationPoint(12), Stage }, Height(22), hash1));
+			aggregator.modifier().add(context.createMessage(VoterType::Large1, CreateStepIdentifier(12), Height(22), hash1));
+			aggregator.modifier().add(context.createMessage(VoterType::Large2, CreateStepIdentifier(12), Height(22), hash1));
 
 			auto hash2 = test::GenerateRandomByteArray<Hash256>();
-			aggregator.modifier().add(context.createMessage(VoterType::Large1, { FinalizationPoint(15), Stage }, Height(24), hash2));
-			aggregator.modifier().add(context.createMessage(VoterType::Large2, { FinalizationPoint(15), Stage }, Height(24), hash2));
+			aggregator.modifier().add(context.createMessage(VoterType::Large1, CreateStepIdentifier(15), Height(24), hash2));
+			aggregator.modifier().add(context.createMessage(VoterType::Large2, CreateStepIdentifier(15), Height(24), hash2));
 
 			// Assert:
 			AssertAggregatorCounters(context, FinalizationPoint(12), FinalizationPoint(15), Height(22), Height(24));

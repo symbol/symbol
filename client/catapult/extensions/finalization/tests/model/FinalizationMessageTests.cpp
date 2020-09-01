@@ -58,7 +58,7 @@ namespace catapult { namespace model {
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(FinalizationMessage));
-		EXPECT_EQ(4 + 316u, sizeof(FinalizationMessage));
+		EXPECT_EQ(4 + 324u, sizeof(FinalizationMessage));
 	}
 
 	TEST(TEST_CLASS, FinalizationMessageHasProperAlignment) {
@@ -213,7 +213,7 @@ namespace catapult { namespace model {
 	// region PrepareMessage
 
 	namespace {
-		constexpr auto Default_Step_Identifier = StepIdentifier{ FinalizationPoint(3), FinalizationStage::Prevote };
+		constexpr auto Default_Step_Identifier = StepIdentifier{ FinalizationEpoch(4), FinalizationPoint(3), FinalizationStage::Prevote };
 
 		template<typename TAction>
 		void RunPrepareMessageTest(VoterType voterType, uint32_t numHashes, TAction action) {

@@ -74,8 +74,12 @@ namespace catapult { namespace test {
 	/// Asserts that the given \a message is equivalent to a drop blocks message with \a height.
 	void AssertDropBlocksMessage(const zmq::multipart_t& message, Height height);
 
-	/// Asserts that the given \a message is equivalent to a finalized block message with \a height, \a hash and \a point.
-	void AssertFinalizedBlockMessage(const zmq::multipart_t& message, Height height, const Hash256& hash, FinalizationPoint point);
+	/// Asserts that the given \a message is equivalent to a finalized block message with \a round, \a height and \a hash.
+	void AssertFinalizedBlockMessage(
+			const zmq::multipart_t& message,
+			const model::FinalizationRound& round,
+			Height height,
+			const Hash256& hash);
 
 	/// Asserts that the given \a message has \a topic as first part and matches the data in \a transactionElement and \a height.
 	void AssertTransactionElementMessage(

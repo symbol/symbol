@@ -48,15 +48,25 @@ namespace catapult { namespace model {
 			std::vector<crypto::OtsTreeSignature>,
 			GroupFinalizationMessageComparer>;
 
-		MutableMessageGroups GroupMessages(FinalizationPoint point, const ConstMessages& messages) {
+			template<typename T>
+			bool RequireEqual(T lhs, T rhs, const char* name) {
+				if (lhs == rhs)
+					return true;
+
+				CATAPULT_LOG(warning)
+						<< "skipping message with unexpected " << name << " " << rhs
+						<< " when grouping messages at " << name << " " << lhs;
+				return false;
+			}
+
+		MutableMessageGroups GroupMessages(const model::FinalizationRound& round, const ConstMessages& messages) {
 			MessageSignatureGroups messageSignatureGroups;
 			for (const auto& pMessage : messages) {
-				if (point != pMessage->StepIdentifier.Point) {
-					CATAPULT_LOG(warning)
-							<< "skipping message with unexpected point " << pMessage->StepIdentifier.Point
-							<< " when grouping messages at point " << point;
+				if (!RequireEqual(round.Epoch, pMessage->StepIdentifier.Epoch, "epoch"))
 					continue;
-				}
+
+				if (!RequireEqual(round.Point, pMessage->StepIdentifier.Point, "point"))
+					continue;
 
 				auto iter = messageSignatureGroups.find(pMessage);
 				if (messageSignatureGroups.cend() == iter)
@@ -123,8 +133,8 @@ namespace catapult { namespace model {
 	}
 
 	std::unique_ptr<FinalizationProof> CreateFinalizationProof(const FinalizationStatistics& statistics, const ConstMessages& messages) {
-		auto pProof = GenerateProofWithMessageGroups(GroupMessages(statistics.Point, messages));
-		pProof->Point = statistics.Point;
+		auto pProof = GenerateProofWithMessageGroups(GroupMessages(statistics.Round, messages));
+		pProof->Round = statistics.Round;
 		pProof->Height = statistics.Height;
 		pProof->Hash = statistics.Hash;
 		return pProof;

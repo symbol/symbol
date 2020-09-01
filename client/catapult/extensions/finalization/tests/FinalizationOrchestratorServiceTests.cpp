@@ -63,6 +63,9 @@ namespace catapult { namespace finalization {
 		private:
 			using BaseType = test::ServiceLocatorTestContext<FinalizationOrchestratorServiceTraits>;
 
+		private:
+			static constexpr uint64_t Ots_Key_Dilution = 13;
+
 		public:
 			TestContext()
 					: m_createCompletedRound(false)
@@ -157,19 +160,22 @@ namespace catapult { namespace finalization {
 			}
 
 		private:
+			static auto CreateOtsKeyIdentifier(FinalizationPoint point, model::FinalizationStage stage) {
+				return model::StepIdentifierToOtsKeyIdentifier({ FinalizationEpoch(), point, stage }, Ots_Key_Dilution);
+			}
+
 			static void SeedOtsTree(const config::UserConfiguration& userConfig) {
 				auto votingOtsTreeFilename = config::CatapultDataDirectory(userConfig.DataDirectory).rootDir().file("voting_ots_tree.dat");
 				io::FileStream otsStream(io::RawFile(votingOtsTreeFilename, io::OpenMode::Read_Write));
 
-				auto dilution = 13u;
-				auto startKeyIdentifier = model::StepIdentifierToOtsKeyIdentifier({ FinalizationPoint(1), Prevote_Stage }, dilution);
-				auto endKeyIdentifier = model::StepIdentifierToOtsKeyIdentifier({ FinalizationPoint(100), Precommit_Stage }, dilution);
-				crypto::OtsTree::Create(test::GenerateKeyPair(), otsStream, { dilution, startKeyIdentifier, endKeyIdentifier });
+				auto startKeyIdentifier = CreateOtsKeyIdentifier(FinalizationPoint(1), Prevote_Stage);
+				auto endKeyIdentifier = CreateOtsKeyIdentifier(FinalizationPoint(100), Precommit_Stage);
+				crypto::OtsTree::Create(test::GenerateKeyPair(), otsStream, { Ots_Key_Dilution, startKeyIdentifier, endKeyIdentifier });
 			}
 
 			static void SeedVotingStatus(const config::UserConfiguration& userConfig, FinalizationPoint point) {
 				auto votingStatusFilename = config::CatapultDataDirectory(userConfig.DataDirectory).rootDir().file("voting_status.dat");
-				VotingStatusFile(votingStatusFilename).save({ point, false, false });
+				VotingStatusFile(votingStatusFilename).save({ { FinalizationEpoch(), point }, false, false });
 			}
 
 		private:
@@ -258,7 +264,7 @@ namespace catapult { namespace finalization {
 
 			// - voting status wasn't changed
 			auto votingStatus = context.votingStatus();
-			EXPECT_EQ(FinalizationPoint(8), votingStatus.Point);
+			EXPECT_EQ(test::CreateFinalizationRound(0, 8), votingStatus.Round);
 			EXPECT_FALSE(votingStatus.HasSentPrevote);
 			EXPECT_FALSE(votingStatus.HasSentPrecommit);
 		});
@@ -285,25 +291,25 @@ namespace catapult { namespace finalization {
 				// - subscriber was called
 				const auto& subscriberParams = subscriber.finalizedBlockParams().params();
 				ASSERT_EQ(1u, subscriberParams.size());
+				EXPECT_EQ(test::CreateFinalizationRound(0, 8), subscriberParams[0].Round);
 				EXPECT_EQ(Height(246), subscriberParams[0].Height);
 				EXPECT_EQ(expectedHash, subscriberParams[0].Hash);
-				EXPECT_EQ(FinalizationPoint(8), subscriberParams[0].Point);
 
 				// - storage was called (proof step identifier comes from test::CreateMessage)
 				const auto& savedProofDescriptors = storage.savedProofDescriptors();
 				ASSERT_EQ(1u, savedProofDescriptors.size());
+				EXPECT_EQ(test::CreateFinalizationRound(0, 8), savedProofDescriptors[0].Round);
 				EXPECT_EQ(Height(246), savedProofDescriptors[0].Height);
 				EXPECT_EQ(expectedHash, savedProofDescriptors[0].Hash);
-				EXPECT_EQ(FinalizationPoint(8), savedProofDescriptors[0].Point);
 
 				// - two messages were sent
 				ASSERT_EQ(2u, messages.size());
-				EXPECT_EQ(model::StepIdentifier({ FinalizationPoint(8), Prevote_Stage }), messages[0]->StepIdentifier);
-				EXPECT_EQ(model::StepIdentifier({ FinalizationPoint(8), Precommit_Stage }), messages[1]->StepIdentifier);
+				EXPECT_EQ(test::CreateStepIdentifier(1, 8, Prevote_Stage), messages[0]->StepIdentifier);
+				EXPECT_EQ(test::CreateStepIdentifier(1, 8, Precommit_Stage), messages[1]->StepIdentifier);
 
 				// - voting status was changed
 				auto votingStatus = context.votingStatus();
-				EXPECT_EQ(FinalizationPoint(9), votingStatus.Point);
+				EXPECT_EQ(test::CreateFinalizationRound(0, 9), votingStatus.Round);
 				EXPECT_FALSE(votingStatus.HasSentPrevote);
 				EXPECT_FALSE(votingStatus.HasSentPrecommit);
 			});

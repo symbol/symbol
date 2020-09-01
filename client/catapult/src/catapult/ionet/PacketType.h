@@ -107,8 +107,8 @@ namespace catapult { namespace ionet {
 	/* Finalization statistics have been requested by a peer. */ \
 	ENUM_VALUE(Finalization_Statistics, 0x132) \
 	\
-	/* Finalization proof has been requested at a specific finalization point. */ \
-	ENUM_VALUE(Finalization_Proof_At_Point, 0x133) \
+	/* Finalization proof has been requested at a specific finalization epoch. */ \
+	ENUM_VALUE(Finalization_Proof_At_Epoch, 0x133) \
 	\
 	/* Finalization proof has been requested at a specific finalization height. */ \
 	ENUM_VALUE(Finalization_Proof_At_Height, 0x134) \

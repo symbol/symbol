@@ -129,7 +129,7 @@ namespace catapult { namespace tools { namespace nemgen {
 			auto pProof = std::make_unique<model::FinalizationProof>();
 			pProof->Size = sizeof(model::FinalizationProofHeader);
 			pProof->Version = model::FinalizationProofHeader::Current_Version;
-			pProof->Point = FinalizationPoint(1);
+			pProof->Round = { FinalizationEpoch(1), FinalizationPoint(1) };
 			pProof->Height = Height(1);
 			pProof->Hash = nemesisEntityHash;
 			return pProof;

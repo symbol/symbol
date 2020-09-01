@@ -70,7 +70,7 @@ namespace catapult { namespace chain {
 					if (!bestPrevoteResultPair.second)
 						return false;
 
-					auto estimate = messageAggregatorView.findEstimate(m_point - FinalizationPoint(1));
+					auto estimate = messageAggregatorView.findEstimate({ m_epoch, m_point - FinalizationPoint(1) });
 					if (!roundContext.isDescendant(estimate, bestPrevoteResultPair.first))
 						return false;
 
@@ -92,7 +92,7 @@ namespace catapult { namespace chain {
 			bool requireRoundContext(const predicate<const MultiRoundMessageAggregatorView&, const RoundContext&>& predicate) const {
 				auto messageAggregatorView = m_messageAggregator.view();
 
-				const auto* pCurrentRoundContext = messageAggregatorView.tryGetRoundContext(m_point);
+				const auto* pCurrentRoundContext = messageAggregatorView.tryGetRoundContext({ m_epoch, m_point });
 				if (!pCurrentRoundContext)
 					return false;
 
@@ -100,6 +100,7 @@ namespace catapult { namespace chain {
 			}
 
 		private:
+			FinalizationEpoch m_epoch; // TODO: placeholder;
 			FinalizationPoint m_point;
 			PollingTimer m_timer;
 			const MultiRoundMessageAggregator& m_messageAggregator;

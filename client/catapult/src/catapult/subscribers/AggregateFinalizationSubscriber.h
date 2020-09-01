@@ -31,8 +31,8 @@ namespace catapult { namespace subscribers {
 		using BasicAggregateSubscriber<TFinalizationSubscriber>::BasicAggregateSubscriber;
 
 	public:
-		void notifyFinalizedBlock(Height height, const Hash256& hash, FinalizationPoint point) override {
-			this->forEach([height, &hash, point](auto& subscriber) { subscriber.notifyFinalizedBlock(height, hash, point); });
+		void notifyFinalizedBlock(const model::FinalizationRound& round, Height height, const Hash256& hash) override {
+			this->forEach([&round, height, &hash](auto& subscriber) { subscriber.notifyFinalizedBlock(round, height, hash); });
 		}
 	};
 }}

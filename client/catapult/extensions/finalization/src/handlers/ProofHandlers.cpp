@@ -35,7 +35,7 @@ namespace catapult { namespace handlers {
 				auto finalizationStatistics = proofStorage.view().statistics();
 
 				auto pResponsePacket = ionet::CreateSharedPacket<RequestType>();
-				pResponsePacket->Point = finalizationStatistics.Point;
+				pResponsePacket->Round = finalizationStatistics.Round;
 				pResponsePacket->Height = finalizationStatistics.Height;
 				pResponsePacket->Hash = finalizationStatistics.Hash;
 				context.response(ionet::PacketPayload(pResponsePacket));
@@ -48,13 +48,13 @@ namespace catapult { namespace handlers {
 	}
 
 	namespace {
-		struct ProofAtPointTraits {
-			using RequestType = api::ProofAtPointRequest;
+		struct ProofAtEpochTraits {
+			using RequestType = api::ProofAtEpochRequest;
 
 			static auto LoadProof(const io::ProofStorageView& proofStorageView, const RequestType& request) {
-				return FinalizationPoint() == request.Point || request.Point > proofStorageView.statistics().Point
+				return FinalizationEpoch() == request.Epoch || request.Epoch > proofStorageView.statistics().Round.Epoch
 						? nullptr
-						: proofStorageView.loadProof(request.Point);
+						: proofStorageView.loadProof(request.Epoch);
 			}
 		};
 
@@ -91,10 +91,10 @@ namespace catapult { namespace handlers {
 		}
 	}
 
-	void RegisterFinalizationProofAtPointHandler(ionet::ServerPacketHandlers& handlers, const io::ProofStorageCache& proofStorage) {
+	void RegisterFinalizationProofAtEpochHandler(ionet::ServerPacketHandlers& handlers, const io::ProofStorageCache& proofStorage) {
 		handlers.registerHandler(
-				ionet::PacketType::Finalization_Proof_At_Point,
-				CreateFinalizationProofHandler<ProofAtPointTraits>(proofStorage));
+				ionet::PacketType::Finalization_Proof_At_Epoch,
+				CreateFinalizationProofHandler<ProofAtEpochTraits>(proofStorage));
 	}
 
 	void RegisterFinalizationProofAtHeightHandler(ionet::ServerPacketHandlers& handlers, const io::ProofStorageCache& proofStorage) {

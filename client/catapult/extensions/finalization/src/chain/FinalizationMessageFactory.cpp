@@ -34,10 +34,10 @@ namespace catapult { namespace chain {
 			return 0 == value % multiple ? value : ((value / multiple + adjustment) * multiple);
 		}
 
-		std::pair<FinalizationPoint, Height> LoadFinalizationState(const io::ProofStorageCache& proofStorage) {
+		std::pair<FinalizationEpoch, Height> LoadFinalizationState(const io::ProofStorageCache& proofStorage) {
 			auto view = proofStorage.view();
 			auto finalizationStatistics = view.statistics();
-			return std::make_pair(finalizationStatistics.Point, finalizationStatistics.Height);
+			return std::make_pair(finalizationStatistics.Round.Epoch, finalizationStatistics.Height);
 		}
 
 		Hash256 LoadLastFinalizedHash(const io::ProofStorageCache& proofStorage) {
@@ -97,7 +97,7 @@ namespace catapult { namespace chain {
 				if (hashRange.empty())
 					hashRange = ToHashRange(LoadLastFinalizedHash(m_proofStorage));
 
-				auto stepIdentifier = model::StepIdentifier{ point, model::FinalizationStage::Prevote };
+				auto stepIdentifier = model::StepIdentifier{ finalizationState.first, point, model::FinalizationStage::Prevote };
 				return model::PrepareMessage(m_otsTree, stepIdentifier, finalizationState.second, hashRange);
 			}
 
@@ -105,9 +105,10 @@ namespace catapult { namespace chain {
 					FinalizationPoint point,
 					Height height,
 					const Hash256& hash) override {
+				auto finalizationState = LoadFinalizationState(m_proofStorage);
 				auto hashRange = ToHashRange(hash);
 
-				auto stepIdentifier = model::StepIdentifier{ point, model::FinalizationStage::Precommit };
+				auto stepIdentifier = model::StepIdentifier{ finalizationState.first, point, model::FinalizationStage::Precommit };
 				return model::PrepareMessage(m_otsTree, stepIdentifier, height, hashRange);
 			}
 

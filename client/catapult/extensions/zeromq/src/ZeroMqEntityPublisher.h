@@ -27,6 +27,7 @@ namespace catapult {
 	namespace model {
 		struct BlockElement;
 		struct Cosignature;
+		struct FinalizationRound;
 		struct Transaction;
 		struct TransactionElement;
 		struct TransactionInfo;
@@ -88,8 +89,8 @@ namespace catapult { namespace zeromq {
 		/// Publishes the \a height after which all blocks were dropped.
 		void publishDropBlocks(Height height);
 
-		/// Publishes a finalized block with \a height and \a hash at \a point.
-		void publishFinalizedBlock(Height height, const Hash256& hash, FinalizationPoint point);
+		/// Publishes a finalized block with \a height and \a hash at \a round.
+		void publishFinalizedBlock(const model::FinalizationRound& round, Height height, const Hash256& hash);
 
 		/// Publishes a transaction using \a topicMarker, \a transactionElement and \a height.
 		void publishTransaction(TransactionMarker topicMarker, const model::TransactionElement& transactionElement, Height height);

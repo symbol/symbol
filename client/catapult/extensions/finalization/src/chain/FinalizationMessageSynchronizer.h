@@ -21,6 +21,7 @@
 #pragma once
 #include "finalization/src/handlers/FinalizationHandlerTypes.h"
 #include "catapult/chain/RemoteNodeSynchronizer.h"
+#include "catapult/model/FinalizationRound.h"
 #include "catapult/model/RangeTypes.h"
 
 namespace catapult { namespace api { class RemoteFinalizationApi; } }
@@ -28,7 +29,7 @@ namespace catapult { namespace api { class RemoteFinalizationApi; } }
 namespace catapult { namespace chain {
 
 	/// Function signature for supplying a step identifier and short hashes pair.
-	using FinalizationMessageSynchronizerFilterSupplier = supplier<std::pair<FinalizationPoint, model::ShortHashRange>>;
+	using FinalizationMessageSynchronizerFilterSupplier = supplier<std::pair<model::FinalizationRound, model::ShortHashRange>>;
 
 	/// Creates a finalization message synchronizer around a message filter supplier (\a messageFilterSupplier)
 	/// and message range consumer (\a messageRangeConsumer).

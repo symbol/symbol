@@ -20,6 +20,7 @@
 
 #pragma once
 #include "RoundMessageAggregator.h"
+#include "catapult/model/FinalizationRound.h"
 #include "catapult/model/HeightHashPair.h"
 #include "catapult/utils/SpinReaderWriterLock.h"
 
@@ -31,8 +32,8 @@ namespace catapult { namespace chain {
 
 	/// Describes the best precommit.
 	struct BestPrecommitDescriptor {
-		/// Finalization point that is completed.
-		FinalizationPoint Point;
+		/// Finalization round.
+		model::FinalizationRound Round;
 
 		/// Height hash pair corresponding to the block that can be finalized.
 		model::HeightHashPair Target;
@@ -63,11 +64,11 @@ namespace catapult { namespace chain {
 		/// Gets the maximum finalization point of messages that can be accepted.
 		FinalizationPoint maxFinalizationPoint() const;
 
-		/// Tries to get the round context for the round specified by \a point.
-		const RoundContext* tryGetRoundContext(FinalizationPoint point) const;
+		/// Tries to get the round context for the specified \a round.
+		const RoundContext* tryGetRoundContext(const model::FinalizationRound& round) const;
 
-		/// Finds the estimate for the round specified by \a point.
-		model::HeightHashPair findEstimate(FinalizationPoint point) const;
+		/// Finds the estimate for the specified \a round.
+		model::HeightHashPair findEstimate(const model::FinalizationRound& round) const;
 
 		/// Finds the candidate with the largest height that has at least threshold prevotes and precommits, if any.
 		BestPrecommitDescriptor tryFindBestPrecommit() const;
@@ -76,10 +77,10 @@ namespace catapult { namespace chain {
 		/// \note Each short hash consists of the first 4 bytes of the complete hash.
 		model::ShortHashRange shortHashes() const;
 
-		/// Gets all finalization messages with a finalization point no greater than \a point that do not have a
+		/// Gets all finalization messages with a finalization point no greater than \a round that do not have a
 		/// short hash in \a knownShortHashes.
 		RoundMessageAggregator::UnknownMessages unknownMessages(
-				FinalizationPoint point,
+				const model::FinalizationRound& round,
 				const utils::ShortHashesSet& knownShortHashes) const;
 
 	private:
@@ -102,6 +103,8 @@ namespace catapult { namespace chain {
 	public:
 		/// Sets the maximum finalization \a point of messages that can be accepted.
 		void setMaxFinalizationPoint(FinalizationPoint point);
+
+		// TODO: need to add a way to update epoch
 
 		/// Adds a finalization message (\a pMessage) to the aggregator.
 		/// \note Message is a shared_ptr because it is detached from an EntityRange and is kept alive with its associated step.

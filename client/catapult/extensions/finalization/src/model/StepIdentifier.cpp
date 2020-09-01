@@ -26,7 +26,7 @@ namespace catapult { namespace model {
 	// region step identifier
 
 	bool StepIdentifier::operator==(const StepIdentifier& rhs) const {
-		return Point == rhs.Point && Stage == rhs.Stage;
+		return Epoch == rhs.Epoch && Point == rhs.Point && Stage == rhs.Stage;
 	}
 
 	bool StepIdentifier::operator!=(const StepIdentifier& rhs) const {
@@ -34,7 +34,13 @@ namespace catapult { namespace model {
 	}
 
 	bool StepIdentifier::operator<(const StepIdentifier& rhs) const {
-		return Point < rhs.Point || (Point == rhs.Point && Stage < rhs.Stage);
+		if (Epoch != rhs.Epoch)
+			return Epoch < rhs.Epoch;
+
+		if (Point != rhs.Point)
+			return Point < rhs.Point;
+
+		return Stage < rhs.Stage;
 	}
 
 	bool StepIdentifier::operator<=(const StepIdentifier& rhs) const {
@@ -50,7 +56,10 @@ namespace catapult { namespace model {
 	}
 
 	std::ostream& operator<<(std::ostream& out, const StepIdentifier& stepIdentifier) {
-		out << "(" << stepIdentifier.Point << ", " << utils::to_underlying_type(stepIdentifier.Stage) << ")";
+		out
+				<< "(" << stepIdentifier.Epoch
+				<< ", " << stepIdentifier.Point
+				<< ", " << utils::to_underlying_type(stepIdentifier.Stage) << ")";
 		return out;
 	}
 

@@ -60,15 +60,15 @@ namespace catapult { namespace test {
 					boost::filesystem::create_directories(destination + nemesisDirectory);
 
 					FakeFinalizationHeightMapping(destination, 2);
-					SetIndexFinalizationPoint(destination, FinalizationPoint(1));
+					SetIndexFinalizationEpoch(destination, FinalizationEpoch(1));
 				}
 
 				return TTraits::CreateStorage(destination);
 			}
 
-			static void SetIndexFinalizationPoint(const std::string& destination, FinalizationPoint finalizationPoint) {
+			static void SetIndexFinalizationEpoch(const std::string& destination, FinalizationEpoch epoch) {
 				io::RawFile indexFile(destination + "/proof.index.dat", io::OpenMode::Read_Write);
-				io::Write64(indexFile, finalizationPoint.unwrap());
+				io::Write64(indexFile, epoch.unwrap());
 				io::Write64(indexFile, 0);
 				indexFile.write(Hash256());
 			}
@@ -93,21 +93,21 @@ namespace catapult { namespace test {
 
 		// region test utils
 
-		static auto GenerateProof(size_t numMessages, FinalizationPoint point, Height height) {
+		static auto GenerateProof(size_t numMessages, FinalizationEpoch epoch, FinalizationPoint point, Height height) {
 			std::vector<std::shared_ptr<const model::FinalizationMessage>> messages;
 			auto hash = GenerateRandomByteArray<Hash256>();
 
-			model::StepIdentifier stepIdentifier{ point, model::FinalizationStage::Precommit };
+			model::StepIdentifier stepIdentifier{ epoch, point, model::FinalizationStage::Precommit };
 			for (auto i = 0u; i < numMessages; ++i)
 				messages.push_back(CreateMessage(stepIdentifier, hash));
 
-			return model::CreateFinalizationProof({ point, height, hash }, messages);
+			return model::CreateFinalizationProof({ { epoch, point }, height, hash }, messages);
 		}
 
 		static auto PrepareStorageWithProofs(size_t numProofs) {
 			StorageContext context(PreparationMode::Default);
-			for (auto i = 2u; i <= numProofs; ++i) {
-				auto pProof = GenerateProof(5, FinalizationPoint(i), Height(100 + 2 * i));
+			for (auto i = 1u; i <= numProofs; ++i) {
+				auto pProof = GenerateProof(5, FinalizationEpoch(i), FinalizationPoint(6), Height(100 + 2 * i));
 				context->saveProof(*pProof);
 			}
 
@@ -120,13 +120,13 @@ namespace catapult { namespace test {
 
 		static void AssertStorageStatistics(const io::ProofStorage& storage, const model::FinalizationStatistics& statistics) {
 			auto storageStatistics = storage.statistics();
-			EXPECT_EQ(statistics.Point, storageStatistics.Point);
+			EXPECT_EQ(statistics.Round, storageStatistics.Round);
 			EXPECT_EQ(statistics.Height, storageStatistics.Height);
 			EXPECT_EQ(statistics.Hash, storageStatistics.Hash);
 		}
 
 		static void AssertSerializedProof(const model::FinalizationProof& expectedProof, const model::FinalizationProof& actualProof) {
-			EXPECT_EQ(expectedProof.Point, actualProof.Point);
+			EXPECT_EQ(expectedProof.Round, actualProof.Round);
 			EXPECT_EQ(expectedProof.Height, actualProof.Height);
 			EXPECT_EQ(expectedProof.Hash, actualProof.Hash);
 
@@ -150,35 +150,52 @@ namespace catapult { namespace test {
 
 		// region saveProof - success
 
-		static void AssertSavingProofWithFinalizationPointHigherThanCurrentFinalizationPointAltersFinalizationIndexes() {
+		static void AssertSavingProofWithFinalizationEpochHigherThanCurrentFinalizationEpochAltersFinalizationIndexes() {
 			// Arrange:
 			auto pStorage = PrepareStorageWithProofs(10);
-			auto pProof1 = GenerateProof(3, FinalizationPoint(11), Height(123));
-			auto pProof2 = GenerateProof(3, FinalizationPoint(12), Height(125));
+			auto pProof1 = GenerateProof(3, FinalizationEpoch(11), FinalizationPoint(1), Height(123));
+			auto pProof2 = GenerateProof(3, FinalizationEpoch(12), FinalizationPoint(1), Height(125));
 			pStorage->saveProof(*pProof1);
 
 			// Sanity:
-			AssertStorageStatistics(*pStorage, { FinalizationPoint(11), Height(123), pProof1->Hash });
+			AssertStorageStatistics(*pStorage, { { FinalizationEpoch(11), FinalizationPoint(1) }, Height(123), pProof1->Hash });
 
 			// Act:
 			pStorage->saveProof(*pProof2);
 
 			// Assert:
-			AssertStorageStatistics(*pStorage, { FinalizationPoint(12), Height(125), pProof2->Hash });
+			AssertStorageStatistics(*pStorage, { { FinalizationEpoch(12), FinalizationPoint(1) }, Height(125), pProof2->Hash });
+		}
+
+		static void AssertSavingProofWithFinalizationPointHigherThanCurrentFinalizationPointAltersFinalizationIndexes() {
+			// Arrange:
+			auto pStorage = PrepareStorageWithProofs(10);
+			auto pProof1 = GenerateProof(3, FinalizationEpoch(10), FinalizationPoint(7), Height(123));
+			auto pProof2 = GenerateProof(3, FinalizationEpoch(10), FinalizationPoint(8), Height(125));
+			pStorage->saveProof(*pProof1);
+
+			// Sanity:
+			AssertStorageStatistics(*pStorage, { { FinalizationEpoch(10), FinalizationPoint(7) }, Height(123), pProof1->Hash });
+
+			// Act:
+			pStorage->saveProof(*pProof2);
+
+			// Assert:
+			AssertStorageStatistics(*pStorage, { { FinalizationEpoch(10), FinalizationPoint(8) }, Height(125), pProof2->Hash });
 		}
 
 		static void AssertCanLoadNewlySavedProof() {
 			// Arrange:
 			auto pStorage = PrepareStorageWithProofs(10);
-			auto pProof = GenerateProof(3, FinalizationPoint(11), Height(123));
+			auto pProof = GenerateProof(3, FinalizationEpoch(11), FinalizationPoint(7), Height(123));
 
 			// Act:
 			pStorage->saveProof(*pProof);
 
-			auto pLoadedProof = pStorage->loadProof(FinalizationPoint(11));
+			auto pLoadedProof = pStorage->loadProof(FinalizationEpoch(11));
 
 			// Assert:
-			AssertStorageStatistics(*pStorage, { FinalizationPoint(11), Height(123), pProof->Hash });
+			AssertStorageStatistics(*pStorage, { { FinalizationEpoch(11), FinalizationPoint(7) }, Height(123), pProof->Hash });
 			AssertSerializedProof(*pProof, *pLoadedProof);
 		}
 
@@ -187,19 +204,19 @@ namespace catapult { namespace test {
 		// region saveProof - failure
 
 	private:
-		static void AssertCannotSaveProofAtFinalizationPoint(FinalizationPoint newFinalizationPoint) {
+		static void AssertCannotSaveProofAtFinalizationRound(const model::FinalizationRound& newFinalizationRound) {
 			// Arrange:
 			auto pStorage = PrepareStorageWithProofs(10);
-			auto pProof = GenerateProof(3, newFinalizationPoint, Height(123));
+			auto pProof = GenerateProof(3, newFinalizationRound.Epoch, newFinalizationRound.Point, Height(123));
 
 			// Act + Assert:
 			EXPECT_THROW(pStorage->saveProof(*pProof), catapult_invalid_argument);
 		}
 
-		static void AssertCanSaveProofAtFinalizationPoint(FinalizationPoint newFinalizationPoint) {
+		static void AssertCanSaveProofAtFinalizationRound(const model::FinalizationRound& newFinalizationRound) {
 			// Arrange:
 			auto pStorage = PrepareStorageWithProofs(10);
-			auto pProof = GenerateProof(3, newFinalizationPoint, Height(123));
+			auto pProof = GenerateProof(3, newFinalizationRound.Epoch, newFinalizationRound.Point, Height(123));
 
 			// Act + Assert:
 			EXPECT_NO_THROW(pStorage->saveProof(*pProof));
@@ -208,7 +225,7 @@ namespace catapult { namespace test {
 		static void AssertCannotSaveProofAtHeight(Height newFinalizedHeight) {
 			// Arrange: prepare storage with proofs for heights 104-120
 			auto pStorage = PrepareStorageWithProofs(10);
-			auto pProof = GenerateProof(3, FinalizationPoint(11), newFinalizedHeight);
+			auto pProof = GenerateProof(3, FinalizationEpoch(11), FinalizationPoint(7), newFinalizedHeight);
 
 			// Act + Assert:
 			EXPECT_THROW(pStorage->saveProof(*pProof), catapult_invalid_argument);
@@ -217,24 +234,32 @@ namespace catapult { namespace test {
 		static void AssertCanSaveProofAtHeight(Height newFinalizedHeight) {
 			// Arrange: prepare storage with proofs for heights 104-120
 			auto pStorage = PrepareStorageWithProofs(10);
-			auto pProof = GenerateProof(3, FinalizationPoint(11), newFinalizedHeight);
+			auto pProof = GenerateProof(3, FinalizationEpoch(11), FinalizationPoint(7), newFinalizedHeight);
 
 			// Act + Assert:
 			EXPECT_NO_THROW(pStorage->saveProof(*pProof));
 		}
 
 	public:
-		static void AssertCannotSaveProofWithFinalizationPointLessThanCurrentFinalizationPoint() {
-			AssertCannotSaveProofAtFinalizationPoint(FinalizationPoint(1));
-			AssertCannotSaveProofAtFinalizationPoint(FinalizationPoint(8));
-			AssertCannotSaveProofAtFinalizationPoint(FinalizationPoint(9));
+		static void AssertCannotSaveProofWithFinalizationRoundLessThanCurrentFinalizationRound() {
+			AssertCannotSaveProofAtFinalizationRound({ FinalizationEpoch(1), FinalizationPoint(1) });
+			AssertCannotSaveProofAtFinalizationRound({ FinalizationEpoch(8), FinalizationPoint(10) });
+			AssertCannotSaveProofAtFinalizationRound({ FinalizationEpoch(9), FinalizationPoint(10) });
+			AssertCannotSaveProofAtFinalizationRound({ FinalizationEpoch(10), FinalizationPoint(1) });
+			AssertCannotSaveProofAtFinalizationRound({ FinalizationEpoch(10), FinalizationPoint(5) });
 		}
 
-		static void AssertCanSaveProofWithFinalizationPointGreaterThanOrEqualToCurrentFinalizationPoint() {
-			AssertCanSaveProofAtFinalizationPoint(FinalizationPoint(10));
-			AssertCanSaveProofAtFinalizationPoint(FinalizationPoint(11));
-			AssertCanSaveProofAtFinalizationPoint(FinalizationPoint(110));
-			AssertCanSaveProofAtFinalizationPoint(FinalizationPoint(150));
+		static void AssertCanSaveProofWithFinalizationRoundWithinOneEpochOfCurrentFinalizationRound() {
+			AssertCanSaveProofAtFinalizationRound({ FinalizationEpoch(10), FinalizationPoint(6) });
+			AssertCanSaveProofAtFinalizationRound({ FinalizationEpoch(10), FinalizationPoint(7) });
+			AssertCanSaveProofAtFinalizationRound({ FinalizationEpoch(11), FinalizationPoint(1) });
+			AssertCanSaveProofAtFinalizationRound({ FinalizationEpoch(11), FinalizationPoint(7) });
+			AssertCanSaveProofAtFinalizationRound({ FinalizationEpoch(11), FinalizationPoint(11) });
+		}
+
+		static void AssertCannotSaveProofWithFinalizationRoundGreaterThanOneEpochAboveCurrentFinalizationRound() {
+			AssertCannotSaveProofAtFinalizationRound({ FinalizationEpoch(12), FinalizationPoint(1) });
+			AssertCannotSaveProofAtFinalizationRound({ FinalizationEpoch(110), FinalizationPoint(1) });
 		}
 
 		static void AssertCannotSaveProofWithHeightLessThanCurrentHeight() {
@@ -252,55 +277,55 @@ namespace catapult { namespace test {
 
 		// region loadProof(point)
 
-		static void AssertCanLoadProofAtFinalizationPointLessThanCurrentFinalizationPoint() {
+		static void AssertCanLoadProofAtFinalizationEpochLessThanCurrentFinalizationEpoch() {
 			// Arrange:
 			auto pStorage = PrepareStorageWithProofs(10);
 
-			auto pProof1 = GenerateProof(3, FinalizationPoint(11), Height(123));
+			auto pProof1 = GenerateProof(3, FinalizationEpoch(11), FinalizationPoint(7), Height(123));
 			pStorage->saveProof(*pProof1);
 
-			auto pProof2 = GenerateProof(3, FinalizationPoint(12), Height(125));
+			auto pProof2 = GenerateProof(3, FinalizationEpoch(12), FinalizationPoint(7), Height(125));
 			pStorage->saveProof(*pProof2);
 
 			// Act:
-			auto pLoadedProof = pStorage->loadProof(FinalizationPoint(11));
+			auto pLoadedProof = pStorage->loadProof(FinalizationEpoch(11));
 
 			// Assert:
-			AssertStorageStatistics(*pStorage, { FinalizationPoint(12), Height(125), pProof2->Hash });
+			AssertStorageStatistics(*pStorage, { { FinalizationEpoch(12), FinalizationPoint(7) }, Height(125), pProof2->Hash });
 			AssertSerializedProof(*pProof1, *pLoadedProof);
 		}
 
-		static void AssertCannotLoadProofAtFinalizationPointZero() {
+		static void AssertCannotLoadProofAtFinalizationEpochZero() {
 			// Arrange:
 			auto pStorage = PrepareStorageWithProofs(10);
 
 			// Act + Assert:
-			EXPECT_THROW(pStorage->loadProof(FinalizationPoint(0)), catapult_invalid_argument);
+			EXPECT_THROW(pStorage->loadProof(FinalizationEpoch()), catapult_invalid_argument);
 		}
 
-		static void AssertCannotLoadProofAtFinalizationPointGreaterThanCurrentFinalizationPoint() {
+		static void AssertCannotLoadProofAtFinalizationEpochGreaterThanCurrentFinalizationEpoch() {
 			// Arrange:
 			auto pStorage = PrepareStorageWithProofs(10);
 
 			// Act + Assert:
-			EXPECT_THROW(pStorage->loadProof(FinalizationPoint(11)), catapult_invalid_argument);
+			EXPECT_THROW(pStorage->loadProof(FinalizationEpoch(11)), catapult_invalid_argument);
 		}
 
 		static void AssertCanLoadMultipleSavedProofs() {
 			// Arrange:
 			auto pStorage = PrepareStorageWithProofs(10);
 
-			auto pProof1 = GenerateProof(3, FinalizationPoint(11), Height(123));
-			auto pProof2 = GenerateProof(3, FinalizationPoint(12), Height(125));
+			auto pProof1 = GenerateProof(3, FinalizationEpoch(11), FinalizationPoint(7), Height(123));
+			auto pProof2 = GenerateProof(3, FinalizationEpoch(12), FinalizationPoint(7), Height(125));
 			pStorage->saveProof(*pProof1);
 			pStorage->saveProof(*pProof2);
 
 			// Act:
-			auto pLoadedProof1 = pStorage->loadProof(FinalizationPoint(11));
-			auto pLoadedProof2 = pStorage->loadProof(FinalizationPoint(12));
+			auto pLoadedProof1 = pStorage->loadProof(FinalizationEpoch(11));
+			auto pLoadedProof2 = pStorage->loadProof(FinalizationEpoch(12));
 
 			// Assert:
-			AssertStorageStatistics(*pStorage, { FinalizationPoint(12), Height(125), pProof2->Hash });
+			AssertStorageStatistics(*pStorage, { { FinalizationEpoch(12), FinalizationPoint(7) }, Height(125), pProof2->Hash });
 			AssertSerializedProof(*pProof1, *pLoadedProof1);
 			AssertSerializedProof(*pProof2, *pLoadedProof2);
 		}
@@ -313,14 +338,14 @@ namespace catapult { namespace test {
 			// Arrange:
 			auto pStorage = PrepareStorageWithProofs(10);
 
-			auto pProof = GenerateProof(3, FinalizationPoint(11), Height(123));
+			auto pProof = GenerateProof(3, FinalizationEpoch(11), FinalizationPoint(7), Height(123));
 			pStorage->saveProof(*pProof);
 
 			// Act:
 			auto pLoadedProof = pStorage->loadProof(Height(123));
 
 			// Assert:
-			AssertStorageStatistics(*pStorage, { FinalizationPoint(11), Height(123), pProof->Hash });
+			AssertStorageStatistics(*pStorage, { { FinalizationEpoch(11), FinalizationPoint(7) }, Height(123), pProof->Hash });
 			AssertSerializedProof(*pProof, *pLoadedProof);
 		}
 
@@ -328,17 +353,17 @@ namespace catapult { namespace test {
 			// Arrange:
 			auto pStorage = PrepareStorageWithProofs(10);
 
-			auto pProof1 = GenerateProof(3, FinalizationPoint(11), Height(123));
+			auto pProof1 = GenerateProof(3, FinalizationEpoch(11), FinalizationPoint(7), Height(123));
 			pStorage->saveProof(*pProof1);
 
-			auto pProof2 = GenerateProof(3, FinalizationPoint(12), Height(125));
+			auto pProof2 = GenerateProof(3, FinalizationEpoch(12), FinalizationPoint(7), Height(125));
 			pStorage->saveProof(*pProof2);
 
 			// Act:
 			auto pLoadedProof = pStorage->loadProof(Height(123));
 
 			// Assert: finalized proof is proof2, but requested proof is correctly loaded
-			AssertStorageStatistics(*pStorage, { FinalizationPoint(12), Height(125), pProof2->Hash });
+			AssertStorageStatistics(*pStorage, { { FinalizationEpoch(12), FinalizationPoint(7) }, Height(125), pProof2->Hash });
 			AssertSerializedProof(*pProof1, *pLoadedProof);
 		}
 
@@ -346,20 +371,20 @@ namespace catapult { namespace test {
 			// Arrange:
 			auto pStorage = PrepareStorageWithProofs(10);
 
-			auto pProof1 = GenerateProof(3, FinalizationPoint(11), Height(123));
+			auto pProof1 = GenerateProof(3, FinalizationEpoch(11), FinalizationPoint(7), Height(123));
 			pStorage->saveProof(*pProof1);
 
-			auto pProof2 = GenerateProof(3, FinalizationPoint(12), Height(123));
+			auto pProof2 = GenerateProof(3, FinalizationEpoch(12), FinalizationPoint(7), Height(123));
 			pStorage->saveProof(*pProof2);
 
-			auto pProof3 = GenerateProof(3, FinalizationPoint(13), Height(123));
+			auto pProof3 = GenerateProof(3, FinalizationEpoch(13), FinalizationPoint(7), Height(123));
 			pStorage->saveProof(*pProof3);
 
 			// Act:
 			auto pLoadedProof = pStorage->loadProof(Height(123));
 
 			// Assert:
-			AssertStorageStatistics(*pStorage, { FinalizationPoint(13), Height(123), pProof3->Hash });
+			AssertStorageStatistics(*pStorage, { { FinalizationEpoch(13), FinalizationPoint(7) }, Height(123), pProof3->Hash });
 			AssertSerializedProof(*pProof3, *pLoadedProof);
 		}
 
@@ -375,7 +400,7 @@ namespace catapult { namespace test {
 			// Arrange:
 			auto pStorage = PrepareStorageWithProofs(10);
 
-			auto pProof = GenerateProof(3, FinalizationPoint(11), Height(123));
+			auto pProof = GenerateProof(3, FinalizationEpoch(11), FinalizationPoint(7), Height(123));
 			pStorage->saveProof(*pProof);
 
 			// Act + Assert:
@@ -386,10 +411,10 @@ namespace catapult { namespace test {
 			// Arrange:
 			auto pStorage = PrepareStorageWithProofs(10);
 
-			auto pProof1 = GenerateProof(3, FinalizationPoint(11), Height(123));
+			auto pProof1 = GenerateProof(3, FinalizationEpoch(11), FinalizationPoint(7), Height(123));
 			pStorage->saveProof(*pProof1);
 
-			auto pProof2 = GenerateProof(3, FinalizationPoint(12), Height(125));
+			auto pProof2 = GenerateProof(3, FinalizationEpoch(12), FinalizationPoint(7), Height(125));
 			pStorage->saveProof(*pProof2);
 
 			// Act:
@@ -403,12 +428,12 @@ namespace catapult { namespace test {
 			// Arrange:
 			auto pStorage = PrepareStorageWithProofs(10);
 
-			auto pProof1 = GenerateProof(3, FinalizationPoint(11), Height(123));
+			auto pProof1 = GenerateProof(3, FinalizationEpoch(11), FinalizationPoint(7), Height(123));
 			pStorage->saveProof(*pProof1);
 
 			Hash256 lastHash;
 			for (auto i = 0u; i < 200; ++i) {
-				auto pProof2 = GenerateProof(1, FinalizationPoint(12 + i), Height(130 + 2 * i));
+				auto pProof2 = GenerateProof(1, FinalizationEpoch(12 + i), FinalizationPoint(7), Height(130 + 2 * i));
 				pStorage->saveProof(*pProof2);
 
 				if (199 == i)
@@ -419,7 +444,7 @@ namespace catapult { namespace test {
 			auto pLoadedProof = pStorage->loadProof(Height(123));
 
 			// Assert: finalized proof is proof2, but requested proof is correctly loaded
-			AssertStorageStatistics(*pStorage, { FinalizationPoint(211), Height(528), lastHash });
+			AssertStorageStatistics(*pStorage, { { FinalizationEpoch(211), FinalizationPoint(7) }, Height(528), lastHash });
 			AssertSerializedProof(*pProof1, *pLoadedProof);
 		}
 
@@ -435,17 +460,19 @@ namespace catapult { namespace test {
 #define DEFINE_PROOF_STORAGE_TESTS(TRAITS_NAME) \
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, StatisticsReturnsEmptyStatisticsWhenIndexDoesNotExist) \
 	\
+	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, SavingProofWithFinalizationEpochHigherThanCurrentFinalizationEpochAltersFinalizationIndexes) \
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, SavingProofWithFinalizationPointHigherThanCurrentFinalizationPointAltersFinalizationIndexes) \
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CanLoadNewlySavedProof) \
 	\
-	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotSaveProofWithFinalizationPointLessThanCurrentFinalizationPoint) \
-	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CanSaveProofWithFinalizationPointGreaterThanOrEqualToCurrentFinalizationPoint) \
+	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotSaveProofWithFinalizationRoundLessThanCurrentFinalizationRound) \
+	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CanSaveProofWithFinalizationRoundWithinOneEpochOfCurrentFinalizationRound) \
+	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotSaveProofWithFinalizationRoundGreaterThanOneEpochAboveCurrentFinalizationRound) \
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotSaveProofWithHeightLessThanCurrentHeight) \
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CanSaveProofWithHeightGreaterThanOrEqualToCurrentHeight) \
 	\
-	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CanLoadProofAtFinalizationPointLessThanCurrentFinalizationPoint) \
-	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotLoadProofAtFinalizationPointZero) \
-	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotLoadProofAtFinalizationPointGreaterThanCurrentFinalizationPoint) \
+	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CanLoadProofAtFinalizationEpochLessThanCurrentFinalizationEpoch) \
+	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotLoadProofAtFinalizationEpochZero) \
+	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotLoadProofAtFinalizationEpochGreaterThanCurrentFinalizationEpoch) \
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CanLoadMultipleSavedProofs) \
 	\
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CanLoadProofAtFinalizedHeight) \

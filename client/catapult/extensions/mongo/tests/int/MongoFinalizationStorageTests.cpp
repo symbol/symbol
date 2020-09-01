@@ -38,9 +38,9 @@ namespace catapult { namespace mongo {
 		// region test utils
 
 		struct FinalizedBlockDescriptor {
+			model::FinalizationRound Round;
 			catapult::Height Height;
 			Hash256 Hash;
-			FinalizationPoint Point;
 		};
 
 		using FinalizedBlocksMap = std::unordered_map<Height, FinalizedBlockDescriptor, utils::BaseValueHasher<Height>>;
@@ -52,8 +52,10 @@ namespace catapult { namespace mongo {
 
 		auto CreateFinalizedBlockDescriptors(size_t count) {
 			std::vector<FinalizedBlockDescriptor> descriptors;
-			for (auto i = 1u; i <= count; ++i)
-				descriptors.push_back({ Height(i * i), test::GenerateRandomByteArray<Hash256>(), FinalizationPoint(i) });
+			for (auto i = 1u; i <= count; ++i) {
+				auto round = model::FinalizationRound{ FinalizationEpoch(i), FinalizationPoint(2 * i) };
+				descriptors.push_back({ round, Height(i * i), test::GenerateRandomByteArray<Hash256>() });
+			}
 
 			return descriptors;
 		}
@@ -75,9 +77,10 @@ namespace catapult { namespace mongo {
 				ASSERT_TRUE(expectedDescriptors.cend() != expectedIter);
 
 				const auto& descriptor = expectedIter->second;
+				EXPECT_EQ(descriptor.Round.Epoch, FinalizationEpoch(test::GetUint64(blockView, "finalizationEpoch")));
+				EXPECT_EQ(descriptor.Round.Point, FinalizationPoint(test::GetUint64(blockView, "finalizationPoint")));
 				EXPECT_EQ(descriptor.Height, dbHeight);
 				EXPECT_EQ(descriptor.Hash, test::GetHashValue(blockView, "hash"));
-				EXPECT_EQ(descriptor.Point, FinalizationPoint(test::GetUint64(blockView, "finalizationPoint")));
 			}
 		}
 
@@ -109,7 +112,7 @@ namespace catapult { namespace mongo {
 
 		public:
 			void saveFinalizedBlock(const FinalizedBlockDescriptor& descriptor) {
-				m_pSubscriber->notifyFinalizedBlock(descriptor.Height, descriptor.Hash, descriptor.Point);
+				m_pSubscriber->notifyFinalizedBlock(descriptor.Round, descriptor.Height, descriptor.Hash);
 			}
 
 		private:

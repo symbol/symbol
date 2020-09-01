@@ -148,7 +148,7 @@ namespace catapult { namespace chain {
 
 		class TestContext {
 		public:
-			explicit TestContext(FinalizationPoint point) : TestContext({ point, false, false })
+			explicit TestContext(FinalizationPoint point) : TestContext({ { FinalizationEpoch(), point }, false, false })
 			{}
 
 			explicit TestContext(const VotingStatus& votingStatus)
@@ -457,7 +457,7 @@ namespace catapult { namespace chain {
 
 	TEST(TEST_CLASS, PollCanProgressThroughEntireRoundInOneCall_PreviouslySentPrevote) {
 		// Arrange:
-		TestContext context({ FinalizationPoint(3), true, false });
+		TestContext context({ test::CreateFinalizationRound(0, 3), true, false });
 
 		auto hash = test::GenerateRandomByteArray<Hash256>();
 		context.createCompletedStageAdvancer({ Height(123), hash });
@@ -482,7 +482,7 @@ namespace catapult { namespace chain {
 
 	TEST(TEST_CLASS, PollCanProgressThroughEntireRoundInOneCall_PreviouslySentPrecommit) {
 		// Arrange:
-		TestContext context({ FinalizationPoint(3), true, true });
+		TestContext context({ test::CreateFinalizationRound(0, 3), true, true });
 
 		auto hash = test::GenerateRandomByteArray<Hash256>();
 		context.createCompletedStageAdvancer({ Height(123), hash });
@@ -663,16 +663,16 @@ namespace catapult { namespace chain {
 		// - subscriber was called
 		const auto& subscriberParams = context.subscriber().finalizedBlockParams().params();
 		ASSERT_EQ(1u, subscriberParams.size());
+		EXPECT_EQ(test::CreateFinalizationRound(0, 10), subscriberParams[0].Round);
 		EXPECT_EQ(Height(246), subscriberParams[0].Height);
 		EXPECT_EQ(hashes[3], subscriberParams[0].Hash);
-		EXPECT_EQ(FinalizationPoint(10), subscriberParams[0].Point);
 
 		// - storage was called (proof step identifier comes from test::CreateMessage)
 		const auto& savedProofDescriptors = context.proofStorage().savedProofDescriptors();
 		ASSERT_EQ(1u, savedProofDescriptors.size());
+		EXPECT_EQ(test::CreateFinalizationRound(0, 10), savedProofDescriptors[0].Round);
 		EXPECT_EQ(Height(246), savedProofDescriptors[0].Height);
 		EXPECT_EQ(hashes[3], savedProofDescriptors[0].Hash);
-		EXPECT_EQ(FinalizationPoint(10), savedProofDescriptors[0].Point);
 	}
 
 	TEST(TEST_CLASS, CreateFinalizer_FinalizesBlockWhenPreviousRoundHasBestPrecommit) {
@@ -705,16 +705,16 @@ namespace catapult { namespace chain {
 		// - subscriber was called
 		const auto& subscriberParams = context.subscriber().finalizedBlockParams().params();
 		ASSERT_EQ(1u, subscriberParams.size());
+		EXPECT_EQ(test::CreateFinalizationRound(0, 8), subscriberParams[0].Round);
 		EXPECT_EQ(Height(246), subscriberParams[0].Height);
 		EXPECT_EQ(hashes[1], subscriberParams[0].Hash);
-		EXPECT_EQ(FinalizationPoint(8), subscriberParams[0].Point);
 
 		// - storage was called (proof step identifier comes from test::CreateMessage)
 		const auto& savedProofDescriptors = context.proofStorage().savedProofDescriptors();
 		ASSERT_EQ(1u, savedProofDescriptors.size());
+		EXPECT_EQ(test::CreateFinalizationRound(0, 8), savedProofDescriptors[0].Round);
 		EXPECT_EQ(Height(246), savedProofDescriptors[0].Height);
 		EXPECT_EQ(hashes[1], savedProofDescriptors[0].Hash);
-		EXPECT_EQ(FinalizationPoint(8), savedProofDescriptors[0].Point);
 	}
 
 	// endregion

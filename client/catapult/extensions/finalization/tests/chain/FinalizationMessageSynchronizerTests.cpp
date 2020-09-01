@@ -19,6 +19,7 @@
 **/
 
 #include "finalization/src/chain/FinalizationMessageSynchronizer.h"
+#include "finalization/tests/test/FinalizationMessageTestUtils.h"
 #include "finalization/tests/test/mocks/MockFinalizationApi.h"
 #include "tests/test/other/EntitiesSynchronizerTestUtils.h"
 #include "tests/TestHarness.h"
@@ -72,7 +73,7 @@ namespace catapult { namespace chain {
 				}
 
 				void checkAdditionalRequestParameters() {
-					EXPECT_EQ(FinalizationPoint(23), m_pFinalizationApi->messagesRequests()[0].first);
+					EXPECT_EQ(test::CreateFinalizationRound(11, 23), m_pFinalizationApi->messagesRequests()[0].first);
 				}
 
 			private:
@@ -106,7 +107,7 @@ namespace catapult { namespace chain {
 					const ShortHashesSupplier& shortHashesSupplier,
 					const handlers::MessageRangeHandler& messageRangeConsumer) {
 				auto messageFilterSupplier = [shortHashesSupplier] {
-					return std::make_pair(FinalizationPoint(23), shortHashesSupplier());
+					return std::make_pair(test::CreateFinalizationRound(11, 23), shortHashesSupplier());
 				};
 				return CreateFinalizationMessageSynchronizer(messageFilterSupplier, messageRangeConsumer);
 			}

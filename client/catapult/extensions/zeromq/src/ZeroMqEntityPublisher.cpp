@@ -22,6 +22,7 @@
 #include "PublisherUtils.h"
 #include "catapult/model/Cosignature.h"
 #include "catapult/model/Elements.h"
+#include "catapult/model/FinalizationRound.h"
 #include "catapult/model/NotificationSubscriber.h"
 #include "catapult/model/TransactionStatus.h"
 #include "catapult/model/TransactionUtils.h"
@@ -162,14 +163,14 @@ namespace catapult { namespace zeromq {
 		m_pSynchronizedPublisher->queue(std::move(pMessageGroup));
 	}
 
-	void ZeroMqEntityPublisher::publishFinalizedBlock(Height height, const Hash256& hash, FinalizationPoint point) {
+	void ZeroMqEntityPublisher::publishFinalizedBlock(const model::FinalizationRound& round, Height height, const Hash256& hash) {
 		auto pMessageGroup = std::make_unique<MessageGroup>(CreateHeightMessageGenerator("finalized block", height));
 
 		zmq::multipart_t multipart;
 		auto marker = BlockMarker::Finalized_Block_Marker;
 		multipart.addmem(&marker, sizeof(BlockMarker));
 		multipart.addmem(static_cast<const void*>(&height), sizeof(Height));
-		multipart.addmem(static_cast<const void*>(&point), sizeof(FinalizationPoint));
+		multipart.addmem(static_cast<const void*>(&round), sizeof(model::FinalizationRound));
 		multipart.addmem(static_cast<const void*>(&hash), Hash256::Size);
 		pMessageGroup->add(std::move(multipart));
 		m_pSynchronizedPublisher->queue(std::move(pMessageGroup));
