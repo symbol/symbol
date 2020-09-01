@@ -58,14 +58,29 @@ namespace catapult { namespace partialtransaction {
 		constexpr auto Num_Cosignatures = 5u;
 		constexpr auto Transaction_Type = model::Entity_Type_Aggregate_Bonded;
 
-		struct PtDispatcherServiceTraits {
-			static constexpr auto CreateRegistrar = CreatePtDispatcherServiceRegistrar;
-		};
+		// region test utils
 
 		template<typename TAggregateNotification>
 		bool HasAllCosignatures(const TAggregateNotification& aggregateNotification) {
 			return Num_Cosignatures == aggregateNotification.CosignaturesCount;
 		}
+
+		Hash256 CalculateTransactionHash(const model::TransactionRegistry& registry, const model::Transaction& transaction) {
+			const auto& plugin = *registry.findPlugin(transaction.Type);
+			return model::CalculateHash(transaction, test::GetNemesisGenerationHashSeed(), plugin.dataBuffer(transaction));
+		}
+
+		std::vector<Hash256> CalculateHashes(const model::TransactionRegistry& registry, const model::TransactionRange& transactionRange) {
+			std::vector<Hash256> hashes;
+			for (const auto& transaction : transactionRange)
+				hashes.push_back(CalculateTransactionHash(registry, transaction));
+
+			return hashes;
+		}
+
+		// endregion
+
+		// region MockStatelessNotificationValidator
 
 		class MockStatelessNotificationValidator : public validators::stateless::NotificationValidatorT<model::Notification> {
 		public:
@@ -99,6 +114,14 @@ namespace catapult { namespace partialtransaction {
 			const std::string m_name = "MockStatelessNotificationValidator";
 			const validators::ValidationResult m_result;
 			mutable std::atomic<size_t> m_numCosigs;
+		};
+
+		// endregion
+
+		// region TestContext
+
+		struct PtDispatcherServiceTraits {
+			static constexpr auto CreateRegistrar = CreatePtDispatcherServiceRegistrar;
 		};
 
 		class TestContext : public test::ServiceLocatorTestContext<PtDispatcherServiceTraits> {
@@ -163,21 +186,12 @@ namespace catapult { namespace partialtransaction {
 			std::shared_ptr<mocks::BroadcastAwareMockPacketWriters> m_pWriters;
 		};
 
-		Hash256 CalculateTransactionHash(const model::TransactionRegistry& registry, const model::Transaction& transaction) {
-			const auto& plugin = *registry.findPlugin(transaction.Type);
-			return model::CalculateHash(transaction, test::GetNemesisGenerationHashSeed(), plugin.dataBuffer(transaction));
-		}
-
-		std::vector<Hash256> CalculateHashes(const model::TransactionRegistry& registry, const model::TransactionRange& transactionRange) {
-			std::vector<Hash256> hashes;
-			for (const auto& transaction : transactionRange)
-				hashes.push_back(CalculateTransactionHash(registry, transaction));
-
-			return hashes;
-		}
+		// endregion
 	}
 
 	ADD_SERVICE_REGISTRAR_INFO_TEST(PtDispatcher, Post_Range_Consumers)
+
+	// region boot + shutdown
 
 	TEST(TEST_CLASS, CanBootService) {
 		// Arrange:
@@ -239,6 +253,14 @@ namespace catapult { namespace partialtransaction {
 		// - no ranges have been completed
 		EXPECT_EQ(0u, context.numCompletedTransactions());
 	}
+
+	TEST(TEST_CLASS, TasksAreRegistered) {
+		test::AssertRegisteredTasks(TestContext(), { "batch partial transaction task" });
+	}
+
+	// endregion
+
+	// region transaction processing
 
 	namespace {
 		// tests are using CreateMockTransactionPlugin with Custom_Buffers option, which returns custom dataBuffer
@@ -424,6 +446,8 @@ namespace catapult { namespace partialtransaction {
 					EXPECT_EQ(3u, context.numCompletedTransactions());
 				});
 	}
+
+	// endregion
 
 	// region hooks
 

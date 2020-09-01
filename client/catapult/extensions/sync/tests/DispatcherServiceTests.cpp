@@ -441,6 +441,10 @@ namespace catapult { namespace sync {
 		EXPECT_EQ(0u, context.counter(Rollback_Elements_Ignored_Recent));
 	}
 
+	TEST(TEST_CLASS, TasksAreRegistered) {
+		test::AssertRegisteredTasks(TestContext(), { "batch transaction task" });
+	}
+
 	// endregion
 
 	// region consume - block range

@@ -276,7 +276,7 @@ namespace catapult { namespace config {
 		AssertDefaultUserConfiguration(config.User);
 		AssertDefaultExtensionsConfiguration(config.Extensions, {
 			"extension.harvesting", "extension.syncsource",
-			"extension.diagnostics", "extension.hashcache", "extension.networkheight",
+			"extension.diagnostics", "extension.finalization", "extension.hashcache", "extension.networkheight",
 			"extension.nodediscovery", "extension.packetserver", "extension.pluginhandlers", "extension.sync",
 			"extension.timesync", "extension.transactionsink", "extension.unbondedpruning"
 		});

@@ -249,7 +249,7 @@ class ExtensionRules:
         elif 'plugins' in pathElements:
             expectedUnified = 'catapult:mongo:plugins:'
         else:
-            for subcomponent in ['api', 'chain', 'handlers']:
+            for subcomponent in ['api', 'chain', 'handlers', 'io', 'ionet', 'model']:
                 if subcomponent in pathElements:
                     expectedUnified = 'catapult:' + subcomponent + ':'
                     break

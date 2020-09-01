@@ -165,7 +165,7 @@ namespace catapult { namespace test {
 		/// Creates the test context.
 		ServiceLocatorTestContext()
 				: m_keys(test::GenerateRandomByteArray<Key>(), GenerateKeyPair())
-				, m_locator(m_keys)
+				, m_pLocator(std::make_unique<extensions::ServiceLocator>(m_keys))
 		{}
 
 		/// Creates the test context around \a cache.
@@ -176,14 +176,14 @@ namespace catapult { namespace test {
 		/// Creates the test context around \a cache and \a timeSupplier.
 		ServiceLocatorTestContext(cache::CatapultCache&& cache, const supplier<Timestamp>& timeSupplier)
 				: m_keys(test::GenerateRandomByteArray<Key>(), GenerateKeyPair())
-				, m_locator(m_keys)
+				, m_pLocator(std::make_unique<extensions::ServiceLocator>(m_keys))
 				, m_testState(std::move(cache), timeSupplier)
 		{}
 
 	public:
 		/// Gets the value of the counter named \a counterName.
 		uint64_t counter(const std::string& counterName) const {
-			for (const auto& counter : m_locator.counters()) {
+			for (const auto& counter : m_pLocator->counters()) {
 				if (HasName(counter, counterName))
 					return counter.value();
 			}
@@ -199,12 +199,12 @@ namespace catapult { namespace test {
 
 		/// Gets the service locator.
 		auto& locator() {
-			return m_locator;
+			return *m_pLocator;
 		}
 
 		/// Gets the service locator.
 		const auto& locator() const {
-			return m_locator;
+			return *m_pLocator;
 		}
 
 		/// Gets the test state.
@@ -222,13 +222,20 @@ namespace catapult { namespace test {
 		template<typename... TArgs>
 		void boot(TArgs&&... args) {
 			auto pRegistrar = TTraits::CreateRegistrar(std::forward<TArgs>(args)...);
-			pRegistrar->registerServiceCounters(m_locator);
-			pRegistrar->registerServices(m_locator, m_testState.state());
+			pRegistrar->registerServiceCounters(*m_pLocator);
+			pRegistrar->registerServices(*m_pLocator, m_testState.state());
 		}
 
 		/// Shuts down the service.
 		void shutdown() {
 			m_testState.state().pool().shutdown();
+		}
+
+	protected:
+		/// Destroys the underlying service locator.
+		void destroy() {
+			shutdown();
+			m_pLocator.reset();
 		}
 
 	private:
@@ -238,7 +245,7 @@ namespace catapult { namespace test {
 
 	private:
 		config::CatapultKeys m_keys;
-		extensions::ServiceLocator m_locator;
+		std::unique_ptr<extensions::ServiceLocator> m_pLocator;
 
 		ServiceTestState m_testState;
 	};

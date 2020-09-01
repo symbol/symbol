@@ -26,63 +26,56 @@ namespace catapult { namespace crypto {
 	using OtsPublicKey = Key;
 	using OtsSignature = Signature;
 
+#pragma pack(push, 1)
+
+	// region ots key identifier
+
+	/// Ots key identifier.
+	struct OtsKeyIdentifier {
+		/// Batch id.
+		uint64_t BatchId;
+
+		/// Key id.
+		uint64_t KeyId;
+
+	public:
+		/// Returns \c true if this ots key identifier is equal to \a rhs.
+		bool operator==(const OtsKeyIdentifier& rhs) const;
+
+		/// Returns \c true if this ots key identifier is not equal to \a rhs.
+		bool operator!=(const OtsKeyIdentifier& rhs) const;
+
+		/// Returns \c true if this ots key identifier is less than \a rhs.
+		bool operator<(const OtsKeyIdentifier& rhs) const;
+
+		/// Returns \c true if this ots key identifier is less than or equal to \a rhs.
+		bool operator<=(const OtsKeyIdentifier& rhs) const;
+
+		/// Returns \c true if this ots key identifier is greater than \a rhs.
+		bool operator>(const OtsKeyIdentifier& rhs) const;
+
+		/// Returns \c true if this ots key identifier is greater than or equal to \a rhs.
+		bool operator>=(const OtsKeyIdentifier& rhs) const;
+	};
+
+	/// Insertion operator for outputting \a keyIdentifier to \a out.
+	std::ostream& operator<<(std::ostream& out, const OtsKeyIdentifier& keyIdentifier);
+
+	// endregion
+
 	// region ots options
 
 	/// Ots tree options.
 	struct OtsOptions {
-		/// Max rounds.
-		uint64_t MaxRounds;
+		/// Key dilution.
+		uint64_t Dilution;
 
-		/// Max sub rounds.
-		uint64_t MaxSubRounds;
+		/// Start key identifier.
+		OtsKeyIdentifier StartKeyIdentifier;
 
-	public:
-		/// Returns \c true if these options are equal to \a rhs.
-		bool operator==(const OtsOptions& rhs) const;
-
-		/// Returns \c true if these options are not equal to \a rhs.
-		bool operator!=(const OtsOptions& rhs) const;
+		/// End key identifier.
+		OtsKeyIdentifier EndKeyIdentifier;
 	};
-
-	// endregion
-
-#pragma pack(push, 1)
-
-	// region step identifier
-
-	/// Finalization step identifier.
-	struct StepIdentifier {
-		/// Finalization point.
-		uint64_t Point;
-
-		/// Round.
-		uint64_t Round;
-
-		/// Sub round.
-		uint64_t SubRound;
-
-	public:
-		/// Returns \c true if this step identifier is equal to \a rhs.
-		bool operator==(const StepIdentifier& rhs) const;
-
-		/// Returns \c true if this step identifier is not equal to \a rhs.
-		bool operator!=(const StepIdentifier& rhs) const;
-
-		/// Returns \c true if this step identifier is less than \a rhs.
-		bool operator<(const StepIdentifier& rhs) const;
-
-		/// Returns \c true if this step identifier is less than or equal to \a rhs.
-		bool operator<=(const StepIdentifier& rhs) const;
-
-		/// Returns \c true if this step identifier is greater than \a rhs.
-		bool operator>(const StepIdentifier& rhs) const;
-
-		/// Returns \c true if this step identifier is greater than or equal to \a rhs.
-		bool operator>=(const StepIdentifier& rhs) const;
-	};
-
-	/// Insertion operator for outputting \a stepIdentifier to \a out.
-	std::ostream& operator<<(std::ostream& out, const StepIdentifier& stepIdentifier);
 
 	// endregion
 
@@ -108,9 +101,6 @@ namespace catapult { namespace crypto {
 
 		/// Top pair.
 		OtsParentPublicKeySignaturePair Top;
-
-		/// Middle pair.
-		OtsParentPublicKeySignaturePair Middle;
 
 		/// Bottom pair.
 		OtsParentPublicKeySignaturePair Bottom;

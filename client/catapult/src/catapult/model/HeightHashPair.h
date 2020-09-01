@@ -53,7 +53,4 @@ namespace catapult { namespace model {
 			return out;
 		}
 	};
-
-	/// Entity range composed of height-hash pairs.
-	using HeightHashPairRange = EntityRange<HeightHashPair>;
 }}

@@ -22,7 +22,9 @@
 #include "NemesisConfiguration.h"
 #include "catapult/extensions/BlockExtensions.h"
 #include "catapult/io/FileBlockStorage.h"
+#include "catapult/io/FileProofStorage.h"
 #include "catapult/io/IndexFile.h"
+#include "catapult/io/PodIoUtils.h"
 #include "catapult/utils/HexFormatter.h"
 #include "catapult/utils/HexParser.h"
 #include <boost/filesystem.hpp>
@@ -105,5 +107,47 @@ namespace catapult { namespace tools { namespace nemgen {
 			CATAPULT_LOG(info) << "creating cpp file " << config.CppFile;
 			UpdateMemoryBlockStorageData(blockElement.Block, config.CppFile, config.CppFileHeader);
 		}
+	}
+
+	namespace {
+		void RemoveProofIndexFile(const std::string& binDirectory) {
+			auto proofIndexFilename = boost::filesystem::path(binDirectory) / "proof.index.dat";
+
+			if (boost::filesystem::exists(proofIndexFilename))
+				boost::filesystem::remove(proofIndexFilename);
+		}
+
+		void CreatePlaceholderHeightsFile(const std::string& binDirectory) {
+			auto blockVersionedDirectory = boost::filesystem::path(binDirectory) / "00000";
+
+			io::RawFile heightsFile((blockVersionedDirectory / "proof.heights.dat").generic_string(), io::OpenMode::Read_Write);
+			io::Write64(heightsFile, 0);
+			io::Write64(heightsFile, 0);
+		}
+
+		std::unique_ptr<model::FinalizationProof> CreateNemesisProof(const Hash256& nemesisEntityHash) {
+			auto pProof = std::make_unique<model::FinalizationProof>();
+			pProof->Size = sizeof(model::FinalizationProofHeader);
+			pProof->Version = model::FinalizationProofHeader::Current_Version;
+			pProof->Point = FinalizationPoint(1);
+			pProof->Height = Height(1);
+			pProof->Hash = nemesisEntityHash;
+			return pProof;
+		}
+	}
+
+	void FinalizeNemesisBlockElement(const model::BlockElement& blockElement, const NemesisConfiguration& config) {
+		// 1. remove index file
+		RemoveProofIndexFile(config.BinDirectory);
+
+		// 2. create placeholder heights file
+		CreatePlaceholderHeightsFile(config.BinDirectory);
+
+		// 3. create proof
+		auto pNemesisProof = CreateNemesisProof(blockElement.EntityHash);
+
+		// 4. save proof
+		io::FileProofStorage proofStorage(config.BinDirectory);
+		proofStorage.saveProof(*pNemesisProof);
 	}
 }}}

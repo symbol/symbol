@@ -258,7 +258,7 @@ namespace catapult { namespace sync {
 		auto config = TasksConfiguration::LoadFromPath("../resources");
 
 		// Assert:
-		EXPECT_EQ(16u, config.Tasks.size());
+		EXPECT_EQ(19u, config.Tasks.size());
 
 		// - spot check one task
 		AssertContains(config, "harvesting task", TimeSpan::FromSeconds(30), TimeSpan::FromSeconds(1));
