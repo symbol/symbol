@@ -178,8 +178,8 @@ namespace catapult { namespace test {
 			auto& accountState = accountStateCacheDelta.find(address).get();
 			accountState.SupplementalPublicKeys.voting().add({
 				keyPairDescriptors.back().VotingPublicKey,
-				FinalizationPoint(1),
-				FinalizationPoint(100)
+				FinalizationEpoch(1),
+				FinalizationEpoch(100)
 			});
 			accountState.Balances.credit(mosaicId, balance);
 		}
@@ -208,7 +208,7 @@ namespace catapult { namespace test {
 
 	std::pair<model::FinalizationContext, std::vector<AccountKeyPairDescriptor>> CreateFinalizationContext(
 			const finalization::FinalizationConfiguration& config,
-			FinalizationPoint point,
+			FinalizationEpoch epoch,
 			Height height,
 			const std::vector<Amount>& balances) {
 		auto accountStateCacheOptions = CreateDefaultAccountStateCacheOptions(MosaicId(1111), Harvesting_Mosaic_Id);
@@ -218,7 +218,7 @@ namespace catapult { namespace test {
 		auto keyPairDescriptors = AddAccountsWithBalances(accountStateCache, height, balances);
 
 		auto generationHash = GenerateRandomByteArray<GenerationHash>();
-		auto finalizationContext = model::FinalizationContext(point, height, generationHash, config, *accountStateCache.createView());
+		auto finalizationContext = model::FinalizationContext(epoch, height, generationHash, config, *accountStateCache.createView());
 
 		return std::make_pair(std::move(finalizationContext), std::move(keyPairDescriptors));
 	}

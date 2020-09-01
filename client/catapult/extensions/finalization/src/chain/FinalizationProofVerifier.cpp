@@ -58,8 +58,8 @@ namespace catapult { namespace chain {
 		if (model::FinalizationProofHeader::Current_Version != proof.Version)
 			return VerifyFinalizationProofResult::Failure_Invalid_Version;
 
-		if (proof.Round.Point != context.point()) // TODO: change to epoch
-			return VerifyFinalizationProofResult::Failure_Invalid_Point;
+		if (proof.Round.Epoch != context.epoch())
+			return VerifyFinalizationProofResult::Failure_Invalid_Epoch;
 
 		auto pMessageAggregator = CreateRoundMessageAggregator(context);
 		for (const auto& messageGroup : proof.MessageGroups()) {

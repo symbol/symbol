@@ -110,17 +110,17 @@ namespace catapult { namespace state {
 	}
 
 	template<typename TPinnedAccountPublicKey>
-	FinalizationPoint PUBLIC_KEYS_ACCESSOR_T::upperBound() const {
-		return m_pKeys ? m_pKeys->back().EndPoint : FinalizationPoint();
+	FinalizationEpoch PUBLIC_KEYS_ACCESSOR_T::upperBound() const {
+		return m_pKeys ? m_pKeys->back().EndEpoch : FinalizationEpoch();
 	}
 
 	template<typename TPinnedAccountPublicKey>
-	std::pair<size_t, bool> PUBLIC_KEYS_ACCESSOR_T::contains(FinalizationPoint point) const {
+	std::pair<size_t, bool> PUBLIC_KEYS_ACCESSOR_T::contains(FinalizationEpoch epoch) const {
 		if (!m_pKeys)
 			return std::make_pair(std::numeric_limits<size_t>::max(), false);
 
-		auto iter = std::find_if(m_pKeys->cbegin(), m_pKeys->cend(), [point](const auto& key) {
-			return key.StartPoint <= point && point <= key.EndPoint;
+		auto iter = std::find_if(m_pKeys->cbegin(), m_pKeys->cend(), [epoch](const auto& key) {
+			return key.StartEpoch <= epoch && epoch <= key.EndEpoch;
 		});
 		return m_pKeys->cend() == iter
 				? std::make_pair(std::numeric_limits<size_t>::max(), false)
@@ -144,7 +144,7 @@ namespace catapult { namespace state {
 
 	template<typename TPinnedAccountPublicKey>
 	void PUBLIC_KEYS_ACCESSOR_T::add(const TPinnedAccountPublicKey& key) {
-		if (upperBound() >= key.StartPoint)
+		if (upperBound() >= key.StartEpoch)
 			CATAPULT_THROW_INVALID_ARGUMENT("cannot add out of order public key");
 
 		if (!m_pKeys)
@@ -173,8 +173,8 @@ namespace catapult { namespace state {
 	typename PUBLIC_KEYS_ACCESSOR_T::const_iterator PUBLIC_KEYS_ACCESSOR_T::findExact(const TPinnedAccountPublicKey& key) const {
 		return std::find_if(m_pKeys->cbegin(), m_pKeys->cend(), [&key](const auto& existingKey) {
 			return key.VotingKey == existingKey.VotingKey
-					&& key.StartPoint == existingKey.StartPoint
-					&& key.EndPoint == existingKey.EndPoint;
+					&& key.StartEpoch == existingKey.StartEpoch
+					&& key.EndEpoch == existingKey.EndEpoch;
 		});
 	}
 

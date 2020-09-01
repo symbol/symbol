@@ -61,12 +61,12 @@ namespace catapult { namespace finalization {
 
 			// Act:
 			FinalizationContextFactory factory(config, testState.state());
-			auto context = factory.create({ epoch, FinalizationPoint(12) });
+			auto context = factory.create(epoch);
 
 			// Assert: context should be seeded with data from groupedHeight, not height
 			auto expectedGenerationHash = testState.state().storage().view().loadBlockElement(groupedHeight)->GenerationHash;
 
-			EXPECT_EQ(FinalizationPoint(12), context.point());
+			EXPECT_EQ(epoch, context.epoch());
 			EXPECT_EQ(groupedHeight, context.height());
 			EXPECT_EQ(expectedGenerationHash, context.generationHash());
 			EXPECT_EQ(9876u, context.config().Size);

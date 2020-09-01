@@ -51,8 +51,8 @@ namespace catapult { namespace state {
 		struct VotingPublicKeysTraits {
 			static std::vector<model::PinnedVotingKey> ToValue(uint8_t seed) {
 				return {
-					{ { { seed } }, FinalizationPoint(seed + 100), FinalizationPoint(seed + 150) },
-					{ { { static_cast<uint8_t>(seed * seed) } }, FinalizationPoint(seed + 151), FinalizationPoint(seed + 175) }
+					{ { { seed } }, FinalizationEpoch(seed + 100), FinalizationEpoch(seed + 150) },
+					{ { { static_cast<uint8_t>(seed * seed) } }, FinalizationEpoch(seed + 151), FinalizationEpoch(seed + 175) }
 				};
 			}
 

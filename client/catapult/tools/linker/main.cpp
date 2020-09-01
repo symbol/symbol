@@ -56,12 +56,12 @@ namespace catapult { namespace tools { namespace linker {
 				optionsBuilder("linkedPublicKey",
 						OptionsValue<std::string>(),
 						"linked public key (32 bytes for vrf, 48 bytes for voting)");
-				optionsBuilder("startPoint,b",
+				optionsBuilder("startEpoch,b",
 						OptionsValue<uint64_t>()->default_value(1),
-						"voting key start point");
-				optionsBuilder("endPoint,e",
+						"voting key start epoch");
+				optionsBuilder("endEpoch,e",
 						OptionsValue<uint64_t>()->default_value(26280),
-						"voting key end point");
+						"voting key end epoch");
 				optionsBuilder("output",
 						OptionsValue<std::string>(),
 						"output filename");
@@ -75,10 +75,10 @@ namespace catapult { namespace tools { namespace linker {
 				auto networkIdentifier = config.BlockChain.Network.Identifier;
 				auto signer = crypto::KeyPair::FromString(options["secret"].as<std::string>());
 				auto linkedPublicKey = options["linkedPublicKey"].as<std::string>();
-				auto startPoint = FinalizationPoint(options["startPoint"].as<uint64_t>());
-				auto endPoint = FinalizationPoint(options["endPoint"].as<uint64_t>());
+				auto startEpoch = FinalizationEpoch(options["startEpoch"].as<uint64_t>());
+				auto endEpoch = FinalizationEpoch(options["endEpoch"].as<uint64_t>());
 				auto pTransaction = options["type"].as<std::string>() == "voting"
-						? createVotingKeyLinkTransaction(networkIdentifier, signer.publicKey(), linkedPublicKey, startPoint, endPoint)
+						? createVotingKeyLinkTransaction(networkIdentifier, signer.publicKey(), linkedPublicKey, startEpoch, endEpoch)
 						: createVrfKeyLinkTransaction(networkIdentifier, signer.publicKey(), linkedPublicKey);
 
 				// 2. sign it
@@ -112,13 +112,13 @@ namespace catapult { namespace tools { namespace linker {
 					model::NetworkIdentifier networkIdentifier,
 					const Key& publicKey,
 					const std::string& linkedPublicKey,
-					FinalizationPoint startPoint,
-					FinalizationPoint endPoint) {
+					FinalizationEpoch startEpoch,
+					FinalizationEpoch endEpoch) {
 				builders::VotingKeyLinkBuilder builder(networkIdentifier, publicKey);
 				builder.setLinkedPublicKey(utils::ParseByteArray<VotingKey>(linkedPublicKey));
 				builder.setLinkAction(model::LinkAction::Link);
-				builder.setStartPoint(startPoint);
-				builder.setEndPoint(endPoint);
+				builder.setStartEpoch(startEpoch);
+				builder.setEndEpoch(endEpoch);
 				return builder.build();
 			}
 

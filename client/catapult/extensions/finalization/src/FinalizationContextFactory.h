@@ -38,8 +38,8 @@ namespace catapult { namespace finalization {
 		FinalizationContextFactory(const FinalizationConfiguration& config, const extensions::ServiceState& state);
 
 	public:
-		/// Creates a finalization context for \a round.
-		model::FinalizationContext create(const model::FinalizationRound& round) const;
+		/// Creates a finalization context for \a epoch.
+		model::FinalizationContext create(FinalizationEpoch epoch) const;
 
 	private:
 		FinalizationConfiguration m_config;

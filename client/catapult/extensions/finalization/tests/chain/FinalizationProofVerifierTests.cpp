@@ -48,7 +48,7 @@ namespace catapult { namespace chain {
 				config.VotingSetGrouping = 500;
 
 				// 15/20M voting eligible
-				auto finalizationContextPair = test::CreateFinalizationContext(config, Finalization_Point, Last_Finalized_Height, {
+				auto finalizationContextPair = test::CreateFinalizationContext(config, Finalization_Epoch, Last_Finalized_Height, {
 					Amount(4'000'000), Amount(2'000'000), Amount(1'000'000), Amount(2'000'000), Amount(3'000'000), Amount(4'000'000),
 					Amount(1'000'000), Amount(1'000'000), Amount(1'000'000), Amount(1'000'000)
 				});
@@ -175,10 +175,9 @@ namespace catapult { namespace chain {
 		});
 	}
 
-	TEST(TEST_CLASS, VerifyFailsWhenProofPointDoesNotMatchContextPoint) {
-		// TODO: change to Epoch when context contains Epoch
-		RunModifiedStatisticsTest(VerifyFinalizationProofResult::Failure_Invalid_Point, [](auto& statistics) {
-			statistics.Round.Point = statistics.Round.Point + FinalizationPoint(1);
+	TEST(TEST_CLASS, VerifyFailsWhenProofEpochDoesNotMatchContextEpoch) {
+		RunModifiedStatisticsTest(VerifyFinalizationProofResult::Failure_Invalid_Epoch, [](auto& statistics) {
+			statistics.Round.Epoch = statistics.Round.Epoch + FinalizationEpoch(1);
 		});
 	}
 

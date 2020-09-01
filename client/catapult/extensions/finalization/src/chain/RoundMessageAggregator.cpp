@@ -124,9 +124,6 @@ namespace catapult { namespace chain {
 				if (0 == pMessage->HashesCount || pMessage->HashesCount > m_finalizationContext.config().MaxHashesPerPoint)
 					return RoundMessageAggregatorAddResult::Failure_Invalid_Hashes;
 
-				if (m_finalizationContext.point() != pMessage->StepIdentifier.Point)
-					return RoundMessageAggregatorAddResult::Failure_Invalid_Point;
-
 				auto isPrevote = IsPrevote(*pMessage);
 				auto lastHashHeight = pMessage->Height + Height(pMessage->HashesCount - 1);
 				if (isPrevote) {

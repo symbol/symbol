@@ -48,9 +48,9 @@ namespace catapult { namespace finalization {
 					config.MessageSynchronizationMaxResponseSize.bytes(),
 					finalizationStatistics.Round.Point, // TODO: needs to be round
 					model::HeightHashPair{ finalizationStatistics.Height, finalizationStatistics.Hash },
-					[finalizationContextFactory](auto roundPoint, auto) {
+					[finalizationContextFactory](auto, auto) {
 						// TODO: lookup epoch
-						return chain::CreateRoundMessageAggregator(finalizationContextFactory.create({ FinalizationEpoch(), roundPoint }));
+						return chain::CreateRoundMessageAggregator(finalizationContextFactory.create(FinalizationEpoch(1)));
 					});
 		}
 

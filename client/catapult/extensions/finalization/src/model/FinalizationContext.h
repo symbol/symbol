@@ -38,17 +38,17 @@ namespace catapult { namespace model {
 	class FinalizationContext {
 	public:
 		/// Creates a finalization context from \a config, \a accountStateCacheView, information about the last finalized block
-		/// (\a height and \a generationHash) and the finalization \a point that is currently being finalized.
+		/// (\a height and \a generationHash) and the finalization \a epoch that is currently being finalized.
 		FinalizationContext(
-				FinalizationPoint point,
+				FinalizationEpoch epoch,
 				Height height,
 				const GenerationHash& generationHash,
 				const finalization::FinalizationConfiguration& config,
 				const cache::AccountStateCacheView& accountStateCacheView);
 
 	public:
-		/// Gets the finalization point.
-		FinalizationPoint point() const;
+		/// Gets the finalization epoch.
+		FinalizationEpoch epoch() const;
 
 		/// Gets the height of the last finalized block.
 		Height height() const;
@@ -66,7 +66,7 @@ namespace catapult { namespace model {
 		FinalizationAccountView lookup(const VotingKey& votingPublicKey) const;
 
 	private:
-		FinalizationPoint m_point;
+		FinalizationEpoch m_epoch;
 		Height m_height;
 		GenerationHash m_generationHash;
 		finalization::FinalizationConfiguration m_config;

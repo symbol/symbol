@@ -29,7 +29,7 @@ namespace catapult { namespace model {
 
 	// region size + alignment + properties
 
-#define TRANSACTION_FIELDS FIELD(LinkedPublicKey) FIELD(StartPoint) FIELD(EndPoint) FIELD(LinkAction)
+#define TRANSACTION_FIELDS FIELD(LinkedPublicKey) FIELD(StartEpoch) FIELD(EndEpoch) FIELD(LinkAction)
 
 	namespace {
 		template<typename T>

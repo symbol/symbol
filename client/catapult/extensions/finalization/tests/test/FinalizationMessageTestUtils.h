@@ -134,10 +134,10 @@ namespace catapult { namespace test {
 
 	// region finalization context utils
 
-	/// Creates a finalization context for \a point at \a height with specified account \a balances given \a config.
+	/// Creates a finalization context for \a epoch at \a height with specified account \a balances given \a config.
 	std::pair<model::FinalizationContext, std::vector<AccountKeyPairDescriptor>> CreateFinalizationContext(
 			const finalization::FinalizationConfiguration& config,
-			FinalizationPoint point,
+			FinalizationEpoch epoch,
 			Height height,
 			const std::vector<Amount>& balances);
 

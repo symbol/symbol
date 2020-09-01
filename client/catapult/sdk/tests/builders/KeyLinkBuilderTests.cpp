@@ -133,21 +133,21 @@ namespace catapult { namespace builders {
 			public:
 				explicit TransactionProperties(model::LinkAction linkAction)
 						: AssertTraits::TransactionProperties(linkAction)
-						, StartPoint()
-						, EndPoint()
+						, StartEpoch()
+						, EndEpoch()
 				{}
 
 			public:
-				FinalizationPoint StartPoint;
-				FinalizationPoint EndPoint;
+				FinalizationEpoch StartEpoch;
+				FinalizationEpoch EndEpoch;
 			};
 
 		public:
 			template<typename TTransaction>
 			static void AssertTransactionProperties(const TransactionProperties& expectedProperties, const TTransaction& transaction) {
 				AssertTraits::AssertTransactionProperties(expectedProperties, transaction);
-				EXPECT_EQ(expectedProperties.StartPoint, transaction.StartPoint);
-				EXPECT_EQ(expectedProperties.EndPoint, transaction.EndPoint);
+				EXPECT_EQ(expectedProperties.StartEpoch, transaction.StartEpoch);
+				EXPECT_EQ(expectedProperties.EndEpoch, transaction.EndEpoch);
 			}
 		};
 
@@ -258,25 +258,25 @@ namespace catapult { namespace builders {
 	TEST(TEST_CLASS, TEST_NAME##_Voting_Embedded) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VotingKeyLinkEmbeddedTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-	VOTING_KEY_LINK_BUILDER_TEST(CanSetStartPoint) {
+	VOTING_KEY_LINK_BUILDER_TEST(CanSetStartEpoch) {
 		// Arrange:
 		auto expectedProperties = typename TTraits::TransactionProperties(model::LinkAction::Unlink);
-		expectedProperties.StartPoint = FinalizationPoint(0x12345);
+		expectedProperties.StartEpoch = FinalizationEpoch(0x12345);
 
 		// Assert:
 		AssertCanBuildTransaction<TTraits>(expectedProperties, [](auto& builder) {
-			builder.setStartPoint(FinalizationPoint(0x12345));
+			builder.setStartEpoch(FinalizationEpoch(0x12345));
 		});
 	}
 
-	VOTING_KEY_LINK_BUILDER_TEST(CanSetEndPoint) {
+	VOTING_KEY_LINK_BUILDER_TEST(CanSetEndEpoch) {
 		// Arrange:
 		auto expectedProperties = typename TTraits::TransactionProperties(model::LinkAction::Unlink);
-		expectedProperties.EndPoint = FinalizationPoint(0x54321);
+		expectedProperties.EndEpoch = FinalizationEpoch(0x54321);
 
 		// Assert:
 		AssertCanBuildTransaction<TTraits>(expectedProperties, [](auto& builder) {
-			builder.setEndPoint(FinalizationPoint(0x54321));
+			builder.setEndEpoch(FinalizationEpoch(0x54321));
 		});
 	}
 

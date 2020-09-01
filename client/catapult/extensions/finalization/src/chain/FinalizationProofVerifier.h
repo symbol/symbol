@@ -36,8 +36,8 @@ namespace catapult { namespace chain {
 	/* Proof version is not supported. */ \
 	ENUM_VALUE(Failure_Invalid_Version) \
 	\
-	/* Proof point does not match context. */ \
-	ENUM_VALUE(Failure_Invalid_Point) \
+	/* Proof epoch does not match context. */ \
+	ENUM_VALUE(Failure_Invalid_Epoch) \
 	\
 	/* Proof height is invalid. */ \
 	ENUM_VALUE(Failure_Invalid_Height) \

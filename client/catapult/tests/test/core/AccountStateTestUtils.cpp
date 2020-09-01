@@ -143,8 +143,8 @@ namespace catapult { namespace test {
 		for (auto i = 0u; i < numVotingKeys; ++i) {
 			accountState.SupplementalPublicKeys.voting().add({
 				test::GenerateRandomByteArray<VotingKey>(),
-				FinalizationPoint((i + 1) * 100),
-				FinalizationPoint((i + 1) * 100 + 49)
+				FinalizationEpoch((i + 1) * 100),
+				FinalizationEpoch((i + 1) * 100 + 49)
 			});
 		}
 	}

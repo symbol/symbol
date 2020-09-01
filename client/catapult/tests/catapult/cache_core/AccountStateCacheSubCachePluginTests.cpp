@@ -185,9 +185,9 @@ namespace catapult { namespace cache {
 	// region roundtrip tests
 
 	namespace {
-		void SetFinalizationPoints(model::PinnedVotingKey& pinnedPublicKey, uint64_t startPoint, uint64_t endPoint) {
-			pinnedPublicKey.StartPoint = FinalizationPoint(startPoint);
-			pinnedPublicKey.EndPoint = FinalizationPoint(endPoint);
+		void SetFinalizationEpochs(model::PinnedVotingKey& pinnedPublicKey, uint64_t startEpoch, uint64_t endEpoch) {
+			pinnedPublicKey.StartEpoch = FinalizationEpoch(startEpoch);
+			pinnedPublicKey.EndEpoch = FinalizationEpoch(endEpoch);
 		}
 
 		template<typename TTraits>
@@ -207,8 +207,8 @@ namespace catapult { namespace cache {
 			std::vector<Address> addresses;
 			auto vrfPublicKeys = test::GenerateRandomDataVector<Key>(balances.size() + 1);
 			auto votingPublicKeys = test::GenerateRandomDataVector<model::PinnedVotingKey>(balances.size() + 1);
-			SetFinalizationPoints(votingPublicKeys[balances.size() - 1], 200, 400);
-			SetFinalizationPoints(votingPublicKeys.back(), 600, 900);
+			SetFinalizationEpochs(votingPublicKeys[balances.size() - 1], 200, 400);
+			SetFinalizationEpochs(votingPublicKeys.back(), 600, 900);
 			{
 				AccountStateCacheSubCachePlugin plugin(cacheConfig, options);
 				auto pStorage = plugin.createStorage();

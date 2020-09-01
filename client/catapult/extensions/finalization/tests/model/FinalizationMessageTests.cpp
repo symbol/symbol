@@ -166,7 +166,7 @@ namespace catapult { namespace model {
 			auto config = finalization::FinalizationConfiguration::Uninitialized();
 			config.OtsKeyDilution = 13u;
 
-			auto finalizationContextPair = test::CreateFinalizationContext(config, FinalizationPoint(50), Height(123), {
+			auto finalizationContextPair = test::CreateFinalizationContext(config, FinalizationEpoch(50), Height(123), {
 				Amount(2'000'000), Amount(Expected_Large_Weight), Amount(1'000'000), Amount(6'000'000)
 			});
 

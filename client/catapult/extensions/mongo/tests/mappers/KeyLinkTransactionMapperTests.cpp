@@ -70,8 +70,8 @@ namespace catapult { namespace mongo { namespace mappers {
 			EXPECT_EQ(4u, test::GetFieldCount(view));
 			EXPECT_EQ(model::LinkAction::Unlink, static_cast<model::LinkAction>(test::GetUint32(view, "linkAction")));
 			EXPECT_EQ(transaction.LinkedPublicKey, test::GetVotingKeyValue(view, "linkedPublicKey"));
-			EXPECT_EQ(transaction.StartPoint, FinalizationPoint(test::GetUint64(view, "startPoint")));
-			EXPECT_EQ(transaction.EndPoint, FinalizationPoint(test::GetUint64(view, "endPoint")));
+			EXPECT_EQ(transaction.StartEpoch, FinalizationEpoch(test::GetUint64(view, "startEpoch")));
+			EXPECT_EQ(transaction.EndEpoch, FinalizationEpoch(test::GetUint64(view, "endEpoch")));
 		} else {
 			EXPECT_EQ(2u, test::GetFieldCount(view));
 			EXPECT_EQ(model::LinkAction::Unlink, static_cast<model::LinkAction>(test::GetUint32(view, "linkAction")));

@@ -72,8 +72,8 @@ namespace catapult { namespace keylink {
 			EXPECT_EQ(expectedResult, result);
 		}
 
-		model::PinnedVotingKey CreatePinnedVotingKey(FinalizationPoint::ValueType startPoint, FinalizationPoint::ValueType endPoint) {
-			return { test::GenerateRandomByteArray<VotingKey>(), FinalizationPoint(startPoint), FinalizationPoint(endPoint) };
+		model::PinnedVotingKey CreatePinnedVotingKey(FinalizationEpoch::ValueType startEpoch, FinalizationEpoch::ValueType endEpoch) {
+			return { test::GenerateRandomByteArray<VotingKey>(), FinalizationEpoch(startEpoch), FinalizationEpoch(endEpoch) };
 		}
 
 		auto CreatePinnedVotingKeys(size_t count) {
@@ -106,7 +106,7 @@ namespace catapult { namespace keylink {
 		auto pinnedVotingKeys = CreatePinnedVotingKeys(2);
 		auto notificationPinnedVotingKey1 = CreatePinnedVotingKey(800, 900);
 		auto notificationPinnedVotingKey2 = CreatePinnedVotingKey(800, 900);
-		notificationPinnedVotingKey2.StartPoint = pinnedVotingKeys[1].EndPoint + FinalizationPoint(1);
+		notificationPinnedVotingKey2.StartEpoch = pinnedVotingKeys[1].EndEpoch + FinalizationEpoch(1);
 
 		// Act + Assert:
 		AssertValidation(validators::ValidationResult::Success, pinnedVotingKeys, notificationPinnedVotingKey1, model::LinkAction::Link);
@@ -118,7 +118,7 @@ namespace catapult { namespace keylink {
 		auto pinnedVotingKeys = CreatePinnedVotingKeys(2);
 		auto notificationPinnedVotingKey1 = CreatePinnedVotingKey(180, 210);
 		auto notificationPinnedVotingKey2 = CreatePinnedVotingKey(800, 900);
-		notificationPinnedVotingKey2.StartPoint = pinnedVotingKeys[1].EndPoint;
+		notificationPinnedVotingKey2.StartEpoch = pinnedVotingKeys[1].EndEpoch;
 
 		// Act + Assert:
 		AssertValidation(Accessor::Failure_Link_Already_Exists, pinnedVotingKeys, notificationPinnedVotingKey1, model::LinkAction::Link);
@@ -148,10 +148,10 @@ namespace catapult { namespace keylink {
 	}
 
 	TEST(TEST_CLASS, CannotUnlinkWhenLinkIsSetAndLinkedPublicKeyDoesNotMatchExactly) {
-		// Arrange: EndPoint is off by one
+		// Arrange: EndEpoch is off by one
 		auto pinnedVotingKeys = CreatePinnedVotingKeys(2);
 		auto notificationPinnedVotingKey = pinnedVotingKeys[0];
-		notificationPinnedVotingKey.EndPoint = pinnedVotingKeys[0].EndPoint + FinalizationPoint(1);
+		notificationPinnedVotingKey.EndEpoch = pinnedVotingKeys[0].EndEpoch + FinalizationEpoch(1);
 
 		// Act + Assert:
 		AssertValidation(

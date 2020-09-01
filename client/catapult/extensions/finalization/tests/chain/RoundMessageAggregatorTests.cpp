@@ -59,7 +59,7 @@ namespace catapult { namespace chain {
 				config.VotingSetGrouping = options.VotingSetGrouping;
 
 				// 15/20M voting eligible
-				auto finalizationContextPair = test::CreateFinalizationContext(config, Finalization_Point, Last_Finalized_Height, {
+				auto finalizationContextPair = test::CreateFinalizationContext(config, Finalization_Epoch, Last_Finalized_Height, {
 					Amount(4'000'000), Amount(2'000'000), Amount(1'000'000), Amount(2'000'000), Amount(3'000'000), Amount(4'000'000),
 					Amount(1'000'000), Amount(1'000'000), Amount(1'000'000), Amount(1'000'000)
 				});
@@ -102,7 +102,7 @@ namespace catapult { namespace chain {
 		// Assert:
 		EXPECT_EQ(0u, context.aggregator().size());
 
-		EXPECT_EQ(Finalization_Point, context.aggregator().finalizationContext().point());
+		EXPECT_EQ(Finalization_Epoch, context.aggregator().finalizationContext().epoch());
 		EXPECT_EQ(Last_Finalized_Height, context.aggregator().finalizationContext().height());
 		EXPECT_EQ(Amount(15'000'000), context.aggregator().finalizationContext().weight());
 
@@ -169,17 +169,6 @@ namespace catapult { namespace chain {
 
 		// Act + Assert:
 		AssertCannotAddMessage(RoundMessageAggregatorAddResult::Failure_Invalid_Hashes, std::move(pMessage));
-	}
-
-	PREVOTE_PRECOMIT_TEST(CannotAddMessageWithInvalidPoint) {
-		// Arrange:
-		for (auto point : CreateTypedValues(Finalization_Point, { -2, -1, 1, 10 })) {
-			auto pMessage = test::CreateMessage(Last_Finalized_Height + Height(1), 1);
-			pMessage->StepIdentifier = { Finalization_Epoch, point, TTraits::Stage };
-
-			// Act + Assert:
-			AssertCannotAddMessage(RoundMessageAggregatorAddResult::Failure_Invalid_Point, std::move(pMessage));
-		}
 	}
 
 	PREVOTE_PRECOMIT_TEST(CannotAddRedundantMessage) {

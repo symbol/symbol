@@ -113,7 +113,7 @@ namespace catapult { namespace finalization {
 					state.storage(),
 					GetProofStorageCache(locator),
 					[finalizationContextFactory](const auto& proof) {
-						auto result = chain::VerifyFinalizationProof(proof, finalizationContextFactory.create(proof.Round));
+						auto result = chain::VerifyFinalizationProof(proof, finalizationContextFactory.create(proof.Round.Epoch));
 						if (chain::VerifyFinalizationProofResult::Success != result) {
 							CATAPULT_LOG(warning)
 									<< "proof for round " << proof.Round << " at height " << proof.Height

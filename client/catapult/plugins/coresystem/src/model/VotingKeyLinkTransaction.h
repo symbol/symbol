@@ -38,11 +38,11 @@ namespace catapult { namespace model {
 		/// Linked public key.
 		VotingKey LinkedPublicKey;
 
-		/// Start point.
-		FinalizationPoint StartPoint;
+		/// Start epoch.
+		FinalizationEpoch StartEpoch;
 
-		/// End point.
-		FinalizationPoint EndPoint;
+		/// End epoch.
+		FinalizationEpoch EndEpoch;
 
 		/// Link action.
 		model::LinkAction LinkAction;

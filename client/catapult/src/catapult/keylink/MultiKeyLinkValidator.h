@@ -39,14 +39,12 @@ namespace catapult { namespace keylink {
 			auto accountStateIter = cache.find(notification.MainAccountPublicKey);
 			const auto& accountState = accountStateIter.get();
 
-			// TODO: need to check if StartPoint < CURRENT FinalizationPoint (this probably needs to be stored in context)
-
 			const auto& publicKeysAccessor = TAccessor::Get(accountState);
 			if (model::LinkAction::Link == notification.LinkAction) {
 				if (maxLinks == publicKeysAccessor.size())
 					return TAccessor::Failure_Too_Many_Links;
 
-				if (publicKeysAccessor.upperBound() >= notification.LinkedPublicKey.StartPoint)
+				if (publicKeysAccessor.upperBound() >= notification.LinkedPublicKey.StartEpoch)
 					return TAccessor::Failure_Link_Already_Exists;
 			} else {
 				if (!publicKeysAccessor.containsExact(notification.LinkedPublicKey))
