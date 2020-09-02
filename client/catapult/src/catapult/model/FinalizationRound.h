@@ -52,6 +52,13 @@ namespace catapult { namespace model {
 
 		/// Returns \c true if this round is greater than or equal to \a rhs.
 		bool operator>=(const FinalizationRound& rhs) const;
+
+	public:
+		/// Adds \a point to this round and returns the result.
+		FinalizationRound operator+(FinalizationPoint point) const;
+
+		/// Subtracts \a point from this round and returns the result.
+		FinalizationRound operator-(FinalizationPoint point) const;
 	};
 
 #pragma pack(pop)

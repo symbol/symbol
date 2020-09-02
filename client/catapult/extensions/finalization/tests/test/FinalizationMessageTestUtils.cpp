@@ -49,6 +49,12 @@ namespace catapult { namespace test {
 		return CreateMessage({ FinalizationEpoch(), point, model::FinalizationStage::Count }, GenerateRandomByteArray<Hash256>());
 	}
 
+	std::unique_ptr<model::FinalizationMessage> CreateMessage(const model::FinalizationRound& round) {
+		auto pMessage = CreateMessage(round.Point);
+		pMessage->StepIdentifier.Epoch = round.Epoch;
+		return pMessage;
+	}
+
 	std::unique_ptr<model::FinalizationMessage> CreateMessage(FinalizationPoint point, Height height) {
 		auto pMessage = CreateMessage(point);
 		pMessage->Height = height;

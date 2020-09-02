@@ -84,10 +84,7 @@ namespace catapult { namespace finalization {
 			auto finalizationMessageSynchronizer = chain::CreateFinalizationMessageSynchronizer(
 					[&messageAggregator]() {
 						auto messageAggregatorView = messageAggregator.view();
-						// TODO: read epoch from aggregator
-						return std::make_pair(
-							model::FinalizationRound{ FinalizationEpoch(), messageAggregatorView.minFinalizationPoint() },
-							messageAggregatorView.shortHashes());
+						return std::make_pair(messageAggregatorView.minFinalizationRound(), messageAggregatorView.shortHashes());
 					},
 					serverHooks.messageRangeConsumer());
 

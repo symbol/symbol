@@ -47,6 +47,9 @@ namespace catapult { namespace test {
 	/// Creates a finalization message with one hash for \a point.
 	std::unique_ptr<model::FinalizationMessage> CreateMessage(FinalizationPoint point);
 
+	/// Creates a finalization message with one hash for \a round.
+	std::unique_ptr<model::FinalizationMessage> CreateMessage(const model::FinalizationRound& round);
+
 	/// Creates a finalization message with one hash for \a point at \a height.
 	std::unique_ptr<model::FinalizationMessage> CreateMessage(FinalizationPoint point, Height height);
 

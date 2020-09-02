@@ -46,7 +46,8 @@ namespace catapult { namespace chain {
 	/// Orchestrates finalization progress.
 	class FinalizationOrchestrator {
 	private:
-		using StageAdvancerFactory = std::function<std::unique_ptr<FinalizationStageAdvancer> (FinalizationPoint, Timestamp)>;
+		using FinalizationStageAdvancerPointer = std::unique_ptr<FinalizationStageAdvancer>;
+		using StageAdvancerFactory = std::function<FinalizationStageAdvancerPointer (const model::FinalizationRound&, Timestamp)>;
 		using MessageSink = consumer<std::unique_ptr<model::FinalizationMessage>&&>;
 
 	public:
@@ -58,8 +59,8 @@ namespace catapult { namespace chain {
 				std::unique_ptr<FinalizationMessageFactory>&& pMessageFactory);
 
 	public:
-		/// Gets the current finalization \a point.
-		FinalizationPoint point() const;
+		/// Gets the current finalization \a round.
+		model::FinalizationRound round() const;
 
 		/// Returns \c true if a prevote has been sent for the current round.
 		bool hasSentPrevote() const;
@@ -75,6 +76,7 @@ namespace catapult { namespace chain {
 		void startRound(Timestamp time);
 
 	private:
+		std::atomic<uint64_t> m_epochRaw;
 		std::atomic<uint64_t> m_pointRaw;
 		StageAdvancerFactory m_stageAdvancerFactory;
 		MessageSink m_messageSink;

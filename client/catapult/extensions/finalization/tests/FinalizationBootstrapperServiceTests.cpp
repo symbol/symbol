@@ -103,6 +103,7 @@ namespace catapult { namespace finalization {
 	namespace {
 		using VoterType = test::FinalizationBootstrapperServiceTestUtils::VoterType;
 
+		constexpr auto Finalization_Epoch = FinalizationEpoch(1);
 		constexpr auto Num_Services = test::FinalizationBootstrapperServiceTestUtils::Num_Bootstrapper_Services;
 
 		struct FinalizationBootstrapperServiceTraits {
@@ -129,20 +130,16 @@ namespace catapult { namespace finalization {
 
 		using TestContext = test::VoterSeededCacheDependentServiceLocatorTestContext<FinalizationBootstrapperServiceTraits>;
 
-		model::FinalizationRound PointToRound(FinalizationPoint point) {
-			return { FinalizationEpoch(), point };
-		}
-
 		void AssertAggregatorProperties(
 				const chain::MultiRoundMessageAggregatorView& aggregator,
 				FinalizationPoint minPoint,
 				FinalizationPoint maxPoint,
 				const model::HeightHashPair& previousEstimate,
 				const model::HeightHashPair& currentEstimate) {
-			EXPECT_EQ(minPoint, aggregator.minFinalizationPoint());
-			EXPECT_EQ(maxPoint, aggregator.maxFinalizationPoint());
-			EXPECT_EQ(previousEstimate, aggregator.findEstimate(PointToRound(aggregator.maxFinalizationPoint() - FinalizationPoint(1))));
-			EXPECT_EQ(currentEstimate, aggregator.findEstimate(PointToRound(aggregator.maxFinalizationPoint())));
+			EXPECT_EQ(model::FinalizationRound({ Finalization_Epoch, minPoint }), aggregator.minFinalizationRound());
+			EXPECT_EQ(model::FinalizationRound({ Finalization_Epoch, maxPoint }), aggregator.maxFinalizationRound());
+			EXPECT_EQ(previousEstimate, aggregator.findEstimate(aggregator.maxFinalizationRound() - FinalizationPoint(1)));
+			EXPECT_EQ(currentEstimate, aggregator.findEstimate(aggregator.maxFinalizationRound()));
 		}
 
 		void AssertAggregatorProperties(
@@ -159,8 +156,10 @@ namespace catapult { namespace finalization {
 				FinalizationPoint maxPoint,
 				Height previousEstimateHeight,
 				Height currentEstimateHeight) {
-			EXPECT_EQ(minPoint.unwrap(), context.counter("FIN MIN FP"));
-			EXPECT_EQ(maxPoint.unwrap(), context.counter("FIN MAX FP"));
+			EXPECT_EQ(Finalization_Epoch.unwrap(), context.counter("FIN MIN EPOCH"));
+			EXPECT_EQ(minPoint.unwrap(), context.counter("FIN MIN POINT"));
+			EXPECT_EQ(Finalization_Epoch.unwrap(), context.counter("FIN MAX EPOCH"));
+			EXPECT_EQ(maxPoint.unwrap(), context.counter("FIN MAX POINT"));
 			EXPECT_EQ(previousEstimateHeight.unwrap(), context.counter("FIN PREV EST"));
 			EXPECT_EQ(currentEstimateHeight.unwrap(), context.counter("FIN CUR EST"));
 		}
@@ -182,7 +181,7 @@ namespace catapult { namespace finalization {
 
 		// Assert:
 		EXPECT_EQ(Num_Services, context.locator().numServices());
-		EXPECT_EQ(4u, context.locator().counters().size());
+		EXPECT_EQ(6u, context.locator().counters().size());
 
 		// - service
 		const auto& aggregator = GetMultiRoundMessageAggregator(context.locator());
@@ -243,7 +242,7 @@ namespace catapult { namespace finalization {
 
 	namespace {
 		model::StepIdentifier CreateStepIdentifier(uint64_t point) {
-			return test::CreateStepIdentifier(0, point, model::FinalizationStage::Prevote);
+			return test::CreateStepIdentifier(Finalization_Epoch.unwrap(), point, model::FinalizationStage::Prevote);
 		}
 
 		template<typename TAction>
@@ -281,7 +280,7 @@ namespace catapult { namespace finalization {
 	TEST(TEST_CLASS, MultiRoundMessageAggregatorServiceCountersAreCorrectWhenProcessingMultipleRounds) {
 		// Arrange:
 		RunMultiRoundMessageAggregatorServiceTest([](auto& aggregator, const auto& context, const auto& lastFinalizedHash) {
-			aggregator.modifier().setMaxFinalizationPoint(FinalizationPoint(15));
+			aggregator.modifier().setMaxFinalizationRound({ Finalization_Epoch, FinalizationPoint(15) });
 
 			// Act:
 			auto hash = test::GenerateRandomByteArray<Hash256>();
@@ -300,7 +299,7 @@ namespace catapult { namespace finalization {
 	TEST(TEST_CLASS, MultiRoundMessageAggregatorServiceCountersAreCorrectWhenProcessingMultipleRoundsWithNewEstimates) {
 		// Arrange:
 		RunMultiRoundMessageAggregatorServiceTest([](auto& aggregator, const auto& context, const auto&) {
-			aggregator.modifier().setMaxFinalizationPoint(FinalizationPoint(15));
+			aggregator.modifier().setMaxFinalizationRound({ Finalization_Epoch, FinalizationPoint(15) });
 
 			// Act:
 			auto hash1 = test::GenerateRandomByteArray<Hash256>();

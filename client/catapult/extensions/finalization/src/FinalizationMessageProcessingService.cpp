@@ -40,22 +40,22 @@ namespace catapult { namespace finalization {
 			return extensions::CreatePushEntitySink<MessagesSink>(locator, Writers_Service_Name);
 		}
 
-		class FinalizationPointChecker {
+		class FinalizationRoundChecker {
 		public:
-			explicit FinalizationPointChecker(const chain::MultiRoundMessageAggregator& messageAggregator) {
+			explicit FinalizationRoundChecker(const chain::MultiRoundMessageAggregator& messageAggregator) {
 				auto view = messageAggregator.view();
-				m_minPoint = view.minFinalizationPoint();
-				m_maxPoint = view.maxFinalizationPoint();
+				m_minRound = view.minFinalizationRound();
+				m_maxRound = view.maxFinalizationRound();
 			}
 
 		public:
-			bool isInRange(FinalizationPoint point) const {
-				return m_minPoint <= point && point <= m_maxPoint;
+			bool isInRange(const model::FinalizationRound& round) const {
+				return m_minRound <= round && round <= m_maxRound;
 			}
 
 		private:
-			FinalizationPoint m_minPoint;
-			FinalizationPoint m_maxPoint;
+			model::FinalizationRound m_minRound;
+			model::FinalizationRound m_maxRound;
 		};
 
 		class FinalizationMessageProcessingServiceRegistrar : public extensions::ServiceRegistrar {
@@ -88,11 +88,14 @@ namespace catapult { namespace finalization {
 					auto newMessages = ionet::FinalizationMessages();
 					auto extractedMessages = model::FinalizationMessageRange::ExtractEntitiesFromRange(std::move(messages.Range));
 
-					FinalizationPointChecker finalizationPointChecker(messageAggregator);
+					FinalizationRoundChecker roundChecker(messageAggregator);
 					for (const auto& pMessage : extractedMessages) {
-						// ignore messages associated with an out of range finalization point
-						if (!finalizationPointChecker.isInRange(pMessage->StepIdentifier.Point))
+						// ignore messages associated with an out of range finalization round
+						auto messageRound = model::FinalizationRound{ pMessage->StepIdentifier.Epoch, pMessage->StepIdentifier.Point };
+						if (!roundChecker.isInRange(messageRound)) {
+							CATAPULT_LOG(debug) << "skipping message with out of bounds round " << messageRound;
 							continue;
+						}
 
 						auto messageHash = model::CalculateMessageHash(*pMessage);
 						if (!pRecentHashCache->add(messageHash))

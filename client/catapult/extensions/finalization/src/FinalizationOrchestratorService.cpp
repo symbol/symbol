@@ -65,15 +65,11 @@ namespace catapult { namespace finalization {
 
 		public:
 			void poll(Timestamp time) {
-				if (m_orchestrator.point() > m_messageAggregator.view().maxFinalizationPoint())
-					m_messageAggregator.modifier().setMaxFinalizationPoint(m_orchestrator.point());
+				if (m_orchestrator.round() > m_messageAggregator.view().maxFinalizationRound())
+					m_messageAggregator.modifier().setMaxFinalizationRound(m_orchestrator.round());
 
 				m_orchestrator.poll(time);
-				m_votingStatusFile.save({
-					{ FinalizationEpoch(), m_orchestrator.point() }, // TODO: expose epoch from orchestrator
-					m_orchestrator.hasSentPrevote(),
-					m_orchestrator.hasSentPrecommit()
-				});
+				m_votingStatusFile.save({ m_orchestrator.round(), m_orchestrator.hasSentPrevote(), m_orchestrator.hasSentPrecommit() });
 				m_finalizer();
 			}
 

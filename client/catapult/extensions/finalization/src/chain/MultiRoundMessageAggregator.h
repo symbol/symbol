@@ -58,11 +58,11 @@ namespace catapult { namespace chain {
 		/// Gets the number of round message aggregators.
 		size_t size() const;
 
-		/// Gets the minimum finalization point of messages that can be accepted.
-		FinalizationPoint minFinalizationPoint() const;
+		/// Gets the minimum finalization round of messages that can be accepted.
+		model::FinalizationRound minFinalizationRound() const;
 
-		/// Gets the maximum finalization point of messages that can be accepted.
-		FinalizationPoint maxFinalizationPoint() const;
+		/// Gets the maximum finalization round of messages that can be accepted.
+		model::FinalizationRound maxFinalizationRound() const;
 
 		/// Tries to get the round context for the specified \a round.
 		const RoundContext* tryGetRoundContext(const model::FinalizationRound& round) const;
@@ -101,10 +101,8 @@ namespace catapult { namespace chain {
 				utils::SpinReaderWriterLock::WriterLockGuard&& writeLock);
 
 	public:
-		/// Sets the maximum finalization \a point of messages that can be accepted.
-		void setMaxFinalizationPoint(FinalizationPoint point);
-
-		// TODO: need to add a way to update epoch
+		/// Sets the maximum finalization \a round of messages that can be accepted.
+		void setMaxFinalizationRound(const model::FinalizationRound& round);
 
 		/// Adds a finalization message (\a pMessage) to the aggregator.
 		/// \note Message is a shared_ptr because it is detached from an EntityRange and is kept alive with its associated step.
@@ -125,15 +123,15 @@ namespace catapult { namespace chain {
 	/// Aggregates finalization messages across multiple finalization points.
 	class MultiRoundMessageAggregator {
 	public:
-		using RoundMessageAggregatorFactory = std::function<std::unique_ptr<RoundMessageAggregator> (FinalizationPoint, Height)>;
+		using RoundMessageAggregatorFactory = std::function<std::unique_ptr<RoundMessageAggregator> (const model::FinalizationRound&)>;
 
 	public:
-		/// Creates an aggregator around \a maxResponseSize, the current finalization point (\a finalizationPoint),
+		/// Creates an aggregator around \a maxResponseSize, the current finalization \a round,
 		/// the previous finalized height hash pair (\a previousFinalizedHeightHashPair) and a factory for creating
 		/// round message aggregators (\a roundMessageAggregatorFactory).
 		MultiRoundMessageAggregator(
 				uint64_t maxResponseSize,
-				FinalizationPoint finalizationPoint,
+				const model::FinalizationRound& round,
 				const model::HeightHashPair& previousFinalizedHeightHashPair,
 				const RoundMessageAggregatorFactory& roundMessageAggregatorFactory);
 

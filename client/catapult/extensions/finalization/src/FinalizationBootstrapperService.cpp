@@ -46,11 +46,10 @@ namespace catapult { namespace finalization {
 			auto finalizationStatistics = proofStorageView.statistics();
 			return std::make_shared<chain::MultiRoundMessageAggregator>(
 					config.MessageSynchronizationMaxResponseSize.bytes(),
-					finalizationStatistics.Round.Point, // TODO: needs to be round
+					finalizationStatistics.Round,
 					model::HeightHashPair{ finalizationStatistics.Height, finalizationStatistics.Hash },
-					[finalizationContextFactory](auto, auto) {
-						// TODO: lookup epoch
-						return chain::CreateRoundMessageAggregator(finalizationContextFactory.create(FinalizationEpoch(1)));
+					[finalizationContextFactory](const auto& round) {
+						return chain::CreateRoundMessageAggregator(finalizationContextFactory.create(round.Epoch));
 					});
 		}
 
@@ -60,9 +59,8 @@ namespace catapult { namespace finalization {
 
 		namespace {
 			Height GetEstimateHeight(const chain::MultiRoundMessageAggregator& aggregator, FinalizationPoint delta) {
-				// TODO: get epoch from aggregator
 				auto view = aggregator.view();
-				return view.findEstimate({ FinalizationEpoch(), view.maxFinalizationPoint() - delta }).Height;
+				return view.findEstimate(view.maxFinalizationRound() - delta).Height;
 			}
 		}
 
@@ -83,11 +81,17 @@ namespace catapult { namespace finalization {
 			void registerServiceCounters(extensions::ServiceLocator& locator) override {
 				using AggregatorType = chain::MultiRoundMessageAggregator;
 
-				locator.registerServiceCounter<AggregatorType>(Aggregator_Service_Name, "FIN MIN FP", [](const auto& aggregator) {
-					return aggregator.view().minFinalizationPoint().unwrap();
+				locator.registerServiceCounter<AggregatorType>(Aggregator_Service_Name, "FIN MIN EPOCH", [](const auto& aggregator) {
+					return aggregator.view().minFinalizationRound().Epoch.unwrap();
 				});
-				locator.registerServiceCounter<AggregatorType>(Aggregator_Service_Name, "FIN MAX FP", [](const auto& aggregator) {
-					return aggregator.view().maxFinalizationPoint().unwrap();
+				locator.registerServiceCounter<AggregatorType>(Aggregator_Service_Name, "FIN MIN POINT", [](const auto& aggregator) {
+					return aggregator.view().minFinalizationRound().Point.unwrap();
+				});
+				locator.registerServiceCounter<AggregatorType>(Aggregator_Service_Name, "FIN MAX EPOCH", [](const auto& aggregator) {
+					return aggregator.view().maxFinalizationRound().Epoch.unwrap();
+				});
+				locator.registerServiceCounter<AggregatorType>(Aggregator_Service_Name, "FIN MAX POINT", [](const auto& aggregator) {
+					return aggregator.view().maxFinalizationRound().Point.unwrap();
 				});
 				locator.registerServiceCounter<AggregatorType>(Aggregator_Service_Name, "FIN PREV EST", [](const auto& aggregator) {
 					return GetEstimateHeight(aggregator, FinalizationPoint(1)).unwrap();

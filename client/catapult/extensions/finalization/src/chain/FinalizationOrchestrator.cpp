@@ -31,20 +31,21 @@ namespace catapult { namespace chain {
 			const StageAdvancerFactory& stageAdvancerFactory,
 			const MessageSink& messageSink,
 			std::unique_ptr<FinalizationMessageFactory>&& pMessageFactory)
-			: m_pointRaw(votingStatus.Round.Point.unwrap()) // TODO: use epoch here too
+			: m_epochRaw(votingStatus.Round.Epoch.unwrap())
+			, m_pointRaw(votingStatus.Round.Point.unwrap())
 			, m_stageAdvancerFactory(stageAdvancerFactory)
 			, m_messageSink(messageSink)
 			, m_pMessageFactory(std::move(pMessageFactory))
 			, m_hasSentPrevote(votingStatus.HasSentPrevote)
 			, m_hasSentPrecommit(votingStatus.HasSentPrecommit) {
 		CATAPULT_LOG(debug)
-				<< "creating finalization orchestrator starting at point " << m_pointRaw
+				<< "creating finalization orchestrator starting at round " << round()
 				<< " (has sent prevote? " << m_hasSentPrevote << ")"
 				<< " (has sent precommit? " << m_hasSentPrecommit << ")";
 	}
 
-	FinalizationPoint FinalizationOrchestrator::point() const {
-		return FinalizationPoint(m_pointRaw);
+	model::FinalizationRound FinalizationOrchestrator::round() const {
+		return { FinalizationEpoch(m_epochRaw), FinalizationPoint(m_pointRaw) };
 	}
 
 	bool FinalizationOrchestrator::hasSentPrevote() const {
@@ -58,7 +59,7 @@ namespace catapult { namespace chain {
 	void FinalizationOrchestrator::poll(Timestamp time) {
 		// on first call to poll, don't call startRound in order to use original values for m_hasSentPrevote and m_hasSentPrecommit
 		if (!m_pStageAdvancer)
-			m_pStageAdvancer = m_stageAdvancerFactory(point(), time);
+			m_pStageAdvancer = m_stageAdvancerFactory(round(), time);
 
 		if (!m_hasSentPrevote && m_pStageAdvancer->canSendPrevote(time)) {
 			m_messageSink(m_pMessageFactory->createPrevote(FinalizationPoint(m_pointRaw)));
@@ -80,7 +81,7 @@ namespace catapult { namespace chain {
 	void FinalizationOrchestrator::startRound(Timestamp time) {
 		m_hasSentPrevote = false;
 		m_hasSentPrecommit = false;
-		m_pStageAdvancer = m_stageAdvancerFactory(point(), time);
+		m_pStageAdvancer = m_stageAdvancerFactory(round(), time);
 	}
 
 	namespace {

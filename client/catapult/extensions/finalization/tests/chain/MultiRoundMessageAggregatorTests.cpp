@@ -30,8 +30,8 @@ namespace catapult { namespace chain {
 #define TEST_CLASS MultiRoundMessageAggregatorTests
 
 	namespace {
-		constexpr auto Default_Min_FP = FinalizationPoint(3);
-		constexpr auto Default_Max_FP = FinalizationPoint(13);
+		constexpr auto Default_Min_Round = model::FinalizationRound{ FinalizationEpoch(7), FinalizationPoint(3) };
+		constexpr auto Default_Max_Round = model::FinalizationRound{ FinalizationEpoch(7), FinalizationPoint(13) };
 
 		constexpr auto Last_Finalized_Height = Height(123);
 
@@ -46,20 +46,20 @@ namespace catapult { namespace chain {
 			using RoundMessageAggregatorInitializer = consumer<mocks::MockRoundMessageAggregator&>;
 
 		public:
-			TestContext() : TestContext(Default_Min_FP)
+			TestContext() : TestContext(Default_Min_Round)
 			{}
 
-			explicit TestContext(FinalizationPoint point) : TestContext(point, TestContextOptions())
+			explicit TestContext(const model::FinalizationRound& round) : TestContext(round, TestContextOptions())
 			{}
 
-			TestContext(FinalizationPoint point, const TestContextOptions& options)
+			TestContext(const model::FinalizationRound& round, const TestContextOptions& options)
 					: m_lastFinalizedHash(test::GenerateRandomByteArray<Hash256>()) {
 				m_pAggregator = std::make_unique<MultiRoundMessageAggregator>(
 						options.MaxResponseSize,
-						point,
+						round,
 						model::HeightHashPair{ Last_Finalized_Height, m_lastFinalizedHash },
-						[this](auto roundPoint, auto height) {
-							auto pRoundMessageAggregator = std::make_unique<mocks::MockRoundMessageAggregator>(roundPoint, height);
+						[this](const auto& subround) {
+							auto pRoundMessageAggregator = std::make_unique<mocks::MockRoundMessageAggregator>(subround);
 							if (m_roundMessageAggregatorInitializer)
 								m_roundMessageAggregatorInitializer(*pRoundMessageAggregator);
 
@@ -98,13 +98,41 @@ namespace catapult { namespace chain {
 			std::unique_ptr<MultiRoundMessageAggregator> m_pAggregator;
 		};
 
+		// endregion
+
+		// region test utils
+
+		auto CreateMessage(const model::FinalizationRound& round, Height height) {
+			auto pMessage = test::CreateMessage(round);
+			pMessage->Height = height;
+			return pMessage;
+		}
+
+		void AddRoundMessageAggregators(TestContext& context, const std::vector<FinalizationEpoch>& epochDeltas) {
+			// Arrange:
+			context.aggregator().modifier().setMaxFinalizationRound({
+				Default_Min_Round.Epoch + epochDeltas.back(),
+				Default_Min_Round.Point
+			});
+
+			auto i = 1u;
+			for (auto epochDelta : epochDeltas) {
+				auto round = model::FinalizationRound{ Default_Min_Round.Epoch + epochDelta, Default_Min_Round.Point };
+				context.aggregator().modifier().add(CreateMessage(round, Height(100 + i * 50)));
+				++i;
+			}
+
+			// Sanity:
+			EXPECT_EQ(3u, context.aggregator().view().size());
+		}
+
 		void AddRoundMessageAggregators(TestContext& context, const std::vector<FinalizationPoint>& pointDeltas) {
 			// Arrange:
-			context.aggregator().modifier().setMaxFinalizationPoint(Default_Max_FP);
+			context.aggregator().modifier().setMaxFinalizationRound(Default_Min_Round + pointDeltas.back());
 
 			auto i = 1u;
 			for (auto pointDelta : pointDeltas) {
-				context.aggregator().modifier().add(test::CreateMessage(Default_Min_FP + pointDelta, Height(100 + i * 50)));
+				context.aggregator().modifier().add(CreateMessage(Default_Min_Round + pointDelta, Height(100 + i * 50)));
 				++i;
 			}
 
@@ -118,10 +146,12 @@ namespace catapult { namespace chain {
 	// region constructor
 
 	namespace {
-		void AssertEmptyProperties(const MultiRoundMessageAggregatorView& view, FinalizationPoint expectedMaxFinalizationPoint) {
+		void AssertEmptyProperties(
+				const MultiRoundMessageAggregatorView& view,
+				const model::FinalizationRound& expectedMaxFinalizationRound) {
 			EXPECT_EQ(0u, view.size());
-			EXPECT_EQ(Default_Min_FP, view.minFinalizationPoint());
-			EXPECT_EQ(expectedMaxFinalizationPoint, view.maxFinalizationPoint());
+			EXPECT_EQ(Default_Min_Round, view.minFinalizationRound());
+			EXPECT_EQ(expectedMaxFinalizationRound, view.maxFinalizationRound());
 		}
 	}
 
@@ -130,43 +160,43 @@ namespace catapult { namespace chain {
 		TestContext context;
 
 		// Assert:
-		AssertEmptyProperties(context.aggregator().view(), Default_Min_FP);
+		AssertEmptyProperties(context.aggregator().view(), Default_Min_Round);
 	}
 
 	// endregion
 
-	// region setMaxFinalizationPoint
+	// region setMaxFinalizationRound
 
-	TEST(TEST_CLASS, CanSetMaxFinalizationPointAboveMin) {
+	TEST(TEST_CLASS, CanSetMaxFinalizationRoundAboveMin) {
 		// Arrange:
 		TestContext context;
 
 		// Act:
-		context.aggregator().modifier().setMaxFinalizationPoint(Default_Min_FP + FinalizationPoint(11));
+		context.aggregator().modifier().setMaxFinalizationRound(Default_Min_Round + FinalizationPoint(11));
 
 		// Assert:
-		AssertEmptyProperties(context.aggregator().view(), Default_Min_FP + FinalizationPoint(11));
+		AssertEmptyProperties(context.aggregator().view(), Default_Min_Round + FinalizationPoint(11));
 	}
 
-	TEST(TEST_CLASS, CanSetMaxFinalizationPointToMin) {
+	TEST(TEST_CLASS, CanSetMaxFinalizationRoundToMin) {
 		// Arrange:
 		TestContext context;
-		context.aggregator().modifier().setMaxFinalizationPoint(Default_Min_FP + FinalizationPoint(11));
+		context.aggregator().modifier().setMaxFinalizationRound(Default_Min_Round + FinalizationPoint(11));
 
 		// Act:
-		context.aggregator().modifier().setMaxFinalizationPoint(Default_Min_FP);
+		context.aggregator().modifier().setMaxFinalizationRound(Default_Min_Round);
 
 		// Assert:
-		AssertEmptyProperties(context.aggregator().view(), Default_Min_FP);
+		AssertEmptyProperties(context.aggregator().view(), Default_Min_Round);
 	}
 
-	TEST(TEST_CLASS, CannotSetMaxFinalizationPointBelowMin) {
+	TEST(TEST_CLASS, CannotSetMaxFinalizationRoundBelowMin) {
 		// Arrange:
 		TestContext context;
 
 		// Act + Assert:
 		EXPECT_THROW(
-				context.aggregator().modifier().setMaxFinalizationPoint(Default_Min_FP - FinalizationPoint(1)),
+				context.aggregator().modifier().setMaxFinalizationRound(Default_Min_Round - FinalizationPoint(1)),
 				catapult_invalid_argument);
 	}
 
@@ -175,13 +205,13 @@ namespace catapult { namespace chain {
 	// region add
 
 	namespace {
-		void AssertCannotAddMessage(FinalizationPoint point) {
+		void AssertCannotAddMessage(const model::FinalizationRound& round) {
 			// Arrange:
 			TestContext context;
-			context.aggregator().modifier().setMaxFinalizationPoint(Default_Max_FP);
+			context.aggregator().modifier().setMaxFinalizationRound(Default_Max_Round);
 
 			// Act:
-			auto result = context.aggregator().modifier().add(test::CreateMessage(point, Height(222)));
+			auto result = context.aggregator().modifier().add(CreateMessage(round, Height(222)));
 
 			// Assert:
 			EXPECT_EQ(RoundMessageAggregatorAddResult::Failure_Invalid_Point, result);
@@ -189,72 +219,70 @@ namespace catapult { namespace chain {
 			EXPECT_EQ(0u, context.roundMessageAggregators().size());
 		}
 
-		void AssertCanAddMessage(FinalizationPoint point, RoundMessageAggregatorAddResult expectedAddResult) {
+		void AssertCanAddMessage(const model::FinalizationRound& round, RoundMessageAggregatorAddResult expectedAddResult) {
 			// Arrange:
 			TestContext context;
-			context.aggregator().modifier().setMaxFinalizationPoint(Default_Max_FP);
+			context.aggregator().modifier().setMaxFinalizationRound(Default_Max_Round);
 			context.setRoundMessageAggregatorInitializer([expectedAddResult](auto& roundMessageAggregator) {
 				roundMessageAggregator.setAddResult(expectedAddResult);
 			});
 
 			// Act:
-			auto result = context.aggregator().modifier().add(test::CreateMessage(point, Height(222)));
+			auto result = context.aggregator().modifier().add(CreateMessage(round, Height(222)));
 
 			// Assert:
 			EXPECT_EQ(expectedAddResult, result);
 			EXPECT_EQ(1u, context.aggregator().view().size());
 			ASSERT_EQ(1u, context.roundMessageAggregators().size());
 
-			EXPECT_EQ(point, context.roundMessageAggregators()[0]->point());
-			EXPECT_EQ(Height(222), context.roundMessageAggregators()[0]->height());
+			EXPECT_EQ(round, context.roundMessageAggregators()[0]->round());
 			EXPECT_EQ(1u, context.roundMessageAggregators()[0]->numAddCalls());
 		}
 
-		void AssertCanAddMessage(FinalizationPoint point) {
-			AssertCanAddMessage(point, RoundMessageAggregatorAddResult::Success_Prevote);
+		void AssertCanAddMessage(const model::FinalizationRound& round) {
+			AssertCanAddMessage(round, RoundMessageAggregatorAddResult::Success_Prevote);
 		}
 	}
 
 	TEST(TEST_CLASS, CannotAddMessageWithPointLessThanMin) {
-		AssertCannotAddMessage(Default_Min_FP - FinalizationPoint(1));
+		AssertCannotAddMessage(Default_Min_Round - FinalizationPoint(1));
 	}
 
 	TEST(TEST_CLASS, CannotAddMessageWithPointGreaterThanMax) {
-		AssertCannotAddMessage(Default_Max_FP + FinalizationPoint(1));
+		AssertCannotAddMessage(Default_Max_Round + FinalizationPoint(1));
 	}
 
 	TEST(TEST_CLASS, CanAddMessageWithPointAtMin) {
-		AssertCanAddMessage(Default_Min_FP);
+		AssertCanAddMessage(Default_Min_Round);
 	}
 
 	TEST(TEST_CLASS, CanAddMessageWithPointBetweenMinAndMax) {
-		AssertCanAddMessage(Default_Min_FP + FinalizationPoint(5));
+		AssertCanAddMessage(Default_Min_Round + FinalizationPoint(5));
 	}
 
 	TEST(TEST_CLASS, CanAddMessageWithPointAtMax) {
-		AssertCanAddMessage(Default_Max_FP);
+		AssertCanAddMessage(Default_Max_Round);
 	}
 
 	TEST(TEST_CLASS, CanAddMessageWithPointBetweenMinAndMaxWithNonSuccessResult) {
 		// Assert: mock doesn't do any filtering
-		AssertCanAddMessage(Default_Min_FP + FinalizationPoint(5), RoundMessageAggregatorAddResult::Failure_Invalid_Height);
+		AssertCanAddMessage(Default_Min_Round + FinalizationPoint(5), RoundMessageAggregatorAddResult::Failure_Invalid_Height);
 	}
 
 	TEST(TEST_CLASS, CanAddMultipleMessagesWithSamePoint) {
 		// Arrange:
 		TestContext context;
-		context.aggregator().modifier().setMaxFinalizationPoint(Default_Max_FP);
+		context.aggregator().modifier().setMaxFinalizationRound(Default_Max_Round);
 
 		// Act:
 		for (auto i = 1u; i <= 3; ++i)
-			context.aggregator().modifier().add(test::CreateMessage(Default_Min_FP + FinalizationPoint(5), Height(100 + i * 50)));
+			context.aggregator().modifier().add(CreateMessage(Default_Min_Round + FinalizationPoint(5), Height(100 + i * 50)));
 
 		// Assert:
 		EXPECT_EQ(1u, context.aggregator().view().size());
 		ASSERT_EQ(1u, context.roundMessageAggregators().size());
 
-		EXPECT_EQ(Default_Min_FP + FinalizationPoint(5), context.roundMessageAggregators()[0]->point());
-		EXPECT_EQ(Height(150), context.roundMessageAggregators()[0]->height());
+		EXPECT_EQ(Default_Min_Round + FinalizationPoint(5), context.roundMessageAggregators()[0]->round());
 		EXPECT_EQ(3u, context.roundMessageAggregators()[0]->numAddCalls());
 	}
 
@@ -271,8 +299,7 @@ namespace catapult { namespace chain {
 
 		auto i = 0u;
 		for (auto pointDelta : { FinalizationPoint(0), FinalizationPoint(5), FinalizationPoint(10) }) {
-			EXPECT_EQ(Default_Min_FP + pointDelta, context.roundMessageAggregators()[i]->point()) << i;
-			EXPECT_EQ(Height(100 + (i + 1) * 50), context.roundMessageAggregators()[i]->height()) << i;
+			EXPECT_EQ(Default_Min_Round + pointDelta, context.roundMessageAggregators()[i]->round()) << i;
 			EXPECT_EQ(1u, context.roundMessageAggregators()[i]->numAddCalls()) << i;
 			++i;
 		}
@@ -292,9 +319,28 @@ namespace catapult { namespace chain {
 
 		auto i = 0u;
 		for (auto pointDelta : { FinalizationPoint(5), FinalizationPoint(0), FinalizationPoint(10) }) {
-			EXPECT_EQ(Default_Min_FP + pointDelta, context.roundMessageAggregators()[i]->point()) << i;
-			EXPECT_EQ(Height(100 + (i + 1) * 50), context.roundMessageAggregators()[i]->height()) << i;
+			EXPECT_EQ(Default_Min_Round + pointDelta, context.roundMessageAggregators()[i]->round()) << i;
 			EXPECT_EQ(FinalizationPoint(10) == pointDelta ? 1u : 2u, context.roundMessageAggregators()[i]->numAddCalls()) << i;
+			++i;
+		}
+	}
+
+	TEST(TEST_CLASS, CanAddMultipleMessagesWithDifferentEpochs) {
+		// Arrange:
+		TestContext context;
+
+		// Act:
+		AddRoundMessageAggregators(context, { FinalizationEpoch(10), FinalizationEpoch(20), FinalizationEpoch(30) });
+
+		// Assert:
+		EXPECT_EQ(3u, context.aggregator().view().size());
+		ASSERT_EQ(3u, context.roundMessageAggregators().size());
+
+		auto i = 0u;
+		for (auto epochDelta : { FinalizationEpoch(10), FinalizationEpoch(20), FinalizationEpoch(30) }) {
+			auto expectedRound = model::FinalizationRound{ Default_Min_Round.Epoch + epochDelta, Default_Min_Round.Point };
+			EXPECT_EQ(expectedRound, context.roundMessageAggregators()[i]->round()) << i;
+			EXPECT_EQ(1u, context.roundMessageAggregators()[i]->numAddCalls()) << i;
 			++i;
 		}
 	}
@@ -303,12 +349,6 @@ namespace catapult { namespace chain {
 
 	// region tryGetRoundContext
 
-	namespace {
-		model::FinalizationRound PointToRound(FinalizationPoint point) {
-			return { FinalizationEpoch(), point };
-		}
-	}
-
 	TEST(TEST_CLASS, TryGetRoundContextReturnsNullptrWhenSpecifiedPointIsUnknown) {
 		// Arrange:
 		TestContext context;
@@ -316,7 +356,7 @@ namespace catapult { namespace chain {
 
 		// Act:
 		auto aggregatorView = context.aggregator().view();
-		const auto* pRoundContext = aggregatorView.tryGetRoundContext(PointToRound(Default_Min_FP + FinalizationPoint(7)));
+		const auto* pRoundContext = aggregatorView.tryGetRoundContext(Default_Min_Round + FinalizationPoint(7));
 
 		// Assert:
 		EXPECT_FALSE(!!pRoundContext);
@@ -327,18 +367,40 @@ namespace catapult { namespace chain {
 		auto hash = test::GenerateRandomByteArray<Hash256>();
 		TestContext context;
 		context.setRoundMessageAggregatorInitializer([&hash](auto& roundMessageAggregator) {
-			roundMessageAggregator.roundContext().acceptPrevote(Height(222), &hash, 1, roundMessageAggregator.point().unwrap());
+			roundMessageAggregator.roundContext().acceptPrevote(Height(222), &hash, 1, roundMessageAggregator.round().Point.unwrap());
 		});
 
 		AddRoundMessageAggregators(context, { FinalizationPoint(0), FinalizationPoint(5), FinalizationPoint(10) });
 
 		// Act:
 		auto aggregatorView = context.aggregator().view();
-		const auto* pRoundContext = aggregatorView.tryGetRoundContext(PointToRound(Default_Min_FP + FinalizationPoint(5)));
+		const auto* pRoundContext = aggregatorView.tryGetRoundContext(Default_Min_Round + FinalizationPoint(5));
 
 		// Assert:
 		ASSERT_TRUE(!!pRoundContext);
-		EXPECT_EQ(8u, pRoundContext->weights({ Height(222), hash }).Prevote);
+		EXPECT_EQ(3u + 5, pRoundContext->weights({ Height(222), hash }).Prevote);
+	}
+
+	TEST(TEST_CLASS, TryGetRoundContextReturnsValidRoundContextWhenSpecifiedPointIsKnownAcrossMultipleEpochs) {
+		// Arrange:
+		auto hash = test::GenerateRandomByteArray<Hash256>();
+		TestContext context;
+		context.setRoundMessageAggregatorInitializer([&hash](auto& roundMessageAggregator) {
+			roundMessageAggregator.roundContext().acceptPrevote(Height(222), &hash, 1, roundMessageAggregator.round().Epoch.unwrap());
+		});
+
+		AddRoundMessageAggregators(context, { FinalizationEpoch(10), FinalizationEpoch(20), FinalizationEpoch(30) });
+
+		// Act:
+		auto aggregatorView = context.aggregator().view();
+		const auto* pRoundContext = aggregatorView.tryGetRoundContext({
+			Default_Min_Round.Epoch + FinalizationEpoch(20),
+			Default_Min_Round.Point
+		});
+
+		// Assert:
+		ASSERT_TRUE(!!pRoundContext);
+		EXPECT_EQ(7u + 20, pRoundContext->weights({ Height(222), hash }).Prevote);
 	}
 
 	// endregion
@@ -347,11 +409,11 @@ namespace catapult { namespace chain {
 
 	namespace {
 		model::HeightHashPair FindPreviousEstimate(const MultiRoundMessageAggregator& context) {
-			return context.view().findEstimate(PointToRound(Default_Max_FP - FinalizationPoint(1)));
+			return context.view().findEstimate(Default_Max_Round - FinalizationPoint(1));
 		}
 
 		model::HeightHashPair FindCurrentEstimate(const MultiRoundMessageAggregator& context) {
-			return context.view().findEstimate(PointToRound(Default_Max_FP));
+			return context.view().findEstimate(Default_Max_Round);
 		}
 	}
 
@@ -374,7 +436,7 @@ namespace catapult { namespace chain {
 		TestContext context;
 		context.setRoundMessageAggregatorInitializer([&hash](auto& roundMessageAggregator) {
 			// - set estimate for last aggregator only
-			if (Default_Max_FP == roundMessageAggregator.point())
+			if (Default_Max_Round == roundMessageAggregator.round())
 				roundMessageAggregator.roundContext().acceptPrevote(Height(222), &hash, 1, 750);
 		});
 
@@ -398,7 +460,8 @@ namespace catapult { namespace chain {
 			auto hash = test::GenerateRandomByteArray<Hash256>();
 			hashes.push_back(hash);
 
-			roundMessageAggregator.roundContext().acceptPrevote(Height(roundMessageAggregator.point().unwrap() * 100), &hash, 1, 750);
+			auto height = Height(roundMessageAggregator.round().Point.unwrap() * 100);
+			roundMessageAggregator.roundContext().acceptPrevote(height, &hash, 1, 750);
 		});
 
 		AddRoundMessageAggregators(context, { FinalizationPoint(0), FinalizationPoint(5), FinalizationPoint(10) });
@@ -418,7 +481,7 @@ namespace catapult { namespace chain {
 		TestContext context;
 		context.setRoundMessageAggregatorInitializer([&hash](auto& roundMessageAggregator) {
 			// - set estimate for first aggregator only
-			if (Default_Min_FP == roundMessageAggregator.point())
+			if (Default_Min_Round == roundMessageAggregator.round())
 				roundMessageAggregator.roundContext().acceptPrevote(Height(222), &hash, 1, 750);
 		});
 
@@ -449,13 +512,13 @@ namespace catapult { namespace chain {
 				FinalizationPoint expectedPointDelta,
 				const model::HeightHashPair& expectedTarget,
 				size_t expectedNumProofMessages) {
-			EXPECT_EQ(model::FinalizationRound({ FinalizationEpoch(0), Default_Min_FP + expectedPointDelta }), descriptor.Round);
+			EXPECT_EQ(Default_Min_Round + expectedPointDelta, descriptor.Round);
 			EXPECT_EQ(expectedTarget, descriptor.Target);
 			EXPECT_EQ(expectedNumProofMessages, descriptor.Proof.size());
 
 			for (const auto& pMessage : descriptor.Proof) {
-				EXPECT_EQ(FinalizationEpoch(0), pMessage->StepIdentifier.Epoch);
-				EXPECT_EQ(Default_Min_FP + expectedPointDelta, pMessage->StepIdentifier.Point);
+				auto messageRound = model::FinalizationRound{ pMessage->StepIdentifier.Epoch, pMessage->StepIdentifier.Point };
+				EXPECT_EQ(Default_Min_Round + expectedPointDelta, messageRound);
 			}
 		}
 	}
@@ -485,13 +548,13 @@ namespace catapult { namespace chain {
 			auto hash = test::GenerateRandomByteArray<Hash256>();
 			hashes.push_back(hash);
 
-			auto height = Height(roundMessageAggregator.point().unwrap() * 100);
+			auto height = Height(roundMessageAggregator.round().Point.unwrap() * 100);
 			roundMessageAggregator.roundContext().acceptPrevote(height, &hash, 1, 750);
 			roundMessageAggregator.roundContext().acceptPrecommit(height, hash, 750);
 
 			RoundMessageAggregator::UnknownMessages messages;
 			for (auto i = 0u; i < 3; ++i)
-				messages.push_back(test::CreateMessage(roundMessageAggregator.point()));
+				messages.push_back(test::CreateMessage(roundMessageAggregator.round()));
 
 			roundMessageAggregator.setMessages(std::move(messages));
 		});
@@ -509,7 +572,7 @@ namespace catapult { namespace chain {
 		context.setRoundMessageAggregatorInitializer([&hash](auto& roundMessageAggregator) {
 			// - set precommit for first aggregator only
 			auto numMessages = 3u;
-			if (Default_Min_FP == roundMessageAggregator.point()) {
+			if (Default_Min_Round == roundMessageAggregator.round()) {
 				roundMessageAggregator.roundContext().acceptPrevote(Height(222), &hash, 1, 750);
 				roundMessageAggregator.roundContext().acceptPrecommit(Height(222), hash, 750);
 
@@ -518,7 +581,7 @@ namespace catapult { namespace chain {
 
 			RoundMessageAggregator::UnknownMessages messages;
 			for (auto i = 0u; i < numMessages; ++i)
-				messages.push_back(test::CreateMessage(roundMessageAggregator.point()));
+				messages.push_back(test::CreateMessage(roundMessageAggregator.round()));
 
 			roundMessageAggregator.setMessages(std::move(messages));
 		});
@@ -549,7 +612,7 @@ namespace catapult { namespace chain {
 		utils::ShortHashesSet seededShortHashes;
 		TestContext context;
 		context.setRoundMessageAggregatorInitializer([&seededShortHashes](auto& roundMessageAggregator) {
-			auto numHashes = roundMessageAggregator.point().unwrap();
+			auto numHashes = roundMessageAggregator.round().Point.unwrap();
 			auto shortHashes = test::GenerateRandomDataVector<utils::ShortHash>(numHashes);
 			seededShortHashes.insert(shortHashes.cbegin(), shortHashes.cend());
 
@@ -563,7 +626,7 @@ namespace catapult { namespace chain {
 		auto shortHashes = context.aggregator().view().shortHashes();
 
 		// Assert:
-		EXPECT_EQ(15u + Default_Min_FP.unwrap() * 3, shortHashes.size());
+		EXPECT_EQ(15u + Default_Min_Round.Point.unwrap() * 3, shortHashes.size());
 		EXPECT_EQ(seededShortHashes, utils::ShortHashesSet(shortHashes.cbegin(), shortHashes.cend()));
 
 		// - returned range is contiguous (due to limitation in PacketPayloadBuilder)
@@ -588,7 +651,7 @@ namespace catapult { namespace chain {
 			context.setRoundMessageAggregatorInitializer([&shortHashes](auto& roundMessageAggregator) {
 				RoundMessageAggregator::UnknownMessages messages;
 				for (auto i = 0u; i < 3; ++i) {
-					messages.push_back(test::CreateMessage(roundMessageAggregator.point()));
+					messages.push_back(test::CreateMessage(roundMessageAggregator.round()));
 					shortHashes.push_back(utils::ToShortHash(model::CalculateMessageHash(*messages.back())));
 				}
 
@@ -619,7 +682,7 @@ namespace catapult { namespace chain {
 		TestContext context;
 
 		// Act:
-		auto unknownMessages = context.aggregator().view().unknownMessages(PointToRound(Default_Min_FP), {});
+		auto unknownMessages = context.aggregator().view().unknownMessages(Default_Min_Round, {});
 
 		// Assert:
 		EXPECT_TRUE(unknownMessages.empty());
@@ -629,7 +692,7 @@ namespace catapult { namespace chain {
 		// Arrange:
 		RunSeededAggregatorTest([](const auto& aggregator, const auto& seededShortHashes) {
 			// Act:
-			auto unknownMessages = aggregator.unknownMessages(PointToRound(Default_Min_FP), {});
+			auto unknownMessages = aggregator.unknownMessages(Default_Min_Round, {});
 
 			// Assert:
 			EXPECT_EQ(9u, unknownMessages.size());
@@ -641,7 +704,7 @@ namespace catapult { namespace chain {
 		// Arrange:
 		RunSeededAggregatorTest([](const auto& aggregator, const auto& seededShortHashes) {
 			// Act:
-			auto unknownMessages = aggregator.unknownMessages(PointToRound(Default_Min_FP + FinalizationPoint(5)), {});
+			auto unknownMessages = aggregator.unknownMessages(Default_Min_Round + FinalizationPoint(5), {});
 
 			// Assert: should return messages from points { +5, +10 } only
 			EXPECT_EQ(6u, unknownMessages.size());
@@ -653,7 +716,7 @@ namespace catapult { namespace chain {
 		// Arrange:
 		RunSeededAggregatorTest([](const auto& aggregator, const auto& seededShortHashes) {
 			// Act:
-			auto unknownMessages = aggregator.unknownMessages(PointToRound(Default_Min_FP), {
+			auto unknownMessages = aggregator.unknownMessages(Default_Min_Round, {
 				seededShortHashes[0], seededShortHashes[1], seededShortHashes[4], seededShortHashes[6], seededShortHashes[7]
 			});
 
@@ -670,7 +733,7 @@ namespace catapult { namespace chain {
 		RunSeededAggregatorTest([](const auto& aggregator, const auto& seededShortHashes) {
 			// Act:
 			auto unknownMessages = aggregator.unknownMessages(
-					PointToRound(Default_Min_FP),
+					Default_Min_Round,
 					utils::ShortHashesSet(seededShortHashes.cbegin(), seededShortHashes.cend()));
 
 			// Assert:
@@ -682,7 +745,7 @@ namespace catapult { namespace chain {
 		template<typename TAction>
 		void RunMaxResponseSizeTests(TAction action) {
 			// Arrange: determine message size from a generated message
-			auto messageSize = test::CreateMessage(Default_Min_FP)->Size;
+			auto messageSize = test::CreateMessage(Default_Min_Round)->Size;
 
 			// Assert:
 			action(2, 3 * messageSize - 1);
@@ -699,13 +762,13 @@ namespace catapult { namespace chain {
 		RunMaxResponseSizeTests([](uint32_t numExpectedMessages, size_t maxResponseSize) {
 			TestContextOptions options;
 			options.MaxResponseSize = maxResponseSize;
-			TestContext context(Default_Min_FP, options);
+			TestContext context(Default_Min_Round, options);
 
 			auto seededShortHashes = SeedUnknownMessages(context);
 			AddRoundMessageAggregators(context, { FinalizationPoint(0), FinalizationPoint(5), FinalizationPoint(10) });
 
 			// Act:
-			auto unknownMessages = context.aggregator().view().unknownMessages(PointToRound(Default_Min_FP), {});
+			auto unknownMessages = context.aggregator().view().unknownMessages(Default_Min_Round, {});
 
 			// Assert:
 			EXPECT_EQ(numExpectedMessages, unknownMessages.size());
@@ -720,12 +783,12 @@ namespace catapult { namespace chain {
 	// region prune
 
 	namespace {
-		void AssertMinMaxFinalizationPoints(
+		void AssertMinMaxFinalizationRounds(
 				const MultiRoundMessageAggregatorView& view,
-				FinalizationPoint expectedMinPoint,
-				FinalizationPoint expectedMaxPoint) {
-			EXPECT_EQ(expectedMinPoint, view.minFinalizationPoint());
-			EXPECT_EQ(expectedMaxPoint, view.maxFinalizationPoint());
+				const model::FinalizationRound& expectedMinRound,
+				const model::FinalizationRound& expectedMaxRound) {
+			EXPECT_EQ(expectedMinRound, view.minFinalizationRound());
+			EXPECT_EQ(expectedMaxRound, view.maxFinalizationRound());
 		}
 	}
 
@@ -741,7 +804,7 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(0u, context.aggregator().view().size());
 		EXPECT_EQ(model::HeightHashPair({ Last_Finalized_Height, context.lastFinalizedHash() }), estimate);
 
-		AssertMinMaxFinalizationPoints(context.aggregator().view(), Default_Min_FP, Default_Min_FP);
+		AssertMinMaxFinalizationRounds(context.aggregator().view(), Default_Min_Round, Default_Min_Round);
 	}
 
 	TEST(TEST_CLASS, PruneHasNoEffectWhenNoRoundHasBestPrecommit) {
@@ -757,7 +820,7 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(3u, context.aggregator().view().size());
 		EXPECT_EQ(model::HeightHashPair({ Last_Finalized_Height, context.lastFinalizedHash() }), estimate);
 
-		AssertMinMaxFinalizationPoints(context.aggregator().view(), Default_Min_FP, Default_Max_FP);
+		AssertMinMaxFinalizationRounds(context.aggregator().view(), Default_Min_Round, Default_Max_Round);
 	}
 
 	TEST(TEST_CLASS, PruneHasEffectWhenAllRoundsHaveBestPrecommit) {
@@ -768,7 +831,7 @@ namespace catapult { namespace chain {
 			auto hash = test::GenerateRandomByteArray<Hash256>();
 			hashes.push_back(hash);
 
-			auto height = Height(roundMessageAggregator.point().unwrap() * 100);
+			auto height = Height(roundMessageAggregator.round().Point.unwrap() * 100);
 			roundMessageAggregator.roundContext().acceptPrevote(height, &hash, 1, 750);
 			roundMessageAggregator.roundContext().acceptPrecommit(height, hash, 750);
 		});
@@ -783,7 +846,7 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(1u, context.aggregator().view().size());
 		EXPECT_EQ(model::HeightHashPair({ Height(800), hashes[1] }), estimate);
 
-		AssertMinMaxFinalizationPoints(context.aggregator().view(), Default_Max_FP, Default_Max_FP);
+		AssertMinMaxFinalizationRounds(context.aggregator().view(), Default_Max_Round, Default_Max_Round);
 	}
 
 	TEST(TEST_CLASS, PruneHasEffectWhenCurrentRoundHasBestPrecommitAndAllPreviousRoundsHaveEstimate) {
@@ -795,11 +858,11 @@ namespace catapult { namespace chain {
 			hashes.push_back(hash);
 
 			// - set estimate for all aggregators
-			auto height = Height(roundMessageAggregator.point().unwrap() * 100);
+			auto height = Height(roundMessageAggregator.round().Point.unwrap() * 100);
 			roundMessageAggregator.roundContext().acceptPrevote(height, &hash, 1, 750);
 
 			// - set precommit for last aggregator only
-			if (Default_Max_FP == roundMessageAggregator.point())
+			if (Default_Max_Round == roundMessageAggregator.round())
 				roundMessageAggregator.roundContext().acceptPrecommit(height, hash, 750);
 		});
 
@@ -813,7 +876,7 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(1u, context.aggregator().view().size());
 		EXPECT_EQ(model::HeightHashPair({ Height(800), hashes[1] }), estimate);
 
-		AssertMinMaxFinalizationPoints(context.aggregator().view(), Default_Max_FP, Default_Max_FP);
+		AssertMinMaxFinalizationRounds(context.aggregator().view(), Default_Max_Round, Default_Max_Round);
 	}
 
 	TEST(TEST_CLASS, PruneHasEffectWhenCurrentRoundHasBestPrecommitAndSinglePreviousRoundHasEstimate) {
@@ -825,12 +888,12 @@ namespace catapult { namespace chain {
 			hashes.push_back(hash);
 
 			// - set estimate for first and last aggregators
-			auto height = Height(roundMessageAggregator.point().unwrap() * 100);
-			if (Default_Min_FP == roundMessageAggregator.point() || Default_Max_FP == roundMessageAggregator.point())
+			auto height = Height(roundMessageAggregator.round().Point.unwrap() * 100);
+			if (Default_Min_Round == roundMessageAggregator.round() || Default_Max_Round == roundMessageAggregator.round())
 				roundMessageAggregator.roundContext().acceptPrevote(height, &hash, 1, 750);
 
 			// - set precommit for last aggregator only
-			if (Default_Max_FP == roundMessageAggregator.point())
+			if (Default_Max_Round == roundMessageAggregator.round())
 				roundMessageAggregator.roundContext().acceptPrecommit(height, hash, 750);
 		});
 
@@ -844,7 +907,7 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(1u, context.aggregator().view().size());
 		EXPECT_EQ(model::HeightHashPair({ Height(300), hashes[0] }), estimate);
 
-		AssertMinMaxFinalizationPoints(context.aggregator().view(), Default_Max_FP, Default_Max_FP);
+		AssertMinMaxFinalizationRounds(context.aggregator().view(), Default_Max_Round, Default_Max_Round);
 	}
 
 	TEST(TEST_CLASS, PruneHasEffectWhenCurrentRoundHasBestPrecommitAndNoPreviousRoundHasEstimate) {
@@ -854,8 +917,8 @@ namespace catapult { namespace chain {
 			auto hash = test::GenerateRandomByteArray<Hash256>();
 
 			// - set precommit for last aggregator only
-			if (Default_Max_FP == roundMessageAggregator.point()) {
-				auto height = Height(roundMessageAggregator.point().unwrap() * 100);
+			if (Default_Max_Round == roundMessageAggregator.round()) {
+				auto height = Height(roundMessageAggregator.round().Point.unwrap() * 100);
 				roundMessageAggregator.roundContext().acceptPrevote(height, &hash, 1, 750);
 				roundMessageAggregator.roundContext().acceptPrecommit(height, hash, 750);
 			}
@@ -871,7 +934,7 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(1u, context.aggregator().view().size());
 		EXPECT_EQ(model::HeightHashPair({ Last_Finalized_Height, context.lastFinalizedHash() }), estimate);
 
-		AssertMinMaxFinalizationPoints(context.aggregator().view(), Default_Max_FP, Default_Max_FP);
+		AssertMinMaxFinalizationRounds(context.aggregator().view(), Default_Max_Round, Default_Max_Round);
 	}
 
 	TEST(TEST_CLASS, PruneHasEffectWhenPreviousRoundHasBestPrecommit) {
@@ -883,11 +946,11 @@ namespace catapult { namespace chain {
 			hashes.push_back(hash);
 
 			// - set estimate for all aggregators
-			auto height = Height(roundMessageAggregator.point().unwrap() * 100);
+			auto height = Height(roundMessageAggregator.round().Point.unwrap() * 100);
 			roundMessageAggregator.roundContext().acceptPrevote(height, &hash, 1, 750);
 
 			// - set precommit for second aggregator only
-			if (Default_Min_FP + FinalizationPoint(5) == roundMessageAggregator.point())
+			if (Default_Min_Round + FinalizationPoint(5) == roundMessageAggregator.round())
 				roundMessageAggregator.roundContext().acceptPrecommit(height, hash, 750);
 		});
 
@@ -901,7 +964,7 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(2u, context.aggregator().view().size());
 		EXPECT_EQ(model::HeightHashPair({ Height(800), hashes[1] }), estimate);
 
-		AssertMinMaxFinalizationPoints(context.aggregator().view(), Default_Min_FP + FinalizationPoint(5), Default_Max_FP);
+		AssertMinMaxFinalizationRounds(context.aggregator().view(), Default_Min_Round + FinalizationPoint(5), Default_Max_Round);
 	}
 
 	// endregion

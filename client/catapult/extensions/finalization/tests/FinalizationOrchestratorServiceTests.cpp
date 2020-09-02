@@ -44,6 +44,7 @@ namespace catapult { namespace finalization {
 
 	namespace {
 		constexpr auto Num_Dependent_Services = 3u;
+		constexpr auto Finalization_Epoch = FinalizationEpoch(11);
 		constexpr auto Prevote_Stage = model::FinalizationStage::Prevote;
 		constexpr auto Precommit_Stage = model::FinalizationStage::Precommit;
 
@@ -89,6 +90,7 @@ namespace catapult { namespace finalization {
 				// register storage
 				auto lastFinalizedHeightHashPair = model::HeightHashPair{ Height(245), m_hashes[0] };
 				auto pProofStorage = std::make_unique<mocks::MockProofStorage>(
+						Finalization_Epoch,
 						FinalizationPoint(5),
 						lastFinalizedHeightHashPair.Height,
 						lastFinalizedHeightHashPair.Hash);
@@ -98,17 +100,17 @@ namespace catapult { namespace finalization {
 				// register aggregator
 				m_pAggregator = std::make_shared<chain::MultiRoundMessageAggregator>(
 						10'000'000,
-						FinalizationPoint(5),
+						model::FinalizationRound{ Finalization_Epoch, FinalizationPoint(5) },
 						lastFinalizedHeightHashPair,
-						[this](auto roundPoint, auto height) {
-							auto pRoundMessageAggregator = std::make_unique<mocks::MockRoundMessageAggregator>(roundPoint, height);
+						[this](const auto& round) {
+							auto pRoundMessageAggregator = std::make_unique<mocks::MockRoundMessageAggregator>(round);
 							if (m_createCompletedRound) {
 								pRoundMessageAggregator->roundContext().acceptPrevote(Height(245), m_hashes.data(), m_hashes.size(), 750);
 								pRoundMessageAggregator->roundContext().acceptPrecommit(Height(246), m_hashes[1], 400);
 								pRoundMessageAggregator->roundContext().acceptPrecommit(Height(247), m_hashes[2], 400);
 							}
 
-							auto pMessage = test::CreateMessage(roundPoint);
+							auto pMessage = test::CreateMessage(round);
 							pMessage->Height = Height(246);
 
 							chain::RoundMessageAggregator::UnknownMessages messages;
@@ -153,10 +155,10 @@ namespace catapult { namespace finalization {
 			}
 
 			void initialize() {
-				auto votingPoint = FinalizationPoint(8);
+				auto votingRound = model::FinalizationRound{ Finalization_Epoch, FinalizationPoint(8) };
 				auto aggregatorModifier = m_pAggregator->modifier();
-				aggregatorModifier.setMaxFinalizationPoint(votingPoint);
-				aggregatorModifier.add(test::CreateMessage(votingPoint));
+				aggregatorModifier.setMaxFinalizationRound(votingRound);
+				aggregatorModifier.add(test::CreateMessage(votingRound));
 			}
 
 		private:
@@ -175,7 +177,7 @@ namespace catapult { namespace finalization {
 
 			static void SeedVotingStatus(const config::UserConfiguration& userConfig, FinalizationPoint point) {
 				auto votingStatusFilename = config::CatapultDataDirectory(userConfig.DataDirectory).rootDir().file("voting_status.dat");
-				VotingStatusFile(votingStatusFilename).save({ { FinalizationEpoch(), point }, false, false });
+				VotingStatusFile(votingStatusFilename).save({ { Finalization_Epoch, point }, false, false });
 			}
 
 		private:
@@ -252,8 +254,9 @@ namespace catapult { namespace finalization {
 				const auto& storage,
 				const auto& messages) {
 			// Assert: check aggregator
-			EXPECT_EQ(FinalizationPoint(5), aggregator.view().minFinalizationPoint());
-			EXPECT_EQ(FinalizationPoint(8), aggregator.view().maxFinalizationPoint());
+			auto epoch = Finalization_Epoch.unwrap();
+			EXPECT_EQ(test::CreateFinalizationRound(epoch, 5), aggregator.view().minFinalizationRound());
+			EXPECT_EQ(test::CreateFinalizationRound(epoch, 8), aggregator.view().maxFinalizationRound());
 
 			// - subscriber and storage weren't called
 			EXPECT_TRUE(subscriber.finalizedBlockParams().params().empty());
@@ -264,7 +267,7 @@ namespace catapult { namespace finalization {
 
 			// - voting status wasn't changed
 			auto votingStatus = context.votingStatus();
-			EXPECT_EQ(test::CreateFinalizationRound(0, 8), votingStatus.Round);
+			EXPECT_EQ(test::CreateFinalizationRound(epoch, 8), votingStatus.Round);
 			EXPECT_FALSE(votingStatus.HasSentPrevote);
 			EXPECT_FALSE(votingStatus.HasSentPrecommit);
 		});
@@ -285,31 +288,33 @@ namespace catapult { namespace finalization {
 					const auto& storage,
 					const auto& messages) {
 				// Assert: check aggregator
-				EXPECT_EQ(FinalizationPoint(5), aggregator.view().minFinalizationPoint());
-				EXPECT_EQ(expectedMaxFinalizationPoint, aggregator.view().maxFinalizationPoint());
+				auto epoch = Finalization_Epoch.unwrap();
+				auto expectedMaxRound = test::CreateFinalizationRound(epoch, expectedMaxFinalizationPoint.unwrap());
+				EXPECT_EQ(test::CreateFinalizationRound(epoch, 5), aggregator.view().minFinalizationRound());
+				EXPECT_EQ(expectedMaxRound, aggregator.view().maxFinalizationRound());
 
 				// - subscriber was called
 				const auto& subscriberParams = subscriber.finalizedBlockParams().params();
 				ASSERT_EQ(1u, subscriberParams.size());
-				EXPECT_EQ(test::CreateFinalizationRound(0, 8), subscriberParams[0].Round);
+				EXPECT_EQ(test::CreateFinalizationRound(epoch, 8), subscriberParams[0].Round);
 				EXPECT_EQ(Height(246), subscriberParams[0].Height);
 				EXPECT_EQ(expectedHash, subscriberParams[0].Hash);
 
 				// - storage was called (proof step identifier comes from test::CreateMessage)
 				const auto& savedProofDescriptors = storage.savedProofDescriptors();
 				ASSERT_EQ(1u, savedProofDescriptors.size());
-				EXPECT_EQ(test::CreateFinalizationRound(0, 8), savedProofDescriptors[0].Round);
+				EXPECT_EQ(test::CreateFinalizationRound(epoch, 8), savedProofDescriptors[0].Round);
 				EXPECT_EQ(Height(246), savedProofDescriptors[0].Height);
 				EXPECT_EQ(expectedHash, savedProofDescriptors[0].Hash);
 
 				// - two messages were sent
 				ASSERT_EQ(2u, messages.size());
-				EXPECT_EQ(test::CreateStepIdentifier(1, 8, Prevote_Stage), messages[0]->StepIdentifier);
-				EXPECT_EQ(test::CreateStepIdentifier(1, 8, Precommit_Stage), messages[1]->StepIdentifier);
+				EXPECT_EQ(test::CreateStepIdentifier(epoch, 8, Prevote_Stage), messages[0]->StepIdentifier);
+				EXPECT_EQ(test::CreateStepIdentifier(epoch, 8, Precommit_Stage), messages[1]->StepIdentifier);
 
 				// - voting status was changed
 				auto votingStatus = context.votingStatus();
-				EXPECT_EQ(test::CreateFinalizationRound(0, 9), votingStatus.Round);
+				EXPECT_EQ(test::CreateFinalizationRound(epoch, 9), votingStatus.Round);
 				EXPECT_FALSE(votingStatus.HasSentPrevote);
 				EXPECT_FALSE(votingStatus.HasSentPrecommit);
 			});
