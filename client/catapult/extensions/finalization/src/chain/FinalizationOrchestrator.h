@@ -59,16 +59,13 @@ namespace catapult { namespace chain {
 				std::unique_ptr<FinalizationMessageFactory>&& pMessageFactory);
 
 	public:
-		/// Gets the current finalization \a round.
-		model::FinalizationRound round() const;
-
-		/// Returns \c true if a prevote has been sent for the current round.
-		bool hasSentPrevote() const;
-
-		/// Returns \c true if a precommit has been sent for the current round.
-		bool hasSentPrecommit() const;
+		/// Gets the current voting status.
+		VotingStatus votingStatus() const;
 
 	public:
+		/// Sets the \a epoch.
+		void setEpoch(FinalizationEpoch epoch);
+
 		/// Checks progress given the current \a time.
 		void poll(Timestamp time);
 
@@ -76,14 +73,11 @@ namespace catapult { namespace chain {
 		void startRound(Timestamp time);
 
 	private:
-		std::atomic<uint64_t> m_epochRaw;
-		std::atomic<uint64_t> m_pointRaw;
+		VotingStatus m_votingStatus;
 		StageAdvancerFactory m_stageAdvancerFactory;
 		MessageSink m_messageSink;
 		std::unique_ptr<FinalizationMessageFactory> m_pMessageFactory;
 
-		std::atomic_bool m_hasSentPrevote;
-		std::atomic_bool m_hasSentPrecommit;
 		std::unique_ptr<FinalizationStageAdvancer> m_pStageAdvancer;
 	};
 

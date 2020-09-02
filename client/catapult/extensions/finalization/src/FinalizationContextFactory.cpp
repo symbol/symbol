@@ -19,6 +19,7 @@
 **/
 
 #include "FinalizationContextFactory.h"
+#include "finalization/src/model/VotingSet.h"
 #include "catapult/cache/CatapultCache.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/extensions/ServiceState.h"
@@ -33,9 +34,10 @@ namespace catapult { namespace finalization {
 	{}
 
 	model::FinalizationContext FinalizationContextFactory::create(FinalizationEpoch epoch) const {
-		auto votingSetHeight = FinalizationEpoch(1) >= epoch
-				? Height(1)
-				: Height((epoch.unwrap() - 1) * m_config.VotingSetGrouping);
+		if (FinalizationEpoch() == epoch)
+			CATAPULT_THROW_INVALID_ARGUMENT("epoch zero is not supported");
+
+		auto votingSetHeight = model::CalculateVotingSetEndHeight(epoch - FinalizationEpoch(1), m_config.VotingSetGrouping);
 		return model::FinalizationContext(
 				epoch,
 				votingSetHeight,

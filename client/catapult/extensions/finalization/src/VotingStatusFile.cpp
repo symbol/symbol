@@ -30,7 +30,8 @@ namespace catapult { namespace finalization {
 	chain::VotingStatus VotingStatusFile::load() const {
 		chain::VotingStatus status;
 		if (!boost::filesystem::is_regular_file(m_filename)) {
-			status.Round = { FinalizationEpoch(1), FinalizationPoint(1) };
+			// if file doesn't exist, start at the first post-nemesis epoch
+			status.Round = { FinalizationEpoch(2), FinalizationPoint(1) };
 		} else {
 			auto rawFile = open(io::OpenMode::Read_Only);
 			status.Round.Epoch = FinalizationEpoch(io::Read64(rawFile));

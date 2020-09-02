@@ -71,7 +71,7 @@ namespace catapult { namespace finalization {
 
 		// Assert:
 		AssertNotExists(tempFile.name());
-		AssertEqual({ { FinalizationEpoch(1), FinalizationPoint(1) }, false, false }, status);
+		AssertEqual({ { FinalizationEpoch(2), FinalizationPoint(1) }, false, false }, status);
 	}
 
 	TEST(TEST_CLASS, CanLoadSavedValue) {

@@ -103,7 +103,7 @@ namespace catapult { namespace finalization {
 	namespace {
 		using VoterType = test::FinalizationBootstrapperServiceTestUtils::VoterType;
 
-		constexpr auto Finalization_Epoch = FinalizationEpoch(1);
+		constexpr auto Finalization_Epoch = FinalizationEpoch(2);
 		constexpr auto Num_Services = test::FinalizationBootstrapperServiceTestUtils::Num_Bootstrapper_Services;
 
 		struct FinalizationBootstrapperServiceTraits {
@@ -124,7 +124,7 @@ namespace catapult { namespace finalization {
 			}
 
 			static auto CreateRegistrar(FinalizationPoint point, Height height, const Hash256& hash) {
-				return CreateRegistrar(std::make_unique<mocks::MockProofStorage>(point, height, hash));
+				return CreateRegistrar(std::make_unique<mocks::MockProofStorage>(Finalization_Epoch, point, height, hash));
 			}
 		};
 

@@ -24,10 +24,12 @@
 #include "VotingStatusFile.h"
 #include "finalization/src/chain/MultiRoundMessageAggregator.h"
 #include "finalization/src/io/ProofStorageCache.h"
+#include "finalization/src/model/VotingSet.h"
 #include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/crypto_voting/OtsTree.h"
 #include "catapult/extensions/ServiceLocator.h"
 #include "catapult/extensions/ServiceState.h"
+#include "catapult/io/BlockStorageCache.h"
 #include "catapult/io/FileStream.h"
 
 namespace catapult { namespace finalization {
@@ -39,6 +41,9 @@ namespace catapult { namespace finalization {
 
 		class BootstrapperFacade {
 		private:
+			enum class EpochStatus { Continue, Wait, Advance };
+
+		private:
 			static constexpr auto LoadOtsTree = crypto::OtsTree::FromStream;
 
 		public:
@@ -46,9 +51,11 @@ namespace catapult { namespace finalization {
 					const FinalizationConfiguration& config,
 					const extensions::ServiceLocator& locator,
 					extensions::ServiceState& state)
-					: m_messageAggregator(GetMultiRoundMessageAggregator(locator))
+					: m_votingSetGrouping(config.VotingSetGrouping)
+					, m_messageAggregator(GetMultiRoundMessageAggregator(locator))
 					, m_hooks(GetFinalizationServerHooks(locator))
 					, m_proofStorage(GetProofStorageCache(locator))
+					, m_blockStorage(state.storage())
 					, m_otsStream(io::RawFile(QualifyFilename(state, "voting_ots_tree.dat"), io::OpenMode::Read_Append))
 					, m_votingStatusFile(QualifyFilename(state, "voting_status.dat"))
 					, m_orchestrator(
@@ -65,12 +72,55 @@ namespace catapult { namespace finalization {
 
 		public:
 			void poll(Timestamp time) {
-				if (m_orchestrator.round() > m_messageAggregator.view().maxFinalizationRound())
-					m_messageAggregator.modifier().setMaxFinalizationRound(m_orchestrator.round());
+				auto orchestratorRound = m_orchestrator.votingStatus().Round;
+
+				auto epochStatus = calculateEpochStatus(orchestratorRound.Epoch);
+				if (EpochStatus::Wait == epochStatus)
+					return;
+
+				if (EpochStatus::Advance == epochStatus) {
+					m_orchestrator.setEpoch(orchestratorRound.Epoch + FinalizationEpoch(1));
+					orchestratorRound = m_orchestrator.votingStatus().Round;
+
+					CATAPULT_LOG(debug) << "advancing to next epoch " << orchestratorRound;
+				}
+
+				if (orchestratorRound > m_messageAggregator.view().maxFinalizationRound())
+					m_messageAggregator.modifier().setMaxFinalizationRound(orchestratorRound);
 
 				m_orchestrator.poll(time);
-				m_votingStatusFile.save({ m_orchestrator.round(), m_orchestrator.hasSentPrevote(), m_orchestrator.hasSentPrecommit() });
+				m_votingStatusFile.save(m_orchestrator.votingStatus());
 				m_finalizer();
+			}
+
+		private:
+			EpochStatus calculateEpochStatus(FinalizationEpoch epoch) const {
+				auto finalizationStatistics = m_proofStorage.view().statistics();
+				auto votingSetEndHeight = model::CalculateVotingSetEndHeight(epoch, m_votingSetGrouping);
+
+				if (finalizationStatistics.Height != votingSetEndHeight)
+					return EpochStatus::Continue;
+
+				auto blockStorageView = m_blockStorage.view();
+				auto localChainHeight = blockStorageView.chainHeight();
+				if (localChainHeight < finalizationStatistics.Height) {
+					CATAPULT_LOG(warning)
+							<< "waiting for sync before transitioning from epoch " << epoch
+							<< " (height " << localChainHeight
+							<< " < finalized height " << finalizationStatistics.Height << ")";
+					return EpochStatus::Wait;
+				}
+
+				auto localBlockHash = *blockStorageView.loadHashesFrom(finalizationStatistics.Height, 1).cbegin();
+				if (localBlockHash != finalizationStatistics.Hash) {
+					CATAPULT_LOG(warning)
+							<< "waiting for sync before transitioning from epoch " << epoch
+							<< " (hash " << localBlockHash
+							<< " != finalized hash " << finalizationStatistics.Hash << ")";
+					return EpochStatus::Wait;
+				}
+
+				return EpochStatus::Advance;
 			}
 
 		private:
@@ -79,9 +129,11 @@ namespace catapult { namespace finalization {
 			}
 
 		private:
+			uint64_t m_votingSetGrouping;
 			chain::MultiRoundMessageAggregator& m_messageAggregator;
 			FinalizationServerHooks& m_hooks;
 			io::ProofStorageCache& m_proofStorage;
+			io::BlockStorageCache& m_blockStorage;
 
 			io::FileStream m_otsStream;
 			VotingStatusFile m_votingStatusFile;

@@ -40,7 +40,7 @@ namespace catapult { namespace finalization {
 		using AnnotatedFinalizationMessageRange = model::AnnotatedEntityRange<model::FinalizationMessage>;
 		using VoterType = test::FinalizationBootstrapperServiceTestUtils::VoterType;
 
-		constexpr auto Finalization_Epoch = FinalizationEpoch(1);
+		constexpr auto Finalization_Epoch = FinalizationEpoch(2);
 
 		struct FinalizationMessageProcessingServiceTraits {
 			static constexpr auto Ots_Key_Dilution = 3u;

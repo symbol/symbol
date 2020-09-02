@@ -30,6 +30,26 @@ namespace catapult { namespace finalization {
 #define TEST_CLASS FinalizationContextFactoryTests
 
 	namespace {
+		void AssertCannotCreateFinalizationContext(FinalizationEpoch epoch) {
+			// Arrange: setup config
+			auto config = finalization::FinalizationConfiguration::Uninitialized();
+			config.Size = 9876;
+			config.VotingSetGrouping = 50;
+
+			auto blockChainConfig = test::CreatePrototypicalBlockChainConfiguration();
+			blockChainConfig.MinVoterBalance = Amount(2'000'000);
+			blockChainConfig.VotingSetGrouping = config.VotingSetGrouping;
+
+			// - create a cache
+			auto catapultCache = test::CoreSystemCacheFactory::Create(blockChainConfig);
+
+			test::ServiceTestState testState(std::move(catapultCache));
+
+			// Act + Assert:
+			FinalizationContextFactory factory(config, testState.state());
+			EXPECT_THROW(factory.create(epoch), catapult_invalid_argument);
+		}
+
 		void AssertCanCreateFinalizationContext(FinalizationEpoch epoch, Height groupedHeight) {
 			// Arrange: setup config
 			auto config = finalization::FinalizationConfiguration::Uninitialized();
@@ -74,17 +94,17 @@ namespace catapult { namespace finalization {
 		}
 	}
 
-	TEST(TEST_CLASS, CanCreateFinalizationContextFromZeroEpoch) {
-		AssertCanCreateFinalizationContext(FinalizationEpoch(0), Height(1));
+	TEST(TEST_CLASS, CannotCreateFinalizationContextForEpochLessThanTwo) {
+		AssertCannotCreateFinalizationContext(FinalizationEpoch(0));
+		AssertCannotCreateFinalizationContext(FinalizationEpoch(1));
 	}
 
-	TEST(TEST_CLASS, CanCreateFinalizationContextFromFirstEpoch) {
-		AssertCanCreateFinalizationContext(FinalizationEpoch(1), Height(1));
+	TEST(TEST_CLASS, CanCreateFinalizationContextForEpochTwo) {
+		AssertCanCreateFinalizationContext(FinalizationEpoch(2), Height(1));
 	}
 
-	TEST(TEST_CLASS, CanCreateFinalizationContextAtSubsequentEpoch) {
-		AssertCanCreateFinalizationContext(FinalizationEpoch(2), Height(50));
-		AssertCanCreateFinalizationContext(FinalizationEpoch(3), Height(100));
-		AssertCanCreateFinalizationContext(FinalizationEpoch(9), Height(400));
+	TEST(TEST_CLASS, CanCreateFinalizationContextForEpochGreaterThanTwo) {
+		AssertCanCreateFinalizationContext(FinalizationEpoch(3), Height(50));
+		AssertCanCreateFinalizationContext(FinalizationEpoch(9), Height(350));
 	}
 }}

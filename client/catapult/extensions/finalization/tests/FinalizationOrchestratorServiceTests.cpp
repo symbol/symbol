@@ -44,19 +44,25 @@ namespace catapult { namespace finalization {
 
 	namespace {
 		constexpr auto Num_Dependent_Services = 3u;
-		constexpr auto Finalization_Epoch = FinalizationEpoch(11);
+		constexpr auto Default_Voting_Set_Grouping = 500u;
+
+		constexpr auto Finalization_Epoch = FinalizationEpoch(6);
 		constexpr auto Prevote_Stage = model::FinalizationStage::Prevote;
 		constexpr auto Precommit_Stage = model::FinalizationStage::Precommit;
 
 		struct FinalizationOrchestratorServiceTraits {
-			static auto CreateRegistrar() {
+			static auto CreateRegistrar(uint64_t votingSetGrouping) {
 				// (Size, Threshold) are set in MockRoundMessageAggregator to (1000, 750)
 				auto config = FinalizationConfiguration::Uninitialized();
 				config.StepDuration = utils::TimeSpan::FromSeconds(10);
 				config.MaxHashesPerPoint = 64;
 				config.PrevoteBlocksMultiple = 5;
-				config.VotingSetGrouping = 500;
+				config.VotingSetGrouping = votingSetGrouping;
 				return CreateFinalizationOrchestratorServiceRegistrar(config);
+			}
+
+			static auto CreateRegistrar() {
+				return CreateRegistrar(Default_Voting_Set_Grouping);
 			}
 		};
 
@@ -88,7 +94,7 @@ namespace catapult { namespace finalization {
 				locator().registerRootedService("fin.hooks", pHooks);
 
 				// register storage
-				auto lastFinalizedHeightHashPair = model::HeightHashPair{ Height(245), m_hashes[0] };
+				auto lastFinalizedHeightHashPair = model::HeightHashPair{ Height(244), m_hashes[0] };
 				auto pProofStorage = std::make_unique<mocks::MockProofStorage>(
 						Finalization_Epoch,
 						FinalizationPoint(5),
@@ -105,13 +111,13 @@ namespace catapult { namespace finalization {
 						[this](const auto& round) {
 							auto pRoundMessageAggregator = std::make_unique<mocks::MockRoundMessageAggregator>(round);
 							if (m_createCompletedRound) {
-								pRoundMessageAggregator->roundContext().acceptPrevote(Height(245), m_hashes.data(), m_hashes.size(), 750);
-								pRoundMessageAggregator->roundContext().acceptPrecommit(Height(246), m_hashes[1], 400);
-								pRoundMessageAggregator->roundContext().acceptPrecommit(Height(247), m_hashes[2], 400);
+								pRoundMessageAggregator->roundContext().acceptPrevote(Height(244), m_hashes.data(), m_hashes.size(), 750);
+								pRoundMessageAggregator->roundContext().acceptPrecommit(Height(245), m_hashes[1], 400);
+								pRoundMessageAggregator->roundContext().acceptPrecommit(Height(246), m_hashes[2], 400);
 							}
 
 							auto pMessage = test::CreateMessage(round);
-							pMessage->Height = Height(246);
+							pMessage->Height = Height(245);
 
 							chain::RoundMessageAggregator::UnknownMessages messages;
 							messages.push_back(std::move(pMessage));
@@ -152,6 +158,10 @@ namespace catapult { namespace finalization {
 		public:
 			void createCompletedRound() {
 				m_createCompletedRound = true;
+			}
+
+			void setHash(size_t index, const Hash256& hash) {
+				m_hashes[index] = hash;
 			}
 
 			void initialize() {
@@ -223,11 +233,10 @@ namespace catapult { namespace finalization {
 
 	namespace {
 		template<typename TCheckState>
-		void RunFinalizationTaskTest(TestContext& context, size_t numRepetitions, TCheckState checkState) {
+		void RunFinalizationTaskTest(TestContext& context, size_t numRepetitions, uint64_t votingSetGrouping, TCheckState checkState) {
 			// Arrange:
-			mocks::SeedStorageWithFixedSizeBlocks(context.testState().state().storage(), 25);
 			context.initialize();
-			context.boot();
+			context.boot(votingSetGrouping);
 
 			test::RunTaskTestPostBoot(context, 1, "finalization task", [&context, numRepetitions, checkState](const auto& task) {
 				// Act: run task multiple times
@@ -248,7 +257,7 @@ namespace catapult { namespace finalization {
 		// Arrange:
 		TestContext context;
 
-		RunFinalizationTaskTest(context, 5, [&context](
+		RunFinalizationTaskTest(context, 5, Default_Voting_Set_Grouping, [&context](
 				const auto& aggregator,
 				const auto& subscriber,
 				const auto& storage,
@@ -281,12 +290,13 @@ namespace catapult { namespace finalization {
 			TestContext context;
 			context.createCompletedRound();
 
-			const auto& expectedHash = context.hashes()[1];
-			RunFinalizationTaskTest(context, numRepetitions, [&context, expectedMaxFinalizationPoint, expectedHash](
+			RunFinalizationTaskTest(context, numRepetitions, Default_Voting_Set_Grouping, [&context, expectedMaxFinalizationPoint](
 					const auto& aggregator,
 					const auto& subscriber,
 					const auto& storage,
 					const auto& messages) {
+				const auto& expectedHash = context.hashes()[1];
+
 				// Assert: check aggregator
 				auto epoch = Finalization_Epoch.unwrap();
 				auto expectedMaxRound = test::CreateFinalizationRound(epoch, expectedMaxFinalizationPoint.unwrap());
@@ -297,14 +307,14 @@ namespace catapult { namespace finalization {
 				const auto& subscriberParams = subscriber.finalizedBlockParams().params();
 				ASSERT_EQ(1u, subscriberParams.size());
 				EXPECT_EQ(test::CreateFinalizationRound(epoch, 8), subscriberParams[0].Round);
-				EXPECT_EQ(Height(246), subscriberParams[0].Height);
+				EXPECT_EQ(Height(245), subscriberParams[0].Height);
 				EXPECT_EQ(expectedHash, subscriberParams[0].Hash);
 
 				// - storage was called (proof step identifier comes from test::CreateMessage)
 				const auto& savedProofDescriptors = storage.savedProofDescriptors();
 				ASSERT_EQ(1u, savedProofDescriptors.size());
 				EXPECT_EQ(test::CreateFinalizationRound(epoch, 8), savedProofDescriptors[0].Round);
-				EXPECT_EQ(Height(246), savedProofDescriptors[0].Height);
+				EXPECT_EQ(Height(245), savedProofDescriptors[0].Height);
 				EXPECT_EQ(expectedHash, savedProofDescriptors[0].Hash);
 
 				// - two messages were sent
@@ -328,6 +338,111 @@ namespace catapult { namespace finalization {
 	TEST(TEST_CLASS, CanRunFinalizationTaskWhenThereArePendingFinalizedBlocks_MultiplePolls) {
 		// Assert: maxFinalizationPoint is updated at beginning of second task execution
 		AssertCanRunFinalizationTaskWhenThereArePendingFinalizedBlocks(5, FinalizationPoint(9));
+	}
+
+	namespace {
+		void AssertCanRunFinalizationTaskWhenThereIsPendingInconsistentFinalizedEpoch(uint32_t numBlocks) {
+			// Arrange:
+			TestContext context;
+			context.createCompletedRound();
+			mocks::SeedStorageWithFixedSizeBlocks(context.testState().state().storage(), numBlocks);
+
+			RunFinalizationTaskTest(context, 2, 49, [&context](
+					const auto& aggregator,
+					const auto& subscriber,
+					const auto& storage,
+					const auto& messages) {
+				const auto& expectedHash = context.hashes()[1];
+
+				// - check aggregator (it did not advance the epoch)
+				auto epoch = Finalization_Epoch.unwrap();
+				EXPECT_EQ(test::CreateFinalizationRound(epoch, 5), aggregator.view().minFinalizationRound());
+				EXPECT_EQ(test::CreateFinalizationRound(epoch, 8), aggregator.view().maxFinalizationRound());
+
+				// - subscriber was called
+				const auto& subscriberParams = subscriber.finalizedBlockParams().params();
+				ASSERT_EQ(1u, subscriberParams.size());
+				EXPECT_EQ(test::CreateFinalizationRound(epoch, 8), subscriberParams[0].Round);
+				EXPECT_EQ(Height(245), subscriberParams[0].Height);
+				EXPECT_EQ(expectedHash, subscriberParams[0].Hash);
+
+				// - storage was called (proof step identifier comes from test::CreateMessage)
+				const auto& savedProofDescriptors = storage.savedProofDescriptors();
+				ASSERT_EQ(1u, savedProofDescriptors.size());
+				EXPECT_EQ(test::CreateFinalizationRound(epoch, 8), savedProofDescriptors[0].Round);
+				EXPECT_EQ(Height(245), savedProofDescriptors[0].Height);
+				EXPECT_EQ(expectedHash, savedProofDescriptors[0].Hash);
+
+				// - two messages were sent
+				ASSERT_EQ(2u, messages.size());
+				EXPECT_EQ(test::CreateStepIdentifier(epoch, 8, Prevote_Stage), messages[0]->StepIdentifier);
+				EXPECT_EQ(test::CreateStepIdentifier(epoch, 8, Precommit_Stage), messages[1]->StepIdentifier);
+
+				// - voting status was changed
+				auto votingStatus = context.votingStatus();
+				EXPECT_EQ(test::CreateFinalizationRound(epoch, 9), votingStatus.Round);
+				EXPECT_FALSE(votingStatus.HasSentPrevote);
+				EXPECT_FALSE(votingStatus.HasSentPrecommit);
+			});
+		}
+	}
+
+	TEST(TEST_CLASS, CanRunFinalizationTaskWhenThereIsPendingInconsistentFinalizedEpoch_InsufficientChainHeight) {
+		AssertCanRunFinalizationTaskWhenThereIsPendingInconsistentFinalizedEpoch(170);
+		AssertCanRunFinalizationTaskWhenThereIsPendingInconsistentFinalizedEpoch(244);
+	}
+
+	TEST(TEST_CLASS, CanRunFinalizationTaskWhenThereIsPendingInconsistentFinalizedEpoch_IncorrectHashInStorage) {
+		AssertCanRunFinalizationTaskWhenThereIsPendingInconsistentFinalizedEpoch(245);
+	}
+
+	TEST(TEST_CLASS, CanRunFinalizationTaskWhenThereIsPendingFinalizedEpoch) {
+		// Arrange:
+		TestContext context;
+		context.createCompletedRound();
+
+		// - override the storage hash so that it matches
+		auto& blockStorage = context.testState().state().storage();
+		mocks::SeedStorageWithFixedSizeBlocks(blockStorage, 245);
+		context.setHash(1, blockStorage.view().loadBlockElement(Height(245))->EntityHash);
+
+		RunFinalizationTaskTest(context, 2, 49, [&context](
+				const auto& aggregator,
+				const auto& subscriber,
+				const auto& storage,
+				const auto& messages) {
+			const auto& expectedHash = context.hashes()[1];
+
+			// - check aggregator (it advanced the epoch)
+			auto epoch = Finalization_Epoch.unwrap();
+			EXPECT_EQ(test::CreateFinalizationRound(epoch, 5), aggregator.view().minFinalizationRound());
+			EXPECT_EQ(test::CreateFinalizationRound(epoch + 1, 1), aggregator.view().maxFinalizationRound());
+
+			// - subscriber was called
+			const auto& subscriberParams = subscriber.finalizedBlockParams().params();
+			ASSERT_EQ(1u, subscriberParams.size());
+			EXPECT_EQ(test::CreateFinalizationRound(epoch, 8), subscriberParams[0].Round);
+			EXPECT_EQ(Height(245), subscriberParams[0].Height);
+			EXPECT_EQ(expectedHash, subscriberParams[0].Hash);
+
+			// - storage was called (proof step identifier comes from test::CreateMessage)
+			const auto& savedProofDescriptors = storage.savedProofDescriptors();
+			ASSERT_EQ(1u, savedProofDescriptors.size());
+			EXPECT_EQ(test::CreateFinalizationRound(epoch, 8), savedProofDescriptors[0].Round);
+			EXPECT_EQ(Height(245), savedProofDescriptors[0].Height);
+			EXPECT_EQ(expectedHash, savedProofDescriptors[0].Hash);
+
+			// - two messages were sent
+			ASSERT_EQ(2u, messages.size());
+			EXPECT_EQ(test::CreateStepIdentifier(epoch, 8, Prevote_Stage), messages[0]->StepIdentifier);
+			EXPECT_EQ(test::CreateStepIdentifier(epoch, 8, Precommit_Stage), messages[1]->StepIdentifier);
+
+			// - voting status was changed
+			auto votingStatus = context.votingStatus();
+			EXPECT_EQ(test::CreateFinalizationRound(epoch + 1, 1), votingStatus.Round);
+			EXPECT_FALSE(votingStatus.HasSentPrevote);
+			EXPECT_FALSE(votingStatus.HasSentPrecommit);
+		});
 	}
 
 	// endregion

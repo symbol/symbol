@@ -26,62 +26,69 @@
 
 namespace catapult { namespace chain {
 
+	namespace {
+		void ClearFlags(VotingStatus& votingStatus) {
+			votingStatus.HasSentPrevote = false;
+			votingStatus.HasSentPrecommit = false;
+		}
+	}
+
 	FinalizationOrchestrator::FinalizationOrchestrator(
 			const VotingStatus& votingStatus,
 			const StageAdvancerFactory& stageAdvancerFactory,
 			const MessageSink& messageSink,
 			std::unique_ptr<FinalizationMessageFactory>&& pMessageFactory)
-			: m_epochRaw(votingStatus.Round.Epoch.unwrap())
-			, m_pointRaw(votingStatus.Round.Point.unwrap())
+			: m_votingStatus(votingStatus)
 			, m_stageAdvancerFactory(stageAdvancerFactory)
 			, m_messageSink(messageSink)
-			, m_pMessageFactory(std::move(pMessageFactory))
-			, m_hasSentPrevote(votingStatus.HasSentPrevote)
-			, m_hasSentPrecommit(votingStatus.HasSentPrecommit) {
+			, m_pMessageFactory(std::move(pMessageFactory)) {
 		CATAPULT_LOG(debug)
-				<< "creating finalization orchestrator starting at round " << round()
-				<< " (has sent prevote? " << m_hasSentPrevote << ")"
-				<< " (has sent precommit? " << m_hasSentPrecommit << ")";
+				<< "creating finalization orchestrator starting at round " << m_votingStatus.Round
+				<< " (has sent prevote? " << m_votingStatus.HasSentPrevote << ")"
+				<< " (has sent precommit? " << m_votingStatus.HasSentPrecommit << ")";
 	}
 
-	model::FinalizationRound FinalizationOrchestrator::round() const {
-		return { FinalizationEpoch(m_epochRaw), FinalizationPoint(m_pointRaw) };
+	VotingStatus FinalizationOrchestrator::votingStatus() const {
+		return m_votingStatus;
 	}
 
-	bool FinalizationOrchestrator::hasSentPrevote() const {
-		return m_hasSentPrevote;
-	}
+	void FinalizationOrchestrator::setEpoch(FinalizationEpoch epoch) {
+		if (epoch < m_votingStatus.Round.Epoch)
+			CATAPULT_THROW_INVALID_ARGUMENT("cannot decrease epoch");
 
-	bool FinalizationOrchestrator::hasSentPrecommit() const {
-		return m_hasSentPrecommit;
+		if (epoch == m_votingStatus.Round.Epoch)
+			return;
+
+		m_votingStatus.Round = { epoch, FinalizationPoint(1) };
+		ClearFlags(m_votingStatus);
+		m_pStageAdvancer.reset();
 	}
 
 	void FinalizationOrchestrator::poll(Timestamp time) {
-		// on first call to poll, don't call startRound in order to use original values for m_hasSentPrevote and m_hasSentPrecommit
+		// on first call to poll, don't call startRound in order to use original values for m_votingStatus
 		if (!m_pStageAdvancer)
-			m_pStageAdvancer = m_stageAdvancerFactory(round(), time);
+			m_pStageAdvancer = m_stageAdvancerFactory(m_votingStatus.Round, time);
 
-		if (!m_hasSentPrevote && m_pStageAdvancer->canSendPrevote(time)) {
-			m_messageSink(m_pMessageFactory->createPrevote(round()));
-			m_hasSentPrevote = true;
+		if (!m_votingStatus.HasSentPrevote && m_pStageAdvancer->canSendPrevote(time)) {
+			m_messageSink(m_pMessageFactory->createPrevote(m_votingStatus.Round));
+			m_votingStatus.HasSentPrevote = true;
 		}
 
 		model::HeightHashPair commitTarget;
-		if (!m_hasSentPrecommit && m_pStageAdvancer->canSendPrecommit(time, commitTarget)) {
-			m_messageSink(m_pMessageFactory->createPrecommit(round(), commitTarget.Height, commitTarget.Hash));
-			m_hasSentPrecommit = true;
+		if (!m_votingStatus.HasSentPrecommit && m_pStageAdvancer->canSendPrecommit(time, commitTarget)) {
+			m_messageSink(m_pMessageFactory->createPrecommit(m_votingStatus.Round, commitTarget.Height, commitTarget.Hash));
+			m_votingStatus.HasSentPrecommit = true;
 		}
 
-		if (m_hasSentPrecommit && m_pStageAdvancer->canStartNextRound()) {
-			++m_pointRaw;
+		if (m_votingStatus.HasSentPrecommit && m_pStageAdvancer->canStartNextRound()) {
+			m_votingStatus.Round.Point = m_votingStatus.Round.Point + FinalizationPoint(1);
 			startRound(time);
 		}
 	}
 
 	void FinalizationOrchestrator::startRound(Timestamp time) {
-		m_hasSentPrevote = false;
-		m_hasSentPrecommit = false;
-		m_pStageAdvancer = m_stageAdvancerFactory(round(), time);
+		ClearFlags(m_votingStatus);
+		m_pStageAdvancer = m_stageAdvancerFactory(m_votingStatus.Round, time);
 	}
 
 	namespace {
