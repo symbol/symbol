@@ -62,13 +62,13 @@ namespace catapult { namespace chain {
 			m_pStageAdvancer = m_stageAdvancerFactory(round(), time);
 
 		if (!m_hasSentPrevote && m_pStageAdvancer->canSendPrevote(time)) {
-			m_messageSink(m_pMessageFactory->createPrevote(FinalizationPoint(m_pointRaw)));
+			m_messageSink(m_pMessageFactory->createPrevote(round()));
 			m_hasSentPrevote = true;
 		}
 
 		model::HeightHashPair commitTarget;
 		if (!m_hasSentPrecommit && m_pStageAdvancer->canSendPrecommit(time, commitTarget)) {
-			m_messageSink(m_pMessageFactory->createPrecommit(FinalizationPoint(m_pointRaw), commitTarget.Height, commitTarget.Hash));
+			m_messageSink(m_pMessageFactory->createPrecommit(round(), commitTarget.Height, commitTarget.Hash));
 			m_hasSentPrecommit = true;
 		}
 

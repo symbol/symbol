@@ -40,24 +40,18 @@ namespace catapult { namespace chain {
 			static constexpr auto Ots_Key_Dilution = 13u;
 
 		public:
-			TestContext(FinalizationEpoch epoch, FinalizationPoint point, Height height)
-					: TestContext(epoch, point, height, 10, finalization::FinalizationConfiguration::Uninitialized())
+			explicit TestContext(Height height) : TestContext(height, 10, finalization::FinalizationConfiguration::Uninitialized())
 			{}
 
-			TestContext(
-					FinalizationEpoch epoch,
-					FinalizationPoint point,
-					Height height,
-					uint32_t numBlocks,
-					const finalization::FinalizationConfiguration& config)
+			TestContext(Height height, uint32_t numBlocks, const finalization::FinalizationConfiguration& config)
 					: m_lastFinalizedHash(test::GenerateRandomByteArray<Hash256>())
 					, m_pBlockStorage(mocks::CreateMemoryBlockStorageCache(numBlocks))
-					, m_proofStorage(std::make_unique<mocks::MockProofStorage>(epoch, point, height, m_lastFinalizedHash))
+					, m_proofStorage(std::make_unique<mocks::MockProofStorage>(FinalizationPoint(), height, m_lastFinalizedHash))
 					, m_pFactory(CreateFinalizationMessageFactory(
 							config,
 							*m_pBlockStorage,
 							m_proofStorage,
-							CreateOtsTree(m_otsTreeStream, point)))
+							CreateOtsTree(m_otsTreeStream, FinalizationPoint())))
 			{}
 
 		public:
@@ -141,10 +135,10 @@ namespace catapult { namespace chain {
 			config.PrevoteBlocksMultiple = prevoteBlocksMultiple;
 			config.VotingSetGrouping = 500;
 
-			TestContext context(FinalizationEpoch(3), FinalizationPoint(11), Height(8), numBlocks, config);
+			TestContext context(Height(8), numBlocks, config);
 
 			// Act:
-			auto pMessage = context.factory().createPrevote(FinalizationPoint(20));
+			auto pMessage = context.factory().createPrevote({ FinalizationEpoch(3), FinalizationPoint(20) });
 
 			// Assert:
 			AssertPrevote(*pMessage, context, FinalizationEpoch(3), FinalizationPoint(20), Height(8), expectedHashesCount);
@@ -158,10 +152,10 @@ namespace catapult { namespace chain {
 		config.PrevoteBlocksMultiple = 2;
 		config.VotingSetGrouping = 500;
 
-		TestContext context(FinalizationEpoch(3), FinalizationPoint(11), Height(8), 6, config);
+		TestContext context(Height(8), 6, config);
 
 		// Act:
-		auto pMessage = context.factory().createPrevote(FinalizationPoint(20));
+		auto pMessage = context.factory().createPrevote({ FinalizationEpoch(3), FinalizationPoint(20) });
 
 		// Assert:
 		EXPECT_EQ(sizeof(model::FinalizationMessage) + Hash256::Size, pMessage->Size);
@@ -211,10 +205,10 @@ namespace catapult { namespace chain {
 			config.PrevoteBlocksMultiple = 1;
 			config.VotingSetGrouping = 50;
 
-			TestContext context(FinalizationEpoch(3), FinalizationPoint(11), height, 200, config);
+			TestContext context(height, 200, config);
 
 			// Act:
-			auto pMessage = context.factory().createPrevote(FinalizationPoint(20));
+			auto pMessage = context.factory().createPrevote({ FinalizationEpoch(3), FinalizationPoint(20) });
 
 			// Assert:
 			AssertPrevote(*pMessage, context, FinalizationEpoch(3), FinalizationPoint(20), height, expectedHashesCount);
@@ -249,10 +243,10 @@ namespace catapult { namespace chain {
 	TEST(TEST_CLASS, CanCreatePrecommit) {
 		// Arrange:
 		auto hash = test::GenerateRandomByteArray<Hash256>();
-		TestContext context(FinalizationEpoch(3), FinalizationPoint(11), Height(7));
+		TestContext context(Height(7));
 
 		// Act:
-		auto pMessage = context.factory().createPrecommit(FinalizationPoint(20), Height(35), hash);
+		auto pMessage = context.factory().createPrecommit({ FinalizationEpoch(3), FinalizationPoint(20) }, Height(35), hash);
 
 		// Assert:
 		EXPECT_EQ(sizeof(model::FinalizationMessage) + Hash256::Size, pMessage->Size);

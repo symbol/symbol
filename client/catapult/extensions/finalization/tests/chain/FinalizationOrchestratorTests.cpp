@@ -36,8 +36,6 @@ namespace catapult { namespace chain {
 
 		enum class MessageType { Prevote, Precommit };
 
-		constexpr auto Message_Factory_Finalization_Epoch = FinalizationEpoch(11);
-
 		class MockFinalizationMessageFactory : public FinalizationMessageFactory {
 		public:
 			std::vector<MessageType> messageTypes() const {
@@ -45,23 +43,23 @@ namespace catapult { namespace chain {
 			}
 
 		public:
-			std::unique_ptr<model::FinalizationMessage> createPrevote(FinalizationPoint point) override {
+			std::unique_ptr<model::FinalizationMessage> createPrevote(const model::FinalizationRound& round) override {
 				m_messageTypes.push_back(MessageType::Prevote);
 				auto pMessage = test::CreateMessage(Height(0), test::GenerateRandomByteArray<Hash256>());
-				pMessage->StepIdentifier.Epoch = Message_Factory_Finalization_Epoch;
-				pMessage->StepIdentifier.Point = point;
+				pMessage->StepIdentifier.Epoch = round.Epoch;
+				pMessage->StepIdentifier.Point = round.Point;
 				return pMessage;
 			}
 
 		public:
 			std::unique_ptr<model::FinalizationMessage> createPrecommit(
-					FinalizationPoint point,
+					const model::FinalizationRound& round,
 					Height height,
 					const Hash256& hash) override {
 				m_messageTypes.push_back(MessageType::Precommit);
 				auto pMessage = test::CreateMessage(height, hash);
-				pMessage->StepIdentifier.Epoch = Message_Factory_Finalization_Epoch;
-				pMessage->StepIdentifier.Point = point;
+				pMessage->StepIdentifier.Epoch = round.Epoch;
+				pMessage->StepIdentifier.Point = round.Point;
 				return pMessage;
 			}
 
@@ -69,15 +67,19 @@ namespace catapult { namespace chain {
 			std::vector<MessageType> m_messageTypes;
 		};
 
-		void AssertPrevote(const model::FinalizationMessage& message, FinalizationPoint point) {
-			EXPECT_EQ(Message_Factory_Finalization_Epoch, message.StepIdentifier.Epoch);
-			EXPECT_EQ(point, message.StepIdentifier.Point);
+		void AssertPrevote(const model::FinalizationMessage& message, const model::FinalizationRound& round) {
+			EXPECT_EQ(round.Epoch, message.StepIdentifier.Epoch);
+			EXPECT_EQ(round.Point, message.StepIdentifier.Point);
 			EXPECT_EQ(Height(0), message.Height);
 		}
 
-		void AssertPrecommit(const model::FinalizationMessage& message, FinalizationPoint point, Height height, const Hash256& hash) {
-			EXPECT_EQ(Message_Factory_Finalization_Epoch, message.StepIdentifier.Epoch);
-			EXPECT_EQ(point, message.StepIdentifier.Point);
+		void AssertPrecommit(
+				const model::FinalizationMessage& message,
+				const model::FinalizationRound& round,
+				Height height,
+				const Hash256& hash) {
+			EXPECT_EQ(round.Epoch, message.StepIdentifier.Epoch);
+			EXPECT_EQ(round.Point, message.StepIdentifier.Point);
 			EXPECT_EQ(height, message.Height);
 			EXPECT_EQ(hash, *message.HashesPtr());
 		}
@@ -335,7 +337,7 @@ namespace catapult { namespace chain {
 
 			EXPECT_EQ(std::vector<MessageType>({ MessageType::Prevote }), context.messageFactory().messageTypes());
 			ASSERT_EQ(1u, context.messages().size());
-			AssertPrevote(*context.messages()[0], FinalizationPoint(4));
+			AssertPrevote(*context.messages()[0], { FinalizationEpoch(3), FinalizationPoint(4) });
 
 			ASSERT_EQ(1u, context.stageAdvancers().size());
 			EXPECT_EQ(test::CreateFinalizationRound(3, 4), context.stageAdvancers().back()->round());
@@ -387,8 +389,8 @@ namespace catapult { namespace chain {
 
 			EXPECT_EQ(std::vector<MessageType>({ MessageType::Prevote, MessageType::Precommit }), context.messageFactory().messageTypes());
 			ASSERT_EQ(2u, context.messages().size());
-			AssertPrevote(*context.messages()[0], FinalizationPoint(4));
-			AssertPrecommit(*context.messages()[1], FinalizationPoint(4), Height(123), precommitHash);
+			AssertPrevote(*context.messages()[0], { FinalizationEpoch(3), FinalizationPoint(4) });
+			AssertPrecommit(*context.messages()[1], { FinalizationEpoch(3), FinalizationPoint(4) }, Height(123), precommitHash);
 
 			ASSERT_EQ(1u, context.stageAdvancers().size());
 			EXPECT_EQ(test::CreateFinalizationRound(3, 4), context.stageAdvancers().back()->round());
@@ -452,8 +454,8 @@ namespace catapult { namespace chain {
 
 		EXPECT_EQ(std::vector<MessageType>({ MessageType::Prevote, MessageType::Precommit }), context.messageFactory().messageTypes());
 		ASSERT_EQ(2u, context.messages().size());
-		AssertPrevote(*context.messages()[0], FinalizationPoint(4));
-		AssertPrecommit(*context.messages()[1], FinalizationPoint(4), Height(123), hash);
+		AssertPrevote(*context.messages()[0], { FinalizationEpoch(3), FinalizationPoint(4) });
+		AssertPrecommit(*context.messages()[1], { FinalizationEpoch(3), FinalizationPoint(4) }, Height(123), hash);
 
 		ASSERT_EQ(2u, context.stageAdvancers().size());
 		EXPECT_EQ(test::CreateFinalizationRound(3, 5), context.stageAdvancers().back()->round());
@@ -478,7 +480,7 @@ namespace catapult { namespace chain {
 
 		EXPECT_EQ(std::vector<MessageType>({ MessageType::Precommit }), context.messageFactory().messageTypes());
 		ASSERT_EQ(1u, context.messages().size());
-		AssertPrecommit(*context.messages()[0], FinalizationPoint(4), Height(123), hash);
+		AssertPrecommit(*context.messages()[0], { FinalizationEpoch(3), FinalizationPoint(4) }, Height(123), hash);
 
 		ASSERT_EQ(2u, context.stageAdvancers().size());
 		EXPECT_EQ(test::CreateFinalizationRound(3, 5), context.stageAdvancers().back()->round());
@@ -513,6 +515,8 @@ namespace catapult { namespace chain {
 	// endregion
 
 	namespace {
+		constexpr auto Finalizer_Finalization_Epoch = FinalizationEpoch(11);
+
 		// region CreateFinalizerTestContext
 
 		class CreateFinalizerTestContext {
@@ -530,7 +534,7 @@ namespace catapult { namespace chain {
 					, m_proofStorageCache(std::move(m_pProofStorage)) {
 				m_pAggregator = std::make_unique<MultiRoundMessageAggregator>(
 						10'000'000,
-						model::FinalizationRound{ Message_Factory_Finalization_Epoch, point },
+						model::FinalizationRound{ Finalizer_Finalization_Epoch, point },
 						model::HeightHashPair(),
 						[this](const auto& round) {
 							auto pRoundMessageAggregator = std::make_unique<mocks::MockRoundMessageAggregator>(round);
@@ -566,10 +570,10 @@ namespace catapult { namespace chain {
 
 			void addMessages(FinalizationPoint minPoint, FinalizationPoint maxPoint) {
 				auto modifier = m_pAggregator->modifier();
-				modifier.setMaxFinalizationRound({ Message_Factory_Finalization_Epoch, maxPoint });
+				modifier.setMaxFinalizationRound({ Finalizer_Finalization_Epoch, maxPoint });
 
 				for (auto point = minPoint; point <= maxPoint; point = point + FinalizationPoint(1))
-					modifier.add(test::CreateMessage({ Message_Factory_Finalization_Epoch, point }));
+					modifier.add(test::CreateMessage({ Finalizer_Finalization_Epoch, point }));
 			}
 
 		private:
@@ -669,14 +673,14 @@ namespace catapult { namespace chain {
 		// - subscriber was called
 		const auto& subscriberParams = context.subscriber().finalizedBlockParams().params();
 		ASSERT_EQ(1u, subscriberParams.size());
-		EXPECT_EQ(test::CreateFinalizationRound(Message_Factory_Finalization_Epoch.unwrap(), 10), subscriberParams[0].Round);
+		EXPECT_EQ(test::CreateFinalizationRound(Finalizer_Finalization_Epoch.unwrap(), 10), subscriberParams[0].Round);
 		EXPECT_EQ(Height(246), subscriberParams[0].Height);
 		EXPECT_EQ(hashes[3], subscriberParams[0].Hash);
 
 		// - storage was called (proof step identifier comes from test::CreateMessage)
 		const auto& savedProofDescriptors = context.proofStorage().savedProofDescriptors();
 		ASSERT_EQ(1u, savedProofDescriptors.size());
-		EXPECT_EQ(test::CreateFinalizationRound(Message_Factory_Finalization_Epoch.unwrap(), 10), savedProofDescriptors[0].Round);
+		EXPECT_EQ(test::CreateFinalizationRound(Finalizer_Finalization_Epoch.unwrap(), 10), savedProofDescriptors[0].Round);
 		EXPECT_EQ(Height(246), savedProofDescriptors[0].Height);
 		EXPECT_EQ(hashes[3], savedProofDescriptors[0].Hash);
 	}
@@ -712,14 +716,14 @@ namespace catapult { namespace chain {
 		// - subscriber was called
 		const auto& subscriberParams = context.subscriber().finalizedBlockParams().params();
 		ASSERT_EQ(1u, subscriberParams.size());
-		EXPECT_EQ(test::CreateFinalizationRound(Message_Factory_Finalization_Epoch.unwrap(), 8), subscriberParams[0].Round);
+		EXPECT_EQ(test::CreateFinalizationRound(Finalizer_Finalization_Epoch.unwrap(), 8), subscriberParams[0].Round);
 		EXPECT_EQ(Height(246), subscriberParams[0].Height);
 		EXPECT_EQ(hashes[1], subscriberParams[0].Hash);
 
 		// - storage was called (proof step identifier comes from test::CreateMessage)
 		const auto& savedProofDescriptors = context.proofStorage().savedProofDescriptors();
 		ASSERT_EQ(1u, savedProofDescriptors.size());
-		EXPECT_EQ(test::CreateFinalizationRound(Message_Factory_Finalization_Epoch.unwrap(), 8), savedProofDescriptors[0].Round);
+		EXPECT_EQ(test::CreateFinalizationRound(Finalizer_Finalization_Epoch.unwrap(), 8), savedProofDescriptors[0].Round);
 		EXPECT_EQ(Height(246), savedProofDescriptors[0].Height);
 		EXPECT_EQ(hashes[1], savedProofDescriptors[0].Hash);
 	}

@@ -34,17 +34,6 @@ namespace catapult { namespace chain {
 			return 0 == value % multiple ? value : ((value / multiple + adjustment) * multiple);
 		}
 
-		std::pair<FinalizationEpoch, Height> LoadFinalizationState(const io::ProofStorageCache& proofStorage) {
-			auto view = proofStorage.view();
-			auto finalizationStatistics = view.statistics();
-			return std::make_pair(finalizationStatistics.Round.Epoch, finalizationStatistics.Height);
-		}
-
-		Hash256 LoadLastFinalizedHash(const io::ProofStorageCache& proofStorage) {
-			auto view = proofStorage.view();
-			return view.statistics().Hash;
-		}
-
 		model::HashRange LoadPrevoteHashChain(
 				const finalization::FinalizationConfiguration& config,
 				Height startHeight,
@@ -91,24 +80,23 @@ namespace catapult { namespace chain {
 			{}
 
 		public:
-			std::unique_ptr<model::FinalizationMessage> createPrevote(FinalizationPoint point) override {
-				auto finalizationState = LoadFinalizationState(m_proofStorage);
-				auto hashRange = LoadPrevoteHashChain(m_config, finalizationState.second, m_blockStorage);
+			std::unique_ptr<model::FinalizationMessage> createPrevote(const model::FinalizationRound& round) override {
+				auto finalizationStatistics = m_proofStorage.view().statistics();
+				auto hashRange = LoadPrevoteHashChain(m_config, finalizationStatistics.Height, m_blockStorage);
 				if (hashRange.empty())
-					hashRange = ToHashRange(LoadLastFinalizedHash(m_proofStorage));
+					hashRange = ToHashRange(finalizationStatistics.Hash);
 
-				auto stepIdentifier = model::StepIdentifier{ finalizationState.first, point, model::FinalizationStage::Prevote };
-				return model::PrepareMessage(m_otsTree, stepIdentifier, finalizationState.second, hashRange);
+				auto stepIdentifier = model::StepIdentifier{ round.Epoch, round.Point, model::FinalizationStage::Prevote };
+				return model::PrepareMessage(m_otsTree, stepIdentifier, finalizationStatistics.Height, hashRange);
 			}
 
 			std::unique_ptr<model::FinalizationMessage> createPrecommit(
-					FinalizationPoint point,
+					const model::FinalizationRound& round,
 					Height height,
 					const Hash256& hash) override {
-				auto finalizationState = LoadFinalizationState(m_proofStorage);
 				auto hashRange = ToHashRange(hash);
 
-				auto stepIdentifier = model::StepIdentifier{ finalizationState.first, point, model::FinalizationStage::Precommit };
+				auto stepIdentifier = model::StepIdentifier{ round.Epoch, round.Point, model::FinalizationStage::Precommit };
 				return model::PrepareMessage(m_otsTree, stepIdentifier, height, hashRange);
 			}
 
