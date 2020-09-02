@@ -180,12 +180,9 @@
     $ref: "./plugins/receipt/routes/searchMosaicResolutionStatements.yml"
 
 # Plugin - RestrictionAccount
-"/restrictions/account/{accountId}":
+"/restrictions/account/{address}":
   get:
-    $ref: "./plugins/restriction_account/routes/getAccountRestrictions.yml"
-/restrictions/account:
-  post:
-    $ref: "./plugins/restriction_account/routes/getAccountRestrictionsFromAccounts.yml"
+    $ref: "./plugins/restriction_account/routes/searchAccountRestrictions.yml"
 
 # Plugin - RestrictionMosaic
 "/restrictions/mosaic/{mosaicId}":
