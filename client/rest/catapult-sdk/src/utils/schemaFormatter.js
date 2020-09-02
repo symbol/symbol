@@ -22,8 +22,8 @@
 const SchemaType = require('./SchemaType');
 
 // if 'definition' is a number, it is the type
-// otherwise, it is an object with an optional type property (default type is none)
-const getSchemaType = definition => ('number' === typeof definition ? definition : definition.type || SchemaType.none);
+// otherwise, it is an object with an optional type property (default type is undefined)
+const getSchemaType = definition => ('number' === typeof definition ? definition : definition.type);
 
 const getDefinition = (schema, key) => {
 	const definition = schema[key] || {};
@@ -87,6 +87,7 @@ const schemaFormatter = {
 				});
 			} else {
 				const rule = formattingRules[definition.type];
+				// if no rule is found, the field is dropped from the entity
 				if (rule) {
 					const schemaName = getSchemaName(definition.schemaName, entity[key]);
 					result[definition.resultKey] = rule(

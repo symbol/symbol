@@ -47,9 +47,17 @@ describe('schema formatter', () => {
 			assertFormattingRuleIsTriggered(111, { type: 111 });
 		});
 
-		it('can format property not in schema with default formatting rule', () => {
+		it('drops property if not defined in the schema', () => {
+			// Arrange: set up a formatting rule for the foo property type
+			const sample = { foo: [1, 2], bar: 3 };
+			const schema = { foo: { type: 111 } };
+			const formattingRules = { 111: value => value[0] };
+
+			// Act:
+			const format = schemaFormatter.format(sample, schema, {}, formattingRules);
+
 			// Assert:
-			assertFormattingRuleIsTriggered(SchemaType.none, undefined);
+			expect(format).to.deep.equal({ foo: 1 });
 		});
 
 		it('can rename formatted property', () => {

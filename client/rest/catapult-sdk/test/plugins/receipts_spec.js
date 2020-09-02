@@ -173,34 +173,11 @@ describe('receipts plugin', () => {
 				return unwrappedFormattedEntity.receipts[0];
 			};
 
-			it('formats balance change receipt type', () => {
-				// Arrange:
-				const balanceChangeReceipt = {
-					version: 1,
-					type: 0x1000,
-					targetAddress: null,
-					mosaicId: null,
-					amount: null
-				};
-
-				// Act:
-				const formattedReceipt = formatReceipt(balanceChangeReceipt);
-
-				// Assert:
-				expect(formattedReceipt).to.contain.all.keys([
-					'version',
-					'type',
-					'targetAddress',
-					'mosaicId',
-					'amount'
-				]);
-			});
-
 			it('formats balance transfer receipt type', () => {
 				// Arrange:
 				const balanceTransferReceipt = {
 					version: 1,
-					type: 0x2000,
+					type: 0x1000,
 					senderAddress: null,
 					recipientAddress: null,
 					mosaicId: null,
@@ -221,11 +198,34 @@ describe('receipts plugin', () => {
 				]);
 			});
 
+			it('formats balance change receipt type', () => {
+				// Arrange:
+				const balanceChangeReceipt = {
+					version: 1,
+					type: 0x2000,
+					targetAddress: null,
+					mosaicId: null,
+					amount: null
+				};
+
+				// Act:
+				const formattedReceipt = formatReceipt(balanceChangeReceipt);
+
+				// Assert:
+				expect(formattedReceipt).to.contain.all.keys([
+					'version',
+					'type',
+					'targetAddress',
+					'mosaicId',
+					'amount'
+				]);
+			});
+
 			it('formats artifact expiry receipt type', () => {
 				// Arrange:
 				const artifactExpiryReceipt = {
 					version: 1,
-					type: 0x3000,
+					type: 0x4000,
 					artifactId: null
 				};
 
