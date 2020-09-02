@@ -1,0 +1,13 @@
+type: object
+required:
+  - data
+  - pagination
+properties:
+  data:
+    type: array
+    description: Array of account restrictions.
+    items:
+      $ref: "./AccountRestrictionsInfoDTO.yml"
+  pagination:
+    $ref: "../../../schemas/Pagination.yml"
+

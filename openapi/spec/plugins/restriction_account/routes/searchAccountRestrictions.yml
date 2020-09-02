@@ -1,0 +1,22 @@
+tags:
+  - Restriction Account routes
+summary: Get the account restrictions
+description: Returns the account restrictions for a given address.
+operationId: getAccountRestrictions
+parameters:
+  - $ref: "../../../parameters/path/address.yml"
+  - $ref: "../../../parameters/query/pageSize.yml"
+  - $ref: "../../../parameters/query/pageNumber.yml"
+  - $ref: "../../../parameters/query/offset.yml"
+  - $ref: "../../../parameters/query/order.yml"
+responses:
+  "200":
+    description: success
+    content:
+      application/json:
+        schema:
+          $ref: "../schemas/AccountRestrictionsPage.yml"
+  "404":
+    $ref: "../../../responses/ResourceNotFound.yml"
+  "409":
+    $ref: "../../../responses/InvalidArgument.yml"
