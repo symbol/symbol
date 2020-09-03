@@ -236,14 +236,11 @@ namespace catapult { namespace chain {
 	// region success
 
 	namespace {
-		void AssertSuccess(Height localChainHeight, uint64_t remoteHeightDelta) {
+		void AssertSuccess(TestContext& context, Height proofHeight) {
 			// Arrange:
-			TestContext context(20, localChainHeight, Height(81));
-			context.api().setFinalizationStatistics(CreateFinalizationStatistics(Height(100 + remoteHeightDelta)));
-
 			auto pProof = std::make_shared<model::FinalizationProof>();
 			pProof->Round = { FinalizationEpoch(22), FinalizationPoint(111) };
-			pProof->Height = Height(100);
+			pProof->Height = proofHeight;
 			pProof->Hash = Hash256{ { 33 } };
 			context.api().setProof(pProof);
 
@@ -253,14 +250,23 @@ namespace catapult { namespace chain {
 			// Assert:
 			EXPECT_EQ(ionet::NodeInteractionResultCode::Success, result);
 
-			EXPECT_EQ(std::vector<Height>({ Height(100) }), context.api().proofHeights());
+			EXPECT_EQ(std::vector<Height>({ proofHeight }), context.api().proofHeights());
 			EXPECT_EQ(1u, context.numValidationCalls());
 
 			ASSERT_EQ(1u, context.storage().savedProofDescriptors().size());
 			const auto& savedProofDescriptor = context.storage().savedProofDescriptors()[0];
 			EXPECT_EQ(test::CreateFinalizationRound(22, 111), savedProofDescriptor.Round);
-			EXPECT_EQ(Height(100), savedProofDescriptor.Height);
+			EXPECT_EQ(proofHeight, savedProofDescriptor.Height);
 			EXPECT_EQ(Hash256{ { 33 } }, savedProofDescriptor.Hash);
+		}
+
+		void AssertSuccess(Height localChainHeight, uint64_t remoteHeightDelta) {
+			// Arrange:
+			TestContext context(20, localChainHeight, Height(81));
+			context.api().setFinalizationStatistics(CreateFinalizationStatistics(Height(100 + remoteHeightDelta)));
+
+			// Act + Assert:
+			AssertSuccess(context, Height(100));
 		}
 	}
 
@@ -275,6 +281,25 @@ namespace catapult { namespace chain {
 	TEST(TEST_CLASS, SuccessWhenLocalChainHeightIsMultipleVotingSetsAheadOfLocalFinalizedHeight) {
 		// Assert: proofs aren't skipped
 		AssertSuccess(Height(201), 100);
+	}
+
+	namespace {
+		void AssertSuccessNext(Height localChainHeight, Height localFinalizedHeight, Height expectedProofHeight) {
+			// Arrange:
+			TestContext context(20, localChainHeight, localFinalizedHeight);
+			context.api().setFinalizationStatistics(CreateFinalizationStatistics(expectedProofHeight));
+
+			// Act + Assert:
+			AssertSuccess(context, expectedProofHeight);
+		}
+	}
+
+	TEST(TEST_CLASS, SuccessWhenRequestingNextProof_FromNemesisEpoch) {
+		AssertSuccessNext(Height(21), Height(1), Height(20));
+	}
+
+	TEST(TEST_CLASS, SuccessWhenRequestingNextProof_FromOtherEpoch) {
+		AssertSuccessNext(Height(41), Height(20), Height(40));
 	}
 
 	// endregion

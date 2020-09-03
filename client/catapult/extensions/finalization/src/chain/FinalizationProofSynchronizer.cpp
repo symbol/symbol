@@ -48,7 +48,7 @@ namespace catapult { namespace chain {
 				auto localChainHeight = m_blockStorage.view().chainHeight();
 				auto localFinalizedHeight = m_proofStorage.view().statistics().Height;
 				auto nextProofHeight = model::CalculateGroupedHeight<Height>(
-						Height(localFinalizedHeight.unwrap() + m_votingSetGrouping),
+						Height(localFinalizedHeight.unwrap() + m_votingSetGrouping + 1),
 						m_votingSetGrouping);
 
 				if (nextProofHeight >= localChainHeight)
