@@ -182,7 +182,7 @@
 # Plugin - RestrictionAccount
 "/restrictions/account/{address}":
   get:
-    $ref: "./plugins/restriction_account/routes/searchAccountRestrictions.yml"
+    $ref: "./plugins/restriction_account/routes/getAccountRestrictions.yml"
 
 # Plugin - RestrictionMosaic
 "/restrictions/mosaic":
