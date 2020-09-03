@@ -29,8 +29,8 @@ namespace catapult { namespace chain {
 #define TEST_CLASS RoundMessageAggregatorTests
 
 	namespace {
-		constexpr auto Finalization_Epoch = FinalizationEpoch(4);
-		constexpr auto Finalization_Point = FinalizationPoint(3);
+		constexpr auto Finalization_Epoch = FinalizationEpoch(3);
+		constexpr auto Finalization_Point = FinalizationPoint(5);
 		constexpr auto Last_Finalized_Height = Height(123);
 
 		// region TestContext
@@ -38,7 +38,7 @@ namespace catapult { namespace chain {
 		struct TestContextOptions {
 			uint64_t MaxResponseSize = 10'000'000;
 			uint32_t MaxHashesPerPoint = 100;
-			uint64_t VotingSetGrouping = 500;
+			uint64_t VotingSetGrouping = 123;
 		};
 
 		class TestContext {
@@ -305,10 +305,14 @@ namespace catapult { namespace chain {
 
 	namespace {
 		template<typename TTraits>
-		void AssertBasicAddSuccess(uint32_t numHashes, Height height, const TestContextOptions& options = TestContextOptions()) {
+		void AssertBasicAddSuccess(
+				uint32_t numHashes,
+				Height height,
+				FinalizationEpoch epoch = Finalization_Epoch,
+				const TestContextOptions& options = TestContextOptions()) {
 			// Arrange:
 			auto pMessage = test::CreateMessage(height, numHashes);
-			pMessage->StepIdentifier = { Finalization_Epoch, Finalization_Point, TTraits::Stage };
+			pMessage->StepIdentifier = { epoch, Finalization_Point, TTraits::Stage };
 
 			TestContext context(1000, 700, options);
 			context.signMessage(*pMessage, 0);
@@ -326,8 +330,12 @@ namespace catapult { namespace chain {
 		AssertBasicAddSuccess<TTraits>(1, Last_Finalized_Height + Height(1));
 	}
 
-	PREVOTE_PRECOMIT_TEST(CanAddMessageWithSingleHashAtLastFinalizedHeight) {
+	PREVOTE_PRECOMIT_TEST(CanAddMessageWithSingleHashAtLastFinalizedHeight_StartingEpoch) {
 		AssertBasicAddSuccess<TTraits>(1, Last_Finalized_Height);
+	}
+
+	PREVOTE_PRECOMIT_TEST(CanAddMessageWithSingleHashAtLastFinalizedHeight_EndingEpoch) {
+		AssertBasicAddSuccess<TTraits>(1, Last_Finalized_Height, Finalization_Epoch - FinalizationEpoch(1));
 	}
 
 	TEST(TEST_CLASS, CanAddMessageWithMultipleHashes_Prevote) {
@@ -335,20 +343,15 @@ namespace catapult { namespace chain {
 	}
 
 	TEST(TEST_CLASS, CanAddMessageWithMultipleHashesEndingAtLastFinalizedHeight_Prevote) {
-		AssertBasicAddSuccess<PrevoteTraits>(4, Last_Finalized_Height - Height(3));
+		AssertBasicAddSuccess<PrevoteTraits>(4, Last_Finalized_Height - Height(3), Finalization_Epoch - FinalizationEpoch(1));
 	}
 
 	TEST(TEST_CLASS, CanAddMessageWithExactlyMaxHashes_Prevote) {
 		AssertBasicAddSuccess<PrevoteTraits>(TestContextOptions().MaxHashesPerPoint, Last_Finalized_Height + Height(1));
 	}
 
-	TEST(TEST_CLASS, CanAddMessageWithHashesEndingAtVotingSetGrouping_Prevote) {
-		// Arrange: next group starts at height 131
-		TestContextOptions options;
-		options.VotingSetGrouping = 130;
-
-		// Act + Assert: hashes in [124, 130]
-		AssertBasicAddSuccess<PrevoteTraits>(7, Last_Finalized_Height + Height(1), options);
+	TEST(TEST_CLASS, CanAddMessageStartingEpoch_Prevote) {
+		AssertBasicAddSuccess<PrevoteTraits>(7, Last_Finalized_Height);
 	}
 
 	TEST(TEST_CLASS, CanAddMessageWithLargerHeight_Precommit) {

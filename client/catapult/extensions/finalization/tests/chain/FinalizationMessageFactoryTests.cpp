@@ -193,12 +193,28 @@ namespace catapult { namespace chain {
 		AssertCanCreatePrevote(22, 10, 5, 8);
 	}
 
+	TEST(TEST_CLASS, CanCreatePrevoteStartingEpoch) {
+		// Arrange:
+		auto config = finalization::FinalizationConfiguration::Uninitialized();
+		config.MaxHashesPerPoint = 200;
+		config.PrevoteBlocksMultiple = 5;
+		config.VotingSetGrouping = 25;
+
+		TestContext context(Height(100), 105, config);
+
+		// Act:
+		auto pMessage = context.factory().createPrevote({ FinalizationEpoch(6), FinalizationPoint(1) });
+
+		// Assert:
+		AssertPrevote(*pMessage, context, FinalizationEpoch(6), FinalizationPoint(1), Height(100), 6);
+	}
+
 	// endregion
 
 	// region createPrevote - VotingSetGrouping
 
 	namespace {
-		void AssertCanCreatePrevoteHonorsVotingSetGrouping(Height height, uint32_t expectedHashesCount) {
+		void AssertCanCreatePrevoteHonorsVotingSetGrouping(FinalizationEpoch epoch, Height height, uint32_t expectedHashesCount) {
 			// Arrange:
 			auto config = finalization::FinalizationConfiguration::Uninitialized();
 			config.MaxHashesPerPoint = 400;
@@ -208,32 +224,32 @@ namespace catapult { namespace chain {
 			TestContext context(height, 200, config);
 
 			// Act:
-			auto pMessage = context.factory().createPrevote({ FinalizationEpoch(3), FinalizationPoint(20) });
+			auto pMessage = context.factory().createPrevote({ epoch, FinalizationPoint(20) });
 
 			// Assert:
-			AssertPrevote(*pMessage, context, FinalizationEpoch(3), FinalizationPoint(20), height, expectedHashesCount);
+			AssertPrevote(*pMessage, context, epoch, FinalizationPoint(20), height, expectedHashesCount);
 		}
 	}
 
 	TEST(TEST_CLASS, CanCreatePrevoteContainingAllVotingSetGroupHashes) {
 		// Assert: message is limited to hashes in a single voting set
-		AssertCanCreatePrevoteHonorsVotingSetGrouping(Height(1), 50);
-		AssertCanCreatePrevoteHonorsVotingSetGrouping(Height(51), 50);
-		AssertCanCreatePrevoteHonorsVotingSetGrouping(Height(101), 50);
+		AssertCanCreatePrevoteHonorsVotingSetGrouping(FinalizationEpoch(2), Height(1), 50);
+		AssertCanCreatePrevoteHonorsVotingSetGrouping(FinalizationEpoch(3), Height(51), 50);
+		AssertCanCreatePrevoteHonorsVotingSetGrouping(FinalizationEpoch(4), Height(101), 50);
 	}
 
 	TEST(TEST_CLASS, CanCreatePrevoteContainingPartialVotingSetGroupHashes) {
 		// Assert: message is limited to hashes in a single voting set
-		AssertCanCreatePrevoteHonorsVotingSetGrouping(Height(26), 25);
-		AssertCanCreatePrevoteHonorsVotingSetGrouping(Height(76), 25);
-		AssertCanCreatePrevoteHonorsVotingSetGrouping(Height(126), 25);
+		AssertCanCreatePrevoteHonorsVotingSetGrouping(FinalizationEpoch(2), Height(26), 25);
+		AssertCanCreatePrevoteHonorsVotingSetGrouping(FinalizationEpoch(3), Height(76), 25);
+		AssertCanCreatePrevoteHonorsVotingSetGrouping(FinalizationEpoch(4), Height(126), 25);
 	}
 
 	TEST(TEST_CLASS, CanCreatePrevoteContainingOnlyLastVotingSetGroupHash) {
 		// Assert: message is limited to hashes in a single voting set
-		AssertCanCreatePrevoteHonorsVotingSetGrouping(Height(50), 1);
-		AssertCanCreatePrevoteHonorsVotingSetGrouping(Height(100), 1);
-		AssertCanCreatePrevoteHonorsVotingSetGrouping(Height(150), 1);
+		AssertCanCreatePrevoteHonorsVotingSetGrouping(FinalizationEpoch(2), Height(50), 1);
+		AssertCanCreatePrevoteHonorsVotingSetGrouping(FinalizationEpoch(3), Height(100), 1);
+		AssertCanCreatePrevoteHonorsVotingSetGrouping(FinalizationEpoch(4), Height(150), 1);
 	}
 
 	// endregion

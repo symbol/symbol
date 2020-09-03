@@ -28,7 +28,7 @@ namespace catapult { namespace chain {
 #define TEST_CLASS FinalizationProofVerifierTests
 
 	namespace {
-		constexpr auto Finalization_Epoch = FinalizationEpoch(4);
+		constexpr auto Finalization_Epoch = FinalizationEpoch(2);
 		constexpr auto Finalization_Point = FinalizationPoint(3);
 		constexpr auto Last_Finalized_Height = Height(123);
 

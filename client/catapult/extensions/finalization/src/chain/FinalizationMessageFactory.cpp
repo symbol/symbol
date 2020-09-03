@@ -21,6 +21,7 @@
 #include "FinalizationMessageFactory.h"
 #include "finalization/src/FinalizationConfiguration.h"
 #include "finalization/src/io/ProofStorageCache.h"
+#include "finalization/src/model/VotingSet.h"
 #include "catapult/crypto_voting/OtsTree.h"
 #include "catapult/io/BlockStorageCache.h"
 #include "catapult/model/HeightGrouping.h"
@@ -36,15 +37,15 @@ namespace catapult { namespace chain {
 
 		model::HashRange LoadPrevoteHashChain(
 				const finalization::FinalizationConfiguration& config,
+				FinalizationEpoch epoch,
 				Height startHeight,
 				const io::BlockStorageCache& blockStorage) {
 			auto view = blockStorage.view();
 			auto maxPrevoteHashHeight = view.chainHeight();
 
-			auto votingSetGrouping = config.VotingSetGrouping;
-			auto nextVotingSetHeight = model::CalculateGroupedHeight<Height>(startHeight + Height(votingSetGrouping), votingSetGrouping);
-			if (maxPrevoteHashHeight > nextVotingSetHeight)
-				maxPrevoteHashHeight = nextVotingSetHeight;
+			auto maxVotingSetHeight = model::CalculateVotingSetEndHeight(epoch, config.VotingSetGrouping);
+			if (maxPrevoteHashHeight > maxVotingSetHeight)
+				maxPrevoteHashHeight = maxVotingSetHeight;
 
 			auto clampedChainHeight = Height(Clamp(maxPrevoteHashHeight.unwrap(), config.PrevoteBlocksMultiple, 0));
 
@@ -82,7 +83,7 @@ namespace catapult { namespace chain {
 		public:
 			std::unique_ptr<model::FinalizationMessage> createPrevote(const model::FinalizationRound& round) override {
 				auto finalizationStatistics = m_proofStorage.view().statistics();
-				auto hashRange = LoadPrevoteHashChain(m_config, finalizationStatistics.Height, m_blockStorage);
+				auto hashRange = LoadPrevoteHashChain(m_config, round.Epoch, finalizationStatistics.Height, m_blockStorage);
 				if (hashRange.empty())
 					hashRange = ToHashRange(finalizationStatistics.Hash);
 
