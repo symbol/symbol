@@ -38,6 +38,8 @@ beneficiaryAddressQuery:
   $ref: './query/beneficiaryAddress.yml'
 embedded:
   $ref: './query/embedded.yml'
+entryType:
+  $ref: './query/entryType.yml'
 heightQuery:
   $ref: './query/height.yml'
 idQuery:
