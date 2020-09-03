@@ -1,10 +1,6 @@
 type: object
 required:
-  - id
   - accountRestrictions
 properties:
-  id:
-    type: string
-    description: Internal resource identifier.
   accountRestrictions:
     $ref: "./AccountRestrictionsDTO.yml"
