@@ -74,15 +74,15 @@ namespace catapult { namespace finalization {
 			void poll(Timestamp time) {
 				auto orchestratorRound = m_orchestrator.votingStatus().Round;
 
-				auto epochStatus = calculateEpochStatus(orchestratorRound.Epoch);
-				if (EpochStatus::Wait == epochStatus)
+				auto epochStatusResult = calculateEpochStatus(orchestratorRound.Epoch);
+				if (EpochStatus::Wait == epochStatusResult.first)
 					return;
 
-				if (EpochStatus::Advance == epochStatus) {
-					m_orchestrator.setEpoch(orchestratorRound.Epoch + FinalizationEpoch(1));
+				if (EpochStatus::Advance == epochStatusResult.first) {
+					m_orchestrator.setEpoch(epochStatusResult.second);
 					orchestratorRound = m_orchestrator.votingStatus().Round;
 
-					CATAPULT_LOG(debug) << "advancing to next epoch " << orchestratorRound;
+					CATAPULT_LOG(debug) << "advancing to epoch " << orchestratorRound;
 				}
 
 				if (orchestratorRound > m_messageAggregator.view().maxFinalizationRound())
@@ -94,12 +94,19 @@ namespace catapult { namespace finalization {
 			}
 
 		private:
-			EpochStatus calculateEpochStatus(FinalizationEpoch epoch) const {
+			std::pair<EpochStatus, FinalizationEpoch> calculateEpochStatus(FinalizationEpoch epoch) const {
 				auto finalizationStatistics = m_proofStorage.view().statistics();
-				auto votingSetEndHeight = model::CalculateVotingSetEndHeight(epoch, m_votingSetGrouping);
 
-				if (finalizationStatistics.Height != votingSetEndHeight)
-					return EpochStatus::Continue;
+				auto isStorageEpochAhead = finalizationStatistics.Round.Epoch >= epoch;
+				if (!isStorageEpochAhead) {
+					auto votingSetEndHeight = model::CalculateVotingSetEndHeight(epoch, m_votingSetGrouping);
+					if (finalizationStatistics.Height != votingSetEndHeight)
+						return std::make_pair(EpochStatus::Continue, FinalizationEpoch());
+				} else {
+					CATAPULT_LOG(info)
+							<< "proof storage epoch " << finalizationStatistics.Round.Epoch
+							<< " is out of sync with current epoch " << epoch;
+				}
 
 				auto blockStorageView = m_blockStorage.view();
 				auto localChainHeight = blockStorageView.chainHeight();
@@ -108,7 +115,7 @@ namespace catapult { namespace finalization {
 							<< "waiting for sync before transitioning from epoch " << epoch
 							<< " (height " << localChainHeight
 							<< " < finalized height " << finalizationStatistics.Height << ")";
-					return EpochStatus::Wait;
+					return std::make_pair(EpochStatus::Wait, FinalizationEpoch());
 				}
 
 				auto localBlockHash = *blockStorageView.loadHashesFrom(finalizationStatistics.Height, 1).cbegin();
@@ -117,10 +124,11 @@ namespace catapult { namespace finalization {
 							<< "waiting for sync before transitioning from epoch " << epoch
 							<< " (hash " << localBlockHash
 							<< " != finalized hash " << finalizationStatistics.Hash << ")";
-					return EpochStatus::Wait;
+					return std::make_pair(EpochStatus::Wait, FinalizationEpoch());
 				}
 
-				return EpochStatus::Advance;
+				auto newEpoch = (isStorageEpochAhead ? finalizationStatistics.Round.Epoch : epoch) + FinalizationEpoch(1);
+				return std::make_pair(EpochStatus::Advance, newEpoch);
 			}
 
 		private:
