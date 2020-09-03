@@ -785,186 +785,98 @@ namespace catapult { namespace chain {
 	namespace {
 		void AssertMinMaxFinalizationRounds(
 				const MultiRoundMessageAggregatorView& view,
+				size_t expectedSize,
 				const model::FinalizationRound& expectedMinRound,
 				const model::FinalizationRound& expectedMaxRound) {
+			EXPECT_EQ(expectedSize, view.size());
 			EXPECT_EQ(expectedMinRound, view.minFinalizationRound());
 			EXPECT_EQ(expectedMaxRound, view.maxFinalizationRound());
 		}
 	}
 
-	TEST(TEST_CLASS, PruneHasNoEffectWhenEmpty) {
+	TEST(TEST_CLASS, PruneUpdatesMinFinalizationRoundWhenEmpty) {
 		// Arrange:
 		TestContext context;
+		context.aggregator().modifier().setMaxFinalizationRound(Default_Max_Round);
+
+		// Sanity:
+		AssertMinMaxFinalizationRounds(context.aggregator().view(), 0, Default_Min_Round, Default_Max_Round);
 
 		// Act:
-		context.aggregator().modifier().prune();
-		auto estimate = FindPreviousEstimate(context.aggregator());
+		context.aggregator().modifier().prune(FinalizationEpoch(100));
 
 		// Assert:
-		EXPECT_EQ(0u, context.aggregator().view().size());
-		EXPECT_EQ(model::HeightHashPair({ Last_Finalized_Height, context.lastFinalizedHash() }), estimate);
-
-		AssertMinMaxFinalizationRounds(context.aggregator().view(), Default_Min_Round, Default_Min_Round);
+		AssertMinMaxFinalizationRounds(context.aggregator().view(), 0, Default_Max_Round, Default_Max_Round);
 	}
 
-	TEST(TEST_CLASS, PruneHasNoEffectWhenNoRoundHasBestPrecommit) {
+	TEST(TEST_CLASS, PruneRemovesAllRoundsWhenAllAreBelowPruneEpoch) {
 		// Arrange:
 		TestContext context;
-		AddRoundMessageAggregators(context, { FinalizationPoint(0), FinalizationPoint(5), FinalizationPoint(10) });
+		AddRoundMessageAggregators(context, { FinalizationPoint(1), FinalizationPoint(5), FinalizationPoint(10) });
+
+		// Sanity:
+		AssertMinMaxFinalizationRounds(context.aggregator().view(), 3, Default_Min_Round, Default_Max_Round);
 
 		// Act:
-		context.aggregator().modifier().prune();
-		auto estimate = FindPreviousEstimate(context.aggregator());
+		context.aggregator().modifier().prune(FinalizationEpoch(100));
 
 		// Assert:
-		EXPECT_EQ(3u, context.aggregator().view().size());
-		EXPECT_EQ(model::HeightHashPair({ Last_Finalized_Height, context.lastFinalizedHash() }), estimate);
-
-		AssertMinMaxFinalizationRounds(context.aggregator().view(), Default_Min_Round, Default_Max_Round);
+		AssertMinMaxFinalizationRounds(context.aggregator().view(), 0, Default_Max_Round, Default_Max_Round);
 	}
 
-	TEST(TEST_CLASS, PruneHasEffectWhenAllRoundsHaveBestPrecommit) {
+	TEST(TEST_CLASS, PruneRemovesNoRoundsWhenAllAreAbovePruneEpoch) {
 		// Arrange:
-		std::vector<Hash256> hashes;
 		TestContext context;
-		context.setRoundMessageAggregatorInitializer([&hashes](auto& roundMessageAggregator) {
-			auto hash = test::GenerateRandomByteArray<Hash256>();
-			hashes.push_back(hash);
+		AddRoundMessageAggregators(context, { FinalizationPoint(1), FinalizationPoint(5), FinalizationPoint(10) });
 
-			auto height = Height(roundMessageAggregator.round().Point.unwrap() * 100);
-			roundMessageAggregator.roundContext().acceptPrevote(height, &hash, 1, 750);
-			roundMessageAggregator.roundContext().acceptPrecommit(height, hash, 750);
-		});
-
-		AddRoundMessageAggregators(context, { FinalizationPoint(0), FinalizationPoint(5), FinalizationPoint(10) });
+		// Sanity:
+		AssertMinMaxFinalizationRounds(context.aggregator().view(), 3, Default_Min_Round, Default_Max_Round);
 
 		// Act:
-		context.aggregator().modifier().prune();
-		auto estimate = FindPreviousEstimate(context.aggregator());
+		context.aggregator().modifier().prune(Default_Min_Round.Epoch - FinalizationEpoch(1));
 
 		// Assert:
-		EXPECT_EQ(1u, context.aggregator().view().size());
-		EXPECT_EQ(model::HeightHashPair({ Height(800), hashes[1] }), estimate);
-
-		AssertMinMaxFinalizationRounds(context.aggregator().view(), Default_Max_Round, Default_Max_Round);
+		AssertMinMaxFinalizationRounds(context.aggregator().view(), 3, Default_Min_Round + FinalizationPoint(1), Default_Max_Round);
 	}
 
-	TEST(TEST_CLASS, PruneHasEffectWhenCurrentRoundHasBestPrecommitAndAllPreviousRoundsHaveEstimate) {
+	TEST(TEST_CLASS, PruneOnlyRemovesRoundsWithEpochLessThanPruneEpoch_MatchingRounds) {
 		// Arrange:
-		std::vector<Hash256> hashes;
+		constexpr auto Epoch = Default_Min_Round.Epoch;
+		constexpr auto Point_Min = FinalizationPoint();
+		constexpr auto Point_Max = FinalizationPoint(std::numeric_limits<uint64_t>::max());
+		constexpr auto Max_Round = model::FinalizationRound{ Epoch + FinalizationEpoch(10), Default_Min_Round.Point };
+
 		TestContext context;
-		context.setRoundMessageAggregatorInitializer([&hashes](auto& roundMessageAggregator) {
-			auto hash = test::GenerateRandomByteArray<Hash256>();
-			hashes.push_back(hash);
+		AddRoundMessageAggregators(context, { FinalizationEpoch(1), FinalizationEpoch(5), FinalizationEpoch(10) });
+		context.aggregator().modifier().add(CreateMessage({ Epoch + FinalizationEpoch(4), Point_Max }, Height(100)));
+		context.aggregator().modifier().add(CreateMessage({ Epoch + FinalizationEpoch(5), Point_Min }, Height(100)));
 
-			// - set estimate for all aggregators
-			auto height = Height(roundMessageAggregator.round().Point.unwrap() * 100);
-			roundMessageAggregator.roundContext().acceptPrevote(height, &hash, 1, 750);
-
-			// - set precommit for last aggregator only
-			if (Default_Max_Round == roundMessageAggregator.round())
-				roundMessageAggregator.roundContext().acceptPrecommit(height, hash, 750);
-		});
-
-		AddRoundMessageAggregators(context, { FinalizationPoint(0), FinalizationPoint(5), FinalizationPoint(10) });
+		// Sanity:
+		AssertMinMaxFinalizationRounds(context.aggregator().view(), 5, Default_Min_Round, Max_Round);
 
 		// Act:
-		context.aggregator().modifier().prune();
-		auto estimate = FindPreviousEstimate(context.aggregator());
+		context.aggregator().modifier().prune(Epoch + FinalizationEpoch(5));
 
 		// Assert:
-		EXPECT_EQ(1u, context.aggregator().view().size());
-		EXPECT_EQ(model::HeightHashPair({ Height(800), hashes[1] }), estimate);
-
-		AssertMinMaxFinalizationRounds(context.aggregator().view(), Default_Max_Round, Default_Max_Round);
+		AssertMinMaxFinalizationRounds(context.aggregator().view(), 3, { Epoch + FinalizationEpoch(5), Point_Min }, Max_Round);
 	}
 
-	TEST(TEST_CLASS, PruneHasEffectWhenCurrentRoundHasBestPrecommitAndSinglePreviousRoundHasEstimate) {
+	TEST(TEST_CLASS, PruneOnlyRemovesRoundsWithEpochLessThanPruneEpoch_NoMatchingRounds) {
 		// Arrange:
-		std::vector<Hash256> hashes;
+		constexpr auto Epoch = Default_Min_Round.Epoch;
+		constexpr auto Max_Round = model::FinalizationRound{ Epoch + FinalizationEpoch(10), Default_Min_Round.Point };
+
 		TestContext context;
-		context.setRoundMessageAggregatorInitializer([&hashes](auto& roundMessageAggregator) {
-			auto hash = test::GenerateRandomByteArray<Hash256>();
-			hashes.push_back(hash);
+		AddRoundMessageAggregators(context, { FinalizationEpoch(1), FinalizationEpoch(5), FinalizationEpoch(10) });
 
-			// - set estimate for first and last aggregators
-			auto height = Height(roundMessageAggregator.round().Point.unwrap() * 100);
-			if (Default_Min_Round == roundMessageAggregator.round() || Default_Max_Round == roundMessageAggregator.round())
-				roundMessageAggregator.roundContext().acceptPrevote(height, &hash, 1, 750);
-
-			// - set precommit for last aggregator only
-			if (Default_Max_Round == roundMessageAggregator.round())
-				roundMessageAggregator.roundContext().acceptPrecommit(height, hash, 750);
-		});
-
-		AddRoundMessageAggregators(context, { FinalizationPoint(0), FinalizationPoint(5), FinalizationPoint(10) });
+		// Sanity:
+		AssertMinMaxFinalizationRounds(context.aggregator().view(), 3, Default_Min_Round, Max_Round);
 
 		// Act:
-		context.aggregator().modifier().prune();
-		auto estimate = FindPreviousEstimate(context.aggregator());
+		context.aggregator().modifier().prune(Epoch + FinalizationEpoch(9));
 
 		// Assert:
-		EXPECT_EQ(1u, context.aggregator().view().size());
-		EXPECT_EQ(model::HeightHashPair({ Height(300), hashes[0] }), estimate);
-
-		AssertMinMaxFinalizationRounds(context.aggregator().view(), Default_Max_Round, Default_Max_Round);
-	}
-
-	TEST(TEST_CLASS, PruneHasEffectWhenCurrentRoundHasBestPrecommitAndNoPreviousRoundHasEstimate) {
-		// Arrange:
-		TestContext context;
-		context.setRoundMessageAggregatorInitializer([](auto& roundMessageAggregator) {
-			auto hash = test::GenerateRandomByteArray<Hash256>();
-
-			// - set precommit for last aggregator only
-			if (Default_Max_Round == roundMessageAggregator.round()) {
-				auto height = Height(roundMessageAggregator.round().Point.unwrap() * 100);
-				roundMessageAggregator.roundContext().acceptPrevote(height, &hash, 1, 750);
-				roundMessageAggregator.roundContext().acceptPrecommit(height, hash, 750);
-			}
-		});
-
-		AddRoundMessageAggregators(context, { FinalizationPoint(0), FinalizationPoint(5), FinalizationPoint(10) });
-
-		// Act:
-		context.aggregator().modifier().prune();
-		auto estimate = FindPreviousEstimate(context.aggregator());
-
-		// Assert:
-		EXPECT_EQ(1u, context.aggregator().view().size());
-		EXPECT_EQ(model::HeightHashPair({ Last_Finalized_Height, context.lastFinalizedHash() }), estimate);
-
-		AssertMinMaxFinalizationRounds(context.aggregator().view(), Default_Max_Round, Default_Max_Round);
-	}
-
-	TEST(TEST_CLASS, PruneHasEffectWhenPreviousRoundHasBestPrecommit) {
-		// Arrange:
-		std::vector<Hash256> hashes;
-		TestContext context;
-		context.setRoundMessageAggregatorInitializer([&hashes](auto& roundMessageAggregator) {
-			auto hash = test::GenerateRandomByteArray<Hash256>();
-			hashes.push_back(hash);
-
-			// - set estimate for all aggregators
-			auto height = Height(roundMessageAggregator.round().Point.unwrap() * 100);
-			roundMessageAggregator.roundContext().acceptPrevote(height, &hash, 1, 750);
-
-			// - set precommit for second aggregator only
-			if (Default_Min_Round + FinalizationPoint(5) == roundMessageAggregator.round())
-				roundMessageAggregator.roundContext().acceptPrecommit(height, hash, 750);
-		});
-
-		AddRoundMessageAggregators(context, { FinalizationPoint(0), FinalizationPoint(5), FinalizationPoint(10) });
-
-		// Act:
-		context.aggregator().modifier().prune();
-		auto estimate = FindPreviousEstimate(context.aggregator());
-
-		// Assert:
-		EXPECT_EQ(2u, context.aggregator().view().size());
-		EXPECT_EQ(model::HeightHashPair({ Height(800), hashes[1] }), estimate);
-
-		AssertMinMaxFinalizationRounds(context.aggregator().view(), Default_Min_Round + FinalizationPoint(5), Default_Max_Round);
+		AssertMinMaxFinalizationRounds(context.aggregator().view(), 1, Max_Round, Max_Round);
 	}
 
 	// endregion

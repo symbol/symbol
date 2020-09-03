@@ -108,8 +108,8 @@ namespace catapult { namespace chain {
 		/// \note Message is a shared_ptr because it is detached from an EntityRange and is kept alive with its associated step.
 		RoundMessageAggregatorAddResult add(const std::shared_ptr<model::FinalizationMessage>& pMessage);
 
-		/// Prunes this aggregator by finding the current finalization candidate and removing all prior rounds.
-		void prune();
+		/// Prunes this aggregator by removing all rounds with an epoch less than \a epoch.
+		void prune(FinalizationEpoch epoch);
 
 	private:
 		MultiRoundMessageAggregatorState& m_state;

@@ -581,17 +581,16 @@ namespace catapult { namespace chain {
 			using RoundMessageAggregatorInitializer = consumer<mocks::MockRoundMessageAggregator&>;
 
 		public:
-			explicit CreateFinalizerTestContext(FinalizationPoint point)
-					: CreateFinalizerTestContext(point, std::make_unique<mocks::MockProofStorage>())
+			CreateFinalizerTestContext() : CreateFinalizerTestContext(std::make_unique<mocks::MockProofStorage>())
 			{}
 
-			CreateFinalizerTestContext(FinalizationPoint point, std::unique_ptr<mocks::MockProofStorage>&& pProofStorage)
+			explicit CreateFinalizerTestContext(std::unique_ptr<mocks::MockProofStorage>&& pProofStorage)
 					: m_pProofStorage(std::move(pProofStorage))
 					, m_pProofStorageRaw(m_pProofStorage.get())
 					, m_proofStorageCache(std::move(m_pProofStorage)) {
 				m_pAggregator = std::make_unique<MultiRoundMessageAggregator>(
 						10'000'000,
-						model::FinalizationRound{ Finalizer_Finalization_Epoch, point },
+						model::FinalizationRound{ Finalizer_Finalization_Epoch - FinalizationEpoch(3), FinalizationPoint(1) },
 						model::HeightHashPair(),
 						[this](const auto& round) {
 							auto pRoundMessageAggregator = std::make_unique<mocks::MockRoundMessageAggregator>(round);
@@ -603,10 +602,6 @@ namespace catapult { namespace chain {
 			}
 
 		public:
-			const auto& aggregator() const {
-				return *m_pAggregator;
-			}
-
 			const auto& subscriber() const {
 				return m_subscriber;
 			}
@@ -625,12 +620,36 @@ namespace catapult { namespace chain {
 				m_roundMessageAggregatorInitializer = roundMessageAggregatorInitializer;
 			}
 
+			void addDefaultMessages() {
+				addMessages(FinalizationPoint(7), FinalizationPoint(10));
+				addMessages(Finalizer_Finalization_Epoch - FinalizationEpoch(3), Finalizer_Finalization_Epoch);
+			}
+
+		private:
 			void addMessages(FinalizationPoint minPoint, FinalizationPoint maxPoint) {
 				auto modifier = m_pAggregator->modifier();
 				modifier.setMaxFinalizationRound({ Finalizer_Finalization_Epoch, maxPoint });
 
 				for (auto point = minPoint; point <= maxPoint; point = point + FinalizationPoint(1))
 					modifier.add(test::CreateMessage({ Finalizer_Finalization_Epoch, point }));
+			}
+
+			void addMessages(FinalizationEpoch minEpoch, FinalizationEpoch maxEpoch) {
+				auto modifier = m_pAggregator->modifier();
+
+				for (auto epoch = minEpoch; epoch <= maxEpoch; epoch = epoch + FinalizationEpoch(1))
+					modifier.add(test::CreateMessage({ epoch, FinalizationPoint(2) }));
+			}
+
+		public:
+			void checkAggregator(
+					size_t expectedSize,
+					const model::FinalizationRound& expectedMinRound,
+					const model::FinalizationRound& expectedMaxRound) const {
+				auto view = m_pAggregator->view();
+				EXPECT_EQ(expectedSize, view.size());
+				EXPECT_EQ(expectedMinRound, view.minFinalizationRound());
+				EXPECT_EQ(expectedMaxRound, view.maxFinalizationRound());
 			}
 
 		private:
@@ -651,7 +670,7 @@ namespace catapult { namespace chain {
 	namespace {
 		void AssertNotFinalized(const CreateFinalizerTestContext& context) {
 			// Assert: aggregator wasn't pruned
-			EXPECT_EQ(4u, context.aggregator().view().size());
+			context.checkAggregator(8, test::CreateFinalizationRound(8, 1), test::CreateFinalizationRound(11, 10));
 
 			// - subscriber and storage weren't called
 			EXPECT_TRUE(context.subscriber().finalizedBlockParams().params().empty());
@@ -661,16 +680,16 @@ namespace catapult { namespace chain {
 
 	TEST(TEST_CLASS, CreateFinalizer_HasNoEffectWhenNoBestPrecommit) {
 		// Arrange:
-		CreateFinalizerTestContext context(FinalizationPoint(7));
+		CreateFinalizerTestContext context;
 		context.setRoundMessageAggregatorInitializer([](auto& roundMessageAggregator) {
 			auto hash = test::GenerateRandomByteArray<Hash256>();
 			roundMessageAggregator.roundContext().acceptPrevote(Height(246), &hash, 1, 750);
 		});
 
-		context.addMessages(FinalizationPoint(7), FinalizationPoint(10));
+		context.addDefaultMessages();
 
 		// Sanity:
-		EXPECT_EQ(4u, context.aggregator().view().size());
+		context.checkAggregator(8, test::CreateFinalizationRound(8, 1), test::CreateFinalizationRound(11, 10));
 
 		// Act:
 		context.finalize();
@@ -681,19 +700,17 @@ namespace catapult { namespace chain {
 
 	TEST(TEST_CLASS, CreateFinalizer_HasNoEffectWhenBestPrecommitHeightMatchesProofStorageHeight) {
 		// Arrange:
-		CreateFinalizerTestContext context(
-				FinalizationPoint(7),
-				std::make_unique<mocks::MockProofStorage>(FinalizationPoint(12), Height(246)));
+		CreateFinalizerTestContext context(std::make_unique<mocks::MockProofStorage>(FinalizationPoint(12), Height(246)));
 		context.setRoundMessageAggregatorInitializer([](auto& roundMessageAggregator) {
 			auto hash = test::GenerateRandomByteArray<Hash256>();
 			roundMessageAggregator.roundContext().acceptPrevote(Height(246), &hash, 1, 750);
 			roundMessageAggregator.roundContext().acceptPrecommit(Height(246), hash, 750);
 		});
 
-		context.addMessages(FinalizationPoint(7), FinalizationPoint(10));
+		context.addDefaultMessages();
 
 		// Sanity:
-		EXPECT_EQ(4u, context.aggregator().view().size());
+		context.checkAggregator(8, test::CreateFinalizationRound(8, 1), test::CreateFinalizationRound(11, 10));
 
 		// Act:
 		context.finalize();
@@ -705,7 +722,7 @@ namespace catapult { namespace chain {
 	TEST(TEST_CLASS, CreateFinalizer_FinalizesBlockWhenCurrentRoundHasBestPrecommit) {
 		// Arrange:
 		auto hashes = test::GenerateRandomDataVector<Hash256>(4);
-		CreateFinalizerTestContext context(FinalizationPoint(7));
+		CreateFinalizerTestContext context;
 		context.setRoundMessageAggregatorInitializer([&hashes](auto& roundMessageAggregator) {
 			const auto& hash = hashes[roundMessageAggregator.round().Point.unwrap() - 7];
 			roundMessageAggregator.roundContext().acceptPrevote(Height(246), &hash, 1, 750);
@@ -716,16 +733,16 @@ namespace catapult { namespace chain {
 			roundMessageAggregator.setMessages(std::move(messages));
 		});
 
-		context.addMessages(FinalizationPoint(7), FinalizationPoint(10));
+		context.addDefaultMessages();
 
 		// Sanity:
-		EXPECT_EQ(4u, context.aggregator().view().size());
+		context.checkAggregator(8, test::CreateFinalizationRound(8, 1), test::CreateFinalizationRound(11, 10));
 
 		// Act:
 		context.finalize();
 
-		// Assert: aggregator was not pruned
-		EXPECT_EQ(4u, context.aggregator().view().size());
+		// Assert: aggregator was pruned
+		context.checkAggregator(6, test::CreateFinalizationRound(10, 2), test::CreateFinalizationRound(11, 10));
 
 		// - subscriber was called
 		const auto& subscriberParams = context.subscriber().finalizedBlockParams().params();
@@ -745,7 +762,7 @@ namespace catapult { namespace chain {
 	TEST(TEST_CLASS, CreateFinalizer_FinalizesBlockWhenPreviousRoundHasBestPrecommit) {
 		// Arrange:
 		auto hashes = test::GenerateRandomDataVector<Hash256>(4);
-		CreateFinalizerTestContext context(FinalizationPoint(7));
+		CreateFinalizerTestContext context;
 		context.setRoundMessageAggregatorInitializer([&hashes](auto& roundMessageAggregator) {
 			auto roundPoint = roundMessageAggregator.round().Point;
 			const auto& hash = hashes[roundPoint.unwrap() - 7];
@@ -759,16 +776,16 @@ namespace catapult { namespace chain {
 			roundMessageAggregator.setMessages(std::move(messages));
 		});
 
-		context.addMessages(FinalizationPoint(7), FinalizationPoint(10));
+		context.addDefaultMessages();
 
 		// Sanity:
-		EXPECT_EQ(4u, context.aggregator().view().size());
+		context.checkAggregator(8, test::CreateFinalizationRound(8, 1), test::CreateFinalizationRound(11, 10));
 
 		// Act:
 		context.finalize();
 
-		// Assert: aggregator was not pruned
-		EXPECT_EQ(4u, context.aggregator().view().size());
+		// Assert: aggregator was pruned
+		context.checkAggregator(6, test::CreateFinalizationRound(10, 2), test::CreateFinalizationRound(11, 10));
 
 		// - subscriber was called
 		const auto& subscriberParams = context.subscriber().finalizedBlockParams().params();

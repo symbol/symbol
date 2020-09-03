@@ -175,31 +175,13 @@ namespace catapult { namespace chain {
 		return iter->second->add(pMessage);
 	}
 
-	void MultiRoundMessageAggregatorModifier::prune() {
+	void MultiRoundMessageAggregatorModifier::prune(FinalizationEpoch epoch) {
 		auto& roundMessageAggregators = m_state.RoundMessageAggregators;
 
-		auto lastMatchingIter = roundMessageAggregators.cend();
-		for (auto iter = roundMessageAggregators.cbegin(); roundMessageAggregators.cend() != iter; ++iter) {
-			if (iter->second->roundContext().tryFindBestPrecommit().second)
-				lastMatchingIter = iter;
-		}
+		auto iter = roundMessageAggregators.lower_bound({ epoch, FinalizationPoint(0) });
+		roundMessageAggregators.erase(roundMessageAggregators.begin(), iter);
 
-		if (roundMessageAggregators.cend() == lastMatchingIter)
-			return;
-
-		auto prevLastMatchingIter = lastMatchingIter;
-		while (roundMessageAggregators.cbegin() != prevLastMatchingIter) {
-			--prevLastMatchingIter;
-
-			auto estimateResultPair = prevLastMatchingIter->second->roundContext().tryFindEstimate();
-			if (estimateResultPair.second) {
-				m_state.PreviousFinalizedHeightHashPair = estimateResultPair.first;
-				break;
-			}
-		}
-
-		roundMessageAggregators.erase(roundMessageAggregators.cbegin(), lastMatchingIter);
-		m_state.MinFinalizationRound = lastMatchingIter->first;
+		m_state.MinFinalizationRound = roundMessageAggregators.cend() == iter ? m_state.MaxFinalizationRound : iter->first;
 	}
 
 	// endregion

@@ -106,7 +106,7 @@ namespace catapult { namespace finalization {
 				// register aggregator
 				m_pAggregator = std::make_shared<chain::MultiRoundMessageAggregator>(
 						10'000'000,
-						model::FinalizationRound{ Finalization_Epoch, FinalizationPoint(5) },
+						model::FinalizationRound{ Finalization_Epoch - FinalizationEpoch(2), FinalizationPoint(1) },
 						lastFinalizedHeightHashPair,
 						[this](const auto& round) {
 							auto pRoundMessageAggregator = std::make_unique<mocks::MockRoundMessageAggregator>(round);
@@ -169,6 +169,13 @@ namespace catapult { namespace finalization {
 				auto aggregatorModifier = m_pAggregator->modifier();
 				aggregatorModifier.setMaxFinalizationRound(votingRound);
 				aggregatorModifier.add(test::CreateMessage(votingRound));
+
+				// trigger creation of additional round aggregators to better test pruning
+				for (auto i = 0u; i < 3; ++i) {
+					auto epoch = Finalization_Epoch - FinalizationEpoch(i);
+					for (auto j = 0u; j < 3; ++j)
+						aggregatorModifier.add(test::CreateMessage({ epoch, FinalizationPoint(j + 1) }));
+				}
 			}
 
 		private:
@@ -262,9 +269,9 @@ namespace catapult { namespace finalization {
 				const auto& subscriber,
 				const auto& storage,
 				const auto& messages) {
-			// Assert: check aggregator
+			// Assert: check aggregator (no blocks were finalized, so no rounds were pruned)
 			auto epoch = Finalization_Epoch.unwrap();
-			EXPECT_EQ(test::CreateFinalizationRound(epoch, 5), aggregator.view().minFinalizationRound());
+			EXPECT_EQ(test::CreateFinalizationRound(epoch - 2, 1), aggregator.view().minFinalizationRound());
 			EXPECT_EQ(test::CreateFinalizationRound(epoch, 8), aggregator.view().maxFinalizationRound());
 
 			// - subscriber and storage weren't called
@@ -300,7 +307,7 @@ namespace catapult { namespace finalization {
 				// Assert: check aggregator
 				auto epoch = Finalization_Epoch.unwrap();
 				auto expectedMaxRound = test::CreateFinalizationRound(epoch, expectedMaxFinalizationPoint.unwrap());
-				EXPECT_EQ(test::CreateFinalizationRound(epoch, 5), aggregator.view().minFinalizationRound());
+				EXPECT_EQ(test::CreateFinalizationRound(epoch - 1, 1), aggregator.view().minFinalizationRound());
 				EXPECT_EQ(expectedMaxRound, aggregator.view().maxFinalizationRound());
 
 				// - subscriber was called
@@ -356,7 +363,7 @@ namespace catapult { namespace finalization {
 
 				// - check aggregator (it did not advance the epoch)
 				auto epoch = Finalization_Epoch.unwrap();
-				EXPECT_EQ(test::CreateFinalizationRound(epoch, 5), aggregator.view().minFinalizationRound());
+				EXPECT_EQ(test::CreateFinalizationRound(epoch - 1, 1), aggregator.view().minFinalizationRound());
 				EXPECT_EQ(test::CreateFinalizationRound(epoch, 8), aggregator.view().maxFinalizationRound());
 
 				// - subscriber was called
@@ -415,7 +422,7 @@ namespace catapult { namespace finalization {
 
 			// - check aggregator (it advanced the epoch)
 			auto epoch = Finalization_Epoch.unwrap();
-			EXPECT_EQ(test::CreateFinalizationRound(epoch, 5), aggregator.view().minFinalizationRound());
+			EXPECT_EQ(test::CreateFinalizationRound(epoch - 1, 1), aggregator.view().minFinalizationRound());
 			EXPECT_EQ(test::CreateFinalizationRound(epoch + 1, 1), aggregator.view().maxFinalizationRound());
 
 			// - subscriber was called
