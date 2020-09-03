@@ -1,0 +1,14 @@
+type: object
+required:
+  - data
+  - pagination
+properties:
+  data:
+    type: array
+    description: Array of mosaic restrictions.
+    items:
+      anyOf:
+      - $ref: "./MosaicAddressRestrictionDTO.yml"
+      - $ref: "./MosaicGlobalRestrictionDTO.yml"
+  pagination:
+    $ref: "../../../schemas/Pagination.yml"

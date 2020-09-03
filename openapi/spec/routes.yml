@@ -185,14 +185,6 @@
     $ref: "./plugins/restriction_account/routes/searchAccountRestrictions.yml"
 
 # Plugin - RestrictionMosaic
-"/restrictions/mosaic/{mosaicId}":
+"/restrictions/mosaic":
   get:
-    $ref: "./plugins/restriction_mosaic/routes/getMosaicGlobalRestriction.yml"
-  post:
-    $ref: "./plugins/restriction_mosaic/routes/getMosaicAddressRestrictions.yml"
-"/restrictions/mosaic/{mosaicId}/address/{address}":
-  get:
-    $ref: "./plugins/restriction_mosaic/routes/getMosaicAddressRestriction.yml"
-/restrictions/mosaic:
-  post:
-    $ref: "./plugins/restriction_mosaic/routes/getMosaicGlobalRestrictions.yml"
+    $ref: "./plugins/restriction_mosaic/routes/searchMosaicRestrictions.yml"

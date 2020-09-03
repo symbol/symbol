@@ -1,0 +1,5 @@
+name: entryType
+in: query
+description: Filter by entry type.
+schema:
+  $ref: "../../plugins/restriction_mosaic/schemas/MosaicRestrictionEntryTypeEnum.yml"
