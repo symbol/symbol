@@ -360,11 +360,12 @@ namespace catapult { namespace finalization {
 	}
 
 	TEST(TEST_CLASS, CanRunFinalizationTaskWhenThereArePendingFinalizedBlocks_MultiplePolls) {
-		// Assert: upon second task execution, storage and orchestrator have same epoch, so orchestrator is advanced to be ahead of storage
+		// Assert: on second task execution, storage and orchestrator have same epoch but height is not at end of epoch,
+		//         so epoch is not advanced
 		AssertCanRunFinalizationTaskWhenThereArePendingFinalizedBlocks(
 				5,
-				test::CreateFinalizationRound(7, 1),
-				test::CreateFinalizationRound(7, 1));
+				test::CreateFinalizationRound(6, 9),
+				test::CreateFinalizationRound(6, 9));
 	}
 
 	namespace {
