@@ -20,7 +20,10 @@
     "url": "https://github.com/nemtech/symbol-openapi/issues"
   },
   "homepage": "https://github.com/nemtech/symbol-openapi#readme",
-  "dependencies": {
-    "openapi-to-postmanv2": "^1.1.6"
+  "dependencies": {},
+  "devDependencies": {
+    "openapi-to-postmanv2": "^1.2.6",
+    "swagger-cli": "^4.0.4",
+    "yaml-cli": "^1.1.8"
   }
 }
