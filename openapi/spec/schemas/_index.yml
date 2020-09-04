@@ -51,6 +51,10 @@ ProofVerificationHash:
   "$ref": "./ProofVerificationHash.yml"
 Score:
   "$ref": "./Score.yml"
+Status:
+  "$ref": "./Status.yml"
+Secret:
+  "$ref": "./Secret.yml"
 Signature:
   "$ref": "./Signature.yml"
 Timestamp:
