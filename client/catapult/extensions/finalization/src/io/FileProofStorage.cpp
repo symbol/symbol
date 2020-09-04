@@ -62,7 +62,6 @@ namespace catapult { namespace io {
 
 	FileProofStorage::FileProofStorage(const std::string& dataDirectory)
 			: m_dataDirectory(dataDirectory)
-			, m_epochHeightMapping(m_dataDirectory, "proof.heights")
 			, m_indexFile((boost::filesystem::path(m_dataDirectory) / "proof.index.dat").generic_string())
 	{}
 
@@ -120,12 +119,13 @@ namespace catapult { namespace io {
 			CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
 		}
 
-		auto epoch = findEpochForHeight(height);
-		if (FinalizationEpoch() == epoch)
+		auto pProof = loadClosestProof(height);
+		if (!pProof || pProof->Height != height) {
+			CATAPULT_LOG(debug) << "proof not found at height " << height;
 			return nullptr;
+		}
 
-		auto pProofFile = OpenProofFile(m_dataDirectory, epoch);
-		return ReadFinalizationProof(*pProofFile);
+		return pProof;
 	}
 
 	void FileProofStorage::saveProof(const model::FinalizationProof& proof) {
@@ -149,33 +149,21 @@ namespace catapult { namespace io {
 			stream.flush();
 		}
 
-		m_epochHeightMapping.save(proof.Round.Epoch, proof.Height);
-
 		m_indexFile.set({ proof.Round, proof.Height, proof.Hash });
 	}
 
-	FinalizationEpoch FileProofStorage::findEpochForHeight(Height height) const {
-		constexpr auto Max_Epochs_In_Batch = FinalizationEpoch(100);
+	std::shared_ptr<const model::FinalizationProof> FileProofStorage::loadClosestProof(Height height) const {
 		auto currentEpoch = statistics().Round.Epoch;
+		if (currentEpoch < FinalizationEpoch(2))
+			return loadProof(FinalizationEpoch(1));
 
-		while (true) {
-			auto rangeBeginEpoch = currentEpoch > Max_Epochs_In_Batch ? (currentEpoch - Max_Epochs_In_Batch) : FinalizationEpoch(1);
-			auto numHeights = currentEpoch > Max_Epochs_In_Batch ? Max_Epochs_In_Batch.unwrap() : currentEpoch.unwrap();
-			auto heights = m_epochHeightMapping.loadRangeFrom(rangeBeginEpoch, numHeights);
+		// when the second epoch is fully finalized (and a third epoch has been started), the height of the second epoch is
+		// equal to the voting set grouping
+		auto pProof = loadProof(FinalizationEpoch(2));
 
-			// heights are in ascending order, so if height is not present in this 'batch', load next one
-			if (!heights.empty() && *heights.cbegin() > height) {
-				currentEpoch = rangeBeginEpoch;
-				continue;
-			}
-
-			auto iter = std::upper_bound(heights.cbegin(), heights.cend(), height);
-			if (height == *--iter)
-				return rangeBeginEpoch + FinalizationEpoch(static_cast<uint64_t>(std::distance(heights.cbegin(), iter)));
-
-			CATAPULT_LOG(debug) << "element not found, was looking for " << height;
-			return FinalizationEpoch();
-		}
+		auto votingSetGrouping = pProof->Height.unwrap();
+		auto epoch = FinalizationEpoch(height.unwrap() / votingSetGrouping + 1);
+		return loadProof(epoch);
 	}
 
 	// endregion

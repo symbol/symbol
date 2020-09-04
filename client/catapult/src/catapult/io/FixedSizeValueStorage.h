@@ -61,7 +61,4 @@ namespace catapult { namespace io {
 
 	using HashFile = FixedSizeValueStorage<Height, Hash256>;
 	extern template class FixedSizeValueStorage<Height, Hash256>;
-
-	using FinalizationEpochHeightFile = FixedSizeValueStorage<FinalizationEpoch, Height>;
-	extern template class FixedSizeValueStorage<FinalizationEpoch, Height>;
 }}

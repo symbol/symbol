@@ -104,10 +104,12 @@ namespace catapult { namespace test {
 			return model::CreateFinalizationProof({ { epoch, point }, height, hash }, messages);
 		}
 
-		static auto PrepareStorageWithProofs(size_t numProofs) {
+		static auto PrepareStorageWithProofs(size_t numProofs, uint64_t votingSetGrouping = 2) {
 			StorageContext context(PreparationMode::Default);
 			for (auto i = 1u; i <= numProofs; ++i) {
-				auto pProof = GenerateProof(5, FinalizationEpoch(i), FinalizationPoint(6), Height(100 + 2 * i));
+				// emulate evenly spaced epoch blocks
+				auto height = Height(1 == i ? 1 : (i - 1) * votingSetGrouping);
+				auto pProof = GenerateProof(5, FinalizationEpoch(i), FinalizationPoint(6), height);
 				context->saveProof(*pProof);
 			}
 
@@ -223,7 +225,7 @@ namespace catapult { namespace test {
 		}
 
 		static void AssertCannotSaveProofAtHeight(Height newFinalizedHeight) {
-			// Arrange: prepare storage with proofs for heights 104-120
+			// Arrange: prepare storage with proofs for heights 1-18
 			auto pStorage = PrepareStorageWithProofs(10);
 			auto pProof = GenerateProof(3, FinalizationEpoch(11), FinalizationPoint(7), newFinalizedHeight);
 
@@ -232,7 +234,7 @@ namespace catapult { namespace test {
 		}
 
 		static void AssertCanSaveProofAtHeight(Height newFinalizedHeight) {
-			// Arrange: prepare storage with proofs for heights 104-120
+			// Arrange: prepare storage with proofs for heights 1-18
 			auto pStorage = PrepareStorageWithProofs(10);
 			auto pProof = GenerateProof(3, FinalizationEpoch(11), FinalizationPoint(7), newFinalizedHeight);
 
@@ -263,14 +265,14 @@ namespace catapult { namespace test {
 		}
 
 		static void AssertCannotSaveProofWithHeightLessThanCurrentHeight() {
-			AssertCannotSaveProofAtHeight(Height(109));
-			AssertCannotSaveProofAtHeight(Height(119));
+			AssertCannotSaveProofAtHeight(Height(9));
+			AssertCannotSaveProofAtHeight(Height(17));
 		}
 
 		static void AssertCanSaveProofWithHeightGreaterThanOrEqualToCurrentHeight() {
-			AssertCanSaveProofAtHeight(Height(120));
-			AssertCanSaveProofAtHeight(Height(125));
-			AssertCanSaveProofAtHeight(Height(150));
+			AssertCanSaveProofAtHeight(Height(18));
+			AssertCanSaveProofAtHeight(Height(25));
+			AssertCanSaveProofAtHeight(Height(50));
 		}
 
 		// endregion
@@ -334,60 +336,6 @@ namespace catapult { namespace test {
 
 		// region loadProof(height)
 
-		static void AssertCanLoadProofAtFinalizedHeight() {
-			// Arrange:
-			auto pStorage = PrepareStorageWithProofs(10);
-
-			auto pProof = GenerateProof(3, FinalizationEpoch(11), FinalizationPoint(7), Height(123));
-			pStorage->saveProof(*pProof);
-
-			// Act:
-			auto pLoadedProof = pStorage->loadProof(Height(123));
-
-			// Assert:
-			AssertStorageStatistics(*pStorage, { { FinalizationEpoch(11), FinalizationPoint(7) }, Height(123), pProof->Hash });
-			AssertSerializedProof(*pProof, *pLoadedProof);
-		}
-
-		static void AssertCanLoadProofAtHeightLessThanCurrentFinalizedHeight() {
-			// Arrange:
-			auto pStorage = PrepareStorageWithProofs(10);
-
-			auto pProof1 = GenerateProof(3, FinalizationEpoch(11), FinalizationPoint(7), Height(123));
-			pStorage->saveProof(*pProof1);
-
-			auto pProof2 = GenerateProof(3, FinalizationEpoch(12), FinalizationPoint(7), Height(125));
-			pStorage->saveProof(*pProof2);
-
-			// Act:
-			auto pLoadedProof = pStorage->loadProof(Height(123));
-
-			// Assert: finalized proof is proof2, but requested proof is correctly loaded
-			AssertStorageStatistics(*pStorage, { { FinalizationEpoch(12), FinalizationPoint(7) }, Height(125), pProof2->Hash });
-			AssertSerializedProof(*pProof1, *pLoadedProof);
-		}
-
-		static void AssertLoadProofAtHeightLoadsMostRecentProof() {
-			// Arrange:
-			auto pStorage = PrepareStorageWithProofs(10);
-
-			auto pProof1 = GenerateProof(3, FinalizationEpoch(11), FinalizationPoint(7), Height(123));
-			pStorage->saveProof(*pProof1);
-
-			auto pProof2 = GenerateProof(3, FinalizationEpoch(12), FinalizationPoint(7), Height(123));
-			pStorage->saveProof(*pProof2);
-
-			auto pProof3 = GenerateProof(3, FinalizationEpoch(13), FinalizationPoint(7), Height(123));
-			pStorage->saveProof(*pProof3);
-
-			// Act:
-			auto pLoadedProof = pStorage->loadProof(Height(123));
-
-			// Assert:
-			AssertStorageStatistics(*pStorage, { { FinalizationEpoch(13), FinalizationPoint(7) }, Height(123), pProof3->Hash });
-			AssertSerializedProof(*pProof3, *pLoadedProof);
-		}
-
 		static void AssertCannotLoadProofAtHeightZero() {
 			// Arrange:
 			auto pStorage = PrepareStorageWithProofs(3);
@@ -396,56 +344,138 @@ namespace catapult { namespace test {
 			EXPECT_THROW(pStorage->loadProof(Height(0)), catapult_invalid_argument);
 		}
 
-		static void AssertCannotLoadProofAtHeightGreaterThanCurrentFinalizedHeight() {
+		static void AssertCanLoadProofAtFinalizedHeightWhenSingleProofIsSaved() {
 			// Arrange:
-			auto pStorage = PrepareStorageWithProofs(10);
+			auto pStorage = PrepareStorageWithProofs(0, 50);
 
-			auto pProof = GenerateProof(3, FinalizationEpoch(11), FinalizationPoint(7), Height(123));
+			auto pProof = GenerateProof(3, FinalizationEpoch(1), FinalizationPoint(7), Height(1));
 			pStorage->saveProof(*pProof);
 
-			// Act + Assert:
-			EXPECT_THROW(pStorage->loadProof(Height(124)), catapult_invalid_argument);
+			// Act:
+			auto pLoadedProof = pStorage->loadProof(Height(1));
+
+			// Assert:
+			AssertStorageStatistics(*pStorage, { { FinalizationEpoch(1), FinalizationPoint(7) }, Height(1), pProof->Hash });
+			AssertSerializedProof(*pProof, *pLoadedProof);
 		}
 
-		static void AssertCannotLoadProofAtHeightWithoutProof() {
+		static void AssertCanLoadProofAtFinalizedHeightWhenTwoProofsAreSaved() {
 			// Arrange:
-			auto pStorage = PrepareStorageWithProofs(10);
+			auto pStorage = PrepareStorageWithProofs(0, 50);
 
-			auto pProof1 = GenerateProof(3, FinalizationEpoch(11), FinalizationPoint(7), Height(123));
+			auto pProof1 = GenerateProof(3, FinalizationEpoch(1), FinalizationPoint(7), Height(1));
 			pStorage->saveProof(*pProof1);
 
-			auto pProof2 = GenerateProof(3, FinalizationEpoch(12), FinalizationPoint(7), Height(125));
+			auto pProof2 = GenerateProof(3, FinalizationEpoch(2), FinalizationPoint(5), Height(17));
 			pStorage->saveProof(*pProof2);
 
 			// Act:
-			auto pLoadedProof = pStorage->loadProof(Height(124));
+			auto pLoadedProof1 = pStorage->loadProof(Height(1));
+			auto pLoadedProof2 = pStorage->loadProof(Height(17));
 
 			// Assert:
-			EXPECT_FALSE(!!pLoadedProof);
+			AssertStorageStatistics(*pStorage, { { FinalizationEpoch(2), FinalizationPoint(5) }, Height(17), pProof2->Hash });
+			AssertSerializedProof(*pProof1, *pLoadedProof1);
+			AssertSerializedProof(*pProof2, *pLoadedProof2);
 		}
 
-		static void AssertCanLoadProofAtHeightOutsideSingleBatch() {
+		static void AssertCanLoadProofAtFinalizedHeightWhenMultipleProofsAreSaved() {
 			// Arrange:
-			auto pStorage = PrepareStorageWithProofs(10);
+			auto pStorage = PrepareStorageWithProofs(10, 50);
 
-			auto pProof1 = GenerateProof(3, FinalizationEpoch(11), FinalizationPoint(7), Height(123));
-			pStorage->saveProof(*pProof1);
-
-			Hash256 lastHash;
-			for (auto i = 0u; i < 200; ++i) {
-				auto pProof2 = GenerateProof(1, FinalizationEpoch(12 + i), FinalizationPoint(7), Height(130 + 2 * i));
-				pStorage->saveProof(*pProof2);
-
-				if (199 == i)
-					lastHash = pProof2->Hash;
-			}
+			auto pProof = GenerateProof(3, FinalizationEpoch(11), FinalizationPoint(7), Height(50 * 10));
+			pStorage->saveProof(*pProof);
 
 			// Act:
-			auto pLoadedProof = pStorage->loadProof(Height(123));
+			auto pLoadedProof = pStorage->loadProof(Height(50 * 10));
+
+			// Assert:
+			AssertStorageStatistics(*pStorage, { { FinalizationEpoch(11), FinalizationPoint(7) }, Height(50 * 10), pProof->Hash });
+			AssertSerializedProof(*pProof, *pLoadedProof);
+		}
+
+		static void AssertCannotLoadProofAtHeightWithoutProofWhenSingleProofIsSaved() {
+			// Arrange:
+			auto pStorage = PrepareStorageWithProofs(0, 50);
+
+			auto pProof = GenerateProof(3, FinalizationEpoch(1), FinalizationPoint(7), Height(1));
+			pStorage->saveProof(*pProof);
+
+			// Act + Assert:
+			for (auto height : { Height(2), Height(49), Height(50), Height(51), Height(100) })
+				EXPECT_THROW(pStorage->loadProof(height), catapult_invalid_argument) << height;
+		}
+
+		static void AssertCannotLoadProofAtHeightWithoutProofWhenTwoProofsAreSaved() {
+			// Arrange:
+			auto pStorage = PrepareStorageWithProofs(0, 50);
+
+			auto pProof1 = GenerateProof(3, FinalizationEpoch(1), FinalizationPoint(7), Height(1));
+			pStorage->saveProof(*pProof1);
+
+			auto pProof2 = GenerateProof(3, FinalizationEpoch(2), FinalizationPoint(5), Height(17));
+			pStorage->saveProof(*pProof2);
+
+			// Act + Assert:
+			for (auto height : { Height(2), Height(16) })
+				EXPECT_FALSE(!!pStorage->loadProof(height));
+
+			for (auto height : { Height(18), Height(50), Height(51), Height(100) })
+				EXPECT_THROW(pStorage->loadProof(height), catapult_invalid_argument) << height;
+		}
+
+		static void AssertCannotLoadProofAtHeightWithoutProofWhenMultipleProofsAreSaved() {
+			// Arrange:
+			auto pStorage = PrepareStorageWithProofs(10, 50);
+
+			auto pProof = GenerateProof(3, FinalizationEpoch(11), FinalizationPoint(7), Height(50 * 10));
+			pStorage->saveProof(*pProof);
+
+			// Act + Assert:
+			for (auto height : { Height(2), Height(49), Height(51), Height(50 * 10 - 1) })
+				EXPECT_FALSE(!!pStorage->loadProof(height));
+
+			for (auto height : { Height(50 * 10 + 1), Height(50 * 11) })
+				EXPECT_THROW(pStorage->loadProof(height), catapult_invalid_argument) << height;
+		}
+
+		static void AssertCanLoadProofAtHeightLessThanCurrentFinalizedHeight() {
+			// Arrange:
+			auto pStorage = PrepareStorageWithProofs(10, 50);
+
+			auto pProof1 = GenerateProof(3, FinalizationEpoch(11), FinalizationPoint(7), Height(50 * 10));
+			pStorage->saveProof(*pProof1);
+
+			auto pProof2 = GenerateProof(3, FinalizationEpoch(12), FinalizationPoint(5), Height(50 * 11));
+			pStorage->saveProof(*pProof2);
+
+			// Act:
+			auto pLoadedProof = pStorage->loadProof(Height(50 * 10));
 
 			// Assert: finalized proof is proof2, but requested proof is correctly loaded
-			AssertStorageStatistics(*pStorage, { { FinalizationEpoch(211), FinalizationPoint(7) }, Height(528), lastHash });
+			AssertStorageStatistics(*pStorage, { { FinalizationEpoch(12), FinalizationPoint(5) }, Height(50 * 11), pProof2->Hash });
 			AssertSerializedProof(*pProof1, *pLoadedProof);
+		}
+
+		static void AssertLoadProofAtHeightLoadsMostRecentProof() {
+			// Arrange:
+			auto pStorage = PrepareStorageWithProofs(10, 50);
+
+			auto pProof1 = GenerateProof(3, FinalizationEpoch(11), FinalizationPoint(7), Height(50 * 10 - 25));
+			pStorage->saveProof(*pProof1);
+
+			auto pProof2 = GenerateProof(3, FinalizationEpoch(11), FinalizationPoint(8), Height(50 * 10));
+			pStorage->saveProof(*pProof2);
+
+			auto pProof3 = GenerateProof(3, FinalizationEpoch(11), FinalizationPoint(9), Height(50 * 10));
+			pStorage->saveProof(*pProof3);
+
+			// Act:
+			auto pLoadedProof = pStorage->loadProof(Height(50 * 10));
+
+			// Assert:
+			AssertStorageStatistics(*pStorage, { { FinalizationEpoch(11), FinalizationPoint(9) }, Height(50 * 10), pProof3->Hash });
+			AssertSerializedProof(*pProof3, *pLoadedProof);
 		}
 
 		// endregion
@@ -475,12 +505,14 @@ namespace catapult { namespace test {
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotLoadProofAtFinalizationEpochGreaterThanCurrentFinalizationEpoch) \
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CanLoadMultipleSavedProofs) \
 	\
-	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CanLoadProofAtFinalizedHeight) \
+	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotLoadProofAtHeightZero) \
+	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CanLoadProofAtFinalizedHeightWhenSingleProofIsSaved) \
+	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CanLoadProofAtFinalizedHeightWhenTwoProofsAreSaved) \
+	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CanLoadProofAtFinalizedHeightWhenMultipleProofsAreSaved) \
+	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotLoadProofAtHeightWithoutProofWhenSingleProofIsSaved) \
+	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotLoadProofAtHeightWithoutProofWhenTwoProofsAreSaved) \
+	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotLoadProofAtHeightWithoutProofWhenMultipleProofsAreSaved) \
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CanLoadProofAtHeightLessThanCurrentFinalizedHeight) \
 	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, LoadProofAtHeightLoadsMostRecentProof) \
-	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotLoadProofAtHeightZero) \
-	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotLoadProofAtHeightGreaterThanCurrentFinalizedHeight) \
-	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CannotLoadProofAtHeightWithoutProof) \
-	MAKE_PROOF_STORAGE_TEST(TRAITS_NAME, CanLoadProofAtHeightOutsideSingleBatch)
 
 // endregion

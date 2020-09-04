@@ -39,7 +39,7 @@ namespace catapult { namespace io {
 		void saveProof(const model::FinalizationProof& proof) override;
 
 	private:
-		FinalizationEpoch findEpochForHeight(Height height) const;
+		std::shared_ptr<const model::FinalizationProof> loadClosestProof(Height height) const;
 
 	private:
 		class FinalizationIndexFile {
@@ -64,7 +64,6 @@ namespace catapult { namespace io {
 
 	private:
 		std::string m_dataDirectory;
-		FinalizationEpochHeightFile m_epochHeightMapping;
 		FinalizationIndexFile m_indexFile;
 	};
 }}
