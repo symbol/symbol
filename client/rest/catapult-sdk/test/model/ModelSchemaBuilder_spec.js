@@ -93,10 +93,12 @@ describe('model schema builder', () => {
 				'chainStatistic',
 				'chainStatisticCurrent',
 				'nodeHealth',
+				'nodeHealthStatus',
 				'nodeInfo',
 				'communicationTimestamps',
 				'nodeTime',
 				'serverInfo',
+				'serverInfoData',
 				'stateTree',
 				'storageInfo'
 			]);
@@ -167,7 +169,9 @@ describe('model schema builder', () => {
 
 				'chainStatistic.current',
 
-				'nodeTime.communicationTimestamps'
+				'nodeHealth.status',
+				'nodeTime.communicationTimestamps',
+				'serverInfo.serverInfo'
 			]);
 		});
 
@@ -302,8 +306,12 @@ describe('model schema builder', () => {
 			expect(matchingProperties).to.deep.equal([
 				'merkleProofInfoPathNode.position',
 				'transactionStatus.group',
+				'nodeHealthStatus.apiNode',
+				'nodeHealthStatus.db',
 				'nodeInfo.friendlyName',
-				'nodeInfo.host'
+				'nodeInfo.host',
+				'serverInfoData.restVersion',
+				'serverInfoData.sdkVersion'
 			]);
 		});
 

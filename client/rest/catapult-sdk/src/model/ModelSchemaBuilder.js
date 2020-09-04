@@ -183,6 +183,11 @@ class ModelSchemaBuilder {
 				scoreHigh: ModelType.uint64
 			},
 			nodeHealth: {
+				status: { type: ModelType.object, schemaName: 'nodeHealthStatus' }
+			},
+			nodeHealthStatus: {
+				apiNode: ModelType.string,
+				db: ModelType.string
 			},
 			nodeInfo: {
 				version: ModelType.int,
@@ -202,6 +207,11 @@ class ModelSchemaBuilder {
 				communicationTimestamps: { type: ModelType.object, schemaName: 'communicationTimestamps' }
 			},
 			serverInfo: {
+				serverInfo: { type: ModelType.object, schemaName: 'serverInfoData' }
+			},
+			serverInfoData: {
+				restVersion: ModelType.string,
+				sdkVersion: ModelType.string
 			},
 			stateTree: {
 				tree: { type: ModelType.array, schemaName: ModelType.binary }
