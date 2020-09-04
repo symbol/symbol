@@ -259,16 +259,14 @@ namespace catapult { namespace finalization {
 				for (auto i = 0u; i < numRepetitions; ++i)
 					EXPECT_EQ(thread::TaskResult::Continue, taskResults[i]) << "result at " << i;
 
-				checkState(context.aggregator(), context.testState().finalizationSubscriber(), context.proofStorage(), context.messages());
+				checkState(context.aggregator(), context.proofStorage(), context.messages());
 			});
 		}
 
 		void AssertNoMessages(
-				const mocks::MockFinalizationSubscriber& subscriber,
 				const mocks::MockProofStorage& storage,
 				const std::vector<std::shared_ptr<model::FinalizationMessage>>& messages) {
-			// Assert: subscriber and storage weren't called
-			EXPECT_TRUE(subscriber.finalizedBlockParams().params().empty());
+			// Assert: storage wasn't called
 			EXPECT_TRUE(storage.savedProofDescriptors().empty());
 
 			// - no messages were sent
@@ -278,17 +276,9 @@ namespace catapult { namespace finalization {
 		void AssertTwoMessages(
 				uint64_t epoch,
 				const Hash256& expectedHash,
-				const mocks::MockFinalizationSubscriber& subscriber,
 				const mocks::MockProofStorage& storage,
 				const std::vector<std::shared_ptr<model::FinalizationMessage>>& messages) {
-			// Assert: subscriber was called
-			const auto& subscriberParams = subscriber.finalizedBlockParams().params();
-			ASSERT_EQ(1u, subscriberParams.size());
-			EXPECT_EQ(test::CreateFinalizationRound(epoch, 8), subscriberParams[0].Round);
-			EXPECT_EQ(Height(245), subscriberParams[0].Height);
-			EXPECT_EQ(expectedHash, subscriberParams[0].Hash);
-
-			// - storage was called (proof step identifier comes from test::CreateMessage)
+			// Assert: storage was called (proof step identifier comes from test::CreateMessage)
 			const auto& savedProofDescriptors = storage.savedProofDescriptors();
 			ASSERT_EQ(1u, savedProofDescriptors.size());
 			EXPECT_EQ(test::CreateFinalizationRound(epoch, 8), savedProofDescriptors[0].Round);
@@ -308,7 +298,6 @@ namespace catapult { namespace finalization {
 
 		RunFinalizationTaskTest(context, 5, Default_Voting_Set_Grouping, [&context](
 				const auto& aggregator,
-				const auto& subscriber,
 				const auto& storage,
 				const auto& messages) {
 			// Assert: check aggregator (no blocks were finalized, so no rounds were pruned)
@@ -317,7 +306,7 @@ namespace catapult { namespace finalization {
 			EXPECT_EQ(test::CreateFinalizationRound(epoch, 8), aggregator.view().maxFinalizationRound());
 
 			// - no messages were sent
-			AssertNoMessages(subscriber, storage, messages);
+			AssertNoMessages(storage, messages);
 
 			// - voting status wasn't changed
 			auto votingStatus = context.votingStatus();
@@ -343,7 +332,6 @@ namespace catapult { namespace finalization {
 
 			RunFinalizationTaskTest(context, numRepetitions, Default_Voting_Set_Grouping, [&](
 					const auto& aggregator,
-					const auto& subscriber,
 					const auto& storage,
 					const auto& messages) {
 				// Assert: check aggregator
@@ -352,7 +340,7 @@ namespace catapult { namespace finalization {
 				EXPECT_EQ(expectedAggregatorMaxRound, aggregator.view().maxFinalizationRound());
 
 				// - two messages were sent
-				AssertTwoMessages(epoch, context.hashes()[1], subscriber, storage, messages);
+				AssertTwoMessages(epoch, context.hashes()[1], storage, messages);
 
 				// - voting status was changed
 				auto votingStatus = context.votingStatus();
@@ -388,7 +376,6 @@ namespace catapult { namespace finalization {
 
 			RunFinalizationTaskTest(context, 2, Small_Voting_Set_Grouping, [&context](
 					const auto& aggregator,
-					const auto& subscriber,
 					const auto& storage,
 					const auto& messages) {
 				// - check aggregator (it did not advance the epoch)
@@ -397,7 +384,7 @@ namespace catapult { namespace finalization {
 				EXPECT_EQ(test::CreateFinalizationRound(epoch, 8), aggregator.view().maxFinalizationRound());
 
 				// - two messages were sent
-				AssertTwoMessages(epoch, context.hashes()[1], subscriber, storage, messages);
+				AssertTwoMessages(epoch, context.hashes()[1], storage, messages);
 
 				// - voting status was changed
 				auto votingStatus = context.votingStatus();
@@ -429,7 +416,6 @@ namespace catapult { namespace finalization {
 
 		RunFinalizationTaskTest(context, 2, Small_Voting_Set_Grouping, [&context](
 				const auto& aggregator,
-				const auto& subscriber,
 				const auto& storage,
 				const auto& messages) {
 			// - check aggregator (it advanced the epoch)
@@ -438,7 +424,7 @@ namespace catapult { namespace finalization {
 			EXPECT_EQ(test::CreateFinalizationRound(epoch + 1, 1), aggregator.view().maxFinalizationRound());
 
 			// - two messages were sent
-			AssertTwoMessages(epoch, context.hashes()[1], subscriber, storage, messages);
+			AssertTwoMessages(epoch, context.hashes()[1], storage, messages);
 
 			// - voting status was changed
 			auto votingStatus = context.votingStatus();
@@ -459,7 +445,6 @@ namespace catapult { namespace finalization {
 
 			RunFinalizationTaskTest(context, 2, Small_Voting_Set_Grouping, [&context](
 					const auto& aggregator,
-					const auto& subscriber,
 					const auto& storage,
 					const auto& messages) {
 				// - check aggregator (it was not changed)
@@ -468,7 +453,7 @@ namespace catapult { namespace finalization {
 				EXPECT_EQ(test::CreateFinalizationRound(epoch, 8), aggregator.view().maxFinalizationRound());
 
 				// - no messages were sent
-				AssertNoMessages(subscriber, storage, messages);
+				AssertNoMessages(storage, messages);
 
 				// - voting status was not changed
 				auto votingStatus = context.votingStatus();
@@ -502,7 +487,6 @@ namespace catapult { namespace finalization {
 
 		RunFinalizationTaskTest(context, 2, Small_Voting_Set_Grouping, [&context](
 				const auto& aggregator,
-				const auto& subscriber,
 				const auto& storage,
 				const auto& messages) {
 			// - check aggregator (it advanced the epoch BUT no blocks were finalized, so no rounds were pruned)
@@ -511,7 +495,7 @@ namespace catapult { namespace finalization {
 			EXPECT_EQ(test::CreateFinalizationRound(epoch + 1, 1), aggregator.view().maxFinalizationRound());
 
 			// - no messages were sent
-			AssertNoMessages(subscriber, storage, messages);
+			AssertNoMessages(storage, messages);
 
 			// - voting status was changed
 			auto votingStatus = context.votingStatus();
@@ -535,7 +519,6 @@ namespace catapult { namespace finalization {
 
 		RunFinalizationTaskTest(context, 2, Small_Voting_Set_Grouping, [&context](
 				const auto& aggregator,
-				const auto& subscriber,
 				const auto& storage,
 				const auto& messages) {
 			// - check aggregator (it was not changed)
@@ -544,7 +527,7 @@ namespace catapult { namespace finalization {
 			EXPECT_EQ(test::CreateFinalizationRound(epoch + 2, 8), aggregator.view().maxFinalizationRound());
 
 			// - no messages were sent
-			AssertNoMessages(subscriber, storage, messages);
+			AssertNoMessages(storage, messages);
 
 			// - voting status was not changed
 			auto votingStatus = context.votingStatus();

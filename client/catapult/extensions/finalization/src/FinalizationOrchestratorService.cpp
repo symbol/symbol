@@ -67,7 +67,7 @@ namespace catapult { namespace finalization {
 								hooks.messageRangeConsumer()(model::FinalizationMessageRange::FromEntity(std::move(pMessage)));
 							},
 							chain::CreateFinalizationMessageFactory(config, state.storage(), m_proofStorage, LoadOtsTree(m_otsStream)))
-					, m_finalizer(CreateFinalizer(m_messageAggregator, state.finalizationSubscriber(), m_proofStorage))
+					, m_finalizer(CreateFinalizer(m_messageAggregator, m_proofStorage))
 			{}
 
 		public:

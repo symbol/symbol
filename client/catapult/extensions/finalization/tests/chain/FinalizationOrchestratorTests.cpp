@@ -602,17 +602,13 @@ namespace catapult { namespace chain {
 			}
 
 		public:
-			const auto& subscriber() const {
-				return m_subscriber;
-			}
-
 			const auto& proofStorage() const {
 				return *m_pProofStorageRaw;
 			}
 
 		public:
 			void finalize() {
-				CreateFinalizer(*m_pAggregator, m_subscriber, m_proofStorageCache)();
+				CreateFinalizer(*m_pAggregator, m_proofStorageCache)();
 			}
 
 		public:
@@ -659,7 +655,6 @@ namespace catapult { namespace chain {
 
 			RoundMessageAggregatorInitializer m_roundMessageAggregatorInitializer;
 			std::unique_ptr<MultiRoundMessageAggregator> m_pAggregator;
-			mocks::MockFinalizationSubscriber m_subscriber;
 		};
 
 		// endregion
@@ -672,8 +667,7 @@ namespace catapult { namespace chain {
 			// Assert: aggregator wasn't pruned
 			context.checkAggregator(8, test::CreateFinalizationRound(8, 1), test::CreateFinalizationRound(11, 10));
 
-			// - subscriber and storage weren't called
-			EXPECT_TRUE(context.subscriber().finalizedBlockParams().params().empty());
+			// - storage wasn't called
 			EXPECT_TRUE(context.proofStorage().savedProofDescriptors().empty());
 		}
 	}
@@ -744,13 +738,6 @@ namespace catapult { namespace chain {
 		// Assert: aggregator was pruned
 		context.checkAggregator(6, test::CreateFinalizationRound(10, 2), test::CreateFinalizationRound(11, 10));
 
-		// - subscriber was called
-		const auto& subscriberParams = context.subscriber().finalizedBlockParams().params();
-		ASSERT_EQ(1u, subscriberParams.size());
-		EXPECT_EQ(test::CreateFinalizationRound(Finalizer_Finalization_Epoch.unwrap(), 10), subscriberParams[0].Round);
-		EXPECT_EQ(Height(246), subscriberParams[0].Height);
-		EXPECT_EQ(hashes[3], subscriberParams[0].Hash);
-
 		// - storage was called (proof step identifier comes from test::CreateMessage)
 		const auto& savedProofDescriptors = context.proofStorage().savedProofDescriptors();
 		ASSERT_EQ(1u, savedProofDescriptors.size());
@@ -786,13 +773,6 @@ namespace catapult { namespace chain {
 
 		// Assert: aggregator was pruned
 		context.checkAggregator(6, test::CreateFinalizationRound(10, 2), test::CreateFinalizationRound(11, 10));
-
-		// - subscriber was called
-		const auto& subscriberParams = context.subscriber().finalizedBlockParams().params();
-		ASSERT_EQ(1u, subscriberParams.size());
-		EXPECT_EQ(test::CreateFinalizationRound(Finalizer_Finalization_Epoch.unwrap(), 8), subscriberParams[0].Round);
-		EXPECT_EQ(Height(246), subscriberParams[0].Height);
-		EXPECT_EQ(hashes[1], subscriberParams[0].Hash);
 
 		// - storage was called (proof step identifier comes from test::CreateMessage)
 		const auto& savedProofDescriptors = context.proofStorage().savedProofDescriptors();

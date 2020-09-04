@@ -81,9 +81,6 @@ namespace catapult { namespace chain {
 		std::unique_ptr<FinalizationStageAdvancer> m_pStageAdvancer;
 	};
 
-	/// Creates a finalizer that finalizes as many blocks as possible given \a messageAggregator, \a subscriber and \a proofStorage
-	action CreateFinalizer(
-			MultiRoundMessageAggregator& messageAggregator,
-			subscribers::FinalizationSubscriber& subscriber,
-			io::ProofStorageCache& proofStorage);
+	/// Creates a finalizer that finalizes as many blocks as possible given \a messageAggregator and \a proofStorage.
+	action CreateFinalizer(MultiRoundMessageAggregator& messageAggregator, io::ProofStorageCache& proofStorage);
 }}

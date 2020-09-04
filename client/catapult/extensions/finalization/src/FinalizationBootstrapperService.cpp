@@ -21,6 +21,7 @@
 #include "FinalizationBootstrapperService.h"
 #include "FinalizationContextFactory.h"
 #include "finalization/src/chain/MultiRoundMessageAggregator.h"
+#include "finalization/src/io/AggregateProofStorage.h"
 #include "finalization/src/io/ProofStorageCache.h"
 #include "catapult/extensions/ConfigurationUtils.h"
 #include "catapult/extensions/ServiceLocator.h"
@@ -70,7 +71,7 @@ namespace catapult { namespace finalization {
 					const FinalizationConfiguration& config,
 					std::unique_ptr<io::ProofStorage>&& pProofStorage)
 					: m_config(config)
-					, m_pProofStorageCache(std::make_unique<io::ProofStorageCache>(std::move(pProofStorage)))
+					, m_pProofStorage(std::move(pProofStorage))
 			{}
 
 		public:
@@ -102,23 +103,28 @@ namespace catapult { namespace finalization {
 			}
 
 			void registerServices(extensions::ServiceLocator& locator, extensions::ServiceState& state) override {
+				// create proof storage cache
+				auto pProofStorageCache = std::make_shared<io::ProofStorageCache>(io::CreateAggregateProofStorage(
+						std::move(m_pProofStorage),
+						state.finalizationSubscriber()));
+
 				// register hooks
-				state.hooks().setLocalFinalizedHeightSupplier([&proofStorage = *m_pProofStorageCache]() {
+				state.hooks().setLocalFinalizedHeightSupplier([&proofStorage = *pProofStorageCache]() {
 					return proofStorage.view().statistics().Height;
 				});
 
 				// register services
 				locator.registerRootedService(Hooks_Service_Name, std::make_shared<FinalizationServerHooks>());
 
-				locator.registerRootedService(Storage_Service_Name, m_pProofStorageCache);
+				locator.registerRootedService(Storage_Service_Name, pProofStorageCache);
 
-				auto pMultiRoundMessageAggregator = CreateMultiRoundMessageAggregator(m_config, *m_pProofStorageCache, state);
+				auto pMultiRoundMessageAggregator = CreateMultiRoundMessageAggregator(m_config, *pProofStorageCache, state);
 				locator.registerRootedService(Aggregator_Service_Name, pMultiRoundMessageAggregator);
 			}
 
 		private:
 			FinalizationConfiguration m_config;
-			std::shared_ptr<io::ProofStorageCache> m_pProofStorageCache;
+			std::unique_ptr<io::ProofStorage> m_pProofStorage;
 		};
 
 		// endregion

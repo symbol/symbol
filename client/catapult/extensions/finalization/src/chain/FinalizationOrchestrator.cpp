@@ -97,11 +97,8 @@ namespace catapult { namespace chain {
 		}
 	}
 
-	action CreateFinalizer(
-			MultiRoundMessageAggregator& messageAggregator,
-			subscribers::FinalizationSubscriber& subscriber,
-			io::ProofStorageCache& proofStorage) {
-		return [&messageAggregator, &subscriber, &proofStorage]() {
+	action CreateFinalizer(MultiRoundMessageAggregator& messageAggregator, io::ProofStorageCache& proofStorage) {
+		return [&messageAggregator, &proofStorage]() {
 			auto bestPrecommitDescriptor = messageAggregator.view().tryFindBestPrecommit();
 			auto bestPrecommitRound = bestPrecommitDescriptor.Round;
 			if (model::FinalizationRound() == bestPrecommitRound)
@@ -112,10 +109,6 @@ namespace catapult { namespace chain {
 
 			auto pProof = CreateFinalizationProof(ToFinalizationStatistics(bestPrecommitDescriptor), bestPrecommitDescriptor.Proof);
 			proofStorage.modifier().saveProof(*pProof);
-			subscriber.notifyFinalizedBlock(
-					bestPrecommitRound,
-					bestPrecommitDescriptor.Target.Height,
-					bestPrecommitDescriptor.Target.Hash);
 
 			// prune previous epoch when later epoch has finalized at least one (new) block
 			messageAggregator.modifier().prune(bestPrecommitRound.Epoch - FinalizationEpoch(1));
