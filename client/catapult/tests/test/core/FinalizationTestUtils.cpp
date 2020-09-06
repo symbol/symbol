@@ -18,21 +18,24 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#pragma once
-
-namespace catapult { namespace io { class OutputStream; } }
+#include "FinalizationTestUtils.h"
+#include "catapult/io/PodIoUtils.h"
+#include "catapult/io/Stream.h"
+#include "tests/test/nodeps/Random.h"
 
 namespace catapult { namespace test {
 
-	/// Writes random ut change into \a outputStream.
-	void WriteRandomUtChange(io::OutputStream& outputStream);
+	FinalizationNotification GenerateRandomFinalizationNotification() {
+		FinalizationNotification notification;
+		notification.Round = { FinalizationEpoch(Random()), FinalizationPoint(Random()) };
+		notification.Height = Height(Random());
+		FillWithRandomData(notification.Hash);
+		return notification;
+	}
 
-	/// Writes random pt change into \a outputStream.
-	void WriteRandomPtChange(io::OutputStream& outputStream);
-
-	/// Writes random finalization into \a outputStream.
-	void WriteRandomFinalization(io::OutputStream& outputStream);
-
-	/// Writes random transaction status into \a outputStream.
-	void WriteRandomTransactionStatus(io::OutputStream& outputStream);
+	void WriteFinalizationNotification(io::OutputStream& outputStream, const FinalizationNotification& notification) {
+		outputStream.write(notification.Hash);
+		outputStream.write({ reinterpret_cast<const uint8_t*>(&notification.Round), sizeof(model::FinalizationRound) });
+		io::Write(outputStream, notification.Height);
+	}
 }}

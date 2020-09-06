@@ -25,6 +25,7 @@
 #include "catapult/local/HostUtils.h"
 #include "catapult/subscribers/BlockChangeReader.h"
 #include "catapult/subscribers/BrokerMessageReaders.h"
+#include "catapult/subscribers/FinalizationReader.h"
 #include "catapult/subscribers/PtChangeReader.h"
 #include "catapult/subscribers/StateChangeReader.h"
 #include "catapult/subscribers/TransactionStatusReader.h"
@@ -44,8 +45,9 @@ namespace catapult { namespace local {
 					, m_pBlockChangeSubscriber(m_pBootstrapper->subscriptionManager().createBlockChangeSubscriber())
 					, m_pUtChangeSubscriber(m_pBootstrapper->subscriptionManager().createUtChangeSubscriber())
 					, m_pPtChangeSubscriber(m_pBootstrapper->subscriptionManager().createPtChangeSubscriber())
-					, m_pTransactionStatusSubscriber(m_pBootstrapper->subscriptionManager().createTransactionStatusSubscriber())
+					, m_pFinalizationSubscriber(m_pBootstrapper->subscriptionManager().createFinalizationSubscriber())
 					, m_pStateChangeSubscriber(m_pBootstrapper->subscriptionManager().createStateChangeSubscriber())
+					, m_pTransactionStatusSubscriber(m_pBootstrapper->subscriptionManager().createTransactionStatusSubscriber())
 					, m_pluginManager(m_pBootstrapper->pluginManager())
 			{}
 
@@ -81,12 +83,13 @@ namespace catapult { namespace local {
 				pScheduler->addTask(createIngestionTask("block_change", *m_pBlockChangeSubscriber, ReadNextBlockChange));
 				pScheduler->addTask(createIngestionTask("unconfirmed_transactions_change", *m_pUtChangeSubscriber, ReadNextUtChange));
 				pScheduler->addTask(createIngestionTask("partial_transactions_change", *m_pPtChangeSubscriber, ReadNextPtChange));
-				pScheduler->addTask(createIngestionTask("transaction_status", *m_pTransactionStatusSubscriber, ReadNextTransactionStatus));
+				pScheduler->addTask(createIngestionTask("finalization", *m_pFinalizationSubscriber, ReadNextFinalization));
 				pScheduler->addTask(createIngestionTask("state_change", *m_pStateChangeSubscriber, [&catapultCache = m_catapultCache](
 						auto& inputStream,
 						auto& subscriber) {
 					return ReadNextStateChange(inputStream, catapultCache.changesStorages(), subscriber);
 				}));
+				pScheduler->addTask(createIngestionTask("transaction_status", *m_pTransactionStatusSubscriber, ReadNextTransactionStatus));
 			}
 
 			template<typename TSubscriber, typename TMessageReader>
@@ -117,8 +120,9 @@ namespace catapult { namespace local {
 			std::unique_ptr<io::BlockChangeSubscriber> m_pBlockChangeSubscriber;
 			std::unique_ptr<cache::UtChangeSubscriber> m_pUtChangeSubscriber;
 			std::unique_ptr<cache::PtChangeSubscriber> m_pPtChangeSubscriber;
-			std::unique_ptr<subscribers::TransactionStatusSubscriber> m_pTransactionStatusSubscriber;
+			std::unique_ptr<subscribers::FinalizationSubscriber> m_pFinalizationSubscriber;
 			std::unique_ptr<subscribers::StateChangeSubscriber> m_pStateChangeSubscriber;
+			std::unique_ptr<subscribers::TransactionStatusSubscriber> m_pTransactionStatusSubscriber;
 
 			plugins::PluginManager& m_pluginManager;
 		};

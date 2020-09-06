@@ -20,19 +20,13 @@
 
 #pragma once
 
-namespace catapult { namespace io { class OutputStream; } }
+namespace catapult {
+	namespace io { class InputStream; }
+	namespace subscribers { class FinalizationSubscriber; }
+}
 
-namespace catapult { namespace test {
+namespace catapult { namespace subscribers {
 
-	/// Writes random ut change into \a outputStream.
-	void WriteRandomUtChange(io::OutputStream& outputStream);
-
-	/// Writes random pt change into \a outputStream.
-	void WriteRandomPtChange(io::OutputStream& outputStream);
-
-	/// Writes random finalization into \a outputStream.
-	void WriteRandomFinalization(io::OutputStream& outputStream);
-
-	/// Writes random transaction status into \a outputStream.
-	void WriteRandomTransactionStatus(io::OutputStream& outputStream);
+	/// Reads next finalization from \a inputStream and forwards it to \a subscriber.
+	void ReadNextFinalization(io::InputStream& inputStream, FinalizationSubscriber& subscriber);
 }}

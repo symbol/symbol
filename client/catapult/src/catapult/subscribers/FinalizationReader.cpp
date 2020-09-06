@@ -18,21 +18,22 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#pragma once
+#include "FinalizationReader.h"
+#include "FinalizationSubscriber.h"
+#include "catapult/io/PodIoUtils.h"
+#include "catapult/io/Stream.h"
 
-namespace catapult { namespace io { class OutputStream; } }
+namespace catapult { namespace subscribers {
 
-namespace catapult { namespace test {
+	void ReadNextFinalization(io::InputStream& inputStream, FinalizationSubscriber& subscriber) {
+		Hash256 hash;
+		inputStream.read(hash);
 
-	/// Writes random ut change into \a outputStream.
-	void WriteRandomUtChange(io::OutputStream& outputStream);
+		model::FinalizationRound round;
+		inputStream.read({ reinterpret_cast<uint8_t*>(&round), sizeof(model::FinalizationRound) });
 
-	/// Writes random pt change into \a outputStream.
-	void WriteRandomPtChange(io::OutputStream& outputStream);
+		auto height = io::Read<Height>(inputStream);
 
-	/// Writes random finalization into \a outputStream.
-	void WriteRandomFinalization(io::OutputStream& outputStream);
-
-	/// Writes random transaction status into \a outputStream.
-	void WriteRandomTransactionStatus(io::OutputStream& outputStream);
+		subscriber.notifyFinalizedBlock(round, height, hash);
+	}
 }}

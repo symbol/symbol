@@ -19,20 +19,27 @@
 **/
 
 #pragma once
+#include "catapult/model/FinalizationRound.h"
 
 namespace catapult { namespace io { class OutputStream; } }
 
 namespace catapult { namespace test {
 
-	/// Writes random ut change into \a outputStream.
-	void WriteRandomUtChange(io::OutputStream& outputStream);
+	/// Represents a finalization notification.
+	struct FinalizationNotification {
+		/// Round.
+		model::FinalizationRound Round;
 
-	/// Writes random pt change into \a outputStream.
-	void WriteRandomPtChange(io::OutputStream& outputStream);
+		/// Block height.
+		catapult::Height Height;
 
-	/// Writes random finalization into \a outputStream.
-	void WriteRandomFinalization(io::OutputStream& outputStream);
+		/// Block hash.
+		Hash256 Hash;
+	};
 
-	/// Writes random transaction status into \a outputStream.
-	void WriteRandomTransactionStatus(io::OutputStream& outputStream);
+	/// Generates a random finalization notification.
+	FinalizationNotification GenerateRandomFinalizationNotification();
+
+	/// Writes \a notification to \a outputStream.
+	void WriteFinalizationNotification(io::OutputStream& outputStream, const FinalizationNotification& notification);
 }}

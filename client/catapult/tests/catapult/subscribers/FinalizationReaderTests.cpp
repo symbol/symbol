@@ -18,45 +18,43 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/subscribers/TransactionStatusReader.h"
-#include "tests/test/core/TransactionStatusTestUtils.h"
+#include "catapult/subscribers/FinalizationReader.h"
+#include "tests/test/core/FinalizationTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
-#include "tests/test/other/mocks/MockTransactionStatusSubscriber.h"
+#include "tests/test/other/mocks/MockFinalizationSubscriber.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace subscribers {
 
-#define TEST_CLASS TransactionStatusReaderTests
+#define TEST_CLASS FinalizationReaderTests
 
 	namespace {
 		void AssertEqual(
-				const test::TransactionStatusNotification& expected,
-				const mocks::TransactionStatusSubscriberStatusParams& actual,
+				const test::FinalizationNotification& expected,
+				const mocks::FinalizationSubscriberFinalizedBlockParams& actual,
 				const std::string& message) {
-			EXPECT_EQ(*expected.pTransaction, *actual.pTransactionCopy) << message;
-			EXPECT_EQ(expected.Hash, actual.HashCopy) << message;
-			EXPECT_EQ(expected.Status, actual.Status) << message;
+			EXPECT_EQ(expected.Round, actual.Round) << message;
+			EXPECT_EQ(expected.Height, actual.Height) << message;
+			EXPECT_EQ(expected.Hash, actual.Hash) << message;
 		}
 	}
 
 	TEST(TEST_CLASS, CanReadSingle) {
 		// Arrange:
-		auto notification = test::GenerateRandomTransactionStatusNotification(141);
+		auto notification = test::GenerateRandomFinalizationNotification();
 
 		std::vector<uint8_t> buffer;
 		mocks::MockMemoryStream stream(buffer);
-		test::WriteTransactionStatusNotification(stream, notification);
+		test::WriteFinalizationNotification(stream, notification);
 		stream.seek(0);
 
-		mocks::MockTransactionStatusSubscriber subscriber;
+		mocks::MockFinalizationSubscriber subscriber;
 
 		// Act:
-		ReadNextTransactionStatus(stream, subscriber);
+		ReadNextFinalization(stream, subscriber);
 
 		// Assert:
-		ASSERT_EQ(1u, subscriber.numNotifies());
-		AssertEqual(notification, subscriber.params()[0], "at 0");
-
-		EXPECT_EQ(0u, subscriber.numFlushes());
+		ASSERT_EQ(1u, subscriber.finalizedBlockParams().params().size());
+		AssertEqual(notification, subscriber.finalizedBlockParams().params()[0], "at 0");
 	}
 }}

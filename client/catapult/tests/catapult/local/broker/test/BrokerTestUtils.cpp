@@ -23,6 +23,7 @@
 #include "catapult/io/Stream.h"
 #include "catapult/io/TransactionInfoSerializer.h"
 #include "catapult/subscribers/SubscriberOperationTypes.h"
+#include "tests/test/core/FinalizationTestUtils.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/test/core/TransactionStatusTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
@@ -65,6 +66,11 @@ namespace catapult { namespace test {
 				? subscribers::PtChangeOperationType::Add_Partials
 				: subscribers::PtChangeOperationType::Remove_Partials;
 		WriteTransactionInfos(outputStream, utils::to_underlying_type(operationType));
+	}
+
+	void WriteRandomFinalization(io::OutputStream& outputStream) {
+		auto notification = GenerateRandomFinalizationNotification();
+		WriteFinalizationNotification(outputStream, notification);
 	}
 
 	void WriteRandomTransactionStatus(io::OutputStream& outputStream) {
