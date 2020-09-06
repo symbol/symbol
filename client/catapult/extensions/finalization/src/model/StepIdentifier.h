@@ -30,7 +30,7 @@ namespace catapult { namespace model {
 	// region step identifier
 
 	/// Finalization stages.
-	enum class FinalizationStage : uint64_t {
+	enum class FinalizationStage : uint32_t {
 		/// Prevote stage.
 		Prevote,
 
@@ -45,7 +45,7 @@ namespace catapult { namespace model {
 	struct StepIdentifier {
 	public:
 		struct FinalizationPointStage_tag {};
-		using FinalizationPointStage = utils::BaseValue<uint64_t, FinalizationPointStage_tag>;
+		using FinalizationPointStage = utils::BaseValue<uint32_t, FinalizationPointStage_tag>;
 
 	public:
 		/// Creates a default step identifier.

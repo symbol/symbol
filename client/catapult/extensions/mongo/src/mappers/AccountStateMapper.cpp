@@ -63,8 +63,8 @@ namespace catapult { namespace mongo { namespace mappers {
 				publicKeysArray
 						<< bson_stream::open_document
 							<< "publicKey" << ToBinary(pinnedPublicKey.VotingKey)
-							<< "startEpoch" << ToInt64(pinnedPublicKey.StartEpoch)
-							<< "endEpoch" << ToInt64(pinnedPublicKey.EndEpoch)
+							<< "startEpoch" << ToInt32(pinnedPublicKey.StartEpoch)
+							<< "endEpoch" << ToInt32(pinnedPublicKey.EndEpoch)
 						<< bson_stream::close_document;
 			}
 

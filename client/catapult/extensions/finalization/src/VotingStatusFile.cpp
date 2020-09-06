@@ -34,8 +34,8 @@ namespace catapult { namespace finalization {
 			status.Round = { FinalizationEpoch(2), FinalizationPoint(1) };
 		} else {
 			auto rawFile = open(io::OpenMode::Read_Only);
-			status.Round.Epoch = FinalizationEpoch(io::Read64(rawFile));
-			status.Round.Point = FinalizationPoint(io::Read64(rawFile));
+			status.Round.Epoch = FinalizationEpoch(io::Read32(rawFile));
+			status.Round.Point = FinalizationPoint(io::Read32(rawFile));
 			status.HasSentPrevote = !!io::Read8(rawFile);
 			status.HasSentPrecommit = !!io::Read8(rawFile);
 		}
@@ -45,8 +45,8 @@ namespace catapult { namespace finalization {
 
 	void VotingStatusFile::save(const chain::VotingStatus& status) {
 		auto rawFile = open(io::OpenMode::Read_Write);
-		io::Write64(rawFile, status.Round.Epoch.unwrap());
-		io::Write64(rawFile, status.Round.Point.unwrap());
+		io::Write32(rawFile, status.Round.Epoch.unwrap());
+		io::Write32(rawFile, status.Round.Point.unwrap());
 		io::Write8(rawFile, status.HasSentPrevote ? 1 : 0);
 		io::Write8(rawFile, status.HasSentPrecommit ? 1 : 0);
 	}

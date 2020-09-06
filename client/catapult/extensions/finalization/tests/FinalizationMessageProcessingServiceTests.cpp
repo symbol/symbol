@@ -109,14 +109,14 @@ namespace catapult { namespace finalization {
 	namespace {
 		using FinalizationMessages = std::vector<std::shared_ptr<const model::FinalizationMessage>>;
 
-		model::StepIdentifier CreateStepIdentifier(int64_t epochDelta, uint64_t point) {
+		model::StepIdentifier CreateStepIdentifier(int32_t epochDelta, uint32_t point) {
 			return test::CreateStepIdentifier(
-					static_cast<uint64_t>(static_cast<int64_t>(Finalization_Epoch.unwrap()) + epochDelta),
+					static_cast<uint32_t>(static_cast<int32_t>(Finalization_Epoch.unwrap()) + epochDelta),
 					point,
 					model::FinalizationStage::Prevote);
 		}
 
-		model::StepIdentifier CreateStepIdentifier(uint64_t point) {
+		model::StepIdentifier CreateStepIdentifier(uint32_t point) {
 			return CreateStepIdentifier(0, point);
 		}
 

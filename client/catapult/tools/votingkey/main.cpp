@@ -54,10 +54,10 @@ namespace catapult { namespace tools { namespace votingkey {
 						OptionsValue<uint16_t>(m_dilution)->default_value(128),
 						"ots key dilution (network setting)");
 				optionsBuilder("start,s",
-						OptionsValue<uint64_t>(m_startFinalizationPoint)->default_value(1),
+						OptionsValue<uint32_t>(m_startFinalizationPoint)->default_value(1),
 						"start finalization point");
 				optionsBuilder("end,e",
-						OptionsValue<uint64_t>(m_endFinalizationPoint)->default_value(26280),
+						OptionsValue<uint32_t>(m_endFinalizationPoint)->default_value(26280),
 						"end finalization point");
 				optionsBuilder("secret,s",
 						OptionsValue<std::string>(m_secretKey),
@@ -110,8 +110,8 @@ namespace catapult { namespace tools { namespace votingkey {
 		private:
 			std::string m_filename;
 			uint16_t m_dilution;
-			uint64_t m_startFinalizationPoint;
-			uint64_t m_endFinalizationPoint;
+			uint32_t m_startFinalizationPoint;
+			uint32_t m_endFinalizationPoint;
 			std::string m_secretKey;
 		};
 	}

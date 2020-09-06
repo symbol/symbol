@@ -45,10 +45,10 @@ namespace catapult { namespace model {
 
 	public:
 		/// Number of hashes.
-		uint16_t HashesCount;
+		uint32_t HashesCount;
 
 		/// Number of signatures.
-		uint16_t SignaturesCount;
+		uint32_t SignaturesCount;
 
 		/// Message stage.
 		FinalizationStage Stage;

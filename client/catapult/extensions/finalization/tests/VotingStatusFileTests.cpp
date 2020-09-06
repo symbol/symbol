@@ -81,7 +81,7 @@ namespace catapult { namespace finalization {
 
 		{
 			io::RawFile rawFile(tempFile.name(), io::OpenMode::Read_Write);
-			rawFile.write(std::vector<uint8_t>{ 3, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 8 });
+			rawFile.write(std::vector<uint8_t>{ 3, 0, 0, 0, 7, 0, 0, 0, 0, 8 });
 
 			// Sanity:
 			EXPECT_EQ(Expected_File_Size, rawFile.size());

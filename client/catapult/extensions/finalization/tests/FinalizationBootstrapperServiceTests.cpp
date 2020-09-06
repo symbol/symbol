@@ -241,7 +241,7 @@ namespace catapult { namespace finalization {
 	// region FinalizationBootstrapperService - multi round message aggregator
 
 	namespace {
-		model::StepIdentifier CreateStepIdentifier(uint64_t point) {
+		model::StepIdentifier CreateStepIdentifier(uint32_t point) {
 			return test::CreateStepIdentifier(Finalization_Epoch.unwrap(), point, model::FinalizationStage::Prevote);
 		}
 

@@ -33,11 +33,11 @@ namespace catapult { namespace test {
 
 	// region finalization round + step identifier factories
 
-	model::FinalizationRound CreateFinalizationRound(uint64_t epoch, uint64_t point) {
+	model::FinalizationRound CreateFinalizationRound(uint32_t epoch, uint32_t point) {
 		return { FinalizationEpoch(epoch), FinalizationPoint(point) };
 	}
 
-	model::StepIdentifier CreateStepIdentifier(uint64_t epoch, uint64_t point, model::FinalizationStage stage) {
+	model::StepIdentifier CreateStepIdentifier(uint32_t epoch, uint32_t point, model::FinalizationStage stage) {
 		return { FinalizationEpoch(epoch), FinalizationPoint(point), stage };
 	}
 
@@ -67,8 +67,8 @@ namespace catapult { namespace test {
 
 	std::unique_ptr<model::FinalizationMessage> CreateMessage(Height height, const Hash256& hash) {
 		auto stepIdentifier = model::StepIdentifier{
-			FinalizationEpoch(Random()),
-			FinalizationPoint(Random()),
+			FinalizationEpoch(static_cast<uint32_t>(Random())),
+			FinalizationPoint(static_cast<uint32_t>(Random())),
 			static_cast<model::FinalizationStage>(Random())
 		};
 		auto pMessage = CreateMessage(stepIdentifier, hash);

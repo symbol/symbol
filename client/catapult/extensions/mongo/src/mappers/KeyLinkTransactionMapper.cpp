@@ -31,8 +31,8 @@ namespace catapult { namespace mongo { namespace mappers {
 		void StreamVotingTransaction(bson_stream::document& builder, const TTransaction& transaction) {
 			builder
 					<< "linkedPublicKey" << ToBinary(transaction.LinkedPublicKey)
-					<< "startEpoch" << ToInt64(transaction.StartEpoch)
-					<< "endEpoch" << ToInt64(transaction.EndEpoch)
+					<< "startEpoch" << ToInt32(transaction.StartEpoch)
+					<< "endEpoch" << ToInt32(transaction.EndEpoch)
 					<< "linkAction" << utils::to_underlying_type(transaction.LinkAction);
 		}
 

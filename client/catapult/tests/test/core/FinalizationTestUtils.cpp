@@ -27,7 +27,7 @@ namespace catapult { namespace test {
 
 	FinalizationNotification GenerateRandomFinalizationNotification() {
 		FinalizationNotification notification;
-		notification.Round = { FinalizationEpoch(Random()), FinalizationPoint(Random()) };
+		notification.Round = { FinalizationEpoch(static_cast<uint32_t>(Random())), FinalizationPoint(static_cast<uint32_t>(Random())) };
 		notification.Height = Height(Random());
 		FillWithRandomData(notification.Hash);
 		return notification;

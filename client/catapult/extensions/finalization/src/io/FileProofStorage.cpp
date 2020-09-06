@@ -162,7 +162,7 @@ namespace catapult { namespace io {
 		auto pProof = loadProof(FinalizationEpoch(2));
 
 		auto votingSetGrouping = pProof->Height.unwrap();
-		auto epoch = FinalizationEpoch(height.unwrap() / votingSetGrouping + 1);
+		auto epoch = FinalizationEpoch(static_cast<uint32_t>(height.unwrap() / votingSetGrouping + 1));
 		return loadProof(epoch);
 	}
 

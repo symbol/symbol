@@ -185,7 +185,7 @@ namespace catapult { namespace cache {
 	// region roundtrip tests
 
 	namespace {
-		void SetFinalizationEpochs(model::PinnedVotingKey& pinnedPublicKey, uint64_t startEpoch, uint64_t endEpoch) {
+		void SetFinalizationEpochs(model::PinnedVotingKey& pinnedPublicKey, uint32_t startEpoch, uint32_t endEpoch) {
 			pinnedPublicKey.StartEpoch = FinalizationEpoch(startEpoch);
 			pinnedPublicKey.EndEpoch = FinalizationEpoch(endEpoch);
 		}

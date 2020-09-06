@@ -841,7 +841,7 @@ namespace catapult { namespace chain {
 		// Arrange:
 		constexpr auto Epoch = Default_Min_Round.Epoch;
 		constexpr auto Point_Min = FinalizationPoint();
-		constexpr auto Point_Max = FinalizationPoint(std::numeric_limits<uint64_t>::max());
+		constexpr auto Point_Max = FinalizationPoint(std::numeric_limits<uint32_t>::max());
 		constexpr auto Max_Round = model::FinalizationRound{ Epoch + FinalizationEpoch(10), Default_Min_Round.Point };
 
 		TestContext context;

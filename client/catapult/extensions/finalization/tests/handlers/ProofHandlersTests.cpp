@@ -78,11 +78,12 @@ namespace catapult { namespace handlers {
 		test::AssertPacketHeader(handlerContext, sizeof(api::FinalizationStatisticsResponse), ionet::PacketType::Finalization_Statistics);
 
 		const auto* pResponse = test::GetSingleBufferData(handlerContext);
+		const auto* pResponse32 = reinterpret_cast<const uint32_t*>(pResponse);
 		const auto* pResponse64 = reinterpret_cast<const uint64_t*>(pResponse);
-		EXPECT_EQ(3u, pResponse64[0]); // epoch
-		EXPECT_EQ(8u, pResponse64[1]); // point
-		EXPECT_EQ(246u, pResponse64[2]); // height
-		EXPECT_EQ(hash, reinterpret_cast<const Hash256&>(*(pResponse + 3 * sizeof(uint64_t)))); // hash
+		EXPECT_EQ(3u, pResponse32[0]); // epoch
+		EXPECT_EQ(8u, pResponse32[1]); // point
+		EXPECT_EQ(246u, pResponse64[1]); // height
+		EXPECT_EQ(hash, reinterpret_cast<const Hash256&>(*(pResponse + 2 * sizeof(uint64_t)))); // hash
 	}
 
 	// endregion
@@ -111,7 +112,7 @@ namespace catapult { namespace handlers {
 
 			static auto CreatePacketWithIdentifier(int64_t delta) {
 				auto pPacket = ionet::CreateSharedPacket<api::ProofAtEpochRequest>();
-				pPacket->Epoch = FinalizationEpoch(static_cast<uint64_t>(3 + delta));
+				pPacket->Epoch = FinalizationEpoch(static_cast<uint32_t>(3 + delta));
 				return pPacket;
 			}
 

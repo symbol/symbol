@@ -82,7 +82,7 @@ namespace catapult { namespace model {
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(StepIdentifier));
-		EXPECT_EQ(16u, sizeof(StepIdentifier));
+		EXPECT_EQ(8u, sizeof(StepIdentifier));
 	}
 
 	TEST(TEST_CLASS, StepIdentifierHasProperAlignment) {

@@ -68,7 +68,7 @@ namespace catapult { namespace model {
 
 			MutableMessageGroups messageGroups;
 			for (const auto& messageSignatureGroupPair : messageSignatureGroups) {
-				auto numSignatures = static_cast<uint16_t>(messageSignatureGroupPair.second.size());
+				auto numSignatures = static_cast<uint32_t>(messageSignatureGroupPair.second.size());
 				const auto& pTemplateMessage = messageSignatureGroupPair.first;
 
 				uint32_t hashesPayloadSize = static_cast<uint32_t>(pTemplateMessage->HashesCount * Hash256::Size);
@@ -76,7 +76,7 @@ namespace catapult { namespace model {
 				uint32_t size = SizeOf32<FinalizationMessageGroup>() + hashesPayloadSize + signaturesPayloadSize;
 				auto pMessageGroup = utils::MakeUniqueWithSize<FinalizationMessageGroup>(size);
 				pMessageGroup->Size = size;
-				pMessageGroup->HashesCount = static_cast<uint16_t>(pTemplateMessage->HashesCount);
+				pMessageGroup->HashesCount = pTemplateMessage->HashesCount;
 				pMessageGroup->SignaturesCount = numSignatures;
 				pMessageGroup->Stage = pTemplateMessage->StepIdentifier.Stage();
 				pMessageGroup->Height = pTemplateMessage->Height;

@@ -171,7 +171,7 @@ namespace catapult { namespace cache {
 			};
 		}
 
-		model::PinnedVotingKey GeneratePinnedVotingKey(uint64_t startEpoch, uint64_t endEpoch) {
+		model::PinnedVotingKey GeneratePinnedVotingKey(uint32_t startEpoch, uint32_t endEpoch) {
 			return { test::GenerateRandomByteArray<VotingKey>(), FinalizationEpoch(startEpoch), FinalizationEpoch(endEpoch) };
 		}
 

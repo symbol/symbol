@@ -43,7 +43,7 @@ namespace catapult { namespace model {
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(FinalizationProofHeader));
-		EXPECT_EQ(4u + 60, sizeof(FinalizationProofHeader));
+		EXPECT_EQ(4u + 52, sizeof(FinalizationProofHeader));
 
 		EXPECT_EQ(sizeof(FinalizationProofHeader), sizeof(FinalizationProof));
 	}

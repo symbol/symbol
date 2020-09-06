@@ -437,7 +437,7 @@ namespace catapult { namespace state {
 		PublicKeysAccessor accessor;
 
 		// Act:
-		for (auto value : std::initializer_list<uint64_t>{ 100, 125, 149, 200, 250, 299 }) {
+		for (auto value : std::initializer_list<uint32_t>{ 100, 125, 149, 200, 250, 299 }) {
 			auto resultPair = accessor.contains(Epoch(value));
 
 			// Assert:
@@ -453,7 +453,7 @@ namespace catapult { namespace state {
 		accessor.add({ { { 0x32 } }, Epoch(200), Epoch(299) });
 
 		// Act:
-		for (auto value : std::initializer_list<uint64_t>{ 100, 125, 149 }) {
+		for (auto value : std::initializer_list<uint32_t>{ 100, 125, 149 }) {
 			auto resultPair = accessor.contains(Epoch(value));
 
 			// Assert:
@@ -462,7 +462,7 @@ namespace catapult { namespace state {
 		}
 
 		// Act:
-		for (auto value : std::initializer_list<uint64_t>{ 200, 250, 299 }) {
+		for (auto value : std::initializer_list<uint32_t>{ 200, 250, 299 }) {
 			auto resultPair = accessor.contains(Epoch(value));
 
 			// Assert:
@@ -478,7 +478,7 @@ namespace catapult { namespace state {
 		accessor.add({ { { 0x32 } }, Epoch(200), Epoch(299) });
 
 		// Act:
-		for (auto value : std::initializer_list<uint64_t>{ 1, 99, 150, 175, 199, 300, 500 }) {
+		for (auto value : std::initializer_list<uint32_t>{ 1, 99, 150, 175, 199, 300, 500 }) {
 			auto resultPair = accessor.contains(Epoch(value));
 
 			// Assert:

@@ -30,7 +30,7 @@ namespace catapult { namespace model {
 	namespace {
 		// region test utils
 
-		model::FinalizationStatistics CreateFinalizationStatistics(uint64_t epoch, uint64_t point, uint64_t height) {
+		model::FinalizationStatistics CreateFinalizationStatistics(uint32_t epoch, uint32_t point, uint64_t height) {
 			return { { FinalizationEpoch(epoch), FinalizationPoint(point) }, Height(height), test::GenerateRandomByteArray<Hash256>() };
 		}
 

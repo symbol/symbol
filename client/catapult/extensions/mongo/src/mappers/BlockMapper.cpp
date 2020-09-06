@@ -106,8 +106,8 @@ namespace catapult { namespace mongo { namespace mappers {
 		bson_stream::document builder;
 		return builder
 				<< "block" << bson_stream::open_document
-					<< "finalizationEpoch" << ToInt64(round.Epoch)
-					<< "finalizationPoint" << ToInt64(round.Point)
+					<< "finalizationEpoch" << ToInt32(round.Epoch)
+					<< "finalizationPoint" << ToInt32(round.Point)
 					<< "height" << ToInt64(height)
 					<< "hash" << ToBinary(hash)
 				<< bson_stream::close_document

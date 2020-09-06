@@ -77,8 +77,8 @@ namespace catapult { namespace mongo {
 				ASSERT_TRUE(expectedDescriptors.cend() != expectedIter);
 
 				const auto& descriptor = expectedIter->second;
-				EXPECT_EQ(descriptor.Round.Epoch, FinalizationEpoch(test::GetUint64(blockView, "finalizationEpoch")));
-				EXPECT_EQ(descriptor.Round.Point, FinalizationPoint(test::GetUint64(blockView, "finalizationPoint")));
+				EXPECT_EQ(descriptor.Round.Epoch, FinalizationEpoch(test::GetUint32(blockView, "finalizationEpoch")));
+				EXPECT_EQ(descriptor.Round.Point, FinalizationPoint(test::GetUint32(blockView, "finalizationPoint")));
 				EXPECT_EQ(descriptor.Height, dbHeight);
 				EXPECT_EQ(descriptor.Hash, test::GetHashValue(blockView, "hash"));
 			}

@@ -117,8 +117,8 @@ namespace catapult { namespace mongo { namespace mappers {
 		auto statusView = documentView["block"].get_document().view();
 		EXPECT_EQ(4u, test::GetFieldCount(statusView));
 
-		EXPECT_EQ(23u, test::GetUint64(statusView, "finalizationEpoch"));
-		EXPECT_EQ(97u, test::GetUint64(statusView, "finalizationPoint"));
+		EXPECT_EQ(23u, test::GetUint32(statusView, "finalizationEpoch"));
+		EXPECT_EQ(97u, test::GetUint32(statusView, "finalizationPoint"));
 		EXPECT_EQ(321u, test::GetUint64(statusView, "height"));
 		EXPECT_EQ(hash, test::GetHashValue(statusView, "hash"));
 	}

@@ -90,7 +90,7 @@ namespace catapult { namespace model {
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(FinalizationRound));
-		EXPECT_EQ(16u, sizeof(FinalizationRound));
+		EXPECT_EQ(8u, sizeof(FinalizationRound));
 	}
 
 	TEST(TEST_CLASS, FinalizationRoundHasProperAlignment) {

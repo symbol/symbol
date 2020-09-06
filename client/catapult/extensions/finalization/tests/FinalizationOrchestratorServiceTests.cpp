@@ -274,7 +274,7 @@ namespace catapult { namespace finalization {
 		}
 
 		void AssertTwoMessages(
-				uint64_t epoch,
+				uint32_t epoch,
 				const Hash256& expectedHash,
 				const mocks::MockProofStorage& storage,
 				const std::vector<std::shared_ptr<model::FinalizationMessage>>& messages) {

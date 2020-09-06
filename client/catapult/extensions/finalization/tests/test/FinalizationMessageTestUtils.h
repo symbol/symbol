@@ -35,10 +35,10 @@ namespace catapult { namespace test {
 	// region finalization round + step identifier factories
 
 	/// Creates a finalization round with the specified \a epoch and \a point.
-	model::FinalizationRound CreateFinalizationRound(uint64_t epoch, uint64_t point);
+	model::FinalizationRound CreateFinalizationRound(uint32_t epoch, uint32_t point);
 
 	/// Creates a step identifier with the specified \a epoch, \a point and \a stage.
-	model::StepIdentifier CreateStepIdentifier(uint64_t epoch, uint64_t point, model::FinalizationStage stage);
+	model::StepIdentifier CreateStepIdentifier(uint32_t epoch, uint32_t point, model::FinalizationStage stage);
 
 	// endregion
 
