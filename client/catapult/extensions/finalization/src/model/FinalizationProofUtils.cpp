@@ -48,25 +48,16 @@ namespace catapult { namespace model {
 			std::vector<crypto::OtsTreeSignature>,
 			GroupFinalizationMessageComparer>;
 
-			template<typename T>
-			bool RequireEqual(T lhs, T rhs, const char* name) {
-				if (lhs == rhs)
-					return true;
-
-				CATAPULT_LOG(warning)
-						<< "skipping message with unexpected " << name << " " << rhs
-						<< " when grouping messages at " << name << " " << lhs;
-				return false;
-			}
-
 		MutableMessageGroups GroupMessages(const model::FinalizationRound& round, const ConstMessages& messages) {
 			MessageSignatureGroups messageSignatureGroups;
 			for (const auto& pMessage : messages) {
-				if (!RequireEqual(round.Epoch, pMessage->StepIdentifier.Epoch, "epoch"))
+				auto messageRound = pMessage->StepIdentifier.Round();
+				if (round != messageRound) {
+					CATAPULT_LOG(warning)
+							<< "skipping message with unexpected round " << messageRound
+							<< " when grouping messages at round " << round;
 					continue;
-
-				if (!RequireEqual(round.Point, pMessage->StepIdentifier.Point, "point"))
-					continue;
+				}
 
 				auto iter = messageSignatureGroups.find(pMessage);
 				if (messageSignatureGroups.cend() == iter)
@@ -87,7 +78,7 @@ namespace catapult { namespace model {
 				pMessageGroup->Size = size;
 				pMessageGroup->HashesCount = static_cast<uint16_t>(pTemplateMessage->HashesCount);
 				pMessageGroup->SignaturesCount = numSignatures;
-				pMessageGroup->Stage = pTemplateMessage->StepIdentifier.Stage;
+				pMessageGroup->Stage = pTemplateMessage->StepIdentifier.Stage();
 				pMessageGroup->Height = pTemplateMessage->Height;
 
 				std::memcpy(reinterpret_cast<void*>(pMessageGroup->HashesPtr()), pTemplateMessage->HashesPtr(), hashesPayloadSize);

@@ -46,8 +46,7 @@ namespace catapult { namespace chain {
 			std::unique_ptr<model::FinalizationMessage> createPrevote(const model::FinalizationRound& round) override {
 				m_messageTypes.push_back(MessageType::Prevote);
 				auto pMessage = test::CreateMessage(Height(0), test::GenerateRandomByteArray<Hash256>());
-				pMessage->StepIdentifier.Epoch = round.Epoch;
-				pMessage->StepIdentifier.Point = round.Point;
+				pMessage->StepIdentifier = { round.Epoch, round.Point, model::FinalizationStage::Prevote };
 				return pMessage;
 			}
 
@@ -58,8 +57,7 @@ namespace catapult { namespace chain {
 					const Hash256& hash) override {
 				m_messageTypes.push_back(MessageType::Precommit);
 				auto pMessage = test::CreateMessage(height, hash);
-				pMessage->StepIdentifier.Epoch = round.Epoch;
-				pMessage->StepIdentifier.Point = round.Point;
+				pMessage->StepIdentifier = { round.Epoch, round.Point, model::FinalizationStage::Precommit };
 				return pMessage;
 			}
 
@@ -68,8 +66,7 @@ namespace catapult { namespace chain {
 		};
 
 		void AssertPrevote(const model::FinalizationMessage& message, const model::FinalizationRound& round) {
-			EXPECT_EQ(round.Epoch, message.StepIdentifier.Epoch);
-			EXPECT_EQ(round.Point, message.StepIdentifier.Point);
+			EXPECT_EQ(round, message.StepIdentifier.Round());
 			EXPECT_EQ(Height(0), message.Height);
 		}
 
@@ -78,8 +75,7 @@ namespace catapult { namespace chain {
 				const model::FinalizationRound& round,
 				Height height,
 				const Hash256& hash) {
-			EXPECT_EQ(round.Epoch, message.StepIdentifier.Epoch);
-			EXPECT_EQ(round.Point, message.StepIdentifier.Point);
+			EXPECT_EQ(round, message.StepIdentifier.Round());
 			EXPECT_EQ(height, message.Height);
 			EXPECT_EQ(hash, *message.HashesPtr());
 		}

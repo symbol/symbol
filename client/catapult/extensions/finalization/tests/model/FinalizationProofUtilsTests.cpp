@@ -147,6 +147,16 @@ namespace catapult { namespace model {
 
 	// region two messages, irreducible
 
+	namespace {
+		void SetPoint(StepIdentifier& stepIdentifier, FinalizationPoint point) {
+			stepIdentifier = StepIdentifier(stepIdentifier.Epoch, point, stepIdentifier.Stage());
+		}
+
+		void SetStage(StepIdentifier& stepIdentifier, FinalizationStage stage) {
+			stepIdentifier = StepIdentifier(stepIdentifier.Epoch, stepIdentifier.Round().Point, stage);
+		}
+	}
+
 	TEST(TEST_CLASS, CanCreateFinalizationProofWithMultipleMessages_DifferentStage) {
 		// Arrange:
 		auto statistics = CreateFinalizationStatistics(3, 9, 111);
@@ -155,7 +165,7 @@ namespace catapult { namespace model {
 		pMessage1->StepIdentifier = { FinalizationEpoch(3), FinalizationPoint(9), FinalizationStage::Prevote };
 
 		auto pMessage2 = utils::UniqueToShared(test::CopyEntity(*pMessage1));
-		pMessage2->StepIdentifier.Stage = FinalizationStage::Precommit;
+		SetStage(pMessage2->StepIdentifier, FinalizationStage::Precommit);
 
 		// Act:
 		auto pProof = CreateFinalizationProof(statistics, { pMessage1, pMessage2 });
@@ -347,11 +357,11 @@ namespace catapult { namespace model {
 
 		auto pMessage2 = utils::UniqueToShared(test::CopyEntity(*pMessage1));
 		test::FillWithRandomData(pMessage2->Signature);
-		pMessage2->StepIdentifier.Point = FinalizationPoint(9);
+		SetPoint(pMessage2->StepIdentifier, FinalizationPoint(9));
 
 		auto pMessage3 = utils::UniqueToShared(test::CopyEntity(*pMessage1));
 		test::FillWithRandomData(pMessage3->Signature);
-		pMessage3->StepIdentifier.Point = FinalizationPoint(10);
+		SetPoint(pMessage3->StepIdentifier, FinalizationPoint(10));
 
 		// Act:
 		auto pProof = CreateFinalizationProof(statistics, { pMessage1, pMessage2, pMessage3 });
@@ -383,14 +393,14 @@ namespace catapult { namespace model {
 
 		auto pMessage3 = utils::UniqueToShared(test::CopyEntity(*pMessage1));
 		test::FillWithRandomData(pMessage3->Signature);
-		pMessage3->StepIdentifier.Stage = FinalizationStage::Precommit;
+		SetStage(pMessage3->StepIdentifier, FinalizationStage::Precommit);
 
 		auto pMessage4 = utils::UniqueToShared(test::CopyEntity(*pMessage1));
 		test::FillWithRandomData(pMessage4->Signature);
 
 		auto pMessage5 = utils::UniqueToShared(test::CopyEntity(*pMessage1));
 		test::FillWithRandomData(pMessage5->Signature);
-		pMessage5->StepIdentifier.Stage = FinalizationStage::Precommit;
+		SetStage(pMessage5->StepIdentifier, FinalizationStage::Precommit);
 
 		// Act:
 		auto pProof = CreateFinalizationProof(statistics, { pMessage1, pMessage2, pMessage3, pMessage4, pMessage5 });

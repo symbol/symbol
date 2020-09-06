@@ -58,7 +58,7 @@ namespace catapult { namespace model {
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(FinalizationMessage));
-		EXPECT_EQ(4 + 324u, sizeof(FinalizationMessage));
+		EXPECT_EQ(4 + 316u, sizeof(FinalizationMessage));
 	}
 
 	TEST(TEST_CLASS, FinalizationMessageHasProperAlignment) {
@@ -127,7 +127,7 @@ namespace catapult { namespace model {
 		// Arrange:
 		auto pMessage1 = CreateMessage(3);
 		auto pMessage2 = test::CopyEntity(*pMessage1);
-		pMessage2->StepIdentifier.Point = pMessage2->StepIdentifier.Point + FinalizationPoint(1);
+		pMessage2->StepIdentifier.Epoch = pMessage2->StepIdentifier.Epoch + FinalizationEpoch(1);
 
 		// Act:
 		auto messageHash1 = CalculateMessageHash(*pMessage1);
@@ -213,7 +213,9 @@ namespace catapult { namespace model {
 	// region PrepareMessage
 
 	namespace {
-		constexpr auto Default_Step_Identifier = StepIdentifier{ FinalizationEpoch(4), FinalizationPoint(3), FinalizationStage::Prevote };
+		StepIdentifier DefaultStepIdentifier() {
+			return { FinalizationEpoch(4), FinalizationPoint(3), FinalizationStage::Prevote };
+		}
 
 		template<typename TAction>
 		void RunPrepareMessageTest(VoterType voterType, uint32_t numHashes, TAction action) {
@@ -230,7 +232,7 @@ namespace catapult { namespace model {
 				auto hashes = test::GenerateRandomHashes(numHashes);
 
 				// Act:
-				auto pMessage = PrepareMessage(otsTree, Default_Step_Identifier, Height(987), hashes);
+				auto pMessage = PrepareMessage(otsTree, DefaultStepIdentifier(), Height(987), hashes);
 
 				// Assert:
 				action(pMessage, context, hashes);
@@ -252,7 +254,7 @@ namespace catapult { namespace model {
 			EXPECT_EQ(sizeof(FinalizationMessage), pMessage->Size);
 			EXPECT_EQ(0u, pMessage->HashesCount);
 
-			EXPECT_EQ(Default_Step_Identifier, pMessage->StepIdentifier);
+			EXPECT_EQ(DefaultStepIdentifier(), pMessage->StepIdentifier);
 			EXPECT_EQ(Height(987), pMessage->Height);
 			EXPECT_EQ(0u, FindFirstDifferenceIndex(hashes, ExtractHashes(*pMessage)));
 
@@ -273,7 +275,7 @@ namespace catapult { namespace model {
 			EXPECT_EQ(sizeof(FinalizationMessage) + 3 * Hash256::Size, pMessage->Size);
 			EXPECT_EQ(3u, pMessage->HashesCount);
 
-			EXPECT_EQ(Default_Step_Identifier, pMessage->StepIdentifier);
+			EXPECT_EQ(DefaultStepIdentifier(), pMessage->StepIdentifier);
 			EXPECT_EQ(Height(987), pMessage->Height);
 			EXPECT_EQ(3u, FindFirstDifferenceIndex(hashes, ExtractHashes(*pMessage)));
 
@@ -294,7 +296,7 @@ namespace catapult { namespace model {
 			EXPECT_EQ(sizeof(FinalizationMessage) + 3 * Hash256::Size, pMessage->Size);
 			EXPECT_EQ(3u, pMessage->HashesCount);
 
-			EXPECT_EQ(Default_Step_Identifier, pMessage->StepIdentifier);
+			EXPECT_EQ(DefaultStepIdentifier(), pMessage->StepIdentifier);
 			EXPECT_EQ(Height(987), pMessage->Height);
 			EXPECT_EQ(3u, FindFirstDifferenceIndex(hashes, ExtractHashes(*pMessage)));
 
@@ -331,7 +333,7 @@ namespace catapult { namespace model {
 
 		template<typename TAction>
 		void RunProcessMessageTest(VoterType voterType, uint32_t numHashes, TAction action) {
-			RunProcessMessageTest(voterType, Default_Step_Identifier, numHashes, action);
+			RunProcessMessageTest(voterType, DefaultStepIdentifier(), numHashes, action);
 		}
 	}
 
@@ -348,22 +350,6 @@ namespace catapult { namespace model {
 			EXPECT_EQ(ProcessMessageResult::Failure_Message_Signature, processResultPair.first);
 			EXPECT_EQ(0u, processResultPair.second);
 		});
-	}
-
-	TEST(TEST_CLASS, ProcessMessage_FailsWhenStageIsInvalid) {
-		// Arrange:
-		for (auto stage : std::initializer_list<uint64_t>{ 2, 10 }) {
-			auto stepIdentifier = Default_Step_Identifier;
-			stepIdentifier.Stage = static_cast<FinalizationStage>(stage);
-			RunProcessMessageTest(VoterType::Large, stepIdentifier, 3, [](const auto& context, const auto&, const auto& message) {
-				// Act:
-				auto processResultPair = ProcessMessage(message, context);
-
-				// Assert:
-				EXPECT_EQ(ProcessMessageResult::Failure_Stage, processResultPair.first);
-				EXPECT_EQ(0u, processResultPair.second);
-			});
-		}
 	}
 
 	TEST(TEST_CLASS, ProcessMessage_FailsWhenAccountIsNotVotingEligible) {

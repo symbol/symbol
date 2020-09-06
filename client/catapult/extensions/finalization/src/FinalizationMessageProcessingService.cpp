@@ -91,7 +91,7 @@ namespace catapult { namespace finalization {
 					FinalizationRoundChecker roundChecker(messageAggregator);
 					for (const auto& pMessage : extractedMessages) {
 						// ignore messages associated with an out of range finalization round
-						auto messageRound = model::FinalizationRound{ pMessage->StepIdentifier.Epoch, pMessage->StepIdentifier.Point };
+						auto messageRound = pMessage->StepIdentifier.Round();
 						if (!roundChecker.isInRange(messageRound)) {
 							CATAPULT_LOG(debug) << "skipping message with out of bounds round " << messageRound;
 							continue;

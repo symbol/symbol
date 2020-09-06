@@ -64,8 +64,8 @@ namespace catapult { namespace chain {
 			return finalizationContext.weight().unwrap() * finalizationContext.config().Threshold / finalizationContext.config().Size;
 		}
 
-		constexpr bool IsPrevote(const model::FinalizationMessage& message) {
-			return model::FinalizationStage::Prevote == message.StepIdentifier.Stage;
+		bool IsPrevote(const model::FinalizationMessage& message) {
+			return model::FinalizationStage::Prevote == message.StepIdentifier.Stage();
 		}
 
 		// endregion
