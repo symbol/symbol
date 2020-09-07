@@ -113,20 +113,20 @@
 # Plugin - LockHash
 "/account/{address}/lock/hash":
   get:
-    $ref: "./plugins/lock_hash/routes/searchLockHash.yml"
+    $ref: "./plugins/lock_hash/routes/searchHashLock.yml"
 
 "/lock/hash/{hash}":
   get:
-    $ref: "./plugins/lock_hash/routes/getLockHash.yml"
+    $ref: "./plugins/lock_hash/routes/getHashLock.yml"
 
 # Plugin - LockSecret
 "/account/{address}/lock/secret":
   get:
-    $ref: "./plugins/lock_secret/routes/searchLockSecret.yml"
+    $ref: "./plugins/lock_secret/routes/searchSecretLock.yml"
 
 "/lock/secret/{secret}":
   get:
-    $ref: "./plugins/lock_secret/routes/getLockSecret.yml"
+    $ref: "./plugins/lock_secret/routes/getSecretLock.yml"
 
 # Plugin - Metadata
 "/metadata":
