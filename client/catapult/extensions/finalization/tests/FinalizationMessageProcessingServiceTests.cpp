@@ -43,7 +43,7 @@ namespace catapult { namespace finalization {
 		constexpr auto Finalization_Epoch = FinalizationEpoch(2);
 
 		struct FinalizationMessageProcessingServiceTraits {
-			static constexpr auto Ots_Key_Dilution = 3u;
+			static constexpr auto Voting_Key_Dilution = 3u;
 
 			static auto CreateRegistrar() {
 				auto config = FinalizationConfiguration::Uninitialized();

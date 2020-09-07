@@ -43,7 +43,7 @@ namespace catapult { namespace chain {
 
 		class TestContext {
 		private:
-			static constexpr auto Ots_Key_Dilution = 7u;
+			static constexpr auto Voting_Key_Dilution = 7u;
 
 		public:
 			TestContext(uint32_t size, uint32_t threshold) : TestContext(size, threshold, TestContextOptions())
@@ -55,7 +55,7 @@ namespace catapult { namespace chain {
 				config.Threshold = threshold;
 				config.MessageSynchronizationMaxResponseSize = utils::FileSize::FromBytes(options.MaxResponseSize);
 				config.MaxHashesPerPoint = options.MaxHashesPerPoint;
-				config.OtsKeyDilution = Ots_Key_Dilution;
+				config.VotingKeyDilution = Voting_Key_Dilution;
 				config.VotingSetGrouping = options.VotingSetGrouping;
 
 				// 15/20M voting eligible
@@ -75,7 +75,7 @@ namespace catapult { namespace chain {
 
 		public:
 			void signMessage(model::FinalizationMessage& message, size_t signerIndex) const {
-				test::SignMessage(message, m_keyPairDescriptors[signerIndex].VotingKeyPair, Ots_Key_Dilution);
+				test::SignMessage(message, m_keyPairDescriptors[signerIndex].VotingKeyPair, Voting_Key_Dilution);
 			}
 
 			void signAllMessages(

@@ -19,7 +19,8 @@
 **/
 
 #pragma once
-#include "OtsTypes.h"
+#include "BmOptions.h"
+#include "BmTreeSignature.h"
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/io/SeekableStream.h"
 #include <array>
@@ -27,57 +28,58 @@
 
 namespace catapult { namespace crypto {
 
-	using OtsKeyPairType = KeyPair;
-
-	/// One time signature tree.
-	class OtsTree {
+	/// Three-layer Bellare-Miner private key tree.
+	class BmPrivateKeyTree {
 	private:
-		OtsTree(io::SeekableStream& storage, const OtsOptions& options);
+		using BmKeyPair = KeyPair;
+
+	private:
+		BmPrivateKeyTree(io::SeekableStream& storage, const BmOptions& options);
 
 	public:
 		/// Move constructor.
-		OtsTree(OtsTree&& tree);
+		BmPrivateKeyTree(BmPrivateKeyTree&& tree);
 
 	public:
 		/// Destroys the tree.
-		~OtsTree();
+		~BmPrivateKeyTree();
 
 	public:
 		/// Creates a tree around \a storage.
-		static OtsTree FromStream(io::SeekableStream& storage);
+		static BmPrivateKeyTree FromStream(io::SeekableStream& storage);
 
 		/// Creates a tree around \a keyPair, \a storage and \a options.
-		static OtsTree Create(OtsKeyPairType&& keyPair, io::SeekableStream& storage, const OtsOptions& options);
+		static BmPrivateKeyTree Create(BmKeyPair&& keyPair, io::SeekableStream& storage, const BmOptions& options);
 
 	public:
 		/// Gets the root public key.
-		const OtsPublicKey& rootPublicKey() const;
+		const decltype(BmTreeSignature::Root.ParentPublicKey)& rootPublicKey() const;
 
 		/// Gets the options.
-		const OtsOptions& options() const;
+		const BmOptions& options() const;
 
 		/// Returns \c true if can sign at \a keyIdentifier.
-		bool canSign(const OtsKeyIdentifier& keyIdentifier) const;
+		bool canSign(const BmKeyIdentifier& keyIdentifier) const;
 
 		/// Creates the signature for \a dataBuffer at \a keyIdentifier.
-		OtsTreeSignature sign(const OtsKeyIdentifier& keyIdentifier, const RawBuffer& dataBuffer);
+		BmTreeSignature sign(const BmKeyIdentifier& keyIdentifier, const RawBuffer& dataBuffer);
 
 	private:
-		class OtsLevel;
+		class Level;
 
 	private:
 		size_t levelOffset(size_t depth) const;
-		OtsKeyPairType detachKeyPair(size_t depth, uint64_t identifier);
-		void createLevel(size_t depth, KeyPair&& keyPair, uint64_t startIdentifier, uint64_t endIdentifier);
+		BmKeyPair detachKeyPair(size_t depth, uint64_t identifier);
+		void createLevel(size_t depth, BmKeyPair&& keyPair, uint64_t startIdentifier, uint64_t endIdentifier);
 
 	private:
 		io::SeekableStream& m_storage;
-		OtsOptions m_options;
+		BmOptions m_options;
 
-		std::array<std::unique_ptr<OtsLevel>, 3> m_levels;
-		OtsKeyIdentifier m_lastKeyIdentifier;
+		std::array<std::unique_ptr<Level>, 3> m_levels;
+		BmKeyIdentifier m_lastKeyIdentifier;
 	};
 
 	/// Verifies \a signature of \a buffer at \a keyIdentifier.
-	bool Verify(const OtsTreeSignature& signature, const OtsKeyIdentifier& keyIdentifier, const RawBuffer& buffer);
+	bool Verify(const BmTreeSignature& signature, const BmKeyIdentifier& keyIdentifier, const RawBuffer& buffer);
 }}

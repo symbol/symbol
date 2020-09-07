@@ -18,52 +18,36 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "OtsTypes.h"
+#include "BmKeyIdentifier.h"
 
 namespace catapult { namespace crypto {
 
-	// region ots key identifier
-
-	bool OtsKeyIdentifier::operator==(const OtsKeyIdentifier& rhs) const {
+	bool BmKeyIdentifier::operator==(const BmKeyIdentifier& rhs) const {
 		return BatchId == rhs.BatchId && KeyId == rhs.KeyId;
 	}
 
-	bool OtsKeyIdentifier::operator!=(const OtsKeyIdentifier& rhs) const {
+	bool BmKeyIdentifier::operator!=(const BmKeyIdentifier& rhs) const {
 		return !(*this == rhs);
 	}
 
-	bool OtsKeyIdentifier::operator<(const OtsKeyIdentifier& rhs) const {
+	bool BmKeyIdentifier::operator<(const BmKeyIdentifier& rhs) const {
 		return BatchId < rhs.BatchId || (BatchId == rhs.BatchId && KeyId < rhs.KeyId);
 	}
 
-	bool OtsKeyIdentifier::operator<=(const OtsKeyIdentifier& rhs) const {
+	bool BmKeyIdentifier::operator<=(const BmKeyIdentifier& rhs) const {
 		return *this < rhs || *this == rhs;
 	}
 
-	bool OtsKeyIdentifier::operator>(const OtsKeyIdentifier& rhs) const {
+	bool BmKeyIdentifier::operator>(const BmKeyIdentifier& rhs) const {
 		return !(*this <= rhs);
 	}
 
-	bool OtsKeyIdentifier::operator>=(const OtsKeyIdentifier& rhs) const {
+	bool BmKeyIdentifier::operator>=(const BmKeyIdentifier& rhs) const {
 		return !(*this < rhs);
 	}
 
-	std::ostream& operator<<(std::ostream& out, const OtsKeyIdentifier& keyIdentifier) {
+	std::ostream& operator<<(std::ostream& out, const BmKeyIdentifier& keyIdentifier) {
 		out << "(" << keyIdentifier.BatchId << ", " << keyIdentifier.KeyId << ")";
 		return out;
 	}
-
-	// endregion
-
-	// region ots tree signature
-
-	bool OtsTreeSignature::operator==(const OtsTreeSignature& rhs) const {
-		return 0 == std::memcmp(this, &rhs, sizeof(OtsTreeSignature));
-	}
-
-	bool OtsTreeSignature::operator!=(const OtsTreeSignature& rhs) const {
-		return !(*this == rhs);
-	}
-
-	// endregion
 }}

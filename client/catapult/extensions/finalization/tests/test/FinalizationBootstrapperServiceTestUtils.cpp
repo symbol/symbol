@@ -58,7 +58,7 @@ namespace catapult { namespace test {
 		config.Size = 3000;
 		config.Threshold = 2000;
 		config.MaxHashesPerPoint = 64;
-		config.OtsKeyDilution = 7;
+		config.VotingKeyDilution = 7;
 		config.VotingSetGrouping = 500;
 
 		auto pBootstrapperRegistrar = CreateFinalizationBootstrapperServiceRegistrar(config, std::move(pProofStorage));

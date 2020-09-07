@@ -18,7 +18,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/crypto_voting/OtsTree.h"
+#include "catapult/crypto_voting/BmPrivateKeyTree.h"
 #include "catapult/utils/RandomGenerator.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
@@ -26,27 +26,29 @@
 
 namespace catapult { namespace crypto {
 
-#define TEST_CLASS OtsTreeTests
+#define TEST_CLASS BmPrivateKeyTreeTests
 
 	namespace {
-		constexpr auto OtsPrivateKey_Size = PrivateKey::Size;
+		constexpr auto Bm_Public_Key_Size = Key::Size;
+		constexpr auto Bm_Private_Key_Size = PrivateKey::Size;
+		constexpr auto Bm_Signature_Size = Signature::Size;
 
-		constexpr auto File_Header_Size = sizeof(OtsOptions) + sizeof(OtsKeyIdentifier);
-		constexpr auto Level_Header_Size = OtsPublicKey::Size + sizeof(uint64_t) + sizeof(uint64_t);
-		constexpr auto Level_Entry = OtsPrivateKey_Size + sizeof(OtsSignature);
+		constexpr auto File_Header_Size = sizeof(BmOptions) + sizeof(BmKeyIdentifier);
+		constexpr auto Level_Header_Size = Bm_Public_Key_Size + sizeof(uint64_t) + sizeof(uint64_t);
+		constexpr auto Level_Entry = Bm_Private_Key_Size + Bm_Signature_Size;
 
-		constexpr auto Start_Key = OtsKeyIdentifier{ 8, 4 };
-		constexpr auto End_Key = OtsKeyIdentifier{ 13, 5 };
+		constexpr auto Start_Key = BmKeyIdentifier{ 8, 4 };
+		constexpr auto End_Key = BmKeyIdentifier{ 13, 5 };
 		constexpr auto Num_Batches = End_Key.BatchId - Start_Key.BatchId + 1;
-		constexpr OtsOptions Default_Options{ 7, Start_Key, End_Key };
+		constexpr BmOptions Default_Options{ 7, Start_Key, End_Key };
 
 		constexpr auto L1_Size = Level_Header_Size + Num_Batches * Level_Entry;
 
-		OtsKeyPairType GenerateKeyPair() {
+		auto GenerateKeyPair() {
 			return test::GenerateKeyPair();
 		}
 
-		void AssertOptions(const OtsOptions& expected, const OtsOptions& actual) {
+		void AssertOptions(const BmOptions& expected, const BmOptions& actual) {
 			EXPECT_EQ(expected.Dilution, actual.Dilution);
 			EXPECT_EQ(expected.StartKeyIdentifier, actual.StartKeyIdentifier);
 			EXPECT_EQ(expected.EndKeyIdentifier, actual.EndKeyIdentifier);
@@ -125,12 +127,12 @@ namespace catapult { namespace crypto {
 		class TestContext {
 		public:
 			TestContext()
-					: m_tree(OtsTree::Create(GenerateKeyPair(), m_storage, Default_Options))
+					: m_tree(BmPrivateKeyTree::Create(GenerateKeyPair(), m_storage, Default_Options))
 					, m_messageBuffer(test::GenerateRandomArray<10>())
 			{}
 
 			TestContext(TestContext& originalContext)
-					: m_tree(OtsTree::FromStream(CopyInto(originalContext.m_storage, m_storage)))
+					: m_tree(BmPrivateKeyTree::FromStream(CopyInto(originalContext.m_storage, m_storage)))
 					, m_messageBuffer(originalContext.m_messageBuffer)
 			{}
 
@@ -148,7 +150,7 @@ namespace catapult { namespace crypto {
 			}
 
 		public:
-			auto sign(const OtsKeyIdentifier& keyIdentifier) {
+			auto sign(const BmKeyIdentifier& keyIdentifier) {
 				return m_tree.sign(keyIdentifier, m_messageBuffer);
 			}
 
@@ -160,7 +162,7 @@ namespace catapult { namespace crypto {
 
 		private:
 			TStorage m_storage;
-			OtsTree m_tree;
+			BmPrivateKeyTree m_tree;
 			std::array<uint8_t, 10> m_messageBuffer;
 		};
 
@@ -193,7 +195,7 @@ namespace catapult { namespace crypto {
 	TEST(TEST_CLASS, CanSignReturnsTrueForValuesNearBoundaries) {
 		// Arrange:
 		BreadcrumbTestContext context;
-		std::vector<OtsKeyIdentifier> keyIdentifiers{ Start_Key, End_Key };
+		std::vector<BmKeyIdentifier> keyIdentifiers{ Start_Key, End_Key };
 
 		// Act + Assert:
 		for (const auto& keyIdentifier : keyIdentifiers)
@@ -211,7 +213,7 @@ namespace catapult { namespace crypto {
 		BreadcrumbStorage storage;
 
 		// Act:
-		auto tree = OtsTree::Create(std::move(rootKeyPair), storage, Default_Options);
+		auto tree = BmPrivateKeyTree::Create(std::move(rootKeyPair), storage, Default_Options);
 
 		// Assert:
 		EXPECT_EQ(expectedPublicKey, tree.rootPublicKey());
@@ -224,7 +226,7 @@ namespace catapult { namespace crypto {
 
 	TEST(TEST_CLASS, SignForValuesNearBoundaries) {
 		// Arrange:
-		std::vector<OtsKeyIdentifier> keyIdentifiers{ Start_Key, End_Key };
+		std::vector<BmKeyIdentifier> keyIdentifiers{ Start_Key, End_Key };
 
 		// Act: create new context for every run
 		for (const auto& keyIdentifier : keyIdentifiers) {
@@ -319,7 +321,7 @@ namespace catapult { namespace crypto {
 
 			void assertLastStep() {
 				checkSize(1);
-				EXPECT_EQ(Operation::Seek(sizeof(OtsOptions)), m_operations[m_index++]);
+				EXPECT_EQ(Operation::Seek(sizeof(BmOptions)), m_operations[m_index++]);
 
 				checkSize(Num_Key_Identifier_Values);
 				for (auto i = 0u; i < Num_Key_Identifier_Values; ++i)
@@ -338,7 +340,7 @@ namespace catapult { namespace crypto {
 
 			void assertLevelHeader() {
 				checkSize(3);
-				EXPECT_EQ(Operation::Write(OtsPublicKey::Size), m_operations[m_index++]);
+				EXPECT_EQ(Operation::Write(Bm_Public_Key_Size), m_operations[m_index++]);
 				EXPECT_EQ(Operation::Write(sizeof(uint64_t)), m_operations[m_index++]);
 				EXPECT_EQ(Operation::Write(sizeof(uint64_t)), m_operations[m_index++]);
 			}
@@ -346,8 +348,8 @@ namespace catapult { namespace crypto {
 			void assertLevelEntries(size_t numEntries) {
 				checkSize(2 * numEntries);
 				for (auto i = 0u; i < numEntries; ++i) {
-					EXPECT_EQ(Operation::Write(OtsPrivateKey_Size), m_operations[m_index++]);
-					EXPECT_EQ(Operation::Write(OtsSignature::Size), m_operations[m_index++]);
+					EXPECT_EQ(Operation::Write(Bm_Private_Key_Size), m_operations[m_index++]);
+					EXPECT_EQ(Operation::Write(Bm_Signature_Size), m_operations[m_index++]);
 				}
 			}
 
@@ -357,7 +359,7 @@ namespace catapult { namespace crypto {
 				auto fileOffset = File_Header_Size + Level_Header_Size + levelOffset;
 				for (auto i = 0u; i < numEntries; ++i) {
 					EXPECT_EQ(Operation::Seek(fileOffset + (startIndex + i) * Level_Entry), m_operations[m_index++]);
-					EXPECT_EQ(Operation::Write(OtsPrivateKey_Size), m_operations[m_index++]);
+					EXPECT_EQ(Operation::Write(Bm_Private_Key_Size), m_operations[m_index++]);
 				}
 			}
 
@@ -389,7 +391,7 @@ namespace catapult { namespace crypto {
 	}
 
 	namespace {
-		void VerifyFull(StorageChecker& checker, const OtsKeyIdentifier& keyIdentifier) {
+		void VerifyFull(StorageChecker& checker, const BmKeyIdentifier& keyIdentifier) {
 			// first level
 			auto relativeBatchId = keyIdentifier.BatchId - Start_Key.BatchId;
 			checker.assertTreeHeader();
@@ -497,7 +499,7 @@ namespace catapult { namespace crypto {
 	// region roundtrip
 
 	namespace {
-		constexpr bool SingleLevelMatch(const OtsTreeSignature& lhs, const OtsTreeSignature& rhs) {
+		constexpr bool SingleLevelMatch(const BmTreeSignature& lhs, const BmTreeSignature& rhs) {
 			return lhs.Root.ParentPublicKey == rhs.Root.ParentPublicKey
 					&& lhs.Root.Signature == rhs.Root.Signature
 					&& lhs.Top.ParentPublicKey == rhs.Top.ParentPublicKey;
@@ -527,8 +529,8 @@ namespace catapult { namespace crypto {
 	TEST(TEST_CLASS, RoundtripTestAccessingUsedKeyThrows) {
 		// Arrange:
 		MockTestContext originalContext;
-		OtsKeyIdentifier usedIdentifier{ 9, 2 };
-		OtsKeyIdentifier unusedIdentifier{ 9, 3 };
+		BmKeyIdentifier usedIdentifier{ 9, 2 };
+		BmKeyIdentifier unusedIdentifier{ 9, 3 };
 		originalContext.sign(usedIdentifier);
 
 		// Act: reload tree from storage

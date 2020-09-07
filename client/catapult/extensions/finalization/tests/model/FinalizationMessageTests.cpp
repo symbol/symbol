@@ -19,7 +19,7 @@
 **/
 
 #include "finalization/src/model/FinalizationMessage.h"
-#include "catapult/crypto_voting/OtsTree.h"
+#include "catapult/crypto_voting/BmPrivateKeyTree.h"
 #include "finalization/tests/test/FinalizationMessageTestUtils.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/core/HashTestUtils.h"
@@ -164,7 +164,7 @@ namespace catapult { namespace model {
 		void RunFinalizationContextTest(TAction action) {
 			// Arrange:
 			auto config = finalization::FinalizationConfiguration::Uninitialized();
-			config.OtsKeyDilution = 13u;
+			config.VotingKeyDilution = 13u;
 
 			auto finalizationContextPair = test::CreateFinalizationContext(config, FinalizationEpoch(50), Height(123), {
 				Amount(2'000'000), Amount(Expected_Large_Weight), Amount(1'000'000), Amount(6'000'000)
@@ -186,13 +186,13 @@ namespace catapult { namespace model {
 				const auto& keyPairDescriptor = keyPairDescriptors[utils::to_underlying_type(voterType)];
 
 				auto storage = mocks::MockSeekableMemoryStream();
-				auto otsTree = crypto::OtsTree::Create(
+				auto bmPrivateKeyTree = crypto::BmPrivateKeyTree::Create(
 						test::CopyKeyPair(keyPairDescriptor.VotingKeyPair),
 						storage,
-						{ context.config().OtsKeyDilution, { 0, 2 }, { 15, 1 } });
+						{ context.config().VotingKeyDilution, { 0, 2 }, { 15, 1 } });
 
 				// Act:
-				auto isEligibleVoter = IsEligibleVoter(otsTree, context);
+				auto isEligibleVoter = IsEligibleVoter(bmPrivateKeyTree, context);
 
 				// Assert:
 				EXPECT_EQ(expectedResult, isEligibleVoter);
@@ -224,15 +224,15 @@ namespace catapult { namespace model {
 				const auto& keyPairDescriptor = keyPairDescriptors[utils::to_underlying_type(voterType)];
 
 				auto storage = mocks::MockSeekableMemoryStream();
-				auto otsTree = crypto::OtsTree::Create(
+				auto bmPrivateKeyTree = crypto::BmPrivateKeyTree::Create(
 						test::CopyKeyPair(keyPairDescriptor.VotingKeyPair),
 						storage,
-						{ context.config().OtsKeyDilution, { 0, 2 }, { 15, 1 } });
+						{ context.config().VotingKeyDilution, { 0, 2 }, { 15, 1 } });
 
 				auto hashes = test::GenerateRandomHashes(numHashes);
 
 				// Act:
-				auto pMessage = PrepareMessage(otsTree, DefaultStepIdentifier(), Height(987), hashes);
+				auto pMessage = PrepareMessage(bmPrivateKeyTree, DefaultStepIdentifier(), Height(987), hashes);
 
 				// Assert:
 				action(pMessage, context, hashes);

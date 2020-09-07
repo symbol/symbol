@@ -19,7 +19,7 @@
 **/
 
 #pragma once
-#include "catapult/crypto_voting/OtsTypes.h"
+#include "catapult/crypto_voting/BmKeyIdentifier.h"
 #include "catapult/model/FinalizationRound.h"
 #include "catapult/types.h"
 
@@ -95,6 +95,6 @@ namespace catapult { namespace model {
 
 #pragma pack(pop)
 
-	/// Converts \a stepIdentifier to ots key identifier using \a dilution.
-	crypto::OtsKeyIdentifier StepIdentifierToOtsKeyIdentifier(const StepIdentifier& stepIdentifier, uint64_t dilution);
+	/// Converts \a stepIdentifier to bm key identifier using \a dilution.
+	crypto::BmKeyIdentifier StepIdentifierToBmKeyIdentifier(const StepIdentifier& stepIdentifier, uint64_t dilution);
 }}

@@ -22,7 +22,7 @@
 #include "finalization/src/FinalizationConfiguration.h"
 #include "finalization/src/io/ProofStorageCache.h"
 #include "finalization/src/model/VotingSet.h"
-#include "catapult/crypto_voting/OtsTree.h"
+#include "catapult/crypto_voting/BmPrivateKeyTree.h"
 #include "catapult/io/BlockStorageCache.h"
 #include "catapult/model/HeightGrouping.h"
 
@@ -73,11 +73,11 @@ namespace catapult { namespace chain {
 					const finalization::FinalizationConfiguration& config,
 					const io::BlockStorageCache& blockStorage,
 					const io::ProofStorageCache& proofStorage,
-					crypto::OtsTree&& otsTree)
+					crypto::BmPrivateKeyTree&& bmPrivateKeyTree)
 					: m_config(config)
 					, m_blockStorage(blockStorage)
 					, m_proofStorage(proofStorage)
-					, m_otsTree(std::move(otsTree))
+					, m_bmPrivateKeyTree(std::move(bmPrivateKeyTree))
 			{}
 
 		public:
@@ -88,7 +88,7 @@ namespace catapult { namespace chain {
 					hashRange = ToHashRange(finalizationStatistics.Hash);
 
 				auto stepIdentifier = model::StepIdentifier{ round.Epoch, round.Point, model::FinalizationStage::Prevote };
-				return model::PrepareMessage(m_otsTree, stepIdentifier, finalizationStatistics.Height, hashRange);
+				return model::PrepareMessage(m_bmPrivateKeyTree, stepIdentifier, finalizationStatistics.Height, hashRange);
 			}
 
 			std::unique_ptr<model::FinalizationMessage> createPrecommit(
@@ -98,14 +98,14 @@ namespace catapult { namespace chain {
 				auto hashRange = ToHashRange(hash);
 
 				auto stepIdentifier = model::StepIdentifier{ round.Epoch, round.Point, model::FinalizationStage::Precommit };
-				return model::PrepareMessage(m_otsTree, stepIdentifier, height, hashRange);
+				return model::PrepareMessage(m_bmPrivateKeyTree, stepIdentifier, height, hashRange);
 			}
 
 		private:
 			finalization::FinalizationConfiguration m_config;
 			const io::BlockStorageCache& m_blockStorage;
 			const io::ProofStorageCache& m_proofStorage;
-			crypto::OtsTree m_otsTree;
+			crypto::BmPrivateKeyTree m_bmPrivateKeyTree;
 		};
 
 		// endregion
@@ -115,7 +115,7 @@ namespace catapult { namespace chain {
 			const finalization::FinalizationConfiguration& config,
 			const io::BlockStorageCache& blockStorage,
 			const io::ProofStorageCache& proofStorage,
-			crypto::OtsTree&& otsTree) {
-		return std::make_unique<DefaultFinalizationMessageFactory>(config, blockStorage, proofStorage, std::move(otsTree));
+			crypto::BmPrivateKeyTree&& bmPrivateKeyTree) {
+		return std::make_unique<DefaultFinalizationMessageFactory>(config, blockStorage, proofStorage, std::move(bmPrivateKeyTree));
 	}
 }}

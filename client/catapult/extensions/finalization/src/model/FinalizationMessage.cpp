@@ -21,7 +21,7 @@
 #include "FinalizationMessage.h"
 #include "FinalizationContext.h"
 #include "catapult/crypto/Hashes.h"
-#include "catapult/crypto_voting/OtsTree.h"
+#include "catapult/crypto_voting/BmPrivateKeyTree.h"
 #include "catapult/utils/MacroBasedEnumIncludes.h"
 #include "catapult/utils/MemoryUtils.h"
 
@@ -50,13 +50,13 @@ namespace catapult { namespace model {
 
 	// TODO: FinalizationContext::lookup expects BLS key, but, for now, interpret it as ED25519 key
 
-	bool IsEligibleVoter(const crypto::OtsTree& otsTree, const FinalizationContext& context) {
-		auto accountView = context.lookup(otsTree.rootPublicKey().copyTo<VotingKey>());
+	bool IsEligibleVoter(const crypto::BmPrivateKeyTree& bmPrivateKeyTree, const FinalizationContext& context) {
+		auto accountView = context.lookup(bmPrivateKeyTree.rootPublicKey().copyTo<VotingKey>());
 		return Amount() != accountView.Weight;
 	}
 
 	std::unique_ptr<FinalizationMessage> PrepareMessage(
-			crypto::OtsTree& otsTree,
+			crypto::BmPrivateKeyTree& bmPrivateKeyTree,
 			const StepIdentifier& stepIdentifier,
 			Height height,
 			const HashRange& hashes) {
@@ -75,8 +75,8 @@ namespace catapult { namespace model {
 			*pHash++ = hash;
 
 		// 2. sign
-		auto keyIdentifier = StepIdentifierToOtsKeyIdentifier(pMessage->StepIdentifier, otsTree.options().Dilution);
-		pMessage->Signature = otsTree.sign(keyIdentifier, ToBuffer(*pMessage));
+		auto keyIdentifier = StepIdentifierToBmKeyIdentifier(pMessage->StepIdentifier, bmPrivateKeyTree.options().Dilution);
+		pMessage->Signature = bmPrivateKeyTree.sign(keyIdentifier, ToBuffer(*pMessage));
 		return pMessage;
 	}
 
@@ -85,7 +85,7 @@ namespace catapult { namespace model {
 		if (Amount() == accountView.Weight)
 			return std::make_pair(ProcessMessageResult::Failure_Voter, 0);
 
-		auto keyIdentifier = StepIdentifierToOtsKeyIdentifier(message.StepIdentifier, context.config().OtsKeyDilution);
+		auto keyIdentifier = StepIdentifierToBmKeyIdentifier(message.StepIdentifier, context.config().VotingKeyDilution);
 		if (!crypto::Verify(message.Signature, keyIdentifier, ToBuffer(message)))
 			return std::make_pair(ProcessMessageResult::Failure_Message_Signature, 0);
 

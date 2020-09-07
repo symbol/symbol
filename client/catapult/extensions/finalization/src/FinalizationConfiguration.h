@@ -54,8 +54,8 @@ namespace catapult { namespace finalization {
 		/// Height multiple of the last block in a prevote hash chain.
 		uint16_t PrevoteBlocksMultiple;
 
-		/// Ots key dilution.
-		uint16_t OtsKeyDilution;
+		/// Voting key dilution.
+		uint16_t VotingKeyDilution;
 
 		/// Number of blocks that should be treated as a group for voting set purposes.
 		/// \note This is copied from BlockChainConfiguration for easy access.

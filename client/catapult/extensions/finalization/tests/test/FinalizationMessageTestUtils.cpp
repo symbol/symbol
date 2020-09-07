@@ -20,7 +20,7 @@
 
 #include "FinalizationMessageTestUtils.h"
 #include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/crypto_voting/OtsTree.h"
+#include "catapult/crypto_voting/BmPrivateKeyTree.h"
 #include "catapult/model/BlockUtils.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
@@ -144,11 +144,11 @@ namespace catapult { namespace test {
 
 	void SignMessage(model::FinalizationMessage& message, const crypto::KeyPair& votingKeyPair, uint64_t dilution) {
 		auto storage = mocks::MockSeekableMemoryStream();
-		auto otsOptions = crypto::OtsOptions{ dilution, { 0, 2 }, { 15, 1 } };
-		auto otsTree = crypto::OtsTree::Create(CopyKeyPair(votingKeyPair), storage, otsOptions);
+		auto bmOptions = crypto::BmOptions{ dilution, { 0, 2 }, { 15, 1 } };
+		auto bmPrivateKeyTree = crypto::BmPrivateKeyTree::Create(CopyKeyPair(votingKeyPair), storage, bmOptions);
 
-		auto keyIdentifier = model::StepIdentifierToOtsKeyIdentifier(message.StepIdentifier, otsTree.options().Dilution);
-		message.Signature = otsTree.sign(keyIdentifier, {
+		auto keyIdentifier = model::StepIdentifierToBmKeyIdentifier(message.StepIdentifier, bmPrivateKeyTree.options().Dilution);
+		message.Signature = bmPrivateKeyTree.sign(keyIdentifier, {
 			reinterpret_cast<const uint8_t*>(&message) + model::FinalizationMessage::Header_Size,
 			message.Size - model::FinalizationMessage::Header_Size
 		});

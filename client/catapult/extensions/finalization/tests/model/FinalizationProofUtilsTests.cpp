@@ -37,7 +37,7 @@ namespace catapult { namespace model {
 		size_t CalculateMessageGroupsSize(size_t numMessageGroups, size_t numHashes, size_t numSignatures) {
 			return numMessageGroups * sizeof(FinalizationMessageGroup)
 					+ numHashes * Hash256::Size
-					+ numSignatures * sizeof(crypto::OtsTreeSignature);
+					+ numSignatures * sizeof(crypto::BmTreeSignature);
 		}
 
 		void AssertEqualStatistics(const FinalizationStatistics& expectedStatistics, const FinalizationProof& proof) {
@@ -53,7 +53,7 @@ namespace catapult { namespace model {
 				FinalizationStage expectedStage,
 				Height expectedHeight,
 				const std::vector<Hash256>& expectedHashes,
-				const std::vector<crypto::OtsTreeSignature>& expectedSignatures,
+				const std::vector<crypto::BmTreeSignature>& expectedSignatures,
 				const std::string& message) {
 			ASSERT_EQ(CalculateMessageGroupsSize(1, expectedHashes.size(), expectedSignatures.size()), messageGroup.Size) << message;
 			ASSERT_EQ(expectedHashes.size(), messageGroup.HashesCount) << message;

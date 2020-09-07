@@ -25,7 +25,7 @@
 #include "finalization/src/chain/MultiRoundMessageAggregator.h"
 #include "finalization/src/io/ProofStorageCache.h"
 #include "catapult/config/CatapultDataDirectory.h"
-#include "catapult/crypto_voting/OtsTree.h"
+#include "catapult/crypto_voting/BmPrivateKeyTree.h"
 #include "catapult/io/FileStream.h"
 #include "finalization/tests/test/FinalizationMessageTestUtils.h"
 #include "finalization/tests/test/mocks/MockProofStorage.h"
@@ -72,7 +72,7 @@ namespace catapult { namespace finalization {
 			using BaseType = test::ServiceLocatorTestContext<FinalizationOrchestratorServiceTraits>;
 
 		private:
-			static constexpr uint64_t Ots_Key_Dilution = 13;
+			static constexpr uint64_t Voting_Key_Dilution = 13;
 
 		public:
 			TestContext() : TestContext({ Finalization_Epoch, FinalizationPoint(8) })
@@ -86,8 +86,10 @@ namespace catapult { namespace finalization {
 				// set up filesystem
 				const auto& userConfig = testState().state().config().User;
 				const_cast<std::string&>(userConfig.DataDirectory) = m_directoryGuard.name();
-				SeedOtsTree(userConfig);
-				SeedVotingStatus(userConfig, orchestratorStartRound);
+
+				auto dataDirectory = config::CatapultDataDirectory(userConfig.DataDirectory);
+				SeedVotingPrivateKeyTree(dataDirectory);
+				SeedVotingStatus(dataDirectory, orchestratorStartRound);
 
 				// register hooks
 				auto pHooks = std::make_shared<FinalizationServerHooks>();
@@ -132,7 +134,7 @@ namespace catapult { namespace finalization {
 			}
 
 			~TestContext() {
-				// destroy service, which holds open voting_ots_tree.dat file handle, before removing temp directory
+				// destroy service, which holds open voting_private_key_tree.dat file handle, before removing temp directory
 				destroy();
 			}
 
@@ -183,21 +185,24 @@ namespace catapult { namespace finalization {
 			}
 
 		private:
-			static auto CreateOtsKeyIdentifier(FinalizationPoint point, model::FinalizationStage stage) {
-				return model::StepIdentifierToOtsKeyIdentifier({ FinalizationEpoch(), point, stage }, Ots_Key_Dilution);
+			static auto CreateBmKeyIdentifier(FinalizationPoint point, model::FinalizationStage stage) {
+				return model::StepIdentifierToBmKeyIdentifier({ FinalizationEpoch(), point, stage }, Voting_Key_Dilution);
 			}
 
-			static void SeedOtsTree(const config::UserConfiguration& userConfig) {
-				auto votingOtsTreeFilename = config::CatapultDataDirectory(userConfig.DataDirectory).rootDir().file("voting_ots_tree.dat");
-				io::FileStream otsStream(io::RawFile(votingOtsTreeFilename, io::OpenMode::Read_Write));
+			static void SeedVotingPrivateKeyTree(const config::CatapultDataDirectory& dataDirectory) {
+				auto votingPrivateKeyTreeFilename = dataDirectory.rootDir().file("voting_private_key_tree.dat");
+				io::FileStream votingPrivateKeyTreeStream(io::RawFile(votingPrivateKeyTreeFilename, io::OpenMode::Read_Write));
 
-				auto startKeyIdentifier = CreateOtsKeyIdentifier(FinalizationPoint(1), Prevote_Stage);
-				auto endKeyIdentifier = CreateOtsKeyIdentifier(FinalizationPoint(100), Precommit_Stage);
-				crypto::OtsTree::Create(test::GenerateKeyPair(), otsStream, { Ots_Key_Dilution, startKeyIdentifier, endKeyIdentifier });
+				auto startKeyIdentifier = CreateBmKeyIdentifier(FinalizationPoint(1), Prevote_Stage);
+				auto endKeyIdentifier = CreateBmKeyIdentifier(FinalizationPoint(100), Precommit_Stage);
+				crypto::BmPrivateKeyTree::Create(
+						test::GenerateKeyPair(),
+						votingPrivateKeyTreeStream,
+						{ Voting_Key_Dilution, startKeyIdentifier, endKeyIdentifier });
 			}
 
-			static void SeedVotingStatus(const config::UserConfiguration& userConfig, const model::FinalizationRound& round) {
-				auto votingStatusFilename = config::CatapultDataDirectory(userConfig.DataDirectory).rootDir().file("voting_status.dat");
+			static void SeedVotingStatus(const config::CatapultDataDirectory& dataDirectory, const model::FinalizationRound& round) {
+				auto votingStatusFilename = dataDirectory.rootDir().file("voting_status.dat");
 				VotingStatusFile(votingStatusFilename).save({ round, false, false });
 			}
 

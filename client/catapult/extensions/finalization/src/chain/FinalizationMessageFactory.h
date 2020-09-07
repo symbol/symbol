@@ -24,7 +24,7 @@
 #include <memory>
 
 namespace catapult {
-	namespace crypto { class OtsTree; }
+	namespace crypto { class BmPrivateKeyTree; }
 	namespace finalization { struct FinalizationConfiguration; }
 	namespace io {
 		class BlockStorageCache;
@@ -50,10 +50,10 @@ namespace catapult { namespace chain {
 				const Hash256& hash) = 0;
 	};
 
-	/// Creates a factory around \a config, \a blockStorage, \a proofStorage and \a otsTree.
+	/// Creates a factory around \a config, \a blockStorage, \a proofStorage and \a bmPrivateKeyTree.
 	std::unique_ptr<FinalizationMessageFactory> CreateFinalizationMessageFactory(
 			const finalization::FinalizationConfiguration& config,
 			const io::BlockStorageCache& blockStorage,
 			const io::ProofStorageCache& proofStorage,
-			crypto::OtsTree&& otsTree);
+			crypto::BmPrivateKeyTree&& bmPrivateKeyTree);
 }}

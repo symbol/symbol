@@ -20,7 +20,7 @@
 
 #include "finalization/src/chain/FinalizationMessageFactory.h"
 #include "finalization/src/io/ProofStorageCache.h"
-#include "catapult/crypto_voting/OtsTree.h"
+#include "catapult/crypto_voting/BmPrivateKeyTree.h"
 #include "finalization/tests/test/FinalizationMessageTestUtils.h"
 #include "finalization/tests/test/mocks/MockProofStorage.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
@@ -37,7 +37,7 @@ namespace catapult { namespace chain {
 	namespace {
 		class TestContext {
 		public:
-			static constexpr auto Ots_Key_Dilution = 13u;
+			static constexpr auto Voting_Key_Dilution = 13u;
 
 		public:
 			explicit TestContext(Height height) : TestContext(height, 10, finalization::FinalizationConfiguration::Uninitialized())
@@ -51,7 +51,7 @@ namespace catapult { namespace chain {
 							config,
 							*m_pBlockStorage,
 							m_proofStorage,
-							CreateOtsTree(m_otsTreeStream, FinalizationPoint())))
+							CreateBmPrivateKeyTree(m_bmPrivateKeyTreeStream, FinalizationPoint())))
 			{}
 
 		public:
@@ -69,31 +69,31 @@ namespace catapult { namespace chain {
 			}
 
 		private:
-			static crypto::OtsTree CreateOtsTree(io::SeekableStream& storage, FinalizationPoint point) {
-				auto startKeyIdentifier = model::StepIdentifierToOtsKeyIdentifier(
+			static crypto::BmPrivateKeyTree CreateBmPrivateKeyTree(io::SeekableStream& storage, FinalizationPoint point) {
+				auto startKeyIdentifier = model::StepIdentifierToBmKeyIdentifier(
 						{ FinalizationEpoch(), point, model::FinalizationStage::Prevote },
-						Ots_Key_Dilution);
-				auto endKeyIdentifier = model::StepIdentifierToOtsKeyIdentifier(
+						Voting_Key_Dilution);
+				auto endKeyIdentifier = model::StepIdentifierToBmKeyIdentifier(
 						{ FinalizationEpoch(), point + FinalizationPoint(20), model::FinalizationStage::Precommit },
-						Ots_Key_Dilution);
-				return crypto::OtsTree::Create(
+						Voting_Key_Dilution);
+				return crypto::BmPrivateKeyTree::Create(
 						test::GenerateKeyPair(),
 						storage,
-						{ Ots_Key_Dilution, startKeyIdentifier, endKeyIdentifier });
+						{ Voting_Key_Dilution, startKeyIdentifier, endKeyIdentifier });
 			}
 
 		private:
 			Hash256 m_lastFinalizedHash;
 			std::unique_ptr<io::BlockStorageCache> m_pBlockStorage;
 			io::ProofStorageCache m_proofStorage;
-			mocks::MockSeekableMemoryStream m_otsTreeStream;
+			mocks::MockSeekableMemoryStream m_bmPrivateKeyTreeStream;
 
 			std::unique_ptr<FinalizationMessageFactory> m_pFactory;
 		};
 
 		bool IsSigned(const model::FinalizationMessage& message) {
-			auto dilution = TestContext::Ots_Key_Dilution;
-			auto keyIdentifier = model::StepIdentifierToOtsKeyIdentifier(message.StepIdentifier, dilution);
+			auto dilution = TestContext::Voting_Key_Dilution;
+			auto keyIdentifier = model::StepIdentifierToBmKeyIdentifier(message.StepIdentifier, dilution);
 			return crypto::Verify(message.Signature, keyIdentifier, {
 				reinterpret_cast<const uint8_t*>(&message) + model::FinalizationMessage::Header_Size,
 				message.Size - model::FinalizationMessage::Header_Size

@@ -26,7 +26,7 @@
 #include "finalization/src/io/ProofStorageCache.h"
 #include "finalization/src/model/VotingSet.h"
 #include "catapult/config/CatapultDataDirectory.h"
-#include "catapult/crypto_voting/OtsTree.h"
+#include "catapult/crypto_voting/BmPrivateKeyTree.h"
 #include "catapult/extensions/ServiceLocator.h"
 #include "catapult/extensions/ServiceState.h"
 #include "catapult/io/BlockStorageCache.h"
@@ -43,9 +43,6 @@ namespace catapult { namespace finalization {
 		private:
 			enum class EpochStatus { Continue, Wait, Advance };
 
-		private:
-			static constexpr auto LoadOtsTree = crypto::OtsTree::FromStream;
-
 		public:
 			BootstrapperFacade(
 					const FinalizationConfiguration& config,
@@ -56,7 +53,9 @@ namespace catapult { namespace finalization {
 					, m_hooks(GetFinalizationServerHooks(locator))
 					, m_proofStorage(GetProofStorageCache(locator))
 					, m_blockStorage(state.storage())
-					, m_otsStream(io::RawFile(QualifyFilename(state, "voting_ots_tree.dat"), io::OpenMode::Read_Append))
+					, m_votingPrivateKeyTreeStream(io::RawFile(
+							QualifyFilename(state, "voting_private_key_tree.dat"),
+							io::OpenMode::Read_Append))
 					, m_votingStatusFile(QualifyFilename(state, "voting_status.dat"))
 					, m_orchestrator(
 							m_votingStatusFile.load(),
@@ -66,7 +65,11 @@ namespace catapult { namespace finalization {
 							[&hooks = m_hooks](auto&& pMessage) {
 								hooks.messageRangeConsumer()(model::FinalizationMessageRange::FromEntity(std::move(pMessage)));
 							},
-							chain::CreateFinalizationMessageFactory(config, state.storage(), m_proofStorage, LoadOtsTree(m_otsStream)))
+							chain::CreateFinalizationMessageFactory(
+									config,
+									state.storage(),
+									m_proofStorage,
+									crypto::BmPrivateKeyTree::FromStream(m_votingPrivateKeyTreeStream)))
 					, m_finalizer(CreateFinalizer(m_messageAggregator, m_proofStorage))
 			{}
 
@@ -143,7 +146,7 @@ namespace catapult { namespace finalization {
 			io::ProofStorageCache& m_proofStorage;
 			io::BlockStorageCache& m_blockStorage;
 
-			io::FileStream m_otsStream;
+			io::FileStream m_votingPrivateKeyTreeStream;
 			VotingStatusFile m_votingStatusFile;
 			chain::FinalizationOrchestrator m_orchestrator;
 			action m_finalizer;

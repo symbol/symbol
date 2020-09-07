@@ -112,7 +112,7 @@ namespace catapult { namespace test {
 			const auto& keyPairDescriptor = m_keyPairDescriptors[utils::to_underlying_type(voterType)];
 			auto pMessage = CreateMessage(stepIdentifier, hash);
 			pMessage->Height = height;
-			SignMessage(*pMessage, keyPairDescriptor.VotingKeyPair, TTraits::Ots_Key_Dilution);
+			SignMessage(*pMessage, keyPairDescriptor.VotingKeyPair, TTraits::Voting_Key_Dilution);
 			return PORTABLE_MOVE(pMessage);
 		}
 

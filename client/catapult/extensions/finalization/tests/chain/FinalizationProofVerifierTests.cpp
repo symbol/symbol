@@ -36,7 +36,7 @@ namespace catapult { namespace chain {
 
 		class TestContext {
 		private:
-			static constexpr auto Ots_Key_Dilution = 7u;
+			static constexpr auto Voting_Key_Dilution = 7u;
 
 		public:
 			TestContext() {
@@ -44,7 +44,7 @@ namespace catapult { namespace chain {
 				config.Size = 1000;
 				config.Threshold = 700;
 				config.MaxHashesPerPoint = 100;
-				config.OtsKeyDilution = Ots_Key_Dilution;
+				config.VotingKeyDilution = Voting_Key_Dilution;
 				config.VotingSetGrouping = 500;
 
 				// 15/20M voting eligible
@@ -67,7 +67,7 @@ namespace catapult { namespace chain {
 					std::vector<std::shared_ptr<model::FinalizationMessage>>& messages,
 					const std::vector<size_t>& signerIndexes) const {
 				for (auto i = 0u; i < messages.size(); ++i)
-					test::SignMessage(*messages[i], m_keyPairDescriptors[signerIndexes[i]].VotingKeyPair, Ots_Key_Dilution);
+					test::SignMessage(*messages[i], m_keyPairDescriptors[signerIndexes[i]].VotingKeyPair, Voting_Key_Dilution);
 			}
 
 		private:

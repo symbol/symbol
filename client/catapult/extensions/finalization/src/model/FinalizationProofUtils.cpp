@@ -45,7 +45,7 @@ namespace catapult { namespace model {
 
 		using MessageSignatureGroups = std::map<
 			std::shared_ptr<const FinalizationMessage>,
-			std::vector<crypto::OtsTreeSignature>,
+			std::vector<crypto::BmTreeSignature>,
 			GroupFinalizationMessageComparer>;
 
 		MutableMessageGroups GroupMessages(const model::FinalizationRound& round, const ConstMessages& messages) {
@@ -61,7 +61,7 @@ namespace catapult { namespace model {
 
 				auto iter = messageSignatureGroups.find(pMessage);
 				if (messageSignatureGroups.cend() == iter)
-					iter = messageSignatureGroups.emplace(pMessage, std::vector<crypto::OtsTreeSignature>()).first;
+					iter = messageSignatureGroups.emplace(pMessage, std::vector<crypto::BmTreeSignature>()).first;
 
 				iter->second.push_back(pMessage->Signature);
 			}
@@ -72,7 +72,7 @@ namespace catapult { namespace model {
 				const auto& pTemplateMessage = messageSignatureGroupPair.first;
 
 				uint32_t hashesPayloadSize = static_cast<uint32_t>(pTemplateMessage->HashesCount * Hash256::Size);
-				uint32_t signaturesPayloadSize = numSignatures * SizeOf32<crypto::OtsTreeSignature>();
+				uint32_t signaturesPayloadSize = numSignatures * SizeOf32<crypto::BmTreeSignature>();
 				uint32_t size = SizeOf32<FinalizationMessageGroup>() + hashesPayloadSize + signaturesPayloadSize;
 				auto pMessageGroup = utils::MakeUniqueWithSize<FinalizationMessageGroup>(size);
 				pMessageGroup->Size = size;

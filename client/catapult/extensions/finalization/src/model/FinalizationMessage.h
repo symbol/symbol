@@ -20,11 +20,12 @@
 
 #pragma once
 #include "StepIdentifier.h"
+#include "catapult/crypto_voting/BmTreeSignature.h"
 #include "catapult/model/RangeTypes.h"
 #include "catapult/model/TrailingVariableDataLayout.h"
 
 namespace catapult {
-	namespace crypto { class OtsTree; }
+	namespace crypto { class BmPrivateKeyTree; }
 	namespace model { class FinalizationContext; }
 }
 
@@ -38,14 +39,14 @@ namespace catapult { namespace model {
 	struct FinalizationMessage : public TrailingVariableDataLayout<FinalizationMessage, Hash256> {
 	public:
 		/// Size of the header that can be skipped when signing/verifying.
-		static constexpr size_t Header_Size = sizeof(uint32_t) * 2 + sizeof(crypto::OtsTreeSignature);
+		static constexpr size_t Header_Size = sizeof(uint32_t) * 2 + sizeof(crypto::BmTreeSignature);
 
 	public:
 		/// Number of hashes.
 		uint32_t HashesCount;
 
 		/// Message signature.
-		crypto::OtsTreeSignature Signature;
+		crypto::BmTreeSignature Signature;
 
 		/// Step identifer.
 		model::StepIdentifier StepIdentifier;
@@ -75,17 +76,17 @@ namespace catapult { namespace model {
 	/// Calculates a hash for \a message.
 	Hash256 CalculateMessageHash(const FinalizationMessage& message);
 
-	/// Determines if the voter associated with \a otsTree is eligible for participating in the finalization procedure
+	/// Determines if the voter associated with \a bmPrivateKeyTree is eligible for participating in the finalization procedure
 	/// represented by \a context.
-	bool IsEligibleVoter(const crypto::OtsTree& otsTree, const FinalizationContext& context);
+	bool IsEligibleVoter(const crypto::BmPrivateKeyTree& bmPrivateKeyTree, const FinalizationContext& context);
 
 	// endregion
 
 	// region PrepareMessage
 
-	/// Prepares a finalization message given \a otsTree, \a stepIdentifier, \a height and \a hashes.
+	/// Prepares a finalization message given \a bmPrivateKeyTree, \a stepIdentifier, \a height and \a hashes.
 	std::unique_ptr<FinalizationMessage> PrepareMessage(
-			crypto::OtsTree& otsTree,
+			crypto::BmPrivateKeyTree& bmPrivateKeyTree,
 			const StepIdentifier& stepIdentifier,
 			Height height,
 			const HashRange& hashes);

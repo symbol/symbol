@@ -20,8 +20,9 @@
 
 #include "tools/ToolMain.h"
 #include "catapult/crypto/SecureRandomGenerator.h"
-#include "catapult/crypto_voting/OtsTree.h"
+#include "catapult/crypto_voting/BmPrivateKeyTree.h"
 #include "catapult/io/FileStream.h"
+#include "catapult/model/StepIdentifier.h"
 #include "catapult/exceptions.h"
 #include <boost/filesystem.hpp>
 #include <iostream>
@@ -30,16 +31,6 @@
 namespace catapult { namespace tools { namespace votingkey {
 
 	namespace {
-		crypto::OtsKeyIdentifier ToOtsKeyIdentifier(FinalizationPoint point, uint16_t stage, uint64_t dilution) {
-			constexpr auto Num_Stages = 2u;
-			auto identifier = point.unwrap() * Num_Stages + stage;
-
-			crypto::OtsKeyIdentifier keyIdentifier;
-			keyIdentifier.BatchId = identifier / dilution;
-			keyIdentifier.KeyId = identifier % dilution;
-			return keyIdentifier;
-		}
-
 		class VotingKeyTool : public Tool {
 		public:
 			std::string name() const override {
@@ -48,17 +39,17 @@ namespace catapult { namespace tools { namespace votingkey {
 
 			void prepareOptions(OptionsBuilder& optionsBuilder, OptionsPositional&) override {
 				optionsBuilder("output,o",
-						OptionsValue<std::string>(m_filename)->default_value("voting_ots_tree.dat"),
-						"voting ots tree file");
+						OptionsValue<std::string>(m_filename)->default_value("voting_private_key_tree.dat"),
+						"voting private key tree file");
 				optionsBuilder("dilution,d",
 						OptionsValue<uint16_t>(m_dilution)->default_value(128),
-						"ots key dilution (network setting)");
-				optionsBuilder("start,s",
-						OptionsValue<uint32_t>(m_startFinalizationPoint)->default_value(1),
-						"start finalization point");
-				optionsBuilder("end,e",
-						OptionsValue<uint32_t>(m_endFinalizationPoint)->default_value(26280),
-						"end finalization point");
+						"voting key dilution (network setting)");
+				optionsBuilder("startEpoch,b",
+						OptionsValue<uint32_t>(m_startEpoch)->default_value(1),
+						"voting key start epoch");
+				optionsBuilder("endEpoch,e",
+						OptionsValue<uint32_t>(m_endEpoch)->default_value(26280),
+						"voting key end epoch");
 				optionsBuilder("secret,s",
 						OptionsValue<std::string>(m_secretKey),
 						"root secret key (testnet only, don't use in production)");
@@ -82,36 +73,40 @@ namespace catapult { namespace tools { namespace votingkey {
 			}
 
 		private:
-			crypto::OtsPublicKey generateTree(crypto::OtsKeyPairType&& keyPair) {
+			crypto::BmKeyIdentifier toKeyIdentifier(FinalizationEpoch epoch, model::FinalizationStage stage) const {
+				return model::StepIdentifierToBmKeyIdentifier({ epoch, FinalizationPoint(), stage }, m_dilution);
+			}
+
+			Key generateTree(crypto::KeyPair&& keyPair) {
 				if (boost::filesystem::exists(m_filename))
-					CATAPULT_THROW_RUNTIME_ERROR("voting ots tree file already exits");
+					CATAPULT_THROW_RUNTIME_ERROR("voting private key tree file already exits");
 
 				io::FileStream stream(io::RawFile(m_filename, io::OpenMode::Read_Write));
-				crypto::OtsOptions options;
+				crypto::BmOptions options;
 				options.Dilution = m_dilution;
-				options.StartKeyIdentifier = ToOtsKeyIdentifier(FinalizationPoint(m_startFinalizationPoint), 0, m_dilution);
-				options.EndKeyIdentifier = ToOtsKeyIdentifier(FinalizationPoint(m_endFinalizationPoint), 1, m_dilution);
+				options.StartKeyIdentifier = toKeyIdentifier(FinalizationEpoch(m_startEpoch), model::FinalizationStage::Prevote);
+				options.EndKeyIdentifier = toKeyIdentifier(FinalizationEpoch(m_endEpoch), model::FinalizationStage::Precommit);
 
 				auto numBatches = (options.EndKeyIdentifier.BatchId - options.StartKeyIdentifier.BatchId + 1);
 				std::cout << "generating " << numBatches << " batch keys, this might take a while" << std::endl;
 
-				auto tree = crypto::OtsTree::Create(std::move(keyPair), stream, options);
+				auto tree = crypto::BmPrivateKeyTree::Create(std::move(keyPair), stream, options);
 				std::cout << m_filename << " generated" << std::endl;
 				return tree.rootPublicKey();
 			}
 
-			crypto::OtsPublicKey verifyFile() {
+			Key verifyFile() {
 				std::cout << "verifying generated file" << std::endl;
 				io::FileStream stream(io::RawFile(m_filename, io::OpenMode::Read_Only));
-				auto tree = crypto::OtsTree::FromStream(stream);
+				auto tree = crypto::BmPrivateKeyTree::FromStream(stream);
 				return tree.rootPublicKey();
 			}
 
 		private:
 			std::string m_filename;
 			uint16_t m_dilution;
-			uint32_t m_startFinalizationPoint;
-			uint32_t m_endFinalizationPoint;
+			uint32_t m_startEpoch;
+			uint32_t m_endEpoch;
 			std::string m_secretKey;
 		};
 	}

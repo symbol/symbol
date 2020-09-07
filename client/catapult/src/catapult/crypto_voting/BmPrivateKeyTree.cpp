@@ -18,7 +18,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "OtsTree.h"
+#include "BmPrivateKeyTree.h"
 #include "catapult/crypto/SecureRandomGenerator.h"
 #include "catapult/crypto/Signer.h"
 #include "catapult/io/PodIoUtils.h"
@@ -28,18 +28,21 @@
 namespace catapult { namespace crypto {
 
 	namespace {
-		using OtsPrivateKeyType = PrivateKey;
+		using BmSignature = decltype(BmTreeSignature::Root.Signature);
+		using BmPublicKey = decltype(BmTreeSignature::Root.ParentPublicKey);
+		using BmPrivateKey = PrivateKey;
+		using BmKeyPair = KeyPair;
 
 		// region signed key pair
 
-		OtsPrivateKeyType GeneratePrivateKey() {
+		BmPrivateKey GeneratePrivateKey() {
 			SecureRandomGenerator generator;
-			return OtsPrivateKeyType::Generate([&generator]() { return static_cast<uint8_t>(generator()); });
+			return BmPrivateKey::Generate([&generator]() { return static_cast<uint8_t>(generator()); });
 		}
 
-		OtsPublicKey GetPublicKey(const OtsPrivateKeyType& privateKey) {
+		BmPublicKey GetPublicKey(const BmPrivateKey& privateKey) {
 			auto iter = privateKey.begin();
-			auto keyPair = OtsKeyPairType::FromPrivate(OtsPrivateKeyType::Generate([&iter]{
+			auto keyPair = BmKeyPair::FromPrivate(BmPrivateKey::Generate([&iter]{
 				return *iter++;
 			}));
 			return keyPair.publicKey();
@@ -51,45 +54,45 @@ namespace catapult { namespace crypto {
 
 		class SignedPrivateKey {
 		public:
-			static constexpr auto Entry_Size = sizeof(OtsPrivateKeyType) + OtsSignature::Size;
+			static constexpr auto Entry_Size = sizeof(BmPrivateKey) + BmSignature::Size;
 
 		public:
-			SignedPrivateKey(OtsPrivateKeyType&& privateKey, const OtsSignature& signature)
+			SignedPrivateKey(BmPrivateKey&& privateKey, const BmSignature& signature)
 					: m_privateKey(std::move(privateKey))
 					, m_signature(signature)
 			{}
 
 		public:
-			static SignedPrivateKey CreateRandom(const OtsKeyPairType& parentKeyPair, uint64_t identifier) {
+			static SignedPrivateKey CreateRandom(const BmKeyPair& parentKeyPair, uint64_t identifier) {
 				auto privateKey = GeneratePrivateKey();
 				auto publicKey = GetPublicKey(privateKey);
 
-				OtsSignature signature;
+				BmSignature signature;
 				Sign(parentKeyPair, { publicKey, ToBuffer(identifier) }, signature);
 				return SignedPrivateKey(std::move(privateKey), signature);
 			}
 
 		public:
-			const OtsPrivateKeyType& privateKey() const {
+			const BmPrivateKey& privateKey() const {
 				return m_privateKey;
 			}
 
-			const OtsSignature& signature() const {
+			const BmSignature& signature() const {
 				return m_signature;
 			}
 
-			OtsPrivateKeyType&& detachPrivateKey() {
+			BmPrivateKey&& detachPrivateKey() {
 				return std::move(m_privateKey);
 			}
 
 		private:
-			OtsPrivateKeyType m_privateKey;
-			OtsSignature m_signature;
+			BmPrivateKey m_privateKey;
+			BmSignature m_signature;
 		};
 
 		SignedPrivateKey ReadSignedPrivateKey(io::InputStream& input) {
-			auto privateKey = OtsPrivateKeyType::Generate([&input]() { return io::Read8(input); });
-			OtsSignature signature;
+			auto privateKey = BmPrivateKey::Generate([&input]() { return io::Read8(input); });
+			BmSignature signature;
 			input.read(signature);
 
 			return SignedPrivateKey(std::move(privateKey), signature);
@@ -101,19 +104,19 @@ namespace catapult { namespace crypto {
 		}
 
 		void WipeSignedPrivateKey(io::OutputStream& output) {
-			auto buffer = std::array<uint8_t, OtsPrivateKeyType::Size>();
+			auto buffer = std::array<uint8_t, BmPrivateKey::Size>();
 			output.write(buffer);
 		}
 
 		// endregion
 	}
 
-	// region ots level
+	// region level
 
-	class OtsTree::OtsLevel {
+	class BmPrivateKeyTree::Level {
 	private:
-		OtsLevel(
-				const OtsPublicKey& parentPublicKey,
+		Level(
+				const BmPublicKey& parentPublicKey,
 				uint64_t startIdentifier,
 				uint64_t endIdentifier,
 				std::vector<SignedPrivateKey>&& signedPrivateKeys)
@@ -124,8 +127,8 @@ namespace catapult { namespace crypto {
 		{}
 
 	public:
-		static OtsLevel FromStream(io::InputStream& input) {
-			OtsPublicKey parentPublicKey;
+		static Level FromStream(io::InputStream& input) {
+			BmPublicKey parentPublicKey;
 			input.read(parentPublicKey);
 			auto startIdentifier = io::Read64(input);
 			auto endIdentifier = io::Read64(input);
@@ -134,19 +137,19 @@ namespace catapult { namespace crypto {
 			for (auto i = 0u; i <= endIdentifier - startIdentifier; ++i)
 				signedPrivateKeys.push_back(ReadSignedPrivateKey(input));
 
-			return OtsLevel(parentPublicKey, startIdentifier, endIdentifier, std::move(signedPrivateKeys));
+			return Level(parentPublicKey, startIdentifier, endIdentifier, std::move(signedPrivateKeys));
 		}
 
-		static OtsLevel Create(OtsKeyPairType&& keyPair, uint64_t startIdentifier, uint64_t endIdentifier) {
+		static Level Create(BmKeyPair&& keyPair, uint64_t startIdentifier, uint64_t endIdentifier) {
 			std::vector<SignedPrivateKey> signedPrivateKeys;
 			for (auto i = 0u; i <= endIdentifier - startIdentifier; ++i)
 				signedPrivateKeys.push_back(SignedPrivateKey::CreateRandom(keyPair, endIdentifier - i));
 
-			return OtsLevel(keyPair.publicKey(), startIdentifier, endIdentifier, std::move(signedPrivateKeys));
+			return Level(keyPair.publicKey(), startIdentifier, endIdentifier, std::move(signedPrivateKeys));
 		}
 
 	public:
-		const OtsPublicKey& publicKey() const {
+		const BmPublicKey& publicKey() const {
 			return m_parentPublicKey;
 		}
 
@@ -162,7 +165,7 @@ namespace catapult { namespace crypto {
 			return m_levelSignedPrivateKeys.size();
 		}
 
-		OtsParentPublicKeySignaturePair publicKeySignature(uint64_t identifier) const {
+		BmTreeSignature::ParentPublicKeySignaturePair publicKeySignature(uint64_t identifier) const {
 			auto index = m_endIdentifier - identifier;
 			return { m_parentPublicKey, m_levelSignedPrivateKeys[index].signature() };
 		}
@@ -173,7 +176,7 @@ namespace catapult { namespace crypto {
 				m_levelSignedPrivateKeys.pop_back();
 		}
 
-		OtsPrivateKeyType&& detachPrivateKey(uint64_t identifier) {
+		BmPrivateKey&& detachPrivateKey(uint64_t identifier) {
 			auto index = m_endIdentifier - identifier;
 			return std::move(m_levelSignedPrivateKeys[index].detachPrivateKey());
 		}
@@ -188,7 +191,7 @@ namespace catapult { namespace crypto {
 		}
 
 	private:
-		OtsPublicKey m_parentPublicKey;
+		BmPublicKey m_parentPublicKey;
 		uint64_t m_startIdentifier;
 		uint64_t m_endIdentifier;
 		std::vector<SignedPrivateKey> m_levelSignedPrivateKeys;
@@ -196,7 +199,7 @@ namespace catapult { namespace crypto {
 
 	// endregion
 
-	// region ots tree
+	// region bm private key tree
 
 	namespace {
 		enum : size_t {
@@ -204,92 +207,92 @@ namespace catapult { namespace crypto {
 			Layer_Low
 		};
 
-		constexpr auto Tree_Header_Size = sizeof(OtsOptions) + sizeof(OtsKeyIdentifier);
-		constexpr auto Layer_Header_Size = OtsPublicKey::Size + sizeof(uint64_t) + sizeof(uint64_t);
+		constexpr auto Tree_Header_Size = sizeof(BmOptions) + sizeof(BmKeyIdentifier);
+		constexpr auto Layer_Header_Size = BmPublicKey::Size + sizeof(uint64_t) + sizeof(uint64_t);
 		constexpr auto Invalid_Batch_Id = 0xFFFF'FFFF'FFFF'FFFF;
 
 		uint64_t IndexToOffset(uint64_t index) {
 			return Layer_Header_Size + index * SignedPrivateKey::Entry_Size;
 		}
 
-		OtsKeyIdentifier LoadKeyIdentifier(io::InputStream& input) {
-			OtsKeyIdentifier keyIdentifier;
+		BmKeyIdentifier LoadKeyIdentifier(io::InputStream& input) {
+			BmKeyIdentifier keyIdentifier;
 			keyIdentifier.BatchId = io::Read64(input);
 			keyIdentifier.KeyId = io::Read64(input);
 			return keyIdentifier;
 		}
 
-		OtsOptions LoadOptions(io::InputStream& input) {
-			OtsOptions options;
+		BmOptions LoadOptions(io::InputStream& input) {
+			BmOptions options;
 			options.Dilution = io::Read64(input);
 			options.StartKeyIdentifier = LoadKeyIdentifier(input);
 			options.EndKeyIdentifier = LoadKeyIdentifier(input);
 			return options;
 		}
 
-		void SaveKeyIdentifier(io::OutputStream& output, const OtsKeyIdentifier& keyIdentifier) {
+		void SaveKeyIdentifier(io::OutputStream& output, const BmKeyIdentifier& keyIdentifier) {
 			io::Write64(output, keyIdentifier.BatchId);
 			io::Write64(output, keyIdentifier.KeyId);
 		}
 
-		void SaveOptions(io::OutputStream& output, const OtsOptions& options) {
+		void SaveOptions(io::OutputStream& output, const BmOptions& options) {
 			io::Write64(output, options.Dilution);
 			SaveKeyIdentifier(output, options.StartKeyIdentifier);
 			SaveKeyIdentifier(output, options.EndKeyIdentifier);
 		}
 
-		void SaveHeader(io::OutputStream& output, const OtsOptions& options, const OtsKeyIdentifier& lastKeyIdentifier) {
+		void SaveHeader(io::OutputStream& output, const BmOptions& options, const BmKeyIdentifier& lastKeyIdentifier) {
 			SaveOptions(output, options);
 			SaveKeyIdentifier(output, lastKeyIdentifier);
 		}
 	}
 
-	OtsTree::OtsTree(io::SeekableStream& storage, const OtsOptions& options)
+	BmPrivateKeyTree::BmPrivateKeyTree(io::SeekableStream& storage, const BmOptions& options)
 			: m_storage(storage)
 			, m_options(options)
 			, m_lastKeyIdentifier({ Invalid_Batch_Id, 0 })
 	{}
 
-	OtsTree::OtsTree(OtsTree&&) = default;
+	BmPrivateKeyTree::BmPrivateKeyTree(BmPrivateKeyTree&&) = default;
 
-	OtsTree OtsTree::FromStream(io::SeekableStream& storage) {
+	BmPrivateKeyTree BmPrivateKeyTree::FromStream(io::SeekableStream& storage) {
 		auto options = LoadOptions(storage);
-		OtsTree tree(storage, options);
+		BmPrivateKeyTree tree(storage, options);
 
 		// FromStream loads whole level, used keys are zeroed. wipeUntil() is used to have consistent view.
 		tree.m_lastKeyIdentifier = LoadKeyIdentifier(storage);
 
-		tree.m_levels[Layer_Top] = std::make_unique<OtsLevel>(OtsLevel::FromStream(storage));
+		tree.m_levels[Layer_Top] = std::make_unique<Level>(Level::FromStream(storage));
 
 		// if any sign() was issued prior to saving, load subsequent levels
 		if (Invalid_Batch_Id != tree.m_lastKeyIdentifier.BatchId) {
 			tree.m_levels[Layer_Top]->wipeUntil(tree.m_lastKeyIdentifier.BatchId);
 
-			tree.m_levels[Layer_Low] = std::make_unique<OtsLevel>(OtsLevel::FromStream(storage));
+			tree.m_levels[Layer_Low] = std::make_unique<Level>(Level::FromStream(storage));
 			tree.m_levels[Layer_Low]->wipeUntil(tree.m_lastKeyIdentifier.KeyId);
 		}
 
 		return tree;
 	}
 
-	OtsTree OtsTree::Create(OtsKeyPairType&& keyPair, io::SeekableStream& storage, const OtsOptions& options) {
-		OtsTree tree(storage, options);
+	BmPrivateKeyTree BmPrivateKeyTree::Create(BmKeyPair&& keyPair, io::SeekableStream& storage, const BmOptions& options) {
+		BmPrivateKeyTree tree(storage, options);
 		SaveHeader(tree.m_storage, tree.m_options, tree.m_lastKeyIdentifier);
 		tree.createLevel(Layer_Top, std::move(keyPair), options.StartKeyIdentifier.BatchId, options.EndKeyIdentifier.BatchId);
 		return tree;
 	}
 
-	OtsTree::~OtsTree() = default;
+	BmPrivateKeyTree::~BmPrivateKeyTree() = default;
 
-	const OtsPublicKey& OtsTree::rootPublicKey() const {
+	const BmPublicKey& BmPrivateKeyTree::rootPublicKey() const {
 		return m_levels[Layer_Top]->publicKey();
 	}
 
-	const OtsOptions& OtsTree::options() const {
+	const BmOptions& BmPrivateKeyTree::options() const {
 		return m_options;
 	}
 
-	bool OtsTree::canSign(const OtsKeyIdentifier& keyIdentifier) const {
+	bool BmPrivateKeyTree::canSign(const BmKeyIdentifier& keyIdentifier) const {
 		if (Invalid_Batch_Id != m_lastKeyIdentifier.BatchId && keyIdentifier <= m_lastKeyIdentifier)
 			return false;
 
@@ -302,7 +305,7 @@ namespace catapult { namespace crypto {
 		return true;
 	}
 
-	OtsTreeSignature OtsTree::sign(const OtsKeyIdentifier& keyIdentifier, const RawBuffer& dataBuffer) {
+	BmTreeSignature BmPrivateKeyTree::sign(const BmKeyIdentifier& keyIdentifier, const RawBuffer& dataBuffer) {
 		if (!canSign(keyIdentifier))
 			CATAPULT_THROW_RUNTIME_ERROR_1("sign called with invalid key identifier", keyIdentifier);
 
@@ -314,11 +317,11 @@ namespace catapult { namespace crypto {
 		}
 
 		auto subKeyPair = detachKeyPair(Layer_Low, keyIdentifier.KeyId);
-		OtsSignature msgSignature;
+		BmSignature msgSignature;
 		crypto::Sign(subKeyPair, dataBuffer, msgSignature);
 
 		m_lastKeyIdentifier = keyIdentifier;
-		m_storage.seek(sizeof(OtsOptions));
+		m_storage.seek(sizeof(BmOptions));
 		SaveKeyIdentifier(m_storage, m_lastKeyIdentifier);
 
 		return {
@@ -328,7 +331,7 @@ namespace catapult { namespace crypto {
 		};
 	}
 
-	size_t OtsTree::levelOffset(size_t depth) const {
+	size_t BmPrivateKeyTree::levelOffset(size_t depth) const {
 		auto offset = Tree_Header_Size;
 		for (size_t i = 0; i < depth; ++i)
 			offset += IndexToOffset(m_levels[i]->endIdentifier() - m_levels[i]->startIdentifier() + 1);
@@ -336,7 +339,7 @@ namespace catapult { namespace crypto {
 		return offset;
 	}
 
-	OtsKeyPairType OtsTree::detachKeyPair(size_t depth, uint64_t identifier) {
+	BmKeyPair BmPrivateKeyTree::detachKeyPair(size_t depth, uint64_t identifier) {
 		auto& level = *m_levels[depth];
 
 		// wipe keys from storage
@@ -355,12 +358,12 @@ namespace catapult { namespace crypto {
 		WipeSignedPrivateKey(m_storage);
 
 		// detach requested key
-		return OtsKeyPairType::FromPrivate(level.detachPrivateKey(identifier));
+		return BmKeyPair::FromPrivate(level.detachPrivateKey(identifier));
 	}
 
-	void OtsTree::createLevel(size_t depth, KeyPair&& keyPair, uint64_t startIdentifier, uint64_t endIdentifier) {
+	void BmPrivateKeyTree::createLevel(size_t depth, BmKeyPair&& keyPair, uint64_t startIdentifier, uint64_t endIdentifier) {
 		auto offset = levelOffset(depth);
-		m_levels[depth] = std::make_unique<OtsLevel>(OtsLevel::Create(std::move(keyPair), startIdentifier, endIdentifier));
+		m_levels[depth] = std::make_unique<Level>(Level::Create(std::move(keyPair), startIdentifier, endIdentifier));
 
 		m_storage.seek(offset);
 		m_levels[depth]->write(m_storage);
@@ -369,12 +372,15 @@ namespace catapult { namespace crypto {
 	// endregion
 
 	namespace {
-		bool VerifyBoundSignature(const OtsParentPublicKeySignaturePair& pair, const OtsPublicKey& signedPublicKey, uint64_t boundary) {
+		bool VerifyBoundSignature(
+				const BmTreeSignature::ParentPublicKeySignaturePair& pair,
+				const BmPublicKey& signedPublicKey,
+				uint64_t boundary) {
 			return crypto::Verify(pair.ParentPublicKey, { signedPublicKey, ToBuffer(boundary) }, pair.Signature);
 		}
 	}
 
-	bool Verify(const OtsTreeSignature& signature, const OtsKeyIdentifier& keyIdentifier, const RawBuffer& buffer) {
+	bool Verify(const BmTreeSignature& signature, const BmKeyIdentifier& keyIdentifier, const RawBuffer& buffer) {
 		if (!VerifyBoundSignature(signature.Root, signature.Top.ParentPublicKey, keyIdentifier.BatchId))
 			return false;
 

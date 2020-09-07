@@ -138,7 +138,7 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region StepIdentifierToOtsKeyIdentifier
+	// region StepIdentifierToBmKeyIdentifier
 
 	namespace {
 		std::vector<StepIdentifier> GenerateValidStepIdentifierValues() {
@@ -152,32 +152,32 @@ namespace catapult { namespace model {
 		}
 	}
 
-	TEST(TEST_CLASS, StepIdentifierToOtsKeyIdentifierProducesCorrectValues) {
+	TEST(TEST_CLASS, StepIdentifierToBmKeyIdentifierProducesCorrectValues) {
 		// Arrange:
 		auto identifiers = GenerateValidStepIdentifierValues();
-		auto expectedKeyIdentifiers = std::vector<crypto::OtsKeyIdentifier>{
+		auto expectedKeyIdentifiers = std::vector<crypto::BmKeyIdentifier>{
 			{ 1, 3 }, { 2, 6 }, { 3, 0 }, { 3, 1 }, { 3, 2 }
 		};
 
 		// Act:
 		auto keyIdentifiers = test::Apply(true, identifiers, [](const auto& stepIdentifier) {
-			return StepIdentifierToOtsKeyIdentifier(stepIdentifier, 7);
+			return StepIdentifierToBmKeyIdentifier(stepIdentifier, 7);
 		});
 
 		// Assert:
 		EXPECT_EQ(expectedKeyIdentifiers, keyIdentifiers);
 	}
 
-	TEST(TEST_CLASS, StepIdentifierToOtsKeyIdentifierProducesCorrectValuesWhenDilutionIsOne) {
+	TEST(TEST_CLASS, StepIdentifierToBmKeyIdentifierProducesCorrectValuesWhenDilutionIsOne) {
 		// Arrange:
 		auto identifiers = GenerateValidStepIdentifierValues();
-		auto expectedKeyIdentifiers = std::vector<crypto::OtsKeyIdentifier>{
+		auto expectedKeyIdentifiers = std::vector<crypto::BmKeyIdentifier>{
 			{ 10, 0 }, { 20, 0 }, { 21, 0 }, { 22, 0 }, { 23, 0 }
 		};
 
 		// Act:
 		auto keyIdentifiers = test::Apply(true, identifiers, [](const auto& stepIdentifier) {
-			return StepIdentifierToOtsKeyIdentifier(stepIdentifier, 1);
+			return StepIdentifierToBmKeyIdentifier(stepIdentifier, 1);
 		});
 
 		// Assert:
