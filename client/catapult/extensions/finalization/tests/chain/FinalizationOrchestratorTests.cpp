@@ -718,12 +718,16 @@ namespace catapult { namespace chain {
 		auto hashes = test::GenerateRandomDataVector<Hash256>(4);
 		CreateFinalizerTestContext context;
 		context.setRoundMessageAggregatorInitializer([&hashes](auto& roundMessageAggregator) {
-			const auto& hash = hashes[roundMessageAggregator.round().Point.unwrap() - 7];
+			auto round = roundMessageAggregator.round();
+			if (FinalizationPoint(7) > round.Point)
+				return;
+
+			const auto& hash = hashes[round.Point.unwrap() - 7];
 			roundMessageAggregator.roundContext().acceptPrevote(Height(246), &hash, 1, 750);
 			roundMessageAggregator.roundContext().acceptPrecommit(Height(246), hash, 750);
 
 			RoundMessageAggregator::UnknownMessages messages;
-			messages.push_back(test::CreateMessage(roundMessageAggregator.round()));
+			messages.push_back(test::CreateMessage(round));
 			roundMessageAggregator.setMessages(std::move(messages));
 		});
 
@@ -751,15 +755,18 @@ namespace catapult { namespace chain {
 		auto hashes = test::GenerateRandomDataVector<Hash256>(4);
 		CreateFinalizerTestContext context;
 		context.setRoundMessageAggregatorInitializer([&hashes](auto& roundMessageAggregator) {
-			auto roundPoint = roundMessageAggregator.round().Point;
-			const auto& hash = hashes[roundPoint.unwrap() - 7];
+			auto round = roundMessageAggregator.round();
+			if (FinalizationPoint(7) > round.Point)
+				return;
+
+			const auto& hash = hashes[round.Point.unwrap() - 7];
 			roundMessageAggregator.roundContext().acceptPrevote(Height(246), &hash, 1, 750);
 
-			if (FinalizationPoint(8) >= roundPoint)
+			if (FinalizationPoint(8) >= round.Point)
 				roundMessageAggregator.roundContext().acceptPrecommit(Height(246), hash, 750);
 
 			RoundMessageAggregator::UnknownMessages messages;
-			messages.push_back(test::CreateMessage(roundMessageAggregator.round()));
+			messages.push_back(test::CreateMessage(round));
 			roundMessageAggregator.setMessages(std::move(messages));
 		});
 
