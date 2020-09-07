@@ -1,8 +1,8 @@
 tags:
-  - Lock hash routes
+  - Hash Lock routes
 summary: Get hash lock information
 description: Gets the hash lock for a given hash.
-operationId: getLockHash
+operationId: getHashLock
 parameters:
   - $ref: "../../../parameters/path/hash.yml"
 responses:
