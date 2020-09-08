@@ -22,6 +22,15 @@
 
 namespace catapult { namespace crypto {
 
+	namespace {
+		bool IsIdLessThan(uint64_t lhs, uint64_t rhs) {
+			if (lhs == rhs || BmKeyIdentifier::Invalid_Id == rhs)
+				return false;
+
+			return BmKeyIdentifier::Invalid_Id == lhs || lhs < rhs;
+		}
+	}
+
 	bool BmKeyIdentifier::operator==(const BmKeyIdentifier& rhs) const {
 		return BatchId == rhs.BatchId && KeyId == rhs.KeyId;
 	}
@@ -31,7 +40,7 @@ namespace catapult { namespace crypto {
 	}
 
 	bool BmKeyIdentifier::operator<(const BmKeyIdentifier& rhs) const {
-		return BatchId < rhs.BatchId || (BatchId == rhs.BatchId && KeyId < rhs.KeyId);
+		return IsIdLessThan(BatchId, rhs.BatchId) || (BatchId == rhs.BatchId && IsIdLessThan(KeyId, rhs.KeyId));
 	}
 
 	bool BmKeyIdentifier::operator<=(const BmKeyIdentifier& rhs) const {

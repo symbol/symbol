@@ -25,7 +25,7 @@
 #include "finalization/src/chain/MultiRoundMessageAggregator.h"
 #include "finalization/src/io/ProofStorageCache.h"
 #include "catapult/config/CatapultDataDirectory.h"
-#include "catapult/crypto_voting/BmPrivateKeyTree.h"
+#include "catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
 #include "catapult/io/FileStream.h"
 #include "finalization/tests/test/FinalizationMessageTestUtils.h"
 #include "finalization/tests/test/mocks/MockProofStorage.h"
@@ -195,7 +195,7 @@ namespace catapult { namespace finalization {
 
 				auto startKeyIdentifier = CreateBmKeyIdentifier(FinalizationPoint(1), Prevote_Stage);
 				auto endKeyIdentifier = CreateBmKeyIdentifier(FinalizationPoint(100), Precommit_Stage);
-				crypto::BmPrivateKeyTree::Create(
+				crypto::AggregateBmPrivateKeyTree::Create(
 						test::GenerateKeyPair(),
 						votingPrivateKeyTreeStream,
 						{ Voting_Key_Dilution, startKeyIdentifier, endKeyIdentifier });

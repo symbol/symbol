@@ -25,7 +25,7 @@
 #include "catapult/model/TrailingVariableDataLayout.h"
 
 namespace catapult {
-	namespace crypto { class BmPrivateKeyTree; }
+	namespace crypto { class AggregateBmPrivateKeyTree; }
 	namespace model { class FinalizationContext; }
 }
 
@@ -78,7 +78,7 @@ namespace catapult { namespace model {
 
 	/// Determines if the voter associated with \a bmPrivateKeyTree is eligible for participating in the finalization procedure
 	/// represented by \a context.
-	bool IsEligibleVoter(const crypto::BmPrivateKeyTree& bmPrivateKeyTree, const FinalizationContext& context);
+	bool IsEligibleVoter(const crypto::AggregateBmPrivateKeyTree& bmPrivateKeyTree, const FinalizationContext& context);
 
 	// endregion
 
@@ -86,7 +86,7 @@ namespace catapult { namespace model {
 
 	/// Prepares a finalization message given \a bmPrivateKeyTree, \a stepIdentifier, \a height and \a hashes.
 	std::unique_ptr<FinalizationMessage> PrepareMessage(
-			crypto::BmPrivateKeyTree& bmPrivateKeyTree,
+			crypto::AggregateBmPrivateKeyTree& bmPrivateKeyTree,
 			const StepIdentifier& stepIdentifier,
 			Height height,
 			const HashRange& hashes);

@@ -24,7 +24,7 @@
 #include <memory>
 
 namespace catapult {
-	namespace crypto { class BmPrivateKeyTree; }
+	namespace crypto { class AggregateBmPrivateKeyTree; }
 	namespace finalization { struct FinalizationConfiguration; }
 	namespace io {
 		class BlockStorageCache;
@@ -55,5 +55,5 @@ namespace catapult { namespace chain {
 			const finalization::FinalizationConfiguration& config,
 			const io::BlockStorageCache& blockStorage,
 			const io::ProofStorageCache& proofStorage,
-			crypto::BmPrivateKeyTree&& bmPrivateKeyTree);
+			crypto::AggregateBmPrivateKeyTree&& bmPrivateKeyTree);
 }}

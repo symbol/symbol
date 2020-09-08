@@ -20,7 +20,7 @@
 
 #include "finalization/src/chain/FinalizationMessageFactory.h"
 #include "finalization/src/io/ProofStorageCache.h"
-#include "catapult/crypto_voting/BmPrivateKeyTree.h"
+#include "catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
 #include "finalization/tests/test/FinalizationMessageTestUtils.h"
 #include "finalization/tests/test/mocks/MockProofStorage.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
@@ -51,7 +51,7 @@ namespace catapult { namespace chain {
 							config,
 							*m_pBlockStorage,
 							m_proofStorage,
-							CreateBmPrivateKeyTree(m_bmPrivateKeyTreeStream, FinalizationPoint())))
+							CreateAggregateBmPrivateKeyTree(m_bmPrivateKeyTreeStream, FinalizationPoint())))
 			{}
 
 		public:
@@ -69,14 +69,16 @@ namespace catapult { namespace chain {
 			}
 
 		private:
-			static crypto::BmPrivateKeyTree CreateBmPrivateKeyTree(io::SeekableStream& storage, FinalizationPoint point) {
+			static crypto::AggregateBmPrivateKeyTree CreateAggregateBmPrivateKeyTree(
+					io::SeekableStream& storage,
+					FinalizationPoint point) {
 				auto startKeyIdentifier = model::StepIdentifierToBmKeyIdentifier(
 						{ FinalizationEpoch(), point, model::FinalizationStage::Prevote },
 						Voting_Key_Dilution);
 				auto endKeyIdentifier = model::StepIdentifierToBmKeyIdentifier(
 						{ FinalizationEpoch(), point + FinalizationPoint(20), model::FinalizationStage::Precommit },
 						Voting_Key_Dilution);
-				return crypto::BmPrivateKeyTree::Create(
+				return crypto::AggregateBmPrivateKeyTree::Create(
 						test::GenerateKeyPair(),
 						storage,
 						{ Voting_Key_Dilution, startKeyIdentifier, endKeyIdentifier });

@@ -20,6 +20,7 @@
 
 #include "catapult/crypto_voting/BmPrivateKeyTree.h"
 #include "catapult/utils/RandomGenerator.h"
+#include "tests/catapult/crypto_voting/test/BmTreeTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/TestHarness.h"
@@ -29,474 +30,433 @@ namespace catapult { namespace crypto {
 #define TEST_CLASS BmPrivateKeyTreeTests
 
 	namespace {
-		constexpr auto Bm_Public_Key_Size = Key::Size;
-		constexpr auto Bm_Private_Key_Size = PrivateKey::Size;
-		constexpr auto Bm_Signature_Size = Signature::Size;
-
-		constexpr auto File_Header_Size = sizeof(BmOptions) + sizeof(BmKeyIdentifier);
-		constexpr auto Level_Header_Size = Bm_Public_Key_Size + sizeof(uint64_t) + sizeof(uint64_t);
-		constexpr auto Level_Entry = Bm_Private_Key_Size + Bm_Signature_Size;
-
 		constexpr auto Start_Key = BmKeyIdentifier{ 8, 4 };
 		constexpr auto End_Key = BmKeyIdentifier{ 13, 5 };
-		constexpr auto Num_Batches = End_Key.BatchId - Start_Key.BatchId + 1;
 		constexpr BmOptions Default_Options{ 7, Start_Key, End_Key };
 
-		constexpr auto L1_Size = Level_Header_Size + Num_Batches * Level_Entry;
+		constexpr auto L1_Payload_Start = test::BmTreeSizes::CalculateLevelOnePayloadStart(0);
+		constexpr auto L2_Payload_Start = test::BmTreeSizes::CalculateLevelTwoPayloadStart(6);
+		constexpr auto Full_L1_Size = test::BmTreeSizes::CalculateFullLevelOneSize(6);
+		constexpr auto Full_L2_Size = test::BmTreeSizes::CalculateFullLevelTwoSize(6, 7);
 
 		auto GenerateKeyPair() {
 			return test::GenerateKeyPair();
 		}
 
-		void AssertOptions(const BmOptions& expected, const BmOptions& actual) {
-			EXPECT_EQ(expected.Dilution, actual.Dilution);
-			EXPECT_EQ(expected.StartKeyIdentifier, actual.StartKeyIdentifier);
-			EXPECT_EQ(expected.EndKeyIdentifier, actual.EndKeyIdentifier);
-		}
-
-		// region breadcrumb storage
-
-		enum class OperationType {
-			Seek,
-			Write
-		};
-
-		struct Operation {
-		public:
-			static Operation Write(uint64_t value) {
-				return { OperationType::Write, value };
-			}
-
-			static Operation Seek(uint64_t value) {
-				return { OperationType::Seek, value };
-			}
-
-		public:
-			constexpr bool operator==(const Operation& rhs) const {
-				return Type == rhs.Type && Value == rhs.Value;
-			}
-
-		public:
-			OperationType Type;
-			uint64_t Value;
-		};
-
-		class BreadcrumbStorage : public io::SeekableStream {
-		public:
-			BreadcrumbStorage() : m_position(0)
-			{}
-
-		public:
-			void write(const RawBuffer& buffer) override {
-				Breadcrumbs.push_back(Operation::Write(buffer.Size));
-				m_position += buffer.Size;
-			}
-
-			void flush() override
-			{}
-
-		public:
-			bool eof() const override {
-				CATAPULT_THROW_RUNTIME_ERROR("eof - not supported");
-			}
-
-			void read(const MutableRawBuffer&) override {
-				CATAPULT_THROW_RUNTIME_ERROR("read - not supported");
-			}
-
-		public:
-			void seek(uint64_t position) override {
-				Breadcrumbs.push_back(Operation::Seek(position));
-				m_position = position;
-			}
-
-			uint64_t position() const override {
-				return m_position;
-			}
-
-		public:
-			size_t m_position;
-			std::vector<Operation> Breadcrumbs;
-		};
-
-		// endregion
-
 		// region test context
 
-		template<typename TStorage>
 		class TestContext {
 		public:
-			TestContext()
-					: m_tree(BmPrivateKeyTree::Create(GenerateKeyPair(), m_storage, Default_Options))
-					, m_messageBuffer(test::GenerateRandomArray<10>())
+			TestContext() : m_tree(BmPrivateKeyTree::Create(GenerateKeyPair(), m_storage, Default_Options))
 			{}
 
 			TestContext(TestContext& originalContext)
 					: m_tree(BmPrivateKeyTree::FromStream(CopyInto(originalContext.m_storage, m_storage)))
-					, m_messageBuffer(originalContext.m_messageBuffer)
 			{}
 
 		public:
-			const auto& storage() const {
+			auto& storage() {
 				return m_storage;
 			}
 
-			const auto& tree() const {
+			auto& tree() {
 				return m_tree;
 			}
 
-			const auto& buffer() const {
-				return m_messageBuffer;
-			}
-
-		public:
-			auto sign(const BmKeyIdentifier& keyIdentifier) {
-				return m_tree.sign(keyIdentifier, m_messageBuffer);
-			}
-
 		private:
-			static TStorage& CopyInto(const TStorage& source, TStorage& dest) {
+			static mocks::MockSeekableMemoryStream& CopyInto(
+					const mocks::MockSeekableMemoryStream& source,
+					mocks::MockSeekableMemoryStream& dest) {
 				source.copyTo(dest);
 				return dest;
 			}
 
 		private:
-			TStorage m_storage;
+			mocks::MockSeekableMemoryStream m_storage;
 			BmPrivateKeyTree m_tree;
-			std::array<uint8_t, 10> m_messageBuffer;
 		};
-
-		using BreadcrumbTestContext = TestContext<BreadcrumbStorage>;
-		using MockTestContext = TestContext<mocks::MockSeekableMemoryStream>;
 
 		// endregion
 	}
 
-	// region can sign tests
-
-	TEST(TEST_CLASS, CanSignReturnsFalseWhenKeyIdentifierIsBelowRange) {
-		// Arrange:
-		BreadcrumbTestContext context;
-
-		// Act + Assert:
-		EXPECT_FALSE(context.tree().canSign({ Start_Key.BatchId - 1, Start_Key.KeyId }));
-		EXPECT_FALSE(context.tree().canSign({ Start_Key.BatchId, Start_Key.KeyId - 1 }));
-	}
-
-	TEST(TEST_CLASS, CanSignReturnsFalseWhenKeyIdentifierIsAboveRange) {
-		// Arrange:
-		BreadcrumbTestContext context;
-
-		// Act + Assert:
-		EXPECT_FALSE(context.tree().canSign({ End_Key.BatchId + 1, End_Key.KeyId }));
-		EXPECT_FALSE(context.tree().canSign({ End_Key.BatchId, End_Key.KeyId + 1 }));
-	}
-
-	TEST(TEST_CLASS, CanSignReturnsTrueForValuesNearBoundaries) {
-		// Arrange:
-		BreadcrumbTestContext context;
-		std::vector<BmKeyIdentifier> keyIdentifiers{ Start_Key, End_Key };
-
-		// Act + Assert:
-		for (const auto& keyIdentifier : keyIdentifiers)
-			EXPECT_TRUE(context.tree().canSign(keyIdentifier)) << keyIdentifier;
-	}
-
-	// endregion
-
 	// region ctor
 
-	TEST(TEST_CLASS, EmptyTreeHasProperRootPublicKeyAndOptions) {
+	TEST(TEST_CLASS, CanCreateEmptyTree) {
 		// Arrange:
 		auto rootKeyPair = GenerateKeyPair();
 		auto expectedPublicKey = rootKeyPair.publicKey();
-		BreadcrumbStorage storage;
+		mocks::MockSeekableMemoryStream storage;
 
 		// Act:
 		auto tree = BmPrivateKeyTree::Create(std::move(rootKeyPair), storage, Default_Options);
 
 		// Assert:
 		EXPECT_EQ(expectedPublicKey, tree.rootPublicKey());
-		AssertOptions(Default_Options, tree.options());
+		test::AssertOptions(Default_Options, tree.options());
+
+		// - (storage) all level one keys are created upon initial creation
+		ASSERT_EQ(Full_L1_Size, storage.buffer().size());
+		test::AssertZeroedKeys(storage.buffer(), L1_Payload_Start, 6, {}, "L1");
+	}
+
+	TEST(TEST_CLASS, CanLoadTreeFromStream) {
+		// Arrange:
+		auto rootKeyPair = GenerateKeyPair();
+		auto expectedPublicKey = rootKeyPair.publicKey();
+		mocks::MockSeekableMemoryStream storage;
+		{
+			auto originalTree = BmPrivateKeyTree::Create(std::move(rootKeyPair), storage, Default_Options);
+			storage.seek(0);
+		}
+
+		// Act:
+		auto tree = BmPrivateKeyTree::FromStream(storage);
+
+		// Assert:
+		EXPECT_EQ(expectedPublicKey, tree.rootPublicKey());
+		test::AssertOptions(Default_Options, tree.options());
 	}
 
 	// endregion
 
-	// region sign tests
+	// region canSign / sign - success
 
-	TEST(TEST_CLASS, SignForValuesNearBoundaries) {
-		// Arrange:
-		std::vector<BmKeyIdentifier> keyIdentifiers{ Start_Key, End_Key };
+	namespace {
+		void AssertCanSign(const BmKeyIdentifier& keyIdentifier) {
+			// Arrange:
+			TestContext context;
 
-		// Act: create new context for every run
-		for (const auto& keyIdentifier : keyIdentifiers) {
-			BreadcrumbTestContext context;
-			auto signature = context.sign(keyIdentifier);
-
-			// Assert:
-			EXPECT_TRUE(Verify(signature, keyIdentifier, context.buffer()));
+			// Act + Assert:
+			test::AssertCanSign(context.tree(), keyIdentifier);
 		}
 	}
 
-	TEST(TEST_CLASS, AccessingKeyIdentifierOutsideRangeThrows) {
-		// Arrange:
-		BreadcrumbTestContext context;
-
-		// Act:
-		EXPECT_NO_THROW(context.sign({ 10, Default_Options.Dilution - 1 }));
-		EXPECT_THROW(context.sign({ 10, Default_Options.Dilution }), catapult_runtime_error);
+	TEST(TEST_CLASS, CanSignWithStartKey) {
+		AssertCanSign(Start_Key);
 	}
 
-	TEST(TEST_CLASS, AccessingKeyIdentifierBelowRangeThrows) {
-		// Arrange:
-		BreadcrumbTestContext context;
-
-		// Act:
-		EXPECT_THROW(context.sign({ Start_Key.BatchId - 1, Start_Key.KeyId }), catapult_runtime_error);
-		EXPECT_THROW(context.sign({ Start_Key.BatchId, Start_Key.KeyId - 1 }), catapult_runtime_error);
+	TEST(TEST_CLASS, CanSignWithMiddleKey) {
+		AssertCanSign({ (Start_Key.BatchId + End_Key.BatchId) / 2, (Start_Key.KeyId + End_Key.KeyId) / 2 });
 	}
 
-	TEST(TEST_CLASS, AccessingKeyIdentifierAboveRangeThrows) {
-		// Arrange:
-		BreadcrumbTestContext context;
-
-		// Act:
-		EXPECT_THROW(context.sign({ End_Key.BatchId + 1, End_Key.KeyId }), catapult_runtime_error);
-		EXPECT_THROW(context.sign({ End_Key.BatchId, End_Key.KeyId + 1 }), catapult_runtime_error);
+	TEST(TEST_CLASS, CanSignWithEndKey) {
+		AssertCanSign(End_Key);
 	}
 
-	TEST(TEST_CLASS, GeneratedSignaturesAreValid) {
+	TEST(TEST_CLASS, CanResignWithSameKey) {
 		// Arrange:
-		BreadcrumbTestContext context;
+		TestContext context;
 
-		// Act:
-		auto signature1 = context.sign({ 8, 4 });
-		auto signature2 = context.sign({ 8, 5 }); // KeyId incremenent
-		auto signature3 = context.sign({ 9, 0 }); // BatchId increment
-		auto signature4 = context.sign({ 11, 0 }); // BatchId skip
-		auto signature5 = context.sign({ 13, 3 }); // BatchId and KeyId skip
-
-		// Assert:
-		EXPECT_TRUE(Verify(signature1, { 8, 4 }, context.buffer()));
-		EXPECT_TRUE(Verify(signature2, { 8, 5 }, context.buffer()));
-		EXPECT_TRUE(Verify(signature3, { 9, 0 }, context.buffer()));
-		EXPECT_TRUE(Verify(signature4, { 11, 0 }, context.buffer()));
-		EXPECT_TRUE(Verify(signature5, { 13, 3 }, context.buffer()));
+		// Act + Assert:
+		for (auto i = 0u; i < 5u; ++i)
+			test::AssertCanSign(context.tree(), { 10, 3 });
 	}
 
-	// endregion
-
-	namespace {
-		// region storage checker
-
-		class StorageChecker {
-		private:
-			static constexpr auto Num_Key_Identifier_Values = 2;
-			static constexpr auto Num_Property_Values = 1 + 2 * Num_Key_Identifier_Values; // dilution, start, end
-
-		public:
-			explicit StorageChecker(const std::vector<Operation>& breadcrumbs)
-					: m_operations(breadcrumbs)
-					, m_index(0)
-			{}
-
-		public:
-			void assertTreeHeader() {
-				checkSize(Num_Key_Identifier_Values + Num_Property_Values);
-				for (auto i = 0u; i < Num_Key_Identifier_Values + Num_Property_Values; ++i)
-					EXPECT_EQ(Operation::Write(sizeof(uint64_t)), m_operations[m_index++]);
-			}
-
-			void assertSaveLevel(uint64_t position, size_t numEntries) {
-				assertSeek(position);
-				assertLevelHeader();
-				assertLevelEntries(numEntries);
-			}
-
-			void assertWipePrivateKey(uint64_t levelOffset, uint64_t numLevelEntries, uint64_t entryId, size_t wipeEntries) {
-				auto index = numLevelEntries - entryId - 1;
-				assertWipes(levelOffset, index + 1, wipeEntries);
-				assertWipes(levelOffset, index, 1);
-			}
-
-			void assertLastStep() {
-				checkSize(1);
-				EXPECT_EQ(Operation::Seek(sizeof(BmOptions)), m_operations[m_index++]);
-
-				checkSize(Num_Key_Identifier_Values);
-				for (auto i = 0u; i < Num_Key_Identifier_Values; ++i)
-					EXPECT_EQ(Operation::Write(sizeof(uint64_t)), m_operations[m_index++]);
-			}
-
-			void assertFinished() {
-				EXPECT_EQ(m_operations.size(), m_index);
-			}
-
-		private:
-			void checkSize(size_t numOperations) {
-				if (m_operations.size() < m_index + numOperations)
-					CATAPULT_THROW_RUNTIME_ERROR("too few operations captured");
-			}
-
-			void assertLevelHeader() {
-				checkSize(3);
-				EXPECT_EQ(Operation::Write(Bm_Public_Key_Size), m_operations[m_index++]);
-				EXPECT_EQ(Operation::Write(sizeof(uint64_t)), m_operations[m_index++]);
-				EXPECT_EQ(Operation::Write(sizeof(uint64_t)), m_operations[m_index++]);
-			}
-
-			void assertLevelEntries(size_t numEntries) {
-				checkSize(2 * numEntries);
-				for (auto i = 0u; i < numEntries; ++i) {
-					EXPECT_EQ(Operation::Write(Bm_Private_Key_Size), m_operations[m_index++]);
-					EXPECT_EQ(Operation::Write(Bm_Signature_Size), m_operations[m_index++]);
-				}
-			}
-
-			void assertWipes(uint64_t levelOffset, uint64_t startIndex, size_t numEntries) {
-				checkSize(2 * numEntries);
-
-				auto fileOffset = File_Header_Size + Level_Header_Size + levelOffset;
-				for (auto i = 0u; i < numEntries; ++i) {
-					EXPECT_EQ(Operation::Seek(fileOffset + (startIndex + i) * Level_Entry), m_operations[m_index++]);
-					EXPECT_EQ(Operation::Write(Bm_Private_Key_Size), m_operations[m_index++]);
-				}
-			}
-
-			// all seeks are relative to File_Header_Size
-			void assertSeek(uint64_t offset) {
-				checkSize(1);
-				EXPECT_EQ(Operation::Seek(File_Header_Size + offset), m_operations[m_index++]);
-			}
-
-		public:
-			const std::vector<Operation>& m_operations;
-			uint64_t m_index;
+	TEST(TEST_CLASS, CanSignWithMultipleIncreasingValidKeys) {
+		// Arrange:
+		TestContext context;
+		std::initializer_list<BmKeyIdentifier> keyIdentifiers{
+			{ 8, 4 },
+			{ 8, 5 }, // KeyId incremenent
+			{ 9, 0 }, // BatchId increment
+			{ 11, 0 }, // BatchId skip
+			{ 13, 3 } // BatchId and KeyId skip
 		};
 
-		// endregion
-	}
-
-	// region storage - saving
-
-	TEST(TEST_CLASS, NewlyCreatedTreeSavesHeaderAndFirstLevel) {
 		// Act:
-		BreadcrumbTestContext context;
-
-		// Assert:
-		StorageChecker checker(context.storage().Breadcrumbs);
-		checker.assertTreeHeader();
-		checker.assertSaveLevel(0, Num_Batches);
-		checker.assertFinished();
+		for (const auto& keyIdentifier : keyIdentifiers)
+			test::AssertCanSign(context.tree(), keyIdentifier);
 	}
+
+	// endregion
+
+	// region canSign / sign - failure
 
 	namespace {
-		void VerifyFull(StorageChecker& checker, const BmKeyIdentifier& keyIdentifier) {
-			// first level
-			auto relativeBatchId = keyIdentifier.BatchId - Start_Key.BatchId;
-			checker.assertTreeHeader();
-			checker.assertSaveLevel(0, Num_Batches);
-			checker.assertWipePrivateKey(0, Num_Batches, relativeBatchId, relativeBatchId);
+		void AssertCannotSign(const BmKeyIdentifier& keyIdentifier) {
+			// Arrange:
+			TestContext context;
 
-			// second level
-			// tree saves only starting at subId, so keys < subId aren't created/stored,
-			// so only wiped key is the one that is == subId, that's why 0, 0 is passed below
-			auto numEntriesLevel2 = Default_Options.Dilution - keyIdentifier.KeyId;
-			checker.assertSaveLevel(L1_Size, numEntriesLevel2);
-			checker.assertWipePrivateKey(L1_Size, numEntriesLevel2, 0, 0);
-
-			checker.assertLastStep();
+			// Act + Assert:
+			test::AssertCannotSign(context.tree(), keyIdentifier);
 		}
 	}
 
-	TEST(TEST_CLASS, SignWipesProperKeysAndSavesSubLevels) {
-		// Arrange:
-		BreadcrumbTestContext context;
-
-		// Act:
-		context.sign({ 9, 2 });
-
-		// Assert:
-		StorageChecker checker(context.storage().Breadcrumbs);
-		VerifyFull(checker, { 9, 2 });
-		checker.assertFinished();
+	TEST(TEST_CLASS, CannotSignWithKeyOutsideOfRange) {
+		AssertCanSign({ 10, Default_Options.Dilution - 1 });
+		AssertCannotSign({ 10, Default_Options.Dilution });
 	}
 
-	TEST(TEST_CLASS, AccessingSubsequentKeyDoesSingleAdditionalWipe) {
-		// Arrange:
-		BreadcrumbTestContext context;
-		context.sign({ 9, 2 });
-
-		// Sanity:
-		StorageChecker checker(context.storage().Breadcrumbs);
-		VerifyFull(checker, { 9, 2 });
-
-		// Act:
-		context.sign({ 9, 3 });
-
-		// Assert:
-		// - keys (9, 0), (9, 1) weren't saved
-		// - keys (9, 2), (9, 3) have been wiped
-		// - due to the way tracking works, key (9, 2) will be wiped again
-		checker.assertWipePrivateKey(L1_Size, Default_Options.Dilution - 2, 1, 1);
-		checker.assertLastStep();
-
-		checker.assertFinished();
+	TEST(TEST_CLASS, CannotSignWithKeyBelowStart) {
+		AssertCannotSign({ Start_Key.BatchId - 1, Start_Key.KeyId });
+		AssertCannotSign({ Start_Key.BatchId, Start_Key.KeyId - 1 });
 	}
 
-	TEST(TEST_CLASS, AccessingFurtherKeyWipesProperKeys) {
-		// Arrange:
-		BreadcrumbTestContext context;
-		context.sign({ 9, 2 });
-
-		// Sanity:
-		StorageChecker checker(context.storage().Breadcrumbs);
-		VerifyFull(checker, { 9, 2 });
-
-		// Act:
-		context.sign({ 9, 5 });
-
-		// Assert:
-		// - keys (9, 0), (9, 1) weren't saved
-		// - keys (9, 2), (9, 3), (9, 4), (9, 5) have been wiped
-		// - due to the way tracking works, key (9, 2) will be wiped again
-		checker.assertWipePrivateKey(L1_Size, Default_Options.Dilution - 2, 3, 3);
-		checker.assertLastStep();
-
-		checker.assertFinished();
+	TEST(TEST_CLASS, CannotSignWithKeyAboveStart) {
+		AssertCannotSign({ End_Key.BatchId + 1, End_Key.KeyId });
+		AssertCannotSign({ End_Key.BatchId, End_Key.KeyId + 1});
 	}
 
-	TEST(TEST_CLASS, AccessingDifferentBatchIdGeneratesNewSubKeys) {
+	TEST(TEST_CLASS, CannotSignWithInvalidKey) {
+		AssertCannotSign({ 10, BmKeyIdentifier::Invalid_Id });
+		AssertCannotSign({ BmKeyIdentifier::Invalid_Id, 3 });
+	}
+
+	TEST(TEST_CLASS, CannotSignWithEarlierKey) {
 		// Arrange:
-		BreadcrumbTestContext context;
-		context.sign({ 9, 2 });
+		TestContext context;
+		test::AssertCanSign(context.tree(), { 10, 3 });
+
+		// Act + Assert:
+		test::AssertCannotSign(context.tree(), { 10, 2 });
+		test::AssertCannotSign(context.tree(), { 9, 3 });
 
 		// Sanity:
-		StorageChecker checker(context.storage().Breadcrumbs);
-		VerifyFull(checker, { 9, 2 });
+		test::AssertCanSign(context.tree(), { 10, 3 });
+	}
+
+	// endregion
+
+	// region wipe - success
+
+	TEST(TEST_CLASS, SignCreatesSubLevels) {
+		// Arrange:
+		TestContext context;
 
 		// Act:
-		context.sign({ 13, 2 });
+		context.tree().sign({ 9, 2 }, test::GenerateRandomArray<10>());
 
 		// Assert:
-		// - top level keys will be wiped (9,) (10,) (11,) (12,)
-		// - (13,) has index 5, in top level there are keys (8, 9, ... 12, 13)
-		checker.assertWipePrivateKey(0, Num_Batches, 5, 4);
+		ASSERT_EQ(Full_L2_Size, context.storage().buffer().size());
+		test::AssertZeroedKeys(context.storage().buffer(), L1_Payload_Start, 6, {}, "L1");
+		test::AssertZeroedKeys(context.storage().buffer(), L2_Payload_Start, 7, {}, "L2");
+	}
 
-		// - 13 is last batch id, it should contain only keys 2-5, (0 and 1 will be skipped)
-		constexpr auto Num_Lower_Level_Keys = 4;
-		checker.assertSaveLevel(L1_Size, Num_Lower_Level_Keys);
+	TEST(TEST_CLASS, CanWipeSingleKey) {
+		// Arrange:
+		TestContext context;
+		context.tree().sign({ 9, 2 }, test::GenerateRandomArray<10>());
 
-		// - get the key at (13, 2)
-		checker.assertWipePrivateKey(L1_Size, Num_Lower_Level_Keys, 0, 0);
-		checker.assertLastStep();
+		// Act:
+		context.tree().wipe({ 9, 2 });
 
-		checker.assertFinished();
+		// Assert: (8,) (9,) L1 and (9,0) (9,1) (9,2) L2 are cleared (keys are in reverse order)
+		ASSERT_EQ(Full_L2_Size, context.storage().buffer().size());
+		test::AssertZeroedKeys(context.storage().buffer(), L1_Payload_Start, 6, { 4, 5 }, "L1");
+		test::AssertZeroedKeys(context.storage().buffer(), L2_Payload_Start, 7, { 4, 5, 6 }, "L2");
+	}
+
+	TEST(TEST_CLASS, CanWipeConsecutiveKeys) {
+		// Arrange:
+		TestContext context;
+		context.tree().sign({ 9, 2 }, test::GenerateRandomArray<10>());
+		context.tree().sign({ 9, 3 }, test::GenerateRandomArray<10>());
+
+		// Act:
+		context.tree().wipe({ 9, 2 });
+		context.tree().wipe({ 9, 3 });
+
+		// Assert: (8,) (9,) L1 and (9,0) (9,1) (9,2) (9,3) L2 are cleared (keys are in reverse order)
+		ASSERT_EQ(Full_L2_Size, context.storage().buffer().size());
+		test::AssertZeroedKeys(context.storage().buffer(), L1_Payload_Start, 6, { 4, 5 }, "L1");
+		test::AssertZeroedKeys(context.storage().buffer(), L2_Payload_Start, 7, { 3, 4, 5, 6 }, "L2");
+	}
+
+	TEST(TEST_CLASS, CanWipeNonConsecutiveKeyFromSameBatch) {
+		// Arrange:
+		TestContext context;
+		context.tree().sign({ 9, 2 }, test::GenerateRandomArray<10>());
+		context.tree().sign({ 9, 5 }, test::GenerateRandomArray<10>());
+
+		// Act:
+		context.tree().wipe({ 9, 2 });
+		context.tree().wipe({ 9, 5 });
+
+		// Assert: (8,) (9,) L1 and (9,0) (9,1) (9,2) (9,3) (9,4) (9,5) L2 are cleared (keys are in reverse order)
+		ASSERT_EQ(Full_L2_Size, context.storage().buffer().size());
+		test::AssertZeroedKeys(context.storage().buffer(), L1_Payload_Start, 6, { 4, 5 }, "L1");
+		test::AssertZeroedKeys(context.storage().buffer(), L2_Payload_Start, 7, { 1, 2, 3, 4, 5, 6 }, "L2");
+	}
+
+	TEST(TEST_CLASS, CanWipeNonConsecutiveKeyFromDifferentBatches) {
+		// Arrange:
+		TestContext context;
+		context.tree().sign({ 9, 2 }, test::GenerateRandomArray<10>());
+		context.tree().sign({ 13, 2 }, test::GenerateRandomArray<10>());
+
+		// Act:
+		context.tree().wipe({ 9, 2 });
+		context.tree().wipe({ 13, 2 });
+
+		// Assert: (8,) (9,) (10,) (11,) (12,) (13,) L1 and (13,0) (13,1) (13,2) L2 are cleared (keys are in reverse order)
+		ASSERT_EQ(Full_L2_Size, context.storage().buffer().size());
+		test::AssertZeroedKeys(context.storage().buffer(), L1_Payload_Start, 6, { 0, 1, 2, 3, 4, 5 }, "L1");
+		test::AssertZeroedKeys(context.storage().buffer(), L2_Payload_Start, 7, { 4, 5, 6 }, "L2");
+	}
+
+	TEST(TEST_CLASS, CanWipeEndKey) {
+		// Arrange:
+		TestContext context;
+		context.tree().sign({ 9, 2 }, test::GenerateRandomArray<10>());
+		context.tree().sign({ 13, 2 }, test::GenerateRandomArray<10>());
+
+		// Act:
+		context.tree().wipe(End_Key);
+
+		// Assert: (8,) (9,) (10,) (11,) (12,) (13,) L1 and (13,0) (13,1) (13,2) (13,3) (13,4) (13,5) L2 are cleared
+		//         (keys are in reverse order)
+		ASSERT_EQ(Full_L2_Size, context.storage().buffer().size());
+		test::AssertZeroedKeys(context.storage().buffer(), L1_Payload_Start, 6, { 0, 1, 2, 3, 4, 5 }, "L1");
+		test::AssertZeroedKeys(context.storage().buffer(), L2_Payload_Start, 7, { 1, 2, 3, 4, 5, 6 }, "L2");
+	}
+
+	TEST(TEST_CLASS, CanWipeSingleKeyMultipleTimes) {
+		// Arrange:
+		TestContext context;
+		context.tree().sign({ 9, 2 }, test::GenerateRandomArray<10>());
+
+		// Act:
+		for (auto i = 0u; i < 5; ++ i)
+			context.tree().wipe({ 9, 2 });
+
+		// Assert: (8,) (9,) L1 and (9,0) (9,1) (9,2) L2 are cleared (keys are in reverse order)
+		ASSERT_EQ(Full_L2_Size, context.storage().buffer().size());
+		test::AssertZeroedKeys(context.storage().buffer(), L1_Payload_Start, 6, { 4, 5 }, "L1");
+		test::AssertZeroedKeys(context.storage().buffer(), L2_Payload_Start, 7, { 4, 5, 6 }, "L2");
+	}
+
+	TEST(TEST_CLASS, CanWipeSingleLevel) {
+		// Arrange:
+		TestContext context;
+		context.tree().sign({ 9, 2 }, test::GenerateRandomArray<10>());
+		context.tree().sign({ 13, 2 }, test::GenerateRandomArray<10>());
+
+		// Act:
+		context.tree().wipe({ 13, BmKeyIdentifier::Invalid_Id });
+
+		// Assert: (8,) (9,) (10,) (11,) (12,) (13,) L1 are cleared (keys are in reverse order)
+		ASSERT_EQ(Full_L2_Size, context.storage().buffer().size());
+		test::AssertZeroedKeys(context.storage().buffer(), L1_Payload_Start, 6, { 0, 1, 2, 3, 4, 5 }, "L1");
+		test::AssertZeroedKeys(context.storage().buffer(), L2_Payload_Start, 7, {}, "L2");
+	}
+
+	// endregion
+
+	// region wipe - failure
+
+	namespace {
+		void AssertCanWipe(BmPrivateKeyTree& tree, const BmKeyIdentifier& keyIdentifier) {
+			// Act + Assert:
+			EXPECT_NO_THROW(tree.wipe(keyIdentifier)) << keyIdentifier;
+		}
+
+		void AssertCanWipe(const BmKeyIdentifier& keyIdentifier) {
+			// Arrange:
+			TestContext context;
+
+			// Act + Assert:
+			AssertCanWipe(context.tree(), keyIdentifier);
+		}
+
+		void AssertCannotWipe(BmPrivateKeyTree& tree, const BmKeyIdentifier& keyIdentifier) {
+			// Act + Assert:
+			EXPECT_THROW(tree.wipe(keyIdentifier), catapult_runtime_error) << keyIdentifier;
+		}
+
+		void AssertCannotWipe(const BmKeyIdentifier& keyIdentifier) {
+			// Arrange:
+			TestContext context;
+
+			// Act + Assert:
+			AssertCannotWipe(context.tree(), keyIdentifier);
+		}
+	}
+
+	TEST(TEST_CLASS, CannotWipeWithKeyOutsideOfRange) {
+		AssertCanWipe({ 10, Default_Options.Dilution - 1 });
+		AssertCannotWipe({ 10, Default_Options.Dilution });
+	}
+
+	TEST(TEST_CLASS, CannotWipeWithKeyBelowStart) {
+		AssertCannotWipe({ Start_Key.BatchId - 1, Start_Key.KeyId });
+		AssertCannotWipe({ Start_Key.BatchId, Start_Key.KeyId - 1 });
+	}
+
+	TEST(TEST_CLASS, CannotWipeWithKeyAboveStart) {
+		AssertCannotWipe({ End_Key.BatchId + 1, End_Key.KeyId });
+		AssertCannotWipe({ End_Key.BatchId, End_Key.KeyId + 1});
+	}
+
+	TEST(TEST_CLASS, CannotWipeWithInvalidKey) {
+		AssertCanWipe({ 10, BmKeyIdentifier::Invalid_Id });
+		AssertCannotWipe({ BmKeyIdentifier::Invalid_Id, 3 });
+	}
+
+	TEST(TEST_CLASS, CannotWipeWithEarlierKey) {
+		// Arrange:
+		TestContext context;
+		AssertCanWipe(context.tree(), { 10, 3 });
+
+		// Act + Assert:
+		AssertCannotWipe(context.tree(), { 10, 2 });
+		AssertCannotWipe(context.tree(), { 9, 3 });
+
+		// Sanity:
+		AssertCanWipe(context.tree(), { 10, 3 });
 	}
 
 	// endregion
 
 	// region roundtrip
+
+	TEST(TEST_CLASS, RoundtripHasProperSignBehavior) {
+		// Arrange:
+		TestContext originalContext;
+		BmKeyIdentifier earlierKeyIdentifier{ 9, 1 };
+		BmKeyIdentifier keyIdentifier{ 9, 2 };
+		BmKeyIdentifier laterKeyIdentifier{ 9, 3 };
+		originalContext.tree().sign(keyIdentifier, test::GenerateRandomArray<10>());
+
+		// Act: reload tree from storage
+		TestContext context(originalContext);
+
+		// Assert:
+		test::AssertCannotSign(context.tree(), earlierKeyIdentifier);
+		test::AssertCanSign(context.tree(), keyIdentifier);
+		test::AssertCanSign(context.tree(), laterKeyIdentifier);
+
+		// Sanity:
+		test::AssertCannotSign(originalContext.tree(), earlierKeyIdentifier);
+		test::AssertCanSign(originalContext.tree(), keyIdentifier);
+		test::AssertCanSign(originalContext.tree(), laterKeyIdentifier);
+	}
+
+	TEST(TEST_CLASS, RoundtripHasProperWipeBehavior) {
+		// Arrange:
+		TestContext originalContext;
+		originalContext.tree().sign({ 9, 3 }, test::GenerateRandomArray<10>());
+		originalContext.tree().wipe({ 9, 1 });
+
+		// Sanity:
+		ASSERT_EQ(Full_L2_Size, originalContext.storage().buffer().size());
+		test::AssertZeroedKeys(originalContext.storage().buffer(), L1_Payload_Start, 6, { 4, 5}, "L1");
+		test::AssertZeroedKeys(originalContext.storage().buffer(), L2_Payload_Start, 7, { 5, 6 }, "L2");
+
+		// Act: reload tree from storage
+		TestContext context(originalContext);
+
+		// Sanity:
+		test::AssertCannotSign(context.tree(), { 9, 2 });
+		test::AssertCanSign(context.tree(), { 9, 3 });
+
+		// Act: wipe last used key
+		context.tree().wipe({ 9, 3 });
+
+		// Assert:
+		ASSERT_EQ(Full_L2_Size, context.storage().buffer().size());
+		test::AssertZeroedKeys(context.storage().buffer(), L1_Payload_Start, 6, { 4, 5}, "L1");
+		test::AssertZeroedKeys(context.storage().buffer(), L2_Payload_Start, 7, { 3, 4, 5, 6 }, "L2");
+	}
 
 	namespace {
 		constexpr bool SingleLevelMatch(const BmTreeSignature& lhs, const BmTreeSignature& rhs) {
@@ -506,66 +466,51 @@ namespace catapult { namespace crypto {
 		}
 	}
 
-	TEST(TEST_CLASS, RoundtripTestSingleLevelTree) {
+	TEST(TEST_CLASS, RoundtripSingleLevelTree) {
 		// Arrange:
-		MockTestContext originalContext;
+		TestContext originalContext;
 
 		// Act: reload single level tree from storage
-		MockTestContext context(originalContext);
+		TestContext context(originalContext);
 
 		// Assert: signatures are different, but all top level keys should match
 		// '4' is used as KeyId, as it will be present in every BatchId
 		EXPECT_EQ(originalContext.tree().rootPublicKey(), context.tree().rootPublicKey());
-		AssertOptions(originalContext.tree().options(), context.tree().options());
+		test::AssertOptions(originalContext.tree().options(), context.tree().options());
 
 		for (auto batchId = Start_Key.BatchId; batchId <= End_Key.BatchId; ++batchId) {
-			auto originalSignature = originalContext.sign({ batchId, 4 });
-			auto signature = context.sign({ batchId, 4 });
+			auto messageBuffer = test::GenerateRandomArray<10>();
+			auto originalSignature = originalContext.tree().sign({ batchId, 4 }, messageBuffer);
+			auto signature = context.tree().sign({ batchId, 4 }, messageBuffer);
+
 			EXPECT_TRUE(SingleLevelMatch(originalSignature, signature));
 			EXPECT_NE(originalSignature, signature);
 		}
 	}
 
-	TEST(TEST_CLASS, RoundtripTestAccessingUsedKeyThrows) {
+	TEST(TEST_CLASS, RoundtripMultiLevelTree) {
 		// Arrange:
-		MockTestContext originalContext;
-		BmKeyIdentifier usedIdentifier{ 9, 2 };
-		BmKeyIdentifier unusedIdentifier{ 9, 3 };
-		originalContext.sign(usedIdentifier);
+		TestContext originalContext;
+		originalContext.tree().sign({ 9, 2 }, test::GenerateRandomArray<10>());
 
 		// Act: reload tree from storage
-		MockTestContext context(originalContext);
-
-		// Assert:
-		EXPECT_FALSE(originalContext.tree().canSign(usedIdentifier));
-		EXPECT_FALSE(context.tree().canSign(usedIdentifier));
-		EXPECT_TRUE(originalContext.tree().canSign(unusedIdentifier));
-		EXPECT_TRUE(context.tree().canSign(unusedIdentifier));
-
-		EXPECT_THROW(originalContext.sign(usedIdentifier), catapult_runtime_error);
-		EXPECT_THROW(context.sign(usedIdentifier), catapult_runtime_error);
-	}
-
-	TEST(TEST_CLASS, RoundtripTestMultiLevelTree) {
-		// Arrange:
-		MockTestContext originalContext;
-		originalContext.sign({ 9, 2 });
-
-		// Act: reload tree from storage
-		MockTestContext context(originalContext);
+		TestContext context(originalContext);
 
 		// Assert:
 		// - signatures on bottom level from both trees should match
 		// - all signatures using keys (9, 3) - (9, 6) should match
+		auto messageBuffer = test::GenerateRandomArray<10>();
 		for (auto keyId = 3u; keyId < Default_Options.Dilution; ++keyId) {
-			auto expectedSignature = originalContext.sign({ 9, keyId });
-			auto signature = context.sign({ 9, keyId });
+			auto expectedSignature = originalContext.tree().sign({ 9, keyId }, messageBuffer);
+			auto signature = context.tree().sign({ 9, keyId }, messageBuffer);
+
 			EXPECT_EQ(expectedSignature, signature);
 		}
 
 		// - signature at different batch id will match only partially
-		auto expectedSignature = originalContext.sign({ 10, 0 });
-		auto signature = context.sign({ 10, 0 });
+		auto expectedSignature = originalContext.tree().sign({ 10, 0 }, messageBuffer);
+		auto signature = context.tree().sign({ 10, 0 }, messageBuffer);
+
 		EXPECT_NE(expectedSignature, signature);
 		EXPECT_TRUE(SingleLevelMatch(expectedSignature, signature));
 	}

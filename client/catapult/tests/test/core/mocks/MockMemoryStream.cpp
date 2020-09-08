@@ -46,6 +46,10 @@ namespace catapult { namespace mocks {
 		m_buffer.reserve(1024);
 	}
 
+	const std::vector<uint8_t>& MockSeekableMemoryStream::buffer() const {
+		return m_buffer;
+	}
+
 	void MockSeekableMemoryStream::copyTo(MockSeekableMemoryStream& dest) const {
 		dest.m_buffer = m_buffer;
 	}

@@ -20,7 +20,7 @@
 
 #include "FinalizationMessageTestUtils.h"
 #include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/crypto_voting/BmPrivateKeyTree.h"
+#include "catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
 #include "catapult/model/BlockUtils.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
@@ -145,7 +145,7 @@ namespace catapult { namespace test {
 	void SignMessage(model::FinalizationMessage& message, const crypto::KeyPair& votingKeyPair, uint64_t dilution) {
 		auto storage = mocks::MockSeekableMemoryStream();
 		auto bmOptions = crypto::BmOptions{ dilution, { 0, 2 }, { 15, 1 } };
-		auto bmPrivateKeyTree = crypto::BmPrivateKeyTree::Create(CopyKeyPair(votingKeyPair), storage, bmOptions);
+		auto bmPrivateKeyTree = crypto::AggregateBmPrivateKeyTree::Create(CopyKeyPair(votingKeyPair), storage, bmOptions);
 
 		auto keyIdentifier = model::StepIdentifierToBmKeyIdentifier(message.StepIdentifier, bmPrivateKeyTree.options().Dilution);
 		message.Signature = bmPrivateKeyTree.sign(keyIdentifier, {

@@ -22,7 +22,7 @@
 #include "finalization/src/FinalizationConfiguration.h"
 #include "finalization/src/io/ProofStorageCache.h"
 #include "finalization/src/model/VotingSet.h"
-#include "catapult/crypto_voting/BmPrivateKeyTree.h"
+#include "catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
 #include "catapult/io/BlockStorageCache.h"
 #include "catapult/model/HeightGrouping.h"
 
@@ -73,7 +73,7 @@ namespace catapult { namespace chain {
 					const finalization::FinalizationConfiguration& config,
 					const io::BlockStorageCache& blockStorage,
 					const io::ProofStorageCache& proofStorage,
-					crypto::BmPrivateKeyTree&& bmPrivateKeyTree)
+					crypto::AggregateBmPrivateKeyTree&& bmPrivateKeyTree)
 					: m_config(config)
 					, m_blockStorage(blockStorage)
 					, m_proofStorage(proofStorage)
@@ -105,7 +105,7 @@ namespace catapult { namespace chain {
 			finalization::FinalizationConfiguration m_config;
 			const io::BlockStorageCache& m_blockStorage;
 			const io::ProofStorageCache& m_proofStorage;
-			crypto::BmPrivateKeyTree m_bmPrivateKeyTree;
+			crypto::AggregateBmPrivateKeyTree m_bmPrivateKeyTree;
 		};
 
 		// endregion
@@ -115,7 +115,7 @@ namespace catapult { namespace chain {
 			const finalization::FinalizationConfiguration& config,
 			const io::BlockStorageCache& blockStorage,
 			const io::ProofStorageCache& proofStorage,
-			crypto::BmPrivateKeyTree&& bmPrivateKeyTree) {
+			crypto::AggregateBmPrivateKeyTree&& bmPrivateKeyTree) {
 		return std::make_unique<DefaultFinalizationMessageFactory>(config, blockStorage, proofStorage, std::move(bmPrivateKeyTree));
 	}
 }}

@@ -61,6 +61,12 @@ namespace catapult { namespace crypto {
 	namespace {
 		std::vector<BmKeyIdentifier> GenerateIncreasingKeyIdentifierValues() {
 			return {
+					{ BmKeyIdentifier::Invalid_Id, BmKeyIdentifier::Invalid_Id },
+					{ BmKeyIdentifier::Invalid_Id, 0 },
+					{ BmKeyIdentifier::Invalid_Id, 1 },
+					{ 0, BmKeyIdentifier::Invalid_Id },
+					{ 0, 0 },
+					{ 1, BmKeyIdentifier::Invalid_Id },
 					{ 5, 0 },
 					{ 10, 0 },
 					{ 10, 1 },

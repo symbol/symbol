@@ -58,7 +58,7 @@ namespace catapult { namespace crypto {
 
 		public:
 			SignedPrivateKey(BmPrivateKey&& privateKey, const BmSignature& signature)
-					: m_privateKey(std::move(privateKey))
+					: m_keyPair(crypto::KeyPair::FromPrivate(std::move(privateKey)))
 					, m_signature(signature)
 			{}
 
@@ -73,20 +73,20 @@ namespace catapult { namespace crypto {
 			}
 
 		public:
-			const BmPrivateKey& privateKey() const {
-				return m_privateKey;
+			const BmKeyPair& keyPair() const {
+				return m_keyPair;
 			}
 
 			const BmSignature& signature() const {
 				return m_signature;
 			}
 
-			BmPrivateKey&& detachPrivateKey() {
-				return std::move(m_privateKey);
+			BmKeyPair&& detachKeyPair() {
+				return std::move(m_keyPair);
 			}
 
 		private:
-			BmPrivateKey m_privateKey;
+			BmKeyPair m_keyPair;
 			BmSignature m_signature;
 		};
 
@@ -99,7 +99,7 @@ namespace catapult { namespace crypto {
 		}
 
 		void Write(io::OutputStream& output, const SignedPrivateKey& signedPrivateKey) {
-			output.write(signedPrivateKey.privateKey());
+			output.write(signedPrivateKey.keyPair().privateKey());
 			output.write(signedPrivateKey.signature());
 		}
 
@@ -170,15 +170,20 @@ namespace catapult { namespace crypto {
 			return { m_parentPublicKey, m_levelSignedPrivateKeys[index].signature() };
 		}
 
-		void wipeUntil(uint64_t identifier) {
-			auto index = m_endIdentifier - identifier;
-			while (m_levelSignedPrivateKeys.size() > index + 1)
+		void wipe(uint64_t identifier) {
+			auto newSize = std::min<size_t>(m_levelSignedPrivateKeys.size(), m_endIdentifier - identifier);
+			while (m_levelSignedPrivateKeys.size() > newSize)
 				m_levelSignedPrivateKeys.pop_back();
 		}
 
-		BmPrivateKey&& detachPrivateKey(uint64_t identifier) {
+		BmKeyPair detachKeyPairAt(uint64_t identifier) {
 			auto index = m_endIdentifier - identifier;
-			return std::move(m_levelSignedPrivateKeys[index].detachPrivateKey());
+			return m_levelSignedPrivateKeys[index].detachKeyPair();
+		}
+
+		const BmKeyPair& keyPairAt(uint64_t identifier) {
+			auto index = m_endIdentifier - identifier;
+			return m_levelSignedPrivateKeys[index].keyPair();
 		}
 
 		void write(io::OutputStream& output) const {
@@ -202,14 +207,10 @@ namespace catapult { namespace crypto {
 	// region bm private key tree
 
 	namespace {
-		enum : size_t {
-			Layer_Top,
-			Layer_Low
-		};
+		enum : size_t { Layer_Top, Layer_Low };
 
-		constexpr auto Tree_Header_Size = sizeof(BmOptions) + sizeof(BmKeyIdentifier);
-		constexpr auto Layer_Header_Size = BmPublicKey::Size + sizeof(uint64_t) + sizeof(uint64_t);
-		constexpr auto Invalid_Batch_Id = 0xFFFF'FFFF'FFFF'FFFF;
+		constexpr auto Tree_Header_Size = sizeof(BmOptions) + 2 * sizeof(BmKeyIdentifier);
+		constexpr auto Layer_Header_Size = BmPublicKey::Size + 2 * sizeof(uint64_t);
 
 		uint64_t IndexToOffset(uint64_t index) {
 			return Layer_Header_Size + index * SignedPrivateKey::Entry_Size;
@@ -240,17 +241,13 @@ namespace catapult { namespace crypto {
 			SaveKeyIdentifier(output, options.StartKeyIdentifier);
 			SaveKeyIdentifier(output, options.EndKeyIdentifier);
 		}
-
-		void SaveHeader(io::OutputStream& output, const BmOptions& options, const BmKeyIdentifier& lastKeyIdentifier) {
-			SaveOptions(output, options);
-			SaveKeyIdentifier(output, lastKeyIdentifier);
-		}
 	}
 
 	BmPrivateKeyTree::BmPrivateKeyTree(io::SeekableStream& storage, const BmOptions& options)
 			: m_storage(storage)
 			, m_options(options)
-			, m_lastKeyIdentifier({ Invalid_Batch_Id, 0 })
+			, m_lastKeyIdentifier({ BmKeyIdentifier::Invalid_Id, 0 })
+			, m_lastWipeKeyIdentifier({ BmKeyIdentifier::Invalid_Id, 0 })
 	{}
 
 	BmPrivateKeyTree::BmPrivateKeyTree(BmPrivateKeyTree&&) = default;
@@ -259,25 +256,24 @@ namespace catapult { namespace crypto {
 		auto options = LoadOptions(storage);
 		BmPrivateKeyTree tree(storage, options);
 
-		// FromStream loads whole level, used keys are zeroed. wipeUntil() is used to have consistent view.
+		// FromStream loads whole level, used keys are zeroed
 		tree.m_lastKeyIdentifier = LoadKeyIdentifier(storage);
+		tree.m_lastWipeKeyIdentifier = LoadKeyIdentifier(storage);
 
 		tree.m_levels[Layer_Top] = std::make_unique<Level>(Level::FromStream(storage));
 
 		// if any sign() was issued prior to saving, load subsequent levels
-		if (Invalid_Batch_Id != tree.m_lastKeyIdentifier.BatchId) {
-			tree.m_levels[Layer_Top]->wipeUntil(tree.m_lastKeyIdentifier.BatchId);
-
+		if (BmKeyIdentifier::Invalid_Id != tree.m_lastKeyIdentifier.BatchId)
 			tree.m_levels[Layer_Low] = std::make_unique<Level>(Level::FromStream(storage));
-			tree.m_levels[Layer_Low]->wipeUntil(tree.m_lastKeyIdentifier.KeyId);
-		}
 
 		return tree;
 	}
 
 	BmPrivateKeyTree BmPrivateKeyTree::Create(BmKeyPair&& keyPair, io::SeekableStream& storage, const BmOptions& options) {
 		BmPrivateKeyTree tree(storage, options);
-		SaveHeader(tree.m_storage, tree.m_options, tree.m_lastKeyIdentifier);
+		SaveOptions(tree.m_storage, tree.m_options);
+		SaveKeyIdentifier(tree.m_storage, tree.m_lastKeyIdentifier);
+		SaveKeyIdentifier(tree.m_storage, tree.m_lastWipeKeyIdentifier);
 		tree.createLevel(Layer_Top, std::move(keyPair), options.StartKeyIdentifier.BatchId, options.EndKeyIdentifier.BatchId);
 		return tree;
 	}
@@ -293,32 +289,19 @@ namespace catapult { namespace crypto {
 	}
 
 	bool BmPrivateKeyTree::canSign(const BmKeyIdentifier& keyIdentifier) const {
-		if (Invalid_Batch_Id != m_lastKeyIdentifier.BatchId && keyIdentifier <= m_lastKeyIdentifier)
-			return false;
-
-		if (keyIdentifier < m_options.StartKeyIdentifier || keyIdentifier > m_options.EndKeyIdentifier)
-			return false;
-
-		if (keyIdentifier.KeyId >= m_options.Dilution)
-			return false;
-
-		return true;
+		return check(keyIdentifier, m_lastKeyIdentifier);
 	}
 
 	BmTreeSignature BmPrivateKeyTree::sign(const BmKeyIdentifier& keyIdentifier, const RawBuffer& dataBuffer) {
 		if (!canSign(keyIdentifier))
 			CATAPULT_THROW_RUNTIME_ERROR_1("sign called with invalid key identifier", keyIdentifier);
 
-		if (m_lastKeyIdentifier.BatchId != keyIdentifier.BatchId) {
-			auto endKeyId = m_options.EndKeyIdentifier.BatchId == keyIdentifier.BatchId
-					? m_options.EndKeyIdentifier.KeyId
-					: m_options.Dilution - 1;
-			createLevel(Layer_Low, detachKeyPair(Layer_Top, keyIdentifier.BatchId), keyIdentifier.KeyId, endKeyId);
-		}
+		if (m_lastKeyIdentifier.BatchId != keyIdentifier.BatchId)
+			createLevel(Layer_Low, m_levels[Layer_Top]->detachKeyPairAt(keyIdentifier.BatchId), 0, m_options.Dilution - 1);
 
-		auto subKeyPair = detachKeyPair(Layer_Low, keyIdentifier.KeyId);
+		const auto& subKeyPair = m_levels[Layer_Low]->keyPairAt(keyIdentifier.KeyId);
 		BmSignature msgSignature;
-		crypto::Sign(subKeyPair, dataBuffer, msgSignature);
+		Sign(subKeyPair, dataBuffer, msgSignature);
 
 		m_lastKeyIdentifier = keyIdentifier;
 		m_storage.seek(sizeof(BmOptions));
@@ -331,34 +314,40 @@ namespace catapult { namespace crypto {
 		};
 	}
 
+	void BmPrivateKeyTree::wipe(const BmKeyIdentifier& keyIdentifier) {
+		// allow KeyId to be invalid, indicating only batch keys should be wiped
+		auto normalizedKeyId = BmKeyIdentifier::Invalid_Id == keyIdentifier.KeyId ? 0 : keyIdentifier.KeyId;
+		if (!check({ keyIdentifier.BatchId, normalizedKeyId }, m_lastWipeKeyIdentifier))
+			CATAPULT_THROW_RUNTIME_ERROR_1("wipe called with invalid key identifier", keyIdentifier);
+
+		if (m_lastWipeKeyIdentifier.BatchId != keyIdentifier.BatchId)
+			wipe(Layer_Top, keyIdentifier.BatchId);
+
+		if (BmKeyIdentifier::Invalid_Id != keyIdentifier.KeyId)
+			wipe(Layer_Low, keyIdentifier.KeyId);
+
+		m_lastWipeKeyIdentifier = keyIdentifier;
+	}
+
+	bool BmPrivateKeyTree::check(const BmKeyIdentifier& keyIdentifier, const BmKeyIdentifier& referenceKeyIdentifier) const {
+		if (keyIdentifier < referenceKeyIdentifier)
+			return false;
+
+		if (keyIdentifier < m_options.StartKeyIdentifier || keyIdentifier > m_options.EndKeyIdentifier)
+			return false;
+
+		if (keyIdentifier.KeyId >= m_options.Dilution)
+			return false;
+
+		return true;
+	}
+
 	size_t BmPrivateKeyTree::levelOffset(size_t depth) const {
 		auto offset = Tree_Header_Size;
 		for (size_t i = 0; i < depth; ++i)
 			offset += IndexToOffset(m_levels[i]->endIdentifier() - m_levels[i]->startIdentifier() + 1);
 
 		return offset;
-	}
-
-	BmKeyPair BmPrivateKeyTree::detachKeyPair(size_t depth, uint64_t identifier) {
-		auto& level = *m_levels[depth];
-
-		// wipe keys from storage
-		auto levelStartOffset = levelOffset(depth);
-		auto index = level.endIdentifier() - identifier;
-		for (auto i = index + 1; i < level.size(); ++i) {
-			m_storage.seek(levelStartOffset + IndexToOffset(i));
-			WipeSignedPrivateKey(m_storage);
-		}
-
-		// wipe from memory
-		level.wipeUntil(identifier);
-
-		// wipe requested key from storage
-		m_storage.seek(levelStartOffset + IndexToOffset(index));
-		WipeSignedPrivateKey(m_storage);
-
-		// detach requested key
-		return BmKeyPair::FromPrivate(level.detachPrivateKey(identifier));
 	}
 
 	void BmPrivateKeyTree::createLevel(size_t depth, BmKeyPair&& keyPair, uint64_t startIdentifier, uint64_t endIdentifier) {
@@ -369,7 +358,30 @@ namespace catapult { namespace crypto {
 		m_levels[depth]->write(m_storage);
 	}
 
+	void BmPrivateKeyTree::wipe(size_t depth, uint64_t identifier) {
+		if (!m_levels[depth])
+			return;
+
+		// wipe keys from storage
+		auto& level = *m_levels[depth];
+		auto levelStartOffset = levelOffset(depth);
+		auto index = level.endIdentifier() - identifier;
+		for (auto i = index + 1; i < level.size(); ++i) {
+			m_storage.seek(levelStartOffset + IndexToOffset(i));
+			WipeSignedPrivateKey(m_storage);
+		}
+
+		// wipe from memory
+		level.wipe(identifier);
+
+		// wipe requested key from storage
+		m_storage.seek(levelStartOffset + IndexToOffset(index));
+		WipeSignedPrivateKey(m_storage);
+	}
+
 	// endregion
+
+	// region Verify
 
 	namespace {
 		bool VerifyBoundSignature(
@@ -392,4 +404,6 @@ namespace catapult { namespace crypto {
 
 		return true;
 	}
+
+	// endregion
 }}

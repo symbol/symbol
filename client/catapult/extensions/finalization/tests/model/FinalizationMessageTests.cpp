@@ -19,7 +19,7 @@
 **/
 
 #include "finalization/src/model/FinalizationMessage.h"
-#include "catapult/crypto_voting/BmPrivateKeyTree.h"
+#include "catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
 #include "finalization/tests/test/FinalizationMessageTestUtils.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/core/HashTestUtils.h"
@@ -186,7 +186,7 @@ namespace catapult { namespace model {
 				const auto& keyPairDescriptor = keyPairDescriptors[utils::to_underlying_type(voterType)];
 
 				auto storage = mocks::MockSeekableMemoryStream();
-				auto bmPrivateKeyTree = crypto::BmPrivateKeyTree::Create(
+				auto bmPrivateKeyTree = crypto::AggregateBmPrivateKeyTree::Create(
 						test::CopyKeyPair(keyPairDescriptor.VotingKeyPair),
 						storage,
 						{ context.config().VotingKeyDilution, { 0, 2 }, { 15, 1 } });
@@ -224,7 +224,7 @@ namespace catapult { namespace model {
 				const auto& keyPairDescriptor = keyPairDescriptors[utils::to_underlying_type(voterType)];
 
 				auto storage = mocks::MockSeekableMemoryStream();
-				auto bmPrivateKeyTree = crypto::BmPrivateKeyTree::Create(
+				auto bmPrivateKeyTree = crypto::AggregateBmPrivateKeyTree::Create(
 						test::CopyKeyPair(keyPairDescriptor.VotingKeyPair),
 						storage,
 						{ context.config().VotingKeyDilution, { 0, 2 }, { 15, 1 } });

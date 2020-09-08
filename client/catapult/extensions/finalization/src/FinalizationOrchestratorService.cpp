@@ -26,7 +26,7 @@
 #include "finalization/src/io/ProofStorageCache.h"
 #include "finalization/src/model/VotingSet.h"
 #include "catapult/config/CatapultDataDirectory.h"
-#include "catapult/crypto_voting/BmPrivateKeyTree.h"
+#include "catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
 #include "catapult/extensions/ServiceLocator.h"
 #include "catapult/extensions/ServiceState.h"
 #include "catapult/io/BlockStorageCache.h"
@@ -69,7 +69,7 @@ namespace catapult { namespace finalization {
 									config,
 									state.storage(),
 									m_proofStorage,
-									crypto::BmPrivateKeyTree::FromStream(m_votingPrivateKeyTreeStream)))
+									crypto::AggregateBmPrivateKeyTree::FromStream(m_votingPrivateKeyTreeStream)))
 					, m_finalizer(CreateFinalizer(m_messageAggregator, m_proofStorage))
 			{}
 

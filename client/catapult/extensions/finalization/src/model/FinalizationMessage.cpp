@@ -21,7 +21,7 @@
 #include "FinalizationMessage.h"
 #include "FinalizationContext.h"
 #include "catapult/crypto/Hashes.h"
-#include "catapult/crypto_voting/BmPrivateKeyTree.h"
+#include "catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
 #include "catapult/utils/MacroBasedEnumIncludes.h"
 #include "catapult/utils/MemoryUtils.h"
 
@@ -50,13 +50,13 @@ namespace catapult { namespace model {
 
 	// TODO: FinalizationContext::lookup expects BLS key, but, for now, interpret it as ED25519 key
 
-	bool IsEligibleVoter(const crypto::BmPrivateKeyTree& bmPrivateKeyTree, const FinalizationContext& context) {
+	bool IsEligibleVoter(const crypto::AggregateBmPrivateKeyTree& bmPrivateKeyTree, const FinalizationContext& context) {
 		auto accountView = context.lookup(bmPrivateKeyTree.rootPublicKey().copyTo<VotingKey>());
 		return Amount() != accountView.Weight;
 	}
 
 	std::unique_ptr<FinalizationMessage> PrepareMessage(
-			crypto::BmPrivateKeyTree& bmPrivateKeyTree,
+			crypto::AggregateBmPrivateKeyTree& bmPrivateKeyTree,
 			const StepIdentifier& stepIdentifier,
 			Height height,
 			const HashRange& hashes) {

@@ -64,20 +64,26 @@ namespace catapult { namespace crypto {
 		/// Creates the signature for \a dataBuffer at \a keyIdentifier.
 		BmTreeSignature sign(const BmKeyIdentifier& keyIdentifier, const RawBuffer& dataBuffer);
 
+		/// Wipes all keys up to and including \a keyIdentifier.
+		void wipe(const BmKeyIdentifier& keyIdentifier);
+
 	private:
 		class Level;
 
 	private:
+		bool check(const BmKeyIdentifier& keyIdentifier, const BmKeyIdentifier& referenceKeyIdentifier) const;
 		size_t levelOffset(size_t depth) const;
-		BmKeyPair detachKeyPair(size_t depth, uint64_t identifier);
+
 		void createLevel(size_t depth, BmKeyPair&& keyPair, uint64_t startIdentifier, uint64_t endIdentifier);
+		void wipe(size_t depth, uint64_t identifier);
 
 	private:
 		io::SeekableStream& m_storage;
 		BmOptions m_options;
 
-		std::array<std::unique_ptr<Level>, 3> m_levels;
+		std::array<std::unique_ptr<Level>, 2> m_levels;
 		BmKeyIdentifier m_lastKeyIdentifier;
+		BmKeyIdentifier m_lastWipeKeyIdentifier;
 	};
 
 	/// Verifies \a signature of \a buffer at \a keyIdentifier.
