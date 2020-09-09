@@ -360,7 +360,7 @@ namespace catapult { namespace crypto {
 
 		void AssertCannotWipe(BmPrivateKeyTree& tree, const BmKeyIdentifier& keyIdentifier) {
 			// Act + Assert:
-			EXPECT_THROW(tree.wipe(keyIdentifier), catapult_runtime_error) << keyIdentifier;
+			EXPECT_THROW(tree.wipe(keyIdentifier), catapult_invalid_argument) << keyIdentifier;
 		}
 
 		void AssertCannotWipe(const BmKeyIdentifier& keyIdentifier) {

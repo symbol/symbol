@@ -23,30 +23,38 @@
 
 namespace catapult { namespace crypto {
 
-	AggregateBmPrivateKeyTree::AggregateBmPrivateKeyTree(BmPrivateKeyTree&& tree) : m_tree(std::move(tree))
+	AggregateBmPrivateKeyTree::AggregateBmPrivateKeyTree(const PrivateKeyTreeFactory& factory)
+			: m_factory(factory)
+			, m_pTree(m_factory())
 	{}
 
-	AggregateBmPrivateKeyTree AggregateBmPrivateKeyTree::FromStream(io::SeekableStream& storage) {
-		return AggregateBmPrivateKeyTree(BmPrivateKeyTree::FromStream(storage));
-	}
-
-	AggregateBmPrivateKeyTree AggregateBmPrivateKeyTree::Create(
-			BmKeyPair&& keyPair,
-			io::SeekableStream& storage,
-			const BmOptions& options) {
-		return AggregateBmPrivateKeyTree(BmPrivateKeyTree::Create(std::move(keyPair), storage, options));
-	}
-
 	const AggregateBmPrivateKeyTree::BmPublicKey& AggregateBmPrivateKeyTree::rootPublicKey() const {
-		return m_tree.rootPublicKey();
+		return m_pTree->rootPublicKey();
 	}
 
 	const BmOptions& AggregateBmPrivateKeyTree::options() const {
-		return m_tree.options();
+		return m_pTree->options();
 	}
 
-	bool AggregateBmPrivateKeyTree::canSign(const BmKeyIdentifier& keyIdentifier) const {
-		return m_tree.canSign(keyIdentifier);
+	bool AggregateBmPrivateKeyTree::canSign(const BmKeyIdentifier& keyIdentifier) {
+		while (m_pTree && m_pTree->options().EndKeyIdentifier < keyIdentifier) {
+			auto oldEndKeyIdentifier = m_pTree->options().EndKeyIdentifier;
+			m_pTree->wipe(oldEndKeyIdentifier);
+			m_pTree = m_factory();
+			if (!m_pTree)
+				break;
+
+			auto newStartKeyIdentifier = m_pTree->options().StartKeyIdentifier;
+			if (oldEndKeyIdentifier >= newStartKeyIdentifier) {
+				std::ostringstream out;
+				out
+						<< "PrivateKeyTreeFactory returned overlapping tree, previous end " << oldEndKeyIdentifier
+						<< ", new start " << newStartKeyIdentifier;
+				CATAPULT_THROW_RUNTIME_ERROR(out.str().c_str());
+			}
+		}
+
+		return m_pTree && m_pTree->canSign(keyIdentifier);
 	}
 
 	namespace {
@@ -56,10 +64,13 @@ namespace catapult { namespace crypto {
 	}
 
 	BmTreeSignature AggregateBmPrivateKeyTree::sign(const BmKeyIdentifier& keyIdentifier, const RawBuffer& dataBuffer) {
-		auto signature = m_tree.sign(keyIdentifier, dataBuffer);
+		if (!canSign(keyIdentifier))
+			CATAPULT_THROW_INVALID_ARGUMENT_1("sign called with invalid key identifier", keyIdentifier);
 
-		if (keyIdentifier != m_tree.options().StartKeyIdentifier)
-			m_tree.wipe(Decrease(keyIdentifier));
+		auto signature = m_pTree->sign(keyIdentifier, dataBuffer);
+
+		if (keyIdentifier != m_pTree->options().StartKeyIdentifier)
+			m_pTree->wipe(Decrease(keyIdentifier));
 
 		return signature;
 	}

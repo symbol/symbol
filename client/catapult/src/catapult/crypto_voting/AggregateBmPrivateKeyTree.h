@@ -27,17 +27,11 @@ namespace catapult { namespace crypto {
 	class AggregateBmPrivateKeyTree {
 	private:
 		using BmPublicKey = decltype(BmTreeSignature::Root.ParentPublicKey);
-		using BmKeyPair = KeyPair;
-
-	private:
-		explicit AggregateBmPrivateKeyTree(BmPrivateKeyTree&& tree);
+		using PrivateKeyTreeFactory = supplier<std::unique_ptr<BmPrivateKeyTree>>;
 
 	public:
-		/// Creates a tree around \a storage.
-		static AggregateBmPrivateKeyTree FromStream(io::SeekableStream& storage);
-
-		/// Creates a tree around \a keyPair, \a storage and \a options.
-		static AggregateBmPrivateKeyTree Create(BmKeyPair&& keyPair, io::SeekableStream& storage, const BmOptions& options);
+		/// Creates a tree around \a factory.
+		explicit AggregateBmPrivateKeyTree(const PrivateKeyTreeFactory& factory);
 
 	public:
 		/// Gets the root public key.
@@ -47,12 +41,13 @@ namespace catapult { namespace crypto {
 		const BmOptions& options() const;
 
 		/// Returns \c true if can sign at \a keyIdentifier.
-		bool canSign(const BmKeyIdentifier& keyIdentifier) const;
+		bool canSign(const BmKeyIdentifier& keyIdentifier);
 
 		/// Creates the signature for \a dataBuffer at \a keyIdentifier.
 		BmTreeSignature sign(const BmKeyIdentifier& keyIdentifier, const RawBuffer& dataBuffer);
 
 	private:
-		BmPrivateKeyTree m_tree;
+		PrivateKeyTreeFactory m_factory;
+		std::unique_ptr<BmPrivateKeyTree> m_pTree;
 	};
 }}

@@ -294,7 +294,7 @@ namespace catapult { namespace crypto {
 
 	BmTreeSignature BmPrivateKeyTree::sign(const BmKeyIdentifier& keyIdentifier, const RawBuffer& dataBuffer) {
 		if (!canSign(keyIdentifier))
-			CATAPULT_THROW_RUNTIME_ERROR_1("sign called with invalid key identifier", keyIdentifier);
+			CATAPULT_THROW_INVALID_ARGUMENT_1("sign called with invalid key identifier", keyIdentifier);
 
 		if (m_lastKeyIdentifier.BatchId != keyIdentifier.BatchId)
 			createLevel(Layer_Low, m_levels[Layer_Top]->detachKeyPairAt(keyIdentifier.BatchId), 0, m_options.Dilution - 1);
@@ -318,7 +318,7 @@ namespace catapult { namespace crypto {
 		// allow KeyId to be invalid, indicating only batch keys should be wiped
 		auto normalizedKeyId = BmKeyIdentifier::Invalid_Id == keyIdentifier.KeyId ? 0 : keyIdentifier.KeyId;
 		if (!check({ keyIdentifier.BatchId, normalizedKeyId }, m_lastWipeKeyIdentifier))
-			CATAPULT_THROW_RUNTIME_ERROR_1("wipe called with invalid key identifier", keyIdentifier);
+			CATAPULT_THROW_INVALID_ARGUMENT_1("wipe called with invalid key identifier", keyIdentifier);
 
 		if (m_lastWipeKeyIdentifier.BatchId != keyIdentifier.BatchId)
 			wipe(Layer_Top, keyIdentifier.BatchId);

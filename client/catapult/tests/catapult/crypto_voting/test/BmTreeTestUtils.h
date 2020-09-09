@@ -96,7 +96,7 @@ namespace catapult { namespace test {
 
 		// Act:
 		auto canSign = tree.canSign(keyIdentifier);
-		EXPECT_THROW(tree.sign(keyIdentifier, messageBuffer), catapult_runtime_error) << keyIdentifier;
+		EXPECT_THROW(tree.sign(keyIdentifier, messageBuffer), catapult_invalid_argument) << keyIdentifier;
 
 		// Assert:
 		EXPECT_FALSE(canSign) << keyIdentifier;

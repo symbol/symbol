@@ -53,10 +53,8 @@ namespace catapult { namespace finalization {
 					, m_hooks(GetFinalizationServerHooks(locator))
 					, m_proofStorage(GetProofStorageCache(locator))
 					, m_blockStorage(state.storage())
-					, m_votingPrivateKeyTreeStream(io::RawFile(
-							QualifyFilename(state, "voting_private_key_tree.dat"),
-							io::OpenMode::Read_Append))
-					, m_votingStatusFile(QualifyFilename(state, "voting_status.dat"))
+					, m_dataDirectory(config::CatapultDataDirectory(state.config().User.DataDirectory))
+					, m_votingStatusFile(m_dataDirectory.rootDir().file("voting_status.dat"))
 					, m_orchestrator(
 							m_votingStatusFile.load(),
 							[stepDuration = config.StepDuration, &messageAggregator = m_messageAggregator](auto point, auto time) {
@@ -69,7 +67,7 @@ namespace catapult { namespace finalization {
 									config,
 									state.storage(),
 									m_proofStorage,
-									crypto::AggregateBmPrivateKeyTree::FromStream(m_votingPrivateKeyTreeStream)))
+									crypto::AggregateBmPrivateKeyTree(CreateBmPrivateKeyTreeFactory(m_dataDirectory))))
 					, m_finalizer(CreateFinalizer(m_messageAggregator, m_proofStorage))
 			{}
 
@@ -135,8 +133,26 @@ namespace catapult { namespace finalization {
 			}
 
 		private:
-			static std::string QualifyFilename(const extensions::ServiceState& state, const std::string& name) {
-				return config::CatapultDataDirectory(state.config().User.DataDirectory).rootDir().file(name);
+			static std::string GetVotingPrivateKeyTreeFilename(uint64_t treeSequenceId) {
+				std::ostringstream out;
+				out << "voting_private_key_tree" << treeSequenceId << ".dat";
+				return out.str();
+			}
+
+			static supplier<std::unique_ptr<crypto::BmPrivateKeyTree>> CreateBmPrivateKeyTreeFactory(
+					const config::CatapultDataDirectory& dataDirectory) {
+				auto treeSequenceId = 1u;
+				std::shared_ptr<io::FileStream> pKeyTreeStream;
+				return [treeSequenceId, pKeyTreeStream, &dataDirectory]() mutable {
+					auto keyTreeFilename = dataDirectory.rootDir().file(GetVotingPrivateKeyTreeFilename(treeSequenceId++));
+					CATAPULT_LOG(debug) << "loading voting private key tree from " << keyTreeFilename;
+
+					auto keyTreeFile = io::RawFile(keyTreeFilename, io::OpenMode::Read_Append);
+					pKeyTreeStream = std::make_shared<io::FileStream>(std::move(keyTreeFile));
+
+					auto tree = crypto::BmPrivateKeyTree::FromStream(*pKeyTreeStream);
+					return std::make_unique<crypto::BmPrivateKeyTree>(std::move(tree));
+				};
 			}
 
 		private:
@@ -146,7 +162,7 @@ namespace catapult { namespace finalization {
 			io::ProofStorageCache& m_proofStorage;
 			io::BlockStorageCache& m_blockStorage;
 
-			io::FileStream m_votingPrivateKeyTreeStream;
+			config::CatapultDataDirectory m_dataDirectory;
 			VotingStatusFile m_votingStatusFile;
 			chain::FinalizationOrchestrator m_orchestrator;
 			action m_finalizer;

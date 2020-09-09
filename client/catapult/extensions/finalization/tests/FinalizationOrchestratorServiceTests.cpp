@@ -190,15 +190,15 @@ namespace catapult { namespace finalization {
 			}
 
 			static void SeedVotingPrivateKeyTree(const config::CatapultDataDirectory& dataDirectory) {
-				auto votingPrivateKeyTreeFilename = dataDirectory.rootDir().file("voting_private_key_tree.dat");
-				io::FileStream votingPrivateKeyTreeStream(io::RawFile(votingPrivateKeyTreeFilename, io::OpenMode::Read_Write));
+				for (auto i = 1u; i <= 4u; ++i) {
+					auto treeFilename = dataDirectory.rootDir().file("voting_private_key_tree" + std::to_string(i) + ".dat");
+					io::FileStream treeStream(io::RawFile(treeFilename, io::OpenMode::Read_Write));
 
-				auto startKeyIdentifier = CreateBmKeyIdentifier(FinalizationEpoch(1), Prevote_Stage);
-				auto endKeyIdentifier = CreateBmKeyIdentifier(FinalizationEpoch(100), Precommit_Stage);
-				crypto::AggregateBmPrivateKeyTree::Create(
-						test::GenerateKeyPair(),
-						votingPrivateKeyTreeStream,
-						{ Voting_Key_Dilution, startKeyIdentifier, endKeyIdentifier });
+					auto startKeyIdentifier = CreateBmKeyIdentifier(FinalizationEpoch((i - 1) * 4 + 1), Prevote_Stage);
+					auto endKeyIdentifier = CreateBmKeyIdentifier(FinalizationEpoch(i * 4), Precommit_Stage);
+					auto bmOptions = crypto::BmOptions{ Voting_Key_Dilution, startKeyIdentifier, endKeyIdentifier };
+					crypto::BmPrivateKeyTree::Create(test::GenerateKeyPair(), treeStream, bmOptions);
+				}
 			}
 
 			static void SeedVotingStatus(const config::CatapultDataDirectory& dataDirectory, const model::FinalizationRound& round) {

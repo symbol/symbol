@@ -70,16 +70,17 @@ namespace catapult { namespace chain {
 
 		private:
 			static crypto::AggregateBmPrivateKeyTree CreateAggregateBmPrivateKeyTree(io::SeekableStream& storage) {
-				auto startKeyIdentifier = model::StepIdentifierToBmKeyIdentifier(
-						{ FinalizationEpoch(), FinalizationPoint(), model::FinalizationStage::Prevote },
-						Voting_Key_Dilution);
-				auto endKeyIdentifier = model::StepIdentifierToBmKeyIdentifier(
-						{ FinalizationEpoch(20), FinalizationPoint(), model::FinalizationStage::Precommit },
-						Voting_Key_Dilution);
-				return crypto::AggregateBmPrivateKeyTree::Create(
-						test::GenerateKeyPair(),
-						storage,
-						{ Voting_Key_Dilution, startKeyIdentifier, endKeyIdentifier });
+				return crypto::AggregateBmPrivateKeyTree([&storage]() {
+					auto startKeyIdentifier = model::StepIdentifierToBmKeyIdentifier(
+							{ FinalizationEpoch(), FinalizationPoint(), model::FinalizationStage::Prevote },
+							Voting_Key_Dilution);
+					auto endKeyIdentifier = model::StepIdentifierToBmKeyIdentifier(
+							{ FinalizationEpoch(20), FinalizationPoint(), model::FinalizationStage::Precommit },
+							Voting_Key_Dilution);
+					auto bmOptions = crypto::BmOptions{ Voting_Key_Dilution, startKeyIdentifier, endKeyIdentifier };
+					auto tree = crypto::BmPrivateKeyTree::Create(test::GenerateKeyPair(), storage, bmOptions);
+					return std::make_unique<crypto::BmPrivateKeyTree>(std::move(tree));
+				});
 			}
 
 		private:

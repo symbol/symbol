@@ -145,7 +145,7 @@ namespace catapult { namespace test {
 	void SignMessage(model::FinalizationMessage& message, const crypto::KeyPair& votingKeyPair, uint64_t dilution) {
 		auto storage = mocks::MockSeekableMemoryStream();
 		auto bmOptions = crypto::BmOptions{ dilution, { 0, 2 }, { 15, 1 } };
-		auto bmPrivateKeyTree = crypto::AggregateBmPrivateKeyTree::Create(CopyKeyPair(votingKeyPair), storage, bmOptions);
+		auto bmPrivateKeyTree = crypto::BmPrivateKeyTree::Create(CopyKeyPair(votingKeyPair), storage, bmOptions);
 
 		auto keyIdentifier = model::StepIdentifierToBmKeyIdentifier(message.StepIdentifier, bmPrivateKeyTree.options().Dilution);
 		message.Signature = bmPrivateKeyTree.sign(keyIdentifier, {

@@ -186,10 +186,11 @@ namespace catapult { namespace model {
 				const auto& keyPairDescriptor = keyPairDescriptors[utils::to_underlying_type(voterType)];
 
 				auto storage = mocks::MockSeekableMemoryStream();
-				auto bmPrivateKeyTree = crypto::AggregateBmPrivateKeyTree::Create(
-						test::CopyKeyPair(keyPairDescriptor.VotingKeyPair),
-						storage,
-						{ context.config().VotingKeyDilution, { 0, 2 }, { 15, 1 } });
+				auto bmPrivateKeyTree = crypto::AggregateBmPrivateKeyTree([&context, &keyPairDescriptor, &storage]() {
+					auto bmOptions = crypto::BmOptions{ context.config().VotingKeyDilution, { 0, 2 }, { 15, 1 } };
+					auto tree = crypto::BmPrivateKeyTree::Create(test::CopyKeyPair(keyPairDescriptor.VotingKeyPair), storage, bmOptions);
+					return std::make_unique<crypto::BmPrivateKeyTree>(std::move(tree));
+				});
 
 				// Act:
 				auto isEligibleVoter = IsEligibleVoter(bmPrivateKeyTree, context);
@@ -225,11 +226,16 @@ namespace catapult { namespace model {
 					const auto& keyPairDescriptors) {
 				const auto& keyPairDescriptor = keyPairDescriptors[utils::to_underlying_type(voterType)];
 
+				auto numFactoryCalls = 0u;
 				auto storage = mocks::MockSeekableMemoryStream();
-				auto bmPrivateKeyTree = crypto::AggregateBmPrivateKeyTree::Create(
-						test::CopyKeyPair(keyPairDescriptor.VotingKeyPair),
-						storage,
-						{ context.config().VotingKeyDilution, { 0, 2 }, { 15, 1 } });
+				auto bmPrivateKeyTree = crypto::AggregateBmPrivateKeyTree([&context, &keyPairDescriptor, &numFactoryCalls, &storage]() {
+					if (++numFactoryCalls > 1)
+						return std::unique_ptr<crypto::BmPrivateKeyTree>();
+
+					auto bmOptions = crypto::BmOptions{ context.config().VotingKeyDilution, { 0, 2 }, { 15, 1 } };
+					auto tree = crypto::BmPrivateKeyTree::Create(test::CopyKeyPair(keyPairDescriptor.VotingKeyPair), storage, bmOptions);
+					return std::make_unique<crypto::BmPrivateKeyTree>(std::move(tree));
+				});
 
 				auto hashes = test::GenerateRandomHashes(numHashes);
 
