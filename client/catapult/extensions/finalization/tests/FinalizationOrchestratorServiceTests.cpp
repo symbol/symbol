@@ -185,16 +185,16 @@ namespace catapult { namespace finalization {
 			}
 
 		private:
-			static auto CreateBmKeyIdentifier(FinalizationPoint point, model::FinalizationStage stage) {
-				return model::StepIdentifierToBmKeyIdentifier({ FinalizationEpoch(), point, stage }, Voting_Key_Dilution);
+			static auto CreateBmKeyIdentifier(FinalizationEpoch epoch, model::FinalizationStage stage) {
+				return model::StepIdentifierToBmKeyIdentifier({ epoch, FinalizationPoint(), stage }, Voting_Key_Dilution);
 			}
 
 			static void SeedVotingPrivateKeyTree(const config::CatapultDataDirectory& dataDirectory) {
 				auto votingPrivateKeyTreeFilename = dataDirectory.rootDir().file("voting_private_key_tree.dat");
 				io::FileStream votingPrivateKeyTreeStream(io::RawFile(votingPrivateKeyTreeFilename, io::OpenMode::Read_Write));
 
-				auto startKeyIdentifier = CreateBmKeyIdentifier(FinalizationPoint(1), Prevote_Stage);
-				auto endKeyIdentifier = CreateBmKeyIdentifier(FinalizationPoint(100), Precommit_Stage);
+				auto startKeyIdentifier = CreateBmKeyIdentifier(FinalizationEpoch(1), Prevote_Stage);
+				auto endKeyIdentifier = CreateBmKeyIdentifier(FinalizationEpoch(100), Precommit_Stage);
 				crypto::AggregateBmPrivateKeyTree::Create(
 						test::GenerateKeyPair(),
 						votingPrivateKeyTreeStream,

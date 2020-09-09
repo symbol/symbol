@@ -76,14 +76,9 @@ namespace catapult { namespace model {
 	// region StepIdentifierToBmKeyIdentifier
 
 	crypto::BmKeyIdentifier StepIdentifierToBmKeyIdentifier(const StepIdentifier& stepIdentifier, uint64_t dilution) {
-		// assume: Dilution < 1 is not allowed
-		constexpr auto Num_Stages = utils::to_underlying_type(FinalizationStage::Count);
-		auto identifier = stepIdentifier.Round().Point.unwrap() * Num_Stages + utils::to_underlying_type(stepIdentifier.Stage());
-
-		crypto::BmKeyIdentifier keyIdentifier;
-		keyIdentifier.BatchId = identifier / dilution;
-		keyIdentifier.KeyId = identifier % dilution;
-		return keyIdentifier;
+		// dilution < 1 is not allowed
+		auto identifier = stepIdentifier.Epoch.unwrap();
+		return { identifier / dilution, identifier % dilution };
 	}
 
 	// endregion

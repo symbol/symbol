@@ -40,7 +40,7 @@ namespace catapult { namespace finalization {
 		using AnnotatedFinalizationMessageRange = model::AnnotatedEntityRange<model::FinalizationMessage>;
 		using VoterType = test::FinalizationBootstrapperServiceTestUtils::VoterType;
 
-		constexpr auto Finalization_Epoch = FinalizationEpoch(2);
+		constexpr auto Finalization_Epoch = FinalizationEpoch(4);
 
 		struct FinalizationMessageProcessingServiceTraits {
 			static constexpr auto Voting_Key_Dilution = 3u;
@@ -57,10 +57,9 @@ namespace catapult { namespace finalization {
 			TestContext() : TestContext(FinalizationPoint(1))
 			{}
 
-			explicit TestContext(FinalizationPoint point)
-					: m_pWriters(std::make_shared<mocks::BroadcastAwareMockPacketWriters>()) {
-				// use Height(1) so that storage doesn't need to be seeded
-				const_cast<uint64_t&>(testState().state().config().BlockChain.VotingSetGrouping) = 500;
+			explicit TestContext(FinalizationPoint point) : m_pWriters(std::make_shared<mocks::BroadcastAwareMockPacketWriters>()) {
+				// VotingSetGrouping is set to 500 when registering FinalizationBootstrapperService, so (4 - 2) * 500 blocks are needed
+				mocks::SeedStorageWithFixedSizeBlocks(testState().state().storage(), 1000);
 
 				auto hash = test::GenerateRandomByteArray<Hash256>();
 				test::FinalizationBootstrapperServiceTestUtils::Register(

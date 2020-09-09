@@ -143,11 +143,11 @@ namespace catapult { namespace model {
 	namespace {
 		std::vector<StepIdentifier> GenerateValidStepIdentifierValues() {
 			return {
-				{ FinalizationEpoch(), FinalizationPoint(5), FinalizationStage::Prevote },
-				{ FinalizationEpoch(), FinalizationPoint(10), FinalizationStage::Prevote },
-				{ FinalizationEpoch(), FinalizationPoint(10), FinalizationStage::Precommit },
-				{ FinalizationEpoch(), FinalizationPoint(11), FinalizationStage::Prevote },
-				{ FinalizationEpoch(), FinalizationPoint(11), FinalizationStage::Precommit }
+				{ FinalizationEpoch(10), FinalizationPoint(), FinalizationStage::Prevote },
+				{ FinalizationEpoch(20), FinalizationPoint(), FinalizationStage::Prevote },
+				{ FinalizationEpoch(21), FinalizationPoint(), FinalizationStage::Precommit },
+				{ FinalizationEpoch(22), FinalizationPoint(), FinalizationStage::Prevote },
+				{ FinalizationEpoch(23), FinalizationPoint(), FinalizationStage::Precommit }
 			};
 		}
 	}

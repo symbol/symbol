@@ -51,7 +51,7 @@ namespace catapult { namespace chain {
 							config,
 							*m_pBlockStorage,
 							m_proofStorage,
-							CreateAggregateBmPrivateKeyTree(m_bmPrivateKeyTreeStream, FinalizationPoint())))
+							CreateAggregateBmPrivateKeyTree(m_bmPrivateKeyTreeStream)))
 			{}
 
 		public:
@@ -69,14 +69,12 @@ namespace catapult { namespace chain {
 			}
 
 		private:
-			static crypto::AggregateBmPrivateKeyTree CreateAggregateBmPrivateKeyTree(
-					io::SeekableStream& storage,
-					FinalizationPoint point) {
+			static crypto::AggregateBmPrivateKeyTree CreateAggregateBmPrivateKeyTree(io::SeekableStream& storage) {
 				auto startKeyIdentifier = model::StepIdentifierToBmKeyIdentifier(
-						{ FinalizationEpoch(), point, model::FinalizationStage::Prevote },
+						{ FinalizationEpoch(), FinalizationPoint(), model::FinalizationStage::Prevote },
 						Voting_Key_Dilution);
 				auto endKeyIdentifier = model::StepIdentifierToBmKeyIdentifier(
-						{ FinalizationEpoch(), point + FinalizationPoint(20), model::FinalizationStage::Precommit },
+						{ FinalizationEpoch(20), FinalizationPoint(), model::FinalizationStage::Precommit },
 						Voting_Key_Dilution);
 				return crypto::AggregateBmPrivateKeyTree::Create(
 						test::GenerateKeyPair(),
