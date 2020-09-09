@@ -1,0 +1,6 @@
+name: fromHeight
+in: query
+description: Filter from block height.
+schema:
+  $ref: "../../schemas/Height.yml"
+
