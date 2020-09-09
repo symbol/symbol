@@ -38,30 +38,45 @@ namespace catapult { namespace chain {
 
 		class MockFinalizationMessageFactory : public FinalizationMessageFactory {
 		public:
+			MockFinalizationMessageFactory() : m_bypass(false)
+			{}
+
+		public:
 			std::vector<MessageType> messageTypes() const {
 				return m_messageTypes;
 			}
 
 		public:
+			void bypass() {
+				m_bypass = true;
+			}
+
+		public:
 			std::unique_ptr<model::FinalizationMessage> createPrevote(const model::FinalizationRound& round) override {
 				m_messageTypes.push_back(MessageType::Prevote);
+				if (m_bypass)
+					return nullptr;
+
 				auto pMessage = test::CreateMessage(Height(0), test::GenerateRandomByteArray<Hash256>());
 				pMessage->StepIdentifier = { round.Epoch, round.Point, model::FinalizationStage::Prevote };
 				return pMessage;
 			}
 
-		public:
 			std::unique_ptr<model::FinalizationMessage> createPrecommit(
 					const model::FinalizationRound& round,
 					Height height,
 					const Hash256& hash) override {
 				m_messageTypes.push_back(MessageType::Precommit);
+				if (m_bypass)
+					return nullptr;
+
 				auto pMessage = test::CreateMessage(height, hash);
 				pMessage->StepIdentifier = { round.Epoch, round.Point, model::FinalizationStage::Precommit };
 				return pMessage;
 			}
 
 		private:
+			bool m_bypass;
 			std::vector<MessageType> m_messageTypes;
 		};
 
@@ -203,6 +218,10 @@ namespace catapult { namespace chain {
 			void createCompletedStageAdvancer(const model::HeightHashPair& target) {
 				m_createCompletedStageAdvancer = true;
 				m_defaultTarget = target;
+			}
+
+			void bypassVoting() {
+				m_pMessageFactoryRaw->bypass();
 			}
 
 		private:
@@ -513,6 +532,29 @@ namespace catapult { namespace chain {
 		ASSERT_EQ(2u, context.messages().size());
 		AssertPrevote(*context.messages()[0], { FinalizationEpoch(3), FinalizationPoint(4) });
 		AssertPrecommit(*context.messages()[1], { FinalizationEpoch(3), FinalizationPoint(4) }, Height(123), hash);
+
+		ASSERT_EQ(2u, context.stageAdvancers().size());
+		EXPECT_EQ(test::CreateFinalizationRound(3, 5), context.stageAdvancers().back()->round());
+		EXPECT_EQ(Timestamp(100), context.stageAdvancers().back()->time());
+		EXPECT_EQ(std::vector<Timestamp>(), context.stageAdvancers().back()->times());
+	}
+
+	TEST(TEST_CLASS, PollCanProgressThroughEntireRoundInOneCallWhenVotingIsBypassedForEpoch) {
+		// Arrange:
+		TestContext context(test::CreateFinalizationRound(3, 4));
+		context.bypassVoting();
+
+		auto hash = test::GenerateRandomByteArray<Hash256>();
+		context.createCompletedStageAdvancer({ Height(123), hash });
+
+		// Act:
+		context.orchestrator().poll(Timestamp(100));
+
+		// Assert:
+		AssertVotingStatus({ test::CreateFinalizationRound(3, 5), false, false }, context.orchestrator().votingStatus());
+
+		EXPECT_EQ(std::vector<MessageType>({ MessageType::Prevote, MessageType::Precommit }), context.messageFactory().messageTypes());
+		EXPECT_EQ(0u, context.messages().size());
 
 		ASSERT_EQ(2u, context.stageAdvancers().size());
 		EXPECT_EQ(test::CreateFinalizationRound(3, 5), context.stageAdvancers().back()->round());

@@ -71,6 +71,7 @@ namespace catapult { namespace chain {
 
 	private:
 		void startRound(Timestamp time);
+		void process(std::unique_ptr<model::FinalizationMessage>&& pMessage, const char* description);
 
 	private:
 		VotingStatus m_votingStatus;

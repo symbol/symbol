@@ -60,7 +60,12 @@ namespace catapult { namespace model {
 			const StepIdentifier& stepIdentifier,
 			Height height,
 			const HashRange& hashes) {
-		// 1. create message and copy hashes
+		// 1. check if message can be signed
+		auto keyIdentifier = StepIdentifierToBmKeyIdentifier(stepIdentifier, bmPrivateKeyTree.options().Dilution);
+		if (!bmPrivateKeyTree.canSign(keyIdentifier))
+			return nullptr;
+
+		// 2. create message and copy hashes
 		auto numHashes = static_cast<uint32_t>(hashes.size());
 		uint32_t messageSize = SizeOf32<FinalizationMessage>() + numHashes * static_cast<uint32_t>(Hash256::Size);
 
@@ -74,8 +79,7 @@ namespace catapult { namespace model {
 		for (const auto& hash : hashes)
 			*pHash++ = hash;
 
-		// 2. sign
-		auto keyIdentifier = StepIdentifierToBmKeyIdentifier(pMessage->StepIdentifier, bmPrivateKeyTree.options().Dilution);
+		// 3. sign
 		pMessage->Signature = bmPrivateKeyTree.sign(keyIdentifier, ToBuffer(*pMessage));
 		return pMessage;
 	}

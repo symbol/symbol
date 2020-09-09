@@ -70,13 +70,13 @@ namespace catapult { namespace chain {
 			m_pStageAdvancer = m_stageAdvancerFactory(m_votingStatus.Round, time);
 
 		if (!m_votingStatus.HasSentPrevote && m_pStageAdvancer->canSendPrevote(time)) {
-			m_messageSink(m_pMessageFactory->createPrevote(m_votingStatus.Round));
+			process(m_pMessageFactory->createPrevote(m_votingStatus.Round), "prevote");
 			m_votingStatus.HasSentPrevote = true;
 		}
 
 		model::HeightHashPair commitTarget;
 		if (!m_votingStatus.HasSentPrecommit && m_pStageAdvancer->canSendPrecommit(time, commitTarget)) {
-			m_messageSink(m_pMessageFactory->createPrecommit(m_votingStatus.Round, commitTarget.Height, commitTarget.Hash));
+			process(m_pMessageFactory->createPrecommit(m_votingStatus.Round, commitTarget.Height, commitTarget.Hash), "precommit");
 			m_votingStatus.HasSentPrecommit = true;
 		}
 
@@ -89,6 +89,13 @@ namespace catapult { namespace chain {
 	void FinalizationOrchestrator::startRound(Timestamp time) {
 		ClearFlags(m_votingStatus);
 		m_pStageAdvancer = m_stageAdvancerFactory(m_votingStatus.Round, time);
+	}
+
+	void FinalizationOrchestrator::process(std::unique_ptr<model::FinalizationMessage>&& pMessage, const char* description) {
+		if (pMessage)
+			m_messageSink(std::move(pMessage));
+		else
+			CATAPULT_LOG(debug) << "cannot create " << description << " for " << m_votingStatus.Round;
 	}
 
 	namespace {

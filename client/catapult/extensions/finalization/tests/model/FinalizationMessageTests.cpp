@@ -218,9 +218,11 @@ namespace catapult { namespace model {
 		}
 
 		template<typename TAction>
-		void RunPrepareMessageTest(VoterType voterType, uint32_t numHashes, TAction action) {
+		void RunPrepareMessageTest(VoterType voterType, uint32_t numHashes, const StepIdentifier& messageStepIdentifier, TAction action) {
 			// Arrange:
-			RunFinalizationContextTest([voterType, numHashes, action](const auto& context, const auto& keyPairDescriptors) {
+			RunFinalizationContextTest([voterType, numHashes, messageStepIdentifier, action](
+					const auto& context,
+					const auto& keyPairDescriptors) {
 				const auto& keyPairDescriptor = keyPairDescriptors[utils::to_underlying_type(voterType)];
 
 				auto storage = mocks::MockSeekableMemoryStream();
@@ -232,16 +234,31 @@ namespace catapult { namespace model {
 				auto hashes = test::GenerateRandomHashes(numHashes);
 
 				// Act:
-				auto pMessage = PrepareMessage(bmPrivateKeyTree, DefaultStepIdentifier(), Height(987), hashes);
+				auto pMessage = PrepareMessage(bmPrivateKeyTree, messageStepIdentifier, Height(987), hashes);
 
 				// Assert:
 				action(pMessage, context, hashes);
 			});
 		}
 
+		template<typename TAction>
+		void RunPrepareMessageTest(VoterType voterType, uint32_t numHashes, TAction action) {
+			RunPrepareMessageTest(voterType, numHashes, DefaultStepIdentifier(), action);
+		}
+
 		HashRange ExtractHashes(const FinalizationMessage& message) {
 			return HashRange::CopyFixed(reinterpret_cast<const uint8_t*>(message.HashesPtr()), message.HashesCount);
 		}
+	}
+
+	TEST(TEST_CLASS, PrepareMessage_CannotPrepareMessageWithUnsupportedStepIdentifier) {
+		// Arrange:
+		auto outOfBoundsStepIdentifier = DefaultStepIdentifier();
+		outOfBoundsStepIdentifier.Epoch = FinalizationEpoch(13 * 16);
+		RunPrepareMessageTest(VoterType::Large, 0, outOfBoundsStepIdentifier, [](const auto& pMessage, const auto&, const auto&) {
+			// Assert:
+			EXPECT_FALSE(!!pMessage);
+		});
 	}
 
 	TEST(TEST_CLASS, PrepareMessage_CanPrepareValidMessageWithoutHashes) {
