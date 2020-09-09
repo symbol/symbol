@@ -8,6 +8,8 @@ parameters:
   - $ref: "../../../parameters/query/recipientAddress.yml"
   - $ref: "../../../parameters/query/signerPublicKey.yml"
   - $ref: "../../../parameters/query/height.yml"
+  - $ref: "../../../parameters/query/fromHeight.yml"
+  - $ref: "../../../parameters/query/toHeight.yml"
   - $ref: "../../../parameters/query/transactionTypes.yml"
   - $ref: "../../../parameters/query/embedded.yml"
   - $ref: "../../../parameters/query/pageSize.yml"
