@@ -43,11 +43,11 @@ struct PinnedVotingKey
 	# voting key
 	votingKey = VotingKey
 
-	# start finalization point
-	startPoint = FinalizationPoint
+	# start finalization epoch
+	startEpoch = FinalizationEpoch
 
-	# end finalization point
-	endPoint = FinalizationPoint
+	# end finalization epoch
+	endEpoch = FinalizationEpoch
 
 # temporal importance information
 struct ImportanceSnapshot

@@ -5,11 +5,11 @@ struct VotingKeyLinkTransactionBody
 	# linked public key
 	linkedPublicKey = VotingKey
 
-	# start finalization point
-	startPoint = FinalizationPoint
+	# start finalization epoch
+	startEpoch = FinalizationEpoch
 
-	# end finalization point
-	endPoint = FinalizationPoint
+	# end finalization epoch
+	endEpoch = FinalizationEpoch
 
 	# link action
 	linkAction = LinkAction
