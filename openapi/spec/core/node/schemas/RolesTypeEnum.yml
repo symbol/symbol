@@ -3,9 +3,17 @@ enum:
   - 1
   - 2
   - 3
+  - 4
+  - 5
+  - 6
+  - 7
 description: |
   Role of the node:
   * 1 - Peer node.
   * 2 - Api node.
-  * 3 - Dual node.
+  * 3 - Peer Api node.
+  * 4 - Voting node.
+  * 5 - Peer Voting node.
+  * 6 - Api Voting node.
+  * 7 - Peer Api Voting node.
 example: 2

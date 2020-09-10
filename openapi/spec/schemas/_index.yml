@@ -505,6 +505,9 @@ MosaicGlobalRestrictionTransactionDTO:
   "$ref": "../plugins/restriction_mosaic/schemas/MosaicGlobalRestrictionTransactionDTO.yml"
 MosaicRestrictionNetworkPropertiesDTO:
   "$ref": "../plugins/restriction_mosaic/schemas/MosaicRestrictionNetworkPropertiesDTO.yml"
+MosaicRestrictionsPage:
+  "$ref": "../plugins/restriction_mosaic/schemas/MosaicRestrictionsPage.yml"
+
 
 # Plugin - Transfer
 MessageTypeEnum:
