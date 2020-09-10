@@ -18,11 +18,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('catapult-sdk');
-const MongoDb = require('mongodb');
-
-const { restriction } = catapult.model;
-const { Long } = MongoDb;
+const { convertToLong, buildOffsetCondition } = require('../../db/dbUtils');
 
 class RestrictionsDb {
 	/**
@@ -45,40 +41,34 @@ class RestrictionsDb {
 	}
 
 	/**
-	 * Retrieves mosaic restrictions of the given mosaic ids.
-	 * @param {array<module:catapult.utils/uint64~uint64>} mosaicIds Given mosaic ids.
-	 * @param {int} restrictionType Restriction type.
-	 * @returns {Promise.<array>} Mosaic restrictions.
+	 * Retrieves filtered and paginated mosaic restrictions.
+	 * @param {Uint64} mosaicId Mosaic id
+	 * @param {uint} entryType Mosaic restriction type
+	 * @param {Uint8Array} targetAddress Mosaic restriction target address
+	 * @param {object} options Options for ordering and pagination. Can have an `offset`, and must contain the `sortField`, `sortDirection`,
+	 * `pageSize` and `pageNumber`. 'sortField' must be within allowed 'sortingOptions'.
+	 * @returns {Promise.<object>} Mosaic restrictions page.
 	 */
-	mosaicRestrictionsByMosaicIds(mosaicIds, restrictionType) {
-		const mosaicIdsLong = mosaicIds.map(mosaicId => new Long(mosaicId[0], mosaicId[1]));
-		const conditions = {
-			$and: [
-				{ 'mosaicRestrictionEntry.mosaicId': { $in: mosaicIdsLong } },
-				{ 'mosaicRestrictionEntry.entryType': restrictionType }
-			]
-		};
+	mosaicRestrictions(mosaicId, entryType, targetAddress, options) {
+		const sortingOptions = { id: '_id' };
 
-		return this.catapultDb.queryDocuments('mosaicRestrictions', conditions);
-	}
+		let conditions = {};
 
-	/**
-	 * Retrieves mosaic address restrictions of the given mosaic id and target addresses.
-	 * @param {array<module:catapult.utils/uint64~uint64>} mosaicId Given mosaic id.
-	 * @param {array<module:catapult.model/address~address>} addresses Given addresses.
-	 * @returns {Promise.<array>} Mosaic address restrictions.
-	 */
-	mosaicAddressRestrictions(mosaicId, addresses) {
-		const addressesBuffers = addresses.map(address => Buffer.from(address));
-		const conditions = {
-			$and: [
-				{ 'mosaicRestrictionEntry.mosaicId': new Long(mosaicId[0], mosaicId[1]) },
-				{ 'mosaicRestrictionEntry.entryType': restriction.mosaicRestriction.restrictionType.address },
-				{ 'mosaicRestrictionEntry.targetAddress': { $in: addressesBuffers } }
-			]
-		};
+		const offsetCondition = buildOffsetCondition(options, sortingOptions);
+		if (offsetCondition)
+			conditions = Object.assign(conditions, offsetCondition);
 
-		return this.catapultDb.queryDocuments('mosaicRestrictions', conditions);
+		if (undefined !== mosaicId)
+			conditions['mosaicRestrictionEntry.mosaicId'] = convertToLong(mosaicId);
+
+		if (undefined !== entryType)
+			conditions['mosaicRestrictionEntry.entryType'] = entryType;
+
+		if (undefined !== targetAddress)
+			conditions['mosaicRestrictionEntry.targetAddress'] = Buffer.from(targetAddress);
+
+		const sortConditions = { [sortingOptions[options.sortField]]: options.sortDirection };
+		return this.catapultDb.queryPagedDocuments(conditions, [], sortConditions, 'mosaicRestrictions', options);
 	}
 }
 

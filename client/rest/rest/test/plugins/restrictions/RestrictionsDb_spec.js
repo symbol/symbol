@@ -19,10 +19,13 @@
  */
 
 const test = require('./restrictionsDbTestUtils');
+const CatapultDb = require('../../../src/db/CatapultDb');
+const { convertToLong } = require('../../../src/db/dbUtils');
+const RestrictionsDb = require('../../../src/plugins/restrictions/RestrictionsDb');
+const dbTestUtils = require('../../db/utils/dbTestUtils');
 const catapult = require('catapult-sdk');
 const { expect } = require('chai');
-
-const { restriction } = catapult.model;
+const sinon = require('sinon');
 
 describe('restrictions db', () => {
 	describe('account restrictions', () => {
@@ -126,127 +129,217 @@ describe('restrictions db', () => {
 
 	describe('mosaic restrictions', () => {
 		const { address } = catapult.model;
-		const testAddress = {
-			one: address.stringToAddress('SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ'),
-			two: address.stringToAddress('NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA'),
-			three: address.stringToAddress('SAAAIBC7AM65HOFDLYGFUT46H44TROZ7MUWCW6I'),
-			four: address.stringToAddress('SAMZMPX33DFIIVOCNJYMF5KJTGLAEVNKHHFROLQ')
+		const { createObjectId } = dbTestUtils.db;
+		const testAddress1 = address.stringToAddress('SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ');
+		const testAddress2 = address.stringToAddress('NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA');
+
+		const paginationOptions = {
+			pageSize: 10,
+			pageNumber: 1,
+			sortField: 'id',
+			sortDirection: -1
 		};
 
-		describe('mosaic restrictions by mosaic ids', () => {
-			it('returns empty for no restrictions with mosaicId', () => {
-				// Arrange:
-				const restriction1 = test.mosaicDb.createGlobalMosaicRestriction([0xAAAAAAAA, 0xAAAAAAAA]);
-				const restriction2 = test.mosaicDb.createAddressMosaicRestriction([0xAAAAAAAA, 0xAAAAAAAA], testAddress.one);
+		const createMosaicRestriction = (objectId, mosaicId, entryType, targetAddress) => ({
+			_id: createObjectId(objectId),
+			mosaicRestrictionEntry: {
+				compositeHash: '',
+				entryType,
+				mosaicId: mosaicId ? convertToLong(mosaicId) : undefined,
+				targetAddress: targetAddress ? Buffer.from(targetAddress) : undefined,
+				restrictions: []
+			}
+		});
+
+		const runMosaicRestrictionsDbTest = (dbEntities, issueDbCommand, assertDbCommandResult) =>
+			dbTestUtils.db.runDbTest(dbEntities, 'mosaicRestrictions', db => new RestrictionsDb(db), issueDbCommand, assertDbCommandResult);
+
+		const runTestAndVerifyIds = (dbRestrictions, dbQuery, expectedIds) => {
+			const expectedObjectIds = expectedIds.map(id => createObjectId(id));
+
+			return runMosaicRestrictionsDbTest(
+				dbRestrictions,
+				dbQuery,
+				mosaicRestrictionsPage => {
+					const returnedIds = mosaicRestrictionsPage.data.map(t => t.id);
+					expect(mosaicRestrictionsPage.data.length).to.equal(expectedObjectIds.length);
+					expect(returnedIds.sort()).to.deep.equal(expectedObjectIds.sort());
+				}
+			);
+		};
+
+		it('returns expected structure', () => {
+			// Arrange:
+			const dbMosaicRestrictions = [createMosaicRestriction(10)];
+
+			// Act + Assert:
+			return runMosaicRestrictionsDbTest(
+				dbMosaicRestrictions,
+				db => db.mosaicRestrictions(undefined, undefined, undefined, paginationOptions),
+				page => {
+					const expected_keys = ['id', 'mosaicRestrictionEntry'];
+					expect(Object.keys(page.data[0]).sort()).to.deep.equal(expected_keys.sort());
+				}
+			);
+		});
+
+		it('returns filtered mosaic restrictions by mosaicId', () => {
+			// Arrange:
+			const dbMosaicRestrictions = [
+				createMosaicRestriction(10, [0xAAAD29AA, 0xAAC67FAA]),
+				createMosaicRestriction(20, [0x1CAD29E3, 0x0DC67FBE])
+			];
+
+			// Act + Assert:
+			return runTestAndVerifyIds(
+				dbMosaicRestrictions,
+				db => db.mosaicRestrictions([0xAAAD29AA, 0xAAC67FAA], undefined, undefined, paginationOptions), [10]
+			);
+		});
+
+		it('returns filtered mosaic restrictions by entry type', () => {
+			// Arrange:
+			const dbMosaicRestrictions = [
+				createMosaicRestriction(10, undefined, 0),
+				createMosaicRestriction(20, undefined, 1)
+			];
+
+			// Act + Assert:
+			return runTestAndVerifyIds(
+				dbMosaicRestrictions,
+				db => db.mosaicRestrictions(undefined, 0, undefined, paginationOptions), [10]
+			);
+		});
+
+		it('returns filtered mosaic restrictions by targetAddress', () => {
+			// Arrange:
+			const dbMosaicRestrictions = [
+				createMosaicRestriction(10, undefined, undefined, testAddress1),
+				createMosaicRestriction(20, undefined, undefined, testAddress2)
+			];
+
+			// Act + Assert:
+			return runTestAndVerifyIds(
+				dbMosaicRestrictions,
+				db => db.mosaicRestrictions(undefined, undefined, testAddress2, paginationOptions), [20]
+			);
+		});
+
+		it('returns all mosaic restrictions if no filters provided', () => {
+			// Arrange:
+			const dbMosaicRestrictions = [
+				createMosaicRestriction(10),
+				createMosaicRestriction(20),
+				createMosaicRestriction(30)
+			];
+
+			// Act + Assert:
+			return runTestAndVerifyIds(
+				dbMosaicRestrictions,
+				db => db.mosaicRestrictions(undefined, undefined, undefined, paginationOptions), [10, 20, 30]
+			);
+		});
+
+		describe('respects sort conditions', () => {
+			// Arrange:
+			const dbMosaicRestrictions = () => [
+				createMosaicRestriction(10),
+				createMosaicRestriction(20),
+				createMosaicRestriction(30)
+			];
+
+			it('direction ascending', () => {
+				const options = {
+					pageSize: 10,
+					pageNumber: 1,
+					sortField: 'id',
+					sortDirection: 1
+				};
 
 				// Act + Assert:
-				return test.mosaicDb.runDbTest(
-					[restriction1, restriction2],
-					db => db.mosaicRestrictionsByMosaicIds(
-						[[0xBBBBBBBB, 0xBBBBBBBB]],
-						restriction.mosaicRestriction.restrictionType.global
-					),
-					entities => { expect(entities).to.deep.equal([]); }
-				);
-			});
-
-			it('returns correct restrictions for one mosaic id', () => {
-				// Arrange:
-				const restriction1 = test.mosaicDb.createGlobalMosaicRestriction([0x32ABFE33, 0x876EEC50]);
-				const restriction2 = test.mosaicDb.createGlobalMosaicRestriction([0xAAAAAAAA, 0xBBBBBBBB]);
-
-				// Act + Assert:
-				return test.mosaicDb.runDbTest(
-					[restriction1, restriction2],
-					db => db.mosaicRestrictionsByMosaicIds(
-						[[0x32ABFE33, 0x876EEC50]],
-						restriction.mosaicRestriction.restrictionType.global
-					),
-					entities => { expect(entities).to.deep.equal([test.mosaicDb.sanitizeId(restriction1)]); }
-				);
-			});
-
-			it('returns correct restrictions for several mosaic ids', () => {
-				// Arrange:
-				const restriction1 = test.mosaicDb.createGlobalMosaicRestriction([0xFD7657CC, 0x5B64C36F]);
-				const restriction2 = test.mosaicDb.createGlobalMosaicRestriction([0xAAAAAAAA, 0xBBBBBBBB]);
-				const restriction3 = test.mosaicDb.createGlobalMosaicRestriction([0x6767FF54, 0x12AFF673]);
-				const restriction4 = test.mosaicDb.createAddressMosaicRestriction([0xFD7657CC, 0x5B64C36F], testAddress.one);
-
-				// Act + Assert:
-				return test.mosaicDb.runDbTest(
-					[restriction1, restriction2, restriction3, restriction4],
-					db => db.mosaicRestrictionsByMosaicIds(
-						[[0xFD7657CC, 0x5B64C36F], [0x6767FF54, 0x12AFF673]],
-						restriction.mosaicRestriction.restrictionType.global
-					),
-					entities => {
-						expect(entities).to.deep.equal([test.mosaicDb.sanitizeId(restriction1), test.mosaicDb.sanitizeId(restriction3)]);
+				return runMosaicRestrictionsDbTest(
+					dbMosaicRestrictions(),
+					db => db.mosaicRestrictions(undefined, undefined, undefined, options),
+					page => {
+						expect(page.data[0].id).to.deep.equal(createObjectId(10));
+						expect(page.data[1].id).to.deep.equal(createObjectId(20));
+						expect(page.data[2].id).to.deep.equal(createObjectId(30));
 					}
 				);
 			});
 
-			it('correctly filters for restriction type', () => {
-				// Arrange:
-				const restriction1 = test.mosaicDb.createGlobalMosaicRestriction([0xAAAAAAAA, 0xBBBBBBBB]);
-				const restriction2 = test.mosaicDb.createAddressMosaicRestriction([0xAAAAAAAA, 0xBBBBBBBB], testAddress.one);
+			it('direction descending', () => {
+				const options = {
+					pageSize: 10,
+					pageNumber: 1,
+					sortField: 'id',
+					sortDirection: -1
+				};
 
 				// Act + Assert:
-				return test.mosaicDb.runDbTest(
-					[restriction1, restriction2],
-					db => db.mosaicRestrictionsByMosaicIds(
-						[[0xAAAAAAAA, 0xBBBBBBBB]],
-						restriction.mosaicRestriction.restrictionType.address
-					),
-					entities => { expect(entities).to.deep.equal([test.mosaicDb.sanitizeId(restriction2)]); }
+				return runMosaicRestrictionsDbTest(
+					dbMosaicRestrictions(),
+					db => db.mosaicRestrictions(undefined, undefined, undefined, options),
+					page => {
+						expect(page.data[0].id).to.deep.equal(createObjectId(30));
+						expect(page.data[1].id).to.deep.equal(createObjectId(20));
+						expect(page.data[2].id).to.deep.equal(createObjectId(10));
+					}
+				);
+			});
+
+			it('sort field', () => {
+				const queryPagedDocumentsSpy = sinon.spy(CatapultDb.prototype, 'queryPagedDocuments');
+				const options = {
+					pageSize: 10,
+					pageNumber: 1,
+					sortField: 'id',
+					sortDirection: 1
+				};
+
+				// Act + Assert:
+				return runMosaicRestrictionsDbTest(
+					dbMosaicRestrictions(),
+					db => db.mosaicRestrictions(undefined, undefined, undefined, options),
+					() => {
+						expect(queryPagedDocumentsSpy.calledOnce).to.equal(true);
+						expect(Object.keys(queryPagedDocumentsSpy.firstCall.args[2])[0]).to.equal('_id');
+						queryPagedDocumentsSpy.restore();
+					}
 				);
 			});
 		});
 
-		describe('mosaic address restrictions', () => {
-			const mosaicId = [0xAAAAAAAA, 0xBBBBBBBB];
+		describe('respects offset', () => {
+			// Arrange:
+			const dbMosaicRestrictions = () => [
+				createMosaicRestriction(10),
+				createMosaicRestriction(20),
+				createMosaicRestriction(30)
+			];
+			const options = {
+				pageSize: 10,
+				pageNumber: 1,
+				sortField: 'id',
+				sortDirection: 1,
+				offset: createObjectId(20)
+			};
 
-			it('returns empty for no restrictions with target address', () => {
-				// Arrange:
-				const restriction1 = test.mosaicDb.createGlobalMosaicRestriction(mosaicId);
-				const restriction2 = test.mosaicDb.createAddressMosaicRestriction(mosaicId, testAddress.one);
+			it('gt', () => {
+				options.sortDirection = 1;
 
 				// Act + Assert:
-				return test.mosaicDb.runDbTest(
-					[restriction1, restriction2],
-					db => db.mosaicAddressRestrictions(mosaicId, [testAddress.two]),
-					entities => { expect(entities).to.deep.equal([]); }
+				return runTestAndVerifyIds(
+					dbMosaicRestrictions(), db => db.mosaicRestrictions(undefined, undefined, undefined, options), [30]
 				);
 			});
 
-			it('returns correct address restrictions for one target address', () => {
-				// Arrange:
-				const restriction1 = test.mosaicDb.createGlobalMosaicRestriction(mosaicId);
-				const restriction2 = test.mosaicDb.createAddressMosaicRestriction(mosaicId, testAddress.one);
-				const restriction3 = test.mosaicDb.createAddressMosaicRestriction(mosaicId, testAddress.two);
+			it('lt', () => {
+				options.sortDirection = -1;
 
 				// Act + Assert:
-				return test.mosaicDb.runDbTest(
-					[restriction1, restriction2, restriction3],
-					db => db.mosaicAddressRestrictions(mosaicId, [testAddress.one]),
-					entities => { expect(entities).to.deep.equal([test.mosaicDb.sanitizeId(restriction2)]); }
-				);
-			});
-
-			it('returns correct address restrictions for several target addresses', () => {
-				// Arrange:
-				const restriction1 = test.mosaicDb.createGlobalMosaicRestriction(mosaicId);
-				const restriction2 = test.mosaicDb.createAddressMosaicRestriction(mosaicId, testAddress.one);
-				const restriction3 = test.mosaicDb.createAddressMosaicRestriction(mosaicId, testAddress.three);
-				const restriction4 = test.mosaicDb.createAddressMosaicRestriction(mosaicId, testAddress.four);
-
-				// Act + Assert:
-				return test.mosaicDb.runDbTest(
-					[restriction1, restriction2, restriction3, restriction4],
-					db => db.mosaicAddressRestrictions(mosaicId, [testAddress.one, testAddress.four]),
-					entities => {
-						expect(entities).to.deep.equal([test.mosaicDb.sanitizeId(restriction2), test.mosaicDb.sanitizeId(restriction4)]);
-					}
+				return runTestAndVerifyIds(
+					dbMosaicRestrictions(), db => db.mosaicRestrictions(undefined, undefined, undefined, options), [10]
 				);
 			});
 		});

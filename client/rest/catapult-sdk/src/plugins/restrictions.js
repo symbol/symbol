@@ -162,36 +162,24 @@ const restrictionsPlugin = {
 			newRestrictionType: ModelType.int
 		});
 
-		// mosaic address restrictions
-		builder.addSchema('mosaicRestriction.mosaicAddressRestriction', {
-			mosaicRestrictionEntry: { type: ModelType.object, schemaName: 'mosaicAddressRestriction.entry' }
+		// mosaic restriction schemas
+		builder.addSchema('mosaicRestrictions', {
+			id: ModelType.objectId,
+			mosaicRestrictionEntry: { type: ModelType.object, schemaName: 'mosaicRestrictions.entry' }
 		});
-		builder.addSchema('mosaicAddressRestriction.entry', {
+		builder.addSchema('mosaicRestrictions.entry', {
 			compositeHash: ModelType.binary,
+			entryType: ModelType.uint,
 			mosaicId: ModelType.uint64HexIdentifier,
 			targetAddress: ModelType.binary,
-			restrictions: { type: ModelType.array, schemaName: 'mosaicAddressRestriction.entry.restriction' }
+			restrictions: { type: ModelType.array, schemaName: 'mosaicRestrictions.entry.restrictions' }
 		});
-		builder.addSchema('mosaicAddressRestriction.entry.restriction', {
+		builder.addSchema('mosaicRestrictions.entry.restrictions', {
 			key: ModelType.uint64,
-			value: ModelType.uint64
+			value: ModelType.uint64,
+			restriction: { type: ModelType.object, schemaName: 'mosaicRestrictions.entry.restrictions.restriction' }
 		});
-
-		// mosaic global restrictions
-		builder.addSchema('mosaicRestriction.mosaicGlobalRestriction', {
-			mosaicRestrictionEntry: { type: ModelType.object, schemaName: 'mosaicGlobalRestriction.entry' }
-		});
-		builder.addSchema('mosaicGlobalRestriction.entry', {
-			compositeHash: ModelType.binary,
-			entryType: ModelType.int,
-			mosaicId: ModelType.uint64HexIdentifier,
-			restrictions: { type: ModelType.array, schemaName: 'mosaicGlobalRestriction.entry.restriction' }
-		});
-		builder.addSchema('mosaicGlobalRestriction.entry.restriction', {
-			key: ModelType.uint64,
-			restriction: { type: ModelType.object, schemaName: 'mosaicGlobalRestriction.entry.restriction.restriction' }
-		});
-		builder.addSchema('mosaicGlobalRestriction.entry.restriction.restriction', {
+		builder.addSchema('mosaicRestrictions.entry.restrictions.restriction', {
 			referenceMosaicId: ModelType.uint64HexIdentifier,
 			restrictionValue: ModelType.uint64,
 			restrictionType: ModelType.int

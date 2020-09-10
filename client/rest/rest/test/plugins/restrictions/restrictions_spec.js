@@ -40,23 +40,7 @@ describe('restrictions plugin', () => {
 			// Assert:
 			test.assert.assertRoutes(routes, [
 				'/restrictions/account/:address',
-				'/restrictions/mosaic/:mosaicId',
-				'/restrictions/mosaic/:mosaicId/address/:targetAddress'
-			]);
-		});
-
-		it('registers restrictions POST routes', () => {
-			// Arrange:
-			const routes = [];
-			const server = test.setup.createCapturingMockServer('post', routes);
-
-			// Act:
-			restrictions.registerRoutes(server, {}, { network: { name: 'mijinTest' } });
-
-			// Assert:
-			test.assert.assertRoutes(routes, [
-				'/restrictions/mosaic',
-				'/restrictions/mosaic/:mosaicId'
+				'/restrictions/mosaic'
 			]);
 		});
 	});

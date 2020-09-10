@@ -37,6 +37,7 @@ module.exports = {
 	nodeInfo: 'nodeInfo',
 	nodeTime: 'nodeTime',
 	nodeHealth: 'nodeHealth',
+	mosaicRestrictions: 'mosaicRestrictions',
 
 	// diagnostic
 	serverInfo: 'serverInfo',

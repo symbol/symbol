@@ -18,17 +18,15 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const routeResultTypes = require('../../routes/routeResultTypes');
 const routeUtils = require('../../routes/routeUtils');
 const catapult = require('catapult-sdk');
 
-const { restriction } = catapult.model;
 const { uint64 } = catapult.utils;
 
 module.exports = {
-	register: (server, db) => {
+	register: (server, db, services) => {
 		const accountRestrictionsSender = routeUtils.createSender('accountRestrictions');
-		const mosaicGlobalRestrictionsSender = routeUtils.createSender('mosaicRestriction.mosaicGlobalRestriction');
-		const mosaicAddressRestrictionsSender = routeUtils.createSender('mosaicRestriction.mosaicAddressRestriction');
 
 		server.get('/restrictions/account/:address', (req, res, next) => {
 			const accountAddress = routeUtils.parseArgument(req.params, 'address', 'address');
@@ -36,38 +34,16 @@ module.exports = {
 				.then(accountRestrictionsSender.sendOne(req.params.address, res, next));
 		});
 
-		server.get('/restrictions/mosaic/:mosaicId', (req, res, next) => {
-			const mosaicId = routeUtils.parseArgument(req.params, 'mosaicId', uint64.fromHex);
+		server.get('/restrictions/mosaic', (req, res, next) => {
+			const { params } = req;
+			const mosaicId = params.mosaicId ? routeUtils.parseArgument(params, 'mosaicId', uint64.fromHex) : undefined;
+			const entryType = params.entryType ? routeUtils.parseArgument(params, 'entryType', 'uint') : undefined;
+			const targetAddress = params.targetAddress ? routeUtils.parseArgument(params, 'targetAddress', 'address') : undefined;
 
-			return db.mosaicRestrictionsByMosaicIds(
-				[mosaicId],
-				restriction.mosaicRestriction.restrictionType.global
-			).then(mosaicGlobalRestrictionsSender.sendOne(req.params.mosaicId, res, next));
-		});
+			const options = routeUtils.parsePaginationArguments(params, services.config.pageSize, { id: 'objectId' });
 
-		server.get('/restrictions/mosaic/:mosaicId/address/:targetAddress', (req, res, next) => {
-			const mosaicId = routeUtils.parseArgument(req.params, 'mosaicId', uint64.fromHex);
-			const targetAddress = routeUtils.parseArgument(req.params, 'targetAddress', 'address');
-
-			return db.mosaicAddressRestrictions(mosaicId, [targetAddress])
-				.then(mosaicAddressRestrictionsSender.sendOne(req.params.targetAddress, res, next));
-		});
-
-		server.post('/restrictions/mosaic', (req, res, next) => {
-			const mosaicIds = routeUtils.parseArgumentAsArray(req.params, 'mosaicIds', uint64.fromHex);
-
-			return db.mosaicRestrictionsByMosaicIds(
-				mosaicIds,
-				restriction.mosaicRestriction.restrictionType.global
-			).then(mosaicGlobalRestrictionsSender.sendArray('mosaicIds', res, next));
-		});
-
-		server.post('/restrictions/mosaic/:mosaicId', (req, res, next) => {
-			const mosaicId = routeUtils.parseArgument(req.params, 'mosaicId', uint64.fromHex);
-			const addresses = routeUtils.parseArgumentAsArray(req.params, 'addresses', 'address');
-
-			return db.mosaicAddressRestrictions(mosaicId, addresses)
-				.then(mosaicAddressRestrictionsSender.sendArray('addresses', res, next));
+			return db.mosaicRestrictions(mosaicId, entryType, targetAddress, options)
+				.then(result => routeUtils.createSender(routeResultTypes.mosaicRestrictions).sendPage(res, next)(result));
 		});
 	}
 };
