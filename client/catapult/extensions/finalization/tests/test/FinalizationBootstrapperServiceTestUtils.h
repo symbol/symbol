@@ -101,6 +101,12 @@ namespace catapult { namespace test {
 				, m_keyPairDescriptors(std::move(*pKeyPairDescriptors))
 		{}
 
+	protected:
+		/// Gets the key pair descriptor for the account specified by \a voterType.
+		const AccountKeyPairDescriptor& keyPairDescriptor(TestUtils::VoterType voterType) const {
+			return m_keyPairDescriptors[utils::to_underlying_type(voterType)];
+		}
+
 	public:
 		/// Creates a valid finalization message with \a stepIdentifier and one \a hash at \a height for the account
 		/// specified by \a voterType.
@@ -109,10 +115,9 @@ namespace catapult { namespace test {
 				const model::StepIdentifier& stepIdentifier,
 				Height height,
 				const Hash256& hash) const {
-			const auto& keyPairDescriptor = m_keyPairDescriptors[utils::to_underlying_type(voterType)];
 			auto pMessage = CreateMessage(stepIdentifier, hash);
 			pMessage->Height = height;
-			SignMessage(*pMessage, keyPairDescriptor.VotingKeyPair, TTraits::Voting_Key_Dilution);
+			SignMessage(*pMessage, keyPairDescriptor(voterType).VotingKeyPair, TTraits::Voting_Key_Dilution);
 			return PORTABLE_MOVE(pMessage);
 		}
 

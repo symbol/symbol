@@ -36,10 +36,12 @@ namespace catapult { namespace chain {
 	FinalizationOrchestrator::FinalizationOrchestrator(
 			const VotingStatus& votingStatus,
 			const StageAdvancerFactory& stageAdvancerFactory,
+			const MessagePredicate& messagePredicate,
 			const MessageSink& messageSink,
 			std::unique_ptr<FinalizationMessageFactory>&& pMessageFactory)
 			: m_votingStatus(votingStatus)
 			, m_stageAdvancerFactory(stageAdvancerFactory)
+			, m_messagePredicate(messagePredicate)
 			, m_messageSink(messageSink)
 			, m_pMessageFactory(std::move(pMessageFactory)) {
 		CATAPULT_LOG(debug)
@@ -92,10 +94,14 @@ namespace catapult { namespace chain {
 	}
 
 	void FinalizationOrchestrator::process(std::unique_ptr<model::FinalizationMessage>&& pMessage, const char* description) {
-		if (pMessage)
-			m_messageSink(std::move(pMessage));
-		else
-			CATAPULT_LOG(debug) << "cannot create " << description << " for " << m_votingStatus.Round;
+		if (!pMessage || !m_messagePredicate(*pMessage)) {
+			CATAPULT_LOG(debug)
+					<< "cannot create " << description << " for " << m_votingStatus.Round << " ("
+					<< (pMessage ? "ineligible" : "factory failed") << ")";
+			return;
+		}
+
+		m_messageSink(std::move(pMessage));
 	}
 
 	namespace {

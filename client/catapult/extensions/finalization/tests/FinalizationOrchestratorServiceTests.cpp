@@ -27,7 +27,7 @@
 #include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
 #include "catapult/io/FileStream.h"
-#include "finalization/tests/test/FinalizationMessageTestUtils.h"
+#include "finalization/tests/test/FinalizationBootstrapperServiceTestUtils.h"
 #include "finalization/tests/test/mocks/MockProofStorage.h"
 #include "finalization/tests/test/mocks/MockRoundMessageAggregator.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"
@@ -43,15 +43,22 @@ namespace catapult { namespace finalization {
 	// region test context
 
 	namespace {
+		using VoterType = test::FinalizationBootstrapperServiceTestUtils::VoterType;
+
 		constexpr auto Num_Dependent_Services = 3u;
-		constexpr auto Default_Voting_Set_Grouping = 500u;
+		constexpr auto Default_Voting_Set_Grouping = 300u;
 		constexpr auto Small_Voting_Set_Grouping = 49u;
 
 		constexpr auto Finalization_Epoch = FinalizationEpoch(6);
 		constexpr auto Prevote_Stage = model::FinalizationStage::Prevote;
 		constexpr auto Precommit_Stage = model::FinalizationStage::Precommit;
+		constexpr auto Default_Round = model::FinalizationRound{ Finalization_Epoch, FinalizationPoint(8) };
 
 		struct FinalizationOrchestratorServiceTraits {
+		public:
+			static constexpr uint64_t Voting_Key_Dilution = 13;
+
+		public:
 			static auto CreateRegistrar(uint64_t votingSetGrouping) {
 				// (Size, Threshold) are set in MockRoundMessageAggregator to (1000, 750)
 				auto config = FinalizationConfiguration::Uninitialized();
@@ -67,18 +74,15 @@ namespace catapult { namespace finalization {
 			}
 		};
 
-		class TestContext : public test::ServiceLocatorTestContext<FinalizationOrchestratorServiceTraits> {
+		class TestContext : public test::VoterSeededCacheDependentServiceLocatorTestContext<FinalizationOrchestratorServiceTraits> {
 		private:
-			using BaseType = test::ServiceLocatorTestContext<FinalizationOrchestratorServiceTraits>;
-
-		private:
-			static constexpr uint64_t Voting_Key_Dilution = 13;
+			static constexpr uint64_t Voting_Key_Dilution = FinalizationOrchestratorServiceTraits::Voting_Key_Dilution;
 
 		public:
-			TestContext() : TestContext({ Finalization_Epoch, FinalizationPoint(8) })
+			TestContext() : TestContext(Default_Round)
 			{}
 
-			explicit TestContext(const model::FinalizationRound& orchestratorStartRound)
+			explicit TestContext(const model::FinalizationRound& orchestratorStartRound, VoterType voterType = VoterType::Large1)
 					: m_createCompletedRound(false)
 					, m_hashes(test::GenerateRandomDataVector<Hash256>(3)) {
 				// note: current voting round (8) is ahead of last round resulting in finalization (5)
@@ -93,7 +97,7 @@ namespace catapult { namespace finalization {
 				boost::filesystem::create_directories(votingKeysDirectory.path());
 				const_cast<std::string&>(userConfig.VotingKeysDirectory) = votingKeysDirectory.str();
 
-				SeedVotingPrivateKeyTree(votingKeysDirectory);
+				SeedVotingPrivateKeyTree(votingKeysDirectory, keyPairDescriptor(voterType).VotingKeyPair);
 				SeedVotingStatus(dataDirectory.rootDir(), orchestratorStartRound);
 
 				// register hooks
@@ -119,7 +123,7 @@ namespace catapult { namespace finalization {
 						10'000'000,
 						model::FinalizationRound{ Finalization_Epoch - FinalizationEpoch(2), FinalizationPoint(1) },
 						lastFinalizedHeightHashPair,
-						[this](const auto& round) {
+						[this, voterType](const auto& round) {
 							auto pRoundMessageAggregator = std::make_unique<mocks::MockRoundMessageAggregator>(round);
 							if (m_createCompletedRound) {
 								pRoundMessageAggregator->roundContext().acceptPrevote(Height(244), m_hashes.data(), m_hashes.size(), 750);
@@ -127,8 +131,9 @@ namespace catapult { namespace finalization {
 								pRoundMessageAggregator->roundContext().acceptPrecommit(Height(246), m_hashes[2], 400);
 							}
 
-							auto pMessage = test::CreateMessage(round);
-							pMessage->Height = Height(245);
+							auto stepIdentifier = model::StepIdentifier{ round.Epoch, round.Point, model::FinalizationStage::Prevote };
+							auto hash = test::GenerateRandomByteArray<Hash256>();
+							auto pMessage = createMessage(voterType, stepIdentifier, Height(245), hash);
 
 							chain::RoundMessageAggregator::UnknownMessages messages;
 							messages.push_back(std::move(pMessage));
@@ -176,7 +181,7 @@ namespace catapult { namespace finalization {
 			}
 
 			void initialize() {
-				auto votingRound = model::FinalizationRound{ Finalization_Epoch, FinalizationPoint(8) };
+				auto votingRound = Default_Round;
 				auto aggregatorModifier = m_pAggregator->modifier();
 				aggregatorModifier.setMaxFinalizationRound(votingRound);
 				aggregatorModifier.add(test::CreateMessage(votingRound));
@@ -194,7 +199,7 @@ namespace catapult { namespace finalization {
 				return model::StepIdentifierToBmKeyIdentifier({ epoch, FinalizationPoint(), stage }, Voting_Key_Dilution);
 			}
 
-			static void SeedVotingPrivateKeyTree(const config::CatapultDirectory& directory) {
+			static void SeedVotingPrivateKeyTree(const config::CatapultDirectory& directory, const crypto::KeyPair& votingKeyPair) {
 				for (auto i = 1u; i <= 4u; ++i) {
 					auto treeFilename = directory.file("private_key_tree" + std::to_string(i) + ".dat");
 					io::FileStream treeStream(io::RawFile(treeFilename, io::OpenMode::Read_Write));
@@ -202,7 +207,7 @@ namespace catapult { namespace finalization {
 					auto startKeyIdentifier = CreateBmKeyIdentifier(FinalizationEpoch((i - 1) * 4 + 1), Prevote_Stage);
 					auto endKeyIdentifier = CreateBmKeyIdentifier(FinalizationEpoch(i * 4), Precommit_Stage);
 					auto bmOptions = crypto::BmOptions{ Voting_Key_Dilution, startKeyIdentifier, endKeyIdentifier };
-					crypto::BmPrivateKeyTree::Create(test::GenerateKeyPair(), treeStream, bmOptions);
+					crypto::BmPrivateKeyTree::Create(test::CopyKeyPair(votingKeyPair), treeStream, bmOptions);
 				}
 			}
 
@@ -288,7 +293,7 @@ namespace catapult { namespace finalization {
 				const Hash256& expectedHash,
 				const mocks::MockProofStorage& storage,
 				const std::vector<std::shared_ptr<model::FinalizationMessage>>& messages) {
-			// Assert: storage was called (proof step identifier comes from test::CreateMessage)
+			// Assert: storage was called
 			const auto& savedProofDescriptors = storage.savedProofDescriptors();
 			ASSERT_EQ(1u, savedProofDescriptors.size());
 			EXPECT_EQ(test::CreateFinalizationRound(epoch, 8), savedProofDescriptors[0].Round);
@@ -337,7 +342,7 @@ namespace catapult { namespace finalization {
 
 			// - override the storage hash so that it matches
 			auto& blockStorage = context.testState().state().storage();
-			mocks::SeedStorageWithFixedSizeBlocks(blockStorage, 245);
+			mocks::SeedStorageWithFixedSizeBlocks(blockStorage, 1200);
 			context.setHash(1, blockStorage.view().loadBlockElement(Height(245))->EntityHash);
 
 			RunFinalizationTaskTest(context, numRepetitions, Default_Voting_Set_Grouping, [&](
@@ -379,6 +384,65 @@ namespace catapult { namespace finalization {
 	}
 
 	namespace {
+		void AssertCanRunFinalizationTaskWhenThereArePendingFinalizedBlocksWithIneligibleServiceVoter(
+				size_t numRepetitions,
+				const model::FinalizationRound& expectedAggregatorMaxRound,
+				const model::FinalizationRound& expectedVotingStatusMaxRound) {
+			// Arrange:
+			TestContext context(Default_Round, VoterType::Ineligible);
+			context.createCompletedRound();
+
+			// - override the storage hash so that it matches
+			auto& blockStorage = context.testState().state().storage();
+			mocks::SeedStorageWithFixedSizeBlocks(blockStorage, 1200);
+			context.setHash(1, blockStorage.view().loadBlockElement(Height(245))->EntityHash);
+
+			RunFinalizationTaskTest(context, numRepetitions, Default_Voting_Set_Grouping, [&](
+					const auto& aggregator,
+					const auto& storage,
+					const auto& messages) {
+				// Assert: check aggregator
+				auto epoch = Finalization_Epoch.unwrap();
+				EXPECT_EQ(test::CreateFinalizationRound(epoch - 1, 1), aggregator.view().minFinalizationRound());
+				EXPECT_EQ(expectedAggregatorMaxRound, aggregator.view().maxFinalizationRound());
+
+				// Assert: storage was called
+				const auto& savedProofDescriptors = storage.savedProofDescriptors();
+				ASSERT_EQ(1u, savedProofDescriptors.size());
+				EXPECT_EQ(test::CreateFinalizationRound(epoch, 8), savedProofDescriptors[0].Round);
+				EXPECT_EQ(Height(245), savedProofDescriptors[0].Height);
+				EXPECT_EQ(context.hashes()[1], savedProofDescriptors[0].Hash);
+
+				// - no messages were sent
+				EXPECT_TRUE(messages.empty());
+
+				// - voting status was changed
+				auto votingStatus = context.votingStatus();
+				EXPECT_EQ(expectedVotingStatusMaxRound, votingStatus.Round);
+				EXPECT_FALSE(votingStatus.HasSentPrevote);
+				EXPECT_FALSE(votingStatus.HasSentPrecommit);
+			});
+		}
+	}
+
+	TEST(TEST_CLASS, CanRunFinalizationTaskWhenThereArePendingFinalizedBlocksWithIneligibleServiceVoter_OnePoll) {
+		// Assert: aggregator is updated at start of task, but voting status is updated at end of task
+		AssertCanRunFinalizationTaskWhenThereArePendingFinalizedBlocksWithIneligibleServiceVoter(
+				1,
+				test::CreateFinalizationRound(6, 8),
+				test::CreateFinalizationRound(6, 9));
+	}
+
+	TEST(TEST_CLASS, CanRunFinalizationTaskWhenThereArePendingFinalizedBlocksWithIneligibleServiceVoter_MultiplePolls) {
+		// Assert: on second task execution, storage and orchestrator have same epoch but height is not at end of epoch,
+		//         so epoch is not advanced
+		AssertCanRunFinalizationTaskWhenThereArePendingFinalizedBlocksWithIneligibleServiceVoter(
+				5,
+				test::CreateFinalizationRound(6, 9),
+				test::CreateFinalizationRound(6, 9));
+	}
+
+	namespace {
 		void AssertCanRunFinalizationTaskWhenThereIsPendingInconsistentFinalizedEpoch(uint32_t numBlocks) {
 			// Arrange:
 			TestContext context;
@@ -407,7 +471,7 @@ namespace catapult { namespace finalization {
 	}
 
 	TEST(TEST_CLASS, CanRunFinalizationTaskWhenThereIsPendingInconsistentFinalizedEpoch_InsufficientChainHeight) {
-		AssertCanRunFinalizationTaskWhenThereIsPendingInconsistentFinalizedEpoch(170);
+		AssertCanRunFinalizationTaskWhenThereIsPendingInconsistentFinalizedEpoch(196);
 		AssertCanRunFinalizationTaskWhenThereIsPendingInconsistentFinalizedEpoch(244);
 	}
 

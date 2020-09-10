@@ -62,6 +62,9 @@ namespace catapult { namespace model {
 		/// Gets the total weight of all finalization-eligible accounts.
 		Amount weight() const;
 
+		/// Returns \c true if the account associated with \a votingPublicKey is an eligible voter.
+		bool isEligibleVoter(const VotingKey& votingPublicKey) const;
+
 		/// Gets the finalization account view associated with \a votingPublicKey.
 		FinalizationAccountView lookup(const VotingKey& votingPublicKey) const;
 

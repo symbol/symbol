@@ -224,6 +224,42 @@ namespace catapult { namespace model {
 
 	// endregion
 
+	// region isEligibleVoter
+
+	TEST(TEST_CLASS, IsEligibleVoterReturnsTrueForEligibleVotingAccounts) {
+		// Arrange:
+		RunNineAccountTest([](const auto& context, const auto&, const auto& accountViews1, const auto& accountViews2, const auto&) {
+			// Assert:
+			EXPECT_TRUE(context.isEligibleVoter(accountViews1[0].VotingPublicKey1));
+			EXPECT_TRUE(context.isEligibleVoter(accountViews1[1].VotingPublicKey1));
+
+			EXPECT_TRUE(context.isEligibleVoter(accountViews2[0].VotingPublicKey1));
+			EXPECT_TRUE(context.isEligibleVoter(accountViews2[2].VotingPublicKey1));
+		});
+	}
+
+	TEST(TEST_CLASS, IsEligibleVoterReturnsFalseForIneligibleVotingAccounts) {
+		// Arrange:
+		RunNineAccountTest([](
+				const auto& context,
+				const auto&,
+				const auto& accountViews1,
+				const auto& accountViews2,
+				const auto& accountViews3) {
+			// Assert:
+			EXPECT_FALSE(context.isEligibleVoter(accountViews1[2].VotingPublicKey1));
+			EXPECT_FALSE(context.isEligibleVoter(accountViews2[1].VotingPublicKey1));
+
+			for (const auto& accountView : accountViews3)
+				EXPECT_FALSE(context.isEligibleVoter(accountView.VotingPublicKey1));
+
+			for (const auto& votingPublicKey : test::GenerateRandomDataVector<VotingKey>(3))
+				EXPECT_FALSE(context.isEligibleVoter(votingPublicKey));
+		});
+	}
+
+	// endregion
+
 	// region lookup
 
 	namespace {

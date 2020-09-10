@@ -71,14 +71,10 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region CalculateMessageHash / IsEligibleVoter
+	// region CalculateMessageHash
 
 	/// Calculates a hash for \a message.
 	Hash256 CalculateMessageHash(const FinalizationMessage& message);
-
-	/// Determines if the voter associated with \a bmPrivateKeyTree is eligible for participating in the finalization procedure
-	/// represented by \a context.
-	bool IsEligibleVoter(const crypto::AggregateBmPrivateKeyTree& bmPrivateKeyTree, const FinalizationContext& context);
 
 	// endregion
 

@@ -21,6 +21,7 @@
 #include "FinalizationOrchestratorService.h"
 #include "FinalizationBootstrapperService.h"
 #include "FinalizationConfiguration.h"
+#include "FinalizationContextFactory.h"
 #include "VotingStatusFile.h"
 #include "finalization/src/chain/MultiRoundMessageAggregator.h"
 #include "finalization/src/io/ProofStorageCache.h"
@@ -59,6 +60,10 @@ namespace catapult { namespace finalization {
 							[stepDuration = config.StepDuration, &messageAggregator = m_messageAggregator](auto point, auto time) {
 								return chain::CreateFinalizationStageAdvancer(point, time, stepDuration, messageAggregator);
 							},
+							[factory = FinalizationContextFactory(config, state)](const auto& message) {
+								const auto& votingPublicKey = message.Signature.Root.ParentPublicKey.template copyTo<VotingKey>();
+								return factory.create(message.StepIdentifier.Epoch).isEligibleVoter(votingPublicKey);
+							},
 							[&hooks = m_hooks](auto&& pMessage) {
 								hooks.messageRangeConsumer()(model::FinalizationMessageRange::FromEntity(std::move(pMessage)));
 							},
@@ -66,8 +71,7 @@ namespace catapult { namespace finalization {
 									config,
 									state.storage(),
 									m_proofStorage,
-									crypto::AggregateBmPrivateKeyTree(CreateBmPrivateKeyTreeFactory(
-											config::CatapultDirectory(state.config().User.VotingKeysDirectory)))))
+									CreateVotingPrivateKeyTree(state.config().User)))
 					, m_finalizer(CreateFinalizer(m_messageAggregator, m_proofStorage))
 			{}
 
@@ -133,6 +137,11 @@ namespace catapult { namespace finalization {
 			}
 
 		private:
+			static crypto::AggregateBmPrivateKeyTree CreateVotingPrivateKeyTree(const config::UserConfiguration& userConfig) {
+				auto factory = CreateBmPrivateKeyTreeFactory(config::CatapultDirectory(userConfig.VotingKeysDirectory));
+				return crypto::AggregateBmPrivateKeyTree(factory);
+			}
+
 			static std::string GetVotingPrivateKeyTreeFilename(uint64_t treeSequenceId) {
 				std::ostringstream out;
 				out << "private_key_tree" << treeSequenceId << ".dat";

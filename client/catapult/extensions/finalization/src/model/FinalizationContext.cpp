@@ -77,6 +77,10 @@ namespace catapult { namespace model {
 		return m_weight;
 	}
 
+	bool FinalizationContext::isEligibleVoter(const VotingKey& votingPublicKey) const {
+		return Amount() != lookup(votingPublicKey).Weight;
+	}
+
 	FinalizationAccountView FinalizationContext::lookup(const VotingKey& votingPublicKey) const {
 		auto iter = m_accounts.find(votingPublicKey);
 		return m_accounts.cend() == iter ? FinalizationAccountView() : iter->second;
