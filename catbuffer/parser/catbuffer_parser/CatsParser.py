@@ -30,7 +30,7 @@ class CatsParser(ScopeManager):
         try:
             self._process_line(line)
         except Exception as ex:
-            raise CatsParseException('\n'.join(self.scope()), ex)
+            raise CatsParseException('\n'.join(self.scope()), ex) from ex
 
     def commit(self):
         """Completes processing of current type"""
@@ -59,8 +59,8 @@ class CatsParser(ScopeManager):
 
         try:
             factory = next(factory for factory in active_factories if factory.is_match(line_stripped))
-        except StopIteration:
-            raise CatsParseException('none of the parsers matched the line "{0}"'.format(line_stripped))
+        except StopIteration as ex:
+            raise CatsParseException('none of the parsers matched the line "{0}"'.format(line_stripped)) from ex
 
         parser = factory.create()
         parse_result = parser.process_line(line_stripped)
