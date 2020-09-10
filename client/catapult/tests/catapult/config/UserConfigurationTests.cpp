@@ -41,6 +41,7 @@ namespace catapult { namespace config {
 						{
 							{ "dataDirectory", "./db" },
 							{ "certificateDirectory", "./cert" },
+							{ "votingKeysDirectory", "./keys" },
 							{ "pluginsDirectory", "./ext" }
 						}
 					}
@@ -57,6 +58,7 @@ namespace catapult { namespace config {
 
 				EXPECT_EQ("", config.DataDirectory);
 				EXPECT_EQ("", config.CertificateDirectory);
+				EXPECT_EQ("", config.VotingKeysDirectory);
 				EXPECT_EQ("", config.PluginsDirectory);
 			}
 
@@ -66,6 +68,7 @@ namespace catapult { namespace config {
 
 				EXPECT_EQ("./db", config.DataDirectory);
 				EXPECT_EQ("./cert", config.CertificateDirectory);
+				EXPECT_EQ("./keys", config.VotingKeysDirectory);
 				EXPECT_EQ("./ext", config.PluginsDirectory);
 			}
 		};

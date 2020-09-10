@@ -53,8 +53,7 @@ namespace catapult { namespace finalization {
 					, m_hooks(GetFinalizationServerHooks(locator))
 					, m_proofStorage(GetProofStorageCache(locator))
 					, m_blockStorage(state.storage())
-					, m_dataDirectory(config::CatapultDataDirectory(state.config().User.DataDirectory))
-					, m_votingStatusFile(m_dataDirectory.rootDir().file("voting_status.dat"))
+					, m_votingStatusFile(config::CatapultDirectory(state.config().User.DataDirectory).file("voting_status.dat"))
 					, m_orchestrator(
 							m_votingStatusFile.load(),
 							[stepDuration = config.StepDuration, &messageAggregator = m_messageAggregator](auto point, auto time) {
@@ -67,7 +66,8 @@ namespace catapult { namespace finalization {
 									config,
 									state.storage(),
 									m_proofStorage,
-									crypto::AggregateBmPrivateKeyTree(CreateBmPrivateKeyTreeFactory(m_dataDirectory))))
+									crypto::AggregateBmPrivateKeyTree(CreateBmPrivateKeyTreeFactory(
+											config::CatapultDirectory(state.config().User.VotingKeysDirectory)))))
 					, m_finalizer(CreateFinalizer(m_messageAggregator, m_proofStorage))
 			{}
 
@@ -135,16 +135,16 @@ namespace catapult { namespace finalization {
 		private:
 			static std::string GetVotingPrivateKeyTreeFilename(uint64_t treeSequenceId) {
 				std::ostringstream out;
-				out << "voting_private_key_tree" << treeSequenceId << ".dat";
+				out << "private_key_tree" << treeSequenceId << ".dat";
 				return out.str();
 			}
 
 			static supplier<std::unique_ptr<crypto::BmPrivateKeyTree>> CreateBmPrivateKeyTreeFactory(
-					const config::CatapultDataDirectory& dataDirectory) {
+					const config::CatapultDirectory& directory) {
 				auto treeSequenceId = 1u;
 				std::shared_ptr<io::FileStream> pKeyTreeStream;
-				return [treeSequenceId, pKeyTreeStream, &dataDirectory]() mutable {
-					auto keyTreeFilename = dataDirectory.rootDir().file(GetVotingPrivateKeyTreeFilename(treeSequenceId++));
+				return [treeSequenceId, pKeyTreeStream, directory]() mutable {
+					auto keyTreeFilename = directory.file(GetVotingPrivateKeyTreeFilename(treeSequenceId++));
 					CATAPULT_LOG(debug) << "loading voting private key tree from " << keyTreeFilename;
 
 					auto keyTreeFile = io::RawFile(keyTreeFilename, io::OpenMode::Read_Append);
@@ -162,7 +162,6 @@ namespace catapult { namespace finalization {
 			io::ProofStorageCache& m_proofStorage;
 			io::BlockStorageCache& m_blockStorage;
 
-			config::CatapultDataDirectory m_dataDirectory;
 			VotingStatusFile m_votingStatusFile;
 			chain::FinalizationOrchestrator m_orchestrator;
 			action m_finalizer;

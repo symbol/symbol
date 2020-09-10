@@ -87,9 +87,14 @@ namespace catapult { namespace finalization {
 				const auto& userConfig = testState().state().config().User;
 				const_cast<std::string&>(userConfig.DataDirectory) = m_directoryGuard.name();
 
+				// - nest VotingKeysDirectory under DataDirectory for testing so that it automatically gets cleaned up
 				auto dataDirectory = config::CatapultDataDirectory(userConfig.DataDirectory);
-				SeedVotingPrivateKeyTree(dataDirectory);
-				SeedVotingStatus(dataDirectory, orchestratorStartRound);
+				auto votingKeysDirectory = dataDirectory.dir("voting");
+				boost::filesystem::create_directories(votingKeysDirectory.path());
+				const_cast<std::string&>(userConfig.VotingKeysDirectory) = votingKeysDirectory.str();
+
+				SeedVotingPrivateKeyTree(votingKeysDirectory);
+				SeedVotingStatus(dataDirectory.rootDir(), orchestratorStartRound);
 
 				// register hooks
 				auto pHooks = std::make_shared<FinalizationServerHooks>();
@@ -189,9 +194,9 @@ namespace catapult { namespace finalization {
 				return model::StepIdentifierToBmKeyIdentifier({ epoch, FinalizationPoint(), stage }, Voting_Key_Dilution);
 			}
 
-			static void SeedVotingPrivateKeyTree(const config::CatapultDataDirectory& dataDirectory) {
+			static void SeedVotingPrivateKeyTree(const config::CatapultDirectory& directory) {
 				for (auto i = 1u; i <= 4u; ++i) {
-					auto treeFilename = dataDirectory.rootDir().file("voting_private_key_tree" + std::to_string(i) + ".dat");
+					auto treeFilename = directory.file("private_key_tree" + std::to_string(i) + ".dat");
 					io::FileStream treeStream(io::RawFile(treeFilename, io::OpenMode::Read_Write));
 
 					auto startKeyIdentifier = CreateBmKeyIdentifier(FinalizationEpoch((i - 1) * 4 + 1), Prevote_Stage);
@@ -201,8 +206,8 @@ namespace catapult { namespace finalization {
 				}
 			}
 
-			static void SeedVotingStatus(const config::CatapultDataDirectory& dataDirectory, const model::FinalizationRound& round) {
-				auto votingStatusFilename = dataDirectory.rootDir().file("voting_status.dat");
+			static void SeedVotingStatus(const config::CatapultDirectory& directory, const model::FinalizationRound& round) {
+				auto votingStatusFilename = directory.file("voting_status.dat");
 				VotingStatusFile(votingStatusFilename).save({ round, false, false });
 			}
 

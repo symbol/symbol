@@ -205,6 +205,7 @@ namespace catapult { namespace config {
 
 			EXPECT_EQ("../data", config.DataDirectory);
 			EXPECT_EQ("../certificate", config.CertificateDirectory);
+			EXPECT_EQ("../votingkeys", config.VotingKeysDirectory);
 			EXPECT_EQ(".", config.PluginsDirectory);
 		}
 
