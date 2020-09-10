@@ -26,6 +26,35 @@ namespace catapult { namespace model {
 
 #define TEST_CLASS FinalizationRoundTests
 
+	// region finalization round size + alignment
+
+#define FINALIZATION_ROUND_FIELDS FIELD(Epoch) FIELD(Point)
+
+	TEST(TEST_CLASS, FinalizationRoundHasExpectedSize) {
+		// Arrange:
+		auto expectedSize = 0u;
+
+#define FIELD(X) expectedSize += SizeOf32<decltype(FinalizationRound::X)>();
+		FINALIZATION_ROUND_FIELDS
+#undef FIELD
+
+		// Assert:
+		EXPECT_EQ(expectedSize, sizeof(FinalizationRound));
+		EXPECT_EQ(8u, sizeof(FinalizationRound));
+	}
+
+	TEST(TEST_CLASS, FinalizationRoundHasProperAlignment) {
+#define FIELD(X) EXPECT_ALIGNED(FinalizationRound, X);
+		FINALIZATION_ROUND_FIELDS
+#undef FIELD
+
+		EXPECT_EQ(0u, sizeof(FinalizationRound) % 8);
+	}
+
+#undef FINALIZATION_ROUND_FIELDS
+
+	// endregion
+
 	// region finalization round comparison operators
 
 	namespace {
@@ -73,35 +102,6 @@ namespace catapult { namespace model {
 		EXPECT_EQ(FinalizationRound({ FinalizationEpoch(21), FinalizationPoint(9) }), round - FinalizationPoint(1));
 		EXPECT_EQ(FinalizationRound({ FinalizationEpoch(21), FinalizationPoint(1) }), round - FinalizationPoint(9));
 	}
-
-	// endregion
-
-	// region finalization round size + alignment
-
-#define FINALIZATION_ROUND_FIELDS FIELD(Epoch) FIELD(Point)
-
-	TEST(TEST_CLASS, FinalizationRoundHasExpectedSize) {
-		// Arrange:
-		auto expectedSize = 0u;
-
-#define FIELD(X) expectedSize += SizeOf32<decltype(FinalizationRound::X)>();
-		FINALIZATION_ROUND_FIELDS
-#undef FIELD
-
-		// Assert:
-		EXPECT_EQ(expectedSize, sizeof(FinalizationRound));
-		EXPECT_EQ(8u, sizeof(FinalizationRound));
-	}
-
-	TEST(TEST_CLASS, FinalizationRoundHasProperAlignment) {
-#define FIELD(X) EXPECT_ALIGNED(FinalizationRound, X);
-		FINALIZATION_ROUND_FIELDS
-#undef FIELD
-
-		EXPECT_EQ(0u, sizeof(FinalizationRound) % 8);
-	}
-
-#undef FINALIZATION_ROUND_FIELDS
 
 	// endregion
 }}
