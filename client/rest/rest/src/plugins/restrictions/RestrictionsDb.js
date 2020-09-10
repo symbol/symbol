@@ -34,7 +34,7 @@ class RestrictionsDb {
 	}
 
 	/**
-	 * Retrieves account restrictions of the given addresses.
+	 * Retrieves account restrictions for the given addresses.
 	 * @param {array<object>} addresses Given addresses.
 	 * @returns {Promise.<array>} Owned account restrictions.
 	 */

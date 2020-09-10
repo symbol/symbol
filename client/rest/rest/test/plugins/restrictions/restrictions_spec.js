@@ -55,7 +55,6 @@ describe('restrictions plugin', () => {
 
 			// Assert:
 			test.assert.assertRoutes(routes, [
-				'/restrictions/account',
 				'/restrictions/mosaic',
 				'/restrictions/mosaic/:mosaicId'
 			]);

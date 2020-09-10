@@ -31,25 +31,17 @@ const { addresses } = test.sets;
 describe('restrictions routes', () => {
 	describe('account restrictions', () => {
 		describe('get by address', () => {
-			test.route.document.addGetPostDocumentRouteTests(restrictionsRoutes.register, {
-				routes: { singular: '/restrictions/account/:address', plural: '/restrictions/account' },
+			test.route.document.addGetDocumentRouteTests(restrictionsRoutes.register, {
+				route: '/restrictions/account/:address',
 				inputs: {
 					valid: {
 						object: { address: addresses.valid[0] },
-						parsed: [address.stringToAddress(addresses.valid[0])],
+						parsed: [[address.stringToAddress(addresses.valid[0])]],
 						printable: addresses.valid[0]
-					},
-					validMultiple: {
-						object: { addresses: addresses.valid },
-						parsed: addresses.valid.map(address.stringToAddress)
 					},
 					invalid: {
 						object: { address: addresses.invalid },
 						error: 'address has an invalid format'
-					},
-					invalidMultiple: {
-						object: { addresses: [addresses.valid[0], '12345', addresses.valid[1]] },
-						error: 'element in array addresses has an invalid format'
 					}
 				},
 				dbApiName: 'accountRestrictionsByAddresses',

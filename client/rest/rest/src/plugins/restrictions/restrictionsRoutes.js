@@ -53,13 +53,6 @@ module.exports = {
 				.then(mosaicAddressRestrictionsSender.sendOne(req.params.targetAddress, res, next));
 		});
 
-		server.post('/restrictions/account', (req, res, next) => {
-			const addresses = routeUtils.parseArgumentAsArray(req.params, 'addresses', 'address');
-
-			return db.accountRestrictionsByAddresses(addresses)
-				.then(accountRestrictionsSender.sendArray('addresses', res, next));
-		});
-
 		server.post('/restrictions/mosaic', (req, res, next) => {
 			const mosaicIds = routeUtils.parseArgumentAsArray(req.params, 'mosaicIds', uint64.fromHex);
 
