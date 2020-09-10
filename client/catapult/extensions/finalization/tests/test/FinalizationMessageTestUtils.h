@@ -22,6 +22,7 @@
 #include "finalization/src/model/FinalizationContext.h"
 #include "finalization/src/model/FinalizationMessage.h"
 #include "catapult/crypto/KeyPair.h"
+#include "catapult/model/FinalizationRound.h"
 #include <memory>
 
 namespace catapult {
@@ -31,10 +32,23 @@ namespace catapult {
 
 namespace catapult { namespace test {
 
+	// region finalization round + step identifier factories
+
+	/// Creates a finalization round with the specified \a epoch and \a point.
+	model::FinalizationRound CreateFinalizationRound(uint32_t epoch, uint32_t point);
+
+	/// Creates a step identifier with the specified \a epoch, \a point and \a stage.
+	model::StepIdentifier CreateStepIdentifier(uint32_t epoch, uint32_t point, model::FinalizationStage stage);
+
+	// endregion
+
 	// region message factories
 
 	/// Creates a finalization message with one hash for \a point.
 	std::unique_ptr<model::FinalizationMessage> CreateMessage(FinalizationPoint point);
+
+	/// Creates a finalization message with one hash for \a round.
+	std::unique_ptr<model::FinalizationMessage> CreateMessage(const model::FinalizationRound& round);
 
 	/// Creates a finalization message with one hash for \a point at \a height.
 	std::unique_ptr<model::FinalizationMessage> CreateMessage(FinalizationPoint point, Height height);
@@ -56,8 +70,9 @@ namespace catapult { namespace test {
 	// region multi-message factories
 
 	/// Creates \a numMessages prevote messages for the specified hashes (\a numHashes starting at \a pHashes) with specified starting
-	/// \a height and \a point.
+	/// \a height, \a epoch and \a point.
 	std::vector<std::shared_ptr<model::FinalizationMessage>> CreatePrevoteMessages(
+			FinalizationEpoch epoch,
 			FinalizationPoint point,
 			Height height,
 			size_t numMessages,
@@ -65,8 +80,9 @@ namespace catapult { namespace test {
 			size_t numHashes);
 
 	/// Creates \a numMessages precommit messages for the specified hash (at \a index in \a pHashes) with specified starting
-	/// \a height and \a point.
+	/// \a height, \a epoch and \a point.
 	std::vector<std::shared_ptr<model::FinalizationMessage>> CreatePrecommitMessages(
+			FinalizationEpoch epoch,
 			FinalizationPoint point,
 			Height height,
 			size_t numMessages,
@@ -121,10 +137,10 @@ namespace catapult { namespace test {
 
 	// region finalization context utils
 
-	/// Creates a finalization context for \a point at \a height with specified account \a balances given \a config.
+	/// Creates a finalization context for \a epoch at \a height with specified account \a balances given \a config.
 	std::pair<model::FinalizationContext, std::vector<AccountKeyPairDescriptor>> CreateFinalizationContext(
 			const finalization::FinalizationConfiguration& config,
-			FinalizationPoint point,
+			FinalizationEpoch epoch,
 			Height height,
 			const std::vector<Amount>& balances);
 

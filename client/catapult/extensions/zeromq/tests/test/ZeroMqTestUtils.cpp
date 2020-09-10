@@ -24,6 +24,7 @@
 #include "catapult/model/Address.h"
 #include "catapult/model/Cosignature.h"
 #include "catapult/model/Elements.h"
+#include "catapult/model/FinalizationRound.h"
 #include "catapult/model/Transaction.h"
 #include "catapult/model/TransactionStatus.h"
 #include "tests/TestHarness.h"
@@ -115,13 +116,17 @@ namespace catapult { namespace test {
 		AssertMessagePart(message[1], &height, sizeof(Height));
 	}
 
-	void AssertFinalizedBlockMessage(const zmq::multipart_t& message, Height height, const Hash256& hash, FinalizationPoint point) {
+	void AssertFinalizedBlockMessage(
+			const zmq::multipart_t& message,
+			const model::FinalizationRound& round,
+			Height height,
+			const Hash256& hash) {
 		ASSERT_EQ(4u, message.size());
 
 		auto marker = zeromq::BlockMarker::Finalized_Block_Marker;
 		AssertMessagePart(message[0], &marker, sizeof(zeromq::BlockMarker));
 		AssertMessagePart(message[1], &height, sizeof(Height));
-		AssertMessagePart(message[2], &point, sizeof(FinalizationPoint));
+		AssertMessagePart(message[2], &round, sizeof(model::FinalizationRound));
 		AssertMessagePart(message[3], &hash, Hash256::Size);
 	}
 

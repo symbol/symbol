@@ -39,8 +39,8 @@ namespace catapult { namespace api {
 		/// Gets the finalization statistics.
 		virtual thread::future<model::FinalizationStatistics> finalizationStatistics() const = 0;
 
-		/// Gets the finalization proof at \a point.
-		virtual thread::future<std::shared_ptr<const model::FinalizationProof>> proofAt(FinalizationPoint point) const = 0;
+		/// Gets the finalization proof at \a epoch.
+		virtual thread::future<std::shared_ptr<const model::FinalizationProof>> proofAt(FinalizationEpoch epoch) const = 0;
 
 		/// Gets the finalization proof at \a height.
 		virtual thread::future<std::shared_ptr<const model::FinalizationProof>> proofAt(Height height) const = 0;

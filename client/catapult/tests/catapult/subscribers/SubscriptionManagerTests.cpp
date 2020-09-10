@@ -105,7 +105,7 @@ namespace catapult { namespace subscribers {
 			}
 
 			static void Notify(FinalizationSubscriber& subscriber) {
-				subscriber.notifyFinalizedBlock(Height(), Hash256(), FinalizationPoint());
+				subscriber.notifyFinalizedBlock(model::FinalizationRound(), Height(), Hash256());
 			}
 		};
 

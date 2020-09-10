@@ -30,7 +30,7 @@ namespace catapult { namespace finalization {
 	namespace {
 		// region asserts
 
-		constexpr size_t Expected_File_Size = sizeof(uint64_t) + 2 * sizeof(uint8_t);
+		constexpr size_t Expected_File_Size = sizeof(model::FinalizationRound) + 2 * sizeof(uint8_t);
 
 		void AssertNotExists(const std::string& filename) {
 			EXPECT_FALSE(boost::filesystem::exists(filename));
@@ -42,7 +42,7 @@ namespace catapult { namespace finalization {
 		}
 
 		void AssertEqual(const chain::VotingStatus& expected, const chain::VotingStatus& actual) {
-			EXPECT_EQ(expected.Point, actual.Point);
+			EXPECT_EQ(expected.Round, actual.Round);
 			EXPECT_EQ(expected.HasSentPrevote, actual.HasSentPrevote);
 			EXPECT_EQ(expected.HasSentPrecommit, actual.HasSentPrecommit);
 		}
@@ -71,7 +71,7 @@ namespace catapult { namespace finalization {
 
 		// Assert:
 		AssertNotExists(tempFile.name());
-		AssertEqual({ FinalizationPoint(1), false, false }, status);
+		AssertEqual({ { FinalizationEpoch(2), FinalizationPoint(1) }, false, false }, status);
 	}
 
 	TEST(TEST_CLASS, CanLoadSavedValue) {
@@ -81,7 +81,7 @@ namespace catapult { namespace finalization {
 
 		{
 			io::RawFile rawFile(tempFile.name(), io::OpenMode::Read_Write);
-			rawFile.write(std::vector<uint8_t>{ 7, 0, 0, 0, 0, 0, 0, 0, 0, 8 });
+			rawFile.write(std::vector<uint8_t>{ 3, 0, 0, 0, 7, 0, 0, 0, 0, 8 });
 
 			// Sanity:
 			EXPECT_EQ(Expected_File_Size, rawFile.size());
@@ -91,7 +91,7 @@ namespace catapult { namespace finalization {
 		auto status = votingStatusFile.load();
 
 		// Assert:
-		AssertEqual({ FinalizationPoint(7), false, true }, status);
+		AssertEqual({ { FinalizationEpoch(3), FinalizationPoint(7) }, false, true }, status);
 	}
 
 	// endregion
@@ -104,11 +104,11 @@ namespace catapult { namespace finalization {
 		VotingStatusFile votingStatusFile(tempFile.name());
 
 		// Act:
-		votingStatusFile.save({ FinalizationPoint(17), false, true });
+		votingStatusFile.save({ { FinalizationEpoch(4), FinalizationPoint(17) }, false, true });
 
 		// Assert:
 		AssertExists(tempFile.name());
-		AssertEqual({ FinalizationPoint(17), false, true }, votingStatusFile.load());
+		AssertEqual({ { FinalizationEpoch(4), FinalizationPoint(17) }, false, true }, votingStatusFile.load());
 	}
 
 	TEST(TEST_CLASS, CanResetValue) {
@@ -117,12 +117,12 @@ namespace catapult { namespace finalization {
 		VotingStatusFile votingStatusFile(tempFile.name());
 
 		// Act:
-		votingStatusFile.save({ FinalizationPoint(17), false, true });
-		votingStatusFile.save({ FinalizationPoint(82), true, false });
+		votingStatusFile.save({ { FinalizationEpoch(4), FinalizationPoint(17) }, false, true });
+		votingStatusFile.save({ { FinalizationEpoch(9), FinalizationPoint(82) }, true, false });
 
 		// Assert:
 		AssertExists(tempFile.name());
-		AssertEqual({ FinalizationPoint(82), true, false }, votingStatusFile.load());
+		AssertEqual({ { FinalizationEpoch(9), FinalizationPoint(82) }, true, false }, votingStatusFile.load());
 	}
 
 	// endregion

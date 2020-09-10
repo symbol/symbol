@@ -22,7 +22,6 @@
 #include "finalization/src/model/FinalizationMessage.h"
 #include "finalization/src/model/FinalizationProof.h"
 #include "finalization/src/model/FinalizationStatistics.h"
-#include "catapult/model/HeightHashPair.h"
 #include <memory>
 
 namespace catapult { namespace io {
@@ -36,8 +35,8 @@ namespace catapult { namespace io {
 		/// Gets the statistics of the last finalized block.
 		virtual model::FinalizationStatistics statistics() const = 0;
 
-		/// Gets the finalization proof at \a point.
-		virtual std::shared_ptr<const model::FinalizationProof> loadProof(FinalizationPoint point) const = 0;
+		/// Gets the finalization proof at \a epoch.
+		virtual std::shared_ptr<const model::FinalizationProof> loadProof(FinalizationEpoch epoch) const = 0;
 
 		/// Gets the first finalization proof at \a height.
 		virtual std::shared_ptr<const model::FinalizationProof> loadProof(Height height) const = 0;

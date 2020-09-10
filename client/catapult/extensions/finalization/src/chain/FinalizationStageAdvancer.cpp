@@ -45,11 +45,11 @@ namespace catapult { namespace chain {
 		class DefaultFinalizationStageAdvancer : public FinalizationStageAdvancer {
 		public:
 			DefaultFinalizationStageAdvancer(
-					FinalizationPoint point,
+					const model::FinalizationRound& round,
 					Timestamp time,
 					const utils::TimeSpan& stepDuration,
 					const MultiRoundMessageAggregator& messageAggregator)
-					: m_point(point)
+					: m_round(round)
 					, m_timer(time, stepDuration)
 					, m_messageAggregator(messageAggregator)
 			{}
@@ -70,7 +70,7 @@ namespace catapult { namespace chain {
 					if (!bestPrevoteResultPair.second)
 						return false;
 
-					auto estimate = messageAggregatorView.findEstimate(m_point - FinalizationPoint(1));
+					auto estimate = messageAggregatorView.findEstimate(m_round - FinalizationPoint(1));
 					if (!roundContext.isDescendant(estimate, bestPrevoteResultPair.first))
 						return false;
 
@@ -92,7 +92,7 @@ namespace catapult { namespace chain {
 			bool requireRoundContext(const predicate<const MultiRoundMessageAggregatorView&, const RoundContext&>& predicate) const {
 				auto messageAggregatorView = m_messageAggregator.view();
 
-				const auto* pCurrentRoundContext = messageAggregatorView.tryGetRoundContext(m_point);
+				const auto* pCurrentRoundContext = messageAggregatorView.tryGetRoundContext(m_round);
 				if (!pCurrentRoundContext)
 					return false;
 
@@ -100,17 +100,17 @@ namespace catapult { namespace chain {
 			}
 
 		private:
-			FinalizationPoint m_point;
+			model::FinalizationRound m_round;
 			PollingTimer m_timer;
 			const MultiRoundMessageAggregator& m_messageAggregator;
 		};
 	}
 
 	std::unique_ptr<FinalizationStageAdvancer> CreateFinalizationStageAdvancer(
-			FinalizationPoint point,
+			const model::FinalizationRound& round,
 			Timestamp time,
 			const utils::TimeSpan& stepDuration,
 			const MultiRoundMessageAggregator& messageAggregator) {
-		return std::make_unique<DefaultFinalizationStageAdvancer>(point, time, stepDuration, messageAggregator);
+		return std::make_unique<DefaultFinalizationStageAdvancer>(round, time, stepDuration, messageAggregator);
 	}
 }}

@@ -30,23 +30,23 @@ namespace catapult { namespace chain {
 	public:
 		MultiRoundMessageAggregatorState(
 				uint64_t maxResponseSize,
-				FinalizationPoint finalizationPoint,
+				const model::FinalizationRound& round,
 				const model::HeightHashPair& previousFinalizedHeightHashPair,
 				const MultiRoundMessageAggregator::RoundMessageAggregatorFactory& roundMessageAggregatorFactory)
 				: MaxResponseSize(maxResponseSize)
-				, MinFinalizationPoint(finalizationPoint)
-				, MaxFinalizationPoint(finalizationPoint)
+				, MinFinalizationRound(round)
+				, MaxFinalizationRound(round)
 				, PreviousFinalizedHeightHashPair(previousFinalizedHeightHashPair)
 				, RoundMessageAggregatorFactory(roundMessageAggregatorFactory)
 		{}
 
 	public:
 		uint64_t MaxResponseSize;
-		FinalizationPoint MinFinalizationPoint;
-		FinalizationPoint MaxFinalizationPoint;
+		model::FinalizationRound MinFinalizationRound;
+		model::FinalizationRound MaxFinalizationRound;
 		model::HeightHashPair PreviousFinalizedHeightHashPair;
 		MultiRoundMessageAggregator::RoundMessageAggregatorFactory RoundMessageAggregatorFactory;
-		std::map<FinalizationPoint, std::unique_ptr<RoundMessageAggregator>> RoundMessageAggregators;
+		std::map<model::FinalizationRound, std::unique_ptr<RoundMessageAggregator>> RoundMessageAggregators;
 	};
 
 	// endregion
@@ -64,23 +64,23 @@ namespace catapult { namespace chain {
 		return m_state.RoundMessageAggregators.size();
 	}
 
-	FinalizationPoint MultiRoundMessageAggregatorView::minFinalizationPoint() const {
-		return m_state.MinFinalizationPoint;
+	model::FinalizationRound MultiRoundMessageAggregatorView::minFinalizationRound() const {
+		return m_state.MinFinalizationRound;
 	}
 
-	FinalizationPoint MultiRoundMessageAggregatorView::maxFinalizationPoint() const {
-		return m_state.MaxFinalizationPoint;
+	model::FinalizationRound MultiRoundMessageAggregatorView::maxFinalizationRound() const {
+		return m_state.MaxFinalizationRound;
 	}
 
-	const RoundContext* MultiRoundMessageAggregatorView::tryGetRoundContext(FinalizationPoint point) const {
-		auto iter = m_state.RoundMessageAggregators.find(point);
+	const RoundContext* MultiRoundMessageAggregatorView::tryGetRoundContext(const model::FinalizationRound& round) const {
+		auto iter = m_state.RoundMessageAggregators.find(round);
 		return m_state.RoundMessageAggregators.cend() == iter ? nullptr : &iter->second->roundContext();
 	}
 
-	model::HeightHashPair MultiRoundMessageAggregatorView::findEstimate(FinalizationPoint point) const {
+	model::HeightHashPair MultiRoundMessageAggregatorView::findEstimate(const model::FinalizationRound& round) const {
 		const auto& roundMessageAggregators = m_state.RoundMessageAggregators;
 		for (auto iter = roundMessageAggregators.crbegin(); roundMessageAggregators.crend() != iter; ++iter) {
-			if (iter->first > point)
+			if (iter->first > round)
 				continue;
 
 			auto estimateResultPair = iter->second->roundContext().tryFindEstimate();
@@ -97,7 +97,7 @@ namespace catapult { namespace chain {
 			auto bestPrecommitResultPair = iter->second->roundContext().tryFindBestPrecommit();
 			if (bestPrecommitResultPair.second) {
 				BestPrecommitDescriptor descriptor;
-				descriptor.Point = iter->first;
+				descriptor.Round = iter->first;
 				descriptor.Target = bestPrecommitResultPair.first;
 				descriptor.Proof = iter->second->unknownMessages({});
 				return descriptor;
@@ -118,12 +118,12 @@ namespace catapult { namespace chain {
 	}
 
 	RoundMessageAggregator::UnknownMessages MultiRoundMessageAggregatorView::unknownMessages(
-			FinalizationPoint point,
+			const model::FinalizationRound& round,
 			const utils::ShortHashesSet& knownShortHashes) const {
 		uint64_t totalSize = 0;
 		RoundMessageAggregator::UnknownMessages allMessages;
 		for (const auto& pair : m_state.RoundMessageAggregators) {
-			if (pair.first < point)
+			if (pair.first < round)
 				continue;
 
 			for (const auto& pMessage : pair.second->unknownMessages(knownShortHashes)) {
@@ -149,53 +149,39 @@ namespace catapult { namespace chain {
 			, m_writeLock(std::move(writeLock))
 	{}
 
-	void MultiRoundMessageAggregatorModifier::setMaxFinalizationPoint(FinalizationPoint point) {
-		if (m_state.MinFinalizationPoint > point)
-			CATAPULT_THROW_INVALID_ARGUMENT("cannot set max finalization point below min");
+	void MultiRoundMessageAggregatorModifier::setMaxFinalizationRound(const model::FinalizationRound& round) {
+		if (m_state.MinFinalizationRound > round)
+			CATAPULT_THROW_INVALID_ARGUMENT("cannot set max finalization round below min");
 
-		m_state.MaxFinalizationPoint = point;
+		m_state.MaxFinalizationRound = round;
 	}
 
 	RoundMessageAggregatorAddResult MultiRoundMessageAggregatorModifier::add(const std::shared_ptr<model::FinalizationMessage>& pMessage) {
-		auto messagePoint = pMessage->StepIdentifier.Point;
-		if (m_state.MinFinalizationPoint > messagePoint || m_state.MaxFinalizationPoint < messagePoint)
+		auto messageRound = pMessage->StepIdentifier.Round();
+		if (m_state.MinFinalizationRound > messageRound || m_state.MaxFinalizationRound < messageRound) {
+			CATAPULT_LOG(warning)
+					<< "rejecting message with round " << messageRound
+					<< ", min round " << m_state.MinFinalizationRound
+					<< ", max round " << m_state.MaxFinalizationRound;
 			return RoundMessageAggregatorAddResult::Failure_Invalid_Point;
+		}
 
-		auto iter = m_state.RoundMessageAggregators.find(messagePoint);
+		auto iter = m_state.RoundMessageAggregators.find(messageRound);
 		if (m_state.RoundMessageAggregators.cend() == iter) {
-			iter = m_state.RoundMessageAggregators.emplace(
-					messagePoint,
-					m_state.RoundMessageAggregatorFactory(messagePoint, pMessage->Height)).first;
+			auto pRoundAggregator = m_state.RoundMessageAggregatorFactory(messageRound);
+			iter = m_state.RoundMessageAggregators.emplace(messageRound, std::move(pRoundAggregator)).first;
 		}
 
 		return iter->second->add(pMessage);
 	}
 
-	void MultiRoundMessageAggregatorModifier::prune() {
+	void MultiRoundMessageAggregatorModifier::prune(FinalizationEpoch epoch) {
 		auto& roundMessageAggregators = m_state.RoundMessageAggregators;
 
-		auto lastMatchingIter = roundMessageAggregators.cend();
-		for (auto iter = roundMessageAggregators.cbegin(); roundMessageAggregators.cend() != iter; ++iter) {
-			if (iter->second->roundContext().tryFindBestPrecommit().second)
-				lastMatchingIter = iter;
-		}
+		auto iter = roundMessageAggregators.lower_bound({ epoch, FinalizationPoint(0) });
+		roundMessageAggregators.erase(roundMessageAggregators.begin(), iter);
 
-		if (roundMessageAggregators.cend() == lastMatchingIter)
-			return;
-
-		auto prevLastMatchingIter = lastMatchingIter;
-		while (roundMessageAggregators.cbegin() != prevLastMatchingIter) {
-			--prevLastMatchingIter;
-
-			auto estimateResultPair = prevLastMatchingIter->second->roundContext().tryFindEstimate();
-			if (estimateResultPair.second) {
-				m_state.PreviousFinalizedHeightHashPair = estimateResultPair.first;
-				break;
-			}
-		}
-
-		roundMessageAggregators.erase(roundMessageAggregators.cbegin(), lastMatchingIter);
-		m_state.MinFinalizationPoint = lastMatchingIter->first;
+		m_state.MinFinalizationRound = roundMessageAggregators.cend() == iter ? m_state.MaxFinalizationRound : iter->first;
 	}
 
 	// endregion
@@ -204,15 +190,15 @@ namespace catapult { namespace chain {
 
 	MultiRoundMessageAggregator::MultiRoundMessageAggregator(
 			uint64_t maxResponseSize,
-			FinalizationPoint finalizationPoint,
+			const model::FinalizationRound& round,
 			const model::HeightHashPair& previousFinalizedHeightHashPair,
 			const RoundMessageAggregatorFactory& roundMessageAggregatorFactory)
 			: m_pState(std::make_unique<MultiRoundMessageAggregatorState>(
 					maxResponseSize,
-					finalizationPoint,
+					round,
 					previousFinalizedHeightHashPair,
 					roundMessageAggregatorFactory)) {
-		CATAPULT_LOG(debug) << "creating multi round message aggregator starting at point " << finalizationPoint;
+		CATAPULT_LOG(debug) << "creating multi round message aggregator starting at round " << round;
 	}
 
 	MultiRoundMessageAggregator::~MultiRoundMessageAggregator() = default;

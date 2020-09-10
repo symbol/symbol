@@ -19,7 +19,8 @@
 **/
 
 #pragma once
-#include "catapult/crypto_voting/OtsTypes.h"
+#include "catapult/crypto_voting/BmKeyIdentifier.h"
+#include "catapult/model/FinalizationRound.h"
 #include "catapult/types.h"
 
 namespace catapult { namespace model {
@@ -29,7 +30,7 @@ namespace catapult { namespace model {
 	// region step identifier
 
 	/// Finalization stages.
-	enum class FinalizationStage : uint64_t {
+	enum class FinalizationStage : uint32_t {
 		/// Prevote stage.
 		Prevote,
 
@@ -42,11 +43,30 @@ namespace catapult { namespace model {
 
 	/// Finalization step identifier.
 	struct StepIdentifier {
-		/// Finalization point.
-		FinalizationPoint Point;
+	public:
+		struct FinalizationPointStage_tag {};
+		using FinalizationPointStage = utils::BaseValue<uint32_t, FinalizationPointStage_tag>;
 
-		/// Finalization stage.
-		FinalizationStage Stage;
+	public:
+		/// Creates a default step identifier.
+		StepIdentifier();
+
+		/// Creates a step identifier from \a epoch, \a point and \a stage.
+		StepIdentifier(FinalizationEpoch epoch, FinalizationPoint point, FinalizationStage stage);
+
+	public:
+		/// Finalization epoch.
+		FinalizationEpoch Epoch;
+
+		/// Finalization point and stage.
+		FinalizationPointStage PointStage;
+
+	public:
+		/// Gets the finalization round.
+		model::FinalizationRound Round() const;
+
+		/// Gets the finalization stage.
+		model::FinalizationStage Stage() const;
 
 	public:
 		/// Returns \c true if this step identifier is equal to \a rhs.
@@ -75,6 +95,6 @@ namespace catapult { namespace model {
 
 #pragma pack(pop)
 
-	/// Converts \a stepIdentifier to ots key identifier using \a dilution.
-	crypto::OtsKeyIdentifier StepIdentifierToOtsKeyIdentifier(const StepIdentifier& stepIdentifier, uint64_t dilution);
+	/// Converts \a stepIdentifier to bm key identifier using \a dilution.
+	crypto::BmKeyIdentifier StepIdentifierToBmKeyIdentifier(const StepIdentifier& stepIdentifier, uint64_t dilution);
 }}

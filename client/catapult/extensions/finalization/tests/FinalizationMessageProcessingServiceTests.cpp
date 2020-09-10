@@ -38,11 +38,12 @@ namespace catapult { namespace finalization {
 
 	namespace {
 		using AnnotatedFinalizationMessageRange = model::AnnotatedEntityRange<model::FinalizationMessage>;
-
 		using VoterType = test::FinalizationBootstrapperServiceTestUtils::VoterType;
 
+		constexpr auto Finalization_Epoch = FinalizationEpoch(4);
+
 		struct FinalizationMessageProcessingServiceTraits {
-			static constexpr auto Ots_Key_Dilution = 3u;
+			static constexpr auto Voting_Key_Dilution = 3u;
 
 			static auto CreateRegistrar() {
 				auto config = FinalizationConfiguration::Uninitialized();
@@ -56,14 +57,15 @@ namespace catapult { namespace finalization {
 			TestContext() : TestContext(FinalizationPoint(1))
 			{}
 
-			explicit TestContext(FinalizationPoint point)
-					: m_pWriters(std::make_shared<mocks::BroadcastAwareMockPacketWriters>()) {
-				// use Height(1) so that storage doesn't need to be seeded
-				const_cast<uint64_t&>(testState().state().config().BlockChain.VotingSetGrouping) = 500;
+			explicit TestContext(FinalizationPoint point) : m_pWriters(std::make_shared<mocks::BroadcastAwareMockPacketWriters>()) {
+				// VotingSetGrouping is set to 500 when registering FinalizationBootstrapperService, so (4 - 2) * 500 blocks are needed
+				mocks::SeedStorageWithFixedSizeBlocks(testState().state().storage(), 1000);
+
+				auto hash = test::GenerateRandomByteArray<Hash256>();
 				test::FinalizationBootstrapperServiceTestUtils::Register(
 						locator(),
 						testState().state(),
-						std::make_unique<mocks::MockProofStorage>(point, Height(1), test::GenerateRandomByteArray<Hash256>()));
+						std::make_unique<mocks::MockProofStorage>(Finalization_Epoch, point, Height(1), hash));
 				locator().registerService("fin.writers", m_pWriters);
 			}
 
@@ -106,7 +108,16 @@ namespace catapult { namespace finalization {
 	namespace {
 		using FinalizationMessages = std::vector<std::shared_ptr<const model::FinalizationMessage>>;
 
-		constexpr auto Stage = model::FinalizationStage::Prevote;
+		model::StepIdentifier CreateStepIdentifier(int32_t epochDelta, uint32_t point) {
+			return test::CreateStepIdentifier(
+					static_cast<uint32_t>(static_cast<int32_t>(Finalization_Epoch.unwrap()) + epochDelta),
+					point,
+					model::FinalizationStage::Prevote);
+		}
+
+		model::StepIdentifier CreateStepIdentifier(uint32_t point) {
+			return CreateStepIdentifier(0, point);
+		}
 
 		ionet::PacketPayload CreateBroadcastPayload(const FinalizationMessages& messages) {
 			return ionet::PacketPayloadFactory::FromEntities(ionet::PacketType::Push_Finalization_Messages, messages);
@@ -133,7 +144,7 @@ namespace catapult { namespace finalization {
 
 		// - prepare message(s)
 		const auto& hash = test::GenerateRandomByteArray<Hash256>();
-		auto pMessage = context.createMessage(VoterType::Large1, { FinalizationPoint(12), Stage }, Height(10), hash);
+		auto pMessage = context.createMessage(VoterType::Large1, CreateStepIdentifier(12), Height(10), hash);
 
 		// Act:
 		hooks.messageRangeConsumer()(CreateMessageRange({ pMessage }));
@@ -157,15 +168,15 @@ namespace catapult { namespace finalization {
 
 		const auto& hooks = GetFinalizationServerHooks(context.locator());
 		auto& aggregator = GetMultiRoundMessageAggregator(context.locator());
-		aggregator.modifier().setMaxFinalizationPoint(FinalizationPoint(12));
+		aggregator.modifier().setMaxFinalizationRound({ Finalization_Epoch, FinalizationPoint(12) });
 
 		// - prepare message(s)
 		const auto& hash = test::GenerateRandomByteArray<Hash256>();
-		auto pMessage1 = context.createMessage(VoterType::Large1, { FinalizationPoint(12), Stage }, Height(9), hash);
-		auto pMessage2 = context.createMessage(VoterType::Large1, { FinalizationPoint(11), Stage }, Height(8), hash);
-		auto pMessage3 = context.createMessage(VoterType::Large1, { FinalizationPoint(10), Stage }, Height(7), hash);
-		auto pMessage4 = context.createMessage(VoterType::Large1, { FinalizationPoint(9), Stage }, Height(6), hash);
-		auto pMessage5 = context.createMessage(VoterType::Large1, { FinalizationPoint(8), Stage }, Height(5), hash);
+		auto pMessage1 = context.createMessage(VoterType::Large1, CreateStepIdentifier(12), Height(9), hash);
+		auto pMessage2 = context.createMessage(VoterType::Large1, CreateStepIdentifier(11), Height(8), hash);
+		auto pMessage3 = context.createMessage(VoterType::Large1, CreateStepIdentifier(10), Height(7), hash);
+		auto pMessage4 = context.createMessage(VoterType::Large1, CreateStepIdentifier(9), Height(6), hash);
+		auto pMessage5 = context.createMessage(VoterType::Large1, CreateStepIdentifier(8), Height(5), hash);
 
 		// Act:
 		hooks.messageRangeConsumer()(CreateMessageRange({ pMessage1, pMessage3, pMessage5 }));
@@ -191,13 +202,13 @@ namespace catapult { namespace finalization {
 
 		const auto& hooks = GetFinalizationServerHooks(context.locator());
 		auto& aggregator = GetMultiRoundMessageAggregator(context.locator());
-		aggregator.modifier().setMaxFinalizationPoint(FinalizationPoint(12));
+		aggregator.modifier().setMaxFinalizationRound({ Finalization_Epoch, FinalizationPoint(12) });
 
 		// - prepare message(s)
 		const auto& hash = test::GenerateRandomByteArray<Hash256>();
-		auto pMessage1 = context.createMessage(VoterType::Large1, { FinalizationPoint(12), Stage }, Height(9), hash);
-		auto pMessage2 = context.createMessage(VoterType::Large1, { FinalizationPoint(11), Stage }, Height(8), hash);
-		auto pMessage3 = context.createMessage(VoterType::Large1, { FinalizationPoint(10), Stage }, Height(7), hash);
+		auto pMessage1 = context.createMessage(VoterType::Large1, CreateStepIdentifier(12), Height(9), hash);
+		auto pMessage2 = context.createMessage(VoterType::Large1, CreateStepIdentifier(11), Height(8), hash);
+		auto pMessage3 = context.createMessage(VoterType::Large1, CreateStepIdentifier(10), Height(7), hash);
 
 		// - send first range
 		hooks.messageRangeConsumer()(CreateMessageRange({ pMessage2 }));
@@ -229,13 +240,13 @@ namespace catapult { namespace finalization {
 
 		const auto& hooks = GetFinalizationServerHooks(context.locator());
 		auto& aggregator = GetMultiRoundMessageAggregator(context.locator());
-		aggregator.modifier().setMaxFinalizationPoint(FinalizationPoint(12));
+		aggregator.modifier().setMaxFinalizationRound({ Finalization_Epoch, FinalizationPoint(12) });
 
 		// - prepare message(s)
 		const auto& hash = test::GenerateRandomByteArray<Hash256>();
-		auto pMessage1 = context.createMessage(VoterType::Large1, { FinalizationPoint(12), Stage }, Height(9), hash);
-		auto pMessage2 = context.createMessage(VoterType::Large1, { FinalizationPoint(11), Stage }, Height(8), hash);
-		auto pMessage3 = context.createMessage(VoterType::Large1, { FinalizationPoint(10), Stage }, Height(7), hash);
+		auto pMessage1 = context.createMessage(VoterType::Large1, CreateStepIdentifier(12), Height(9), hash);
+		auto pMessage2 = context.createMessage(VoterType::Large1, CreateStepIdentifier(11), Height(8), hash);
+		auto pMessage3 = context.createMessage(VoterType::Large1, CreateStepIdentifier(10), Height(7), hash);
 
 		// - send first range
 		hooks.messageRangeConsumer()(CreateMessageRange({ pMessage1, pMessage2, pMessage3 }));
@@ -258,24 +269,27 @@ namespace catapult { namespace finalization {
 		test::AssertEqualPayload(CreateBroadcastPayload({ pMessage1, pMessage2, pMessage3 }), context.broadcastedPayloads()[0]);
 	}
 
-	TEST(TEST_CLASS, MessagesWithFinalizationPointsOutOfRangeAreIgnored) {
+	TEST(TEST_CLASS, MessagesWithFinalizationRoundsOutOfRangeAreIgnored) {
 		// Arrange:
 		TestContext context(FinalizationPoint(10));
 		context.boot();
 
 		const auto& hooks = GetFinalizationServerHooks(context.locator());
 		auto& aggregator = GetMultiRoundMessageAggregator(context.locator());
-		aggregator.modifier().setMaxFinalizationPoint(FinalizationPoint(12));
+		aggregator.modifier().setMaxFinalizationRound({ Finalization_Epoch, FinalizationPoint(12) });
 
 		// - prepare message(s)
 		const auto& hash = test::GenerateRandomByteArray<Hash256>();
-		auto pMessage1 = context.createMessage(VoterType::Large1, { FinalizationPoint(10), Stage }, Height(9), hash);
-		auto pMessage2 = context.createMessage(VoterType::Large1, { FinalizationPoint(9), Stage }, Height(8), hash);
-		auto pMessage3 = context.createMessage(VoterType::Large1, { FinalizationPoint(12), Stage }, Height(9), hash);
-		auto pMessage4 = context.createMessage(VoterType::Large1, { FinalizationPoint(13), Stage }, Height(10), hash);
+		auto pMessage1 = context.createMessage(VoterType::Large1, CreateStepIdentifier(10), Height(9), hash);
+		auto pMessage2 = context.createMessage(VoterType::Large1, CreateStepIdentifier(9), Height(8), hash);
+		auto pMessage3 = context.createMessage(VoterType::Large1, CreateStepIdentifier(12), Height(9), hash);
+		auto pMessage4 = context.createMessage(VoterType::Large1, CreateStepIdentifier(13), Height(10), hash);
+
+		auto pMessage5 = context.createMessage(VoterType::Large1, CreateStepIdentifier(-1, 11), Height(11), hash);
+		auto pMessage6 = context.createMessage(VoterType::Large1, CreateStepIdentifier(1, 11), Height(11), hash);
 
 		// Act:
-		hooks.messageRangeConsumer()(CreateMessageRange({ pMessage1, pMessage2, pMessage3, pMessage4 }));
+		hooks.messageRangeConsumer()(CreateMessageRange({ pMessage1, pMessage2, pMessage3, pMessage4, pMessage5, pMessage6 }));
 
 		// - wait for the aggregator and the broadcast
 		WAIT_FOR_VALUE_EXPR(2u, aggregator.view().size());
@@ -296,14 +310,14 @@ namespace catapult { namespace finalization {
 
 		const auto& hooks = GetFinalizationServerHooks(context.locator());
 		auto& aggregator = GetMultiRoundMessageAggregator(context.locator());
-		aggregator.modifier().setMaxFinalizationPoint(FinalizationPoint(11));
+		aggregator.modifier().setMaxFinalizationRound({ Finalization_Epoch, FinalizationPoint(11) });
 
 		// - prepare message(s)
 		const auto& hash = test::GenerateRandomByteArray<Hash256>();
-		auto pMessage1 = context.createMessage(VoterType::Large1, { FinalizationPoint(11), Stage }, Height(8), hash);
-		auto pMessage2 = context.createMessage(VoterType::Large1, { FinalizationPoint(12), Stage }, Height(9), hash);
-		auto pMessage3 = context.createMessage(VoterType::Large1, { FinalizationPoint(10), Stage }, Height(7), hash);
-		auto pMessage4 = context.createMessage(VoterType::Large1, { FinalizationPoint(9), Stage }, Height(6), hash);
+		auto pMessage1 = context.createMessage(VoterType::Large1, CreateStepIdentifier(11), Height(8), hash);
+		auto pMessage2 = context.createMessage(VoterType::Large1, CreateStepIdentifier(12), Height(9), hash);
+		auto pMessage3 = context.createMessage(VoterType::Large1, CreateStepIdentifier(10), Height(7), hash);
+		auto pMessage4 = context.createMessage(VoterType::Large1, CreateStepIdentifier(9), Height(6), hash);
 
 		// - send the range
 		hooks.messageRangeConsumer()(CreateMessageRange({ pMessage1, pMessage2, pMessage3, pMessage4 }));
@@ -313,7 +327,7 @@ namespace catapult { namespace finalization {
 		WAIT_FOR_ONE_EXPR(context.numBroadcastCalls());
 
 		// - increase the finalization point and resend the same range
-		aggregator.modifier().setMaxFinalizationPoint(FinalizationPoint(12));
+		aggregator.modifier().setMaxFinalizationRound({ Finalization_Epoch, FinalizationPoint(12) });
 		hooks.messageRangeConsumer()(CreateMessageRange({ pMessage1, pMessage2, pMessage3, pMessage4 }));
 
 		// - wait for the aggregator and the broadcast

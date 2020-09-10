@@ -20,7 +20,7 @@
 
 #include "finalization/src/chain/FinalizationMessageFactory.h"
 #include "finalization/src/io/ProofStorageCache.h"
-#include "catapult/crypto_voting/OtsTree.h"
+#include "catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
 #include "finalization/tests/test/FinalizationMessageTestUtils.h"
 #include "finalization/tests/test/mocks/MockProofStorage.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
@@ -37,22 +37,21 @@ namespace catapult { namespace chain {
 	namespace {
 		class TestContext {
 		public:
-			static constexpr auto Ots_Key_Dilution = 13u;
+			static constexpr auto Voting_Key_Dilution = 13u;
 
 		public:
-			TestContext(FinalizationPoint point, Height height)
-					: TestContext(point, height, 10, finalization::FinalizationConfiguration::Uninitialized())
+			explicit TestContext(Height height) : TestContext(height, 10, finalization::FinalizationConfiguration::Uninitialized())
 			{}
 
-			TestContext(FinalizationPoint point, Height height, uint32_t numBlocks, const finalization::FinalizationConfiguration& config)
+			TestContext(Height height, uint32_t numBlocks, const finalization::FinalizationConfiguration& config)
 					: m_lastFinalizedHash(test::GenerateRandomByteArray<Hash256>())
 					, m_pBlockStorage(mocks::CreateMemoryBlockStorageCache(numBlocks))
-					, m_proofStorage(std::make_unique<mocks::MockProofStorage>(point, height, m_lastFinalizedHash))
+					, m_proofStorage(std::make_unique<mocks::MockProofStorage>(FinalizationPoint(), height, m_lastFinalizedHash))
 					, m_pFactory(CreateFinalizationMessageFactory(
 							config,
 							*m_pBlockStorage,
 							m_proofStorage,
-							CreateOtsTree(m_otsTreeStream, point)))
+							CreateAggregateBmPrivateKeyTree(m_bmPrivateKeyTreeStream)))
 			{}
 
 		public:
@@ -70,31 +69,32 @@ namespace catapult { namespace chain {
 			}
 
 		private:
-			static crypto::OtsTree CreateOtsTree(io::SeekableStream& storage, FinalizationPoint point) {
-				auto startKeyIdentifier = model::StepIdentifierToOtsKeyIdentifier(
-						{ point, model::FinalizationStage::Prevote },
-						Ots_Key_Dilution);
-				auto endKeyIdentifier = model::StepIdentifierToOtsKeyIdentifier(
-						{ point + FinalizationPoint(20), model::FinalizationStage::Precommit },
-						Ots_Key_Dilution);
-				return crypto::OtsTree::Create(
-						test::GenerateKeyPair(),
-						storage,
-						{ Ots_Key_Dilution, startKeyIdentifier, endKeyIdentifier });
+			static crypto::AggregateBmPrivateKeyTree CreateAggregateBmPrivateKeyTree(io::SeekableStream& storage) {
+				return crypto::AggregateBmPrivateKeyTree([&storage]() {
+					auto startKeyIdentifier = model::StepIdentifierToBmKeyIdentifier(
+							{ FinalizationEpoch(), FinalizationPoint(), model::FinalizationStage::Prevote },
+							Voting_Key_Dilution);
+					auto endKeyIdentifier = model::StepIdentifierToBmKeyIdentifier(
+							{ FinalizationEpoch(20), FinalizationPoint(), model::FinalizationStage::Precommit },
+							Voting_Key_Dilution);
+					auto bmOptions = crypto::BmOptions{ Voting_Key_Dilution, startKeyIdentifier, endKeyIdentifier };
+					auto tree = crypto::BmPrivateKeyTree::Create(test::GenerateKeyPair(), storage, bmOptions);
+					return std::make_unique<crypto::BmPrivateKeyTree>(std::move(tree));
+				});
 			}
 
 		private:
 			Hash256 m_lastFinalizedHash;
 			std::unique_ptr<io::BlockStorageCache> m_pBlockStorage;
 			io::ProofStorageCache m_proofStorage;
-			mocks::MockSeekableMemoryStream m_otsTreeStream;
+			mocks::MockSeekableMemoryStream m_bmPrivateKeyTreeStream;
 
 			std::unique_ptr<FinalizationMessageFactory> m_pFactory;
 		};
 
 		bool IsSigned(const model::FinalizationMessage& message) {
-			auto dilution = TestContext::Ots_Key_Dilution;
-			auto keyIdentifier = model::StepIdentifierToOtsKeyIdentifier(message.StepIdentifier, dilution);
+			auto dilution = TestContext::Voting_Key_Dilution;
+			auto keyIdentifier = model::StepIdentifierToBmKeyIdentifier(message.StepIdentifier, dilution);
 			return crypto::Verify(message.Signature, keyIdentifier, {
 				reinterpret_cast<const uint8_t*>(&message) + model::FinalizationMessage::Header_Size,
 				message.Size - model::FinalizationMessage::Header_Size
@@ -110,13 +110,14 @@ namespace catapult { namespace chain {
 		void AssertPrevote(
 				const model::FinalizationMessage& message,
 				const TestContext& context,
+				FinalizationEpoch expectedEpoch,
 				FinalizationPoint expectedPoint,
 				Height expectedStartHeight,
 				uint32_t expectedHashesCount) {
 			EXPECT_EQ(sizeof(model::FinalizationMessage) + expectedHashesCount * Hash256::Size, message.Size);
 			ASSERT_EQ(expectedHashesCount, message.HashesCount);
 
-			EXPECT_EQ(model::StepIdentifier({ expectedPoint, model::FinalizationStage::Prevote }), message.StepIdentifier);
+			EXPECT_EQ(model::StepIdentifier({ expectedEpoch, expectedPoint, model::FinalizationStage::Prevote }), message.StepIdentifier);
 			EXPECT_EQ(expectedStartHeight, message.Height);
 			for (auto i = 0u; i < expectedHashesCount; ++i)
 				EXPECT_EQ(context.blockHashAt(expectedStartHeight + Height(i)), message.HashesPtr()[i]);
@@ -135,13 +136,13 @@ namespace catapult { namespace chain {
 			config.PrevoteBlocksMultiple = prevoteBlocksMultiple;
 			config.VotingSetGrouping = 500;
 
-			TestContext context(FinalizationPoint(11), Height(8), numBlocks, config);
+			TestContext context(Height(8), numBlocks, config);
 
 			// Act:
-			auto pMessage = context.factory().createPrevote(FinalizationPoint(20));
+			auto pMessage = context.factory().createPrevote({ FinalizationEpoch(3), FinalizationPoint(20) });
 
 			// Assert:
-			AssertPrevote(*pMessage, context, FinalizationPoint(20), Height(8), expectedHashesCount);
+			AssertPrevote(*pMessage, context, FinalizationEpoch(3), FinalizationPoint(20), Height(8), expectedHashesCount);
 		}
 	}
 
@@ -152,16 +153,16 @@ namespace catapult { namespace chain {
 		config.PrevoteBlocksMultiple = 2;
 		config.VotingSetGrouping = 500;
 
-		TestContext context(FinalizationPoint(11), Height(8), 6, config);
+		TestContext context(Height(8), 6, config);
 
 		// Act:
-		auto pMessage = context.factory().createPrevote(FinalizationPoint(20));
+		auto pMessage = context.factory().createPrevote({ FinalizationEpoch(3), FinalizationPoint(20) });
 
 		// Assert:
 		EXPECT_EQ(sizeof(model::FinalizationMessage) + Hash256::Size, pMessage->Size);
 		ASSERT_EQ(1u, pMessage->HashesCount);
 
-		EXPECT_EQ(model::StepIdentifier({ FinalizationPoint(20), model::FinalizationStage::Prevote }), pMessage->StepIdentifier);
+		EXPECT_EQ(test::CreateStepIdentifier(3, 20, model::FinalizationStage::Prevote), pMessage->StepIdentifier);
 		EXPECT_EQ(Height(8), pMessage->Height);
 		EXPECT_EQ(context.lastFinalizedHash(), pMessage->HashesPtr()[0]);
 
@@ -193,47 +194,63 @@ namespace catapult { namespace chain {
 		AssertCanCreatePrevote(22, 10, 5, 8);
 	}
 
+	TEST(TEST_CLASS, CanCreatePrevoteStartingEpoch) {
+		// Arrange:
+		auto config = finalization::FinalizationConfiguration::Uninitialized();
+		config.MaxHashesPerPoint = 200;
+		config.PrevoteBlocksMultiple = 5;
+		config.VotingSetGrouping = 25;
+
+		TestContext context(Height(100), 105, config);
+
+		// Act:
+		auto pMessage = context.factory().createPrevote({ FinalizationEpoch(6), FinalizationPoint(1) });
+
+		// Assert:
+		AssertPrevote(*pMessage, context, FinalizationEpoch(6), FinalizationPoint(1), Height(100), 6);
+	}
+
 	// endregion
 
 	// region createPrevote - VotingSetGrouping
 
 	namespace {
-		void AssertCanCreatePrevoteHonorsVotingSetGrouping(Height height, uint32_t expectedHashesCount) {
+		void AssertCanCreatePrevoteHonorsVotingSetGrouping(FinalizationEpoch epoch, Height height, uint32_t expectedHashesCount) {
 			// Arrange:
 			auto config = finalization::FinalizationConfiguration::Uninitialized();
 			config.MaxHashesPerPoint = 400;
 			config.PrevoteBlocksMultiple = 1;
 			config.VotingSetGrouping = 50;
 
-			TestContext context(FinalizationPoint(11), height, 200, config);
+			TestContext context(height, 200, config);
 
 			// Act:
-			auto pMessage = context.factory().createPrevote(FinalizationPoint(20));
+			auto pMessage = context.factory().createPrevote({ epoch, FinalizationPoint(20) });
 
 			// Assert:
-			AssertPrevote(*pMessage, context, FinalizationPoint(20), height, expectedHashesCount);
+			AssertPrevote(*pMessage, context, epoch, FinalizationPoint(20), height, expectedHashesCount);
 		}
 	}
 
 	TEST(TEST_CLASS, CanCreatePrevoteContainingAllVotingSetGroupHashes) {
 		// Assert: message is limited to hashes in a single voting set
-		AssertCanCreatePrevoteHonorsVotingSetGrouping(Height(1), 50);
-		AssertCanCreatePrevoteHonorsVotingSetGrouping(Height(51), 50);
-		AssertCanCreatePrevoteHonorsVotingSetGrouping(Height(101), 50);
+		AssertCanCreatePrevoteHonorsVotingSetGrouping(FinalizationEpoch(2), Height(1), 50);
+		AssertCanCreatePrevoteHonorsVotingSetGrouping(FinalizationEpoch(3), Height(51), 50);
+		AssertCanCreatePrevoteHonorsVotingSetGrouping(FinalizationEpoch(4), Height(101), 50);
 	}
 
 	TEST(TEST_CLASS, CanCreatePrevoteContainingPartialVotingSetGroupHashes) {
 		// Assert: message is limited to hashes in a single voting set
-		AssertCanCreatePrevoteHonorsVotingSetGrouping(Height(26), 25);
-		AssertCanCreatePrevoteHonorsVotingSetGrouping(Height(76), 25);
-		AssertCanCreatePrevoteHonorsVotingSetGrouping(Height(126), 25);
+		AssertCanCreatePrevoteHonorsVotingSetGrouping(FinalizationEpoch(2), Height(26), 25);
+		AssertCanCreatePrevoteHonorsVotingSetGrouping(FinalizationEpoch(3), Height(76), 25);
+		AssertCanCreatePrevoteHonorsVotingSetGrouping(FinalizationEpoch(4), Height(126), 25);
 	}
 
 	TEST(TEST_CLASS, CanCreatePrevoteContainingOnlyLastVotingSetGroupHash) {
 		// Assert: message is limited to hashes in a single voting set
-		AssertCanCreatePrevoteHonorsVotingSetGrouping(Height(50), 1);
-		AssertCanCreatePrevoteHonorsVotingSetGrouping(Height(100), 1);
-		AssertCanCreatePrevoteHonorsVotingSetGrouping(Height(150), 1);
+		AssertCanCreatePrevoteHonorsVotingSetGrouping(FinalizationEpoch(2), Height(50), 1);
+		AssertCanCreatePrevoteHonorsVotingSetGrouping(FinalizationEpoch(3), Height(100), 1);
+		AssertCanCreatePrevoteHonorsVotingSetGrouping(FinalizationEpoch(4), Height(150), 1);
 	}
 
 	// endregion
@@ -243,16 +260,16 @@ namespace catapult { namespace chain {
 	TEST(TEST_CLASS, CanCreatePrecommit) {
 		// Arrange:
 		auto hash = test::GenerateRandomByteArray<Hash256>();
-		TestContext context(FinalizationPoint(11), Height(7));
+		TestContext context(Height(7));
 
 		// Act:
-		auto pMessage = context.factory().createPrecommit(FinalizationPoint(20), Height(35), hash);
+		auto pMessage = context.factory().createPrecommit({ FinalizationEpoch(3), FinalizationPoint(20) }, Height(35), hash);
 
 		// Assert:
 		EXPECT_EQ(sizeof(model::FinalizationMessage) + Hash256::Size, pMessage->Size);
 		ASSERT_EQ(1u, pMessage->HashesCount);
 
-		EXPECT_EQ(model::StepIdentifier({ FinalizationPoint(20), model::FinalizationStage::Precommit }), pMessage->StepIdentifier);
+		EXPECT_EQ(test::CreateStepIdentifier(3, 20, model::FinalizationStage::Precommit), pMessage->StepIdentifier);
 		EXPECT_EQ(Height(35), pMessage->Height);
 		EXPECT_EQ(hash, pMessage->HashesPtr()[0]);
 

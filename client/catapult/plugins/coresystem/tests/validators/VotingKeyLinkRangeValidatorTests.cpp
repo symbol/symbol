@@ -31,14 +31,14 @@ namespace catapult { namespace validators {
 	namespace {
 		constexpr auto Failure_Result = Failure_Core_Invalid_Link_Range;
 
-		void AssertRangeValidatorTest(ValidationResult expectedResult, uint64_t startPoint, uint64_t endPoint) {
+		void AssertRangeValidatorTest(ValidationResult expectedResult, uint32_t startEpoch, uint32_t endEpoch) {
 			// Arrange:
 			auto pValidator = CreateVotingKeyLinkRangeValidator(40, 100);
 			auto mainAccountPublicKey = test::GenerateRandomByteArray<Key>();
 			auto votingPublicKey = test::GenerateRandomByteArray<VotingKey>();
 			model::VotingKeyLinkNotification notification(
 					mainAccountPublicKey,
-					{ votingPublicKey, FinalizationPoint(startPoint), FinalizationPoint(endPoint) },
+					{ votingPublicKey, FinalizationEpoch(startEpoch), FinalizationEpoch(endEpoch) },
 					static_cast<model::LinkAction>(test::RandomByte()));
 
 			// Act:
@@ -54,7 +54,7 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, ValidationFailsWhenStartIsLargerThanEndAndRangeIsWithinBounds) {
-		AssertRangeValidatorTest(Failure_Result, 0xFFFFFFFF'FFFFFFFF, 60);
+		AssertRangeValidatorTest(Failure_Result, 0xFFFFFFFF, 60);
 	}
 
 	TEST(TEST_CLASS, ValidationFailsWhenRangeIsTooShort) {

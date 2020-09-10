@@ -21,7 +21,7 @@
 #include "FinalizationMessage.h"
 #include "FinalizationContext.h"
 #include "catapult/crypto/Hashes.h"
-#include "catapult/crypto_voting/OtsTree.h"
+#include "catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
 #include "catapult/utils/MacroBasedEnumIncludes.h"
 #include "catapult/utils/MemoryUtils.h"
 
@@ -50,17 +50,22 @@ namespace catapult { namespace model {
 
 	// TODO: FinalizationContext::lookup expects BLS key, but, for now, interpret it as ED25519 key
 
-	bool IsEligibleVoter(const crypto::OtsTree& otsTree, const FinalizationContext& context) {
-		auto accountView = context.lookup(otsTree.rootPublicKey().copyTo<VotingKey>());
+	bool IsEligibleVoter(const crypto::AggregateBmPrivateKeyTree& bmPrivateKeyTree, const FinalizationContext& context) {
+		auto accountView = context.lookup(bmPrivateKeyTree.rootPublicKey().copyTo<VotingKey>());
 		return Amount() != accountView.Weight;
 	}
 
 	std::unique_ptr<FinalizationMessage> PrepareMessage(
-			crypto::OtsTree& otsTree,
+			crypto::AggregateBmPrivateKeyTree& bmPrivateKeyTree,
 			const StepIdentifier& stepIdentifier,
 			Height height,
 			const HashRange& hashes) {
-		// 1. create message and copy hashes
+		// 1. check if message can be signed
+		auto keyIdentifier = StepIdentifierToBmKeyIdentifier(stepIdentifier, bmPrivateKeyTree.options().Dilution);
+		if (!bmPrivateKeyTree.canSign(keyIdentifier))
+			return nullptr;
+
+		// 2. create message and copy hashes
 		auto numHashes = static_cast<uint32_t>(hashes.size());
 		uint32_t messageSize = SizeOf32<FinalizationMessage>() + numHashes * static_cast<uint32_t>(Hash256::Size);
 
@@ -74,21 +79,17 @@ namespace catapult { namespace model {
 		for (const auto& hash : hashes)
 			*pHash++ = hash;
 
-		// 2. sign
-		auto keyIdentifier = StepIdentifierToOtsKeyIdentifier(pMessage->StepIdentifier, otsTree.options().Dilution);
-		pMessage->Signature = otsTree.sign(keyIdentifier, ToBuffer(*pMessage));
+		// 3. sign
+		pMessage->Signature = bmPrivateKeyTree.sign(keyIdentifier, ToBuffer(*pMessage));
 		return pMessage;
 	}
 
 	std::pair<ProcessMessageResult, size_t> ProcessMessage(const FinalizationMessage& message, const FinalizationContext& context) {
-		if (message.StepIdentifier.Stage >= FinalizationStage::Count)
-			return std::make_pair(ProcessMessageResult::Failure_Stage, 0);
-
 		auto accountView = context.lookup(message.Signature.Root.ParentPublicKey.copyTo<VotingKey>());
 		if (Amount() == accountView.Weight)
 			return std::make_pair(ProcessMessageResult::Failure_Voter, 0);
 
-		auto keyIdentifier = StepIdentifierToOtsKeyIdentifier(message.StepIdentifier, context.config().OtsKeyDilution);
+		auto keyIdentifier = StepIdentifierToBmKeyIdentifier(message.StepIdentifier, context.config().VotingKeyDilution);
 		if (!crypto::Verify(message.Signature, keyIdentifier, ToBuffer(message)))
 			return std::make_pair(ProcessMessageResult::Failure_Message_Signature, 0);
 

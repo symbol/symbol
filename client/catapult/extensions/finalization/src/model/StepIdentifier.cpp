@@ -25,8 +25,24 @@ namespace catapult { namespace model {
 
 	// region step identifier
 
+	StepIdentifier::StepIdentifier() : StepIdentifier(FinalizationEpoch(), FinalizationPoint(), FinalizationStage::Prevote)
+	{}
+
+	StepIdentifier::StepIdentifier(FinalizationEpoch epoch, FinalizationPoint point, FinalizationStage stage)
+			: Epoch(epoch)
+			, PointStage((point.unwrap() << 1) | (utils::to_underlying_type(stage) & 1))
+	{}
+
+	model::FinalizationRound StepIdentifier::Round() const {
+		return { Epoch, FinalizationPoint(PointStage.unwrap() >> 1) };
+	}
+
+	model::FinalizationStage StepIdentifier::Stage() const {
+		return static_cast<model::FinalizationStage>(PointStage.unwrap() & 1);
+	}
+
 	bool StepIdentifier::operator==(const StepIdentifier& rhs) const {
-		return Point == rhs.Point && Stage == rhs.Stage;
+		return Epoch == rhs.Epoch && PointStage == rhs.PointStage;
 	}
 
 	bool StepIdentifier::operator!=(const StepIdentifier& rhs) const {
@@ -34,7 +50,7 @@ namespace catapult { namespace model {
 	}
 
 	bool StepIdentifier::operator<(const StepIdentifier& rhs) const {
-		return Point < rhs.Point || (Point == rhs.Point && Stage < rhs.Stage);
+		return Epoch != rhs.Epoch ? Epoch < rhs.Epoch : PointStage < rhs.PointStage;
 	}
 
 	bool StepIdentifier::operator<=(const StepIdentifier& rhs) const {
@@ -50,23 +66,19 @@ namespace catapult { namespace model {
 	}
 
 	std::ostream& operator<<(std::ostream& out, const StepIdentifier& stepIdentifier) {
-		out << "(" << stepIdentifier.Point << ", " << utils::to_underlying_type(stepIdentifier.Stage) << ")";
+		auto isPrecommit = stepIdentifier.PointStage.unwrap() & 1;
+		out << stepIdentifier.Round() << " " << (isPrecommit ? "precommit" : "prevote");
 		return out;
 	}
 
 	// endregion
 
-	// region StepIdentifierToOtsKeyIdentifier
+	// region StepIdentifierToBmKeyIdentifier
 
-	crypto::OtsKeyIdentifier StepIdentifierToOtsKeyIdentifier(const StepIdentifier& stepIdentifier, uint64_t dilution) {
-		// assume: Dilution < 1 is not allowed
-		constexpr auto Num_Stages = utils::to_underlying_type(FinalizationStage::Count);
-		auto identifier = stepIdentifier.Point.unwrap() * Num_Stages + utils::to_underlying_type(stepIdentifier.Stage);
-
-		crypto::OtsKeyIdentifier keyIdentifier;
-		keyIdentifier.BatchId = identifier / dilution;
-		keyIdentifier.KeyId = identifier % dilution;
-		return keyIdentifier;
+	crypto::BmKeyIdentifier StepIdentifierToBmKeyIdentifier(const StepIdentifier& stepIdentifier, uint64_t dilution) {
+		// dilution < 1 is not allowed
+		auto identifier = stepIdentifier.Epoch.unwrap();
+		return { identifier / dilution, identifier % dilution };
 	}
 
 	// endregion

@@ -34,12 +34,12 @@ namespace catapult { namespace model {
 			auto key1 = test::GenerateRandomByteArray<VotingKey>();
 			auto key2 = test::GenerateRandomByteArray<VotingKey>();
 			return {
-				{ "default", { key1, FinalizationPoint(0), FinalizationPoint(50) } },
-				{ "copy", { key1, FinalizationPoint(0), FinalizationPoint(50) } },
-				{ "diff-key", { key2, FinalizationPoint(0), FinalizationPoint(50) } },
-				{ "diff-start", { key1, FinalizationPoint(21), FinalizationPoint(50) } },
-				{ "diff-end", { key1, FinalizationPoint(0), FinalizationPoint(43) } },
-				{ "diff-start-end", { key1, FinalizationPoint(21), FinalizationPoint(42) } }
+				{ "default", { key1, FinalizationEpoch(0), FinalizationEpoch(50) } },
+				{ "copy", { key1, FinalizationEpoch(0), FinalizationEpoch(50) } },
+				{ "diff-key", { key2, FinalizationEpoch(0), FinalizationEpoch(50) } },
+				{ "diff-start", { key1, FinalizationEpoch(21), FinalizationEpoch(50) } },
+				{ "diff-end", { key1, FinalizationEpoch(0), FinalizationEpoch(43) } },
+				{ "diff-start-end", { key1, FinalizationEpoch(21), FinalizationEpoch(42) } }
 			};
 		}
 
@@ -65,8 +65,8 @@ namespace catapult { namespace model {
 		constexpr auto Pub_Key_String = "7F280CFB82753B5CB0EAF9253087FDBBBB06E298F8045D2874C3D83E33AE27C4EBB287AD23B0CB833E370D5F81CE5131";
 		PinnedVotingKey pinnedVotingKey{
 			utils::ParseByteArray<VotingKey>(Pub_Key_String),
-			FinalizationPoint(100),
-			FinalizationPoint(321)
+			FinalizationEpoch(100),
+			FinalizationEpoch(321)
 		};
 
 		// Act:

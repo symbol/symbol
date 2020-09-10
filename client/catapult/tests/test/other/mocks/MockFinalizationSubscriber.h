@@ -27,22 +27,22 @@ namespace catapult { namespace mocks {
 	/// Finalization subscriber finalized block params.
 	struct FinalizationSubscriberFinalizedBlockParams {
 	public:
-		/// Creates params around \a height, \a hash and \a point.
-		FinalizationSubscriberFinalizedBlockParams(catapult::Height height, const Hash256& hash, FinalizationPoint point)
-				: Height(height)
+		/// Creates params around \a round, \a height and \a hash.
+		FinalizationSubscriberFinalizedBlockParams(const model::FinalizationRound& round, catapult::Height height, const Hash256& hash)
+				: Round(round)
+				, Height(height)
 				, Hash(hash)
-				, Point(point)
 		{}
 
 	public:
+		/// Finalization round.
+		const model::FinalizationRound Round;
+
 		/// Block height.
 		const catapult::Height Height;
 
 		/// Block hash.
 		const Hash256 Hash;
-
-		/// Finalization point.
-		const FinalizationPoint Point;
 	};
 
 	/// Mock finalization subscriber implementation.
@@ -54,8 +54,8 @@ namespace catapult { namespace mocks {
 		}
 
 	public:
-		void notifyFinalizedBlock(Height height, const Hash256& hash, FinalizationPoint point) override {
-			m_finalizedBlockParams.push(height, hash, point);
+		void notifyFinalizedBlock(const model::FinalizationRound& round, Height height, const Hash256& hash) override {
+			m_finalizedBlockParams.push(round, height, hash);
 		}
 
 	private:

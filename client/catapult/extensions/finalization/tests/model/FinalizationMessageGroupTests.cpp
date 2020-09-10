@@ -71,7 +71,7 @@ namespace catapult { namespace model {
 		auto realSize = FinalizationMessageGroup::CalculateRealSize(messageGroup);
 
 		// Assert:
-		EXPECT_EQ(sizeof(FinalizationMessageGroup) + 67 * Hash256::Size + 12 * sizeof(crypto::OtsTreeSignature), realSize);
+		EXPECT_EQ(sizeof(FinalizationMessageGroup) + 67 * Hash256::Size + 12 * sizeof(crypto::BmTreeSignature), realSize);
 	}
 
 	TEST(TEST_CLASS, CalculateRealSizeDoesNotOverflowWithMaxValues) {
@@ -88,7 +88,7 @@ namespace catapult { namespace model {
 		auto expectedSize =
 				sizeof(FinalizationMessageGroup)
 				+ messageGroup.HashesCount * Hash256::Size
-				+ messageGroup.SignaturesCount * sizeof(crypto::OtsTreeSignature);
+				+ messageGroup.SignaturesCount * sizeof(crypto::BmTreeSignature);
 		EXPECT_EQ(expectedSize, realSize);
 		EXPECT_GE(std::numeric_limits<uint64_t>::max(), realSize);
 	}
@@ -102,7 +102,7 @@ namespace catapult { namespace model {
 			static auto GenerateEntityWithAttachments(uint16_t numHashes, uint16_t numSignatures) {
 				uint32_t entitySize = SizeOf32<FinalizationMessageGroup>()
 						+ numHashes * static_cast<uint32_t>(Hash256::Size)
-						+ numSignatures * SizeOf32<crypto::OtsTreeSignature>();
+						+ numSignatures * SizeOf32<crypto::BmTreeSignature>();
 				auto pMessageGroup = utils::MakeUniqueWithSize<FinalizationMessageGroup>(entitySize);
 				pMessageGroup->Size = entitySize;
 				pMessageGroup->HashesCount = numHashes;

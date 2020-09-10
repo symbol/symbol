@@ -23,6 +23,7 @@
 #include "zeromq/src/PublisherUtils.h"
 #include "catapult/model/Cosignature.h"
 #include "catapult/model/Elements.h"
+#include "catapult/model/FinalizationRound.h"
 #include "catapult/model/NotificationSubscriber.h"
 #include "catapult/model/TransactionStatus.h"
 #include "zeromq/tests/test/ZeroMqTestUtils.h"
@@ -60,8 +61,8 @@ namespace catapult { namespace zeromq {
 				publisher().publishDropBlocks(height);
 			}
 
-			void publishFinalizedBlock(Height height, const Hash256& hash, FinalizationPoint point) {
-				publisher().publishFinalizedBlock(height, hash, point);
+			void publishFinalizedBlock(const model::FinalizationRound& round, Height height, const Hash256& hash) {
+				publisher().publishFinalizedBlock(round, height, hash);
 			}
 
 			void publishTransaction(TransactionMarker topicMarker, const model::TransactionInfo& transactionInfo, Height height) {
@@ -155,13 +156,13 @@ namespace catapult { namespace zeromq {
 		auto hash = test::GenerateRandomByteArray<Hash256>();
 
 		// Act:
-		context.publishFinalizedBlock(Height(123), hash, FinalizationPoint(55));
+		context.publishFinalizedBlock({ FinalizationEpoch(24), FinalizationPoint(55) }, Height(123), hash);
 
 		// Assert:
 		zmq::multipart_t message;
 		test::ZmqReceive(message, context.zmqSocket());
 
-		test::AssertFinalizedBlockMessage(message, Height(123), hash, FinalizationPoint(55));
+		test::AssertFinalizedBlockMessage(message, { FinalizationEpoch(24), FinalizationPoint(55) }, Height(123), hash);
 	}
 
 	// endregion

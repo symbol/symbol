@@ -39,9 +39,9 @@ namespace catapult { namespace mongo {
 			{}
 
 		public:
-			void notifyFinalizedBlock(Height height, const Hash256& hash, FinalizationPoint point) override {
+			void notifyFinalizedBlock(const model::FinalizationRound& round, Height height, const Hash256& hash) override {
 				auto blocks = m_database[Collection_Name];
-				auto dbFinalizedBlock = mappers::ToDbModel(height, hash, point);
+				auto dbFinalizedBlock = mappers::ToDbModel(round, height, hash);
 
 				// since this storage is not updated during chain sync, it doesn't need to support recovery
 				auto result = blocks.insert_one(dbFinalizedBlock.view()).value().result();

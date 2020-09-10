@@ -50,13 +50,15 @@ namespace catapult { namespace finalization {
 				// register handlers
 				auto& packetHandlers = state.packetHandlers();
 				handlers::RegisterFinalizationStatisticsHandler(packetHandlers, proofStorage);
-				handlers::RegisterFinalizationProofAtPointHandler(packetHandlers, proofStorage);
+				handlers::RegisterFinalizationProofAtEpochHandler(packetHandlers, proofStorage);
 				handlers::RegisterFinalizationProofAtHeightHandler(packetHandlers, proofStorage);
 
 				if (m_enableVoting) {
 					handlers::RegisterPushMessagesHandler(packetHandlers, hooks.messageRangeConsumer());
-					handlers::RegisterPullMessagesHandler(packetHandlers, [&messageAggregator](auto point, const auto& shortHashes) {
-						return messageAggregator.view().unknownMessages(point, shortHashes);
+					handlers::RegisterPullMessagesHandler(packetHandlers, [&messageAggregator](
+							const auto& round,
+							const auto& shortHashes) {
+						return messageAggregator.view().unknownMessages(round, shortHashes);
 					});
 				}
 			}

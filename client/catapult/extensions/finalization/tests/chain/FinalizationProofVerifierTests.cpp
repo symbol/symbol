@@ -28,6 +28,7 @@ namespace catapult { namespace chain {
 #define TEST_CLASS FinalizationProofVerifierTests
 
 	namespace {
+		constexpr auto Finalization_Epoch = FinalizationEpoch(2);
 		constexpr auto Finalization_Point = FinalizationPoint(3);
 		constexpr auto Last_Finalized_Height = Height(123);
 
@@ -35,7 +36,7 @@ namespace catapult { namespace chain {
 
 		class TestContext {
 		private:
-			static constexpr auto Ots_Key_Dilution = 7u;
+			static constexpr auto Voting_Key_Dilution = 7u;
 
 		public:
 			TestContext() {
@@ -43,11 +44,11 @@ namespace catapult { namespace chain {
 				config.Size = 1000;
 				config.Threshold = 700;
 				config.MaxHashesPerPoint = 100;
-				config.OtsKeyDilution = Ots_Key_Dilution;
+				config.VotingKeyDilution = Voting_Key_Dilution;
 				config.VotingSetGrouping = 500;
 
 				// 15/20M voting eligible
-				auto finalizationContextPair = test::CreateFinalizationContext(config, Finalization_Point, Last_Finalized_Height, {
+				auto finalizationContextPair = test::CreateFinalizationContext(config, Finalization_Epoch, Last_Finalized_Height, {
 					Amount(4'000'000), Amount(2'000'000), Amount(1'000'000), Amount(2'000'000), Amount(3'000'000), Amount(4'000'000),
 					Amount(1'000'000), Amount(1'000'000), Amount(1'000'000), Amount(1'000'000)
 				});
@@ -66,7 +67,7 @@ namespace catapult { namespace chain {
 					std::vector<std::shared_ptr<model::FinalizationMessage>>& messages,
 					const std::vector<size_t>& signerIndexes) const {
 				for (auto i = 0u; i < messages.size(); ++i)
-					test::SignMessage(*messages[i], m_keyPairDescriptors[signerIndexes[i]].VotingKeyPair, Ots_Key_Dilution);
+					test::SignMessage(*messages[i], m_keyPairDescriptors[signerIndexes[i]].VotingKeyPair, Voting_Key_Dilution);
 			}
 
 		private:
@@ -80,12 +81,22 @@ namespace catapult { namespace chain {
 
 		using MutableMessages = std::vector<std::shared_ptr<model::FinalizationMessage>>;
 
+		model::FinalizationStatistics CreateFinalizationStatistics(Height heightDelta, const Hash256& hash) {
+			return { { Finalization_Epoch, Finalization_Point }, Last_Finalized_Height + heightDelta, hash };
+		}
+
 		auto CreatePrevoteMessages(size_t numMessages, const Hash256* pHashes, size_t numHashes) {
-			return test::CreatePrevoteMessages(Finalization_Point, Last_Finalized_Height + Height(1), numMessages, pHashes, numHashes);
+			auto epoch = Finalization_Epoch;
+			auto point = Finalization_Point;
+			auto height = Last_Finalized_Height + Height(1);
+			return test::CreatePrevoteMessages(epoch, point, height, numMessages, pHashes, numHashes);
 		}
 
 		auto CreatePrecommitMessages(size_t numMessages, const Hash256* pHashes, size_t index) {
-			return test::CreatePrecommitMessages(Finalization_Point, Last_Finalized_Height + Height(1), numMessages, pHashes, index);
+			auto epoch = Finalization_Epoch;
+			auto point = Finalization_Point;
+			auto height = Last_Finalized_Height + Height(1);
+			return test::CreatePrecommitMessages(epoch, point, height, numMessages, pHashes, index);
 		}
 
 		auto MergeMessages(const MutableMessages& lhs, const MutableMessages& rhs) {
@@ -130,7 +141,7 @@ namespace catapult { namespace chain {
 					const auto& prevoteHashes,
 					const auto& prevoteMessages,
 					const auto& precommitMessages) {
-				auto statistics = model::FinalizationStatistics{ Finalization_Point, Last_Finalized_Height + Height(3), prevoteHashes[2] };
+				auto statistics = CreateFinalizationStatistics(Height(3), prevoteHashes[2]);
 				modifyStatistics(statistics);
 				auto pProof = model::CreateFinalizationProof(statistics, MergeMessages(prevoteMessages, precommitMessages));
 
@@ -150,7 +161,7 @@ namespace catapult { namespace chain {
 	TEST(TEST_CLASS, VerifyFailsWhenProofHasUnsupportedVersion) {
 		// Arrange:
 		RunTest([](const auto& context, const auto& prevoteHashes, const auto& prevoteMessages, const auto& precommitMessages) {
-			auto statistics = model::FinalizationStatistics{ Finalization_Point, Last_Finalized_Height + Height(3), prevoteHashes[2] };
+			auto statistics = CreateFinalizationStatistics(Height(3), prevoteHashes[2]);
 			auto pProof = model::CreateFinalizationProof(statistics, MergeMessages(prevoteMessages, precommitMessages));
 
 			// - change version
@@ -164,9 +175,9 @@ namespace catapult { namespace chain {
 		});
 	}
 
-	TEST(TEST_CLASS, VerifyFailsWhenProofPointDoesNotMatchContextPoint) {
-		RunModifiedStatisticsTest(VerifyFinalizationProofResult::Failure_Invalid_Point, [](auto& statistics) {
-			statistics.Point = statistics.Point + FinalizationPoint(1);
+	TEST(TEST_CLASS, VerifyFailsWhenProofEpochDoesNotMatchContextEpoch) {
+		RunModifiedStatisticsTest(VerifyFinalizationProofResult::Failure_Invalid_Epoch, [](auto& statistics) {
+			statistics.Round.Epoch = statistics.Round.Epoch + FinalizationEpoch(1);
 		});
 	}
 
@@ -188,7 +199,7 @@ namespace catapult { namespace chain {
 			// - drop precommit message
 			precommitMessages.pop_back();
 
-			auto statistics = model::FinalizationStatistics{ Finalization_Point, Last_Finalized_Height + Height(3), prevoteHashes[2] };
+			auto statistics = CreateFinalizationStatistics(Height(3), prevoteHashes[2]);
 			auto pProof = model::CreateFinalizationProof(statistics, MergeMessages(prevoteMessages, precommitMessages));
 
 			// Act: verify it
@@ -210,7 +221,7 @@ namespace catapult { namespace chain {
 					const auto& precommitMessages) {
 				modifyPrevoteMessages(prevoteMessages);
 
-				auto statistics = model::FinalizationStatistics{ Finalization_Point, Last_Finalized_Height + Height(3), prevoteHashes[2] };
+				auto statistics = CreateFinalizationStatistics(Height(3), prevoteHashes[2]);
 				auto pProof = model::CreateFinalizationProof(statistics, MergeMessages(prevoteMessages, precommitMessages));
 
 				// Act: verify it

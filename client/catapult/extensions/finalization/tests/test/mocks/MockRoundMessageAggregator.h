@@ -28,24 +28,18 @@ namespace catapult { namespace mocks {
 	/// Mock round message aggregator.
 	class MockRoundMessageAggregator : public chain::RoundMessageAggregator {
 	public:
-		/// Creates a mock aggregator for \a point and \a height.
-		MockRoundMessageAggregator(FinalizationPoint point, Height height)
-				: m_point(point)
-				, m_height(height)
+		/// Creates a mock aggregator for \a round.
+		explicit MockRoundMessageAggregator(const model::FinalizationRound& round)
+				: m_round(round)
 				, m_numAddCalls(0)
 				, m_roundContext(1000, 700)
 				, m_addResult(static_cast<chain::RoundMessageAggregatorAddResult>(-1))
 		{}
 
 	public:
-		/// Gets the finalization point.
-		FinalizationPoint point() const {
-			return m_point;
-		}
-
-		/// Gets the finalization height.
-		Height height() const {
-			return m_height;
+		/// Gets the finalization round.
+		model::FinalizationRound round() const {
+			return m_round;
 		}
 
 		/// Gets the round context.
@@ -109,7 +103,7 @@ namespace catapult { namespace mocks {
 		}
 
 	private:
-		FinalizationPoint m_point;
+		model::FinalizationRound m_round;
 		Height m_height;
 		size_t m_numAddCalls;
 		chain::RoundContext m_roundContext;

@@ -29,8 +29,6 @@ namespace catapult { namespace subscribers {
 #define TEST_CLASS TransactionStatusReaderTests
 
 	namespace {
-		// region test utils
-
 		void AssertEqual(
 				const test::TransactionStatusNotification& expected,
 				const mocks::TransactionStatusSubscriberStatusParams& actual,
@@ -39,8 +37,6 @@ namespace catapult { namespace subscribers {
 			EXPECT_EQ(expected.Hash, actual.HashCopy) << message;
 			EXPECT_EQ(expected.Status, actual.Status) << message;
 		}
-
-		// endregion
 	}
 
 	TEST(TEST_CLASS, CanReadSingle) {

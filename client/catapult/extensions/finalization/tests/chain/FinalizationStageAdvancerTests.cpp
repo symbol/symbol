@@ -29,6 +29,8 @@ namespace catapult { namespace chain {
 #define TEST_CLASS FinalizationStageAdvancerTests
 
 	namespace {
+		constexpr auto Finalization_Epoch = FinalizationEpoch(11);
+
 		// region TestContext
 
 		class TestContext {
@@ -43,21 +45,21 @@ namespace catapult { namespace chain {
 			TestContext(FinalizationPoint minPoint, FinalizationPoint maxPoint, Timestamp time, const utils::TimeSpan& stepDuration) {
 				m_pAggregator = std::make_unique<MultiRoundMessageAggregator>(
 						10'000'000,
-						minPoint,
+						model::FinalizationRound{ Finalization_Epoch, minPoint },
 						model::HeightHashPair(),
-						[this](auto roundPoint, auto height) {
-							auto pRoundMessageAggregator = std::make_unique<mocks::MockRoundMessageAggregator>(roundPoint, height);
+						[this](const auto& round) {
+							auto pRoundMessageAggregator = std::make_unique<mocks::MockRoundMessageAggregator>(round);
 							if (m_roundMessageAggregatorInitializer)
 								m_roundMessageAggregatorInitializer(*pRoundMessageAggregator);
 
 							return pRoundMessageAggregator;
 						});
 
-				// set the max point much higher than necessary in order to ensure that the advancer is not dependent on the
-				// aggregator's current max point
-				m_pAggregator->modifier().setMaxFinalizationPoint(maxPoint + FinalizationPoint(10));
+				// set the max round much higher than necessary in order to ensure that the advancer is not dependent on the
+				// aggregator's current max round
+				m_pAggregator->modifier().setMaxFinalizationRound({ Finalization_Epoch, maxPoint + FinalizationPoint(10) });
 
-				m_pAdvancer = CreateFinalizationStageAdvancer(maxPoint, time, stepDuration, *m_pAggregator);
+				m_pAdvancer = CreateFinalizationStageAdvancer({ Finalization_Epoch, maxPoint }, time, stepDuration, *m_pAggregator);
 			}
 
 		public:
@@ -124,7 +126,7 @@ namespace catapult { namespace chain {
 			roundMessageAggregator.roundContext().acceptPrevote(Height(246), &hash, 1, 500);
 		});
 
-		context.aggregator().modifier().add(test::CreateMessage(FinalizationPoint(7)));
+		context.aggregator().modifier().add(test::CreateMessage({ Finalization_Epoch, FinalizationPoint(7) }));
 
 		// Act + Assert:
 		for (auto value : std::initializer_list<uint64_t>{ 50, 100, 149 })
@@ -143,7 +145,7 @@ namespace catapult { namespace chain {
 			roundMessageAggregator.roundContext().acceptPrecommit(Height(246), hash, 750);
 		});
 
-		context.aggregator().modifier().add(test::CreateMessage(FinalizationPoint(7)));
+		context.aggregator().modifier().add(test::CreateMessage({ Finalization_Epoch, FinalizationPoint(7) }));
 
 		// Act + Assert:
 		for (auto value : std::initializer_list<uint64_t>{ 50, 100, 149, 150, 151, 250 })
@@ -174,7 +176,7 @@ namespace catapult { namespace chain {
 			roundMessageAggregator.roundContext().acceptPrevote(Height(246), &hash, 1, 500);
 		});
 
-		context.aggregator().modifier().add(test::CreateMessage(FinalizationPoint(7)));
+		context.aggregator().modifier().add(test::CreateMessage({ Finalization_Epoch, FinalizationPoint(7) }));
 
 		// Act + Assert:
 		for (auto value : std::initializer_list<uint64_t>{ 50, 150, 249, 250, 251, 350 }) {
@@ -189,7 +191,7 @@ namespace catapult { namespace chain {
 		auto hash = test::GenerateRandomByteArray<Hash256>();
 		TestContext context(FinalizationPoint(6), FinalizationPoint(7), Timestamp(50), utils::TimeSpan::FromMilliseconds(100));
 		context.setRoundMessageAggregatorInitializer([&hash](auto& roundMessageAggregator) {
-			if (FinalizationPoint(6) == roundMessageAggregator.point()) {
+			if (FinalizationPoint(6) == roundMessageAggregator.round().Point) {
 				auto hashes = std::vector<Hash256>{ hash, test::GenerateRandomByteArray<Hash256>() };
 				roundMessageAggregator.roundContext().acceptPrevote(Height(245), hashes.data(), hashes.size(), 750);
 			} else {
@@ -199,8 +201,8 @@ namespace catapult { namespace chain {
 			}
 		});
 
-		context.aggregator().modifier().add(test::CreateMessage(FinalizationPoint(6)));
-		context.aggregator().modifier().add(test::CreateMessage(FinalizationPoint(7)));
+		context.aggregator().modifier().add(test::CreateMessage({ Finalization_Epoch, FinalizationPoint(6) }));
+		context.aggregator().modifier().add(test::CreateMessage({ Finalization_Epoch, FinalizationPoint(7) }));
 
 		// Act + Assert:
 		for (auto value : std::initializer_list<uint64_t>{ 50, 150, 249, 250, 251, 350 }) {
@@ -216,7 +218,7 @@ namespace catapult { namespace chain {
 		auto hash2 = test::GenerateRandomByteArray<Hash256>();
 		TestContext context(FinalizationPoint(6), FinalizationPoint(7), Timestamp(50), utils::TimeSpan::FromMilliseconds(100));
 		context.setRoundMessageAggregatorInitializer([&hash1, &hash2](auto& roundMessageAggregator) {
-			if (FinalizationPoint(6) == roundMessageAggregator.point()) {
+			if (FinalizationPoint(6) == roundMessageAggregator.round().Point) {
 				auto hashes = std::vector<Hash256>{ hash1, test::GenerateRandomByteArray<Hash256>() };
 				roundMessageAggregator.roundContext().acceptPrevote(Height(245), &hashes[0], 1, 750);
 				roundMessageAggregator.roundContext().acceptPrevote(Height(246), &hashes[1], 1, 150);
@@ -226,8 +228,8 @@ namespace catapult { namespace chain {
 			}
 		});
 
-		context.aggregator().modifier().add(test::CreateMessage(FinalizationPoint(6)));
-		context.aggregator().modifier().add(test::CreateMessage(FinalizationPoint(7)));
+		context.aggregator().modifier().add(test::CreateMessage({ Finalization_Epoch, FinalizationPoint(6) }));
+		context.aggregator().modifier().add(test::CreateMessage({ Finalization_Epoch, FinalizationPoint(7) }));
 
 		// Act + Assert:
 		for (auto value : std::initializer_list<uint64_t>{ 50, 150, 249 }) {
@@ -249,7 +251,7 @@ namespace catapult { namespace chain {
 		auto hash2 = test::GenerateRandomByteArray<Hash256>();
 		TestContext context(FinalizationPoint(6), FinalizationPoint(7), Timestamp(50), utils::TimeSpan::FromMilliseconds(100));
 		context.setRoundMessageAggregatorInitializer([&hash1, &hash2](auto& roundMessageAggregator) {
-			if (FinalizationPoint(6) == roundMessageAggregator.point()) {
+			if (FinalizationPoint(6) == roundMessageAggregator.round().Point) {
 				auto hashes = std::vector<Hash256>{ hash1, test::GenerateRandomByteArray<Hash256>() };
 				roundMessageAggregator.roundContext().acceptPrevote(Height(245), &hashes[0], 1, 750);
 				roundMessageAggregator.roundContext().acceptPrevote(Height(246), &hashes[1], 1, 150);
@@ -260,8 +262,8 @@ namespace catapult { namespace chain {
 			}
 		});
 
-		context.aggregator().modifier().add(test::CreateMessage(FinalizationPoint(6)));
-		context.aggregator().modifier().add(test::CreateMessage(FinalizationPoint(7)));
+		context.aggregator().modifier().add(test::CreateMessage({ Finalization_Epoch, FinalizationPoint(6) }));
+		context.aggregator().modifier().add(test::CreateMessage({ Finalization_Epoch, FinalizationPoint(7) }));
 
 		// Act + Assert:
 		for (auto value : std::initializer_list<uint64_t>{ 50, 150, 249, 250, 251, 350 }) {
@@ -291,7 +293,7 @@ namespace catapult { namespace chain {
 			roundMessageAggregator.roundContext().acceptPrevote(Height(246), &hash, 1, 500);
 		});
 
-		context.aggregator().modifier().add(test::CreateMessage(FinalizationPoint(7)));
+		context.aggregator().modifier().add(test::CreateMessage({ Finalization_Epoch, FinalizationPoint(7) }));
 
 		// Act + Assert:
 		EXPECT_FALSE(context.advancer().canStartNextRound());
@@ -306,7 +308,7 @@ namespace catapult { namespace chain {
 			roundMessageAggregator.roundContext().acceptPrecommit(Height(246), hash, 750);
 		});
 
-		context.aggregator().modifier().add(test::CreateMessage(FinalizationPoint(7)));
+		context.aggregator().modifier().add(test::CreateMessage({ Finalization_Epoch, FinalizationPoint(7) }));
 
 		// Act + Assert:
 		EXPECT_TRUE(context.advancer().canStartNextRound());

@@ -34,8 +34,8 @@ namespace catapult { namespace zeromq {
 			{}
 
 		public:
-			void notifyFinalizedBlock(Height height, const Hash256& hash, FinalizationPoint point) {
-				subscriber().notifyFinalizedBlock(height, hash, point);
+			void notifyFinalizedBlock(const model::FinalizationRound& round, Height height, const Hash256& hash) {
+				subscriber().notifyFinalizedBlock(round, height, hash);
 			}
 		};
 	}
@@ -49,7 +49,7 @@ namespace catapult { namespace zeromq {
 		auto hash = test::GenerateRandomByteArray<Hash256>();
 
 		// Act:
-		context.notifyFinalizedBlock(Height(123), hash, FinalizationPoint(55));
+		context.notifyFinalizedBlock({ FinalizationEpoch(24), FinalizationPoint(55) }, Height(123), hash);
 
 		// Assert:
 		test::AssertNoPendingMessages(context.zmqSocket());
@@ -63,13 +63,13 @@ namespace catapult { namespace zeromq {
 		auto hash = test::GenerateRandomByteArray<Hash256>();
 
 		// Act:
-		context.notifyFinalizedBlock(Height(123), hash, FinalizationPoint(55));
+		context.notifyFinalizedBlock({ FinalizationEpoch(24), FinalizationPoint(55) }, Height(123), hash);
 
 		// Assert:
 		zmq::multipart_t message;
 		test::ZmqReceive(message, context.zmqSocket());
 
-		test::AssertFinalizedBlockMessage(message, Height(123), hash, FinalizationPoint(55));
+		test::AssertFinalizedBlockMessage(message, { FinalizationEpoch(24), FinalizationPoint(55) }, Height(123), hash);
 		test::AssertNoPendingMessages(context.zmqSocket());
 	}
 }}

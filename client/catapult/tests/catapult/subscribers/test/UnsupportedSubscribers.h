@@ -43,7 +43,7 @@ namespace catapult { namespace test {
 	/// Unsupported finalization subscriber.
 	class UnsupportedFinalizationSubscriber : public subscribers::FinalizationSubscriber {
 	public:
-		void notifyFinalizedBlock(Height, const Hash256&, FinalizationPoint) override {
+		void notifyFinalizedBlock(const model::FinalizationRound&, Height, const Hash256&) override {
 			CATAPULT_THROW_RUNTIME_ERROR("notifyFinalizedBlock - not supported in mock");
 		}
 	};

@@ -32,7 +32,7 @@ namespace catapult { namespace model {
 	namespace {
 		// region test utils
 
-		using FP = FinalizationPoint;
+		using Epoch = FinalizationEpoch;
 
 		constexpr auto Harvesting_Mosaic_Id = MosaicId(9876);
 
@@ -76,8 +76,8 @@ namespace catapult { namespace model {
 
 				delta->addAccount(accountView.Address, height);
 				auto& accountState = delta->find(accountView.Address).get();
-				accountState.SupplementalPublicKeys.voting().add({ accountView.VotingPublicKey1, FP(1), FP(100) });
-				accountState.SupplementalPublicKeys.voting().add({ accountView.VotingPublicKey2, FP(151), FP(200) });
+				accountState.SupplementalPublicKeys.voting().add({ accountView.VotingPublicKey1, Epoch(1), Epoch(100) });
+				accountState.SupplementalPublicKeys.voting().add({ accountView.VotingPublicKey2, Epoch(151), Epoch(200) });
 				accountState.Balances.credit(Harvesting_Mosaic_Id, balance);
 			}
 
@@ -110,7 +110,7 @@ namespace catapult { namespace model {
 			auto accountViews3 = AddAccountsWithBalances(cache, Height(124), { Amount(1'000'000), Amount(6'000'000), Amount(3'000'000) });
 
 			// Act:
-			FinalizationContext context(FP(50), Height(123), generationHash, config, *cache.createView());
+			FinalizationContext context(Epoch(50), Height(123), generationHash, config, *cache.createView());
 
 			// Assert:
 			action(context, generationHash, accountViews1, accountViews2, accountViews3);
@@ -129,10 +129,10 @@ namespace catapult { namespace model {
 		cache::AccountStateCache cache(cache::CacheConfiguration(), CreateOptions());
 
 		// Act:
-		FinalizationContext context(FP(50), Height(123), generationHash, config, *cache.createView());
+		FinalizationContext context(Epoch(50), Height(123), generationHash, config, *cache.createView());
 
 		// Assert:
-		EXPECT_EQ(FP(50), context.point());
+		EXPECT_EQ(Epoch(50), context.epoch());
 		EXPECT_EQ(Height(123), context.height());
 		EXPECT_EQ(generationHash, context.generationHash());
 		EXPECT_EQ(9876u, context.config().Size);
@@ -150,10 +150,10 @@ namespace catapult { namespace model {
 		});
 
 		// Act:
-		FinalizationContext context(FP(50), Height(123), generationHash, config, *cache.createView());
+		FinalizationContext context(Epoch(50), Height(123), generationHash, config, *cache.createView());
 
 		// Assert:
-		EXPECT_EQ(FP(50), context.point());
+		EXPECT_EQ(Epoch(50), context.epoch());
 		EXPECT_EQ(Height(123), context.height());
 		EXPECT_EQ(generationHash, context.generationHash());
 		EXPECT_EQ(9876u, context.config().Size);
@@ -164,7 +164,7 @@ namespace catapult { namespace model {
 		// Arrange:
 		RunNineAccountTest([](const auto& context, const auto& generationHash, const auto&, const auto&, const auto&) {
 			// Assert: should include accounts from both views 1 and 2 but not 3
-			EXPECT_EQ(FP(50), context.point());
+			EXPECT_EQ(Epoch(50), context.epoch());
 			EXPECT_EQ(Height(123), context.height());
 			EXPECT_EQ(generationHash, context.generationHash());
 			EXPECT_EQ(9876u, context.config().Size);
@@ -184,10 +184,10 @@ namespace catapult { namespace model {
 		SetBalance(cache, Height(123), accountViews[1].Address, Amount(3'000'000));
 
 		// Act:
-		FinalizationContext context(FP(50), Height(123), generationHash, config, *cache.createView());
+		FinalizationContext context(Epoch(50), Height(123), generationHash, config, *cache.createView());
 
 		// Assert:
-		EXPECT_EQ(FP(50), context.point());
+		EXPECT_EQ(Epoch(50), context.epoch());
 		EXPECT_EQ(Height(123), context.height());
 		EXPECT_EQ(generationHash, context.generationHash());
 		EXPECT_EQ(9876u, context.config().Size);
@@ -209,10 +209,10 @@ namespace catapult { namespace model {
 		SetBalance(cache, Height(123), accountViews[1].Address, Amount(1'000'000));
 
 		// Act:
-		FinalizationContext context(FP(50), Height(123), generationHash, config, *cache.createView());
+		FinalizationContext context(Epoch(50), Height(123), generationHash, config, *cache.createView());
 
 		// Assert:
-		EXPECT_EQ(FP(50), context.point());
+		EXPECT_EQ(Epoch(50), context.epoch());
 		EXPECT_EQ(Height(123), context.height());
 		EXPECT_EQ(generationHash, context.generationHash());
 		EXPECT_EQ(9876u, context.config().Size);
@@ -270,7 +270,7 @@ namespace catapult { namespace model {
 
 	namespace {
 		template<typename TAction>
-		void RunLookupDependentOnFinalizationHeightTest(std::initializer_list<FP> points, TAction action) {
+		void RunLookupDependentOnFinalizationHeightTest(std::initializer_list<Epoch> epochs, TAction action) {
 			// Arrange:
 			auto generationHash = test::GenerateRandomByteArray<GenerationHash>();
 			auto config = CreateConfigurationWithSize(9876);
@@ -278,8 +278,8 @@ namespace catapult { namespace model {
 			cache::AccountStateCache cache(cache::CacheConfiguration(), CreateOptions());
 			auto accountViews = AddAccountsWithBalances(cache, Height(122), { Amount(7'000'000), Amount(4'000'000), Amount(1'000'000) });
 
-			for (auto point : points) {
-				FinalizationContext context(point, Height(123), generationHash, config, *cache.createView());
+			for (auto epoch : epochs) {
+				FinalizationContext context(epoch, Height(123), generationHash, config, *cache.createView());
 
 				// Act:
 				auto lookupResult1 = context.lookup(accountViews[0].VotingPublicKey1);
@@ -291,9 +291,9 @@ namespace catapult { namespace model {
 		}
 	}
 
-	TEST(TEST_CLASS, LookupIsDependentOnFinalizationHeight_NoVotingPublicKeyAtPoint) {
+	TEST(TEST_CLASS, LookupIsDependentOnFinalizationHeight_NoVotingPublicKeyAtEpoch) {
 		// Act:
-		RunLookupDependentOnFinalizationHeightTest({ FP(0), FP(101), FP(125), FP(150), FP(201), FP(400) }, [](
+		RunLookupDependentOnFinalizationHeightTest({ Epoch(0), Epoch(101), Epoch(125), Epoch(150), Epoch(201), Epoch(400) }, [](
 				const auto&,
 				const auto& lookupResult1,
 				const auto& lookupResult2) {
@@ -303,9 +303,9 @@ namespace catapult { namespace model {
 		});
 	}
 
-	TEST(TEST_CLASS, LookupIsDependentOnFinalizationHeight_FirstVotingPublicKeyAtPoint) {
+	TEST(TEST_CLASS, LookupIsDependentOnFinalizationHeight_FirstVotingPublicKeyAtEpoch) {
 		// Act:
-		RunLookupDependentOnFinalizationHeightTest({ FP(1), FP(50), FP(100) }, [](
+		RunLookupDependentOnFinalizationHeightTest({ Epoch(1), Epoch(50), Epoch(100) }, [](
 				const auto& accountView,
 				const auto& lookupResult1,
 				const auto& lookupResult2) {
@@ -315,9 +315,9 @@ namespace catapult { namespace model {
 		});
 	}
 
-	TEST(TEST_CLASS, LookupIsDependentOnFinalizationHeight_LastVotingPublicKeyAtPoint) {
+	TEST(TEST_CLASS, LookupIsDependentOnFinalizationHeight_LastVotingPublicKeyAtEpoch) {
 		// Act:
-		RunLookupDependentOnFinalizationHeightTest({ FP(151), FP(175), FP(200) }, [](
+		RunLookupDependentOnFinalizationHeightTest({ Epoch(151), Epoch(175), Epoch(200) }, [](
 				const auto& accountView,
 				const auto& lookupResult1,
 				const auto& lookupResult2) {

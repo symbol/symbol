@@ -28,7 +28,7 @@ namespace catapult { namespace model {
 
 	// region FinalizationStatistics (size + alignment)
 
-#define STATISTICS_FIELDS FIELD(Point) FIELD(Height) FIELD(Hash)
+#define STATISTICS_FIELDS FIELD(Round) FIELD(Height) FIELD(Hash)
 
 	TEST(TEST_CLASS, FinalizationStatisticsHasExpectedSize) {
 		// Arrange:

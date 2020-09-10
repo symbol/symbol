@@ -34,7 +34,7 @@ namespace catapult { namespace plugins {
 			sub.notify(KeyLinkActionNotification(transaction.LinkAction));
 			sub.notify(VotingKeyLinkNotification(
 					transaction.SignerPublicKey,
-					{ transaction.LinkedPublicKey, transaction.StartPoint, transaction.EndPoint },
+					{ transaction.LinkedPublicKey, transaction.StartEpoch, transaction.EndEpoch },
 					transaction.LinkAction));
 		}
 	}

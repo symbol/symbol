@@ -45,39 +45,40 @@ namespace catapult { namespace model {
 
 		using MessageSignatureGroups = std::map<
 			std::shared_ptr<const FinalizationMessage>,
-			std::vector<crypto::OtsTreeSignature>,
+			std::vector<crypto::BmTreeSignature>,
 			GroupFinalizationMessageComparer>;
 
-		MutableMessageGroups GroupMessages(FinalizationPoint point, const ConstMessages& messages) {
+		MutableMessageGroups GroupMessages(const model::FinalizationRound& round, const ConstMessages& messages) {
 			MessageSignatureGroups messageSignatureGroups;
 			for (const auto& pMessage : messages) {
-				if (point != pMessage->StepIdentifier.Point) {
+				auto messageRound = pMessage->StepIdentifier.Round();
+				if (round != messageRound) {
 					CATAPULT_LOG(warning)
-							<< "skipping message with unexpected point " << pMessage->StepIdentifier.Point
-							<< " when grouping messages at point " << point;
+							<< "skipping message with unexpected round " << messageRound
+							<< " when grouping messages at round " << round;
 					continue;
 				}
 
 				auto iter = messageSignatureGroups.find(pMessage);
 				if (messageSignatureGroups.cend() == iter)
-					iter = messageSignatureGroups.emplace(pMessage, std::vector<crypto::OtsTreeSignature>()).first;
+					iter = messageSignatureGroups.emplace(pMessage, std::vector<crypto::BmTreeSignature>()).first;
 
 				iter->second.push_back(pMessage->Signature);
 			}
 
 			MutableMessageGroups messageGroups;
 			for (const auto& messageSignatureGroupPair : messageSignatureGroups) {
-				auto numSignatures = static_cast<uint16_t>(messageSignatureGroupPair.second.size());
+				auto numSignatures = static_cast<uint32_t>(messageSignatureGroupPair.second.size());
 				const auto& pTemplateMessage = messageSignatureGroupPair.first;
 
 				uint32_t hashesPayloadSize = static_cast<uint32_t>(pTemplateMessage->HashesCount * Hash256::Size);
-				uint32_t signaturesPayloadSize = numSignatures * SizeOf32<crypto::OtsTreeSignature>();
+				uint32_t signaturesPayloadSize = numSignatures * SizeOf32<crypto::BmTreeSignature>();
 				uint32_t size = SizeOf32<FinalizationMessageGroup>() + hashesPayloadSize + signaturesPayloadSize;
 				auto pMessageGroup = utils::MakeUniqueWithSize<FinalizationMessageGroup>(size);
 				pMessageGroup->Size = size;
-				pMessageGroup->HashesCount = static_cast<uint16_t>(pTemplateMessage->HashesCount);
+				pMessageGroup->HashesCount = pTemplateMessage->HashesCount;
 				pMessageGroup->SignaturesCount = numSignatures;
-				pMessageGroup->Stage = pTemplateMessage->StepIdentifier.Stage;
+				pMessageGroup->Stage = pTemplateMessage->StepIdentifier.Stage();
 				pMessageGroup->Height = pTemplateMessage->Height;
 
 				std::memcpy(reinterpret_cast<void*>(pMessageGroup->HashesPtr()), pTemplateMessage->HashesPtr(), hashesPayloadSize);
@@ -123,8 +124,8 @@ namespace catapult { namespace model {
 	}
 
 	std::unique_ptr<FinalizationProof> CreateFinalizationProof(const FinalizationStatistics& statistics, const ConstMessages& messages) {
-		auto pProof = GenerateProofWithMessageGroups(GroupMessages(statistics.Point, messages));
-		pProof->Point = statistics.Point;
+		auto pProof = GenerateProofWithMessageGroups(GroupMessages(statistics.Round, messages));
+		pProof->Round = statistics.Round;
 		pProof->Height = statistics.Height;
 		pProof->Hash = statistics.Hash;
 		return pProof;

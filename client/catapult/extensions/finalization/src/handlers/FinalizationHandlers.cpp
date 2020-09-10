@@ -46,6 +46,6 @@ namespace catapult { namespace handlers {
 
 	void RegisterPullMessagesHandler(ionet::ServerPacketHandlers& handlers, const MessagesRetriever& messagesRetriever) {
 		constexpr auto Packet_Type = ionet::PacketType::Pull_Finalization_Messages;
-		handlers.registerHandler(Packet_Type, PullEntitiesHandler<FinalizationPoint>::Create(Packet_Type, messagesRetriever));
+		handlers.registerHandler(Packet_Type, PullEntitiesHandler<model::FinalizationRound>::Create(Packet_Type, messagesRetriever));
 	}
 }}

@@ -19,7 +19,7 @@
 **/
 
 #include "finalization/src/model/FinalizationMessage.h"
-#include "catapult/crypto_voting/OtsTree.h"
+#include "catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
 #include "finalization/tests/test/FinalizationMessageTestUtils.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/core/HashTestUtils.h"
@@ -58,7 +58,7 @@ namespace catapult { namespace model {
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(FinalizationMessage));
-		EXPECT_EQ(4 + 316u, sizeof(FinalizationMessage));
+		EXPECT_EQ(4 + 308u, sizeof(FinalizationMessage));
 	}
 
 	TEST(TEST_CLASS, FinalizationMessageHasProperAlignment) {
@@ -127,7 +127,7 @@ namespace catapult { namespace model {
 		// Arrange:
 		auto pMessage1 = CreateMessage(3);
 		auto pMessage2 = test::CopyEntity(*pMessage1);
-		pMessage2->StepIdentifier.Point = pMessage2->StepIdentifier.Point + FinalizationPoint(1);
+		pMessage2->StepIdentifier.Epoch = pMessage2->StepIdentifier.Epoch + FinalizationEpoch(1);
 
 		// Act:
 		auto messageHash1 = CalculateMessageHash(*pMessage1);
@@ -164,9 +164,9 @@ namespace catapult { namespace model {
 		void RunFinalizationContextTest(TAction action) {
 			// Arrange:
 			auto config = finalization::FinalizationConfiguration::Uninitialized();
-			config.OtsKeyDilution = 13u;
+			config.VotingKeyDilution = 13u;
 
-			auto finalizationContextPair = test::CreateFinalizationContext(config, FinalizationPoint(50), Height(123), {
+			auto finalizationContextPair = test::CreateFinalizationContext(config, FinalizationEpoch(50), Height(123), {
 				Amount(2'000'000), Amount(Expected_Large_Weight), Amount(1'000'000), Amount(6'000'000)
 			});
 
@@ -186,13 +186,14 @@ namespace catapult { namespace model {
 				const auto& keyPairDescriptor = keyPairDescriptors[utils::to_underlying_type(voterType)];
 
 				auto storage = mocks::MockSeekableMemoryStream();
-				auto otsTree = crypto::OtsTree::Create(
-						test::CopyKeyPair(keyPairDescriptor.VotingKeyPair),
-						storage,
-						{ context.config().OtsKeyDilution, { 0, 2 }, { 15, 1 } });
+				auto bmPrivateKeyTree = crypto::AggregateBmPrivateKeyTree([&context, &keyPairDescriptor, &storage]() {
+					auto bmOptions = crypto::BmOptions{ context.config().VotingKeyDilution, { 0, 2 }, { 15, 1 } };
+					auto tree = crypto::BmPrivateKeyTree::Create(test::CopyKeyPair(keyPairDescriptor.VotingKeyPair), storage, bmOptions);
+					return std::make_unique<crypto::BmPrivateKeyTree>(std::move(tree));
+				});
 
 				// Act:
-				auto isEligibleVoter = IsEligibleVoter(otsTree, context);
+				auto isEligibleVoter = IsEligibleVoter(bmPrivateKeyTree, context);
 
 				// Assert:
 				EXPECT_EQ(expectedResult, isEligibleVoter);
@@ -213,33 +214,57 @@ namespace catapult { namespace model {
 	// region PrepareMessage
 
 	namespace {
-		constexpr auto Default_Step_Identifier = StepIdentifier{ FinalizationPoint(3), FinalizationStage::Prevote };
+		StepIdentifier DefaultStepIdentifier() {
+			return { FinalizationEpoch(4), FinalizationPoint(3), FinalizationStage::Prevote };
+		}
 
 		template<typename TAction>
-		void RunPrepareMessageTest(VoterType voterType, uint32_t numHashes, TAction action) {
+		void RunPrepareMessageTest(VoterType voterType, uint32_t numHashes, const StepIdentifier& messageStepIdentifier, TAction action) {
 			// Arrange:
-			RunFinalizationContextTest([voterType, numHashes, action](const auto& context, const auto& keyPairDescriptors) {
+			RunFinalizationContextTest([voterType, numHashes, messageStepIdentifier, action](
+					const auto& context,
+					const auto& keyPairDescriptors) {
 				const auto& keyPairDescriptor = keyPairDescriptors[utils::to_underlying_type(voterType)];
 
+				auto numFactoryCalls = 0u;
 				auto storage = mocks::MockSeekableMemoryStream();
-				auto otsTree = crypto::OtsTree::Create(
-						test::CopyKeyPair(keyPairDescriptor.VotingKeyPair),
-						storage,
-						{ context.config().OtsKeyDilution, { 0, 2 }, { 15, 1 } });
+				auto bmPrivateKeyTree = crypto::AggregateBmPrivateKeyTree([&context, &keyPairDescriptor, &numFactoryCalls, &storage]() {
+					if (++numFactoryCalls > 1)
+						return std::unique_ptr<crypto::BmPrivateKeyTree>();
+
+					auto bmOptions = crypto::BmOptions{ context.config().VotingKeyDilution, { 0, 2 }, { 15, 1 } };
+					auto tree = crypto::BmPrivateKeyTree::Create(test::CopyKeyPair(keyPairDescriptor.VotingKeyPair), storage, bmOptions);
+					return std::make_unique<crypto::BmPrivateKeyTree>(std::move(tree));
+				});
 
 				auto hashes = test::GenerateRandomHashes(numHashes);
 
 				// Act:
-				auto pMessage = PrepareMessage(otsTree, Default_Step_Identifier, Height(987), hashes);
+				auto pMessage = PrepareMessage(bmPrivateKeyTree, messageStepIdentifier, Height(987), hashes);
 
 				// Assert:
 				action(pMessage, context, hashes);
 			});
 		}
 
+		template<typename TAction>
+		void RunPrepareMessageTest(VoterType voterType, uint32_t numHashes, TAction action) {
+			RunPrepareMessageTest(voterType, numHashes, DefaultStepIdentifier(), action);
+		}
+
 		HashRange ExtractHashes(const FinalizationMessage& message) {
 			return HashRange::CopyFixed(reinterpret_cast<const uint8_t*>(message.HashesPtr()), message.HashesCount);
 		}
+	}
+
+	TEST(TEST_CLASS, PrepareMessage_CannotPrepareMessageWithUnsupportedStepIdentifier) {
+		// Arrange:
+		auto outOfBoundsStepIdentifier = DefaultStepIdentifier();
+		outOfBoundsStepIdentifier.Epoch = FinalizationEpoch(13 * 16);
+		RunPrepareMessageTest(VoterType::Large, 0, outOfBoundsStepIdentifier, [](const auto& pMessage, const auto&, const auto&) {
+			// Assert:
+			EXPECT_FALSE(!!pMessage);
+		});
 	}
 
 	TEST(TEST_CLASS, PrepareMessage_CanPrepareValidMessageWithoutHashes) {
@@ -252,7 +277,7 @@ namespace catapult { namespace model {
 			EXPECT_EQ(sizeof(FinalizationMessage), pMessage->Size);
 			EXPECT_EQ(0u, pMessage->HashesCount);
 
-			EXPECT_EQ(Default_Step_Identifier, pMessage->StepIdentifier);
+			EXPECT_EQ(DefaultStepIdentifier(), pMessage->StepIdentifier);
 			EXPECT_EQ(Height(987), pMessage->Height);
 			EXPECT_EQ(0u, FindFirstDifferenceIndex(hashes, ExtractHashes(*pMessage)));
 
@@ -273,7 +298,7 @@ namespace catapult { namespace model {
 			EXPECT_EQ(sizeof(FinalizationMessage) + 3 * Hash256::Size, pMessage->Size);
 			EXPECT_EQ(3u, pMessage->HashesCount);
 
-			EXPECT_EQ(Default_Step_Identifier, pMessage->StepIdentifier);
+			EXPECT_EQ(DefaultStepIdentifier(), pMessage->StepIdentifier);
 			EXPECT_EQ(Height(987), pMessage->Height);
 			EXPECT_EQ(3u, FindFirstDifferenceIndex(hashes, ExtractHashes(*pMessage)));
 
@@ -294,7 +319,7 @@ namespace catapult { namespace model {
 			EXPECT_EQ(sizeof(FinalizationMessage) + 3 * Hash256::Size, pMessage->Size);
 			EXPECT_EQ(3u, pMessage->HashesCount);
 
-			EXPECT_EQ(Default_Step_Identifier, pMessage->StepIdentifier);
+			EXPECT_EQ(DefaultStepIdentifier(), pMessage->StepIdentifier);
 			EXPECT_EQ(Height(987), pMessage->Height);
 			EXPECT_EQ(3u, FindFirstDifferenceIndex(hashes, ExtractHashes(*pMessage)));
 
@@ -331,7 +356,7 @@ namespace catapult { namespace model {
 
 		template<typename TAction>
 		void RunProcessMessageTest(VoterType voterType, uint32_t numHashes, TAction action) {
-			RunProcessMessageTest(voterType, Default_Step_Identifier, numHashes, action);
+			RunProcessMessageTest(voterType, DefaultStepIdentifier(), numHashes, action);
 		}
 	}
 
@@ -348,22 +373,6 @@ namespace catapult { namespace model {
 			EXPECT_EQ(ProcessMessageResult::Failure_Message_Signature, processResultPair.first);
 			EXPECT_EQ(0u, processResultPair.second);
 		});
-	}
-
-	TEST(TEST_CLASS, ProcessMessage_FailsWhenStageIsInvalid) {
-		// Arrange:
-		for (auto stage : std::initializer_list<uint64_t>{ 2, 10 }) {
-			auto stepIdentifier = Default_Step_Identifier;
-			stepIdentifier.Stage = static_cast<FinalizationStage>(stage);
-			RunProcessMessageTest(VoterType::Large, stepIdentifier, 3, [](const auto& context, const auto&, const auto& message) {
-				// Act:
-				auto processResultPair = ProcessMessage(message, context);
-
-				// Assert:
-				EXPECT_EQ(ProcessMessageResult::Failure_Stage, processResultPair.first);
-				EXPECT_EQ(0u, processResultPair.second);
-			});
-		}
 	}
 
 	TEST(TEST_CLASS, ProcessMessage_FailsWhenAccountIsNotVotingEligible) {

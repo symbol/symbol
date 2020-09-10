@@ -20,7 +20,7 @@
 
 #include "FinalizationMessageTestUtils.h"
 #include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/crypto_voting/OtsTree.h"
+#include "catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
 #include "catapult/model/BlockUtils.h"
 #include "tests/test/cache/AccountStateCacheTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
@@ -31,10 +31,28 @@
 
 namespace catapult { namespace test {
 
+	// region finalization round + step identifier factories
+
+	model::FinalizationRound CreateFinalizationRound(uint32_t epoch, uint32_t point) {
+		return { FinalizationEpoch(epoch), FinalizationPoint(point) };
+	}
+
+	model::StepIdentifier CreateStepIdentifier(uint32_t epoch, uint32_t point, model::FinalizationStage stage) {
+		return { FinalizationEpoch(epoch), FinalizationPoint(point), stage };
+	}
+
+	// endregion
+
 	// region message factories
 
 	std::unique_ptr<model::FinalizationMessage> CreateMessage(FinalizationPoint point) {
-		return CreateMessage({ point, model::FinalizationStage::Count }, GenerateRandomByteArray<Hash256>());
+		return CreateMessage({ FinalizationEpoch(), point, model::FinalizationStage::Count }, GenerateRandomByteArray<Hash256>());
+	}
+
+	std::unique_ptr<model::FinalizationMessage> CreateMessage(const model::FinalizationRound& round) {
+		auto pMessage = CreateMessage(round.Point);
+		pMessage->StepIdentifier.Epoch = round.Epoch;
+		return pMessage;
 	}
 
 	std::unique_ptr<model::FinalizationMessage> CreateMessage(FinalizationPoint point, Height height) {
@@ -48,7 +66,12 @@ namespace catapult { namespace test {
 	}
 
 	std::unique_ptr<model::FinalizationMessage> CreateMessage(Height height, const Hash256& hash) {
-		auto pMessage = CreateMessage({ FinalizationPoint(Random()), static_cast<model::FinalizationStage>(Random()) }, hash);
+		auto stepIdentifier = model::StepIdentifier{
+			FinalizationEpoch(static_cast<uint32_t>(Random())),
+			FinalizationPoint(static_cast<uint32_t>(Random())),
+			static_cast<model::FinalizationStage>(Random())
+		};
+		auto pMessage = CreateMessage(stepIdentifier, hash);
 		pMessage->Height = height;
 		return pMessage;
 	}
@@ -80,6 +103,7 @@ namespace catapult { namespace test {
 	// region multi-message factories
 
 	std::vector<std::shared_ptr<model::FinalizationMessage>> CreatePrevoteMessages(
+			FinalizationEpoch epoch,
 			FinalizationPoint point,
 			Height height,
 			size_t numMessages,
@@ -88,7 +112,7 @@ namespace catapult { namespace test {
 		std::vector<std::shared_ptr<model::FinalizationMessage>> messages;
 		for (auto i = 0u; i < numMessages; ++i) {
 			auto pMessage = CreateMessage(height, static_cast<uint32_t>(numHashes));
-			pMessage->StepIdentifier = { point, model::FinalizationStage::Prevote };
+			pMessage->StepIdentifier = { epoch, point, model::FinalizationStage::Prevote };
 			std::copy(pHashes, pHashes + numHashes, pMessage->HashesPtr());
 			messages.push_back(std::move(pMessage));
 		}
@@ -97,6 +121,7 @@ namespace catapult { namespace test {
 	}
 
 	std::vector<std::shared_ptr<model::FinalizationMessage>> CreatePrecommitMessages(
+			FinalizationEpoch epoch,
 			FinalizationPoint point,
 			Height height,
 			size_t numMessages,
@@ -105,7 +130,7 @@ namespace catapult { namespace test {
 		std::vector<std::shared_ptr<model::FinalizationMessage>> messages;
 		for (auto i = 0u; i < numMessages; ++i) {
 			auto pMessage = CreateMessage(height + Height(index), 1);
-			pMessage->StepIdentifier = { point, model::FinalizationStage::Precommit };
+			pMessage->StepIdentifier = { epoch, point, model::FinalizationStage::Precommit };
 			*pMessage->HashesPtr() = pHashes[index];
 			messages.push_back(std::move(pMessage));
 		}
@@ -119,11 +144,11 @@ namespace catapult { namespace test {
 
 	void SignMessage(model::FinalizationMessage& message, const crypto::KeyPair& votingKeyPair, uint64_t dilution) {
 		auto storage = mocks::MockSeekableMemoryStream();
-		auto otsOptions = crypto::OtsOptions{ dilution, { 0, 2 }, { 15, 1 } };
-		auto otsTree = crypto::OtsTree::Create(CopyKeyPair(votingKeyPair), storage, otsOptions);
+		auto bmOptions = crypto::BmOptions{ dilution, { 0, 2 }, { 15, 1 } };
+		auto bmPrivateKeyTree = crypto::BmPrivateKeyTree::Create(CopyKeyPair(votingKeyPair), storage, bmOptions);
 
-		auto keyIdentifier = model::StepIdentifierToOtsKeyIdentifier(message.StepIdentifier, otsTree.options().Dilution);
-		message.Signature = otsTree.sign(keyIdentifier, {
+		auto keyIdentifier = model::StepIdentifierToBmKeyIdentifier(message.StepIdentifier, bmPrivateKeyTree.options().Dilution);
+		message.Signature = bmPrivateKeyTree.sign(keyIdentifier, {
 			reinterpret_cast<const uint8_t*>(&message) + model::FinalizationMessage::Header_Size,
 			message.Size - model::FinalizationMessage::Header_Size
 		});
@@ -159,8 +184,8 @@ namespace catapult { namespace test {
 			auto& accountState = accountStateCacheDelta.find(address).get();
 			accountState.SupplementalPublicKeys.voting().add({
 				keyPairDescriptors.back().VotingPublicKey,
-				FinalizationPoint(1),
-				FinalizationPoint(100)
+				FinalizationEpoch(1),
+				FinalizationEpoch(100)
 			});
 			accountState.Balances.credit(mosaicId, balance);
 		}
@@ -189,7 +214,7 @@ namespace catapult { namespace test {
 
 	std::pair<model::FinalizationContext, std::vector<AccountKeyPairDescriptor>> CreateFinalizationContext(
 			const finalization::FinalizationConfiguration& config,
-			FinalizationPoint point,
+			FinalizationEpoch epoch,
 			Height height,
 			const std::vector<Amount>& balances) {
 		auto accountStateCacheOptions = CreateDefaultAccountStateCacheOptions(MosaicId(1111), Harvesting_Mosaic_Id);
@@ -199,7 +224,7 @@ namespace catapult { namespace test {
 		auto keyPairDescriptors = AddAccountsWithBalances(accountStateCache, height, balances);
 
 		auto generationHash = GenerateRandomByteArray<GenerationHash>();
-		auto finalizationContext = model::FinalizationContext(point, height, generationHash, config, *accountStateCache.createView());
+		auto finalizationContext = model::FinalizationContext(epoch, height, generationHash, config, *accountStateCache.createView());
 
 		return std::make_pair(std::move(finalizationContext), std::move(keyPairDescriptors));
 	}

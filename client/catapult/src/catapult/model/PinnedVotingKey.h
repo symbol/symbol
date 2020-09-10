@@ -29,22 +29,22 @@ namespace catapult { namespace model {
 	/// Pinned voting key.
 	struct PinnedVotingKey {
 	public:
-		static constexpr auto Size = catapult::VotingKey::Size + 2 * sizeof(FinalizationPoint);
+		static constexpr auto Size = catapult::VotingKey::Size + 2 * sizeof(FinalizationEpoch);
 
 	public:
 		/// Voting key.
 		catapult::VotingKey VotingKey;
 
-		/// Start finalization point.
-		FinalizationPoint StartPoint;
+		/// Start finalization epoch.
+		FinalizationEpoch StartEpoch;
 
-		/// End finalization point.
-		FinalizationPoint EndPoint;
+		/// End finalization epoch.
+		FinalizationEpoch EndEpoch;
 
 	public:
 		/// Returns \c true if this root voting key is equal to \a rhs.
 		bool operator==(const PinnedVotingKey& rhs) const {
-			return VotingKey == rhs.VotingKey && StartPoint == rhs.StartPoint && EndPoint == rhs.EndPoint;
+			return VotingKey == rhs.VotingKey && StartEpoch == rhs.StartEpoch && EndEpoch == rhs.EndEpoch;
 		}
 
 		/// Returns \c true if this root voting key is not equal to \a rhs.
@@ -54,7 +54,7 @@ namespace catapult { namespace model {
 
 		/// Insertion operator for outputting \a key to \a out.
 		friend std::ostream& operator<<(std::ostream& out, const PinnedVotingKey& key) {
-			out << key.VotingKey << " @ [" << key.StartPoint << ", " << key.EndPoint << "]";
+			out << key.VotingKey << " @ [" << key.StartEpoch << ", " << key.EndEpoch << "]";
 			return out;
 		}
 	};

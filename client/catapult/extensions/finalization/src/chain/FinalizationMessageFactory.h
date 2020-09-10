@@ -20,10 +20,11 @@
 
 #pragma once
 #include "finalization/src/model/FinalizationMessage.h"
+#include "catapult/model/FinalizationRound.h"
 #include <memory>
 
 namespace catapult {
-	namespace crypto { class OtsTree; }
+	namespace crypto { class AggregateBmPrivateKeyTree; }
 	namespace finalization { struct FinalizationConfiguration; }
 	namespace io {
 		class BlockStorageCache;
@@ -39,20 +40,20 @@ namespace catapult { namespace chain {
 		virtual ~FinalizationMessageFactory() = default;
 
 	public:
-		/// Creates a prevote message for the specified \a point.
-		virtual std::unique_ptr<model::FinalizationMessage> createPrevote(FinalizationPoint point) = 0;
+		/// Creates a prevote message for the specified \a round.
+		virtual std::unique_ptr<model::FinalizationMessage> createPrevote(const model::FinalizationRound& round) = 0;
 
-		/// Creates a precommit message for the specified \a point, \a height and \a hash.
+		/// Creates a precommit message for the specified \a round, \a height and \a hash.
 		virtual std::unique_ptr<model::FinalizationMessage> createPrecommit(
-				FinalizationPoint point,
+				const model::FinalizationRound& round,
 				Height height,
 				const Hash256& hash) = 0;
 	};
 
-	/// Creates a factory around \a config, \a blockStorage, \a proofStorage and \a otsTree.
+	/// Creates a factory around \a config, \a blockStorage, \a proofStorage and \a bmPrivateKeyTree.
 	std::unique_ptr<FinalizationMessageFactory> CreateFinalizationMessageFactory(
 			const finalization::FinalizationConfiguration& config,
 			const io::BlockStorageCache& blockStorage,
 			const io::ProofStorageCache& proofStorage,
-			crypto::OtsTree&& otsTree);
+			crypto::AggregateBmPrivateKeyTree&& bmPrivateKeyTree);
 }}

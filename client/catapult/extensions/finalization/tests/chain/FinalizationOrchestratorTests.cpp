@@ -38,40 +38,59 @@ namespace catapult { namespace chain {
 
 		class MockFinalizationMessageFactory : public FinalizationMessageFactory {
 		public:
+			MockFinalizationMessageFactory() : m_bypass(false)
+			{}
+
+		public:
 			std::vector<MessageType> messageTypes() const {
 				return m_messageTypes;
 			}
 
 		public:
-			std::unique_ptr<model::FinalizationMessage> createPrevote(FinalizationPoint point) override {
-				m_messageTypes.push_back(MessageType::Prevote);
-				auto pMessage = test::CreateMessage(Height(0), test::GenerateRandomByteArray<Hash256>());
-				pMessage->StepIdentifier.Point = point;
-				return pMessage;
+			void bypass() {
+				m_bypass = true;
 			}
 
 		public:
+			std::unique_ptr<model::FinalizationMessage> createPrevote(const model::FinalizationRound& round) override {
+				m_messageTypes.push_back(MessageType::Prevote);
+				if (m_bypass)
+					return nullptr;
+
+				auto pMessage = test::CreateMessage(Height(0), test::GenerateRandomByteArray<Hash256>());
+				pMessage->StepIdentifier = { round.Epoch, round.Point, model::FinalizationStage::Prevote };
+				return pMessage;
+			}
+
 			std::unique_ptr<model::FinalizationMessage> createPrecommit(
-					FinalizationPoint point,
+					const model::FinalizationRound& round,
 					Height height,
 					const Hash256& hash) override {
 				m_messageTypes.push_back(MessageType::Precommit);
+				if (m_bypass)
+					return nullptr;
+
 				auto pMessage = test::CreateMessage(height, hash);
-				pMessage->StepIdentifier.Point = point;
+				pMessage->StepIdentifier = { round.Epoch, round.Point, model::FinalizationStage::Precommit };
 				return pMessage;
 			}
 
 		private:
+			bool m_bypass;
 			std::vector<MessageType> m_messageTypes;
 		};
 
-		void AssertPrevote(const model::FinalizationMessage& message, FinalizationPoint point) {
-			EXPECT_EQ(point, message.StepIdentifier.Point);
+		void AssertPrevote(const model::FinalizationMessage& message, const model::FinalizationRound& round) {
+			EXPECT_EQ(round, message.StepIdentifier.Round());
 			EXPECT_EQ(Height(0), message.Height);
 		}
 
-		void AssertPrecommit(const model::FinalizationMessage& message, FinalizationPoint point, Height height, const Hash256& hash) {
-			EXPECT_EQ(point, message.StepIdentifier.Point);
+		void AssertPrecommit(
+				const model::FinalizationMessage& message,
+				const model::FinalizationRound& round,
+				Height height,
+				const Hash256& hash) {
+			EXPECT_EQ(round, message.StepIdentifier.Round());
 			EXPECT_EQ(height, message.Height);
 			EXPECT_EQ(hash, *message.HashesPtr());
 		}
@@ -82,8 +101,8 @@ namespace catapult { namespace chain {
 
 		class MockFinalizationStageAdvancer : public FinalizationStageAdvancer {
 		public:
-			MockFinalizationStageAdvancer(FinalizationPoint point, Timestamp time)
-					: m_point(point)
+			MockFinalizationStageAdvancer(const model::FinalizationRound& round, Timestamp time)
+					: m_round(round)
 					, m_time(time)
 					, m_canSendPrevote(false)
 					, m_canSendPrecommit(false)
@@ -91,8 +110,8 @@ namespace catapult { namespace chain {
 			{}
 
 		public:
-			FinalizationPoint point() const {
-				return m_point;
+			model::FinalizationRound round() const {
+				return m_round;
 			}
 
 			Timestamp time() const {
@@ -131,7 +150,7 @@ namespace catapult { namespace chain {
 			}
 
 		private:
-			FinalizationPoint m_point;
+			model::FinalizationRound m_round;
 			Timestamp m_time;
 
 			bool m_canSendPrevote;
@@ -148,7 +167,7 @@ namespace catapult { namespace chain {
 
 		class TestContext {
 		public:
-			explicit TestContext(FinalizationPoint point) : TestContext({ point, false, false })
+			explicit TestContext(const model::FinalizationRound& round) : TestContext({ round, false, false })
 			{}
 
 			explicit TestContext(const VotingStatus& votingStatus)
@@ -201,6 +220,10 @@ namespace catapult { namespace chain {
 				m_defaultTarget = target;
 			}
 
+			void bypassVoting() {
+				m_pMessageFactoryRaw->bypass();
+			}
+
 		private:
 			std::unique_ptr<MockFinalizationMessageFactory> m_pMessageFactory; // moved into m_orchestrator
 			MockFinalizationMessageFactory* m_pMessageFactoryRaw;
@@ -224,6 +247,12 @@ namespace catapult { namespace chain {
 			return timestamps;
 		}
 
+		void AssertVotingStatus(const VotingStatus& expected, const VotingStatus& actual) {
+			EXPECT_EQ(expected.Round, actual.Round);
+			EXPECT_EQ(expected.HasSentPrevote, actual.HasSentPrevote);
+			EXPECT_EQ(expected.HasSentPrecommit, actual.HasSentPrecommit);
+		}
+
 		// endregion
 	}
 
@@ -231,12 +260,10 @@ namespace catapult { namespace chain {
 
 	TEST(TEST_CLASS, CanCreateOrchestrator) {
 		// Act:
-		TestContext context(FinalizationPoint(3));
+		TestContext context(test::CreateFinalizationRound(3, 4));
 
 		// Assert:
-		EXPECT_EQ(FinalizationPoint(3), context.orchestrator().point());
-		EXPECT_FALSE(context.orchestrator().hasSentPrevote());
-		EXPECT_FALSE(context.orchestrator().hasSentPrecommit());
+		AssertVotingStatus({ test::CreateFinalizationRound(3, 4), false, false }, context.orchestrator().votingStatus());
 
 		EXPECT_EQ(std::vector<MessageType>(), context.messageFactory().messageTypes());
 		EXPECT_EQ(0u, context.messages().size());
@@ -245,32 +272,99 @@ namespace catapult { namespace chain {
 
 	// endregion
 
+	// region setEpoch
+
+	namespace {
+		template<typename TAction>
+		void RunSetEpochTest(TAction action) {
+			// Arrange:
+			TestContext context({ test::CreateFinalizationRound(11, 4), true, true });
+
+			// Sanity:
+			AssertVotingStatus({ test::CreateFinalizationRound(11, 4), true, true }, context.orchestrator().votingStatus());
+
+			// Act + Assert:
+			action(context);
+		}
+	}
+
+	TEST(TEST_CLASS, SetEpochCannotDecreaseCurrentEpoch) {
+		// Arrange:
+		RunSetEpochTest([](auto& context) {
+			// Act + Assert:
+			EXPECT_THROW(context.orchestrator().setEpoch(FinalizationEpoch(10)), catapult_invalid_argument);
+		});
+	}
+
+	TEST(TEST_CLASS, SetEpochHasNoEffectWhenCurrentEpochIsEqual) {
+		// Arrange:
+		RunSetEpochTest([](auto& context) {
+			// Act:
+			context.orchestrator().setEpoch(FinalizationEpoch(11));
+
+			// Assert:
+			AssertVotingStatus({ test::CreateFinalizationRound(11, 4), true, true }, context.orchestrator().votingStatus());
+		});
+	}
+
+	TEST(TEST_CLASS, SetEpochCanIncreaseCurrentEpoch) {
+		// Arrange:
+		RunSetEpochTest([](auto& context) {
+			// Act:
+			context.orchestrator().setEpoch(FinalizationEpoch(15));
+
+			// Assert:
+			AssertVotingStatus({ test::CreateFinalizationRound(15, 1), false, false }, context.orchestrator().votingStatus());
+		});
+	}
+
+	TEST(TEST_CLASS, PollCreatesNewAdvancerAfterSetEpochAdvancesEpoch) {
+		// Arrange:
+		TestContext context({ test::CreateFinalizationRound(3, 4), true, true });
+		context.orchestrator().poll(Timestamp(100));
+		context.orchestrator().setEpoch(FinalizationEpoch(11));
+
+		// Act:
+		context.orchestrator().poll(Timestamp(200));
+
+		// Assert:
+		AssertVotingStatus({ test::CreateFinalizationRound(11, 1), false, false }, context.orchestrator().votingStatus());
+
+		EXPECT_EQ(std::vector<MessageType>(), context.messageFactory().messageTypes());
+		EXPECT_EQ(0u, context.messages().size());
+
+		ASSERT_EQ(2u, context.stageAdvancers().size());
+		EXPECT_EQ(test::CreateFinalizationRound(11, 1), context.stageAdvancers().back()->round());
+		EXPECT_EQ(Timestamp(200), context.stageAdvancers().back()->time());
+		EXPECT_EQ(ToTimestamps({ 200, 200 }), context.stageAdvancers().back()->times());
+	}
+
+	// endregion
+
 	// region poll - start round
 
 	TEST(TEST_CLASS, PollCreatesStageAdvancerForCurrentRoundWhenNoAdvancerIsPresent) {
 		// Arrange:
-		TestContext context(FinalizationPoint(3));
+		TestContext context(test::CreateFinalizationRound(3, 4));
 
 		// Act:
 		context.orchestrator().poll(Timestamp(100));
 
 		// Assert:
-		EXPECT_EQ(FinalizationPoint(3), context.orchestrator().point());
-		EXPECT_FALSE(context.orchestrator().hasSentPrevote());
-		EXPECT_FALSE(context.orchestrator().hasSentPrecommit());
+		AssertVotingStatus({ test::CreateFinalizationRound(3, 4), false, false }, context.orchestrator().votingStatus());
 
 		EXPECT_EQ(std::vector<MessageType>(), context.messageFactory().messageTypes());
 		EXPECT_EQ(0u, context.messages().size());
 
 		ASSERT_EQ(1u, context.stageAdvancers().size());
-		EXPECT_EQ(FinalizationPoint(3), context.stageAdvancers().back()->point());
+		EXPECT_EQ(test::CreateFinalizationRound(3, 4), context.stageAdvancers().back()->round());
 		EXPECT_EQ(Timestamp(100), context.stageAdvancers().back()->time());
 		EXPECT_EQ(ToTimestamps({ 100, 100 }), context.stageAdvancers().back()->times());
 	}
 
 	TEST(TEST_CLASS, PollDoesNotCreateStageAdvancerForNextRoundWhenAdvancerCanStartNextRoundButPrecommitHasNotBeenSent) {
 		// Arrange:
-		TestContext context(FinalizationPoint(3));
+		TestContext context(test::CreateFinalizationRound(3, 4));
 		context.orchestrator().poll(Timestamp(100));
 
 		context.stageAdvancers()[0]->setReturnValues(true, false, true);
@@ -279,22 +373,20 @@ namespace catapult { namespace chain {
 		context.orchestrator().poll(Timestamp(200));
 
 		// Assert:
-		EXPECT_EQ(FinalizationPoint(3), context.orchestrator().point());
-		EXPECT_TRUE(context.orchestrator().hasSentPrevote());
-		EXPECT_FALSE(context.orchestrator().hasSentPrecommit());
+		AssertVotingStatus({ test::CreateFinalizationRound(3, 4), true, false }, context.orchestrator().votingStatus());
 
 		EXPECT_EQ(std::vector<MessageType>({ MessageType::Prevote }), context.messageFactory().messageTypes());
 		EXPECT_EQ(1u, context.messages().size());
 
 		ASSERT_EQ(1u, context.stageAdvancers().size());
-		EXPECT_EQ(FinalizationPoint(3), context.stageAdvancers().back()->point());
+		EXPECT_EQ(test::CreateFinalizationRound(3, 4), context.stageAdvancers().back()->round());
 		EXPECT_EQ(Timestamp(100), context.stageAdvancers().back()->time());
 		EXPECT_EQ(ToTimestamps({ 100, 100, 200, 200 }), context.stageAdvancers().back()->times());
 	}
 
 	TEST(TEST_CLASS, PollCreatesStageAdvancerForNextRoundWhenAdvancerCanStartNextRound) {
 		// Arrange:
-		TestContext context(FinalizationPoint(3));
+		TestContext context(test::CreateFinalizationRound(3, 4));
 		context.orchestrator().poll(Timestamp(100));
 
 		context.stageAdvancers()[0]->setReturnValues(true, true, true);
@@ -303,15 +395,13 @@ namespace catapult { namespace chain {
 		context.orchestrator().poll(Timestamp(200));
 
 		// Assert:
-		EXPECT_EQ(FinalizationPoint(4), context.orchestrator().point());
-		EXPECT_FALSE(context.orchestrator().hasSentPrevote());
-		EXPECT_FALSE(context.orchestrator().hasSentPrecommit());
+		AssertVotingStatus({ test::CreateFinalizationRound(3, 5), false, false }, context.orchestrator().votingStatus());
 
 		EXPECT_EQ(std::vector<MessageType>({ MessageType::Prevote, MessageType::Precommit }), context.messageFactory().messageTypes());
 		EXPECT_EQ(2u, context.messages().size());
 
 		ASSERT_EQ(2u, context.stageAdvancers().size());
-		EXPECT_EQ(FinalizationPoint(4), context.stageAdvancers().back()->point());
+		EXPECT_EQ(test::CreateFinalizationRound(3, 5), context.stageAdvancers().back()->round());
 		EXPECT_EQ(Timestamp(200), context.stageAdvancers().back()->time());
 		EXPECT_EQ(std::vector<Timestamp>(), context.stageAdvancers().back()->times());
 	}
@@ -323,16 +413,14 @@ namespace catapult { namespace chain {
 	namespace {
 		void AssertSinglePrevoteSent(const TestContext& context, const std::vector<Timestamp>& expectedStageAdvancerTimes) {
 			// Assert:
-			EXPECT_EQ(FinalizationPoint(3), context.orchestrator().point());
-			EXPECT_TRUE(context.orchestrator().hasSentPrevote());
-			EXPECT_FALSE(context.orchestrator().hasSentPrecommit());
+			AssertVotingStatus({ test::CreateFinalizationRound(3, 4), true, false }, context.orchestrator().votingStatus());
 
 			EXPECT_EQ(std::vector<MessageType>({ MessageType::Prevote }), context.messageFactory().messageTypes());
 			ASSERT_EQ(1u, context.messages().size());
-			AssertPrevote(*context.messages()[0], FinalizationPoint(3));
+			AssertPrevote(*context.messages()[0], { FinalizationEpoch(3), FinalizationPoint(4) });
 
 			ASSERT_EQ(1u, context.stageAdvancers().size());
-			EXPECT_EQ(FinalizationPoint(3), context.stageAdvancers().back()->point());
+			EXPECT_EQ(test::CreateFinalizationRound(3, 4), context.stageAdvancers().back()->round());
 			EXPECT_EQ(Timestamp(100), context.stageAdvancers().back()->time());
 			EXPECT_EQ(expectedStageAdvancerTimes, context.stageAdvancers().back()->times());
 		}
@@ -340,7 +428,7 @@ namespace catapult { namespace chain {
 
 	TEST(TEST_CLASS, PollSendsPrevoteWhenAdvancerCanSendPrevoteAndPrevoteNotAlreadySent) {
 		// Arrange:
-		TestContext context(FinalizationPoint(3));
+		TestContext context(test::CreateFinalizationRound(3, 4));
 		context.orchestrator().poll(Timestamp(100));
 
 		context.stageAdvancers()[0]->setReturnValues(true, false, false);
@@ -354,7 +442,7 @@ namespace catapult { namespace chain {
 
 	TEST(TEST_CLASS, PollDoesNotSendPrevoteWhenAdvancerCanSendPrevoteAndPrevoteAlreadySent) {
 		// Arrange:
-		TestContext context(FinalizationPoint(3));
+		TestContext context(test::CreateFinalizationRound(3, 4));
 		context.orchestrator().poll(Timestamp(100));
 
 		context.stageAdvancers()[0]->setReturnValues(true, false, false);
@@ -375,17 +463,15 @@ namespace catapult { namespace chain {
 	namespace {
 		void AssertSinglePrecommitSent(const TestContext& context, const Hash256& precommitHash) {
 			// Assert:
-			EXPECT_EQ(FinalizationPoint(3), context.orchestrator().point());
-			EXPECT_TRUE(context.orchestrator().hasSentPrevote());
-			EXPECT_TRUE(context.orchestrator().hasSentPrecommit());
+			AssertVotingStatus({ test::CreateFinalizationRound(3, 4), true, true }, context.orchestrator().votingStatus());
 
 			EXPECT_EQ(std::vector<MessageType>({ MessageType::Prevote, MessageType::Precommit }), context.messageFactory().messageTypes());
 			ASSERT_EQ(2u, context.messages().size());
-			AssertPrevote(*context.messages()[0], FinalizationPoint(3));
-			AssertPrecommit(*context.messages()[1], FinalizationPoint(3), Height(123), precommitHash);
+			AssertPrevote(*context.messages()[0], { FinalizationEpoch(3), FinalizationPoint(4) });
+			AssertPrecommit(*context.messages()[1], { FinalizationEpoch(3), FinalizationPoint(4) }, Height(123), precommitHash);
 
 			ASSERT_EQ(1u, context.stageAdvancers().size());
-			EXPECT_EQ(FinalizationPoint(3), context.stageAdvancers().back()->point());
+			EXPECT_EQ(test::CreateFinalizationRound(3, 4), context.stageAdvancers().back()->round());
 			EXPECT_EQ(Timestamp(100), context.stageAdvancers().back()->time());
 			EXPECT_EQ(ToTimestamps({ 100, 100, 200, 200 }), context.stageAdvancers().back()->times());
 		}
@@ -393,7 +479,7 @@ namespace catapult { namespace chain {
 
 	TEST(TEST_CLASS, PollSendsPrecommitWhenAdvancerCanSendPrecommitAndPrecommitNotAlreadySent) {
 		// Arrange:
-		TestContext context(FinalizationPoint(3));
+		TestContext context(test::CreateFinalizationRound(3, 4));
 		context.orchestrator().poll(Timestamp(100));
 
 		auto hash = test::GenerateRandomByteArray<Hash256>();
@@ -409,7 +495,7 @@ namespace catapult { namespace chain {
 
 	TEST(TEST_CLASS, PollDoesNotSendPrecommitWhenAdvancerCanSendPrecommitAndPrecommitAlreadySent) {
 		// Arrange:
-		TestContext context(FinalizationPoint(3));
+		TestContext context(test::CreateFinalizationRound(3, 4));
 		context.orchestrator().poll(Timestamp(100));
 
 		auto hash = test::GenerateRandomByteArray<Hash256>();
@@ -431,7 +517,7 @@ namespace catapult { namespace chain {
 
 	TEST(TEST_CLASS, PollCanProgressThroughEntireRoundInOneCall) {
 		// Arrange:
-		TestContext context(FinalizationPoint(3));
+		TestContext context(test::CreateFinalizationRound(3, 4));
 
 		auto hash = test::GenerateRandomByteArray<Hash256>();
 		context.createCompletedStageAdvancer({ Height(123), hash });
@@ -440,24 +526,45 @@ namespace catapult { namespace chain {
 		context.orchestrator().poll(Timestamp(100));
 
 		// Assert:
-		EXPECT_EQ(FinalizationPoint(4), context.orchestrator().point());
-		EXPECT_FALSE(context.orchestrator().hasSentPrevote());
-		EXPECT_FALSE(context.orchestrator().hasSentPrecommit());
+		AssertVotingStatus({ test::CreateFinalizationRound(3, 5), false, false }, context.orchestrator().votingStatus());
 
 		EXPECT_EQ(std::vector<MessageType>({ MessageType::Prevote, MessageType::Precommit }), context.messageFactory().messageTypes());
 		ASSERT_EQ(2u, context.messages().size());
-		AssertPrevote(*context.messages()[0], FinalizationPoint(3));
-		AssertPrecommit(*context.messages()[1], FinalizationPoint(3), Height(123), hash);
+		AssertPrevote(*context.messages()[0], { FinalizationEpoch(3), FinalizationPoint(4) });
+		AssertPrecommit(*context.messages()[1], { FinalizationEpoch(3), FinalizationPoint(4) }, Height(123), hash);
 
 		ASSERT_EQ(2u, context.stageAdvancers().size());
-		EXPECT_EQ(FinalizationPoint(4), context.stageAdvancers().back()->point());
+		EXPECT_EQ(test::CreateFinalizationRound(3, 5), context.stageAdvancers().back()->round());
+		EXPECT_EQ(Timestamp(100), context.stageAdvancers().back()->time());
+		EXPECT_EQ(std::vector<Timestamp>(), context.stageAdvancers().back()->times());
+	}
+
+	TEST(TEST_CLASS, PollCanProgressThroughEntireRoundInOneCallWhenVotingIsBypassedForEpoch) {
+		// Arrange:
+		TestContext context(test::CreateFinalizationRound(3, 4));
+		context.bypassVoting();
+
+		auto hash = test::GenerateRandomByteArray<Hash256>();
+		context.createCompletedStageAdvancer({ Height(123), hash });
+
+		// Act:
+		context.orchestrator().poll(Timestamp(100));
+
+		// Assert:
+		AssertVotingStatus({ test::CreateFinalizationRound(3, 5), false, false }, context.orchestrator().votingStatus());
+
+		EXPECT_EQ(std::vector<MessageType>({ MessageType::Prevote, MessageType::Precommit }), context.messageFactory().messageTypes());
+		EXPECT_EQ(0u, context.messages().size());
+
+		ASSERT_EQ(2u, context.stageAdvancers().size());
+		EXPECT_EQ(test::CreateFinalizationRound(3, 5), context.stageAdvancers().back()->round());
 		EXPECT_EQ(Timestamp(100), context.stageAdvancers().back()->time());
 		EXPECT_EQ(std::vector<Timestamp>(), context.stageAdvancers().back()->times());
 	}
 
 	TEST(TEST_CLASS, PollCanProgressThroughEntireRoundInOneCall_PreviouslySentPrevote) {
 		// Arrange:
-		TestContext context({ FinalizationPoint(3), true, false });
+		TestContext context({ test::CreateFinalizationRound(3, 4), true, false });
 
 		auto hash = test::GenerateRandomByteArray<Hash256>();
 		context.createCompletedStageAdvancer({ Height(123), hash });
@@ -466,23 +573,21 @@ namespace catapult { namespace chain {
 		context.orchestrator().poll(Timestamp(100));
 
 		// Assert:
-		EXPECT_EQ(FinalizationPoint(4), context.orchestrator().point());
-		EXPECT_FALSE(context.orchestrator().hasSentPrevote());
-		EXPECT_FALSE(context.orchestrator().hasSentPrecommit());
+		AssertVotingStatus({ test::CreateFinalizationRound(3, 5), false, false }, context.orchestrator().votingStatus());
 
 		EXPECT_EQ(std::vector<MessageType>({ MessageType::Precommit }), context.messageFactory().messageTypes());
 		ASSERT_EQ(1u, context.messages().size());
-		AssertPrecommit(*context.messages()[0], FinalizationPoint(3), Height(123), hash);
+		AssertPrecommit(*context.messages()[0], { FinalizationEpoch(3), FinalizationPoint(4) }, Height(123), hash);
 
 		ASSERT_EQ(2u, context.stageAdvancers().size());
-		EXPECT_EQ(FinalizationPoint(4), context.stageAdvancers().back()->point());
+		EXPECT_EQ(test::CreateFinalizationRound(3, 5), context.stageAdvancers().back()->round());
 		EXPECT_EQ(Timestamp(100), context.stageAdvancers().back()->time());
 		EXPECT_EQ(std::vector<Timestamp>(), context.stageAdvancers().back()->times());
 	}
 
 	TEST(TEST_CLASS, PollCanProgressThroughEntireRoundInOneCall_PreviouslySentPrecommit) {
 		// Arrange:
-		TestContext context({ FinalizationPoint(3), true, true });
+		TestContext context({ test::CreateFinalizationRound(3, 4), true, true });
 
 		auto hash = test::GenerateRandomByteArray<Hash256>();
 		context.createCompletedStageAdvancer({ Height(123), hash });
@@ -491,15 +596,13 @@ namespace catapult { namespace chain {
 		context.orchestrator().poll(Timestamp(100));
 
 		// Assert:
-		EXPECT_EQ(FinalizationPoint(4), context.orchestrator().point());
-		EXPECT_FALSE(context.orchestrator().hasSentPrevote());
-		EXPECT_FALSE(context.orchestrator().hasSentPrecommit());
+		AssertVotingStatus({ test::CreateFinalizationRound(3, 5), false, false }, context.orchestrator().votingStatus());
 
 		EXPECT_EQ(std::vector<MessageType>(), context.messageFactory().messageTypes());
 		ASSERT_EQ(0u, context.messages().size());
 
 		ASSERT_EQ(2u, context.stageAdvancers().size());
-		EXPECT_EQ(FinalizationPoint(4), context.stageAdvancers().back()->point());
+		EXPECT_EQ(test::CreateFinalizationRound(3, 5), context.stageAdvancers().back()->round());
 		EXPECT_EQ(Timestamp(100), context.stageAdvancers().back()->time());
 		EXPECT_EQ(std::vector<Timestamp>(), context.stageAdvancers().back()->times());
 	}
@@ -507,6 +610,8 @@ namespace catapult { namespace chain {
 	// endregion
 
 	namespace {
+		constexpr auto Finalizer_Finalization_Epoch = FinalizationEpoch(11);
+
 		// region CreateFinalizerTestContext
 
 		class CreateFinalizerTestContext {
@@ -514,20 +619,19 @@ namespace catapult { namespace chain {
 			using RoundMessageAggregatorInitializer = consumer<mocks::MockRoundMessageAggregator&>;
 
 		public:
-			explicit CreateFinalizerTestContext(FinalizationPoint point)
-					: CreateFinalizerTestContext(point, std::make_unique<mocks::MockProofStorage>())
+			CreateFinalizerTestContext() : CreateFinalizerTestContext(std::make_unique<mocks::MockProofStorage>())
 			{}
 
-			CreateFinalizerTestContext(FinalizationPoint point, std::unique_ptr<mocks::MockProofStorage>&& pProofStorage)
+			explicit CreateFinalizerTestContext(std::unique_ptr<mocks::MockProofStorage>&& pProofStorage)
 					: m_pProofStorage(std::move(pProofStorage))
 					, m_pProofStorageRaw(m_pProofStorage.get())
 					, m_proofStorageCache(std::move(m_pProofStorage)) {
 				m_pAggregator = std::make_unique<MultiRoundMessageAggregator>(
 						10'000'000,
-						point,
+						model::FinalizationRound{ Finalizer_Finalization_Epoch - FinalizationEpoch(3), FinalizationPoint(1) },
 						model::HeightHashPair(),
-						[this](auto roundPoint, auto height) {
-							auto pRoundMessageAggregator = std::make_unique<mocks::MockRoundMessageAggregator>(roundPoint, height);
+						[this](const auto& round) {
+							auto pRoundMessageAggregator = std::make_unique<mocks::MockRoundMessageAggregator>(round);
 							if (m_roundMessageAggregatorInitializer)
 								m_roundMessageAggregatorInitializer(*pRoundMessageAggregator);
 
@@ -536,21 +640,13 @@ namespace catapult { namespace chain {
 			}
 
 		public:
-			const auto& aggregator() const {
-				return *m_pAggregator;
-			}
-
-			const auto& subscriber() const {
-				return m_subscriber;
-			}
-
 			const auto& proofStorage() const {
 				return *m_pProofStorageRaw;
 			}
 
 		public:
 			void finalize() {
-				CreateFinalizer(*m_pAggregator, m_subscriber, m_proofStorageCache)();
+				CreateFinalizer(*m_pAggregator, m_proofStorageCache)();
 			}
 
 		public:
@@ -558,12 +654,36 @@ namespace catapult { namespace chain {
 				m_roundMessageAggregatorInitializer = roundMessageAggregatorInitializer;
 			}
 
+			void addDefaultMessages() {
+				addMessages(FinalizationPoint(7), FinalizationPoint(10));
+				addMessages(Finalizer_Finalization_Epoch - FinalizationEpoch(3), Finalizer_Finalization_Epoch);
+			}
+
+		private:
 			void addMessages(FinalizationPoint minPoint, FinalizationPoint maxPoint) {
 				auto modifier = m_pAggregator->modifier();
-				modifier.setMaxFinalizationPoint(maxPoint);
+				modifier.setMaxFinalizationRound({ Finalizer_Finalization_Epoch, maxPoint });
 
 				for (auto point = minPoint; point <= maxPoint; point = point + FinalizationPoint(1))
-					modifier.add(test::CreateMessage(point));
+					modifier.add(test::CreateMessage({ Finalizer_Finalization_Epoch, point }));
+			}
+
+			void addMessages(FinalizationEpoch minEpoch, FinalizationEpoch maxEpoch) {
+				auto modifier = m_pAggregator->modifier();
+
+				for (auto epoch = minEpoch; epoch <= maxEpoch; epoch = epoch + FinalizationEpoch(1))
+					modifier.add(test::CreateMessage({ epoch, FinalizationPoint(2) }));
+			}
+
+		public:
+			void checkAggregator(
+					size_t expectedSize,
+					const model::FinalizationRound& expectedMinRound,
+					const model::FinalizationRound& expectedMaxRound) const {
+				auto view = m_pAggregator->view();
+				EXPECT_EQ(expectedSize, view.size());
+				EXPECT_EQ(expectedMinRound, view.minFinalizationRound());
+				EXPECT_EQ(expectedMaxRound, view.maxFinalizationRound());
 			}
 
 		private:
@@ -573,7 +693,6 @@ namespace catapult { namespace chain {
 
 			RoundMessageAggregatorInitializer m_roundMessageAggregatorInitializer;
 			std::unique_ptr<MultiRoundMessageAggregator> m_pAggregator;
-			mocks::MockFinalizationSubscriber m_subscriber;
 		};
 
 		// endregion
@@ -584,26 +703,25 @@ namespace catapult { namespace chain {
 	namespace {
 		void AssertNotFinalized(const CreateFinalizerTestContext& context) {
 			// Assert: aggregator wasn't pruned
-			EXPECT_EQ(4u, context.aggregator().view().size());
+			context.checkAggregator(8, test::CreateFinalizationRound(8, 1), test::CreateFinalizationRound(11, 10));
 
-			// - subscriber and storage weren't called
-			EXPECT_TRUE(context.subscriber().finalizedBlockParams().params().empty());
+			// - storage wasn't called
 			EXPECT_TRUE(context.proofStorage().savedProofDescriptors().empty());
 		}
 	}
 
 	TEST(TEST_CLASS, CreateFinalizer_HasNoEffectWhenNoBestPrecommit) {
 		// Arrange:
-		CreateFinalizerTestContext context(FinalizationPoint(7));
+		CreateFinalizerTestContext context;
 		context.setRoundMessageAggregatorInitializer([](auto& roundMessageAggregator) {
 			auto hash = test::GenerateRandomByteArray<Hash256>();
 			roundMessageAggregator.roundContext().acceptPrevote(Height(246), &hash, 1, 750);
 		});
 
-		context.addMessages(FinalizationPoint(7), FinalizationPoint(10));
+		context.addDefaultMessages();
 
 		// Sanity:
-		EXPECT_EQ(4u, context.aggregator().view().size());
+		context.checkAggregator(8, test::CreateFinalizationRound(8, 1), test::CreateFinalizationRound(11, 10));
 
 		// Act:
 		context.finalize();
@@ -614,19 +732,17 @@ namespace catapult { namespace chain {
 
 	TEST(TEST_CLASS, CreateFinalizer_HasNoEffectWhenBestPrecommitHeightMatchesProofStorageHeight) {
 		// Arrange:
-		CreateFinalizerTestContext context(
-				FinalizationPoint(7),
-				std::make_unique<mocks::MockProofStorage>(FinalizationPoint(12), Height(246)));
+		CreateFinalizerTestContext context(std::make_unique<mocks::MockProofStorage>(FinalizationPoint(12), Height(246)));
 		context.setRoundMessageAggregatorInitializer([](auto& roundMessageAggregator) {
 			auto hash = test::GenerateRandomByteArray<Hash256>();
 			roundMessageAggregator.roundContext().acceptPrevote(Height(246), &hash, 1, 750);
 			roundMessageAggregator.roundContext().acceptPrecommit(Height(246), hash, 750);
 		});
 
-		context.addMessages(FinalizationPoint(7), FinalizationPoint(10));
+		context.addDefaultMessages();
 
 		// Sanity:
-		EXPECT_EQ(4u, context.aggregator().view().size());
+		context.checkAggregator(8, test::CreateFinalizationRound(8, 1), test::CreateFinalizationRound(11, 10));
 
 		// Act:
 		context.finalize();
@@ -638,83 +754,77 @@ namespace catapult { namespace chain {
 	TEST(TEST_CLASS, CreateFinalizer_FinalizesBlockWhenCurrentRoundHasBestPrecommit) {
 		// Arrange:
 		auto hashes = test::GenerateRandomDataVector<Hash256>(4);
-		CreateFinalizerTestContext context(FinalizationPoint(7));
+		CreateFinalizerTestContext context;
 		context.setRoundMessageAggregatorInitializer([&hashes](auto& roundMessageAggregator) {
-			const auto& hash = hashes[roundMessageAggregator.point().unwrap() - 7];
+			auto round = roundMessageAggregator.round();
+			if (FinalizationPoint(7) > round.Point)
+				return;
+
+			const auto& hash = hashes[round.Point.unwrap() - 7];
 			roundMessageAggregator.roundContext().acceptPrevote(Height(246), &hash, 1, 750);
 			roundMessageAggregator.roundContext().acceptPrecommit(Height(246), hash, 750);
 
 			RoundMessageAggregator::UnknownMessages messages;
-			messages.push_back(test::CreateMessage(roundMessageAggregator.point()));
+			messages.push_back(test::CreateMessage(round));
 			roundMessageAggregator.setMessages(std::move(messages));
 		});
 
-		context.addMessages(FinalizationPoint(7), FinalizationPoint(10));
+		context.addDefaultMessages();
 
 		// Sanity:
-		EXPECT_EQ(4u, context.aggregator().view().size());
+		context.checkAggregator(8, test::CreateFinalizationRound(8, 1), test::CreateFinalizationRound(11, 10));
 
 		// Act:
 		context.finalize();
 
-		// Assert: aggregator was not pruned
-		EXPECT_EQ(4u, context.aggregator().view().size());
-
-		// - subscriber was called
-		const auto& subscriberParams = context.subscriber().finalizedBlockParams().params();
-		ASSERT_EQ(1u, subscriberParams.size());
-		EXPECT_EQ(Height(246), subscriberParams[0].Height);
-		EXPECT_EQ(hashes[3], subscriberParams[0].Hash);
-		EXPECT_EQ(FinalizationPoint(10), subscriberParams[0].Point);
+		// Assert: aggregator was pruned
+		context.checkAggregator(6, test::CreateFinalizationRound(10, 2), test::CreateFinalizationRound(11, 10));
 
 		// - storage was called (proof step identifier comes from test::CreateMessage)
 		const auto& savedProofDescriptors = context.proofStorage().savedProofDescriptors();
 		ASSERT_EQ(1u, savedProofDescriptors.size());
+		EXPECT_EQ(test::CreateFinalizationRound(Finalizer_Finalization_Epoch.unwrap(), 10), savedProofDescriptors[0].Round);
 		EXPECT_EQ(Height(246), savedProofDescriptors[0].Height);
 		EXPECT_EQ(hashes[3], savedProofDescriptors[0].Hash);
-		EXPECT_EQ(FinalizationPoint(10), savedProofDescriptors[0].Point);
 	}
 
 	TEST(TEST_CLASS, CreateFinalizer_FinalizesBlockWhenPreviousRoundHasBestPrecommit) {
 		// Arrange:
 		auto hashes = test::GenerateRandomDataVector<Hash256>(4);
-		CreateFinalizerTestContext context(FinalizationPoint(7));
+		CreateFinalizerTestContext context;
 		context.setRoundMessageAggregatorInitializer([&hashes](auto& roundMessageAggregator) {
-			const auto& hash = hashes[roundMessageAggregator.point().unwrap() - 7];
+			auto round = roundMessageAggregator.round();
+			if (FinalizationPoint(7) > round.Point)
+				return;
+
+			const auto& hash = hashes[round.Point.unwrap() - 7];
 			roundMessageAggregator.roundContext().acceptPrevote(Height(246), &hash, 1, 750);
 
-			if (FinalizationPoint(8) >= roundMessageAggregator.point())
+			if (FinalizationPoint(8) >= round.Point)
 				roundMessageAggregator.roundContext().acceptPrecommit(Height(246), hash, 750);
 
 			RoundMessageAggregator::UnknownMessages messages;
-			messages.push_back(test::CreateMessage(roundMessageAggregator.point()));
+			messages.push_back(test::CreateMessage(round));
 			roundMessageAggregator.setMessages(std::move(messages));
 		});
 
-		context.addMessages(FinalizationPoint(7), FinalizationPoint(10));
+		context.addDefaultMessages();
 
 		// Sanity:
-		EXPECT_EQ(4u, context.aggregator().view().size());
+		context.checkAggregator(8, test::CreateFinalizationRound(8, 1), test::CreateFinalizationRound(11, 10));
 
 		// Act:
 		context.finalize();
 
-		// Assert: aggregator was not pruned
-		EXPECT_EQ(4u, context.aggregator().view().size());
-
-		// - subscriber was called
-		const auto& subscriberParams = context.subscriber().finalizedBlockParams().params();
-		ASSERT_EQ(1u, subscriberParams.size());
-		EXPECT_EQ(Height(246), subscriberParams[0].Height);
-		EXPECT_EQ(hashes[1], subscriberParams[0].Hash);
-		EXPECT_EQ(FinalizationPoint(8), subscriberParams[0].Point);
+		// Assert: aggregator was pruned
+		context.checkAggregator(6, test::CreateFinalizationRound(10, 2), test::CreateFinalizationRound(11, 10));
 
 		// - storage was called (proof step identifier comes from test::CreateMessage)
 		const auto& savedProofDescriptors = context.proofStorage().savedProofDescriptors();
 		ASSERT_EQ(1u, savedProofDescriptors.size());
+		EXPECT_EQ(test::CreateFinalizationRound(Finalizer_Finalization_Epoch.unwrap(), 8), savedProofDescriptors[0].Round);
 		EXPECT_EQ(Height(246), savedProofDescriptors[0].Height);
 		EXPECT_EQ(hashes[1], savedProofDescriptors[0].Hash);
-		EXPECT_EQ(FinalizationPoint(8), savedProofDescriptors[0].Point);
 	}
 
 	// endregion

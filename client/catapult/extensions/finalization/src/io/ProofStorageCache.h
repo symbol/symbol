@@ -34,8 +34,8 @@ namespace catapult { namespace io {
 		/// Gets the statistics of the last finalized block.
 		model::FinalizationStatistics statistics() const;
 
-		/// Gets the finalization proof at \a point.
-		std::shared_ptr<const model::FinalizationProof> loadProof(FinalizationPoint point) const;
+		/// Gets the finalization proof at \a epoch.
+		std::shared_ptr<const model::FinalizationProof> loadProof(FinalizationEpoch epoch) const;
 
 		/// Gets the first finalization proof at \a height.
 		std::shared_ptr<const model::FinalizationProof> loadProof(Height height) const;

@@ -30,6 +30,9 @@ namespace catapult { namespace test {
 	/// Writes random pt change into \a outputStream.
 	void WriteRandomPtChange(io::OutputStream& outputStream);
 
+	/// Writes random finalization into \a outputStream.
+	void WriteRandomFinalization(io::OutputStream& outputStream);
+
 	/// Writes random transaction status into \a outputStream.
 	void WriteRandomTransactionStatus(io::OutputStream& outputStream);
 }}

@@ -53,6 +53,10 @@ namespace catapult { namespace mocks {
 		MockSeekableMemoryStream();
 
 	public:
+		/// Gets the underlying buffer.
+		const std::vector<uint8_t>& buffer() const;
+
+	public:
 		/// Copies the contents of this stream into \a dest.
 		void copyTo(MockSeekableMemoryStream& dest) const;
 

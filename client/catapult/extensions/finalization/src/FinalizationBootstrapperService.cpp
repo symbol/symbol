@@ -21,6 +21,7 @@
 #include "FinalizationBootstrapperService.h"
 #include "FinalizationContextFactory.h"
 #include "finalization/src/chain/MultiRoundMessageAggregator.h"
+#include "finalization/src/io/AggregateProofStorage.h"
 #include "finalization/src/io/ProofStorageCache.h"
 #include "catapult/extensions/ConfigurationUtils.h"
 #include "catapult/extensions/ServiceLocator.h"
@@ -46,10 +47,10 @@ namespace catapult { namespace finalization {
 			auto finalizationStatistics = proofStorageView.statistics();
 			return std::make_shared<chain::MultiRoundMessageAggregator>(
 					config.MessageSynchronizationMaxResponseSize.bytes(),
-					finalizationStatistics.Point,
+					finalizationStatistics.Round,
 					model::HeightHashPair{ finalizationStatistics.Height, finalizationStatistics.Hash },
-					[finalizationContextFactory](auto roundPoint, auto height) {
-						return chain::CreateRoundMessageAggregator(finalizationContextFactory.create(roundPoint, height));
+					[finalizationContextFactory](const auto& round) {
+						return chain::CreateRoundMessageAggregator(finalizationContextFactory.create(round.Epoch));
 					});
 		}
 
@@ -60,7 +61,7 @@ namespace catapult { namespace finalization {
 		namespace {
 			Height GetEstimateHeight(const chain::MultiRoundMessageAggregator& aggregator, FinalizationPoint delta) {
 				auto view = aggregator.view();
-				return view.findEstimate(view.maxFinalizationPoint() - delta).Height;
+				return view.findEstimate(view.maxFinalizationRound() - delta).Height;
 			}
 		}
 
@@ -70,7 +71,7 @@ namespace catapult { namespace finalization {
 					const FinalizationConfiguration& config,
 					std::unique_ptr<io::ProofStorage>&& pProofStorage)
 					: m_config(config)
-					, m_pProofStorageCache(std::make_unique<io::ProofStorageCache>(std::move(pProofStorage)))
+					, m_pProofStorage(std::move(pProofStorage))
 			{}
 
 		public:
@@ -81,11 +82,17 @@ namespace catapult { namespace finalization {
 			void registerServiceCounters(extensions::ServiceLocator& locator) override {
 				using AggregatorType = chain::MultiRoundMessageAggregator;
 
-				locator.registerServiceCounter<AggregatorType>(Aggregator_Service_Name, "FIN MIN FP", [](const auto& aggregator) {
-					return aggregator.view().minFinalizationPoint().unwrap();
+				locator.registerServiceCounter<AggregatorType>(Aggregator_Service_Name, "FIN MIN EPOCH", [](const auto& aggregator) {
+					return aggregator.view().minFinalizationRound().Epoch.unwrap();
 				});
-				locator.registerServiceCounter<AggregatorType>(Aggregator_Service_Name, "FIN MAX FP", [](const auto& aggregator) {
-					return aggregator.view().maxFinalizationPoint().unwrap();
+				locator.registerServiceCounter<AggregatorType>(Aggregator_Service_Name, "FIN MIN POINT", [](const auto& aggregator) {
+					return aggregator.view().minFinalizationRound().Point.unwrap();
+				});
+				locator.registerServiceCounter<AggregatorType>(Aggregator_Service_Name, "FIN MAX EPOCH", [](const auto& aggregator) {
+					return aggregator.view().maxFinalizationRound().Epoch.unwrap();
+				});
+				locator.registerServiceCounter<AggregatorType>(Aggregator_Service_Name, "FIN MAX POINT", [](const auto& aggregator) {
+					return aggregator.view().maxFinalizationRound().Point.unwrap();
 				});
 				locator.registerServiceCounter<AggregatorType>(Aggregator_Service_Name, "FIN PREV EST", [](const auto& aggregator) {
 					return GetEstimateHeight(aggregator, FinalizationPoint(1)).unwrap();
@@ -96,23 +103,28 @@ namespace catapult { namespace finalization {
 			}
 
 			void registerServices(extensions::ServiceLocator& locator, extensions::ServiceState& state) override {
+				// create proof storage cache
+				auto pProofStorageCache = std::make_shared<io::ProofStorageCache>(io::CreateAggregateProofStorage(
+						std::move(m_pProofStorage),
+						state.finalizationSubscriber()));
+
 				// register hooks
-				state.hooks().setLocalFinalizedHeightSupplier([&proofStorage = *m_pProofStorageCache]() {
+				state.hooks().setLocalFinalizedHeightSupplier([&proofStorage = *pProofStorageCache]() {
 					return proofStorage.view().statistics().Height;
 				});
 
 				// register services
 				locator.registerRootedService(Hooks_Service_Name, std::make_shared<FinalizationServerHooks>());
 
-				locator.registerRootedService(Storage_Service_Name, m_pProofStorageCache);
+				locator.registerRootedService(Storage_Service_Name, pProofStorageCache);
 
-				auto pMultiRoundMessageAggregator = CreateMultiRoundMessageAggregator(m_config, *m_pProofStorageCache, state);
+				auto pMultiRoundMessageAggregator = CreateMultiRoundMessageAggregator(m_config, *pProofStorageCache, state);
 				locator.registerRootedService(Aggregator_Service_Name, pMultiRoundMessageAggregator);
 			}
 
 		private:
 			FinalizationConfiguration m_config;
-			std::shared_ptr<io::ProofStorageCache> m_pProofStorageCache;
+			std::unique_ptr<io::ProofStorage> m_pProofStorage;
 		};
 
 		// endregion

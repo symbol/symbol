@@ -260,7 +260,7 @@ namespace catapult { namespace state {
 	// region PublicKeysAccessor - construction + assignment
 
 	namespace {
-		using FP = FinalizationPoint;
+		using Epoch = FinalizationEpoch;
 		using PublicKeysAccessor = AccountPublicKeys::PublicKeysAccessor<model::PinnedVotingKey>;
 
 		void AssertUnset(const PublicKeysAccessor& accessor) {
@@ -277,23 +277,23 @@ namespace catapult { namespace state {
 		void AssertCopied(const PublicKeysAccessor& accessor, const PublicKeysAccessor& accessorCopy) {
 			// Assert: the original values are copied into the copy
 			AssertSet(accessor, {
-				{ { { 0x44 } }, FP(100), FP(149) }
+				{ { { 0x44 } }, Epoch(100), Epoch(149) }
 			});
 
 			AssertSet(accessorCopy, {
-				{ { { 0x44 } }, FP(100), FP(149) }
+				{ { { 0x44 } }, Epoch(100), Epoch(149) }
 			});
 		}
 
 		void AssertDeepCopied(const PublicKeysAccessor& accessor, const PublicKeysAccessor& accessorCopy) {
 			// Assert: the copy is detached from the original
 			AssertSet(accessor, {
-				{ { { 0x44 } }, FP(100), FP(149) }
+				{ { { 0x44 } }, Epoch(100), Epoch(149) }
 			});
 
 			AssertSet(accessorCopy, {
-				{ { { 0x44 } }, FP(100), FP(149) },
-				{ { { 0x32 } }, FP(200), FP(299) }
+				{ { { 0x44 } }, Epoch(100), Epoch(149) },
+				{ { { 0x32 } }, Epoch(200), Epoch(299) }
 			});
 		}
 
@@ -302,7 +302,7 @@ namespace catapult { namespace state {
 			AssertUnset(accessor);
 
 			AssertSet(accessorMoved, {
-				{ { { 0x44 } }, FP(100), FP(149) }
+				{ { { 0x44 } }, Epoch(100), Epoch(149) }
 			});
 		}
 	}
@@ -318,7 +318,7 @@ namespace catapult { namespace state {
 	PUBLIC_KEYS_ACCESSOR_TEST(CanCopyConstruct) {
 		// Arrange:
 		PublicKeysAccessor accessor;
-		accessor.add({ { { 0x44 } }, FP(100), FP(149) });
+		accessor.add({ { { 0x44 } }, Epoch(100), Epoch(149) });
 
 		// Act:
 		PublicKeysAccessor accessorCopy(accessor);
@@ -327,7 +327,7 @@ namespace catapult { namespace state {
 		AssertCopied(accessor, accessorCopy);
 
 		// Act: modify to check deep copy
-		accessorCopy.add({ { { 0x32 } }, FP(200), FP(299) });
+		accessorCopy.add({ { { 0x32 } }, Epoch(200), Epoch(299) });
 
 		// Assert:
 		AssertDeepCopied(accessor, accessorCopy);
@@ -336,7 +336,7 @@ namespace catapult { namespace state {
 	PUBLIC_KEYS_ACCESSOR_TEST(CanMoveConstruct) {
 		// Arrange:
 		PublicKeysAccessor accessor;
-		accessor.add({ { { 0x44 } }, FP(100), FP(149) });
+		accessor.add({ { { 0x44 } }, Epoch(100), Epoch(149) });
 
 		// Act:
 		PublicKeysAccessor accessorMoved(std::move(accessor));
@@ -348,7 +348,7 @@ namespace catapult { namespace state {
 	PUBLIC_KEYS_ACCESSOR_TEST(CanCopyAssign) {
 		// Arrange:
 		PublicKeysAccessor accessor;
-		accessor.add({ { { 0x44 } }, FP(100), FP(149) });
+		accessor.add({ { { 0x44 } }, Epoch(100), Epoch(149) });
 
 		// Act:
 		PublicKeysAccessor accessorCopy;
@@ -359,7 +359,7 @@ namespace catapult { namespace state {
 		AssertCopied(accessor, accessorCopy);
 
 		// Act: modify to check deep copy
-		accessorCopy.add({ { { 0x32 } }, FP(200), FP(299) });
+		accessorCopy.add({ { { 0x32 } }, Epoch(200), Epoch(299) });
 
 		// Assert:
 		AssertDeepCopied(accessor, accessorCopy);
@@ -368,7 +368,7 @@ namespace catapult { namespace state {
 	PUBLIC_KEYS_ACCESSOR_TEST(CanMoveAssign) {
 		// Arrange:
 		PublicKeysAccessor accessor;
-		accessor.add({ { { 0x44 } }, FP(100), FP(149) });
+		accessor.add({ { { 0x44 } }, Epoch(100), Epoch(149) });
 
 		// Act:
 		PublicKeysAccessor accessorMoved;
@@ -384,7 +384,7 @@ namespace catapult { namespace state {
 		PublicKeysAccessor accessor;
 
 		PublicKeysAccessor accessorCopy;
-		accessorCopy.add({ { { 0x32 } }, FP(200), FP(299) });
+		accessorCopy.add({ { { 0x32 } }, Epoch(200), Epoch(299) });
 
 		// Act:
 		accessorCopy = accessor;
@@ -397,7 +397,7 @@ namespace catapult { namespace state {
 	PUBLIC_KEYS_ACCESSOR_TEST(CanMoveAssignWhenSourceIsEmpty) {
 		// Arrange:
 		PublicKeysAccessor accessorMoved;
-		accessorMoved.add({ { { 0x32 } }, FP(200), FP(299) });
+		accessorMoved.add({ { { 0x32 } }, Epoch(200), Epoch(299) });
 
 		// Act:
 		accessorMoved = PublicKeysAccessor();
@@ -415,17 +415,17 @@ namespace catapult { namespace state {
 		PublicKeysAccessor accessor;
 
 		// Act + Assert:
-		EXPECT_EQ(FP(0), accessor.upperBound());
+		EXPECT_EQ(Epoch(0), accessor.upperBound());
 	}
 
-	PUBLIC_KEYS_ACCESSOR_TEST(UpperBoundReturnsLargestEndPointWhenKeysAreSet) {
+	PUBLIC_KEYS_ACCESSOR_TEST(UpperBoundReturnsLargestEndEpochWhenKeysAreSet) {
 		// Arrange:
 		PublicKeysAccessor accessor;
-		accessor.add({ { { 0x11 } }, FP(1), FP(50) });
-		accessor.add({ { { 0x98 } }, FP(150), FP(180) });
+		accessor.add({ { { 0x11 } }, Epoch(1), Epoch(50) });
+		accessor.add({ { { 0x98 } }, Epoch(150), Epoch(180) });
 
 		// Act + Assert:
-		EXPECT_EQ(FP(180), accessor.upperBound());
+		EXPECT_EQ(Epoch(180), accessor.upperBound());
 	}
 
 	// endregion
@@ -437,8 +437,8 @@ namespace catapult { namespace state {
 		PublicKeysAccessor accessor;
 
 		// Act:
-		for (auto value : std::initializer_list<uint64_t>{ 100, 125, 149, 200, 250, 299 }) {
-			auto resultPair = accessor.contains(FP(value));
+		for (auto value : std::initializer_list<uint32_t>{ 100, 125, 149, 200, 250, 299 }) {
+			auto resultPair = accessor.contains(Epoch(value));
 
 			// Assert:
 			EXPECT_FALSE(resultPair.second) << value;
@@ -446,15 +446,15 @@ namespace catapult { namespace state {
 		}
 	}
 
-	PUBLIC_KEYS_ACCESSOR_TEST(ContainsReturnsTrueForFinalizationPointsWithAssociatedKey) {
+	PUBLIC_KEYS_ACCESSOR_TEST(ContainsReturnsTrueForFinalizationEpochsWithAssociatedKey) {
 		// Arrange:
 		PublicKeysAccessor accessor;
-		accessor.add({ { { 0x44 } }, FP(100), FP(149) });
-		accessor.add({ { { 0x32 } }, FP(200), FP(299) });
+		accessor.add({ { { 0x44 } }, Epoch(100), Epoch(149) });
+		accessor.add({ { { 0x32 } }, Epoch(200), Epoch(299) });
 
 		// Act:
-		for (auto value : std::initializer_list<uint64_t>{ 100, 125, 149 }) {
-			auto resultPair = accessor.contains(FP(value));
+		for (auto value : std::initializer_list<uint32_t>{ 100, 125, 149 }) {
+			auto resultPair = accessor.contains(Epoch(value));
 
 			// Assert:
 			EXPECT_TRUE(resultPair.second) << value;
@@ -462,8 +462,8 @@ namespace catapult { namespace state {
 		}
 
 		// Act:
-		for (auto value : std::initializer_list<uint64_t>{ 200, 250, 299 }) {
-			auto resultPair = accessor.contains(FP(value));
+		for (auto value : std::initializer_list<uint32_t>{ 200, 250, 299 }) {
+			auto resultPair = accessor.contains(Epoch(value));
 
 			// Assert:
 			EXPECT_TRUE(resultPair.second) << value;
@@ -471,15 +471,15 @@ namespace catapult { namespace state {
 		}
 	}
 
-	PUBLIC_KEYS_ACCESSOR_TEST(ContainsReturnsFalseForFinalizationPointsWithoutAssociatedKey) {
+	PUBLIC_KEYS_ACCESSOR_TEST(ContainsReturnsFalseForFinalizationEpochsWithoutAssociatedKey) {
 		// Arrange:
 		PublicKeysAccessor accessor;
-		accessor.add({ { { 0x44 } }, FP(100), FP(149) });
-		accessor.add({ { { 0x32 } }, FP(200), FP(299) });
+		accessor.add({ { { 0x44 } }, Epoch(100), Epoch(149) });
+		accessor.add({ { { 0x32 } }, Epoch(200), Epoch(299) });
 
 		// Act:
-		for (auto value : std::initializer_list<uint64_t>{ 1, 99, 150, 175, 199, 300, 500 }) {
-			auto resultPair = accessor.contains(FP(value));
+		for (auto value : std::initializer_list<uint32_t>{ 1, 99, 150, 175, 199, 300, 500 }) {
+			auto resultPair = accessor.contains(Epoch(value));
 
 			// Assert:
 			EXPECT_FALSE(resultPair.second) << value;
@@ -496,37 +496,37 @@ namespace catapult { namespace state {
 		PublicKeysAccessor accessor;
 
 		// Act + Assert:
-		EXPECT_FALSE(accessor.containsExact({ { { 0x44 } }, FP(100), FP(149) }));
-		EXPECT_FALSE(accessor.containsExact({ { { 0x98 } }, FP(150), FP(180) }));
-		EXPECT_FALSE(accessor.containsExact({ { { 0x32 } }, FP(200), FP(299) }));
+		EXPECT_FALSE(accessor.containsExact({ { { 0x44 } }, Epoch(100), Epoch(149) }));
+		EXPECT_FALSE(accessor.containsExact({ { { 0x98 } }, Epoch(150), Epoch(180) }));
+		EXPECT_FALSE(accessor.containsExact({ { { 0x32 } }, Epoch(200), Epoch(299) }));
 	}
 
 	PUBLIC_KEYS_ACCESSOR_TEST(ContainsExactReturnsTrueWhenExactKeyIsContained) {
 		// Arrange:
 		PublicKeysAccessor accessor;
-		accessor.add({ { { 0x44 } }, FP(100), FP(149) });
-		accessor.add({ { { 0x98 } }, FP(150), FP(180) });
-		accessor.add({ { { 0x32 } }, FP(200), FP(299) });
+		accessor.add({ { { 0x44 } }, Epoch(100), Epoch(149) });
+		accessor.add({ { { 0x98 } }, Epoch(150), Epoch(180) });
+		accessor.add({ { { 0x32 } }, Epoch(200), Epoch(299) });
 
 		// Act + Assert:
-		EXPECT_TRUE(accessor.containsExact({ { { 0x44 } }, FP(100), FP(149) }));
-		EXPECT_TRUE(accessor.containsExact({ { { 0x98 } }, FP(150), FP(180) }));
-		EXPECT_TRUE(accessor.containsExact({ { { 0x32 } }, FP(200), FP(299) }));
+		EXPECT_TRUE(accessor.containsExact({ { { 0x44 } }, Epoch(100), Epoch(149) }));
+		EXPECT_TRUE(accessor.containsExact({ { { 0x98 } }, Epoch(150), Epoch(180) }));
+		EXPECT_TRUE(accessor.containsExact({ { { 0x32 } }, Epoch(200), Epoch(299) }));
 	}
 
 	PUBLIC_KEYS_ACCESSOR_TEST(ContainsExactReturnsFalseWhenExactKeyIsNotContained) {
 		// Arrange:
 		PublicKeysAccessor accessor;
-		accessor.add({ { { 0x44 } }, FP(100), FP(149) });
-		accessor.add({ { { 0x98 } }, FP(150), FP(180) });
-		accessor.add({ { { 0x32 } }, FP(200), FP(299) });
+		accessor.add({ { { 0x44 } }, Epoch(100), Epoch(149) });
+		accessor.add({ { { 0x98 } }, Epoch(150), Epoch(180) });
+		accessor.add({ { { 0x32 } }, Epoch(200), Epoch(299) });
 
 		// Act + Assert:
-		EXPECT_FALSE(accessor.containsExact({ { { 0x66 } }, FP(150), FP(180) }));
-		EXPECT_FALSE(accessor.containsExact({ { { 0x98 } }, FP(140), FP(180) }));
-		EXPECT_FALSE(accessor.containsExact({ { { 0x98 } }, FP(150), FP(190) }));
+		EXPECT_FALSE(accessor.containsExact({ { { 0x66 } }, Epoch(150), Epoch(180) }));
+		EXPECT_FALSE(accessor.containsExact({ { { 0x98 } }, Epoch(140), Epoch(180) }));
+		EXPECT_FALSE(accessor.containsExact({ { { 0x98 } }, Epoch(150), Epoch(190) }));
 
-		EXPECT_FALSE(accessor.containsExact({ { { 0x66 } }, FP(140), FP(190) }));
+		EXPECT_FALSE(accessor.containsExact({ { { 0x66 } }, Epoch(140), Epoch(190) }));
 	}
 
 	// endregion
@@ -536,16 +536,16 @@ namespace catapult { namespace state {
 	PUBLIC_KEYS_ACCESSOR_TEST(GetReturnsKeyAtIndex) {
 		// Arrange:
 		PublicKeysAccessor accessor;
-		accessor.add({ { { 0x44 } }, FP(100), FP(149) });
-		accessor.add({ { { 0x32 } }, FP(200), FP(299) });
+		accessor.add({ { { 0x44 } }, Epoch(100), Epoch(149) });
+		accessor.add({ { { 0x32 } }, Epoch(200), Epoch(299) });
 
 		// Act:
 		auto pinnedPublicKey0 = accessor.get(0);
 		auto pinnedPublicKey1 = accessor.get(1);
 
 		// Assert:
-		EXPECT_EQ(model::PinnedVotingKey({ { { 0x44 } }, FP(100), FP(149) }), pinnedPublicKey0);
-		EXPECT_EQ(model::PinnedVotingKey({ { { 0x32 } }, FP(200), FP(299) }), pinnedPublicKey1);
+		EXPECT_EQ(model::PinnedVotingKey({ { { 0x44 } }, Epoch(100), Epoch(149) }), pinnedPublicKey0);
+		EXPECT_EQ(model::PinnedVotingKey({ { { 0x32 } }, Epoch(200), Epoch(299) }), pinnedPublicKey1);
 	}
 
 	PUBLIC_KEYS_ACCESSOR_TEST(GetAllReturnsNoKeysWhenEmpty) {
@@ -562,16 +562,16 @@ namespace catapult { namespace state {
 	PUBLIC_KEYS_ACCESSOR_TEST(GetAllReturnsAllKeysWhenNotEmpty) {
 		// Arrange:
 		PublicKeysAccessor accessor;
-		accessor.add({ { { 0x44 } }, FP(100), FP(149) });
-		accessor.add({ { { 0x32 } }, FP(200), FP(299) });
+		accessor.add({ { { 0x44 } }, Epoch(100), Epoch(149) });
+		accessor.add({ { { 0x32 } }, Epoch(200), Epoch(299) });
 
 		// Act:
 		auto pinnedPublicKeys = accessor.getAll();
 
 		// Assert:
 		std::vector<model::PinnedVotingKey> expectedPinnedPublicKeys{
-			{ { { 0x44 } }, FP(100), FP(149) },
-			{ { { 0x32 } }, FP(200), FP(299) }
+			{ { { 0x44 } }, Epoch(100), Epoch(149) },
+			{ { { 0x32 } }, Epoch(200), Epoch(299) }
 		};
 		EXPECT_EQ(expectedPinnedPublicKeys, pinnedPublicKeys);
 	}
@@ -585,9 +585,9 @@ namespace catapult { namespace state {
 		PublicKeysAccessor accessor;
 
 		// Act:
-		accessor.add({ { { 0x44 } }, FP(100), FP(149) });
-		accessor.add({ { { 0x98 } }, FP(150), FP(180) });
-		accessor.add({ { { 0x32 } }, FP(200), FP(299) });
+		accessor.add({ { { 0x44 } }, Epoch(100), Epoch(149) });
+		accessor.add({ { { 0x98 } }, Epoch(150), Epoch(180) });
+		accessor.add({ { { 0x32 } }, Epoch(200), Epoch(299) });
 
 		// Assert:
 		ASSERT_EQ(3u, accessor.size());
@@ -599,27 +599,27 @@ namespace catapult { namespace state {
 	PUBLIC_KEYS_ACCESSOR_TEST(CannotAddOutOfOrderKeys) {
 		// Arrange:
 		PublicKeysAccessor accessor;
-		accessor.add({ { { 0x98 } }, FP(150), FP(180) });
+		accessor.add({ { { 0x98 } }, Epoch(150), Epoch(180) });
 
 		// Act + Assert:
-		EXPECT_THROW(accessor.add({ { { 0x44 } }, FP(100), FP(110) }), catapult_invalid_argument);
-		EXPECT_THROW(accessor.add({ { { 0x44 } }, FP(100), FP(149) }), catapult_invalid_argument);
+		EXPECT_THROW(accessor.add({ { { 0x44 } }, Epoch(100), Epoch(110) }), catapult_invalid_argument);
+		EXPECT_THROW(accessor.add({ { { 0x44 } }, Epoch(100), Epoch(149) }), catapult_invalid_argument);
 	}
 
 	PUBLIC_KEY_ACCESSOR_TEST(CannotAddKeyWithOverlappingRange) {
 		// Arrange:
 		PublicKeysAccessor accessor;
-		accessor.add({ { { 0x98 } }, FP(150), FP(180) });
+		accessor.add({ { { 0x98 } }, Epoch(150), Epoch(180) });
 
 		// Act + Assert:
-		EXPECT_THROW(accessor.add({ { { 0x11 } }, FP(100), FP(150) }), catapult_invalid_argument);
-		EXPECT_THROW(accessor.add({ { { 0x11 } }, FP(100), FP(165) }), catapult_invalid_argument);
+		EXPECT_THROW(accessor.add({ { { 0x11 } }, Epoch(100), Epoch(150) }), catapult_invalid_argument);
+		EXPECT_THROW(accessor.add({ { { 0x11 } }, Epoch(100), Epoch(165) }), catapult_invalid_argument);
 
-		EXPECT_THROW(accessor.add({ { { 0x22 } }, FP(165), FP(200) }), catapult_invalid_argument);
-		EXPECT_THROW(accessor.add({ { { 0x22 } }, FP(180), FP(200) }), catapult_invalid_argument);
+		EXPECT_THROW(accessor.add({ { { 0x22 } }, Epoch(165), Epoch(200) }), catapult_invalid_argument);
+		EXPECT_THROW(accessor.add({ { { 0x22 } }, Epoch(180), Epoch(200) }), catapult_invalid_argument);
 
-		EXPECT_THROW(accessor.add({ { { 0x33 } }, FP(100), FP(200) }), catapult_invalid_argument);
-		EXPECT_THROW(accessor.add({ { { 0x33 } }, FP(160), FP(170) }), catapult_invalid_argument);
+		EXPECT_THROW(accessor.add({ { { 0x33 } }, Epoch(100), Epoch(200) }), catapult_invalid_argument);
+		EXPECT_THROW(accessor.add({ { { 0x33 } }, Epoch(160), Epoch(170) }), catapult_invalid_argument);
 	}
 
 	PUBLIC_KEYS_ACCESSOR_TEST(CannotRemoveWhenNoKeysAreSet) {
@@ -627,7 +627,7 @@ namespace catapult { namespace state {
 		PublicKeysAccessor accessor;
 
 		// Act:
-		auto result = accessor.remove({ { { 0x44 } }, FP(100), FP(149) });
+		auto result = accessor.remove({ { { 0x44 } }, Epoch(100), Epoch(149) });
 
 		// Assert:
 		EXPECT_FALSE(result);
@@ -638,12 +638,12 @@ namespace catapult { namespace state {
 	PUBLIC_KEYS_ACCESSOR_TEST(CanRemoveWhenExactMatchIsFound) {
 		// Arrange:
 		PublicKeysAccessor accessor;
-		accessor.add({ { { 0x44 } }, FP(100), FP(149) });
-		accessor.add({ { { 0x98 } }, FP(150), FP(180) });
-		accessor.add({ { { 0x32 } }, FP(200), FP(299) });
+		accessor.add({ { { 0x44 } }, Epoch(100), Epoch(149) });
+		accessor.add({ { { 0x98 } }, Epoch(150), Epoch(180) });
+		accessor.add({ { { 0x32 } }, Epoch(200), Epoch(299) });
 
 		// Act:
-		auto result = accessor.remove({ { { 0x98 } }, FP(150), FP(180) });
+		auto result = accessor.remove({ { { 0x98 } }, Epoch(150), Epoch(180) });
 
 		// Assert:
 		EXPECT_TRUE(result);
@@ -657,9 +657,9 @@ namespace catapult { namespace state {
 		void AssertCannotRemove(const model::PinnedVotingKey& key) {
 			// Arrange:
 			PublicKeysAccessor accessor;
-			accessor.add({ { { 0x44 } }, FP(100), FP(149) });
-			accessor.add({ { { 0x98 } }, FP(150), FP(180) });
-			accessor.add({ { { 0x32 } }, FP(200), FP(299) });
+			accessor.add({ { { 0x44 } }, Epoch(100), Epoch(149) });
+			accessor.add({ { { 0x98 } }, Epoch(150), Epoch(180) });
+			accessor.add({ { { 0x32 } }, Epoch(200), Epoch(299) });
 
 			// Act:
 			auto result = accessor.remove(key);
@@ -675,26 +675,26 @@ namespace catapult { namespace state {
 	}
 
 	PUBLIC_KEYS_ACCESSOR_TEST(CannotRemoveWhenPartialMatchIsFound) {
-		AssertCannotRemove({ { { 0x88 } }, FP(150), FP(180) });
-		AssertCannotRemove({ { { 0x98 } }, FP(151), FP(180) });
-		AssertCannotRemove({ { { 0x98 } }, FP(150), FP(170) });
+		AssertCannotRemove({ { { 0x88 } }, Epoch(150), Epoch(180) });
+		AssertCannotRemove({ { { 0x98 } }, Epoch(151), Epoch(180) });
+		AssertCannotRemove({ { { 0x98 } }, Epoch(150), Epoch(170) });
 	}
 
 	PUBLIC_KEYS_ACCESSOR_TEST(CannotRemoveWhenNoMatchIsFound) {
-		AssertCannotRemove({ { { 0x65 } }, FP(191), FP(192) });
+		AssertCannotRemove({ { { 0x65 } }, Epoch(191), Epoch(192) });
 	}
 
 	PUBLIC_KEYS_ACCESSOR_TEST(CanRemoveAllKeys) {
 		// Arrange:
 		PublicKeysAccessor accessor;
-		accessor.add({ { { 0x44 } }, FP(100), FP(149) });
-		accessor.add({ { { 0x98 } }, FP(150), FP(180) });
-		accessor.add({ { { 0x32 } }, FP(200), FP(299) });
+		accessor.add({ { { 0x44 } }, Epoch(100), Epoch(149) });
+		accessor.add({ { { 0x98 } }, Epoch(150), Epoch(180) });
+		accessor.add({ { { 0x32 } }, Epoch(200), Epoch(299) });
 
 		// Act:
-		auto result1 = accessor.remove({ { { 0x98 } }, FP(150), FP(180) });
-		auto result2 = accessor.remove({ { { 0x44 } }, FP(100), FP(149) });
-		auto result3 = accessor.remove({ { { 0x32 } }, FP(200), FP(299) });
+		auto result1 = accessor.remove({ { { 0x98 } }, Epoch(150), Epoch(180) });
+		auto result2 = accessor.remove({ { { 0x44 } }, Epoch(100), Epoch(149) });
+		auto result3 = accessor.remove({ { { 0x32 } }, Epoch(200), Epoch(299) });
 
 		// Assert:
 		EXPECT_TRUE(result1);

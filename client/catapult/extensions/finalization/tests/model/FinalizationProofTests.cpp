@@ -31,7 +31,7 @@ namespace catapult { namespace model {
 
 	// region size + alignment
 
-#define PROOF_FIELDS FIELD(Version) FIELD(Point) FIELD(Height) FIELD(Hash)
+#define PROOF_FIELDS FIELD(Version) FIELD(Round) FIELD(Height) FIELD(Hash)
 
 	TEST(TEST_CLASS, ProofHasExpectedSize) {
 		// Arrange:
@@ -67,7 +67,7 @@ namespace catapult { namespace model {
 			std::vector<std::shared_ptr<const FinalizationMessage>> messages;
 			for (auto i = 0u; i < numMessageGroups; ++i) {
 				auto pMessage = test::CreateMessage(Height(100 + i), test::GenerateRandomByteArray<Hash256>());
-				pMessage->StepIdentifier.Point = FinalizationPoint();
+				pMessage->StepIdentifier = StepIdentifier();
 				messages.push_back(std::move(pMessage));
 			}
 

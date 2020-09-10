@@ -21,6 +21,7 @@
 #include "finalization/src/chain/FinalizationProofSynchronizer.h"
 #include "finalization/src/io/ProofStorageCache.h"
 #include "catapult/io/BlockStorageCache.h"
+#include "finalization/tests/test/FinalizationMessageTestUtils.h"
 #include "finalization/tests/test/mocks/MockProofApi.h"
 #include "finalization/tests/test/mocks/MockProofStorage.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
@@ -125,6 +126,12 @@ namespace catapult { namespace chain {
 
 	// region api errors + short circuit
 
+	namespace {
+		model::FinalizationStatistics CreateFinalizationStatistics(Height height) {
+			return { { FinalizationEpoch(3), FinalizationPoint(12) }, height, Hash256() };
+		}
+	}
+
 	TEST(TEST_CLASS, FailureWhenFinalizationStatisticsFails) {
 		// Arrange:
 		TestContext context(20, Height(101), Height(81));
@@ -144,7 +151,7 @@ namespace catapult { namespace chain {
 	TEST(TEST_CLASS, NeutralWhenFinalizationStatisticsReturnsHeightLessThanNextProofHeight) {
 		// Arrange:
 		TestContext context(20, Height(101), Height(81));
-		context.api().setFinalizationStatistics({ FinalizationPoint(12), Height(99), Hash256() });
+		context.api().setFinalizationStatistics(CreateFinalizationStatistics(Height(99)));
 
 		// Act:
 		auto result = context.synchronize();
@@ -160,7 +167,7 @@ namespace catapult { namespace chain {
 	TEST(TEST_CLASS, FailureWhenProofAtFails) {
 		// Arrange:
 		TestContext context(20, Height(101), Height(81));
-		context.api().setFinalizationStatistics({ FinalizationPoint(12), Height(100), Hash256() });
+		context.api().setFinalizationStatistics(CreateFinalizationStatistics(Height(100)));
 		context.api().setError(mocks::MockProofApi::EntryPoint::Proof_At_Height);
 
 		// Act:
@@ -181,11 +188,11 @@ namespace catapult { namespace chain {
 	TEST(TEST_CLASS, FailureWhenRemoteProofHeightDoesNotMatchRequestedProofHeight) {
 		// Arrange:
 		TestContext context(20, Height(101), Height(81));
-		context.api().setFinalizationStatistics({ FinalizationPoint(12), Height(100), Hash256() });
+		context.api().setFinalizationStatistics(CreateFinalizationStatistics(Height(100)));
 
 		// - height is off by one
 		auto pProof = std::make_shared<model::FinalizationProof>();
-		pProof->Point = FinalizationPoint(111);
+		pProof->Round = { FinalizationEpoch(22), FinalizationPoint(111) };
 		pProof->Height = Height(101);
 		pProof->Hash = Hash256{ { 33 } };
 		context.api().setProof(pProof);
@@ -204,11 +211,11 @@ namespace catapult { namespace chain {
 	TEST(TEST_CLASS, FailureWhenRemoteProofFailsValidation) {
 		// Arrange:
 		TestContext context(20, Height(101), Height(81));
-		context.api().setFinalizationStatistics({ FinalizationPoint(12), Height(100), Hash256() });
+		context.api().setFinalizationStatistics(CreateFinalizationStatistics(Height(100)));
 		context.setValidationFailure();
 
 		auto pProof = std::make_shared<model::FinalizationProof>();
-		pProof->Point = FinalizationPoint(111);
+		pProof->Round = { FinalizationEpoch(22), FinalizationPoint(111) };
 		pProof->Height = Height(100);
 		pProof->Hash = Hash256{ { 33 } };
 		context.api().setProof(pProof);
@@ -229,14 +236,11 @@ namespace catapult { namespace chain {
 	// region success
 
 	namespace {
-		void AssertSuccess(Height localChainHeight, uint64_t remoteHeightDelta) {
+		void AssertSuccess(TestContext& context, Height proofHeight) {
 			// Arrange:
-			TestContext context(20, localChainHeight, Height(81));
-			context.api().setFinalizationStatistics({ FinalizationPoint(12), Height(100 + remoteHeightDelta), Hash256() });
-
 			auto pProof = std::make_shared<model::FinalizationProof>();
-			pProof->Point = FinalizationPoint(111);
-			pProof->Height = Height(100);
+			pProof->Round = { FinalizationEpoch(22), FinalizationPoint(111) };
+			pProof->Height = proofHeight;
 			pProof->Hash = Hash256{ { 33 } };
 			context.api().setProof(pProof);
 
@@ -246,14 +250,23 @@ namespace catapult { namespace chain {
 			// Assert:
 			EXPECT_EQ(ionet::NodeInteractionResultCode::Success, result);
 
-			EXPECT_EQ(std::vector<Height>({ Height(100) }), context.api().proofHeights());
+			EXPECT_EQ(std::vector<Height>({ proofHeight }), context.api().proofHeights());
 			EXPECT_EQ(1u, context.numValidationCalls());
 
 			ASSERT_EQ(1u, context.storage().savedProofDescriptors().size());
 			const auto& savedProofDescriptor = context.storage().savedProofDescriptors()[0];
-			EXPECT_EQ(FinalizationPoint(111), savedProofDescriptor.Point);
-			EXPECT_EQ(Height(100), savedProofDescriptor.Height);
+			EXPECT_EQ(test::CreateFinalizationRound(22, 111), savedProofDescriptor.Round);
+			EXPECT_EQ(proofHeight, savedProofDescriptor.Height);
 			EXPECT_EQ(Hash256{ { 33 } }, savedProofDescriptor.Hash);
+		}
+
+		void AssertSuccess(Height localChainHeight, uint64_t remoteHeightDelta) {
+			// Arrange:
+			TestContext context(20, localChainHeight, Height(81));
+			context.api().setFinalizationStatistics(CreateFinalizationStatistics(Height(100 + remoteHeightDelta)));
+
+			// Act + Assert:
+			AssertSuccess(context, Height(100));
 		}
 	}
 
@@ -268,6 +281,25 @@ namespace catapult { namespace chain {
 	TEST(TEST_CLASS, SuccessWhenLocalChainHeightIsMultipleVotingSetsAheadOfLocalFinalizedHeight) {
 		// Assert: proofs aren't skipped
 		AssertSuccess(Height(201), 100);
+	}
+
+	namespace {
+		void AssertSuccessNext(Height localChainHeight, Height localFinalizedHeight, Height expectedProofHeight) {
+			// Arrange:
+			TestContext context(20, localChainHeight, localFinalizedHeight);
+			context.api().setFinalizationStatistics(CreateFinalizationStatistics(expectedProofHeight));
+
+			// Act + Assert:
+			AssertSuccess(context, expectedProofHeight);
+		}
+	}
+
+	TEST(TEST_CLASS, SuccessWhenRequestingNextProof_FromNemesisEpoch) {
+		AssertSuccessNext(Height(21), Height(1), Height(20));
+	}
+
+	TEST(TEST_CLASS, SuccessWhenRequestingNextProof_FromOtherEpoch) {
+		AssertSuccessNext(Height(41), Height(20), Height(40));
 	}
 
 	// endregion

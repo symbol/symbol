@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "catapult/model/FinalizationRound.h"
 #include "catapult/types.h"
 
 namespace catapult { namespace model {
@@ -27,8 +28,8 @@ namespace catapult { namespace model {
 
 	/// Finalization statistics.
 	struct FinalizationStatistics {
-		/// Finalization point.
-		FinalizationPoint Point;
+		/// Finalization round.
+		model::FinalizationRound Round;
 
 		/// Finalization height.
 		catapult::Height Height;

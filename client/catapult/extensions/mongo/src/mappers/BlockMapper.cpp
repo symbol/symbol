@@ -24,6 +24,7 @@
 #include "catapult/model/BlockUtils.h"
 #include "catapult/model/Elements.h"
 #include "catapult/model/EntityHasher.h"
+#include "catapult/model/FinalizationRound.h"
 
 namespace catapult { namespace mongo { namespace mappers {
 
@@ -101,13 +102,14 @@ namespace catapult { namespace mongo { namespace mappers {
 
 	// region ToDbModel (finalized block)
 
-	bsoncxx::document::value ToDbModel(Height height, const Hash256& hash, FinalizationPoint point) {
+	bsoncxx::document::value ToDbModel(const model::FinalizationRound& round, Height height, const Hash256& hash) {
 		bson_stream::document builder;
 		return builder
 				<< "block" << bson_stream::open_document
+					<< "finalizationEpoch" << ToInt32(round.Epoch)
+					<< "finalizationPoint" << ToInt32(round.Point)
 					<< "height" << ToInt64(height)
 					<< "hash" << ToBinary(hash)
-					<< "finalizationPoint" << ToInt64(point)
 				<< bson_stream::close_document
 				<< bson_stream::finalize;
 	}

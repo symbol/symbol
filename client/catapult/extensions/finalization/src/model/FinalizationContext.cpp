@@ -24,21 +24,21 @@
 namespace catapult { namespace model {
 
 	namespace {
-		VotingKey Find(const std::vector<PinnedVotingKey>& pinnedPublicKeys, FinalizationPoint point) {
-			auto iter = std::find_if(pinnedPublicKeys.cbegin(), pinnedPublicKeys.cend(), [point](const auto& pinnedPublicKey) {
-				return pinnedPublicKey.StartPoint <= point && point <= pinnedPublicKey.EndPoint;
+		VotingKey Find(const std::vector<PinnedVotingKey>& pinnedPublicKeys, FinalizationEpoch epoch) {
+			auto iter = std::find_if(pinnedPublicKeys.cbegin(), pinnedPublicKeys.cend(), [epoch](const auto& pinnedPublicKey) {
+				return pinnedPublicKey.StartEpoch <= epoch && epoch <= pinnedPublicKey.EndEpoch;
 			});
 			return pinnedPublicKeys.cend() != iter ? iter->VotingKey : VotingKey();
 		}
 	}
 
 	FinalizationContext::FinalizationContext(
-			FinalizationPoint point,
+			FinalizationEpoch epoch,
 			Height height,
 			const GenerationHash& generationHash,
 			const finalization::FinalizationConfiguration& config,
 			const cache::AccountStateCacheView& accountStateCacheView)
-			: m_point(point)
+			: m_epoch(epoch)
 			, m_height(height)
 			, m_generationHash(generationHash)
 			, m_config(config) {
@@ -52,13 +52,13 @@ namespace catapult { namespace model {
 			auto accountView = FinalizationAccountView();
 			accountView.Weight = balance;
 
-			m_accounts.emplace(Find(accountHistory.votingPublicKeys().get(m_height), m_point), accountView);
+			m_accounts.emplace(Find(accountHistory.votingPublicKeys().get(m_height), m_epoch), accountView);
 			m_weight = m_weight + balance;
 		}
 	}
 
-	FinalizationPoint FinalizationContext::point() const {
-		return m_point;
+	FinalizationEpoch FinalizationContext::epoch() const {
+		return m_epoch;
 	}
 
 	Height FinalizationContext::height() const {

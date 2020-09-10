@@ -123,11 +123,11 @@ namespace catapult { namespace state {
 			/// Gets the number of public keys
 			size_t size() const;
 
-			/// Gets the largest finalization point for which a public key is associated.
-			FinalizationPoint upperBound() const;
+			/// Gets the largest finalization epoch for which a public key is associated.
+			FinalizationEpoch upperBound() const;
 
-			/// Returns \c true if a public key is associated with \a point.
-			std::pair<size_t, bool> contains(FinalizationPoint point) const;
+			/// Returns \c true if a public key is associated with \a epoch.
+			std::pair<size_t, bool> contains(FinalizationEpoch epoch) const;
 
 			/// Returns \c true if the specified public \a key is exactly contained.
 			bool containsExact(const TPinnedAccountPublicKey& key) const;

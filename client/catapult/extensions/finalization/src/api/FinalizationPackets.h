@@ -20,6 +20,7 @@
 
 #pragma once
 #include "catapult/ionet/Packet.h"
+#include "catapult/model/FinalizationRound.h"
 
 namespace catapult { namespace api {
 
@@ -29,8 +30,8 @@ namespace catapult { namespace api {
 	struct FinalizationStatisticsResponse : public ionet::Packet {
 		static constexpr ionet::PacketType Packet_Type = ionet::PacketType::Finalization_Statistics;
 
-		/// Finalization point.
-		FinalizationPoint Point;
+		/// Finalization round.
+		model::FinalizationRound Round;
 
 		/// Finalization height.
 		catapult::Height Height;
@@ -39,12 +40,12 @@ namespace catapult { namespace api {
 		Hash256 Hash;
 	};
 
-	/// Request packet for a proof at a finalization point.
-	struct ProofAtPointRequest : public ionet::Packet {
-		static constexpr ionet::PacketType Packet_Type = ionet::PacketType::Finalization_Proof_At_Point;
+	/// Request packet for a proof at a finalization epoch.
+	struct ProofAtEpochRequest : public ionet::Packet {
+		static constexpr ionet::PacketType Packet_Type = ionet::PacketType::Finalization_Proof_At_Epoch;
 
-		/// Requested finalization proof point.
-		FinalizationPoint Point;
+		/// Requested finalization proof epoch.
+		FinalizationEpoch Epoch;
 	};
 
 	/// Request packet for a proof at a finalization height.

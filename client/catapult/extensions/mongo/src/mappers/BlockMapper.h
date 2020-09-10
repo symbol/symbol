@@ -21,13 +21,18 @@
 #pragma once
 #include "MapperInclude.h"
 
-namespace catapult { namespace model { struct BlockElement; } }
+namespace catapult {
+	namespace model {
+		struct BlockElement;
+		struct FinalizationRound;
+	}
+}
 
 namespace catapult { namespace mongo { namespace mappers {
 
 	/// Maps \a blockElement to the corresponding db model value.
 	bsoncxx::document::value ToDbModel(const model::BlockElement& blockElement);
 
-	/// Maps a finalized block with \a height and \a hash at finalization \a point to to the corresponding db model value.
-	bsoncxx::document::value ToDbModel(Height height, const Hash256& hash, FinalizationPoint point);
+	/// Maps a finalized block with \a height and \a hash at finalization \a round to to the corresponding db model value.
+	bsoncxx::document::value ToDbModel(const model::FinalizationRound& round, Height height, const Hash256& hash);
 }}}

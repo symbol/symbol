@@ -34,12 +34,12 @@ namespace catapult { namespace io {
 
 	public:
 		model::FinalizationStatistics statistics() const override;
-		std::shared_ptr<const model::FinalizationProof> loadProof(FinalizationPoint point) const override;
-		std::shared_ptr<const model::FinalizationProof> loadProof(Height point) const override;
+		std::shared_ptr<const model::FinalizationProof> loadProof(FinalizationEpoch epoch) const override;
+		std::shared_ptr<const model::FinalizationProof> loadProof(Height height) const override;
 		void saveProof(const model::FinalizationProof& proof) override;
 
 	private:
-		FinalizationPoint findPointForHeight(Height height) const;
+		std::shared_ptr<const model::FinalizationProof> loadClosestProof(Height height) const;
 
 	private:
 		class FinalizationIndexFile {
@@ -64,7 +64,6 @@ namespace catapult { namespace io {
 
 	private:
 		std::string m_dataDirectory;
-		FinalizationPointHeightFile m_pointHeightMapping;
 		FinalizationIndexFile m_indexFile;
 	};
 }}

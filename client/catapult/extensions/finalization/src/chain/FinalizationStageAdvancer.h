@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "catapult/model/FinalizationRound.h"
 #include "catapult/model/HeightHashPair.h"
 #include "catapult/utils/TimeSpan.h"
 
@@ -43,9 +44,9 @@ namespace catapult { namespace chain {
 		virtual bool canStartNextRound() const = 0;
 	};
 
-	/// Creates an advancer for the specified \a point given the current \a time, \a stepDuration and \a messageAggregator.
+	/// Creates an advancer for the specified \a round given the current \a time, \a stepDuration and \a messageAggregator.
 	std::unique_ptr<FinalizationStageAdvancer> CreateFinalizationStageAdvancer(
-			FinalizationPoint point,
+			const model::FinalizationRound& round,
 			Timestamp time,
 			const utils::TimeSpan& stepDuration,
 			const MultiRoundMessageAggregator& messageAggregator);

@@ -26,86 +26,99 @@
 
 namespace catapult { namespace chain {
 
+	namespace {
+		void ClearFlags(VotingStatus& votingStatus) {
+			votingStatus.HasSentPrevote = false;
+			votingStatus.HasSentPrecommit = false;
+		}
+	}
+
 	FinalizationOrchestrator::FinalizationOrchestrator(
 			const VotingStatus& votingStatus,
 			const StageAdvancerFactory& stageAdvancerFactory,
 			const MessageSink& messageSink,
 			std::unique_ptr<FinalizationMessageFactory>&& pMessageFactory)
-			: m_pointRaw(votingStatus.Point.unwrap())
+			: m_votingStatus(votingStatus)
 			, m_stageAdvancerFactory(stageAdvancerFactory)
 			, m_messageSink(messageSink)
-			, m_pMessageFactory(std::move(pMessageFactory))
-			, m_hasSentPrevote(votingStatus.HasSentPrevote)
-			, m_hasSentPrecommit(votingStatus.HasSentPrecommit) {
+			, m_pMessageFactory(std::move(pMessageFactory)) {
 		CATAPULT_LOG(debug)
-				<< "creating finalization orchestrator starting at point " << m_pointRaw
-				<< " (has sent prevote? " << m_hasSentPrevote << ")"
-				<< " (has sent precommit? " << m_hasSentPrecommit << ")";
+				<< "creating finalization orchestrator starting at round " << m_votingStatus.Round
+				<< " (has sent prevote? " << m_votingStatus.HasSentPrevote << ")"
+				<< " (has sent precommit? " << m_votingStatus.HasSentPrecommit << ")";
 	}
 
-	FinalizationPoint FinalizationOrchestrator::point() const {
-		return FinalizationPoint(m_pointRaw);
+	VotingStatus FinalizationOrchestrator::votingStatus() const {
+		return m_votingStatus;
 	}
 
-	bool FinalizationOrchestrator::hasSentPrevote() const {
-		return m_hasSentPrevote;
-	}
+	void FinalizationOrchestrator::setEpoch(FinalizationEpoch epoch) {
+		if (epoch < m_votingStatus.Round.Epoch)
+			CATAPULT_THROW_INVALID_ARGUMENT("cannot decrease epoch");
 
-	bool FinalizationOrchestrator::hasSentPrecommit() const {
-		return m_hasSentPrecommit;
+		if (epoch == m_votingStatus.Round.Epoch)
+			return;
+
+		m_votingStatus.Round = { epoch, FinalizationPoint(1) };
+		ClearFlags(m_votingStatus);
+		m_pStageAdvancer.reset();
 	}
 
 	void FinalizationOrchestrator::poll(Timestamp time) {
-		// on first call to poll, don't call startRound in order to use original values for m_hasSentPrevote and m_hasSentPrecommit
+		// on first call to poll, don't call startRound in order to use original values for m_votingStatus
 		if (!m_pStageAdvancer)
-			m_pStageAdvancer = m_stageAdvancerFactory(point(), time);
+			m_pStageAdvancer = m_stageAdvancerFactory(m_votingStatus.Round, time);
 
-		if (!m_hasSentPrevote && m_pStageAdvancer->canSendPrevote(time)) {
-			m_messageSink(m_pMessageFactory->createPrevote(FinalizationPoint(m_pointRaw)));
-			m_hasSentPrevote = true;
+		if (!m_votingStatus.HasSentPrevote && m_pStageAdvancer->canSendPrevote(time)) {
+			process(m_pMessageFactory->createPrevote(m_votingStatus.Round), "prevote");
+			m_votingStatus.HasSentPrevote = true;
 		}
 
 		model::HeightHashPair commitTarget;
-		if (!m_hasSentPrecommit && m_pStageAdvancer->canSendPrecommit(time, commitTarget)) {
-			m_messageSink(m_pMessageFactory->createPrecommit(FinalizationPoint(m_pointRaw), commitTarget.Height, commitTarget.Hash));
-			m_hasSentPrecommit = true;
+		if (!m_votingStatus.HasSentPrecommit && m_pStageAdvancer->canSendPrecommit(time, commitTarget)) {
+			process(m_pMessageFactory->createPrecommit(m_votingStatus.Round, commitTarget.Height, commitTarget.Hash), "precommit");
+			m_votingStatus.HasSentPrecommit = true;
 		}
 
-		if (m_hasSentPrecommit && m_pStageAdvancer->canStartNextRound()) {
-			++m_pointRaw;
+		if (m_votingStatus.HasSentPrecommit && m_pStageAdvancer->canStartNextRound()) {
+			m_votingStatus.Round.Point = m_votingStatus.Round.Point + FinalizationPoint(1);
 			startRound(time);
 		}
 	}
 
 	void FinalizationOrchestrator::startRound(Timestamp time) {
-		m_hasSentPrevote = false;
-		m_hasSentPrecommit = false;
-		m_pStageAdvancer = m_stageAdvancerFactory(point(), time);
+		ClearFlags(m_votingStatus);
+		m_pStageAdvancer = m_stageAdvancerFactory(m_votingStatus.Round, time);
 	}
 
-	action CreateFinalizer(
-			MultiRoundMessageAggregator& messageAggregator,
-			subscribers::FinalizationSubscriber& subscriber,
-			io::ProofStorageCache& proofStorage) {
-		return [&messageAggregator, &subscriber, &proofStorage]() {
+	void FinalizationOrchestrator::process(std::unique_ptr<model::FinalizationMessage>&& pMessage, const char* description) {
+		if (pMessage)
+			m_messageSink(std::move(pMessage));
+		else
+			CATAPULT_LOG(debug) << "cannot create " << description << " for " << m_votingStatus.Round;
+	}
+
+	namespace {
+		model::FinalizationStatistics ToFinalizationStatistics(const BestPrecommitDescriptor& bestPrecommitDescriptor) {
+			return { bestPrecommitDescriptor.Round, bestPrecommitDescriptor.Target.Height, bestPrecommitDescriptor.Target.Hash };
+		}
+	}
+
+	action CreateFinalizer(MultiRoundMessageAggregator& messageAggregator, io::ProofStorageCache& proofStorage) {
+		return [&messageAggregator, &proofStorage]() {
 			auto bestPrecommitDescriptor = messageAggregator.view().tryFindBestPrecommit();
-			if (FinalizationPoint(0) == bestPrecommitDescriptor.Point)
+			auto bestPrecommitRound = bestPrecommitDescriptor.Round;
+			if (model::FinalizationRound() == bestPrecommitRound)
 				return;
 
 			if (proofStorage.view().statistics().Height == bestPrecommitDescriptor.Target.Height)
 				return;
 
-			auto pProof = CreateFinalizationProof(
-					{ bestPrecommitDescriptor.Point, bestPrecommitDescriptor.Target.Height, bestPrecommitDescriptor.Target.Hash },
-					bestPrecommitDescriptor.Proof);
+			auto pProof = CreateFinalizationProof(ToFinalizationStatistics(bestPrecommitDescriptor), bestPrecommitDescriptor.Proof);
 			proofStorage.modifier().saveProof(*pProof);
-			subscriber.notifyFinalizedBlock(
-					bestPrecommitDescriptor.Target.Height,
-					bestPrecommitDescriptor.Target.Hash,
-					bestPrecommitDescriptor.Point);
 
-			// TODO: prune messages here
-			// messageAggregator.modifier().prune();
+			// prune previous epoch when later epoch has finalized at least one (new) block
+			messageAggregator.modifier().prune(bestPrecommitRound.Epoch - FinalizationEpoch(1));
 		};
 	}
 }}

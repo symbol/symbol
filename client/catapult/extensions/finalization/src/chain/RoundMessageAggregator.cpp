@@ -22,6 +22,7 @@
 #include "RoundContext.h"
 #include "finalization/src/model/FinalizationContext.h"
 #include "finalization/src/model/FinalizationMessage.h"
+#include "finalization/src/model/VotingSet.h"
 #include "catapult/model/HeightGrouping.h"
 #include "catapult/utils/MacroBasedEnumIncludes.h"
 #include <unordered_map>
@@ -63,8 +64,8 @@ namespace catapult { namespace chain {
 			return finalizationContext.weight().unwrap() * finalizationContext.config().Threshold / finalizationContext.config().Size;
 		}
 
-		constexpr bool IsPrevote(const model::FinalizationMessage& message) {
-			return model::FinalizationStage::Prevote == message.StepIdentifier.Stage;
+		bool IsPrevote(const model::FinalizationMessage& message) {
+			return model::FinalizationStage::Prevote == message.StepIdentifier.Stage();
 		}
 
 		// endregion
@@ -124,25 +125,25 @@ namespace catapult { namespace chain {
 				if (0 == pMessage->HashesCount || pMessage->HashesCount > m_finalizationContext.config().MaxHashesPerPoint)
 					return RoundMessageAggregatorAddResult::Failure_Invalid_Hashes;
 
-				if (m_finalizationContext.point() != pMessage->StepIdentifier.Point)
-					return RoundMessageAggregatorAddResult::Failure_Invalid_Point;
-
 				auto isPrevote = IsPrevote(*pMessage);
 				auto lastHashHeight = pMessage->Height + Height(pMessage->HashesCount - 1);
+
+				// only consider messages that have at least one hash at or after the epoch height
+				if (m_finalizationContext.height() > lastHashHeight)
+					return RoundMessageAggregatorAddResult::Failure_Invalid_Height;
+
 				if (isPrevote) {
 					auto votingSetGrouping = m_finalizationContext.config().VotingSetGrouping;
-					auto startVotingSetHeight = model::CalculateGroupedHeight<Height>(pMessage->Height, votingSetGrouping);
-					auto endVotingSetHeight = model::CalculateGroupedHeight<Height>(lastHashHeight, votingSetGrouping);
-					if (startVotingSetHeight != endVotingSetHeight)
+					auto previousEpoch = pMessage->StepIdentifier.Epoch - FinalizationEpoch(1);
+					auto epochMinHeight = model::CalculateVotingSetEndHeight(previousEpoch, votingSetGrouping);
+					auto epochMaxHeight = model::CalculateVotingSetEndHeight(pMessage->StepIdentifier.Epoch, votingSetGrouping);
+
+					if (pMessage->Height < epochMinHeight || lastHashHeight > epochMaxHeight)
 						return RoundMessageAggregatorAddResult::Failure_Invalid_Hashes;
 				} else {
 					if (1 != pMessage->HashesCount)
 						return RoundMessageAggregatorAddResult::Failure_Invalid_Hashes;
 				}
-
-				// only consider messages that have at least one hash at or after the last finalized height
-				if (m_finalizationContext.height() > lastHashHeight)
-					return RoundMessageAggregatorAddResult::Failure_Invalid_Height;
 
 				auto messageKey = std::make_pair(pMessage->Signature.Root.ParentPublicKey, isPrevote);
 				auto messageIter = m_messages.find(messageKey);

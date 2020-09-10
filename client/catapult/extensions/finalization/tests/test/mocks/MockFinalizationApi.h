@@ -54,11 +54,11 @@ namespace catapult { namespace mocks {
 
 	public:
 		/// Gets the configured messages and throws if the error entry point is set to Messages.
-		/// \note The \a point and \a knownShortHashes parameters are captured.
+		/// \note The \a round and \a knownShortHashes parameters are captured.
 		thread::future<model::FinalizationMessageRange> messages(
-				FinalizationPoint point,
+				const model::FinalizationRound& round,
 				model::ShortHashRange&& knownShortHashes) const override {
-			m_messagesRequests.emplace_back(point, std::move(knownShortHashes));
+			m_messagesRequests.emplace_back(round, std::move(knownShortHashes));
 			if (shouldRaiseException(EntryPoint::Messages))
 				return CreateFutureException<model::FinalizationMessageRange>("messages error has been set");
 
@@ -78,6 +78,6 @@ namespace catapult { namespace mocks {
 	private:
 		model::FinalizationMessageRange m_messageRange;
 		EntryPoint m_errorEntryPoint;
-		mutable std::vector<std::pair<FinalizationPoint, model::ShortHashRange>> m_messagesRequests;
+		mutable std::vector<std::pair<model::FinalizationRound, model::ShortHashRange>> m_messagesRequests;
 	};
 }}

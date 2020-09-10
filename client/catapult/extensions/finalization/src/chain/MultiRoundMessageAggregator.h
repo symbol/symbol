@@ -20,6 +20,7 @@
 
 #pragma once
 #include "RoundMessageAggregator.h"
+#include "catapult/model/FinalizationRound.h"
 #include "catapult/model/HeightHashPair.h"
 #include "catapult/utils/SpinReaderWriterLock.h"
 
@@ -31,8 +32,8 @@ namespace catapult { namespace chain {
 
 	/// Describes the best precommit.
 	struct BestPrecommitDescriptor {
-		/// Finalization point that is completed.
-		FinalizationPoint Point;
+		/// Finalization round.
+		model::FinalizationRound Round;
 
 		/// Height hash pair corresponding to the block that can be finalized.
 		model::HeightHashPair Target;
@@ -57,17 +58,17 @@ namespace catapult { namespace chain {
 		/// Gets the number of round message aggregators.
 		size_t size() const;
 
-		/// Gets the minimum finalization point of messages that can be accepted.
-		FinalizationPoint minFinalizationPoint() const;
+		/// Gets the minimum finalization round of messages that can be accepted.
+		model::FinalizationRound minFinalizationRound() const;
 
-		/// Gets the maximum finalization point of messages that can be accepted.
-		FinalizationPoint maxFinalizationPoint() const;
+		/// Gets the maximum finalization round of messages that can be accepted.
+		model::FinalizationRound maxFinalizationRound() const;
 
-		/// Tries to get the round context for the round specified by \a point.
-		const RoundContext* tryGetRoundContext(FinalizationPoint point) const;
+		/// Tries to get the round context for the specified \a round.
+		const RoundContext* tryGetRoundContext(const model::FinalizationRound& round) const;
 
-		/// Finds the estimate for the round specified by \a point.
-		model::HeightHashPair findEstimate(FinalizationPoint point) const;
+		/// Finds the estimate for the specified \a round.
+		model::HeightHashPair findEstimate(const model::FinalizationRound& round) const;
 
 		/// Finds the candidate with the largest height that has at least threshold prevotes and precommits, if any.
 		BestPrecommitDescriptor tryFindBestPrecommit() const;
@@ -76,10 +77,10 @@ namespace catapult { namespace chain {
 		/// \note Each short hash consists of the first 4 bytes of the complete hash.
 		model::ShortHashRange shortHashes() const;
 
-		/// Gets all finalization messages with a finalization point no greater than \a point that do not have a
+		/// Gets all finalization messages with a finalization point no greater than \a round that do not have a
 		/// short hash in \a knownShortHashes.
 		RoundMessageAggregator::UnknownMessages unknownMessages(
-				FinalizationPoint point,
+				const model::FinalizationRound& round,
 				const utils::ShortHashesSet& knownShortHashes) const;
 
 	private:
@@ -100,15 +101,15 @@ namespace catapult { namespace chain {
 				utils::SpinReaderWriterLock::WriterLockGuard&& writeLock);
 
 	public:
-		/// Sets the maximum finalization \a point of messages that can be accepted.
-		void setMaxFinalizationPoint(FinalizationPoint point);
+		/// Sets the maximum finalization \a round of messages that can be accepted.
+		void setMaxFinalizationRound(const model::FinalizationRound& round);
 
 		/// Adds a finalization message (\a pMessage) to the aggregator.
 		/// \note Message is a shared_ptr because it is detached from an EntityRange and is kept alive with its associated step.
 		RoundMessageAggregatorAddResult add(const std::shared_ptr<model::FinalizationMessage>& pMessage);
 
-		/// Prunes this aggregator by finding the current finalization candidate and removing all prior rounds.
-		void prune();
+		/// Prunes this aggregator by removing all rounds with an epoch less than \a epoch.
+		void prune(FinalizationEpoch epoch);
 
 	private:
 		MultiRoundMessageAggregatorState& m_state;
@@ -122,15 +123,15 @@ namespace catapult { namespace chain {
 	/// Aggregates finalization messages across multiple finalization points.
 	class MultiRoundMessageAggregator {
 	public:
-		using RoundMessageAggregatorFactory = std::function<std::unique_ptr<RoundMessageAggregator> (FinalizationPoint, Height)>;
+		using RoundMessageAggregatorFactory = std::function<std::unique_ptr<RoundMessageAggregator> (const model::FinalizationRound&)>;
 
 	public:
-		/// Creates an aggregator around \a maxResponseSize, the current finalization point (\a finalizationPoint),
+		/// Creates an aggregator around \a maxResponseSize, the current finalization \a round,
 		/// the previous finalized height hash pair (\a previousFinalizedHeightHashPair) and a factory for creating
 		/// round message aggregators (\a roundMessageAggregatorFactory).
 		MultiRoundMessageAggregator(
 				uint64_t maxResponseSize,
-				FinalizationPoint finalizationPoint,
+				const model::FinalizationRound& round,
 				const model::HeightHashPair& previousFinalizedHeightHashPair,
 				const RoundMessageAggregatorFactory& roundMessageAggregatorFactory);
 

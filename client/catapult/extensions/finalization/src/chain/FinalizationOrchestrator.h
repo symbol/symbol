@@ -21,6 +21,7 @@
 #pragma once
 #include "FinalizationMessageFactory.h"
 #include "FinalizationStageAdvancer.h"
+#include "catapult/model/FinalizationRound.h"
 
 namespace catapult {
 	namespace chain { class MultiRoundMessageAggregator; }
@@ -32,20 +33,21 @@ namespace catapult { namespace chain {
 
 	/// Voting status information.
 	struct VotingStatus {
-		/// Current finalization point.
-		FinalizationPoint Point;
+		/// Current finalization round.
+		model::FinalizationRound Round;
 
-		/// \c true if prevote has been sent for current point.
+		/// \c true if prevote has been sent for current round.
 		bool HasSentPrevote = false;
 
-		/// \c true if precommit has been sent for current point.
+		/// \c true if precommit has been sent for current round.
 		bool HasSentPrecommit = false;
 	};
 
 	/// Orchestrates finalization progress.
 	class FinalizationOrchestrator {
 	private:
-		using StageAdvancerFactory = std::function<std::unique_ptr<FinalizationStageAdvancer> (FinalizationPoint, Timestamp)>;
+		using FinalizationStageAdvancerPointer = std::unique_ptr<FinalizationStageAdvancer>;
+		using StageAdvancerFactory = std::function<FinalizationStageAdvancerPointer (const model::FinalizationRound&, Timestamp)>;
 		using MessageSink = consumer<std::unique_ptr<model::FinalizationMessage>&&>;
 
 	public:
@@ -57,36 +59,29 @@ namespace catapult { namespace chain {
 				std::unique_ptr<FinalizationMessageFactory>&& pMessageFactory);
 
 	public:
-		/// Gets the current finalization \a point.
-		FinalizationPoint point() const;
-
-		/// Returns \c true if a prevote has been sent for the current round.
-		bool hasSentPrevote() const;
-
-		/// Returns \c true if a precommit has been sent for the current round.
-		bool hasSentPrecommit() const;
+		/// Gets the current voting status.
+		VotingStatus votingStatus() const;
 
 	public:
+		/// Sets the \a epoch.
+		void setEpoch(FinalizationEpoch epoch);
+
 		/// Checks progress given the current \a time.
 		void poll(Timestamp time);
 
 	private:
 		void startRound(Timestamp time);
+		void process(std::unique_ptr<model::FinalizationMessage>&& pMessage, const char* description);
 
 	private:
-		std::atomic<uint64_t> m_pointRaw;
+		VotingStatus m_votingStatus;
 		StageAdvancerFactory m_stageAdvancerFactory;
 		MessageSink m_messageSink;
 		std::unique_ptr<FinalizationMessageFactory> m_pMessageFactory;
 
-		std::atomic_bool m_hasSentPrevote;
-		std::atomic_bool m_hasSentPrecommit;
 		std::unique_ptr<FinalizationStageAdvancer> m_pStageAdvancer;
 	};
 
-	/// Creates a finalizer that finalizes as many blocks as possible given \a messageAggregator, \a subscriber and \a proofStorage
-	action CreateFinalizer(
-			MultiRoundMessageAggregator& messageAggregator,
-			subscribers::FinalizationSubscriber& subscriber,
-			io::ProofStorageCache& proofStorage);
+	/// Creates a finalizer that finalizes as many blocks as possible given \a messageAggregator and \a proofStorage.
+	action CreateFinalizer(MultiRoundMessageAggregator& messageAggregator, io::ProofStorageCache& proofStorage);
 }}

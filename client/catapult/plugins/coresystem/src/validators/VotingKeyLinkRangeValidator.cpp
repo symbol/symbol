@@ -28,10 +28,10 @@ namespace catapult { namespace validators {
 	namespace {
 		bool IsOutsideRange(const Notification& notification, uint32_t minRange, uint32_t maxRange) {
 			const auto& pinnedVotingKey = notification.LinkedPublicKey;
-			if (pinnedVotingKey.EndPoint < pinnedVotingKey.StartPoint)
+			if (pinnedVotingKey.EndEpoch < pinnedVotingKey.StartEpoch)
 				return true;
 
-			auto range = (pinnedVotingKey.EndPoint - pinnedVotingKey.StartPoint).unwrap() + 1;
+			auto range = (pinnedVotingKey.EndEpoch - pinnedVotingKey.StartEpoch).unwrap() + 1;
 			return range < minRange || range > maxRange;
 		}
 	}

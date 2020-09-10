@@ -41,6 +41,7 @@
 #include "catapult/observers/NotificationObserverAdapter.h"
 #include "catapult/subscribers/BlockChangeReader.h"
 #include "catapult/subscribers/BrokerMessageReaders.h"
+#include "catapult/subscribers/FinalizationReader.h"
 #include "catapult/subscribers/TransactionStatusReader.h"
 #include "catapult/utils/StackLogger.h"
 
@@ -109,8 +110,9 @@ namespace catapult { namespace local {
 					, m_catapultCache({}) // note that sub caches are added in boot
 					, m_pBlockStorage(m_pBootstrapper->subscriptionManager().createBlockStorage(m_pBlockChangeSubscriber))
 					, m_storage(CreateReadOnlyStorageAdapter(*m_pBlockStorage), CreateStagingBlockStorage(m_dataDirectory))
-					, m_pTransactionStatusSubscriber(m_pBootstrapper->subscriptionManager().createTransactionStatusSubscriber())
+					, m_pFinalizationSubscriber(m_pBootstrapper->subscriptionManager().createFinalizationSubscriber())
 					, m_pStateChangeSubscriber(m_pBootstrapper->subscriptionManager().createStateChangeSubscriber())
+					, m_pTransactionStatusSubscriber(m_pBootstrapper->subscriptionManager().createTransactionStatusSubscriber())
 					, m_pluginManager(m_pBootstrapper->pluginManager())
 					, m_stateSavingRequired(true)
 			{}
@@ -163,6 +165,7 @@ namespace catapult { namespace local {
 				if (m_pBlockChangeSubscriber)
 					processMessages("block_change", *m_pBlockChangeSubscriber, subscribers::ReadNextBlockChange);
 
+				processMessages("finalization", *m_pFinalizationSubscriber, subscribers::ReadNextFinalization);
 				processMessages("transaction_status", *m_pTransactionStatusSubscriber, subscribers::ReadNextTransactionStatus);
 			}
 
@@ -315,8 +318,9 @@ namespace catapult { namespace local {
 			io::BlockStorageCache m_storage;
 			extensions::LocalNodeChainScore m_score;
 
-			std::unique_ptr<subscribers::TransactionStatusSubscriber> m_pTransactionStatusSubscriber;
+			std::unique_ptr<subscribers::FinalizationSubscriber> m_pFinalizationSubscriber;
 			std::unique_ptr<subscribers::StateChangeSubscriber> m_pStateChangeSubscriber;
+			std::unique_ptr<subscribers::TransactionStatusSubscriber> m_pTransactionStatusSubscriber;
 
 			plugins::PluginManager& m_pluginManager;
 			bool m_stateSavingRequired;

@@ -165,8 +165,8 @@ namespace catapult { namespace test {
 			for (const auto& dbPublicKeyDocument : dbPublicKeysDocument.view()["publicKeys"].get_array().value) {
 				const auto& expectedPublicKey = expectedPublicKeysAccessor.get(i);
 				EXPECT_EQ(expectedPublicKey.VotingKey, GetVotingKeyValue(dbPublicKeyDocument, "publicKey")) << "at " << i;
-				EXPECT_EQ(expectedPublicKey.StartPoint, FinalizationPoint(GetUint64(dbPublicKeyDocument, "startPoint"))) << "at " << i;
-				EXPECT_EQ(expectedPublicKey.EndPoint, FinalizationPoint(GetUint64(dbPublicKeyDocument, "endPoint"))) << "at " << i;
+				EXPECT_EQ(expectedPublicKey.StartEpoch, FinalizationEpoch(GetUint32(dbPublicKeyDocument, "startEpoch"))) << "at " << i;
+				EXPECT_EQ(expectedPublicKey.EndEpoch, FinalizationEpoch(GetUint32(dbPublicKeyDocument, "endEpoch"))) << "at " << i;
 				++i;
 			}
 

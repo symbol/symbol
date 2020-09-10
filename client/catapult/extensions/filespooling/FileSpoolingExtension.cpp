@@ -19,6 +19,7 @@
 **/
 
 #include "src/FileBlockChangeStorage.h"
+#include "src/FileFinalizationStorage.h"
 #include "src/FilePtChangeStorage.h"
 #include "src/FileTransactionStatusStorage.h"
 #include "src/FileUtChangeStorage.h"
@@ -51,6 +52,7 @@ namespace catapult { namespace filespooling {
 			subscriptionManager.addBlockChangeSubscriber(CreateFileBlockChangeStorage(factory.create("block_change")));
 			subscriptionManager.addUtChangeSubscriber(CreateFileUtChangeStorage(factory.create("unconfirmed_transactions_change")));
 			subscriptionManager.addPtChangeSubscriber(CreateFilePtChangeStorage(factory.create("partial_transactions_change")));
+			subscriptionManager.addFinalizationSubscriber(CreateFileFinalizationStorage(factory.create("finalization")));
 			subscriptionManager.addTransactionStatusSubscriber(CreateFileTransactionStatusStorage(factory.create("transaction_status")));
 		}
 	}

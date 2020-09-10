@@ -33,6 +33,7 @@
 #include "tests/catapult/local/recovery/test/FilechainTestUtils.h"
 #include "tests/test/core/BlockStorageTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
+#include "tests/test/core/FinalizationTestUtils.h"
 #include "tests/test/core/StateTestUtils.h"
 #include "tests/test/core/StorageTestUtils.h"
 #include "tests/test/core/TransactionStatusTestUtils.h"
@@ -413,13 +414,13 @@ namespace catapult { namespace local {
 			}
 		};
 
-		struct TransactionStatusTraits {
-			static constexpr auto Queue_Directory_Name = "transaction_status";
+		struct FinalizationTraits {
+			static constexpr auto Queue_Directory_Name = "finalization";
 			static constexpr auto Num_Expected_Index_Files = 2u;
 
 			static void WriteMessage(io::OutputStream& outputStream) {
-				auto notification = test::GenerateRandomTransactionStatusNotification(141);
-				test::WriteTransactionStatusNotification(outputStream, notification);
+				auto notification = test::GenerateRandomFinalizationNotification();
+				test::WriteFinalizationNotification(outputStream, notification);
 			}
 		};
 
@@ -433,13 +434,24 @@ namespace catapult { namespace local {
 				io::Write64(outputStream, test::Random());
 			}
 		};
+
+		struct TransactionStatusTraits {
+			static constexpr auto Queue_Directory_Name = "transaction_status";
+			static constexpr auto Num_Expected_Index_Files = 2u;
+
+			static void WriteMessage(io::OutputStream& outputStream) {
+				auto notification = test::GenerateRandomTransactionStatusNotification(141);
+				test::WriteTransactionStatusNotification(outputStream, notification);
+			}
+		};
 	}
 
 #define SUBSCRIBER_TRAITS_BASED_TEST(TEST_NAME) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	TEST(TEST_CLASS, TEST_NAME##_BlockChange) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockChangeTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_TransactionStatus) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionStatusTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Finalization) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<FinalizationTraits>(); } \
 	TEST(TEST_CLASS, TEST_NAME##_StateChange) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<StateChangeTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_TransactionStatus) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionStatusTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// endregion

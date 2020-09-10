@@ -21,7 +21,8 @@
 #include "FinalizationMessageFactory.h"
 #include "finalization/src/FinalizationConfiguration.h"
 #include "finalization/src/io/ProofStorageCache.h"
-#include "catapult/crypto_voting/OtsTree.h"
+#include "finalization/src/model/VotingSet.h"
+#include "catapult/crypto_voting/AggregateBmPrivateKeyTree.h"
 #include "catapult/io/BlockStorageCache.h"
 #include "catapult/model/HeightGrouping.h"
 
@@ -34,28 +35,17 @@ namespace catapult { namespace chain {
 			return 0 == value % multiple ? value : ((value / multiple + adjustment) * multiple);
 		}
 
-		std::pair<FinalizationPoint, Height> LoadFinalizationState(const io::ProofStorageCache& proofStorage) {
-			auto view = proofStorage.view();
-			auto finalizationStatistics = view.statistics();
-			return std::make_pair(finalizationStatistics.Point, finalizationStatistics.Height);
-		}
-
-		Hash256 LoadLastFinalizedHash(const io::ProofStorageCache& proofStorage) {
-			auto view = proofStorage.view();
-			return view.statistics().Hash;
-		}
-
 		model::HashRange LoadPrevoteHashChain(
 				const finalization::FinalizationConfiguration& config,
+				FinalizationEpoch epoch,
 				Height startHeight,
 				const io::BlockStorageCache& blockStorage) {
 			auto view = blockStorage.view();
 			auto maxPrevoteHashHeight = view.chainHeight();
 
-			auto votingSetGrouping = config.VotingSetGrouping;
-			auto nextVotingSetHeight = model::CalculateGroupedHeight<Height>(startHeight + Height(votingSetGrouping), votingSetGrouping);
-			if (maxPrevoteHashHeight > nextVotingSetHeight)
-				maxPrevoteHashHeight = nextVotingSetHeight;
+			auto maxVotingSetHeight = model::CalculateVotingSetEndHeight(epoch, config.VotingSetGrouping);
+			if (maxPrevoteHashHeight > maxVotingSetHeight)
+				maxPrevoteHashHeight = maxVotingSetHeight;
 
 			auto clampedChainHeight = Height(Clamp(maxPrevoteHashHeight.unwrap(), config.PrevoteBlocksMultiple, 0));
 
@@ -83,39 +73,39 @@ namespace catapult { namespace chain {
 					const finalization::FinalizationConfiguration& config,
 					const io::BlockStorageCache& blockStorage,
 					const io::ProofStorageCache& proofStorage,
-					crypto::OtsTree&& otsTree)
+					crypto::AggregateBmPrivateKeyTree&& bmPrivateKeyTree)
 					: m_config(config)
 					, m_blockStorage(blockStorage)
 					, m_proofStorage(proofStorage)
-					, m_otsTree(std::move(otsTree))
+					, m_bmPrivateKeyTree(std::move(bmPrivateKeyTree))
 			{}
 
 		public:
-			std::unique_ptr<model::FinalizationMessage> createPrevote(FinalizationPoint point) override {
-				auto finalizationState = LoadFinalizationState(m_proofStorage);
-				auto hashRange = LoadPrevoteHashChain(m_config, finalizationState.second, m_blockStorage);
+			std::unique_ptr<model::FinalizationMessage> createPrevote(const model::FinalizationRound& round) override {
+				auto finalizationStatistics = m_proofStorage.view().statistics();
+				auto hashRange = LoadPrevoteHashChain(m_config, round.Epoch, finalizationStatistics.Height, m_blockStorage);
 				if (hashRange.empty())
-					hashRange = ToHashRange(LoadLastFinalizedHash(m_proofStorage));
+					hashRange = ToHashRange(finalizationStatistics.Hash);
 
-				auto stepIdentifier = model::StepIdentifier{ point, model::FinalizationStage::Prevote };
-				return model::PrepareMessage(m_otsTree, stepIdentifier, finalizationState.second, hashRange);
+				auto stepIdentifier = model::StepIdentifier{ round.Epoch, round.Point, model::FinalizationStage::Prevote };
+				return model::PrepareMessage(m_bmPrivateKeyTree, stepIdentifier, finalizationStatistics.Height, hashRange);
 			}
 
 			std::unique_ptr<model::FinalizationMessage> createPrecommit(
-					FinalizationPoint point,
+					const model::FinalizationRound& round,
 					Height height,
 					const Hash256& hash) override {
 				auto hashRange = ToHashRange(hash);
 
-				auto stepIdentifier = model::StepIdentifier{ point, model::FinalizationStage::Precommit };
-				return model::PrepareMessage(m_otsTree, stepIdentifier, height, hashRange);
+				auto stepIdentifier = model::StepIdentifier{ round.Epoch, round.Point, model::FinalizationStage::Precommit };
+				return model::PrepareMessage(m_bmPrivateKeyTree, stepIdentifier, height, hashRange);
 			}
 
 		private:
 			finalization::FinalizationConfiguration m_config;
 			const io::BlockStorageCache& m_blockStorage;
 			const io::ProofStorageCache& m_proofStorage;
-			crypto::OtsTree m_otsTree;
+			crypto::AggregateBmPrivateKeyTree m_bmPrivateKeyTree;
 		};
 
 		// endregion
@@ -125,7 +115,7 @@ namespace catapult { namespace chain {
 			const finalization::FinalizationConfiguration& config,
 			const io::BlockStorageCache& blockStorage,
 			const io::ProofStorageCache& proofStorage,
-			crypto::OtsTree&& otsTree) {
-		return std::make_unique<DefaultFinalizationMessageFactory>(config, blockStorage, proofStorage, std::move(otsTree));
+			crypto::AggregateBmPrivateKeyTree&& bmPrivateKeyTree) {
+		return std::make_unique<DefaultFinalizationMessageFactory>(config, blockStorage, proofStorage, std::move(bmPrivateKeyTree));
 	}
 }}
