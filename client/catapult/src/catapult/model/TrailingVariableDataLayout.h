@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "catapult/utils/NonCopyable.h"
 #include <stdint.h>
 
 namespace catapult { namespace model {
@@ -26,9 +27,8 @@ namespace catapult { namespace model {
 #pragma pack(push, 1)
 
 	/// Defines a layout for a fixed header followed by variable data.
-	/// \note Do not derive from SizePrefixedEntity in order to allow copying.
 	template<typename TDerived, typename TVariableDataType>
-	struct TrailingVariableDataLayout {
+	struct TrailingVariableDataLayout : public utils::NonCopyable {
 	public:
 		/// Data size.
 		uint32_t Size;
