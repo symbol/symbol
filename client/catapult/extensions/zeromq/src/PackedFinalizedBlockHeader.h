@@ -18,29 +18,24 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "ZeroMqFinalizationSubscriber.h"
-#include "PackedFinalizedBlockHeader.h"
-#include "ZeroMqEntityPublisher.h"
+#pragma once
+#include "catapult/model/FinalizationRound.h"
 
 namespace catapult { namespace zeromq {
 
-	namespace {
-		class ZeroMqFinalizationSubscriber : public subscribers::FinalizationSubscriber {
-		public:
-			explicit ZeroMqFinalizationSubscriber(ZeroMqEntityPublisher& publisher) : m_publisher(publisher)
-			{}
+#pragma pack(push, 1)
 
-		public:
-			void notifyFinalizedBlock(const model::FinalizationRound& round, Height height, const Hash256& hash) override {
-				m_publisher.publishFinalizedBlock({ round, height, hash });
-			}
+	/// Packed finalized block header.
+	struct PackedFinalizedBlockHeader {
+		/// Finalization round.
+		model::FinalizationRound Round;
 
-		private:
-			ZeroMqEntityPublisher& m_publisher;
-		};
-	}
+		/// Finalization height.
+		catapult::Height Height;
 
-	std::unique_ptr<subscribers::FinalizationSubscriber> CreateZeroMqFinalizationSubscriber(ZeroMqEntityPublisher& publisher) {
-		return std::make_unique<ZeroMqFinalizationSubscriber>(publisher);
-	}
+		/// Finalization hash.
+		Hash256 Hash;
+	};
+
+#pragma pack(pop)
 }}

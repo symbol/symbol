@@ -20,6 +20,7 @@
 
 #include "zeromq/src/ZeroMqEntityPublisher.h"
 #include "sdk/src/extensions/ConversionExtensions.h"
+#include "zeromq/src/PackedFinalizedBlockHeader.h"
 #include "zeromq/src/PublisherUtils.h"
 #include "catapult/model/Cosignature.h"
 #include "catapult/model/Elements.h"
@@ -62,7 +63,7 @@ namespace catapult { namespace zeromq {
 			}
 
 			void publishFinalizedBlock(const model::FinalizationRound& round, Height height, const Hash256& hash) {
-				publisher().publishFinalizedBlock(round, height, hash);
+				publisher().publishFinalizedBlock({ round, height, hash });
 			}
 
 			void publishTransaction(TransactionMarker topicMarker, const model::TransactionInfo& transactionInfo, Height height) {

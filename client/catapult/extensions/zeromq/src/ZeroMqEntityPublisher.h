@@ -34,6 +34,7 @@ namespace catapult {
 		class TransactionRegistry;
 		struct TransactionStatus;
 	}
+	namespace zeromq { struct PackedFinalizedBlockHeader; }
 }
 
 namespace catapult { namespace zeromq {
@@ -89,8 +90,8 @@ namespace catapult { namespace zeromq {
 		/// Publishes the \a height after which all blocks were dropped.
 		void publishDropBlocks(Height height);
 
-		/// Publishes a finalized block with \a height and \a hash at \a round.
-		void publishFinalizedBlock(const model::FinalizationRound& round, Height height, const Hash256& hash);
+		/// Publishes a finalized block \a header.
+		void publishFinalizedBlock(const PackedFinalizedBlockHeader& header);
 
 		/// Publishes a transaction using \a topicMarker, \a transactionElement and \a height.
 		void publishTransaction(TransactionMarker topicMarker, const model::TransactionElement& transactionElement, Height height);

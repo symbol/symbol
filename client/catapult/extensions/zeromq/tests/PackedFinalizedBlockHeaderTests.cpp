@@ -18,29 +18,36 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "ZeroMqFinalizationSubscriber.h"
-#include "PackedFinalizedBlockHeader.h"
-#include "ZeroMqEntityPublisher.h"
+#include "zeromq/src/PackedFinalizedBlockHeader.h"
+#include "tests/test/nodeps/Alignment.h"
+#include "tests/TestHarness.h"
 
 namespace catapult { namespace zeromq {
 
-	namespace {
-		class ZeroMqFinalizationSubscriber : public subscribers::FinalizationSubscriber {
-		public:
-			explicit ZeroMqFinalizationSubscriber(ZeroMqEntityPublisher& publisher) : m_publisher(publisher)
-			{}
+#define TEST_CLASS PackedFinalizedBlockHeaderTests
 
-		public:
-			void notifyFinalizedBlock(const model::FinalizationRound& round, Height height, const Hash256& hash) override {
-				m_publisher.publishFinalizedBlock({ round, height, hash });
-			}
+#define HEADER_FIELDS FIELD(Round) FIELD(Height) FIELD(Hash)
 
-		private:
-			ZeroMqEntityPublisher& m_publisher;
-		};
+	TEST(TEST_CLASS, HeaderHasExpectedSize) {
+		// Arrange:
+		auto expectedSize = 0u;
+
+#define FIELD(X) expectedSize += SizeOf32<decltype(PackedFinalizedBlockHeader::X)>();
+		HEADER_FIELDS
+#undef FIELD
+
+		// Assert:
+		EXPECT_EQ(expectedSize, sizeof(PackedFinalizedBlockHeader));
+		EXPECT_EQ(48u, sizeof(PackedFinalizedBlockHeader));
 	}
 
-	std::unique_ptr<subscribers::FinalizationSubscriber> CreateZeroMqFinalizationSubscriber(ZeroMqEntityPublisher& publisher) {
-		return std::make_unique<ZeroMqFinalizationSubscriber>(publisher);
+	TEST(TEST_CLASS, HeaderHasProperAlignment) {
+#define FIELD(X) EXPECT_ALIGNED(PackedFinalizedBlockHeader, X);
+		HEADER_FIELDS
+#undef FIELD
+
+		EXPECT_EQ(0u, sizeof(PackedFinalizedBlockHeader) % 8);
 	}
+
+#undef HEADER_FIELDS
 }}
