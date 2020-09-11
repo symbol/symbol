@@ -21,6 +21,8 @@ Hash256:
   "$ref": "./Hash256.yml"
 Height:
   "$ref": "./Height.yml"
+FinalizedHeight:
+  "$ref": "./FinalizedHeight.yml"
 Importance:
   "$ref": "./Importance.yml"
 LinkActionEnum:
