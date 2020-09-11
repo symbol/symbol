@@ -1,3 +1,4 @@
 type: integer
+format: int64
 description: Finalization point
 example: 0
