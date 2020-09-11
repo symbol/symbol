@@ -13,6 +13,8 @@ CosignatureVersion:
   "$ref": "./CosignatureVersion.yml"
 Difficulty:
   "$ref": "./Difficulty.yml"
+FinalizationEpoch:
+   "$ref": "./FinalizationEpoch.yml"
 FinalizationPoint:
   "$ref": "./FinalizationPoint.yml"
 Hash256:
