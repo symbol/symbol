@@ -1,12 +1,12 @@
 type: object
 required:
   - publicKey
-  - startPoint
-  - endPoint
+  - startEpoch
+  - endEpoch
 properties:
   publicKey:
     type: string
-  startPoint:
-    type: string
-  endPoint:
-    type: string
+  startEpoch:
+    $ref: "../../../schemas/FinalizationEpoch.yml"
+  endEpoch:
+    $ref: "../../../schemas/FinalizationEpoch.yml"
