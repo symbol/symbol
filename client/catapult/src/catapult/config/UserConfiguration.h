@@ -37,6 +37,9 @@ namespace catapult { namespace config {
 		/// Certificate directory.
 		std::string CertificateDirectory;
 
+		/// Voting keys directory.
+		std::string VotingKeysDirectory;
+
 		/// Plugins directory.
 		std::string PluginsDirectory;
 

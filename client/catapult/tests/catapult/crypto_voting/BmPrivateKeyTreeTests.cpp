@@ -143,13 +143,28 @@ namespace catapult { namespace crypto {
 		AssertCanSign(End_Key);
 	}
 
-	TEST(TEST_CLASS, CanResignWithSameKey) {
+	TEST(TEST_CLASS, CanResignDifferentMessageWithSameKey) {
 		// Arrange:
 		TestContext context;
 
 		// Act + Assert:
 		for (auto i = 0u; i < 5u; ++i)
 			test::AssertCanSign(context.tree(), { 10, 3 });
+	}
+
+	TEST(TEST_CLASS, CanResignSameMessageWithSameKey) {
+		// Arrange:
+		TestContext context;
+		auto messageBuffer = test::GenerateRandomArray<10>();
+		auto referenceSignature = context.tree().sign({ 10, 3 }, messageBuffer);
+
+		for (auto i = 0u; i < 5u; ++i) {
+			// Act:
+			auto signature = context.tree().sign({ 10, 3 }, messageBuffer);
+
+			// Assert:
+			EXPECT_EQ(referenceSignature, signature) << i;
+		}
 	}
 
 	TEST(TEST_CLASS, CanSignWithMultipleIncreasingValidKeys) {

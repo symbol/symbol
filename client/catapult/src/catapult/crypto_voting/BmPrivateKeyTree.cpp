@@ -171,9 +171,9 @@ namespace catapult { namespace crypto {
 		}
 
 		void wipe(uint64_t identifier) {
-			auto newSize = std::min<size_t>(m_levelSignedPrivateKeys.size(), m_endIdentifier - identifier);
-			while (m_levelSignedPrivateKeys.size() > newSize)
-				m_levelSignedPrivateKeys.pop_back();
+			// detaching key pair into local will zero private key when local is destroyed
+			for (auto i = m_startIdentifier; i <= identifier; ++i)
+				auto keyPair = m_levelSignedPrivateKeys[m_endIdentifier - i].detachKeyPair();
 		}
 
 		BmKeyPair detachKeyPairAt(uint64_t identifier) {

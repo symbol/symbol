@@ -48,13 +48,16 @@ namespace catapult { namespace chain {
 	private:
 		using FinalizationStageAdvancerPointer = std::unique_ptr<FinalizationStageAdvancer>;
 		using StageAdvancerFactory = std::function<FinalizationStageAdvancerPointer (const model::FinalizationRound&, Timestamp)>;
+		using MessagePredicate = predicate<const model::FinalizationMessage&>;
 		using MessageSink = consumer<std::unique_ptr<model::FinalizationMessage>&&>;
 
 	public:
-		/// Creates an orchestrator around \a votingStatus, \a stageAdvancerFactory, \a messageSink and \a pMessageFactory.
+		/// Creates an orchestrator around \a votingStatus, \a stageAdvancerFactory, \a messagePredicate, \a messageSink
+		/// and \a pMessageFactory.
 		FinalizationOrchestrator(
 				const VotingStatus& votingStatus,
 				const StageAdvancerFactory& stageAdvancerFactory,
+				const MessagePredicate& messagePredicate,
 				const MessageSink& messageSink,
 				std::unique_ptr<FinalizationMessageFactory>&& pMessageFactory);
 
@@ -76,6 +79,7 @@ namespace catapult { namespace chain {
 	private:
 		VotingStatus m_votingStatus;
 		StageAdvancerFactory m_stageAdvancerFactory;
+		MessagePredicate m_messagePredicate;
 		MessageSink m_messageSink;
 		std::unique_ptr<FinalizationMessageFactory> m_pMessageFactory;
 

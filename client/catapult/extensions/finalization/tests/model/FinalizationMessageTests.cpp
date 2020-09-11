@@ -177,40 +177,6 @@ namespace catapult { namespace model {
 		// endregion
 	}
 
-	// region IsEligibleVoter
-
-	namespace {
-		void RunIsEligibleVoterTest(bool expectedResult, VoterType voterType) {
-			// Arrange:
-			RunFinalizationContextTest([expectedResult, voterType](const auto& context, const auto& keyPairDescriptors) {
-				const auto& keyPairDescriptor = keyPairDescriptors[utils::to_underlying_type(voterType)];
-
-				auto storage = mocks::MockSeekableMemoryStream();
-				auto bmPrivateKeyTree = crypto::AggregateBmPrivateKeyTree([&context, &keyPairDescriptor, &storage]() {
-					auto bmOptions = crypto::BmOptions{ context.config().VotingKeyDilution, { 0, 2 }, { 15, 1 } };
-					auto tree = crypto::BmPrivateKeyTree::Create(test::CopyKeyPair(keyPairDescriptor.VotingKeyPair), storage, bmOptions);
-					return std::make_unique<crypto::BmPrivateKeyTree>(std::move(tree));
-				});
-
-				// Act:
-				auto isEligibleVoter = IsEligibleVoter(bmPrivateKeyTree, context);
-
-				// Assert:
-				EXPECT_EQ(expectedResult, isEligibleVoter);
-			});
-		}
-	}
-
-	TEST(TEST_CLASS, IsEligibleVoterReturnsFalseWhenVoterIsNotEligible) {
-		RunIsEligibleVoterTest(false, VoterType::Ineligible);
-	}
-
-	TEST(TEST_CLASS, IsEligibleVoterReturnsTrueWhenVoterIsEligible) {
-		RunIsEligibleVoterTest(true, VoterType::Large);
-	}
-
-	// endregion
-
 	// region PrepareMessage
 
 	namespace {

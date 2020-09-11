@@ -50,11 +50,6 @@ namespace catapult { namespace model {
 
 	// TODO: FinalizationContext::lookup expects BLS key, but, for now, interpret it as ED25519 key
 
-	bool IsEligibleVoter(const crypto::AggregateBmPrivateKeyTree& bmPrivateKeyTree, const FinalizationContext& context) {
-		auto accountView = context.lookup(bmPrivateKeyTree.rootPublicKey().copyTo<VotingKey>());
-		return Amount() != accountView.Weight;
-	}
-
 	std::unique_ptr<FinalizationMessage> PrepareMessage(
 			crypto::AggregateBmPrivateKeyTree& bmPrivateKeyTree,
 			const StepIdentifier& stepIdentifier,

@@ -186,11 +186,15 @@ namespace catapult { namespace chain {
 
 								return pStageAdvancer;
 							},
+							[this](const auto& message) {
+								return m_ineligibleVoterStage != message.StepIdentifier.Stage();
+							},
 							[this](auto&& pMessage) {
 								m_messages.push_back(std::move(pMessage));
 							},
 							std::move(m_pMessageFactory))
 					, m_createCompletedStageAdvancer(false)
+					, m_ineligibleVoterStage(model::FinalizationStage::Count)
 			{}
 
 		public:
@@ -224,12 +228,18 @@ namespace catapult { namespace chain {
 				m_pMessageFactoryRaw->bypass();
 			}
 
+			void simulateIneligibleVoter(model::FinalizationStage stage) {
+				m_ineligibleVoterStage = stage;
+			}
+
 		private:
 			std::unique_ptr<MockFinalizationMessageFactory> m_pMessageFactory; // moved into m_orchestrator
 			MockFinalizationMessageFactory* m_pMessageFactoryRaw;
 			FinalizationOrchestrator m_orchestrator;
 
 			bool m_createCompletedStageAdvancer;
+			model::FinalizationStage m_ineligibleVoterStage;
+
 			model::HeightHashPair m_defaultTarget;
 			std::vector<MockFinalizationStageAdvancer*> m_stageAdvancers;
 			std::vector<std::unique_ptr<model::FinalizationMessage>> m_messages;
@@ -562,6 +572,30 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(std::vector<Timestamp>(), context.stageAdvancers().back()->times());
 	}
 
+	TEST(TEST_CLASS, PollCanProgressThroughEntireRoundInOneCallWhenVoterIsIneligibleForStage) {
+		// Arrange: simulate a voter that is ineligible for prevote but not precommit (this can't happen in a real situation)
+		TestContext context(test::CreateFinalizationRound(3, 4));
+		context.simulateIneligibleVoter(model::FinalizationStage::Prevote);
+
+		auto hash = test::GenerateRandomByteArray<Hash256>();
+		context.createCompletedStageAdvancer({ Height(123), hash });
+
+		// Act:
+		context.orchestrator().poll(Timestamp(100));
+
+		// Assert:
+		AssertVotingStatus({ test::CreateFinalizationRound(3, 5), false, false }, context.orchestrator().votingStatus());
+
+		EXPECT_EQ(std::vector<MessageType>({ MessageType::Prevote, MessageType::Precommit }), context.messageFactory().messageTypes());
+		ASSERT_EQ(1u, context.messages().size());
+		AssertPrecommit(*context.messages()[0], { FinalizationEpoch(3), FinalizationPoint(4) }, Height(123), hash);
+
+		ASSERT_EQ(2u, context.stageAdvancers().size());
+		EXPECT_EQ(test::CreateFinalizationRound(3, 5), context.stageAdvancers().back()->round());
+		EXPECT_EQ(Timestamp(100), context.stageAdvancers().back()->time());
+		EXPECT_EQ(std::vector<Timestamp>(), context.stageAdvancers().back()->times());
+	}
+
 	TEST(TEST_CLASS, PollCanProgressThroughEntireRoundInOneCall_PreviouslySentPrevote) {
 		// Arrange:
 		TestContext context({ test::CreateFinalizationRound(3, 4), true, false });
@@ -780,7 +814,7 @@ namespace catapult { namespace chain {
 		// Assert: aggregator was pruned
 		context.checkAggregator(6, test::CreateFinalizationRound(10, 2), test::CreateFinalizationRound(11, 10));
 
-		// - storage was called (proof step identifier comes from test::CreateMessage)
+		// - storage was called
 		const auto& savedProofDescriptors = context.proofStorage().savedProofDescriptors();
 		ASSERT_EQ(1u, savedProofDescriptors.size());
 		EXPECT_EQ(test::CreateFinalizationRound(Finalizer_Finalization_Epoch.unwrap(), 10), savedProofDescriptors[0].Round);
@@ -819,7 +853,7 @@ namespace catapult { namespace chain {
 		// Assert: aggregator was pruned
 		context.checkAggregator(6, test::CreateFinalizationRound(10, 2), test::CreateFinalizationRound(11, 10));
 
-		// - storage was called (proof step identifier comes from test::CreateMessage)
+		// - storage was called
 		const auto& savedProofDescriptors = context.proofStorage().savedProofDescriptors();
 		ASSERT_EQ(1u, savedProofDescriptors.size());
 		EXPECT_EQ(test::CreateFinalizationRound(Finalizer_Finalization_Epoch.unwrap(), 8), savedProofDescriptors[0].Round);

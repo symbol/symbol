@@ -39,10 +39,10 @@ namespace catapult { namespace builders {
 		/// Sets the linked public key to \a linkedPublicKey.
 		void setLinkedPublicKey(const VotingKey& linkedPublicKey);
 
-		/// Sets the start epoch to \a startEpoch.
+		/// Sets the start finalization epoch to \a startEpoch.
 		void setStartEpoch(FinalizationEpoch startEpoch);
 
-		/// Sets the end epoch to \a endEpoch.
+		/// Sets the end finalization epoch to \a endEpoch.
 		void setEndEpoch(FinalizationEpoch endEpoch);
 
 		/// Sets the link action to \a linkAction.

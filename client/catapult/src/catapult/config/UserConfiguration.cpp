@@ -43,11 +43,12 @@ namespace catapult { namespace config {
 
 		LOAD_STORAGE_PROPERTY(DataDirectory);
 		LOAD_STORAGE_PROPERTY(CertificateDirectory);
+		LOAD_STORAGE_PROPERTY(VotingKeysDirectory);
 		LOAD_STORAGE_PROPERTY(PluginsDirectory);
 
 #undef LOAD_STORAGE_PROPERTY
 
-		utils::VerifyBagSizeExact(bag, 4);
+		utils::VerifyBagSizeExact(bag, 5);
 		return config;
 	}
 

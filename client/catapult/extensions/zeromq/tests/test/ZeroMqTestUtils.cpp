@@ -20,6 +20,7 @@
 
 #include "ZeroMqTestUtils.h"
 #include "sdk/src/extensions/ConversionExtensions.h"
+#include "zeromq/src/PackedFinalizedBlockHeader.h"
 #include "zeromq/src/PublisherUtils.h"
 #include "catapult/model/Address.h"
 #include "catapult/model/Cosignature.h"
@@ -121,13 +122,12 @@ namespace catapult { namespace test {
 			const model::FinalizationRound& round,
 			Height height,
 			const Hash256& hash) {
-		ASSERT_EQ(4u, message.size());
+		ASSERT_EQ(2u, message.size());
 
 		auto marker = zeromq::BlockMarker::Finalized_Block_Marker;
+		auto expectedHeader = zeromq::PackedFinalizedBlockHeader{ round, height, hash };
 		AssertMessagePart(message[0], &marker, sizeof(zeromq::BlockMarker));
-		AssertMessagePart(message[1], &height, sizeof(Height));
-		AssertMessagePart(message[2], &round, sizeof(model::FinalizationRound));
-		AssertMessagePart(message[3], &hash, Hash256::Size);
+		AssertMessagePart(message[1], &expectedHeader, sizeof(zeromq::PackedFinalizedBlockHeader));
 	}
 
 	void AssertTransactionElementMessage(
