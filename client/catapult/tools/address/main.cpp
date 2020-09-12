@@ -20,7 +20,6 @@
 
 #include "tools/ToolMain.h"
 #include "catapult/crypto/KeyPair.h"
-#include "catapult/crypto/KeyUtils.h"
 #include "catapult/model/Address.h"
 #include "catapult/utils/HexParser.h"
 #include "catapult/utils/Logging.h"
@@ -81,7 +80,9 @@ namespace catapult { namespace tools { namespace address {
 
 		private:
 			void output(model::NetworkIdentifier networkIdentifier, const crypto::KeyPair& keyPair) {
-				std::cout << std::setw(Label_Width) << "private key: " << crypto::FormatKey(keyPair.privateKey()) << std::endl;
+				std::cout
+						<< std::setw(Label_Width) << "private key: "
+						<< crypto::Ed25519Utils::FormatPrivateKey(keyPair.privateKey()) << std::endl;
 				output(networkIdentifier, keyPair.publicKey());
 			}
 

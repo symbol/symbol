@@ -25,7 +25,6 @@
 #include "sdk/src/extensions/ConversionExtensions.h"
 #include "sdk/src/extensions/TransactionExtensions.h"
 #include "plugins/txes/namespace/src/model/NamespaceIdGenerator.h"
-#include "catapult/crypto/KeyPair.h"
 #include "catapult/crypto/Signer.h"
 #include "catapult/model/Address.h"
 #include "catapult/model/NetworkIdentifier.h"

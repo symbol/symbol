@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "catapult/crypto/KeyPair.h"
 #include "catapult/model/Transaction.h"
 
 namespace catapult { namespace extensions {

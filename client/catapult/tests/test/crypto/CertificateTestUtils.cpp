@@ -19,7 +19,6 @@
 **/
 
 #include "CertificateTestUtils.h"
-#include "catapult/crypto/KeyPair.h"
 #include "catapult/utils/HexParser.h"
 #include "catapult/exceptions.h"
 #include "tests/test/nodeps/KeyTestUtils.h"

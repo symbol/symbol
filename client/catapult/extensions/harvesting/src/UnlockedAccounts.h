@@ -22,7 +22,6 @@
 #include "BlockGeneratorAccountDescriptor.h"
 #include "DelegatePrioritizationPolicy.h"
 #include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/crypto/KeyPair.h"
 #include "catapult/utils/Hashers.h"
 #include <vector>
 

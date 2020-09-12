@@ -20,7 +20,6 @@
 
 #include "sdk/src/extensions/BlockExtensions.h"
 #include "sdk/src/extensions/TransactionExtensions.h"
-#include "catapult/crypto/KeyPair.h"
 #include "catapult/model/BlockUtils.h"
 #include "catapult/model/NetworkIdentifier.h"
 #include "tests/int/stress/test/EntityDump.h"

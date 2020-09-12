@@ -50,12 +50,11 @@ namespace catapult { namespace tools {
 
 	crypto::KeyPair GetDeterministicKeyPair(const Key& baseKey, uint64_t keyId) {
 		auto key = GetDeterministicKey(baseKey, keyId);
-		return crypto::KeyPair::FromPrivate(crypto::PrivateKey::Generate([iter = key.cbegin()]() mutable { return *iter++; }));
+		return crypto::KeyPair::FromPrivate(crypto::PrivateKey::FromBuffer(key));
 	}
 
 	crypto::KeyPair CopyKeyPair(const crypto::KeyPair& keyPair) {
-		auto iter = keyPair.privateKey().begin();
-		return crypto::KeyPair::FromPrivate(crypto::PrivateKey::Generate([&iter]() { return *iter++; }));
+		return crypto::KeyPair::FromPrivate(crypto::PrivateKey::FromBuffer(keyPair.privateKey()));
 	}
 
 	std::vector<Address> PrepareAddresses(size_t count) {

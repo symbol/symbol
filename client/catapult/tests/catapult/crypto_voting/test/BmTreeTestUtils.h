@@ -19,7 +19,7 @@
 **/
 
 #pragma once
-#include "catapult/crypto/PrivateKey.h"
+#include "catapult/crypto/KeyPair.h"
 #include "catapult/crypto_voting/BmOptions.h"
 #include "tests/TestHarness.h"
 

@@ -19,10 +19,9 @@
 **/
 
 #pragma once
-#include "catapult/types.h"
+#include "catapult/crypto/KeyPair.h"
 #include <memory>
 
-namespace catapult { namespace crypto { class KeyPair; } }
 struct evp_pkey_st;
 struct x509_st;
 struct x509_store_ctx_st;

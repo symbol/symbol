@@ -89,15 +89,12 @@ namespace catapult { namespace crypto {
 
 	crypto::KeyPair ReadKeyPairFromPrivateKeyPemFile(const std::string& filename) {
 		return TransformPemFileContents<PrivateKeyPemTraits>(filename, [](const auto& key) {
-			std::array<uint8_t, Key::Size> privateKeyBuffer;
+			std::array<uint8_t, PrivateKey::Size> privateKeyBuffer;
 			auto privateKeyBufferSize = Key::Size;
 			if (!EVP_PKEY_get_raw_private_key(&key, privateKeyBuffer.data(), &privateKeyBufferSize))
 				return std::make_pair(KeyPair::FromPrivate(PrivateKey()), false);
 
-			auto i = 0u;
-			auto privateKey = PrivateKey::Generate([&privateKeyBuffer, &i]() {
-				return privateKeyBuffer[i++];
-			});
+			auto privateKey = PrivateKey::FromBuffer(privateKeyBuffer);
 			return std::make_pair(KeyPair::FromPrivate(std::move(privateKey)), true);
 		});
 	}

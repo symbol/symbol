@@ -21,7 +21,6 @@
 #pragma once
 #include "finalization/src/model/FinalizationContext.h"
 #include "finalization/src/model/FinalizationMessage.h"
-#include "catapult/crypto/KeyPair.h"
 #include "catapult/model/FinalizationRound.h"
 #include <memory>
 

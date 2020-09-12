@@ -19,7 +19,6 @@
 **/
 
 #pragma once
-#include "catapult/crypto/KeyPair.h"
 #include "catapult/net/ConnectionSettings.h"
 #include "catapult/thread/Future.h"
 #include "catapult/types.h"

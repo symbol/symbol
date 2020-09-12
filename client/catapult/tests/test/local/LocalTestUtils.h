@@ -20,7 +20,6 @@
 
 #pragma once
 #include "catapult/config/CatapultConfiguration.h"
-#include "catapult/crypto/KeyPair.h"
 #include "catapult/plugins/PluginManager.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/net/NodeTestUtils.h"

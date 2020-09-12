@@ -23,8 +23,6 @@
 #include <set>
 #include <vector>
 
-namespace catapult { namespace crypto { class KeyPair; } }
-
 namespace catapult { namespace test {
 
 #pragma pack(push, 1)

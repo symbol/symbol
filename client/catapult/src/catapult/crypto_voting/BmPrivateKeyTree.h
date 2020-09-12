@@ -23,7 +23,6 @@
 #include "BmTreeSignature.h"
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/io/SeekableStream.h"
-#include <array>
 #include <memory>
 
 namespace catapult { namespace crypto {

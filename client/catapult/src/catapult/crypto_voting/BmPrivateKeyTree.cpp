@@ -41,11 +41,7 @@ namespace catapult { namespace crypto {
 		}
 
 		BmPublicKey GetPublicKey(const BmPrivateKey& privateKey) {
-			auto iter = privateKey.begin();
-			auto keyPair = BmKeyPair::FromPrivate(BmPrivateKey::Generate([&iter]{
-				return *iter++;
-			}));
-			return keyPair.publicKey();
+			return BmKeyPair::FromPrivate(BmPrivateKey::FromBuffer(privateKey)).publicKey();
 		}
 
 		RawBuffer ToBuffer(const uint64_t& value) {

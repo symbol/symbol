@@ -19,8 +19,8 @@
 **/
 
 #pragma once
+#include "catapult/crypto/KeyPair.h"
 #include "catapult/exceptions.h"
-#include "catapult/types.h"
 #include <cstring>
 
 namespace catapult { namespace test {

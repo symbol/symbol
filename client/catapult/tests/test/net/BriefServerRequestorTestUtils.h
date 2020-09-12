@@ -25,8 +25,6 @@
 #include "catapult/net/NodeRequestResult.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 
-namespace catapult { namespace crypto { class KeyPair; } }
-
 namespace catapult { namespace test {
 
 	// region RequestorTestContext

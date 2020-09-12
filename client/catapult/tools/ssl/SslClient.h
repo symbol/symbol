@@ -22,7 +22,6 @@
 #include "CertificateDirectoryGenerator.h"
 #include "tools/ToolThreadUtils.h"
 #include "catapult/api/ChainApi.h"
-#include "catapult/crypto/KeyPair.h"
 #include "catapult/ionet/Node.h"
 #include <boost/asio/ssl.hpp>
 

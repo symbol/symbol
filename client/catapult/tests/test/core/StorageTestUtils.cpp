@@ -20,7 +20,6 @@
 
 #include "StorageTestUtils.h"
 #include "sdk/src/extensions/BlockExtensions.h"
-#include "catapult/crypto/KeyPair.h"
 #include "catapult/io/FileBlockStorage.h"
 #include "catapult/io/PodIoUtils.h"
 #include "catapult/io/RawFile.h"

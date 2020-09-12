@@ -19,14 +19,12 @@
 **/
 
 #pragma once
+#include "catapult/crypto/KeyPair.h"
 #include "catapult/types.h"
 #include <memory>
 #include <vector>
 
-namespace catapult {
-	namespace crypto { class KeyPair; }
-	namespace model { struct Transaction; }
-}
+namespace catapult { namespace model { struct Transaction; } }
 
 namespace catapult { namespace test {
 

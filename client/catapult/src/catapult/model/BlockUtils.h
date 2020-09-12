@@ -23,8 +23,6 @@
 #include "Elements.h"
 #include "EntityInfo.h"
 
-namespace catapult { namespace crypto { class KeyPair; } }
-
 namespace catapult { namespace model {
 
 	// region hashes

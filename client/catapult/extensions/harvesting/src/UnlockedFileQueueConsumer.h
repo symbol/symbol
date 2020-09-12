@@ -21,14 +21,10 @@
 #pragma once
 #include "BlockGeneratorAccountDescriptor.h"
 #include "HarvestRequest.h"
-#include "catapult/crypto/KeyPair.h"
 #include "catapult/functions.h"
 #include <string>
 
-namespace catapult {
-	namespace config { class CatapultDirectory; }
-	namespace crypto { class KeyPair; }
-}
+namespace catapult { namespace config { class CatapultDirectory; } }
 
 namespace catapult { namespace harvesting {
 
