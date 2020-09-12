@@ -30,6 +30,7 @@
 #include "tests/test/nemesis/NemesisTestUtils.h"
 #include "tests/test/nodeps/MijinConstants.h"
 #include "tests/test/other/mocks/MockBlockChangeSubscriber.h"
+#include "tests/test/other/mocks/MockFinalizationSubscriber.h"
 #include "tests/test/other/mocks/MockStateChangeSubscriber.h"
 #include "tests/TestHarness.h"
 
@@ -52,6 +53,11 @@ namespace catapult { namespace local {
 		public:
 			auto& notifier() {
 				return m_notifier;
+			}
+
+		public:
+			auto nemesisEntityHash() {
+				return m_pStorage->view().loadBlockElement(Height(1))->EntityHash;
 			}
 
 		public:
@@ -91,9 +97,9 @@ namespace catapult { namespace local {
 		// endregion
 	}
 
-	// region block notifications
+	// region block change notifications
 
-	TEST(TEST_CLASS, BlockNotificationsAreNotRaisedWhenHeightIsGreaterThanOne) {
+	TEST(TEST_CLASS, BlockChangeNotificationsAreNotRaisedWhenHeightIsGreaterThanOne) {
 		// Arrange:
 		TestContext context(2);
 		mocks::MockBlockChangeSubscriber subscriber;
@@ -106,7 +112,7 @@ namespace catapult { namespace local {
 		EXPECT_EQ(0u, capturedBlockElements.size());
 	}
 
-	TEST(TEST_CLASS, BlockNotificationsAreNotRaisedWhenHeightIsEqualToOneAndPreviousExecutionIsDetected) {
+	TEST(TEST_CLASS, BlockChangeNotificationsAreNotRaisedWhenHeightIsEqualToOneAndPreviousExecutionIsDetected) {
 		// Arrange: add account to indicate previous execution
 		TestContext context(1);
 		context.addRandomAccountToCache();
@@ -120,7 +126,7 @@ namespace catapult { namespace local {
 		EXPECT_EQ(0u, capturedBlockElements.size());
 	}
 
-	TEST(TEST_CLASS, BlockNotificationsAreRaisedWhenHeightIsEqualToOneAndPreviousExecutionIsNotDetected_WithoutStatement) {
+	TEST(TEST_CLASS, BlockChangeNotificationsAreRaisedWhenHeightIsEqualToOneAndPreviousExecutionIsNotDetected_WithoutStatement) {
 		// Arrange:
 		TestContext context(1);
 		mocks::MockBlockChangeSubscriber subscriber;
@@ -136,7 +142,7 @@ namespace catapult { namespace local {
 		EXPECT_FALSE(capturedBlockElements[0]->OptionalStatement);
 	}
 
-	TEST(TEST_CLASS, BlockNotificationsAreRaisedWhenHeightIsEqualToOneAndPreviousExecutionIsNotDetected_WithStatement) {
+	TEST(TEST_CLASS, BlockChangeNotificationsAreRaisedWhenHeightIsEqualToOneAndPreviousExecutionIsNotDetected_WithStatement) {
 		// Arrange:
 		TestContext context(1);
 		auto pBlockStatement = context.reseedNemesisWithStatement();
@@ -156,7 +162,40 @@ namespace catapult { namespace local {
 
 	// endregion
 
-	// region state notifications
+	// region finalization notifications
+
+	TEST(TEST_CLASS, FinalizationNotificationsAreNotRaisedWhenHeightIsGreaterThanOne) {
+		// Arrange:
+		TestContext context(2);
+		mocks::MockFinalizationSubscriber subscriber;
+
+		// Act:
+		EXPECT_THROW(context.notifier().raise(subscriber), catapult_runtime_error);
+
+		// Assert:
+		EXPECT_EQ(0u, subscriber.finalizedBlockParams().params().size());
+	}
+
+	TEST(TEST_CLASS, FinalizationNotificationsAreRaisedWhenHeightIsEqualToOne) {
+		// Arrange:
+		TestContext context(1);
+		mocks::MockFinalizationSubscriber subscriber;
+
+		// Act:
+		context.notifier().raise(subscriber);
+
+		// Assert:
+		ASSERT_EQ(1u, subscriber.finalizedBlockParams().params().size());
+
+		const auto& subscriberParams = subscriber.finalizedBlockParams().params()[0];
+		EXPECT_EQ(model::FinalizationRound({ FinalizationEpoch(1), FinalizationPoint(1) }), subscriberParams.Round);
+		EXPECT_EQ(Height(1), subscriberParams.Height);
+		EXPECT_EQ(context.nemesisEntityHash(), subscriberParams.Hash);
+	}
+
+	// endregion
+
+	// region state change notifications
 
 	namespace {
 		model::AddressSet GetAddedAccountAddresses(const cache::CacheChanges& cacheChanges) {
@@ -177,7 +216,7 @@ namespace catapult { namespace local {
 		}
 	}
 
-	TEST(TEST_CLASS, StateNotificationsAreNotRaisedWhenHeightIsGreaterThanOne) {
+	TEST(TEST_CLASS, StateChangeNotificationsAreNotRaisedWhenHeightIsGreaterThanOne) {
 		// Arrange:
 		TestContext context(2);
 		mocks::MockStateChangeSubscriber subscriber;
@@ -190,7 +229,7 @@ namespace catapult { namespace local {
 		EXPECT_EQ(0u, subscriber.numStateChanges());
 	}
 
-	TEST(TEST_CLASS, StateNotificationsAreRaisedWhenHeightIsEqualToOne) {
+	TEST(TEST_CLASS, StateChangeNotificationsAreRaisedWhenHeightIsEqualToOne) {
 		// Arrange:
 		TestContext context(1);
 		mocks::MockStateChangeSubscriber subscriber;

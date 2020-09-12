@@ -193,6 +193,7 @@ namespace catapult { namespace local {
 				if (m_pBlockChangeSubscriber)
 					notifier.raise(*m_pBlockChangeSubscriber);
 
+				notifier.raise(*m_pFinalizationSubscriber);
 				notifier.raise(*m_pStateChangeSubscriber);
 
 				// indicate the nemesis block is fully updated so that it can be processed downstream immediately

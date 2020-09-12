@@ -28,6 +28,7 @@
 #include "catapult/io/BlockStorageCache.h"
 #include "catapult/model/ChainScore.h"
 #include "catapult/plugins/PluginManager.h"
+#include "catapult/subscribers/FinalizationSubscriber.h"
 #include "catapult/subscribers/StateChangeInfo.h"
 #include "catapult/subscribers/StateChangeSubscriber.h"
 
@@ -58,6 +59,12 @@ namespace catapult { namespace local {
 	void NemesisBlockNotifier::raise(io::BlockChangeSubscriber& subscriber) {
 		raise([&subscriber](const auto& nemesisBlockElement) {
 			subscriber.notifyBlock(nemesisBlockElement);
+		});
+	}
+
+	void NemesisBlockNotifier::raise(subscribers::FinalizationSubscriber& subscriber) {
+		raise([&subscriber](const auto& nemesisBlockElement) {
+			subscriber.notifyFinalizedBlock({ FinalizationEpoch(1), FinalizationPoint(1) }, Height(1), nemesisBlockElement.EntityHash);
 		});
 	}
 
