@@ -30,7 +30,7 @@ namespace catapult { namespace model {
 	namespace {
 		// region test utils
 
-		model::FinalizationStatistics CreateFinalizationStatistics(uint32_t epoch, uint32_t point, uint64_t height) {
+		FinalizationStatistics CreateFinalizationStatistics(uint32_t epoch, uint32_t point, uint64_t height) {
 			return { { FinalizationEpoch(epoch), FinalizationPoint(point) }, Height(height), test::GenerateRandomByteArray<Hash256>() };
 		}
 
@@ -313,73 +313,71 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region multiple messages
+	// region multiple messages - filtering
+
+	namespace {
+		void RunFilteredMessageTest(const consumer<FinalizationMessage&, uint32_t>& messageModifier) {
+			// Arrange:
+			auto statistics = CreateFinalizationStatistics(3, 9, 111);
+
+			auto pMessage1 = utils::UniqueToShared(test::CreateMessage(Height(11), 3));
+			pMessage1->StepIdentifier = { FinalizationEpoch(3), FinalizationPoint(9), FinalizationStage::Prevote };
+			messageModifier(*pMessage1, 0);
+
+			auto pMessage2 = utils::UniqueToShared(test::CopyEntity(*pMessage1));
+			test::FillWithRandomData(pMessage2->Signature);
+			messageModifier(*pMessage2, 1);
+
+			auto pMessage3 = utils::UniqueToShared(test::CopyEntity(*pMessage1));
+			test::FillWithRandomData(pMessage3->Signature);
+			messageModifier(*pMessage3, 2);
+
+			// Act:
+			auto pProof = CreateFinalizationProof(statistics, { pMessage1, pMessage2, pMessage3 });
+
+			// Assert:
+			ASSERT_EQ(sizeof(FinalizationProof) + CalculateMessageGroupsSize(1, 3, 1), pProof->Size);
+			AssertEqualStatistics(statistics, *pProof);
+
+			auto messageGroups = pProof->MessageGroups();
+			auto messageGroupsIter = messageGroups.cbegin();
+			AssertMessageGroup(
+					*messageGroupsIter,
+					FinalizationStage::Prevote,
+					Height(11),
+					{ pMessage1->HashesPtr()[0], pMessage1->HashesPtr()[1], pMessage1->HashesPtr()[2] },
+					{ pMessage2->Signature },
+					"group 1");
+		}
+	}
 
 	TEST(TEST_CLASS, CanFilterFinalizationProofMessagesWithDifferentEpochs) {
-		// Arrange:
-		auto statistics = CreateFinalizationStatistics(3, 9, 111);
-
-		auto pMessage1 = utils::UniqueToShared(test::CreateMessage(Height(11), 3));
-		pMessage1->StepIdentifier = { FinalizationEpoch(2), FinalizationPoint(9), FinalizationStage::Prevote };
-
-		auto pMessage2 = utils::UniqueToShared(test::CopyEntity(*pMessage1));
-		test::FillWithRandomData(pMessage2->Signature);
-		pMessage2->StepIdentifier.Epoch = FinalizationEpoch(3);
-
-		auto pMessage3 = utils::UniqueToShared(test::CopyEntity(*pMessage1));
-		test::FillWithRandomData(pMessage3->Signature);
-		pMessage3->StepIdentifier.Epoch = FinalizationEpoch(4);
-
-		// Act:
-		auto pProof = CreateFinalizationProof(statistics, { pMessage1, pMessage2, pMessage3 });
-
-		// Assert:
-		ASSERT_EQ(sizeof(FinalizationProof) + CalculateMessageGroupsSize(1, 3, 1), pProof->Size);
-		AssertEqualStatistics(statistics, *pProof);
-
-		auto messageGroups = pProof->MessageGroups();
-		auto messageGroupsIter = messageGroups.cbegin();
-		AssertMessageGroup(
-				*messageGroupsIter,
-				FinalizationStage::Prevote,
-				Height(11),
-				{ pMessage1->HashesPtr()[0], pMessage1->HashesPtr()[1], pMessage1->HashesPtr()[2] },
-				{ pMessage2->Signature },
-				"group 1");
+		RunFilteredMessageTest([](auto& message, auto id) {
+			message.StepIdentifier.Epoch = FinalizationEpoch(2 + id);
+		});
 	}
 
 	TEST(TEST_CLASS, CanFilterFinalizationProofMessagesWithDifferentPoints) {
-		// Arrange:
-		auto statistics = CreateFinalizationStatistics(3, 9, 111);
-
-		auto pMessage1 = utils::UniqueToShared(test::CreateMessage(Height(11), 3));
-		pMessage1->StepIdentifier = { FinalizationEpoch(3), FinalizationPoint(8), FinalizationStage::Prevote };
-
-		auto pMessage2 = utils::UniqueToShared(test::CopyEntity(*pMessage1));
-		test::FillWithRandomData(pMessage2->Signature);
-		SetPoint(pMessage2->StepIdentifier, FinalizationPoint(9));
-
-		auto pMessage3 = utils::UniqueToShared(test::CopyEntity(*pMessage1));
-		test::FillWithRandomData(pMessage3->Signature);
-		SetPoint(pMessage3->StepIdentifier, FinalizationPoint(10));
-
-		// Act:
-		auto pProof = CreateFinalizationProof(statistics, { pMessage1, pMessage2, pMessage3 });
-
-		// Assert:
-		ASSERT_EQ(sizeof(FinalizationProof) + CalculateMessageGroupsSize(1, 3, 1), pProof->Size);
-		AssertEqualStatistics(statistics, *pProof);
-
-		auto messageGroups = pProof->MessageGroups();
-		auto messageGroupsIter = messageGroups.cbegin();
-		AssertMessageGroup(
-				*messageGroupsIter,
-				FinalizationStage::Prevote,
-				Height(11),
-				{ pMessage1->HashesPtr()[0], pMessage1->HashesPtr()[1], pMessage1->HashesPtr()[2] },
-				{ pMessage2->Signature },
-				"group 1");
+		RunFilteredMessageTest([](auto& message, auto id) {
+			SetPoint(message.StepIdentifier, FinalizationPoint(8 + id));
+		});
 	}
+
+	TEST(TEST_CLASS, CanFilterFinalizationProofMessagesWithDifferentVersions) {
+		RunFilteredMessageTest([](auto& message, auto id) {
+			message.Version = id;
+		});
+	}
+
+	TEST(TEST_CLASS, CanFilterFinalizationProofMessagesWithInvalidPadding) {
+		RunFilteredMessageTest([](auto& message, auto id) {
+			message.FinalizationMessage_Reserved1 = 0 == id % 2 ? 1 : 0;
+		});
+	}
+
+	// endregion
+
+	// region multiple messages - success
 
 	TEST(TEST_CLASS, CanCreateFinalizationProofWithMultipleMessages) {
 		// Arrange:

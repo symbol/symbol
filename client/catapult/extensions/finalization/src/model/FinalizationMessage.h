@@ -41,12 +41,21 @@ namespace catapult { namespace model {
 		/// Size of the header that can be skipped when signing/verifying.
 		static constexpr size_t Header_Size = sizeof(uint32_t) * 2 + sizeof(crypto::BmTreeSignature);
 
+		/// Message format version.
+		static constexpr uint8_t Current_Version = 1;
+
 	public:
-		/// Number of hashes.
-		uint32_t HashesCount;
+		/// Reserved padding to align Signature on 8-byte boundary.
+		uint32_t FinalizationMessage_Reserved1;
 
 		/// Message signature.
 		crypto::BmTreeSignature Signature;
+
+		/// Message version.
+		uint32_t Version;
+
+		/// Number of hashes.
+		uint32_t HashesCount;
 
 		/// Step identifer.
 		model::StepIdentifier StepIdentifier;
@@ -93,7 +102,13 @@ namespace catapult { namespace model {
 
 #define PROCESS_MESSAGE_RESULT_LIST \
 	/* Invalid message signature. */ \
-	ENUM_VALUE(Failure_Message_Signature) \
+	ENUM_VALUE(Failure_Signature) \
+	\
+	/* Invalid padding. */ \
+	ENUM_VALUE(Failure_Padding) \
+	\
+	/* Invalid version. */ \
+	ENUM_VALUE(Failure_Version) \
 	\
 	/* Invalid voter. */ \
 	ENUM_VALUE(Failure_Voter) \

@@ -46,11 +46,11 @@ namespace catapult { namespace model {
 
 	// region FinalizationMessage (size + alignment)
 
-#define MESSAGE_FIELDS FIELD(HashesCount) FIELD(Signature) FIELD(StepIdentifier) FIELD(Height)
+#define MESSAGE_FIELDS FIELD(Signature) FIELD(Version) FIELD(HashesCount) FIELD(StepIdentifier) FIELD(Height)
 
 	TEST(TEST_CLASS, FinalizationMessageHasExpectedSize) {
 		// Arrange:
-		auto expectedSize = sizeof(TrailingVariableDataLayout<FinalizationMessage, Hash256>);
+		auto expectedSize = sizeof(TrailingVariableDataLayout<FinalizationMessage, Hash256>) + 4;
 
 #define FIELD(X) expectedSize += sizeof(FinalizationMessage::X);
 		MESSAGE_FIELDS
@@ -58,7 +58,7 @@ namespace catapult { namespace model {
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(FinalizationMessage));
-		EXPECT_EQ(4 + 308u, sizeof(FinalizationMessage));
+		EXPECT_EQ(4 + 4 + 312u, sizeof(FinalizationMessage));
 	}
 
 	TEST(TEST_CLASS, FinalizationMessageHasProperAlignment) {
@@ -241,6 +241,9 @@ namespace catapult { namespace model {
 
 			// - check a few fields
 			EXPECT_EQ(sizeof(FinalizationMessage), pMessage->Size);
+
+			EXPECT_EQ(0u, pMessage->FinalizationMessage_Reserved1);
+			EXPECT_EQ(FinalizationMessage::Current_Version, pMessage->Version);
 			EXPECT_EQ(0u, pMessage->HashesCount);
 
 			EXPECT_EQ(DefaultStepIdentifier(), pMessage->StepIdentifier);
@@ -262,6 +265,9 @@ namespace catapult { namespace model {
 
 			// - check a few fields
 			EXPECT_EQ(sizeof(FinalizationMessage) + 3 * Hash256::Size, pMessage->Size);
+
+			EXPECT_EQ(0u, pMessage->FinalizationMessage_Reserved1);
+			EXPECT_EQ(FinalizationMessage::Current_Version, pMessage->Version);
 			EXPECT_EQ(3u, pMessage->HashesCount);
 
 			EXPECT_EQ(DefaultStepIdentifier(), pMessage->StepIdentifier);
@@ -302,17 +308,22 @@ namespace catapult { namespace model {
 
 	namespace {
 		template<typename TAction>
-		void RunProcessMessageTest(VoterType voterType, const StepIdentifier& stepIdentifier, uint32_t numHashes, TAction action) {
+		void RunProcessMessageTest(
+				VoterType voterType,
+				uint32_t numHashes,
+				const consumer<FinalizationMessage&>& modifyMessage,
+				TAction action) {
 			// Arrange:
-			RunFinalizationContextTest([&stepIdentifier, voterType, numHashes, action](
-					const auto& context,
-					const auto& keyPairDescriptors) {
+			RunFinalizationContextTest([voterType, numHashes, modifyMessage, action](const auto& context, const auto& keyPairDescriptors) {
 				const auto& keyPairDescriptor = keyPairDescriptors[utils::to_underlying_type(voterType)];
 
 				// - create message
 				auto pMessage = CreateMessage(numHashes);
-				pMessage->StepIdentifier = stepIdentifier;
+				pMessage->FinalizationMessage_Reserved1 = 0;
+				pMessage->Version = FinalizationMessage::Current_Version;
+				pMessage->StepIdentifier = DefaultStepIdentifier();
 				pMessage->Height = Height(987);
+				modifyMessage(*pMessage);
 				test::SignMessage(*pMessage, keyPairDescriptor.VotingKeyPair);
 
 				// Act + Assert:
@@ -322,7 +333,7 @@ namespace catapult { namespace model {
 
 		template<typename TAction>
 		void RunProcessMessageTest(VoterType voterType, uint32_t numHashes, TAction action) {
-			RunProcessMessageTest(voterType, DefaultStepIdentifier(), numHashes, action);
+			RunProcessMessageTest(voterType, numHashes, [](const auto&){}, action);
 		}
 	}
 
@@ -336,7 +347,33 @@ namespace catapult { namespace model {
 			auto processResultPair = ProcessMessage(message, context);
 
 			// Assert:
-			EXPECT_EQ(ProcessMessageResult::Failure_Message_Signature, processResultPair.first);
+			EXPECT_EQ(ProcessMessageResult::Failure_Signature, processResultPair.first);
+			EXPECT_EQ(0u, processResultPair.second);
+		});
+	}
+
+	TEST(TEST_CLASS, ProcessMessage_FailsWhenReservedDataIsNotCleared) {
+		// Arrange:
+		auto modifyMessage = [](auto& message) { message.FinalizationMessage_Reserved1 = 1; };
+		RunProcessMessageTest(VoterType::Large, 3, modifyMessage, [](const auto& context, const auto&, const auto& message) {
+			// Act:
+			auto processResultPair = ProcessMessage(message, context);
+
+			// Assert:
+			EXPECT_EQ(ProcessMessageResult::Failure_Padding, processResultPair.first);
+			EXPECT_EQ(0u, processResultPair.second);
+		});
+	}
+
+	TEST(TEST_CLASS, ProcessMessage_FailsWhenVersionIsIncorrect) {
+		// Arrange:
+		auto modifyMessage = [](auto& message) { ++message.Version; };
+		RunProcessMessageTest(VoterType::Large, 3, modifyMessage, [](const auto& context, const auto&, const auto& message) {
+			// Act:
+			auto processResultPair = ProcessMessage(message, context);
+
+			// Assert:
+			EXPECT_EQ(ProcessMessageResult::Failure_Version, processResultPair.first);
 			EXPECT_EQ(0u, processResultPair.second);
 		});
 	}

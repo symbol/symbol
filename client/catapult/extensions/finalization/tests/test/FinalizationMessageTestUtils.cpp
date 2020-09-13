@@ -81,6 +81,8 @@ namespace catapult { namespace test {
 		auto pMessage = utils::MakeUniqueWithSize<model::FinalizationMessage>(messageSize);
 		FillWithRandomData({ reinterpret_cast<uint8_t*>(pMessage.get()), messageSize });
 		pMessage->Size = messageSize;
+		pMessage->FinalizationMessage_Reserved1 = 0;
+		pMessage->Version = model::FinalizationMessage::Current_Version;
 		pMessage->HashesCount = numHashes;
 		pMessage->Height = height;
 		return pMessage;
@@ -90,6 +92,8 @@ namespace catapult { namespace test {
 		uint32_t messageSize = SizeOf32<model::FinalizationMessage>() + static_cast<uint32_t>(Hash256::Size);
 		auto pMessage = utils::MakeUniqueWithSize<model::FinalizationMessage>(messageSize);
 		pMessage->Size = messageSize;
+		pMessage->FinalizationMessage_Reserved1 = 0;
+		pMessage->Version = model::FinalizationMessage::Current_Version;
 		pMessage->HashesCount = 1;
 		pMessage->StepIdentifier = stepIdentifier;
 

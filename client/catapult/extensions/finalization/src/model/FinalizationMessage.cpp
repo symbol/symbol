@@ -66,6 +66,8 @@ namespace catapult { namespace model {
 
 		auto pMessage = utils::MakeUniqueWithSize<FinalizationMessage>(messageSize);
 		pMessage->Size = messageSize;
+		pMessage->FinalizationMessage_Reserved1 = 0;
+		pMessage->Version = FinalizationMessage::Current_Version;
 		pMessage->HashesCount = numHashes;
 		pMessage->StepIdentifier = stepIdentifier;
 		pMessage->Height = height;
@@ -84,9 +86,15 @@ namespace catapult { namespace model {
 		if (Amount() == accountView.Weight)
 			return std::make_pair(ProcessMessageResult::Failure_Voter, 0);
 
+		if (0 != message.FinalizationMessage_Reserved1)
+			return std::make_pair(ProcessMessageResult::Failure_Padding, 0);
+
+		if (FinalizationMessage::Current_Version != message.Version)
+			return std::make_pair(ProcessMessageResult::Failure_Version, 0);
+
 		auto keyIdentifier = StepIdentifierToBmKeyIdentifier(message.StepIdentifier, context.config().VotingKeyDilution);
 		if (!crypto::Verify(message.Signature, keyIdentifier, ToBuffer(message)))
-			return std::make_pair(ProcessMessageResult::Failure_Message_Signature, 0);
+			return std::make_pair(ProcessMessageResult::Failure_Signature, 0);
 
 		return std::make_pair(ProcessMessageResult::Success, accountView.Weight.unwrap());
 	}

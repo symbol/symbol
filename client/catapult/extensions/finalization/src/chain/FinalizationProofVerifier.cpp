@@ -43,6 +43,8 @@ namespace catapult { namespace chain {
 
 			auto pMessage = utils::MakeSharedWithSize<model::FinalizationMessage>(size);
 			pMessage->Size = size;
+			pMessage->FinalizationMessage_Reserved1 = 0;
+			pMessage->Version = model::FinalizationMessage::Current_Version;
 			pMessage->HashesCount = messageGroup.HashesCount;
 			pMessage->StepIdentifier = { round.Epoch, round.Point, messageGroup.Stage };
 			pMessage->Height = messageGroup.Height;

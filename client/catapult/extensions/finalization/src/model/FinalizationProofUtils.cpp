@@ -51,13 +51,23 @@ namespace catapult { namespace model {
 		MutableMessageGroups GroupMessages(const model::FinalizationRound& round, const ConstMessages& messages) {
 			MessageSignatureGroups messageSignatureGroups;
 			for (const auto& pMessage : messages) {
-				auto messageRound = pMessage->StepIdentifier.Round();
-				if (round != messageRound) {
+				auto checkEqual = [&round, &message = *pMessage](const auto& expected, const auto& actual, const auto* description) {
+					if (expected == actual)
+						return true;
+
 					CATAPULT_LOG(warning)
-							<< "skipping message with unexpected round " << messageRound
+							<< "skipping message with unexpected " << description << " " << actual
+							<< " from " << message.Signature.Root.ParentPublicKey
 							<< " when grouping messages at round " << round;
+					return false;
+				};
+
+				auto canGroup =
+						checkEqual(round, pMessage->StepIdentifier.Round(), "round")
+						&& checkEqual(0u, pMessage->FinalizationMessage_Reserved1, "padding")
+						&& checkEqual(FinalizationMessage::Current_Version, pMessage->Version, "version");
+				if (!canGroup)
 					continue;
-				}
 
 				auto iter = messageSignatureGroups.find(pMessage);
 				if (messageSignatureGroups.cend() == iter)
