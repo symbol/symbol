@@ -1,15 +1,12 @@
 type: object
 required:
   - height
-  - finalizedHeight
   - scoreHigh
   - scoreLow
   - latestFinalizedBlock
 properties:
   height:
     $ref: "../../../schemas/Height.yml"
-  finalizedHeight:
-    $ref: "../../../schemas/FinalizedHeight.yml"
   scoreHigh:
     $ref: "../../../schemas/Score.yml"
   scoreLow:
