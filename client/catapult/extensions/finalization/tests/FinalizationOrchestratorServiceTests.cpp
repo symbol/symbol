@@ -199,7 +199,7 @@ namespace catapult { namespace finalization {
 				return model::StepIdentifierToBmKeyIdentifier({ epoch, FinalizationPoint(), stage }, Voting_Key_Dilution);
 			}
 
-			static void SeedVotingPrivateKeyTree(const config::CatapultDirectory& directory, const crypto::KeyPair& votingKeyPair) {
+			static void SeedVotingPrivateKeyTree(const config::CatapultDirectory& directory, const crypto::VotingKeyPair& votingKeyPair) {
 				for (auto i = 1u; i <= 4u; ++i) {
 					auto treeFilename = directory.file("private_key_tree" + std::to_string(i) + ".dat");
 					io::FileStream treeStream(io::RawFile(treeFilename, io::OpenMode::Read_Write));

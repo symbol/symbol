@@ -18,43 +18,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#pragma once
 #include "VotingKeyPair.h"
-#include "catapult/types.h"
+#include "catapult/crypto/KeyPair.h"
 
 namespace catapult { namespace crypto {
 
-#pragma pack(push, 1)
-
-	/// Three-layer Bellare-Miner signature.
-	struct BmTreeSignature {
-	public:
-		/// Parent public key and signature pair.
-		struct ParentPublicKeySignaturePair {
-			/// Public key.
-			VotingKey ParentPublicKey;
-
-			/// Signature.
-			VotingSignature Signature;
-		};
-
-	public:
-		/// Root pair.
-		ParentPublicKeySignaturePair Root;
-
-		/// Top pair.
-		ParentPublicKeySignaturePair Top;
-
-		/// Bottom pair.
-		ParentPublicKeySignaturePair Bottom;
-
-	public:
-		/// Returns \c true if this signature is equal to \a rhs.
-		bool operator==(const BmTreeSignature& rhs) const;
-
-		/// Returns \c true if this signature is not equal to \a rhs.
-		bool operator!=(const BmTreeSignature& rhs) const;
-	};
-
-#pragma pack(pop)
+	void VotingKeyPairTraits::ExtractPublicKeyFromPrivateKey(const PrivateKey& privateKey, PublicKey& publicKey) {
+		publicKey = KeyPair::FromPrivate(crypto::PrivateKey::FromBuffer(privateKey)).publicKey().copyTo<VotingKey>();
+	}
 }}

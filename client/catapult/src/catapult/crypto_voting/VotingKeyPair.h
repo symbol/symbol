@@ -19,42 +19,29 @@
 **/
 
 #pragma once
-#include "VotingKeyPair.h"
-#include "catapult/types.h"
+#include "catapult/crypto/BasicKeyPair.h"
+#include "catapult/crypto/SecureByteArray.h"
 
 namespace catapult { namespace crypto {
 
-#pragma pack(push, 1)
+	struct VotingPrivateKey_tag { static constexpr size_t Size = 32; };
+	using VotingPrivateKey = SecureByteArray<VotingPrivateKey_tag>;
 
-	/// Three-layer Bellare-Miner signature.
-	struct BmTreeSignature {
+	struct VotingSignature_tag { static constexpr size_t Size = 96; };
+	using VotingSignature = utils::ByteArray<VotingSignature_tag>;
+
+	/// BLS 381-12 key pair traits.
+	struct VotingKeyPairTraits {
 	public:
-		/// Parent public key and signature pair.
-		struct ParentPublicKeySignaturePair {
-			/// Public key.
-			VotingKey ParentPublicKey;
-
-			/// Signature.
-			VotingSignature Signature;
-		};
+		using PublicKey = VotingKey;
+		using PrivateKey = VotingPrivateKey;
 
 	public:
-		/// Root pair.
-		ParentPublicKeySignaturePair Root;
-
-		/// Top pair.
-		ParentPublicKeySignaturePair Top;
-
-		/// Bottom pair.
-		ParentPublicKeySignaturePair Bottom;
-
-	public:
-		/// Returns \c true if this signature is equal to \a rhs.
-		bool operator==(const BmTreeSignature& rhs) const;
-
-		/// Returns \c true if this signature is not equal to \a rhs.
-		bool operator!=(const BmTreeSignature& rhs) const;
+		/// Extracts a public key (\a publicKey) from a private key (\a privateKey).
+		static void ExtractPublicKeyFromPrivateKey(const PrivateKey& privateKey, PublicKey& publicKey);
 	};
 
-#pragma pack(pop)
+	/// BLS 381-12 key pair.
+	/// \note This key pair is used for voting messages.
+	using VotingKeyPair = BasicKeyPair<VotingKeyPairTraits>;
 }}

@@ -19,8 +19,8 @@
 **/
 
 #include "BmPrivateKeyTree.h"
+#include "VotingSigner.h"
 #include "catapult/crypto/SecureRandomGenerator.h"
-#include "catapult/crypto/Signer.h"
 #include "catapult/io/PodIoUtils.h"
 #include "catapult/exceptions.h"
 #include <type_traits>
@@ -30,8 +30,8 @@ namespace catapult { namespace crypto {
 	namespace {
 		using BmSignature = decltype(BmTreeSignature::Root.Signature);
 		using BmPublicKey = decltype(BmTreeSignature::Root.ParentPublicKey);
-		using BmPrivateKey = PrivateKey;
-		using BmKeyPair = KeyPair;
+		using BmPrivateKey = VotingPrivateKey;
+		using BmKeyPair = VotingKeyPair;
 
 		// region signed key pair
 
@@ -54,7 +54,7 @@ namespace catapult { namespace crypto {
 
 		public:
 			SignedPrivateKey(BmPrivateKey&& privateKey, const BmSignature& signature)
-					: m_keyPair(crypto::KeyPair::FromPrivate(std::move(privateKey)))
+					: m_keyPair(BmKeyPair::FromPrivate(std::move(privateKey)))
 					, m_signature(signature)
 			{}
 

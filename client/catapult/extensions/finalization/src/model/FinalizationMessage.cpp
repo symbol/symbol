@@ -48,8 +48,6 @@ namespace catapult { namespace model {
 		return messageHash;
 	}
 
-	// TODO: FinalizationContext::lookup expects BLS key, but, for now, interpret it as ED25519 key
-
 	std::unique_ptr<FinalizationMessage> PrepareMessage(
 			crypto::AggregateBmPrivateKeyTree& bmPrivateKeyTree,
 			const StepIdentifier& stepIdentifier,
@@ -82,7 +80,7 @@ namespace catapult { namespace model {
 	}
 
 	std::pair<ProcessMessageResult, size_t> ProcessMessage(const FinalizationMessage& message, const FinalizationContext& context) {
-		auto accountView = context.lookup(message.Signature.Root.ParentPublicKey.copyTo<VotingKey>());
+		auto accountView = context.lookup(message.Signature.Root.ParentPublicKey);
 		if (Amount() == accountView.Weight)
 			return std::make_pair(ProcessMessageResult::Failure_Voter, 0);
 

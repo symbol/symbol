@@ -20,6 +20,7 @@
 
 #pragma once
 #include "tests/TestHarness.h"
+#include <numeric>
 
 namespace catapult { namespace test {
 
@@ -164,7 +165,7 @@ namespace catapult { namespace test {
 			auto payload = GenerateRandomArray<100>();
 
 			// hack the key, to an invalid one (not on a curve)
-			auto& hackPublic = const_cast<Key&>(hackedKeyPair.publicKey());
+			auto& hackPublic = const_cast<typename KeyPair::PublicKey&>(hackedKeyPair.publicKey());
 			std::fill(hackPublic.begin(), hackPublic.end(), static_cast<uint8_t>(0));
 			hackPublic[hackPublic.size() - 1] = 0x01;
 
@@ -183,7 +184,7 @@ namespace catapult { namespace test {
 			auto payload = GenerateRandomArray<100>();
 
 			// hack the key, to an invalid one
-			auto& hackPublic = const_cast<Key&>(hackedKeyPair.publicKey());
+			auto& hackPublic = const_cast<typename KeyPair::PublicKey&>(hackedKeyPair.publicKey());
 			std::transform(hackPublic.begin(), hackPublic.end(), hackPublic.begin(), [](uint8_t x) {
 				return static_cast<uint8_t>(x ^ 0xFF);
 			});
@@ -203,7 +204,7 @@ namespace catapult { namespace test {
 			auto payload = GenerateRandomArray<100>();
 
 			// hack the key, to an invalid one
-			auto& hackPublic = const_cast<Key&>(hackedKeyPair.publicKey());
+			auto& hackPublic = const_cast<typename KeyPair::PublicKey&>(hackedKeyPair.publicKey());
 			std::fill(hackPublic.begin(), hackPublic.end(), static_cast<uint8_t>(0));
 
 			auto signature = SignPayload(hackedKeyPair, payload);

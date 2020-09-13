@@ -43,6 +43,18 @@ namespace catapult { namespace test {
 
 	// endregion
 
+	// region voting keys
+
+	crypto::VotingKeyPair GenerateVotingKeyPair() {
+		return crypto::VotingKeyPair::FromPrivate(crypto::VotingPrivateKey::Generate(RandomByte));
+	}
+
+	crypto::VotingKeyPair CopyKeyPair(const crypto::VotingKeyPair& votingKeyPair) {
+		return crypto::VotingKeyPair::FromPrivate(crypto::VotingPrivateKey::FromBuffer(votingKeyPair.privateKey()));
+	}
+
+	// endregion
+
 	// region message factories
 
 	std::unique_ptr<model::FinalizationMessage> CreateMessage(FinalizationPoint point) {
@@ -146,7 +158,7 @@ namespace catapult { namespace test {
 
 	// region message utils
 
-	void SignMessage(model::FinalizationMessage& message, const crypto::KeyPair& votingKeyPair, uint64_t dilution) {
+	void SignMessage(model::FinalizationMessage& message, const crypto::VotingKeyPair& votingKeyPair, uint64_t dilution) {
 		auto storage = mocks::MockSeekableMemoryStream();
 		auto bmOptions = crypto::BmOptions{ dilution, { 0, 2 }, { 15, 1 } };
 		auto bmPrivateKeyTree = crypto::BmPrivateKeyTree::Create(CopyKeyPair(votingKeyPair), storage, bmOptions);
@@ -158,7 +170,7 @@ namespace catapult { namespace test {
 		});
 	}
 
-	void SignMessage(model::FinalizationMessage& message, const crypto::KeyPair& votingKeyPair) {
+	void SignMessage(model::FinalizationMessage& message, const crypto::VotingKeyPair& votingKeyPair) {
 		SignMessage(message, votingKeyPair, 13);
 	}
 
@@ -181,7 +193,7 @@ namespace catapult { namespace test {
 			const std::vector<Amount>& balances) {
 		std::vector<AccountKeyPairDescriptor> keyPairDescriptors;
 		for (auto balance : balances) {
-			keyPairDescriptors.emplace_back(GenerateKeyPair());
+			keyPairDescriptors.emplace_back(GenerateVotingKeyPair());
 
 			auto address = GenerateRandomByteArray<Address>();
 			accountStateCacheDelta.addAccount(address, height);

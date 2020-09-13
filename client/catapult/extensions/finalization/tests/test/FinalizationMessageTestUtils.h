@@ -41,6 +41,16 @@ namespace catapult { namespace test {
 
 	// endregion
 
+	// region voting keys
+
+	/// Generates a random voting key pair.
+	crypto::VotingKeyPair GenerateVotingKeyPair();
+
+	/// Copies a given \a votingKeyPair.
+	crypto::VotingKeyPair CopyKeyPair(const crypto::VotingKeyPair& votingKeyPair);
+
+	// endregion
+
 	// region message factories
 
 	/// Creates a finalization message with one hash for \a point.
@@ -93,10 +103,10 @@ namespace catapult { namespace test {
 	// region message utils
 
 	/// Signs \a message with \a votingKeyPair using \a dilution.
-	void SignMessage(model::FinalizationMessage& message, const crypto::KeyPair& votingKeyPair, uint64_t dilution);
+	void SignMessage(model::FinalizationMessage& message, const crypto::VotingKeyPair& votingKeyPair, uint64_t dilution);
 
 	/// Signs \a message with \a votingKeyPair.
-	void SignMessage(model::FinalizationMessage& message, const crypto::KeyPair& votingKeyPair);
+	void SignMessage(model::FinalizationMessage& message, const crypto::VotingKeyPair& votingKeyPair);
 
 	/// Asserts that \a expected and \a actual are equal with optional \a message.
 	void AssertEqualMessage(
@@ -112,14 +122,14 @@ namespace catapult { namespace test {
 	struct AccountKeyPairDescriptor {
 	public:
 		/// Creates a descriptor around \a votingKeyPair.
-		explicit AccountKeyPairDescriptor(crypto::KeyPair&& votingKeyPair)
+		explicit AccountKeyPairDescriptor(crypto::VotingKeyPair&& votingKeyPair)
 				: VotingKeyPair(std::move(votingKeyPair))
 				, VotingPublicKey(VotingKeyPair.publicKey().copyTo<VotingKey>())
 		{}
 
 	public:
 		/// Voting key pair.
-		crypto::KeyPair VotingKeyPair;
+		crypto::VotingKeyPair VotingKeyPair;
 
 		/// Voting public key.
 		VotingKey VotingPublicKey;

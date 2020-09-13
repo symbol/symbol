@@ -19,8 +19,8 @@
 **/
 
 #pragma once
-#include "catapult/crypto/KeyPair.h"
 #include "catapult/crypto_voting/BmOptions.h"
+#include "catapult/crypto_voting/VotingKeyPair.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {
@@ -28,9 +28,9 @@ namespace catapult { namespace test {
 	/// Three-layer Bellare-Miner private key tree sizes.
 	struct BmTreeSizes {
 	private:
-		static constexpr auto Bm_Public_Key_Size = Key::Size;
-		static constexpr auto Bm_Private_Key_Size = crypto::PrivateKey::Size;
-		static constexpr auto Bm_Signature_Size = Signature::Size;
+		static constexpr auto Bm_Public_Key_Size = VotingKey::Size;
+		static constexpr auto Bm_Private_Key_Size = crypto::VotingPrivateKey::Size;
+		static constexpr auto Bm_Signature_Size = crypto::VotingSignature::Size;
 
 		static constexpr auto File_Header_Size = sizeof(crypto::BmOptions) + 2 * sizeof(crypto::BmKeyIdentifier);
 		static constexpr auto Level_Header_Size = Bm_Public_Key_Size + 2 * sizeof(uint64_t);

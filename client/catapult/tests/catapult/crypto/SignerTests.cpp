@@ -31,19 +31,6 @@ namespace catapult { namespace crypto {
 
 #define TEST_CLASS SignerTests
 
-	namespace {
-		// region test utils
-
-		template<typename TArray>
-		Signature SignPayload(const KeyPair& keyPair, const TArray& payload) {
-			Signature signature;
-			EXPECT_NO_THROW(Sign(keyPair, payload, signature));
-			return signature;
-		}
-
-		// endregion
-	}
-
 	// region basic sign verify tests
 
 	namespace {
@@ -104,6 +91,13 @@ namespace catapult { namespace crypto {
 			}
 
 			return signatureInputs;
+		}
+
+		template<typename TArray>
+		Signature SignPayload(const KeyPair& keyPair, const TArray& payload) {
+			Signature signature;
+			EXPECT_NO_THROW(Sign(keyPair, payload, signature));
+			return signature;
 		}
 
 		template<typename TTraits>

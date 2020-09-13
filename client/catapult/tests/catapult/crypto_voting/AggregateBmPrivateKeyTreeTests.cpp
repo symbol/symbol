@@ -40,7 +40,7 @@ namespace catapult { namespace crypto {
 		constexpr auto Full_L2_Size = test::BmTreeSizes::CalculateFullLevelTwoSize(6, 7);
 
 		auto GenerateKeyPair() {
-			return test::GenerateKeyPair();
+			return VotingKeyPair::FromPrivate(VotingPrivateKey::Generate(test::RandomByte));
 		}
 
 		// region test context
@@ -83,7 +83,7 @@ namespace catapult { namespace crypto {
 
 		private:
 			size_t m_nextStorageIndex;
-			std::vector<Key> m_publicKeys;
+			std::vector<VotingKey> m_publicKeys;
 			std::vector<mocks::MockSeekableMemoryStream> m_storages;
 			AggregateBmPrivateKeyTree m_tree;
 		};
