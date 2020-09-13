@@ -22,6 +22,8 @@
 #include "catapult/utils/HexParser.h"
 #include "catapult/utils/RandomGenerator.h"
 #include "tests/test/crypto/CurveUtils.h"
+#include "tests/test/crypto/SignVerifyTests.h"
+#include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/TestHarness.h"
 #include <numeric>
 
@@ -29,216 +31,45 @@ namespace catapult { namespace crypto {
 
 #define TEST_CLASS SignerTests
 
-	// region Sign
-
 	namespace {
-		const char* Default_Key_String = "CBD84EF8F5F38A25C01308785EA99627DE897D151AFDFCDA7AB07EFD8ED98534";
-
-		KeyPair GetDefaultKeyPair() {
-			return KeyPair::FromString(Default_Key_String);
-		}
-
-		KeyPair GetAlteredKeyPair() {
-			return KeyPair::FromString("CBD84EF8F5F38A25C01308785EA99627DE897D151AFDFCDA7AB07EFD8ED98535");
-		}
+		// region test utils
 
 		template<typename TArray>
 		Signature SignPayload(const KeyPair& keyPair, const TArray& payload) {
-			Signature signature{};
+			Signature signature;
 			EXPECT_NO_THROW(Sign(keyPair, payload, signature));
 			return signature;
 		}
+
+		// endregion
 	}
 
-	TEST(TEST_CLASS, SignFillsTheSignature) {
-		// Arrange:
-		auto payload = test::GenerateRandomArray<100>();
-
-		// Act:
-		Signature signature;
-		std::iota(signature.begin(), signature.end(), static_cast<uint8_t>(0));
-		Sign(GetDefaultKeyPair(), payload, signature);
-
-		// Assert: the signature got overwritten in call to Sign() above
-		Signature invalid;
-		std::iota(invalid.begin(), invalid.end(), static_cast<uint8_t>(0));
-		EXPECT_NE(invalid, signature);
-	}
-
-	TEST(TEST_CLASS, SignaturesGeneratedForSameDataBySameKeyPairsAreEqual) {
-		// Arrange:
-		auto keyPair1 = KeyPair::FromString(Default_Key_String);
-		auto keyPair2 = KeyPair::FromString(Default_Key_String);
-		auto payload = test::GenerateRandomArray<100>();
-
-		// Act:
-		auto signature1 = SignPayload(keyPair1, payload);
-		auto signature2 = SignPayload(keyPair2, payload);
-
-		// Assert:
-		EXPECT_EQ(signature1, signature2);
-	}
-
-	TEST(TEST_CLASS, SignaturesGeneratedForSameDataByDifferentKeyPairsAreDifferent) {
-		// Arrange:
-		auto payload = test::GenerateRandomArray<100>();
-
-		// Act:
-		auto signature1 = SignPayload(GetDefaultKeyPair(), payload);
-		auto signature2 = SignPayload(GetAlteredKeyPair(), payload);
-
-		// Assert:
-		EXPECT_NE(signature1, signature2);
-	}
-
-	// endregion
-
-	// region Verify
-
-	TEST(TEST_CLASS, SignedDataCanBeVerified) {
-		// Arrange:
-		auto payload = test::GenerateRandomArray<100>();
-		auto signature = SignPayload(GetDefaultKeyPair(), payload);
-
-		// Act:
-		bool isVerified = Verify(GetDefaultKeyPair().publicKey(), payload, signature);
-
-		// Assert:
-		EXPECT_TRUE(isVerified);
-	}
-
-	TEST(TEST_CLASS, SignedDataCannotBeVerifiedWithDifferentKeyPair) {
-		// Arrange:
-		auto payload = test::GenerateRandomArray<100>();
-		auto signature = SignPayload(GetDefaultKeyPair(), payload);
-
-		// Act:
-		bool isVerified = Verify(GetAlteredKeyPair().publicKey(), payload, signature);
-
-		// Assert:
-		EXPECT_FALSE(isVerified);
-	}
+	// region basic sign verify tests
 
 	namespace {
-		void AssertSignatureChangeInvalidatesSignature(size_t position) {
-			// Arrange:
-			auto keyPair = GetDefaultKeyPair();
-			auto payload = test::GenerateRandomArray<100>();
+		struct SignVerifyTraits {
+		public:
+			using KeyPair = crypto::KeyPair;
+			using Signature = catapult::Signature;
 
-			auto signature = SignPayload(keyPair, payload);
-			signature[position] ^= 0xFF;
+		public:
+			static constexpr auto GenerateKeyPair = test::GenerateKeyPair;
 
-			// Act:
-			bool isVerified = Verify(keyPair.publicKey(), payload, signature);
+			static auto GetPayloadForNonCanonicalSignatureTest() {
+				// the value 30 in the payload ensures that the encodedS part of the signature is < 2 ^ 253 after adding the group order
+				return std::array<uint8_t, 10>{ { 1, 2, 3, 4, 5, 6, 7, 8, 9, 30 } };
+			}
 
-			// Assert:
-			EXPECT_FALSE(isVerified);
-		}
+			static auto MakeNonCanonical(const Signature& canonicalSignature) {
+				// this is signature with group order added to 'encodedS' part of signature
+				auto nonCanonicalSignature = canonicalSignature;
+				test::ScalarAddGroupOrder(nonCanonicalSignature.data() + Signature::Size / 2);
+				return nonCanonicalSignature;
+			}
+		};
 	}
 
-	TEST(TEST_CLASS, SignatureDoesNotVerifyWhenRPartOfSignatureIsModified) {
-		for (auto i = 0u; i < Signature::Size / 2; ++i)
-			AssertSignatureChangeInvalidatesSignature(i);
-	}
-
-	TEST(TEST_CLASS, SignatureDoesNotVerifyWhenSPartOfSignatureIsModified) {
-		for (auto i = Signature::Size / 2; i < Signature::Size; ++i)
-			AssertSignatureChangeInvalidatesSignature(i);
-	}
-
-	TEST(TEST_CLASS, SignatureDoesNotVerifyWhenPayloadIsModified) {
-		// Arrange:
-		auto keyPair = GetDefaultKeyPair();
-		auto payload = test::GenerateRandomArray<100>();
-		for (auto i = 0u; i < payload.size(); ++i) {
-			auto signature = SignPayload(keyPair, payload);
-			payload[i] ^= 0xFF;
-
-			// Act:
-			bool isVerified = Verify(keyPair.publicKey(), payload, signature);
-
-			// Assert:
-			EXPECT_FALSE(isVerified);
-		}
-	}
-
-	TEST(TEST_CLASS, PublicKeyNotOnACurveCausesVerifyToFail) {
-		// Arrange:
-		auto hackedKeyPair = GetDefaultKeyPair();
-		auto payload = test::GenerateRandomArray<100>();
-
-		// hack the key, to an invalid one (not on a curve)
-		auto& hackPublic = const_cast<Key&>(hackedKeyPair.publicKey());
-		std::fill(hackPublic.begin(), hackPublic.end(), static_cast<uint8_t>(0));
-		hackPublic[hackPublic.size() - 1] = 0x01;
-
-		auto signature = SignPayload(hackedKeyPair, payload);
-
-		// Act:
-		bool isVerified = Verify(hackedKeyPair.publicKey(), payload, signature);
-
-		// Assert:
-		EXPECT_FALSE(isVerified);
-	}
-
-	TEST(TEST_CLASS, VerificationFailsWhenPublicKeyDoesNotCorrespondToPrivateKey) {
-		// Arrange:
-		auto hackedKeyPair = GetDefaultKeyPair();
-		auto payload = test::GenerateRandomArray<100>();
-
-		// hack the key, to an invalid one
-		auto& hackPublic = const_cast<Key&>(hackedKeyPair.publicKey());
-		std::transform(hackPublic.begin(), hackPublic.end(), hackPublic.begin(), [](uint8_t x) {
-			return static_cast<uint8_t>(x ^ 0xFF);
-		});
-
-		auto signature = SignPayload(hackedKeyPair, payload);
-
-		// Act:
-		bool isVerified = Verify(hackedKeyPair.publicKey(), payload, signature);
-
-		// Assert:
-		EXPECT_FALSE(isVerified);
-	}
-
-	TEST(TEST_CLASS, VerifyRejectsZeroPublicKey) {
-		// Arrange:
-		auto hackedKeyPair = GetDefaultKeyPair();
-		auto payload = test::GenerateRandomArray<100>();
-
-		// hack the key, to an invalid one
-		auto& hackPublic = const_cast<Key&>(hackedKeyPair.publicKey());
-		std::fill(hackPublic.begin(), hackPublic.end(), static_cast<uint8_t>(0));
-
-		auto signature = SignPayload(hackedKeyPair, payload);
-
-		// Act:
-		// keep in mind, there's no good way to make this test, as right now, we have
-		// no way (and I don't think we need one), to check why verify failed
-		bool isVerified = Verify(hackedKeyPair.publicKey(), payload, signature);
-
-		// Assert:
-		EXPECT_FALSE(isVerified);
-	}
-
-	TEST(TEST_CLASS, CannotVerifyNonCanonicalSignature) {
-		// Arrange: the value 30 in the payload ensures that the encodedS part of the signature is < 2 ^ 253 after adding the group order
-		std::array<uint8_t, 10> payload{ { 1, 2, 3, 4, 5, 6, 7, 8, 9, 30 } };
-
-		auto keyPair = GetDefaultKeyPair();
-		auto canonicalSignature = SignPayload(keyPair, payload);
-		// this is signature with group order added to 'encodedS' part of signature
-		auto nonCanonicalSignature = canonicalSignature;
-		test::ScalarAddGroupOrder(nonCanonicalSignature.data() + Signature::Size / 2);
-
-		// Act:
-		bool isCanonicalVerified = Verify(keyPair.publicKey(), payload, canonicalSignature);
-		bool isNonCanonicalVerified = Verify(keyPair.publicKey(), payload, nonCanonicalSignature);
-
-		// Assert:
-		EXPECT_TRUE(isCanonicalVerified);
-		EXPECT_FALSE(isNonCanonicalVerified);
-	}
+	DEFINE_SIGN_VERIFY_TESTS(SignVerifyTraits)
 
 	// endregion
 
@@ -409,11 +240,9 @@ namespace catapult { namespace crypto {
 
 	VERIFY_MULTI_TEST(SignedPayloadsCannotBeVerifiedAsBatches_NonCanonicalSignature) {
 		AssertSignedPayloadsCannotBeVerifiedAsBatches<TTraits>([](auto& signatureInputs, auto index) {
-			std::array<uint8_t, 10> payload{ { 1, 2, 3, 4, 5, 6, 7, 8, 9, 30 } };
-			auto keyPair = GetDefaultKeyPair();
-			auto nonCanonicalSignature = SignPayload(keyPair, payload);
-			// this is signature with group order added to 'encodedS' part of signature
-			test::ScalarAddGroupOrder(nonCanonicalSignature.data() + Signature::Size / 2);
+			auto payload = SignVerifyTraits::GetPayloadForNonCanonicalSignatureTest();
+			auto nonCanonicalSignature = SignVerifyTraits::MakeNonCanonical(SignPayload(test::GenerateKeyPair(), payload));
+
 			const_cast<Signature&>(signatureInputs[index].Signature) = nonCanonicalSignature;
 		});
 	}
@@ -571,50 +400,6 @@ namespace catapult { namespace crypto {
 		for (auto i = 0u; i < input.InputData.size(); ++i) {
 			auto message = "test vector at " + std::to_string(i);
 			EXPECT_TRUE(pair.first[i]) << message;
-		}
-	}
-
-	// endregion
-
-	// region sign chunked data
-
-	TEST(TEST_CLASS, SignatureForConsecutiveDataMatchesSignatureForChunkedData) {
-		// Arrange:
-		auto payload = test::GenerateRandomVector(123);
-		auto properSignature = SignPayload(GetDefaultKeyPair(), payload);
-
-		// Act:
-		{
-			Signature result;
-			auto partSize = payload.size() / 2;
-			ASSERT_NO_THROW(Sign(GetDefaultKeyPair(), {
-				{ payload.data(), partSize },
-				{ payload.data() + partSize, payload.size() - partSize }
-			}, result));
-			EXPECT_EQ(properSignature, result);
-		}
-
-		{
-			Signature result;
-			auto partSize = payload.size() / 3;
-			ASSERT_NO_THROW(Sign(GetDefaultKeyPair(), {
-				{ payload.data(), partSize },
-				{ payload.data() + partSize, partSize },
-				{ payload.data() + 2 * partSize, payload.size() - 2 * partSize }
-			}, result));
-			EXPECT_EQ(properSignature, result);
-		}
-
-		{
-			Signature result;
-			auto partSize = payload.size() / 4;
-			ASSERT_NO_THROW(Sign(GetDefaultKeyPair(), {
-				{ payload.data(), partSize },
-				{ payload.data() + partSize, partSize },
-				{ payload.data() + 2 * partSize, partSize },
-				{ payload.data() + 3 * partSize, payload.size() - 3 * partSize }
-			}, result));
-			EXPECT_EQ(properSignature, result);
 		}
 	}
 
