@@ -53,8 +53,11 @@ namespace catapult { namespace test {
 
 	struct MockNotification : public model::Notification {
 	public:
+		static constexpr auto Notification_Type = static_cast<model::NotificationType>(std::numeric_limits<uint32_t>::max());
+
+	public:
 		MockNotification(const Hash256& hash, uint64_t id)
-				: Notification(static_cast<model::NotificationType>(std::numeric_limits<uint32_t>::max()), sizeof(MockNotification))
+				: Notification(Notification_Type, sizeof(MockNotification))
 				, Hash(hash)
 				, Id(id)
 		{}
@@ -132,23 +135,31 @@ namespace catapult { namespace test {
 		}
 
 		void notify(const model::Notification& notification, observers::ObserverContext& context) const override {
+			auto& accountStateCacheDelta = context.Cache.sub<cache::AccountStateCache>();
 			if (model::Core_Register_Account_Public_Key_Notification == notification.Type) {
 				// simulate AccountPublicKeyObserver
 				const auto& publicKey = CastToDerivedNotification<model::AccountPublicKeyNotification>(notification).PublicKey;
-				auto& accountStateCacheDelta = context.Cache.sub<cache::AccountStateCache>();
 				if (observers::NotifyMode::Commit == context.Mode)
 					accountStateCacheDelta.addAccount(publicKey, context.Height);
 				else
 					accountStateCacheDelta.queueRemove(publicKey, context.Height);
+			} else if (model::Core_Register_Account_Address_Notification == notification.Type) {
+				// simulate AccountAddressObserver
+				const auto& addressNotification = CastToDerivedNotification<model::AccountAddressNotification>(notification);
+				auto address = addressNotification.Address.resolved(context.Resolvers);
+				if (observers::NotifyMode::Commit == context.Mode)
+					accountStateCacheDelta.addAccount(address, context.Height);
+				else
+					accountStateCacheDelta.queueRemove(address, context.Height);
+			} else if (MockNotification::Notification_Type == notification.Type) {
+				const auto& mockNotification = CastToDerivedNotification<MockNotification>(notification);
+				const_cast<MockAggregateNotificationObserver*>(this)->push(mockNotification, context);
 
-				return;
+				addBlockStatisticBreadcrumb(context);
+				addReceiptBreadcrumb(context, mockNotification);
+			} else {
+				CATAPULT_THROW_RUNTIME_ERROR("MockAggregateNotificationObserver received unexpected notification");
 			}
-
-			const auto& mockNotification = CastToDerivedNotification<MockNotification>(notification);
-			const_cast<MockAggregateNotificationObserver*>(this)->push(mockNotification, context);
-
-			addBlockStatisticBreadcrumb(context);
-			addReceiptBreadcrumb(context, mockNotification);
 		}
 
 	private:
@@ -245,7 +256,7 @@ namespace catapult { namespace test {
 		validators::ValidationResult validate(
 				const model::Notification& notification,
 				const validators::ValidatorContext& context) const override {
-			if (model::Core_Register_Account_Public_Key_Notification == notification.Type)
+			if (MockNotification::Notification_Type != notification.Type)
 				return validators::ValidationResult::Success;
 
 			const auto& mockNotification = CastToDerivedNotification<MockNotification>(notification);

@@ -920,7 +920,7 @@ namespace catapult { namespace cache {
 
 	// endregion
 
-	// region MixedState tests (public key added at a different height)
+	// region mixed state remove (public key added at a different height)
 
 	namespace {
 		void AssertState(
@@ -1020,6 +1020,95 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(0u, delta->size());
 		EXPECT_FALSE(!!utils::as_const(delta)->find(address).tryGet());
 	}
+
+	// endregion
+
+	// region mixed state remove (public key added at same height)
+
+	namespace {
+		template<typename TAction>
+		void PrepareCommitRemovalsTest(TAction action) {
+			// Arrange:
+			auto key = GenerateRandomPublicKey();
+			auto address = model::PublicKeyToAddress(key, Network_Identifier);
+			AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
+
+			// - add account as key and address at same height
+			auto delta = cache.createDelta();
+			delta->addAccount(key, Height(123));
+			delta->addAccount(address, Height(123));
+
+			// Act + Assert:
+			action(*delta, key, address);
+		}
+	}
+
+	TEST(TEST_CLASS, CommitRemovals_CanRemoveAccountByAddress_Linked) {
+		// Arrange:
+		PrepareCommitRemovalsTest([](auto& delta, const auto& key, const auto& address) {
+			// Act:
+			delta.queueRemove(address, Height(123));
+			delta.commitRemovals(AccountStateCacheDelta::CommitRemovalsMode::Linked);
+
+			// Assert:
+			EXPECT_EQ(0u, delta.size());
+			EXPECT_FALSE(delta.contains(key));
+			EXPECT_FALSE(delta.contains(address));
+		});
+	}
+
+	TEST(TEST_CLASS, CommitRemovals_CanRemoveAccountByPublicKey_Linked) {
+		// Arrange:
+		PrepareCommitRemovalsTest([](auto& delta, const auto& key, const auto& address) {
+			// Act:
+			delta.queueRemove(key, Height(123));
+			delta.commitRemovals(AccountStateCacheDelta::CommitRemovalsMode::Linked);
+
+			// Assert:
+			EXPECT_EQ(0u, delta.size());
+			EXPECT_FALSE(delta.contains(key));
+			EXPECT_FALSE(delta.contains(address));
+		});
+	}
+
+	TEST(TEST_CLASS, CommitRemovals_CanRemoveAccountByAddress_Unlinked) {
+		// Arrange:
+		PrepareCommitRemovalsTest([](auto& delta, const auto& key, const auto& address) {
+			// Act:
+			delta.queueRemove(address, Height(123));
+			delta.commitRemovals(AccountStateCacheDelta::CommitRemovalsMode::Unlinked);
+
+			// Assert:
+			EXPECT_EQ(0u, delta.size());
+			EXPECT_FALSE(delta.contains(key));
+			EXPECT_FALSE(delta.contains(address));
+		});
+	}
+
+	TEST(TEST_CLASS, CommitRemovals_CanRemoveAccountByPublicKey_Unlinked) {
+		// Arrange:
+		PrepareCommitRemovalsTest([](auto& delta, const auto& key, const auto& address) {
+			// Act:
+			delta.queueRemove(key, Height(123));
+			delta.commitRemovals(AccountStateCacheDelta::CommitRemovalsMode::Unlinked);
+
+			// Assert: only public key is removed
+			EXPECT_EQ(1u, delta.size());
+			EXPECT_FALSE(delta.contains(key));
+			EXPECT_TRUE(delta.contains(address));
+
+			auto accountStateIter = delta.find(address);
+			const auto& accountState = accountStateIter.get();
+			EXPECT_EQ(address, accountState.Address);
+			EXPECT_EQ(Height(123), accountState.AddressHeight);
+			EXPECT_EQ(Key(), accountState.PublicKey);
+			EXPECT_EQ(Height(), accountState.PublicKeyHeight);
+		});
+	}
+
+	// endregion
+
+	// region mixed state find / contains
 
 	namespace {
 		template<typename TCache, typename TCacheQualifier>

@@ -73,8 +73,8 @@ namespace catapult { namespace harvesting {
 				, m_pCacheDelta(m_cacheDetachedDelta.tryLock()) {
 			// add additional observers to monitor accounts
 			observers::DemuxObserverBuilder observerBuilder;
-			observerBuilder.add(CreateHarvestingAccountAddressObserver(m_affectedAccounts.Addresses));
-			observerBuilder.add(CreateHarvestingAccountPublicKeyObserver(m_affectedAccounts.PublicKeys));
+			observerBuilder.add(CreateHarvestingAccountAddressObserver(m_affectedAccounts));
+			observerBuilder.add(CreateHarvestingAccountPublicKeyObserver(m_affectedAccounts));
 			observerBuilder.add<model::Notification>(std::make_unique<NotificationObserverProxy>(m_executionConfig.pObserver));
 			m_executionConfig.pObserver = observerBuilder.build();
 		}
@@ -193,7 +193,7 @@ namespace catapult { namespace harvesting {
 
 		void updateAccountStates(cache::AccountStateCacheDelta& accountStateCacheDelta) {
 			PreserveAllAccounts(accountStateCacheDelta, m_affectedAccounts, height());
-			accountStateCacheDelta.commitRemovals();
+			accountStateCacheDelta.commitRemovals(cache::AccountStateCacheDelta::CommitRemovalsMode::Unlinked);
 		}
 
 	private:

@@ -19,35 +19,45 @@
 **/
 
 #include "HarvestingObservers.h"
+#include "catapult/cache_core/AccountStateCache.h"
+#include "catapult/model/Address.h"
 
 namespace catapult { namespace harvesting {
 
 	namespace {
-		template<typename TAccountIdentifier>
 		class CollectingAccountVisitor {
 		public:
-			CollectingAccountVisitor(
-					const observers::ObserverContext& context,
-					RefCountedAccountIdentifiers<TAccountIdentifier>& accountIdentifiers)
+			CollectingAccountVisitor(const observers::ObserverContext& context, HarvestingAffectedAccounts& accounts)
 					: m_context(context)
-					, m_accountIdentifiers(accountIdentifiers)
+					, m_accounts(accounts)
 			{}
 
 		public:
 			void visit(const model::ResolvableAddress& address) {
-				notify(address.resolved(m_context.Resolvers));
+				notify(address.resolved(m_context.Resolvers), m_accounts.Addresses);
 			}
 
 			void visit(const Key& publicKey) {
-				notify(publicKey);
+				notify(publicKey, m_accounts.PublicKeys);
+
+				// notify address separately so that account public key can be rolled back independent of addresss
+				auto& accountStateCacheDelta = m_context.Cache.template sub<cache::AccountStateCache>();
+				auto address = model::PublicKeyToAddress(publicKey, accountStateCacheDelta.networkIdentifier());
+				notify(address, m_accounts.Addresses);
+
+				if (observers::NotifyMode::Commit != m_context.Mode)
+					accountStateCacheDelta.queueRemove(address, m_context.Height);
 			}
 
 		private:
-			void notify(const TAccountIdentifier& accountIdentifier) {
-				auto iter = m_accountIdentifiers.find(accountIdentifier);
+			template<typename TAccountIdentifier>
+			void notify(
+					const TAccountIdentifier& accountIdentifier,
+					RefCountedAccountIdentifiers<TAccountIdentifier>& accountIdentifiers) const {
+				auto iter = accountIdentifiers.find(accountIdentifier);
 				if (observers::NotifyMode::Commit == m_context.Mode) {
-					if (m_accountIdentifiers.cend() == iter)
-						m_accountIdentifiers.emplace(accountIdentifier, 1);
+					if (accountIdentifiers.cend() == iter)
+						accountIdentifiers.emplace(accountIdentifier, 1);
 					else
 						++iter->second;
 
@@ -56,29 +66,29 @@ namespace catapult { namespace harvesting {
 
 				// rollback - so account must have been previously added
 				if (0 == --iter->second)
-					m_accountIdentifiers.erase(iter);
+					accountIdentifiers.erase(iter);
 			}
 
 		private:
 			const observers::ObserverContext& m_context;
-			RefCountedAccountIdentifiers<TAccountIdentifier>& m_accountIdentifiers;
+			HarvestingAffectedAccounts& m_accounts;
 		};
 	}
 
-	DECLARE_OBSERVER(HarvestingAccountAddress, model::AccountAddressNotification)(RefCountedAccountIdentifiers<Address>& addresses) {
-		return MAKE_OBSERVER(HarvestingAccountAddress, model::AccountAddressNotification, ([&addresses](
+	DECLARE_OBSERVER(HarvestingAccountAddress, model::AccountAddressNotification)(HarvestingAffectedAccounts& accounts) {
+		return MAKE_OBSERVER(HarvestingAccountAddress, model::AccountAddressNotification, ([&accounts](
 				const model::AccountAddressNotification& notification,
 				const observers::ObserverContext& context) {
-			CollectingAccountVisitor<Address> visitor(context, addresses);
+			CollectingAccountVisitor visitor(context, accounts);
 			visitor.visit(notification.Address);
 		}));
 	}
 
-	DECLARE_OBSERVER(HarvestingAccountPublicKey, model::AccountPublicKeyNotification)(RefCountedAccountIdentifiers<Key>& publicKeys) {
-		return MAKE_OBSERVER(HarvestingAccountPublicKey, model::AccountPublicKeyNotification, ([&publicKeys](
+	DECLARE_OBSERVER(HarvestingAccountPublicKey, model::AccountPublicKeyNotification)(HarvestingAffectedAccounts& accounts) {
+		return MAKE_OBSERVER(HarvestingAccountPublicKey, model::AccountPublicKeyNotification, ([&accounts](
 				const model::AccountPublicKeyNotification& notification,
 				const observers::ObserverContext& context) {
-			CollectingAccountVisitor<Key> visitor(context, publicKeys);
+			CollectingAccountVisitor visitor(context, accounts);
 			visitor.visit(notification.PublicKey);
 		}));
 	}

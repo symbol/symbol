@@ -20,8 +20,10 @@
 
 #include "harvesting/src/HarvestingUtFacadeFactory.h"
 #include "catapult/cache_core/AccountStateCache.h"
+#include "catapult/model/Address.h"
 #include "catapult/model/BlockUtils.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
+#include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/other/MockExecutionConfiguration.h"
 #include "tests/TestHarness.h"
@@ -37,6 +39,7 @@ namespace catapult { namespace harvesting {
 		constexpr auto Default_Time = Timestamp(987);
 		constexpr auto Default_Last_Recalculation_Height = model::ImportanceHeight(1234);
 
+		constexpr auto Network_Identifier = model::NetworkIdentifier::Mijin_Test;
 		constexpr auto Currency_Mosaic_Id = MosaicId(1234);
 		constexpr auto Harvesting_Mosaic_Id = MosaicId(9876);
 
@@ -52,7 +55,7 @@ namespace catapult { namespace harvesting {
 
 		auto CreateBlockChainConfiguration(StateVerifyOptions verifyOptions = StateVerifyOptions::None) {
 			auto config = model::BlockChainConfiguration::Uninitialized();
-			config.Network.Identifier = model::NetworkIdentifier::Mijin_Test;
+			config.Network.Identifier = Network_Identifier;
 			config.EnableVerifiableState = HasFlag(StateVerifyOptions::State, verifyOptions);
 			config.EnableVerifiableReceipts = HasFlag(StateVerifyOptions::Receipts, verifyOptions);
 			config.CurrencyMosaicId = Currency_Mosaic_Id;
@@ -575,13 +578,16 @@ namespace catapult { namespace harvesting {
 			}
 
 		public:
+			std::unique_ptr<HarvestingUtFacade> createFacade() const {
+				HarvestingUtFacadeFactory factory(m_cache, m_config, m_executionConfig);
+				return factory.create(Default_Time);
+			}
+
 			std::unique_ptr<model::Block> generate(
 					const model::BlockHeader& blockHeader,
 					const std::vector<model::TransactionInfo>& transactionInfos,
 					size_t numUnapplies = 0) const {
-				HarvestingUtFacadeFactory factory(m_cache, m_config, m_executionConfig);
-
-				auto pFacade = factory.create(Default_Time);
+				auto pFacade = createFacade();
 				if (!pFacade)
 					return nullptr;
 
@@ -874,6 +880,135 @@ namespace catapult { namespace harvesting {
 
 		EXPECT_EQ(expectedReceiptsHash, pBlock->ReceiptsHash);
 		EXPECT_EQ(expectedStateHash, pBlock->StateHash);
+	}
+
+	// endregion
+
+	// region commit - AccountState integration
+
+	namespace {
+		class AccountAwareMockNotificationPublisher : public test::MockNotificationPublisher {
+		public:
+			void publish(const model::WeakEntityInfo& entityInfo, model::NotificationSubscriber& subscriber) const override {
+				if (mocks::MockTransaction::Entity_Type != entityInfo.type())
+					return;
+
+				const auto& mockTransaction = static_cast<const mocks::MockTransaction&>(entityInfo.entity());
+				const auto& recipientPublicKey = mockTransaction.RecipientPublicKey;
+				if (*mockTransaction.DataPtr()) {
+					auto recipientAddress = model::PublicKeyToAddress(recipientPublicKey, Network_Identifier);
+					subscriber.notify(model::AccountAddressNotification(recipientAddress));
+				} else {
+					subscriber.notify(model::AccountPublicKeyNotification(recipientPublicKey));
+				}
+			}
+		};
+
+		auto CreateMockTransactionInfo(const Key& signerPublicKey, const Key& recipientPublicKey, bool tagAddress) {
+			auto pTransaction = mocks::CreateMockTransaction(1);
+			pTransaction->SignerPublicKey = signerPublicKey;
+			pTransaction->MaxFee = Amount(0);
+			pTransaction->RecipientPublicKey = recipientPublicKey;
+			*pTransaction->DataPtr() = tagAddress ? 1 : 0;
+
+			auto transactionInfo = model::TransactionInfo(std::move(pTransaction));
+			test::FillWithRandomData(transactionInfo.EntityHash);
+			test::FillWithRandomData(transactionInfo.MerkleComponentHash);
+			return transactionInfo;
+		}
+
+		template<typename TAction>
+		void RunAppliedTransactionsWithNewAccountsTests(size_t numUnapplies, TAction action) {
+			// Arrange: prepare context with custom NotificationPublisher so AccountStateCache behavior can be more finely targeted
+			test::MockExecutionConfiguration executionConfig;
+			executionConfig.pNotificationPublisher = std::make_shared<AccountAwareMockNotificationPublisher>();
+			executionConfig.Config.pNotificationPublisher = executionConfig.pNotificationPublisher;
+			FacadeTestContext context(
+					CreateBlockChainConfiguration(StateVerifyOptions::All),
+					executionConfig.Config,
+					Default_Height + Height(1));
+
+			auto pBlockHeader = CreateBlockHeaderWithHeight(Default_Height + Height(1));
+			pBlockHeader->FeeMultiplier = BlockFeeMultiplier(0);
+			context.prepareSignerAccount(pBlockHeader->SignerPublicKey);
+
+			// Act: apply all, revert some, then commit
+			// - prepare transactions such that signer A is known account but other recipients are new
+			auto publicKeys = test::GenerateRandomDataVector<Key>(4);
+			auto pFacade = context.createFacade();
+			pFacade->apply(CreateMockTransactionInfo(pBlockHeader->SignerPublicKey, publicKeys[0], true)); //  A => B (Address)
+			pFacade->apply(CreateMockTransactionInfo(pBlockHeader->SignerPublicKey, publicKeys[1], false)); // A => C (PublicKey)
+			pFacade->apply(CreateMockTransactionInfo(pBlockHeader->SignerPublicKey, publicKeys[0], false)); // A => B (PublicKey)
+			pFacade->apply(CreateMockTransactionInfo(pBlockHeader->SignerPublicKey, publicKeys[1], true)); //  A => C (Address)
+			pFacade->apply(CreateMockTransactionInfo(pBlockHeader->SignerPublicKey, publicKeys[2], true)); //  A => D (Address)
+			pFacade->apply(CreateMockTransactionInfo(pBlockHeader->SignerPublicKey, publicKeys[3], false)); // A => E (PublicKey)
+
+			for (auto i = 0u; i < numUnapplies; ++i)
+				pFacade->unapply();
+
+			auto pBlock = pFacade->commit(*pBlockHeader);
+
+			// Assert:
+			ASSERT_TRUE(!!pBlock);
+
+			auto cacheDelta = context.cache().createDelta();
+			action(pBlock->StateHash, publicKeys, cacheDelta);
+		}
+	}
+
+	TEST(TEST_CLASS, AccountStateCacheIsProperlyUpdatedWhenAppliedTransactionsAddNewAccounts_NoneUnapplied) {
+		// Arrange: unapply none
+		RunAppliedTransactionsWithNewAccountsTests(0, [](const auto& blockStateHash, const auto& publicKeys, auto& cacheDelta) {
+			// Assert: check state hash
+			auto height = Default_Height + Height(1);
+			auto& accountStateCacheDelta = cacheDelta.template sub<cache::AccountStateCache>();
+			accountStateCacheDelta.addAccount(publicKeys[0], height);
+			accountStateCacheDelta.addAccount(publicKeys[1], height);
+			accountStateCacheDelta.addAccount(model::PublicKeyToAddress(publicKeys[2], Network_Identifier), height);
+			accountStateCacheDelta.addAccount(publicKeys[3], height);
+
+			auto stateHashInfo = cacheDelta.calculateStateHash(height);
+			EXPECT_EQ(stateHashInfo.StateHash, blockStateHash);
+		});
+	}
+
+	TEST(TEST_CLASS, AccountStateCacheIsProperlyUpdatedWhenAppliedTransactionsAddNewAccounts_SomeUnapplied) {
+		// Arrange: { D, E } fully
+		RunAppliedTransactionsWithNewAccountsTests(2, [](const auto& blockStateHash, const auto& publicKeys, auto& cacheDelta) {
+			// Assert: check state hash
+			auto height = Default_Height + Height(1);
+			auto& accountStateCacheDelta = cacheDelta.template sub<cache::AccountStateCache>();
+			accountStateCacheDelta.addAccount(publicKeys[0], height);
+			accountStateCacheDelta.addAccount(publicKeys[1], height);
+
+			auto stateHashInfo = cacheDelta.calculateStateHash(height);
+			EXPECT_EQ(stateHashInfo.StateHash, blockStateHash);
+		});
+	}
+
+	TEST(TEST_CLASS, AccountStateCacheIsProperlyUpdatedWhenAppliedTransactionsAddNewAccounts_SomePartiallyUnapplied) {
+		// Arrange: { D, E } fully and { B, C } partially
+		RunAppliedTransactionsWithNewAccountsTests(4, [](const auto& blockStateHash, const auto& publicKeys, auto& cacheDelta) {
+			// Assert: check state hash
+			auto height = Default_Height + Height(1);
+			auto& accountStateCacheDelta = cacheDelta.template sub<cache::AccountStateCache>();
+			accountStateCacheDelta.addAccount(model::PublicKeyToAddress(publicKeys[0], Network_Identifier), height);
+			accountStateCacheDelta.addAccount(publicKeys[1], height);
+
+			auto stateHashInfo = cacheDelta.calculateStateHash(height);
+			EXPECT_EQ(stateHashInfo.StateHash, blockStateHash);
+		});
+	}
+
+	TEST(TEST_CLASS, AccountStateCacheIsProperlyUpdatedWhenAppliedTransactionsAddNewAccounts_AllUnapplied) {
+		// Arrange: unapply all fully
+		RunAppliedTransactionsWithNewAccountsTests(6, [](const auto& blockStateHash, const auto&, auto& cacheDelta) {
+			// Assert: check state hash
+			auto height = Default_Height + Height(1);
+
+			auto stateHashInfo = cacheDelta.calculateStateHash(height);
+			EXPECT_EQ(stateHashInfo.StateHash, blockStateHash);
+		});
 	}
 
 	// endregion

@@ -149,12 +149,12 @@ namespace catapult { namespace cache {
 		m_queuedRemoveByPublicKey.erase(std::make_pair(height, publicKey));
 	}
 
-	void BasicAccountStateCacheDelta::commitRemovals() {
+	void BasicAccountStateCacheDelta::commitRemovals(CommitRemovalsMode mode) {
 		for (const auto& addressHeightPair : m_queuedRemoveByAddress)
 			remove(addressHeightPair.second, addressHeightPair.first);
 
 		for (const auto& keyHeightPair : m_queuedRemoveByPublicKey)
-			remove(keyHeightPair.second, keyHeightPair.first);
+			remove(keyHeightPair.second, keyHeightPair.first, mode);
 
 		m_queuedRemoveByAddress.clear();
 		m_queuedRemoveByPublicKey.clear();
@@ -204,7 +204,7 @@ namespace catapult { namespace cache {
 		m_pStateByAddress->remove(address);
 	}
 
-	void BasicAccountStateCacheDelta::remove(const Key& publicKey, Height height) {
+	void BasicAccountStateCacheDelta::remove(const Key& publicKey, Height height, CommitRemovalsMode mode) {
 		auto accountStateIter = this->find(publicKey);
 		if (!accountStateIter.tryGet())
 			return;
@@ -216,7 +216,7 @@ namespace catapult { namespace cache {
 		m_pKeyToAddress->remove(accountState.PublicKey);
 
 		// if same height, remove address entry too
-		if (accountState.PublicKeyHeight == accountState.AddressHeight) {
+		if (CommitRemovalsMode::Linked == mode && accountState.PublicKeyHeight == accountState.AddressHeight) {
 			m_pStateByAddress->remove(accountState.Address);
 			return;
 		}

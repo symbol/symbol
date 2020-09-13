@@ -67,6 +67,15 @@ namespace catapult { namespace cache {
 	public:
 		using ReadOnlyView = ReadOnlyAccountStateCache;
 
+		/// Specifies commit removals behavior.
+		enum class CommitRemovalsMode {
+			/// Public key removals automaticaly clear linked addresses.
+			Linked,
+
+			/// Public key removals do not automatically clear linked addresses.
+			Unlinked
+		};
+
 	public:
 		/// Creates a delta around \a accountStateSets, \a options and \a highValueAccounts.
 		BasicAccountStateCacheDelta(
@@ -136,8 +145,8 @@ namespace catapult { namespace cache {
 		/// Clears any queued removals for \a publicKey at \a height.
 		void clearRemove(const Key& publicKey, Height height);
 
-		/// Commits all queued removals.
-		void commitRemovals();
+		/// Commits all queued removals with behavior specified by \a mode.
+		void commitRemovals(CommitRemovalsMode mode = CommitRemovalsMode::Linked);
 
 	public:
 		/// Gets all (updated) high value accounts.
@@ -156,7 +165,7 @@ namespace catapult { namespace cache {
 		Address getAddress(const Key& publicKey);
 
 		void remove(const Address& address, Height height);
-		void remove(const Key& publicKey, Height height);
+		void remove(const Key& publicKey, Height height, CommitRemovalsMode mode);
 
 	private:
 		// height is first component for a nicer equals

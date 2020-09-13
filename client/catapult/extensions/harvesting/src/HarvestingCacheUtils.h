@@ -25,15 +25,6 @@ namespace catapult { namespace cache { class AccountStateCacheDelta; } }
 
 namespace catapult { namespace harvesting {
 
-	/// Identifiers of accounts processed by harvesting account observers.
-	struct HarvestingAffectedAccounts {
-		/// Affected addresses.
-		RefCountedAccountIdentifiers<Address> Addresses;
-
-		/// Affected public keys.
-		RefCountedAccountIdentifiers<Key> PublicKeys;
-	};
-
 	/// Updates \a accountStateCacheDelta to preserve all accounts referenced in \a accounts at \a height.
 	void PreserveAllAccounts(
 			cache::AccountStateCacheDelta& accountStateCacheDelta,
