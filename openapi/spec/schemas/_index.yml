@@ -121,6 +121,8 @@ MerkleProofInfoDTO:
 # Core - Chain
 ChainInfoDTO:
   "$ref": "../core/chain/schemas/ChainInfoDTO.yml"
+FinalizedBlockDTO:
+  "$ref": "../core/chain/schemas/FinalizedBlockDTO.yml"
 
 # Core - Entity
 RentalFeesDTO:
