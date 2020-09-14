@@ -47,6 +47,11 @@ describe('schema formatter', () => {
 			assertFormattingRuleIsTriggered(111, { type: 111 });
 		});
 
+		it('can format property with with type of value 0 (ModelType.none)', () => {
+			// Assert:
+			assertFormattingRuleIsTriggered(0, 0);
+		});
+
 		it('drops property if not defined in the schema', () => {
 			// Arrange: set up a formatting rule for the foo property type
 			const sample = { foo: [1, 2], bar: 3 };

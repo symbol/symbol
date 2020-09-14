@@ -26,7 +26,7 @@ const SchemaType = require('./SchemaType');
 const getSchemaType = definition => ('number' === typeof definition ? definition : definition.type);
 
 const getDefinition = (schema, key) => {
-	const definition = schema[key] || {};
+	const definition = undefined === schema[key] ? {} : schema[key];
 	const type = getSchemaType(definition);
 
 	return {
