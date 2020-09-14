@@ -27,6 +27,7 @@ const modelSchema = new ModelSchemaBuilder().build();
 const formattingRules = {
 	[ModelType.none]: () => 'none',
 	[ModelType.binary]: () => 'binary',
+	[ModelType.uint]: () => 'uint',
 	[ModelType.uint64]: () => 'uint64',
 	[ModelType.uint64HexIdentifier]: () => 'uint64HexIdentifier',
 	[ModelType.objectId]: () => 'objectId',
@@ -49,8 +50,7 @@ describe('model formatter builder', () => {
 				'blockHeaderWithMetadata',
 				'transactionWithMetadata',
 
-				'chainStatistic',
-				'chainStatisticCurrent',
+				'chainInfo',
 				'merkleProofInfo',
 				'nodeHealth',
 				'nodeInfo',
@@ -212,20 +212,28 @@ describe('model formatter builder', () => {
 			const formatter = new ModelFormatterBuilder().build(modelSchema, formattingRules);
 
 			// Act:
-			const result = formatter.chainStatistic.format({
-				current: {
+			const result = formatter.chainInfo.format({
+				height: 0,
+				scoreLow: 0,
+				scoreHigh: 0,
+				latestFinalizedBlock: {
 					height: 0,
-					scoreLow: 0,
-					scoreHigh: 0
+					hash: 0,
+					finalizationEpoch: 0,
+					finalizationPoint: 0
 				}
 			});
 
 			// Assert:
 			expect(result).to.deep.equal({
-				current: {
+				height: 'uint64',
+				scoreLow: 'uint64',
+				scoreHigh: 'uint64',
+				latestFinalizedBlock: {
 					height: 'uint64',
-					scoreLow: 'uint64',
-					scoreHigh: 'uint64'
+					hash: 'binary',
+					finalizationEpoch: 'uint',
+					finalizationPoint: 'uint'
 				}
 			});
 		});

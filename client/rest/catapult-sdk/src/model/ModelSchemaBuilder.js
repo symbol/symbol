@@ -80,6 +80,13 @@ class ModelSchemaBuilder {
 				position: ModelType.string
 			},
 
+			finalizedBlock: {
+				height: ModelType.uint64,
+				hash: ModelType.binary,
+				finalizationEpoch: ModelType.uint,
+				finalizationPoint: ModelType.uint
+			},
+
 			// endregion
 
 			// region transaction
@@ -166,21 +173,19 @@ class ModelSchemaBuilder {
 			},
 			votingPublicKey: {
 				publicKey: ModelType.binary,
-				startEpoch: ModelType.int,
-				endEpoch: ModelType.int
+				startEpoch: ModelType.uint,
+				endEpoch: ModelType.uint
 			},
 
 			// endregion
 
 			// region other
 
-			chainStatistic: {
-				current: { type: ModelType.object, schemaName: 'chainStatisticCurrent' }
-			},
-			chainStatisticCurrent: {
+			chainInfo: {
 				height: ModelType.uint64,
 				scoreLow: ModelType.uint64,
-				scoreHigh: ModelType.uint64
+				scoreHigh: ModelType.uint64,
+				latestFinalizedBlock: { type: ModelType.object, schemaName: 'finalizedBlock' }
 			},
 			nodeHealth: {
 				status: { type: ModelType.object, schemaName: 'nodeHealthStatus' }

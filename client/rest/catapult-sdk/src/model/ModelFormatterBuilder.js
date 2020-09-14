@@ -38,8 +38,7 @@ class ModelFormatterBuilder {
 			'blockHeaderWithMetadata',
 			'transactionWithMetadata',
 
-			'chainStatistic',
-			'chainStatisticCurrent',
+			'chainInfo',
 			'merkleProofInfo',
 			'nodeHealth',
 			'nodeInfo',

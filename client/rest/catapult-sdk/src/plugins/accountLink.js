@@ -43,8 +43,8 @@ const accountLinkPlugin = {
 
 		builder.addTransactionSupport(EntityType.votingKeyLink, {
 			linkedPublicKey: ModelType.binary,
-			startEpoch: ModelType.int,
-			endEpoch: ModelType.int,
+			startEpoch: ModelType.uint,
+			endEpoch: ModelType.uint,
 			linkAction: ModelType.int
 		});
 

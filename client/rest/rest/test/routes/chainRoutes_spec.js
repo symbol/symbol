@@ -18,38 +18,48 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { test } = require('./utils/routeTestUtils');
+const { MockServer, test } = require('./utils/routeTestUtils');
 const chainRoutes = require('../../src/routes/chainRoutes');
 const { expect } = require('chai');
+const MongoDb = require('mongodb');
+const sinon = require('sinon');
+
+const { Binary, Long } = MongoDb;
 
 describe('chain routes', () => {
-	const executeRoute = (routeName, db, assertResponse) =>
-		test.route.executeSingle(chainRoutes.register, routeName, 'get', {}, db, undefined, assertResponse);
-
 	describe('get', () => {
-		const createMockChainStatisticDb = (height, scoreLow, scoreHigh) => ({
-			chainStatisticCurrent: () => Promise.resolve({ height, scoreLow, scoreHigh })
-		});
-
-		it('can retrieve height', () => {
+		it('can retrieve info', () => {
 			// Arrange:
-			const db = createMockChainStatisticDb(2, 64, 9);
+			const chainStatisticData = {
+				height: Long.fromNumber(33),
+				scoreHigh: Long.fromNumber(44),
+				scoreLow: Long.fromNumber(55)
+			};
+			const chainStatisticCurrentFake = sinon.fake(() => Promise.resolve(chainStatisticData));
+			const finalizedBlockData = {
+				height: Long.fromNumber(222),
+				hash: new Binary(test.random.hash()),
+				finalizationEpoch: 777,
+				finalizationPoint: 111
+			};
+			const latestFinalizedBlockFake = sinon.fake(() => Promise.resolve(latestFinalizedBlockFake));
+
+			const mockServer = new MockServer();
+			const db = { chainStatisticCurrent: chainStatisticCurrentFake, latestFinalizedBlock: latestFinalizedBlockFake };
+			chainRoutes.register(mockServer.server, db, {});
+			const route = mockServer.getRoute('/chain/info').get();
 
 			// Act:
-			return executeRoute('/chain/height', db, response => {
-				// Assert:
-				expect(response).to.deep.equal({ payload: { height: 2 }, type: 'chainStatisticCurrent' });
-			});
-		});
+			return mockServer.callRoute(route, { params: {} }).then(() => {
+				expect(chainStatisticCurrentFake.calledOnce).to.equal(true);
+				expect(latestFinalizedBlockFake.calledOnce).to.equal(true);
 
-		it('can retrieve score', () => {
-			// Arrange:
-			const db = createMockChainStatisticDb(2, 64, 9);
-
-			// Act:
-			return executeRoute('/chain/score', db, response => {
-				// Assert:
-				expect(response).to.deep.equal({ payload: { scoreLow: 64, scoreHigh: 9 }, type: 'chainStatisticCurrent' });
+				const expectedData = chainStatisticData;
+				expectedData.latestFinalizedBlock = finalizedBlockData;
+				expect(mockServer.send.firstCall.args[0]).to.deep.equal({
+					payload: expectedData,
+					type: 'chainInfo'
+				});
 			});
 		});
 	});

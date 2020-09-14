@@ -171,13 +171,15 @@ class CatapultDb {
 			.then(storageInfo => ({ numBlocks: storageInfo[0], numTransactions: storageInfo[1], numAccounts: storageInfo[2] }));
 	}
 
-	chainStatistic() {
-		return this.queryDocument('chainStatistic', {}, { _id: 0 });
-	}
-
 	chainStatisticCurrent() {
 		return this.queryDocument('chainStatistic', {}, { _id: 0 })
 			.then(chainStatistic => chainStatistic.current);
+	}
+
+	latestFinalizedBlock() {
+		return this.database.collection('finalizedBlocks')
+			.findOne({}, { sort: [['block.height', -1]], projection: { _id: 0 } })
+			.then(mapToPromise);
 	}
 
 	/**

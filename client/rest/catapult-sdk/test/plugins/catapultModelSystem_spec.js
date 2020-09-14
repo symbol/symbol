@@ -193,9 +193,9 @@ describe('catapult model system', () => {
 			});
 
 			// - formatting rules are dependent on formatter
-			const chainStatistic = { current: { height: [123, 456] } };
-			expect(system.formatters.default.chainStatistic.format(chainStatistic)).to.deep.equal({ current: { height: 'uint64' } });
-			expect(system.formatters.custom.chainStatistic.format(chainStatistic)).to.deep.equal({ current: { height: 123 } });
+			const chainInfo = { height: [123, 456] };
+			expect(system.formatters.default.chainInfo.format(chainInfo)).to.deep.equal({ height: 'uint64' });
+			expect(system.formatters.custom.chainInfo.format(chainInfo)).to.deep.equal({ height: 123 });
 		});
 	});
 });

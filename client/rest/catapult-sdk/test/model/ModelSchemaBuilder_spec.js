@@ -74,6 +74,7 @@ describe('model schema builder', () => {
 				'blockHeaderWithMetadata',
 				'merkleProofInfo',
 				'merkleProofInfoPathNode',
+				'finalizedBlock',
 
 				'transaction',
 				'transactionMetadata',
@@ -90,8 +91,7 @@ describe('model schema builder', () => {
 				'accountLinkPublicKey.voting',
 				'votingPublicKey',
 
-				'chainStatistic',
-				'chainStatisticCurrent',
+				'chainInfo',
 				'nodeHealth',
 				'nodeHealthStatus',
 				'nodeInfo',
@@ -167,7 +167,7 @@ describe('model schema builder', () => {
 				'supplementalPublicKey.vrf',
 				'supplementalPublicKey.voting',
 
-				'chainStatistic.current',
+				'chainInfo.latestFinalizedBlock',
 
 				'nodeHealth.status',
 				'nodeTime.communicationTimestamps',
@@ -217,6 +217,7 @@ describe('model schema builder', () => {
 				'blockHeaderMetadata.generationHash',
 				'blockHeaderMetadata.stateHashSubCacheMerkleRoots.schemaName',
 				'merkleProofInfoPathNode.hash',
+				'finalizedBlock.hash',
 
 				'transaction.signature',
 				'transaction.signerPublicKey',
@@ -247,6 +248,7 @@ describe('model schema builder', () => {
 				'blockHeader.timestamp',
 				'blockHeader.difficulty',
 				'blockHeaderMetadata.totalFee',
+				'finalizedBlock.height',
 
 				'transaction.deadline',
 				'transaction.maxFee',
@@ -264,9 +266,9 @@ describe('model schema builder', () => {
 				'activityBucket.rawScore',
 				'mosaic.amount',
 
-				'chainStatisticCurrent.height',
-				'chainStatisticCurrent.scoreLow',
-				'chainStatisticCurrent.scoreHigh',
+				'chainInfo.height',
+				'chainInfo.scoreLow',
+				'chainInfo.scoreHigh',
 
 				'communicationTimestamps.receiveTimestamp',
 				'communicationTimestamps.sendTimestamp'
@@ -345,8 +347,6 @@ describe('model schema builder', () => {
 
 				'account.accountType',
 				'activityBucket.beneficiaryCount',
-				'votingPublicKey.startEpoch',
-				'votingPublicKey.endEpoch',
 
 				'nodeInfo.version',
 				'nodeInfo.roles',
@@ -356,6 +356,19 @@ describe('model schema builder', () => {
 				'storageInfo.numBlocks',
 				'storageInfo.numTransactions',
 				'storageInfo.numAccounts'
+			]);
+		});
+
+		it('exposes correct uint properties', () => {
+			// Act:
+			const matchingProperties = extractSchemaPropertiesWithType('uint');
+
+			// Assert:
+			expect(matchingProperties).to.deep.equal([
+				'finalizedBlock.finalizationEpoch',
+				'finalizedBlock.finalizationPoint',
+				'votingPublicKey.startEpoch',
+				'votingPublicKey.endEpoch'
 			]);
 		});
 

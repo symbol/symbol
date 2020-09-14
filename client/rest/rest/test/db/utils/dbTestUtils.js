@@ -209,7 +209,7 @@ const createChainStatistic = (height, scorelow, scoreHigh) => ({
 
 const collectionUtils = {
 	names: ['blocks', 'transactions', 'unconfirmedTransactions', 'partialTransactions',
-		'transactionStatuses', 'accounts', 'chainStatistic'],
+		'transactionStatuses', 'accounts', 'chainStatistic', 'finalizedBlocks'],
 	findInEntities: (dbEntities, collectionName) => {
 		if ('blocks' !== collectionName)
 			return dbEntities[collectionName];
