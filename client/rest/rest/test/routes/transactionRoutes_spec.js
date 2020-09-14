@@ -235,6 +235,8 @@ describe('transaction routes', () => {
 							const expectedResult = {
 								address: undefined,
 								height: undefined,
+								fromHeight: undefined,
+								toHeight: undefined,
 								recipientAddress: undefined,
 								signerPublicKey: undefined,
 								embedded: undefined,
@@ -252,6 +254,8 @@ describe('transaction routes', () => {
 
 					const testCases = [
 						{ filter: 'height', param: '15', value: [15, 0] },
+						{ filter: 'fromHeight', param: '10', value: [10, 0] },
+						{ filter: 'toHeight', param: '20', value: [20, 0] },
 						{ filter: 'address', param: testAddressString, value: testAddress },
 						{ filter: 'signerPublicKey', param: testPublickeyString, value: testPublickey },
 						{ filter: 'recipientAddress', param: testAddressString, value: testAddress },
@@ -270,6 +274,8 @@ describe('transaction routes', () => {
 							expect(dbTransactionsFake.firstCall.args[1]).to.deep.equal({
 								address: undefined,
 								height: undefined,
+								fromHeight: undefined,
+								toHeight: undefined,
 								recipientAddress: undefined,
 								signerPublicKey: undefined,
 								embedded: undefined,
@@ -343,6 +349,8 @@ describe('transaction routes', () => {
 								expect(dbTransactionsFake.firstCall.args[1]).to.deep.equal({
 									address: undefined,
 									height: undefined,
+									fromHeight: undefined,
+									toHeight: undefined,
 									recipientAddress: undefined,
 									signerPublicKey: undefined,
 									embedded: undefined,

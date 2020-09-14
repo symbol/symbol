@@ -292,7 +292,8 @@ class CatapultDb {
 	 * Retrieves filtered and paginated transactions.
 	 * @param {string} group Transactions group on which the query is made.
 	 * @param {object} filters Filters to be applied: `address` for an involved address in the query, `signerPublicKey`, `recipientAddress`,
-	 * `height`, `embedded`, `transactionTypes` array of uint. If `address` is provided, other account related filters are omitted.
+	 * `height`, `fromHeight`, `toHeight`, `embedded`, `transactionTypes` array of uint.
+	 * If `address` is provided, other account related filters are omitted.
 	 * @param {object} options Options for ordering and pagination. Can have an `offset`, and must contain the `sortField`, `sortDirection`,
 	 * `pageSize` and `pageNumber`. 'sortField' must be within allowed 'sortingOptions'.
 	 * @returns {Promise.<object>} Transactions page.
@@ -323,6 +324,12 @@ class CatapultDb {
 
 			if (undefined !== filters.height)
 				conditions['meta.height'] = convertToLong(filters.height);
+
+			if (undefined !== filters.fromHeight)
+				conditions['meta.height'] = { $gte: convertToLong(filters.fromHeight) };
+
+			if (undefined !== filters.toHeight)
+				conditions['meta.height'] = { $lte: convertToLong(filters.toHeight) };
 
 			if (!filters.embedded)
 				conditions['meta.aggregateId'] = { $exists: false };

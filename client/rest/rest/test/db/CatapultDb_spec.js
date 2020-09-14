@@ -1529,6 +1529,34 @@ describe('catapult db', () => {
 				return runTestAndVerifyIds(dbTransactions, filters, paginationOptions, [20]);
 			});
 
+			it('fromHeight', () => {
+				// Arrange:
+				const dbTransactions = [
+					createTransaction(10, [], 5),
+					createTransaction(20, [], 10),
+					createTransaction(30, [], 15)
+				];
+
+				const filters = { fromHeight: 10 };
+
+				// Act + Assert:
+				return runTestAndVerifyIds(dbTransactions, filters, paginationOptions, [20, 30]);
+			});
+
+			it('toHeight', () => {
+				// Arrange:
+				const dbTransactions = [
+					createTransaction(10, [], 5),
+					createTransaction(20, [], 10),
+					createTransaction(30, [], 15)
+				];
+
+				const filters = { toHeight: 10 };
+
+				// Act + Assert:
+				return runTestAndVerifyIds(dbTransactions, filters, paginationOptions, [10, 20]);
+			});
+
 			it('address', () => {
 				// Arrange:
 				const dbTransactions = [
