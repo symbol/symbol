@@ -40,6 +40,8 @@ embedded:
   $ref: './query/embedded.yml'
 entryType:
   $ref: './query/entryType.yml'
+fromHeightQuery:
+  $ref: './query/fromHeight.yml'
 heightQuery:
   $ref: './query/height.yml'
 idQuery:
@@ -80,6 +82,7 @@ targetIdQuery:
   $ref: './query/targetId.yml'
 targetAddressQuery:
   $ref: './query/targetAddress.yml'
+toHeightQuery:
+  $ref: './query/toHeight.yml'
 transactionTypeQuery:
   $ref: './query/transactionTypes.yml'
-
