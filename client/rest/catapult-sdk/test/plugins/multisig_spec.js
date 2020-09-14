@@ -66,8 +66,8 @@ describe('multisig plugin', () => {
 				.to.contain.all.keys(['accountAddress', 'minApproval', 'minRemoval', 'multisigAddresses', 'cosignatoryAddresses']);
 
 			// - multisig graph
-			expect(Object.keys(modelSchema.multisigGraph).length).to.equal(1);
-			expect(modelSchema.multisigGraph).to.contain.all.keys(['multisigEntries']);
+			expect(Object.keys(modelSchema.multisigGraph).length).to.equal(2);
+			expect(modelSchema.multisigGraph).to.contain.all.keys(['level', 'multisigEntries']);
 		});
 	});
 

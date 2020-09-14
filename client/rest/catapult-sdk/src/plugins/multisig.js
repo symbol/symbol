@@ -50,6 +50,7 @@ const multisigPlugin = {
 			cosignatoryAddresses: { type: ModelType.array, schemaName: ModelType.binary }
 		});
 		builder.addSchema('multisigGraph', {
+			level: ModelType.none,
 			multisigEntries: { type: ModelType.array, schemaName: 'multisigEntry' }
 		});
 	},
