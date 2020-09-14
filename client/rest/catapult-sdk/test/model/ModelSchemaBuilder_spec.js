@@ -263,8 +263,6 @@ describe('model schema builder', () => {
 				'activityBucket.totalFeesPaid',
 				'activityBucket.rawScore',
 				'mosaic.amount',
-				'votingPublicKey.startPoint',
-				'votingPublicKey.endPoint',
 
 				'chainStatisticCurrent.height',
 				'chainStatisticCurrent.scoreLow',
@@ -347,6 +345,8 @@ describe('model schema builder', () => {
 
 				'account.accountType',
 				'activityBucket.beneficiaryCount',
+				'votingPublicKey.startEpoch',
+				'votingPublicKey.endEpoch',
 
 				'nodeInfo.version',
 				'nodeInfo.roles',

@@ -43,8 +43,8 @@ const accountLinkPlugin = {
 
 		builder.addTransactionSupport(EntityType.votingKeyLink, {
 			linkedPublicKey: ModelType.binary,
-			startPoint: ModelType.uint64,
-			endPoint: ModelType.uint64,
+			startEpoch: ModelType.int,
+			endEpoch: ModelType.int,
 			linkAction: ModelType.int
 		});
 
@@ -87,16 +87,16 @@ const accountLinkPlugin = {
 			deserialize: parser => {
 				const transaction = {};
 				transaction.linkedPublicKey = parser.buffer(constants.sizes.votingKey);
-				transaction.startPoint = parser.uint64();
-				transaction.endPoint = parser.uint64();
+				transaction.startEpoch = parser.uint32();
+				transaction.endEpoch = parser.uint32();
 				transaction.linkAction = parser.uint8();
 				return transaction;
 			},
 
 			serialize: (transaction, serializer) => {
 				serializer.writeBuffer(transaction.linkedPublicKey);
-				serializer.writeUint64(transaction.startPoint);
-				serializer.writeUint64(transaction.endPoint);
+				serializer.writeUint32(transaction.startEpoch);
+				serializer.writeUint32(transaction.endEpoch);
 				serializer.writeUint8(transaction.linkAction);
 			}
 		});

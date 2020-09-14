@@ -21,7 +21,6 @@
 const EntityType = require('../../src/model/EntityType');
 const ModelSchemaBuilder = require('../../src/model/ModelSchemaBuilder');
 const accountLinkPlugin = require('../../src/plugins/accountLink');
-const uint64 = require('../../src/utils/uint64');
 const test = require('../binaryTestUtils');
 const { expect } = require('chai');
 
@@ -50,7 +49,7 @@ describe('account link plugin', () => {
 
 			// - votingKeyLink
 			expect(Object.keys(modelSchema.votingKeyLink).length).to.equal(Object.keys(modelSchema.transaction).length + 4);
-			expect(modelSchema.votingKeyLink).to.contain.all.keys(['linkedPublicKey', 'startPoint', 'endPoint', 'linkAction']);
+			expect(modelSchema.votingKeyLink).to.contain.all.keys(['linkedPublicKey', 'startEpoch', 'endEpoch', 'linkAction']);
 
 			// - vrfKeyLink
 			expect(Object.keys(modelSchema.vrfKeyLink).length).to.equal(Object.keys(modelSchema.transaction).length + 2);
@@ -120,20 +119,20 @@ describe('account link plugin', () => {
 				0x77, 0xBE, 0xE1, 0xCA, 0xD0, 0x8E, 0x6E, 0x48, 0x95, 0xE8, 0x18, 0xB2, 0x7B, 0xD8, 0xFA, 0xC9,
 				0x47, 0x0D, 0xB8, 0xFD, 0x2D, 0x81, 0x47, 0x6A, 0xC5, 0x61, 0xA4, 0xCE, 0xE1, 0x81, 0x40, 0x83
 			);
-			const startPoint = Buffer.of(0x47, 0x12, 0xC3, 0x00, 0x01, 0x00, 0x00, 0x00);
-			const endPoint = Buffer.of(0x73, 0xBE, 0xD2, 0x11, 0x33, 0x8E, 0x51, 0x96);
+			const startEpoch = Buffer.of(0x47, 0x12, 0xC3, 0x00);
+			const endEpoch = Buffer.of(0x73, 0xBE, 0xD2, 0x11);
 
-			test.binary.test.addAll(getCodecs()[EntityType.votingKeyLink], 48 + 8 + 8 + 1, () => ({
+			test.binary.test.addAll(getCodecs()[EntityType.votingKeyLink], 48 + 4 + 4 + 1, () => ({
 				buffer: Buffer.concat([
 					linkedPublicKey, // 48b
-					startPoint, // 8b
-					endPoint, // 8b
+					startEpoch, // 4b
+					endEpoch, // 4b
 					Buffer.of(0x01) // 1b
 				]),
 				object: {
 					linkedPublicKey,
-					startPoint: uint64.fromBytes(startPoint),
-					endPoint: uint64.fromBytes(endPoint),
+					startEpoch: 0x00C31247,
+					endEpoch: 0x11D2BE73,
 					linkAction: 0x01
 				}
 			}));
