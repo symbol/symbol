@@ -21,15 +21,14 @@
 const { ServerMessageHandler } = require('./serverMessageHandlers');
 const catapult = require('catapult-sdk');
 
-const createBlockDescriptor = () => ({
+const createBlockDescriptor = (marker, handler) => ({
 	filter: topicParam => {
 		if (topicParam)
 			throw new Error('unexpected param to block subscription');
 
-		return Buffer.of(0x49, 0x6A, 0xCA, 0x80, 0xE4, 0xD8, 0xF2, 0x9F);
+		return marker;
 	},
-
-	handler: ServerMessageHandler.block
+	handler
 });
 
 const createPolicyBasedAddressFilter = (markerByte, emptyAddressHandler) => topicParam => {
@@ -57,7 +56,14 @@ class MessageChannelBuilder {
 		this.createAddressFilter = markerChar => createPolicyBasedAddressFilter(markerChar.charCodeAt(0), emptyAddressHandler);
 
 		// add basic descriptors
-		this.descriptors.block = createBlockDescriptor();
+		this.descriptors.block = createBlockDescriptor(
+			Buffer.of(0x49, 0x6A, 0xCA, 0x80, 0xE4, 0xD8, 0xF2, 0x9F),
+			ServerMessageHandler.block
+		);
+		this.descriptors.finalizedBlock = createBlockDescriptor(
+			Buffer.of(0x54, 0x79, 0xCE, 0x31, 0xA0, 0x32, 0x48, 0x4D),
+			ServerMessageHandler.finalizedBlock
+		);
 		this.add('confirmedAdded', 'a', ServerMessageHandler.transaction);
 		this.add('unconfirmedAdded', 'u', ServerMessageHandler.transaction);
 		this.add('unconfirmedRemoved', 'r', ServerMessageHandler.transactionHash);

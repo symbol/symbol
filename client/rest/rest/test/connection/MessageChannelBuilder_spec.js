@@ -79,7 +79,14 @@ describe('message channel builder', () => {
 			const defaultChannelNames = Object.keys(channels);
 
 			// Assert:
-			expect(defaultChannelNames).to.deep.equal(['block', 'confirmedAdded', 'unconfirmedAdded', 'unconfirmedRemoved', 'status']);
+			expect(defaultChannelNames).to.deep.equal([
+				'block',
+				'finalizedBlock',
+				'confirmedAdded',
+				'unconfirmedAdded',
+				'unconfirmedRemoved',
+				'status'
+			]);
 		});
 
 		describe('block', () => {

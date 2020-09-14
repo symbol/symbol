@@ -57,6 +57,37 @@ describe('server message handlers', () => {
 		});
 	});
 
+	it('finalized block handler', () => {
+		// Arrange:
+		const emitted = [];
+		const codec = createMockCodec(35);
+		const finalizedBlockBuffer = Buffer.concat([
+			Buffer.of(44, 0, 0, 0), // finalization epoch
+			Buffer.of(55, 0, 0, 0), // finalization point
+			Buffer.of(66, 0, 0, 0, 0, 0, 0, 0), // height
+			Buffer.alloc(test.constants.sizes.hash256, 41) // hash
+		]);
+
+		// Act:
+		ServerMessageHandler.finalizedBlock(codec, eventData => emitted.push(eventData))(12, finalizedBlockBuffer, 99, 88);
+
+		// Assert:
+		// - 12 is a "topic" so it's not forwarded
+		// - trailing params (99, 88) should be ignored
+		expect(codec.collected.length).to.equal(0);
+
+		expect(emitted.length).to.equal(1);
+		expect(emitted[0]).to.deep.equal({
+			type: 'finalizedBlock',
+			payload: {
+				finalizationEpoch: 44,
+				finalizationPoint: 55,
+				height: [66, 0],
+				hash: Buffer.alloc(test.constants.sizes.hash256, 41)
+			}
+		});
+	});
+
 	it('transaction handler', () => {
 		// Arrange:
 		const emitted = [];
@@ -109,13 +140,13 @@ describe('server message handlers', () => {
 		// Arrange:
 		const emitted = [];
 		const codec = createMockCodec(35);
-
-		// Act:
 		const buffer = Buffer.concat([
 			Buffer.alloc(test.constants.sizes.hash256, 41), // hash
 			Buffer.of(66, 0, 0, 0, 0, 0, 0, 0), // deadline
 			Buffer.of(55, 0, 0, 0) // status
 		]);
+
+		// Act:
 		ServerMessageHandler.transactionStatus(codec, eventData => emitted.push(eventData))(22, buffer, 99);
 
 		// Assert:
