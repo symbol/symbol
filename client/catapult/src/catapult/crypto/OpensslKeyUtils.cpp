@@ -94,7 +94,7 @@ namespace catapult { namespace crypto {
 			if (!EVP_PKEY_get_raw_private_key(&key, privateKeyBuffer.data(), &privateKeyBufferSize))
 				return std::make_pair(KeyPair::FromPrivate(PrivateKey()), false);
 
-			auto privateKey = PrivateKey::FromBuffer(privateKeyBuffer);
+			auto privateKey = PrivateKey::FromBufferSecure(privateKeyBuffer);
 			return std::make_pair(KeyPair::FromPrivate(std::move(privateKey)), true);
 		});
 	}

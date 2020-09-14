@@ -40,10 +40,6 @@ namespace catapult { namespace crypto {
 			return BmPrivateKey::Generate([&generator]() { return static_cast<uint8_t>(generator()); });
 		}
 
-		BmPublicKey GetPublicKey(const BmPrivateKey& privateKey) {
-			return BmKeyPair::FromPrivate(BmPrivateKey::FromBuffer(privateKey)).publicKey();
-		}
-
 		RawBuffer ToBuffer(const uint64_t& value) {
 			return { reinterpret_cast<const uint8_t*>(&value), sizeof(uint64_t) };
 		}
@@ -52,20 +48,20 @@ namespace catapult { namespace crypto {
 		public:
 			static constexpr auto Entry_Size = sizeof(BmPrivateKey) + BmSignature::Size;
 
-		public:
-			SignedPrivateKey(BmPrivateKey&& privateKey, const BmSignature& signature)
-					: m_keyPair(BmKeyPair::FromPrivate(std::move(privateKey)))
-					, m_signature(signature)
+		private:
+			explicit SignedPrivateKey(BmPrivateKey&& privateKey) : m_keyPair(BmKeyPair::FromPrivate(std::move(privateKey)))
 			{}
 
 		public:
-			static SignedPrivateKey CreateRandom(const BmKeyPair& parentKeyPair, uint64_t identifier) {
-				auto privateKey = GeneratePrivateKey();
-				auto publicKey = GetPublicKey(privateKey);
+			SignedPrivateKey(BmPrivateKey&& privateKey, const BmSignature& signature) : SignedPrivateKey(std::move(privateKey)) {
+				m_signature = signature;
+			}
 
-				BmSignature signature;
-				Sign(parentKeyPair, { publicKey, ToBuffer(identifier) }, signature);
-				return SignedPrivateKey(std::move(privateKey), signature);
+		public:
+			static SignedPrivateKey CreateRandom(const BmKeyPair& parentKeyPair, uint64_t identifier) {
+				SignedPrivateKey signedPrivateKey(GeneratePrivateKey());
+				Sign(parentKeyPair, { signedPrivateKey.keyPair().publicKey(), ToBuffer(identifier) }, signedPrivateKey.m_signature);
+				return signedPrivateKey;
 			}
 
 		public:

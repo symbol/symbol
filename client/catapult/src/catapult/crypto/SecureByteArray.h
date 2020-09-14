@@ -91,7 +91,7 @@ namespace catapult { namespace crypto {
 
 	public:
 		/// Creates a byte array from \a buffer.
-		static SecureByteArray FromBuffer(const utils::RawBuffer& buffer) {
+		static SecureByteArray FromBuffer(const RawBuffer& buffer) {
 			if (Size != buffer.Size)
 				CATAPULT_THROW_INVALID_ARGUMENT_1("secure byte array input buffer has unexpected size", buffer.Size);
 
@@ -100,28 +100,29 @@ namespace catapult { namespace crypto {
 			return byteArray;
 		}
 
-		/// Creates a byte array from \a str.
-		static SecureByteArray FromString(const std::string& str) {
-			return FromString(str.c_str(), str.size());
+		/// Creates a byte array from \a buffer and securely erases it.
+		static SecureByteArray FromBufferSecure(const MutableRawBuffer& buffer) {
+			SecureZeroGuard guard(buffer.pData, buffer.Size);
+			return FromBuffer(RawBuffer{ buffer.pData, buffer.Size });
 		}
 
-		/// Creates a byte array from \a pRawString with size \a size and securely erases \a pRawString.
-		static SecureByteArray FromStringSecure(char* pRawString, size_t size) {
-			SecureZeroGuard guard(reinterpret_cast<uint8_t*>(pRawString), size);
-			return FromString(pRawString, size);
+		/// Creates a byte array from \a str.
+		static SecureByteArray FromString(const RawString& str) {
+			SecureByteArray byteArray;
+			utils::ParseHexStringIntoContainer(str.pData, str.Size, byteArray.m_array);
+			return byteArray;
+		}
+
+		/// Creates a byte array from \a str and securely erases it.
+		static SecureByteArray FromStringSecure(const MutableRawString& str) {
+			SecureZeroGuard guard(reinterpret_cast<uint8_t*>(str.pData), str.Size);
+			return FromString(RawString{ str.pData, str.Size });
 		}
 
 		/// Generates a new byte array using the specified byte \a generator.
 		static SecureByteArray Generate(const supplier<uint8_t>& generator) {
 			SecureByteArray byteArray;
 			std::generate_n(byteArray.m_array.begin(), byteArray.m_array.size(), generator);
-			return byteArray;
-		}
-
-	private:
-		static SecureByteArray FromString(const char* const pRawString, size_t size) {
-			SecureByteArray byteArray;
-			utils::ParseHexStringIntoContainer(pRawString, size, byteArray.m_array);
 			return byteArray;
 		}
 

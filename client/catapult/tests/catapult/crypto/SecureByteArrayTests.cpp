@@ -40,7 +40,7 @@ namespace catapult { namespace crypto {
 			return std::equal(Zero.cbegin(), Zero.cend(), pMemory);
 		}
 
-		ConcreteSecureByteArray Secure(const ConcreteByteArray& byteArray) {
+		ConcreteSecureByteArray MakeSecure(const ConcreteByteArray& byteArray) {
 			return ConcreteSecureByteArray::FromBuffer(byteArray);
 		}
 
@@ -71,7 +71,7 @@ namespace catapult { namespace crypto {
 
 		uint8_t secureMemory[ConcreteSecureByteArray::Size];
 		auto pByteArray = new (secureMemory) ConcreteSecureByteArray;
-		*pByteArray = Secure(seed);
+		*pByteArray = MakeSecure(seed);
 
 		// Sanity: the array's backing memory is nonzero
 		EXPECT_FALSE(IsZero(secureMemory));
@@ -93,7 +93,7 @@ namespace catapult { namespace crypto {
 
 		uint8_t secureMemory[ConcreteSecureByteArray::Size];
 		auto pByteArray = new (secureMemory) ConcreteSecureByteArray;
-		*pByteArray = Secure(seed);
+		*pByteArray = MakeSecure(seed);
 
 		// Sanity: the array's backing memory is nonzero
 		EXPECT_FALSE(IsZero(secureMemory));
@@ -114,7 +114,7 @@ namespace catapult { namespace crypto {
 
 		uint8_t secureMemory[ConcreteSecureByteArray::Size];
 		auto pByteArray = new (secureMemory) ConcreteSecureByteArray;
-		*pByteArray = Secure(seed);
+		*pByteArray = MakeSecure(seed);
 
 		// Sanity: the array's backing memory is nonzero
 		EXPECT_FALSE(IsZero(secureMemory));
@@ -152,6 +152,21 @@ namespace catapult { namespace crypto {
 		EXPECT_EQ(3u, seed[0]);
 	}
 
+	TEST(TEST_CLASS, CanCreateFromBufferSecure) {
+		// Arrange:
+		auto seed = test::GenerateRandomByteArray<ConcreteByteArray>();
+		auto seedCopy = seed;
+
+		// Act:
+		auto byteArray = ConcreteSecureByteArray::FromBufferSecure(seed);
+
+		// Assert:
+		AssertEqual(seedCopy, byteArray);
+
+		// - the factory function should have zeroed out the input buffer
+		EXPECT_EQ(ConcreteByteArray(), seed);
+	}
+
 	TEST(TEST_CLASS, CanCreateFromString) {
 		// Arrange:
 		auto seedString = std::string("3485D98EFD7EB07ADAFCFD1A157D89DE2796A95E780813C0");
@@ -168,17 +183,17 @@ namespace catapult { namespace crypto {
 
 	TEST(TEST_CLASS, CanCreateFromStringSecure) {
 		// Arrange:
-		std::string zeroString(ConcreteSecureByteArray::Size * 2, '\0');
 		auto seedString = std::string("3485D98EFD7EB07ADAFCFD1A157D89DE2796A95E780813C0");
+		auto seedStringCopy = seedString;
 
 		// Act:
-		auto byteArray = ConcreteSecureByteArray::FromStringSecure(seedString.data(), seedString.size());
+		auto byteArray = ConcreteSecureByteArray::FromStringSecure(seedString);
 
 		// Assert:
-		AssertEqual(utils::ParseByteArray<ConcreteByteArray>("3485D98EFD7EB07ADAFCFD1A157D89DE2796A95E780813C0"), byteArray);
+		AssertEqual(utils::ParseByteArray<ConcreteByteArray>(seedStringCopy), byteArray);
 
 		// - note that the factory function should have zeroed out the input string
-		EXPECT_EQ(zeroString, seedString);
+		EXPECT_EQ(std::string(seedString.size(), '\0'), seedString);
 	}
 
 	TEST(TEST_CLASS, CanCreateFromGenerator) {
@@ -196,7 +211,7 @@ namespace catapult { namespace crypto {
 
 	// endregion
 
-	// region factories - failure
+	// region factories - failure (size)
 
 	namespace {
 		std::vector<size_t> GetInvalidSizes() {
@@ -211,60 +226,56 @@ namespace catapult { namespace crypto {
 		void AssertCannotCreateFromBufferWithSize(size_t size) {
 			// Arrange:
 			auto buffer = test::GenerateRandomVector(size);
+			if (size > 0)
+				buffer[0] = 3;
 
-			// Act + Assert:
+			// Act + Assert: array creation should fail but buffer should not be cleared
 			EXPECT_THROW(ConcreteSecureByteArray::FromBuffer(buffer), catapult_invalid_argument) << "buffer size: " << size;
+
+			if (size > 0)
+				EXPECT_EQ(3u, buffer[0]);
+		}
+
+		void AssertCannotCreateFromSecureBufferWithSize(size_t size) {
+			// Arrange:
+			auto buffer = test::GenerateRandomVector(size);
+
+			// Act + Assert: array creation should fail but buffer should be cleared
+			EXPECT_THROW(ConcreteSecureByteArray::FromBufferSecure(buffer), catapult_invalid_argument) << "buffer size: " << size;
+			EXPECT_EQ(std::vector<uint8_t>(size, 0), buffer);
 		}
 
 		void AssertCannotCreateFromStringWithSize(size_t size, char arrayFirstChar) {
 			// Arrange:
-			auto seedString = test::GenerateRandomHexString(size * 2);
-			seedString[0] = arrayFirstChar;
+			auto seedString = test::GenerateRandomHexString(2 * size);
+			if (size > 0)
+				seedString[0] = arrayFirstChar;
 
 			// Act + Assert: array creation should fail but string should not be cleared
 			EXPECT_THROW(ConcreteSecureByteArray::FromString(seedString), catapult_invalid_argument) << "string size: " << size;
-			EXPECT_EQ(arrayFirstChar, seedString[0]);
+
+			if (size > 0)
+				EXPECT_EQ(arrayFirstChar, seedString[0]);
 		}
 
 		void AssertCannotCreateFromSecureStringWithSize(size_t size) {
 			// Arrange:
-			std::string zeroString(size * 2, '\0');
-			auto seedString = test::GenerateRandomHexString(size * 2);
+			auto seedString = test::GenerateRandomHexString(2 * size);
 
 			// Act + Assert: array creation should fail but string should still be cleared
-			EXPECT_THROW(
-					ConcreteSecureByteArray::FromStringSecure(seedString.data(), seedString.size()),
-					catapult_invalid_argument) << "string size: " << size;
-			EXPECT_EQ(zeroString, seedString);
-		}
-
-		void AssertCannotCreateFromStringWithInvalidCharacter(char invalidChar) {
-			// Arrange:
-			auto seedString = test::GenerateRandomHexString(ConcreteSecureByteArray::Size * 2);
-			seedString[ConcreteSecureByteArray::Size] = invalidChar;
-
-			// Act + Assert: array creation should fail but string should not be cleared
-			EXPECT_THROW(ConcreteSecureByteArray::FromString(seedString), catapult_invalid_argument) << "invalid char: " << invalidChar;
-			EXPECT_EQ(invalidChar, seedString[ConcreteSecureByteArray::Size]);
-		}
-
-		void AssertCannotCreateFromSecureStringWithInvalidCharacter(char invalidChar) {
-			// Arrange:
-			std::string zeroString(ConcreteSecureByteArray::Size * 2, '\0');
-			auto seedString = test::GenerateRandomHexString(ConcreteSecureByteArray::Size * 2);
-			seedString[ConcreteSecureByteArray::Size] = invalidChar;
-
-			// Act + Assert: array creation should fail but string should still be cleared
-			EXPECT_THROW(
-					ConcreteSecureByteArray::FromStringSecure(seedString.data(), seedString.size()),
-					catapult_invalid_argument) << "invalid char: " << invalidChar;
-			EXPECT_EQ(zeroString, seedString);
+			EXPECT_THROW(ConcreteSecureByteArray::FromStringSecure(seedString), catapult_invalid_argument) << "string size: " << size;
+			EXPECT_EQ(std::string(seedString.size(), '\0'), seedString);
 		}
 	}
 
 	TEST(TEST_CLASS, CannotCreateFromIncorrectlySizedBuffer) {
 		for (auto size : GetInvalidSizes())
 			AssertCannotCreateFromBufferWithSize(size);
+	}
+
+	TEST(TEST_CLASS, CannotCreateFromIncorrectlySizedSecureBuffer) {
+		for (auto size : GetInvalidSizes())
+			AssertCannotCreateFromSecureBufferWithSize(size);
 	}
 
 	TEST(TEST_CLASS, CannotCreateFromIncorrectlySizedString) {
@@ -277,6 +288,34 @@ namespace catapult { namespace crypto {
 	TEST(TEST_CLASS, CannotCreateFromIncorrectlySizedSecureString) {
 		for (auto size : GetInvalidSizes())
 			AssertCannotCreateFromSecureStringWithSize(size);
+	}
+
+	// endregion
+
+	// region factories - failure (character)
+
+	namespace {
+		void AssertCannotCreateFromStringWithInvalidCharacter(char invalidChar) {
+			// Arrange:
+			auto seedString = test::GenerateRandomHexString(2 * ConcreteSecureByteArray::Size);
+			seedString[ConcreteSecureByteArray::Size] = invalidChar;
+
+			// Act + Assert: array creation should fail but string should not be cleared
+			EXPECT_THROW(ConcreteSecureByteArray::FromString(seedString), catapult_invalid_argument) << "invalid char: " << invalidChar;
+			EXPECT_EQ(invalidChar, seedString[ConcreteSecureByteArray::Size]);
+		}
+
+		void AssertCannotCreateFromSecureStringWithInvalidCharacter(char invalidChar) {
+			// Arrange:
+			auto seedString = test::GenerateRandomHexString(2 * ConcreteSecureByteArray::Size);
+			seedString[ConcreteSecureByteArray::Size] = invalidChar;
+
+			// Act + Assert: array creation should fail but string should still be cleared
+			EXPECT_THROW(
+					ConcreteSecureByteArray::FromStringSecure(seedString),
+					catapult_invalid_argument) << "invalid char: " << invalidChar;
+			EXPECT_EQ(std::string(seedString.size(), '\0'), seedString);
+		}
 	}
 
 	TEST(TEST_CLASS, CannotCreateFromStringWithInvalidCharacter) {
@@ -298,9 +337,9 @@ namespace catapult { namespace crypto {
 			auto seed = test::GenerateRandomByteArray<ConcreteByteArray>();
 
 			std::unordered_map<std::string, ConcreteSecureByteArray> map;
-			map.emplace("default", Secure(seed));
-			map.emplace("same-raw", Secure(seed));
-			map.emplace("diff-raw", Secure(test::GenerateRandomByteArray<ConcreteByteArray>()));
+			map.emplace("default", MakeSecure(seed));
+			map.emplace("same-raw", MakeSecure(seed));
+			map.emplace("diff-raw", MakeSecure(test::GenerateRandomByteArray<ConcreteByteArray>()));
 			return map;
 		}
 
