@@ -1,0 +1,9 @@
+type: object
+required:
+  - parentPublicKey
+  - signature
+properties:
+  parentPublicKey:
+    $ref: "../../../schemas/PublicKey.yml"
+  signature:
+    $ref: "../../../schemas/Signature.yml"
