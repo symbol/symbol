@@ -1,0 +1,11 @@
+type: integer
+enum:
+  - 0
+  - 1
+  - 2
+description: |
+  Type of stage:
+  * 0 - Prevote.
+  * 1 - Precommit.
+  * 2 - Count.
+example: 0

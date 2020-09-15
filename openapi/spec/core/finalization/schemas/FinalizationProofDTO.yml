@@ -1,0 +1,23 @@
+type: object
+required:
+  - version
+  - finalizationEpoch
+  - finalizationPoint
+  - height
+  - hash
+  - messageGroups
+properties:
+  version:
+    type: integer
+  finalizationEpoch:
+    type: integer
+  finalizationPoint:
+    type: integer
+  height:
+    $ref: "../../../schemas/Height.yml"
+  hash:
+    $ref: "../../../schemas/Hash256.yml"
+  messageGroups:
+    type: array
+    items:
+      $ref: "./MessageGroup.yml"

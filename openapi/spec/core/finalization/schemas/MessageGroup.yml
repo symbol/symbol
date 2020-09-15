@@ -1,0 +1,19 @@
+type: object
+required:
+  - finalizationStage
+  - height
+  - hashes
+  - signatures
+properties:
+  finalizationStage:
+    $ref: "./FinalizationStageEnum.yml"
+  height:
+    $ref: "../../../schemas/Height.yml"
+  hashes:
+    type: array
+    items:
+      $ref: "../../../schemas/Hash256.yml"
+  signatures:
+    type: array
+    items:
+      $ref: "./BmTreeSignature.yml"
