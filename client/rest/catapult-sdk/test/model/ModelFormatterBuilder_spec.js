@@ -52,6 +52,7 @@ describe('model formatter builder', () => {
 
 				'chainInfo',
 				'merkleProofInfo',
+				'finalizedBlock',
 				'nodeHealth',
 				'nodeInfo',
 				'nodeTime',
