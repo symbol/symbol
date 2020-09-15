@@ -20,7 +20,6 @@
 
 #pragma once
 #include "Results.h"
-#include "src/model/KeyLinkNotifications.h"
 #include "catapult/utils/TimeSpan.h"
 #include "catapult/validators/ValidatorTypes.h"
 
@@ -93,20 +92,6 @@ namespace catapult { namespace validators {
 	/// - fee is no greater than max fee
 	/// - max fee multiplier does not overflow 32-bit value
 	DECLARE_STATELESS_VALIDATOR(TransactionFee, model::TransactionFeeNotification)();
-
-	// endregion
-
-	// region (KeyLink) Transaction
-
-	/// Validator that applies to key link action notifications and validates that:
-	/// - link action is valid
-	DECLARE_STATELESS_VALIDATOR(KeyLinkAction, model::KeyLinkActionNotification)();
-
-	/// Validator that applies to voting key link notifications and validates that:
-	/// - start point is prior to end point
-	/// - range is longer than \a minRange
-	/// - range is shorter than \a maxRange
-	DECLARE_STATELESS_VALIDATOR(VotingKeyLinkRange, model::VotingKeyLinkNotification)(uint32_t minRange, uint32_t maxRange);
 
 	// endregion
 

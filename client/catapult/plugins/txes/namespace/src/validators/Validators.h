@@ -36,10 +36,12 @@ namespace catapult { namespace validators {
 	/// Validator that applies to namespace name notifications and validates that:
 	/// - namespace name has a maximum size of \a maxNameSize
 	/// - namespace name consists only of allowed characters
+	DECLARE_STATELESS_VALIDATOR(NamespaceName, model::NamespaceNameNotification)(uint8_t maxNameSize);
+
+	/// Validator that applies to namespace name notifications and validates that:
 	/// - for root namespaces, name is not in \a reservedRootNamespaceNames
 	/// - for child namespaces, the parent id is not an id that can be generated from \a reservedRootNamespaceNames
-	DECLARE_STATELESS_VALIDATOR(NamespaceName, model::NamespaceNameNotification)(
-			uint8_t maxNameSize,
+	DECLARE_STATEFUL_VALIDATOR(NamespaceReservedName, model::NamespaceNameNotification)(
 			const std::unordered_set<std::string>& reservedRootNamespaceNames);
 
 	/// Validator that applies to root namespace notifications and validates that:

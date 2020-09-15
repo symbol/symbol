@@ -21,6 +21,7 @@
 #include "catapult/extensions/NemesisBlockLoader.h"
 #include "sdk/src/extensions/BlockExtensions.h"
 #include "plugins/coresystem/src/observers/Observers.h"
+#include "plugins/coresystem/src/validators/Validators.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/model/Address.h"
 #include "catapult/model/BlockUtils.h"
@@ -76,6 +77,7 @@ namespace catapult { namespace extensions {
 
 				auto pTransaction = mocks::CreateTransactionWithFeeAndTransfers(Amount(), unresolvedTransfers);
 				pTransaction->SignerPublicKey = nemesisPublicKey;
+				pTransaction->Version = mocks::MockTransaction::Current_Version;
 				pTransaction->Network = model::NetworkIdentifier::Mijin_Test;
 				transactions.push_back(std::move(pTransaction));
 			}
@@ -84,7 +86,7 @@ namespace catapult { namespace extensions {
 			return blockSignerPair;
 		}
 
-		enum class NemesisBlockModification { None, Public_Key, Generation_Hash_Proof, Generation_Hash, Signature };
+		enum class NemesisBlockModification { None, Public_Key, Generation_Hash_Proof, Generation_Hash, Stateless, Stateful };
 
 		void SetNemesisBlock(
 				io::BlockStorageCache& storage,
@@ -121,11 +123,13 @@ namespace catapult { namespace extensions {
 				modifiedNemesisBlockElement.GenerationHash = proofHash.copyTo<GenerationHash>();
 			}
 
-			// 4. modify the block signature if requested
-			if (NemesisBlockModification::Signature == modification)
-				test::FillWithRandomData(pModifiedBlock->Signature);
-			else
-				extensions::BlockExtensions(network.GenerationHashSeed).signFullBlock(*blockSignerPair.pSigner, *pModifiedBlock);
+			// 4. modify the block to fail stateless validation
+			if (NemesisBlockModification::Stateless == modification)
+				++pModifiedBlock->Version;
+
+			// 5. modify the block to fail stateful validation
+			if (NemesisBlockModification::Stateful == modification)
+				test::FillWithRandomData(pModifiedBlock->BeneficiaryAddress);
 
 			storageModifier.saveBlock(modifiedNemesisBlockElement);
 			storageModifier.commit();
@@ -164,6 +168,7 @@ namespace catapult { namespace extensions {
 			// enable Publish_Transfers (MockTransaction Publish XORs recipient address, so XOR address resolver is required
 			// for proper roundtripping or else test will fail)
 			auto config = model::BlockChainConfiguration::Uninitialized();
+			config.Network.Identifier = Network_Identifier;
 			config.HarvestingMosaicId = Harvesting_Mosaic_Id;
 			auto manager = test::CreatePluginManager(config);
 			manager.addTransactionSupport(mocks::CreateMockTransactionPlugin(mocks::PluginOptionFlags::Publish_Transfers));
@@ -178,6 +183,14 @@ namespace catapult { namespace extensions {
 			manager.addAddressResolver([](const auto&, const auto& unresolved, auto& resolved) {
 				resolved = test::CreateResolverContextXor().resolve(unresolved);
 				return true;
+			});
+
+			manager.addStatelessValidatorHook([](auto& builder) {
+				builder.add(validators::CreateEntityVersionValidator());
+			});
+
+			manager.addStatefulValidatorHook([](auto& builder) {
+				builder.add(validators::CreateAddressValidator());
 			});
 			return manager;
 		}
@@ -682,7 +695,7 @@ namespace catapult { namespace extensions {
 
 	TRAITS_BASED_TEST(CanLoadValidNemesisBlock_SpecialSinkAccountIsCreatedWhenEnabled) {
 		// Arrange:
-		auto sinkAddress = test::GenerateRandomByteArray<Address>();
+		auto sinkAddress = test::GenerateRandomAddress(Network_Identifier);
 
 		// Act:
 		RunNemesisBlockSpecialSinkAccountTest<TTraits>(10, sinkAddress, [&sinkAddress](const auto& accountStateCache) {
@@ -697,7 +710,7 @@ namespace catapult { namespace extensions {
 
 	TRAITS_BASED_TEST(CanLoadValidNemesisBlock_SpecialSinkAccountIsNotCreatedWhenDisabled) {
 		// Arrange:
-		auto sinkAddress = test::GenerateRandomByteArray<Address>();
+		auto sinkAddress = test::GenerateRandomAddress(Network_Identifier);
 
 		// Act:
 		RunNemesisBlockSpecialSinkAccountTest<TTraits>(0, sinkAddress, [&sinkAddress](const auto& accountStateCache) {
@@ -902,14 +915,23 @@ namespace catapult { namespace extensions {
 
 	// endregion
 
-	// region failure - signature
+	// region failure - validation
 
-	TRAITS_BASED_TEST(CannotLoadNemesisBlockWithWrongSignature) {
+	TRAITS_BASED_TEST(CannotLoadNemesisBlockThatFailsStatelessValidation) {
 		// Arrange: create a valid nemesis block with a single (mosaic) transaction
 		auto nemesisBlockSignerPair = CreateNemesisBlock({ { MakeHarvestingMosaic(1234) } });
 
 		// Act:
-		auto modification = NemesisBlockModification::Signature;
+		auto modification = NemesisBlockModification::Stateless;
+		AssertLoadNemesisBlockFailure<TTraits, catapult_runtime_error>(nemesisBlockSignerPair, Importance(1234), modification);
+	}
+
+	TRAITS_BASED_TEST(CannotLoadNemesisBlockThatFailsStatefulValidation) {
+		// Arrange: create a valid nemesis block with a single (mosaic) transaction
+		auto nemesisBlockSignerPair = CreateNemesisBlock({ { MakeHarvestingMosaic(1234) } });
+
+		// Act:
+		auto modification = NemesisBlockModification::Stateful;
 		AssertLoadNemesisBlockFailure<TTraits, catapult_runtime_error>(nemesisBlockSignerPair, Importance(1234), modification);
 	}
 

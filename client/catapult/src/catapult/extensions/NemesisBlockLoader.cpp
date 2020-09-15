@@ -19,9 +19,11 @@
 **/
 
 #include "NemesisBlockLoader.h"
+#include "ExecutionConfigurationFactory.h"
 #include "LocalNodeStateRef.h"
 #include "NemesisFundingObserver.h"
-#include "catapult/chain/BlockExecutor.h"
+#include "PluginUtils.h"
+#include "catapult/chain/BatchEntityProcessor.h"
 #include "catapult/config/CatapultConfiguration.h"
 #include "catapult/crypto/Vrf.h"
 #include "catapult/io/BlockStorageCache.h"
@@ -34,7 +36,7 @@
 namespace catapult { namespace extensions {
 
 	namespace {
-		std::unique_ptr<const observers::NotificationObserver> PrependNemesisObservers(
+		std::unique_ptr<const observers::AggregateNotificationObserver> PrependNemesisObservers(
 				const Address& nemesisAddress,
 				NemesisFundingState& nemesisFundingState,
 				std::unique_ptr<const observers::NotificationObserver>&& pObserver) {
@@ -146,9 +148,7 @@ namespace catapult { namespace extensions {
 			std::unique_ptr<const observers::NotificationObserver>&& pObserver)
 			: m_cacheDelta(cacheDelta)
 			, m_pluginManager(pluginManager)
-			, m_pObserver(std::make_unique<observers::NotificationObserverAdapter>(
-					PrependNemesisObservers(m_nemesisAddress, m_nemesisFundingState, std::move(pObserver)),
-					model::CreateNemesisNotificationPublisher(pluginManager.createNotificationPublisher(), m_publisherOptions)))
+			, m_pNotificationObserver(PrependNemesisObservers(m_nemesisAddress, m_nemesisFundingState, std::move(pObserver)))
 	{}
 
 	void NemesisBlockLoader::execute(const LocalNodeStateRef& stateRef, StateHashVerification stateHashVerification) {
@@ -173,6 +173,15 @@ namespace catapult { namespace extensions {
 	}
 
 	namespace {
+		void CheckValidationResult(const char* description, validators::ValidationResult validationResult) {
+			if (validators::ValidationResult::Success == validationResult)
+				return;
+
+			std::ostringstream out;
+			out << "nemesis block failed " << description << " validation with " << validationResult;
+			CATAPULT_THROW_RUNTIME_ERROR(out.str().c_str());
+		}
+
 		void RequireHashMatch(const char* hashDescription, const Hash256& blockHash, const Hash256& calculatedHash) {
 			if (blockHash == calculatedHash)
 				return;
@@ -183,11 +192,29 @@ namespace catapult { namespace extensions {
 					<< "calculated " << hashDescription << " hash (" << calculatedHash << ")";
 			CATAPULT_THROW_RUNTIME_ERROR(out.str().c_str());
 		}
+	}
 
-		void RequireValidSignature(const model::Block& block) {
-			if (!model::VerifyBlockHeaderSignature(block))
-				CATAPULT_THROW_RUNTIME_ERROR("nemesis block has invalid signature");
+	void NemesisBlockLoader::validateStateless(const model::WeakEntityInfos& entityInfos) const {
+		auto pValidator = CreateStatelessEntityValidator(m_pluginManager);
+		for (const auto& entityInfo : entityInfos) {
+			auto validationResult = pValidator->validate(entityInfo);
+			CheckValidationResult("stateless", validationResult);
 		}
+	}
+
+	void NemesisBlockLoader::validateStatefulAndObserve(
+			Timestamp timestamp,
+			const model::WeakEntityInfos& entityInfos,
+			observers::ObserverState& observerState) const {
+		auto executionConfig = CreateExecutionConfiguration(m_pluginManager);
+		executionConfig.pObserver = m_pNotificationObserver;
+		executionConfig.pNotificationPublisher = model::CreateNemesisNotificationPublisher(
+				m_pluginManager.createNotificationPublisher(),
+				m_publisherOptions);
+		auto batchEntityProcessor = chain::CreateBatchEntityProcessor(executionConfig);
+
+		auto validationResult = batchEntityProcessor(Height(1), timestamp, entityInfos, observerState);
+		CheckValidationResult("stateful", validationResult);
 	}
 
 	void NemesisBlockLoader::execute(
@@ -208,17 +235,21 @@ namespace catapult { namespace extensions {
 		m_nemesisFundingState = NemesisFundingState();
 		m_publisherOptions = model::ExtractNemesisNotificationPublisherOptions(config);
 
-		// 3. execute the block
-		auto readOnlyCache = m_cacheDelta.toReadOnly();
-		auto resolverContext = m_pluginManager.createResolverContext(readOnlyCache);
+		// 3. stateless validation
+		model::WeakEntityInfos entityInfos;
+		model::ExtractEntityInfos(nemesisBlockElement, entityInfos);
+		validateStateless(entityInfos);
+
+		// 4. stateful validation and observation
 		auto blockStatementBuilder = model::BlockStatementBuilder();
 		auto observerState = config.EnableVerifiableReceipts
 				? observers::ObserverState(m_cacheDelta, blockStatementBuilder)
 				: observers::ObserverState(m_cacheDelta);
-		chain::ExecuteBlock(nemesisBlockElement, { *m_pObserver, resolverContext, observerState });
+
+		validateStatefulAndObserve(nemesisBlockElement.Block.Timestamp, entityInfos, observerState);
 		m_cacheDelta.dependentState().LastFinalizedHeight = Height(1);
 
-		// 4. check the funded balances are reasonable
+		// 5. check the funded balances are reasonable
 		if (Verbosity::On == verbosity)
 			LogNemesisBalances(config.CurrencyMosaicId, config.HarvestingMosaicId, m_nemesisFundingState.TotalFundedMosaics);
 
@@ -232,7 +263,7 @@ namespace catapult { namespace extensions {
 
 		CheckMaxMosaicAtomicUnits(m_nemesisFundingState.TotalFundedMosaics, config.MaxMosaicAtomicUnits);
 
-		// 5. check the hashes
+		// 6. check the hashes
 		auto calculatedReceiptsHash = model::CalculateMerkleHash(*blockStatementBuilder.build());
 		RequireHashMatch("receipts", nemesisBlockElement.Block.ReceiptsHash, calculatedReceiptsHash);
 
@@ -240,8 +271,5 @@ namespace catapult { namespace extensions {
 		auto cacheStateHash = m_cacheDelta.calculateStateHash(Height(1)).StateHash;
 		if (StateHashVerification::Enabled == stateHashVerification)
 			RequireHashMatch("state", nemesisBlockElement.Block.StateHash, cacheStateHash);
-
-		// 6. check the block signature
-		RequireValidSignature(nemesisBlockElement.Block);
 	}
 }}

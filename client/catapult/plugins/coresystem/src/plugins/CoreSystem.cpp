@@ -23,6 +23,7 @@
 #include "VrfKeyLinkTransactionPlugin.h"
 #include "src/importance/ImportanceCalculator.h"
 #include "src/observers/Observers.h"
+#include "src/validators/KeyLinkValidators.h"
 #include "src/validators/Validators.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/cache_core/AccountStateCacheStorage.h"

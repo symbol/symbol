@@ -169,15 +169,15 @@ namespace catapult { namespace plugins {
 			});
 
 			manager.addStatelessValidatorHook([config, minDuration, maxDuration](auto& builder) {
-				const auto& reservedNames = config.ReservedRootNamespaceNames;
 				builder
 					.add(validators::CreateNamespaceRegistrationTypeValidator())
-					.add(validators::CreateNamespaceNameValidator(config.MaxNameSize, reservedNames))
+					.add(validators::CreateNamespaceNameValidator(config.MaxNameSize))
 					.add(validators::CreateRootNamespaceValidator(minDuration, maxDuration));
 			});
 
 			manager.addStatefulValidatorHook([constraints, config](auto& builder) {
 				builder
+					.add(validators::CreateNamespaceReservedNameValidator(config.ReservedRootNamespaceNames))
 					.add(validators::CreateRootNamespaceAvailabilityValidator())
 					.add(validators::CreateNamespaceDurationOverflowValidator(constraints.MaxNamespaceDuration))
 					// note that the following validator needs to run before the RootNamespaceMaxChildrenValidator

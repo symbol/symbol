@@ -18,22 +18,20 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "Validators.h"
-#include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/cache_core/ImportanceView.h"
-#include "catapult/validators/ValidatorContext.h"
+#pragma once
+#include "Results.h"
+#include "src/model/KeyLinkNotifications.h"
+#include "catapult/validators/ValidatorTypes.h"
 
 namespace catapult { namespace validators {
 
-	using Notification = model::BlockNotification;
+	/// Validator that applies to key link action notifications and validates that:
+	/// - link action is valid
+	DECLARE_STATELESS_VALIDATOR(KeyLinkAction, model::KeyLinkActionNotification)();
 
-	DEFINE_STATEFUL_VALIDATOR(EligibleHarvester, [](const Notification& notification, const ValidatorContext& context) {
-		if (Height(1) == context.Height)
-			return ValidationResult::Success;
-
-		cache::ImportanceView view(context.Cache.sub<cache::AccountStateCache>());
-		return view.canHarvest(notification.Harvester, context.Height)
-				? ValidationResult::Success
-				: Failure_Core_Block_Harvester_Ineligible;
-	})
+	/// Validator that applies to voting key link notifications and validates that:
+	/// - start point is prior to end point
+	/// - range is longer than \a minRange
+	/// - range is shorter than \a maxRange
+	DECLARE_STATELESS_VALIDATOR(VotingKeyLinkRange, model::VotingKeyLinkNotification)(uint32_t minRange, uint32_t maxRange);
 }}

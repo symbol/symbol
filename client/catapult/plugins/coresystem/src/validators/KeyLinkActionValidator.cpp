@@ -18,7 +18,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "Validators.h"
+#include "KeyLinkValidators.h"
 #include "catapult/validators/ValidatorUtils.h"
 
 namespace catapult { namespace validators {

@@ -103,6 +103,7 @@ namespace catapult { namespace plugins {
 
 			static std::vector<std::string> GetStatefulValidatorNames() {
 				return {
+					"NamespaceReservedNameValidator",
 					"RootNamespaceAvailabilityValidator",
 					"NamespaceDurationOverflowValidator",
 					"ChildNamespaceAvailabilityValidator",

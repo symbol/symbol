@@ -18,7 +18,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/validators/Validators.h"
+#include "src/validators/KeyLinkValidators.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
 

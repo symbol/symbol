@@ -72,6 +72,13 @@ namespace catapult { namespace extensions {
 	private:
 		enum class Verbosity { Off, On };
 
+		void validateStateless(const model::WeakEntityInfos& entityInfos) const;
+
+		void validateStatefulAndObserve(
+				Timestamp timestamp,
+				const model::WeakEntityInfos& entityInfos,
+				observers::ObserverState& observerState) const;
+
 		void execute(
 				const model::BlockChainConfiguration& config,
 				const model::BlockElement& nemesisBlockElement,
@@ -83,7 +90,7 @@ namespace catapult { namespace extensions {
 		const plugins::PluginManager& m_pluginManager;
 		Address m_nemesisAddress;
 		NemesisFundingState m_nemesisFundingState;
-		std::unique_ptr<const observers::EntityObserver> m_pObserver;
+		std::shared_ptr<const observers::AggregateNotificationObserver> m_pNotificationObserver;
 		model::NemesisNotificationPublisherOptions m_publisherOptions;
 	};
 }}
