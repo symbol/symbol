@@ -335,6 +335,33 @@ namespace catapult { namespace state {
 
 	// endregion
 
+	// region canExtend
+
+	TEST(TEST_CLASS, CanExtendReturnsTrueWhenNamespaceCanExtendPrevious) {
+		// Arrange:
+		auto owner = test::CreateRandomOwner();
+		auto root = RootNamespace(NamespaceId(123), owner, test::CreateLifetime(222, 333));
+
+		// Act + Assert:
+		EXPECT_TRUE(root.canExtend(RootNamespace(NamespaceId(123), owner, test::CreateLifetime(100, 223))));
+		EXPECT_TRUE(root.canExtend(RootNamespace(NamespaceId(123), owner, test::CreateLifetime(200, 300))));
+	}
+
+	TEST(TEST_CLASS, CanExtendReturnsFalseWhenNamespaceCannotExtendPrevious) {
+		// Arrange:
+		auto owner1 = test::CreateRandomOwner();
+		auto owner2 = test::CreateRandomOwner();
+		auto root = RootNamespace(NamespaceId(123), owner1, test::CreateLifetime(222, 333));
+
+		// Act + Assert:
+		EXPECT_FALSE(root.canExtend(RootNamespace(NamespaceId(122), owner1, test::CreateLifetime(200, 300)))); // wrong id
+		EXPECT_FALSE(root.canExtend(RootNamespace(NamespaceId(123), owner2, test::CreateLifetime(200, 300)))); // wrong owner
+		EXPECT_FALSE(root.canExtend(RootNamespace(NamespaceId(123), owner1, test::CreateLifetime(100, 222)))); // expired lifetime
+		EXPECT_FALSE(root.canExtend(RootNamespace(NamespaceId(123), owner1, test::CreateLifetime(100, 200)))); // expired lifetime
+	}
+
+	// endregion
+
 	// region renew
 
 	TEST(TEST_CLASS, CanRenewRoot) {

@@ -39,16 +39,19 @@ namespace catapult { namespace state {
 	{}
 
 	RootNamespaceHistory::RootNamespaceHistory(const RootNamespaceHistory& history) : RootNamespaceHistory(history.m_id) {
+		if (history.empty())
+			return;
+
+		const RootNamespace* pPreviousRoot = nullptr;
 		std::shared_ptr<RootNamespace::Children> pChildren;
-		auto owner = Address();
 		for (const auto& root : history) {
-			if (owner != root.ownerAddress()) {
+			if (!pPreviousRoot || !root.canExtend(*pPreviousRoot))
 				pChildren = std::make_shared<RootNamespace::Children>(root.children());
-				owner = root.ownerAddress();
-			}
 
 			m_rootHistory.emplace_back(root.id(), root.ownerAddress(), root.lifetime(), pChildren);
 			m_rootHistory.back().setAlias(root.id(), root.alias(root.id()));
+
+			pPreviousRoot = &root;
 		}
 	}
 
@@ -69,11 +72,12 @@ namespace catapult { namespace state {
 			return 0;
 
 		auto historyDepth = 0u;
-		const auto& activeOwner = m_rootHistory.back().ownerAddress();
+		const auto* pNextRoot = &m_rootHistory.back();
 		for (auto iter = m_rootHistory.crbegin(); m_rootHistory.crend() != iter; ++iter) {
-			if (activeOwner != iter->ownerAddress())
+			if (!pNextRoot->canExtend(*iter))
 				break;
 
+			pNextRoot = &*iter;
 			++historyDepth;
 		}
 
@@ -89,9 +93,11 @@ namespace catapult { namespace state {
 	}
 
 	void RootNamespaceHistory::push_back(const Address& owner, const NamespaceLifetime& lifetime) {
-		if (!m_rootHistory.empty()) {
+		auto newRootNamespace = RootNamespace(m_id, owner, lifetime);
+
+		if (!empty()) {
 			const auto& previousRootNamespace = back();
-			if (previousRootNamespace.ownerAddress() == owner) {
+			if (newRootNamespace.canExtend(previousRootNamespace)) {
 				// since it is the same owner, inherit all children and aliases (child aliases are migrated automatically with children)
 				m_rootHistory.push_back(previousRootNamespace.renew(lifetime));
 				m_rootHistory.back().setAlias(previousRootNamespace.id(), previousRootNamespace.alias(previousRootNamespace.id()));
@@ -99,7 +105,7 @@ namespace catapult { namespace state {
 			}
 		}
 
-		m_rootHistory.emplace_back(m_id, owner, lifetime);
+		m_rootHistory.push_back(newRootNamespace);
 	}
 
 	void RootNamespaceHistory::pop_back() {

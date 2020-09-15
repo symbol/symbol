@@ -114,6 +114,9 @@ namespace catapult { namespace state {
 		bool operator!=(const RootNamespace& rhs) const;
 
 	public:
+		/// Returns \c true if this namespace can extend \a previous and inherit its children.
+		bool canExtend(const RootNamespace& previous) const;
+
 		/// Creates a new root namespace with \a lifetime.
 		/// \note The method shares the children of this root namespace with the new root namespace.
 		RootNamespace renew(const NamespaceLifetime& newLifetime) const;

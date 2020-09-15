@@ -155,7 +155,7 @@ namespace catapult { namespace cache {
 					test::AssertCacheSizes(*view, 1, 5, 15);
 
 					ASSERT_TRUE(view->contains(NamespaceId(123)));
-					test::AssertRootNamespace(view->find(NamespaceId(123)).get().root(), owner, Height(444), Height(555), 4);
+					test::AssertRootNamespace(view->find(NamespaceId(123)).get().root(), owner, Height(332), Height(555), 4);
 					EXPECT_EQ(NamespaceId(123), view->find(NamespaceId(124)).get().ns().parentId());
 					EXPECT_EQ(NamespaceId(124), view->find(NamespaceId(125)).get().ns().parentId());
 					EXPECT_EQ(NamespaceId(123), view->find(NamespaceId(126)).get().ns().parentId());
@@ -173,7 +173,7 @@ namespace catapult { namespace cache {
 				auto delta = cache.createDelta();
 				delta->remove(NamespaceId(123));
 				test::AssertCacheSizes(*delta, 1, 5, 10);
-				test::AssertRootNamespace(delta->find(NamespaceId(123)).get().root(), owner, Height(222), Height(333), 4);
+				test::AssertRootNamespace(delta->find(NamespaceId(123)).get().root(), owner, Height(110), Height(333), 4);
 
 				// - check history (two back)
 				delta->remove(NamespaceId(123));
@@ -181,11 +181,13 @@ namespace catapult { namespace cache {
 				test::AssertRootNamespace(delta->find(NamespaceId(123)).get().root(), owner, Height(11), Height(111), 4);
 			}
 
-			static void AssertCanLoadHistoryWithDepthGreaterThanOneDifferentOwner(
+			static void AssertCanLoadHistoryWithDepthGreaterThanOneUnlinked(
 					io::InputStream& inputStream,
 					const Address& owner1,
 					const Address& owner2,
 					const Address& owner3,
+					Height renewHeight1,
+					Height renewHeight2,
 					const std::vector<state::NamespaceAlias>& aliases) {
 				// Act:
 				CacheType cache;
@@ -201,7 +203,7 @@ namespace catapult { namespace cache {
 					test::AssertCacheSizes(*view, 1, 2, 7);
 
 					ASSERT_TRUE(view->contains(NamespaceId(123)));
-					test::AssertRootNamespace(view->find(NamespaceId(123)).get().root(), owner3, Height(444), Height(555), 1);
+					test::AssertRootNamespace(view->find(NamespaceId(123)).get().root(), owner3, renewHeight2, Height(555), 1);
 					EXPECT_EQ(NamespaceId(123), view->find(NamespaceId(126)).get().ns().parentId());
 
 					// - check aliases
@@ -213,7 +215,7 @@ namespace catapult { namespace cache {
 				auto delta = cache.createDelta();
 				delta->remove(NamespaceId(123));
 				test::AssertCacheSizes(*delta, 1, 4, 5);
-				test::AssertRootNamespace(delta->find(NamespaceId(123)).get().root(), owner2, Height(222), Height(333), 3);
+				test::AssertRootNamespace(delta->find(NamespaceId(123)).get().root(), owner2, renewHeight1, Height(333), 3);
 				EXPECT_EQ(NamespaceId(123), delta->find(NamespaceId(124)).get().ns().parentId());
 				EXPECT_EQ(NamespaceId(124), delta->find(NamespaceId(125)).get().ns().parentId());
 				EXPECT_EQ(NamespaceId(123), delta->find(NamespaceId(126)).get().ns().parentId());
@@ -285,11 +287,13 @@ namespace catapult { namespace cache {
 				RunPurgeTest(cache, history);
 			}
 
-			static void AssertCanLoadHistoryWithDepthGreaterThanOneDifferentOwner(
+			static void AssertCanLoadHistoryWithDepthGreaterThanOneUnlinked(
 					io::InputStream& inputStream,
 					const Address&,
 					const Address&,
 					const Address&,
+					Height,
+					Height,
 					const std::vector<state::NamespaceAlias>&) {
 				// Arrange:
 				CacheType cache;
@@ -376,6 +380,10 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanPurgeHistoryWithDepthGreaterThanOneSameOwner) {
 		test::RootNamespaceHistoryLoadTests<PurgeTraits>::AssertCanLoadHistoryWithDepthGreaterThanOneSameOwner();
+	}
+
+	TEST(TEST_CLASS, CanPurgeHistoryWithDepthGreaterThanOneSameOwnerInactive) {
+		test::RootNamespaceHistoryLoadTests<PurgeTraits>::AssertCanLoadHistoryWithDepthGreaterThanOneSameOwnerInactive();
 	}
 
 	TEST(TEST_CLASS, CanPurgeHistoryWithDepthGreaterThanOneDifferentOwner) {
