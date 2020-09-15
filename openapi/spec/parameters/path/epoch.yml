@@ -1,0 +1,7 @@
+name: epoch
+in: path
+description: Finalization epoch.
+required: true
+schema:
+  $ref: "../../schemas/FinalizationEpoch.yml"
+

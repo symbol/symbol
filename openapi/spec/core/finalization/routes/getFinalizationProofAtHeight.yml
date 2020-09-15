@@ -1,7 +1,7 @@
 tags:
-  - Block routes
-summary: Get finalization proof information
-description: Gets the first finalization proof information (if any) at the given height.
+  - Finalization routes
+summary: Get finalization proof
+description: Gets finalization proof at the given height.
 operationId: getFinalizationProofAtHeight
 parameters:
   - $ref: "../../../parameters/path/height.yml"
