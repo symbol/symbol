@@ -1,6 +1,7 @@
 - name: Account routes
 - name: Block routes
 - name: Chain routes
+- name: Finalization routes
 - name: Metadata routes
 - name: Mosaic routes
 - name: Multisig routes

@@ -1,10 +1,10 @@
 tags:
   - Block routes
-summary: Get finalization proof information
-description: Gets finalization proof information at the given point.
-operationId: getFinalizationProofAtPoint
+summary: Get finalization proof
+description: Gets finalization proof at the given epoch.
+operationId: getFinalizationProofAtEpoch
 parameters:
-  - $ref: "../../../parameters/path/finalizationPoint.yml"
+  - $ref: "../../../parameters/path/epoch.yml"
 responses:
   "200":
     description: success
