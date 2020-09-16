@@ -38,11 +38,10 @@ namespace catapult { namespace finalization {
 			CATAPULT_THROW_INVALID_ARGUMENT("epoch zero is not supported");
 
 		auto votingSetHeight = model::CalculateVotingSetEndHeight(epoch - FinalizationEpoch(1), m_config.VotingSetGrouping);
-		return model::FinalizationContext(
-				epoch,
-				votingSetHeight,
-				m_blockStorage.view().loadBlockElement(votingSetHeight)->GenerationHash,
-				m_config,
-				*m_accountStateCache.createView());
+		auto generationHash = m_blockStorage.view().loadBlockElement(votingSetHeight)->GenerationHash;
+
+		// when constructing FinalizationContext, to prevent possible deadlock, only have a single lock (to AccountStateCache) outstanding
+		auto accountStateCacheView = m_accountStateCache.createView();
+		return model::FinalizationContext(epoch, votingSetHeight, generationHash, m_config, *accountStateCacheView);
 	}
 }}
