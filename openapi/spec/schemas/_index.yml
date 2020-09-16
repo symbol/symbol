@@ -138,6 +138,18 @@ SizePrefixedEntityDTO:
 VerifiableEntityDTO:
   "$ref": "../core/entity/schemas/VerifiableEntityDTO.yml"
 
+  # Core - Finalization
+BmTreeSignature:
+  "$ref": "../core/finalization/schemas/BmTreeSignature.yml"
+FinalizationProofDTO:
+  "$ref": "../core/finalization/schemas/FinalizationProofDTO.yml"
+MessageGroup:
+  "$ref": "../core/finalization/schemas/MessageGroup.yml"
+ParentPublicKeySignaturePair:
+  "$ref": "../core/finalization/schemas/ParentPublicKeySignaturePair.yml"
+StageEnum:
+  "$ref": "../core/finalization/schemas/StageEnum.yml"
+
 # Core - Network
 NodeIdentityEqualityStrategy:
   "$ref": "../core/network/schemas/NodeIdentityEqualityStrategy.yml"
