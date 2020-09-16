@@ -1,13 +1,15 @@
 type: object
 required:
-  - finalizationStage
+  - stage
   - height
   - hashes
   - signatures
 properties:
-  finalizationStage:
-    $ref: "./FinalizationStageEnum.yml"
+  stage:
+    description: Message stage
+    $ref: "./StageEnum.yml"
   height:
+    description: Block height corresponding to the the first hash.
     $ref: "../../../schemas/Height.yml"
   hashes:
     type: array
