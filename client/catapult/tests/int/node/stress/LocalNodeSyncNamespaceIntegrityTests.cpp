@@ -281,6 +281,10 @@ namespace catapult { namespace local {
 		//   (3) max rollback blocks => 10
 		constexpr auto Blocks_Before_Namespace_Prune = static_cast<uint32_t>(12 + (utils::TimeSpan::FromHours(1).seconds() / 20) + 10);
 
+		void SetMaxRollbackBlocks(const config::CatapultConfiguration& config) {
+			const_cast<uint32_t&>(config.BlockChain.MaxRollbackBlocks) = 10;
+		}
+
 		template<typename TTestContext>
 		NamespaceStateHashes RunPruneNamespaceTest(TTestContext& context) {
 			// Act:
@@ -290,7 +294,7 @@ namespace catapult { namespace local {
 
 	NO_STRESS_TEST(TEST_CLASS, CanPruneNamespace) {
 		// Arrange:
-		test::StateHashDisabledTestContext context;
+		test::StateHashDisabledTestContext context(test::NonNemesisTransactionPlugins::None, SetMaxRollbackBlocks);
 
 		// Act + Assert:
 		auto stateHashesPair = test::Unzip(RunPruneNamespaceTest(context));
@@ -301,7 +305,7 @@ namespace catapult { namespace local {
 
 	NO_STRESS_TEST(TEST_CLASS, CanPruneNamespaceWithStateHashEnabled) {
 		// Arrange:
-		test::StateHashEnabledTestContext context;
+		test::StateHashEnabledTestContext context(test::NonNemesisTransactionPlugins::None, SetMaxRollbackBlocks);
 
 		// Act + Assert:
 		auto stateHashesPair = test::Unzip(RunPruneNamespaceTest(context));
@@ -408,7 +412,7 @@ namespace catapult { namespace local {
 
 	NO_STRESS_TEST(TEST_CLASS, CanPruneAndRollbackNamespace) {
 		// Arrange:
-		test::StateHashDisabledTestContext context;
+		test::StateHashDisabledTestContext context(test::NonNemesisTransactionPlugins::None, SetMaxRollbackBlocks);
 
 		// Act + Assert:
 		auto stateHashesPair = test::Unzip(RunPruneAndRollbackNamespaceTest(context));
@@ -419,7 +423,7 @@ namespace catapult { namespace local {
 
 	NO_STRESS_TEST(TEST_CLASS, CanPruneAndRollbackNamespaceWithStateHashEnabled) {
 		// Arrange:
-		test::StateHashEnabledTestContext context;
+		test::StateHashEnabledTestContext context(test::NonNemesisTransactionPlugins::None, SetMaxRollbackBlocks);
 
 		// Act + Assert:
 		auto stateHashesPair = test::Unzip(RunPruneAndRollbackNamespaceTest(context));

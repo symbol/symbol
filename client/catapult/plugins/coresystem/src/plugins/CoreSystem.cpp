@@ -21,7 +21,7 @@
 #include "CoreSystem.h"
 #include "VotingKeyLinkTransactionPlugin.h"
 #include "VrfKeyLinkTransactionPlugin.h"
-#include "src/importance/ImportanceCalculator.h"
+#include "src/importance/StorageImportanceCalculatorFactory.h"
 #include "src/observers/Observers.h"
 #include "src/validators/KeyLinkValidators.h"
 #include "src/validators/Validators.h"
@@ -41,6 +41,8 @@
 namespace catapult { namespace plugins {
 
 	namespace {
+		// region caches
+
 		cache::AccountStateCacheTypes::Options CreateAccountStateCacheOptions(const model::BlockChainConfiguration& config) {
 			return {
 				config.Network.Identifier,
@@ -85,6 +87,30 @@ namespace catapult { namespace plugins {
 				});
 			});
 		}
+
+		// endregion
+
+		// region observers
+
+		auto CreateRecalculateImportancesObserver(
+				const model::BlockChainConfiguration& config,
+				const config::CatapultDirectory& directory) {
+			auto pCommitCalculator = importance::CreateImportanceCalculator(config);
+			auto pRollbackCalculator = importance::CreateRestoreImportanceCalculator();
+
+			if (0 == config.MaxRollbackBlocks) {
+				// enable deep rollbacks
+				importance::StorageImportanceCalculatorFactory calculatorFactory(directory);
+				pCommitCalculator = calculatorFactory.createWriteCalculator(std::move(pCommitCalculator));
+				pRollbackCalculator = calculatorFactory.createReadCalculator(std::move(pRollbackCalculator));
+			}
+
+			return observers::CreateRecalculateImportancesObserver(std::move(pCommitCalculator), std::move(pRollbackCalculator));
+		}
+
+		// endregion
+
+		// region key link registrations
 
 		struct BasicKeyAccessor {
 			static constexpr auto Failure_Link_Already_Exists = validators::Failure_Core_Link_Already_Exists;
@@ -137,6 +163,8 @@ namespace catapult { namespace plugins {
 				builder.add(keylink::CreateMultiKeyLinkObserver<model::VotingKeyLinkNotification, VotingKeyAccessor>("Voting"));
 			});
 		}
+
+		// endregion
 	}
 
 	void RegisterCoreSystem(PluginManager& manager) {
@@ -189,12 +217,10 @@ namespace catapult { namespace plugins {
 				.add(observers::CreateHighValueAccountObserver(observers::NotifyMode::Commit));
 		});
 
-		manager.addTransientObserverHook([&config](auto& builder) {
-			auto pRecalculateImportancesObserver = observers::CreateRecalculateImportancesObserver(
-					importance::CreateImportanceCalculator(config),
-					importance::CreateRestoreImportanceCalculator());
+		auto dataDirectory = config::CatapultDataDirectory(manager.userConfig().DataDirectory);
+		manager.addTransientObserverHook([&config, dataDirectory](auto& builder) {
 			builder
-				.add(std::move(pRecalculateImportancesObserver))
+				.add(CreateRecalculateImportancesObserver(config, dataDirectory.dir("importance")))
 				.add(observers::CreateHighValueAccountObserver(observers::NotifyMode::Rollback))
 				.add(observers::CreateBlockStatisticObserver(config.MaxDifficultyBlocks, config.DefaultDynamicFeeMultiplier));
 		});

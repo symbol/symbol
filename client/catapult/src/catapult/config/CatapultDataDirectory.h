@@ -144,6 +144,7 @@ namespace catapult { namespace config {
 	public:
 		/// Creates a data directory around \a directory.
 		static CatapultDataDirectory Prepare(const boost::filesystem::path& directory) {
+			CreateDirectory(directory / "importance");
 			CreateDirectory(directory / "spool");
 			return CatapultDataDirectory(directory);
 		}

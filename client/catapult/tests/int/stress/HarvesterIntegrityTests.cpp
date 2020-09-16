@@ -26,6 +26,7 @@
 #include "catapult/cache/ReadOnlyCatapultCache.h"
 #include "catapult/cache_core/BlockStatisticCache.h"
 #include "catapult/cache_tx/MemoryUtCache.h"
+#include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/extensions/ExecutionConfigurationFactory.h"
 #include "catapult/model/EntityHasher.h"
 #include "catapult/observers/NotificationObserverAdapter.h"
@@ -51,10 +52,8 @@ namespace catapult { namespace harvesting {
 
 		// region test factories
 
-		std::shared_ptr<plugins::PluginManager> CreatePluginManager() {
+		std::shared_ptr<plugins::PluginManager> CreatePluginManager(const config::CatapultConfiguration& config) {
 			// include memory hash cache system to better trigger the race condition under test
-			auto config = test::CreatePrototypicalBlockChainConfiguration();
-			config.Plugins.emplace("catapult.plugins.transfer", utils::ConfigurationBag({{ "", { { "maxMessageSize", "0" } } }}));
 			auto pPluginManager = test::CreatePluginManagerWithRealPlugins(config);
 			plugins::RegisterMemoryHashCacheSystem(*pPluginManager);
 			return pPluginManager;
@@ -63,6 +62,7 @@ namespace catapult { namespace harvesting {
 		auto CreateConfiguration() {
 			auto config = test::CreatePrototypicalBlockChainConfiguration();
 			config.EnableVerifiableState = true;
+			config.Plugins.emplace("catapult.plugins.transfer", utils::ConfigurationBag({{ "", { { "maxMessageSize", "0" } } }}));
 			return config;
 		}
 
@@ -85,11 +85,13 @@ namespace catapult { namespace harvesting {
 		class HarvesterTestContext {
 		public:
 			HarvesterTestContext()
-					: m_pPluginManager(CreatePluginManager())
-					, m_config(test::CreatePrototypicalCatapultConfiguration(CreateConfiguration(), ""))
+					: m_config(test::CreatePrototypicalCatapultConfiguration(CreateConfiguration(), m_tempDataDir.name()))
+					, m_pPluginManager(CreatePluginManager(m_config))
 					, m_transactionsCache(cache::MemoryCacheOptions(1024, GetNumIterations() * 2))
-					, m_cache(CreateCatapultCache(m_dbDirGuard.name()))
+					, m_cache(CreateCatapultCache(config::CatapultDataDirectory(m_tempDataDir.name()).dir("db").str()))
 					, m_unlockedAccounts(100, [](const auto&) { return 0; }) {
+				config::CatapultDataDirectoryPreparer::Prepare(m_tempDataDir.name());
+
 				// create the harvester
 				auto executionConfig = extensions::CreateExecutionConfiguration(*m_pPluginManager);
 				HarvestingUtFacadeFactory utFacadeFactory(m_cache, CreateConfiguration(), executionConfig);
@@ -184,9 +186,10 @@ namespace catapult { namespace harvesting {
 			}
 
 		private:
-			test::TempDirectoryGuard m_dbDirGuard;
-			std::shared_ptr<plugins::PluginManager> m_pPluginManager;
+			test::TempDirectoryGuard m_tempDataDir;
 			config::CatapultConfiguration m_config;
+
+			std::shared_ptr<plugins::PluginManager> m_pPluginManager;
 			cache::MemoryUtCache m_transactionsCache;
 			cache::CatapultCache m_cache;
 			UnlockedAccounts m_unlockedAccounts;

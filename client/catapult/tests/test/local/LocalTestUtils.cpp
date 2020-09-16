@@ -110,7 +110,7 @@ namespace catapult { namespace test {
 		config.MaxTransactionLifetime = utils::TimeSpan::FromHours(1);
 
 		config.ImportanceGrouping = 1;
-		config.MaxRollbackBlocks = 10;
+		config.MaxRollbackBlocks = 0;
 		config.MaxDifficultyBlocks = 60;
 		config.DefaultDynamicFeeMultiplier = BlockFeeMultiplier(1);
 
@@ -180,9 +180,8 @@ namespace catapult { namespace test {
 		std::shared_ptr<plugins::PluginManager> CreatePluginManager(
 				const model::BlockChainConfiguration& config,
 				const plugins::StorageConfiguration& storageConfig,
+				const config::UserConfiguration& userConfig,
 				const config::InflationConfiguration& inflationConfig) {
-			auto userConfig = config::UserConfiguration::Uninitialized();
-
 			std::vector<plugins::PluginModule> modules;
 			auto pPluginManager = std::make_shared<plugins::PluginManager>(config, storageConfig, userConfig, inflationConfig);
 			LoadPluginByName(*pPluginManager, modules, "", "catapult.plugins.coresystem");
@@ -200,10 +199,14 @@ namespace catapult { namespace test {
 	}
 
 	std::shared_ptr<plugins::PluginManager> CreatePluginManagerWithRealPlugins(const model::BlockChainConfiguration& config) {
-		return CreatePluginManager(config, plugins::StorageConfiguration(), config::InflationConfiguration::Uninitialized());
+		return CreatePluginManager(
+				config,
+				plugins::StorageConfiguration(),
+				config::UserConfiguration::Uninitialized(),
+				config::InflationConfiguration::Uninitialized());
 	}
 
 	std::shared_ptr<plugins::PluginManager> CreatePluginManagerWithRealPlugins(const config::CatapultConfiguration& config) {
-		return CreatePluginManager(config.BlockChain, extensions::CreateStorageConfiguration(config), config.Inflation);
+		return CreatePluginManager(config.BlockChain, extensions::CreateStorageConfiguration(config), config.User, config.Inflation);
 	}
 }}

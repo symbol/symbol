@@ -21,12 +21,14 @@
 #include "catapult/cache/CatapultCache.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/chain/BlockExecutor.h"
+#include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/extensions/PluginUtils.h"
 #include "catapult/observers/NotificationObserverAdapter.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/ResolverTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/local/LocalTestUtils.h"
+#include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace extensions {
@@ -47,25 +49,19 @@ namespace catapult { namespace extensions {
 			return Amount(GetTotalChainImportance(numAccounts).unwrap() * 1'000'000);
 		}
 
-		model::BlockChainConfiguration CreateBlockChainConfiguration(uint32_t numAccounts) {
-			auto config = model::BlockChainConfiguration::Uninitialized();
-			config.Network.Identifier = Network_Identifier;
-			config.HarvestingMosaicId = Harvesting_Mosaic_Id;
-			config.ImportanceGrouping = 123;
-			config.MaxDifficultyBlocks = 123;
-			config.MaxRollbackBlocks = 124;
-			config.BlockPruneInterval = 360;
-			config.TotalChainImportance = GetTotalChainImportance(numAccounts);
-			config.MinHarvesterBalance = Amount(1'000'000);
-			return config;
-		}
+		// region test context
 
+		template<uint32_t Max_Rollback_Blocks>
 		class TestContext {
 		public:
 			explicit TestContext(uint32_t numAccounts)
-					: m_pPluginManager(test::CreatePluginManagerWithRealPlugins(CreateBlockChainConfiguration(numAccounts)))
+					: m_pPluginManager(test::CreatePluginManagerWithRealPlugins(test::CreatePrototypicalCatapultConfiguration(
+							CreateBlockChainConfiguration(numAccounts),
+							m_tempDataDir.name())))
 					, m_cache(m_pPluginManager->createCache())
 					, m_specialAccountPublicKey(test::GenerateRandomByteArray<Key>()) {
+				config::CatapultDataDirectoryPreparer::Prepare(m_tempDataDir.name());
+
 				// register mock transaction plugin so that BalanceTransferNotifications are produced and observed
 				// (MockTransaction Publish XORs recipient address, so XOR address resolver is required
 				// for proper roundtripping or else test will fail)
@@ -73,7 +69,7 @@ namespace catapult { namespace extensions {
 
 				// seed the "nemesis" / transfer account (this account is used to fund all other accounts)
 				auto delta = m_cache.createDelta();
-				auto& accountStateCache = delta.sub<cache::AccountStateCache>();
+				auto& accountStateCache = delta.template sub<cache::AccountStateCache>();
 				accountStateCache.addAccount(m_specialAccountPublicKey, Height(1));
 				auto& accountState = accountStateCache.find(m_specialAccountPublicKey).get();
 				accountState.Balances.credit(Harvesting_Mosaic_Id, GetTotalChainBalance(numAccounts));
@@ -152,7 +148,7 @@ namespace catapult { namespace extensions {
 				else
 					chain::RollbackBlock(blockElement, blockExecutionContext);
 
-				delta.sub<cache::AccountStateCache>().updateHighValueAccounts(height);
+				delta.template sub<cache::AccountStateCache>().updateHighValueAccounts(height);
 				m_cache.commit(height);
 			}
 
@@ -247,6 +243,21 @@ namespace catapult { namespace extensions {
 			}
 
 		private:
+			static model::BlockChainConfiguration CreateBlockChainConfiguration(uint32_t numAccounts) {
+				auto config = model::BlockChainConfiguration::Uninitialized();
+				config.Network.Identifier = Network_Identifier;
+				config.HarvestingMosaicId = Harvesting_Mosaic_Id;
+				config.ImportanceGrouping = 123;
+				config.MaxDifficultyBlocks = 123;
+				config.MaxRollbackBlocks = Max_Rollback_Blocks;
+				config.BlockPruneInterval = 360;
+				config.TotalChainImportance = GetTotalChainImportance(numAccounts);
+				config.MinHarvesterBalance = Amount(1'000'000);
+				return config;
+			}
+
+		private:
+			test::TempDirectoryGuard m_tempDataDir;
 			std::shared_ptr<plugins::PluginManager> m_pPluginManager;
 			cache::CatapultCache m_cache;
 
@@ -256,13 +267,25 @@ namespace catapult { namespace extensions {
 			std::unordered_map<Height, Key, utils::BaseValueHasher<Height>> m_heightToBlockSigner;
 			std::unordered_map<Height, test::MutableTransactions, utils::BaseValueHasher<Height>> m_heightToTransactions;
 		};
+
+		// endregion
 	}
+
+	// region traits
+
+#define ROLLBACK_TEST(TEST_NAME) \
+	template<typename TTestContext> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_InfiniteRollback) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TestContext<0>>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_FiniteRollback) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TestContext<124>>(); } \
+	template<typename TTestContext> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+	// endregion
 
 	// region execute
 
-	TEST(TEST_CLASS, ExecuteCalculatesImportancesCorrectly) {
+	ROLLBACK_TEST(ExecuteCalculatesImportancesCorrectly) {
 		// Arrange: create a context with 10/20 important accounts
-		TestContext context(10);
+		TTestContext context(10);
 		context.addAccounts(1, 10, Height(246));
 		context.addAccounts(25, 10, Height(246), 0);
 
@@ -274,9 +297,9 @@ namespace catapult { namespace extensions {
 		context.assertZeroedImportances({ 25, 10, model::ImportanceHeight(0) }); // excluded
 	}
 
-	TEST(TEST_CLASS, ExecuteCalculatesImportancesCorrectly_WhenAllHighValueAccountsChangeAtImportanceHeight) {
+	ROLLBACK_TEST(ExecuteCalculatesImportancesCorrectly_WhenAllHighValueAccountsChangeAtImportanceHeight) {
 		// Arrange: create a context with 10/10 important accounts
-		TestContext context(10);
+		TTestContext context(10);
 		context.addAccounts(1, 10, Height(246));
 
 		// - calculate importances at height 246
@@ -294,9 +317,9 @@ namespace catapult { namespace extensions {
 		context.assertLinearImportances({ 25, 10, model::ImportanceHeight(369) }); // updated
 	}
 
-	TEST(TEST_CLASS, ExecuteCalculatesImportancesCorrectly_WhenSomeHighValueAccountsChangeAtImportanceHeight) {
+	ROLLBACK_TEST(ExecuteCalculatesImportancesCorrectly_WhenSomeHighValueAccountsChangeAtImportanceHeight) {
 		// Arrange: create a context with 10/10 important accounts
-		TestContext context(10);
+		TTestContext context(10);
 		context.addAccounts(1, 10, Height(246));
 
 		// - calculate importances at height 246
@@ -323,9 +346,9 @@ namespace catapult { namespace extensions {
 
 	// region undo one level
 
-	TEST(TEST_CLASS, UndoCalculatesImportancesCorrectly) {
+	ROLLBACK_TEST(UndoCalculatesImportancesCorrectly) {
 		// Arrange: create a context with 10/20 important accounts
-		TestContext context(10);
+		TTestContext context(10);
 		context.addAccounts(1, 10, Height(245));
 		context.addAccounts(25, 10, Height(245), 0);
 
@@ -348,9 +371,9 @@ namespace catapult { namespace extensions {
 		context.assertZeroedImportances({ 25, 10, model::ImportanceHeight(0) }); // excluded
 	}
 
-	TEST(TEST_CLASS, UndoCalculatesImportancesCorrectly_WhenAllHighValueAccountsChangeAtImportanceHeight) {
+	ROLLBACK_TEST(UndoCalculatesImportancesCorrectly_WhenAllHighValueAccountsChangeAtImportanceHeight) {
 		// Arrange: create a context with 10/10 important accounts
-		TestContext context(10);
+		TTestContext context(10);
 		context.addAccounts(1, 10, Height(246));
 
 		// - calculate importances at height 246
@@ -375,9 +398,9 @@ namespace catapult { namespace extensions {
 		context.assertRemovedAccounts(25, 10); // reverted
 	}
 
-	TEST(TEST_CLASS, UndoCalculatesImportancesCorrectly_WhenSomeHighValueAccountsChangeAtImportanceHeight) {
+	ROLLBACK_TEST(UndoCalculatesImportancesCorrectly_WhenSomeHighValueAccountsChangeAtImportanceHeight) {
 		// Arrange: create a context with 10/10 important accounts
-		TestContext context(10);
+		TTestContext context(10);
 		context.addAccounts(1, 10, Height(246));
 
 		// - calculate importances at height 246
@@ -411,13 +434,15 @@ namespace catapult { namespace extensions {
 
 	// region undo multiple levels
 
-	TEST(TEST_CLASS, UndoCalculatesImportancesCorrectly_WhenSomeHighValueAccountsChangeAtImportanceHeight_MultipleRollbacks) {
+	ROLLBACK_TEST(UndoCalculatesImportancesCorrectly_WhenSomeHighValueAccountsChangeAtImportanceHeight_MultipleRollbacks) {
 		// Arrange: create a context with 10/10 important accounts
-		TestContext context(10);
-		context.addAccounts(1, 10, Height(245));
+		TTestContext context(10);
+		context.addAccounts(1, 10, Height(122));
 
-		// - calculate importances at height 245
-		context.notify(Height(245), NotifyMode::Commit);
+		// - calculate importances at heights 1 and 123
+		//   (need to calculate at height 1 so that importances are nonzero at height 123 because effective importances are
+		//   min of previous and current importances)
+		context.notifyAllCommit(Height(122), Height(245));
 
 		// - change balances of two accounts and recalculate importances at height 246 (this ensures importances are different)
 		context.moveBalance(1, 2, Height(246));
@@ -450,9 +475,9 @@ namespace catapult { namespace extensions {
 		context.assertRemovedAccounts(25, 10); // reverted
 	}
 
-	TEST(TEST_CLASS, UndoCalculatesImportancesCorrectly_WhenSomeHighValueAccountsChangeAtImportanceHeight_MultipleRollbacksToOriginal) {
+	ROLLBACK_TEST(UndoCalculatesImportancesCorrectly_WhenSomeHighValueAccountsChangeAtImportanceHeight_MultipleRollbacksToOriginal) {
 		// Arrange: create a context with 10/10 important accounts
-		TestContext context(10);
+		TTestContext context(10);
 		context.addAccounts(1, 10, Height(1));
 
 		// - calculate importances at height 1
@@ -487,6 +512,40 @@ namespace catapult { namespace extensions {
 		// - important accounts at   1: 1 - 10
 		context.assertLinearImportances({ 1, 10, model::ImportanceHeight(1) }); // restored
 		context.assertZeroedImportances({ 25, 10, model::ImportanceHeight(0) }); // excluded
+	}
+
+	// endregion
+
+	// region undo deep
+
+	TEST(TEST_CLASS, UndoCalculatesDeepRollbacksCorrectly_InfiniteRollback) {
+		// Arrange: create a context with 10/10 important accounts
+		TestContext<0> context(10);
+		context.addAccounts(1, 10, Height(1));
+
+		// - calculate importances through height 1000
+		context.notifyAllCommit(Height(1), Height(1000));
+
+		// Act: rollback importances to height 122
+		context.notifyAllRollback(Height(1000), Height(122));
+
+		// Assert: importances are correct
+		context.assertLinearImportances({ 1, 10, model::ImportanceHeight(1) });
+	}
+
+	TEST(TEST_CLASS, UndoDoesNotCalculateDeepRollbacksCorrectly_FiniteRollback) {
+		// Arrange: create a context with 10/10 important accounts
+		TestContext<124> context(10);
+		context.addAccounts(1, 10, Height(1));
+
+		// - calculate importances through height 1000
+		context.notifyAllCommit(Height(1), Height(1000));
+
+		// Act: rollback importances to height 122
+		context.notifyAllRollback(Height(1000), Height(122));
+
+		// Assert: importances are zeroed because rollback was too deep
+		context.assertZeroedImportances({ 1, 10, model::ImportanceHeight(0) });
 	}
 
 	// endregion

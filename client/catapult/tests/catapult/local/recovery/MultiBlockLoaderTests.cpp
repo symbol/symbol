@@ -19,6 +19,7 @@
 **/
 
 #include "catapult/local/recovery/MultiBlockLoader.h"
+#include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/extensions/LocalNodeChainScore.h"
 #include "catapult/extensions/NemesisBlockLoader.h"
 #include "catapult/extensions/PluginUtils.h"
@@ -55,9 +56,9 @@ namespace catapult { namespace local {
 
 			// - create configuration
 			auto config = model::BlockChainConfiguration::Uninitialized();
-			config.MaxDifficultyBlocks = 100;
 			config.BlockGenerationTargetTime = utils::TimeSpan::FromSeconds(2);
-			config.MaxRollbackBlocks = 22;
+			config.MaxDifficultyBlocks = 100;
+			config.MaxTransactionLifetime = utils::TimeSpan::FromSeconds(utils::TimeSpan::FromHours(1).seconds() + 44);
 
 			// Act:
 			auto observerFactory = CreateBlockDependentNotificationObserverFactory(
@@ -302,6 +303,8 @@ namespace catapult { namespace local {
 		void ExecuteWithStorage(io::BlockStorageCache& storage, TAction action) {
 			// Arrange:
 			test::TempDirectoryGuard tempDataDirectory;
+			config::CatapultDataDirectoryPreparer::Prepare(tempDataDirectory.name());
+
 			auto config = test::CreateStateHashEnabledCatapultConfiguration(tempDataDirectory.name());
 			auto pPluginManager = test::CreatePluginManagerWithRealPlugins(config);
 			auto observerFactory = [&pluginManager = *pPluginManager](const auto&) { return pluginManager.createObserver(); };

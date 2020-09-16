@@ -22,6 +22,7 @@
 #include "ConfigurationTestUtils.h"
 #include "LocalNodeNemesisHashTestUtils.h"
 #include "LocalNodeTestUtils.h"
+#include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/config/CatapultKeys.h"
 #include "catapult/crypto/OpensslKeyUtils.h"
 #include "catapult/extensions/ProcessBootstrapper.h"
@@ -95,6 +96,7 @@ namespace catapult { namespace test {
 		config::CatapultKeys initializeDataDirectory(const std::string& directory) const {
 			PrepareStorage(directory);
 			PrepareConfiguration(directory, m_nodeFlag);
+			config::CatapultDataDirectoryPreparer::Prepare(directory);
 
 			if (HasFlag(NodeFlag::Verify_Receipts, m_nodeFlag))
 				SetNemesisReceiptsHash(directory);

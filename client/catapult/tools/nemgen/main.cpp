@@ -70,8 +70,9 @@ namespace catapult { namespace tools { namespace nemgen {
 			}
 
 			int run(const Options& options) override {
-				// 1. load config and disable loading of user certificates during block generation
+				// 1. load config and disable (a) spooling of importance files (b) loading of user certificates during block generation
 				auto config = LoadConfiguration(m_resourcesPath);
+				const_cast<uint32_t&>(config.BlockChain.MaxRollbackBlocks) = 1;
 				const_cast<bool&>(config.User.EnableDelegatedHarvestersAutoDetection) = false;
 
 				auto nemesisConfig = LoadNemesisConfiguration(m_nemesisPropertiesFilePath);

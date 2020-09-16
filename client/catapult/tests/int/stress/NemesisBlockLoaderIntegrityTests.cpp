@@ -18,6 +18,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/extensions/LocalNodeChainScore.h"
 #include "catapult/extensions/NemesisBlockLoader.h"
 #include "tests/test/local/LocalNodeTestState.h"
@@ -55,11 +56,12 @@ namespace catapult { namespace extensions {
 		void RunNemesisBlockTest(TAction action) {
 			// Arrange:
 			test::TempDirectoryGuard tempDir;
+			config::CatapultDataDirectoryPreparer::Prepare(tempDir.name());
 
-			auto blockChainConfig = test::CreatePrototypicalBlockChainConfiguration();
-			test::AddNemesisPluginExtensions(blockChainConfig);
+			auto config = test::CreatePrototypicalCatapultConfiguration(tempDir.name());
+			test::AddNemesisPluginExtensions(const_cast<model::BlockChainConfiguration&>(config.BlockChain));
 
-			auto pPluginManager = test::CreatePluginManagerWithRealPlugins(blockChainConfig);
+			auto pPluginManager = test::CreatePluginManagerWithRealPlugins(config);
 			test::LocalNodeTestState localNodeState(pPluginManager->config(), tempDir.name(), pPluginManager->createCache());
 
 			{

@@ -201,11 +201,13 @@ namespace catapult { namespace extensions {
 	TEST(TEST_CLASS, NemesisBlockIsExecutedWhenSupplementalDataFileIsNotPresent) {
 		// Arrange: seed and save the cache state (real plugin manager is needed to execute nemesis)
 		test::TempDirectoryGuard tempDir;
+		config::CatapultDataDirectoryPreparer::Prepare(tempDir.name());
+
 		auto stateDirectory = config::CatapultDirectory(tempDir.name() + "/zstate");
-		auto blockChainConfig = test::CreateCatapultConfigurationWithNemesisPluginExtensions("").BlockChain;
+		auto config = test::CreateCatapultConfigurationWithNemesisPluginExtensions(tempDir.name());
 
 		{
-			auto pPluginManager = test::CreatePluginManagerWithRealPlugins(blockChainConfig);
+			auto pPluginManager = test::CreatePluginManagerWithRealPlugins(config);
 			auto originalCache = pPluginManager->createCache();
 			PrepareAndSaveCompleteState(stateDirectory, originalCache);
 		}
@@ -214,8 +216,8 @@ namespace catapult { namespace extensions {
 		ASSERT_TRUE(boost::filesystem::remove(stateDirectory.file("supplemental.dat")));
 
 		// Act: load the state
-		auto pPluginManager = test::CreatePluginManagerWithRealPlugins(blockChainConfig);
-		test::LocalNodeTestState loadedState(blockChainConfig, stateDirectory.str(), pPluginManager->createCache());
+		auto pPluginManager = test::CreatePluginManagerWithRealPlugins(config);
+		test::LocalNodeTestState loadedState(config.BlockChain, stateDirectory.str(), pPluginManager->createCache());
 		auto heights = LoadStateFromDirectory(stateDirectory, loadedState.ref(), *pPluginManager);
 
 		// Assert:

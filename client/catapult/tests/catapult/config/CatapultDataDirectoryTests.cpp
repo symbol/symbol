@@ -112,7 +112,7 @@ namespace catapult { namespace config {
 	// region CatapultDataDirectoryPreparer
 
 	namespace {
-		constexpr const char* Sub_Directories[] = { "/spool" };
+		constexpr const char* Sub_Directories[] = { "/importance", "/spool" };
 	}
 
 	TEST(TEST_CLASS, CatapultDataDirectoryPreparer_PreparerCreatesSubDirectoriesWhenNotPresent) {
@@ -130,6 +130,8 @@ namespace catapult { namespace config {
 		EXPECT_EQ(tempDir.name(), dataDirectory.rootDir().str());
 		for (const auto* subDirectory : Sub_Directories)
 			EXPECT_TRUE(fs::is_directory(tempDir.name() + subDirectory)) << subDirectory;
+
+		EXPECT_EQ(CountOf(Sub_Directories), test::CountFilesAndDirectories(tempDir.name()));
 	}
 
 	TEST(TEST_CLASS, CatapultDataDirectoryPreparer_PreparerSucceedsWhenSubDirectoriesArePresent) {
@@ -149,6 +151,8 @@ namespace catapult { namespace config {
 		EXPECT_EQ(tempDir.name(), dataDirectory.rootDir().str());
 		for (const auto* subDirectory : Sub_Directories)
 			EXPECT_TRUE(fs::is_directory(tempDir.name() + subDirectory)) << subDirectory;
+
+		EXPECT_EQ(CountOf(Sub_Directories), test::CountFilesAndDirectories(tempDir.name()));
 	}
 
 	// endregion

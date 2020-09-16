@@ -172,8 +172,9 @@ namespace catapult { namespace local {
 					, m_cacheHeight(cacheHeight)
 					, m_enableBlockChangeSubscriber(false)
 					, m_enableBlockHeightsObserver(false)
-					, m_importanceGrouping(0)
-			{}
+					, m_importanceGrouping(0) {
+				config::CatapultDataDirectoryPreparer::Prepare(dataDirectory().rootDir().path());
+			}
 
 		public:
 			void enableBlockChangeSubscriber() {

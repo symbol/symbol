@@ -81,7 +81,9 @@ namespace catapult { namespace importance {
 					accountSummary.pAccountState->ImportanceSnapshots.set(effectiveImportance, importanceHeight);
 				}
 
-				CATAPULT_LOG(debug) << "recalculated importances (" << highValueAddresses.size() << " / " << cache.size() << " eligible)";
+				CATAPULT_LOG(debug)
+						<< "recalculated importances (" << highValueAddresses.size() << " / " << cache.size() << " eligible)"
+						<< " at height " << importanceHeight;
 
 				// 5. disable collection of activity for the removed accounts
 				const auto& removedHighValueAddresses = highValueAccounts.removedAddresses();
