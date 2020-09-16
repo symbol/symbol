@@ -54,6 +54,10 @@ const PacketType = {
 	/** Node time information has been requested by a peer. */
 	timeSyncNodeTime: 0x120,
 
+	/** Finalization proof has been requested by a peer */
+	finalizationProofAtEpoch: 0x133,
+	finalizationProofAtHeight: 0x134,
+
 	/** State path has been requested by a peer. */
 	accountStatePath: statePathBaseType + 0x43,
 	hashLockStatePath: statePathBaseType + 0x48,

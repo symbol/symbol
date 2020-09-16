@@ -27,6 +27,7 @@ module.exports = {
 	// other
 	chainInfo: 'chainInfo',
 	merkleProofInfo: 'merkleProofInfo',
+	finalizationProof: 'finalizationProof',
 	metadata: 'metadata',
 	stateTree: 'stateTree',
 	addressResolutionStatement: 'addressResolutionStatement',

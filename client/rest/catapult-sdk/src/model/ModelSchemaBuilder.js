@@ -87,6 +87,30 @@ class ModelSchemaBuilder {
 				finalizationPoint: ModelType.uint
 			},
 
+			finalizationProof: {
+				version: ModelType.uint,
+				finalizationEpoch: ModelType.uint,
+				finalizationPoint: ModelType.uint,
+				height: ModelType.uint64,
+				hash: ModelType.binary,
+				messageGroups: { type: ModelType.array, schemaName: 'messageGroup' }
+			},
+			messageGroup: {
+				stage: ModelType.uint,
+				height: ModelType.uint64,
+				hashes: { type: ModelType.array, schemaName: ModelType.binary },
+				signatures: { type: ModelType.array, schemaName: 'bmTreeSignature' }
+			},
+			bmTreeSignature: {
+				root: { type: ModelType.object, schemaName: 'parentPublicKeySignaturePair' },
+				top: { type: ModelType.object, schemaName: 'parentPublicKeySignaturePair' },
+				bottom: { type: ModelType.object, schemaName: 'parentPublicKeySignaturePair' }
+			},
+			parentPublicKeySignaturePair: {
+				parentPublicKey: ModelType.binary,
+				signature: ModelType.binary
+			},
+
 			// endregion
 
 			// region transaction

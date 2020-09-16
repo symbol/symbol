@@ -21,6 +21,7 @@
 const accountRoutes = require('./accountRoutes');
 const blockRoutes = require('./blockRoutes');
 const chainRoutes = require('./chainRoutes');
+const finalizationRoutes = require('./finalizationRoutes');
 const networkRoutes = require('./networkRoutes');
 const nodeRoutes = require('./nodeRoutes');
 const transactionRoutes = require('./transactionRoutes');
@@ -33,6 +34,7 @@ module.exports = {
 			accountRoutes,
 			blockRoutes,
 			chainRoutes,
+			finalizationRoutes,
 			networkRoutes,
 			nodeRoutes,
 			transactionRoutes,

@@ -51,6 +51,9 @@ describe('all routes', () => {
 
 			'/chain/info',
 
+			'/finalization/proof/epoch/:epoch',
+			'/finalization/proof/height/:height',
+
 			'/network',
 			'/network/properties',
 			'/network/fees/transaction',

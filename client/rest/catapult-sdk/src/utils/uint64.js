@@ -75,6 +75,11 @@ const uint64Module = {
 		return [readUint32At(uint8Array, 0), readUint32At(uint8Array, 4)];
 	},
 
+	toBytes: uint64 => {
+		const uint32Array = new Uint32Array(uint64);
+		return convert.uint32ToUint8(uint32Array);
+	},
+
 	/**
 	 * Converts a (32bit) uint8 array into a uint64.
 	 * @param {Uint8Array} uint8Array A uint8 array.

@@ -75,6 +75,10 @@ describe('model schema builder', () => {
 				'merkleProofInfo',
 				'merkleProofInfoPathNode',
 				'finalizedBlock',
+				'finalizationProof',
+				'messageGroup',
+				'bmTreeSignature',
+				'parentPublicKeySignaturePair',
 
 				'transaction',
 				'transactionMetadata',
@@ -157,6 +161,10 @@ describe('model schema builder', () => {
 				'blockHeaderWithMetadata.meta',
 				'blockHeaderWithMetadata.block',
 
+				'bmTreeSignature.root',
+				'bmTreeSignature.top',
+				'bmTreeSignature.bottom',
+
 				'transactionWithMetadata.meta',
 				'transactionWithMetadata.transaction',
 
@@ -183,6 +191,9 @@ describe('model schema builder', () => {
 			expect(matchingProperties).to.deep.equal([
 				'blockHeaderMetadata.stateHashSubCacheMerkleRoots',
 				'merkleProofInfo.merklePath',
+				'finalizationProof.messageGroups',
+				'messageGroup.hashes',
+				'messageGroup.signatures',
 				'account.activityBuckets',
 				'account.mosaics',
 				'accountLinkPublicKey.voting.publicKeys',
@@ -218,6 +229,10 @@ describe('model schema builder', () => {
 				'blockHeaderMetadata.stateHashSubCacheMerkleRoots.schemaName',
 				'merkleProofInfoPathNode.hash',
 				'finalizedBlock.hash',
+				'finalizationProof.hash',
+				'messageGroup.hashes.schemaName',
+				'parentPublicKeySignaturePair.parentPublicKey',
+				'parentPublicKeySignaturePair.signature',
 
 				'transaction.signature',
 				'transaction.signerPublicKey',
@@ -249,6 +264,8 @@ describe('model schema builder', () => {
 				'blockHeader.difficulty',
 				'blockHeaderMetadata.totalFee',
 				'finalizedBlock.height',
+				'finalizationProof.height',
+				'messageGroup.height',
 
 				'transaction.deadline',
 				'transaction.maxFee',
@@ -367,6 +384,10 @@ describe('model schema builder', () => {
 			expect(matchingProperties).to.deep.equal([
 				'finalizedBlock.finalizationEpoch',
 				'finalizedBlock.finalizationPoint',
+				'finalizationProof.version',
+				'finalizationProof.finalizationEpoch',
+				'finalizationProof.finalizationPoint',
+				'messageGroup.stage',
 				'votingPublicKey.startEpoch',
 				'votingPublicKey.endEpoch'
 			]);

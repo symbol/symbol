@@ -41,6 +41,7 @@ class ModelFormatterBuilder {
 			'chainInfo',
 			'merkleProofInfo',
 			'finalizedBlock',
+			'finalizationProof',
 			'nodeHealth',
 			'nodeInfo',
 			'nodeTime',

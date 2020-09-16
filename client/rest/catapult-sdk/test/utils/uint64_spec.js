@@ -140,6 +140,13 @@ describe('uint64', () => {
 		});
 	});
 
+	describe('toBytes', () => {
+		it('can parse uint64 to Uint8Array', () => {
+			const result = uint64.toBytes([0x00ABCDEF, 0x000FDFFF]);
+			expect(result).to.deep.equal(new Uint8Array([0xEF, 0xCD, 0xAB, 0x00, 0xFF, 0xDF, 0x0F, 0x00]));
+		});
+	});
+
 	describe('fromBytes32', () => {
 		const fromBytes32TestCases = [
 			{ str: '00000000', value: [0, 0], description: '0' },
