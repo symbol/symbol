@@ -9,7 +9,7 @@ properties:
     description: Message stage
     $ref: "./StageEnum.yml"
   height:
-    description: Block height corresponding to the the first hash.
+    description: Block height corresponding to the first hash.
     $ref: "../../../schemas/Height.yml"
   hashes:
     type: array
