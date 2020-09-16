@@ -1,7 +1,7 @@
 tags:
   - Finalization routes
 summary: Get finalization proof
-description: Gets finalization proof for the highest height associated with the given epoch.
+description: Gets finalization proof for the greatest height associated with the given epoch.
 operationId: getFinalizationProofAtEpoch
 parameters:
   - $ref: "../../../parameters/path/epoch.yml"
