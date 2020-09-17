@@ -31,13 +31,13 @@ namespace catapult { namespace mongo { namespace plugins {
 			using LockInfoType = state::HashLockInfo;
 
 		public:
-			static void StreamLockInfo(bson_stream::document& builder, const state::HashLockInfo& hashLockInfo) {
-				builder << "hash" << ToBinary(hashLockInfo.Hash);
+			static void StreamLockInfo(bson_stream::document& builder, const state::HashLockInfo& lockInfo) {
+				builder << "hash" << ToBinary(lockInfo.Hash);
 			}
 		};
 	}
 
-	bsoncxx::document::value ToDbModel(const state::HashLockInfo& hashLockInfo) {
-		return LockInfoMapper<HashLockInfoMapperTraits>::ToDbModel(hashLockInfo);
+	bsoncxx::document::value ToDbModel(const state::HashLockInfoHistory& history) {
+		return LockInfoMapper<HashLockInfoMapperTraits>::ToDbModel(history.back());
 	}
 }}}

@@ -25,16 +25,5 @@
 
 namespace catapult { namespace cache {
 
-	class HashLockInfoPatriciaTree : public LockInfoPatriciaTree<HashLockInfoCacheDescriptor> {
-	public:
-		using LockInfoPatriciaTree<HashLockInfoCacheDescriptor>::LockInfoPatriciaTree;
-		using Serializer = HashLockInfoCacheDescriptor::Serializer;
-	};
-
-	struct HashLockInfoBaseSetDeltaPointers : public LockInfoBaseSetDeltaPointers<HashLockInfoCacheTypes, HashLockInfoCacheDescriptor> {};
-
-	struct HashLockInfoBaseSets
-			: public LockInfoBaseSets<HashLockInfoCacheTypes, HashLockInfoCacheDescriptor, HashLockInfoBaseSetDeltaPointers> {
-		using LockInfoBaseSets<HashLockInfoCacheTypes, HashLockInfoCacheDescriptor, HashLockInfoBaseSetDeltaPointers>::LockInfoBaseSets;
-	};
+	DEFINE_LOCK_INFO_BASE_SETS(HashLockInfo)
 }}

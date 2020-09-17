@@ -28,10 +28,11 @@ namespace catapult { namespace state {
 	template<typename TLockInfo>
 	struct LockInfoHistory {
 	public:
+		static constexpr auto Is_Deactivation_Destructive = true;
+
+	public:
 		using ValueType = TLockInfo;
 		using LockIdentifier = Hash256;
-
-		static constexpr auto Is_Deactivation_Destructive = true; // TODO remove from LockInfo
 
 	public:
 		/// Creates a history around \a id.

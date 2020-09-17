@@ -19,19 +19,47 @@
 **/
 
 #pragma once
-#include "LockInfoSerializerTests.h"
+#include "plugins/txes/lock_shared/tests/test/LockInfoCacheTestUtils.h"
 #include "tests/test/core/SerializerTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace state {
 
-	// TODO: there is some duplication with LockInfoSerializer tests right now, but those will be dropped!
+	// region PackedLockInfo
+
+#pragma pack(push, 1)
+
+	/// Packed lock info.
+	struct PackedLockInfo {
+	public:
+		/// Creates a lock info from \a lockInfo.
+		explicit PackedLockInfo(const LockInfo& lockInfo)
+				: OwnerAddress(lockInfo.OwnerAddress)
+				, MosaicId(lockInfo.MosaicId)
+				, Amount(lockInfo.Amount)
+				, Height(lockInfo.EndHeight)
+				, Status(lockInfo.Status)
+		{}
+
+	public:
+		Address OwnerAddress;
+		catapult::MosaicId MosaicId;
+		catapult::Amount Amount;
+		catapult::Height Height;
+		LockStatus Status;
+	};
+
+#pragma pack(pop)
+
+	// endregion
 
 	/// Lock info history serializer test suite.
 	template<typename TLockInfoTraits>
 	class LockInfoHistorySerializerTests {
 	private:
-		static constexpr size_t Lock_Info_Size = sizeof(typename TLockInfoTraits::PackedValueType);
+		using PackedValueType = typename TLockInfoTraits::PackedValueType;
+
+		static constexpr size_t Lock_Info_Size = sizeof(PackedValueType);
 
 	private:
 		static typename TLockInfoTraits::HistoryType CreateHistory(
@@ -47,7 +75,7 @@ namespace catapult { namespace state {
 	public:
 		// region historical
 
-		static void AssertCannotSaveEmptyLockInfoHistory() {
+		static void AssertCanSaveEmptyLockInfoHistory() {
 			// Arrange:
 			std::vector<uint8_t> buffer;
 			mocks::MockMemoryStream outputStream(buffer);
@@ -56,8 +84,13 @@ namespace catapult { namespace state {
 			auto hash = test::GenerateRandomByteArray<Hash256>();
 			auto history = typename TLockInfoTraits::HistoryType(hash);
 
-			// Act + Assert:
-			EXPECT_THROW(TLockInfoTraits::SerializerType::Save(history, outputStream), catapult_runtime_error);
+			// Act:
+			TLockInfoTraits::SerializerType::Save(history, outputStream);
+
+			// Assert:
+			ASSERT_EQ(sizeof(uint64_t) + Hash256::Size, buffer.size());
+			EXPECT_EQ(0u, reinterpret_cast<const uint64_t&>(buffer[0]));
+			EXPECT_EQ(hash, reinterpret_cast<const Hash256&>(buffer[sizeof(uint64_t)]));
 		}
 
 		static void AssertCanSaveSingleLockInfoHistory() {
@@ -73,19 +106,16 @@ namespace catapult { namespace state {
 			// Act:
 			TLockInfoTraits::SerializerType::Save(history, outputStream);
 
-			// Assert: most recent lock info is always stored first to match non-historical format
-			size_t offset = 0;
-			ASSERT_EQ(3 * Lock_Info_Size + sizeof(uint64_t), buffer.size());
-			EXPECT_EQ_MEMORY(&lockInfos[2], &buffer[offset], Lock_Info_Size);
-			offset += Lock_Info_Size;
+			// Assert:
+			ASSERT_EQ(sizeof(uint64_t) + Hash256::Size + 3 * Lock_Info_Size, buffer.size());
+			ASSERT_EQ(3u, reinterpret_cast<const uint64_t&>(buffer[0]));
+			EXPECT_EQ(hash, reinterpret_cast<const Hash256&>(buffer[sizeof(uint64_t)]));
 
-			EXPECT_EQ(2u, reinterpret_cast<const uint64_t&>(buffer[offset]));
-			offset += sizeof(uint64_t);
-
-			EXPECT_EQ_MEMORY(&lockInfos[0], &buffer[offset], Lock_Info_Size);
-			offset += Lock_Info_Size;
-
-			EXPECT_EQ_MEMORY(&lockInfos[1], &buffer[offset], Lock_Info_Size);
+			const auto* pSerializedLockInfos = reinterpret_cast<const PackedValueType*>(&buffer[sizeof(uint64_t) + Hash256::Size]);
+			for (auto i = 0u; i < history.historyDepth(); ++i) {
+				auto expectedPackedLockInfo = PackedValueType(lockInfos[i]);
+				EXPECT_EQ_MEMORY(&expectedPackedLockInfo, &pSerializedLockInfos[i], Lock_Info_Size);
+			}
 		}
 
 		static void AssertCanRoundtripSingleLockInfoHistory() {
@@ -142,7 +172,9 @@ namespace catapult { namespace state {
 
 			// Assert: only most recent lock info is stored
 			ASSERT_EQ(Lock_Info_Size, buffer.size());
-			EXPECT_EQ_MEMORY(&lockInfos[2], buffer.data(), buffer.size());
+
+			auto expectedPackedLockInfo = PackedValueType(lockInfos.back());
+			EXPECT_EQ_MEMORY(&expectedPackedLockInfo, buffer.data(), buffer.size());
 		}
 
 		static void AssertCanRoundtripSingleLockInfoHistoryNonHistorical() {
@@ -172,7 +204,7 @@ namespace catapult { namespace state {
 	TEST(TEST_CLASS, TEST_NAME) { LockInfoHistorySerializerTests<TRAITS_NAME>::Assert##TEST_NAME(); }
 
 #define DEFINE_LOCK_INFO_HISTORY_SERIALIZER_TESTS(TRAITS_NAME) \
-	MAKE_LOCK_INFO_HISTORY_SERIALIZER_TEST(TRAITS_NAME, CannotSaveEmptyLockInfoHistory) \
+	MAKE_LOCK_INFO_HISTORY_SERIALIZER_TEST(TRAITS_NAME, CanSaveEmptyLockInfoHistory) \
 	MAKE_LOCK_INFO_HISTORY_SERIALIZER_TEST(TRAITS_NAME, CanSaveSingleLockInfoHistory) \
 	MAKE_LOCK_INFO_HISTORY_SERIALIZER_TEST(TRAITS_NAME, CanRoundtripSingleLockInfoHistory) \
 	\

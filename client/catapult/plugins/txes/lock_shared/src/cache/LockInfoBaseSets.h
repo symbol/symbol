@@ -26,9 +26,9 @@
 
 namespace catapult { namespace cache {
 
-	template<typename TDescriptor>
+	template<typename TDescriptor, typename TSerializer>
 	using LockInfoPatriciaTree = tree::BasePatriciaTree<
-		SerializerHashedKeyEncoder<typename TDescriptor::Serializer>,
+		SerializerHashedKeyEncoder<TSerializer>,
 		PatriciaTreeRdbDataSource,
 		utils::ArrayHasher<typename TDescriptor::KeyType>>;
 
@@ -83,3 +83,18 @@ namespace catapult { namespace cache {
 		}
 	};
 }}
+
+/// Defines lock info cache base set types for \a LOCK_INFO.
+#define DEFINE_LOCK_INFO_BASE_SETS(LOCK_INFO) \
+	class LOCK_INFO##PatriciaTree : public LockInfoPatriciaTree<LOCK_INFO##CacheDescriptor, LOCK_INFO##PatriciaTreeSerializer> { \
+	public: \
+		using LockInfoPatriciaTree<LOCK_INFO##CacheDescriptor, LOCK_INFO##PatriciaTreeSerializer>::LockInfoPatriciaTree; \
+		using Serializer = LOCK_INFO##PatriciaTreeSerializer; \
+	}; \
+	\
+	struct LOCK_INFO##BaseSetDeltaPointers : public LockInfoBaseSetDeltaPointers<LOCK_INFO##CacheTypes, LOCK_INFO##CacheDescriptor> {}; \
+	\
+	struct LOCK_INFO##BaseSets \
+			: public LockInfoBaseSets<LOCK_INFO##CacheTypes, LOCK_INFO##CacheDescriptor, LOCK_INFO##BaseSetDeltaPointers> { \
+		using LockInfoBaseSets<LOCK_INFO##CacheTypes, LOCK_INFO##CacheDescriptor, LOCK_INFO##BaseSetDeltaPointers>::LockInfoBaseSets; \
+	};

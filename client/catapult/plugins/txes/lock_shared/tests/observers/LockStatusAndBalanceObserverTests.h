@@ -31,38 +31,36 @@ namespace catapult { namespace observers {
 	private:
 		static void AssertObserverSetsStatusToUsedAndCreditsBalanceOnCommit(Amount initialAmount) {
 			// Arrange:
-			auto lockInfo = TTraits::BasicTraits::CreateLockInfo();
+			auto observerContext = typename TTraits::ObserverTestContext(NotifyMode::Commit);
 
 			// Act:
-			RunTest(
-					typename TTraits::ObserverTestContext(NotifyMode::Commit),
-					lockInfo,
-					[&lockInfo, initialAmount](auto& cache, auto& accountState) {
-						cache.insert(lockInfo);
-						if (Amount(0) != initialAmount)
-							accountState.Balances.credit(lockInfo.MosaicId, initialAmount);
-					},
-					[&lockInfo, initialAmount](const auto& lockInfoCache, const auto& accountState, auto& observerContext) {
-						// Assert: status and balance
-						const auto& key = TTraits::BasicTraits::ToKey(lockInfo);
-						const auto& result = lockInfoCache.find(key).get();
-						EXPECT_EQ(state::LockStatus::Used, result.Status);
-						auto expectedBalance = lockInfo.Amount + initialAmount;
-						EXPECT_EQ(expectedBalance, accountState.Balances.get(result.MosaicId));
+			RunTest(std::move(observerContext), initialAmount, Amount(100), [&](
+					const auto& accountState,
+					const auto& originalLockInfo,
+					const auto& lockInfoHistory,
+					const auto& statement) {
+				// Assert: status and balance
+				EXPECT_EQ(GetLockIdentifier(originalLockInfo), lockInfoHistory.id());
+				ASSERT_EQ(1u, lockInfoHistory.historyDepth());
 
-						auto pStatement = observerContext.statementBuilder().build();
-						ASSERT_EQ(1u, pStatement->TransactionStatements.size());
-						const auto& receiptPair = *pStatement->TransactionStatements.find(model::ReceiptSource());
-						ASSERT_EQ(1u, receiptPair.second.size());
+				const auto& lockInfo = lockInfoHistory.back();
+				EXPECT_EQ(state::LockStatus::Used, lockInfo.Status);
+				EXPECT_EQ(initialAmount + Amount(100), accountState.Balances.get(lockInfo.MosaicId));
 
-						const auto& receipt = static_cast<const model::BalanceChangeReceipt&>(receiptPair.second.receiptAt(0));
-						ASSERT_EQ(sizeof(model::BalanceChangeReceipt), receipt.Size);
-						EXPECT_EQ(1u, receipt.Version);
-						EXPECT_EQ(TTraits::Receipt_Type, receipt.Type);
-						EXPECT_EQ(lockInfo.MosaicId, receipt.Mosaic.MosaicId);
-						EXPECT_EQ(lockInfo.Amount, receipt.Mosaic.Amount);
-						EXPECT_EQ(accountState.Address, receipt.TargetAddress);
-					});
+				// - check receipt
+				ASSERT_EQ(1u, statement.TransactionStatements.size());
+
+				const auto& receiptPair = *statement.TransactionStatements.find(model::ReceiptSource());
+				ASSERT_EQ(1u, receiptPair.second.size());
+
+				const auto& receipt = static_cast<const model::BalanceChangeReceipt&>(receiptPair.second.receiptAt(0));
+				ASSERT_EQ(sizeof(model::BalanceChangeReceipt), receipt.Size);
+				EXPECT_EQ(1u, receipt.Version);
+				EXPECT_EQ(TTraits::Receipt_Type, receipt.Type);
+				EXPECT_EQ(originalLockInfo.MosaicId, receipt.Mosaic.MosaicId);
+				EXPECT_EQ(originalLockInfo.Amount, receipt.Mosaic.Amount);
+				EXPECT_EQ(accountState.Address, receipt.TargetAddress);
+			});
 		}
 
 	public:
@@ -76,56 +74,60 @@ namespace catapult { namespace observers {
 
 		static void AssertObserverSetsStatusToUnusedAndDebitsBalanceOnRollback() {
 			// Arrange:
-			auto lockInfo = TTraits::BasicTraits::CreateLockInfo();
-			lockInfo.Status = state::LockStatus::Used;
+			auto observerContext = typename TTraits::ObserverTestContext(NotifyMode::Rollback);
 
 			// Act:
-			RunTest(
-					typename TTraits::ObserverTestContext(NotifyMode::Rollback),
-					lockInfo,
-					[&lockInfo](auto& cache, auto& accountState) {
-						cache.insert(lockInfo);
-						accountState.Balances.credit(lockInfo.MosaicId, lockInfo.Amount + Amount(100));
-					},
-					[&lockInfo](const auto& lockInfoCache, const auto& accountState, auto& observerContext) {
-						// Assert: status and balance
-						const auto& key = TTraits::BasicTraits::ToKey(lockInfo);
-						const auto& result = lockInfoCache.find(key).get();
-						EXPECT_EQ(state::LockStatus::Unused, result.Status);
-						EXPECT_EQ(Amount(100), accountState.Balances.get(lockInfo.MosaicId));
+			RunTest(std::move(observerContext), Amount(1000), Amount(100), [&](
+					const auto& accountState,
+					const auto& originalLockInfo,
+					const auto& lockInfoHistory,
+					const auto& statement) {
+				// Assert: status and balance
+				EXPECT_EQ(GetLockIdentifier(originalLockInfo), lockInfoHistory.id());
+				ASSERT_EQ(1u, lockInfoHistory.historyDepth());
 
-						auto pStatement = observerContext.statementBuilder().build();
-						ASSERT_EQ(0u, pStatement->TransactionStatements.size());
-					});
+				const auto& lockInfo = lockInfoHistory.back();
+				EXPECT_EQ(state::LockStatus::Unused, lockInfo.Status);
+				EXPECT_EQ(Amount(900), accountState.Balances.get(originalLockInfo.MosaicId));
+
+				ASSERT_EQ(0u, statement.TransactionStatements.size());
+			});
 		}
 
 	private:
-		template<typename TSeedCacheFunc, typename TCheckCacheFunc>
+		template<typename TCheckCacheFunc>
 		static void RunTest(
-				typename TTraits::ObserverTestContext&& context,
-				const typename TTraits::BasicTraits::ValueType& lockInfo,
-				TSeedCacheFunc seedCache,
+				typename TTraits::ObserverTestContext&& observerContext,
+				Amount initialAmount,
+				Amount lockAmount,
 				TCheckCacheFunc checkCache) {
 			// Arrange:
-			auto& accountStateCacheDelta = context.cache().template sub<cache::AccountStateCache>();
-			auto accountIdentifier = TTraits::DestinationAccount(lockInfo);
+			auto pObserver = TTraits::CreateObserver();
+
+			auto originalLockInfo = TTraits::BasicTraits::CreateLockInfo();
+			originalLockInfo.Amount = lockAmount;
+			originalLockInfo.Status = static_cast<state::LockStatus>(77); // status should be updated by observer
+
+			auto& accountStateCacheDelta = observerContext.cache().template sub<cache::AccountStateCache>();
+			auto accountIdentifier = TTraits::DestinationAccount(originalLockInfo);
 			accountStateCacheDelta.addAccount(accountIdentifier, Height(1));
 			auto& accountState = accountStateCacheDelta.find(accountIdentifier).get();
 
-			auto& lockInfoCacheDelta = context.cache().template sub<typename TTraits::BasicTraits::CacheType>();
-			seedCache(lockInfoCacheDelta, accountState);
-
-			auto pObserver = TTraits::CreateObserver();
+			auto& lockInfoCacheDelta = observerContext.cache().template sub<typename TTraits::BasicTraits::CacheType>();
+			lockInfoCacheDelta.insert(originalLockInfo);
+			if (Amount(0) != initialAmount)
+				accountState.Balances.credit(originalLockInfo.MosaicId, initialAmount);
 
 			// Act:
 			typename TTraits::NotificationBuilder notificationBuilder;
-			notificationBuilder.prepare(lockInfo);
+			notificationBuilder.prepare(originalLockInfo);
 
 			auto notification = notificationBuilder.notification();
-			test::ObserveNotification(*pObserver, notification, context);
+			test::ObserveNotification(*pObserver, notification, observerContext);
 
 			// Assert
-			checkCache(lockInfoCacheDelta, accountState, context);
+			const auto& lockInfoHistory = lockInfoCacheDelta.find(GetLockIdentifier(originalLockInfo)).get();
+			checkCache(accountState, originalLockInfo, lockInfoHistory, *observerContext.statementBuilder().build());
 		}
 	};
 }}

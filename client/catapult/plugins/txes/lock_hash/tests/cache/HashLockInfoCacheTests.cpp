@@ -28,7 +28,9 @@ namespace catapult { namespace cache {
 #define TEST_CLASS HashLockInfoCacheTests
 
 	namespace {
-		struct HashTraits : public test::BasicHashLockInfoTestTraits {};
+		struct HashTraits : public test::BasicHashLockInfoTestTraits {
+			using ValueType = state::HashLockInfoHistory;
+		};
 	}
 
 	DEFINE_LOCK_INFO_CACHE_TESTS(LockInfoCacheDeltaElementsMixinTraits<HashTraits>, LockInfoCacheDeltaModificationPolicy<HashTraits>,)

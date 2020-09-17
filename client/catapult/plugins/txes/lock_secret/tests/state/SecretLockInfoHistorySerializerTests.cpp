@@ -33,6 +33,15 @@ namespace catapult { namespace state {
 #pragma pack(push, 1)
 
 		struct PackedSecretLockInfo : public PackedLockInfo {
+		public:
+			explicit PackedSecretLockInfo(const SecretLockInfo& secretLockInfo)
+					: PackedLockInfo(secretLockInfo)
+					, HashAlgorithm(secretLockInfo.HashAlgorithm)
+					, Secret(secretLockInfo.Secret)
+					, RecipientAddress(secretLockInfo.RecipientAddress)
+			{}
+
+		public:
 			model::LockHashAlgorithm HashAlgorithm;
 			Hash256 Secret;
 			Address RecipientAddress;
@@ -67,4 +76,21 @@ namespace catapult { namespace state {
 	}
 
 	DEFINE_LOCK_INFO_HISTORY_SERIALIZER_TESTS(SecretLockInfoTraits)
+
+	TEST(TEST_CLASS, LoadCalculatesCompositeHash) {
+		// Arrange:
+		auto originalLockInfo = test::BasicSecretLockInfoTestTraits::CreateLockInfo();
+		test::FillWithRandomData(originalLockInfo.CompositeHash);
+		std::vector<uint8_t> buffer;
+		mocks::MockMemoryStream outputStream(buffer);
+
+		// Act:
+		SecretLockInfoSerializer::Save(originalLockInfo, outputStream);
+		mocks::MockMemoryStream inputStream(buffer);
+		auto lockInfo = SecretLockInfoSerializer::Load(inputStream);
+
+		// Assert: the random composite hash was not saved but recalculated during load
+		auto expectedCompositeHash = model::CalculateSecretLockInfoHash(originalLockInfo.Secret, originalLockInfo.RecipientAddress);
+		EXPECT_EQ(expectedCompositeHash, lockInfo.CompositeHash);
+	}
 }}

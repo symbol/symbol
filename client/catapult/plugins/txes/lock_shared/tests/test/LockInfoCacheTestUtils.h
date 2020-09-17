@@ -28,7 +28,7 @@ namespace catapult { namespace test {
 	/// Creates \a count lock infos with increasing heights.
 	template<typename TLockInfoTraits>
 	auto CreateLockInfos(size_t count) {
-		std::vector<typename TLockInfoTraits::ValueType> lockInfos;
+		std::vector<typename TLockInfoTraits::LockInfoType> lockInfos;
 		for (auto i = 0u; i < count; ++i) {
 			lockInfos.emplace_back(TLockInfoTraits::CreateLockInfo(Height((i + 1) * 10)));
 			if (0 == i % 2)

@@ -20,10 +20,18 @@
 
 #pragma once
 #include "SecretLockInfoHistory.h"
-#include "SecretLockInfoSerializer.h"
 #include "plugins/txes/lock_shared/src/state/LockInfoHistorySerializer.h"
 
 namespace catapult { namespace state {
+
+	/// Policy for saving and loading secret lock info extended data.
+	struct SecretLockInfoExtendedDataSerializer {
+		/// Saves \a lockInfo extended data to \a output.
+		static void Save(const SecretLockInfo& lockInfo, io::OutputStream& output);
+
+		/// Loads secret lock info extended data from \a input into \a lockInfo.
+		static void Load(io::InputStream& input, SecretLockInfo& lockInfo);
+	};
 
 	DEFINE_LOCK_INFO_HISTORY_SERIALIZERS(SecretLockInfo, 1)
 }}

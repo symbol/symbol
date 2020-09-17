@@ -30,7 +30,9 @@ namespace catapult { namespace test {
 
 	/// Basic traits for a hash lock info.
 	struct BasicHashLockInfoTestTraits : public cache::HashLockInfoCacheDescriptor {
-		using cache::HashLockInfoCacheDescriptor::ValueType;
+		using HistoryType = cache::HashLockInfoCacheDescriptor::ValueType;
+		using LockInfoType = HistoryType::ValueType;
+		using ValueType = LockInfoType;
 
 		static constexpr auto ToKey = cache::HashLockInfoCacheDescriptor::GetKeyFromValue;
 

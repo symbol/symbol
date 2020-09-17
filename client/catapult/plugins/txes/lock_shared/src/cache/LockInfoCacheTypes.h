@@ -21,6 +21,7 @@
 #pragma once
 #include "catapult/cache/CacheDatabaseMixin.h"
 #include "catapult/cache/CacheDescriptorAdapters.h"
+#include "catapult/cache/CacheSerializerAdapter.h"
 #include "catapult/cache/IdentifierGroupSerializer.h"
 #include "catapult/utils/Hashers.h"
 #include "catapult/utils/IdentifierGroup.h"
@@ -55,3 +56,21 @@ namespace catapult { namespace cache {
 		using HeightGroupingTypes = MutableUnorderedMapAdapter<HeightGroupingTypesDescriptor, utils::BaseValueHasher<Height>>;
 	};
 }}
+
+/// Defines lock info cache serializers for \a LOCK_INFO.
+#define DEFINE_LOCK_INFO_CACHE_SERIALIZERS(LOCK_INFO) \
+	/* Primary serializer for lock info cache. */ \
+	struct LOCK_INFO##PrimarySerializer \
+			: public CacheSerializerAdapter<state::LOCK_INFO##HistorySerializer, LOCK_INFO##CacheDescriptor> \
+	{}; \
+	\
+	/* Serializer for lock info cache height grouped elements. */ \
+	struct LOCK_INFO##HeightGroupingSerializer \
+			: public IdentifierGroupSerializer<LOCK_INFO##CacheTypes::HeightGroupingTypesDescriptor> \
+	{}; \
+	\
+	/* Primary serializer for lock info cache for patricia tree hashes. */ \
+	/* \note This serializer excludes historical lock infos. */ \
+	struct LOCK_INFO##PatriciaTreeSerializer \
+			: public CacheSerializerAdapter<state::LOCK_INFO##HistoryNonHistoricalSerializer, LOCK_INFO##CacheDescriptor> \
+	{};

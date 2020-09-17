@@ -20,10 +20,10 @@
 
 #pragma once
 #include "mongo/src/mappers/MapperInclude.h"
-#include "plugins/txes/lock_secret/src/state/SecretLockInfo.h"
+#include "plugins/txes/lock_secret/src/state/SecretLockInfoHistory.h"
 
 namespace catapult { namespace mongo { namespace plugins {
 
-	/// Maps \a secretLockInfo to the corresponding db model value.
-	bsoncxx::document::value ToDbModel(const state::SecretLockInfo& secretLockInfo);
+	/// Maps \a history to the corresponding db model value.
+	bsoncxx::document::value ToDbModel(const state::SecretLockInfoHistory& history);
 }}}

@@ -34,9 +34,6 @@ namespace catapult { namespace state {
 
 	/// Lock info.
 	struct LockInfo {
-	public:
-		static constexpr auto Is_Deactivation_Destructive = true;
-
 	protected:
 		/// Creates a default lock info.
 		LockInfo()

@@ -18,24 +18,21 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#pragma once
-#include "SecretLockInfo.h"
-#include "plugins/txes/lock_shared/src/state/LockInfoSerializer.h"
+#include "SecretLockInfoHistorySerializer.h"
+#include "src/model/LockHashUtils.h"
 
 namespace catapult { namespace state {
 
-	/// Policy for saving and loading secret lock info extended data.
-	struct SecretLockInfoExtendedDataSerializer {
-		/// Saves \a lockInfo extended data to \a output.
-		static void Save(const SecretLockInfo& lockInfo, io::OutputStream& output);
+	void SecretLockInfoExtendedDataSerializer::Save(const SecretLockInfo& lockInfo, io::OutputStream& output) {
+		io::Write8(output, utils::to_underlying_type(lockInfo.HashAlgorithm));
+		output.write(lockInfo.Secret);
+		output.write(lockInfo.RecipientAddress);
+	}
 
-		/// Loads secret lock info extended data from \a input into \a lockInfo.
-		static void Load(io::InputStream& input, SecretLockInfo& lockInfo);
-	};
-
-	/// Policy for saving and loading secret lock info data.
-	struct SecretLockInfoSerializer : public LockInfoSerializer<SecretLockInfo, SecretLockInfoExtendedDataSerializer> {
-		/// Serialized state version.
-		static constexpr uint16_t State_Version = 1;
-	};
+	void SecretLockInfoExtendedDataSerializer::Load(io::InputStream& input, SecretLockInfo& lockInfo) {
+		lockInfo.HashAlgorithm = static_cast<model::LockHashAlgorithm>(io::Read8(input));
+		input.read(lockInfo.Secret);
+		input.read(lockInfo.RecipientAddress);
+		lockInfo.CompositeHash = model::CalculateSecretLockInfoHash(lockInfo.Secret, lockInfo.RecipientAddress);
+	}
 }}

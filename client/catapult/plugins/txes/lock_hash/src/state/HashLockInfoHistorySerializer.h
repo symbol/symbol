@@ -20,10 +20,18 @@
 
 #pragma once
 #include "HashLockInfoHistory.h"
-#include "HashLockInfoSerializer.h"
 #include "plugins/txes/lock_shared/src/state/LockInfoHistorySerializer.h"
 
 namespace catapult { namespace state {
+
+	/// Policy for saving and loading hash lock info extended data.
+	struct HashLockInfoExtendedDataSerializer {
+		/// Saves \a lockInfo extended data to \a output.
+		static void Save(const HashLockInfo& lockInfo, io::OutputStream& output);
+
+		/// Loads hash lock info extended data from \a input into \a lockInfo.
+		static void Load(io::InputStream& input, HashLockInfo& lockInfo);
+	};
 
 	DEFINE_LOCK_INFO_HISTORY_SERIALIZERS(HashLockInfo, 1)
 }}

@@ -33,6 +33,13 @@ namespace catapult { namespace state {
 #pragma pack(push, 1)
 
 		struct PackedHashLockInfo : public PackedLockInfo {
+		public:
+			explicit PackedHashLockInfo(const HashLockInfo& hashLockInfo)
+					: PackedLockInfo(hashLockInfo)
+					, Hash(hashLockInfo.Hash)
+			{}
+
+		public:
 			Hash256 Hash;
 		};
 

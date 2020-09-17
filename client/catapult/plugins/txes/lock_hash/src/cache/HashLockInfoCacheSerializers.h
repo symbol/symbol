@@ -20,15 +20,9 @@
 
 #pragma once
 #include "HashLockInfoCacheTypes.h"
-#include "src/state/HashLockInfoSerializer.h"
-#include "catapult/cache/CacheSerializerAdapter.h"
-#include "catapult/cache/IdentifierGroupSerializer.h"
+#include "src/state/HashLockInfoHistorySerializer.h"
 
 namespace catapult { namespace cache {
 
-	/// Primary serializer for hash lock info cache.
-	struct HashLockInfoPrimarySerializer : public CacheSerializerAdapter<state::HashLockInfoSerializer, HashLockInfoCacheDescriptor> {};
-
-	/// Serializer for hash lock info cache height grouped elements.
-	struct HashLockHeightGroupingSerializer : public IdentifierGroupSerializer<HashLockInfoCacheTypes::HeightGroupingTypesDescriptor> {};
+	DEFINE_LOCK_INFO_CACHE_SERIALIZERS(HashLockInfo)
 }}

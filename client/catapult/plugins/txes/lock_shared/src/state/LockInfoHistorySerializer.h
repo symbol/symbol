@@ -19,9 +19,38 @@
 **/
 
 #pragma once
-#include "LockInfoSerializer.h"
+#include "catapult/io/PodIoUtils.h"
+#include "catapult/io/Stream.h"
+#include "catapult/utils/Casting.h"
 
 namespace catapult { namespace state {
+
+	/// Policy for saving and loading lock info data.
+	template<typename TLockInfo, typename TLockInfoSerializer>
+	struct LockInfoSerializer {
+	public:
+		/// Saves \a lockInfo to \a output.
+		static void Save(const TLockInfo& lockInfo, io::OutputStream& output) {
+			output.write(lockInfo.OwnerAddress);
+			io::Write(output, lockInfo.MosaicId);
+			io::Write(output, lockInfo.Amount);
+			io::Write(output, lockInfo.EndHeight);
+			io::Write8(output, utils::to_underlying_type(lockInfo.Status));
+			TLockInfoSerializer::Save(lockInfo, output);
+		}
+
+		/// Loads a single value from \a input.
+		static TLockInfo Load(io::InputStream& input) {
+			TLockInfo lockInfo;
+			input.read(lockInfo.OwnerAddress);
+			io::Read(input, lockInfo.MosaicId);
+			io::Read(input, lockInfo.Amount);
+			io::Read(input, lockInfo.EndHeight);
+			lockInfo.Status = static_cast<LockStatus>(io::Read8(input));
+			TLockInfoSerializer::Load(input, lockInfo);
+			return lockInfo;
+		}
+	};
 
 	/// Policy for saving and loading lock info history data without historical information.
 	template<typename TLockInfoHistory, typename TLockInfoSerializer>
@@ -50,32 +79,33 @@ namespace catapult { namespace state {
 	public:
 		/// Saves \a history to \a output.
 		static void Save(const TLockInfoHistory& history, io::OutputStream& output) {
-			LockInfoHistoryNonHistoricalSerializer<TLockInfoHistory, TLockInfoSerializer>::Save(history, output);
+			io::Write64(output, history.historyDepth());
+			output.write(history.id());
 
-			auto count = history.historyDepth() - 1;
-			io::Write64(output, count);
-
-			auto iter = history.begin();
-			for (auto i = 0u; i < count; ++i)
-				TLockInfoSerializer::Save(*iter++, output);
+			for (const auto& lockInfo : history)
+				TLockInfoSerializer::Save(lockInfo, output);
 		}
 
 		/// Loads a single value from \a input.
 		static TLockInfoHistory Load(io::InputStream& input) {
-			auto mostRecentLockInfo = TLockInfoSerializer::Load(input);
-			auto history = TLockInfoHistory(GetLockIdentifier(mostRecentLockInfo));
-
 			auto count = io::Read64(input);
+
+			Hash256 id;
+			input.read(id);
+
+			auto history = TLockInfoHistory(id);
 			for (auto i = 0u; i < count; ++i)
 				history.push_back(TLockInfoSerializer::Load(input));
 
-			history.push_back(mostRecentLockInfo);
 			return history;
 		}
 	};
+}}
 
 /// Defines lock info history serializers for \a LOCK_INFO with state \a VERSION.
 #define DEFINE_LOCK_INFO_HISTORY_SERIALIZERS(LOCK_INFO, VERSION) \
+	using LOCK_INFO##Serializer = LockInfoSerializer<LOCK_INFO, LOCK_INFO##ExtendedDataSerializer>; \
+	\
 	struct LOCK_INFO##HistoryNonHistoricalSerializer \
 			: public LockInfoHistoryNonHistoricalSerializer<LOCK_INFO##History, LOCK_INFO##Serializer> { \
 		static constexpr uint16_t State_Version = VERSION; \
@@ -84,4 +114,3 @@ namespace catapult { namespace state {
 	struct LOCK_INFO##HistorySerializer : public LockInfoHistorySerializer<LOCK_INFO##History, LOCK_INFO##Serializer> { \
 		static constexpr uint16_t State_Version = VERSION; \
 	};
-}}
