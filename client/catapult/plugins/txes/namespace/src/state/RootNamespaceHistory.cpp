@@ -55,12 +55,12 @@ namespace catapult { namespace state {
 		}
 	}
 
-	bool RootNamespaceHistory::empty() const {
-		return m_rootHistory.empty();
-	}
-
 	NamespaceId RootNamespaceHistory::id() const {
 		return m_id;
+	}
+
+	bool RootNamespaceHistory::empty() const {
+		return m_rootHistory.empty();
 	}
 
 	size_t RootNamespaceHistory::historyDepth() const {

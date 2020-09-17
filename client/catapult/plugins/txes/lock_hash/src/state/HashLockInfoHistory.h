@@ -18,21 +18,15 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/state/HashLockInfo.h"
-#include "plugins/txes/lock_shared/tests/state/LockInfoTests.h"
-#include "tests/TestHarness.h"
+#pragma once
+#include "HashLockInfo.h"
+#include "plugins/txes/lock_shared/src/state/LockInfoHistory.h"
 
 namespace catapult { namespace state {
 
-#define TEST_CLASS HashLockInfoTests
-
-	namespace {
-		struct HashLockInfoTraits {
-			static void SetLockIdentifier(HashLockInfo& lockInfo, const Hash256& hash) {
-				lockInfo.Hash = hash;
-			}
-		};
-	}
-
-	DEFINE_LOCK_INFO_TESTS(HashLockInfo)
+	/// Hash lock info history.
+	struct PLUGIN_API_DEPENDENCY HashLockInfoHistory : public LockInfoHistory<HashLockInfo> {
+	public:
+		using LockInfoHistory<HashLockInfo>::LockInfoHistory;
+	};
 }}

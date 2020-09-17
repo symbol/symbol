@@ -24,9 +24,11 @@
 namespace catapult { namespace state {
 
 	/// Lock info test suite.
-	template<typename TLockInfo>
+	template<typename TLockInfo, typename TTraits>
 	class LockInfoTests {
 	public:
+		// region isActive
+
 		static void AssertIsActiveReturnsTrueWhenHeightIsLessThanUnusedLockInfoHeight() {
 			// Arrange:
 			TLockInfo lockInfo;
@@ -71,14 +73,38 @@ namespace catapult { namespace state {
 			EXPECT_FALSE(lockInfo.isActive(Height(124)));
 			EXPECT_FALSE(lockInfo.isActive(Height(1111)));
 		}
+
+		// endregion
+
+	public:
+		// region GetLockIdentifier
+
+		static void AssertGetLockIdentifierReturnsExpectedIdentifier() {
+			// Arrange:
+			auto hash = test::GenerateRandomByteArray<Hash256>();
+
+			TLockInfo lockInfo;
+			TTraits::SetLockIdentifier(lockInfo, hash);
+
+			// Act:
+			auto lockIdentifier = GetLockIdentifier(lockInfo);
+
+			// Assert:
+			EXPECT_EQ(hash, lockIdentifier);
+		}
+
+		// endregion
 	};
 }}
 
 #define MAKE_LOCK_INFO_TEST(LOCK_INFO_TYPE, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME) { LockInfoTests<LOCK_INFO_TYPE>::Assert##TEST_NAME(); }
+	TEST(TEST_CLASS, TEST_NAME) { LockInfoTests<LOCK_INFO_TYPE, LOCK_INFO_TYPE##Traits>::Assert##TEST_NAME(); }
 
 #define DEFINE_LOCK_INFO_TESTS(LOCK_INFO_TYPE) \
 	MAKE_LOCK_INFO_TEST(LOCK_INFO_TYPE, IsActiveReturnsTrueWhenHeightIsLessThanUnusedLockInfoHeight) \
 	MAKE_LOCK_INFO_TEST(LOCK_INFO_TYPE, IsActiveReturnsFalseWhenHeightIsGreaterThanOrEqualToUnusedLockInfoHeight) \
 	MAKE_LOCK_INFO_TEST(LOCK_INFO_TYPE, IsActiveReturnsFalseWhenHeightIsLessThanUsedLockInfoHeight) \
-	MAKE_LOCK_INFO_TEST(LOCK_INFO_TYPE, IsActiveReturnsFalseWhenHeightIsGreaterThanOrEqualToUsedLockInfoHeight)
+	MAKE_LOCK_INFO_TEST(LOCK_INFO_TYPE, IsActiveReturnsFalseWhenHeightIsGreaterThanOrEqualToUsedLockInfoHeight) \
+	\
+	MAKE_LOCK_INFO_TEST(LOCK_INFO_TYPE, GetLockIdentifierReturnsExpectedIdentifier)
+

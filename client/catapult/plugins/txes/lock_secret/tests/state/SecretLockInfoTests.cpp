@@ -26,6 +26,14 @@ namespace catapult { namespace state {
 
 #define TEST_CLASS SecretLockInfoTests
 
+	namespace {
+		struct SecretLockInfoTraits {
+			static void SetLockIdentifier(SecretLockInfo& lockInfo, const Hash256& hash) {
+				lockInfo.CompositeHash = hash;
+			}
+		};
+	}
+
 	DEFINE_LOCK_INFO_TESTS(SecretLockInfo)
 
 	TEST(TEST_CLASS, SecretLockInfoConstructorSetsAllFields) {

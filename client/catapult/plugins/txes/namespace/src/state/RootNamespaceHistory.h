@@ -34,7 +34,7 @@ namespace catapult { namespace state {
 		static constexpr auto Is_Deactivation_Destructive = true;
 
 	public:
-		/// Creates a root namespace history around \a id.
+		/// Creates a history around \a id.
 		explicit RootNamespaceHistory(NamespaceId id);
 
 		/// Copy constructor.
@@ -45,16 +45,13 @@ namespace catapult { namespace state {
 		RootNamespaceHistory(RootNamespaceHistory&& history) = default;
 
 	public:
-		RootNamespace& operator=(const RootNamespace& rhs) = delete;
+		/// Gets the id of the history.
+		NamespaceId id() const;
 
-	public:
 		/// Gets a value indicating whether or not the history is empty.
 		bool empty() const;
 
-		/// Gets the id of the root namespace history.
-		NamespaceId id() const;
-
-		/// Gets the root namespace history size.
+		/// Gets the history size.
 		size_t historyDepth() const;
 
 		/// Gets the number of root namespaces with the same owner starting at the active history.
