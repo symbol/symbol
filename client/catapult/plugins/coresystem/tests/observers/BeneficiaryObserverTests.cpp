@@ -37,7 +37,7 @@ namespace catapult { namespace observers {
 		constexpr auto Default_Beneficiary_Count = 200u;
 
 		void SeedAccount(state::AccountState& accountState) {
-			accountState.ActivityBuckets.update(Importance_Height, [](auto& bucket){
+			accountState.ActivityBuckets.update(Importance_Height, [](auto& bucket) {
 				bucket.BeneficiaryCount = Default_Beneficiary_Count;
 				bucket.TotalFeesPaid = Amount(1000);
 			});

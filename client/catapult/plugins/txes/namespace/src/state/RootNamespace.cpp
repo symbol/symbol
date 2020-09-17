@@ -125,7 +125,7 @@ namespace catapult { namespace state {
 
 	void RootNamespace::setAlias(NamespaceId id, const NamespaceAlias& alias) {
 		// check if root
-		if (m_id == id){
+		if (m_id == id) {
 			m_alias = alias;
 			return;
 		}

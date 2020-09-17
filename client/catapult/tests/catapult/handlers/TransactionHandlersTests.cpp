@@ -84,7 +84,7 @@ namespace catapult { namespace handlers {
 
 			using UtRetrieverAdapter = std::function<UnconfirmedTransactions (const utils::ShortHashesSet&)>;
 			static auto RegisterHandler(ionet::ServerPacketHandlers& handlers, const UtRetrieverAdapter& utRetriever) {
-				handlers::RegisterPullTransactionsHandler(handlers, [utRetriever](auto, const auto& knownShortHashes){
+				handlers::RegisterPullTransactionsHandler(handlers, [utRetriever](auto, const auto& knownShortHashes) {
 					return utRetriever(knownShortHashes);
 				});
 			}

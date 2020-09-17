@@ -30,7 +30,7 @@ namespace catapult { namespace state {
 	struct LockInfoSerializer {
 	public:
 		/// Saves \a lockInfo to \a output.
-		static void Save(const TLockInfo& lockInfo, io::OutputStream& output){
+		static void Save(const TLockInfo& lockInfo, io::OutputStream& output) {
 			output.write(lockInfo.OwnerAddress);
 			io::Write(output, lockInfo.MosaicId);
 			io::Write(output, lockInfo.Amount);
@@ -40,7 +40,7 @@ namespace catapult { namespace state {
 		}
 
 		/// Loads a single value from \a input.
-		static TLockInfo Load(io::InputStream& input){
+		static TLockInfo Load(io::InputStream& input) {
 			TLockInfo lockInfo;
 			input.read(lockInfo.OwnerAddress);
 			io::Read(input, lockInfo.MosaicId);

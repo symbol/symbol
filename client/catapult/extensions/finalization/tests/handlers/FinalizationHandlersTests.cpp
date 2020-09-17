@@ -90,7 +90,7 @@ namespace catapult { namespace handlers {
 
 			using MessagesRetrieverAdapter = std::function<ResponseType (const utils::ShortHashesSet&)>;
 			static auto RegisterHandler(ionet::ServerPacketHandlers& handlers, const MessagesRetrieverAdapter& messagesRetriever) {
-				handlers::RegisterPullMessagesHandler(handlers, [messagesRetriever](auto, const auto& knownShortHashes){
+				handlers::RegisterPullMessagesHandler(handlers, [messagesRetriever](auto, const auto& knownShortHashes) {
 					return messagesRetriever(knownShortHashes);
 				});
 			}

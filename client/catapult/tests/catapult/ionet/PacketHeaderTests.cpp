@@ -30,7 +30,7 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, IsPacketDataSizeValid_ReturnsFalseWhenPacketSizeIsTooSmall) {
 		// Arrange:
-		for (auto size : std::initializer_list<uint32_t>{ 0, sizeof(PacketHeader) / 2, sizeof(PacketHeader) - 1 }){
+		for (auto size : std::initializer_list<uint32_t>{ 0, sizeof(PacketHeader) / 2, sizeof(PacketHeader) - 1 }) {
 			auto header = PacketHeader{ size, PacketType::Undefined };
 
 			// Act + Assert:

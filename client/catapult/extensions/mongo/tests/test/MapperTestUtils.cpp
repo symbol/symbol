@@ -201,7 +201,7 @@ namespace catapult { namespace test {
 				++numExpectedFields;
 			}
 
-			if (0 != accountPublicKeys.voting().size()){
+			if (0 != accountPublicKeys.voting().size()) {
 				AssertPublicKeysSubDocument(dbAccountPublicKeys, "voting", accountPublicKeys.voting());
 				++numExpectedFields;
 			}

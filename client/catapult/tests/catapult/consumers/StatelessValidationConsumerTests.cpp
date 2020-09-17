@@ -39,7 +39,7 @@ namespace catapult { namespace consumers {
 
 		struct DispatchParams {
 		public:
-			explicit DispatchParams(const model::WeakEntityInfos& entityInfos) : EntityInfos(entityInfos){
+			explicit DispatchParams(const model::WeakEntityInfos& entityInfos) : EntityInfos(entityInfos) {
 				for (const auto& entityInfo : EntityInfos)
 					HashCopies.push_back(entityInfo.hash());
 			}
