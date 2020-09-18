@@ -122,25 +122,26 @@ namespace catapult { namespace model {
 		return UnresolvedMosaicId(config.CurrencyMosaicId.unwrap());
 	}
 
-	utils::TimeSpan CalculateFullRollbackDuration(const BlockChainConfiguration& config) {
-		return utils::TimeSpan::FromMilliseconds(config.BlockGenerationTargetTime.millis() * config.MaxRollbackBlocks);
-	}
+	namespace {
+		utils::TimeSpan CalculateFullRollbackDuration(const BlockChainConfiguration& config) {
+			return utils::TimeSpan::FromMilliseconds(config.BlockGenerationTargetTime.millis() * config.MaxRollbackBlocks);
+		}
 
-	utils::TimeSpan CalculateRollbackVariabilityBufferDuration(const BlockChainConfiguration& config) {
-		// use the greater of 25% of the rollback time or one hour as a buffer against block time variability
-		return utils::TimeSpan::FromHours(4).millis() > CalculateFullRollbackDuration(config).millis()
-				? utils::TimeSpan::FromHours(1)
-				: utils::TimeSpan::FromMilliseconds(CalculateFullRollbackDuration(config).millis() / 4);
+		utils::TimeSpan CalculateRollbackVariabilityBufferDuration(const BlockChainConfiguration& config) {
+			// use the greater of 25% of the rollback time or one hour as a buffer against block time variability
+			return utils::TimeSpan::FromHours(4).millis() > CalculateFullRollbackDuration(config).millis()
+					? utils::TimeSpan::FromHours(1)
+					: utils::TimeSpan::FromMilliseconds(CalculateFullRollbackDuration(config).millis() / 4);
+		}
 	}
 
 	utils::TimeSpan CalculateTransactionCacheDuration(const BlockChainConfiguration& config) {
+		if (0 == config.MaxRollbackBlocks)
+			return config.MaxTransactionLifetime;
+
 		return utils::TimeSpan::FromMilliseconds(
 				CalculateFullRollbackDuration(config).millis()
 				+ CalculateRollbackVariabilityBufferDuration(config).millis());
-	}
-
-	uint64_t CalculateDifficultyHistorySize(const BlockChainConfiguration& config) {
-		return config.MaxRollbackBlocks + config.MaxDifficultyBlocks;
 	}
 
 	// endregion

@@ -141,17 +141,8 @@ namespace catapult { namespace model {
 	/// Gets the unresolved currency mosaic id from \a config.
 	UnresolvedMosaicId GetUnresolvedCurrencyMosaicId(const BlockChainConfiguration& config);
 
-	/// Calculates the duration of a full rollback for the block chain described by \a config.
-	utils::TimeSpan CalculateFullRollbackDuration(const BlockChainConfiguration& config);
-
-	/// Calculates the duration of the rollback variability buffer for the block chain described by \a config.
-	utils::TimeSpan CalculateRollbackVariabilityBufferDuration(const BlockChainConfiguration& config);
-
 	/// Calculates the duration of time that expired transactions should be cached for the block chain described by \a config.
 	utils::TimeSpan CalculateTransactionCacheDuration(const BlockChainConfiguration& config);
-
-	/// Calculates the number of historical difficulties to cache in memory for the block chain described by \a config.
-	uint64_t CalculateDifficultyHistorySize(const BlockChainConfiguration& config);
 
 	/// Loads plugin configuration for plugin named \a pluginName from \a config.
 	template<typename T>

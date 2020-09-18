@@ -396,7 +396,7 @@ namespace catapult { namespace sync {
 				extensions::ServiceLocator& locator,
 				const chain::TimeSupplier& timeSupplier,
 				const model::BlockChainConfiguration& config) {
-			auto rollbackDurationFull = CalculateFullRollbackDuration(config);
+			auto rollbackDurationFull = CalculateTransactionCacheDuration(config);
 			auto rollbackDurationHalf = utils::TimeSpan::FromMilliseconds(rollbackDurationFull.millis() / 2);
 			auto pRollbackInfo = std::make_shared<RollbackInfo>(timeSupplier, rollbackDurationHalf);
 			locator.registerRootedService("rollbacks", pRollbackInfo);

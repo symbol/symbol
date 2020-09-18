@@ -73,7 +73,7 @@ namespace catapult { namespace test {
 				CreateAccountStateCacheOptions(config));
 
 		subCaches[BlockStatisticCache::Id] = MakeConfigurationFreeSubCachePlugin<BlockStatisticCache, BlockStatisticCacheStorage>(
-				CalculateDifficultyHistorySize(config));
+				config.MaxDifficultyBlocks);
 	}
 
 	// endregion

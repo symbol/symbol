@@ -77,7 +77,7 @@ namespace catapult { namespace plugins {
 		void AddBlockStatisticCache(PluginManager& manager, const model::BlockChainConfiguration& config) {
 			using namespace catapult::cache;
 
-			manager.addCacheSupport(std::make_unique<BlockStatisticCacheSubCachePlugin>(CalculateDifficultyHistorySize(config)));
+			manager.addCacheSupport(std::make_unique<BlockStatisticCacheSubCachePlugin>(config.MaxDifficultyBlocks));
 
 			manager.addDiagnosticCounterHook([](auto& counters, const CatapultCache& cache) {
 				counters.emplace_back(utils::DiagnosticCounterId("BLKDIF C"), [&cache]() {

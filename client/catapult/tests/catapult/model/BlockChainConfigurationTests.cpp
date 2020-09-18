@@ -312,13 +312,20 @@ namespace catapult { namespace model {
 		config.BlockGenerationTargetTime = TimeSpanFromMillis(30'001);
 		config.MaxTransactionLifetime = TimeSpanFromMillis(One_Hour_Ms - 1);
 		config.MaxRollbackBlocks = 600;
-		config.MaxDifficultyBlocks = 45;
 
 		// Act + Assert:
-		EXPECT_EQ(TimeSpanFromMillis(30'001 * 600), CalculateFullRollbackDuration(config));
-		EXPECT_EQ(TimeSpanFromMillis(30'001 * 150), CalculateRollbackVariabilityBufferDuration(config));
 		EXPECT_EQ(TimeSpanFromMillis(30'001 * (600 + 150)), CalculateTransactionCacheDuration(config));
-		EXPECT_EQ(645u, CalculateDifficultyHistorySize(config));
+	}
+
+	TEST(TEST_CLASS, CanCalculateDependentSettingsFromCustomBlockChainConfiguration_MaxRollbackBlocksZero) {
+		// Arrange:
+		auto config = BlockChainConfiguration::Uninitialized();
+		config.BlockGenerationTargetTime = TimeSpanFromMillis(30'001);
+		config.MaxTransactionLifetime = TimeSpanFromMillis(One_Hour_Ms - 1);
+		config.MaxRollbackBlocks = 0;
+
+		// Act + Assert:
+		EXPECT_EQ(TimeSpanFromMillis(One_Hour_Ms - 1), CalculateTransactionCacheDuration(config));
 	}
 
 	TEST(TEST_CLASS, TransactionCacheDurationIncludesBufferTimeOfAtLeastOneHour) {
@@ -327,13 +334,9 @@ namespace catapult { namespace model {
 		config.BlockGenerationTargetTime = utils::TimeSpan::FromSeconds(15);
 		config.MaxTransactionLifetime = utils::TimeSpan::FromHours(2);
 		config.MaxRollbackBlocks = 20;
-		config.MaxDifficultyBlocks = 45;
 
 		// Act + Assert:
-		EXPECT_EQ(TimeSpanFromMillis(15'000 * 20), CalculateFullRollbackDuration(config));
-		EXPECT_EQ(utils::TimeSpan::FromHours(1), CalculateRollbackVariabilityBufferDuration(config));
 		EXPECT_EQ(TimeSpanFromMillis(15'000 * 20 + One_Hour_Ms), CalculateTransactionCacheDuration(config));
-		EXPECT_EQ(65u, CalculateDifficultyHistorySize(config));
 	}
 
 	// endregion
