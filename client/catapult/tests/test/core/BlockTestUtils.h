@@ -20,7 +20,6 @@
 
 #pragma once
 #include "TransactionTestUtils.h"
-#include "catapult/crypto/KeyPair.h"
 #include "catapult/model/Elements.h"
 #include "catapult/model/RangeTypes.h"
 #include <list>

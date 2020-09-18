@@ -23,7 +23,6 @@
 #include "plugins/txes/namespace/src/cache/NamespaceCache.h"
 #include "catapult/cache/CatapultCache.h"
 #include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/crypto/KeyPair.h"
 #include "catapult/model/Address.h"
 #include "catapult/utils/HexParser.h"
 #include "tests/test/nodeps/MijinConstants.h"

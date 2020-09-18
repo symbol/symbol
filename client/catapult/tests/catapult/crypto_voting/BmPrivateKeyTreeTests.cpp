@@ -40,7 +40,7 @@ namespace catapult { namespace crypto {
 		constexpr auto Full_L2_Size = test::BmTreeSizes::CalculateFullLevelTwoSize(6, 7);
 
 		auto GenerateKeyPair() {
-			return test::GenerateKeyPair();
+			return VotingKeyPair::FromPrivate(VotingPrivateKey::Generate(test::RandomByte));
 		}
 
 		// region test context

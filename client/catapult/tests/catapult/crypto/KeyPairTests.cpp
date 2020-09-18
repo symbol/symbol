@@ -21,74 +21,16 @@
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/utils/HexParser.h"
 #include "tests/TestHarness.h"
+#include <unordered_map>
 
 namespace catapult { namespace crypto {
 
 #define TEST_CLASS KeyPairTests
 
-	namespace {
-		void AssertCannotCreatePrivateKeyFromStringWithSize(size_t size, char keyFirstChar) {
-			// Arrange:
-			auto rawKeyString = test::GenerateRandomHexString(size);
-			rawKeyString[0] = keyFirstChar;
+	// region KeyPair
 
-			// Act + Assert: key creation should fail but string should not be cleared
-			EXPECT_THROW(KeyPair::FromString(rawKeyString), catapult_invalid_argument) << "string size: " << size;
-			EXPECT_EQ(keyFirstChar, rawKeyString[0]);
-		}
-	}
-
-	TEST(TEST_CLASS, CannotCreateKeyPairFromInvalidString) {
-		AssertCannotCreatePrivateKeyFromStringWithSize(Key::Size * 1, 'a');
-		AssertCannotCreatePrivateKeyFromStringWithSize(Key::Size * 2, 'g');
-		AssertCannotCreatePrivateKeyFromStringWithSize(Key::Size * 3, 'a');
-	}
-
-	TEST(TEST_CLASS, CanCreateKeyPairFromValidString) {
-		// Arrange:
-		auto rawKeyString = std::string("CBD84EF8F5F38A25C01308785EA99627DE897D151AFDFCDA7AB07EFD8ED98534");
-		auto expectedKey = utils::ParseByteArray<Key>("E343795087E44BC0CD516F3FF19954A9B90FEA7684724E5C145559D6D4D9F56D");
-		auto rawKeyVector = test::HexStringToVector(rawKeyString);
-
-		// Act:
-		auto keyPair = KeyPair::FromString(rawKeyString);
-
-		// Assert:
-		EXPECT_EQ(expectedKey, keyPair.publicKey());
-		EXPECT_EQ_MEMORY(&rawKeyVector[0], keyPair.privateKey().data(), keyPair.privateKey().size());
-	}
-
-	TEST(TEST_CLASS, CanCreateKeyPairFromPrivateKey) {
-		// Arrange:
-		auto privateKeyStr = test::GenerateRandomHexString(Key::Size * 2);
-		auto privateKey = PrivateKey::FromString(privateKeyStr);
-		Key expectedPublicKey;
-		ExtractPublicKeyFromPrivateKey(privateKey, expectedPublicKey);
-
-		// Act:
-		auto keyPair = KeyPair::FromPrivate(std::move(privateKey));
-
-		// Assert:
-		EXPECT_EQ(PrivateKey::FromString(privateKeyStr), keyPair.privateKey());
-		EXPECT_EQ(expectedPublicKey, keyPair.publicKey());
-	}
-
-	TEST(TEST_CLASS, KeyPairCreatedFromPrivateKeyMatchesKeyPairCreatedFromString) {
-		// Arrange:
-		auto privateKeyStr = std::string("3485D98EFD7EB07ADAFCFD1A157D89DE2796A95E780813C0258AF3F5F84ED8CB");
-		auto privateKey = PrivateKey::FromString(privateKeyStr);
-
-		// Act:
-		auto keyPair1 = KeyPair::FromPrivate(std::move(privateKey));
-		auto keyPair2 = KeyPair::FromString(privateKeyStr);
-
-		// Assert:
-		EXPECT_EQ(keyPair1.privateKey(), keyPair2.privateKey());
-	}
-
-	TEST(TEST_CLASS, PassesNemTestVectors) {
-		// Arrange:
-		// from nem https://github.com/nemtech/test-vectors
+	TEST(TEST_CLASS, KeyPairPassesNemTestVectors) {
+		// Arrange: from nem https://github.com/nemtech/test-vectors
 		std::string dataSet[] {
 			"ED4C70D78104EB11BCD73EBDC512FEBC8FBCEB36A370C957FF7E266230BB5D57",
 			"FE9BC2EF8DF88E708CAB471F82B54DBFCBA11B121E7C2D02799AB4D3A53F0E5B",
@@ -113,4 +55,57 @@ namespace catapult { namespace crypto {
 			EXPECT_EQ(utils::ParseByteArray<Key>(expectedSet[i]), keyPair.publicKey());
 		}
 	}
+
+	// endregion
+
+	// region Ed25519Utils
+
+	namespace {
+		std::string FormatPrivateKeyAsString(const PrivateKey& key) {
+			std::ostringstream out;
+			out << Ed25519Utils::FormatPrivateKey(key);
+			return out.str();
+		}
+	}
+
+	TEST(TEST_CLASS, Utils_CanOutputPrivateKey) {
+		// Arrange:
+		auto key = PrivateKey::FromString("031729D10DB52ECF0AD3684558DB31895DDFA5CD7F4143AF6E822E114E16E31C");
+
+		// Act:
+		std::string actual = FormatPrivateKeyAsString(key);
+
+		// Assert:
+		EXPECT_EQ("031729D10DB52ECF0AD3684558DB31895DDFA5CD7F4143AF6E822E114E16E31C", actual);
+	}
+
+	TEST(TEST_CLASS, Utils_IsValidPrivateKeyStringReturnsTrueForValidKeyString) {
+		// Act:
+		auto isValid = Ed25519Utils::IsValidPrivateKeyString("031729D10DB52ECF0AD3684558DB31895DDFA5CD7F4143AF6E822E114E16E31C");
+
+		// Assert:
+		EXPECT_TRUE(isValid);
+	}
+
+	TEST(TEST_CLASS, Utils_IsValidPrivateKeyStringReturnsFalseForInvalidKeyString) {
+		// Arrange:
+		std::unordered_map<std::string, std::string> keyStrings{
+			{ "T31729D10DB52ECF0AD3684558DB31895DDFA5CD7F4143AF6E822E114E16E31C", "invalid char T at the beginning" },
+			{ "031729D10DB52ECF0AD3684558DB31895TDFA5CD7F4143AF6E822E114E16E31T", "invalid char T in the middle part" },
+			{ "031729D10DB52ECF0AD3684558DB31895DDFA5CD7F4143AF6E822E114E16E31T", "invalid char T at the end" },
+			{ "U31729D10DB52ECF0XD3684558DB3189YDDFA5CD7F4143AF6Z822E114E16E31T", "multiple invalid chars" },
+			{ "031729D10DB52ECF0AD3684558DB31895DDFA5CD7F4143AF6E822E114E16E3", "string too short" },
+			{ "031729D10DB52ECF0AD3684558DB31895DDFA5CD7F4143AF6E822E114E16E31CFF", "string too long" }
+		};
+
+		for (const auto& pair : keyStrings) {
+			// Act:
+			auto isValid = Ed25519Utils::IsValidPrivateKeyString(pair.first);
+
+			// Assert:
+			EXPECT_FALSE(isValid) << pair.second;
+		}
+	}
+
+	// endregion
 }}

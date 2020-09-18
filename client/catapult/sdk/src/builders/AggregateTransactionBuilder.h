@@ -21,6 +21,7 @@
 #pragma once
 #include "TransactionBuilder.h"
 #include "plugins/txes/aggregate/src/model/AggregateTransaction.h"
+#include "catapult/crypto/KeyPair.h"
 #include <vector>
 
 namespace catapult { namespace builders {

@@ -78,7 +78,7 @@ namespace catapult { namespace chain {
 							{ FinalizationEpoch(20), FinalizationPoint(), model::FinalizationStage::Precommit },
 							Voting_Key_Dilution);
 					auto bmOptions = crypto::BmOptions{ Voting_Key_Dilution, startKeyIdentifier, endKeyIdentifier };
-					auto tree = crypto::BmPrivateKeyTree::Create(test::GenerateKeyPair(), storage, bmOptions);
+					auto tree = crypto::BmPrivateKeyTree::Create(test::GenerateVotingKeyPair(), storage, bmOptions);
 					return std::make_unique<crypto::BmPrivateKeyTree>(std::move(tree));
 				});
 			}

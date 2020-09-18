@@ -19,50 +19,35 @@
 **/
 
 #pragma once
-#include "KeyGenerator.h"
-#include "PrivateKey.h"
-#include "catapult/types.h"
+#include "BasicKeyPair.h"
+#include "SecureByteArray.h"
 
 namespace catapult { namespace crypto {
 
-#ifdef SPAMMER_TOOL
-#pragma pack(push, 16)
-#endif
+	struct PrivateKey_tag { static constexpr size_t Size = 32; };
+	using PrivateKey = SecureByteArray<PrivateKey_tag>;
 
-	/// Represents a pair of private key with associated public key.
-	class KeyPair final {
-	private:
-		explicit KeyPair(PrivateKey&& privateKey) : m_privateKey(std::move(privateKey)) {
-			ExtractPublicKeyFromPrivateKey(m_privateKey, m_publicKey);
-		}
+	/// ED25519 key pair traits.
+	struct Ed25519KeyPairTraits {
+	public:
+		using PublicKey = Key;
+		using PrivateKey = crypto::PrivateKey;
 
 	public:
-		/// Creates a key pair from \a privateKey.
-		static auto FromPrivate(PrivateKey&& privateKey) {
-			return KeyPair(std::move(privateKey));
-		}
-
-		/// Creates a key pair from \a privateKey.
-		static auto FromString(const std::string& privateKey) {
-			return FromPrivate(PrivateKey::FromString(privateKey));
-		}
-
-		/// Gets the private key of the key pair.
-		const auto& privateKey() const {
-			return m_privateKey;
-		}
-
-		/// Gets the public key of the key pair.
-		const auto& publicKey() const {
-			return m_publicKey;
-		}
-
-	private:
-		PrivateKey m_privateKey;
-		Key m_publicKey;
+		/// Extracts a public key (\a publicKey) from a private key (\a privateKey).
+		static void ExtractPublicKeyFromPrivateKey(const PrivateKey& privateKey, PublicKey& publicKey);
 	};
 
-#ifdef SPAMMER_TOOL
-#pragma pack(pop)
-#endif
+	/// ED25519 key pair.
+	/// \note This type does not have a prefix because it's the default signature scheme used in catapult.
+	using KeyPair = BasicKeyPair<Ed25519KeyPairTraits>;
+
+	/// ED25519 utils.
+	struct Ed25519Utils {
+		/// Formats a private \a key for printing.
+		static utils::ContainerHexFormatter<Key::const_iterator> FormatPrivateKey(const PrivateKey& key);
+
+		/// Returns \c true if \a str represents a valid private key, \c false otherwise.
+		static bool IsValidPrivateKeyString(const std::string& str);
+	};
 }}

@@ -22,7 +22,6 @@
 #include "tools/ToolConfigurationUtils.h"
 #include "catapult/builders/VotingKeyLinkBuilder.h"
 #include "catapult/builders/VrfKeyLinkBuilder.h"
-#include "catapult/crypto/KeyPair.h"
 #include "catapult/extensions/TransactionExtensions.h"
 #include "catapult/io/RawFile.h"
 #include "catapult/utils/HexParser.h"

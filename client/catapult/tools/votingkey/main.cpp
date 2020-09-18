@@ -32,6 +32,10 @@ namespace catapult { namespace tools { namespace votingkey {
 
 	namespace {
 		class VotingKeyTool : public Tool {
+		private:
+			using BmPublicKey = VotingKey;
+			using BmKeyPair = crypto::VotingKeyPair;
+
 		public:
 			std::string name() const override {
 				return "Voting Key Tool";
@@ -57,12 +61,12 @@ namespace catapult { namespace tools { namespace votingkey {
 
 			int run(const Options&) override {
 				crypto::SecureRandomGenerator generator;
-				auto keyPair = crypto::KeyPair::FromPrivate(crypto::PrivateKey::Generate([&generator] {
+				auto keyPair = BmKeyPair::FromPrivate(BmKeyPair::PrivateKey::Generate([&generator] {
 					return static_cast<uint8_t>(generator());
 				}));
 
 				if (!m_secretKey.empty())
-					keyPair = crypto::KeyPair::FromString(m_secretKey);
+					keyPair = BmKeyPair::FromString(m_secretKey);
 
 				auto savedPublicKey = generateTree(std::move(keyPair));
 				auto loadedPublicKey = verifyFile();
@@ -77,7 +81,7 @@ namespace catapult { namespace tools { namespace votingkey {
 				return model::StepIdentifierToBmKeyIdentifier({ epoch, FinalizationPoint(), stage }, m_dilution);
 			}
 
-			Key generateTree(crypto::KeyPair&& keyPair) {
+			BmPublicKey generateTree(crypto::VotingKeyPair&& keyPair) {
 				if (boost::filesystem::exists(m_filename))
 					CATAPULT_THROW_RUNTIME_ERROR("voting private key tree file already exits");
 
@@ -95,7 +99,7 @@ namespace catapult { namespace tools { namespace votingkey {
 				return tree.rootPublicKey();
 			}
 
-			Key verifyFile() {
+			BmPublicKey verifyFile() {
 				std::cout << "verifying generated file" << std::endl;
 				io::FileStream stream(io::RawFile(m_filename, io::OpenMode::Read_Only));
 				auto tree = crypto::BmPrivateKeyTree::FromStream(stream);

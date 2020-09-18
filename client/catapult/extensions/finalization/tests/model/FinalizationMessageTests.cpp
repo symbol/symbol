@@ -58,7 +58,7 @@ namespace catapult { namespace model {
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(FinalizationMessage));
-		EXPECT_EQ(4 + 4 + 312u, sizeof(FinalizationMessage));
+		EXPECT_EQ(4 + 4 + 456u, sizeof(FinalizationMessage));
 	}
 
 	TEST(TEST_CLASS, FinalizationMessageHasProperAlignment) {

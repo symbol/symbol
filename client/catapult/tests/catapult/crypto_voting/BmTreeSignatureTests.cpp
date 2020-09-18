@@ -41,7 +41,7 @@ namespace catapult { namespace crypto {
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(BmTreeSignature::ParentPublicKeySignaturePair));
-		EXPECT_EQ(96u, sizeof(BmTreeSignature::ParentPublicKeySignaturePair));
+		EXPECT_EQ(144u, sizeof(BmTreeSignature::ParentPublicKeySignaturePair));
 	}
 
 	TEST(TEST_CLASS, ParentPublicKeySignaturePairHasProperAlignment) {
@@ -70,7 +70,7 @@ namespace catapult { namespace crypto {
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(BmTreeSignature));
-		EXPECT_EQ(288u, sizeof(BmTreeSignature));
+		EXPECT_EQ(432u, sizeof(BmTreeSignature));
 	}
 
 	TEST(TEST_CLASS, TreeSignatureHasProperAlignment) {

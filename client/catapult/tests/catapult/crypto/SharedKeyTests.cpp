@@ -168,8 +168,7 @@ namespace catapult { namespace crypto {
 		};
 
 		auto CreateKeyPair(const Key& privateKey) {
-			auto index = 0u;
-			return KeyPair::FromPrivate(PrivateKey::Generate([&privateKey, &index]() { return privateKey[index++]; }));
+			return KeyPair::FromPrivate(PrivateKey::FromBuffer(privateKey));
 		}
 
 		template<typename TTraits>

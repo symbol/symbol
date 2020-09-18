@@ -23,7 +23,6 @@
 #include "BmTreeSignature.h"
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/io/SeekableStream.h"
-#include <array>
 #include <memory>
 
 namespace catapult { namespace crypto {
@@ -31,7 +30,7 @@ namespace catapult { namespace crypto {
 	/// Three-layer Bellare-Miner private key tree.
 	class BmPrivateKeyTree {
 	private:
-		using BmKeyPair = KeyPair;
+		using BmKeyPair = VotingKeyPair;
 
 	private:
 		BmPrivateKeyTree(io::SeekableStream& storage, const BmOptions& options);

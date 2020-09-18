@@ -19,12 +19,10 @@
 **/
 
 #pragma once
-#include "catapult/types.h"
+#include "KeyPair.h"
 
 struct ge25519_t;
 using ge25519 = ge25519_t;
-
-namespace catapult { namespace crypto { class PrivateKey; } }
 
 namespace catapult { namespace crypto {
 

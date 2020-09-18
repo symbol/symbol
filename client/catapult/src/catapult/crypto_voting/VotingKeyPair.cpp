@@ -18,17 +18,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#pragma once
-#include "catapult/utils/HexFormatter.h"
-#include "catapult/types.h"
-
-namespace catapult { namespace crypto { class PrivateKey; } }
+#include "VotingKeyPair.h"
+#include "catapult/crypto/KeyPair.h"
 
 namespace catapult { namespace crypto {
 
-	/// Formats a private \a key for printing.
-	utils::ContainerHexFormatter<Key::const_iterator> FormatKey(const PrivateKey& key);
-
-	/// Returns \c true if \a str represents a valid public key, \c false otherwise.
-	bool IsValidKeyString(const std::string& str);
+	void VotingKeyPairTraits::ExtractPublicKeyFromPrivateKey(const PrivateKey& privateKey, PublicKey& publicKey) {
+		publicKey = KeyPair::FromPrivate(crypto::PrivateKey::FromBuffer(privateKey)).publicKey().copyTo<VotingKey>();
+	}
 }}

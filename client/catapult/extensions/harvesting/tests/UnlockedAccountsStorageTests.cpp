@@ -20,7 +20,6 @@
 
 #include "harvesting/src/UnlockedAccountsStorage.h"
 #include "harvesting/src/UnlockedFileQueueConsumer.h"
-#include "catapult/crypto/KeyPair.h"
 #include "catapult/io/BufferedFileStream.h"
 #include "harvesting/tests/test/HarvestRequestEncryptedPayload.h"
 #include "tests/test/nodeps/Filesystem.h"

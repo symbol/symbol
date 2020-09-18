@@ -20,7 +20,6 @@
 
 #include "catapult/crypto/CryptoUtils.h"
 #include "catapult/crypto/Hashes.h"
-#include "catapult/crypto/KeyPair.h"
 #include "catapult/utils/HexParser.h"
 #include "catapult/utils/RandomGenerator.h"
 #include "tests/TestHarness.h"

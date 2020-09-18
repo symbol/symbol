@@ -38,7 +38,7 @@ namespace catapult { namespace chain {
 	namespace {
 		// region utils
 
-		using MessageKey = std::pair<Key, bool>;
+		using MessageKey = std::pair<VotingKey, bool>;
 
 		struct MessageDescriptor {
 			std::shared_ptr<const model::FinalizationMessage> pMessage;
@@ -56,7 +56,7 @@ namespace catapult { namespace chain {
 
 		struct MessageKeyHasher {
 			size_t operator()(const MessageKey& pair) const {
-				return utils::ArrayHasher<Key>()(pair.first);
+				return utils::ArrayHasher<VotingKey>()(pair.first);
 			}
 		};
 

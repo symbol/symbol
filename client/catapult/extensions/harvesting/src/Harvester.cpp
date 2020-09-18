@@ -22,7 +22,6 @@
 #include "catapult/cache_core/ImportanceView.h"
 #include "catapult/chain/BlockDifficultyScorer.h"
 #include "catapult/chain/BlockScorer.h"
-#include "catapult/crypto/KeyPair.h"
 #include "catapult/model/BlockUtils.h"
 #include "catapult/utils/StackLogger.h"
 

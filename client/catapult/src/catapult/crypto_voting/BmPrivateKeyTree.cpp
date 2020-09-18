@@ -19,8 +19,8 @@
 **/
 
 #include "BmPrivateKeyTree.h"
+#include "VotingSigner.h"
 #include "catapult/crypto/SecureRandomGenerator.h"
-#include "catapult/crypto/Signer.h"
 #include "catapult/io/PodIoUtils.h"
 #include "catapult/exceptions.h"
 #include <type_traits>
@@ -30,22 +30,14 @@ namespace catapult { namespace crypto {
 	namespace {
 		using BmSignature = decltype(BmTreeSignature::Root.Signature);
 		using BmPublicKey = decltype(BmTreeSignature::Root.ParentPublicKey);
-		using BmPrivateKey = PrivateKey;
-		using BmKeyPair = KeyPair;
+		using BmPrivateKey = VotingPrivateKey;
+		using BmKeyPair = VotingKeyPair;
 
 		// region signed key pair
 
 		BmPrivateKey GeneratePrivateKey() {
 			SecureRandomGenerator generator;
 			return BmPrivateKey::Generate([&generator]() { return static_cast<uint8_t>(generator()); });
-		}
-
-		BmPublicKey GetPublicKey(const BmPrivateKey& privateKey) {
-			auto iter = privateKey.begin();
-			auto keyPair = BmKeyPair::FromPrivate(BmPrivateKey::Generate([&iter]{
-				return *iter++;
-			}));
-			return keyPair.publicKey();
 		}
 
 		RawBuffer ToBuffer(const uint64_t& value) {
@@ -56,20 +48,20 @@ namespace catapult { namespace crypto {
 		public:
 			static constexpr auto Entry_Size = sizeof(BmPrivateKey) + BmSignature::Size;
 
-		public:
-			SignedPrivateKey(BmPrivateKey&& privateKey, const BmSignature& signature)
-					: m_keyPair(crypto::KeyPair::FromPrivate(std::move(privateKey)))
-					, m_signature(signature)
+		private:
+			explicit SignedPrivateKey(BmPrivateKey&& privateKey) : m_keyPair(BmKeyPair::FromPrivate(std::move(privateKey)))
 			{}
 
 		public:
-			static SignedPrivateKey CreateRandom(const BmKeyPair& parentKeyPair, uint64_t identifier) {
-				auto privateKey = GeneratePrivateKey();
-				auto publicKey = GetPublicKey(privateKey);
+			SignedPrivateKey(BmPrivateKey&& privateKey, const BmSignature& signature) : SignedPrivateKey(std::move(privateKey)) {
+				m_signature = signature;
+			}
 
-				BmSignature signature;
-				Sign(parentKeyPair, { publicKey, ToBuffer(identifier) }, signature);
-				return SignedPrivateKey(std::move(privateKey), signature);
+		public:
+			static SignedPrivateKey CreateRandom(const BmKeyPair& parentKeyPair, uint64_t identifier) {
+				SignedPrivateKey signedPrivateKey(GeneratePrivateKey());
+				Sign(parentKeyPair, { signedPrivateKey.keyPair().publicKey(), ToBuffer(identifier) }, signedPrivateKey.m_signature);
+				return signedPrivateKey;
 			}
 
 		public:

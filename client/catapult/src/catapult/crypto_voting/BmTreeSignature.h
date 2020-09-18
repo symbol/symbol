@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "VotingKeyPair.h"
 #include "catapult/types.h"
 
 namespace catapult { namespace crypto {
@@ -31,10 +32,10 @@ namespace catapult { namespace crypto {
 		/// Parent public key and signature pair.
 		struct ParentPublicKeySignaturePair {
 			/// Public key.
-			Key ParentPublicKey;
+			VotingKey ParentPublicKey;
 
 			/// Signature.
-			catapult::Signature Signature;
+			VotingSignature Signature;
 		};
 
 	public:
