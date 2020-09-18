@@ -18,40 +18,20 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/state/HashLockInfoSerializer.h"
-#include "plugins/txes/lock_shared/tests/state/LockInfoSerializerTests.h"
-#include "tests/test/HashLockInfoCacheTestUtils.h"
-#include "tests/TestHarness.h"
+#pragma once
+#include "SecretLockInfoHistory.h"
+#include "plugins/txes/lock_shared/src/state/LockInfoHistorySerializer.h"
 
 namespace catapult { namespace state {
 
-#define TEST_CLASS HashLockInfoSerializerTests
+	/// Policy for saving and loading secret lock info extended data.
+	struct SecretLockInfoExtendedDataSerializer {
+		/// Saves \a lockInfo extended data to \a output.
+		static void Save(const SecretLockInfo& lockInfo, io::OutputStream& output);
 
-	namespace {
-		// region PackedHashLockInfo
+		/// Loads secret lock info extended data from \a input into \a lockInfo.
+		static void Load(io::InputStream& input, SecretLockInfo& lockInfo);
+	};
 
-#pragma pack(push, 1)
-
-		struct PackedHashLockInfo : public PackedLockInfo {
-		public:
-			explicit PackedHashLockInfo(const HashLockInfo& hashLockInfo)
-					: PackedLockInfo(hashLockInfo)
-					, Hash(hashLockInfo.Hash)
-			{}
-
-		public:
-			Hash256 Hash;
-		};
-
-#pragma pack(pop)
-
-		// endregion
-
-		struct HashLockInfoStorageTraits : public test::BasicHashLockInfoTestTraits {
-			using PackedValueType = PackedHashLockInfo;
-			using SerializerType = HashLockInfoSerializer;
-		};
-	}
-
-	DEFINE_LOCK_INFO_SERIALIZER_TESTS(HashLockInfoStorageTraits)
+	DEFINE_LOCK_INFO_HISTORY_SERIALIZERS(SecretLockInfo, 1)
 }}

@@ -18,14 +18,14 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/state/SecretLockInfoSerializer.h"
-#include "plugins/txes/lock_shared/tests/state/LockInfoSerializerTests.h"
+#include "src/state/SecretLockInfoHistorySerializer.h"
+#include "plugins/txes/lock_shared/tests/state/LockInfoHistorySerializerTests.h"
 #include "tests/test/SecretLockInfoCacheTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace state {
 
-#define TEST_CLASS SecretLockInfoSerializerTests
+#define TEST_CLASS SecretLockInfoHistorySerializerTests
 
 	namespace {
 		// region PackedSecretLockInfo
@@ -51,13 +51,31 @@ namespace catapult { namespace state {
 
 		// endregion
 
-		struct SecretLockInfoStorageTraits : public test::BasicSecretLockInfoTestTraits {
+		struct SecretLockInfoTraits : public test::BasicSecretLockInfoTestTraits {
+		public:
+			using HistoryType = SecretLockInfoHistory;
 			using PackedValueType = PackedSecretLockInfo;
-			using SerializerType = SecretLockInfoSerializer;
+
+			using SerializerType = SecretLockInfoHistorySerializer;
+			using NonHistoricalSerializerType = SecretLockInfoHistoryNonHistoricalSerializer;
+
+		public:
+			static Hash256 SetEqualIdentifier(std::vector<SecretLockInfo>& lockInfos) {
+				auto secret = test::GenerateRandomByteArray<Hash256>();
+				auto recipientAddress = test::GenerateRandomByteArray<Address>();
+				auto compositeHash = model::CalculateSecretLockInfoHash(secret, recipientAddress);
+				for (auto& lockInfo : lockInfos) {
+					lockInfo.Secret = secret;
+					lockInfo.RecipientAddress = recipientAddress;
+					lockInfo.CompositeHash = compositeHash;
+				}
+
+				return compositeHash;
+			}
 		};
 	}
 
-	DEFINE_LOCK_INFO_SERIALIZER_TESTS(SecretLockInfoStorageTraits)
+	DEFINE_LOCK_INFO_HISTORY_SERIALIZER_TESTS(SecretLockInfoTraits)
 
 	TEST(TEST_CLASS, LoadCalculatesCompositeHash) {
 		// Arrange:

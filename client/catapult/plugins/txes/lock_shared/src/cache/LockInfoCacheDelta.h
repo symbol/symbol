@@ -44,11 +44,13 @@ namespace catapult { namespace cache {
 			, public LockInfoCacheDeltaMixins<TDescriptor, TCacheTypes>::MutableAccessor
 			, public LockInfoCacheDeltaMixins<TDescriptor, TCacheTypes>::PatriciaTreeDelta
 			, public LockInfoCacheDeltaMixins<TDescriptor, TCacheTypes>::ActivePredicate
-			, public LockInfoCacheDeltaMixins<TDescriptor, TCacheTypes>::BasicInsertRemove
 			, public LockInfoCacheDeltaMixins<TDescriptor, TCacheTypes>::Pruning
 			, public LockInfoCacheDeltaMixins<TDescriptor, TCacheTypes>::DeltaElements {
 	public:
 		using ReadOnlyView = typename TCacheTypes::CacheReadOnlyType;
+
+	private:
+		using LockInfoType = typename TDescriptor::ValueType::ValueType;
 
 	public:
 		/// Creates a delta around \a lockInfoSets.
@@ -59,7 +61,6 @@ namespace catapult { namespace cache {
 				, LockInfoCacheDeltaMixins<TDescriptor, TCacheTypes>::MutableAccessor(*lockInfoSets.pPrimary)
 				, LockInfoCacheDeltaMixins<TDescriptor, TCacheTypes>::PatriciaTreeDelta(*lockInfoSets.pPrimary, lockInfoSets.pPatriciaTree)
 				, LockInfoCacheDeltaMixins<TDescriptor, TCacheTypes>::ActivePredicate(*lockInfoSets.pPrimary)
-				, LockInfoCacheDeltaMixins<TDescriptor, TCacheTypes>::BasicInsertRemove(*lockInfoSets.pPrimary)
 				, LockInfoCacheDeltaMixins<TDescriptor, TCacheTypes>::Pruning(*lockInfoSets.pPrimary, *lockInfoSets.pHeightGrouping)
 				, LockInfoCacheDeltaMixins<TDescriptor, TCacheTypes>::DeltaElements(*lockInfoSets.pPrimary)
 				, m_pDelta(lockInfoSets.pPrimary)
@@ -71,28 +72,44 @@ namespace catapult { namespace cache {
 		using LockInfoCacheDeltaMixins<TDescriptor, TCacheTypes>::MutableAccessor::find;
 
 	public:
-		/// Inserts \a value into the cache.
-		void insert(const typename TDescriptor::ValueType& value) {
-			LockInfoCacheDeltaMixins<TDescriptor, TCacheTypes>::BasicInsertRemove::insert(value);
-			AddIdentifierWithGroup(*m_pHeightGroupingDelta, value.EndHeight, TDescriptor::GetKeyFromValue(value));
+		/// Inserts \a lockInfo into the cache.
+		void insert(const LockInfoType& lockInfo) {
+			const auto& lockIdentifier = GetLockIdentifier(lockInfo);
+			auto iter = m_pDelta->find(lockIdentifier);
+			if (!!iter.get()) {
+				iter.get()->push_back(lockInfo);
+			} else {
+				auto history = typename TDescriptor::ValueType(lockIdentifier);
+				history.push_back(lockInfo);
+				m_pDelta->insert(history);
+			}
+
+			AddIdentifierWithGroup(*m_pHeightGroupingDelta, lockInfo.EndHeight, lockIdentifier);
 		}
 
-		/// Removes the value identified by \a key from the cache.
-		void remove(const typename TDescriptor::KeyType& key) {
-			auto iter = m_pDelta->find(key);
-			const auto* pLockInfo = iter.get();
-			if (!!pLockInfo)
-				RemoveIdentifierWithGroup(*m_pHeightGroupingDelta, pLockInfo->EndHeight, key);
+		/// Removes the value identified by \a lockIdentifier from the cache.
+		void remove(const typename TDescriptor::KeyType& lockIdentifier) {
+			auto iter = m_pDelta->find(lockIdentifier);
+			auto* pHistory = iter.get();
+			if (!pHistory) {
+				CATAPULT_LOG(error) << "cannot remove non existent value from cache " << lockIdentifier;
+				detail::ThrowInvalidKeyError<TDescriptor>("not", lockIdentifier);
+				return;
+			}
 
-			LockInfoCacheDeltaMixins<TDescriptor, TCacheTypes>::BasicInsertRemove::remove(key);
+			RemoveIdentifierWithGroup(*m_pHeightGroupingDelta, pHistory->back().EndHeight, lockIdentifier);
+
+			pHistory->pop_back();
+			if (pHistory->empty())
+				m_pDelta->remove(lockIdentifier);
 		}
 
 		/// Processes all unused lock infos that expired at \a height by passing them to \a consumer
-		void processUnusedExpiredLocks(Height height, const consumer<const typename TDescriptor::ValueType>& consumer) const {
+		void processUnusedExpiredLocks(Height height, const consumer<const LockInfoType>& consumer) const {
 			// use non-const set to touch all affected lock infos so that active to inactive transitions are visible
-			ForEachIdentifierWithGroup(*m_pDelta, *m_pHeightGroupingDelta, height, [consumer](const auto& lockInfo) {
-				if (state::LockStatus::Unused == lockInfo.Status)
-					consumer(lockInfo);
+			ForEachIdentifierWithGroup(*m_pDelta, *m_pHeightGroupingDelta, height, [consumer](const auto& history) {
+				if (state::LockStatus::Unused == history.back().Status)
+					consumer(history.back());
 			});
 		}
 

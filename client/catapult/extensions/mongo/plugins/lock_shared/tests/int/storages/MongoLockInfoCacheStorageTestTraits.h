@@ -49,7 +49,7 @@ namespace catapult { namespace mongo { namespace plugins {
 
 			// update cache
 			auto& lockInfoCacheDelta = delta.sub<typename TLockInfoTraits::CacheType>();
-			lockInfoCacheDelta.find(TLockInfoTraits::GetId(lockInfo)).get().Status = state::LockStatus::Used;
+			lockInfoCacheDelta.find(TLockInfoTraits::GetId(lockInfo)).get().back().Status = state::LockStatus::Used;
 		}
 
 		/// Gets a filter for finding \a lockInfo.

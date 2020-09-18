@@ -28,7 +28,9 @@ namespace catapult { namespace cache {
 #define TEST_CLASS SecretLockInfoCacheTests
 
 	namespace {
-		struct SecretTraits : public test::BasicSecretLockInfoTestTraits {};
+		struct SecretTraits : public test::BasicSecretLockInfoTestTraits {
+			using ValueType = state::SecretLockInfoHistory;
+		};
 	}
 
 	DEFINE_LOCK_INFO_CACHE_TESTS(LockInfoCacheDeltaElementsMixinTraits<SecretTraits>, LockInfoCacheDeltaModificationPolicy<SecretTraits>,)

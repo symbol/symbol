@@ -36,7 +36,7 @@ namespace catapult { namespace validators {
 			return Failure_LockSecret_Inactive_Secret;
 
 		auto lockInfoIter = cache.find(key);
-		const auto& lockInfo = lockInfoIter.get();
+		const auto& lockInfo = lockInfoIter.get().back();
 		if (lockInfo.HashAlgorithm != notification.HashAlgorithm)
 			return Failure_LockSecret_Hash_Algorithm_Mismatch;
 

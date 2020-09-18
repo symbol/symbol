@@ -71,7 +71,7 @@ namespace catapult { namespace cache {
 			delta.insert(root);
 			delta.insert(state::Namespace(test::CreatePath({ 123, 127 })));
 			delta.insert(state::Namespace(test::CreatePath({ 123, 128 })));
-			state::RootNamespace renewedRoot(NamespaceId(123), owner, test::CreateLifetime(345, 456));
+			state::RootNamespace renewedRoot(NamespaceId(123), owner, test::CreateLifetime(320, 456));
 			delta.insert(renewedRoot);
 
 			std::vector<uint8_t> buffer;

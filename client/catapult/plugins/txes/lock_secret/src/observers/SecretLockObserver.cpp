@@ -52,7 +52,11 @@ namespace catapult { namespace observers {
 		if (NotifyMode::Commit == context.Mode) {
 			auto endHeight = context.Height + Height(notification.Duration.unwrap());
 			auto mosaicId = context.Resolvers.resolve(notification.Mosaic.MosaicId);
-			cache.insert(CreateLockInfo(notification.Owner, mosaicId, endHeight, notification, context.Resolvers));
+			auto lockInfo = CreateLockInfo(notification.Owner, mosaicId, endHeight, notification, context.Resolvers);
+			if (cache.isActive(lockInfo.CompositeHash, context.Height))
+				CATAPULT_THROW_INVALID_ARGUMENT("cannot add already active hash lock");
+
+			cache.insert(lockInfo);
 
 			auto receiptType = model::Receipt_Type_LockSecret_Created;
 			model::BalanceChangeReceipt receipt(receiptType, notification.Owner, mosaicId, notification.Mosaic.Amount);

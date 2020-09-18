@@ -106,9 +106,11 @@ namespace catapult { namespace observers {
 				const cache::NamespaceCacheDelta& namespaceCacheDelta,
 				const Address& owner,
 				Height lifetimeStart,
-				Height lifetimeEnd) {
+				Height lifetimeEnd,
+				size_t expectedDeepSize) {
 			// Assert: the root was added
 			EXPECT_EQ(1u, namespaceCacheDelta.activeSize());
+			EXPECT_EQ(expectedDeepSize, namespaceCacheDelta.deepSize());
 			ASSERT_TRUE(namespaceCacheDelta.contains(NamespaceId(25)));
 
 			auto namespaceIter = namespaceCacheDelta.find(NamespaceId(25));
@@ -132,7 +134,7 @@ namespace catapult { namespace observers {
 		auto seedCache = SeedCacheEmpty;
 		RunRootTest(notification, ObserverTestContext(NotifyMode::Commit, Height(777)), seedCache, [&owner](auto& namespaceCacheDelta) {
 			// Assert: the root was added
-			AssertRootAdded(namespaceCacheDelta, owner, Height(777), Height(1877 + Grace_Period_Duration));
+			AssertRootAdded(namespaceCacheDelta, owner, Height(777), Height(1877 + Grace_Period_Duration), 1);
 		});
 	}
 
@@ -146,7 +148,7 @@ namespace catapult { namespace observers {
 		auto seedCache = SeedCacheEmpty;
 		RunRootTest(notification, ObserverTestContext(NotifyMode::Commit, Height(777)), seedCache, [&owner](auto& namespaceCacheDelta) {
 			// Assert: the root was added
-			AssertRootAdded(namespaceCacheDelta, owner, Height(777), Height(0xFFFF'FFFF'FFFF'FFFF));
+			AssertRootAdded(namespaceCacheDelta, owner, Height(777), Height(0xFFFF'FFFF'FFFF'FFFF), 1);
 		});
 	}
 
@@ -172,7 +174,7 @@ namespace catapult { namespace observers {
 		}
 	}
 
-	TEST(TEST_CLASS, ObserverAddsNamespaceOnCommit_RootRenewalSameOwnerActive) {
+	TEST(TEST_CLASS, ObserverAddsNamespaceOnCommit_RootRenewalSameOwner) {
 		// Arrange:
 		for (auto height : { Height(75), Height(122), Height(122 + Grace_Period_Duration) }) {
 			// - create a root namespace with a finite duration
@@ -201,8 +203,8 @@ namespace catapult { namespace observers {
 			auto testContext = ObserverTestContext(NotifyMode::Commit, height);
 			auto seedCache = SeedCacheWithRoot25TreeOwner(owner);
 			RunRootTest(notification, std::move(testContext), seedCache, [height, &owner](auto& namespaceCacheDelta) {
-				// Assert: the root was renewed - [block height, block height + duration)
-				AssertRootRenewed(namespaceCacheDelta, owner, height, height + Height(1100 + Grace_Period_Duration));
+				// Assert: the root was NOT renewed because it was expired
+				AssertRootAdded(namespaceCacheDelta, owner, height, height + Height(1100 + Grace_Period_Duration), 3);
 			});
 		}
 	}

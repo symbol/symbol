@@ -33,7 +33,7 @@ namespace catapult { namespace observers {
 		auto& cache = context.Cache.template sub<typename TTraits::CacheType>();
 		const auto& key = TTraits::NotificationToKey(notification, context.Resolvers);
 		auto lockInfoIter = cache.find(key);
-		auto& lockInfo = lockInfoIter.get();
+		auto& lockInfo = lockInfoIter.get().back();
 
 		auto accountStateIter = accountStateCache.find(TTraits::DestinationAccount(lockInfo));
 		auto& accountState = accountStateIter.get();

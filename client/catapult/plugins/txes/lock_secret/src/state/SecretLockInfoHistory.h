@@ -18,15 +18,15 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "HashLockInfoSerializer.h"
+#pragma once
+#include "SecretLockInfo.h"
+#include "plugins/txes/lock_shared/src/state/LockInfoHistory.h"
 
 namespace catapult { namespace state {
 
-	void HashLockInfoExtendedDataSerializer::Save(const HashLockInfo& lockInfo, io::OutputStream& output) {
-		output.write(lockInfo.Hash);
-	}
-
-	void HashLockInfoExtendedDataSerializer::Load(io::InputStream& input, HashLockInfo& lockInfo) {
-		input.read(lockInfo.Hash);
-	}
+	/// Secret lock info history.
+	struct PLUGIN_API_DEPENDENCY SecretLockInfoHistory : public LockInfoHistory<SecretLockInfo> {
+	public:
+		using LockInfoHistory<SecretLockInfo>::LockInfoHistory;
+	};
 }}

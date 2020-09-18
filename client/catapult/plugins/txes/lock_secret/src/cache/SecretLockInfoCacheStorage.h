@@ -20,11 +20,10 @@
 
 #pragma once
 #include "SecretLockInfoCacheTypes.h"
-#include "src/state/SecretLockInfoSerializer.h"
+#include "src/state/SecretLockInfoHistorySerializer.h"
 #include "plugins/txes/lock_shared/src/cache/LockInfoCacheStorage.h"
 
 namespace catapult { namespace cache {
 
-	/// Policy for saving and loading secret lock info cache data.
-	struct SecretLockInfoCacheStorage : public LockInfoCacheStorage<SecretLockInfoCacheDescriptor, state::SecretLockInfoSerializer> {};
+	DEFINE_LOCK_INFO_CACHE_STORAGE(SecretLockInfo)
 }}

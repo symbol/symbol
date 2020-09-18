@@ -25,21 +25,5 @@
 
 namespace catapult { namespace cache {
 
-	class SecretLockInfoPatriciaTree : public LockInfoPatriciaTree<SecretLockInfoCacheDescriptor> {
-	public:
-		using LockInfoPatriciaTree<SecretLockInfoCacheDescriptor>::LockInfoPatriciaTree;
-		using Serializer = SecretLockInfoCacheDescriptor::Serializer;
-	};
-
-	struct SecretLockInfoBaseSetDeltaPointers
-			: public LockInfoBaseSetDeltaPointers<SecretLockInfoCacheTypes, SecretLockInfoCacheDescriptor>
-	{};
-
-	struct SecretLockInfoBaseSets
-			: public LockInfoBaseSets<SecretLockInfoCacheTypes, SecretLockInfoCacheDescriptor, SecretLockInfoBaseSetDeltaPointers> {
-		using LockInfoBaseSets<
-			SecretLockInfoCacheTypes,
-			SecretLockInfoCacheDescriptor,
-			SecretLockInfoBaseSetDeltaPointers>::LockInfoBaseSets;
-	};
+	DEFINE_LOCK_INFO_BASE_SETS(SecretLockInfo)
 }}

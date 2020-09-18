@@ -31,7 +31,7 @@ namespace catapult { namespace observers {
 	DEFINE_COMMON_OBSERVER_TESTS(HashLock,)
 
 	namespace {
-		struct HashObserverTraits {
+		struct HashObserverTraits : public test::BasicHashLockInfoTestTraits {
 		public:
 			using CacheType = cache::HashLockInfoCache;
 			using NotificationType = model::HashLockNotification;
@@ -44,18 +44,11 @@ namespace catapult { namespace observers {
 				return CreateHashLockObserver();
 			}
 
-			static auto GenerateRandomLockInfo(const NotificationType& notification) {
-				auto lockInfo = test::BasicHashLockInfoTestTraits::CreateLockInfo();
-				lockInfo.Hash = notification.Hash;
-				return lockInfo;
-			}
-
 			static const auto& ToKey(const NotificationType& notification) {
 				return notification.Hash;
 			}
 
 			static void AssertAddedLockInfo(const state::HashLockInfo& lockInfo, const NotificationType& notification) {
-				// Assert:
 				EXPECT_EQ(notification.Hash, lockInfo.Hash);
 			}
 		};

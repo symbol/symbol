@@ -146,6 +146,10 @@ namespace catapult { namespace state {
 		return !(*this == rhs);
 	}
 
+	bool RootNamespace::canExtend(const RootNamespace& previous) const {
+		return m_id == previous.m_id && m_ownerAddress == previous.m_ownerAddress && previous.m_lifetime.isActive(m_lifetime.Start);
+	}
+
 	RootNamespace RootNamespace::renew(const NamespaceLifetime& newLifetime) const {
 		return RootNamespace(m_id, m_ownerAddress, newLifetime, m_pChildren);
 	}

@@ -68,18 +68,18 @@ namespace catapult { namespace state {
 			}
 		}
 
-		const Address& SaveRootNamespace(io::OutputStream& output, const RootNamespace& root, const Address* pLastOwner) {
+		const RootNamespace& SaveRootNamespace(io::OutputStream& output, const RootNamespace& root, const RootNamespace* pPreviousRoot) {
 			output.write(root.ownerAddress());
 			io::Write(output, root.lifetime().Start);
 			io::Write(output, root.lifetime().End);
 			SaveAlias(output, root.alias(root.id()));
 
-			if (pLastOwner && *pLastOwner == root.ownerAddress())
+			if (pPreviousRoot && root.canExtend(*pPreviousRoot))
 				io::Write64(output, 0); // shared owner, don't rewrite children
 			else
 				SaveChildren(output, root);
 
-			return root.ownerAddress();
+			return root;
 		}
 	}
 
@@ -184,9 +184,9 @@ namespace catapult { namespace state {
 	void RootNamespaceHistorySerializer::Save(const RootNamespaceHistory& history, io::OutputStream& output) {
 		SaveHeader(output, history, HeaderMode::Include_History_Depth);
 
-		const Address* pLastOwner = nullptr;
+		const RootNamespace* pPreviousRoot = nullptr;
 		for (const auto& root : history)
-			pLastOwner = &SaveRootNamespace(output, root, pLastOwner);
+			pPreviousRoot = &SaveRootNamespace(output, root, pPreviousRoot);
 	}
 
 	RootNamespaceHistory RootNamespaceHistorySerializer::Load(io::InputStream& input) {

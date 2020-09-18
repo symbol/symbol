@@ -31,17 +31,17 @@ namespace catapult { namespace mongo { namespace plugins {
 			using LockInfoType = state::SecretLockInfo;
 
 		public:
-			static void StreamLockInfo(bson_stream::document& builder, const state::SecretLockInfo& secretLockInfo) {
+			static void StreamLockInfo(bson_stream::document& builder, const state::SecretLockInfo& lockInfo) {
 				builder
-						<< "hashAlgorithm" << utils::to_underlying_type(secretLockInfo.HashAlgorithm)
-						<< "secret" << ToBinary(secretLockInfo.Secret)
-						<< "recipientAddress" << ToBinary(secretLockInfo.RecipientAddress)
-						<< "compositeHash" << ToBinary(secretLockInfo.CompositeHash);
+						<< "hashAlgorithm" << utils::to_underlying_type(lockInfo.HashAlgorithm)
+						<< "secret" << ToBinary(lockInfo.Secret)
+						<< "recipientAddress" << ToBinary(lockInfo.RecipientAddress)
+						<< "compositeHash" << ToBinary(lockInfo.CompositeHash);
 			}
 		};
 	}
 
-	bsoncxx::document::value ToDbModel(const state::SecretLockInfo& secretLockInfo) {
-		return LockInfoMapper<SecretLockInfoMapperTraits>::ToDbModel(secretLockInfo);
+	bsoncxx::document::value ToDbModel(const state::SecretLockInfoHistory& history) {
+		return LockInfoMapper<SecretLockInfoMapperTraits>::ToDbModel(history.back());
 	}
 }}}

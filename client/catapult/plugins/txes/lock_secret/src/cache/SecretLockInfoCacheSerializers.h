@@ -20,19 +20,9 @@
 
 #pragma once
 #include "SecretLockInfoCacheTypes.h"
-#include "src/state/SecretLockInfoSerializer.h"
-#include "catapult/cache/CacheSerializerAdapter.h"
-#include "catapult/cache/IdentifierGroupSerializer.h"
+#include "src/state/SecretLockInfoHistorySerializer.h"
 
 namespace catapult { namespace cache {
 
-	/// Primary serializer for secret lock info cache.
-	struct SecretLockInfoPrimarySerializer
-			: public CacheSerializerAdapter<state::SecretLockInfoSerializer, SecretLockInfoCacheDescriptor>
-	{};
-
-	/// Serializer for secret lock info cache height grouped elements.
-	struct SecretLockHeightGroupingSerializer
-			: public IdentifierGroupSerializer<SecretLockInfoCacheTypes::HeightGroupingTypesDescriptor>
-	{};
+	DEFINE_LOCK_INFO_CACHE_SERIALIZERS(SecretLockInfo)
 }}

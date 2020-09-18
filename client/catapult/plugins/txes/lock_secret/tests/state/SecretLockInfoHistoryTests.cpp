@@ -1,3 +1,4 @@
+
 /**
 *** Copyright (c) 2016-present,
 *** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
@@ -18,22 +19,25 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/cache/HashLockInfoCache.h"
-#include "plugins/txes/lock_shared/tests/cache/LockInfoCacheTests.h"
-#include "tests/test/HashLockInfoCacheTestUtils.h"
+#include "src/state/SecretLockInfoHistory.h"
+#include "plugins/txes/lock_shared/tests/state/LockInfoHistoryTests.h"
+#include "tests/test/SecretLockInfoCacheTestUtils.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace cache {
+namespace catapult { namespace state {
 
-#define TEST_CLASS HashLockInfoCacheTests
+#define TEST_CLASS SecretLockInfoHistoryTests
 
 	namespace {
-		struct HashTraits : public test::BasicHashLockInfoTestTraits {
-			using ValueType = state::HashLockInfoHistory;
+		struct SecretLockInfoHistoryTraits {
+			static auto CreateLockInfo(Height endHeight, const Hash256& hash) {
+				auto lockInfo = test::BasicSecretLockInfoTestTraits::CreateLockInfo();
+				lockInfo.EndHeight = endHeight;
+				lockInfo.CompositeHash = hash;
+				return lockInfo;
+			}
 		};
 	}
 
-	DEFINE_LOCK_INFO_CACHE_TESTS(LockInfoCacheDeltaElementsMixinTraits<HashTraits>, LockInfoCacheDeltaModificationPolicy<HashTraits>,)
-
-	DEFINE_CACHE_PRUNE_TESTS(LockInfoCacheDeltaElementsMixinTraits<HashTraits>,)
+	DEFINE_LOCK_INFO_HISTORY_TESTS(SecretLockInfoHistory)
 }}

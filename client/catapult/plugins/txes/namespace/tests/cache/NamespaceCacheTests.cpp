@@ -107,7 +107,7 @@ namespace catapult { namespace cache {
 			AddChildren(delta, delta->find(NamespaceId(3)).get().root(), { 10 });
 
 			// root with id 1 is renewed
-			delta->insert(delta->find(NamespaceId(1)).get().root().renew(test::CreateLifetime(345, 456)));
+			delta->insert(delta->find(NamespaceId(1)).get().root().renew(test::CreateLifetime(320, 456)));
 		}
 	}
 
@@ -138,7 +138,7 @@ namespace catapult { namespace cache {
 			delta->insert(root);
 			delta->insert(state::Namespace(test::CreatePath({ 123, 127 })));
 			delta->insert(state::Namespace(test::CreatePath({ 123, 128 })));
-			state::RootNamespace renewedRoot(NamespaceId(123), owner, test::CreateLifetime(345, 456));
+			state::RootNamespace renewedRoot(NamespaceId(123), owner, test::CreateLifetime(320, 456));
 			delta->insert(renewedRoot);
 
 			// Assert: root + 2 children, one renewal
@@ -152,7 +152,7 @@ namespace catapult { namespace cache {
 		test::AssertCacheSizes(*view, 1, 3, 6);
 	}
 
-	TEST(TEST_CLASS, DeepSizeDoubleCountsNewChildrenAddedToSubsequentRoots) {
+	TEST(TEST_CLASS, DeepSizeDoubleCountsNewChildrenAddedToSubsequentLinkedRoots) {
 		// Arrange:
 		NamespaceCacheMixinTraits::CacheType cache;
 		{
@@ -164,12 +164,12 @@ namespace catapult { namespace cache {
 			delta->insert(state::Namespace(test::CreatePath({ 123, 127 })));
 
 			// - renew root and add another child
-			state::RootNamespace renewedRoot(NamespaceId(123), owner, test::CreateLifetime(345, 456));
+			state::RootNamespace renewedRoot(NamespaceId(123), owner, test::CreateLifetime(320, 456));
 			delta->insert(renewedRoot);
 			delta->insert(state::Namespace(test::CreatePath({ 123, 128 })));
 
 			// - renew root again and add another child
-			state::RootNamespace renewedRoot2(NamespaceId(123), owner, test::CreateLifetime(567, 789));
+			state::RootNamespace renewedRoot2(NamespaceId(123), owner, test::CreateLifetime(455, 789));
 			delta->insert(renewedRoot2);
 			delta->insert(state::Namespace(test::CreatePath({ 123, 129 })));
 
@@ -182,6 +182,38 @@ namespace catapult { namespace cache {
 		// Assert: 3 roots x 3 children
 		auto view = cache.createView();
 		test::AssertCacheSizes(*view, 1, 4, 12);
+	}
+
+	TEST(TEST_CLASS, DeepSizeDoesNotDoubleCountNewChildrenAddedToSubsequentUnlinkedRoots) {
+		// Arrange:
+		NamespaceCacheMixinTraits::CacheType cache;
+		{
+			// - insert root with 1 child
+			auto delta = cache.createDelta();
+			auto owner = test::CreateRandomOwner();
+			state::RootNamespace root(NamespaceId(123), owner, test::CreateLifetime(234, 321));
+			delta->insert(root);
+			delta->insert(state::Namespace(test::CreatePath({ 123, 127 })));
+
+			// - renew expired root and add another child
+			state::RootNamespace renewedRoot(NamespaceId(123), owner, test::CreateLifetime(345, 456));
+			delta->insert(renewedRoot);
+			delta->insert(state::Namespace(test::CreatePath({ 123, 128 })));
+
+			// - renew expired root again and add another child
+			state::RootNamespace renewedRoot2(NamespaceId(123), owner, test::CreateLifetime(567, 789));
+			delta->insert(renewedRoot2);
+			delta->insert(state::Namespace(test::CreatePath({ 123, 129 })));
+
+			// Assert: 3 roots x 1 children
+			test::AssertCacheSizes(*delta, 1, 2, 6);
+
+			cache.commit();
+		}
+
+		// Assert: 3 roots x 1 children
+		auto view = cache.createView();
+		test::AssertCacheSizes(*view, 1, 2, 6);
 	}
 
 	TEST(TEST_CLASS, DeepSizeReturnsExpectedSizeForRootWithoutChildren) {
@@ -286,8 +318,31 @@ namespace catapult { namespace cache {
 				delta->insert(state::Namespace(test::CreatePath({ 123, 111 })));
 
 				// Act: renew root once
+				delta->insert(state::RootNamespace(NamespaceId(123), owner, test::CreateLifetime(320, 456)));
+				delta->insert(state::Namespace(test::CreatePath({ 123, 222 })));
+
+				cache.commit();
+			}
+
+			// Sanity:
+			auto view = cache.createView();
+			EXPECT_TRUE(view->contains(NamespaceId(123)));
+			test::AssertCacheSizes(*view, 1, 3, 6);
+		}
+
+		void PrepareCacheForMultiLevelRootChildrenSameOwnerInactive(NamespaceCache& cache) {
+			// Arrange: add two roots with one different and one shared child each
+			auto owner = test::CreateRandomOwner();
+			{
+				auto delta = cache.createDelta();
+				delta->insert(state::RootNamespace(NamespaceId(123), owner, test::CreateLifetime(234, 321)));
+				delta->insert(state::Namespace(test::CreatePath({ 123, 111 })));
+				delta->insert(state::Namespace(test::CreatePath({ 123, 222 })));
+
+				// Act: renew root once
 				delta->insert(state::RootNamespace(NamespaceId(123), owner, test::CreateLifetime(345, 456)));
 				delta->insert(state::Namespace(test::CreatePath({ 123, 222 })));
+				delta->insert(state::Namespace(test::CreatePath({ 123, 333 })));
 
 				cache.commit();
 			}
@@ -307,7 +362,7 @@ namespace catapult { namespace cache {
 				delta->insert(state::Namespace(test::CreatePath({ 123, 222 })));
 
 				// Act: renew root once
-				delta->insert(state::RootNamespace(NamespaceId(123), test::CreateRandomOwner(), test::CreateLifetime(345, 456)));
+				delta->insert(state::RootNamespace(NamespaceId(123), test::CreateRandomOwner(), test::CreateLifetime(320, 456)));
 				delta->insert(state::Namespace(test::CreatePath({ 123, 222 })));
 				delta->insert(state::Namespace(test::CreatePath({ 123, 333 })));
 
@@ -332,16 +387,27 @@ namespace catapult { namespace cache {
 		EXPECT_TRUE(view->contains(NamespaceId(222)));
 	}
 
-	TEST(TEST_CLASS, ContainsReturnsFalseForChildrenOfPreviousRootWithDifferentOwner) {
-		// Arrange:
-		NamespaceCacheMixinTraits::CacheType cache;
-		PrepareCacheForMultiLevelRootChildrenDifferentOwner(cache);
+	namespace {
+		template<typename TPrepare>
+		void RunContainsReturnsFalseForChildrenOfPreviousRootUnlinkedTest(TPrepare prepare) {
+			// Arrange:
+			NamespaceCacheMixinTraits::CacheType cache;
+			prepare(cache);
 
-		// Assert: only children from the most recent root are contained
-		auto view = cache.createView();
-		EXPECT_FALSE(view->contains(NamespaceId(111)));
-		EXPECT_TRUE(view->contains(NamespaceId(222)));
-		EXPECT_TRUE(view->contains(NamespaceId(333)));
+			// Assert: only children from the most recent root are contained
+			auto view = cache.createView();
+			EXPECT_FALSE(view->contains(NamespaceId(111)));
+			EXPECT_TRUE(view->contains(NamespaceId(222)));
+			EXPECT_TRUE(view->contains(NamespaceId(333)));
+		}
+	}
+
+	TEST(TEST_CLASS, ContainsReturnsFalseForChildrenOfPreviousRootWithSameOwnerInactive) {
+		RunContainsReturnsFalseForChildrenOfPreviousRootUnlinkedTest(PrepareCacheForMultiLevelRootChildrenSameOwnerInactive);
+	}
+
+	TEST(TEST_CLASS, ContainsReturnsFalseForChildrenOfPreviousRootWithDifferentOwner) {
+		RunContainsReturnsFalseForChildrenOfPreviousRootUnlinkedTest(PrepareCacheForMultiLevelRootChildrenDifferentOwner);
 	}
 
 	TEST(TEST_CLASS, ContainsReturnsTrueForChildrenOfPoppedRootWithSameOwner) {
@@ -362,23 +428,34 @@ namespace catapult { namespace cache {
 		EXPECT_TRUE(view->contains(NamespaceId(222)));
 	}
 
-	TEST(TEST_CLASS, ContainsReturnsFalseForChildrenOfPoppedRootWithDifferentOwner) {
-		// Arrange:
-		NamespaceCacheMixinTraits::CacheType cache;
-		PrepareCacheForMultiLevelRootChildrenDifferentOwner(cache);
+	namespace {
+		template<typename TPrepare>
+		void RunContainsReturnsFalseForChildrenOfPoppedRootUnlinkedTest(TPrepare prepare) {
+			// Arrange:
+			NamespaceCacheMixinTraits::CacheType cache;
+			prepare(cache);
 
-		// Act:
-		{
-			auto delta = cache.createDelta();
-			delta->remove(NamespaceId(123));
-			cache.commit();
+			// Act:
+			{
+				auto delta = cache.createDelta();
+				delta->remove(NamespaceId(123));
+				cache.commit();
+			}
+
+			// Assert: only children from the older root are contained
+			auto view = cache.createView();
+			EXPECT_TRUE(view->contains(NamespaceId(111)));
+			EXPECT_TRUE(view->contains(NamespaceId(222)));
+			EXPECT_FALSE(view->contains(NamespaceId(333)));
 		}
+	}
 
-		// Assert: only children from the older root are contained
-		auto view = cache.createView();
-		EXPECT_TRUE(view->contains(NamespaceId(111)));
-		EXPECT_TRUE(view->contains(NamespaceId(222)));
-		EXPECT_FALSE(view->contains(NamespaceId(333)));
+	TEST(TEST_CLASS, ContainsReturnsFalseForChildrenOfPoppedRootWithSameOwnerInactive) {
+		RunContainsReturnsFalseForChildrenOfPoppedRootUnlinkedTest(PrepareCacheForMultiLevelRootChildrenSameOwnerInactive);
+	}
+
+	TEST(TEST_CLASS, ContainsReturnsFalseForChildrenOfPoppedRootWithDifferentOwner) {
+		RunContainsReturnsFalseForChildrenOfPoppedRootUnlinkedTest(PrepareCacheForMultiLevelRootChildrenDifferentOwner);
 	}
 
 	// endregion
@@ -529,8 +606,8 @@ namespace catapult { namespace cache {
 		NamespaceCacheMixinTraits::CacheType cache;
 		auto owner = test::CreateRandomOwner();
 		state::RootNamespace root1(NamespaceId(123), owner, test::CreateLifetime(234, 321));
-		state::RootNamespace root2(NamespaceId(123), owner, test::CreateLifetime(345, 456));
-		state::RootNamespace root3(NamespaceId(123), owner, test::CreateLifetime(456, 567));
+		state::RootNamespace root2(NamespaceId(123), owner, test::CreateLifetime(320, 456));
+		state::RootNamespace root3(NamespaceId(123), owner, test::CreateLifetime(455, 567));
 		{
 			auto delta = cache.createDelta();
 			delta->insert(root1);
@@ -548,7 +625,7 @@ namespace catapult { namespace cache {
 		ASSERT_TRUE(view->contains(NamespaceId(123)));
 		EXPECT_EQ(root3, view->find(NamespaceId(123)).get().root());
 
-		AssertLifetime(view->find(NamespaceId(123)).get().root().lifetime(), 456, 567);
+		AssertLifetime(view->find(NamespaceId(123)).get().root().lifetime(), 455, 567);
 	}
 
 	TEST(TEST_CLASS, RenewingRootUpdatesChildNamespacesWithNewRoot) {
@@ -556,7 +633,7 @@ namespace catapult { namespace cache {
 		NamespaceCacheMixinTraits::CacheType cache;
 		auto owner = test::CreateRandomOwner();
 		state::RootNamespace originalRoot(NamespaceId(123), owner, test::CreateLifetime(234, 321));
-		state::RootNamespace newRoot(NamespaceId(123), owner, test::CreateLifetime(345, 456));
+		state::RootNamespace newRoot(NamespaceId(123), owner, test::CreateLifetime(320, 456));
 		auto delta = cache.createDelta();
 		delta->insert(originalRoot);
 		delta->insert(state::Namespace(test::CreatePath({ 123, 124 })));
@@ -581,7 +658,7 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(newRoot, delta->find(NamespaceId(124)).get().root());
 		EXPECT_EQ(newRoot, delta->find(NamespaceId(125)).get().root());
 
-		AssertLifetime(delta->find(NamespaceId(123)).get().root().lifetime(), 345, 456);
+		AssertLifetime(delta->find(NamespaceId(123)).get().root().lifetime(), 320, 456);
 	}
 
 	TEST(TEST_CLASS, CanInsertSingleChildWhenRootIsKnown) {
@@ -841,7 +918,7 @@ namespace catapult { namespace cache {
 
 		// - all children should have the most recent root as member
 		for (const auto& pair : delta->find(NamespaceId(1)).get().root().children())
-			EXPECT_EQ(Height(345), delta->find(pair.first).get().root().lifetime().Start);
+			EXPECT_EQ(Height(320), delta->find(pair.first).get().root().lifetime().Start);
 
 		// Act:
 		delta->remove(NamespaceId(1));
@@ -1066,7 +1143,7 @@ namespace catapult { namespace cache {
 		void RenewSameOwner(NamespaceCache& cache) {
 			// renew namespace with id 0 and add a child to it
 			auto delta = cache.createDelta();
-			delta->insert(delta->find(NamespaceId(0)).get().root().renew(test::CreateLifetime(100, 110)));
+			delta->insert(delta->find(NamespaceId(0)).get().root().renew(test::CreateLifetime(8, 110)));
 			delta->insert(state::Namespace(test::CreatePath({ 0, 30 })));
 			cache.commit();
 		}
@@ -1076,7 +1153,7 @@ namespace catapult { namespace cache {
 			// note that since it is a different owner, the previous two children of the namespace are 'hidden'
 			// and are not counted in activeSize()
 			auto delta = cache.createDelta();
-			delta->insert(state::RootNamespace(NamespaceId(4), diffOwner, test::CreateLifetime(120, 130)));
+			delta->insert(state::RootNamespace(NamespaceId(4), diffOwner, test::CreateLifetime(9, 130)));
 			delta->insert(state::Namespace(test::CreatePath({ 4, 34 })));
 			cache.commit();
 		}

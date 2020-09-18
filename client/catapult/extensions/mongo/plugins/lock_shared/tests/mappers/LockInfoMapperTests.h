@@ -35,19 +35,27 @@ namespace catapult { namespace mongo { namespace plugins {
 	public:
 		static void AssertCanMapLockInfo_ModelToDbModel() {
 			// Arrange:
-			auto lockInfo = TLockInfoTraits::CreateLockInfo(Height(123));
-			lockInfo.Status = state::LockStatus::Used;
+			auto lockInfo1 = TLockInfoTraits::CreateLockInfo(Height(123));
+			lockInfo1.Status = state::LockStatus::Used;
+
+			auto lockInfo2 = lockInfo1;
+			lockInfo2.EndHeight = lockInfo1.EndHeight + Height(10);
+			lockInfo2.Status = state::LockStatus::Unused;
+
+			auto history = typename TLockInfoTraits::HistoryType(GetLockIdentifier(lockInfo1));
+			history.push_back(lockInfo1);
+			history.push_back(lockInfo2);
 
 			// Act:
-			auto document = ToDbModel(lockInfo);
+			auto document = ToDbModel(history);
 			auto view = document.view();
 
-			// Assert:
+			// Assert: only the most recent lock info is mapped
 			EXPECT_EQ(1u, test::GetFieldCount(view));
 
 			auto lockInfoView = view["lock"].get_document().view();
 			EXPECT_EQ(5u + TLockInfoTraits::Num_Additional_Fields, test::GetFieldCount(lockInfoView));
-			TLockInfoTraits::AssertEqualLockInfoData(lockInfo, lockInfoView);
+			TLockInfoTraits::AssertEqualLockInfoData(lockInfo2, lockInfoView);
 		}
 	};
 }}}

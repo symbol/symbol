@@ -46,4 +46,9 @@ namespace catapult { namespace state {
 		/// Hash.
 		Hash256 Hash;
 	};
+
+	/// Gets the lock identifier for \a lockInfo.
+	inline const Hash256& GetLockIdentifier(const HashLockInfo& lockInfo) {
+		return lockInfo.Hash;
+	}
 }}

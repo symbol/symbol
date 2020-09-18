@@ -30,7 +30,9 @@ namespace catapult { namespace test {
 
 	/// Basic traits for a secret lock info.
 	struct BasicSecretLockInfoTestTraits : public cache::SecretLockInfoCacheDescriptor {
-		using cache::SecretLockInfoCacheDescriptor::ValueType;
+		using HistoryType = cache::SecretLockInfoCacheDescriptor::ValueType;
+		using LockInfoType = HistoryType::ValueType;
+		using ValueType = LockInfoType;
 
 		static constexpr auto ToKey = cache::SecretLockInfoCacheDescriptor::GetKeyFromValue;
 

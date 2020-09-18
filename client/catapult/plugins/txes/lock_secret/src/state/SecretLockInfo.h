@@ -63,4 +63,9 @@ namespace catapult { namespace state {
 		/// Composite hash.
 		Hash256 CompositeHash;
 	};
+
+	/// Gets the lock identifier for \a lockInfo.
+	inline const Hash256& GetLockIdentifier(const SecretLockInfo& lockInfo) {
+		return lockInfo.CompositeHash;
+	}
 }}

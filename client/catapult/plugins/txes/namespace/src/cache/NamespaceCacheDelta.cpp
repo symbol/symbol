@@ -70,7 +70,7 @@ namespace catapult { namespace cache {
 		if (pHistory) {
 			// if the owner changed, remove all of the current root's children
 			const auto& activeChildren = pHistory->back().children();
-			if (pHistory->back().ownerAddress() != ns.ownerAddress()) {
+			if (!ns.canExtend(pHistory->back())) {
 				RemoveAll(*m_pNamespaceById, activeChildren);
 				decrementActiveSize(activeChildren.size());
 			} else {
@@ -156,7 +156,7 @@ namespace catapult { namespace cache {
 		const auto& currentRoot = pHistory->back();
 		auto numRemovedChildren = removedRoot.children().size();
 		auto numRemovedChildrenAndRoot = 1 + numRemovedChildren;
-		if (removedRoot.ownerAddress() != currentRoot.ownerAddress()) {
+		if (!removedRoot.canExtend(currentRoot)) {
 			RemoveAll(*m_pNamespaceById, removedRoot.children());
 			decrementActiveSize(numRemovedChildren);
 

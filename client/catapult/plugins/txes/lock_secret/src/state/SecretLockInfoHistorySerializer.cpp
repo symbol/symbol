@@ -18,7 +18,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "SecretLockInfoSerializer.h"
+#include "SecretLockInfoHistorySerializer.h"
 #include "src/model/LockHashUtils.h"
 
 namespace catapult { namespace state {
