@@ -3,29 +3,46 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.10.0.1] - 18-Sep-2020
+
+### Added
+ - deterministic finalization extension based on GRANDPA!
+
+### Changed
+ - #85, validate nemesis block on server boot
+ - tie voting keys to finalization epochs instead of finalization points
+ - spool importance information to disk when finalization is enabled in order to allow deep rollbacks
+ - make all state { lock hash, lock secret, namespace } independent of `maxRollbackBlocks` setting
+ - change chain comparision to allow syncing when finalization has stalled
+ - change "chain info" references to "chain statistics" everywhere
+ - refactor crypto code to allow different types of signature schemes for transaction processing and voting
+ - generalize one-time signatures tree into a tree that supports reusable (short-term) keys
+
+### Fixed
+ - bugfix: #84, fix block generation in `maximize-fee` mode
+
 ## [0.9.6.4] - 27-Jul-2020
 
-### Fixed:
+### Changed
+ - allow nemesis block to contain balance transfers from non-nemesis account
+ - nemgen enhancements to support public network
+
+### Fixed
  - bugfix: credit main account not remote when hash lock expires
  - bugfix, Trail-of-Bits: UB in container access
  - bugfix, Trail-of-Bits: missing `O_CLOEXEC` flag
  - bugfix: high value addresses tracking
 
-### Changed:
- - 
- - allow nemesis block to contain balance transfers from non-nemesis account
- - nemgen enhancements to support public network
-
 ## [0.9.6.3] - 10-Jul-2020
 
-### Fixed:
+### Fixed
  - bugfix: mosaics inside Balances not correctly ordered after removing optimizedId in 0.9.6.2
 
 ## [0.9.6.2] - 23-Jun-2020
 
 ### Added
- - One-time signatures tree
- 
+ - one-time signatures tree
+
 ### Changed
  - voting key link transaction requires finalization points
  - allow `maxVotingKeysPerAccount` voting key links
@@ -35,7 +52,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
  - minor: add VerifiableEntity::Size to database
  - minor: binary address format has 24-bytes
 
-### Fixed:
+### Fixed
  - nodes cannot update identity keys in host-identity network
  - recovery crash in reapplyBlocks caused by inconsistent BlockStatisticCache contents
 
@@ -49,7 +66,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
  - unlock message behavior: message must specify vrf key, account must be linked to a node via NodeKeyLink
  - renamed AccountLinkTransaction to AccountKeyLinkTransaction (consistency)
 
-### Fixed:
+### Fixed
  - bugfix: issue #68, delay ChainedSocketReader in PacketReaders
  - bugfix: issue #69, mosaic divisibility validation
  - more minor fixes
@@ -161,7 +178,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
  - Dynamic rental fees
 
 ### Changed
- - Naming review changes:
+ - Naming review changes
    - catbuffer (models, validators, etc)
    - mongo naming review changes
    - config variable naming
@@ -278,6 +295,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Added
 - Initial code release.
 
+[0.10.0.1]: https://github.com/nemtech/catapult-server/compare/v0.9.6.4...v0.10.0.1
 [0.9.6.4]: https://github.com/nemtech/catapult-server/compare/v0.9.6.3...v0.9.6.4
 [0.9.6.3]: https://github.com/nemtech/catapult-server/compare/v0.9.6.2...v0.9.6.3
 [0.9.6.2]: https://github.com/nemtech/catapult-server/compare/v0.9.5.1...v0.9.6.2
