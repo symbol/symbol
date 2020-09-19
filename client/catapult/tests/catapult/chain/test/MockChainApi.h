@@ -122,13 +122,13 @@ namespace catapult { namespace mocks {
 			if (shouldRaiseException(EntryPoint::Hashes_From))
 				return CreateFutureException<model::HashRange>("hashes from error has been set");
 
-			auto iter = m_hashes.find(height);
-			if (m_hashes.cend() == iter) {
+			auto lookupResult = lookupHashes(height, maxHashes);
+			if (!lookupResult.second) {
 				CATAPULT_LOG(warning) << "hashesFrom failed at height " << height;
 				return CreateFutureException<model::HashRange>("could not find hashes for height");
 			}
 
-			return CreateFutureResponse(model::HashRange::CopyRange(iter->second));
+			return CreateFutureResponse(std::move(lookupResult.first));
 		}
 
 		/// Gets the configured last block and throws if the error entry point is set to Last_Block.
@@ -163,6 +163,15 @@ namespace catapult { namespace mocks {
 				m_numBlocksPerBlocksFromRequest.pop_front();
 
 			return CreateFutureResponse(createRange(height, numBlocks));
+		}
+
+	private:
+		virtual std::pair<model::HashRange, bool> lookupHashes(Height height, uint32_t) const {
+			auto iter = m_hashes.find(height);
+			if (m_hashes.cend() == iter)
+				return std::make_pair(model::HashRange(), false);
+
+			return std::make_pair(model::HashRange::CopyRange(iter->second), true);
 		}
 
 	private:

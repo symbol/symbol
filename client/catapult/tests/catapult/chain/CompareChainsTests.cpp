@@ -32,6 +32,43 @@ namespace catapult { namespace chain {
 #define TEST_CLASS CompareChainsTests
 
 	namespace {
+		// region CompareHashesMockChainApi
+
+		class CompareHashesMockChainApi : public MockChainApi {
+		public:
+			CompareHashesMockChainApi(const model::ChainScore& score, Height height)
+					: MockChainApi(score, height)
+					, m_hashes(test::GenerateRandomDataVector<Hash256>(height.unwrap()))
+			{}
+
+		public:
+			void syncHashes(const CompareHashesMockChainApi& source, int32_t commonBlockDepth, uint32_t numAddtionalHashes) {
+				m_hashes = source.m_hashes;
+
+				for (auto i = commonBlockDepth; i < 0; ++i)
+					m_hashes.pop_back();
+
+				for (auto i = 0u; i < numAddtionalHashes; ++i)
+					m_hashes.push_back(test::GenerateRandomByteArray<Hash256>());
+			}
+
+		private:
+			std::pair<model::HashRange, bool> lookupHashes(Height height, uint32_t maxHashes) const override {
+				if (height.unwrap() > m_hashes.size())
+					return std::make_pair(model::HashRange(), false);
+
+				auto startIndex = height.unwrap() - 1;
+				auto count = std::min<size_t>(m_hashes.size() - startIndex, maxHashes);
+				auto hashRange = model::HashRange::CopyFixed(reinterpret_cast<const uint8_t*>(&m_hashes[startIndex]), count);
+				return std::make_pair(std::move(hashRange), count);
+			}
+
+		public:
+			std::vector<Hash256> m_hashes;
+		};
+
+		// endregion
+
 		// region test utils
 
 		CompareChainsOptions CreateCompareChainsOptions(uint32_t hashesPerBatch, Height::ValueType finalizedHeight) {
@@ -169,36 +206,33 @@ namespace catapult { namespace chain {
 		}
 
 		struct OneBatchTraits {
+		public:
 			static constexpr uint32_t Prepare_Adjustment = 0;
 
+		public:
 			static void PrepareTooManyHashes(MockChainApi& chainApi, uint32_t numHashes, uint32_t) {
 				chainApi.setHashes(Height(1), test::GenerateRandomHashes(numHashes));
-			}
-
-			static size_t Prepare(MockChainApi& chainApi, const model::HashRange& hashes, uint32_t, Height height = Height(1)) {
-				chainApi.setHashes(height, hashes);
-				return hashes.size();
 			}
 		};
 
 		struct MultiBatchTraits {
-			static constexpr uint32_t Prepare_Adjustment = 40;
+		public:
+			static constexpr uint32_t Prepare_Adjustment = 100;
 
+		public:
 			static void PrepareTooManyHashes(MockChainApi& chainApi, uint32_t numHashes, uint32_t hashesPerBatch) {
 				chainApi.setHashes(Height(1), GenerateDeterministicHashes(hashesPerBatch, 1));
-				chainApi.setHashes(Height(1 + hashesPerBatch), GenerateDeterministicHashes(numHashes, 2));
-				chainApi.setHashes(Height(1 + 2 * hashesPerBatch), GenerateDeterministicHashes(hashesPerBatch, 3));
+
+				auto secondHeight = AverageHeight(1, 3 * hashesPerBatch);
+				chainApi.setHashes(secondHeight, GenerateDeterministicHashes(numHashes, 2));
+
+				auto thirdHeight = AverageHeight(secondHeight.unwrap(), 3 * hashesPerBatch);
+				chainApi.setHashes(thirdHeight, GenerateDeterministicHashes(hashesPerBatch, 3));
 			}
 
-			static size_t Prepare(
-					MockChainApi& chainApi,
-					const model::HashRange& hashes,
-					uint32_t hashesPerBatch,
-					Height height = Height(1)) {
-				chainApi.setHashes(height, GenerateDeterministicHashes(hashesPerBatch, 1));
-				chainApi.setHashes(height + Height(hashesPerBatch), GenerateDeterministicHashes(hashesPerBatch, 2));
-				chainApi.setHashes(height + Height(2 * hashesPerBatch), hashes);
-				return 2 * hashesPerBatch + hashes.size();
+		private:
+			static Height AverageHeight(Height::ValueType lhs, Height::ValueType rhs) {
+				return Height((lhs + rhs) / 2);
 			}
 		};
 	}
@@ -236,6 +270,10 @@ namespace catapult { namespace chain {
 		}
 	}
 
+	HASH_TEST(RemoteReturnedTooManyHashesWhenItReturnsZeroHashesPerBatch) {
+		AssertRemoteReturnedTooManyHashes<TTraits>(0, 20, true);
+	}
+
 	HASH_TEST(RemoteReturnedTooManyHashesWhenItReturnsMoreThanHashesPerBatch) {
 		AssertRemoteReturnedTooManyHashes<TTraits>(21, 20, true);
 		AssertRemoteReturnedTooManyHashes<TTraits>(100, 20, true);
@@ -249,13 +287,10 @@ namespace catapult { namespace chain {
 	HASH_TEST(RemoteLiedAboutChainScoreWhenLocalIsSameSizeAsRemoteChainAndContainsAllHashesInRemoteChain) {
 		// Arrange: Local { ... A, B, C }, Remote { ... A, B, C }
 		auto adjustment = TTraits::Prepare_Adjustment;
-		auto commonHashes = test::GenerateRandomHashes(3);
 
-		MockChainApi local(ChainScore(10), Height(adjustment + 3));
-		TTraits::Prepare(local, commonHashes, 20);
-
-		MockChainApi remote(ChainScore(11), Height(adjustment + 3));
-		TTraits::Prepare(remote, commonHashes, 20);
+		CompareHashesMockChainApi local(ChainScore(10), Height(adjustment + 3));
+		CompareHashesMockChainApi remote(ChainScore(11), Height(adjustment + 3));
+		remote.syncHashes(local, 0, 0);
 
 		// Act:
 		auto result = CompareChains(local, remote, CreateCompareChainsOptions(20, 1)).get();
@@ -268,14 +303,10 @@ namespace catapult { namespace chain {
 	HASH_TEST(RemoteLiedAboutChainScoreWhenRemoteChainIsSubsetOfLocalChainButRemoteReportedHigherScore) {
 		// Arrange: Local { ... A, B, C }, Remote { ... A, B }
 		auto adjustment = TTraits::Prepare_Adjustment;
-		auto localHashes = test::GenerateRandomHashes(3);
-		auto remoteHashes = test::GenerateRandomHashesSubset(localHashes, 2);
 
-		MockChainApi local(ChainScore(10), Height(adjustment + 3));
-		TTraits::Prepare(local, localHashes, 20);
-
-		MockChainApi remote(ChainScore(11), Height(adjustment + 2));
-		TTraits::Prepare(remote, remoteHashes, 20);
+		CompareHashesMockChainApi local(ChainScore(10), Height(adjustment + 3));
+		CompareHashesMockChainApi remote(ChainScore(11), Height(adjustment + 2));
+		remote.syncHashes(local, -1, 0);
 
 		// Act:
 		auto result = CompareChains(local, remote, CreateCompareChainsOptions(20, 1)).get();
@@ -291,13 +322,10 @@ namespace catapult { namespace chain {
 		// - 2. return X + 13 local hashes
 		// - 3. return X + 13 remote hashes so that the remote still has a better score
 		auto adjustment = TTraits::Prepare_Adjustment;
-		auto commonHashes = test::GenerateRandomHashes(13);
 
-		MockChainApi local(ChainScore(10), Height(adjustment + 8));
-		TTraits::Prepare(local, commonHashes, 20);
-
-		MockChainApi remote(ChainScore(11), Height(adjustment + 13));
-		TTraits::Prepare(remote, commonHashes, 20);
+		CompareHashesMockChainApi local(ChainScore(10), Height(adjustment + 8));
+		CompareHashesMockChainApi remote(ChainScore(11), Height(adjustment + 13));
+		local.syncHashes(remote, 0, 0);
 
 		// Act:
 		auto result = CompareChains(local, remote, CreateCompareChainsOptions(20, 1)).get();
@@ -310,21 +338,17 @@ namespace catapult { namespace chain {
 	HASH_TEST(RemoteIsNotSyncedWhenLocalIsSmallerThanRemoteChainAndContainsAllHashesInRemoteChain) {
 		// Arrange: Local { ... A, B }, Remote { ... A, B, C }
 		auto adjustment = TTraits::Prepare_Adjustment;
-		auto remoteHashes = test::GenerateRandomHashes(3);
-		auto localHashes = test::GenerateRandomHashesSubset(remoteHashes, 2);
 
-		MockChainApi local(ChainScore(10), Height(adjustment + 2));
-		auto numLocalHashes = TTraits::Prepare(local, localHashes, 20);
-
-		MockChainApi remote(ChainScore(11), Height(adjustment + 3));
-		TTraits::Prepare(remote, remoteHashes, 20);
+		CompareHashesMockChainApi local(ChainScore(10), Height(adjustment + 2));
+		CompareHashesMockChainApi remote(ChainScore(11), Height(adjustment + 3));
+		remote.syncHashes(local, 0, 1);
 
 		// Act:
 		auto result = CompareChains(local, remote, CreateCompareChainsOptions(20, 1)).get();
 
 		// Assert:
 		EXPECT_EQ(ChainComparisonCode::Remote_Is_Not_Synced, result.Code);
-		EXPECT_EQ(Height(numLocalHashes), result.CommonBlockHeight);
+		EXPECT_EQ(Height(adjustment + 2), result.CommonBlockHeight);
 		EXPECT_EQ(0u, result.ForkDepth);
 	}
 
@@ -334,21 +358,17 @@ namespace catapult { namespace chain {
 		// - 2. return X + 12 local hashes
 		// - 3. return X + 13 remote hashes so that the remote still has a better score
 		auto adjustment = TTraits::Prepare_Adjustment;
-		auto remoteHashes = test::GenerateRandomHashes(13);
-		auto localHashes = test::GenerateRandomHashesSubset(remoteHashes, 12);
 
-		MockChainApi local(ChainScore(10), Height(adjustment + 8));
-		auto numLocalHashes = TTraits::Prepare(local, localHashes, 20);
-
-		MockChainApi remote(ChainScore(11), Height(adjustment + 13));
-		TTraits::Prepare(remote, remoteHashes, 20);
+		CompareHashesMockChainApi local(ChainScore(10), Height(adjustment + 8));
+		CompareHashesMockChainApi remote(ChainScore(11), Height(adjustment + 13));
+		local.syncHashes(remote, -1, 0);
 
 		// Act:
 		auto result = CompareChains(local, remote, CreateCompareChainsOptions(20, 1)).get();
 
 		// Assert:
 		EXPECT_EQ(ChainComparisonCode::Remote_Is_Not_Synced, result.Code);
-		EXPECT_EQ(Height(numLocalHashes), result.CommonBlockHeight);
+		EXPECT_EQ(Height(adjustment + 12), result.CommonBlockHeight);
 		EXPECT_EQ(0u, result.ForkDepth);
 	}
 
@@ -358,47 +378,36 @@ namespace catapult { namespace chain {
 		// - 2. return X + 6 local hashes
 		// - 3. return X + 13 remote hashes so that the remote still has a better score
 		auto adjustment = TTraits::Prepare_Adjustment;
-		auto remoteHashes = test::GenerateRandomHashes(13);
-		auto localHashes = test::GenerateRandomHashesSubset(remoteHashes, 6);
 
-		MockChainApi local(ChainScore(10), Height(adjustment + 8));
-		auto numLocalHashes = TTraits::Prepare(local, localHashes, 20);
-
-		MockChainApi remote(ChainScore(11), Height(adjustment + 13));
-		TTraits::Prepare(remote, remoteHashes, 20);
+		CompareHashesMockChainApi local(ChainScore(10), Height(adjustment + 8));
+		CompareHashesMockChainApi remote(ChainScore(11), Height(adjustment + 13));
+		local.syncHashes(remote, -7, 0);
 
 		// Act:
 		auto result = CompareChains(local, remote, CreateCompareChainsOptions(20, 1)).get();
 
-		// Assert:
+		// Assert: fork depth is based on original (not current) local height, so this will likely lead to unlinked error downstream
 		EXPECT_EQ(ChainComparisonCode::Remote_Is_Not_Synced, result.Code);
-		EXPECT_EQ(Height(numLocalHashes), result.CommonBlockHeight);
-		EXPECT_EQ(0u, result.ForkDepth);
+		EXPECT_EQ(Height(adjustment + 6), result.CommonBlockHeight);
+		EXPECT_EQ(2u, result.ForkDepth);
 	}
 
 	namespace {
-		template<typename TTraits>
 		void AssertRemoteIsNotSynced(
 				Height localFinalizedHeight,
 				uint32_t adjustment,
 				const std::vector<std::pair<Height, uint32_t>>& expectedHashesFromRequests) {
 			// Arrange: Local { ..., A, B, C, D }, Remote { ..., A, B, C, E }
-			auto commonHashes = test::GenerateRandomHashes(10 - localFinalizedHeight.unwrap());
-			auto localHashes = test::ConcatHashes(commonHashes, test::GenerateRandomHashes(1));
-			auto remoteHashes = test::ConcatHashes(commonHashes, test::GenerateRandomHashes(1));
-
-			MockChainApi local(ChainScore(10), localFinalizedHeight + Height(adjustment + 11));
-			TTraits::Prepare(local, localHashes, 20, localFinalizedHeight);
-
-			MockChainApi remote(ChainScore(11), localFinalizedHeight + Height(adjustment + 11));
-			TTraits::Prepare(remote, remoteHashes, 20, localFinalizedHeight);
+			CompareHashesMockChainApi local(ChainScore(10), localFinalizedHeight + Height(adjustment + 11));
+			CompareHashesMockChainApi remote(ChainScore(11), localFinalizedHeight + Height(adjustment + 11));
+			remote.syncHashes(local, -1, 1);
 
 			// Act:
 			auto result = CompareChains(local, remote, CreateCompareChainsOptions(20, localFinalizedHeight.unwrap())).get();
 
 			// Assert:
 			EXPECT_EQ(ChainComparisonCode::Remote_Is_Not_Synced, result.Code);
-			EXPECT_EQ(Height(adjustment + 9), result.CommonBlockHeight);
+			EXPECT_EQ(localFinalizedHeight + Height(adjustment + 10), result.CommonBlockHeight);
 			EXPECT_EQ(1u, result.ForkDepth);
 
 			// - check requests
@@ -408,19 +417,29 @@ namespace catapult { namespace chain {
 	}
 
 	TEST(TEST_CLASS, RemoteIsNotSyncedWhenChainsDivergeAndRemoteHasHigherScore_OneBatch) {
-		AssertRemoteIsNotSynced<OneBatchTraits>(Height(1), 0, { { Height(1), 20 } });
+		AssertRemoteIsNotSynced(Height(1), 0, { { Height(1), 20 } });
 	}
 
 	TEST(TEST_CLASS, RemoteIsNotSyncedWhenChainsDivergeAndRemoteHasHigherScoreAndLastFinalizedBlockIsNotNemesis_OneBatch) {
-		AssertRemoteIsNotSynced<OneBatchTraits>(Height(7), 0, { { Height(7), 20 } });
+		AssertRemoteIsNotSynced(Height(7), 0, { { Height(7), 20 } });
 	}
 
 	TEST(TEST_CLASS, RemoteIsNotSyncedWhenChainsDivergeAndRemoteHasHigherScore_MultiBatch) {
-		AssertRemoteIsNotSynced<MultiBatchTraits>(Height(1), 40, { { Height(1), 20 }, { Height(21), 20 }, { Height(41), 20 } });
+		AssertRemoteIsNotSynced(Height(1), 100, {
+			{ Height(1), 20 },
+			{ Height(56), 20 }, // (1 + 112) / 2
+			{ Height(84), 20 }, // (56 + 112) / 2
+			{ Height(98), 20 } // (84 + 112) / 2
+		});
 	}
 
 	TEST(TEST_CLASS, RemoteIsNotSyncedWhenChainsDivergeAndRemoteHasHigherScoreAndLastFinalizedBlockIsNotNemesis_MultiBatch) {
-		AssertRemoteIsNotSynced<MultiBatchTraits>(Height(7), 40, { { Height(7), 20 }, { Height(27), 20 }, { Height(47), 20 } });
+		AssertRemoteIsNotSynced(Height(7), 100, {
+			{ Height(7), 20 },
+			{ Height(62), 20 }, // (7 + 118) / 2
+			{ Height(90), 20 }, // (62 + 118) / 2
+			{ Height(104), 20 } // (90 + 118) / 2
+		});
 	}
 
 	// endregion
@@ -489,25 +508,26 @@ namespace catapult { namespace chain {
 	namespace {
 		void AssertRemoteIsNotSyncedWhenLocalContainsExactlyFirstBatchButRemoteHasMultipleBatches(uint64_t adjustment) {
 			// Arrange: Local { ..., A, B, C || }, Remote { ..., A, B, C || D }; where || indicates end of batch
-			auto commonHashes = test::GenerateRandomHashes(20);
-			auto remoteHashes = test::GenerateRandomHashes(1);
+			static constexpr auto Batch_Size = static_cast<uint32_t>(20);
+			static constexpr auto Finalized_Height = Height(3);
 
-			MockChainApi local(ChainScore(10), Height(3 + 19 - adjustment));
-			local.setHashes(Height(3), commonHashes);
-
-			MockChainApi remote(ChainScore(11), Height(3 + 20));
-			remote.setHashes(Height(3), commonHashes);
+			CompareHashesMockChainApi local(ChainScore(10), Finalized_Height + Height(Batch_Size - 1 - adjustment));
+			CompareHashesMockChainApi remote(ChainScore(11), Finalized_Height + Height(Batch_Size));
+			local.syncHashes(remote, -1, 0);
 
 			// Act:
-			auto result = CompareChains(local, remote, CreateCompareChainsOptions(20, 3)).get();
+			auto result = CompareChains(local, remote, CreateCompareChainsOptions(Batch_Size, Finalized_Height.unwrap())).get();
 
 			// Assert:
 			EXPECT_EQ(ChainComparisonCode::Remote_Is_Not_Synced, result.Code);
 			EXPECT_EQ(Height(22), result.CommonBlockHeight);
 			EXPECT_EQ(0u, result.ForkDepth);
 
-			// - check requests
-			auto expectedHashesFromRequests = std::vector<std::pair<Height, uint32_t>>{ { Height(3), 20 } };
+			// - check requests (an additional request is needed to prove remote has more hashes than local)
+			auto expectedHashesFromRequests = std::vector<std::pair<Height, uint32_t>>{
+				{ Finalized_Height, Batch_Size },
+				{ Finalized_Height + Height(Batch_Size - 2), Batch_Size }
+			};
 			EXPECT_EQ(expectedHashesFromRequests, local.hashesFromRequests());
 			EXPECT_EQ(expectedHashesFromRequests, remote.hashesFromRequests());
 		}
@@ -521,31 +541,88 @@ namespace catapult { namespace chain {
 		AssertRemoteIsNotSyncedWhenLocalContainsExactlyFirstBatchButRemoteHasMultipleBatches(1);
 	}
 
-	TEST(TEST_CLASS, RemoteLiedAboutChainScoreWhenSecondBatchContainsUnexpectedNumberofHashes) {
-		// Arrange: remote returns too few hashes in the second batch
-		auto commonHashes1 = test::GenerateRandomHashes(20);
-		auto commonHashes2 = test::GenerateRandomHashes(20);
-		auto commonHashes3 = test::GenerateRandomHashes(20);
+	TEST(TEST_CLASS, RemoteIsNotSyncedWhenLocalContainsExactlyFirstBatchButRemoteHasMultipleBatchesButThenSyncs) {
+		// Arrange: Local { ..., A, B, C || }, Remote { ..., A, B, C || D }; where || indicates end of batch
+		static constexpr auto Batch_Size = static_cast<uint32_t>(20);
+		static constexpr auto Finalized_Height = Height(3);
 
-		auto localHashes3 = test::GenerateRandomHashesSubset(commonHashes3, 19);
-		auto remoteHashes2 = test::GenerateRandomHashesSubset(commonHashes2, 19);
+		auto baseHashes = test::GenerateRandomHashes(19);
+		auto remoteHashes = test::GenerateRandomHashes(1);
+		auto commonHashes = test::ConcatHashes(baseHashes, remoteHashes);
 
-		MockChainApi local(ChainScore(10), Height(3 + 59));
-		local.setHashes(Height(3), commonHashes1);
-		local.setHashes(Height(23), commonHashes2);
-		local.setHashes(Height(43), localHashes3);
+		MockChainApi local(ChainScore(10), Finalized_Height + Height(Batch_Size - 1));
+		local.setHashes(Finalized_Height, commonHashes);
+		local.setHashes(Finalized_Height + Height(Batch_Size - 2), remoteHashes);
 
-		MockChainApi remote(ChainScore(11), Height(3 + 59));
-		remote.setHashes(Height(3), commonHashes1);
-		remote.setHashes(Height(23), remoteHashes2);
-		remote.setHashes(Height(43), commonHashes3);
+		MockChainApi remote(ChainScore(11), Finalized_Height + Height(Batch_Size));
+		remote.setHashes(Finalized_Height, commonHashes);
+		remote.setHashes(Finalized_Height + Height(Batch_Size - 2), remoteHashes); // lie and return only a single hash
 
 		// Act:
-		auto result = CompareChains(local, remote, CreateCompareChainsOptions(20, 3)).get();
+		auto result = CompareChains(local, remote, CreateCompareChainsOptions(Batch_Size, Finalized_Height.unwrap())).get();
 
 		// Assert:
 		EXPECT_EQ(ChainComparisonCode::Remote_Lied_About_Chain_Score, result.Code);
 		AssertDefaultChainStatistics(result);
+	}
+
+	namespace {
+		void AssertRemoteIsNotSyncedDeepFork(
+				uint32_t commonBlockHeight,
+				const std::vector<std::pair<Height, uint32_t>>& expectedHashesFromRequests) {
+			// Arrange: Local { ..., A, B, C, D, ... }, Remote { ..., A, B, C, E, ... }
+			static constexpr auto Finalized_Height = Height(7);
+
+			CompareHashesMockChainApi local(ChainScore(10), Finalized_Height + Height(111));
+			CompareHashesMockChainApi remote(ChainScore(11), Finalized_Height + Height(111));
+			remote.syncHashes(local, static_cast<int32_t>(commonBlockHeight) - 118, 118 - commonBlockHeight);
+
+			// Act:
+			auto result = CompareChains(local, remote, CreateCompareChainsOptions(20, Finalized_Height.unwrap())).get();
+
+			// Assert:
+			EXPECT_EQ(ChainComparisonCode::Remote_Is_Not_Synced, result.Code);
+			EXPECT_EQ(Height(commonBlockHeight), result.CommonBlockHeight);
+			EXPECT_EQ(118u - commonBlockHeight, result.ForkDepth);
+
+			// - check requests
+			EXPECT_EQ(expectedHashesFromRequests, local.hashesFromRequests());
+			EXPECT_EQ(expectedHashesFromRequests, remote.hashesFromRequests());
+		}
+	}
+
+	TEST(TEST_CLASS, RemoteIsNotSyncedDeepForkScenario1_MultiBatch) {
+		AssertRemoteIsNotSyncedDeepFork(90, {
+			{ Height(7), 20 },
+			{ Height(62), 20 }, // (7 + 118) / 2
+			{ Height(90), 20 } // (62 + 118) / 2
+		});
+	}
+
+	TEST(TEST_CLASS, RemoteIsNotSyncedDeepForkScenario2_MultiBatch) {
+		AssertRemoteIsNotSyncedDeepFork(89, {
+			{ Height(7), 20 },
+			{ Height(62), 20 }, // (7 + 118) / 2
+			{ Height(90), 20 }, // (62 + 118) / 2
+			{ Height(76), 20 } // (62 + 90) / 2
+		});
+	}
+
+	TEST(TEST_CLASS, RemoteIsNotSyncedDeepForkScenario3_MultiBatch) {
+		AssertRemoteIsNotSyncedDeepFork(34, {
+			{ Height(7), 20 },
+			{ Height(62), 20 }, // (7 + 118) / 2
+			{ Height(34), 20 } // (7 + 62) / 2
+		});
+	}
+
+	TEST(TEST_CLASS, RemoteIsNotSyncedDeepForkScenario4_MultiBatch) {
+		AssertRemoteIsNotSyncedDeepFork(54, {
+			{ Height(7), 20 },
+			{ Height(62), 20 }, // (7 + 118) / 2
+			{ Height(34), 20 }, // (7 + 62) / 2
+			{ Height(48), 20 } // (34 + 62) / 2
+		});
 	}
 
 	// endregion

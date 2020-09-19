@@ -52,7 +52,8 @@ namespace catapult { namespace chain {
 				ComparisonFunction nextFunc;
 				if (0 == m_nextFutureId++) {
 					nextFunc = [](auto& context) { return context.compareChainStatistics(); };
-					m_nextHashesHeight = m_options.FinalizedHeightSupplier();
+					m_lowerBoundHeight = m_options.FinalizedHeightSupplier();
+					m_startingHashesHeight = m_lowerBoundHeight;
 				} else {
 					nextFunc = [](auto& context) { return context.compareHashes(); };
 				}
@@ -106,6 +107,9 @@ namespace catapult { namespace chain {
 
 				if (remoteScore > localScore) {
 					m_localHeight = localChainStatistics.Height;
+					m_remoteHeight = remoteChainStatistics.Height;
+
+					m_upperBoundHeight = m_localHeight;
 					return Incomplete_Chain_Comparison_Code;
 				}
 
@@ -119,23 +123,20 @@ namespace catapult { namespace chain {
 			}
 
 			thread::future<ChainComparisonCode> compareHashes() {
-				auto startingHeight = m_nextHashesHeight;
+				auto startingHeight = m_startingHashesHeight;
 				auto maxHashes = m_options.HashesPerBatch;
 
 				return thread::when_all(m_local.hashesFrom(startingHeight, maxHashes), m_remote.hashesFrom(startingHeight, maxHashes))
-					.then([pThis = shared_from_this(), startingHeight](auto&& aggregateFuture) {
+					.then([pThis = shared_from_this()](auto&& aggregateFuture) {
 						auto hashesFuture = aggregateFuture.get();
 						const auto& localHashes = hashesFuture[0].get();
 						const auto& remoteHashes = hashesFuture[1].get();
-						return pThis->compareHashes(startingHeight, localHashes, remoteHashes);
+						return pThis->compareHashes(localHashes, remoteHashes);
 					});
 			}
 
-			ChainComparisonCode compareHashes(
-					Height startingHeight,
-					const model::HashRange& localHashes,
-					const model::HashRange& remoteHashes) {
-				if (remoteHashes.size() > m_options.HashesPerBatch)
+			ChainComparisonCode compareHashes(const model::HashRange& localHashes, const model::HashRange& remoteHashes) {
+				if (remoteHashes.size() > m_options.HashesPerBatch || 0 == remoteHashes.size())
 					return ChainComparisonCode::Remote_Returned_Too_Many_Hashes;
 
 				// at least the first compared block should be the same; if not, the remote is a liar or on a fork
@@ -143,18 +144,34 @@ namespace catapult { namespace chain {
 				if (isProcessingFirstBatchOfHashes() && 0 == firstDifferenceIndex)
 					return ChainComparisonCode::Remote_Is_Forked;
 
-				auto commonBlockHeight = startingHeight + Height(firstDifferenceIndex - 1);
-				auto localHeightDerivedFromHashes = startingHeight + Height(localHashes.size() - 1);
+				auto commonBlockHeight = m_startingHashesHeight + Height(firstDifferenceIndex - 1);
+				auto localHeightDerivedFromHashes = m_startingHashesHeight + Height(localHashes.size() - 1);
 
-				// if all the hashes match, check if there is another batch that needs to be processed
+				if (0 == firstDifferenceIndex) {
+					// search previous hashes for first common block
+					m_upperBoundHeight = m_startingHashesHeight;
+					return tryContinue(Height((m_lowerBoundHeight + m_startingHashesHeight).unwrap() / 2));
+				}
+
 				if (remoteHashes.size() == firstDifferenceIndex) {
-					auto code = compareHashesWhenAllRemoteHashesMatch(localHeightDerivedFromHashes, remoteHashes.size());
-					if (ChainComparisonCode::Remote_Is_Not_Synced != code)
-						return code;
+					if (localHeightDerivedFromHashes >= m_localHeight) {
+						if (localHeightDerivedFromHashes < m_remoteHeight)
+							return tryContinue(localHeightDerivedFromHashes - Height(1));
+
+						return localHeightDerivedFromHashes == m_localHeight
+								? ChainComparisonCode::Remote_Lied_About_Chain_Score
+								: ChainComparisonCode::Local_Height_Updated;
+					}
+
+					// search next hashes for first difference block
+					m_lowerBoundHeight = m_startingHashesHeight;
+					return tryContinue(Height((m_startingHashesHeight + m_upperBoundHeight).unwrap() / 2));
 				}
 
 				m_commonBlockHeight = commonBlockHeight;
-				m_localHeight = localHeightDerivedFromHashes;
+				if (localHeightDerivedFromHashes > m_localHeight)
+					m_localHeight = localHeightDerivedFromHashes;
+
 				return ChainComparisonCode::Remote_Is_Not_Synced;
 			}
 
@@ -162,24 +179,12 @@ namespace catapult { namespace chain {
 				return 2 == m_nextFutureId;
 			}
 
-			ChainComparisonCode compareHashesWhenAllRemoteHashesMatch(Height localHeightDerivedFromHashes, size_t numRemoteHashes) {
-				// allow an additional batch only if the remote returned a full batch of hashes and there are unprocessed local hashes
-				if (m_options.HashesPerBatch == numRemoteHashes) {
-					if (localHeightDerivedFromHashes >= m_localHeight) {
-						// if all local hashes have been checked and the hashes end on a boundary, allow a sync with the remote since
-						// it reported a higher score
-						return ChainComparisonCode::Remote_Is_Not_Synced;
-					} else {
-						// pull the next batch from the remote
-						m_nextHashesHeight = localHeightDerivedFromHashes + Height(1);
-						return Incomplete_Chain_Comparison_Code;
-					}
-				}
+			ChainComparisonCode tryContinue(Height nextStartingHashesHeight) {
+				if (m_startingHashesHeight == nextStartingHashesHeight)
+					return ChainComparisonCode::Remote_Lied_About_Chain_Score;
 
-				// if all hashes match and the local height is unchanged, the remote lied because it can't have a higher score
-				return m_localHeight < localHeightDerivedFromHashes
-						? ChainComparisonCode::Local_Height_Updated
-						: ChainComparisonCode::Remote_Lied_About_Chain_Score;
+				m_startingHashesHeight = nextStartingHashesHeight;
+				return Incomplete_Chain_Comparison_Code;
 			}
 
 		private:
@@ -188,11 +193,15 @@ namespace catapult { namespace chain {
 			CompareChainsOptions m_options;
 
 			size_t m_nextFutureId;
-			Height m_nextHashesHeight;
+
+			Height m_lowerBoundHeight;
+			Height m_upperBoundHeight;
+			Height m_startingHashesHeight;
 
 			thread::promise<CompareChainsResult> m_promise;
 
 			Height m_localHeight;
+			Height m_remoteHeight;
 			Height m_commonBlockHeight;
 		};
 	}

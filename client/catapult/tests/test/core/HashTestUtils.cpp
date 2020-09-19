@@ -26,7 +26,7 @@ namespace catapult { namespace test {
 
 	namespace {
 		template<typename TData>
-		model::HashRange CopyHashes(TData pData, size_t numHashes) {
+		model::HashRange CopyHashes(const TData* pData, size_t numHashes) {
 			return model::HashRange::CopyFixed(reinterpret_cast<const uint8_t*>(pData), numHashes);
 		}
 	}
