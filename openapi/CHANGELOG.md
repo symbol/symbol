@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.10.0] - 19-Sep-2020
+
+Targets catapult-rest 2.0.0
+
+### Added
+
+- ``/chain/info`` endpoint (with `latestFinalizedBlock` ).
+- ``SeretLock`` and ``HashLock`` endpoints.
+- ``fromHeight`` and ``toHeight`` search criteria for ``Transaction`` search.
+- new ``Voting`` node role type.
+
+### Removed
+
+- ``/chain/height`` endpoint.
+- ``/chain/score`` endpoints.
+- ``totalEntries`` and ``totalPages`` from pagination.
+
 ## [0.9.6] - 14-Aug-2020
 
 Targets catapult-rest 1.2.0
@@ -24,7 +41,7 @@ Targets catapult-rest 1.2.0
 - account pagination endpoints.
 - namespace pagination endpoints.
 
-### Removed 
+### Removed
 
 - ``/block/{height}/receipts`` endpoint.
 - ``/metadata/mosaic/{mosaicId}/*`` endpoints.
