@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [v2.0.0] - 21-Sept-2020
+### Added
+- New `fromHeight` and `toHeight` filters to the transaction endpoints.
+- Added finalization information (latest finalized block) to the new `/chain/info` endpoint.
+- New WS channel subscription available: `finalizedBlock`.
+- Added endpoints to get finalization proof information by height and epoch.
+
+### Changed
+- Reviewed account and mosaic restrictions endpoints.
+- Updated voting key link's finalization points to be epochs instead.
+- Merged the old `/chain/height` and `/chain/score` endpoints into `/chain/info`.
+
+### Fixed
+- Added missing `level` field from the multisig graph endpoint.
+
 ## [v1.3.1] - 5-Sept-2020
 ### Fixed
 - Fixed empty node health and server endpoints.
