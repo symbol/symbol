@@ -29,22 +29,16 @@ namespace catapult { namespace importance {
 	// region ImportanceHeightFacade
 
 	namespace {
-		class ImportanceHeightFacade {
+		class ImportanceHeightFacade : public model::HeightGroupingFacade<model::ImportanceHeight> {
 		public:
 			ImportanceHeightFacade(model::ImportanceHeight height, Height::ValueType importanceGrouping)
-					: m_height(height)
-					, m_importanceGrouping(importanceGrouping) {
-				CheckHeight(m_height, m_importanceGrouping, "search");
-			}
+					: HeightGroupingFacade(height, importanceGrouping, "importance search")
+					, m_height(height)
+			{}
 
 		public:
-			model::ImportanceHeight previous(size_t count) const {
-				auto heightAdjustment = model::ImportanceHeight(m_importanceGrouping * count);
-				return m_height > heightAdjustment ? m_height - heightAdjustment : model::ImportanceHeight(1);
-			}
-
 			void checkBucketHeight(model::ImportanceHeight bucketHeight) const {
-				CheckHeight(bucketHeight, m_importanceGrouping, "bucket");
+				checkHeight(bucketHeight, "importance bucket");
 
 				if (bucketHeight > m_height) {
 					std::ostringstream out;
@@ -54,21 +48,7 @@ namespace catapult { namespace importance {
 			}
 
 		private:
-			static void CheckHeight(model::ImportanceHeight height, Height::ValueType importanceGrouping, const char* message) {
-				auto isHeightGroupingMultiple = 0 == height.unwrap() % importanceGrouping;
-				if (model::ImportanceHeight(1) == height || (model::ImportanceHeight(0) != height && isHeightGroupingMultiple))
-					return;
-
-				std::ostringstream out;
-				out
-						<< message << " importance height " << height
-						<< " is inconsistent with importance grouping " << importanceGrouping;
-				CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
-			}
-
-		private:
 			model::ImportanceHeight m_height;
-			Height::ValueType m_importanceGrouping;
 		};
 	}
 

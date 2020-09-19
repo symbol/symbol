@@ -22,13 +22,15 @@
 #include "ImportanceCalculator.h"
 #include "catapult/config/CatapultDataDirectory.h"
 
+namespace catatpult { namespace model { struct BlockChainConfiguration; } }
+
 namespace catapult { namespace importance {
 
 	/// Factory for creating importance calculators that persist importance information to disk for long term storage.
 	class StorageImportanceCalculatorFactory {
 	public:
-		/// Creates a factory around \a directory.
-		explicit StorageImportanceCalculatorFactory(const config::CatapultDirectory& directory);
+		/// Creates a factory around \a config and \a directory.
+		StorageImportanceCalculatorFactory(const model::BlockChainConfiguration& config, const config::CatapultDirectory& directory);
 
 	public:
 		/// Decorates \a pCalculator by writing its results to disk.
@@ -38,6 +40,7 @@ namespace catapult { namespace importance {
 		std::unique_ptr<ImportanceCalculator> createReadCalculator(std::unique_ptr<ImportanceCalculator>&& pCalculator) const;
 
 	private:
+		const model::BlockChainConfiguration& m_config;
 		config::CatapultDirectory m_directory;
 	};
 }}
