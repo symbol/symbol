@@ -173,16 +173,44 @@ namespace catapult { namespace validators {
 		AssertValidationResult<TValidatorTraits>(Failure_Core_Insufficient_Balance, cache, notification);
 	}
 
+	namespace {
+		auto CreateDynamicBalanceTransferNotification(const Address& sender, const UnresolvedAddress& recipient, Amount amount) {
+			return model::BalanceTransferNotification(
+					sender,
+					recipient,
+					test::UnresolveXor(Currency_Mosaic_Id),
+					amount,
+					model::BalanceTransferNotification::AmountType::Dynamic);
+		}
+	}
+
+	TEST(TRANSFER_TEST_CLASS, SuccessWhenFeeMultiplierIsZero_Dynamic) {
+		// Arrange:
+		auto sender = test::GenerateRandomByteArray<Address>();
+		auto recipient = test::GenerateRandomUnresolvedAddress();
+		auto notification = CreateDynamicBalanceTransferNotification(sender, recipient, Amount(100));
+
+		auto cache = test::CreateCache(sender, { { Currency_Mosaic_Id, Amount(0) } });
+		SetDynamicFeeMultiplier(cache, BlockFeeMultiplier(0));
+
+		auto cacheView = cache.createView();
+		auto readOnlyCache = cacheView.toReadOnly();
+		auto context = test::CreateValidatorContext(Height(1), readOnlyCache);
+
+		auto pValidator = CreateBalanceTransferValidator();
+
+		// Act:
+		auto result = test::ValidateNotification(*pValidator, notification, context);
+
+		// Assert:
+		EXPECT_EQ(ValidationResult::Success, result);
+	}
+
 	TEST(TRANSFER_TEST_CLASS, FailureWhenEffectiveBalanceOverflows_Dynamic) {
 		// Arrange:
 		auto sender = test::GenerateRandomByteArray<Address>();
 		auto recipient = test::GenerateRandomUnresolvedAddress();
-		auto notification = model::BalanceTransferNotification(
-				sender,
-				recipient,
-				test::UnresolveXor(Currency_Mosaic_Id),
-				Amount(0x8000'0000'0000'0000),
-				model::BalanceTransferNotification::AmountType::Dynamic);
+		auto notification = CreateDynamicBalanceTransferNotification(sender, recipient, Amount(0x8000'0000'0000'0000));
 
 		auto cache = test::CreateCache(sender, { { Currency_Mosaic_Id, Amount(234) } });
 		SetDynamicFeeMultiplier(cache, BlockFeeMultiplier(2));

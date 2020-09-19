@@ -38,6 +38,9 @@ namespace catapult { namespace validators {
 				return true;
 
 			effectiveAmount = Amount(notification.Amount.unwrap() * feeMultiplier.unwrap());
+			if (BlockFeeMultiplier() == feeMultiplier)
+				return true;
+
 			return std::numeric_limits<Amount::ValueType>::max() / feeMultiplier.unwrap() >= notification.Amount.unwrap();
 		}
 
