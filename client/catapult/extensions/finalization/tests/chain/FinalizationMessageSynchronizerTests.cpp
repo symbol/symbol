@@ -40,6 +40,10 @@ namespace catapult { namespace chain {
 		using MockRemoteApi = mocks::MockFinalizationApi;
 		using ShortHashesSupplier = supplier<model::ShortHashRange>;
 
+		model::FinalizationRoundRange CreateDeterministicRoundRange() {
+			return { test::CreateFinalizationRound(11, 23), test::CreateFinalizationRound(33, 45) };
+		}
+
 		class FinalizationMessageSynchronizerTraits {
 		public:
 			using RequestElementType = utils::ShortHash;
@@ -66,14 +70,12 @@ namespace catapult { namespace chain {
 				}
 
 				void setError(bool setError = true) {
-					auto entryPoint = setError
-							? MockRemoteApi::EntryPoint::Messages
-							: MockRemoteApi::EntryPoint::None;
+					auto entryPoint = setError ? MockRemoteApi::EntryPoint::Messages : MockRemoteApi::EntryPoint::None;
 					m_pFinalizationApi->setError(entryPoint);
 				}
 
 				void checkAdditionalRequestParameters() {
-					EXPECT_EQ(test::CreateFinalizationRound(11, 23), m_pFinalizationApi->messagesRequests()[0].first);
+					EXPECT_EQ(CreateDeterministicRoundRange(), m_pFinalizationApi->messagesRequests()[0].first);
 				}
 
 			private:
@@ -107,7 +109,7 @@ namespace catapult { namespace chain {
 					const ShortHashesSupplier& shortHashesSupplier,
 					const handlers::MessageRangeHandler& messageRangeConsumer) {
 				auto messageFilterSupplier = [shortHashesSupplier] {
-					return std::make_pair(test::CreateFinalizationRound(11, 23), shortHashesSupplier());
+					return std::make_pair(CreateDeterministicRoundRange(), shortHashesSupplier());
 				};
 				return CreateFinalizationMessageSynchronizer(messageFilterSupplier, messageRangeConsumer);
 			}

@@ -35,9 +35,11 @@ namespace catapult { namespace api {
 			static constexpr auto Packet_Type = ionet::PacketType::Pull_Finalization_Messages;
 			static constexpr auto Friendly_Name = "pull finalization messages";
 
-			static auto CreateRequestPacketPayload(const model::FinalizationRound& round, model::ShortHashRange&& knownShortHashes) {
+			static auto CreateRequestPacketPayload(
+					const model::FinalizationRoundRange& roundRange,
+					model::ShortHashRange&& knownShortHashes) {
 				ionet::PacketPayloadBuilder builder(Packet_Type);
-				builder.appendValue(round);
+				builder.appendValue(roundRange);
 				builder.appendRange(std::move(knownShortHashes));
 				return builder.build();
 			}
@@ -66,9 +68,9 @@ namespace catapult { namespace api {
 
 		public:
 			FutureType<MessagesTraits> messages(
-					const model::FinalizationRound& round,
+					const model::FinalizationRoundRange& roundRange,
 					model::ShortHashRange&& knownShortHashes) const override {
-				return m_impl.dispatch(MessagesTraits(), round, std::move(knownShortHashes));
+				return m_impl.dispatch(MessagesTraits(), roundRange, std::move(knownShortHashes));
 			}
 
 		private:

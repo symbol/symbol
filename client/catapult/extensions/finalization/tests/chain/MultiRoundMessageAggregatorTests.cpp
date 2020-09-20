@@ -20,6 +20,7 @@
 
 #include "finalization/src/chain/MultiRoundMessageAggregator.h"
 #include "finalization/src/chain/RoundContext.h"
+#include "finalization/src/model/FinalizationRoundRange.h"
 #include "finalization/tests/test/FinalizationMessageTestUtils.h"
 #include "finalization/tests/test/mocks/MockRoundMessageAggregator.h"
 #include "tests/test/nodeps/LockTestUtils.h"
@@ -32,6 +33,7 @@ namespace catapult { namespace chain {
 	namespace {
 		constexpr auto Default_Min_Round = model::FinalizationRound{ FinalizationEpoch(7), FinalizationPoint(3) };
 		constexpr auto Default_Max_Round = model::FinalizationRound{ FinalizationEpoch(7), FinalizationPoint(13) };
+		constexpr auto Default_Round_Range = model::FinalizationRoundRange(Default_Min_Round, Default_Max_Round);
 
 		constexpr auto Last_Finalized_Height = Height(123);
 
@@ -123,10 +125,13 @@ namespace catapult { namespace chain {
 			}
 
 			// Sanity:
-			EXPECT_EQ(3u, context.aggregator().view().size());
+			EXPECT_EQ(epochDeltas.size(), context.aggregator().view().size());
 		}
 
-		void AddRoundMessageAggregators(TestContext& context, const std::vector<FinalizationPoint>& pointDeltas) {
+		void AddRoundMessageAggregators(
+				TestContext& context,
+				const std::vector<FinalizationPoint>& pointDeltas,
+				size_t numExpectedRoundAggregators = 0) {
 			// Arrange:
 			context.aggregator().modifier().setMaxFinalizationRound(Default_Min_Round + pointDeltas.back());
 
@@ -137,7 +142,8 @@ namespace catapult { namespace chain {
 			}
 
 			// Sanity:
-			EXPECT_EQ(3u, context.aggregator().view().size());
+			numExpectedRoundAggregators = 0 == numExpectedRoundAggregators ? pointDeltas.size() : numExpectedRoundAggregators;
+			EXPECT_EQ(numExpectedRoundAggregators, context.aggregator().view().size());
 		}
 
 		// endregion
@@ -311,7 +317,7 @@ namespace catapult { namespace chain {
 
 		// Act:
 		AddRoundMessageAggregators(context, { FinalizationPoint(5), FinalizationPoint(0), FinalizationPoint(10) });
-		AddRoundMessageAggregators(context, { FinalizationPoint(0), FinalizationPoint(5) });
+		AddRoundMessageAggregators(context, { FinalizationPoint(0), FinalizationPoint(5) }, 3);
 
 		// Assert:
 		EXPECT_EQ(3u, context.aggregator().view().size());
@@ -680,7 +686,7 @@ namespace catapult { namespace chain {
 		TestContext context;
 
 		// Act:
-		auto unknownMessages = context.aggregator().view().unknownMessages(Default_Min_Round, {});
+		auto unknownMessages = context.aggregator().view().unknownMessages(Default_Round_Range, {});
 
 		// Assert:
 		EXPECT_TRUE(unknownMessages.empty());
@@ -690,7 +696,7 @@ namespace catapult { namespace chain {
 		// Arrange:
 		RunSeededAggregatorTest([](const auto& aggregator, const auto& seededShortHashes) {
 			// Act:
-			auto unknownMessages = aggregator.unknownMessages(Default_Min_Round, {});
+			auto unknownMessages = aggregator.unknownMessages(Default_Round_Range, {});
 
 			// Assert:
 			EXPECT_EQ(9u, unknownMessages.size());
@@ -698,23 +704,33 @@ namespace catapult { namespace chain {
 		});
 	}
 
-	TEST(TEST_CLASS, UnknownMessagesReturnsMessagesWithPointNoGreaterThanSpecifiedPoint) {
+	TEST(TEST_CLASS, UnknownMessagesReturnsMessagesWithinSpecifiedRange) {
 		// Arrange:
-		RunSeededAggregatorTest([](const auto& aggregator, const auto& seededShortHashes) {
-			// Act:
-			auto unknownMessages = aggregator.unknownMessages(Default_Min_Round + FinalizationPoint(5), {});
+		TestContext context;
 
-			// Assert: should return messages from points { +5, +10 } only
-			EXPECT_EQ(6u, unknownMessages.size());
-			EXPECT_EQ(utils::ShortHashesSet(seededShortHashes.cbegin() + 3, seededShortHashes.cend()), ToShortHashes(unknownMessages));
+		auto seededShortHashes = SeedUnknownMessages(context);
+		AddRoundMessageAggregators(context, {
+			FinalizationPoint(0), FinalizationPoint(3), FinalizationPoint(5), FinalizationPoint(7), FinalizationPoint(10)
 		});
+
+		// Sanity:
+		EXPECT_EQ(15u, seededShortHashes.size());
+
+		// Act:
+		auto unknownMessages = context.aggregator().view().unknownMessages(
+				{ Default_Min_Round + FinalizationPoint(3), Default_Min_Round + FinalizationPoint(7) },
+				{});
+
+		// Assert: should return messages from points { +3, +5, +7 } only
+		EXPECT_EQ(9u, unknownMessages.size());
+		EXPECT_EQ(utils::ShortHashesSet(seededShortHashes.cbegin() + 3, seededShortHashes.cbegin() + 12), ToShortHashes(unknownMessages));
 	}
 
 	TEST(TEST_CLASS, UnknownMessagesReturnsAllMessagesNotInFilter) {
 		// Arrange:
 		RunSeededAggregatorTest([](const auto& aggregator, const auto& seededShortHashes) {
 			// Act:
-			auto unknownMessages = aggregator.unknownMessages(Default_Min_Round, {
+			auto unknownMessages = aggregator.unknownMessages(Default_Round_Range, {
 				seededShortHashes[0], seededShortHashes[1], seededShortHashes[4], seededShortHashes[6], seededShortHashes[7]
 			});
 
@@ -731,7 +747,7 @@ namespace catapult { namespace chain {
 		RunSeededAggregatorTest([](const auto& aggregator, const auto& seededShortHashes) {
 			// Act:
 			auto unknownMessages = aggregator.unknownMessages(
-					Default_Min_Round,
+					Default_Round_Range,
 					utils::ShortHashesSet(seededShortHashes.cbegin(), seededShortHashes.cend()));
 
 			// Assert:
@@ -766,7 +782,7 @@ namespace catapult { namespace chain {
 			AddRoundMessageAggregators(context, { FinalizationPoint(0), FinalizationPoint(5), FinalizationPoint(10) });
 
 			// Act:
-			auto unknownMessages = context.aggregator().view().unknownMessages(Default_Min_Round, {});
+			auto unknownMessages = context.aggregator().view().unknownMessages(Default_Round_Range, {});
 
 			// Assert:
 			EXPECT_EQ(numExpectedMessages, unknownMessages.size());

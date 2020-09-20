@@ -20,6 +20,7 @@
 
 #pragma once
 #include "finalization/src/model/FinalizationMessage.h"
+#include "finalization/src/model/FinalizationRoundRange.h"
 #include "catapult/api/RemoteApi.h"
 #include "catapult/model/FinalizationRound.h"
 #include "catapult/model/RangeTypes.h"
@@ -37,10 +38,10 @@ namespace catapult { namespace api {
 		{}
 
 	public:
-		/// Gets all finalization messages from the remote with a finalization round no greater than \a round excluding those with
-		/// hashes in \a knownShortHashes.
+		/// Gets all finalization messages from the remote with a finalization round in \a roundRange
+		/// excluding those with hashes in \a knownShortHashes.
 		virtual thread::future<model::FinalizationMessageRange> messages(
-				const model::FinalizationRound& round,
+				const model::FinalizationRoundRange& roundRange,
 				model::ShortHashRange&& knownShortHashes) const = 0;
 	};
 

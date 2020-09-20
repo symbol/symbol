@@ -56,9 +56,9 @@ namespace catapult { namespace finalization {
 				if (m_enableVoting) {
 					handlers::RegisterPushMessagesHandler(packetHandlers, hooks.messageRangeConsumer());
 					handlers::RegisterPullMessagesHandler(packetHandlers, [&messageAggregator](
-							const auto& round,
+							const auto& roundRange,
 							const auto& shortHashes) {
-						return messageAggregator.view().unknownMessages(round, shortHashes);
+						return messageAggregator.view().unknownMessages(roundRange, shortHashes);
 					});
 				}
 			}

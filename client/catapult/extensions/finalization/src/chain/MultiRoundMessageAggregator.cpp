@@ -21,6 +21,7 @@
 #include "MultiRoundMessageAggregator.h"
 #include "RoundContext.h"
 #include "finalization/src/model/FinalizationMessage.h"
+#include "finalization/src/model/FinalizationRoundRange.h"
 
 namespace catapult { namespace chain {
 
@@ -118,12 +119,12 @@ namespace catapult { namespace chain {
 	}
 
 	RoundMessageAggregator::UnknownMessages MultiRoundMessageAggregatorView::unknownMessages(
-			const model::FinalizationRound& round,
+			const model::FinalizationRoundRange& roundRange,
 			const utils::ShortHashesSet& knownShortHashes) const {
 		uint64_t totalSize = 0;
 		RoundMessageAggregator::UnknownMessages allMessages;
 		for (const auto& pair : m_state.RoundMessageAggregators) {
-			if (pair.first < round)
+			if (!model::IsInRange(roundRange, pair.first))
 				continue;
 
 			for (const auto& pMessage : pair.second->unknownMessages(knownShortHashes)) {

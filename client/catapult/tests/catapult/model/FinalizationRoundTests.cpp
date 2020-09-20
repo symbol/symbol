@@ -26,7 +26,7 @@ namespace catapult { namespace model {
 
 #define TEST_CLASS FinalizationRoundTests
 
-	// region finalization round size + alignment
+	// region size + alignment
 
 #define FINALIZATION_ROUND_FIELDS FIELD(Epoch) FIELD(Point)
 
@@ -55,7 +55,7 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region finalization round comparison operators
+	// region comparison operators
 
 	namespace {
 		std::vector<FinalizationRound> GenerateIncreasingFinalizationRoundValues() {
@@ -70,20 +70,9 @@ namespace catapult { namespace model {
 
 	DEFINE_EQUALITY_AND_COMPARISON_TESTS(TEST_CLASS, GenerateIncreasingFinalizationRoundValues())
 
-	TEST(TEST_CLASS, FinalizationRound_CanOutput) {
-		// Arrange:
-		auto round = FinalizationRound{ FinalizationEpoch(7), FinalizationPoint(11) };
-
-		// Act:
-		auto str = test::ToString(round);
-
-		// Assert:
-		EXPECT_EQ("(7, 11)", str);
-	}
-
 	// endregion
 
-	// region finalization round arithmetic operators
+	// region arithmetic operators
 
 	TEST(TEST_CLASS, CanAddPointToRound) {
 		// Arrange:
@@ -101,6 +90,21 @@ namespace catapult { namespace model {
 		// Act + Assert:
 		EXPECT_EQ(FinalizationRound({ FinalizationEpoch(21), FinalizationPoint(9) }), round - FinalizationPoint(1));
 		EXPECT_EQ(FinalizationRound({ FinalizationEpoch(21), FinalizationPoint(1) }), round - FinalizationPoint(9));
+	}
+
+	// endregion
+
+	// region to string
+
+	TEST(TEST_CLASS, CanOutput) {
+		// Arrange:
+		auto round = FinalizationRound{ FinalizationEpoch(7), FinalizationPoint(11) };
+
+		// Act:
+		auto str = test::ToString(round);
+
+		// Assert:
+		EXPECT_EQ("(7, 11)", str);
 	}
 
 	// endregion

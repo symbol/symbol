@@ -24,7 +24,10 @@
 #include "catapult/model/HeightHashPair.h"
 #include "catapult/utils/SpinReaderWriterLock.h"
 
-namespace catapult { namespace chain { struct MultiRoundMessageAggregatorState; } }
+namespace catapult {
+	namespace chain { struct MultiRoundMessageAggregatorState; }
+	namespace model { struct FinalizationRoundRange; }
+}
 
 namespace catapult { namespace chain {
 
@@ -77,10 +80,10 @@ namespace catapult { namespace chain {
 		/// \note Each short hash consists of the first 4 bytes of the complete hash.
 		model::ShortHashRange shortHashes() const;
 
-		/// Gets all finalization messages with a finalization point no greater than \a round that do not have a
+		/// Gets all finalization messages with a finalization round in \a roundRange that do not have a
 		/// short hash in \a knownShortHashes.
 		RoundMessageAggregator::UnknownMessages unknownMessages(
-				const model::FinalizationRound& round,
+				const model::FinalizationRoundRange& roundRange,
 				const utils::ShortHashesSet& knownShortHashes) const;
 
 	private:

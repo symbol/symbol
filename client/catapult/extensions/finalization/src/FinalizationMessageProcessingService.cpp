@@ -23,6 +23,7 @@
 #include "finalization/src/FinalizationConfiguration.h"
 #include "finalization/src/chain/MultiRoundMessageAggregator.h"
 #include "finalization/src/ionet/FinalizationMessagePacketUtils.h"
+#include "finalization/src/model/FinalizationRoundRange.h"
 #include "catapult/consumers/RecentHashCache.h"
 #include "catapult/extensions/DispatcherUtils.h"
 #include "catapult/extensions/ServiceState.h"
@@ -40,23 +41,10 @@ namespace catapult { namespace finalization {
 			return extensions::CreatePushEntitySink<MessagesSink>(locator, Writers_Service_Name);
 		}
 
-		class FinalizationRoundChecker {
-		public:
-			explicit FinalizationRoundChecker(const chain::MultiRoundMessageAggregator& messageAggregator) {
-				auto view = messageAggregator.view();
-				m_minRound = view.minFinalizationRound();
-				m_maxRound = view.maxFinalizationRound();
-			}
-
-		public:
-			bool isInRange(const model::FinalizationRound& round) const {
-				return m_minRound <= round && round <= m_maxRound;
-			}
-
-		private:
-			model::FinalizationRound m_minRound;
-			model::FinalizationRound m_maxRound;
-		};
+		auto CreateFinalizationRoundRange(const chain::MultiRoundMessageAggregator& messageAggregator) {
+			auto view = messageAggregator.view();
+			return model::FinalizationRoundRange(view.minFinalizationRound(), view.maxFinalizationRound());
+		}
 
 		class FinalizationMessageProcessingServiceRegistrar : public extensions::ServiceRegistrar {
 		public:
@@ -88,12 +76,14 @@ namespace catapult { namespace finalization {
 					auto newMessages = ionet::FinalizationMessages();
 					auto extractedMessages = model::FinalizationMessageRange::ExtractEntitiesFromRange(std::move(messages.Range));
 
-					FinalizationRoundChecker roundChecker(messageAggregator);
+					auto roundRange = CreateFinalizationRoundRange(messageAggregator);
 					for (const auto& pMessage : extractedMessages) {
 						// ignore messages associated with an out of range finalization round
 						auto messageRound = pMessage->StepIdentifier.Round();
-						if (!roundChecker.isInRange(messageRound)) {
-							CATAPULT_LOG(debug) << "skipping message with out of bounds round " << messageRound;
+						if (!model::IsInRange(roundRange, messageRound)) {
+							CATAPULT_LOG(debug)
+									<< "skipping message with out of bounds round " << messageRound
+									<< " when current range is " << roundRange;
 							continue;
 						}
 

@@ -32,6 +32,10 @@ namespace catapult { namespace api {
 			return count * static_cast<uint32_t>(Hash256::Size);
 		}
 
+		model::FinalizationRoundRange CreateDeterministicRoundRange() {
+			return { test::CreateFinalizationRound(11, 23), test::CreateFinalizationRound(33, 45) };
+		}
+
 		std::shared_ptr<ionet::Packet> CreatePacketWithMessages(uint16_t numMessages) {
 			// Arrange: create messages with variable (incrementing) sizes
 			uint32_t variableDataSize = numMessages * (numMessages + 1) / 2;
@@ -52,7 +56,7 @@ namespace catapult { namespace api {
 		}
 
 		struct MessagesTraits {
-			static constexpr auto Request_Data_Header_Size = SizeOf32<model::FinalizationRound>();
+			static constexpr auto Request_Data_Header_Size = SizeOf32<model::FinalizationRoundRange>();
 			static constexpr auto Request_Data_Size = 3 * SizeOf32<utils::ShortHash>();
 
 			static std::vector<uint32_t> KnownShortHashValues() {
@@ -64,7 +68,7 @@ namespace catapult { namespace api {
 			}
 
 			static auto Invoke(const RemoteFinalizationApi& api) {
-				return api.messages({ FinalizationEpoch(11), FinalizationPoint(23) }, KnownShortHashes());
+				return api.messages(CreateDeterministicRoundRange(), KnownShortHashes());
 			}
 
 			static auto CreateValidResponsePacket() {
@@ -83,7 +87,7 @@ namespace catapult { namespace api {
 			static void ValidateRequest(const ionet::Packet& packet) {
 				EXPECT_EQ(ionet::PacketType::Pull_Finalization_Messages, packet.Type);
 				ASSERT_EQ(sizeof(ionet::Packet) + Request_Data_Header_Size + Request_Data_Size, packet.Size);
-				EXPECT_EQ(test::CreateFinalizationRound(11, 23), reinterpret_cast<const model::FinalizationRound&>(*packet.Data()));
+				EXPECT_EQ(CreateDeterministicRoundRange(), reinterpret_cast<const model::FinalizationRoundRange&>(*packet.Data()));
 				EXPECT_EQ_MEMORY(packet.Data() + Request_Data_Header_Size, KnownShortHashValues().data(), Request_Data_Size);
 			}
 
