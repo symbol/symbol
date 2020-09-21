@@ -250,7 +250,6 @@ namespace catapult { namespace extensions {
 				config.ImportanceGrouping = 123;
 				config.MaxDifficultyBlocks = 123;
 				config.MaxRollbackBlocks = Max_Rollback_Blocks;
-				config.BlockPruneInterval = 360;
 				config.TotalChainImportance = GetTotalChainImportance(numAccounts);
 				config.MinHarvesterBalance = Amount(1'000'000);
 				return config;

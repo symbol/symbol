@@ -63,7 +63,6 @@ namespace catapult { namespace harvesting {
 			config.ImportanceGrouping = 4;
 			config.MaxTransactionLifetime = utils::TimeSpan::FromHours(24);
 			config.MinHarvesterBalance = Amount(1000);
-			config.BlockPruneInterval = 10;
 			return config;
 		}
 

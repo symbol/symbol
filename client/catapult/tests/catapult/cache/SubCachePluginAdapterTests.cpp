@@ -418,14 +418,32 @@ namespace catapult { namespace cache {
 
 	// region prune
 
-	TEST(TEST_CLASS, CanPruneWhenSupportedAndDelta) {
+	namespace {
+		struct PruneHeightTraits {
+			static constexpr auto Prune_Value = Height(3);
+			static constexpr auto Modified_Hash_Index = 1u;
+		};
+
+		struct PruneTimestampTraits {
+			static constexpr auto Prune_Value = Timestamp(4);
+			static constexpr auto Modified_Hash_Index = 2u;
+		};
+	}
+
+#define PRUNE_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Height) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PruneHeightTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Timestamp) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PruneTimestampTraits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+	PRUNE_TEST(CanPruneWhenSupportedAndDelta) {
 		// Arrange:
 		RunTestForMerkleRootSupportedAndEnabled([](auto& view, const auto& expectedMerkleRoot) {
 			auto expectedUpdatedMerkleRoot = expectedMerkleRoot;
-			expectedUpdatedMerkleRoot[1] = 3;
+			expectedUpdatedMerkleRoot[TTraits::Modified_Hash_Index] = static_cast<uint8_t>(TTraits::Prune_Value.unwrap());
 
 			// Act:
-			view.prune(Height(3));
+			view.prune(TTraits::Prune_Value);
 
 			// Assert:
 			Hash256 merkleRoot;
@@ -434,11 +452,11 @@ namespace catapult { namespace cache {
 		});
 	}
 
-	TEST(TEST_CLASS, CannotPruneWhenSupportedButView) {
+	PRUNE_TEST(CannotPruneWhenSupportedButView) {
 		// Arrange:
 		RunTestForMerkleRootSupportedAndEnabledView([](auto& view, const auto& expectedMerkleRoot) {
 			// Act: even if const is improperly casted away, operation should fail on const view
-			const_cast<SubCacheView&>(view).prune(Height(3));
+			const_cast<SubCacheView&>(view).prune(TTraits::Prune_Value);
 
 			// Assert:
 			Hash256 merkleRoot;
@@ -447,11 +465,11 @@ namespace catapult { namespace cache {
 		});
 	}
 
-	TEST(TEST_CLASS, CannotPruneWhenUnsupported) {
+	PRUNE_TEST(CannotPruneWhenUnsupported) {
 		// Arrange:
 		RunTestForMerkleRootNotSupported([](auto& view) {
 			// Act:
-			view.prune(Height(3));
+			view.prune(TTraits::Prune_Value);
 
 			// Assert:
 			Hash256 merkleRoot;

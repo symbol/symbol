@@ -53,10 +53,11 @@ namespace catapult { namespace consumers {
 		public:
 			SyncState() = default;
 
-			SyncState(cache::CatapultCache& cache, Height localFinalizedHeight)
+			SyncState(cache::CatapultCache& cache, Height localFinalizedHeight, Timestamp localFinalizedTime)
 					: m_pOriginalCache(&cache)
 					, m_pCacheDelta(std::make_unique<cache::CatapultCacheDelta>(cache.createDelta()))
 					, m_localFinalizedHeight(localFinalizedHeight)
+					, m_localFinalizedTime(localFinalizedTime)
 			{}
 
 		public:
@@ -95,6 +96,8 @@ namespace catapult { namespace consumers {
 			}
 
 			void commit(Height height) {
+				m_pCacheDelta->prune(m_localFinalizedTime);
+
 				auto& lastFinalizedHeight = m_pCacheDelta->dependentState().LastFinalizedHeight;
 				pruneRange(lastFinalizedHeight, m_localFinalizedHeight);
 				lastFinalizedHeight = m_localFinalizedHeight;
@@ -105,7 +108,7 @@ namespace catapult { namespace consumers {
 
 		private:
 			void pruneRange(Height startHeight, Height endHeight) {
-				for (auto height = startHeight; height <= endHeight; height = height + Height(1))
+				for (auto height = startHeight + Height(1); height <= endHeight; height = height + Height(1))
 					m_pCacheDelta->prune(height);
 			}
 
@@ -113,6 +116,7 @@ namespace catapult { namespace consumers {
 			cache::CatapultCache* m_pOriginalCache;
 			std::unique_ptr<cache::CatapultCacheDelta> m_pCacheDelta; // unique_ptr to allow explicit release of lock in commit
 			Height m_localFinalizedHeight;
+			Timestamp m_localFinalizedTime;
 
 			std::shared_ptr<const model::BlockElement> m_pCommonBlockElement;
 			model::ChainScore m_scoreDelta;
@@ -171,7 +175,7 @@ namespace catapult { namespace consumers {
 					return Abort(Failure_Consumer_Remote_Chain_Difficulties_Mismatch);
 
 				// 4. unwind to the common block height and calculate the local chain score
-				syncState = SyncState(m_cache, localFinalizedHeight);
+				syncState = SyncState(m_cache, localFinalizedHeight, storageView.loadBlock(localFinalizedHeight)->Timestamp);
 				auto commonBlockHeight = peerStartHeight - Height(1);
 				auto observerState = syncState.observerState();
 				auto unwindResult = unwindLocalChain(localChainHeight, commonBlockHeight, storageView, observerState);

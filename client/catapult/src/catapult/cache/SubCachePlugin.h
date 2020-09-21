@@ -95,6 +95,9 @@ namespace catapult { namespace cache {
 		/// Prunes the cache at \a height.
 		virtual void prune(Height height) = 0;
 
+		/// Prunes the cache at \a time.
+		virtual void prune(Timestamp time) = 0;
+
 		/// Gets a read-only view of this view.
 		virtual const void* asReadOnly() const = 0;
 	};

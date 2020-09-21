@@ -234,28 +234,39 @@ namespace catapult { namespace cache {
 
 	// region prune
 
-	TEST(TEST_CLASS, CanPruneAllSubCachesAtHeight) {
-		// Arrange:
-		auto cache = CreateSimpleCatapultCacheForStateHashTests();
-		auto view = cache.createDelta();
-		auto hashes = test::GenerateRandomDataVector<Hash256>(3);
-		view.setSubCacheMerkleRoots(hashes);
+	namespace {
+		template<typename TPruneValue>
+		void AssertCanPruneAll(size_t pruneSentinelIndex) {
+			// Arrange:
+			auto cache = CreateSimpleCatapultCacheForStateHashTests();
+			auto view = cache.createDelta();
+			auto hashes = test::GenerateRandomDataVector<Hash256>(3);
+			view.setSubCacheMerkleRoots(hashes);
 
-		// Act:
-		view.prune(Height(101));
+			// Act:
+			view.prune(TPruneValue(101));
 
-		// Assert:
-		const auto& subCacheMerkleRoots = view.calculateStateHash(Height(123)).SubCacheMerkleRoots;
-		EXPECT_EQ(3u, subCacheMerkleRoots.size());
+			// Assert:
+			const auto& subCacheMerkleRoots = view.calculateStateHash(Height(123)).SubCacheMerkleRoots;
+			EXPECT_EQ(3u, subCacheMerkleRoots.size());
 
-		// - adjust expected hashes because SimpleCache::updateMerkleRoot changes the first byte of the merkle root
-		//   and SimpleCache::prune changes the second
-		for (auto& hash : hashes) {
-			hash[0] = 123;
-			hash[1] = 101;
+			// - adjust expected hashes because SimpleCache::updateMerkleRoot changes the first byte of the merkle root
+			//   and SimpleCache::prune changes the `pruneSentinelIndex` byte
+			for (auto& hash : hashes) {
+				hash[0] = 123;
+				hash[pruneSentinelIndex] = 101;
+			}
+
+			EXPECT_EQ(hashes, subCacheMerkleRoots);
 		}
+	}
 
-		EXPECT_EQ(hashes, subCacheMerkleRoots);
+	TEST(TEST_CLASS, CanPruneAllSubCachesAtHeight) {
+		AssertCanPruneAll<Height>(1);
+	}
+
+	TEST(TEST_CLASS, CanPruneAllSubCachesAtTimestamp) {
+		AssertCanPruneAll<Timestamp>(2);
 	}
 
 	// endregion

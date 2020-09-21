@@ -28,54 +28,6 @@ namespace catapult { namespace observers {
 
 #define TEST_CLASS ObserverUtilsTests
 
-	// region ShouldPrune
-
-	namespace {
-		model::NotificationContext CreateNotificationContext(Height height) {
-			return model::NotificationContext(height, model::ResolverContext());
-		}
-
-		void AssertPruningPredicate(Height height, NotifyMode mode, size_t pruneInterval, bool expectedResult) {
-			// Arrange:
-			auto cache = test::CreateEmptyCatapultCache();
-			auto cacheDelta = cache.createDelta();
-			ObserverContext context(CreateNotificationContext(height), ObserverState(cacheDelta), mode);
-
-			// Act:
-			auto result = ShouldPrune(context, pruneInterval);
-
-			// Assert:
-			EXPECT_EQ(expectedResult, result) << "height " << height << ", pruneInterval " << pruneInterval;
-		}
-	}
-
-	TEST(TEST_CLASS, ShouldPruneReturnsTrueWhenConditionsAreMet) {
-		AssertPruningPredicate(Height(1), NotifyMode::Commit, 1, true);
-		AssertPruningPredicate(Height(20), NotifyMode::Commit, 1, true);
-		AssertPruningPredicate(Height(20), NotifyMode::Commit, 2, true);
-		AssertPruningPredicate(Height(20), NotifyMode::Commit, 4, true);
-		AssertPruningPredicate(Height(20), NotifyMode::Commit, 5, true);
-		AssertPruningPredicate(Height(20), NotifyMode::Commit, 10, true);
-		AssertPruningPredicate(Height(20), NotifyMode::Commit, 20, true);
-	}
-
-	TEST(TEST_CLASS, ShouldPruneReturnsFalseForModeRollback) {
-		AssertPruningPredicate(Height(10), NotifyMode::Rollback, 1, false);
-		AssertPruningPredicate(Height(10), NotifyMode::Rollback, 2, false);
-		AssertPruningPredicate(Height(20), NotifyMode::Rollback, 5, false);
-		AssertPruningPredicate(Height(50), NotifyMode::Rollback, 25, false);
-	}
-
-	TEST(TEST_CLASS, ShouldPruneReturnsFalseWhenHeightIsNotDivisibleByPruneInterval) {
-		AssertPruningPredicate(Height(20), NotifyMode::Commit, 3, false);
-		AssertPruningPredicate(Height(20), NotifyMode::Commit, 6, false);
-		AssertPruningPredicate(Height(20), NotifyMode::Commit, 19, false);
-		AssertPruningPredicate(Height(20), NotifyMode::Commit, 21, false);
-		AssertPruningPredicate(Height(20), NotifyMode::Commit, 123, false);
-	}
-
-	// endregion
-
 	// region ShouldLink
 
 	namespace {
@@ -101,29 +53,18 @@ namespace catapult { namespace observers {
 	// endregion
 
 	namespace {
-		// region PrunableCache
+		// region TouchableCache
 
-		// 1. emulate a delta cache that supports (block and time) pruning and (block) touching
+		// 1. emulate a delta cache that supports (block) touching
 		// 2. derive from test::SimpleCacheDelta to ensure all required functions are provided (but unused)
-		// 3. support block and time pruning and block touching to minimize cruft
-		class PrunableCacheDelta : public test::SimpleCacheDelta {
+		class TouchableCacheDelta : public test::SimpleCacheDelta {
 		public:
-			PrunableCacheDelta(std::vector<Height>& pruneHeights, std::vector<Timestamp>& pruneTimes, std::vector<Height>& touchHeights)
+			explicit TouchableCacheDelta(std::vector<Height>& touchHeights)
 					: test::SimpleCacheDelta(test::SimpleCacheViewMode::Basic, test::SimpleCacheState())
-					, m_pruneHeights(pruneHeights)
-					, m_pruneTimes(pruneTimes)
 					, m_touchHeights(touchHeights)
 			{}
 
 		public:
-			void prune(Height height) {
-				m_pruneHeights.push_back(height);
-			}
-
-			void prune(Timestamp time) {
-				m_pruneTimes.push_back(time);
-			}
-
 			std::vector<Timestamp> touch(Height height) {
 				m_touchHeights.push_back(height);
 
@@ -137,29 +78,25 @@ namespace catapult { namespace observers {
 			}
 
 		private:
-			std::vector<Height>& m_pruneHeights;
-			std::vector<Timestamp>& m_pruneTimes;
 			std::vector<Height>& m_touchHeights;
 		};
 
-		// 1. emulate a basic cache that supports pruning and touching
+		// 1. emulate a basic cache that supports (block) touching
 		// 2. derive from test::BasicSimpleCache to ensure all required functions are provided (but unused)
 		// 3. createDetachedDelta needs explicit implementation because return type needs to match that of createDelta
-		class BasicPrunableCache : public test::BasicSimpleCache {
+		class BasicTouchableCache : public test::BasicSimpleCache {
 		public:
-			using CacheDeltaType = PrunableCacheDelta;
+			using CacheDeltaType = TouchableCacheDelta;
 
 		public:
-			BasicPrunableCache(std::vector<Height>& pruneHeights, std::vector<Timestamp>& pruneTimes, std::vector<Height>& touchHeights)
+			explicit BasicTouchableCache(std::vector<Height>& touchHeights)
 					: test::BasicSimpleCache(nullptr)
-					, m_pruneHeights(pruneHeights)
-					, m_pruneTimes(pruneTimes)
 					, m_touchHeights(touchHeights)
 			{}
 
 		public:
 			CacheDeltaType createDelta() {
-				return PrunableCacheDelta(m_pruneHeights, m_pruneTimes, m_touchHeights);
+				return TouchableCacheDelta(m_touchHeights);
 			}
 
 			CacheDeltaType createDetachedDelta() const {
@@ -167,38 +104,26 @@ namespace catapult { namespace observers {
 			}
 
 		private:
-			std::vector<Height>& m_pruneHeights;
-			std::vector<Timestamp>& m_pruneTimes;
 			std::vector<Height>& m_touchHeights;
 		};
 
-		// 1. wrap BasicPrunableCache in cache::SynchronizedCache so it can be registered with CatapultCache
-		// 2. expose collected prune heights and times
-		class PrunableCache : public cache::SynchronizedCache<BasicPrunableCache> {
+		// 1. wrap BasicTouchableCache in cache::SynchronizedCache so it can be registered with CatapultCache
+		// 2. expose collected touch heights
+		class TouchableCache : public cache::SynchronizedCache<BasicTouchableCache> {
 		public:
 			static constexpr auto Id = 0;
-			static constexpr auto Name = "PrunableCache";
+			static constexpr auto Name = "TouchableCache";
 
 		public:
-			PrunableCache() : SynchronizedCache(BasicPrunableCache(m_pruneHeights, m_pruneTimes, m_touchHeights))
+			TouchableCache() : SynchronizedCache(BasicTouchableCache(m_touchHeights))
 			{}
 
 		public:
-			std::vector<Height> pruneHeights() const {
-				return m_pruneHeights;
-			}
-
-			std::vector<Timestamp> pruneTimes() const {
-				return m_pruneTimes;
-			}
-
 			std::vector<Height> touchHeights() const {
 				return m_touchHeights;
 			}
 
 		private:
-			std::vector<Height> m_pruneHeights;
-			std::vector<Timestamp> m_pruneTimes;
 			std::vector<Height> m_touchHeights;
 		};
 
@@ -206,7 +131,7 @@ namespace catapult { namespace observers {
 
 		cache::CatapultCache CreateSimpleCatapultCache() {
 			cache::CatapultCacheBuilder builder;
-			builder.add<test::SimpleCacheStorageTraits>(std::make_unique<PrunableCache>());
+			builder.add<test::SimpleCacheStorageTraits>(std::make_unique<TouchableCache>());
 			return builder.build();
 		}
 
@@ -216,100 +141,20 @@ namespace catapult { namespace observers {
 			return out.str();
 		}
 
-		using PruningObserver = NotificationObserverT<model::BlockNotification>;
+		using TouchingObserver = NotificationObserverT<model::BlockNotification>;
 
-		void NotifyBlock(const PruningObserver& observer, ObserverContext& context, Timestamp timestamp) {
+		model::NotificationContext CreateNotificationContext(Height height) {
+			return model::NotificationContext(height, model::ResolverContext());
+		}
+
+		void NotifyBlock(const TouchingObserver& observer, ObserverContext& context, Timestamp timestamp) {
 			observer.notify(model::BlockNotification(Address(), Address(), timestamp, Difficulty(), BlockFeeMultiplier()), context);
 		}
 
-		void NotifyBlock(const PruningObserver& observer, ObserverContext& context) {
+		void NotifyBlock(const TouchingObserver& observer, ObserverContext& context) {
 			NotifyBlock(observer, context, Timestamp());
 		}
-
-		void AssertNoPruning(const PruningObserver& observer, NotifyMode mode, Height height) {
-			// Arrange:
-			auto cache = CreateSimpleCatapultCache();
-			auto cacheDelta = cache.createDelta();
-			ObserverContext context(CreateNotificationContext(height), ObserverState(cacheDelta), mode);
-
-			// Act:
-			NotifyBlock(observer, context);
-			const auto& subCache = cache.sub<PrunableCache>();
-
-			// Assert:
-			auto message = CreateMessage(mode, height);
-			EXPECT_TRUE(subCache.pruneHeights().empty()) << message;
-			EXPECT_TRUE(subCache.pruneTimes().empty()) << message;
-			EXPECT_TRUE(subCache.touchHeights().empty()) << message;
-		}
-
-		void AssertTimePruning(const PruningObserver& observer, NotifyMode mode, Height height, Timestamp timestamp) {
-			// Arrange:
-			auto cache = CreateSimpleCatapultCache();
-			auto cacheDelta = cache.createDelta();
-			ObserverContext context(CreateNotificationContext(height), ObserverState(cacheDelta), mode);
-
-			// Act:
-			NotifyBlock(observer, context, timestamp);
-			const auto& subCache = cache.sub<PrunableCache>();
-
-			// Assert:
-			auto message = CreateMessage(mode, height);
-			EXPECT_TRUE(subCache.pruneHeights().empty()) << message;
-			EXPECT_EQ(std::vector<Timestamp>({ timestamp }), subCache.pruneTimes()) << message;
-			EXPECT_TRUE(subCache.touchHeights().empty()) << message;
-		}
 	}
-
-	// region CacheTimePruningObserver
-
-	TEST(TEST_CLASS, CacheTimePruningObserverIsCreatedWithCorrectName) {
-		// Act:
-		auto pObserver = CreateCacheTimePruningObserver<PrunableCache>("Foo", 10);
-
-		// Assert:
-		EXPECT_EQ("FooPruningObserver", pObserver->name());
-	}
-
-	TEST(TEST_CLASS, CacheTimePruningObserverSkipsPruningWhenModeIsRollback) {
-		// Arrange:
-		auto pObserver = CreateCacheTimePruningObserver<PrunableCache>("Foo", 10);
-
-		// Act + Assert:
-		auto mode = NotifyMode::Rollback;
-		AssertNoPruning(*pObserver, mode, Height(1));
-		AssertNoPruning(*pObserver, mode, Height(7));
-		AssertNoPruning(*pObserver, mode, Height(10));
-		AssertNoPruning(*pObserver, mode, Height(19));
-		AssertNoPruning(*pObserver, mode, Height(20));
-		AssertNoPruning(*pObserver, mode, Height(21));
-		AssertNoPruning(*pObserver, mode, Height(30));
-	}
-
-	TEST(TEST_CLASS, CacheTimePruningObserverSkipsPruningWhenHeightIsNotDivisibleByPruneInterval) {
-		// Arrange:
-		auto pObserver = CreateCacheTimePruningObserver<PrunableCache>("Foo", 10);
-
-		// Act + Assert:
-		auto mode = NotifyMode::Commit;
-		AssertNoPruning(*pObserver, mode, Height(11));
-		AssertNoPruning(*pObserver, mode, Height(19));
-		AssertNoPruning(*pObserver, mode, Height(21));
-		AssertNoPruning(*pObserver, mode, Height(29));
-	}
-
-	TEST(TEST_CLASS, CacheTimePruningObserverPrunesWhenHeightIsDivisibleByPruneInterval) {
-		// Arrange:
-		auto pObserver = CreateCacheTimePruningObserver<PrunableCache>("Foo", 10);
-
-		// Act + Assert:
-		auto mode = NotifyMode::Commit;
-		AssertTimePruning(*pObserver, mode, Height(10), Timestamp(97));
-		AssertTimePruning(*pObserver, mode, Height(20), Timestamp(20));
-		AssertTimePruning(*pObserver, mode, Height(30), Timestamp(7));
-	}
-
-	// endregion
 
 	// region CacheBlockTouchObserver
 
@@ -317,7 +162,7 @@ namespace catapult { namespace observers {
 		constexpr auto Receipt_Type_Marker = static_cast<model::ReceiptType>(0xA5A5);
 
 		void AssertTouching(
-				const PruningObserver& observer,
+				const TouchingObserver& observer,
 				NotifyMode mode,
 				Height observerHeight,
 				Height expectedTouchHeight,
@@ -330,12 +175,10 @@ namespace catapult { namespace observers {
 
 			// Act:
 			NotifyBlock(observer, context);
-			const auto& subCache = cache.sub<PrunableCache>();
+			const auto& subCache = cache.sub<TouchableCache>();
 
 			// Assert:
 			auto message = CreateMessage(mode, observerHeight);
-			EXPECT_TRUE(subCache.pruneHeights().empty()) << message;
-			EXPECT_TRUE(subCache.pruneTimes().empty()) << message;
 			EXPECT_EQ(std::vector<Height>({ expectedTouchHeight }), subCache.touchHeights()) << message;
 
 			// - check receipts
@@ -364,7 +207,7 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, CacheBlockTouchObserverIsCreatedWithCorrectName) {
 		// Act:
-		auto pObserver = CreateCacheBlockTouchObserver<PrunableCache>("Foo", Receipt_Type_Marker);
+		auto pObserver = CreateCacheBlockTouchObserver<TouchableCache>("Foo", Receipt_Type_Marker);
 
 		// Assert:
 		EXPECT_EQ("FooTouchObserver", pObserver->name());
@@ -372,7 +215,7 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, CacheBlockTouchObserverTouches_Commit) {
 		// Arrange:
-		auto pObserver = CreateCacheBlockTouchObserver<PrunableCache>("Foo", Receipt_Type_Marker);
+		auto pObserver = CreateCacheBlockTouchObserver<TouchableCache>("Foo", Receipt_Type_Marker);
 
 		// Act + Assert:
 		auto mode = NotifyMode::Commit;
@@ -383,7 +226,7 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, CacheBlockTouchObserverTouches_Rollback) {
 		// Arrange:
-		auto pObserver = CreateCacheBlockTouchObserver<PrunableCache>("Foo", Receipt_Type_Marker);
+		auto pObserver = CreateCacheBlockTouchObserver<TouchableCache>("Foo", Receipt_Type_Marker);
 
 		// Act + Assert:
 		auto mode = NotifyMode::Rollback;
@@ -398,7 +241,7 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, NonzeroGracePeriod_CacheBlockTouchObserverIsCreatedWithCorrectName) {
 		// Act:
-		auto pObserver = CreateCacheBlockTouchObserver<PrunableCache>("Foo", Receipt_Type_Marker, BlockDuration(100));
+		auto pObserver = CreateCacheBlockTouchObserver<TouchableCache>("Foo", Receipt_Type_Marker, BlockDuration(100));
 
 		// Assert:
 		EXPECT_EQ("FooTouchObserver", pObserver->name());
@@ -406,7 +249,7 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, NonzeroGracePeriod_CacheBlockTouchObserverTouches_Commit) {
 		// Arrange:
-		auto pObserver = CreateCacheBlockTouchObserver<PrunableCache>("Foo", Receipt_Type_Marker, BlockDuration(10));
+		auto pObserver = CreateCacheBlockTouchObserver<TouchableCache>("Foo", Receipt_Type_Marker, BlockDuration(10));
 
 		// Act + Assert:
 		auto mode = NotifyMode::Commit;
@@ -418,7 +261,7 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, NonzeroGracePeriod_CacheBlockTouchObserverTouches_Rollback) {
 		// Arrange:
-		auto pObserver = CreateCacheBlockTouchObserver<PrunableCache>("Foo", Receipt_Type_Marker, BlockDuration(10));
+		auto pObserver = CreateCacheBlockTouchObserver<TouchableCache>("Foo", Receipt_Type_Marker, BlockDuration(10));
 
 		// Act + Assert:
 		auto mode = NotifyMode::Rollback;

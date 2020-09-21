@@ -24,28 +24,10 @@
 
 namespace catapult { namespace observers {
 
-	/// Returns \c true if \a context and \a pruneInterval indicate that pruning should be done.
-	constexpr bool ShouldPrune(const ObserverContext& context, size_t pruneInterval) {
-		return NotifyMode::Commit == context.Mode && 0 == context.Height.unwrap() % pruneInterval;
-	}
-
 	/// Returns \c true if \a action and \a notifyMode indicate that a link should be made.
 	template<typename TAction>
 	constexpr bool ShouldLink(TAction action, NotifyMode notifyMode) {
 		return NotifyMode::Commit == notifyMode ? TAction::Link == action : TAction::Unlink == action;
-	}
-
-	/// Creates a time-based cache pruning observer with \a name that runs every \a interval blocks.
-	template<typename TCache>
-	NotificationObserverPointerT<model::BlockNotification> CreateCacheTimePruningObserver(const std::string& name, size_t interval) {
-		using ObserverType = FunctionalNotificationObserverT<model::BlockNotification>;
-		return std::make_unique<ObserverType>(name + "PruningObserver", [interval](const auto& notification, const auto& context) {
-			if (!ShouldPrune(context, interval))
-				return;
-
-			auto& cache = context.Cache.template sub<TCache>();
-			cache.prune(notification.Timestamp);
-		});
 	}
 
 	/// Creates a block-based cache touch observer with \a name that touches the cache at every block height taking into account

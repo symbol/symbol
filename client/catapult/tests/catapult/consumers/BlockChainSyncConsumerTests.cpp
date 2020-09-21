@@ -22,10 +22,12 @@
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/cache_core/BlockStatisticCache.h"
 #include "catapult/io/BlockStorageCache.h"
+#include "catapult/model/BlockChainConfiguration.h"
 #include "catapult/model/ChainScore.h"
 #include "tests/catapult/consumers/test/ConsumerInputFactory.h"
 #include "tests/catapult/consumers/test/ConsumerTestUtils.h"
 #include "tests/test/cache/CacheTestUtils.h"
+#include "tests/test/cache/UnsupportedSubCachePlugin.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
@@ -355,6 +357,76 @@ namespace catapult { namespace consumers {
 
 		// endregion
 
+		// region CatapultCacheFactory
+
+		class CatapultCacheFactory {
+		public:
+			struct PruneIdentifiers {
+				std::vector<Height> Heights;
+				std::vector<Timestamp> Times;
+			};
+
+		public:
+			static cache::CatapultCache Create(PruneIdentifiers& pruneIdentifiers) {
+				auto config = model::BlockChainConfiguration::Uninitialized();
+				config.VotingSetGrouping = 1;
+
+				std::vector<std::unique_ptr<cache::SubCachePlugin>> subCaches(3);
+				test::CoreSystemCacheFactory::CreateSubCaches(config, subCaches);
+				subCaches[PruneAwareCacheSubCachePlugin::Id] = std::make_unique<PruneAwareCacheSubCachePlugin>(pruneIdentifiers);
+
+				auto cache = cache::CatapultCache(std::move(subCaches));
+				test::AddMarkerAccount(cache);
+				return cache;
+			}
+
+		private:
+			class PruneAwareSubCacheView : public test::UnsupportedSubCacheView {
+			public:
+				explicit PruneAwareSubCacheView(PruneIdentifiers& pruneIdentifiers) : m_pruneIdentifiers(pruneIdentifiers)
+				{}
+
+			public:
+				void prune(Height height) override {
+					m_pruneIdentifiers.Heights.push_back(height);
+				}
+
+				void prune(Timestamp time) override {
+					m_pruneIdentifiers.Times.push_back(time);
+				}
+
+			private:
+				PruneIdentifiers& m_pruneIdentifiers;
+			};
+
+			class PruneAwareCacheSubCachePlugin : public test::UnsupportedSubCachePlugin<PruneAwareCacheSubCachePlugin> {
+			public:
+				static constexpr size_t Id = 2;
+				static constexpr auto Name = "PruneAwareCache";
+
+			public:
+				explicit PruneAwareCacheSubCachePlugin(PruneIdentifiers& pruneIdentifiers) : m_pruneIdentifiers(pruneIdentifiers)
+				{}
+
+			public:
+				std::unique_ptr<const cache::SubCacheView> createView() const override {
+					return std::make_unique<PruneAwareSubCacheView>(m_pruneIdentifiers);
+				}
+
+				std::unique_ptr<cache::SubCacheView> createDelta() override {
+					return std::make_unique<PruneAwareSubCacheView>(m_pruneIdentifiers);
+				}
+
+				void commit() override
+				{}
+
+			private:
+				PruneIdentifiers& m_pruneIdentifiers;
+			};
+		};
+
+		// endregion
+
 		// region ConsumerTestContext
 
 		struct ConsumerTestContext {
@@ -366,7 +438,7 @@ namespace catapult { namespace consumers {
 			{}
 
 			ConsumerTestContext(std::unique_ptr<io::BlockStorage>&& pStorage, std::unique_ptr<io::PrunableBlockStorage>&& pStagingStorage)
-					: Cache(test::CreateCatapultCacheWithMarkerAccount())
+					: Cache(CatapultCacheFactory::Create(CachePruneIdentifiers))
 					, Storage(std::move(pStorage), std::move(pStagingStorage))
 					, LastFinalizedHeight(Height(1)) {
 				{
@@ -405,6 +477,7 @@ namespace catapult { namespace consumers {
 			}
 
 		public:
+			CatapultCacheFactory::PruneIdentifiers CachePruneIdentifiers;
 			cache::CatapultCache Cache;
 			io::BlockStorageCache Storage;
 			Height LastFinalizedHeight;
@@ -1194,12 +1267,22 @@ namespace catapult { namespace consumers {
 
 	// region pruning
 
+	namespace {
+		void SetFinalizedHeightInDependentState(cache::CatapultCache& cache, Height height) {
+			auto delta = cache.createDelta();
+			delta.dependentState().LastFinalizedHeight = height;
+			cache.commit(height);
+		}
+	}
+
 	TEST(TEST_CLASS, CommitAutomaticallyPrunesCache) {
 		// Arrange: create a local storage with blocks 1-7 and a remote storage with blocks 8-11
 		ConsumerTestContext context;
 		context.seedStorage(Height(7));
 		context.LastFinalizedHeight = Height(5);
 		auto input = CreateInput(Height(8), 4);
+
+		SetFinalizedHeightInDependentState(context.Cache, Height(3));
 
 		// - seed the BlockStatisticCache with entries up to local storage height
 		{
@@ -1212,7 +1295,7 @@ namespace catapult { namespace consumers {
 		}
 
 		// Sanity:
-		EXPECT_EQ(Height(0), context.Cache.createView().dependentState().LastFinalizedHeight);
+		EXPECT_EQ(Height(3), context.Cache.createView().dependentState().LastFinalizedHeight);
 		EXPECT_EQ(7u, context.Cache.sub<cache::BlockStatisticCache>().createView()->size());
 
 		// Act:
@@ -1225,6 +1308,10 @@ namespace catapult { namespace consumers {
 		// - pruning was triggered on the cache (lower_bound should cause heights less than 5 to be pruned, so { 5, 6, 7 } are preserved)
 		// - 7 (seeded entries); 0 (added entries, no real observer used); 5 (local finalized height)
 		EXPECT_EQ(3u, context.Cache.sub<cache::BlockStatisticCache>().createView()->size());
+
+		// - prune was called with expected identifiers
+		EXPECT_EQ(std::vector<Height>({ Height(4), Height(5) }), context.CachePruneIdentifiers.Heights);
+		EXPECT_EQ(std::vector<Timestamp>({ Timestamp(5000) }), context.CachePruneIdentifiers.Times);
 	}
 
 	// endregion

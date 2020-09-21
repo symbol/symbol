@@ -73,6 +73,9 @@ namespace catapult { namespace cache {
 		/// Prunes the cache at \a height.
 		void prune(Height height);
 
+		/// Prunes the cache at \a time.
+		void prune(Timestamp time);
+
 	public:
 		/// Creates a read-only view of this delta.
 		ReadOnlyCatapultCache toReadOnly() const;

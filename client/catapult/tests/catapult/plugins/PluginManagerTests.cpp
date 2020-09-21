@@ -47,7 +47,7 @@ namespace catapult { namespace plugins {
 	TEST(TEST_CLASS, CanCreateManager) {
 		// Arrange:
 		auto config = model::BlockChainConfiguration::Uninitialized();
-		config.BlockPruneInterval = 15;
+		config.BlockTimeSmoothingFactor = 15;
 
 		auto storageConfig = StorageConfiguration();
 		storageConfig.CacheDatabaseDirectory = "abc";
@@ -62,7 +62,7 @@ namespace catapult { namespace plugins {
 		PluginManager manager(config, storageConfig, userConfig, inflationConfig);
 
 		// Assert: compare sentinel values from component configs because the manager copies the configs
-		EXPECT_EQ(15u, manager.config().BlockPruneInterval);
+		EXPECT_EQ(15u, manager.config().BlockTimeSmoothingFactor);
 
 		EXPECT_EQ("abc", manager.storageConfig().CacheDatabaseDirectory);
 

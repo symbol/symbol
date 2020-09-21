@@ -123,7 +123,6 @@ namespace catapult { namespace test {
 
 		config.VotingSetGrouping = 1;
 
-		config.BlockPruneInterval = 360;
 		config.MaxTransactionsPerBlock = 200'000;
 		return config;
 	}
@@ -172,7 +171,6 @@ namespace catapult { namespace test {
 		config.ImportanceGrouping = 123;
 		config.MaxDifficultyBlocks = 123;
 		config.TotalChainImportance = Importance(15);
-		config.BlockPruneInterval = 360;
 		return CreatePluginManagerWithRealPlugins(config);
 	}
 

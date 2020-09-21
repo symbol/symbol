@@ -41,7 +41,6 @@ namespace catapult { namespace plugins {
 				// Arrange:
 				auto config = model::BlockChainConfiguration::Uninitialized();
 				config.BlockGenerationTargetTime = utils::TimeSpan::FromSeconds(1);
-				config.BlockPruneInterval = 150;
 				config.Plugins.emplace("catapult.plugins.namespace", utils::ConfigurationBag({{
 					"",
 					{

@@ -130,10 +130,11 @@ namespace catapult { namespace cache {
 				return MerkleRootMutator<UnderlyingViewType>();
 			}
 
+			template<typename TPruneValue>
 			auto pruneMutator() {
 				// need to dereference to get underlying view type from LockedCacheView
 				using UnderlyingViewType = std::remove_reference_t<decltype(*m_view)>;
-				return PruneMutator<UnderlyingViewType>();
+				return PruneMutator<TPruneValue, UnderlyingViewType>();
 			}
 
 		public:
@@ -166,7 +167,11 @@ namespace catapult { namespace cache {
 			}
 
 			void prune(Height height) override {
-				Prune(m_view, height, pruneMutator());
+				Prune(m_view, height, pruneMutator<Height>());
+			}
+
+			void prune(Timestamp time) override {
+				Prune(m_view, time, pruneMutator<Timestamp>());
 			}
 
 			const void* asReadOnly() const override {
@@ -198,13 +203,14 @@ namespace catapult { namespace cache {
 					: public SupportedFeatureFlag
 			{};
 
-			template<typename T, typename = void>
+			template<typename TPruneValue, typename T, typename = void>
 			struct PruneMutator : public UnsupportedFeatureFlag {};
 
-			template<typename T>
+			template<typename TPruneValue, typename T>
 			struct PruneMutator<
+					TPruneValue,
 					T,
-					utils::traits::is_type_expression_t<decltype(reinterpret_cast<T*>(0)->prune(Height()))>>
+					utils::traits::is_type_expression_t<decltype(reinterpret_cast<T*>(0)->prune(TPruneValue()))>>
 					: public SupportedFeatureFlag
 			{};
 
@@ -245,11 +251,13 @@ namespace catapult { namespace cache {
 				view->updateMerkleRoot(height);
 			}
 
-			static void Prune(TView&, Height, UnsupportedFeatureFlag)
+			template<typename TPruneValue>
+			static void Prune(TView&, TPruneValue, UnsupportedFeatureFlag)
 			{}
 
-			static void Prune(TView& view, Height height, SupportedFeatureFlag) {
-				view->prune(height);
+			template<typename TPruneValue>
+			static void Prune(TView& view, TPruneValue value, SupportedFeatureFlag) {
+				view->prune(value);
 			}
 
 		private:

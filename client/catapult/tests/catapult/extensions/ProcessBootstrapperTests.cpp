@@ -35,18 +35,18 @@ namespace catapult { namespace extensions {
 	TEST(TEST_CLASS, CanCreateBootstrapper) {
 		// Arrange:
 		auto config = test::CreateUninitializedCatapultConfiguration();
-		const_cast<uint32_t&>(config.BlockChain.BlockPruneInterval) = 15;
+		const_cast<uint32_t&>(config.BlockChain.BlockTimeSmoothingFactor) = 15;
 		const_cast<bool&>(config.Node.EnableCacheDatabaseStorage) = true;
 		const_cast<std::string&>(config.User.DataDirectory) = "base_data_dir";
 
 		// Act:
 		ProcessBootstrapper bootstrapper(config, "resources path", ProcessDisposition::Recovery, "bootstrapper");
 
-		// Assert: compare BlockPruneInterval as a sentinel value because the bootstrapper copies the config
-		EXPECT_EQ(15u, bootstrapper.config().BlockChain.BlockPruneInterval);
+		// Assert: compare BlockTimeSmoothingFactor as a sentinel value because the bootstrapper copies the config
+		EXPECT_EQ(15u, bootstrapper.config().BlockChain.BlockTimeSmoothingFactor);
 
 		const auto& pluginManager = bootstrapper.pluginManager();
-		EXPECT_EQ(15u, pluginManager.config().BlockPruneInterval);
+		EXPECT_EQ(15u, pluginManager.config().BlockTimeSmoothingFactor);
 		EXPECT_TRUE(pluginManager.storageConfig().PreferCacheDatabase);
 		EXPECT_EQ("base_data_dir/statedb", pluginManager.storageConfig().CacheDatabaseDirectory);
 

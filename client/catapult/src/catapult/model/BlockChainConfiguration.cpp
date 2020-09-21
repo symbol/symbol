@@ -90,7 +90,6 @@ namespace catapult { namespace model {
 		LOAD_CHAIN_PROPERTY(HarvestNetworkPercentage);
 		LOAD_CHAIN_PROPERTY(HarvestNetworkFeeSinkAddress);
 
-		LOAD_CHAIN_PROPERTY(BlockPruneInterval);
 		LOAD_CHAIN_PROPERTY(MaxTransactionsPerBlock);
 
 #undef LOAD_CHAIN_PROPERTY
@@ -110,7 +109,7 @@ namespace catapult { namespace model {
 			numPluginProperties += iter->second.size();
 		}
 
-		utils::VerifyBagSizeExact(bag, 5 + 28 + numPluginProperties);
+		utils::VerifyBagSizeExact(bag, 5 + 27 + numPluginProperties);
 		return config;
 	}
 

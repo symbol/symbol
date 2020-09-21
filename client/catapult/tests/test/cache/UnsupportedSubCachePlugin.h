@@ -69,6 +69,11 @@ namespace catapult { namespace test {
 		}
 
 		[[noreturn]]
+		void prune(Timestamp) override {
+			CATAPULT_THROW_RUNTIME_ERROR("prune is not supported");
+		}
+
+		[[noreturn]]
 		const void* asReadOnly() const override {
 			CATAPULT_THROW_RUNTIME_ERROR("asReadOnly is not supported");
 		}

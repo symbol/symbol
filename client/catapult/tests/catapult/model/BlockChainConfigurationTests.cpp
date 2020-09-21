@@ -89,7 +89,6 @@ namespace catapult { namespace model {
 							{ "harvestNetworkPercentage", "21" },
 							{ "harvestNetworkFeeSinkAddress", Harvest_Network_Fee_Sink_Address },
 
-							{ "blockPruneInterval", "432" },
 							{ "maxTransactionsPerBlock", "120" }
 						}
 					},
@@ -156,7 +155,6 @@ namespace catapult { namespace model {
 				EXPECT_EQ(0u, config.HarvestNetworkPercentage);
 				EXPECT_EQ(Address(), config.HarvestNetworkFeeSinkAddress);
 
-				EXPECT_EQ(0u, config.BlockPruneInterval);
 				EXPECT_EQ(0u, config.MaxTransactionsPerBlock);
 
 				EXPECT_TRUE(config.Plugins.empty());
@@ -205,7 +203,6 @@ namespace catapult { namespace model {
 				EXPECT_EQ(21, config.HarvestNetworkPercentage);
 				EXPECT_EQ(StringToAddress(Harvest_Network_Fee_Sink_Address), config.HarvestNetworkFeeSinkAddress);
 
-				EXPECT_EQ(432u, config.BlockPruneInterval);
 				EXPECT_EQ(120u, config.MaxTransactionsPerBlock);
 
 				EXPECT_EQ(2u, config.Plugins.size());

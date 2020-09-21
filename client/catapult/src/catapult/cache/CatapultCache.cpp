@@ -179,6 +179,15 @@ namespace catapult { namespace cache {
 		}
 	}
 
+	void CatapultCacheDelta::prune(Timestamp time) {
+		for (const auto& pSubView : m_subViews) {
+			if (!pSubView)
+				continue;
+
+			pSubView->prune(time);
+		}
+	}
+
 	ReadOnlyCatapultCache CatapultCacheDelta::toReadOnly() const {
 		return ReadOnlyCatapultCache(*m_pDependentState, ExtractReadOnlyViews(m_subViews));
 	}

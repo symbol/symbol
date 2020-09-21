@@ -190,6 +190,12 @@ namespace catapult { namespace test {
 			(*m_pMerkleRoot)[1] = static_cast<uint8_t>(height.unwrap());
 		}
 
+		/// Prunes the cache at \a time.
+		void prune(Timestamp time) {
+			// change the third byte
+			(*m_pMerkleRoot)[2] = static_cast<uint8_t>(time.unwrap());
+		}
+
 	private:
 		std::unique_ptr<Hash256> m_pMerkleRoot;
 	};
