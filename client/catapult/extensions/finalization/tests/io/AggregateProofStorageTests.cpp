@@ -92,7 +92,7 @@ namespace catapult { namespace io {
 		// endregion
 	}
 
-	// region tests
+	// region statistics
 
 	TEST(TEST_CLASS, StatisticsDelegatesToStorage) {
 		// Arrange:
@@ -116,6 +116,10 @@ namespace catapult { namespace io {
 		EXPECT_EQ(1u, context.storage().NumCalls);
 		EXPECT_EQ(Height(123), statistics.Height);
 	}
+
+	// endregion
+
+	// region loadProof
 
 	namespace {
 		class MockProofStorageProofLoader : public UnsupportedProofStorage {
@@ -167,38 +171,86 @@ namespace catapult { namespace io {
 		EXPECT_EQ(context.storage().pProof, pProof);
 	}
 
-	TEST(TEST_CLASS, SaveProofDelegatesToStorageAndPublisher) {
-		// Arrange:
+	// endregion
+
+	// region saveProof
+
+	namespace {
 		class MockProofStorage : public UnsupportedProofStorage {
 		public:
 			std::vector<const model::FinalizationProof*> Proofs;
 
 		public:
+			model::FinalizationStatistics statistics() const override {
+				model::FinalizationStatistics statistics;
+				statistics.Round = { FinalizationEpoch(7), FinalizationPoint(5) };
+				return statistics;
+			}
+
 			void saveProof(const model::FinalizationProof& proof) override {
 				Proofs.push_back(&proof);
 			}
 		};
 
-		TestContext<MockProofStorage, mocks::MockFinalizationSubscriber> context;
+		std::unique_ptr<model::FinalizationProof> CreateProofWithRound(const model::FinalizationRound& proofRound) {
+			auto pProof = std::make_unique<model::FinalizationProof>();
+			pProof->Size = sizeof(model::FinalizationProof);
+			pProof->Round = proofRound;
+			pProof->Height = Height(246);
+			pProof->Hash = test::GenerateRandomByteArray<Hash256>();
+			return pProof;
+		}
 
-		auto pProof = std::make_unique<model::FinalizationProof>();
-		pProof->Size = sizeof(model::FinalizationProof);
-		pProof->Round = { FinalizationEpoch(7), FinalizationPoint(5) };
-		pProof->Height = Height(246);
-		pProof->Hash = test::GenerateRandomByteArray<Hash256>();
+		void AssertSaveProofDelegation(const model::FinalizationRound& proofRound) {
+			// Arrange:
+			TestContext<MockProofStorage, mocks::MockFinalizationSubscriber> context;
 
-		// Act:
-		context.aggregate().saveProof(*pProof);
+			auto pProof = CreateProofWithRound(proofRound);
 
-		// Assert:
-		ASSERT_EQ(1u, context.storage().Proofs.size());
-		EXPECT_EQ(pProof.get(), context.storage().Proofs[0]);
+			// Act:
+			context.aggregate().saveProof(*pProof);
 
-		const auto& subscriberParams = context.subscriber().finalizedBlockParams().params();
-		ASSERT_EQ(1u, subscriberParams.size());
-		EXPECT_EQ(pProof->Round, subscriberParams[0].Round);
-		EXPECT_EQ(pProof->Height, subscriberParams[0].Height);
-		EXPECT_EQ(pProof->Hash, subscriberParams[0].Hash);
+			// Assert:
+			ASSERT_EQ(1u, context.storage().Proofs.size());
+			EXPECT_EQ(pProof.get(), context.storage().Proofs[0]);
+
+			const auto& subscriberParams = context.subscriber().finalizedBlockParams().params();
+			ASSERT_EQ(1u, subscriberParams.size());
+			EXPECT_EQ(pProof->Round, subscriberParams[0].Round);
+			EXPECT_EQ(pProof->Height, subscriberParams[0].Height);
+			EXPECT_EQ(pProof->Hash, subscriberParams[0].Hash);
+		}
+
+		void AssertNoSaveProofDelegation(const model::FinalizationRound& proofRound) {
+			// Arrange:
+			TestContext<MockProofStorage, mocks::MockFinalizationSubscriber> context;
+
+			auto pProof = CreateProofWithRound(proofRound);
+
+			// Act:
+			context.aggregate().saveProof(*pProof);
+
+			// Assert:
+			EXPECT_EQ(0u, context.storage().Proofs.size());
+
+			EXPECT_EQ(0u, context.subscriber().finalizedBlockParams().params().size());
+		}
+	}
+
+	TEST(TEST_CLASS, SaveProofDelegatesToStorageAndPublisherWhenLastSavedRoundIsLessThanProofRound) {
+		AssertSaveProofDelegation({ FinalizationEpoch(9), FinalizationPoint(0) });
+		AssertSaveProofDelegation({ FinalizationEpoch(8), FinalizationPoint(5) });
+		AssertSaveProofDelegation({ FinalizationEpoch(7), FinalizationPoint(6) });
+	}
+
+	TEST(TEST_CLASS, SaveProofDelegatesToStorageAndPublisherWhenLastSavedRoundIsEqualToProofRound) {
+		AssertSaveProofDelegation({ FinalizationEpoch(7), FinalizationPoint(5) });
+	}
+
+	TEST(TEST_CLASS, SaveProofDoesNotDelegateToStorageAndPublisherWhenLastSavedRoundIsGreaterThanProofRound) {
+		AssertNoSaveProofDelegation({ FinalizationEpoch(7), FinalizationPoint(4) });
+		AssertNoSaveProofDelegation({ FinalizationEpoch(6), FinalizationPoint(5) });
+		AssertNoSaveProofDelegation({ FinalizationEpoch(5), FinalizationPoint(9) });
 	}
 
 	// endregion

@@ -45,6 +45,14 @@ namespace catapult { namespace io {
 			}
 
 			void saveProof(const model::FinalizationProof& proof) override {
+				auto currentStatistics = statistics();
+				if (currentStatistics.Round > proof.Round) {
+					CATAPULT_LOG(debug)
+							<< "skipping save of older proof with round " << proof.Round
+							<< " when last saved proof is " << currentStatistics.Round;
+					return;
+				}
+
 				m_pStorage->saveProof(proof);
 				m_subscriber.notifyFinalizedBlock(proof.Round, proof.Height, proof.Hash);
 			}

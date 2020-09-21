@@ -207,7 +207,7 @@ namespace catapult { namespace test {
 
 	private:
 		static void AssertCannotSaveProofAtFinalizationRound(const model::FinalizationRound& newFinalizationRound) {
-			// Arrange:
+			// Arrange: last saved proof has round (10, 6)
 			auto pStorage = PrepareStorageWithProofs(10);
 			auto pProof = GenerateProof(3, newFinalizationRound.Epoch, newFinalizationRound.Point, Height(123));
 
@@ -216,7 +216,7 @@ namespace catapult { namespace test {
 		}
 
 		static void AssertCanSaveProofAtFinalizationRound(const model::FinalizationRound& newFinalizationRound) {
-			// Arrange:
+			// Arrange: last saved proof has round (10, 6)
 			auto pStorage = PrepareStorageWithProofs(10);
 			auto pProof = GenerateProof(3, newFinalizationRound.Epoch, newFinalizationRound.Point, Height(123));
 
