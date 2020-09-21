@@ -11,7 +11,7 @@ Targets catapult-rest 2.0.0
 ### Added
 
 - ``/chain/info`` endpoint (with `latestFinalizedBlock` ).
-- ``SeretLock`` and ``HashLock`` endpoints.
+- ``SecretLock`` and ``HashLock`` endpoints.
 - ``fromHeight`` and ``toHeight`` search criteria for ``Transaction`` search.
 - new ``Voting`` node role type.
 
