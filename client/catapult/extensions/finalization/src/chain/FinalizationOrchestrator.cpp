@@ -120,7 +120,13 @@ namespace catapult { namespace chain {
 			if (proofStorage.view().statistics().Height == bestPrecommitDescriptor.Target.Height)
 				return;
 
-			auto pProof = CreateFinalizationProof(ToFinalizationStatistics(bestPrecommitDescriptor), bestPrecommitDescriptor.Proof);
+			auto statistics = ToFinalizationStatistics(bestPrecommitDescriptor);
+			CATAPULT_LOG(debug)
+					<< "finalization round " << statistics.Round
+					<< " reached consensus among "<< bestPrecommitDescriptor.Proof.size() << " messages"
+					<< " for block " << statistics.Hash << " at " << statistics.Height;
+
+			auto pProof = CreateFinalizationProof(statistics, bestPrecommitDescriptor.Proof);
 			proofStorage.modifier().saveProof(*pProof);
 
 			// prune previous epoch when later epoch has finalized at least one (new) block

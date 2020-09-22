@@ -218,10 +218,15 @@ namespace catapult { namespace chain {
 							<< " blocks (heights " << range.cbegin()->Height << " - " << endHeight << ")";
 
 					pRangeAggregator->add(std::move(range));
-					if (forkDepth <= pRangeAggregator->numBlocks())
+					if (forkDepth <= pRangeAggregator->numBlocks()) {
+						CATAPULT_LOG(debug)
+								<< "completing chain synchronization with " << pRangeAggregator->numBlocks() << " blocks"
+								<< " (fork depth = " << forkDepth << ")";
 						return CompleteChainBlocksFrom(*pRangeAggregator, unprocessedElements);
+					}
 
 					auto nextHeight = endHeight + Height(1);
+					CATAPULT_LOG(debug) << "resuming chain synchronization at " << nextHeight;
 					return ChainBlocksFrom(futureSupplier, nextHeight, forkDepth, pRangeAggregator, unprocessedElements);
 				} catch (const catapult_runtime_error& e) {
 					CATAPULT_LOG(warning) << "exception thrown while requesting blocks: " << e.what();
@@ -302,7 +307,7 @@ namespace catapult { namespace chain {
 
 				CATAPULT_LOG(debug)
 						<< "pulling blocks from remote with common height " << compareResult.CommonBlockHeight
-						<< " (fork depth = " << compareResult.ForkDepth << ")";
+						<< " (fork depth = " << compareResult.ForkDepth << ") from " << remoteChainApi.remoteIdentity();
 				return ChainBlocksFrom(
 						CreateFutureSupplier(remoteChainApi, m_blocksFromOptions),
 						compareResult.CommonBlockHeight + Height(1),
