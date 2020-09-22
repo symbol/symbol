@@ -3,6 +3,15 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.10.0.2] - 22-Sep-2020
+### Fixed
+ - bugfix: validation of nemesis block containing transactions dependent on DynamicFeeMultiplier
+ - bugfix: fix rollback when importance information is spooled to disk
+ - bugfix: allow same finalization proof to be received from proof and message sync
+ - bugfix: make time based (hash cache) pruning finalization aware
+ - reduce network traffic by requesting finalization messages within range
+ - optimize compare chains logic to do binary search of remote hashes
+
 ## [0.10.0.1] - 18-Sep-2020
 
 ### Added
@@ -295,6 +304,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Added
 - Initial code release.
 
+[0.10.0.2]: https://github.com/nemtech/catapult-server/compare/v0.10.0.1...v0.10.0.2
 [0.10.0.1]: https://github.com/nemtech/catapult-server/compare/v0.9.6.4...v0.10.0.1
 [0.9.6.4]: https://github.com/nemtech/catapult-server/compare/v0.9.6.3...v0.9.6.4
 [0.9.6.3]: https://github.com/nemtech/catapult-server/compare/v0.9.6.2...v0.9.6.3
