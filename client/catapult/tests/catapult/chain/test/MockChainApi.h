@@ -111,7 +111,7 @@ namespace catapult { namespace mocks {
 
 			auto chainStatistics = api::ChainStatistics();
 			chainStatistics.Height = chainHeight();
-			chainStatistics.Score = m_score;
+			chainStatistics.Score = chainScore();
 			return CreateFutureResponse(std::move(chainStatistics));
 		}
 
@@ -163,6 +163,11 @@ namespace catapult { namespace mocks {
 				m_numBlocksPerBlocksFromRequest.pop_front();
 
 			return CreateFutureResponse(createRange(height, numBlocks));
+		}
+
+	protected:
+		virtual model::ChainScore chainScore() const {
+			return m_score;
 		}
 
 	private:

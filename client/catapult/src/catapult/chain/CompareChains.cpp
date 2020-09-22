@@ -33,12 +33,14 @@ namespace catapult { namespace chain {
 		private:
 			using ComparisonFunction = thread::future<ChainComparisonCode> (*)(CompareChainsContext& context);
 
+			enum class Stage { Statistics, Hashes_First, Hashes_Next, Score_Local };
+
 		public:
 			CompareChainsContext(const api::ChainApi& local, const api::ChainApi& remote, const CompareChainsOptions& options)
 					: m_local(local)
 					, m_remote(remote)
 					, m_options(options)
-					, m_nextFutureId(0)
+					, m_stage(Stage::Statistics)
 			{}
 
 		public:
@@ -49,15 +51,26 @@ namespace catapult { namespace chain {
 
 		private:
 			void startNextCompare() {
-				ComparisonFunction nextFunc;
-				if (0 == m_nextFutureId++) {
-					nextFunc = [](auto& context) { return context.compareChainStatistics(); };
+				switch (m_stage) {
+				case Stage::Statistics:
 					m_lowerBoundHeight = m_options.FinalizedHeightSupplier();
 					m_startingHashesHeight = m_lowerBoundHeight;
-				} else {
-					nextFunc = [](auto& context) { return context.compareHashes(); };
-				}
+					dispatch([](auto& context) { return context.compareChainStatistics(); });
+					break;
 
+				case Stage::Hashes_First:
+				case Stage::Hashes_Next:
+					dispatch([](auto& context) { return context.compareHashes(); });
+					break;
+
+				case Stage::Score_Local:
+					// this will always terminate
+					dispatch([](auto& context) { return context.compareLocalScore(); });
+					break;
+				}
+			}
+
+			void dispatch(ComparisonFunction nextFunc) {
 				nextFunc(*this).then([pThis = shared_from_this()](auto&& future) {
 					if (pThis->isFutureChainComplete(future))
 						return;
@@ -106,10 +119,12 @@ namespace catapult { namespace chain {
 						<< "comparing chain scores: " << localScore << " (local) vs " << remoteScore << " (remote)";
 
 				if (remoteScore > localScore) {
+					m_originalLocalScore = localChainStatistics.Score;
 					m_localHeight = localChainStatistics.Height;
 					m_remoteHeight = remoteChainStatistics.Height;
 
 					m_upperBoundHeight = m_localHeight;
+					m_stage = Stage::Hashes_First;
 					return Incomplete_Chain_Comparison_Code;
 				}
 
@@ -158,9 +173,8 @@ namespace catapult { namespace chain {
 						if (localHeightDerivedFromHashes < m_remoteHeight)
 							return tryContinue(localHeightDerivedFromHashes - Height(1));
 
-						return localHeightDerivedFromHashes == m_localHeight
-								? ChainComparisonCode::Remote_Lied_About_Chain_Score
-								: ChainComparisonCode::Local_Height_Updated;
+						m_stage = Stage::Score_Local;
+						return Incomplete_Chain_Comparison_Code;
 					}
 
 					// search next hashes for first difference block
@@ -176,7 +190,7 @@ namespace catapult { namespace chain {
 			}
 
 			bool isProcessingFirstBatchOfHashes() const {
-				return 2 == m_nextFutureId;
+				return Stage::Hashes_First == m_stage;
 			}
 
 			ChainComparisonCode tryContinue(Height nextStartingHashesHeight) {
@@ -184,21 +198,38 @@ namespace catapult { namespace chain {
 					return ChainComparisonCode::Remote_Lied_About_Chain_Score;
 
 				m_startingHashesHeight = nextStartingHashesHeight;
+				m_stage = Stage::Hashes_Next;
 				return Incomplete_Chain_Comparison_Code;
+			}
+
+			thread::future<ChainComparisonCode> compareLocalScore() {
+				return m_local.chainStatistics().then([pThis = shared_from_this()](auto&& chainStatisticsFuture) {
+					// if local score increased, don't punish remote
+					auto currentLocalScore = chainStatisticsFuture.get().Score;
+					if (currentLocalScore > pThis->m_originalLocalScore) {
+						CATAPULT_LOG(debug)
+								<< "local node score updated during compare chains from " << pThis->m_originalLocalScore
+								<< " to " << currentLocalScore;
+						return ChainComparisonCode::Local_Score_Updated;
+					}
+
+					return ChainComparisonCode::Remote_Lied_About_Chain_Score;
+				});
 			}
 
 		private:
 			const api::ChainApi& m_local;
 			const api::ChainApi& m_remote;
 			CompareChainsOptions m_options;
-
-			size_t m_nextFutureId;
+			Stage m_stage;
 
 			Height m_lowerBoundHeight;
 			Height m_upperBoundHeight;
 			Height m_startingHashesHeight;
 
 			thread::promise<CompareChainsResult> m_promise;
+
+			model::ChainScore m_originalLocalScore; // original local score
 
 			Height m_localHeight;
 			Height m_remoteHeight;

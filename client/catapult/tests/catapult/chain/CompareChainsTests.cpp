@@ -36,9 +36,15 @@ namespace catapult { namespace chain {
 
 		class CompareHashesMockChainApi : public MockChainApi {
 		public:
+			static ChainScore ChainScoreExceptionTrigger() {
+				return ChainScore();
+			}
+
+		public:
 			CompareHashesMockChainApi(const model::ChainScore& score, Height height)
 					: MockChainApi(score, height)
 					, m_hashes(test::GenerateRandomDataVector<Hash256>(height.unwrap()))
+					, m_nextScoreIndex(0)
 			{}
 
 		public:
@@ -52,7 +58,24 @@ namespace catapult { namespace chain {
 					m_hashes.push_back(test::GenerateRandomByteArray<Hash256>());
 			}
 
+			void pushChainScore(const ChainScore& score) {
+				m_scores.push_back(score);
+			}
+
 		private:
+			model::ChainScore chainScore() const override {
+				if (m_nextScoreIndex >= m_scores.size())
+					return MockChainApi::chainScore();
+
+				const auto& score = m_scores[m_nextScoreIndex++];
+
+				// queue exeception for *next* statistics call
+				if (m_nextScoreIndex < m_scores.size() && ChainScoreExceptionTrigger() == m_scores[m_nextScoreIndex])
+					const_cast<CompareHashesMockChainApi&>(*this).setError(EntryPoint::Chain_Statistics);
+
+				return score;
+			}
+
 			std::pair<model::HashRange, bool> lookupHashes(Height height, uint32_t maxHashes) const override {
 				if (height.unwrap() > m_hashes.size())
 					return std::make_pair(model::HashRange(), false);
@@ -65,6 +88,8 @@ namespace catapult { namespace chain {
 
 		public:
 			std::vector<Hash256> m_hashes;
+			std::vector<ChainScore> m_scores;
+			mutable size_t m_nextScoreIndex;
 		};
 
 		// endregion
@@ -245,7 +270,7 @@ namespace catapult { namespace chain {
 
 	// endregion
 
-	// region hash - common
+	// region hash - too many hashes
 
 	namespace {
 		template<typename TTraits>
@@ -284,6 +309,10 @@ namespace catapult { namespace chain {
 		AssertRemoteReturnedTooManyHashes<TTraits>(10, 20, false);
 	}
 
+	// endregion
+
+	// region hash - basic
+
 	HASH_TEST(RemoteLiedAboutChainScoreWhenLocalIsSameSizeAsRemoteChainAndContainsAllHashesInRemoteChain) {
 		// Arrange: Local { ... A, B, C }, Remote { ... A, B, C }
 		auto adjustment = TTraits::Prepare_Adjustment;
@@ -316,25 +345,6 @@ namespace catapult { namespace chain {
 		AssertDefaultChainStatistics(result);
 	}
 
-	HASH_TEST(RemoteIsNotPunishedWhenLocalHeightIncreasesDuringChainCompare) {
-		// Arrange: simulate the scenario where the local height increases in-between the height and hashes requests
-		// - 1. report local height as X + 8
-		// - 2. return X + 13 local hashes
-		// - 3. return X + 13 remote hashes so that the remote still has a better score
-		auto adjustment = TTraits::Prepare_Adjustment;
-
-		CompareHashesMockChainApi local(ChainScore(10), Height(adjustment + 8));
-		CompareHashesMockChainApi remote(ChainScore(11), Height(adjustment + 13));
-		local.syncHashes(remote, 0, 0);
-
-		// Act:
-		auto result = CompareChains(local, remote, CreateCompareChainsOptions(20, 1)).get();
-
-		// Assert: remote was not punished
-		EXPECT_EQ(ChainComparisonCode::Local_Height_Updated, result.Code);
-		AssertDefaultChainStatistics(result);
-	}
-
 	HASH_TEST(RemoteIsNotSyncedWhenLocalIsSmallerThanRemoteChainAndContainsAllHashesInRemoteChain) {
 		// Arrange: Local { ... A, B }, Remote { ... A, B, C }
 		auto adjustment = TTraits::Prepare_Adjustment;
@@ -350,46 +360,6 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(ChainComparisonCode::Remote_Is_Not_Synced, result.Code);
 		EXPECT_EQ(Height(adjustment + 2), result.CommonBlockHeight);
 		EXPECT_EQ(0u, result.ForkDepth);
-	}
-
-	HASH_TEST(RemoteIsNotSyncedWhenLocalIsSmallerThanRemoteChainAndContainsAllHashesInRemoteChainButReturnsMoreHashesThanExpected) {
-		// Arrange: simulate the scenario where the local height increases in-between the height and hashes requests
-		// - 1. report local height as X + 8
-		// - 2. return X + 12 local hashes
-		// - 3. return X + 13 remote hashes so that the remote still has a better score
-		auto adjustment = TTraits::Prepare_Adjustment;
-
-		CompareHashesMockChainApi local(ChainScore(10), Height(adjustment + 8));
-		CompareHashesMockChainApi remote(ChainScore(11), Height(adjustment + 13));
-		local.syncHashes(remote, -1, 0);
-
-		// Act:
-		auto result = CompareChains(local, remote, CreateCompareChainsOptions(20, 1)).get();
-
-		// Assert:
-		EXPECT_EQ(ChainComparisonCode::Remote_Is_Not_Synced, result.Code);
-		EXPECT_EQ(Height(adjustment + 12), result.CommonBlockHeight);
-		EXPECT_EQ(0u, result.ForkDepth);
-	}
-
-	HASH_TEST(RemoteIsNotSyncedWhenLocalIsSmallerThanRemoteChainAndContainsAllHashesInRemoteChainButReturnsFewerHashesThanExpected) {
-		// Arrange: simulate the scenario where the local height decreases in-between the height and hashes requests
-		// - 1. report local height as X + 8
-		// - 2. return X + 6 local hashes
-		// - 3. return X + 13 remote hashes so that the remote still has a better score
-		auto adjustment = TTraits::Prepare_Adjustment;
-
-		CompareHashesMockChainApi local(ChainScore(10), Height(adjustment + 8));
-		CompareHashesMockChainApi remote(ChainScore(11), Height(adjustment + 13));
-		local.syncHashes(remote, -7, 0);
-
-		// Act:
-		auto result = CompareChains(local, remote, CreateCompareChainsOptions(20, 1)).get();
-
-		// Assert: fork depth is based on original (not current) local height, so this will likely lead to unlinked error downstream
-		EXPECT_EQ(ChainComparisonCode::Remote_Is_Not_Synced, result.Code);
-		EXPECT_EQ(Height(adjustment + 6), result.CommonBlockHeight);
-		EXPECT_EQ(2u, result.ForkDepth);
 	}
 
 	namespace {
@@ -440,6 +410,174 @@ namespace catapult { namespace chain {
 			{ Height(90), 20 }, // (62 + 118) / 2
 			{ Height(104), 20 } // (90 + 118) / 2
 		});
+	}
+
+	// endregion
+
+	// region hash - sync during compare [block]
+
+	HASH_TEST(RemoteIsNotPunishedWhenLocalNodeSyncsToBlockEqualToRemoteDuringChainCompare) {
+		// Arrange: simulate the scenario where the local node syncs in-between the height and hashes requests
+		auto adjustment = TTraits::Prepare_Adjustment;
+
+		CompareHashesMockChainApi local(ChainScore(10), Height(adjustment + 10));
+		CompareHashesMockChainApi remote(ChainScore(11), Height(adjustment + 10));
+		local.syncHashes(remote, 0, 0);
+		local.pushChainScore(ChainScore(10));
+		local.pushChainScore(ChainScore(11)); // as part of sync, score should equal remote
+
+		// Act:
+		auto result = CompareChains(local, remote, CreateCompareChainsOptions(20, 1)).get();
+
+		// Assert: remote was not punished
+		EXPECT_EQ(ChainComparisonCode::Local_Score_Updated, result.Code);
+		AssertDefaultChainStatistics(result);
+	}
+
+	HASH_TEST(RemoteIsNotPunishedWhenLocalNodeSyncsToBlockBetterThanRemoteDuringChainCompare) {
+		// Arrange: simulate the scenario where the local node syncs in-between the height and hashes requests
+		auto adjustment = TTraits::Prepare_Adjustment;
+
+		CompareHashesMockChainApi local(ChainScore(10), Height(adjustment + 10));
+		CompareHashesMockChainApi remote(ChainScore(11), Height(adjustment + 10));
+		local.syncHashes(remote, -1, 1);
+		local.pushChainScore(ChainScore(10));
+		local.pushChainScore(ChainScore(12)); // as part of sync, score should be better than remote
+
+		// Act:
+		auto result = CompareChains(local, remote, CreateCompareChainsOptions(20, 1)).get();
+
+		// Assert: since remote chain score is worse, this will lead to rejection during block processing
+		EXPECT_EQ(ChainComparisonCode::Remote_Is_Not_Synced, result.Code);
+		EXPECT_EQ(Height(adjustment + 9), result.CommonBlockHeight);
+		EXPECT_EQ(1u, result.ForkDepth);
+	}
+
+	HASH_TEST(RemoteIsNotSyncedWhenLocalNodeSyncsToBlockWorseThanRemoteDuringChainCompare) {
+		// Arrange: simulate the scenario where the local node syncs in-between the height and hashes requests
+		auto adjustment = TTraits::Prepare_Adjustment;
+
+		CompareHashesMockChainApi local(ChainScore(10), Height(adjustment + 10));
+		CompareHashesMockChainApi remote(ChainScore(11), Height(adjustment + 10));
+		local.syncHashes(remote, -1, 1);
+		local.pushChainScore(ChainScore(10));
+		local.pushChainScore(ChainScore(9)); // as part of sync, score should be worse than remote
+
+		// Act:
+		auto result = CompareChains(local, remote, CreateCompareChainsOptions(20, 1)).get();
+
+		// Assert:
+		EXPECT_EQ(ChainComparisonCode::Remote_Is_Not_Synced, result.Code);
+		EXPECT_EQ(Height(adjustment + 9), result.CommonBlockHeight);
+		EXPECT_EQ(1u, result.ForkDepth);
+	}
+
+	// endregion
+
+	// region hash - sync during compare [chain]
+
+	HASH_TEST(RemoteIsNotPunishedWhenLocalNodeSyncsToChainEqualToRemoteDuringChainCompare) {
+		// Arrange: simulate the scenario where the local node syncs in-between the height and hashes requests
+		// - 1. report local height as X + 8
+		// - 2. return X + 13 local hashes
+		// - 3. return X + 13 remote hashes
+		auto adjustment = TTraits::Prepare_Adjustment;
+
+		CompareHashesMockChainApi local(ChainScore(10), Height(adjustment + 8));
+		CompareHashesMockChainApi remote(ChainScore(11), Height(adjustment + 13));
+		local.syncHashes(remote, 0, 0);
+		local.pushChainScore(ChainScore(10));
+		local.pushChainScore(ChainScore(11)); // as part of sync, score should equal remote
+
+		// Act:
+		auto result = CompareChains(local, remote, CreateCompareChainsOptions(20, 1)).get();
+
+		// Assert: remote was not punished
+		EXPECT_EQ(ChainComparisonCode::Local_Score_Updated, result.Code);
+		AssertDefaultChainStatistics(result);
+	}
+
+	HASH_TEST(RemoteIsNotPunishedWhenLocalNodeSyncsToChainBetterThanRemoteDuringChainCompare) {
+		// Arrange: simulate the scenario where the local node syncs in-between the height and hashes requests
+		// - 1. report local height as X + 8
+		// - 2. return X + 14 local hashes
+		// - 3. return X + 13 remote hashes
+		auto adjustment = TTraits::Prepare_Adjustment;
+
+		CompareHashesMockChainApi local(ChainScore(10), Height(adjustment + 8));
+		CompareHashesMockChainApi remote(ChainScore(11), Height(adjustment + 13));
+		local.syncHashes(remote, 0, 1);
+		local.pushChainScore(ChainScore(10));
+		local.pushChainScore(ChainScore(12)); // as part of sync, score should be better than remote
+
+		// Act:
+		auto result = CompareChains(local, remote, CreateCompareChainsOptions(20, 1)).get();
+
+		// Assert: remote was not punished
+		EXPECT_EQ(ChainComparisonCode::Local_Score_Updated, result.Code);
+		AssertDefaultChainStatistics(result);
+	}
+
+	HASH_TEST(RemoteIsNotSyncedWhenLocalNodeSyncsToChainWorseThanRemoteDuringChainCompare) {
+		// Arrange: simulate the scenario where the local node syncs in-between the height and hashes requests
+		// - 1. report local height as X + 8
+		// - 2. return X + 12 local hashes
+		// - 3. return X + 13 remote hashes
+		auto adjustment = TTraits::Prepare_Adjustment;
+
+		CompareHashesMockChainApi local(ChainScore(10), Height(adjustment + 8));
+		CompareHashesMockChainApi remote(ChainScore(11), Height(adjustment + 13));
+		local.syncHashes(remote, -1, 0);
+		local.pushChainScore(ChainScore(10));
+		local.pushChainScore(ChainScore(9)); // as part of sync, score should be worse than remote
+
+		// Act:
+		auto result = CompareChains(local, remote, CreateCompareChainsOptions(20, 1)).get();
+
+		// Assert:
+		EXPECT_EQ(ChainComparisonCode::Remote_Is_Not_Synced, result.Code);
+		EXPECT_EQ(Height(adjustment + 12), result.CommonBlockHeight);
+		EXPECT_EQ(0u, result.ForkDepth);
+	}
+
+	HASH_TEST(RemoteIsNotSyncedWhenLocalIsSmallerThanRemoteChainAndContainsAllHashesInRemoteChainButReturnsMoreHashesThanExpected) {
+		// Arrange: simulate the scenario where the local height increases in-between the height and hashes requests
+		// - 1. report local height as X + 8
+		// - 2. return X + 12 local hashes
+		// - 3. return X + 13 remote hashes so that the remote still has a better score
+		auto adjustment = TTraits::Prepare_Adjustment;
+
+		CompareHashesMockChainApi local(ChainScore(10), Height(adjustment + 8));
+		CompareHashesMockChainApi remote(ChainScore(11), Height(adjustment + 13));
+		local.syncHashes(remote, -1, 0);
+
+		// Act:
+		auto result = CompareChains(local, remote, CreateCompareChainsOptions(20, 1)).get();
+
+		// Assert:
+		EXPECT_EQ(ChainComparisonCode::Remote_Is_Not_Synced, result.Code);
+		EXPECT_EQ(Height(adjustment + 12), result.CommonBlockHeight);
+		EXPECT_EQ(0u, result.ForkDepth);
+	}
+
+	HASH_TEST(RemoteIsNotSyncedWhenLocalIsSmallerThanRemoteChainAndContainsAllHashesInRemoteChainButReturnsFewerHashesThanExpected) {
+		// Arrange: simulate the scenario where the local height decreases in-between the height and hashes requests
+		// - 1. report local height as X + 8
+		// - 2. return X + 6 local hashes
+		// - 3. return X + 13 remote hashes so that the remote still has a better score
+		auto adjustment = TTraits::Prepare_Adjustment;
+
+		CompareHashesMockChainApi local(ChainScore(10), Height(adjustment + 8));
+		CompareHashesMockChainApi remote(ChainScore(11), Height(adjustment + 13));
+		local.syncHashes(remote, -7, 0);
+
+		// Act:
+		auto result = CompareChains(local, remote, CreateCompareChainsOptions(20, 1)).get();
+
+		// Assert: fork depth is based on original (not current) local height, so this will likely lead to unlinked error downstream
+		EXPECT_EQ(ChainComparisonCode::Remote_Is_Not_Synced, result.Code);
+		EXPECT_EQ(Height(adjustment + 6), result.CommonBlockHeight);
+		EXPECT_EQ(2u, result.ForkDepth);
 	}
 
 	// endregion
@@ -499,6 +637,18 @@ namespace catapult { namespace chain {
 
 	TEST(TEST_CLASS, RemoteHashesFromExceptionIsPropagated) {
 		AssertRemoteChainExceptionPropagation(MockChainApi::EntryPoint::Hashes_From);
+	}
+
+	TEST(TEST_CLASS, LocalChainStatisticsExceptionIsPropagatedDuringLocalScoreCheck) {
+		// Arrange: simulate the scenario where the local node syncs in-between the height and hashes requests
+		CompareHashesMockChainApi local(ChainScore(10), Height(10));
+		CompareHashesMockChainApi remote(ChainScore(11), Height(10));
+		local.syncHashes(remote, 0, 0);
+		local.pushChainScore(ChainScore(10));
+		local.pushChainScore(CompareHashesMockChainApi::ChainScoreExceptionTrigger());
+
+		// Act:
+		EXPECT_THROW(CompareChains(local, remote, CreateCompareChainsOptions(20, 1)).get(), catapult_runtime_error);
 	}
 
 	// endregion
