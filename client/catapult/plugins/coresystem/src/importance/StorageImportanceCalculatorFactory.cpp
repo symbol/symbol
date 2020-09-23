@@ -79,8 +79,15 @@ namespace catapult { namespace importance {
 			{}
 
 		public:
-			void recalculate(model::ImportanceHeight importanceHeight, cache::AccountStateCacheDelta& cache) const override {
-				m_pCalculator->recalculate(importanceHeight, cache);
+			void recalculate(
+					ImportanceRollbackMode mode,
+					model::ImportanceHeight importanceHeight,
+					cache::AccountStateCacheDelta& cache) const override {
+				m_pCalculator->recalculate(mode, importanceHeight, cache);
+
+				if (ImportanceRollbackMode::Disabled == mode)
+					return;
+
 				writeToFile(importanceHeight, cache);
 			}
 
@@ -139,13 +146,19 @@ namespace catapult { namespace importance {
 			{}
 
 		public:
-			void recalculate(model::ImportanceHeight importanceHeight, cache::AccountStateCacheDelta& cache) const override {
+			void recalculate(
+					ImportanceRollbackMode mode,
+					model::ImportanceHeight importanceHeight,
+					cache::AccountStateCacheDelta& cache) const override {
+				if (ImportanceRollbackMode::Disabled == mode)
+					CATAPULT_THROW_INVALID_ARGUMENT("cannot rollback importances when rollback is disabled");
+
 				model::HeightGroupingFacade<model::ImportanceHeight> groupingFacade(importanceHeight, m_config.ImportanceGrouping);
 
 				// if the most recently calculated importance height is being rolled back, bypass file loading because it will be in memory
 				auto lastImportanceHeight = model::ImportanceHeight(io::IndexFile(m_directory.file(Index_Filename)).get());
 				if (groupingFacade.next(1) == lastImportanceHeight) {
-					m_pCalculator->recalculate(importanceHeight, cache);
+					m_pCalculator->recalculate(mode, importanceHeight, cache);
 					return;
 				}
 

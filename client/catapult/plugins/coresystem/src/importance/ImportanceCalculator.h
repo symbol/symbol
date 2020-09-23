@@ -30,15 +30,29 @@ namespace catapult {
 
 namespace catapult { namespace importance {
 
+	/// Importance rollback mode.
+	enum class ImportanceRollbackMode {
+		/// Calculates importances in a way that guarantees the calculation can be rolled back.
+		/// \note External resources might be used.
+		Enabled,
+
+		/// Calculates importances in an optimized way that might not allow the calculation to be rolled back.
+		/// \note External resources are guaranteed to not be used.
+		Disabled
+	};
+
 	/// Base class for all importance calculators.
 	class ImportanceCalculator {
 	public:
 		virtual ~ImportanceCalculator() = default;
 
 	public:
-		/// Recalculates importances for all accounts in \a cache at \a importanceHeight that are eligible for
-		/// harvesting.
-		virtual void recalculate(model::ImportanceHeight importanceHeight, cache::AccountStateCacheDelta& cache) const = 0;
+		/// Recalculates importances for all accounts in \a cache at \a importanceHeight that are eligible for harvesting
+		/// with optional rollback support based on \a mode.
+		virtual void recalculate(
+				ImportanceRollbackMode mode,
+				model::ImportanceHeight importanceHeight,
+				cache::AccountStateCacheDelta& cache) const = 0;
 	};
 
 	/// Creates an importance calculator for the block chain described by \a config.

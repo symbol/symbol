@@ -126,8 +126,12 @@ namespace catapult { namespace cache {
 
 	// region CatapultCacheDelta
 
-	CatapultCacheDelta::CatapultCacheDelta(state::CatapultState& dependentState, std::vector<std::unique_ptr<SubCacheView>>&& subViews)
-			: m_pDependentState(&dependentState)
+	CatapultCacheDelta::CatapultCacheDelta(
+			Disposition disposition,
+			state::CatapultState& dependentState,
+			std::vector<std::unique_ptr<SubCacheView>>&& subViews)
+			: m_disposition(disposition)
+			, m_pDependentState(&dependentState)
 			, m_subViews(std::move(subViews))
 	{}
 
@@ -136,6 +140,10 @@ namespace catapult { namespace cache {
 	CatapultCacheDelta::CatapultCacheDelta(CatapultCacheDelta&&) = default;
 
 	CatapultCacheDelta& CatapultCacheDelta::operator=(CatapultCacheDelta&&) = default;
+
+	CatapultCacheDelta::Disposition CatapultCacheDelta::disposition() const {
+		return m_disposition;
+	}
 
 	const state::CatapultState& CatapultCacheDelta::dependentState() const {
 		return *m_pDependentState;
@@ -249,7 +257,7 @@ namespace catapult { namespace cache {
 			subViews.push_back(std::move(pSubView));
 		}
 
-		return std::make_unique<CatapultCacheDelta>(*m_pDependentState, std::move(subViews));
+		return std::make_unique<CatapultCacheDelta>(CatapultCacheDelta::Disposition::Detached, *m_pDependentState, std::move(subViews));
 	}
 
 	// endregion
@@ -299,7 +307,7 @@ namespace catapult { namespace cache {
 
 		// make a copy of the dependent state after all caches are locked with outstanding deltas
 		m_pDependentStateDelta = std::make_unique<state::CatapultState>(*m_pDependentState);
-		return CatapultCacheDelta(*m_pDependentStateDelta, std::move(subViews));
+		return CatapultCacheDelta(CatapultCacheDelta::Disposition::Attached, *m_pDependentStateDelta, std::move(subViews));
 	}
 
 	CatapultCacheDetachableDelta CatapultCache::createDetachableDelta() const {

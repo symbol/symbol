@@ -33,8 +33,21 @@ namespace catapult { namespace cache {
 	/// Delta on top of a catapult cache.
 	class CatapultCacheDelta {
 	public:
-		/// Creates a locked catapult cache delta from \a dependentState and \a subViews.
-		CatapultCacheDelta(state::CatapultState& dependentState, std::vector<std::unique_ptr<SubCacheView>>&& subViews);
+		/// Disposition of delta.
+		enum class Disposition {
+			/// Delta can be used to modify the underlying cache.
+			Attached,
+
+			/// Delta is detached and cannot be used to modify the underlying cache.
+			Detached
+		};
+
+	public:
+		/// Creates a locked catapult cache delta from \a disposition, \a dependentState and \a subViews.
+		CatapultCacheDelta(
+				Disposition disposition,
+				state::CatapultState& dependentState,
+				std::vector<std::unique_ptr<SubCacheView>>&& subViews);
 
 		/// Destroys the delta.
 		~CatapultCacheDelta();
@@ -58,6 +71,9 @@ namespace catapult { namespace cache {
 		}
 
 	public:
+		/// Gets the delta disposition.
+		Disposition disposition() const;
+
 		/// Gets the (const) dependent catapult state.
 		const state::CatapultState& dependentState() const;
 
@@ -81,6 +97,7 @@ namespace catapult { namespace cache {
 		ReadOnlyCatapultCache toReadOnly() const;
 
 	private:
+		Disposition m_disposition;
 		state::CatapultState* m_pDependentState; // use a pointer to allow move assignment
 		std::vector<std::unique_ptr<SubCacheView>> m_subViews;
 	};

@@ -33,6 +33,7 @@ namespace catapult { namespace importance {
 	namespace {
 		constexpr auto Harvesting_Mosaic_Id = MosaicId(2222);
 		constexpr auto Importance_Grouping = static_cast<uint32_t>(123);
+		constexpr auto Default_Calculation_Mode = ImportanceRollbackMode::Enabled;
 
 		// region structs
 
@@ -71,7 +72,10 @@ namespace catapult { namespace importance {
 			{}
 
 		public:
-			void recalculate(model::ImportanceHeight importanceHeight, cache::AccountStateCacheDelta& cache) const override {
+			void recalculate(
+					ImportanceRollbackMode mode,
+					model::ImportanceHeight importanceHeight,
+					cache::AccountStateCacheDelta& cache) const override {
 				const auto& highValueAddresses = cache.highValueAccounts().addresses();
 				for (const auto& address : highValueAddresses) {
 					auto accountStateIter = cache.find(address);
@@ -86,7 +90,10 @@ namespace catapult { namespace importance {
 					// 1. sets importance at `importanceHeight`
 					// 2. finalizes activity bucket at previous `importanceHeight`
 					// 3. creates empty activity bucket at `importanceHeight`
-					accountStateIter.get().ImportanceSnapshots.set(mapIter->second.Importance, importanceHeight);
+
+					// add mode to configured importance to provide indirect way of checking correct mode was passed
+					auto importance = mapIter->second.Importance + Importance(static_cast<Importance::ValueType>(mode));
+					accountStateIter.get().ImportanceSnapshots.set(importance, importanceHeight);
 
 					auto groupingFacade = model::HeightGroupingFacade<model::ImportanceHeight>(importanceHeight, Importance_Grouping);
 					accountStateIter.get().ActivityBuckets.update(groupingFacade.previous(1), [&seed = mapIter->second](auto& bucket) {
@@ -243,6 +250,11 @@ namespace catapult { namespace importance {
 					EXPECT_TRUE(boost::filesystem::exists(qualify(filename))) << filename;
 			}
 
+			void assertNoFiles() {
+				EXPECT_EQ(0u, test::CountFilesAndDirectories(m_tempDir.name()));
+				EXPECT_FALSE(indexFile().exists());
+			}
+
 		private:
 			std::string qualify(const std::string& filename) const {
 				return (boost::filesystem::path(m_tempDir.name()) / filename).generic_string();
@@ -319,46 +331,52 @@ namespace catapult { namespace importance {
 
 	// region createWriteCalculator
 
-	TEST(TEST_CLASS, WriteCalculatorDelegatesToDecoratedCalculator) {
-		// Arrange:
-		static constexpr auto Previous_Importance_Height = model::ImportanceHeight(123);
-		static constexpr auto Importance_Height = model::ImportanceHeight(246);
+	namespace {
+		void AssertWriteCalculatorDelegatesToDecoratedCalculator(ImportanceRollbackMode mode, Importance importanceAdjustment) {
+			// Arrange:
+			static constexpr auto Previous_Importance_Height = model::ImportanceHeight(123);
+			static constexpr auto Importance_Height = model::ImportanceHeight(246);
 
-		TestContext context;
-		CacheHolder holder;
-		auto addresses = holder.addAccounts({ Amount(2000), Amount(1000), Amount(3000) });
+			TestContext context;
+			CacheHolder holder;
+			auto addresses = holder.addAccounts({ Amount(2000), Amount(1000), Amount(3000) });
 
-		// Sanity:
-		for (auto i = 0u; i < addresses.size(); ++i) {
-			holder.assertEqualImportances(addresses[i], i, {}, " (sanity zero)");
-			holder.assertEqualActivityBuckets(addresses[i], i, {}, " (sanity zero)");
+			// Sanity:
+			for (auto i = 0u; i < addresses.size(); ++i) {
+				holder.assertEqualImportances(addresses[i], i, {}, " (sanity zero)");
+				holder.assertEqualActivityBuckets(addresses[i], i, {}, " (sanity zero)");
+			}
+
+			// Act:
+			auto pCalculator = context.createWriteCalculator({
+				{ { addresses[0], Importance_Height }, { Importance(111), Amount(222), 14, 400 } },
+				{ { addresses[1], Importance_Height }, { Importance(123), Amount(432), 22, 200 } },
+				{ { addresses[2], Importance_Height }, { Importance(444), Amount(110), 10, 300 } }
+			});
+			pCalculator->recalculate(mode, Importance_Height, holder.get());
+
+			// Assert:
+			holder.assertEqualImportances(addresses[0], 0, { { Importance(111) + importanceAdjustment, Importance_Height } });
+			holder.assertEqualImportances(addresses[1], 1, { { Importance(123) + importanceAdjustment, Importance_Height } });
+			holder.assertEqualImportances(addresses[2], 2, { { Importance(444) + importanceAdjustment, Importance_Height } });
+
+			holder.assertEqualActivityBuckets(addresses[0], 0, {
+				{ { Amount(0), 0, 0 }, Importance_Height },
+				{ { Amount(222), 14, 400 }, Previous_Importance_Height }
+			});
+			holder.assertEqualActivityBuckets(addresses[1], 1, {
+				{ { Amount(0), 0, 0 }, Importance_Height },
+				{ { Amount(432), 22, 200 }, Previous_Importance_Height }
+			});
+			holder.assertEqualActivityBuckets(addresses[2], 2, {
+				{ { Amount(0), 0, 0 }, Importance_Height },
+				{ { Amount(110), 10, 300 }, Previous_Importance_Height }
+			});
 		}
+	}
 
-		// Act:
-		auto pCalculator = context.createWriteCalculator({
-			{ { addresses[0], Importance_Height }, { Importance(111), Amount(222), 14, 400 } },
-			{ { addresses[1], Importance_Height }, { Importance(123), Amount(432), 22, 200 } },
-			{ { addresses[2], Importance_Height }, { Importance(444), Amount(110), 10, 300 } }
-		});
-		pCalculator->recalculate(Importance_Height, holder.get());
-
-		// Assert:
-		holder.assertEqualImportances(addresses[0], 0, { { Importance(111), Importance_Height } });
-		holder.assertEqualImportances(addresses[1], 1, { { Importance(123), Importance_Height } });
-		holder.assertEqualImportances(addresses[2], 2, { { Importance(444), Importance_Height } });
-
-		holder.assertEqualActivityBuckets(addresses[0], 0, {
-			{ { Amount(0), 0, 0 }, Importance_Height },
-			{ { Amount(222), 14, 400 }, Previous_Importance_Height }
-		});
-		holder.assertEqualActivityBuckets(addresses[1], 1, {
-			{ { Amount(0), 0, 0 }, Importance_Height },
-			{ { Amount(432), 22, 200 }, Previous_Importance_Height }
-		});
-		holder.assertEqualActivityBuckets(addresses[2], 2, {
-			{ { Amount(0), 0, 0 }, Importance_Height },
-			{ { Amount(110), 10, 300 }, Previous_Importance_Height }
-		});
+	TEST(TEST_CLASS, WriteCalculatorDelegatesToDecoratedCalculator) {
+		AssertWriteCalculatorDelegatesToDecoratedCalculator(Default_Calculation_Mode, Importance(0));
 	}
 
 	TEST(TEST_CLASS, WriteCalculatorCanWriteSingleImportanceFile) {
@@ -376,7 +394,7 @@ namespace catapult { namespace importance {
 			{ { addresses[1], Importance_Height }, { Importance(123), Amount(432), 22, 200 } },
 			{ { addresses[2], Importance_Height }, { Importance(444), Amount(110), 10, 300 } }
 		});
-		pCalculator->recalculate(Importance_Height, holder.get());
+		pCalculator->recalculate(Default_Calculation_Mode, Importance_Height, holder.get());
 
 		// Assert:
 		EXPECT_EQ(Importance_Height.unwrap(), context.loadIndexValue());
@@ -406,7 +424,7 @@ namespace catapult { namespace importance {
 			{ { addresses1[2], Importance_Height }, { Importance(444), Amount(110), 10, 300 } },
 			{ { addresses2[0], Importance_Height }, { Importance(555), Amount(678), 18, 100 } }
 		});
-		pCalculator->recalculate(Importance_Height, holder1.get());
+		pCalculator->recalculate(Default_Calculation_Mode, Importance_Height, holder1.get());
 
 		// Sanity:
 		EXPECT_EQ(sizeof(FileHeader) + 3 * (sizeof(AccountHeader) + sizeof(AccountImportanceSeed)), context.fileSize(Importance_Filename));
@@ -415,7 +433,7 @@ namespace catapult { namespace importance {
 		CacheHolder holder2;
 		holder2.addAccounts(addresses1, { Amount(2000), Amount(1000), Amount(3000) });
 		holder2.addAccounts({ addresses2[0] }, { Amount(4000) });
-		pCalculator->recalculate(Importance_Height, holder2.get());
+		pCalculator->recalculate(Default_Calculation_Mode, Importance_Height, holder2.get());
 
 		// Assert:
 		EXPECT_EQ(Importance_Height.unwrap(), context.loadIndexValue());
@@ -427,6 +445,34 @@ namespace catapult { namespace importance {
 		contentsBuilder.append({ addresses1[2], Amount(3000) }, { Importance(444), Amount(110), 10, 300 });
 		contentsBuilder.append({ addresses2[0], Amount(4000) }, { Importance(555), Amount(678), 18, 100 });
 		contentsBuilder.assertContents(context.readAll(Importance_Filename));
+	}
+
+	// endregion
+
+	// region createWriteCalculator (RollbackDisabled)
+
+	TEST(TEST_CLASS, WriteCalculatorDelegatesToDecoratedCalculator_RollbackDisabled) {
+		AssertWriteCalculatorDelegatesToDecoratedCalculator(ImportanceRollbackMode::Disabled, Importance(1));
+	}
+
+	TEST(TEST_CLASS, WriteCalculatorDoesNotWriteFiles_RollbackDisabled) {
+		// Arrange:
+		static constexpr auto Importance_Height = model::ImportanceHeight(246);
+
+		TestContext context;
+		CacheHolder holder;
+		auto addresses = holder.addAccounts({ Amount(2000), Amount(1000), Amount(3000) });
+
+		// Act:
+		auto pCalculator = context.createWriteCalculator({
+			{ { addresses[0], Importance_Height }, { Importance(111), Amount(222), 14, 400 } },
+			{ { addresses[1], Importance_Height }, { Importance(123), Amount(432), 22, 200 } },
+			{ { addresses[2], Importance_Height }, { Importance(444), Amount(110), 10, 300 } }
+		});
+		pCalculator->recalculate(ImportanceRollbackMode::Disabled, Importance_Height, holder.get());
+
+		// Assert:
+		context.assertNoFiles();
 	}
 
 	// endregion
@@ -447,7 +493,7 @@ namespace catapult { namespace importance {
 			{ { addresses[1], Importance_Height }, { Importance(123), Amount(432), 22, 200 } },
 			{ { addresses[2], Importance_Height }, { Importance(444), Amount(110), 10, 300 } }
 		});
-		EXPECT_THROW(pCalculator->recalculate(Importance_Height, holder.get()), catapult_runtime_error);
+		EXPECT_THROW(pCalculator->recalculate(Default_Calculation_Mode, Importance_Height, holder.get()), catapult_runtime_error);
 	}
 
 	TEST(TEST_CLASS, ReadCalculatorFailsWhenRequiredImportanceFileIsNotPresent) {
@@ -466,7 +512,7 @@ namespace catapult { namespace importance {
 			{ { addresses[1], Importance_Height }, { Importance(123), Amount(432), 22, 200 } },
 			{ { addresses[2], Importance_Height }, { Importance(444), Amount(110), 10, 300 } }
 		});
-		EXPECT_THROW(pCalculator->recalculate(Importance_Height, holder.get()), catapult_runtime_error);
+		EXPECT_THROW(pCalculator->recalculate(Default_Calculation_Mode, Importance_Height, holder.get()), catapult_runtime_error);
 	}
 
 	TEST(TEST_CLASS, ReadCalculatorBypassesFileLoadingWhenIndexValueMatchesNextImportanceHeight) {
@@ -486,7 +532,7 @@ namespace catapult { namespace importance {
 			{ { addresses[1], Importance_Height }, { Importance(123), Amount(432), 22, 200 } },
 			{ { addresses[2], Importance_Height }, { Importance(444), Amount(110), 10, 300 } }
 		});
-		pCalculator->recalculate(Importance_Height, holder.get());
+		pCalculator->recalculate(Default_Calculation_Mode, Importance_Height, holder.get());
 
 		// Assert: file loading was skipped and importances were set by decorated calculator
 		//         (since the mock calculator emulates commit, the expected output here doesn't match what a real restore
@@ -507,6 +553,31 @@ namespace catapult { namespace importance {
 			{ { Amount(0), 0, 0 }, Importance_Height },
 			{ { Amount(110), 10, 300 }, Previous_Importance_Height }
 		});
+	}
+
+	// endregion
+
+	// region createReadCalculator (RollbackDisabled)
+
+	TEST(TEST_CLASS, ReadCalculatorFails_RollbackDisabled) {
+		// Arrange:
+		static constexpr auto Importance_Height = model::ImportanceHeight(246);
+
+		TestContext context;
+		context.setIndexValue(369);
+
+		CacheHolder holder;
+		auto addresses = holder.addAccounts({ Amount(2000), Amount(1000), Amount(3000) });
+
+		// Act:
+		auto pCalculator = context.createReadCalculator({
+			{ { addresses[0], Importance_Height }, { Importance(111), Amount(222), 14, 400 } },
+			{ { addresses[1], Importance_Height }, { Importance(123), Amount(432), 22, 200 } },
+			{ { addresses[2], Importance_Height }, { Importance(444), Amount(110), 10, 300 } }
+		});
+		EXPECT_THROW(
+				pCalculator->recalculate(ImportanceRollbackMode::Disabled, Importance_Height, holder.get()),
+				catapult_invalid_argument);
 	}
 
 	// endregion
@@ -605,7 +676,7 @@ namespace catapult { namespace importance {
 			// - recalculate at all heights from nemesis
 			auto pCalculator = context.createWriteCalculator(recalculateMap);
 			for (auto height : heights)
-				pCalculator->recalculate(model::ImportanceHeight(height), holderFactory.calculateHolder().get());
+				pCalculator->recalculate(Default_Calculation_Mode, model::ImportanceHeight(height), holderFactory.calculateHolder().get());
 
 			// -  limit the highValueAccounts to the three relevant accounts
 			action(relevantAddresses, context, holderFactory.restoreHolder());
@@ -619,7 +690,7 @@ namespace catapult { namespace importance {
 
 				// Act:
 				auto pCalculator = context.createReadCalculator({});
-				pCalculator->recalculate(Importance_Height, holder.get());
+				pCalculator->recalculate(Default_Calculation_Mode, Importance_Height, holder.get());
 
 				// Assert: importance at recalculate point should be restored
 				holder.assertEqualImportances(addresses[0], 0, { { Importance(111 * 615), Importance_Height } });
@@ -660,7 +731,7 @@ namespace catapult { namespace importance {
 
 				// Act:
 				auto pCalculator = context.createReadCalculator({});
-				pCalculator->recalculate(Importance_Height, holder.get());
+				pCalculator->recalculate(Default_Calculation_Mode, Importance_Height, holder.get());
 
 				// Assert: importance at recalculate point should be restored
 				holder.assertEqualImportances(addresses[0], 0, { { Importance(111 * 1), Importance_Height } });

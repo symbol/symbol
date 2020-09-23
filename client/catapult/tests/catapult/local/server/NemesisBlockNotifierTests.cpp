@@ -20,7 +20,6 @@
 
 #include "catapult/local/server/NemesisBlockNotifier.h"
 #include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/model/Address.h"
 #include "catapult/plugins/PluginManager.h"
 #include "tests/test/core/BlockStatementTestUtils.h"
@@ -29,7 +28,6 @@
 #include "tests/test/local/LocalTestUtils.h"
 #include "tests/test/nemesis/NemesisCompatibleConfiguration.h"
 #include "tests/test/nemesis/NemesisTestUtils.h"
-#include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/nodeps/MijinConstants.h"
 #include "tests/test/other/mocks/MockBlockChangeSubscriber.h"
 #include "tests/test/other/mocks/MockFinalizationSubscriber.h"
@@ -46,12 +44,11 @@ namespace catapult { namespace local {
 		class TestContext {
 		public:
 			explicit TestContext(uint32_t numBlocks)
-					: m_pPluginManager(CreatePluginManager(m_tempDir.name()))
+					: m_pPluginManager(test::CreatePluginManagerWithRealPlugins(CreateBlockChainConfiguration()))
 					, m_cache(m_pPluginManager->createCache())
 					, m_pStorage(mocks::CreateMemoryBlockStorageCache(numBlocks))
-					, m_notifier(m_pPluginManager->config(), m_cache, *m_pStorage, *m_pPluginManager) {
-				config::CatapultDataDirectoryPreparer::Prepare(m_tempDir.name());
-			}
+					, m_notifier(m_pPluginManager->config(), m_cache, *m_pStorage, *m_pPluginManager)
+			{}
 
 		public:
 			auto& notifier() {
@@ -86,13 +83,11 @@ namespace catapult { namespace local {
 			}
 
 		private:
-			static std::shared_ptr<plugins::PluginManager> CreatePluginManager(const std::string& dataDirectory) {
-				auto config = test::CreateCatapultConfigurationWithNemesisPluginExtensions(dataDirectory);
-				return test::CreatePluginManagerWithRealPlugins(config);
+			static model::BlockChainConfiguration CreateBlockChainConfiguration() {
+				return test::CreateCatapultConfigurationWithNemesisPluginExtensions("").BlockChain;
 			}
 
 		private:
-			test::TempDirectoryGuard m_tempDir;
 			std::shared_ptr<plugins::PluginManager> m_pPluginManager;
 			cache::CatapultCache m_cache;
 			std::unique_ptr<io::BlockStorageCache> m_pStorage;

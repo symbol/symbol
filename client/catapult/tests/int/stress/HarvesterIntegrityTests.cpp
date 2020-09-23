@@ -90,8 +90,6 @@ namespace catapult { namespace harvesting {
 					, m_transactionsCache(cache::MemoryCacheOptions(1024, GetNumIterations() * 2))
 					, m_cache(CreateCatapultCache(config::CatapultDataDirectory(m_tempDataDir.name()).dir("db").str()))
 					, m_unlockedAccounts(100, [](const auto&) { return 0; }) {
-				config::CatapultDataDirectoryPreparer::Prepare(m_tempDataDir.name());
-
 				// create the harvester
 				auto executionConfig = extensions::CreateExecutionConfiguration(*m_pPluginManager);
 				HarvestingUtFacadeFactory utFacadeFactory(m_cache, CreateConfiguration(), executionConfig);

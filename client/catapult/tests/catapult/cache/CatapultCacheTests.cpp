@@ -81,7 +81,21 @@ namespace catapult { namespace cache {
 		auto delta = cache.createDelta();
 
 		// Assert:
+		EXPECT_EQ(CatapultCacheDelta::Disposition::Attached, delta.disposition());
 		AssertSubCacheSizes(delta, 0);
+	}
+
+	TEST(TEST_CLASS, CanCreateCatapultCache_DetachedDelta) {
+		// Act:
+		auto cache = CreateSimpleCatapultCache();
+		auto cacheDetachableDelta = cache.createDetachableDelta();
+		auto cacheDetachedDelta = cacheDetachableDelta.detach();
+		auto pDetachedDelta = cacheDetachedDelta.tryLock();
+
+		// Assert:
+		ASSERT_TRUE(!!pDetachedDelta);
+		EXPECT_EQ(CatapultCacheDelta::Disposition::Detached, pDetachedDelta->disposition());
+		AssertSubCacheSizes(*pDetachedDelta, 0);
 	}
 
 	// endregion
@@ -710,7 +724,7 @@ namespace catapult { namespace cache {
 			class ViewProxy {
 			public:
 				ViewProxy()
-						: m_view(m_dependentState, {})
+						: m_view(CatapultCacheDelta::Disposition::Detached, m_dependentState, {})
 						, m_isValid(false)
 				{}
 

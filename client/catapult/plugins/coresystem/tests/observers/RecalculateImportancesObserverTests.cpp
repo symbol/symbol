@@ -41,12 +41,17 @@ namespace catapult { namespace observers {
 
 		struct ImportanceCalculatorParams {
 		public:
-			ImportanceCalculatorParams(model::ImportanceHeight importanceHeight, const cache::AccountStateCacheDelta& cache)
-					: ImportanceHeight(importanceHeight)
+			ImportanceCalculatorParams(
+					importance::ImportanceRollbackMode mode,
+					model::ImportanceHeight importanceHeight,
+					const cache::AccountStateCacheDelta& cache)
+					: Mode(mode)
+					, ImportanceHeight(importanceHeight)
 					, Cache(cache)
 			{}
 
 		public:
+			const importance::ImportanceRollbackMode Mode;
 			const model::ImportanceHeight ImportanceHeight;
 			const cache::AccountStateCacheDelta& Cache;
 		};
@@ -57,14 +62,17 @@ namespace catapult { namespace observers {
 				: public importance::ImportanceCalculator
 				, public test::ParamsCapture<ImportanceCalculatorParams> {
 		public:
-			void recalculate(model::ImportanceHeight importanceHeight, cache::AccountStateCacheDelta& cache) const override {
-				const_cast<MockImportanceCalculator*>(this)->push(importanceHeight, cache);
+			void recalculate(
+					importance::ImportanceRollbackMode mode,
+					model::ImportanceHeight importanceHeight,
+					cache::AccountStateCacheDelta& cache) const override {
+				const_cast<MockImportanceCalculator*>(this)->push(mode, importanceHeight, cache);
 			}
 		};
 
 		class MockFailingImportanceCalculator final : public importance::ImportanceCalculator {
 		public:
-			void recalculate(model::ImportanceHeight, cache::AccountStateCacheDelta&) const override {
+			void recalculate(importance::ImportanceRollbackMode, model::ImportanceHeight, cache::AccountStateCacheDelta&) const override {
 				CATAPULT_THROW_RUNTIME_ERROR("unexpected call to MockFailingImportanceCalculator::recalculate");
 			}
 		};
@@ -96,7 +104,11 @@ namespace catapult { namespace observers {
 		};
 
 		template<typename TTraits>
-		void AssertCalculation(NotifyMode mode, Height contextHeight, model::ImportanceHeight expectedImportanceHeight) {
+		void AssertCalculation(
+				NotifyMode mode,
+				importance::ImportanceRollbackMode rollbackMode,
+				Height contextHeight,
+				model::ImportanceHeight expectedImportanceHeight) {
 			// Arrange:
 			auto pCalculator = CreateCalculator();
 			const auto& capturedParams = pCalculator->params();
@@ -104,50 +116,94 @@ namespace catapult { namespace observers {
 
 			auto config = model::BlockChainConfiguration::Uninitialized();
 			config.ImportanceGrouping = Importance_Grouping;
-			test::ObserverTestContext context(mode, contextHeight, config);
+			auto cache = test::CoreSystemCacheFactory::Create(config);
 
 			auto notification = test::CreateBlockNotification();
 
+			auto observerContextFactory = [mode, contextHeight](auto& cacheDelta) {
+				return ObserverContext(
+						model::NotificationContext(contextHeight, test::CreateResolverContextXor()),
+						ObserverState(cacheDelta),
+						mode);
+			};
+
 			// Act:
-			test::ObserveNotification(*pObserver, notification, context);
+			cache::AccountStateCacheDelta* pExpectedAccountStateCacheDelta = nullptr;
+			state::CatapultState dependentState;
+			if (importance::ImportanceRollbackMode::Enabled == rollbackMode) {
+				auto cacheDelta = cache.createDelta();
+				auto observerContext = observerContextFactory(cacheDelta);
+				test::ObserveNotification(*pObserver, notification, observerContext);
+
+				pExpectedAccountStateCacheDelta = &cacheDelta.template sub<cache::AccountStateCache>();
+				dependentState = cacheDelta.dependentState();
+			} else {
+				auto cacheDetachableDelta = cache.createDetachableDelta();
+				auto cacheDetachedDelta = cacheDetachableDelta.detach();
+				auto pDetachedDelta = cacheDetachedDelta.tryLock();
+				auto observerContext = observerContextFactory(*pDetachedDelta);
+				test::ObserveNotification(*pObserver, notification, observerContext);
+
+				pExpectedAccountStateCacheDelta = &pDetachedDelta->template sub<cache::AccountStateCache>();
+				dependentState = pDetachedDelta->dependentState();
+			}
 
 			// Assert:
 			ASSERT_EQ(1u, capturedParams.size());
+			EXPECT_EQ(rollbackMode, capturedParams[0].Mode);
 			EXPECT_EQ(expectedImportanceHeight, capturedParams[0].ImportanceHeight);
-			EXPECT_EQ(&context.cache().sub<cache::AccountStateCache>(), &capturedParams[0].Cache);
+			EXPECT_EQ(pExpectedAccountStateCacheDelta, &capturedParams[0].Cache);
 
-			EXPECT_EQ(expectedImportanceHeight, context.state().LastRecalculationHeight);
+			EXPECT_EQ(expectedImportanceHeight, dependentState.LastRecalculationHeight);
+		}
+
+		void AssertCalculationCommit(importance::ImportanceRollbackMode rollbackMode) {
+			// Arrange:
+			auto assertCalculation = [rollbackMode](auto contextHeight, auto expectedImportanceHeight) {
+				AssertCalculation<CommitTraits>(NotifyMode::Commit, rollbackMode, contextHeight, expectedImportanceHeight);
+			};
+
+			// Assert:
+			assertCalculation(Height(Importance_Grouping - 1), model::ImportanceHeight(1));
+			assertCalculation(Height(Importance_Grouping + 0), model::ImportanceHeight(Importance_Grouping));
+			assertCalculation(Height(Importance_Grouping + 1), model::ImportanceHeight(Importance_Grouping));
+
+			assertCalculation(Height(2 * Importance_Grouping - 1), model::ImportanceHeight(Importance_Grouping));
+			assertCalculation(Height(2 * Importance_Grouping + 0), model::ImportanceHeight(2 * Importance_Grouping));
+			assertCalculation(Height(2 * Importance_Grouping + 1), model::ImportanceHeight(2 * Importance_Grouping));
+		}
+
+		void AssertCalculationRollback(importance::ImportanceRollbackMode rollbackMode) {
+			// Arrange:
+			auto assertCalculation = [rollbackMode](auto contextHeight, auto expectedImportanceHeight) {
+				AssertCalculation<RollbackTraits>(NotifyMode::Rollback, rollbackMode, contextHeight, expectedImportanceHeight);
+			};
+
+			// Assert:
+			assertCalculation(Height(Importance_Grouping - 1), model::ImportanceHeight(1));
+			assertCalculation(Height(Importance_Grouping + 0), model::ImportanceHeight(1));
+			assertCalculation(Height(Importance_Grouping + 1), model::ImportanceHeight(Importance_Grouping));
+
+			assertCalculation(Height(2 * Importance_Grouping - 1), model::ImportanceHeight(Importance_Grouping));
+			assertCalculation(Height(2 * Importance_Grouping + 0), model::ImportanceHeight(Importance_Grouping));
+			assertCalculation(Height(2 * Importance_Grouping + 1), model::ImportanceHeight(2 * Importance_Grouping));
 		}
 	}
 
 	TEST(TEST_CLASS, RecalculateImportancesUsesCorrectHeightForModeCommit) {
-		// Arrange:
-		using Traits = CommitTraits;
-		auto mode = NotifyMode::Commit;
+		AssertCalculationCommit(importance::ImportanceRollbackMode::Enabled);
+	}
 
-		// Assert:
-		AssertCalculation<Traits>(mode, Height(Importance_Grouping - 1), model::ImportanceHeight(1));
-		AssertCalculation<Traits>(mode, Height(Importance_Grouping + 0), model::ImportanceHeight(Importance_Grouping));
-		AssertCalculation<Traits>(mode, Height(Importance_Grouping + 1), model::ImportanceHeight(Importance_Grouping));
-
-		AssertCalculation<Traits>(mode, Height(2 * Importance_Grouping - 1), model::ImportanceHeight(Importance_Grouping));
-		AssertCalculation<Traits>(mode, Height(2 * Importance_Grouping + 0), model::ImportanceHeight(2 * Importance_Grouping));
-		AssertCalculation<Traits>(mode, Height(2 * Importance_Grouping + 1), model::ImportanceHeight(2 * Importance_Grouping));
+	TEST(TEST_CLASS, RecalculateImportancesUsesCorrectHeightForModeCommit_RollbackDisabled) {
+		AssertCalculationCommit(importance::ImportanceRollbackMode::Disabled);
 	}
 
 	TEST(TEST_CLASS, RecalculateImportancesUsesCorrectHeightForModeRollback) {
-		// Arrange:
-		using Traits = RollbackTraits;
-		auto mode = NotifyMode::Rollback;
+		AssertCalculationRollback(importance::ImportanceRollbackMode::Enabled);
+	}
 
-		// Assert:
-		AssertCalculation<Traits>(mode, Height(Importance_Grouping - 1), model::ImportanceHeight(1));
-		AssertCalculation<Traits>(mode, Height(Importance_Grouping + 0), model::ImportanceHeight(1));
-		AssertCalculation<Traits>(mode, Height(Importance_Grouping + 1), model::ImportanceHeight(Importance_Grouping));
-
-		AssertCalculation<Traits>(mode, Height(2 * Importance_Grouping - 1), model::ImportanceHeight(Importance_Grouping));
-		AssertCalculation<Traits>(mode, Height(2 * Importance_Grouping + 0), model::ImportanceHeight(Importance_Grouping));
-		AssertCalculation<Traits>(mode, Height(2 * Importance_Grouping + 1), model::ImportanceHeight(2 * Importance_Grouping));
+	TEST(TEST_CLASS, RecalculateImportancesUsesCorrectHeightForModeRollback_RollbackDisabled) {
+		AssertCalculationRollback(importance::ImportanceRollbackMode::Disabled);
 	}
 
 	namespace {

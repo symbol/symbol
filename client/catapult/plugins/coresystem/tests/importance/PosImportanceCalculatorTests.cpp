@@ -54,7 +54,7 @@ namespace catapult { namespace importance {
 				model::ImportanceHeight importanceHeight,
 				cache::AccountStateCacheDelta& delta) {
 			delta.updateHighValueAccounts(Height(1));
-			calculator.recalculate(importanceHeight, delta);
+			calculator.recalculate(ImportanceRollbackMode::Disabled, importanceHeight, delta);
 		}
 
 		void RecalculateTwice(

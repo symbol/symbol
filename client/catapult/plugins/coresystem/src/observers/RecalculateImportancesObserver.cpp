@@ -25,7 +25,7 @@
 namespace catapult { namespace observers {
 
 	namespace {
-		static Height GetEffectiveHeight(const ObserverContext& context) {
+		Height GetEffectiveHeight(const ObserverContext& context) {
 			// note: mode commit: the hit validation for block B with height 360 is done before the block
 			//                    is executed. The execution of the parent block (height 359, which passes
 			//                    height 360 to the calculator) has already triggered the importance calculation
@@ -48,6 +48,12 @@ namespace catapult { namespace observers {
 			//       summary: hit validation for (a new) block 359 uses importance values from height 1.
 			//                hit validation for (a new) block 360 uses importance values from height 359.
 			return NotifyMode::Commit == context.Mode ? context.Height + Height(1) : context.Height;
+		}
+
+		importance::ImportanceRollbackMode GetImportanceRollbackMode(const cache::CatapultCacheDelta& delta) {
+			return cache::CatapultCacheDelta::Disposition::Attached == delta.disposition()
+					? importance::ImportanceRollbackMode::Enabled
+					: importance::ImportanceRollbackMode::Disabled;
 		}
 
 		class RecalculateImportancesObserver : public NotificationObserverT<model::BlockNotification> {
@@ -74,7 +80,7 @@ namespace catapult { namespace observers {
 					return;
 
 				const auto& calculator = *(NotifyMode::Commit == context.Mode ? m_pCommitCalculator : m_pRollbackCalculator);
-				calculator.recalculate(importanceHeight, cache);
+				calculator.recalculate(GetImportanceRollbackMode(context.Cache), importanceHeight, cache);
 				lastRecalculationHeight = importanceHeight;
 			}
 
