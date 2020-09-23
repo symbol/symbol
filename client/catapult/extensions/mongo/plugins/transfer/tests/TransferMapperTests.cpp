@@ -57,16 +57,10 @@ namespace catapult { namespace mongo { namespace plugins {
 		void AssertEqualNonInheritedTransferData(const TTransaction& transaction, const bsoncxx::document::view& dbTransaction) {
 			EXPECT_EQ(transaction.RecipientAddress, test::GetUnresolvedAddressValue(dbTransaction, "recipientAddress"));
 
-			if (0 < transaction.MessageSize) {
-				const auto* pMessage = transaction.MessagePtr();
-				const auto& dbMessage = dbTransaction["message"];
-				size_t payloadSize = transaction.MessageSize - 1;
-
-				EXPECT_EQ(static_cast<int8_t>(pMessage[0]), test::GetInt8(dbMessage, "type"));
-				EXPECT_EQ_MEMORY(pMessage + 1, test::GetBinary(dbMessage, "payload"), payloadSize);
-			} else {
+			if (0 < transaction.MessageSize)
+				EXPECT_EQ_MEMORY(transaction.MessagePtr(), test::GetBinary(dbTransaction, "message"), transaction.MessageSize);
+			else
 				EXPECT_FALSE(!!dbTransaction["message"].raw());
-			}
 
 			auto dbMosaics = dbTransaction["mosaics"].get_array().value;
 			ASSERT_EQ(transaction.MosaicsCount, test::GetFieldCount(dbMosaics));

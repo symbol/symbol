@@ -32,14 +32,7 @@ namespace catapult { namespace mongo { namespace plugins {
 			if (0 == messageSize)
 				return;
 
-			builder
-					<< "message" << bson_stream::open_document
-						<< "type" << pMessage[0]
-						// cannot pass nullptr when 1 == messageSize because libbson asserts that data pointer is not null
-						// however, pointer can be garbage because library does a memcpy with size 0
-						// so pointer will not be dereferenced
-						<< "payload" << ToBinary(pMessage + 1, messageSize - 1)
-					<< bson_stream::close_document;
+			builder << "message" << ToBinary(pMessage, messageSize);
 		}
 
 		void StreamMosaics(bson_stream::document& builder, const model::UnresolvedMosaic* pMosaic, size_t numMosaics) {
