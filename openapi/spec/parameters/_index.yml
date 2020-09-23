@@ -17,8 +17,6 @@ publicKeyPath:
   $ref: './path/publicKey.yml'
 receiptHashPath:
   $ref: './path/receiptHash.yml'
-secretPath:
-  $ref: './path/secret.yml'
 sourceAddressPath:
   $ref: './path/sourceAddress.yml'
 transactionHashPath:
@@ -68,6 +66,8 @@ receiptTypeQuery:
   $ref: './query/receiptTypes.yml'
 recipientAddressQuery:
   $ref: './query/recipientAddress.yml'
+secretQuery:
+  $ref: './query/secret.yml'
 senderAddressQuery:
   $ref: './query/senderAddress.yml'
 scopedMetadataKeyQuery:

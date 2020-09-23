@@ -121,10 +121,6 @@
   get:
     $ref: "./plugins/lock_secret/routes/searchSecretLock.yml"
 
-"/lock/secret/{secret}":
-  get:
-    $ref: "./plugins/lock_secret/routes/getSecretLock.yml"
-
 # Plugin - Metadata
 "/metadata":
   get:
