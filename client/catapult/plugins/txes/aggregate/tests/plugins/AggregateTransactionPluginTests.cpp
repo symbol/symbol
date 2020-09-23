@@ -431,7 +431,7 @@ namespace catapult { namespace plugins {
 
 	// endregion
 
-	// region sub transactions and cosignatures
+	// region publish - sub transactions and cosignatures
 
 	TEST(TEST_CLASS, CanPublishAllNotificationsInCorrectOrderWhenSubTransactionsAndCosignaturesArePresent) {
 		// Arrange:
@@ -495,6 +495,36 @@ namespace catapult { namespace plugins {
 
 		// Act + Assert:
 		builder.runTestWithHash(transaction, aggregateDataHash, registry);
+	}
+
+	// endregion
+
+	// region embeddedCount
+
+	TEST(TEST_CLASS, CanCalculateEmbeddedCountFromEmptyAggregate) {
+		// Arrange:
+		auto registry = mocks::CreateDefaultTransactionRegistry();
+		auto pPlugin = CreateAggregateTransactionPlugin(registry, Entity_Type);
+		auto wrapper = CreateAggregateTransaction(0, 0);
+
+		// Act:
+		auto count = pPlugin->embeddedCount(*wrapper.pTransaction);
+
+		// Assert:
+		EXPECT_EQ(0u, count);
+	}
+
+	TEST(TEST_CLASS, CanCalculateEmbeddedCountFromAggregate) {
+		// Arrange:
+		auto registry = mocks::CreateDefaultTransactionRegistry();
+		auto pPlugin = CreateAggregateTransactionPlugin(registry, Entity_Type);
+		auto wrapper = CreateAggregateTransaction(2, 3);
+
+		// Act:
+		auto count = pPlugin->embeddedCount(*wrapper.pTransaction);
+
+		// Assert:
+		EXPECT_EQ(2u, count);
 	}
 
 	// endregion

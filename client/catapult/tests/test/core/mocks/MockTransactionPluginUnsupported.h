@@ -46,6 +46,10 @@ namespace catapult { namespace mocks {
 			CATAPULT_THROW_RUNTIME_ERROR("publish - not implemented in mock");
 		}
 
+		uint32_t embeddedCount(const model::Transaction&) const override {
+			CATAPULT_THROW_RUNTIME_ERROR("embeddedCount - not implemented in mock");
+		}
+
 		RawBuffer dataBuffer(const model::Transaction&) const override {
 			CATAPULT_THROW_RUNTIME_ERROR("dataBuffer - not implemented in mock");
 		}
