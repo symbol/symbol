@@ -23,22 +23,33 @@
 
 namespace catapult { namespace cache {
 
-	/// Gets the pointers to the first \a count transaction infos in \a utCacheView.
-	/// \note Pointers are only safe to access during the lifetime of \a utCacheView.
-	std::vector<const model::TransactionInfo*> GetFirstTransactionInfoPointers(const MemoryUtCacheView& utCacheView, uint32_t count);
+	/// Retrieves the number of transactions contained within a top-level transaction.
+	using EmbeddedCountRetriever = std::function<uint32_t (const model::Transaction&)>;
 
-	/// Gets the pointers to the first \a count transaction infos in \a utCacheView that pass \a filter.
+	/// Gets the pointers to the first \a transactionLimit transaction infos in \a utCacheView
+	/// where \a countRetriever returns the total number of transactions contained within a top-level transaction.
 	/// \note Pointers are only safe to access during the lifetime of \a utCacheView.
 	std::vector<const model::TransactionInfo*> GetFirstTransactionInfoPointers(
 			const MemoryUtCacheView& utCacheView,
-			uint32_t count,
+			uint32_t transactionLimit,
+			const EmbeddedCountRetriever& countRetriever);
+
+	/// Gets the pointers to the first \a transactionLimit transaction infos in \a utCacheView that pass \a filter
+	/// where \a countRetriever returns the total number of transactions contained within a top-level transaction.
+	/// \note Pointers are only safe to access during the lifetime of \a utCacheView.
+	std::vector<const model::TransactionInfo*> GetFirstTransactionInfoPointers(
+			const MemoryUtCacheView& utCacheView,
+			uint32_t transactionLimit,
+			const EmbeddedCountRetriever& countRetriever,
 			const predicate<const model::TransactionInfo&>& filter);
 
-	/// Gets the pointers to the first \a count transaction infos in \a utCacheView that pass \a filter after sorting by \a sortComparer.
+	/// Gets the pointers to the first \a transactionLimit transaction infos in \a utCacheView that pass \a filter after sorting
+	/// by \a sortComparer where \a countRetriever returns the total number of transactions contained within a top-level transaction.
 	/// \note Pointers are only safe to access during the lifetime of \a utCacheView.
 	std::vector<const model::TransactionInfo*> GetFirstTransactionInfoPointers(
 			const MemoryUtCacheView& utCacheView,
-			uint32_t count,
+			uint32_t transactionLimit,
+			const EmbeddedCountRetriever& countRetriever,
 			const predicate<const model::TransactionInfo*, const model::TransactionInfo*>& sortComparer,
 			const predicate<const model::TransactionInfo&>& filter);
 }}

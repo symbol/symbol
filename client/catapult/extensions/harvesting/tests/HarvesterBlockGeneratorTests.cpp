@@ -23,7 +23,9 @@
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/cache_tx/MemoryUtCache.h"
 #include "catapult/model/BlockUtils.h"
+#include "catapult/model/TransactionPlugin.h"
 #include "tests/test/cache/UtTestUtils.h"
+#include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/other/MockExecutionConfiguration.h"
 #include "tests/TestHarness.h"
@@ -51,13 +53,17 @@ namespace catapult { namespace harvesting {
 			explicit TestContext(model::TransactionSelectionStrategy strategy)
 					: m_config(CreateBlockChainConfiguration())
 					, m_catapultCache(test::CreateEmptyCatapultCache(m_config, CreateCacheConfiguration(m_dbDirGuard.name())))
+					, m_transactionRegistry(mocks::CreateDefaultTransactionRegistry(mocks::PluginOptionFlags::Contains_Embeddings))
 					, m_utFacadeFactory(m_catapultCache, m_config, m_executionConfig.Config)
 					, m_pUtCache(test::CreateSeededMemoryUtCache(0))
-					, m_generator(CreateHarvesterBlockGenerator(strategy, m_utFacadeFactory, *m_pUtCache)) {
+					, m_generator(CreateHarvesterBlockGenerator(strategy, m_transactionRegistry, m_utFacadeFactory, *m_pUtCache)) {
 				// add 5 transaction infos to UT cache with multipliers alternating between 10 and 20
 				m_transactionInfos = test::CreateTransactionInfosFromSizeMultiplierPairs({
 					{ 201, 200 }, { 202, 100 }, { 203, 200 }, { 204, 100 }, { 205, 200 }
 				});
+				for (auto& transactionInfo : m_transactionInfos)
+					const_cast<model::Transaction&>(*transactionInfo.pEntity).Type = mocks::MockTransaction::Entity_Type;
+
 				test::AddAll(*m_pUtCache, m_transactionInfos);
 
 				// add accounts to cache for fix up support
@@ -116,6 +122,7 @@ namespace catapult { namespace harvesting {
 			model::BlockChainConfiguration m_config;
 			cache::CatapultCache m_catapultCache;
 			test::MockExecutionConfiguration m_executionConfig;
+			model::TransactionRegistry m_transactionRegistry;
 			HarvestingUtFacadeFactory m_utFacadeFactory;
 			std::unique_ptr<cache::MemoryUtCache> m_pUtCache;
 			BlockGenerator m_generator;
@@ -180,8 +187,8 @@ namespace catapult { namespace harvesting {
 		// Arrange:
 		TestContext context(model::TransactionSelectionStrategy::Oldest);
 
-		// Act:
-		auto pBlock = context.generate(Cache_Height + Height(1), 4);
+		// Act: embedded counts are { 1 2 3 4 } 5
+		auto pBlock = context.generate(Cache_Height + Height(1), 12);
 
 		// Assert: 4 (deterministic) transactions should have been added to the block
 		ASSERT_TRUE(!!pBlock);

@@ -29,6 +29,16 @@ namespace catapult { namespace cache {
 	// region traits
 
 	namespace {
+		uint32_t CountAsOne(const model::Transaction&) {
+			return 1;
+		}
+
+		uint32_t CountAbsFromFive(const model::Transaction& transaction) {
+			auto base = Timestamp(5);
+			auto deadline = transaction.Deadline;
+			return static_cast<uint32_t>(1 + (base > deadline ? base - deadline : deadline - base).unwrap());
+		}
+
 		bool CompareNaturalOrder(const model::TransactionInfo* pLhs, const model::TransactionInfo* pRhs) {
 			// test::CreateSeededMemoryUtCache seeds with transactions sorted by deadline
 			return pLhs->pEntity->Deadline < pRhs->pEntity->Deadline;
@@ -38,21 +48,25 @@ namespace catapult { namespace cache {
 			return pLhs->pEntity->Deadline > pRhs->pEntity->Deadline;
 		}
 
+		bool SelectAllFilter(const model::TransactionInfo&) {
+			return true;
+		}
+
 		struct GetFirstOrdinalTraits {
-			static auto GetFirst(const MemoryUtCacheView& utCacheView, uint32_t count) {
-				return GetFirstTransactionInfoPointers(utCacheView, count);
+			static auto GetFirst(const MemoryUtCacheView& utCacheView, uint32_t count, const EmbeddedCountRetriever& countRetriever) {
+				return GetFirstTransactionInfoPointers(utCacheView, count, countRetriever);
 			}
 		};
 
 		struct GetFirstFilteredTraits {
-			static auto GetFirst(const MemoryUtCacheView& utCacheView, uint32_t count) {
-				return GetFirstTransactionInfoPointers(utCacheView, count, [](const auto&) { return true; });
+			static auto GetFirst(const MemoryUtCacheView& utCacheView, uint32_t count, const EmbeddedCountRetriever& countRetriever) {
+				return GetFirstTransactionInfoPointers(utCacheView, count, countRetriever, SelectAllFilter);
 			}
 		};
 
 		struct GetFirstSortedFilteredTraits {
-			static auto GetFirst(const MemoryUtCacheView& utCacheView, uint32_t count) {
-				return GetFirstTransactionInfoPointers(utCacheView, count, CompareNaturalOrder, [](const auto&) { return true; });
+			static auto GetFirst(const MemoryUtCacheView& utCacheView, uint32_t count, const EmbeddedCountRetriever& countRetriever) {
+				return GetFirstTransactionInfoPointers(utCacheView, count, countRetriever, CompareNaturalOrder, SelectAllFilter);
 			}
 		};
 	}
@@ -70,13 +84,13 @@ namespace catapult { namespace cache {
 
 	namespace {
 		template<typename TTraits>
-		void RunGetFirstTest(uint32_t count, uint32_t numRequested, uint32_t expectedCount) {
+		void RunGetFirstTest(uint32_t count, uint32_t numRequested, const EmbeddedCountRetriever& countRetriever, uint32_t expectedCount) {
 			// Arrange:
 			auto pUtCache = test::CreateSeededMemoryUtCache(count);
 			auto utCacheView = pUtCache->view();
 
 			// Act:
-			auto transactionInfos = TTraits::GetFirst(utCacheView, numRequested);
+			auto transactionInfos = TTraits::GetFirst(utCacheView, numRequested, countRetriever);
 
 			// Assert:
 			auto expectedTransactionInfos = test::ExtractTransactionInfos(utCacheView, expectedCount);
@@ -87,23 +101,33 @@ namespace catapult { namespace cache {
 	}
 
 	GET_FIRST_TRAITS_BASED_TEST(GetFirstTransactionInfoPointersReturnsNoTransactionInfosWhenCacheIsEmpty) {
-		RunGetFirstTest<TTraits>(0, 3, 0);
+		RunGetFirstTest<TTraits>(0, 3, CountAsOne, 0);
 	}
 
 	GET_FIRST_TRAITS_BASED_TEST(GetFirstTransactionInfoPointersReturnsNoTransactionInfosWhenZeroAreRequested) {
-		RunGetFirstTest<TTraits>(10, 0, 0);
+		RunGetFirstTest<TTraits>(10, 0, CountAsOne, 0);
 	}
 
 	GET_FIRST_TRAITS_BASED_TEST(GetFirstTransactionInfoPointersReturnsFirstCountTransactionInfosWhenCacheHasEnoughTransactions) {
-		RunGetFirstTest<TTraits>(10, 3, 3);
+		RunGetFirstTest<TTraits>(10, 3, CountAsOne, 3);
 	}
 
 	GET_FIRST_TRAITS_BASED_TEST(GetFirstTransactionInfoPointersReturnsAllTransactionInfosWhenCacheHasExactlyRequestedTransactions) {
-		RunGetFirstTest<TTraits>(10, 10, 10);
+		RunGetFirstTest<TTraits>(10, 10, CountAsOne, 10);
 	}
 
 	GET_FIRST_TRAITS_BASED_TEST(GetFirstTransactionInfoPointersReturnsAllTransactionInfosWhenCacheHasLessThanRequestedTransactions) {
-		RunGetFirstTest<TTraits>(10, 15, 10);
+		RunGetFirstTest<TTraits>(10, 15, CountAsOne, 10);
+	}
+
+	GET_FIRST_TRAITS_BASED_TEST(GetFirstTransactionInfoPointersAppliesCountAgainstTotalTransactionsWhenLastTransactionIsEqualToLimit) {
+		// Arrange: total counts = { 5 4 3 2 1 2 } 3 4 5 6
+		RunGetFirstTest<TTraits>(10, 17, CountAbsFromFive, 6);
+	}
+
+	GET_FIRST_TRAITS_BASED_TEST(GetFirstTransactionInfoPointersAppliesCountAgainstTotalTransactionsWhenLastTransactionExceedsLimit) {
+		// Arrange: total counts = { 5 4 3 2 1 2 } 3 4 5 6
+		RunGetFirstTest<TTraits>(10, 19, CountAbsFromFive, 6);
 	}
 
 	// endregion
@@ -116,7 +140,7 @@ namespace catapult { namespace cache {
 		auto utCacheView = pUtCache->view();
 
 		// Act: filter odd deadline txes
-		auto transactionInfos = GetFirstTransactionInfoPointers(utCacheView, 3, [](const auto& transactionInfo) {
+		auto transactionInfos = GetFirstTransactionInfoPointers(utCacheView, 3, CountAsOne, [](const auto& transactionInfo) {
 			return 0 == transactionInfo.pEntity->Deadline.unwrap() % 2;
 		});
 
@@ -137,7 +161,7 @@ namespace catapult { namespace cache {
 		auto utCacheView = pUtCache->view();
 
 		// Act: apply a reverse sort
-		auto transactionInfos = GetFirstTransactionInfoPointers(utCacheView, 3, CompareReverseOrder, [](const auto&) {
+		auto transactionInfos = GetFirstTransactionInfoPointers(utCacheView, 3, CountAsOne, CompareReverseOrder, [](const auto&) {
 			return true;
 		});
 
@@ -157,7 +181,7 @@ namespace catapult { namespace cache {
 		auto utCacheView = pUtCache->view();
 
 		// Act: apply a reverse sort
-		auto transactionInfos = GetFirstTransactionInfoPointers(utCacheView, 4, CompareReverseOrder, [](const auto&) {
+		auto transactionInfos = GetFirstTransactionInfoPointers(utCacheView, 4, CountAsOne, CompareReverseOrder, [](const auto&) {
 			return true;
 		});
 
@@ -176,7 +200,8 @@ namespace catapult { namespace cache {
 		auto utCacheView = pUtCache->view();
 
 		// Act: filter odd deadline txes
-		auto transactionInfos = GetFirstTransactionInfoPointers(utCacheView, 3, CompareNaturalOrder, [](const auto& transactionInfo) {
+		auto transactionInfos = GetFirstTransactionInfoPointers(utCacheView, 3, CountAsOne, CompareNaturalOrder, [](
+				const auto& transactionInfo) {
 			return 0 == transactionInfo.pEntity->Deadline.unwrap() % 2;
 		});
 
@@ -193,7 +218,8 @@ namespace catapult { namespace cache {
 		auto utCacheView = pUtCache->view();
 
 		// Act: apply a reverse sort AND filter odd deadline txes
-		auto transactionInfos = GetFirstTransactionInfoPointers(utCacheView, 3, CompareReverseOrder, [](const auto& transactionInfo) {
+		auto transactionInfos = GetFirstTransactionInfoPointers(utCacheView, 3, CountAsOne, CompareReverseOrder, [](
+				const auto& transactionInfo) {
 			return 0 == transactionInfo.pEntity->Deadline.unwrap() % 2;
 		});
 

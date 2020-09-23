@@ -21,8 +21,6 @@
 #include "TransactionsInfoSupplier.h"
 #include "HarvestingUtFacadeFactory.h"
 #include "TransactionFeeMaximizer.h"
-#include "catapult/cache_tx/MemoryUtCache.h"
-#include "catapult/cache_tx/MemoryUtCacheUtils.h"
 #include "catapult/model/FeeUtils.h"
 
 namespace catapult { namespace harvesting {
@@ -58,9 +56,45 @@ namespace catapult { namespace harvesting {
 			return transactionsInfo;
 		}
 
-		TransactionsInfo SupplyOldest(const cache::MemoryUtCacheView& utCacheView, HarvestingUtFacade& utFacade, uint32_t count) {
+		struct SupplyInput {
+		public:
+			SupplyInput(
+					const cache::MemoryUtCacheView& utCacheView,
+					const cache::EmbeddedCountRetriever& embeddedCountRetriever,
+					HarvestingUtFacade& utFacade,
+					uint32_t transactionLimit)
+					: UtCacheView(utCacheView)
+					, EmbeddedCountRetriever(embeddedCountRetriever)
+					, UtFacade(utFacade)
+					, TransactionLimit(transactionLimit)
+			{}
+
+		public:
+			const cache::MemoryUtCacheView& UtCacheView;
+			cache::EmbeddedCountRetriever EmbeddedCountRetriever;
+			HarvestingUtFacade& UtFacade;
+			uint32_t TransactionLimit;
+		};
+
+		auto GetFirstTransactionInfoPointers(const SupplyInput& input, const predicate<const model::TransactionInfo&>& filter) {
+			return cache::GetFirstTransactionInfoPointers(input.UtCacheView, input.TransactionLimit, input.EmbeddedCountRetriever, filter);
+		}
+
+		auto GetFirstTransactionInfoPointers(
+				const SupplyInput& input,
+				const predicate<const model::TransactionInfo*, const model::TransactionInfo*>& sortComparer,
+				const predicate<const model::TransactionInfo&>& filter) {
+			return cache::GetFirstTransactionInfoPointers(
+					input.UtCacheView,
+					input.TransactionLimit,
+					input.EmbeddedCountRetriever,
+					sortComparer,
+					filter);
+		}
+
+		TransactionsInfo SupplyOldest(const SupplyInput& input) {
 			// 1. get first transactions from the ut cache
-			auto candidates = cache::GetFirstTransactionInfoPointers(utCacheView, count, [&utFacade](const auto& transactionInfo) {
+			auto candidates = GetFirstTransactionInfoPointers(input, [&utFacade = input.UtFacade](const auto& transactionInfo) {
 				return utFacade.apply(transactionInfo);
 			});
 
@@ -75,11 +109,10 @@ namespace catapult { namespace harvesting {
 			return ToTransactionsInfo(candidates, minFeeMultiplier);
 		}
 
-		TransactionsInfo SupplyMinimumFee(const cache::MemoryUtCacheView& utCacheView, HarvestingUtFacade& utFacade, uint32_t count) {
+		TransactionsInfo SupplyMinimumFee(const SupplyInput& input) {
 			// 1. get all transactions from the ut cache
 			auto comparer = MaxFeeMultiplierComparer<SortDirection::Ascending>();
-			auto candidates = cache::GetFirstTransactionInfoPointers(utCacheView, count, comparer, [&utFacade](
-					const auto& transactionInfo) {
+			auto candidates = GetFirstTransactionInfoPointers(input, comparer, [&utFacade = input.UtFacade](const auto& transactionInfo) {
 				return utFacade.apply(transactionInfo);
 			});
 
@@ -91,11 +124,11 @@ namespace catapult { namespace harvesting {
 			return ToTransactionsInfo(candidates, minFeeMultiplier);
 		}
 
-		TransactionsInfo SupplyMaximumFee(const cache::MemoryUtCacheView& utCacheView, HarvestingUtFacade& utFacade, uint32_t count) {
+		TransactionsInfo SupplyMaximumFee(const SupplyInput& input) {
 			// 1. get all transactions from the ut cache
 			auto comparer = MaxFeeMultiplierComparer<SortDirection::Descending>();
 			auto maximizer = TransactionFeeMaximizer();
-			auto candidates = cache::GetFirstTransactionInfoPointers(utCacheView, count, comparer, [&utFacade, &maximizer](
+			auto candidates = GetFirstTransactionInfoPointers(input, comparer, [&utFacade = input.UtFacade, &maximizer](
 					const auto& transactionInfo) {
 				if (!utFacade.apply(transactionInfo))
 					return false;
@@ -107,8 +140,8 @@ namespace catapult { namespace harvesting {
 			// 2. pick the best fee policy and truncate the transactions and facade
 			const auto& bestFeePolicy = maximizer.best();
 			candidates.resize(bestFeePolicy.NumTransactions);
-			while (utFacade.size() > bestFeePolicy.NumTransactions)
-				utFacade.unapply();
+			while (input.UtFacade.size() > bestFeePolicy.NumTransactions)
+				input.UtFacade.unapply();
 
 			return ToTransactionsInfo(candidates, bestFeePolicy.FeeMultiplier);
 		}
@@ -116,19 +149,21 @@ namespace catapult { namespace harvesting {
 
 	TransactionsInfoSupplier CreateTransactionsInfoSupplier(
 			model::TransactionSelectionStrategy strategy,
+			const cache::EmbeddedCountRetriever& countRetriever,
 			const cache::ReadWriteUtCache& utCache) {
-		return [strategy, &utCache](auto& utFacade, auto count) {
+		return [strategy, countRetriever, &utCache](auto& utFacade, auto transactionLimit) {
 			auto utCacheView = utCache.view();
+			SupplyInput supplyInput(utCacheView, countRetriever, utFacade, transactionLimit);
 
 			switch (strategy) {
 			case model::TransactionSelectionStrategy::Minimize_Fee:
-				return SupplyMinimumFee(utCacheView, utFacade, count);
+				return SupplyMinimumFee(supplyInput);
 
 			case model::TransactionSelectionStrategy::Maximize_Fee:
-				return SupplyMaximumFee(utCacheView, utFacade, count);
+				return SupplyMaximumFee(supplyInput);
 
 			default:
-				return SupplyOldest(utCacheView, utFacade, count);
+				return SupplyOldest(supplyInput);
 			}
 		};
 	}

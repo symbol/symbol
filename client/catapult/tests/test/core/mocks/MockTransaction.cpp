@@ -203,8 +203,8 @@ namespace catapult { namespace mocks {
 					sub.notify(MockHashNotification(transactionInfo.hash()));
 			}
 
-			uint32_t embeddedCount(const Transaction&) const override {
-				return 0;
+			uint32_t embeddedCount(const Transaction& transaction) const override {
+				return IsPluginOptionFlagSet(m_options, PluginOptionFlags::Contains_Embeddings) ? transaction.Size % 100 : 0;
 			}
 
 			RawBuffer dataBuffer(const Transaction& transaction) const override {

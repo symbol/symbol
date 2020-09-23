@@ -201,7 +201,10 @@ namespace catapult { namespace mocks {
 		Publish_Custom_Notifications = 16,
 
 		/// Configures the mock transaction plugin to return a custom data buffer (equal to the mock transaction's payload sans header).
-		Custom_Buffers = 32
+		Custom_Buffers = 32,
+
+		/// Configures the mock transaction plugin to report that each transaction contains `Size % 100` embeddings.
+		Contains_Embeddings = 64
 	};
 
 	/// Returns \c true if \a options has \a flag set.
