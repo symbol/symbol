@@ -33,7 +33,12 @@ namespace catapult { namespace mongo { namespace mappers {
 	// region ToDbModel (block)
 
 	namespace {
-		void AssertCanMapBlock(const model::Block& block, Amount totalFee, uint32_t numTransactions, uint32_t numStatements) {
+		void AssertCanMapBlock(
+				const model::Block& block,
+				Amount totalFee,
+				uint32_t transactionsCount,
+				uint32_t totalTransactionsCount,
+				uint32_t statementsCount) {
 			// Arrange:
 			auto blockElement = model::BlockElement(block);
 			blockElement.EntityHash = test::GenerateRandomByteArray<Hash256>();
@@ -47,15 +52,15 @@ namespace catapult { namespace mongo { namespace mappers {
 			}
 
 			auto transactionMerkleTree = test::CalculateMerkleTree(blockElement.Transactions);
-			if (numStatements)
-				blockElement.OptionalStatement = test::GenerateRandomOptionalStatement(numStatements);
+			if (0 < statementsCount)
+				blockElement.OptionalStatement = test::GenerateRandomOptionalStatement(statementsCount);
 
 			auto statementMerkleTree = blockElement.OptionalStatement
 					? test::CalculateMerkleTreeFromTransactionStatements(*blockElement.OptionalStatement)
 					: std::vector<Hash256>();
 
 			// Act:
-			auto dbBlock = ToDbModel(blockElement);
+			auto dbBlock = ToDbModel(blockElement, totalTransactionsCount);
 
 			// Assert:
 			auto view = dbBlock.view();
@@ -65,8 +70,7 @@ namespace catapult { namespace mongo { namespace mappers {
 			test::AssertEqualBlockMetadata(
 					blockElement,
 					totalFee,
-					static_cast<int32_t>(numTransactions),
-					static_cast<int32_t>(numStatements),
+					{ transactionsCount, totalTransactionsCount, statementsCount },
 					transactionMerkleTree,
 					statementMerkleTree,
 					metaView);
@@ -87,7 +91,7 @@ namespace catapult { namespace mongo { namespace mappers {
 		auto pBlock = test::GenerateEmptyRandomBlock();
 
 		// Assert:
-		AssertCanMapBlock(*pBlock, Amount(0), 0, Num_Statements);
+		AssertCanMapBlock(*pBlock, Amount(0), 0, 0, Num_Statements);
 	}
 
 	TRAITS_BASED_RECEIPTS_TEST(CanMapBlockWithTransactions) {
@@ -96,7 +100,7 @@ namespace catapult { namespace mongo { namespace mappers {
 		auto totalFee = model::CalculateBlockTransactionsInfo(*pBlock).TotalFee;
 
 		// Assert:
-		AssertCanMapBlock(*pBlock, totalFee, 5, Num_Statements);
+		AssertCanMapBlock(*pBlock, totalFee, 5, 12, Num_Statements);
 	}
 
 	// endregion

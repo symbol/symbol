@@ -30,8 +30,8 @@ namespace catapult {
 
 namespace catapult { namespace mongo { namespace mappers {
 
-	/// Maps \a blockElement to the corresponding db model value.
-	bsoncxx::document::value ToDbModel(const model::BlockElement& blockElement);
+	/// Maps \a blockElement to the corresponding db model value given \a totalTransactionsCount.
+	bsoncxx::document::value ToDbModel(const model::BlockElement& blockElement, uint32_t totalTransactionsCount);
 
 	/// Maps a finalized block with \a height and \a hash at finalization \a round to to the corresponding db model value.
 	bsoncxx::document::value ToDbModel(const model::FinalizationRound& round, Height height, const Hash256& hash);
