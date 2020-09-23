@@ -21,6 +21,7 @@
 #include "RocksDatabase.h"
 #include "RocksInclude.h"
 #include "RocksPruningFilter.h"
+#include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/utils/HexFormatter.h"
 #include "catapult/utils/PathUtils.h"
 #include "catapult/utils/StackLogger.h"
@@ -105,8 +106,7 @@ namespace catapult { namespace cache {
 		if (0 != settings.MaxDatabaseWriteBatchSize.bytes() && settings.MaxDatabaseWriteBatchSize < utils::FileSize::FromKilobytes(100))
 			CATAPULT_THROW_INVALID_ARGUMENT("too small setting of DatabaseWriteBatchSize");
 
-		boost::system::error_code ec;
-		boost::filesystem::create_directories(m_settings.DatabaseDirectory, ec);
+		config::CatapultDirectory(m_settings.DatabaseDirectory).createAll();
 
 		m_pruningFilter.setPruningBoundary(0);
 

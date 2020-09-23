@@ -19,6 +19,7 @@
 **/
 
 #include "catapult/config/CatapultDataDirectory.h"
+#include "catapult/io/RawFile.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
 
@@ -35,9 +36,19 @@ namespace catapult { namespace config {
 		auto Concat(const fs::path& baseDirectory, const fs::path& subDirectory) {
 			return baseDirectory / subDirectory;
 		}
+
+		void AssertPermissions(const fs::path& fullPath) {
+			auto status = boost::filesystem::status(fullPath);
+			EXPECT_NE(boost::filesystem::perms::perms_not_known, status.permissions());
+
+			// permissions are not set on windows
+#ifndef _WIN32
+			EXPECT_EQ(boost::filesystem::perms::owner_all, status.permissions() & boost::filesystem::perms::all_all);
+#endif
+		}
 	}
 
-	// region CatapultDirectory
+	// region CatapultDirectory - basic
 
 	TEST(TEST_CLASS, CanCreateCatapultDirectory) {
 		// Act:
@@ -47,6 +58,130 @@ namespace catapult { namespace config {
 		EXPECT_EQ("foo/bar", directory.str());
 		EXPECT_EQ(fs::path("foo/bar"), directory.path());
 		EXPECT_EQ("foo/bar/abc", directory.file("abc"));
+	}
+
+	// endregion
+
+	// region CatapultDirectory - filesystem
+
+	namespace {
+		struct CreateTraits {
+			static void Create(const boost::filesystem::path& directory) {
+				CatapultDirectory(directory).create();
+			}
+		};
+
+		struct CreateAllTraits {
+			static void Create(const boost::filesystem::path& directory) {
+				CatapultDirectory(directory).createAll();
+			}
+		};
+	}
+
+#define CREATE_DIRECTORY_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, CatapultDirectoryCreate_##TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CreateTraits>(); } \
+	TEST(TEST_CLASS, CatapultDirectoryCreateAll_##TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CreateAllTraits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+	CREATE_DIRECTORY_TEST(CanCreateSingleDirectory_Filesystem) {
+		// Arrange:
+		test::TempDirectoryGuard tempDir;
+		auto fullPath = Concat(tempDir.name(), "foobar");
+
+		// Sanity:
+		EXPECT_FALSE(boost::filesystem::exists(fullPath));
+
+		// Act:
+		TTraits::Create(fullPath);
+
+		// Assert:
+		EXPECT_TRUE(boost::filesystem::exists(fullPath));
+		AssertPermissions(fullPath);
+	}
+
+	CREATE_DIRECTORY_TEST(SucceedsWhenDirectoryAlreadyExists_Filesystem) {
+		// Arrange:
+		test::TempDirectoryGuard tempDir;
+		auto fullPath = Concat(tempDir.name(), "foobar");
+
+		TTraits::Create(fullPath);
+
+		// Sanity:
+		EXPECT_TRUE(boost::filesystem::exists(fullPath));
+
+		// Act:
+		TTraits::Create(fullPath);
+
+		// Assert:
+		EXPECT_TRUE(boost::filesystem::exists(fullPath));
+		AssertPermissions(fullPath);
+	}
+
+	CREATE_DIRECTORY_TEST(ThrowsWhenCollidingFileExists_Filesystem) {
+		// Arrange:
+		test::TempDirectoryGuard tempDir;
+		auto fullPath = Concat(tempDir.name(), "foo");
+
+		io::RawFile file(fullPath.generic_string(), io::OpenMode::Read_Write);
+
+		// Sanity:
+		EXPECT_TRUE(boost::filesystem::exists(fullPath));
+
+		// Act + Assert:
+		EXPECT_THROW(TTraits::Create(fullPath), catapult_runtime_error);
+	}
+
+	TEST(TEST_CLASS, CatapultDirectoryCreate_ThrowsWhenDirectoryCannotBeCreated_Filesystem) {
+		// Arrange:
+		test::TempDirectoryGuard tempDir;
+		auto fullPath = Concat(tempDir.name(), "foo") / "bar";
+
+		// Sanity:
+		EXPECT_FALSE(boost::filesystem::exists(fullPath));
+
+		// Act + Assert:
+		EXPECT_THROW(CatapultDirectory(fullPath).create(), catapult_runtime_error);
+	}
+
+	TEST(TEST_CLASS, CatapultDirectoryCreateAll_CanCreateMultipleDirectories_Filesystem) {
+		// Arrange:
+		test::TempDirectoryGuard tempDir;
+		auto fullPath = Concat(tempDir.name(), "foo") / "baz" / "bar";
+
+		// Sanity:
+		EXPECT_FALSE(boost::filesystem::exists(fullPath));
+
+		// Act:
+		CatapultDirectory(fullPath).createAll();
+
+		// Assert:
+		EXPECT_TRUE(boost::filesystem::exists(fullPath));
+		AssertPermissions(Concat(tempDir.name(), "foo"));
+		AssertPermissions(Concat(tempDir.name(), "foo") / "baz");
+		AssertPermissions(Concat(tempDir.name(), "foo") / "baz" / "bar");
+	}
+
+	TEST(TEST_CLASS, CatapultDirectoryCreateAll_CanCreateMultipleDirectoriesWhenSomeAlreadyExist_Filesystem) {
+		// Arrange:
+		test::TempDirectoryGuard tempDir;
+		auto partialPath = Concat(tempDir.name(), "foo") / "baz";
+		CatapultDirectory(partialPath).createAll();
+
+		auto fullPath = partialPath / "bar" / "moon";
+
+		// Sanity:
+		EXPECT_FALSE(boost::filesystem::exists(fullPath));
+
+		// Act:
+		CatapultDirectory(fullPath).createAll();
+
+		// Assert:
+		EXPECT_TRUE(boost::filesystem::exists(fullPath));
+		AssertPermissions(Concat(tempDir.name(), "foo"));
+		AssertPermissions(Concat(tempDir.name(), "foo") / "baz");
+		AssertPermissions(Concat(tempDir.name(), "foo") / "baz" / "bar");
+		AssertPermissions(Concat(tempDir.name(), "foo") / "baz" / "bar" / "moon");
 	}
 
 	// endregion

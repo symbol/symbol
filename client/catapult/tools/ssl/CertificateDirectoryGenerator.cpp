@@ -21,6 +21,7 @@
 #include "CertificateDirectoryGenerator.h"
 #include "CertificateUtils.h"
 #include "tools/ToolKeys.h"
+#include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/io/RawFile.h"
 #include "catapult/exceptions.h"
 #include <boost/filesystem/path.hpp>
@@ -117,7 +118,7 @@ namespace catapult { namespace tools { namespace ssl {
 			boost::filesystem::remove_all(certificateDirectory);
 
 		CATAPULT_LOG(info) << "generating new certificate directory: " << certificateDirectory;
-		boost::filesystem::create_directories(certificateDirectory);
+		config::CatapultDirectory(certificateDirectory).createAll();
 
 		auto nodeKeyPair = GenerateRandomKeyPair();
 

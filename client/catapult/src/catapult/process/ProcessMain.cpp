@@ -19,6 +19,7 @@
 **/
 
 #include "ProcessMain.h"
+#include "Platform.h"
 #include "Signals.h"
 #include "catapult/config/CatapultConfiguration.h"
 #include "catapult/config/CatapultKeys.h"
@@ -124,7 +125,10 @@ namespace catapult { namespace process {
 			return -3;
 		}
 
-		// 4. run the server
+		// 4. platform specific settings
+		PlatformSettings();
+
+		// 5. run the server
 		Run(std::move(config), processOptions, createProcessHost);
 		return 0;
 	}

@@ -19,6 +19,7 @@
 **/
 
 #include "FileQueue.h"
+#include "catapult/config/CatapultDataDirectory.h"
 #include "catapult/utils/HexFormatter.h"
 #include "catapult/exceptions.h"
 #include <boost/filesystem.hpp>
@@ -28,9 +29,7 @@ namespace catapult { namespace io {
 
 	namespace {
 		const boost::filesystem::path& CreateDirectory(const boost::filesystem::path& directory) {
-			if (!boost::filesystem::exists(directory))
-				boost::filesystem::create_directory(directory);
-
+			config::CatapultDirectory(directory).create();
 			return directory;
 		}
 

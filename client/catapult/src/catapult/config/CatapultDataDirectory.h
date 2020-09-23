@@ -52,6 +52,13 @@ namespace catapult { namespace config {
 			return (m_directory / name).generic_string();
 		}
 
+	public:
+		/// Creates this directory in a filesystem.
+		void create();
+
+		/// Creates all directories on the path to this directory in a filesystem.
+		void createAll();
+
 	private:
 		boost::filesystem::path m_directory;
 	};
@@ -144,15 +151,9 @@ namespace catapult { namespace config {
 	public:
 		/// Creates a data directory around \a directory.
 		static CatapultDataDirectory Prepare(const boost::filesystem::path& directory) {
-			CreateDirectory(directory / "importance");
-			CreateDirectory(directory / "spool");
+			CatapultDirectory(directory / "importance").create();
+			CatapultDirectory(directory / "spool").create();
 			return CatapultDataDirectory(directory);
-		}
-
-	private:
-		static void CreateDirectory(const boost::filesystem::path& directory) {
-			if (!boost::filesystem::exists(directory))
-				boost::filesystem::create_directory(directory);
 		}
 	};
 
@@ -168,14 +169,8 @@ namespace catapult { namespace config {
 		static CatapultStorageDirectory Prepare(const boost::filesystem::path& directory, TIdentifier identifier) {
 			CatapultDataDirectory dataDirectory(directory);
 			auto storageDirectory = dataDirectory.storageDir(identifier);
-			CreateDirectory(storageDirectory.str());
+			CatapultDirectory(storageDirectory.str()).create();
 			return storageDirectory;
-		}
-
-	private:
-		static void CreateDirectory(const boost::filesystem::path& directory) {
-			if (!boost::filesystem::exists(directory))
-				boost::filesystem::create_directory(directory);
 		}
 	};
 

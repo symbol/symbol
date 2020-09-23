@@ -150,8 +150,7 @@ namespace catapult { namespace extensions {
 				Height height,
 				const consumer<const cache::CacheStorage&, io::OutputStream&>& save) {
 			// 1. create directory if required
-			if (!boost::filesystem::exists(directory.path()))
-				boost::filesystem::create_directory(directory.path());
+			config::CatapultDirectory(directory.path()).create();
 
 			// 2. save cache data
 			for (const auto& pStorage : cacheStorages) {

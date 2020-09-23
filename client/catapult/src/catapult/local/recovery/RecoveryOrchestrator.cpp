@@ -77,7 +77,7 @@ namespace catapult { namespace local {
 
 		std::unique_ptr<io::PrunableBlockStorage> CreateStagingBlockStorage(const config::CatapultDataDirectory& dataDirectory) {
 			auto stagingDirectory = dataDirectory.spoolDir("block_recover").str();
-			boost::filesystem::create_directory(stagingDirectory);
+			config::CatapultDirectory(stagingDirectory).create();
 			return std::make_unique<io::FileBlockStorage>(stagingDirectory, io::FileBlockStorageMode::None);
 		}
 

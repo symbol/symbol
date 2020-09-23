@@ -129,7 +129,7 @@ namespace catapult { namespace sync {
 				auditPath /= std::to_string(state.timeSupplier()().unwrap());
 				CATAPULT_LOG(debug) << "enabling auditing to " << auditPath;
 
-				boost::filesystem::create_directories(auditPath);
+				config::CatapultDirectory(auditPath).createAll();
 				disruptorConsumers.insert(disruptorConsumers.begin(), CreateAuditConsumer(auditPath.generic_string()));
 			}
 
