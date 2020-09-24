@@ -20,7 +20,6 @@
 
 const EntityType = require('../../src/model/EntityType');
 const ModelSchemaBuilder = require('../../src/model/ModelSchemaBuilder');
-const ModelType = require('../../src/model/ModelType');
 const transfer = require('../../src/plugins/transfer');
 const test = require('../binaryTestUtils');
 const { expect } = require('chai');
@@ -28,7 +27,7 @@ const { expect } = require('chai');
 const constants = {
 	sizes: {
 		transfer: 32,
-		message: 0x70,
+		message: 0x6F,
 		mosaics: 0x50
 	},
 	offsets: {
@@ -49,18 +48,12 @@ describe('transfer plugin', () => {
 			const modelSchema = builder.build();
 
 			// Assert:
-			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 2);
-			expect(modelSchema).to.contain.all.keys(['transfer', 'transfer.message']);
+			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 1);
+			expect(modelSchema).to.contain.all.keys(['transfer']);
 
 			// - transfer
 			expect(Object.keys(modelSchema.transfer).length).to.equal(Object.keys(modelSchema.transaction).length + 3);
 			expect(modelSchema.transfer).to.contain.all.keys(['recipientAddress', 'message', 'mosaics']);
-
-			// - message
-			expect(modelSchema['transfer.message']).to.deep.equal({
-				type: ModelType.int,
-				payload: ModelType.binary
-			});
 		});
 	});
 
@@ -118,26 +111,13 @@ describe('transfer plugin', () => {
 				const data = generator();
 				data.buffer = Buffer.concat([
 					data.buffer,
-					Buffer.of(0x90), // message type
 					Message_Buffer
 				]);
 				data.buffer.writeUInt16LE(constants.sizes.message, constants.sizes.transfer - constants.offsets.messageSize);
 
-				data.object.message = { type: 0x90, payload: Buffer.from(Message_Buffer) };
+				data.object.message = Buffer.from(Message_Buffer);
 				return data;
 			};
-		};
-
-		const addMessageWithTypeOnly = generator => () => {
-			const data = generator();
-			data.buffer = Buffer.concat([
-				data.buffer,
-				Buffer.of(0x90) // message type
-			]);
-			data.buffer.writeUInt16LE(1, constants.sizes.transfer - constants.offsets.messageSize);
-
-			data.object.message = { type: 0x90, payload: [] };
-			return data;
 		};
 
 		const addMosaics = generator => {
@@ -177,10 +157,6 @@ describe('transfer plugin', () => {
 
 			describe('with message', () => {
 				test.binary.test.addAll(getCodec(), constants.sizes.transfer + constants.sizes.message, addMessage(generateTransaction));
-			});
-
-			describe('with message composed of only type', () => {
-				test.binary.test.addAll(getCodec(), constants.sizes.transfer + 1, addMessageWithTypeOnly(generateTransaction));
 			});
 
 			describe('with mosaics', () => {

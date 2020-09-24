@@ -58,8 +58,7 @@ describe('transaction factory', () => {
 			// Assert:
 			assertTransactionData(transaction, keyPair, Mijin_Test_Network + 3, 0x4154);
 			expect(transaction.recipientAddress).to.deep.equal(recipientAddress);
-			expect(transaction.message.type).to.equal(0);
-			expect(transaction.message.payload).to.deep.equal(Buffer.of(0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x12, 0x34));
+			expect(transaction.message).to.deep.equal(Buffer.of(0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x12, 0x34));
 			expect(transaction.mosaics[0].id).to.deep.equal([0xD95FCF29, 0xD525AD41]);
 		});
 	});
