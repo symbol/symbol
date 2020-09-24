@@ -2,7 +2,6 @@ type: object
 required:
   - recipientAddress
   - mosaics
-  - message
 properties:
   recipientAddress:
     $ref: "../../../schemas/UnresolvedAddress.yml"
@@ -13,4 +12,5 @@ properties:
     items:
       $ref: "../../../schemas/UnresolvedMosaic.yml"
   message:
-    $ref: "./MessageDTO.yml"
+    type: string
+    description: Transfer transaction message
