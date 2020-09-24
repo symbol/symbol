@@ -21,6 +21,7 @@
 #include "HarvesterBlockGenerator.h"
 #include "HarvestingUtFacadeFactory.h"
 #include "TransactionsInfoSupplier.h"
+#include "catapult/model/TransactionPlugin.h"
 
 namespace catapult { namespace harvesting {
 
@@ -42,9 +43,14 @@ namespace catapult { namespace harvesting {
 
 	BlockGenerator CreateHarvesterBlockGenerator(
 			model::TransactionSelectionStrategy strategy,
+			const model::TransactionRegistry& transactionRegistry,
 			const HarvestingUtFacadeFactory& utFacadeFactory,
 			const cache::ReadWriteUtCache& utCache) {
-		auto transactionsInfoSupplier = CreateTransactionsInfoSupplier(strategy, utCache);
+		auto countRetriever = [&transactionRegistry](const auto& transaction) {
+			return transactionRegistry.findPlugin(transaction.Type)->embeddedCount(transaction);
+		};
+
+		auto transactionsInfoSupplier = CreateTransactionsInfoSupplier(strategy, countRetriever, utCache);
 		return [utFacadeFactory, transactionsInfoSupplier](const auto& blockHeader, auto maxTransactionsPerBlock) {
 			// 1. check height consistency
 			auto pUtFacade = utFacadeFactory.create(blockHeader.Timestamp);

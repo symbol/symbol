@@ -46,19 +46,28 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region fees
+	// region block transactions info
 
 	/// Information about transactions stored in a block.
 	struct BlockTransactionsInfo {
-		/// Number of transactions.
+		/// Number of (top-level) transactions.
 		uint32_t Count = 0;
 
 		/// Total fee of all transactions.
 		Amount TotalFee;
 	};
 
+	/// Information about transactions stored in a block, including transaction registry dependent information.
+	struct ExtendedBlockTransactionsInfo : public BlockTransactionsInfo {
+		/// Number of transactions (including embedded transactions).
+		uint32_t DeepCount = 0;
+	};
+
 	/// Calculates information about transactions stored in \a block.
 	BlockTransactionsInfo CalculateBlockTransactionsInfo(const Block& block);
+
+	/// Calculates information about transactions stored in \a block given \a transactionRegistry.
+	ExtendedBlockTransactionsInfo CalculateBlockTransactionsInfo(const Block& block, const TransactionRegistry& transactionRegistry);
 
 	// endregion
 

@@ -115,6 +115,22 @@ namespace catapult { namespace test {
 			EXPECT_EQ(utils::TimeSpan(), attributes.MaxLifetime);
 		}
 
+		/// Asserts that transaction plugin returns correct number of embedded transactions.
+		template<typename... TArgs>
+		static void AssertCanCountEmbeddedTransactions(model::EntityType, TArgs&& ...args) {
+			// Arrange:
+			auto pPlugin = TTraits::CreatePlugin(std::forward<TArgs>(args)...);
+
+			typename TTraits::TransactionType transaction;
+			test::FillWithRandomData(transaction);
+
+			// Act:
+			auto count = pPlugin->embeddedCount(transaction);
+
+			// Assert:
+			EXPECT_EQ(0u, count);
+		}
+
 		/// Asserts that a primary data buffer can be extracted from a transaction plugin.
 		template<typename... TArgs>
 		static void AssertCanExtractPrimaryDataBuffer(model::EntityType, TArgs&& ...args) {
@@ -198,6 +214,9 @@ namespace catapult { namespace test {
 	PLUGIN_TEST_WITH_PREFIXED_TRAITS(AttributesReturnsCorrectValues, TRAITS_PREFIX, TEST_POSTFIX) { \
 		test::TransactionPluginTests<TTraits>::AssertAttributesReturnsCorrectValues(__VA_ARGS__); \
 	} \
+	TEST(TEST_CLASS, CanCountEmbeddedTransactions##TEST_POSTFIX) { \
+		test::TransactionPluginTests<TRAITS_PREFIX##RegularTraits>::AssertCanCountEmbeddedTransactions(__VA_ARGS__); \
+	} \
 	TEST(TEST_CLASS, CanExtractPrimaryDataBuffer##TEST_POSTFIX) { \
 		test::TransactionPluginTests<TRAITS_PREFIX##RegularTraits>::AssertCanExtractPrimaryDataBuffer(__VA_ARGS__); \
 	} \
@@ -212,7 +231,7 @@ namespace catapult { namespace test {
 ///
 /// Coverage:
 /// - regular and embedded: { type, calculateRealSize, attributes }
-/// - regular: { supportsEmbedding, embeddedPlugin, dataBuffer, merkleSupplementaryBuffers, supportsTopLevel }
+/// - regular: { embeddedCount, dataBuffer, merkleSupplementaryBuffers, supportsTopLevel, supportsEmbedding, embeddedPlugin }
 /// - embedded: { additionalRequiredCosignatories }
 /// - uncovered (regular and embedded): { publish }
 #define DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, TRAITS_PREFIX, TEST_POSTFIX, ...) \
@@ -232,7 +251,7 @@ namespace catapult { namespace test {
 ///
 /// Coverage:
 /// - regular and embedded: { type, calculateRealSize, attributes }
-/// - regular: { supportsEmbedding, embeddedPlugin, dataBuffer, merkleSupplementaryBuffers, supportsTopLevel }
+/// - regular: { embeddedCount, dataBuffer, merkleSupplementaryBuffers, supportsTopLevel, supportsEmbedding, embeddedPlugin }
 /// - uncovered (regular and embedded): { publish }
 /// - uncovered (embedded): { additionalRequiredCosignatories }
 #define DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS_ONLY_EMBEDDABLE(TEST_CLASS, TRAITS_PREFIX, TEST_POSTFIX, ...) \

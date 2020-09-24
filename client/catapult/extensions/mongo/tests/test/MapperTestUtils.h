@@ -178,13 +178,24 @@ namespace catapult { namespace test {
 	/// Verifies that model \a block is equal to db block (\a dbBlock).
 	void AssertEqualBlockData(const model::Block& block, const bsoncxx::document::view& dbBlock);
 
-	/// Verifies that \a blockElement, \a totalFee, \a numTransactions, \a numStatements,
-	/// \a transactionMerkleTree and \a statementMerkleTree match block metadata (\a dbBlockMetadata) in db.
+	/// Block metadata counts.
+	struct BlockMetadataCounts {
+		/// Top level transactions count.
+		uint32_t TransactionsCount;
+
+		/// Total transactions count.
+		uint32_t TotalTransactionsCount;
+
+		/// Total statements count.
+		uint32_t StatementsCount;
+	};
+
+	/// Verifies that \a blockElement, \a totalFee, \a blockMetadataCounts, \a transactionMerkleTree and \a statementMerkleTree
+	/// match block metadata (\a dbBlockMetadata) in db.
 	void AssertEqualBlockMetadata(
 			const model::BlockElement& blockElement,
 			Amount totalFee,
-			int32_t numTransactions,
-			int32_t numStatements,
+			const BlockMetadataCounts& blockMetadataCounts,
 			const std::vector<Hash256>& transactionMerkleTree,
 			const std::vector<Hash256>& statementMerkleTree,
 			const bsoncxx::document::view& dbBlockMetadata);

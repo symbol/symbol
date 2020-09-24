@@ -164,15 +164,15 @@ namespace catapult { namespace mocks {
 			{}
 
 		public:
-			UnresolvedAddressSet additionalRequiredCosignatories(const EmbeddedTransaction&) const override {
-				return UnresolvedAddressSet();
-			}
-
 			void publish(
 					const EmbeddedTransaction& transaction,
 					const PublishContext& context,
 					NotificationSubscriber& sub) const override {
 				Publish(static_cast<const EmbeddedMockTransaction&>(transaction), context, m_options, sub);
+			}
+
+			UnresolvedAddressSet additionalRequiredCosignatories(const EmbeddedTransaction&) const override {
+				return UnresolvedAddressSet();
 			}
 
 		private:
@@ -201,6 +201,10 @@ namespace catapult { namespace mocks {
 				// (this allows other tests to verify that the appropriate hash was passed down)
 				if (IsPluginOptionFlagSet(m_options, PluginOptionFlags::Publish_Custom_Notifications))
 					sub.notify(MockHashNotification(transactionInfo.hash()));
+			}
+
+			uint32_t embeddedCount(const Transaction& transaction) const override {
+				return IsPluginOptionFlagSet(m_options, PluginOptionFlags::Contains_Embeddings) ? transaction.Size % 100 : 0;
 			}
 
 			RawBuffer dataBuffer(const Transaction& transaction) const override {

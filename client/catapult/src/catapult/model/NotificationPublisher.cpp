@@ -101,9 +101,9 @@ namespace catapult { namespace model {
 				sub.notify(EntityNotification(block.Network, block.Version, Block::Current_Version, Block::Current_Version));
 
 				// raise a block notification
-				auto blockTransactionsInfo = CalculateBlockTransactionsInfo(block);
+				auto blockTransactionsInfo = CalculateBlockTransactionsInfo(block, m_transactionRegistry);
 				auto blockNotification = CreateBlockNotification(block, blockSignerAddress);
-				blockNotification.NumTransactions = blockTransactionsInfo.Count;
+				blockNotification.NumTransactions = blockTransactionsInfo.DeepCount;
 				blockNotification.TotalFee = blockTransactionsInfo.TotalFee;
 
 				sub.notify(blockNotification);

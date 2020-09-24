@@ -51,9 +51,12 @@ namespace catapult { namespace mongo {
 			return mappers::ToModel(cursor, numHashes);
 		}
 
-		void SaveBlockHeader(const mongocxx::database& database, const model::BlockElement& blockElement) {
+		void SaveBlockHeader(
+				const mongocxx::database& database,
+				const model::BlockElement& blockElement,
+				uint32_t totalTransactionsCount) {
 			auto blocks = database["blocks"];
-			auto dbBlock = mappers::ToDbModel(blockElement);
+			auto dbBlock = mappers::ToDbModel(blockElement, totalTransactionsCount);
 
 			// in idempotent mode, if blockElement is already in the database, this call will be bypassed
 			// so nonzero inserted_count check is proper
@@ -62,24 +65,25 @@ namespace catapult { namespace mongo {
 				CATAPULT_THROW_RUNTIME_ERROR("SaveBlockHeader failed: block header was not inserted");
 		}
 
-		void SaveTransactions(
+		size_t SaveTransactions(
 				MongoBulkWriter& bulkWriter,
 				Height height,
 				const std::vector<model::TransactionElement>& transactions,
 				const MongoTransactionRegistry& registry,
 				const MongoErrorPolicy& errorPolicy) {
-			std::atomic<size_t> numTotalTransactionDocuments(0);
-			auto createDocuments = [height, &registry, &numTotalTransactionDocuments](const auto& transactionElement, auto index) {
+			std::atomic<size_t> totalTransactionsCount(0);
+			auto createDocuments = [height, &registry, &totalTransactionsCount](const auto& transactionElement, auto index) {
 				auto metadata = MongoTransactionMetadata(transactionElement, height, index);
 				auto documents = mappers::ToDbDocuments(transactionElement.Transaction, metadata, registry);
-				numTotalTransactionDocuments += documents.size();
+				totalTransactionsCount += documents.size();
 				return documents;
 			};
 			auto results = bulkWriter.bulkInsert("transactions", transactions, createDocuments).get();
 			auto aggregateResult = BulkWriteResult::Aggregate(thread::get_all(std::move(results)));
 
 			auto itemsDescription = "transactions at height " + std::to_string(height.unwrap());
-			errorPolicy.checkInserted(numTotalTransactionDocuments, aggregateResult, itemsDescription);
+			errorPolicy.checkInserted(totalTransactionsCount, aggregateResult, itemsDescription);
+			return totalTransactionsCount;
 		}
 
 		void SaveBlockStatement(
@@ -195,12 +199,7 @@ namespace catapult { namespace mongo {
 					CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
 				}
 
-				SaveBlockHeader(m_database, blockElement);
-				SaveTransactions(m_context.bulkWriter(), height, blockElement.Transactions, m_transactionRegistry, m_errorPolicy);
-				if (blockElement.OptionalStatement)
-					SaveBlockStatement(m_context.bulkWriter(), height, *blockElement.OptionalStatement, m_receiptRegistry, m_errorPolicy);
-
-				setHeight(blockElement.Block.Height);
+				saveBlockInternal(blockElement);
 			}
 
 			void dropBlocksAfter(Height height) override {
@@ -215,6 +214,25 @@ namespace catapult { namespace mongo {
 			// endregion
 
 		private:
+			void saveBlockInternal(const model::BlockElement& blockElement) {
+				auto height = blockElement.Block.Height;
+				auto totalTransactionsCount = saveTransactions(height, blockElement.Transactions);
+
+				if (blockElement.OptionalStatement)
+					saveBlockStatement(height, *blockElement.OptionalStatement);
+
+				SaveBlockHeader(m_database, blockElement, static_cast<uint32_t>(totalTransactionsCount));
+				setHeight(height);
+			}
+
+			size_t saveTransactions(Height height, const std::vector<model::TransactionElement>& transactions) {
+				return SaveTransactions(m_context.bulkWriter(), height, transactions, m_transactionRegistry, m_errorPolicy);
+			}
+
+			void saveBlockStatement(Height height, const model::BlockStatement& blockStatement) {
+				SaveBlockStatement(m_context.bulkWriter(), height, blockStatement, m_receiptRegistry, m_errorPolicy);
+			}
+
 			void setHeight(Height height) {
 				auto journalHeight = document()
 						<< "$set" << open_document

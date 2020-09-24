@@ -39,13 +39,6 @@ namespace catapult { namespace mongo { namespace mappers {
 			hashArray << bson_stream::close_array;
 		}
 
-		void StreamBlockBasicMetadata(bson_stream::document& builder, const model::BlockElement& blockElement, Amount totalFee) {
-			builder
-					<< "hash" << ToBinary(blockElement.EntityHash)
-					<< "generationHash" << ToBinary(blockElement.GenerationHash)
-					<< "totalFee" << ToInt64(totalFee);
-		}
-
 		void StreamBlockMerkleTree(
 				bson_stream::document& builder,
 				const std::string& countLabel,
@@ -57,7 +50,7 @@ namespace catapult { namespace mongo { namespace mappers {
 		}
 	}
 
-	bsoncxx::document::value ToDbModel(const model::BlockElement& blockElement) {
+	bsoncxx::document::value ToDbModel(const model::BlockElement& blockElement, uint32_t totalTransactionsCount) {
 		const auto& block = blockElement.Block;
 		auto blockTransactionsInfo = model::CalculateBlockTransactionsInfo(block);
 		auto transactionMerkleTree = model::CalculateMerkleTree(blockElement.Transactions);
@@ -65,16 +58,20 @@ namespace catapult { namespace mongo { namespace mappers {
 		// block metadata
 		bson_stream::document builder;
 
-		builder << "meta" << bson_stream::open_document;
-		StreamBlockBasicMetadata(builder, blockElement, blockTransactionsInfo.TotalFee);
+		builder
+				<< "meta" << bson_stream::open_document
+					<< "hash" << ToBinary(blockElement.EntityHash)
+					<< "generationHash" << ToBinary(blockElement.GenerationHash)
+					<< "totalFee" << ToInt64(blockTransactionsInfo.TotalFee)
+					<< "totalTransactionsCount" << static_cast<int32_t>(totalTransactionsCount);
 		StreamHashArray(builder, "stateHashSubCacheMerkleRoots", blockElement.SubCacheMerkleRoots);
-		StreamBlockMerkleTree(builder, "numTransactions", blockTransactionsInfo.Count, "transactionMerkleTree", transactionMerkleTree);
+		StreamBlockMerkleTree(builder, "transactionsCount", blockTransactionsInfo.Count, "transactionMerkleTree", transactionMerkleTree);
 
 		if (blockElement.OptionalStatement) {
 			const auto& blockStatement = *blockElement.OptionalStatement;
-			auto numStatements = static_cast<uint32_t>(model::CountTotalStatements(blockStatement));
+			auto statementsCount = static_cast<uint32_t>(model::CountTotalStatements(blockStatement));
 			auto statementMerkleTree = model::CalculateMerkleTree(blockStatement);
-			StreamBlockMerkleTree(builder, "numStatements", numStatements, "statementMerkleTree", statementMerkleTree);
+			StreamBlockMerkleTree(builder, "statementsCount", statementsCount, "statementMerkleTree", statementMerkleTree);
 		}
 
 		builder << bson_stream::close_document;

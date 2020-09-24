@@ -22,33 +22,35 @@
 
 namespace catapult { namespace cache {
 
-	std::vector<const model::TransactionInfo*> GetFirstTransactionInfoPointers(const MemoryUtCacheView& utCacheView, uint32_t count) {
-		std::vector<const model::TransactionInfo*> transactionInfoPointers;
-		transactionInfoPointers.reserve(std::min<size_t>(utCacheView.size(), count));
-
-		if (0 != count) {
-			utCacheView.forEach([count, &transactionInfoPointers](const auto& transactionInfo) {
-				transactionInfoPointers.push_back(&transactionInfo);
-				return transactionInfoPointers.size() != count;
-			});
-		}
-
-		return transactionInfoPointers;
+	std::vector<const model::TransactionInfo*> GetFirstTransactionInfoPointers(
+			const MemoryUtCacheView& utCacheView,
+			uint32_t transactionLimit,
+			const EmbeddedCountRetriever& countRetriever) {
+		return GetFirstTransactionInfoPointers(utCacheView, transactionLimit, countRetriever, [](const auto&) { return true; });
 	}
 
 	std::vector<const model::TransactionInfo*> GetFirstTransactionInfoPointers(
 			const MemoryUtCacheView& utCacheView,
-			uint32_t count,
+			uint32_t transactionLimit,
+			const EmbeddedCountRetriever& countRetriever,
 			const predicate<const model::TransactionInfo&>& filter) {
 		std::vector<const model::TransactionInfo*> transactionInfoPointers;
-		transactionInfoPointers.reserve(std::min<size_t>(utCacheView.size(), count));
+		transactionInfoPointers.reserve(std::min<size_t>(utCacheView.size(), transactionLimit));
 
-		if (0 != count) {
-			utCacheView.forEach([count, filter, &transactionInfoPointers](const auto& transactionInfo) {
-				if (filter(transactionInfo))
+		if (0 != transactionLimit) {
+			uint32_t totalTransactionsCount = 0;
+			utCacheView.forEach([transactionLimit, countRetriever, filter, &transactionInfoPointers, &totalTransactionsCount](
+					const auto& transactionInfo) {
+				auto currentTransactionsCount = countRetriever(*transactionInfo.pEntity);
+				if (totalTransactionsCount + currentTransactionsCount > transactionLimit)
+					return false;
+
+				if (filter(transactionInfo)) {
+					totalTransactionsCount += currentTransactionsCount;
 					transactionInfoPointers.push_back(&transactionInfo);
+				}
 
-				return transactionInfoPointers.size() != count;
+				return true;
 			});
 		}
 
@@ -57,7 +59,8 @@ namespace catapult { namespace cache {
 
 	std::vector<const model::TransactionInfo*> GetFirstTransactionInfoPointers(
 			const MemoryUtCacheView& utCacheView,
-			uint32_t count,
+			uint32_t transactionLimit,
+			const EmbeddedCountRetriever& countRetriever,
 			const predicate<const model::TransactionInfo*, const model::TransactionInfo*>& sortComparer,
 			const predicate<const model::TransactionInfo&>& filter) {
 		// 1. load all UTs
@@ -72,14 +75,18 @@ namespace catapult { namespace cache {
 		std::sort(allTransactionInfoPointers.begin(), allTransactionInfoPointers.end(), sortComparer);
 
 		// 3. select candidates
+		uint32_t totalTransactionsCount = 0;
 		std::vector<const model::TransactionInfo*> candidateTransactionInfoPointers;
-		candidateTransactionInfoPointers.reserve(std::min<size_t>(utCacheView.size(), count));
+		candidateTransactionInfoPointers.reserve(std::min<size_t>(utCacheView.size(), transactionLimit));
 		for (const auto* pTransactionInfo : allTransactionInfoPointers) {
-			if (count == candidateTransactionInfoPointers.size())
+			auto currentTransactionsCount = countRetriever(*pTransactionInfo->pEntity);
+			if (totalTransactionsCount + currentTransactionsCount > transactionLimit)
 				break;
 
-			if (filter(*pTransactionInfo))
+			if (filter(*pTransactionInfo)) {
+				totalTransactionsCount += currentTransactionsCount;
 				candidateTransactionInfoPointers.push_back(pTransactionInfo);
+			}
 		}
 
 		return candidateTransactionInfoPointers;

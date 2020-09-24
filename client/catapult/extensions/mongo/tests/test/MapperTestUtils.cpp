@@ -118,22 +118,22 @@ namespace catapult { namespace test {
 	void AssertEqualBlockMetadata(
 			const model::BlockElement& blockElement,
 			Amount totalFee,
-			int32_t numTransactions,
-			int32_t numStatements,
+			const BlockMetadataCounts& blockMetadataCounts,
 			const std::vector<Hash256>& transactionMerkleTree,
 			const std::vector<Hash256>& statementMerkleTree,
 			const bsoncxx::document::view& dbBlockMetadata) {
-		auto expectedFieldCount = statementMerkleTree.empty() ? 6u : 8u;
+		auto expectedFieldCount = statementMerkleTree.empty() ? 7u : 9u;
 		EXPECT_EQ(expectedFieldCount, GetFieldCount(dbBlockMetadata));
 		EXPECT_EQ(blockElement.EntityHash, GetHashValue(dbBlockMetadata, "hash"));
 		EXPECT_EQ(blockElement.GenerationHash, GetGenerationHashValue(dbBlockMetadata, "generationHash"));
 		EXPECT_EQ(totalFee, Amount(GetUint64(dbBlockMetadata, "totalFee")));
-		EXPECT_EQ(numTransactions, GetInt32(dbBlockMetadata, "numTransactions"));
+		EXPECT_EQ(blockMetadataCounts.TransactionsCount, GetUint32(dbBlockMetadata, "transactionsCount"));
+		EXPECT_EQ(blockMetadataCounts.TotalTransactionsCount, GetUint32(dbBlockMetadata, "totalTransactionsCount"));
 
 		AssertEqualHashArray(blockElement.SubCacheMerkleRoots, dbBlockMetadata["stateHashSubCacheMerkleRoots"].get_array().value);
 		AssertEqualHashArray(transactionMerkleTree, dbBlockMetadata["transactionMerkleTree"].get_array().value);
 		if (!statementMerkleTree.empty()) {
-			EXPECT_EQ(numStatements, GetInt32(dbBlockMetadata, "numStatements"));
+			EXPECT_EQ(blockMetadataCounts.StatementsCount, GetUint32(dbBlockMetadata, "statementsCount"));
 			AssertEqualHashArray(statementMerkleTree, dbBlockMetadata["statementMerkleTree"].get_array().value);
 		}
 	}

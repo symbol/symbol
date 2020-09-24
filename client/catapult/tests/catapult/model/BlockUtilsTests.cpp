@@ -24,6 +24,7 @@
 #include "catapult/crypto/MerkleHashBuilder.h"
 #include "catapult/utils/HexParser.h"
 #include "tests/test/core/BlockTestUtils.h"
+#include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/nodeps/KeyTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -276,49 +277,120 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region fees - CalculateBlockTransactionsInfo
+	// region block transactions info - CalculateBlockTransactionsInfo
 
-	TEST(TEST_CLASS, CanCalculateBlockTransactionsInfoForBlockWithZeroTransactions) {
+	namespace {
+		struct BasicBlockTransactionsInfoTraits {
+			static BlockTransactionsInfo Calculate(const model::Block& block) {
+				return CalculateBlockTransactionsInfo(block);
+			}
+
+			static void AssertDeepCount(uint32_t, const BlockTransactionsInfo&)
+			{}
+		};
+
+		struct ExtendedBlockTransactionsInfoTraits {
+			static ExtendedBlockTransactionsInfo Calculate(const model::Block& block) {
+				auto transactionRegistry = mocks::CreateDefaultTransactionRegistry();
+				return CalculateBlockTransactionsInfo(block, transactionRegistry);
+			}
+
+			static void AssertDeepCount(uint32_t expected, const ExtendedBlockTransactionsInfo& blockTransactionsInfo) {
+				EXPECT_EQ(expected, blockTransactionsInfo.DeepCount);
+			}
+		};
+	}
+
+#define BLOCK_TRANSACTIONS_INFO_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BasicBlockTransactionsInfoTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Extended) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExtendedBlockTransactionsInfoTraits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+	namespace {
+		test::MutableTransactions GenerateTransactionsWithSizes(std::initializer_list<uint32_t> sizes) {
+			test::MutableTransactions transactions;
+			for (auto size : sizes) {
+				auto pTransaction = test::GenerateRandomTransactionWithSize(size);
+				pTransaction->Type = mocks::MockTransaction::Entity_Type;
+				transactions.push_back(std::move(pTransaction));
+			}
+
+			return transactions;
+		}
+	}
+
+	BLOCK_TRANSACTIONS_INFO_TEST(CanCalculateBlockTransactionsInfoForBlockWithZeroTransactions) {
 		// Arrange:
 		auto pBlock = test::GenerateEmptyRandomBlock();
 		pBlock->FeeMultiplier = BlockFeeMultiplier(3);
 
 		// Act:
-		auto blockTransactionsInfo = CalculateBlockTransactionsInfo(*pBlock);
+		auto blockTransactionsInfo = TTraits::Calculate(*pBlock);
 
 		// Assert:
 		EXPECT_EQ(0u, blockTransactionsInfo.Count);
 		EXPECT_EQ(Amount(), blockTransactionsInfo.TotalFee);
+		TTraits::AssertDeepCount(0, blockTransactionsInfo);
 	}
 
-	TEST(TEST_CLASS, CanCalculateBlockTransactionsInfoForBlockWithSingleTransaction) {
+	BLOCK_TRANSACTIONS_INFO_TEST(CanCalculateBlockTransactionsInfoForBlockWithSingleTransaction) {
 		// Arrange:
-		auto pBlock = test::GenerateBlockWithTransactions(test::ConstTransactions{ test::GenerateRandomTransactionWithSize(132) });
+		auto pBlock = test::GenerateBlockWithTransactions(GenerateTransactionsWithSizes({ 132 }));
 		pBlock->FeeMultiplier = BlockFeeMultiplier(3);
 
 		// Act:
-		auto blockTransactionsInfo = CalculateBlockTransactionsInfo(*pBlock);
+		auto blockTransactionsInfo = TTraits::Calculate(*pBlock);
 
 		// Assert:
 		EXPECT_EQ(1u, blockTransactionsInfo.Count);
 		EXPECT_EQ(Amount(3 * 132), blockTransactionsInfo.TotalFee);
+		TTraits::AssertDeepCount(1, blockTransactionsInfo);
 	}
 
-	TEST(TEST_CLASS, CanCalculateBlockTransactionsInfoForBlockWithMultipleTransactions) {
+	BLOCK_TRANSACTIONS_INFO_TEST(CanCalculateBlockTransactionsInfoForBlockWithMultipleTransactions) {
 		// Arrange:
-		auto pBlock = test::GenerateBlockWithTransactions(test::ConstTransactions{
-			test::GenerateRandomTransactionWithSize(132),
-			test::GenerateRandomTransactionWithSize(222),
-			test::GenerateRandomTransactionWithSize(552)
-		});
+		auto pBlock = test::GenerateBlockWithTransactions(GenerateTransactionsWithSizes({ 132, 222, 552 }));
 		pBlock->FeeMultiplier = BlockFeeMultiplier(3);
 
 		// Act:
-		auto blockTransactionsInfo = CalculateBlockTransactionsInfo(*pBlock);
+		auto blockTransactionsInfo = TTraits::Calculate(*pBlock);
 
 		// Assert:
 		EXPECT_EQ(3u, blockTransactionsInfo.Count);
 		EXPECT_EQ(Amount(3 * 906), blockTransactionsInfo.TotalFee);
+		TTraits::AssertDeepCount(3, blockTransactionsInfo);
+	}
+
+	TEST(TEST_CLASS, CalculateBlockTransactionsInfoIncludesEmbeddedTransactionsInDeepCount_Extended) {
+		// Arrange:
+		auto transactions = GenerateTransactionsWithSizes({ 132, 222, 552 });
+		auto pBlock = test::GenerateBlockWithTransactions(transactions);
+
+		auto transactionRegistry = mocks::CreateDefaultTransactionRegistry(mocks::PluginOptionFlags::Contains_Embeddings);
+
+		// Act:
+		auto blockTransactionsInfo = CalculateBlockTransactionsInfo(*pBlock, transactionRegistry);
+
+		// Assert: mock embeddedCount is `Size % 100`
+		EXPECT_EQ(3u, blockTransactionsInfo.Count);
+		EXPECT_EQ(3u + 32 + 22 + 52, blockTransactionsInfo.DeepCount);
+	}
+
+	TEST(TEST_CLASS, CalculateBlockTransactionsInfoExcludesUnknownTransactionsFromDeepCount_Extended) {
+		// Arrange:
+		auto transactions = GenerateTransactionsWithSizes({ 132, 222, 552 });
+		transactions[1]->Type = static_cast<EntityType>(0);
+		auto pBlock = test::GenerateBlockWithTransactions(transactions);
+
+		auto transactionRegistry = mocks::CreateDefaultTransactionRegistry();
+
+		// Act:
+		auto blockTransactionsInfo = CalculateBlockTransactionsInfo(*pBlock, transactionRegistry);
+
+		// Assert:
+		EXPECT_EQ(3u, blockTransactionsInfo.Count);
+		EXPECT_EQ(2u, blockTransactionsInfo.DeepCount);
 	}
 
 	// endregion

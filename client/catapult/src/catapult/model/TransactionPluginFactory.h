@@ -95,6 +95,13 @@ namespace catapult { namespace model {
 			{}
 
 		public:
+			void publish(
+					const EmbeddedTransaction& transaction,
+					const PublishContext& context,
+					NotificationSubscriber& sub) const override {
+				BaseType::publishImpl(transaction, context, sub);
+			}
+
 			UnresolvedAddressSet additionalRequiredCosignatories(const EmbeddedTransaction& transaction) const override {
 				if constexpr (TransactionPluginFactoryOptions::Default == Options) {
 #ifdef _MSC_VER
@@ -105,13 +112,6 @@ namespace catapult { namespace model {
 				} else {
 					return ExtractAdditionalRequiredCosignatories(static_cast<const TEmbeddedTransaction&>(transaction));
 				}
-			}
-
-			void publish(
-					const EmbeddedTransaction& transaction,
-					const PublishContext& context,
-					NotificationSubscriber& sub) const override {
-				BaseType::publishImpl(transaction, context, sub);
 			}
 		};
 
@@ -133,6 +133,10 @@ namespace catapult { namespace model {
 					const PublishContext& context,
 					NotificationSubscriber& sub) const override {
 				BaseType::publishImpl(transactionInfo.entity(), context, sub);
+			}
+
+			uint32_t embeddedCount(const Transaction&) const override {
+				return 0;
 			}
 
 			RawBuffer dataBuffer(const Transaction& transaction) const override {

@@ -20,6 +20,7 @@
 
 #include "BlockUtils.h"
 #include "FeeUtils.h"
+#include "TransactionPlugin.h"
 #include "catapult/crypto/Hashes.h"
 #include "catapult/crypto/MerkleHashBuilder.h"
 #include "catapult/crypto/Signer.h"
@@ -67,17 +68,36 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region fees
+	// region block transactions info
+
+	namespace {
+		ExtendedBlockTransactionsInfo CalculateBlockTransactionsInfo(const Block& block, const TransactionRegistry* pTransactionRegistry) {
+			ExtendedBlockTransactionsInfo blockTransactionsInfo;
+			for (const auto& transaction : block.Transactions()) {
+				auto transactionFee = CalculateTransactionFee(block.FeeMultiplier, transaction);
+				blockTransactionsInfo.TotalFee = blockTransactionsInfo.TotalFee + transactionFee;
+				++blockTransactionsInfo.Count;
+
+				if (!pTransactionRegistry)
+					continue;
+
+				const auto* pPlugin = pTransactionRegistry->findPlugin(transaction.Type);
+				if (pPlugin)
+					blockTransactionsInfo.DeepCount += 1 + pPlugin->embeddedCount(transaction);
+				else
+					CATAPULT_LOG(warning) << "skipping transaction with unknown type " << transaction.Type;
+			}
+
+			return blockTransactionsInfo;
+		}
+	}
 
 	BlockTransactionsInfo CalculateBlockTransactionsInfo(const Block& block) {
-		BlockTransactionsInfo blockTransactionsInfo;
-		for (const auto& transaction : block.Transactions()) {
-			auto transactionFee = CalculateTransactionFee(block.FeeMultiplier, transaction);
-			blockTransactionsInfo.TotalFee = blockTransactionsInfo.TotalFee + transactionFee;
-			++blockTransactionsInfo.Count;
-		}
+		return CalculateBlockTransactionsInfo(block, nullptr);
+	}
 
-		return blockTransactionsInfo;
+	ExtendedBlockTransactionsInfo CalculateBlockTransactionsInfo(const Block& block, const TransactionRegistry& transactionRegistry) {
+		return CalculateBlockTransactionsInfo(block, &transactionRegistry);
 	}
 
 	// endregion

@@ -88,12 +88,19 @@ namespace catapult { namespace harvesting {
 				UnlockedAccounts& unlockedAccounts,
 				const crypto::KeyPair& encryptionKeyPair,
 				const Address& beneficiaryAddress) {
+			auto strategy = state.config().Node.TransactionSelectionStrategy;
+			const auto& transactionRegistry = state.pluginManager().transactionRegistry();
+			const auto& utCache = const_cast<const extensions::ServiceState&>(state).utCache();
+
 			const auto& cache = state.cache();
 			const auto& blockChainConfig = state.config().BlockChain;
-			const auto& utCache = const_cast<const extensions::ServiceState&>(state).utCache();
-			auto strategy = state.config().Node.TransactionSelectionStrategy;
 			auto executionConfig = extensions::CreateExecutionConfiguration(state.pluginManager());
 			HarvestingUtFacadeFactory utFacadeFactory(cache, blockChainConfig, executionConfig);
+
+			auto blockGenerator = CreateHarvesterBlockGenerator(strategy, transactionRegistry, utFacadeFactory, utCache);
+			auto pHarvesterTask = std::make_shared<ScheduledHarvesterTask>(
+					CreateHarvesterTaskOptions(state),
+					std::make_unique<Harvester>(cache, blockChainConfig, beneficiaryAddress, unlockedAccounts, blockGenerator));
 
 			auto pUnlockedAccountsUpdater = std::make_shared<UnlockedAccountsUpdater>(
 					cache,
@@ -101,11 +108,6 @@ namespace catapult { namespace harvesting {
 					encryptionKeyPair,
 					config::CatapultDataDirectory(state.config().User.DataDirectory));
 			pUnlockedAccountsUpdater->load();
-
-			auto blockGenerator = CreateHarvesterBlockGenerator(strategy, utFacadeFactory, utCache);
-			auto pHarvesterTask = std::make_shared<ScheduledHarvesterTask>(
-					CreateHarvesterTaskOptions(state),
-					std::make_unique<Harvester>(cache, blockChainConfig, beneficiaryAddress, unlockedAccounts, blockGenerator));
 
 			return thread::CreateNamedTask("harvesting task", [pUnlockedAccountsUpdater, pHarvesterTask]() {
 				pUnlockedAccountsUpdater->update();

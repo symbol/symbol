@@ -35,7 +35,8 @@ namespace catapult { namespace model {
 
 		constexpr auto Plugin_Option_Flags = static_cast<mocks::PluginOptionFlags>(
 				utils::to_underlying_type(mocks::PluginOptionFlags::Custom_Buffers)
-				| utils::to_underlying_type(mocks::PluginOptionFlags::Publish_Custom_Notifications));
+				| utils::to_underlying_type(mocks::PluginOptionFlags::Publish_Custom_Notifications)
+				| utils::to_underlying_type(mocks::PluginOptionFlags::Contains_Embeddings));
 
 		template<typename TEntity, typename TAssertSubFunc>
 		void PublishAll(const TEntity& entity, PublicationMode mode, TAssertSubFunc assertSub) {
@@ -188,11 +189,12 @@ namespace catapult { namespace model {
 	}
 
 	namespace {
-		std::unique_ptr<Block> GenerateBlockWithTransactionSizes(const std::vector<Amount>& fees) {
+		std::unique_ptr<Block> GenerateBlockWithTransactionSizes(const std::vector<uint32_t>& sizes) {
 			test::ConstTransactions transactions;
-			for (auto fee : fees) {
-				auto pTransaction = test::GenerateRandomTransactionWithSize(fee.unwrap());
-				pTransaction->MaxFee = Amount(10 * fee.unwrap());
+			for (auto size : sizes) {
+				auto pTransaction = test::GenerateRandomTransactionWithSize(size);
+				pTransaction->Type = mocks::MockTransaction::Entity_Type;
+				pTransaction->MaxFee = Amount(10 * size);
 				transactions.push_back(std::move(pTransaction));
 			}
 
@@ -224,21 +226,21 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanRaiseBlockNotifications_BlockWithTransactions) {
 		// Arrange:
-		auto pBlock = GenerateBlockWithTransactionSizes({ Amount(211), Amount(225), Amount(217) });
+		auto pBlock = GenerateBlockWithTransactionSizes({ 211, 225, 217 });
 		pBlock->Timestamp = Timestamp(432);
 		pBlock->Difficulty = Difficulty(575);
 		pBlock->FeeMultiplier = BlockFeeMultiplier(3);
 
 		// Act:
 		PublishOne<BlockNotification>(*pBlock, [&block = *pBlock](const auto& notification) {
-			// Assert:
+			// Assert: mock embeddedCount is `Size % 100`
 			EXPECT_EQ(GetSignerAddress(block), notification.Harvester);
 			EXPECT_EQ(block.BeneficiaryAddress, notification.Beneficiary);
 			EXPECT_EQ(Timestamp(432), notification.Timestamp);
 			EXPECT_EQ(Difficulty(575), notification.Difficulty);
 			EXPECT_EQ(BlockFeeMultiplier(3), notification.FeeMultiplier);
 			EXPECT_EQ(Amount(3 * 653), notification.TotalFee);
-			EXPECT_EQ(3u, notification.NumTransactions);
+			EXPECT_EQ(3u + 11 + 25 + 17, notification.NumTransactions);
 		});
 	}
 

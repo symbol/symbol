@@ -131,6 +131,12 @@ namespace catapult { namespace plugins {
 				}
 			}
 
+			uint32_t embeddedCount(const Transaction& transaction) const override {
+				const auto& aggregate = CastToDerivedType(transaction);
+				const auto& transactions = aggregate.Transactions();
+				return static_cast<uint32_t>(std::distance(transactions.cbegin(), transactions.cend()));
+			}
+
 			RawBuffer dataBuffer(const Transaction& transaction) const override {
 				const auto& aggregate = CastToDerivedType(transaction);
 

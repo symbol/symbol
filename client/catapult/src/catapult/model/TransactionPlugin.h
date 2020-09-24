@@ -75,11 +75,11 @@ namespace catapult { namespace model {
 	/// Embedded transaction plugin.
 	class PLUGIN_API_DEPENDENCY EmbeddedTransactionPlugin : public TransactionPluginT<EmbeddedTransaction> {
 	public:
-		/// Extracts addresses of additional accounts that must approve \a transaction.
-		virtual UnresolvedAddressSet additionalRequiredCosignatories(const EmbeddedTransaction& transaction) const = 0;
-
 		/// Sends all notifications from \a transaction with \a context to \a sub.
 		virtual void publish(const EmbeddedTransaction& transaction, const PublishContext& context, NotificationSubscriber& sub) const = 0;
+
+		/// Extracts addresses of additional accounts that must approve \a transaction.
+		virtual UnresolvedAddressSet additionalRequiredCosignatories(const EmbeddedTransaction& transaction) const = 0;
 	};
 
 	/// Transaction plugin.
@@ -90,6 +90,9 @@ namespace catapult { namespace model {
 				const WeakEntityInfoT<Transaction>& transactionInfo,
 				const PublishContext& context,
 				NotificationSubscriber& sub) const = 0;
+
+		/// Gets the number of embedded transactions in \a transaction.
+		virtual uint32_t embeddedCount(const Transaction& transaction) const = 0;
 
 		/// Extracts the primary data buffer from \a transaction that is used for signing and basic hashing.
 		virtual RawBuffer dataBuffer(const Transaction& transaction) const = 0;
