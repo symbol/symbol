@@ -4,7 +4,9 @@ required:
   - totalFee
   - generationHash
   - stateHashSubCacheMerkleRoots
-  - numTransactions
+  - totalTransactionsCount
+  - transactionsCount
+  - statementsCount
 properties:
   hash:
     $ref: "../../../schemas/Hash256.yml"
@@ -16,9 +18,12 @@ properties:
     type: array
     items:
       $ref: "../../../schemas/Hash256.yml"
-  numTransactions:
+  totalTransactionsCount:
     type: integer
-    example: 0
-  numStatements:
+    example: 1
+  transactionsCount:
+    type: integer
+    example: 1
+  statementsCount:
     type: integer
     example: 1
