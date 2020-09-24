@@ -64,8 +64,9 @@ class ModelSchemaBuilder {
 				generationHash: ModelType.binary,
 				totalFee: ModelType.uint64,
 				stateHashSubCacheMerkleRoots: { type: ModelType.array, schemaName: ModelType.binary },
-				numTransactions: ModelType.int,
-				numStatements: ModelType.int
+				totalTransactionsCount: ModelType.int,
+				transactionsCount: ModelType.int,
+				statementsCount: ModelType.int
 			},
 			blockHeaderWithMetadata: {
 				id: ModelType.objectId,

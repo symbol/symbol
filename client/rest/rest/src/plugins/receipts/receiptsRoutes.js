@@ -55,7 +55,7 @@ module.exports = {
 
 		server.get(
 			'/blocks/:height/statements/:hash/merkle',
-			routeUtils.blockRouteMerkleProcessor(db.catapultDb, 'numStatements', 'statementMerkleTree')
+			routeUtils.blockRouteMerkleProcessor(db.catapultDb, 'statementsCount', 'statementMerkleTree')
 		);
 	}
 };

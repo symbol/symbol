@@ -1040,7 +1040,7 @@ describe('catapult db', () => {
 					_id: createObjectId(10),
 					meta: {
 						hash: 0x0100,
-						numTransactions: 10
+						transactionsCount: 10
 					},
 					block: {
 						version: 1,
@@ -1079,7 +1079,7 @@ describe('catapult db', () => {
 					_id: createObjectId(10),
 					meta: {
 						hash: 0x0100,
-						numTransactions: 10
+						transactionsCount: 10
 					},
 					block: {
 						version: 1,
@@ -1099,7 +1099,7 @@ describe('catapult db', () => {
 						expect(page.data.length).to.equal(1);
 						expect(page.data[0]).to.deep.equal({
 							id: createObjectId(10),
-							meta: { hash: 0x0100, numTransactions: 10 },
+							meta: { hash: 0x0100, transactionsCount: 10 },
 							block: { version: 1, type: 2 }
 						});
 					}
@@ -1117,7 +1117,7 @@ describe('catapult db', () => {
 						expect(page.data.length).to.equal(1);
 						expect(page.data[0]).to.deep.equal({
 							id: createObjectId(10),
-							meta: { numTransactions: 10 },
+							meta: { transactionsCount: 10 },
 							block: { type: 2 }
 						});
 					}
@@ -1128,9 +1128,9 @@ describe('catapult db', () => {
 		describe('respects sort conditions', () => {
 			// Arrange:
 			const blocks = () => ([
-				{ _id: createObjectId(10), meta: { numTransactions: 1 }, block: { version: 3, type: 2 } },
-				{ _id: createObjectId(20), meta: { numTransactions: 2 }, block: { version: 2, type: 1 } },
-				{ _id: createObjectId(30), meta: { numTransactions: 3 }, block: { version: 1, type: 3 } }
+				{ _id: createObjectId(10), meta: { transactionsCount: 1 }, block: { version: 3, type: 2 } },
+				{ _id: createObjectId(20), meta: { transactionsCount: 2 }, block: { version: 2, type: 1 } },
+				{ _id: createObjectId(30), meta: { transactionsCount: 3 }, block: { version: 1, type: 3 } }
 			]);
 
 			it('direction ascending', () =>
@@ -1176,7 +1176,7 @@ describe('catapult db', () => {
 		describe('uses provided collection', () => {
 			// Arrange:
 			const accounts = () => ([{ _id: createObjectId(10), account: { address: account1.address, addressHeight: 10 } }]);
-			const blocks = () => ([{ _id: createObjectId(20), meta: { numTransactions: 1 }, block: { version: 3, type: 2 } }]);
+			const blocks = () => ([{ _id: createObjectId(20), meta: { transactionsCount: 1 }, block: { version: 3, type: 2 } }]);
 			const transactions = () => ([{ _id: createObjectId(30), meta: { height: 1 }, transaction: { type: 3 } }]);
 
 			it('respects collection', () =>

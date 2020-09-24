@@ -56,7 +56,7 @@ describe('block routes', () => {
 			const testAddressString = 'SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXQ';
 			const testAddress = address.stringToAddress(testAddressString);
 
-			const fakeBlock = { id: 0, meta: { numTransactions: 0 }, block: { type: 33091 } };
+			const fakeBlock = { id: 0, meta: { transactionsCount: 0 }, block: { type: 33091 } };
 			const fakePaginatedBlock = {
 				data: [fakeBlock],
 				pagination: {
@@ -178,7 +178,7 @@ describe('block routes', () => {
 
 			// Assert:
 			expect(blockRouteMerkleProcessorSpy.calledOnce).to.equal(true);
-			expect(blockRouteMerkleProcessorSpy.firstCall.args[1]).to.equal('numTransactions');
+			expect(blockRouteMerkleProcessorSpy.firstCall.args[1]).to.equal('transactionsCount');
 			expect(blockRouteMerkleProcessorSpy.firstCall.args[2]).to.equal('transactionMerkleTree');
 			blockRouteMerkleProcessorSpy.restore();
 		});

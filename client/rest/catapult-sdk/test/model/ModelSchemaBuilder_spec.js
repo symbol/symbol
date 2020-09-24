@@ -353,8 +353,9 @@ describe('model schema builder', () => {
 				'blockHeader.network',
 				'blockHeader.type',
 				'blockHeader.feeMultiplier',
-				'blockHeaderMetadata.numTransactions',
-				'blockHeaderMetadata.numStatements',
+				'blockHeaderMetadata.totalTransactionsCount',
+				'blockHeaderMetadata.transactionsCount',
+				'blockHeaderMetadata.statementsCount',
 
 				'transaction.size',
 				'transaction.version',

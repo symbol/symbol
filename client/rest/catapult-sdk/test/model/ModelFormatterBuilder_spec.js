@@ -118,7 +118,9 @@ describe('model formatter builder', () => {
 					hash: 0,
 					generationHash: 0,
 					totalFee: 0,
-					numTransactions: 0,
+					totalTransactionsCount: 0,
+					transactionsCount: 0,
+					statementsCount: 0,
 					stateHashSubCacheMerkleRoots: [0]
 				},
 				block: {
@@ -146,7 +148,10 @@ describe('model formatter builder', () => {
 					hash: 'binary',
 					generationHash: 'binary',
 					totalFee: 'uint64',
-					numTransactions: 'int',
+					transactionsCount: 'int',
+					statementsCount: 'int',
+					totalTransactionsCount: 'int',
+
 					stateHashSubCacheMerkleRoots: ['binary']
 				},
 				block: {

@@ -557,7 +557,7 @@ describe('receipts routes', () => {
 
 			// Assert:
 			expect(blockRouteMerkleProcessorSpy.calledOnce).to.equal(true);
-			expect(blockRouteMerkleProcessorSpy.firstCall.args[1]).to.equal('numStatements');
+			expect(blockRouteMerkleProcessorSpy.firstCall.args[1]).to.equal('statementsCount');
 			expect(blockRouteMerkleProcessorSpy.firstCall.args[2]).to.equal('statementMerkleTree');
 			blockRouteMerkleProcessorSpy.restore();
 		});
