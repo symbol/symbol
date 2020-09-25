@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.10.0.3] - 25-Sep-2020
+### Fixed
+ - bugfix: importance files should not be spooled to disk when delta is detached
+
+### Changed
+- removed phantom message.type from transfer transaction mongo mapping
+- apply maxTransactionsPerBlock against embedded transactions in addition to top-level transactions
+- Trail-of-Bits: set and check directory permissions
+- Trail-of-Bits: strip RPATHs from built modules by default
+
 ## [0.10.0.2] - 22-Sep-2020
 ### Fixed
  - bugfix: validation of nemesis block containing transactions dependent on DynamicFeeMultiplier
@@ -304,6 +314,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Added
 - Initial code release.
 
+[0.10.0.3]: https://github.com/nemtech/catapult-server/compare/v0.10.0.2...v0.10.0.3
 [0.10.0.2]: https://github.com/nemtech/catapult-server/compare/v0.10.0.1...v0.10.0.2
 [0.10.0.1]: https://github.com/nemtech/catapult-server/compare/v0.9.6.4...v0.10.0.1
 [0.9.6.4]: https://github.com/nemtech/catapult-server/compare/v0.9.6.3...v0.9.6.4
