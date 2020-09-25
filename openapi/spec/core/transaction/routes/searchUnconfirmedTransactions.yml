@@ -12,6 +12,7 @@ parameters:
   - $ref: "../../../parameters/query/toHeight.yml"
   - $ref: "../../../parameters/query/transactionTypes.yml"
   - $ref: "../../../parameters/query/embedded.yml"
+  - $ref: "../../../parameters/query/transferMosaicId.yml"
   - $ref: "../../../parameters/query/pageSize.yml"
   - $ref: "../../../parameters/query/pageNumber.yml"
   - $ref: "../../../parameters/query/offset.yml"
