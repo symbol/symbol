@@ -3,6 +3,14 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [v2.1.0] - 25-Sept-2020
+### Added
+- Added `totalTransactionsCount` to the block meta.
+
+### Changed
+- Removed `type` interpretation from the tranfer transaction messages.
+- Renamed `numTransactions` and `numStatements` to `transactionsCount` and `statementsCount` in the block meta.
+
 ## [v2.0.0] - 21-Sept-2020
 ### Added
 - New `fromHeight` and `toHeight` filters to the transaction endpoints.
