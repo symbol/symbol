@@ -35,6 +35,10 @@ properties:
   statementsCount:
     type: integer
     description: >
-      Number of statements containing [receipts](https://docs.symbolplatform.com/concepts/receipt.html)
-      related to this block.
+      Number of statements (of any kind) present in this block.
+      Bear in mind that some of them (like
+      [resolution statements](https://docs.symbolplatform.com/concepts/receipt.html#resolution-statement))
+      are triggered by transactions present in the block, but in general,
+      [transaction statements](https://docs.symbolplatform.com/concepts/receipt.html#transaction-statement)
+      are not.
     example: 1
