@@ -20,10 +20,21 @@ properties:
       $ref: "../../../schemas/Hash256.yml"
   totalTransactionsCount:
     type: integer
+    description: >
+      Total number of [transactions](https://docs.symbolplatform.com/concepts/transaction.html)
+      present in this block, including *embedded* transactions
+      (i.e. transactions contained within aggregate transactions).
     example: 1
   transactionsCount:
     type: integer
+    description: >
+      Number of [transactions](https://docs.symbolplatform.com/concepts/transaction.html)
+      present in this block. This does not count *embedded* transactions
+      (i.e. transactions contained within aggregate transactions).
     example: 1
   statementsCount:
     type: integer
+    description: >
+      Number of [transaction statements](https://docs.symbolplatform.com/concepts/receipt.html#transaction-statement)
+      present in this block.
     example: 1
