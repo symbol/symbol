@@ -4,9 +4,9 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [0.10.0] - 19-Sep-2020
+## [0.10.0] - 25-Sep-2020
 
-Targets catapult-rest 2.0.0
+Targets catapult-rest 2.1.0
 
 ### Added
 
@@ -20,6 +20,15 @@ Targets catapult-rest 2.0.0
 - ``/chain/height`` endpoint.
 - ``/chain/score`` endpoints.
 - ``totalEntries`` and ``totalPages`` from pagination.
+- ``MessageDTO`` and ``MessageTypeEnum``.
+
+### Changed
+
+- Type of ``message`` property in transfer transaction to ``string``.
+- Property names in ``BlockDTO``.
+    1. Changed ``numTransactions`` to ``totalTransactionsCount``.
+    2. Changed ``numStatements`` to ``statementsCount``.
+    3. Added ``transactionsCount``.
 
 ## [0.9.6] - 14-Aug-2020
 
