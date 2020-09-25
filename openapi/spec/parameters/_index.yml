@@ -86,3 +86,5 @@ toHeightQuery:
   $ref: './query/toHeight.yml'
 transactionTypeQuery:
   $ref: './query/transactionTypes.yml'
+transferMosaicIdQuery:
+  $ref: './query/transferMosaicId.yml'
