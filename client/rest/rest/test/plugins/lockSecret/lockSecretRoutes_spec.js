@@ -21,7 +21,6 @@
 const lockSecretRoutes = require('../../../src/plugins/lockSecret/lockSecretRoutes');
 const routeUtils = require('../../../src/routes/routeUtils');
 const { MockServer } = require('../../routes/utils/routeTestUtils');
-const { test } = require('../../routes/utils/routeTestUtils');
 const catapult = require('catapult-sdk');
 const { expect } = require('chai');
 const sinon = require('sinon');
@@ -33,6 +32,7 @@ describe('lock secret routes', () => {
 	describe('secret locks', () => {
 		const testAddress = 'NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDA';
 		const testAddressNoLocks = 'A34B57B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ45AB';
+		const testSecret = '5994471ABB01112AFCC18159F6CC74B4F511B99806DA59B3CAF5A9C173CACFC5';
 
 		const emptyPageSample = {
 			data: [],
@@ -119,7 +119,7 @@ describe('lock secret routes', () => {
 						expect(paginationParser.firstCall.args[0]).to.deep.equal(req.params);
 						expect(paginationParser.firstCall.args[2]).to.deep.equal({ id: 'objectId' });
 						expect(dbSecretLocksFake.calledOnce).to.equal(true);
-						expect(dbSecretLocksFake.firstCall.args[1]).to.deep.equal(pagingBag);
+						expect(dbSecretLocksFake.firstCall.args[2]).to.deep.equal(pagingBag);
 						paginationParser.restore();
 					});
 				});
@@ -147,6 +147,20 @@ describe('lock secret routes', () => {
 						// Assert:
 						expect(dbSecretLocksFake.calledOnce).to.equal(true);
 						expect(dbSecretLocksFake.firstCall.args[0]).to.deep.equal([address.stringToAddress(testAddress)]);
+
+						expect(mockServer.next.calledOnce).to.equal(true);
+					});
+				});
+
+				it('forwards secret', () => {
+					// Arrange:
+					const req = { params: { address: testAddress, secret: testSecret } };
+
+					// Act:
+					return mockServer.callRoute(route, req).then(() => {
+						// Assert:
+						expect(dbSecretLocksFake.calledOnce).to.equal(true);
+						expect(dbSecretLocksFake.firstCall.args[1]).to.deep.equal(convert.hexToUint8(testSecret));
 
 						expect(mockServer.next.calledOnce).to.equal(true);
 					});
@@ -196,22 +210,6 @@ describe('lock secret routes', () => {
 
 					// Act + Assert:
 					expect(() => mockServer.callRoute(route, req)).to.throw('address has an invalid format');
-				});
-			});
-
-			describe('by secret', () => {
-				const secret = '5994471ABB01112AFCC18159F6CC74B4F511B99806DA59B3CAF5A9C173CACFC5';
-				test.route.document.addGetDocumentRouteTests(lockSecretRoutes.register, {
-					route: '/lock/secret/:secret',
-					inputs: {
-						valid: { object: { secret }, parsed: [convert.hexToUint8(secret)], printable: secret },
-						invalid: {
-							object: { secret: '12345' },
-							error: 'secret has an invalid format'
-						}
-					},
-					dbApiName: 'secretLockBySecret',
-					type: 'secretLockInfo'
 				});
 			});
 		});

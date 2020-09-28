@@ -23,18 +23,13 @@ const routeUtils = require('../../routes/routeUtils');
 module.exports = {
 	register: (server, db, services) => {
 		server.get('/account/:address/lock/secret', (req, res, next) => {
-			const accountAddress = routeUtils.parseArgument(req.params, 'address', 'address');
-			const options = routeUtils.parsePaginationArguments(req.params, services.config.pageSize, { id: 'objectId' });
+			const { params } = req;
+			const accountAddress = routeUtils.parseArgument(params, 'address', 'address');
+			const secret = params.secret ? routeUtils.parseArgument(params, 'secret', 'hash256') : undefined;
+			const options = routeUtils.parsePaginationArguments(params, services.config.pageSize, { id: 'objectId' });
 
-			return db.secretLocks([accountAddress], options)
+			return db.secretLocks([accountAddress], secret, options)
 				.then(result => routeUtils.createSender('secretLockInfo').sendPage(res, next)(result));
-		});
-
-		server.get('/lock/secret/:secret', (req, res, next) => {
-			const secret = routeUtils.parseArgument(req.params, 'secret', 'hash256');
-
-			return db.secretLockBySecret(secret)
-				.then(routeUtils.createSender('secretLockInfo').sendOne(req.params.secret, res, next));
 		});
 	}
 };

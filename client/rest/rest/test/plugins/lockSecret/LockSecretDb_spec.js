@@ -80,7 +80,7 @@ describe('secret locks db', () => {
 			// Act + Assert:
 			return runSecretLocksDbTest(
 				dbSecretLocks,
-				db => db.secretLocks([ownerAddressTest1], paginationOptions),
+				db => db.secretLocks([ownerAddressTest1], undefined, paginationOptions),
 				page => {
 					const expected_keys = ['id', 'lock'];
 					expect(Object.keys(page.data[0]).sort()).to.deep.equal(expected_keys.sort());
@@ -96,10 +96,10 @@ describe('secret locks db', () => {
 			];
 
 			// Act + Assert:
-			return runTestAndVerifyIds(dbSecretLocks, db => db.secretLocks([ownerAddressTest2], paginationOptions), []);
+			return runTestAndVerifyIds(dbSecretLocks, db => db.secretLocks([ownerAddressTest2], undefined, paginationOptions), []);
 		});
 
-		it('returns filtered secret locks by owner address', () => {
+		it('returns filtered lock secret by owner address', () => {
 			// Arrange:
 			const dbSecretLocks = [
 				createSecretLock(10, ownerAddressTest1),
@@ -107,10 +107,10 @@ describe('secret locks db', () => {
 			];
 
 			// Act + Assert:
-			return runTestAndVerifyIds(dbSecretLocks, db => db.secretLocks([ownerAddressTest2], paginationOptions), [20]);
+			return runTestAndVerifyIds(dbSecretLocks, db => db.secretLocks([ownerAddressTest2], undefined, paginationOptions), [20]);
 		});
 
-		it('returns filtered secret locks by owner address, multiple addresses', () => {
+		it('returns filtered lock secret by owner address, multiple addresses', () => {
 			// Arrange:
 			const dbSecretLocks = [
 				createSecretLock(10, ownerAddressTest1),
@@ -121,9 +121,20 @@ describe('secret locks db', () => {
 			// Act + Assert:
 			return runTestAndVerifyIds(
 				dbSecretLocks,
-				db => db.secretLocks([ownerAddressTest1, ownerAddressTest2], paginationOptions),
+				db => db.secretLocks([ownerAddressTest1, ownerAddressTest2], undefined, paginationOptions),
 				[10, 20]
 			);
+		});
+
+		it('returns filtered lock secret by secret', () => {
+			// Arrange:
+			const dbSecretLocks = [
+				createSecretLock(10, ownerAddressTest1, secretTest01),
+				createSecretLock(20, ownerAddressTest2, secretTest02)
+			];
+
+			// Act + Assert:
+			return runTestAndVerifyIds(dbSecretLocks, db => db.secretLocks([ownerAddressTest2], secretTest02, paginationOptions), [20]);
 		});
 
 		describe('respects sort conditions', () => {
@@ -145,7 +156,7 @@ describe('secret locks db', () => {
 				// Act + Assert:
 				return runSecretLocksDbTest(
 					dbSecretLocks(),
-					db => db.secretLocks([ownerAddressTest1], options),
+					db => db.secretLocks([ownerAddressTest1], undefined, options),
 					page => {
 						expect(page.data[0].id).to.deep.equal(createObjectId(10));
 						expect(page.data[1].id).to.deep.equal(createObjectId(20));
@@ -165,7 +176,7 @@ describe('secret locks db', () => {
 				// Act + Assert:
 				return runSecretLocksDbTest(
 					dbSecretLocks(),
-					db => db.secretLocks([ownerAddressTest1], options),
+					db => db.secretLocks([ownerAddressTest1], undefined, options),
 					page => {
 						expect(page.data[0].id).to.deep.equal(createObjectId(30));
 						expect(page.data[1].id).to.deep.equal(createObjectId(20));
@@ -186,7 +197,7 @@ describe('secret locks db', () => {
 				// Act + Assert:
 				return runSecretLocksDbTest(
 					dbSecretLocks(),
-					db => db.secretLocks([ownerAddressTest1], options),
+					db => db.secretLocks([ownerAddressTest1], undefined, options),
 					() => {
 						expect(queryPagedDocumentsSpy.calledOnce).to.equal(true);
 						expect(Object.keys(queryPagedDocumentsSpy.firstCall.args[2])[0]).to.equal('_id');
@@ -216,49 +227,15 @@ describe('secret locks db', () => {
 				options.sortDirection = 1;
 
 				// Act + Assert:
-				return runTestAndVerifyIds(dbSecretLocks(), db => db.secretLocks([ownerAddressTest1], options), [30]);
+				return runTestAndVerifyIds(dbSecretLocks(), db => db.secretLocks([ownerAddressTest1], undefined, options), [30]);
 			});
 
 			it('lt', () => {
 				options.sortDirection = -1;
 
 				// Act + Assert:
-				return runTestAndVerifyIds(dbSecretLocks(), db => db.secretLocks([ownerAddressTest1], options), [10]);
+				return runTestAndVerifyIds(dbSecretLocks(), db => db.secretLocks([ownerAddressTest1], undefined, options), [10]);
 			});
-		});
-	});
-
-	describe('secretLockBySecret', () => {
-		it('returns undefined for unknown secret', () => {
-			// Arrange:
-			const dbSecretLocks = [createSecretLock(10, ownerAddressTest1, secretTest01)];
-
-			// Assert:
-			return runSecretLocksDbTest(
-				dbSecretLocks,
-				db => db.secretLockBySecret(secretTest02),
-				secretLock => { expect(secretLock).to.equal(undefined); }
-			);
-		});
-
-		it('returns matching secret lock', () => {
-			// Arrange:
-			const dbSecretLocks = [
-				createSecretLock(10, ownerAddressTest1, secretTest01),
-				createSecretLock(20, ownerAddressTest1, secretTest02),
-				createSecretLock(30, ownerAddressTest1, secretTest01)
-			];
-
-			// Assert:
-			return runSecretLocksDbTest(
-				dbSecretLocks,
-				db => db.secretLockBySecret(secretTest02),
-				secretLock => {
-					expect(secretLock.id).to.deep.equal(createObjectId(20));
-					expect(secretLock.lock.ownerAddress.buffer).to.deep.equal(ownerAddressTest1);
-					expect(secretLock.lock.secret.buffer).to.deep.equal(secretTest02);
-				}
-			);
 		});
 	});
 });
