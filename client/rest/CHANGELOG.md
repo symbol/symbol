@@ -8,7 +8,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 - Added `totalTransactionsCount` to the block meta.
 
 ### Changed
-- Removed `type` interpretation from the tranfer transaction messages.
+- Removed `type` interpretation from the transfer transaction messages.
 - Renamed `numTransactions` and `numStatements` to `transactionsCount` and `statementsCount` in the block meta.
 
 ## [v2.0.0] - 21-Sept-2020
