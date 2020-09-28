@@ -19,7 +19,7 @@ cp ../resources/* resources/
 cp ../tools/nemgen/resources/mijin-test.properties resources/
 ```
 
-WARNING: It is NOT recommended to use the default configuration values in production environments.
+WARNING: Using the default configuration values in production environments is NOT recommended.
 
 ## Generate accounts
 
@@ -32,18 +32,19 @@ cat nemesis.addresses.txt
 
 The script generates ten accounts for the nemesis block, but the number of accounts is customizable.
 
-## Create the seed and txes directory
+## Create the seed and transactions directory
 
-1\. Create a directory to save the generated nemesis block under ``catapult-server/_build``.
+1. Create a directory to save the generated nemesis block under ``catapult-server/_build``.
 
-```sh
-mkdir -p seed/network-test/00000
-```
-2\. Create a directory to save additional transactions embedded in the nemesis block.
+    ```sh
+    mkdir -p seed/network-test/00000
+    ```
 
-```sh
-mkdir txes
-```
+2. Create a directory to save additional transactions embedded in the nemesis block.
+
+    ```sh
+    mkdir txes
+    ```
 
 ## Edit the nemesis block
 
@@ -52,65 +53,65 @@ The first block is defined before launching a new network and sets the initial d
 
 The file ``resources/mijin-test.properties`` defines the transactions issued in the nemesis block.
 
-1\. Open ``mijin-test.properties`` and edit the ``[nemesis]`` section.
+1. Open ``mijin-test.properties`` and edit the ``[nemesis]`` section.
 Replace ``nemesisGenerationHashSeed`` with a unique SHA3-256 hash that will identify the network
 and ``nemesisSignerPrivateKey`` with a private key from ``nemesis.addresses.txt``.
 
-```ini
-[nemesis]
+    ```ini
+    [nemesis]
 
-networkIdentifier = mijin-test
-nemesisGenerationHashSeed = 57F7DA205008026C776CB6AED843393F04CD458E0AA2D9F1D5F31A402072B2D6
-nemesisSignerPrivateKey = 0000000000000000000000000000000000000000000000000000000000000000
-```
+    networkIdentifier = mijin-test
+    nemesisGenerationHashSeed = 57F7DA205008026C776CB6AED843393F04CD458E0AA2D9F1D5F31A402072B2D6
+    nemesisSignerPrivateKey = 0000000000000000000000000000000000000000000000000000000000000000
+    ```
 
-2\. Replace ``[cpp]`` and ``[output]`` sections with the following configuration.
+2. Replace ``[cpp]`` and ``[output]`` sections with the following configuration.
 
-```ini
-[cpp]
+    ```ini
+    [cpp]
 
-cppFileHeader =
+    cppFileHeader =
 
-[output]
+    [output]
 
-cppFile =
-binDirectory = ../seed/network-test
-```
+    cppFile =
+    binDirectory = ../seed/network-test
+    ```
 
-3\. Edit the ``[distribution]`` section.
+3. Edit the ``[distribution]`` section.
 The accounts defined under the distribution list will receive mosaics units.
 Replace at least one address of each group with an address from ``nemesis.addresses.txt``.
 The total amount of units distributed must match the original mosaic definition.
 
-WARNING: Do not add the ``nemesisSignerPrivateKey`` account to the distribution list.
+    WARNING: Do not add the ``nemesisSignerPrivateKey`` account to the distribution list.
 The nemesis signer account cannot announce or participate in transactions.
 The mosaics received by the nemesis account will be lost forever.
 
-Here is an example of how the distribution list looks like after replacing some addresses:
+    Here is an example of how the distribution list looks like after replacing some addresses:
 
-```ini
-[distribution>cat:currency]
+    ```ini
+    [distribution>cat:currency]
 
-SAIBNNG7QJXY54Z334HOKA36NTH7FRRCKFRM4XY = 409'090'909'000'000
-...
+    SAIBNNG7QJXY54Z334HOKA36NTH7FRRCKFRM4XY = 409'090'909'000'000
+    ...
 
-[distribution>cat:harvest]
+    [distribution>cat:harvest]
 
-SBMEZB54VXTH4PRAUJJQJJFB2SNQZQ2SUI6J7BA = 1'000'000
-...
-```
+    SBMEZB54VXTH4PRAUJJQJJFB2SNQZQ2SUI6J7BA = 1'000'000
+    ...
+    ```
 
-Your addresses should be different, as ``catapult.tools.address`` generates different accounts after every execution. Make sure that someone holds the private keys associated with every address listed before the network is launched.
+    Your addresses should be different, as ``catapult.tools.address`` generates different accounts after every execution. Make sure that someone holds the private keys associated with every address listed before the network is launched.
 
-4\. Edit the ``[transactions]`` section.
+4. Edit the ``[transactions]`` section.
 
-```ini
-[transactions]
+    ```ini
+    [transactions]
 
-transactionsDirectory = ../txes
-```
+    transactionsDirectory = ../txes
+    ```
 
-5\. Continue editing the nemesis block properties to fit your network requirements and save the configuration before moving to the next step.
+5. Continue editing the nemesis block properties to fit your network requirements and save the configuration before moving to the next step.
 
 ## Edit the network properties
 
@@ -129,64 +130,65 @@ Each node of the network can host zero or more harvester accounts to create new 
 
 In order to be an eligible harvester, the account must:
 
-1\. Own a certain amount of harvesting mosaics defined in ``config-network.properties`` between ``minHarvesterBalance`` and ``maxHarvesterBalance``.
+1. Own a certain amount of harvesting mosaics defined in ``config-network.properties`` between ``minHarvesterBalance`` and ``maxHarvesterBalance``.
 
-2\. Announce a valid VrfKeyLinkTransaction. The VRF transaction links the harvester account with a second key pair to randomize block production and leader selection.
+2. Announce a valid [VrfKeyLinkTransaction](https://docs.symbolplatform.com/serialization/coresystem.html#vrfkeylinktransaction). The VRF transaction links the harvester account with a second key pair to randomize block production and leader selection.
 
-In order to ensure that the network produces a second block after its launch, the nemesis block must include at least one valid VrfKeyLinkTransaction linking a harvester account with a second key pair.
+    In order to ensure that the network produces a second block after its launch, the nemesis block must include at least one valid VrfKeyLinkTransaction linking a harvester account with a second key pair.
 
-Run the linker tool to create a VrfKeyLinkTransaction. 
+    Run the linker tool to create a VrfKeyLinkTransaction.
 
-```sh
-cd bin
-./catapult.tools.linker --resources ../ --type vrf --secret <HARVESTER_PRIVATE_KEY> --linkedPublicKey <VRF_PUBLIC_KEY> --output ../txes/tx0.bin
-```
+    ```sh
+    cd bin
+    ./catapult.tools.linker --resources ../ --type vrf --secret <HARVESTER_PRIVATE_KEY> --linkedPublicKey <VRF_PUBLIC_KEY> --output ../txes/tx0.bin
+    ```
 
-* Replace ``<HARVESTER_PRIVATE_KEY>`` with the private key of an account that has received sufficient harvesting mosaics in ``resources/mijin-test.properties`` ``[distribution>cat:harvest]``.
+   * Replace ``<HARVESTER_PRIVATE_KEY>`` with the private key of an account that has received sufficient harvesting mosaics in ``resources/mijin-test.properties`` ``[distribution>cat:harvest]``.
 
-* Replace ``<VRF_PUBLIC_KEY>`` with the public key of an unused account from ``nemesis.addresses.txt``.
+   * Replace ``<VRF_PUBLIC_KEY>`` with the public key of an unused account from ``nemesis.addresses.txt``.
 
 ## Generate the network mosaic ids
 
 The network mosaic ids are autogenerated based on the configuration provided in the file ``resources/mijin-test.properties``.
 
-1\. Run the nemesis block generator.
+1. Run the nemesis block generator.
 
-```sh
-./catapult.tools.nemgen --nemesisProperties ../resources/mijin-test.properties
-```
+    ```sh
+    ./catapult.tools.nemgen --nemesisProperties ../resources/mijin-test.properties
+    ```
 
-2\. Copy the currency and harvest mosaic ids displayed on the command line prompt.
+2. Copy the currency and harvest mosaic ids displayed on the command line prompt.
 
-```sh
-(nemgen::NemesisConfigurationLoader.cpp@57) Mosaic Summary
-(nemgen::NemesisConfigurationLoader.cpp@32)  - cat:currency (621EC5B403856FC2)
-...
-(nemgen::NemesisConfigurationLoader.cpp@32)  - cat:harvest (4291ED23000A037A)
-```
-3\. Set ``currencyMosaicId`` and ``harvestingMosaicId`` in ``resources/mijin-test.properties`` with the values generated in the previous step.
+    ```sh
+    (nemgen::NemesisConfigurationLoader.cpp@57) Mosaic Summary
+    (nemgen::NemesisConfigurationLoader.cpp@32)  - cat:currency (621EC5B403856FC2)
+    ...
+    (nemgen::NemesisConfigurationLoader.cpp@32)  - cat:harvest (4291ED23000A037A)
+    ```
 
-```ini
-[chain]
+3. Set ``currencyMosaicId`` and ``harvestingMosaicId`` in ``resources/mijin-test.properties`` with the values generated in the previous step.
 
-currencyMosaicId = 0x621E'C5B4'0385'6FC2
-harvestingMosaicId = 0x4291'ED23'000A'037A
-```
+    ```ini
+    [chain]
+
+    currencyMosaicId = 0x621E'C5B4'0385'6FC2
+    harvestingMosaicId = 0x4291'ED23'000A'037A
+    ```
 
 ## Generate the nemesis block
 
-1\. Run the nemesis block generator a second time, this time with the correct mosaic ids values.
+1. Run the nemesis block generator a second time, this time with the correct mosaic ids values.
 
-```sh
-./catapult.tools.nemgen --nemesisProperties ../resources/mijin-test.properties
-```
+    ```sh
+    ./catapult.tools.nemgen --nemesisProperties ../resources/mijin-test.properties
+    ```
 
-2\. Copy the generated nemesis block under the ``data`` folder.
+2. Copy the generated nemesis block under the ``data`` folder.
 
-```sh
-cd ..
-cp -r seed/network-test/* data/
-```
+    ```sh
+    cd ..
+    cp -r seed/network-test/* data/
+    ```
 
 ## Configure the node
 

@@ -4,13 +4,13 @@ These instructions summarize the minimum number of steps to run a [peer node](ht
 
 ## Prerequisites
 
-* Have defined the network nemesis block. Follow [these instructions](RUNNETWOWORKLIN.md) to run a private network.
-* Have catapult-server compiled in the node. Follow [these instructions](BUILDING.md) to build catapult-server.
+* Have defined the network nemesis block. Follow [these instructions](RUNNETWORKLIN.md) to run a private network.
+* Have catapult-server compiled in the node. Follow [these instructions](BUILDLIN.md) to build catapult-server.
 
 ## Replace the network configuration
 
 NOTE: This step is only required when connecting a peer node to a network that is up and running.
-If you have not launched a network yet, move directly to ["Edit the node properties"](#edit-node-properties).
+If you have not launched a network yet, move directly to ["Edit the node properties"](#edit-the-node-properties).
 
 1\. Download a copy of the following files and folders from the node that originated the network:
 
@@ -29,10 +29,10 @@ cp -r network-config/resources/ resources/
 
 ## Edit the node properties
 
-The file ``resources/config-node.properties`` defines the node configuration. 
+The file ``resources/config-node.properties`` defines the node configuration.
 Learn more about each network property in [this guide](https://nemtech.github.io/guides/network/configuring-node-properties.html#properties).
 
-Open ``resources/config-node.properties`` and search the ``[localnode]`` section.
+Open ``resources/config-node.properties`` and search for the ``[localnode]`` section.
 Then, edit the properties with the peer node details.
 
 ``` ini
@@ -48,29 +48,29 @@ roles = Peer
 This step enables [harvesting](https://nemtech.github.io/concepts/harvesting.html), which allows the node to produce new blocks.
 
 NOTE: At least one node of the network must have harvesting enabled to produce new blocks. If you don't want to enable harvesting, move directly to [Add other peer nodes](#add-other-peer-nodes).
- 
-1\. Open the file ``resources/config-extensions-server.properties`` and enable the harvesting extension.
 
-```ini
-# p2p extensions
-...
-extension.harvesting = true
-...
-```
+1. Open the file ``resources/config-extensions-server.properties`` and enable the harvesting extension.
 
-2\. Edit the file ``resources/config-harvesting.properties``.
+    ```ini
+    # p2p extensions
+    ...
+    extension.harvesting = true
+    ...
+    ```
 
-```ini
-[harvesting]
-harvesterSigningPrivateKey = ``<HARVESTER_SIGNING_PRIVATE_KEY>``
-harvesterVrfPrivateKey = ``<HARVESTER_VRF_PRIVATE_KEY>`` 
-isAutoHarvestingEnabled = true
-...
-```
+2. Edit the file ``resources/config-harvesting.properties``.
 
-* Replace ``<HARVESTER_SIGNING_PRIVATE_KEY>`` with the private key of an [eligible account](https://nemtech.github.io/concepts/harvesting.html#eligibility-criteria).
+    ```ini
+    [harvesting]
+    harvesterSigningPrivateKey = <HARVESTER_SIGNING_PRIVATE_KEY>
+    harvesterVrfPrivateKey = <HARVESTER_VRF_PRIVATE_KEY>
+    isAutoHarvestingEnabled = true
+    ...
+    ```
 
-* Replace ``<HARVESTER_VRF_PRIVATE_KEY>`` with the private key linked to the harvester account to randomize the block production. The link could be defined in the [nemesis block](RUNNETWORKLIN.md#append-the-vrf-keys-to-the-nemesis-block) or at a later point by announcing a **VRFKeyLinkTransaction** with the [CLI](https://github.com/nemtech/symbol-cli/blob/gh-pages/0.20.3.md#vrfkeylink) or [SDKs](https://github.com/nemtech/symbol-sdk-typescript-javascript).
+   * Replace ``<HARVESTER_SIGNING_PRIVATE_KEY>`` with the private key of an [eligible account](https://nemtech.github.io/concepts/harvesting.html#eligibility-criteria).
+
+   * Replace ``<HARVESTER_VRF_PRIVATE_KEY>`` with the private key linked to the harvester account to randomize the block production. The link could be defined in the [nemesis block](RUNNETWORKLIN.md#append-the-vrf-keys-to-the-nemesis-block) or at a later point by announcing a **VRFKeyLinkTransaction** with the [CLI](https://github.com/nemtech/symbol-cli/blob/gh-pages/0.20.3.md#vrfkeylink) or [SDKs](https://github.com/nemtech/symbol-sdk-typescript-javascript).
 
 ## Generate TLS certificates
 
@@ -78,58 +78,58 @@ Catapult uses TLS 1.3 to provide secure connections and identity assurance among
 
 1. To generate and self sign the TLS certificate, you can download and run the script [cert-generate.sh](https://github.com/tech-bureau/catapult-service-bootstrap/blob/master/common/ruby/script/cert-generate.sh) from the ``catapult-server/_build`` directory.
 
-```sh
-mkdir certificate
-cd certificate
-curl https://raw.githubusercontent.com/tech-bureau/catapult-service-bootstrap/master/common/ruby/script/cert-generate.sh --output cert-generate.sh
-chmod 777 cert-generate.sh
-./cert-generate.sh
-```
+    ```sh
+    mkdir certificate
+    cd certificate
+    curl https://raw.githubusercontent.com/tech-bureau/catapult-service-bootstrap/master/common/ruby/script/cert-generate.sh --output cert-generate.sh
+    chmod 777 cert-generate.sh
+    ./cert-generate.sh
+    ```
 
 2. Open ``resources/config-user.properties`` and make sure that ``certificateDirectory`` points to the directory where the TLS certificates are being stored.
 
-```ini
-[storage]
+    ```ini
+    [storage]
 
-dataDirectory = ../data
-certificateDirectory = ../certificate
-pluginsDirectory = .
-...
-```
+    dataDirectory = ../data
+    certificateDirectory = ../certificate
+    pluginsDirectory = .
+    ...
+    ```
 
 ## Add other peer nodes
 
 The file ``resources/peers-p2p.json`` should list strong nodes to serve as beacons.
 A random subset of beacons should be set in each node's peer file for best network performance.
 
-1\. Open the file and replace the public key and host with the public key, host, and port of the node that originated the network.
+1. Open the file and replace the public key and host with the public key, host, and port of the node that originated the network.
 
-```json
-{
-    "_info": "this file contains a list of all trusted peers and can be shared",
-    "knownPeers": [
-        {
-            "publicKey": "0000000000000000000000000000000000000000000000000000000000000000",
-            "endpoint": {
-            "host": "127.0.0.1",
-            "port": 7900
-            },
-            "metadata": {
-                "name": "peernode",
-                "roles": "Peer"
+    ```json
+    {
+        "_info": "this file contains a list of all trusted peers and can be shared",
+        "knownPeers": [
+            {
+                "publicKey": "0000000000000000000000000000000000000000000000000000000000000000",
+                "endpoint": {
+                "host": "127.0.0.1",
+                "port": 7900
+                },
+                "metadata": {
+                    "name": "peernode",
+                    "roles": "Peer"
+                }
             }
-        }
-    ]
-}
-```
+        ]
+    }
+    ```
 
-To get the node public key, run the following command in the folder that contains the node's certificates:
+    To get the node public key, run the following command in the folder that contains the node's certificates:
 
-```sh
-openssl pkey -pubin -in ca.pubkey.pem -noout -text | openssl dgst -sha256 -hex
-```
+    ```sh
+    openssl pkey -pubin -in ca.pubkey.pem -noout -text | openssl dgst -sha256 -hex
+    ```
 
-2\. If the network has more peer nodes, you can add them to the ``knownPeers`` array.
+2. If the network has more peer nodes, you can add them to the ``knownPeers`` array.
 
 ## Run the node
 
