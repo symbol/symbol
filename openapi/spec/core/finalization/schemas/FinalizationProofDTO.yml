@@ -10,9 +10,9 @@ properties:
   version:
     type: integer
   finalizationEpoch:
-    type: integer
+    $ref: "../../../schemas/FinalizationEpoch.yml"
   finalizationPoint:
-    type: integer
+    $ref: "../../../schemas/FinalizationPoint.yml"
   height:
     $ref: "../../../schemas/Height.yml"
   hash:
