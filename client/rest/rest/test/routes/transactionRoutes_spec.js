@@ -240,7 +240,8 @@ describe('transaction routes', () => {
 								recipientAddress: undefined,
 								signerPublicKey: undefined,
 								embedded: undefined,
-								transactionTypes: undefined
+								transactionTypes: undefined,
+								transferMosaicId: undefined
 							};
 
 							expectedResult[filter] = value;
@@ -259,7 +260,8 @@ describe('transaction routes', () => {
 						{ filter: 'address', param: testAddressString, value: testAddress },
 						{ filter: 'signerPublicKey', param: testPublickeyString, value: testPublickey },
 						{ filter: 'recipientAddress', param: testAddressString, value: testAddress },
-						{ filter: 'embedded', param: 'true', value: true }
+						{ filter: 'embedded', param: 'true', value: true },
+						{ filter: 'transferMosaicId', param: '100', value: [100, 0] }
 					];
 
 					testCases.forEach(testCase => {
@@ -279,7 +281,8 @@ describe('transaction routes', () => {
 								recipientAddress: undefined,
 								signerPublicKey: undefined,
 								embedded: undefined,
-								transactionTypes: [1, 5, 25]
+								transactionTypes: [1, 5, 25],
+								transferMosaicId: undefined
 							});
 						});
 					});
@@ -354,7 +357,8 @@ describe('transaction routes', () => {
 									recipientAddress: undefined,
 									signerPublicKey: undefined,
 									embedded: undefined,
-									transactionTypes: undefined
+									transactionTypes: undefined,
+									transferMosaicId: undefined
 								});
 							}));
 					};

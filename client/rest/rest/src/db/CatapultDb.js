@@ -294,7 +294,7 @@ class CatapultDb {
 	 * Retrieves filtered and paginated transactions.
 	 * @param {string} group Transactions group on which the query is made.
 	 * @param {object} filters Filters to be applied: `address` for an involved address in the query, `signerPublicKey`, `recipientAddress`,
-	 * `height`, `fromHeight`, `toHeight`, `embedded`, `transactionTypes` array of uint.
+	 * `height`, `fromHeight`, `toHeight`, `embedded`, `transferMosaicId`, `transactionTypes` array of uint.
 	 * If `address` is provided, other account related filters are omitted.
 	 * @param {object} options Options for ordering and pagination. Can have an `offset`, and must contain the `sortField`, `sortDirection`,
 	 * `pageSize` and `pageNumber`. 'sortField' must be within allowed 'sortingOptions'.
@@ -338,6 +338,9 @@ class CatapultDb {
 
 			if (undefined !== filters.transactionTypes)
 				conditions['transaction.type'] = { $in: filters.transactionTypes };
+
+			if (undefined !== filters.transferMosaicId)
+				conditions['transaction.mosaics.id'] = convertToLong(filters.transferMosaicId);
 
 			const accountConditions = buildAccountConditions();
 			if (accountConditions)

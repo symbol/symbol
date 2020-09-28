@@ -1279,6 +1279,8 @@ describe('catapult db', () => {
 		account2.address = keyToAddress(account2.publicKey);
 		const account3 = { publicKey: test.random.publicKey() };
 		account3.address = keyToAddress(account3.publicKey);
+		const testMosaicOne = { id: 10, amount: 1 };
+		const testMosaicTwo = { id: 20, amount: 1 };
 
 		const paginationOptions = {
 			pageSize: 10,
@@ -1289,7 +1291,7 @@ describe('catapult db', () => {
 
 		const { createObjectId } = test.db;
 
-		const createTransaction = (objectId, addresses, height, signerPublicKey, recipientAddress, type) => ({
+		const createTransaction = (objectId, addresses, height, signerPublicKey, recipientAddress, type, mosaics) => ({
 			_id: createObjectId(objectId),
 			meta: {
 				height,
@@ -1298,6 +1300,7 @@ describe('catapult db', () => {
 			transaction: {
 				signerPublicKey: signerPublicKey ? Buffer.from(signerPublicKey) : undefined,
 				recipientAddress: recipientAddress ? Buffer.from(recipientAddress) : undefined,
+				mosaics,
 				type
 			}
 		});
@@ -1424,18 +1427,22 @@ describe('catapult db', () => {
 				createTransaction(20, [account1.address], 1),
 				createTransaction(30, [account1.address], 1, account1.publicKey),
 				createTransaction(40, [account1.address], 1, account1.publicKey, account1.address),
-				createTransaction(50, [account1.address], 1, account1.publicKey, account1.address, EntityType.transfer)
+				createTransaction(50, [account1.address], 1, account1.publicKey, account1.address, EntityType.transfer),
+				createTransaction(
+					60, [account1.address], 1, account1.publicKey, account1.address, EntityType.transfer, [testMosaicOne]
+				)
 			];
 
 			const filters = {
 				height: 1,
 				signerPublicKey: account1.publicKey,
 				recipientAddress: account1.address,
-				transactionTypes: [EntityType.transfer]
+				transactionTypes: [EntityType.transfer],
+				transferMosaicId: 10
 			};
 
 			// Act + Assert:
-			return runTestAndVerifyIds(dbTransactions, filters, paginationOptions, [50]);
+			return runTestAndVerifyIds(dbTransactions, filters, paginationOptions, [60]);
 		});
 
 		describe('respects offset', () => {
@@ -1676,6 +1683,21 @@ describe('catapult db', () => {
 
 				// Act + Assert:
 				return runTestAndVerifyIds(dbTransactions, filters, paginationOptions, [10, 40]);
+			});
+
+			it('transferMosaicId', () => {
+				// Arrange:
+				const dbTransactions = [
+					// Non aggregate
+					createTransaction(10, [], 1, 0, 0, EntityType.transfer, [testMosaicOne]),
+					createTransaction(20, [], 1, 0, 0, EntityType.transfer, [testMosaicTwo]),
+					createTransaction(30, [], 1, 0, 0, EntityType.accountMetadata, [testMosaicOne, testMosaicTwo])
+				];
+
+				const filters = { transferMosaicId: 20 };
+
+				// Act + Assert:
+				return runTestAndVerifyIds(dbTransactions, filters, paginationOptions, [20, 30]);
 			});
 
 			describe('group', () => {

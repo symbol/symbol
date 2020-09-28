@@ -67,7 +67,8 @@ module.exports = {
 				signerPublicKey: params.signerPublicKey ? routeUtils.parseArgument(params, 'signerPublicKey', 'publicKey') : undefined,
 				recipientAddress: params.recipientAddress ? routeUtils.parseArgument(params, 'recipientAddress', 'address') : undefined,
 				transactionTypes: params.type ? routeUtils.parseArgumentAsArray(params, 'type', 'uint') : undefined,
-				embedded: params.embedded ? routeUtils.parseArgument(params, 'embedded', 'boolean') : undefined
+				embedded: params.embedded ? routeUtils.parseArgument(params, 'embedded', 'boolean') : undefined,
+				transferMosaicId: params.transferMosaicId ? routeUtils.parseArgument(params, 'transferMosaicId', 'uint64') : undefined
 			};
 
 			const options = routeUtils.parsePaginationArguments(params, services.config.pageSize, { id: 'objectId' });
