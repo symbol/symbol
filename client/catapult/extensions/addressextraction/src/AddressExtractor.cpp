@@ -49,8 +49,68 @@ namespace catapult { namespace addressextraction {
 		transactionElement.OptionalExtractedAddresses = std::make_shared<model::UnresolvedAddressSet>(std::move(addresses));
 	}
 
+	namespace {
+		void AddResolvedAddresses(
+				model::AddressSet& addresses,
+				uint32_t primaryId,
+				const model::AddressResolutionStatement& resolutionStatement) {
+			for (auto i = 0u; i < resolutionStatement.size(); ++i) {
+				const auto& resolutionEntry = resolutionStatement.entryAt(i);
+
+				// resolution statements are ordered
+				if (primaryId < resolutionEntry.Source.PrimaryId)
+					break;
+
+				if (primaryId > resolutionEntry.Source.PrimaryId)
+					continue;
+
+				addresses.insert(resolutionEntry.ResolvedValue);
+			}
+		}
+
+		model::AddressSet FindResolvedAddresses(
+				const decltype(model::BlockStatement::AddressResolutionStatements)& addressResolutionStatements,
+				uint32_t primaryId,
+				const model::UnresolvedAddressSet& extractedAddresses) {
+			model::AddressSet resolvedAddresses;
+			for (const auto& address : extractedAddresses) {
+				auto resolutionStatementIter = addressResolutionStatements.find(address);
+				if (addressResolutionStatements.cend() != resolutionStatementIter)
+					AddResolvedAddresses(resolvedAddresses, primaryId, resolutionStatementIter->second);
+			}
+
+			return resolvedAddresses;
+		}
+
+		void UpdateExtractedAddresses(model::TransactionElement& transactionElement, const model::AddressSet& resolvedAddresses) {
+			if (resolvedAddresses.empty())
+				return;
+
+			auto pMergedAddresses = std::make_shared<model::UnresolvedAddressSet>();
+			*pMergedAddresses = *transactionElement.OptionalExtractedAddresses;
+
+			for (const auto& address : resolvedAddresses)
+				pMergedAddresses->insert(address.copyTo<UnresolvedAddress>());
+
+			transactionElement.OptionalExtractedAddresses = pMergedAddresses;
+		}
+	}
+
 	void AddressExtractor::extract(model::BlockElement& blockElement) const {
-		for (auto& transactionElement : blockElement.Transactions)
+		auto primaryId = 1u; // transaction primary identifiers are 1-based
+
+		for (auto& transactionElement : blockElement.Transactions) {
 			extract(transactionElement);
+
+			if (blockElement.OptionalStatement) {
+				auto resolvedAddresses = FindResolvedAddresses(
+						blockElement.OptionalStatement->AddressResolutionStatements,
+						primaryId,
+						*transactionElement.OptionalExtractedAddresses);
+				UpdateExtractedAddresses(transactionElement, resolvedAddresses);
+			}
+
+			++primaryId;
+		}
 	}
 }}

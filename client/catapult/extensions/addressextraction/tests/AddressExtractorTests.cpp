@@ -23,6 +23,7 @@
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/mocks/MockNotificationPublisher.h"
+#include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace addressextraction {
@@ -196,6 +197,127 @@ namespace catapult { namespace addressextraction {
 		// - the previously existing addresses are unchanged
 		EXPECT_EQ(pAddresses1, blockElement.Transactions[1].OptionalExtractedAddresses);
 		EXPECT_EQ(pAddresses3, blockElement.Transactions[3].OptionalExtractedAddresses);
+	}
+
+	namespace {
+		std::vector<UnresolvedAddress> SeedTransactionsWithExtractedAddresses(
+				model::BlockElement& blockElement,
+				uint32_t numTransactions) {
+			auto i = 0u;
+			auto transactions = test::GenerateRandomTransactions(numTransactions);
+			auto seedAddresses = test::GenerateRandomDataVector<UnresolvedAddress>(2 * numTransactions);
+			for (const auto& pTransaction : transactions) {
+				blockElement.Transactions.push_back(model::TransactionElement(*pTransaction));
+
+				auto pAddressSet = std::make_shared<model::UnresolvedAddressSet>();
+				pAddressSet->insert(seedAddresses[2 * i]);
+				pAddressSet->insert(seedAddresses[2 * i + 1]);
+				blockElement.Transactions.back().OptionalExtractedAddresses = std::move(pAddressSet);
+				++i;
+			}
+
+			return seedAddresses;
+		}
+
+		void AddAddressResolutionStatement(
+				model::BlockStatement& statement,
+				const UnresolvedAddress& address,
+				const std::vector<std::pair<model::ReceiptSource, Address>>& seeds) {
+			model::AddressResolutionStatement resolutionStatement(address);
+			for (const auto& seed : seeds)
+				resolutionStatement.addResolution(seed.second, seed.first);
+
+			statement.AddressResolutionStatements.emplace(address, resolutionStatement);
+		}
+
+		model::UnresolvedAddressSet ToAddressSet(
+				const std::vector<UnresolvedAddress>& unresolvedAddresses,
+				std::initializer_list<size_t> unresolvedAddressIndexes) {
+			model::UnresolvedAddressSet result;
+
+			for (auto index : unresolvedAddressIndexes)
+				result.insert(unresolvedAddresses[index]);
+
+			return result;
+		}
+
+		model::UnresolvedAddressSet ToAddressSet(
+				const std::vector<UnresolvedAddress>& unresolvedAddresses,
+				std::initializer_list<size_t> unresolvedAddressIndexes,
+				const std::vector<Address>& addresses,
+				std::initializer_list<size_t> addressIndexes) {
+			auto result = ToAddressSet(unresolvedAddresses, unresolvedAddressIndexes);
+
+			for (auto index : addressIndexes)
+				result.insert(addresses[index].copyTo<UnresolvedAddress>());
+
+			return result;
+		}
+	}
+
+	TEST(TEST_CLASS, ExtractDoesNotAddTransactionResolvedAddressesWhenBlockStatementIsNotPresent_BlockElement) {
+		// Arrange:
+		TestContext context;
+
+		// - create four transaction elements and associate two addresses with each transaction
+		model::Block block;
+		model::BlockElement blockElement(block);
+		auto seedAddresses = SeedTransactionsWithExtractedAddresses(blockElement, 4);
+
+		// Act:
+		context.extractor().extract(blockElement);
+
+		// Assert:
+		EXPECT_EQ(0u, context.publisher().numPublishCalls());
+
+		// - all have all expected addresses
+		EXPECT_EQ(ToAddressSet(seedAddresses, { 0, 1 }), *blockElement.Transactions[0].OptionalExtractedAddresses);
+		EXPECT_EQ(ToAddressSet(seedAddresses, { 2, 3 }), *blockElement.Transactions[1].OptionalExtractedAddresses);
+		EXPECT_EQ(ToAddressSet(seedAddresses, { 4, 5 }), *blockElement.Transactions[2].OptionalExtractedAddresses);
+		EXPECT_EQ(ToAddressSet(seedAddresses, { 6, 7 }), *blockElement.Transactions[3].OptionalExtractedAddresses);
+	}
+
+	TEST(TEST_CLASS, ExtractAddsTransactionResolvedAddressesWhenBlockStatementIsPresent_BlockElement) {
+		// Arrange:
+		TestContext context;
+
+		// - create four transaction elements and associate two addresses with each transaction
+		model::Block block;
+		model::BlockElement blockElement(block);
+		auto seedAddresses = SeedTransactionsWithExtractedAddresses(blockElement, 4);
+
+		// - add some address resolution statements
+		auto seedResolvedAddresses = test::GenerateRandomDataVector<Address>(8);
+		auto pBlockStatement = std::make_shared<model::BlockStatement>();
+		AddAddressResolutionStatement(*pBlockStatement, seedAddresses[2], {
+			{ { 1, 0 }, seedResolvedAddresses[0] },
+			{ { 2, 0 }, seedResolvedAddresses[1] },
+			{ { 2, 9 }, seedResolvedAddresses[2] },
+			{ { 3, 0 }, seedResolvedAddresses[3] }
+		});
+		AddAddressResolutionStatement(*pBlockStatement, seedAddresses[6], {
+			{ { 3, 0 }, seedResolvedAddresses[4] },
+			{ { 3, 9 }, seedResolvedAddresses[5] },
+			{ { 4, 9 }, seedResolvedAddresses[6] },
+			{ { 5, 0 }, seedResolvedAddresses[7] }
+		});
+		blockElement.OptionalStatement = std::move(pBlockStatement);
+
+		// Act:
+		context.extractor().extract(blockElement);
+
+		// Assert:
+		EXPECT_EQ(0u, context.publisher().numPublishCalls());
+
+		// - all have all expected addresses
+		EXPECT_EQ(ToAddressSet(seedAddresses, { 0, 1 }), *blockElement.Transactions[0].OptionalExtractedAddresses);
+		EXPECT_EQ(
+				ToAddressSet(seedAddresses, { 2, 3 }, seedResolvedAddresses, { 1, 2 }),
+				*blockElement.Transactions[1].OptionalExtractedAddresses);
+		EXPECT_EQ(ToAddressSet(seedAddresses, { 4, 5 }), *blockElement.Transactions[2].OptionalExtractedAddresses);
+		EXPECT_EQ(
+				ToAddressSet(seedAddresses, { 6, 7 }, seedResolvedAddresses, { 6 }),
+				*blockElement.Transactions[3].OptionalExtractedAddresses);
 	}
 
 	// endregion
