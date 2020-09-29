@@ -10,6 +10,8 @@ parameters:
   - $ref: "../../../parameters/query/height.yml"
   - $ref: "../../../parameters/query/fromHeight.yml"
   - $ref: "../../../parameters/query/toHeight.yml"
+  - $ref: "../../../parameters/query/fromTransferAmount.yml"
+  - $ref: "../../../parameters/query/toTransferAmount.yml"
   - $ref: "../../../parameters/query/transactionTypes.yml"
   - $ref: "../../../parameters/query/embedded.yml"
   - $ref: "../../../parameters/query/transferMosaicId.yml"

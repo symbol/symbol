@@ -40,6 +40,8 @@ entryType:
   $ref: './query/entryType.yml'
 fromHeightQuery:
   $ref: './query/fromHeight.yml'
+fromTransferAmountQuery:
+  $ref: './query/fromTransferAmount.yml'
 heightQuery:
   $ref: './query/height.yml'
 idQuery:
@@ -84,6 +86,8 @@ targetAddressQuery:
   $ref: './query/targetAddress.yml'
 toHeightQuery:
   $ref: './query/toHeight.yml'
+toTransferAmountQuery:
+  $ref: './query/toTransferAmount.yml'
 transactionTypeQuery:
   $ref: './query/transactionTypes.yml'
 transferMosaicIdQuery:
