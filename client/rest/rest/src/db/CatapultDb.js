@@ -294,7 +294,8 @@ class CatapultDb {
 	 * Retrieves filtered and paginated transactions.
 	 * @param {string} group Transactions group on which the query is made.
 	 * @param {object} filters Filters to be applied: `address` for an involved address in the query, `signerPublicKey`, `recipientAddress`,
-	 * `height`, `fromHeight`, `toHeight`, `embedded`, `transferMosaicId`, `transactionTypes` array of uint.
+	 * `height`, `fromHeight`, `toHeight`, `embedded`, `transferMosaicId`, `fromTransferAmount`, `toTransferAmount`, `transactionTypes`
+	 *  array of uint.
 	 * If `address` is provided, other account related filters are omitted.
 	 * @param {object} options Options for ordering and pagination. Can have an `offset`, and must contain the `sortField`, `sortDirection`,
 	 * `pageSize` and `pageNumber`. 'sortField' must be within allowed 'sortingOptions'.
@@ -339,8 +340,20 @@ class CatapultDb {
 			if (undefined !== filters.transactionTypes)
 				conditions['transaction.type'] = { $in: filters.transactionTypes };
 
+			/** transfer transaction specific filters */
 			if (undefined !== filters.transferMosaicId)
 				conditions['transaction.mosaics.id'] = convertToLong(filters.transferMosaicId);
+
+			if (undefined !== filters.fromTransferAmount || undefined !== filters.toTransferAmount) {
+				const amountPath = 'transaction.mosaics.amount';
+				conditions[amountPath] = {};
+
+				if (undefined !== filters.fromTransferAmount)
+					conditions[amountPath].$gte = convertToLong(filters.fromTransferAmount);
+
+				if (undefined !== filters.toTransferAmount)
+					conditions[amountPath].$lte = convertToLong(filters.toTransferAmount);
+			}
 
 			const accountConditions = buildAccountConditions();
 			if (accountConditions)

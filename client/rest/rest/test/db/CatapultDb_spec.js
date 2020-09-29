@@ -1279,8 +1279,6 @@ describe('catapult db', () => {
 		account2.address = keyToAddress(account2.publicKey);
 		const account3 = { publicKey: test.random.publicKey() };
 		account3.address = keyToAddress(account3.publicKey);
-		const testMosaicOne = { id: 10, amount: 1 };
-		const testMosaicTwo = { id: 20, amount: 1 };
 
 		const paginationOptions = {
 			pageSize: 10,
@@ -1429,7 +1427,13 @@ describe('catapult db', () => {
 				createTransaction(40, [account1.address], 1, account1.publicKey, account1.address),
 				createTransaction(50, [account1.address], 1, account1.publicKey, account1.address, EntityType.transfer),
 				createTransaction(
-					60, [account1.address], 1, account1.publicKey, account1.address, EntityType.transfer, [testMosaicOne]
+					60, [account1.address], 1, account1.publicKey, account1.address, EntityType.transfer, [{ id: 10, amount: 100 }]
+				),
+				createTransaction(
+					70, [account1.address], 1, account1.publicKey, account1.address, EntityType.transfer, [{ id: 10, amount: 200 }]
+				),
+				createTransaction(
+					80, [account1.address], 1, account1.publicKey, account1.address, EntityType.transfer, [{ id: 10, amount: 300 }]
 				)
 			];
 
@@ -1438,11 +1442,13 @@ describe('catapult db', () => {
 				signerPublicKey: account1.publicKey,
 				recipientAddress: account1.address,
 				transactionTypes: [EntityType.transfer],
-				transferMosaicId: 10
+				transferMosaicId: 10,
+				fromTransferAmount: 101,
+				toTransferAmount: 299
 			};
 
 			// Act + Assert:
-			return runTestAndVerifyIds(dbTransactions, filters, paginationOptions, [60]);
+			return runTestAndVerifyIds(dbTransactions, filters, paginationOptions, [70]);
 		});
 
 		describe('respects offset', () => {
@@ -1689,15 +1695,45 @@ describe('catapult db', () => {
 				// Arrange:
 				const dbTransactions = [
 					// Non aggregate
-					createTransaction(10, [], 1, 0, 0, EntityType.transfer, [testMosaicOne]),
-					createTransaction(20, [], 1, 0, 0, EntityType.transfer, [testMosaicTwo]),
-					createTransaction(30, [], 1, 0, 0, EntityType.accountMetadata, [testMosaicOne, testMosaicTwo])
+					createTransaction(10, [], 1, 0, 0, EntityType.transfer, [{ id: 10, amount: 1 }]),
+					createTransaction(20, [], 1, 0, 0, EntityType.transfer, [{ id: 20, amount: 1 }]),
+					createTransaction(30, [], 1, 0, 0, EntityType.accountMetadata, [{ id: 10, amount: 1 }, { id: 20, amount: 1 }])
 				];
 
 				const filters = { transferMosaicId: 20 };
 
 				// Act + Assert:
 				return runTestAndVerifyIds(dbTransactions, filters, paginationOptions, [20, 30]);
+			});
+
+			it('fromTransferAmount', () => {
+				// Arrange:
+				const dbTransactions = [
+					// Non aggregate
+					createTransaction(10, [], 1, 0, 0, EntityType.transfer, [{ id: 10, amount: 5 }]),
+					createTransaction(20, [], 1, 0, 0, EntityType.transfer, [{ id: 10, amount: 6 }]),
+					createTransaction(30, [], 1, 0, 0, EntityType.transfer, [{ id: 10, amount: 7 }])
+				];
+
+				const filters = { transferMosaicId: 10, fromTransferAmount: 6 };
+
+				// Act + Assert:
+				return runTestAndVerifyIds(dbTransactions, filters, paginationOptions, [20, 30]);
+			});
+
+			it('toTransferAmount', () => {
+				// Arrange:
+				const dbTransactions = [
+					// Non aggregate
+					createTransaction(10, [], 1, 0, 0, EntityType.transfer, [{ id: 10, amount: 5 }]),
+					createTransaction(20, [], 1, 0, 0, EntityType.transfer, [{ id: 10, amount: 6 }]),
+					createTransaction(30, [], 1, 0, 0, EntityType.transfer, [{ id: 10, amount: 7 }])
+				];
+
+				const filters = { transferMosaicId: 10, toTransferAmount: 6 };
+
+				// Act + Assert:
+				return runTestAndVerifyIds(dbTransactions, filters, paginationOptions, [10, 20]);
 			});
 
 			describe('group', () => {
