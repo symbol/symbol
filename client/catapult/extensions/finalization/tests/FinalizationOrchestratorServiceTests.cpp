@@ -59,14 +59,19 @@ namespace catapult { namespace finalization {
 			static constexpr uint64_t Voting_Key_Dilution = 13;
 
 		public:
-			static auto CreateRegistrar(uint64_t votingSetGrouping) {
+			static auto CreateRegistrar(uint64_t votingSetGrouping, bool enableRevoteOnBoot) {
 				// (Size, Threshold) are set in MockRoundMessageAggregator to (1000, 750)
 				auto config = FinalizationConfiguration::Uninitialized();
+				config.EnableRevoteOnBoot = enableRevoteOnBoot;
 				config.StepDuration = utils::TimeSpan::FromSeconds(10);
 				config.MaxHashesPerPoint = 64;
 				config.PrevoteBlocksMultiple = 5;
 				config.VotingSetGrouping = votingSetGrouping;
 				return CreateFinalizationOrchestratorServiceRegistrar(config);
+			}
+
+			static auto CreateRegistrar(uint64_t votingSetGrouping) {
+				return CreateRegistrar(votingSetGrouping, false);
 			}
 
 			static auto CreateRegistrar() {
@@ -83,6 +88,13 @@ namespace catapult { namespace finalization {
 			{}
 
 			explicit TestContext(const model::FinalizationRound& orchestratorStartRound, VoterType voterType = VoterType::Large1)
+					: TestContext(orchestratorStartRound, { Finalization_Epoch - FinalizationEpoch(1), FinalizationPoint(5) }, voterType)
+			{}
+
+			TestContext(
+					const model::FinalizationRound& orchestratorStartRound,
+					const model::FinalizationRound& storageStartRound,
+					VoterType voterType = VoterType::Large1)
 					: m_createCompletedRound(false)
 					, m_hashes(test::GenerateRandomDataVector<Hash256>(3)) {
 				// note: current voting round (8) is ahead of last round resulting in finalization (5)
@@ -111,8 +123,8 @@ namespace catapult { namespace finalization {
 				// register storage
 				auto lastFinalizedHeightHashPair = model::HeightHashPair{ Height(244), m_hashes[0] };
 				auto pProofStorage = std::make_unique<mocks::MockProofStorage>(
-						Finalization_Epoch - FinalizationEpoch(1),
-						FinalizationPoint(5),
+						storageStartRound.Epoch,
+						storageStartRound.Point,
 						lastFinalizedHeightHashPair.Height,
 						lastFinalizedHeightHashPair.Hash);
 				m_pProofStorageRaw = pProofStorage.get();
@@ -180,11 +192,10 @@ namespace catapult { namespace finalization {
 				m_hashes[index] = hash;
 			}
 
-			void initialize() {
-				auto votingRound = Default_Round;
+			void initialize(const model::FinalizationRound& round = Default_Round) {
 				auto aggregatorModifier = m_pAggregator->modifier();
-				aggregatorModifier.setMaxFinalizationRound(votingRound);
-				aggregatorModifier.add(test::CreateMessage(votingRound));
+				aggregatorModifier.setMaxFinalizationRound(round);
+				aggregatorModifier.add(test::CreateMessage(round));
 
 				// trigger creation of additional round aggregators to better test pruning
 				for (auto i = 0u; i < 3; ++i) {
@@ -255,17 +266,14 @@ namespace catapult { namespace finalization {
 
 	// endregion
 
-	// region task
+	// region task - test utils
 
 	namespace {
 		template<typename TCheckState>
-		void RunFinalizationTaskTest(TestContext& context, size_t numRepetitions, uint64_t votingSetGrouping, TCheckState checkState) {
-			// Arrange:
-			context.initialize();
-			context.boot(votingSetGrouping);
-
+		void RunFinalizationTaskTest(TestContext& context, size_t numRepetitions, TCheckState checkState) {
+			// Act:
 			test::RunTaskTestPostBoot(context, 1, "finalization task", [&context, numRepetitions, checkState](const auto& task) {
-				// Act: run task multiple times
+				// - run task multiple times
 				std::vector<thread::TaskResult> taskResults;
 				for (auto i = 0u; i < numRepetitions; ++i)
 					taskResults.push_back(task.Callback().get());
@@ -276,6 +284,16 @@ namespace catapult { namespace finalization {
 
 				checkState(context.aggregator(), context.proofStorage(), context.messages());
 			});
+		}
+
+		template<typename TCheckState>
+		void RunFinalizationTaskTest(TestContext& context, size_t numRepetitions, uint64_t votingSetGrouping, TCheckState checkState) {
+			// Arrange:
+			context.initialize();
+			context.boot(votingSetGrouping);
+
+			// Act + Assert:
+			RunFinalizationTaskTest(context, numRepetitions, checkState);
 		}
 
 		void AssertNoMessages(
@@ -290,22 +308,27 @@ namespace catapult { namespace finalization {
 
 		void AssertTwoMessages(
 				uint32_t epoch,
+				uint32_t point,
 				const Hash256& expectedHash,
 				const mocks::MockProofStorage& storage,
 				const std::vector<std::shared_ptr<model::FinalizationMessage>>& messages) {
 			// Assert: storage was called
 			const auto& savedProofDescriptors = storage.savedProofDescriptors();
 			ASSERT_EQ(1u, savedProofDescriptors.size());
-			EXPECT_EQ(test::CreateFinalizationRound(epoch, 8), savedProofDescriptors[0].Round);
+			EXPECT_EQ(test::CreateFinalizationRound(epoch, point), savedProofDescriptors[0].Round);
 			EXPECT_EQ(Height(245), savedProofDescriptors[0].Height);
 			EXPECT_EQ(expectedHash, savedProofDescriptors[0].Hash);
 
 			// - two messages were sent
 			ASSERT_EQ(2u, messages.size());
-			EXPECT_EQ(test::CreateStepIdentifier(epoch, 8, Prevote_Stage), messages[0]->StepIdentifier);
-			EXPECT_EQ(test::CreateStepIdentifier(epoch, 8, Precommit_Stage), messages[1]->StepIdentifier);
+			EXPECT_EQ(test::CreateStepIdentifier(epoch, point, Prevote_Stage), messages[0]->StepIdentifier);
+			EXPECT_EQ(test::CreateStepIdentifier(epoch, point, Precommit_Stage), messages[1]->StepIdentifier);
 		}
 	}
+
+	// endregion
+
+	// region task - pending finalized blocks and/or epochs
 
 	TEST(TEST_CLASS, CanRunFinalizationTaskWhenThereAreNoPendingFinalizedBlocks) {
 		// Arrange:
@@ -355,7 +378,7 @@ namespace catapult { namespace finalization {
 				EXPECT_EQ(expectedAggregatorMaxRound, aggregator.view().maxFinalizationRound());
 
 				// - two messages were sent
-				AssertTwoMessages(epoch, context.hashes()[1], storage, messages);
+				AssertTwoMessages(epoch, Default_Round.Point.unwrap(), context.hashes()[1], storage, messages);
 
 				// - voting status was changed
 				auto votingStatus = context.votingStatus();
@@ -459,7 +482,7 @@ namespace catapult { namespace finalization {
 				EXPECT_EQ(test::CreateFinalizationRound(epoch, 8), aggregator.view().maxFinalizationRound());
 
 				// - two messages were sent
-				AssertTwoMessages(epoch, context.hashes()[1], storage, messages);
+				AssertTwoMessages(epoch, Default_Round.Point.unwrap(), context.hashes()[1], storage, messages);
 
 				// - voting status was changed
 				auto votingStatus = context.votingStatus();
@@ -499,7 +522,7 @@ namespace catapult { namespace finalization {
 			EXPECT_EQ(test::CreateFinalizationRound(epoch + 1, 1), aggregator.view().maxFinalizationRound());
 
 			// - two messages were sent
-			AssertTwoMessages(epoch, context.hashes()[1], storage, messages);
+			AssertTwoMessages(epoch, Default_Round.Point.unwrap(), context.hashes()[1], storage, messages);
 
 			// - voting status was changed
 			auto votingStatus = context.votingStatus();
@@ -508,6 +531,10 @@ namespace catapult { namespace finalization {
 			EXPECT_FALSE(votingStatus.HasSentPrecommit);
 		});
 	}
+
+	// endregion
+
+	// region task - storage and orchestrator consistency
 
 	namespace {
 		void AssertCanRunFinalizationTaskWhenProofStorageIsAheadOfOrchestratorButInconsistent(uint32_t numBlocks) {
@@ -607,6 +634,40 @@ namespace catapult { namespace finalization {
 			// - voting status was not changed
 			auto votingStatus = context.votingStatus();
 			EXPECT_EQ(test::CreateFinalizationRound(epoch + 2, 8), votingStatus.Round);
+			EXPECT_FALSE(votingStatus.HasSentPrevote);
+			EXPECT_FALSE(votingStatus.HasSentPrecommit);
+		});
+	}
+
+	TEST(TEST_CLASS, CanRunFinalizationTaskWhenCatastrophicRecoveryIsEnabled) {
+		// Arrange:
+		// - set the storage epoch behind the voting epoch
+		// - set EnableRevoteOnBoot to true
+		TestContext context(
+				{ Finalization_Epoch + FinalizationEpoch(2), FinalizationPoint(8) },
+				{ Finalization_Epoch, FinalizationPoint(14) });
+		context.createCompletedRound();
+		context.initialize({ Finalization_Epoch, FinalizationPoint(15) });
+		context.boot(Small_Voting_Set_Grouping, true);
+
+		// - override the storage hash so that it matches
+		auto& blockStorage = context.testState().state().storage();
+		mocks::SeedStorageWithFixedSizeBlocks(blockStorage, 245);
+		context.setHash(0, blockStorage.view().loadBlockElement(Height(245))->EntityHash);
+
+		RunFinalizationTaskTest(context, 2, [&context](const auto& aggregator, const auto& storage, const auto& messages) {
+			// - check aggregator (it was not changed)
+			// - catastrophic failure assumes all messages are lost, so vote for point immediately after last stored proof
+			auto epoch = Finalization_Epoch.unwrap();
+			EXPECT_EQ(test::CreateFinalizationRound(epoch - 1, 1), aggregator.view().minFinalizationRound());
+			EXPECT_EQ(test::CreateFinalizationRound(epoch, 15), aggregator.view().maxFinalizationRound());
+
+			// - two messages were sent
+			AssertTwoMessages(epoch, 15, context.hashes()[1], storage, messages);
+
+			// - voting status was not changed
+			auto votingStatus = context.votingStatus();
+			EXPECT_EQ(test::CreateFinalizationRound(epoch, 16), votingStatus.Round);
 			EXPECT_FALSE(votingStatus.HasSentPrevote);
 			EXPECT_FALSE(votingStatus.HasSentPrecommit);
 		});

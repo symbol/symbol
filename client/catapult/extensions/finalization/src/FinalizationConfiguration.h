@@ -33,6 +33,10 @@ namespace catapult { namespace finalization {
 		/// \c true if this node should participate in voting.
 		bool EnableVoting;
 
+		/// \c true if this node should resend votes on boot.
+		/// \note When \c true, a network is able to recover from a catastrophic outage that takes all nodes offline.
+		bool EnableRevoteOnBoot;
+
 		/// Finalization size.
 		uint64_t Size;
 

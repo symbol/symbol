@@ -56,7 +56,7 @@ namespace catapult { namespace finalization {
 					, m_blockStorage(state.storage())
 					, m_votingStatusFile(config::CatapultDirectory(state.config().User.DataDirectory).file("voting_status.dat"))
 					, m_orchestrator(
-							m_votingStatusFile.load(),
+							config.EnableRevoteOnBoot ? LoadVotingStatusFromStorage(m_proofStorage) : m_votingStatusFile.load(),
 							[stepDuration = config.StepDuration, &messageAggregator = m_messageAggregator](auto point, auto time) {
 								return chain::CreateFinalizationStageAdvancer(point, time, stepDuration, messageAggregator);
 							},
@@ -137,6 +137,11 @@ namespace catapult { namespace finalization {
 			}
 
 		private:
+			chain::VotingStatus LoadVotingStatusFromStorage(const io::ProofStorageCache& proofStorage) {
+				auto storageRound = proofStorage.view().statistics().Round;
+				return { { storageRound.Epoch, storageRound.Point + FinalizationPoint(1) } };
+			}
+
 			static crypto::AggregateBmPrivateKeyTree CreateVotingPrivateKeyTree(const config::UserConfiguration& userConfig) {
 				auto factory = CreateBmPrivateKeyTreeFactory(config::CatapultDirectory(userConfig.VotingKeysDirectory));
 				return crypto::AggregateBmPrivateKeyTree(factory);

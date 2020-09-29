@@ -36,6 +36,7 @@ namespace catapult { namespace finalization {
 						"finalization",
 						{
 							{ "enableVoting", "true" },
+							{ "enableRevoteOnBoot", "true" },
 
 							{ "size", "987" },
 							{ "threshold", "579" },
@@ -59,6 +60,7 @@ namespace catapult { namespace finalization {
 			static void AssertZero(const FinalizationConfiguration& config) {
 				// Assert:
 				EXPECT_FALSE(config.EnableVoting);
+				EXPECT_FALSE(config.EnableRevoteOnBoot);
 
 				EXPECT_EQ(0u, config.Size);
 				EXPECT_EQ(0u, config.Threshold);
@@ -77,6 +79,7 @@ namespace catapult { namespace finalization {
 			static void AssertCustom(const FinalizationConfiguration& config) {
 				// Assert:
 				EXPECT_TRUE(config.EnableVoting);
+				EXPECT_TRUE(config.EnableRevoteOnBoot);
 
 				EXPECT_EQ(987u, config.Size);
 				EXPECT_EQ(579u, config.Threshold);
@@ -109,6 +112,7 @@ namespace catapult { namespace finalization {
 
 		// Assert:
 		EXPECT_TRUE(config.EnableVoting);
+		EXPECT_FALSE(config.EnableRevoteOnBoot);
 
 		EXPECT_EQ(10'000u, config.Size);
 		EXPECT_EQ(7'000u, config.Threshold);
