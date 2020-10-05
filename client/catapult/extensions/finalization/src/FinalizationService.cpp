@@ -40,7 +40,7 @@ namespace catapult { namespace finalization {
 
 	namespace {
 		constexpr auto Service_Name = "fin.writers";
-		constexpr auto Service_Id = ionet::ServiceIdentifier(0x50415254);
+		constexpr auto Service_Id = ionet::ServiceIdentifier(0x46494E4C);
 
 		// region shims for CreateChainSyncAwareSynchronizerTaskCallback
 
