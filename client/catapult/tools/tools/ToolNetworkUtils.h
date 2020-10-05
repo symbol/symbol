@@ -27,6 +27,7 @@ namespace catapult {
 	namespace ionet {
 		class Node;
 		class PacketIo;
+		class PacketSocketInfo;
 	}
 	namespace thread { class IoThreadPool; }
 }
@@ -35,6 +36,9 @@ namespace catapult { namespace tools {
 
 	/// Future that returns a packet io shared pointer.
 	using PacketIoFuture = thread::future<std::shared_ptr<ionet::PacketIo>>;
+
+	/// Future that returns a packet socket info.
+	using PacketSocketInfoFuture = thread::future<ionet::PacketSocketInfo>;
 
 	/// Connects to \a node as a client with certificates in \a certificateDirectory using \a pool.
 	PacketIoFuture ConnectToNode(const std::string& certificateDirectory, const ionet::Node& node, thread::IoThreadPool& pool);
@@ -60,7 +64,7 @@ namespace catapult { namespace tools {
 
 	public:
 		/// Connects to \a node.
-		PacketIoFuture connect(const ionet::Node& node);
+		PacketSocketInfoFuture connect(const ionet::Node& node);
 
 	private:
 		std::string m_certificateDirectory;

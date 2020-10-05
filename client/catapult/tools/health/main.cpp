@@ -198,6 +198,7 @@ namespace catapult { namespace tools { namespace health {
 			std::vector<thread::future<bool>> getNodeInfoFutures(
 					thread::IoThreadPool& pool,
 					ionet::PacketIo& io,
+					const model::NodeIdentity&,
 					NodeInfo& nodeInfo) override {
 				std::vector<thread::future<bool>> infoFutures;
 				infoFutures.emplace_back(CreateChainStatisticsFuture(pool, io, nodeInfo));

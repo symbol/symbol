@@ -24,6 +24,7 @@
 #include "ToolKeys.h"
 #include "ToolNetworkUtils.h"
 #include "catapult/ionet/Node.h"
+#include "catapult/ionet/PacketSocket.h"
 #include "catapult/thread/FutureUtils.h"
 
 namespace catapult { namespace tools {
@@ -90,10 +91,12 @@ namespace catapult { namespace tools {
 	private:
 		NodeInfoFuture createNodeInfoFuture(MultiNodeConnector& connector, const ionet::Node& node) {
 			auto pNodeInfo = std::make_shared<TNodeInfo>(node);
-			return thread::compose(connector.connect(node), [this, node, pNodeInfo, &connector](auto&& ioFuture) {
+			return thread::compose(connector.connect(node), [this, node, pNodeInfo, &connector](auto&& socketInfoFuture) {
 				try {
-					auto pIo = ioFuture.get();
-					auto infoFutures = this->getNodeInfoFutures(connector.pool(), *pIo, *pNodeInfo);
+					auto socketInfo = socketInfoFuture.get();
+					auto pIo = socketInfo.socket()->buffered();
+					auto nodeIdentity = model::NodeIdentity{ socketInfo.publicKey(), socketInfo.host() };
+					auto infoFutures = this->getNodeInfoFutures(connector.pool(), *pIo, nodeIdentity, *pNodeInfo);
 
 					// capture pIo so that it stays alive until all dependent futures are complete
 					return thread::when_all(std::move(infoFutures)).then([pIo, pNodeInfo](auto&&) {
@@ -108,10 +111,11 @@ namespace catapult { namespace tools {
 		}
 
 	private:
-		/// Gets all futures to fill \a nodeInfo using \a pool and \a io.
+		/// Gets all futures to fill \a nodeInfo for \a nodeIdentity using \a pool and \a io.
 		virtual std::vector<thread::future<bool>> getNodeInfoFutures(
 				thread::IoThreadPool& pool,
 				ionet::PacketIo& io,
+				const model::NodeIdentity& nodeIdentity,
 				TNodeInfo& nodeInfo) = 0;
 
 		/// Processes \a nodeInfos after all futures complete.

@@ -45,6 +45,7 @@ namespace catapult { namespace tools { namespace network {
 		public:
 			ionet::Node Local;
 			ionet::Node Remote;
+			model::NodeIdentity RemoteIdentity;
 			model::NodeIdentityMap<ionet::Node> Partners;
 			model::EntityRange<ionet::PackedNodeInfo> PartnerNodeInfos;
 		};
@@ -88,10 +89,12 @@ namespace catapult { namespace tools { namespace network {
 			}
 		};
 
-		std::string Summarize(const ionet::Node& node) {
+		std::string Summarize(const ionet::Node& node, const model::NodeIdentity& nodeIdentity) {
 			SummaryBuilder builder;
+			builder.add("PublicKey (Identity)", nodeIdentity.PublicKey);
+			builder.add("Host (Identity)", nodeIdentity.Host);
+
 			builder.add("IdentityKey", node.identity().PublicKey);
-			builder.add("Host (Resolved)", node.identity().Host);
 			builder.add("Host", node.endpoint().Host);
 			builder.add("Port", node.endpoint().Port);
 			builder.add("Network", node.metadata().NetworkFingerprint);
@@ -294,7 +297,7 @@ namespace catapult { namespace tools { namespace network {
 			// 1. output detailed node information reported by each node about itself
 			CATAPULT_LOG(info) << "--- NODE INFO for known peers ---";
 			for (const auto& pNodeInfo : nodeInfos)
-				CATAPULT_LOG(info) << "> " << pNodeInfo->Local << Summarize(pNodeInfo->Remote);
+				CATAPULT_LOG(info) << "> " << pNodeInfo->Local << Summarize(pNodeInfo->Remote, pNodeInfo->RemoteIdentity);
 
 			// 2. output summary information of peers reported by each node
 			CATAPULT_LOG(info) << "--- PARTNER INFO for known peers ---";
@@ -315,13 +318,19 @@ namespace catapult { namespace tools { namespace network {
 			{}
 
 		private:
-			std::vector<thread::future<bool>> getNodeInfoFutures(thread::IoThreadPool&, ionet::PacketIo& io, NodeInfo& nodeInfo) override {
+			std::vector<thread::future<bool>> getNodeInfoFutures(
+					thread::IoThreadPool&,
+					ionet::PacketIo& io,
+					const model::NodeIdentity& nodeIdentity,
+					NodeInfo& nodeInfo) override {
 				auto pApi = api::CreateRemoteNodeApi(io);
 				auto pDiagnosticApi = extensions::CreateRemoteDiagnosticApi(io);
 
 				std::vector<thread::future<bool>> infoFutures;
-				infoFutures.emplace_back(pApi->nodeInfo().then([&nodeInfo](auto&& nodeFuture) {
-					return UnwrapFutureAndSuppressErrors("querying node info", std::move(nodeFuture), [&nodeInfo](const auto& remoteNode) {
+				infoFutures.emplace_back(pApi->nodeInfo().then([nodeIdentity, &nodeInfo](auto&& nodeFuture) {
+					return UnwrapFutureAndSuppressErrors("querying node info", std::move(nodeFuture), [nodeIdentity, &nodeInfo](
+							const auto& remoteNode) {
+						nodeInfo.RemoteIdentity = nodeIdentity;
 						nodeInfo.Remote = remoteNode;
 					});
 				}));
