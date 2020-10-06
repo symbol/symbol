@@ -33,24 +33,24 @@ const accountLinkPlugin = {
 	registerSchema: builder => {
 		builder.addTransactionSupport(EntityType.accountLink, {
 			linkedPublicKey: ModelType.binary,
-			linkAction: ModelType.int
+			linkAction: ModelType.uint8
 		});
 
 		builder.addTransactionSupport(EntityType.nodeKeyLink, {
 			linkedPublicKey: ModelType.binary,
-			linkAction: ModelType.int
+			linkAction: ModelType.uint8
 		});
 
 		builder.addTransactionSupport(EntityType.votingKeyLink, {
 			linkedPublicKey: ModelType.binary,
-			startEpoch: ModelType.uint,
-			endEpoch: ModelType.uint,
-			linkAction: ModelType.int
+			startEpoch: ModelType.uint32,
+			endEpoch: ModelType.uint32,
+			linkAction: ModelType.uint8
 		});
 
 		builder.addTransactionSupport(EntityType.vrfKeyLink, {
 			linkedPublicKey: ModelType.binary,
-			linkAction: ModelType.int
+			linkAction: ModelType.uint8
 		});
 	},
 

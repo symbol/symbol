@@ -36,7 +36,7 @@ const metadataPlugin = {
 			targetAddress: ModelType.binary,
 			scopedMetadataKey: ModelType.uint64HexIdentifier,
 			valueSizeDelta: ModelType.int,
-			valueSize: ModelType.int,
+			valueSize: ModelType.uint16,
 			value: ModelType.binary
 		});
 
@@ -45,7 +45,7 @@ const metadataPlugin = {
 			scopedMetadataKey: ModelType.uint64HexIdentifier,
 			targetMosaicId: ModelType.uint64HexIdentifier,
 			valueSizeDelta: ModelType.int,
-			valueSize: ModelType.int,
+			valueSize: ModelType.uint16,
 			value: ModelType.binary
 		});
 
@@ -54,7 +54,7 @@ const metadataPlugin = {
 			scopedMetadataKey: ModelType.uint64HexIdentifier,
 			targetNamespaceId: ModelType.uint64HexIdentifier,
 			valueSizeDelta: ModelType.int,
-			valueSize: ModelType.int,
+			valueSize: ModelType.uint16,
 			value: ModelType.binary
 		});
 
@@ -70,7 +70,7 @@ const metadataPlugin = {
 			scopedMetadataKey: ModelType.uint64HexIdentifier,
 			targetId: ModelType.uint64HexIdentifier,
 			metadataType: ModelType.int,
-			valueSize: ModelType.int,
+			valueSize: ModelType.uint16,
 			value: ModelType.binary
 		});
 	},

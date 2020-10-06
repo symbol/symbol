@@ -47,18 +47,18 @@ const namespacePlugin = {
 		builder.addTransactionSupport(EntityType.aliasAddress, {
 			namespaceId: ModelType.uint64HexIdentifier,
 			address: ModelType.binary,
-			aliasAction: ModelType.int
+			aliasAction: ModelType.uint8
 		});
 
 		builder.addTransactionSupport(EntityType.aliasMosaic, {
 			namespaceId: ModelType.uint64HexIdentifier,
 			mosaicId: ModelType.uint64HexIdentifier,
-			aliasAction: ModelType.int
+			aliasAction: ModelType.uint8
 		});
 
 		builder.addTransactionSupport(EntityType.registerNamespace, {
 			id: ModelType.uint64HexIdentifier,
-			registrationType: ModelType.int,
+			registrationType: ModelType.uint8,
 			parentId: ModelType.uint64HexIdentifier,
 			duration: ModelType.uint64,
 			name: ModelType.string
@@ -80,8 +80,8 @@ const namespacePlugin = {
 		});
 
 		builder.addSchema('namespaceDescriptor.namespace', {
-			registrationType: ModelType.int,
-			depth: ModelType.int,
+			registrationType: ModelType.uint8,
+			depth: ModelType.uint8,
 			level0: ModelType.uint64HexIdentifier,
 			level1: ModelType.uint64HexIdentifier,
 			level2: ModelType.uint64HexIdentifier,
@@ -96,17 +96,17 @@ const namespacePlugin = {
 		});
 
 		builder.addSchema('namespaceDescriptor.alias.mosaic', {
-			type: ModelType.int,
+			type: ModelType.uint8,
 			mosaicId: ModelType.uint64HexIdentifier
 		});
 
 		builder.addSchema('namespaceDescriptor.alias.address', {
-			type: ModelType.int,
+			type: ModelType.uint8,
 			address: ModelType.binary
 		});
 
 		builder.addSchema('namespaceDescriptor.alias.empty', {
-			type: ModelType.int
+			type: ModelType.uint8
 		});
 
 		builder.addSchema('namespaceNameTuple', {

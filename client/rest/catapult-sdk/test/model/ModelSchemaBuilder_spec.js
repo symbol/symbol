@@ -349,24 +349,15 @@ describe('model schema builder', () => {
 			// Assert:
 			expect(matchingProperties).to.deep.equal([
 				'blockHeader.size',
-				'blockHeader.version',
-				'blockHeader.network',
 				'blockHeader.type',
-				'blockHeader.feeMultiplier',
 				'blockHeaderMetadata.totalTransactionsCount',
 				'blockHeaderMetadata.transactionsCount',
 				'blockHeaderMetadata.statementsCount',
 
 				'transaction.size',
-				'transaction.version',
-				'transaction.network',
 				'transaction.type',
 				'transactionMetadata.index',
 
-				'account.accountType',
-				'activityBucket.beneficiaryCount',
-
-				'nodeInfo.version',
 				'nodeInfo.roles',
 				'nodeInfo.port',
 				'nodeInfo.networkIdentifier',
@@ -377,18 +368,35 @@ describe('model schema builder', () => {
 			]);
 		});
 
-		it('exposes correct uint properties', () => {
+		it('exposes correct uint8 properties', () => {
 			// Act:
-			const matchingProperties = extractSchemaPropertiesWithType('uint');
+			const matchingProperties = extractSchemaPropertiesWithType('uint8');
 
 			// Assert:
 			expect(matchingProperties).to.deep.equal([
+				'blockHeader.version',
+				'blockHeader.network',
+				'transaction.version',
+				'transaction.network',
+				'account.accountType',
+				'nodeInfo.version'
+			]);
+		});
+
+		it('exposes correct uint32 properties', () => {
+			// Act:
+			const matchingProperties = extractSchemaPropertiesWithType('uint32');
+
+			// Assert:
+			expect(matchingProperties).to.deep.equal([
+				'blockHeader.feeMultiplier',
 				'finalizedBlock.finalizationEpoch',
 				'finalizedBlock.finalizationPoint',
 				'finalizationProof.version',
 				'finalizationProof.finalizationEpoch',
 				'finalizationProof.finalizationPoint',
 				'messageGroup.stage',
+				'activityBucket.beneficiaryCount',
 				'votingPublicKey.startEpoch',
 				'votingPublicKey.endEpoch'
 			]);

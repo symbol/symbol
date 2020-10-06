@@ -107,14 +107,14 @@ const restrictionsPlugin = {
 		accountRestrictionTypeDescriptors.forEach(restrictionTypeDescriptor => {
 			// transaction schemas
 			builder.addTransactionSupport(restrictionTypeDescriptor.entityType, {
-				restrictionFlags: ModelType.int,
+				restrictionFlags: ModelType.uint16,
 				restrictionAdditions: { type: ModelType.array, schemaName: restrictionTypeDescriptor.valueType },
 				restrictionDeletions: { type: ModelType.array, schemaName: restrictionTypeDescriptor.valueType }
 			});
 
 			// aggregated account restriction subschemas
 			builder.addSchema(`accountRestriction.${restrictionTypeDescriptor.schemaPrefix}AccountRestriction`, {
-				restrictionFlags: ModelType.int,
+				restrictionFlags: ModelType.uint16,
 				values: { type: ModelType.array, schemaName: restrictionTypeDescriptor.valueType }
 			});
 		});
@@ -158,8 +158,8 @@ const restrictionsPlugin = {
 			restrictionKey: ModelType.uint64HexIdentifier,
 			previousRestrictionValue: ModelType.uint64,
 			newRestrictionValue: ModelType.uint64,
-			previousRestrictionType: ModelType.int,
-			newRestrictionType: ModelType.int
+			previousRestrictionType: ModelType.uint8,
+			newRestrictionType: ModelType.uint8
 		});
 
 		// mosaic restriction schemas
@@ -169,7 +169,7 @@ const restrictionsPlugin = {
 		});
 		builder.addSchema('mosaicRestrictions.entry', {
 			compositeHash: ModelType.binary,
-			entryType: ModelType.uint,
+			entryType: ModelType.uint32,
 			mosaicId: ModelType.uint64HexIdentifier,
 			targetAddress: ModelType.binary,
 			restrictions: { type: ModelType.array, schemaName: 'mosaicRestrictions.entry.restrictions' }
@@ -182,7 +182,7 @@ const restrictionsPlugin = {
 		builder.addSchema('mosaicRestrictions.entry.restrictions.restriction', {
 			referenceMosaicId: ModelType.uint64HexIdentifier,
 			restrictionValue: ModelType.uint64,
-			restrictionType: ModelType.int
+			restrictionType: ModelType.uint8
 		});
 	},
 
