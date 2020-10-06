@@ -47,7 +47,7 @@ namespace catapult { namespace harvesting {
 			const HarvestingUtFacadeFactory& utFacadeFactory,
 			const cache::ReadWriteUtCache& utCache) {
 		auto countRetriever = [&transactionRegistry](const auto& transaction) {
-			return transactionRegistry.findPlugin(transaction.Type)->embeddedCount(transaction);
+			return 1 + transactionRegistry.findPlugin(transaction.Type)->embeddedCount(transaction);
 		};
 
 		auto transactionsInfoSupplier = CreateTransactionsInfoSupplier(strategy, countRetriever, utCache);

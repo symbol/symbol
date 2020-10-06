@@ -187,8 +187,9 @@ namespace catapult { namespace harvesting {
 		// Arrange:
 		TestContext context(model::TransactionSelectionStrategy::Oldest);
 
-		// Act: embedded counts are { 1 2 3 4 } 5
-		auto pBlock = context.generate(Cache_Height + Height(1), 12);
+		// Act: embedded counts are   { 1 2 3  4 }  5
+		//      cumulative counts are { 2 5 9 14 } 20
+		auto pBlock = context.generate(Cache_Height + Height(1), 16);
 
 		// Assert: 4 (deterministic) transactions should have been added to the block
 		ASSERT_TRUE(!!pBlock);
