@@ -593,7 +593,12 @@ namespace catapult { namespace extensions {
 		banSettings.MaxBanDuration = utils::TimeSpan::FromHours(2);
 		banSettings.KeepAliveDuration = utils::TimeSpan::FromHours(3);
 		banSettings.MaxBannedNodes = 100;
-		ionet::NodeContainer container(100, model::NodeIdentityEqualityStrategy::Key, banSettings, []() { return Timestamp(1); });
+		ionet::NodeContainer container(
+				100,
+				model::NodeIdentityEqualityStrategy::Key,
+				banSettings,
+				[]() { return Timestamp(1); },
+				[](auto) { return true; });
 		auto nodes = SeedNodes(container, 10, ionet::NodeSource::Dynamic);
 
 		{

@@ -56,7 +56,8 @@ namespace catapult { namespace test {
 						std::numeric_limits<size_t>::max(),
 						model::NodeIdentityEqualityStrategy::Key_And_Host,
 						GetBanSettings(m_config),
-						timeSupplier)
+						timeSupplier,
+						[](auto) { return true; })
 				, m_catapultCache(std::move(cache))
 				, m_storage(std::make_unique<mocks::MockMemoryBlockStorage>(), std::make_unique<mocks::MockMemoryBlockStorage>())
 				, m_pUtCache(CreateUtCacheProxy())

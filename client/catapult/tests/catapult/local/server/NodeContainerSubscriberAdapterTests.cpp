@@ -34,7 +34,7 @@ namespace catapult { namespace local {
 			ionet::BanSettings banSettings;
 			banSettings.DefaultBanDuration = utils::TimeSpan::FromHours(1);
 			banSettings.MaxBannedNodes = 50;
-			return ionet::NodeContainer(maxNodes, equalityStrategy, banSettings, []() { return Timestamp(0); });
+			return ionet::NodeContainer(maxNodes, equalityStrategy, banSettings, []() { return Timestamp(0); }, [](auto) { return true; });
 		}
 
 		std::unique_ptr<subscribers::NodeSubscriber> CreateNodeContainerSubscriberAdapter(ionet::NodeContainer& nodes) {

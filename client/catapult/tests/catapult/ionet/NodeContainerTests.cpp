@@ -53,8 +53,12 @@ namespace catapult { namespace ionet {
 			return Timestamp(0);
 		}
 
+		bool AllowAllVersionPredicate(NodeVersion) {
+			return true;
+		}
+
 		auto CreateNodeContainer(size_t maxNodes, model::NodeIdentityEqualityStrategy equalityStrategy) {
-			return NodeContainer(maxNodes, equalityStrategy, BanSettings(), ZeroTimeSupplier);
+			return NodeContainer(maxNodes, equalityStrategy, BanSettings(), ZeroTimeSupplier, AllowAllVersionPredicate);
 		}
 
 		bool AddUnchecked(
@@ -210,9 +214,8 @@ namespace catapult { namespace ionet {
 	TEST(TEST_CLASS, ContainerTimeDelegatesToTimeSupplier) {
 		// Arrange:
 		auto numCalls = 0u;
-		NodeContainer container(3, Default_Equality_Strategy, BanSettings(), [&numCalls]() {
-			return Timestamp(++numCalls * 2);
-		});
+		auto timeSupplier = [&numCalls]() { return Timestamp(++numCalls * 2); };
+		NodeContainer container(3, Default_Equality_Strategy, BanSettings(), timeSupplier, AllowAllVersionPredicate);
 		const auto& view = container.view();
 
 		// Act:
@@ -351,7 +354,7 @@ namespace catapult { namespace ionet {
 		banSettings.MaxBannedNodes = 50;
 		auto timeSupplier = test::CreateTimeSupplierFromMilliseconds({ 1 });
 
-		NodeContainer container(100, Default_Equality_Strategy, banSettings, timeSupplier);
+		NodeContainer container(100, Default_Equality_Strategy, banSettings, timeSupplier, AllowAllVersionPredicate);
 		auto keys = test::GenerateRandomDataVector<Key>(3);
 
 		// - ban second node
@@ -682,6 +685,43 @@ namespace catapult { namespace ionet {
 			{ keys[2], "charlie", NodeSource::Static }
 		};
 		EXPECT_EQ(expectedContents, test::CollectAll(view));
+	}
+
+	// endregion
+
+	// region add - version check
+
+	namespace {
+		void RunAddVersionCheckTest(NodeVersion allowedVersion, bool shouldAddSucceed) {
+			// Arrange:
+			NodeContainer container(3, Default_Equality_Strategy, BanSettings(), ZeroTimeSupplier, [allowedVersion](auto version) {
+				return allowedVersion == version;
+			});
+
+			// Act:
+			auto key = test::GenerateRandomByteArray<Key>();
+			auto addResult = AddUnchecked(container, { key, "99.88.77.66" }, "bob", NodeSource::Static);
+
+			// Assert:
+			const auto& view = container.view();
+			if (shouldAddSucceed) {
+				EXPECT_TRUE(addResult);
+				EXPECT_EQ(1u, view.size());
+				EXPECT_EQ(BasicNodeDataContainer({ { key, "bob", NodeSource::Static } }), test::CollectAll(view));
+			} else {
+				EXPECT_FALSE(addResult);
+				EXPECT_EQ(0u, view.size());
+				EXPECT_EQ(BasicNodeDataContainer(), test::CollectAll(view));
+			}
+		}
+	}
+
+	TEST(TEST_CLASS, CanAddNodeWhenVersionCheckPasses) {
+		RunAddVersionCheckTest(NodeVersion(0), true); // AddUnchecked creates node with zero version
+	}
+
+	TEST(TEST_CLASS, CannotAddNodeWhenVersionCheckFails) {
+		RunAddVersionCheckTest(NodeVersion(7), false); // AddUnchecked creates node with zero version
 	}
 
 	// endregion
@@ -1087,11 +1127,8 @@ namespace catapult { namespace ionet {
 			std::vector<Timestamp> timestamps{ time1, time2, time2, time3, time3, time3 };
 
 			auto identity = ToIdentity(test::GenerateRandomByteArray<Key>());
-			NodeContainer container(
-					3,
-					Default_Equality_Strategy,
-					BanSettings(),
-					[&timestampIndex, &timestamps]() { return timestamps[timestampIndex++]; });
+			auto timeSupplier = [&timestampIndex, &timestamps]() { return timestamps[timestampIndex++]; };
+			NodeContainer container(3, Default_Equality_Strategy, BanSettings(), timeSupplier, AllowAllVersionPredicate);
 			Add(container, identity, "bob", NodeSource::Dynamic);
 
 			// Act:
@@ -1130,7 +1167,7 @@ namespace catapult { namespace ionet {
 			banSettings.KeepAliveDuration = utils::TimeSpan::FromHours(3);
 			banSettings.MaxBannedNodes = 50;
 			auto timeSupplier = test::CreateTimeSupplierFromMilliseconds(rawTimestamps, 1000 * 60 * 60);
-			return NodeContainer(100, Default_Equality_Strategy, banSettings, timeSupplier);
+			return NodeContainer(100, Default_Equality_Strategy, banSettings, timeSupplier, AllowAllVersionPredicate);
 		}
 
 		void AssertCanBanAllNodes(size_t count) {
@@ -1251,6 +1288,28 @@ namespace catapult { namespace ionet {
 	}
 
 	DEFINE_LOCK_PROVIDER_TESTS(TEST_CLASS)
+
+	// endregion
+
+	// region CreateRangeNodeVersionPredicate
+
+	TEST(TEST_CLASS, RangeNodeVersionPredicateReturnsTrueWhenVersionInRange) {
+		// Arrange:
+		auto predicate = CreateRangeNodeVersionPredicate(NodeVersion(11), NodeVersion(37));
+
+		// Act + Assert:
+		for (auto version : std::initializer_list<uint32_t>{ 11, 12, 21, 36, 37 })
+			EXPECT_TRUE(predicate(NodeVersion(version))) << version;
+	}
+
+	TEST(TEST_CLASS, RangeNodeVersionPredicateReturnsFalseWhenVersionOutOfRange) {
+		// Arrange:
+		auto predicate = CreateRangeNodeVersionPredicate(NodeVersion(11), NodeVersion(37));
+
+		// Act + Assert:
+		for (auto version : std::initializer_list<uint32_t>{ 7, 10, 38, 40 })
+			EXPECT_FALSE(predicate(NodeVersion(version))) << version;
+	}
 
 	// endregion
 

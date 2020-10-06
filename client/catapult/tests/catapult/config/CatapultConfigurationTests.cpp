@@ -143,6 +143,9 @@ namespace catapult { namespace config {
 			EXPECT_EQ(utils::FileSize::FromMegabytes(5), config.MaxCacheDatabaseWriteBatchSize);
 			EXPECT_EQ(5'000u, config.MaxTrackedNodes);
 
+			EXPECT_EQ(0u, config.MinPartnerNodeVersion);
+			EXPECT_EQ(0u, config.MaxPartnerNodeVersion);
+
 			EXPECT_TRUE(config.TrustedHosts.empty());
 			EXPECT_EQ(std::unordered_set<std::string>({ "127.0.0.1" }), config.LocalNetworks);
 

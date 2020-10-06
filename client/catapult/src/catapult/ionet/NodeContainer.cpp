@@ -31,9 +31,14 @@ namespace catapult { namespace ionet {
 
 	struct NodeContainerData {
 	public:
-		NodeContainerData(size_t maxNodes, model::NodeIdentityEqualityStrategy equalityStrategy, const supplier<Timestamp>& timeSupplier)
+		NodeContainerData(
+				size_t maxNodes,
+				model::NodeIdentityEqualityStrategy equalityStrategy,
+				const supplier<Timestamp>& timeSupplier,
+				const predicate<NodeVersion>& versionPredicate)
 				: MaxNodes(maxNodes)
 				, TimeSupplier(timeSupplier)
+				, VersionPredicate(versionPredicate)
 				, NextNodeId(1)
 				, NodeDataContainer(equalityStrategy)
 		{}
@@ -41,6 +46,8 @@ namespace catapult { namespace ionet {
 	public:
 		const size_t MaxNodes;
 		const supplier<Timestamp> TimeSupplier;
+		const predicate<NodeVersion> VersionPredicate;
+
 		size_t NextNodeId;
 		ionet::NodeDataContainer NodeDataContainer;
 		std::vector<std::pair<ServiceIdentifier, ionet::NodeRoles>> ServiceRolesMap;
@@ -112,8 +119,10 @@ namespace catapult { namespace ionet {
 	{}
 
 	bool NodeContainerModifier::add(const Node& node, NodeSource source) {
-		auto& nodeDataContainer = m_nodeContainerData.NodeDataContainer;
+		if (!m_nodeContainerData.VersionPredicate(node.metadata().Version))
+			return false;
 
+		auto& nodeDataContainer = m_nodeContainerData.NodeDataContainer;
 		if (m_bannedNodes.isBanned(node.identity()))
 			return false;
 
@@ -250,15 +259,17 @@ namespace catapult { namespace ionet {
 					std::numeric_limits<size_t>::max(),
 					model::NodeIdentityEqualityStrategy::Key_And_Host,
 					BanSettings(),
-					[]() { return Timestamp(0); })
+					[]() { return Timestamp(0); },
+					[](auto) { return true; })
 	{}
 
 	NodeContainer::NodeContainer(
 			size_t maxNodes,
 			model::NodeIdentityEqualityStrategy equalityStrategy,
 			const BanSettings& banSettings,
-			const supplier<Timestamp>& timeSupplier)
-			: m_pImpl(std::make_unique<NodeContainerData>(maxNodes, equalityStrategy, timeSupplier))
+			const supplier<Timestamp>& timeSupplier,
+			const predicate<NodeVersion>& versionPredicate)
+			: m_pImpl(std::make_unique<NodeContainerData>(maxNodes, equalityStrategy, timeSupplier, versionPredicate))
 			, m_bannedNodes(banSettings, timeSupplier, equalityStrategy)
 	{}
 
@@ -277,6 +288,12 @@ namespace catapult { namespace ionet {
 	// endregion
 
 	// region utils
+
+	predicate<NodeVersion> CreateRangeNodeVersionPredicate(NodeVersion minVersion, NodeVersion maxVersion) {
+		return [minVersion, maxVersion](auto version) {
+			return minVersion <= version && version <= maxVersion;
+		};
+	}
 
 	NodeSet FindAllActiveNodes(const NodeContainerView& view) {
 		return FindAllActiveNodes(view, [](auto) { return true; });
