@@ -285,7 +285,7 @@ description: |
   * Failure_RestrictionMosaic_Invalid_Restriction_Type - Validation failed because the mosaic restriction type is invalid.
   * Failure_RestrictionMosaic_Previous_Value_Mismatch - Validation failed because specified previous value does not match current value.
   * Failure_RestrictionMosaic_Previous_Value_Must_Be_Zero - Validation failed because specified previous value is nonzero.
-  * Failure_RestrictionMosaic_Max_Restrictions_Exceeded - Validation failed because the maximum number of restrictions would be exeeded.
+  * Failure_RestrictionMosaic_Max_Restrictions_Exceeded - Validation failed because the maximum number of restrictions would be exceeded.
   * Failure_RestrictionMosaic_Cannot_Delete_Nonexistent_Restriction - Validation failed because nonexistent restriction cannot be deleted.
   * Failure_RestrictionMosaic_Unknown_Global_Restriction - Validation failed because required global restriction does not exist.
   * Failure_RestrictionMosaic_Invalid_Global_Restriction - Validation failed because mosaic has invalid global restriction.
