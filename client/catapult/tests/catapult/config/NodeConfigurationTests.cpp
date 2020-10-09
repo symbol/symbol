@@ -82,7 +82,8 @@ namespace catapult { namespace config {
 							{ "maxPartnerNodeVersion", "456" },
 
 							{ "trustedHosts", "foo,BAR" },
-							{ "localNetworks", "1.2.3.4,9.8.7.6" }
+							{ "localNetworks", "1.2.3.4,9.8.7.6" },
+							{ "listenInterface", "2.4.8.16" }
 						}
 					},
 					{
@@ -183,6 +184,7 @@ namespace catapult { namespace config {
 
 				EXPECT_TRUE(config.TrustedHosts.empty());
 				EXPECT_TRUE(config.LocalNetworks.empty());
+				EXPECT_EQ("", config.ListenInterface);
 
 				EXPECT_EQ("", config.Local.Host);
 				EXPECT_EQ("", config.Local.FriendlyName);
@@ -260,6 +262,7 @@ namespace catapult { namespace config {
 
 				EXPECT_EQ(std::unordered_set<std::string>({ "foo", "BAR" }), config.TrustedHosts);
 				EXPECT_EQ(std::unordered_set<std::string>({ "1.2.3.4", "9.8.7.6" }), config.LocalNetworks);
+				EXPECT_EQ("2.4.8.16", config.ListenInterface);
 
 				EXPECT_EQ("alice.com", config.Local.Host);
 				EXPECT_EQ("a GREAT node", config.Local.FriendlyName);

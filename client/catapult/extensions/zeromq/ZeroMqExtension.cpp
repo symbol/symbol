@@ -35,6 +35,7 @@ namespace catapult { namespace zeromq {
 		void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
 			auto config = MessagingConfiguration::LoadFromPath(bootstrapper.resourcesPath());
 			auto pZeroEntityPublisher = std::make_shared<ZeroMqEntityPublisher>(
+					bootstrapper.config().Node.ListenInterface,
 					config.SubscriberPort,
 					bootstrapper.pluginManager().createNotificationPublisher());
 

@@ -54,6 +54,9 @@ namespace catapult { namespace zeromq {
 
 		class EntityPublisherContext : public test::MqContext {
 		public:
+			using test::MqContext::MqContext;
+
+		public:
 			void publishBlockHeader(const model::BlockElement& blockElement) {
 				publisher().publishBlockHeader(blockElement);
 			}
@@ -102,6 +105,21 @@ namespace catapult { namespace zeromq {
 		// Act + Assert:
 		context.publishDropBlocks(Height(123));
 		context.destroyPublisher();
+	}
+
+	TEST(TEST_CLASS, CanUseCustomListenInterface) {
+		// Arrange:
+		EntityPublisherContext context("127.0.0.1");
+		context.subscribe(BlockMarker::Drop_Blocks_Marker);
+
+		// Act:
+		context.publishDropBlocks(Height(123));
+
+		// Assert:
+		zmq::multipart_t message;
+		test::ZmqReceive(message, context.zmqSocket());
+
+		test::AssertDropBlocksMessage(message, Height(123));
 	}
 
 	// endregion

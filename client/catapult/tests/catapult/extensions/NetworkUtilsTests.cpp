@@ -40,21 +40,22 @@ namespace catapult { namespace extensions {
 	// region test utils (CreateCatapultConfiguration)
 
 	namespace {
-		auto CreateCatapultConfiguration(bool enableReadRateMonitoring = false) {
+		auto CreateCatapultConfiguration(bool enableReadRateMonitoring = false, const std::string& listenInterface = std::string()) {
 			test::MutableCatapultConfiguration config;
 			config.User.CertificateDirectory = test::GetDefaultCertificateDirectory();
 
 			config.BlockChain.Network.Identifier = static_cast<model::NetworkIdentifier>(7);
 			config.BlockChain.Network.NodeEqualityStrategy = static_cast<model::NodeIdentityEqualityStrategy>(11);
 
+			config.Node.EnableAddressReuse = true;
 			config.Node.ConnectTimeout = utils::TimeSpan::FromSeconds(11);
 			config.Node.SocketWorkingBufferSize = utils::FileSize::FromBytes(512);
 			config.Node.SocketWorkingBufferSensitivity = 987;
 			config.Node.MaxPacketDataSize = utils::FileSize::FromKilobytes(12);
+			config.Node.ListenInterface = listenInterface;
 
 			config.Node.IncomingConnections.MaxConnections = 17;
 			config.Node.IncomingConnections.BacklogSize = 83;
-			config.Node.EnableAddressReuse = true;
 
 			config.Node.Banning.DefaultBanDuration = utils::TimeSpan::FromHours(1);
 			config.Node.Banning.MaxBannedNodes = 50;
@@ -155,7 +156,7 @@ namespace catapult { namespace extensions {
 
 	// endregion
 
-	// region BootServer
+	// region BootServer - test utils
 
 	namespace {
 		class MockAcceptor : public net::AcceptedConnectionContainer {
@@ -252,13 +253,16 @@ namespace catapult { namespace extensions {
 			}
 
 		public:
-			auto boot(bool enableReadRateMonitoring = false) {
+			auto boot(const config::CatapultConfiguration& config) {
 				// Act:
 				auto& serviceGroup = *m_pool.pushServiceGroup("server");
-				auto config = CreateCatapultConfiguration(enableReadRateMonitoring);
 				auto serviceId = ionet::ServiceIdentifier(123);
 				auto timeSupplier = test::CreateTimeSupplierFromMilliseconds({ 1 });
 				return BootServer(serviceGroup, test::GetLocalHostPort(), serviceId, config, timeSupplier, m_nodeSubscriber, m_acceptor);
+			}
+
+			auto boot() {
+				return boot(CreateCatapultConfiguration());
 			}
 
 		private:
@@ -300,6 +304,10 @@ namespace catapult { namespace extensions {
 			EXPECT_EQ(HasFlag(ConnectionFlags::Is_Banned, flags) ? 1u : 0u, banParams.size());
 		}
 	}
+
+	// endregion
+
+	// region BootServer - basic
 
 	TEST(TEST_CLASS, BootServer_CanCreateServer) {
 		// Arrange:
@@ -351,35 +359,53 @@ namespace catapult { namespace extensions {
 		EXPECT_EQ(0u, banParams.size());
 	}
 
+	namespace {
+		void AssertBootServerConnectionAcceptedWhenAcceptSucceedsWithNotifySuccess(const std::string& listenInterface) {
+			// Arrange: boot the server
+			auto key = test::GenerateRandomByteArray<Key>();
+			BootServerContext context(net::PeerConnectCode::Accepted, key);
+			auto pServer = context.boot(CreateCatapultConfiguration(false, listenInterface));
+
+			// Act: connect to the server
+			auto pClientThreadPool = test::CreateStartedIoThreadPool(1);
+			auto pClientSocket = test::AddClientConnectionTask(pClientThreadPool->ioContext());
+			WAIT_FOR_ONE_EXPR(context.acceptor().numAccepts());
+
+			// Assert:
+			AssertAcceptedConnection(context, key, *pServer);
+		}
+
+		void AssertBootServerConnectionRejectedWhenAcceptSucceedsWithNotifyFailure(const std::string& listenInterface) {
+			// Arrange: boot the server
+			auto key = test::GenerateRandomByteArray<Key>();
+			BootServerContext context(net::PeerConnectCode::Accepted, key);
+			context.setNodeSubscriberFailure();
+			auto pServer = context.boot(CreateCatapultConfiguration(false, listenInterface));
+
+			// Act: connect to the server
+			auto pClientThreadPool = test::CreateStartedIoThreadPool(1);
+			auto pClientSocket = test::AddClientConnectionTask(pClientThreadPool->ioContext());
+			WAIT_FOR_ONE_EXPR(context.acceptor().numAccepts());
+
+			// Assert:
+			AssertAcceptedConnection(context, key, *pServer, ConnectionFlags::Is_Closed | ConnectionFlags::Is_Callback_Failure);
+		}
+	}
+
 	TEST(TEST_CLASS, BootServer_ConnectionAcceptedWhenAcceptSucceedsWithNotifySuccess) {
-		// Arrange: boot the server
-		auto key = test::GenerateRandomByteArray<Key>();
-		BootServerContext context(net::PeerConnectCode::Accepted, key);
-		auto pServer = context.boot();
-
-		// Act: connect to the server
-		auto pClientThreadPool = test::CreateStartedIoThreadPool(1);
-		auto pClientSocket = test::AddClientConnectionTask(pClientThreadPool->ioContext());
-		WAIT_FOR_ONE_EXPR(context.acceptor().numAccepts());
-
-		// Assert:
-		AssertAcceptedConnection(context, key, *pServer);
+		AssertBootServerConnectionAcceptedWhenAcceptSucceedsWithNotifySuccess("");
 	}
 
 	TEST(TEST_CLASS, BootServer_ConnectionRejectedWhenAcceptSucceedsWithNotifyFailure) {
-		// Arrange: boot the server
-		auto key = test::GenerateRandomByteArray<Key>();
-		BootServerContext context(net::PeerConnectCode::Accepted, key);
-		context.setNodeSubscriberFailure();
-		auto pServer = context.boot();
+		AssertBootServerConnectionRejectedWhenAcceptSucceedsWithNotifyFailure("");
+	}
 
-		// Act: connect to the server
-		auto pClientThreadPool = test::CreateStartedIoThreadPool(1);
-		auto pClientSocket = test::AddClientConnectionTask(pClientThreadPool->ioContext());
-		WAIT_FOR_ONE_EXPR(context.acceptor().numAccepts());
+	TEST(TEST_CLASS, BootServer_ConnectionAcceptedWhenAcceptSucceedsWithNotifySuccess_WithCustomListenInterface) {
+		AssertBootServerConnectionAcceptedWhenAcceptSucceedsWithNotifySuccess("127.0.0.1");
+	}
 
-		// Assert:
-		AssertAcceptedConnection(context, key, *pServer, ConnectionFlags::Is_Closed | ConnectionFlags::Is_Callback_Failure);
+	TEST(TEST_CLASS, BootServer_ConnectionRejectedWhenAcceptSucceedsWithNotifyFailure_WithCustomListenInterface) {
+		AssertBootServerConnectionRejectedWhenAcceptSucceedsWithNotifyFailure("127.0.0.1");
 	}
 
 	// endregion
@@ -392,7 +418,7 @@ namespace catapult { namespace extensions {
 			// Arrange: boot the server
 			auto key = test::GenerateRandomByteArray<Key>();
 			BootServerContext context(net::PeerConnectCode::Accepted, key);
-			auto pServer = context.boot(enableReadRateMonitoring);
+			auto pServer = context.boot(CreateCatapultConfiguration(enableReadRateMonitoring));
 
 			// Act: connect to the server and send a packet
 			auto writeBuffer = test::GenerateRandomPacketBuffer(bufferSize);

@@ -83,6 +83,7 @@ namespace catapult { namespace config {
 
 		LOAD_NODE_PROPERTY(TrustedHosts);
 		LOAD_NODE_PROPERTY(LocalNetworks);
+		LOAD_NODE_PROPERTY(ListenInterface);
 
 #undef LOAD_NODE_PROPERTY
 
@@ -127,7 +128,7 @@ namespace catapult { namespace config {
 
 #undef LOAD_BANNING_PROPERTY
 
-		utils::VerifyBagSizeExact(bag, 36 + 4 + 4 + 5 + 7);
+		utils::VerifyBagSizeExact(bag, 37 + 4 + 4 + 5 + 7);
 		return config;
 	}
 

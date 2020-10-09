@@ -124,10 +124,11 @@ namespace catapult { namespace test {
 	/// Base context for all zeromq related contexts.
 	class MqContext {
 	public:
-		/// Creates a message queue context.
-		MqContext()
+		/// Creates a message queue context around \a listenInterface.
+		explicit MqContext(const std::string& listenInterface = std::string())
 				: m_registry(mocks::CreateDefaultTransactionRegistry())
 				, m_pZeroMqEntityPublisher(std::make_shared<zeromq::ZeroMqEntityPublisher>(
+						listenInterface,
 						GetDefaultLocalHostZmqPort(),
 						model::CreateNotificationPublisher(m_registry, UnresolvedMosaicId())))
 				, m_zmqSocket(m_zmqContext, ZMQ_SUB) {
